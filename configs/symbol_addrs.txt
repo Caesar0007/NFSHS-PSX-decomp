@@ -2,6 +2,10 @@
 // Edit symbol *names* here; re-run only regenerates from map.
 
 _front_obj = 0x80010000;
+_front_org = 0x80010000;
+_front_objend = 0x80054548;
+_front_orgend = 0x80054548;
+_front_size = 0x00044548;
 _vt_21tListIteratorCarColor = 0x800101D8;
 _vt_16tListIteratorCar = 0x80010208;
 _vt_15tDialogYesNoTri = 0x800102B0;

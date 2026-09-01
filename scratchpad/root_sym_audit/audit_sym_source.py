@@ -120,6 +120,22 @@ class SymGlobal:
 
 
 @dataclass
+class SymVtable:
+    """Top-level GCC-v2 `_vt.*` record emitted outside ordinary DEF blocks."""
+
+    name: str
+    va: str
+
+
+@dataclass
+class SymAddress:
+    """Compact top-level type-2 linkage record carrying only name and VA."""
+
+    name: str
+    va: str
+
+
+@dataclass
 class SourceFunction:
     path: str
     name: str
@@ -145,6 +161,12 @@ DEF = re.compile(
     r"^(\S+): \$([0-9a-fA-F]{8}) 9[46] Def2? class (\w+) "
     r"type (.+?) size (\d+)(.*?) name (\S+)\s*$"
 )
+VTABLE_REC = re.compile(r"^\S+: \$([0-9a-fA-F]{8}) 2 (_vt\.\S+)\s*$")
+# Compact opcode 2 records are public symbols; opcode 6 records are file-static
+# symbols.  Both preserve an authoritative name+VA pair.  Mapping still
+# requires one source definition with an exact @0xVA receipt, which safely
+# disambiguates repeated static names across translation units.
+ADDRESS_REC = re.compile(r"^\S+: \$([0-9a-fA-F]{8}) (?:2|6) (\S+)\s*$")
 
 
 def parse_sym(path: Path) -> list[SymFunction]:
@@ -291,6 +313,42 @@ def parse_sym_globals(path: Path) -> list[SymGlobal]:
                 ),
             )
         )
+    return result
+
+
+def parse_sym_vtables(path: Path) -> list[SymVtable]:
+    """Return GCC-v2 vtable linkage records.
+
+    PsyQ writes these as compact type-2 records rather than 94/96 DEF records,
+    so the ordinary global parser cannot see them.  They still carry two
+    reliable facts: the GCC-v2 class identity and the retail virtual-table VA.
+    """
+    result: list[SymVtable] = []
+    for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+        match = VTABLE_REC.match(line)
+        if match:
+            result.append(
+                SymVtable(name=match.group(2), va="0x" + match.group(1).lower())
+            )
+    return result
+
+
+def parse_sym_addresses(path: Path) -> list[SymAddress]:
+    """Return compact non-vtable linkage records.
+
+    PsyQ emits data-only archive members such as ``vars.obj`` without ordinary
+    object-owned 94/96 DEF rows.  Public names survive as compact opcode-2
+    records and file-static names as compact opcode-6 records.  Those rows do
+    not retain a lexical type, so they are admitted only when a source
+    definition has the same name and an explicit matching ``@0xVA`` receipt.
+    """
+    result: list[SymAddress] = []
+    for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+        match = ADDRESS_REC.match(line)
+        if match and not match.group(2).startswith("_vt."):
+            result.append(
+                SymAddress(name=match.group(2), va="0x" + match.group(1).lower())
+            )
     return result
 
 
@@ -564,6 +622,58 @@ def decode_member(sym_name: str) -> tuple[str, str]:
             cls = cm.group(2)[:n]
             return simple, cls
     return sym_name, ""
+
+
+def decode_vtable_class(sym_name: str) -> str:
+    """Decode the innermost class from a GCC-v2 `_vt.*` linkage name."""
+    payload = sym_name.removeprefix("_vt.")
+    nested = re.fullmatch(r"Q(\d)(.+)", payload)
+    if nested:
+        count = int(nested.group(1))
+        rest = nested.group(2)
+        scopes: list[str] = []
+        for _ in range(count):
+            length = re.match(r"(\d+)", rest)
+            if not length:
+                return ""
+            size = int(length.group(1))
+            rest = rest[len(length.group(1)) :]
+            if len(rest) < size:
+                return ""
+            scopes.append(rest[:size])
+            rest = rest[size:]
+        return scopes[-1] if len(scopes) == count else ""
+    simple = re.fullmatch(r"(\d+)(.+)", payload)
+    if simple:
+        size = int(simple.group(1))
+        return simple.group(2)[:size] if len(simple.group(2)) >= size else ""
+    return ""
+
+
+def source_decl_va(record: dict) -> str:
+    """Read the explicit retail VA receipt from a source declaration line."""
+    text = record.get("pattern", "")
+    # Ctags uses `/.../` search patterns and can truncate a C comment at its
+    # first slash. Fall back to the physical declaration line before deciding
+    # that the required address receipt is absent.
+    try:
+        path = Path(record.get("path", ""))
+        if not path.is_absolute():
+            path = ROOT / path
+        line = int(record.get("line", 0))
+        if line:
+            text += "\n" + path.read_text(
+                encoding="utf-8", errors="replace"
+            ).splitlines()[line - 1]
+    except (OSError, ValueError, IndexError):
+        pass
+    match = re.search(r"@0x([0-9a-fA-F]{8})", text)
+    return "0x" + match.group(1).lower() if match else ""
+
+
+def source_vtable_va(record: dict) -> str:
+    """Compatibility wrapper for the special-vtable audit."""
+    return source_decl_va(record)
 
 
 def source_basename(sym_path: str) -> str:
@@ -915,7 +1025,7 @@ def compatible_split_array_carrier(sym_type: str, source_type: str) -> bool:
 
 def documented_global_types(
     target: Path, file_name: str
-) -> tuple[set[str], set[str], set[str], set[str]]:
+) -> tuple[set[str], set[str], set[str], set[str], set[str], set[str]]:
     """Return measured global carriers plus explicit type/storage overrides.
 
     ``SYM-GLOBAL-CARRIER`` is reserved for a source definition that has no
@@ -932,17 +1042,30 @@ def documented_global_types(
         except OSError:
             pass
     if not chunks:
-        return set(), set(), set(), set()
+        return set(), set(), set(), set(), set(), set()
     text = "\n".join(chunks)
     carriers = set(re.findall(r"\bSYM-CARRIER:\s*([A-Za-z_]\w*)", text))
     source_only_carriers = set(
         re.findall(r"\bSYM-GLOBAL-CARRIER:\s*([A-Za-z_]\w*)", text)
     )
+    host_only = set(
+        re.findall(r"\bSYM-HOST-ONLY:\s*([A-Za-z_]\w*)", text)
+    )
+    shared_common = set(
+        re.findall(r"\bSYM-SHARED-COMMON:\s*([A-Za-z_]\w*)", text)
+    )
     overrides = set(re.findall(r"\bSYM-TYPE-OVERRIDE:\s*([A-Za-z_]\w*)", text))
     storage_overrides = set(
         re.findall(r"\bSYM-STORAGE-OVERRIDE:\s*([A-Za-z_]\w*)", text)
     )
-    return carriers, overrides, storage_overrides, source_only_carriers
+    return (
+        carriers,
+        overrides,
+        storage_overrides,
+        source_only_carriers,
+        host_only,
+        shared_common,
+    )
 
 
 def asm_data_labels() -> set[str]:
@@ -1155,6 +1278,8 @@ def documented_inline_locals(
     except OSError:
         return [], {}
     body_text = "\n".join(body)
+    if "SYM-INLINE-" not in body_text:
+        return [], {}
 
     # Inline member bodies live in the shared type header rather than the
     # caller TU.  Cache ctags' exact parameter/local rows once: resolving a
@@ -1163,10 +1288,24 @@ def documented_inline_locals(
     # already proved the same invoked body.  Admission below still requires a
     # unique defined helper, a visible call in this function, and an actual
     # ctags declaration owned by that helper; it is not a name suppression.
-    cache = getattr(documented_inline_locals, "_type_header_cache", None)
+    # Most reconstructed TUs keep their recovered inline class bodies in the
+    # adjacent `<tu>_types.h`, while older/common definitions still live in
+    # recon/nfs4_types.h.  Validate receipts against both real declaration
+    # sites; restricting this proof to the monolithic header falsely reports
+    # genuine per-TU inline locals as missing.
+    shared_type_header = ROOT / "recon" / "nfs4_types.h"
+    local_type_header = path.with_name(path.stem + "_types.h")
+    type_headers = tuple(
+        header for header in (local_type_header, shared_type_header)
+        if header.exists()
+    )
+    cache_by_headers = getattr(documented_inline_locals, "_type_header_cache", None)
+    if cache_by_headers is None:
+        cache_by_headers = {}
+        setattr(documented_inline_locals, "_type_header_cache", cache_by_headers)
+    cache = cache_by_headers.get(type_headers)
     if cache is None:
-        type_header = ROOT / "recon" / "nfs4_types.h"
-        header_records = ctags_records([type_header])
+        header_records = ctags_records(list(type_headers))
         header_helpers: dict[str, list[dict]] = collections.defaultdict(list)
         header_decls: dict[tuple[str, str], list[dict]] = collections.defaultdict(list)
         for rec in header_records:
@@ -1177,9 +1316,56 @@ def documented_inline_locals(
                 if "::" in scope:
                     owner, helper = scope.rsplit("::", 1)
                     header_decls[(owner, helper)].append(rec)
-        cache = (type_header, header_helpers, header_decls)
-        setattr(documented_inline_locals, "_type_header_cache", cache)
-    type_header, header_helpers, header_decls = cache
+        cache = (type_headers, header_helpers, header_decls)
+        cache_by_headers[type_headers] = cache
+    type_headers, header_helpers, header_decls = cache
+
+    # Follow visible inline-call chains through the recovered header bodies.
+    # A caller can invoke helper A while retail's debug block also contains
+    # locals from helper B inlined twice inside A (AISpeeds' brake-distance
+    # helpers are the first concrete case).  Requiring B to appear textually
+    # in the outer caller rejects that valid nested-inline ownership.
+    helper_bodies: dict[str, str] = {}
+    for helper_name, records in header_helpers.items():
+        if len(records) != 1:
+            continue
+        rec = records[0]
+        rec_path = Path(rec.get("path", ""))
+        if not rec_path.is_absolute():
+            rec_path = ROOT / rec_path
+        try:
+            rec_lines = rec_path.read_text(
+                encoding="utf-8", errors="replace"
+            ).splitlines()
+            first = max(int(rec.get("line", 1)) - 1, 0)
+            last = int(rec.get("end", first + 1))
+            helper_bodies[helper_name] = "\n".join(rec_lines[first:last])
+        except (OSError, TypeError, ValueError):
+            continue
+
+    reachable_helpers: collections.Counter[str] = collections.Counter()
+    for helper_name in header_helpers:
+        reachable_helpers[helper_name] = len(
+            re.findall(
+                rf"(?:->|\.)\s*{re.escape(helper_name)}\s*\(", body_text
+            )
+        )
+    pending = [name for name, count in reachable_helpers.items() if count]
+    expanded: set[str] = set()
+    while pending:
+        parent = pending.pop()
+        if parent in expanded:
+            continue
+        expanded.add(parent)
+        parent_body = helper_bodies.get(parent, "")
+        parent_count = reachable_helpers[parent]
+        for child in header_helpers:
+            occurrences = len(
+                re.findall(rf"\b{re.escape(child)}\s*\(", parent_body)
+            )
+            if occurrences:
+                reachable_helpers[child] += parent_count * occurrences
+                pending.append(child)
 
     mappings = re.findall(
         r"\bSYM-INLINE-LOCAL:\s*([A-Za-z_]\w*)\s*=\s*([A-Za-z_]\w*)",
@@ -1204,9 +1390,7 @@ def documented_inline_locals(
             # helper with the same unqualified name.
             continue
         if not declarations:
-            invoked = re.search(
-                rf"(?:->|\.)\s*{re.escape(helper_name)}\s*\(", body_text
-            )
+            invoked = reachable_helpers[helper_name] != 0
             candidates = header_helpers.get(helper_name, [])
             if invoked and len(candidates) == 1:
                 owner = candidates[0].get("scope", "")
@@ -1228,19 +1412,20 @@ def documented_inline_locals(
     inline_this = re.findall(
         r"\bSYM-INLINE-THIS:\s*([A-Za-z_]\w*)", body_text
     )
-    try:
-        type_text = type_header.read_text(encoding="utf-8", errors="replace")
-    except OSError:
-        type_text = ""
+    type_text_parts = []
+    for type_header in type_headers:
+        try:
+            type_text_parts.append(
+                type_header.read_text(encoding="utf-8", errors="replace")
+            )
+        except OSError:
+            pass
+    type_text = "\n".join(type_text_parts)
     seen_helpers: collections.Counter[str] = collections.Counter()
     for helper_name in inline_this:
         seen_helpers[helper_name] += 1
         occurrence = seen_helpers[helper_name]
-        call_count = len(
-            re.findall(
-                rf"(?:->|\.)\s*{re.escape(helper_name)}\s*\(", body_text
-            )
-        )
+        call_count = reachable_helpers[helper_name]
         defined = re.search(
             rf"\b{re.escape(helper_name)}\s*\([^;{{}}]*\)\s*(?:const\s*)?{{",
             type_text + "\n" + source_text,
@@ -1331,6 +1516,8 @@ def documented_macro_locals(
 def audit(
     sym_fns: list[SymFunction],
     sym_globals: list[SymGlobal],
+    sym_vtables: list[SymVtable],
+    sym_addresses: list[SymAddress],
     src_fns: list[SourceFunction],
     file_decls: dict[str, list[dict]],
     target: Path,
@@ -1511,6 +1698,77 @@ def audit(
     for glob in selected_globals:
         globals_by_file[source_by_stem[Path(glob.obj).stem.lower()]].append(glob)
 
+    # GCC-v2 vtables are compact top-level type-2 SYM records, not ordinary
+    # object-owned DEF rows. Match them only when both the decoded class name
+    # and the explicit retail VA receipt on the source definition agree.
+    source_vtables_by_name: dict[str, list[tuple[str, dict]]] = collections.defaultdict(list)
+    for file_name, declarations in file_decls.items():
+        if file_name not in source_by_stem.values():
+            continue
+        for declaration in declarations:
+            name = declaration.get("name", "")
+            if declaration.get("kind") == "variable" and name.endswith("_vtable"):
+                source_vtables_by_name[name].append((file_name, declaration))
+    selected_vtables: list[SymVtable] = []
+    mapped_vtables_by_file: dict[str, set[str]] = collections.defaultdict(set)
+    vtable_findings: list[str] = []
+    for sym_vtable in sym_vtables:
+        class_name = decode_vtable_class(sym_vtable.name)
+        expected_name = class_name + "_vtable" if class_name else ""
+        candidates = source_vtables_by_name.get(expected_name, [])
+        if not candidates:
+            continue
+        selected_vtables.append(sym_vtable)
+        exact_candidates = [
+            (file_name, declaration)
+            for file_name, declaration in candidates
+            if source_vtable_va(declaration) == sym_vtable.va
+        ]
+        if len(exact_candidates) == 1:
+            file_name, declaration = exact_candidates[0]
+            mapped_vtables_by_file[file_name].add(declaration["name"])
+        else:
+            receipts = sorted(
+                {
+                    source_vtable_va(declaration) or "missing-VA"
+                    for _, declaration in candidates
+                }
+            )
+            vtable_findings.append(
+                f"- special SYM vtable `{sym_vtable.name}` @ {sym_vtable.va}: "
+                f"source `{expected_name}` receipts {receipts}"
+            )
+    mapped_vtable_count = sum(len(names) for names in mapped_vtables_by_file.values())
+
+    # Data-only archive members can have no object-owned DEF rows at all.  Map
+    # their compact type-2 linkage records only through an exact name+VA source
+    # receipt.  This proves identity and placement, but deliberately does not
+    # claim type/storage evidence that the compact row does not contain.
+    source_defs_by_name: dict[str, list[tuple[str, dict]]] = collections.defaultdict(list)
+    for file_name, declarations in file_decls.items():
+        if file_name not in source_by_stem.values():
+            continue
+        for declaration in declarations:
+            if (
+                declaration.get("kind") == "variable"
+                and declaration.get("name") not in {"asm", "__asm__"}
+            ):
+                source_defs_by_name[declaration.get("name", "")].append(
+                    (file_name, declaration)
+                )
+    address_globals_by_file: dict[str, set[str]] = collections.defaultdict(set)
+    selected_address_globals: list[SymAddress] = []
+    for sym_address in sym_addresses:
+        exact_candidates = [
+            (file_name, declaration)
+            for file_name, declaration in source_defs_by_name.get(sym_address.name, [])
+            if source_decl_va(declaration) == sym_address.va
+        ]
+        if len(exact_candidates) == 1:
+            file_name, declaration = exact_candidates[0]
+            address_globals_by_file[file_name].add(declaration["name"])
+            selected_address_globals.append(sym_address)
+
     global_findings: list[str] = []
     global_mapped = 0
     global_missing = 0
@@ -1520,6 +1778,8 @@ def audit(
     global_types = 0
     global_carriers = 0
     global_source_only_carriers = 0
+    global_host_only = 0
+    global_shared_common = 0
     global_type_overrides = 0
     global_type_equivalent = 0
     global_type_equivalent_reasons: collections.Counter[str] = collections.Counter()
@@ -1527,12 +1787,17 @@ def audit(
     global_blob_backed = 0
     blob_backed_rows: list[tuple[str, list[str]]] = []
     source_only_global_carrier_rows: list[tuple[str, list[str]]] = []
+    host_only_global_rows: list[tuple[str, list[str]]] = []
+    shared_common_global_rows: list[tuple[str, list[str]]] = []
+    address_only_global_rows: list[tuple[str, list[str]]] = []
     for file_name in sorted(source_by_stem.values()):
         (
             documented_carriers,
             documented_overrides,
             documented_storage_overrides,
             documented_source_only_carriers,
+            documented_host_only,
+            documented_shared_common,
         ) = documented_global_types(target, file_name)
         sym_rows = globals_by_file.get(file_name, [])
         sym_by_name = {g.decl.name: g for g in sym_rows}
@@ -1540,10 +1805,28 @@ def audit(
             d["name"]: d
             for d in file_decls.get(file_name, [])
             if d.get("kind") == "variable"
+            # Universal Ctags sometimes emits the GCC asm-label keyword as a
+            # second pseudo-variable for `T name[] __asm__("linkage")`.  It
+            # has no declaration, storage, or source identity of its own.
+            and d.get("name") not in {"asm", "__asm__"}
         }
+        address_only_names = sorted(
+            address_globals_by_file.get(file_name, set()) - sym_by_name.keys()
+        )
+        if address_only_names:
+            address_only_global_rows.append((file_name, address_only_names))
+        global_mapped += len(address_only_names)
         source_only_carriers = sorted(
-            (source_defs.keys() - sym_by_name.keys())
+            (source_defs.keys() - sym_by_name.keys() - set(address_only_names))
             & documented_source_only_carriers
+        )
+        host_only = sorted(
+            (source_defs.keys() - sym_by_name.keys() - set(address_only_names))
+            & documented_host_only
+        )
+        shared_common = sorted(
+            (source_defs.keys() - sym_by_name.keys() - set(address_only_names))
+            & documented_shared_common
         )
         unresolved_names = sym_by_name.keys() - source_defs.keys()
         blob_backed = sorted(unresolved_names & blob_labels)
@@ -1566,15 +1849,25 @@ def audit(
             - sym_by_name.keys()
             - split_carrier_components
             - set(source_only_carriers)
+            - set(host_only)
+            - set(shared_common)
+            - mapped_vtables_by_file.get(file_name, set())
+            - set(address_only_names)
         )
         global_mapped += len(split_aggregate_carriers)
         global_carriers += len(split_aggregate_carriers)
         global_source_only_carriers += len(source_only_carriers)
+        global_host_only += len(host_only)
+        global_shared_common += len(shared_common)
         global_blob_backed += len(blob_backed)
         if blob_backed:
             blob_backed_rows.append((file_name, blob_backed))
         if source_only_carriers:
             source_only_global_carrier_rows.append((file_name, source_only_carriers))
+        if host_only:
+            host_only_global_rows.append((file_name, host_only))
+        if shared_common:
+            shared_common_global_rows.append((file_name, shared_common))
         global_missing += len(missing)
         global_extra += len(extra)
         if missing:
@@ -1667,7 +1960,9 @@ def audit(
         f"- Explicit oracle-proven function type overrides: {function_type_override_total}",
             f"- Functions needing mapping review: {len(selected) - mapped - implicit_generated_total}",
             f"- SYM object-owned data records in target TUs: {len(selected_globals)}",
+            f"- Compact address-only data records mapped by exact name+VA: {len(selected_address_globals)}",
             f"- Mapped source global definitions: {global_mapped}",
+            f"- Special SYM vtable records mapped: {mapped_vtable_count}/{len(selected_vtables)}",
             f"- Blob-backed object globals: {global_blob_backed}",
             f"- Missing/extra global definitions: {global_missing}/{global_extra}",
             f"- Global storage-class findings: {global_storage}",
@@ -1680,6 +1975,8 @@ def audit(
             ) + ")" if global_type_equivalent else "  (none)",
             f"- Explicit measured global array carriers: {global_carriers}",
             f"- Explicit source-only global/data-layout carriers: {global_source_only_carriers}",
+            f"- Explicit host-only fallback globals: {global_host_only}",
+            f"- Explicit linker-folded shared common globals: {global_shared_common}",
             f"- Explicit oracle-proven global type overrides: {global_type_overrides}",
             "",
             "## Review queue",
@@ -1749,6 +2046,11 @@ def audit(
     for sf, names in function_type_override_rows:
         lines.append(f"- `{sf.name}`: " + ", ".join(f"`{n}`" for n in sorted(names)))
     lines.extend(["", "## Object-owned global/storage review", ""])
+    for file_name, names in address_only_global_rows:
+        lines.append(
+            f"- `{file_name}` compact address-only definitions: "
+            + ", ".join(f"`{name}`" for name in names)
+        )
     for file_name, names in blob_backed_rows:
         lines.append(
             f"- `{file_name}` blob-backed definitions: "
@@ -1759,8 +2061,21 @@ def audit(
             f"- `{file_name}` explicit source-only global/data-layout carriers: "
             + ", ".join(f"`{name}`" for name in names)
         )
+    for file_name, names in host_only_global_rows:
+        lines.append(
+            f"- `{file_name}` host-only fallback globals (absent from retail object): "
+            + ", ".join(f"`{name}`" for name in names)
+        )
+    for file_name, names in shared_common_global_rows:
+        lines.append(
+            f"- `{file_name}` linker-folded shared common definitions: "
+            + ", ".join(f"`{name}`" for name in names)
+        )
     if global_findings:
         lines.extend(global_findings)
+        lines.extend(vtable_findings)
+    elif vtable_findings:
+        lines.extend(vtable_findings)
     else:
         lines.append("- No ownership, storage-class, or type findings.")
     lines.append("")
@@ -1791,7 +2106,15 @@ def main() -> None:
     add_register_asm_locals(sources, src_fns)
     add_included_header_definitions(sources, headers, ctags_records(headers), file_decls)
     add_asm_label_definitions(sources, file_decls)
-    report = audit(parse_sym(args.sym), parse_sym_globals(args.sym), src_fns, file_decls, target)
+    report = audit(
+        parse_sym(args.sym),
+        parse_sym_globals(args.sym),
+        parse_sym_vtables(args.sym),
+        parse_sym_addresses(args.sym),
+        src_fns,
+        file_decls,
+        target,
+    )
     if args.output:
         args.output.parent.mkdir(parents=True, exist_ok=True)
         # Keep generated ledgers stable and git-diff-clean even when audit()

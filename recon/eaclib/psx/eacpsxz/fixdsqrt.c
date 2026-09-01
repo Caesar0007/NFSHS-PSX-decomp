@@ -60,6 +60,10 @@ __asm__(
     "\t.set reorder\n"
 );
 #else
+/* Host-test implementation only: the retail MIPS object uses D_8012356C and
+ * the hand-written routine above, so neither fallback identifier is retail.
+ * SYM-HOST-ONLY: kSqrtScale
+ * SYM-HOST-ONLY: kSqrtOffset */
 static const int kSqrtScale[32] = {          /* @0x801234EC */
     6949350,4913933,3474675,2456966,1737338,1228483,868669,614242,
     434334,307121,217167,153560,108584,76780,54292,38390,

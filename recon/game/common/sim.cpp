@@ -24,6 +24,11 @@ int InBetween = 0;   /* @0x8013d40c  W67-A4: explicit =0 -- retail emits this ce
    measured w67a4 -- the audiocmn class), so the literals are materialized as NAMED
    .sdata arrays instead (the audiocmn/w66a6 section-attribute device; codegen-neutral:
    >G4 so the address form stays absolute, and the gate is reloc-name lenient). */
+/* SYM-GLOBAL-CARRIER: D_8013D410
+   SYM-GLOBAL-CARRIER: D_8013D418
+   SYM-GLOBAL-CARRIER: D_8013D420
+   The retail string bytes, addresses, and three schedule-constructor calls are
+   exact; SYM does not retain identifiers for these TU-local literals. */
 static char D_8013D410[] __attribute__((section(".sdata"), aligned(4))) = "Sc32-1";
 static char D_8013D418[] __attribute__((section(".sdata"), aligned(4))) = "Sc32-2";
 static char D_8013D420[] __attribute__((section(".sdata"), aligned(4))) = "Sc64";

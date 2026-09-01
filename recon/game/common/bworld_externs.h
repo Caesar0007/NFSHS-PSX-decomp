@@ -17,7 +17,6 @@ extern Chunk              *Track_chunkList;
 extern BWorld_GameSetupCodegenView GameSetup_gData asm("GameSetup_gData");
 extern Group              *Object_customSFXInst;     /* 0x8013d2d0 */
 extern Group              *gPersistObjDef;           /* track.obj */
-extern MATRIX     Render_gWorldMat, Render_gNightMat;
 extern BWorld_SliceCodegenView *BWorldSm_slices asm("BWorldSm_slices");
 extern BWorld_CameraCodegenView Camera_gInfo[2] asm("Camera_gInfo");
 extern char * Track_MakeTrackDataPathName(char *ext);

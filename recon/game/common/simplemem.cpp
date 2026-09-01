@@ -27,10 +27,7 @@ void * SimpleMem::Alloc(int len,int feign)
 /* ---- FeignAlloc__9SimpleMemi  [SIMPLEMEM.CPP:45-46] SLD-VERIFIED ---- */
 void * SimpleMem::FeignAlloc(int len)
 {
-  void *pvVar1;
-
-  pvVar1 = this->Alloc(len,1);
-  return pvVar1;
+  return this->Alloc(len,1);
 }
 
 /* ---- ResizeToFit__9SimpleMem  [SIMPLEMEM.CPP:57-64] SLD-VERIFIED ---- */

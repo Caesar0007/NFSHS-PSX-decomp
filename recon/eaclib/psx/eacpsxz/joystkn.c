@@ -2,8 +2,8 @@
  *   obj nfs4\eaclib\psx\joystkn.obj ; EACPSXZ.LIB.  1 fn @0x800F39F8.  initjoy -- one-time pad init.
  *   Ghidra nfs4-f.exe.c + IDA sig.
  */
-extern unsigned int numjoy;      /* NOT gp-rel: oracle uses lui/sw absolute addressing */
- int joy_inited;        /* owning-TU tentative def → .comm/.sbss → gp-rel */
+extern int          numjoy;      /* vars.obj: SYM/NFS2 vars.asm both record INT */
+ int joy_inited;        /* @0x8013DD28: owning-TU tentative def → .comm/.sbss → gp-rel */
 extern void         padinit(void);   /* pad.obj */
 
 extern int initjoy(unsigned int numpads);   /* @0x800F39F8 */

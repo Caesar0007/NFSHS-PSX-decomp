@@ -29,4 +29,4 @@ extern void yieldthread(void)
 }
 
 /* Owning definition of g_currentthread (tentative def -> .sdata -> gp-rel; see note above). */
-int g_currentthread;
+int g_currentthread; /* @0x8013DD5C: threads.obj owning definition */

@@ -126,6 +126,10 @@ int Anim_Handle(int num)
 /* ---- Anim_FreeHandle  [@0x80073d6c] ---- */
 int Anim_FreeHandle(int handle)
 {
+  /* SYM-CODEGEN-CARRIER: deleteMe -- SYM records no named local, but direct
+   * repeated animSlots[handle] expressions compile to 33 instructions and 19
+   * oracle diffs.  Retaining the loaded pointer produces the exact 32-
+   * instruction body and the retail saved-register/base-address schedule. */
   AnimScript *deleteMe;
   
   deleteMe = animSlots[handle];

@@ -32,7 +32,6 @@ AIHigh_Traffic::CheckForCops(int *closestDistance)
   while (true) {
 
     Car_tObj*cop;
-    int currentBest;
     int sliceDistance;
 
     if (Cars_gNumCopCars <= copLoop) break;
@@ -43,11 +42,9 @@ AIHigh_Traffic::CheckForCops(int *closestDistance)
 
       sliceDistance = AIWorld_ApxSplineDistance(this->carObj_,cop);
 
-      currentBest = *closestDistance;
-
       sliceDistance = __builtin_abs(sliceDistance);
 
-      if (sliceDistance < currentBest) {
+      if (sliceDistance < *closestDistance) {
 
         closestCop = cop;
 
@@ -164,6 +161,9 @@ AIHigh_Traffic::CopCheck(int *blockade)
  * via 3 `lw`s and stores to the stack, NOT via 3 immediate `li`/`sw`s -- confirming the source
  * assigns from a named const struct, not per-field literals. Sits immediately before this TU's
  * own _vt_14AIHigh_Traffic in rodata -> TU-owned, not a cross-module extern. */
+/* SYM-GLOBAL-CARRIER: D_800551A4
+ * Retail data and instruction references prove the const object and owner;
+ * the absent debug record leaves its original source identifier unknown. */
 static const coorddef D_800551A4 = { 0, 0x640000, 0 };
 
 /* ---- HighExecute__14AIHigh_Traffic  AIHigh_Traffic::HighExecute  [AIH_TRAF.CPP:129-340] SLD-VERIFIED ---- */
@@ -423,13 +423,11 @@ AIHigh_Traffic::AIHigh_Traffic(Car_tObj *carObj)
 trigger_t * AIHigh_Traffic::CheckForNewTriggers()
 {
   int sortedLoop;
-  Car_tObj **sortedCar;
 
   sortedLoop = Cars_gNumCars - 1;
-  sortedCar = Cars_gTotalSortedList + sortedLoop;
 
   while (sortedLoop >= 0) {
-    Car_tObj *testCar = *sortedCar;
+    Car_tObj *testCar = Cars_gTotalSortedList[sortedLoop];
 
     if ((testCar->carFlags & 0x204U) != 0) {
       int dir = -1;
@@ -499,7 +497,6 @@ trigger_t * AIHigh_Traffic::CheckForNewTriggers()
     }
 
     sortedLoop = sortedLoop - 1;
-    sortedCar = sortedCar - 1;
   }
 
   return (trigger_t *)0x0;

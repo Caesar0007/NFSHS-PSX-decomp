@@ -38,16 +38,9 @@ void AIDelayCar::SetNewTargetCar(Car_tObj *targetCar)
 
 
 {
-
-  int iVar1;
-
-
-
   this->targetCar_ = targetCar;
 
-  iVar1 = AIWorld_ApxSplineDistance(this->basisCar_,targetCar);
-
-  this->deltaMeters_ = iVar1;
+  this->deltaMeters_ = AIWorld_ApxSplineDistance(this->basisCar_,targetCar);
 
   this->slice_ = (int)(this->targetCar_->N).simRoadInfo.slice;
 
@@ -86,10 +79,6 @@ void AIDelayCar::Update()
 
 {
 
-  int iVar1;
-
-  int newDeltaMeters;
-
   int currentDeltaRoadPosition;
 
   coorddef currentDeltaPosition;
@@ -98,24 +87,22 @@ void AIDelayCar::Update()
 
 
 
-  iVar1 = AIWorld_ApxSplineDistance(this->targetCar_,this->basisCar_);
+  currentDeltaRoadPosition = AIWorld_ApxSplineDistance(this->targetCar_,this->basisCar_);
 
-  iVar1 = fixedmult(iVar1 - this->deltaMeters_,this->delayFactor_);
+  currentDeltaRoadPosition = fixedmult(currentDeltaRoadPosition - this->deltaMeters_,this->delayFactor_);
 
-  newDeltaMeters = this->deltaMeters_ + iVar1;
+  this->deltaMeters_ = this->deltaMeters_ + currentDeltaRoadPosition;
 
-  this->deltaMeters_ = newDeltaMeters;
+  currentDeltaRoadPosition = this->deltaMeters_ / 0x60000;
 
-  iVar1 = newDeltaMeters / 0x60000;
-
-  if (0 <= iVar1) {
+  if (0 <= currentDeltaRoadPosition) {
 
     /* Preserve the original add operand order emitted by PsyQ cc1plus. */
-    iVar1 = (this->basisCar_->N).simRoadInfo.slice - -iVar1;
+    currentDeltaRoadPosition = (this->basisCar_->N).simRoadInfo.slice - -currentDeltaRoadPosition;
 
-    if (gNumSlices <= iVar1) {
+    if (gNumSlices <= currentDeltaRoadPosition) {
 
-      iVar1 = iVar1 - gNumSlices;
+      currentDeltaRoadPosition = currentDeltaRoadPosition - gNumSlices;
 
     }
 
@@ -124,17 +111,17 @@ void AIDelayCar::Update()
   else {
 
     /* Same compiler-stable addition form as the nonnegative arm. */
-    iVar1 = (this->basisCar_->N).simRoadInfo.slice - -iVar1;
+    currentDeltaRoadPosition = (this->basisCar_->N).simRoadInfo.slice - -currentDeltaRoadPosition;
 
-    if (iVar1 < 0) {
+    if (currentDeltaRoadPosition < 0) {
 
-      iVar1 = iVar1 + gNumSlices;
+      currentDeltaRoadPosition = currentDeltaRoadPosition + gNumSlices;
 
     }
 
   }
 
-  this->slice_ = iVar1;
+  this->slice_ = currentDeltaRoadPosition;
 
   currentDeltaPosition.x = (this->targetCar_->N).position.x - (this->basisCar_->N).position.x;
 

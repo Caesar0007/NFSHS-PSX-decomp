@@ -163,7 +163,7 @@ extern void cancelrequest(AsyncReq *r)
     r->id = (unsigned char)r->id;           /* clear the counter bits -> slot is free (asm: lbu scheduled
                                               * early, but the sw itself lands in queueadd's jal delay slot) */
     r->fileop = 0;
-    queueadd((AsyncQueue *)&freequeuehead, r);
+    queueadd(&freequeue, r);
 }
 
 /* finishrequest @0x800F0CE8 : queue `r` for its user callback (only if it has one). */
@@ -173,7 +173,7 @@ extern void finishrequest(AsyncReq *r)
     r->fileop = 0;                          /* unconditional (oracle: in the beqz delay slot) */
     if (cb == 0)                            /* poll-only request -> nothing to do */
         return;
-    queueadd((AsyncQueue *)&callqueuehead, r);
+    queueadd(&callqueue, r);
 }
 
 /* ---- the FILE completion callbacks (open -> size -> read* -> close -> finish) ---- */
@@ -330,7 +330,7 @@ done:
  *   up a cancelled one), then recycle the slot.  Registered as a periodic system task by initasync. */
 extern int asyncsystemtask(void)
 {
-    AsyncReq *req = queuefetch((AsyncQueue *)&callqueuehead);
+    AsyncReq *req = queuefetch(&callqueue);
     while (req != 0) {
         if (req->status != 0) {                    /* cancelled -> full cleanup */
             cancelrequest(req);
@@ -339,9 +339,9 @@ extern int asyncsystemtask(void)
             cb(req->id);
             req->id = (unsigned char)req->id;      /* free the slot (MATCH: store BEFORE the call -> sw
                                                     * lands in the queueadd jal delay slot, §3.21 family) */
-            queueadd((AsyncQueue *)&freequeuehead, req);
+            queueadd(&freequeue, req);
         }
-        req = queuefetch((AsyncQueue *)&callqueuehead);
+        req = queuefetch(&callqueue);
     }
     return 0;
 }
@@ -358,10 +358,10 @@ extern int initasync(int numreq, int blocksize, int memclass)
         size = numreq * 0x2C;
         request = (AsyncReq *)reservememadr((char *)"ASYNCREQ", size, memclass);
         size -= 0x2C;                                      /* MATCH: oracle mutates s0 in place (§3.12#14) */
-        freequeuehead = request;
-        freequeuetail = (AsyncReq *)((char *)request + size);   /* &request[numreq-1] */
-        callqueuehead = 0;
-        callqueuetail = 0;
+        freequeue.head = request;
+        freequeue.tail = (AsyncReq *)((char *)request + size);  /* &request[numreq-1] */
+        callqueue.head = 0;
+        callqueue.tail = 0;
         asyncfilehandle = 0;
         mutex = allocmutex();
         for (i = 0; i < numreq; i++) {                     /* link every slot onto the free list */
@@ -381,7 +381,7 @@ extern int initasync(int numreq, int blocksize, int memclass)
  *   getasyncreadadr, or `cb` fires on completion).  Returns the request id (0 if no free slot/open fail). */
 extern int asyncloadfilecallback(int name, int memclass, int cb)
 {
-    AsyncReq *req = queuefetch((AsyncQueue *)&freequeuehead);
+    AsyncReq *req = queuefetch(&freequeue);
     unsigned int op;
     if (req == 0)
         return 0;
@@ -409,7 +409,7 @@ extern int asyncloadfile(int name, int memclass)
 /* asyncloadfileatcallback @0x800F1388 : async load into a caller-provided destination (no allocation). */
 extern int asyncloadfileatcallback(int name, int dest, int cb)
 {
-    AsyncReq *req = queuefetch((AsyncQueue *)&freequeuehead);
+    AsyncReq *req = queuefetch(&freequeue);
     unsigned int op;
     if (req == 0)
         return 0;
@@ -451,7 +451,7 @@ extern void setasyncfile(int name)
  *   into `dest`.  If no file is open the request finishes immediately. */
 extern int asyncloadsegmentcallback(int offset, int dest, int size, int cb)
 {
-    AsyncReq *req = queuefetch((AsyncQueue *)&freequeuehead);
+    AsyncReq *req = queuefetch(&freequeue);
     unsigned int op;
     if (req == 0)
         return 0;
@@ -533,7 +533,7 @@ extern int getasyncreadadr(int id)
      * function (never promoted to callee-saved) -- only `adr` (the return value) survives the
      * call and needs an s-register. */
     req->id = (unsigned char)req->id;
-    queueadd((AsyncQueue *)&freequeuehead, req);         /* poll-only -> recycle the slot now */
+    queueadd(&freequeue, req);         /* poll-only -> recycle the slot now */
     return adr;
 }
 
@@ -555,14 +555,16 @@ extern int getasyncreadstatus(int id)
     if (req->buffer != 0)   return st;
     if (req->callback != 0) return st;
     req->id = (unsigned char)req->id;    /* MATCH: id-clear BEFORE the call, see getasyncreadadr */
-    queueadd((AsyncQueue *)&freequeuehead, req);                         /* harvested -> recycle the slot */
+    queueadd(&freequeue, req);                         /* harvested -> recycle the slot */
     return st;
 }
 
- AsyncReq *freequeuehead; AsyncReq *freequeuetail;   /* @0x8013DEA0/A4 : freequeue {head,tail} as 4B words -> .comm/.sbss -> gp-rel (see nasync.h) */
- AsyncReq *callqueuehead; AsyncReq *callqueuetail;   /* @0x8013DEA8/AC : callqueue {head,tail} likewise */
- AsyncReq *request;   /* @0x8013DE98 : request slot pool base; 4B -> .comm/.sbss -> gp-rel */
- int asyncfileoffset; int numrequests; int readblocksize;   /* owning-TU defs (BSS) */
- void *mutex;    /* nasync.obj async-pool mutex handle (= allocmutex() result); BSS */
- int asyncfilehandle;    /* @0x8013DEB0 : open file handle for segment reads; 4B → .comm/.sbss → gp-rel */
- int requestidcounter;    /* @0x8013DEB8 : request-ID counter; 4B → .comm/.sbss → gp-rel */
+ AsyncQueue freequeue;   /* @0x8013DEA0: SYM static FIFO {head,tail} */
+ AsyncQueue callqueue;   /* @0x8013DEA8: SYM static FIFO {head,tail} */
+ AsyncReq *request;      /* @0x8013DE98: request slot-pool base */
+ int asyncfileoffset;    /* @0x8013DEB4: persistent segment-read offset */
+ int numrequests;        /* @0x8013DE94: request-pool capacity */
+ int readblocksize;      /* @0x8013DE90: per-chunk read size */
+ void *mutex;            /* @0x8013DEBC: async-pool mutex handle */
+ int asyncfilehandle;    /* @0x8013DEB0: open file handle for segment reads */
+ int requestidcounter;   /* @0x8013DEB8: rolling request-ID counter */

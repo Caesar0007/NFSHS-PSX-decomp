@@ -8,7 +8,9 @@
  *   into the first empty (NULL) slot.  (Same registry shape as addtimer's 8-slot table.)
  */
 
-/* owning-TU def (extern-declared, never defined; BSS) */
+/* The raw addexit oracle proves the 32-entry BSS registry at 0x801349E8;
+ * this stripped library member exposes no lexical data name in SYM/MAP.
+ * SYM-GLOBAL-CARRIER: gExitFuncs */
  void (*gExitFuncs[32])(void); 
 extern void (*gExitFuncs[32])(void);   /* @0x801349E8 (data-mat pass owns) */
 

@@ -67,52 +67,38 @@ void AIHigh_BasicCop::CheckSpikeBelt()
 
 {
   int timeNow;
-
-  Car_tObj *pCVar1;
-
+  /* SYM-CODEGEN-CARRIER: freshenElapsed -- the explicit comparison result is
+     required to reproduce retail's zero initialization, slti/sltiu pair and
+     saved global-base lifetime.  Using the SYM-only `timeNow` directly keeps
+     50 instructions but produces 18 diffs. */
   int freshenElapsed;
-
-
 
   freshenElapsed = 0;
 
   if (AICop_spikeBelt.active_ != 0) {
-
     timeNow = D_8011E0B0[0];
-
     timeNow -= AICop_spikeBelt.freshenTime_;
-
     timeNow = timeNow < 0x140;
-
-    freshenElapsed = !timeNow;  /* MATCH: split bool + ! emits slti+sltiu (seq); `> 0x13f` emits slti+xori */
-
+    freshenElapsed = !timeNow;
   }
 
   if (freshenElapsed) {
-
-    pCVar1 = AILife_IsSliceInAnyVisibleArea(AICop_spikeBelt.slice_);
-
-    if (pCVar1 == (Car_tObj *)0x0) {
+    if (AILife_IsSliceInAnyVisibleArea(AICop_spikeBelt.slice_) == 0) {
 
       BWorld_InitSpikeBelt();
 
       AICop_spikeBelt.active_ = 0;
 
     }
-
     else {
 
       AICop_spikeBelt.freshenTime_ = D_8011E0B0[0];
 
     }
-
   }
 
   if ((AICop_gRoadBlockState == kAICop_RoadBlockState_PerpPassed) &&
-
-     (pCVar1 = AILife_IsSliceInAnyVisibleArea(Object_customSliceNum),
-
-     pCVar1 == (Car_tObj *)0x0)) {
+      (AILife_IsSliceInAnyVisibleArea(Object_customSliceNum) == 0)) {
 
     Object_ClearCustomObjects();
 
@@ -141,7 +127,6 @@ int AIHigh_BasicCop::ShouldIPerformCutOffBlock(int chancePerSecond,Car_tObj *tar
   int chanceForElapsedTime;
   int chanceOutOf1000;
   int random1000;
-  int targetLatPosition;
   int relLatPosition;
   int absRelLatPosition;
   int metersBetween;
@@ -159,9 +144,8 @@ int AIHigh_BasicCop::ShouldIPerformCutOffBlock(int chancePerSecond,Car_tObj *tar
   random1000 = (int)((((randtemp >> 8) & 0xffff) * 1000) >> 16);           /* 0x8005C334-358 (randtemp u_int -> logical shifts) */
 
   if (random1000 < chanceOutOf1000) {                                      /* 0x8005C35C/360 */
-    targetLatPosition = *(int *)((char *)target + 1396);
-
-    relLatPosition = *(int *)((char *)this->carObj_ + 1396) - targetLatPosition;   /* 0x8005C36C-378 */
+    relLatPosition = *(int *)((char *)this->carObj_ + 1396) -
+                     *(int *)((char *)target + 1396);                     /* 0x8005C36C-378 */
     absRelLatPosition = __builtin_abs(relLatPosition);
     if ((*(int *)((char *)target + 308) + 0x10000) < absRelLatPosition &&  /* 0x8005C388-398 */
         absRelLatPosition <= 0x3FFFF) {                                    /* 0x8005C39C-3A8 */
@@ -197,33 +181,14 @@ static void Blockade_AddRoadFlare(coorddef *pos)
 {
   Trk_SFX*sfxInstance;
 
-  Group *pGVar1;
-
-  Group *pGVar2;
-
-  int iVar3;
-
-  
-
-  pGVar1 = Object_customSFXInst;
-
-  pGVar2 = pGVar1 + 1;
-
-  pGVar2 = pGVar2 + pGVar1->m_num_elements * 4;
-
-  pGVar2->m_num_elements = pos->x;
-
-  pGVar2[1].m_num_elements = pos->y;
-
-  iVar3 = pos->z;
-
-  *(u_short *)&pGVar2[3].m_num_elements = 0x16;
-
-  *(u_short *)((int)&pGVar2[3].m_num_elements + 2) = 0;
-
-  pGVar2[2].m_num_elements = iVar3;
-
-  pGVar1->m_num_elements = pGVar1->m_num_elements + 1;
+  sfxInstance = (Trk_SFX *)Object_customSFXInst->GetData() +
+                Object_customSFXInst->GetNumElements();
+  sfxInstance->point[0] = pos->x;
+  sfxInstance->point[1] = pos->y;
+  sfxInstance->point[2] = pos->z;
+  sfxInstance->type = 0x16;
+  sfxInstance->pad = 0;
+  Object_customSFXInst->m_num_elements++;
 
   return;
 
@@ -538,8 +503,6 @@ void AIHigh_BasicCop::HandleBlockadeSpeech()
 {
   Car_tObj*theCar;
 
-  Speaker *pSVar4;
-
   if ((this->blockade_).blockadeSpeechFlags != 0) {
 
     theCar = ((this->blockade_).target)->GetCarObj();
@@ -588,16 +551,7 @@ void AIHigh_BasicCop::HandleBlockadeSpeech()
           }
 
           if (((this->blockade_).blockadeSpeechFlags & 6U) == 6) {
-
-            pSVar4 = (Speaker *)Speech_Mobile(this->carObj_);
-
-          /* manual-vtable slot 7 (raw byte offsets from the oracle jalr/lh -- __vtbl_ptr_type
-             is 8 bytes, so a typed _vf[N] index/pointer-add is 8x too large; decay to a byte
-             base and use the RAW displacement, §3.12 lever #10). */
-            (**(int (**)(...))((char *)pSVar4->_vf + 0x3c))
-
-                      ((int)&(pSVar4->fPosition).flags +
-                       (int)*(short *)((char *)pSVar4->_vf + 0x38));
+            Speech_Mobile(this->carObj_)->Lose();
 
             (this->blockade_).blockadeSpeechFlags = 0;
 

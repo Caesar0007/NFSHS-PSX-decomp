@@ -5,13 +5,19 @@
  *   DAT_8013e984/988/98c are systemtasksubs+1/+2/+3, folded into the one array here).
  */
 
+/* Names are independently recovered from the matched NFS2 systask.obj source;
+ * raw NFS4 gp-relative references prove their VAs, while this stripped NFS4
+ * member exposes no lexical data records.
+ * SYM-GLOBAL-CARRIER: systemtasklock
+ * SYM-GLOBAL-CARRIER: lastsystemtasktick */
 /* ---- owning-TU defs for link-harness (extern-declared, never defined; BSS) ---- */
- int gSysTaskCount; int gSysTaskLastTick; 
+int systemtasklock;      /* @0x8013DC38: matched NFS2 systask.obj name */
+int lastsystemtasktick;  /* @0x8013DC3C: matched NFS2 systask.obj name */
 extern volatile int libticks; /* free-running tick counter -- volatile: IRQ-updated (tmrint.c),
                                * matches inittmr.c's declaration; the oracle re-reads it fresh
                                * at each use inside systemtask() rather than caching one value */
-extern int gSysTaskCount;     /* live task count */
-extern int gSysTaskLastTick;  /* last tick the task list ran */
+extern int systemtasklock;      /* live/re-entrant task-list lock */
+extern int lastsystemtasktick;  /* last tick the task list ran */
 /* W65-A6 DATA-MAT: `systemtasksubs` (8 reloc sites) was extern-only tree-wide.  systask.obj is
  * its only referencer AND its retail owner: the SYM records it as `$8013e980 6 systemtasksubs`
  * -- record type 6 = STATIC, i.e. a file-static of this object, which is exactly why no other
@@ -50,8 +56,8 @@ extern void addsystemtask(int taskFn, int period, int delay)
                                                 * (a pointer-walk loop lets fn stay in $a0, no copy) */
     found = -1;
     taskFn = 0;
-    count = gSysTaskCount;                     /* old value kept in a reg across the scan */
-    gSysTaskCount = count + 1;                 /* re-entrancy bracket: ++ at entry, -- at exit */
+    count = systemtasklock;                    /* old value kept in a reg across the scan */
+    systemtasklock = count + 1;                /* re-entrancy bracket: ++ at entry, -- at exit */
     slot  = (int *)&systemtasksubs;
     for (; taskFn < 0x10; taskFn++) {
         if (slot[taskFn * 4] == fn) {          /* MATCH: index form (strength-reduces to the oracle's
@@ -94,7 +100,7 @@ extern void addsystemtask(int taskFn, int period, int delay)
         ((int *)found)[3] = 0;
         ((int *)found)[2] = taskFn;
     }
-    gSysTaskCount = gSysTaskCount - 1;
+    systemtasklock = systemtasklock - 1;
 }
 
 /* delsystemtask @0x800E6BA8 : remove the task whose fn matches.  PASS (w31-a5).
@@ -145,10 +151,10 @@ struct SysTaskSlot { int fn; int period; int deadline; int busy; };
 extern unsigned int systemtask(int arg1)
 {
     unsigned int result = 0;
-    if (gSysTaskLastTick != libticks) {
+    if (lastsystemtasktick != libticks) {
         int i = 0;
         struct SysTaskSlot *p = (struct SysTaskSlot *)systemtasksubs;
-        gSysTaskLastTick = libticks;
+        lastsystemtasktick = libticks;
     next:
         {
             unsigned int (*fn)(int, int) = (unsigned int (*)(int, int))p->fn;

@@ -64,10 +64,22 @@ struct LocationBank {
     int fStartSlice, fEndSlice, fBankId;
     char *fName;
     LocationBank() : fBankId(-1) {}
+    inline void Set(int start, int end, int bankid, char *name) {
+        fBankId = bankid;
+        fStartSlice = start;
+        fEndSlice = end;
+        fName = name;
+    }
     int Distance(int slice) asm("Distance__Q26Speech12LocationBanki");
 };
 
-struct CallSignBank { int fAllUnits, fDispatch; int fMobile[15]; };
+struct CallSignBank {
+    int fAllUnits, fDispatch;
+    int fMobile[15];
+    inline void SetAllUnits(int bankid) { fAllUnits = bankid; }
+    inline void SetDispatch(int bankid) { fDispatch = bankid; }
+    inline void SetMobile(int unit, int bankid) { fMobile[unit] = bankid; }
+};
 
 struct Speaker {
     SPCHNFSType_POSITION fPosition;
@@ -118,12 +130,79 @@ struct Speaker {
     void ReActivate() asm("ReActivate__Q26Speech7Speaker");
     Car_tObj *Perp() asm("Perp__Q26Speech7Speaker");
     CarBank *GetCarBank(int carIndex) asm("GetCarBank__Q26Speech7Speakeri");
+    inline void ClearCar() {
+        fCar = 0;
+        fColour.flags = 0;
+    }
+    inline void SetColour(int Colour);
+    inline void SetBlockade(int Blockade) { fBlockade.flags = Blockade; }
+    inline bool HasDifferentSub(Speaker *Wing) {
+        return fSub != 0 && Wing != fSub;
+    }
+    inline int Location() { return fLocation; }
+    inline SPCHNFSType_DISTANCE *Distance() { return &fDistance; }
+    inline SPCHNFSType_COLOUR *Colour() { return &fColour; }
     LocationBank *FindClosestLocationTo(int slice) asm("FindClosestLocationTo__Q26Speech7Speakeri");
     CallSignBank *CallSign() asm("CallSign__Q26Speech7Speaker");
+
+    /* The retail class declared these operations virtual.  The reconstructed
+       layout keeps the recovered PsyQ vtable explicit, so these zero-local
+       bridges preserve ordinary source-level virtual call sites without
+       inventing receiver/vtable temporaries in their callers. */
+    inline void VirtualReport(Car_tObj *car) {
+        (*(*_vf)[1].pfn)((int)&fPosition.flags + (int)(*_vf)[1].delta, car);
+    }
+    inline void VirtualStatus() {
+        (*(*_vf)[2].pfn)((int)&fPosition.flags + (int)(*_vf)[2].delta);
+    }
+    inline void VirtualEngage(Car_tObj *perp) {
+        (*(*_vf)[6].pfn)((int)&fPosition.flags + (int)(*_vf)[6].delta, perp);
+    }
+    inline bool VirtualKnownPerp(Car_tObj *car) {
+        return (*(*_vf)[18].pfn)
+            ((int)&fPosition.flags + (int)(*_vf)[18].delta, car) != 0;
+    }
+    inline void VirtualClearPerp(Car_tObj *car) {
+        (*(*_vf)[19].pfn)
+            ((int)&fPosition.flags + (int)(*_vf)[19].delta, car);
+    }
+    inline bool VirtualIsSuper() {
+        return (*(*_vf)[20].pfn)
+            ((int)&fPosition.flags + (int)(*_vf)[20].delta) != 0;
+    }
+    inline int VirtualStatusCount() {
+        return (*(*_vf)[21].pfn)
+            ((int)&fPosition.flags + (int)(*_vf)[21].delta);
+    }
+    inline Car_tObj *VirtualCarObj() {
+        return (Car_tObj *)(*(*_vf)[25].pfn)
+            ((int)&fPosition.flags + (int)(*_vf)[25].delta);
+    }
+    inline Car_tObj *VirtualPerp() {
+        return (Car_tObj *)(*(*_vf)[27].pfn)
+            ((int)&fPosition.flags + (int)(*_vf)[27].delta);
+    }
+    inline CarBank *VirtualGetCarBank(int carIndex) {
+        return (CarBank *)(*(*_vf)[28].pfn)
+            ((int)&fPosition.flags + (int)(*_vf)[28].delta, carIndex);
+    }
+    inline CallSignBank *VirtualCallSign() {
+        return (CallSignBank *)(*(*_vf)[30].pfn)
+            ((int)&fPosition.flags + (int)(*_vf)[30].delta);
+    }
 };
 
 struct CarBankName {
     char *fFull, *fMake, *fModel;
+    inline bool Full(char *name) {
+        return fFull != 0 && strncmp(name, fFull, strlen(fFull)) == 0;
+    }
+    inline bool Make(char *name) {
+        return fMake != 0 && strncmp(name, fMake, strlen(fMake)) == 0;
+    }
+    inline bool Model(char *name) {
+        return fModel != 0 && strncmp(name, fModel, strlen(fModel)) == 0;
+    }
     void SetCar(int carIndex) asm("SetCar__Q26Speech11CarBankNamei");
 };
 
@@ -149,6 +228,25 @@ struct Speech {
       asm("CheckCallSignBank__6SpeechPQ26Speech12CallSignBankPci");
     bool CheckMultiBank(char *name, int id, CarBankName *bn)
       asm("CheckMultiBank__6SpeechPciPQ26Speech11CarBankName");
+    inline long BankOffset(long bank) {
+        return bank >= 0 && bank < fBankCount ? fBankOffset[bank] : 0;
+    }
+    inline int FileHandle() { return fFileHandle; }
+    inline int ReadBE32(char *p) {
+        int a = (u_char)p[0];
+        int b = (u_char)p[1];
+        int c = (u_char)p[2];
+        int d = (u_char)p[3];
+        return (((a << 8 | b) << 8 | c) << 8 | d);
+    }
+    inline bool IsHeader(int a, int b, int c, int d, int period,
+                         int h, int hd) {
+        return a == period && b == h && c == hd && d == 'r';
+    }
+    inline bool IsData(int a, int b, int c, int d, int period,
+                       int dc, int ac) {
+        return a == period && b == dc && c == ac && d == 't';
+    }
     int BankPatch(long bank, Car_tObj *car);
     LocationBank *FindClosestLocationTo(LocationBank *bank, int slice)
       asm("FindClosestLocationTo__6SpeechPQ26Speech12LocationBanki");

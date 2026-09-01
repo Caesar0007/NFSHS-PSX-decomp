@@ -11,21 +11,8 @@
 /* Earlier Ghidra code-pointer artifacts are gone; the faithful gte_ macros are
    applied directly in the reconstructed function bodies. */
 
-/* ---- GPU packet cursors + matrices ----
- * 🔴 DEAD IN hrzsku.cpp AND DELIBERATELY SO -- DO NOT REACH FOR THESE.  All four are
- * SCRATCHPAD-RESIDENT (methodology 3.6b), not linked globals: Render_gPacketLenLo/Hi are
- * the two shorts at 0x1F800010/0x1F800012 and Render_gWorldMat/gCopMat are scratchpad
- * matrices the GTE reads back -- writing the .bss symbol leaves the scratchpad copy STALE
- * (a RUNTIME bug the byte-match hides; independently re-proven in draww by w39-a2 for
- * Render_gWorldMat @0x1F800014, and by w38-a9 for Render_gMenuRenderFlag @0x1F80000C).
- * hrzsku.cpp reaches every one of them through the `hsd = (Draw_HorizonCache *)0x1f800000`
- * struct view instead; w39-a8 verified 0 code references here and 0 symbol-%hi-vs-
- * `lui 0x1F80`-literal diffs across all 22 hrzsku oracles.  Kept only because
- * game/common/camera.cpp also includes this header. */
-extern char          *Render_gPacketEnd;
-extern short          Render_gPacketLenLo, Render_gPacketLenHi;
-extern MATRIX         Render_gWorldMat;
-extern matrixtdef     Render_gCopMat;
+/* Packet bounds and transform work areas are fields of the fixed-address
+   Draw_HorizonCache at 0x1F800000, not linked globals. */
 
 /* ---- camera / view ---- */
 extern long           Camera_gGeomScreen;

@@ -94,18 +94,11 @@ void AIState_Base::StateExecute()
 
 
 {
+  if ((((this->carObj_->N).active != '\0') && ((this->carObj_->carFlags & 4U) == 0)) &&
 
-  Car_tObj *pCVar1;
+     ((this->carObj_->N).deadTimer == 0)) {
 
-  
-
-  pCVar1 = this->carObj_;
-
-  if ((((pCVar1->N).active != '\0') && ((pCVar1->carFlags & 4U) == 0)) &&
-
-     ((pCVar1->N).deadTimer == 0)) {
-
-    AIScript_ProcessActionsAndReactions(&pCVar1->script,AI_elapsedTime);
+    AIScript_ProcessActionsAndReactions(&this->carObj_->script,AI_elapsedTime);
 
   }
 
@@ -177,11 +170,11 @@ void AIState_Normal::Execute()
 AIState_Normal::AIState_Normal(Car_tObj *carObj)
   : AIState_Base(carObj)
 {
-
+  /* SYM-CODEGEN-CARRIER: pCVar1 -- absent from the constructor's surviving
+   * locals. Using `this->carObj_` directly CSEs two retail reloads (8 diffs,
+   * 4 insns shorter); using the real `carObj` parameter extends it across the
+   * base-constructor call and changes the frame/register assignment (26 diffs). */
   Car_tObj *pCVar1;
-
-  
-
 
   pCVar1 = this->carObj_;
 
@@ -217,10 +210,6 @@ void AIState_Idle::Execute()
 {
   int off;
 
-  int iVar1;
-
-  Car_tObj *pCVar2;
-
 
 
   if (this->idleInPlaceFlag_ != 0) {
@@ -232,28 +221,25 @@ void AIState_Idle::Execute()
   }
 
   else {
+    if (((this->carObj_)->roadPosition - this->roadPosition_) + 0xffffU < 0x1ffff) {
 
-    pCVar2 = this->carObj_;
-
-    if ((pCVar2->roadPosition - this->roadPosition_) + 0xffffU < 0x1ffff) {
-
-      pCVar2->desiredSpeed = 0;
+      (this->carObj_)->desiredSpeed = 0;
 
     }
 
     else {
 
-      AISpeeds_CalcDesiredSpeed(pCVar2);
+      AISpeeds_CalcDesiredSpeed(this->carObj_);
 
-      iVar1 = (this->carObj_)->desiredSpeed;
+      off = (this->carObj_)->desiredSpeed;
 
-      if (iVar1 < 0) {
+      if (off < 0) {
 
-        iVar1 = iVar1 + 3;
+        off = off + 3;
 
       }
 
-      (this->carObj_)->desiredSpeed = iVar1 >> 2;
+      (this->carObj_)->desiredSpeed = off >> 2;
 
     }
 
@@ -343,6 +329,9 @@ AIState_Chase::AIState_Chase(Car_tObj *carObj,Car_tObj *targetCar,coorddef *relP
   : AIState_Base(carObj)
 {
 
+  /* SYM-CODEGEN-CARRIER: reverseDirCheck -- absent from the surviving local
+   * records. Folding it into the identical-arm condition lets GCC delete the
+   * five-instruction test, producing a 61-insn body instead of retail's 66. */
   int reverseDirCheck;
 
   this->_vf = (__vtbl_ptr_type (*) [4])AIState_Chase_vtable;
@@ -385,6 +374,9 @@ AIState_Chase::AIState_Chase(Car_tObj *carObj,Car_tObj *targetCar,coorddef *relP
      lui interleaved differently) the allocator/scheduler picks -- a coin-flip already covered
      by the "declaration-scope/order noise" class, not a missing/wrong construct. */
   {
+    /* SYM-CODEGEN-CARRIER: direction -- absent from the surviving outer-local
+     * records. Re-reading the field in the ternary changes 16 instructions
+     * and adds eight load/delay instructions. */
     int direction = (this->carObj_)->direction;
     reverseDirCheck = (D_8011321C[0] == 0) ? (direction ^ 1) : ~direction;
   }
@@ -424,11 +416,10 @@ extern "C" void ___13AIState_Chase(AIState_Chase *pThis,int __in_chrg)
 
 
 {
-
+  /* SYM-CODEGEN-CARRIER: pCVar1 -- the deleting-destructor ABI body has no
+   * surviving source-local record. Direct target-position accesses add four
+   * reload instructions and produce 8 diffs. */
   Car_tObj *pCVar1;
-
-
-
 
   pCVar1 = pThis->carObj_;
 
@@ -474,13 +465,6 @@ void AIState_Chase::SetTarget(Car_tObj *targetCar,coorddef *relPosition)
 
 
 {
-
-  int iVar1;
-
-  int iVar3;
-
-
-
   if (this->targetCar_ != targetCar) {
 
     (&this->delayCar_)->SetNewTargetCar(targetCar)
@@ -497,33 +481,25 @@ void AIState_Chase::SetTarget(Car_tObj *targetCar,coorddef *relPosition)
 
   this->latTargetRegion_ = 0;
 
-  iVar1 = ((*(Car_tObj **)&this->targetCar_)->N).dimension.x;
-
-  iVar3 = *(int *)&(this->relPosition_).x;
-
-  if (iVar3 < -iVar1) {
+  if (this->relPosition_.x < -this->targetCar_->N.dimension.x) {
 
     this->latTargetRegion_ = -1;
 
   }
 
-  else if (iVar1 < iVar3) {
+  else if (this->targetCar_->N.dimension.x < this->relPosition_.x) {
 
     this->latTargetRegion_ = 1;
 
   }
 
-  iVar1 = ((*(Car_tObj **)&this->targetCar_)->N).dimension.z;
-
-  iVar3 = *(int *)&(this->relPosition_).z;
-
-  if (iVar3 < -iVar1) {
+  if (this->relPosition_.z < -this->targetCar_->N.dimension.z) {
 
     this->longTargetRegion_ = -1;
 
   }
 
-  else if (iVar1 < iVar3) {
+  else if (this->targetCar_->N.dimension.z < this->relPosition_.z) {
 
     this->longTargetRegion_ = 1;
 
@@ -583,16 +559,22 @@ void AIState_Chase::SetUp()
 
 {
   coorddef targetCarPosition;
-
-  Car_tObj *pCVar1;
-
+  /* SYM-CODEGEN-CARRIER: pCVar2 -- absent from the surviving outer locals.
+   * Direct member accesses CSE the last two target-position stores, producing
+   * 8 diffs and four extra reload instructions; this cached pointer is needed
+   * for the exact 87-insn body. */
   Car_tObj *pCVar2;
 
+  /* SYM-CODEGEN-CARRIER: iVar2 -- absent from the surviving local records.
+   * Folding its two sign selections and spline-call result into assignments
+   * changes 75 instructions and adds one. */
   int iVar2;
 
+  /* SYM-CODEGEN-CARRIER: dc -- absent from the surviving local records.
+   * Direct `delayCar_` member accesses change 20 instructions and shorten the
+   * body by four because retail keeps this address in a saved register across
+   * Update(). */
   AIDelayCar *dc;
-
-
 
   /* MATCH (w13-a5): &delayCar_ held in a SAVED reg across the Update() call (lever #16),
      then SELECTIVE caching -- currentSpeed_/roadPosition_/slice_ read via dc (s1), but the
@@ -706,8 +688,6 @@ void AIState_Chase::DoNitrous(int checkForHumans)
   int humanLoop;
   int distanceMeters;
 
-  Car_tObj *pCVar2;
-
 
 
   if ((0 < this->nitrousTicks_) && (AIState_SimGlobalWords[1] >= this->slowDownEndTime_)) {
@@ -733,14 +713,11 @@ void AIState_Chase::DoNitrous(int checkForHumans)
       }
 
       distanceMeters = AIWorld_ApxSplineDistance(this->carObj_,Cars_gHumanRaceCarList[humanLoop]);
-
-      pCVar2 = this->carObj_;
-
-      distanceMeters = distanceMeters * pCVar2->direction;
+      distanceMeters = distanceMeters * this->carObj_->direction;
 
       if ((0 < distanceMeters) && (distanceMeters < this->nitrousMinForeDistance_)) {
 
-        pCVar2->accNitrous = 0x10000;
+        (this->carObj_)->accNitrous = 0x10000;
 
         (this->carObj_)->speedNitrous = 0x10000;
 
@@ -800,6 +777,10 @@ void AIState_Chase::Execute()
 
   if (deltaVelocity < velocityToHitInTime) {
 
+    /* SYM-CODEGEN-CARRIER: lmAbs -- not preserved as a distinct SYM local.
+     * Folding the absolute-value expression changes 25 instructions and adds
+     * one; reusing the now-dead recorded `velocityToHitInTime` changes 28 and
+     * adds two. The separate value is required for the exact 93-insn body. */
     int lmAbs;
 
     lmAbs = this->longMetersBetween_;
@@ -1245,7 +1226,13 @@ void AIState_Chase::ApproachTargeting(int intercept)
   int distance;
   int minSpeed;
 
+  /* SYM-CODEGEN-CARRIER: iVar5 -- absent from the surviving local records.
+   * Replacing its global/aggression/result web with direct expressions and
+   * the recorded `minSpeed` changes 25 instructions and shortens the body by
+   * one. */
   int iVar5;
+  /* SYM-CODEGEN-CARRIER: pCVar4 -- absent from the surviving local records.
+   * Direct `carObj_` accesses change 14 instructions and add two reloads. */
   Car_tObj *pCVar4;
 
   
@@ -1444,43 +1431,23 @@ void AIState_Chase::CheckForBarriersAndTargetAroundThem()
   int myLane;
   int targetLane;
 
-  int lm;
+  if (0x1f40000 < __builtin_abs(this->longMetersBetween_)) return;
 
-  u_char bVar1;
+  mySlice = (this->carObj_->N).simRoadInfo.slice;
 
-  u_char bVar2;
-
-  Car_tObj *pCVar3;
-
-  
-
-  lm = this->longMetersBetween_;
-
-  lm = __builtin_abs(lm);
-
-  if (0x1f40000 < lm) return;
-
-  pCVar3 = this->carObj_;
-
-  mySlice = (pCVar3->N).simRoadInfo.slice;
-
-  myLane = pCVar3->laneIndex;
-
-  bVar1 = *(u_char *)(mySlice * 0x20 + (int)AIState_BWorldSmSlices + 0x1d);
+  myLane = this->carObj_->laneIndex;
 
   targetSlice = (this->targetCar_->N).simRoadInfo.slice;
 
   targetLane = this->targetCar_->laneIndex;
 
-  if (myLane < 6 - (bVar1 >> 4)) return;
+  if (myLane < 6 - (AISTATE_SLICE_BYTE(mySlice,0x1d) >> 4)) return;
 
-  if ((bVar1 & 0xf) + 7 < myLane) return;
+  if ((AISTATE_SLICE_BYTE(mySlice,0x1d) & 0xf) + 7 < myLane) return;
 
-  bVar2 = *(u_char *)(targetSlice * 0x20 + (int)AIState_BWorldSmSlices + 0x1d);
+  if (targetLane < 6 - (AISTATE_SLICE_BYTE(targetSlice,0x1d) >> 4)) return;
 
-  if (targetLane < 6 - (bVar2 >> 4)) return;
-
-  if ((bVar2 & 0xf) + 7 < targetLane) return;
+  if ((AISTATE_SLICE_BYTE(targetSlice,0x1d) & 0xf) + 7 < targetLane) return;
 
   barrierBesideTarget = AIWorld_CheckForBarrierBetweenLanes(targetSlice,targetLane,myLane);
 
@@ -1535,6 +1502,10 @@ int AIState_Chase::FindBarrierEndSlice()
 
 
 {
+  /* SYM-CODEGEN-CARRIER: numSlicesLess6 -- the two branch-scoped instances
+   * are absent from the surviving local records. Folding both expressions
+   * changes 21 instructions and shortens the function by three; the explicit
+   * values preserve retail's return-arm layout and exact 230-insn body. */
   int mySlice;
   int myLane;
   int targetLane;
@@ -1772,21 +1743,19 @@ int AIState_Chase::FindBarrierEndSlice()
 /* ---- _._15AIState_Offroad  AIState_Offroad::dtor  [AISTATE.CPP:887-891] SLD-VERIFIED ---- */
 /* reconstructed as extern "C" ___15AIState_Offroad(AIState_Offroad*,int) free fn -- see
    AIState_Chase dtor comment for why (real per-class deleting dtor in the oracle).
-   MATCH: the carFlags RMW must go through a FRESH local (pCVar2), not reuse pCVar1 --
-   the 3 carObj_ re-reads are 3 DISTINCT pseudos in the original; reusing pCVar1 merged
-   webs and kept pThis in a0 (oracle: carObj web takes a0, pThis copied to a2). 25->0. */
+   MATCH: the carFlags RMW must use a fresh direct `carObj_` expression, not reuse
+   pCVar1. This naturally creates the distinct pseudo seen by retail; reusing
+   pCVar1 merges webs and changes 25 instructions. */
 
 extern "C" void ___15AIState_Offroad(AIState_Offroad *pThis,int __in_chrg)
 
 
 
 {
-
+  /* SYM-CODEGEN-CARRIER: pCVar1 -- the deleting-destructor ABI body has no
+   * surviving local record. Direct target-position accesses add four reload
+   * instructions and produce 8 diffs. */
   Car_tObj *pCVar1;
-
-  Car_tObj *pCVar2;
-
-
 
   pCVar1 = pThis->carObj_;
 
@@ -1800,9 +1769,7 @@ extern "C" void ___15AIState_Offroad(AIState_Offroad *pThis,int __in_chrg)
 
   (pThis->carObj_)->targetLatPos = 0;
 
-  pCVar2 = pThis->carObj_;
-
-  pCVar2->carFlags = pCVar2->carFlags & 0xfffff7ff;
+  pThis->carObj_->carFlags = pThis->carObj_->carFlags & 0xfffff7ff;
 
   pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
 
@@ -1828,11 +1795,6 @@ AIState_Offroad::AIState_Offroad(Car_tObj *carObj,int startSlice,coorddef *posit
           matrixtdef *orientation,int maxSpeedKPH,int releaseTime,int endSlice)
   : AIState_Base(carObj)
 {
-
-  Car_tObj *pCVar3;
-
-
-
   this->_vf = (__vtbl_ptr_type (*) [4])AIState_Offroad_vtable;
 
   this->letGo_ = 0;
@@ -1857,9 +1819,7 @@ AIState_Offroad::AIState_Offroad(Car_tObj *carObj,int startSlice,coorddef *posit
 
   this->targetPosition_ = *(coorddef *)((char *)AIState_BWorldSmSlices + endSlice * 0x20);
 
-  pCVar3 = this->carObj_;
-
-  pCVar3->carFlags = pCVar3->carFlags | 0x800;
+  this->carObj_->carFlags = this->carObj_->carFlags | 0x800;
 
   return;
 
@@ -1885,13 +1845,7 @@ void AIState_Offroad::UnleashIfInRange(Car_tObj *car)
   int distanceAbsMeters;
   int releaseDistanceMeters;
 
-  int iVar2;
-
-  
-
-  iVar2 = AIWorld_SplineDistance(this->carObj_,car);
-
-  distanceAbsMeters = __builtin_abs(iVar2);
+  distanceAbsMeters = __builtin_abs(AIWorld_SplineDistance(this->carObj_,car));
 
   releaseDistanceMeters = fixedmult((car->N).speedXZ,this->releaseTime_);
 
@@ -1919,13 +1873,14 @@ void AIState_Offroad::Execute()
 
 {
   coorddef zero;
-
-  Car_tObj *pCVar1;
-
-  Car_tObj *pCVar2;
-
+  /* SYM-CODEGEN-CARRIER: pCVar3 -- absent from the surviving local records.
+   * Direct target-position members add three redundant `carObj_` reload
+   * instructions; the cached pointer preserves the exact 107-insn body. */
   Car_tObj *pCVar3;
 
+  /* SYM-CODEGEN-CARRIER: iVar4 -- absent from the surviving local records.
+   * Folding the spline-call result into `longMetersBetween_` changes 73
+   * instructions and adds one by changing the saved-register/frame web. */
   int iVar4;
 
   
@@ -1958,19 +1913,15 @@ void AIState_Offroad::Execute()
 
     iVar4 = AIWorld_ApxSplineDistance(this->carObj_,this->targetSlice_);
 
-    pCVar1 = this->carObj_;
-
     this->longMetersBetween_ = iVar4;
 
-    pCVar1->desiredSpeed = this->maxSpeedMPS_;
+    this->carObj_->desiredSpeed = this->maxSpeedMPS_;
 
     if (0 < this->longMetersBetween_) {
 
       (this->carObj_)->desiredDirection = -1;
 
-      pCVar2 = this->carObj_;
-
-      pCVar2->desiredSpeed = -pCVar2->desiredSpeed;
+      this->carObj_->desiredSpeed = -this->carObj_->desiredSpeed;
 
     }
 
@@ -2013,18 +1964,6 @@ AIState_Purgatory::AIState_Purgatory(Car_tObj *carObj)
   coorddef trafficOffset;
   int lifeTimer;
 
-  u_int uVar1;
-
-  bool bVar2;
-
-  int iVar3;
-
-  Car_tObj *pCVar4;
-
-  Car_tObj *pCVar5;
-
-
-
   memset((u_char *)&trafficOffset,'\0',0xc);
 
   trafficOffset.y = carObj->carIndex * 0xa0000;
@@ -2035,48 +1974,28 @@ AIState_Purgatory::AIState_Purgatory(Car_tObj *carObj)
 
   this->_vf = (__vtbl_ptr_type (*) [4])AIState_Purgatory_vtable;
 
-  uVar1 = fastRandom * randSeed;
+  randtemp = fastRandom * randSeed;
 
   /* CORRECTNESS (w13-a5): oracle stores the VALUE of Cars_gList (= Cars_gList[0], the head
      car) into basisCar -- recon previously stored NULL. lw %lo(Cars_gList) in the oracle. */
 
   (this->carObj_)->basisCar = Cars_gList[0];
 
-  bVar2 = false;
-
-  randtemp = uVar1;
-
   lifeTimer = AITune_LifeTimer[Cars_gNumTrafficCars];
 
   (this->carObj_)->physicsModelTimer =
 
-       (lifeTimer * (uVar1 >> 8 & 0xffff) >> 0x10) + 1;
+       (lifeTimer * (randtemp >> 8 & 0xffff) >> 0x10) + 1;
 
-  fastRandom = uVar1 & 0xffff;
+  fastRandom = randtemp & 0xffff;
 
-  iVar3 = strcmp((this->carObj_)->carName,"SBUS");
-
-  if ((iVar3 == 0) ||
-
-     (iVar3 = strcmp((this->carObj_)->carName,"TBUS"),
-
-     iVar3 == 0)) {
-
-    bVar2 = true;
+  if ((strcmp((this->carObj_)->carName,"SBUS") == 0) ||
+      (strcmp((this->carObj_)->carName,"TBUS") == 0)) {
+    this->carObj_->physicsModelTimer = this->carObj_->physicsModelTimer * 5;
 
   }
 
-  if (bVar2) {
-
-    pCVar4 = this->carObj_;
-
-    pCVar4->physicsModelTimer = pCVar4->physicsModelTimer * 5;
-
-  }
-
-  pCVar5 = this->carObj_;
-
-  pCVar5->AIFlags = pCVar5->AIFlags | 4;
+  this->carObj_->AIFlags = this->carObj_->AIFlags | 4;
 
   if (((this->carObj_)->carFlags & 0x10U) != 0) {
 
@@ -2300,20 +2219,15 @@ void AIState_Purgatory::Execute()
 
 
 {
-
-  Car_tObj *pCVar1;
-
-  
-
   ((this->carObj_)->collision).resetTimer = 0;
 
   ((this->carObj_)->N).collision.disableCollisionTimer = 0;
 
-  pCVar1 = this->carObj_;
+  if ((((this->carObj_)->carFlags & 0x20U) == 0) &&
+      (0x3bf < AIState_SimGlobalWords[1])) {
 
-  if (((pCVar1->carFlags & 0x20U) == 0) && (0x3bf < AIState_SimGlobalWords[1])) {
-
-    pCVar1->physicsModelTimer = pCVar1->physicsModelTimer - AI_elapsedTime;
+    (this->carObj_)->physicsModelTimer =
+        (this->carObj_)->physicsModelTimer - AI_elapsedTime;
 
   }
 
@@ -2354,29 +2268,17 @@ void AIState_Purgatory::StartUp(void)
 AIState_RovingTraffic::AIState_RovingTraffic(Car_tObj *carObj,trigger_t *trigger)
   : AIState_Base(carObj)
 {
-
-  int iVar1;
-
-  Car_tObj *pCVar2;
-
-  
-
-
   this->_vf = (__vtbl_ptr_type (*) [4])AIState_RovingTraffic_vtable;
-
-  pCVar2 = this->carObj_;
 
   this->path_ = *(trigger_pathPosition_t **)((char *)trigger + 0x3c);
 
-  iVar1 = *(int *)((char *)trigger + 0x38);
+  this->numPathPoints_ = *(int *)((char *)trigger + 0x38);
 
   this->pathIndex_ = 0;
 
   this->waitTick_ = 0;
 
-  this->numPathPoints_ = iVar1;
-
-  pCVar2->carFlags = pCVar2->carFlags | 0x800;
+  this->carObj_->carFlags = this->carObj_->carFlags | 0x800;
 
   return;
 
@@ -2665,10 +2567,10 @@ extern "C" void ___14AIState_Donuts(AIState_Donuts *pThis,int __in_chrg)
 
 
 {
-
+  /* SYM-CODEGEN-CARRIER: pCVar1 -- the deleting-destructor ABI body has no
+   * surviving local record. Direct target-position accesses add four reload
+   * instructions and produce 8 diffs. */
   Car_tObj *pCVar1;
-
-
 
   pCVar1 = pThis->carObj_;
 
@@ -2723,6 +2625,10 @@ void AIState_Donuts::Execute()
 
 
   {
+    /* SYM-CODEGEN-CARRIER: carObj -- absent from the surviving outer-local
+     * records. Direct member expressions change 14 instructions and add two
+     * reloads, including the forward-dot result web and paired direction
+     * stores. */
     Car_tObj *carObj = this->carObj_;
 
     slice = (int)carObj->N.simRoadInfo.slice;
@@ -2752,6 +2658,9 @@ void AIState_Donuts::Execute()
     int forwardSlice;
     int forwardDot;
     int dCarToCenter;
+    /* SYM-CODEGEN-CARRIER: numSlicesLess3 -- absent from the surviving block
+     * locals. Folding both wrap expressions changes 37 instructions and
+     * shortens the function by three. */
     int numSlicesLess3;
 
     forwardDot =
@@ -2762,12 +2671,10 @@ void AIState_Donuts::Execute()
     if (0 <= forwardDot)
 
     {
-      int candidateSlice = slice + 3;
-      /* W54-A15: identity/opacity fence (0 insns) -- otherwise local-alloc TIES candidateSlice
-       * to forwardSlice, the then-arm becomes EMPTY and gcc inverts the branch (ours 317 vs
-       * retail 319: retail keeps `addu v0,v1,zero; j` as a real arm and branches `beqz`). */
-      if (candidateSlice < gNumSlices) {
-        forwardSlice = candidateSlice;
+      /* Repeating `slice + 3` preserves retail's non-empty then arm and its
+       * `addu v0,v1,zero` jump delay slot without a source-only temporary. */
+      if (slice + 3 < gNumSlices) {
+        forwardSlice = slice + 3;
       }
       else {
         numSlicesLess3 = gNumSlices - 3;
@@ -2786,10 +2693,7 @@ void AIState_Donuts::Execute()
 
     }
 
-    {
-      coorddef &sliceCenter = *(coorddef *)((forwardSlice << 5) + (int)AIState_BWorldSmSlices);
-      targetPos = sliceCenter;
-    }
+    targetPos = *(coorddef *)((forwardSlice << 5) + (int)AIState_BWorldSmSlices);
 
     dCarToCenter = __builtin_abs(this->carObj_->roadPosition);
 
@@ -3037,19 +2941,15 @@ int AIState_GotoSlice::InTargetSliceRange(int rangeMeters)
 {
   int distanceMeters;
 
-  int iVar1;
+  distanceMeters = AIWorld_ApxSplineDistance(this->carObj_,this->targetSlice_);
 
-  
+  if (distanceMeters < 0) {
 
-  iVar1 = AIWorld_ApxSplineDistance(this->carObj_,this->targetSlice_);
-
-  if (iVar1 < 0) {
-
-    iVar1 = -iVar1;
+    distanceMeters = -distanceMeters;
 
   }
 
-  return (u_int)(iVar1 < rangeMeters);
+  return (u_int)(distanceMeters < rangeMeters);
 
 }
 
@@ -3101,24 +3001,12 @@ void AIState_Cruise::Execute()
 
 
 {
-
-  int iVar1;
-
-  cruiseMode_t cVar2;
-
-  Car_tObj *pCVar3;
-
-  
-
-  cVar2 = this->cruiseMode_;
-
-  switch (cVar2) {
+  switch (this->cruiseMode_) {
 
   case CRUISE_ATSETSPEED:
 
-    pCVar3 = this->carObj_;
-
-    pCVar3->desiredSpeed = this->cruiseSpeed_ * pCVar3->direction;
+    this->carObj_->desiredSpeed =
+        this->cruiseSpeed_ * this->carObj_->direction;
 
     break;
 
@@ -3126,11 +3014,8 @@ void AIState_Cruise::Execute()
 
     AISpeeds_CalcDesiredSpeed(this->carObj_);
 
-    iVar1 = fixedmult((this->carObj_)->desiredSpeed,
-
-                       this->cruiseFactor_);
-
-    (this->carObj_)->desiredSpeed = iVar1;
+    (this->carObj_)->desiredSpeed =
+        fixedmult((this->carObj_)->desiredSpeed,this->cruiseFactor_);
 
     break;
 

@@ -22,6 +22,9 @@ extern "C" void ___12tDialogYesNo(void *thisp);   /* ~tDialogYesNo */
 extern "C" void ___15tDialogYesNoMem(void *thisp);   /* ~tDialogYesNoMem */
 extern "C" void ___15tDialogYesNoTri(void *thisp);   /* ~tDialogYesNoTri */
 
+/* These two exact retail tables have no `_vt.*` SYM record.
+   SYM-GLOBAL-CARRIER: tDialogInteractive_vtable
+   SYM-GLOBAL-CARRIER: tDialogMessageStringWithTimeout_vtable */
 __vtbl_ptr_type tDialogBase_vtable[12] = {   /* @0x800105b0 */
   {0, 0, (int (*)(...))0},                           /* @0x800105b0  null */
   {0, 0, (int (*)(...))&tScreen::GetShapeInfo},      /* @0x800105b8  GetShapeInfo__7tScreenRsT1PPcT3 */

@@ -228,6 +228,10 @@ void GetStmQuadPts(BWorldSm_Pos *slicePos,coorddef *cp)
 {
   Trk_NewStrip *pStrip;
   coorddef *pts;
+  /* SYM-CODEGEN-CARRIER: vertices -- expanding the inlined GetData/index
+   * expression at each use compiles to 101 instructions and 119 oracle diffs.
+   * This cached result preserves the exact 74-instruction coordinate-load
+   * schedule; SYM still records the inlined member receiver separately. */
   CCOORD16 *vertices;
   int cx;
   int cy;
@@ -427,13 +431,11 @@ int RawFindClosestQuad(coorddef *pt,BWorldSm_Pos *slicePos)
   BWorld_SetSimSlice(slicePos);
   sliceVariance = 0;
   {
-    int currentQuad;
-
-    currentQuad = (int)(signed char)slicePos->quad;
-    if ((0 <= currentQuad) &&
-        (currentQuad < (int)(slicePos->simSlice->quadCount - 1)) &&
+    if ((0 <= (int)(signed char)slicePos->quad) &&
+        ((int)(signed char)slicePos->quad <
+         (int)(slicePos->simSlice->quadCount - 1)) &&
         ((signed char)slicePos->offEdge == 0)) {
-      startQuadInd = currentQuad;
+      startQuadInd = (int)(signed char)slicePos->quad;
     }
     else {
       slicePos->quad =
@@ -620,6 +622,10 @@ int FindClosestQuad(coorddef *pt,BWorldSm_Pos *slicePos)
   int foundSlice;
   static coorddef corrPt;
   int rCount;
+  /* SYM-CODEGEN-CARRIER: sliceChanged -- reusing the stored byte adds an
+   * `andi` (116 instructions), while recomputing the comparison produces 117
+   * instructions/four diffs.  This shared boolean gives the exact 115-
+   * instruction stores to sliceChanged and quadChanged. */
   int sliceChanged;
   
   startSlice = slicePos->slice;
@@ -706,10 +712,7 @@ int BWorldSm_FindClosestQuadRez(coorddef *pt,BWorldSm_Pos *slicePos,int hiRezFla
 /* ---- BWorldSm_FindClosestQuadMaxIterations__FP8coorddefP12BWorldSm_Posi  [@0x8007fc90] ---- */
 int BWorldSm_FindClosestQuadMaxIterations(coorddef *pt,BWorldSm_Pos *slicePos,int maxIterations)
 {
-  int iVar1;
-  
-  iVar1 = BWorldSm_FindClosestQuadRez(pt,slicePos,1);
-  return iVar1;
+  return BWorldSm_FindClosestQuadRez(pt,slicePos,1);
 }
 
 /* ---- PointDirection__FP8coorddefN20  [@0x8007fcb0] ---- */
@@ -752,6 +755,8 @@ int BWorldSm_FindEdgeOff(coorddef *pt,BWorldSm_Pos *slicePos1,BWorldSm_Pos *slic
 /* ---- BWorldSm_QuadLight__FP12BWorldSm_Pos  [@0x8007fe44] ---- */
 int BWorldSm_QuadLight(BWorldSm_Pos *slicePos)
 {
+#define QUAD_LIGHT_VERTICES \
+  ((CCOORD16 *)Track_chunkList[slicePos->chunk].vertexBuf->GetData())
   if (*(signed char *)&slicePos->rez == 2) {
     CVECTOR light;
     CVECTOR temp0;
@@ -763,18 +768,15 @@ int BWorldSm_QuadLight(BWorldSm_Pos *slicePos)
     short s1;
     short s2;
     short s3;
-    CCOORD16 *vertices;
 
     topInd = (u_int)slicePos->strip->topVert;
     botInd = (u_int)slicePos->strip->botVert;
     topInd += (int)slicePos->stripQuadInd;
     botInd += (int)slicePos->stripQuadInd;
-    vertices =
-        (CCOORD16 *)Track_chunkList[slicePos->chunk].vertexBuf->GetData();
-    s1 = *(u_short *)&vertices[topInd].light;
-    s2 = *(u_short *)&vertices[botInd].light;
-    s3 = *(u_short *)&vertices[botInd + 1].light;
-    temp0 = Chunk_lightTable[vertices[topInd + 1].light];
+    s1 = *(u_short *)&QUAD_LIGHT_VERTICES[topInd].light;
+    s2 = *(u_short *)&QUAD_LIGHT_VERTICES[botInd].light;
+    s3 = *(u_short *)&QUAD_LIGHT_VERTICES[botInd + 1].light;
+    temp0 = Chunk_lightTable[QUAD_LIGHT_VERTICES[topInd + 1].light];
     temp1 = Chunk_lightTable[s1];
     temp2 = Chunk_lightTable[s2];
     temp3 = Chunk_lightTable[s3];
@@ -783,6 +785,7 @@ int BWorldSm_QuadLight(BWorldSm_Pos *slicePos)
     light.b = (u_char)((temp0.b + temp1.b + temp2.b + temp3.b) >> 2);
     return *(int *)&light;
   }
+#undef QUAD_LIGHT_VERTICES
   return 0x7f7f7f;
 }
 
@@ -876,6 +879,10 @@ bool NormalCache_FindEntry(BWorldSm_Pos *slicePos)
 void NormalCache_Init(void)
 {
   int i;
+  /* SYM-CODEGEN-CARRIER: invalid -- literal -1 stores compile to 16
+   * instructions and five oracle diffs by merging the constant into $a1.
+   * The named value preserves retail's separate $a2=-1 and $a1=255 values
+   * and exact 15-instruction initialization loop. */
   int invalid;
   
   BWSM_NormalCacheSysTime = 0;

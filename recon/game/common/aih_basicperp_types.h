@@ -71,7 +71,22 @@ struct Speaker {
     int fCar, fLocation, fFrom, fTo, fWing;
     bool fHavePerp;
     Speaker *fSub;
-    __vtbl_ptr_type (*_vf)[31];
+    virtual void Report(Car_tObj *cop) asm("Report__Q26Speech7SpeakerP8Car_tObj");
+    virtual void Status() asm("Status__Q26Speech7Speaker");
+    virtual void Deny() asm("Deny__Q26Speech7Speaker");
+    virtual void Grant() asm("Grant__Q26Speech7Speaker");
+    virtual void Ready(Car_tObj *wing) asm("Ready__Q26Speech7SpeakerP8Car_tObj");
+    virtual void Engage(Car_tObj *perp) asm("Engage__Q26Speech7SpeakerP8Car_tObj");
+    virtual void Lose() asm("Lose__Q26Speech7Speaker");
+    virtual void Accident(int slice) asm("Accident__Q26Speech7Speakeri");
+    virtual void Catch(int ticket) asm("Catch__Q26Speech7Speakeri");
+    virtual void RoadBlock() asm("RoadBlock__Q26Speech7Speaker");
+    virtual void SpikeBelt() asm("SpikeBelt__Q26Speech7Speaker");
+    virtual void Backup() asm("Backup__Q26Speech7Speaker");
+    virtual void ReportBlockade() asm("ReportBlockade__Q26Speech7Speaker");
+    virtual void Roger() asm("Roger__Q26Speech7Speaker");
+    virtual void Bullhorn() asm("Bullhorn__Q26Speech7Speaker");
+    virtual void Purge() asm("Purge__Q26Speech7Speaker");
 };
 
 /* Foreign globals whose completed tags are absent from this retail owner. */

@@ -350,6 +350,7 @@ struct AIHigh_BTC_Cop : public AIHigh_BasicCop {
 
 struct AIHigh_BTC_HumanCop : public AIHigh_BTC_Cop {
     int currentStage_, stageRepeatCount_, stageTimeMultiplier_, timeLeft_, chaseStartTime_;
+    static int lastInputRequestTick_;
     enum {
         WINGMAN_NONE = 0,
         WINGMAN_WINGMAN_REQUEST = 1,
@@ -463,9 +464,52 @@ struct Speaker {
     Speaker *fSub;
     __vtbl_ptr_type (*_vf)[31];
     void Report(Car_tObj *) asm("Report__Q26Speech7SpeakerP8Car_tObj");
-    void Ready(Car_tObj *) asm("Ready__Q26Speech7SpeakerP8Car_tObj");
     void Engage(Car_tObj *) asm("Engage__Q26Speech7SpeakerP8Car_tObj");
-    void Lose() asm("Lose__Q26Speech7Speaker");
+    inline void Deny()
+    {
+        (**(int (**)(...))((int)*_vf + 0x1c))
+            ((int)&fPosition.flags + (int)*(short *)((int)*_vf + 0x18));
+    }
+    inline void Grant()
+    {
+        (**(int (**)(...))((int)*_vf + 0x24))
+            ((int)&fPosition.flags + (int)*(short *)((int)*_vf + 0x20));
+    }
+    inline void Ready(Car_tObj *wing)
+    {
+        (**(int (**)(...))((int)*_vf + 0x2c))
+            ((int)&fPosition.flags + (int)*(short *)((int)*_vf + 0x28), wing);
+    }
+    inline void Lose()
+    {
+        (**(int (**)(...))((int)*_vf + 0x3c))
+            ((int)&fPosition.flags + (int)*(short *)((int)*_vf + 0x38));
+    }
+    inline void Catch(int ticket)
+    {
+        (**(int (**)(...))((int)*_vf + 0x4c))
+            ((int)&fPosition.flags + (int)*(short *)((int)*_vf + 0x48), ticket);
+    }
+    inline void RoadBlock()
+    {
+        (**(int (**)(...))((int)*_vf + 0x54))
+            ((int)&fPosition.flags + (int)*(short *)((int)*_vf + 0x50));
+    }
+    inline void SpikeBelt()
+    {
+        (**(int (**)(...))((int)*_vf + 0x5c))
+            ((int)&fPosition.flags + (int)*(short *)((int)*_vf + 0x58));
+    }
+    inline void Backup()
+    {
+        (**(int (**)(...))((int)*_vf + 0x64))
+            ((int)&fPosition.flags + (int)*(short *)((int)*_vf + 0x60));
+    }
+    inline void Purge()
+    {
+        (**(int (**)(...))((int)*_vf + 0x84))
+            ((int)&fPosition.flags + (int)*(short *)((int)*_vf + 0x80));
+    }
 };
 
 /*

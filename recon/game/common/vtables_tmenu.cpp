@@ -52,6 +52,9 @@ extern "C" void ___5tMenu(void *thisp);   /* ~tMenu */
 extern "C" void ___9tMenuItem(void *thisp);   /* ~tMenuItem */
 extern "C" void ___9tMenuNFS4(void *thisp);   /* ~tMenuNFS4 */
 
+/* These two exact retail tables have no `_vt.*` SYM record.
+   SYM-GLOBAL-CARRIER: tBlankMenuItemGoToMenuNFS4Button_vtable
+   SYM-GLOBAL-CARRIER: tBlankMenuItemNFS4LeftRightChoice_vtable */
 __vtbl_ptr_type tBlankMenuItemGoToMenuNFS4Button_vtable[11] = {   /* @0x800114d8 */
   {0, 0, (int (*)(...))0},    /* @0x800114d8  null */
   {0, 0, (int (*)(...))&___32tBlankMenuItemGoToMenuNFS4Button},    /* @0x800114e0  ~tBlankMenuItemGoToMenuNFS4Button */

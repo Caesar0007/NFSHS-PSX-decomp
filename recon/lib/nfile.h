@@ -56,7 +56,8 @@ typedef struct FileMgr {
     unsigned char _g28[0x30 - 0x28];   /* mem/callback fields TBD                                   */
 } FileMgr;                     /* >= 0x30 */
 
-extern FileMgr gFileMgr;       /* @0x8013EA88 (data-materialization pass owns) */
+extern FileMgr gFileDevice;    /* @0x8013EA88: retail SYM/MAP symbol */
+#define gFileMgr gFileDevice   /* compatibility alias for reconstructed field expressions */
 
 /* sequence counter (20-bit wrap) used to stamp request ids */
 extern int gFileOpSeq;         /* @0x8013DC50 */

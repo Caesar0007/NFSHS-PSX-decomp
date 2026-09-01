@@ -30,6 +30,11 @@ extern "C" void ___15AIState_Offroad(AIState_Offroad*,int);
 extern "C" void ___17AIState_Purgatory(AIState_Purgatory*,int);
 extern "C" void ___21AIState_RovingTraffic(AIState_RovingTraffic*,int);
 
+/* Retail addresses and entries prove these tables; SYM omits their `_vt.*`
+   records while retaining the other AIState tables.
+   SYM-GLOBAL-CARRIER: AIState_None_vtable
+   SYM-GLOBAL-CARRIER: AIState_NonActive_vtable
+   SYM-GLOBAL-CARRIER: AIState_Base_vtable */
 __vtbl_ptr_type AIState_None_vtable[4] = {   /* @0x80054e1c */
   {0, 0, (int (*)(...))0},                           /* @0x80054e1c  null */
   {0, 0, (int (*)(...))&AIState_None::Execute},      /* @0x80054e24  Execute__12AIState_None */

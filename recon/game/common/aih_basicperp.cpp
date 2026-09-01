@@ -50,7 +50,13 @@ void AIHigh_BasicPerp::CheckForCrimes()
     crime = CRIME_SPEEDER;
 
   if (AITune_oneWay != 0) {
+    /* SYM-CODEGEN-CARRIER: speed -- this retained value reproduces the retail
+       single load shared by the reverse-track sign test.  Expanding the two
+       field reads compiles to 169 instructions/14 diffs instead of 163/PASS. */
     int speed = carObj_->currentSpeed;
+    /* SYM-CODEGEN-CARRIER: wrongWay -- the explicit result preserves GCC's
+       branch-shaped signed test.  A direct conditional expression produces
+       164 instructions/7 diffs instead of the retail 163/PASS. */
     int wrongWay;
     if (GameSetup_gData.reverseTrack != 0)
       wrongWay = (u_int)-speed >> 31;
@@ -333,78 +339,49 @@ void AIHigh_BasicPerp::RemoveCloseCops()
   int distance;
   AIHigh_Cop*thisCop;
 
-  int iVar1;
-
-  Speaker *pSVar2;
-
-  AIHigh_Base *pAVar3;
-
-  int iVar4;
-
-  Car_tObj *carObj;
-
-  int iVar6;
-
-
-
-  iVar6 = 0;
+  copLoop = 0;
 
   while( true ) {
 
-    if (Cars_gNumCopCars <= iVar6) break;
+    if (Cars_gNumCopCars <= copLoop) break;
 
-    carObj = Cars_gCopCarList[iVar6];
+    cop = Cars_gCopCarList[copLoop];
 
-    if ((carObj->AIFlags & 4U) == 0) {
+    if ((cop->AIFlags & 4U) == 0) {
 
-      iVar1 = AIWorld_ApxSplineDistance(carObj,this->carObj_);
+      distance = AIWorld_ApxSplineDistance(cop,this->carObj_);
 
-      iVar1 = __builtin_abs(iVar1);
+      distance = __builtin_abs(distance);
 
-      if (iVar1 < 0x960000) {
+      if (distance < 0x960000) {
 
-        pAVar3 = highLevelAIObjs[carObj->carIndex];
+        thisCop = (AIHigh_Cop *)highLevelAIObjs[cop->carIndex];
 
-        iVar4 = 1;
+        cop->direction = GameSetup_gData.reverseTrack == 0 ? -1 : 1;
 
-        if (GameSetup_gData.reverseTrack == 0) {
+        cop->desiredDirection = cop->direction;
 
-          iVar4 = -1;
+        cop->driveDirection = 1;
 
-        }
+        if (distance < 0x1e0000) {
 
-        carObj->direction = iVar4;
-
-        carObj->desiredDirection = iVar4;
-
-        carObj->driveDirection = 1;
-
-        if (iVar1 < 0x1e0000) {
-
-          pAVar3[3].schedulingOff_ = 1;
+          thisCop->driveAway_ = DRIVEAWAY_RESET;
 
         }
 
         else {
 
-          pAVar3[3].schedulingOff_ = 2;
+          thisCop->driveAway_ = DRIVEAWAY_NORESET;
 
         }
 
-        pSVar2 = (Speaker *)Speech_Mobile(pAVar3->carObj_);
-
-        /* manual-vtable slot 16 (raw byte offsets from the oracle jalr/lh -- __vtbl_ptr_type
-           is 8 bytes, so a typed _vf[N] index/pointer-add is 8x too large; decay to a byte
-           base and use the RAW displacement, §3.12 lever #10). */
-        (**(int (**)(...))((char *)pSVar2->_vf + 0x84))
-
-                  ((int)&(pSVar2->fPosition).flags + (int)*(short *)((char *)pSVar2->_vf + 0x80));
+        Speech_Mobile(thisCop->carObj_)->Purge();
 
       }
 
     }
 
-    iVar6 = iVar6 + 1;
+    copLoop = copLoop + 1;
 
   }
 
@@ -428,25 +405,28 @@ void AIHigh_BasicPerp::RemoveChaser(int copIndex,int carIndex,copType type)
 {
   int pos;
 
-  int iVar1;
-
+  /* SYM-CODEGEN-CARRIER: piVar2 -- SYM records the inlined
+     AICop_BasicPerpInfo `this`, but not its unrecoverable inline member name.
+     This result carrier preserves the exact load/decrement/store sequence;
+     direct array spelling gives 14 instructions/7 diffs. */
   int *piVar2;
 
+  /* SYM-CODEGEN-CARRIER: piBase -- the two-stage base/index expansion is the
+     exact compiler shape of that inlined subobject operation.  Collapsing it
+     to one pointer expression retains 15 instructions but gives 8 diffs. */
   int *piBase;
 
-  
+  pos = this->copVSPositionList_[copIndex];
 
-  iVar1 = this->copVSPositionList_[copIndex];
-
-  piBase = (this->basicPerpInfo_).copsAssigned_;
+  piBase = this->basicPerpInfo_.copsAssigned_;
 
   piVar2 = piBase + type;
 
-  *piVar2 = *piVar2 + -1;
+  *piVar2 = *piVar2 - 1;
 
-  this->positionVSCopList_[iVar1].copIndex = -1;
+  this->positionVSCopList_[pos].copIndex = -1;
 
-  this->positionVSCopList_[iVar1].carIndex = -1;
+  this->positionVSCopList_[pos].carIndex = -1;
 
   return;
 
@@ -468,8 +448,10 @@ int AIHigh_BasicPerp::AddChaser(int copIndex,int carIndex,copType type)
 {
   int pos;
 
-  int iVar1;
-
+  /* SYM-CODEGEN-CARRIER: piVar2 -- SYM again records only the inlined
+     AICop_BasicPerpInfo `this`.  The two-statement pointer expansion is exact;
+     direct array spelling gives 19 instructions/12 diffs and a collapsed
+     pointer expression gives 20 instructions/13 diffs. */
   int *piVar2;
 
   piVar2 = this->basicPerpInfo_.copsAssigned_;
@@ -486,9 +468,7 @@ int AIHigh_BasicPerp::AddChaser(int copIndex,int carIndex,copType type)
 
   this->copVSPositionList_[copIndex] = pos;
 
-  iVar1 = this->CheckChaserPosition(copIndex,carIndex);
-
-  return iVar1;
+  return this->CheckChaserPosition(copIndex,carIndex);
 
 }
 

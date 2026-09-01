@@ -93,8 +93,6 @@ int Udff_GetInt(Udff_tInfo *handle)
 void Udff_GetBuffer(Udff_tInfo *handle,char *mem,int size)
 
 {
-  int value;
-  
   memcpy(mem,handle->memPtr,size);
   handle->memPtr = handle->memPtr + size;
   return;

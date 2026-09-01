@@ -49,7 +49,31 @@ struct AIDataRecord_t {
 struct AIDataRecord_AccTable_t : public AIDataRecord_t { int scale_; };
 struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t { int Get(int i); };
 
-struct AIPhysic_BrakeInfo { u_char brakeTable_[128]; int deceleration_; };
+struct AIPhysic_BrakeInfo {
+    u_char brakeTable_[128];
+    int deceleration_;
+
+    /* SYM-INFERRED-INLINE-NAMES: PsyQ preserves the nested this/speed/sIndex
+     * and currentSpeed/futureSpeed scopes, but not either unlinked method name.
+     * These semantic names and both bodies are therefore codegen-proven
+     * reconstructions rather than name claims from the SYM. */
+    int GetBrakeDistance(int speed)
+    {
+        int sIndex = speed / 0x10000;
+        if (sIndex < 0) {
+            sIndex = -sIndex;
+        }
+        if (!(sIndex < 0x80)) {
+            sIndex = 0x80;
+        }
+        return (u_int)brakeTable_[sIndex] * 0x20000;
+    }
+
+    int GetNeededDistance(int currentSpeed,int futureSpeed)
+    {
+        return GetBrakeDistance(currentSpeed) - GetBrakeDistance(futureSpeed);
+    }
+};
 
 struct AISpeeds_tLeaderBoard {
     Car_tObj *leadRacer, *leadHumanRacer, *leadAIRacer, *lastAIRacer;

@@ -25,9 +25,6 @@ struct Render_PTag {
 #define RENDER_SETRGB0(p,_r,_g,_b) \
   ((p)->r0=(_r),(p)->g0=(_g),(p)->b0=(_b))
 
-/* ---- link-harness owned-global definition (extern-declared, never defined) ---- */
-short Render_gPacketLenLo, Render_gPacketLenHi;  /* render.obj-owned packet-length accumulators (BSS) */
-
 /* ---- render.obj-OWNED globals -- DEFINED here (self-contained; SYM-typed via gen_owned_defs:
    .data = real NFS4.EXE bytes, .bss = zero) ---- */
 DRender_tView gCView;   /* @0x80116f7c  (bss(zero)) */
@@ -47,23 +44,10 @@ int          Draw_gRearView;   /* @0x8013d3e0  (bss(zero)) */
 int          Render_gDebugView;   /* @0x8013d3e4  (bss(zero)) */
 int          Render_gPauseMenuView;   /* @0x8013d3e8  (bss(zero)) */
 
-/* ---- PSX scratchpad (0x1F800000 region) Render_-owned globals -- lost-symbols (NOT in SYM;
-   render.cpp is canonical owner of the Render_ packet/scratchpad namespace; draww + FE extern
-   these). Defined here so the project links self-contained. ---- */
-int     Render_gMenuRenderFlag;   /* render mirror/menu render flag (render-owned scratch) */
-/* Render_gPacketPtr (@0x1F800004) / Render_gPalettePtr (@0x1F800000) are NOT storage globals:
-   they live at fixed PSX scratchpad addresses, so they are fixed-address lvalue macros defined
-   in nfs4_types.h (the universal include). The oracle materializes them as literal `lui;ori`/
-   `lui;lw` constants, which a linked symbol can't reproduce. Do NOT re-add a definition here. */
-u_char *Render_gPacketEnd;        /* GPU OT packet-buffer end pointer */
-MATRIX  Render_gWorldMat;         /* @0x1F800014  world->view matrix (scratchpad) */
-MATRIX  Render_gNightMat;         /* night-lighting matrix (scratchpad) */
-matrixtdef Render_gCopMat;        /* cop-car matrix (scratchpad) */
-/* ownerless Ghidra-named scratchpad slots (shared draww/r3dcar; no module prefix) -- centralized
-   here as render owns the un-prefixed PSX scratchpad (0x1F8000xx) region. */
-int     INT_1f800084, INT_1f800088, INT_1f80008c, INT_1f800090;   /* @0x1F800084  scratch matrix-t slot */
-/* gScratchLastWord: fixed-address scratchpad lvalue macro @0x1F8003FC, see nfs4_types.h
-   (matches oracle's literal lui/ori address materialization, not a %hi/%lo(sym) reloc). */
+/* PSX scratchpad fields are not linked render.obj storage.  Retail addresses
+   them through literal 0x1F8000xx constants and the typed draw-cache views;
+   Render_gPacketPtr/Render_gPalettePtr and gScratchLastWord are the surviving
+   fixed-address lvalue macros.  Do not materialize scratchpad offsets as BSS. */
 
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
 void Render_CreatePlayerViews(void);

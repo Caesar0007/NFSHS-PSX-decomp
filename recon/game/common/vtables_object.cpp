@@ -10,6 +10,9 @@ extern "C" void ___14ObjectSignAnim(ObjectSignAnim*,int);
 extern "C" void ___23ObjectFinishedMultiAnim(ObjectFinishedMultiAnim*,int);
 extern "C" void ___22ObjectFinishedSignAnim(ObjectFinishedSignAnim*,int);
 
+/* SYM-GLOBAL-CARRIER: ObjectAnim_vtable
+   Retail proves this base table at 0x800560e8; SYM retains `_vt.*` records only
+   for the four derived Object*Anim tables. */
 __vtbl_ptr_type ObjectAnim_vtable[3] = {   /* @0x800560e8 */
   {0, 0, (int (*)(...))0},                           /* @0x800560e8  null */
   {0, 0, (int (*)(...))&___10ObjectAnim},            /* @0x800560f0  _._10ObjectAnim */

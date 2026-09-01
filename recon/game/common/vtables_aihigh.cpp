@@ -25,6 +25,11 @@ extern "C" void ___18AIHigh_BTC_Wingman(void *thisp);   /* ~AIHigh_BTC_Wingman *
 extern "C" void ___19AIHigh_BTC_HumanCop(void *thisp);   /* ~AIHigh_BTC_HumanCop */
 extern "C" void ___20AIHigh_BTC_HumanPerp(void *thisp);   /* ~AIHigh_BTC_HumanPerp */
 
+/* Retail addresses and entries prove these tables; their `_vt.*` records are
+   absent from SYM, so their original materialization sites are not unique.
+   SYM-GLOBAL-CARRIER: AIHigh_BasicCop_vtable
+   SYM-GLOBAL-CARRIER: AIHigh_BTC_Perp_vtable
+   SYM-GLOBAL-CARRIER: AIHigh_Player_vtable */
 __vtbl_ptr_type AIHigh_Base_vtable[3] = {   /* @0x80054e04 */
   {0, 0, (int (*)(...))0},                           /* @0x80054e04  null */
   {0, 0, (int (*)(...))&__pure_virtual},             /* @0x80054e0c  __pure_virtual */

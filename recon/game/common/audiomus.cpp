@@ -55,8 +55,9 @@ void AudioMus_RefreshStatus(void)
 /* ---- AudioMus_Threshold__Fv  [@0x80079f58] ---- */
 int AudioMus_Threshold(void)
 {
-  /* Retail keeps music in $a0 and places the threshold-return block before
-   * the buffering tests so the final comparison can branch backward to it. */
+  /* SYM-CODEGEN-CARRIER: music -- repeating AudioMus_g directly compiles to
+   * 35 instructions and four oracle diffs.  This cached pointer produces the
+   * retail 33-instruction $a0 lifetime and backward threshold-return branch. */
   AudioMus_tMusicGlobals *music = AudioMus_g;
 
   if (music == (AudioMus_tMusicGlobals *)0x0) goto return_zero;
@@ -99,7 +100,6 @@ AudioMus_tCurrentSong * AudioMus_GetCurrentSong(void)
 {
   AudioMus_tCurrentSong*curr;
   AudioMus_tSongEntry*info;
-  int iVar2;
 
   /* w30-a7: curr = &AudioMus_g->current cached ONCE (oracle computes it in the null-check
      branch's delay slot) and reused via small offsets for remaining/index; info = &curr->info
@@ -111,11 +111,8 @@ AudioMus_tCurrentSong * AudioMus_GetCurrentSong(void)
     return (AudioMus_tCurrentSong *)0x0;
   }
   curr->remaining = (AudioMus_g->requeststatus).timetoend;
-  iVar2 = AudioMus_g->errorcode;
-  if (iVar2 == 0) {
-    iVar2 = AudioMus_g->requestsong + 1;
-  }
-  curr->index = iVar2;
+  curr->index = AudioMus_g->errorcode == 0 ?
+      AudioMus_g->requestsong + 1 : AudioMus_g->errorcode;
   /* MATCH (w54-a11) -- CSE RE-ASSOCIATION LAUNDER (zero insns, 47/47 byte-exact).
      Retail forms &curr->info as an IN-PLACE bump of the now-dead curr register,
      `addiu a0,a0,12`, and reorg then takes THAT insn for the first beq's delay slot
@@ -265,6 +262,10 @@ void AudioMus_SetEntry(AudioMus_tSongEntry *info)
 {
   int titlechar;
   int havefile;
+  /* SYM-CODEGEN-CARRIER: iVar3 -- reusing the SYM-named titlechar as the
+   * string-buffer index and reading `*p` directly produces 36 instructions
+   * and 28 oracle diffs.  The separate index/current-character values retain
+   * retail's exact 34-instruction loop rotation and allocation. */
   int iVar3;
   char *p;
 
@@ -542,15 +543,12 @@ AudioMus_GetSongList(char *pattern,int memtype)
 /* ---- AudioMus_InitGlobals__Fv  [@0x8007aa54] ---- */
 void AudioMus_InitGlobals(void)
 {
-  AudioMus_tMusicGlobals *pAVar1;
-  
-  pAVar1 = AudioMus_g;
   AudioMus_g->bigfileheader = (char *)0x0;
-  pAVar1->streambuffer = (char *)0x0;
-  pAVar1->streamhandle = -1;
-  pAVar1->serveractive = 0;
-  pAVar1->driveractive = 0;
-  pAVar1->totalsongs = 0;
+  AudioMus_g->streambuffer = (char *)0x0;
+  AudioMus_g->streamhandle = -1;
+  AudioMus_g->serveractive = 0;
+  AudioMus_g->driveractive = 0;
+  AudioMus_g->totalsongs = 0;
   return;
 }
 
@@ -558,28 +556,25 @@ void AudioMus_InitGlobals(void)
 void AudioMus_InitDriverGlobals(void)
 {
   AudioMus_tSongEntry*info;
-  AudioMus_tMusicGlobals *pAVar1;
-
-  pAVar1 = AudioMus_g;
   AudioMus_g->requestsong = -1;
-  pAVar1->volume = 0;
-  pAVar1->fadetime = 0;
-  pAVar1->availablesongs = 0;
-  pAVar1->firstswitch = 0;
-  pAVar1->newswitch = 0;
-  pAVar1->songname = (char *)0x0;
-  pAVar1->switchsong = 0;
-  pAVar1->errorcode = 0;
-  pAVar1->greedy = 0;
-  (pAVar1->current).remaining = 0;
-  info = &(pAVar1->current).info;
+  AudioMus_g->volume = 0;
+  AudioMus_g->fadetime = 0;
+  AudioMus_g->availablesongs = 0;
+  AudioMus_g->firstswitch = 0;
+  AudioMus_g->newswitch = 0;
+  AudioMus_g->songname = (char *)0x0;
+  AudioMus_g->switchsong = 0;
+  AudioMus_g->errorcode = 0;
+  AudioMus_g->greedy = 0;
+  (AudioMus_g->current).remaining = 0;
+  info = &(AudioMus_g->current).info;
   info->length = 0;
   info->filename = (char *)0x0;
   info->title = (char *)0x0;
   info->artist = (char *)0x0;
   info->label = (char *)0x0;
   info->notes = (char *)0x0;
-  pAVar1->driveractive = 1;
+  AudioMus_g->driveractive = 1;
   return;
 }
 
@@ -684,17 +679,14 @@ void AudioMus_SysCleanUp(void)
 /* ---- AudioMus_StopSong__Fi  [@0x8007ae04] ---- */
 void AudioMus_StopSong(int fadeticks)
 {
-  AudioMus_tMusicGlobals *pAVar1;
-  
   if ((AudioMus_g != (AudioMus_tMusicGlobals *)0x0) && (-1 < AudioMus_g->requestsong)) {
     if (fadeticks == 0) {
       if (-1 < AudioMus_g->streamhandle) {
         SNDSTRM_purge(AudioMus_g->streamhandle);
       }
-      pAVar1 = AudioMus_g;
       AudioMus_g->fadetime = 0;
-      pAVar1->songname = (char *)0x0;
-      pAVar1->switchsong = 0;
+      AudioMus_g->songname = (char *)0x0;
+      AudioMus_g->switchsong = 0;
     }
     else {
       if (AudioMus_g->switchsong == 0) {
@@ -718,20 +710,19 @@ void AudioMus_StopSong(int fadeticks)
 void AudioMus_BuildPlayList(int numplaylistsongs,int *playlist)
 {
   int i;
-  int iVar1;
   
   if (AudioMus_g != (AudioMus_tMusicGlobals *)0x0) {
     AudioMus_g->availablesongs = 0;
-    iVar1 = 0;
+    i = 0;
     if (0 < numplaylistsongs) {
       do {
         if ((-1 < *playlist) && (*playlist < AudioMus_g->totalsongs)) {
           AudioMus_g->playlist[AudioMus_g->availablesongs] = (char)*playlist;
           AudioMus_g->availablesongs = AudioMus_g->availablesongs + 1;
         }
-        iVar1 = iVar1 + 1;
+        i = i + 1;
         playlist = playlist + 1;
-      } while (iVar1 < numplaylistsongs);
+      } while (i < numplaylistsongs);
     }
   }
   return;
@@ -812,6 +803,9 @@ int AudioMus_PlaySong(char *pattern)
              the identity fence `"=r"(pick):"0"(pick)` (barrier -> +2 insns, slot unfilled);
              `rnd = rnd % newsong; newsong = rnd;` and a bare `pick` temp (both copy-propped);
              giving the ELSE arm a `rnd` temp too (reorders the requestsong load, 144 insns). */
+          /* SYM-CODEGEN-CARRIER: pick -- the modulo-result join pseudo and
+             second-use fence described above are required for retail's one
+             divmod block and delay-slot copy into newsong. */
           int pick = (GetRCnt(0) > 0 ? GetRCnt(0) : -GetRCnt(0)) % newsong;
           newsong = pick;
         }

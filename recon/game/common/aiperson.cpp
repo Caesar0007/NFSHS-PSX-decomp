@@ -247,24 +247,22 @@ LAB_skip:
 /* ---- AIPerson_Startup__Fv  [@0x8006908c] ---- */
 void AIPerson_Startup(void)
 {
-  char **pathBase;
   Udff_tInfo *handle;
   char filename[110];
 
   AIPerson_LoadGridAndSetPersonalityIndexes();
-  pathBase = Paths_Paths;
-  sprintf(filename,D_80055354,pathBase[2]);
+  sprintf(filename,D_80055354,Paths_Paths[2]);
   handle = Udff_Opena(filename,(char *)0x0,1);
   AIPerson_LoadPersonalityData(handle);
   Udff_Close(handle);
-  sprintf(filename,D_80055364,pathBase[2]);
+  sprintf(filename,D_80055364,Paths_Paths[2]);
   handle = Udff_Opena(filename,(char *)0x0,1);
   AIPerson_LoadScriptData(handle);
   Udff_Close(handle);
   if (((AIPERSON_RACE_TYPE == RaceType_HotPursuit) || (AIPERSON_RACE_TYPE == RaceType_Id5)) &&
      ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 ||
       ((Cars_gNumHumanRaceCars == 2 && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) {
-    sprintf(filename,D_80055374,pathBase[2]);
+    sprintf(filename,D_80055374,Paths_Paths[2]);
   }
   else if (((u_int)AIPERSON_RACE_TYPE < RaceType_Tournament) && (Cars_gNumAIRaceCars == 1)) {
     sprintf(filename,D_80055384,D_80116470[0]);

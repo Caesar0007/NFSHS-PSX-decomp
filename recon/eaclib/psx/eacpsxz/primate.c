@@ -19,21 +19,25 @@ extern int   DrawSync(int mode);                                /* PsyQ libgpu *
 /* ---- shared GPU draw-list globals -- this TU OWNS every one of them (nothing else defines
  * them; the oracle reaches ALL of them via %gp_rel(sym) in initlinkmode, which is only possible
  * if THIS module tentative-defines them -> .comm/.sbss -> gp-rel, §3.12 #6). */
- int   maxot;          /* ordering-table length (set to 16 here)        */
- int   maxprim;        /* primitive capacity                            */
- char *otbuf;          /* base of the "Draw Lists" allocation           */
- char *otbl;           /* active OT pointer (== otbuf)                   */
+ int   maxot;          /* @0x8013DE7C: ordering-table length (set to 16 here) */
+ int   maxprim;        /* @0x8013DE8C: primitive capacity */
+ char *otbuf;          /* @0x8013DD04: base of the "Draw Lists" allocation */
+ char *otbl;           /* @0x8013DE70: active OT pointer (== otbuf) */
+ /* Raw initlinkmode stores prove these two exact four-byte gaps, but compact
+  * SYM/MAP does not preserve their lexical names.
+  * SYM-GLOBAL-CARRIER: otbl2
+  * SYM-GLOBAL-CARRIER: primbuf2 */
  char *otbl2;          /* @0x8013DE74 : 2nd OT buffer (otbuf + maxot*4)  */
- char *primbuf;        /* active primitive buffer (otbuf + maxot*8)      */
- char *primbase;       /* primitive buffer base                         */
+ char *primbuf;        /* @0x8013DD08: active primitive buffer (otbuf + maxot*8) */
+ char *primbase;       /* @0x8013DE84: primitive buffer base */
  char *primbuf2;       /* @0x8013DE88 : 2nd prim buffer (primbuf+52*maxprim) */
- char *primptr;        /* current primitive write cursor                */
- char *nextprim;       /* next primitive link target (== otbl)          */
- int   oti;            /* OT index                                      */
- int   otp;            /* OT page/parity                                */
- int drawpending;   /* owning-TU tentative def → .comm/.sbss → gp-rel */
- int linkmodeflag;  /* owning-TU tentative def → .comm/.sbss → gp-rel */
- int semitrans;     /* owning-TU tentative def → .comm/.sbss → gp-rel */
+ char *primptr;        /* @0x8013DE80: current primitive write cursor */
+ char *nextprim;       /* @0x8013DE78: next primitive link target (== otbl) */
+ int   oti;            /* @0x8013DE68: OT index */
+ int   otp;            /* @0x8013DE6C: OT page/parity */
+ int drawpending;   /* @0x8013DD10: owning-TU tentative def → .comm/.sbss → gp-rel */
+ int linkmodeflag;  /* @0x8013DD0C: owning-TU tentative def → .comm/.sbss → gp-rel */
+ int semitrans;     /* @0x8013DD14: owning-TU tentative def → .comm/.sbss → gp-rel */
 
 extern void *initlinkmode(void *unused, int maxprimArg, int linkmode)   /* @0x800F05F4 */
 {

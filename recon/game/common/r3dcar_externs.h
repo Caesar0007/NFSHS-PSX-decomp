@@ -36,8 +36,6 @@ extern "C" char *strcpy(...);
 extern "C" int systemtask(...);
 extern "C" void transform(...);
 
-/* ---- Ghidra-ism helpers (faithful value-level shims) ---- */
-#define INT_1f80008c (*(volatile int *)0x1f80008c)   /* scratchpad word Ghidra named by abs-addr */
 extern "C" void trap(int code);                  /* gcc MIPS div-by-zero/overflow break helper */
 
 /* ---- cross-TU globals ---- */
@@ -55,7 +53,6 @@ extern MATRIX             DrawC_gScreenMat;
 extern R3DCar_GameSetupCodegenView GameSetup_gData;
 extern char               GameSetup_gCarNames[51][5];
 extern char              *Paths_Paths[];
-extern int                Render_gMenuRenderFlag;
 extern int                Texture_CarColor, Texture_palNum;
 extern DRender_tView      gCView;
 extern int                gFlip, gNight_renderNight;

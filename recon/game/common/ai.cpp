@@ -170,15 +170,14 @@ void AI_TargetLane(Car_tObj *carObj,int lane)
 void AI_ClearLaneMerits(void)
 {
   int o;
-  int iVar1;
   
-  iVar1 = 0;
+  o = 0;
   do {
-    iVar1 = iVar1 + 1;
+    o = o + 1;
     CarLogic_gObs[0][2] = 0;
     CarLogic_gObs[0][1] = 0;
     CarLogic_gObs[0][0] = 0;
-  } while (iVar1 < 1);
+  } while (o < 1);
   return;
 }
 
@@ -487,30 +486,29 @@ void AI_CheckForBarriers(Car_tObj *carObj)
 void AI_SetupOncomingLaneDemerits(Car_tObj *carObj)
 {
   int opposingLaneMerit;
-  int iVar1;
   
-  iVar1 = AI_IsMellowZone(carObj,0x3c0000);
-  if (iVar1 == 0) {
-    iVar1 = -0x40000;
+  opposingLaneMerit = AI_IsMellowZone(carObj,0x3c0000);
+  if (opposingLaneMerit == 0) {
+    opposingLaneMerit = -0x40000;
     if ((carObj->carFlags & 0x10U) != 0) {
-      iVar1 = -0xc0000;
+      opposingLaneMerit = -0xc0000;
     }
     if ((((Cars_gNumTrafficCars != 0) || (Cars_gNumCopCars != 0)) && (AITune_oneWay == 0)) &&
        ((carObj->AIFlags & 2U) == 0)) {
       if (carObj->direction == AITune_driveSide) {
         if (carObj->laneIndex + -1 < 7) {
-          CarLogic_gObs[0][0] = CarLogic_gObs[0][0] + iVar1;
+          CarLogic_gObs[0][0] = CarLogic_gObs[0][0] + opposingLaneMerit;
         }
         if (carObj->laneIndex < 7) {
-          CarLogic_gObs[0][1] = CarLogic_gObs[0][1] + iVar1;
+          CarLogic_gObs[0][1] = CarLogic_gObs[0][1] + opposingLaneMerit;
         }
       }
       else {
         if (6 < carObj->laneIndex) {
-          CarLogic_gObs[0][1] = CarLogic_gObs[0][1] + iVar1;
+          CarLogic_gObs[0][1] = CarLogic_gObs[0][1] + opposingLaneMerit;
         }
         if (6 < carObj->laneIndex + 1) {
-          CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + iVar1;
+          CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + opposingLaneMerit;
         }
       }
     }
@@ -966,16 +964,15 @@ void AI_CalcBestLineMerits(Car_tObj *carObj)
   int slice;
   char*buffer;
   int latPos;
-  int iVar1;
 
   slice = carObj->lookAheadSlice;
   if ((carObj->carFlags & 8U) != 0) {
-    iVar1 = fixedmult(*(int *)((char *)carObj->personality + 0x44),
-                       (int)(signed char)AIDataRecord_BestLine->dataBuffer_
-                            [slice] << 0xe);
-    carObj->preferredLateralPosition = iVar1;
+    latPos = fixedmult(*(int *)((char *)carObj->personality + 0x44),
+                        (int)(signed char)AIDataRecord_BestLine->dataBuffer_
+                             [slice] << 0xe);
+    carObj->preferredLateralPosition = latPos;
     carObj->preferredLateralPositionPower = 0x50000;
-    carObj->preferredLateralPosition = iVar1 - carObj->laneSlack * carObj->direction;
+    carObj->preferredLateralPosition = latPos - carObj->laneSlack * carObj->direction;
   }
   return;
 }
@@ -1043,17 +1040,14 @@ void AI_AvoidObjects(Car_tObj *carObj)
 /* ---- AI_AvoidSpikeBelt__FP8Car_tObj  [@0x8005995c] ---- */
 void AI_AvoidSpikeBelt(Car_tObj *carObj)
 {
-  int iVar1;
   int spikeSlice;
   int leftLatPos;
   int width;
 
-  iVar1 = BWorld_GetSpikeBelt(&spikeSlice,&leftLatPos,&width);
-  if (iVar1 == 0) {
+  if (BWorld_GetSpikeBelt(&spikeSlice,&leftLatPos,&width) == 0) {
     return;
   }
-  iVar1 = AIWorld_ApxSplineDistance(spikeSlice,carObj);
-  if (0x63ffff <= iVar1 * carObj->direction - 1U) {
+  if (0x63ffff <= AIWorld_ApxSplineDistance(spikeSlice,carObj) * carObj->direction - 1U) {
     return;
   }
   AI_SubmitObstacle(carObj,-0x280000,leftLatPos,leftLatPos + width,spikeSlice);
@@ -1068,21 +1062,20 @@ void AI_SubmitObstacle(Car_tObj *carObj,int importance,int leftLatPosition,int r
   int observations[3];
   int leftDistance;
   int rightDistance;
-  int edgeIndex;
 
   memset((u_char *)observations,'\0',0xc);
   leftEdgeIndex = AIWorld_LaneIndex(slice,leftLatPosition);
   rightEdgeIndex = AIWorld_LaneIndex(slice,rightLatPosition);
   if (((u_int)rightEdgeIndex < 0xe) && ((u_int)leftEdgeIndex < 0xe)) {
-    edgeIndex = carObj->laneIndex + -1;
-    if (((int)leftEdgeIndex <= edgeIndex) && (edgeIndex <= (int)rightEdgeIndex)) {
+    if (((int)leftEdgeIndex <= carObj->laneIndex + -1) &&
+        (carObj->laneIndex + -1 <= (int)rightEdgeIndex)) {
       observations[0] = importance;
     }
     if (((int)leftEdgeIndex <= carObj->laneIndex) && (carObj->laneIndex <= (int)rightEdgeIndex)) {
       observations[1] = importance;
     }
-    edgeIndex = carObj->laneIndex + 1;
-    if (((int)leftEdgeIndex <= edgeIndex) && (edgeIndex <= (int)rightEdgeIndex)) {
+    if (((int)leftEdgeIndex <= carObj->laneIndex + 1) &&
+        (carObj->laneIndex + 1 <= (int)rightEdgeIndex)) {
       observations[2] = importance;
     }
     if (((observations[0] != 0) && (observations[1] != 0)) && (observations[2] != 0)) {
@@ -1209,7 +1202,6 @@ int AI_CheckPreferredLateralPosition(Car_tObj *carObj)
   int bestLanePower;
   int leftBestLane;
   int rightBestLane;
-  int result;
 
   carSideLane = AIWorld_LaneIndex((int)(carObj->N).simRoadInfo.slice,
                      (carObj->preferredLateralPosition - (carObj->N).dimension.x) + -0x4000);
@@ -1275,6 +1267,10 @@ int AI_TryToShareLanes(Car_tObj *carObj,Car_tObj *carInWay)
   minGapSize =
       (carObj->N).dimension.x + (carObj->N).dimension.x / 2;
   absLaneIndex = AI_Info.desiredLane;
+  /* SYM-CODEGEN-CARRIER: laneWidth -- PsyQ omits both block-local instances,
+   * but their separate lexical lifetimes reproduce the retail allocation.
+   * Reusing the later SYM-named gapLeft instead gives 64 diffs; this form is
+   * authoritative PASS at 63/63 instructions. */
   if (7 <= absLaneIndex) {
     u_int laneWidth =
         (u_int)*(u_char *)((char *)AI_BWorldSmSlices +
@@ -1633,9 +1629,9 @@ void AI_MaybeChangeLaneSlack(Car_tObj *carObj)
 /* ---- AI_ChooseNewLaneSlack__FP8Car_tObj  [@0x8005a9dc] ---- */
 void AI_ChooseNewLaneSlack(Car_tObj *carObj)
 {
-  u_int newRand = fastRandom * randSeed;
-  carObj->laneSlack = *(int *)((char *)carObj->personality + (newRand >> 6 & 0xc) + 0xc);
-  randtemp = newRand;
-  fastRandom = newRand & 0xffff;
+  carObj->laneSlack = *(int *)((char *)carObj->personality +
+      ((fastRandom * randSeed) >> 6 & 0xc) + 0xc);
+  randtemp = fastRandom * randSeed;
+  fastRandom = randtemp & 0xffff;
   return;
 }

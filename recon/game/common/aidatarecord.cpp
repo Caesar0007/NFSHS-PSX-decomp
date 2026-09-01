@@ -39,20 +39,14 @@ AIDataRecord_t::~AIDataRecord_t()
 int AIDataRecord_t::AddRecordToCollection()
 {
   int recordLoop;
-  AIDataRecord_t **ppAVar1;
-  int iVar2;
 
-  iVar2 = 0;
-  ppAVar1 = recordCollection;
-  do {
-    iVar2 = iVar2 + 1;
-    if (*ppAVar1 != (AIDataRecord_t *)0x0) {
-      ppAVar1 = ppAVar1 + 1;
+  for (recordLoop = 0; recordLoop < 0x18; recordLoop++) {
+    if (recordCollection[recordLoop] != (AIDataRecord_t *)0x0) {
       continue;
     }
-    *ppAVar1 = this;
+    recordCollection[recordLoop] = this;
     return 1;
-  } while (iVar2 < 0x18);
+  }
   return 0;
 }
 
@@ -60,20 +54,14 @@ int AIDataRecord_t::AddRecordToCollection()
 int AIDataRecord_t::RemoveRecordFromCollection()
 {
   int recordLoop;
-  AIDataRecord_t **ppAVar1;
-  int iVar2;
 
-  iVar2 = 0;
-  ppAVar1 = recordCollection;
-  do {
-    iVar2 = iVar2 + 1;
-    if (*ppAVar1 != this) {
-      ppAVar1 = ppAVar1 + 1;
+  for (recordLoop = 0; recordLoop < 0x18; recordLoop++) {
+    if (recordCollection[recordLoop] != this) {
       continue;
     }
-    *ppAVar1 = (AIDataRecord_t *)0x0;
+    recordCollection[recordLoop] = (AIDataRecord_t *)0x0;
     return 1;
-  } while (iVar2 < 0x18);
+  }
   return 0;
 }
 
@@ -81,18 +69,12 @@ int AIDataRecord_t::RemoveRecordFromCollection()
 void AIDataRecord_t::StartUp1(void)
 {
   int recordLoop;
-  AIDataRecord_t **ppAVar1;
-  int iVar2;
 
-  iVar2 = 0x17;
-  ppAVar1 = recordCollection + iVar2;
   AIDataRecord_WhichRecord = NORECORD_R;
   AIDataRecord_RecordMethod = NORMAL_M;
-  do {
-    *ppAVar1 = (AIDataRecord_t *)0x0;
-    iVar2 = iVar2 + -1;
-    ppAVar1 = ppAVar1 + -1;
-  } while (-1 < iVar2);
+  for (recordLoop = 0x17; recordLoop >= 0; recordLoop--) {
+    recordCollection[recordLoop] = (AIDataRecord_t *)0x0;
+  }
   AIDataRecord_BestLine = new AIDataRecord_BestLine_t((AIDataRecord_WhichRecord_t)5);
   AIDataRecord_TrackCurve = new AIDataRecord_TrackCurve_t((AIDataRecord_WhichRecord_t)6);
   return;
@@ -102,26 +84,24 @@ void AIDataRecord_t::StartUp1(void)
 void AIDataRecord_t::StartUp2(void)
 {
   int recordLoop;
+  /* SYM-CODEGEN-CARRIER: pAVar1 -- direct virtual call through the indexed
+   * collection element produces 11 oracle diffs. */
   AIDataRecord_t *pAVar1;
-  AIDataRecord_t **ppAVar2;
-  int iVar3;
 
-  iVar3 = 0;
-  ppAVar2 = recordCollection;
-  do {
-    pAVar1 = *ppAVar2;
+  for (recordLoop = 0; recordLoop < 0x18; recordLoop++) {
+    pAVar1 = recordCollection[recordLoop];
     if (pAVar1 != (AIDataRecord_t *)0x0) {
       (*(*pAVar1->_vf)[2].pfn)((char *)pAVar1 + (*pAVar1->_vf)[2].delta);
     }
-    iVar3 = iVar3 + 1;
-    ppAVar2 = ppAVar2 + 1;
-  } while (iVar3 < 0x18);
+  }
   return;
 }
 
 /* ---- CleanUp1__14AIDataRecord_t ---- */
 void AIDataRecord_t::CleanUp1(void)
 {
+  /* SYM-CODEGEN-CARRIER: pa_Var1 -- natural delete expressions produce 24
+   * oracle diffs; the shared vtable row preserves retail dispatch allocation. */
   __vtbl_ptr_type (*pa_Var1) [3];
 
   if (AIDataRecord_BestLine != (AIDataRecord_BestLine_t *)0x0) {
@@ -146,16 +126,11 @@ void AIDataRecord_t::CleanUp2(void)
 /* ---- Setup__14AIDataRecord_t ---- */
 void AIDataRecord_t::Setup()
 {
-  char *pcVar1;
-  int iVar2;
-
-  pcVar1 = this->preAllocatedBuffer_;
-  if (pcVar1 != (char *)0x0) {
-    this->dataBuffer_ = pcVar1;
+  if (this->preAllocatedBuffer_ != (char *)0x0) {
+    this->dataBuffer_ = this->preAllocatedBuffer_;
     return;
   }
-  iVar2 = this->Load();
-  if (iVar2 != 0) {
+  if (this->Load() != 0) {
     return;
   }
   this->dataBuffer_ = reservememadr(this->name_,this->bSize_,0);
@@ -165,11 +140,8 @@ void AIDataRecord_t::Setup()
 /* ---- Load__14AIDataRecord_t ---- */
 int AIDataRecord_t::Load()
 {
-  char *pcVar1;
-
   if (this->recordMethod_ == 0) {
-    pcVar1 = (char *)loadpackadrz(this->name_,(void *)0x0);
-    this->dataBuffer_ = pcVar1;
+    this->dataBuffer_ = (char *)loadpackadrz(this->name_,(void *)0x0);
   }
   return (u_int)(this->dataBuffer_ != (char *)0x0);
 }
@@ -177,17 +149,14 @@ int AIDataRecord_t::Load()
 /* ---- SaveAndPurge__14AIDataRecord_t ---- */
 int AIDataRecord_t::SaveAndPurge()
 {
-  int iVar1;
-
-  iVar1 = 0;
-  if (this->dataBuffer_ != (char *)0x0) {
-    if (this->preAllocatedBuffer_ == (char *)0x0) {
-      purgememadr(this->dataBuffer_);
-    }
-    this->dataBuffer_ = (char *)0x0;
-    iVar1 = 1;
+  if (this->dataBuffer_ == (char *)0x0) {
+    return 0;
   }
-  return iVar1;
+  if (this->preAllocatedBuffer_ == (char *)0x0) {
+    purgememadr(this->dataBuffer_);
+  }
+  this->dataBuffer_ = (char *)0x0;
+  return 1;
 }
 
 /* ---- __23AIDataRecord_AccTable_tPci26AIDataRecord_WhichRecord_t  AccTable::ctor ---- */
@@ -214,17 +183,18 @@ int AIDataRecord_AccTable_t::Get(int speed)
 void AIDataRecord_AccTable_t::Setup()
 {
   int loop;
+  /* SYM-CODEGEN-CARRIER: iVar1 -- folding the Get/fixedmult/store chain
+   * directly changes the exact function by 6 oracle diffs. */
   int iVar1;
-  int speed;
 
   this->AIDataRecord_t::Setup();
-  speed = 0;
- loopTop:
-  if (speed < 0x70) {
-    iVar1 = this->Get(speed);
+  loop = 0;
+loopTop:
+  if (loop < 0x70) {
+    iVar1 = this->Get(loop);
     iVar1 = fixedmult(iVar1,this->scale_);
-    *(short *)(this->dataBuffer_ + speed * 2) = (short)(iVar1 >> 8);
-    speed = speed + 1;
+    *(short *)(this->dataBuffer_ + loop * 2) = (short)(iVar1 >> 8);
+    loop = loop + 1;
     goto loopTop;
   }
   return;
@@ -234,12 +204,8 @@ void AIDataRecord_AccTable_t::Setup()
 AIDataRecord_BestLine_t::AIDataRecord_BestLine_t(AIDataRecord_WhichRecord_t whichIsThis)
   : AIDataRecord_t(whichIsThis,(char *)0x0)
 {
-  int iVar1;
-
-  iVar1 = gNumSlices;
   this->_vf = (__vtbl_ptr_type (*) [3])AIDataRecord_BestLine_t_vtable;
-  this->numElements_ = iVar1;
-  this->bSize_ = iVar1;
+  this->bSize_ = this->numElements_ = gNumSlices;
   if (this->recordMethod_ == 0) {
     sprintf(this->name_,D_800553C4,D_80116498[0],D_80113228[0]);
   }
@@ -253,12 +219,8 @@ AIDataRecord_BestLine_t::AIDataRecord_BestLine_t(AIDataRecord_WhichRecord_t whic
 AIDataRecord_TrackCurve_t::AIDataRecord_TrackCurve_t(AIDataRecord_WhichRecord_t whichIsThis)
   : AIDataRecord_t(whichIsThis,(char *)0x0)
 {
-  int iVar1;
-
-  iVar1 = gNumSlices;
   this->_vf = (__vtbl_ptr_type (*) [3])AIDataRecord_TrackCurve_t_vtable;
-  this->numElements_ = iVar1;
-  this->bSize_ = iVar1 + 1;
+  this->bSize_ = (this->numElements_ = gNumSlices) + 1;
   if (this->recordMethod_ == 0) {
     sprintf(this->name_,D_800553E4,D_80116490[0],D_80113228[0]);
   }
@@ -306,8 +268,14 @@ int AIDataRecord_CurveSpeedTable_t::Get(int curve)
 /* ---- Upgrade__30AIDataRecord_CurveSpeedTable_ti ---- */
 void AIDataRecord_CurveSpeedTable_t::Upgrade(int handlingUpgrade)
 {
-  int round;   /* 0xffff hoisted across the loop (pin-free per the no-asm-pin rule) */
+  /* SYM-CODEGEN-CARRIER: round -- spelling the bias as literal 0xffff
+   * changes this exact function by 25 oracle diffs and drops one instruction. */
+  int round;
+  /* SYM-CODEGEN-CARRIER: pcVar1 -- indexing dataBuffer_ directly changes
+   * this exact function by 16 oracle diffs and adds two instructions. */
   char *pcVar1;
+  /* SYM-CODEGEN-CARRIER: iVar1 -- the fixedmult result must stay live across
+   * the signed rounding branch; folding the expression changes allocation. */
   int iVar1;
   int curveLoop;
 
@@ -321,7 +289,7 @@ void AIDataRecord_CurveSpeedTable_t::Upgrade(int handlingUpgrade)
     if (iVar1 < 0) {
       iVar1 = iVar1 + round;
     }
-    *pcVar1 = (char)(iVar1 >> 0x10);
+    *pcVar1 = (char)(iVar1 >> 16);
     curveLoop = curveLoop + 1;
     goto loopTop;
   }

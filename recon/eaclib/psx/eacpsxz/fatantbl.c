@@ -1,6 +1,6 @@
 /* eaclib/psx/eacpsxz/fatantbl.c -- data-only archive member proven by NFS4 SYM. */
 
-int fatantbl[257] = {
+int fatantbl[257] = { /* @0x80137868 */
     0,41,81,122,163,204,244,285,
     326,367,407,448,489,529,570,610,
     651,692,732,773,813,854,894,935,

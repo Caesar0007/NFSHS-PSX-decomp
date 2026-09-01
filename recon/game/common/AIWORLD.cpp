@@ -78,8 +78,6 @@ int AIWorld_ApxSplineDistance(Car_tObj *carObj,Car_tObj *otherCarObj)
   int halfTrack;
   int a;
   int b;
-  int iVar1;
-  int iVar2;
   
   diff = (int)(carObj->N).simRoadInfo.slice - (int)(otherCarObj->N).simRoadInfo.slice;   /* SYM: diff REG $a0 */
   halfTrack = gNumSlices / 2;   /* SYM: halfTrack REG $a1 -- computed ONCE, reused below
@@ -88,15 +86,16 @@ int AIWorld_ApxSplineDistance(Car_tObj *carObj,Car_tObj *otherCarObj)
     diff = diff - gNumSlices;
   }
   else {
-    iVar1 = diff * 2;
+    a = diff * 2;
     if (-1 < diff) goto LAB_8007311c;
     if (diff < -halfTrack) {
       diff = diff + gNumSlices;
     }
   }
-  iVar1 = diff << 1;
+  a = diff << 1;
 LAB_8007311c:
-  return (iVar1 + diff) * 0x20000;
+  b = a + diff;
+  return b * 0x20000;
 }
 
 /* ---- AIWorld_ApxSplineDistance__FP8Car_tObji  [@0x80073128] ---- */
@@ -105,8 +104,6 @@ int AIWorld_ApxSplineDistance(Car_tObj *carObj,int location)
   int diff;
   int halfTrack;
   int a;
-  int iVar1;
-  int iVar2;
   
   diff = (carObj->N).simRoadInfo.slice - location;   /* SYM: diff REG $a0 */
   halfTrack = gNumSlices / 2;   /* SYM: halfTrack REG $a1 -- computed ONCE (double-roll bug) */
@@ -114,24 +111,21 @@ int AIWorld_ApxSplineDistance(Car_tObj *carObj,int location)
     diff = diff - gNumSlices;
   }
   else {
-    iVar1 = diff * 2;
+    a = diff * 2;
     if (-1 < diff) goto LAB_80073188;
     if (diff < -halfTrack) {
       diff = diff + gNumSlices;
     }
   }
-  iVar1 = diff << 1;
+  a = diff << 1;
 LAB_80073188:
-  return (iVar1 + diff) * 0x20000;
+  return (a + diff) * 0x20000;
 }
 
 /* ---- AIWorld_ApxSplineDistance__FiP8Car_tObj  [@0x80073194] ---- */
 int AIWorld_ApxSplineDistance(int location,Car_tObj *carObj)
 {
-  int iVar1;
-  
-  iVar1 = AIWorld_ApxSplineDistance(carObj,location);
-  return -iVar1;
+  return -AIWorld_ApxSplineDistance(carObj,location);
 }
 
 /* ---- AIWorld_ApxSplineDistance__Fii  [@0x800731bc] ---- */
@@ -139,24 +133,16 @@ int AIWorld_ApxSplineDistance(int locationA,int locationB)
 {
   int diff;
   int halfTrack;
-  int iVar1;
-  int iVar2;
   
   diff = locationA - locationB;   /* SYM: diff REG $a0 */
   halfTrack = gNumSlices / 2;   /* SYM: halfTrack REG $a1 -- computed ONCE (double-roll bug) */
   if (!(diff < 1) && !(diff <= halfTrack)) {
     diff = diff - gNumSlices;
   }
-  else {
-    iVar1 = diff * 2;
-    if (-1 < diff) goto LAB_80073218;
-    if (diff < -halfTrack) {
-      diff = diff + gNumSlices;
-    }
+  else if ((diff < 0) && (diff < -halfTrack)) {
+    diff = diff + gNumSlices;
   }
-  iVar1 = diff << 1;
-LAB_80073218:
-  return (iVar1 + diff) * 0x20000;
+  return diff * 0x60000;
 }
 
 /* ---- AIWorld_SplineDistance__FP8Car_tObjT0  [@0x80073224] ---- */
@@ -175,13 +161,12 @@ int AIWorld_SplineDistance(Car_tObj *carObj,Car_tObj *otherCarObj)
 int AIWorld_SplineDistance(Car_tObj *carObj,int location,coorddef *position)
 {
   int distance;
-  int iVar1;
 
-  iVar1 = AIWorld_ApxSplineDistance(carObj,location);
-  if (iVar1 + 0xc0000U < 0x180001) {
+  distance = AIWorld_ApxSplineDistance(carObj,location);
+  if (distance + 0xc0000U < 0x180001) {
     return AIWorld_ZSplineDistance(&(carObj->N).position,position,&(carObj->N).roadMatrix);
   }
-  return iVar1;
+  return distance;
 }
 
 /* ---- AIWorld_GameOdometer__FP8Car_tObj  [@0x800732d8] ---- */
@@ -198,7 +183,13 @@ int AIWorld_IsDriveableLaneInSliceRange(int startSlice,int numSlicesToCheck,int 
   int mask;             /* SYM: REG -- computed ONCE before the loop */
   int checkSliceOffset;  /* SYM: REG */
   int checkSlice;         /* SYM: REG */
+  /* SYM-CODEGEN-CARRIER: sliceDelta -- absent from the surviving block
+   * records. Mutating startSlice/direction instead changes 31 instructions
+   * and shortens the function by one. */
   int sliceDelta;
+  /* SYM-CODEGEN-CARRIER: i -- absent from the surviving block records.
+   * Decrementing numSlicesToCheck instead changes 14 instructions and
+   * shortens the function by two. */
   int i;
 
   laneOffset = 7 - laneIndex;
@@ -308,6 +299,10 @@ int AIWorld_LaneIndex(int slice,int position)
 {
   int laneWidth;
   int li;
+  /* SYM-CODEGEN-CARRIER: iVar2 -- absent from the surviving local records.
+   * Reusing the dead recorded `laneWidth` changes 26 instructions; reusing
+   * parameter `position` changes 25 and adds one. The separate result/clamp
+   * web is required for the exact 50-insn body. */
   int iVar2;
 
   if (position < 0) {
@@ -337,7 +332,6 @@ void AIWorld_CalculateLaneInfo(Car_tObj *carObj)
   int rightEdgeIndex;   /* SYM: REG INT; clamp expression is explicitly unsigned (`sltiu`). */
   int leftEdgeIndex;    /* SYM: REG INT */
   int laneLoop;         /* SYM: REG INT; loop comparison remains signed (`slt`). */
-  int iVar2;
 
   carObj->carInLane = 0;
   if ((carObj->AIFlags & 4U) == 0) {
@@ -346,8 +340,8 @@ void AIWorld_CalculateLaneInfo(Car_tObj *carObj)
        forces an EXTRA value to survive across a call, needing a 3rd callee-saved reg (ours
        saved s0/s1/s2, oracle only s0/s1). Eager-cache-drop, same class as the femenu
        ptVar=FEApp finding in the catalog. */
-    iVar2 = AIWorld_LaneIndex((int)(carObj->N).simRoadInfo.slice,carObj->roadPosition);
-    carObj->laneIndex = iVar2;
+    carObj->laneIndex =
+        AIWorld_LaneIndex((int)(carObj->N).simRoadInfo.slice,carObj->roadPosition);
     leftEdgeIndex = AIWorld_LaneIndex((int)(carObj->N).simRoadInfo.slice,
                        (carObj->roadPosition - carObj->roadSpan) + 0x8000);
     rightEdgeIndex = AIWorld_LaneIndex((int)(carObj->N).simRoadInfo.slice,
@@ -366,9 +360,17 @@ int AIWorld_CalculateDeltaRoadYaw(Car_tObj *carObj)
 {
   int delta;     /* SYM: REG $a0, whole-function scope -- rewired from anonymous iVar1 */
   int yaw0;      /* SYM: REG $s0, block-scoped inside the if -- rewired from anonymous iVar3 */
+  /* SYM-CODEGEN-CARRIER: iVar2 -- absent from the surviving local records.
+   * Reusing recorded `delta` for the slice chain changes 8 instructions. */
   int iVar2;
+  /* SYM-CODEGEN-CARRIER: nextSlice -- absent from the surviving local records.
+   * Updating iVar2 in place changes the same 8-instruction slice/result web. */
   int nextSlice;
+  /* SYM-CODEGEN-CARRIER: gnLess1 -- absent from the surviving local records.
+   * Folding `(numSlices - 1)` changes 8 instructions while preserving length. */
   int gnLess1;
+  /* SYM-CODEGEN-CARRIER: numSlices -- absent from the surviving local records.
+   * Direct global reads change 15 instructions and add one load. */
   int numSlices;
 
   delta = 0;
@@ -407,6 +409,9 @@ int AIWorld_CalcRoadBend(Car_tObj *carObj,int lookAhead)
 {
   int thisSlice;
   int nextSlice;
+  /* SYM-CODEGEN-CARRIER: bend -- absent from the surviving local records.
+   * Folding the first product into the final expression preserves length but
+   * changes 24 allocation/scheduling instructions. */
   int bend;
 
   thisSlice = (int)(carObj->N).simRoadInfo.slice;
@@ -466,18 +471,16 @@ void AIWorld_CalcSpeed(Car_tObj *carObj)
 {
   int optVar1;
   int optVar2;
-  int iVar1;
-  int iVar2;
   
-  iVar2 = (carObj->N).linearVel.x;
-  iVar1 = (carObj->N).linearVel.z;
-  iVar2 = __builtin_abs(iVar2);
-  iVar1 = __builtin_abs(iVar1);
-  if (iVar1 < iVar2) {
-    carObj->speed = iVar2 + (iVar1 >> 2);
+  optVar2 = (carObj->N).linearVel.x;
+  optVar1 = (carObj->N).linearVel.z;
+  optVar2 = __builtin_abs(optVar2);
+  optVar1 = __builtin_abs(optVar1);
+  if (optVar1 < optVar2) {
+    carObj->speed = optVar2 + (optVar1 >> 2);
     return;
   }
-  carObj->speed = iVar1 + (iVar2 >> 2);
+  carObj->speed = optVar1 + (optVar2 >> 2);
   return;
 }
 
@@ -503,7 +506,6 @@ void AIWorld_FindBarrierLessLaneAndPosition(Car_tObj *carObj,int *goodLane,int *
                          raw and multiplied later -- lets the shifted value be reused directly
                          by the loop-trailing multiply/shift below without re-deriving it. */
   int laneLoop;      /* SYM: REG -- rewired from anonymous iVar4 */
-  int iVar3;
 
   roadSide = carObj->direction * AITune_driveSide;
   laneLoop = 0;
@@ -516,8 +518,7 @@ void AIWorld_FindBarrierLessLaneAndPosition(Car_tObj *carObj,int *goodLane,int *
     laneWidth = *(u_char *)((carObj->N).simRoadInfo.slice * 0x20 + (int)BWorldSm_slices + 0x1e) << 15;
   }
   for (; laneLoop < 3; laneLoop = laneLoop + 1) {
-    iVar3 = AIWorld_IsDriveableLane((int)(carObj->N).simRoadInfo.slice,*goodLane);
-    if (iVar3 != 0) break;
+    if (AIWorld_IsDriveableLane((int)(carObj->N).simRoadInfo.slice,*goodLane) != 0) break;
     *goodLane = *goodLane + roadSide;
   }
   *goodPosition = roadSide * (laneWidth * laneLoop + ((u_int)laneWidth >> 1));

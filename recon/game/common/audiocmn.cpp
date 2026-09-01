@@ -15,7 +15,7 @@ void AudioCmn_ReverbOff(void);
 /* ---- audiocmn.obj-owned globals (SYM-typed; .data=real EXE bytes, .bss=zero) ---- */
 /* forward decls of the W67-A4 .sdata literal-pool arrays (defined after the
    =0 batch below so they EMIT at their retail positions 0x8013c67c..0x8013c6a8;
-   the tables here only reference them). */
+   the generated local-initializer template and tables reference them). */
 extern char D_8013C67C[], D_8013C684[], D_8013C68C[], D_8013C690[], D_8013C694[],
             D_8013C698[], D_8013C69C[], D_8013C6A0[], D_8013C6A4[], D_8013C6A8[];
 extern char *AudioCmn_LanguageName[7];
@@ -37,10 +37,6 @@ extern char fMysticWindON[2], fAmbientRangeON[2];
 extern int currentWindVal[2], nextWindVal[2];
 extern int currentWindPan, nextWindPan, gQuickSirenCount;
 extern int AudioCmn_ThunderAmp, AudioCmn_ThunderAzi, AudioCmn_ThunderDel;
-char         *const AudioCmn_FESFX_loadLangMap[12] = {   /* @0x8005570c: readonly image pointers */
-    D_8013C68C, D_8013C6A4, D_8013C68C, D_8013C6A8, D_8013C68C, D_8013C6A4,
-    D_8013C690, D_8013C6A4, D_8013C68C, D_8013C68C, D_8013C68C, 0
-};
 int          gBankNumLookupTable[71] = { 0, 2, 0, 2, 0, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 5, 5, 5, 5, 3, 3, 3, 3, 5, 2, 2, 2, 2, 0, 1, 2, 2, 2, 2, 0, 0, 3, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 0 };   /* @0x8010e4d0 */
 int          falseLapTrigNumsForward[10][2] = { 4, 7, 4, 7, 4, 7, -1, -1, 4, 7, 4, 9, 4, 9, -1, -1, -1, -1, 4, 9 };   /* @0x8010e5ec */
 int          falseLapTrigNumsBackward[10][2] = { 4, 5, 4, 5, -1, -1, -1, -1, 4, 5, 4, 5, 4, 5, -1, -1, -1, -1, 4, 5 };   /* @0x8010e63c */
@@ -74,9 +70,21 @@ char         fReverbLevel = 0;   /* @0x8013c679 */
    initialised fn-statics @0x8013c6ac/0x8013c6b0 (SYM: lastImpactSample INT,
    cobbleCount CHAR), reproduced in DEFINITION ORDER.  Whole-TU -G8 breaks
    CheckState (W59-11G), so the literals are NAMED .sdata arrays (w66a6/sim.cpp
-   device; storage-only, address form stays absolute).  The two data tables and
-   the three code sites reference these arrays -- reloc-name-lenient, and the
+   device; storage-only, address form stays absolute).  The generated local
+   initializer, data table, and three code sites reference these arrays -- reloc-name-lenient, and the
    pooling ("eng" x6 -> one copy) is exactly retail's.  DO NOT RE-SORT. */
+/* SYM-GLOBAL-CARRIER: D_8013C67C
+   SYM-GLOBAL-CARRIER: D_8013C684
+   SYM-GLOBAL-CARRIER: D_8013C68C
+   SYM-GLOBAL-CARRIER: D_8013C690
+   SYM-GLOBAL-CARRIER: D_8013C694
+   SYM-GLOBAL-CARRIER: D_8013C698
+   SYM-GLOBAL-CARRIER: D_8013C69C
+   SYM-GLOBAL-CARRIER: D_8013C6A0
+   SYM-GLOBAL-CARRIER: D_8013C6A4
+   SYM-GLOBAL-CARRIER: D_8013C6A8
+   Retail fixes the literal bytes, pooling, addresses, and owner, but SYM does
+   not retain compiler-generated identifiers for string literals. */
 char D_8013C67C[] __attribute__((section(".sdata"), aligned(4))) = "SFXHDR";
 char D_8013C684[] __attribute__((section(".sdata"), aligned(4))) = "fesfx";
 char D_8013C68C[] __attribute__((section(".sdata"), aligned(4))) = "eng";
@@ -966,7 +974,6 @@ void AudioCmn_LoadFESamples(void)
 void AudioCmn_LoadGameSamples(void)
 {
   char filename[100];
-  char *TrackGenBank[11];
 
   AudioEng_StartUp(0,GameSetup_gCarNames[0] + GameSetup_gData.carInfo[0].carType * 5);
   if (GameSetup_gData.commMode == 1) {
@@ -975,7 +982,11 @@ void AudioCmn_LoadGameSamples(void)
   AudioEng_StartServer();
   strcpy(filename, Paths_Paths[0x1c]);
   strcat(filename, D_8013C6A0);   /* "Gen" */
-  memcpy(TrackGenBank, (char **)AudioCmn_FESFX_loadLangMap, sizeof(TrackGenBank));
+  char *TrackGenBank[11] = {
+    D_8013C68C, D_8013C6A4, D_8013C68C, D_8013C6A8, D_8013C68C,
+    D_8013C6A4, D_8013C690, D_8013C6A4, D_8013C68C, D_8013C68C,
+    D_8013C68C
+  };
   strcat(filename, TrackGenBank[GameSetup_gData.track]);
   AudioCmn_LoadBank(filename,3);
   gSndBnk[5].bnkID = -2;

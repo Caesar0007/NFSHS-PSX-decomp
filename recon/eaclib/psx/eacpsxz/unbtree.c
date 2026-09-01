@@ -16,11 +16,11 @@
 /* unbtree.obj-owned cursors/table bases: tentative-defined here (mergeable .comm with unref.c's
  * SQVd/SQVclue/SQVleft/SQVright tentative defs; the linker folds them). Needed so THIS TU knows their
  * size and keeps them -G4 gp-relative (an `extern` decl alone loses gp-rel -- verified: FAIL 220). */
-int SQVs;       /* source cursor */
-unsigned char *SQVd; /* destination cursor */
-int SQVclue;    /* clue table base (0=literal, 1=escape, 0xff=node) */
-int SQVleft;    /* node left-child table base */
-int SQVright;   /* node right-child table base */
+int SQVs;       /* @0x8013DED4: source cursor */
+unsigned char *SQVd; /* @0x8013DED8: destination cursor */
+int SQVclue;    /* @0x8013DEC8: clue table base (0=literal, 1=escape, 0xff=node) */
+int SQVleft;    /* @0x8013DECC: node left-child table base */
+int SQVright;   /* @0x8013DED0: node right-child table base */
 extern void chase(unsigned int code);   /* unref.obj */
 
 extern int unbtree(unsigned char *src, unsigned char *dst);   /* @0x800F55B4 */

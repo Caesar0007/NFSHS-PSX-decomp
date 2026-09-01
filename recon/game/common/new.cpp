@@ -15,20 +15,14 @@ char *New_cplusplus_heap;
 void *__builtin_new(unsigned int size)
 
 {
-  void *pvVar1;
-
-  pvVar1 = reservememadr((char *)0x0,(int)size,0);
-  return pvVar1;
+  return reservememadr((char *)0x0,(int)size,0);
 }
 
 /* ---- __builtin_vec_new  [NEW.CPP:31-42] SLD-VERIFIED ---- */
 void *__builtin_vec_new(unsigned int size)
 
 {
-  void *pvVar1;
-
-  pvVar1 = reservememadr((char *)0x0,(int)size,0);
-  return pvVar1;
+  return reservememadr((char *)0x0,(int)size,0);
 }
 
 /* ---- __builtin_delete  [NEW.CPP:46-47] SLD-VERIFIED ---- */

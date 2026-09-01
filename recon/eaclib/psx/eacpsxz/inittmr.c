@@ -4,23 +4,17 @@
  *   Ghidra nfs4-f.exe.c (inittmr) + disasm-v3 + IDA sigs.  Bare VAs symbolicated: addexit arg 0x800F4304 =
  *   &restoretimer; blockclear target 0x8012360C = &tmrsub; creatememclass template 0x8013DD48 = &DAT_8013dd48.
  */
- int timerflag;    /* @0x8013..  owning-TU tentative def → .comm/.sbss → gp-rel */
- int timerevent;  /* @0x8013..  owning-TU tentative def → .comm/.sbss → gp-rel */
- int reentryflag;  /* tmrint re-entry guard -- owning-TU tentative def → .comm/.sbss → gp-rel
+ int timerflag;    /* @0x8013DD4C: owning-TU tentative def → .comm/.sbss → gp-rel */
+ int timerevent;  /* @0x8013DEC4: owning-TU tentative def → .comm/.sbss → gp-rel */
+ int reentryflag;  /* @0x8013DEC0: tmrint re-entry guard -- owning-TU tentative def → .comm/.sbss → gp-rel
                     * (only inittimer.s oracle gp-rels it: `sw zero,%gp_rel(reentryflag)(gp)`) */
 extern int   timerhz;       /* tick rate */
-/* W65-A6 DATA-MAT: `memclass` was extern-only tree-wide (3 reloc-referenced undefined sites);
- * inittmr.obj is its sole referencer (it WRITES memclass[1] = memclass[0]).  Retail: .bss
- * @0x8013E900, size 64 (= bigfilename @0x8013E940 - 0x8013E900); VA > t_addr+t_size
- * (0x8013E000) => pure zero-init BSS, no file bytes.  DEVICE = file-scope asm .bss definition
- * so the C view stays the UNSIZED `extern int memclass[]` the decl comment below documents as
- * load-bearing (one shared %hi).  Receipts: scratchpad/w65a6/RECEIPTS.md */
-__asm__("\t.globl\tmemclass\n\t.section\t.bss\n\t.align\t2\nmemclass:\n\t.space\t64\n\t.text");
-extern int   memclass[];    /* @0x8013E900 memstd class id; [1] = the cached copy @0x8013E904
+/* `memclass` is owned by memstd.obj as the retail 16-pointer table.  This TU
+ * deliberately keeps an unsized integer view: it copies the first pointer
+ * word to the second, and that declaration shape preserves the shared %hi. */
+extern int   memclass[];    /* @0x8013E900; [1] = cached copy @0x8013E904
                              * (UNSIZED array shape: oracle shares ONE %hi -- lw %lo(memclass)(v1);
                              *  addiu v1,%lo; sw a0,4(v1)) */
-extern char  DAT_8013dd48[];  /* creatememclass name/template @0x8013DD48 */
-char DAT_8013dd48[] = "RAM";  /* owning storage; image bytes 52 41 4d 00 */
 extern unsigned int MEM_defaultevent(void);   /* meminit.obj default event handler */
 extern int   tmrsub[];      /* int[8] : per-tick handler list (UNSIZED array shape, lever #5) */
 extern volatile int ticks;    /* raw tick counter -- volatile (IRQ counter): keeps the oracle's
@@ -59,7 +53,7 @@ extern unsigned int tmrint(void);             /* @0x800F4328 */
  * gran 8 / align 0x20 / no guards / MEM_defaultevent handler, and cache the class id. */
 extern int initmemadr(int base, int size)
 {
-    char *name = DAT_8013dd48;
+    char *name = "RAM";                 /* compiler-owned writable literal @0x8013DD48 */
     int r = creatememclass(0, name, (char *)base, size,
                            8, 0x20, 0, 0, 0, 0, 0, (int)MEM_defaultevent);
     memclass[1] = memclass[0];               /* cached copy @0x8013E904 */

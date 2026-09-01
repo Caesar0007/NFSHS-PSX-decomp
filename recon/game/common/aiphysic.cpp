@@ -55,17 +55,17 @@ void AIPhysic_StopCar(Car_tObj *carObj,int velScale,int rotScale)
 /* ---- AIPhysic_RevEngine__FP8Car_tObj  (oracle reloads flywheelRpm 3x -- parity test, the add,
  * and the final clamp-check -- and shifts redLine>>16 IN PLACE inside the parity branch's delay
  * slot, not as a fresh expr in the final compare; carIndex%2 (NOT flywheelRpm) feeds `increase`.
- * MATCH: SYM shows fsize=8/mask=0 with only 2 REG locals (no AUTO) -- a dead 8-byte filler
- * `deadfrm[2]` reproduces the frame (35->32 diffs, count now EXACT 52/52). Residual: the last
- * `*4` step of the `*0x8c` strength-reduction fuses into the odd-flywheelRpm branch's `>>1` in
- * ours (a1) vs the oracle materializing it unconditionally beforehand (v1) -- a gcc constant-
- * multiply/branch scheduling floor, not reachable by statement reordering alone (tried both
- * positions of the redLine shift + several algebraic rewrites, all tie or regress). ---- */
+ * MATCH: SYM requires fsize=8/mask=0 while recording only the two REG locals
+ * below and no AUTO local.  Removing the otherwise dead two-word declaration
+ * changes the exact function by 3 oracle diffs; retain it as an explicit frame-
+ * shape carrier until stronger source evidence identifies the original construct. ---- */
 void AIPhysic_RevEngine(Car_tObj *carObj)
 {
   int increase;
   int redLine;
-  int deadfrm[2];   /* SYM fsize=8 mask=0 -- dead stack filler, no AUTO local recorded */
+  /* SYM-CODEGEN-CARRIER: deadfrm -- measured 3-diff frame-shape carrier;
+   * SYM fsize=8 with no recorded AUTO local. */
+  int deadfrm[2];
 
   redLine = carObj->redLine / 0x10000;
   increase = ((carObj->carIndex % 2 + 1) * AIPhysic_elapsedTime) * 0x8c;
@@ -141,8 +141,7 @@ void AIPhysic_HandleShifting(Car_tObj *carObj)
  * SimplePhysics_LatVel clamp-abs residual → __builtin_abs candidate there too.) */
 Gear_t AIPhysic_CalculateGear(Car_tObj *carObj)
 {
-    int rawSpeed = carObj->currentSpeed;
-    int speed = __builtin_abs(rawSpeed);
+    int speed = __builtin_abs(carObj->currentSpeed);
     Gear_t gear = (Gear_t)carObj->control.gear;
     int hi;
     if (speed <= 0x1FFFF) {
@@ -154,6 +153,8 @@ Gear_t AIPhysic_CalculateGear(Car_tObj *carObj)
         goto end;
     }
     for (;;) {
+        /* SYM-CODEGEN-CARRIER: found -- absent from the retained debug locals;
+         * both nested and compound no-local branch forms produce 54 diffs. */
         int found = 0;
         hi = AIPhysic_GearTopSpeed(carObj, gear) < speed;
         if (hi || speed < AIPhysic_GearBottomSpeed(carObj, gear))
@@ -161,8 +162,7 @@ Gear_t AIPhysic_CalculateGear(Car_tObj *carObj)
         if (!found)
             return gear;
         if (hi) {
-            rawSpeed = AIPhysic_GearTopSpeed(carObj, (Gear_t)(gear + 1));
-            if (rawSpeed == 0)
+            if (AIPhysic_GearTopSpeed(carObj, (Gear_t)(gear + 1)) == 0)
                 return gear;
             carObj->aiShiftTimer = carObj->aiShiftDuration;
             gear = (Gear_t)(gear + 1);
@@ -1493,9 +1493,9 @@ LAB_8006b908:
  *    result moves back into it (`move v1,v0`) — exactly the SYM's `totalDamage REG $3`. The single-
  *    expression form let gcc coalesce the (anonymous) sum into $v0 (the 17-diff near-miss).
  * 3. SEPARATE `result` var + `if(x<=0x10000) result=x; else result=0x10000;` (BOTH branches assign
- *    — NOT a default+conditional-override funnel, which gave 17): produces the oracle's $a0 result-
- *    funnel + the `addu v0,a0,zero` slt-scratch copy. (An equivalent ternary `x<=0x10000?x:0x10000`
- *    also matches; the if/else is Mc-muffin (Ethanol)'s canonical form.)
+ *    — NOT a default+conditional-override funnel): produces the oracle's $a0 result-
+ *    funnel + the `addu v0,a0,zero` slt-scratch copy.  On the authoritative in-tree lane,
+ *    removing the funnel via a ternary gives 21 diffs and early returns give 23.
  * 24→0. META: a "permuter plateau" (it stalled at 115) does NOT mean unbeatable — the permuter
  * can't restructure a sum-expr into +=-accumulation or change scalar→array access. Re-derive the
  * SYM's variable/type structure first. CANONICAL 100% scratch: https://decomp.me/scratch/JS0Q0
@@ -1503,6 +1503,8 @@ LAB_8006b908:
 int AIPhysic_GetRearEndDamageFactor(Car_tObj *carObj)
 {
     int totalDamage;
+    /* SYM-CODEGEN-CARRIER: result -- absent from retained debug locals;
+     * ternary removal is 21 diffs and early-return form is 23. */
     int result;
     totalDamage = carObj->N.damage[4];
     totalDamage += carObj->N.damage[5];

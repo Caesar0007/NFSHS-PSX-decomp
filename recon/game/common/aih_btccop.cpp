@@ -13,10 +13,12 @@ extern int AI_elapsedTime;   /* H19: ai.cpp @0x8013C554 (not in this TU's extern
 extern char gBlockadeTypes[5];
 
 /* ---- aih_btccop.obj-owned .data statics (8-byte run @0x8013c560, byte-exact vs NFS4.EXE = {0,1}) ---- */
-/* cfront fn-local static AIHigh_BTC_HumanCop::lastInputRequestTick_ (dotted SYM
-   _19AIHigh_BTC_HumanCop.lastInputRequestTick_). Image value 0; reset to 0 each ::reset. */
-int          _19AIHigh_BTC_HumanCop_lastInputRequestTick_ = 0;   /* @0x8013c560 */
+/* SYM/MAP: _19AIHigh_BTC_HumanCop.lastInputRequestTick_. */
+int AIHigh_BTC_HumanCop::lastInputRequestTick_ = 0;   /* @0x8013c560 */
 /* anonymous file-static toggle (no SYM name) immediately following; image value 1 (engaged). */
+/* SYM-GLOBAL-CARRIER: AIH_BTCCop_freezeToggle_8013c564
+   The retail load/stores and initialized word at 0x8013c564 prove this object,
+   but neither SYM nor MAP retains its original source identifier. */
 int   AIH_BTCCop_freezeToggle_8013c564 = 1;               /* @0x8013c564 */
 
 /* ---- aih_btccop.obj-owned globals (.bss zero) ---- */
@@ -99,27 +101,21 @@ int AIHigh_BTC_Cop::GetCheckChasePosition(coorddef *pos)
   int newPosition;
   int changed;
 
-  int iVar2;
-
 
 
   changed = 0;
 
-  iVar2 = ((AIHigh_BasicPerp *)this->perpTarget_)->CheckChaserPosition(this->copIndex_,
+  if ((newPosition = ((AIHigh_BasicPerp *)this->perpTarget_)->CheckChaserPosition(this->copIndex_,
 
-                     (this->carObj_)->carIndex);
-
-  if (iVar2 != this->chaseIndex_) {
+                     (this->carObj_)->carIndex)) != this->chaseIndex_) {
 
     changed = 1;
 
-    this->chaseIndex_ = iVar2;
+    this->chaseIndex_ = newPosition;
 
   }
 
-  newPosition = this->chaseIndex_;
-
-  *pos = AIH_BTCCop_chasePositions[0][newPosition];
+  *pos = AIH_BTCCop_chasePositions[0][this->chaseIndex_];
 
   return changed;
 
@@ -218,26 +214,11 @@ void AIHigh_BTC_Cop::StartArrest(AIHigh_BTC_Perp *arrestMe)
 
 
 {
-
-  Speaker *pSVar1;
-
-  Car_tObj *carObj;
-
-  
-
   if (this->freezeMode_ == 0) {
-
-    carObj = this->carObj_;
-
     this->freezeMode_ = 3;
 
-    if ((carObj->carFlags & 0x200U) != 0) {
-
-      pSVar1 = (Speaker *)Speech_Mobile(carObj);
-
-      (**(int (**)(...))((int)*pSVar1->_vf + 0x4c))
-
-                ((int)&(pSVar1->fPosition).flags + (int)*(short *)((int)*pSVar1->_vf + 0x48),1);
+    if ((this->carObj_->carFlags & 0x200U) != 0) {
+      Speech_Mobile(this->carObj_)->Catch(1);
 
     }
 
@@ -261,20 +242,12 @@ void AIHigh_BTC_Cop::FinishArrest(AIHigh_BTC_Perp *arrestMe)
 
 
 {
-
-  __vtbl_ptr_type (*pa_Var1) [3];
-
-  
-
   if ((this->freezeMode_ == 3) || (this->freezeMode_ == 0)) {
-
-    pa_Var1 = this->_vf;
-
     this->freezeMode_ = 4;
 
-    (**(int (**)(...))((int)*pa_Var1 + 0x1c))
+    (**(int (**)(...))((int)*this->_vf + 0x1c))
 
-              ((int)&this->carObj_ + (int)*(short *)((int)*pa_Var1 + 0x18));
+              ((int)&this->carObj_ + (int)*(short *)((int)*this->_vf + 0x18));
 
     this->HudOff();
 
@@ -372,8 +345,6 @@ AIHigh_BTC_HumanCop::AIHigh_BTC_HumanCop(Car_tObj *carObj,int copIndex)
   int addToSlice;
   int bend;
 
-  Car_tObj *pCVar2;
-
   
 
   (new((AIHigh_BTC_Cop *)this) AIHigh_BTC_Cop(carObj,copIndex));
@@ -398,11 +369,9 @@ AIHigh_BTC_HumanCop::AIHigh_BTC_HumanCop(Car_tObj *carObj,int copIndex)
 
   this->timeLeft_ = AITune_BTC[GameSetup_gData.skill].baseChaseTime;
 
-  pCVar2 = this->carObj_;
+  this->carObj_->unlap = 0;
 
-  pCVar2->unlap = 0;
-
-  _19AIHigh_BTC_HumanCop_lastInputRequestTick_ = 0;
+  lastInputRequestTick_ = 0;
 
   AILife_PlaceCarAtLocation(this->carObj_,0,0,1,0,0);
 
@@ -491,6 +460,8 @@ int AIHigh_BTC_HumanCop::FindRandomBarrierFreeArea(int startSlice,int safetyZone
 
   fastRandom = randtemp & 0xffff;
 
+  /* SYM-CODEGEN-CARRIER: doubledFraction -- absent from retail debug locals,
+   * but direct expression folding produces 4 oracle diffs. */
   int doubledFraction;
 
   doubledFraction = (randtemp >> 8 & 0xffff) * 2;
@@ -600,13 +571,7 @@ void AIHigh_BTC_HumanCop::ReleaseAndStartChase(AIHigh_BTC_Perp *newPerp)
 
 {
 
-  Car_tObj *pCVar1;
-
-  
-
-  pCVar1 = this->carObj_;
-
-  pCVar1->AIFlags = pCVar1->AIFlags | 2;
+  this->carObj_->AIFlags = this->carObj_->AIFlags | 2;
 
   this->CheckForNewTarget();
 
@@ -638,24 +603,13 @@ void AIHigh_BTC_HumanCop::FreezeAndEndChase()
 
 
 {
-  int startDirection;
-  int startSlice;
-  int startMovement;
-  int addToSlice;
-
-  int iVar1;
-
-  int iVar2;
-
-  int direction;
-
-  u_int movement;
-
-  
-
   if (this->copIndex_ == 0) {
+    int startDirection;
+    int startSlice;
+    int startMovement;
+    int addToSlice;
 
-    direction = -1;
+    startDirection = -1;
 
     randtemp = fastRandom * randSeed;
 
@@ -663,7 +617,7 @@ void AIHigh_BTC_HumanCop::FreezeAndEndChase()
 
     if (((randtemp & 0xffff00) >> 8) * 1000 >> 0x10 < 500) {
 
-      direction = 1;
+      startDirection = 1;
 
     }
 
@@ -671,44 +625,44 @@ void AIHigh_BTC_HumanCop::FreezeAndEndChase()
 
     fastRandom = randtemp & 0xffff;
 
-    movement = 0;
+    startMovement = 0;
 
     if (((randtemp & 0xffff00) >> 8) * 1000 >> 0x10 < 0x2ee) {
 
-      movement = (u_int)(AIHigh_CopGameType != COP_GAME_BTC_1HC1HP);
+      startMovement = (AIHigh_CopGameType != COP_GAME_BTC_1HC1HP);
 
     }
 
-    iVar1 = AIDataRecord_TrackCurve_Get(AIDataRecord_TrackCurve,
+    startSlice = AIDataRecord_TrackCurve_Get(AIDataRecord_TrackCurve,
                                        (int)((this->carObj_)->N).simRoadInfo.slice);
 
-    if ((0x41 < iVar1) && (AIHigh_CopGameType != COP_GAME_BTC_1HC1HP)) {
+    if ((0x41 < startSlice) && (AIHigh_CopGameType != COP_GAME_BTC_1HC1HP)) {
 
-      movement = 1;
+      startMovement = 1;
 
     }
 
-    iVar1 = this->FindRandomBarrierFreeArea((int)((this->carObj_)->N).simRoadInfo.slice,100,1);
+    startSlice = this->FindRandomBarrierFreeArea((int)((this->carObj_)->N).simRoadInfo.slice,100,1);
 
     if ((this->currentStage_ + 1U & 1) == 0) {
 
-      iVar2 = direction * 7;
+      addToSlice = startDirection * 7;
 
     }
 
     else {
 
-      iVar2 = direction * -7;
+      addToSlice = startDirection * -7;
 
     }
 
-    if (iVar2 >= 0) {
+    if (addToSlice >= 0) {
 
-      iVar1 = iVar1 + iVar2;
+      startSlice = startSlice + addToSlice;
 
-      if (gNumSlices <= iVar1) {
+      if (gNumSlices <= startSlice) {
 
-        iVar1 = iVar1 - gNumSlices;
+        startSlice = startSlice - gNumSlices;
 
       }
 
@@ -716,11 +670,11 @@ void AIHigh_BTC_HumanCop::FreezeAndEndChase()
 
     else {
 
-      iVar1 = iVar1 + iVar2;
+      startSlice = startSlice + addToSlice;
 
-      if (iVar1 < 0) {
+      if (startSlice < 0) {
 
-        iVar1 = iVar1 + gNumSlices;
+        startSlice = startSlice + gNumSlices;
 
       }
 
@@ -728,9 +682,9 @@ void AIHigh_BTC_HumanCop::FreezeAndEndChase()
 
     ((this->carObj_)->N).simRoadInfo.slice =
 
-         (short)iVar1;
+         (short)startSlice;
 
-    this->NewStage(iVar1,direction,movement);
+    this->NewStage(startSlice,startDirection,startMovement);
 
   }
 
@@ -752,55 +706,42 @@ void AIHigh_BTC_HumanCop::CheckConditionWithCop0()
 
 
 {
-  AIHigh_BTC_HumanCop*leadCop;
-  int startDirection;
-  int startSlice;
-  int startMovement;
-  int addToSlice;
-
-  AIHigh_Base *pAVar1;
-
-  int iVar2;
-
-  int iVar3;
-
-  stateType_t direction;
-
-  
-
   if (this->copIndex_ != 0) {
+    AIHigh_BTC_HumanCop *leadCop;
 
-    pAVar1 = highLevelAIObjs[0];
+    leadCop = (AIHigh_BTC_HumanCop *)highLevelAIObjs[0];
 
-    if (this->currentStage_ < (int)highLevelAIObjs[0][4].state_) {
+    if (this->currentStage_ < leadCop->currentStage_) {
+      int startDirection;
+      int startSlice;
+      int startMovement;
+      int addToSlice;
 
-      int movement;
+      startDirection = leadCop->initialDirection_;
 
-      direction = highLevelAIObjs[0][5].stateType_;
+      startMovement = leadCop->initialMovement_;
 
-      movement = highLevelAIObjs[0][5].schedulingOff_;
-
-      iVar3 = (int)(highLevelAIObjs[0]->carObj_->N).simRoadInfo.slice;
+      startSlice = (int)(leadCop->carObj_->N).simRoadInfo.slice;
 
       if ((this->currentStage_ + 1U & 1) != 0) {
 
-        iVar2 = direction * 0xe;
+        addToSlice = startDirection * 0xe;
 
       }
 
       else {
 
-        iVar2 = direction * -0xe;
+        addToSlice = startDirection * -0xe;
 
       }
 
-      if (0 <= iVar2) {
+      if (0 <= addToSlice) {
 
-        iVar3 = iVar3 + iVar2;
+        startSlice = startSlice + addToSlice;
 
-        if (gNumSlices <= iVar3) {
+        if (gNumSlices <= startSlice) {
 
-          iVar3 = iVar3 - gNumSlices;
+          startSlice = startSlice - gNumSlices;
 
         }
 
@@ -808,23 +749,23 @@ void AIHigh_BTC_HumanCop::CheckConditionWithCop0()
 
       else {
 
-        iVar3 = iVar3 + iVar2;
+        startSlice = startSlice + addToSlice;
 
-        if (iVar3 < 0) {
+        if (startSlice < 0) {
 
-          iVar3 = iVar3 + gNumSlices;
+          startSlice = startSlice + gNumSlices;
 
         }
 
       }
 
-      this->NewStage(iVar3,direction,movement);
+      this->NewStage(startSlice,startDirection,startMovement);
 
     }
 
     (this->carObj_)->desiredSpeed =
 
-         pAVar1->carObj_->desiredSpeed;
+         leadCop->carObj_->desiredSpeed;
 
   }
 
@@ -860,8 +801,6 @@ void AIHigh_BTC_HumanCop::NewStage(int copSlice,int direction,int movement)
   int initialDirection;
   int initialMovement;
 
-  Car_tObj *pCVar1;
-
   int newLatPos;
 
   int throwAway;
@@ -888,13 +827,15 @@ void AIHigh_BTC_HumanCop::NewStage(int copSlice,int direction,int movement)
 
   Object_ClearCustomObjects();
 
-  pCVar1 = this->carObj_;
+  initialDirection = direction;
 
-  this->initialDirection_ = direction;
+  initialMovement = movement;
 
-  this->initialMovement_ = movement;
+  this->initialDirection_ = initialDirection;
 
-  (pCVar1->N).simRoadInfo.slice = (short)copSlice;
+  this->initialMovement_ = initialMovement;
+
+  (this->carObj_->N).simRoadInfo.slice = (short)copSlice;
 
   (this->carObj_)->direction = direction;
 
@@ -931,25 +872,22 @@ void AIHigh_BTC_HumanCop::NewStage(int copSlice,int direction,int movement)
 
   int leftPos;
 
-  int slice;
-
+  /* SYM-CODEGEN-CARRIER: laneBits -- the retained high-nibble value is the
+   * oracle's anonymous $a3. Re-reading the field at each use changes the
+   * local-allocation handout despite identical semantics. */
   u_int laneBits;
 
-  u_int rightWidth;
-
+  /* SYM-CODEGEN-CARRIER: leftWidth -- keeping the byte-to-FIX15 conversion
+   * separate reproduces the oracle's multiply destination. Folding it into
+   * `leftPos` keeps 220 instructions but produces 40 register diffs. */
   u_int leftWidth;
 
-  slice = copSlice * 0x20 + (int)BWorldSm_slices;
+  rightPos = ((u_int)BWorldSm_slices[copSlice].avgPavedWidthRt << 15) *
+             (BWorldSm_slices[copSlice].laneCount & 0xf);
 
-  rightWidth = (u_int)*(u_char *)(slice + 0x1f);
+  laneBits = (u_int)(BWorldSm_slices[copSlice].laneCount >> 4);
 
-  rightWidth = rightWidth << 15;
-
-  rightPos = rightWidth * (*(u_char *)(slice + 0x1d) & 0xf);
-
-  laneBits = (u_int)(*(u_char *)(slice + 0x1d) >> 4);
-
-  leftWidth = (u_int)*(u_char *)(slice + 0x1e);
+  leftWidth = (u_int)BWorldSm_slices[copSlice].avgPavedWidthLf;
 
   leftWidth = leftWidth << 15;
 
@@ -959,7 +897,10 @@ void AIHigh_BTC_HumanCop::NewStage(int copSlice,int direction,int movement)
 
     /* W57-A11: retail holds each MIN's limit in its OWN caller-saved temp (a1 / v1) and
        copies into rightPos/leftPos at the end; one shared temp merges the two ranges. */
-    int limitR = *(short *)(slice + 0x1a) * 0x100 + -0x8000;
+    /* SYM-CODEGEN-CARRIER: limitR -- the retail MIN expansion holds this
+     * bound in its own caller-saved register before copying it to rightPos.
+     * A direct MIN macro grows the body to 225 instructions/173 diffs. */
+    int limitR = BWorldSm_slices[copSlice].rightDrive * 0x100 + -0x8000;
 
     if (rightPos < limitR) {
 
@@ -973,7 +914,10 @@ void AIHigh_BTC_HumanCop::NewStage(int copSlice,int direction,int movement)
 
   {
 
-    int limitL = *(short *)(slice + 0x18) * 0x100 + -0x8000;
+    /* SYM-CODEGEN-CARRIER: limitL -- the second retail MIN expansion likewise
+     * has a distinct caller-saved bound; sharing the first carrier changes
+     * the branch/delay-slot allocation. */
+    int limitL = BWorldSm_slices[copSlice].leftDrive * 0x100 + -0x8000;
 
     if (leftPos < limitL) {
 
@@ -991,7 +935,7 @@ void AIHigh_BTC_HumanCop::NewStage(int copSlice,int direction,int movement)
 
   }
 
-  if (AIWorld_IsDriveableLane(copSlice,(*(u_char *)(copSlice * 0x20 + (int)BWorldSm_slices + 0x1d) & 0xf) + 7) == 0) {
+  if (AIWorld_IsDriveableLane(copSlice,(BWorldSm_slices[copSlice].laneCount & 0xf) + 7) == 0) {
 
     rightPos = rightPos + -0x20000;
 
@@ -1058,10 +1002,6 @@ LAB_8005d8d8:
 
   }
 
-  {
-
-  int oldTimeLeft = this->timeLeft_;
-
   this->needPerp_ = 1;
 
   this->chaseStartTime_ = 0;
@@ -1070,9 +1010,7 @@ LAB_8005d8d8:
 
   this->freezeMode_ = 1;
 
-  this->timeLeft_ = oldTimeLeft + nextStageTime;
-
-  }
+  this->timeLeft_ = this->timeLeft_ + nextStageTime;
 
   TrgSfx_RestartTrgSfx();
 
@@ -1096,35 +1034,17 @@ void AIHigh_BTC_HumanCop::UpdateAndCheckTimeLeft()
 {
   static bool sayLose;
 
-  AIHigh_BTC_Perp *pAVar1;
-
-  Speaker *pSVar2;
-
-  int _Var3;
-
-  char *perpname;
-
-  int timeleft;
-
-  int iVar4;
-
-  
-
-  _Var3 = this->freezeMode_;
-
-  if ((_Var3 != 3) && (_Var3 != 1)) {
+  if ((this->freezeMode_ != 3) && (this->freezeMode_ != 1)) {
 
     this->timeLeft_ = this->timeLeft_ - AI_elapsedTime;   /* H19: subtraction dropped (m2c self-assign fold); oracle 0x8005D9E8-FC timeLeft_ -= AI_elapsedTime */
 
   }
 
-  pAVar1 = this->perpTarget_;
-
   /* MATCH: TWO calls in source — gcc tail-merges them into one jal + per-arm arg setup
      (a0=carInfo+0x5C self-add in then-arm; a0=0/a1=a0-copy zeros in else; shared sltiu in the jal slot) */
-  if (pAVar1 != (AIHigh_BTC_Perp *)0x0) {
+  if (this->perpTarget_ != (AIHigh_BTC_Perp *)0x0) {
 
-    Hud_BTC_Update(((pAVar1)->carObj_)->carInfo->driver,this->timeLeft_,
+    Hud_BTC_Update(((this->perpTarget_)->carObj_)->carInfo->driver,this->timeLeft_,
                    (void *)(u_int)((this->carObj_)->RSControl == 0));
 
   }
@@ -1138,12 +1058,7 @@ void AIHigh_BTC_HumanCop::UpdateAndCheckTimeLeft()
   if (this->timeLeft_ < 0) {
 
     if (AIH_BTCCop_freezeToggle_8013c564 != 0) {
-
-      pSVar2 = (Speaker *)Speech_Mobile(this->carObj_);
-
-      (**(int (**)(...))((int)*pSVar2->_vf + 0x3c))
-
-                ((int)&(pSVar2->fPosition).flags + (int)*(short *)((int)*pSVar2->_vf + 0x38));
+      Speech_Mobile(this->carObj_)->Lose();
 
       AIH_BTCCop_freezeToggle_8013c564 = 0;
 
@@ -1210,6 +1125,8 @@ void AIHigh_BTC_HumanCop::UpdateFreezeModeAndPullOverMode()
 
     this->carObj_->AIFlags = this->carObj_->AIFlags & 0xfffffffd;
 
+    /* SYM-CODEGEN-CARRIER: startingDirection -- the direct field assignment
+     * is 6 oracle diffs; the explicit value preserves retail scheduling. */
     int startingDirection = this->initialDirection_;
 
     (this->carObj_)->RSControl = startingDirection;
@@ -1266,31 +1183,21 @@ void AIHigh_BTC_HumanCop::RequestWingman()
 {
   int wingmanActivationTime;
 
-  Speaker *pSVar1;
-
-  Speaker *pSVar3;
-
-  int iVar2;
-
 
 
   if (1 < (u_int)(this->freezeMode_ - 3)) {
 
-    iVar2 = GameSetup_gData.perpInfo[this->currentStage_].WingmanTime * 0x40 +
+    wingmanActivationTime = GameSetup_gData.perpInfo[this->currentStage_].WingmanTime * 0x40 +
 
             AITune_BTC[GameSetup_gData.skill].wingmanTime;
 
-    pSVar1 = (Speaker *)Speech_Mobile(this->carObj_);
-
-    (**(int (**)(...))((int)*pSVar1->_vf + 0x64))
-
-              ((int)&(pSVar1->fPosition).flags + (int)*(short *)((int)*pSVar1->_vf + 0x60));
+    Speech_Mobile(this->carObj_)->Backup();
 
     if (this->chaseStartTime_ == 0) goto LAB_dispatch;
 
-    if (iVar2 == 0) goto LAB_dispatch;
+    if (wingmanActivationTime == 0) goto LAB_dispatch;
 
-    if (simGlobal.gameTicks - this->chaseStartTime_ <= iVar2) goto LAB_dispatch;
+    if (simGlobal.gameTicks - this->chaseStartTime_ <= wingmanActivationTime) goto LAB_dispatch;
 
     if (this->wingmanStatus_ != 4) {
 
@@ -1301,12 +1208,7 @@ void AIHigh_BTC_HumanCop::RequestWingman()
     }
 
 LAB_dispatch:
-
-    pSVar3 = (Speaker *)Speech_Dispatch();
-
-    (**(int (**)(...))((int)*pSVar3->_vf + 0x1c))
-
-              ((int)&(pSVar3->fPosition).flags + (int)*(short *)((int)*pSVar3->_vf + 0x18));
+    Speech_Dispatch()->Deny();
 
 LAB_end: ;
 
@@ -1332,25 +1234,12 @@ void AIHigh_BTC_HumanCop::RequestBlockader(int spikeBeltRequest)
 {
   int availableTime;
 
-  Speaker *pSVar1;
-
-  Speaker *pSVar2;
-
-  Speaker *pSVar4;
-
-  Speaker *pSVar5;
-
 
 
   if (1 < (u_int)(this->freezeMode_ - 3)) {
 
     if (spikeBeltRequest != 0) {
-
-      pSVar1 = (Speaker *)Speech_Mobile(this->carObj_);
-
-      (**(int (**)(...))((int)*pSVar1->_vf + 0x5c))
-
-                ((int)&(pSVar1->fPosition).flags + (int)*(short *)((int)*pSVar1->_vf + 0x58));
+      Speech_Mobile(this->carObj_)->SpikeBelt();
 
       availableTime = GameSetup_gData.perpInfo[this->currentStage_].SpikeBeltTime * 0x40 +
 
@@ -1359,12 +1248,7 @@ void AIHigh_BTC_HumanCop::RequestBlockader(int spikeBeltRequest)
     }
 
     else {
-
-      pSVar2 = (Speaker *)Speech_Mobile(this->carObj_);
-
-      (**(int (**)(...))((int)*pSVar2->_vf + 0x54))
-
-                ((int)&(pSVar2->fPosition).flags + (int)*(short *)((int)*pSVar2->_vf + 0x50));
+      Speech_Mobile(this->carObj_)->RoadBlock();
 
       availableTime = GameSetup_gData.perpInfo[this->currentStage_].BlockadeCopTime * 0x40 +
 
@@ -1379,12 +1263,7 @@ void AIHigh_BTC_HumanCop::RequestBlockader(int spikeBeltRequest)
     if (simGlobal.gameTicks - this->chaseStartTime_ <= availableTime) goto LAB_dispatch;
 
     if (this->wingmanStatus_ != 5) {
-
-      pSVar4 = (Speaker *)Speech_Dispatch();
-
-      (**(int (**)(...))((int)*pSVar4->_vf + 0x24))
-
-                ((int)&(pSVar4->fPosition).flags + (int)*(short *)((int)*pSVar4->_vf + 0x20));
+      Speech_Dispatch()->Grant();
 
       if (spikeBeltRequest != 0) {
 
@@ -1403,12 +1282,7 @@ void AIHigh_BTC_HumanCop::RequestBlockader(int spikeBeltRequest)
     }
 
 LAB_dispatch:
-
-    pSVar5 = (Speaker *)Speech_Dispatch();
-
-    (**(int (**)(...))((int)*pSVar5->_vf + 0x1c))
-
-              ((int)&(pSVar5->fPosition).flags + (int)*(short *)((int)*pSVar5->_vf + 0x18));
+    Speech_Dispatch()->Deny();
 
 LAB_end: ;
 
@@ -1530,25 +1404,19 @@ void AIHigh_BTC_HumanCop::ClearTrafficToPurgatory()
   Car_tObj*testTrafficCarObj;
   AIHigh_Traffic*testTrafficHigh;
 
-  Car_tObj *pCVar3;
-
-  Car_tObj **ppCVar4;
-
-  int iVar5;
-
-
-
-  iVar5 = 0;
+  trafficLoop = 0;
 
   while (1) {
 
-    if (Cars_gNumTrafficCars <= iVar5) break;
+    if (Cars_gNumTrafficCars <= trafficLoop) break;
 
-    pCVar3 = Cars_gTrafficCarList[iVar5];
+    testTrafficCarObj = Cars_gTrafficCarList[trafficLoop];
 
-    iVar5 = iVar5 + 1;
+    trafficLoop = trafficLoop + 1;
 
-    highLevelAIObjs[pCVar3->carIndex][1].state_ = (AIState_Base *)0x1;
+    testTrafficHigh = (AIHigh_Traffic *)highLevelAIObjs[testTrafficCarObj->carIndex];
+
+    testTrafficHigh->forcePurgatory_ = 1;
 
   }
 
@@ -1574,23 +1442,19 @@ void AIHigh_BTC_HumanCop::ResetClearTrafficToPurgatory()
   Car_tObj*testTrafficCarObj;
   AIHigh_Traffic*testTrafficHigh;
 
-  Car_tObj *pCVar3;
-
-  int iVar5;
-
-
-
-  iVar5 = 0;
+  trafficLoop = 0;
 
   while (1) {
 
-    if (Cars_gNumTrafficCars <= iVar5) break;
+    if (Cars_gNumTrafficCars <= trafficLoop) break;
 
-    pCVar3 = Cars_gTrafficCarList[iVar5];
+    testTrafficCarObj = Cars_gTrafficCarList[trafficLoop];
 
-    iVar5 = iVar5 + 1;
+    trafficLoop = trafficLoop + 1;
 
-    highLevelAIObjs[pCVar3->carIndex][1].state_ = (AIState_Base *)0x0;
+    testTrafficHigh = (AIHigh_Traffic *)highLevelAIObjs[testTrafficCarObj->carIndex];
+
+    testTrafficHigh->forcePurgatory_ = 0;
 
   }
 
@@ -1614,27 +1478,13 @@ void AIHigh_BTC_HumanCop::SetDesiredSpeed()
 {
   int curveSpeed;
 
-  int iVar1;
+  if (this->carObj_->RSControl != 0) {
 
-  Car_tObj *carObj;
+    curveSpeed = AISpeeds_CalcHumanTopSpeed(this->carObj_);
 
-  
-
-  carObj = this->carObj_;
-
-  if (carObj->RSControl != 0) {
-
-    iVar1 = AISpeeds_CalcHumanTopSpeed(carObj);
-
-    carObj = this->carObj_;
-
-    if (this->requestedDesiredSpeed_ < iVar1) {
-
-      iVar1 = this->requestedDesiredSpeed_;
-
-    }
-
-    carObj->desiredSpeed = iVar1;
+    this->carObj_->desiredSpeed =
+        this->requestedDesiredSpeed_ < curveSpeed
+            ? this->requestedDesiredSpeed_ : curveSpeed;
 
   }
 
@@ -1656,10 +1506,6 @@ void AIHigh_BTC_HumanCop::HighExecute()
 
 
 {
-  Car_tObj *pCVar1;
-
-  AIHigh_BTC_Perp *pAVar2;
-
   coorddef notUsed;
 
 
@@ -1672,13 +1518,11 @@ void AIHigh_BTC_HumanCop::HighExecute()
 
   }
 
-  pAVar2 = this->perpTarget_;
-
-  if ((pAVar2 != (AIHigh_BTC_Perp *)0x0) && (this->freezeMode_ != 1)) {
+  if ((this->perpTarget_ != (AIHigh_BTC_Perp *)0x0) && (this->freezeMode_ != 1)) {
 
     (this->carObj_)->desiredDirection =
 
-         ((pAVar2)->carObj_)->direction;
+         ((this->perpTarget_)->carObj_)->direction;
 
   }
 
@@ -1700,7 +1544,7 @@ void AIHigh_BTC_HumanCop::HighExecute()
 
   if (AIHigh_CopGameType == COP_GAME_BTC_1HC) {
 
-    if (0x281 <= simGlobal.gameTicks - _19AIHigh_BTC_HumanCop_lastInputRequestTick_) {
+    if (0x281 <= simGlobal.gameTicks - lastInputRequestTick_) {
 
       if (((this->carObj_)->control).queuedEvent ==
 
@@ -1710,7 +1554,7 @@ void AIHigh_BTC_HumanCop::HighExecute()
 
         ((this->carObj_)->control).queuedEvent = '\0';
 
-        _19AIHigh_BTC_HumanCop_lastInputRequestTick_ = simGlobal.gameTicks;
+        lastInputRequestTick_ = simGlobal.gameTicks;
 
       }
 
@@ -1722,7 +1566,7 @@ void AIHigh_BTC_HumanCop::HighExecute()
 
         ((this->carObj_)->control).queuedEvent = '\0';
 
-        _19AIHigh_BTC_HumanCop_lastInputRequestTick_ = simGlobal.gameTicks;
+        lastInputRequestTick_ = simGlobal.gameTicks;
 
       }
 
@@ -1734,19 +1578,16 @@ void AIHigh_BTC_HumanCop::HighExecute()
 
         ((this->carObj_)->control).queuedEvent = '\0';
 
-        _19AIHigh_BTC_HumanCop_lastInputRequestTick_ = simGlobal.gameTicks;
+        lastInputRequestTick_ = simGlobal.gameTicks;
 
       }
 
     }
 
     else {
+      if ((u_int)(u_char)(this->carObj_->control).queuedEvent - 4 < 3) {
 
-      pCVar1 = this->carObj_;
-
-      if ((u_int)(u_char)(pCVar1->control).queuedEvent - 4 < 3) {
-
-        (pCVar1->control).queuedEvent = '\0';
+        (this->carObj_->control).queuedEvent = '\0';
 
       }
 
@@ -1786,11 +1627,11 @@ void AIHigh_BTC_HumanCop::HudOn(AIHigh_BTC_Perp *arrestMe,int gameOver,
 
   if ((this->copIndex_ == 0) || (gameOver != 0)) {
 
-    Car_tObj *pCVar1 = (arrestMe)->carObj_;
+    arrestingHumanCop = arrestMe->carObj_;
 
     Hud_BustedOverlayOn(simGlobal.gameTicks - this->chaseStartTime_,
 
-               pCVar1->carInfo->driver,
+               arrestingHumanCop->carInfo->driver,
 
                (void *)(u_int)(gameOver == 0),(short)arrestingCop->carIndex);
 
@@ -2669,7 +2510,6 @@ void AIHigh_BTC_Wingman::HighExecute()
     {
       Car_tObj *carObj;
       AIState_Base *newState;
-      AIState_Base *oldState;
       coorddef trafficOffset;
 
       this->carObj_->AIFlags &= ~2;
@@ -2682,14 +2522,7 @@ void AIHigh_BTC_Wingman::HighExecute()
       Newton_SetInitialSlicePositionOrientationEtc(
           &newState->carObj_->N,0,&trafficOffset,1);
       newState->carObj_->N.active = 0;
-      oldState = this->state_;
-      if (oldState != 0) {
-        (*(int (**)(...))((char *)oldState->_vf + 20))(
-            (int)&oldState->carObj_ +
-                (int)*(short *)((int)*oldState->_vf + 0x10),3);
-      }
-      this->state_ = newState;
-      this->stateType_ = (stateType_t)7;
+      this->SetState(newState,(stateType_t)7);
     }
     goto stateExecuteAndReturn;
 
@@ -2700,14 +2533,9 @@ void AIHigh_BTC_Wingman::HighExecute()
       if ((this->newRole_ != this->currentRole_) &&
           ((u_int)(this->newRole_ - 2) < 2)) {
         if (AILife_IsCarInAnyVisibleArea(this->carObj_) == 0) {
-          Speaker *speaker;
           AIState_Base *newState;
-          AIState_Base *oldState;
 
-          speaker = (Speaker *)Speech_Mobile(this->carObj_);
-          (**(int (**)(...))((int)*speaker->_vf + 0x84))(
-              (int)&speaker->fPosition.flags +
-                  (int)*(short *)((int)*speaker->_vf + 0x80));
+          Speech_Mobile(this->carObj_)->Purge();
           this->currentRole_ = this->newRole_;
           this->SetupBlockader(this->newHumanBoss_,this->newRole_ == 3);
 
@@ -2715,45 +2543,26 @@ void AIHigh_BTC_Wingman::HighExecute()
           new(newState) AIState_Base(this->carObj_);
           newState->_vf = (__vtbl_ptr_type (*)[4])AIState_Idle_vtable;
           ((AIState_Idle *)newState)->idleInPlaceFlag_ = 1;
-          oldState = this->state_;
-          if (oldState != 0) {
-            (*(int (**)(...))((char *)oldState->_vf + 20))(
-                (int)&oldState->carObj_ +
-                    (int)*(short *)((int)*oldState->_vf + 0x10),3);
-          }
-          this->state_ = newState;
-          this->stateType_ = (stateType_t)3;
+          this->SetState(newState,(stateType_t)3);
         }
       } else {
         this->CheckForNewTarget();
         if (this->perpTarget_ != 0) {
           coorddef pos;
           AIState_Chase *newState;
-          AIState_Base *oldState;
-          Car_tObj *targetCar;
 
           this->GetCheckChasePosition(&pos);
           newState = operator new(0x94);
-          targetCar = this->perpTarget_->carObj_;
           newState = new(newState) AIState_Chase(
-              this->carObj_,targetCar,&pos,
+              this->carObj_,this->perpTarget_->GetCarObj(),&pos,
               0x200,0x3c0000,0x190000,2,0x10000);
-          oldState = this->state_;
-          if (oldState != 0) {
-            (*(int (**)(...))((char *)oldState->_vf + 20))(
-                (int)&oldState->carObj_ +
-                    (int)*(short *)((int)*oldState->_vf + 0x10),3);
-          }
-          this->state_ = (AIState_Base *)newState;
-          this->stateType_ = (stateType_t)4;
+          this->SetState((AIState_Base *)newState,(stateType_t)4);
         }
       }
 
       if (this->UpdateFreezeModeAndPullOverMode() != 0) {
         Car_tObj *carObj;
         AIState_Base *newState;
-        AIState_Base *oldState;
-        coorddef *offset;
         coorddef trafficOffset;
 
         this->AssignToPlayer(0);
@@ -2761,19 +2570,12 @@ void AIHigh_BTC_Wingman::HighExecute()
         carObj = this->carObj_;
         new(newState) AIState_Base(carObj);
         newState->_vf = (__vtbl_ptr_type (*)[4])D_80054F24;
-        offset = (coorddef *)memset((u_char *)&trafficOffset,0,12);
+        memset((u_char *)&trafficOffset,0,12);
         trafficOffset.y = carObj->carIndex * 0xa0000;
         Newton_SetInitialSlicePositionOrientationEtc(
             &newState->carObj_->N,0,&trafficOffset,1);
         newState->carObj_->N.active = 0;
-        oldState = this->state_;
-        if (oldState != 0) {
-          (*(int (**)(...))((char *)oldState->_vf + 20))(
-              (int)&oldState->carObj_ +
-                  (int)*(short *)((int)*oldState->_vf + 0x10),3);
-        }
-        this->state_ = newState;
-        this->stateType_ = (stateType_t)7;
+        this->SetState(newState,(stateType_t)7);
         this->newRole_ = 0;
         this->currentRole_ = 0;
         goto stateExecuteAndReturn;
@@ -2798,20 +2600,12 @@ void AIHigh_BTC_Wingman::HighExecute()
       if (0xa0 < chaseState->barrierTicks32_) {
         int endSlice;
         AIState_GotoSlice *newState;
-        AIState_Base *oldState;
 
         endSlice = chaseState->FindBarrierEndSlice();
         newState = operator new(0x10);
         newState =
             new(newState) AIState_GotoSlice(this->carObj_,endSlice,0);
-        oldState = this->state_;
-        if (oldState != 0) {
-          (*(int (**)(...))((char *)oldState->_vf + 20))(
-              (int)&oldState->carObj_ +
-                  (int)*(short *)((int)*oldState->_vf + 0x10),3);
-        }
-        this->state_ = (AIState_Base *)newState;
-        this->stateType_ = (stateType_t)9;
+        this->SetState((AIState_Base *)newState,(stateType_t)9);
       }
 
       if (this->CheckForNewTarget() != 0) {
@@ -2820,9 +2614,21 @@ void AIHigh_BTC_Wingman::HighExecute()
       }
 
       {
+        /* SYM-CODEGEN-CARRIER: minTimeInZone -- the three named threshold
+         * values reproduce retail's constant allocation; folding all three
+         * literals into the tests preserves 675 instructions but causes 24
+         * diffs. */
         int minTimeInZone;
+        /* SYM-CODEGEN-CARRIER: minLatMetersDistance */
         int minLatMetersDistance;
+        /* SYM-CODEGEN-CARRIER: minLongMetersDistance */
         int minLongMetersDistance;
+        /* SYM-CODEGEN-CARRIER: murder -- SYM records the three threshold
+         * values but not this boolean. Removing it preserves the 675-
+         * instruction body yet causes eight allocation/branch diffs: the
+         * retail zero in a0 disappears and the first comparison moves from
+         * v0 to a0. Both compound and nested direct tests give that same
+         * receipt, so this carrier is required by the retail code shape. */
         int murder;
 
         minTimeInZone = 8;
@@ -2845,64 +2651,36 @@ void AIHigh_BTC_Wingman::HighExecute()
 
       if (this->perpTarget_ == 0) {
         AIState_Base *newState;
-        AIState_Base *oldState;
 
         this->AssignToPlayer(0);
         newState = operator new(8);
         newState =
             (AIState_Base *)new(newState) AIState_Normal(this->carObj_);
-        oldState = this->state_;
-        if (oldState != 0) {
-          (*(int (**)(...))((char *)oldState->_vf + 20))(
-              (int)&oldState->carObj_ +
-                  (int)*(short *)((int)*oldState->_vf + 0x10),3);
-        }
-        this->state_ = newState;
-        this->stateType_ = (stateType_t)2;
+        this->SetState(newState,(stateType_t)2);
       }
 
       if ((this->newRole_ != this->currentRole_) &&
           ((u_int)(this->newRole_ - 2) < 2)) {
         AIState_Base *newState;
-        AIState_Base *oldState;
-        Speaker *speaker;
 
         this->carObj_->desiredDirection = -this->carObj_->desiredDirection;
         this->AssignToPlayer(0);
         newState = operator new(8);
         newState =
             (AIState_Base *)new(newState) AIState_Normal(this->carObj_);
-        oldState = this->state_;
-        if (oldState != 0) {
-          (*(int (**)(...))((char *)oldState->_vf + 20))(
-              (int)&oldState->carObj_ +
-                  (int)*(short *)((int)*oldState->_vf + 0x10),3);
-        }
-        this->state_ = newState;
-        this->stateType_ = (stateType_t)2;
-        speaker = (Speaker *)Speech_Mobile(this->carObj_);
-        (**(int (**)(...))((int)*speaker->_vf + 0x3c))(
-            (int)&speaker->fPosition.flags +
-                (int)*(short *)((int)*speaker->_vf + 0x38));
+        this->SetState(newState,(stateType_t)2);
+        Speech_Mobile(this->carObj_)->Lose();
       }
 
       if (this->UpdateFreezeModeAndPullOverMode() != 0) {
         Car_tObj *carObj;
         AIState_Base *newState;
-        AIState_Base *oldState;
 
         this->AssignToPlayer(0);
         newState = operator new(8);
         carObj = this->carObj_;
         new(newState) AIState_BTCInactive(carObj);
-        oldState = this->state_;
-        if (oldState != 0) {
-          (*(int (**)(...))((char *)oldState->_vf + 20))(
-              (int)&oldState->carObj_ +
-                  (int)*(short *)((int)*oldState->_vf + 0x10),3);
-        }
-        this->state_ = newState;
-        this->stateType_ = (stateType_t)7;
+        this->SetState(newState,(stateType_t)7);
         this->newRole_ = 0;
         this->currentRole_ = 0;
         goto stateExecuteAndReturn;
@@ -2923,21 +2701,13 @@ void AIHigh_BTC_Wingman::HighExecute()
 
       if (this->perpTarget_ == 0) {
         AIState_Base *newState;
-        AIState_Base *oldState;
 
         this->newRole_ = 1;
         this->currentRole_ = 1;
         newState = operator new(8);
         newState =
             (AIState_Base *)new(newState) AIState_Normal(this->carObj_);
-        oldState = this->state_;
-        if (oldState != 0) {
-          (*(int (**)(...))((char *)oldState->_vf + 20))(
-              (int)&oldState->carObj_ +
-                  (int)*(short *)((int)*oldState->_vf + 0x10),3);
-        }
-        this->state_ = newState;
-        this->stateType_ = (stateType_t)2;
+        this->SetState(newState,(stateType_t)2);
         return;
       }
 
@@ -2955,85 +2725,66 @@ void AIHigh_BTC_Wingman::HighExecute()
       if (rbAbsDistanceMeters < 0x320000) {
         release = 1;
       } else if (rbAbsDistanceMeters < 0x12c0000) {
+        /* SYM-CODEGEN-CARRIER: speed -- a direct abs expression plus the
+         * boundary fence builds only 674 instructions/15 diffs because GCC
+         * fills the speed-load delay slot with the threshold constant. This
+         * carrier restores retail's nop and bgtz/lui ordering. */
         int speed;
         int timeToRB;
 
-        speed =
-            ((AIHigh_BTC_Wingman *)this)->perpTarget_
-                ->carObj_->currentSpeed;
+        speed = this->perpTarget_->GetCarObj()->currentSpeed;
         if (speed <= 0) {
           speed = -speed;
         }
         speed = 0x471c7 < speed;
-        if (speed &&
-            ((timeToRB = fixeddiv(
-                  rbDistanceMeters,
-                  ((volatile AIHigh_BTC_Wingman *)this)->perpTarget_
-                      ->carObj_->currentSpeed)) > 0) &&
-            (timeToRB < this->spikeBeltInterceptReleaseTime_)) {
-          release = 1;
+        if (speed) {
+          /* MATCH: zero-instruction SLD-boundary fence. Without it GCC keeps
+           * the first target chain live into line 189, producing 671
+           * instructions/12 diffs. The retail body re-derives the complete
+           * perpTarget_/carObj_/currentSpeed chain before fixeddiv. */
+          __asm__("" : : : "memory");
+          if (((timeToRB = fixeddiv(
+                    rbDistanceMeters,
+                    this->perpTarget_->GetCarObj()->currentSpeed)) > 0) &&
+              (timeToRB < this->spikeBeltInterceptReleaseTime_)) {
+            release = 1;
+          }
         }
       }
 
       if (release) {
         AIState_Chase *newState;
-        AIState_Base *oldState;
-        Car_tObj *targetCar;
 
         this->spikeBeltPlaced_ = 0;
         this->newRole_ = 1;
         this->currentRole_ = 1;
         newState = operator new(0x94);
-        targetCar = this->perpTarget_->carObj_;
         newState = new(newState) AIState_Chase(
-            this->carObj_,targetCar,&newPos,
+            this->carObj_,this->perpTarget_->GetCarObj(),&newPos,
             0x200,0x3c0000,0x190000,2,0x10000);
-        oldState = this->state_;
-        if (oldState != 0) {
-          (*(int (**)(...))((char *)oldState->_vf + 20))(
-              (int)&oldState->carObj_ +
-                  (int)*(short *)((int)*oldState->_vf + 0x10),3);
-        }
-        this->state_ = (AIState_Base *)newState;
-        this->stateType_ = (stateType_t)4;
+        this->SetState((AIState_Base *)newState,(stateType_t)4);
       }
 
       if ((this->newRole_ != this->currentRole_) &&
           (this->newRole_ == 1)) {
         AIState_Base *newState;
-        AIState_Base *oldState;
 
         this->currentRole_ = 1;
         newState = operator new(8);
         newState =
             (AIState_Base *)new(newState) AIState_Normal(this->carObj_);
-        oldState = this->state_;
-        if (oldState != 0) {
-          (*(int (**)(...))((char *)oldState->_vf + 20))(
-              (int)&oldState->carObj_ +
-                  (int)*(short *)((int)*oldState->_vf + 0x10),3);
-        }
-        this->state_ = newState;
-        this->stateType_ = (stateType_t)2;
+        this->SetState(newState,(stateType_t)2);
       }
 
       if (this->UpdateFreezeModeAndPullOverMode() != 0) {
         Car_tObj *carObj;
         AIState_Base *newState;
-        AIState_Base *oldState;
 
         this->AssignToPlayer(0);
         newState = operator new(8);
         carObj = this->carObj_;
         new(newState) AIState_BTCInactive(carObj);
-        oldState = this->state_;
-        if (oldState != 0) {
-          (*(int (**)(...))((char *)oldState->_vf + 20))(
-              (int)&oldState->carObj_ +
-                  (int)*(short *)((int)*oldState->_vf + 0x10),3);
-        }
-        this->state_ = newState;
-        this->stateType_ = (stateType_t)7;
+        this->SetState(newState,(stateType_t)7);
         this->newRole_ = 0;
         this->currentRole_ = 0;
         goto stateExecuteAndReturn;
@@ -3165,57 +2916,37 @@ void AIHigh_BTC_Wingman::HighExecute()
 #endif
   case 7:
     {
-      Wingman_Role currentRole;
-      Wingman_Role newRole;
       this->carObj_->AIFlags &= ~2;
-      currentRole = this->currentRole_;
-      newRole = this->newRole_;
-      if (currentRole == newRole) {
+      if (this->currentRole_ == this->newRole_) {
         goto stateExecuteAndReturn;
       }
 
-      if (newRole == 1) {
+      if (this->newRole_ == 1) {
         this->currentRole_ = 1;
         this->SetupWingman(this->newHumanBoss_);
       } else {
         AIState_Base *newState;
-        AIState_Base *oldState;
 
-        if (1 < (u_int)(newRole - 2)) {
+        if (1 < (u_int)(this->newRole_ - 2)) {
           goto stateExecuteAndReturn;
         }
-        this->currentRole_ = newRole;
+        this->currentRole_ = this->newRole_;
         this->SetupBlockader(
             this->newHumanBoss_,this->newRole_ == 3);
         newState = operator new(0x10);
         new(newState) AIState_Base(this->carObj_);
         newState->_vf = (__vtbl_ptr_type (*)[4])AIState_Idle_vtable;
         ((AIState_Idle *)newState)->idleInPlaceFlag_ = 1;
-        oldState = this->state_;
-        if (oldState != 0) {
-          (*(int (**)(...))((char *)oldState->_vf + 20))(
-              (int)&oldState->carObj_ +
-                  (int)*(short *)((int)*oldState->_vf + 0x10),3);
-        }
-        this->state_ = newState;
-        this->stateType_ = (stateType_t)3;
+        this->SetState(newState,(stateType_t)3);
         goto stateExecuteAndReturn;
       }
 
       {
         AIState_Base *newState;
-        AIState_Base *oldState;
         newState = operator new(8);
         newState =
             (AIState_Base *)new(newState) AIState_Normal(this->carObj_);
-        oldState = this->state_;
-        if (oldState != 0) {
-          (*(int (**)(...))((char *)oldState->_vf + 20))(
-              (int)&oldState->carObj_ +
-                  (int)*(short *)((int)*oldState->_vf + 0x10),3);
-        }
-        this->state_ = newState;
-        this->stateType_ = (stateType_t)2;
+        this->SetState(newState,(stateType_t)2);
       }
     }
     goto stateExecuteAndReturn;
@@ -3224,7 +2955,6 @@ void AIHigh_BTC_Wingman::HighExecute()
     {
       AIState_GotoSlice *gotoState;
       AIState_Base *newState;
-      AIState_Base *oldState;
 
       gotoState = (AIState_GotoSlice *)this->state_;
       this->AssignToPlayer(0);
@@ -3234,14 +2964,7 @@ void AIHigh_BTC_Wingman::HighExecute()
       newState = operator new(8);
       newState =
           (AIState_Base *)new(newState) AIState_Normal(this->carObj_);
-      oldState = this->state_;
-      if (oldState != 0) {
-        (*(int (**)(...))((char *)oldState->_vf + 20))(
-            (int)&oldState->carObj_ +
-                (int)*(short *)((int)*oldState->_vf + 0x10),3);
-      }
-      this->state_ = newState;
-      this->stateType_ = (stateType_t)2;
+      this->SetState(newState,(stateType_t)2);
     }
     goto stateExecuteAndReturn;
 
@@ -3270,40 +2993,24 @@ int AIHigh_BTC_Wingman::CheckForActivation()
 {
   int spikeBeltRequest;
   int carLoop;
-  Car_tObj*otherCarObj;
-  AIHigh_BTC_HumanCop*copHigh;
-
-  int iVar1;
-
-  Wingman_Role WVar3;
-
-  Car_tObj **ppCVar4;
-
-  AIHigh_Base **copTable;
-
-
 
   carLoop = 0;
 
   spikeBeltRequest = 0;
 
-  copTable = highLevelAIObjs;
-
-  ppCVar4 = Cars_gList;
-
   while (true) {
+    Car_tObj *otherCarObj;
 
     if (Cars_gNumCars <= carLoop) break;
 
-    otherCarObj = *ppCVar4;
+    otherCarObj = Cars_gList[carLoop];
 
     if (((otherCarObj->carFlags & 0x200U) != 0) && ((otherCarObj->N).active != '\0')) {
+      AIHigh_BTC_HumanCop *copHigh;
 
-      copHigh = (AIHigh_BTC_HumanCop *)copTable[otherCarObj->carIndex];
+      copHigh = (AIHigh_BTC_HumanCop *)highLevelAIObjs[otherCarObj->carIndex];
 
-      iVar1 = (copHigh)->CheckForWingmanRequest();
-
-      if (iVar1 != 0) {
+      if ((copHigh)->CheckForWingmanRequest() != 0) {
 
         this->newRole_ = 1;
 
@@ -3311,27 +3018,16 @@ int AIHigh_BTC_Wingman::CheckForActivation()
 
       }
 
-      iVar1 = (copHigh)->CheckForBlockaderRequest(&spikeBeltRequest);
+      if ((copHigh)->CheckForBlockaderRequest(&spikeBeltRequest) != 0) {
 
-      if (iVar1 != 0) {
-
-        WVar3 = 2;
-
-        if (spikeBeltRequest != 0) {
-
-          WVar3 = 3;
-
-        }
-
-        this->newRole_ = WVar3;
+        this->newRole_ = spikeBeltRequest != 0 ?
+            ROLE_BLOCKADER_SPIKEBELT : ROLE_BLOCKADER;
 
         this->newHumanBoss_ = copHigh;
 
       }
 
     }
-
-    ppCVar4 = ppCVar4 + 1;
 
     carLoop = carLoop + 1;
 
@@ -3361,10 +3057,10 @@ int AIHigh_BTC_Wingman::UpdateFreezeModeAndPullOverMode()
 
 
 {
-
-  int _Var1;
-
-  
+  /* SYM-CODEGEN-CARRIER: oldFreezeMode -- the retail sequence preserves the
+   * pre-clear value across `freezeMode_ = 0` and compares it afterwards.
+   * Expanding the result as control flow produces 20 instructions/20 diffs. */
+  int oldFreezeMode;
 
   if (this->freezeMode_ == 3) {
 
@@ -3376,11 +3072,11 @@ int AIHigh_BTC_Wingman::UpdateFreezeModeAndPullOverMode()
 
   (this->carObj_)->pullOver = 0;
 
-  _Var1 = this->freezeMode_;
+  oldFreezeMode = this->freezeMode_;
 
   this->freezeMode_ = 0;
 
-  return (u_int)(_Var1 == 4);
+  return (u_int)(oldFreezeMode == 4);
 
 }
 
@@ -3404,10 +3100,6 @@ void AIHigh_BTC_Wingman::SetupWingman(AIHigh_BTC_HumanCop *humanCop)
 
   int perpSide;
 
-  Speaker *pSVar1;
-
-
-
   otherCarObj = (humanCop)->carObj_;
 
   side = -1;
@@ -3430,6 +3122,9 @@ void AIHigh_BTC_Wingman::SetupWingman(AIHigh_BTC_HumanCop *humanCop)
 
   }
 
+  /* SYM-CODEGEN-CARRIER: sideTimes28 -- preserving the scaled side as a
+   * distinct expression value keeps the retail side/perpSide register handout;
+   * both direct product associations produce six register diffs. */
   int sideTimes28;
 
   sideTimes28 = side * 0x1c;
@@ -3464,13 +3159,7 @@ void AIHigh_BTC_Wingman::SetupWingman(AIHigh_BTC_HumanCop *humanCop)
 
              otherCarObj->currentSpeed,0);
 
-  pSVar1 = (Speaker *)Speech_Dispatch();
-
-  (**(int (**)(...))((int)*pSVar1->_vf + 0x2c))
-
-            ((int)&(pSVar1->fPosition).flags + (int)*(short *)((int)*pSVar1->_vf + 0x28),
-
-             this->carObj_);
+  Speech_Dispatch()->Ready(this->carObj_);
 
   return;
 
@@ -3502,54 +3191,59 @@ void AIHigh_BTC_Wingman::SetupBlockader(AIHigh_BTC_HumanCop *humanCop,int spikeB
   Car_tObj*copObj;
   int blockadeType;
 
-  u_char bVar1;
+  /* SYM-CODEGEN-CARRIER: blockadeDirection -- snapshotting the car direction
+   * prevents a second member load and preserves the delayed blockade_.direction
+   * store. Direct field use grows the body to 342 instructions/20 diffs. */
+  int blockadeDirection;
 
-  short sVar2;
+  /* SYM-CODEGEN-CARRIER: blockadeFlags -- the selected table byte is distinct
+   * from the recorded blockadeType selector. Folding the lookup into
+   * blockadeType preserves length but causes ten address-allocation diffs. */
+  u_char blockadeFlags;
 
-  int iVar3;
+  /* SYM-CODEGEN-CARRIER: sliceOffset -- the distance-to-slice conversion
+   * occupies the oracle's anonymous $a1. Reusing the recorded
+   * initializationDistance local instead produces 22 register diffs. */
+  int sliceOffset;
 
-  u_long uVar4;
+  /* SYM-CODEGEN-CARRIER: blockadeSlice -- retail wraps the candidate in an
+   * anonymous caller-saved value and stores blockade_.slice only after the RNG
+   * setup. Updating the member in place preserves length but causes 30 diffs. */
+  int blockadeSlice;
 
-  Speaker *pSVar5;
+  /* SYM-CODEGEN-CARRIER: perpDistance -- preserving the spline-distance
+   * result separately leaves the recorded spikeBeltSide in $v1. Folding the
+   * call into the sign test causes 18 allocation diffs. */
+  int perpDistance;
 
-  int iVar6;
+  copObj = humanCop->GetCarObj();
 
-  int iVar7;
-
-  AIHigh_BTC_Perp *pAVar8;
-
-  int iVar9;
-
-  pAVar8 = (humanCop)->perpTarget_;
-
-  copObj = (humanCop)->carObj_;
-
-  if (pAVar8 != (AIHigh_BTC_Perp *)0x0) {
+  if (humanCop->perpTarget_ != (AIHigh_BTC_Perp *)0x0) {
 
     int perpToHumanDistance;
-    Car_tObj *carObj;
     int side;
     int initializationDistance;
     Car_tObj*perpObj;
 
-    carObj = (pAVar8)->carObj_;
-
-    perpObj = carObj;
+    perpObj = humanCop->perpTarget_->GetCarObj();
 
     side = -1;
 
-    if (-1 < carObj->currentSpeed) {
+    if (-1 < perpObj->currentSpeed) {
 
       side = 1;
 
     }
 
-    perpToHumanDistance = AIWorld_ApxSplineDistance(carObj,copObj);
+    perpToHumanDistance = AIWorld_ApxSplineDistance(perpObj,copObj);
 
     initializationDistance = 0x1f40000;
     if (initializationDistance < __builtin_abs(perpToHumanDistance)) {
       initializationDistance = __builtin_abs(perpToHumanDistance);
     }
+    /* SYM-CODEGEN-CARRIER: maximumDistance -- materializing the upper clamp
+     * independently reproduces the oracle's compare/copy form. A literal
+     * conditional shrinks the body to 337 instructions and causes nine diffs. */
     int maximumDistance = 0x5dc0000;
     initializationDistance =
         (initializationDistance < maximumDistance) ?
@@ -3557,11 +3251,11 @@ void AIHigh_BTC_Wingman::SetupBlockader(AIHigh_BTC_HumanCop *humanCop,int spikeB
 
     if (perpToHumanDistance * side < 0) {
 
-      iVar3 = (initializationDistance / 0x60000) * side;
+      sliceOffset = (initializationDistance / 0x60000) * side;
 
-      if (-1 < iVar3) {
+      if (-1 < sliceOffset) {
 
-        initSlice = (copObj->N).simRoadInfo.slice + iVar3;
+        initSlice = (copObj->N).simRoadInfo.slice + sliceOffset;
 
       if (gNumSlices <= initSlice) {
 
@@ -3573,7 +3267,7 @@ void AIHigh_BTC_Wingman::SetupBlockader(AIHigh_BTC_HumanCop *humanCop,int spikeB
 
       else {
 
-        initSlice = (copObj->N).simRoadInfo.slice + iVar3;
+        initSlice = (copObj->N).simRoadInfo.slice + sliceOffset;
 
         if (initSlice < 0) {
 
@@ -3587,11 +3281,11 @@ void AIHigh_BTC_Wingman::SetupBlockader(AIHigh_BTC_HumanCop *humanCop,int spikeB
 
     else {
 
-      iVar3 = (initializationDistance / 0x60000) * side;
+      sliceOffset = (initializationDistance / 0x60000) * side;
 
-      if (-1 < iVar3) {
+      if (-1 < sliceOffset) {
 
-        initSlice = (perpObj->N).simRoadInfo.slice + iVar3;
+        initSlice = (perpObj->N).simRoadInfo.slice + sliceOffset;
 
         if (gNumSlices <= initSlice) {
 
@@ -3603,7 +3297,7 @@ void AIHigh_BTC_Wingman::SetupBlockader(AIHigh_BTC_HumanCop *humanCop,int spikeB
 
       else {
 
-        initSlice = (perpObj->N).simRoadInfo.slice + iVar3;
+        initSlice = (perpObj->N).simRoadInfo.slice + sliceOffset;
 
       if (initSlice < 0) {
 
@@ -3633,15 +3327,25 @@ void AIHigh_BTC_Wingman::SetupBlockader(AIHigh_BTC_HumanCop *humanCop,int spikeB
 
     }
 
-    int initDistance = 0x53;
-    int offset = side * initDistance;
+    /* SYM-CODEGEN-CARRIER: initializationSliceDistance -- keeping the 0x53
+     * scale as a value emits the retail multiply. A literal is strength-
+     * reduced, grows the body to 343 instructions, and causes nine diffs. */
+    int initializationSliceDistance = 0x53;
+    side = side * initializationSliceDistance;
 
-    if (-1 < offset) {
+    /* SYM-CODEGEN-CARRIER: initSliceCandidate -- the two branch-local
+     * candidates plus zero-insn identity fences preserve the retail copy into
+     * initSlice. Direct initSlice updates shrink the body to 338 instructions
+     * and cause 32 diffs; unfenced candidates remain 338/20 diffs. */
+    if (-1 < side) {
 
-      int slice = (copObj->N).simRoadInfo.slice + offset;
-      __asm__("" : "+r"(slice));
+      int initSliceCandidate = (copObj->N).simRoadInfo.slice + side;
+      __asm__("" : "+r"(initSliceCandidate));
+      /* SYM-CODEGEN-CARRIER: numSlices -- the saved wrap bound moves the
+       * global load ahead of initSlice's copy; using gNumSlices directly leaves
+       * a 341-instruction/5-diff schedule. */
       int numSlices = gNumSlices;
-      initSlice = slice;
+      initSlice = initSliceCandidate;
 
       if (numSlices <= initSlice) {
 
@@ -3653,16 +3357,15 @@ void AIHigh_BTC_Wingman::SetupBlockader(AIHigh_BTC_HumanCop *humanCop,int spikeB
 
     else {
 
-      int slice = (copObj->N).simRoadInfo.slice + offset;
-      __asm__("" : "+r"(slice));
+      int initSliceCandidate = (copObj->N).simRoadInfo.slice + side;
+      __asm__("" : "+r"(initSliceCandidate));
 
-      if (slice < 0) {
+      if (initSliceCandidate < 0) {
 
-        initSlice = slice + gNumSlices;
-
+        initSlice = initSliceCandidate + gNumSlices;
       }
       else {
-        initSlice = slice;
+        initSlice = initSliceCandidate;
       }
 
     }
@@ -3675,17 +3378,17 @@ void AIHigh_BTC_Wingman::SetupBlockader(AIHigh_BTC_HumanCop *humanCop,int spikeB
 
 LAB_8005f268:
 
-  blockadeType = copObj->direction;
+  blockadeDirection = copObj->direction;
 
-  this->blockade_.direction = blockadeType;
+  this->blockade_.direction = blockadeDirection;
 
-  if (0 <= -blockadeType) {
+  if (0 <= -blockadeDirection) {
 
-    iVar7 = initSlice - blockadeType;
+    blockadeSlice = initSlice - blockadeDirection;
 
-    if (gNumSlices <= iVar7) {
+    if (gNumSlices <= blockadeSlice) {
 
-      iVar7 = iVar7 - gNumSlices;
+      blockadeSlice = blockadeSlice - gNumSlices;
 
     }
 
@@ -3693,32 +3396,30 @@ LAB_8005f268:
 
   else {
 
-    iVar7 = initSlice - blockadeType;
+    blockadeSlice = initSlice - blockadeDirection;
 
-    if (iVar7 < 0) {
+    if (blockadeSlice < 0) {
 
-      iVar7 = iVar7 + gNumSlices;
+      blockadeSlice = blockadeSlice + gNumSlices;
 
     }
 
   }
 
-  int randomValue = fastRandom;
-  int randomMultiplier = randSeed;
-  randtemp = randomValue * randomMultiplier;
+  randtemp = fastRandom * randSeed;
 
-  this->blockade_.slice = iVar7;
+  this->blockade_.slice = blockadeSlice;
 
   AICop_gRoadBlockState = kAICop_RoadBlockState_WaitingForPerp;
 
   fastRandom = randtemp & 0xffff;
 
   blockadeType = (randtemp >> 8 & 0xffff) % 5;
-  bVar1 = gBlockadeTypes[blockadeType];
+  blockadeFlags = gBlockadeTypes[blockadeType];
 
-  this->blockade_.flags = (u_int)bVar1;
+  this->blockade_.flags = blockadeFlags;
 
-  if (bVar1 != 0) {
+  if (blockadeFlags != 0) {
 
     if (stackSpeedUpEnbabledFlag != 0) {
 
@@ -3753,11 +3454,11 @@ LAB_8005f268:
     int rightLatPos;
     int timeNow;
 
-    iVar9 = AIWorld_ApxSplineDistance(this->carObj_,copObj);
+    perpDistance = AIWorld_ApxSplineDistance(this->carObj_,copObj);
 
     spikeBeltSide = -1;
 
-    if (-1 < iVar9) {
+    if (-1 < perpDistance) {
 
       spikeBeltSide = 1;
 
@@ -3793,6 +3494,10 @@ LAB_8005f268:
 
     }
 
+    /* MATCH: zero-insn identity fence keeps the SYM-recorded `slice` live in
+     * the retail caller-saved register across the member store/RNG sequence.
+     * Removing it preserves 340 instructions but causes 28 diffs; replacing
+     * following member reads with the local shrinks to 337/173 diffs. */
     __asm__("" : "+r"(slice));
     this->spikeBeltSlice_ = slice;
 
@@ -3816,6 +3521,9 @@ LAB_8005f268:
 
     rightLatPos = right;
 
+    /* SYM-CODEGEN-CARRIER: beltSlice -- snapshotting the member preserves the
+     * retail ordering of the global spike-belt stores. Reading the member at
+     * the slice store keeps 340 instructions but causes 16 scheduling diffs. */
     int beltSlice = this->spikeBeltSlice_;
 
     AICop_spikeBelt.leftLatPos_ = -left;
@@ -3826,7 +3534,9 @@ LAB_8005f268:
 
     AICop_spikeBelt.slice_ = beltSlice;
 
-    AICop_spikeBelt.freshenTime_ = simGlobal.gameTicks;
+    timeNow = simGlobal.gameTicks;
+
+    AICop_spikeBelt.freshenTime_ = timeNow;
 
     BWorld_SetSpikeBelt(this->spikeBeltSlice_,AICop_spikeBelt.leftLatPos_,
 
@@ -3836,13 +3546,7 @@ LAB_8005f268:
 
   }
 
-  pSVar5 = (Speaker *)Speech_Dispatch();
-
-  (**(int (**)(...))((int)*pSVar5->_vf + 0x2c))
-
-            ((int)&(pSVar5->fPosition).flags + (int)*(short *)((int)*pSVar5->_vf + 0x28),
-
-             this->carObj_);
+  Speech_Dispatch()->Ready(this->carObj_);
 
   return;
 

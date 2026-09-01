@@ -40,27 +40,6 @@ short (*Track_gInViewList)[32];
 static Track_MipMap *gTempMipMapInfo;
 static Track_MultiPalette *gTempMultiPalInfo;
 
-/* track.obj car-dashboard shape/tach name-prefix tables @0x80055A54 (contiguous; 58 char*,
- *   't'=day shapes / 'n'=night, decoded byte-exact from nfs4-f.exe via IDA NFS4.EXE.i64).
- *   HudPmx_InitTextures copies these into stack buffers, using &Track_gShapeNamePtrs_end and
- *   gShapeNamePtrs_subList+3 as loop bounds -- so declaration order MUST stay contiguous. */
-char *Track_gShapeNamePtrs[28] = {                 /* @0x80055A54 : [0..27] */
-    "tslk","tbz3","thsv","tfor","tz28","ttra","tdb7","txkr","ttm5","tvet",
-    "t550","t911","tf50","tdsv","tclk","tmcf","t911","thsv","tvet","tbon",
-    "tbon","tbon","tcap","thsv","ttm5","tvet","t911","tdsv" };
-char *Track_gShapeNamePtrs_end[1] = { "tbon" };    /* @0x80055AC4 : [28] (loop-bound marker) */
-/* decompiler also references the value form _Track_gShapeNamePtrs_end -> same [28] datum.
- * gcc2.7.2/ccpsx has no __attribute__((alias)); keep the alias for the modern pre-gate, and
- * resolve the underscore-symbol bridge (hudpmx.cpp) in the deferred linkage/hygiene pass. */
-#ifndef NFS4_PSYQ_HEADERS
-/* _Track_gShapeNamePtrs_end removed: hudpmx.cpp now uses Track_gShapeNamePtrs_end directly. */
-#endif
-char *Track_gTachNamePtrs[25] = {                  /* @0x80055AC8 : [29..53] */
-    "nslk","nbz3","nhsv","nfor","nz28","ntra","ndb7","nxkr","nnm5","nvet",
-    "n550","n911","nf50","tdsv","tclk","nmcf","n911","nhsv","nvet","nbon",
-    "nbon","nbon","ncap","nhsv","nnm5" };
-char *gShapeNamePtrs_subList[4] = { "nvet","n911","tdsv","nbon" };  /* @0x80055B2C : [54..57] */
-
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
 void Track_SetTrackNumber(int tracknum);
 char * Track_MakeTrackPathName(char *ext);
@@ -120,12 +99,9 @@ char * Track_MakeTrackDataPathName(char *ext)
 void AllocArtResource(Track_tArtresource *artRes,int numPmx)
 
 {
-  Draw_tPixMap *pDVar1;
-  
   artRes->id = -1;
   artRes->basePmxCount = 0;
-  pDVar1 = (Draw_tPixMap *)BWAllocMem(numPmx << 4);
-  artRes->pPmx = pDVar1;
+  artRes->pPmx = (Draw_tPixMap *)BWAllocMem(numPmx << 4);
   artRes->shapeCount = 0;
   artRes->shapeFile = (char *)0x0;
   return;
@@ -275,16 +251,14 @@ void LoadShapesAndMakePmx_EnvMap(char *shapefile,Draw_tPixMap *pmxList,int x,int
   int i;
   Draw_tPixMap *pPmx;
   int recolor_flag;
-  int negOne;
 
   pPmx = pmxList;
   recolor_flag = 0;
   i = recolor_flag;
-  negOne = -1;
   for (; i < (int)shapecount(shapefile); i++) {
     shape = (shapetbl *)shapepointer(shapefile,i);
     if (shape != (shapetbl *)0x0) {
-      Texture_LoadPmx((char *)0x0,(char *)shape,recolor_flag | 0x42,x,y,negOne,negOne,pPmx);
+      Texture_LoadPmx((char *)0x0,(char *)shape,recolor_flag | 0x42,x,y,-1,-1,pPmx);
       pPmx = pPmx + 1;
     }
   }
@@ -401,23 +375,16 @@ TrkAnimTex_loopTest:
 int Track_GetProperMultiPalShapeIndex(int shapeindex,int paletteindex)
 
 {
-  Track_MultiPalette *pTVar1;
   int t;
 
-  t = 0;
-  pTVar1 = gTempMultiPalInfo;
-TrkGetPal_loopTest:
-  if (pTVar1->origshapeindex == shapeindex) {
-    if (pTVar1->palnum == paletteindex) {
-      return (int)pTVar1->actualshapeindex;
+  for (t = 0; t < 0x80; t++) {
+    if (gTempMultiPalInfo[t].origshapeindex == shapeindex) {
+      if (gTempMultiPalInfo[t].palnum == paletteindex) {
+        return (int)gTempMultiPalInfo[t].actualshapeindex;
+      }
     }
   }
-  t = t + 1;
-  pTVar1 = pTVar1 + 1;
-  if (0x7f < t) {
-    return shapeindex;
-  }
-  goto TrkGetPal_loopTest;
+  return shapeindex;
 }
 
 /* ---- Track_ProcessFlipAndUVFlags__FiP12Draw_tPixMapT1  [TRACK.CPP:538-571] SLD-VERIFIED ---- */
@@ -1023,6 +990,10 @@ void Track_Init(char *tempName)
 void Track_DeInit(void)
 
 {
+  /* SYM-CODEGEN-CARRIER: deleteMe -- replacing this cached Track_mem value
+   * with direct global expressions compiles to 50 instructions and 15 oracle
+   * diffs.  The retained pointer produces retail's 53-instruction saved-
+   * register lifetime across purgememadr and __builtin_delete. */
   SimpleMem *deleteMe;
   
   deleteMe = Track_mem;
@@ -1065,13 +1036,10 @@ void Track_AnimateTrackLighting(void)
 char * KillFile_OpenRead(void)
 
 {
-  char *pcVar1;
   char pathName [128];
   
-  pcVar1 = Track_MakeTrackPathName(".kil");
-  sprintf(pathName,"%s",pcVar1);
-  pcVar1 = (char *)loadfileadrz(pathName,(void *)0x0);
-  return pcVar1;
+  sprintf(pathName,"%s",Track_MakeTrackPathName(".kil"));
+  return (char *)loadfileadrz(pathName,(void *)0x0);
 }
 
 /* ---- KillFile_ReadEntry__FPciRiT2  [TRACK.CPP:1732-1736] SLD-VERIFIED ---- */
@@ -1235,6 +1203,3 @@ void SaveSurface::RestoreAll()
 }
 
 /* end of track.cpp */
-
-/* owning-TU def (extern-declared, never defined; link-harness) */
-int wordFile_psh_snow;

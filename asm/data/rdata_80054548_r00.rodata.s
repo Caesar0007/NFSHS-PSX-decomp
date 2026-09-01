@@ -555,11 +555,14 @@ enddlabel FrontStartAddress
 nonmatching FrontEndAddress
 
 dlabel FrontEndAddress
-    /* 45594 80054D94 48450580 */ .word _front_dtors_orgend
+    /* 45594 80054D94 48450580 */ .word _front_objend
+enddlabel FrontEndAddress
+
+/* The following `SimpleMem` literal begins the next object's read-only data.
+ * address.obj owns only the two four-byte overlay boundary words above. */
     /* 45598 80054D98 53696D70 */ .word 0x706D6953
     /* 4559C 80054D9C 6C654D65 */ .word 0x654D656C
     /* 455A0 80054DA0 6D000000 */ .word 0x0000006D
-enddlabel FrontEndAddress
 
 nonmatching D_80054DA4
 

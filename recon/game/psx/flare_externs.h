@@ -7,7 +7,6 @@
 #include "../../lib/psx_gte.h"   /* canonical PsyQ inline COP2/GTE macros (real cop2 words) */
 
 /* ---- GPU packet cursors + matrices ---- */
-extern char         *Render_gPacketEnd;
 extern matrixtdef    gWorldMat;                 /* 0x8010ee40 (36 B = 9 ints, game matrix) */
 
 /* ---- camera / view / draw ---- */

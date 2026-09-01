@@ -82,7 +82,13 @@ struct Speaker {
     int fCar, fLocation, fFrom, fTo, fWing;
     bool fHavePerp;
     Speaker *fSub;
-    __vtbl_ptr_type (*_vf)[31];
+    virtual void Report(Car_tObj *cop) asm("Report__Q26Speech7SpeakerP8Car_tObj");
+    virtual void Status() asm("Status__Q26Speech7Speaker");
+    virtual void Deny() asm("Deny__Q26Speech7Speaker");
+    virtual void Grant() asm("Grant__Q26Speech7Speaker");
+    virtual void Ready(Car_tObj *wing) asm("Ready__Q26Speech7SpeakerP8Car_tObj");
+    virtual void Engage(Car_tObj *perp) asm("Engage__Q26Speech7SpeakerP8Car_tObj");
+    virtual void Lose() asm("Lose__Q26Speech7Speaker");
 };
 
 struct Trk_SFX { int point[3]; short type, pad; };

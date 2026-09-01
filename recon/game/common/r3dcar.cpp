@@ -122,7 +122,6 @@ void R3DCar_ChangeTrafficColor(Car_tObj *carObj,int newColorIndex)
 void R3DCar_StartUp(void)
 
 {
-  char *pcVar1;
   int i;
   char name [100];
 
@@ -140,8 +139,7 @@ void R3DCar_StartUp(void)
   R3DCar_orientMat = (matrixtdef *)reservememadr("orientMat",0x804,0);
   R3DCar_position = (coorddef *)reservememadr("position",0x2b8,0);
   sprintf(name,"%slicense.psh",Paths_Paths[0x19]);
-  pcVar1 = (char *)loadfileadr(name,0);
-  R3DCar_LicenseShapeFile = pcVar1;
+  R3DCar_LicenseShapeFile = (char *)loadfileadr(name,0);
   return;
 }
 
@@ -150,7 +148,6 @@ void R3DCar_PostStartUp(void)
 
 {
   int otSize;
-  int otBytes;
 
   if (R3DCar_InMenu == 0) {
     /* MATCH: in-place multiply on the constant-seeded var defeats expand-time synth_mult
@@ -164,12 +161,11 @@ void R3DCar_PostStartUp(void)
   if (otSize < 0x400) {
     otSize = 0x400;
   }
-  otBytes = otSize << 2; /* MATCH: split temp -- pre-shift otSize dies into $a1, shifted byte count lives in $s0 across the calls */
-  R3DCar_subOtStart[0][0] = reservememadr("sub_ot0",otBytes,0);
-  R3DCar_subOtStart[1][0] = reservememadr("sub_ot1",otBytes,0);
+  R3DCar_subOtStart[0][0] = reservememadr("sub_ot0",otSize << 2,0);
+  R3DCar_subOtStart[1][0] = reservememadr("sub_ot1",otSize << 2,0);
   if ((R3DCar_InMenu != 0) || (GameSetup_gData.commMode == 1)) {
-    R3DCar_subOtStart[0][1] = reservememadr("sub_ot0m",otBytes,0);
-    R3DCar_subOtStart[1][1] = reservememadr("sub_ot1m",otBytes,0);
+    R3DCar_subOtStart[0][1] = reservememadr("sub_ot0m",otSize << 2,0);
+    R3DCar_subOtStart[1][1] = reservememadr("sub_ot1m",otSize << 2,0);
   }
   return;
 }
@@ -559,11 +555,8 @@ void R3DCar_CalcCarDimensions(Car_tObj *carObj,Transformer_zScene *scene,int car
 void R3DCar_DeInstantiate3DCar(Car_tObj *carObj)
 
 {
-  char *addr;
-  
-  addr = (carObj->render).palCopy;
-  if (addr != (char *)0x0) {
-    purgememadr(addr);
+  if ((carObj->render).palCopy != (char *)0x0) {
+    purgememadr((carObj->render).palCopy);
   }
   (carObj->render).palCopy = (char *)0x0;
   return;
@@ -647,6 +640,10 @@ char * R3DCar_LoadFileAdr(char *name)
 void R3DCar_GetCarName(char *filename,int carType,int country)
 
 {
+  /* SYM-CODEGEN-CARRIER: copIdx -- folding the unsigned car-type offset into
+   * the range test and table index compiles to 38 instructions and 13 oracle
+   * diffs.  This retained value produces the exact 37-instruction schedule,
+   * including the retail lifetime of the unadjusted carType. */
   u_int copIdx;
   int index;
 
@@ -959,6 +956,9 @@ int R3DCar_Visibilty(Car_tObj *carObj,DRender_tView *Vi)
       (Camera_gInfo[Vi->player].inCar != 0)) {
     if (Camera_GetMode(Vi->player) == 0) goto R3DVis_setNoDetailReturn;
     if (Camera_gInfo[Vi->player].inCar != 0) {
+      /* SYM-CODEGEN-CARRIER: modeOne -- the measured pin-free identity fence
+       * preserves the retail mask value separately from the later inCarCam
+       * rematerialization; direct literal forms retain two oracle diffs. */
       u_int modeOne;
 
       if (Camera_GetMode(Vi->player) ==
@@ -1054,19 +1054,15 @@ R3DVis_setNoDetailReturn:
 void R3DCar_TurnHeadLightOn(Car_tObj *carObj,int tail)
 
 {
-  u_short uVar1;
-
   (carObj->render).headLight = (carObj->render).headLight | 0x11;
   if (tail != 0) {
     (carObj->render).brakeLight = (carObj->render).brakeLight | 2;
   }
-  uVar1 = (carObj->render).headLight;
-  if ((uVar1 & 8) == 0) {
-    (carObj->render).headLight = uVar1 | 2;
+  if (((carObj->render).headLight & 8) == 0) {
+    (carObj->render).headLight = (carObj->render).headLight | 2;
   }
-  uVar1 = (carObj->render).headLight;
-  if ((uVar1 & 0x80) == 0) {
-    (carObj->render).headLight = uVar1 | 0x20;
+  if (((carObj->render).headLight & 0x80) == 0) {
+    (carObj->render).headLight = (carObj->render).headLight | 0x20;
   }
   return;
 }
@@ -1075,18 +1071,14 @@ void R3DCar_TurnHeadLightOn(Car_tObj *carObj,int tail)
 void R3DCar_TurnHeadLightOff(Car_tObj *carObj,int head)
 
 {
-  u_short uVar1;
-  
   (carObj->render).brakeLight = (carObj->render).brakeLight & 0xfd;
   if (head != 0) {
-    uVar1 = (carObj->render).headLight;
-    (carObj->render).headLight = uVar1 & 0xee;
-    if ((uVar1 & 8) == 0) {
-      (carObj->render).headLight = uVar1 & 0xec;
+    (carObj->render).headLight = (carObj->render).headLight & 0xee;
+    if (((carObj->render).headLight & 8) == 0) {
+      (carObj->render).headLight = (carObj->render).headLight & 0xec;
     }
-    uVar1 = (carObj->render).headLight;
-    if ((uVar1 & 0x80) == 0) {
-      (carObj->render).headLight = uVar1 & 0xdf;
+    if (((carObj->render).headLight & 0x80) == 0) {
+      (carObj->render).headLight = (carObj->render).headLight & 0xdf;
     }
   }
   return;
@@ -1096,15 +1088,13 @@ void R3DCar_TurnHeadLightOff(Car_tObj *carObj,int head)
 void R3DCar_MATRIX3DT_Copy(int *from,int *to)
 
 {
-  int iVar1;
   int i;
   
   i = 8;
   do {
-    iVar1 = *from;
+    *to = *from;
     from = from + 1;
     i = i + -1;
-    *to = iVar1;
     to = to + 1;
   } while (i != -1);
   return;

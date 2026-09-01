@@ -19,6 +19,10 @@ extern "C" int __pure_virtual(...);   /* @0x800e4354 (eaclib cfront runtime) */
  * `&Class::~Class`) are gone. */
 extern "C" void ___11AIHigh_None(void *thisp);   /* ~AIHigh_None */
 extern "C" void ___15AIHigh_BTC_Perp(void *thisp);   /* ~AIHigh_BTC_Perp */
+/* These two retail vtables have exact addresses/entries but no `_vt.*` SYM
+   record, so the original source-level materialization site is not unique.
+   SYM-GLOBAL-CARRIER: AIHigh_kVtbl_80054dcc
+   SYM-GLOBAL-CARRIER: AIHigh_None_vtable */
 __vtbl_ptr_type AIHigh_kVtbl_80054dcc[4] = {   /* @0x80054dcc  BTC_Perp-family abstract vtable: {null, __pure_virtual, ~AIHigh_BTC_Perp, AIHigh_BasicPerp::CheckForCrimes}. Distinct from size-3 AIHigh_BTC_Perp_vtable@0x80054fe0. Address-name = #148 cleanup carry-over. */
   {0, 0, (int (*)(...))0},                                  /* @0x80054dcc */
   {0, 0, (int (*)(...))&__pure_virtual},                    /* @0x80054dd4  fn=0x800e4354 __pure_virtual */
@@ -56,9 +60,24 @@ void AIHigh_StartUp(void)
          (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) {
     carLoop = 0;
     while (carLoop < Cars_gNumCars) {
+      /* SYM-CODEGEN-CARRIER: newHigh -- this is the single source carrier for
+         the result of each reconstructed inline `new` expression.  A natural
+         AIHigh_BTC_Perp -> AIHigh_BTC_HumanPerp constructor chain compiles to
+         231 instructions/3 diffs because the manual-vtable model lets GCC
+         delete the intermediate base vptr store; retaining that store with a
+         read fence gives 236 instructions/12 diffs.  This carrier preserves
+         the exact 234-instruction virtual-class construction sequence. */
       AIHigh_Base *newHigh;
+      /* SYM-CODEGEN-CARRIER: slot -- direct
+         `highLevelAIObjs[carLoop] = newHigh` produces 235 instructions and
+         25 diffs by changing the three-qty local-allocation order. */
       AIHigh_Base **slot;
+      /* SYM-CODEGEN-CARRIER: carFlags -- the retained flags value is part of
+         the measured local-alloc three-qty basin documented below. */
       u_int carFlags;
+      /* SYM-CODEGEN-CARRIER: copCarFlag -- its two-operand read fence moves
+         refs across the QTY_CMP_PRI floor_log2 step; removing the carrier or
+         either required ref produces the measured eight-diff allocation. */
       u_int copCarFlag;
 
       carObj = Cars_gList[carLoop];
@@ -97,36 +116,28 @@ void AIHigh_StartUp(void)
          instrument. ------------------------------------------------------------------ */
       __asm__("" : : "r"(copCarFlag), "r"(copCarFlag));
       if (copCarFlag != 0) {
-        AIHigh_BTC_HumanCop *p = operator new(0x8c);
-        newHigh = (AIHigh_Base *)new(p) AIHigh_BTC_HumanCop(carObj,copCounter++);
+        newHigh = new AIHigh_BTC_HumanCop(carObj,copCounter++);
       }
       else if ((carFlags & 4U) != 0) {
-        AIHigh_BTC_AIPerp *p = operator new(0x88);
-        new((AIHigh_BasicPerp *)p) AIHigh_BasicPerp(carObj);
-        p->_vf = (__vtbl_ptr_type (*) [3])&AIHigh_kVtbl_80054dcc;
-        p->caught_ = 1;
-        p->hudActivated_ = 0;
-        p->originalActivationCop_ = (AIHigh_BTC_HumanCop *)0x0;
-        p->_vf = (__vtbl_ptr_type (*) [3])AIHigh_BTC_HumanPerp_vtable;
-        newHigh = (AIHigh_Base *)p;
+        newHigh = (AIHigh_Base *)operator new(0x88);
+        new((AIHigh_BasicPerp *)newHigh) AIHigh_BasicPerp(carObj);
+        newHigh->_vf = (__vtbl_ptr_type (*) [3])&AIHigh_kVtbl_80054dcc;
+        ((AIHigh_BTC_Perp *)newHigh)->caught_ = 1;
+        ((AIHigh_BTC_Perp *)newHigh)->hudActivated_ = 0;
+        ((AIHigh_BTC_Perp *)newHigh)->originalActivationCop_ = (AIHigh_BTC_HumanCop *)0x0;
+        newHigh->_vf = (__vtbl_ptr_type (*) [3])AIHigh_BTC_HumanPerp_vtable;
       }
       else if ((carFlags & 8U) != 0) {
-        AIHigh_BTC_AIPerp *p = operator new(0xac);
-        newHigh = (AIHigh_Base *)new(p) AIHigh_BTC_AIPerp(carObj);
+        newHigh = new AIHigh_BTC_AIPerp(carObj);
       }
       else if ((carFlags & 0x10U) != 0) {
-        AIHigh_Traffic *p = operator new(0x24);
-        newHigh = (AIHigh_Base *)new(p) AIHigh_Traffic(carObj);
+        newHigh = new AIHigh_Traffic(carObj);
       }
       else if ((carFlags & 0x20U) != 0) {
-        AIHigh_BTC_Wingman *p = operator new(0x7c);
-        newHigh = (AIHigh_Base *)new(p) AIHigh_BTC_Wingman(carObj,copCounter++);
+        newHigh = new AIHigh_BTC_Wingman(carObj,copCounter++);
       }
       else {
-        AIHigh_Base *p = operator new(0x18);
-        new(p) AIHigh_Base(carObj);
-        p->_vf = (__vtbl_ptr_type (*) [3])&AIHigh_None_vtable;
-        newHigh = p;
+        newHigh = new AIHigh_None(carObj);
       }
       *slot = newHigh;
       if ((carObj->carFlags & 0x200U) != 0) {
@@ -156,26 +167,19 @@ void AIHigh_StartUp(void)
 
       carObj = Cars_gList[carLoop];
       if ((carObj->carFlags & 4U) != 0) {
-        AIHigh_Human *p = operator new(0xb0);
-        newHigh = (AIHigh_Base *)new(p) AIHigh_Human(carObj);
+        newHigh = new AIHigh_Human(carObj);
       }
       else if ((carObj->carFlags & 8U) != 0) {
-        AIHigh_Opponent *p = operator new(0xc0);
-        newHigh = (AIHigh_Base *)new(p) AIHigh_Opponent(carObj);
+        newHigh = new AIHigh_Opponent(carObj);
       }
       else if ((carObj->carFlags & 0x10U) != 0) {
-        AIHigh_Traffic *p = operator new(0x24);
-        newHigh = (AIHigh_Base *)new(p) AIHigh_Traffic(carObj);
+        newHigh = new AIHigh_Traffic(carObj);
       }
       else if ((carObj->carFlags & 0x20U) != 0) {
-        AIHigh_Cop *p = operator new(0x6c);
-        newHigh = (AIHigh_Base *)new(p) AIHigh_Cop(carObj,copCounter++);
+        newHigh = new AIHigh_Cop(carObj,copCounter++);
       }
       else {
-        AIHigh_Base *p = operator new(0x18);
-        new(p) AIHigh_Base(carObj);
-        p->_vf = (__vtbl_ptr_type (*) [3])&AIHigh_None_vtable;
-        newHigh = p;
+        newHigh = new AIHigh_None(carObj);
       }
       highLevelAIObjs[carLoop] = newHigh;
       carLoop = carLoop + 1;
@@ -279,51 +283,35 @@ void AIHigh_Execute(void)
 
 {
   int carLoop;
-  Car_tObj*carObj;
+  Car_tObj *carObj;
 
+  /* SYM-CODEGEN-CARRIER: bVar1 -- spelling the scheduling test directly as a
+     short-circuit condition produces 61 instructions/33 diffs instead of the
+     exact retail 66; this optimized boolean lifetime is absent from the
+     surviving debug-local records. */
   bool bVar1;
 
-  int iVar2;
-
-  __vtbl_ptr_type (*pa_Var3) [3];
-
-  Car_tObj *pCVar4;
-
-  AIHigh_Base **ppAVar5;
-
-  Car_tObj **ppCVar6;
-
-  int iVar7;
-
-  
-
-  iVar7 = 0;
-
-  ppAVar5 = highLevelAIObjs;
-
-  ppCVar6 = Cars_gList;
+  carLoop = 0;
 
   do {
 
-    if (Cars_gNumCars <= iVar7) {
+    if (Cars_gNumCars <= carLoop) {
 
       return;
 
     }
 
-    pCVar4 = *ppCVar6;
+    carObj = Cars_gList[carLoop];
 
-    if (*ppAVar5 != (AIHigh_Base *)0x0) {
+    if (highLevelAIObjs[carLoop] != (AIHigh_Base *)0x0) {
 
       bVar1 = false;
 
-      if ((*ppAVar5)->schedulingOff_ == 0) {
+      if (highLevelAIObjs[carLoop]->schedulingOff_ == 0) {
 
-        iVar2 = Sched_ExecuteCheck(1,0,(pCVar4->N).distToPlayer,(pCVar4->N).objID,&AI_time,&AI_elapsedTime,
+        if (Sched_ExecuteCheck(1,0,(carObj->N).distToPlayer,(carObj->N).objID,&AI_time,&AI_elapsedTime,
 
-                           &AI_iTime,pCVar4->forceNoSimOptz);
-
-        if (iVar2 != 0) goto LAB_8005b2bc;
+                               &AI_iTime,carObj->forceNoSimOptz) != 0) goto LAB_8005b2bc;
 
       }
 
@@ -337,20 +325,16 @@ LAB_8005b2bc:
 
       if (bVar1) {
 
-        pa_Var3 = (*ppAVar5)->_vf;
         /* vtable entry 1: fn-ptr @ byte +12, this-delta @ byte +8 (byte-base, sec.3.12 #10) */
-        (*(int (**)(...))((char *)pa_Var3 + 12))
-            ((int)&(*ppAVar5)->carObj_ + (int)*(short *)((char *)pa_Var3 + 8));
+        (*(int (**)(...))((char *)highLevelAIObjs[carLoop]->_vf + 12))
+            ((int)&highLevelAIObjs[carLoop]->carObj_ +
+             (int)*(short *)((char *)highLevelAIObjs[carLoop]->_vf + 8));
 
       }
 
     }
 
-    ppAVar5 = ppAVar5 + 1;
-
-    ppCVar6 = ppCVar6 + 1;
-
-    iVar7 = iVar7 + 1;
+    carLoop = carLoop + 1;
 
   } while( true );
 
@@ -371,12 +355,6 @@ AIHigh_Base::AIHigh_Base(Car_tObj *carObj)
 
 {
 
-  AIState_Base *this_00;
-
-  AIState_Base *pAVar1;
-
-  
-
   this->_vf = (__vtbl_ptr_type (*) [3])AIHigh_Base_vtable;
 
   this->carObj_ = carObj;
@@ -385,28 +363,7 @@ AIHigh_Base::AIHigh_Base(Car_tObj *carObj)
 
   this->stateType_ = 0;
 
-  this_00 = operator new(8);
-
-  (new(this_00) AIState_Base(this->carObj_));
-
-  /* @0x8005B360-364: the AIState_Base sub-object (state_, placement-new'd above) carries the AIState_None
-   * vtable (0x80054E1C), NOT AIHigh_Base_vtable (0x80054E04, 0x18 earlier). The recon wrote AIHigh_Base's
-   * vtable, so virtual dispatch through state_ (Execute/dtor/TestForRelease) hit the wrong slots. The
-   * [4]-cast already matched AIState_None_vtable[4] @0x80054e1c (AIHigh_Base_vtable is [3]) (M18). */
-  this_00->_vf = (__vtbl_ptr_type (*) [4])AIState_None_vtable;
-
-  pAVar1 = this->state_;
-
-  if (pAVar1 != (AIState_Base *)0x0) {
-    /* vtable entry 2: fn-ptr @ byte +20, this-delta @ byte +16 (byte-base, sec.3.12 #10) */
-    (*(int (*)(...))*(int *)((char *)pAVar1->_vf + 20))
-        ((int)&pAVar1->carObj_ + (int)*(short *)((char *)pAVar1->_vf + 16),3);
-
-  }
-
-  this->state_ = this_00;
-
-  this->stateType_ = 0;
+  this->SetState(new AIState_None(this->carObj_),STATE_NONE);
 
   this->schedulingOff_ = 0;
 
@@ -431,19 +388,12 @@ AIHigh_Base::~AIHigh_Base()
 
 {
 
-  AIState_Base *pAVar1;
-
-
-  
-
-  pAVar1 = this->state_;
-
   this->_vf = (__vtbl_ptr_type (*) [3])AIHigh_Base_vtable;
 
-  if (pAVar1 != (AIState_Base *)0x0) {
+  if (this->state_ != (AIState_Base *)0x0) {
     /* vtable entry 2: fn-ptr @ byte +20, this-delta @ byte +16 (byte-base, sec.3.12 #10) */
-    (*(int (*)(...))*(int *)((char *)pAVar1->_vf + 20))
-        ((int)&pAVar1->carObj_ + (int)*(short *)((char *)pAVar1->_vf + 16),3);
+    (*(int (*)(...))*(int *)((char *)this->state_->_vf + 20))
+        ((int)&this->state_->carObj_ + (int)*(short *)((char *)this->state_->_vf + 16),3);
 
     this->state_ = (AIState_Base *)0x0;
 

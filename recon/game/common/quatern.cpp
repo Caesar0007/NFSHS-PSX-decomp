@@ -16,14 +16,9 @@ void Quatern_MatToQuat(matrixtdef *matrix,tQuat *q);
 void Quatern_VecInterpolate(coorddef *cp0,coorddef *cp1,int weight,coorddef *cp)
 
 {
-  int iVar1;
-  
-  iVar1 = fixedmult(cp1->x - cp0->x,weight);
-  cp->x = cp0->x + iVar1;
-  iVar1 = fixedmult(cp1->y - cp0->y,weight);
-  cp->y = cp0->y + iVar1;
-  iVar1 = fixedmult(cp1->z - cp0->z,weight);
-  cp->z = cp0->z + iVar1;
+  cp->x = cp0->x + fixedmult(cp1->x - cp0->x,weight);
+  cp->y = cp0->y + fixedmult(cp1->y - cp0->y,weight);
+  cp->z = cp0->z + fixedmult(cp1->z - cp0->z,weight);
   return;
 }
 
@@ -31,16 +26,10 @@ void Quatern_VecInterpolate(coorddef *cp0,coorddef *cp1,int weight,coorddef *cp)
 void Quatern_Interpolate(tQuat *q0,tQuat *q1,coorddef *cp0,coorddef *cp1,int weight,tQuat *q,coorddef *cp)
 
 {
-  int iVar1;
-  
-  iVar1 = fixedmult((int)q1->x - (int)q0->x,weight);
-  q->x = q0->x + (short)iVar1;
-  iVar1 = fixedmult((int)q1->y - (int)q0->y,weight);
-  q->y = q0->y + (short)iVar1;
-  iVar1 = fixedmult((int)q1->z - (int)q0->z,weight);
-  q->z = q0->z + (short)iVar1;
-  iVar1 = fixedmult((int)q1->w - (int)q0->w,weight);
-  q->w = q0->w + (short)iVar1;
+  q->x = q0->x + (short)fixedmult((int)q1->x - (int)q0->x,weight);
+  q->y = q0->y + (short)fixedmult((int)q1->y - (int)q0->y,weight);
+  q->z = q0->z + (short)fixedmult((int)q1->z - (int)q0->z,weight);
+  q->w = q0->w + (short)fixedmult((int)q1->w - (int)q0->w,weight);
   Quatern_VecInterpolate(cp0,cp1,weight,cp);
   return;
 }

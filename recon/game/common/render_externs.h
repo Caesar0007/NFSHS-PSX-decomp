@@ -13,7 +13,6 @@ extern "C" int StoreImage(...);
 // [owned->defined in render.cpp] extern DRender_tView   gCView;                 /* 0x... (DRender_tView, 140B) */
 // [owned->defined in render.cpp] extern int   Draw_gPlayer1View, Draw_gPlayer2View, Render_gPauseMenuView;
 // [owned->defined in render.cpp] extern int   Render_gBlurEffectMode, Render_gBlurEffectDepth1, Render_gBlurEffectDepth2;
-extern int   Render_gMenuRenderFlag;
 // gScratchLastWord: fixed-address scratchpad macro, see nfs4_types.h
 // [owned->defined in render.cpp] extern int   gFlip, gPauseRender, gMPauseUpdate, gMPauseUpdateNextTime;
 extern int gFlip;

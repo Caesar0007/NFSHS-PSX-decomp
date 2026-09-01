@@ -12,13 +12,23 @@ typedef enum AIHigh_CopGameType_t {
     COP_GAME_BTC_1HC1HP = 4
 } AIHigh_CopGameType_t;
 
+extern __vtbl_ptr_type AIState_None_vtable[];
+
 struct AIState_None : public AIState_Base {
     AIState_None() {}
+    AIState_None(Car_tObj *carObj) : AIState_Base(carObj) {
+        _vf = (__vtbl_ptr_type (*)[4])AIState_None_vtable;
+    }
     void Execute();
 };
 
+extern __vtbl_ptr_type AIHigh_None_vtable[];
+
 struct AIHigh_None : public AIHigh_Base {
     AIHigh_None() {}
+    AIHigh_None(Car_tObj *carObj) : AIHigh_Base(carObj) {
+        _vf = (__vtbl_ptr_type (*)[3])AIHigh_None_vtable;
+    }
     ~AIHigh_None();
     void HighExecute();
 };

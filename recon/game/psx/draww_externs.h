@@ -24,17 +24,9 @@ void fixedxformy(matrixtdef *, int);
 void xformy(matrixtdef *, int);
 }
 
-extern char *Render_gPacketEnd;
-
-/* ---- world/cop/night transform matrices (Ghidra-named; matrixtdef like SYM gWorldMat) ---- */
-extern MATRIX     Render_gWorldMat, Render_gNightMat;
-extern matrixtdef Render_gCopMat;
-
 /* ---- PsyQ libgte / libgpu ---- */
 
 /* ---- eaclib / math fixed-point + transform helpers ---- */
-
-extern int    INT_1f800084, INT_1f800088, INT_1f80008c, INT_1f800090;
 
 /* ---- auto-generated from SYM Globals + Demangled ---- */
 /* DrawW.obj omits these foreign owners from its debug graph even though the

@@ -39,20 +39,12 @@ int AIInit_IsNonStandardCarFile(int index);
 void AIInit_StartUp1(void)
 {
   int i;
-  int iVar1;
-  int iVar2;
-  int *piVar3;
   
   AI_TrafficStartUp();
   inverseLaneWidthTable[0] = 0;
-  iVar2 = 1;
-  piVar3 = inverseLaneWidthTable + 1;
-  do {
-    iVar1 = rdiv(0x10000,iVar2 << 0xe);
-    *piVar3 = iVar1;
-    piVar3 = piVar3 + 1;
-    iVar2 = iVar2 + 1;
-  } while (iVar2 < 0x50);
+  for (i = 1; i < 0x50; i++) {
+    inverseLaneWidthTable[i] = rdiv(0x10000,i << 0xe);
+  }
   AITune_StartUp1();
   AIDataRecord_t::StartUp1();
   AI_StartUp();
@@ -145,32 +137,22 @@ void AIInit_CleanUp1(void)
 /* ---- AIInit_CleanUp2__Fv  [@0x80066e44] ---- */
 void AIInit_CleanUp2(void)
 {
-  int carLoop;
-  Car_tObj *carObj;
-  Car_tObj **ppCVar1;
-  int iVar2;
-  
-  iVar2 = 0;
-  if (0 < Cars_gNumCars) {
-    ppCVar1 = Cars_gList;
-    do {
-      iVar2 = iVar2 + 1;
-      AIInit_DeInitAICar2(*ppCVar1);
-      carObj = *ppCVar1;
-      ppCVar1 = ppCVar1 + 1;
-      AIPhysic_DeInitCar(carObj);
-    } while (iVar2 < Cars_gNumCars);
+  {
+    int carLoop;
+    for (carLoop = 0; carLoop < Cars_gNumCars; carLoop++) {
+      AIInit_DeInitAICar2(Cars_gList[carLoop]);
+      AIPhysic_DeInitCar(Cars_gList[carLoop]);
+    }
   }
-  carLoop = 0;
   AITune_CleanUp2();
   AIPhysic_CleanUp();
   AIDataRecord_t::CleanUp2();
   AIPerson_Cleanup();
-  if (0 < Cars_gNumCars) {
-    do {
-      carLoop = carLoop + 1;
+  {
+    int carLoop;
+    for (carLoop = 0; carLoop < Cars_gNumCars; carLoop++) {
       AIScript_Cleanup();
-    } while (carLoop < Cars_gNumCars);
+    }
   }
   AISpeeds_CleanUp();
   return;
@@ -183,15 +165,13 @@ extern char *D_801164B0[];   /* path-table @0x801164B0 (Paths_Paths+0x48) */
 void AI_TrafficStartUp(void)
 {
   char filename[100];
-  char *rawTriggers;
 
   if (AIInit_GameSetupWords[6] != 0) {
     triggerManagerTraffic = __builtin_new(0x34c);
     sprintf(filename,D_8005521C,D_801164B0[0],AIInit_GameSetupWords[15]);
-    rawTriggers = (char *)loadfileadrz(filename,(void *)0x0);
-    AITraffic_rawTriggers = (u_char *)rawTriggers;
-    if (rawTriggers != (char *)0x0) {
-      AITrigger_Init(triggerManagerTraffic,rawTriggers);
+    AITraffic_rawTriggers = (u_char *)loadfileadrz(filename,(void *)0x0);
+    if (AITraffic_rawTriggers != (u_char *)0x0) {
+      AITrigger_Init(triggerManagerTraffic,(char *)AITraffic_rawTriggers);
     }
     else {
       AITrigger_Init(triggerManagerTraffic,(char *)0x0);
@@ -235,47 +215,33 @@ void AIInit_LoadPhysicsConfig(Udff_tInfo *handle)
 {
   AIPhysic_ModelConfig_t*model;
   int loop;
-  int iVar1;
-  AIPhysic_ModelConfig_t *pAVar2;
-  int iVar3;
   
   AIInit_AIPhysicConfigWords[0] = Udff_GetInt(handle);
   AIInit_AIPhysicConfigWords[1] = Udff_GetInt(handle);
   AIInit_AIPhysicConfigWords[2] = Udff_GetInt(handle);
   AIInit_AIPhysicConfigWords[3] = Udff_GetInt(handle);
   AIInit_AIPhysicConfigWords[4] = Udff_GetInt(handle);
-  iVar3 = 0;
+  loop = 0;
   do {
-    if (iVar3 == 0) {
-      pAVar2 = (AIPhysic_ModelConfig_t *)(AIInit_AIPhysicConfigWords + 5);
+    if (loop == 0) {
+      model = (AIPhysic_ModelConfig_t *)(AIInit_AIPhysicConfigWords + 5);
     }
     else {
-      pAVar2 = (AIPhysic_ModelConfig_t *)(AIInit_AIPhysicConfigWords + 16);
+      model = (AIPhysic_ModelConfig_t *)(AIInit_AIPhysicConfigWords + 16);
     }
-    iVar1 = Udff_GetInt(handle);
-    pAVar2->dlpos_to_dlvel = iVar1;
-    iVar1 = Udff_GetInt(handle);
-    pAVar2->max_dlvel = iVar1;
-    iVar1 = Udff_GetInt(handle);
-    pAVar2->dlvel_to_clacc = iVar1;
-    iVar1 = Udff_GetInt(handle);
-    pAVar2->max_clacc = iVar1;
-    iVar1 = Udff_GetInt(handle);
-    pAVar2->dangle_to_dav = iVar1;
-    iVar1 = Udff_GetInt(handle);
-    pAVar2->max_dav = iVar1;
-    iVar1 = Udff_GetInt(handle);
-    pAVar2->dav_to_aa = iVar1;
-    iVar1 = Udff_GetInt(handle);
-    pAVar2->max_aa = iVar1;
-    iVar1 = Udff_GetInt(handle);
-    pAVar2->vel_limit_range = iVar1;
-    iVar1 = Udff_GetInt(handle);
-    pAVar2->lat_vel_limit_factor = iVar1;
-    iVar1 = Udff_GetInt(handle);
-    iVar3 = iVar3 + 1;
-    pAVar2->ang_vel_limit_factor = iVar1;
-  } while (iVar3 < 2);
+    model->dlpos_to_dlvel = Udff_GetInt(handle);
+    model->max_dlvel = Udff_GetInt(handle);
+    model->dlvel_to_clacc = Udff_GetInt(handle);
+    model->max_clacc = Udff_GetInt(handle);
+    model->dangle_to_dav = Udff_GetInt(handle);
+    model->max_dav = Udff_GetInt(handle);
+    model->dav_to_aa = Udff_GetInt(handle);
+    model->max_aa = Udff_GetInt(handle);
+    model->vel_limit_range = Udff_GetInt(handle);
+    model->lat_vel_limit_factor = Udff_GetInt(handle);
+    model->ang_vel_limit_factor = Udff_GetInt(handle);
+    loop = loop + 1;
+  } while (loop < 2);
   return;
 }
 
@@ -303,22 +269,15 @@ void AIInit_ClearAICar(Car_tObj *carObj)
 /* ---- AIInit_RestartAICar__FP8Car_tObj  [@0x800671ec] ---- */
 /* Body sourced from the NFS4-F reconstruction tree (game/common/aiinit.cpp).
  * D_8011321C == GameSetup_gData.reverseTrack (GameSetup_gData+0x30) — standalone-
- * symbol form matches the reloc. MATCHING AIDS (permuter, not original source):
- * the `new_var = carObj` alias on one store + copTopSpeed-before-copAccMult ordering
- * coax gcc's allocator (early 0x10000 -> v1, no anti-dep; li a1,1 stays first). */
+ * symbol form matches the reloc.  The chained direction assignment preserves
+ * the retail shared value without introducing a source local absent from SYM;
+ * copTopSpeed-before-copAccMult preserves the observed store schedule. */
 extern int D_8011321C;   /* standalone global @0x8011321C (== GameSetup_gData+0x30) */
 
 void AIInit_RestartAICar(Car_tObj *carObj)
 {
-  int iVar1;
-  Car_tObj *new_var;   /* matching aid (permuter) */
-
-  iVar1 = -1;
-  if (D_8011321C == 0) {
-    iVar1 = 1;
-  }
-  carObj->direction = iVar1;
-  carObj->desiredDirection = iVar1;
+  carObj->desiredDirection = carObj->direction =
+      (D_8011321C == 0) ? 1 : -1;
   carObj->targetLatPos = 0;
   (carObj->targetPos).z = 0;
   (carObj->targetPos).y = 0;
@@ -329,11 +288,10 @@ void AIInit_RestartAICar(Car_tObj *carObj)
   carObj->driveDirection = 1;
   carObj->driveDirectionTimer = 0;
   carObj->driveDirectionReverseTime = 0;
-  new_var = carObj;
   carObj->barrierThinkHarder = 0;
   carObj->desiredLatPos = 0;
   carObj->desiredSpeed = 0;
-  new_var->originalDesiredSpeed = 0;
+  carObj->originalDesiredSpeed = 0;
   carObj->currentSpeed = 0;
   carObj->speed = 0;
   carObj->laneSlack = 0;
@@ -477,16 +435,11 @@ void AIInit_DeInitAICar(Car_tObj *carObj)
 /* ---- AIInit_InitAICar2__FP8Car_tObj  [@0x80067568] ---- */
 void AIInit_InitAICar2(Car_tObj *carObj)
 {
-  int iVar1;
-  
   if ((carObj->carFlags & 8U) != 0) {
-    iVar1 = AISpeeds_GetUpgradeHandlingMult(carObj->carIndex);
-    (carObj->curveSpeedTable)->Upgrade(iVar1);
+    (carObj->curveSpeedTable)->Upgrade(AISpeeds_GetUpgradeHandlingMult(carObj->carIndex));
   }
-  iVar1 = AISpeeds_GetUpgradeAccMult(carObj->carIndex);
-  carObj->accUpgradeMult = iVar1;
-  iVar1 = AISpeeds_GetUpgradeTopSpeedMult(carObj->carIndex);
-  carObj->topSpeedUpgradeMult = iVar1;
+  carObj->accUpgradeMult = AISpeeds_GetUpgradeAccMult(carObj->carIndex);
+  carObj->topSpeedUpgradeMult = AISpeeds_GetUpgradeTopSpeedMult(carObj->carIndex);
   return;
 }
 
@@ -499,15 +452,8 @@ void AIInit_DeInitAICar2(Car_tObj *carObj)
 /* ---- AIInit_IsNonStandardCarFile__Fi  [@0x800675d8] ---- */
 int AIInit_IsNonStandardCarFile(int index)
 {
-  int iVar4;
   int nonStandardList [50];
 
   __builtin_memcpy(nonStandardList,D_8005523C,sizeof nonStandardList);
-  if (index < 0x32) {
-    iVar4 = nonStandardList[index];
-  }
-  else {
-    iVar4 = 0;
-  }
-  return iVar4;
+  return index < 0x32 ? nonStandardList[index] : 0;
 }

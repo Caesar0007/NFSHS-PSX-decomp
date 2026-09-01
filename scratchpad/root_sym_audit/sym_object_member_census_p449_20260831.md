@@ -1,0 +1,220 @@
+# Trusted NFS4 SYM object-member census
+
+- Source: `C:\Temp\nfs4-clean\nfs4-f-v3.txt`
+- Completed `.obj` FILE pairs: 519
+- Unpaired/malformed members: 0
+- Members with no Function-start record: 367
+- SLD assembly/line-only: 16
+- debug code: 152
+- opaque/compact-only candidate: 347
+- typed data-only: 4
+
+A function count of zero does not mean an empty object.  Typed data
+definitions are direct ownership evidence.  SLD-only objects retain
+assembly line information.  Opaque members require compact-symbol and
+link/image evidence before their source ownership can be closed.
+
+## Per-member ledger
+
+- `bigbuf.obj` (SYM lines 5006-5007): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `address.obj` (SYM lines 5008-5021): SLD assembly/line-only; functions 0; function defs 0; typed data 0; SLD spans 1; interior records 12
+- `aispeech.obj` (SYM lines 57009-58141): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 1131
+- `chunkvis.obj` (SYM lines 94295-94697): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 401
+- `debugvar.obj` (SYM lines 118460-118461): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `FEI.obj` (SYM lines 118522-118877): typed data-only; functions 0; function defs 0; typed data 1; SLD spans 0; interior records 354
+  - `0x8011279c` `FEI_gList`: `EXT ARY STRUCT`
+- `smack.obj` (SYM lines 161428-161429): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `async.obj` (SYM lines 170164-170165): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `aidebug.obj` (SYM lines 170166-171923): typed data-only; functions 0; function defs 0; typed data 3; SLD spans 0; interior records 1756
+  - `0x8013d4f8` `grabValue`: `EXT BOOL`
+  - `0x8013dddc` `gAIDebug_PosX`: `STAT INT`
+  - `0x8013dde0` `gAIDebug_PosY`: `STAT INT`
+- `Ddvfont.obj` (SYM lines 175461-175549): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 87
+- `debug.obj` (SYM lines 175550-175787): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 236
+- `DrawDbg.obj` (SYM lines 185265-186443): typed data-only; functions 0; function defs 0; typed data 1; SLD spans 0; interior records 1177
+  - `0x8013d818` `gSavePtr`: `EXT ULONG`
+- `Draw2.obj` (SYM lines 192377-192750): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 372
+- `filedbg.obj` (SYM lines 195406-195611): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 204
+- `nfs2mem.obj` (SYM lines 212219-212621): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 401
+- `profile.obj` (SYM lines 214011-214300): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 288
+- `Fecntl.obj` (SYM lines 259218-260751): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 1532
+- `FEColor.obj` (SYM lines 260752-261131): typed data-only; functions 0; function defs 0; typed data 1; SLD spans 0; interior records 378
+  - `0x800516c8` `kRGBVals`: `EXT ARY INT`
+- `Records.obj` (SYM lines 292914-292915): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `ScreenCameras.obj` (SYM lines 295606-295607): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `ScreenOptions.obj` (SYM lines 295608-295609): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `ScreenGrid.obj` (SYM lines 326283-326284): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `ScreenDemo.obj` (SYM lines 343725-343726): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `mdecstat.obj` (SYM lines 354739-354740): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `endcode.obj` (SYM lines 355381-355382): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `cache.obj` (SYM lines 355383-355551): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 167
+- `readpix.obj` (SYM lines 355552-355553): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `vsprintf.obj` (SYM lines 355554-355556): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 1
+- `memdsp.obj` (SYM lines 355557-355558): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\2mbyte.obj` (SYM lines 355559-355560): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libc.lib(C43.obj)` (SYM lines 355955-355956): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(fixdmult.obj)` (SYM lines 355957-356098): SLD assembly/line-only; functions 0; function defs 0; typed data 0; SLD spans 1; interior records 140
+- `..\syslib\psx\lib\libsn.lib(PUREV.obj)` (SYM lines 356099-356100): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(trnspos.obj)` (SYM lines 356101-356102): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(fixddiv.obj)` (SYM lines 356103-356306): SLD assembly/line-only; functions 0; function defs 0; typed data 0; SLD spans 1; interior records 202
+- `..\syslib\psx\lib\libapi.lib(A39.obj)` (SYM lines 356307-356308): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libc.lib(SPRINTF.obj)` (SYM lines 356309-356310): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(memstd.obj)` (SYM lines 356311-356312): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(nsync.obj)` (SYM lines 356313-356314): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(xform.obj)` (SYM lines 356315-356316): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libc.lib(C25.obj)` (SYM lines 356317-356318): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(atanfunc.obj)` (SYM lines 356319-356320): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(nloadpk.obj)` (SYM lines 356321-356322): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libc.lib(C23.obj)` (SYM lines 356323-356324): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libc.lib(QSORT.obj)` (SYM lines 356325-356326): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(locatbig.obj)` (SYM lines 356327-356328): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libc.lib(C36.obj)` (SYM lines 356329-356330): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(blkmov.obj)` (SYM lines 356331-357058): SLD assembly/line-only; functions 0; function defs 0; typed data 0; SLD spans 1; interior records 726
+- `..\eaclib\psx\sndpsxz.lib(sbremove.obj)` (SYM lines 357059-357060): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\sndpsxz.lib(splysdef.obj)` (SYM lines 357061-357062): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\sndpsxz.lib(span.obj)` (SYM lines 357063-357064): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\sndpsxz.lib(svol.obj)` (SYM lines 357065-357066): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(systask.obj)` (SYM lines 357067-357068): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\sndpsxz.lib(sstsetpr.obj)` (SYM lines 357069-357070): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\sndpsxz.lib(seffect.obj)` (SYM lines 357071-357072): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\spchpsxz.lib(spchevnt.obj)` (SYM lines 357073-357074): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(random.obj)` (SYM lines 357075-357418): SLD assembly/line-only; functions 0; function defs 0; typed data 0; SLD spans 2; interior records 342
+- `..\syslib\psx\lib\libc.lib(C21.obj)` (SYM lines 357419-357420): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\sndpsxz.lib(sbend.obj)` (SYM lines 357421-357422): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\sndpsxz.lib(splay.obj)` (SYM lines 357423-357424): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\sndpsxz.lib(sover.obj)` (SYM lines 357425-357426): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\sndpsxz.lib(sbhdrsze.obj)` (SYM lines 357427-357428): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\sndpsxz.lib(sbhdrcpy.obj)` (SYM lines 357429-357430): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\sndpsxz.lib(sdmemlu.obj)` (SYM lines 357431-357432): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\sndpsxz.lib(sbadd.obj)` (SYM lines 357433-357434): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\sndpsxz.lib(sstop.obj)` (SYM lines 357435-357436): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\sndpsxz.lib(spitch.obj)` (SYM lines 357437-357438): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\sndpsxz.lib(smasterv.obj)` (SYM lines 357439-357440): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libc.lib(A63.obj)` (SYM lines 357441-357442): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\sndpsxz.lib(s3dlow.obj)` (SYM lines 357443-357444): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\sndpsxz.lib(sstopall.obj)` (SYM lines 357445-357446): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(timer.obj)` (SYM lines 357447-357448): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\sndpsxz.lib(sautovol.obj)` (SYM lines 357449-357450): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\sndpsxz.lib(sstgetv.obj)` (SYM lines 357451-357452): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libcd.lib(TYPE.obj)` (SYM lines 357453-357454): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\sndpsxz.lib(sststat.obj)` (SYM lines 357455-357456): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\sndpsxz.lib(sstrstat.obj)` (SYM lines 357457-357458): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(wildcard.obj)` (SYM lines 357459-357460): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\sndpsxz.lib(sst.obj)` (SYM lines 357461-357462): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\sndpsxz.lib(spvoices.obj)` (SYM lines 357463-357464): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\sndpsxz.lib(sstsetgl.obj)` (SYM lines 357465-357466): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\sndpsxz.lib(sstsetgs.obj)` (SYM lines 357467-357468): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\sndpsxz.lib(sstautov.obj)` (SYM lines 357469-357470): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libapi.lib(COUNTER.obj)` (SYM lines 357471-357472): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libc.lib(C27.obj)` (SYM lines 357473-357474): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\sndpsxz.lib(slimits.obj)` (SYM lines 357475-357476): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\sndpsxz.lib(sstovrhd.obj)` (SYM lines 357477-357478): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\sndpsxz.lib(sstvol.obj)` (SYM lines 357479-357480): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\sndpsxz.lib(sserver.obj)` (SYM lines 357481-357482): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(syncfile.obj)` (SYM lines 357483-357484): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libc.lib(C42.obj)` (SYM lines 357485-357486): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libc.lib(C47.obj)` (SYM lines 357487-357488): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(crossprd.obj)` (SYM lines 357489-357490): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libgte.lib(REG13.obj)` (SYM lines 357491-357492): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(fxform.obj)` (SYM lines 357493-357494): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(asinfunc.obj)` (SYM lines 357495-357496): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(isincos.obj)` (SYM lines 357497-357498): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(trnsfrm.obj)` (SYM lines 357499-357500): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(addtimer.obj)` (SYM lines 357501-357502): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(savegp.obj)` (SYM lines 357503-357710): SLD assembly/line-only; functions 0; function defs 0; typed data 0; SLD spans 2; interior records 206
+- `..\eaclib\psx\eacpsxz.lib(fixdsqrt.obj)` (SYM lines 357711-357920): SLD assembly/line-only; functions 0; function defs 0; typed data 0; SLD spans 2; interior records 208
+- `..\syslib\psx\lib\libc.lib(C16.obj)` (SYM lines 357921-357922): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(locatshp.obj)` (SYM lines 357923-357924): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libc.lib(C24.obj)` (SYM lines 357925-357926): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\spchpsxz.lib(spchbank.obj)` (SYM lines 357927-357928): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\spchpsxz.lib(spchinit.obj)` (SYM lines 357929-357930): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libmath.lib(FLTSIDF.obj)` (SYM lines 357931-357932): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libmath.lib(LTDF2.obj)` (SYM lines 357933-357934): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\spchpsxz.lib(spchrand.obj)` (SYM lines 357935-357936): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\spchpsxz.lib(spchrslv.obj)` (SYM lines 357937-357938): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(nfile.obj)` (SYM lines 357939-357940): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\sndpsxz.lib(stimerem.obj)` (SYM lines 357941-357942): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(fixdinv.obj)` (SYM lines 357943-358066): SLD assembly/line-only; functions 0; function defs 0; typed data 0; SLD spans 1; interior records 122
+- `..\eaclib\psx\eacpsxz.lib(fixdsin.obj)` (SYM lines 358067-358068): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(fixdatan.obj)` (SYM lines 358069-358070): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(vars.obj)` (SYM lines 358071-358072): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libgpu.lib(SYS.obj)` (SYM lines 358073-358074): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libpad.lib(PADENTRY.obj)` (SYM lines 358075-358076): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(matrix.obj)` (SYM lines 358077-358078): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libmath.lib(GTDF2.obj)` (SYM lines 358079-358080): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(primate.obj)` (SYM lines 358081-358082): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(movf.obj)` (SYM lines 358083-358084): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libpress.lib(TABLE.obj)` (SYM lines 358085-358086): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(shpsubs.obj)` (SYM lines 358087-358374): SLD assembly/line-only; functions 0; function defs 0; typed data 0; SLD spans 1; interior records 286
+- `..\eaclib\psx\eacpsxz.lib(nasync.obj)` (SYM lines 358375-358376): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libetc.lib(VMODE.obj)` (SYM lines 358377-358378): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(blkfill.obj)` (SYM lines 358379-358748): SLD assembly/line-only; functions 0; function defs 0; typed data 0; SLD spans 1; interior records 368
+- `..\eaclib\psx\eacpsxz.lib(sinfunc.obj)` (SYM lines 358749-359120): SLD assembly/line-only; functions 0; function defs 0; typed data 0; SLD spans 1; interior records 370
+- `..\eaclib\psx\eacpsxz.lib(resize.obj)` (SYM lines 359121-359122): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libgte.lib(MSC02.obj)` (SYM lines 359123-359124): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libgpu.lib(P00.obj)` (SYM lines 359125-359126): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(loadshp.obj)` (SYM lines 359127-359128): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(exit.obj)` (SYM lines 359129-359130): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\sndpsxz.lib(ssysinit.obj)` (SYM lines 359131-359132): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\sndpsxz.lib(ssysreal.obj)` (SYM lines 359133-359134): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libgte.lib(MSC00.obj)` (SYM lines 359135-359136): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libgpu.lib(EXT.obj)` (SYM lines 359137-359138): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libetc.lib(VSYNC.obj)` (SYM lines 359139-359140): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libgte.lib(FGO_01.obj)` (SYM lines 359141-359142): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libgte.lib(REG11.obj)` (SYM lines 359143-359144): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libgte.lib(FOG_01.obj)` (SYM lines 359145-359146): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libetc.lib(INTR.obj)` (SYM lines 359147-359148): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(textset.obj)` (SYM lines 359149-359150): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(getm.obj)` (SYM lines 359151-359914): SLD assembly/line-only; functions 0; function defs 0; typed data 0; SLD spans 1; interior records 762
+- `..\eaclib\psx\eacpsxz.lib(textcrnt.obj)` (SYM lines 359915-359916): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libgpu.lib(P10.obj)` (SYM lines 359917-359918): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libgte.lib(FGO_06.obj)` (SYM lines 359919-359920): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(isqrt.obj)` (SYM lines 359921-359922): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libgpu.lib(P19.obj)` (SYM lines 359923-359924): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libmath.lib(MULSF3.obj)` (SYM lines 359925-359926): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libgpu.lib(P12.obj)` (SYM lines 359927-359928): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libgpu.lib(P16.obj)` (SYM lines 359929-359930): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libgpu.lib(P18.obj)` (SYM lines 359931-359932): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libgpu.lib(P17.obj)` (SYM lines 359933-359934): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(fsincos.obj)` (SYM lines 359935-359936): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libgte.lib(COR_02.obj)` (SYM lines 359937-359938): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libgte.lib(COR_03.obj)` (SYM lines 359939-359940): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libmath.lib(FIXSFSI.obj)` (SYM lines 359941-359942): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(joystkn.obj)` (SYM lines 359943-359944): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(fileroot.obj)` (SYM lines 359945-359946): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(meminit.obj)` (SYM lines 359947-359948): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(inittmr.obj)` (SYM lines 359949-359950): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libapi.lib(C68.obj)` (SYM lines 359951-359952): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(shpdepth.obj)` (SYM lines 359953-360076): SLD assembly/line-only; functions 0; function defs 0; typed data 0; SLD spans 1; interior records 122
+- `..\syslib\psx\lib\libgpu.lib(P01.obj)` (SYM lines 360077-360078): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(textfor.obj)` (SYM lines 360079-360080): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(unhuff.obj)` (SYM lines 360081-360082): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(unref.obj)` (SYM lines 360083-360084): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(unbtree.obj)` (SYM lines 360085-360086): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libmath.lib(EXTSFDF2.obj)` (SYM lines 360087-360088): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libmath.lib(TRUDFSF2.obj)` (SYM lines 360089-360090): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libmath.lib(ADDDF3.obj)` (SYM lines 360091-360092): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libmath.lib(DIVDF3.obj)` (SYM lines 360093-360094): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libc.lib(C26.obj)` (SYM lines 360095-360096): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(nullfunc.obj)` (SYM lines 360097-360276): SLD assembly/line-only; functions 0; function defs 0; typed data 0; SLD spans 1; interior records 178
+- `..\syslib\psx\lib\libgpu.lib(P11.obj)` (SYM lines 360277-360278): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(crc.obj)` (SYM lines 360279-360596): SLD assembly/line-only; functions 0; function defs 0; typed data 0; SLD spans 2; interior records 316
+- `..\syslib\psx\lib\libc.lib(C30.obj)` (SYM lines 360597-360598): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libmath.lib(FLTSISF.obj)` (SYM lines 360599-360600): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libmath.lib(MULDF3.obj)` (SYM lines 360601-360602): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libmath.lib(DIVSF3.obj)` (SYM lines 360603-360604): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libmath.lib(FIXDFSI.obj)` (SYM lines 360605-360606): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(vramfxya.obj)` (SYM lines 360607-360608): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\eaclib\psx\eacpsxz.lib(shpclut.obj)` (SYM lines 360609-360610): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libgpu.lib(FONT.obj)` (SYM lines 360611-360612): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libpress.lib(VLC.obj)` (SYM lines 360613-360614): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libcd.lib(SYS.obj)` (SYM lines 360615-360616): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libcd.lib(C_011.obj)` (SYM lines 360617-360618): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libcd.lib(C_002.obj)` (SYM lines 360619-360620): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libpress.lib(LIBPRESS.obj)` (SYM lines 360621-360622): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libcd.lib(C_003.obj)` (SYM lines 360623-360624): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libcd.lib(CDREAD2.obj)` (SYM lines 360625-360626): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libcd.lib(C_005.obj)` (SYM lines 360627-360628): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libcd.lib(ISO9660.obj)` (SYM lines 360629-360630): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libcd.lib(CDROM.obj)` (SYM lines 360631-360632): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0
+- `..\syslib\psx\lib\libcd.lib(C_009.obj)` (SYM lines 360633-360634): opaque/compact-only candidate; functions 0; function defs 0; typed data 0; SLD spans 0; interior records 0

@@ -15,7 +15,7 @@
  *     Magics: 'MB'=0x424D (in-use), 'FB'=0x4246 (free), 0x4253 (ring-head sentinel).
  *     flags bit 0x4000 = "currently on the free list".  flags low nibble = owning class id.
  *     A MemClass (64 B, lives at membuf+0x10) owns one buffer carved into LOW/middle/HIGH blocks;
- *     its embedded free-head sentinel sits at class+0x10.  gMemClassTable[id&0xF] indexes classes.
+ *     its embedded free-head sentinel sits at class+0x10.  memclass[id&0xF] indexes classes.
  */
 
 
@@ -44,12 +44,18 @@ typedef struct MemClass {
     int        field3c;         /* +0x3C  user field                          */
 } MemClass;                     /* 0x40                                        */
 
+/* The stripped member retains the exact contiguous `MB FB SB` six-byte data
+ * payload but not these lexical static names; keep them classified as measured
+ * source carriers rather than claiming a SYM recovery.
+ * SYM-GLOBAL-CARRIER: MAGIC_USED
+ * SYM-GLOBAL-CARRIER: MAGIC_FREE
+ * SYM-GLOBAL-CARRIER: MAGIC_HEAD */
 static const unsigned short MAGIC_USED = 0x424D;   /* 'MB' */
 static const unsigned short MAGIC_FREE = 0x4246;   /* 'FB' */
 static const unsigned short MAGIC_HEAD = 0x4253;   /* free-ring sentinel */
 
 /* ---- globals (BSS/rodata, defined in the data-materialization pass) ---- */
-extern MemClass *gMemClassTable[16];   /* @0x8013E900 (BSS) */
+extern MemClass *memclass[16];
 extern int       mb_default;           /* @0x8013DCC8       */
 
 /* ---- helpers defined in sibling eacpsxz / libc objs (called, not defined here) ---- */
@@ -213,7 +219,7 @@ extern int initmemblock(MemBlock *blk, char *name, int size, int tailextra,
  * ===================================================================== */
 extern int MEM_infosize(int id)   /* @0x800E5008 */
 {
-    return gMemClassTable[id & 0xF]->infosize;   /* +0x30 */
+    return memclass[id & 0xF]->infosize;   /* +0x30 */
 }
 
 /* ===================================================================== *
@@ -222,7 +228,7 @@ extern int MEM_infosize(int id)   /* @0x800E5008 */
  * ===================================================================== */
 extern int MEM_tailsize(char *name, int id)   /* @0x800E5030 */
 {
-    MemClass *cls = gMemClassTable[id & 0xF];
+    MemClass *cls = memclass[id & 0xF];
     int extra = 0;
     if (name != 0 && (cls->flags & 0x100))       /* +0x34 flags */
         extra = (int)strlen(name) + 1;
@@ -232,7 +238,7 @@ extern int MEM_tailsize(char *name, int id)   /* @0x800E5030 */
 /* ===================================================================== *
  *  creatememclass @0x800E5094 : carve `membuf[bufsize]` into a class     *
  *  (LOW block holding the MemClass struct, a big middle free block, and  *
- *  a HIGH guard block) and register it in gMemClassTable[id&0xF].        *
+ *  a HIGH guard block) and register it in memclass[id&0xF].             *
  *  Returns the usable size of the big free block.                       *
  * ===================================================================== */
 extern int creatememclass(int id, char *name, char *membuf, int bufsize,
@@ -296,7 +302,7 @@ extern int creatememclass(int id, char *name, char *membuf, int bufsize,
     initmemblock((MemBlock *)high,    namebuf, 0,    infosize,
                  flags | 0x8010, (MemBlock *)low_end, 0);
 
-    gMemClassTable[id & 0xF] = cls;               /* MATCH: assigned before the call (lands in its delay slot) */
+    memclass[id & 0xF] = cls;               /* MATCH: assigned before the call (lands in its delay slot) */
     blockclear(cls, 0x40);                        /* zero the 64-byte class */
     strcpy((char *)cls, name);                    /* class->name */
 
@@ -344,7 +350,7 @@ extern int creatememclass(int id, char *name, char *membuf, int bufsize,
 extern int largestunused(void)   /* @0x800E5284 */
 {
     MemBlock *b;
-    b = FREE_findlargest(gMemClassTable[mb_default & 0xF], 0, 0);
+    b = FREE_findlargest(memclass[mb_default & 0xF], 0, 0);
     return b ? b->size : 0;
 }
 
@@ -393,7 +399,7 @@ extern void *reservememadr(char *name, int size, int classid)   /* @0x800E533C *
                                                            inits s5=0 up front and `j END` on both
                                                            failure paths without touching it) */
     int       need;                                    /* s1 */
-    MemClass *cls   = gMemClassTable[classid & 0xF];   /* s3 */
+    MemClass *cls   = memclass[classid & 0xF];   /* s3 */
 
     /* MATCH: `need = size` is the DELAY SLOT of the `size<8` branch -- it runs
      * UNCONDITIONALLY before the clamp-to-8 override (real bug fix vs the prior
@@ -494,7 +500,7 @@ extern int purgememadr(void *p)   /* @0x800E5540 */
         MemBlock *blk  = (MemBlock *)((char *)p - 0x10);     /* s0 */
         MemBlock *next = blk->physnext;                      /* s1 */
         /* read flags off the still-live incoming p (asm: lhu $v1,-0xE($a0)) -> root on p, not blk */
-        MemClass *cls  = gMemClassTable[((unsigned short *)p)[-7] & 0xF]; /* s3; p-0xE == &blk->flags */
+        MemClass *cls  = memclass[((unsigned short *)p)[-7] & 0xF]; /* s3; p-0xE == &blk->flags */
         MemBlock *prev = blk->physprev;                      /* s2 */
 
         if (prev->flags & 0x4000) {                          /* prev is free -> merge down */
@@ -517,4 +523,4 @@ extern int purgememadr(void *p)   /* @0x800E5540 */
     return 1;
 }
 
- MemClass *gMemClassTable[16];   /* owning-TU def (BSS) -- at EOF for type visibility */
+MemClass *memclass[16]; /* @0x8013E900: retail SYM/MAP allocator-class table */

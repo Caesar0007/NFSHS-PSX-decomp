@@ -348,17 +348,15 @@ void Draw_StartRenderingView(int viewid)
 
 {
   /* FIXED: the oracle materializes ONE literal scratchpad base register (0x1F800000)
-     and addresses every field below it by DISPLACEMENT -- NOT via the normal
-     Render_gPacketLenLo/Hi, Render_gPacketEnd, Render_gMenuRenderFlag externs (which
-     compile to %hi/%lo(sym) 2-insn loads, the whole prior residual). The SYM already
+     and addresses every field below it by DISPLACEMENT -- these are cache fields,
+     not linked globals whose accesses would compile as %hi/%lo(symbol). The SYM already
      names the real local `sd` (Draw_DCache*, reg $a3) for exactly this purpose -- it
      was declared but unwired. Draw_DCache's head (Draw_tCacheHeader) field layout
      supplies the real names for each scratch offset: cprim.LastPrim@+0=Render_gPalettePtr,
      cprim.PrimPtr@+4=Render_gPacketPtr, cprim.MPrimPtr@+8=Render_gPacketEnd,
      mirror@+0xC=Render_gMenuRenderFlag, clipW/clipH@+0x10/+0x12=Render_gPacketLenLo/Hi.
-     Header wish: promote Render_gPacketEnd/Render_gMenuRenderFlag/Render_gPacketLenLo/Hi
-     to `sd->head...`-style scratchpad accessors tree-wide (not done here -- function
-     bodies only per this pass's scope).
+     The `sd->head...` struct view is the faithful spelling of that fixed-address
+     storage in this function.
      NEAR-MISS FLOOR (9 diffs, w9-a10 2026-07-11): the tail if/else (MPrimPtr = PrimPtr+
      membudget vs Draw_gMaxPrim) is logically/structurally right (m2c-confirmed) but the
      ORACLE places the Draw_gMaxPrim (else) block at the FALLTHROUGH position with the

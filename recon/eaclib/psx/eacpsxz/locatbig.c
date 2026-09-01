@@ -22,12 +22,13 @@ extern unsigned strlen (const char *s);                  /* eacpsxz @0x800E9F74 
 /* intra-obj forward decls (C-linkage) */
 extern int   typeofbigfile      (void *buf);
 extern int   sizeofbigfileheader(void *buf);
-extern char *locatebigentryz    (void *buf, char *name, int index, int *offset, int *size);
-extern char *locatebigentry     (void *buf, char *name, int index, int *offset, int *size);
+extern char *locatebigentryz    (void *buf, char *name, int index, int *offset, unsigned int *size);
+extern char *locatebigentry     (void *buf, char *name, int index, int *offset, unsigned int *size);
 extern int   locatebigoffset    (void *buf, char *name);
 
-/* write-only sink for the discarded "size" out-param of locatebigoffset (@0x8013DE64, obj-local) */
-static int gLocatebigSizeSink;
+/* Public EACLIB scratch result; NFS2's matched locatbig.obj independently
+ * confirms both the original name and unsigned type. */
+unsigned int biglen; /* @0x8013DE64: retail SYM/MAP public size result */
 
 /* ===================================================================== *
  *  typeofbigfile @0x800E5F1C : 1 (0xC0FB), 2 ("BIGF"), or 0 (not a BIG). *
@@ -66,7 +67,7 @@ extern int sizeofbigfileheader(void *buf)
  *  size through `offset`/`size` (when non-NULL) and return a pointer to  *
  *  the entry's name; on a miss zero them and return NULL.                *
  * ===================================================================== */
-extern char *locatebigentryz(void *buf, char *name, int index, int *offset, int *size)
+extern char *locatebigentryz(void *buf, char *name, int index, int *offset, unsigned int *size)
 {
     /* MATCH: the oracle does NOT parameterize width/hdr/nameoff into a single loop -- it
      * emits TWO literal, fully-duplicated scan loops (one per type), dispatched by a
@@ -102,7 +103,7 @@ extern char *locatebigentryz(void *buf, char *name, int index, int *offset, int 
                         goto next1;
                 }
                 if (offset) *offset = (int)getm(p, 3);
-                if (size)   *size   = (int)getm(p + 3, 3);
+                if (size)   *size   = getm(p + 3, 3);
                 return p + 6;
             next1:
                 { int len = (int)strlen(p + 6); p = p + len + 7; }  /* next entry */
@@ -123,7 +124,7 @@ extern char *locatebigentryz(void *buf, char *name, int index, int *offset, int 
                         goto next2;
                 }
                 if (offset) *offset = (int)getm(p, 4);
-                if (size)   *size   = (int)getm(p + 4, 4);
+                if (size)   *size   = getm(p + 4, 4);
                 return p + 8;
             next2:
                 { int len = (int)strlen(p + 8); p = p + len + 9; }  /* next entry */
@@ -142,7 +143,7 @@ extern char *locatebigentryz(void *buf, char *name, int index, int *offset, int 
 /* ===================================================================== *
  *  locatebigentry @0x800E61B8 : forwarder to locatebigentryz.           *
  * ===================================================================== */
-extern char *locatebigentry(void *buf, char *name, int index, int *offset, int *size)
+extern char *locatebigentry(void *buf, char *name, int index, int *offset, unsigned int *size)
 {
     return locatebigentryz(buf, name, index, offset, size);
 }
@@ -154,7 +155,7 @@ extern int locatebigoffset(void *buf, char *name)
 {
     int offset = 0;
     if (name != 0)
-        locatebigentry(buf, name, 0, &offset, &gLocatebigSizeSink);
+        locatebigentry(buf, name, 0, &offset, &biglen);
     return offset;
 }
 
@@ -185,4 +186,4 @@ extern int bigcount(void *buf)
     }
     return r;
 }
-
+

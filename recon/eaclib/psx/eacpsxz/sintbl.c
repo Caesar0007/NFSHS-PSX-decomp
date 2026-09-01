@@ -1,6 +1,6 @@
 /* eaclib/psx/eacpsxz/sintbl.c -- data-only archive member proven by NFS4 SYM. */
 
-int sintbl[257] = {
+int sintbl[257] = { /* @0x80137464 */
     0,402,804,1206,1608,2010,2412,2814,
     3215,3617,4018,4420,4821,5222,5622,6023,
     6423,6823,7223,7623,8022,8421,8819,9218,

@@ -17,6 +17,12 @@ extern "C" void ___25AIDataRecord_TrackCurve_t(void *thisp);   /* ~AIDataRecord_
 extern "C" void ___26AIDataRecord_CarTracking_t(void *thisp);   /* ~AIDataRecord_CarTracking_t */
 extern "C" void ___30AIDataRecord_CurveSpeedTable_t(void *thisp);   /* ~AIDataRecord_CurveSpeedTable_t */
 
+/* These retail tables are address/entry exact, but SYM emits `_vt.*` records
+   only for AIDataRecord_AccTable_t and AIDataRecord_t.
+   SYM-GLOBAL-CARRIER: AIDataRecord_CarTracking_t_vtable
+   SYM-GLOBAL-CARRIER: AIDataRecord_CurveSpeedTable_t_vtable
+   SYM-GLOBAL-CARRIER: AIDataRecord_TrackCurve_t_vtable
+   SYM-GLOBAL-CARRIER: AIDataRecord_BestLine_t_vtable */
 __vtbl_ptr_type AIDataRecord_CarTracking_t_vtable[4] = {   /* @0x8005542c */
   {0, 0, (int (*)(...))0},                           /* @0x8005542c  null */
   {0, 0, (int (*)(...))&___26AIDataRecord_CarTracking_t}, /* @0x80055434  ~AIDataRecord_CarTracking_t */

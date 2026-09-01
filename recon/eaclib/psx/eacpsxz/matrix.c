@@ -46,6 +46,9 @@ extern int *scalematrix(int *m, int scalar, int *out)   /* @0x800F026C */
  * per-element copy loops do NOT emit this shape. */
 typedef struct { int m[9]; } mtx;
 
+/* The stripped NFS4 member omits this static name; the independently matched
+ * NFS2 matrix.obj source recovers `coef`, and the retail bytes/VA prove its
+ * four-word payload.  SYM-GLOBAL-CARRIER: coef */
 static const int coef[4] = { 16384, -8192, 6144, -5120 };   /* @0x80123810 (coef[0] unused) */
 
 extern int reorthogonalize(int *M)   /* @0x800F02E4 */

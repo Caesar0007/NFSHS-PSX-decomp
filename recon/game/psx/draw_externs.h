@@ -9,7 +9,6 @@ extern int timerhz;  /* global tick-rate (used as value: timerhz>>1) */
 /* ---- harvested from sealed *_externs.h ---- */
 extern Draw_tView     Draw_gView[];                  /* @0x8011ec54 */
 extern int Draw_GameSetupWords[] asm("GameSetup_gData");
-extern char *Render_gPacketEnd;
 extern dflip          gEnviro[2];                    /* @0x8011f424 */
 extern int            Draw_gPlayer1View, Draw_gPlayer2View;
 extern int            Draw_gPlayer1View;             /* @0x8013d3cc */
@@ -17,7 +16,6 @@ extern int Draw_gDoVSync;
 extern int Draw_gMidGroundOtz;
 extern int Draw_gViewOtSize;
 extern int gFlip;  extern int Draw_gPlayer1View;
-extern short          Render_gPacketLenLo, Render_gPacketLenHi;
 
 /* ---- SYM Globals (type+dims) + free fns ---- */
 extern char *Draw_gMaxPrim;
@@ -26,8 +24,6 @@ extern int gLoop;
 extern int gTotalMem;
 extern void *Platform_ReserveMemory(int, char *);
 extern void Texture_Vramcf(shapetbl *, int, int, int, int);
-
-extern int Render_gMenuRenderFlag;
 
 extern "C" u_long *ClearOTagR(...);
 extern "C" void DrawOTag(...);

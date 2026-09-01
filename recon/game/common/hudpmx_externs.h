@@ -11,11 +11,6 @@ extern int HudPmx_gameSetupWords[] __asm__("GameSetup_gData");
 extern int HudPmx_dashHUDWords[] __asm__("DashHUD_gInfo");
 extern char           *Paths_Paths[50];          /* paths.obj */
 extern u_short         gFontClut;                /* font.obj */
-extern char           *Track_gShapeNamePtrs[];   /* track.obj (shape-name ptr list) */
-extern char           *Track_gShapeNamePtrs_end[];
-extern char           *_Track_gShapeNamePtrs_end[];
-extern char           *Track_gTachNamePtrs[];    /* track.obj (tachometer name ptrs) */
-extern char           *gShapeNamePtrs_subList[]; /* track.obj */
 
 /* ---- cross-TU fns ---- */
 extern void  Font_LoadFont(char *buf, int w, int h, char flag);                /* font.obj */

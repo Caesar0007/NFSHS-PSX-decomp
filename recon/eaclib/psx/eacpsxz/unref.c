@@ -27,7 +27,11 @@
  *   trick; the cursor advances via the back-reference arithmetic).  refcpy/memcpyl live in unhuff.obj.
  */
 /* MATCH: chase's oracle reaches all four via %gp_rel -- tentative defs (mergeable
- * .comm; unbtree.c tentative-defines the same set, the linker folds them). */
+ * .comm; unbtree.c tentative-defines the same set, the linker folds them).
+ * SYM-SHARED-COMMON: SQVd
+ * SYM-SHARED-COMMON: SQVclue
+ * SYM-SHARED-COMMON: SQVleft
+ * SYM-SHARED-COMMON: SQVright */
 int SQVd;       /* destination cursor (shared with unbtree) */
 int SQVclue;    /* clue table base */
 int SQVleft;    /* node left-child table base */

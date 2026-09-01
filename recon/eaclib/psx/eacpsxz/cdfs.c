@@ -126,13 +126,6 @@
  *     A collected dir entry is 0x14 bytes: name[0xC], extent@+0xC, size@+0x10.
  */
 
-/* ---- CD context globals @0x80146CC4 (data-materialization pass owns the addresses) ---- */
-extern int    Cdinfo;            /* +0x00 CD state flags (bit2 == stop-requested)            */
-extern int    CD_maxOpen;        /* +0x04 number of handle slots                             */
-extern int    CD_dirEntryCount;  /* +0x08 number of ISO9660 directory entries                */
-extern void **CD_handleTable;    /* +0x34 open-file slots (each -> a directory entry)        */
-extern void  *CD_dirEntryArray;  /* +0x38 the sorted directory-entry array (0x14-byte stride)*/
-
 /* ---- helpers ---- */
 extern int   toupper(int c);                                  /* @0x8010907C (libc C37)      */
 extern void *bsearch(const void *key, const void *base, int n, int size,
@@ -141,14 +134,6 @@ extern int   dircompare(const void *a, const void *b);        /* @0x800FA344 (cd
 extern char *strncpy(char *d, const char *s, int n);          /* @0x800F6104 (libc C26)      */
 
 /* ---- CD read-state (ctx+0x20 sub-struct) + sector cache + the read machinery CD_Read arms ---- */
-extern int   CD_curOff;          /* byte offset within the current 0x800 sector              */
-extern int   CD_curLen;          /* bytes to transfer from the current sector                */
-extern int   CD_remLen;          /* bytes still to transfer after the current sector         */
-extern int   CD_ringIdx;         /* libcd read-ring index                                    */
-extern int   CD_curSector;       /* the sector currently being read                          */
-extern int   CD_timeout;         /* watchdog (timer ticks)                                   */
-extern void *CD_curDst;          /* current memory destination                               */
-extern void (*CD_completionCallback)(int);  /* fired (with 1) when a read finishes            */
 extern int   timerhz[];          /* timer frequency (UNSIZED array -- methodology-§3.12 #5:
                                   * EVERY oracle timerhz load is the SEPARATE-temp form
                                   * `lui $rX,%hi; lw $rY,%lo(timerhz)($rX)`, which a scalar
@@ -159,8 +144,6 @@ extern int   g_currentthread[];  /* execution context id (UNSIZED array -- metho
                                   * SEPARATE reg (`lui $s0,%hi; sw $v0,%lo($s0)` / `lui $v0;lw $v1,%lo($v0)`),
                                   * which a scalar extern cannot emit -- a scalar store folds to the
                                   * assembler's `$at` macro form and a scalar load self-temps.)      */
-extern int   CD_cachedSector;    /* @0x80146CD0 sector currently in the cache buffer          */
-extern unsigned char CD_sectorCache[]; /* @0x80146D00 the cached 0x800-byte sector            */
 extern void  CD_timerfunc(void); /* @0x800F9C44 (cdfs read watchdog/poll, below)             */
 
 extern void  addtimer(void *fn, void *arg);   /* @0x800EAFE8 (eaclib)                        */
@@ -168,9 +151,6 @@ extern void  deltimer(void *fn);              /* @0x800EB048 (eaclib)           
 extern void  blockmove(void *src, void *dst, int n);  /* @0x800E62DC                          */
 extern int   savegp(void *ctx);               /* save $gp around a cross-module callback     */
 extern void  restoregp(int saved);
-
-/* ---- additional CD context globals + the CD machinery ---- */
-extern int   CD_lastSector;      /* @0x80146CD4 (ctx+0x10) completion/prefetch loop marker   */
 
 /* ---- cdfs.obj-OWNED storage for the CD-filesystem state above.
  *   ROOT CAUSE FIX (inverse of methodology-§3.12 lever #6): the original is ONE 0x83C-byte
@@ -214,25 +194,25 @@ struct CD_ctx_t {
     unsigned char sectorCache[0x800];  /* +0x3C  CD_sectorCache  (0x800-byte cached sector)    */
 };                                     /* sizeof == 0x83C == blockclear(&Cdinfo,0x83C)         */
 typedef struct CD_ctx_t CD_ctx_t;
-CD_ctx_t CD_ctx;                       /* the whole CD context @0x80146CC4 (one .bss object)   */
+CD_ctx_t Cdinfo; /* @0x80146CC4: retail SYM/MAP public CD context object */
 /* Flat-name -> struct-member accessor macros (call sites unchanged; each expands to an
  * absolute-addressed struct field, killing the gp-rel divergence). */
-#define Cdinfo                CD_ctx.info
-#define CD_maxOpen            CD_ctx.maxOpen
-#define CD_dirEntryCount      CD_ctx.dirEntryCount
-#define CD_cachedSector       CD_ctx.cachedSector
-#define CD_lastSector         CD_ctx.lastSector
-#define CD_curSector          CD_ctx.curSector
-#define CD_timeout            CD_ctx.timeout
-#define CD_ringIdx            CD_ctx.ringIdx
-#define CD_curLen             CD_ctx.curLen
-#define CD_remLen             CD_ctx.remLen
-#define CD_curOff             CD_ctx.curOff
-#define CD_curDst             CD_ctx.curDst
-#define CD_completionCallback CD_ctx.completionCallback
-#define CD_handleTable        CD_ctx.handleTable
-#define CD_dirEntryArray      CD_ctx.dirEntryArray
-#define CD_sectorCache        CD_ctx.sectorCache
+#define CD_info               Cdinfo.info
+#define CD_maxOpen            Cdinfo.maxOpen
+#define CD_dirEntryCount      Cdinfo.dirEntryCount
+#define CD_cachedSector       Cdinfo.cachedSector
+#define CD_lastSector         Cdinfo.lastSector
+#define CD_curSector          Cdinfo.curSector
+#define CD_timeout            Cdinfo.timeout
+#define CD_ringIdx            Cdinfo.ringIdx
+#define CD_curLen             Cdinfo.curLen
+#define CD_remLen             Cdinfo.remLen
+#define CD_curOff             Cdinfo.curOff
+#define CD_curDst             Cdinfo.curDst
+#define CD_completionCallback Cdinfo.completionCallback
+#define CD_handleTable        Cdinfo.handleTable
+#define CD_dirEntryArray      Cdinfo.dirEntryArray
+#define CD_sectorCache        Cdinfo.sectorCache
 
 /* Canonical PsyQ 4.3 LIBCD.H location: BCD minute/second/sector + track. */
 typedef struct {
@@ -376,7 +356,7 @@ extern int CD_systaskfunc(void)
         VSync(3);
         CdFlush();
         CdSync(0, 0);
-        ctx = &CD_ctx;
+        ctx = &Cdinfo;
         CdIntToPos(ctx->cachedSector, pos);
         CdControl(0x1B, pos, result);
         CdReadyCallback(CdReadyHandler);
@@ -434,7 +414,7 @@ extern void CdReadyHandler(unsigned char intr, unsigned char *result)
      * advance: logic -- so only the EARLY Cdinfo touches (case2's ringIdx==-1 arm, the intr==1
      * flag tests, and case5's two arms) route through RS_Cdinfo; everything past CdGetSector stays
      * on the flat macro. */
-    CDReadState *rs = (void *)&CD_ctx.curLen;
+    CDReadState *rs = (void *)&Cdinfo.curLen;
 #define RS_Cdinfo (*(volatile int *)((char *)rs - 0x20))
 
     CdReadyCallback(0);                   /* disarm while we run */
@@ -470,7 +450,7 @@ extern void CdReadyHandler(unsigned char intr, unsigned char *result)
                     CD_ringIdx++;
                     CD_curSector = CD_cachedSector;
                     if (CD_ringIdx < 4) {
-                        Cdinfo |= 2;
+                        CD_info |= 2;
                     } else {
                         CD_ringIdx = -1;
                         /* the CdlPause issue is spelled OUT-OF-LINE in BOTH ring-overflow arms
@@ -483,16 +463,16 @@ extern void CdReadyHandler(unsigned char intr, unsigned char *result)
                     }
                 } else {                      /* the sector we were expecting */
                     CD_timeout = timerhz[0] * 6;
-                    if ((Cdinfo & 8) != 0) {  /* partial -> copy the wanted slice out of the cache */
-                        Cdinfo &= ~8;
-                        Cdinfo |= 0x10;
+                    if ((CD_info & 8) != 0) {  /* partial -> copy the wanted slice out of the cache */
+                        CD_info &= ~8;
+                        CD_info |= 0x10;
                         blockmove(&CD_sectorCache[rs->curOff], rs->curDst, rs->curLen);
                         rs->curOff = 0;
                     }
                     if (rs->remLen > 0) {     /* advance to the next chunk/sector (oracle: fall-through,
                                                   same block-order-inverted shape as CD_Read) */
                         rs->curDst = (char *)rs->curDst + rs->curLen;
-                        if (rs->remLen < 0x800) { rs->curLen = rs->remLen; Cdinfo |= 8; }
+                        if (rs->remLen < 0x800) { rs->curLen = rs->remLen; CD_info |= 8; }
                         else                    { rs->curLen = 0x800; }
                         rs->remLen -= rs->curLen;
                     } else {
@@ -517,7 +497,7 @@ extern void CdReadyHandler(unsigned char intr, unsigned char *result)
 cdrh_doneTest:
 
         if (done) {                       /* request satisfied -> fire the completion callback */
-            Cdinfo &= ~1;
+            CD_info &= ~1;
             CD_timeout = 0;
             CD_lastSector = CD_cachedSector;
             deltimer((void *)CD_timerfunc);
@@ -560,10 +540,10 @@ cdrh_doneTest:
 
 advance:
     CD_cachedSector++;
-    if ((Cdinfo & 2) != 0) {
-        Cdinfo &= ~2;                     /* clear in-progress */
-        Cdinfo &= ~0x10;                  /* clear copied */
-        Cdinfo |= 1;                      /* mark reading */
+    if ((CD_info & 2) != 0) {
+        CD_info &= ~2;                     /* clear in-progress */
+        CD_info &= ~0x10;                  /* clear copied */
+        CD_info |= 1;                      /* mark reading */
         if (CD_cachedSector != CD_curSector) {   /* seek to the requested sector */
             CdFlush();
             CdSync(0, 0);
@@ -572,7 +552,7 @@ advance:
             CdControl(0x1B, pos, result);
         }
     }
-    if ((Cdinfo & 1) != 0 || (CD_cachedSector - CD_lastSector < 0x15)) {
+    if ((CD_info & 1) != 0 || (CD_cachedSector - CD_lastSector < 0x15)) {
         CdReadyCallback(CdReadyHandler);  /* still streaming / within prefetch window -> re-arm */
         return;
     }
@@ -607,11 +587,11 @@ extern unsigned char *readsectorB(void)
 
     CD_curLen  = 0x800;
     CD_ringIdx = 0;
-    Cdinfo     = 0xA;                     /* read-in-progress (2) | partial (8) */
+    CD_info    = 0xA;                     /* read-in-progress (2) | partial (8) */
     CD_curDst = CD_sectorCache;           /* ctx+0x3C == &CD_sectorCache (0x80146D00) -- unconditional */
-    if ((Cdinfo & 3) != 0) {
+    if ((CD_info & 3) != 0) {
         do {
-            busy = (Cdinfo & 3);          /* spin until the CD IRQ completes this sector */
+            busy = (CD_info & 3);         /* spin until the CD IRQ completes this sector */
         } while (busy != 0);
     }
     return CD_sectorCache;
@@ -623,7 +603,7 @@ extern unsigned char *readsectorB(void)
  *   `maxEntries` (a budget shared across the recursion).  The return value (a fixed address) is unused. */
 extern void loaddirinfo(int startSector, int numSectors, int maxEntries)
 {
-    CD_ctx_t      *ctx = &CD_ctx;
+    CD_ctx_t      *ctx = &Cdinfo;
     int            limit = maxEntries;
     int            savedSector = ctx->curSector;
     unsigned char *p;
@@ -728,7 +708,7 @@ extern int CD_Restart(int startSector)
     unsigned char mode[8];
     int           rc;
 
-    (void)Cdinfo;                         /* oracle @0x800FA4B4: lui/lw Cdinfo, result discarded --
+    (void)CD_info;                        /* oracle @0x800FA4B4: lui/lw Cdinfo, result discarded --
                                               a volatile touch (its read is not elided) before arming
                                               the new read mode below */
     mode[0] = 0xA0;                       /* double-speed read mode */
@@ -816,9 +796,9 @@ extern int CD_Read(int dev, int dest, int offset, int len)
     /* read-state sub-struct pointer (curLen/remLen/curOff/curDst, ctx+0x20) -- materialized HERE
      * (right after the busy-check, oracle @0x800FA6C0 "addiu s0,v1,0x20" lands in the beqz's delay
      * slot) so gcc hoists the base as early as the oracle does, instead of lazily at first field use. */
-    CDReadState *rs = (void *)&CD_ctx.curLen;
+    CDReadState *rs = (void *)&Cdinfo.curLen;
 
-    if ((Cdinfo & 3) != 0)                              /* CD busy -> reject */
+    if ((CD_info & 3) != 0)                             /* CD busy -> reject */
         return 0;
 
     remaining = *(int *)((char *)*slot + 0x10) - offset; /* clamp len to bytes left in the file */
@@ -831,7 +811,7 @@ extern int CD_Read(int dev, int dest, int offset, int len)
     rs->curOff = offset - ((q >> 0xB) << 0xB);           /* byte offset within the 0x800 sector */
     rs->curDst = (void *)dest;      /* the oracle fills the curOff-test's delay slot with this */
     if (rs->curOff != 0 || len < 0x800)
-        Cdinfo |= 8;                                    /* partial-sector transfer */
+        CD_info |= 8;                                   /* partial-sector transfer */
     if (rs->curOff + len > 0x800)
         q = 0x800 - rs->curOff;                         /* clamp this chunk to the sector boundary */
     else
@@ -839,7 +819,7 @@ extern int CD_Read(int dev, int dest, int offset, int len)
     rs->curLen = q;
     rs->remLen = len - q;
 
-    { CD_ctx_t *ctx = &CD_ctx; /* the ctx base is materialized HERE, in the pre-sign-correction
+    { CD_ctx_t *ctx = &Cdinfo; /* the ctx base is materialized HERE, in the pre-sign-correction
                                 * block, but its first STORE is after the join -- see the note
                                 * above CD_Read for why that is the whole 12-diff residual. */
       char *e = (char *)*slot;   /* re-read; the oracle loads it BEFORE the sign correction */
@@ -850,11 +830,11 @@ extern int CD_Read(int dev, int dest, int offset, int len)
       ctx->ringIdx   = 0;
       startSector   += offset >> 0xB;
       ctx->curSector = startSector; } /* start sector + offset / 0x800 */
-    Cdinfo |= 2;                                        /* read in progress */
+    CD_info |= 2;                                       /* read in progress */
     CD_timeout   = timerhz[0] * 6;
     addtimer((void *)CD_timerfunc, (void *)dest);
 
-    if (CD_cachedSector == CD_curSector && (Cdinfo & 0x10) && g_currentthread[0] == 2) {
+    if (CD_cachedSector == CD_curSector && (CD_info & 0x10) && g_currentthread[0] == 2) {
         { char *cache = (char *)CD_sectorCache;
           int off;
           __asm__("" : : "r"(cache));  /* w47-a5: sched fixpoint -- pin the cache-base addiu first */
@@ -864,14 +844,14 @@ extern int CD_Read(int dev, int dest, int offset, int len)
         if (rs->remLen > 0) {                            /* more to read -> advance to the next sector */
             rs->curOff = 0;
             rs->curDst = (char *)rs->curDst + rs->curLen;
-            if (rs->remLen < 0x800) { rs->curLen = rs->remLen; Cdinfo |= 8; }
-            else                    { rs->curLen = 0x800;      Cdinfo &= ~8; }
+            if (rs->remLen < 0x800) { rs->curLen = rs->remLen; CD_info |= 8; }
+            else                    { rs->curLen = 0x800;      CD_info &= ~8; }
             rs->remLen  -= rs->curLen;
             CD_curSector += 1;
         } else {                                        /* whole request satisfied -> complete now */
             int gpctx[2];
             CD_timeout = 0;
-            Cdinfo &= ~2;
+            CD_info &= ~2;
             deltimer((void *)CD_timerfunc);
             if (CD_completionCallback != 0) {
                 savegp(gpctx);
@@ -890,9 +870,9 @@ extern int CD_Stopread(int dev)
      * `return Cdinfo |= 4;` would RE-READ info after the store to source the return
      * value (an extra `lw`).  The oracle reads once, ORs, writes, and returns the
      * COMPUTED value -> keep it in a temp and return that (no re-read). */
-    int v = Cdinfo | 4;
+    int v = CD_info | 4;
     (void)dev;
-    Cdinfo = v;
+    CD_info = v;
     return v;
 }
 
@@ -909,4 +889,4 @@ extern int CD_Getinfo(int handle, int namebuf, int *sizeout)
         *sizeout = *(int *)((char *)*slot + 0x10);        /* file size */
     return *(int *)((char *)*slot + 0x10);
 }
-
+

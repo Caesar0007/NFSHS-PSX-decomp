@@ -50,7 +50,7 @@
  */
 
 /* ---- owning-TU defs for link-harness (extern-declared, never defined; BSS) ---- */
- unsigned int requestidcounter; 
+ unsigned int requestidcounter; /* @0x8013DEDC: stream.obj rolling request ID */
 
 /* ---- nfile op-queue backend (the layer this is built on) ---- */
 extern unsigned int FILE_open (char *name, unsigned int mode, unsigned int prio, unsigned int udata); /*@0x800EC...*/

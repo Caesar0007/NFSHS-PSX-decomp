@@ -2,7 +2,7 @@
  *   Source obj : nfs4\eaclib\psx\resize.obj ; archive C:\nfs4\EACLIB\PSX\EACPSXZ.LIB (xlsx col11)
  *   1 fn @0x800F1950 (0x178 bytes): resizememadr -- grow/shrink an EA heap block IN PLACE.
  *   FULL reconstruction (disasm-v3 MIPS); NOT a stub.  Part of the EA memstd allocator (see memstd.cpp
- *   for the MemBlock/MemClass model: 16-byte header, user ptr = header+0x10; gMemClassTable[flags&0xF]).
+ *   for the MemBlock/MemClass model: 16-byte header, user ptr = header+0x10; memclass[flags&0xF]).
  *
  *   Steps (faithful to the asm):
  *     1. If the next physical block is on the free list (flags&0x4000), FREE_remove it and absorb it
@@ -23,7 +23,7 @@
 struct MemBlock;
 struct MemClass;
 
-extern struct MemClass *gMemClassTable[16];                       /* @0x8013E900 */
+extern struct MemClass *memclass[16];                             /* @0x8013E900 */
 extern void  FREE_add   (struct MemClass *cls, struct MemBlock *node);   /* @0x800E4E70 */
 extern void  FREE_remove(struct MemClass *cls, struct MemBlock *node);   /* @0x800E4F04 */
 extern int   initmemblock(struct MemBlock *blk, char *name, int size, int tailextra,
@@ -43,7 +43,7 @@ extern void *resizememadr(void *userptr, int newsize)      /* @0x800F1950 */
     char *hdr = (char *)userptr - 0x10;                         /* s3 = block header */
     unsigned flags = *(unsigned short *)(hdr + 2);              /* s1 (u_int: avoid a redundant andi 0xffff) */
     char *next = *(char **)(hdr + 8);                           /* s2 = hdr->physnext */
-    struct MemClass *cls = gMemClassTable[flags & 0xF];         /* s5 */
+    struct MemClass *cls = memclass[flags & 0xF];               /* s5 */
     int usable = newsize;                                       /* s4: the RAW requested size */
     /* MATCH (52 -> 14 diffs, w32-a4). The long-documented "3-way s2/s3/s4 rotation floor"
      * was NOT an allocator tie-break: cc1 -dl/-dg showed it was driven purely by the

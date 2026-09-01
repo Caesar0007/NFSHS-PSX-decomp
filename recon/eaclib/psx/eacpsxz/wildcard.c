@@ -49,7 +49,7 @@ extern char *strrstr(char *s, char *set)
  * FAITHFUL QUIRK: the operator restore is a LITERAL per case -- '|' stores back '|', but '!' AND '~'
  * both store back '!' (a '~' OR-operator is rewritten to '!' in the caller's pattern buffer); only
  * the '&' and '^' cases restore the saved char.  The '#' digit test uses the libc _ctype_ table. */
-extern const unsigned char _ctype_[];      /* libc CTYPE0.obj @0x801371D0; isdigit bit = 4 */
+extern char _ctype_[];                     /* canonical PsyQ CTYPE.H; CTYPE0.obj @0x801371D0 */
 
 extern int wildcard(char *text, char *pat)
 {

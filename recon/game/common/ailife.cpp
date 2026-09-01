@@ -35,14 +35,11 @@ void AILife_Debug(char *format, ...);
 /* ---- AILife_EvaluateLife__FP8Car_tObj  [@0x80067650] ---- */
 int AILife_EvaluateLife(Car_tObj *carObj)
 {
-  int iVar1;
-  Car_tObj *pCVar2;
-  
   if (((carObj->carFlags & 0x400U) == 0) &&
-     (iVar1 = AILife_IsCoordInThisLiveArea(&(carObj->N).position,carObj->basisCar), iVar1 == 0)) {
-    pCVar2 = AILife_IsTrafficCarInAnyLiveArea(carObj);
-    carObj->basisCar = pCVar2;
-    if (pCVar2 == (Car_tObj *)0x0) {
+      (AILife_IsCoordInThisLiveArea(
+           &(carObj->N).position,carObj->basisCar) == 0)) {
+    carObj->basisCar = AILife_IsTrafficCarInAnyLiveArea(carObj);
+    if (carObj->basisCar == (Car_tObj *)0x0) {
       return 1;
     }
   }
@@ -147,14 +144,13 @@ void AILife_RCPickSliceAndDirection(Car_tObj *carObj)
 void AILife_RCPickDesiredLatPosition(Car_tObj *carObj)
 {
   /* SYM @0x80067b1c (single fn-scope block, no per-branch nesting): REG randNumLanes($v1),
-   * newSlice($a0, doubles as the byte-table base pointer AND the final result), width($a1)
+   * newSlice($a0, doubles as the byte-table base pointer), width($a1)
    * -- and the RNG step (fastRandom*randSeed) is computed ONCE (oracle materializes it fresh
    * per branch, but from the SAME unconsumed fastRandom/randSeed -- the earlier recon called
    * it TWICE, a real duplicate-computation bug) (w18-a7). */
   int randNumLanes;
   int newSlice;
   int width;
-  int finalLatPos;
 
   newSlice = (int)(carObj->N).simRoadInfo.slice;
   if (carObj->direction == AITune_driveSide) {
@@ -179,9 +175,8 @@ void AILife_RCPickDesiredLatPosition(Car_tObj *carObj)
     carObj->desiredLatPos =
         -width * randNumLanes + ((u_int)width >> 1);
   }
-  finalLatPos = *(int *)&carObj->desiredLatPos + carObj->laneSlack;
-  carObj->desiredLatPos = finalLatPos;
-  carObj->rampDesiredLatPos = finalLatPos;
+  carObj->desiredLatPos = *(int *)&carObj->desiredLatPos + carObj->laneSlack;
+  carObj->rampDesiredLatPos = carObj->desiredLatPos;
   return;
 }
 
@@ -237,6 +232,9 @@ void AILife_PlaceCarAtLocation(Car_tObj *carObj,int rotation1024)
   if (carObj->currentSpeed != 0) {
     coorddef targetDirection;
     int speed;
+    /* SYM-CODEGEN-CARRIER: direction -- caching targetDirection.x keeps the
+     * retail load live across the speed-sign branch.  Reading the field
+     * directly adds a load-delay nop and gives 3 diffs (130 vs 129 insns). */
     int direction;
     targetDirection = *(coorddef *)&(carObj->N).orientMat.m[6];
     speed = carObj->currentSpeed;
@@ -276,9 +274,10 @@ void AILife_PlaceCarAtLocation(Car_tObj *carObj,int rotation1024)
 /* ---- AILife_ReencarnateTraffic__FP8Car_tObj  [@0x80067ee4] ---- */
 void AILife_ReencarnateTraffic(Car_tObj *carObj)
 {
-  /* PERMUTER (score 0 @iter224): compute the color-index UNCONDITIONALLY into a named
-   * local before the flag test -- matches the oracle materializing it regardless of
-   * the branch (w18-a7). */
+  /* SYM-CODEGEN-CARRIER: colorIdx -- the SYM omits this optimized value, but
+   * retail computes it unconditionally before testing carFlags.  Inlining the
+   * expression into the conditional call gives 29 diffs and 43 vs 44 insns;
+   * this PERMUTER-proven form is authoritative PASS. */
   u_int colorIdx;
 
   randtemp = fastRandom * randSeed;
@@ -307,6 +306,10 @@ void AILife_ReencarnateTrafficByPosition(Car_tObj *carObj,int slice,int travelDi
    * decls the earlier pass left unused (w18-a7). */
   coorddef zero;
   coorddef offset;
+  /* SYM-CODEGEN-CARRIER: colorIdx -- the SYM omits this optimized value, but
+   * keeping its lexical assignment reproduces retail allocation.  Inlining
+   * the expression into the conditional call gives 30 diffs at 131 insns;
+   * this separate carrier is authoritative PASS. */
   u_int colorIdx;
 
   memset((u_char *)&zero,'\0',0xc);
@@ -513,23 +516,15 @@ int AILife_IsCoordInThisLiveArea(coorddef *tPos,Car_tObj *racer)
 /* ---- AILife_IsTrafficCarInAnyLiveArea__FP8Car_tObj  [@0x80068704] ---- */
 Car_tObj * AILife_IsTrafficCarInAnyLiveArea(Car_tObj *traffic)
 {
-  int iVar1;
-  Car_tObj **ppCVar2;
   int racerLoop;
   coorddef *tPos;
   
-  racerLoop = 0;
   tPos = &(traffic->N).position;
-  if (0 < Cars_gNumLifeBasisCars) {
-    ppCVar2 = Cars_gLifeBasisCarList;
-    do {
-      iVar1 = AILife_IsCoordInThisLiveArea(tPos,*ppCVar2);
-      if (iVar1 != 0) {
-        return *ppCVar2;
-      }
-      racerLoop = racerLoop + 1;
-      ppCVar2 = ppCVar2 + 1;
-    } while (racerLoop < Cars_gNumLifeBasisCars);
+  for (racerLoop = 0; racerLoop < Cars_gNumLifeBasisCars; racerLoop++) {
+    if (AILife_IsCoordInThisLiveArea(
+            tPos,Cars_gLifeBasisCarList[racerLoop]) != 0) {
+      return Cars_gLifeBasisCarList[racerLoop];
+    }
   }
   return (Car_tObj *)0x0;
 }
@@ -559,10 +554,7 @@ int AILife_IsCoordInThisVisibleArea(coorddef *tPos,Car_tObj *racer)
 /* ---- AILife_IsCarInAnyVisibleArea__FP8Car_tObj  [@0x800687ec] ---- */
 Car_tObj * AILife_IsCarInAnyVisibleArea(Car_tObj *carObj)
 {
-  Car_tObj *pCVar1;
-  
-  pCVar1 = AILife_IsPositionInAnyVisibleArea(&(carObj->N).position);
-  return pCVar1;
+  return AILife_IsPositionInAnyVisibleArea(&(carObj->N).position);
 }
 
 /* ---- AILife_IsSliceInAnyVisibleArea__Fi  [@0x8006880c] ---- */
@@ -573,6 +565,8 @@ Car_tObj * AILife_IsSliceInAnyVisibleArea(int slice)
    * pulled in an unneeded extra saved register (w22-a14). */
   int racerLoop;
   int sliceDist;
+  /* SYM-CODEGEN-CARRIER: ppCVar2 -- absent from retained debug locals;
+   * direct indexed goto form is 23 diffs and a natural for-loop is 49. */
   Car_tObj **ppCVar2;
 
   racerLoop = 0;
@@ -600,6 +594,8 @@ Car_tObj * AILife_IsSliceCloseToAnyCopCar(int slice)
    * fix as IsSliceInAnyVisibleArea (w22-a14). */
   int copLoop;
   int sliceDist;
+  /* SYM-CODEGEN-CARRIER: ppCVar2 -- direct indexed access produces 23
+   * oracle diffs in this structurally parallel cop-list loop. */
   Car_tObj **ppCVar2;
 
   copLoop = 0;
@@ -623,21 +619,13 @@ COP_NOT_FOUND:
 /* ---- AILife_IsPositionInAnyVisibleArea__FP8coorddef  [@0x8006894c] ---- */
 Car_tObj * AILife_IsPositionInAnyVisibleArea(coorddef *pos)
 {
-  int iVar1;
-  Car_tObj **ppCVar2;
   int racerLoop;
 
-  racerLoop = 0;
-  if (0 < Cars_gNumHumanRaceCars) {
-    ppCVar2 = Cars_gHumanRaceCarList;
-    do {
-      iVar1 = AILife_IsCoordInThisVisibleArea(pos,*ppCVar2);
-      if (iVar1 != 0) {
-        return *ppCVar2;
-      }
-      racerLoop = racerLoop + 1;
-      ppCVar2 = ppCVar2 + 1;
-    } while (racerLoop < Cars_gNumHumanRaceCars);
+  for (racerLoop = 0; racerLoop < Cars_gNumHumanRaceCars; racerLoop++) {
+    if (AILife_IsCoordInThisVisibleArea(
+            pos,Cars_gHumanRaceCarList[racerLoop]) != 0) {
+      return Cars_gHumanRaceCarList[racerLoop];
+    }
   }
   return (Car_tObj *)0x0;
 }

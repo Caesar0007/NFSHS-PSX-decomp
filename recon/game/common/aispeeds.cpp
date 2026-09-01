@@ -11,6 +11,13 @@
  * `AISpeeds_CalcHumanCurveSpeed__FP8Car_tObj`.  Prototype hoisted, signature unchanged. */
 int AISpeeds_CalcHumanCurveSpeed(Car_tObj *carObj);
 
+/* SYM-INFERRED-INLINE-NAME: no linkage/debug record preserves this helper's
+ * identifier; the two call sites and the lower-bound body are oracle-proven. */
+static inline int AISpeeds_Max(int minimum,int value)
+{
+  return minimum - 1 < value ? value : minimum;
+}
+
 extern int AI_elapsedTime;   /* @0x8013C554 (ai.cpp:15) -- AI frame elapsed-time global; used by GetCaravanFactor caravanTimer decrement (H35) */
 
 
@@ -85,8 +92,6 @@ void AISpeeds_ReadTuningInfo(void)
   char filename[110];
   Udff_tInfo *handle;
   int weatherRamp;
-  int iVar1;
-  u_int uVar2;
   /* SYM names this induction variable `curveLoop` in $a1. The direct
    * multiplication is important: retail strength-reduces it to the running
    * $v1 accumulator visible in the oracle. */
@@ -99,15 +104,11 @@ void AISpeeds_ReadTuningInfo(void)
   slotLoop = 0;
   while (true) {
     if (6 <= slotLoop) break;
-    iVar1 = Udff_GetInt(handle);
-    CaravanInfo[slotLoop].distanceMaintainTime32 = iVar1 << 5;
-    iVar1 = Udff_GetInt(handle);
-    CaravanInfo[slotLoop].minDistanceMeters = iVar1;
-    iVar1 = Udff_GetInt(handle);
-    CaravanInfo[slotLoop].maxDistanceMeters = iVar1;
-    iVar1 = Udff_GetInt(handle);
-    uVar2 = fixeddiv(0x10000,iVar1 << 0x15);
-    CaravanInfo[slotLoop].fallBackRandomTime_TickPercent = uVar2;
+    CaravanInfo[slotLoop].distanceMaintainTime32 = Udff_GetInt(handle) << 5;
+    CaravanInfo[slotLoop].minDistanceMeters = Udff_GetInt(handle);
+    CaravanInfo[slotLoop].maxDistanceMeters = Udff_GetInt(handle);
+    CaravanInfo[slotLoop].fallBackRandomTime_TickPercent =
+        fixeddiv(0x10000,Udff_GetInt(handle) << 0x15);
     slotLoop = slotLoop + 1;
   }
   if ((AISPEEDS_RACE_TYPE == RaceType_SingleRace) && (0 < Cars_gNumAIRaceCars)) {
@@ -296,19 +297,16 @@ haveCaravan:
     }
 
     if (totalSortIndex * 0x280000 <= metersPastFinish) {
-      u_int laneCount =
-          AISPEEDS_SLICE_LANE_COUNT(carObj->N.simRoadInfo.slice);
-
       if ((latLeft <
            (int)-((AISPEEDS_SLICE_WIDTH_LF(carObj->N.simRoadInfo.slice) << 15) *
-                  (laneCount >> 4))) ||
+                  (AISPEEDS_SLICE_LANE_COUNT(carObj->N.simRoadInfo.slice) >> 4))) ||
           ((int)((AISPEEDS_SLICE_WIDTH_RT(carObj->N.simRoadInfo.slice) << 15) *
-                 (laneCount & 0xf)) < latLeft) ||
+                 (AISPEEDS_SLICE_LANE_COUNT(carObj->N.simRoadInfo.slice) & 0xf)) < latLeft) ||
           (latRight <
            (int)-((AISPEEDS_SLICE_WIDTH_LF(carObj->N.simRoadInfo.slice) << 15) *
-                  (laneCount >> 4))) ||
+                  (AISPEEDS_SLICE_LANE_COUNT(carObj->N.simRoadInfo.slice) >> 4))) ||
           ((int)((AISPEEDS_SLICE_WIDTH_RT(carObj->N.simRoadInfo.slice) << 15) *
-                 (laneCount & 0xf)) < latRight) ||
+                 (AISPEEDS_SLICE_LANE_COUNT(carObj->N.simRoadInfo.slice) & 0xf)) < latRight) ||
           (0x1900000 < metersPastFinish)) {
         newDesired = 0;
       }
@@ -325,49 +323,20 @@ LAB_8006de40:
 /* ---- AISpeeds_NeedToSlowDownForCurve__FP8Car_tObjiii  [@0x8006de90] ---- */
 int AISpeeds_NeedToSlowDownForCurve(Car_tObj *carObj,int distanceMeters,int currentSpeed,int futureCurveSpeed)
 {
-  /* The SYM names are load-bearing here: keeping the first scaled brake-table
-   * value in `speed` and the final difference in `neededDistance` reproduces
-   * the oracle's v1/v0 arithmetic chain. The explicit early failure guard also
-   * places the zero result in its branch delay slot (full 41/41 match). */
   int neededDistance;
-  int futureSpeed;
-  int speed;
-  int sIndex;
-  AIPhysic_BrakeInfo *pAVar2;
-  int iVar3;
-  int iVar4;
 
   if (currentSpeed < futureCurveSpeed) {
     return 0;
   }
-  pAVar2 = carObj->brakeInfo;
-  if (currentSpeed < 0) {
-    currentSpeed = currentSpeed + 0xffff;
-  }
-  iVar3 = currentSpeed >> 0x10;
-  if (iVar3 < 0) {
-    iVar3 = -iVar3;
-  }
-  /* H48: the "clamp to deceleration_" step is NOT a separate pointer -- the oracle just clamps
-   * the INDEX to 0x80 and reads pAVar2->brakeTable_[idx] uniformly for BOTH accesses (a
-   * pointer-switch to &deceleration_ was one extra load-bearing register the oracle never has;
-   * deceleration_ is laid out immediately after brakeTable_[127], so index 0x80 lands on the
-   * same byte). */
-  if (0x7f < iVar3) {
-    iVar3 = 0x80;
-  }
-  speed = (u_int)(u_char)pAVar2->brakeTable_[iVar3] * 0x20000;
-  if (futureCurveSpeed < 0) {
-    futureCurveSpeed = futureCurveSpeed + 0xffff;
-  }
-  futureCurveSpeed = futureCurveSpeed >> 0x10;
-  if (futureCurveSpeed < 0) {
-    futureCurveSpeed = -futureCurveSpeed;
-  }
-  if (0x7f < futureCurveSpeed) {
-    futureCurveSpeed = 0x80;
-  }
-  neededDistance = speed - (u_int)(u_char)pAVar2->brakeTable_[futureCurveSpeed] * 0x20000;
+  /* SYM-INLINE-THIS: GetNeededDistance
+   * SYM-INLINE-LOCAL: futureSpeed = GetNeededDistance
+   * SYM-INLINE-THIS: GetBrakeDistance
+   * SYM-INLINE-LOCAL: speed = GetBrakeDistance
+   * SYM-INLINE-LOCAL: sIndex = GetBrakeDistance
+   * SYM-INLINE-THIS: GetBrakeDistance
+   * SYM-INLINE-LOCAL: speed = GetBrakeDistance
+   * SYM-INLINE-LOCAL: sIndex = GetBrakeDistance */
+  neededDistance = carObj->brakeInfo->GetNeededDistance(currentSpeed,futureCurveSpeed);
   return neededDistance + (neededDistance >> 3) < distanceMeters ^ 1;
 }
 
@@ -479,6 +448,10 @@ LAB_GLUE:
   {
       int glueIndex;
       int glue;
+      /* SYM-CODEGEN-CARRIER: clampedGlueIndex -- folding the selected index
+       * into glueIndex changes 12 instructions; a caller-clean inline helper
+       * preserves the clamp but still changes the table-load allocation by 10.
+       * This separate optimized result is required for the exact 111-insn body. */
       int clampedGlueIndex;
 
       glueIndex = closestHumanDistance / 0x3c0000 + 10;
@@ -526,16 +499,11 @@ Car_tObj * AISpeeds_GetPrevAICar(Car_tObj *carObj)
    * $a2 and the real named `carLoop` to keep $a1 (§3.12 #1 index-form vs pointer-walk). */
   Car_tObj *prevCar;
   Car_tObj *testCar;
-  int zeroTrip;   /* H43b (PERMUTER, score 0 @iter353): a SEPARATE fresh-zero temp feeds the
-                   * entry guard test AND initializes carLoop -- reusing carLoop directly for
-                   * both the guard and the loop counter colors the a1/a2 pair backwards vs the
-                   * oracle. Transcribed verbatim (decl scope/order load-bearing, §3.12 #15). */
   int carLoop;
 
-  zeroTrip = 0;
+  carLoop = 0;
   prevCar = (Car_tObj *)0x0;
-  carLoop = zeroTrip;
-  if (zeroTrip < Cars_gNumCars) {
+  if (carLoop < Cars_gNumCars) {
     do {
       testCar = Cars_gTotalSortedList[carLoop];
       if (carObj == testCar) {
@@ -557,12 +525,6 @@ int AISpeeds_GetCaravanFactor(Car_tObj *carObj)
   int f_caravan;
   u_int tempRandom;
   Car_tObj*prevAICar;
-  Car_tObj *pCVar1;
-  int desiredSpeedScaled;
-  int desiredSpeedProduct;
-  int direction;
-  int followBehindDist;
-  int halfMaintainTime;
   int slot;   /* SYM: REG INT slot */
 
   slot = carObj->AISlot;
@@ -575,21 +537,15 @@ int AISpeeds_GetCaravanFactor(Car_tObj *carObj)
     goto LAB_8006e444;
   }
   if (nextAICar != (Car_tObj *)0x0) {
-    pCVar1 = nextAICar->fallBehindCar;
-    if (pCVar1 == (Car_tObj *)0x0) {
+    if (nextAICar->fallBehindCar == (Car_tObj *)0x0) {
       if (0xd6491 < nextAICar->speed) {
         /* H37 (wave-21 fix): this threshold scratch was aliased onto f_caravan (the
          * function's f_caravan/return-value accumulator, oracle $s3) -- but the oracle
          * keeps $s3 UNTOUCHED through this whole straight-line block (pure a0/a1/v0/v1
          * temps), so the aliasing was a register-identity bug that force-extended
          * f_caravan's live range and cascaded a whole-function coloring mismatch. */
-        direction = carObj->direction;
-        desiredSpeedScaled = nextAICar->originalDesiredSpeed * direction;
-        desiredSpeedProduct = nextAICar->desiredSpeed * direction;
-        if (desiredSpeedScaled < 0) {
-          desiredSpeedScaled = desiredSpeedScaled + 0xff;
-        }
-        if ((desiredSpeedScaled >> 8) * 0xb3 <= desiredSpeedProduct) {
+        if (!(nextAICar->desiredSpeed * carObj->direction <
+              (nextAICar->originalDesiredSpeed * carObj->direction / 256) * 0xb3)) {
           /* H38 (wave-21 fix): the oracle reaches the odometer block via a FORWARD BRANCH
            * (beqz ...,.L8006E3C8) placed OUT OF LINE, with the reload merge code as the
            * straight-line fallthrough (the odometer block is much bigger -- 2 calls + more
@@ -604,10 +560,10 @@ int AISpeeds_GetCaravanFactor(Car_tObj *carObj)
   }
   else {
 LAB_8006e3b0:
-    pCVar1 = nextAICar->fallBehindCar;
+    ;
   }
   f_caravan = 0x10000;
-  if (pCVar1 == carObj) {
+  if (nextAICar->fallBehindCar == carObj) {
     f_caravan = 0x11999;
   }
   goto LAB_8006e444;
@@ -615,16 +571,15 @@ LAB_8006e3c8:
   {
     int leaderIsThisManyMetersAhead;   /* SYM name, block-scoped @0x8006e3c8 line=61 */
     leaderIsThisManyMetersAhead = AIWorld_GameOdometer(nextAICar) - AIWorld_GameOdometer(carObj);
-    followBehindDist = carObj->caravanFollowBehindDistanceMeters;
-    if (followBehindDist + 0xa0000 < leaderIsThisManyMetersAhead) {
+    if (carObj->caravanFollowBehindDistanceMeters + 0xa0000 < leaderIsThisManyMetersAhead) {
       f_caravan = 0x13333;
-      if (followBehindDist + 0x3e80000 < leaderIsThisManyMetersAhead) {
+      if (carObj->caravanFollowBehindDistanceMeters + 0x3e80000 < leaderIsThisManyMetersAhead) {
         f_caravan = 0x18000;
       }
     }
-    else if (leaderIsThisManyMetersAhead < followBehindDist + -0xa0000) {
+    else if (leaderIsThisManyMetersAhead < carObj->caravanFollowBehindDistanceMeters + -0xa0000) {
       f_caravan = 0xcccc;
-      if (leaderIsThisManyMetersAhead < followBehindDist + -0x3e80000) {
+      if (leaderIsThisManyMetersAhead < carObj->caravanFollowBehindDistanceMeters + -0x3e80000) {
         f_caravan = 0x9999;
       }
     }
@@ -637,12 +592,12 @@ LAB_8006e444:
     carObj->caravanTimer = carObj->caravanTimer - AI_elapsedTime;
   }
   if (carObj->caravanTimer < 0) {
-    halfMaintainTime = CaravanInfo[slot].distanceMaintainTime32 / 2;
     randtemp = fastRandom * randSeed;
     fastRandom = randtemp & 0xffff;
     carObj->caravanTimer =
-         halfMaintainTime +
-         (halfMaintainTime * ((randtemp & 0xffff00) >> 8) >> 0x10);
+         CaravanInfo[slot].distanceMaintainTime32 / 2 +
+         ((CaravanInfo[slot].distanceMaintainTime32 / 2) *
+          ((randtemp & 0xffff00) >> 8) >> 0x10);
     randtemp = fastRandom * randSeed;
     fastRandom = randtemp & 0xffff;
     carObj->caravanFollowBehindDistanceMeters =
@@ -778,47 +733,24 @@ haveThirdGlueIndex:
 /* ---- AISpeeds_GetDamageFactor__FP8Car_tObj  [@0x8006e898] ---- */
 int AISpeeds_GetDamageFactor(Car_tObj *carObj)
 {
-  int iVar1;
-  int iVar2;
-  int iVar3;
-  int iVar4;
-  
-  carObj->damageMult = 0;   /* H45: plain sequential sum, no pre-loaded temps -- the oracle's
-                             * odd dmg0,dmg1,dmg3-early,dmg2 load order + interleaved
-                             * damageMult=0 store is pure DELAY-SLOT SCHEDULING of a single
-                             * straight-line `d0+d1+d2+...+d7` expression, not a source hint. */
-  iVar1 = (carObj->N).damage[0] + (carObj->N).damage[1] + (carObj->N).damage[2] +
-          (carObj->N).damage[3] + (carObj->N).damage[4] + (carObj->N).damage[5] +
-          (carObj->N).damage[6] + (carObj->N).damage[7];
-  carObj->damageMult = iVar1;
+  carObj->damageMult = 0;
+  carObj->damageMult =
+      (carObj->N).damage[0] + (carObj->N).damage[1] +
+      (carObj->N).damage[2] + (carObj->N).damage[3] +
+      (carObj->N).damage[4] + (carObj->N).damage[5] +
+      (carObj->N).damage[6] + (carObj->N).damage[7];
   if (((AISPEEDS_RACE_TYPE == RaceType_HotPursuit) || (AISPEEDS_RACE_TYPE == RaceType_Id5)) &&
      ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 ||
       ((Cars_gNumHumanRaceCars == 2 && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) {
-    iVar2 = 0x147;
+    carObj->damageMult = fixedmult(carObj->damageMult,0x147);
   }
   else {
-    iVar1 = carObj->damageMult;
-    iVar2 = 0x48;
+    carObj->damageMult = fixedmult(carObj->damageMult,0x48);
   }
-  /* W54-A15 / LAW 05A: the SYM SLD puts the call AND the store in ONE retail statement
-   * (SLD 1131 = `lw a0,damageMult; li a1,72; jal fixedmult; nop; sw v0,damageMult`), so the
-   * store is the call's own assignment, not a following statement -- fusing it gives the
-   * store the priority that emits it BEFORE the hoisted `li a0,0x8000` (SLD 1138). */
-  carObj->damageMult = fixedmult(iVar1,iVar2);
-  __asm__ __volatile__("" : : "i"(0));   /* W54-A15: 0-insn void-tail fence -- sched2 otherwise
-                                          * hoists the clamp default `li a0,0x8000` (SLD 1138)
-                                          * ABOVE this store; retail emits the store first. */
-  /* H45b: `volatile` CODEGEN DEVICE (cf. H40) -- oracle genuinely reloads damageMult from memory
-   * here (`sw`, then a fresh `lw`) instead of reusing the just-stored fixedmult result register;
-   * a plain field re-read gets CSE'd back to iVar1 with no intervening call/aliasing hazard. */
-  iVar4 = 0x10000 - *(volatile int *)&carObj->damageMult;
-  carObj->damageMult = iVar4;
-  iVar1 = 0x8000;
-  if (0x7fff < iVar4) {
-    iVar1 = iVar4;
-  }
-  carObj->damageMult = iVar1;
-  return iVar1;
+  carObj->damageMult =
+      0x10000 - *(int *)((char *)carObj + 0x778);
+  carObj->damageMult = AISpeeds_Max(0x8000,carObj->damageMult);
+  return carObj->damageMult;
 }
 
 /* ---- AISpeeds_LimitGlueMultiplier__FP8Car_tObji  [@0x8006e9b0] ---- */
@@ -895,7 +827,6 @@ int AISpeeds_CalcTrafficTopSpeed(Car_tObj *carObj)
    * clamp shape. Expressing the reverse-track test as a direction comparison also
    * preserves the oracle's shared boolean normalization (full 104/104 match). */
   int desired;
-  int iVar2;
 
   desired = AISpeeds_GetLegalSpeed((int)(carObj->N).simRoadInfo.slice);
   desired = fixedmult(desired,0xc000);
@@ -915,22 +846,13 @@ int AISpeeds_CalcTrafficTopSpeed(Car_tObj *carObj)
     }
   }
   if ((carObj->carFlags & 0x10U) != 0) {
-    int scaledDesired;
-    int desired8;
-    int speedFactor;
     desired = AISpeeds_RandomizeTrafficSpeed(carObj,desired);
-    scaledDesired = desired;
-    if (desired < 0) {
-      scaledDesired = desired + 0xff;
-    }
-    speedFactor = carObj->speedFactor;
-    desired8 = scaledDesired >> 8;
-    if (speedFactor < 0) {
-      speedFactor = speedFactor + 0xff;
-    }
-    desired = desired8 * (speedFactor >> 8);
+    desired = (desired / 256) * (carObj->speedFactor / 256);
   }
   {
+    /* SYM-CODEGEN-CARRIER: minimumSpeed -- the literal clamp canonicalizes
+     * to the inverse 0x8e38d comparison (6 diffs); the inline lower-bound
+     * helper changes the result live range (12 diffs). */
     int minimumSpeed = 0x8e38e;
     if (desired < minimumSpeed) {
       desired = minimumSpeed;
@@ -981,16 +903,11 @@ int AISpeeds_RandomizeTrafficSpeed(Car_tObj *carObj,int oldsafe)
     }
   }
   else {
-    int speedFactor;
     if (oldsafe < 0) {
       oldsafe = oldsafe + 0xff;
     }
-    speedFactor = carObj->trafficSpeedRandomizingFactor;
-    oldsafe = oldsafe >> 8;
-    if (speedFactor < 0) {
-      speedFactor = speedFactor + 0xff;
-    }
-    oldsafe = oldsafe * (speedFactor >> 8);
+    oldsafe = (oldsafe >> 8) *
+              (carObj->trafficSpeedRandomizingFactor / 256);
   }
   return oldsafe;
 }
@@ -998,34 +915,27 @@ int AISpeeds_RandomizeTrafficSpeed(Car_tObj *carObj,int oldsafe)
 /* ---- AISpeeds_CalcDesiredSpeed__FP8Car_tObj  [@0x8006eddc] ---- */
 void AISpeeds_CalcDesiredSpeed(Car_tObj *carObj)
 {
-  int iVar1;
-  u_int uVar2;
-  
-  uVar2 = carObj->carFlags;
   carObj->desiredSpeed = 0;
-  if ((uVar2 & 8) != 0) {   /* H44: if/else ARM ORDER controls beqz/bnez polarity -- oracle's
+  if ((carObj->carFlags & 8) != 0) {   /* H44: if/else ARM ORDER controls beqz/bnez polarity -- oracle's
                              * `beqz` skips straight to the Opponent-case block (this is the
                              * FALL-THROUGH/true arm, not the else); the previous `==0`-first
                              * form emitted the inverted `bnez`. */
-    iVar1 = AISpeeds_CalcOpponentTopSpeed(carObj,&carObj->originalDesiredSpeed);
-    carObj->desiredSpeed = iVar1;
+    carObj->desiredSpeed =
+        AISpeeds_CalcOpponentTopSpeed(carObj,&carObj->originalDesiredSpeed);
   }
-  else if ((uVar2 & 0x20) != 0) {   /* H44 (cont.): same arm-order/polarity fix at the 2nd level */
+  else if ((carObj->carFlags & 0x20) != 0) {   /* H44 (cont.): same arm-order/polarity fix at the 2nd level */
     if ((carObj->AIFlags & 2U) != 0) {   /* Cop is the fall-through arm (oracle beqz-skips-to-Traffic) */
-      iVar1 = AISpeeds_CalcCopTopSpeed(carObj);
-      carObj->desiredSpeed = iVar1;
+      carObj->desiredSpeed = AISpeeds_CalcCopTopSpeed(carObj);
     }
     else {
-      iVar1 = AISpeeds_CalcTrafficTopSpeed(carObj);
-      carObj->desiredSpeed = iVar1;
+      carObj->desiredSpeed = AISpeeds_CalcTrafficTopSpeed(carObj);
     }
     carObj->originalDesiredSpeed = carObj->desiredSpeed;
   }
   else {
-    if ((uVar2 & 0x10) != 0) {
-      iVar1 = AISpeeds_CalcTrafficTopSpeed(carObj);
-      carObj->desiredSpeed = iVar1;
-      carObj->originalDesiredSpeed = iVar1;
+    if ((carObj->carFlags & 0x10) != 0) {
+      carObj->desiredSpeed = AISpeeds_CalcTrafficTopSpeed(carObj);
+      carObj->originalDesiredSpeed = carObj->desiredSpeed;
     }
   }
   return;
@@ -1061,14 +971,12 @@ void AISpeeds_SetTrafficSpeedRandomFactor(Car_tObj *carObj)
    * statements do not. The register-only raw/factor temporaries keep the table load before
    * the required randtemp/fastRandom writes, matching the retail instruction schedule. */
   int randomSpeedMultipliers[4] = {0x10000, 0xe666, 0xcccc, 0xb333};
-  u_int random;
-  int randomFactor;
 
-  random = randSeed * fastRandom;
-  randomFactor = *(int *)((int)randomSpeedMultipliers + (random >> 6 & 0xc));
-  randtemp = random;
-  fastRandom = random & 0xffff;
-  carObj->trafficSpeedRandomizingFactor = randomFactor;
+  carObj->trafficSpeedRandomizingFactor =
+      *(int *)((int)randomSpeedMultipliers +
+               ((randSeed * fastRandom) >> 6 & 0xc));
+  randtemp = randSeed * fastRandom;
+  fastRandom = randtemp & 0xffff;
   return;
 }
 
@@ -1123,18 +1031,10 @@ void AISpeeds_MaintainLeaderBoard(void)
 /* ---- AISpeeds_GetScriptFactor__FP8Car_tObj  [@0x8006f0a4] ---- */
 int AISpeeds_GetScriptFactor(Car_tObj *carObj)
 {
-  AIScript_t *scriptPtr;   /* H42: explicit &carObj->script local (was inlined at both call sites) --
-                             * pins the base pointer to $s0 ahead of iVar1's call-result cache in $s1,
-                             * matching the oracle's saved-reg roles. */
-  int iVar1;
-  int iVar2;
-  scriptPtr = &carObj->script;
-  iVar1 = AIScript_DoReAction(scriptPtr,4);
-  if (iVar1 != -1) {
+  if (AIScript_DoReAction(&carObj->script,4) != -1) {
     return 0x18000;
   }
-  iVar2 = AIScript_DoReAction(scriptPtr,0x10);
-  if (iVar2 != iVar1) {
+  if (AIScript_DoReAction(&carObj->script,0x10) != -1) {
     return 0x8000;
   }
   return 0x10000;
@@ -1145,21 +1045,19 @@ int AISpeeds_GetUpgradeAccMult(int carIndex)
 {
   Car_tObj*carObj;
   int accMult;
-  int a;
-  Car_tObj *pCVar1;
 
-  pCVar1 = Cars_gList[carIndex];
-  a = 0x10000;
-  if (pCVar1->carInfo->EngineMods == 1) {
-    a = fixedmult(0x10000,engineUpgrade.accMult);   /* @0x8006F150 $a1=*(&engineUpgrade)[+0]=accMult (H36) */
+  carObj = Cars_gList[carIndex];
+  accMult = 0x10000;
+  if (carObj->carInfo->EngineMods == 1) {
+    accMult = fixedmult(0x10000,engineUpgrade.accMult);   /* @0x8006F150 $a1=*(&engineUpgrade)[+0]=accMult (H36) */
   }
-  if (pCVar1->carInfo->WeightTransfer == 1) {
-    a = fixedmult(a,suspensionUpgrade.accMult);   /* @0x8006F178 $a1=*(&suspensionUpgrade)[+0] */
+  if (carObj->carInfo->WeightTransfer == 1) {
+    accMult = fixedmult(accMult,suspensionUpgrade.accMult);   /* @0x8006F178 $a1=*(&suspensionUpgrade)[+0] */
   }
-  if (pCVar1->carInfo->GroundEffects == 1) {
-    a = fixedmult(a,aeroUpgrade.accMult);   /* @0x8006F1A0 $a1=*(&aeroUpgrade)[+0] */
+  if (carObj->carInfo->GroundEffects == 1) {
+    accMult = fixedmult(accMult,aeroUpgrade.accMult);   /* @0x8006F1A0 $a1=*(&aeroUpgrade)[+0] */
   }
-  return a;
+  return accMult;
 }
 
 /* ---- AISpeeds_GetUpgradeBrakeMult__Fi  [@0x8006f1c8] ---- */
@@ -1167,21 +1065,19 @@ int AISpeeds_GetUpgradeBrakeMult(int carIndex)
 {
   Car_tObj*carObj;
   int brakeMult;
-  int a;
-  Car_tObj *pCVar1;
 
-  pCVar1 = Cars_gList[carIndex];
-  a = 0x10000;
-  if (pCVar1->carInfo->EngineMods == 1) {
-    a = fixedmult(0x10000,engineUpgrade.brakeMult);   /* @0x8006F20C $a1=*(&lbl_8010DCE4)=engineUpgrade[+4]=brakeMult (H37) */
+  carObj = Cars_gList[carIndex];
+  brakeMult = 0x10000;
+  if (carObj->carInfo->EngineMods == 1) {
+    brakeMult = fixedmult(0x10000,engineUpgrade.brakeMult);   /* @0x8006F20C $a1=*(&lbl_8010DCE4)=engineUpgrade[+4]=brakeMult (H37) */
   }
-  if (pCVar1->carInfo->WeightTransfer == 1) {
-    a = fixedmult(a,suspensionUpgrade.brakeMult);   /* @0x8006F234 $a1=*(&lbl_8010DCF4)=suspensionUpgrade[+4] */
+  if (carObj->carInfo->WeightTransfer == 1) {
+    brakeMult = fixedmult(brakeMult,suspensionUpgrade.brakeMult);   /* @0x8006F234 $a1=*(&lbl_8010DCF4)=suspensionUpgrade[+4] */
   }
-  if (pCVar1->carInfo->GroundEffects == 1) {
-    a = fixedmult(a,aeroUpgrade.brakeMult);   /* @0x8006F25C $a1=*(&lbl_8010DD04)=aeroUpgrade[+4] */
+  if (carObj->carInfo->GroundEffects == 1) {
+    brakeMult = fixedmult(brakeMult,aeroUpgrade.brakeMult);   /* @0x8006F25C $a1=*(&lbl_8010DD04)=aeroUpgrade[+4] */
   }
-  return a;
+  return brakeMult;
 }
 
 /* ---- AISpeeds_GetUpgradeHandlingMult__Fi  [@0x8006f284] ---- */
@@ -1189,21 +1085,19 @@ int AISpeeds_GetUpgradeHandlingMult(int carIndex)
 {
   Car_tObj*carObj;
   int handlingMult;
-  int a;
-  Car_tObj *pCVar1;
 
-  pCVar1 = Cars_gList[carIndex];
-  a = 0x10000;
-  if (pCVar1->carInfo->EngineMods == 1) {
-    a = fixedmult(0x10000,engineUpgrade.handlingMult);   /* @0x8006F2C8 $a1=*(&lbl_8010DCE8)=engineUpgrade[+8]=handlingMult (H38) */
+  carObj = Cars_gList[carIndex];
+  handlingMult = 0x10000;
+  if (carObj->carInfo->EngineMods == 1) {
+    handlingMult = fixedmult(0x10000,engineUpgrade.handlingMult);   /* @0x8006F2C8 $a1=*(&lbl_8010DCE8)=engineUpgrade[+8]=handlingMult (H38) */
   }
-  if (pCVar1->carInfo->WeightTransfer == 1) {
-    a = fixedmult(a,suspensionUpgrade.handlingMult);   /* @0x8006F2F0 $a1=*(&lbl_8010DCF8)=suspensionUpgrade[+8] */
+  if (carObj->carInfo->WeightTransfer == 1) {
+    handlingMult = fixedmult(handlingMult,suspensionUpgrade.handlingMult);   /* @0x8006F2F0 $a1=*(&lbl_8010DCF8)=suspensionUpgrade[+8] */
   }
-  if (pCVar1->carInfo->GroundEffects == 1) {
-    a = fixedmult(a,aeroUpgrade.handlingMult);   /* @0x8006F318 $a1=*(&lbl_8010DD08)=aeroUpgrade[+8] */
+  if (carObj->carInfo->GroundEffects == 1) {
+    handlingMult = fixedmult(handlingMult,aeroUpgrade.handlingMult);   /* @0x8006F318 $a1=*(&lbl_8010DD08)=aeroUpgrade[+8] */
   }
-  return a;
+  return handlingMult;
 }
 
 /* ---- AISpeeds_GetUpgradeTopSpeedMult__Fi  [@0x8006f340] ---- */
@@ -1211,21 +1105,19 @@ int AISpeeds_GetUpgradeTopSpeedMult(int carIndex)
 {
   Car_tObj*carObj;
   int topSpeedMult;
-  int a;
-  Car_tObj *pCVar1;
 
-  pCVar1 = Cars_gList[carIndex];
-  a = 0x10000;
-  if (pCVar1->carInfo->EngineMods == 1) {
-    a = fixedmult(0x10000,engineUpgrade.topSpeedMult);   /* @0x8006F384 $a1=*(&lbl_8010DCEC)=engineUpgrade[+0xC]=topSpeedMult (H39) */
+  carObj = Cars_gList[carIndex];
+  topSpeedMult = 0x10000;
+  if (carObj->carInfo->EngineMods == 1) {
+    topSpeedMult = fixedmult(0x10000,engineUpgrade.topSpeedMult);   /* @0x8006F384 $a1=*(&lbl_8010DCEC)=engineUpgrade[+0xC]=topSpeedMult (H39) */
   }
-  if (pCVar1->carInfo->WeightTransfer == 1) {
-    a = fixedmult(a,suspensionUpgrade.topSpeedMult);   /* @0x8006F3AC $a1=*(&lbl_8010DCFC)=suspensionUpgrade[+0xC] */
+  if (carObj->carInfo->WeightTransfer == 1) {
+    topSpeedMult = fixedmult(topSpeedMult,suspensionUpgrade.topSpeedMult);   /* @0x8006F3AC $a1=*(&lbl_8010DCFC)=suspensionUpgrade[+0xC] */
   }
-  if (pCVar1->carInfo->GroundEffects == 1) {
-    a = fixedmult(a,aeroUpgrade.topSpeedMult);   /* @0x8006F3D4 $a1=*(&lbl_8010DD0C)=aeroUpgrade[+0xC] */
+  if (carObj->carInfo->GroundEffects == 1) {
+    topSpeedMult = fixedmult(topSpeedMult,aeroUpgrade.topSpeedMult);   /* @0x8006F3D4 $a1=*(&lbl_8010DD0C)=aeroUpgrade[+0xC] */
   }
-  return a;
+  return topSpeedMult;
 }
 
 /* ---- AISpeeds_CalcHumanTopSpeed__FP8Car_tObj  [@0x8006f3fc] ---- RECONSTRUCTED 2026-06-12
@@ -1241,6 +1133,11 @@ int AISpeeds_CalcHumanTopSpeed(Car_tObj *carObj)
 int AISpeeds_CalcHumanCurveSpeed(Car_tObj *carObj)
 {
   int sliceHere = (int)carObj->N.simRoadInfo.slice;
+  /* SYM-CODEGEN-CARRIER: off -- not emitted as a distinct outer local in
+   * the surviving SYM. Direct expressions preserve length but allocate the
+   * five offsets to $v0 (6 diffs); reusing the SYM `curveAhead` local also
+   * allocates them to $v0 (30 diffs). This separate declaration is presently
+   * required for retail's $v1 offsets and the exact 183-insn body. */
   int sliceAhead, off, curveAhead, tightestCurve;
 
   sliceAhead = sliceHere;
@@ -1277,11 +1174,7 @@ int AISpeeds_CalcHumanCurveSpeed(Car_tObj *carObj)
   else if (sliceAhead < 0) sliceAhead += gNumSlices;
   curveAhead = AIDataRecord_TrackCurve_Get(AIDataRecord_TrackCurve,sliceAhead); if (tightestCurve < curveAhead) tightestCurve = curveAhead;
 
-  /* Keep the product temporary separate, then reuse `tightestCurve` for the quotient:
-   * this is the oracle's a1 -> s0 handoff and gives an exact 183/183 match. */
-  int scaled = tightestCurve * 0x1a666;
-  if (scaled < 0) scaled = scaled + 0xffff;
-  tightestCurve = scaled >> 0x10;
+  tightestCurve = (tightestCurve * 0x1a666) / 0x10000;
   if (0xff < tightestCurve) tightestCurve = 0xff;
   return carObj->curveSpeedTable->Get(tightestCurve);
 }

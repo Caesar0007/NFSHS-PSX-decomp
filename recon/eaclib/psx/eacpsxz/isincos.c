@@ -11,7 +11,7 @@
  *     q2: sin=-T[p]      cos=-T[256-p]
  *     q3: sin=-T[256-p]  cos= T[p]
  *   sintbl @0x80137464 is SHARED (also read by intsin/sinfunc.c) -> declared extern here; the
- *   bytes are owned by asm/data/data_8010CCD4.data.s (dlabel sintbl).  This TU previously carried
+ *   bytes are owned by the SYM-proven data-only sintbl.obj member.  This TU previously carried
  *   a SECOND, differently-named copy of the same 1028 bytes (`gSinTable`) -- a duplicate datum
  *   with no oracle symbol; removed w32-a5.
  *
@@ -36,7 +36,7 @@
 
 extern int sintbl[257];   /* @0x80137464 : quarter-sine, 16.16.  NON-const ON PURPOSE -- see above:
                            * `const` lets gcc's scheduler hoist these loads across the *psin store
-                           * and breaks the match.  Bytes live in asm/data. */
+                           * and breaks the match.  Bytes live in sintbl.c/sintbl.obj. */
 
 /* intsincos @0x800EADBC : write sin -> *psin, cos -> *pcos for a brads angle. */
 extern void intsincos(int angle, int *psin, int *pcos)

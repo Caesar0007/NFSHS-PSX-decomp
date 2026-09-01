@@ -19,22 +19,21 @@
  *   lbl_EA65C = 0x80010000+0xEA65C = 0x800FA65C (CD_Close), NOT 0x800EA65C; lbl_F6BE4 = 0x80106BE4 (PCread).
  */
 /* ---- owning-TU defs for link-harness (extern-declared, never defined; BSS) ---- */
- char currentdirectory[64];
-/* 04U: owned pointers must be NAMED GLOBAL symbols (oracle relocs name
- * D_8013DD34/D_8013DD40; a plain tentative def becomes a LOCAL .sbss symbol
- * via maspsx's comm->lcomm conversion and objdiff sees `.sbss+addend`).
- * W67-A4 (retail-byte correction, ROM 0x8013dd2c..0x8013dd44): these two are
- * NOT zero cells -- retail INITIALISES them, fsprefix1 = "cdrom:" (literal
- * @0x8013dd2c) and fsprefix2 = "sim:" (literal @0x8013dd38), pooled into
- * .sdata by the retail -G8 build (18C).  The literals are materialized as
- * NAMED .sdata arrays (referenced only from the data initialisers, so no
- * address-form/codegen exposure); definition order = emission order =
- * retail order.  The explicit section attribute keeps the gp-rel ref form
- * with a global name (same device as the old .sbss shape).  DO NOT RE-SORT. */
- char D_8013DD2C[] __attribute__((section(".sdata"), aligned(4))) = "cdrom:";
- char *D_8013DD34 __attribute__((section(".sdata"))) = D_8013DD2C;  /* fsprefix1 */
- char D_8013DD38[] __attribute__((section(".sdata"), aligned(4))) = "sim:";
- char *D_8013DD40 __attribute__((section(".sdata"))) = D_8013DD38;  /* fsprefix2 */
+ char currentdirectory[64]; /* @0x80140414: fileroot.obj owning BSS definition */
+/* Retail bytes @0x8013DD2C..0x8013DD43 are literal/pointer/literal/pointer.
+ * Natural `char *fsprefixN = "..."` declarations were tested: functions stay
+ * 9/9 PASS, but GCC moves both literals into .rdata, disproving that source
+ * shape for retail's contiguous .sdata layout.  SYM and MAP expose no names at
+ * these four addresses, so their lexical names cannot be uniquely recovered.
+ * Keep explicit exact-layout carriers and expose the two semantic pointer
+ * aliases to the C body.  SYM-GLOBAL-CARRIER: D_8013DD2C
+ * SYM-GLOBAL-CARRIER: D_8013DD34
+ * SYM-GLOBAL-CARRIER: D_8013DD38
+ * SYM-GLOBAL-CARRIER: D_8013DD40 */
+char D_8013DD2C[] __attribute__((section(".sdata"), aligned(4))) = "cdrom:";
+char *D_8013DD34 __attribute__((section(".sdata"))) = D_8013DD2C;
+char D_8013DD38[] __attribute__((section(".sdata"), aligned(4))) = "sim:";
+char *D_8013DD40 __attribute__((section(".sdata"))) = D_8013DD38;
 #define fsprefix1 D_8013DD34
 #define fsprefix2 D_8013DD40
 /* ASPSX-DIALECT (w64-a20): the asm below uses NUMERIC registers and no
@@ -43,8 +42,6 @@
  * $8-15 t0-t7 $16-23 s0-s7 $24-25 t8-t9 $28 gp $29 sp $30 fp $31 ra.
  * Gate-lane object is byte-identical (proven by hash); see
  * scratchpad/w64a20/RECEIPTS.md. */
-__asm__("\t.globl\tD_8013DD34");
-__asm__("\t.globl\tD_8013DD40");
 /* 04U FINAL (openfile 100.00): the 99.91 was NOT just bookkeeping -- THREE real
  * semantic divergences hid behind the gate's branch-target masking: the two
  * availablefilesystems guards and the CD_Open-failure path all wrote *outp = 0
@@ -106,7 +103,7 @@ struct ReadCmd {
     int len;       /* +0x10 byte count */
 };
 typedef struct ReadCmd ReadCmd;
-ReadCmd readcmd;   /* definition (BSS zero) */
+ReadCmd readcmd;   /* @0x80140400: fileroot.obj owning BSS definition */
 
 /* cop0 IRQ-disabled critical section guarding the readcmd slot (host no-op on x86).
  * MATCH: the oracle INLINES the raw cop0 mfc0/mask(-0x402)/mtc0 sequence at each call site

@@ -1938,10 +1938,6 @@ int AIHigh_Cop::CheckForNeedyPlayers()
 
   Car_tObj *thisPlayerObj;
 
-  int iVar1;
-
-
-
   needy = -1;
 
   hLoop = 0;
@@ -1954,15 +1950,7 @@ int AIHigh_Cop::CheckForNeedyPlayers()
 
     if (800 < (int)highLevelAIObjs[thisPlayerObj->carIndex][7].state_) {
 
-      iVar1 = thisPlayerObj->currentSpeed;
-
-      if (iVar1 < 0) {
-
-        iVar1 = -iVar1;
-
-      }
-
-      if (0x140000 < iVar1) {
+      if (0x140000 < __builtin_abs(thisPlayerObj->currentSpeed)) {
 
         needy = thisPlayerObj->carIndex;
 

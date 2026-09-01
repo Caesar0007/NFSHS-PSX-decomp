@@ -348,6 +348,14 @@ PER_TU_FLAGS = {
     "recon/game/common/input.cpp":          {"g_value": "8"},
     "recon/game/common/hudpmx.cpp":         {"g_value": "8"},
     "recon/game/common/nfs3.cpp":           {"g_value": "8"},
+    # 2026-08-31 SYM source restoration (pre-change Git backup dd16a348):
+    # nasync.obj owns two real AsyncQueue objects, `freequeue` and `callqueue`,
+    # each exactly 8 bytes.  The former -G4 reconstruction split them into four
+    # invented 4-byte globals to retain gp-relative field accesses.  Restoring
+    # the natural SYM names/types gives 18/23 PASS and 50 diffs at -G4, while a
+    # fresh whole-TU gprobe at -G8 gives 23/23 PASS and zero diffs.  G0=193;
+    # nosplit=46; G8+nosplit=34.  This row is compiler-input identity only.
+    "recon/eaclib/psx/eacpsxz/nasync.c":     {"g_value": "8"},
     # 2026-08-20 SYM restoration: render.obj owns `RECT gPauseMenuRect` (8 bytes),
     # not four independent shorts.  Under -G4 the honest object is not gp-eligible
     # and Render_Render regresses 28 diffs; -G8 restores the retail gp-relative

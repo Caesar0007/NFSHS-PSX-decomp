@@ -64,16 +64,14 @@ long SPCHNFS_C_D_ENDGAME(SPCHNFSType_VOICE *VOICE);
 long SPCHNFS_C_A_CONFIRM(SPCHNFSType_VOICE *VOICE,int ID_UNIT,SPCHNFSType_CONFIRM *CONFIRM)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x151;
   parms[1] = VOICE[0];
   parms[2] = ID_UNIT;
@@ -85,16 +83,14 @@ long SPCHNFS_C_A_CONFIRM(SPCHNFSType_VOICE *VOICE,int ID_UNIT,SPCHNFSType_CONFIR
 long SPCHNFS_C_D_REQUEST_EMS(SPCHNFSType_VOICE *VOICE,SPCHNFSType_AMBULANCE *AMBULANCE)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x152;
   parms[1] = VOICE[0];
   parms[2] = AMBULANCE[0];
@@ -106,16 +102,14 @@ long SPCHNFS_D_C_BEGIN_PURS_REP_SPDR(SPCHNFSType_COLOUR *COLOUR,int ID_CAR,SPCHN
                ,SPCHNFSType_DISTANCE *DISTANCE)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x154;
   parms[1] = COLOUR[0];
   parms[2] = ID_CAR;
@@ -131,16 +125,14 @@ long SPCHNFS_C_D_ENGAGE_PURS_REP_SPDR_REPLY(SPCHNFSType_VOICE *VOICE,int ID_UNIT
                SPCHNFSType_CONFIRM *CONFIRM)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x155;
   parms[1] = VOICE[0];
   parms[2] = ID_UNIT;
@@ -159,16 +151,14 @@ long SPCHNFS_C_D_ENGAGE_PURS_REP_SPDR(SPCHNFSType_VOICE *VOICE,SPCHNFSType_COLOU
                int ID_SPEED,SPCHNFSType_vs_KMH_MPH *vs_KMH_MPH,SPCHNFSType_PERP_NAME *PERP_NAME)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x156;
   parms[1] = VOICE[0];
   parms[2] = COLOUR[0];
@@ -186,16 +176,14 @@ long SPCHNFS_C_D_ENGAGE_PURS_REP_SPDR(SPCHNFSType_VOICE *VOICE,SPCHNFSType_COLOU
 long SPCHNFS_C_C_IN_PURS_NEAR_PERP(SPCHNFSType_VOICE *VOICE,SPCHNFSType_COLOUR *COLOUR,int ID_CAR)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x158;
   parms[1] = VOICE[0];
   parms[2] = COLOUR[0];
@@ -207,16 +195,14 @@ long SPCHNFS_C_C_IN_PURS_NEAR_PERP(SPCHNFSType_VOICE *VOICE,SPCHNFSType_COLOUR *
 long SPCHNFS_D_C_IN_PURS_NEAR_PERP(SPCHNFSType_PURS_UPDT *PURS_UPDT)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x159;
   parms[1] = PURS_UPDT[0];
   return SPCH_AddEvent(parms);
@@ -227,16 +213,14 @@ long SPCHNFS_C_D_IN_PURS_NEAR_PERP_REP_STS(SPCHNFSType_VOICE *VOICE,SPCHNFSType_
                SPCHNFSType_DISTANCE *DISTANCE,SPCHNFSType_POSITION *POSITION,int ID_LOCATION)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x15a;
   parms[1] = VOICE[0];
   parms[2] = COLOUR[0];
@@ -252,16 +236,14 @@ long SPCHNFS_D_C_IN_PURS_NEAR_PERP_CONFIRM(SPCHNFSType_COLOUR *COLOUR,int ID_CAR
                SPCHNFSType_PERP_NAME *PERP_NAME)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x15b;
   parms[1] = COLOUR[0];
   parms[2] = ID_CAR;
@@ -276,16 +258,14 @@ long SPCHNFS_C_D_IN_PURS_AWAY_PERP_REPLY_STS(SPCHNFSType_VOICE *VOICE,SPCHNFSTyp
                SPCHNFSType_POSITION *POSITION,int ID_LOCATION,SPCHNFSType_DISTANCE *DISTANCE)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x15e;
   parms[1] = VOICE[0];
   parms[2] = COLOUR[0];
@@ -301,16 +281,14 @@ long SPCHNFS_D_C_IN_PURS_AWAY_PERP_CONFIRM(SPCHNFSType_COLOUR *COLOUR,int ID_CAR
                SPCHNFSType_PERP_NAME *PERP_NAME)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x15f;
   parms[1] = COLOUR[0];
   parms[2] = ID_CAR;
@@ -325,16 +303,14 @@ long SPCHNFS_C_D_IN_PURS_LOOK_PERP_REPLY_STS(SPCHNFSType_VOICE *VOICE,SPCHNFSTyp
                SPCHNFSType_PERP_NAME *PERP_NAME)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x162;
   parms[1] = VOICE[0];
   parms[2] = COLOUR[0];
@@ -364,16 +340,14 @@ long SPCHNFS_C_C_IDLE_WINGMAN_DISAPPEARS(SPCHNFSType_VOICE *VOICE)
 long SPCHNFS_C_D_REQ_RDBLK(SPCHNFSType_VOICE *VOICE)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x167;
   parms[1] = VOICE[0];
   return SPCH_AddEvent(parms);
@@ -383,16 +357,14 @@ long SPCHNFS_C_D_REQ_RDBLK(SPCHNFSType_VOICE *VOICE)
 long SPCHNFS_D_C_RDBLK_SPBLT_DENIED_REPLY(SPCHNFSType_vs_RDBLK_SSTRP *vs_RDBLK_SSTRP)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x168;
   parms[1] = vs_RDBLK_SSTRP[0];
   return SPCH_AddEvent(parms);
@@ -402,16 +374,14 @@ long SPCHNFS_D_C_RDBLK_SPBLT_DENIED_REPLY(SPCHNFSType_vs_RDBLK_SSTRP *vs_RDBLK_S
 long SPCHNFS_D_C_RDBLK_SPBLT_GRANT_REPLY(SPCHNFSType_vs_RDBLK_SSTRP *vs_RDBLK_SSTRP,SPCHNFSType_CONFIRM *CONFIRM)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x169;
   parms[1] = vs_RDBLK_SSTRP[0];
   parms[2] = CONFIRM[0];
@@ -422,16 +392,14 @@ long SPCHNFS_D_C_RDBLK_SPBLT_GRANT_REPLY(SPCHNFSType_vs_RDBLK_SSTRP *vs_RDBLK_SS
 long SPCHNFS_D_C_RDBLK_CONFIRMED(SPCHNFSType_POSITION *POSITION,int ID_LOCATION,SPCHNFSType_DISTANCE *DISTANCE)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x16a;
   parms[1] = POSITION[0];
   parms[2] = ID_LOCATION;
@@ -443,16 +411,14 @@ long SPCHNFS_D_C_RDBLK_CONFIRMED(SPCHNFSType_POSITION *POSITION,int ID_LOCATION,
 long SPCHNFS_C_D_RDBLK_FAILED(SPCHNFSType_VOICE *VOICE,SPCHNFSType_COLOUR *COLOUR,int ID_CAR)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x16d;
   parms[1] = VOICE[0];
   parms[2] = COLOUR[0];
@@ -465,16 +431,14 @@ long SPCHNFS_C_D_REQUEST_BKUP(SPCHNFSType_VOICE *VOICE,SPCHNFSType_COLOUR *COLOU
                SPCHNFSType_POSITION *POSITION,int ID_LOCATION,SPCHNFSType_DISTANCE *DISTANCE)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x16f;
   parms[1] = VOICE[0];
   parms[2] = COLOUR[0];
@@ -490,16 +454,14 @@ long SPCHNFS_D_C_BKUP_REQUEST_GRANT_REPLY(SPCHNFSType_DISTANCE *DISTANCE,SPCHNFS
                int ID_UNIT)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x172;
   parms[1] = DISTANCE[0];
   parms[2] = POSITION[0];
@@ -512,16 +474,14 @@ long SPCHNFS_D_C_BKUP_REQUEST_GRANT_REPLY(SPCHNFSType_DISTANCE *DISTANCE,SPCHNFS
 long SPCHNFS_D_C_BKUP_REQUEST_DENIED_REPLY(void)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x174;
   return SPCH_AddEvent(parms);
 }
@@ -530,16 +490,14 @@ long SPCHNFS_D_C_BKUP_REQUEST_DENIED_REPLY(void)
 long SPCHNFS_C_C_NEW_OFFICER_ENGAGING(SPCHNFSType_VOICE *VOICE,int ID_UNIT)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x177;
   parms[1] = VOICE[0];
   parms[2] = ID_UNIT;
@@ -552,16 +510,14 @@ long SPCHNFS_C_D_PERP_SIGHTED(SPCHNFSType_VOICE *VOICE,SPCHNFSType_COLOUR *COLOU
                SPCHNFSType_PERP_NAME *PERP_NAME)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x178;
   parms[1] = VOICE[0];
   parms[2] = COLOUR[0];
@@ -577,16 +533,14 @@ long SPCHNFS_C_D_PERP_SIGHTED(SPCHNFSType_VOICE *VOICE,SPCHNFSType_COLOUR *COLOU
 long SPCHNFS_D_C_PERP_SIGHTED_CONFIRM(SPCHNFSType_CONFIRM *CONFIRM,int ID_UNIT)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x179;
   parms[1] = CONFIRM[0];
   parms[2] = ID_UNIT;
@@ -599,16 +553,14 @@ long SPCHNFS_C_D_PERP_LOST(SPCHNFSType_VOICE *VOICE,SPCHNFSType_COLOUR *COLOUR,i
                SPCHNFSType_PERP_NAME *PERP_NAME)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x17a;
   parms[1] = VOICE[0];
   parms[2] = COLOUR[0];
@@ -624,16 +576,14 @@ long SPCHNFS_C_D_PERP_LOST(SPCHNFSType_VOICE *VOICE,SPCHNFSType_COLOUR *COLOUR,i
 long SPCHNFS_D_C_PERP_LOST_CONFIRM(SPCHNFSType_COLOUR *COLOUR,int ID_CAR)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x17b;
   parms[1] = COLOUR[0];
   parms[2] = ID_CAR;
@@ -645,16 +595,14 @@ long SPCHNFS_C_C_PERP_REAQUIRED(SPCHNFSType_VOICE *VOICE,SPCHNFSType_COLOUR *COL
                SPCHNFSType_POSITION *POSITION,int ID_LOCATION,SPCHNFSType_DISTANCE *DISTANCE)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x17c;
   parms[1] = VOICE[0];
   parms[2] = COLOUR[0];
@@ -669,16 +617,14 @@ long SPCHNFS_C_C_PERP_REAQUIRED(SPCHNFSType_VOICE *VOICE,SPCHNFSType_COLOUR *COL
 long SPCHNFS_C_D_PERP_APPREHENSION(SPCHNFSType_VOICE *VOICE,SPCHNFSType_PERP_NAME *PERP_NAME)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x17f;
   parms[1] = VOICE[0];
   parms[2] = PERP_NAME[0];
@@ -689,16 +635,14 @@ long SPCHNFS_C_D_PERP_APPREHENSION(SPCHNFSType_VOICE *VOICE,SPCHNFSType_PERP_NAM
 long SPCHNFS_D_C_PERP_APPREHENSION_REPLY(int ID_UNIT,SPCHNFSType_CONFIRM *CONFIRM,SPCHNFSType_PERP_NAME *PERP_NAME)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x180;
   parms[1] = ID_UNIT;
   parms[2] = CONFIRM[0];
@@ -712,16 +656,14 @@ long SPCHNFS_C_D_PERP_CRASH_GEN(SPCHNFSType_VOICE *VOICE,SPCHNFSType_POSITION *P
                SPCHNFSType_PERP_NAME *PERP_NAME)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x181;
   parms[1] = VOICE[0];
   parms[2] = POSITION[0];
@@ -737,16 +679,14 @@ long SPCHNFS_C_D_PERP_CRASH_GEN(SPCHNFSType_VOICE *VOICE,SPCHNFSType_POSITION *P
 long SPCHNFS_C_P_ARRESTED(SPCHNFSType_VOICE *VOICE,SPCHNFSType_ARREST *ARREST)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x187;
   parms[1] = VOICE[0];
   parms[2] = ARREST[0];
@@ -757,16 +697,14 @@ long SPCHNFS_C_P_ARRESTED(SPCHNFSType_VOICE *VOICE,SPCHNFSType_ARREST *ARREST)
 long SPCHNFS_C_P_WARNING(SPCHNFSType_VOICE *VOICE,SPCHNFSType_ARREST *ARREST)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x188;
   parms[1] = VOICE[0];
   parms[2] = ARREST[0];
@@ -777,16 +715,14 @@ long SPCHNFS_C_P_WARNING(SPCHNFSType_VOICE *VOICE,SPCHNFSType_ARREST *ARREST)
 long SPCHNFS_C_P_TICKET(SPCHNFSType_VOICE *VOICE,SPCHNFSType_ARREST *ARREST)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x189;
   parms[1] = VOICE[0];
   parms[2] = ARREST[0];
@@ -797,16 +733,14 @@ long SPCHNFS_C_P_TICKET(SPCHNFSType_VOICE *VOICE,SPCHNFSType_ARREST *ARREST)
 long SPCHNFS_C_P_FALSE_ARREST_BULLHORN(SPCHNFSType_VOICE *VOICE)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x18a;
   parms[1] = VOICE[0];
   return SPCH_AddEvent(parms);
@@ -816,16 +750,14 @@ long SPCHNFS_C_P_FALSE_ARREST_BULLHORN(SPCHNFSType_VOICE *VOICE)
 long SPCHNFS_C_D_DURING_FALSE_ARREST(SPCHNFSType_VOICE *VOICE,SPCHNFSType_PERP_NAME *PERP_NAME)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x18b;
   parms[1] = VOICE[0];
   parms[2] = PERP_NAME[0];
@@ -836,16 +768,14 @@ long SPCHNFS_C_D_DURING_FALSE_ARREST(SPCHNFSType_VOICE *VOICE,SPCHNFSType_PERP_N
 long SPCHNFS_C_P_BULLHORN_SPEECH(SPCHNFSType_VOICE *VOICE)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x18d;
   parms[1] = VOICE[0];
   return SPCH_AddEvent(parms);
@@ -855,16 +785,14 @@ long SPCHNFS_C_P_BULLHORN_SPEECH(SPCHNFSType_VOICE *VOICE)
 long SPCHNFS_S_C_SUPER_COP_ARRIVAL(SPCHNFSType_VOICE *VOICE)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x18e;
   parms[1] = VOICE[0];
   return SPCH_AddEvent(parms);
@@ -874,16 +802,14 @@ long SPCHNFS_S_C_SUPER_COP_ARRIVAL(SPCHNFSType_VOICE *VOICE)
 long SPCHNFS_S_C_SUPER_COP_CRITICISM(SPCHNFSType_VOICE *VOICE)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 399;
   parms[1] = VOICE[0];
   return SPCH_AddEvent(parms);
@@ -894,16 +820,14 @@ long SPCHNFS_C_D_IN_PURS_NEAR_PERP_REP_LOC(SPCHNFSType_VOICE *VOICE,SPCHNFSType_
                SPCHNFSType_DISTANCE *DISTANCE)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x19e;
   parms[1] = VOICE[0];
   parms[2] = POSITION[0];
@@ -916,16 +840,14 @@ long SPCHNFS_C_D_IN_PURS_NEAR_PERP_REP_LOC(SPCHNFSType_VOICE *VOICE,SPCHNFSType_
 long SPCHNFS_C_D_IN_PURS_NEAR_PERP_REP_SPD(SPCHNFSType_VOICE *VOICE,int ID_SPEED,SPCHNFSType_vs_KMH_MPH *vs_KMH_MPH)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x19f;
   parms[1] = VOICE[0];
   parms[2] = ID_SPEED;
@@ -939,16 +861,14 @@ long SPCHNFS_C_D_IN_PURS_AWAY_PERP_REPLY_LOC(SPCHNFSType_VOICE *VOICE,SPCHNFSTyp
                SPCHNFSType_PERP_NAME *PERP_NAME)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x1a0;
   parms[1] = VOICE[0];
   parms[2] = POSITION[0];
@@ -965,16 +885,14 @@ long SPCHNFS_C_D_IN_PURS_LOOK_PERP_REPLY_LOC(SPCHNFSType_VOICE *VOICE,SPCHNFSTyp
                SPCHNFSType_DISTANCE *DISTANCE,SPCHNFSType_COLOUR *COLOUR,int ID_CAR)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x1a2;
   parms[1] = VOICE[0];
   parms[2] = POSITION[0];
@@ -989,16 +907,14 @@ long SPCHNFS_C_D_IN_PURS_LOOK_PERP_REPLY_LOC(SPCHNFSType_VOICE *VOICE,SPCHNFSTyp
 long SPCHNFS_D_C_INTRO_CALL(int ID_UNIT,int ID_UNIT1,SPCHNFSType_REVINTRO *REVINTRO)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x1a3;
   parms[1] = ID_UNIT;
   parms[2] = ID_UNIT1;
@@ -1010,16 +926,14 @@ long SPCHNFS_D_C_INTRO_CALL(int ID_UNIT,int ID_UNIT1,SPCHNFSType_REVINTRO *REVIN
 long SPCHNFS_C_A_INTRO(SPCHNFSType_VOICE *VOICE,int ID_UNIT,int ID_UNIT1,SPCHNFSType_REVINTRO *REVINTRO)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x1a5;
   parms[1] = VOICE[0];
   parms[2] = ID_UNIT;
@@ -1032,16 +946,14 @@ long SPCHNFS_C_A_INTRO(SPCHNFSType_VOICE *VOICE,int ID_UNIT,int ID_UNIT1,SPCHNFS
 long SPCHNFS_C_D_IN_PURS_PERP_AIRBORN(SPCHNFSType_VOICE *VOICE)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x1a6;
   parms[1] = VOICE[0];
   return SPCH_AddEvent(parms);
@@ -1052,16 +964,14 @@ long SPCHNFS_D_C_SPBLT_CONFIRMED(SPCHNFSType_POSITION *POSITION,int ID_LOCATION,
                int ID_UNIT,SPCHNFSType_SPIKE_BELT_SIDE *SPIKE_BELT_SIDE)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x1a8;
   parms[1] = POSITION[0];
   parms[2] = ID_LOCATION;
@@ -1075,16 +985,14 @@ long SPCHNFS_D_C_SPBLT_CONFIRMED(SPCHNFSType_POSITION *POSITION,int ID_LOCATION,
 long SPCHNFS_C_D_REQ_SPBLT(SPCHNFSType_VOICE *VOICE)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x1a9;
   parms[1] = VOICE[0];
   return SPCH_AddEvent(parms);
@@ -1094,16 +1002,14 @@ long SPCHNFS_C_D_REQ_SPBLT(SPCHNFSType_VOICE *VOICE)
 long SPCHNFS_C_D_SPBLT_FAILED(SPCHNFSType_VOICE *VOICE,SPCHNFSType_COLOUR *COLOUR,int ID_CAR)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x1aa;
   parms[1] = VOICE[0];
   parms[2] = COLOUR[0];
@@ -1116,16 +1022,14 @@ long SPCHNFS_W_D_RDBLK_PLC(SPCHNFSType_VOICE *VOICE,SPCHNFSType_POSITION *POSITI
                SPCHNFSType_DISTANCE *DISTANCE)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x1ab;
   parms[1] = VOICE[0];
   parms[2] = POSITION[0];
@@ -1140,16 +1044,14 @@ long SPCHNFS_W_D_SPBLT_PLC(SPCHNFSType_VOICE *VOICE,SPCHNFSType_POSITION *POSITI
                SPCHNFSType_DISTANCE *DISTANCE)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x1ac;
   parms[1] = VOICE[0];
   parms[2] = POSITION[0];
@@ -1165,16 +1067,14 @@ long SPCHNFS_C_D_PERP_CRASH_ROLL(SPCHNFSType_VOICE *VOICE,SPCHNFSType_POSITION *
                SPCHNFSType_DISTANCE *DISTANCE,SPCHNFSType_PERP_NAME *PERP_NAME)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x1ae;
   parms[1] = VOICE[0];
   parms[2] = POSITION[0];
@@ -1188,16 +1088,14 @@ long SPCHNFS_C_D_PERP_CRASH_ROLL(SPCHNFSType_VOICE *VOICE,SPCHNFSType_POSITION *
 long SPCHNFS_D_A_CONFIRM(SPCHNFSType_CONFIRM *CONFIRM)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x1b1;
   parms[1] = CONFIRM[0];
   return SPCH_AddEvent(parms);
@@ -1207,16 +1105,14 @@ long SPCHNFS_D_A_CONFIRM(SPCHNFSType_CONFIRM *CONFIRM)
 long SPCHNFS_C_D_ENDGAME(SPCHNFSType_VOICE *VOICE)
 
 {
-  long *plVar1;
   long i;
-  int iVar2;
   long parms [12];
   
-  iVar2 = 0xb;
+  i = 0xb;
   do {
-    parms[iVar2] = 0;
-    iVar2 = iVar2 + -1;
-  } while (-1 < iVar2);
+    parms[i] = 0;
+    i = i + -1;
+  } while (-1 < i);
   parms[0] = 0x1b3;
   parms[1] = VOICE[0];
   return SPCH_AddEvent(parms);

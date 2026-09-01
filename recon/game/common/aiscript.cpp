@@ -26,16 +26,17 @@ void AIScript_Assign(AIScript_t *script,AIScript_tReactionDetails (*data) [7])
 void AIScript_ClearLastReactionIndex(AIScript_t *script)
 {
   int initLoop;
-  AIScript_tAIReaction *pAVar2;
+  /* SYM-CODEGEN-CARRIER: neg1 -- absent from the surviving outer-local
+   * records. A literal or const local preserves the 9-insn body but schedules
+   * `li $v1,-1` after `li $v0,6` (2 diffs); a mutable scalar reproduces the
+   * retail constant order exactly. */
   int neg1;
 
   neg1 = -1;
   initLoop = 6;
-  pAVar2 = (AIScript_tAIReaction *)&script->reactionTicksLeft;
   do {
-    pAVar2[8] = neg1;
+    script->lastReactionIndex[initLoop] = neg1;
     initLoop = initLoop + -1;
-    pAVar2 = pAVar2 + -1;
   } while (-1 < initLoop);
   return;
 }
@@ -141,13 +142,12 @@ void AIScript_ProcessActionsAndReactions(AIScript_t *script,int elapsedTicks)
 int AIScript_DoReAction(AIScript_t *script,AIScript_tAIReaction testReaction)
 {
   int humCarIndex;
-  int iVar1;
-  
-  iVar1 = -1;
+
+  humCarIndex = -1;
   if ((script->actionIndex != 7) && ((testReaction & script->reaction) != 0)) {
-    iVar1 = script->actionHumCarIndex;
+    humCarIndex = script->actionHumCarIndex;
   }
-  return iVar1;
+  return humCarIndex;
 }
 
 /* ---- AIScript_GetReactionTicksLeft__FP10AIScript_t  [@0x8006f988] ---- */

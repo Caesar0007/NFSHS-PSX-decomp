@@ -1404,7 +1404,11 @@ extern void iFILE_ExecCommand(void *cmdp)
 
 #undef OPI
 
- FileMgr gFileMgr; int gFileOpSeq;   /* owning-TU defs (BSS) */
+FileMgr gFileDevice; /* @0x8013EA88: retail SYM/MAP FILE manager aggregate */
+/* Raw reserveop references prove this small counter at 0x8013DC50, but the
+ * stripped EACLIB member leaves no lexical name in SYM/MAP.
+ * SYM-GLOBAL-CARRIER: gFileOpSeq */
+int gFileOpSeq;
 
 /* iFILE_CommandCompleteCallback @0x800ED020 : the CD/device completion driver (handed to CD_Init).
  *   Resolves the final status of the in-flight op (mgr.curop): a pending cancel -> -1 (cancelled), else
@@ -1799,4 +1803,3 @@ extern void freehandle(FileHandle *h)
     blockclear(h, 0x4C);
     FILE_CS_LEAVE(sr);
 }
-

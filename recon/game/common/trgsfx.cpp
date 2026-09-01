@@ -39,11 +39,9 @@ int gSaveChunk[8][4]
 void TrgSfx_AddEnviroEffect(int obj,int type,coorddef *emitterpt,coorddef *vec)
 
 {
-  int c;
-
-  c = obj & 7;
-  if (10 < TRGSFX_GAME_TICKS - gTEnviroEffect[c]) {
-    gTEnviroEffect[c] = TRGSFX_GAME_TICKS;
+  obj &= 7;
+  if (10 < TRGSFX_GAME_TICKS - gTEnviroEffect[obj]) {
+    gTEnviroEffect[obj] = TRGSFX_GAME_TICKS;
     Souffle_Add(emitterpt,type,vec,0,0,0);
   }
   return;
@@ -53,11 +51,9 @@ void TrgSfx_AddEnviroEffect(int obj,int type,coorddef *emitterpt,coorddef *vec)
 void TrgSfx_AddCarSfx(int car,coorddef *skidpt,int type,coorddef *vec)
 
 {
-  int c;
-
-  c = car & 7;
-  if (7 < TRGSFX_GAME_TICKS - gTAddCarSfx[c]) {
-    gTAddCarSfx[c] = TRGSFX_GAME_TICKS;
+  car &= 7;
+  if (7 < TRGSFX_GAME_TICKS - gTAddCarSfx[car]) {
+    gTAddCarSfx[car] = TRGSFX_GAME_TICKS;
     Souffle_Add(skidpt,type,vec,0,0,0);
   }
   return;
@@ -82,10 +78,8 @@ void TrgSfx_AddCarWheelSfx(int car,int wheel,coorddef *skidpt,int type,coorddef 
 bool TrgSfx_AddCarExtraCheck(int car,int wheel)
 
 {
-  int c;
-
-  c = car & 7;
-  return (TRGSFX_GAME_TICKS - gTAddCarExtraSfx[c][wheel] < 8 ^ 1);
+  car &= 7;
+  return (TRGSFX_GAME_TICKS - gTAddCarExtraSfx[car][wheel] < 8 ^ 1);
 }
 
 /* ---- TrgSfx_AddCarExtraSfx__FiiP8coorddefiT2iii  [TRGSFX.CPP:101-111] SLD-VERIFIED ---- */
@@ -122,13 +116,11 @@ void TrgSfx_AddCarSplash(int car,int wheel,coorddef *skidpt,int type,coorddef *v
 void TrgSfx_CrashCar(coorddef *location)
 
 {
-  u_int rnd;
   Souffle_tISouffle *is;
 
   if (4 < TRGSFX_GAME_TICKS - gTAddCSmoke) {
     gTAddCSmoke = TRGSFX_GAME_TICKS;
-    rnd = random();
-    if ((rnd & 0xf) != 0) {
+    if ((random() & 0xf) != 0) {
       is = Souffle_Add(location,1,(coorddef *)0x0,0,0,0);
       is->motion.y = is->motion.y + 0xf5c;
     }
@@ -151,7 +143,6 @@ void TrgSfx_AddSkidmark(int car,int wheel,coorddef *skidpt,int end,int intensity
   int dz;
   int dist;
   int MaxDist;
-  int shade;
   CVECTOR color;
   coorddef *linvel;
 
@@ -161,9 +152,7 @@ void TrgSfx_AddSkidmark(int car,int wheel,coorddef *skidpt,int end,int intensity
   tireWidth = (wheel < 2) ? carObj->N.wheelWidthF : carObj->N.wheelWidthB;
   car &= 7;
   temp = (intensity * 0xff) / 0x70000;
-  shade = 0xff;
-  if (temp < 0x100) shade = temp;
-  temp = shade;
+  temp = temp > 0xff ? 0xff : temp;
   color.b = (u_char)temp;
   color.g = (u_char)temp;
   color.r = (u_char)temp;

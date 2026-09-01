@@ -70,10 +70,8 @@ extern "C" void ___23ObjectFinishedMultiAnim(ObjectFinishedMultiAnim *pThis,int 
 int CalcObjYawAngle(CCOORD16 *pts)
 
 {
-  int angle;
-  
-  angle = fixedatan((int)pts[1].x - (int)pts->x,(int)pts[1].z - (int)pts->z);
-  return angle + -0x4000 >> 8;
+  return (fixedatan((int)pts[1].x - (int)pts->x,
+                    (int)pts[1].z - (int)pts->z) - 0x4000) >> 8;
 }
 
 
@@ -82,7 +80,6 @@ int CalcObjYawAngle(CCOORD16 *pts)
 void CalcObjExtentPoints(coorddef *cp,CCOORD16 *pts,coorddef *resultPts,tQuat *quat)
 
 {
-  int tmpx;
   int cpx;
   int cpz;
   matrixtdef matrix;
@@ -101,9 +98,8 @@ void CalcObjExtentPoints(coorddef *cp,CCOORD16 *pts,coorddef *resultPts,tQuat *q
   transform(&pt0.x,matrix.m,&resultPts[1].x);
   transform(&pt1.x,matrix.m,&resultPts[2].x);
   resultPts[1].x = resultPts[1].x + cpx;
-  tmpx = resultPts[2].x;
   resultPts[1].z = resultPts[1].z + cpz;
-  resultPts[2].x = tmpx + cpx;
+  resultPts[2].x = resultPts[2].x + cpx;
   resultPts[2].z = resultPts[2].z + cpz;
   return;
 }
@@ -171,6 +167,11 @@ void Object_InitCollisionCheckLoop(BWorldSm_Pos *slicePos,Object_tSimObjList *ob
 
 {
   int altChunk;
+  /* SYM-CODEGEN-CARRIER: altSlice -- both direct indexed and pointer-arithmetic
+   * spellings retain 134 instructions but reverse two retail `addu` operand
+   * pairs (four diffs); an integer-address form drops an instruction and gives
+   * 11 diffs.  The cached pointer preserves the exact address-construction
+   * order in both wrap arms. */
   Object_SliceCodegenView *altSlice;
 
   if (Track_chunkList[slicePos->chunk].simObjBuf != (Group *)0x0) {
@@ -509,14 +510,11 @@ int Object_CheckCollisionResults(Object_tSimObjList *objList,int objIndex,BO_tNe
 void Object_InitCustomObjects(void)
 
 {
-  Group *dst;
-  
   Object_customObjInst = reservememadr("Custom Objects",0x400,0);
   Object_customObjInst->m_num_elements = 0;
   Object_customSimObjs = reservememadr("Custom SimObjects",0x400,0);
-  dst = Object_customSimObjs + 1;
   Object_customSimObjs->m_num_elements = 0;
-  blockfill(dst,0x3fc,0);
+  blockfill(Object_customSimObjs + 1,0x3fc,0);
   Object_customSFXInst = reservememadr("Custom SimObjects",0x400,0);
   Object_customSFXInst->m_num_elements = 0;
   Object_customSliceNum = 0;
@@ -579,12 +577,10 @@ void Object_ClearCustomObjects(void)
 void SetCautionSurface(coorddef *pt,BWorldSm_Pos *slicePos)
 
 {
-  Trk_NewSimQuad *simQuad;
-
   BWorldSm_FindClosestQuadRez(pt,slicePos,1);
-  simQuad = slicePos->simQuad;
-  if ((simQuad != (Trk_NewSimQuad *)0x0) && ((simQuad->surface & 0x40) == 0)) {
-    (Track_gSaveSurface)->Save(simQuad);
+  if ((slicePos->simQuad != (Trk_NewSimQuad *)0x0) &&
+      ((slicePos->simQuad->surface & 0x40) == 0)) {
+    (Track_gSaveSurface)->Save(slicePos->simQuad);
     slicePos->simQuad->surface = slicePos->simQuad->surface | 0x40;
   }
   return;
@@ -1043,6 +1039,10 @@ ObjectMultiAnim::ObjectMultiAnim(coorddef *impactVel,AnimDef *def,
   _base_ObjectAnim._vf = (__vtbl_ptr_type (*) [3])ObjectMultiAnim_vtable;
   this->impactVel.x = impactVel->x >> 6;
   this->impactVel.y = impactVel->y >> 6;
+  /* SYM-CODEGEN-CARRIER: z -- reading impactVel->z at the final store keeps
+   * the same 62 instructions but moves eight load/shift/store slots.  This
+   * early cached component reproduces retail's schedule around the intervening
+   * member assignments. */
   int z = impactVel->z;
   animParms = def;
   this->objCollideInstance = objCollideInstance;
@@ -1123,6 +1123,10 @@ int ObjectMultiAnim::Draw(DRender_tView *Vi,Draw_DCache *sd,int offset)
       {
         int t1;
         int t2;
+        /* SYM-CODEGEN-CARRIER: t3 -- storing the third fixedmult result
+         * directly keeps 265 instructions but moves 14 matrix stores/call
+         * delay slots.  The shared third-result value reproduces retail's
+         * schedule for all three scaled columns. */
         int t3;
         int sx;
         int sy;
@@ -1186,10 +1190,9 @@ int ObjectMultiAnim::Draw(DRender_tView *Vi,Draw_DCache *sd,int offset)
 int ObjectFinishedSignAnim::Draw(DRender_tView *Vi,Draw_DCache *sd,int offset)
 
 {
-  ObjectFinishedSignAnim *pThis = this;
-  
-  DrawObjectTransform(Vi,sd,(matrixtdef *)((int)pThis + 4),*(Trk_ObjectDef **)((int)pThis + 0x28),
-             (coorddef *)(*(int *)((int)pThis + 0x2c) + 8),offset,-1);
+  DrawObjectTransform(Vi,sd,(matrixtdef *)((int)this + 4),
+             *(Trk_ObjectDef **)((int)this + 0x28),
+             (coorddef *)(*(int *)((int)this + 0x2c) + 8),offset,-1);
   return 2;
 }
 

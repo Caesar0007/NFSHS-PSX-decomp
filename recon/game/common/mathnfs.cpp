@@ -151,21 +151,18 @@ int Math_VectorLength(coorddef *v)
   int shifts;
   u_int vy2;
   u_int vx2;
-  int absV;
 
   shifts = 0;
   vx = v->x;
   vy = v->y;
   vz = v->z;
-  absV = __builtin_abs(vx);
-  while ((0x1000000 < absV) ||
+  while ((0x1000000 < __builtin_abs(vx)) ||
          (0x1000000 < __builtin_abs(vy)) ||
          (0x1000000 < __builtin_abs(vz))) {
     vx = vx >> 1;
     vy = vy >> 1;
     vz = vz >> 1;
     shifts = shifts + 1;
-    absV = __builtin_abs(vx);
   }
   vx2 = fixedmult(vx,vx);
   vy2 = fixedmult(vy,vy);
@@ -208,21 +205,18 @@ int Math_VectorLength2(coorddef *v)
   int shifts;
   u_int vy2;
   u_int vx2;
-  int absV;
 
   shifts = 0;
   vx = v->x;
   vy = v->y;
   vz = v->z;
-  absV = __builtin_abs(vx);
-  while ((0x1000000 < absV) ||
+  while ((0x1000000 < __builtin_abs(vx)) ||
          (0x1000000 < __builtin_abs(vy)) ||
          (0x1000000 < __builtin_abs(vz))) {
     vx = vx >> 1;
     vy = vy >> 1;
     vz = vz >> 1;
     shifts = shifts + 1;
-    absV = __builtin_abs(vx);
   }
   vx2 = fixedmult(vx,vx);
   vy2 = fixedmult(vy,vy);
@@ -264,19 +258,16 @@ void Math_NormalizeVector(coorddef *v)
   int length;
   u_int vy2;
   u_int vx2;
-  int absV;
 
   vx = v->x;
   vy = v->y;
   vz = v->z;
-  absV = __builtin_abs(vx);
-  while ((0x1000000 < absV) ||
+  while ((0x1000000 < __builtin_abs(vx)) ||
          (0x1000000 < __builtin_abs(vy)) ||
          (0x1000000 < __builtin_abs(vz))) {
     vx = vx >> 1;
     vy = vy >> 1;
     vz = vz >> 1;
-    absV = __builtin_abs(vx);
   }
   vx2 = fixedmult(vx,vx);
   vy2 = fixedmult(vy,vy);

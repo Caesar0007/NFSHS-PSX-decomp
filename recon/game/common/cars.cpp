@@ -531,6 +531,11 @@ void Cars_DoExtraCarCollisionProcessing(Car_tObj *carObj)
           if (simGlobal.gameTicks > 0x340) {
             if (carObj->stats.fatalCrashes == 0) {
               if (carObj->N.speedXZ <= 0x1b9998) {
+                /* SYM-CODEGEN-CARRIER: player -- absent from the nested SYM
+                   scope, but removing it and repeating the comparison grows
+                   retail's 597 instructions to 606 with 33 word diffs.  The
+                   named value is required for GCC 2.8.1 to retain and reuse
+                   the selected Camera_gInfo row across all three stores. */
                 int player;
 
                 Cars_ResetCollidedCars(carObj,2,0);
@@ -1415,8 +1420,6 @@ void Car_DoSkiddingStuff(Car_tObj *carObj)
      FALLTHROUGH and jumps AWAY to the <0x3334 (altitude/speed) block -- negate the
      guard + swap the branches to reproduce that layout (same lever as
      Cars_CheckForAccidentScenes/Cars_FindTotalSlice). */
-  u_int uVar1;
-
   if (0x3334 <= (carObj->N).orientationToGround.y) {
     if ((carObj->oldAudioSkidState & 4U) != 0) {
       Cars_SetAudioCalls(carObj,5,0x14,1,0,0,0);
@@ -1429,13 +1432,12 @@ void Car_DoSkiddingStuff(Car_tObj *carObj)
     int speed = (carObj->N).speedXZ;
     if (((carObj->N).objAltitude < 0x3333) && (0x20000 < speed)) {
       Cars_SetAudioCalls(carObj,4,0x14,1,audioSurface,0xa0000,0);
-      uVar1 = carObj->oldAudioSkidState | 4;
+      carObj->oldAudioSkidState = carObj->oldAudioSkidState | 4;
     }
     else {
       Cars_SetAudioCalls(carObj,5,0x14,1,0,0,0);
-      uVar1 = carObj->oldAudioSkidState - 4;
+      carObj->oldAudioSkidState = carObj->oldAudioSkidState - 4;
     }
-    carObj->oldAudioSkidState = uVar1;
   }
   return;
 }
@@ -1580,7 +1582,6 @@ LAB_80089c40:
   if (AITune_GetOneWay() != 0) {
     int center;
     int totalWidth;
-    int laneWidth;
     totalWidth =
         ((u_int)BWorldSm_slices[*slice].avgPavedWidthLf << 15) *
             (BWorldSm_slices[*slice].laneCount >> 4) +
@@ -1589,13 +1590,13 @@ LAB_80089c40:
     center = totalWidth / 2 -
              ((u_int)BWorldSm_slices[*slice].avgPavedWidthLf << 15) *
                  (BWorldSm_slices[*slice].laneCount >> 4);
-    laneWidth = totalWidth / ((BWorldSm_slices[*slice].laneCount >> 4) +
-                              (BWorldSm_slices[*slice].laneCount & 0xf));
+    totalWidth = totalWidth / ((BWorldSm_slices[*slice].laneCount >> 4) +
+                               (BWorldSm_slices[*slice].laneCount & 0xf));
     if (carOnRight) {
-      offset->x = center + laneWidth;
+      offset->x = center + totalWidth;
     }
     else {
-      offset->x = center - laneWidth;
+      offset->x = center - totalWidth;
     }
   }
   else {
@@ -1616,7 +1617,6 @@ LAB_80089c40:
 void Cars_IniCarObjects(Car_tObj *carObj,int index)
 {
   int k;
-  int carType;
   int carMass;
   coorddef offset;
   int startSlice;
@@ -1625,23 +1625,22 @@ void Cars_IniCarObjects(Car_tObj *carObj,int index)
   carObj->swapCar = (Car_tObj *)0x0;
   carObj->swapTime = 0;
   if (index < GameSetup_gData.numCars) {
-    carType = carObj->carInfo->carType;
-    if (carType == 0x21) goto MASS_HEAVY;
-    if (carType == 0x24) goto MASS_HEAVY;
-    if (carType == 0x26) goto MASS_HEAVY;
-    if (carType == 0x27) goto MASS_HEAVY;
-    if (carType == 0x2f) goto MASS_HEAVY;
-    if (carType == 0x30) goto MASS_HEAVY;
-    if (carType != 0x31) goto MASS_CHECK2;
+    if (carObj->carInfo->carType == 0x21) goto MASS_HEAVY;
+    if (carObj->carInfo->carType == 0x24) goto MASS_HEAVY;
+    if (carObj->carInfo->carType == 0x26) goto MASS_HEAVY;
+    if (carObj->carInfo->carType == 0x27) goto MASS_HEAVY;
+    if (carObj->carInfo->carType == 0x2f) goto MASS_HEAVY;
+    if (carObj->carInfo->carType == 0x30) goto MASS_HEAVY;
+    if (carObj->carInfo->carType != 0x31) goto MASS_CHECK2;
 MASS_HEAVY:
     carMass = 0x190000;
     goto MASS_DONE;
 MASS_CHECK2:
-    if (carType == 0x22) goto MASS_LIGHT;
-    if (carType == 0x25) goto MASS_LIGHT;
-    if (carType == 0x29) goto MASS_LIGHT;
-    if (carType == 0x2b) goto MASS_LIGHT;
-    if (carType != 0x2c) goto MASS_CALC;
+    if (carObj->carInfo->carType == 0x22) goto MASS_LIGHT;
+    if (carObj->carInfo->carType == 0x25) goto MASS_LIGHT;
+    if (carObj->carInfo->carType == 0x29) goto MASS_LIGHT;
+    if (carObj->carInfo->carType == 0x2b) goto MASS_LIGHT;
+    if (carObj->carInfo->carType != 0x2c) goto MASS_CALC;
 MASS_LIGHT:
     carMass = 0x110000;
     goto MASS_DONE;
@@ -1952,15 +1951,14 @@ LAB_ini:
 void Cars_Initialize(char *mem,int size)
 {
   int i;
-  int iVar1;
 
-  iVar1 = 0;
+  i = 0;
   if (0 < size) {
     do {
       *mem = '\0';
-      iVar1 = iVar1 + 1;
+      i = i + 1;
       mem = mem + 1;
-    } while (iVar1 < size);
+    } while (i < size);
   }
   return;
 }
@@ -2161,6 +2159,7 @@ int Cars_CalculateRoadSpan(Car_tObj *carObj)
 {
   int span;
   int tempSpan;
+  /* SYM-CODEGEN-CARRIER: absSpan -- see the measured allocator receipt below. */
   int absSpan;
 
   span = ((carObj->N).roadMatrix.m[0] / 256) *
@@ -2208,10 +2207,7 @@ int Cars_CalculateRoadSpan(Car_tObj *carObj)
 /* ---- Cars_CalculateRoadPosition__FP8Car_tObj  [@0x8008aec8] ---- */
 int Cars_CalculateRoadPosition(Car_tObj *carObj)
 {
-  int iVar1;
-
-  iVar1 = Newton_CalculateRoadPosition(&carObj->N);
-  return iVar1;
+  return Newton_CalculateRoadPosition(&carObj->N);
 }
 
 /* ---- Cars_CalcVelDownRoad__FP8Car_tObj  [@0x8008aee8] ---- */

@@ -10,12 +10,19 @@
 nonmatching _front_obj
 
 dlabel _front_obj
-/* W66-A3 (link): `bigBuf` is the recon lane's spelling for this same address --
- * the front overlay's load buffer, referenced from 5 TUs (feapp/feaudio/minfront/
- * nfs3/fe3dmenu) as `bigBuf + <offset>` and defined nowhere.  A second GLOBAL
- * LABEL at offset 0 resolves it without a byte moving and without touching any
- * recon TU (`dlabel` = `.global` + label only; no `.size`, so the unsized-array
- * declarations the consumers use stay honest).  Never `bigBuf = _front_obj` --
+/* W66-A3/P449 (link): retail bigbuf.obj is the front.bin overlay-space
+ * reservation mechanism and exports `bigBuf` as the overlay load base at
+ * 0x80010000.  It does not own a 472-byte initialized C array; that apparent
+ * extent is a decompiler inference from this label to the next public symbol.
+ * The frontend TUs are compiled/linked separately as the front.bin overlay at
+ * [0x80010000,0x80054548) (size 0x44548).  SYM linker records 00010b..000151
+ * name the exact aliases: _front_obj=_front_org=0x80010000,
+ * _front_objend=_front_orgend=0x80054548, and _front_size=0x44548.  The
+ * following front.rdata is overlay
+ * image content, not storage owned by bigbuf.obj.  A second GLOBAL LABEL at
+ * offset 0 models the zero-size alias without moving a byte (`dlabel` = `.global` +
+ * label only; no `.size`, so consumers' unsized-array declarations remain
+ * honest).  Never materialize `char bigBuf[472]` or assign the symbol in C.
  * ASPSX 2.77 has no symbol-assignment form (catalog 15E). */
 dlabel bigBuf
     /* 800 80010000 */ .asciz "SimpleMem"

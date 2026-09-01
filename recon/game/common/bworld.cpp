@@ -6,10 +6,6 @@
 #include "bworld_types.h"
 #include "bworld_externs.h"
 
-/* ---- bworld.obj anon file-statics (no SYM name; Ghidra DAT_; real .bss bytes = 0) ---- */
-static void *gBWPrimPtr;    /* .sbss (no SYM .sdata record; not in the image window) */
-
-
 /* ---- bworld.obj-owned globals (SYM-typed; .data=real EXE bytes, .bss=zero) ---- */
 matrixtdef   gWorldMat;   /* @0x8010ee40  (bss(zero)) */
 matrixtdef   gNightMat;   /* @0x8010ee64  (bss(zero)) */
@@ -344,13 +340,11 @@ void SetupBuildMatrices(DRender_tView *Vi,Draw_DCache *sd)
       }
       if (BW_gCopCarObj != (Car_tObj *)0x0) {
         matrixtdef rotY;
-        static int cop_angle = 0;   /* @0x8013c75c  W67-A4: =0 puts this (unused,
-            SYM-attested) fn-local static into .sdata at its retail position;
-            uninitialised it lands in .sbss.  Zero codegen impact (no refs). */
+        static int cop_angle = 0;   /* @0x8013c75c; SYM STAT INT */
 
         Night_SetCopColor(BW_gCopCarObj->carInfo);
-        gBWPrimPtr = (void *)((int)gBWPrimPtr + 0x40);
-        xformy(&rotY,gBWPrimPtr);
+        cop_angle = cop_angle + 0x40;
+        xformy(&rotY,cop_angle);
         transpose(&(BW_gCopCarObj->N).orientMat,&tm);
         Math_fasttransmult(&tm,&rotY,&gCopMat);
         {
@@ -1040,11 +1034,9 @@ char * BWAllocMem(long size)
 {
   /* SYM records this as BWAllocMem's function-local STAT at 0x8013c760. */
   static int totalMem = 0;
-  char *pcVar1;
 
   totalMem = totalMem + size;
-  pcVar1 = Platform_GetDCTBuffer(size,"bworld");
-  return pcVar1;
+  return Platform_GetDCTBuffer(size,"bworld");
 }
 
 /* ---- BWorld_InitContexts__Fv  [@0x8007e428] ---- */

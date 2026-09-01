@@ -111,16 +111,13 @@ void Anim_DeInitSystem(void)
 int Anim_Handle(int num)
 {
   int handle;
-  AnimScript *pAVar1;
-  int iVar2;
 
-  iVar2 = 0;
-  while ((iVar2 < 0x20) && (animSlots[iVar2] != (AnimScript *)0x0)) {
-    iVar2 = iVar2 + 1;
+  handle = 0;
+  while ((handle < 0x20) && (animSlots[handle] != (AnimScript *)0x0)) {
+    handle = handle + 1;
   }
-  pAVar1 = new AnimScript(num);
-  animSlots[iVar2] = pAVar1;
-  return iVar2;
+  animSlots[handle] = new AnimScript(num);
+  return handle;
 }
 
 /* ---- Anim_FreeHandle  [@0x80073d6c] ---- */
@@ -267,12 +264,12 @@ int Anim_GetPos(Trk_AnimateInst *animInst,int flags,int ticks,coorddef *pt,int *
 /* ---- AnimScript::AnimScript  [@0x80074360] ---- */
 AnimScript::AnimScript(int num)
 {
+  /* SYM-CODEGEN-CARRIER: iVar1 -- assigning Anim_simGlobalWords[1] directly
+   * to baseTicks keeps 27 instructions but produces 26 oracle diffs. */
   int iVar1;
-  Trk_AnimateInst **ppTVar2;
-  
-  ppTVar2 = __builtin_vec_new(4);
-  this->inst = ppTVar2;
-  *ppTVar2 = animScripts[num];
+
+  this->inst = __builtin_vec_new(4);
+  *this->inst = animScripts[num];
   iVar1 = Anim_simGlobalWords[1];
   this->flags = 6;
   this->baseTicks = iVar1;
@@ -282,7 +279,11 @@ AnimScript::AnimScript(int num)
 /* ---- AnimScript::AnimScript  [@0x800743cc] ---- */
 AnimScript::AnimScript(int num,int numParts)
 {
+  /* SYM-CODEGEN-CARRIER: ppTVar1 -- assigning __builtin_vec_new directly to
+   * inst grows the function from 39 to 41 instructions with 44 oracle diffs. */
   Trk_AnimateInst **ppTVar1;
+  /* SYM-CODEGEN-CARRIER: iVar2 -- assigning Anim_simGlobalWords[1] directly
+   * to baseTicks keeps 39 instructions but produces 10 oracle diffs. */
   int iVar2;
   int i;
 
@@ -305,15 +306,15 @@ AnimScript::AnimScript(int num,int numParts)
 AnimScript::AnimScript(Group *instanceGroup,int type,int boomIndex,int numParts)
 {
   int i;
-  Trk_AnimateInst **ppTVar2;
+  /* SYM-CODEGEN-CARRIER: iVar3 -- assigning Anim_simGlobalWords[1] directly
+   * to baseTicks keeps 51 instructions but produces 10 oracle diffs. */
   int iVar3;
   Trk_AnimateBoomInst *objInstance;
   int numElems;
 
   objInstance = (Trk_AnimateBoomInst *)(instanceGroup + 1);
   numElems = instanceGroup->m_num_elements;
-  ppTVar2 = __builtin_vec_new(numParts << 2);
-  this->inst = ppTVar2;
+  this->inst = __builtin_vec_new(numParts << 2);
   i = 0;
   numElems = numElems - 1;
   if (numElems != -1) {

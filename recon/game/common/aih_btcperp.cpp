@@ -733,6 +733,15 @@ void AIHigh_BTC_HumanPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
   int humanDirection;
   int newLatPos;
   int throwAway;
+  /* SYM-CODEGEN-CARRIER: carObj
+     SYM-CODEGEN-CARRIER: wrappedSlice
+     Neither optimized quantity survives in the retail debug block. Removing only carObj is
+     count-exact at 136 instructions but changes 28 allocation/value-flow
+     instructions. Replacing wrappedSlice with direct per-arm stores is also
+     count-exact but changes 18 instructions; a single typed conditional grows
+     to 137 instructions/45 diffs, and the generic WRAP_SLICE expansion grows
+     to 139/75. These eliminated snapshots alone reproduce the retail $a2
+     destination pointer and the branch-merged $v0/$v1 short result. */
   Car_tObj *carObj;
 
   
@@ -892,12 +901,6 @@ AIHigh_BTC_AIPerp::AIHigh_BTC_AIPerp(Car_tObj *carObj)
 
 {
 
-  Car_tObj *pCVar1;
-
-  int iVar2;
-
-  
-
   (new((AIHigh_BasicPerp *)this) AIHigh_BasicPerp(carObj));
 
   this->_vf =
@@ -905,8 +908,6 @@ AIHigh_BTC_AIPerp::AIHigh_BTC_AIPerp(Car_tObj *carObj)
        (__vtbl_ptr_type (*) [3])(AIHigh_BTC_HumanPerp_vtable + 8);
 
   this->caught_ = 1;
-
-  pCVar1 = this->carObj_;
 
   this->_vf =
 
@@ -926,15 +927,13 @@ AIHigh_BTC_AIPerp::AIHigh_BTC_AIPerp(Car_tObj *carObj)
 
   this->escapeDuration_ = 0;
 
-  this->originalMass_ = (pCVar1->N).mass;
+  this->originalMass_ = (this->carObj_->N).mass;
 
-  iVar2 = (pCVar1->N).massInv;
+  this->originalMassInv_ = (this->carObj_->N).massInv;
 
   this->closestCopCarObj_ = (Car_tObj *)0x0;
 
   this->closestCopCarDistanceMeters_ = 0;
-
-  this->originalMassInv_ = iVar2;
 
   return;
 
@@ -955,21 +954,11 @@ AIHigh_BTC_AIPerp::~AIHigh_BTC_AIPerp()
 
 {
 
-  int iVar1;
-
-  Car_tObj *pCVar2;
-
-  
-
-  pCVar2 = this->carObj_;
-
-  iVar1 = this->originalMass_;
-
   this->_vf =
 
        (__vtbl_ptr_type (*) [3])AIHigh_BTC_AIPerp_vtable;
 
-  (pCVar2->N).mass = iVar1;
+  (this->carObj_->N).mass = this->originalMass_;
 
   ((this->carObj_)->N).massInv =
 
@@ -1243,12 +1232,6 @@ void AIHigh_BTC_AIPerp::FindClosestCop()
   int longMetersBetween;
   int absLongMetersBetween;
 
-  Car_tObj *pCVar2;
-
-  Car_tObj **ppCVar4;
-
-
-
   closestCopInMeters = 0x270f0000;
 
   closestCopInMetersAbs = 0x270f0000;
@@ -1257,17 +1240,16 @@ void AIHigh_BTC_AIPerp::FindClosestCop()
 
   copLoop = 0;
 
-  ppCVar4 = Cars_gHumanRaceCarList;
-
   while (true) {
 
     if (Cars_gNumHumanRaceCars <= copLoop) {
       break;
     }
 
-    if (((*ppCVar4)->carFlags & 0x200U) != 0) {
+    if ((Cars_gHumanRaceCarList[copLoop]->carFlags & 0x200U) != 0) {
 
-      longMetersBetween = AIWorld_ApxSplineDistance(this->carObj_,*ppCVar4);
+      longMetersBetween = AIWorld_ApxSplineDistance(
+          this->carObj_,Cars_gHumanRaceCarList[copLoop]);
 
       absLongMetersBetween = __builtin_abs(longMetersBetween);
 
@@ -1277,13 +1259,11 @@ void AIHigh_BTC_AIPerp::FindClosestCop()
 
         closestCopInMetersAbs = absLongMetersBetween;
 
-        closestCarIndex = (*ppCVar4)->carIndex;
+        closestCarIndex = Cars_gHumanRaceCarList[copLoop]->carIndex;
 
       }
 
     }
-
-    ppCVar4 = ppCVar4 + 1;
 
     copLoop = copLoop + 1;
 
@@ -1297,11 +1277,9 @@ void AIHigh_BTC_AIPerp::FindClosestCop()
 
   else {
 
-    pCVar2 = Cars_gList[closestCarIndex];
+    this->closestCopCarObj_ = Cars_gList[closestCarIndex];
 
     this->closestCopCarDistanceMeters_ = closestCopInMeters;
-
-    this->closestCopCarObj_ = pCVar2;
 
   }
 
@@ -1852,11 +1830,7 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
     AIState_Base *newState;
 
-    AIState_Normal *this_00;
-
-    this_00 = operator new(8);
-
-    newState = (AIState_Base*)(new(this_00) AIState_Normal(this->carObj_));
+    newState = new AIState_Normal(this->carObj_);
 
     if (this->state_ != (AIState_Base *)0x0) {
 
@@ -1877,15 +1851,7 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
     AIState_Base *newState;
 
-    AIState_Cruise *pAVar5;
-
-    pAVar5 = operator new(0x14);
-
-    pAVar5 = (new(pAVar5) AIState_Cruise(this->carObj_,(cruiseMode_t)1,0x8000
-
-                       ));
-
-    newState = (AIState_Base *)pAVar5;
+    newState = new AIState_Cruise(this->carObj_,(cruiseMode_t)1,0x8000);
 
     if (this->state_ != (AIState_Base *)0x0) {
 

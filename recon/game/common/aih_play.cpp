@@ -901,6 +901,10 @@ void AIHigh_Player::MaintainAvailableCops()
     for (playLoop = 0; playLoop < Cars_gNumRaceCars; playLoop++) {
       Car_tObj *playerCarObj;
       AIHigh_Player *playerHighObj;
+      /* SYM-CODEGEN-CARRIER: pInfo -- the retail SLD records an inlined
+         AICop_PerpChaseInfo `this` receiver here, but not the unrecoverable
+         helper name. Direct field spelling is 161/162 with nine base-address
+         and load-form diffs; this receiver restores the exact +0x8c view. */
       AICop_PerpChaseInfo *pInfo;
 
       playerCarObj = Cars_gRaceCarList[playLoop];
@@ -920,6 +924,10 @@ void AIHigh_Player::MaintainAvailableCops()
     for (copLoop = 0; copLoop < Cars_gNumCopCars; copLoop++) {
       Car_tObj *copCarObj;
       AIHigh_Cop *copHighObj;
+      /* SYM-CODEGEN-CARRIER: available -- retail materializes the combined
+         inline-state predicate although no result name survives. Using the
+         condition directly shrinks 162 to 159 instructions and changes 63
+         allocation/control-flow instructions. */
       bool available;
 
       copCarObj = Cars_gCopCarList[copLoop];
@@ -1153,6 +1161,11 @@ void AIHigh_Player::HandleCops()
   int ticks;
   int totalCopsEngaged;
 
+  /* SYM-CODEGEN-CARRIER: pInfo -- the SLD records the corresponding inlined
+     AICop_PerpChaseInfo `this` receivers but not their original helper names.
+     Direct member spelling shrinks 104 to 98 instructions and changes 76
+     frame/allocation/load instructions; the two lexical receivers reproduce
+     the retail $s0/$a1 views. */
   AICop_PerpChaseInfo *pInfo;
 
 
@@ -1179,6 +1192,10 @@ void AIHigh_Player::HandleCops()
 
     {
       AICop_PerpChaseInfo *pInfo = &this->perpChaseInfo_;
+      /* SYM-CODEGEN-CARRIER: prodSlipYawNeg -- directly embedding the product
+         sign in the shift selection yields 102/104 instructions with 44
+         allocation/scheduling diffs. The optimized predicate preserves the
+         retail precomputed sign and subsequent shift-count selection. */
       u_int prodSlipYawNeg;
 
       prodSlipYawNeg =
@@ -1234,17 +1251,10 @@ void AIHigh_Player::CleanupBlockaders(int forceClearAll)
   AIHigh_Cop*thisCop;
   blockade_t*blockade;
 
-  Car_tObj *pCVar2;
-
-  blockadeMode_t bVar3;
-
-
-
-  pCVar2 = this->carObj_;
-
   clearWaitingBlockaders = 0;
 
-  if ((0 < (pCVar2->stats).numArrests) || (1 < (pCVar2->stats).finishType) || (forceClearAll != 0)) {
+  if ((0 < (this->carObj_->stats).numArrests) ||
+      (1 < (this->carObj_->stats).finishType) || (forceClearAll != 0)) {
 
     clearWaitingBlockaders = 1;
 
@@ -1264,9 +1274,9 @@ void AIHigh_Player::CleanupBlockaders(int forceClearAll)
 
     blockade = &thisCop->blockade_;
 
-    bVar3 = (blockadeMode_t)blockade->mode;
-
-    if ((((bVar3 == 1) || (bVar3 == 4)) || ((bVar3 == 2 && (clearWaitingBlockaders)))) &&
+    if (((((blockadeMode_t)blockade->mode == 1) ||
+          ((blockadeMode_t)blockade->mode == 4)) ||
+         (((blockadeMode_t)blockade->mode == 2 && clearWaitingBlockaders))) &&
 
        (blockade->target == this)) {
 

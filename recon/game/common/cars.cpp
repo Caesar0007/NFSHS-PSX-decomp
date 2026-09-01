@@ -91,14 +91,11 @@ void Cars_CheckForAccidentScenes(void);
 void Cars_DoGravityEffectsOnAcc(Car_tObj *carObj,int arcade)
 {
   coorddef gravity_ch;
-  int iVar1;
-  int iVar2;
 
   if ((carObj->carFlags & 0x10U) != 0) {
     return;
   }
-  iVar1 = fixedmult(0x10000,(carObj->N).orientMat.m[4]);
-  if (iVar1 < 0xb5c2) {
+  if (fixedmult(0x10000,(carObj->N).orientMat.m[4]) < 0xb5c2) {
     gravity_ch.x = fixedmult(-0xa0000,(carObj->N).orientMat.m[1]);
     gravity_ch.y = fixedmult(-0xa0000,(carObj->N).orientMat.m[4]);
     gravity_ch.z = fixedmult(-0xa0000,(carObj->N).orientMat.m[7]);
@@ -112,25 +109,17 @@ void Cars_DoGravityEffectsOnAcc(Car_tObj *carObj,int arcade)
     }
     gravity_ch.z = fixedmult(-0xa0000,(carObj->N).orientMat.m[7]);
     gravity_ch.z = fixedmult(gravity_ch.z,(carObj->N).gravityMult);
-    iVar1 = __builtin_abs(gravity_ch.z);
-    if (iVar1 < 0xccd) {
+    if (__builtin_abs(gravity_ch.z) < 0xccd) {
       return;
     }
     if (0 < gravity_ch.z) {
-      iVar2 = (carObj->linearAcc_ch).z;
-      iVar1 = gravity_ch.z >> 1;
-      if (iVar2 < 1) {
-        iVar1 = gravity_ch.z >> 3;
-      }
+      (carObj->linearAcc_ch).z +=
+          0 < (carObj->linearAcc_ch).z ? gravity_ch.z >> 1 : gravity_ch.z >> 3;
     }
     else {
-      iVar2 = (carObj->linearAcc_ch).z;
-      iVar1 = gravity_ch.z >> 3;
-      if (iVar2 < 1) {
-        iVar1 = gravity_ch.z >> 1;
-      }
+      (carObj->linearAcc_ch).z +=
+          0 < (carObj->linearAcc_ch).z ? gravity_ch.z >> 3 : gravity_ch.z >> 1;
     }
-    (carObj->linearAcc_ch).z = iVar2 + iVar1;
   }
   return;
 }
@@ -480,15 +469,11 @@ void Cars_ResetCollidedCars(Car_tObj *carObj,int forceReset,int forceParkAtSide)
 /* ---- Cars_SetCarUpForHiRezSim__FP8Car_tObj  [@0x80086ac4] ---- */
 void Cars_SetCarUpForHiRezSim(Car_tObj *carObj)
 {
-  u_int bVar1;
-  Trk_NewSimQuad *pTVar2;
-
-  bVar1 = (carObj->N).simOptz;
   (carObj->collision).smoking = 0;
-  if (bVar1 < 2) {
+  if ((carObj->N).simOptz < 2) {
     BWorldSm_FindClosestQuadRez(&(carObj->N).position,&(carObj->N).simRoadInfo,1);
-    pTVar2 = (carObj->N).simRoadInfo.simQuad;
-    if ((pTVar2 != (Trk_NewSimQuad *)0x0) && ((pTVar2->surface & 0xf) == 0)) {
+    if (((carObj->N).simRoadInfo.simQuad != (Trk_NewSimQuad *)0x0) &&
+        ((((carObj->N).simRoadInfo.simQuad)->surface & 0xf) == 0)) {
       Cars_ResetCollidedCars(carObj,1,0);
     }
   }
@@ -2123,25 +2108,22 @@ void Cars_CleanUp(void)
 void Cars_FindCurrentLap(Car_tObj *carObj)
 {
   int roadSlice;
-  u_int uVar1;
-  u_int uVar2;
 
   if (GameSetup_gData.reverseTrack != 0) {
-    uVar2 = (gNumSlices - (carObj->N).simRoadInfo.slice) - 1;
+    roadSlice = (gNumSlices - (carObj->N).simRoadInfo.slice) - 1;
   }
   else {
-    uVar2 = (u_int)(carObj->N).simRoadInfo.slice;
+    roadSlice = (carObj->N).simRoadInfo.slice;
   }
-  uVar1 = (u_int)(carObj->N).oldSlice;
-  if (uVar1 != uVar2) {
+  if ((carObj->N).oldSlice != roadSlice) {
     /* MATCH: guard-clause (negated-early) form -- the oracle branches to a SHARED merge
-       point whether uVar2<0x1F5 is true OR uVar1!=0 is true, then falls into the inner
+       point whether roadSlice<0x1F5 is true OR oldSlice!=0 is true, then falls into the inner
        if; the original if/else duplicated the inner-if test as a separate branch
        (+4/+5 insns short). DeMorgan the OR into the negated guard + else-if. */
-    if ((0x1f5 <= (int)uVar2) && (uVar1 == 0)) {
+    if ((0x1f5 <= roadSlice) && ((carObj->N).oldSlice == 0)) {
       carObj->unlap = carObj->unlap + 1;
     }
-    else if ((uVar2 < 0x33) && (500 < (carObj->N).oldSlice)) {
+    else if (((u_int)roadSlice < 0x33) && (500 < (carObj->N).oldSlice)) {
       if (1 <= carObj->unlap) {
         carObj->unlap = carObj->unlap + -1;
       }
@@ -2149,7 +2131,7 @@ void Cars_FindCurrentLap(Car_tObj *carObj)
         carObj->lap = carObj->lap + 1;
       }
     }
-    (carObj->N).oldSlice = (u_short)uVar2;
+    (carObj->N).oldSlice = (u_short)roadSlice;
   }
   return;
 }
@@ -2227,20 +2209,18 @@ int Cars_CalcVelDownRoad(Car_tObj *carObj)
 /* ---- Cars_Randomize__Fv  [@0x8008af84] ---- */
 void Cars_Randomize(void)
 {
-  int count;
-  int rLoop;
-  int iVar1;
-  int iVar2;
-
   if (Cars_gNumAICars != 0) {
-    iVar2 = (int)((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x574)) & 0x300) >> 8;
-    iVar1 = 0;
-    if (iVar2 != 0) {
+    int count;
+    int rLoop;
+
+    count = (int)((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x574)) & 0x300) >> 8;
+    rLoop = 0;
+    if (count != 0) {
       do {
         randtemp = fastRandom * randSeed;
-        iVar1 = iVar1 + 1;
+        rLoop = rLoop + 1;
         fastRandom = randtemp & 0xffff;
-      } while (iVar1 < iVar2);
+      } while (rLoop < count);
     }
   }
   return;

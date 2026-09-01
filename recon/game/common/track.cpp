@@ -754,7 +754,6 @@ void Track_InitPersistentData(SerializedGroup *perGroup)
 
 {
   int count;
-  Group *simGroup;
   SerializedGroup *persistentGroups[perGroup->m_num_elements];
 
   gObjDefOffsetsGroup = (Group *)0x0;
@@ -780,8 +779,7 @@ void Track_InitPersistentData(SerializedGroup *perGroup)
                    Track_materials);
         break;
       case 0xf:
-        simGroup = persistentGroups[i]->CreateLiteGroup(persistentGroups[i],Track_mem);
-        BWorldSm_Init(simGroup);
+        BWorldSm_Init(persistentGroups[i]->CreateLiteGroup(persistentGroups[i],Track_mem));
         break;
       case 0x24:
         gPersistMidgroundObjInst =
@@ -1073,6 +1071,10 @@ void Track_LoadObjectKillData(void)
       chunkDat = Track_chunkList + chunkInd;
       group = chunkDat->objInstanceBuf;
       if (group != (Group *)0x0) {
+        /* SYM-CODEGEN-CARRIER: groupElements -- direct member comparison is
+           count-exact at 86 instructions but schedules the group load after
+           the objInd stack reload, leaving two diffs. This optimized snapshot
+           preserves retail's load order without observable storage. */
         int groupElements;
 
         groupElements = group->m_num_elements;
@@ -1186,17 +1188,16 @@ SaveSurface::~SaveSurface()
 void SaveSurface::RestoreAll()
 
 {
-  int iVar1;
   int i;
 
-  iVar1 = 0;
+  i = 0;
   if (0 < this->fCount) {
     do {
-      (this->fStack[iVar1].fSimQuad)->surface = this->fStack[iVar1].fSurface;
-      this->fStack[iVar1].fSimQuad = (Trk_NewSimQuad *)0x0;
-      this->fStack[iVar1].fSurface = '\0';
-      iVar1 = iVar1 + 1;
-    } while (iVar1 < this->fCount);
+      (this->fStack[i].fSimQuad)->surface = this->fStack[i].fSurface;
+      this->fStack[i].fSimQuad = (Trk_NewSimQuad *)0x0;
+      this->fStack[i].fSurface = '\0';
+      i = i + 1;
+    } while (i < this->fCount);
   }
   this->fCount = 0;
   return;

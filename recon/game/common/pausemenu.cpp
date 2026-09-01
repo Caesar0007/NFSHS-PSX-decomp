@@ -18,7 +18,6 @@ void PauseMenu_FullText(char *sMenuText,short x,short flags,short color)
 
 {
   char *str;
-  int iVar1;
 
   str = sMenuText;
   if (gPause_CurrentY == 0x62) {
@@ -27,12 +26,10 @@ void PauseMenu_FullText(char *sMenuText,short x,short flags,short color)
     color = 6;
   }
   if (flags == 1) {
-    iVar1 = textpixels(str);
-    x = x - (short)iVar1;
+    x = x - (short)textpixels(str);
   }
   else if (flags == 2) {
-    iVar1 = textpixels(sMenuText);
-    x = x - (short)(iVar1 / 2);
+    x = x - (short)(textpixels(sMenuText) / 2);
   }
   Font_TextColor((int)color);
   Font_TextXY(str,(int)x,gPause_CurrentY);
@@ -68,6 +65,10 @@ void PauseMenu_MenuTextPositioned(short index,short selected,short disabled,shor
 void PauseMenu_MenuText(short index,bool selected,bool disabled)
 
 {
+  /* SYM-CODEGEN-CARRIER: iVar1 -- the retail SYM retains no distinct result,
+     but inlining TextSys_WordX is count-exact at 25 instructions with two
+     scheduling diffs: its result shift moves ahead of both bool extensions.
+     The separate statement restores the retail argument-preparation order. */
   int iVar1;
   
   iVar1 = TextSys_WordX((int)index);
@@ -134,6 +135,8 @@ short tPListIterator::TextValue(tPlayer arg1)
 void tPListIterator::Increment(tPlayer arg1)
 
 {
+  /* SYM-ABI-PARAM: arg1 -- required by the virtual signature/linkage but
+     unused and therefore absent from the optimized SYM declaration block. */
   *this->fValue = *this->fValue + 1;
   if (this->fSelectionList[*this->fValue] == 0) {
     *this->fValue = 0;
@@ -231,6 +234,8 @@ short tPListIteratorIndexed::TextValue(tPlayer arg1)
 void tPListIteratorIndexed::Increment(tPlayer arg1)
 
 {
+  /* SYM-ABI-PARAM: arg1 -- required by the virtual signature/linkage but
+     unused and therefore absent from the optimized SYM declaration block. */
   this->fValue[(u_char)*this->fIndex] =
       this->fValue[(u_char)*this->fIndex] + 1;
   if (this->fSelectionList[this->fValue[(u_char)*this->fIndex]] == 0) {
@@ -356,7 +361,8 @@ tPMenuItemNonInteractiveText::~tPMenuItemNonInteractiveText()
 void tPMenuItemNonInteractiveText::Draw(bool selected)
 
 {
-  
+  /* SYM-ABI-PARAM: selected -- required by the virtual signature/linkage but
+     unused and therefore absent from the optimized SYM declaration block. */
   PauseMenu_MenuText((short)this->fTextDescription,false,0);
   return;
 }
@@ -427,6 +433,8 @@ tPMenuItemLeftRightChoice::~tPMenuItemLeftRightChoice()
 void tPMenuItemLeftRightChoice::ProcessInput(tInputKeyType &keyval,tPMenuCommand &command)
 
 {
+  /* SYM-ABI-PARAM: command -- required by the virtual signature/linkage but
+     unused and therefore absent from the optimized SYM declaration block. */
   if (keyval == kInput_KeyType_Left) {
     goto left;
   }
@@ -677,6 +685,10 @@ void tPMenuItemLeftRightSlider::Draw(bool selected)
        This also RETIRES the old `__asm__("" : : "r"(i * 5))` allocation fence --
        the giv now supplies those refs by itself. */
     {
+      /* SYM-CODEGEN-CARRIER: off -- the direct and two-statement alternatives
+         are measured in the receipt above (5 and 106 diffs respectively),
+         while reversing `x + off` leaves two diffs. This block-local affine
+         quantity is required for retail loop-giv reduction. */
       int off = i * 5 + 66;
       xpos = x + off;
     }
@@ -989,15 +1001,12 @@ void tPMenu::Initialize()
 bool tPMenu::Debounce()
 
 {
-  __vtbl_ptr_type (*pa_Var1) [7];
-  
-  pa_Var1 = this->fItemList[this->fCurrentItem]->_vf;
   /* SYM declares the virtual result as native bool.  Preserve that result type
      at the manual vtable boundary so GCC trusts the callee's normalization,
      just as it would for the original C++ virtual call. */
-  return (*(bool (*)(...))(*pa_Var1)[3].pfn)
+  return (*(bool (*)(...))(*this->fItemList[this->fCurrentItem]->_vf)[3].pfn)
                          ((int)&this->fItemList[this->fCurrentItem]->fFlags +
-                          (int)(*pa_Var1)[3].delta);
+                          (int)(*this->fItemList[this->fCurrentItem]->_vf)[3].delta);
 }
 
 

@@ -778,12 +778,11 @@ void AIPhysic_SimplePhysics_LatVel(Car_tObj *carObj)
         carObj->laneChangeSpeed = 0;
     } else {
         int carSpeed = carObj->currentSpeed;
-        int absV = __builtin_abs(carSpeed);
         carObj->laneChangeSpeed = off;
-        if (off < -absV)
-            carObj->laneChangeSpeed = -absV;
-        else if (absV < off)
-            carObj->laneChangeSpeed = absV;
+        if (off < -__builtin_abs(carSpeed))
+            carObj->laneChangeSpeed = -__builtin_abs(carSpeed);
+        else if (__builtin_abs(carSpeed) < off)
+            carObj->laneChangeSpeed = __builtin_abs(carSpeed);
     }
 }
 
@@ -868,14 +867,12 @@ void AIPhysic_Preperation(Car_tObj *carObj)
   (carObj->angularVel_ch).z = fixedmult((carObj->N).angularVel.x,(carObj->N).orientMat.m[6]) +
       fixedmult((carObj->N).angularVel.y,(carObj->N).orientMat.m[7]) +
       fixedmult((carObj->N).angularVel.z,(carObj->N).orientMat.m[8]);
-  {
-    int lat = __builtin_abs((carObj->linearVel_ch).x);
-    if (lat / 256 * 0x19 < lat) {
-      carObj->slide = 0x8000;
-    }
-    else {
-      carObj->slide = 0;
-    }
+  if (__builtin_abs((carObj->linearVel_ch).x) / 256 * 0x19 <
+      __builtin_abs((carObj->linearVel_ch).x)) {
+    carObj->slide = 0x8000;
+  }
+  else {
+    carObj->slide = 0;
   }
   forward = *(coorddef *)&(carObj->N).orientMat.m[6];
   if (carObj->driveDirection == 1) {
@@ -1518,6 +1515,33 @@ int AIPhysic_GetRearEndDamageFactor(Car_tObj *carObj)
     return result;
 }
 
+/* The retail SYM has no `r` local in AIPhysic_InControlPhysics, while the
+ * instruction stream repeatedly has the same three-statement clamp expansion.
+ * Keep the expansion in TU-local macros so the source boundary is explicit;
+ * the descriptive macro names are not recoverable from the debug data. */
+#define AIPHYSIC_CLAMP_LOWER(value, lower) \
+  { \
+    int r; \
+    r = lower; \
+    if (r < value) r = value; \
+    value = r; \
+  }
+
+#define AIPHYSIC_ADD_FISHTAIL(angle, sign, tick) \
+  { \
+    int r; \
+    r = sign * 0x1e; \
+    angle += r * (0x96 - tick) / 0x32; \
+  }
+
+#define AIPHYSIC_KEEP_LAT_CLAMP(value, limit) \
+  { \
+    int r; \
+    r = limit; \
+    if (value < limit) r = value; \
+    __asm__("" : : "r" (r), "r" (limit)); \
+  }
+
 /* ---- AIPhysic_InControlPhysics__FP8Car_tObj ---- */
 void AIPhysic_InControlPhysics(Car_tObj *carObj)
 {
@@ -1628,9 +1652,7 @@ void AIPhysic_InControlPhysics(Car_tObj *carObj)
       signAngle = -1;
     }
     if (0x96 - fishtailtick < 0x32) {
-      int r;
-      r = signAngle * 0x1e;   /* stmt boundary blocks reassociation */
-      angleWRTdesired += r * (0x96 - fishtailtick) / 0x32;
+      AIPHYSIC_ADD_FISHTAIL(angleWRTdesired,signAngle,fishtailtick);
     }
     else {
       angleWRTdesired += signAngle * (fishtailtick / 7 + 10);
@@ -1651,68 +1673,33 @@ void AIPhysic_InControlPhysics(Car_tObj *carObj)
   desiredAngVel = -angleWRTdesired * fixedmult(0x80,AIPhysicConfig.ICModel.dangle_to_dav);
   desiredAngVel = (desiredAngVel < AIPhysicConfig.ICModel.max_dav)
       ? desiredAngVel : AIPhysicConfig.ICModel.max_dav;
-  {
-    int r;
-    r = -AIPhysicConfig.ICModel.max_dav;
-    if (r < desiredAngVel) r = desiredAngVel;
-    desiredAngVel = r;
-  }
+  AIPHYSIC_CLAMP_LOWER(desiredAngVel,-AIPhysicConfig.ICModel.max_dav);
   desiredLatVel = -((deltaLatPos / 256) * (AIPhysicConfig.ICModel.dlpos_to_dlvel / 256));
   desiredLatVel = (desiredLatVel < AIPhysicConfig.ICModel.max_dlvel)
       ? desiredLatVel : AIPhysicConfig.ICModel.max_dlvel;
-  {
-    int r;
-    r = -AIPhysicConfig.ICModel.max_dlvel;
-    if (r < desiredLatVel) r = desiredLatVel;
-    desiredLatVel = r;
-  }
+  AIPHYSIC_CLAMP_LOWER(desiredLatVel,-AIPhysicConfig.ICModel.max_dlvel);
   desiredLatVel = (desiredLatVel < carObj->speed) ? desiredLatVel : carObj->speed;
-  {
-    int r;
-    r = -carObj->speed;
-    if (r < desiredLatVel) r = desiredLatVel;
-    desiredLatVel = r;
-  }
+  AIPHYSIC_CLAMP_LOWER(desiredLatVel,-carObj->speed);
   if ((-AIPhysicConfig.ICModel.vel_limit_range < carObj->currentSpeed) &&
       (carObj->currentSpeed < AIPhysicConfig.ICModel.vel_limit_range)) {
     int maxLatVel;
     int maxAngVel;
     maxLatVel = (carObj->speed / 256) * (AIPhysicConfig.ICModel.lat_vel_limit_factor / 256);
     maxLatVel = __builtin_abs(maxLatVel);
-    {
-      int r;
-      r = maxLatVel;
-      if (desiredLatVel < maxLatVel) r = desiredLatVel;
-      __asm__("" : : "r" (r), "r" (maxLatVel));  /* liveness fence: original keeps the dead lat clamp */
-    }
+    AIPHYSIC_KEEP_LAT_CLAMP(desiredLatVel,maxLatVel);
     maxAngVel = (carObj->speed / 256) * (AIPhysicConfig.ICModel.ang_vel_limit_factor / 256);
     maxAngVel = __builtin_abs(maxAngVel);
     desiredAngVel = (desiredAngVel < maxAngVel) ? desiredAngVel : maxAngVel;
-    {
-      int r;
-      r = -maxAngVel;
-      if (r < desiredAngVel) r = desiredAngVel;
-      desiredAngVel = r;
-    }
+    AIPHYSIC_CLAMP_LOWER(desiredAngVel,-maxAngVel);
   }
   currentAngAcc = -fixedmult((carObj->angularVel_ch).y - desiredAngVel,AIPhysicConfig.ICModel.dav_to_aa);
   currentAngAcc = (currentAngAcc < maxAngularAcceleration)
       ? currentAngAcc : maxAngularAcceleration;
-  {
-    int r;
-    r = -maxAngularAcceleration;
-    if (r < currentAngAcc) r = currentAngAcc;
-    currentAngAcc = r;
-  }
+  AIPHYSIC_CLAMP_LOWER(currentAngAcc,-maxAngularAcceleration);
   currentLatAcc = -dir * fixedmult(currentLatVel,dlvel_to_clacc);
   currentLatAcc = (currentLatAcc < maxLateralAcceleration)
       ? currentLatAcc : maxLateralAcceleration;
-  {
-    int r;
-    r = -maxLateralAcceleration;
-    if (r < currentLatAcc) r = currentLatAcc;
-    currentLatAcc = r;
-  }
+  AIPHYSIC_CLAMP_LOWER(currentLatAcc,-maxLateralAcceleration);
   if (((desiredSpeed * dir > carObj->currentSpeed * dir) && (carObj->pullOver == 0)) &&
       (carObj->desiredDirection == carObj->direction)) {
     currentLongAcc = AIPhysic_CalcAcceleration(carObj,carObj->currentSpeed);
@@ -1775,6 +1762,10 @@ void AIPhysic_InControlPhysics(Car_tObj *carObj)
      `vely = angularVel.y` read -- neither moved the scheduler's slot choice. GENUINE
      scheduling-priority FLOOR (Catalog §F); not source-reachable, no pin. */
 }
+
+#undef AIPHYSIC_KEEP_LAT_CLAMP
+#undef AIPHYSIC_ADD_FISHTAIL
+#undef AIPHYSIC_CLAMP_LOWER
 
 /* ---- AIPhysic_FinishUp__FP8Car_tObj ---- */
 void AIPhysic_FinishUp(Car_tObj *carObj)
@@ -1918,11 +1909,8 @@ int AIPhysic_HitWallCheck(Car_tObj *carObj)
  * (hand-rolled `if(v<0)v=-v` vs oracle's inline `bgez;negu`). __builtin_abs collapsed it. */
 void AIPhysic_ProcessBarrierCollision(Car_tObj *carObj)
 {
-    int v;
     if (carObj->carFlags & 4) return;
-    v = carObj->currentSpeed;
-    v = __builtin_abs(v);
-    if (0x9FFFF < v) return;
+    if (0x9FFFF < __builtin_abs(carObj->currentSpeed)) return;
     AIPhysic_ChangeDirection(carObj, 0x60);
 }
 
@@ -1931,12 +1919,9 @@ void AIPhysic_ProcessCollision(Car_tObj *carObj)
 {
     /* SYM-OPTIMIZED: reverseTime -- the named $a1 value is the conditional
      * call argument below and has no separate source storage. */
-    int v;
     if (0xD999 < carObj->N.collision.impulse) {
         if (carObj->N.collision.otherObj != 0) {
-            v = carObj->currentSpeed;
-            v = __builtin_abs(v);
-            if (!(0x9FFFF < v)) {
+            if (!(0x9FFFF < __builtin_abs(carObj->currentSpeed))) {
                 AIPhysic_ChangeDirection(carObj, (carObj->carFlags & 0x10) ? 0xA0 : 0x60);
             }
         }

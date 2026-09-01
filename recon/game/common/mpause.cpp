@@ -222,6 +222,10 @@ void MPause_MusicLogic(char active)
 void MPause_ControllerLogic(void)
 
 {
+  /* SYM-CODEGEN-CARRIER: item -- the optimized retail pointer has no retained
+     debug record. Direct member calls grow the function from 57 to 64
+     instructions and produce 57 frame/allocation/load diffs; this shared
+     pointer restores the retail caller-saved address web. */
   tPMenuItemLeftRightSliderIndexed *item;
 
   if (PadGetState((u_int)(Device_gPausePortIndex != '\0') << 4) == 2) {
@@ -452,6 +456,10 @@ void MPause_EndPauseMenu(void)
 
 {
   {
+    /* SYM-CODEGEN-CARRIER: deviceSetup -- a direct word index emits 16/15
+       instructions with five diffs; direct byte arithmetic is count-exact but
+       folds +96 into the pointer and leaves two MEM-offset diffs. This scoped
+       base preserves retail's `index<<2` address plus `lw 96(base)` form. */
     int *deviceSetup = (int *)((char *)MPause_GameSetupWords +
                               ((u_char)Device_gPausePortIndex << 2));
     InGame_ResetPSXController((u_int)(u_char)Device_gPausePortIndex,

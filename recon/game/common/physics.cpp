@@ -166,6 +166,10 @@ void Physics_CalculateDerivedCarSpecs(Car_tObj *carObj)
 
 {
   int i;
+  /* SYM-CODEGEN-CARRIER: rpmAtMaxSpeedInHighestGear -- the retail SYM retains
+     only the following acceleration result. Inlining this fixedmult/divide
+     shrinks 324 instructions to 320 and produces 38 allocation/load diffs;
+     the eliminated intermediate preserves the retail saved-register web. */
   int rpmAtMaxSpeedInHighestGear;
   int accAtMaxSpeedInHighestGear;
 
@@ -745,6 +749,9 @@ void Physics_AutoShift(Car_tObj *carObj)
   int SkipLastGear;
   int ShiftPoint;
   int sliding;
+  /* SYM-CODEGEN-CARRIER: lastGearOffset -- absent from retained debug locals,
+     but the function-scope snapshot is the measured allocator lever described
+     above: removing/inlining it leaves 20 diffs, while block scope leaves 46. */
   int lastGearOffset;
 
   SkipLastGear = 0;
@@ -842,7 +849,6 @@ void Physics_RampCarControlValues(Car_tObj *carObj)
 
 {
   int diff;
-  int iVar5;
   int i;
   int gear;
   
@@ -1058,34 +1064,34 @@ RampCtrl_earlyBrake:
     }
     (carObj->control).handBrake = '\x01';
   }
-  iVar5 = (((u_char)(carObj->control).gasLevel + 1) * 0x10000) / 0xf8;
-  if (0x10000 < iVar5) {
-    iVar5 = 0x10000;
+  diff = (((u_char)(carObj->control).gasLevel + 1) * 0x10000) / 0xf8;
+  if (0x10000 < diff) {
+    diff = 0x10000;
   }
-  gGasRatio = iVar5;
-  iVar5 = (((u_char)(carObj->control).brakeLevel + 1) * 0x10000) / 0xf8;
-  if (0x10000 < iVar5) {
-    iVar5 = 0x10000;
+  gGasRatio = diff;
+  diff = (((u_char)(carObj->control).brakeLevel + 1) * 0x10000) / 0xf8;
+  if (0x10000 < diff) {
+    diff = 0x10000;
   }
-  gBrakeRatio = iVar5;
+  gBrakeRatio = diff;
   /* MATCH: __builtin_abs INLINE in the shift expression (27->14).  The hand-rolled
      `if (x<0) x = -x;` lets gcc speculate the `sll` into the bgez delay slot AND
      re-emit it after the negu (two slls); the builtin's bgez/negu/sll idiom is
-     retail's.  Routing it through iVar5 first only reaches 22/26 -- the operand
+     retail's.  Routing it through a separate temp first only reaches 22/26 -- the operand
      must be the field read itself (methodology 5.0c __builtin_abs lever). */
   gSteerRatio = __builtin_abs((carObj->control).steering) << 9;
   if (((PHYSICS_TRANSMISSION_AT(carObj->carIndex) == 1) &&
       ((carObj->control).gear == '\0')) && ((carObj->control).hanno == 1)) {
-    iVar5 = (((u_char)(carObj->control).brakeLevel + 1) * 0x10000) / 0xf8;
-    if (0x10000 < iVar5) {
-      iVar5 = 0x10000;
+    diff = (((u_char)(carObj->control).brakeLevel + 1) * 0x10000) / 0xf8;
+    if (0x10000 < diff) {
+      diff = 0x10000;
     }
-    gGasRatio = iVar5;
-    iVar5 = (((u_char)(carObj->control).gasLevel + 1) * 0x10000) / 0xf8;
-    if (0x10000 < iVar5) {
-      iVar5 = 0x10000;
+    gGasRatio = diff;
+    diff = (((u_char)(carObj->control).gasLevel + 1) * 0x10000) / 0xf8;
+    if (0x10000 < diff) {
+      diff = 0x10000;
     }
-    gBrakeRatio = iVar5;
+    gBrakeRatio = diff;
   }
   return;
 }
@@ -1215,15 +1221,14 @@ void Physics_StopCar(Car_tObj *carObj)
 void Physics_TestForBarrierCollision(Car_tObj *carObj)
 
 {
-  int iVar1;
   int hit;
   
-  iVar1 = Physics_DoBarrierCheck(carObj);
-  if (iVar1 != 0) {
+  hit = Physics_DoBarrierCheck(carObj);
+  if (hit != 0) {
     if ((carObj->carFlags & 4U) != 0) {
       Physics_FixEngineRpm(carObj);
     }
-    carObj->crash = iVar1;
+    carObj->crash = hit;
   }
   return;
 }
@@ -1239,7 +1244,6 @@ void Physics_CalculateRoadGripModifiers(Car_tObj *carObj)
   int i;
   int roadSurfaceType;
   int tempSurface;
-  int speed;
 
   frontWheels = 0;
   rearWheels = 0;
@@ -1273,13 +1277,12 @@ void Physics_CalculateRoadGripModifiers(Car_tObj *carObj)
   rearMult = rearWheels >> 1;
   leftMult = leftWheels >> 1;
   rightMult = rightWheels >> 1;
-  speed = (carObj->linearVel_ch).z;
   roadMult = (frontMult + rearMult >> 1) + (carObj->N).roadGravityModifier;
-  if (0x50000 < speed) {
-    speed = fixedmult(speed,carObj->specs->frontAeroDownForce);
-    frontMult = frontMult + speed;
-    speed = fixedmult((carObj->linearVel_ch).z,carObj->specs->rearAeroDownForce);
-    rearMult = rearMult + speed;
+  if (0x50000 < (carObj->linearVel_ch).z) {
+    frontMult = frontMult +
+        fixedmult((carObj->linearVel_ch).z,carObj->specs->frontAeroDownForce);
+    rearMult = rearMult +
+        fixedmult((carObj->linearVel_ch).z,carObj->specs->rearAeroDownForce);
   }
   return;
 }
@@ -2173,6 +2176,10 @@ int Physics_CalculateRSControlDesiredPosition(Car_tObj *carObj,int sliceAhead,in
   else {
     int desLane;
     int laneOffset;
+    /* SYM-CODEGEN-CARRIER: laneDelta -- both direct `6 - desLane` uses remain
+       count-exact at 112 instructions but change ten constant/global-load and
+       scratch-register instructions. The optimized difference restores the
+       retail shared value web without observable storage. */
     int laneDelta;
 
     desLane = 6;

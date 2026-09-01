@@ -454,6 +454,10 @@ void Collide_TestWithPlane(BO_tNewtonObj *o,coorddef *normal,coorddef *samplePoi
   int xDir;
   int Y_DIR;
   int zDir;
+  /* SYM-CODEGEN-CARRIER: relDotFull -- the retail SYM retains relativeDot in $v1
+     but not this final sum. Reusing relativeDot keeps the instruction count at
+     779 yet changes 250 allocated instructions; this separate result restores
+     the byte-exact $a1 scratch web without inventing observable storage. */
   int relDotFull;
 
   /* MATCH: SYM rule-8 rebuild - names/blocks from the SYM 8c block; inline /256 idiom
@@ -499,8 +503,6 @@ void Collide_TestWithPlane(BO_tNewtonObj *o,coorddef *normal,coorddef *samplePoi
   relativeDot = (normal->x / 256) * (relativePos.x / 256) +
                 (normal->y / 256) * (relativePos.y / 256) +
                 (normal->z / 256) * (relativePos.z / 256);
-  /* MATCH: fresh (anonymous) result var - oracle keeps the full sum in a scratch ($a1),
-     Asum as LEFT addu operand; accumulating into relativeDot itself flips the operands */
   relDotFull = (xDir * basisDots[0] + Y_DIR * basisDots[1] + zDir * basisDots[2]) + relativeDot;
   if (relDotFull < 0) {
     int height;
@@ -1794,6 +1796,10 @@ void Collide_ClearCollisionRegistry(void)
   }
   carLoop = 0;
   {
+    /* SYM-CODEGEN-CARRIER: n -- the optimized retail bound has no surviving
+       debug record. A direct global bound is count-exact but has six register
+       diffs; structured while/do/for spellings add 1-4 instructions. Keeping
+       this eliminated source snapshot reproduces the exact $a0 bound web. */
     int n = Cars_gNumCars;
 carloop_top:
     if (carLoop < n) {
@@ -1955,6 +1961,10 @@ void Collide_CheckMeForCollisions(BO_tNewtonObj *newObj)
                 }
               }
               else if (0x190000 < newObj->speedXZ) {
+                /* SYM-CODEGEN-CARRIER: minImpulse -- a literal comparison is
+                   canonicalized to 0x1dffff and adds one instruction (7 diffs,
+                   382/381); the ternary is count-exact but has 12 diffs. This
+                   eliminated threshold quantity preserves retail's direct slt. */
                 int minImpulse;
 
                 impulse = newObj->speedXZ;

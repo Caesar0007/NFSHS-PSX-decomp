@@ -1096,10 +1096,7 @@ nextWheel:;
 void Newton_LimitCarsToDrivableDist(BO_tNewtonObj *newtonObj)
 
 {
-  int iVar1;
-  
-  iVar1 = Physics_DoBarrierCheck((Car_tObj *)newtonObj);
-  if (iVar1 != 0) {
+  if (Physics_DoBarrierCheck((Car_tObj *)newtonObj) != 0) {
     (newtonObj->collision).impulse = 0;
     (newtonObj->collision).otherObj = (BO_tNewtonObj *)0x0;
     Newton_FindClosestQuad(newtonObj);
@@ -1161,7 +1158,6 @@ int Newton_CalcPerpenHeightOfLowestPointFromGround(BO_tNewtonObj *newtonObj,coor
 int Newton_CalcPerpenHeightOfCenterPointFromGround(BO_tNewtonObj *newtonObj,coorddef *normal,coorddef *samplePoint)
 
 {
-  int iVar1;
   int relativeDot;
   coorddef relativePos;
 
@@ -1170,8 +1166,7 @@ int Newton_CalcPerpenHeightOfCenterPointFromGround(BO_tNewtonObj *newtonObj,coor
   relativePos.z = (newtonObj->position).z - samplePoint->z;
   relativeDot = fixedmult(normal->x,relativePos.x) + fixedmult(normal->y,relativePos.y) +
                 fixedmult(normal->z,relativePos.z);
-  iVar1 = __builtin_abs((newtonObj->orientationToGround).y);
-  if (0xb334 <= iVar1) {
+  if (0xb334 <= __builtin_abs((newtonObj->orientationToGround).y)) {
     return relativeDot - (newtonObj->dimension).y; /* MATCH: direct return per-arm, not via a shared iVar1 temp -- verify_asm 2026-07-11 */
   }
   return relativeDot - (newtonObj->dimension).x;
@@ -1737,15 +1732,10 @@ extern "C" void Newton_CalculateGroundShadowMatrix(BO_tNewtonObj *newtonObj,coor
     newtonObj->shadowMat.m[5] = r3;
   }
   if (orientToGround < 0x8000) {
-    int dot;
-
-    dot = newtonObj->orientMat.m[0] / 256 * (normal->x / 256) +
+    if (0.5 < (double)__builtin_abs(
+          newtonObj->orientMat.m[0] / 256 * (normal->x / 256) +
           newtonObj->orientMat.m[1] / 256 * (normal->y / 256) +
-          newtonObj->orientMat.m[2] / 256 * (normal->z / 256);
-    if (dot < 0) {
-      dot = -dot;
-    }
-    if (0.5 < (double)dot) {
+          newtonObj->orientMat.m[2] / 256 * (normal->z / 256))) {
       newtonObj->shadowMat.m[0] =
            fixedmult(newtonObj->shadowMat.m[4],newtonObj->orientMat.m[8]) -
            fixedmult(newtonObj->shadowMat.m[5],newtonObj->orientMat.m[7]);
@@ -2922,22 +2912,23 @@ NewtonTestUndrv_loop2:
 extern "C" void Newton_LimitAngularVelocity(BO_tNewtonObj *newtonObj)
 
 {
-  u_int uVar1;
-  
-  uVar1 = 0x18000;
-  if ((0x18000 < newtonObj->angularVel.x) ||
-     (uVar1 = 0xfffe8000, newtonObj->angularVel.x < -0x18000)) {
-    newtonObj->angularVel.x = uVar1;
+  if (0x18000 < newtonObj->angularVel.x) {
+    newtonObj->angularVel.x = 0x18000;
   }
-  uVar1 = 0x18000;
-  if ((0x18000 < newtonObj->angularVel.y) ||
-     (uVar1 = 0xfffe8000, newtonObj->angularVel.y < -0x18000)) {
-    newtonObj->angularVel.y = uVar1;
+  else if (newtonObj->angularVel.x < -0x18000) {
+    newtonObj->angularVel.x = -0x18000;
   }
-  uVar1 = 0x18000;
-  if ((0x18000 < newtonObj->angularVel.z) ||
-     (uVar1 = 0xfffe8000, newtonObj->angularVel.z < -0x18000)) {
-    newtonObj->angularVel.z = uVar1;
+  if (0x18000 < newtonObj->angularVel.y) {
+    newtonObj->angularVel.y = 0x18000;
+  }
+  else if (newtonObj->angularVel.y < -0x18000) {
+    newtonObj->angularVel.y = -0x18000;
+  }
+  if (0x18000 < newtonObj->angularVel.z) {
+    newtonObj->angularVel.z = 0x18000;
+  }
+  else if (newtonObj->angularVel.z < -0x18000) {
+    newtonObj->angularVel.z = -0x18000;
   }
   return;
 }
@@ -3011,6 +3002,11 @@ extern "C" void Newton_ApplyTheLawOfGravity(BO_tNewtonObj *newtonObj)
             collisionPoint.y -= 0x1999;
             Collide_TestWithPlane(newtonObj,&normal,&collisionPoint);
             if (newtonObj->collision.impulse > 0x50000) {
+              /* SYM-CODEGEN-CARRIER: maxImpulse -- this optimized selection
+                 has no retained debug record. The direct range clamp emits
+                 314/315 with 21 diffs; the direct ternary emits 314/315 with
+                 13 diffs. This eliminated source result alone reproduces the
+                 retail two-branch $a0 selection and byte-exact 315 instructions. */
               int maxImpulse = 0x140000;
               if (newtonObj->collision.impulse > 0x13ffff) {
                 maxImpulse = newtonObj->collision.impulse;

@@ -51,8 +51,6 @@ void AIHigh_BTC_Perp::ReleaseCops()
 
   Car_tObj *otherCarObj;
 
-  Car_tObj **ppCVar2;
-
 
 
   carLoop = 0;
@@ -608,14 +606,7 @@ void AIHigh_BTC_Perp::ClearForNewStage(AIHigh_BTC_HumanCop *chaserCop)
 
 
 {
-
-  Car_tObj *pCVar1;
-
-  
-
   this->Clear();
-
-  pCVar1 = this->carObj_;
 
   this->basicPerpInfo_.copsAssigned_[0] = 0;
 
@@ -625,7 +616,7 @@ void AIHigh_BTC_Perp::ClearForNewStage(AIHigh_BTC_HumanCop *chaserCop)
 
   this->caught_ = 0;
 
-  pCVar1->unlap = 0;
+  this->carObj_->unlap = 0;
 
   (this->carObj_)->lap =
 
@@ -1193,7 +1184,11 @@ void AIHigh_BTC_AIPerp::CalculateTimeTillContact()
 
         this->closestCopCarObj_->currentSpeed;
 
-    int copDistance = this->closestCopCarDistanceMeters_;   /* MATCH: hoisted above the if (oracle loads it unconditionally, before the sltu range check) */
+    /* SYM-CODEGEN-CARRIER: copDistance -- the optimized field snapshot is
+       absent from the retained debug block. Direct use moves the load below
+       the range check and inserts a nop (42/41 instructions, three diffs);
+       this statement preserves the retail unconditional pre-check load. */
+    int copDistance = this->closestCopCarDistanceMeters_;
 
     if (0xfffe < relVel + 0x7fffU) {
 

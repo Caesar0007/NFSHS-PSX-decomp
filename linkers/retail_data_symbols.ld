@@ -7,6 +7,15 @@
  * future reconstructed vars/data TU may define any name normally; PROVIDE
  * deliberately yields to that real definition.
  */
+/* FRONTEND/PSX/ADDRESS.ASM overlay boundaries.  NFS4.MAP and the compact
+ * SYM records agree on the exact start/end/size values; address.obj stores
+ * relocations to these linker-owned symbols rather than allocating them. */
+PROVIDE(_front_obj = 0x80010000);
+PROVIDE(_front_objend = 0x80054548);
+PROVIDE(_front_org = 0x80010000);
+PROVIDE(_front_orgend = 0x80054548);
+PROVIDE(_front_size = 0x00044548);
+
 PROVIDE(gPadinfo = 0x8013E89C);
 PROVIDE(Padglobal = 0x8013E8F0);
 PROVIDE(memclass = 0x8013E900);

@@ -2319,24 +2319,23 @@ void DispatchSpeaker::Accident(int slice)
 void DispatchSpeaker::Deny()
 
 {
-  __vtbl_ptr_type (*pa_Var1) [31];
-  int iVar2;
-  int iVar3;
-  Speaker *pSVar4;
-  void *ctx;
+  /* SYM-CODEGEN-CARRIER: vs_RDBLK_SSTRP -- retaining the blockade address as
+     one pseudo gives retail's a0/v0/v1 branch-and-delay-slot layout; spelling
+     the receiver/field expression directly is count-exact but costs 10 diffs. */
   SPCHNFSType_vs_RDBLK_SSTRP *vs_RDBLK_SSTRP;
-  SPCHNFSType_REVINTRO *REVINTRO;
-  int reg_a3;
   
   if ((this->_base_Speaker).fSub != (Speaker *)0x0) {
     Speech_fgSpeech->fSpeakerCar = (Car_tObj *)0x0;
     /* MATCH: retail SLD line 2060 owns BOTH vtable calls AND the index scale +
        load (one fused statement); line 2061 owns only the INTRO_CALL args, with
-       `fTo = ctx` written as the arg-0 assignment (oracle `sw a0,60(s1)` in the
+       `fTo = bank[2]` written as the arg-0 assignment (oracle `sw a0,60(s1)` in the
        jal delay slot).  Splitting the calls into iVar2/iVar3 statements and
        storing fTo separately cost 21 diffs. [05A LAW: SLD = statement order]
        The arg-0 term order also matters: base FIRST (`addu a0,s1,a0`). */
     {
+      /* SYM-CODEGEN-CARRIER: bank -- this scoped computed base coalesces with
+         the first virtual result and mutates in place; the anonymous address
+         expression moves the add into the scaled temporary and loses PASS. */
       /* MATCH: the computed base needs its OWN (block-scoped) variable -- gcc then
          coalesces `bank` with the 1st call's result pseudo and mutates it IN PLACE
          (oracle `addu s0,s0,v0; lw a0,8(s0)`).  As an anonymous sub-expression
@@ -2348,18 +2347,16 @@ void DispatchSpeaker::Deny()
          (*(*(this->_base_Speaker).fSub->_vf)[0x11].pfn)
                    ((int)&(this->_base_Speaker).fSub->fPosition.flags +
                     (int)(*(this->_base_Speaker).fSub->_vf)[0x11].delta) * 4);
-      ctx = (void *)bank[2];
+      SPCHNFS_D_C_INTRO_CALL((this->_base_Speaker).fTo = bank[2],
+                            (this->_base_Speaker).fFrom,
+                            &(this->_base_Speaker).fReverse);
     }
-    iVar2 = (this->_base_Speaker).fFrom;
-    REVINTRO = &(this->_base_Speaker).fReverse;
-    SPCHNFS_D_C_INTRO_CALL((this->_base_Speaker).fTo = (int)ctx,iVar2,REVINTRO);
     SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-    pSVar4 = (this->_base_Speaker).fSub;
-    vs_RDBLK_SSTRP = &pSVar4->fBlockade;
+    vs_RDBLK_SSTRP = &(this->_base_Speaker).fSub->fBlockade;
     /* MATCH: retail's FALL-THROUGH arm is the RDBLK one (oracle `beqz v1` +
        `addiu a0,v0,20` in the slot); the `flags == 0` spelling puts
        DENIED_REPLY first and flips the branch polarity. */
-    if ((pSVar4->fBlockade).flags != 0) {
+    if (vs_RDBLK_SSTRP->flags != 0) {
       SPCHNFS_D_C_RDBLK_SPBLT_DENIED_REPLY(vs_RDBLK_SSTRP);
     }
     else {
@@ -3459,14 +3456,9 @@ void MobileSpeaker::ReportBlockade()
 
 {
   Car_tObj *carObj;
-  __vtbl_ptr_type (*pa_Var1) [31];
-  int iVar2;
-  Car_tObj *car;
-  SPCHNFSType_VOICE *ctx;
-  SPCHNFSType_VOICE *VOICE;
-  int ID_UNIT1;
-  SPCHNFSType_SPIKE_BELT_SIDE *SPIKE_BELT_SIDE;
-  SPCHNFSType_REVINTRO *REVINTRO;
+  /* SYM-CODEGEN-CARRIER: DISTANCE -- staging the arm-dependent fourth macro
+     argument preserves retail's addiu/lw/jal order; direct field arguments
+     remain 63/63 but move the addiu into the jal delay slot (6 diffs). */
   SPCHNFSType_DISTANCE *DISTANCE;
   
   Speech_fgSpeech->fSpeakerCar = this->fCarObj;
@@ -3474,38 +3466,33 @@ void MobileSpeaker::ReportBlockade()
      A hoisted `pa_Var1 = _vf;` local is a Ghidra artifact: it becomes its own
      pseudo ($v1) so the pfn load can't reuse the vtable base reg -- oracle
      `lw v0,76(s1); lh a0,240(v0); lw v0,244(v0)` (self-temp). 6 -> 0. */
-  iVar2 = (*(*(this->_base_Speaker)._vf)[0x1e].pfn)
-                    ((int)&(this->_base_Speaker).fPosition.flags +
-                     (int)(*(this->_base_Speaker)._vf)[0x1e].delta);
-  (this->_base_Speaker).fTo = *(int *)(iVar2 + 4);
-  car = (Car_tObj *)
+  (this->_base_Speaker).fTo = *(int *)
+      ((*(*(this->_base_Speaker)._vf)[0x1e].pfn)
+         ((int)&(this->_base_Speaker).fPosition.flags +
+          (int)(*(this->_base_Speaker)._vf)[0x1e].delta) + 4);
+  carObj = (Car_tObj *)
         (*(*(this->_base_Speaker)._vf)[0x19].pfn)
                   ((int)&(this->_base_Speaker).fPosition.flags +
                    (int)(*(this->_base_Speaker)._vf)[0x19].delta);
-  this->_base_Speaker.FindLocation(car);
+  this->_base_Speaker.FindLocation(carObj);
   (this->_base_Speaker).fSpikeSide.flags = 4;
-  /* MATCH: NO pre-branch `VOICE = &pThis->fVoice;` -- hoisting it above the
-     `if` made VOICE a pre-branch pseudo (`addiu s1,s0,80` in the bne delay
-     slot) and flipped the WHOLE s0<->s1 map (pThis<->VOICE).  Retail keeps
-     VOICE local to the taken arm and rematerializes `&pThis->fVoice` straight
-     into $a0 for the else arm (reorg then steals that `addiu a0,s1,80` into
-     the bne delay slot).  46 -> 6 diffs. */
+  /* MATCH: keep `&this->fVoice` inside each arm.  Hoisting it above the `if`
+     creates a pre-branch pseudo (`addiu s1,s0,80` in the bne delay slot) and
+     flips the whole s0<->s1 map.  Arm-local expressions rematerialize the
+     address directly in $a0, including the else-arm delay-slot fill. */
   if ((this->_base_Speaker).fBlockade.flags == 2) {
-    VOICE = &this->fVoice;
-    iVar2 = (this->_base_Speaker).fTo;
-    ID_UNIT1 = (this->_base_Speaker).fFrom;
-    REVINTRO = &(this->_base_Speaker).fReverse;
-    ctx = VOICE;
-    SPCHNFS_C_A_INTRO(VOICE,iVar2,ID_UNIT1,REVINTRO);
+    SPCHNFS_C_A_INTRO(&this->fVoice,(this->_base_Speaker).fTo,
+                      (this->_base_Speaker).fFrom,
+                      &(this->_base_Speaker).fReverse);
     SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-    SPIKE_BELT_SIDE = (SPCHNFSType_SPIKE_BELT_SIDE *)(this->_base_Speaker).fLocation;
     DISTANCE = &(this->_base_Speaker).fDistance;
-    SPCHNFS_W_D_RDBLK_PLC(VOICE,(SPCHNFSType_POSITION *)this,(int)SPIKE_BELT_SIDE,DISTANCE);
+    SPCHNFS_W_D_RDBLK_PLC(&this->fVoice,(SPCHNFSType_POSITION *)this,
+                          (this->_base_Speaker).fLocation,DISTANCE);
   }
   else {
-    SPIKE_BELT_SIDE = &(this->_base_Speaker).fSpikeSide;
     DISTANCE = (SPCHNFSType_DISTANCE *)(this->_base_Speaker).fFrom;
-    SPCHNFS_W_D_SPBLT_PLC(&this->fVoice,(SPCHNFSType_POSITION *)this,SPIKE_BELT_SIDE,(int)DISTANCE,
+    SPCHNFS_W_D_SPBLT_PLC(&this->fVoice,(SPCHNFSType_POSITION *)this,
+               &(this->_base_Speaker).fSpikeSide,(int)DISTANCE,
                (this->_base_Speaker).fLocation,&(this->_base_Speaker).fDistance);
   }
   SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */

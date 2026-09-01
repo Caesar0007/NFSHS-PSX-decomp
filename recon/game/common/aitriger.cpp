@@ -279,16 +279,6 @@ int AITrigger_Compare(const void *op1, const void *op2)
 /* ---- AITrigger_TriggerManager::Sort  [@0x80072e30] ---- */
 void AITrigger_TriggerManager::Sort()
 {
-  trigger_t *ta;
-  trigger_t *tb;
-  trigger_t *prevTrigger;
-  trigger_t *firstTrigger;
-  int prevTriggerIndex;
-  int firstTriggerIndex;
-  int size;
-  int *lastTrigger;
-  int *numTriggers;
-  
   if (this->numTriggers_ != 0) {
     qsort(this->triggers_,this->numTriggers_,4,(int)AITrigger_Compare /* @0x80072e18 qsort comparator */);
   }

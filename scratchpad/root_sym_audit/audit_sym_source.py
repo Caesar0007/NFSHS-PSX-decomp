@@ -1647,7 +1647,11 @@ def audit(
         # Universal Ctags synthesizes unstable __anon... identifiers for
         # intentionally unnamed C++ parameters.  They are not source names and
         # therefore cannot be SYM declaration mismatches.
-        source_ignored_names = {"__volatile__"}
+        # Universal Ctags also reports the GNU/PsyQ hard-register spelling
+        # token itself as a declaration named ``__asm__``.  Like
+        # ``__volatile__``, it is syntax attached to a real declaration, not a
+        # source local and therefore cannot be compared with a SYM local row.
+        source_ignored_names = {"__asm__", "__volatile__"}
         if quality == "abi-carrier":
             # The explicit receiver and deleting-destructor control parameter
             # represent SYM's implicit `this`/`__in_chrg`, not source locals.

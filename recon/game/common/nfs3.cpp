@@ -718,6 +718,10 @@ void NFS3_CheckForFileOperations(void)
    * needed (empty template), clobbers none, reg names "$N" accepted by this
    * CC1PLPSX. */
   int *p;
+  /* SYM-CODEGEN-CARRIER: e -- the retail SYM retains only `p`, but this
+   * separate loop-bound pseudo is required by the W74-W76 GCC 2.8.1
+   * global/reload receipt above; folding it into `g` changes the exact
+   * guard-copy and trap-operand allocation. */
   int *e;
 
   p = (int *)gFileMgr.oparray;

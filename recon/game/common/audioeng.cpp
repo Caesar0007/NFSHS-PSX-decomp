@@ -34,13 +34,25 @@ void AudioEng_Set(int player,int vol,int esp,int gas,int cam,int dop,int azi,int
   AudioEng_tAdjustments *a;
   AudioEng_tState *s;
   /* MATCH: snapshot the consumed parameters in retail source order.  GCC then
-     emits the exact s7/s5/a1/s6/s3/s4 prologue handout and load sequence. */
+     emits the exact s7/s5/a1/s6/s3/s4 prologue handout and load sequence.
+     SYM-CODEGEN-CARRIER: volume -- optimized SYM retains the `vol` parameter
+       home under its original name; direct use changes the allocator handout.
+     SYM-CODEGEN-CARRIER: camera -- corresponding `cam` argument-home carrier.
+     SYM-CODEGEN-CARRIER: doppler -- corresponding `dop` argument-home carrier.
+     SYM-CODEGEN-CARRIER: azimuth -- corresponding `azi` argument-home carrier.
+     SYM-CODEGEN-CARRIER: gasLevel -- corresponding `gas` argument-home carrier.
+     SYM-CODEGEN-CARRIER: direction -- corresponding `dir` argument-home
+       carrier; direct `dir` use is count-exact but swaps $s4/$s6 (8 diffs). */
   const int volume = vol;
   const int camera = cam;
   const int doppler = dop;
   const int azimuth = azi;
   const int gasLevel = gas;
   const int direction = dir;
+  /* SYM-CODEGEN-CARRIER: adjustedEsp -- the merged branch result must remain
+     distinct; mutating the SYM `esp` parameter gives 27 diffs at 162/159.
+     SYM-CODEGEN-CARRIER: shiftedEsp -- the shifted arm value must be born
+     separately before 0xc000; a single temporary leaves 6-7 diffs. */
   int adjustedEsp;
   int shiftedEsp;
 

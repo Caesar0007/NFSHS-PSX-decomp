@@ -1098,19 +1098,31 @@ extern int D_8011321C;
 void AI_HandleTrafficHonking(Car_tObj *carObj)
 {
   Car_tObj*visibleCar;
-  int iVar2;
+  /* SYM-CODEGEN-CARRIER: randomValue -- folding the scaled RNG result into
+     the following guard remains 65 instructions but rotates the `$a0/$v1`
+     allocation across the RNG stores, producing 24 oracle diffs. */
+  int randomValue;
 
   visibleCar = AILife_IsCarInAnyVisibleArea(carObj);
   if ((carObj->carFlags & 0x10U) != 0) {
-    /* @0x80059BC8: stored bool (sltu zero,iVar2) of the ternary -- honk unless value == 0
+    /* SYM-CODEGEN-CARRIER: direction -- repeating the member read in both
+       ternary arms compiles to 73 instructions/16 oracle diffs instead of
+       retail's single load and 65-instruction PASS. */
+    int direction = carObj->direction;
+    /* @0x80059BC8: stored bool (sltu zero,result) of the ternary -- honk unless value == 0
      * (value = ~direction when D_8011321C, else direction^1). */
-    int dir = carObj->direction;
-    int honk = ((D_8011321C == 0) ? (dir ^ 1) : ~dir) != 0;
-    if ((honk && (visibleCar != (Car_tObj *)0x0)) && (-0x30000 < AI_Info.laneSpeeds[1])) {
+    /* SYM-CODEGEN-CARRIER: shouldHonk -- testing the ternary directly, while
+       retaining `direction`, creates a branch diamond: 68 instructions and
+       5 oracle diffs rather than retail's materialized boolean PASS. */
+    bool shouldHonk =
+      ((D_8011321C == 0) ? (direction ^ 1) : ~direction) != 0;
+    if ((shouldHonk &&
+         (visibleCar != (Car_tObj *)0x0)) &&
+        (-0x30000 < AI_Info.laneSpeeds[1])) {
       randtemp = fastRandom * randSeed;
       fastRandom = randtemp & 0xffff;
-      iVar2 = (int)((randtemp >> 8 & 0xffff) * 1000 >> 0x10);
-      if (((AI_GameSetupWords[3] != 1) && (iVar2 < 5)) &&
+      randomValue = (int)((randtemp >> 8 & 0xffff) * 1000 >> 0x10);
+      if (((AI_GameSetupWords[3] != 1) && (randomValue < 5)) &&
          (carObj->currentSpeed != 0)) {
         AudioClc_HonkHorn(carObj,2,0x20,8);
       }
@@ -1548,12 +1560,9 @@ void AI_PushFinishedCarsToSide(Car_tObj *carObj)
 {
   int absDistancePastFinish;
   int totalSortIndex;
-  u_char bVar1;
-  int iVar2;
   
   if (((carObj->carFlags & 1U) != 0) && ((carObj->stats).finishType == 2)) {
-    int raceT = AI_GameSetupWords[0];
-    if ((raceT == 1) || (raceT == 5)) {
+    if ((AI_GameSetupWords[0] == 1) || (AI_GameSetupWords[0] == 5)) {
       if (((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) == 0) {
         if (Cars_gNumHumanRaceCars == 2) {
           /* BUGFIX: second check reads human player [1] (oracle 0x8010E924), was [0] */
@@ -1574,12 +1583,13 @@ PUSH:
       totalSortIndex = totalSortIndex + 1;
     }
     if (totalSortIndex * 0x280000 <= absDistancePastFinish) {
-      iVar2 = carObj->laneIndex;
-      bVar1 = *(u_char *)((char *)AI_BWorldSmSlices + (carObj->N).simRoadInfo.slice * 0x20 + 0x1d);
-      if ((iVar2 == 6 - (u_int)(bVar1 >> 4)) || (iVar2 == (bVar1 & 0xf) + 7)) {
+      if ((carObj->laneIndex ==
+           6 - (u_int)(AI_SLICE_BYTE((carObj->N).simRoadInfo.slice,0x1d) >> 4)) ||
+          (carObj->laneIndex ==
+           (AI_SLICE_BYTE((carObj->N).simRoadInfo.slice,0x1d) & 0xf) + 7)) {
         CarLogic_gObs[0][1] = CarLogic_gObs[0][1] + 0x960000;
       }
-      else if (iVar2 < 7) {
+      else if (carObj->laneIndex < 7) {
         CarLogic_gObs[0][0] = CarLogic_gObs[0][0] + 0x960000;
       }
       else {

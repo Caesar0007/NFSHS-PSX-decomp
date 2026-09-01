@@ -92,27 +92,22 @@ void AICop_CleanUp(void)
 int AICop_NoCopsInArea(int slice,int sliceDistance)
 {
   int absDistance;
-  int iVar1;
-  Car_tObj **ppCVar2;
   int copLoop;
-  int iVar3;
 
-  iVar3 = 0;
-  ppCVar2 = Cars_gCopCarList;
+  copLoop = 0;
   do {
-    if (Cars_gNumCopCars <= iVar3) {
+    if (Cars_gNumCopCars <= copLoop) {
       return 1;
     }
-    if (((*ppCVar2)->AIFlags & 4U) == 0) {
-      iVar1 = AIWorld_ApxSplineDistance(*ppCVar2,slice);
-      if (iVar1 < 0) {
-        iVar1 = -iVar1;
+    if ((Cars_gCopCarList[copLoop]->AIFlags & 4U) == 0) {
+      absDistance = AIWorld_ApxSplineDistance(Cars_gCopCarList[copLoop],slice);
+      if (absDistance < 0) {
+        absDistance = -absDistance;
       }
-      if (iVar1 < sliceDistance) {
+      if (absDistance < sliceDistance) {
         return 0;
       }
     }
-    ppCVar2 = ppCVar2 + 1;
-    iVar3 = iVar3 + 1;
+    copLoop = copLoop + 1;
   } while( true );
 }

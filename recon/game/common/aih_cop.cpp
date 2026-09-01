@@ -1986,11 +1986,11 @@ void AIHigh_Cop::CheckForWipeOut()
 
   int thisTargetLevel;
 
-  bool bVar1;
-
-  int iVar2;
-
-  AIHigh_Player *pAVar3;
+  /* SYM-CODEGEN-CARRIER: skipWipeOut -- SYM does not preserve the spelling
+     of this optimized compound-result quantity. A direct early-return guard
+     compiles to 91 instructions/7 oracle diffs; assigning the disjunction to
+     this native boolean reproduces the retail 94-instruction PASS graph. */
+  bool skipWipeOut;
 
   
 
@@ -2000,41 +2000,21 @@ void AIHigh_Cop::CheckForWipeOut()
 
   }
 
-  pAVar3 = this->perpTarget_;
+  /* W57-A8 08E: operand order is the load order -- `gameTicks >= wipeOutEndTick`
+     (gameTicks FIRST) makes gcc schedule the D_8011E0B0 load into the load-delay
+     gap after `lw carObj_`; the `wipeOutEndTick <= gameTicks` spelling emits a nop
+     there instead and rotated the whole a0/a1 band. 25 -> PASS. */
+  skipWipeOut =
+      (this->perpTarget_ == (AIHigh_Player *)0x0) ||
+      (((this->perpTarget_->carObj_)->carFlags & 8U) == 0) ||
+      (D_8011E0B0[0] < (this->carObj_)->wipeOutEndTick) ||
+      ((this->perpTarget_->perpChaseInfo_.engagementTime_ / 0x10000) >= 2);
 
-  bVar1 = false;
-
-  if (pAVar3 != (AIHigh_Player *)0x0) {
-
-    if ((((pAVar3)->carObj_)->carFlags & 8U) != 0) {
-
-      /* W57-A8 08E: operand order is the load order -- `gameTicks >= wipeOutEndTick`
-         (gameTicks FIRST) makes gcc schedule the D_8011E0B0 load into the load-delay
-         gap after `lw carObj_`; the `wipeOutEndTick <= gameTicks` spelling emits a nop
-         there instead and rotated the whole a0/a1 band. 25 -> PASS. */
-      if (D_8011E0B0[0] >= (this->carObj_)->wipeOutEndTick) {
-
-        iVar2 = (pAVar3->perpChaseInfo_).engagementTime_;
-
-        if (iVar2 < 0) {
-
-          iVar2 = iVar2 + 0xffff;
-
-        }
-
-        if (iVar2 >> 0x10 < 2) goto LAB_800654b8;
-
-      }
-
-    }
-
+  if (skipWipeOut) {
+    return;
   }
 
-  bVar1 = true;
-
-LAB_800654b8:
-
-  if (!bVar1) {
+  {
     /* W57-A8 05A: SLD statement map -- 861 = the RAND() statement, 865 = the whole `for`
        (its preheader owns every LICM-hoisted insn: the highLevelAIObjs/simGlobal base
        materializations, the AI_elapsedTime load, Cars_gNumHumanRaceCars, the perpTarget_
@@ -2101,8 +2081,10 @@ int AIHigh_Cop::CheckForNewTarget()
 
 
 {
-  bool bVar1;
-  blockadeMode_t bVar3;
+  /* SYM-CODEGEN-CARRIER: blockadeActive -- SYM records no result local for
+     this early mode test, but returning directly compiles to 147 instructions
+     and 9 oracle diffs instead of the retail 152/PASS branch graph. */
+  bool blockadeActive;
 
   AIHigh_Player *newTarget;
   int newTargetDistance;
@@ -2115,19 +2097,18 @@ int AIHigh_Cop::CheckForNewTarget()
 
   newTargetDistance = 0x27100000;
 
-  bVar3 = this->blockade_.mode;
-
   old = this->perpTarget_;
 
-  bVar1 = false;
+  blockadeActive = false;
 
-  if (((bVar3 == 1) || (bVar3 == 4)) || (bVar3 == 2)) {
+  if (((this->blockade_.mode == 1) || (this->blockade_.mode == 4)) ||
+      (this->blockade_.mode == 2)) {
 
-    bVar1 = true;
+    blockadeActive = true;
 
   }
 
-  if (bVar1) {
+  if (blockadeActive) {
 
     return 0;
 

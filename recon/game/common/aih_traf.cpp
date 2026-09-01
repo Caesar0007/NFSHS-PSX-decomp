@@ -186,9 +186,9 @@ void AIHigh_Traffic::HighExecute()
         SetState((AIState_Base *)idleState,STATE_IDLE);
       }
       else {
-        AIState_Purgatory *purgatoryState = operator new(8);
         AIState_Base *newState =
-          (AIState_Base *)new(purgatoryState) AIState_Purgatory(carObj_);
+          (AIState_Base *)new((AIState_Purgatory *)operator new(8))
+            AIState_Purgatory(carObj_);
         SetState(newState,STATE_PURGATORY);
       }
 
@@ -214,12 +214,16 @@ void AIHigh_Traffic::HighExecute()
         accidentData_ = (SceneElem *)0x0;
       }
       else {
-        int release = 0;
-        if ((*(*state_->_vf)[3].pfn)
-              ((int)&state_->carObj_ + (*state_->_vf)[3].delta) != 0) {
-          release = forcePurgatory_ == 0;
-        }
-        if (release != 0) {
+        /* SYM-CODEGEN-CARRIER: release -- SYM does not retain this optimized
+           short-circuit result. A direct conjunction compiles to 546
+           instructions/5 oracle diffs; the native boolean assignment keeps
+           retail's pre-call zero initialization and 547-instruction PASS. */
+        bool release;
+        release =
+          ((*(*state_->_vf)[3].pfn)
+             ((int)&state_->carObj_ + (*state_->_vf)[3].delta) != 0) &&
+          (forcePurgatory_ == 0);
+        if (release) {
           trigger_t *pNewTrigger = CheckForNewTriggers();
 
           if (pNewTrigger != (trigger_t *)0x0) {
@@ -238,9 +242,9 @@ void AIHigh_Traffic::HighExecute()
             }
           }
           else {
-            AIState_Normal *normalState = operator new(8);
             AIState_Base *newState =
-              (AIState_Base *)new(normalState) AIState_Normal(carObj_);
+              (AIState_Base *)new((AIState_Normal *)operator new(8))
+                AIState_Normal(carObj_);
             SetState(newState,STATE_NORMAL);
             AILife_ReencarnateTraffic(carObj_);
           }
@@ -254,17 +258,17 @@ void AIHigh_Traffic::HighExecute()
       int blockade;
 
       if (AILife_EvaluateLife(carObj_) != 0) {
-        AIState_Purgatory *purgatoryState = operator new(8);
         AIState_Base *newState =
-          (AIState_Base *)new(purgatoryState) AIState_Purgatory(carObj_);
+          (AIState_Base *)new((AIState_Purgatory *)operator new(8))
+            AIState_Purgatory(carObj_);
         SetState(newState,STATE_PURGATORY);
         break;
       }
 
       if (forcePurgatory_ != 0) {
-        AIState_Purgatory *purgatoryState = operator new(8);
         AIState_Base *newState =
-          (AIState_Base *)new(purgatoryState) AIState_Purgatory(carObj_);
+          (AIState_Base *)new((AIState_Purgatory *)operator new(8))
+            AIState_Purgatory(carObj_);
         SetState(newState,STATE_PURGATORY);
         break;
       }
@@ -331,16 +335,16 @@ void AIHigh_Traffic::HighExecute()
     {
       int blockade;
       if (AILife_EvaluateLife(carObj_) != 0) {
-        AIState_Purgatory *purgatoryState = operator new(8);
         AIState_Base *newState =
-          (AIState_Base *)new(purgatoryState) AIState_Purgatory(carObj_);
+          (AIState_Base *)new((AIState_Purgatory *)operator new(8))
+            AIState_Purgatory(carObj_);
         SetState(newState,STATE_PURGATORY);
       }
       else if ((CopCheck(&blockade) == (AIHigh_Cop *)0x0) &&
                ((carObj_->carFlags & 0x400U) == 0)) {
-        AIState_Normal *normalState = operator new(8);
         AIState_Base *newState =
-          (AIState_Base *)new(normalState) AIState_Normal(carObj_);
+          (AIState_Base *)new((AIState_Normal *)operator new(8))
+            AIState_Normal(carObj_);
         SetState(newState,STATE_NORMAL);
       }
       break;
@@ -349,22 +353,22 @@ void AIHigh_Traffic::HighExecute()
   case STATE_ROVING_TRAFFIC:
     {
       if (AILife_EvaluateLife(carObj_) != 0) {
-        AIState_Purgatory *purgatoryState = operator new(8);
         AIState_Base *newState =
-          (AIState_Base *)new(purgatoryState) AIState_Purgatory(carObj_);
+          (AIState_Base *)new((AIState_Purgatory *)operator new(8))
+            AIState_Purgatory(carObj_);
         SetState(newState,STATE_PURGATORY);
       }
       else if (forcePurgatory_ != 0) {
-        AIState_Purgatory *purgatoryState = operator new(8);
         AIState_Base *newState =
-          (AIState_Base *)new(purgatoryState) AIState_Purgatory(carObj_);
+          (AIState_Base *)new((AIState_Purgatory *)operator new(8))
+            AIState_Purgatory(carObj_);
         SetState(newState,STATE_PURGATORY);
       }
       else if ((*(*state_->_vf)[3].pfn)
                  ((int)&state_->carObj_ + (*state_->_vf)[3].delta) != 0) {
-        AIState_Normal *normalState = operator new(8);
         AIState_Base *newState =
-          (AIState_Base *)new(normalState) AIState_Normal(carObj_);
+          (AIState_Base *)new((AIState_Normal *)operator new(8))
+            AIState_Normal(carObj_);
         SetState(newState,STATE_NORMAL);
       }
       break;

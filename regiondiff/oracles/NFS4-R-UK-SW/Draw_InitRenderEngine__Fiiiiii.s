@@ -1,0 +1,51 @@
+.set noat
+.set noreorder
+
+glabel func_800BF370
+/* 800BF370 27bdffd0 */  addiu    $sp,$sp,-48
+/* 800BF374 00801021 */  move     $v0,$a0
+/* 800BF378 00a01821 */  move     $v1,$a1
+/* 800BF37C afb30024 */  sw       $s3,36($sp)
+/* 800BF380 00c09821 */  move     $s3,$a2
+/* 800BF384 afb40028 */  sw       $s4,40($sp)
+/* 800BF388 00e0a021 */  move     $s4,$a3
+/* 800BF38C afb00018 */  sw       $s0,24($sp)
+/* 800BF390 3c108012 */  lui      $s0,0x8012
+/* 800BF394 26100740 */  addiu    $s0,$s0,1856
+/* 800BF398 02002021 */  move     $a0,$s0
+/* 800BF39C 00402821 */  move     $a1,$v0
+/* 800BF3A0 afb1001c */  sw       $s1,28($sp)
+/* 800BF3A4 8fb10040 */  lw       $s1,64($sp)
+/* 800BF3A8 00603021 */  move     $a2,$v1
+/* 800BF3AC afb20020 */  sw       $s2,32($sp)
+/* 800BF3B0 8fb20044 */  lw       $s2,68($sp)
+/* 800BF3B4 2402ffff */  li       $v0,-1
+/* 800BF3B8 afbf002c */  sw       $ra,44($sp)
+/* 800BF3BC af821260 */  sw       $v0,4704($gp)
+/* 800BF3C0 ae000014 */  sw       $zero,20($s0)
+/* 800BF3C4 ae00002c */  sw       $zero,44($s0)
+/* 800BF3C8 02203821 */  move     $a3,$s1
+/* 800BF3CC 0c03cb1a */  jal      func_800F2C68
+/* 800BF3D0 afb20010 */  sw       $s2,16($sp)
+/* 800BF3D4 26040018 */  addiu    $a0,$s0,24
+/* 800BF3D8 02602821 */  move     $a1,$s3
+/* 800BF3DC 02803021 */  move     $a2,$s4
+/* 800BF3E0 02203821 */  move     $a3,$s1
+/* 800BF3E4 0c03cb1a */  jal      func_800F2C68
+/* 800BF3E8 afb20010 */  sw       $s2,16($sp)
+/* 800BF3EC 00002021 */  move     $a0,$zero
+/* 800BF3F0 24020015 */  li       $v0,21
+/* 800BF3F4 a6020022 */  sh       $v0,34($s0)
+/* 800BF3F8 a602000a */  sh       $v0,10($s0)
+/* 800BF3FC 24020100 */  li       $v0,256
+/* 800BF400 a6020026 */  sh       $v0,38($s0)
+/* 800BF404 0c02fc3a */  jal      func_800BF0E8
+/* 800BF408 a602000e */  sh       $v0,14($s0)
+/* 800BF40C 8fbf002c */  lw       $ra,44($sp)
+/* 800BF410 8fb40028 */  lw       $s4,40($sp)
+/* 800BF414 8fb30024 */  lw       $s3,36($sp)
+/* 800BF418 8fb20020 */  lw       $s2,32($sp)
+/* 800BF41C 8fb1001c */  lw       $s1,28($sp)
+/* 800BF420 8fb00018 */  lw       $s0,24($sp)
+/* 800BF424 03e00008 */  jr       $ra
+/* 800BF428 27bd0030 */  addiu    $sp,$sp,48

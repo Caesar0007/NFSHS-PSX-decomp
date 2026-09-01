@@ -45,3 +45,7 @@ scratch/
 # objdiff GUI is optional and NOT committed (24MB); drop it next to the
 # committed CLI if you want it: tools/objdiff/objdiff.exe
 tools/objdiff/objdiff.exe
+
+# verify_region.py gate temp copies (compiled beside the base TU, auto-deleted)
+recon/**/*__region_gate.cpp
+recon/**/*__region_gate.c

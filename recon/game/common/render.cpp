@@ -234,9 +234,6 @@ void Render_KillPauseMenu(void)
 void Render_Render(int pause)
 
 {
-  int ViewID;
-  int Player;
-
   if (pause != 0) {
     if (gPauseRender == 0) {
       gPauseRender = 1;
@@ -268,15 +265,12 @@ void Render_Render(int pause)
       if (Render_GameSetupWords[3] == 1) {
         Render_StartFrameRender();
         Render_RenderPlayerView(Draw_gPlayer1View,0);
-        ViewID = Draw_gPlayer2View;
-        Player = 1;
+        Render_RenderPlayerView(Draw_gPlayer2View,1);
       }
       else {
         Render_StartFrameRender();
-        ViewID = Draw_gPlayer1View;
-        Player = 0;
+        Render_RenderPlayerView(Draw_gPlayer1View,0);
       }
-      Render_RenderPlayerView(ViewID,Player);
       Hud_Render();
       Render_RenderDebugView();
       Render_StopFrameRender();
@@ -390,8 +384,6 @@ void StampImage(int xo,int depth)
   POLY_FT4 *ft4_p;
   int frame;
   int i;
-  int tpageX;
-  int x;
 
   if ((Render_gBlurEffectMode & 2U) != 0) {
     frame = gFlip;
@@ -403,7 +395,6 @@ void StampImage(int xo,int depth)
     xo = 0;
   }
   for (i = 0; i < 5; i = i + 1) {
-    x = xo + (i << 6);
     ft4_p = (POLY_FT4 *)Render_gPacketPtr;
     ((StampTag *)ft4_p)->addr =
         ((StampTag *)(Render_gPalettePtr + depth * 4))->addr;
@@ -411,8 +402,8 @@ void StampImage(int xo,int depth)
     ((StampTag *)(Render_gPalettePtr + depth * 4))->addr = (u_int)ft4_p;
     ((u_char *)ft4_p)[3] = 9;
     ft4_p->code = 0x2e;
-    ft4_p->x1 = x + 0x40;
-    ft4_p->x3 = x + 0x40;
+    ft4_p->x1 = xo + (i << 6) + 0x40;
+    ft4_p->x3 = xo + (i << 6) + 0x40;
     ft4_p->u0 = 0;
     ft4_p->v0 = 0;
     ft4_p->u1 = 0x40;
@@ -421,18 +412,17 @@ void StampImage(int xo,int depth)
     ft4_p->v2 = 0xf0;
     ft4_p->u3 = 0x40;
     ft4_p->v3 = 0xf0;
-    ft4_p->x0 = x;
+    ft4_p->x0 = xo + (i << 6);
     ft4_p->y0 = 0;
     ft4_p->y1 = 0;
-    ft4_p->x2 = x;
+    ft4_p->x2 = xo + (i << 6);
     ft4_p->y2 = 0xf0;
     ft4_p->y3 = 0xf0;
     ft4_p->r0 = 0x80;
     ft4_p->g0 = 0x80;
     ft4_p->b0 = 0x80;
-    tpageX = i << 6;
     ft4_p->tpage =
-        (u_short)(((frame == 0 ? (i + 5) << 6 : tpageX) & 0x3ff) >> 6 | 0x110);
+        (u_short)(((frame == 0 ? (i + 5) << 6 : i << 6) & 0x3ff) >> 6 | 0x110);
   }
   return;
 }

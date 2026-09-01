@@ -106,20 +106,16 @@ int SimQueue_Put(int pIndex,Input_tResults *val)
 
 {
   int tail;
-  int iVar4;
-  u_char *entry;
 
   tail = inputQueue.TailTime[pIndex] & 0x1f;
-  iVar4 = SimQueue_IsBlocking(pIndex);
-  if (iVar4 != 0) {
+  if (SimQueue_IsBlocking(pIndex) != 0) {
     return 0;
   }
-  entry = (u_char *)&inputQueue + (tail * 4 + pIndex * 0x80);
-  if (*(int *)(entry + 0x100) != kINVALID) {
+  if (inputQueue.Validity[pIndex][tail] != kINVALID) {
     return 0;
   }
-  *(Input_tResults *)entry = *val;
-  *(int *)(entry + 0x100) = kVALID;
+  inputQueue.Buffer[pIndex][tail] = *val;
+  inputQueue.Validity[pIndex][tail] = kVALID;
   inputQueue.TailTime[pIndex] = inputQueue.TailTime[pIndex] + 1;
   if (SIMQUEUE_COMMMODE != 0) {
     if (SIMQUEUE_COMMMODE == 1) {

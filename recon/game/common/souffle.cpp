@@ -145,7 +145,6 @@ Souffle_Add(coorddef *soufflept,int type,coorddef *vec,int velVX,int ground,int 
 void Souffle_DoSouffle(void)
 
 {
-  int iVar2;
   int i;
   coorddef w;
   
@@ -153,10 +152,8 @@ void Souffle_DoSouffle(void)
     gTMoveSouffle = SOUFFLE_GAME_TICKS;
     if (gCISouffle != 0) {
       gWindDir = gWindDir + 2;
-      iVar2 = fastintcos(gWindDir);
-      w.x = fixedmult(iVar2,0xccc);
-      iVar2 = fastintsin(gWindDir);
-      w.z = fixedmult(iVar2,0xccc);
+      w.x = fixedmult(fastintcos(gWindDir),0xccc);
+      w.z = fixedmult(fastintsin(gWindDir),0xccc);
       w.y = 0;
     }
     for (i = 0; i < gCISouffle; i++) {
@@ -183,27 +180,27 @@ void Souffle_DoSouffle(void)
       (is->source).x = (is->source).x + motion.x;
       (is->source).y = (is->source).y + motion.y;
       (is->source).z = (is->source).z + motion.z;
-      {
-        int dampingSpeed = (is->motion).x;
-        if (dampingSpeed < 0) {
-          (is->motion).x = dampingSpeed + 0xa3d;
-          if (0 < dampingSpeed + 0xa3d) {
-            (is->motion).x = 0;
-          }
-        }
-        else if ((0 < dampingSpeed) && ((is->motion).x = dampingSpeed + -0xa3d, dampingSpeed + -0xa3d < 0)) {
+      if ((is->motion).x < 0) {
+        (is->motion).x = (is->motion).x + 0xa3d;
+        if (0 < (is->motion).x) {
           (is->motion).x = 0;
         }
       }
-      {
-        int dampingSpeed = (is->motion).z;
-        if (dampingSpeed < 0) {
-          (is->motion).z = dampingSpeed + 0xa3d;
-          if (0 < dampingSpeed + 0xa3d) {
-            (is->motion).z = 0;
-          }
+      else if (0 < (is->motion).x) {
+        (is->motion).x = (is->motion).x + -0xa3d;
+        if ((is->motion).x < 0) {
+          (is->motion).x = 0;
         }
-        else if ((0 < dampingSpeed) && ((is->motion).z = dampingSpeed + -0xa3d, dampingSpeed + -0xa3d < 0)) {
+      }
+      if ((is->motion).z < 0) {
+        (is->motion).z = (is->motion).z + 0xa3d;
+        if (0 < (is->motion).z) {
+          (is->motion).z = 0;
+        }
+      }
+      else if (0 < (is->motion).z) {
+        (is->motion).z = (is->motion).z + -0xa3d;
+        if ((is->motion).z < 0) {
           (is->motion).z = 0;
         }
       }
@@ -225,27 +222,27 @@ void Souffle_DoSouffle(void)
         }
         (is->source).x = (is->source).x + (extramotion.x * wave >> 0x11);
         (is->source).z = (is->source).z + (extramotion.z * wave >> 0x11);
-        {
-          int dampingSpeed = (is->extramotion).x;
-          if (dampingSpeed < 0) {
-            (is->extramotion).x = dampingSpeed + 0x147;
-            if (0 < dampingSpeed + 0x147) {
-              (is->extramotion).x = 0;
-            }
-          }
-          else if ((0 < dampingSpeed) && ((is->extramotion).x = dampingSpeed + -0x147, dampingSpeed + -0x147 < 0)) {
+        if ((is->extramotion).x < 0) {
+          (is->extramotion).x = (is->extramotion).x + 0x147;
+          if (0 < (is->extramotion).x) {
             (is->extramotion).x = 0;
           }
         }
-        {
-          int dampingSpeed = (is->extramotion).z;
-          if (dampingSpeed < 0) {
-            (is->extramotion).z = dampingSpeed + 0x147;
-            if (0 < dampingSpeed + 0x147) {
-              (is->extramotion).z = 0;
-            }
+        else if (0 < (is->extramotion).x) {
+          (is->extramotion).x = (is->extramotion).x + -0x147;
+          if ((is->extramotion).x < 0) {
+            (is->extramotion).x = 0;
           }
-          else if ((0 < dampingSpeed) && ((is->extramotion).z = dampingSpeed + -0x147, dampingSpeed + -0x147 < 0)) {
+        }
+        if ((is->extramotion).z < 0) {
+          (is->extramotion).z = (is->extramotion).z + 0x147;
+          if (0 < (is->extramotion).z) {
+            (is->extramotion).z = 0;
+          }
+        }
+        else if (0 < (is->extramotion).z) {
+          (is->extramotion).z = (is->extramotion).z + -0x147;
+          if ((is->extramotion).z < 0) {
             (is->extramotion).z = 0;
           }
         }

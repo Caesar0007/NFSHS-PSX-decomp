@@ -198,11 +198,8 @@ void Stats_TrackStats(Car_tObj *carObj)
       int i;
 
       for (i = 0; i < Cars_gNumRaceCars; i++) {
-        int sliceTotal = (carObj->stats).sliceTotal;
-        int raceSlice = Stats_racePosition[i].slice;
-
-        if ((raceSlice < sliceTotal) ||
-            ((sliceTotal == raceSlice) &&
+        if (((carObj->stats).sliceTotal > Stats_racePosition[i].slice) ||
+            (((carObj->stats).sliceTotal == Stats_racePosition[i].slice) &&
              ((carObj->stats).sliceTime < Stats_racePosition[i].sliceTime))) {
           int j;
 

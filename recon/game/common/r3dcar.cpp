@@ -1823,6 +1823,18 @@ void R3DCar_ReadInCarTextureMenu(Car_tObj *carObj,char *bigfile,int reload,int p
     char infilenames [3][15];
     char *shpfiles [3];
     int index;
+    /* SYM-CODEGEN-CARRIER: sfBase
+       SYM-CODEGEN-CARRIER: sfp
+       The optimized SYM retains only `i`, `infilenames`, `shpfiles`, and
+       `index` in this block.  Retail nevertheless materializes `sp+0x50`
+       into $s0 in the 0x800b0f7c branch delay slot and later forms the final
+       element address as `addu v0,s0,v0`.  Direct `shpfiles[index]` emits
+       209/211 and computes from $sp at the call; retaining only the base web
+       emits 211/211 but reverses the commutative addu operands (2 diffs).
+       This split base/selected-element web is the measured 211/211 source
+       representation.  Neither optimized-away identifier is recoverable
+       from SYM, so these neutral reconstruction names make that uncertainty
+       explicit rather than pretending they are retail debug declarations. */
     char **sfBase;
 
     index = 0;
@@ -1863,7 +1875,7 @@ void R3DCar_ReadInCarTextureMenu(Car_tObj *carObj,char *bigfile,int reload,int p
       reload = 0x91;
     }
     {
-      char **sfp = sfBase + index; /* MATCH: base-first addu (oracle addu v0,s0,v0) */
+      char **sfp = sfBase + index;
       CarIO_ReadInCarTextureData(*sfp,carObj,reload,player);
     }
     (carObj->render).palNum = (short)Texture_palNum;
@@ -2850,13 +2862,10 @@ R_ICFtMenuII_block43:
 void R3DCar_Showroom(DRender_tView *Vi)
 
 {
-  coorddef *t;
-  matrixtdef *m;
-  
-  m = &(Vi->cview).mrotationInv;
-  t = &(Vi->cview).translationInv;
-  DrawC_ShowroomPrims(m,t,(Draw_CarCache *)0x1f800000);
-  DrawC_SpotPrims(m,t,(Draw_CarCache *)0x1f800000);
+  DrawC_ShowroomPrims(&Vi->cview.mrotationInv,&Vi->cview.translationInv,
+                     (Draw_CarCache *)0x1f800000);
+  DrawC_SpotPrims(&Vi->cview.mrotationInv,&Vi->cview.translationInv,
+                  (Draw_CarCache *)0x1f800000);
   return;
 }
 

@@ -17,8 +17,17 @@ Trk_AnimateInst *animScripts[10];   /* @0x8010e24c  (bss(zero)) */
 /* ---- Anim_Restart  [@0x80073a94] ---- */
 void Anim_Restart(void)
 {
+  /* SYM-CODEGEN-CARRIER: deleteMe -- the loaded slot object remains in s0
+     across its nested array/object deletes; direct repeated `*p` spelling emits
+     33/34 instructions with 31 frame, allocation, and load differences. */
   AnimScript *deleteMe;
+  /* SYM-CODEGEN-CARRIER: p -- optimized SYM omits the strength-reduced slot
+     cursor.  An indexed for-loop emits 33/34 instructions with seven
+     loop-branch/layout differences. */
   AnimScript **p;
+  /* SYM-CODEGEN-CARRIER: pEnd -- optimized SYM omits the fixed loop bound,
+     but retaining it in s2 preserves retail's 34-instruction saved-register
+     frame; direct animSlots+32 emits 33 instructions with eleven differences. */
   AnimScript **pEnd;
 
   p = animSlots;
@@ -88,23 +97,12 @@ int Anim_InitSystem(char *trackName)
 void Anim_DeInitSystem(void)
 {
   int i;
-  bool bVar1;
-  Trk_AnimateInst **ppTVar2;
-  int iVar3;
-  
-  iVar3 = 9;
-  do {
-    iVar3 = iVar3 - 1;
-  } while (-1 < iVar3);
-  iVar3 = 0x1f;
-  ppTVar2 = Anim_gInstanceFromIndex;
-  ppTVar2 = ppTVar2 + 0x1f;
-  do {
-    *ppTVar2 = (Trk_AnimateInst *)0x0;
-    iVar3 = iVar3 + -1;
-    ppTVar2 = ppTVar2 + -1;
-  } while (-1 < iVar3);
-  return;
+
+  for (i = 0; i < 10; i++) {
+  }
+  for (i = 0; i < 32; i++) {
+    Anim_gInstanceFromIndex[i] = (Trk_AnimateInst *)0x0;
+  }
 }
 
 /* ---- Anim_Handle  [@0x80073ce8] ---- */

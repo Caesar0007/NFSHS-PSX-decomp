@@ -24,9 +24,9 @@ extern int                AIPhysic_time;               /* @0x8013c598 */
 extern int AIPhysic_elapsedTime;                       /* @0x8013c59c */
 extern int simGlobal[];        /* @0x8011E0AC */
 extern int D_8011E0B0[];       /* @0x8011E0B0 == &simGlobal[1]; UNSIZED array → separate-temp HI-scratch load (§3.12#5). oracle addresses it as the D_8011E0B0 symbol directly */
-extern int fastRandom;         /* @0x8013D0FC */
-extern int randtemp;           /* @0x8013D100 */
-extern int randSeed;           /* @0x8013D104 */
+extern u_int fastRandom;       /* @0x8013D0FC; SYM UINT */
+extern u_int randtemp;         /* @0x8013D100; SYM UINT */
+extern u_int randSeed;         /* @0x8013D104; SYM UINT */
 
 /* ---- additions for the 17 ported AIPhysic functions (forward callee decls + globals) ---- */
 /* intra-TU forward decls of the ported set */

@@ -227,14 +227,8 @@ void Cars_InitializeCarTablesFlagsAndCounters(Car_tObj *carObj)
 {
   int carClass;
   int personality;
-  int carType;
-  char *pcVar1;
-  void *pvVar2;
-  u_int uVar4;
-  GameSetup_tCarData *pGVar6;
-  u_int uVar7;
 
-  uVar7 = carObj->carInfo->carClass;
+  carClass = carObj->carInfo->carClass;
   Cars_gList[Cars_gNumCars] = carObj;
   Cars_gSortedList[Cars_gNumCars] = carObj;
   Cars_gTotalSortedList[Cars_gNumCars] = carObj;
@@ -244,29 +238,26 @@ void Cars_InitializeCarTablesFlagsAndCounters(Car_tObj *carObj)
   carObj->humanIndex = -1;
   strcpy(carObj->carName,GameSetup_gCarNames[0] + carObj->carInfo->carType * 5)
   ;
-  carType = carObj->carInfo->carType;
-  if (carType < 0x1d) {
-    pcVar1 = TextSys_Word(carType + 0x4e);
-    strcpy(carObj->carNameLocalized,pcVar1);
+  if (carObj->carInfo->carType < 0x1d) {
+    strcpy(carObj->carNameLocalized,
+           TextSys_Word(carObj->carInfo->carType + 0x4e));
   }
   else {
     sprintf(carObj->carNameLocalized,"");
   }
-  if ((uVar7 & 1) == 0) goto LAB_80086300;
-  pvVar2 = PlayerNameExist(Cars_gNumHumanRaceCars);
-  if (pvVar2 != (void *)0x0) {
-    pcVar1 = PlayerNameMixedCase(Cars_gNumHumanRaceCars);
+  if ((carClass & 1) == 0) goto LAB_80086300;
+  if (PlayerNameExist(Cars_gNumHumanRaceCars) != (void *)0x0) {
+    sprintf(carObj->carInfo->driver,
+            PlayerNameMixedCase(Cars_gNumHumanRaceCars));
   }
   else {
     if (frontEnd.gameMode == '\x01') {
-      pcVar1 = TextSys_Word(0x2f);
-      sprintf(carObj->carInfo->driver,pcVar1,Cars_gNumHumanRaceCars + 1);
+      sprintf(carObj->carInfo->driver,TextSys_Word(0x2f),
+              Cars_gNumHumanRaceCars + 1);
       goto LAB_80086248;
     }
-    pcVar1 = TextSys_Word(0x2e);
+    sprintf(carObj->carInfo->driver,TextSys_Word(0x2e));
   }
-LAB_80086234:
-  sprintf(carObj->carInfo->driver,pcVar1);
 LAB_80086248:
   strcpy(carObj->carInfo->license,frontEnd.licensePlate[Cars_gNumHumanRaceCars]);
   carObj->humanIndex = Cars_gNumHumanRaceCars;
@@ -277,14 +268,13 @@ LAB_80086248:
   Cars_gNumRaceCars = Cars_gNumRaceCars + 1;
   carObj->carFlags = carObj->carFlags | 1;
   Cars_gLifeBasisCarList[Cars_gNumLifeBasisCars] = carObj;
-  uVar4 = carObj->carFlags;
   Cars_gNumLifeBasisCars = Cars_gNumLifeBasisCars + 1;
-  carObj->carFlags = uVar4 | 0x100;
-  if ((uVar7 & 0x40) != 0) {
-    carObj->carFlags = uVar4 | 0x300;
+  carObj->carFlags = carObj->carFlags | 0x100;
+  if ((carClass & 0x40) != 0) {
+    carObj->carFlags = carObj->carFlags | 0x200;
   }
 LAB_80086300:
-  if ((uVar7 & 2) != 0) {
+  if ((carClass & 2) != 0) {
     personality = GameSetup_gData.carInfo[carObj->carIndex].Personality;
     strcpy(carObj->carInfo->driver,GameSetup_gPersonalityNames[0] + personality * 8);
     if (((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) &&
@@ -315,7 +305,7 @@ LAB_80086300:
       carObj->carFlags = carObj->carFlags | 0x100;
     }
   }
-  if ((uVar7 & 4) != 0) {
+  if ((carClass & 4) != 0) {
     Cars_gAICarList[Cars_gNumAICars] = carObj;
     Cars_gNumAICars = Cars_gNumAICars + 1;
     carObj->carFlags = carObj->carFlags | 2;
@@ -323,16 +313,15 @@ LAB_80086300:
     Cars_gNumTrafficCars = Cars_gNumTrafficCars + 1;
     carObj->carFlags = carObj->carFlags | 0x10;
   }
-  if ((uVar7 & 0x18) != 0) {
+  if ((carClass & 0x18) != 0) {
     Cars_gAICarList[Cars_gNumAICars] = carObj;
     Cars_gNumAICars = Cars_gNumAICars + 1;
     carObj->carFlags = carObj->carFlags | 2;
     Cars_gCopCarList[Cars_gNumCopCars] = carObj;
-    uVar4 = carObj->carFlags;
     Cars_gNumCopCars = Cars_gNumCopCars + 1;
-    carObj->carFlags = uVar4 | 0x20;
-    if ((uVar7 & 0x10) != 0) {
-      carObj->carFlags = uVar4 | 0x60;
+    carObj->carFlags = carObj->carFlags | 0x20;
+    if ((carClass & 0x10) != 0) {
+      carObj->carFlags = carObj->carFlags | 0x40;
     }
   }
   return;
@@ -912,15 +901,15 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
     position.y = (carObj->N).groundElevation;
     do {
       if (carObj->frontSkid > 0) {
+        /* SYM-CODEGEN-CARRIER: cappedFront -- the separate clamp result keeps
+           retail's 0xa0000 constant and selected value in s3 without a0 moves. */
         int cappedFront =
             (0xa0000 < carObj->frontSkid) ? 0xa0000 : carObj->frontSkid;
-        int skidVelocity;
         front = cappedFront;
         originalFront = front;
-        skidVelocity = (carObj->linearVel_ch).z;
         carObj->frontSkid = front;
-        if (__builtin_abs(skidVelocity) > 0x140000) {
-          skidFront = front - __builtin_abs(skidVelocity / 8);
+        if (__builtin_abs((carObj->linearVel_ch).z) > 0x140000) {
+          skidFront = front - __builtin_abs((carObj->linearVel_ch).z / 8);
           break;
         }
       }
@@ -1021,6 +1010,8 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
       }
       TrgSfx_AddCarSplash((carObj->N).objID,0,&point,10,&(carObj->N).linearVel,0,(carObj->N).speedXZ);
       {
+        /* SYM-CODEGEN-CARRIER: splashFront -- the scoped copy lets GCC coalesce
+           the positive value into s3; direct mutation adds two moves here. */
         int splashFront;
 
         splashFront = front;
@@ -1213,6 +1204,8 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
       }
       TrgSfx_AddCarSplash((carObj->N).objID,2,&point,10,&(carObj->N).linearVel,0,(carObj->N).speedXZ);
       {
+        /* SYM-CODEGEN-CARRIER: splashRear -- the scoped copy lets GCC coalesce
+           the positive value into s4; direct mutation adds two moves here. */
         int splashRear;
 
         splashRear = rear;
@@ -1787,9 +1780,6 @@ void Cars_InitCar(Car_tObj *carObj,int index)
      source order file1-then-handle (the emission order of the `addu sN,s2,zero`
      copies IS the source statement order).  196/196 PASS.
      Falsified: identity fence `"+r"(file1)` (22 diffs -- it also moves the def). */
-  int iVar1;
-  char *mem;
-  Car_tSpecs *pCVar2;
   Udff_tInfo *handle;
   Udff_tInfo *handle2;
   char *file2;
@@ -1803,8 +1793,7 @@ void Cars_InitCar(Car_tObj *carObj,int index)
   handle = (Udff_tInfo *)0x0;
   handle2 = (Udff_tInfo *)0x0;
   if (index < GameSetup_gData.numCars) {
-    iVar1 = AIInit_IsNonStandardCarFile(carObj->carInfo->carType);
-    if (iVar1 != 0) {
+    if (AIInit_IsNonStandardCarFile(carObj->carInfo->carType) != 0) {
       sprintf(carFile,"%s%s.qda",Paths_Paths[4],(char *)carObj + 0x240);
     }
     else {
@@ -1827,13 +1816,11 @@ void Cars_InitCar(Car_tObj *carObj,int index)
        oracle 0x8008A2AC `jal locatebig` sets up ONLY a0/a1 (no a2) -- the old 3rd "0" arg + its
        "$a2 dropped by Ghidra" comment was wrong (Ghidra didn't drop anything; there IS no 3rd
        arg). Confirmed by other correctly-2-arg call sites (r3dcar.cpp locatebig(bigfile,name)). */
-    mem = (char *)locatebig(file2,name);
-    handle2 = Udff_Opena((char *)0x0,mem,0);
+    handle2 = Udff_Opena((char *)0x0,(char *)locatebig(file2,name),0);
     if (index < GameSetup_gData.numCars) {
       AIInit_InitAICar(carObj,handle);
       AIInit_RestartAICar(carObj);
-      pCVar2 = reservememadr("carSpecs",0x1d0,0);
-      carObj->specs = pCVar2;
+      carObj->specs = reservememadr("carSpecs",0x1d0,0);
       Physics_InitCarSpecs(carObj,handle2);
       if ((carObj->carFlags & 4U) != 0) {
         Physics_CalculateDerivedCarSpecs(carObj);
@@ -1892,13 +1879,17 @@ void Cars_DeInitCar(Car_tObj *carObj)
 /* ---- Cars_Restart__Fv  [@0x8008a4cc] ---- */
 void Cars_Restart(void)
 {
-  /* SLD exposes only i=$s0. The first loop's three pointers and final loop's
-     object address are retail strength-reduction temporaries, so keep their
-     source as direct array indexing instead of named pointer locals. */
+  /* SLD exposes only i=$s0. */
   int i;
+  /* SYM-CODEGEN-CARRIER: numCars -- caching the first-loop bound gives the
+   * retail a2 lifetime.  Repeating Cars_gNumCars keeps 58 instructions but
+   * produces five load/branch/copy diffs. */
   int numCars;
-  Car_tObj *pCVar2;
-  Car_tObj **ppCVar6;
+  /* SYM-CODEGEN-CARRIER: carCursor -- the retail second loop advances a
+   * pointer-to-pointer in s1.  Direct indexing with the label loop loses that
+   * strength reduction (24 diffs); a natural for loop rotates differently
+   * and produces 18 diffs.  SYM omits the optimized cursor's spelling. */
+  Car_tObj **carCursor;
 
   numCars = Cars_gNumCars;
   i = 0;
@@ -1910,12 +1901,11 @@ void Cars_Restart(void)
     } while (i < numCars);
   }
   i = 0;
-  ppCVar6 = Cars_gList;
+  carCursor = Cars_gList;
 LAB_ini:
   if (i < Cars_gNumCars) {
-    pCVar2 = *ppCVar6;
-    ppCVar6 = ppCVar6 + 1;
-    Cars_IniCarObjects(pCVar2,i);
+    Cars_IniCarObjects(*carCursor,i);
+    carCursor = carCursor + 1;
     i = i + 1;
     goto LAB_ini;
   }
@@ -2057,13 +2047,11 @@ void Cars_StartUp(void)
 void Cars_CleanUp(void)
 {
   int i;
-  int iVar1;
-  Sched_tSchedule *schedule32Hz;
+  /* SYM-CODEGEN-CARRIER: pCVar2 -- direct Cars_gList[i] expressions add two
+     loads (100 versus retail's 98 instructions) and leave six diffs. */
   Car_tObj *pCVar2;
-  Car_tObj **ppCVar3;
-  int iVar4;
 
-  iVar4 = 0;
+  i = 0;
   if (0 < Cars_gNumCars) {
     /* MATCH (W54-A13): the ex-"preheader-order floor" is SOLVED -- it was the INDEX-vs-POINTER
        shape.  Oracle materializes &simGlobal (LICM invariant) BEFORE the Cars_gList base;
@@ -2072,34 +2060,31 @@ void Cars_CleanUp(void)
        body as `Cars_gList[i]` makes the walk a GIV -> exact preheader order.  The counter
        increment must sit at the LOOP END (moving it earlier costs 2 diffs).  98/98 PASS. */
     do {
-      Sched_DeleteFunction(simGlobal.schedule32Hz,Cars_gList[iVar4]->funcUpdateRoadInfo,Cars_gList[iVar4]);
-      Sched_DeleteFunction(simGlobal.schedule32Hz,Cars_gList[iVar4]->funcControl,Cars_gList[iVar4]);
-      pCVar2 = Cars_gList[iVar4];
+      Sched_DeleteFunction(simGlobal.schedule32Hz,Cars_gList[i]->funcUpdateRoadInfo,Cars_gList[i]);
+      Sched_DeleteFunction(simGlobal.schedule32Hz,Cars_gList[i]->funcControl,Cars_gList[i]);
+      pCVar2 = Cars_gList[i];
       if ((pCVar2->carFlags & 1U) != 0) {
         Sched_DeleteFunction(simGlobal.schedule64Hz,pCVar2->funcStats,pCVar2);
-        pCVar2 = Cars_gList[iVar4];
+        pCVar2 = Cars_gList[i];
       }
       Sched_DeleteFunction(simGlobal.schedule32Hz,pCVar2->funcHandlingPhysics,pCVar2);
-      Sched_DeleteFunction(simGlobal.schedule32Hz,Cars_gList[iVar4]->funcGravityPhysics,Cars_gList[iVar4]);
-      Sched_DeleteFunction(simGlobal.schedule64Hz,Cars_gList[iVar4]->funcQDPhysicsUpdateVel,Cars_gList[iVar4]);
-      Sched_DeleteFunction(simGlobal.schedule32Hz,Cars_gList[iVar4]->funcTestMeForCollisions,Cars_gList[iVar4]);
-      Sched_DeleteFunction(simGlobal.schedule32Hz,Cars_gList[iVar4]->funcDoPostCollisionStuff,Cars_gList[iVar4]);
-      iVar1 = Force_IsForceOn(Cars_gList[iVar4]);
-      if (iVar1 != 0) {
-        Sched_DeleteFunction(simGlobal.schedule32Hz,Force_Update,Cars_gList[iVar4]);
+      Sched_DeleteFunction(simGlobal.schedule32Hz,Cars_gList[i]->funcGravityPhysics,Cars_gList[i]);
+      Sched_DeleteFunction(simGlobal.schedule64Hz,Cars_gList[i]->funcQDPhysicsUpdateVel,Cars_gList[i]);
+      Sched_DeleteFunction(simGlobal.schedule32Hz,Cars_gList[i]->funcTestMeForCollisions,Cars_gList[i]);
+      Sched_DeleteFunction(simGlobal.schedule32Hz,Cars_gList[i]->funcDoPostCollisionStuff,Cars_gList[i]);
+      if (Force_IsForceOn(Cars_gList[i]) != 0) {
+        Sched_DeleteFunction(simGlobal.schedule32Hz,Force_Update,Cars_gList[i]);
       }
-      pCVar2 = Cars_gList[iVar4];
-      if ((pCVar2->carFlags & 4U) != 0) {
-        schedule32Hz = simGlobal.schedule64Hz;
-      }
-      else {
-        schedule32Hz = simGlobal.schedule32Hz2;
-      }
-      Sched_DeleteFunction(schedule32Hz,pCVar2->funcQDPhysicsUpdateRot,pCVar2);
-      Cars_DeInitCar(Cars_gList[iVar4]);
-      purgememadr(Cars_gList[iVar4]);
-      iVar4 = iVar4 + 1;
-    } while (iVar4 < Cars_gNumCars);
+      pCVar2 = Cars_gList[i];
+      Sched_DeleteFunction(
+          ((pCVar2->carFlags & 4U) != 0)
+              ? simGlobal.schedule64Hz
+              : simGlobal.schedule32Hz2,
+          pCVar2->funcQDPhysicsUpdateRot,pCVar2);
+      Cars_DeInitCar(Cars_gList[i]);
+      purgememadr(Cars_gList[i]);
+      i = i + 1;
+    } while (i < Cars_gNumCars);
   }
   return;
 }

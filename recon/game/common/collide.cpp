@@ -1618,13 +1618,15 @@ int Collide_CheckForCollisionBetween(BO_tNewtonObj *o0,BO_tNewtonObj *o1)
 
 
 {
-  coorddef *new_var;
+  /* SYM-CODEGEN-CARRIER: normalPtr -- SYM omits this optimized pointer and
+     cannot prove its source spelling; retaining a named `&normal` quantity is
+     required for retail's saved normal-address register allocation. */
+  coorddef *normalPtr;
 
+  /* SYM-CODEGEN-CARRIER: speedThresh -- SYM omits this optimized constant and
+     cannot prove its spelling; a named loop-spanning threshold preserves the
+     retail saved constant and frame. */
   int speedThresh;
-
-  int iVar2;
-
-  int iVar3;
 
   int count;
 
@@ -1638,9 +1640,7 @@ int Collide_CheckForCollisionBetween(BO_tNewtonObj *o0,BO_tNewtonObj *o1)
 
   (o1->collision).impulse = 0;
 
-  iVar2 = Collide_TestObjectVertices(o0,o1,&p,&normal);
-
-  if (iVar2 == 0) {
+  if (Collide_TestObjectVertices(o0,o1,&p,&normal) == 0) {
 
     return 0;
 
@@ -1654,15 +1654,13 @@ int Collide_CheckForCollisionBetween(BO_tNewtonObj *o0,BO_tNewtonObj *o1)
 
   Physics_TestForBarrierCollision((Car_tObj *)o1);
 
-  new_var = &normal;
+  normalPtr = &normal;
 
   speedThresh = 0xf0000;
 
   while( true ) {
 
-    iVar3 = Collide_TestObjectVertices(o0,o1,&p,new_var);
-
-    if (iVar3 == 0) {
+    if (Collide_TestObjectVertices(o0,o1,&p,normalPtr) == 0) {
 
       return 1;
 
@@ -1676,9 +1674,7 @@ int Collide_CheckForCollisionBetween(BO_tNewtonObj *o0,BO_tNewtonObj *o1)
 
     count = count - 1;
 
-    iVar2 = Collide_DoObjectObjectCollision(o0,o1,&p,new_var);
-
-    if (iVar2 == 0) {
+    if (Collide_DoObjectObjectCollision(o0,o1,&p,normalPtr) == 0) {
 
       return 1;
 

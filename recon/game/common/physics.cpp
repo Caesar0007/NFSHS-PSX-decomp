@@ -72,92 +72,47 @@ void Physics_SimCar(Car_tObj *carObj);
 void Physics_InitCarSpecs(Car_tObj *carObj,Udff_tInfo *handle)
 
 {
-  int iVar1;
-  int iVar2;
   int i;
-  int iVar3;
   
-  iVar1 = Udff_GetInt(handle);
-  carObj->specs->mass = iVar1;
-  iVar1 = Udff_GetInt(handle);
-  carObj->specs->numGears = iVar1;
-  iVar1 = Udff_GetInt(handle);
-  carObj->specs->gearShiftDelay = iVar1;
-  iVar1 = 0;
-  do {
-    iVar2 = Udff_GetInt(handle);
-    iVar3 = iVar1 + 1;
-    carObj->specs->velToRpmRatio[iVar1] = iVar2;
-    iVar1 = iVar3;
-  } while (iVar3 < 8);
-  iVar1 = 0;
-  do {
-    iVar2 = Udff_GetInt(handle);
-    iVar3 = iVar1 + 1;
-    carObj->specs->gearEfficiency[iVar1] = iVar2;
-    iVar1 = iVar3;
-  } while (iVar3 < 8);
-  iVar1 = 0;
-  do {
-    iVar2 = Udff_GetInt(handle);
-    iVar3 = iVar1 + 1;
-    carObj->specs->torqueCurve[iVar1] = iVar2;
-    iVar1 = iVar3;
-  } while (iVar3 < 0x29);
-  iVar1 = Udff_GetInt(handle);
-  carObj->specs->redline = iVar1;
-  iVar1 = Udff_GetInt(handle);
-  carObj->specs->maxSpeed = iVar1;
-  iVar1 = Udff_GetInt(handle);
-  carObj->specs->frontDriveRatio = iVar1;
-  iVar1 = Udff_GetInt(handle);
-  carObj->specs->maxBrakeAcc = iVar1;
-  iVar1 = Udff_GetInt(handle);
-  carObj->specs->frontBrakeRatio = iVar1;
-  iVar1 = Udff_GetInt(handle);
-  carObj->specs->wheelBase = iVar1;
-  iVar1 = Udff_GetInt(handle);
-  carObj->specs->frontGripBias = iVar1;
-  iVar1 = Udff_GetInt(handle);
-  carObj->specs->maxSteeringAcc = iVar1;
-  iVar1 = Udff_GetInt(handle);
-  carObj->specs->steeringRamp = iVar1;
-  iVar1 = Udff_GetInt(handle);
-  carObj->specs->lateralGripMult = iVar1;
-  iVar1 = Udff_GetInt(handle);
-  carObj->specs->frontAeroDownForce = iVar1;
-  iVar1 = Udff_GetInt(handle);
-  carObj->specs->rearAeroDownForce = iVar1;
-  iVar1 = Udff_GetInt(handle);
-  carObj->specs->gasOffFactor = iVar1;
-  iVar1 = Udff_GetInt(handle);
-  carObj->specs->gTransferFactor = iVar1;
-  iVar1 = Udff_GetInt(handle);
-  carObj->specs->slideMultiplier = iVar1;
-  iVar1 = Udff_GetInt(handle);
-  carObj->specs->spinVelCap = iVar1;
-  iVar1 = Udff_GetInt(handle);
-  carObj->specs->dampingPitchRate = iVar1;
-  iVar1 = Udff_GetInt(handle);
-  carObj->specs->dampingRollRate = iVar1;
-  iVar1 = Udff_GetInt(handle);
-  carObj->specs->suspensionStiffness = iVar1;
-  iVar1 = Udff_GetInt(handle);
-  carObj->specs->pitchAngularVelCap = iVar1;
-  iVar1 = Udff_GetInt(handle);
-  carObj->specs->rollAngularVelCap = iVar1;
-  iVar1 = Udff_GetInt(handle);
-  carObj->specs->damageFactor = iVar1;
-  iVar1 = Udff_GetInt(handle);
-  carObj->specs->bodyPitchFactor = iVar1;
-  iVar1 = Udff_GetInt(handle);
-  carObj->specs->bodyRollFactor = iVar1;
-  iVar1 = Udff_GetInt(handle);
-  carObj->specs->tireRange = iVar1;
-  iVar1 = Udff_GetInt(handle);
-  carObj->specs->rideOffset = iVar1;
-  iVar1 = Udff_GetInt(handle);
-  carObj->specs->dragFactor = iVar1;
+  carObj->specs->mass = Udff_GetInt(handle);
+  carObj->specs->numGears = Udff_GetInt(handle);
+  carObj->specs->gearShiftDelay = Udff_GetInt(handle);
+  for (i = 0; i < 8; i = i + 1) {
+    carObj->specs->velToRpmRatio[i] = Udff_GetInt(handle);
+  }
+  for (i = 0; i < 8; i = i + 1) {
+    carObj->specs->gearEfficiency[i] = Udff_GetInt(handle);
+  }
+  for (i = 0; i < 0x29; i = i + 1) {
+    carObj->specs->torqueCurve[i] = Udff_GetInt(handle);
+  }
+  carObj->specs->redline = Udff_GetInt(handle);
+  carObj->specs->maxSpeed = Udff_GetInt(handle);
+  carObj->specs->frontDriveRatio = Udff_GetInt(handle);
+  carObj->specs->maxBrakeAcc = Udff_GetInt(handle);
+  carObj->specs->frontBrakeRatio = Udff_GetInt(handle);
+  carObj->specs->wheelBase = Udff_GetInt(handle);
+  carObj->specs->frontGripBias = Udff_GetInt(handle);
+  carObj->specs->maxSteeringAcc = Udff_GetInt(handle);
+  carObj->specs->steeringRamp = Udff_GetInt(handle);
+  carObj->specs->lateralGripMult = Udff_GetInt(handle);
+  carObj->specs->frontAeroDownForce = Udff_GetInt(handle);
+  carObj->specs->rearAeroDownForce = Udff_GetInt(handle);
+  carObj->specs->gasOffFactor = Udff_GetInt(handle);
+  carObj->specs->gTransferFactor = Udff_GetInt(handle);
+  carObj->specs->slideMultiplier = Udff_GetInt(handle);
+  carObj->specs->spinVelCap = Udff_GetInt(handle);
+  carObj->specs->dampingPitchRate = Udff_GetInt(handle);
+  carObj->specs->dampingRollRate = Udff_GetInt(handle);
+  carObj->specs->suspensionStiffness = Udff_GetInt(handle);
+  carObj->specs->pitchAngularVelCap = Udff_GetInt(handle);
+  carObj->specs->rollAngularVelCap = Udff_GetInt(handle);
+  carObj->specs->damageFactor = Udff_GetInt(handle);
+  carObj->specs->bodyPitchFactor = Udff_GetInt(handle);
+  carObj->specs->bodyRollFactor = Udff_GetInt(handle);
+  carObj->specs->tireRange = Udff_GetInt(handle);
+  carObj->specs->rideOffset = Udff_GetInt(handle);
+  carObj->specs->dragFactor = Udff_GetInt(handle);
   return;
 }
 
@@ -266,8 +221,12 @@ void Physics_CheckGamedata(void)
 int Physics_AttenuateVelocity(Car_tObj *carObj,int force,matrixtdef *roadMat)
 
 {
+  /* SYM-CODEGEN-CARRIER: vy -- inlining this one-use transform component
+     changes retail allocation to 109 diffs and grows 279 to 294 instructions. */
   int vy;
   register int vx;
+  /* SYM-CODEGEN-CARRIER: vz -- inlining this one-use transform component
+     changes retail allocation to 78 diffs and grows 279 to 293 instructions. */
   int vz;
   int absvelbx;
   coorddef vel_b;
@@ -334,12 +293,17 @@ int Physics_AttenuateVelocity(Car_tObj *carObj,int force,matrixtdef *roadMat)
                              fixedmult((carObj->N).linearVel.z,(carObj->N).orientMat.m[8]);
 
   {
+    /* SYM-CODEGEN-CARRIER: x -- repeating the absolute-x expression preserves
+       279 instructions but reverses operand/load order and leaves 12 diffs. */
     int x = (0 <= (carObj->N).linearVel.x) ?
             (carObj->N).linearVel.x : -(carObj->N).linearVel.x;
-    int z = (0 <= (carObj->N).linearVel.z) ?
-            (carObj->N).linearVel.z : -(carObj->N).linearVel.z;
     (carObj->N).speedXZ =
-        (x > z) ? x + (z >> 2) : z + (x >> 2);
+        (x > ((0 <= (carObj->N).linearVel.z) ?
+              (carObj->N).linearVel.z : -(carObj->N).linearVel.z)) ?
+        x + (((0 <= (carObj->N).linearVel.z) ?
+              (carObj->N).linearVel.z : -(carObj->N).linearVel.z) >> 2) :
+        ((0 <= (carObj->N).linearVel.z) ?
+         (carObj->N).linearVel.z : -(carObj->N).linearVel.z) + (x >> 2);
   }
   return absvelbx;
 }
@@ -1195,32 +1159,11 @@ void Physics_ResetCar(Car_tObj *carObj)
 void Physics_StopCar(Car_tObj *carObj)
 
 {
-  int iVarX;
-  int iVarY;
-  int iVarZ;
-  int iVarW;
-
-  iVarX = (carObj->N).linearVel.x * 0xf5;
-  if (iVarX < 0) {
-    iVarX = iVarX + 0xff;
-  }
-  (carObj->N).linearVel.x = iVarX >> 8;
-  iVarY = (carObj->N).linearVel.y * 0xf5;
-  if (iVarY < 0) {
-    iVarY = iVarY + 0xff;
-  }
-  (carObj->N).linearVel.y = iVarY >> 8;
-  iVarZ = (carObj->N).linearVel.z * 0xf5;
-  if (iVarZ < 0) {
-    iVarZ = iVarZ + 0xff;
-  }
-  (carObj->N).linearVel.z = iVarZ >> 8;
+  (carObj->N).linearVel.x = (carObj->N).linearVel.x * 0xf5 / 0x100;
+  (carObj->N).linearVel.y = (carObj->N).linearVel.y * 0xf5 / 0x100;
+  (carObj->N).linearVel.z = (carObj->N).linearVel.z * 0xf5 / 0x100;
   if ((carObj->N).orientationToGround.y < 0x3333) {
-    iVarW = (carObj->N).angularVel.y;
-    if (iVarW < 0) {
-      iVarW = iVarW + 0xff;
-    }
-    (carObj->N).angularVel.y = (iVarW >> 8) * 0xfa;
+    (carObj->N).angularVel.y = (carObj->N).angularVel.y / 0x100 * 0xfa;
   }
   return;
 }
@@ -1773,17 +1716,26 @@ void Physics_CalcWheelLockAcc(Car_tObj *carObj,Physics_tWheelAccStruct *wheel)
 void Physics_CalcTractionCircleAcc(Car_tObj *carObj,Physics_tWheelAccStruct *wheel)
 
 {
+  /* SYM-CODEGEN-CARRIER: wheel_reg -- replacing this alias with the `wheel`
+     parameter preserves 233 instructions but changes 90 register-allocation words. */
   Physics_tWheelAccStruct *wheel_reg;
   int totalAcc;
   int ratio;
   int gripLoss;
   int roadGrip;
   int gripLossDivider;
+  /* SYM-CODEGEN-CARRIER: gripLossQuotient -- folding the first quotient into
+     gripLossRatio preserves 233 instructions but changes four retail words. */
   int gripLossQuotient;
+  /* SYM-CODEGEN-CARRIER: gripLossRatio -- clamping gripLossQuotient in place
+     preserves 233 instructions but changes four retail words. */
   int gripLossRatio;
+  /* SYM-CODEGEN-CARRIER: roadGripCompare -- comparing roadGrip directly
+     preserves 233 instructions but changes four retail words. */
   int roadGripCompare;
+  /* SYM-CODEGEN-CARRIER: skidValue -- direct member reads add one instruction
+     and leave three diffs (234/233). */
   int skidValue;
-  int tireType;
 
   wheel_reg = wheel;
   if (__builtin_abs(wheel_reg->finalAcc.x) > __builtin_abs(wheel_reg->finalAcc.z)) {
@@ -1852,14 +1804,13 @@ void Physics_CalcTractionCircleAcc(Car_tObj *carObj,Physics_tWheelAccStruct *whe
       wheel_reg->skid = totalAcc << 2;
     }
   }
-  tireType = carObj->carInfo->TireType;
-  if (tireType != 1) goto PhyTracCircle_notType1;
+  if (carObj->carInfo->TireType != 1) goto PhyTracCircle_notType1;
   __asm__("" : : "i"(0));
   roadGrip = 0x80000;
   goto PhyTracCircle_clamp;
 PhyTracCircle_notType1:
   roadGrip = 0x40000;
-  if (tireType != 2) goto PhyTracCircle_skidAdjust;
+  if (carObj->carInfo->TireType != 2) goto PhyTracCircle_skidAdjust;
 PhyTracCircle_clamp:
   skidValue = wheel_reg->skid;
   roadGripCompare = roadGrip;
@@ -1945,6 +1896,8 @@ void Physics_CalculateTireForces(Car_tObj *carObj,Physics_tWheelAccStruct *wheel
          scores 49 alone, but BOTH together fall back to 55 (non-additive:
          cross_jump re-merges them) -- keep exactly one. */
       {
+        /* SYM-CODEGEN-CARRIER: a -- exactly one arm clamp must funnel through a
+           scoped result; applying the same shape to both re-merges the selects. */
         int a;
         if (wheel->acc > wheel->velCap.z) {
           a = wheel->acc;
@@ -2050,6 +2003,8 @@ Phy_TireF_normalTire:
     wheel->finalAcc.x = latAcc;
     wheel->finalAcc.x = latAcc + gravity_ch.x / 2;
     if (__builtin_abs(wheel->velCap.x) + __builtin_abs(wheel->velCap.z) < 0x200000) {
+      /* SYM-CODEGEN-CARRIER: xAcc -- the shared result is required for retail's
+         both-arms funnel and single post-join finalAcc.x store. */
       int xAcc;
 
       if (0 < wheel->velCap.x) {
@@ -2074,6 +2029,8 @@ Phy_TireF_normalTire:
     }
   }
   else {
+    /* SYM-CODEGEN-CARRIER: minSlipAngle -- inlining 0x8000 was measured at
+       75 diffs / 347 instructions versus retail's exact 346. */
     int minSlipAngle;
     int xAcc;
 
@@ -2090,6 +2047,8 @@ Phy_TireF_normalTire:
        ternary leaves the second max as a funnel (`addu $a0,$v1,$zero`) where
        retail computes straight into the call's $a0. */
     {
+      /* SYM-CODEGEN-CARRIER: cap -- the named clamp with the constant arm last
+         preserves two independent 0x20000 materializations and call setup. */
       int cap;
 
       if (((__builtin_abs(slipAngle) < minSlipAngle) ?

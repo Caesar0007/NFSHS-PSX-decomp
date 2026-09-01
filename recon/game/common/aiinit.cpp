@@ -343,59 +343,41 @@ void AIInit_InitAICar(Car_tObj *carObj,Udff_tInfo *handle)
 {
   int gearLoop;
   int accelerationScale;
-  int carType;
-  int iVar1;
-  int iVar2;
-  AIDataRecord_AccTable_t *pAVar3;
-  AIDataRecord_CurveSpeedTable_t *pAVar4;
-  Car_tObj *pCVar5;
-  int iVar6;
-  int scale;
   
-  scale = 0x10000;
-  iVar1 = Udff_GetInt(handle);
-  carObj->redLine = iVar1;
+  accelerationScale = 0x10000;
+  carObj->redLine = Udff_GetInt(handle);
   Udff_GetBuffer(handle,(char *)carObj->topSpeeds,0x1c);
-  for (gearLoop = 0, iVar6 = -4; gearLoop < 7; gearLoop = gearLoop + 1) {
+  for (gearLoop = 0; gearLoop < 7; gearLoop = gearLoop + 1) {
     if (gearLoop == 0) {
-      iVar2 = rdiv(0x10000,carObj->topSpeeds[0]);
-      carObj->invTopSpeeds[0] = iVar2;
+      carObj->invTopSpeeds[0] = rdiv(0x10000,carObj->topSpeeds[0]);
     }
     else if (carObj->topSpeeds[gearLoop] == 0) {
       carObj->invTopSpeeds[gearLoop] = 0;
     }
     else {
-      iVar2 = rdiv(0x10000,carObj->topSpeeds[gearLoop] - ((Car_tObj *)((int)carObj + iVar6))->topSpeeds[0]);
-      carObj->invTopSpeeds[gearLoop] = iVar2;
+      carObj->invTopSpeeds[gearLoop] = rdiv(0x10000,carObj->topSpeeds[gearLoop] - carObj->topSpeeds[gearLoop - 1]);
     }
-    iVar6 = iVar6 + 4;
   }
   Udff_GetBuffer(handle,(char *)carObj->accTable,0xe0);
-  iVar1 = Udff_GetInt(handle);
-  carObj->aiShiftDuration = iVar1;
-  iVar1 = Udff_GetInt(handle);
-  carObj->max_clacc = iVar1;
-  iVar1 = Udff_GetInt(handle);
-  carObj->max_aa = iVar1;
+  carObj->aiShiftDuration = Udff_GetInt(handle);
+  carObj->max_clacc = Udff_GetInt(handle);
+  carObj->max_aa = Udff_GetInt(handle);
   if ((carObj->carFlags & 8U) != 0) {
-    scale = AIInit_accelerationScaleWords[carObj->carInfo->carType];
+    int carType;
+
+    carType = carObj->carInfo->carType;
+    accelerationScale = AIInit_accelerationScaleWords[carType];
   }
-  pAVar3 = new AIDataRecord_AccTable_t((char *)carObj->accTable,scale,3);  /* enum body is not emitted in aiinit.obj; ABI name retained by the owner declaration */
-  carObj->accelerationRecord = pAVar3;
-  iVar1 = AIInit_IsNonStandardCarFile(carObj->carInfo->carType);
-  if (iVar1 != 0) {
-    pAVar4 = new AIDataRecord_CurveSpeedTable_t(carObj->carName,7);  /* enum body is not emitted in aiinit.obj; ABI name retained by the owner declaration */
-    carObj->curveSpeedTable = pAVar4;
+  carObj->accelerationRecord = new AIDataRecord_AccTable_t((char *)carObj->accTable,accelerationScale,3);  /* enum body is not emitted in aiinit.obj; ABI name retained by the owner declaration */
+  if (AIInit_IsNonStandardCarFile(carObj->carInfo->carType) != 0) {
+    carObj->curveSpeedTable = new AIDataRecord_CurveSpeedTable_t(carObj->carName,7);  /* enum body is not emitted in aiinit.obj; ABI name retained by the owner declaration */
   }
   else {
     carObj->curveSpeedTable = (AIDataRecord_CurveSpeedTable_t *)0x0;
   }
-  iVar1 = fixedmult(carObj->max_clacc,0x13333);
-  carObj->max_clacc = iVar1;
-  iVar1 = Udff_GetInt(handle);
-  carObj->speedFactor = iVar1;
-  iVar1 = Udff_GetInt(handle);
-  carObj->slackProb = iVar1;
+  carObj->max_clacc = fixedmult(carObj->max_clacc,0x13333);
+  carObj->speedFactor = Udff_GetInt(handle);
+  carObj->slackProb = Udff_GetInt(handle);
   carObj->gripFactor = 0x10000;
   carObj->topSpeedUpgradeMult = 0;
   carObj->accUpgradeMult = 0;
@@ -406,27 +388,12 @@ void AIInit_InitAICar(Car_tObj *carObj,Udff_tInfo *handle)
 /* ---- AIInit_DeInitAICar__FP8Car_tObj  [@0x800674e8] ---- */
 void AIInit_DeInitAICar(Car_tObj *carObj)
 {
-  /* Ghidra typed `_vf` as a pointer to a 1-byte-stride array, so the raw
-     `pa_Var1 + 4` / `pa_Var1[2] + 2` byte arithmetic lands the dispatch pfn at
-     +12 and the this-adjust delta at +8 (vtable entry[1]). Using the real
-     8-byte __vtbl_ptr_type stride here would scale those to +96/+64. */
-  char (*pa_Var1) [3];
-  AIDataRecord_CurveSpeedTable_t *pAVar2;
-  AIDataRecord_AccTable_t *pAVar3;
-  char *nm;
-
-  pAVar2 = carObj->curveSpeedTable;
-  if (pAVar2 != (AIDataRecord_CurveSpeedTable_t *)0x0) {
-    nm = pAVar2->name_;
-    pa_Var1 = (char (*)[3])pAVar2->_vf;
-    (**(int (**)(...))(pa_Var1 + 4))(nm + *(short *)(pa_Var1[2] + 2) + -8,3);
+  if (carObj->curveSpeedTable != (AIDataRecord_CurveSpeedTable_t *)0x0) {
+    delete carObj->curveSpeedTable;
     carObj->curveSpeedTable = (AIDataRecord_CurveSpeedTable_t *)0x0;
   }
-  pAVar3 = carObj->accelerationRecord;
-  if (pAVar3 != (AIDataRecord_AccTable_t *)0x0) {
-    nm = pAVar3->name_;
-    pa_Var1 = (char (*)[3])pAVar3->_vf;
-    (**(int (**)(...))(pa_Var1 + 4))(nm + *(short *)(pa_Var1[2] + 2) + -8,3);
+  if (carObj->accelerationRecord != (AIDataRecord_AccTable_t *)0x0) {
+    delete carObj->accelerationRecord;
     carObj->accelerationRecord = (AIDataRecord_AccTable_t *)0x0;
   }
   return;

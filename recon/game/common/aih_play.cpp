@@ -23,6 +23,64 @@ int          AIHigh_Player_kNumArrestsByLap[3] = { 3, 5, 8 };   /* @0x8010ce98 *
  * (scratchpad/w66a6/GCENSUS.txt). */
 char         gBlockadeTypes[5] __attribute__((section(".sdata"))) = { 5, 6, 4, 2, 0 };   /* @0x8013c568 */
 
+/* AIH_PLAY.CPP's SLD maps every instruction in both expanded copies to one
+ * caller line and records an inlined AICop_PerpChaseInfo `this`; the second
+ * copy additionally records `level` in $s0.  This is therefore the original
+ * inline member boundary rather than duplicated caller source.  SYM proves
+ * the signatures and behavior but does not retain linkage names for inline-
+ * only members; the descriptive getter/setter spellings below are therefore
+ * sole remaining non-unique part of this recovered interface. */
+inline int AICop_PerpChaseInfo::GetChaseLevelIndex()
+{
+  return chaseLevelIndex_;
+}
+
+inline int AICop_PerpChaseInfo::GetNumLevels()
+{
+  return copGameInfo_->numLevels;
+}
+
+inline copLevel_t *AICop_PerpChaseInfo::GetChaseLevel()
+{
+  return chaseLevel_;
+}
+
+inline int AICop_PerpChaseInfo::GetChaseTime()
+{
+  return (GetChaseLevel()->engagementLapFraction * AITune_gRoughLapTime) /
+             0x10000 * 0x20 -
+         engagementTime_ / 0x10000;
+}
+
+inline int AICop_PerpChaseInfo::IsLastChaseLevel()
+{
+  return bestChaseLevelIndex_ == copGameInfo_->numLevels - 1;
+}
+
+inline void AICop_PerpChaseInfo::SetChaseLevel(int level)
+{
+  int lapTicks;
+
+  chaseLevelIndex_ = level;
+  if (bestChaseLevelIndex_ < level) {
+    bestChaseLevelIndex_ = level;
+  }
+  chaseLevel_ = copGameInfo_->levels + chaseLevelIndex_;
+  lapTicks = (chaseLevel_->engagementLapFraction * AITune_gRoughLapTime) /
+             0x10000;
+  engagementTime_ = lapTicks << 0x15;
+  engagementPercentIncreasePerTick_ = 0x10000 / (lapTicks << 5);
+  if (GameSetup_gData.numLaps == 2) {
+    engagementPercentIncreasePerTick_ =
+        fixedmult(engagementPercentIncreasePerTick_, 0x13333);
+  }
+  else if (GameSetup_gData.numLaps == 4) {
+    engagementPercentIncreasePerTick_ =
+        fixedmult(engagementPercentIncreasePerTick_, 0xa8f5);
+  }
+  blockadeDone_ = 0;
+}
+
 
 /* ---- CheckIfABlockadeCanBeSetup__13AIHigh_Player  AIHigh_Player::CheckIfABlockadeCanBeSetup  [AIH_PLAY.CPP:55-170] SLD-VERIFIED ---- */
 
@@ -37,7 +95,14 @@ int AIHigh_Player::CheckIfABlockadeCanBeSetup()
   int ready[2];
   int assigned[2];
   int split;
+  /* SYM-CODEGEN-CARRIER: chaseInfo -- optimized SYM retains the corresponding
+     inlined AICop_PerpChaseInfo `this` receiver in s1 but not its source
+     spelling.  Repeating `this->perpChaseInfo_` removes the s1 CSE and changes
+     31 instructions (222 versus the 225-instruction retail body). */
   AICop_PerpChaseInfo *chaseInfo;
+  /* SYM-CODEGEN-CARRIER: cannotSetup -- folding this materialized short-circuit
+     result into the return guard changes 16 instructions and emits only 221;
+     SYM and retail prove its lifetime, but do not preserve the source name. */
   bool cannotSetup;
 
   chaseInfo = &this->perpChaseInfo_;
@@ -63,10 +128,13 @@ int AIHigh_Player::CheckIfABlockadeCanBeSetup()
 
   for (copLoop = 0; copLoop < Cars_gNumCopCars; copLoop = copLoop + 1) {
     AIHigh_Cop *thisCop;
-    Car_tObj *copCar = Cars_gCopCarList[copLoop];
-    thisCop = (AIHigh_Cop *)highLevelAIObjs[copCar->carIndex];
-    if ((copCar->AIFlags & 0xcU) == 0xc) {
-      int type = thisCop->type_;
+    thisCop = (AIHigh_Cop *)highLevelAIObjs[Cars_gCopCarList[copLoop]->carIndex];
+    if ((Cars_gCopCarList[copLoop]->AIFlags & 0xcU) == 0xc) {
+      /* SYM-CODEGEN-CARRIER: type -- the typed snapshots reproduce the
+         repeated inlined AIHigh_BasicCop receiver ranges in SYM.  Direct
+         member indexing changes 55 instructions and emits 228 instead of
+         retail's 225; the enum type itself is fixed by the class record. */
+      copType type = thisCop->type_;
       if (nCopsNeeded[type] > assigned[type]) {
         ready[type] = ready[type] + 1;
         assigned[type] = assigned[type] + 1;
@@ -79,11 +147,10 @@ int AIHigh_Player::CheckIfABlockadeCanBeSetup()
   if ((nCopsNeeded[0] > assigned[0]) || (nCopsNeeded[1] > assigned[1])) {
     AIHigh_Cop *thisCop;
     for (copLoop = 0; copLoop < Cars_gNumCopCars; copLoop = copLoop + 1) {
-      Car_tObj *copCar = Cars_gCopCarList[copLoop];
-      thisCop = (AIHigh_Cop *)highLevelAIObjs[copCar->carIndex];
-      if (((copCar->AIFlags & 0xcU) == 8) &&
+      thisCop = (AIHigh_Cop *)highLevelAIObjs[Cars_gCopCarList[copLoop]->carIndex];
+      if (((Cars_gCopCarList[copLoop]->AIFlags & 0xcU) == 8) &&
           (thisCop->blockade_.mode != 2)) {
-        int type = thisCop->type_;
+        copType type = thisCop->type_;
         if (nCopsNeeded[type] > assigned[type]) {
           assigned[type] = assigned[type] + 1;
           thisCop->blockade_.mode = 1;
@@ -96,9 +163,8 @@ int AIHigh_Player::CheckIfABlockadeCanBeSetup()
   if ((Cars_gNumHumanRaceCars != 1) && (nCopsNeeded[1] > assigned[1])) {
     for (copLoop = 0; copLoop < Cars_gNumCopCars; copLoop = copLoop + 1) {
       AIHigh_Cop *thisCop;
-      Car_tObj *copCar = Cars_gCopCarList[copLoop];
-      thisCop = (AIHigh_Cop *)highLevelAIObjs[copCar->carIndex];
-      if (((copCar->AIFlags & 0xcU) == 8) &&
+      thisCop = (AIHigh_Cop *)highLevelAIObjs[Cars_gCopCarList[copLoop]->carIndex];
+      if (((Cars_gCopCarList[copLoop]->AIFlags & 0xcU) == 8) &&
           (thisCop->type_ == 0) &&
           (nCopsNeeded[1] > assigned[1]) &&
           (assigned[1] == 0)) {
@@ -181,17 +247,18 @@ void AIHigh_Player::SetupBlockade()
     blockade = triggerManagerCops->GetTrigger(blockadeHandle,&used);
     loop = 0;
     do {
+      /* SYM-CODEGEN-CARRIER: manager -- repeating the global receiver at the
+         call site emits 673 rather than 674 instructions and changes 19,
+         including the retail saved receiver and slice-wrap allocation. */
       AITrigger_TriggerManager *manager;
       if ((AILife_IsSliceInAnyVisibleArea(blockade->roadblock.slice) != 0) ||
           (AILife_IsSliceCloseToAnyCopCar(blockade->roadblock.slice) != 0)) {
         manager = triggerManagerCops;
         blockadeHandle = blockade->roadblock.slice + 1;
         if (gNumSlices <= blockadeHandle) {
-          /* w54-a12 (27 -> 19 diffs): the `gNumSlices - 1` MUST be a named temp. Written
-           * inline, gcc-2.8 cse/combine reassociates `slice - (n-1)` into `(slice+1) - n`
-           * (reusing the just-computed blockadeHandle) and drops retail's `addiu v0,v1,-1`
-           * + `subu a1,a2,v0` pair, which also frees the original `slice` load's register.
-           * Catalog "keep arithmetic UN-simplified" (methodology 3.14). */
+          /* SYM-CODEGEN-CARRIER: lastSlice -- inline `gNumSlices - 1` keeps
+             674 instructions but changes eight allocation/combiner choices;
+             the named value preserves retail's separate addiu/subu sequence. */
           int lastSlice = gNumSlices - 1;
           blockadeHandle = blockade->roadblock.slice - lastSlice;
         }
@@ -227,6 +294,9 @@ void AIHigh_Player::SetupBlockade()
     {
       AIHigh_Cop *thisCop;
       for (copLoop = 0; copLoop < Cars_gNumCopCars; copLoop = copLoop + 1) {
+        /* SYM-CODEGEN-CARRIER: bVar2 -- folding this short-circuit result into
+           the update guard emits 669 rather than 674 instructions and changes
+           121 by reshaping the array bases and the following long loop. */
         bool bVar2;
         thisCop = (AIHigh_Cop *)highLevelAIObjs[
             Cars_gCopCarList[copLoop]->carIndex];
@@ -256,9 +326,16 @@ void AIHigh_Player::SetupBlockade()
     blockadeFlags = (u_int)(u_char)"\x05\x06\x04\x02"[blockadeType];
 
     {
+      /* SYM-CODEGEN-CARRIER: chaseInfo -- SYM retains the corresponding
+         inlined AICop_PerpChaseInfo receiver in fp but not a source spelling.
+         Direct member accesses emit 671 rather than 674 instructions and
+         change 123, collapsing fp and the long-loop allocation. */
       AICop_PerpChaseInfo *chaseInfo;
       AIHigh_Cop *thisCop;
-      blockade_t *copBlockade;
+      blockade_t *blockade;
+      /* SYM-CODEGEN-CARRIER: one -- replacing this shared loop pseudo with
+         integer literals keeps 674 instructions but moves retail's `li a3,1`,
+         producing the final two scheduling diffs. */
       int one;
       for (copLoop = 0, one = 1, chaseInfo = &this->perpChaseInfo_;
            copLoop < Cars_gNumCopCars; copLoop = copLoop + 1) {
@@ -269,9 +346,12 @@ void AIHigh_Player::SetupBlockade()
 
         if ((thisCop->type_ == one) && (nCopsNeeded[1] != 0)) {
           int addToSlice;
+          /* SYM-CODEGEN-CARRIER: distance -- reusing the recorded addToSlice
+             scratch keeps 674 instructions but changes 16 result-register
+             uses (retail v1 versus v0) across the two symmetric branches. */
           int distance;
 
-          copBlockade = &thisCop->blockade_;
+          blockade = &thisCop->blockade_;
 
           if (blockadeCar == (AIHigh_Cop *)0x0) {
 
@@ -281,14 +361,14 @@ void AIHigh_Player::SetupBlockade()
 
           nCopsNeeded[1] = nCopsNeeded[1] + -1;
 
-          copBlockade->blockadeSpeechFlags = 0;
-          copBlockade->flags = blockadeFlags;
-          copBlockade->chaseLevel = chaseInfo->chaseLevelIndex_;
-          copBlockade->mode = 2;
+          blockade->blockadeSpeechFlags = 0;
+          blockade->flags = blockadeFlags;
+          blockade->chaseLevel = chaseInfo->chaseLevelIndex_;
+          blockade->mode = 2;
 
           addToSlice = ((posIndex / 2) * 2 + 3) * this->carObj_->direction;
           blockadeFlags = 0;
-          copBlockade->slice = addToSlice >= 0
+          blockade->slice = addToSlice >= 0
               ? (blockadeSlice + addToSlice >= gNumSlices
                     ? blockadeSlice + addToSlice - gNumSlices
                     : blockadeSlice + addToSlice)
@@ -296,46 +376,46 @@ void AIHigh_Player::SetupBlockade()
                     ? blockadeSlice + addToSlice + gNumSlices
                     : blockadeSlice + addToSlice);
 
-          copBlockade->direction = this->carObj_->direction;
+          blockade->direction = this->carObj_->direction;
 
           totalRoadWidth =
-                       (BWorldSm_slices[copBlockade->slice].avgPavedWidthLf << 15) *
-                       (BWorldSm_slices[copBlockade->slice].laneCount >> 4) +
-                       (BWorldSm_slices[copBlockade->slice].avgPavedWidthRt << 15) *
-                       (BWorldSm_slices[copBlockade->slice].laneCount & 0xf);
+                       (BWorldSm_slices[blockade->slice].avgPavedWidthLf << 15) *
+                       (BWorldSm_slices[blockade->slice].laneCount >> 4) +
+                       (BWorldSm_slices[blockade->slice].avgPavedWidthRt << 15) *
+                       (BWorldSm_slices[blockade->slice].laneCount & 0xf);
 
           if ((nCopsAvail[1] == one) && (nCopsAvail[0] == 0)) {
 
-            copBlockade->latPos = ((u_int)totalRoadWidth >> 1) -
-                (BWorldSm_slices[copBlockade->slice].avgPavedWidthLf << 15) *
-                (BWorldSm_slices[copBlockade->slice].laneCount >> 4);
+            blockade->latPos = ((u_int)totalRoadWidth >> 1) -
+                (BWorldSm_slices[blockade->slice].avgPavedWidthLf << 15) *
+                (BWorldSm_slices[blockade->slice].laneCount >> 4);
 
-            copBlockade->rotation = 0xff;
+            blockade->rotation = 0xff;
 
           }
 
           else {
 
             if ((posIndex & 1) == 0) {
-              copBlockade->latPos =
+              blockade->latPos =
 
-                   -((BWorldSm_slices[copBlockade->slice].avgPavedWidthLf << 15) *
-                     (BWorldSm_slices[copBlockade->slice].laneCount >> 4)) +
+                   -((BWorldSm_slices[blockade->slice].avgPavedWidthLf << 15) *
+                     (BWorldSm_slices[blockade->slice].laneCount >> 4)) +
                    totalRoadWidth / 4;
 
-              copBlockade->rotation = 0xbe;
+              blockade->rotation = 0xbe;
 
             }
 
             else {
 
-              copBlockade->latPos =
+              blockade->latPos =
 
-                   -((BWorldSm_slices[copBlockade->slice].avgPavedWidthLf << 15) *
-                     (BWorldSm_slices[copBlockade->slice].laneCount >> 4)) +
+                   -((BWorldSm_slices[blockade->slice].avgPavedWidthLf << 15) *
+                     (BWorldSm_slices[blockade->slice].laneCount >> 4)) +
                    (totalRoadWidth / 4) * 3;
 
-              copBlockade->rotation = -0xbe;
+              blockade->rotation = -0xbe;
 
             }
 
@@ -343,14 +423,14 @@ void AIHigh_Player::SetupBlockade()
 
           randtemp = fastRandom * randSeed;
 
-          copBlockade->target = this;
-          copBlockade->reverse = 0;
-          copBlockade->releaseTime =
+          blockade->target = this;
+          blockade->reverse = 0;
+          blockade->releaseTime =
               ((randtemp >> 8 & 0xffff) * 0x14ccd >> 0x10) + 0xd999;
 
           fastRandom = randtemp & 0xffff;
 
-          distance = AIWorld_ApxSplineDistance(this->carObj_,copBlockade->slice);
+          distance = AIWorld_ApxSplineDistance(this->carObj_,blockade->slice);
 
           if (distance < 0) {
 
@@ -358,11 +438,11 @@ void AIHigh_Player::SetupBlockade()
 
           }
 
-          copBlockade->initialPlayerDistanceMetersInt = -(distance >> 0x10);
+          blockade->initialPlayerDistanceMetersInt = -(distance >> 0x10);
 
           if (-(distance >> 0x10) * (this->carObj_)->direction < 0) {
 
-            copBlockade->initialPlayerDistanceMetersInt = 0;
+            blockade->initialPlayerDistanceMetersInt = 0;
 
           }
 
@@ -374,7 +454,7 @@ void AIHigh_Player::SetupBlockade()
 
           if (nCopsNeeded[0] == 0) goto LAB_800620e8;
 
-          copBlockade = &thisCop->blockade_;
+          blockade = &thisCop->blockade_;
 
           if (blockadeCar == (AIHigh_Cop *)0x0) {
 
@@ -384,14 +464,14 @@ void AIHigh_Player::SetupBlockade()
 
           nCopsNeeded[0] = nCopsNeeded[0] + -1;
 
-          copBlockade->blockadeSpeechFlags = 0;
-          copBlockade->flags = blockadeFlags;
-          copBlockade->chaseLevel = chaseInfo->chaseLevelIndex_;
-          copBlockade->mode = 2;
+          blockade->blockadeSpeechFlags = 0;
+          blockade->flags = blockadeFlags;
+          blockade->chaseLevel = chaseInfo->chaseLevelIndex_;
+          blockade->mode = 2;
 
           addToSlice = ((posIndex / 2) * 2 + 3) * this->carObj_->direction;
           blockadeFlags = 0;
-          copBlockade->slice = addToSlice >= 0
+          blockade->slice = addToSlice >= 0
               ? (blockadeSlice + addToSlice >= gNumSlices
                     ? blockadeSlice + addToSlice - gNumSlices
                     : blockadeSlice + addToSlice)
@@ -401,30 +481,30 @@ void AIHigh_Player::SetupBlockade()
 
           randtemp = fastRandom * randSeed;
 
-          copBlockade->direction = this->carObj_->direction;
+          blockade->direction = this->carObj_->direction;
 
           fastRandom = randtemp & 0xffff;
 
           if ((randtemp >> 8 & 0xffff) * 1000 >> 0x10 < 300) {
 
-            copBlockade->reverse = one;
+            blockade->reverse = one;
 
           }
 
           else {
 
-            copBlockade->reverse = 0;
+            blockade->reverse = 0;
 
           }
 
           randtemp = fastRandom * randSeed;
 
-          copBlockade->releaseTime =
+          blockade->releaseTime =
               ((randtemp >> 8 & 0xffff) * 0x14ccd >> 0x10) + 0xd999;
 
           fastRandom = randtemp & 0xffff;
 
-          distance = AIWorld_ApxSplineDistance(this->carObj_,copBlockade->slice);
+          distance = AIWorld_ApxSplineDistance(this->carObj_,blockade->slice);
 
           if (distance < 0) {
 
@@ -432,64 +512,64 @@ void AIHigh_Player::SetupBlockade()
 
           }
 
-          copBlockade->initialPlayerDistanceMetersInt = -(distance >> 0x10);
+          blockade->initialPlayerDistanceMetersInt = -(distance >> 0x10);
 
           if (-(distance >> 0x10) * (this->carObj_)->direction < 0) {
 
-            copBlockade->initialPlayerDistanceMetersInt = 0;
+            blockade->initialPlayerDistanceMetersInt = 0;
 
           }
 
           totalRoadWidth =
-                       (BWorldSm_slices[copBlockade->slice].avgPavedWidthLf << 15) *
-                       (BWorldSm_slices[copBlockade->slice].laneCount >> 4) +
-                       (BWorldSm_slices[copBlockade->slice].avgPavedWidthRt << 15) *
-                       (BWorldSm_slices[copBlockade->slice].laneCount & 0xf);
+                       (BWorldSm_slices[blockade->slice].avgPavedWidthLf << 15) *
+                       (BWorldSm_slices[blockade->slice].laneCount >> 4) +
+                       (BWorldSm_slices[blockade->slice].avgPavedWidthRt << 15) *
+                       (BWorldSm_slices[blockade->slice].laneCount & 0xf);
 
           if ((nCopsAvail[0] == one) && (nCopsAvail[1] == 0)) {
 
-            copBlockade->latPos = ((u_int)totalRoadWidth >> 1) -
-                (BWorldSm_slices[copBlockade->slice].avgPavedWidthLf << 15) *
-                (BWorldSm_slices[copBlockade->slice].laneCount >> 4);
+            blockade->latPos = ((u_int)totalRoadWidth >> 1) -
+                (BWorldSm_slices[blockade->slice].avgPavedWidthLf << 15) *
+                (BWorldSm_slices[blockade->slice].laneCount >> 4);
 
-            copBlockade->rotation = 0xff;
+            blockade->rotation = 0xff;
 
           }
 
           else {
 
             if ((posIndex & 1) == 0) {
-              copBlockade->latPos =
+              blockade->latPos =
 
-                   -((BWorldSm_slices[copBlockade->slice].avgPavedWidthLf << 15) *
-                     (BWorldSm_slices[copBlockade->slice].laneCount >> 4)) +
+                   -((BWorldSm_slices[blockade->slice].avgPavedWidthLf << 15) *
+                     (BWorldSm_slices[blockade->slice].laneCount >> 4)) +
                    totalRoadWidth / 4;
 
-              copBlockade->rotation = 0xbe;
+              blockade->rotation = 0xbe;
 
             }
 
             else {
 
-              copBlockade->latPos =
+              blockade->latPos =
 
-                   -((BWorldSm_slices[copBlockade->slice].avgPavedWidthLf << 15) *
-                     (BWorldSm_slices[copBlockade->slice].laneCount >> 4)) +
+                   -((BWorldSm_slices[blockade->slice].avgPavedWidthLf << 15) *
+                     (BWorldSm_slices[blockade->slice].laneCount >> 4)) +
                    (totalRoadWidth / 4) * 3;
 
-              copBlockade->rotation = -0xbe;
+              blockade->rotation = -0xbe;
 
             }
 
           }
 
-          copBlockade->target = this;
+          blockade->target = this;
 
         }
 
         if (requestSpikeBeltAtSlice != -1) {
           saySpikeBelt = true;
-          copBlockade->requestSpikeBeltAtSlice = requestSpikeBeltAtSlice;
+          blockade->requestSpikeBeltAtSlice = requestSpikeBeltAtSlice;
           requestSpikeBeltAtSlice = -1;
         }
 
@@ -521,35 +601,20 @@ LAB_800620e8: ;   /* empty stmt: gcc2.7.2 label before brace */
       blockadeCar->blockade_.blockadeSpeechFlags = 1;
 
       if (saySpikeBelt) {
-        Speaker *speaker = (Speaker *)Speech_Mobile(blockadeCar->carObj_);
-        (*(*speaker->_vf)[11].pfn)
-            ((int)speaker + (*speaker->_vf)[11].delta);
+        Speech_Mobile(blockadeCar->carObj_)->SpikeBelt();
 
       }
 
       else {
-        Speaker *speaker = (Speaker *)Speech_Mobile(blockadeCar->carObj_);
-        (*(*speaker->_vf)[10].pfn)
-            ((int)speaker + (*speaker->_vf)[10].delta);
+        Speech_Mobile(blockadeCar->carObj_)->RoadBlock();
 
       }
 
-      {
-        Speaker *speaker = (Speaker *)Speech_Mobile(blockadeCar->carObj_);
-        (*(*speaker->_vf)[6].pfn)((int)speaker + (*speaker->_vf)[6].delta,
-                    this->carObj_);
-      }
+      Speech_Mobile(blockadeCar->carObj_)->Engage(this->carObj_);
 
-      {
-        Speaker *speaker = (Speaker *)Speech_Dispatch();
-        (*(*speaker->_vf)[4].pfn)((int)speaker + (*speaker->_vf)[4].delta);
-      }
+      Speech_Dispatch()->Grant();
 
-      {
-        Speaker *speaker = (Speaker *)Speech_Dispatch();
-        (*(*speaker->_vf)[5].pfn)((int)speaker + (*speaker->_vf)[5].delta,
-                    blockadeCar->carObj_);
-      }
+      Speech_Dispatch()->Ready(blockadeCar->carObj_);
 
     }
   }
@@ -573,66 +638,27 @@ void AIHigh_Player::CheckForNewLevel(int force)
   int chaseLevel;
   int oldChaseLevel;
 
-  __vtbl_ptr_type (*pa_Var1) [3];
-
-
-
   /* W57-A11: SLD/SYM-shaped rewrite.  The retail SYM 8c block lists exactly TWO
      int locals (chaseLevel $10=s0, oldChaseLevel $13=s3) plus a chain of INLINED
      AICop_PerpChaseInfo methods, each contributing its own block-scoped `this`
      pseudo ($3=v1, $10=s0, $4=a0, $11=s1) and one `level` parameter ($10=s0).
-     The former single fn-scope `pInfo` pointer was ONE global allocno spanning
-     the whole body (w46 STORAGE-SCOPE LAW) -- split per region below.
+     Restoring the inline accessors produces those separate retail receivers;
+     a single decompiler pointer spanning the body instead becomes a 12-ref
+     global allocno, occupies $s1, and displaces oldChaseLevel into $s4.
      SLD map: 434 prologue | 438 init+finishType test | 439 the whole first
      inlined SetChaseLevel chunk | 443 crime_=0 + return | 475 vf call |
      476 crime test | 490 force/engagementTime gate | 491-493 level bump |
      494 the second inlined SetChaseLevel chunk | 503 index compare |
      504-505 newTriggerProb_ | 511 close.  */
 
-  AICop_PerpChaseInfo *pci = &this->perpChaseInfo_;
-
-  oldChaseLevel = pci->chaseLevelIndex_;
+  oldChaseLevel = this->perpChaseInfo_.GetChaseLevelIndex();
 
   chaseLevel = oldChaseLevel;
 
   if (1 < ((this->carObj_)->stats).finishType) {
 
-    AICop_PerpChaseInfo *p = pci;
-
-    int lapTicks;
-
-    p->chaseLevelIndex_ = 0;
-
-    if (p->bestChaseLevelIndex_ < 0) {
-
-      p->bestChaseLevelIndex_ = 0;
-
-    }
-
-    p->chaseLevel_ = (p->copGameInfo_)->levels + p->chaseLevelIndex_;
-
-    lapTicks = ((p->chaseLevel_)->engagementLapFraction * AITune_gRoughLapTime)
-               / 0x10000;
-
-    p->engagementTime_ = lapTicks << 0x15;
-
-    p->engagementPercentIncreasePerTick_ = 0x10000 / (lapTicks << 5);
-
-    if (GameSetup_gData.numLaps == 2) {
-
-      p->engagementPercentIncreasePerTick_ =
-          fixedmult(p->engagementPercentIncreasePerTick_,0x13333);
-
-    }
-
-    else if (GameSetup_gData.numLaps == 4) {
-
-      p->engagementPercentIncreasePerTick_ =
-          fixedmult(p->engagementPercentIncreasePerTick_,0xa8f5);
-
-    }
-
-    p->blockadeDone_ = 0;
+    /* SYM-INLINE-LOCAL: level = SetChaseLevel */
+    this->perpChaseInfo_.SetChaseLevel(0);
 
     this->basicPerpInfo_.crime_ = 0;
 
@@ -640,87 +666,45 @@ void AIHigh_Player::CheckForNewLevel(int force)
 
   }
 
-  pa_Var1 = this->_vf;
+  /* Retail AIHigh_Player_vtable[3] @0x800550b0 is
+     CheckForCrimes__16AIHigh_BasicPerp @0x8005b500.  Keep the ABI-shaped call
+     local until the explicit AIHigh hierarchy vptr is restored as C++ virtual
+     source; the former pa_Var1 decompiler alias is not required for codegen. */
+  (**(int (**)(...))((char *)this->_vf + 28))
 
-  (**(int (**)(...))((char *)pa_Var1 + 28))
-
-            ((int)this + *(short *)((char *)pa_Var1 + 24));
+            ((int)this + *(short *)((char *)this->_vf + 24));
 
   if (this->basicPerpInfo_.crime_ != 0) {
 
     if (force == 0) {
 
-      int doIt = 0;
+      /* SYM-CODEGEN-CARRIER: doIt -- the optimized SYM omits this boolean's
+         source name, but retail materializes its 0/1 value in $a0 and tests it
+         with a second branch.  Folding it into the condition emits 182 rather
+         than 184 instructions and leaves eight authoritative diffs. */
+      bool doIt = false;
 
       if (this->perpChaseInfo_.engagementTime_ / 0x10000 <= 0) {
 
-        doIt = 1;
+        doIt = true;
 
       }
 
-      if (doIt == 0) goto LAB_8006249c;
+      if (!doIt) goto LAB_8006249c;
 
     }
 
     {
 
-      AICop_PerpChaseInfo *pi = &this->perpChaseInfo_;
-
-      int numLevels;
-
-      numLevels = (pi->copGameInfo_)->numLevels;
-
       chaseLevel = chaseLevel + 1;
 
-      if (numLevels <= chaseLevel) {
+      if (this->perpChaseInfo_.GetNumLevels() <= chaseLevel) {
 
-        chaseLevel = numLevels + -2;
-
-      }
-
-      {
-
-        AICop_PerpChaseInfo *p = pi;
-
-        /* SYM-OPTIMIZED: level -- SetChaseLevel's inlined parameter aliases
-           chaseLevel in $s0; it has no independent source storage here. */
-
-        int lapTicks;
-
-        p->chaseLevelIndex_ = chaseLevel;
-
-        if (p->bestChaseLevelIndex_ < chaseLevel) {
-
-          p->bestChaseLevelIndex_ = chaseLevel;
-
-        }
-
-        p->chaseLevel_ = (p->copGameInfo_)->levels + p->chaseLevelIndex_;
-
-        lapTicks = ((p->chaseLevel_)->engagementLapFraction * AITune_gRoughLapTime)
-                   / 0x10000;
-
-        p->engagementTime_ = lapTicks << 0x15;
-
-        p->engagementPercentIncreasePerTick_ = 0x10000 / (lapTicks << 5);
-
-        if (GameSetup_gData.numLaps == 2) {
-
-          p->engagementPercentIncreasePerTick_ =
-              fixedmult(p->engagementPercentIncreasePerTick_,0x13333);
-
-        }
-
-        else if (GameSetup_gData.numLaps == 4) {
-
-          p->engagementPercentIncreasePerTick_ =
-              fixedmult(p->engagementPercentIncreasePerTick_,0xa8f5);
-
-        }
-
-        p->blockadeDone_ = 0;
+        chaseLevel = this->perpChaseInfo_.GetNumLevels() + -2;
 
       }
+
+      this->perpChaseInfo_.SetChaseLevel(chaseLevel);
 
     }
 
@@ -729,9 +713,7 @@ void AIHigh_Player::CheckForNewLevel(int force)
 LAB_8006249c:
   {
 
-    AICop_PerpChaseInfo *pt = &this->perpChaseInfo_;
-
-    if (oldChaseLevel == pt->chaseLevelIndex_) {
+    if (oldChaseLevel == this->perpChaseInfo_.GetChaseLevelIndex()) {
 
       return;
 
@@ -740,7 +722,7 @@ LAB_8006249c:
     this->newTriggerProb_ =
 
          triggerManagerCops->invNumTriggers_ *
-         (pt->chaseLevel_)->copsPerLap;
+         this->perpChaseInfo_.GetChaseLevel()->copsPerLap;
 
   }
 
@@ -766,17 +748,7 @@ void AIHigh_Player::HandleSpeech()
   int arrestType;
   int player;
 
-  Speaker *pSVar1;
-
-  int iVar3;
-
-  int _Var4;
-
-
-
-  player = this->positionVSCopList_[0].carIndex;
-
-  if (player == -1) {
+  if (this->positionVSCopList_[0].carIndex == -1) {
 
     highestRankedCopIndex = (*(int *)((char *)Cars_gCopCarList[0] + 0x254));
 
@@ -784,61 +756,57 @@ void AIHigh_Player::HandleSpeech()
 
   else {
 
-    highestRankedCopIndex = player;
+    highestRankedCopIndex = this->positionVSCopList_[0].carIndex;
 
   }
 
-  player = this->positionVSCopList_[1].carIndex;
+  if ((this->positionVSCopList_[1].carIndex != -1) &&
+      (this->positionVSCopList_[1].carIndex < highestRankedCopIndex)) {
 
-  if ((player != -1) && (player < highestRankedCopIndex)) {
-
-    highestRankedCopIndex = player;
-
-  }
-
-  player = this->positionVSCopList_[2].carIndex;
-
-  if ((player != -1) && (player < highestRankedCopIndex)) {
-
-    highestRankedCopIndex = player;
+    highestRankedCopIndex = this->positionVSCopList_[1].carIndex;
 
   }
 
-  _Var4 = this->pullOverMode_;
+  if ((this->positionVSCopList_[2].carIndex != -1) &&
+      (this->positionVSCopList_[2].carIndex < highestRankedCopIndex)) {
 
-  arrestType = (this->carObj_)->carIndex;
-
-  if (_Var4 == 1) goto LAB_pullover_flag;
-
-  if (1 < (int)_Var4) {
-
-    if (_Var4 == 2) goto LAB_pullover_arrest;
-
-    if (_Var4 == 3) goto LAB_pullover_evade;
+    highestRankedCopIndex = this->positionVSCopList_[2].carIndex;
 
   }
 
-  iVar3 = 4;
+  player = (this->carObj_)->carIndex;
+
+  if (this->pullOverMode_ == 1) goto LAB_pullover_flag;
+
+  if (1 < (int)this->pullOverMode_) {
+
+    if (this->pullOverMode_ == 2) goto LAB_pullover_arrest;
+
+    if (this->pullOverMode_ == 3) goto LAB_pullover_evade;
+
+  }
+
+  arrestType = 4;
 
   goto LAB_800625d0;
 
 LAB_pullover_flag:
 
-  Hud_Perp_OverlayOn(arrestType,0);
+  Hud_Perp_OverlayOn(player,0);
 
-  iVar3 = 2;
+  arrestType = 2;
 
   goto LAB_800625d0;
 
 LAB_pullover_arrest:
 
-  Hud_Perp_OverlayOn(arrestType,1);
+  Hud_Perp_OverlayOn(player,1);
 
-  iVar3 = 8;
+  arrestType = 8;
 
   if (2 < this->numBusts_) {
 
-    iVar3 = this->numBusts_ + 6;
+    arrestType = this->numBusts_ + 6;
 
   }
 
@@ -846,9 +814,9 @@ LAB_pullover_arrest:
 
 LAB_pullover_evade:
 
-  Hud_Perp_OverlayOn(arrestType,2);
+  Hud_Perp_OverlayOn(player,2);
 
-  iVar3 = 1;
+  arrestType = 1;
 
 LAB_800625d0:
 
@@ -858,9 +826,7 @@ LAB_800625d0:
 
   }
 
-  pSVar1 = (Speaker *)Speech_Mobile(Cars_gList[highestRankedCopIndex]);
-
-  (*(*pSVar1->_vf)[9].pfn)((int)pSVar1 + (*pSVar1->_vf)[9].delta,iVar3);
+  Speech_Mobile(Cars_gList[highestRankedCopIndex])->Catch(arrestType);
 
   return;
 
@@ -990,19 +956,11 @@ AIHigh_Player::AIHigh_Player(Car_tObj *carObj)
   int lapIndex;
   copGame_t*copGameInfo;
 
-  int iVar1;
-
-  Car_tObj *pCVar2;
-
-  copLevel_t *pcVar3;
-
-  int iVar4;
-
-  int a;
-
+  /* SYM-CODEGEN-CARRIER: pInfo -- the inlined chase-info constructor's retail
+     receiver stays in $a1 across its branch and initialization sequence.
+     Repeating the member expression emits 127 instead of 129 instructions and
+     changes 28 branch/address/store instructions. */
   AICop_PerpChaseInfo *pInfo;
-
-
 
   (new((AIHigh_BasicPerp *)this) AIHigh_BasicPerp(carObj));
 
@@ -1035,9 +993,11 @@ AIHigh_Player::AIHigh_Player(Car_tObj *carObj)
   copGameInfo = copGame + (gameIndex + lapIndex);
 
   pInfo->copGameInfo_ = copGameInfo;
-  /* MATCH: keep the copGameInfo_ store ahead of the retail pointer copy.
-   * The memory barrier and identity fence are both empty-template/zero-insn;
-   * together they preserve retail's `sw v1,4(a1); addu v0,v1,zero`. */
+  /* SYM-CODEGEN-CARRIER: copGameInfoCopy -- retail stores the selected pointer
+     through the inline receiver and then copies it from $v1 to $v0 before the
+     remaining initialization.  Plain C emits 128 rather than 129 instructions
+     with 17 scheduling/allocation diffs.  These guide-authorized empty fences
+     emit no opcodes; they retain the measured GCC source-level dependency. */
   __asm__ __volatile__("" : : : "memory");
 
   copGame_t *copGameInfoCopy = copGameInfo;
@@ -1047,10 +1007,18 @@ AIHigh_Player::AIHigh_Player(Car_tObj *carObj)
 
   pInfo->engagementTime_ = 0;
 
+  /* SYM-CODEGEN-CARRIER: chaseIndex -- retaining the initialized index before
+     the best-level store schedules retail's load at 0x80062944.  Reading the
+     field only at the final addition moves that load and leaves two ordered
+     instruction diffs. */
   int chaseIndex = pInfo->chaseLevelIndex_;
 
   pInfo->bestChaseLevelIndex_ = 0;
 
+  /* SYM-CODEGEN-CARRIER: levels -- separating this early load preserves the
+     retail copGameInfo copy in $v0, levels in $a0, and final sum/store in
+     $v1.  Embedding the field read in the assignment produces eight register
+     and dataflow diffs at the same 129 instructions. */
   copLevel_t *levels = copGameInfoCopy->levels;
 
   pInfo->blockadeDone_ = 0;
@@ -1078,67 +1046,28 @@ AIHigh_Player::AIHigh_Player(Car_tObj *carObj)
   }
 
   {
-    /* MATCH: SYM shows pInfo's live range ENDS after the copGameInfo_/chaseLevel_ init above;
-       a FRESH "this"-named AICop_PerpChaseInfo* is re-declared at block scope 0x800629a0
-       (reg $a1, later copied to the callee-saved $s0 to survive the fixedmult() jal) rather
-       than keeping the first pInfo alive across the whole ctor. Re-derive it here. */
-    AICop_PerpChaseInfo *pInfo2 = &this->perpChaseInfo_;
+    /* SYM line 7 begins a fresh AICop_PerpChaseInfo inline receiver in $a1;
+       the direct GetChaseLevel call expresses that boundary without a named
+       decompiler alias. */
+    this->newTriggerProb_ =
 
-  pCVar2 = this->carObj_;
+         triggerManagerCops->invNumTriggers_ *
+         this->perpChaseInfo_.GetChaseLevel()->copsPerLap;
 
-  this->newTriggerProb_ =
+    /* SYM-CODEGEN-CARRIER: pInfo3 -- the line-12 inline receiver is copied
+       from the line-7 $a1 view into retail $s0 before SetChaseLevel's
+       fixedmult call.  Calling SetChaseLevel through the earlier receiver
+       directly keeps 129 instructions but changes 16 receiver/product
+       instructions. */
+    AICop_PerpChaseInfo *pInfo3 = &this->perpChaseInfo_;
 
-       triggerManagerCops->invNumTriggers_ * (pInfo2->chaseLevel_)->copsPerLap;
+    this->lastTriggerCheckSlice_ =
+        (int)(this->carObj_->N).simRoadInfo.slice;
 
-  AICop_PerpChaseInfo *pInfo3 = pInfo2;
+    /* SYM-INLINE-LOCAL: level = SetChaseLevel */
+    pInfo3->SetChaseLevel(0);
 
-  this->lastTriggerCheckSlice_ = (int)(pCVar2->N).simRoadInfo.slice;
-
-  pInfo3->chaseLevelIndex_ = 0;
-
-  if (pInfo3->bestChaseLevelIndex_ < 0) {
-
-    pInfo3->bestChaseLevelIndex_ = 0;
-
-  }
-
-  {
-
-    /* W57-A11: same inlined AICop_PerpChaseInfo::SetChaseLevel chunk as
-       CheckForNewLevel -- the /0x10000 form gives retail's SINGLE in-place
-       `sra v1,v1,16` (a named `iVar1>>16` used twice duplicates the shift into
-       the branch delay slot), and DUPLICATING the fixedmult call in both arms
-       lets cross_jump merge them while each arm materializes its constant
-       straight into $a1 (a shared temp goes through a callee-saved reg). */
-    int lapTicks;
-    pInfo3->chaseLevel_ = (pInfo3->copGameInfo_)->levels + pInfo3->chaseLevelIndex_;
-
-    lapTicks = ((pInfo3->chaseLevel_)->engagementLapFraction * AITune_gRoughLapTime)
-               / 0x10000;
-
-    pInfo3->engagementTime_ = lapTicks << 0x15;
-
-    pInfo3->engagementPercentIncreasePerTick_ = 0x10000 / (lapTicks << 5);
-
-    if (GameSetup_gData.numLaps == 2) {
-
-      pInfo3->engagementPercentIncreasePerTick_ =
-          fixedmult(pInfo3->engagementPercentIncreasePerTick_,0x13333);
-
-    }
-
-    else if (GameSetup_gData.numLaps == 4) {
-
-      pInfo3->engagementPercentIncreasePerTick_ =
-          fixedmult(pInfo3->engagementPercentIncreasePerTick_,0xa8f5);
-
-    }
-
-    pInfo3->blockadeDone_ = 0;
-
-  }
-
-  return;
+    return;
   }
 
 }
@@ -1303,18 +1232,10 @@ void AIHigh_Player::CleanupBlockaders(int forceClearAll)
 
 /* ---- HandlePullOver__13AIHigh_Player  AIHigh_Player::HandlePullOver  [AIH_PLAY.CPP:906-1014] SLD-VERIFIED ---- */
 
-static inline int AICop_IsLastChaseLevel(AICop_PerpChaseInfo *info)
-{
-  return info->bestChaseLevelIndex_ == info->copGameInfo_->numLevels - 1;
-}
-
 void AIHigh_Player::HandlePullOver()
 {
   int chaseTime;
   bool bVar1;
-  int iVar2;
-  int iVar5;
-  int a;
   if (this->pullOverMode_ != 0) {
     this->beatingTicksLeft_ -= AI_elapsedTime;
     if (0 < this->beatingTicksLeft_) {
@@ -1334,39 +1255,8 @@ void AIHigh_Player::HandlePullOver()
       simVar.endSimGame = 1;
       Stats_ExtrapolateOpponentTimes(2);
     }
-    {
-      AICop_PerpChaseInfo *chaseInfo = &this->perpChaseInfo_;
-      int engagementLapTime;
-
-      chaseInfo->chaseLevelIndex_ = 0;
-      if (chaseInfo->bestChaseLevelIndex_ < 0) {
-        chaseInfo->bestChaseLevelIndex_ = 0;
-      }
-      chaseInfo->chaseLevel_ =
-          chaseInfo->copGameInfo_->levels + chaseInfo->chaseLevelIndex_;
-      engagementLapTime =
-          chaseInfo->chaseLevel_->engagementLapFraction * AITune_gRoughLapTime;
-      if (engagementLapTime < 0) {
-        engagementLapTime = engagementLapTime + 0xffff;
-      }
-      iVar5 = (engagementLapTime >> 0x10) << 5;
-      a = 0x10000 / iVar5;
-      chaseInfo->engagementTime_ = (engagementLapTime >> 0x10) << 0x15;
-      chaseInfo->engagementPercentIncreasePerTick_ = a;
-      if (GameSetup_gData.numLaps == 2) {
-        iVar2 = 0x13333;
-      }
-      else if (GameSetup_gData.numLaps == 4) {
-        iVar2 = 0xa8f5;
-      }
-      else {
-        goto LAB_80062f48;
-      }
-      iVar2 = fixedmult(a,iVar2);
-      chaseInfo->engagementPercentIncreasePerTick_ = iVar2;
-LAB_80062f48:
-      chaseInfo->blockadeDone_ = 0;
-    }
+    /* SYM-INLINE-LOCAL: level = SetChaseLevel */
+    this->perpChaseInfo_.SetChaseLevel(0);
     this->basicPerpInfo_.crime_ = 0;
     this->RemoveCloseCops();
     if (((this->pullOverMode_ != 3) || (Cars_gNumHumanRaceCars != 1)) ||
@@ -1383,37 +1273,29 @@ LAB_80062f48:
     return;
   }
 
-  iVar2 = this->CheckIfCaught();
-  if (iVar2 == 0) {
+  if (!this->CheckIfCaught()) {
     return;
   }
   (this->carObj_)->pullOver = 1;
   this->CleanupBlockaders(1);
   {
+    /* SYM-CODEGEN-CARRIER: chaseInfo -- this source alias materializes the
+       nested inline receivers in the retail $a3/$a1 allocation.  Repeating
+       the member expression moves them to $a1/$a2 and produces 26 diffs. */
     AICop_PerpChaseInfo *chaseInfo = &this->perpChaseInfo_;
-    copLevel_t *pcVar6;
-    int engagementLapTime;
-    int chaseLapTime;
 
-    pcVar6 = chaseInfo->chaseLevel_;
-    engagementLapTime = pcVar6->engagementLapFraction * AITune_gRoughLapTime;
-    if (engagementLapTime < 0) {
-      engagementLapTime = engagementLapTime + 0xffff;
-    }
-    chaseLapTime = (engagementLapTime >> 0x10) * 0x20;
-    iVar5 = chaseInfo->engagementTime_;
-    if (iVar5 < 0) {
-      iVar5 = iVar5 + 0xffff;
-    }
-    chaseTime = chaseLapTime - (iVar5 >> 0x10);
-    this->beatingTicksLeft_ = pcVar6->beatingTicks;
+    chaseTime = chaseInfo->GetChaseTime();
+    this->beatingTicksLeft_ = chaseInfo->GetChaseLevel()->beatingTicks;
     this->lastPullOverTime_ = simGlobal.gameTicks;
+    /* SYM-CODEGEN-CARRIER: bVar1 -- retail materializes this short-circuit
+       result in $a2.  Folding it into the following guard keeps 307
+       instructions but changes 18 authoritative instructions/registers. */
     bVar1 = false;
     if (((this->basicPerpInfo_.crime_ != 4) &&
          (((this->carObj_)->stats).numFines == 0)) &&
         (chaseInfo->copGameInfo_->levels[chaseInfo->bestChaseLevelIndex_]
              .numWarningsAdded != 0)) {
-      bVar1 = chaseTime < chaseInfo->chaseLevel_->warningTicks;
+      bVar1 = chaseTime < chaseInfo->GetChaseLevel()->warningTicks;
     }
   }
     if ((bVar1) && (this->numWarnings_ < 2)) {
@@ -1427,7 +1309,6 @@ LAB_80062f48:
       this->numBusts_ = this->numBusts_ + 1;
       (this->carObj_->stats).numFines = (this->carObj_->stats).numFines + 1;
       int lapIndex;
-      iVar5 = GameSetup_gData.numLaps;
       /* w54-a12 (27 -> PASS 307/307): the ternary must land in a NAMED index variable and
        * the subscript must use that variable -- a ternary written INSIDE the subscript lets
        * gcc constant-fold each arm into a pre-scaled BYTE offset (li 8 / 0 + addu base) and
@@ -1435,9 +1316,11 @@ LAB_80062f48:
        * written numBusts_-FIRST (`numBusts_ >= table[i]`, catalog 05H "compare-operand order
        * IS load order"): that is what puts retail's `lw numBusts` before `lw table[i]` and
        * settles the idx/base v1-vs-v0 coloring. Do not "simplify" either back. */
-      lapIndex = iVar5 == 2 ? 0 : (iVar5 == 4 ? 1 : 2);
+      lapIndex = GameSetup_gData.numLaps == 2
+                     ? 0
+                     : (GameSetup_gData.numLaps == 4 ? 1 : 2);
       if ((this->numBusts_ >= AIHigh_Player_kNumArrestsByLap[lapIndex]) ||
-          (AICop_IsLastChaseLevel(&this->perpChaseInfo_) &&
+          (this->perpChaseInfo_.IsLastChaseLevel() &&
            Cars_gNumHumanRaceCars == 1)) {
         this->pullOverMode_ = 3;
         this->beatingTicksLeft_ = this->beatingTicksLeft_ + 0xc0;

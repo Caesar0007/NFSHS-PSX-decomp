@@ -853,17 +853,14 @@ void CopSpeak_Flush(void)
 
 {
   int i;
-  int iVar1;
-  int iVar2;
-  CopSpeak_tRequest *pCVar1;
+  /* SYM-CODEGEN-CARRIER: request -- retaining the queue-entry base pointer
+     preserves the retail signed-byte store while SYM records only i. */
+  CopSpeak_tRequest *request;
 
-  for (iVar1 = CopSpeak_gQueuePlay; iVar1 != CopSpeak_gQueueHead; iVar1 = iVar2) {
-    pCVar1 = &CopSpeak_gQueue[iVar1];
-    *(signed char *)&pCVar1->bank = -1;
-    iVar2 = 0;
-    if (iVar1 < 0x3f) {
-      iVar2 = iVar1 + 1;
-    }
+  for (i = CopSpeak_gQueuePlay; i != CopSpeak_gQueueHead;
+       i = i < 0x3f ? i + 1 : 0) {
+    request = &CopSpeak_gQueue[i];
+    *(signed char *)&request->bank = -1;
   }
   return;
 }

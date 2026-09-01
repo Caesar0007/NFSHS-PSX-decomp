@@ -23,37 +23,45 @@ void AudioTrk_CleanUp(void);
 /* ---- AudioTrk_Reset__Fv  [@0x8007c614] ---- */
 void AudioTrk_Reset(void)
 {
-  int i;
-  AudioTrk_tAmbientChannel *pAVar1;
+  /* SYM-CODEGEN-CARRIER: pCVar2 -- reloading the list base before the loop
+     condition fills retail's halfword-store delay slot and avoids a nop. */
   CAudioList *pCVar2;
+  /* SYM-CODEGEN-CARRIER: puVar3 -- the induction pointer is required for
+     retail's strength-reduced 24-byte element walk; indexed spelling adds six
+     instructions and changes 38 oracle positions. */
   signed char *puVar3;
-  int iVar4;
-  int iVar5;
+  /* SYM-CODEGEN-CARRIER: neg1 -- the separately initialized byte sentinel
+     preserves retail's placement of the invariant `li a1,-1`. */
   signed char neg1;
 
   if (AudioTrk_g != (AudioTrk_tGlobals *)0x0) {
+    int i;
+
     i = 0;
     do {
       if (AudioTrk_g->chan[i].handle != -1) {
         freeVoiceChannel(i + 0x37);
         AudioTrk_g->chan[i].handle = -1;
       }
-      pAVar1 = AudioTrk_g->chan + i;
-      pAVar1->se = (AudioElem *)0x0;
-      pAVar1->patch = -1;
+      AudioTrk_g->chan[i].se = (AudioElem *)0x0;
+      AudioTrk_g->chan[i].patch = -1;
       i++;
     } while (i < 0x10);
   }
-  if ((gGameAudioList != (CAudioList *)0x0) && (iVar4 = 0, 0 < gGameAudioList->numElements_)) {
-    neg1 = -1;
-    puVar3 = (signed char *)((int)&gGameAudioList[2].numElements_ + 1);
-    do {
-      *puVar3 = neg1;
-      pCVar2 = gGameAudioList;
-      *(u_short *)(puVar3 + -9) = 0;
-      puVar3 = puVar3 + 0x18;
-      iVar4 = iVar4 + 1;
-    } while (iVar4 < pCVar2->numElements_);
+  {
+    int i;
+
+    if ((gGameAudioList != (CAudioList *)0x0) && (i = 0, 0 < gGameAudioList->numElements_)) {
+      neg1 = -1;
+      puVar3 = (signed char *)((int)&gGameAudioList[2].numElements_ + 1);
+      do {
+        *puVar3 = neg1;
+        pCVar2 = gGameAudioList;
+        *(u_short *)(puVar3 + -9) = 0;
+        puVar3 = puVar3 + 0x18;
+        i = i + 1;
+      } while (i < pCVar2->numElements_);
+    }
   }
   return;
 }
@@ -62,23 +70,22 @@ void AudioTrk_Reset(void)
 void AudioTrk_StartUp(void)
 {
   int i;
-  AudioTrk_tAmbientChannel *pAVar1;
-  int iVar2;
+  /* SYM-CODEGEN-CARRIER: neg1 -- SYM records only `i`, but spelling the
+     reverse indexed loop with a literal -1 emits the same 23 instructions
+     with a two-diff invariant-load ordering.  This separately initialized
+     value materializes retail a0 before i is initialized in v1. */
   int neg1;
 
   if (AudioTrk_g == (AudioTrk_tGlobals *)0x0) {
     AudioTrk_g = reservememadr("trck globals",0x100,0);
     neg1 = -1;
-    iVar2 = 0xf;
-    pAVar1 = AudioTrk_g->chan + 0xf;
+    i = 0xf;
     do {
-      pAVar1->handle = neg1;
-      iVar2 = iVar2 + -1;
-      pAVar1 = pAVar1 + -1;
-    } while (-1 < iVar2);
+      AudioTrk_g->chan[i].handle = neg1;
+      i--;
+    } while (i >= 0);
   }
   AudioTrk_Reset();
-  return;
 }
 
 /* ---- AudioTrk_AddCustomObject__FP9AudioElemiP8coorddefiP8Car_tObji  [@0x8007c750] ---- */
@@ -270,7 +277,13 @@ AudioTrk_channel_found:
 AudioTrk_near_volume:
           {
             int rangesq = (int)se->range * (int)se->range;
+            /* SYM-CODEGEN-CARRIER: fadevol -- folding `fade * 0x7f` into the
+               product reverses retail's multiply operands and removes its
+               scheduled gap instruction. */
             int fadevol;
+            /* SYM-CODEGEN-CARRIER: level -- SYM's `vol` is a char; these
+               scoped full-width pre-bias/pre-shift results cannot be expressed
+               through that retail local without premature truncation. */
             int level =
                 (((rangesq >> 4) * 0x10000 -
                   fixedmult(dst >> 2,dst >> 2)) /
@@ -287,13 +300,11 @@ AudioTrk_near_volume:
 
 AudioTrk_fade_volume:
           {
-            int fadeIn = (u_char)se->fadeIn;
-
             vol = 0x7f;
-            if (fadeIn * 0x10000 <= dst) {
-              int range = (int)se->range - fadeIn;
+            if ((u_char)se->fadeIn * 0x10000 <= dst) {
+              int range = (int)se->range - (u_char)se->fadeIn;
               int rangesq = range * range;
-              int ambdist = (dst - fadeIn * 0x10000) >> 2;
+              int ambdist = (dst - (u_char)se->fadeIn * 0x10000) >> 2;
               u_int level =
                   (((rangesq >> 4) * 0x10000 -
                     fixedmult(ambdist,ambdist)) /
@@ -310,12 +321,15 @@ AudioTrk_fade_volume:
 AudioTrk_volume_done:
           ;
         }
-        /* MATCH: retail evaluates min(0xA0000,dop) TWICE (8007CD34 and 8007CD40 share
+        /* MATCH: retail evaluates min(0xA0000,dop) TWICE
+           (8007CD34 and 8007CD40 share
            the one `slt a0` but each select gets its own arm pair), assigns the clamp
            unconditionally and only overrides it with 1 on the <=0 arm -- the ternary
            `((min)>1)?(min):1` form CSEs the pair and inverts the branch polarity.
            `(dop < K) ? dop : K` (not `(dop > K) ? K : dop`) picks retail's arm order. */
         {
+          /* SYM-CODEGEN-CARRIER: dopClamped -- the separately materialized
+             minimum/select web described above is omitted from SYM. */
           int dopClamped = (dop < 0xa0000) ? dop : 0xa0000;
           if (((dop > 0xa0000) ? 0xa0000 : dop) <= 0) {
             dopClamped = 1;

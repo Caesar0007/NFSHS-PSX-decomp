@@ -156,22 +156,15 @@ void tPListIterator::Increment(tPlayer arg1)
 void tPListIterator::Decrement(tPlayer arg1)
 
 {
-  short sVar1;
-  int *piVar2;
-  int *pWork;
-  
-  piVar2 = this->fValue;
-  pWork = piVar2;
-  if (*piVar2 == 0) {
-    sVar1 = this->fSelectionList[1];
-    while (0 < sVar1) {
-      *pWork = *pWork + 1;
-      pWork = this->fValue;
-      sVar1 = this->fSelectionList[*pWork + 1];
+  /* SYM-ABI-PARAM: arg1 -- required by the virtual signature/linkage but
+     unused and therefore absent from the optimized SYM declaration block. */
+  if (*this->fValue == 0) {
+    while (0 < this->fSelectionList[*this->fValue + 1]) {
+      *this->fValue = *this->fValue + 1;
     }
   }
   else {
-    *piVar2 = *piVar2 + -1;
+    *this->fValue = *this->fValue + -1;
   }
   AudioCmn_PlayPauseSound(5);
   gMPauseUpdateNextTime = 1;
@@ -220,14 +213,11 @@ char tPListIteratorIndexed::Value(tPlayer arg1)
 short tPListIteratorIndexed::TextValue(tPlayer arg1)
 
 {
-  __vtbl_ptr_type (*pa_Var1) [6];
-  u_int uVar2;
-  
-  pa_Var1 = this->_vf;
-  uVar2 = (*(*pa_Var1)[2].pfn)
-                    ((int)&this->fSelectionList + (int)(*pa_Var1)[2].delta,
-                     0xffffffff);
-  return (int)this->fSelectionList[uVar2 & 0xff];
+  /* SYM-ABI-PARAM: arg1 -- required by the virtual signature/linkage but
+     unused and therefore absent from the optimized SYM declaration block. */
+  return (int)this->fSelectionList[
+      (*(*this->_vf)[2].pfn)((int)&this->fSelectionList +
+                             (int)(*this->_vf)[2].delta,0xffffffff) & 0xff];
 }
 
 
@@ -256,25 +246,18 @@ void tPListIteratorIndexed::Increment(tPlayer arg1)
 void tPListIteratorIndexed::Decrement(tPlayer arg1)
 
 {
-  short sVar1;
-  int iVar2;
-  int *piVar3;
-  u_char *pbVar4;
-  
-  pbVar4 = (u_char *)this->fIndex;
-  piVar3 = this->fValue;
-  iVar2 = piVar3[*pbVar4];
-  if (iVar2 == 0) {
-    sVar1 = this->fSelectionList[1];
-    while (0 < sVar1) {
-      piVar3[*pbVar4] = piVar3[*pbVar4] + 1;
-      pbVar4 = (u_char *)this->fIndex;
-      piVar3 = this->fValue;
-      sVar1 = this->fSelectionList[piVar3[*pbVar4] + 1];
+  /* SYM-ABI-PARAM: arg1 -- required by the virtual signature/linkage but
+     unused and therefore absent from the optimized SYM declaration block. */
+  if (this->fValue[(u_char)*this->fIndex] == 0) {
+    while (0 < this->fSelectionList[
+                   this->fValue[(u_char)*this->fIndex] + 1]) {
+      this->fValue[(u_char)*this->fIndex] =
+          this->fValue[(u_char)*this->fIndex] + 1;
     }
   }
   else {
-    piVar3[*pbVar4] = iVar2 + -1;
+    this->fValue[(u_char)*this->fIndex] =
+        this->fValue[(u_char)*this->fIndex] + -1;
   }
   AudioCmn_PlayPauseSound(5);
   gMPauseUpdateNextTime = 1;
@@ -470,21 +453,23 @@ processed:
 void tPMenuItemLeftRightChoice::Draw(bool selected)
 
 {
-  short index;
-  short x;
-  int vtable_p;
+  /* SYM-CODEGEN-CARRIER: text -- virtual TextValue result retained across
+     drawing and arrow-layout calls; optimized SYM gives it no debug home. */
+  short text;
+  /* SYM-CODEGEN-CARRIER: textX -- cached TextSys_WordX result shared by the
+     label draw and both arrow positions. */
+  short textX;
   int y;
 
   PauseMenu_MenuTextPositioned((short)this->fTextDescription, (short)selected,
              *(volatile u_int *)&this->fFlags & 1,
              (short)TextSys_WordX(this->fTextDescription));
-  vtable_p = (int)this->fData->_vf;
-  index = (**(int (**)(...))(vtable_p + 0x1c))
-                    ((int)&this->fData->fSelectionList + (int)*(short *)(vtable_p + 0x18),0xffffffff
-                    );
-  x = (short)TextSys_WordX((int)index);
-  PauseMenu_MenuTextPositioned(index, (short)selected,
-                               *(volatile u_int *)&this->fFlags & 1, x);
+  text = (*(*this->fData->_vf)[3].pfn)
+                    ((int)&this->fData->fSelectionList +
+                     (int)(*this->fData->_vf)[3].delta,0xffffffff);
+  textX = (short)TextSys_WordX((int)text);
+  PauseMenu_MenuTextPositioned(text, (short)selected,
+                               *(volatile u_int *)&this->fFlags & 1, textX);
   y = gPause_CurrentY;
   if ((selected != 0) && (GameSetup_gData.userSetting.language == 0))
   {
@@ -499,13 +484,13 @@ void tPMenuItemLeftRightChoice::Draw(bool selected)
     ((PMenuTag *)Render_gPalettePtr)->addr = (u_int)prim;
     Render_gPacketPtr = (u_char *)(prim + 1);
     Hud_BuildGT4(prim, HudPmx_gShapes + 0x12,
-                 x - textpixels(TextSys_Word((int)index)) - 8, y + 5, 0xbebe);
+                 textX - textpixels(TextSys_Word((int)text)) - 8, y + 5, 0xbebe);
 
     prim = (POLY_GT4 *)Render_gPacketPtr;
     ((PMenuTag *)prim)->addr = ((PMenuTag *)Render_gPalettePtr)->addr;
     ((PMenuTag *)Render_gPalettePtr)->addr = (u_int)prim;
     Render_gPacketPtr = (u_char *)(prim + 1);
-    Hud_BuildGT4(prim, HudPmx_gShapes + 0x13, x + 4, y + 5, 0xbebe);
+    Hud_BuildGT4(prim, HudPmx_gShapes + 0x13, textX + 4, y + 5, 0xbebe);
   }
 }
 
@@ -553,6 +538,9 @@ void tPMenuItemLeftRightSlider::ProcessInput(tInputKeyType &keyval,tPMenuCommand
 
 {
   bool sound;
+
+  /* SYM-ABI-PARAM: command -- required by the virtual signature/linkage but
+     unused and therefore absent from the optimized SYM declaration block. */
   
   sound = false;
   if (keyval == kInput_KeyType_Left) {
@@ -565,6 +553,8 @@ void tPMenuItemLeftRightSlider::ProcessInput(tInputKeyType &keyval,tPMenuCommand
 
 PMLeftRtSlide_left:
     if (0 < *this->fData) {
+      /* SYM-CODEGEN-CARRIER: value -- GCC's retained result of the decrement
+         expression; keeping it single-evaluation reproduces retail's v1 clamp. */
       int value;
 
       gMPauseUpdateNextTime = 1;
@@ -578,7 +568,9 @@ PMLeftRtSlide_left:
     goto PMLeftRtSlide_processed;
 PMLeftRtSlide_right:
     if (*this->fData < (int)(u_int)(u_char)this->fMaxVal) {
+      /* SYM-CODEGEN-CARRIER: max -- cached upper bound in retail's a2. */
       u_int max;
+      /* SYM-CODEGEN-CARRIER: value -- GCC's retained increment result in v1. */
       int value;
 
       gMPauseUpdateNextTime = 1;
@@ -836,24 +828,11 @@ tPMenu * tPMenuItemGoToMenuButton::NextMenu()
 void tPMenuItemGoToMenuButton::ProcessInput(tInputKeyType &keyval,tPMenuCommand &command)
 
 {
-  __vtbl_ptr_type (*pa_Var1) [7];
-  int iVar2;
-  tPMenu *ptVar3;
-  
   if (keyval == kInput_KeyType_Cross) {
     AudioCmn_PlayPauseSound(4);
-    pa_Var1 = this->_vf;
-    iVar2 = (*(*pa_Var1)[2].pfn)
-                      ((int)&this->fFlags +
-                       (int)(*pa_Var1)[2].delta);
-    if (iVar2 != 0) {
+    if (this->VirtualNextMenu() != 0) {
       command.type = kMPause_GoToMenu;
-      pa_Var1 = this->_vf;
-      ptVar3 = (tPMenu *)
-               (*(*pa_Var1)[2].pfn)
-                         ((int)&this->fFlags +
-                          (int)(*pa_Var1)[2].delta);
-      command.nextMenu = ptVar3;
+      command.nextMenu = this->VirtualNextMenu();
     }
     if (this->fOnButtonPress != 0x0) {
       (*this->fOnButtonPress)(command);
@@ -967,33 +946,14 @@ tPMenu::~tPMenu()
 void tPMenu::Initialize()
 
 {
-  bool bVar1;
-  int iVar2;
-  tPMenuItem *ptVar3;
-  
   this->fCurrentItem = 0;
   this->fHighlight = 1;
-  ptVar3 = this->fItemList[this->fCurrentItem];
-  bVar1 = false;
-  if (((ptVar3->fFlags ^ 1) & 1) != 0) {
-    iVar2 = (*(*ptVar3->_vf)[5].pfn)((int)&ptVar3->fFlags + (int)(*ptVar3->_vf)[5].delta);
-    bVar1 = iVar2 != 0;
-  }
-  if (!bVar1) {
+  if (this->fItemList[this->fCurrentItem]->IsEnabledAndNavigable() == 0) {
     while (true) {
-      bool disabled;
-
-      ptVar3 = this->fItemList[this->fCurrentItem];
-      if (ptVar3 == (tPMenuItem *)0x0) {
+      if (this->fItemList[this->fCurrentItem] == (tPMenuItem *)0x0) {
         break;
       }
-      disabled = false;
-      if (((ptVar3->fFlags & 1) != 0) ||
-         (iVar2 = (*(*ptVar3->_vf)[5].pfn)((int)&ptVar3->fFlags + (int)(*ptVar3->_vf)[5].delta),
-         iVar2 == 0)) {
-        disabled = true;
-      }
-      if (!disabled) {
+      if (this->fItemList[this->fCurrentItem]->IsDisabledOrNotNavigable() == 0) {
         return;
       }
       this->fCurrentItem = this->fCurrentItem + 1;
@@ -1024,34 +984,30 @@ bool tPMenu::Debounce()
 void tPMenu::CheckForDisabled()
 
 {
-  bool bVar1;
-  __vtbl_ptr_type (*pa_Var2) [7];
-  int iVar3;
-  tPMenuItem *ptVar4;
-  tPMenu *ptVar5;
-  
-  while( true ) {
-    pa_Var2 = this->fItemList[this->fCurrentItem]->_vf;
-    bVar1 = false;
-    iVar3 = (*(*pa_Var2)[5].pfn)
-                      ((int)&this->fItemList[this->fCurrentItem]->fFlags + (int)(*pa_Var2)[5].delta)
-    ;
-    if ((iVar3 == 0) || ((this->fItemList[this->fCurrentItem]->fFlags & 1) != 0)) {
-      bVar1 = true;
+  /* SYM-CODEGEN-CARRIER: disabled -- retail materializes the compound
+     virtual-result/flag predicate in s1 for the loop backedge; folding it
+     into the while condition removes that saved-register lifetime. */
+  bool disabled;
+
+  while (true) {
+    disabled = false;
+    if ((this->fItemList[this->fCurrentItem]->VirtualIsNavigable() == 0) ||
+        ((this->fItemList[this->fCurrentItem]->fFlags & 1) != 0)) {
+      disabled = true;
     }
-    if (!bVar1) break;
-    iVar3 = this->fCurrentItem;
+    if (!disabled) {
+      break;
+    }
     if (0 < this->fCurrentItem) {
-      this->fCurrentItem = iVar3 + -1;
+      this->fCurrentItem = this->fCurrentItem + -1;
     }
     else {
-      ptVar4 = this->fItemList[iVar3 + 1];
-      if (ptVar4 != (tPMenuItem *)0x0) {
+      if (this->fItemList[this->fCurrentItem + 1] !=
+          (tPMenuItem *)0x0) {
         do {
-          ptVar5 = (tPMenu *)((char *)this + ((this->fCurrentItem + 2) << 2));
           this->fCurrentItem = this->fCurrentItem + 1;
-          ptVar4 = ptVar5->fItemList[0];
-        } while (ptVar4 != (tPMenuItem *)0x0);
+        } while (this->fItemList[this->fCurrentItem + 1] !=
+                 (tPMenuItem *)0x0);
       }
     }
   }
@@ -1065,63 +1021,57 @@ void tPMenu::CheckForDisabled()
 void tPMenu::ProcessInput(tInputKeyType &keyval,tPMenuCommand &command)
 
 {
-  bool bVar1;
-  int iVar2;
-  __vtbl_ptr_type (*pa_Var3) [7];
-  tPMenuItem *ptVar4;
-  tInputKeyType tVar5;
-  tPMenu *ptVar6;
-  
-  ptVar4 = this->fItemList[this->fCurrentItem];
-  if (ptVar4 != (tPMenuItem *)0x0) {
-    (*(*ptVar4->_vf)[4].pfn)((int)&ptVar4->fFlags + (int)(*ptVar4->_vf)[4].delta);
+  /* SYM-CODEGEN-CARRIER: disabled -- both navigation loops materialize the
+     virtual-result/flag predicate in the reusable saved command register. */
+  bool disabled;
+
+  if (this->fItemList[this->fCurrentItem] != (tPMenuItem *)0x0) {
+    this->fItemList[this->fCurrentItem]->VirtualProcessInput(keyval,command);
   }
-  tVar5 = keyval;
-  switch (tVar5) {
+  /* MATCH: read-only zero-insn allocator fence.  The real-CC1PL dump measures
+     `this` at 42 refs / 178 live (priority 1.1798), just below the competing
+     1.2000 allocno.  One operand also lengthens the window to 180 and reaches
+     only 1.1944; two operands produce 44 / 180 (1.2222), restoring retail's
+     this/s0 and command/s1 handout without a pin. */
+  __asm__("" : : "r"(this), "r"(this));
+  switch (keyval) {
     case kInput_KeyType_Up:
       AudioCmn_PlayPauseSound(3);
       do {
-        iVar2 = this->fCurrentItem;
         if (0 < this->fCurrentItem) {
-          this->fCurrentItem = iVar2 + -1;
+          this->fCurrentItem = this->fCurrentItem + -1;
         }
         else {
-          if (this->fItemList[iVar2 + 1] != (tPMenuItem *)0x0) {
+          if (this->fItemList[this->fCurrentItem + 1] !=
+              (tPMenuItem *)0x0) {
             do {
-              ptVar6 = (tPMenu *)((char *)this + ((this->fCurrentItem + 2) << 2));
               this->fCurrentItem = this->fCurrentItem + 1;
-            } while (ptVar6->fItemList[0] != (tPMenuItem *)0x0);
+            } while (this->fItemList[this->fCurrentItem + 1] !=
+                     (tPMenuItem *)0x0);
           }
         }
-        pa_Var3 = this->fItemList[this->fCurrentItem]->_vf;
-        bVar1 = false;
-        iVar2 = (*(*pa_Var3)[5].pfn)
-                          ((int)&this->fItemList[this->fCurrentItem]->fFlags +
-                           (int)(*pa_Var3)[5].delta);
-        if ((iVar2 == 0) || ((this->fItemList[this->fCurrentItem]->fFlags & 1) != 0)) {
-          bVar1 = true;
+        disabled = false;
+        if ((this->fItemList[this->fCurrentItem]->VirtualIsNavigable() == 0) ||
+            ((this->fItemList[this->fCurrentItem]->fFlags & 1) != 0)) {
+          disabled = true;
         }
-      } while (bVar1);
+      } while (disabled);
       keyval = kInput_KeyType_AlreadyProcessed;
       return;
 
     case kInput_KeyType_Down:
       AudioCmn_PlayPauseSound(3);
       do {
-        iVar2 = this->fCurrentItem;
-        this->fCurrentItem = iVar2 + 1;
-        if (this->fItemList[iVar2 + 1] == (tPMenuItem *)0x0) {
+        this->fCurrentItem = this->fCurrentItem + 1;
+        if (this->fItemList[this->fCurrentItem] == (tPMenuItem *)0x0) {
           this->fCurrentItem = 0;
         }
-        pa_Var3 = this->fItemList[this->fCurrentItem]->_vf;
-        bVar1 = false;
-        iVar2 = (*(*pa_Var3)[5].pfn)
-                          ((int)&this->fItemList[this->fCurrentItem]->fFlags +
-                           (int)(*pa_Var3)[5].delta);
-        if ((iVar2 == 0) || ((this->fItemList[this->fCurrentItem]->fFlags & 1) != 0)) {
-          bVar1 = true;
+        disabled = false;
+        if ((this->fItemList[this->fCurrentItem]->VirtualIsNavigable() == 0) ||
+            ((this->fItemList[this->fCurrentItem]->fFlags & 1) != 0)) {
+          disabled = true;
         }
-      } while (bVar1);
+      } while (disabled);
       keyval = kInput_KeyType_AlreadyProcessed;
       return;
 
@@ -1151,30 +1101,20 @@ void tPMenu::Draw()
 
 {
   short item;
-  __vtbl_ptr_type (*pa_Var1) [7];
-  tPMenuItem *ptVar2;
   
   this->CheckForDisabled();
-  ptVar2 = this->fItemList[0];
-  pa_Var1 = ptVar2->_vf;
   gPause_CurrentY = 0x62;
-  (*(*pa_Var1)[6].pfn)((int)&ptVar2->fFlags + (int)(*pa_Var1)[6].delta,false);
+  this->fItemList[0]->Draw(false);
   item = 1;
   gPause_CurrentY = 0x75;
   while( true ) {
-    tPMenuItem *ptVar4;
-
-    ptVar4 = this->fItemList[item];
-    if (ptVar4 == (tPMenuItem *)0x0) break;
-    if (((ptVar4->fFlags ^ 1) & 1) != 0) {
+    if (this->fItemList[item] == (tPMenuItem *)0x0) break;
+    if (((this->fItemList[item]->fFlags ^ 1) & 1) != 0) {
       if (this->fHighlight != 0) {
-        (*(*ptVar4->_vf)[6].pfn)
-            ((int)&ptVar4->fFlags + (int)(*ptVar4->_vf)[6].delta,
-             (int)item == this->fCurrentItem);
+        this->fItemList[item]->Draw((int)item == this->fCurrentItem);
       }
       else {
-        (*(*ptVar4->_vf)[6].pfn)
-            ((int)&ptVar4->fFlags + (int)(*ptVar4->_vf)[6].delta,false);
+        this->fItemList[item]->Draw(false);
       }
       gPause_CurrentY = gPause_CurrentY + 0xd;
     }

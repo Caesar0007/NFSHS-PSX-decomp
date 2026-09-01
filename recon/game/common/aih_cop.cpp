@@ -2366,17 +2366,10 @@ trigger_t * AIHigh_Cop::CheckForNewTriggers()
      follow-ups: raw/pLevel identity 14, empty-loop boundary 5/10, accessor
      wrapper 16/19, pointer keepalive 8, and tied-output fences 7/51. */
   int sortedLoop;
-  int numCars;
   Car_tObj *testCar;
-  int initialGameTicks;
-  Sim_tSimGlobalVar *pSimGlobalInitial = &simGlobal;   /* oracle materializes &simGlobal as a
-                              value (lui/addiu + disp-4 load) at BOTH sites, not the
-                              folded lui/%lo(simGlobal+4) a direct member access gives */
-  initialGameTicks = pSimGlobalInitial->gameTicks;
-
-  if (0x5bf < initialGameTicks) {
-    numCars = Cars_gNumCars;
-    for (sortedLoop = numCars - 1; -1 < sortedLoop; sortedLoop = sortedLoop - 1) {
+  if (0x5bf < simGlobal.gameTicks) {
+    for (sortedLoop = Cars_gNumCars - 1; -1 < sortedLoop;
+         sortedLoop = sortedLoop - 1) {
       testCar = Cars_gTotalSortedList[sortedLoop];
       if ((testCar->carFlags & 1U) != 0) {
         int dir;
@@ -2388,10 +2381,11 @@ trigger_t * AIHigh_Cop::CheckForNewTriggers()
         int startSlice;
         int endSlice;
         int fRandomChance;
-        int crime;
         copType type;
-        int typeOffset;
-        int *gotPtr;
+        /* SYM-CODEGEN-CARRIER: perpInfo -- optimized SYM omits this base alias,
+           but spelling both BasicPerpInfo accesses through this pointer is
+           required for retail's load/base order; direct member spelling emits
+           201/202 instructions with nine detailed differences. */
         AICop_BasicPerpInfo *perpInfo;
 
         thisPlayer = (AIHigh_Player *)highLevelAIObjs[testCar->carIndex];
@@ -2399,13 +2393,10 @@ trigger_t * AIHigh_Cop::CheckForNewTriggers()
         pLevel = AIHigh_Player_ChaseLevel(thisPlayer);
         type = *(volatile copType *)&this->type_;
         fRandomChance = thisPlayer->newTriggerProb_;
-        typeOffset = type << 2;
-        gotPtr = (int *)((char *)perpInfo->copsAssigned_ + typeOffset);
-        crime = perpInfo->crime_;
-        got = *gotPtr;
-        if (crime == 0) {
+        got = perpInfo->copsAssigned_[type];
+        if (perpInfo->crime_ == 0) {
           fRandomChance = fRandomChance * 2;
-          if ((0 < *(int *)((char *)pLevel->copChasers + typeOffset)) &&
+          if ((0 < pLevel->copChasers[type]) &&
               (AICop_NoCopsInArea((int)(thisPlayer->GetCarObj()->N).simRoadInfo.slice, 0x1f40000) != 0)) {
             needs = 1;
           }
@@ -2414,7 +2405,7 @@ trigger_t * AIHigh_Cop::CheckForNewTriggers()
           }
         }
         else {
-          needs = *(int *)((char *)pLevel->copChasers + typeOffset);
+          needs = pLevel->copChasers[type];
         }
         if (GameSetup_gData.skill == 2) {
           fRandomChance = 0x10000;

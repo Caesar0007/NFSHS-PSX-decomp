@@ -212,18 +212,12 @@ void AudioMus_Fail(int errorcode)
 void AudioMus_QueueRequestedSong(void)
 {
   long offset;
-  AudioMus_tSongEntry*info;
-  int *piVar1;
-  AudioMus_tMusicGlobals *pAVar2;
-  char *pcVar3;
-  int iVar4;
+  AudioMus_tSongEntry *info;
   
-  pcVar3 = locatebigentry(AudioMus_g->bigfileheader,(char *)0x0,
-                          (u_char)AudioMus_g->playlist[AudioMus_g->requestsong],
-                          &offset,(long *)0x0);   /* oracle 0x6a280: a2=playlist[requestsong] a3=&offset stk=NULL */
-  piVar1 = &AudioMus_g->streamhandle;
-  AudioMus_g->songname = pcVar3;
-  if (-1 < *piVar1) {
+  AudioMus_g->songname = locatebigentry(AudioMus_g->bigfileheader,(char *)0x0,
+                                        (u_char)AudioMus_g->playlist[AudioMus_g->requestsong],
+                                        &offset,(long *)0x0);   /* oracle 0x6a280: a2=playlist[requestsong] a3=&offset stk=NULL */
+  if (-1 < AudioMus_g->streamhandle) {
     /* w30-a7: oracle stores SNDSTRM_queuefile's RETURN into requesthandle (sw v0,0x78(v1)
        right after the jal, v0 untouched by the intervening gp-rel reload) -- the prior
        reconstruction discarded the call's return and stored pcVar3 again, which is a
@@ -234,13 +228,11 @@ void AudioMus_QueueRequestedSong(void)
   /* w30-a7: failby = gettick()+0x280 (oracle: v0=2 only feeds switchsong via the jal's delay
      slot; v0 is gettick's RETURN by the time it's added to 0x280) -- prior recon reused the
      switchsong constant (iVar4=2) for failby instead of the call's return. */
-  iVar4 = gettick();
-  pAVar2 = AudioMus_g;
-  AudioMus_g->failby = iVar4 + 0x280;
-  info = &pAVar2->current.info;   /* w30-a7: cached sub-field pointer -- oracle computes &current.info
+  AudioMus_g->failby = gettick() + 0x280;
+  info = &AudioMus_g->current.info;   /* w30-a7: cached sub-field pointer -- oracle computes &current.info
                                       once (independent of remaining/length, scheduler hoists it early)
                                       and reuses it for every song-info field. */
-  (pAVar2->current).remaining = 0;
+  AudioMus_g->current.remaining = 0;
   info->length = 0;
   info->filename = (char *)0x0;
   info->title = (char *)0x0;
@@ -315,18 +307,14 @@ LAB_8007a37c:
 /* ---- AudioMus_SetCurrentSongInfo__Fv  [@0x8007a390] ---- */
 void AudioMus_SetCurrentSongInfo(void)
 {
-  AudioMus_tSongEntry*info;
-  AudioMus_tMusicGlobals *pAVar2;
-  int iVar3;
-  int iVar4;
+  AudioMus_tSongEntry *info;
 
-  pAVar2 = AudioMus_g;
-  iVar3 = (pAVar2->requeststatus).timetoend;
-  iVar4 = (pAVar2->requeststatus).currenttime;
-  info = &(pAVar2->current).info;
-  (pAVar2->current).remaining = iVar3;
-  info->length = iVar3 + iVar4;
-  info->filename = pAVar2->songname;
+  info = &AudioMus_g->current.info;
+  info->length =
+      (AudioMus_g->current.remaining =
+       AudioMus_g->requeststatus.timetoend) +
+      AudioMus_g->requeststatus.currenttime;
+  info->filename = AudioMus_g->songname;
   AudioMus_SetEntry(info);
   return;
 }
@@ -720,28 +708,22 @@ void AudioMus_BuildPlayList(int numplaylistsongs,int *playlist)
 void AudioMus_BuildPattern(char *pattern)
 {
   int i;
-  int *piVar1;
-  u_char *pattern_00;
-  int iVar2;
-  int iVar3;
   
   if (AudioMus_g != (AudioMus_tMusicGlobals *)0x0) {
-    piVar1 = &AudioMus_g->totalsongs;
-    iVar3 = 0;
+    i = 0;
     AudioMus_g->availablesongs = 0;
-    if (0 < *piVar1) {
+    if (0 < AudioMus_g->totalsongs) {
       do {
         if (0x1f < AudioMus_g->availablesongs) {
           return;
         }
-        pattern_00 = locatebigentry(AudioMus_g->bigfileheader,(char *)0x0,iVar3,(long *)0x0,(long *)0x0);   /* oracle 0x6afb4: a2=i a3=NULL stk=NULL */
-        iVar2 = wildcard(pattern_00,pattern);
-        if (iVar2 != 0) {
-          AudioMus_g->playlist[AudioMus_g->availablesongs] = (char)iVar3;
+        if (wildcard(locatebigentry(AudioMus_g->bigfileheader,(char *)0x0,i,
+                                    (long *)0x0,(long *)0x0),pattern) != 0) {
+          AudioMus_g->playlist[AudioMus_g->availablesongs] = (char)i;
           AudioMus_g->availablesongs = AudioMus_g->availablesongs + 1;
         }
-        iVar3 = iVar3 + 1;
-      } while (iVar3 < AudioMus_g->totalsongs);
+        i = i + 1;
+      } while (i < AudioMus_g->totalsongs);
     }
   }
   return;

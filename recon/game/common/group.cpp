@@ -65,26 +65,19 @@ SerializedGroup * SerializedGroup::LocateGroupType(int type,int index)
 SerializedGroup * SerializedGroup::LocateGroupNum(int index)
 
 {
-  int param_1 = (int)this;
-  SerializedGroup *pThis;  /* folded receiver temp (SYM REG `this`) */
   int numElems;
   char * group;
   int i;
-  int iVar1;
-  int iVar2;
 
-  iVar2 = param_1 + 0x10;
-  if (*(int *)(param_1 + 0xc) <= index) {
+  numElems = this->m_num_elements;
+  group = (char *)this + 0x10;
+  if (numElems <= index) {
     return (SerializedGroup *)0;
   }
-  iVar1 = 0;
-  if (0 < index) {
-    do {
-      iVar1 = iVar1 + 1;
-      iVar2 = iVar2 + *(int *)(iVar2 + 4);
-    } while (iVar1 < index);
+  for (i = 0; i < index; i++) {
+    group = group + ((SerializedGroup *)group)->m_length;
   }
-  return (SerializedGroup *)iVar2;
+  return (SerializedGroup *)group;
 }
 
 /* ---- LocateCreateGroupType__15SerializedGroupiP9SimpleMemi  [GROUP.CPP:120-134] SLD-VERIFIED ---- */
@@ -92,41 +85,23 @@ Group *
 SerializedGroup::LocateCreateGroupType(int type,SimpleMem *mem,int index)
 
 {
-  int param_1 = (int)this;
-  int memAddress = (int)mem;
-  int iVar1;
-  u_int uVar2;
-
-  iVar1 = (int)((SerializedGroup *)param_1)->LocateGroupType(type,index);
-  if (iVar1 == 0) {
-    uVar2 = 0;
-  }
-  else {
-    uVar2 = (u_int)((SerializedGroup *)param_1)->LocateGroupType(type,index);
-    uVar2 = (u_int)((SerializedGroup *)param_1)->CreateLiteGroup(
-        (SerializedGroup *)uVar2,(SimpleMem *)memAddress);
-  }
-  return (Group *)uVar2;
+  return LocateGroupType(type,index) == 0
+      ? (Group *)0
+      : CreateLiteGroup(LocateGroupType(type,index),mem);
 }
 
 /* ---- CreateLiteGroup__15SerializedGroupP15SerializedGroupP9SimpleMem  [GROUP.CPP:168-181] SLD-VERIFIED ---- */
 Group * SerializedGroup::CreateLiteGroup(SerializedGroup *source,SimpleMem *mem)
 
 {
-  int param_1 = (int)this; (void)param_1;
-  int sourceAddress = (int)source;
-  int memAddress = (int)mem;
-  SerializedGroup *pThis;  /* folded receiver temp (SYM REG `this`) */
   int newLen;
   Group * ret;
-  u_int *puVar1;
-  int n;
 
-  n = *(int *)(sourceAddress + 4) + -0xc;
-  puVar1 = (u_int *)((SimpleMem *)memAddress)->Alloc(n,0);
-  *puVar1 = *(u_int *)(sourceAddress + 0xc);
-  blockmove((void *)(sourceAddress + 0x10),puVar1 + 1,n);
-  return (Group *)puVar1;
+  newLen = source->m_length - 0xc;
+  ret = (Group *)mem->Alloc(newLen,0);
+  ret->m_num_elements = source->m_num_elements;
+  blockmove(source + 1,ret + 1,newLen);
+  return ret;
 }
 
 /* ---- CreateLiteGroupDataSize__15SerializedGroupP15SerializedGroupP9SimpleMemi  [GROUP.CPP:186-199] SLD-VERIFIED ---- */
@@ -134,18 +109,14 @@ Group *
 SerializedGroup::CreateLiteGroupDataSize(SerializedGroup *source,SimpleMem *mem,int dataSize)
 
 {
-  int param_1 = (int)this; (void)param_1;
-  int sourceAddress = (int)source;
-  int memAddress = (int)mem;
-  SerializedGroup *pThis;  /* folded receiver temp (SYM REG `this`) */
   int newLen;
   Group * ret;
-  u_int *puVar1;
 
-  puVar1 = (u_int *)((SimpleMem *)memAddress)->Alloc(dataSize + 4,0);
-  *puVar1 = 0;
-  blockmove((void *)(sourceAddress + 0x10),puVar1 + 1,dataSize + 4);
-  return (Group *)puVar1;
+  newLen = dataSize + 4;
+  ret = (Group *)mem->Alloc(newLen,0);
+  ret->m_num_elements = 0;
+  blockmove(source + 1,ret + 1,newLen);
+  return ret;
 }
 
 /* end of group.cpp */

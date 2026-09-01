@@ -299,25 +299,16 @@ void Math_NormalizeShortVector(coorddef *v)
 
 {
   int length;
-  int len_or_inv;
-  int tmp;
-  int z_sq;
-  int iVar1;
-  int iVar2;
   int inverse;
 
-  len_or_inv = fixedmult(v->x,v->x);
-  tmp = fixedmult(v->y,v->y);
-  z_sq = fixedmult(v->z,v->z);
-  length = fixedsqrt(len_or_inv + tmp + z_sq);
+  length = fixedsqrt(fixedmult(v->x,v->x) +
+                     fixedmult(v->y,v->y) +
+                     fixedmult(v->z,v->z));
   if (length != 0) {
     inverse = fixeddiv(0x10000,length);
-    iVar2 = fixedmult(v->x,inverse);
-    v->x = iVar2;
-    iVar2 = fixedmult(v->y,inverse);
-    v->y = iVar2;
-    iVar1 = fixedmult(v->z,inverse);
-    v->z = iVar1;
+    v->x = fixedmult(v->x,inverse);
+    v->y = fixedmult(v->y,inverse);
+    v->z = fixedmult(v->z,inverse);
   }
   return;
 }

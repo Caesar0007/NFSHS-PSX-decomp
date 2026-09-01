@@ -12,6 +12,11 @@
 extern int          AI_elapsedTime;     /* H24: ai.cpp @0x8013C554 (not in this TU's externs) */
 extern AIHigh_Base *highLevelAIObjs[];  /* H24: @0x8010CD38 (not in this TU's externs) */
 
+inline int AICop_PerpChaseInfo::IsLastChaseLevel()
+{
+  return bestChaseLevelIndex_ == copGameInfo_->numLevels - 1;
+}
+
 
 /* ---- CheckForWipeOut__15AIHigh_Opponent  AIHigh_Opponent::CheckForWipeOut  [AIH_OPP.CPP:38-94] SLD-VERIFIED ---- */
 
@@ -21,19 +26,20 @@ void AIHigh_Opponent::CheckForWipeOut()
 
 {
   int perTickProb;
-  int new_var;    /* w59-a17: the 116 multiplier as a pre-loop local -- 68->51 (placement load-bearing: top-of-fn init = 77) */
   int randVal;
   int oppLevel;
   int oppFines;
-  AICop_PerpChaseInfo *pInfo;   /* SYM: 2nd "this" (REG this PTR STRUCT AICop_PerpChaseInfo) --
-                                    dumpsym names any locally-materialized base pointer "this";
-                                    the oracle computes &this->perpChaseInfo_ ONCE (addiu v1,t0,0x8C)
-                                    and derives BOTH copGameInfo_ and bestChaseLevelIndex_ off it. */
   int hLoop;
-  Car_tObj*thisPlayerObj;
-  AIHigh_Player*thisPlayer;
-  int numRacers;   /* SYM-ABSENT loop-bound carrier -- NOT the SYM's playFines (see receipt) */
+  /* SYM-CODEGEN-CARRIER: numRacers -- its named lifetime makes the loop-bound
+     load a profitable loop.c movable and the zero-op references reproduce
+     retail $t3.  Reading Cars_gNumHumanRaceCars directly was measured at 30
+     diffs and 122 instructions. */
+  int numRacers;
 
+  /* SYM-CODEGEN-CARRIER: bVar1 -- retail materializes this initial
+     crime/chaser short-circuit before the elapsed-time guard.  Folding it into
+     one compound condition emits 112 instead of 120 instructions and changes
+     22 authoritative load/compare/branch instructions. */
   bool bVar1;
 
   oppLevel = *(int *)((char *)this + 148);                    /* $t7, unconditional prologue load */
@@ -361,8 +367,10 @@ void AIHigh_Opponent::CheckForWipeOut()
         this->carObj_->wipeOutEndTick = simGlobal.gameTicks + 0xC0;      /* 0x800633EC-F8 */
       }
       hLoop = 0;
-      pInfo = &this->perpChaseInfo_;
-      if (pInfo->bestChaseLevelIndex_ != (pInfo->copGameInfo_)->numLevels + -1) {
+      if (!this->perpChaseInfo_.IsLastChaseLevel()) {
+        /* SYM-CODEGEN-CARRIER: hlai -- the source local gives this array base
+           an early allocno; the compiler-created loop hoist ties oppFines and
+           loses retail $t5. */
         AIHigh_Base **hlai = highLevelAIObjs;   /* 🔴 W74-A11: the array BASE as a real pre-loop
                                        local, NOT a loop.c hoist.  Both spellings emit the same
                                        `lui;addiu` as the FIRST preheader insn, but a source local is
@@ -393,7 +401,7 @@ void AIHigh_Opponent::CheckForWipeOut()
            the zero-insn fences reference on BOTH sides of the loop, spans the whole loop => the
            movable clears the budget with the loop unchanged. */
         for (; hLoop < (numRacers = Cars_gNumHumanRaceCars); hLoop = hLoop + 1) {   /* 0x80063450 */
-          Car_tObj    *carObj_h;
+          Car_tObj    *thisPlayerObj;
           register int speedLimit asm("$5");
           /* 🔴 W72-A11: the do{}while(0) is a ZERO-INSN REF DIAL, not a stray brace.
              flow.c weights a reference by 1 + loop_depth, so wrapping this ONE use lifts
@@ -404,20 +412,24 @@ void AIHigh_Opponent::CheckForWipeOut()
              in-loop asm in this loop costs +2 insns (measured 4x -- the barrier breaks
              both branch delay-slot fills).  Unwrapping it costs ~40 diffs. */
           speedLimit = 0xd0000;
-          do { carObj_h = Cars_gHumanRaceCarList[hLoop]; } while (0);       /* 0x8006345C */
+          do { thisPlayerObj = Cars_gHumanRaceCarList[hLoop]; } while (0);  /* 0x8006345C */
           __asm__("ori %0,%0,21844" : "+r"(speedLimit));
-          register int carIndex asm("$2") = *(int *)((char *)carObj_h + 596);
+          register int carIndex asm("$2") =
+              *(int *)((char *)thisPlayerObj + 596);
           register int field1380 asm("$3");
           __asm__("lw %0,1380(%2)\n\t"
                   "sll %1,%1,2\n\t"
                   "addu %1,%1,%3"
                   : "=r"(field1380), "+r"(carIndex)
-                  : "r"(carObj_h), "r"(hlai));       /* 0x80063468 */
-          int          absField1380 = __builtin_abs(field1380);
-          AIHigh_Base *tableEntry   = *(AIHigh_Base **)carIndex; /* carIndex, 0x80063464-84 */
-          int          playFines    = *(int *)((char *)carObj_h + 932);        /* SYM REG $3=$v1, 0x80063488 */
-          int          state        = *(int *)((char *)tableEntry + 148);      /* 0x8006348C */
-          if (speedLimit < absField1380) {          /* 0x80063480/90: permuter-found
+                  : "r"(thisPlayerObj), "r"(hlai)); /* 0x80063468 */
+          AIHigh_Player *thisPlayer = *(AIHigh_Player **)carIndex; /* carIndex, 0x80063464-84 */
+          int          playFines    = *(int *)((char *)thisPlayerObj + 932);   /* SYM REG $3=$v1, 0x80063488 */
+          /* SYM-CODEGEN-CARRIER: state -- naming the preloaded state keeps its
+             load ahead of the branch and avoids two load-delay nops.  Reading
+             it only in the condition emits 122 instructions and four ordered
+             diffs. */
+          int          state        = *(int *)((char *)thisPlayer + 148);      /* 0x8006348C */
+          if (speedLimit < __builtin_abs(field1380)) { /* 0x80063480/90: permuter-found
                                             double-roll -- oracle RE-DERIVES the ternary at the compare site
                                             instead of reusing absField1380 (740 vs 1015 base permuter score) */
             if (state < 2 && !(oppLevel < 3)) {                                /* 0x80063494-A0: skips the fines check */
@@ -523,9 +535,7 @@ int AIHigh_Opponent::DoRearEnder()
 
     if (((u_int)(longDistance - 0x10001) <= 0x26fffeU) && (latDistance < longDistance * 2)) {
 
-      int speed = __builtin_abs(otherCarObj->currentSpeed);
-
-      if (0xb1c71 < speed) {
+      if (0xb1c71 < __builtin_abs(otherCarObj->currentSpeed)) {
 
         return attackIndex;
 
@@ -536,27 +546,11 @@ int AIHigh_Opponent::DoRearEnder()
 
   }
 
-  Car_tObj *pCVar4 = this->carObj_;
+  if ((this->carObj_->N).simOptz == '\0') {
 
-  if ((pCVar4->N).simOptz == '\0') {
-
-    int iVar1 = __builtin_abs(pCVar4->currentSpeed);
-
-    if (0x140000 < iVar1) {
+    if (0x140000 < __builtin_abs(this->carObj_->currentSpeed)) {
 
       int racerLoop = 0;
-      Car_tObj **ppCVar7;
-      Sim_tSimGlobalVar *tickPtr;
-
-      tickPtr = &simGlobal;   /* §3.12 lever #16: hold the &simGlobal BASE in a callee-saved $s4 across
-                                            the AIWorld_SplineDistance call (H26 FIX: oracle keeps the
-                                            STRUCT BASE, not a pre-offset &simGlobal.gameTicks -- it
-                                            re-applies the +4 gameTicks field offset as the LOAD
-                                            DISPLACEMENT at both mask-check sites: `lw v1,4(s4)`, not
-                                            `lw v1,0(s4)`. Confirmed via Sim_tSimGlobalVar layout
-                                            (gameTicks @+4). */
-      ppCVar7 = Cars_gHumanRaceCarList;
-
       for (; racerLoop < Cars_gNumHumanRaceCars; racerLoop = racerLoop + 1) {   /* SYM: racerLoop is a
                                             SEPARATE local from the pre-loop longDistance check (2nd SYM
                                             decl block re-declares otherCarObj/longDistance/latDistance but
@@ -564,26 +558,26 @@ int AIHigh_Opponent::DoRearEnder()
                                             var, conflating it with the pre-loop longDistance temp forces
                                             them into ONE callee-saved reg for the whole function). */
 
-        Car_tObj *otherCarObj = *ppCVar7;   /* SYM: otherCarObj is REG $s0, RE-DECLARED (fresh block-scope
+        Car_tObj *otherCarObj = Cars_gHumanRaceCarList[racerLoop]; /* SYM: otherCarObj is REG $s0, RE-DECLARED (fresh block-scope
                                      pseudo) inside this loop -- same physical slot as section 1's
                                      otherCarObj, rewired from anonymous pCVar4. */
 
-        int sliceAddress = (otherCarObj->N).simRoadInfo.slice * 0x20 + (int)BWorldSm_slices;
-
-        if (((int)-(((u_int)*(u_char *)(sliceAddress + 0x1e) << 15) *
-                    (u_int)(*(u_char *)(sliceAddress + 0x1d) >> 4)) <=
+        if (((int)-(((u_int)BWorldSm_slices[otherCarObj->N.simRoadInfo.slice]
+                                  .avgPavedWidthLf << 15) *
+                    (u_int)(BWorldSm_slices[otherCarObj->N.simRoadInfo.slice]
+                                  .laneCount >> 4)) <=
              otherCarObj->roadPosition) &&
             (otherCarObj->roadPosition <=
-             (int)(((u_int)*(u_char *)(sliceAddress + 0x1f) << 15) *
-                   (*(u_char *)(sliceAddress + 0x1d) & 0xf)))) {
+             (int)(((u_int)BWorldSm_slices[otherCarObj->N.simRoadInfo.slice]
+                                  .avgPavedWidthRt << 15) *
+                   (BWorldSm_slices[otherCarObj->N.simRoadInfo.slice]
+                                  .laneCount & 0xf)))) {
 
           int longDistance = AIWorld_SplineDistance(otherCarObj,this->carObj_);
 
-          Car_tObj *pCVar6 = this->carObj_;
+          longDistance = longDistance * this->carObj_->direction;
 
-          longDistance = longDistance * pCVar6->direction;
-
-          int latDistance = pCVar6->roadPosition - otherCarObj->roadPosition;   /* SYM: latDistance REG $a1,
+          int latDistance = this->carObj_->roadPosition - otherCarObj->roadPosition; /* SYM: latDistance REG $a1,
                                      re-declared fresh in this block (same reg as section 1's). */
 
           latDistance = __builtin_abs(latDistance);   /* MATCH (w64-a12, THE seal lever, 50 -> 24):
@@ -594,22 +588,21 @@ int AIHigh_Opponent::DoRearEnder()
 
           if ((longDistance - 0x10001U < 0x26ffff) &&
               (latDistance < longDistance * 2)) {
-            u_int mask = pCVar6->personality->rearBumpProbMask;
-            if ((tickPtr->gameTicks + pCVar6->carIndex * 0x7b & mask) == mask) {
+            if ((simGlobal.gameTicks + this->carObj_->carIndex * 0x7b &
+                 this->carObj_->personality->rearBumpProbMask) ==
+                this->carObj_->personality->rearBumpProbMask) {
               return otherCarObj->carIndex;
             }
           }
           if (longDistance + 0x3ffffU < 0x7ffff) {
-            Car_tObj *smackCarObj = this->carObj_;
-            u_int mask = smackCarObj->personality->smackProbMask;
-            if ((tickPtr->gameTicks + smackCarObj->carIndex * 0x7b & mask) == mask) {
+            if ((simGlobal.gameTicks + this->carObj_->carIndex * 0x7b &
+                 this->carObj_->personality->smackProbMask) ==
+                this->carObj_->personality->smackProbMask) {
               return otherCarObj->carIndex;
             }
           }
 
         }
-
-        ppCVar7 = ppCVar7 + 1;
 
       }
 
@@ -792,24 +785,22 @@ int AIHigh_Opponent::DoProvokedAttack()
 
 
 {
-
+  /* SYM-CODEGEN-CARRIER: iVar1 -- retail reuses one optimized scalar for the
+     incremented hit count and then attackTime.  Folding both uses into member
+     expressions emits 46 instead of 43 instructions and changes 35
+     authoritative allocation/load/store instructions. */
   int iVar1;
 
-  Car_tObj *myCarObj;
-
+  /* SYM-CODEGEN-CARRIER: pCVar3 -- retail keeps the collision object in one
+     optimized scalar across the hit-state updates.  Repeating the member
+     expression emits 46 instead of 43 instructions and 15 authoritative
+     load/register diffs. */
   Car_tObj *pCVar3;
 
-  Car_tObj *oppCarObj;
+  if (((simGlobal.gameTicks - this->carObj_->N.collision.lastTime < 0xf) &&
 
-  int iVar4;
-
-
-
-  myCarObj = this->carObj_;
-
-  if (((simGlobal.gameTicks - (myCarObj->N).collision.lastTime < 0xf) &&
-
-      (pCVar3 = (Car_tObj *)(myCarObj->N).collision.lastOtherObj, pCVar3 != (Car_tObj *)0x0)) &&
+      (pCVar3 = (Car_tObj *)this->carObj_->N.collision.lastOtherObj,
+       pCVar3 != (Car_tObj *)0x0)) &&
 
      ((pCVar3->carFlags & 4U) != 0)) {
 
@@ -823,13 +814,9 @@ int AIHigh_Opponent::DoProvokedAttack()
 
     iVar1 = ++this->hitCount_;
 
-    oppCarObj = this->carObj_;
+    if (this->carObj_->personality->attackActivationHits < iVar1) {
 
-    iVar4 = oppCarObj->personality;
-
-    if (*(int *)(iVar4 + 0x24) < iVar1) {
-
-      iVar1 = *(int *)(iVar4 + 0x28);
+      iVar1 = this->carObj_->personality->attackTime;
 
       this->hitCount_ = 0;
 

@@ -456,13 +456,16 @@ void AudioCmn_Init(void)
 {
   int j;
   int temptrack;
-  int lapSeed;
+  /* SYM-CODEGEN-CARRIER: backwards -- staging reverseTrack separately preserves
+     retail's v1 load/store scheduling without the extra load-delay nop. */
   int backwards;
 
   /* @0x80076A7C: if(AudioCmn_kAudioOn==0) goto lbl_80076AF0 (the per-player loop, which always runs).
    * The channel-array init + false-lap-trigger select + backwards-direction are audio-on-guarded (H42). */
   if (AudioCmn_kAudioOn != 0) {
     AudioCmn_InitChannelArray();
+    /* SYM-CODEGEN-CARRIER: setup -- the shared GameSetup base and its read-only
+       identity fence preserve retail's reverseTrack load/store schedule. */
     GameSetup_tData *setup = &GameSetup_gData;
     /* MATCH (SYM rule-8): temptrack = REG $4 (a0), mutated IN PLACE by the &0x10 arm
        (addiu a0,v0,5); track is loaded ONCE. audioBackwardsDirection is stored then
@@ -499,25 +502,26 @@ void AudioCmn_Init(void)
     intensityFalseLapCounter = 0;
   }
   {
-    /* MATCH: explicit byte bases establish the retail t4/t3/t2 preheader order;
-       integer-address additions preserve the retail `addu v0,v1,tN` operand order.
-       The post-loop read-only lapSeed fence buys exactly one allocator reference,
-       moving 512 to t1 and rotating the byte bases into place.  The retail data
-       layout and all three affected functions identify -G8 as this TU's compiler
-       lane: Init is source-PASS 94/94 under a strict TU-wide -G8 build. */
+    /* MATCH: the two explicit byte bases plus direct currentLap indexing establish
+       retail's t4/t3/t2 preheader order; integer-address additions preserve the
+       `addu v0,v1,tN` operand order.  The literal 512 store remains exact without
+       an unsupported named local.  Retail data layout identifies -G8 as this TU's
+       compiler lane: Init is source-PASS 94/94 under a strict TU-wide -G8 build. */
     j = 0;
+    /* SYM-CODEGEN-CARRIER: ambient -- explicit array bases preserve retail's
+       t4/t3/t2 preheader allocation and indexed-store order. */
     char *ambient = fAmbientRangeON;
+    /* SYM-CODEGEN-CARRIER: mystic -- retaining this base keeps retail's address
+       addition before the adjacent byte store in the loop schedule. */
     char *mystic = fMysticWindON;
-    char *lap = currentLap;
-    lapSeed = 0x200;
     do {
       AudioCmn_gReTrig[j].count = 0;
       *(char *)((int)j + (int)ambient) = '\0';
       *(char *)((int)j + (int)mystic) = '\0';
-      *(char *)((int)j + (int)lap) = '\0';
+      currentLap[j] = '\0';
       bestLapTime[j] = 0;
       PlayersRampedGasLevel[j] = 0;
-      gtotallaptimes[j] = lapSeed;
+      gtotallaptimes[j] = 0x200;
       AudioCmn_gPlayerArrested[j] = 0;
       j++;
     } while (j < 2);
@@ -999,20 +1003,12 @@ void AudioCmn_LoadGameSamples(void)
 void AudioCmn_InitChannelArray(void)
 {
   int i;
-  Channels_t *pCVar1;
-  int iVar2;
-  int neg1;
 
-  iVar2 = 0;
-  neg1 = -1;
-  pCVar1 = gaChannel;
-  do {
-    pCVar1->Partial = neg1;
-    pCVar1->SFXnum = neg1;
-    pCVar1 = pCVar1 + 1;
-  } while (++iVar2 < 0x47);
+  for (i = 0; i < 0x47; i++) {
+    gaChannel[i].Partial = -1;
+    gaChannel[i].SFXnum = -1;
+  }
   AudioCmn_gCursorSndHandle = -1;
-  return;
 }
 
 /* ---- scaleFrequency__Fiii  [@0x800778e8] ---- */
@@ -2003,12 +1999,12 @@ void AudioCmn_TrafficSFX(int iChan,int iSFXnum,int freq,int doppler,int dst,int 
 {
   /* SYM rule-8: locals = iAmpIn(s4), player(a0), pitchmult(s0) ONLY; dst/azimuth/relvel/dir
      get REG copies (a2/s7/s6/s1), freq+doppler stay ARG (stack) and are reloaded per use.
-     dir is consumed IN PLACE (s2=dir>>12 kept, s1 becomes dir>>10, s2-=0x40 for the 2nd
-     index); relvel clamped in place; iAmpIn reused for the final scaled amp.
+     The two direct symmetric crossfade expressions compile to retail's destructive
+     s2=dir>>12 / s1=dir>>10 chain; relvel is clamped in place and iAmpIn is reused.
      MATCH (2026-08-14): PASS 163/163.  qtytrace priced the saved-register cycle: five
      zero-instruction pitchmult references cross its local-allocation priority boundary;
-     comma-staged dir12/index assignments reproduce retail's `(dir12+64)-dir10` chain;
-     staging the nested patch result and Xfade base plus a between-call scheduling fence
+     direct crossfade indices reproduce retail's `(dir12+64)-dir10` chain; staging the
+     nested patch result and Xfade base plus a between-call scheduling fence
      gives the exact call/shift order.  No register pin or emitted asm instruction is used.
      Earlier basins: 53 -> 51 (post-`>>10` pitch scale), 24 (priced pitch refs),
      14 (destructive dir12 chain), 10/6/4/2 (statement/fence placement) -> PASS. */
@@ -2038,9 +2034,11 @@ void AudioCmn_TrafficSFX(int iChan,int iSFXnum,int freq,int doppler,int dst,int 
     }
   }
   else {
-    int dir12;
-    int index;
+    /* SYM-CODEGEN-CARRIER: patch -- retaining the first patch lookup result as a
+       named pseudo is required for retail's a0/a1 setup order around the jal. */
     int patch;
+    /* SYM-CODEGEN-CARRIER: fade -- the named Xfade base preserves retail's
+       placement of the destructive dir shift between the two call sequences. */
     u_char *fade;
 
     pitchmult = fixedmult(freq + 0x3333,doppler) * 0x50 >> 10;
@@ -2053,11 +2051,10 @@ void AudioCmn_TrafficSFX(int iChan,int iSFXnum,int freq,int doppler,int dst,int 
     __asm__("" : : "r"(pitchmult), "r"(pitchmult), "r"(pitchmult), "r"(pitchmult),
                   "r"(pitchmult));
     AudioCmn_PlaySFX(iChan + 4,patch,0x40,pitchmult << 4,
-               iAmpIn * fade[(index = (dir12 = dir >> 0xc) + 0x40,
-                                  index - (dir >> 10))] >> 7,azimuth);
+               iAmpIn * fade[((dir >> 0xc) + 0x40) - (dir >> 10)] >> 7,azimuth);
     __asm__("" : : "i"(0));
     AudioCmn_PlaySFX(iChan + 8,CopSpeak_GetEnginePatch(iSFXnum,1),0x40,pitchmult << 4,
-               iAmpIn * fade[(dir >> 10) - (dir12 -= 0x40)] >> 7,azimuth);
+               iAmpIn * fade[(dir >> 10) - ((dir >> 0xc) - 0x40)] >> 7,azimuth);
     if (0x280000 < relvel) {
       relvel = 0x280000;
     }
@@ -2096,9 +2093,6 @@ void AudioCmn_PlayerHornOn(int carIndex,int Distsq,int iFreqIn,int azimuth,int d
 {
   int sfx;
   int player;
-  u_int uVar1;
-  int sndPlayer;
-  int iSFXnum;
   int iAmpIn;
 
   if (AudioCmn_kAudioOn != 0) {
@@ -2109,21 +2103,21 @@ void AudioCmn_PlayerHornOn(int carIndex,int Distsq,int iFreqIn,int azimuth,int d
       iAmpIn = 0;
     }
     if (GameSetup_gData.commMode == 1) {
-      iSFXnum = 10;
+      sfx = 10;
       if (carIndex == 0) {
-        sndPlayer = 0x29;
+        player = 0x29;
       }
       else {
-        sndPlayer = 0x2a;
+        player = 0x2a;
       }
     }
     else {
-      iSFXnum = 3;
-      sndPlayer = 0x29;
+      sfx = 3;
+      player = 0x29;
     }
-    if ((gaChannel[sndPlayer].Partial == 0xffffffff) ||
-       (uVar1 = SNDover(gaChannel[sndPlayer].Partial), uVar1 == 0)) {
-      AudioCmn_PlaySFX(sndPlayer,iSFXnum,iFreqIn,doppler,iAmpIn,azimuth);
+    if ((gaChannel[player].Partial == 0xffffffff) ||
+        (SNDover(gaChannel[player].Partial) == 0)) {
+      AudioCmn_PlaySFX(player,sfx,iFreqIn,doppler,iAmpIn,azimuth);
     }
   }
   return;
@@ -2492,5 +2486,3 @@ int gQuickSirenCount = 0;                                   /* @0x8013c710 */
 int AudioCmn_ThunderAmp = 0;                                /* @0x8013c714 */
 int AudioCmn_ThunderAzi = 0;                                /* @0x8013c718 */
 int AudioCmn_ThunderDel = 0;                                /* @0x8013c71c */
-
-

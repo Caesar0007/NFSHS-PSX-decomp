@@ -144,14 +144,13 @@ void BWorld_InitSpikeBelt(void)
   gSpikeBeltChunk = 0;
   for (i = 0; i < Chunk_numLight; i = i + 1) {
     int dist;
-    int r;
-    int g;
-    int b;
 
-    r = 0x80 - (u_int)Chunk_lightTable[i].r;
-    g = 0x80 - (u_int)Chunk_lightTable[i].g;
-    b = 0x80 - (u_int)Chunk_lightTable[i].b;
-    dist = r * r + g * g + b * b;
+    dist = (0x80 - (u_int)Chunk_lightTable[i].r) *
+               (0x80 - (u_int)Chunk_lightTable[i].r) +
+           (0x80 - (u_int)Chunk_lightTable[i].g) *
+               (0x80 - (u_int)Chunk_lightTable[i].g) +
+           (0x80 - (u_int)Chunk_lightTable[i].b) *
+               (0x80 - (u_int)Chunk_lightTable[i].b);
     if (dist < leastDist) {
       leastDist = dist;
       leastDistInd = i;
@@ -395,10 +394,12 @@ int BWorld_CheckChunkVisible(BWorldSm_Pos *slicePosSource,BWorldSm_Pos *slicePos
   int sourceChunkInd;
   int testChunkIndFwd;
   int testChunkIndBwd;
+  /* SYM-CODEGEN-CARRIER: chunkIndFwd -- loop-invariant wrapped forward chunk
+     lookup; folding it into the SYM index quantity or loop comparison
+     collapses retail's distinct pseudo. */
   int chunkIndFwd;
+  /* SYM-CODEGEN-CARRIER: chunkIndBwd -- backward twin of chunkIndFwd. */
   int chunkIndBwd;
-  BWorld_SliceCodegenView *sliceFwd;
-  BWorld_SliceCodegenView *sliceBwd;
   short *chunkViewList;
   int chunkInd;
   int count;
@@ -408,17 +409,15 @@ int BWorld_CheckChunkVisible(BWorldSm_Pos *slicePosSource,BWorldSm_Pos *slicePos
     return 1;
   }
   testChunkIndFwd = slicePosTest->slice + 2;
-  sliceFwd = testChunkIndFwd < gNumSlices
-                 ? BWorldSm_slices + testChunkIndFwd
-                 : BWorldSm_slices +
-                       ((int)slicePosTest->slice - (gNumSlices + -2));
-  chunkIndFwd = (u_short)sliceFwd->chunkIndex;
+  chunkIndFwd = (u_short)(testChunkIndFwd < gNumSlices
+      ? BWorldSm_slices + testChunkIndFwd
+      : BWorldSm_slices +
+            ((int)slicePosTest->slice - (gNumSlices + -2)))->chunkIndex;
   testChunkIndBwd = slicePosTest->slice + -2;
-  sliceBwd = testChunkIndBwd >= 0
-                 ? BWorldSm_slices + testChunkIndBwd
-                 : BWorldSm_slices +
-                       ((int)slicePosTest->slice + (gNumSlices + -2));
-  chunkIndBwd = (u_short)sliceBwd->chunkIndex;
+  chunkIndBwd = (u_short)(testChunkIndBwd >= 0
+      ? BWorldSm_slices + testChunkIndBwd
+      : BWorldSm_slices +
+            ((int)slicePosTest->slice + (gNumSlices + -2)))->chunkIndex;
   sourceChunkInd = slicePosSource->chunk;
   count = ((u_char *)Track_gInViewCount)[sourceChunkInd];
   chunkViewList = (short *)Track_gInViewList + sourceChunkInd * 32;
@@ -899,12 +898,21 @@ bool BWorld_IsSliceInBuildList(int slice)
 void BWorld_OnyxBuildFacets(DRender_tView *Vi)
 {
   Draw_DCache *sd;
+  /* SYM-CODEGEN-CARRIER: ts -- direct TrackSpec_gSpec fields preserve 193
+     instructions but change the split-base/offset addressing at ten positions. */
   BWorld_TrackSpecCodegenView *ts;
+  /* SYM-CODEGEN-CARRIER: fogStart -- storing the field directly preserves 193
+     instructions but changes pre-fence load/allocation order to 18 diffs. */
   u_short fogStart;
+  /* SYM-CODEGEN-CARRIER: fogDist -- storing the field directly preserves 193
+     instructions but changes pre-fence load/allocation order to 20 diffs. */
   u_short fogDist;
+  /* SYM-CODEGEN-CARRIER: fogState -- storing the field directly preserves 193
+     instructions but changes fog/time allocation to 12 diffs. */
   u_char fogState;
+  /* SYM-CODEGEN-CARRIER: time -- testing GameSetup_gData.Time directly keeps
+     193 instructions but moves the load across the fence and yields 20 diffs. */
   int time;
-  int pvVar3;
   
   Chunk_UpdateSys(Vi);
   gVi2 = Vi;
@@ -933,7 +941,7 @@ void BWorld_OnyxBuildFacets(DRender_tView *Vi)
   __asm__("" : : "i"(0));
   stackSpeedUpEnbabledFlag = 0;
   ((BWorld_DrawCacheCodegenView *)sd)->startfog = fogStart;
-  ((BWorld_DrawCacheCodegenView *)sd)->distfog  = fogDist;
+  ((BWorld_DrawCacheCodegenView *)sd)->distfog = fogDist;
   ((BWorld_DrawCacheCodegenView *)sd)->fogstate = fogState;
   if (time != 0) {
     short a;
@@ -991,7 +999,7 @@ NO_LINES:
     }
   }
   if ((Object_customSFXInst != (Group *)0x0) &&
-     (pvVar3 = BWorld_IsSliceInBuildList(Object_customSliceNum), pvVar3 != 0)) {
+      (BWorld_IsSliceInBuildList(Object_customSliceNum) != 0)) {
     BWorld_BuildGlareEffects(Vi,sd,Object_customSFXInst);
   }
   DrawW_WorldSetUpMatrix(&gWorldMat,&sd->matB);

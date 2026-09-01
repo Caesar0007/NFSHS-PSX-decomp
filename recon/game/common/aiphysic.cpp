@@ -430,21 +430,28 @@ void AIPhysic_HandleSignalling(Car_tObj *carObj)
  * as `(unsigned short)(r>>8)` to anchor the andi on the random + keep the full `lw` of info->0x34. */
 void AIPhysic_HandleWipeoutTimer(Car_tObj *carObj)
 {
-    int limit, base;
-    unsigned int r;
-    char *info;
+    /* SYM-CODEGEN-CARRIER: limit -- optimized SYM omits this scalar, but the
+       single snapshot selects retail's separate v1/a2 global-load pseudos;
+       repeating D_8011E0B0[0] keeps 37 instructions with four detailed
+       address-register/load-order differences. */
+    int limit;
+    /* SYM-CODEGEN-CARRIER: info -- the shared typed personality base preserves
+       retail's a1 lifetime across both field loads; direct member spelling
+       keeps 37 instructions but gives 22 detailed allocation/load-order
+       differences. */
+    AIPerson_t *info;
     if ((carObj->carFlags & 8) == 0)
         return;
     limit = D_8011E0B0[0];
     if (!(carObj->wipeOutStartTick < limit))
         return;
-    r = (unsigned int)(fastRandom * randSeed);
-    info = (char *)carObj->personality;
-    base = limit + *(int *)(info + 0x30);
-    randtemp = r;
-    fastRandom = r & 0xFFFF;
+    info = carObj->personality;
+    randtemp = fastRandom * randSeed;
+    fastRandom = randtemp & 0xFFFF;
     carObj->wipeOutStartTick =
-        base + (int)((unsigned int)(unsigned short)(r >> 8) & (unsigned int)*(int *)(info + 0x34));
+        limit + info->minimumBetweenWipeoutTicks +
+        (int)((unsigned int)(unsigned short)(randtemp >> 8) &
+              info->randomBetweenWipeoutTicks);
 }
 
 /* ---- AIPhysic_Main__FP8Car_tObj ---- */
@@ -594,16 +601,14 @@ void AIPhysic_SimplePhysics(Car_tObj *carObj)
   (carObj->N).linearVel.z = forward.z + right.z;
   (carObj->linearVel_ch).z = carObj->speed;
   {
-    int lat = carObj->laneChangeSpeed * carObj->direction;
-    (carObj->linearVel_ch).x = lat;
-    {
-      int a = __builtin_abs(lat);
-      if (a / 256 * 0x19 < a) {
-        carObj->slide = 0x8000;
-      }
-      else {
-        carObj->slide = 0;
-      }
+    (carObj->linearVel_ch).x =
+        carObj->laneChangeSpeed * carObj->direction;
+    if (__builtin_abs((carObj->linearVel_ch).x) / 256 * 0x19 <
+        __builtin_abs((carObj->linearVel_ch).x)) {
+      carObj->slide = 0x8000;
+    }
+    else {
+      carObj->slide = 0;
     }
   }
   speed = carObj->speed;
@@ -613,27 +618,30 @@ void AIPhysic_SimplePhysics(Car_tObj *carObj)
   if (0x30000 < speed) {
     Newton_CopyRoadMatrixToOrientMat(&carObj->N,(u_int)(carObj->direction == -1));
   }
-  {
-    int cs = __builtin_abs(carObj->currentSpeed);
-    sliceLookAhead = cs / 0x60000;
-    if (-1 < sliceLookAhead) {
-      if ((sliceLookAhead < AIPhysicConfig.min_lookahead / 6) && (-1 < cs)) {
-        sliceLookAhead = AIPhysicConfig.min_lookahead / 6;
-      }
-    }
-    if (AIPhysicConfig.max_lookahead / 6 < sliceLookAhead) {
-      sliceLookAhead = AIPhysicConfig.max_lookahead / 6;
+  sliceLookAhead = __builtin_abs(carObj->currentSpeed) / 0x60000;
+  if (-1 < sliceLookAhead) {
+    if ((sliceLookAhead < AIPhysicConfig.min_lookahead / 6) &&
+        (-1 < __builtin_abs(carObj->currentSpeed))) {
+      sliceLookAhead = AIPhysicConfig.min_lookahead / 6;
     }
   }
+  if (AIPhysicConfig.max_lookahead / 6 < sliceLookAhead) {
+    sliceLookAhead = AIPhysicConfig.max_lookahead / 6;
+  }
+  /* SYM-CODEGEN-CARRIER: v -- optimized SYM omits the mutually exclusive
+     wrapped-slice temporaries, but assigning the member before normalization
+     keeps 219 instructions with fourteen store/schedule differences. */
   if (!(sliceLookAhead * carObj->direction < 0)) {
-    int v = (carObj->N).simRoadInfo.slice + sliceLookAhead * carObj->direction;
+    int v = (carObj->N).simRoadInfo.slice +
+            sliceLookAhead * carObj->direction;
     if (!(v < gNumSlices)) {
       v = v - gNumSlices;
     }
     carObj->lookAheadSlice = v;
   }
   else {
-    int v = (carObj->N).simRoadInfo.slice + sliceLookAhead * carObj->direction;
+    int v = (carObj->N).simRoadInfo.slice +
+            sliceLookAhead * carObj->direction;
     if (v < 0) {
       v = v + gNumSlices;
     }
@@ -647,6 +655,9 @@ void AIPhysic_SimplePhysics_LongVel(Car_tObj *carObj)
 {
   int acceleration;
   int deceleration;
+  /* SYM-CODEGEN-CARRIER: t -- optimized SYM omits the max-selection result,
+     but expressing the selection directly keeps 214 instructions with
+     eighteen a1/v0 allocation and branch-selection differences. */
   int t;
 
   acceleration = AIPhysic_CalcAcceleration(carObj,carObj->currentSpeed);
@@ -660,31 +671,24 @@ void AIPhysic_SimplePhysics_LongVel(Car_tObj *carObj)
   if (carObj->direction == -1) {
     if ((carObj->desiredSpeed > carObj->currentSpeed) || (carObj->desiredDirection != -1)) {
       (carObj->linearAcc_ch).z = deceleration;
-      {
-        int level = (carObj->control).brakeLevel + AIPhysic_elapsedTime * 4;
-        if (level < 0xff) {
-          (carObj->control).brakeLevel = level;
-        }
-        else {
-          (carObj->control).brakeLevel = 0xff;
-        }
+      if ((carObj->control).brakeLevel + AIPhysic_elapsedTime * 4 < 0xff) {
+        (carObj->control).brakeLevel =
+            (carObj->control).brakeLevel + AIPhysic_elapsedTime * 4;
+      }
+      else {
+        (carObj->control).brakeLevel = 0xff;
       }
       if (3U < (u_char)(carObj->control).brakeLevel) {
         (carObj->control).desiredBrakeLevel = 1;
       }
-      {
-        int newSpeed = carObj->currentSpeed + deceleration / 256 * (AIPhysic_iTime / 256);
-        carObj->currentSpeed = newSpeed;
-        if (carObj->direction != carObj->desiredDirection) {
-          return;
-        }
-        carObj->currentSpeed =
-            (carObj->currentSpeed > carObj->desiredSpeed) ?
-            carObj->desiredSpeed : carObj->currentSpeed;
-        /* MATCH: the original MIN-style field expression matters here.  Re-reading
-           currentSpeed after its store lets GCC forward newSpeed in a1 while loading
-           desiredSpeed through v0 and copying the selected value to v1, as retail. */
+      carObj->currentSpeed = carObj->currentSpeed +
+          deceleration / 256 * (AIPhysic_iTime / 256);
+      if (carObj->direction != carObj->desiredDirection) {
+        return;
       }
+      carObj->currentSpeed =
+          (carObj->currentSpeed > carObj->desiredSpeed) ?
+          carObj->desiredSpeed : carObj->currentSpeed;
     }
     else {
       carObj->currentSpeed -= acceleration / 256 * (AIPhysic_iTime / 256);
@@ -706,28 +710,24 @@ void AIPhysic_SimplePhysics_LongVel(Car_tObj *carObj)
   else {
     if ((carObj->desiredSpeed < carObj->currentSpeed) || (carObj->direction != carObj->desiredDirection)) {
       (carObj->linearAcc_ch).z = deceleration;
-      {
-        int level = (carObj->control).brakeLevel + AIPhysic_elapsedTime * 4;
-        if (level < 0xff) {
-          (carObj->control).brakeLevel = level;
-        }
-        else {
-          (carObj->control).brakeLevel = 0xff;
-        }
+      if ((carObj->control).brakeLevel + AIPhysic_elapsedTime * 4 < 0xff) {
+        (carObj->control).brakeLevel =
+            (carObj->control).brakeLevel + AIPhysic_elapsedTime * 4;
+      }
+      else {
+        (carObj->control).brakeLevel = 0xff;
       }
       if (3U < (u_char)(carObj->control).brakeLevel) {
         (carObj->control).desiredBrakeLevel = 1;
       }
-      {
-        int newSpeed = carObj->currentSpeed - deceleration / 256 * (AIPhysic_iTime / 256);
-        carObj->currentSpeed = newSpeed;
-        if (carObj->direction != carObj->desiredDirection) {
-          return;
-        }
-        t = carObj->desiredSpeed;
-        if (t < newSpeed) t = newSpeed;
-        carObj->currentSpeed = t;
+      carObj->currentSpeed = carObj->currentSpeed -
+          deceleration / 256 * (AIPhysic_iTime / 256);
+      if (carObj->direction != carObj->desiredDirection) {
+        return;
       }
+      t = carObj->desiredSpeed;
+      if (t < carObj->currentSpeed) t = carObj->currentSpeed;
+      carObj->currentSpeed = t;
     }
     else {
       carObj->currentSpeed += acceleration / 256 * (AIPhysic_iTime / 256);
@@ -945,6 +945,9 @@ void AIPhysic_GetDesiredVector(Car_tObj *carObj)
     sliceLookAhead = AIPhysicConfig.max_lookahead / 6;
   }
   dirCorrectedSliceLookAhead = sliceLookAhead * carObj->driveDirection * carObj->direction;
+  /* SYM-CODEGEN-CARRIER: v -- optimized SYM omits the four mutually exclusive
+     wrapped-slice temporaries.  Normalizing the member directly keeps 378
+     instructions but produces 24 detailed store/schedule differences. */
   if (!(dirCorrectedSliceLookAhead < 0)) {
     int v = thisSlice + dirCorrectedSliceLookAhead;
     if (!(v < gNumSlices)) {
@@ -960,11 +963,15 @@ void AIPhysic_GetDesiredVector(Car_tObj *carObj)
     carObj->lookAheadSlice = v;
   }
   futureBend = __builtin_abs(AIWorld_CalcRoadBend(carObj,dirCorrectedSliceLookAhead));
-  {
-    int sl = carObj->lookAheadSlice * 0x20 + (int)AIPhysic_BWorldSmSlices;
-    roadWidth = (u_int)(*(u_char *)(sl + 0x1e) << 15) * (u_int)(*(u_char *)(sl + 0x1d) >> 4) +
-                (u_int)(*(u_char *)(sl + 0x1f) << 15) * (*(u_char *)(sl + 0x1d) & 0xf);
-  }
+  roadWidth =
+      (u_int)(*(u_char *)(carObj->lookAheadSlice * 0x20 +
+                          (int)AIPhysic_BWorldSmSlices + 0x1e) << 15) *
+          (u_int)(*(u_char *)(carObj->lookAheadSlice * 0x20 +
+                              (int)AIPhysic_BWorldSmSlices + 0x1d) >> 4) +
+      (u_int)(*(u_char *)(carObj->lookAheadSlice * 0x20 +
+                          (int)AIPhysic_BWorldSmSlices + 0x1f) << 15) *
+          (*(u_char *)(carObj->lookAheadSlice * 0x20 +
+                       (int)AIPhysic_BWorldSmSlices + 0x1d) & 0xf);
   if (roadWidth < 0x120000) {
     if (0xf333 < futureBend) {
       sliceLookAhead = sliceLookAhead * 0xca3d / 0x10000;
@@ -1007,11 +1014,17 @@ void AIPhysic_GetDesiredVector(Car_tObj *carObj)
     fPoint.z = fPoint.z + fCPoint.z;
     futureRoadPosition = AIPhysic_CalculateRoadPosition(&fPoint,thisSlice);
     {
-      int sl = thisSlice * 0x20 + (int)AIPhysic_BWorldSmSlices;
-      if ((((int)((u_int)(*(u_char *)(sl + 0x1f) << 15) * (*(u_char *)(sl + 0x1d) & 0xf)) < futureRoadPosition)
+      if ((((int)((u_int)(*(u_char *)(thisSlice * 0x20 +
+                                      (int)AIPhysic_BWorldSmSlices + 0x1f) << 15) *
+                   (*(u_char *)(thisSlice * 0x20 +
+                                (int)AIPhysic_BWorldSmSlices + 0x1d) & 0xf)) < futureRoadPosition)
           && (carObj->roadPosition < futureRoadPosition)) ||
-         ((futureRoadPosition < (int)-((u_int)(*(u_char *)(sl + 0x1e) << 15) *
-                         (u_int)(*(u_char *)(sl + 0x1d) >> 4))) && (futureRoadPosition < carObj->roadPosition))) {
+         ((futureRoadPosition <
+           (int)-((u_int)(*(u_char *)(thisSlice * 0x20 +
+                                      (int)AIPhysic_BWorldSmSlices + 0x1e) << 15) *
+                  (u_int)(*(u_char *)(thisSlice * 0x20 +
+                                      (int)AIPhysic_BWorldSmSlices + 0x1d) >> 4))) &&
+          (futureRoadPosition < carObj->roadPosition))) {
         checkSide = 1;
         if (futureRoadPosition < carObj->roadPosition) {
           checkSide = -1;
@@ -1031,6 +1044,9 @@ void AIPhysic_GetDesiredVector(Car_tObj *carObj)
     sliceLookAhead = sliceLookAhead * 0xcccc;
     sliceLookAhead = sliceLookAhead / 0x10000;
     {
+      /* SYM-CODEGEN-CARRIER: t -- optimized SYM omits this clamp result, but
+         direct in-place clamping emits 377/378 instructions with eleven
+         compare/branch/allocation differences. */
       int t = 4;
       if (!(sliceLookAhead < 4)) t = sliceLookAhead;
       sliceLookAhead = t;
@@ -1065,8 +1081,6 @@ int AIPhysic_CheckIfOutOfControl(Car_tObj *carObj)
     return (0x2ffff < __builtin_abs(carObj->currentSpeed)) ^ 1;
   }
   if ((__builtin_abs(carObj->aCarWRTDesired) < 0x74) && (carObj->driveDirection != -1)) {
-    int iVar3;
-
     /* MATCH (W59-A3): retail is ONE goto-funnel -- SLD proves the whole test chain
        is line 1312, the shared `return 1` block is line 1325 (label .L8006B3E4,
        jumped to by every early exit) and `return 0` is line 1333, LAST.  Writing the
@@ -1077,27 +1091,29 @@ int AIPhysic_CheckIfOutOfControl(Car_tObj *carObj)
     if (__builtin_abs(carObj->currentSpeed) < AIPhysicConfig.OOCModel.vel_limit_range + -0x30000) {
       goto ret1;
     }
-    iVar3 = (carObj->N).simRoadInfo.slice * 0x20 + (int)AIPhysic_BWorldSmSlices;
     if (carObj->roadPosition <
-        (int)-((u_int)(*(u_char *)(iVar3 + 0x1e) << 15) * (u_int)(*(u_char *)(iVar3 + 0x1d) >> 4))) {
+        (int)-((u_int)(*(u_char *)((carObj->N).simRoadInfo.slice * 0x20 +
+                                   (int)AIPhysic_BWorldSmSlices + 0x1e) << 15) *
+               (u_int)(*(u_char *)((carObj->N).simRoadInfo.slice * 0x20 +
+                                   (int)AIPhysic_BWorldSmSlices + 0x1d) >> 4))) {
       goto ret1;
     }
-    if ((int)((u_int)(*(u_char *)(iVar3 + 0x1f) << 15) * (u_int)(*(u_char *)(iVar3 + 0x1d) & 0xf)) <
+    if ((int)((u_int)(*(u_char *)((carObj->N).simRoadInfo.slice * 0x20 +
+                                  (int)AIPhysic_BWorldSmSlices + 0x1f) << 15) *
+              (u_int)(*(u_char *)((carObj->N).simRoadInfo.slice * 0x20 +
+                                  (int)AIPhysic_BWorldSmSlices + 0x1d) & 0xf)) <
         carObj->roadPosition) {
       goto ret1;
     }
     if (0xcccc < futureBend) {
       goto ret1;
     }
-    {
-      int lat = (carObj->linearVel_ch).x;
-      int spd = carObj->speed;
-      if (__builtin_abs(lat) <= spd / 256 * 0x66) {
-        goto ret0;
-      }
-      if (0xeffff < __builtin_abs(carObj->currentSpeed)) {
-        goto ret0;
-      }
+    if (__builtin_abs((carObj->linearVel_ch).x) <=
+        carObj->speed / 256 * 0x66) {
+      goto ret0;
+    }
+    if (0xeffff < __builtin_abs(carObj->currentSpeed)) {
+      goto ret0;
     }
   }
 ret1:
@@ -1940,12 +1956,14 @@ void AIPhysic_ProcessCollision(Car_tObj *carObj)
  * a temp AFTER the newDir store so the `dir` store fills its load-delay slot (kills the lone nop). */
 void AIPhysic_ChangeDirection(Car_tObj *carObj, int time)
 {
-    int newDir;
+    /* SYM-CODEGEN-CARRIER: sg -- separate per-block pointer assignments force
+       retail's three simGlobal rematerializations to flow through a3; direct
+       global spelling emits 45/46 instructions with nine address/load diffs. */
     int *sg;
     if (carObj->driveDirection == -1) {
         sg = simGlobal;
         if (sg[1] - carObj->driveDirectionTimer > carObj->driveDirectionReverseTime / 2) {
-            newDir = 1;
+            carObj->driveDirection = 1;
             goto action;
         }
     }
@@ -1954,15 +1972,14 @@ void AIPhysic_ChangeDirection(Car_tObj *carObj, int time)
     sg = simGlobal;
     if (!(sg[1] - carObj->driveDirectionTimer > carObj->driveDirectionReverseTime / 2))
         return;
-    {
-        int v = carObj->currentSpeed;
-        if (__builtin_abs(v) > 0x13FFFF)
-            return;
-    }
-    newDir = -1;
+    if (__builtin_abs(carObj->currentSpeed) > 0x13FFFF)
+        return;
+    carObj->driveDirection = -1;
 action:
-    carObj->driveDirection = newDir;
     {
+        /* SYM-CODEGEN-CARRIER: rampPos -- the snapshot lets retail schedule
+           the direction store into the simGlobal load delay slot; direct
+           member assignment emits 47/46 instructions with three differences. */
         int rampPos = sg[1];
         carObj->driveDirectionReverseTime = time;
         carObj->driveDirectionTimer = rampPos;
@@ -1974,44 +1991,42 @@ void AIPhysic_CheckForGripReduction(Car_tObj *carObj)
 {
   int randVal;
   int perTickProb;
+  /* SYM-CODEGEN-CARRIER: iVar1 -- the separately materialized
+     (0x10000-minimum) quotient selects retail's a1 constant lifetime; direct
+     division keeps 101 instructions with eight allocation/store differences. */
   int iVar1;
-  int iVar2;
-  int iVar3;
+  /* SYM-CODEGEN-CARRIER: iVar4 -- retaining the recovered grip value across
+     update and threshold comparison preserves retail's a0/v0 lifetime; direct
+     member spelling emits 102/101 instructions with fifteen differences. */
   int iVar4;
-  int iVar5;
 
   iVar4 = carObj->gripFactor;
   if (iVar4 < 0x10000) {
-    iVar4 = iVar4 + AIPhysic_elapsedTime * carObj->personality->gripLossRecoveryPerTick;
-    iVar2 = (carObj->N).collision.lastTime;
+    iVar4 = iVar4 +
+        AIPhysic_elapsedTime * carObj->personality->gripLossRecoveryPerTick;
     carObj->gripFactor = iVar4;
-    if ((simGlobal[1] - iVar2 < 0x40) &&
+    if ((simGlobal[1] - (carObj->N).collision.lastTime < 0x40) &&
        ((carObj->N).collision.lastOtherObj == (BO_tNewtonObj *)0x0)) {
       carObj->gripFactor = 0x10000;
     }
     else {
-      iVar3 = carObj->personality->gripLossMinFactor;
       iVar1 = 0x10000;
-      iVar1 = iVar1 - iVar3;
+      iVar1 = iVar1 - carObj->personality->gripLossMinFactor;
       if (iVar1 < 0) {
         iVar1 = iVar1 + 3;
       }
-      if (iVar3 + (iVar1 >> 2) < iVar4) {
+      if (carObj->personality->gripLossMinFactor + (iVar1 >> 2) < iVar4) {
         carObj->gripFactor = 0x10000;
       }
     }
   }
   else if (((carObj->N).simOptz == '\0') && ((carObj->carFlags & 0x28U) != 0)) {
-    iVar5 = AIWorld_CalcRoadBend(carObj,1);
-    if (iVar5 >= 1) {
-      iVar5 = AIWorld_CalcRoadBend(carObj,1);
-    }
-    else {
-      iVar5 = AIWorld_CalcRoadBend(carObj,1);
-      iVar5 = -iVar5;
-    }
-    iVar1 = 2000 < iVar5;
-    if (iVar1) {
+    if (2000 < ((AIWorld_CalcRoadBend(carObj,1) >= 1) ?
+                AIWorld_CalcRoadBend(carObj,1) :
+                -AIWorld_CalcRoadBend(carObj,1))) {
+      /* SYM-CODEGEN-CARRIER: pers -- the shared personality base is kept in a1
+         across both probability/minimum loads; direct member spelling emits
+         103/101 instructions with eight load/allocation differences. */
       AIPerson_t *pers = carObj->personality;
       perTickProb = AIPhysic_elapsedTime * pers->gripLossProbPerSecond;
       randtemp = fastRandom * randSeed;
@@ -2023,9 +2038,6 @@ void AIPhysic_CheckForGripReduction(Car_tObj *carObj)
     }
   }
   return;
-  /* MATCH: iVar1 = 2000 < iVar5; if (iVar1) — the STORED-BOOL phrasing keeps the
-     oracle's slti;xori;beqz (materialized truth value blocks gcc's branch-inversion
-     to slti;bnez). Direct if(2000<iVar5) folds the xori away. 3->0 PASS (w11-a8). */
 }
 
 /* ---- AIPhysic_StartUp__Fv / CleanUp / Reset (empty stubs, retail VA order 0x8006cc3c/44/4c) ---- */

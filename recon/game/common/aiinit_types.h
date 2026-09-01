@@ -40,7 +40,9 @@ struct AIDataRecord_t {
     char name_[64];
     char *dataBuffer_, *preAllocatedBuffer_;
     AIDataRecord_RecordMethod_t recordMethod_;
-    __vtbl_ptr_type (*_vf)[3];
+
+    virtual ~AIDataRecord_t();
+    virtual void Setup();
 
     static void StartUp1();
     static void StartUp2();
@@ -52,11 +54,14 @@ struct AIDataRecord_AccTable_t : public AIDataRecord_t {
     int scale_;
     AIDataRecord_AccTable_t(char *name, int n, int which)
       asm("__23AIDataRecord_AccTable_tPci26AIDataRecord_WhichRecord_t");
+    ~AIDataRecord_AccTable_t();
+    void Setup();
 };
 
 struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t {
     AIDataRecord_CurveSpeedTable_t(char *name, int which)
       asm("__30AIDataRecord_CurveSpeedTable_tPc26AIDataRecord_WhichRecord_t");
+    ~AIDataRecord_CurveSpeedTable_t();
     void Upgrade(int i);
 };
 

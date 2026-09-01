@@ -762,14 +762,14 @@ void NFS3_CheckForFileOperations(void)
    the retail startup scheduling).  SYM lists only setup and oldReplayMode as
    register locals: spelling the win/lose choice as the two direct PlaySong
    call arms lets cross-jump merge the call while selecting the string in $a0,
-   removing the decompiler-invented pattern local (10 -> PASS). */
+   removing the decompiler-invented pattern local (10 -> PASS).  The opponent
+   count and final menu selector are likewise direct expressions; the former
+   iVar2/uVar1 aliases were not retained by SYM and fold away at exact PASS. */
 
 int main(void)
 
 {
-  u_int uVar1;
   int *setup;
-  int iVar2;
   short oldReplayMode;
   
   oldReplayMode = 0;
@@ -825,8 +825,7 @@ int main(void)
           }
           else {
             Replay_ReplayInterface.statsScreen = 1;
-            iVar2 = Stats_GetNumOpponents();
-            if ((1 < iVar2) &&
+            if ((1 < Stats_GetNumOpponents()) &&
                (((GameSetup_gData.raceType != RaceType_HotPursuit && (GameSetup_gData.raceType != RaceType_Id5)) ||
                 (((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) == 0 &&
                  ((Cars_gNumHumanRaceCars != 2 ||
@@ -858,11 +857,7 @@ int main(void)
     (&carManager)->LoadDescription();
     (&tournamentManager)->LoadDescription();
     (&trackManager)->LoadDescription();
-    uVar1 = 1;
-    if (quitType == 1) {
-      uVar1 = 2;
-    }
-    Front_Menu(uVar1);
+    Front_Menu((quitType == 1) ? 2 : 1);
     oldReplayMode = (short)GameSetup_gData.replayMode;
     NFS3_CheckForFileOperations();
   } while( true );

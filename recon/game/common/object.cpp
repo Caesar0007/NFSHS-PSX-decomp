@@ -654,27 +654,13 @@ int Object_GetObjDefID(int index)
 int Object_FindDefWithThisID(int ID)
 
 {
-  Group *pThis;
-  Trk_ObjectDef *objDef;
   int i;
-  Trk_ObjectDef **ppTVar2;
 
-  i = 0;
-  ppTVar2 = Track_gObjDefs;
-  while (true) {
-    if (gPersistObjDef->m_num_elements <= i) {
-      goto notFound;
+  for (i = 0; i < gPersistObjDef->GetNumElements(); i = i + 1) {
+    if (ID == Track_gObjDefs[i]->id) {
+      return i;
     }
-    objDef = *ppTVar2;
-    ppTVar2 = ppTVar2 + 1;
-    if (ID != objDef->id) {
-      goto nextObjectDef;
-    }
-    return i;
-nextObjectDef:
-    i = i + 1;
   }
-notFound:
   return -1;
 }
 
@@ -1256,48 +1242,40 @@ ObjectSignAnim::ObjectSignAnim(coorddef *impactVel,int impactAngle,AnimDef *def,
 int ObjectSignAnim::Draw(DRender_tView *Vi,Draw_DCache *sd,int offset)
 
 {
-  ObjectSignAnim *pThis = this;
   int i;
-  int ret;
-  __vtbl_ptr_type (*pa_Var3) [3];
-  Trk_CollideBoomInst *pTVar4;
   ObjectAnim *anim;
   Trk_ObjectDef *pObjDef;
-  ObjectFinishedSignAnim *finishedAnim;
   matrixtdef matrix;
   coorddef animcp;
   coorddef cp;
   int frame;
   int numFrames;
 
-  ret = (pThis->script)->GetTimedAnimPosRot(0, &animcp, &matrix);
-  if (ret + 1U < 2) {
-    finishedAnim = pThis->finishedAnim;
-    i = pThis->simObj->serialNum;
-    pThis->finishedAnim = (ObjectFinishedSignAnim *)0x0;
-    anim = gSimObjAnims[i];
-    if (anim != (ObjectAnim *)0x0) {
-      (*(*anim->_vf)[1].pfn)((int)&anim->_vf + (int)(*anim->_vf)[1].delta,3);
+  if (this->script->GetTimedAnimPosRot(0, &animcp, &matrix) + 1U < 2) {
+    anim = &this->finishedAnim->_base_ObjectAnim;
+    i = this->simObj->serialNum;
+    this->finishedAnim = (ObjectFinishedSignAnim *)0x0;
+    if (gSimObjAnims[i] != (ObjectAnim *)0x0) {
+      (*(*gSimObjAnims[i]->_vf)[1].pfn)
+          ((int)&gSimObjAnims[i]->_vf +
+           (int)(*gSimObjAnims[i]->_vf)[1].delta,3);
     }
-    gSimObjAnims[i] = &finishedAnim->_base_ObjectAnim;
-    pa_Var3 = (finishedAnim->_base_ObjectAnim)._vf;
-    ret = (*(*pa_Var3)[2].pfn)
-                    ((int)finishedAnim + (int)(*pa_Var3)[2].delta,Vi,sd,offset);
+    gSimObjAnims[i] = anim;
+    return (*(*anim->_vf)[2].pfn)
+        ((int)anim + (int)(*anim->_vf)[2].delta,Vi,sd,offset);
   }
   else {
-    pObjDef = pThis->objDef;
-    (pThis->script)->GetTimedAnimPosRot(0, &animcp, &matrix);
-    (pThis->script)->GetAnimFrameInfo(&frame, &numFrames);
-    pTVar4 = pThis->objCollideInstance;
-    cp = *(coorddef *)&pTVar4->x;
+    pObjDef = this->objDef;
+    this->script->GetTimedAnimPosRot(0, &animcp, &matrix);
+    this->script->GetAnimFrameInfo(&frame, &numFrames);
+    cp = *(coorddef *)&this->objCollideInstance->x;
     cp.x += animcp.x;
     cp.y += animcp.y;
     cp.z += animcp.z;
-    BuildObjCollisionMatrix((frame << 0x10) / numFrames,pThis->objectAngle,pThis->impactAngle,&matrix);
+    BuildObjCollisionMatrix((frame << 0x10) / numFrames,this->objectAngle,this->impactAngle,&matrix);
     DrawObjectTransform(Vi,sd,&matrix,pObjDef,&cp,offset,-1);
-    ret = 4;
+    return 4;
   }
-  return ret;
 }
 
 /* ---- ___14ObjectSignAnim  [OBJECT.CPP:?] SLD-FLAG:NO_SLD ---- */

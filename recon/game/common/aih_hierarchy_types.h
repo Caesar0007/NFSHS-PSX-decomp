@@ -172,6 +172,12 @@ struct AICop_PerpChaseInfo {
     copLevel_t *chaseLevel_;
     int totalEngagementPercent_, blockadeDone_;
     int engagementPercentIncreasePerTick_, copFreeTicks_;
+    inline int GetChaseLevelIndex();
+    inline int GetNumLevels();
+    inline copLevel_t *GetChaseLevel();
+    inline int GetChaseTime();
+    inline int IsLastChaseLevel();
+    inline void SetChaseLevel(int level);
 };
 
 struct AIState_Base {

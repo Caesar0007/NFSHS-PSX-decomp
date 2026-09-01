@@ -53,30 +53,20 @@ void AudioClc_SetHorn(Car_tObj *car,int state)
 {
   AudioClc_tSource*s;
   int i;
-  int *piVar1;
-  AudioClc_tSource *pAVar2;
-  int iVar3;
 
-  iVar3 = 0;
-  pAVar2 = AudioClc_gClosest;
-  piVar1 = &AudioClc_gClosest[0].hornCount;
-  do {
-    if (pAVar2->car == car) {
+  for (i = 0, s = AudioClc_gClosest; i < 4; i++, s++) {
+    if (s->car == car) {
       if (state != 0) {
-        pAVar2->horn = 1;
-        pAVar2->hornOn = 0;
+        s->horn = 1;
+        s->hornOn = 0;
       }
-      else if (pAVar2->horn != 0) {
-        pAVar2->horn = 1;
-        pAVar2->hornOn = 1;
-        pAVar2->hornCount = 1;
+      else if (s->horn != 0) {
+        s->horn = 1;
+        s->hornOn = 1;
+        s->hornCount = 1;
       }
     }
-    iVar3 = iVar3 + 1;
-    piVar1 = piVar1 + 0xe;
-    pAVar2 = pAVar2 + 1;
-  } while (iVar3 < 4);
-  return;
+  }
 }
 
 /* ---- AudioClc_HonkHorn__FP8Car_tObjiii  [@0x800747a8] ---- */
@@ -84,25 +74,15 @@ void AudioClc_HonkHorn(Car_tObj *car,int numBeeps,int ticksOn,int ticksOff)
 {
   AudioClc_tSource*s;
   int i;
-  int *piVar1;
-  AudioClc_tSource *pAVar2;
-  int iVar3;
-  
-  iVar3 = 0;
-  pAVar2 = AudioClc_gClosest;
-  piVar1 = &AudioClc_gClosest[0].hornCount;
-  do {
-    if ((pAVar2->car == car) && (pAVar2->horn == 0)) {
-      pAVar2->horn = ticksOn;
-      pAVar2->hornOn = ticksOn;
-      pAVar2->hornOff = -ticksOff;
-      pAVar2->hornCount = numBeeps;
+
+  for (i = 0, s = AudioClc_gClosest; i < 4; i++, s++) {
+    if ((s->car == car) && (s->horn == 0)) {
+      s->horn = ticksOn;
+      s->hornOn = ticksOn;
+      s->hornOff = -ticksOff;
+      s->hornCount = numBeeps;
     }
-    iVar3 = iVar3 + 1;
-    piVar1 = piVar1 + 0xe;
-    pAVar2 = pAVar2 + 1;
-  } while (iVar3 < 4);
-  return;
+  }
 }
 
 /* ---- AudioClc_InitSource__FP16AudioClc_tSourceP8Car_tObj  [@0x80074808] ---- */

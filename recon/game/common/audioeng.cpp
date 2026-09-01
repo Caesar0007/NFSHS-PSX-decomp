@@ -610,23 +610,18 @@ void AudioEng_Resume(void)
 /* ---- AudioEng_CleanUp__Fv  [@0x8007c534] ---- */
 void AudioEng_CleanUp(void)
 {
-  /* SLD exposes only g=$s2 and i=$s1. Keeping the outer table as an array
-     reference and indexing left/right from g reproduces retail's s5 base,
-     s3 cursor, and s0=g anchor; the remaining four prologue diffs are the
-     address-materialization scheduling choice (v0->s5 versus direct s5). */
-  u_int noHandle;
-  AudioEng_t *(&base)[2] = AudioEng_g;
-  AudioEng_t **current;
+  /* SYM-CODEGEN-CARRIER: player -- the PSX retail loop advances through the
+   * two AudioEng_g entries in s3 while retaining the table base in s5.  The
+   * optimized local has no SYM record, but the confirmed PC twin performs
+   * the same teardown once per explicit player argument.  An indexed
+   * two-player loop reproduces the exact 56 instructions; the previous
+   * base/current/noHandle reconstruction required three unrecorded aliases. */
+  int player;
 
-  noHandle = 0xffffffff;
-  current = base;
-  while (true) {
+  for (player = 0; player < 2; player++) {
     AudioEng_t *g;
 
-    if ((int)(base + 2) <= (int)current) {
-      return;
-    }
-    g = *current;
+    g = AudioEng_g[player];
     if (g == (AudioEng_t *)0x0) {
       break;
     }
@@ -634,19 +629,18 @@ void AudioEng_CleanUp(void)
       int i;
 
       for (i = 0; i < 0x10; i++) {
-        if (g->left[i].handle != noHandle) {
+        if (g->left[i].handle != 0xffffffff) {
           SNDstop(g->left[i].handle);
-          if (g->right[i].handle != noHandle) {
+          if (g->right[i].handle != 0xffffffff) {
             SNDstop(g->right[i].handle);
           }
-          g->left[i].handle = noHandle;
-          g->right[i].handle = noHandle;
+          g->left[i].handle = 0xffffffff;
+          g->right[i].handle = 0xffffffff;
         }
       }
     }
     purgememadr(g->tables);
     purgememadr(g);
-    *current = (AudioEng_t *)0x0;
-    current++;
+    AudioEng_g[player] = (AudioEng_t *)0x0;
   }
 }

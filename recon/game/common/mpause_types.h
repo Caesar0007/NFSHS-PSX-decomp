@@ -114,6 +114,38 @@ struct tPMenuItem {
     void ProcessInput(tInputKeyType &, tPMenuCommand &);
     bool IsEnabled();
     bool IsDisabled();
+    inline tPMenu *VirtualNextMenu() {
+        return (tPMenu *)(*(*_vf)[2].pfn)((int)&fFlags + (*_vf)[2].delta);
+    }
+    inline void VirtualProcessInput(tInputKeyType &key,
+                                    tPMenuCommand &command) {
+        (*(*_vf)[4].pfn)((int)&fFlags + (*_vf)[4].delta, &key, &command);
+    }
+    inline int VirtualIsNavigable() {
+        return (*(*_vf)[5].pfn)((int)&fFlags + (*_vf)[5].delta);
+    }
+    /* SYM-INLINE-FACADE: Initialize's SLD records the inlined tPMenuItem
+       `this` but no named condition result.  Retail materializes the two
+       compound predicates as int 0/1 values in a0 and s0.  These facades
+       preserve that proven inline boundary; SYM cannot recover whether EA
+       spelled them as helpers, macros, or repeated expressions. */
+    inline int IsEnabledAndNavigable() {
+        int result = false;
+        if (((fFlags ^ 1) & 1) != 0) {
+            result = VirtualIsNavigable() != 0;
+        }
+        return result;
+    }
+    inline int IsDisabledOrNotNavigable() {
+        int result = false;
+        if (((fFlags & 1) != 0) || (VirtualIsNavigable() == 0)) {
+            result = true;
+        }
+        return result;
+    }
+    inline void Draw(bool selected) {
+        (*(*_vf)[6].pfn)((int)&fFlags + (*_vf)[6].delta, selected);
+    }
 };
 struct tPMenuItemNonInteractiveText : public tPMenuItem {
     tPMenuItemNonInteractiveText(unsigned int);

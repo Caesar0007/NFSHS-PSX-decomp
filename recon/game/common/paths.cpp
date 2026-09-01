@@ -19,9 +19,13 @@ void Paths_StartUp(void)
 {
   int dirCounter;
   char *scan;
-  char *frontPath;
-  char **pathTable;
-  int deadfrm[5];  /* MATCH: unused frame filler — SYM shows scan as class AUTO @-8 (0x18 frame in the oracle); 20 dead bytes reproduce it */
+  /* SYM-CODEGEN-CARRIER: scanFrame -- trusted SYM places scan in an AUTO
+   * slot at -8 and retail retains a 24-byte leaf frame although all runtime
+   * uses are promoted to a0.  This compiler drops scan's home entirely;
+   * reserving the equivalent 20-byte local area restores only the retail
+   * prologue/epilogue.  Taking &scan in dead source is folded too early;
+   * __builtin_alloca adds four unwanted frame-pointer instructions. */
+  int scanFrame[5];
 
   scan = burnPath;
   dirCounter = 0x31;
@@ -29,10 +33,8 @@ void Paths_StartUp(void)
     Paths_Paths[dirCounter] = scan;
     dirCounter = dirCounter + -1;
   } while (-1 < dirCounter);
-  pathTable = Paths_Paths;
-  frontPath = fePath;
-  pathTable[0x24] = frontPath;
-  pathTable[0x20] = frontPath;
+  Paths_Paths[0x24] = fePath;
+  Paths_Paths[0x20] = fePath;
   return;
 }
 

@@ -373,22 +373,25 @@ void BWorld_SetSimSlice(BWorldSm_Pos *slicePos)
 /* ---- BworldSm_UpdateSimQuad__FP12BWorldSm_Pos  [@0x8007f094] ---- */
 void BworldSm_UpdateSimQuad(BWorldSm_Pos *slicePos)
 {
-  Trk_NewSimSlice *pTVar2;
+  /* SYM-CODEGEN-CARRIER: iVar3 -- the retail local map records only
+   * simIndex in a2.  Folding this delta into simIndex swaps the live
+   * sim-slice base from a1 to a2 and produces 28 instruction diffs;
+   * repeating the expression produces 34 diffs.  This short-lived alias
+   * preserves the exact retail allocation while the later, recorded
+   * simIndex retains its original name and scope. */
   int iVar3;
   int simIndex;
-  Trk_NewSimQuad*startsimquad;
-  Group *pGVar1;
 
-  pTVar2 = slicePos->simSlice;
-  iVar3 = (int)(signed char)slicePos->quad - (u_int)pTVar2->simquadStartIndex;
-  /* w64-a22: the former net-zero ++/-- pair here was DEAD CODE at HEAD
-   * (PASS 34/34 without it, re-gated 2x on all lanes); its in-source claim
-   * was adjudicated false -- catalog row re-classed fix -> diagnostic. */
-  if ((-1 < iVar3) && (iVar3 < (int)(u_int)pTVar2->simquadCount)) {
-    pGVar1 = Track_chunkList[slicePos->chunk].simQuadBuf;
-    startsimquad = (Trk_NewSimQuad *)(pGVar1 + 1);
+  iVar3 = (int)(signed char)slicePos->quad -
+          (u_int)slicePos->simSlice->simquadStartIndex;
+  if ((-1 < iVar3) &&
+      (iVar3 < (int)(u_int)slicePos->simSlice->simquadCount)) {
+    Trk_NewSimQuad *startsimquad;
+
+    startsimquad = (Trk_NewSimQuad *)
+        (Track_chunkList[slicePos->chunk].simQuadBuf + 1);
     slicePos->simQuad = startsimquad;
-    simIndex = (u_int)slicePos->simSlice->simquadIndex + iVar3;  /* MATCH: re-read via slicePos (cse -> addu v0,a1 copy), not pTVar2 direct */
+    simIndex = (u_int)slicePos->simSlice->simquadIndex + iVar3;
     slicePos->simQuad = (Trk_NewSimQuad *)((int)startsimquad + simIndex);
     return;
   }

@@ -81,7 +81,17 @@ struct Speaker {
     int fCar, fLocation, fFrom, fTo, fWing;
     bool fHavePerp;
     Speaker *fSub;
-    __vtbl_ptr_type (*_vf)[31];
+    virtual void Report(Car_tObj *cop);
+    virtual void Status();
+    virtual void Deny();
+    virtual void Grant();
+    virtual void Ready(Car_tObj *wing);
+    virtual void Engage(Car_tObj *perp);
+    virtual void Lose();
+    virtual void Accident(int slice);
+    virtual void Catch(int ticket);
+    virtual void RoadBlock();
+    virtual void SpikeBelt();
 };
 
 struct AITrigger_TriggerManager {

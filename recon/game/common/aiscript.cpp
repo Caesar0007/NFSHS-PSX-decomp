@@ -78,13 +78,22 @@ void AIScript_ProcessActionsAndReactions(AIScript_t *script,int elapsedTicks)
 {
   AIScript_tReactionDetails (*scriptData) [7];
   int go;
+  /* SYM-CODEGEN-CARRIER: one -- direct literal 1 usage adds one instruction
+     and changes constant/table allocation to 47 diffs. */
   int one;
+  /* SYM-CODEGEN-CARRIER: seven -- direct literal 7 stores remove one
+     instruction and change constant allocation/control flow to 15 diffs. */
   int seven;
+  /* SYM-CODEGEN-CARRIER: two -- direct literal 2 preserves 90 instructions
+     but changes shift selection and comparison allocation to eight diffs. */
   int two;
   int *lastReactionIndex;
-  AIScript_tReactionDetails *new_var2;   /* *scriptData hoisted once -> lets gcc color the table base + offset like the oracle */
+  /* SYM-CODEGEN-CARRIER: new_var2 -- spelling (*scriptData) directly preserves
+     90 instructions but changes table-base/constant allocation to 24 diffs. */
+  AIScript_tReactionDetails *new_var2;
+  /* SYM-CODEGEN-CARRIER: new_var -- assigning *lastReactionIndex directly
+     preserves all 90 instructions but moves one store, yielding two diffs. */
   unsigned int new_var;
-  int iVar2;
   AIScript_tAIReaction newReaction;
   int newTime;
 
@@ -102,13 +111,12 @@ void AIScript_ProcessActionsAndReactions(AIScript_t *script,int elapsedTicks)
       seven = 7;
       two = 2;
       script->reactionIndex = new_var;
-      new_var2 = *scriptData;   /* dereference once */
+      new_var2 = *scriptData;
      loopTop:
       if (go != 0) {
-        iVar2 = script->reactionIndex + 1;
-        if ((iVar2 < 4) &&
-           ((newReaction = one << (unsigned char)new_var2[script->actionIndex].reaction[iVar2]) != two)) {
-          script->reactionIndex = iVar2;
+        if ((script->reactionIndex + 1 < 4) &&
+           ((newReaction = one << (unsigned char)new_var2[script->actionIndex].reaction[script->reactionIndex + 1]) != two)) {
+          script->reactionIndex = script->reactionIndex + 1;
           do { *lastReactionIndex = *lastReactionIndex + 1; } while (0);  /* block scope nudges gcc's store scheduling to match */
         }
         newReaction = one << (unsigned char)new_var2[script->actionIndex].reaction[script->reactionIndex];

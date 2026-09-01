@@ -160,11 +160,20 @@ void AIPerson_LoadScriptData(Udff_tInfo *handle)
   int perLoop;
   int actionLoop;
   int reactionLoop;
+  /* SYM-CODEGEN-CARRIER: byteOffset -- deriving perLoop * 0x38 directly keeps
+     55 instructions but changes induction/allocation at 12 positions. */
   int byteOffset;
+  /* SYM-CODEGEN-CARRIER: actionMul -- spelling actionLoop * 8 directly keeps
+     55 instructions but swaps the two address terms at eight positions. */
   int actionMul;
+  /* SYM-CODEGEN-CARRIER: byteOff2 -- using byteOffset directly removes three
+     instructions and changes frame/register allocation to 31 diffs. */
   int byteOff2;
+  /* SYM-CODEGEN-CARRIER: scriptBase -- spelling AIPerson_ScriptData directly
+     adds three instructions and changes address formation to 13 diffs. */
   int scriptBase;
-  char *addr;
+  /* SYM-CODEGEN-CARRIER: iVar1 -- direct first-byte assignment preserves the
+     55-instruction count but changes call setup/scheduling at six positions. */
   int iVar1;
 
   Udff_GetInt(handle);
@@ -182,9 +191,10 @@ void AIPerson_LoadScriptData(Udff_tInfo *handle)
         byteOff2 = byteOffset;
         do {
           iVar1 = Udff_GetInt(handle);
-          addr = (char *)(reactionLoop + actionMul + byteOff2 + scriptBase);
-          addr[0] = (char)iVar1;
-          addr[4] = (char)Udff_GetInt(handle);
+          *(char *)(reactionLoop + actionMul + byteOff2 + scriptBase) =
+              (char)iVar1;
+          *(char *)(reactionLoop + actionMul + byteOff2 + scriptBase + 4) =
+              (char)Udff_GetInt(handle);
           reactionLoop = reactionLoop + 1;
         } while (reactionLoop < 4);
         actionLoop = actionLoop + 1;
@@ -202,11 +212,6 @@ void AIPerson_LoadScriptData(Udff_tInfo *handle)
 void AIPerson_LoadGlue(Udff_tInfo *handle)
 {
   int glueLoop;
-  int iVar1;
-  int b;
-  int *piVar2;
-  int iVar3;
-  int cmp;
 
   Udff_GetInt(handle);
   Udff_GetBuffer(handle,(char *)AIPerson_glueTable,0x54);
@@ -214,25 +219,16 @@ void AIPerson_LoadGlue(Udff_tInfo *handle)
      (((AIPERSON_RACE_TYPE != RaceType_HotPursuit && (AIPERSON_RACE_TYPE != RaceType_Id5)) ||
       ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) == 0 &&
        ((Cars_gNumHumanRaceCars != 2 || (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) == 0)))))))) {
-    iVar3 = 0;
-    piVar2 = AIPerson_glueTable;
-    do {
-      iVar1 = *piVar2;
-      cmp = 0x10000;
-      if (cmp < iVar1) {
-        b = 0x12666;
-        goto LAB_8006905c;
+    for (glueLoop = 0; glueLoop < 0x15; glueLoop++) {
+      if (0x10000 < AIPerson_glueTable[glueLoop]) {
+        AIPerson_glueTable[glueLoop] =
+            fixedmult(AIPerson_glueTable[glueLoop],0x12666);
       }
-      cmp = 0xffff;
-      if (cmp < iVar1) goto LAB_skip;
-      b = 0xd999;
-LAB_8006905c:
-      iVar1 = fixedmult(iVar1,b);
-      *piVar2 = iVar1;
-LAB_skip:
-      iVar3 = iVar3 + 1;
-      piVar2 = piVar2 + 1;
-    } while (iVar3 < 0x15);
+      else if (AIPerson_glueTable[glueLoop] < 0x10000) {
+        AIPerson_glueTable[glueLoop] =
+            fixedmult(AIPerson_glueTable[glueLoop],0xd999);
+      }
+    }
   }
   return;
 }

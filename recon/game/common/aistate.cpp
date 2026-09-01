@@ -982,34 +982,28 @@ void AIState_Chase::CloseTargeting()
   }
 
   {
-    int t = this->latMetersBetween_ * dir;
-    int x = (this->targetCar_->N).dimension.x;
-    if (t < -x) {
+    if (this->latMetersBetween_ * dir < -(this->targetCar_->N).dimension.x) {
       latPos = -1;
     }
-    else if (x < t) {
+    else if ((this->targetCar_->N).dimension.x < this->latMetersBetween_ * dir) {
       latPos = 1;
     }
   }
 
   {
-    int t = this->longMetersBetween_ * dir;
-    int z = (this->targetCar_->N).dimension.z;
-    if (t < 0x20000 - z) {
+    if (this->longMetersBetween_ * dir < 0x20000 - (this->targetCar_->N).dimension.z) {
       longPos = -1;
     }
-    else if (z + 0x20000 < t) {
+    else if ((this->targetCar_->N).dimension.z + 0x20000 < this->longMetersBetween_ * dir) {
       longPos = 1;
     }
   }
 
   {
-    int t = this->longMetersBetween_ * dir;
-    int z = (this->targetCar_->N).dimension.z + 0x20000;
-    if (t < -z) {
+    if (this->longMetersBetween_ * dir < -((this->targetCar_->N).dimension.z + 0x20000)) {
       bigLongPos = -1;
     }
-    else if (z < t) {
+    else if ((this->targetCar_->N).dimension.z + 0x20000 < this->longMetersBetween_ * dir) {
       bigLongPos = 1;
     }
   }
@@ -1079,6 +1073,8 @@ LAB_80070704:
   (this->carObj_)->desiredSpeed = __builtin_abs((this->carObj_)->desiredSpeed);
 
   {
+    /* SYM-CODEGEN-CARRIER: t -- direct in-place MIN/MAX updates remove two
+       instructions and produce 16 diffs (298/300). */
     int t = (this->carObj_)->desiredSpeed;
     if (desiredSpeed < t) {
       t = desiredSpeed;
@@ -1136,8 +1132,9 @@ LAB_80070704:
       targetLanePosition = (this->delayCar_).roadPosition_;
     }
     else {
+      /* SYM-CODEGEN-CARRIER: latOffset -- reusing targetLanePosition for the
+         selected offset preserves 300 instructions but changes eight words. */
       int latOffset;
-      int slicePtr;
 
       /* W63-A12 SEAL (15 -> PASS 300/300, psyqproof REAL=0).  Retail fills the
        * `beqz $s6` (forceLatAction) delay slot with `lui $v1,0x60000` -- i.e. the
@@ -1156,6 +1153,8 @@ LAB_80070704:
        * branch => reorg fills the slot => PASS.  General rule: when an opacity fence is
        * used to mint a constant for a DELAY SLOT, the fence must sit AFTER the consumer,
        * never between the def and the branch. */
+      /* SYM-CODEGEN-CARRIER: latBias -- inlining 0x60000 produces 15 diffs
+         and one extra instruction (301/300); its empty fence emits no code. */
       int latBias;
       latBias = 0x60000;
       if (forceLatAction != 0) {
@@ -1173,8 +1172,6 @@ LAB_80070704:
        * (targettingStrength a3 instead of t0).  78 -> 59 on its own. */
       __asm__("" : : "i"(0));
 
-      slicePtr = ((this->carObj_)->N).simRoadInfo.slice * 0x20 + (int)AIState_BWorldSmSlices;
-
       /* W62-A9 CLAMP FUNNEL (SYM 8c: retail declares ONLY targettingStrength ($8=t0)
        * and targetLanePosition ($4=a0) -- latOffset/slicePtr are Ghidra-invented, so
        * each clamp used a FRESH block temp and copied BACK into targetLanePosition.
@@ -1183,14 +1180,16 @@ LAB_80070704:
        * with `* 0x8000` gcc reassociates it onto the other operand and swaps the
        * mult's operand registers.  59 -> 27 (funnel) -> 15 (shift form). */
       {
-        int limit = -(((u_int)*(u_char *)(slicePtr + 0x1e) << 0xf) * (u_int)(*(u_char *)(slicePtr + 0x1d) >> 4));
+        /* SYM-CODEGEN-CARRIER: limit -- direct in-place MAX/MIN clamps lose
+           one instruction and produce 43 and seven diffs respectively. */
+        int limit = -(((u_int)AISTATE_SLICE_BYTE((this->carObj_)->N.simRoadInfo.slice,0x1e) << 0xf) * (u_int)(AISTATE_SLICE_BYTE((this->carObj_)->N.simRoadInfo.slice,0x1d) >> 4));
         if (limit < targetLanePosition) {
           limit = targetLanePosition;
         }
         targetLanePosition = limit;
       }
       {
-        int limit = ((u_int)*(u_char *)(slicePtr + 0x1f) << 0xf) * (u_int)(*(u_char *)(slicePtr + 0x1d) & 0xf);
+        int limit = ((u_int)AISTATE_SLICE_BYTE((this->carObj_)->N.simRoadInfo.slice,0x1f) << 0xf) * (u_int)(AISTATE_SLICE_BYTE((this->carObj_)->N.simRoadInfo.slice,0x1d) & 0xf);
         if (targetLanePosition < limit) {
           limit = targetLanePosition;
         }
@@ -2038,33 +2037,23 @@ extern "C" void ___17AIState_Purgatory(AIState_Purgatory *pThis,int __in_chrg)
   int search;
   Car_tObj*test;
 
-  Car_tObj *pCVar1;
-
-  Car_tObj *pCVar2;
-
-  Car_tObj *pCVar4;
-
-  Car_tObj *pCVar6;
-
-  int iVar2;
-
-
+  /* SYM-CODEGEN-CARRIER: ppCVar3 -- reusing sortedList as the scan cursor
+     loses one instruction and produces 15 diffs (71/72). */
   Car_tObj **ppCVar3;
+  /* SYM-CODEGEN-CARRIER: sortedList -- direct Cars_gSortedList addition
+     preserves 72 instructions but changes the final ready-list pair. */
   Car_tObj **sortedList;
 
-
-
-  pCVar1 = pThis->carObj_;
-
+  /* SYM-CODEGEN-CARRIER: pCVar4 -- direct repeated carObj_ member stores
+     preserve 72 instructions but change 32 retail words. */
+  Car_tObj *pCVar4;
   pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_Purgatory_vtable;
 
-  (pCVar1->collision).resetTimer = 0;
+  (pThis->carObj_->collision).resetTimer = 0;
 
   ((pThis->carObj_)->N).collision.disableCollisionTimer = 0;
 
-  pCVar2 = pThis->carObj_;
-
-  pCVar2->AIFlags = pCVar2->AIFlags & 0xfffffffb;
+  pThis->carObj_->AIFlags = pThis->carObj_->AIFlags & 0xfffffffb;
 
   if (((pThis->carObj_)->carFlags & 0x10U) != 0) {
 
@@ -2082,8 +2071,8 @@ extern "C" void ___17AIState_Purgatory(AIState_Purgatory *pThis,int __in_chrg)
    * materialization, the scaled-index add and the `bltz` test) on retail line 1034 -- i.e.
    * AFTER the line-1031 direction/desiredDirection stores; our loop-init statements sat
    * BEFORE them, which flipped the sll-vs-la ready-list order.  The read-only fence is a
-   * 0-insn +1 ref on iVar2 (5->6 = the floor_log2 step), the MINIMAL reqdelta dial that
-   * swaps iVar2/ppCVar3 onto retail's $a0/$a2 (ours had them reversed).
+   * 0-insn +1 ref on search (5->6 = the floor_log2 step), the MINIMAL reqdelta dial that
+   * swaps search/ppCVar3 onto retail's $a0/$a2 (ours had them reversed).
    * HISTORICAL RESIDUAL 2 diffs (72/72): the `sll v1,a0,2` scheduled before
    * the &Cars_gSortedList base (lui/addiu) in ours, after it in retail -- a pure
    * sched1 ready-list tie.  W56-A16 FALSIFIED: `&Cars_gSortedList[iVar2]`
@@ -2127,15 +2116,15 @@ extern "C" void ___17AIState_Purgatory(AIState_Purgatory *pThis,int __in_chrg)
    * expression.  This preserves the count/allocation and changes expand's
    * operand birth order just enough to emit the retail lui/addiu before sll.
    * No post-cc1 relocation is required. */
-  iVar2 = Cars_gNumCars + -1;
+  search = Cars_gNumCars + -1;
 
-  ppCVar3 = (sortedList = Cars_gSortedList, sortedList + iVar2);
+  ppCVar3 = (sortedList = Cars_gSortedList, sortedList + search);
 
-  __asm__("" : : "r"(iVar2));
+  __asm__("" : : "r"(search));
 
 LOOP_800716DC:
 
-  if (-1 < iVar2) {
+  if (-1 < search) {
 
     test = *ppCVar3;
 
@@ -2143,7 +2132,7 @@ LOOP_800716DC:
 
     if ((test->carFlags & 0x100U) == 0) {
 
-      iVar2 = iVar2 + -1;
+      search = search + -1;
 
       goto LOOP_800716DC;
 
@@ -2153,13 +2142,11 @@ LOOP_800716DC:
 
   }
 
-  pCVar6 = pThis->carObj_;
-
   pThis->_vf =
 
        (__vtbl_ptr_type (*) [4])((char *)AIState_NonActive_vtable + 8);
 
-  (pCVar6->N).active = '\x01';
+  (pThis->carObj_->N).active = '\x01';
 
   pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
 
@@ -2293,30 +2280,15 @@ AIState_RovingTraffic::AIState_RovingTraffic(Car_tObj *carObj,trigger_t *trigger
 
 /* ---- CheckIfCarIsNearbyAndStop__21AIState_RovingTrafficP8Car_tObjRi  AIState_RovingTraffic::CheckIfCarIsNearbyAndStop  [AISTATE.CPP:1130-1169] SLD-VERIFIED ---- */
 
-void AIState_RovingTraffic::CheckIfCarIsNearbyAndStop(Car_tObj *otherCarObj,int &status_r)
+void AIState_RovingTraffic::CheckIfCarIsNearbyAndStop(Car_tObj *otherCarObj,int &status)
 
 
 
 {
-  int *status = &status_r;   /* R-ref param; alias keeps the pointer-form body codegen-identical */
   int distance;
   coorddef posDiff;
 
-  int iVar1;
-
-  int iVar2;
-
-  int iVar5;
-
-  int sum;
-
-  Car_tObj *carObj;
-
-  
-
-  carObj = this->carObj_;
-
-  if (carObj == otherCarObj) goto LAB_STATUS2;
+  if (this->carObj_ == otherCarObj) goto LAB_STATUS2;
 
   if ((otherCarObj->N).active == '\0') goto LAB_STATUS2;
 
@@ -2325,7 +2297,7 @@ void AIState_RovingTraffic::CheckIfCarIsNearbyAndStop(Car_tObj *otherCarObj,int 
    * nop in the jal slot; retail rematerializes `addu a1,s0,zero` there. */
   __asm__("" : "=r"(otherCarObj) : "0"(otherCarObj));
 
-  distance = AIWorld_SplineDistance(carObj,otherCarObj);
+  distance = AIWorld_SplineDistance(this->carObj_,otherCarObj);
 
   if (0 < distance) {
 
@@ -2341,17 +2313,11 @@ void AIState_RovingTraffic::CheckIfCarIsNearbyAndStop(Car_tObj *otherCarObj,int 
 
   if (0xc0000 < distance) goto LAB_STATUS0;
 
-  iVar5 = otherCarObj->roadPosition;
+  if (0 < this->carObj_->roadPosition - otherCarObj->roadPosition) {
 
-  iVar2 = (this->carObj_)->roadPosition;
+    if (0x9ffff < this->carObj_->roadPosition - otherCarObj->roadPosition) {
 
-  iVar1 = iVar2 - iVar5;
-
-  if (0 < iVar1) {
-
-    if (0x9ffff < iVar1) {
-
-      *status = 2;
+      status = 2;
 
       return;
 
@@ -2361,7 +2327,8 @@ void AIState_RovingTraffic::CheckIfCarIsNearbyAndStop(Car_tObj *otherCarObj,int 
 
   else {
 
-    if (0x9ffff < iVar5 - iVar2) goto LAB_STATUS2;
+    if (0x9ffff < otherCarObj->roadPosition - this->carObj_->roadPosition)
+      goto LAB_STATUS2;
 
   }
 
@@ -2370,12 +2337,6 @@ void AIState_RovingTraffic::CheckIfCarIsNearbyAndStop(Car_tObj *otherCarObj,int 
   posDiff.y = (otherCarObj->N).position.y - ((this->carObj_)->N).position.y;
 
   posDiff.z = (otherCarObj->N).position.z - ((this->carObj_)->N).position.z;
-
-  sum = fixedmult(((this->carObj_)->N).orientMat.m[6],posDiff.x) +
-
-        fixedmult(((this->carObj_)->N).orientMat.m[7],posDiff.y) +
-
-        fixedmult(((this->carObj_)->N).orientMat.m[8],posDiff.z);
 
   /* CORRECTNESS (w65-a2, REVERSES the w13-a5 note above it): retail's `blez $s0` at
      0x80071A0C encodes offset 0x000F -> .L80071A4C = the EPILOGUE, NOT the
@@ -2386,25 +2347,27 @@ void AIState_RovingTraffic::CheckIfCarIsNearbyAndStop(Car_tObj *otherCarObj,int 
      branch TARGET to `T`); `tools/brdist.py` reported it as (9, 15, 16).  Bare
      `return;` reproduces retail's branch word and drops the spurious store. */
 
-  if (sum <= 0) return;
+  if (fixedmult(this->carObj_->N.orientMat.m[6],posDiff.x) +
+      fixedmult(this->carObj_->N.orientMat.m[7],posDiff.y) +
+      fixedmult(this->carObj_->N.orientMat.m[8],posDiff.z) <= 0) return;
 
   AudioClc_HonkHorn(this->carObj_,4,0x10,8);
 
   (this->carObj_)->desiredSpeed = 0;
 
-  *status = 1;
+  status = 1;
 
   return;
 
 LAB_STATUS2:
 
-  *status = 2;
+  status = 2;
 
   return;
 
 LAB_STATUS0:
 
-  *status = 0;
+  status = 0;
 
   return;
 
@@ -2427,13 +2390,13 @@ void AIState_RovingTraffic::Execute()
   coorddef carRelativeForLatPos;
   coorddef carRelativeForDistance;
 
-  Car_tObj *pCVar4;
-
+  /* SYM-CODEGEN-CARRIER: iVar8 -- shifting carRelativeForDistance.z in place
+     removes one retail instruction and changes operand allocation to 17 diffs. */
   int iVar8;
 
+  /* SYM-CODEGEN-CARRIER: iVar9 -- shifting carRelativeForDistance.x in place
+     removes two retail instructions and changes allocation to 38 diffs. */
   int iVar9;
-
-  Car_tObj **ppCVar10;
 
     /* W57-A11: SLD gives ONE retail line (1177) for the whole 3-word copy and the oracle
      uses t0/t1/t2 -- that is gcc's movstrsi 12-byte STRUCT ASSIGNMENT, not three per-field
@@ -2503,8 +2466,6 @@ void AIState_RovingTraffic::Execute()
 
   search = (this->carObj_)->sortIndex + 1;
 
-  ppCVar10 = Cars_gSortedList + search;
-
   /* EXIT-IN-THE-MIDDLE (catalog §B row 51/56) -- oracle keeps a single TOP-test
      block reached both by fallthrough and by an unconditional j back-edge; a
      natural while(cond){...} gets ROTATED by gcc to a bottom bnez-test. */
@@ -2513,11 +2474,7 @@ void AIState_RovingTraffic::Execute()
 
     if (!(search < Cars_gNumCars && (status == 2))) break;
 
-    pCVar4 = *ppCVar10;
-
-    this->CheckIfCarIsNearbyAndStop(pCVar4,status);
-
-    ppCVar10 = ppCVar10 + 1;
+    this->CheckIfCarIsNearbyAndStop(Cars_gSortedList[search],status);
 
     search = search + 1;
 
@@ -2529,17 +2486,11 @@ void AIState_RovingTraffic::Execute()
 
     search = (this->carObj_)->sortIndex + -1;
 
-    ppCVar10 = Cars_gSortedList + search;
-
     while (true) {
 
       if (!(-1 < search && (status == 2))) break;
 
-      pCVar4 = *ppCVar10;
-
-      this->CheckIfCarIsNearbyAndStop(pCVar4,status);
-
-      ppCVar10 = ppCVar10 + -1;
+      this->CheckIfCarIsNearbyAndStop(Cars_gSortedList[search],status);
 
       search = search + -1;
 
@@ -2894,13 +2845,21 @@ void AIState_GotoSlice::Execute()
        `negu a2,a0; slt v0,a2,a3` / `beqz v0; nop; addu a2,a3,zero; sw a2`).  The previous
        per-arm field-assignment form duplicated the tail (74 vs 70 insns). */
     {
+      /* SYM-CODEGEN-CARRIER: carObj -- the cached object plus one read-only
+         reference is the measured minimum dial for retail's a0 cap seat. */
       Car_tObj *carObj = this->carObj_;
+      /* SYM-CODEGEN-CARRIER: desiredSpeed -- the captured field value preserves
+         retail's a3 compare web and final reload/copy schedule. */
       int desiredSpeed = carObj->desiredSpeed;
       /* W54-A15 REF-STEP (reqdelta): +1 ref on carObj (3->4 = the floor_log2 1->2 step) is the
          MINIMAL dial that moves the speed CAP off $a3 onto retail's $a0 (and desiredSpeed
          a2->a3); 0 insns. */
       __asm__("" : : "r"(carObj));
+      /* SYM-CODEGEN-CARRIER: limit -- the shared signed clamp result enables
+         retail's single cross-jumped assignment tail (70 versus 74 insns). */
       int limit;
+      /* SYM-CODEGEN-CARRIER: inRange -- the shared predicate and measured +1
+         reference rotate desiredSpeed/limit/predicate onto a3/a2/v0. */
       int inRange;
 
       if (desiredSpeed >= 0) {

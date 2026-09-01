@@ -85,32 +85,24 @@ void R3DCar_InsertAllListFacet(DRender_tView *Vi);
 void R3DCar_ChangeTrafficColor(Car_tObj *carObj,int newColorIndex)
 
 {
-  int iVar1;
-  u_int uVar4;
-  u_short uVar2;
-  Texture_pal8bit *palCopy;
   int color;
 
-  uVar4 = newColorIndex;
   if ((carObj->render).palCopy != (char *)0x0) {
-    uVar4 = uVar4 & 7;
-    uVar2 = (carObj->render).colorIndex;
-    color = (uVar2 & 8) + uVar4;
-    if (color != (short)uVar2) {
+    newColorIndex = newColorIndex & 7;
+    color = ((carObj->render).colorIndex & 8) + newColorIndex;
+    if (color != (short)(carObj->render).colorIndex) {
       DrawSync(0);
       if ((carObj->render).currentCarType < 0x1c) {
-        Texture_CarColor = uVar4 + ((u_char)(carObj->render).upgradeFlags & 2) * 4;
+        Texture_CarColor = newColorIndex + ((u_char)(carObj->render).upgradeFlags & 2) * 4;
         Texture_ProcessPaletteCopy((Texture_pal8bit *)(carObj->render).palCopy,0,1);
-        palCopy = (Texture_pal8bit *)(carObj->render).palCopy;
-        iVar1 = (carObj->render).palNum;
-        Texture_CarColor = uVar4 + ((u_char)(carObj->render).upgradeFlags & 1) * 8;
-        Texture_ProcessPaletteCopy(palCopy,1,iVar1);
+        Texture_CarColor = newColorIndex + ((u_char)(carObj->render).upgradeFlags & 1) * 8;
+        Texture_ProcessPaletteCopy((Texture_pal8bit *)(carObj->render).palCopy,1,
+                                   (carObj->render).palNum);
       }
       else {
-        palCopy = (Texture_pal8bit *)(carObj->render).palCopy;
-        iVar1 = (carObj->render).palNum;
-        Texture_CarColor = uVar4;
-        Texture_ProcessPaletteCopy(palCopy,0,iVar1);
+        Texture_CarColor = newColorIndex;
+        Texture_ProcessPaletteCopy((Texture_pal8bit *)(carObj->render).palCopy,0,
+                                   (carObj->render).palNum);
       }
       (carObj->render).colorIndex = (short)color;
     }
@@ -175,10 +167,20 @@ void R3DCar_Restart(void)
 
 {
   int i;
+  /* SYM-CODEGEN-CARRIER: numCars -- direct Cars_gNumCars loop testing adds one
+     instruction and changes preheader/loop allocation to 19 diffs. */
   int numCars;
+  /* SYM-CODEGEN-CARRIER: gsData -- direct GameSetup_gData.Time access removes
+     one instruction and changes loop allocation to 21 diffs. */
   R3DCar_GameSetupCodegenView *gsData;
+  /* SYM-CODEGEN-CARRIER: headOn -- direct 0x33 storage removes one instruction
+     and changes the light-store allocation to nine diffs. */
   short headOn;
+  /* SYM-CODEGEN-CARRIER: brakeOn -- direct constant storage removes one
+     instruction and changes the light-store allocation to 13 diffs. */
   short brakeOn;
+  /* SYM-CODEGEN-CARRIER: ppCVar3 -- indexed Cars_gList[i] access preserves the
+     30-instruction count but recolors the loop to 32 diffs. */
   Car_tObj **ppCVar3;
   Car_tObj *carObj;
 
@@ -401,31 +403,23 @@ R3DCar_objects_done:
 void R3DCcar_ReadeMapData(void)
 
 {
-  char *addr;
-  int iVar1;
-  R3DCar_tEnvMapInfo *pRVar2;
   int i;
-  int iVar3;
   char *RenderingFileData;
   char name [256];
   char *ScaneData;
   
   sprintf(name,"%scarmap.dat",Paths_Paths[0x19]);
-  iVar3 = 0;
-  addr = (char *)loadfileadr(name,0x10);
-  ScaneData = addr;
+  i = 0;
+  RenderingFileData = (char *)loadfileadr(name,0x10);
+  ScaneData = RenderingFileData;
   do {
-    iVar1 = Risk_ReadNextValue(&ScaneData);
-    R3DCar_EnvMapInfo[iVar3].eScaleX = iVar1;
-    iVar1 = Risk_ReadNextValue(&ScaneData);
-    R3DCar_EnvMapInfo[iVar3].eScaleY = iVar1;
-    iVar1 = Risk_ReadNextValue(&ScaneData);
-    R3DCar_EnvMapInfo[iVar3].rideHeight = iVar1;
-    iVar1 = Risk_ReadNextValue(&ScaneData);
-    R3DCar_EnvMapInfo[iVar3].upgradeHeight = iVar1;
-    iVar3 = iVar3 + 1;
-  } while (iVar3 < 0x1c);
-  purgememadr(addr);
+    R3DCar_EnvMapInfo[i].eScaleX = Risk_ReadNextValue(&ScaneData);
+    R3DCar_EnvMapInfo[i].eScaleY = Risk_ReadNextValue(&ScaneData);
+    R3DCar_EnvMapInfo[i].rideHeight = Risk_ReadNextValue(&ScaneData);
+    R3DCar_EnvMapInfo[i].upgradeHeight = Risk_ReadNextValue(&ScaneData);
+    i = i + 1;
+  } while (i < 0x1c);
+  purgememadr(RenderingFileData);
   return;
 }
 
@@ -433,34 +427,26 @@ void R3DCcar_ReadeMapData(void)
 void R3DCcar_ReadTrackShadow(void)
 
 {
-  char *addr;
-  int iVar1;
   int i;
-  int iVar2;
   char *RenderingFileData;
   char name [256];
   char *ScaneData;
 
   sprintf(name,"%strack.dat",Paths_Paths[0x19]);
-  addr = (char *)loadfileadr(name,0x10);
-  ScaneData = addr;
-  iVar2 = GameSetup_gData.track * 4 + GameSetup_gData.Weather + GameSetup_gData.Time * 2;
-  while (iVar2 != -1) {
-    iVar1 = Risk_ReadNextValue(&ScaneData);
-    R3DCar_shadowColour.r = (u_char)iVar1;
-    iVar1 = Risk_ReadNextValue(&ScaneData);
-    R3DCar_shadowColour.g = (u_char)iVar1;
-    iVar1 = Risk_ReadNextValue(&ScaneData);
-    R3DCar_shadowColour.b = (u_char)iVar1;
-    iVar1 = Risk_ReadNextValue(&ScaneData);
-    R3DCar_eMapColour.r = (u_char)iVar1;
-    iVar1 = Risk_ReadNextValue(&ScaneData);
-    R3DCar_eMapColour.g = (u_char)iVar1;
-    iVar1 = Risk_ReadNextValue(&ScaneData);
-    iVar2 = iVar2 + -1;
-    R3DCar_eMapColour.b = (u_char)iVar1;
+  RenderingFileData = (char *)loadfileadr(name,0x10);
+  ScaneData = RenderingFileData;
+  i = GameSetup_gData.track * 4 + GameSetup_gData.Weather +
+      GameSetup_gData.Time * 2;
+  while (i != -1) {
+    R3DCar_shadowColour.r = (u_char)Risk_ReadNextValue(&ScaneData);
+    R3DCar_shadowColour.g = (u_char)Risk_ReadNextValue(&ScaneData);
+    R3DCar_shadowColour.b = (u_char)Risk_ReadNextValue(&ScaneData);
+    R3DCar_eMapColour.r = (u_char)Risk_ReadNextValue(&ScaneData);
+    R3DCar_eMapColour.g = (u_char)Risk_ReadNextValue(&ScaneData);
+    R3DCar_eMapColour.b = (u_char)Risk_ReadNextValue(&ScaneData);
+    i--;
   }
-  purgememadr(addr);
+  purgememadr(RenderingFileData);
   return;
 }
 
@@ -567,23 +553,17 @@ void R3DCar_DeInstantiate3DCarMenu(Car_tObj *carObj)
 
 {
   int countryFlag;
-  char cVar1;
   char *bigFile;
-  void *addr;
   int status;
-  u_int uVar2;
-  char *addr_00;
   int currentCarType;
-  int iVar3;
 
-  iVar3 = (int)(carObj->render).currentCarType;
-  if (-1 < iVar3) {
-    uVar2 = (u_int)((u_char)(carObj->render).currentCountry >> 7);
-    cVar1 = R3DCar_LoadedSceneCounter[uVar2][iVar3] - 1;
-    R3DCar_LoadedSceneCounter[uVar2][iVar3] = cVar1;
-    if (cVar1 == '\0') {
-      purgememadr(R3DCar_LoadedScenePointer[uVar2][iVar3]);
-      R3DCar_LoadedScenePointer[uVar2][iVar3] = (Transformer_zScene *)0x0;
+  currentCarType = (int)(carObj->render).currentCarType;
+  if (-1 < currentCarType) {
+    countryFlag = (u_char)(carObj->render).currentCountry >> 7;
+    R3DCar_LoadedSceneCounter[countryFlag][currentCarType]--;
+    if (R3DCar_LoadedSceneCounter[countryFlag][currentCarType] == '\0') {
+      purgememadr(R3DCar_LoadedScenePointer[countryFlag][currentCarType]);
+      R3DCar_LoadedScenePointer[countryFlag][currentCarType] = (Transformer_zScene *)0x0;
     }
     CarIO_ReleaseCarCluts(carObj);
   }
@@ -594,16 +574,15 @@ void R3DCar_DeInstantiate3DCarMenu(Car_tObj *carObj)
       systemtask(0);
     }
     if (((0 < status) || (status == -1)) &&
-       (addr = getasyncreadadr(carObj->async_handle),
-       addr != (void *)0x0)) {
-      purgememadr(addr);
+       (bigFile = (char *)getasyncreadadr(carObj->async_handle),
+       bigFile != (char *)0x0)) {
+      purgememadr(bigFile);
     }
     carObj->async_handle = 0;
     R3DCar_aSyncLoading = -1;
   }
-  addr_00 = (carObj->render).palCopy;
-  if (addr_00 != (char *)0x0) {
-    purgememadr(addr_00);
+  if ((carObj->render).palCopy != (char *)0x0) {
+    purgememadr((carObj->render).palCopy);
   }
   (carObj->render).palCopy = (char *)0x0;
   return;

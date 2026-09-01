@@ -129,11 +129,13 @@ void MPause_MusicLogic(char active)
   static int vol;
   static int SFXHandle;
   static int lastplaytick;
-  tPMenu *pThis;  /* folded receiver temp (SYM REG `this`) */
   int sndover;
   int samp;
+  /* SYM-CODEGEN-CARRIER: bVar1 -- preserving the explicit menu-range decision
+     prevents GCC from folding the two equality tests into a range check. */
   bool bVar1;
-  u_int uVar2;
+  /* SYM-CODEGEN-CARRIER: iVar3 -- shared current-item/call-result quantity;
+     direct field and nested-call expressions swap retail's v1/a0 allocation. */
   int iVar3;
   
   sndover = 1;
@@ -154,8 +156,7 @@ void MPause_MusicLogic(char active)
   }
   if (active != '\0') {
     if (wasActive == '\0') {
-      uVar2 = AudioCmn_MusicLevel(gMasterMusicLevel);
-      AudioMus_AutoVolume(500,uVar2);
+      AudioMus_AutoVolume(500,AudioCmn_MusicLevel(gMasterMusicLevel));
     }
     bVar1 = false;
     iVar3 = *((int *)gPauseCurrentMenu);
@@ -261,7 +262,15 @@ int MPause_Logic(void)
   tPMenuCommand command;
   tInputKeyType keyVal;
   bool debounce;
+  /* SYM-CODEGEN-CARRIER: oldItem -- this snapshot spans the virtual
+   * ProcessInput call and feeds the recorded nested start/finish calculation.
+   * Reusing start/finish for both phases grows 199 to 200 instructions and
+   * produces 57 allocation/call-setup diffs because the snapshot and
+   * pixel-position lifetimes require distinct pseudos. */
   int oldItem;
+  /* SYM-CODEGEN-CARRIER: newItem -- post-call companion to oldItem; keeping a
+   * distinct pseudo preserves its retail s1 lifetime before nested finish is
+   * allocated independently in v1. */
   int newItem;
 
   keyVal = kInput_KeyType_NoKey;
@@ -291,12 +300,9 @@ int MPause_Logic(void)
   command.type = kMPause_NoEvent;
   if (kMovingHighlight == 0) {
     if (keyVal != kInput_KeyType_NoKey) {
-      tPMenu *pThis;
-
       gMPauseUpdate = 1;
-      pThis = gPauseCurrentMenu;
-      oldItem = pThis->fCurrentItem;
-      pThis->VirtualProcessInput(keyVal,command);
+      oldItem = gPauseCurrentMenu->fCurrentItem;
+      gPauseCurrentMenu->VirtualProcessInput(keyVal,command);
       newItem = gPauseCurrentMenu->fCurrentItem;
       if ((short)oldItem != (short)newItem) {
         int start;

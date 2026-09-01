@@ -362,21 +362,19 @@ int AudioEng_StartUp(int player,char *carname)
   int spu;
   char filename[64];
   AudioEng_t *g;
-  AudioEng_t **gslot;
   char *header;
   
   if (1 < (u_int)player) {
     return 0;
   }
-  gslot = &AudioEng_g[player];
-  if (*gslot != (AudioEng_t *)0x0) {
+  if (AudioEng_g[player] != (AudioEng_t *)0x0) {
     return 0;
   }
   tablesize = 0;
   spu = tablesize;
   g = (AudioEng_t *)reservememadr("Engine Audio",0x370,tablesize);
   i = tablesize;
-  *gslot = g;
+  AudioEng_g[player] = g;
   g->tables = (char *)0x0;
   g->tick = 0;
   g->azi = 0;
@@ -471,6 +469,10 @@ int AudioEng_StartUp(int player,char *carname)
   {
     char *current;
     {
+      /* SYM-CODEGEN-CARRIER: chanbase -- two block-local channel-array base
+         webs shared by their inner loops.  Direct `g->chan + i` expressions
+         emit 374/376 and rotate 100 instructions; retaining the bases restores
+         retail's saved-register allocation and exact pointer increments. */
       AudioEng_tChanAttr *chanbase;
       int c;
 

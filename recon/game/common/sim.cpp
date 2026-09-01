@@ -138,25 +138,22 @@ void Sim_CleanUp(void)
 void Sim_FadeInSFX(void)
 
 {
-  int iVar1;
-  int iVar2;
-
   if (simGlobal.gameTicks == 0) {
-    iVar2 = gMasterSFXLevel;
+    GameSetup_gData.userSetting.sfxLevel = gMasterSFXLevel;
     gMasterSFXLevel = 0;
-    GameSetup_gData.userSetting.sfxLevel = iVar2;
     return;
   }
   if (simGlobal.gameTicks - 0x11U < 0x40) {
     if (Replay_ReplayInterface.statsScreen != 0) {
-      iVar1 = GameSetup_gData.userSetting.sfxLevel >> 2;
-      iVar2 = simGlobal.gameTicks + -0x10;
+      gMasterSFXLevel =
+          (GameSetup_gData.userSetting.sfxLevel >> 2) *
+          (simGlobal.gameTicks + -0x10) >> 6;
     }
     else {
-      iVar2 = GameSetup_gData.userSetting.sfxLevel;
-      iVar1 = simGlobal.gameTicks + -0x10;
+      gMasterSFXLevel =
+          GameSetup_gData.userSetting.sfxLevel *
+          (simGlobal.gameTicks + -0x10) >> 6;
     }
-    gMasterSFXLevel = iVar2 * iVar1 >> 6;
   }
   return;
 }

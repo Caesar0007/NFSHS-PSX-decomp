@@ -39,13 +39,8 @@ void GetGustWind(Souffle_tISouffle *is)
 void GetAngleWind(Souffle_tISouffle *is)
 
 {
-  int iVar1;
-  u_int uVar2;
-  
-  iVar1 = random();
-  is->angle = iVar1;
-  uVar2 = random();
-  is->aspeed = (uVar2 & 0x7f) - 0x3f;
+  is->angle = random();
+  is->aspeed = (random() & 0x7f) - 0x3f;
   return;
 }
 

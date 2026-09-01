@@ -195,23 +195,16 @@ SONG_DONE:
 /* ---- AudioMus_Fail__Fi  [@0x8007a1dc] ---- */
 void AudioMus_Fail(int errorcode)
 {
-  AudioMus_tMusicGlobals *pAVar1;
-  int iVar2;
-  
-  iVar2 = (AudioMus_g->streamstatus).outstandingrequests;
   AudioMus_g->errorcode = errorcode;
-  if (iVar2 != 0) {
-    iVar2 = AudioMus_Buffered();
-    SNDSTRM_autovol(AudioMus_g->streamhandle,iVar2,0);
-    iVar2 = AudioMus_Buffered();
-    AudioMus_g->fadetime = iVar2;
+  if (AudioMus_g->streamstatus.outstandingrequests != 0) {
+    SNDSTRM_autovol(AudioMus_g->streamhandle,AudioMus_Buffered(),0);
+    AudioMus_g->fadetime = AudioMus_Buffered();
   }
-  pAVar1 = AudioMus_g;
   AudioMus_g->newswitch = 1;
-  pAVar1->firstswitch = 0;
-  pAVar1->songname = (char *)0x0;
-  pAVar1->switchsong = -1;
-  pAVar1->requestsong = -1;
+  AudioMus_g->firstswitch = 0;
+  AudioMus_g->songname = (char *)0x0;
+  AudioMus_g->switchsong = -1;
+  AudioMus_g->requestsong = -1;
   return;
 }
 
@@ -618,24 +611,19 @@ void AudioMus_DriverStartUp(int buffersize,int spusize)
 /* ---- AudioMus_SysStartUp__FiiPc  [@0x8007ac18] ---- */
 void AudioMus_SysStartUp(int buffersize,int spusize,char *songs)
 {
-  char *pcVar1;
-  int iVar2;
-  
   if (AudioMus_g == (AudioMus_tMusicGlobals *)0x0) {
     AudioMus_g = reservememadr("Music Globals",0x158,0);
     if (AudioMus_g != (AudioMus_tMusicGlobals *)0x0) {
       AudioMus_InitGlobals();
-      iVar2 = SNDSTRM_overhead(0x1,buffersize / 0x400);
-      pcVar1 = reservememadr("Music Buffer",buffersize + iVar2,0);
-      AudioMus_g->streambuffer = pcVar1;
+      AudioMus_g->streambuffer =
+          reservememadr("Music Buffer",
+                        buffersize + SNDSTRM_overhead(0x1,buffersize / 0x400),0);
       AudioMus_DriverStartUp(buffersize,spusize);
       sprintf(AudioMus_g->bigfilename,"%szzz%s.viv",Paths_Paths[27],songs);
-      pcVar1 = (char *)loadbigfileheader(AudioMus_g->bigfilename,(void *)0x0)
-      ;
-      AudioMus_g->bigfileheader = pcVar1;
-      if (pcVar1 != (char *)0x0) {
-        iVar2 = bigcount(pcVar1);
-        AudioMus_g->totalsongs = iVar2;
+      AudioMus_g->bigfileheader =
+          (char *)loadbigfileheader(AudioMus_g->bigfilename,(void *)0x0);
+      if (AudioMus_g->bigfileheader != (char *)0x0) {
+        AudioMus_g->totalsongs = bigcount(AudioMus_g->bigfileheader);
       }
     }
   }

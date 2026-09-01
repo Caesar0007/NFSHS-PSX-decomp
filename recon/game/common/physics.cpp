@@ -356,9 +356,17 @@ void Physics_SetCurrentWallType(int wallType)
 int Physics_GetTorque(Car_tObj *carObj,int index)
 
 {
+  /* SYM-CODEGEN-CARRIER: iVar1 -- eliminated upper-clamp result web.  SYM
+     retains only `index`; imperative clamps and the tested MIN/MAX expansions
+     emit 13-17 instructions instead of retail's 15.  This first web preserves
+     retail's `index < 41` selection and its distinct `$v0` result. */
   int iVar1;
+  /* SYM-CODEGEN-CARRIER: iVar2 -- eliminated lower-clamp/join result web.  It
+     retains the second selection and delays the torque-table base load exactly
+     as retail; direct nested expressions hoist/fold that access and differ by
+     18-30 instructions in the authoritative comparison. */
   int iVar2;
-  
+
   iVar1 = index;
   if (0x28 < index) {
     iVar1 = 0x28;

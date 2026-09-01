@@ -235,36 +235,29 @@ Newton_AddDmgZ_typeSet:
         (newtonObj->linearVel).y = 0x90000;
       }
       if (0x140000 < impulse) {
-        u_int randomX;
-        u_int randomY;
-        u_int randomZ;
-
         randtemp = fastRandom * randSeed;
-        randomX = (randtemp & 0xffff00) >> 8;
+        xMult = ((randtemp & 0xffff00) >> 8) * 4;
         fastRandom = randtemp & 0xffff;
         randtemp = fastRandom * randSeed;
-        randomY = (randtemp & 0xffff00) >> 8;
+        yMult = ((randtemp & 0xffff00) >> 8) * 3;
         fastRandom = randtemp & 0xffff;
         randtemp = fastRandom * randSeed;
-        randomZ = (randtemp & 0xffff00) >> 8;
+        zMult = ((randtemp & 0xffff00) >> 8) * 3;
         fastRandom = randtemp & 0xffff;
-        yMult = randomY * 3;
-        zMult = randomZ * 3;
         randtemp = fastRandom * randSeed;
         fastRandom = randtemp & 0xffff;
-        xMult = randomX * 4;
         if ((randtemp & 0xffff00) >> 8 < 0x3333) {
           intensity = -intensity;
         }
         if (xMult + yMult + zMult < 0x40000) {
           if (xMult < 0x10000) {
-            xMult = randomX << 3;
+            xMult *= 2;
           }
           if (yMult < 0x10000) {
-            yMult = randomY * 6;
+            yMult *= 2;
           }
           if (zMult < 0x10000) {
-            zMult = randomZ * 6;
+            zMult *= 2;
           }
         }
       }
@@ -635,15 +628,6 @@ int Newton_FindGroundElevationAndNormal(BO_tNewtonObj *newtonObj,coorddef *norma
 {
   int wheelsInAir;
   int bounce;
-  int ti5;
-  int ti1;
-  int ti4;
-  int iVar20;
-  int iVar3;
-  BO_tNewtonObj *pBVar4;
-  int iVar5;
-  int tstr9;
-  int iVar24;
   coorddef elevation;
   coorddef tireCoord [4];
   coorddef carNormal;
@@ -732,28 +716,28 @@ int Newton_FindGroundElevationAndNormal(BO_tNewtonObj *newtonObj,coorddef *norma
   coorddef roadNormal;
   coorddef roadCenterPoint;
   int roadSurfaceType;
-  int wheelIndex;
+  int i;
 
-  for (wheelIndex = 0;
-       (int)((char *)newtonObj + wheelIndex * 0x30) < (int)((char *)newtonObj + 0xc0);
-       wheelIndex = wheelIndex + 1) {
-    wheelHeight[wheelIndex] = tireCoord[wheelIndex];
-    ((Car_tObj *)newtonObj)->wheel[wheelIndex].actualHeight = tireCoord[wheelIndex].y;
-    BWorldSm_FindClosestTriangleRez(&tireCoord[wheelIndex],&testSimRoadInfo,1);
+  for (i = 0;
+       (int)((char *)newtonObj + i * 0x30) < (int)((char *)newtonObj + 0xc0);
+       i = i + 1) {
+    wheelHeight[i] = tireCoord[i];
+    ((Car_tObj *)newtonObj)->wheel[i].actualHeight = tireCoord[i].y;
+    BWorldSm_FindClosestTriangleRez(&tireCoord[i],&testSimRoadInfo,1);
     roadNormal = *(coorddef *)BWorldSm_UNormal(&testSimRoadInfo);
     roadSurfaceType = 0xe;
     if (testSimRoadInfo.simQuad != (Trk_NewSimQuad *)0x0) {
       roadSurfaceType = (u_int)(testSimRoadInfo.simQuad)->surface;
     }
-    ((Car_tObj *)newtonObj)->wheel[wheelIndex].roadSurfaceType = roadSurfaceType;
+    ((Car_tObj *)newtonObj)->wheel[i].roadSurfaceType = roadSurfaceType;
     roadSurfaceType = roadSurfaceType & 0xf;
     if (((roadNormal.y < 0x1999) || (roadSurfaceType == 0xe)) || (roadSurfaceType == 0)) {
       roadNormal.y = 0x10000;
       roadNormal.x = 0;
       roadNormal.z = 0;
-      elevation.x = elevation.x + tireCoord[wheelIndex].x;
-      elevation.y = elevation.y + (tireCoord[wheelIndex].y - newtonObj->objAltitude);
-      elevation.z = elevation.z + tireCoord[wheelIndex].z;
+      elevation.x = elevation.x + tireCoord[i].x;
+      elevation.y = elevation.y + (tireCoord[i].y - newtonObj->objAltitude);
+      elevation.z = elevation.z + tireCoord[i].z;
     }
     else {
       if (testSimRoadInfo.simQuad != (Trk_NewSimQuad *)0x0) {
@@ -763,48 +747,51 @@ int Newton_FindGroundElevationAndNormal(BO_tNewtonObj *newtonObj,coorddef *norma
         roadCenterPoint = *(coorddef *)(Newton_BWorldSmSlices + testSimRoadInfo.slice * 0x20);
       }
       if ((u_int)(roadSurfaceType - 2) < 2) {
-        iVar20 = Newton_FindGroundElevationRough(&tireCoord[wheelIndex],&roadNormal,&roadCenterPoint)
-        ;
-        wheelHeight[wheelIndex].y = iVar20;
+        wheelHeight[i].y =
+            Newton_FindGroundElevationRough(&tireCoord[i],&roadNormal,&roadCenterPoint);
       }
       else {
-        iVar20 = Newton_FindGroundElevationGeneral(&tireCoord[wheelIndex],&roadNormal,&roadCenterPoint);
-        wheelHeight[wheelIndex].y = iVar20;
+        wheelHeight[i].y =
+            Newton_FindGroundElevationGeneral(&tireCoord[i],&roadNormal,&roadCenterPoint);
       }
-      ((Car_tObj *)newtonObj)->wheel[wheelIndex].actualHeight = wheelHeight[wheelIndex].y;
-      int wheelY = wheelHeight[wheelIndex].y;
-      if (0x20000 < wheelY - tireCoord[wheelIndex].y) {
+      ((Car_tObj *)newtonObj)->wheel[i].actualHeight = wheelHeight[i].y;
+      /* SYM-CODEGEN-CARRIER: wheelY -- eliminated snapshot of the solved wheel
+         height shared by the rejection test and elevation accumulation.  Direct
+         member reads emit 907/905 with 20 diffs; this web preserves retail's
+         load reuse and keeps the function byte-exact. */
+      int wheelY = wheelHeight[i].y;
+      if (0x20000 < wheelY - tireCoord[i].y) {
         roadNormal.x = 0;
         roadNormal.y = 0x10000;
         roadNormal.z = 0;
-        wheelHeight[wheelIndex].y = tireCoord[wheelIndex].y;
-        elevation.x = elevation.x + tireCoord[wheelIndex].x;
-        elevation.y = elevation.y + tireCoord[wheelIndex].y;
-        elevation.z = elevation.z + tireCoord[wheelIndex].z;
+        wheelHeight[i].y = tireCoord[i].y;
+        elevation.x = elevation.x + tireCoord[i].x;
+        elevation.y = elevation.y + tireCoord[i].y;
+        elevation.z = elevation.z + tireCoord[i].z;
       }
       else {
-        int r1 = wheelHeight[wheelIndex].x;
-        int r3 = wheelHeight[wheelIndex].z;
+        int r1 = wheelHeight[i].x;
+        int r3 = wheelHeight[i].z;
         elevation.x = elevation.x + r1;
         elevation.y = elevation.y + wheelY;
         elevation.z = elevation.z + r3;
       }
     }
     {
-      int r1 = wheelHeight[wheelIndex].x;
-      int r2 = wheelHeight[wheelIndex].y;
-      int r3 = wheelHeight[wheelIndex].z;
-      ((Car_tObj *)newtonObj)->wheel[wheelIndex].currentPos.x = r1;
-      ((Car_tObj *)newtonObj)->wheel[wheelIndex].currentPos.y = r2;
-      ((Car_tObj *)newtonObj)->wheel[wheelIndex].currentPos.z = r3;
+      int r1 = wheelHeight[i].x;
+      int r2 = wheelHeight[i].y;
+      int r3 = wheelHeight[i].z;
+      ((Car_tObj *)newtonObj)->wheel[i].currentPos.x = r1;
+      ((Car_tObj *)newtonObj)->wheel[i].currentPos.y = r2;
+      ((Car_tObj *)newtonObj)->wheel[i].currentPos.z = r3;
     }
     {
       int r1 = roadNormal.x;
       int r2 = roadNormal.y;
       int r3 = roadNormal.z;
-      ((Car_tObj *)newtonObj)->wheel[wheelIndex].roadNormal.x = r1;
-      ((Car_tObj *)newtonObj)->wheel[wheelIndex].roadNormal.y = r2;
-      ((Car_tObj *)newtonObj)->wheel[wheelIndex].roadNormal.z = r3;
+      ((Car_tObj *)newtonObj)->wheel[i].roadNormal.x = r1;
+      ((Car_tObj *)newtonObj)->wheel[i].roadNormal.y = r2;
+      ((Car_tObj *)newtonObj)->wheel[i].roadNormal.z = r3;
     }
   }
   }
@@ -861,6 +848,10 @@ int Newton_FindGroundElevationAndNormal(BO_tNewtonObj *newtonObj,coorddef *norma
               newtonObj[1].wheelRot[0] + newtonObj[1].orientMat.m[4];
     }
     for (i = 0; i < 4; i = i + 1) {
+      /* SYM-CODEGEN-CARRIER: newWheelAcc -- joined result web for the two
+         suspension-update arms.  Direct member updates are count-exact at
+         905/905 but rotate 34 instructions; the explicit joined store retains
+         retail's saved-register allocation. */
       int newWheelAcc;
       int wheelBounce;
 
@@ -945,14 +936,10 @@ nextWheel:;
       tempVecX.z = (wheelHeight[1].z + wheelHeight[3].z) - (wheelHeight[0].z + wheelHeight[2].z) >>
                    1;
       Math_NormalizeShortVector(&tempVecX);
-      iVar20 = fixedmult(tempVecZ.y,tempVecX.z);
-      iVar24 = fixedmult(tempVecZ.z,tempVecX.y);
-      iVar20 = iVar20 - iVar24;
-      tempVecY.x = iVar20;
-      iVar20 = fixedmult(tempVecZ.z,tempVecX.x);
-      iVar24 = fixedmult(tempVecZ.x,tempVecX.z);
-      iVar20 = iVar20 - iVar24;
-      tempVecY.y = iVar20;
+      tempVecY.x = fixedmult(tempVecZ.y,tempVecX.z) -
+                   fixedmult(tempVecZ.z,tempVecX.y);
+      tempVecY.y = fixedmult(tempVecZ.z,tempVecX.x) -
+                   fixedmult(tempVecZ.x,tempVecX.z);
       tempVecY.z = fixedmult(tempVecZ.x,tempVecX.y) -
                    fixedmult(tempVecZ.y,tempVecX.x);
       Math_NormalizeShortVector(&tempVecY);
@@ -979,7 +966,6 @@ nextWheel:;
         matrixtdef transposeMat;
         int pitch;
         int roll;
-        int temp;
 
         newtonObj[1].shadowMat.m[8] =
             fixedmult((newtonObj->angularVel).x,(newtonObj->orientMat).m[0]) +
@@ -1063,13 +1049,14 @@ nextWheel:;
         }
         newtonObj[1].shadowMat.m[8] = newtonObj[1].shadowMat.m[8] + pitch;
 
-        temp = newtonObj[1].shadowCoord[0].y;
-        if (__builtin_abs(temp) < 0x13333) {
+        if (__builtin_abs(newtonObj[1].shadowCoord[0].y) < 0x13333) {
           newtonObj[1].shadowCoord[0].y =
-              fixedmult(temp,*(int *)(newtonObj[1].damage[3] + 0x134));
+              fixedmult(newtonObj[1].shadowCoord[0].y,
+                        *(int *)(newtonObj[1].damage[3] + 0x134));
         }
         else {
-          newtonObj[1].shadowCoord[0].y = fixedmult(temp,0xd999);
+          newtonObj[1].shadowCoord[0].y =
+              fixedmult(newtonObj[1].shadowCoord[0].y,0xd999);
         }
         newtonObj[1].shadowCoord[0].y = newtonObj[1].shadowCoord[0].y - roll;
 
@@ -1849,15 +1836,44 @@ extern "C" void Newton_DoPostBarrierCollisionHandling(BO_tNewtonObj *newtonObj,c
   coorddef barrierVec;
   int impactVel;
   int distRetreat;
+  /* SYM-CODEGEN-CARRIER: retreat -- pre-clamp signed quotient web.  Keeping it
+     distinct from SYM's `$v1` `distRetreat` reproduces retail's two-pseudo
+     branch select; the single-variable and ternary forms lose that copy and
+     measure ten diffs worse on the final allocation basin. */
   int retreat;
+  /* SYM-CODEGEN-CARRIER: nx -- survivor copy of by-value `normal.x`.  It feeds
+     both the signed divide and islandMatrix.m[0], forcing retail's long-lived
+     `$a3` copy; direct component reads CSE the copy away. */
   int nx;
+  /* SYM-CODEGEN-CARRIER: nz -- survivor copy of the first `normal.z` divide.
+     Its post-divide read-only fence crosses the divide join and prevents GCC
+     2.8.1 local-alloc from combining away retail's dividend copy. */
   int nz;
+  /* SYM-CODEGEN-CARRIER: nz2 -- the one retail reload of the homed `normal.z`
+     parameter shared by the dot-product term and islandMatrix.m[2].  Assigning
+     it inside the expression prevents sched1 from hoisting that reload. */
   int nz2;
+  /* SYM-CODEGEN-CARRIER: nxq -- x-divide quotient web.  Its lifetime and fence
+     preserve retail's `$v1` quotient seat and the x-join store/shift order. */
   int nxq;
+  /* SYM-CODEGEN-CARRIER: t3 -- shifted x-quotient web whose computation fills
+     the y-divide branch slot while its store remains at the following join. */
   int t3;
+  /* SYM-CODEGEN-CARRIER: ny -- y-divide dividend survivor.  The post-divide
+     fence invokes the same GCC divide-copy law as `nz` and mints retail's
+     otherwise-eliminated `addu` copy. */
   int ny;
+  /* SYM-CODEGEN-CARRIER: nyq -- final y quotient web, kept distinct from the
+     signed adjustment so the retail join can store barrierVec.z before the
+     quotient shift. */
   int nyq;
+  /* SYM-CODEGEN-CARRIER: yTemp -- signed y-dividend adjustment web preceding
+     the guide-authorized final shift; merging it with `nyq` lets sched2 reverse
+     retail's store/shift pair. */
   int yTemp;
+  /* SYM-CODEGEN-CARRIER: dsum -- dot-product and absolute-value web.  Separating
+     it from SYM's post-/16 `distRetreat` removes the call-argument `$a1`
+     preference and restores retail's `$v0` accumulator allocation. */
   int dsum;
   coorddef upVec;
   matrixtdef islandMatrix;

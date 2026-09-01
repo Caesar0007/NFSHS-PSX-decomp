@@ -77,19 +77,12 @@ void AIPerson_SetPersonality(Car_tObj *carObj,int personalityIndex)
 void AIPerson_SetPersonalityPointers(void)
 {
   int carLoop;
-  Car_tObj *carObj;
-  Car_tObj **ppCVar1;
-  int iVar2;
 
-  iVar2 = 0;
-  ppCVar1 = Cars_gList;
- loopTop:
-  if (iVar2 < Cars_gNumCars) {
-    carObj = *ppCVar1;
-    ppCVar1 = ppCVar1 + 1;
+  for (carLoop = 0; carLoop < Cars_gNumCars; carLoop++) {
+    Car_tObj *carObj;
+
+    carObj = Cars_gList[carLoop];
     AIPerson_SetPersonality(carObj,carObj->personalityIndex);
-    iVar2 = iVar2 + 1;
-    goto loopTop;
   }
   return;
 }

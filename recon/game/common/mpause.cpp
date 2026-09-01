@@ -395,9 +395,10 @@ void MPause_Render(void)
   numItems = NumEnabledItems(gPauseCurrentMenu);
   int currentItem = MPause_CurrentItem(gPauseCurrentMenu);
   if (kMovingHighlight != 0) {
-    int y = gPauseCurrentMenu->ItemEnabledNum(currentItem) * 0xd;
-    int offset = kMovingHighlight + 0x6a;
-    Hud_FBuildF4(1,0x50,y + offset,0xa0,0xd,0,0,0);
+    Hud_FBuildF4(1,0x50,
+                 (gPauseCurrentMenu->ItemEnabledNum(currentItem) * 0xd + 0x6a) +
+                 kMovingHighlight,
+                 0xa0,0xd,0,0,0);
   } else {
     Hud_FBuildF4(1,0x50,
                  gPauseCurrentMenu->ItemEnabledNum(currentItem) * 0xd + 0x6a,

@@ -27,14 +27,19 @@ void Clock_SystemCleanUp(void);
 void Clock_MasterInterruptHandler(void)
 {
   long gp;
-  u_int local_10 [2];
+  /* SYM-CODEGEN-CARRIER: even128 -- the optimized SYM retains only `gp`.
+     SLD maps the 128Hz increment/store to line 131, the generic increment to
+     line 133, and the parity test to line 135, proving the original condition
+     was direct.  That direct source emits 42/43 with the true-block address
+     materialization stolen into the branch delay slot; adding the required
+     zero-insn reorg fence is count-exact but rotates the line-135 `andi` and
+     line-133 store (2 diffs).  This eliminated parity web plus the fence is
+     the measured 43/43 source-only representation of retail scheduling. */
   int even128;
 
-  savegp(local_10);
+  savegp((u_int *)&gp);
   if (stopClock == 0) {
     clock_realTime.time128Hz = clock_realTime.time128Hz + 1;
-    /* MATCH: the 128Hz parity is read into a temp BEFORE the generic128HzClock store
-       so the `andi v1,v1,1` issues ahead of the gp-rel store (oracle 8008B970/74). */
     even128 = clock_realTime.time128Hz & 1U;
     generic128HzClock = generic128HzClock + 1;
     /* MATCH: 0-insn void fence stops reorg stealing the `addiu a0,a0,%lo(clock_realTime)`
@@ -51,7 +56,7 @@ void Clock_MasterInterruptHandler(void)
       }
     }
   }
-  restoregp(local_10[0]);
+  restoregp(gp);
   return;
 }
 

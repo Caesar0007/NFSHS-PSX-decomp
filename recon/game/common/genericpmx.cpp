@@ -52,8 +52,12 @@ void GenericPMX_LoadTexture(void)
   int np;
   int i;
   int recolor_flag;
-  int pmx_height; /* matching aid (permuter): keep the repeated call argument in one pseudo */
-  shapetbl *shape_result; /* matching aid (permuter): preserve the locate result pseudo */
+  /* SYM-CODEGEN-CARRIER: pmx_height -- the optimized SYM retains no height
+     declaration, but retail rematerializes the repeated Texture_LoadPmx
+     argument through the mutable constant web.  Replacing it with literal
+     `0xa0` at every call, or declaring it `const`, emits 579/593 and rotates
+     494 instructions.  The initialized mutable web restores 593/593. */
+  int pmx_height;
 
   np = 0;
   pmx_height = 0xa0;
@@ -191,7 +195,7 @@ void GenericPMX_LoadTexture(void)
     shapetbl *shape;
     char shpname[5];
     sprintf(shpname,"LF%02d",GenericPMX_gameSetupWords[15]);
-    shape = (shape_result = (shapetbl *)locateshapez(shpfile,shpname));
+    shape = (shapetbl *)locateshapez(shpfile,shpname);
     if (shape != 0) {
       Draw_tPixMap *pmx = &gPixmaps[np++];
       Texture_LoadPmx(0,(char *)shape,0x40,0,pmx_height,-1,-1,pmx);

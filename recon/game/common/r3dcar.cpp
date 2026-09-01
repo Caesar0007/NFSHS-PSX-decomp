@@ -627,13 +627,10 @@ char * R3DCar_LoadFileAdr(char *name)
 
 {
   char * buf;
-  int size;
-  char *loadAddr;
   
-  size = filesize(name);
-  loadAddr = Platform_TempReserveMemory(size,"bigfile");
-  loadfileatadr(name,loadAddr);
-  return loadAddr;
+  buf = Platform_TempReserveMemory(filesize(name),"bigfile");
+  loadfileatadr(name,buf);
+  return buf;
 }
 
 /* ---- R3DCar_GetCarName__FPcii  [R3DCAR.CPP:1145-1154] SLD-VERIFIED ---- */

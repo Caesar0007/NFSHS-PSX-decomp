@@ -102,16 +102,15 @@ void DashHUD_CheckWrongWay(int player)
 {
   int wrongway;
   Car_tObj * car;
-  BO_tNewtonObj *pBVar1;
-  int iVar2;
   
-  pBVar1 = DASHHUD_CAMERA_ANCHOR(player)[1].collision.lastOtherObj;
-  iVar2 = 0;
-  if ((0x3f < (int)pBVar1) && (iVar2 = 2, (int)pBVar1 < 0x94)) {
-    iVar2 = 1;
+  car = (Car_tObj *)(DASHHUD_CAMERA_ANCHOR(player) + 1);
+  wrongway = 0;
+  if ((0x3f < (int)car->N.collision.lastOtherObj) &&
+      (wrongway = 2, (int)car->N.collision.lastOtherObj < 0x94)) {
+    wrongway = 1;
   }
-  if (iVar2 != DashHUD_gInfo.wrongway[player]) {
-    DashHUD_gInfo.wrongway[player] = iVar2;
+  if (wrongway != DashHUD_gInfo.wrongway[player]) {
+    DashHUD_gInfo.wrongway[player] = wrongway;
   }
   return;
 }

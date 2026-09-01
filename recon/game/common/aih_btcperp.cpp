@@ -35,6 +35,24 @@ struct SpeakerVirtualDispatch {
   virtual int slot15();
 };
 
+/* Retail aih_btcperp.obj owns this vague-linkage NonActive vtable copy. */
+extern __vtbl_ptr_type D_80055000[];
+
+/* The inline constructor shape is corroborated by the NFSU2 mobile twin and
+   the independently matched aih_btccop.cpp AIState_BTCInactive idiom. */
+struct AIState_BTCInactive : public AIState_Base {
+  AIState_BTCInactive(Car_tObj *carObj) : AIState_Base(carObj) {
+    coorddef trafficOffset;
+
+    _vf = (__vtbl_ptr_type (*)[4])D_80055000;
+    memset((u_char *)&trafficOffset,0,12);
+    trafficOffset.y = carObj->carIndex * 0xa0000;
+    Newton_SetInitialSlicePositionOrientationEtc(
+        &this->carObj_->N,0,&trafficOffset,1);
+    this->carObj_->N.active = 0;
+  }
+};
+
 /* ---- aistate.obj-owned globals (.bss zero) ---- */
 u_char       strategyChart[5][3] = { 4u, 4u, 4u, 0, 0, 0, 1u, 0, 1u, 1u, 1u, 1u, 2u, 2u, 2u };   /* @0x8010ce7c */
 int          AIHigh_BTC_uTurnProb1000Skills[3] = { 3, 4, 5 };   /* @0x8010ce8c */
@@ -418,32 +436,26 @@ void AIHigh_BTC_Perp::NotifyCopsOfArrest()
 
 {
   int carLoop;
-  Car_tObj*otherCarObj;
-
-  Car_tObj *pCVar1;
-
-  Car_tObj **ppCVar2;
-
-  int iVar3;
-
+  Car_tObj *otherCarObj;
   
 
-  iVar3 = 0;
+  carLoop = 0;
   while (true) {
 
-    if (Cars_gNumCars <= iVar3) {
+    if (Cars_gNumCars <= carLoop) {
       break;
     }
 
-    pCVar1 = Cars_gList[iVar3];
+    otherCarObj = Cars_gList[carLoop];
 
-    if (((pCVar1->carFlags & 0x220U) != 0) && ((pCVar1->N).active != '\0')) {
+    if (((otherCarObj->carFlags & 0x220U) != 0) &&
+        ((otherCarObj->N).active != '\0')) {
 
-      ((AIHigh_BTC_Cop *)highLevelAIObjs[pCVar1->carIndex])->StartArrest(this);
+      ((AIHigh_BTC_Cop *)highLevelAIObjs[otherCarObj->carIndex])->StartArrest(this);
 
     }
 
-    iVar3 = iVar3 + 1;
+    carLoop = carLoop + 1;
 
   }
 
@@ -466,32 +478,27 @@ void AIHigh_BTC_Perp::NotifyCopsOfArrestComplete()
 
 {
   int carLoop;
-  Car_tObj*otherCarObj;
-
-  Car_tObj *pCVar1;
-
-  Car_tObj **ppCVar2;
-
-  int iVar3;
+  Car_tObj *otherCarObj;
 
   
 
-  iVar3 = 0;
+  carLoop = 0;
   while (true) {
 
-    if (Cars_gNumCars <= iVar3) {
+    if (Cars_gNumCars <= carLoop) {
       break;
     }
 
-    pCVar1 = Cars_gList[iVar3];
+    otherCarObj = Cars_gList[carLoop];
 
-    if (((pCVar1->carFlags & 0x220U) != 0) && ((pCVar1->N).active != '\0')) {
+    if (((otherCarObj->carFlags & 0x220U) != 0) &&
+        ((otherCarObj->N).active != '\0')) {
 
-      ((AIHigh_BTC_Cop *)highLevelAIObjs[pCVar1->carIndex])->FinishArrest(this);
+      ((AIHigh_BTC_Cop *)highLevelAIObjs[otherCarObj->carIndex])->FinishArrest(this);
 
     }
 
-    iVar3 = iVar3 + 1;
+    carLoop = carLoop + 1;
 
   }
 
@@ -514,32 +521,27 @@ void AIHigh_BTC_Perp::NotifyCopsOfFalseArrest()
 
 {
   int carLoop;
-  Car_tObj*otherCarObj;
-
-  Car_tObj *pCVar1;
-
-  Car_tObj **ppCVar2;
-
-  int iVar3;
+  Car_tObj *otherCarObj;
 
   
 
-  iVar3 = 0;
+  carLoop = 0;
   while (true) {
 
-    if (Cars_gNumCars <= iVar3) {
+    if (Cars_gNumCars <= carLoop) {
       break;
     }
 
-    pCVar1 = Cars_gList[iVar3];
+    otherCarObj = Cars_gList[carLoop];
 
-    if (((pCVar1->carFlags & 0x220U) != 0) && ((pCVar1->N).active != '\0')) {
+    if (((otherCarObj->carFlags & 0x220U) != 0) &&
+        ((otherCarObj->N).active != '\0')) {
 
-      ((AIHigh_BTC_Cop *)highLevelAIObjs[pCVar1->carIndex])->FalseArrest(this);
+      ((AIHigh_BTC_Cop *)highLevelAIObjs[otherCarObj->carIndex])->FalseArrest(this);
 
     }
 
-    iVar3 = iVar3 + 1;
+    carLoop = carLoop + 1;
 
   }
 
@@ -562,34 +564,29 @@ void AIHigh_BTC_Perp::NotifyHumanCopsOfArrestHud()
 
 {
   int carLoop;
-  Car_tObj*otherCarObj;
-
-  Car_tObj *pCVar1;
-
-  Car_tObj **ppCVar2;
-
-  int iVar3;
+  Car_tObj *otherCarObj;
 
   
 
-  iVar3 = 0;
+  carLoop = 0;
   while (true) {
 
-    if (Cars_gNumCars <= iVar3) {
+    if (Cars_gNumCars <= carLoop) {
       break;
     }
 
-    pCVar1 = Cars_gList[iVar3];
+    otherCarObj = Cars_gList[carLoop];
 
-    if (((pCVar1->carFlags & 0x200U) != 0) && ((pCVar1->N).active != '\0')) {
+    if (((otherCarObj->carFlags & 0x200U) != 0) &&
+        ((otherCarObj->N).active != '\0')) {
 
-      ((AIHigh_BTC_HumanCop *)highLevelAIObjs[pCVar1->carIndex])->HudOn(this,0,
+      ((AIHigh_BTC_HumanCop *)highLevelAIObjs[otherCarObj->carIndex])->HudOn(this,0,
 
                  this->lastArrestingCop_);
 
     }
 
-    iVar3 = iVar3 + 1;
+    carLoop = carLoop + 1;
 
   }
 
@@ -649,61 +646,55 @@ AIHigh_BTC_Perp::CheckForActivation()
 
 {
   int carLoop;
-  Car_tObj*humanCopCarObj;
-  AIHigh_BTC_HumanCop*carHigh;
+  Car_tObj *humanCopCarObj;
+  AIHigh_BTC_HumanCop *carHigh;
   int carType;
 
-  Car_tObj *pCVar1;
-
-  int iVar2;
-
-  AIHigh_BTC_HumanCop *pAVar3;
-
-  Car_tObj **ppCVar4;
-
-  int iVar5;
-
-  Car_tObj *pCVar6;
+  /* SYM-CODEGEN-CARRIER: activationRequested -- folding the materialized
+     cop-index/need-perp result into a direct short-circuit preserves 66
+     instructions but changes six retail value-birth/test instructions. */
+  int activationRequested;
 
   
 
-  iVar5 = 0;
+  carLoop = 0;
 
   while (true) {
 
-    if (Cars_gNumCars <= iVar5) {
+    if (Cars_gNumCars <= carLoop) {
 
       break;
 
     }
 
-    pCVar1 = Cars_gList[iVar5];
+    humanCopCarObj = Cars_gList[carLoop];
 
-    if (((pCVar1->carFlags & 0x200U) != 0) && ((pCVar1->N).active != '\0')) {
+    if (((humanCopCarObj->carFlags & 0x200U) != 0) &&
+        ((humanCopCarObj->N).active != '\0')) {
 
-      pAVar3 = (AIHigh_BTC_HumanCop *)highLevelAIObjs[pCVar1->carIndex];
+      carHigh = (AIHigh_BTC_HumanCop *)highLevelAIObjs[humanCopCarObj->carIndex];
 
-      iVar2 = 0;
+      activationRequested = 0;
 
-      if ((pAVar3)->copIndex_ == 0) {
+      if (carHigh->copIndex_ == 0) {
 
-        iVar2 = pAVar3->needPerp_;
+        activationRequested = carHigh->needPerp_;
 
       }
 
-      if (iVar2 != 0) {
+      if (activationRequested != 0) {
 
-        pCVar6 = this->carObj_;
+        if ((this->carObj_->carFlags & 4U) != 0) {
 
-        if ((pCVar6->carFlags & 4U) != 0) {
-
-          return pAVar3;
+          return carHigh;
 
         }
 
-        if (GameSetup_gData.perpInfo[pAVar3->currentStage_].CarType == pCVar6->carInfo->carType) {
+        carType = GameSetup_gData.perpInfo[carHigh->currentStage_].CarType;
 
-          return pAVar3;
+        if (carType == this->carObj_->carInfo->carType) {
+
+          return carHigh;
 
         }
 
@@ -711,7 +702,7 @@ AIHigh_BTC_Perp::CheckForActivation()
 
     }
 
-    iVar5 = iVar5 + 1;
+    carLoop = carLoop + 1;
 
   }
 
@@ -1002,23 +993,9 @@ void AIHigh_BTC_AIPerp::AvoidCops()
 {
   int doBrake;
 
-  bool bVar1;
-
-  int iVar2;
-
-  Car_tObj *pCVar3;
-
-  int iVar4;
-
-  Car_tObj *pCVar5;
-
-  int iVar6;
-
-  int iVar7;
-
   
 
-  bVar1 = false;
+  doBrake = 0;
 
   if ((this->closestCopCarObj_ != (Car_tObj *)0x0) &&
       (this->closestCopCarObj_->RSControl == 0)) {
@@ -1037,11 +1014,11 @@ void AIHigh_BTC_AIPerp::AvoidCops()
 
         zPosition = this->closestCopCarDistanceMeters_ * this->closestCopCarObj_->direction;
 
-        iVar4 = (this->closestCopCarObj_->N).dimension.x;
+        xPositionIndex = doBrake;
 
-        xPositionIndex = bVar1;
-
-        if ((-iVar4 <= xPosition) && (xPositionIndex = 1, iVar4 < xPosition)) {
+        if ((-(this->closestCopCarObj_->N).dimension.x <= xPosition) &&
+            (xPositionIndex = 1,
+             (this->closestCopCarObj_->N).dimension.x < xPosition)) {
 
           xPositionIndex = 2;
 
@@ -1051,11 +1028,9 @@ void AIHigh_BTC_AIPerp::AvoidCops()
 
         if (zPosition <= 0x190000) {
 
-          iVar2 = (this->closestCopCarObj_->N).dimension.z;
-
           zPositionIndex = 1;
 
-          if (zPosition <= iVar2) {
+          if (zPosition <= (this->closestCopCarObj_->N).dimension.z) {
 
             zPositionIndex = 4;
 
@@ -1063,7 +1038,7 @@ void AIHigh_BTC_AIPerp::AvoidCops()
 
               zPositionIndex = 2;
 
-              if (zPosition < -iVar2) {
+              if (zPosition < -(this->closestCopCarObj_->N).dimension.z) {
 
                 zPositionIndex = 3;
 
@@ -1079,18 +1054,16 @@ void AIHigh_BTC_AIPerp::AvoidCops()
 
           randtemp = fastRandom * randSeed;
 
-          pCVar3 = this->carObj_;
-
           fastRandom = randtemp & 0xffff;
 
           if ((randtemp >> 8 & 0xffff) * 1000 >> 0x10 <
-              (u_int)(AI_elapsedTime * 7 + pCVar3->pullOver * 500)) {
+              (u_int)(AI_elapsedTime * 7 + this->carObj_->pullOver * 500)) {
 
             if (0x11c71c < __builtin_abs(this->closestCopCarObj_->currentSpeed)) {
 
-              if (0x11c71c < __builtin_abs(pCVar3->currentSpeed)) {
+              if (0x11c71c < __builtin_abs(this->carObj_->currentSpeed)) {
 
-                bVar1 = true;
+                doBrake = 1;
 
                 goto LAB_800606f0;
 
@@ -1139,7 +1112,7 @@ void AIHigh_BTC_AIPerp::AvoidCops()
 
 LAB_800606f0:
 
-  if (bVar1) {
+  if (doBrake) {
 
     (this->carObj_)->pullOver = 1;
 
@@ -1306,23 +1279,7 @@ void AIHigh_BTC_AIPerp::HighExecute()
 
 
 {
-  Car_tObj*carObj;
-  coorddef trafficOffset;
-  AIState_Base*newState;
-
-  int iVar1;
-
   AIHigh_BTC_HumanCop *chaserCop;
-
-  AIState_Normal *this_00;
-
-  AIState_Base *pAVar3;
-
-  int _Var4;
-
-  AIState_Base *pAVar5;
-
-  Car_tObj *otherCarObj;
 
   
 
@@ -1340,9 +1297,7 @@ void AIHigh_BTC_AIPerp::HighExecute()
 
   case 2:
 
-    _Var4 = this->perpMode_;
-
-    switch(_Var4) {
+    switch(this->perpMode_) {
 
     case 0:
 
@@ -1424,25 +1379,15 @@ void AIHigh_BTC_AIPerp::HighExecute()
 
       }
 
-      otherCarObj = ((this->originalActivationCop_))->carObj_;
+      if (this->originalActivationCop_->carObj_->direction ==
+          this->carObj_->direction) {
 
-      if (otherCarObj->direction == this->carObj_->direction) {
+        if (0 < AIWorld_ApxSplineDistance(
+                    this->carObj_,this->originalActivationCop_->carObj_) *
+                    this->carObj_->direction) {
 
-        iVar1 = AIWorld_ApxSplineDistance(this->carObj_,otherCarObj);
-
-        if (0 < iVar1 * this->carObj_->direction) {
-
-          iVar1 = this->carObj_->currentSpeed;
-
-          if (iVar1 < 0) {
-
-            iVar1 = -iVar1;
-
-          }
-
-          iVar1 = fixedmult(iVar1,0xcccc);
-
-          (this->originalActivationCop_)->requestedDesiredSpeed_ = iVar1;
+          this->originalActivationCop_->requestedDesiredSpeed_ =
+              fixedmult(__builtin_abs(this->carObj_->currentSpeed),0xcccc);
 
         }
 
@@ -1456,11 +1401,9 @@ void AIHigh_BTC_AIPerp::HighExecute()
 
     }
 
-    _Var4 = this->perpMode_;
-
 perpMode_merge:
 
-    if (_Var4 != 5) break;
+    if (this->perpMode_ != 5) break;
 
     this->HandleCops();
 
@@ -1474,33 +1417,9 @@ perpMode_merge:
 
   case 0:
 
-    pAVar3 = operator new(8);
-
-    carObj = this->carObj_;
-
-    (new(pAVar3) AIState_Base(carObj));
-
-    pAVar3->_vf = (__vtbl_ptr_type (*) [4])AIHigh_BTC_AIPerp_vtable;
-
-    memset((u_char *)&trafficOffset,'\0',0xc);
-
-    trafficOffset.y = carObj->carIndex * 0xa0000;
-
-    Newton_SetInitialSlicePositionOrientationEtc(&pAVar3->carObj_->N,0,&trafficOffset,1);
-
-    (pAVar3->carObj_->N).active = '\0';
-
-    pAVar5 = this->state_;
-
-    if (pAVar5 != (AIState_Base *)0x0) {
-
-      (*(*pAVar5->_vf)[2].pfn)((int)&pAVar5->carObj_ + (int)(*pAVar5->_vf)[2].delta,3);
-
-    }
-
-    this->state_ = pAVar3;
-
-    this->stateType_ = 7;
+    /* SYM-INLINE-LOCAL: carObj = AIState_BTCInactive
+       SYM-INLINE-LOCAL: trafficOffset = AIState_BTCInactive */
+    this->SetState(new AIState_BTCInactive(this->carObj_),STATE_NONACTIVE);
 
     this->perpMode_ = 0;
 
@@ -1556,22 +1475,10 @@ perpMode_merge:
     }
 
     else if (this->perpMode_ == 2) {
+      AIState_Base *newState;
 
-      this_00 = operator new(8);
-
-      newState = (AIState_Base*)(new(this_00) AIState_Normal(this->carObj_));
-
-      pAVar5 = this->state_;
-
-      if (pAVar5 != (AIState_Base *)0x0) {
-
-        (*(*pAVar5->_vf)[2].pfn)((int)&pAVar5->carObj_ + (int)(*pAVar5->_vf)[2].delta,3);
-
-      }
-
-      this->state_ = newState;
-
-      this->stateType_ = 2;
+      newState = new AIState_Normal(this->carObj_);
+      this->SetState(newState,STATE_NORMAL);
 
       this->perpMode_ = 4;
 

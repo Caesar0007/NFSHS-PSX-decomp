@@ -1384,6 +1384,25 @@ def documented_inline_locals(
             declarations = [
                 decl for decl in helpers[0].decls if decl.get("name") == local_name
             ]
+            # Universal Ctags emits an in-class constructor twice: the simple
+            # record owns no parameter/local rows, while the qualified
+            # `Class::Class` duplicate owns them.  Allow the existing simple
+            # SYM-INLINE-LOCAL helper spelling to follow only that exact,
+            # unique constructor twin; this remains declaration-backed and
+            # cannot suppress an arbitrary missing retail name.
+            if not declarations:
+                constructor_name = f"{helper_name}::{helper_name}"
+                constructor_helpers = [
+                    fn
+                    for fn in src_fns
+                    if fn.path == src.path and fn.name == constructor_name
+                ]
+                if len(constructor_helpers) == 1:
+                    declarations = [
+                        decl
+                        for decl in constructor_helpers[0].decls
+                        if decl.get("name") == local_name
+                    ]
         elif helpers:
             # Ambiguous same-TU overloads need a stronger signature-aware
             # receipt; do not silently fall through to an unrelated header

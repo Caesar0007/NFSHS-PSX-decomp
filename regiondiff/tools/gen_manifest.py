@@ -69,6 +69,16 @@ for ln in (RD / 'variants.tsv').read_text().splitlines()[1:]:
                     cls, rva, words = index[r][name]
                     repr_r = r
                     break
+        # reclassify from the m2c corpus' hand-stub markers: a slice that is
+        # really DATA (no jr $ra) or a byte-exact PsyQ kernel-gate thunk is
+        # not reconstruction work -- flag it so the board excludes it.
+        mc = RD / 'm2c' / f'NFS4-R-{repr_r}' / (fnfile(name) + '.c')
+        if mc.exists():
+            head = mc.read_text(errors='replace')[:400]
+            if 'DATA misdetected' in head:
+                cls = 'DATA-BLOB'
+            elif '/* PsyQ' in head or 'kernel gate' in head:
+                cls = 'LIB-THUNK'
         unit = unit_of.get(name)
         if unit is None:
             unit = 'regiononly/' + fnfile(name)

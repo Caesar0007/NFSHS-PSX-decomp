@@ -1,6 +1,6 @@
 NFS4-PSX regional-variant reconstruction -- per-row progress
 (gate: regiondiff/tools/verify_region.py; plan: MANIFEST.tsv)
-TOTAL: 232 rows, 2 SEALED / 0 FAIL / 230 TODO / 0 ERROR
+TOTAL: 232 rows, 2 SEALED / 0 FAIL / 221 TODO / 0 ERROR / 9 N-A (data-blob or lib-thunk)
 ========================================================================================
 status      words  region     unit                         function
 TODO            8  USA        game/common/aiscript         AIScript_Assign__FP10AIScript_tPA7_25AIScript_tReactionDetails
@@ -185,12 +185,12 @@ TODO          107  UK-ES-IT   regiononly/func_80012FDC     func_80012FDC
 TODO           37  AU         regiononly/func_8004DCB4     func_8004DCB4
 TODO           37  FR-DE      regiononly/func_8004DD24     func_8004DD24
 TODO           37  UK-ES-IT   regiononly/func_8004DD3C     func_8004DD3C
-TODO         6913  JPN        regiononly/func_80051568     func_80051568
-TODO         6579  USA        regiononly/func_80051AA0     func_80051AA0
-TODO         6533  AU         regiononly/func_80051B58     func_80051B58
-TODO         6339  UK-SW      regiononly/func_80051E60     func_80051E60
-TODO         6337  FR-DE      regiononly/func_80051E68     func_80051E68
-TODO         6321  UK-ES-IT   regiononly/func_80051EA8     func_80051EA8
+N/A          6913  JPN        regiononly/func_80051568     func_80051568
+N/A          6579  USA        regiononly/func_80051AA0     func_80051AA0
+N/A          6533  AU         regiononly/func_80051B58     func_80051B58
+N/A          6339  UK-SW      regiononly/func_80051E60     func_80051E60
+N/A          6337  FR-DE      regiononly/func_80051E68     func_80051E68
+N/A          6321  UK-ES-IT   regiononly/func_80051EA8     func_80051EA8
 TODO           19  USA        regiononly/func_800702E4     func_800702E4
 TODO           15  USA        regiononly/func_80070330     func_80070330
 TODO          465  USA        regiononly/func_80075F28     func_80075F28
@@ -224,9 +224,9 @@ TODO            2  USA        regiononly/func_800DCEAC     func_800DCEAC
 TODO            2  AU         regiononly/func_800DCED0     func_800DCED0
 TODO            2  AU         regiononly/func_800DCED8     func_800DCED8
 TODO           16  AU         regiononly/func_800EECDC     func_800EECDC
-TODO            4  JPN        regiononly/func_801051A4     func_801051A4
-TODO            4  USA        regiononly/func_801053B8     func_801053B8
-TODO            4  AU         regiononly/func_801053E4     func_801053E4
+N/A             4  JPN        regiononly/func_801051A4     func_801051A4
+N/A             4  USA        regiononly/func_801053B8     func_801053B8
+N/A             4  AU         regiononly/func_801053E4     func_801053E4
 TODO          129  USA        eaclib/psx/sndpsxz/sdma      iSNDdmtransfer
 TODO         2521  USA        eaclib/psx/sndpsxz/ssine     iSNDsin
 TODO          237  AU         game/common/nfs3             main

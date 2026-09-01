@@ -33,6 +33,8 @@ if only:
 # group rows by (candidate, repr_region); one compile+gate run per group
 groups = defaultdict(list)
 for r in rows:
+    if r['class'] in ('DATA-BLOB', 'LIB-THUNK'):
+        continue                       # classified non-work; shown as N/A
     groups[(r['candidate'], r['repr_region'], r['unit'])].append(r)
 
 status = {}   # (function, repr_region) -> text
@@ -60,16 +62,20 @@ for (cand, region, unit), grp in sorted(groups.items()):
         else:
             status[(fn, region)] = 'ERROR'
 
+for r in rows:
+    if r['class'] in ('DATA-BLOB', 'LIB-THUNK'):
+        status[(r['function'], r['repr_region'])] = 'N/A'
 sealed = sum(1 for v in status.values() if v == 'SEALED')
 todo = sum(1 for v in status.values() if v == 'TODO')
 fail = sum(1 for v in status.values() if v.startswith('FAIL'))
 err = sum(1 for v in status.values() if v == 'ERROR')
+na = sum(1 for v in status.values() if v == 'N/A')
 
 out = []
 out.append('NFS4-PSX regional-variant reconstruction -- per-row progress')
 out.append('(gate: regiondiff/tools/verify_region.py; plan: MANIFEST.tsv)')
 out.append(f'TOTAL: {len(rows)} rows, {sealed} SEALED / {fail} FAIL / '
-           f'{todo} TODO / {err} ERROR')
+           f'{todo} TODO / {err} ERROR / {na} N-A (data-blob or lib-thunk)')
 out.append('=' * 88)
 out.append(f'{"status":<10} {"words":>6}  {"region":<10} {"unit":<28} function')
 for r in rows:

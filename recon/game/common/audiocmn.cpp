@@ -264,16 +264,14 @@ void AudioCmn_InitAsyncSfx(void)
 void AudioCmn_RemoveAsyncSfx(int slot)
 {
   AudioCmn_tAsyncSfxSlot *s;
-  char *ptr;
 
   s = &AudioCmn_gSfxSlot[slot];
   if (s->patch != -1) {
     if (s->handle != 0xffffffff) {
       SNDbankremove(s->handle);
-      ptr = s->header;
       s->handle = -1;
-      if (ptr != (char *)0x0) {
-        purgememadr(ptr);
+      if (s->header != (char *)0x0) {
+        purgememadr(s->header);
         s->header = (char *)0x0;
       }
     }
@@ -286,13 +284,12 @@ void AudioCmn_RemoveAsyncSfx(int slot)
 void AudioCmn_DeInitAsyncSfx(void)
 {
   int i;
-  int slot;
   
-  slot = 0;
+  i = 0;
   do {
-    AudioCmn_RemoveAsyncSfx(slot);
-    slot = slot + 1;
-  } while (slot < 0x20);
+    AudioCmn_RemoveAsyncSfx(i);
+    i = i + 1;
+  } while (i < 0x20);
   return;
 }
 
@@ -345,6 +342,10 @@ void AudioCmn_LoadAsyncSfx(int bank,int patch,void *pbank,int size)
 
   slot = 0;
   do {
+    /* SYM-CODEGEN-CARRIER: s -- the loop-local slot base is absent from the
+     * retail debug local list but is required in $s4.  Direct array indexing
+     * expands 105 instructions to 108 and produces 83 authoritative diffs,
+     * changing the saved-register allocation and parameter-save order. */
     AudioCmn_tAsyncSfxSlot *s = &AudioCmn_gSfxSlot[slot];
     if ((patch == s->patch) && (bank == s->bank) && (s->handle == -1)) {
       if (size != 0) {
@@ -1168,27 +1169,26 @@ int ChooseImpactSample(int force,s_type surface1,s_type surface2)
 int ChooseLoopedSample(s_type surface1,s_type surface2)
 {
   int SFXnum;
-  int iVar1;
   
-  iVar1 = 0x2c;
+  SFXnum = 0x2c;
   if (surface1 == 2) {
     if (surface2 == 0) {
-      iVar1 = 0x2a;
+      SFXnum = 0x2a;
     }
     if (surface2 == 0x10) {
-      iVar1 = 0x2d;
+      SFXnum = 0x2d;
     }
     if (surface2 == 0x11) {
-      iVar1 = 0x2e;
+      SFXnum = 0x2e;
     }
     if (surface2 == 0x12) {
-      iVar1 = 0x2f;
+      SFXnum = 0x2f;
     }
     if (surface2 == 0xb) {
-      iVar1 = 0x2b;
+      SFXnum = 0x2b;
     }
     if (surface2 == 0xc) {
-      iVar1 = 0x2c;
+      SFXnum = 0x2c;
     }
   }
   /* MATCH (w59-a10 branch-target audit): the old `if (surface2 != 0xc) goto
@@ -1200,15 +1200,15 @@ int ChooseLoopedSample(s_type surface1,s_type surface2)
      entry bne's DELAY SLOT (idx2), so no second store outside is needed. */
   if ((surface1 == 1) &&
      ((((surface2 == 0 || (surface2 == 0x10)) || (surface2 == 3)) || (surface2 == 0xb)))) {
-    iVar1 = 0x28;
+    SFXnum = 0x28;
   }
   if ((surface1 == 2) && (surface2 == 3)) {
-    iVar1 = 0x29;
+    SFXnum = 0x29;
   }
   if ((surface1 == 1) && (surface2 == 0xc)) {
-    iVar1 = 0x2c;
+    SFXnum = 0x2c;
   }
-  return iVar1;
+  return SFXnum;
 }
 
 /* ---- AudioCmn_SFX__Fi6s_typeT1iii  [@0x80077d50] ---- */
@@ -1256,6 +1256,10 @@ void AudioCmn_SFX(int sndPlayer,s_type surface1,s_type surface2,int tweakedForce
        cross-jumps it into the shared tail `jal` at 0x800780A0, entering one instruction
        late because it stores tempAmp instead of amplitude into 0x10(sp). */
     int tempAmp;
+    /* SYM-CODEGEN-CARRIER: forceAmp -- retaining the pre-call clamp result
+     * outside the SYM-recorded tempAmp preserves retail's `$a0` argument and
+     * `$s0` result handoff.  Reusing tempAmp directly remains 224 instructions
+     * but produces eight authoritative register/call-delay-slot diffs. */
     int forceAmp;
 
     forceAmp = 0x7f;
@@ -1336,13 +1340,10 @@ void AudioCmn_SFX(int sndPlayer,s_type surface1,s_type surface2,int tweakedForce
 /* ---- freeVoiceChannel__Fi  [@0x800780d0] ---- */
 void freeVoiceChannel(int sndPlayer)
 {
-  void *pThis;
-
   if (AudioCmn_kAudioOn != 0) {
     if (sndPlayer != -1) {
-      pThis = gaChannel[sndPlayer].Partial;
-      if (pThis != (void *)0xffffffff) {   /* @0x80078108: Partial == -1 sentinel (disasm-v3) */
-        SNDautovol(pThis,5,-1);
+      if ((void *)gaChannel[sndPlayer].Partial != (void *)0xffffffff) {   /* @0x80078108: Partial == -1 sentinel (disasm-v3) */
+        SNDautovol((void *)gaChannel[sndPlayer].Partial,5,-1);
         gaChannel[sndPlayer].Partial = -1;
         gaChannel[sndPlayer].SFXnum = -1;
         NumSFXOn = NumSFXOn + -1;
@@ -1469,10 +1470,7 @@ int AudioCmn_PlayDoppleredSound(int bhandle,int patchNum,int azimuth,int vol,int
 /* ---- AudioCmn_PlaySound__Fiiiii  [@0x800783a0] ---- */
 int AudioCmn_PlaySound(int bhandle,int patchNum,int azimuth,int vol,int bend)
 {
-  int iVar1;
-  
-  iVar1 = AudioCmn_PlayDoppleredSound(bhandle,patchNum,azimuth,vol,bend,0x10000);
-  return iVar1;
+  return AudioCmn_PlayDoppleredSound(bhandle,patchNum,azimuth,vol,bend,0x10000);
 }
 
 /* ---- AudioCmn_PlaySFX__Fiiiiii  [@0x800783cc] ---- */
@@ -2071,16 +2069,15 @@ void AudioCmn_TrafficSFX(int iChan,int iSFXnum,int freq,int doppler,int dst,int 
 void AudioCmn_TrafficSkidSFX(int sndPlayer,s_type surface1,s_type surface2,int force,int Distsq,int azimuth)
 {
   int iAmpIn;
-  int iVar1;
 
   if (AudioCmn_kAudioOn != 0) {
     if (Distsq < 0x1324) {
-      iVar1 = ((0x1324 - Distsq) * 0x7f) / 0x1324;
+      iAmpIn = ((0x1324 - Distsq) * 0x7f) / 0x1324;
     }
     else {
-      iVar1 = 0;
+      iAmpIn = 0;
     }
-    if ((iVar1 == 0) && (sndPlayer != -1)) {
+    if ((iAmpIn == 0) && (sndPlayer != -1)) {
       if (gaChannel[sndPlayer].Partial != -1) {
         freeVoiceChannel(sndPlayer);
       }
@@ -2188,6 +2185,10 @@ void AudioCmn_PlayFESFXVol(int SFXnum,int vol)
   playopts.pan = 0x40;
   playopts.bhandle = (char)gSndBnk[0].bnkID;
   {
+    /* SYM-CODEGEN-CARRIER: volScaled -- the named product is optimized into
+     * retail's value flow but blocks GCC from reassociating the multiplications.
+     * Folding it into the field assignment grows 34 instructions to 35 and
+     * produces seven authoritative diffs. */
     int volScaled = vol * 0x78;
     playopts.vol = (char)((gMasterSFXLevel * volScaled) >> 0xe);
   }
@@ -2214,24 +2215,21 @@ void AudioCmn_PlayPauseSound(int patch)
 void quickSirenOn(int sirennum)
 {
   int patch;
-  int iVar1;
   
-  iVar1 = 8;
+  patch = 8;
   if ((sirennum & 1U) != 0) {
-    iVar1 = 6;
+    patch = 6;
   }
-  iVar1 = AudioCmn_PlaySound(gSndBnk[3].bnkID,iVar1,0x40,0,sirenCurrentPitch[sirennum]);
-  gaChannel[sirennum + 0x2b].Partial = iVar1;
+  gaChannel[sirennum + 0x2b].Partial =
+      AudioCmn_PlaySound(gSndBnk[3].bnkID,patch,0x40,0,sirenCurrentPitch[sirennum]);
   return;
 }
 
 /* ---- SuperCopSirenOn__Fi  [@0x80079790] ---- */
 void SuperCopSirenOn(int sirennum)
 {
-  int iVar1;
-  
-  iVar1 = AudioCmn_PlaySound(gSndBnk[3].bnkID,9,0x40,0,sirenCurrentPitch[sirennum]);
-  gaChannel[sirennum + 0x2b].Partial = iVar1;
+  gaChannel[sirennum + 0x2b].Partial =
+      AudioCmn_PlaySound(gSndBnk[3].bnkID,9,0x40,0,sirenCurrentPitch[sirennum]);
   return;
 }
 
@@ -2303,7 +2301,12 @@ void UpdateSiren(int sirennum,int amp,int dop,int azimuth,int supercop)
        -- ours expanded the address first (and got the v0/v1 pair the other way round as a
        consequence).  Giving the clamp its own statement (a block-scoped temp, so it does not
        join the SYM's named-local budget) fixes the issue order; the register naming follows. */
-    { int bend = (0x7f < iFreq) ? 0x7f : iFreq;
+    { /* SYM-CODEGEN-CARRIER: bend -- this scoped argument-order carrier is
+         absent from retail's optimized local list.  Inlining the ternary
+         expands the channel address before the clamp and produces the
+         previously measured 10-diff ordering residual; the separate statement
+         yields the retail clamp-before-address sequence with no extra code. */
+      int bend = (0x7f < iFreq) ? 0x7f : iFreq;
       SNDpitchbend(gaChannel[sirennum + 0x2b].Partial,bend); }
     /* MATCH: 0x25/0x2f written as (amp*9)*4+amp / (amp*3)*0x10-amp -- the inner +/-
        node blocks gcc's multiply-chain regrouping of the constant onto the LEVEL
@@ -2366,7 +2369,6 @@ void AudioCmn_UnPause(void)
 void AudioCmn_UnPauseAndQuit(void)
 {
   int i;
-  int j;
 
   while (SNDover(AudioCmn_gCursorSndHandle) == 0)
     systemtask(0);
@@ -2384,15 +2386,17 @@ void AudioCmn_UnPauseAndQuit(void)
   GameSetup_gData.userSetting.musicLevel = gMasterMusicLevel;
   if (fReverbOn)
     AudioCmn_ReverbOff();
-  for (j = 0; j < 0x80; j++)
-    SNDmastervol(j);
+  {
+    int i;
+    for (i = 0; i < 0x80; i++)
+      SNDmastervol(i);
+  }
 }
 
 /* ---- AudioCmn_UnPauseAndRestart__Fv  [@0x80079d8c] ---- */
 void AudioCmn_UnPauseAndRestart(void)
 {
   int i;
-  int j;
 
   SPCH_ClearEventQueue();
   while (SNDover(AudioCmn_gCursorSndHandle) == 0)
@@ -2408,8 +2412,11 @@ void AudioCmn_UnPauseAndRestart(void)
       gaChannel[i].SFXnum  = -1;
     }
   }
-  for (j = 0; j < 0x80; j++)
-    SNDmastervol(j);
+  {
+    int i;
+    for (i = 0; i < 0x80; i++)
+      SNDmastervol(i);
+  }
   if (fReverbOn)
     AudioCmn_ReverbOff();
   GameSetup_gData.userSetting.sfxLevel   = gMasterSFXLevel;

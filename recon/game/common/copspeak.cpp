@@ -96,9 +96,7 @@ void CopSpeak_RadioStaticActive(int noise)
             (u_int)random() % (u_int)numpatches;
       }
       {
-        int *handle = &CopSpeak_gStaticHandle[i];
-
-        if (*handle == -1) {
+        if (CopSpeak_gStaticHandle[i] == -1) {
           int bhandle = AudioCmn_GetAsyncSfx
               (2,CopSpeak_gStaticPatch[i] + 0x2f,false);
 
@@ -111,15 +109,15 @@ void CopSpeak_RadioStaticActive(int noise)
             playopts.vol =
                 (u_char)(gMasterFENarrationLevel *
                          ((noise << 7) + noise) >> 0xe);
-            *handle = SNDplay(&playopts);
+            CopSpeak_gStaticHandle[i] = SNDplay(&playopts);
             CopSpeak_gStaticPatch[i] = -1;
-            if (*handle < 0) {
-              AudioClc_SndError(*handle);
+            if (CopSpeak_gStaticHandle[i] < 0) {
+              AudioClc_SndError(CopSpeak_gStaticHandle[i]);
             }
           }
         }
-        else if (SNDover(*handle) != 0) {
-          *handle = -1;
+        else if (SNDover(CopSpeak_gStaticHandle[i]) != 0) {
+          CopSpeak_gStaticHandle[i] = -1;
         }
       }
     }
@@ -372,7 +370,6 @@ void CopSpeak_InitVars(void)
 
 {
   int i;
-  CopSpeak_tBank *pCVar1;
 
   for (i = 0; i < 4; i++) {
     Copspeak_gBank[i].FileOpen = 0;
@@ -649,6 +646,10 @@ int CopSpeak_Play(CopSpeak_tRequest *r,int handle)
     }
   }
   else {
+    /* SYM-CODEGEN-CARRIER: scaled -- the separate narration-scale value is
+     * absent from retail's optimized local homes but preserves the `$v1`
+     * arithmetic web independently of SYM's `$a0` noise/vol web.  Reusing
+     * noise keeps 86 instructions yet produces 46 authoritative diffs. */
     int scaled = 0x80 - (vol >> 2);
     vol = gMasterFENarrationLevel * ((scaled << 7) + scaled) >> 0xe;
   }
@@ -945,6 +946,10 @@ void CopSpeak_Server(void)
     int noise = 0x30;
 
     if (next->car != (Car_tObj *)0x0) {
+      /* SYM-CODEGEN-CARRIER: carNoise -- the source clamp input is optimized
+       * away after copying into SYM's `noise`.  Merging both values remains
+       * 179 instructions but changes the clamp register and branch orientation
+       * for eight authoritative diffs. */
       int carNoise = *(short *)((char *)next->car + 0x8e) + 0x20;
 
       noise = 0x7f;

@@ -425,6 +425,10 @@ void AudioTrk_SoundTrack(Car_tObj *car,int trkazi)
                       /* MATCH: a separate temp stops fold reassociating
                          `fadeOut - (cur-128)` into `(fadeOut+128) - cur` (which reuses
                          the guard's temp); oracle 8007D118/11C keep `cur-128` distinct. */
+                      /* SYM-CODEGEN-CARRIER: curBack -- this scoped expression
+                         carrier is optimized away, but keeping `cur - 128`
+                         distinct prevents GCC from reassociating the subtract
+                         into `(fadeOut + 128) - cur`, as measured above. */
                       int curBack = cur - 128;
                       fade = fadeOut - curBack;
                     }
@@ -489,19 +493,9 @@ int AudioTrk_PreLoad(void)
   loaded = false;
   tick = gettick() + 0x280;
   numelems = gGameAudioList->numElements_;
-  for (;;) {
-    bool room;
-
-    room = false;
-    if (!loaded) {
-      if (gettick() < tick) {
-        room = 0x8000 < SNDmemlargestunused(&check);
-      }
-    }
+  while (!loaded && gettick() < tick &&
+         0x8000 < SNDmemlargestunused(&check)) {
     loaded = true;
-    if (!room) {
-      break;
-    }
     {
       AudioElem *se;
       int i;

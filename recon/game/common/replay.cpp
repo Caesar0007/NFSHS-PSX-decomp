@@ -73,6 +73,10 @@ char * Replay_Compress(char *uncompressed_data)
   int count;
   register int c_pointer;
   char begin_byte;
+  /* SYM-CODEGEN-CARRIER: u -- this source induction variable is eliminated by
+   * loop.c into the walked $a0 cursor; the two retail end cursors in $t2/$t3
+   * are compiler temporaries derived from the same `u < 32` bounds.  It has no
+   * runtime home and therefore no local record in the optimized SYM block. */
   int u;   /* eliminated biv: loop.c strength-reduces it away, hence no SYM record */
 
   done = 0;
@@ -123,6 +127,11 @@ char * Replay_Decompress(char *compressed_data)
   char current_byte;
   int c_pointer;
   int data_size;
+  /* SYM-CODEGEN-CARRIER: u_pointer -- GCC eliminates this output index into
+   * the walked $a1 pointer rooted at the global uncompressed_data array.  The
+   * retail SYM consequently records no local home; retaining the source BIV
+   * is what produces the exact pointer-walk code without changing the array's
+   * authoritative global type. */
   int u_pointer;
 
   data_size = (int)(u_char)*compressed_data;
@@ -316,30 +325,29 @@ tControllerData Replay_RetreivingControllerData(void)
   struct PackedBuf32 { char b[32]; };
   tControllerData controllerdata;
   char packeddata [33];
-  char *pcVar4;
 
   memcpy(packeddata,Replay_ReplayBuffer.buffer + Replay_ReplayGetPtr,
              (u_int)(u_char)Replay_ReplayBuffer.buffer[Replay_ReplayGetPtr]);
-  pcVar4 = Replay_Decompress(packeddata);
-  *(struct PackedBuf32 *)controllerdata.steering = *(struct PackedBuf32 *)pcVar4;
+  *(struct PackedBuf32 *)controllerdata.steering =
+      *(struct PackedBuf32 *)Replay_Decompress(packeddata);
   Replay_ReplayGetPtr = Replay_ReplayGetPtr + (u_int)(u_char)packeddata[0];
 
   memcpy(packeddata,Replay_ReplayBuffer.buffer + Replay_ReplayGetPtr,
              (u_int)(u_char)Replay_ReplayBuffer.buffer[Replay_ReplayGetPtr]);
-  pcVar4 = Replay_Decompress(packeddata);
-  *(struct PackedBuf32 *)controllerdata.gas = *(struct PackedBuf32 *)pcVar4;
+  *(struct PackedBuf32 *)controllerdata.gas =
+      *(struct PackedBuf32 *)Replay_Decompress(packeddata);
   Replay_ReplayGetPtr = Replay_ReplayGetPtr + (u_int)(u_char)packeddata[0];
 
   memcpy(packeddata,Replay_ReplayBuffer.buffer + Replay_ReplayGetPtr,
              (u_int)(u_char)Replay_ReplayBuffer.buffer[Replay_ReplayGetPtr]);
-  pcVar4 = Replay_Decompress(packeddata);
-  *(struct PackedBuf32 *)controllerdata.brake = *(struct PackedBuf32 *)pcVar4;
+  *(struct PackedBuf32 *)controllerdata.brake =
+      *(struct PackedBuf32 *)Replay_Decompress(packeddata);
   Replay_ReplayGetPtr = Replay_ReplayGetPtr + (u_int)(u_char)packeddata[0];
 
   memcpy(packeddata,Replay_ReplayBuffer.buffer + Replay_ReplayGetPtr,
              (u_int)(u_char)Replay_ReplayBuffer.buffer[Replay_ReplayGetPtr]);
-  pcVar4 = Replay_Decompress(packeddata);
-  *(struct PackedBuf32 *)controllerdata.states = *(struct PackedBuf32 *)pcVar4;
+  *(struct PackedBuf32 *)controllerdata.states =
+      *(struct PackedBuf32 *)Replay_Decompress(packeddata);
   Replay_ReplayGetPtr = Replay_ReplayGetPtr + (u_int)(u_char)packeddata[0];
   return controllerdata;
 }

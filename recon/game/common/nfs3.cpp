@@ -50,6 +50,13 @@ char         finishOrder[8];   /* @0x8013d2c0 */
 void Nfs2_SystemNLibStartUp(void)
 
 {
+  /* SYM-CODEGEN-CARRIER: p -- retail's source-level
+   * `Speech::fgUndefined = new Speech::Speaker` has no named local, but the
+   * flattened reconstruction must spell the implicit new-expression result
+   * explicitly while installing Speaker's vptr and zeroing fSub.  Assigning
+   * __builtin_new directly to the global keeps 25 instructions but moves both
+   * constructor stores after the global store (4 authoritative diffs); this
+   * carrier preserves retail's constructor-before-publication order exactly. */
   int p;
 
   Platform_SysStartUp();
@@ -192,8 +199,6 @@ static void NFS4_LoadPerps(void)
 void Nfs2_GameModuleStartUp(int *FrontEndDataStream)
 
 {
-  void *pThis;
-  
   Audio_InitDriver(0,0);
   restoretextdraw();
   Platform_InitMemory();
@@ -210,8 +215,7 @@ void Nfs2_GameModuleStartUp(int *FrontEndDataStream)
   AudioCmn_LoadGameSamples();
   CopSpeak_StartUp();
   if ((GameSetup_gData.raceType == RaceType_HotPursuit) && (_6Speech_fgSpeech == 0)) {
-    pThis = __builtin_new(0x3a4);
-    _6Speech_fgSpeech = (int)__6Speech(pThis);
+    _6Speech_fgSpeech = (int)__6Speech(__builtin_new(0x3a4));
   }
   Render_InitPauseMenu();
   Render_InitTrackRender();
@@ -290,10 +294,9 @@ void LoadFrontendOverlay(void)
 
 {
   int handle;
-  int iVar1;
   
   handle = asyncloadfileat("front.bin",bigBuf);
-  while (iVar1 = getasyncreadstatus(handle), iVar1 == 0) {
+  while (getasyncreadstatus(handle) == 0) {
     systemtask(0);
   }
   return;
@@ -308,13 +311,12 @@ void LoadOverlay(void)
 
 {
   int handle;
-  int iVar1;
   char fname [60];
   
   LoadFrontendOverlay();
   sprintf(fname,"%sDCT.BIN",Paths_Paths[0x20]);
   handle = asyncloadfileat(fname,(int)&CF_DVLC);
-  while (iVar1 = getasyncreadstatus(handle), iVar1 == 0) {
+  while (getasyncreadstatus(handle) == 0) {
     systemtask(0);
   }
   return;

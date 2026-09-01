@@ -154,7 +154,6 @@ void Camera_UpdateCollisionCam(int player)
   coorddef arm = {0, 0x30000, -0xa0000};   /* SYM: AUTO; braced init -> rodata template D_800558A4 copy */
   coorddef newarm;   /* SYM: AUTO */
   coorddef oldarm;   /* SYM: AUTO */
-  BO_tNewtonObj *pBVar3;
 
   if (((Camera_SimVarWords[4] == 0) || (Camera_ReplayInterfaceWords[6] != 0)) &&
      (InBetween == 0)) {
@@ -168,10 +167,9 @@ void Camera_UpdateCollisionCam(int player)
     Camera_gInfo[player].relpos.y = oldarm.y + fixedmult(newarm.y - oldarm.y,0x51e);
     Camera_gInfo[player].relpos.z = oldarm.z + fixedmult(newarm.z - oldarm.z,0x51e);
     /* here the oracle keeps ONE cached anchor for all three lines (no re-load) */
-    pBVar3 = Camera_gInfo[player].anchor;
-    Camera_gInfo[player].position.x = (pBVar3->position).x + Camera_gInfo[player].relpos.x;
-    Camera_gInfo[player].position.y = (pBVar3->position).y + Camera_gInfo[player].relpos.y;
-    Camera_gInfo[player].position.z = (pBVar3->position).z + Camera_gInfo[player].relpos.z;
+    Camera_gInfo[player].position.x = Camera_gInfo[player].anchor->position.x + Camera_gInfo[player].relpos.x;
+    Camera_gInfo[player].position.y = Camera_gInfo[player].anchor->position.y + Camera_gInfo[player].relpos.y;
+    Camera_gInfo[player].position.z = Camera_gInfo[player].anchor->position.z + Camera_gInfo[player].relpos.z;
     if (Camera_gInfo[player].tumbling == 0) {
       Camera_gInfo[player].intransition = 0x32;
     }
@@ -847,6 +845,10 @@ void Camera_UpdateCircleCam(int player)
 /* ---- SetCameraZoom__Fii  [@0x80081d38] ---- */
 void SetCameraZoom(int player,int targetDist)
 {
+  /* SYM-CODEGEN-CARRIER: gs -- this private zoom result has no retained debug
+   * home, but it separates the calculation/clamp web from the global store.
+   * Mutating Camera_gGeomScreen directly shrinks 68 instructions to 67 and
+   * produces 19 authoritative control/data-flow diffs. */
   int gs;
 
   if (Camera_gInfo[player].splitscreen != 0) {
@@ -1929,17 +1931,15 @@ void Camera_Kill(void)
 {
   int i;            /* SYM: REG i INT */
   int splitScreen;  /* SYM: REG splitScreen INT */
-  signed char none; /* compiler pseudo: shared -1 for compare + sb (li s3,-1 in preheader) */
 
   splitScreen = Camera_GameSetupWords[3] == 1;
   /* MATCH: index form (SYM has NO pointer local) — gcc strength-reduces to the s0+=0x110 walk
    * keeping animHandle's 0x7D displacement; a hand pointer-walk folds base+125 into the biv */
   for (i = 0; i <= splitScreen; i = i + 1) {
-    none = -1;   /* MATCH: invariant -> hoisted to preheader; shared -1 reg for compare + sb */
-    if ((signed char)Camera_gInfo[i].animHandle != none) {
+    if ((signed char)Camera_gInfo[i].animHandle != -1) {
       Anim_FreeHandle((int)(signed char)Camera_gInfo[i].animHandle);
     }
-    Camera_gInfo[i].animHandle = none;
+    Camera_gInfo[i].animHandle = -1;
   }
   return;
 }
@@ -1971,24 +1971,21 @@ int Camera_TooSteep(int player,BWorldSm_Pos *slicePos)
   coorddef normUnderCar;    /* SYM: AUTO */
   coorddef camToCar;        /* SYM: AUTO */
   BWorldSm_Pos *slicePos2;  /* SYM: REG (anchor+8, addiu s0,s0,8 in the 1st jal slot) */
-  int d0;
 
   slicePos2 = &(Camera_gInfo[player].anchor)->simRoadInfo;
   normUnderCam = *(coorddef *)BWorldSm_UNormal(slicePos);
   normUnderCar = *(coorddef *)BWorldSm_UNormal(slicePos2);
-  d0 = fixedmult(normUnderCam.x,normUnderCar.x) +
-       fixedmult(normUnderCam.y,normUnderCar.y) +
-       fixedmult(normUnderCam.z,normUnderCar.z);
-  if (0xb4fc < d0) {
+  if (0xb4fc < fixedmult(normUnderCam.x,normUnderCar.x) +
+               fixedmult(normUnderCam.y,normUnderCar.y) +
+               fixedmult(normUnderCam.z,normUnderCar.z)) {
     return 0;   /* MATCH: direct returns - v0=0/1 staged in branch delay slots, no result var */
   }
   camToCar.x = Camera_gInfo[player].anchor->position.x - Camera_gInfo[player].position.x;
   camToCar.y = Camera_gInfo[player].anchor->position.y - Camera_gInfo[player].position.y;
   camToCar.z = Camera_gInfo[player].anchor->position.z - Camera_gInfo[player].position.z;
-  d0 = fixedmult(normUnderCam.x,camToCar.x) +
-       fixedmult(normUnderCam.y,camToCar.y) +
-       fixedmult(normUnderCam.z,camToCar.z);
-  if (0 < d0) {
+  if (0 < fixedmult(normUnderCam.x,camToCar.x) +
+          fixedmult(normUnderCam.y,camToCar.y) +
+          fixedmult(normUnderCam.z,camToCar.z)) {
     if ((Camera_gInfo[player].anchor)->flightTime == 0) {
       return 1;
     }
@@ -2474,7 +2471,6 @@ int Camera_GetMode(int cviewP)
 void Camera_SetMode(int cviewP,int mode)
 {
   camera_flags*flagMode;
-  short sVar1;
 
   InBetween = 0;
   if (Camera_gInfo[cviewP].modechange == 0) {
@@ -2497,16 +2493,14 @@ void Camera_SetMode(int cviewP,int mode)
       Camera_SetSplineCam(cviewP);
     }
     Camera_gInfo[cviewP].intransition = '2';
-    sVar1 = Camera_gInfo[cviewP].mode;
-    flagMode = &Camera_gFlags[sVar1];
+    flagMode = &Camera_gFlags[Camera_gInfo[cviewP].mode];
     Camera_gInfo[cviewP].pitch = flagMode->pitch;
     Camera_gInfo[cviewP].jostling = flagMode->jostling;
     Camera_gInfo[cviewP].tracking = flagMode->tracking;
     Camera_gInfo[cviewP].checkwalls = flagMode->checkwalls;
     Camera_gInfo[cviewP].noLookBack = flagMode->noLookBack;
     Camera_gInfo[cviewP].checkcollisions = flagMode->checkcollisions;
-    sVar1 = Camera_gInfo[cviewP].mode;
-    Camera_gInfo[cviewP].inCar = sVar1 < 2;
+    Camera_gInfo[cviewP].inCar = Camera_gInfo[cviewP].mode < 2;
   }
   return;
 }

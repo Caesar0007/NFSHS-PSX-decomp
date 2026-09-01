@@ -101,12 +101,14 @@ void FindAbsClosestSliceCrude(coorddef *pt,BWorldSm_Pos *slicePos)
 int BWorldSm_FindClosestSlice(coorddef *pt,BWorldSm_Pos *slicePos)
 {
   int startSlice;
+  /* SYM-CODEGEN-CARRIER: bVar3 -- repeating the slice comparison directly
+   * for the two stores and return grows 39 to 45 instructions with 40 oracle
+   * diffs; this shared optimized result preserves retail's single boolean. */
   bool bVar3;
-  int iVar4;
-  
+
   startSlice = slicePos->slice;
-  iVar4 = Math_DistXZ((coorddef *)((char *)BWorldSm_slices + startSlice * 0x20),pt);
-  if (0x800000 < iVar4) {
+  if (0x800000 <
+      Math_DistXZ((coorddef *)((char *)BWorldSm_slices + startSlice * 0x20),pt)) {
     FindAbsClosestSliceCrude(pt,slicePos);
   }
   RawFindClosestSlice(pt,slicePos);
@@ -203,18 +205,19 @@ void RawFindClosestSlice(coorddef *pt,BWorldSm_Pos *slicePos)
 /* ---- BWorldSm_SetSlice__FiP12BWorldSm_Pos  [@0x8007ed64] ---- */
 void BWorldSm_SetSlice(int slice,BWorldSm_Pos *slicePos)
 {
+  /* SYM-CODEGEN-CARRIER: uVar1 -- loading chunkIndex directly at the final
+   * store keeps 21 instructions but changes 18 load/store scheduling and
+   * register-allocation instructions. */
   u_char uVar1;
-  int iVar2;
-  
+
   slicePos->slice = (short)slice;
   slicePos->sliceChanged = '\0';
   slicePos->quadChanged = '\0';
   slicePos->offEdge = '\0';
-  iVar2 = BWorldSm_slices;
   slicePos->simSlice = (Trk_NewSimSlice *)0x0;
   slicePos->simQuad = (Trk_NewSimQuad *)0x0;
   slicePos->simRotFlag = 0;
-  uVar1 = *(u_char *)(slicePos->slice * 0x20 + iVar2 + 0x1c);
+  uVar1 = BWorldSm_slices[slicePos->slice].chunkIndex;
   *(signed char *)&slicePos->lastRezRequested = -2;
   slicePos->rez = '\x01';
   slicePos->triangleFlag = '\0';
@@ -674,6 +677,9 @@ int BWorldSm_FindClosestQuadRez(coorddef *pt,BWorldSm_Pos *slicePos,int hiRezFla
   if (hiRezFlag != 0) {
     slicePos->lastRezRequested = '\x02';
     if (slicePos->simQuad != (Trk_NewSimQuad *)0x0) {
+      /* SYM-CODEGEN-CARRIER: inQuad -- embedding the fourth direction test
+       * into the success branch shrinks 115 to 112 instructions and leaves
+       * 21 frame/allocation/scheduling diffs. */
       int inQuad;
 
       inQuad = 0;
@@ -683,11 +689,10 @@ int BWorldSm_FindClosestQuadRez(coorddef *pt,BWorldSm_Pos *slicePos,int hiRezFla
                            slicePos->quadPts[1],*pt) <= 0) {
           if (BW_QUAD_PT_DIR(slicePos->quadPts[2],
                              slicePos->quadPts[3],*pt) <= 0) {
-            int direction;
-
-            direction = BW_QUAD_PT_DIR(slicePos->quadPts[3],
-                                      slicePos->quadPts[0],*pt);
-            inQuad = direction < 1;
+            if (BW_QUAD_PT_DIR(slicePos->quadPts[3],
+                               slicePos->quadPts[0],*pt) < 1) {
+              inQuad = 1;
+            }
           }
         }
       }
@@ -718,12 +723,8 @@ int BWorldSm_FindClosestQuadMaxIterations(coorddef *pt,BWorldSm_Pos *slicePos,in
 /* ---- PointDirection__FP8coorddefN20  [@0x8007fcb0] ---- */
 int PointDirection(coorddef *p1,coorddef *p2,coorddef *p3)
 {
-  int iVar1;
-  int iVar2;
-  
-  iVar1 = fixedmult(p1->x - p2->x,p3->z - p2->z);
-  iVar2 = fixedmult(p3->x - p2->x,p1->z - p2->z);
-  return iVar1 - iVar2;
+  return fixedmult(p1->x - p2->x,p3->z - p2->z) -
+         fixedmult(p3->x - p2->x,p1->z - p2->z);
 }
 
 /* ---- BWorldSm_FindEdgeOff__FP8coorddefP12BWorldSm_PosT1Pi  [@0x8007fd28] ---- */
@@ -793,20 +794,21 @@ int BWorldSm_QuadLight(BWorldSm_Pos *slicePos)
 bool BWorldSm_TunnelFlagSm(BWorldSm_Pos *slicePos)
 {
   int surf;
+  /* SYM-CODEGEN-CARRIER: surfVal -- consuming simQuad->surface directly keeps
+   * 22 instructions but changes six pointer-load register instructions. */
   u_long surfVal;
-  u_char bVar1;
 
   if ((*(u_char *)(slicePos->slice * 0x20 + (char *)BWorldSm_slices + 0x15) & 0x44) != 0) {
     return 1;
   }
   if (slicePos->simQuad != (Trk_NewSimQuad *)0x0) {
     surfVal = slicePos->simQuad->surface;
-    bVar1 = surfVal & 0xf;
+    surf = surfVal & 0xf;
   }
   else {
-    bVar1 = 0xe;
+    surf = 0xe;
   }
-  return (u_int)((bVar1 ^ 8) < 1);
+  return (u_int)((surf ^ 8) < 1);
 }
 
 /* ---- NormalCache_AddEntry__FP12BWorldSm_Pos  [@0x8008002c] ---- */

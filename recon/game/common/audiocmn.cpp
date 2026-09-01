@@ -222,9 +222,16 @@ void AudioCmn_PlayThunder(int intensity,int azimuth)
 /* ---- AudioCmn_UpdateThunder__Fv  [@0x800764d0] ---- */
 void AudioCmn_UpdateThunder(void)
 {
+  /* SYM-CODEGEN-CARRIER: uVar1 -- removing the random-mask snapshot while
+   * retaining the amplitude result shrinks 43 to 40 instructions with 25
+   * frame/control-flow diffs; retaining only this snapshot is 43/43 with 16
+   * arithmetic/register diffs. */
   u_int uVar1;
+  /* SYM-CODEGEN-CARRIER: iVar2 -- folding both quantities directly keeps
+   * 43 instructions but reassociates the per-arm additions for eight diffs.
+   * The later random result also preserves retail's saved-register lifetime. */
   int iVar2;
-  
+
   if ((0 < AudioCmn_ThunderAmp) &&
      (AudioCmn_ThunderDel = AudioCmn_ThunderDel + -1, AudioCmn_ThunderDel < 0)) {
     AudioCmn_PlaySound(gSndBnk[3].bnkID,0x16,AudioCmn_ThunderAzi,AudioCmn_ThunderAmp,0x40);
@@ -239,7 +246,7 @@ void AudioCmn_UpdateThunder(void)
     iVar2 -= uVar1;
     AudioCmn_ThunderAmp = iVar2;
     iVar2 = random();
-    AudioCmn_ThunderDel = iVar2 + 0x14U & 3;
+    AudioCmn_ThunderDel = (iVar2 + 0x14U) & 3;
   }
   return;
 }
@@ -944,17 +951,10 @@ LAB_800774e0:
     }
   }
   if (currentLap[(u_char)carnum] == '\0') {
-    /* MATCH: reuse one explicit word offset for both arrays so the tail's
-       sll precedes address materialization exactly (8 -> 6). */
-    int tailOffset = (u_char)carnum << 2;
-    *(int *)((int)tailOffset + (int)bestLapTime) =
-        simGlobal.gameTicks - *(int *)((int)tailOffset + (int)gtotallaptimes);
+    bestLapTime[(u_char)carnum] =
+        simGlobal.gameTicks - gtotallaptimes[(u_char)carnum];
   }
-  {
-    char lap = (char)car->lap;
-    /* MATCH: the direct byte local preserves the SLD 1190/1191 interleave. */
-    currentLap[(u_char)carnum] = lap;
-  }
+  currentLap[(u_char)carnum] = (char)car->lap;
   gtotallaptimes[(u_char)carnum] = (car->stats).lapTime;
   intensityFalseLapCounter = falseLapCounter = car->lap;
   return;
@@ -1019,35 +1019,37 @@ void AudioCmn_InitChannelArray(void)
 int scaleFrequency(int sndPlayer,int iSFXnum,int tweakedForce)
 {
   int scaledFreq;
+  /* SYM-CODEGEN-CARRIER: uVar1 -- reusing parameter `tweakedForce` for the
+   * scaled quotient keeps 51 instructions but changes 12 quotient/clamp
+   * register instructions; the distinct value must remain in retail `$a2`. */
   u_int uVar1;
-  u_int uVar2;
-  
+
   if (sndPlayer - 0x12U < 2) {
     uVar1 = (tweakedForce * 0x7f) / 0xa0000;
-    uVar2 = 0x7f;
+    scaledFreq = 0x7f;
     if ((int)uVar1 < 0x80) {
-      uVar2 = uVar1;
+      scaledFreq = uVar1;
     }
   }
   else if (sndPlayer - 0x14U < 2) {
     uVar1 = (tweakedForce * 0x7f) / 0xa0000;
-    uVar2 = 0x7f;
+    scaledFreq = 0x7f;
     if ((int)uVar1 < 0x80) {
-      uVar2 = uVar1;
+      scaledFreq = uVar1;
     }
   }
   else if (gaChannel[sndPlayer].SFXnum != iSFXnum) {
     uVar1 = (tweakedForce * 0x7f) / 0xa0000;
-    uVar2 = 0x7f;
+    scaledFreq = 0x7f;
     if ((int)uVar1 < 0x80) {
-      uVar2 = uVar1;
+      scaledFreq = uVar1;
     }
-    SkidInitMaxFreq[sndPlayer] = (char)uVar2;
+    SkidInitMaxFreq[sndPlayer] = (char)scaledFreq;
   }
   else {
-    uVar2 = (u_int)(u_char)SkidInitMaxFreq[sndPlayer];
+    scaledFreq = (u_int)(u_char)SkidInitMaxFreq[sndPlayer];
   }
-  return uVar2;
+  return scaledFreq;
 }
 
 /* ---- ChooseImpactSample__Fi6s_typeT1  [@0x800779b4] ---- */
@@ -2131,16 +2133,14 @@ void AudioCmn_PlayerHornOn(int carIndex,int Distsq,int iFreqIn,int azimuth,int d
 int AudioCmn_PlayerHornOff(int carIndex)
 {
   int player;
-  u_int uVar1;
-  int sndPlayer;
 
   if (AudioCmn_kAudioOn == 0) {
     return 0;
   }
-  sndPlayer = 0x29;
+  player = 0x29;
   if (carIndex != 0) {
     if (GameSetup_gData.commMode == 1) {
-      sndPlayer = 0x2a;
+      player = 0x2a;
       goto LAB_8007957c;
     }
   }
@@ -2149,12 +2149,12 @@ LAB_8007957c:
     if (GameSetup_gData.commMode == 1) goto LAB_800795e8;
   }
   if (((Cars_gList[carIndex]->carInfo->carType == 0x14) &&
-      (gaChannel[sndPlayer].Partial != 0xffffffff)) &&
-     (uVar1 = SNDover(gaChannel[sndPlayer].Partial), uVar1 == 0)) {
+      (gaChannel[player].Partial != 0xffffffff)) &&
+     (SNDover(gaChannel[player].Partial) == 0)) {
     return 1;
   }
 LAB_800795e8:
-  freeVoiceChannel(sndPlayer);
+  freeVoiceChannel(player);
   return 0;
 }
 

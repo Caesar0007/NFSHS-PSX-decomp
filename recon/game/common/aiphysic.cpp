@@ -529,17 +529,18 @@ void AIPhysic_CheckForBadPosition(Car_tObj *carObj)
 {
     int badSpeed = 0;
     int badRoadPos = 0;
-    char *slice;
-    int pos;
     if (0x730000 < carObj->N.linearVel.z ||
         0x730000 < carObj->N.linearVel.x ||
         (0x730000 < carObj->N.speedXZ &&
          carObj->N.simOptz == 0))
         badSpeed = 1;
-    slice = (char *)((*(short *)((char *)carObj + 8) << 5) + (int)AIPhysic_BWorldSmSlices);
-    pos = carObj->roadPosition;
-    if (pos < (int)0xFFDD0000 - (*(short *)((char *)slice + 0x18) << 8) ||
-        (*(short *)((char *)slice + 0x1A) << 8) + 0x230000 < pos)
+    if (carObj->roadPosition <
+            (int)0xFFDD0000 -
+                (*(short *)(((int)carObj->N.simRoadInfo.slice << 5) +
+                            (int)AIPhysic_BWorldSmSlices + 0x18) << 8) ||
+        (*(short *)(((int)carObj->N.simRoadInfo.slice << 5) +
+                    (int)AIPhysic_BWorldSmSlices + 0x1a) << 8) +
+                0x230000 < carObj->roadPosition)
         badRoadPos = 1;
     if (badSpeed || badRoadPos)
         Cars_ResetCollidedCars(carObj, 1, 0);
@@ -551,13 +552,10 @@ void AIPhysic_CheckForBadPosition(Car_tObj *carObj)
  * block order + branch polarity (the `||` form lays return 0 first → wrong order). */
 int AIPhysics_UseCoolPhysics(Car_tObj *carObj)
 {
-    int flags = carObj->carFlags;
-    unsigned char b;
-    if (flags & 0x800) goto ret1;
-    b = carObj->N.simOptz;
-    if (b == 0) goto ret1;
-    if (!(flags & 0x20)) goto ret0;
-    if (b >= 2) goto ret0;
+    if (carObj->carFlags & 0x800) goto ret1;
+    if (carObj->N.simOptz == 0) goto ret1;
+    if (!(carObj->carFlags & 0x20)) goto ret0;
+    if (carObj->N.simOptz >= 2) goto ret0;
 ret1:
     return 1;
 ret0:
@@ -816,15 +814,13 @@ void AIPhysic_CoolPhysics(Car_tObj *carObj)
  * oracle (§3.12#5; same lever that fixed HandleWipeoutTimer). D_8011E0B0 == &simGlobal[1]. */
 void AIPhysic_HandleDirection(Car_tObj *carObj)
 {
-    int x718;
-    int x574;
     if (carObj->driveDirection != -1)
         return;
-    x718 = carObj->rampDesiredLatPos;
-    x574 = carObj->roadPosition;
-    if (x574 < x718 - 0xA0000 && carObj->lateralVelocity > 0)
+    if (carObj->roadPosition < carObj->rampDesiredLatPos - 0xA0000 &&
+        carObj->lateralVelocity > 0)
         goto setRamp;
-    if (x718 + 0xA0000 < x574 && carObj->lateralVelocity < 0)
+    if (carObj->rampDesiredLatPos + 0xA0000 < carObj->roadPosition &&
+        carObj->lateralVelocity < 0)
         goto setRamp;
     goto afterRamp;
 setRamp:
@@ -1302,6 +1298,10 @@ void AIPhysic_OutOfControlPhysics(Car_tObj *carObj)
      two operands on its own (the "r" constraints plus the surrounding allocation already
      force them), so the hard-register bindings were never load-bearing.  Do not re-add. */
   AIPhysic_Config_t *cfg;
+  /* SYM-CODEGEN-CARRIER: latvelcalcLookahead -- this is the source-visible
+   * result of the guide-authorized EA address/materialization load. Reusing
+   * SYM's later `desiredAngVel` keeps 412 instructions but changes 130
+   * allocation and arithmetic instructions by merging disjoint quantities. */
   int latvelcalcLookahead;
 
   dir = carObj->direction;
@@ -1322,9 +1322,9 @@ void AIPhysic_OutOfControlPhysics(Car_tObj *carObj)
     uTurn = carObj->driveDirection != -1;
   }
   {
-    int wipeOutEndTick = simGlobal[1];
+    dir = simGlobal[1];
     __asm__("addiu %0,%0,%%lo(AIPhysicConfig)" : "+r"(cfg));
-    carObj->wipeOutEndTick = wipeOutEndTick;
+    carObj->wipeOutEndTick = dir;
   }
   desiredAngVel = -carObj->aCarWRTDesired * fixedmult(0x80,cfg->OOCModel.dangle_to_dav);
   desiredAngVel = (desiredAngVel < cfg->OOCModel.max_dav)
@@ -2045,25 +2045,27 @@ void AIPhysic_ResetCar(Car_tObj *carObj)
  * divisions (gcc emits the bias idioms; distance=i<<16 turns the /0x10000 bias into ori)) ---- */
 void AIPhysic_InitCar(Car_tObj *carObj)
 {
-  u_int carFlags;
-
-  carFlags = carObj->carFlags;
-  if ((carFlags & 2) != 0) {
+  if ((carObj->carFlags & 2) != 0) {
     /* SYM-OPTIMIZED: d -- `d` (block @cc94) and `deceleration` (inlined ctor
        block) share REG $16=s0; the exact reconstruction models their optimized,
        repurposed value as the single `deceleration` source variable below. */
     {
+      /* SYM-INLINE-THIS: AIPhysic_BrakeInfo::AIPhysic_BrakeInfo
+       * SYM-CODEGEN-CARRIER: this_ -- `this` is a reserved C++ keyword outside
+       * the inlined constructor body. Storing the allocation directly in
+       * carObj->brakeInfo shrinks 93 to 91 instructions with 26 frame,
+       * allocation, and member-load diffs. */
       AIPhysic_BrakeInfo *this_;
       int deceleration;
       int invDeceleration;
       int brakeTableLoop;
 
       deceleration = 0xc0000;
-      if ((carFlags & 0x28) != 0) {
+      if ((carObj->carFlags & 0x28) != 0) {
         deceleration = 0xb0000;
       }
       deceleration = *(int *)((char *)carObj->personality + 0x20) / 256 * (deceleration / 256);
-      if ((carFlags & 8) != 0) {
+      if ((carObj->carFlags & 8) != 0) {
         deceleration = deceleration / 256 * (AISpeeds_GetUpgradeBrakeMult(carObj->carIndex) / 256);
       }
       this_ = (AIPhysic_BrakeInfo *)__builtin_new(0x84);
@@ -2083,7 +2085,8 @@ void AIPhysic_InitCar(Car_tObj *carObj)
             if (!(sIndex < 0x80)) {
               sIndex = 0x80;
             }
-            this_->brakeTable_[sIndex] = (u_char)(brakeDistanceMeters / 0x20000);
+            this_->brakeTable_[sIndex] =
+                (u_char)(brakeDistanceMeters / 0x20000);
           }
         }
         brakeTableLoop = brakeTableLoop + 1;

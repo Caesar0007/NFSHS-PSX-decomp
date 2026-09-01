@@ -119,16 +119,8 @@ void Camera_LookBack(matrixtdef *src,matrixtdef *tgt)
 /* ---- Camera_TunnelLimit__FiPi  [@0x800807c4] ---- */
 void Camera_TunnelLimit(int player,int *armheight)
 {
-  bool bVar1;
-  int pvVar2;
-
-  bVar1 = false;
-  pvVar2 = BWorldSm_TunnelFlagSm(&Camera_gInfo[player].slicePos);
-  if ((pvVar2 != 0) ||
-     (pvVar2 = BWorldSm_TunnelFlagSm(&(Camera_gInfo[player].anchor)->simRoadInfo), pvVar2 != 0)) {
-    bVar1 = true;
-  }
-  if (bVar1) {
+  if (BWorldSm_TunnelFlagSm(&Camera_gInfo[player].slicePos) ||
+      BWorldSm_TunnelFlagSm(&Camera_gInfo[player].anchor->simRoadInfo)) {
     BWorldSm_Pos *slicePos = &Camera_gInfo[player].slicePos;
     coorddef quadnormal = *(coorddef *)BWorldSm_UNormal(slicePos);
     coorddef underCam = Camera_gInfo[player].position;
@@ -189,19 +181,20 @@ void Camera_UpdateSimpleCam(int player)
 {
   coorddef arm;
   coorddef newarm;
+  /* SYM-CODEGEN-CARRIER: sVar1 -- indexing Camera_gFlags directly keeps all
+   * 57 instructions but schedules its address `lui` four instructions too
+   * early, producing two authoritative order diffs. */
   short sVar1;
-  BO_tNewtonObj *pBVar2;
 
   sVar1 = Camera_gInfo[player].mode;
   arm = Camera_gFlags[sVar1].arm;
   transform((int *)&arm,Camera_gInfo[player].anchor->orientMat.m,(int *)&newarm);
   Camera_TunnelLimit(player,&newarm.y);
   Camera_gInfo[player].position.x = Camera_gInfo[player].anchor->position.x + newarm.x;
-  /* MATCH: oracle re-loads anchor (lw a0,0(s0)) for the y/z pair - volatile re-deref blocks CSE */
-  pBVar2 = *(BO_tNewtonObj **)&Camera_gInfo[player].anchor;
-  Camera_gInfo[player].position.y = pBVar2->position.y + newarm.y;
-  Camera_gInfo[player].position.z = pBVar2->position.z + newarm.z;
-  Camera_LookBack(&pBVar2->orientMat,&Camera_gInfo[player].rotation);
+  Camera_gInfo[player].position.y = Camera_gInfo[player].anchor->position.y + newarm.y;
+  Camera_gInfo[player].position.z = Camera_gInfo[player].anchor->position.z + newarm.z;
+  Camera_LookBack(&Camera_gInfo[player].anchor->orientMat,
+                  &Camera_gInfo[player].rotation);
   return;
 }
 
@@ -211,10 +204,12 @@ void Camera_UpdateBumperCam(int player)
   coorddef arm;        /* SYM: AUTO @0x10 */
   coorddef newarm;     /* SYM: AUTO @0x20 */
   int lookingBehind;   /* SYM: REG ($s1) */
-  BO_tNewtonObj *pBVar4;
 
   lookingBehind = 0;
   {
+    /* SYM-CODEGEN-CARRIER: mode -- indexing Camera_gFlags directly keeps all
+     * 118 instructions but schedules its address `lui` four instructions too
+     * early, producing two authoritative order diffs. */
     short mode = Camera_gInfo[player].mode;
     arm = Camera_gFlags[mode].arm;
   }
@@ -224,17 +219,14 @@ void Camera_UpdateBumperCam(int player)
   if (lookingBehind) {
     transform(&arm,((Camera_gInfo[player].anchor)->orientMat).m,&newarm);
     Camera_gInfo[player].audioPos.x = ((Camera_gInfo[player].anchor)->position).x + newarm.x;
-    /* MATCH: oracle re-loads anchor for the y/z pair */
-    pBVar4 = *(BO_tNewtonObj *volatile *)&Camera_gInfo[player].anchor;
-    Camera_gInfo[player].audioPos.y = (pBVar4->position).y + newarm.y;
-    Camera_gInfo[player].audioPos.z = (pBVar4->position).z + newarm.z;
+    Camera_gInfo[player].audioPos.y = Camera_gInfo[player].anchor->position.y + newarm.y;
+    Camera_gInfo[player].audioPos.z = Camera_gInfo[player].anchor->position.z + newarm.z;
     arm.z = -arm.z;
   }
   transform(&arm,((Camera_gInfo[player].anchor)->orientMat).m,&newarm);
   Camera_gInfo[player].position.x = ((Camera_gInfo[player].anchor)->position).x + newarm.x;
-  pBVar4 = Camera_gInfo[player].anchor;
-  Camera_gInfo[player].position.y = (pBVar4->position).y + newarm.y;
-  Camera_gInfo[player].position.z = (pBVar4->position).z + newarm.z;
+  Camera_gInfo[player].position.y = Camera_gInfo[player].anchor->position.y + newarm.y;
+  Camera_gInfo[player].position.z = Camera_gInfo[player].anchor->position.z + newarm.z;
   if (lookingBehind) {
     Camera_LookBack(&Camera_gInfo[player].anchor->orientMat,&Camera_gInfo[player].rotation);
   }
@@ -1532,8 +1524,6 @@ void Camera_UpdatePulloverCam(int player)
 void Camera_UpdateCopCam1(int player)
 {
   coorddef vec;
-  int iVar1;
-  BO_tNewtonObj *pBVar5;
 
   vec.x = Camera_gInfo[player].anchor->position.x + Camera_gInfo[player].target->position.x;
   vec.y = Camera_gInfo[player].anchor->position.y + Camera_gInfo[player].target->position.y;
@@ -2202,7 +2192,9 @@ void Camera_AcquireTarget(int player,coorddef *point,coorddef *pos,matrixtdef *r
   coorddef*rotx;
   coorddef*roty;
   coorddef*rotz;
-  BO_tNewtonObj *pBVar1;
+  /* SYM-CODEGEN-CARRIER: adj -- spelling the three signed divide-by-four
+   * adjustments as direct conditional expressions keeps 231 instructions but
+   * changes 12 global-base/allocation instructions. */
   int adj;
 
   rotx = (coorddef *)rot;
@@ -2212,8 +2204,7 @@ void Camera_AcquireTarget(int player,coorddef *point,coorddef *pos,matrixtdef *r
     tgtPos = *point;
   }
   else {
-    pBVar1 = Camera_gInfo[player].target;
-    tgtPos = pBVar1->position;
+    tgtPos = Camera_gInfo[player].target->position;
   }
   adj = tgtPos.x - pos->x;
   if (adj < 0) {

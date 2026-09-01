@@ -110,15 +110,13 @@ void CalcObjExtentPoints(coorddef *cp,CCOORD16 *pts,coorddef *resultPts,tQuat *q
 void BuildObjCollisionMatrix(int weight,int objAngle,int impactAngle,matrixtdef *mat)
 
 {
-  int impactComp;
-  int objComp;
   matrixtdef impactMat;
   matrixtdef objAngleMat;
   matrixtdef tmpMat;
   
-  impactComp = fixedmult(-impactAngle,0x10000 - weight);
-  objComp = fixedmult(-objAngle,weight);
-  fixedxformy(&objAngleMat,impactComp + objComp);
+  fixedxformy(&objAngleMat,
+              fixedmult(-impactAngle,0x10000 - weight) +
+              fixedmult(-objAngle,weight));
   fixedxformy(&impactMat,impactAngle);
   Math_fasttransmult(&objAngleMat,mat,&tmpMat);
   Math_fasttransmult(&tmpMat,&impactMat,mat);
@@ -363,19 +361,17 @@ void Object_InitStatus(void)
 void Object_KillStatus(void)
 
 {
-  ObjectAnim *pOVar1;
-  ObjectAnim **ppOVar2;
   int i;
   
   i = 0;
-  ppOVar2 = gSimObjAnims;
   do {
-    pOVar1 = *ppOVar2;
-    if (pOVar1 != (ObjectAnim *)0x0) {
-      (*(*pOVar1->_vf)[1].pfn)((int)&pOVar1->_vf + (int)(*pOVar1->_vf)[1].delta,3);
+    if (gSimObjAnims[i] != (ObjectAnim *)0x0) {
+      (*(*gSimObjAnims[i]->_vf)[1].pfn)
+          ((int)&gSimObjAnims[i]->_vf +
+               (int)(*gSimObjAnims[i]->_vf)[1].delta,
+           3);
     }
     i = i + 1;
-    ppOVar2 = ppOVar2 + 1;
   } while (i < 0x1c2);
   return;
 }
@@ -467,6 +463,10 @@ int Object_CheckCollisionResults(Object_tSimObjList *objList,int objIndex,BO_tNe
         ret = -1;
         goto done;
       }
+      /* SYM-INLINE-THIS: ObjectFinishedMultiAnim::ObjectFinishedMultiAnim
+       * SYM-CODEGEN-CARRIER: finishedMulti -- reusing the dead SYM-named
+       * `objStatus` for this inlined constructor receiver shrinks 166 to 165
+       * instructions with 33 frame/allocation/control-flow diffs. */
       ObjectFinishedMultiAnim *finishedMulti;
 
       finishedMulti = (ObjectFinishedMultiAnim *)__builtin_new(sizeof(ObjectFinishedMultiAnim));
@@ -478,6 +478,10 @@ int Object_CheckCollisionResults(Object_tSimObjList *objList,int objIndex,BO_tNe
                                 finishedMulti))->_base_ObjectAnim;
     }
     else {
+      /* SYM-INLINE-THIS: ObjectFinishedSignAnim::ObjectFinishedSignAnim
+       * SYM-CODEGEN-CARRIER: finishedSign -- the paired allocation has the
+       * same implicit-constructor source role and shares the failed
+       * `objStatus`-reuse receipt above. */
       ObjectFinishedSignAnim *finishedSign;
 
       finishedSign = (ObjectFinishedSignAnim *)__builtin_new(sizeof(ObjectFinishedSignAnim));
@@ -680,19 +684,16 @@ notFound:
 void Object_AddCustomObject(SceneElem *objectData,int setupSimDataFlag)
 
 {
-  int type;
-
-  type = objectData->type;
-  if (type == 1) {
+  if (objectData->type == 1) {
     goto traffic_object;
   }
-  if (type < 2) {
-    if (type == 0) {
+  if (objectData->type < 2) {
+    if (objectData->type == 0) {
       goto custom_object;
     }
     goto done;
   }
-  if (type == 2) {
+  if (objectData->type == 2) {
     goto sfx_object;
   }
   goto done;
@@ -706,12 +707,11 @@ custom_object:
       objBoomInstance = (Trk_CollideBoomInst *)(Object_customObjInst + 1);
       index--;
       if (index != -1) {
-        short size;
-
-        size = (short)Object_customObjInst[1].m_num_elements;
         do {
           index--;
-          objBoomInstance = (Trk_CollideBoomInst *)((char *)objBoomInstance + size);
+          objBoomInstance = (Trk_CollideBoomInst *)
+              ((char *)objBoomInstance +
+               (short)Object_customObjInst[1].m_num_elements);
         } while (index != -1);
       }
       objBoomInstance->size = sizeof(Trk_CollideBoomInst);
@@ -871,8 +871,6 @@ void GetObjMaxDimensions(Trk_ObjectDef **pObjDefs,Trk_SimpleInst *objInstance,co
 {
   Trk_ObjectDef *objDef;
   int vertCount;
-  int lastVert;
-  int stopVert;
   CCOORD16 *pts;
   CCOORD16 minDim;
   CCOORD16 maxDim;
@@ -880,12 +878,10 @@ void GetObjMaxDimensions(Trk_ObjectDef **pObjDefs,Trk_SimpleInst *objInstance,co
   objDef = pObjDefs[objInstance->pad];
   memset(&minDim,0,8);
   memset(&maxDim,0,8);
-  lastVert = -1;
   vertCount = (int)objDef->vertexCount;
   pts = (CCOORD16 *)(objDef + 1);
   vertCount = vertCount + -1;
-  if (vertCount != lastVert) {
-    stopVert = lastVert;
+  if (vertCount != -1) {
     do {
     if (pts->x > maxDim.x) {
       maxDim.x = pts->x;
@@ -907,7 +903,7 @@ void GetObjMaxDimensions(Trk_ObjectDef **pObjDefs,Trk_SimpleInst *objInstance,co
     }
     pts = pts + 1;
     vertCount = vertCount + -1;
-    } while (vertCount != stopVert);
+    } while (vertCount != -1);
   }
   dimensions->x = ((int)maxDim.x - (int)minDim.x) * 0x200;
   dimensions->y = ((int)maxDim.y - (int)minDim.y) * 0x200;

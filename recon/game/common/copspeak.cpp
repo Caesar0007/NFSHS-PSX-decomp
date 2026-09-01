@@ -129,19 +129,14 @@ void CopSpeak_RadioStaticSquelch(void)
 
 {
   int i;
-  int iVar1;
-  int *ph;
 
   i = 0;
-  iVar1 = -1;
-  ph = CopSpeak_gStaticHandle;
   do {
-    if (*ph != iVar1) {
-      SNDstop(*ph);
-      *ph = iVar1;
+    if (CopSpeak_gStaticHandle[i] != -1) {
+      SNDstop(CopSpeak_gStaticHandle[i]);
+      CopSpeak_gStaticHandle[i] = -1;
     }
     i = i + 1;
-    ph = ph + 1;
   } while (i < 2);
   return;
 }
@@ -207,18 +202,14 @@ void CopSpeak_Alloc(CopSpeak_tRequest *r)
 void CopSpeak_Free(CopSpeak_tRequest *r)
 
 {
-  int iVar1;
-  int iVar2;
-
-  iVar1 = r->buffer;
-  if ((-1 < iVar1) && (iVar2 = r->size, 0 < iVar2)) {
+  if ((-1 < r->buffer) && (0 < r->size)) {
     if (CopSpeak_gBufferHigh != 0) {
-      if (iVar1 + iVar2 == (int)CopSpeak_gBufferHigh) {
+      if (r->buffer + r->size == (int)CopSpeak_gBufferHigh) {
         CopSpeak_gBufferHigh = 0;
         CopSpeak_gBufferEnd = 0x7ffc;
       }
     }
-    else if (iVar1 + iVar2 == (int)CopSpeak_gBufferStart) {
+    else if (r->buffer + r->size == (int)CopSpeak_gBufferStart) {
       CopSpeak_gBufferStart = 0;
       r->buffer = 0xffffffff;
       return;
@@ -342,23 +333,20 @@ void CopSpeak_CleanUp(void)
 
 {
   int i;
-  CopSpeak_tBank *pCVar1;
-  int iVar2;
-  
+
   CopSpeak_Stop();
-  iVar2 = 0;
+  i = 0;
   do {
-    pCVar1 = Copspeak_gBank + iVar2;
-    if (pCVar1->FileOpen != 0) {
-      FILE_closesync(pCVar1->FileHandle,100);   /* oracle 0x89b10/b14: a1=0x64 (was dropped) */
-      pCVar1->FileOpen = 0;
+    if (Copspeak_gBank[i].FileOpen != 0) {
+      FILE_closesync(Copspeak_gBank[i].FileHandle,100);   /* oracle 0x89b10/b14: a1=0x64 (was dropped) */
+      Copspeak_gBank[i].FileOpen = 0;
     }
-    if (pCVar1->Index != (CopSpeak_tFileIndex *)0x0) {
-      purgememadr(pCVar1->Index);
-      pCVar1->Index = (CopSpeak_tFileIndex *)0x0;
+    if (Copspeak_gBank[i].Index != (CopSpeak_tFileIndex *)0x0) {
+      purgememadr(Copspeak_gBank[i].Index);
+      Copspeak_gBank[i].Index = (CopSpeak_tFileIndex *)0x0;
     }
-    iVar2 = iVar2 + 1;
-  } while (iVar2 < 4);
+    i = i + 1;
+  } while (i < 4);
   if (((int)CopSpeak_gBuffer) != 0) {
     CopSpeak_gBuffer = (char *)0;
   }
@@ -395,24 +383,21 @@ void CopSpeak_DirectRequest(int filehandle,long offset,long size,Car_tObj *car,c
 
 {
   int next;
-  int iVar1;
   CopSpeak_tRequest *r;
-  int iVar2;
-  
-  iVar1 = CopSpeak_gQueueHead;
+
   r = CopSpeak_gQueue + CopSpeak_gQueueHead;
-  iVar2 = 0;
+  next = 0;
   if (CopSpeak_gQueueHead < 0x3f) {
-    iVar2 = CopSpeak_gQueueHead + 1;
+    next = CopSpeak_gQueueHead + 1;
   }
-  if (iVar2 != CopSpeak_gQueuePlay) {
+  if (next != CopSpeak_gQueuePlay) {
     CopSpeak_InitRequest(r);
-    CopSpeak_gQueue[iVar1].filehandle = filehandle;
-    CopSpeak_gQueue[iVar1].offset = offset;
-    CopSpeak_gQueue[iVar1].size = size;
-    CopSpeak_gQueue[iVar1].noise = '\x7f';
+    r->filehandle = filehandle;
+    r->offset = offset;
+    r->size = size;
+    r->noise = '\x7f';
     r->car = car;
-    CopSpeak_gQueueHead = iVar2;
+    CopSpeak_gQueueHead = next;
   }
   return;
 }
@@ -422,23 +407,20 @@ void CopSpeak_GenericBankRequest(int patch,Car_tObj *car)
 
 {
   int next;
-  int iVar1;
   CopSpeak_tRequest *r;
-  int iVar2;
-  
-  iVar1 = CopSpeak_gQueueHead;
+
   r = CopSpeak_gQueue + CopSpeak_gQueueHead;
-  iVar2 = 0;
+  next = 0;
   if (CopSpeak_gQueueHead < 0x3f) {
-    iVar2 = CopSpeak_gQueueHead + 1;
+    next = CopSpeak_gQueueHead + 1;
   }
-  if ((iVar2 != CopSpeak_gQueuePlay) && (iVar2 != CopSpeak_gQueueReady)) {
+  if ((next != CopSpeak_gQueuePlay) && (next != CopSpeak_gQueueReady)) {
     CopSpeak_InitRequest(r);
-    CopSpeak_gQueue[iVar1].bank = '\x03';
-    CopSpeak_gQueue[iVar1].phrase = patch;
-    CopSpeak_gQueue[iVar1].noise = '\x7f';
+    r->bank = '\x03';
+    r->phrase = patch;
+    r->noise = '\x7f';
     r->car = car;
-    CopSpeak_gQueueHead = iVar2;
+    CopSpeak_gQueueHead = next;
   }
   return;
 }
@@ -599,16 +581,14 @@ int CopSpeak_GetEnginePatch(int type,int timbre)
 
 {
   int patch;
-  int iVar1;
-  int t1;
 
   type = type + type;
-  t1 = timbre + 1;
-  iVar1 = type + t1;
-  if (Copspeak_gBank[1].Index[iVar1].size == 0) {
-    iVar1 = timbre + 0x45;
+  patch = timbre + 1;
+  type = type + patch;
+  if (Copspeak_gBank[1].Index[type].size == 0) {
+    type = timbre + 0x45;
   }
-  return iVar1;
+  return type;
 }
 
 /* ---- CopSpeak_Play__FP17CopSpeak_tRequesti  [COPSPEAK.CPP:920-974] SLD-VERIFIED ---- */
@@ -680,21 +660,15 @@ void CopSpeak_Skip(void)
 
 {
   CopSpeak_tRequest *r;
-  u_int uVar1;
-  int iVar2;
 
   r = &CopSpeak_gQueue[CopSpeak_gQueueLoad];
-  uVar1 = r->sfx;
   r->buffer = -1;
   r->phrase = -1;
-  if (uVar1 != 0) {
+  if (r->sfx != 0) {
     AudioCmn_LoadAsyncSfx(*(signed char *)&r->bank,0xffffffff,0,0);
   }
-  iVar2 = 0;
-  if (CopSpeak_gQueueLoad < 0x3f) {
-    iVar2 = CopSpeak_gQueueLoad + 1;
-  }
-  CopSpeak_gQueueLoad = iVar2;
+  CopSpeak_gQueueLoad =
+      CopSpeak_gQueueLoad < 0x3f ? CopSpeak_gQueueLoad + 1 : 0;
   return;
 }
 
@@ -702,18 +676,24 @@ void CopSpeak_Skip(void)
 int CopSpeak_Request(CopSpeak_tRequest *r)
 
 {
+  /* SYM-CODEGEN-CARRIER: head -- retail debug retains only `next` and `bank`.
+   * Removing this queue-head snapshot and using one function-scope `next`
+   * keeps 79 instructions but changes 16 allocation/load instructions; a
+   * direct conditional-expression spelling grows to 84/79 with 11 diffs. */
   int head;
-  int iVar6;
-  int next;
   CopSpeak_tBank *bank;  /* SYM: Def class REG $5 (a1) PTR CopSpeak_tBank name bank */
 
-  head = CopSpeak_gQueueHead;  /* MATCH: single top capture (a3) reused for guard 1 + copy index + return; guard 2 re-reads the global (a1) */
-  iVar6 = 0;
-  if (head < 0x3f) {
-    iVar6 = head + 1;
-  }
-  if (iVar6 == CopSpeak_gQueuePlay) {
-    return -1;
+  head = CopSpeak_gQueueHead;
+  {
+    int next;
+
+    next = 0;
+    if (head < 0x3f) {
+      next = head + 1;
+    }
+    if (next == CopSpeak_gQueuePlay) {
+      return -1;
+    }
   }
   bank = &Copspeak_gBank[*(signed char *)&r->bank];
   if (((bank->FileOpen == 0) ||
@@ -730,11 +710,15 @@ int CopSpeak_Request(CopSpeak_tRequest *r)
     return -1;
   }
   CopSpeak_gQueue[head] = *r;
-  next = 0;
-  if (CopSpeak_gQueueHead < 0x3f) {
-    next = CopSpeak_gQueueHead + 1;
+  {
+    int next;
+
+    next = 0;
+    if (CopSpeak_gQueueHead < 0x3f) {
+      next = CopSpeak_gQueueHead + 1;
+    }
+    CopSpeak_gQueueHead = next;
   }
-  CopSpeak_gQueueHead = next;
   return head;
 }
 
@@ -822,8 +806,14 @@ void CopSpeak_LoadNextRequest(void)
 void CopSpeak_PlayNextRequest(void)
 
 {
+  /* SYM-CODEGEN-CARRIER: iVar3 -- indexing and advancing directly from
+   * CopSpeak_gQueuePlay keeps 71 instructions but changes six oracle
+   * allocation/scheduling instructions. */
   int iVar3;
   int handle;
+  /* SYM-CODEGEN-CARRIER: next -- spelling the wraparound assignment as a
+   * direct conditional expression is 73/71 with eight oracle diffs; reusing
+   * SYM's `handle` keeps 71 instructions but changes six register choices. */
   int next;
   CopSpeak_tRequest *r;
 
@@ -976,22 +966,17 @@ void CopSpeak_Server(void)
 int CopSpeak_SfxQueued(void)
 
 {
-  int iVar1;
   int chkQ;
   int count;
-  CopSpeak_tRequest *pEntry;
 
   count = 0;
   chkQ = CopSpeak_gQueuePlay;
-  while (iVar1 = chkQ, iVar1 != CopSpeak_gQueueHead) {
-    pEntry = CopSpeak_gQueue + iVar1;
-    if ((0 <= *(signed char *)&pEntry->bank) && (pEntry->sfx != '\0')) {
+  while (chkQ != CopSpeak_gQueueHead) {
+    if ((0 <= (signed char)CopSpeak_gQueue[chkQ].bank) &&
+        (CopSpeak_gQueue[chkQ].sfx != '\0')) {
       count = count + 1;
     }
-    chkQ = 0;
-    if (iVar1 < 0x3f) {
-      chkQ = iVar1 + 1;
-    }
+    chkQ = chkQ < 0x3f ? chkQ + 1 : 0;
   }
   return count;
 }

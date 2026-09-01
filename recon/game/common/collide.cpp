@@ -369,79 +369,26 @@ void Collide_LimitAngularVel(BO_tNewtonObj *o)
 
 
 {
+  if ((o->angularVel).x < 0)
+    (o->angularVel).x =
+        (o->angularVel).x > -0x18000 ? (o->angularVel).x : -0x18000;
+  else
+    (o->angularVel).x =
+        (o->angularVel).x > 0x18000 ? 0x18000 : (o->angularVel).x;
 
-  int iVar1;
+  if ((o->angularVel).y < 0)
+    (o->angularVel).y =
+        (o->angularVel).y > -0x18000 ? (o->angularVel).y : -0x18000;
+  else
+    (o->angularVel).y =
+        (o->angularVel).y > 0x18000 ? 0x18000 : (o->angularVel).y;
 
-  int iVar2;
-
-  
-
-  iVar1 = (o->angularVel).x;
-
-  if (iVar1 < 0) {
-
-    if (iVar1 < -0x18000) {
-
-      iVar1 = -0x18000;
-
-    }
-
-    (o->angularVel).x = iVar1;
-
-  }
-
-  else {
-
-    iVar2 = (0x18000 < iVar1) ? 0x18000 : iVar1;
-
-    (o->angularVel).x = iVar2;
-
-  }
-
-  iVar1 = (o->angularVel).y;
-
-  if (iVar1 < 0) {
-
-    if (iVar1 < -0x18000) {
-
-      iVar1 = -0x18000;
-
-    }
-
-    (o->angularVel).y = iVar1;
-
-  }
-
-  else {
-
-    iVar2 = (0x18000 < iVar1) ? 0x18000 : iVar1;
-
-    (o->angularVel).y = iVar2;
-
-  }
-
-  iVar1 = (o->angularVel).z;
-
-  if (iVar1 < 0) {
-
-    if (iVar1 < -0x18000) {
-
-      iVar1 = -0x18000;
-
-    }
-
-    (o->angularVel).z = iVar1;
-
-    return;
-
-  }
-
-  iVar2 = (0x18000 < iVar1) ? 0x18000 : iVar1;
-
-  (o->angularVel).z = iVar2;
-
-  return;
-
+  if ((o->angularVel).z < 0)
+    (o->angularVel).z =
+        (o->angularVel).z > -0x18000 ? (o->angularVel).z : -0x18000;
+  else
+    (o->angularVel).z =
+        (o->angularVel).z > 0x18000 ? 0x18000 : (o->angularVel).z;
 }
 
 /* ---- Collide_TestWithPlane__FP13BO_tNewtonObjP8coorddefT1  [@0x8008d9a8] ---- */
@@ -674,6 +621,8 @@ int Collide_DoObjectObjectCollision(BO_tNewtonObj *o0,BO_tNewtonObj *o1,coorddef
      statement LATER it also pins `addu fp,a1,zero`, which retail schedules
      into a load-delay slot (5 diffs).  2nd operand => 203 diffs (05C). */
   __asm__("" : : "i"(0));
+  /* SYM-CODEGEN-CARRIER: object1 -- this alias is the measured source-level
+     spelling that keeps retail's long-lived `o1` allocation in $fp. */
   BO_tNewtonObj *object1 = o1;
 #define o1 object1
 
@@ -713,15 +662,12 @@ int Collide_DoObjectObjectCollision(BO_tNewtonObj *o0,BO_tNewtonObj *o1,coorddef
   if (((o1[1].simRoadInfo.quadPts[1].y & 4) != 0) && ((o1->collision).collided == 0)) {
     (o1->collision).collided = 2;
   }
-  {
-    int scaleFactor;
-
-    scaleFactor = 0x3333;
-    if (((o0[1].simRoadInfo.quadPts[1].y & 4) != 0) && ((o1[1].simRoadInfo.quadPts[1].y & 4) != 0)) {
-      scaleFactor = 0x4000;
-    }
-    impulse = fixedmult(scaleFactor,impulse);
-  }
+  impulse = fixedmult(
+      ((o0[1].simRoadInfo.quadPts[1].y & 4) != 0) &&
+              ((o1[1].simRoadInfo.quadPts[1].y & 4) != 0)
+          ? 0x4000
+          : 0x3333,
+      impulse);
   /* MATCH: zero-insn USE FENCE (sched-issue-position fixpoint).  Without it the
      `addu s6,v0,zero` that lands the scaled impulse sinks into the load-delay
      slot of the following `lw t0,196(sp)`; retail issues it straight after the
@@ -1544,6 +1490,9 @@ int Collide_TestObjectVertices(BO_tNewtonObj *o0,BO_tNewtonObj *o1,coorddef *p,c
                de-coalesced by ONE zero-insn read-only fence placed past ANY branch the
                source already emits -- a /256, a clamp, a guard.  Look for an existing
                block boundary before concluding a copy is unreachable. */
+            /* SYM-CODEGEN-CARRIER: rpx -- allocator proof and alternatives are
+               recorded immediately above. */
+            /* SYM-CODEGEN-CARRIER: rpz -- paired retail load/copy carrier. */
             int rpx = relativePosition.x, rpz = relativePosition.z;
 
             maxrp = rpx;

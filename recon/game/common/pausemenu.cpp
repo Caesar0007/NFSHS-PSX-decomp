@@ -44,17 +44,20 @@ void PauseMenu_MenuTextPositioned(short index,short selected,short disabled,shor
 
 {
   char *str;
-  int iVar1;
-  char *sMenuText;
+  /* SYM-CODEGEN-CARRIER: flags -- GCC strength-reuses the dead `index` home
+     for this call result, matching retail's $s0 lifetime.  Reusing the
+     otherwise-unused `disabled` parameter preserves the instruction multiset
+     but moves six scheduled rows; nesting the calls moves eighteen. */
+  int flags;
   short color;
   
-  iVar1 = TextSys_WordFlags((int)index);
-  sMenuText = TextSys_Word((int)index);
+  flags = TextSys_WordFlags((int)index);
+  str = TextSys_Word((int)index);
   color = 4;
   if (selected != 0) {
     color = 3;
   }
-  PauseMenu_FullText(sMenuText,x,(short)iVar1,color);
+  PauseMenu_FullText(str,x,(short)flags,color);
   return;
 }
 
@@ -121,11 +124,11 @@ char tPListIterator::Value(tPlayer arg1)
 short tPListIterator::TextValue(tPlayer arg1)
 
 {
-  u_int uVar1;
-  
-  uVar1 = (*(*this->_vf)[2].pfn)((int)&this->fSelectionList + (int)(*this->_vf)[2].delta,0xffffffff)
-  ;
-  return (int)this->fSelectionList[uVar1 & 0xff];
+  /* SYM-ABI-PARAM: arg1 -- required by the virtual signature/linkage but
+     unused and therefore absent from the optimized SYM declaration block. */
+  return (int)this->fSelectionList[
+      (*(*this->_vf)[2].pfn)((int)&this->fSelectionList +
+                             (int)(*this->_vf)[2].delta,0xffffffff) & 0xff];
 }
 
 
@@ -329,6 +332,9 @@ bool tPMenuItem::Debounce()
 void tPMenuItem::ProcessInput(tInputKeyType &keyval,tPMenuCommand &command)
 
 {
+  /* SYM-ABI-PARAM: keyval -- required by the virtual signature/linkage. */
+  /* SYM-ABI-PARAM: command -- required by the virtual signature/linkage.
+     This base implementation is empty, so optimized SYM retains only `this`. */
   return;
 }
 
@@ -906,23 +912,25 @@ void tPMenu::tPMenuConstructor(tPMenuItem *firstItem,void *ap)
 
 {
   tPMenuItem *p;
-  int iVar2;
-  int iVar3;
+  /* SYM-CODEGEN-CARRIER: offset -- retail's $a1 induction is the
+     strength-reduced destination offset.  Recomputing the array index from
+     fNumItems is count-exact but changes sixteen rows and no longer emits the
+     retail induction sequence. */
+  int offset;
 
   ap = (void *)((int)ap + 4);
   this->fItemList[0] = firstItem;
   this->fNumItems = 0;
-  p = ((tPMenuItem **)ap)[-1];
-  this->fItemList[1] = p;
-  if (p != (tPMenuItem *)0x0) {
-    iVar3 = 4;
+  this->fItemList[1] = ((tPMenuItem **)ap)[-1];
+  if (this->fItemList[1] != (tPMenuItem *)0x0) {
+    offset = 4;
     do {
-      iVar3 = iVar3 + 4;
+      offset = offset + 4;
       this->fNumItems = this->fNumItems + 1;
       ap = (void *)((int)ap + 4);
-      iVar2 = ((int *)ap)[-1];
-      *(int *)((int)this + iVar3 + 8) = iVar2;
-    } while (iVar2 != 0);
+      p = ((tPMenuItem **)ap)[-1];
+      *(tPMenuItem **)((int)this + offset + 8) = p;
+    } while (p != (tPMenuItem *)0x0);
   }
   return;
 }

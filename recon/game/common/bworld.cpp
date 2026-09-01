@@ -55,36 +55,24 @@ void BWorld_Init(void);
 /* ---- xzsquaredist32__FP8coorddefT0  [@0x8007d5c4] ---- */
 int xzsquaredist32(coorddef *c1,coorddef *c2)
 {
-  int iVar1;
-  int iVar2;
-  
-  iVar1 = c2->x - c1->x >> 0xc;
-  iVar2 = c2->z - c1->z >> 0xc;
-  return (iVar1 * iVar1 >> 6) + (iVar2 * iVar2 >> 6);
+  return (((c2->x - c1->x >> 0xc) * (c2->x - c1->x >> 0xc)) >> 6) +
+         (((c2->z - c1->z >> 0xc) * (c2->z - c1->z >> 0xc)) >> 6);
 }
 
 /* ---- UpdateContext__FP13DRender_tViewi  [@0x8007d608] ---- */
 void UpdateContext(DRender_tView *Vi,int contextHandle)
 {
-  u_int uVar1;
-  DRender_tCalcView *pt;
-
   SetContext(contextHandle);
   if (contextHandle == 0) {
-    pt = &Vi->cview;
     gBWSlice = (int)(gCurrContext->slicePos).slice;
   }
-  else {
-    pt = &Vi->cview;
-  }
-  BWorldSm_FindClosestQuadRez(&pt->translation,&gCurrContext->slicePos,1);
+  BWorldSm_FindClosestQuadRez(&Vi->cview.translation,&gCurrContext->slicePos,1);
   if ((signed char)(gCurrContext->slicePos).offEdge != '\0') {
-    FindAbsClosestSliceCrude(&pt->translation,&gCurrContext->slicePos);
-    BWorldSm_FindClosestQuadRez(&pt->translation,&gCurrContext->slicePos,1);
+    FindAbsClosestSliceCrude(&Vi->cview.translation,&gCurrContext->slicePos);
+    BWorldSm_FindClosestQuadRez(&Vi->cview.translation,&gCurrContext->slicePos,1);
   }
-  uVar1 = (u_int)(gCurrContext->slicePos).chunk;
-  if (gCurrContext->currentChunk != uVar1) {
-    gCurrContext->currentChunk = uVar1;
+  if (gCurrContext->currentChunk != (u_int)(gCurrContext->slicePos).chunk) {
+    gCurrContext->currentChunk = (u_int)(gCurrContext->slicePos).chunk;
   }
   return;
 }
@@ -882,21 +870,14 @@ int SetupChunkBuildList(DRender_tView *Vi)
 }
 
 /* ---- BWorld_IsSliceInBuildList__Fi  [@0x8007e0a0] ---- */
-/* PASS (21/21 insns). Was a 5-diff near-miss: oracle loads BWorld_gChunkCount into $v0 for the
- * `blez` test, copies it to $a2 in the branch delay slot (`addu a2,v0,zero`) for the loop bound;
- * a single cached/direct global read gave gcc only ONE "value" to allocate, which it put
- * straight into $a2 (no v0 stage, no copy). FIX: read the global TWICE textually -- once bare in
- * the `if (0 < BWorld_gChunkCount)` test (gcc allocates this transient test value to $v0) and
- * once more into a local `chunkCount` right after entering the block (gcc allocates this
- * long-lived loop-bound value to $a2, materialized via the delay-slot copy) -- semantically a
- * no-op re-read of the same never-mutated global, but it hands gcc's -O2 scheduler two distinct
- * materializations instead of one, reproducing the oracle's v0-then-a2 shape exactly. */
+/* PASS (21/21 insns): the indexed source loop strength-reduces its build-list
+ * address into retail's $v1 induction.  The condition and loop bound retain
+ * two textual BWorld_gChunkCount uses; GCC materializes the value in $v0 and
+ * copies it to long-lived $a2 in the guard's delay slot. */
 bool BWorld_IsSliceInBuildList(int slice)
 {
-  int *piVar1;
   int bi;
   int chunk;
-  int chunkCount;
 
   bi = 0;
   if (slice < 0) {
@@ -904,15 +885,12 @@ bool BWorld_IsSliceInBuildList(int slice)
   }
   chunk = slice >> 3;
   if (0 < BWorld_gChunkCount) {
-    chunkCount = BWorld_gChunkCount;
-    piVar1 = (int *)BWorld_gChunkBuildList;
     do {
-      bi = bi + 1;
-      if ((int)(short)*piVar1 == chunk) {
+      if ((int)((tBuildEntry *)BWorld_gChunkBuildList)[bi].chunkInd == chunk) {
         return 1;
       }
-      piVar1 = piVar1 + 1;
-    } while (bi < chunkCount);
+      bi = bi + 1;
+    } while (bi < BWorld_gChunkCount);
   }
   return 0;
 }

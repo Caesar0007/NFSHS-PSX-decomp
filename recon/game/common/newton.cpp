@@ -111,13 +111,12 @@ void Newton_AddDamageZone(BO_tNewtonObj *newtonObj,int impulse,int zone,int type
         newtonObj->damage[1] = temp < newtonObj->damage[1] ?
             newtonObj->damage[1] : temp;
         {
-          int secondTemp =
-              (newtonObj->damage[0] + newtonObj->damage[6]) / 2;
+          int temp = (newtonObj->damage[0] + newtonObj->damage[6]) / 2;
 
-          if (secondTemp < newtonObj->damage[7]) {
-            secondTemp = newtonObj->damage[7];
+          if (temp < newtonObj->damage[7]) {
+            temp = newtonObj->damage[7];
           }
-          newtonObj->damage[7] = secondTemp;
+          newtonObj->damage[7] = temp;
         }
       }
       else if (zone == 1) {
@@ -127,13 +126,12 @@ void Newton_AddDamageZone(BO_tNewtonObj *newtonObj,int impulse,int zone,int type
         newtonObj->damage[0] = temp < newtonObj->damage[0] ?
             newtonObj->damage[0] : temp;
         {
-          int secondTemp =
-              (newtonObj->damage[1] + newtonObj->damage[3]) / 2;
+          int temp = (newtonObj->damage[1] + newtonObj->damage[3]) / 2;
 
-          if (secondTemp < newtonObj->damage[2]) {
-            secondTemp = newtonObj->damage[2];
+          if (temp < newtonObj->damage[2]) {
+            temp = newtonObj->damage[2];
           }
-          newtonObj->damage[2] = secondTemp;
+          newtonObj->damage[2] = temp;
         }
       }
       else if (zone == 6) {
@@ -143,13 +141,12 @@ void Newton_AddDamageZone(BO_tNewtonObj *newtonObj,int impulse,int zone,int type
         newtonObj->damage[5] = temp < newtonObj->damage[5] ?
             newtonObj->damage[5] : temp;
         {
-          int secondTemp =
-              (newtonObj->damage[0] + newtonObj->damage[6]) / 2;
+          int temp = (newtonObj->damage[0] + newtonObj->damage[6]) / 2;
 
-          if (secondTemp < newtonObj->damage[7]) {
-            secondTemp = newtonObj->damage[7];
+          if (temp < newtonObj->damage[7]) {
+            temp = newtonObj->damage[7];
           }
-          newtonObj->damage[7] = secondTemp;
+          newtonObj->damage[7] = temp;
         }
       }
       else if (zone == 7) {
@@ -159,18 +156,20 @@ void Newton_AddDamageZone(BO_tNewtonObj *newtonObj,int impulse,int zone,int type
         newtonObj->damage[0] = temp < newtonObj->damage[0] ?
             newtonObj->damage[0] : temp;
         {
-          int secondTemp =
-              (newtonObj->damage[5] + newtonObj->damage[7]) / 2;
+          int temp = (newtonObj->damage[5] + newtonObj->damage[7]) / 2;
 
-          if (secondTemp < newtonObj->damage[6]) {
-            secondTemp = newtonObj->damage[6];
+          if (temp < newtonObj->damage[6]) {
+            temp = newtonObj->damage[6];
           }
-          newtonObj->damage[6] = secondTemp;
+          newtonObj->damage[6] = temp;
         }
       }
       else {
-        /* MATCH: keep the average and the two-arm maximum in separate webs.
-         * This preserves retail's v0 pre-divide sum and v1 temp/result flow. */
+        /* SYM-CODEGEN-CARRIER: result -- SYM retains only the average `temp`.
+           Retail nevertheless has a distinct joined maximum-result web; the
+           direct conditional member assignment is count-exact at 502 but
+           rotates 60 instructions.  Keeping the two branch assignments in
+           this eliminated result local reproduces retail's v0-to-v1 flow. */
         int temp;
         int result;
 
@@ -202,7 +201,14 @@ Newton_AddDmgZ_typeSet:
     yMult = 0;
     zMult = 0x20000;
     if (impulse > 0x5a0000) {
+      /* SYM-CODEGEN-CARRIER: newYVel -- the optimized debug block retains no
+         clamp temporaries.  This pre-clamp value must remain a separate web
+         from the selected result; a single in-place local and a direct
+         conditional are both 501/502 with the same 11 retail diffs. */
       int newYVel;
+      /* SYM-CODEGEN-CARRIER: cappedYVel -- the joined clamp result supplies
+         retail's distinct `$a0` web, branch orientation, and unconditional
+         member store.  It is required jointly with `newYVel` for 502/502. */
       int cappedYVel;
 
       impulse /= 4;
@@ -1276,9 +1282,6 @@ void Newton_CalcDistToClosestPlayerCar(BO_tNewtonObj *n)
 void Newton_UpdateRoadInfo(BO_tNewtonObj *n)
 
 {
-  u_int uVar1;
-  Trk_NewSimQuad *pTVar2;
-  
   if (n->active != '\0') {
     Newton_CalcDistToClosestPlayerCar(n);
     Newton_FindClosestQuad(n);
@@ -1286,13 +1289,9 @@ void Newton_UpdateRoadInfo(BO_tNewtonObj *n)
       Newton_UpdateRoadGeometry(n);
     }
     if (n->simOptz == '\0') {
-      pTVar2 = (n->simRoadInfo).simQuad;
-      uVar1 = 0xe;
-      if (pTVar2 != (Trk_NewSimQuad *)0x0) {
-        uVar1 = (u_int)pTVar2->surface;
-      }
-      n->groundSurfaceType = uVar1;
-      n->driveSurfaceType = uVar1 & 0xf;
+      n->groundSurfaceType = n->simRoadInfo.simQuad == (Trk_NewSimQuad *)0
+                                 ? 0xe : n->simRoadInfo.simQuad->surface;
+      n->driveSurfaceType = n->groundSurfaceType & 0xf;
     }
   }
   return;
@@ -1438,26 +1437,16 @@ void Newton_SetInitialSlicePositionOrientationEtc(BO_tNewtonObj *n,int slice,coo
     }
     n->position.y = n->groundElevation + n->dimension.y;
   }
-  int altitude;
-
-  altitude = Newton_CalcPerpenHeightOfLowestPointFromGround(
+  n->objAltitude = Newton_CalcPerpenHeightOfLowestPointFromGround(
       n,(coorddef *)(n->roadMatrix.m + 3),&n->roadCenterPoint);
-  *(volatile int *)&n->objAltitude = altitude;
+  n->position.y -= n->objAltitude;
   n->objAltitude = 0;
-  n->position.y -= altitude;
-  int surfaceType;
-
   if (n->simOptz == 0) {
-    surfaceType = 0xe;
-    if (n->simRoadInfo.simQuad != (Trk_NewSimQuad *)0) {
-      n->groundSurfaceType = n->simRoadInfo.simQuad->surface;
-      goto NewtonSetInitSlice_setDriveSurf;
-    }
+    n->groundSurfaceType = n->simRoadInfo.simQuad == (Trk_NewSimQuad *)0
+                               ? 0xe : n->simRoadInfo.simQuad->surface;
   } else {
-    surfaceType = 1;
+    n->groundSurfaceType = 1;
   }
-  n->groundSurfaceType = surfaceType;
-NewtonSetInitSlice_setDriveSurf:
   n->driveSurfaceType = n->groundSurfaceType & 0xf;
   return;
 }
@@ -1546,20 +1535,17 @@ extern "C" void Newton_QDUpdateVel(BO_tNewtonObj *newtonObj)
   int t1;
   int t2;
   int t3;
-  int iVar1;
-  int iVar2;
-  int iVar3;
-  
+
   if (newtonObj->active != '\0') {
     if ((Newton_GameSetupWords[14] & 4U) != 0) {
       t1 = newtonObj->linearVel.x >> 6;
       t2 = newtonObj->linearVel.y >> 6;
       t3 = newtonObj->linearVel.z >> 6;
-      iVar1 = fixedmult(t1,0xcccc);
-      iVar2 = fixedmult(t3,0xcccc);
-      newtonObj->position.x = newtonObj->position.x + iVar1;
+      t1 = fixedmult(t1,0xcccc);
+      t3 = fixedmult(t3,0xcccc);
+      newtonObj->position.x = newtonObj->position.x + t1;
       newtonObj->position.y = newtonObj->position.y + t2;
-      newtonObj->position.z = newtonObj->position.z + iVar2;
+      newtonObj->position.z = newtonObj->position.z + t3;
     }
     else {
       newtonObj->position.x = newtonObj->position.x + (newtonObj->linearVel.x >> 6);
@@ -1615,40 +1601,22 @@ extern "C" int Newton_OptzRotxform(
 extern "C" void Newton_QDUpdateRot64Hz(BO_tNewtonObj *newtonObj)
 
 {
-  char cVar1;
-  int iVar2;
-  int iVar3;
-  matrixtdef *m1;
   matrixtdef m;
   coorddef angularVel;
   int reOrthoNeeded;
 
-  if (*(char *)((char *)newtonObj + 0x91) != '\0') {
-    iVar3 = *(int *)((char *)newtonObj + 0x114);
-    if (iVar3 < 0) {
-      iVar3 = iVar3 + 0x3f;
-    }
-    angularVel.x = iVar3 >> 6;
-    iVar3 = *(int *)((char *)newtonObj + 0x118);
-    if (iVar3 < 0) {
-      iVar3 = iVar3 + 0x3f;
-    }
-    angularVel.y = iVar3 >> 6;
-    iVar3 = *(int *)((char *)newtonObj + 0x11c);
-    if (iVar3 < 0) {
-      iVar3 = iVar3 + 0x3f;
-    }
-    angularVel.z = iVar3 >> 6;
-    iVar2 = Newton_OptzRotxform(&m,angularVel.x,angularVel.y,angularVel.z,&reOrthoNeeded,0x1000,(int *)((char *)newtonObj + 0x98));
-    m1 = (matrixtdef *)((char *)newtonObj + 0xf0);
-    if (iVar2 != 0) {
-      Math_fasttransmult(m1,&m,m1);
-      cVar1 = *(char *)((char *)newtonObj + 0x92) - 1;
-      *(char *)((char *)newtonObj + 0x92) = cVar1;
-      if ((cVar1 == '\0') || (reOrthoNeeded != 0)) {
-        reorthogonalize(m1);
-        *(u_char *)((char *)newtonObj + 0x92) = 0x20;
-        *(u_int *)((char *)newtonObj + 0x98) = 0;
+  if (newtonObj->active != 0) {
+    angularVel.x = newtonObj->angularVel.x / 64;
+    angularVel.y = newtonObj->angularVel.y / 64;
+    angularVel.z = newtonObj->angularVel.z / 64;
+    if (Newton_OptzRotxform(&m,angularVel.x,angularVel.y,angularVel.z,
+                            &reOrthoNeeded,0x1000,&newtonObj->cumulatedRot)) {
+      Math_fasttransmult(&newtonObj->orientMat,&m,&newtonObj->orientMat);
+      newtonObj->reOrthoCounter--;
+      if ((newtonObj->reOrthoCounter == 0) || (reOrthoNeeded != 0)) {
+        reorthogonalize(&newtonObj->orientMat);
+        newtonObj->reOrthoCounter = 0x20;
+        newtonObj->cumulatedRot = 0;
       }
     }
   }
@@ -1662,36 +1630,18 @@ extern "C" void Newton_QDUpdateRot32Hz(BO_tNewtonObj *newtonObj)
   matrixtdef m;
   coorddef angularVel;
   int reOrthoNeeded;
-  char cVar1;
-  int iVar2;
-  int iVar3;
-  matrixtdef *m1;
 
-  if ((*(char *)((char *)newtonObj + 0x91) != '\0') && (*(char *)((char *)newtonObj + 0x90) == '\0')) {
-    iVar3 = *(int *)((char *)newtonObj + 0x114);
-    if (iVar3 < 0) {
-      iVar3 = iVar3 + 0xf;
-    }
-    angularVel.x = iVar3 >> 4;
-    iVar3 = *(int *)((char *)newtonObj + 0x118);
-    if (iVar3 < 0) {
-      iVar3 = iVar3 + 0xf;
-    }
-    angularVel.y = iVar3 >> 4;
-    iVar3 = *(int *)((char *)newtonObj + 0x11c);
-    if (iVar3 < 0) {
-      iVar3 = iVar3 + 0xf;
-    }
-    angularVel.z = iVar3 >> 4;
-    iVar2 = Newton_OptzRotxform(&m,angularVel.x,angularVel.y,angularVel.z,&reOrthoNeeded,0x2000,(int *)((char *)newtonObj + 0x98));
-    m1 = (matrixtdef *)((char *)newtonObj + 0xf0);
-    if (iVar2 != 0) {
-      Math_fasttransmult(m1,&m,m1);
-      if ((reOrthoNeeded != 0) ||
-         (cVar1 = *(char *)((char *)newtonObj + 0x92) - 1, *(char *)((char *)newtonObj + 0x92) = cVar1, cVar1 == '\0')) {
-        reorthogonalize(m1);
-        *(u_char *)((char *)newtonObj + 0x92) = 0x40;
-        *(u_int *)((char *)newtonObj + 0x98) = 0;
+  if ((newtonObj->active != 0) && (newtonObj->simOptz == 0)) {
+    angularVel.x = newtonObj->angularVel.x / 16;
+    angularVel.y = newtonObj->angularVel.y / 16;
+    angularVel.z = newtonObj->angularVel.z / 16;
+    if (Newton_OptzRotxform(&m,angularVel.x,angularVel.y,angularVel.z,
+                            &reOrthoNeeded,0x2000,&newtonObj->cumulatedRot)) {
+      Math_fasttransmult(&newtonObj->orientMat,&m,&newtonObj->orientMat);
+      if ((reOrthoNeeded != 0) || (--newtonObj->reOrthoCounter == 0)) {
+        reorthogonalize(&newtonObj->orientMat);
+        newtonObj->reOrthoCounter = 0x40;
+        newtonObj->cumulatedRot = 0;
       }
     }
   }
@@ -2446,19 +2396,21 @@ Netwon_CheckForBadQuad(BO_tNewtonObj *newtonObj,BWorldSm_Pos *testSimRoadInfo,in
 
 {
   int bad;
-  int height;
-  u_int uVar1;
-  
-  int *quad;
 
-  uVar1 = 0;
-  if (((testSimRoadInfo->simQuad != (Trk_NewSimQuad *)0x0) &&
-       ((testSimRoadInfo->simQuad->surface & 0xf) == 0)) ||
-     (quad = (int *)((int)newtonObj + wheel * 0x30),
-      0x20000 < quad[0xa9] - quad[0xa4])) {
-    uVar1 = 1;
+  bad = 0;
+  if ((testSimRoadInfo->simQuad != (Trk_NewSimQuad *)0) &&
+      ((testSimRoadInfo->simQuad->surface & 0xf) == 0)) {
+    bad = 1;
+  } else {
+    int height;
+
+    height = ((Car_tObj *)newtonObj)->wheel[wheel].actualHeight -
+             ((Car_tObj *)newtonObj)->wheel[wheel].currentPos.y;
+    if (height > 0x20000) {
+      bad = 1;
+    }
   }
-  return uVar1;
+  return bad;
 }
 
 /* ---- Newton_TestForUndrivableSurfaces__FP13BO_tNewtonObj  [NEWTON.CPP:2161-2361] SLD-VERIFIED ---- */
@@ -2589,8 +2541,19 @@ void Newton_TestForUndrivableSurfaces(BO_tNewtonObj *newtonObj)
   coorddef cautionaryCenter;
   coorddef undrivableCenter;
   coorddef speedVec;
-  int iVar12;
+  /* SYM-CODEGEN-CARRIER: aborted -- the optimized NFS4 SYM has no declaration,
+     but the NFSU2-mobile twin sub_4FEF33 independently recovers this vestigial
+     per-iteration abort flag.  Its definition and use lie in different basic
+     blocks, so GCC 2.8.1 retains retail's otherwise opaque 48th branch; deleting
+     it changes the exact body by 14 diffs.  The detailed allocator/position
+     receipt is preserved at the assignment below. */
   int aborted;
+  /* SYM-CODEGEN-CARRIER: quadPt -- SYM records only each block's `j` and `temp`.
+     This cursor is the source-level carrier that reproduces retail's two
+     strength-reduced pointer walks.  Direct `quadPts[j]`, block-local cursors,
+     and every equivalent C address spelling were measured non-exact; the two
+     existing zero-instruction identity launders are required to keep the
+     address CSE scopes separate.  Full receipts remain beside both loops. */
   coorddef *quadPt;
   
   collision_type = 0;
@@ -2726,8 +2689,7 @@ void Newton_TestForUndrivableSurfaces(BO_tNewtonObj *newtonObj)
       collision_type = 1;
     }
     else {
-      iVar12 = Netwon_CheckForBadQuad(newtonObj,&testSimRoadInfo,i);
-      if (iVar12 != 0) {
+      if (Netwon_CheckForBadQuad(newtonObj,&testSimRoadInfo,i) != 0) {
         coorddef newTestPoint;
         int check;
 
@@ -2765,8 +2727,7 @@ void Newton_TestForUndrivableSurfaces(BO_tNewtonObj *newtonObj)
           newTestPoint.y = newTestPoint.y + normal.y;
           newTestPoint.z = newTestPoint.z + normal.z;
           BWorldSm_FindClosestQuadRez(&newTestPoint,&newtestSimRoadInfo,1);
-          iVar12 = Netwon_CheckForBadQuad(newtonObj,&newtestSimRoadInfo,i);
-          if (iVar12 != 0) {
+          if (Netwon_CheckForBadQuad(newtonObj,&newtestSimRoadInfo,i) != 0) {
             if ((check & 0xc) != 0) {
               if ((check & 4) != 0) {
                 Newton_GenerateVector(
@@ -2782,8 +2743,7 @@ void Newton_TestForUndrivableSurfaces(BO_tNewtonObj *newtonObj)
               newTestPoint.y = newTestPoint.y + normal.y;
               newTestPoint.z = newTestPoint.z + normal.z;
               BWorldSm_FindClosestQuadRez(&newTestPoint,&newtestSimRoadInfo,1);
-              iVar12 = Netwon_CheckForBadQuad(newtonObj,&newtestSimRoadInfo,i);
-              if (iVar12 != 0) {
+              if (Netwon_CheckForBadQuad(newtonObj,&newtestSimRoadInfo,i) != 0) {
                 int j;
                 coorddef temp;
 

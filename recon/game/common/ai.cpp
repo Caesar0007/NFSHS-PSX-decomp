@@ -252,67 +252,64 @@ LAB_80057cc0:
 /* ---- AI_CheckForPlayerActions__FP8Car_tObjT0  [@0x80057dd4] ---- */
 void AI_CheckForPlayerActions(Car_tObj *carObj,Car_tObj *otherCarObj)
 {
-  Car_tObj *otherCarObjLocal;
-  Car_tObj *carObjLocal;
   int absDistance;
 
-  carObjLocal = carObj;
-  otherCarObjLocal = otherCarObj;
   absDistance =
-      __builtin_abs(AIWorld_ApxSplineDistance(carObjLocal,otherCarObjLocal));
-  if (AIWorld_GameOdometer(carObjLocal) < 0x3200000) {
+      __builtin_abs(AIWorld_ApxSplineDistance(carObj,otherCarObj));
+  if (AIWorld_GameOdometer(carObj) < 0x3200000) {
     return;
   }
-  if (((AI_SimGlobalWords[1] - (otherCarObjLocal->N).collision.lastTime < 0xf) &&
-       ((otherCarObjLocal->N).collision.lastOtherObj != (BO_tNewtonObj *)0x0)) &&
-      ((Car_tObj *)(otherCarObjLocal->N).collision.lastOtherObj == carObjLocal)) {
-    AIScript_SubmitPlayerAction(&carObjLocal->script,
-                                otherCarObjLocal->carIndex,0,
+  if (((AI_SimGlobalWords[1] - (otherCarObj->N).collision.lastTime < 0xf) &&
+       ((otherCarObj->N).collision.lastOtherObj != (BO_tNewtonObj *)0x0)) &&
+      ((Car_tObj *)(otherCarObj->N).collision.lastOtherObj == carObj)) {
+    AIScript_SubmitPlayerAction(&carObj->script,
+                                otherCarObj->carIndex,0,
                                 AI_SimGlobalWords[1]);
   }
-  int direction = carObjLocal->direction;
-  if (otherCarObjLocal->currentSpeed * direction + 0x280000 <
-      carObjLocal->currentSpeed * carObjLocal->direction) {
+  /* SYM-CODEGEN-CARRIER: direction -- repeating the member expression keeps
+     144 instructions but moves retail's `lw v1,1364(s1)`, producing two
+     oracle ordering diffs. */
+  int direction = carObj->direction;
+  if (otherCarObj->currentSpeed * direction + 0x280000 <
+      carObj->currentSpeed * carObj->direction) {
     if (0xbffff < absDistance) goto LAB_80057f34;
-    AIScript_SubmitPlayerAction(&carObjLocal->script,
-                                otherCarObjLocal->carIndex,1,
+    AIScript_SubmitPlayerAction(&carObj->script,
+                                otherCarObj->carIndex,1,
                                 AI_SimGlobalWords[1]);
   }
   if ((absDistance < 0xc0000) &&
-      (otherCarObjLocal->laneIndex == carObjLocal->laneIndex)) {
-    int otherOdometer = AIWorld_GameOdometer(otherCarObjLocal);
-    if (AIWorld_GameOdometer(carObjLocal) < otherOdometer) {
-      AIScript_SubmitPlayerAction(&carObjLocal->script,
-                                  otherCarObjLocal->carIndex,2,
+      (otherCarObj->laneIndex == carObj->laneIndex)) {
+    if (AIWorld_GameOdometer(otherCarObj) > AIWorld_GameOdometer(carObj)) {
+      AIScript_SubmitPlayerAction(&carObj->script,
+                                  otherCarObj->carIndex,2,
                                   AI_SimGlobalWords[1]);
     }
     else {
-      AIScript_SubmitPlayerAction(&carObjLocal->script,
-                                  otherCarObjLocal->carIndex,3,
+      AIScript_SubmitPlayerAction(&carObj->script,
+                                  otherCarObj->carIndex,3,
                                   AI_SimGlobalWords[1]);
     }
   }
 LAB_80057f34:
-  if ((otherCarObjLocal->swapCar == carObjLocal) &&
-      (AI_SimGlobalWords[1] - carObjLocal->swapTime < 0xf)) {
-    int carOdometer = AIWorld_GameOdometer(carObjLocal);
-    if (AIWorld_GameOdometer(otherCarObjLocal) < carOdometer) {
-      AIScript_SubmitPlayerAction(&carObjLocal->script,
-                                  otherCarObjLocal->carIndex,4,
+  if ((otherCarObj->swapCar == carObj) &&
+      (AI_SimGlobalWords[1] - carObj->swapTime < 0xf)) {
+    if (AIWorld_GameOdometer(carObj) > AIWorld_GameOdometer(otherCarObj)) {
+      AIScript_SubmitPlayerAction(&carObj->script,
+                                  otherCarObj->carIndex,4,
                                   AI_SimGlobalWords[1]);
     }
     else {
-      AIScript_SubmitPlayerAction(&carObjLocal->script,
-                                  otherCarObjLocal->carIndex,5,
+      AIScript_SubmitPlayerAction(&carObj->script,
+                                  otherCarObj->carIndex,5,
                                   AI_SimGlobalWords[1]);
     }
   }
   if (((absDistance < 0x1e0000) &&
-       ((otherCarObjLocal->control).horn != '\0')) &&
+       ((otherCarObj->control).horn != '\0')) &&
       (AI_GameSetupWords[21] == 0))
   {
-    AIScript_SubmitPlayerAction(&carObjLocal->script,
-                                otherCarObjLocal->carIndex,6,
+    AIScript_SubmitPlayerAction(&carObj->script,
+                                otherCarObj->carIndex,6,
                                 AI_SimGlobalWords[1]);
   }
   return;
@@ -348,11 +345,8 @@ void AI_OpponentBlockPlayer(Car_tObj *carObj,Car_tObj *otherCarObj)
 {
   int otherCarObjSlice;
   int distance;
-  u_char bVar1;
-  int iVar3;
 
-  iVar3 = AI_IsMellowZone(carObj,0x1900000);
-  if (iVar3 != 0) {
+  if (AI_IsMellowZone(carObj,0x1900000) != 0) {
     return;
   }
   if (!(AI_Info.deltaYaw < curveynessLevelStarts[2])) {
@@ -361,8 +355,8 @@ void AI_OpponentBlockPlayer(Car_tObj *carObj,Car_tObj *otherCarObj)
   otherCarObjSlice = (otherCarObj->N).simRoadInfo.slice;
   distance =
       AIWorld_SplineDistance(carObj,otherCarObj) * carObj->direction;
-  iVar3 = AIScript_DoReAction(&carObj->script,0x400);
-  if ((iVar3 != -1) && (0 <= distance) && (distance <= 0x31ffff)) {
+  if ((AIScript_DoReAction(&carObj->script,0x400) != -1) &&
+      (0 <= distance) && (distance <= 0x31ffff)) {
     if (otherCarObj->laneIndex < carObj->laneIndex) {
       CarLogic_gObs[0][0] = CarLogic_gObs[0][0] + -0x40000;
     }
@@ -377,20 +371,18 @@ void AI_OpponentBlockPlayer(Car_tObj *carObj,Car_tObj *otherCarObj)
   if (distance < -0x60000) {
     return;
   }
-  {
-    int *personality = (int *)carObj->personality;
-    if (personality[0] <= distance) {
-      return;
-    }
-    if (distance < personality[1]) {
-      return;
-    }
-  }
-  bVar1 = *(u_char *)(otherCarObjSlice * 0x20 + (int)AI_BWorldSmSlices + 0x1d);
-  if (otherCarObj->laneIndex < (int)(7 - (u_int)(bVar1 >> 4))) {
+  if (carObj->personality->blockMaxDistance <= distance) {
     return;
   }
-  if ((int)((bVar1 & 0xf) + 6) < otherCarObj->laneIndex) {
+  if (distance < carObj->personality->blockMinDistance) {
+    return;
+  }
+  if (otherCarObj->laneIndex <
+      (int)(7 - (u_int)(AI_SLICE_BYTE(otherCarObjSlice,0x1d) >> 4))) {
+    return;
+  }
+  if ((int)((AI_SLICE_BYTE(otherCarObjSlice,0x1d) & 0xf) + 6) <
+      otherCarObj->laneIndex) {
     return;
   }
   if (otherCarObj->currentSpeed * otherCarObj->direction < 0x140001) {
@@ -581,8 +573,6 @@ void AI_HandleShouldersAndOffRoad(Car_tObj *carObj)
   int slice;
   int shoulder_merit;
   int isRight;
-  int lane;
-  u_char bVar1;
 
   slice = (int)(carObj->N).simRoadInfo.slice;
   shoulder_merit = -0x4e666;
@@ -592,26 +582,32 @@ void AI_HandleShouldersAndOffRoad(Car_tObj *carObj)
      ) {
     shoulder_merit = 0x50000;
   }
-  lane = carObj->laneIndex + -1;
-  bVar1 = AI_SLICE_BYTE(slice,0x1d);
-  if ((lane == 6 - (u_int)(bVar1 >> 4)) || (lane == (bVar1 & 0xf) + 7)) {
-    int merit0 = CarLogic_gObs[0][0] + shoulder_merit;
-    CarLogic_gObs[0][0] = merit0;
-    char *sl = (char *)((carObj->N).simRoadInfo.slice * 0x20 + (int)AI_BWorldSmSlices);
-    if ((*(short *)(sl + 0x18) << 8) - (*(u_char *)(sl + 0x1e) << 0xf) * (*(u_char *)(sl + 0x1d) >> 4) <
+  if ((carObj->laneIndex - 1 ==
+       6 - (u_int)(AI_SLICE_BYTE(slice,0x1d) >> 4)) ||
+      (carObj->laneIndex - 1 ==
+       (AI_SLICE_BYTE(slice,0x1d) & 0xf) + 7)) {
+    CarLogic_gObs[0][0] = CarLogic_gObs[0][0] + shoulder_merit;
+    /* SYM-CODEGEN-CARRIER: sl -- direct typed slice access drops retail from
+       241 to 221 instructions and produces 222 allocation/order diffs. */
+    char *sl = (char *)((carObj->N).simRoadInfo.slice * 0x20 +
+                        (int)AI_BWorldSmSlices);
+    if ((*(short *)(sl + 0x18) << 8) -
+        (*(u_char *)(sl + 0x1e) << 0xf) * (*(u_char *)(sl + 0x1d) >> 4) <
         (carObj->N).dimension.x) {
-      CarLogic_gObs[0][0] = merit0 + -0x640000;
+      CarLogic_gObs[0][0] = CarLogic_gObs[0][0] + -0x640000;
     }
   }
-  lane = carObj->laneIndex + 1;
-  bVar1 = AI_SLICE_BYTE(slice,0x1d);
-  if ((lane == 6 - (u_int)(bVar1 >> 4)) || (lane == (bVar1 & 0xf) + 7)) {
-    int merit2 = CarLogic_gObs[0][2] + shoulder_merit;
-    CarLogic_gObs[0][2] = merit2;
-    char *sl = (char *)((carObj->N).simRoadInfo.slice * 0x20 + (int)AI_BWorldSmSlices);
-    if ((*(short *)(sl + 0x1a) << 8) - (*(u_char *)(sl + 0x1f) << 0xf) * (*(u_char *)(sl + 0x1d) & 0xf) <
+  if ((carObj->laneIndex + 1 ==
+       6 - (u_int)(AI_SLICE_BYTE(slice,0x1d) >> 4)) ||
+      (carObj->laneIndex + 1 ==
+       (AI_SLICE_BYTE(slice,0x1d) & 0xf) + 7)) {
+    CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + shoulder_merit;
+    char *sl = (char *)((carObj->N).simRoadInfo.slice * 0x20 +
+                        (int)AI_BWorldSmSlices);
+    if ((*(short *)(sl + 0x1a) << 8) -
+        (*(u_char *)(sl + 0x1f) << 0xf) * (*(u_char *)(sl + 0x1d) & 0xf) <
         (carObj->N).dimension.x) {
-      CarLogic_gObs[0][2] = merit2 + -0x640000;
+      CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + -0x640000;
     }
   }
   if ((carObj->laneIndex == 6 - (u_int)(AI_SLICE_BYTE(slice,0x1d) >> 4)) ||
@@ -619,34 +615,40 @@ void AI_HandleShouldersAndOffRoad(Car_tObj *carObj)
     CarLogic_gObs[0][1] = CarLogic_gObs[0][1] + shoulder_merit;
     isRight = (carObj->laneIndex < 7) ^ 1;
     if (carObj->laneIndex < 7) {
-      char *sl = (char *)((carObj->N).simRoadInfo.slice * 0x20 + (int)AI_BWorldSmSlices);
-      if ((*(short *)(sl + 0x18) << 8) - (*(u_char *)(sl + 0x1e) << 0xf) * (*(u_char *)(sl + 0x1d) >> 4) <
+      char *sl = (char *)((carObj->N).simRoadInfo.slice * 0x20 +
+                          (int)AI_BWorldSmSlices);
+      if ((*(short *)(sl + 0x18) << 8) -
+          (*(u_char *)(sl + 0x1e) << 0xf) * (*(u_char *)(sl + 0x1d) >> 4) <
           (carObj->N).dimension.x) {
         goto CENTER_DEMERIT;
       }
     }
     if (isRight != 0) {
       char *sl;
-      sl = (char *)((carObj->N).simRoadInfo.slice * 0x20 + (int)AI_BWorldSmSlices);
-      if ((*(short *)(sl + 0x1a) << 8) - (*(u_char *)(sl + 0x1f) << 0xf) * (*(u_char *)(sl + 0x1d) & 0xf) <
+      sl = (char *)((carObj->N).simRoadInfo.slice * 0x20 +
+                    (int)AI_BWorldSmSlices);
+      if ((*(short *)(sl + 0x1a) << 8) -
+          (*(u_char *)(sl + 0x1f) << 0xf) * (*(u_char *)(sl + 0x1d) & 0xf) <
           (carObj->N).dimension.x) {
 CENTER_DEMERIT:
         CarLogic_gObs[0][1] = CarLogic_gObs[0][1] + -0x640000;
       }
     }
   }
-  lane = carObj->laneIndex + -1;
-  bVar1 = AI_SLICE_BYTE(slice,0x1d);
-  if ((lane < (int)(6 - (u_int)(bVar1 >> 4))) || ((int)((bVar1 & 0xf) + 7) < lane)) {
+  if ((carObj->laneIndex - 1 <
+       (int)(6 - (u_int)(AI_SLICE_BYTE(slice,0x1d) >> 4))) ||
+      ((int)((AI_SLICE_BYTE(slice,0x1d) & 0xf) + 7) <
+       carObj->laneIndex - 1)) {
     CarLogic_gObs[0][0] = CarLogic_gObs[0][0] + -0x3e80000;
   }
   if ((carObj->laneIndex < (int)(6 - (u_int)(AI_SLICE_BYTE(slice,0x1d) >> 4))) ||
       ((int)((AI_SLICE_BYTE(slice,0x1d) & 0xf) + 7) < carObj->laneIndex)) {
     CarLogic_gObs[0][1] = CarLogic_gObs[0][1] + -0x3e80000;
   }
-  lane = carObj->laneIndex + 1;
-  bVar1 = AI_SLICE_BYTE(slice,0x1d);
-  if ((lane < (int)(6 - (u_int)(bVar1 >> 4))) || ((int)((bVar1 & 0xf) + 7) < lane)) {
+  if ((carObj->laneIndex + 1 <
+       (int)(6 - (u_int)(AI_SLICE_BYTE(slice,0x1d) >> 4))) ||
+      ((int)((AI_SLICE_BYTE(slice,0x1d) & 0xf) + 7) <
+       carObj->laneIndex + 1)) {
     CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + -0x3e80000;
   }
   return;
@@ -665,14 +667,12 @@ void AI_CalculateLaneSpeeds(Car_tObj *carObj)
   int distanceFixedMetersSignChecked;
   int inverseCollisionTime;
   int inverseAheadCollisionTime;
-  u_int carObjLaneShift;
   int carObjLeftLaneBits;
   int carObjThisLaneBits;
   int carObjRightLaneBits;
   int maxDistanceToCheck;
   int collisionSpeed;
   int aheadCollisionSpeed;
-  int iVar2;
 
   lanesFilled = 0;
   ci = 0;
@@ -684,17 +684,17 @@ void AI_CalculateLaneSpeeds(Car_tObj *carObj)
       AI_Info.laneSpeedsAhead[1] = carObj->desiredSpeed;
   AI_Info.laneSpeeds[2] =
       AI_Info.laneSpeedsAhead[2] = carObj->desiredSpeed;
-  carObjLaneShift = carObj->laneIndex;
   carObjIndexInSortedList = carObj->sortIndex;
-  carObjLeftLaneBits = 1 << (carObjLaneShift - 1);
-  carObjThisLaneBits = 1 << (carObjLaneShift);
-  carObjRightLaneBits = 1 << (carObjLaneShift + 1);
+  carObjLeftLaneBits = 1 << (carObj->laneIndex - 1);
+  carObjThisLaneBits = 1 << carObj->laneIndex;
+  carObjRightLaneBits = 1 << (carObj->laneIndex + 1);
   do {
     if ((carsFound == 3) || (Cars_gNumCars <= ci)) {
       return;
     }
-    iVar2 = carObjIndexInSortedList + ci * carObj->direction + Cars_gNumCars;
-    otherCarObj = Cars_gSortedList[iVar2 % Cars_gNumCars];
+    otherCarObj = Cars_gSortedList[
+        (carObjIndexInSortedList + ci * carObj->direction + Cars_gNumCars) %
+        Cars_gNumCars];
     if ((carObj != otherCarObj) && ((otherCarObj->N).active != '\0')) {
       distanceFixedMeters = AIWorld_SplineDistance(otherCarObj,carObj);
       distanceFixedMetersSignChecked = distanceFixedMeters * carObj->direction;
@@ -713,6 +713,10 @@ void AI_CalculateLaneSpeeds(Car_tObj *carObj)
       if (((carObj->N).dimension.z < distanceFixedMetersSignChecked) &&
         (distanceFixedMetersSignChecked < maxDistanceToCheck)) {
         if (carObj->direction == 1) {
+          /* SYM-CODEGEN-CARRIER: forwardDistanceIntMeters -- assigning the
+             sign-corrected ternary directly to `distanceIntMeters` compiles
+             to 227 rather than 229 instructions and produces six oracle
+             branch/value-flow diffs. */
           int forwardDistanceIntMeters;
 
           forwardDistanceIntMeters = (distanceFixedMeters < 0)
@@ -780,12 +784,10 @@ void AI_CalcMeritsBasedOnSpeed(Car_tObj *carObj)
   int dSpeed;
   int cSpeed;
   int considerDesired;
-  int iVar1;
 
   dSpeed = carObj->desiredSpeed;
   cSpeed = carObj->currentSpeed;
-  iVar1 = AIWorld_GameOdometer(carObj);
-  considerDesired = 0x257ffff < iVar1;
+  considerDesired = 0x257ffff < AIWorld_GameOdometer(carObj);
   if ((AI_Info.blockingCars[0] != (Car_tObj *)0x0) && (AI_Info.blockingCarsDist[0] < 0x1e0000)) {
     CarLogic_gObs[0][0] = CarLogic_gObs[0][0] + -0xe0000;
   }
@@ -796,10 +798,19 @@ void AI_CalcMeritsBasedOnSpeed(Car_tObj *carObj)
     CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + -0xe0000;
   }
   if (carObj->direction == 1) {
+    /* SYM-CODEGEN-CARRIER: observation -- the matched NFS2 `for (i...)`
+       source form compiles NFS4 to 226 rather than 224 instructions and
+       produces 266 allocation/flow diffs. */
     int *observation;
+    /* SYM-CODEGEN-CARRIER: observationBase -- direct end-bound spellings
+       compile to 222 instructions with ten oracle diffs. */
     int *observationBase;
+    /* SYM-CODEGEN-CARRIER: laneInfo -- required strength-reduced AI_Info base. */
     AI_tInfo *laneInfo;
+    /* SYM-CODEGEN-CARRIER: laneSpeed -- required retail load/result lifetime. */
     int laneSpeed;
+    /* SYM-CODEGEN-CARRIER: lane -- literal `[0]` changes the saved-register
+       set/frame and compiles to 230 instructions with 232 oracle diffs. */
     int lane;
 
     lane = 0;
@@ -1315,94 +1326,90 @@ int AI_TryToShareLanes(Car_tObj *carObj,Car_tObj *carInWay)
 /* ---- AI_CalculateDesiredLatPosition__FP8Car_tObj  [@0x8005a15c] ---- */
 void AI_CalculateDesiredLatPosition(Car_tObj *carObj)
 {
-  Car_tObj *carObjLocal;
   Car_tObj *carInWay;
   int slice;
-  bool bVar1;
-  int iVar2;
-  u_int laneInfo;
-  int desiredLane;
-  int iVar4;
-  int minLatPosition;
+  /* SYM-CODEGEN-CARRIER: blockingCarNearby -- folding this materialized
+     result into the MellowZone/TryToShareLanes short-circuit compiles to 139
+     rather than 141 instructions and rotates saved registers across 60 diffs. */
+  bool blockingCarNearby;
 
-  carObjLocal = carObj;
-  slice = (int)(carObjLocal->N).simRoadInfo.slice;
+  slice = (int)(carObj->N).simRoadInfo.slice;
   carInWay = AI_Info.blockingCars[AI_Info.desiredLaneSide];
-  if ((0 < carObjLocal->preferredLateralPositionPower) &&
-      (AI_CheckPreferredLateralPosition(carObjLocal) == 1)) {
+  if ((0 < carObj->preferredLateralPositionPower) &&
+      (AI_CheckPreferredLateralPosition(carObj) == 1)) {
     return;
   }
-  bVar1 = false;
+  blockingCarNearby = false;
   if (carInWay != (Car_tObj *)0x0) {
-    iVar2 = AIWorld_ApxSplineDistance(carInWay,carObjLocal);
-    if (0 < iVar2) {
-      iVar2 = AIWorld_ApxSplineDistance(carInWay,carObjLocal);
-      if (iVar2 <= 0x13ffff) {
+    if (0 < AIWorld_ApxSplineDistance(carInWay,carObj)) {
+      if (AIWorld_ApxSplineDistance(carInWay,carObj) <= 0x13ffff) {
         goto blockingCar;
       }
       goto noBlockingCar;
     }
     else {
       if (0x13ffff <
-          -AIWorld_ApxSplineDistance(carInWay,carObjLocal)) {
+          -AIWorld_ApxSplineDistance(carInWay,carObj)) {
         goto noBlockingCar;
       }
     }
 blockingCar:
-    if (AI_IsMellowZone(carObjLocal,0x3e80000) == 0) {
-      bVar1 = true;
+    if (AI_IsMellowZone(carObj,0x3e80000) == 0) {
+      blockingCarNearby = true;
     }
   }
 noBlockingCar:
-  if ((bVar1) && (AI_TryToShareLanes(carObjLocal,carInWay) == 1)) {
+  if ((blockingCarNearby) &&
+      (AI_TryToShareLanes(carObj,carInWay) == 1)) {
     return;
   }
-  iVar2 = slice * 0x20 + (int)AI_BWorldSmSlices;
-  laneInfo = *(u_char *)(iVar2 + 0x1d);
-  desiredLane = AI_Info.desiredLane;
-  if ((desiredLane == 6 - (laneInfo >> 4)) ||
-      (desiredLane == (laneInfo & 0xf) + 7)) {
-    if (desiredLane < 7) {
+  if ((AI_Info.desiredLane ==
+       6 - (AI_SLICE_BYTE(slice,0x1d) >> 4)) ||
+      (AI_Info.desiredLane ==
+       (AI_SLICE_BYTE(slice,0x1d) & 0xf) + 7)) {
+    if (AI_Info.desiredLane < 7) {
+      /* SYM-CODEGEN-CARRIER: laneWidth -- direct width expressions compile
+         to 140 rather than 141 instructions and produce 25 operand-birth and
+         scheduling diffs, including reversed multiply registers. */
       int laneWidth;
 
-      laneWidth = (u_int)*(u_char *)(iVar2 + 0x1e) * 0x8000;
-      carObjLocal->desiredLatPos =
-          (desiredLane + -6) * laneWidth - (carObjLocal->N).dimension.x;
+      laneWidth = (u_int)AI_SLICE_BYTE(slice,0x1e) * 0x8000;
+      carObj->desiredLatPos =
+          (AI_Info.desiredLane + -6) * laneWidth - (carObj->N).dimension.x;
     }
     else {
       int laneWidth;
 
-      laneWidth = (u_int)*(u_char *)(iVar2 + 0x1f) * 0x8000;
-      carObjLocal->desiredLatPos =
-          (desiredLane + -7) * laneWidth + (carObjLocal->N).dimension.x;
+      laneWidth = (u_int)AI_SLICE_BYTE(slice,0x1f) * 0x8000;
+      carObj->desiredLatPos =
+          (AI_Info.desiredLane + -7) * laneWidth + (carObj->N).dimension.x;
     }
   }
   else {
-    if (desiredLane < 7) {
+    if (AI_Info.desiredLane < 7) {
       int laneWidth;
 
-      laneWidth = (u_int)*(u_char *)(iVar2 + 0x1e) * 0x8000;
-      carObjLocal->desiredLatPos =
-          (desiredLane + -6) * laneWidth - ((u_int)laneWidth >> 1);
+      laneWidth = (u_int)AI_SLICE_BYTE(slice,0x1e) * 0x8000;
+      carObj->desiredLatPos =
+          (AI_Info.desiredLane + -6) * laneWidth - ((u_int)laneWidth >> 1);
     }
     else {
       int laneWidth;
 
-      laneWidth = (u_int)*(u_char *)(iVar2 + 0x1f) * 0x8000;
-      carObjLocal->desiredLatPos =
-          (desiredLane + -7) * laneWidth + ((u_int)laneWidth >> 1);
+      laneWidth = (u_int)AI_SLICE_BYTE(slice,0x1f) * 0x8000;
+      carObj->desiredLatPos =
+          (AI_Info.desiredLane + -7) * laneWidth + ((u_int)laneWidth >> 1);
     }
   }
-  iVar2 = slice * 0x20;
-  iVar4 = *(short *)(iVar2 + (int)AI_BWorldSmSlices + 0x1a) * 0x100 -
-          (carObjLocal->N).dimension.x;
-  if (iVar4 < carObjLocal->desiredLatPos) {
-    carObjLocal->desiredLatPos = iVar4;
+  if (AI_SLICE_SHORT(slice,0x1a) * 0x100 -
+        (carObj->N).dimension.x < carObj->desiredLatPos) {
+    carObj->desiredLatPos =
+        AI_SLICE_SHORT(slice,0x1a) * 0x100 - (carObj->N).dimension.x;
   }
-  minLatPosition = (carObjLocal->N).dimension.x +
-                   *(short *)(iVar2 + (int)AI_BWorldSmSlices + 0x18) * -0x100;
-  if (carObjLocal->desiredLatPos < minLatPosition) {
-    carObjLocal->desiredLatPos = minLatPosition;
+  if (carObj->desiredLatPos <
+      (carObj->N).dimension.x + AI_SLICE_SHORT(slice,0x18) * -0x100) {
+    carObj->desiredLatPos =
+        (carObj->N).dimension.x + AI_SLICE_SHORT(slice,0x18) * -0x100;
   }
   return;
 }

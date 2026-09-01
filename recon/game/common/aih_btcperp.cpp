@@ -137,14 +137,16 @@ int AIHigh_BTC_Perp::IsFalseArrest()
 
   Car_tObj *cop;
 
-  Car_tObj **ppCVar7;
-
   int xDot;
 
   int zDot;
 
+  /* SYM-CODEGEN-CARRIER: dotTerm -- removing this named second dot-product
+     term loses the retail callee-saved lifetime across the third call. */
   int dotTerm;
 
+  /* SYM-CODEGEN-CARRIER: dotTerm2 -- the separately born third term is
+     required with `dotTerm` for the retail post-call accumulation order. */
   int dotTerm2;
 
   coorddef carCopVector;
@@ -159,17 +161,16 @@ int AIHigh_BTC_Perp::IsFalseArrest()
 
   if ((((this->carObj_)->carFlags & 4U) == 0) &&
 
-     (0x3d3 < randNum1000)) {
+    (0x3d3 < randNum1000)) {
 
     carLoop = 0;
-    ppCVar7 = Cars_gList;
     while (true) {
 
       if (Cars_gNumCars <= carLoop) {
         break;
       }
 
-      cop = *ppCVar7;
+      cop = Cars_gList[carLoop];
 
       if ((cop->carFlags & 0x200U) != 0) {
 
@@ -220,8 +221,6 @@ int AIHigh_BTC_Perp::IsFalseArrest()
         }
 
       }
-
-      ppCVar7 = ppCVar7 + 1;
 
       carLoop = carLoop + 1;
 
@@ -293,13 +292,14 @@ void AIHigh_BTC_Perp::HandlePullOver()
 {
   int userReadyToContinue;
 
-  bool bVar1;
+  /* SYM-CODEGEN-CARRIER: caught -- a direct compound guard compiles to
+     116 rather than 118 instructions and produces eight control-flow diffs. */
+  bool caught;
 
-  int iVar2;
-
-  Speaker *pSVar3;
-
-  
+  /* SYM-CODEGEN-CARRIER: mobileSpeaker -- the typed
+     `SpeakerVirtualDispatch::slot15()` spelling preserves 118 instructions
+     but selects table offsets 56/60 instead of retail 128/132 (four diffs). */
+  Speaker *mobileSpeaker;
 
   if (this->pullOverMode_ != 0) {
 
@@ -307,13 +307,9 @@ void AIHigh_BTC_Perp::HandlePullOver()
 
     this->beatingTicksLeft_ -= AI_elapsedTime;   /* H21: oracle 0x8005FA94 v0=beatingTicksLeft_-AI_elapsedTime, 0x8005FA9C store */
 
-    iVar2 = this->beatingTicksLeft_;
+    if ((this->beatingTicksLeft_ < 1) && (this->hudActivated_ == 0)) {
 
-    if ((iVar2 < 1) && (this->hudActivated_ == 0)) {
-
-      iVar2 = this->IsFalseArrest();
-
-      if (iVar2 != 0) {
+      if (this->IsFalseArrest() != 0) {
 
         this->lastPullOverTime_ = simGlobal.gameTicks + -0x280;
 
@@ -323,11 +319,12 @@ void AIHigh_BTC_Perp::HandlePullOver()
 
         this->pullOverMode_ = 0;
 
-        pSVar3 = (Speaker *)Speech_Mobile(Cars_gList[0]);
+        mobileSpeaker = (Speaker *)Speech_Mobile(Cars_gList[0]);
 
-        (**(int (**)(...))((int)*pSVar3->_vf + 0x3c))
+        (**(int (**)(...))((int)*mobileSpeaker->_vf + 0x3c))
 
-                  ((int)&(pSVar3->fPosition).flags + (int)*(short *)((int)*pSVar3->_vf + 0x38));
+                  ((int)&(mobileSpeaker->fPosition).flags +
+                   (int)*(short *)((int)*mobileSpeaker->_vf + 0x38));
 
       }
 
@@ -375,20 +372,28 @@ void AIHigh_BTC_Perp::HandlePullOver()
 
   else {
 
-    int cond5 = 5 < this->originalActivationCop_->timeLeft_;  /* MATCH: materialized bool (slti+xori, 2 uses) */
-    bVar1 = cond5 && (this->CheckIfCaught() != 0);  /* MATCH: &&-value funnel into a FRESH var — sltu joins in v1, beqz v1, no copy */
+    /* SYM-CODEGEN-CARRIER: gameTicks -- assigning the global directly to
+       `lastPullOverTime_` compiles to 119 rather than 118 instructions and
+       produces seven load/register/store diffs. */
+    int gameTicks;
+    /* SYM-CODEGEN-CARRIER: activationCopReady -- folding this comparison
+       into `caught` compiles to 117 instructions with three branch-polarity
+       diffs. */
+    int activationCopReady;
+    activationCopReady = 5 < this->originalActivationCop_->timeLeft_;
+    caught = activationCopReady && (this->CheckIfCaught() != 0);
 
-    if (bVar1) {
+    if (caught) {
 
       (this->carObj_)->pullOver = 1;
 
       this->beatingTicksLeft_ = 0x60;
 
-      iVar2 = simGlobal.gameTicks;
+      gameTicks = simGlobal.gameTicks;
 
       this->pullOverMode_ = 2;
 
-      this->lastPullOverTime_ = iVar2;
+      this->lastPullOverTime_ = gameTicks;
 
     }
 

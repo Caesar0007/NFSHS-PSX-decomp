@@ -362,10 +362,7 @@ void AnimScript::GetAnimFrameInfo(int *frame,int *numFrames)
 /* ---- AnimScript::GetTimedAnimPosRot  [@0x800745f8] ---- */
 int AnimScript::GetTimedAnimPosRot(coorddef *pt,matrixtdef *mat)
 {
-  int iVar1;
-  
-  iVar1 = this->GetTimedAnimPosRot(0,pt,mat);
-  return iVar1;
+  return this->GetTimedAnimPosRot(0,pt,mat);
 }
 
 /* ---- AnimScript::GetTimedAnimPosRot  [@0x80074624] ---- */
@@ -376,8 +373,8 @@ int AnimScript::GetTimedAnimPosRot(int index,coorddef *pt,matrixtdef *mat)
   if (this->GetStatus() != 1) {
     return -1;
   }
-  int ticks = Anim_simGlobalWords[1] - this->baseTicks;
-  if (Anim_GetRotPos(this->inst[index],this->flags,ticks,pt,mat) == 0) {
+  tmp = Anim_simGlobalWords[1] - this->baseTicks;
+  if (Anim_GetRotPos(this->inst[index],this->flags,tmp,pt,mat) == 0) {
     this->baseTicks = -1;
     this->inst[index] = (Trk_AnimateInst *)0x0;
     return 0;

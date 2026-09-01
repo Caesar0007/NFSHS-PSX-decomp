@@ -122,7 +122,6 @@ void DashHUD_HUDCalc(int player)
 {
   static int resethud;        /* SYM STAT offset 0, retail 0x8013ddb0 */
   Car_tObj *car;
-  int topSpeed;
 
   if (DashHUD_gInfo.showhud) {
   car = Cars_gHumanRaceCarList[player];
@@ -185,9 +184,8 @@ DashHudCalc_lapTimeCheck:
   DashHUD_gInfo.opponents = Stats_GetNumOpponents();
   Cars_InitDashData(car,(int *)((char *)&DashHUD_gInfo + 0x44) /* @0x80112774 */,(int *)((char *)&DashHUD_gInfo + 0x50) /* @0x80112780 */);
   Cars_GetDashData(car,(int *)((char *)&DashHUD_gInfo + 0x40) /* @0x80112770 */,(int *)((char *)&DashHUD_gInfo + 0x48) /* @0x80112778 */,(int *)((char *)&DashHUD_gInfo + 0x4c) /* @0x8011277c */);
-  topSpeed = DashHUD_gInfo.topspeed >> 16;
   DashHUD_gInfo.speed = __builtin_abs(DashHUD_gInfo.speed);
-  DashHUD_gInfo.topspeed = topSpeed;
+  DashHUD_gInfo.topspeed = DashHUD_gInfo.topspeed >> 16;
   }
   return;
 }

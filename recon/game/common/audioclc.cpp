@@ -733,6 +733,8 @@ void AudioClc_GetClosestCars(int playerIndex,int closestIndex,int numclosest)
      rematerialises as retail's `la t1`, so all THREE components load off it
      (`lw v0,0(t1) / lw v1,4(t1) / lw v0,8(t1)`).  The same pointer declared
      inside the loop body is folded straight back by the front end. */
+  /* SYM-CODEGEN-CARRIER: viewpos -- the measured pre-loop base is required
+     for GCC loop-invariant address hoisting; see the sealed receipt above. */
   const int *viewpos = (const int *)&AudioClc_gRenderView.translation;
 
   i = 0;

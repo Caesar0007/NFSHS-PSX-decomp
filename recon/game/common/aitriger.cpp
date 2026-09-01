@@ -60,13 +60,11 @@ void AITrigger_TriggerManager::Init(char *rawTriggers)
 /* ---- AITrigger_TriggerManager::InsertTrigger  [@0x80072948] ---- */
 int AITrigger_TriggerManager::InsertTrigger(trigger_t *trigger,bool fromFile)
 {
-  int iVar1;
   int size;
 
   size = 0;
   this->DescribeTrigger(trigger);
-  iVar1 = *(int *)trigger;
-  if (iVar1 == 5) {
+  if (trigger->any.type == 5) {
     if (fromFile) {   /* @0x80072984: if(fromFile) bool test (disasm-v3) */
       /* SYM/type fix (w19-a4): trigger is trigger_t* (72-byte union) -- raw `trigger+0x3c`
        * pointer arithmetic SCALED by sizeof(trigger_t)=72 (bogus offsets 4320/4608 vs the
@@ -78,7 +76,7 @@ int AITrigger_TriggerManager::InsertTrigger(trigger_t *trigger,bool fromFile)
     size = trigger->trafficPath.numPoints * sizeof(trigger_pathPosition_t) + 0x40;
     goto LAB_80072a14;
   }
-  switch (iVar1) {
+  switch (trigger->any.type) {
     case 1:
       size = 0x14;
       break;
@@ -187,7 +185,6 @@ trigger_t *
 AITrigger_TriggerManager::GetTrigger(int trigger,int *used)
 {
   int triggerNum;
-  trigger_t *ptVar1;
   
   if (0xa00 < AITRIGGER_GAME_TICKS - this->checkTime_[trigger]) {
     *used = 0;
@@ -196,11 +193,11 @@ AITrigger_TriggerManager::GetTrigger(int trigger,int *used)
     *used = 1;
   }
   this->checkTime_[trigger] = AITRIGGER_GAME_TICKS;
-  ptVar1 = (trigger_t *)0x0;
+  triggerNum = 0;
   if (trigger < this->numTriggers_) {
-    ptVar1 = this->triggers_[trigger];
+    triggerNum = (int)this->triggers_[trigger];
   }
-  return ptVar1;
+  return (trigger_t *)triggerNum;
 }
 
 /* ---- AITrigger_TriggerManager::CheckForClosestTriggerOfType  [@0x80072d40] ---- */
@@ -212,7 +209,6 @@ int AITrigger_TriggerManager::CheckForClosestTriggerOfType(int slice,triggerType
   int prevTriggerIndex;
   int firstTriggerIndex;
   trigger_t *thisTrigger;
-  int numTriggers;
 
   /* SYM-driven rewrite (w19-a4): SYM shows `fsize=0 mask=$00000000` -- a TRUE LEAF (no saved
    * regs, no stack frame at all). The Ghidra "shadow ptVar6/iVar8 provisional update, commit
@@ -231,9 +227,8 @@ int AITrigger_TriggerManager::CheckForClosestTriggerOfType(int slice,triggerType
     return prevTriggerIndex;
   }
   tLoop = 0;
-  numTriggers = this->numTriggers_;
   while (true) {
-    if (numTriggers <= tLoop) break;
+    if (this->numTriggers_ <= tLoop) break;
     thisTrigger = this->triggers_[tLoop];
     if (thisTrigger->any.type == type) {
       if (firstTrigger == (trigger_t *)0x0) {

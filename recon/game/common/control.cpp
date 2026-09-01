@@ -118,6 +118,10 @@ void Control_Human(Car_tObj *carObj)
     break;
   case '\f':
     if ((carObj->AIFlags & 2U) == 0) {
+      /* SYM-CODEGEN-CARRIER: lights -- IDA's retail allocation confirms the
+         selected byte in $a1.  Re-reading the field grows 288 instructions to
+         289 and produces 17 word diffs, moving the store into the branch delay
+         slot and losing the retained value used by the headlight-off call. */
       signed char lights;
 
       lights = carObj->control.lights ^ 3;

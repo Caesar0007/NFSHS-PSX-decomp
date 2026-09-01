@@ -344,11 +344,8 @@ void AudioEng_Update(void)
 /* ---- AudioEng_LoadDef__FPcT0illPP13AudioEng_tDef  [@0x8007bddc] ---- */
 void AudioEng_LoadDef(char *filename,char *name,int handle,long offset,long size,AudioEng_tDef **ed)
 {
-  AudioEng_tDef *pAVar1;
-  
-  pAVar1 = reservememadr(name,size,0x10);
-  *ed = pAVar1;
-  if (pAVar1 != (AudioEng_tDef *)0x0) {
+  *ed = (AudioEng_tDef *)reservememadr(name,size,0x10);
+  if (*ed != (AudioEng_tDef *)0x0) {
     FILE_readsync(handle,offset,*ed,size,0x64);   /* oracle 0x8007be1c: a0=h a1=off a2=*ed a3=size stk=0x64 */
   }
   return;

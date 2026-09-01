@@ -1054,6 +1054,8 @@ char * BWAllocMem(long size)
  * longer needed with the array-index form. */
 void BWorld_InitContexts(void)
 {
+  /* SYM-CODEGEN-CARRIER: noClient -- the measured scheduling receipt above
+     proves that the separately named, declaration-first -1 value is required. */
   int noClient;
   int i;
 
@@ -1132,6 +1134,10 @@ void BWorld_StartLoop(void)
 void BWorld_Init(void)
 {
   int AudioScene;
+  /* SYM-CODEGEN-CARRIER: random -- moving rand() into the two numLaps arms
+     duplicates the signed-division expansion, growing 187 instructions to
+     191 and producing 24 word diffs.  The retained result is required across
+     the branch even though the optimized nested local is absent from SYM. */
   int random;
 
   if (Replay_ReplayMode == 0) {

@@ -182,6 +182,11 @@ void Sim_ProcessSimSchedules(void)
 countdown_index_ready:
       {
         if (i < 4) {
+          /* SYM-CODEGEN-CARRIER: firstSfx -- removing the block-local 0x23
+             shrinks retail's 201 instructions to 197 and produces eight word
+             diffs, changing both the pre-loop branch layout and invariant
+             constant materialization.  Its SLD-confirmed scope is documented
+             in the function receipt above. */
           int firstSfx = 0x23;
 
           do {
@@ -244,12 +249,11 @@ countdown_index_ready:
 static void Sim_ProcessPause(void)
 
 {
-  int iVar1;
   int r;
   
   if (unPauseDelay <= clock_realTime.time32Hz) {
-    iVar1 = MPause_Logic();
-    if (iVar1 == 1) {
+    r = MPause_Logic();
+    if (r == 1) {
       if (simVar.quickPauseSim == 0) {
         AudioCmn_UnPause();
       }
@@ -257,17 +261,17 @@ static void Sim_ProcessPause(void)
       simVar.pauseSim = 0;
       Force_UnPause();
     }
-    else if (iVar1 == 2) {
+    else if (r == 2) {
       AudioCmn_UnPauseAndRestart();
       simVar.pauseSim = 1;
       simVar.endSimGame = 1;
       simVar.restartGame = 1;
     }
     else {
-      if (1 < iVar1 - 4U) {
+      if (1 < r - 4U) {
         return;
       }
-      if (iVar1 == 5) {
+      if (r == 5) {
         GameSetup_gData.pinkSlipsForfeit = (int)(Device_gPausePortIndex != '\0');
       }
       Hud_BTC_QuitOut();
@@ -287,10 +291,8 @@ static void Sim_ProcessPause(void)
 void Sim_CheckForPause(int checkInput)
 
 {
-  int iVar1;
-  
   if ((((Replay_ReplayMode < 2) && (simVar.restartGame == 0)) && (0x20 < simGlobal.gameTicks)) &&
-     (((checkInput != 0 && (iVar1 = Input_Interface(6,1), iVar1 != 0)) ||
+     (((checkInput != 0 && (Input_Interface(6,1) != 0)) ||
       (Device_gForcePause != 0)))) {
     unPauseDelay = clock_realTime.time32Hz + 4;
     AudioCmn_Pause();

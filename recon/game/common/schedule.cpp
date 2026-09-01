@@ -33,6 +33,10 @@ int Sched_ExecuteCheck(int staggered,int module,int distance,int carId,int *time
   int mask;
   int index;
   int distanceIndex;
+  /* SYM-CODEGEN-CARRIER: distanceTemp -- the separate rounded-distance
+     destination is required for retail's a0->a2 handoff.  In-place reuse is
+     76 instructions/5 diffs; reusing parameter `distance` is 77/20, reusing
+     SYM `index` is 76/31, and a conditional expression is 79/38. */
   int distanceTemp;
 
   if (0xf < Sched_simGlobalWords[1]) {
@@ -129,19 +133,17 @@ void Sched_AddFunction(Sched_tSchedule *schedule,Sched_tFunctionPt function,void
 void Sched_DeleteFunction(Sched_tSchedule *schedule,Sched_tFunctionPt function,void *var1)
 
 {
-  int count;
   int i;
   int j;
 
-  count = schedule->numFunctions;
-  if (count != 0) {
+  if (schedule->numFunctions != 0) {
     i = 0;
-    while (i < count) {
+    while (i < schedule->numFunctions) {
       if ((schedule->func[i].function == (void *)function) &&
           (schedule->func[i].var1 == var1))
       {
         j = i;
-        if (j < count + -1) {
+        if (j < schedule->numFunctions + -1) {
           do {
             *(Sched_tFunctionSchedule *)
                 ((char *)schedule +
@@ -154,7 +156,6 @@ void Sched_DeleteFunction(Sched_tSchedule *schedule,Sched_tFunctionPt function,v
         }
         break;
       }
-      count = schedule->numFunctions;
       i = i + 1;
     }
     schedule->func[schedule->numFunctions].priority = 0x7ffe;

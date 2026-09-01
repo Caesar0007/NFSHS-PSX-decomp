@@ -140,21 +140,20 @@ void Render_StopRenderingWorldView(int viewid)
 void Render_RenderWorld(DRender_tView *Vi)
 
 {
-  void *pvVar1;
   int savesp;
   
   BWorld_OnyxBuildFacets(Vi);
-  pvVar1 = SetSp(&gScratchLastWord);
+  savesp = (int)SetSp(&gScratchLastWord);
   Skidmark_OnyxBuildFacets(Vi);
-  SetSp(pvVar1);
-  pvVar1 = SetSp(&gScratchLastWord);
+  SetSp((void *)savesp);
+  savesp = (int)SetSp(&gScratchLastWord);
   Souffle_InsertFacet(Vi);
-  SetSp(pvVar1);
+  SetSp((void *)savesp);
   R3DCar_InsertAllListFacet(Vi);
   Hrz_BuildHorizon(Vi);
-  pvVar1 = SetSp(&gScratchLastWord);
+  savesp = (int)SetSp(&gScratchLastWord);
   Weather_BuildWeather(Vi);
-  SetSp(pvVar1);
+  SetSp((void *)savesp);
   Render_InsertDepthOfField();
   return;
 }
@@ -211,16 +210,15 @@ void Render_InitPauseMenu(void)
 void Render_RenderPauseMenuView(void)
 
 {
-  int iVar1;
   int ogFlip;
   
   gCView.id = Render_gPauseMenuView;
   Draw_StartRenderingView(Render_gPauseMenuView);
   MPause_Render();
-  iVar1 = gFlip;
+  ogFlip = gFlip;
   gFlip = 0;
   Draw_StopRenderingView(Render_gPauseMenuView);
-  gFlip = iVar1;
+  gFlip = ogFlip;
   return;
 }
 

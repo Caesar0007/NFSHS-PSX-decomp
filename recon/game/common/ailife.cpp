@@ -449,7 +449,6 @@ void AILife_ReencarnateCopByLatPosAndRotation(Car_tObj *carObj,int slice,int tra
   coorddef zero;
   coorddef offset;
   matrixtdef rotMatrix;
-  int iVar3;
 
   memset((u_char *)&zero,'\0',0xc);
   memset((u_char *)&offset,'\0',0xc);
@@ -473,12 +472,9 @@ void AILife_ReencarnateCopByLatPosAndRotation(Car_tObj *carObj,int slice,int tra
   (carObj->N).shadowMat = (carObj->N).orientMat;
   (carObj->N).linearVel = zero;
   AIInit_ClearAICar(carObj);
-  iVar3 = Cars_CalculateRoadPosition(carObj);
-  carObj->rampDesiredLatPos = iVar3;
-  carObj->desiredLatPos = iVar3;
-  carObj->roadPosition = iVar3;
-  iVar3 = Cars_CalculateRoadSpan(carObj);
-  carObj->roadSpan = iVar3;
+  carObj->roadPosition = carObj->desiredLatPos = carObj->rampDesiredLatPos =
+      Cars_CalculateRoadPosition(carObj);
+  carObj->roadSpan = Cars_CalculateRoadSpan(carObj);
   AIWorld_CalculateLaneInfo(carObj);
   return;
 }

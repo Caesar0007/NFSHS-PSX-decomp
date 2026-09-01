@@ -29,14 +29,9 @@ void Souffle_KillTrackSouffle(void);
 void GetGustWind(Souffle_tISouffle *is)
 
 {
-  u_int uVar1;
-  
-  uVar1 = random();
-  (is->motion).x = uVar1 & 0x3ff;
-  uVar1 = random();
-  (is->motion).z = uVar1 & 0x3ff;
-  uVar1 = random();
-  (is->motion).y = (uVar1 & 0x3ff) + 0x7ff;
+  (is->motion).x = random() & 0x3ff;
+  (is->motion).z = random() & 0x3ff;
+  (is->motion).y = (random() & 0x3ff) + 0x7ff;
   return;
 }
 
@@ -75,6 +70,9 @@ Souffle_Add(coorddef *soufflept,int type,coorddef *vec,int velVX,int ground,int 
 
 {
   int i;
+  /* SYM-CODEGEN-CARRIER: limit -- the named 60 keeps retail's register
+     compare.  A literal emits one fewer instruction (`slti`) and produces
+     17 word diffs instead of the oracle's `li` plus `slt` sequence. */
   int limit;
   int maxc;
   int inserti;

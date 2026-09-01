@@ -2615,32 +2615,27 @@ void MobileSpeaker::Report(Car_tObj *perp)
 {
   Speaker * Sub;
   Car_tObj *carObj;
-  __vtbl_ptr_type (*pa_Var1) [31];
-  SPCHNFSType_VOICE *ctx;
-  SPCHNFSType_VOICE *VOICE;
-  int ID_UNIT1;
-  SPCHNFSType_REVINTRO *REVINTRO;
   
   Speech_fgSpeech->fSpeakerCar = this->fCarObj;
-  pa_Var1 = (this->_base_Speaker)._vf;
   this->_base_Speaker.fTo =
-      *(int *)((*(*pa_Var1)[0x1e].pfn)
+      *(int *)((*(*(this->_base_Speaker)._vf)[0x1e].pfn)
                     ((int)&(this->_base_Speaker).fPosition.flags +
-                     (int)(*pa_Var1)[0x1e].delta) + 4);
-  VOICE = &this->fVoice;
-  ID_UNIT1 = (this->_base_Speaker).fFrom;
-  REVINTRO = &(this->_base_Speaker).fReverse;
-  ctx = VOICE;
-  SPCHNFS_C_A_INTRO(VOICE,this->_base_Speaker.fTo,ID_UNIT1,REVINTRO);
+                     (int)(*(this->_base_Speaker)._vf)[0x1e].delta) + 4);
+  SPCHNFS_C_A_INTRO(&this->fVoice,this->_base_Speaker.fTo,
+                    (this->_base_Speaker).fFrom,&(this->_base_Speaker).fReverse);
   SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
   Speech_fgSpeech->fSpeakerCar = this->fCarObj;
   this->_base_Speaker.SetCar(perp);
   this->_base_Speaker.FindLocation(perp);
   this->SetSpeed(perp);
   {
+    /* SYM-CODEGEN-CARRIER: reportCar -- direct fCar argument preserves 59
+       instructions but changes six words. */
     int reportCar = (this->_base_Speaker).fCar;
+    /* SYM-CODEGEN-CARRIER: reportLocation -- direct fLocation argument
+       preserves 59 instructions but changes four words. */
     int reportLocation = (this->_base_Speaker).fLocation;
-    SPCHNFS_C_D_PERP_SIGHTED(VOICE,&(this->_base_Speaker).fColour,
+    SPCHNFS_C_D_PERP_SIGHTED(&this->fVoice,&(this->_base_Speaker).fColour,
                reportCar,&(this->_base_Speaker).fDistance,
                (SPCHNFSType_POSITION *)this,reportLocation,
                &(this->_base_Speaker).fPerpName);
@@ -3170,12 +3165,11 @@ void MobileSpeaker::RoadBlock()
 
 {
   Car_tObj *carObj;
-  int iVar2;
-  int iVar3;
-  __vtbl_ptr_type (*pa_Var4) [31];
+  /* SYM-CODEGEN-CARRIER: ctx -- folding the staged dispatch comparison into
+     the condition removes two instructions and leaves six diffs (67/69). */
   SPCHNFSType_VOICE *ctx;
-  SPCHNFSType_VOICE *VOICE;
-  SPCHNFSType_REVINTRO *REVINTRO;
+  /* SYM-CODEGEN-CARRIER: dispatch -- reusing ctx for the three Dispatch()
+     results adds two instructions and produces ten diffs (71/69). */
   Speaker *dispatch;
   
   dispatch = (Speaker *)Speech::Dispatch();
@@ -3188,25 +3182,18 @@ void MobileSpeaker::RoadBlock()
   if (ctx != (SPCHNFSType_VOICE *)0) {
     dispatch = (Speaker *)Speech::Dispatch();
     dispatch = dispatch->fSub;
-    pa_Var4 = dispatch->_vf;
-    (*(*pa_Var4)[10].pfn)((int)&dispatch->fPosition.flags + (int)(*pa_Var4)[10].delta);
+    (*(*dispatch->_vf)[10].pfn)((int)&dispatch->fPosition.flags + (int)(*dispatch->_vf)[10].delta);
   }
   else {
     this->_base_Speaker.Promote();
     if (Speech_fgSpeech->fMultiplePerps == 0) {
       Speech_fgSpeech->fSpeakerCar = this->fCarObj;
-      pa_Var4 = (this->_base_Speaker)._vf;
-      iVar2 = (*(*pa_Var4)[0x1e].pfn)
-                        ((int)&(this->_base_Speaker).fPosition.flags + (int)(*pa_Var4)[0x1e].delta);
-      VOICE = &this->fVoice;
-      iVar2 = *(int *)(iVar2 + 4);
-      iVar3 = (this->_base_Speaker).fFrom;
-      REVINTRO = &(this->_base_Speaker).fReverse;
-      (this->_base_Speaker).fTo = iVar2;
-      ctx = VOICE;
-      SPCHNFS_C_A_INTRO(VOICE,iVar2,iVar3,REVINTRO);
+      (this->_base_Speaker).fTo = *(int *)((*(*(this->_base_Speaker)._vf)[0x1e].pfn)
+                        ((int)&(this->_base_Speaker).fPosition.flags + (int)(*(this->_base_Speaker)._vf)[0x1e].delta) + 4);
+      SPCHNFS_C_A_INTRO(&this->fVoice,(this->_base_Speaker).fTo,(this->_base_Speaker).fFrom,
+                        &(this->_base_Speaker).fReverse);
       SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-      SPCHNFS_C_D_REQ_RDBLK(VOICE);
+      SPCHNFS_C_D_REQ_RDBLK(&this->fVoice);
       SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
     }
     (this->_base_Speaker).fBlockade.flags = 2;
@@ -3219,12 +3206,11 @@ void MobileSpeaker::SpikeBelt()
 
 {
   Car_tObj *carObj;
-  int iVar2;
-  int iVar3;
-  __vtbl_ptr_type (*pa_Var4) [31];
+  /* SYM-CODEGEN-CARRIER: ctx -- folding the staged dispatch comparison into
+     the condition removes two instructions and leaves six diffs (67/69). */
   SPCHNFSType_VOICE *ctx;
-  SPCHNFSType_VOICE *VOICE;
-  SPCHNFSType_REVINTRO *REVINTRO;
+  /* SYM-CODEGEN-CARRIER: dispatch -- reusing ctx for the three Dispatch()
+     results adds two instructions and produces ten diffs (71/69). */
   Speaker *dispatch;
   
   dispatch = (Speaker *)Speech::Dispatch();
@@ -3237,25 +3223,18 @@ void MobileSpeaker::SpikeBelt()
   if (ctx != (SPCHNFSType_VOICE *)0) {
     dispatch = (Speaker *)Speech::Dispatch();
     dispatch = dispatch->fSub;
-    pa_Var4 = dispatch->_vf;
-    (*(*pa_Var4)[11].pfn)((int)&dispatch->fPosition.flags + (int)(*pa_Var4)[11].delta);
+    (*(*dispatch->_vf)[11].pfn)((int)&dispatch->fPosition.flags + (int)(*dispatch->_vf)[11].delta);
   }
   else {
     this->_base_Speaker.Promote();
     if (Speech_fgSpeech->fMultiplePerps == 0) {
       Speech_fgSpeech->fSpeakerCar = this->fCarObj;
-      pa_Var4 = (this->_base_Speaker)._vf;
-      iVar2 = (*(*pa_Var4)[0x1e].pfn)
-                        ((int)&(this->_base_Speaker).fPosition.flags + (int)(*pa_Var4)[0x1e].delta);
-      VOICE = &this->fVoice;
-      iVar2 = *(int *)(iVar2 + 4);
-      iVar3 = (this->_base_Speaker).fFrom;
-      REVINTRO = &(this->_base_Speaker).fReverse;
-      (this->_base_Speaker).fTo = iVar2;
-      ctx = VOICE;
-      SPCHNFS_C_A_INTRO(VOICE,iVar2,iVar3,REVINTRO);
+      (this->_base_Speaker).fTo = *(int *)((*(*(this->_base_Speaker)._vf)[0x1e].pfn)
+                        ((int)&(this->_base_Speaker).fPosition.flags + (int)(*(this->_base_Speaker)._vf)[0x1e].delta) + 4);
+      SPCHNFS_C_A_INTRO(&this->fVoice,(this->_base_Speaker).fTo,(this->_base_Speaker).fFrom,
+                        &(this->_base_Speaker).fReverse);
       SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-      SPCHNFS_C_D_REQ_SPBLT(VOICE);
+      SPCHNFS_C_D_REQ_SPBLT(&this->fVoice);
       SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
     }
     (this->_base_Speaker).fBlockade.flags = 1;

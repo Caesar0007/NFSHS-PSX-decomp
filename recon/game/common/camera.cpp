@@ -1590,9 +1590,15 @@ void Camera_Update(void)
    * Falsified basins: explicit camera walk=266; swapped increment order=81;
    * camera-base identity fence=40; inner rotation pointer=34/43/44;
    * anonymous shifted-base expression=8; alias+row identity=24. */
+  /* SYM-CODEGEN-CARRIER: inCarMask -- inlining 0xf7ffffff preserves 288
+     instructions but changes 44 allocation/scheduling words. */
   unsigned int inCarMask;
   int player;
+  /* SYM-CODEGEN-CARRIER: cameraBase -- direct Camera_gInfo expressions add
+     two instructions and leave four diffs (290/288). */
   camera_info *cameraBase;
+  /* SYM-CODEGEN-CARRIER: rotationBase -- direct rotation.m[6..8] member
+     access loses three instructions and produces 49 diffs (285/288). */
   camera_info *rotationBase;
 
   player = 0;
@@ -1607,6 +1613,8 @@ void Camera_Update(void)
     anchor = (Car_tObj *)Camera_gInfo[player].anchor;
     if (Camera_gInfo[player].checkcollisions != 0) {
       if (Camera_gInfo[player].tumbling != 0) {
+        /* SYM-CODEGEN-CARRIER: collisionPlayer -- passing player directly
+           preserves 288 instructions but changes four scheduled words. */
         int collisionPlayer;
         collisionPlayer = player;
         __asm__("" : "=r"(collisionPlayer) : "0"(collisionPlayer));
@@ -1642,6 +1650,8 @@ LAB_80083500:
         Camera_UpdatePulloverCam(player);
 LAB_80083584:
         {
+        /* SYM-CODEGEN-CARRIER: bitsInfo -- direct indexed bit-word access
+           adds eight instructions and produces 64 diffs (296/288). */
         camera_info *bitsInfo;
         bitsInfo = &Camera_gInfo[player];
         *(unsigned int *)((char *)bitsInfo + 116) =
@@ -1652,7 +1662,11 @@ LAB_80083584:
       if (Camera_gInfo[player].modechange != 0) {
         camera_info *bitsInfo;
         camera_flags *flagMode;
+        /* SYM-CODEGEN-CARRIER: isInCar -- natural bitfield assignments add
+           two instructions and leave 16 diffs in their best ordering. */
         int isInCar;
+        /* SYM-CODEGEN-CARRIER: modeBits -- the single-word bitfield update
+           is required for retail's 288-instruction combined mask/store. */
         unsigned int modeBits;
 
         bitsInfo = &Camera_gInfo[player];

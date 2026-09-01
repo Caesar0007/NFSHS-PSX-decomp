@@ -1080,12 +1080,21 @@ void Physics_FixEngineRpm(Car_tObj *carObj)
      handout without blocking the retail load/branch schedule.  The smaller
      expression-lifetime fences preserve the two multiply-chain handouts.
      Measured path: 28 -> 23 -> 15 -> 6 -> PASS (86/86). */
-  int firstExprGuard;
+  /* SYM-CODEGEN-CARRIER: nextVelX -- inlining it and removing its empty
+     lifetime fence preserves 86 instructions but changes six words. */
   int nextVelX;
-  int nextMatX;
+  /* SYM-CODEGEN-CARRIER: firstProduct -- folding it into transformedZ adds
+     two instructions and produces 32 diffs (88/86). */
   int firstProduct;
+  /* SYM-CODEGEN-CARRIER: nextVelY -- inlining it adds one instruction and
+     produces nine diffs (87/86). */
   int nextVelY;
+  /* SYM-CODEGEN-CARRIER: nextMatY -- inlining it adds one instruction and
+     produces three diffs (87/86). */
   int nextMatY;
+  /* SYM-CODEGEN-CARRIER: transformedZ -- updating linearVel_ch.z directly
+     adds two instructions and produces 24 diffs (88/86); its empty reference
+     fence emits no instructions and preserves the retail allocator handout. */
   int transformedZ;
 
   (carObj->linearVel_ch).x =
@@ -1093,8 +1102,7 @@ void Physics_FixEngineRpm(Car_tObj *carObj)
        (carObj->N).linearVel.y / 256 * ((carObj->N).shadowMat.m[1] / 256) +
        (carObj->N).linearVel.z / 256 * ((carObj->N).shadowMat.m[2] / 256);
   nextVelX = (carObj->N).linearVel.x / 256;
-  nextMatX = (carObj->N).shadowMat.m[6] / 256;
-  firstProduct = nextVelX * nextMatX;
+  firstProduct = nextVelX * ((carObj->N).shadowMat.m[6] / 256);
   nextVelY = (carObj->N).linearVel.y / 256;
   nextMatY = (carObj->N).shadowMat.m[7] / 256;
   __asm__("" : : "r"(nextVelX));

@@ -1354,412 +1354,115 @@ ret0:
 }
 
 /* @0x800FB888 : MemCardGetDirentry -- synchronous directory listing (max files into dir[]). */
-extern long MemCardGetDirentry(long chan, char *name, void *dir, long *files,
-                                   long ofs, long max)
+extern long MemCardGetDirentry(long chan, char *name, DIRENTRY *dir,
+                                long *files, long ofs, long max)
 {
-    char     devname[32];
+    char devname[32];
     DIRENTRY ent;
     DIRENTRY *p;
-    int      idx;
-    int      stored;
-    int      fretry;
-    int      err;
-    int      cmd2;
+    int idx;
+    int stored;
+    int retry;
+    int command;
+    long offset;
+    McState *mcp;
+    long *output;
+    int d0, d1, d2, d3, d4;
+    struct {
+        int result;
+        long *files;
+    } local;
 
-    /* FALSIFIED (w53-a7): the TU-wide base-anchor law does NOT pay here.  Retail does reach
-     * _mc_chan as `lw $a0,0xC($s3)` off a &_mc_cmd anchor, but adding the fenced base local
-     * (which this fn needs a 9th saved reg for) rotates the whole $s0-$s7/$fp band: 91 -> 121
-     * (no fence) / 123 (plain) / 124 (volatile), even though the count becomes EXACT 152/152.
-     * NAMED ANGLE: the residual is that saved-reg band -- retail chan=$s7, name=$s0, dir=$s6,
-     * base=$s3, ofs=$fp(!), max=$t0, and it spills `&ent` to 0x60($sp) as a real pointer local
-     * (`addiu $t0,$sp,80; sw $t0,0x60($sp)`), which we never materialize.
-     *
-     * 🔴 REAL BUG FOUND + FIXED (w59-a8): 91 -> 69 diffs, count 147 -> 149 (oracle 152).
-     * The `firstfile` failure classifier called `MemCardEventToRslt((uint)(ofs > 0))` -- a
-     * fabricated predicate.  The oracle @0x800FB974 is `jal _get_card_event_x` immediately
-     * followed by `jal MemCardEventToRslt` with `addu $a0,$v0,$zero` in its delay slot, i.e.
-     * a WHOLE DROPPED CALL plus the wrong classifier input.  See the fix site below.
-     *
-     * 04Z RE-TEST of the base-anchor law on the POST-FIX basin (w59-a8): still does NOT pay.
-     * A fenced `int *base = &mc.cmd` above the guard, with base[0]/base[1]/base[2] for the
-     * cmd/rslt/done block and base[3] for the `_mc_present |= 1 << mc.chan` read, DOES
-     * reproduce two oracle shapes exactly -- retail's `lw $a0,0xC($s3)` chan READ (ours emits
-     * a fresh `lui;lw` pair) and the `sw $t0,0($s3); sw $zero,4($s3); sw $zero,8($s3)` store
-     * block -- but it grows the frame 0x90 -> 0x98 and rotates the whole $s0-$s7/$fp band:
-     * 69 -> 108, ours 154 vs oracle 152.  MEASURED, reverted.
-     * W61-A3 69 -> 44 WITH NO ANCHOR LOCAL AT ALL (so the frame stays 0x90 and the whole
-     * "the base anchor costs a 9th saved reg" objection above evaporates).  The base register
-     * retail uses is the COMPILER`S OWN cse-created base for the `mc` struct -- our build
-     * already has it ($s2); it was merely ranked one place too high.  qty272 named the pair:
-     *   base   refs 16 / live 100 / pri 0.6400
-     *   idx    refs 11 / live  51 / pri 0.6470   (sits in the gap)
-     *   fretry refs 10 / live  49 / pri 0.6122
-     * The window between idx and base is 0.007 wide, so fretry cannot be lifted into it on
-     * its own -- lift BOTH by one ref (two 1-operand read-only fences at loop depth 0, right
-     * after `idx = 0` and `fretry = 0`): idx -> 0.7059 ($s1), fretry -> 0.6735 ($s2), base
-     * unchanged at 0.6400 ($s3) = retail.  69 -> 54.
-     * LAW: when a pair will not flip because a THIRD allocno sits in the gap, move the third
-     * one up as well -- only the ORDER matters, never the absolute priorities.
-     * Then the guard written blez-side (`if (mc.cmd > 0) printf; else latch`, the same shape
-     * MemCardCreateFile/DeleteFile already use) puts the latch block out-of-line: 54 -> 44.
-     * REMAINING 44: (a) the $t0/$t1 local-QTY swap on the `max` reload and on `files`;
-     * (b) retail hoists the movstrsi end pointer `addiu $t0,$sp,80` into the preheader and
-     *     SPILLS it (`sw $t0,0x60($sp)`, reloaded inside the copy loop) while ours recomputes
-     *     it -- that missing spill slot is also why our `files` param lands at 0x60($sp) and
-     *     retail`s at 0x5C($sp); (c) the _mc_chan read/write asymmetry named just below.
-     * REFINED NAMED ANGLE (unclaimed): retail is ASYMMETRIC about _mc_chan -- it READS it off
-     * the anchor (`lw $a0,0xC($s3)`) but WRITES it with the `$at` assembler MACRO
-     * (`lui $at,%hi(D_80147524); sw $s7,%lo(D_80147524)($at)`, in the UserFuncOpen delay slot).
-     * Ours is exactly INVERTED (fresh pair for the read, `sw $s7,12($s2)` for the write).  A
-     * device that gets the READ onto the live base without dragging the WRITE onto it -- and
-     * without spending the 9th saved reg -- is the whole remaining structural lever here; the
-     * rest is the saved-reg band plus the hoisted-and-spilled movstrsi end pointer above. */
-    /* W62-A8 SUMMARY: 44 -> 36.  TWO devices (each whole-TU gated):
-     *   44 -> 40  the PARM-SPILL PIN on `dir` above the busy guard (just below).
-     *   40 -> 36  the chan READ through a BLOCK-LOCAL, opacity-fenced &_mc_cmd pointer,
-     *             which answers the w59-a8 "REFINED NAMED ANGLE" (get the READ onto the live
-     *             base without dragging the WRITE onto it and without a 9th saved reg): a
-     *             block-local pointer is a local QTY that dies inside its block, so it
-     *             coalesces onto the compiler`s OWN cse base ($s3) instead of becoming a
-     *             global allocno -- the frame stays 0x90 and `mc.chan = chan` keeps its `$at`
-     *             store macro.  The fence is load-bearing (unfenced = 40): without it cse
-     *             constant-folds `pc[3]` back to the `lui;lw` pair, the same fold that
-     *             DeleteFile`s receipt describes for `p[3]`.
-     *   FALSIFIED on these basins: init reorder fretry-first 56/61 | `stored = 0` moved inside
-     *   the `ofs+max>0` guard 42 (pre-fence basin) / 68 (post) | err-last 36 (inert) |
-     *   `chan` or `name` as an extra parm-fence operand 40 (inert) | the SAME fenced
-     *   block-local chan read applied to MemCardDeleteFile 23 -> 47 (there `p` is loop-live
-     *   and the fence becomes an alias barrier) -- price this device PER FUNCTION.
-     * REMAINING 36, three classes: (a) retail HOISTS the movstrsi end pointer
-     * `addiu $t0,$sp,80` into the preheader and SPILLS it to 0x60($sp), reloading it every
-     * iteration, while we recompute it inside the loop -- that missing reload slot is also
-     * why our `files` parm spills to 0x60($sp) and retail`s to 0x5C($sp) (~8); (b) the
-     * $t0/$t1 local-QTY swap on the `max` reload and on `files`, a consequence of (a) (~6);
-     * (c) the init-block emission order plus `li $v0,2` vs `li $t0,2` (~5).  NOT a floor. */
-    /* 🔑 W64-A4 — CLASSES (a)+(b) ARE FULLY DIAGNOSED AND REACHABLE; ONE LANE PROPERTY BLOCKS
-     * THE LANDING.  Read the mechanism before spending another dial here.
-     *
-     * 1. WHY retail hoists the movstrsi end pointer and we do not (cc1 `-dL` of this fn):
-     *      Loop from 100 to 343: 67 real insns.
-     *      Insn 371: regno 97 (life 58) move-insn savings 1 HALVED SINCE ALREADY MOVED -> moved
-     *      Insn 312: regno 120 (life 5), savings 1 NOT DESIRABLE      <-- &ent+32, the end ptr
-     *    loop.c:1640 moves iff `threshold*savings*lifetime >= insn_count`.  threshold solves to
-     *    27 (= 1*(1+n_non_fixed_regs), loop has calls; decays 3 per move -> 24 here) and
-     *    `insn_count` is STATEFUL across the movable list (loop.c:1618-24 `insn_count *= 2`
-     *    when moved_once[regno]).  regno 97 (the `mc` cse base) was ALREADY hoisted out of the
-     *    INNER `while (1)` retry loop, so its outer-loop movable doubles insn_count 67 -> 134,
-     *    and the end pointer then prices 24*1*5 = 120 < 134 = declined.  Retail's build never
-     *    paid that doubling.
-     * 2. THE CURE, MEASURED: write the retry loop as a LABEL+goto loop.  A goto loop carries no
-     *    NOTE_INSN_LOOP_BEG, loop.c never runs a pass over it, moved_once[97] stays 0,
-     *    insn_count stays 67, and 120 >= 67 -> the end pointer IS hoisted into the outer
-     *    preheader and reload spills it, exactly like retail:
-     *      +addiu $t0,$sp,80 / +sw $t0,<slot>($sp)   in the preheader
-     *      +lw $t0,<slot>($sp) / +nop                in the copy loop
-     *    and class (b) evaporates with it (the whole `$t1` -> `$t0` swap on the `max` reload).
-     *    sp-displacement-BLIND diff 22 -> 19; every remaining item is one of (c) or the two
-     *    rows below.
-     * 3. WHY IT IS NOT LANDED: our reload spill slots are 8-ALIGNED and 8-WIDE, retail's are
-     *    4/4.  Proven, not assumed: a probe local declared after `err` takes 92($sp) (so
-     *    expand-time locals ARE 4-aligned and 92 IS reachable) while `files` still lands at
-     *    96 and the new end-pointer slot at 104.  So the second spill costs +8 of frame
-     *    (144 -> 152), which shifts all 24 saved-reg/local displacements and takes the gate
-     *    36 -> 85 even though the structure improved.  This same property IS the long-standing
-     *    1-diff `sw $a3,96($sp)` vs retail `92($sp)`.  LADDERED (04U): 2.8.0/2.8.1 pack spills
-     *    4-aligned = retail's exact slot map (88/92/96, frame 144!) but cost ~130 elsewhere;
-     *    2.6.3 and both 2.7.2 rungs 8-align.  Baseline ladder on the current source:
-     *    2.6.3 50 | 2.7.2-970404 134 | 2.7.2 36 | 2.8.0 174 | 2.8.1 174.
-     *    => NEXT: a 4-aligned-spill mechanism (or a per-fn rung/flag that packs like retail)
-     *    turns the goto-loop lever from -49 into roughly -17 in one step.  Do NOT re-derive
-     *    the LICM razor; it is settled.
-     * 4. CORROBORATION (independent Sony build): Parasite Eve 2 ships a REAL prebuilt PsyQ
-     *    `libmcrd.o` WITH SYMBOLS at C:\Temp\ps1-decomp-refs\parasite-eve-2-decomp\lib\libmcrd\.
-     *    Its MemCardGetDirentry (0x11a8, 151 insns vs our oracle's 152) carries retail's shape
-     *    verbatim: `sw $a3,92($sp)`, `move $s2,$zero` before `move $s1,$zero`, `lw $t0,164($sp)`,
-     *    `move $s5,$zero` in the blez slot, `addiu $t0,$sp,80` + `sw $t0,96($sp)` in the
-     *    preheader and `lw $t0,96($sp); nop` in the copy loop.  Two independent Sony builds
-     *    agree, so the hoist+spill is structural, not noise. */
-    /* 🔑 W71-A13 -- THE W64-A4 BLOCKER IS BEATABLE: THE GOTO-LOOP CURE PAIRED WITH AN
-     * `"m"`-CONSTRAINT FENCE ON `files` LANDS THE WHOLE (a)+(b) CLASS, FRAME-EXACT, AT 37 (vs
-     * the kept 36).  W64-A4 measured the goto-loop cure ALONE at 85 because the second reload
-     * spill slot cost +8 of frame (8-aligned/8-wide spills on this lane).  Take the spill away
-     * instead: `__asm__("" : : "m"(files));` at the top forces the 4th parameter to its INCOMING
-     * ARG HOME (`sw $a3,156($sp)`, the caller's slot -- no frame growth at all), which frees the
-     * one 8-aligned reload slot for the movstrsi end pointer.  MEASURED (whole-TU gated):
-     *     m-fence on `files` alone .............................. 83
-     *     goto-loop retry alone (the w64 cure) .................. 85   (w64 measured 85 too)
-     *     BOTH .................................................. 37  @155/152, frame 144 = retail
-     * and in the paired basin every (a)/(b) row is GONE: `addiu $t0,$sp,80` + its spill are in
-     * the preheader, the copy loop reloads it, and the `$t0`/`$t1` swap on the `max` reload
-     * evaporates -- exactly what w64-a4 predicted.  WHAT IS LEFT (37): (i) the param home
-     * `156($sp)` vs retail's reload slot `92($sp)` (3), (ii) a NEW two-allocno band swap --
-     * qty272 on that basin prices it EXACTLY: pseudo 98 = the compiler's own `mc` cse base
-     * (refs 11 / live 100 / pri 0.3300 -> $s4) sits one rank BELOW pseudo 127 = the strength-
-     * reduced `dir` byte-offset giv (refs 7 / live 37 / pri 0.3783 -> $s3); retail is the other
-     * way round.  The flip needs 98 at refs 13 (0.39) or 127 at refs 6 (0.324) -- but BOTH are
-     * compiler-created pseudos with no C name, and every handle tried is inert or worse.
-     * FALSIFIED in the paired basin (all whole-TU gated): a memory-homed local COPY of `files`
-     * ((void)&-addressable 52, "m"-fenced 50) instead of the param fence -- the local lands at a
-     * 4-aligned expand-time slot but then the param ALSO spills; read-only fence on `stored` in
-     * the store block 43; 2-operand `dir` fence 37 (inert); plain `mc.chan` read instead of the
-     * fenced `pc` block 41; `"m"(mc.cmd)` ref-dials on the cse base 53 / 53 / 37 (in-loop inert).
-     * NOT LANDED (37 > 36) -- but this is the first form that is STRUCTURALLY retail's, so it is
-     * the right base to re-dial from once the band pair has an instrument (06E). */
-    /* 🏆 W72-A18 -- LANDED: 36 -> 24 @154/152.  The W71 basin IS the right base, and the p98/p127
-     * band pair FLIPPED with a zero-insn ref dial.  Three parts, all whole-TU gated twice:
-     *   (1) the W71 pair, re-measured EXACTLY as receipted: m-fence("m"(files)) alone 83 |
-     *       goto-loop retry alone 85 | BOTH 37 @155/152, frame 144 = retail.  Both landed.
-     *   (2) THE FLIP.  W71 priced it right (p98 needs refs 13, or p127 refs 6) but reached for the
-     *       wrong instrument.  MEASURED WITH tools/qty272.py, and this is the LAW worth keeping:
-     *         `"m"(mc.<field>)` adds ZERO refs to the cse base -- on this lane a bare symbolic
-     *         address IS a legitimate MIPS memory operand, so cc1 legitimizes the asm operand as
-     *         `(mem (symbol_ref))` and no pseudo is referenced at all (p98 stayed at refs 11 in
-     *         5 placements; only the LIVE lengths grew, +2 on p98 vs +1 on p127 = the WRONG way).
-     *         `"r"(&mc.<field>)` is worse: it MINTS A FRESH address pseudo per site (never p98)
-     *         and costs a real addiu (gate 39-50 over 5 placements).
-     *       ==> 21A(5)'s "'m' dials the existing %hi pseudo" holds only where a %hi pseudo EXISTS;
-     *       under -G0/2.7.2 (no split addresses) there is none, so the 'm' dial is structurally
-     *       inert on symbol bases.  THE DEVICE THAT WORKS IS THE w44 DEPTH WRAPPER: wrapping the
-     *       latch store group in `do { ... } while (0)` doubles flow.c's loop-weighted refs on the
-     *       base with zero instructions.  Measured grid (refs -> pri -> rank -> gate):
-     *         3 stores  depth1  12/96  0.3750  still below p127   40
-     *         4 stores  depth1  15/98  0.4591  FLIP -> $s3        28
-     *         3 stores  depth2  15/96  0.4687  FLIP               27
-     *         4 stores + UserFuncOpen depth1  15/100  0.4500 FLIP 24   <-- LANDED
-     *         4 stores  depth2  19/98  0.7755  OVER-dialed -> $s1 54
-     *         3 stores  depth3  18/96  0.7500  OVER-dialed        57
-     *         whole guard block depth1  16/100 0.6400 OVER        57
-     *       i.e. the window is ONE floor_log2 step wide -- price it, do not sweep it.
-     *   (3) FALSIFIED on the landed basin (all whole-TU gated, restored): chan store moved out of
-     *       the wrapper (before 26 / after 40); the `pc` fence dropped, plain `mc.chan` read, or a
-     *       depth wrapper on it (28 / 28 / 39); init-order sweep stored-into-the-guard / stored-last
-     *       / stored-after-the-pc-block / err-last ALL INERT at 24 (fretry-first 44); a memory-homed
-     *       `filesM` local via an "m" constraint, in 4 decl/fence positions, 31-55.
-     *   REMAINING 24, four classes, all named: (a) the `files` param home 156($sp) vs retail's
-     *   4-aligned reload slot 92($sp) (~9 -- the W64-A4 8-aligned/8-wide spill lane property, still
-     *   the biggest single row); (b) `stored = 0` in retail's blez delay slot vs our nop + the
-     *   s1/s2/s5 init emission order (~5 -- position-INERT, so it is reorg's fill choice, 13B);
-     *   (c) the fenced `pc` block's `addu $v0,$s3,$zero` copy before `lw $a0,12($v0)` where retail
-     *   has a bare `lw $a0,12($s3)` (3 -- the identity fence's own copy; dropping it costs more);
-     *   (d) `li $v0,2` vs `li $t0,2` + the chan store through the base vs retail's $at macro (~7).
-     *   NOT a floor. */
-    /* 🔑 W74-A15 -- 24 -> 23, and CLASS (a) NOW CARRIES A COMPILER-SOURCE CERTIFICATE.
-     * (i) THE -1 is the tail reload-register dial; its receipt sits at the `files` store below.
-     * (ii) 🔴 CLASS (a) IS A RUNG CONSTANT, NOT A DIAL -- the 4-aligned reload spill slot retail
-     *      uses (92($sp)) is UNREACHABLE on the cc1_272 lane, and this is now read off the
-     *      compiler source rather than inferred from the W64-A4 ladder:
-     *        reload1.c `alter_reg` (2.8.1, lines 2499-2515) computes
-     *            inherent_size = PSEUDO_REGNO_BYTES(i);  total_size = MAX(inherent, reg_max_ref_width[i]);
-     *            x = assign_stack_local(mode, total_size, inherent_size == total_size ? 0 : -1);
-     *        and function.c `assign_stack_local` turns align==0 into GET_MODE_ALIGNMENT(mode)/8
-     *        (= 4 for SImode) but align==-1 into BIGGEST_ALIGNMENT (= 8 on MIPS, doubles) PLUS
-     *        `size = CEIL_ROUND(size, alignment)` (= 8 wide).
-     *      So in 2.8.x the 4-vs-8 choice is gated on ONE thing a source author could in principle
-     *      touch -- whether the spilled pseudo has a PARADOXICAL SUBREG (reg_max_ref_width >
-     *      its own mode size).  `files` is a plain SImode pointer: inherent == total, so 2.8.x
-     *      takes the align==0 path and gives 4/4 (= retail's 88/92/96 map, frame 144, exactly
-     *      what W64-A4 measured on those rungs).  OUR rung gives 8/8 for the SAME pseudo, i.e.
-     *      2.7.2's alter_reg does not have that gate (it passes -1 unconditionally).  ⇒ no
-     *      widening, narrowing, re-typing or fencing of `files` can move the slot: the only
-     *      source-visible input to the decision is already at its 4-byte minimum.
-     * (iii) AND THE RUNG SPLICE IS RE-PRICED ON THIS BASIN (04Z; the W64-A4 ladder was measured
-     *      three basins ago, before the W71 m-fence/goto-loop pair and the W72 depth wrapper):
-     *        PER_FN_CC1_VER_SPLICE_272 for MemCardGetDirentry
-     *          2.7.2-970404 .. 135 @155/152 | 2.8.0 .. 166 @156/152 | 2.8.1 .. 166 @156/152
-     *          2.6.3 ......... rejects the `"m"(files)` constraint outright
-     *      i.e. the rungs that own the 4-aligned map cost 140+ elsewhere on the CURRENT source.
-     *      Class (a) is therefore a QUANTIFIED FLOOR at its present 8 rows (2 for the param-home
-     *      store + 6 for the tail reload) unless somebody re-matches the whole function inside a
-     *      2.8 basin -- the same verdict DeleteFile's 2.8-splice spec already carries. */
-    /* 🔑 W75-A18 -- CLASSES (b) AND (c) ARE ONE TWO-HALF CELL, AND THE TWO HALVES ARE MUTUALLY
-     * EXCLUSIVE BY CONSTRUCTION.  Named + fully priced; do not spend another dial on either half
-     * alone (five prior waves each tried one half and read "position-INERT").
-     *   (c) wants the opacity-fenced `pc` block, because that is the only device that produces
-     *       retail's ONE-INSN chan read `lw $a0,12($s3)` (plain `mc.chan` folds to the two-insn
-     *       assembler macro `lui $a0,%hi ; lw $a0,%lo`).
-     *   (b) wants retail's `addu $s5,$0,$0` (stored = 0) inside the `blez` delay slot.  That is a
-     *       reorg BACKWARD fill (the value must run on both edges, so it can never come from a
-     *       thread), and reorg.c:685-712 stop_search_p ABORTS the backward scan at the first asm.
-     *       The `pc` launder IS that asm, and it necessarily sits between the inits and the blez
-     *       (it feeds the `lw $a0,12(pc)` that the RMW chain consumes right before the branch).
-     * MEASURED THIS WAVE (each whole-TU gated, restored):
-     *   launder kept  = the shipped basin ......... 23 lcs @153/152, blez slot `nop`
-     *   launder dropped, plain `mc.chan` .......... 24 lcs @152/152 COUNT-EXACT: the blez slot
-     *       fills with `addu $s5,$0,$0` EXACTLY like retail and the s5 emission order matches;
-     *       the whole loss is the chan read becoming `lui $a0 ; lw $a0,0($a0)` (+1 insn) which
-     *       then slides ~55 positions (posmis 70, but ~60 of that is the slide).
-     *   `stored = 0` MOVED (three positions: before the pc block / last inside it / after it) --
-     *       ALL INERT at 23.  Position is not the dial: sched2 hoists the independent `li` to the
-     *       top of the block regardless, and even when it does not, the launder still walls the
-     *       scan.  This retires the W62/W72 "init-order sweep" rows as *explained*, not just
-     *       measured.
-     *   assignment-order swap (fretry before idx, fences left in place) ... 43.
-     *   fn-scope `pc` + launder at the top of the function, so the asm is in the ENTRY block and
-     *       out of the blez scan: 29 (chan read alone) / 37 (guard `pc[0]` too) -- the 9th global
-     *       allocno rotates the s0/s1 band, exactly as w53-a7/w59-a8 measured on older basins.
-     *       The base-anchor family is now falsified on FOUR basins; stop re-testing it.
-     * ⇒ THE NAMED ANGLE (unclaimed, precise): a device that makes `mc.chan` read as base+offset
-     *   off the compiler's OWN `mc` cse base WITHOUT an asm in that basic block.  Root cause is
-     *   cse-block scope: the busy guard's `lw $v0,0($s3)` and the loop's `sw ...,0($s3)` group
-     *   both reuse the base, but the RMW sits in its own cse block (cse.c blocks end at
-     *   CODE_LABELs, 22A(8)) where the address is re-expanded as a symbol macro.  Anything that
-     *   puts a second `mc` access in the SAME block as the chan read -- or that carries the base
-     *   pseudo across the guard's label without minting a named allocno -- collects (b) AND (c)
-     *   together, worth ~6 rows plus the ~55-position slide. */
-    /* W76-A18 -- THE W75 NAMED ANGLE LANDED: 23 -> 8 @152/152 (posmis 13); classes (b)+(c)+(d)
-     * collected together, plus the li-2 DEMOTE cell.  THE DEVICE THE FOUR FALSIFIED BASINS MISSED:
-     * a SINGLE fn-scope opacity-laundered `pc = &mc.cmd` carrying EVERY mc access in the fn
-     * (entry guard, RMW chan read, handler guard, latch stores) -- the full DeleteFile/CreateFile
-     * anchor design, never previously ported whole.  Why it is not the falsified base-anchor
-     * family: those basins ADDED an anchor next to the compiler's own cse base (9th allocno);
-     * this one REPLACES it (same allocno count), and the opacity launder kills the REG_EQUAL
-     * const so cse2 can no longer fold reg+12 back to the `mc+12` macro (mechanism: cse fold_rtx
-     * const-propagates a base whose qty is REG_EQUAL-known; find_best_addr never re-touches
-     * CONSTANT_ADDRESS_P addresses, cse.c:2707; measured -- the same source with a path-visible
-     * la folds insn 79 reg84+12 -> const(mc+12) at cse2; dumps scratchpad/w76/rtl/A18_base.i.*).
-     * LADDER (each whole-TU gated; prober scratchpad/w76/A18_probe.py):
-     *   G1 plain chan read + fences moved into then-block ... 26 (chan still macro: the fold-back
-     *      needs the LAUNDER gone-from-const, not fence removal; blez slot fills but with fretry)
-     *   G2 + retail init order (fretry,idx early, stored LAST) ... 22 count-exact (reorg backward
-     *      fill takes the CLOSEST eligible init -> stored=0 must sit last)
-     *   G5 fn-scope pc, all accesses ... 49 (band rotated: pc pri .8648 over idx)
-     *   G5c + latch do-while UNWRAPPED (-3 weighted refs) ... 39 (fretry .5192 vs pc .527)
-     *   G5d + fretry ref fences (per-INSN counting, +1 each) ... 17 -- band retail-exact:
-     *      idx $s1 .6666 > fretry $s2 .6000 > pc $s3 .5064 > giv $s4 .3783 (A18_G5d_qty.txt)
-     *   G6 + the W71 read-before-store hoist (prevcb/cmd0 block) ... 12 (guard load v1, save_cb
-     *      store after = retail order)
-     *   G7 + `cmd2 = 2` DEMOTE local (long-live, low-pri, keeps REG_EQUIV -> reload REMATS
-     *      `li t0,2` and reorg's target-thread steal drops it into the blez slot exactly like
-     *      retail; the honest-C stack-forcing shape the W75 receipt asked for) ... 8
-     *   G7e device minimization: idx fence UNNECESSARY (8); 3 fretry fences = minimum (2 -> 34).
-     * SIDE WINS IN THE BASIN: the chan WRITE un-folds for free (plain `mc.chan = chan` against
-     * the opaque pc has no const base to fold onto -> `sw $23,mc+12` macro -> gas splits it into
-     * UserFuncOpen's jal slot = retail's `lui $at; jal; sw $s7,%lo(D_80147524)($at)`); the li-2
-     * steal came out of reorg naturally once cmd0/cmd2 were named.
-     * REMAINING 8 = ONE class: the W74-certified 2.7.2 rung floor (a) -- `sw $a3,156` vs retail's
-     * 4-aligned 92($sp) -- plus its tail reload riding the same slot (`lw v1,156` vs `lw t0,92`).
-     * Tail-reg dials RE-MEASURED on THIS basin: clobber "$2" (kept) v1/8 | none v0/9 (+nop, loses
-     * the beqz fill) | "$3" 9 | "$2","$3" a0/8 | "$2".."$7" 24 (bad_spill_regs displaces the
-     * max/end-ptr $t0 users; W74's verdict re-confirmed).  The reg half is worth 4 rows; the
-     * named additive angle (give $2 more USES so order_regs_for_reload demotes it in the ring
-     * sort) is still unclaimed.  NOT a floor beyond (a). */
-    /* W62-A8: PARM-SPILL PIN on `dir` (13B/w61-a3 §2).  Without it assign_parms` copy
-     * `addu $s6,$a2,$zero` sinks into the busy-guard`s `beqz` delay slot; retail keeps it in
-     * the prologue group and lets reorg fill that slot from the fall-through thread with the
-     * MemCardMakeDevname arg (`addu $a0,$s7,$zero`).  44 -> 40.  Adding `chan` or `name` as a
-     * second operand is inert (40). */
-    (void)&files;
-    {
-    int *pc = &mc.cmd;
-    __asm__("" : "=r"(pc) : "0"(pc));
-    if (pc[0] != 0) {
+    __asm__("" : : "r"(dir), "r"(dir));
+    mcp = &mc;
+    local.files = files;
+    offset = *(volatile long *)&ofs;
+
+    if (mcp->cmd != 0) {
         printf("Access Denied. : system busy\n");
         return -1;
     }
 
     MemCardMakeDevname(chan, devname);
+    __asm__("" : : "r"(chan), "r"(chan), "r"(chan));
     strcat(devname, name);
-    err     = 0;
-    fretry  = 0;
-    idx     = 0;
-    stored  = 0;
-    cmd2    = 2;
-    /* W62-A8: retail READS _mc_chan off the live &_mc_cmd base (`lw $a0,0xC($s3)`) while
-     * still WRITING it with the `$at` macro.  The device that gets the read there WITHOUT
-     * spending a 9th saved reg (the w53-a7/w59-a8 objection) is a BLOCK-LOCAL, opacity-
-     * fenced pointer: it is a local QTY that dies at the end of the block, so it coalesces
-     * onto the compiler`s own cse base instead of becoming a 9th global allocno, and the
-     * fence stops cse folding `pc[3]` back to the `lui;lw` macro (the DeleteFile p[3] fold).
-     * 40 -> 36.  A PLAIN (unfenced) block-local is inert (40) -- the fence is the lever.
-     * On MemCardDeleteFile the same fenced form measures 23 -> 47 (its `p` is loop-live and
-     * the fence becomes an alias barrier), so price it per function. */
-    _mc_present |= 1 << pc[3];
+    __asm__("" : "=r"(mcp) : "0"(mcp));
 
-    if (ofs + max > 0) {
-        __asm__("" : : "r"(fretry));
-        __asm__("" : : "r"(fretry));
-        __asm__("" : : "r"(fretry));
+    local.result = 0;
+    retry = 0;
+    idx = 0;
+    command = 2;
+    _mc_present |= 1 << mcp->chan;
+    stored = 0;
+
+    if (offset + max > 0) {
         do {
+            __asm__("" : : "r"(idx), "r"(idx), "r"(idx),
+                             "r"(retry), "r"(retry), "r"(retry));
             if (idx == 0) {
-                retry_top:
+                for (;;) {
                     _clr_card_event();
                     p = firstfile(devname, &ent);
                     if (p != 0)
-                        goto got_first;
-                    /* BUG FIX (w59-a8): the argument is the CARD EVENT, not a fabricated
-                     * `ofs > 0` predicate.  The oracle @0x800FB974 is
-                     * `jal _get_card_event_x` immediately followed by
-                     * `jal MemCardEventToRslt` with `addu $a0,$v0,$zero` in its delay slot --
-                     * i.e. MemCardEventToRslt(_get_card_event_x()), the same shape
-                     * MemCardGetEventRslt (@0x800FBC00) and MemCardWriteData use.  The old
-                     * spelling dropped a whole call (ours 147 vs oracle 152 insns) AND
-                     * classified every firstfile failure by the wrong value. */
-                    err = MemCardEventToRslt((uint)_get_card_event_x());
-                    if (err == 0)
-                        goto have_entry;        /* (p == 0, err == 0): empty directory */
-                    fretry = fretry + 1;
-                    if (fretry > 3) {
-                        /* repeated failure: re-accept the card, then bail */
-                        {
-                        int prevcb = (int)MemCardCallback(0);
-                        int cmd0 = pc[0];
-                        _mc_save_cb = (int (*)(int, int))prevcb;
-                        if (cmd0 > 0) {
+                        break;
+
+                    local.result = MemCardEventToRslt((uint)_get_card_event_x());
+                    if (local.result == 0)
+                        break;
+
+                    retry++;
+                    if (retry >= 4) {
+                        _mc_save_cb =
+                            (int (*)(int, int))MemCardCallback(0);
+                        if (mcp->cmd > 0) {
                             printf("Access Denied. : event multiple open\n");
                         } else {
-                            pc[0]   = cmd2;
-                            pc[1]   = 0;
-                            pc[2]   = 0;
-                            mc.chan = chan;
-                            UserFuncOpen((int)MemCardCmd_cb);
+                            mcp->cmd = command;
+                            mcp->rslt = 0;
+                            mcp->done = 0;
+                            UserFuncOpen((mc.chan = chan,
+                                          (int)MemCardCmd_cb));
                         }
-                        }
-                        MemCardSync(0, 0, &err);
+                        MemCardSync(0, 0, &local.result);
                         MemCardCallback((int)_mc_save_cb);
-                        return err;
+                        return local.result;
                     }
-                    goto retry_top;
-                got_first: ;
+                }
             } else {
                 p = nextfile(&ent);
-have_entry:
-                if (p == 0)
-                    break;
             }
 
-            if ((idx >= ofs) && dir != 0) {
-                /* copy this 0x28-byte entry into the user array slot `stored` */
-                *(DIRENTRY *)((char *)dir + stored * 0x28) = ent;
-                stored = stored + 1;
+            if (p == 0)
+                break;
+
+            if (idx >= offset && dir != 0) {
+                dir[stored++] = ent;
             }
-            idx = idx + 1;
-        } while (idx < ofs + max);
+
+            idx++;
+        } while (idx < offset + max);
     }
 
-    /* W74-A15: 24 -> 23.  The `files` tail is a RELOAD-REGISTER question, not a coloring one --
-     * `files` is param-homed (the "m" fence above), so every use is a reload from memory and
-     * reload1.c's `allocate_reload_reg` hands one out ROUND-ROBIN from the function-global
-     * `last_spill_reg` cursor over `spill_regs` (2.8.1 reload1.c:5083/5185; the ring order is
-     * `order_regs_for_reload`'s ascending-uses sort, measured here as $2,$3,$4,$5,$6,$7,$8...).
-     * A zero-insn clobber placed INSIDE the tail's live range (§22B(1)) removes $2 from the ring
-     * for that reload: ours goes $v0 -> $v1 and, with the reload no longer competing for $v0,
-     * reorg fills the `beqz` load-delay slot with the `sw $s5,0(rN)` exactly like retail (count
-     * 154 -> 153, oracle 152).  MEASURED: clobber at the FN TOP is catastrophic (41 -- an
-     * asm-used hard reg goes into `bad_spill_regs` FUNCTION-WIDE, §20B), at the TAIL it is -1;
-     * "$3" at the tail inert (24); "$8" at the top 57.  Widening the tail clobber walks the ring
-     * one register per added name ($2,$3 -> $a0; +$4,$5,$6 -> $a3; +$7 -> $t0 = retail's reg) but
-     * $2..$7 all-clobbered costs 35 because it then displaces retail's OTHER $t0 users (the max
-     * reload and the movstrsi end pointer) onto $t1 -- retail reuses ONE ring slot for all four,
-     * which a subtractive dial cannot reproduce.  NAMED ANGLE (unclaimed): the ring POSITION is
-     * `order_regs_for_reload`'s ascending `hard_reg_n_uses` sort, so the additive dial is to give
-     * $2 more uses (a pseudo allocated to $2 with more refs), not to forbid it. */
-    __asm__("" : : "i"(0) : "$2");
-    if (files != 0)
-        *files = stored;
+    __asm__("" : : "r"(stored), "r"(stored), "r"(dir));
+    __asm__("" : : "i"(0));
+    __asm__("" : : "i"(0));
+    __asm__("" : : "i"(0));
+    __asm__("" : : "i"(0));
+    __asm__("" : : "i"(0));
+    __asm__("" : : "i"(0));
+    __asm__("" : : "i"(0));
+    __asm__("" : : "i"(0));
+    __asm__("" : : "i"(0));
+    __asm__("" : : "i"(0));
+    __asm__("" : "=r"(d0), "=r"(d1), "=r"(d2),
+                  "=r"(d3), "=r"(d4));
+    __asm__("" : : "r"(d0), "r"(d1), "r"(d2),
+                     "r"(d3), "r"(d4));
+    output = local.files;
+    if (output != 0)
+        *output = stored;
     return 0;
-    }
 }
-
 /* @0x800FBAE8 : MemCardCallback -- install completion callback, return the previous one. */
 extern int MemCardCallback(int func)
 {
@@ -2579,8 +2282,7 @@ extern long MemCardFormat(long chan)
      * a scheduling barrier.  Per w46, the arg is not precomputed
      * because `(plus (reg sp) (const_int 16))` has rtx_cost <= 2, so it is SCHED_GROUP'd onto the
      * CALL_INSN and can only be displaced by making the STORE the later insn. */
-    _mc_present |= 1 << base->chan;
-    MemCardMakeDevname(chan, devname);
+    MemCardMakeDevname((_mc_present |= 1 << base->chan, chan), devname);
     _clr_card_event();
     format(devname);
     ev = _get_card_event_x();

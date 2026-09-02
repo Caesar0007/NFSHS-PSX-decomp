@@ -411,21 +411,13 @@ extern u_long *FntFlush(int id)
     }
     font = &_fnt[id];
     dr = &font->draw_mode;
-    /* W84-root (2026-08-31): 6 -> 4 at the exact 199-insn size.  The empty
-     * memory clobber is the source-level invalidator for reload_cse_regs:
-     * without it that pass forwards dr's just-spilled value from $a2 and
-     * rewrites retail's `sw $a2,16(sp); lw $a0,16(sp)` into a register copy.
-     * Placed immediately after the source assignment, it emits no instruction
-     * and preserves sched2's complete field-load/call schedule while restoring
-     * the retail spill reload.  Placing the same fence immediately before
-     * TermPrim also restores the load but costs 10 other schedule rows (14).
-     * The remaining four rows are only the two default-colour stores' prologue
-     * positions; comma/chained/declaration/block/loop initializer spellings,
-     * copy-seeded colour chains, separate tied-output identity definitions,
-     * plain zero-byte separators, and a second memory fence were re-gated at
-     * 4-65 and fully unwound. */
-    __asm__("" : : : "memory");
-
+    /* W84-root (2026-08-31): the former empty memory-clobber experiment reduced
+     * this to 4 at the exact 199-insn size, but it is intentionally absent from
+     * the source-only/no-asm reconstruction.  The honest residual is 6: two
+     * default-colour stores are scheduled late, and reload_cse_regs forwards
+     * dr's just-spilled value from $a2 instead of reloading the retail stack
+     * home.  Comma/chained/declaration/block/loop initializer spellings and
+     * copy-seeded colour chains were re-gated and unwound. */
     sprt  = font->sprites;
     unwrap = font->unwrap;
     buf   = (signed char *)font->buffer;

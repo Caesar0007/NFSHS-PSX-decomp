@@ -1241,6 +1241,9 @@ void Camera_UpdateSplineCam(int player)
        ($s2, which only ever holds the camSpeedTable-derived step).  Assigning
        it to numSlice was a Ghidra variable-merge: it lengthened numSlice's
        range over the whole guard and cost an extra callee-saved reg + frame. */
+    /* SYM-CODEGEN-CARRIER: halfSlices -- the optimized SYM has no row for the
+       anonymous half-track temporary, but spelling the division twice emits
+       360/351 instructions and 69 diffs instead of retail's single $a0 web. */
     int halfSlices = gNumSlices / 2;
     if ((anchor->N.simRoadInfo.slice - Camera_gInfo[player].slicePos.slice > 0) ?
         (halfSlices <
@@ -1276,9 +1279,9 @@ void Camera_UpdateSplineCam(int player)
       int direction;
 
       {
-        /* w62-a11: BLOCK-LOCAL carrier -- `d` dies here so it takes a2 and the
-           assignment into the call-crossing step becomes retail's
-           `addu s2,a2,zero` in the first fixedmult delay slot (61 -> 55). */
+        /* SYM-CODEGEN-CARRIER: d -- this block-local selector dies before the
+           fixedmult chain, leaving the call-crossing step in retail's $s2.
+           A direct ternary emits 350/351 instructions and 13 diffs. */
         int d = 8;
         if (numSlice + 1 < 9) {
           d = numSlice + 1;
@@ -1293,19 +1296,22 @@ void Camera_UpdateSplineCam(int player)
          why numSlice never crossed a call (calls=0 -> $v1) -- as the step it
          now lives across all three fixedmult calls and lands in retail's seat. */
       {
-      /* MATCH (W72-A12, 8 -> PASS): rotBase MUST be its own live variable (not a
-         reassigned rotRow) -- it makes the symbol a plain pseudo at fold time so
+      /* MATCH (W72-A12, 8 -> PASS): rotBase MUST be its own live variable rather
+         than a direct Camera_gInfo[player] row -- it makes the symbol a plain
+         pseudo at fold time so
          `high`/`lo_sum` expand BEFORE the player*272 chain (retail's order, which
          sched1 cannot produce: every insn here has INSN_PRIORITY 1), and it stays
          live so cse still derives `Camera_gInfo` from `Camera_gInfo+72` as retail's
-         `addiu v1,v1,-72`.  Full mechanism + falsifications in the header block. */
+         `addiu v1,v1,-72`.  Full mechanism + falsifications in the header block.
+         SYM-CODEGEN-CARRIER: rotBase -- the best direct camera-info row spelling
+         emits 349/351 instructions and 8 diffs; the optimized SYM has no row for
+         this fold-order carrier. */
       int *rotBase = &Camera_gInfo[0].rotation.m[6];
-      int *rotRow = rotBase + player * 68;
-      direction = fixedmult(rotRow[0],
+      direction = fixedmult((rotBase + player * 68)[0],
                             Camera_gInfo[player].anchor->roadMatrix.m[6]) +
-                  fixedmult(rotRow[1],
+                  fixedmult((rotBase + player * 68)[1],
                             Camera_gInfo[player].anchor->roadMatrix.m[7]) +
-                  fixedmult(rotRow[2],
+                  fixedmult((rotBase + player * 68)[2],
                             Camera_gInfo[player].anchor->roadMatrix.m[8]);
       }
       if (direction < 0) {
@@ -1315,16 +1321,17 @@ void Camera_UpdateSplineCam(int player)
         numSlice = -numSlice;
       }
       if (numSlice >= 0) {
-        u_short anchorSlice = anchor->N.simRoadInfo.slice;
-        short newSlice = anchorSlice + numSlice;
-        if ((short)anchorSlice + numSlice >= gNumSlices) {
+        /* SYM-CODEGEN-CARRIER: newSlice -- both branch-local short results
+           preserve retail's signed/unsigned load split and in-place wrap.
+           Ternary field assignments stay 351/351 but cost 42 diffs. */
+        short newSlice = anchor->N.simRoadInfo.slice + numSlice;
+        if ((short)anchor->N.simRoadInfo.slice + numSlice >= gNumSlices) {
           newSlice -= (u_short)gNumSlices;
         }
         Camera_gInfo[player].slicePos.slice = newSlice;
       } else {
-        u_short anchorSlice = anchor->N.simRoadInfo.slice;
-        short newSlice = anchorSlice + numSlice;
-        if ((short)anchorSlice + numSlice < 0) {
+        short newSlice = anchor->N.simRoadInfo.slice + numSlice;
+        if ((short)anchor->N.simRoadInfo.slice + numSlice < 0) {
           newSlice = (u_short)gNumSlices + newSlice;
         }
         Camera_gInfo[player].slicePos.slice = newSlice;
@@ -1340,35 +1347,21 @@ void Camera_UpdateSplineCam(int player)
     {
       coorddef splineVel;
       coorddef nextVel;
-      u_char (*nextSlice)[32];
       int relativeVel;
+      /* SYM-CODEGEN-CARRIER: nextSliceIdx -- materializing the anonymous
+         slice+1 step separately is required for the retail $a1/$v1 copy and
+         load order; two direct expressions emit 352/351 and 27 diffs. */
       int nextSliceIdx;
 
-      /* MATCH (w64-a11): the indexed read goes through the GLOBAL, not through
-         the just-assigned `nextSlice` -- that second, anonymous evaluation is
-         what cse turns into retail's `addu $v1,$a1,$zero` copy (the trichotomy
-         case-2 generator), leaving the named cursor in $a1 for the `+= n`
-         mutation below.  And the `slice + 1` step is an ANONYMOUS temp in
-         retail ($v1, caller-saved): reusing the SYM's `numSlice` for it merged
-         two disjoint live ranges into one callee-saved global allocno.
-         MATCH (W71-A21, 13 -> 8): and the ANONYMOUS read must come FIRST, the
-         named cursor assignment SECOND.  With `nextSlice = BWorldSm_slices;`
-         written above the splineVel read, gcc coalesced the two into one pseudo
-         and emitted NO copy (ours was 1 insn short, and it also scheduled the
-         `lh ,140(s2)` slice load AHEAD of the global's `lui/lw`).  Swapping the
-         two statements makes the pointer load land straight in the cursor's $a1
-         and forces retail's `addu v1,a1,zero` copy for the indexed read, with the
-         `lh` back after the load pair.  MEASURED alternatives, all worse:
-         reading splineVel through `nextSlice[...]` 13 @348 | a separate
-         `sliceBase` local for the read 13 @348 | moving `nextSliceIdx` above the
-         splineVel read 16 @347. */
+      /* MATCH: read splineVel from the global first, then form nextSliceIdx.
+         The direct conditional pointer below removes the old non-SYM
+         `nextSlice` cursor while preserving retail's global-load/copy order.
+         Moving nextSliceIdx above the splineVel read remains 16 diffs at 347
+         instructions; reading splineVel through a named cursor is 13 at 348. */
       splineVel = *CAMERA_SLICE_CENTER(Camera_gInfo[player].slicePos.slice);
-      nextSlice = Camera_BWorldSmSlices;
       nextSliceIdx = Camera_gInfo[player].slicePos.slice + 1;
-      if (nextSliceIdx < gNumSlices) {
-        nextSlice += nextSliceIdx;
-      }
-      nextVel = *(coorddef *)nextSlice;
+      nextVel = *(coorddef *)(nextSliceIdx < gNumSlices ?
+          Camera_BWorldSmSlices + nextSliceIdx : Camera_BWorldSmSlices);
       splineVel.x = nextVel.x - splineVel.x;
       splineVel.y = nextVel.y - splineVel.y;
       splineVel.z = nextVel.z - splineVel.z;
@@ -1386,17 +1379,16 @@ void Camera_UpdateSplineCam(int player)
       cameraVel.z = fixedmult(relativeVel,splineVel.z);
     }
 
-    coorddef *cameraPos = &Camera_gInfo[player].position;
-    int zoom;
     Camera_gInfo[player].position.x += cameraVel.x >> 6;
     Camera_gInfo[player].position.y += cameraVel.y >> 6;
     Camera_gInfo[player].position.z += cameraVel.z >> 6;
-    if (Math_Dist3D(&Camera_gInfo[player].target->position,cameraPos) > 0) {
-      zoom = Math_Dist3D(&Camera_gInfo[player].target->position,cameraPos) >> 4;
-    } else {
-      zoom = -Math_Dist3D(&Camera_gInfo[player].target->position,cameraPos) >> 4;
-    }
-    SetCameraZoom(player,zoom);
+    SetCameraZoom(player,
+        Math_Dist3D(&Camera_gInfo[player].target->position,
+                    &Camera_gInfo[player].position) > 0 ?
+        Math_Dist3D(&Camera_gInfo[player].target->position,
+                    &Camera_gInfo[player].position) >> 4 :
+        -Math_Dist3D(&Camera_gInfo[player].target->position,
+                     &Camera_gInfo[player].position) >> 4);
   }
   return;
 }

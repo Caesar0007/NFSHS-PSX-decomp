@@ -327,13 +327,16 @@ void AudioMus_SetCurrentSongInfo(void)
  * and final remainder in v0. */
 int AudioMus_Server(int mode,int ticks)
 {
-  int buffered;
-  int availableSongs;
+  /* The optimized SYM has no ordinary local rows, so the original spellings
+     of these three source values are not recoverable.
+     SYM-CODEGEN-CARRIER: randomRange -- direct `availablesongs - 1` remains
+       300/300 but moves the addiu into the first GetRCnt jal slot (4 diffs).
+     SYM-CODEGEN-CARRIER: switchMode -- the reused value 2 must occupy $s0;
+       spelling both uses as literals stays count-exact but costs 16 diffs.
+     SYM-CODEGEN-CARRIER: randomMusic -- caching the store receiver emits the
+       retail `$s3 = AudioMus_g` before the call; a direct receiver moves that
+       copy into the jal delay slot (4 diffs). */
   int randomRange;
-  int randomValue;
-  int diskSong;
-  int diskReady;
-  int requestedSong;
   int switchMode;
   AudioMus_tMusicGlobals *randomMusic;
 
@@ -342,29 +345,25 @@ int AudioMus_Server(int mode,int ticks)
   if (CdDiskReady(1) != 0x10) goto normal_server;
 
   if (AudioMus_g->errorcode != 0) return 0;
-  diskSong = AudioMus_g->requestsong;
   AudioMus_g->errorcode = -2;
   AudioMus_g->newswitch = 1;
-  if (diskSong < 0) goto done;
-  buffered = AudioMus_Buffered();
-  SNDSTRM_autovol(AudioMus_g->streamhandle,buffered,0);
+  if (AudioMus_g->requestsong < 0) goto done;
+  SNDSTRM_autovol(AudioMus_g->streamhandle,AudioMus_Buffered(),0);
   return 0;
 
 normal_server:
   if (AudioMus_g->errorcode == -2) {
-    diskReady = CdDiskReady(1);
-    if (diskReady != 2) return 0;
+    if (CdDiskReady(1) != 2) return 0;
     AudioMus_g->errorcode = -5;
     if (AudioMus_g->requestsong < 0) goto done;
     AudioMus_g->newswitch = 1;
-    AudioMus_g->switchsong = diskReady;
+    AudioMus_g->switchsong = 2;
     goto update_failby;
   }
 
   AudioMus_RefreshStatus();
   if ((AudioMus_Threshold() != 0) && (AudioMus_g->switchsong != 2)) {
-    buffered = AudioMus_Buffered();
-    if (buffered < 0x226) {
+    if (AudioMus_Buffered() < 0x226) {
       AudioMus_Fail(-5);
     } else if (AudioMus_Buffered() < 0x5dc) {
       if (AudioMus_g->greedy == 0) {
@@ -372,8 +371,8 @@ normal_server:
         AudioMus_g->greedy = 1;
       }
     } else {
-      buffered = AudioMus_Buffered();
-      if ((buffered >= AudioMus_g->threshold) && (AudioMus_g->greedy != 0)) {
+      if ((AudioMus_Buffered() >= AudioMus_g->threshold) &&
+          (AudioMus_g->greedy != 0)) {
         SNDSTRM_setgreedystate(AudioMus_g->streamhandle,0);
         AudioMus_g->greedy = 0;
       }
@@ -420,8 +419,7 @@ switchsong_default:
   AudioMus_g->switchsong = switchMode;
 
 update_failby:
-  buffered = gettick();
-  AudioMus_g->failby = buffered + 0x280;
+  AudioMus_g->failby = gettick() + 0x280;
   goto done;
 
 clear_switchsong:
@@ -430,22 +428,18 @@ clear_switchsong:
 
 switchsong_zero:
   if (AudioMus_g->streamstatus.outstandingrequests != 0) return 0;
-  requestedSong = AudioMus_g->requestsong;
-  if (requestedSong < 0) goto done;
-  availableSongs = AudioMus_g->availablesongs;
-  if (availableSongs > 1) {
+  if (AudioMus_g->requestsong < 0) goto done;
+  if (AudioMus_g->availablesongs > 1) {
     if (AudioMus_g->randomize != 0) {
-      int randomNextSong;
-
       randomMusic = AudioMus_g;
-      randomRange = availableSongs - 1;
-      randomNextSong = AudioMus_g->requestsong + 1;
+      randomRange = AudioMus_g->availablesongs - 1;
       randomMusic->requestsong =
-          (randomNextSong +
+          (AudioMus_g->requestsong + 1 +
            (GetRCnt(0) > 0 ? GetRCnt(0) : -GetRCnt(0)) % randomRange) %
-          availableSongs;
+          AudioMus_g->availablesongs;
     } else {
-      AudioMus_g->requestsong = (requestedSong + 1) % availableSongs;
+      AudioMus_g->requestsong =
+          (AudioMus_g->requestsong + 1) % AudioMus_g->availablesongs;
     }
   }
   SNDSTRM_vol(AudioMus_g->streamhandle,0);

@@ -1263,31 +1263,37 @@ Dispatch_useValue:
 void DispatchSpeaker::Roger()
 
 {
-  bool bVar1;
-  int iVar2;
-  Car_tObj *pCVar5;
-  SPCHNFSType_CONFIRM *pSVar7;
-  SPCHNFSType_CONFIRM *reg_a1;
-  SPCHNFSType_PERP_NAME *reg_a2;
-  SPCHNFSType_CONFIRM *reg_a3;
+  /* SYM-CODEGEN-CARRIER: invalid -- retail's optimized SYM has no ordinary
+     local rows, so this source spelling is not recoverable.  The two-stage
+     boolean shape is nevertheless required: folding the condition directly
+     into the second `if` emits 152/157 instructions and 11 diffs. */
+  bool invalid;
+  /* SYM-CODEGEN-CARRIER: ID_CAR -- semantic name/type follow the canonical
+     SPCHNFS_D_C_IN_PURS_* prototype.  A direct fCar argument moves its load
+     into the jal delay slot (12 count-exact diffs across the two arms).
+     SYM-CODEGEN-CARRIER: ID_UNIT -- the corresponding fTo staging statement
+     is independently required for the same retail argument-setup order. */
+  int ID_CAR;
+  int ID_UNIT;
   
   Speech_fgSpeech->fSpeakerCar = (Car_tObj *)0x0;
-  bVar1 = false;
-  if ((((this->_base_Speaker).fSub == (Speaker *)0x0) ||
-      (iVar2 = (*(*(this->_base_Speaker).fSub->_vf)[0x1b].pfn)
+  invalid = false;
+  if (((this->_base_Speaker).fSub == (Speaker *)0x0 ||
+      ((*(*(this->_base_Speaker).fSub->_vf)[0x1b].pfn)
                          ((int)&((this->_base_Speaker).fSub->fPosition).flags +
-                          (int)(*(this->_base_Speaker).fSub->_vf)[0x1b].delta),
-      iVar2 == 0)) || ((((this->_base_Speaker).fSub)->fBlockade).flags != 0)) {
-    bVar1 = true;
+                          (int)(*(this->_base_Speaker).fSub->_vf)[0x1b].delta) == 0)) ||
+      (((this->_base_Speaker).fSub)->fBlockade).flags != 0) {
+    invalid = true;
   }
-  if (bVar1) {
-    pSVar7 = &(this->_base_Speaker).fConfirm;
-    SPCHNFS_D_A_CONFIRM(pSVar7);
+  if (invalid) {
+    SPCHNFS_D_A_CONFIRM(&(this->_base_Speaker).fConfirm);
   }
   else {
-    Speaker *sub = (this->_base_Speaker).fSub;
-
-    if ((sub->fArrest).flags != 0) {
+    if (((this->_base_Speaker).fSub->fArrest).flags != 0) {
+      /* SYM-CODEGEN-CARRIER: bank -- both scoped instances make GCC coalesce
+         the first virtual result with the computed table base and mutate it
+         in place.  Anonymous address expressions stay 157/157 but use $v0
+         rather than retail's $s0 at both sites (8 diffs). */
       int *bank = (int *)
           ((int)(*(*(this->_base_Speaker)._vf)[0x1e].pfn)
                      ((int)&(this->_base_Speaker).fPosition.flags +
@@ -1295,29 +1301,26 @@ void DispatchSpeaker::Roger()
            (*(*(this->_base_Speaker).fSub->_vf)[0x11].pfn)
                      ((int)&(this->_base_Speaker).fSub->fPosition.flags +
                       (int)(*(this->_base_Speaker).fSub->_vf)[0x11].delta) * 4);
-      reg_a1 = &(this->_base_Speaker).fConfirm;
-      reg_a2 = &(this->_base_Speaker).fPerpName;
       SPCHNFS_D_C_PERP_APPREHENSION_REPLY(
-          (this->_base_Speaker).fTo = bank[2],reg_a1,reg_a2);
+          (this->_base_Speaker).fTo = bank[2],
+          &(this->_base_Speaker).fConfirm,
+          &(this->_base_Speaker).fPerpName);
     }
-    else if ((sub->fUpdate).flags == 0) {
-      pSVar7 = &(this->_base_Speaker).fConfirm;
-      SPCHNFS_D_A_CONFIRM(pSVar7);
+    else if (((this->_base_Speaker).fSub->fUpdate).flags == 0) {
+      SPCHNFS_D_A_CONFIRM(&(this->_base_Speaker).fConfirm);
       SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-      pCVar5 = (Car_tObj *)
-               (*(*(this->_base_Speaker).fSub->_vf)[0x1b].pfn)
-                         ((int)&(this->_base_Speaker).fSub->fPosition.flags +
-                          (int)(*(this->_base_Speaker).fSub->_vf)[0x1b].delta);
-      this->_base_Speaker.SetCar(pCVar5);
-      reg_a1 = (SPCHNFSType_CONFIRM *)(this->_base_Speaker).fCar;
-      pSVar7 = (SPCHNFSType_CONFIRM *)&(this->_base_Speaker).fColour;
-      SPCHNFS_D_C_PERP_LOST_CONFIRM((SPCHNFSType_COLOUR *)pSVar7,(int)reg_a1);
+      this->_base_Speaker.SetCar((Car_tObj *)
+          (*(*(this->_base_Speaker).fSub->_vf)[0x1b].pfn)
+                    ((int)&(this->_base_Speaker).fSub->fPosition.flags +
+                     (int)(*(this->_base_Speaker).fSub->_vf)[0x1b].delta));
+      SPCHNFS_D_C_PERP_LOST_CONFIRM(&(this->_base_Speaker).fColour,
+                                    (this->_base_Speaker).fCar);
     }
     else {
-      pCVar5 = (Car_tObj *)
-               (*(*sub->_vf)[0x1b].pfn)
-                         ((int)&(sub->fPosition).flags + (int)(*sub->_vf)[0x1b].delta);
-      this->_base_Speaker.SetCar(pCVar5);
+      this->_base_Speaker.SetCar((Car_tObj *)
+          (*(*(this->_base_Speaker).fSub->_vf)[0x1b].pfn)
+                    ((int)&(this->_base_Speaker).fSub->fPosition.flags +
+                     (int)(*(this->_base_Speaker).fSub->_vf)[0x1b].delta));
       {
         int *bank = (int *)
             ((int)(*(*(this->_base_Speaker)._vf)[0x1e].pfn)
@@ -1328,22 +1331,20 @@ void DispatchSpeaker::Roger()
                         (int)(*(this->_base_Speaker).fSub->_vf)[0x11].delta) * 4);
         (this->_base_Speaker).fTo = bank[2];
       }
-      iVar2 = (*(*(this->_base_Speaker).fSub->_vf)[0x18].pfn)
-                        ((int)&(this->_base_Speaker).fSub->fPosition.flags +
-                         (int)(*(this->_base_Speaker).fSub->_vf)[0x18].delta);
-      pSVar7 = (SPCHNFSType_CONFIRM *)&(this->_base_Speaker).fColour;
-      if (iVar2 < 0x280000) {
-        reg_a3 = &(this->_base_Speaker).fConfirm;
-        reg_a1 = (SPCHNFSType_CONFIRM *)(this->_base_Speaker).fCar;
-        reg_a2 = (SPCHNFSType_PERP_NAME *)(this->_base_Speaker).fTo;
-        SPCHNFS_D_C_IN_PURS_NEAR_PERP_CONFIRM((SPCHNFSType_COLOUR *)pSVar7,(int)reg_a1,(int)reg_a2,reg_a3,
+      if ((*(*(this->_base_Speaker).fSub->_vf)[0x18].pfn)
+              ((int)&(this->_base_Speaker).fSub->fPosition.flags +
+               (int)(*(this->_base_Speaker).fSub->_vf)[0x18].delta) < 0x280000) {
+        ID_CAR = (this->_base_Speaker).fCar;
+        ID_UNIT = (this->_base_Speaker).fTo;
+        SPCHNFS_D_C_IN_PURS_NEAR_PERP_CONFIRM(&(this->_base_Speaker).fColour,
+                   ID_CAR,ID_UNIT,&(this->_base_Speaker).fConfirm,
                    &(this->_base_Speaker).fPerpName);
       }
       else {
-        reg_a3 = &(this->_base_Speaker).fConfirm;
-        reg_a1 = (SPCHNFSType_CONFIRM *)(this->_base_Speaker).fCar;
-        reg_a2 = (SPCHNFSType_PERP_NAME *)(this->_base_Speaker).fTo;
-        SPCHNFS_D_C_IN_PURS_AWAY_PERP_CONFIRM((SPCHNFSType_COLOUR *)pSVar7,(int)reg_a1,(int)reg_a2,reg_a3,
+        ID_CAR = (this->_base_Speaker).fCar;
+        ID_UNIT = (this->_base_Speaker).fTo;
+        SPCHNFS_D_C_IN_PURS_AWAY_PERP_CONFIRM(&(this->_base_Speaker).fColour,
+                   ID_CAR,ID_UNIT,&(this->_base_Speaker).fConfirm,
                    &(this->_base_Speaker).fPerpName);
       }
     }

@@ -1078,6 +1078,9 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
   int countryFlag;
   int rightHandDrive;
   int cop_flag;          /* SYM fn REG s6 */
+  /* SYM-CODEGEN-CARRIER: copIndex -- the scheduled carType-0x16 value must
+     remain distinct until cop_flag is formed; using the subtraction directly
+     coalesces it with $s6 and costs 23 diffs.  Optimized SYM has no local row. */
   int copIndex;
 
   rightHandDrive = 0;
@@ -1111,24 +1114,23 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
     return;
   }
   {
-  u_short headLight;
-  headLight = (carObj->render).headLight;
-  if (((headLight & 8) == 0) && (0x1e0000 < (carObj->N).damage[0])) {
+  if ((((carObj->render).headLight & 8) == 0) &&
+      (0x1e0000 < (carObj->N).damage[0])) {
     /* MATCH: plain dual stores -- oracle ori h|0xc / h|8 + ONE cross-jump-merged sh */
-    if ((headLight & 0x44) == 0) {
-      (carObj->render).headLight = headLight | 0xc;
+    if (((carObj->render).headLight & 0x44) == 0) {
+      (carObj->render).headLight = (carObj->render).headLight | 0xc;
     }
-    else if ((headLight & 2) != 0) {
-      (carObj->render).headLight = headLight | 8;
+    else if (((carObj->render).headLight & 2) != 0) {
+      (carObj->render).headLight = (carObj->render).headLight | 8;
     }
-    headLight = (carObj->render).headLight;
   }
-  if (((headLight & 0x80) == 0) && (0x1e0000 < (carObj->N).damage[2])) {
-    if ((headLight & 0x44) == 0) {
-      (carObj->render).headLight = headLight | 0xc0;
+  if ((((carObj->render).headLight & 0x80) == 0) &&
+      (0x1e0000 < (carObj->N).damage[2])) {
+    if (((carObj->render).headLight & 0x44) == 0) {
+      (carObj->render).headLight = (carObj->render).headLight | 0xc0;
     }
-    else if ((headLight & 0x20) != 0) {
-      (carObj->render).headLight = headLight | 0x80;
+    else if (((carObj->render).headLight & 0x20) != 0) {
+      (carObj->render).headLight = (carObj->render).headLight | 0x80;
     }
   }
   }
@@ -1147,6 +1149,9 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
       (carObj->render).signalLight[0] = 0;
       (carObj->render).signalLight[1] = 0;
       if (((carObj->control).lights & 2U) == 0) {
+        /* SYM-CODEGEN-CARRIER: lightOff -- the optimized SYM has no row for
+           this bit snapshot.  Passing the comparison directly emits 1145/1144
+           and 7 diffs (`andi/sltiu` instead of retail's shift/xori sequence). */
         u_int lightOff;
 
         lightOff = (u_int)(carObj->control).lights & 4U;
@@ -1155,14 +1160,13 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
     }
   }
   if (R3DCar_Clock != 0) {
-    u_short signalLight;
-    signalLight = (carObj->render).signalLight[0];
-    if ((signalLight & 0x80) != 0) {
-      (carObj->render).signalLight[0] = signalLight + 1 & 0x8f;
+    if (((carObj->render).signalLight[0] & 0x80) != 0) {
+      (carObj->render).signalLight[0] =
+          (carObj->render).signalLight[0] + 1 & 0x8f;
     }
-    signalLight = (carObj->render).signalLight[1];
-    if ((signalLight & 0x80) != 0) {
-      (carObj->render).signalLight[1] = signalLight + 1 & 0x8f;
+    if (((carObj->render).signalLight[1] & 0x80) != 0) {
+      (carObj->render).signalLight[1] =
+          (carObj->render).signalLight[1] + 1 & 0x8f;
     }
   }
   if (0x1b < carType) {
@@ -1247,35 +1251,30 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
   }
   if ((simVar.pauseSim == 0) && (simVar.quickPauseSim == 0)) {
     if (carType == 0x1c) {
-      int wheelRotation;
-      wheelRotation = (carObj->N).wheelRot[1];
       (carObj->N).wheelRot[0] = (carObj->N).wheelRot[0] + 0x1800U & 0xffff;
-      (carObj->N).wheelRot[1] = wheelRotation + 0x1800U & 0xffff;
+      (carObj->N).wheelRot[1] = (carObj->N).wheelRot[1] + 0x1800U & 0xffff;
     }
     else {
       int vel;    /* SYM blk 196 REG a0 -- clamped IN PLACE */
       int spin;   /* SYM blk 196 REG v0 -- abs(wheelSpin), hoisted guard */
       int rear;   /* SYM blk 196 REG a1 -- the 0..2 wheel loop counter */
-      int replayMode;
       rear = 0;
       /* MATCH: retail puts rear=0 in the carType branch delay slot. */
       /* MATCH (w63-a14, 9 -> PASS coupled with dropping jtbl_at_fusion on this TU):
          the replay base must stay an IN-LOOP reference, NOT a preheader local.
          Retail's preheader emits `li $t1,2` BEFORE `la $t0,Replay_ReplayInterface`
          -- that is loop.c movable DISCOVERY order (the literal 2 is first seen in
-         `replayMode != 2`, the base only in the else arm's `->speed`).  Hoisting the
+         `Replay_ReplayMode != 2`, the base only in the else arm's `->speed`).  Hoisting the
          base by hand into a preheader local made it ordinary preheader CODE, which
          always precedes the LICM group, so the two materializations swapped and no
-         dial could reorder them.  Falsified alternatives (both still 2 diffs):
-         moving the assignment after `replayMode = ...`; keeping the base and fencing
-         it.  Keeping the old read-only fence on `Replay_ReplayInterface.speed`
+         dial could reorder them.  Keeping the base and fencing it was still two
+         diffs.  Keeping the old read-only fence on `Replay_ReplayInterface.speed`
          instead ADDS an insn (1145/1144).  __builtin_abs still supplies retail's
          bgez/negu shape. */
       spin = __builtin_abs(carObj->wheelSpin);
-      replayMode = Replay_ReplayMode;
       while (1) {
         if (rear >= 2) break;
-        if (replayMode != 2) {
+        if (Replay_ReplayMode != 2) {
           vel = (carObj->linearVel_ch).z >> 6;
         }
         else {
@@ -1290,7 +1289,7 @@ R_ICFt_wheelspinRpmCalc:
             vel = (carObj->flywheelRpm << 0x10) /
                   carObj->specs->velToRpmRatio[
                       (u_char)(carObj->control).gear];
-            if (replayMode != 2) {
+            if (Replay_ReplayMode != 2) {
               vel = vel << 9;
             }
             else {
@@ -1323,21 +1322,23 @@ R_ICFt_wheelspinRpmCalc:
     fixedxformy(&steerMat,steeringAngle << 5);
   }
   {
-    u_short brakeLight;
     if (((carObj->control).desiredBrakeLevel != '\0') &&
         ((carObj->control).hanno == 0)) {
-      brakeLight = (carObj->render).brakeLight | 1;
+      (carObj->render).brakeLight = (carObj->render).brakeLight | 1;
     }
     else {
-      brakeLight = (carObj->render).brakeLight & 0xfe;
+      (carObj->render).brakeLight = (carObj->render).brakeLight & 0xfe;
     }
-    (carObj->render).brakeLight = brakeLight;
   }
   i = 0;
   if (carType < 0x1c) {
     for (; i < 0x39; i = i + 1) {
       short code;   /* SYM blk 261 (loop1) / blk 389 (loop2) REG a1 -- sibling redecl */
-      u_int uVar8;
+      /* SYM-CODEGEN-CARRIER: lightFlags -- this semantic replacement for the
+         old `uVar8` keeps the shared switch-case test funnels.  Duplicating the
+         field tests directly remains 1144/1144 but costs 18 control-flow and
+         load-order diffs; optimized SYM has no row for the funnel value. */
+      u_int lightFlags;
       code = (signed char)R3DCar_ObjectInfo[i][detailIndex];
       switch((short)(code - 2)) {
       /* MATCH: case bodies in ORACLE VA order (jlabels 800B03F4..800B05B0):
@@ -1366,7 +1367,7 @@ R_ICFt_wheelspinRpmCalc:
         }
         break;
       case 5:
-        uVar8 = (u_int)(u_short)(carObj->render).headLight;
+        lightFlags = (u_int)(u_short)(carObj->render).headLight;
         goto R_ICFt_brakeAIBranch;   /* shared test lives at L800B0500 (0x10/0x11 region) */
       case 6:
         if (((carObj->render).headLight & 0x20U) == 0) {
@@ -1405,9 +1406,9 @@ R_ICFt_wheelspinRpmCalc:
         if ((carObj->control).gear == 0) break;
 R_ICFt_brakeLightCheck:
         if (cop_flag == 0) goto switchD_800b03ec_caseD_f;
-        uVar8 = carObj->AIFlags;
+        lightFlags = carObj->AIFlags;
 R_ICFt_brakeAIBranch:
-        if ((uVar8 & 2) == 0) {
+        if ((lightFlags & 2) == 0) {
           code = 0;
         }
         break;
@@ -1498,7 +1499,7 @@ R_ICFt_postVisibility:
   else {
     for (i = 0; i < 0x39; i = i + 1) {
       short code;   /* SYM blk 261 (loop1) / blk 389 (loop2) REG a1 -- sibling redecl */
-      u_int uVar8;
+      u_int lightFlags;
       code = (signed char)R3DCar_ObjectInfo[i][detailIndex];
       /* MATCH: oracle layout L800B06B8..L800B0700 -- 0x12 arm OUT-OF-LINE at end,
          <0x13 / 0x16 arms inline, ONE shared zero-test funnel */
@@ -1509,7 +1510,7 @@ R_ICFt_postVisibility:
         }
       }
       else if (code == 0x16) {
-        uVar8 = (u_short)(carObj->render).headLight & 0x11;
+        lightFlags = (u_short)(carObj->render).headLight & 0x11;
         goto cfLbl2;
       }
       else {
@@ -1517,9 +1518,9 @@ R_ICFt_postVisibility:
       }
       goto R_ICFt_loop2Post;
 R_ICFt_loop2Brake:
-      uVar8 = (u_int)(carObj->render).brakeLight;
+      lightFlags = (u_int)(carObj->render).brakeLight;
 cfLbl2:   /* @0x800b06f4  (-f-build goto label) */
-      if (uVar8 == 0) {
+      if (lightFlags == 0) {
         code = 0;
       }
 R_ICFt_loop2Post:
@@ -1545,6 +1546,9 @@ R_ICFt_loop2Post:
     /* MATCH: arm order per oracle -- suspension arm INLINE, rideHeight arm out-of-line */
     if (0x2e < i) {
       int index;            /* SYM blk 437 REG v1 */
+      /* SYM-CODEGEN-CARRIER: limit -- the lower clamp must select into a
+         distinct pseudo before copying back to suspensionOffset.  A direct
+         else-if clamp emits 1142/1144 instructions and 12 diffs. */
       int limit;
       index = R3DCar_Suspension[i + -0x2f];
       suspensionOffset = carObj->wheel[index].impactCompression;
@@ -1731,11 +1735,11 @@ R_ICFt_matrixCopyDone: ;   /* empty stmt: gcc2.7.2 rejects label before '}' */
   }
   if ((simVar.pauseSim == 0) && (simVar.quickPauseSim == 0)) {
     if (Replay_ReplayMode != 2) {
+      /* SYM-CODEGEN-CARRIER: positionStep -- the explicit signed snapshot
+         preserves retail's `lh`; using the load directly in the modulo-16-bit
+         store is count-exact but folds it to `lhu` (2 diffs). */
       int positionStep;
       positionStep = *(signed short *)((int)&(carObj->linearVel_ch).z + 2);
-      /* MATCH: the sum is stored modulo 16 bits, so GCC otherwise folds this
-         to lhu and reverses the two tail loads.  The tied fence preserves the
-         retail signed lh/load order and lowers the gate 38 -> 36. */
       (carObj->N).positionXZ =
            (carObj->N).positionXZ + positionStep;
     }

@@ -178,6 +178,7 @@ struct AICop_PerpChaseInfo {
     inline int GetChaseTime();
     inline int IsLastChaseLevel();
     inline void SetChaseLevel(int level);
+    inline void ResetEngagementTime();
 };
 
 struct AIState_Base {

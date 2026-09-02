@@ -836,66 +836,39 @@ void Track_Init(char *tempName)
   int trackFileSize;
   int size;
   SerializedGroup * group;
-  Group *pThis;
+  /* SYM-CODEGEN-CARRIER: this_00 -- this is the receiver of Track_Init's
+     SYM-proven inline SimpleMem constructor expansion. The closest natural
+     constructor spelling changes the size/object allocation and is 4 diffs
+     away (285 versus retail's 283 instructions). */
   SimpleMem *this_00;
+  /* SYM-CODEGEN-CARRIER: loadBuf -- this constructor-result quantity feeds
+     both initial pointer members and the null test; keeping the expanded
+     value flow is the byte-exact representation of the unnamed inline body. */
   void *loadBuf;
-  int scratchAlloc;
-  int rootSerGroup;
-  int groupBase;
-  int subGroup;
-  int geomSubGrp;
-  int instSubGrp;
-  int perGroup;
-  SerializedGroup *pSVar4;
   short *visList;
-  void *tp7;
-  void *elemNext;
-  CVECTOR *pCVar5;
   int j;
-  u_int uVar6;
-  int elemIdx;
-  int matCount;
-  int elemPtr;
   int srcDataInd;
-  int iVar43_field;
   int count;
-  int iVar44_field;
   Chunk *chunkDat;
   int i;
-  int groupOffset;
-  int matOffset;
   SerializedGroup *nextChunkGroup;
-  int matInfo_p;
-  int chunkIdx;
   SerializedGroup *persistentGroup;
   char trackName [128];
-  int tR7;
+  /* SYM-CODEGEN-CARRIER: tu3 -- hoisting the 0x3ff fill value before the
+     chunk loop preserves retail's saved-register lifetime and load schedule;
+     spelling the literal at the store keeps 283 instructions but moves the
+     load across the loop preheader (2 diffs). */
   u_short tu3;
-  int tp4;
+  /* SYM-CODEGEN-CARRIER: tT33 -- this block-local Track_header snapshot takes
+     retail's $t2 and fixes the earlier 0x400-byte movstrsi scratch pool at
+     $t3-$t6. Direct global access keeps 283 instructions but produces 54
+     diffs beginning in that generated copy sequence. */
   TrackHeader *tT33;
-  int tu2;
-  int tp3;
-  u_char uVar7_00;
-  u_char tu26;
-  u_char tu27;
-  u_char tu28;
-  u_char tu29;
-  u_char tu22;
-  u_char tu23;
-  u_char tu24;
-  u_char tu25;
-  u_char tu34;
-  u_char tu35;
-  u_char tu30;
-  u_char tu31;
-  u_char tu32;
-  u_char tu33;
 
   Track_gSaveSurface = (SaveSurface *)0x0;
   Track_gObjDefs = (Trk_ObjectDef **)0x0;
   sprintf(trackName,"%s",tempName);
   trackFileSize = filesize(tempName);
-  uVar6 = 0x404;
   Chunk_lightTable = reservememadr("lighttbl",0x404,0);
   TextureProcess_Init();
   size = trackFileSize + 0x9080;
@@ -905,41 +878,36 @@ void Track_Init(char *tempName)
   loadBuf = reservememadr("Track_mem",size,0);
   this_00->heap = loadBuf;
   this_00->freeMem = loadBuf;
-  /* MATCH: retail re-READS the just-stored heap field; cse turns the load into a register
-   * copy of the stored value (addu v1,v0,zero) and the freeMem store rides the branch slot. */
   if (this_00->heap == (void *)0x0) {
     size = 0;
   }
   this_00->freeMemSize = size;
   Track_mem = this_00;
-  scratchAlloc = (int)(this_00)->FeignAlloc(trackFileSize);
-  rootSerGroup = loadfileatadr(trackName,(void *)(scratchAlloc + 0x9080));
-  groupBase = (int)((SerializedGroup *)rootSerGroup)->LocateCreateGroupType(0x1f,Track_mem,0);
-  Track_header = (TrackHeader *)(groupBase + 4);
-  subGroup = (int)((SerializedGroup *)rootSerGroup)->LocateCreateGroupType(0x20,Track_mem,0);
-  Chunk_chunkCenters = (coorddef *)(subGroup + 4);
-  geomSubGrp = (int)((SerializedGroup *)rootSerGroup)->LocateGroupType(0x23,0);
+  trackGroup = (SerializedGroup *)loadfileatadr(
+      trackName,(void *)((int)Track_mem->FeignAlloc(trackFileSize) + 0x9080));
+  Track_header = (TrackHeader *)((int)trackGroup->LocateCreateGroupType(0x1f,Track_mem,0) + 4);
+  Chunk_chunkCenters =
+      (coorddef *)((int)trackGroup->LocateCreateGroupType(0x20,Track_mem,0) + 4);
   {
     struct LightTableData {
       CVECTOR data[0x100];
     };
 
-    *(LightTableData *)Chunk_lightTable = *(LightTableData *)(geomSubGrp + 0x10);
+    *(LightTableData *)Chunk_lightTable =
+        *(LightTableData *)((int)trackGroup->LocateGroupType(0x23,0) + 0x10);
   }
-  instSubGrp = (int)((SerializedGroup *)rootSerGroup)->LocateGroupType(0x23,0);
-  Chunk_numLight = *(int *)(instSubGrp + 4) - 0x10U >> 2;
+  Chunk_numLight =
+      (trackGroup->LocateGroupType(0x23,0)->m_length - 0x10U) >> 2;
   Track_gInViewList = (short (*)[32])(Track_mem)->Alloc(Track_header->chunkCount * 0x48,0);
   Track_gInViewCount = (u_char *)(Track_mem)->Alloc(Track_header->chunkCount,0);
   Track_chunkList = (Track_mem)->Alloc(Track_header->chunkCount * 0x70,0);
   Chunk_Init();
-  persistentGroup = ((SerializedGroup *)rootSerGroup)->LocateGroupType(0x21,0);
-  chunkGroup = ((SerializedGroup *)rootSerGroup)->LocateGroupType(0x1d,0);
+  persistentGroup = trackGroup->LocateGroupType(0x21,0);
+  chunkGroup = trackGroup->LocateGroupType(0x1d,0);
   i = 0;
   tu3 = 0x3ff;
-  matOffset = 0;
-  chunkIdx = 0;
   while (i < Track_header->chunkCount) {
-    chunkDat = (Chunk *)((char *)Track_chunkList + chunkIdx);
+    chunkDat = Track_chunkList + i;
     nextChunkGroup = (SerializedGroup *)0x0;
     if (i < Track_header->chunkCount + -1) {
       nextChunkGroup = chunkGroup->LocateNextGroupType(0x1d);
@@ -954,30 +922,26 @@ void Track_Init(char *tempName)
     srcDataInd = 0;
     j = 0;
     if (0 < count) {
-      short *src;
+      /* SYM-CODEGEN-CARRIER: dest -- retail keeps the accepted-entry output
+         cursor as a loop-carried pointer. Replacing this cursor with
+         Track_gInViewList[i][j] adds one instruction and produces 21 diffs. */
       short *dest;
 
-      /* MATCH: the block-local header cache occupies $t2; this also shifts the
-       * earlier LightTableData movstrsi scratch pool to retail's $t3-$t6. */
       tT33 = Track_header;
-      src = visList;
-      dest = (short *)(matOffset + (int)Track_gInViewList);
+      dest = (short *)((i << 6) + (int)Track_gInViewList);
 
       do {
-        u_short entry = (u_short)*src;
-
-        if ((int)(entry & 0x3ff) < tT33->chunkCount) {
-          *dest = entry;
+        if ((int)((u_short)visList[srcDataInd] & 0x3ff) < tT33->chunkCount) {
+          *dest = visList[srcDataInd];
           dest = dest + 1;
           j = j + 1;
         }
         srcDataInd = srcDataInd + 1;
-        src = src + 1;
       } while (srcDataInd < count);
     }
     *(u_char *)((char *)Track_gInViewCount + i) = (u_char)j;
     if (j < 0x24) {
-      short *dest = (short *)(j * 2 + (matOffset + (int)Track_gInViewList));
+      short *dest = (short *)(j * 2 + ((i << 6) + (int)Track_gInViewList));
 
       do {
         *dest = tu3;
@@ -986,8 +950,6 @@ void Track_Init(char *tempName)
       } while (j < 0x24);
     }
     chunkGroup = nextChunkGroup;
-    matOffset = matOffset + 0x40;
-    chunkIdx = chunkIdx + 0x70;
     i = i + 1;
   }
   Track_InitPersistentData(persistentGroup);

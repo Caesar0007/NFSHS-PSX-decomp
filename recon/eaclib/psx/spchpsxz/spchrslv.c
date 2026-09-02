@@ -8,6 +8,8 @@
  *   iSPCH_BindData's v0 is passed straight back, so the return is int.
  */
 
+#include "../eaclib_types.h"
+
 extern int iSPCH_BindData(unsigned short *dat);   /* spchrand */
 
 extern int SPCH_ResolveData(unsigned short *dat); /* @0x800EBBD4 */

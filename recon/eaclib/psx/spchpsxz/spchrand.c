@@ -12,6 +12,8 @@
  *   returns int* (the state base).
  */
 
+#include "../eaclib_types.h"
+
 /* ---- 6-word PRNG state @0x801235F4 (.data; runtime-seeded by iSPCH_EACseedrandom).  data-mat #75.
  *   Contiguous int[6]: [0]=seedX accumulator, [1]=..f8, [2]=..fc, [3]=..600, [4]=..604, [5]=..608. ---- */
 extern unsigned int seedX[];        /* @0x801235F4 : the 6-word state (word0 = accumulator) */

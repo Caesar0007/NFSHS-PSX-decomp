@@ -29,15 +29,16 @@
  *   IDA); iSPCH_SentenceUsesParm reads in_v0 = VoxSentence_GetNumPhrases' dropped return.
  */
 
-extern void (*gSentenceRuleSet[])(unsigned int, unsigned int, int, int); /* sentence rule-set callback
-                                               * (spchinit-owned); unsized-array decl => separate-temp
-                                               * base materialization (catalog SSE #5) */
-extern int (*gSentenceRuleTest[])(unsigned int, unsigned int, int); /* sentence rule-test callback;
-                                               * UNSIZED-ARRAY decl for the same reason as its sibling
-                                               * above (w47-a9 fingerprint: the scalar decl is <= -G4
-                                               * small-data-eligible, so cc1 emits the unschedulable
-                                               * assembler macro `lw $r,sym` where retail has the
-                                               * %hi/%lo split -- catalog SSE #5 / IDT Ch9) */
+ #include "../eaclib_types.h"
+ 
+/* 2026-09-02 pseudo-array retirement: both callback slots were UNSIZED-ARRAY decls read as
+ * sym[0] -- the pre--G0 device against <= -G4 small-data eligibility (w47-a9 fingerprint: the
+ * scalar decl compiled to the unschedulable assembler macro `lw $r,sym` where retail has the
+ * %hi/%lo split -- catalog SSE #5 / IDT Ch9).  Under the library-wide -G0 (build.py
+ * PER_TU_FLAGS, 2026-08-31) the plain scalars emit the identical split pairs; 9/9 PASS. */
+extern void (*gSentenceRuleSet)(unsigned int, unsigned int, int, int); /* sentence rule-set callback
+                                               * (spchinit-owned) */
+extern int (*gSentenceRuleTest)(unsigned int, unsigned int, int); /* sentence rule-test callback */
 
 /* ---- per-TU static copies of the shared Vox accessors (canonical versions in spchdata.obj) ---- */
 
@@ -233,7 +234,7 @@ extern void iSPCH_RuleSet(short *sentence, int rule, int *values)
      * an ADDRESS-TAKEN non-volatile slot (`unsigned int slotv; unsigned int *keep = &slotv;
      * *keep = rd[0];`) -- addressable so the store stays, non-volatile so cse's memory table is
      * only alias-invalidated rather than flushed. */
-    if (gSentenceRuleSet[0] != 0) {
+    if (gSentenceRuleSet != 0) {
         int offSent;
         int            numRules = *(signed char *)((int)sentence + 7);
         int            i        = 0;
@@ -288,7 +289,7 @@ extern void iSPCH_RuleSet(short *sentence, int rule, int *values)
                     if (iSPCH_SentenceUsesParm(offSent, paramIdx) != 0) {
                         int **valuesSlot = &values;
                         int *valuesNow = *valuesSlot;
-                        gSentenceRuleSet[0]((unsigned short)*sentence, ruleByte,
+                        gSentenceRuleSet((unsigned short)*sentence, ruleByte,
                             valuesNow[paramIdx], (int)valuesNow);
                     }
                     break;
@@ -515,8 +516,8 @@ extern unsigned char iSPCH_GetRuleSettings(short *sentence, int *values, char *o
                      * remaining reason gcc keeps it in its incoming home slot -- dropping this
                      * decl costs a callee-saved reg + an 88-byte frame (w34-a10 receipt). */
                     short **sentSlot = &sentence;
-                    if (gSentenceRuleTest[0] != 0)
-                        testResult = gSentenceRuleTest[0](
+                    if (gSentenceRuleTest != 0)
+                        testResult = gSentenceRuleTest(
                             (unsigned short)*sentence, ruleIdArg, testValue);
                     else
                         testResult = -1;

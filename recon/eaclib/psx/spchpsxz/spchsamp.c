@@ -11,6 +11,8 @@
  *   (iSPCH_UnPackSample) passes (out, sampleId) -- kept 2-arg as the formal API, sampleId unused here.
  */
 
+ #include "../eaclib_types.h"
+ 
 extern void iSPCH_InitSample(int *out);                            /* @0x8010B5AC */
 extern int  iSPCH_UnPackSample(int bank, int sampleIdx, int *out); /* @0x8010B5D4 */
 

@@ -10,39 +10,42 @@
  *   uninitialised register (IDA: SetCycleBits is 1-arg) -> dropped.
  */
 
-extern int gVoxBanks[]; /* @~0x801370B4 : base of the bank pointer array (int[gNumBanks]) */
-extern int gNumBanks[]; /* @0x801370B8  : number of bank slots */
-extern int gGameNum[];  /* shared game global : current game/race number (cycle-bit hash key) */
-extern int  iSPCH_MemAlloc(int numBytes, const char *tag); /* spchinit; returns the allocated ptr (0 = failed) */
-extern void iSPCH_MemFree(int block);      /* spchinit; release body ignores the arg but call sites
-                                            * still pass the freed block (nullsub-takes-real-args) */
-extern int  iSPCH_GetBankBits(int bank);   /* spchpick (returns the bank's cycle-bits array) */
-extern void trap(unsigned int code);
+#include "../eaclib_types.h"
 
+extern int *gVoxBanks;  /* @~0x801370B4 : the bank-handle array (int[gNumBanks]) -- a real array, heap-allocated
+                         * by iSPCH_BankMemAlloc; this one word holds its base (honest pointer type, 2026-09-02) */
+extern int gNumBanks;  /* @0x801370B8  : number of bank slots */
+extern int gGameNum;   /* spchinit @0x80148428 : current game/race number (cycle-bit hash key) */
+
+extern int *iSPCH_MemAlloc(int numBytes, const char *tag); /* spchinit; returns the allocated ptr (0 = failed) */
+extern void iSPCH_MemFree(int *block);     /* spchinit; release body ignores the arg but call sites
+                                            * still pass the freed block (nullsub-takes-real-args) */
+extern char *iSPCH_GetBankBits(char *bank);   /* spchpick (returns the bank's cycle-bits array) */
+//extern void trap(unsigned int code);
 extern void  iSPCH_InitBanks(void);                         /* @0x800EB1E0 */
 extern void  iSPCH_DisposeBanks(void);                      /* @0x800EB1F4 */
-extern int   iSPCH_BankMemAlloc(int numBanks);              /* @0x800EB234 */
+extern int  *iSPCH_BankMemAlloc(int numBanks);              /* @0x800EB234 : returns gVoxBanks */
 extern int   iSPCH_GetFreeBank(void);                       /* @0x800EB2B8 */
-extern int   iSPCH_FindBank(int key);                       /* @0x800EB310 */
-extern unsigned int iSPCH_TestSubBankBounds(int bankIdx, int subIdx); /* @0x800EB37C */
-extern void  iSPCH_SetCycleBits(int *p);                    /* @0x800EB3C8 */
-extern int   SPCH_AddBank(int bank);                        /* @0x800EB520 */
+extern int   iSPCH_FindBank(unsigned short key);                       /* @0x800EB310 */
+extern bool iSPCH_TestSubBankBounds(int bankIdx, int subIdx); /* @0x800EB37C */
+extern void  iSPCH_SetCycleBits(char *p);                   /* @0x800EB3C8 */
+extern int   SPCH_AddBank(char *bank);                        /* @0x800EB520 */
 
 /* iSPCH_InitBanks @0x800EB1E0 : clear the bank table (no allocation yet). */
 extern void iSPCH_InitBanks(void)
 {
-    gVoxBanks[0] = 0;
-    gNumBanks[0] = 0;
+    gVoxBanks = 0;
+    gNumBanks = 0;
 }
 
 /* iSPCH_DisposeBanks @0x800EB1F4 : free the bank array (if any) and clear the table. */
 extern void iSPCH_DisposeBanks(void)
 {
-    int *banks = gVoxBanks;   /* hold base across the MemFree call (oracle keeps &gVoxBanks in s0) */
-    if (banks[0] != 0)
-        iSPCH_MemFree(banks[0]);   /* MATCH: arg load lands in $a0 (oracle lw a0,%lo(gVoxBanks)) */
-    banks[0] = 0;
-    gNumBanks[0] = 0;
+    if(gVoxBanks)
+        iSPCH_MemFree(gVoxBanks);
+
+    gVoxBanks = 0;
+    gNumBanks = 0;
 }
 
 /* iSPCH_BankMemAlloc @0x800EB234 : allocate gVoxBanks[numBanks] (once) and zero it.  Returns gVoxBanks.
@@ -102,12 +105,12 @@ extern void iSPCH_DisposeBanks(void)
  * epilogue re-load of gVoxBanks).  LESSON for the sibling floors in this cluster: when a receipt
  * says "the fence reaches the goal but never at parity", the missing piece is a ZERO-COST ref
  * inflator, and the rival is usually the right side to dial. */
-extern int iSPCH_BankMemAlloc(int numBanks)
+extern int *iSPCH_BankMemAlloc(int numBanks)
 {
-    int *vb = gVoxBanks;
-    int *nb;
+    int **vb = &gVoxBanks;
+    int  *nb;
     if (*vb == 0) {
-        int allocated;
+        int *allocated;
         /* MATCH (w50-a9): nb's `lui %hi(gNumBanks)` must sink BELOW the branch so `sw $s1`
          * is dbr's nearest fillable insn (w34-a9's mechanism) -- hence the SPLIT declaration
          * (init here, at nb's first use).  On its own that flips $s0<->$s1 across the whole
@@ -116,14 +119,14 @@ extern int iSPCH_BankMemAlloc(int numBanks)
          * priority at ZERO instructions -- where the w49 opacity fences reached 7 diffs but
          * cost +3 insns (lui/addiu/lw split) and lost parity.  Depth 1/2/3 all PASS; depth 1
          * kept as the minimal form.  DO NOT delete the wrapper or re-fuse the declaration. */
-        nb = gNumBanks;
+        nb = &gNumBanks;
         *nb = numBanks;
-        allocated = iSPCH_MemAlloc(numBanks << 2, "spch banks");
+        allocated = iSPCH_MemAlloc(numBanks * 4, "spch banks");
         do { *vb = allocated; } while (0);   /* MATCH: unconditional store -> beqz delay slot */
-        if (allocated != 0) {
+        if (allocated) {
             int i = 0;
             numBanks = *nb;   /* MATCH: reload reuses the dead param reg ($a0) */
-            if (0 < numBanks) {
+            if (numBanks > 0) {
                 int bound = numBanks;
                 numBanks = allocated;   /* reuse the dead numBanks/$a0 reg as the walking pointer */
                 do {
@@ -134,86 +137,83 @@ extern int iSPCH_BankMemAlloc(int numBanks)
             }
         }
     }
-    return gVoxBanks[0];
+    return gVoxBanks;
 }
 
 /* iSPCH_GetFreeBank @0x800EB2B8 : index of the first empty (NULL) bank slot, or -1 if none/no table. */
 extern int iSPCH_GetFreeBank(void)
 {
     int result = -1;
-    int i = 0;     /* MATCH: init above the if -> lands in the blez delay slot, keeping result=-1 first */
-    if (0 < gNumBanks[0]) {
-        int count = gNumBanks[0];
-        int *p = (int *)gVoxBanks[0];
-        do {
-            if (*p == 0) {
-                result = i;
-                goto done;
-            }
-            i++;
-            p++;
-        } while (i < count);
+    int i;
+    
+    for(i = 0; i < gNumBanks; i++) {
+        if(gVoxBanks[i] == NULL) {
+            result = i;
+            break;
+        }
     }
-done:
+
     return result;
 }
 
 /* iSPCH_FindBank @0x800EB310 : index of the bank whose id (first u16 of its data) matches `key & 0xffff`,
  *   or -1 if not found. */
-extern int iSPCH_FindBank(int key)
+extern int iSPCH_FindBank(unsigned short key)
 {
-    if (gVoxBanks[0] != 0 && 0 < gNumBanks[0]) {
-        int  i = 0;
-        int *p = (int *)gVoxBanks[0];
-        key = key & 0xffff;
-        do {
-            int bankPtr = *p;
-            if (bankPtr != 0 && (unsigned int)*(unsigned short *)bankPtr == (unsigned int)key)
+    int i;
+
+    if(gVoxBanks) {
+        for(i = 0; i < gNumBanks; i++) {
+            if(gVoxBanks[i] && *(unsigned short *)gVoxBanks[i] == key)
                 return i;
-            i++;
-            p++;
-        } while (i < gNumBanks[0]);
+        }
     }
+
     return -1;
 }
 
 /* iSPCH_TestSubBankBounds @0x800EB37C : 1 if sub-index `subIdx` is in range [0, count) for bank `bankIdx`
  *   (where count = the bank's u16 at +6, and != 0xffff), else 0. */
-extern unsigned int iSPCH_TestSubBankBounds(int bankIdx, int subIdx)
+extern bool iSPCH_TestSubBankBounds(int bankIdx, int subIdx)
 {
-    int          base = gVoxBanks[0];
-    unsigned int result = 0;
-    int          count;
-    if (base == 0)         goto ret;
-    if (bankIdx < 0)       goto ret;
-    bankIdx = *(int *)(bankIdx * 4 + base);   /* MATCH: bank ptr reuses the dead index reg ($a0) */
-    if (*(unsigned short *)(bankIdx + 6) == 0xffff) goto ret;
-    if (subIdx < 0)        goto ret;
-    count = *(unsigned short *)(bankIdx + 6); /* MATCH: CSE reload = copy, fills the bltz delay slot */
-    result = (unsigned int)(subIdx < count);
-ret:
+    bool result = false;
+
+    if (gVoxBanks) {
+        if (bankIdx >= 0) {
+            unsigned short *bank;
+
+            bank = gVoxBanks[bankIdx];
+            if (bank[3] != 0xffff) {
+                if (subIdx >= 0) {
+                    result = subIdx < bank[3];
+                }
+            }
+        }
+    }
+
     return result;
 }
 
 /* iSPCH_SetCycleBits @0x800EB3C8 : for bank `p`, set the run of cycle bits that this game number (gGameNum)
  *   maps to within the bank's GetBankBits() array.  The (n==0)/(n==-1 && dividend==INT_MIN) checks are the
  *   compiler's signed-division traps.  True contract is void (matching eaclib.h and all callers).
- *   MATCH (86/86): declaring the one-word gGameNum storage as an array makes gcc split its address so
- *   the `lui` fills the initial `blez` delay slot instead of emitting an extra nop. */
-extern void iSPCH_SetCycleBits(int *p)
+ *   MATCH (86/86): under the library-wide -G0 (build.py PER_TU_FLAGS) the plain scalar gGameNum gets the
+ *   split lui/lw address pair, whose `lui` fills the initial `blez` delay slot -- the old unsized-array
+ *   declaration was only a -G4 workaround for the same effect (retired 2026-09-02). */
+extern void iSPCH_SetCycleBits(char *p)
 {
-    unsigned char *bits;
-    unsigned int   nGroups;
-    int            startBit, count, byteIdx, bitInByte;
-    int            t1, t2, t3, i;
+    char *bits;
+    int   nGroups;
+    int   startBit, count, byteIdx, bitInByte;
+    int   t1, t2, t3, i;
 
-    bits    = (unsigned char *)iSPCH_GetBankBits((int)p);
-    nGroups = (unsigned int)*bits;
-    if (0 < (int)nGroups) {
-        t1       = (gGameNum[0] % (int)nGroups) * (int)(unsigned int)*(unsigned char *)((int)p + 3);
-        startBit = t1 / (int)nGroups;
-        t2      = (gGameNum[0] % (int)nGroups + 1) * (int)(unsigned int)*(unsigned char *)((int)p + 3);
-        count   = t2 / (int)nGroups - startBit;
+    bits    = iSPCH_GetBankBits(p);
+    nGroups = *bits;
+    if (nGroups > 0) {
+        t1       = (gGameNum % nGroups) * p[3];
+        startBit = t1 / nGroups;
+        t2       = (gGameNum % nGroups + 1) * p[3];
+        count    = t2 / nGroups - startBit;
         t3       = startBit;
         if (startBit < 0)
             t3 = startBit + 7;
@@ -222,35 +222,34 @@ extern void iSPCH_SetCycleBits(int *p)
             byteIdx   = shifted + 1;
             bitInByte = startBit + shifted * -8;
         }
-        i = 0;
-        if (0 < count) {
-            do {
-                unsigned int mask = 1u << bitInByte;
-                bitInByte = bitInByte + 1;
-                bits[byteIdx] |= (unsigned char)mask;
-                if (bitInByte == 8) {
-                    bitInByte = 0;
-                    byteIdx = byteIdx + 1;
-                }
-                i = i + 1;
-            } while (i < count);
+
+        for(i = 0; i < count; i++) {
+            unsigned char mask = 1u << bitInByte;
+            bitInByte++;
+            bits[byteIdx] |= mask;
+            if (bitInByte == 8) {
+                bitInByte = 0;
+                byteIdx++;
+             }
         }
     }
-    /* Oracle never materializes a return value; SPCH_AddBank ignores the void result. */
 }
 
 /* SPCH_AddBank @0x800EB520 : place bank `bank` into the first free slot (setting its cycle bits first if the
  *   bank's flags byte +2 has any high nibble).  Returns the slot index, or -1 if the table is full/uninit. */
-extern int SPCH_AddBank(int bank)
+//extern int SPCH_AddBank(int bank)
+extern int SPCH_AddBank(char *bank)
 {
     int slot = -1;
-    if (gVoxBanks[0] != 0) {
+
+    if (gVoxBanks) {
         slot = iSPCH_GetFreeBank();
-        if (-1 < slot) {
-            if ((*(unsigned char *)(bank + 2) & 0xf0) != 0)
-                iSPCH_SetCycleBits((int *)bank);
-            *(int *)(slot * 4 + gVoxBanks[0]) = bank;
+        if (slot > -1) {
+            if (bank[2] & 0xf0)
+                iSPCH_SetCycleBits(bank);
+            gVoxBanks[slot] = bank;
         }
     }
+    
     return slot;
 }

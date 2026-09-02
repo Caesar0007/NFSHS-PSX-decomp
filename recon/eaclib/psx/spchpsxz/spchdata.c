@@ -12,6 +12,8 @@
  *   oracle/config namespace cannot represent several retail local symbols with one spelling.
  */
 
+#include "../eaclib_types.h"
+
 extern int iSPCH_GetMatchValue(int base, int index);                  /* @0x80100710 */
 extern int VoxSentence_GetShortRule(int sentence);                    /* @0x80100724 */
 extern int VoxSentence_GetNumPhrases(int sentence);                   /* @0x80100730 */

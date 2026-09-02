@@ -296,11 +296,40 @@ JTBL_AT_FUSION = os.environ.get("NFS4_JTBL_AT_FUSION") == "1"
 # (w23-a11 investigation plus later per-site corrections); the other 26 jtbl TUs are deliberately absent
 # here (their explicit 5-insn form already matches and must stay untouched).
 PER_TU_FLAGS = {
-    # SPCHPSXZ was built at -G0 by Sony (the oracle has ZERO %gp_rel sites for
-    # any of its globals -- W65-A6).  At -G0 nothing is small-data, so plain
-    # scalar declarations produce the oracle's explicit lui %hi / %lo pair and
-    # spchinit.c needs no unsized-array declarations.
+    # ---- SPCHPSXZ.LIB: the WHOLE library was built at -G0 (one makefile, one
+    # flag set -- per-file -G variance inside one EA lib would be implausible).
+    # EVIDENCE (2026-08-31): (a) all 78 spchpsxz oracles carry ZERO %gp_rel
+    # sites (the game code has 2255; eacpsxz has 123 -- so the census
+    # discriminates); (b) the one-makefile TEST: every function of every
+    # spchpsxz TU gates IDENTICALLY under -G0 (59/59 on the seven TUs that
+    # never needed it, plus spchinit 7/7 and spchevnt 15/16 which DO need it
+    # for their plain-scalar declarations).  sndpsxz (0 %gp_rel in 182
+    # oracles) is the same story, unverified -- next candidate.
+    # force_addr is NOT library-plausible (2026-08-31): wiring it on all 9 TUs
+    # breaks spchpick's iSPCH_IterateChoice, so EA did not build the lib with
+    # -fforce-addr.  Worse (user call, same day): it is not even an independent
+    # per-file signal -- iSPCH_InitEventQueue's PASS is the PRODUCT of the flag
+    # AND the two asm fences in its body.  Measured matrix on that fn:
+    #   fences+flag PASS 29/29 | fences only 29 @28/29 | clean+flag 31 @28/29 |
+    #   clean only 31 @28/29 -- on a CLEAN body the flag changes NOTHING, so
+    # this function proves nothing about flags or compiler identity by itself.
+    # COMPILER-IDENTITY CLOSED for SPCHPSXZ (2026-09-01, ladder installed on
+    # this mirror, CLEAN bodies): SPCH_Init(clean) = 10 on default/2.8.0-
+    # control/2.7.2-970404/2.8.1 alike (2.7.2 36, 2.6.3 41, 2.91.66 26);
+    # iSPCH_InitEventQueue(clean) = 31 @28/29 on every 2.8-family rung AND
+    # 970404 -- the missing la-copy appears under NO rung; iSPCH_ChooseEvent
+    # = 2 on all of 2.8.0/2.8.1/970404.  The old table's "970404 count-parity"
+    # was an artifact of the then-device-laden bodies.  SPCHPSXZ = gcc 2.8.0
+    # (2.8.1 indistinguishable), same as eacpsxz; the residuals are honest
+    # floors of that identity.
+    "recon/eaclib/psx/spchpsxz/spchbank.c": {"g_value": 0},
+    "recon/eaclib/psx/spchpsxz/spchdata.c": {"g_value": 0},
     "recon/eaclib/psx/spchpsxz/spchinit.c": {"g_value": 0},
+    "recon/eaclib/psx/spchpsxz/spchpick.c": {"g_value": 0},
+    "recon/eaclib/psx/spchpsxz/spchrand.c": {"g_value": 0},
+    "recon/eaclib/psx/spchpsxz/spchrslv.c": {"g_value": 0},
+    "recon/eaclib/psx/spchpsxz/spchrule.c": {"g_value": 0},
+    "recon/eaclib/psx/spchpsxz/spchsamp.c": {"g_value": 0},
     # 2026-08-26 FontUpsideDownBlit source/SYM seal: the reconstructed stock
     # packet-macro lifetime shape is byte-exact on this TU's -G0 lane.  Fresh
     # whole-TU gprobe on origin/main: default -G4 = 23/25 PASS, 115 diffs;
@@ -597,7 +626,7 @@ PER_TU_FLAGS = {
     # SPCH_AddEvent emit the retail address-producer/copy pair (82/82); the
     # paired source copy-boundary fix keeps iSPCH_InitEventQueue exact.  All
     # 16 functions PASS without a post-compiler splice.
-    "recon/eaclib/psx/spchpsxz/spchevnt.c": {"force_addr": True},
+    "recon/eaclib/psx/spchpsxz/spchevnt.c": {"g_value": 0, "force_addr": True},
     # w48 (2026-08-04) SYSLIB -mno-split-addresses IDENTITY -- found
     # independently by five agents (a9's 512-run ladder, a2's oracle-side
     # proof on libgpu, a1 libmcrd, a4 PADENTRY, a6 iso9660) and concordant

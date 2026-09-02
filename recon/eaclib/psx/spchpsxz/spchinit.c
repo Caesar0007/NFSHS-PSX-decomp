@@ -59,6 +59,9 @@
  * oracle has ZERO %gp_rel sites for any of them (retail addressed them absolutely).  Keeping
  * every C view `extern` is byte-neutral by construction: 7/7 PASS unchanged.
  * Receipts: scratchpad/w65a6/RECEIPTS.md */
+
+#include "../eaclib_types.h"
+
 int gGameNum;         /* owned here (W65-A6 run @0x80148428) */
 int gFilterSetting;   /* @0x8014842C */
 int gLastSubTick;     /* @0x80148430; spchevnt's, but retail held the run in ONE object */
@@ -85,41 +88,46 @@ int gLastTick;        /* @0x80148438 */
    ⚠️ The scalar spelling REQUIRES the per-TU -G0 flag (PER_TU_FLAGS g_value: 0
    in tools/build.py); the two land together or not at all.
    gVoxInGame stays an array -- it genuinely is one ([1] aliases gRepeatCount@+4). */
-extern int gMemAlloc;        /* user alloc callback (fn ptr stored as int) */
-extern int gMemFree;         /* user free callback (fn ptr stored as int; array decl -> explicit lui+%lo store like gMemAlloc) */
-extern int gSPCH_Initialized;/* 0x1789a34 when initialised */
-extern int gSampleRequest;   /* sample-request callback */
-extern int gSentenceRuleTest;/* current sentence rule-test fn/state */
-extern int gSentenceRuleSet; /* current sentence rule-set fn/state  */
-extern int gVoxInGame[];       /* in-game speech enable (-1 = on); [1] aliases gRepeatCount@+4 */
-extern int gRepeatCount;       /* repeated-event counter */
+/* 2026-09-02: the five callback slots are honest FUNCTION POINTERS now (they were `int`
+ * Ghidra-isms; SYM v3 is bare for all five, so the types are ours to choose -- byte-neutral,
+ * SImode either way). */
+typedef int *(*SPCHAllocFn)(int numBytes, const char *tag);
+typedef void (*SPCHFreeFn)(void);
+extern SPCHAllocFn gMemAlloc;      /* user alloc callback @0x801370A8 */
+extern SPCHFreeFn  gMemFree;       /* user free callback  @0x801370AC */
+extern int gSPCH_Initialized;      /* 0x1789a34 when initialised */
+extern void (*gSampleRequest)(int, int, int, int);            /* sample-request callback @0x80137094 */
+extern int  (*gSentenceRuleTest)(unsigned int, unsigned int, int);       /* rule-test callback @0x80137098 */
+extern void (*gSentenceRuleSet)(unsigned int, unsigned int, int, int);   /* rule-set callback @0x8013709C */
+extern int gVoxInGame[];       /* in-game speech enable (-1 = on); [1] aliases gRepeatCount@+4
+                                * (the standalone gRepeatCount symbol is retired -- see spchevnt.c) */
 
 extern void iSPCH_DisposeBanks(void);                      /* spchbank */
 extern void iSPCH_InitBanks(void);                         /* spchbank */
-extern int  iSPCH_BankMemAlloc(unsigned int numBanks);     /* spchbank */
+extern int *iSPCH_BankMemAlloc(unsigned int numBanks);     /* spchbank; returns gVoxBanks */
 extern void iSPCH_InitEventDat(void);                      /* spchevnt */
 extern void iSPCH_InitEventQueue(void);                    /* spchevnt */
 extern int *iSPCH_EACseedrandom(unsigned int seed);        /* spchrand */
 extern void iSPCH_ClearChosen(void);                       /* spchpick */
 extern int  SPCH_SetPreLoadTicks(int ticks);              /* spchpick */
 
-extern int  iSPCH_MemAlloc(int numBytes, const char *tag);              /* @0x800EB5A4 */
+extern int *iSPCH_MemAlloc(int numBytes, const char *tag);              /* @0x800EB5A4 */
 extern void iSPCH_MemFree(void);                                        /* @0x800EB5D4 */
 extern void SPCH_Deinit(void);                                          /* @0x800EB600 */
 extern void iSPCH_InitInGame(void);                                     /* @0x800EB654 */
 extern int  SPCH_GetSampleDataRate(int numSamples, int rate, int channels); /* @0x800EB66C */
-extern int  SPCH_InitBankMem(int memAllocFn, int memFreeFn, int numBanks);  /* @0x800EB6F0 */
-extern int  SPCH_Init(int sampleRequestCb, unsigned int gameNum, int dataRate); /* @0x800EB748 */
+extern int *SPCH_InitBankMem(SPCHAllocFn memAllocFn, SPCHFreeFn memFreeFn, int numBanks);  /* @0x800EB6F0 */
+extern int  SPCH_Init(void (*sampleRequestCb)(int, int, int, int), unsigned int gameNum, int dataRate); /* @0x800EB748 */
 
 /* iSPCH_MemAlloc @0x800EB5A4 : invoke the user's allocation callback (which fills gVoxBanks); returns
  *   the callback's result, or 0 if no callback is registered.  `numBytes`/`tag` are passed through to
  *   the callback (a debug-tagging alloc convention -- e.g. "spch banks") but this wrapper itself never
  *   reads them (its own oracle body takes no args -- classic nullsub-still-takes-real-args). */
-extern int iSPCH_MemAlloc(int numBytes, const char *tag)
+extern int *iSPCH_MemAlloc(int numBytes, const char *tag)
 {
-    int result = 0;
+    int *result = 0;
     if (gMemAlloc != 0)
-        result = ((int (*)(int, const char *))gMemAlloc)(numBytes, tag);
+        result = gMemAlloc(numBytes, tag);
     return result;
 }
 
@@ -127,7 +135,7 @@ extern int iSPCH_MemAlloc(int numBytes, const char *tag)
 extern void iSPCH_MemFree(void)
 {
     if (gMemFree != 0)
-        ((void (*)(void))gMemFree)();
+        gMemFree();
 }
 
 /* SPCH_Deinit @0x800EB600 : tear down the speech system (only if it was initialised). */
@@ -182,9 +190,9 @@ done:
 
 /* SPCH_InitBankMem @0x800EB6F0 : register the alloc/free callbacks and allocate `numBanks` bank slots.
  *   Returns the bank array (gVoxBanks) or 0 if not initialised / no alloc callback. */
-extern int SPCH_InitBankMem(int memAllocFn, int memFreeFn, int numBanks)
+extern int *SPCH_InitBankMem(SPCHAllocFn memAllocFn, SPCHFreeFn memFreeFn, int numBanks)
 {
-    int result = 0;
+    int *result = 0;
     if (gSPCH_Initialized == 0x1789a34 && memAllocFn != 0 && memFreeFn != 0) {
         gMemAlloc = memAllocFn;
         gMemFree = memFreeFn;
@@ -241,7 +249,7 @@ extern int SPCH_InitBankMem(int memAllocFn, int memFreeFn, int numBanks)
  * `void *const`; with and without the locals).  Gates: verify_asm 7/7 PASS,
  * tugate 7/7, brdist 0/7, slotcheck 0, wordcmp REAL=0.
  * Receipts: scratchpad/w82/A4_receipt.md */
-extern int SPCH_Init(int sampleRequestCb, unsigned int gameNum, int dataRate)
+extern int SPCH_Init(void (*sampleRequestCb)(int, int, int, int), unsigned int gameNum, int dataRate)
 {
     gSampleRequest    = sampleRequestCb;
     gGameNum       = gameNum;
@@ -260,7 +268,63 @@ extern int SPCH_Init(int sampleRequestCb, unsigned int gameNum, int dataRate)
     {
         /* the zero-instruction block boundary -- see the note above.  Do NOT
          * tidy this away: without it SPCH_Init is 10 diffs (or 2 with the old
-         * do{}while(0) + two dead locals it replaces). */
+         * do{}while(0) + two dead locals it replaces).
+         *
+         * ==== EXHAUSTIVE HUNT LOG (2026-08-30..09-01) -- 60+ falsifications,
+         * ==== all measured on the CLEAN body (this vehicle removed).  Do not
+         * ==== re-derive any of these; every row was EXACTLY 10 unless noted.
+         * THE RESIDUAL: our sched1 hoists `li v0,1` (the return constant) above
+         * the tail's const/base block; v0 then blocks both, cascading const
+         * a0<->v1 and base v1<->v0 (all 10 diffs, count EXACT 39/39).  Retail
+         * emits li v0,1 LAST inside the same single basic block.  The -dS trace
+         * shows our T-2 backward-sched tie {sw, li} initially sorts RETAIL'S way
+         * and is flipped by the "greater potential hazard" mem resort.  This
+         * vehicle works by ENDING the basic block (sched1 is per-block, a
+         * code_label stops the hoist) -- not by any barrier magic.
+         * CLOSED AXES, each swept on the clean body:
+         *  - statement forms (11): result local (block/fn scope), named-const
+         *    local, both, return-of-stored-truth, pointer-local store (born
+         *    before/after the last call), comma-fold, tautological if(), dup
+         *    idempotent store, init-order permutations.
+         *  - callee declarations (8): each/all of the four void inits -> int;
+         *    K&R (); K&R+int.  (Return type only matters when the RESULT is
+         *    used -- all calls here discard it, so expand emits identical RTL.)
+         *  - magic formation (8): decimal, folded expressions, two-statement
+         *    hi|=lo and hi+=lo builds (cse re-canonicalizes ALL of them into
+         *    the same movsi split), global two-store build, fn-scope magic
+         *    before the last call (16 -- worse).  NOTE 0x1789A34 == 24681012
+         *    decimal == the digits 2,4,6,8,10,12 -- EA's source almost surely
+         *    spelled it in decimal as the joke; codegen-neutral either way.
+         *  - inline wrappers (5): magic from static inline; inline void doing
+         *    the store; inline int doing store+return-1 (semantically THIS
+         *    tail, still 10 -- gcc-2.8's RTL inliner leaves no boundary that
+         *    survives to sched1); result-via-local variants.
+         *  - asm-formed magic (3): lui/ori insert (volatile and not), ori-half
+         *    insert.  An asm is NOT a scheduling boundary -- the li hoists
+         *    around it.
+         *  - own parameter list (7): unused 4th / 4th+5th params (gcc-2.8
+         *    allocates NO pseudo for an unread param, so numbering does not
+         *    shift), int/unsigned swaps, cb as fn-pointer, K&R definition.
+         *    Oracle callers set exactly a0..a2 -- no real 4th arg either.
+         *  - compiler flags (~20): -fno-schedule-insns{,2} (10/13 AND wreck the
+         *    TU to 1/7 -- the lib was built with sched ON), -fno-delayed-branch
+         *    20, -fforce-addr 31 on the InitEventQueue twin, -fno-thread-jumps /
+         *    -fno-peephole / -fforce-mem / -fno-function-cse / -fcaller-saves /
+         *    -fno-defer-pop / -fno-cse-follow-jumps / -fno-cse-skip-blocks /
+         *    -fno-strength-reduce / -fno-rerun-cse-after-loop all neutral,
+         *    -fno-expensive-optimizations 12; -G0 vs -G4 neutral here.
+         *  - compiler versions: full FSF ladder (2.6.0..2.95.2) -- every 2.8.x
+         *    and 2.7.2-970404 give the same 10; SN builds psq40 (2.7.2.SN32.3.7
+         *    Build 0001) and psq41 (cygnus-2.7.2-970404 SN32.3.7.0004) behave
+         *    IDENTICALLY to their FSF twins.  UNTESTED: psq42's cc1 (a 2.8.0 SN
+         *    with a build number other than psq43's 4.0.0007) -- the LAST
+         *    remaining compiler candidate.
+         *  - file position: +0..+14 blank lines before the fn -- no effect.
+         * PERMUTER (950 iters): only found the banned do{}while(0) barrier (70)
+         * and a semantically WRONG order (60, store moved after return).
+         * => same cc1 + same dep graph is deterministic, so retail's tail graph
+         * differed in some way not covered above, OR psq42's sched tie-break
+         * differs.  If psq42 ever turns up, test it first. */
         static void *spchInitBoundary_ = &&spch_live;
         iSPCH_InitEventQueue();
 spch_live: ;

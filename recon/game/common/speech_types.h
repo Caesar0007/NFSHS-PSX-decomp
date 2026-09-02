@@ -158,6 +158,18 @@ struct Speaker {
     inline void VirtualEngage(Car_tObj *perp) {
         (*(*_vf)[6].pfn)((int)&fPosition.flags + (int)(*_vf)[6].delta, perp);
     }
+    inline void VirtualRoger() {
+        (*(*_vf)[14].pfn)
+            ((int)&fPosition.flags + (int)(*_vf)[14].delta);
+    }
+    inline void VirtualBullhorn() {
+        (*(*_vf)[15].pfn)
+            ((int)&fPosition.flags + (int)(*_vf)[15].delta);
+    }
+    inline int VirtualUnit() {
+        return (*(*_vf)[17].pfn)
+            ((int)&fPosition.flags + (int)(*_vf)[17].delta);
+    }
     inline bool VirtualKnownPerp(Car_tObj *car) {
         return (*(*_vf)[18].pfn)
             ((int)&fPosition.flags + (int)(*_vf)[18].delta, car) != 0;
@@ -181,6 +193,10 @@ struct Speaker {
     inline void VirtualPurgeStatusSub() {
         (*(*_vf)[23].pfn)
             ((int)&fPosition.flags + (int)(*_vf)[23].delta);
+    }
+    inline int VirtualDistToPerp() {
+        return (*(*_vf)[24].pfn)
+            ((int)&fPosition.flags + (int)(*_vf)[24].delta);
     }
     inline Car_tObj *VirtualCarObj() {
         return (Car_tObj *)(*(*_vf)[25].pfn)

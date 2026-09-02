@@ -977,34 +977,20 @@ coorddef * BWorldSm_UForward(BWorldSm_Pos *slicePos)
 int BWorldSm_FindClosestTriangleRez(coorddef *pt,BWorldSm_Pos *slicePos,int hiRezFlag)
 {
   int ret;
-  int z;
-  int iVar2;
-  int iVar3;
-  int iVar4;
-  Trk_NewSimQuad *startsimquad;
-  Group *pThis;
-  Trk_NewSimSlice *simSlices;
-  int simIndex;
-  int botInd;
-  int cz;
-  int cy;
-  int cx;
-  Trk_NewSlice *slices;
-  int y;
-  int x;
-  int i;
-  int currDist;
-  int startSlice;
-  int attempt;
-  int startQuadInd;
   
-  iVar2 = BWorldSm_FindClosestQuadRez(pt,slicePos,hiRezFlag);
+  ret = BWorldSm_FindClosestQuadRez(pt,slicePos,hiRezFlag);
   if (slicePos->simQuad != (Trk_NewSimQuad *)0x0) {
-    iVar3 = fixedmult(slicePos->quadPts[2].x - slicePos->quadPts[0].x,
-                       pt->z - slicePos->quadPts[0].z);
-    iVar4 = fixedmult(pt->x - slicePos->quadPts[0].x,
-                       slicePos->quadPts[2].z - slicePos->quadPts[0].z);
-    slicePos->triangleFlag = 0 < iVar3 - iVar4 ? 1 : 2;
+    /* SYM-CODEGEN-CARRIER: crossA -- SYM exposes only ret; these paired
+       expression carriers keep retail's final triangle selector in v1.
+       SYM-CODEGEN-CARRIER: crossB -- folding both products is count-exact at
+       39 instructions but leaves 6 li/store register diffs (v1 versus v0). */
+    int crossA = fixedmult(
+        slicePos->quadPts[2].x - slicePos->quadPts[0].x,
+        pt->z - slicePos->quadPts[0].z);
+    int crossB = fixedmult(
+        pt->x - slicePos->quadPts[0].x,
+        slicePos->quadPts[2].z - slicePos->quadPts[0].z);
+    slicePos->triangleFlag = 0 < crossA - crossB ? 1 : 2;
   }
-  return iVar2;
+  return ret;
 }

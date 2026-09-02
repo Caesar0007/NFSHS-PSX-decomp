@@ -1644,11 +1644,11 @@ StatusReply_subFetch:
 void DispatchSpeaker::Status()
 
 {
-  int tu5;
-  int uVar10;
   int dist;
-  SPCHNFSType_PURS_UPDT *PURS_UPDT;
   
+  /* SYM-CODEGEN-CARRIER: initialInvalid -- expressing the positive guard
+     directly shortens retail's 366-instruction body to 363 and leaves 7
+     branch/value-flow diffs. */
   bool initialInvalid = false;
   if (((this->_base_Speaker).fSub == (Speaker *)0x0) ||
      (dist = (int)(*(this->_base_Speaker).fSub->_vf)[0x1b].delta,
@@ -1658,61 +1658,60 @@ void DispatchSpeaker::Status()
   }
   if (!initialInvalid) {
   {
-    __vtbl_ptr_type (*initialVf)[31] = (this->_base_Speaker).fSub->_vf;
-    int car = (*(*initialVf)[0x19].pfn)
-      ((int)&((this->_base_Speaker).fSub->fPosition).flags + (int)(*initialVf)[0x19].delta);
-
-    if ((*(u_int *)(car + 0x260) & 0x200) != 0) {
+    if (((this->_base_Speaker).fSub->VirtualCarObj()->carFlags & 0x200) != 0) {
+    /* SYM-CODEGEN-CARRIER: perpVf -- replacing this explicit virtual-call
+       expansion with VirtualDistToPerp is count-exact but leaves 26 allocation
+       and receiver-order diffs.
+       SYM-CODEGEN-CARRIER: perpDistance -- the one virtual result is reused by
+       mutually exclusive far/near tests; removing it would duplicate an
+       observable virtual call, while SYM cannot recover its spelling. */
     __vtbl_ptr_type (*perpVf)[31] = (this->_base_Speaker).fSub->_vf;
     int perpDistance = (*(*perpVf)[0x18].pfn)
       ((int)&((this->_base_Speaker).fSub->fPosition).flags + (int)(*perpVf)[0x18].delta);
-    Speaker *branchSub = (this->_base_Speaker).fSub;
 
-    if (branchSub->fHavePerp != 0) {
+    if ((this->_base_Speaker).fSub->fHavePerp != 0) {
       if (0x15e0000 < perpDistance) {
-        branchSub->fHavePerp = 0;
+        (this->_base_Speaker).fSub->fHavePerp = 0;
         (((this->_base_Speaker).fSub)->fUpdate).flags = 0;
-        __vtbl_ptr_type (*clearVf)[31] = (this->_base_Speaker).fSub->_vf;
-        (*(*clearVf)[2].pfn)
-          ((int)&((this->_base_Speaker).fSub->fPosition).flags + (int)(*clearVf)[2].delta);
+        (this->_base_Speaker).fSub->VirtualStatus();
       }
     }
     else if (perpDistance < 0x640000) {
-        __vtbl_ptr_type (*nearVf)[31] = branchSub->_vf;
-        __vtbl_ptr_type *nearEntry = &(*nearVf)[6];
-        int nearThis = (int)&branchSub->fPosition.flags + (int)nearEntry->delta;
-        tu5 = (*(*nearVf)[0x1b].pfn)((int)&(branchSub->fPosition).flags + (int)(*nearVf)[0x1b].delta)
-        ;
-        (*nearEntry->pfn)(nearThis,tu5);
+        /* SYM-CODEGEN-CARRIER: engageEntry -- the canonical nested
+           VirtualEngage(VirtualPerp()) spelling shortens 366 to 364 and causes
+           160 function-wide allocation diffs.
+           SYM-CODEGEN-CARRIER: engageThis -- folding the adjusted receiver is
+           count-exact but leaves 34 diffs. */
+        __vtbl_ptr_type *engageEntry =
+            &(*(this->_base_Speaker).fSub->_vf)[6];
+        int engageThis =
+            (int)(this->_base_Speaker).fSub + engageEntry->delta;
+        (*engageEntry->pfn)(engageThis,
+            (this->_base_Speaker).fSub->VirtualPerp());
     }
     }
   }
   if (this->fStatusSub != (Speaker *)0x0) {
     if (this->fStatusCount-- == 1) {
-      Speaker *statusSub = this->fStatusSub;
-
-      if (statusSub == &this->_base_Speaker) {
+      if (this->fStatusSub == &this->_base_Speaker) {
         this->StatusReply();
       }
       else {
+        /* SYM-CODEGEN-CARRIER: isCurrentSub -- a direct compound comparison
+           shortens 366 to 364 and leaves 16 branch/value-flow diffs. */
         bool isCurrentSub = false;
 
         if ((this->_base_Speaker).fSub != (Speaker *)0x0) {
-          isCurrentSub = statusSub == (this->_base_Speaker).fSub->fSub;
+          isCurrentSub =
+              this->fStatusSub == (this->_base_Speaker).fSub->fSub;
         }
         if (isCurrentSub) {
-          __vtbl_ptr_type (*statusVf)[31] = statusSub->_vf;
-          (*(*statusVf)[2].pfn)
-            ((int)&statusSub->fPosition.flags + (int)(*statusVf)[2].delta);
+          this->fStatusSub->VirtualStatus();
         }
         else {
-          __vtbl_ptr_type (*statusVf)[31] = statusSub->_vf;
-          (*(*statusVf)[2].pfn)
-            ((int)&statusSub->fPosition.flags + (int)(*statusVf)[2].delta);
+          this->fStatusSub->VirtualStatus();
           Speech_fgSpeech->fSpeakerCar = (Car_tObj *)0x0;
-          __vtbl_ptr_type (*dispatchVf)[31] = (this->_base_Speaker)._vf;
-          (*(*dispatchVf)[0xe].pfn)
-            ((int)&(this->_base_Speaker).fPosition.flags + (int)(*dispatchVf)[0xe].delta);
+          (this->_base_Speaker).VirtualRoger();
         }
       }
     }
@@ -1722,6 +1721,8 @@ void DispatchSpeaker::Status()
     this->fStatusCount = this->fStatusCount + -1;
     return;
   }
+  /* SYM-CODEGEN-CARRIER: canUpdate -- direct blockade/arrest early returns
+     shorten 366 to 365 and leave 5 normalized-Boolean diffs. */
   bool canUpdate = false;
   if (((this->_base_Speaker).fSub->fBlockade).flags == 0) {
     canUpdate = ((this->_base_Speaker).fSub->fArrest).flags == 0;
@@ -1729,48 +1730,40 @@ void DispatchSpeaker::Status()
   if (!canUpdate) {
     return;
   }
-  Speaker *nestedSpeaker = (this->_base_Speaker).fSub->fSub;
+  /* SYM-CODEGEN-CARRIER: nestedDifferent -- folding the two virtual Perp
+     results into the guard shortens 366 to 364 and leaves 6 comparison diffs. */
   bool nestedDifferent = false;
-  if (nestedSpeaker != (Speaker *)0x0) {
-    int nestedPosition = (*(*nestedSpeaker->_vf)[0x1b].pfn)
-                      ((int)&(nestedSpeaker->fPosition).flags + (int)(*nestedSpeaker->_vf)[0x1b].delta);
-    __vtbl_ptr_type (*currentVf)[31] = (this->_base_Speaker).fSub->_vf;
-    int currentPosition = (*(*currentVf)[0x1b].pfn)
-      ((int)&((this->_base_Speaker).fSub->fPosition).flags + (int)(*currentVf)[0x1b].delta);
-    nestedDifferent = nestedPosition != currentPosition;
+  if ((this->_base_Speaker).fSub->fSub != (Speaker *)0x0) {
+    nestedDifferent =
+        (this->_base_Speaker).fSub->fSub->VirtualPerp() !=
+        (this->_base_Speaker).fSub->VirtualPerp();
   }
   if (nestedDifferent) {
     ((this->_base_Speaker).fSub)->fSub->Promote();
   }
-  uVar10 = this->fUpdateCount & 3;
-  if (uVar10 == 1) {
+  switch (this->fUpdateCount & 3) {
+  case 0:
+    goto DispStatus_updateCount38;
+  case 1:
     goto DispStatus_updateCount1;
-  }
-  if (uVar10 < 2) {
-    if (uVar10 == 0) goto DispStatus_updateCount38;
+  case 2:
+    goto DispStatus_updateCount2;
+  case 3:
+    goto DispStatus_updateCount3;
+  default:
     goto DispStatus_fetchSpeechCtx;
   }
-  if (uVar10 == 2) goto DispStatus_updateCount2;
-  if (uVar10 == 3) goto DispStatus_updateCount3;
-  goto DispStatus_fetchSpeechCtx;
 DispStatus_updateCount2:
   {
+    /* SYM-CODEGEN-CARRIER: fastEnough -- direct nested early-exit control flow
+       shortens 366 to 365 and leaves 5 normalized-Boolean diffs. */
     bool fastEnough = false;
 
-    __vtbl_ptr_type (*distanceVf)[31] = (this->_base_Speaker).fSub->_vf;
-    int updateDistance = (*(*distanceVf)[0x18].pfn)
-      ((int)&((this->_base_Speaker).fSub->fPosition).flags + (int)(*distanceVf)[0x18].delta);
-    if (updateDistance < 0x280000) {
-      __vtbl_ptr_type (*carVf)[31] = (this->_base_Speaker).fSub->_vf;
-      Car_tObj *car = (Car_tObj *)(*(*carVf)[0x19].pfn)
-        ((int)&((this->_base_Speaker).fSub->fPosition).flags + (int)(*carVf)[0x19].delta);
-      int carSpeed = this->_base_Speaker.CalcMph(car);
-      if (0x32 < carSpeed) {
-        __vtbl_ptr_type (*positionVf)[31] = (this->_base_Speaker).fSub->_vf;
-        Car_tObj *position = (Car_tObj *)(*(*positionVf)[0x1b].pfn)
-          ((int)&((this->_base_Speaker).fSub->fPosition).flags + (int)(*positionVf)[0x1b].delta);
-        int positionSpeed = this->_base_Speaker.CalcMph(position);
-        fastEnough = 0x32 < positionSpeed;
+    if ((this->_base_Speaker).fSub->VirtualDistToPerp() < 0x280000) {
+      if (0x32 < this->_base_Speaker.CalcMph(
+                     (this->_base_Speaker).fSub->VirtualCarObj())) {
+        fastEnough = 0x32 < this->_base_Speaker.CalcMph(
+            (this->_base_Speaker).fSub->VirtualPerp());
       }
     }
     if (fastEnough) {
@@ -1784,24 +1777,15 @@ DispStatus_updateCount38:
   goto DispStatus_fetchSpeechCtx;
 DispStatus_updateCount3:
     {
-    __vtbl_ptr_type (*checkVf)[31] = (this->_base_Speaker).fSub->_vf;
-    int ready = (*(*checkVf)[0x14].pfn)
-      ((int)&((this->_base_Speaker).fSub->fPosition).flags + (int)(*checkVf)[0x14].delta);
-    if ((ready != 0) && (this->fUpdateCount == 7)) {
+    if ((this->_base_Speaker).fSub->VirtualIsSuper() &&
+        (this->fUpdateCount == 7)) {
       (((this->_base_Speaker).fSub)->fUpdate).flags = 0;
-      __vtbl_ptr_type (*resetVf)[31] = (this->_base_Speaker).fSub->_vf;
-      (*(*resetVf)[2].pfn)
-        ((int)&((this->_base_Speaker).fSub->fPosition).flags + (int)(*resetVf)[2].delta);
+      (this->_base_Speaker).fSub->VirtualStatus();
       this->fUpdateCount = this->fUpdateCount + 1;
       return;
     }
-    __vtbl_ptr_type (*case3DistanceVf)[31] = (this->_base_Speaker).fSub->_vf;
-    int case3Distance = (*(*case3DistanceVf)[0x18].pfn)
-      ((int)&((this->_base_Speaker).fSub->fPosition).flags + (int)(*case3DistanceVf)[0x18].delta);
-    if (case3Distance < 0x140000) {
-      __vtbl_ptr_type (*nearVf)[31] = (this->_base_Speaker).fSub->_vf;
-      (*(*nearVf)[0xf].pfn)
-        ((int)&((this->_base_Speaker).fSub->fPosition).flags + (int)(*nearVf)[0xf].delta);
+    if ((this->_base_Speaker).fSub->VirtualDistToPerp() < 0x140000) {
+      (this->_base_Speaker).fSub->VirtualBullhorn();
       this->fUpdateCount = this->fUpdateCount + 1;
       return;
     }
@@ -1811,21 +1795,18 @@ DispStatus_updateCount1:
   ((this->_base_Speaker).fSub->fUpdate).flags = 1;
 DispStatus_fetchSpeechCtx:
   Speech_fgSpeech->fSpeakerCar = (Car_tObj *)0x0;
-  __vtbl_ptr_type (*dispatchVf)[31] = (this->_base_Speaker)._vf;
-  int speechTable = (*(*dispatchVf)[0x1e].pfn)
-    ((int)&(this->_base_Speaker).fPosition.flags + (int)(*dispatchVf)[0x1e].delta);
-  __vtbl_ptr_type (*speakerVf)[31] = (this->_base_Speaker).fSub->_vf;
-  int speechIndex = (*(*speakerVf)[0x11].pfn)
-    ((int)&((this->_base_Speaker).fSub->fPosition).flags + (int)(*speakerVf)[0x11].delta);
-  int speechEntry = speechTable;
-  speechEntry += speechIndex * 4;
-  int speechContext = *(int *)(speechEntry + 8);
-  (this->_base_Speaker).fTo = speechContext;
-  SPCHNFS_D_C_INTRO_CALL(speechContext,(this->_base_Speaker).fFrom,
+  /* SYM-CODEGEN-CARRIER: callSign -- folding the virtual CallSign result into
+     fMobile indexing shortens 366 to 364 and leaves 38 receiver/allocation
+     diffs; the typed pointer restores its semantic role. */
+  CallSignBank *callSign = (this->_base_Speaker).VirtualCallSign();
+  (this->_base_Speaker).fTo = callSign->fMobile[
+      (this->_base_Speaker).fSub->VirtualUnit()];
+  SPCHNFS_D_C_INTRO_CALL((this->_base_Speaker).fTo,
+                         (this->_base_Speaker).fFrom,
                          &(this->_base_Speaker).fReverse);
   SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-  PURS_UPDT = &((this->_base_Speaker).fSub)->fUpdate;
-  SPCHNFS_D_C_IN_PURS_NEAR_PERP(PURS_UPDT);
+  SPCHNFS_D_C_IN_PURS_NEAR_PERP(
+      &((this->_base_Speaker).fSub)->fUpdate);
   SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
   this->fStatusCount = 0x60;
   this->fStatusSub = (this->_base_Speaker).fSub;
@@ -2697,17 +2678,21 @@ void MobileSpeaker::Engage(Car_tObj *perp)
 
 {
   Car_tObj * car;
-  bool bVar2;
-  bool bVar3;
-  bool bVar4;
-  bool bVar5;
+  /* SYM-CODEGEN-CARRIER: superReady -- retail materializes the nested
+     IsSuper/perp/sub predicate before entering the arrival arm; its masked
+     producer must also remain separate (see superFlag below). */
+  bool superReady;
+  /* SYM-CODEGEN-CARRIER: pursuitReady -- retail normalizes pursuitFlag into a
+     Boolean before choosing between dispatch replacement and tail insertion. */
+  bool pursuitReady;
+  /* SYM-CODEGEN-CARRIER: condition -- retail reuses one staged Boolean for the
+     status-limit guard and later KnownPerp result; replacing the first phase
+     with direct early returns shortens 467 to 464 and leaves 5 diffs. */
+  bool condition;
+  /* SYM-CODEGEN-CARRIER: repeatReady -- direct sequential guards remain
+     count-exact but change 6 instructions around the zero/slti result web. */
+  bool repeatReady;
   Car_tObj *carObj;
-  int dispatchResult;
-  int savedDispatch;
-  MobileSpeaker *pMVar6;
-  int iVar7;
-  SPCHNFSType_VOICE *pSVar12;
-  SPCHNFSType_COLOUR *COLOUR;
   /* SYM-OPTIMIZED: Sub -- the repeated inlined Speaker accessors name their
      receiver Sub in debug data; each aliases the active chain node. */
   
@@ -2742,6 +2727,10 @@ MSEngage_dispatchCheck:
         (this->_base_Speaker).VirtualCallSign()->fDispatch;
     this->_base_Speaker.FindLocation(
         (this->_base_Speaker).VirtualPerp());
+    /* SYM-CODEGEN-CARRIER: replyTo -- direct fTo changes 6 call-setup
+       instructions while preserving the 467-instruction count.
+       SYM-CODEGEN-CARRIER: replyCar -- direct fCar likewise leaves 6 diffs.
+       SYM-CODEGEN-CARRIER: replyLocation -- direct fLocation leaves 4 diffs. */
     int replyTo = (this->_base_Speaker).fTo;
     int replyCar = (this->_base_Speaker).fCar;
     int replyLocation = (this->_base_Speaker).fLocation;
@@ -2751,20 +2740,19 @@ MSEngage_dispatchCheck:
                replyLocation,&(this->_base_Speaker).fConfirm);
     goto MSEngage_emitSpeech;
   }
-  bVar2 = false;
+  superReady = false;
   if ((this->_base_Speaker).VirtualIsSuper()) {
     if (((this->_base_Speaker).VirtualPerp()->carFlags & 4) != 0) {
       if (Speech::Dispatch()->fSub != (Speaker *)0x0) {
-        /* Codegen carrier: separating the masked flag from its boolean test
-           preserves retail's `andi v0` / `sltiu s0` pair.  A direct semantic
-           comparison is folded to a three-instruction bit extraction. */
+        /* SYM-CODEGEN-CARRIER: superFlag -- folding the mask into the Boolean
+           grows 467 to 468 and leaves 5 bit-test diffs. */
         u_int superFlag =
             Speech::Dispatch()->fSub->VirtualCarObj()->carFlags & 0x40;
-        bVar2 = superFlag < 1;
+        superReady = superFlag < 1;
       }
     }
   }
-  if (bVar2) {
+  if (superReady) {
     (this->_base_Speaker).fSub = Speech::Dispatch()->fSub;
     Speech::Dispatch()->fSub = &this->_base_Speaker;
     if ((this->_base_Speaker).fBlockade.flags != 0) {
@@ -2780,33 +2768,28 @@ MSEngage_dispatchCheck:
     goto MSEngage_emitSpeech;
   }
   {
-    bVar3 = false;
+    pursuitReady = false;
     Speaker *SubChain = Speech::Dispatch();
-    iVar7 = Speech::Dispatch();
-    if (*(int *)(iVar7 + 0x48) != 0) {
-      iVar7 = (int)Speech::Dispatch()->fSub->VirtualPerp();
-      if (iVar7 != 0) {
-        iVar7 = (int)Speech::Dispatch()->fSub->VirtualPerp();
-        if ((*(u_int *)(iVar7 + 0x260) & 4) == 0) {
-          iVar7 = (int)(this->_base_Speaker).VirtualPerp();
-          {
-            u_int pursuitFlag = *(u_int *)(iVar7 + 0x260) & 4;
-            bVar3 = 0 < pursuitFlag;
-          }
+    if (Speech::Dispatch()->fSub != (Speaker *)0x0) {
+      if (Speech::Dispatch()->fSub->VirtualPerp() != (Car_tObj *)0x0) {
+        if ((Speech::Dispatch()->fSub->VirtualPerp()->carFlags & 4) == 0) {
+          /* SYM-CODEGEN-CARRIER: pursuitFlag -- folding this mask into the
+             comparison is count-exact but changes 4 bit-test instructions. */
+          u_int pursuitFlag =
+              (this->_base_Speaker).VirtualPerp()->carFlags & 4;
+          pursuitReady = 0 < pursuitFlag;
         }
       }
     }
-    if (bVar3) {
-      savedDispatch = Speech::Dispatch();
-      (this->_base_Speaker).fSub = *(Speaker **)(savedDispatch + 0x48);
-      savedDispatch = Speech::Dispatch();
-      *(MobileSpeaker **)(savedDispatch + 0x48) = this;
+    if (pursuitReady) {
+      (this->_base_Speaker).fSub = Speech::Dispatch()->fSub;
+      Speech::Dispatch()->fSub = &this->_base_Speaker;
     }
     else {
 MSEngage_tailLoop:
-      pMVar6 = (MobileSpeaker *)SubChain->fSub;
-      if (pMVar6 == (MobileSpeaker *)0x0) goto MSEngage_tailEnd;
-      SubChain = (Speaker *)pMVar6;
+      if (SubChain->fSub == (Speaker *)0x0)
+        goto MSEngage_tailEnd;
+      SubChain = SubChain->fSub;
       goto MSEngage_tailLoop;
 MSEngage_tailEnd:
       SubChain->fSub = &this->_base_Speaker;
@@ -2814,94 +2797,105 @@ MSEngage_tailEnd:
   if ((this->_base_Speaker).fBlockade.flags != 0) {
     return;
   }
-  bVar4 = false;
+  condition = false;
   if (Speech::Dispatch()->VirtualKnownPerp(perp)) {
     if (Speech::Dispatch()->VirtualStatusCount() > 0x17f)
       goto MSEngage_validateAndProceed;
   }
-  bVar4 = true;
+  condition = true;
 MSEngage_validateAndProceed:
-  if (!bVar4) {
+  if (!condition) {
     return;
   }
   (this->_base_Speaker).fTo =
       (this->_base_Speaker).VirtualCallSign()->fDispatch;
-  pSVar12 = &this->fVoice;
-  SPCHNFS_C_A_INTRO(pSVar12,(this->_base_Speaker).fTo,
+  SPCHNFS_C_A_INTRO(&this->fVoice,(this->_base_Speaker).fTo,
              (this->_base_Speaker).fFrom,&(this->_base_Speaker).fReverse);
   SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
   this->_base_Speaker.FindLocation((this->_base_Speaker).VirtualPerp());
   this->SetSpeed((this->_base_Speaker).VirtualPerp());
   {
-  DispatchSpeaker *dispatchThis = (DispatchSpeaker *)Speech::Dispatch();
-  __vtbl_ptr_type (*dispatchVf)[31] = (dispatchThis->_base_Speaker)._vf;
-  __vtbl_ptr_type *knownEntry = &(*dispatchVf)[0x12];
-  int knownThis = (int)&(dispatchThis->_base_Speaker).fPosition.flags +
-                  (int)knownEntry->delta;
-  __vtbl_ptr_type (*dispatchPositionVf)[31] = (this->_base_Speaker)._vf;
-  Car_tObj *dispatchPosition = (Car_tObj *)(*(*dispatchPositionVf)[0x1b].pfn)
-                    ((int)&(this->_base_Speaker).fPosition.flags +
-                     (int)(*dispatchPositionVf)[0x1b].delta);
-  dispatchResult = (*knownEntry->pfn)(knownThis,dispatchPosition);
+  Speaker *Sub = Speech::Dispatch();
+  /* SYM-CODEGEN-CARRIER: knownEntry -- spelling slot 18 directly is
+     count-exact but leaves 24 vtable/receiver-order diffs.
+     SYM-CODEGEN-CARRIER: knownThis -- folding the adjusted receiver into the
+     call is count-exact but leaves 30 diffs. */
+  __vtbl_ptr_type *knownEntry = &(*Sub->_vf)[18];
+  int knownThis = (int)Sub + knownEntry->delta;
+  condition =
+      (*knownEntry->pfn)(knownThis,
+        (this->_base_Speaker).VirtualPerp());
   }
-  if (dispatchResult != 0) {
+  if (condition) {
+    /* SYM-CODEGEN-CARRIER: sightedCar -- direct fCar is count-exact with
+       6 call-setup diffs.
+       SYM-CODEGEN-CARRIER: sightedLocation -- direct fLocation is count-exact
+       with 4 stack/delay-slot diffs. */
     int sightedCar = (this->_base_Speaker).fCar;
     int sightedLocation = (this->_base_Speaker).fLocation;
-    SPCHNFS_C_D_PERP_SIGHTED(pSVar12,&(this->_base_Speaker).fColour,
+    SPCHNFS_C_D_PERP_SIGHTED(&this->fVoice,&(this->_base_Speaker).fColour,
                sightedCar,&(this->_base_Speaker).fDistance,
                (SPCHNFSType_POSITION *)this,sightedLocation,
                &(this->_base_Speaker).fPerpName);
   }
   else {
+    /* SYM-CODEGEN-CARRIER: engageCar -- direct fCar is count-exact with
+       10 call-setup diffs.
+       SYM-CODEGEN-CARRIER: engageLocation -- direct fLocation is count-exact
+       with 2 stack-argument diffs.
+       SYM-CODEGEN-CARRIER: engageSpeed -- direct fSpeed is count-exact with
+       8 call-setup/delay-slot diffs. */
     int engageCar = (this->_base_Speaker).fCar;
     int engageLocation = (this->_base_Speaker).fLocation;
     int engageSpeed = this->fSpeed;
-    SPCHNFS_C_D_ENGAGE_PURS_REP_SPDR(pSVar12,&(this->_base_Speaker).fColour,
+    SPCHNFS_C_D_ENGAGE_PURS_REP_SPDR(&this->fVoice,&(this->_base_Speaker).fColour,
                engageCar,(SPCHNFSType_POSITION *)this,engageLocation,
                &(this->_base_Speaker).fDistance,engageSpeed,
                &this->fSpeedType,&(this->_base_Speaker).fPerpName)
     ;
   }
   SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-  savedDispatch = Speech::Dispatch();
-  SubChain = *(Speaker **)(savedDispatch + 0x48);
-  savedDispatch = Speech::Dispatch();
-  *(MobileSpeaker **)(savedDispatch + 0x48) = this;
+  SubChain = Speech::Dispatch()->fSub;
+  Speech::Dispatch()->fSub = &this->_base_Speaker;
   {
-  int temp_v0_21 = Speech::Dispatch();
-  int temp_v0_22 = *(int *)(temp_v0_21 + 0x4c);
-  int temp_a1_4 = *(int *)((int)this + 0x4c);
-  int temp_s1_2 = temp_v0_22 + 8;
-  int temp_s0_3 = temp_v0_21 + *(short *)(temp_v0_22 + 8);
-  carObj = (Car_tObj *)(**(int (**)(...))(temp_a1_4 + 0xdc))
-                    ((int)this + *(short *)(temp_a1_4 + 0xd8));
-  (**(int (**)(...))(temp_s1_2 + 4))(temp_s0_3,carObj);
+  Speaker *Sub = Speech::Dispatch();
+  /* SYM-CODEGEN-CARRIER: reportEntry -- direct slot-1 spelling shortens the
+     function to 466 and leaves 7 vtable-entry diffs.
+     SYM-CODEGEN-CARRIER: reportThis -- folding the adjusted receiver is
+     count-exact but leaves 30 diffs.  These are explicit forms of compiler
+     virtual-call quantities; SYM records the source receiver as Sub. */
+  __vtbl_ptr_type *reportEntry =
+      &(*Sub->_vf)[1];
+  int reportThis = (int)Sub + reportEntry->delta;
+  carObj = (Car_tObj *)(*(*(this->_base_Speaker)._vf)[27].pfn)
+      ((int)&(this->_base_Speaker).fPosition.flags +
+       (int)(*(this->_base_Speaker)._vf)[27].delta);
+  (*reportEntry->pfn)(reportThis,carObj);
   }
-  savedDispatch = Speech::Dispatch();
-  *(Speaker **)(savedDispatch + 0x48) = SubChain;
+  Speech::Dispatch()->fSub = SubChain;
   }
   return;
 MSEngage_samePerp:
-  bVar5 = false;
+  repeatReady = false;
   if (Speech_fgSpeech->fMultiplePerps == 0) {
-    bVar5 = Speech::Dispatch()->VirtualStatusCount() < 0x160;
+    repeatReady = Speech::Dispatch()->VirtualStatusCount() < 0x160;
   }
-  if (!bVar5) {
+  if (!repeatReady) {
     return;
   }
   {
-  SPCHNFSType_VOICE *sameVoice;
   this->_base_Speaker.SetCar((this->_base_Speaker).VirtualPerp());
   (this->_base_Speaker).fTo =
       (this->_base_Speaker).VirtualCallSign()->fDispatch;
-  sameVoice = &this->fVoice;
-  SPCHNFS_C_A_INTRO(sameVoice,(this->_base_Speaker).fTo,
+  SPCHNFS_C_A_INTRO(&this->fVoice,(this->_base_Speaker).fTo,
              (this->_base_Speaker).fFrom,&(this->_base_Speaker).fReverse);
   SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
   this->_base_Speaker.FindLocation((this->_base_Speaker).VirtualPerp());
-  COLOUR = (SPCHNFSType_COLOUR *)(this->_base_Speaker).fCar;
-  SPCHNFS_C_C_PERP_REAQUIRED(sameVoice,&(this->_base_Speaker).fColour,
-             (int)COLOUR,(SPCHNFSType_POSITION *)this,(this->_base_Speaker).fLocation,
+  /* SYM-CODEGEN-CARRIER: reacquiredCar -- direct fCar remains count-exact but
+     causes 10 call-setup diffs. */
+  int reacquiredCar = (this->_base_Speaker).fCar;
+  SPCHNFS_C_C_PERP_REAQUIRED(&this->fVoice,&(this->_base_Speaker).fColour,
+             reacquiredCar,(SPCHNFSType_POSITION *)this,(this->_base_Speaker).fLocation,
              &(this->_base_Speaker).fDistance);
   }
 MSEngage_emitSpeech:

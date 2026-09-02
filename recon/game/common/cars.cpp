@@ -1423,8 +1423,8 @@ void Car_DoSkiddingStuff(Car_tObj *carObj)
 /* ---- Car_DoPostCollisionStuff__FP8Car_tObj  [@0x800898dc] ---- */
 void Car_DoPostCollisionStuff(Car_tObj *carObj)
 {
-  /* MATCH: 34->16 via restoring the already-SYM-declared-but-dead `gvClamp`/`clampCond`
-     locals to their real shape: the oracle computes `clampCond = MIN(roundedGV>>5, 1310)`
+  /* MATCH: 34->16 via restoring the `gvClamp`/`clampCond` compiler-carrier
+     shape: the oracle computes `clampCond = MIN(roundedGV>>5, 1310)`
      FIRST (a real 2-branch min-clamp, `slti v0,v1,1311; ... li v1,1310;`), THEN tests
      `clampCond < -2620` -- NOT the single `-2621 < roundedGV>>5` test the prior recon had.
      Both are logically equivalent when roundedGV>>5 < -2620 (since -2620<1310 the MIN never
@@ -1435,18 +1435,14 @@ void Car_DoPostCollisionStuff(Car_tObj *carObj)
      as a real if/else reproduces retail's direct-a0 signed `/32` expansion and schedules the
      `Yoffset = 0x51e` default into the comparison branch delay slot (5->PASS154). */
   int Yoffset;
-  int iVar1;
   Car_tSpecs *pCVar2;
-  BO_tNewtonObj *pBVar4;
 
-  iVar1 = (carObj->N).collision.impulse;
   carObj->audioCount = 0;
-  if (iVar1 != 0) {
-    (carObj->N).collision.lastImpulse = iVar1;
+  if ((carObj->N).collision.impulse != 0) {
+    (carObj->N).collision.lastImpulse = (carObj->N).collision.impulse;
     (carObj->N).collision.lastTime = simGlobal.gameTicks;
-    pBVar4 = (carObj->N).collision.otherObj;
-    if (pBVar4 != (BO_tNewtonObj *)0x0) {
-      (carObj->N).collision.lastOtherObj = pBVar4;
+    if ((carObj->N).collision.otherObj != (BO_tNewtonObj *)0x0) {
+      (carObj->N).collision.lastOtherObj = (carObj->N).collision.otherObj;
     }
     else {
       (carObj->N).collision.lastOtherObj = (BO_tNewtonObj *)0x0;

@@ -328,51 +328,68 @@ void TexturesLoadInitial(void)
 void Track_AnimateTextures(void)
 
 {
-  short sVar1;
-  char cVar2;
-  Draw_tPixMap *pDVar3;
-  u_int uVar4;
-  u_int uVar5;
-  Draw_tPixMap *pmx;
-  short *psVar6;
+  /* SYM-CODEGEN-CARRIER: uvOffset -- repeating the semantic rate expression
+     at the four UV stores expands four checked divide/remainder sequences:
+     183/102 instructions and 87 diffs.  This single-evaluation carrier is
+     required, but optimized SYM cannot recover its original source spelling. */
+  char uvOffset;
+  /* SYM-CODEGEN-CARRIER: pmxIndexPtr -- using only semantic `controlPtr`
+     fields shortens the function to 101/102 instructions and produces 51
+     diffs; even a direct `controlPtr->matPtr` substitution alone is
+     count-exact with 2 diffs (`lw 12($a3)` versus retail's equivalent
+     `lw 2($a2)`).  The cursor preserves retail's strength-reduced $a2 walk. */
+  short *pmxIndexPtr;
   Track_tMaterialController *controlPtr;
-  Track_tMaterialController *pTVar7;
   int controlCount;
-  int iVar8;
+  /* SYM-CODEGEN-CARRIER: simPtr -- direct `simGlobal.gameTicks` accesses
+     shorten the function to 101/102 instructions and produce 19 diffs;
+     the explicit base is retail's loop-invariant $t1 address. */
   Track_SimGlobalCodegenView *simPtr;
+  /* SYM-CODEGEN-CARRIER: artPtr -- direct `gInitialArt.pPmx` is count-exact
+     but produces 14 diffs; this base preserves retail's loop-invariant $t2
+     address and the exact constant/register ordering. */
   Track_tArtresource *artPtr;
+  /* SYM-CODEGEN-CARRIER: negOne -- the optimized SYM has no source local,
+     but a direct `-1` compare is count-exact with 4 diffs: gcc materializes
+     the literal in $v0 instead of retail's loop sentinel in $t4. */
   int negOne;
+  /* SYM-CODEGEN-CARRIER: typeEnvMap -- spelling 0x80 directly shortens the
+     function to 101/102 instructions and produces 9 diffs; the carrier keeps
+     the two loop constants live in retail's $t4/$t3 pair. */
   int typeEnvMap;
 
   negOne = -1;
   typeEnvMap = 0x80;
   simPtr = &simGlobal;
   artPtr = &gInitialArt;
-  pTVar7 = Track_gMatController;
-  psVar6 = &pTVar7->pmxIndex;
-  iVar8 = Track_gControllerCount;
+  controlPtr = Track_gMatController;
+  pmxIndexPtr = &controlPtr->pmxIndex;
+  controlCount = Track_gControllerCount;
 TrkAnimTex_loopTest:
-  iVar8 = iVar8 + -1;
-  if (iVar8 != negOne) {
-    if (pTVar7->type == typeEnvMap) {
-      uVar4 = (u_int)*(u_char *)((int)psVar6 + -1);
-      uVar5 = (u_int)*(u_char *)(psVar6 + -4);
-      sVar1 = (*(Track_tMaterial **)(psVar6 + 1))->pmxIndex;
-      cVar2 = (char)((simPtr->gameTicks / (int)uVar4) % (int)uVar5);
-      pDVar3 = artPtr->pPmx + sVar1;
-      pDVar3->v0 = *(u_char *)(psVar6 + -3) + cVar2;
-      pDVar3->v1 = *(u_char *)((int)psVar6 + -5) + cVar2;
-      pDVar3->v2 = *(u_char *)(psVar6 + -2) + cVar2;
-      pDVar3->v3 = *(u_char *)((int)psVar6 + -3) + cVar2;
+  controlCount = controlCount + -1;
+  if (controlCount != negOne) {
+    if (controlPtr->type == typeEnvMap) {
+      Draw_tPixMap *pmx;
+
+      uvOffset = (char)((simPtr->gameTicks /
+                         (int)*(u_char *)((int)pmxIndexPtr + -1)) %
+                        (int)*(u_char *)(pmxIndexPtr + -4));
+      pmx = artPtr->pPmx +
+            (*(Track_tMaterial **)(pmxIndexPtr + 1))->pmxIndex;
+      pmx->v0 = *(u_char *)(pmxIndexPtr + -3) + uvOffset;
+      pmx->v1 = *(u_char *)((int)pmxIndexPtr + -5) + uvOffset;
+      pmx->v2 = *(u_char *)(pmxIndexPtr + -2) + uvOffset;
+      pmx->v3 = *(u_char *)((int)pmxIndexPtr + -3) + uvOffset;
     }
-    else if (pTVar7->type == 4) {
-      uVar4 = (u_int)*(u_char *)((int)psVar6 + -1);
-      uVar5 = (u_int)*(u_char *)(psVar6 + -1);
-      (*(Track_tMaterial **)(psVar6 + 1))->pmxIndex =
-           *psVar6 + (short)((simPtr->gameTicks / (int)uVar4) % (int)uVar5);
+    else if (controlPtr->type == 4) {
+      (*(Track_tMaterial **)(pmxIndexPtr + 1))->pmxIndex =
+           *pmxIndexPtr +
+           (short)((simPtr->gameTicks /
+                    (int)*(u_char *)((int)pmxIndexPtr + -1)) %
+                   (int)*(u_char *)(pmxIndexPtr + -1));
     }
-    psVar6 = psVar6 + 8;
-    pTVar7 = pTVar7 + 1;
+    pmxIndexPtr = pmxIndexPtr + 8;
+    controlPtr = controlPtr + 1;
     goto TrkAnimTex_loopTest;
   }
   return;

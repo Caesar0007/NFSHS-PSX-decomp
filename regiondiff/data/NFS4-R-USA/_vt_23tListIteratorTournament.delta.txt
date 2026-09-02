@@ -1,0 +1,5 @@
+_vt_23tListIteratorTournament  base 80011670 -> NFS4-R-USA 80011618  size 108
+  +0x003c: base 6d2e7372  region 2e327372
+  +0x0040: base 00007369  region 0073696d
+  +0x0048: base 2e327372  region 6d2e7372
+  +0x004c: base 0073696d  region 00007369

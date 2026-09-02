@@ -1,0 +1,15 @@
+_vt_23tListIteratorTournament  base 80011670 -> NFS4-R-UK-ES-IT 80011618  size 500
+  +0x003c: base 6d2e7372  region 2e327372
+  +0x0040: base 00007369  region 0073696d
+  +0x0048: base 2e327372  region 6d2e7372
+  +0x004c: base 0073696d  region 00007369
+  +0x0074: base 73257325  region 4445454e
+  +0x0078: base 00000000  region 524f4620
+  +0x007c: base 4d7a7325  region 45505320
+  +0x0080: base 702e6d65  region 00004445
+  +0x0084: base 00006873  region 4d7a7325
+  +0x0088: base 80034cbc  region 702e6d65
+  +0x008c: base 80034cbc  region 00006873
+  +0x01e8: base 706d6953  region 8003588c
+  +0x01ec: base 654d656c  region 800358b8
+  +0x01f0: base 0000006d  region 706d6953

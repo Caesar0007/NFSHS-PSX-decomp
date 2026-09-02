@@ -1,0 +1,2 @@
+SelectListOffOn  base 80051974 -> NFS4-R-UK-ES-IT 80052204  size 8
+  +0x0000: base 00660067  region 00670068

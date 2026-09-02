@@ -1,0 +1,2 @@
+jtbl_80011B38  base 80011B38 -> NFS4-R-AU 80011AE8  size 40
+  +0x0024: base 00000000  region 4341487a

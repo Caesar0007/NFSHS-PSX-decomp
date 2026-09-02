@@ -1,0 +1,7 @@
+D_800127FC  base 800127FC -> NFS4-R-AU 800127B4  size 52
+  +0x000c: base 6c746974  region 256c7474
+  +0x0010: base 73702e65  region 73702e64
+  +0x0020: base 6e69616d  region 6c746974
+  +0x0024: base 00000000  region 73702e65
+  +0x0028: base 64616f6c  region 00000068
+  +0x002c: base 6873702e  region 6e69616d

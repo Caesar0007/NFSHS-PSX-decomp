@@ -1,0 +1,6 @@
+D_80051FC4  base 80051FC4 -> NFS4-R-UK-ES-IT 8005285C  size 112
+  +0x0008: base 00c80122  region 00d00122
+  +0x0018: base 00b900d5  region 00c100d5
+  +0x0028: base 00b900d5  region 00c100d5
+  +0x0038: base 00b900d5  region 00c100d5
+  +0x005c: base 0069011d  region 00690136

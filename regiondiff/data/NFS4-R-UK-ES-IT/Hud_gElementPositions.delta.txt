@@ -1,0 +1,9 @@
+Hud_gElementPositions  base 80120924 -> NFS4-R-UK-ES-IT 80121C40  size 152
+  +0x0010: base 00cc0008  region 00dc0008
+  +0x0034: base 00d4005a  region 00e4005a
+  +0x0038: base 00a200fd  region 00b200fd
+  +0x003c: base 00c40008  region 00d40008
+  +0x005c: base 00650008  region 006d0008
+  +0x0080: base 0069005a  region 0071005a
+  +0x0084: base 003c0103  region 00440103
+  +0x0088: base 00480008  region 00500008

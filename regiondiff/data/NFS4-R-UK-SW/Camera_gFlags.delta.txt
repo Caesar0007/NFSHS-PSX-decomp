@@ -1,0 +1,2 @@
+Camera_gFlags  base 8010F550 -> NFS4-R-UK-SW 80110840  size 304
+  +0x00f4: base 0000e5a1  region 00010000

@@ -1,0 +1,4 @@
+_vt_15tScreenUserName  base 800126E8 -> NFS4-R-JPN 800126A0  size 144
+  +0x007c: base 2e564131  region 2e564132
+  +0x0084: base 4f4d4544  region 4f444145
+  +0x0088: base 2e564132  region 2e59424c

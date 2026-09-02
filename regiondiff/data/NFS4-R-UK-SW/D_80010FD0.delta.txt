@@ -1,0 +1,3 @@
+D_80010FD0  base 80010FD0 -> NFS4-R-UK-SW 80010FC8  size 12
+  +0x0004: base 72742e6b  region 742e626b
+  +0x0008: base 0000006b  region 00006b72

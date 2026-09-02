@@ -1,0 +1,5 @@
+D_8005570C  base 8005570C -> NFS4-R-JPN 80055EC0  size 104
+  +0x002c: base 00000000  region 800795d4
+  +0x005c: base 80078bac  region 706d6953
+  +0x0060: base 706d6953  region 654d656c
+  +0x0064: base 654d656c  region 0000006d

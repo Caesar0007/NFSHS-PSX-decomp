@@ -130,3 +130,15 @@ fs4-clean\Binaries) carries the
   W85 fixes: $sp displacements excluded from jtbl symbolization, trailing
   zero-word trim. The audit-vs-oracle size check catches name-shift and
   boundary over-runs on regeneration.
+- `tools/audit_data.py` — the regional DATA audit (built on symmap.tsv):
+  per-symbol word compare with pointer words verified THROUGH the
+  text+data maps (relocation never false-positives; a retargeted pointer
+  IS caught). Text symbols and double-sided size gaps filtered. Report:
+  `AUDIT_DATA.txt` + per-symbol dumps under `data/<REGION>/`.
+  18-27 genuinely changed data symbols per region (packed text-id tables
+  like TextLocations 80 words, menu SelectLists, vtable slots with
+  unresolved pointers = likely retail-added virtuals, one-word tuning
+  constants). Data rows are NOT yet gated rows — reconstruction of these
+  means editing the regional candidates' initializers; wiring them into a
+  gate is the remaining piece of backlog item 10.
+

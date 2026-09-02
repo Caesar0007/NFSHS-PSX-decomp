@@ -1,0 +1,3 @@
+D_800101BC  base 800101BC -> NFS4-R-AU 800101B4  size 12
+  +0x0004: base 632e7372  region 2e627372
+  +0x0008: base 00007261  region 00726163

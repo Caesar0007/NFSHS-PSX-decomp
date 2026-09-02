@@ -1,0 +1,2 @@
+R3DCar_ObjectInfo  base 801165E0 -> NFS4-R-USA 80117898  size 344
+  +0x00dc: base 02280300  region 02260300

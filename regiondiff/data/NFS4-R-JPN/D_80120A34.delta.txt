@@ -1,0 +1,3 @@
+D_80120A34  base 80120A34 -> NFS4-R-JPN 80121B10  size 120
+  +0x0008: base 003f9ae4  region 000a09ba
+  +0x0044: base 003f9ae4  region 000a09ba

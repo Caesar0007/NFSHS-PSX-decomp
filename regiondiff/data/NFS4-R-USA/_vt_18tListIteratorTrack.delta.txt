@@ -1,0 +1,10 @@
+_vt_18tListIteratorTrack  base 80010FE8 -> NFS4-R-USA 80010FE0  size 144
+  +0x006c: base 80023294  region 00000000
+  +0x0070: base 800233fc  region 706d6953
+  +0x0074: base 800232c8  region 654d656c
+  +0x0078: base 80023328  region 0000006d
+  +0x007c: base 800233fc  region 00000000
+  +0x0080: base 800233fc  region 706d6953
+  +0x0084: base 800233fc  region 654d656c
+  +0x0088: base 800233fc  region 0000006d
+  +0x008c: base 8002337c  region 00000000

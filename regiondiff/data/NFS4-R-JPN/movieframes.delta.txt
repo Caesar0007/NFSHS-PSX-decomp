@@ -1,0 +1,3 @@
+movieframes  base 800529EC -> NFS4-R-JPN 80052944  size 12
+  +0x0000: base 01c8054e  region 01bc054e
+  +0x0004: base 01e001bc  region 01bc01bc

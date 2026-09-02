@@ -1,0 +1,4 @@
+movienames  base 800529D8 -> NFS4-R-JPN 80052930  size 20
+  +0x0008: base 8001276c  region 80012718
+  +0x000c: base 80012778  region 80012718
+  +0x0010: base 80012784  region 80012724

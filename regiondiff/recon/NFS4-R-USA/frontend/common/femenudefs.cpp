@@ -14,10 +14,10 @@ inline void tFEApplication::DisplayMessage(int word)
 /* tBlankMenuItemGoToMenuNFS4Button_vtable @0x800114d8 + tBlankMenuItemNFS4LeftRightChoice_vtable @0x80011530:
    real __vtbl_ptr_type[11] defs live in game/common/vtables_tmenu.cpp; declared extern via femenudefs_externs.h. */
 short        SelectListNull[2];   /* @0x80051970  (bss(zero)) */
-short        SelectListOffOn[3] = { 103, 102, 0 };   /* @0x80051974 */
+short        SelectListOffOn[3] = { 104, 103, 0 };   /* R-USA @0x80051DFC: retail +1 text-id shift (AUDIT_DATA) */
 short        SelectListNormal[3] = { 227, 225, 0 };   /* @0x8005197c */
 short        SelectListOpponentUpgrades[3] = { 271, 272, 0 };   /* @0x80051984 */
-short        SelectListTrackDirection[3] = { 228, 229, 0 };   /* @0x8005198c */
+short        SelectListTrackDirection[3] = { 229, 230, 0 };   /* R-USA @0x80051E14: retail +1 text-id shift (AUDIT_DATA) */
 short        SelectListTransmission[3] = { 276, 275, 0 };   /* @0x80051994 */
 short        SelectListDisplaySpeed[5] = { 500, 498, 499, 103, 0 };   /* @0x8005199c */
 short        SelectListDisplayMap[4] = { 103, 488, 489, 0 };   /* @0x800519a8 */

@@ -138,7 +138,22 @@ fs4-clean\Binaries) carries the
   18-27 genuinely changed data symbols per region (packed text-id tables
   like TextLocations 80 words, menu SelectLists, vtable slots with
   unresolved pointers = likely retail-added virtuals, one-word tuning
-  constants). Data rows are NOT yet gated rows — reconstruction of these
-  means editing the regional candidates' initializers; wiring them into a
-  gate is the remaining piece of backlog item 10.
+  constants).
+- `tools/verify_data.py` — **the regional DATA gate**: compiles the
+  candidate through the real build.py lane, extracts each symbol's
+  initializer bytes from the object, and compares word-by-word against
+  the region image at the symmap address. Our object's reloc words
+  (pointers) are masked; **BASE-DRIFT words** (where the recon initializer
+  already differs from the BASE image — a base-fidelity issue, not the
+  regional delta) are excluded and reported separately. `_vt_`/`_vt.`
+  vtable spelling aliased; compare length capped by object extent, region
+  symbol gap, and the audit's own size. First seals: USA
+  SelectListOffOn/SelectListTrackDirection (+1 text-id shift in the
+  femenudefs candidate initializers; the TU's 3207-insn code seal held).
+- `tools/update_data_progress.py` — `DATA_PROGRESS.txt`: one row per
+  (region, changed symbol); owner TU resolved by nm over build/recon;
+  candidate = the same regiondiff/recon/<REGION>/<unit> file as code rows.
+  Workflow: edit the candidate's INITIALIZER to the region's values (read
+  `data/<REGION>/<sym>.delta.txt`), gate with verify_data, re-gate the
+  TU's code rows (verify_region) — both must hold.
 

@@ -27,28 +27,10 @@ CVECTOR      Night_gAdditiveHeadlightColor[16];   /* @0x80120dbc  (bss(zero)) */
 u_char       (*Night_gPlayerLightingTable)[256][16] = 0;   /* @0x8013d9e4 */
 u_char       (*Night_gCopLightingTableRed)[256][8] = 0;   /* @0x8013d9e8 */
 u_char       (*Night_gCopLightingTableBlue)[256][8] = 0;   /* @0x8013d9ec */
-/* SYM-CARRIER: Night_gWeatherLightingTable
-   SYM-GLOBAL-CARRIER: D_8013D9F4
-   Night_gWeatherLightingTable[2] is modelled as its TWO retail per-element gp-rel symbols
-   (StatsTimer/overlays.cpp model, catalog sec.E dual-model + wave-13 "unsized-array asm-label
-   view"): the oracle reaches the CONSTANT-index sites (Night_KillNightDriving [0] and [1])
-   through a one-instruction %gp_rel(Night_gWeatherLightingTable) / %gp_rel(D_8013D9F4), which
-   an 8-byte object can never produce under -G4, while the WALKING-BASE sites
-   (Night_InitWeatherTables / Night_SetWeatherColors, and draww.cpp's Night_NightCalc) address
-   the base absolutely with %hi/%lo(Night_gWeatherLightingTable) -- reproduced by the unsized
-   asm-label array VIEW below.  The two 4-byte .comm symbols land adjacently in .sbss in
-   declaration order, so the array view still reaches both words: KEEP THEM ADJACENT.
-   The view MUST carry its CORRECT size [2], NOT the usual unsized `[]` (methodology
-   sec.3.12 #5): an UNKNOWN-size extern makes cc1plus emit the `la sym` assembler MACRO,
-   which GNU-as expands with a SEPARATE scratch (`lui v0,%hi; addiu s0,v0,%lo`), whereas
-   retail's base-walk sites use the SELF-TEMP form (`lui s0,%hi; addiu s0,s0,%lo`) that
-   only gcc's own split-address lowering produces -- and that lowering needs a KNOWN size
-   over the -G threshold.  Sized [2] = 8 bytes > -G8's threshold-inclusive small test for
-   an EXTERN of known size here, so gcc lowers it itself.  Measured: unsized -> 6/8 diffs
-   on Night_InitWeatherTables/Night_SetWeatherColors, sized [2] -> 4/PASS. */
-u_char       (*Night_gWeatherLightingTable)[256] = 0;   /* @0x8013d9f0  = [0] */
-u_char       (*D_8013D9F4)[256] = 0;   /* @0x8013d9f4  = [1] retail per-element gp-rel alias */
-extern u_char (*Night_gWeatherLightingTable_arr[2])[256] asm("Night_gWeatherLightingTable"); /* array VIEW -- MUST be sized [2] */
+/* Retail SYM records a real two-element pointer array.  night.obj's proven
+   -G8 identity preserves both constant-index small-data accesses and runtime
+   base walks without split element symbols or assembler-label views. */
+u_char       (*Night_gWeatherLightingTable[2])[256] = { 0, 0 };   /* @0x8013d9f0 */
 char         CopCarTypeLights[6] = { 0, 0, 1, 0, 1, 1 };   /* @0x8013d9f8 */
 bool         gNight_renderNight;   /* @0x8013da28  (bss(zero)); SYM BOOL */
 int          Night_gXDist;   /* @0x8013da2c  (bss(zero)) */
@@ -59,24 +41,7 @@ int          Night_gZDistShift;   /* @0x8013da3c  (bss(zero)) */
 char         *Night_gNightTbl;   /* @0x8013da40  (bss(zero)) */
 int          Night_gLightningType;   /* @0x8013da44  (bss(zero)) */
 u_char       (*Night_gCurrentNightColor)[256][16];   /* @0x8013da48  (bss(zero)) */
-/* SYM-CARRIER: Night_gCopColor
-   SYM-GLOBAL-CARRIER: D_8013DA50
-   Night_gCopColor[2]: same per-element gp-rel dual-model as Night_gWeatherLightingTable above --
-   Night_SetCopColor stores both elements through %gp_rel(Night_gCopColor)/%gp_rel(D_8013DA50),
-   while draww.cpp's Night_NightCopCalc indexes the base at RUNTIME via %hi/%lo(Night_gCopColor)
-   (that TU keeps its own `extern u_char (*Night_gCopColor[2])[256][8];` array decl).
-   KEEP THE TWO .comm SYMBOLS ADJACENT (declaration order == .sbss order). */
-u_char       (*Night_gCopColor)[256][8];   /* @0x8013da4c  = [0] (bss(zero)) */
-u_char       (*D_8013DA50)[256][8];   /* @0x8013da50  = [1] retail per-element gp-rel alias (bss(zero)) */
-/* MATCH: SIZED[2] ARRAY VIEW over the same two .comm words.  Night_SetCopColor stores BOTH
-   elements through it (retail source: `Night_gCopColor[0]=..; Night_gCopColor[1]=..;`).  The
-   sized view keeps the per-element %gp_rel addressing of the two scalars AND makes each store an
-   ARRAY_REF => MEM_IN_STRUCT_P, which stops gcc-2.8's fixed_scalar_and_varying_struct_p from
-   declaring the varying-address stack-array READ independent of the fixed-address global STORE.
-   Without it the col2 `lw` hoists above the store, the two table `lbu`s batch, and one load-delay
-   nop disappears (36 vs 37 insns).  Catalog w44 §E storage-shape menu form (3) + w46 "MEM_IN_STRUCT_P
-   works from the STORE side".  Sizing is load-bearing: unsized [] loses the gp-rel form. */
-extern u_char (*Night_gCopColor_v[2])[256][8] asm("Night_gCopColor");
+u_char       (*Night_gCopColor[2])[256][8];   /* @0x8013da4c */
 CVECTOR      Night_gNightAmbientColor;   /* @0x8013da54  (bss(zero)) */
 CVECTOR      Night_gColor[2];   /* @0x8013da58  (bss(zero)) */
 int          Night_gTotalLights;   /* @0x8013da60  (bss(zero)) */
@@ -88,15 +53,7 @@ int          Night_gFlashAzimuth;   /* @0x8013da74  (bss(zero)) */
 char         Night_gShowForks;   /* @0x8013da78  (bss(zero)) */
 int          Night_gFlashIntensity;   /* @0x8013da7c  (bss(zero)) */
 long         Night_gPlayerHeadLightColor[2];   /* @0x8013da80  (bss(zero)) */
-/* SYM-CARRIER: Night_gWeatherColor
-   SYM-GLOBAL-CARRIER: D_8013DA8C
-   Night_gWeatherColor[2]: same per-element gp-rel dual-model -- Night_InitWeatherTables stores
-   both words through %gp_rel(Night_gWeatherColor)/%gp_rel(D_8013DA8C), while
-   Night_SetWeatherColors (and drawc.cpp's DrawC_NightHeadlight) walk the base absolutely.
-   KEEP THE TWO .comm SYMBOLS ADJACENT (declaration order == .sbss order). */
-long         Night_gWeatherColor;   /* @0x8013da88  = [0] (bss(zero)) */
-long         D_8013DA8C;   /* @0x8013da8c  = [1] retail per-element gp-rel alias (bss(zero)) */
-extern long  Night_gWeatherColor_arr[2] asm("Night_gWeatherColor"); /* array VIEW -- MUST be sized [2] */
+long         Night_gWeatherColor[2];   /* @0x8013da88 */
 tNightInitCache *gNightInitCache;   /* @0x8013da90  (bss(zero)) */
 tCompRGB     *gTableCache;   /* @0x8013da94  (bss(zero)) */
 char         *nightfile;   /* @0x8013da98  (bss(zero)) */
@@ -868,8 +825,8 @@ void Night_SetCopColor(GameSetup_tCarData *carinfo)
      * cure: it pinned the load but destroyed the sp-first `addu` operand order (only a
      * genuine ARRAY_REF on the frame DECL emits `addu v0,sp,v0`; every address-of /
      * cast spelling gets fold-canonicalized to index-first `addu v0,v0,sp`).  The right
-     * cure is on the STORE side -- see the Night_gCopColor_v[2] view at file scope: with
-     * both stores made ARRAY_REFs (MEM_IN_STRUCT_P) the plain `copColors[col2]` read can
+     * cure is on the STORE side: with both stores made ARRAY_REFs on the real
+     * Night_gCopColor[2] object, the plain `copColors[col2]` read can
      * no longer hoist above them, so the read keeps its ARRAY_REF form AND its position.
      * Falsified on the way (all re-gated from this basin): `volatile`-qualified copColors
      * DECL (forces a memcpy call, 41 insns); volatile array-ptr / elem-ptr views over
@@ -878,8 +835,8 @@ void Night_SetCopColor(GameSetup_tCarData *carinfo)
     col1 = (u_char)Night_gCopCountryLightTbl[cartype][country][0];
     carTable = (int)copColors[col1];
     col2 = (u_char)Night_gCopCountryLightTbl[cartype][country][1];
-    Night_gCopColor_v[0] = (u_char (*)[256][8])carTable;
-    Night_gCopColor_v[1] = copColors[col2];
+    Night_gCopColor[0] = (u_char (*)[256][8])carTable;
+    Night_gCopColor[1] = copColors[col2];
   }
   return;
 }
@@ -941,10 +898,9 @@ void Night_SetCopLightColors(int colorIndex,int brighten)
 /* ---- Night_InitWeatherTables__Fv  [NIGHT.CPP:532-540] SLD-VERIFIED ---- */
 /* NEAR-MISS 6 diffs, insn count now EXACT 33/33 (was 20 diffs at 35/33).  Residual 2 is
  * GONE: the old note's "Night_gWeatherColor[0]/[1] per-element gp-rel = confirmed
- * toolchain floor, NOT source-reachable" verdict was WRONG -- splitting the 8-byte array
- * into its two retail per-element symbols (Night_gWeatherColor / D_8013DA8C, + the
- * unsized asm-label array view for Night_SetWeatherColors' base walk) reproduces both
- * %gp_rel stores.  REMAINING 6: the oracle materializes Night_gWeatherLightingTable's
+ * toolchain floor, NOT source-reachable" verdict was WRONG.  The proven TU-wide -G8
+ * identity lets the real Night_gWeatherColor[2] array reproduce both %gp_rel stores.
+ * REMAINING 6: the oracle materializes Night_gWeatherLightingTable's
  * base DIRECTLY into s0 (`lui s0; addiu s0,s0,lo`), ours self-temps via v0 (`lui v0;
  * addiu s0,v0,lo`) -- the sec.3.15 v0-vs-dest register-materialization tie-break, shared
  * with the sibling Night_SetWeatherColors below -- which the sized-[2] array-VIEW fix has
@@ -974,14 +930,14 @@ void Night_InitWeatherTables(void)
     int i;
 
     for (i = 0; i < 2; i = i + 1) {
-      if (Night_gWeatherLightingTable_arr[i] == 0) {
-        Night_gWeatherLightingTable_arr[i] =
+      if (Night_gWeatherLightingTable[i] == 0) {
+        Night_gWeatherLightingTable[i] =
             (u_char (*)[256])reservememadr("wtnight",0x100,0);
       }
     }
   }
-  Night_gWeatherColor = 0x574054;
-  D_8013DA8C = 0x6c4040;
+  Night_gWeatherColor[0] = 0x574054;
+  Night_gWeatherColor[1] = 0x6c4040;
   return;
 }
 
@@ -1002,8 +958,8 @@ void Night_SetWeatherColors(int colorIndex)
 
   i = 0;
   do {
-    Night_CreateNightTableElement(colorIndex,Night_gWeatherColor_arr[i],0xf,
-                                  *Night_gWeatherLightingTable_arr[i] + colorIndex);
+    Night_CreateNightTableElement(colorIndex,Night_gWeatherColor[i],0xf,
+                                  *Night_gWeatherLightingTable[i] + colorIndex);
     i = i + 1;
   } while (i < 2);
   return;
@@ -1161,11 +1117,9 @@ void Night_InitNightDriving(void)
 /* SEALED 40/40 PASS (w39-a9).  The prior note certified the last two purge-blocks as a
  * "confirmed toolchain floor" (gp-rel-INTO-an-array-ELEMENT, catalog sec.E / Hud_Reset)
  * because Night_gWeatherLightingTable is ALSO indexed with a runtime variable in
- * draww.cpp.  That was WRONG on the "can't split" premise: the split is per-TU, and
- * draww.cpp keeps its own array-shaped extern (which is the form ITS oracle wants).
- * Splitting the definition here into the two retail per-element symbols
- * Night_gWeatherLightingTable / D_8013D9F4 (+ an unsized asm-label array VIEW for this
- * TU's own base-walk sites) reproduces both %gp_rel stores exactly. */
+ * draww.cpp.  That was WRONG: under the proven -G8 identity the real
+ * Night_gWeatherLightingTable[2] declaration reproduces both constant-index %gp_rel
+ * stores and the runtime base walk directly. */
 void Night_KillNightDriving(void)
 
 {
@@ -1185,14 +1139,14 @@ void Night_KillNightDriving(void)
     purgememadr(Night_gCopLightingTableBlue);
   }
   Night_gCopLightingTableBlue = (u_char (*) [256] [8])0x0;
-  if (Night_gWeatherLightingTable != (u_char (*) [256])0x0) {
-    purgememadr(Night_gWeatherLightingTable);
+  if (Night_gWeatherLightingTable[0] != (u_char (*) [256])0x0) {
+    purgememadr(Night_gWeatherLightingTable[0]);
   }
-  Night_gWeatherLightingTable = (u_char (*) [256])0x0;
-  if (D_8013D9F4 != (u_char (*) [256])0x0) {
-    purgememadr(D_8013D9F4);
+  Night_gWeatherLightingTable[0] = (u_char (*) [256])0x0;
+  if (Night_gWeatherLightingTable[1] != (u_char (*) [256])0x0) {
+    purgememadr(Night_gWeatherLightingTable[1]);
   }
-  D_8013D9F4 = (u_char (*) [256])0x0;
+  Night_gWeatherLightingTable[1] = (u_char (*) [256])0x0;
   return;
 }
 

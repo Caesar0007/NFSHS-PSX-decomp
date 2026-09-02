@@ -4584,7 +4584,7 @@ iSPCH_GetMatchValue = 0x80100710; // type:func
 VoxSentence_GetShortRule = 0x80100724; // type:func
 VoxEvent_GetKeepTillExpiresFlag = 0x800E6E94; // type:func
 iSPCH_GetRuleDataAddr = 0x8010B140; // type:func
-TransformVector = 0x8003A8F0; // type:func
+TransformVector__FRA4_iRA4_A4_iT0 = 0x8003A8F0; // type:func  retail SYM exact; ordinary static C++ mangling (2026-09-02)
 _first_patch = 0x80109F5C; // type:func
 _read_sync = 0x8010887C; // type:func
 _read_int = 0x801088B0; // type:func
@@ -4779,7 +4779,7 @@ ___17AIState_NonActive_80061378 = 0x80061378; // type:func  (2026-08-09 w54-clos
 TestForRelease__12AIState_Base_800613C4 = 0x800613C4; // type:func  (2026-08-09 w54-close: cross-TU vague-linkage dup, VA-suffixed)
 ___12AIState_Base_800613CC = 0x800613CC; // type:func  (2026-08-09 w54-close: cross-TU vague-linkage dup, VA-suffixed)
 showRoomFlag = 0x80051260; // type:data  = _front_data_org+0 (reloc-rendering canonicalization 2026-08-30)
-moonPosInSky_vx = 0x8013DDF8; // type:data  renamed from D_8013DDF8 (reloc-rendering canonicalization 2026-08-30)
+moonPosInSky = 0x8013DDF8; // type:data  retail SYM exact; restored as static SVECTOR in hrzsku.cpp (2026-09-02)
 g1Player = 0x8013DE04; // type:data  renamed from D_8013DE04 (reloc-rendering canonicalization 2026-08-30)
 gSprite0 = 0x8013DE08; // type:data  renamed from D_8013DE08 (reloc-rendering canonicalization 2026-08-30)
 gSprite1 = 0x8013DE0C; // type:data  renamed from D_8013DE0C (reloc-rendering canonicalization 2026-08-30)

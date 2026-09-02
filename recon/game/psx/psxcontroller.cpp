@@ -304,6 +304,10 @@ have_pad_type:
   case 0x73:
     switch (c) {
     case 0x00800000: {
+      /* SYM-CODEGEN-CARRIER: index -- this one-case byte offset shares the
+         GameSetup base calculation across both controller words. Replacing
+         it with the natural player-index macro keeps 233 instructions but
+         changes 20 branch/delay-slot and register-allocation positions. */
       int index = player << 2;
       newControl = ((player << 30) |
                     (128 - INGAME_INDEX_WORD(index, 0x88)) * 0x10000 |

@@ -104,6 +104,7 @@ class SymFunction:
     name: str = ""
     va: str = ""
     source_file: str = ""
+    owner_obj: str = ""
     source_line: int = 0
     fsize: int = 0
     mask: str = ""
@@ -117,6 +118,7 @@ class SymGlobal:
     obj: str
     va: str
     decl: Decl
+    source_owner: str = ""
 
 
 @dataclass
@@ -205,12 +207,22 @@ def parse_sym(path: Path) -> list[SymFunction]:
 
     result: list[SymFunction] = []
     cur: SymFunction | None = None
+    pending_object_functions: list[SymFunction] = []
     for line in all_lines:
         m = FUNC_START.match(line)
         if m:
             cur = SymFunction(va="0x" + m.group(2).lower())
             continue
         if cur is None:
+            # PsyQ emits the FILE ownership record after all function/debug
+            # rows for an object.  Attach that record retroactively so SLD
+            # source directories shared by archive members (notably the
+            # spchpsxz/sndpsxz libraries) do not collapse onto eaclib/psx.
+            fm = FILE_REC.match(line)
+            if fm and pending_object_functions:
+                for function in pending_object_functions:
+                    function.owner_obj = fm.group(1)
+                pending_object_functions = []
             continue
         stripped = line.strip()
         if stripped.startswith("name = ") and not cur.name:
@@ -257,6 +269,7 @@ def parse_sym(path: Path) -> list[SymFunction]:
                     (cur.va, cur.name), ("", "")
                 )
                 result.append(cur)
+                pending_object_functions.append(cur)
             cur = None
     return result
 
@@ -270,10 +283,16 @@ def parse_sym_globals(path: Path) -> list[SymGlobal]:
     """
     result: list[SymGlobal] = []
     pending: list[tuple[str, Decl]] = []
+    pending_source_owners: set[str] = set()
     in_function = False
     for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
         if FUNC_START.match(line):
             in_function = True
+            continue
+        if in_function and line.strip().startswith("file = "):
+            owner = sym_source_owner_dir(line.strip()[7:].strip())
+            if owner:
+                pending_source_owners.add(owner)
             continue
         if FUNC_END.match(line):
             in_function = False
@@ -281,8 +300,22 @@ def parse_sym_globals(path: Path) -> list[SymGlobal]:
         fm = FILE_REC.match(line)
         if fm:
             obj = fm.group(1)
-            result.extend(SymGlobal(obj=obj, va=va, decl=decl) for va, decl in pending)
+            source_owner = (
+                next(iter(pending_source_owners))
+                if len(pending_source_owners) == 1
+                else ""
+            )
+            result.extend(
+                SymGlobal(
+                    obj=obj,
+                    va=va,
+                    decl=decl,
+                    source_owner=source_owner,
+                )
+                for va, decl in pending
+            )
             pending = []
+            pending_source_owners = set()
             continue
         if in_function:
             continue
@@ -384,6 +417,12 @@ def ctags_records(paths: list[Path]) -> list[dict]:
 def source_functions(records: list[dict]) -> tuple[list[SourceFunction], dict[str, list[dict]]]:
     funcs: list[SourceFunction] = []
     file_decls: dict[str, list[dict]] = collections.defaultdict(list)
+    file_macros: dict[str, set[str]] = collections.defaultdict(set)
+    for rec in records:
+        if rec.get("kind") == "macro":
+            file_macros[Path(rec.get("path", "")).name.lower()].add(
+                rec.get("name", "")
+            )
     by_qualified: dict[tuple[str, str], list[SourceFunction]] = collections.defaultdict(list)
     by_simple: dict[tuple[str, str], list[SourceFunction]] = collections.defaultdict(list)
     for rec in records:
@@ -406,7 +445,14 @@ def source_functions(records: list[dict]) -> tuple[list[SourceFunction], dict[st
 
     for rec in records:
         if rec.get("kind") in ("variable", "externvar") and not rec.get("scope"):
-            file_decls[Path(rec["path"]).name.lower()].append(rec)
+            file_name = Path(rec["path"]).name.lower()
+            # Universal Ctags can misclassify a suffix attribute macro in
+            # `TYPE object SECTION_MACRO;` as a second variable whose name is
+            # SECTION_MACRO.  A same-file macro definition proves that token
+            # is declaration syntax, not object storage (SYS_DATA/ST_BSS are
+            # concrete PsyQ reconstruction examples).
+            if rec.get("name", "") not in file_macros[file_name]:
+                file_decls[file_name].append(rec)
         if rec.get("kind") not in ("local", "parameter"):
             continue
         file_name = Path(rec["path"]).name.lower()
@@ -678,6 +724,67 @@ def source_vtable_va(record: dict) -> str:
 
 def source_basename(sym_path: str) -> str:
     return re.split(r"[\\/]", sym_path)[-1].lower()
+
+
+def object_source_stem(obj_path: str) -> str:
+    """Return the object/member stem that owns a header-emitted function.
+
+    GCC attributes an inline or implicitly emitted body to its declaration
+    header in the 8c record, while the following FILE record still names the
+    object that selected/emitted it.  The old basename-only audit therefore
+    dropped every `AIHIGH.H`/`AISTATE.H`/frontend-header body.  Preserve both
+    facts: the header remains SLD authority, and this stem identifies the TU
+    whose reconstructed `.c/.cpp` body must be audited.
+    """
+    match = re.search(r"([^/\\()]+)\.obj\)?$", obj_path, re.I)
+    return match.group(1).lower() if match else ""
+
+
+def reconstruction_owner_dir(target: Path) -> str:
+    """Return a target's canonical directory below recon/, if available."""
+    try:
+        return target.resolve().relative_to((ROOT / "recon").resolve()).as_posix().lower()
+    except ValueError:
+        return ""
+
+
+def sym_source_owner_dir(sym_path: str) -> str:
+    """Recover an EA-owned source directory from a full SLD source path.
+
+    Basename-only selection is unsafe: retail contains both EACLIB/PSX/PAD.C
+    and the unrelated SDK LIBAPI/PAD.c.  EA's compiled source paths retain the
+    directory below the `nfs4` checkout, so use it whenever present.  Vendor
+    paths outside that checkout deliberately fall back to object ownership or
+    basename matching.
+    """
+    normalized = sym_path.replace("\\", "/").lower()
+    marker = "/nfs4/"
+    if marker not in normalized:
+        return ""
+    relative = normalized.split(marker, 1)[1]
+    return str(Path(relative).parent).replace("\\", "/").lower()
+
+
+def sym_object_owner_dir(obj_path: str) -> str:
+    """Map a SYM FILE record to the corresponding recon/ owner directory.
+
+    Direct EA objects retain paths such as `../eaclib/psx/pad.obj`.  Library
+    members encode their reconstruction subdirectory in the archive name, for
+    example `../eaclib/psx/eacpsxz.lib(fixdmult.obj)` and
+    `../syslib/psx/lib/libapi.lib(PAD.obj)`.
+    """
+    normalized = obj_path.replace("\\", "/").lower()
+    normalized = re.sub(r"^(?:\.\./)+", "", normalized)
+    archive = re.match(r"^(.*?)([^/]+)\.lib\(([^)]+)\)$", normalized)
+    if archive:
+        prefix, library, _member = archive.groups()
+        prefix = prefix.rstrip("/")
+        # PsyQ archives live physically under syslib/psx/lib, while the
+        # reconstructed owner directories are named after each archive.
+        if prefix.endswith("/lib"):
+            prefix = prefix[:-4]
+        return f"{prefix}/{library}".strip("/")
+    return str(Path(normalized).parent).replace("\\", "/").lower().strip(".")
 
 
 STRICT_NATIVE_BOOL = False
@@ -1107,6 +1214,14 @@ def map_function(sym: SymFunction, candidates: list[SourceFunction]) -> tuple[So
     simple, cls = decode_member(sym.name)
     file_name = source_basename(sym.source_file)
     same_file = [f for f in candidates if f.path == file_name]
+    header_owned = file_name.endswith((".h", ".hpp"))
+    if header_owned and sym.owner_obj:
+        owner_stem = object_source_stem(sym.owner_obj)
+        object_file = [
+            f for f in candidates if Path(f.path).stem.lower() == owner_stem
+        ]
+        if object_file:
+            same_file = object_file
 
     # Retail attributes this C-linkage accessor to MEMCARD.C, while the exact
     # reconstruction deliberately keeps its shared frontend implementation in
@@ -1136,14 +1251,27 @@ def map_function(sym: SymFunction, candidates: list[SourceFunction]) -> tuple[So
         "_._14AIState_Donuts": "___14AIState_Donuts",
     }
     carrier_name = destructor_abi_carriers.get(sym.name)
+    # Header-emitted deleting destructors are represented by explicit ABI
+    # carrier functions throughout the reconstruction (`_._14Class` in SYM ->
+    # `___14Class` in C++ source).  Some objects contain an additional vague-
+    # linkage copy and therefore carry an exact `_VA` suffix.  Restrict this
+    # general mapping to the FILE-owning TU selected above; a same spelling in
+    # another object is not interchangeable.
+    if carrier_name is None and sym.name.startswith("_._"):
+        carrier_name = "___" + sym.name[3:]
     if carrier_name:
-        carrier_hits = [f for f in same_file if f.name == carrier_name]
+        carrier_hits = [
+            f
+            for f in same_file
+            if f.name == carrier_name
+            or re.fullmatch(re.escape(carrier_name) + r"_[0-9A-Fa-f]{8}", f.name)
+        ]
         if len(carrier_hits) == 1:
             return carrier_hits[0], "abi-carrier"
 
     exact = [f for f in same_file if f.name == simple and f.scope == cls]
     if len(exact) == 1:
-        return exact[0], "exact"
+        return exact[0], "header-owner" if header_owned else "exact"
     overload_hints = {
         "Draw__27tMenuItemGoToMenuNFS4Buttoniib": "(int x,int y,bool selected)",
         "Draw__20tMenuItemSlidingMenub": "(bool selected)",
@@ -1178,7 +1306,7 @@ def map_function(sym: SymFunction, candidates: list[SourceFunction]) -> tuple[So
     if hint:
         hinted = [f for f in exact if hint in f.signature]
         if len(hinted) == 1:
-            return hinted[0], "exact-signature"
+            return hinted[0], "header-owner-signature" if header_owned else "exact-signature"
     linkage_spelled = [f for f in same_file if f.name == sym.name]
     if len(linkage_spelled) == 1:
         return linkage_spelled[0], "linkage-spelled"
@@ -1320,6 +1448,24 @@ def documented_inline_locals(
         cache_by_headers[type_headers] = cache
     type_headers, header_helpers, header_decls = cache
 
+    def preferred_header_helpers(records: list[dict]) -> list[dict]:
+        """Prefer the TU-owned type surface over the monolithic fallback.
+
+        Several reconstructed frontend TUs intentionally provide a compact
+        `<tu>_types.h` class surface while `nfs4_types.h` retains the same
+        inline member for other owners.  Those are not ambiguous definitions
+        in the compiled TU: the local header is the one actually included.
+        Treating both audit inputs as equal made declaration-backed inline
+        parameters such as tScreenUserName::SetCallingMenu(m) look missing.
+        Keep the shared-header candidate only when no TU-local body exists.
+        """
+        local = [
+            rec
+            for rec in records
+            if Path(rec.get("path", "")).resolve() == local_type_header.resolve()
+        ]
+        return local if local else records
+
     # Follow visible inline-call chains through the recovered header bodies.
     # A caller can invoke helper A while retail's debug block also contains
     # locals from helper B inlined twice inside A (AISpeeds' brake-distance
@@ -1327,6 +1473,7 @@ def documented_inline_locals(
     # in the outer caller rejects that valid nested-inline ownership.
     helper_bodies: dict[str, str] = {}
     for helper_name, records in header_helpers.items():
+        records = preferred_header_helpers(records)
         if len(records) != 1:
             continue
         rec = records[0]
@@ -1410,13 +1557,17 @@ def documented_inline_locals(
             continue
         if not declarations:
             invoked = reachable_helpers[helper_name] != 0
-            candidates = header_helpers.get(helper_name, [])
+            candidates = preferred_header_helpers(
+                header_helpers.get(helper_name, [])
+            )
             if invoked and len(candidates) == 1:
                 owner = candidates[0].get("scope", "")
+                candidate_path = Path(candidates[0].get("path", "")).resolve()
                 declarations = [
                     decl
                     for decl in header_decls.get((owner, helper_name), [])
                     if decl.get("name") == local_name
+                    and Path(decl.get("path", "")).resolve() == candidate_path
                 ]
         if not declarations:
             continue
@@ -1544,7 +1695,28 @@ def audit(
     target_names = {p.name.lower() for p in target.glob("*.cpp")} | {
         p.name.lower() for p in target.glob("*.c")
     }
-    selected = [f for f in sym_fns if source_basename(f.source_file) in target_names]
+    target_stems = {Path(name).stem.lower() for name in target_names}
+    target_owner = reconstruction_owner_dir(target)
+    selected = []
+    for function in sym_fns:
+        source_name = source_basename(function.source_file)
+        header_owned = source_name.endswith((".h", ".hpp"))
+        emitted_by_target = (
+            header_owned
+            and object_source_stem(function.owner_obj) in target_stems
+        )
+        if source_name not in target_names and not emitted_by_target:
+            continue
+        object_owner = sym_object_owner_dir(function.owner_obj) if function.owner_obj else ""
+        sym_owner = sym_source_owner_dir(function.source_file)
+        # The object/archive member is authoritative when present: library
+        # sources often retain their parent EACLIB/PSX SLD directory even
+        # though their owning archive maps to recon/eaclib/psx/<library>.
+        # Otherwise a full EA source path is stronger than a shared basename.
+        owner = object_owner or sym_owner
+        if owner and target_owner and owner != target_owner:
+            continue
+        selected.append(function)
     lines = [
         "# SYM-to-source declaration audit",
         "",
@@ -1596,7 +1768,12 @@ def audit(
             findings.append((sf, None, quality, [], [], []))
             continue
         mapped += 1
-        exact += quality in ("exact", "exact-signature")
+        exact += quality in (
+            "exact",
+            "exact-signature",
+            "header-owner",
+            "header-owner-signature",
+        )
         linkage_spelled += quality == "linkage-spelled"
         abi_carrier_total += quality == "abi-carrier"
         cross_tu_owner_total += quality == "cross-tu-owner"
@@ -1714,12 +1891,21 @@ def audit(
     source_by_stem = {
         p.stem.lower(): p.name.lower() for p in [*target.glob("*.cpp"), *target.glob("*.c")]
     }
-    selected_globals = [
-        g for g in sym_globals if Path(g.obj).stem.lower() in source_by_stem
-    ]
+    selected_globals = []
+    for glob in sym_globals:
+        stem_match = re.search(r"([^/\\()]+)\.obj\)?$", glob.obj, re.I)
+        if not stem_match or stem_match.group(1).lower() not in source_by_stem:
+            continue
+        object_owner = sym_object_owner_dir(glob.obj)
+        owner = object_owner or glob.source_owner
+        if owner and target_owner and owner != target_owner:
+            continue
+        selected_globals.append(glob)
     globals_by_file: dict[str, list[SymGlobal]] = collections.defaultdict(list)
     for glob in selected_globals:
-        globals_by_file[source_by_stem[Path(glob.obj).stem.lower()]].append(glob)
+        stem_match = re.search(r"([^/\\()]+)\.obj\)?$", glob.obj, re.I)
+        assert stem_match is not None
+        globals_by_file[source_by_stem[stem_match.group(1).lower()]].append(glob)
 
     # GCC-v2 vtables are compact top-level type-2 SYM records, not ordinary
     # object-owned DEF rows. Match them only when both the decoded class name

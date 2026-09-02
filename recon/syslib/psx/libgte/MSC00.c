@@ -11,6 +11,8 @@ extern void _patch_gte(void);   /* libgte PATCHGTE.obj @0x80106454 */
 
 #if defined(__mips__)
 /* @0x80134A70 : scratch word holding $ra across the _patch_gte call (handwritten spill). */
+/* SYM-GLOBAL-CARRIER: _InitGeom_ra_save -- relocation-proven private scratch
+ * storage in the handwritten object; retail SYM carries no declaration row. */
 int _InitGeom_ra_save;
 
 /* @0x800F21A4 : InitGeom -- handwritten. */

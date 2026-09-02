@@ -73,6 +73,14 @@ static int cd_read(int n_sectors, int sector_no, unsigned char *ptr);
  *      load_buf @0x8014647C 2048 = one CD sector buffer
  * Canonical one-XDEF scope lets ordinary `static` declarations emit the exact local BSS rather
  * than the former reconstruction COMMONs. */
+/* SYM-GLOBAL-CARRIER: file
+ * SYM-GLOBAL-CARRIER: dire
+ * SYM-GLOBAL-CARRIER: load_buf
+ * SYM-GLOBAL-CARRIER: cached_dir_num_
+ * SYM-GLOBAL-CARRIER: cached_nopen_
+ * Canonical PsyQ/SotN object evidence and the exactly tiled retail BSS/data
+ * ranges below prove these private objects; no private declaration rows remain
+ * in NFS4's SYM. */
 /* Canonical PsyQ 4.3 ISO9660.obj has exactly one XDEF (`CdSearchFile`) and a
  * 9216-byte section-relative BSS.  The byte-identical PsyQ 4.0/SotN copies
  * preserve these private names and types. */

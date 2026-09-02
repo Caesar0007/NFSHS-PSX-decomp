@@ -58,13 +58,13 @@ int Draw_SetView(int x0,int y0,int x1,int y1,int w,int h,int dtd,int isbg,int ot
 
 {
   /* SYM (nfs4-f-v3.txt @0x800BDAC0) names `newview` (Draw_tView*) + `e00`/`e10`
-     (DRAWENV*, both 92 bytes) as real locals -- NOT raw Draw_gView[iVar1].drawenv[N]
+     (DRAWENV*, both 92 bytes) as real locals -- NOT raw Draw_gView[index].drawenv[N]
      array-index expressions everywhere. Rewritten to cache the two DRAWENV pointers
      once per the SYM, matching the oracle's s1/s2-hold-e00/e10-address shape. */
   Draw_tView *newview;
   DRAWENV *e00;
   DRAWENV *e10;
-  int iVar2; /* SYM-CODEGEN-CARRIER: iVar2 -- retains the pre-increment view count for return */
+  int viewIndex; /* SYM-CODEGEN-CARRIER: viewIndex -- retains the pre-increment view count for return */
 
   newview = Draw_gView + Draw_gNumView;
   e00 = newview->drawenv;
@@ -81,11 +81,11 @@ int Draw_SetView(int x0,int y0,int x1,int y1,int w,int h,int dtd,int isbg,int ot
   e00->isbg = (u_char)isbg;
   e10->dtd = (u_char)dtd;
   e00->dtd = (u_char)dtd;
-  iVar2 = Draw_gNumView;
+  viewIndex = Draw_gNumView;
   newview->otsize = otsize;
   newview->membudget = 0;
   Draw_gNumView = Draw_gNumView + 1;
-  return iVar2;
+  return viewIndex;
 }
 
 /* ---- Draw_InitViews__Fv  [DRAW.CPP:113-114] SLD-VERIFIED ---- */
@@ -109,16 +109,16 @@ void Draw_InitViewOT(void)
      if-guarded backward-goto idiom (catalog §B row 56 / same family as the sibling
      Draw_DeInitViews, which already sealed 100% with this exact form): a `TEST:` label
      directly after init, `if(cond){body; goto TEST;}`, `return;` after. */
-  Draw_tView *pDVar2; /* SYM-CODEGEN-CARRIER: pDVar2 -- retail's +0xC8 OT pointer walker */
+  Draw_tView *view; /* SYM-CODEGEN-CARRIER: view -- retail's +0xC8 OT pointer walker */
   int i;
 
   i = 0;
-  pDVar2 = Draw_gView;
+  view = Draw_gView;
  TEST:
   if (i < Draw_gNumView) {
-    pDVar2->ot[0] = reservememadr("ot0",pDVar2->otsize << 2,0x10);
-    pDVar2->ot[1] = reservememadr("ot1",pDVar2->otsize << 2,0x10);
-    pDVar2 = pDVar2 + 1;
+    view->ot[0] = reservememadr("ot0",view->otsize << 2,0x10);
+    view->ot[1] = reservememadr("ot1",view->otsize << 2,0x10);
+    view = view + 1;
     i = i + 1;
     goto TEST;
   }
@@ -134,16 +134,16 @@ void Draw_InitViewOTInGame(void)
      back-edge, no entry jump); the if-guarded backward-goto idiom reproduces it
      exactly, plus the s1(count)-before-s0(pointer) init order to match the prologue
      save order. */
-  Draw_tView *pDVar2; /* SYM-CODEGEN-CARRIER: pDVar2 -- retail's +0xC8 OT pointer walker */
+  Draw_tView *view; /* SYM-CODEGEN-CARRIER: view -- retail's +0xC8 OT pointer walker */
   int i;
 
   i = 0;
-  pDVar2 = Draw_gView;
+  view = Draw_gView;
  TEST:
   if (i < Draw_gNumView) {
-    pDVar2->ot[0] = (u_long *)Platform_ReserveMemory(pDVar2->otsize << 2,"ot0");
-    pDVar2->ot[1] = (u_long *)Platform_ReserveMemory(pDVar2->otsize << 2,"ot1");
-    pDVar2 = pDVar2 + 1;
+    view->ot[0] = (u_long *)Platform_ReserveMemory(view->otsize << 2,"ot0");
+    view->ot[1] = (u_long *)Platform_ReserveMemory(view->otsize << 2,"ot1");
+    view = view + 1;
     i = i + 1;
     goto TEST;
   }
@@ -154,7 +154,7 @@ void Draw_InitViewOTInGame(void)
 void Draw_DeInitViews(void)
 
 {
-  Draw_tView *pDVar1; /* SYM-CODEGEN-CARRIER: pDVar1 -- required pointer-walk source shape */
+  Draw_tView *view; /* SYM-CODEGEN-CARRIER: view -- required pointer-walk source shape */
   int i;
 
   /* MATCH: SYM (nfs4-f-v3.txt @0x800BDCE0) names exactly ONE local (`i`); the oracle is a
@@ -166,18 +166,18 @@ void Draw_DeInitViews(void)
      the only other function in the whole oracle corpus with this fallthrough-test/
      unconditional-back-j shape. Sealed 100% (was a documented "floor"). */
   i = 0;
-  pDVar1 = Draw_gView;
+  view = Draw_gView;
  loopTop:
   if (i < Draw_gNumView) {
-    if (pDVar1->ot[0] != (u_long *)0x0) {
-      purgememadr(pDVar1->ot[0]);
+    if (view->ot[0] != (u_long *)0x0) {
+      purgememadr(view->ot[0]);
     }
-    if (pDVar1->ot[1] != (u_long *)0x0) {
-      purgememadr(pDVar1->ot[1]);
+    if (view->ot[1] != (u_long *)0x0) {
+      purgememadr(view->ot[1]);
     }
-    pDVar1->ot[0] = (u_long *)0x0;
-    pDVar1->ot[1] = (u_long *)0x0;
-    pDVar1 = pDVar1 + 1;
+    view->ot[0] = (u_long *)0x0;
+    view->ot[1] = (u_long *)0x0;
+    view = view + 1;
     i = i + 1;
     goto loopTop;
   }
@@ -189,8 +189,8 @@ void Draw_DeInitViewsInGame(void)
 
 {
   int i;
-  int iVar2; /* SYM-CODEGEN-CARRIER: iVar2 -- cached bound preserves the exact loop allocation */
-  Draw_tView *pDVar3; /* SYM-CODEGEN-CARRIER: pDVar3 -- preserves the field-unbiased +0xC8 walk */
+  int numViews; /* SYM-CODEGEN-CARRIER: numViews -- cached bound preserves the exact loop allocation */
+  Draw_tView *view; /* SYM-CODEGEN-CARRIER: view -- preserves the field-unbiased +0xC8 walk */
 
   /* MATCH: SYM (nfs4-f-v3.txt @0x800BDD68) names exactly ONE local (`i`) -- the pointer
      walk + cached-count temps below are compiler-internal, not separately named, so their
@@ -209,13 +209,13 @@ void Draw_DeInitViewsInGame(void)
      position from the oracle. Not reachable by a source lever at this opt level; permuter
      (no cast) or accept. */
   i = 0;
-  iVar2 = Draw_gNumView;
-  pDVar3 = Draw_gView;
+  numViews = Draw_gNumView;
+  view = Draw_gView;
  loopTop:
-  if (i < iVar2) {
-    pDVar3->ot[0] = (u_long *)0x0;
-    pDVar3->ot[1] = (u_long *)0x0;
-    pDVar3 = pDVar3 + 1;
+  if (i < numViews) {
+    view->ot[0] = (u_long *)0x0;
+    view->ot[1] = (u_long *)0x0;
+    view = view + 1;
     i = i + 1;
     goto loopTop;
   }
@@ -368,18 +368,18 @@ void Draw_StartRenderingView(int viewid)
      PASS 46/46 as of 2026-07-31.) */
   Draw_DCache *sd;
   Draw_tView *view;
-  int iVar1; /* SYM-CODEGEN-CARRIER: iVar1 -- in-place signed /8 rounding carrier */
+  int midGroundOtzNumerator; /* SYM-CODEGEN-CARRIER: midGroundOtzNumerator -- in-place signed /8 rounding carrier */
 
   sd = (Draw_DCache *)0x1F800000;
   view = Draw_gView + viewid;
-  iVar1 = view->otsize * 7;
+  midGroundOtzNumerator = view->otsize * 7;
   Draw_gViewOtSize = view->otsize;
-  if (iVar1 < 0) {
-    iVar1 = iVar1 + 7;
+  if (midGroundOtzNumerator < 0) {
+    midGroundOtzNumerator = midGroundOtzNumerator + 7;
   }
   sd->head.clipW = Draw_gView[viewid].drawenv[0].clip.w;
   sd->head.clipH = Draw_gView[viewid].drawenv[0].clip.h;
-  Draw_gMidGroundOtz = iVar1 >> 3;
+  Draw_gMidGroundOtz = midGroundOtzNumerator >> 3;
   sd->head.cprim.LastPrim = (u_long *)view->ot[gFlip];
   /* MATCH (2026-07-31, w38-a3): the oracle's tail is the DE MORGAN form --
      `if (viewid != P1 && viewid != P2) { gMaxPrim } else { PrimPtr+membudget }`
@@ -492,8 +492,8 @@ void Draw_StartFrameRender(void)
      FIXED (was 34-diff floor via a "safe partial fix" comma-while that a prior pass
      reverted from `goto TEST` over a suspected miscompile; now 21-diff via a CAREFULLY
      re-verified `goto TEST` do-while): re-checked the compiled disasm directly -- `s0`
-     (pDVar4=&Draw_gView[0]) is written at the prologue BEFORE the `goto TEST`'s forward
-     jump, and the loop body (which reads `pDVar4`) is reached ONLY via the back-branch
+     (`view = &Draw_gView[0]`) is written at the prologue BEFORE the `goto TEST`'s forward
+     jump, and the loop body (which reads `view`) is reached ONLY via the back-branch
      from the test, never as straight-line fallthrough from the prologue -- so there is
      NO read-before-write; the earlier miscompile report must have been a different
      (buggier) source shape. This do-while now reproduces the oracle's loop EXACTLY (same
@@ -508,15 +508,15 @@ void Draw_StartFrameRender(void)
      `Draw_gMaxPrim` -- confirmed pre-existing (byte-identical in the git HEAD baseline
      before this session's loop fix) and unaffected by statement reordering (tried both
      orders). Permuter or accept. */
-  Draw_tView *pDVar4; /* SYM-CODEGEN-CARRIER: pDVar4 -- pins the exact loop walker lifetime */
+  Draw_tView *view; /* SYM-CODEGEN-CARRIER: view -- pins the exact loop walker lifetime */
   int i;
 
   i = 0;
-  pDVar4 = Draw_gView;
+  view = Draw_gView;
  TEST:
   if (i < Draw_gNumView) {
-    ClearOTagR(pDVar4->ot[gFlip],pDVar4->otsize);
-    pDVar4 = pDVar4 + 1;
+    ClearOTagR(view->ot[gFlip],view->otsize);
+    view = view + 1;
     i = i + 1;
     goto TEST;
   }
@@ -551,7 +551,7 @@ void Draw_SetDrawSyncCallback(void (*p)(void))
 void Draw_StopFrameRender(void)
 
 {
-  Draw_tView *pDVar2; /* SYM-CODEGEN-CARRIER: pDVar2 -- pins the exact loop walker lifetime */
+  Draw_tView *view; /* SYM-CODEGEN-CARRIER: view -- pins the exact loop walker lifetime */
   int i;
 
   /* MATCH: SYM (nfs4-f-v3.txt @0x800BE36C) names exactly ONE local (`i`), live range
@@ -578,11 +578,11 @@ void Draw_StopFrameRender(void)
   }
   PutDispEnv(&gEnviro[gFlip].disp);
   i = 0;
-  pDVar2 = Draw_gView;
+  view = Draw_gView;
  loopTop:
   if (i < Draw_gNumView) {
-    DrawOTag(pDVar2->ot[gFlip] + pDVar2->otsize + -1);
-    pDVar2 = pDVar2 + 1;
+    DrawOTag(view->ot[gFlip] + view->otsize + -1);
+    view = view + 1;
     i = i + 1;
     goto loopTop;
   }

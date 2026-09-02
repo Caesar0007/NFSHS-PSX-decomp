@@ -35,6 +35,18 @@ DEF = re.compile(
     r"(?P<size>\d+).* name (?P<name>\S+)$",
     re.IGNORECASE,
 )
+DECL_CLASS = re.compile(r"^Def2? class (?P<class>\S+)", re.IGNORECASE)
+TYPE_GRAPH_CLASSES = {
+    "STRTAG",
+    "UNTAG",
+    "ENTAG",
+    "TPDEF",
+    "MOS",
+    "MOU",
+    "MOE",
+    "FIELD",
+    "EOS",
+}
 
 
 @dataclass
@@ -45,6 +57,8 @@ class ObjectSpan:
     records: int = 0
     functions: int = 0
     sld_spans: int = 0
+    type_records: int = 0
+    other_records: int = 0
     data_defs: list[tuple[str, str, str, int]] = field(default_factory=list)
     function_defs: list[tuple[str, str, str, int]] = field(default_factory=list)
 
@@ -60,6 +74,8 @@ class ObjectSpan:
             return "SLD assembly/line-only"
         if self.data_defs:
             return "typed data-only"
+        if self.records and self.type_records == self.records:
+            return "metadata-only type graph"
         return "opaque/compact-only candidate"
 
 
@@ -100,9 +116,16 @@ def parse_spans(path: Path) -> tuple[list[ObjectSpan], list[ObjectSpan]]:
         active.records += 1
         if tag == "8c":
             active.functions += 1
+            active.other_records += 1
         elif tag == "88":
             active.sld_spans += 1
+            active.other_records += 1
         elif tag in ("94", "96"):
+            class_match = DECL_CLASS.match(body)
+            if class_match and class_match.group("class").upper() in TYPE_GRAPH_CLASSES:
+                active.type_records += 1
+            else:
+                active.other_records += 1
             def_match = DEF.match(body)
             if not def_match:
                 continue
@@ -116,6 +139,8 @@ def parse_spans(path: Path) -> tuple[list[ObjectSpan], list[ObjectSpan]]:
                 active.function_defs.append(row)
             else:
                 active.data_defs.append(row)
+        else:
+            active.other_records += 1
 
     if active is not None:
         active.last_line = line_number
@@ -146,7 +171,8 @@ def main() -> None:
     print()
     print("A function count of zero does not mean an empty object.  Typed data")
     print("definitions are direct ownership evidence.  SLD-only objects retain")
-    print("assembly line information.  Opaque members require compact-symbol and")
+    print("assembly line information.  Metadata-only members contain a declaration")
+    print("environment but no emitted program entity.  Opaque members require compact-symbol and")
     print("link/image evidence before their source ownership can be closed.")
     print()
     print("## Per-member ledger")
@@ -156,7 +182,8 @@ def main() -> None:
             f"- `{span.name}` (SYM lines {span.first_line}-{span.last_line}): "
             f"{span.kind}; functions {span.functions}; function defs "
             f"{len(span.function_defs)}; typed data {len(span.data_defs)}; "
-            f"SLD spans {span.sld_spans}; interior records {span.records}"
+            f"SLD spans {span.sld_spans}; type records {span.type_records}; "
+            f"other records {span.other_records}; interior records {span.records}"
         )
         for cls, typ, name, va in span.data_defs:
             print(f"  - `0x{va:08x}` `{name}`: `{cls} {typ}`")

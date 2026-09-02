@@ -20,6 +20,8 @@
 extern int  (*_padFuncChkEng)(unsigned char *info);            /* dispatch slot: engine-busy? (0 = free) */
 extern void (*_padFuncClrInfo)(unsigned char *info);
 
+/* SYM-GLOBAL-CARRIER: _actcur -- PADCOMMAND.obj-private BSS cursor; the exact
+ * retail VA and addressing mode are proven by the reconstruction receipt. */
 static unsigned char *_actcur __attribute__((section(".bss")));
                                  /* @0x8014859C : actuator-descriptor write cursor.
                                   * MATCH (w51-a5): the oracle reaches it ABSOLUTE (`lui $at,%hi;

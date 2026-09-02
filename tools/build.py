@@ -369,6 +369,32 @@ PER_TU_FLAGS = {
     # This is the authentic object compiler identity, not a per-function seal.
     "recon/game/common/audiocmn.cpp":        {"g_value": "8"},
     "recon/game/psx/weather.cpp":           {"g_value": "8"},
+    # 2026-09-02 SYM source restoration: hrzsku.obj owns real 8-byte
+    # `SVECTOR sunPosInSky` and `SVECTOR moonPosInSky` objects.  The old -G4
+    # reconstruction split each into four invented short globals so their
+    # fields remained gp-relative.  Restoring the aggregate declarations at
+    # -G4 holds 20/22 PASS but regresses Hrz_BuildSky (1) and Hrz_InitSky (40);
+    # -G8 restores both functions and the whole oracle-backed TU is 22/22 PASS
+    # with zero branch-distance/count divergences.  Exact pre-change tool backup:
+    # scratchpad/root_sym_audit/build.py.pre_hrzsku_g8_p765_backup.
+    "recon/game/psx/hrzsku.cpp":             {"g_value": "8"},
+    # 2026-09-02 SYM source restoration: textureprocess.obj owns the real
+    # 8-byte `FogKey *Fog_gCurrentKey[2]`.  The old -G4 source split it into
+    # two invented pointer globals plus an asm-label array view.  Honest array
+    # at -G4 holds 15/16 PASS but regresses Fog_InitFogTriggers by 18; -G8
+    # restores the complete TU to 16/16 PASS with zero branch divergence.
+    # Exact pre-change tool backup:
+    # scratchpad/root_sym_audit/build.py.pre_textureprocess_g8_p771_backup.
+    "recon/game/psx/textureprocess.cpp":      {"g_value": "8"},
+    # 2026-09-02 source/data restoration: the retail loading.obj and
+    # platform.obj small-data runs contain their ordinary 5-byte "back" and
+    # 7-byte "cdrom:" string literals.  At the project default -G4, honest
+    # literals pool into .rodata; -G8 puts them in .sdata without invented
+    # D_80... source arrays.  Full-TU gates, branch-distance checks, and both
+    # relink lanes are required receipts.  Exact pre-change tool backup:
+    # scratchpad/root_sym_audit/build.py.pre_statstimer_g8_p772_backup.
+    "recon/game/psx/loading.cpp":             {"g_value": "8"},
+    "recon/game/psx/platform.cpp":            {"g_value": "8"},
     # (r3dcar's g_value 8 lives on its existing jtbl_at_fusion entry below --
     # PER_TU_FLAGS is a dict literal, a duplicate key would silently discard
     # the earlier entry.)

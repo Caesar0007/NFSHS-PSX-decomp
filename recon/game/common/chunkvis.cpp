@@ -1,17 +1,16 @@
-/* game/common/chunkvis.cpp -- RECONSTRUCTED (INLINE/HEADER-ONLY TU; emits no real code or data)
+/* game/common/chunkvis.cpp -- reconstructed metadata-only translation unit
  *
- *   chunkvis.obj (sld: C:\nfs4\GAME\COMMON\CHUNKVIS.H) is a HEADER-ONLY translation unit: all of
- *   its content is inline functions that the compiler fully inlined into their call sites. The .obj
- *   contributes exactly ONE 4-byte symbol "Chunkvis" @0x8008b934 which is a single `nop` (verified
- *   in disasm-v2.txt: "0x7B934  nop", immediately preceding Clock_MasterInterruptHandler@0x8008b938)
- *   = link/alignment padding, NOT a real function:
- *     (1) disasm-v2.txt body = 1 instruction (nop), 4 bytes.
- *     (2) 0 callers anywhere in the image (only its own definition appears).
- *     (3) NOT present in the PsyQ SYM as an EXT function (no params/locals block).
- *     (4) sld attributes it to CHUNKVIS.H (a header), not a .CPP.
+ * The raw SYM has an exact chunkvis.obj FILE pair (records 0x206049 and
+ * 0x2086d7).  Its 401 interior records describe only the included type
+ * environment: tags, aggregate members/bit-fields, terminators, and typedefs.
+ * It has no function, SLD, EXT/STAT storage, or emitted code/data record.
  *
- *   There is no source-level code or data to emit. This stub records the finding for completeness.
+ * The nop at 0x8008b934 is Chunk_DeInit's return delay slot: Chunk_DeInit
+ * spans 0x8008b930..0x8008b938 and remains a 2-instruction PASS.  There is no
+ * retail symbol named Chunkvis at that address.  This empty source owner is
+ * retained because the metadata-only object is real; the exact original
+ * include spelling/order is not recoverable from the object records alone.
  */
 #include "chunkvis.h"
-/* (intentionally empty: no functions, no data) */
+/* Intentionally no functions or storage: that is the retail object shape. */
 /* end of chunkvis.cpp */

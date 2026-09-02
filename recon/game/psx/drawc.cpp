@@ -3166,29 +3166,29 @@ void DrawC_PrimClip(matrixtdef *m,coorddef *t,Transformer_zObj *obj,Transformer_
 {
   int i;
   COORD16 *Nvertice;
-  u_char *u2;
-  COORD16 *vt2_00;
-  u_char *u2_00;
-  u_char *u1;
-  COORD16 *vt1;
-  COORD16 *vt2;
+  u_char *midUv12;
+  COORD16 *midVt12;
+  u_char *midUv20;
+  u_char *midUv01;
+  COORD16 *midVt01;
+  COORD16 *midVt20;
 
   /* These names do not correspond to distinct DrawC_PrimClip SYM declarations.
      They are retained only where the W72-W76 oracle experiments cited below prove
      that a natural direct/index spelling changes scheduling, GIV placement, or local
-     allocation.  u1/u2 are included explicitly because same-spelled nested UV-byte
-     locals would otherwise hide these pointer carriers from a name-only audit.
+     allocation.  The mid-edge names describe the corresponding generated
+     vertex/UV slots without pretending that SYM declared separate locals.
      SYM-CODEGEN-CARRIER: envmapUV_dst
      SYM-CODEGEN-CARRIER: ff
      SYM-CODEGEN-CARRIER: hi
      SYM-CODEGEN-CARRIER: overlayRaw
-     SYM-CODEGEN-CARRIER: u1
-     SYM-CODEGEN-CARRIER: u2
-     SYM-CODEGEN-CARRIER: u2_00
+     SYM-CODEGEN-CARRIER: midUv01
+     SYM-CODEGEN-CARRIER: midUv12
+     SYM-CODEGEN-CARRIER: midUv20
      SYM-CODEGEN-CARRIER: uvk
-     SYM-CODEGEN-CARRIER: vt1
-     SYM-CODEGEN-CARRIER: vt2
-     SYM-CODEGEN-CARRIER: vt2_00 */
+     SYM-CODEGEN-CARRIER: midVt01
+     SYM-CODEGEN-CARRIER: midVt12
+     SYM-CODEGEN-CARRIER: midVt20 */
 
   Nvertice = obj->Nvertex;
   if ((*(int *)&sd->ePmx0 == 0) && (*(int *)&sd->ePmx1 == 0)) {
@@ -3504,7 +3504,7 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
           }
         }
       }
-      /* W76-A7 (the '1876 vs 1877' missing insn): vt1's def lives AFTER the
+      /* W76-A7 (the '1876 vs 1877' missing insn): midVt01's def lives AFTER the
        * noSub guard -- retail's bnez fills its slot by eager-stealing this
        * addiu from the target thread (21B-5) and keeps `sw $t9,32($sp)` at
        * the target head; defined above the guard it was the backward-fill
@@ -3512,12 +3512,12 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
        * $v0` slot upstream flipped li-8/nop.  This one move closed the whole
        * W75 6-line "switch-dispatch" class: 49 -> 42, count 1876 -> 1877
        * EXACT. */
-      vt1 = &sd->vt3;
-      vt2 = &sd->vt5;
-      u1 = &sd->u3;
-      u2_00 = &sd->u5;
-      vt2_00 = &sd->vt4;
-      u2 = &sd->u4;
+      midVt01 = &sd->vt3;
+      midVt20 = &sd->vt5;
+      midUv01 = &sd->u3;
+      midUv20 = &sd->u5;
+      midVt12 = &sd->vt4;
+      midUv12 = &sd->u4;
       while( true ) {
         i = i - 1;
         if (i == -1) break;
@@ -3589,14 +3589,14 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
         sd->v4 = (u_char)((int)((u_int)sd->v1 + (u_int)sd->v2 + 1) >> 1);
         sd->u5 = (u_char)((int)((u_int)sd->u2 + (u_int)sd->u0 + 1) >> 1);
         sd->v5 = (u_char)((int)((u_int)sd->v2 + (u_int)sd->v0 + 1) >> 1);
-        DrawC_DividePrim(&sd->vt0,vt1,vt2,(u_short *)&sd->u0,(u_short *)u1,
-                   (u_short *)u2_00,pmx,sd);
-        DrawC_DividePrim(vt1,&sd->vt1,vt2_00,(u_short *)u1,(u_short *)&sd->u1,
-                   (u_short *)u2,pmx,sd);
-        DrawC_DividePrim(vt2,vt2_00,&sd->vt2,(u_short *)u2_00,(u_short *)u2,
-                   (u_short *)&sd->u2,pmx,sd);
-        DrawC_DividePrim(vt2,vt1,vt2_00,(u_short *)u2_00,(u_short *)u1,
-                   (u_short *)u2,pmx,sd);
+        DrawC_DividePrim(&sd->vt0,midVt01,midVt20,(u_short *)&sd->u0,
+                   (u_short *)midUv01,(u_short *)midUv20,pmx,sd);
+        DrawC_DividePrim(midVt01,&sd->vt1,midVt12,(u_short *)midUv01,
+                   (u_short *)&sd->u1,(u_short *)midUv12,pmx,sd);
+        DrawC_DividePrim(midVt20,midVt12,&sd->vt2,(u_short *)midUv20,
+                   (u_short *)midUv12,(u_short *)&sd->u2,pmx,sd);
+        DrawC_DividePrim(midVt20,midVt01,midVt12,(u_short *)midUv20,
+                   (u_short *)midUv01,(u_short *)midUv12,pmx,sd);
         }
       }
     return;
@@ -4811,7 +4811,7 @@ void DrawC_PrimHalo(matrixtdef *m,coorddef *t,Transformer_zObj *obj,int type,int
      the oracle keeps in that register. */
   int i;
   COORD16 *vertice;
-  int uVar8; /* SYM-CODEGEN-CARRIER: uVar8 -- in-place real_type reuse is FAIL 97 (295/298) */
+  int flareType; /* SYM-CODEGEN-CARRIER: flareType -- in-place real_type reuse is FAIL 97 (295/298) */
 
   vertice = obj->vertex;   /* oracle: lw fp,0x10(obj) = ->vertex */
   TrsProj_SetTransPrecision(8);
@@ -5085,16 +5085,16 @@ gte_ldv3((char *)sd + 0xac,(char *)sd + 0xb4,(char *)sd + 0xbc);
     }
     /* the flare-type byte lives in the dead `m` register ($s0) in retail -- an
        anonymous cc1 temp, so no SYM name; the value is `real_type & 0xff`. */
-    uVar8 = real_type & 0xff;
+    flareType = real_type & 0xff;
     if (((overlayFlag & 3) != 1) && ((((u_int)type) & 0x7f00) != 0)) {
       real_type = real_type >> 8;
 DrawCHalo_emitFlare:
-      uVar8 = real_type & 0xff;
+      flareType = real_type & 0xff;
     }
     copyLastPrim = (sd->head).cprim.LastPrim;
     (sd->head).cprim.LastPrim = sd->sub_ot;
-    Flare_CarShapedHalo(uVar8,&sd->vt0,&sd->vt1,&sd->vt2,facet->flag,sd->otz,(Draw_FlareCache *)sd);
-    if (((0 < reflect) || ((reflect == -1 && (uVar8 == 5)))) || ((reflect == -2 && (uVar8 != 5)))) {
+    Flare_CarShapedHalo(flareType,&sd->vt0,&sd->vt1,&sd->vt2,facet->flag,sd->otz,(Draw_FlareCache *)sd);
+    if (((0 < reflect) || ((reflect == -1 && (flareType == 5)))) || ((reflect == -2 && (flareType != 5)))) {
 gte_SetRotMatrix(((char *)sd + 0x14));
 gte_SetTransMatrix(((char *)sd + 0x14));
       Flare_CarShapedHalo(real_type & 0xff | 0x100,&sd->vt0,&sd->vt1,&sd->vt2,facet->flag,sd->otz,
@@ -5426,18 +5426,18 @@ void DrawC_SpotPrims(matrixtdef *m,coorddef *t,Draw_CarCache *sd)
 gte_SetRotMatrix(((char *)sd + 0x14));
 gte_SetTransMatrix(((char *)sd + 0x14));
   {
-    DR_MODE *pDVar7; /* SYM-CODEGEN-CARRIER: pDVar7 -- separate mode-packet pointer; reusing outer prim is part of a FAIL 74 (227/225) rewrite */
+    DR_MODE *drawMode; /* SYM-CODEGEN-CARRIER: drawMode -- separate mode-packet pointer; reusing outer prim is part of a FAIL 74 (227/225) rewrite */
     u_long *ot;
-    pDVar7 = (DR_MODE *)(sd->head).cprim.PrimPtr;
+    drawMode = (DR_MODE *)(sd->head).cprim.PrimPtr;
     ot = (sd->head).cprim.LastPrim;
     sd->otz = 0;
-    (sd->head).cprim.PrimPtr = (char *)(pDVar7 + 1);
+    (sd->head).cprim.PrimPtr = (char *)(drawMode + 1);
     {
-      u_int *puVar8 /* SYM-CODEGEN-CARRIER: puVar8 -- distinct OT-cell address; mutating ot is part of FAIL 74 (227/225) */ = (u_int *)(ot + sd->otz);
-      ((P_TAG *)pDVar7)->addr = *puVar8 & 0xffffff;
-      ((P_TAG *)puVar8)->addr = (u_int)pDVar7 & 0xffffff;
+      u_int *otEntry /* SYM-CODEGEN-CARRIER: otEntry -- distinct OT-cell address; mutating ot is part of FAIL 74 (227/225) */ = (u_int *)(ot + sd->otz);
+      ((P_TAG *)drawMode)->addr = *otEntry & 0xffffff;
+      ((P_TAG *)otEntry)->addr = (u_int)drawMode & 0xffffff;
     }
-    SetDrawMode(pDVar7,0,0,0x120,(RECT *)0x0);
+    SetDrawMode(drawMode,0,0,0x120,(RECT *)0x0);
   }
   {
     short *z = (short *)&Fe3D_spotVertex[0x20];
@@ -5501,15 +5501,15 @@ gte_SetTransMatrix(((char *)sd + 0x14));
     }
   }
   {
-    DR_MODE *pDVar7 = (DR_MODE *)(sd->head).cprim.PrimPtr;
+    DR_MODE *drawMode = (DR_MODE *)(sd->head).cprim.PrimPtr;
     u_long *ot = (sd->head).cprim.LastPrim;
-    (sd->head).cprim.PrimPtr = (char *)(pDVar7 + 1);
+    (sd->head).cprim.PrimPtr = (char *)(drawMode + 1);
     {
-      u_int *puVar8 = (u_int *)(ot + sd->otz);
-      ((P_TAG *)pDVar7)->addr = *puVar8 & 0xffffff;
-      ((P_TAG *)puVar8)->addr = (u_int)pDVar7 & 0xffffff;
+      u_int *otEntry = (u_int *)(ot + sd->otz);
+      ((P_TAG *)drawMode)->addr = *otEntry & 0xffffff;
+      ((P_TAG *)otEntry)->addr = (u_int)drawMode & 0xffffff;
     }
-    SetDrawMode(pDVar7,0,1,0x120,(RECT *)0x0);
+    SetDrawMode(drawMode,0,1,0x120,(RECT *)0x0);
   }
   return;
 }

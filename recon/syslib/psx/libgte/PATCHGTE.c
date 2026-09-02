@@ -43,6 +43,9 @@ extern void FlushCache(void);             /* libapi C68 */
 /* @0x80106500 : GTE exception-handler patch template (match-half + fix-half).
  * Must be an initialized .rodata/.data table so the loop bounds &[0]/&[6]/&[12] resolve;
  * the handwritten loops reference it as func_80106500 / D_80106518 / D_80106530. */
+/* SYM-GLOBAL-CARRIER: _gte_patch_text -- the target asm alias names the
+ * relocation-proven code-as-data template; retail SYM has no declaration row
+ * for this private handwritten-object symbol. */
 #if defined(__mips__)
 extern const unsigned _gte_patch_text[13];   /* w48-a8: defined in the __asm__ block below */
 #else
@@ -55,6 +58,8 @@ const unsigned _gte_patch_text[13] = {
 
 #if defined(__mips__)
 /* @0x8014898C : scratch word holding $ra across the helper calls (handwritten spill). */
+/* SYM-GLOBAL-CARRIER: _patch_gte_ra_save -- exact-VA private scratch storage;
+ * the stripped handwritten object has no corresponding SYM declaration. */
 int _patch_gte_ra_save;
 
 /* @0x80106454 : _patch_gte -- handwritten.  Double `.set noreorder` (tab form disables

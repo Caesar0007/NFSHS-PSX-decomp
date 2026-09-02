@@ -992,13 +992,13 @@ CPE's 3,478 load commands span exactly 0x80010000–0x8013dd7c, the initialized
 image extent recorded by `_text_obj`/`_text_objend`.  Empty ctor/dtor/textpsx
 and frontend sdata/sbss families are preserved as zero-sized linker metadata.
 
-Only 10 of these names are carried in `configs/symbol_addrs.txt`; the other
-117 are linker-output boundary aliases or absolute size values with no current
-source relocation consumer.  They are deliberately not fabricated as C
-globals or forced into the reconstructed linker: doing so would confuse
-linker-generated metadata with original source declarations and provides no
-layout evidence beyond the now-complete retail ledger.  There are zero
-conflicting config carriers.
+Fourteen of these names are carried exactly in `configs/symbol_addrs.txt`.
+The other 113 are now explicit non-allocating `PROVIDE` declarations in
+`linkers/retail_data_symbols.ld`. They remain linker-output boundary aliases
+or absolute size values, not fabricated C globals: `PROVIDE` allocates no
+storage and yields to any future exact source/linker definition. The combined
+config/linker declaration surface is 127/127 name-and-value exact, with zero
+conflicting carriers and both relink lanes green.
 
 ### L2 — Resolved public/address record set (`0x02`, 4,503 records)
 
@@ -5493,6 +5493,157 @@ zero order inversions, 466 units have zero wrong call targets, vtable and
 source-policy audits pass, and the exhaustive audit compiles 518/518 TUs and
 exactly owns all 3,491 oracle names. Evidence is retained in
 `psyq_private_storage_and_stcdint_p430_20260831.md` and its JSON receipts.
+
+### P757 — `chunkvis.obj` metadata-only source home (`2026-09-02`)
+
+The raw SYM FILE pair at record offsets `0x206049..0x2086D7` owns 401
+interior records. Exhaustive classing proves all 401 are included type-graph
+metadata: 41 struct tags, one union tag, 204 members, four union members, 13
+bit-fields, 42 aggregate terminators, and 96 typedefs. It has zero functions,
+SLD spans, labels, or `EXT`/`STAT` storage definitions. The project therefore
+correctly retains `recon/game/common/chunkvis.cpp` as an empty, metadata-only
+translation unit.
+
+The former reconstructed comment incorrectly described inlined functions and
+invented a `Chunkvis` symbol at `0x8008B934`. The compact symbols, typed SYM,
+MAP, and config contain no such symbol. Raw instructions prove that word is
+the return delay-slot `nop` of the preceding `Chunk_DeInit__Fv`, whose interval
+is `0x8008B930..0x8008B938` and whose detailed gate remains PASS at 2/2.
+After the comment correction, the rebuilt `chunkvis.cpp.o` still has empty
+`.text`, `.data`, and `.bss` sections. The exact original include spelling and
+order are not uniquely recoverable from duplicate type records, so that narrow
+provenance question remains in T1 rather than being replaced by an invented
+body. Evidence is retained in
+`chunkvis_obj_source_home_p757_20260902.md`.
+
+The improved object census generalizes this result: 11 formerly opaque owners
+are pure type-graph objects (`aispeech`, `chunkvis`, `Ddvfont`, `debug`,
+`Draw2`, `filedbg`, `nfs2mem`, `profile`, `Fecntl`, `cache`, and `vsprintf`).
+Each has a reconstructed TU and each rebuilt object has zero `.text`, `.data`,
+and `.bss` program bytes. See `sym_object_member_census_p758_20260902.md`.
+
+### P759 — duplicate file-static `locaterequest` names restored (`2026-09-02`)
+
+Compact SYM independently records two file-static functions named
+`locaterequest`: `nasync.obj @ 0x800F0BF4` and `stream.obj @ 0x800FC4E4`.
+The latter was reconstructed as `func_800FC4E4` solely because the verifier
+selected oracle files by identifier. The stream declaration, definition, and
+call site now use the exact retail spelling; the synthetic address-name has
+been removed from all reconstructed C/C++ source and inventory headers.
+
+`tools/verify_asm.py` now accepts a diagnostic-only `name@VA` selector and has
+an explicit `(owning TU, static name) -> retail VA` routing table for whole-TU
+gates. This selects the correct immutable oracle without changing compiler,
+assembler, linker, or post-compile output. Its exact pre-change file is backed
+up as `verify_asm.py.pre_duplicate_static_p759_backup`.
+
+Detailed gates preserve stream `locaterequest` PASS at 25/25, nasync
+`locaterequest` PASS at 23/23, and `STREAM_cancelrequest` PASS at 173/173.
+The entire stream TU is 32/32 PASS. Both object symbol tables now emit local
+`locaterequest` labels, and both relink lanes remain GREEN with zero real
+duplicates, hidden phantoms, or relocation-referenced unresolved symbols.
+Receipt: `stream_duplicate_locaterequest_relink_p759_20260902.json`.
+
+### P764 — compact-only source-home closure (`2026-09-02`)
+
+The exhaustive compact ledger no longer leaves any opcode-2/opcode-6 record
+outside a reviewed source disposition.  All 34 compact-only rows that lack a
+config VA and exact typed/debug owner now have evidence-carrying entries in
+`scratchpad/root_sym_audit/compact_source_homes.json`; the generated P764
+ledger reports 34 source-restored and zero compact-only backlog rows.
+
+This round restores `bigfilename` to `locatbig.obj`, restores
+`Copspeak_gTimeString` as a function-local static in `CopSpeak_Debug`, replaces
+the `systemtasksubs` asm storage device with the matched-source ordinary C
+`static SYSTEM_TASK_SUB[16]`, removes forced assembler names from Newton's two
+function-local `dummy` objects, and makes the five shared `SQV*` declarations
+pointer-typed and byte-order exact.  The `SQV*` objects now emit offsets
+`0x00/04/08/0C/10`, matching compact SYM exactly.
+
+All affected TU/function gates remain PASS; both relink lanes are GREEN.  The
+full build completes at its existing 1,239,008-byte size, still 32 bytes short
+of retail, so compact-source closure is not a claim of whole-project SYM/SLD or
+binary completion.  Detailed evidence:
+`compact_only_source_closure_p764_20260902.md`.
+
+### P766 — `hrzsku.obj` real `SVECTOR` statics restored (`2026-09-02`)
+
+Retail SYM describes `sunPosInSky` and `moonPosInSky` as two file-static
+8-byte `SVECTOR` objects.  The reconstruction instead used eight invented
+`short` globals (`*_vx`, `*_vy`, `*_vz`, `*_pad`) to keep their field stores
+gp-relative under the project-wide `-G4` default.
+
+Both aggregates are now restored directly as `static SVECTOR`.  A whole-TU
+compiler-identity probe gives the decisive result: honest aggregates at `-G4`
+hold 20/22 PASS but regress `Hrz_BuildSky` by 1 and `Hrz_InitSky` by 40;
+the same source at TU-wide `-G8` returns `hrzsku.cpp` to 22/22 PASS with zero
+branch-offset/count divergences.  The rebuilt object emits local 8-byte
+`sunPosInSky` and `moonPosInSky` symbols.  The strict game/psx SYM audit remains
+clean (395/395 functions mapped, 0 local/global/type/storage findings), and
+both relink lanes remain GREEN.
+
+`configs/symbol_addrs.txt` now uses the retail-exact `moonPosInSky` spelling
+instead of the obsolete split-field alias.  Consequently the P766 raw ledger
+moves that compact STATIC row from VA-alias-only to exact-name+VA coverage
+(opcode 6 exact 147 -> 148, alias-only 38 -> 37).  Evidence:
+`scratchpad/root_sym_audit/hrzsku_sym_aggregate_p766_20260902.md`.
+
+### P767 — `TransformVector` static C++ spelling restored (`2026-09-02`)
+
+`screencarselect.cpp` previously forced the file-static helper's assembler
+label to the shortened `TransformVector`, even though compact SYM records the
+normal GCC-v2 spelling `TransformVector__FRA4_iRA4_A4_iT0`.  The asm label is
+removed; an ordinary static C++ declaration now emits the exact retail symbol
+naturally.  `configs/symbol_addrs.txt` carries the exact mangled spelling.
+
+The immutable oracle file retains its historical short filename, so
+`tools/verify_asm.py` has one documented TU+symbol-to-file-stem diagnostic
+route.  This changes no compiler or output bytes.  The helper remains PASS at
+57 instructions, the entire TU is 59/59 PASS, branch divergence is zero, and
+the rebuilt object emits a local 0xE4-byte exact-name symbol.  Both relink
+lanes remain GREEN.  The P767 raw ledger moves a second compact STATIC row to
+exact coverage (opcode 6 exact 149, alias-only 36).  Receipt:
+`scratchpad/root_sym_audit/transformvector_sym_exact_p767_20260902.md`.
+
+### P774 — game/PSX global storage and literal closure (`2026-09-02`)
+
+The strict game/psx audit's explicit source-only global/data-layout carrier
+count is now zero. Real SYM aggregate/array declarations replace the split
+storage models for the three sky vectors, four weather server arrays, three
+night arrays, and `Fog_gCurrentKey[2]`. Proven object-wide `-G8` compiler
+identities preserve the existing detailed matches without fabricated element
+symbols or assembler-label array views.
+
+The last two address-named literal carriers are also gone. Ordinary `"back"`
+and `"cdrom:"` expressions under `-G8`, joined with declaration placement,
+rebuild the exact retail small-data offsets in `loading.obj` and
+`platform.obj`. All 11 affected functions remain PASS. `StatsTimer[2]`
+retains one explicitly measured two-cell compatibility carrier because honest
+array probes regress already-PASS overlays/replay functions; its source-facing
+names are semantic, and `D_8013D99C` remains only an assembler linkage label.
+
+This does not close the larger source-restoration goal: the strict game/psx
+report still contains 396 function-local codegen carriers, and the other
+source directories retain their own local/global/type/SLD queues. Detailed
+evidence is in
+`scratchpad/root_sym_audit/game_psx_global_storage_cleanup_p774_20260902.md`.
+
+### P775 — game/PSX codegen-carrier naming cleanup (`2026-09-02`)
+
+Forty-one necessary source-only compiler carriers across ten game/PSX
+translation units now use semantic identifiers instead of live
+decompiler-placeholder names. This is deliberately not a count reduction:
+the strict report still exposes all 396 carriers, because renaming a matching
+carrier does not turn it into a retail SYM local.
+
+The regenerated strict audit remains clean for 395/395 functions and all 302
+object-owned data records. The ten affected TUs are 228/228 PASS with zero
+branch-distance divergences; both relink lanes are GREEN; vtable and
+source-only text-move audits pass. Remaining placeholder-pattern hits are
+historical comments naming rejected decompiler forms, not active declarations
+or expressions. Detailed evidence:
+`scratchpad/root_sym_audit/game_psx_codegen_name_cleanup_p775_20260902.md` and
+`scratchpad/root_sym_audit/game_psx_strict_p775_20260902.md`.
 
 ## Closure rule
 

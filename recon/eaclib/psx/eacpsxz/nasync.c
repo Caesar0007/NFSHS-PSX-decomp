@@ -27,6 +27,20 @@
 
 #include "../../../lib/nasync.h"
 
+/* Private nasync.obj state.  These exact compact-SYM names occupy
+ * 0x8013DE90..0x8013DEBF; there are no Def/Def2 records because this archive
+ * member was stripped.  Keep the declarations in the owning TU rather than
+ * exporting a fabricated shared-global surface from nasync.h. */
+static int readblocksize;           /* @0x8013DE90 */
+static int numrequests;             /* @0x8013DE94 */
+static AsyncReq *request;           /* @0x8013DE98 */
+static AsyncQueue freequeue;        /* @0x8013DEA0 */
+static AsyncQueue callqueue;        /* @0x8013DEA8 */
+static int asyncfilehandle;         /* @0x8013DEB0 */
+static int asyncfileoffset;         /* @0x8013DEB4 */
+static int requestidcounter;        /* @0x8013DEB8 */
+static void *mutex;                 /* @0x8013DEBC */
+
 /* nasync's cop0 IRQ-disabled critical section: nasync.h declares ASYNC_enterCS/leaveCS as real
  * void->void functions, but the oracle INLINES the exact raw cop0 mfc0/mask/mtc0 sequence at every
  * call site (mask -0x402 clears SR bits 0x400+0x2, same constant nfile.c's FILE_CS_ENTER/LEAVE use) --
@@ -84,7 +98,6 @@ extern void queueadd(AsyncQueue *q, AsyncReq *n)
     n->next = 0;
     ASYNC_leaveCS(sr);
 }
-
 /* queuefetch @0x800F0B74 : pop the head of FIFO `q` (returns 0 if empty). */
 extern AsyncReq *queuefetch(AsyncQueue *q)
 {
@@ -558,13 +571,3 @@ extern int getasyncreadstatus(int id)
     queueadd(&freequeue, req);                         /* harvested -> recycle the slot */
     return st;
 }
-
- AsyncQueue freequeue;   /* @0x8013DEA0: SYM static FIFO {head,tail} */
- AsyncQueue callqueue;   /* @0x8013DEA8: SYM static FIFO {head,tail} */
- AsyncReq *request;      /* @0x8013DE98: request slot-pool base */
- int asyncfileoffset;    /* @0x8013DEB4: persistent segment-read offset */
- int numrequests;        /* @0x8013DE94: request-pool capacity */
- int readblocksize;      /* @0x8013DE90: per-chunk read size */
- void *mutex;            /* @0x8013DEBC: async-pool mutex handle */
- int asyncfilehandle;    /* @0x8013DEB0: open file handle for segment reads */
- int requestidcounter;   /* @0x8013DEB8: rolling request-ID counter */

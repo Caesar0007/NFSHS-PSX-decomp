@@ -1233,10 +1233,10 @@ void Newton_CalcDistToClosestPlayerCar(BO_tNewtonObj *n)
       n->simOptz = '\0';
     }
     if (1 < oldOptz) {
-      /* SYM-CARRIER: dummy -- ctags cannot tag a local static carrying asm/section
-         attributes; this is the exact SYM source name and retail static symbol.
-         Reconstructed line numbering changes GCC's generated suffix, so bind it. */
-      static coorddef dummy asm("dummy.124")
+      /* SYM's `dummy.124` is GCC's generated object spelling.  The original
+       * source declaration is the ordinary function-local static below; its
+       * numeric suffix is compiler state, not part of the C++ identifier. */
+      static coorddef dummy
         __attribute__((section(".bss.newton_dummy_124")));
 
       Cars_SetCarUpForHiRezSim((Car_tObj *)n);
@@ -1407,10 +1407,9 @@ void Newton_SetInitialSlicePositionOrientationEtc(BO_tNewtonObj *n,int slice,coo
     quadCenterY /= 4;
     n->groundElevation = quadCenterY;
   } else {
-    /* SYM-CARRIER: dummy -- ctags cannot tag a local static carrying asm/section
-       attributes; this is the exact SYM source name and retail static symbol.
-       Reconstructed line numbering changes GCC's generated suffix, so bind it. */
-    static coorddef dummy asm("dummy.133")
+    /* SYM's `dummy.133` is GCC's generated object spelling.  Keep the source
+     * identifier and scope; do not encode the generated suffix in source. */
+    static coorddef dummy
       __attribute__((section(".bss.newton_dummy_133")));
 
     if (stackSpeedUpEnbabledFlag != 0) {

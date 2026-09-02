@@ -46,6 +46,24 @@ extern int  printf(const char *fmt, ...);                             /* libc C6
  *   "libmcrd BIOS.cpp funcEvSp*"). Forcing `.data` placement bypasses maspsx's .lcomm/.comm
  *   sbss-eligibility check (it only fires on tentative-def commons) and reproduces the oracle's
  *   absolute form. */
+/* SYM-GLOBAL-CARRIER: _card_evhandle0
+ * SYM-GLOBAL-CARRIER: _card_evhandle1
+ * SYM-GLOBAL-CARRIER: _card_evhandle2
+ * SYM-GLOBAL-CARRIER: _card_evhandle3
+ * SYM-GLOBAL-CARRIER: _card_evhandle4
+ * SYM-GLOBAL-CARRIER: _card_evhandle5
+ * SYM-GLOBAL-CARRIER: _card_evhandle6
+ * SYM-GLOBAL-CARRIER: _card_evhandle7
+ * SYM-GLOBAL-CARRIER: _card_evflag0
+ * SYM-GLOBAL-CARRIER: _card_evflag1
+ * SYM-GLOBAL-CARRIER: _card_evflag2
+ * SYM-GLOBAL-CARRIER: _card_evflag3
+ * SYM-GLOBAL-CARRIER: _card_evflag4
+ * SYM-GLOBAL-CARRIER: _card_evflag5
+ * SYM-GLOBAL-CARRIER: _card_evflag6
+ * SYM-GLOBAL-CARRIER: _card_evflag7
+ * Retail's contiguous event-handle/flag run and every callback relocation
+ * prove these private BIOS objects; the stripped member has no SYM data rows. */
 static int          _card_evhandle0 __attribute__((section(".data"))) = 0;  /* @0x801489EC : OpenEvent handle, slot-0 IOE   */
 static int          _card_evhandle1 __attribute__((section(".data"))) = 0;  /* @0x801489F0 : OpenEvent handle, slot-0 error */
 static int          _card_evhandle2 __attribute__((section(".data"))) = 0;  /* @0x801489F4 : OpenEvent handle, slot-0 timeout */

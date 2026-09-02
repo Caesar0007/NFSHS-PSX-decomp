@@ -28,6 +28,10 @@ extern unsigned char  snd_reverb_table[];    /* reverb preset coefficient table 
  * block[+0] u16 = SPU reverb work-area size, [+2..0x41] = the 0x20 reverb coefficient regs.
  * VA proven from iSNDpsxfxinit @0x801002D8: `s0 = mode*0x42 + 0x80136E00`. (Old [512]={0} stub
  * had both the size and the content wrong.) */
+/* SYM-GLOBAL-CARRIER: snd_reverb_table -- the initialized 10 x 0x42-byte
+ * reverb coefficient table is present and relocation-proven in retail, but
+ * this stripped library object has no SYM declaration record for its private
+ * data name. */
 unsigned char snd_reverb_table[660] = {
     0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,

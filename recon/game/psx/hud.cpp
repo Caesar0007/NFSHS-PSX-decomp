@@ -1232,13 +1232,13 @@ void Hud_Init(void)
 void Hud_InitTables(void)
 
 {
-  tSmallCoordXY (*patVar1) [19]; /* SYM-CODEGEN-CARRIER: patVar1 -- shared table-base result funnel */
+  tSmallCoordXY (*positionTable) [19]; /* SYM-CODEGEN-CARRIER: positionTable -- shared table-base result funnel */
   
-  patVar1 = Hud_gElementPositions;
+  positionTable = Hud_gElementPositions;
   if (1 < HUD_GS_NUM_PLAYER_CARS) {
-    patVar1 = Hud_gElementPositions + 1;
+    positionTable = Hud_gElementPositions + 1;
   }
-  g1Player = *patVar1;
+  g1Player = *positionTable;
   return;
 }
 
@@ -3075,29 +3075,29 @@ void Hud_BuildNumbers(int player)
  * vars -- the index form `Hud_gMarkerColor[i] = Cars_gRaceCarList[i]->carInfo->HudColour` with
  * the Ghidra guard shape (cached count + do-while) strength-reduces to the oracle's exact
  * dual-giv loops and colors all three temps correctly.  Removing the cached count and
- * reading each global in the loop guard is FAIL 22 (46/40), so `iVar4` is retained as a
+ * reading each global in the loop guard is FAIL 22 (46/40), so `carCount` is retained as a
  * measured source-only carrier. */
 void Hud_InitMap(void)
 
 {
-  int iVar4; /* SYM-CODEGEN-CARRIER: iVar4 -- cached bound preserves the dual-GIV loop shape */
+  int carCount; /* SYM-CODEGEN-CARRIER: carCount -- cached bound preserves the dual-GIV loop shape */
   int i;
 
-  iVar4 = Cars_gNumRaceCars;
+  carCount = Cars_gNumRaceCars;
   i = 0;
   if (0 < Cars_gNumRaceCars) {
     do {
       *(int *)&Hud_gMarkerColor[i] = Cars_gRaceCarList[i]->carInfo->HudColour;
       i = i + 1;
-    } while (i < iVar4);
+    } while (i < carCount);
   }
-  iVar4 = Cars_gNumCopCars;
+  carCount = Cars_gNumCopCars;
   i = 0;
   if (0 < Cars_gNumCopCars) {
     do {
       *(int *)&Hud_gCopMarkerColor[i] = Cars_gCopCarList[i]->carInfo->HudColour;
       i = i + 1;
-    } while (i < iVar4);
+    } while (i < carCount);
   }
   return;
 }
@@ -3917,7 +3917,7 @@ void Hud_InitCdPlayer(void)
 void Hud_BuildCdPlayer(int type,int)
 
 {
-  int bVar2; /* SYM-CODEGEN-CARRIER: bVar2 -- direct condition spelling is FAIL 5 (474/475); this flag preserves retail's materialized $s0 join value */
+  int showCdPlayer; /* SYM-CODEGEN-CARRIER: showCdPlayer -- direct condition spelling is FAIL 5 (474/475); this flag preserves retail's materialized $s0 join value */
   int sec;
   /* MATCH (w75-a4): the two fold-const escape carriers for the Hud_BuildString x-args
    * (see the cluster-(4) receipt above the function).  NOT SYM locals -- both are
@@ -3925,7 +3925,7 @@ void Hud_BuildCdPlayer(int type,int)
    * exist only to keep fold-const.c's associate: block from splitting the two trees. */
   int dxk; /* SYM-CODEGEN-CARRIER: dxk -- fold-constant escape for the exact Hud_BuildString x tree */
   int scz; /* SYM-CODEGEN-CARRIER: scz -- paired fold-constant escape for the exact scroll subtraction tree */
-  u_int uVar5; /* SYM-CODEGEN-CARRIER: uVar5 -- direct PAD_state tests are part of the measured FAIL-5 direct-condition form; comma staging preserves the retail call-result web */
+  u_int padState; /* SYM-CODEGEN-CARRIER: padState -- direct PAD_state tests are part of the measured FAIL-5 direct-condition form; comma staging preserves the retail call-result web */
   int w;
   int tx;
   char *s;
@@ -3964,15 +3964,15 @@ void Hud_BuildCdPlayer(int type,int)
      * callee-saved reg ($s0, initialised by copying the known-zero dx reg at 800D6464, set
      * by `addiu $s0,$zero,1` at .L800D64E8 and tested `bnez $s0` at .L800D64EC), i.e. an
      * ANONYMOUS compiler temp -- so the source is the flat `||` chain assigned to a flag. */
-    bVar2 = (((HUD_GAME_TICKS < 0x240) || (((u_char)countdown < 4 && (Hud_BeTheCop == 0)))) ||
-        ((uVar5 = PAD_state(4), (uVar5 & 0x400) != 0 &&
+    showCdPlayer = (((HUD_GAME_TICKS < 0x240) || (((u_char)countdown < 4 && (Hud_BeTheCop == 0)))) ||
+        ((padState = PAD_state(4), (padState & 0x400) != 0 &&
          (HUD_DASH_SPLITSCREEN != 0)))) ||
-       ((uVar5 = PAD_state(0), (uVar5 & 0x400) != 0 &&
+       ((padState = PAD_state(0), (padState & 0x400) != 0 &&
         ((Hud_BeTheCop == 0 || (HUD_DASH_SPLITSCREEN != 0)))));
     /* oracle shape: nested if/goto (NOT a flattened || chain) -- gPadinfo.buf[0] gate
      * falls through to the buf[4] gate on failure, and a Hud_BeTheCop!=0 && splitscreen==0
      * combo also falls through instead of short-circuiting. §asm_pattern_catalog funnel class. */
-    if (!bVar2) {
+    if (!showCdPlayer) {
       if ((HUD_PAD_BUF[0].ID == '#') && (0xbf < HUD_PAD_BUF[0].data.negcon.leftshift)) {
         if ((Hud_BeTheCop != 0) && (HUD_DASH_SPLITSCREEN == 0)) goto HudCdPlay_checkBuf4;
         goto HudCdPlay_activateGate;
@@ -4658,23 +4658,23 @@ extern int D_8011321C[];
 
 /* ---- Hud_NextPlayer__Fi  [HUD.CPP:2862-2889] SLD-VERIFIED ----
  * FIXED (was 40 diffs, ours 85/oracle 89 -- 4 insns SHORT): the recon was missing the oracle's
- * `uVar5 = uVar5 ^ D_8011321C;` in-place update, done ONCE above the loop (the `xor s1,s1,v0`
+ * `direction = direction ^ D_8011321C;` in-place update, done ONCE above the loop (the `xor s1,s1,v0`
  * in the `blez a1,RETURN` branch's delay slot, overwriting $s1 in place -- NOT a fresh var) --
  * a real correctness/structure gap, not just coloring. The old per-iteration
- * `if (uVar5 == GameSetup_gData.reverseTrack)` re-tested a struct-field load every iteration;
+ * `if (direction == GameSetup_gData.reverseTrack)` re-tested a struct-field load every iteration;
  * the oracle loads D_8011321C ONCE (as the standalone alias, matching aiinit.cpp's precedent)
- * and XORs it into uVar5 itself (loop-invariant), tested as `uVar5 == 0` (XOR-equal) each
+ * and XORs it into direction itself (loop-invariant), tested as `direction == 0` (XOR-equal) each
  * iteration instead of re-comparing two live values. (A separate `direction` local -- the SYM's
  * declared-but-unused hint -- regressed 40->76 by giving the XOR result its OWN pseudo instead
- * of overwriting uVar5's; reverted to the in-place form.)
- * FURTHER: the outer OR-guard `if ((iVar1!=1)||(uVar5!=0)) {BODY} return -1;` produced the
+ * of overwriting direction's; reverted to the in-place form.)
+ * FURTHER: the outer OR-guard `if ((j!=1)||(direction!=0)) {BODY} return -1;` produced the
  * WRONG branch polarity (oracle's short-circuit tail is `bnez s1,BODY` / fallthrough `j
  * RETURN_NEG1`, ours was `beqz s1,RETURN_NEG1` -- De Morgan-equivalent but different bytes).
- * Rewrote as the early-return AND form `if((iVar1==1)&&(uVar5==0)) return -1;` -- matches the
+ * Rewrote as the early-return AND form `if((j==1)&&(direction==0)) return -1;` -- matches the
  * oracle's polarity, insn count went exact (89==89), 40->38. Two more polarity flips (De
  * Morgan, behavior-preserving) matched the remaining branches: `if(uVar3&4){ if(player==0)
- * return 8; return 7; }` -> `if(player!=0) return 7; return 8;` (38->32); `if(uVar5==0)
- * iVar1++ else iVar1--;` -> `if(uVar5!=0) iVar1-- else iVar1++;` (32->28).
+ * return 8; return 7; }` -> `if(player!=0) return 7; return 8;` (38->32); `if(direction==0)
+ * j++ else j--;` -> `if(direction!=0) j-- else j++;` (32->28).
  * RESIDUAL 28: oracle computes D_8011321C's ADDRESS speculatively in BOTH branch-delay-slots
  * leading into the loop-prep block (so $v0 already holds it when Cars_gNumCars is then forced
  * into $v1/$a1), because the ORIGINAL C's guard was the OR-short-circuit shape (address
@@ -4690,14 +4690,14 @@ int Hud_NextPlayer(int player)
   int j;
   int i;
   Car_tObj *carObj;
-  Car_tObj *carObj_00; /* SYM-CODEGEN-CARRIER: carObj_00 -- merging into carObj is FAIL 78 (87/89) */
+  Car_tObj *humanCar; /* SYM-CODEGEN-CARRIER: humanCar -- merging into carObj is FAIL 78 (87/89) */
   int direction;
 
   direction = (u_int)(0 < *(int *)((player << 2) + (int)Input_gLookBehind) !=
                          0 < HUD_DASH_WRONGWAY[player]);
-  carObj_00 = Cars_gHumanRaceCarList[player];
+  humanCar = Cars_gHumanRaceCarList[player];
   if (1 < Cars_gNumRaceCars) {
-    j = Stats_GetPosition(carObj_00);
+    j = Stats_GetPosition(humanCar);
     if ((j == 1) && (direction == 0)) {
       /* MATCH (w45-a7): zero-length VOLATILE asm = a reorg barrier, not a pin.  Without
        * it fill_simple_delay_slots grabs this block's `li v0,-1` out of the fall-through
@@ -4711,7 +4711,7 @@ int Hud_NextPlayer(int player)
     }
     i = 0;
     direction = direction ^ D_8011321C[0];
-    j = carObj_00->sortIndex;
+    j = humanCar->sortIndex;
     if (0 < Cars_gNumCars + -1) {
       do {
         if (direction != 0) {
@@ -4760,16 +4760,16 @@ int Hud_NextPlayer(int player)
  * (of 98).
  * SEALED w45-a7 (57 -> 6 -> PASS 98/98).  The "register-materialization floor" above was
  * WRONG -- it was two ordinary shape bugs:
- *  (1) PREP-BLOCK ORDER, mirror of the sibling Hud_NextPlayer: `iVar3 = 0; uVar4 ^=
- *      GameSetup_gData.reverseTrack; iVar1 = carObj_00->sortIndex;` must sit ABOVE the
+ *  (1) PREP-BLOCK ORDER, mirror of the sibling Hud_NextPlayer: `i = 0; direction ^=
+ *      GameSetup_gData.reverseTrack; j = humanCar->sortIndex;` must sit ABOVE the
  *      `0 < Cars_gNumCars-1` guard (retail materializes &GameSetup_gData FIRST, loads
  *      reverseTrack off it at +0x30 and lands the `xor` in the blez delay slot).  With the
  *      xor inside the guard, gcc loaded Cars_gNumCars first and the whole base/index
  *      register web rotated.  57 -> 6, count 97 -> 98 exact.
- *  (2) NO `iVar2 = iVar1 << 2` PRECOMPUTE: index the array directly
- *      (`iVar2 = (int)Cars_gSortedList[iVar1];`).  Retail's `sll` appears TWICE because
+ *  (2) NO precomputed shifted-index local: index the array directly
+ *      (`carObj = Cars_gSortedList[j];`).  Retail's `sll` appears TWICE because
  *      reorg eager-steals the merge block's first insn into the `bnez` delay slot and
- *      leaves a copy behind; a hand-carried `iVar2` (with the `iVar2 = 0` arm) emits a
+ *      leaves a copy behind; a hand-carried byte offset (with a zero-offset arm) emits a
  *      reg-reg copy instead of the second `sll`.  6 -> 0. */
 char * Hud_NextPlayerNameOrCarOrTime(int player)
 
@@ -4777,20 +4777,20 @@ char * Hud_NextPlayerNameOrCarOrTime(int player)
   int j;
   int i;
   Car_tObj *carObj;
-  Car_tObj *carObj_00; /* SYM-CODEGEN-CARRIER: carObj_00 -- merging into carObj is FAIL 59 (97/98) */
+  Car_tObj *humanCar; /* SYM-CODEGEN-CARRIER: humanCar -- merging into carObj is FAIL 59 (97/98) */
   int direction;
   
   direction = (u_int)(0 < Input_gLookBehind[player] != 0 < HUD_DASH_WRONGWAY[player]);
-  carObj_00 = Cars_gHumanRaceCarList[player];
+  humanCar = Cars_gHumanRaceCarList[player];
   if (1 < Cars_gNumRaceCars) {
-    j = Stats_GetPosition(carObj_00);
+    j = Stats_GetPosition(humanCar);
     if ((j == 1) && (direction == 0)) {
       return "";
     }
     {
       i = 0;
       direction = direction ^ HUD_GS_REVERSE_TRACK;
-      j = carObj_00->sortIndex;
+      j = humanCar->sortIndex;
       if (0 < Cars_gNumCars + -1) {
         do {
           if (direction != 0) {

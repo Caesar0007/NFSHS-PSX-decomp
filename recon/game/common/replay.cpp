@@ -251,8 +251,8 @@ void Replay_ResetReplay(void)
     i = i + -1;
     piVar2 = piVar2 + -1;
   } while (-1 < i);
-  StatsTimer = 0;
-  D_8013D99C = 0;
+  StatsTimerPlayer1Cell[0] = 0;
+  StatsTimerPlayer2Cell[0] = 0;
   return;
 }
 
@@ -621,8 +621,8 @@ void Replay_GetInterfaceKey(void)
       Replay_ReplayInterface.end = 1;
     }
     else if (Input_Interface(0x19,1) != 0) {
-      StatsTimer = 0;
-      D_8013D99C = 0;
+      StatsTimerPlayer1Cell[0] = 0;
+      StatsTimerPlayer2Cell[0] = 0;
       Replay_ReplayInterface.statsScreen = 1;
       AudioCmn_PlayPauseSound(4);
     }

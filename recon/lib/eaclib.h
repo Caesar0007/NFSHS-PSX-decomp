@@ -121,7 +121,6 @@ void scalematrix(int * arg0);   /* matrix */
 void queueadd(void * arg0);   /* nasync */
 void queuefetch(void * arg0);   /* nasync */
 void newrequestid(void * arg0);   /* nasync */
-void locaterequest(void * arg0);   /* nasync */
 void cancelrequest(void * arg0);   /* nasync */
 void finishrequest(void * arg0);   /* nasync */
 void loadfileclosecallback(int arg0);   /* nasync */
@@ -208,11 +207,10 @@ void inbetween(void * arg0);   /* stream */
 void decbufferusage(void * arg0);   /* stream */
 void getfreerequest(void * arg0);   /* stream */
 void queuerequest(void * arg0);   /* stream */
-// stream.c's slot-lookup helper @0x800FC4E4 is a file-static whose true SYM name is locaterequest
-// (nfs4-f-v3.txt) — the SAME real name as nasync.c's unrelated static locaterequest @0x800F0BF4
-// (line 124 above); two distinct EA statics sharing the name across TUs. Its C identifier is kept as
-// func_800FC4E4 only so verify_asm resolves it to the disambiguated func_800FC4E4.s oracle (the gate
-// keys identifier->.s, so both can't be "locaterequest"). Being static, it has no extern entry here.
+// stream.c's slot-lookup helper @0x800FC4E4 and nasync.c's unrelated helper @0x800F0BF4 are both
+// named locaterequest in the trusted compact SYM. Both are file-static, so neither has an extern
+// declaration in this aggregate public inventory. tools/verify_asm.py disambiguates the stream
+// oracle by its owning translation unit and retail VA without changing either source identifier.
 void freerequest(void * arg0);   /* stream */
 void filterchunk(void * arg0);   /* stream */
 void parsechunks(void * arg0);   /* stream */

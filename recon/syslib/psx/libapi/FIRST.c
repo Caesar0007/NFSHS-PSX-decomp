@@ -78,6 +78,13 @@ struct device_table {
 /* Canonical FIRST.obj exports only `firstfile`; neither private spelling is
  * preserved by the stripped object or retail SYM, so address placeholders are
  * used instead of presenting reconstruction-era semantic names as original. */
+/* SYM-GLOBAL-CARRIER: D_80148A7C
+ * SYM-GLOBAL-CARRIER: D_80148A80
+ * SYM-GLOBAL-CARRIER: D_80148A84_storage
+ * These are the fully measured private BSS run documented above.  Retail SYM
+ * has no declaration records for the private slots, so their address-derived
+ * spellings and exact layout remain explicit source-only reconstruction
+ * evidence rather than being presented as recovered source identifiers. */
 static int (*D_80148A7C)();          /* saved original device handler */
 static int D_80148A80;               /* canonical unused/padding word */
 static char D_80148A84_storage[40] __asm__("D_80148A84");

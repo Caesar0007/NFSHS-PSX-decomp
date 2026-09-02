@@ -1,0 +1,274 @@
+[
+  {
+    "va": "0x8013dd88",
+    "name": "lastX.64",
+    "source": "recon/game/common/camera.cpp",
+    "source_identifier": "lastX",
+    "scope": "Camera_UpdateTVCam function-local static int[2]",
+    "evidence": "numeric suffix proves function-local scope; camera owner/function references and 8-byte extent are exact; TU gate PASS"
+  },
+  {
+    "va": "0x8013dd90",
+    "name": "lastY.65",
+    "source": "recon/game/common/camera.cpp",
+    "source_identifier": "lastY",
+    "scope": "Camera_UpdateTVCam function-local static int[2]",
+    "evidence": "numeric suffix proves function-local scope; camera owner/function references and 8-byte extent are exact; TU gate PASS"
+  },
+  {
+    "va": "0x8013ddb0",
+    "name": "resethud.28",
+    "source": "recon/game/common/dashhud.cpp",
+    "source_identifier": "resethud",
+    "scope": "DashHUD_HUDCalc function-local static int",
+    "evidence": "numeric suffix proves function-local scope; SLD owner and live function references are exact; function remains PASS"
+  },
+  {
+    "va": "0x8013ddb4",
+    "name": "tick32.32",
+    "source": "recon/game/common/dashhud.cpp",
+    "source_identifier": "tick32",
+    "scope": "DashHUD_HUDCalc function-local static int",
+    "evidence": "numeric suffix proves function-local scope; adjacent resethud and declaration order identify the owner; dead storage is emitted without code changes"
+  },
+  {
+    "va": "0x8013dde4",
+    "name": "failtime.98",
+    "source": "recon/game/psx/device.cpp",
+    "source_identifier": "failtime",
+    "scope": "Device_Fail function-local static u_char[2]",
+    "evidence": "numeric suffix, SLD owner, two indexed byte references, and two-byte extent agree; function is PASS"
+  },
+  {
+    "va": "0x8013de00",
+    "name": "countdownTick.216",
+    "source": "recon/game/psx/hud.cpp",
+    "source_identifier": "countdownTick",
+    "scope": "Hud_Render321Go function-local static u_long",
+    "evidence": "numeric suffix, SLD owner, live tick arithmetic, and four-byte extent agree; function is PASS"
+  },
+  {
+    "va": "0x8013de60",
+    "name": "bighandle",
+    "source": "recon/eaclib/psx/eacpsxz/locatbig.c",
+    "source_identifier": "bighandle",
+    "scope": "file-static int",
+    "evidence": "compact STATIC name/address, adjacent locatbig-owned biglen, NFS2 locatbig source family, generated local BSS symbol, 7/7 TU PASS"
+  },
+  {
+    "va": "0x8013de90",
+    "name": "readblocksize",
+    "source": "recon/eaclib/psx/eacpsxz/nasync.c",
+    "source_identifier": "readblocksize",
+    "scope": "file-static int",
+    "evidence": "plain STATIC spelling, nasync-only references, generated local BSS symbol, and 23/23 nasync TU PASS"
+  },
+  {
+    "va": "0x8013de94",
+    "name": "numrequests",
+    "source": "recon/eaclib/psx/eacpsxz/nasync.c",
+    "source_identifier": "numrequests",
+    "scope": "file-static int",
+    "evidence": "plain STATIC spelling, nasync-only references, generated local BSS symbol, and 23/23 nasync TU PASS"
+  },
+  {
+    "va": "0x8013de98",
+    "name": "request",
+    "source": "recon/eaclib/psx/eacpsxz/nasync.c",
+    "source_identifier": "request",
+    "scope": "file-static AsyncReq pointer",
+    "evidence": "plain STATIC spelling, nasync request-pool semantics, generated local BSS symbol, and 23/23 nasync TU PASS"
+  },
+  {
+    "va": "0x8013dea0",
+    "name": "freequeue",
+    "source": "recon/eaclib/psx/eacpsxz/nasync.c",
+    "source_identifier": "freequeue",
+    "scope": "file-static AsyncQueue",
+    "evidence": "plain STATIC spelling, exact 8-byte head/tail queue shape, generated local BSS symbol, and 23/23 nasync TU PASS"
+  },
+  {
+    "va": "0x8013dea8",
+    "name": "callqueue",
+    "source": "recon/eaclib/psx/eacpsxz/nasync.c",
+    "source_identifier": "callqueue",
+    "scope": "file-static AsyncQueue",
+    "evidence": "plain STATIC spelling, exact 8-byte head/tail queue shape, generated local BSS symbol, and 23/23 nasync TU PASS"
+  },
+  {
+    "va": "0x8013deb0",
+    "name": "asyncfilehandle",
+    "source": "recon/eaclib/psx/eacpsxz/nasync.c",
+    "source_identifier": "asyncfilehandle",
+    "scope": "file-static int",
+    "evidence": "plain STATIC spelling, nasync-only file-operation references, generated local BSS symbol, and 23/23 nasync TU PASS"
+  },
+  {
+    "va": "0x8013deb4",
+    "name": "asyncfileoffset",
+    "source": "recon/eaclib/psx/eacpsxz/nasync.c",
+    "source_identifier": "asyncfileoffset",
+    "scope": "file-static int",
+    "evidence": "plain STATIC spelling, nasync-only segment-offset references, generated local BSS symbol, and 23/23 nasync TU PASS"
+  },
+  {
+    "va": "0x8013deb8",
+    "name": "requestidcounter",
+    "source": "recon/eaclib/psx/eacpsxz/nasync.c",
+    "source_identifier": "requestidcounter",
+    "scope": "file-static int",
+    "evidence": "plain STATIC spelling, nasync request-ID flow, generated local BSS symbol, and 23/23 nasync TU PASS"
+  },
+  {
+    "va": "0x8013debc",
+    "name": "mutex",
+    "source": "recon/eaclib/psx/eacpsxz/nasync.c",
+    "source_identifier": "mutex",
+    "scope": "file-static void pointer",
+    "evidence": "plain STATIC spelling, nasync allocation/lock flow, generated local BSS symbol, and 23/23 nasync TU PASS"
+  },
+  {
+    "va": "0x8013dec8",
+    "name": "SQVclue",
+    "source": "recon/eaclib/psx/eacpsxz/unbtree.c + recon/eaclib/psx/eacpsxz/unref.c",
+    "source_identifier": "SQVclue",
+    "scope": "shared tentative signed-char pointer, unbtree decompressor state",
+    "evidence": "plain compact spelling, exact common offset 0x00, signed-byte oracle loads, matched NFS2 EAC pointer type, and 1/1 plus 2/2 TU PASS"
+  },
+  {
+    "va": "0x8013decc",
+    "name": "SQVleft",
+    "source": "recon/eaclib/psx/eacpsxz/unbtree.c + recon/eaclib/psx/eacpsxz/unref.c",
+    "source_identifier": "SQVleft",
+    "scope": "shared tentative unsigned-char pointer, unbtree decompressor state",
+    "evidence": "plain compact spelling, exact common offset 0x04, byte-index oracle use, matched NFS2 EAC pointer type, and 1/1 plus 2/2 TU PASS"
+  },
+  {
+    "va": "0x8013ded0",
+    "name": "SQVright",
+    "source": "recon/eaclib/psx/eacpsxz/unbtree.c + recon/eaclib/psx/eacpsxz/unref.c",
+    "source_identifier": "SQVright",
+    "scope": "shared tentative unsigned-char pointer, unbtree decompressor state",
+    "evidence": "plain compact spelling, exact common offset 0x08, byte-index oracle use, matched NFS2 EAC pointer type, and 1/1 plus 2/2 TU PASS"
+  },
+  {
+    "va": "0x8013ded4",
+    "name": "SQVs",
+    "source": "recon/eaclib/psx/eacpsxz/unbtree.c + recon/eaclib/psx/eacpsxz/unref.c",
+    "source_identifier": "SQVs",
+    "scope": "shared tentative unsigned-char source pointer, unbtree decompressor state",
+    "evidence": "plain compact spelling, exact common offset 0x0c, cursor oracle use, matched NFS2 EAC pointer type, and 1/1 plus 2/2 TU PASS"
+  },
+  {
+    "va": "0x8013ded8",
+    "name": "SQVd",
+    "source": "recon/eaclib/psx/eacpsxz/unbtree.c + recon/eaclib/psx/eacpsxz/unref.c",
+    "source_identifier": "SQVd",
+    "scope": "shared tentative unsigned-char destination pointer, unbtree decompressor state",
+    "evidence": "plain compact spelling, exact common offset 0x10, postincrement byte-store oracle use, matched NFS2 EAC pointer type, and 1/1 plus 2/2 TU PASS"
+  },
+  {
+    "va": "0x8013dedc",
+    "name": "requestidcounter",
+    "source": "recon/eaclib/psx/eacpsxz/stream.c",
+    "source_identifier": "requestidcounter",
+    "scope": "file-static unsigned int",
+    "evidence": "plain STATIC spelling, independent stream request-ID flow, generated local BSS symbol, and 32/32 stream TU PASS"
+  },
+  {
+    "va": "0x8013dfc4",
+    "name": "corrPt.47",
+    "source": "recon/game/common/bworldSm.cpp",
+    "source_identifier": "corrPt",
+    "scope": "FindClosestQuad function-local static coorddef",
+    "evidence": "numeric suffix, SLD owner, live address references, and 12-byte coorddef extent agree; function is PASS"
+  },
+  {
+    "va": "0x8013dfd0",
+    "name": "lastOppVector.106",
+    "source": "recon/game/common/camera.cpp",
+    "source_identifier": "lastOppVector",
+    "scope": "Camera_OpponentLookBehind function-local static coorddef[2]",
+    "evidence": "numeric suffix, SLD owner, player-indexed references, and 24-byte extent agree; function is PASS"
+  },
+  {
+    "va": "0x8013e0d8",
+    "name": "dummy.124",
+    "source": "recon/game/common/newton.cpp",
+    "source_identifier": "dummy",
+    "scope": "Newton_CalcDistToClosestPlayerCar block-local static coorddef",
+    "evidence": "numeric suffix proves function-local scope; SLD owner and both address-taking calls agree; ordinary source identifier restored without asm label; link-only section anchor preserves retail VA; function remains PASS at 200 instructions"
+  },
+  {
+    "va": "0x8013e0e8",
+    "name": "dummy.133",
+    "source": "recon/game/common/newton.cpp",
+    "source_identifier": "dummy",
+    "scope": "Newton_SetInitialSlicePositionOrientationEtc block-local static coorddef",
+    "evidence": "numeric suffix proves function-local scope; SLD owner and both address-taking calls agree; ordinary source identifier restored without asm label; link-only section anchor preserves retail VA; function remains PASS at 275 instructions"
+  },
+  {
+    "va": "0x8013e0b0",
+    "name": "Copspeak_gTimeString.308",
+    "source": "recon/game/common/copspeak.cpp",
+    "source_identifier": "Copspeak_gTimeString",
+    "scope": "CopSpeak_Debug function-local static char[16]",
+    "evidence": "compiler-generated numeric suffix proves function-local scope; Copspeak prefix and terminal SLD region prove owner; next BSS symbol proves 16-byte extent; 27/27 TU PASS"
+  },
+  {
+    "va": "0x8013e940",
+    "name": "bigfilename",
+    "source": "recon/eaclib/psx/eacpsxz/locatbig.c",
+    "source_identifier": "bigfilename",
+    "scope": "file-static char[64]",
+    "evidence": "plain STATIC name proves file scope; 64-byte extent to systemtasksubs; EAC archive and BSS order plus semantic family identify locatbig.obj; generated local BSS symbol; 7/7 TU PASS"
+  },
+  {
+    "va": "0x8013e980",
+    "name": "systemtasksubs",
+    "source": "recon/eaclib/psx/eacpsxz/systask.c",
+    "source_identifier": "systemtasksubs",
+    "scope": "file-static SYSTEM_TASK_SUB[16]",
+    "evidence": "plain STATIC spelling and 0x100-byte extent prove owner/storage; matched NFS2 EAC source proves the four-word record array; generated local BSS size is exact and systask remains 3/3 PASS without asm storage"
+  },
+  {
+    "va": "0x8013e300",
+    "name": "strspc.42",
+    "source": "recon/game/common/track.cpp",
+    "source_identifier": "strspc",
+    "scope": "Track_MakeTrackPathName function-local static char[64]",
+    "evidence": "numeric suffix, SLD owner, returned formatting buffer, and 64-byte extent agree; function is PASS"
+  },
+  {
+    "va": "0x8013e340",
+    "name": "strspc.45",
+    "source": "recon/game/common/track.cpp",
+    "source_identifier": "strspc",
+    "scope": "Track_MakeTrackDataPathName function-local static char[64]",
+    "evidence": "numeric suffix, SLD owner, returned formatting buffer, and 64-byte extent agree; function is PASS"
+  },
+  {
+    "va": "0x8013e85c",
+    "name": "fogstrspc.36",
+    "source": "recon/game/psx/textureprocess.cpp",
+    "source_identifier": "fogstrspc",
+    "scope": "Fog_MakeTrackPathName function-local static char[64]",
+    "evidence": "numeric suffix, SLD owner, returned formatting buffer, and 64-byte extent agree; function is PASS"
+  },
+  {
+    "va": "0x800fc4e4",
+    "name": "locaterequest",
+    "source": "recon/eaclib/psx/eacpsxz/stream.c",
+    "source_identifier": "locaterequest",
+    "scope": "file-static function",
+    "evidence": "compact STATIC function name/address and owning stream call graph; TU+VA oracle routing; 32/32 TU PASS"
+  },
+  {
+    "va": "0x80052bf0",
+    "name": "flareextra.248",
+    "source": "recon/frontend/common/femenuoptions.cpp",
+    "source_identifier": "flareextra",
+    "scope": "tMenuItemSlidingMenu::Draw function-local static int",
+    "evidence": "numeric suffix, frontend-overlay address, SLD owner, and live fade-state references agree; function is PASS"
+  }
+]

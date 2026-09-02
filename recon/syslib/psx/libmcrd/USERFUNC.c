@@ -17,6 +17,11 @@ extern int printf(const char *fmt, ...);   /* libc C63 */
 
 typedef int (*UserFn)(void *args);
 
+/* SYM-GLOBAL-CARRIER: _uf_top
+ * SYM-GLOBAL-CARRIER: _uf_arg
+ * SYM-GLOBAL-CARRIER: _uf_func
+ * The fixed stack index, argument matrix, and callback vector are exact-VA
+ * relocation-backed private storage; no corresponding SYM rows survive. */
 static int    _uf_top __attribute__((section(".data"))) = -1;  /* @0x8013C2E0 : top-of-stack index (-1 = empty); .data (not .sdata) -> absolute addressing like aspsx, not maspsx -G4 gp-rel */
 static int    _uf_arg[4][4];       /* @0x80148A2C : per-slot 4-word argument scratch */
 static UserFn _uf_func[4];         /* @0x80148A6C : per-slot callback */

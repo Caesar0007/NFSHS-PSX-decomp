@@ -49,8 +49,10 @@
  *   CHUNK in ring buffer:  word0 tag (-1 wrap / -2 free / else stream-header id)  word1 (len | filterValue<<24)
  */
 
-/* ---- owning-TU defs for link-harness (extern-declared, never defined; BSS) ---- */
- unsigned int requestidcounter; /* @0x8013DEDC: stream.obj rolling request ID */
+/* stream.obj owns a distinct private counter.  It is not nasync.obj's
+ * same-spelled counter: compact SYM places this one at 0x8013DEDC and
+ * nasync's at 0x8013DEB8. */
+static unsigned int requestidcounter; /* @0x8013DEDC */
 
 /* ---- nfile op-queue backend (the layer this is built on) ---- */
 extern unsigned int FILE_open (char *name, unsigned int mode, unsigned int prio, unsigned int udata); /*@0x800EC...*/
@@ -73,9 +75,6 @@ extern char*strcpy (char *d, const char *s);                /* syslib C25 */
 extern char*strncpy(char *d, const char *s, int n);         /* syslib C26 */
 extern void*memcpy (void *d, const void *s, int n);         /* syslib C42 @0x800EAAC4 */
 extern void*memset (void *d, int c, int n);                 /* syslib C43 @0x800E4318 */
-
-/* shared async request-id counter (also bumped by nasync; high 24 bits, low byte = slot) */
-extern unsigned int requestidcounter;
 
 #define STRM_MAGIC 0x4D525453            /* 'STRM' little-endian */
 
@@ -122,13 +121,10 @@ extern unsigned int inbetween(unsigned int a, unsigned int b, unsigned int c); /
 extern int  decbufferusage(int s, int amount);                             /* @0x800FC374 */
 extern int *getfreerequest(int s);                                         /* @0x800FC400 */
 extern int  queuerequest(int s, int req);                                  /* @0x800FC478 */
-static int  func_800FC4E4(int s, unsigned int reqid);                          /* @0x800FC4E4; NOTE:
-    the trusted SYM (nfs4-f-v3.txt) names this locaterequest -- the SAME real name as the unrelated
-    file-static locaterequest() in nasync.c @0x800F0BF4 (two distinct EA statics that genuinely share
-    the descriptive name across TUs). verify_asm resolves an oracle .s purely by C identifier
-    (<identifier>.s), so both cannot be spelled `locaterequest` or this fn would silently gate against
-    nasync's oracle. The repo's disasm already disambiguated this VA's oracle to func_800FC4E4.s, so we
-    keep the C identifier func_800FC4E4 to track that .s filename; its true/SYM name is locaterequest. */
+static int  locaterequest(int s, unsigned int reqid);                         /* @0x800FC4E4; trusted
+    compact SYM name. This is unrelated to nasync.c's file-static locaterequest @0x800F0BF4; duplicate
+    static names in separate translation units are valid. Gate this body with locaterequest@800FC4E4
+    so tools/verify_asm.py selects the address-disambiguated oracle file. */
 extern int  freerequest(int s, int req);                                   /* @0x800FC548 */
 extern unsigned int filterchunk(int s, int chunk);                         /* @0x800FC5E4 */
 extern int  parsechunks(int s);                                            /* @0x800FC634 */
@@ -259,11 +255,11 @@ extern int queuerequest(int s, int req)
     return ret;
 }
 
-/* func_800FC4E4 : map a request id back to its slot, validating the slot index (low byte),
+/* locaterequest : map a request id back to its slot, validating the slot index (low byte),
  *   the full id, and that the slot is in use.  Returns the request pointer or 0.
  * MATCH: separate guard returns plus the empty one-shot boundary preserve the shared failure tail
  * while preventing gcc from folding the final active-slot test into a branch-to-success. */
-static int func_800FC4E4(int s, unsigned int reqid)
+static int locaterequest(int s, unsigned int reqid)
 {
     unsigned int *req;
     if (MI(s, 0xc) <= (int)(reqid & 0xff))     /* slot index out of range */
@@ -1267,7 +1263,7 @@ extern int STREAM_cancelrequest(int s, int reqid)
         return valid;
 
     sr = STREAM_enterCS();
-    req = func_800FC4E4(out[0], reqid);
+    req = locaterequest(out[0], reqid);
     /* MATCH: the oracle's block order is test-chain -> freerequest -> `ret=1` join -> the ACTIVE
      * block (the nested if/else spelling lays the `ret=1` join AFTER both active arms instead). */
     if (req == 0)

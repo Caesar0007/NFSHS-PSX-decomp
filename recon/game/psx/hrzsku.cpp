@@ -28,37 +28,20 @@ static u_long *starColors;    /* @0x8013d87c  SYM PTR ULONG (bss(zero)) */
 CHorizonSpec *Hrz_gTrackSpec;   /* @0x8013d888  (bss(zero)) */
 CSkySpec     *Sky_gTrackSpec;   /* @0x8013d88c  (bss(zero)) */
 SVECTOR      *gRngCoordTop;   /* @0x8013d890  (bss(zero)) */
-/* SYM-CARRIER: sunPosInSky
-   SYM-CARRIER: moonPosInSky
-   PER-FIELD SPLIT (wave-13, catalog per-element gp-rel lever): the oracle stores each
-   16-bit field of these three 8-byte SVECTORs via its OWN %gp_rel sub-symbol
-   (D_8013D894/96/98, D_8013DDF0/F2/F4, D_8013DDF8/FA/FC) -- an 8-byte struct under OUR
-   -G4 can never be gp-addressed (the old "genuine -G4 floor"), but four 2-byte SHORT
-   scalars each qualify individually, reproducing every `sh r,%gp_rel(...)($gp)` store;
-   address-takes (&sun/&moon/&lightning as SVECTOR*) still emit la %hi/%lo of the _vx
-   symbol exactly like the oracle's lui/addiu. DUALITY HAZARD (documented): the SVECTOR*
-   casts assume vx/vy/vz/pad stay contiguous+ordered in .sbss (true for gcc emission order;
-   original was a real SVECTOR under a bigger per-obj -G). Only this TU references them. */
-/* SYM-GLOBAL-CARRIER: Hrz_gLightningPosInSky_vx
-   SYM-GLOBAL-CARRIER: Hrz_gLightningPosInSky_vy
-   SYM-GLOBAL-CARRIER: Hrz_gLightningPosInSky_vz
-   SYM-GLOBAL-CARRIER: Hrz_gLightningPosInSky_pad */
-short Hrz_gLightningPosInSky_vx, Hrz_gLightningPosInSky_vy, Hrz_gLightningPosInSky_vz, Hrz_gLightningPosInSky_pad;   /* @0x8013d894 */
-static short sunPosInSky_vx, sunPosInSky_vy, sunPosInSky_vz, sunPosInSky_pad;    /* @0x8013ddf0 SYM: STAT SVECTOR */
-static short moonPosInSky_vx, moonPosInSky_vy, moonPosInSky_vz, moonPosInSky_pad; /* @0x8013ddf8 SYM: STAT SVECTOR */
-/* struct-typed views over the split fields: keeps the 1-insn %gp_rel stores AND restores
-   MEM_IN_STRUCT_P on each store (a scalar-symbol store is considered no-alias vs any
-   pointer deref by gcc-2.8, letting the next statement's gts->angle loads hoist ABOVE the
-   store -- the oracle's struct-field stores block that hoist). Offset-0 puns only (an
-   offset pun kills the bare-symbol gp macro). */
-#define SUNPOS  ((SVECTOR *)&sunPosInSky_vx)
-#define MOONPOS ((SVECTOR *)&moonPosInSky_vx)
-#define SUNPOS_VX  (((SVECTOR *)&sunPosInSky_vx)->vx)
-#define SUNPOS_VY  (((SVECTOR *)&sunPosInSky_vy)->vx)
-#define SUNPOS_VZ  (((SVECTOR *)&sunPosInSky_vz)->vx)
-#define MOONPOS_VX (((SVECTOR *)&moonPosInSky_vx)->vx)
-#define MOONPOS_VY (((SVECTOR *)&moonPosInSky_vy)->vx)
-#define MOONPOS_VZ (((SVECTOR *)&moonPosInSky_vz)->vx)
+/* Retail SYM names these as real 8-byte SVECTOR objects.  The TU-wide -G8
+   identity reproduces their gp-relative field accesses without split-field
+   source carriers. */
+SVECTOR Hrz_gLightningPosInSky;   /* @0x8013d894 SYM: EXT SVECTOR */
+static SVECTOR sunPosInSky;    /* @0x8013ddf0 SYM: STAT SVECTOR */
+static SVECTOR moonPosInSky;   /* @0x8013ddf8 SYM: STAT SVECTOR */
+#define SUNPOS  (&sunPosInSky)
+#define MOONPOS (&moonPosInSky)
+#define SUNPOS_VX  (sunPosInSky.vx)
+#define SUNPOS_VY  (sunPosInSky.vy)
+#define SUNPOS_VZ  (sunPosInSky.vz)
+#define MOONPOS_VX (moonPosInSky.vx)
+#define MOONPOS_VY (moonPosInSky.vy)
+#define MOONPOS_VZ (moonPosInSky.vz)
 static CVECTOR Hrz_gSaveCol[4];   /* @0x8013e380  (bss?) */
 
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
@@ -722,10 +705,9 @@ void Hrz_TextureQuad(DVECTOR *pt,char type,char bright,Draw_DCache *sd)
 
 /* ---- Hrz_SetLightingPosInSky__FP13DRender_tView  [HRZSKU.CPP:862-867] SLD-VERIFIED ----
  * SEALED 68/68 PASS (wave-13; was a 103-diff "accepted floor"). THREE stacked levers:
- * (1) the "-G4 floor" on the 8-byte Hrz_gLightningPosInSky SVECTOR fell to the PER-FIELD
- * SPLIT (see the definitions banner at the top of this file): each 2-byte short is
- * individually gp-eligible, reproducing the oracle's `sh r,%gp_rel(...)($gp)` one-insn
- * stores and freeing $s0 for the shared /8000 magic constant (frame 48->40, 1 saved reg).
+ * (1) the retail object uses an 8-byte small-data threshold.  TU-wide -G8 keeps the real
+ * Hrz_gLightningPosInSky SVECTOR gp-eligible, reproducing the oracle's one-instruction
+ * `sh r,%gp_rel(...)($gp)` stores and freeing $s0 for the shared /8000 magic constant.
  * (2) the Ghidra `(short)uVar1 + (short)(uVar1/8000)*-8000` soup is a plain UNSIGNED
  * modulo written INLINE with the call -- `(int)((u_int)random() % 8000)` -- SYM @40e6ef
  * shows NO named local (Vi + forwardVec only), so the random value is an anonymous temp:
@@ -739,11 +721,11 @@ void Hrz_SetLightingPosInSky(DRender_tView *Vi)
   coorddef forwardVec;
 
   forwardVec = *(coorddef *)&(Vi->cview).mrotation.m[6];
-  Hrz_gLightningPosInSky_vx = (forwardVec.x >> 2) + (int)((u_int)random() % 8000) + -4000;
+  Hrz_gLightningPosInSky.vx = (forwardVec.x >> 2) + (int)((u_int)random() % 8000) + -4000;
   /* MATCH: (u_int) cast on (fy>>2)+8000 = association barrier (fold otherwise re-attaches
      the constant to the mod term); value-identical, the sh store truncates to 16 bits */
-  Hrz_gLightningPosInSky_vy = (int)((u_int)((forwardVec.y >> 2) + 8000) + (u_int)random() % 3000);
-  Hrz_gLightningPosInSky_vz = (forwardVec.z >> 2) + (int)((u_int)random() % 8000) + -4000;
+  Hrz_gLightningPosInSky.vy = (int)((u_int)((forwardVec.y >> 2) + 8000) + (u_int)random() % 3000);
+  Hrz_gLightningPosInSky.vz = (forwardVec.z >> 2) + (int)((u_int)random() % 8000) + -4000;
   return;
 }
 
@@ -765,7 +747,7 @@ void Hrz_BuildForkLightning(Draw_DCache *sd)
     sd->otz = Draw_gViewOtSize + -2;
     memset(&trans,0,0xc);
     HrzSetPsxTranslation(&trans);
-    gte_ldv0((SVECTOR *)&Hrz_gLightningPosInSky_vx);
+    gte_ldv0(&Hrz_gLightningPosInSky);
     gte_rtps();
     gte_stsxy2(&screenPos);
     for (i = 0; i < (u_char)gHrz_Lightning.numForks; i = i + 1) {
@@ -2371,17 +2353,17 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
      SYM-CODEGEN-CARRIER: ch
      SYM-CODEGEN-CARRIER: cw
      SYM-CODEGEN-CARRIER: fo
-     SYM-CODEGEN-CARRIER: iVar15
-     SYM-CODEGEN-CARRIER: iVar18
+     SYM-CODEGEN-CARRIER: ringOffset
+     SYM-CODEGEN-CARRIER: nextRingOffset
      SYM-CODEGEN-CARRIER: m24
-     SYM-CODEGEN-CARRIER: pSVar12
+     SYM-CODEGEN-CARRIER: farCoord
      SYM-CODEGEN-CARRIER: pal
      SYM-CODEGEN-CARRIER: pp
      SYM-CODEGEN-CARRIER: q
      SYM-CODEGEN-CARRIER: shape_idx
      SYM-CODEGEN-CARRIER: shape_visible
      The two shape pointers are additionally proven by the natural hsd->array[i] rewrite:
-     it regresses 12 @473 to 24 @475.  Deriving iVar15/iVar18 directly from i regresses to
+     it regresses 12 @473 to 24 @475.  Deriving ringOffset/nextRingOffset directly from i regresses to
      156 @469 and changes the retail 128-byte frame to 120 bytes. */
 
   /* PSX scratchpad base (0x1F800000). Held in ONE local for the WHOLE function (not a
@@ -2431,7 +2413,7 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
     int i;                      /* SYM: nested "i" -- shadows the function-scope ring index */
     int farI, Zmax, dx, dy;
     int shape_visible, shape_idx;
-    SVECTOR *pSVar12;
+    SVECTOR *farCoord;
 
     Hrz_RotProj16(0x11,gRngCoordTop,(int *)((int)hsd + 0x124),(DVECTOR *)((int)hsd + 0x58));
     farI = 0;
@@ -2455,11 +2437,11 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
     /* MATCH (W74-A4, 34 -> 30): index-first INT sum (12D law) -- the oracle emits
        `sll a0,t0,3; addu a0,a0,v0` with the farI product as addu operand 0; the natural
        `gRngCoordTop + farI` is pointer arithmetic and is always rebuilt ptr-first. */
-    pSVar12 = (SVECTOR *)(farI * 8 + (int)gRngCoordTop);
-    updown[0].vx = pSVar12->vx;
+    farCoord = (SVECTOR *)(farI * 8 + (int)gRngCoordTop);
+    updown[0].vx = farCoord->vx;
     updown[0].vy = (short)Hrz_gTrackSpec->yoffset + (short)Hrz_gTrackSpec->height;
-    updown[0].vz = pSVar12->vz;
-    updown[1].vx = pSVar12->vx;
+    updown[0].vz = farCoord->vz;
+    updown[1].vx = farCoord->vx;
     updown[1].vy = (short)Hrz_gTrackSpec->yoffset;
     /* MATCH (W72-A4, -22): ZERO-INSN LIVE-RANGE fence that demotes the nested `i`.  The
        max-search loop's three globals price floor_log2(refs)*refs*4/live as
@@ -2470,7 +2452,7 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
        at the second loop's `i = 0` = 164); operand COUNT is inert (1/2/3 all 58).
        DO NOT DELETE. */
     __asm__("" : : "r"(i));
-    updown[1].vz = pSVar12->vz;
+    updown[1].vz = farCoord->vz;
     {
       /* SYM block line=55 (nested in line=30): a single {p_,s_} scope REUSED for both
          transforms -- straight-line "down" then "up" (not a loop; matches the oracle's
@@ -2566,13 +2548,13 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
          do-while (slti/bnez), which the oracle does not have. */
       while (true) {
         if (!(i < 0x10)) break;
-        int iVar15 = i * 4;
-        int iVar18 = i * 4 + 4;
-        if ((15999 < *(int *)((int)hsd + iVar15 + 0x124)) || (15999 < *(int *)((int)hsd + iVar18 + 0x124))) {
-          mpts[0] = *(DVECTOR *)((int)hsd + iVar15 + 0x9c);          /* posB[k] */
-          mpts[1] = *(DVECTOR *)((int)hsd + iVar15 + 0xe0);          /* posC[k] */
-          mpts[2] = *(DVECTOR *)((int)hsd + iVar18 + 0x58);    /* posA[k+1] */
-          mpts[3] = *(DVECTOR *)((int)hsd + iVar15 + 0x58);          /* posA[k] */
+        int ringOffset = i * 4;
+        int nextRingOffset = i * 4 + 4;
+        if ((15999 < *(int *)((int)hsd + ringOffset + 0x124)) || (15999 < *(int *)((int)hsd + nextRingOffset + 0x124))) {
+          mpts[0] = *(DVECTOR *)((int)hsd + ringOffset + 0x9c);          /* posB[k] */
+          mpts[1] = *(DVECTOR *)((int)hsd + ringOffset + 0xe0);          /* posC[k] */
+          mpts[2] = *(DVECTOR *)((int)hsd + nextRingOffset + 0x58);    /* posA[k+1] */
+          mpts[3] = *(DVECTOR *)((int)hsd + ringOffset + 0x58);          /* posA[k] */
           {
             /* MATCH: De Morgan direct form -- m2c shows this as an AND-of-4-ORs (each OR is
                the negation of "all 4 <0"/"all 4 lo<vx" etc), NOT the mathematically-equivalent
@@ -2620,13 +2602,13 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
             __asm__("" : "=r"(ch) : "0"(ch), "r"((int)mpts[0].vy));
             if ((short)ch >= mpts[0].vy || (short)ch >= mpts[1].vy ||
                  (short)ch >= mpts[2].vy || (short)ch >= mpts[3].vy) {
-              Horizon_InterpolateLineSCoords(&right,(DVECTOR *)(((int)hsd + 0x9c) + iVar15),
-                         (DVECTOR *)(((int)hsd + 0xe0) + iVar15),&fxOverlapPercentage,1,0);
-              pmx = *(Draw_tPixMap **)((int)gpPmx + iVar15);
+              Horizon_InterpolateLineSCoords(&right,(DVECTOR *)(((int)hsd + 0x9c) + ringOffset),
+                         (DVECTOR *)(((int)hsd + 0xe0) + ringOffset),&fxOverlapPercentage,1,0);
+              pmx = *(Draw_tPixMap **)((int)gpPmx + ringOffset);
               if (Hrz_gTrackSpec->ringPMX[i] != '\x10') {
                 int iv; /* SYM-CODEGEN-CARRIER: iv -- a fresh i*4 at this
                            colour-table site emits retail's independent sll.
-                           Reusing the strength-reduced iVar15 measures FAIL 3
+                           Reusing the strength-reduced ringOffset measures FAIL 3
                            at 472/473; this separate carrier is PASS 473. */
                 iv = i * 4;
                 /* MATCH (W74-A4, 50 -> 42): FENCED HELD-ADDRESS ANCHOR (05F / 14D /
@@ -2675,9 +2657,9 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
                 c1 = *(u_int *)(&gHrzRingColor[1][0].r + iv);
                 *pp = (u_char *)prim + 0x34;
                 *(u_int *)((u_char *)prim + 4) = c1;
-                *(u_int *)((u_char *)prim + 0x10) = *(u_int *)(&gHrzRingColor[1][1].r + iVar15);
-                *(u_int *)((u_char *)prim + 0x1c) = *(u_int *)(&gHrzRingColor[0][0].r + iVar15);
-                *(u_int *)((u_char *)prim + 0x28) = *(u_int *)(&gHrzRingColor[0][1].r + iVar15);
+                *(u_int *)((u_char *)prim + 0x10) = *(u_int *)(&gHrzRingColor[1][1].r + ringOffset);
+                *(u_int *)((u_char *)prim + 0x1c) = *(u_int *)(&gHrzRingColor[0][0].r + ringOffset);
+                *(u_int *)((u_char *)prim + 0x28) = *(u_int *)(&gHrzRingColor[0][1].r + ringOffset);
                 SetPolyGT4(prim);
                 *(u_int *)((u_char *)prim + 0xc) = *(u_int *)pmx;
                 *(u_int *)((u_char *)prim + 0x18) = ((u_int *)pmx)[1];
@@ -2690,17 +2672,17 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
                   /* MATCH: WORD copy -- a DVECTOR struct assignment emits the align-1
                      lwl/lwr+swl/swr quad; the oracle does one lw/sw pair. */
                   *(u_int *)((u_char *)prim + 8) = *(u_int *)&right;
-                  *(u_int *)((u_char *)prim + 0x14) = *(u_int *)((int)hsd + iVar15 + 0x9c);
-                  *(u_int *)((u_char *)prim + 0x20) = *(u_int *)((int)hsd + iVar15 + 0x5c);
-                  *(u_int *)((u_char *)prim + 0x2c) = *(u_int *)((int)hsd + iVar15 + 0x58);
+                  *(u_int *)((u_char *)prim + 0x14) = *(u_int *)((int)hsd + ringOffset + 0x9c);
+                  *(u_int *)((u_char *)prim + 0x20) = *(u_int *)((int)hsd + ringOffset + 0x5c);
+                  *(u_int *)((u_char *)prim + 0x2c) = *(u_int *)((int)hsd + ringOffset + 0x58);
                 }
                 else {
                   /* MATCH (W75-A8, 14 -> 12): INDEX-FIRST int sum (12D law) -- the oracle
-                     emits `addu v1,s2,s6` with iVar15 (=$s2) as addu operand 0.  W74 filed
+                     emits `addu v1,s2,s6` with ringOffset (=$s2) as addu operand 0.  W74 filed
                      this spelling "INERT in three basins (fold reassociates it back)"; it is
                      NOT inert once the two clip residuals are closed -- 04Z / catalog 23B(7)
                      re-pricing, worth 2 diffs and posmis 10 -> 9 here. */
-                  int q = iVar15 + (int)hsd;
+                  int q = ringOffset + (int)hsd;
                   __asm__("" : "=r"(q) : "0"(q));
                   *(u_int *)((u_char *)prim + 8) = *(u_int *)(q + 0x9c);
                   *(u_int *)((u_char *)prim + 0x14) = *(u_int *)&right;   /* MATCH: word copy, see above */

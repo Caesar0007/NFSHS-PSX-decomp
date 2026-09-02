@@ -33,6 +33,9 @@ extern int           CD_debug;    /* @0x8013BF50 */
 extern int           CD_cbsync;   /* @0x8013BF48 */
 extern int           CD_cbready;  /* @0x8013BF4C */
 
+/* SYM-GLOBAL-CARRIER: setloc -- canonical PsyQ 4.3 SYS.obj and retail bytes
+ * prove this private writable command table; no private SYM declaration row
+ * survives in the stripped library member. */
 /* SYS.OBJ local `setloc` @0x80136A18.  The archived PsyQ 4.3 object and
  * retail image carry the same writable 32-word table; it tells CdControl*
  * which commands need a preliminary CdlSetloc command. */

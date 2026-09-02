@@ -26,9 +26,21 @@ extern char *locatebigentryz    (void *buf, char *name, int index, int *offset, 
 extern char *locatebigentry     (void *buf, char *name, int index, int *offset, unsigned int *size);
 extern int   locatebigoffset    (void *buf, char *name);
 
-/* Public EACLIB scratch result; NFS2's matched locatbig.obj independently
- * confirms both the original name and unsigned type. */
+/* The compact SYM places a private, unreferenced 4-byte `bighandle` directly
+ * before public `biglen` (0x8013DE60/0x8013DE64).  It has no Def/Def2 record;
+ * the declaration survives in locatbig.obj although optimization removed all
+ * uses.  NFS2's matched locatbig source independently confirms the adjacent
+ * public `biglen` name and unsigned type. */
+static int bighandle;
 unsigned int biglen; /* @0x8013DE64: retail SYM/MAP public size result */
+
+/* Compact SYM: private `bigfilename` at 0x8013E940.  Its 0x40-byte extent
+ * reaches exactly to systask.obj's `systemtasksubs` at 0x8013E980.  The plain
+ * (unsuffixed) STATIC name proves file scope; the archive/section order and
+ * the adjacent locatbig-owned `bighandle`/`biglen` identify locatbig.obj as
+ * its source home.  It is retained by GCC even though retail code has no
+ * surviving reference to this legacy filename buffer. */
+static char bigfilename[64];
 
 /* ===================================================================== *
  *  typeofbigfile @0x800E5F1C : 1 (0xC0FB), 2 ("BIGF"), or 0 (not a BIG). *

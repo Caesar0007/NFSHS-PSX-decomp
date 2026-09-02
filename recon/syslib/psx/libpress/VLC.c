@@ -30,6 +30,11 @@ typedef unsigned short u_short;
  * (rd,wr,acc,bit,q,blk,dc0,dc1,dc2 -- 0x0/0x4/0x8/0xC/0x10/0x14/0x18/0x1C/0x20); _vlc_blksize and
  * _vlc_end are separate, independently-addressed globals (confirmed: each gets its own lui/addiu
  * pair in the oracle, never computed as an offset from _vlc_state). */
+/* SYM-GLOBAL-CARRIER: _vlc_blksize
+ * SYM-GLOBAL-CARRIER: _vlc_state
+ * SYM-GLOBAL-CARRIER: _vlc_end
+ * VLC.obj-private resumable state, with exact retail VAs and access shapes
+ * proven by the adjacent oracle-derived reconstruction. */
 static int      _vlc_blksize __attribute__((section(".data"))) = 0xffffff;  /* @0x801369E8 : output cells per slice; oracle refs ALL absolute lui/%hi (0 gp_rel) -> out of .sdata */
 static u_int    _vlc_state[9] __attribute__((section(".bss")));  /* @0x801369EC..80136A0C */
 static u_short *_vlc_end       __attribute__((section(".bss")));  /* @0x80136A10 : output slice end */

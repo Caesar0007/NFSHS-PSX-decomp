@@ -21,7 +21,7 @@
 void Fe3D_InitShowroom(void)
 
 {
-  int iVar1; /* SYM-CODEGEN-CARRIER: iVar1 -- direct-call algebra is FAIL 22 (105/107) and loses the retail staged return use */
+  int trigValue; /* SYM-CODEGEN-CARRIER: trigValue -- direct-call algebra is FAIL 22 (105/107) and loses the retail staged return use */
   long angle_sin;
   long angle_cos;
   short iPlus;
@@ -31,12 +31,12 @@ void Fe3D_InitShowroom(void)
   angle = 0;
   i = 0;
   do {
-    iVar1 = csin(angle);
-    Fe3D_spotVertex[i].x = (short)((((iVar1 << 4) << 1) + (iVar1 << 4)) >> 8);
+    trigValue = csin(angle);
+    Fe3D_spotVertex[i].x = (short)((((trigValue << 4) << 1) + (trigValue << 4)) >> 8);
     Fe3D_spotVertex[i].y = 0;
-    iVar1 = ccos(angle);
+    trigValue = ccos(angle);
     angle = angle + 0x80;
-    Fe3D_spotVertex[i].z = (short)((((iVar1 << 4) << 1) + (iVar1 << 4)) >> 8);
+    Fe3D_spotVertex[i].z = (short)((((trigValue << 4) << 1) + (trigValue << 4)) >> 8);
     i = i + 1;
   } while (i < 0x20);
   angle = 0;
@@ -102,7 +102,7 @@ void Draw_MenuRenderingView(Car_tObj *carObj,DRender_tView *Vi,int posX,int posY
                int camRot,float camY,float camZ,int light,int reflection)
 
 {
-  bool bVar1; /* SYM-CODEGEN-CARRIER: bVar1 -- direct showRoomFlag retest is FAIL 19 (237/234) */
+  bool inShowroom; /* SYM-CODEGEN-CARRIER: inShowroom -- direct showRoomFlag retest is FAIL 19 (237/234) */
   matrixtdef temp;
   matrixtdef temp1;
   matrixtdef temp2;
@@ -115,9 +115,9 @@ void Draw_MenuRenderingView(Car_tObj *carObj,DRender_tView *Vi,int posX,int posY
     posY = 0x8c;
   }
   TrsProj_SetMenuProjection(posX + -0x100,posY + -0x80,0x200,0x100);
-  bVar1 = showRoomFlag != 0;
+  inShowroom = showRoomFlag != 0;
   gMenuRotate[player] = gMenuRotate[player] + rotation;
-  if (bVar1) {                                            /* showroom camera (showRoomFlag != 0) */
+  if (inShowroom) {                                       /* showroom camera (showRoomFlag != 0) */
     camY = camY * 0.5f;
     targetPos.x = 0;
     targetPos.y = (int)(camY * 65536.0f);

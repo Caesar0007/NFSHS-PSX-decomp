@@ -45,8 +45,11 @@ extern Sim_tSimSystemVar  simVar;                    /* 0x8011e0c4 */
 extern Car_tObj          *Cars_gHumanRaceCarList[2];
 extern int                Cars_gNumHumanRaceCars;
 extern Input_tResults     Input_gSim;                /* per-frame fetched controller state */
-extern int                StatsTimer;       /* first timer word */
-extern int                D_8013D99C;  /* StatsTimer[1] retail alias */
+extern int                StatsTimer[2];
+/* Zero-storage constant-element views of the shared StatsTimer[2] object;
+   required by replay.obj's two independent gp-relative stores. */
+extern int                StatsTimerPlayer1Cell[1] asm("StatsTimer");
+extern int                StatsTimerPlayer2Cell[1] asm("D_8013D99C");
 extern GameSetup_tData    GameSetup_gData;
 extern char              *Paths_Paths[];             /* 0x80116468 */
 

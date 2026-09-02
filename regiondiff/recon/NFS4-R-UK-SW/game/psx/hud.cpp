@@ -292,18 +292,18 @@ void Hud_CreateHudViews(void)
     HudMapOffsetY = 0;
   }
   if (HUD_GS_COMM_MODE == 1) {
-    Hud_gMapView[0] = Draw_SetView(0x105, HudMapOffsetY + 0x146, 0x245, HudMapOffsetY + 0x146, 0x2d, 0x30, 0, 0, 1);
-    Hud_gMapView[1] = Draw_SetView(0x105, HudMapOffsetY + 0x1b9, 0x245, HudMapOffsetY + 0x1b9, 0x2d, 0x30, 0, 0, 1);
-    Hud_gHudView[0] = Draw_SetView(0,     0x100, 0x140, 0x100, 0x140, 0x80, 0, 0, 1);
-    Hud_gHudView[1] = Draw_SetView(0,     0x180, 0x140, 0x180, 0x140, 0x80, 0, 0, 1);
+    Hud_gMapView[0] = Draw_SetView(0x105, HudMapOffsetY + 0x13e, 0x245, HudMapOffsetY + 0x13e, 0x2d, 0x30, 0, 0, 1);
+    Hud_gMapView[1] = Draw_SetView(0x105, HudMapOffsetY + 0x1a9, 0x245, HudMapOffsetY + 0x1a9, 0x2d, 0x30, 0, 0, 1);
+    Hud_gHudView[0] = Draw_SetView(0,     0x100, 0x140, 0x100, 0x140, 0x78, 0, 0, 1);
+    Hud_gHudView[1] = Draw_SetView(0,     0x178, 0x140, 0x178, 0x140, 0x78, 0, 0, 1);
     Hud_gTacView[0] = Draw_SetView(0x115, 0x113, 0x255, 0x113, 0x1c, 0x1c, 0, 0, 1);
-    Hud_gTacView[1] = Draw_SetView(0x115, 0x184, 0x255, 0x184, 0x1c, 0x1c, 0, 0, 1);
+    Hud_gTacView[1] = Draw_SetView(0x115, 0x17c, 0x255, 0x17c, 0x1c, 0x1c, 0, 0, 1);
   } else {
-    Hud_gMapView[0] = Draw_SetView(0xff,  HudMapOffsetY + 0x1b4, 0x23f, HudMapOffsetY + 0x1b4, 0x2d, 0x30, 0, 0, 1);
-    Hud_gHudView[0] = Draw_SetView(0,     0x100, 0x140, 0x100, 0x140, 0x100, 0, 0, 1);
+    Hud_gMapView[0] = Draw_SetView(0xff,  HudMapOffsetY + 0x1a4, 0x23f, HudMapOffsetY + 0x1a4, 0x2d, 0x30, 0, 0, 1);
+    Hud_gHudView[0] = Draw_SetView(0,     0x100, 0x140, 0x100, 0x140, 0xf0, 0, 0, 1);
     Hud_gTacView[0] = Draw_SetView(0xb8,  0x115, 0x1f8, 0x115, 0x1c, 0x1c, 0, 0, 1);
   }
-  Hud_gStatsView = Draw_SetView(0, 0x100, 0x140, 0x100, 0x140, 0x100, 0, 0, 1);
+  Hud_gStatsView = Draw_SetView(0, 0x100, 0x140, 0x100, 0x140, 0xf0, 0, 0, 1);
 }
 
 /* ---- Hud_GoTpage__Fi  [HUD.CPP:380-383] SLD-VERIFIED ---- */
@@ -1050,7 +1050,8 @@ void Hud_Init(void)
     y = g1Player[4].y + splitY;
     w2 = 0x3c;
     Hud_BuildSprite2(gSprt1 + 8,0x69,x,y);
-    __asm__("" : : "r"(w2));
+    /* W85-S4 DEVICE PURITY: a read-only fence on `w2` stood here; removed and
+     * re-gated -- Hud_BuildPlayer1Hud and the whole TU stay PASS without it. */
     x = x + w1;
     Hud_BuildG4(HudG4 + 3,1,x,y,w2,10,0,0x707070,0,0x707070);
     x = x + w2;
@@ -1740,8 +1741,10 @@ void Hud_BuildTach(int player)
     /* MATCH (w55-a9): zero-insn sched fence at the ELSE-ARM EXIT (W54 06B
      * inner-arm-exit placement) -- restores the oracle's `sh s6,14(t0)` /
      * `lw t4,40(sp)` issue order in the tach-needle tail and makes the count
-     * EXACT 269/269.  41 -> 40. */
-    __asm__("" : : "i"(0));
+     * EXACT 269/269.  41 -> 40.
+     * ---- W85-S4 DEVICE PURITY: RETIRED.  Removed and re-gated: Hud_BuildTach
+     * stays PASS (and the whole TU 62/62), so the later w75-a3 tail rewrite of
+     * this function subsumed the w55-a9 fence. */
   }
   *(u_int *)&gSprt1[2].u0 = clut;   /* word-fused u0/v0/clut store */
   cos1 = fixedmult(cos,10) + 0xe;
@@ -1817,9 +1820,11 @@ void Hud_BuildTach(int player)
   ts1 = 0xe - (short)fixedmult(sin,0x20);
   prim->y2 = ts1;
   prim2->y2 = ts1;
-  /* MATCH (w75-a3 lever 4): pins this store adjacent to its `prim` twin (retail
-   * `sh s1,18(s2); sh s1,18(s0)`); without it sched1 sinks it 4 slots into the RMW group. */
-  __asm__ ("" : : "i"(0));
+  /* w75-a3 lever 4 shipped a void fence here to pin this store adjacent to its
+   * `prim` twin (retail `sh s1,18(s2); sh s1,18(s0)`).
+   * ---- W85-S4 DEVICE PURITY: RETIRED -- removed and re-gated, Hud_BuildTach and
+   * the whole TU stay PASS, so the surrounding statement ORDER (the w50-a1 ledger
+   * below) already holds the pairing on its own. */
   /* MATCH (w50-a1): 43 -> 41 by STATEMENT ORDER alone in the "+2" tail (cluster (2) of the
    * w46 receipt: retail interleaves the re-reads with the stores, we batch them).  Measured
    * orders, tp3 first unless noted: [0xe,10,0x12] 41 · [10,0xe,0x12] 43 · [10,0x12,0xe] 43
@@ -3390,7 +3395,9 @@ void Hud_BuildMapMarkers(int player)
       *(long *)&currentSpriteColor = ((aiflags & 2) != 0)
                          ? (((gFlip != 0) || (HUD_QUICK_PAUSE != 0)) ? 0xff : 0xff0000)
                          : *(u_long *)&Hud_gCopMarkerColor[i];
-      __asm__("" : : "i"(0));
+      /* W85-S4 DEVICE PURITY: the void fence that pinned the funnel store at the
+       * join is RETIRED -- removed and re-gated, Hud_BuildMapMarkers and the whole
+       * TU stay PASS (the volatile funnel store above still carries the match). */
       Hud_BuildSprite(sprt,0x7a,mapx + x + -2 & 0xffff,mapy - z & 0xffff,
                  currentSpriteColor,0);
     }
@@ -4705,8 +4712,10 @@ int Hud_NextPlayer(int player)
        * has the nop-free pair (`bnez [ds lui]` / `j [ds li v0,-1]`).  The volatile insn
        * makes resource_conflicts_p fail the simple fill, so reorg falls through to
        * fill_eager_delay_slots and steals from the TARGET instead (see the unsized-array
-       * receipt on D_8011321C above -- both levers are required, 6 -> 4 -> PASS). */
-      __asm__ volatile("");
+       * receipt on D_8011321C above -- both levers are required, 6 -> 4 -> PASS).
+       * ---- W85-S4 DEVICE PURITY: RETIRED.  Removed and re-gated: this function
+       * and the whole TU stay PASS, so the unsized-array D_8011321C view is now
+       * carrying the eager-fill on its own and the reorg barrier is redundant. */
       return -1;
     }
     i = 0;

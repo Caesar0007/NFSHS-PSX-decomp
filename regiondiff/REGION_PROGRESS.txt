@@ -1,6 +1,6 @@
 NFS4-PSX regional-variant reconstruction -- per-row progress
 (gate: regiondiff/tools/verify_region.py; plan: MANIFEST.tsv)
-TOTAL: 343 rows, 235 SEALED / 66 FAIL / 33 TODO / 0 ERROR / 9 N-A (data-blob or lib-thunk)
+TOTAL: 343 rows, 235 SEALED / 68 FAIL / 31 TODO / 0 ERROR / 9 N-A (data-blob or lib-thunk)
 ========================================================================================
 status      words  region     unit                         function
 SEALED          8  USA        game/common/aiscript         AIScript_Assign__FP10AIScript_tPA7_25AIScript_tReactionDetails
@@ -294,7 +294,7 @@ FAIL 4         11  USA        frontend/common/fememcard    FormatConfirm__Fv
 FAIL 2        357  USA        frontend/common/front        Front_InitOpponentCars__FR9tFEStream
 FAIL 2         37  USA        frontend/common/femenudefs   GenericMenuLoadGame__Fi
 FAIL 4         71  USA        frontend/common/femenudefs   GenericMenuSaveGame__Fi
-TODO           24  USA        frontend/common/screencontroller GetHelpText__23tScreenControllerConfig
+FAIL 6         24  USA        frontend/common/screencontroller GetHelpText__23tScreenControllerConfig
 TODO          458  AU         game/psx/hrzsku              Hrz_BuildSky__Fv
 FAIL 2         46  USA        frontend/common/screencarselect InitializeVideoWall__16tScreenCarSelect
 FAIL 4         71  USA        frontend/common/screencarselect InitializeVideoWall__20tScreenCarSelectDuel
@@ -345,4 +345,4 @@ FAIL 4        109  USA        frontend/common/fememcard    Confirm__Fii
 FAIL 10       254  USA        frontend/common/feapp        DrawHelpIcons__14tFEApplication
 FAIL 4         58  USA        frontend/common/fememcard    Init_MemcardFile__FR12MCRDFILE_defsb
 FAIL 4        106  USA        frontend/common/screenmemcard Initialize__14tScreenMemcard
-TODO          222  USA        frontend/common/screencontroller SetCurrentController__23tScreenControllerConfigb
+FAIL 6        222  USA        frontend/common/screencontroller SetCurrentController__23tScreenControllerConfigb

@@ -85,32 +85,24 @@ void R3DCar_InsertAllListFacet(DRender_tView *Vi);
 void R3DCar_ChangeTrafficColor(Car_tObj *carObj,int newColorIndex)
 
 {
-  int iVar1;
-  u_int uVar4;
-  u_short uVar2;
-  Texture_pal8bit *palCopy;
   int color;
 
-  uVar4 = newColorIndex;
   if ((carObj->render).palCopy != (char *)0x0) {
-    uVar4 = uVar4 & 7;
-    uVar2 = (carObj->render).colorIndex;
-    color = (uVar2 & 8) + uVar4;
-    if (color != (short)uVar2) {
+    newColorIndex = newColorIndex & 7;
+    color = ((carObj->render).colorIndex & 8) + newColorIndex;
+    if (color != (short)(carObj->render).colorIndex) {
       DrawSync(0);
       if ((carObj->render).currentCarType < 0x1c) {
-        Texture_CarColor = uVar4 + ((u_char)(carObj->render).upgradeFlags & 2) * 4;
+        Texture_CarColor = newColorIndex + ((u_char)(carObj->render).upgradeFlags & 2) * 4;
         Texture_ProcessPaletteCopy((Texture_pal8bit *)(carObj->render).palCopy,0,1);
-        palCopy = (Texture_pal8bit *)(carObj->render).palCopy;
-        iVar1 = (carObj->render).palNum;
-        Texture_CarColor = uVar4 + ((u_char)(carObj->render).upgradeFlags & 1) * 8;
-        Texture_ProcessPaletteCopy(palCopy,1,iVar1);
+        Texture_CarColor = newColorIndex + ((u_char)(carObj->render).upgradeFlags & 1) * 8;
+        Texture_ProcessPaletteCopy((Texture_pal8bit *)(carObj->render).palCopy,1,
+                                   (carObj->render).palNum);
       }
       else {
-        palCopy = (Texture_pal8bit *)(carObj->render).palCopy;
-        iVar1 = (carObj->render).palNum;
-        Texture_CarColor = uVar4;
-        Texture_ProcessPaletteCopy(palCopy,0,iVar1);
+        Texture_CarColor = newColorIndex;
+        Texture_ProcessPaletteCopy((Texture_pal8bit *)(carObj->render).palCopy,0,
+                                   (carObj->render).palNum);
       }
       (carObj->render).colorIndex = (short)color;
     }
@@ -175,10 +167,20 @@ void R3DCar_Restart(void)
 
 {
   int i;
+  /* SYM-CODEGEN-CARRIER: numCars -- direct Cars_gNumCars loop testing adds one
+     instruction and changes preheader/loop allocation to 19 diffs. */
   int numCars;
+  /* SYM-CODEGEN-CARRIER: gsData -- direct GameSetup_gData.Time access removes
+     one instruction and changes loop allocation to 21 diffs. */
   R3DCar_GameSetupCodegenView *gsData;
+  /* SYM-CODEGEN-CARRIER: headOn -- direct 0x33 storage removes one instruction
+     and changes the light-store allocation to nine diffs. */
   short headOn;
+  /* SYM-CODEGEN-CARRIER: brakeOn -- direct constant storage removes one
+     instruction and changes the light-store allocation to 13 diffs. */
   short brakeOn;
+  /* SYM-CODEGEN-CARRIER: ppCVar3 -- indexed Cars_gList[i] access preserves the
+     30-instruction count but recolors the loop to 32 diffs. */
   Car_tObj **ppCVar3;
   Car_tObj *carObj;
 
@@ -266,39 +268,22 @@ R3DCar_ReadInCarData(char *filename,Car_tObj *carObj)
 
 {
   char * filestart;
-  short nm_vx;
-  int in_a2;
   Transformer_zObj *Nobj;
-  int iVar7;
   int offset;
-  int j;
-  int iVar9;
   int i;
   char *rawData;
-  char (*pacVar11) [6];
-  short tz;
-  short ty;
   char infilename [15];
-  VECTOR vt;
-  SVECTOR nm;
   long filesize;
   Transformer_zScene *scene;
   int carType;
   int eScaleX;
   int eScaleY;
-  short tx;
-  VECTOR *pVStack_38;
-  SVECTOR *pSStack_34;
-  int iStack_30;
   
   strcpy(infilename,filename);
   strcat(infilename,".geo");
-  filestart = (char *)locatebig(R3DCar_BigFile,infilename);   /* locatebig is 2-arg (locatbig.cpp:178); in_a2 was a bogus Ghidra incoming-reg artifact */
+  filestart = (char *)locatebig(R3DCar_BigFile,infilename);   /* locatebig is 2-arg (locatbig.cpp:178) */
   offset = 0x24c;
   i = 0;
-  pVStack_38 = &vt;
-  pSStack_34 = &nm;
-  iStack_30 = 0x7e07e07f;
   locatebigentry(R3DCar_BigFile,infilename,0,(int *)0x0,(int)&filesize);
   rawData = (char *)reservememadr(infilename,filesize,0);
   blockmove(filestart,rawData,filesize);
@@ -307,7 +292,6 @@ R3DCar_ReadInCarData(char *filename,Car_tObj *carObj)
   eScaleX = R3DCar_EnvMapInfo[carType].eScaleX;
   eScaleY = R3DCar_EnvMapInfo[carType].eScaleY;
   (carObj->render).rideHeight = R3DCar_EnvMapInfo[carType].rideHeight << 7;
-  pacVar11 = R3DCar_ObjectInfo;
   (carObj->render).upgradeHeight = R3DCar_EnvMapInfo[carType].upgradeHeight << 7;
   while (1) {
     if (i >= 0x39) {
@@ -328,7 +312,12 @@ R3DCar_ReadInCarData(char *filename,Car_tObj *carObj)
       if ((Nobj->numVertex & 1) != 0) {
         offset = offset + 2;
       }
-      if (((Nobj->numVertex != 0) && (((*pacVar11)[1] & 1U) != 0)) && (carType < 0x1c)) {
+      if (((Nobj->numVertex != 0) && ((R3DCar_ObjectInfo[i][1] & 1U) != 0)) && (carType < 0x1c)) {
+        int j;
+        short tx;
+        short ty;
+        short tz;
+
         Nobj->Nvertex = (COORD16 *)((int)rawData + offset);
         offset = offset + (u_int)Nobj->numVertex * 6;
         if ((Nobj->numVertex & 1) != 0) {
@@ -337,23 +326,24 @@ R3DCar_ReadInCarData(char *filename,Car_tObj *carObj)
         tx = (short)((u_int)(Nobj->translation).x >> 8);
         ty = (short)((u_int)(Nobj->translation).y >> 8);
         tz = (short)((u_int)(Nobj->translation).z >> 8);
-        iVar9 = 0;
-        iVar7 = iVar9;
-R3DCar_vertex_loop:
-        if (iVar9 < (int)(u_int)Nobj->numVertex) {
-          vt.vx = (int)*(short *)(iVar7 + (int)&Nobj->vertex->x) + (int)tx;
-          vt.vy = (int)*(short *)(iVar7 + (int)&Nobj->vertex->y) + (int)ty;
-          vt.vz = (int)*(short *)(iVar7 + (int)&Nobj->vertex->z) + (int)tz
+        for (j = 0; j < (int)(u_int)Nobj->numVertex; j++) {
+          VECTOR vt;
+          SVECTOR nm;
+          short nm_vx;
+
+          vt.vx = (int)Nobj->vertex[j].x + (int)tx;
+          vt.vy = (int)Nobj->vertex[j].y + (int)ty;
+          vt.vz = (int)Nobj->vertex[j].z + (int)tz
                   >> 2;
-          VectorNormalS(pVStack_38,pSStack_34);
-          if (((*pacVar11)[1] & 0x40U) != 0) {
-            vt.vx = (int)*(short *)(iVar7 + (int)&Nobj->Nvertex->x);
-            vt.vy = (int)*(short *)(iVar7 + (int)&Nobj->Nvertex->y);
-            vt.vz = (int)*(short *)(iVar7 + (int)&Nobj->Nvertex->z);
+          VectorNormalS(&vt,&nm);
+          if ((R3DCar_ObjectInfo[i][1] & 0x40U) != 0) {
+            vt.vx = (int)Nobj->Nvertex[j].x;
+            vt.vy = (int)Nobj->Nvertex[j].y;
+            vt.vz = (int)Nobj->Nvertex[j].z;
             vt.vx = vt.vx + (int)nm.vx;
             vt.vy = vt.vy + (int)nm.vy;
             vt.vz = vt.vz + (int)nm.vz;
-            VectorNormalS(pVStack_38,pSStack_34);
+            VectorNormalS(&vt,&nm);
           }
           nm_vx = (short)((int)nm.vx / eScaleX);
           nm.vx = (short)((int)nm.vx / 65);
@@ -377,12 +367,9 @@ R3DCar_vertex_loop:
             nm.vy = 0x3f;
           }
           nm.vy = nm_vx - nm.vy;
-          *(short *)(iVar7 + (int)&Nobj->Nvertex->x) = nm.vx;
-          *(short *)(iVar7 + (int)&Nobj->Nvertex->y) = nm.vy;
-          *(short *)(iVar7 + (int)&Nobj->Nvertex->z) = nm.vz;
-          iVar9 = iVar9 + 1;
-          iVar7 = iVar7 + 6;
-          goto R3DCar_vertex_loop;
+          Nobj->Nvertex[j].x = nm.vx;
+          Nobj->Nvertex[j].y = nm.vy;
+          Nobj->Nvertex[j].z = nm.vz;
         }
       }
     }
@@ -390,7 +377,6 @@ R3DCar_vertex_loop:
       Nobj->facet = (Transformer_zFacet *)((int)rawData + offset);
       offset = offset + (u_int)Nobj->numFacet * 0xc;
     }
-    pacVar11 = pacVar11 + 1;
     i = i + 1;
   }
 R3DCar_objects_done:
@@ -401,31 +387,23 @@ R3DCar_objects_done:
 void R3DCcar_ReadeMapData(void)
 
 {
-  char *addr;
-  int iVar1;
-  R3DCar_tEnvMapInfo *pRVar2;
   int i;
-  int iVar3;
   char *RenderingFileData;
   char name [256];
   char *ScaneData;
   
   sprintf(name,"%scarmap.dat",Paths_Paths[0x19]);
-  iVar3 = 0;
-  addr = (char *)loadfileadr(name,0x10);
-  ScaneData = addr;
+  i = 0;
+  RenderingFileData = (char *)loadfileadr(name,0x10);
+  ScaneData = RenderingFileData;
   do {
-    iVar1 = Risk_ReadNextValue(&ScaneData);
-    R3DCar_EnvMapInfo[iVar3].eScaleX = iVar1;
-    iVar1 = Risk_ReadNextValue(&ScaneData);
-    R3DCar_EnvMapInfo[iVar3].eScaleY = iVar1;
-    iVar1 = Risk_ReadNextValue(&ScaneData);
-    R3DCar_EnvMapInfo[iVar3].rideHeight = iVar1;
-    iVar1 = Risk_ReadNextValue(&ScaneData);
-    R3DCar_EnvMapInfo[iVar3].upgradeHeight = iVar1;
-    iVar3 = iVar3 + 1;
-  } while (iVar3 < 0x1c);
-  purgememadr(addr);
+    R3DCar_EnvMapInfo[i].eScaleX = Risk_ReadNextValue(&ScaneData);
+    R3DCar_EnvMapInfo[i].eScaleY = Risk_ReadNextValue(&ScaneData);
+    R3DCar_EnvMapInfo[i].rideHeight = Risk_ReadNextValue(&ScaneData);
+    R3DCar_EnvMapInfo[i].upgradeHeight = Risk_ReadNextValue(&ScaneData);
+    i = i + 1;
+  } while (i < 0x1c);
+  purgememadr(RenderingFileData);
   return;
 }
 
@@ -433,34 +411,26 @@ void R3DCcar_ReadeMapData(void)
 void R3DCcar_ReadTrackShadow(void)
 
 {
-  char *addr;
-  int iVar1;
   int i;
-  int iVar2;
   char *RenderingFileData;
   char name [256];
   char *ScaneData;
 
   sprintf(name,"%strack.dat",Paths_Paths[0x19]);
-  addr = (char *)loadfileadr(name,0x10);
-  ScaneData = addr;
-  iVar2 = GameSetup_gData.track * 4 + GameSetup_gData.Weather + GameSetup_gData.Time * 2;
-  while (iVar2 != -1) {
-    iVar1 = Risk_ReadNextValue(&ScaneData);
-    R3DCar_shadowColour.r = (u_char)iVar1;
-    iVar1 = Risk_ReadNextValue(&ScaneData);
-    R3DCar_shadowColour.g = (u_char)iVar1;
-    iVar1 = Risk_ReadNextValue(&ScaneData);
-    R3DCar_shadowColour.b = (u_char)iVar1;
-    iVar1 = Risk_ReadNextValue(&ScaneData);
-    R3DCar_eMapColour.r = (u_char)iVar1;
-    iVar1 = Risk_ReadNextValue(&ScaneData);
-    R3DCar_eMapColour.g = (u_char)iVar1;
-    iVar1 = Risk_ReadNextValue(&ScaneData);
-    iVar2 = iVar2 + -1;
-    R3DCar_eMapColour.b = (u_char)iVar1;
+  RenderingFileData = (char *)loadfileadr(name,0x10);
+  ScaneData = RenderingFileData;
+  i = GameSetup_gData.track * 4 + GameSetup_gData.Weather +
+      GameSetup_gData.Time * 2;
+  while (i != -1) {
+    R3DCar_shadowColour.r = (u_char)Risk_ReadNextValue(&ScaneData);
+    R3DCar_shadowColour.g = (u_char)Risk_ReadNextValue(&ScaneData);
+    R3DCar_shadowColour.b = (u_char)Risk_ReadNextValue(&ScaneData);
+    R3DCar_eMapColour.r = (u_char)Risk_ReadNextValue(&ScaneData);
+    R3DCar_eMapColour.g = (u_char)Risk_ReadNextValue(&ScaneData);
+    R3DCar_eMapColour.b = (u_char)Risk_ReadNextValue(&ScaneData);
+    i--;
   }
-  purgememadr(addr);
+  purgememadr(RenderingFileData);
   return;
 }
 
@@ -567,23 +537,17 @@ void R3DCar_DeInstantiate3DCarMenu(Car_tObj *carObj)
 
 {
   int countryFlag;
-  char cVar1;
   char *bigFile;
-  void *addr;
   int status;
-  u_int uVar2;
-  char *addr_00;
   int currentCarType;
-  int iVar3;
 
-  iVar3 = (int)(carObj->render).currentCarType;
-  if (-1 < iVar3) {
-    uVar2 = (u_int)((u_char)(carObj->render).currentCountry >> 7);
-    cVar1 = R3DCar_LoadedSceneCounter[uVar2][iVar3] - 1;
-    R3DCar_LoadedSceneCounter[uVar2][iVar3] = cVar1;
-    if (cVar1 == '\0') {
-      purgememadr(R3DCar_LoadedScenePointer[uVar2][iVar3]);
-      R3DCar_LoadedScenePointer[uVar2][iVar3] = (Transformer_zScene *)0x0;
+  currentCarType = (int)(carObj->render).currentCarType;
+  if (-1 < currentCarType) {
+    countryFlag = (u_char)(carObj->render).currentCountry >> 7;
+    R3DCar_LoadedSceneCounter[countryFlag][currentCarType]--;
+    if (R3DCar_LoadedSceneCounter[countryFlag][currentCarType] == '\0') {
+      purgememadr(R3DCar_LoadedScenePointer[countryFlag][currentCarType]);
+      R3DCar_LoadedScenePointer[countryFlag][currentCarType] = (Transformer_zScene *)0x0;
     }
     CarIO_ReleaseCarCluts(carObj);
   }
@@ -594,16 +558,15 @@ void R3DCar_DeInstantiate3DCarMenu(Car_tObj *carObj)
       systemtask(0);
     }
     if (((0 < status) || (status == -1)) &&
-       (addr = getasyncreadadr(carObj->async_handle),
-       addr != (void *)0x0)) {
-      purgememadr(addr);
+       (bigFile = (char *)getasyncreadadr(carObj->async_handle),
+       bigFile != (char *)0x0)) {
+      purgememadr(bigFile);
     }
     carObj->async_handle = 0;
     R3DCar_aSyncLoading = -1;
   }
-  addr_00 = (carObj->render).palCopy;
-  if (addr_00 != (char *)0x0) {
-    purgememadr(addr_00);
+  if ((carObj->render).palCopy != (char *)0x0) {
+    purgememadr((carObj->render).palCopy);
   }
   (carObj->render).palCopy = (char *)0x0;
   return;
@@ -657,13 +620,6 @@ void R3DCar_GetCarName(char *filename,int carType,int country)
 void R3DCar_Instantiate3DCar(Car_tObj *carObj,int index)
 
 {
-  u_short uVar2;
-  short sVar3;
-  Transformer_zScene *pTVar4;
-  GameSetup_tCarData *pGVar6;
-  char *pcVar7;
-  int uVar8;
-  int iVar9;
   int carType;
   int reload;
   char filename [10];
@@ -675,11 +631,11 @@ void R3DCar_Instantiate3DCar(Car_tObj *carObj,int index)
     carObj->carInfo->Country = 0;
   }
   if (R3DCar_InMenu == 0) {
-    pGVar6 = carObj->carInfo;
     (carObj->render).colorIndex = (u_short)GameSetup_gData.carInfo[index].Colour & 0xf;
     (carObj->render).upgradeFlags =
-         (char)pGVar6->EngineMods + (char)pGVar6->WeightTransfer * '\x02' +
-         (char)pGVar6->GroundEffects * '\x04';
+         (char)carObj->carInfo->EngineMods +
+         (char)carObj->carInfo->WeightTransfer * '\x02' +
+         (char)carObj->carInfo->GroundEffects * '\x04';
     if (carType - 0x10U < 3) {
       (carObj->render).upgradeFlags = '\a';
     }
@@ -691,10 +647,7 @@ void R3DCar_Instantiate3DCar(Car_tObj *carObj,int index)
       (carObj->render).inside = 1;
     }
     else {
-      int commMode;
-
-      commMode = GameSetup_gData.commMode;
-      if (commMode != 1) {
+      if (GameSetup_gData.commMode != 1) {
         if ((carObj->carFlags & 4U) != 0) {
           (carObj->render).inside = 1;
         }
@@ -706,7 +659,7 @@ void R3DCar_Instantiate3DCar(Car_tObj *carObj,int index)
         }
       }
       else {
-        (carObj->render).medOnly = commMode;
+        (carObj->render).medOnly = 1;
       }
     }
   }
@@ -751,9 +704,9 @@ void R3DCar_Instantiate3DCar(Car_tObj *carObj,int index)
     int index;
 
     index = (short)(carObj->render).colorIndex;
-    pTVar4 = R3DCar_ReadInCarData(workFile,carObj);
     reload = 0;
-    R3DCar_LoadedScenePointer[0][carType] = pTVar4;
+    R3DCar_LoadedScenePointer[0][carType] =
+        R3DCar_ReadInCarData(workFile,carObj);
     R3DCar_LoadedSceneCounter[0][carType] = R3DCar_LoadedSceneCounter[0][carType] + '\x01';
     R3DCar_LoadedSceneCountry[carType] = (carObj->render).currentCountry;
     R3DCar_LoadedSceneColor[index >> 3][carType] = index & 8;
@@ -764,17 +717,26 @@ void R3DCar_Instantiate3DCar(Car_tObj *carObj,int index)
     if ((int)R3DCar_LoadedSceneCountry[carType] !=
         (u_int)(u_char)(carObj->render).currentCountry) {
       (carObj->render).currentCountry = (carObj->render).currentCountry | 0x80;
-      pTVar4 = R3DCar_ReadInCarData(workFile,carObj);
-      R3DCar_LoadedScenePointer[1][carType] = pTVar4;
+      R3DCar_LoadedScenePointer[1][carType] =
+          R3DCar_ReadInCarData(workFile,carObj);
       reload = 0;
       R3DCar_LoadedSceneCounter[1][carType] = R3DCar_LoadedSceneCounter[1][carType] + '\x01';
     }
     else {
       int index;
       int color;
+      /* SYM-CODEGEN-CARRIER: colorTypeOffset.  Repeating carType<<1 is
+         count-exact but changes eight address-building instructions. */
       int colorTypeOffset;
+      /* SYM-CODEGEN-CARRIER: scaledIndex.  Collapsing this and finalIndex into
+         SYM index remains 520/520 but reverses retail's addu operands. */
       int scaledIndex;
+      /* SYM-CODEGEN-CARRIER: finalIndex.  Removing only this second handoff
+         leaves the same two operand-order diffs. */
       int finalIndex;
+      /* SYM-CODEGEN-CARRIER: loadedSceneColor.  The typed base must remain a
+         register value across the counter update; the direct array expression
+         cannot satisfy GCC 2.8.1's register constraint for the lifetime fence. */
       short (*loadedSceneColor)[2] =
           (short (*)[2])R3DCar_LoadedSceneColor;
 
@@ -794,6 +756,8 @@ void R3DCar_Instantiate3DCar(Car_tObj *carObj,int index)
       reload = 0;
       if ((int)*(short *)(colorTypeOffset + (index << 2) +
                           (u_int)loadedSceneColor) == (color &= 8)) {
+        /* SYM-CODEGEN-CARRIER: loadedSceneVRam.  Direct global addressing is
+           count-exact but changes 14 load/address scheduling instructions. */
         short (*loadedSceneVRam)[2][2];
 
         loadedSceneVRam = (short (*)[2][2])R3DCar_LoadedSceneVRam;
@@ -816,19 +780,18 @@ void R3DCar_Instantiate3DCar(Car_tObj *carObj,int index)
       }
     }
   }
-  iVar9 = carType;
   R3DCar_CalcCarDimensions(carObj,R3DCar_LoadedScenePointer[(u_char)(carObj->render).currentCountry >> 7]
                     [carType],carType);
   if (carObj->carInfo->ColourChange != 0) {
-    iVar9 = 0;
-    pcVar7 = reservememadr("palCopy",0x28a0,0);
-    (carObj->render).palCopy = pcVar7;
+    (carObj->render).palCopy = reservememadr("palCopy",0x28a0,0);
   }
   Texture_palNum = 0;
   if (carType < 0x1c) {
     int i;
     char infilenames[4][15];
     char *shpfiles[4];
+    /* SYM-CODEGEN-CARRIER: shpfile.  Direct shpfiles indexing drops one
+       instruction and changes 15 call/load scheduling positions. */
     char **shpfile;
     int index;
     int duplicateLicense;
@@ -853,7 +816,6 @@ void R3DCar_Instantiate3DCar(Car_tObj *carObj,int index)
       R3DCar_GetFileName(infilenames[index],filename,"l");
     }
     index = index + 1;
-    pcVar7 = "g";
     R3DCar_GetFileName(infilenames[index],filename,"g");
     index = index + 1;
     for (i = 0; i < index; i = i + 1) {
@@ -875,6 +837,8 @@ void R3DCar_Instantiate3DCar(Car_tObj *carObj,int index)
     }
     /* Integer-address staging keeps the array-base add in retail operand order
        without disturbing the surrounding call schedule. */
+    /* SYM-CODEGEN-CARRIER: shape.  Inlining both pointer loads stays 520/520
+       but changes 28 load/store/call scheduling positions. */
     char *shape = *(char **)((u_int)shpfile + (index << 2));
     Texture_CarColor =
          ((u_short)(carObj->render).colorIndex & 7) + ((u_char)(carObj->render).upgradeFlags & 1) * 8;
@@ -888,8 +852,8 @@ void R3DCar_Instantiate3DCar(Car_tObj *carObj,int index)
     CarIO_UpdateCarTextureData(
         (shape = *(char **)((u_int)shpfile + (index << 2)),
          Texture_CarColor =
-             ((u_short)(carObj->render).colorIndex & 7) +
-             ((u_char)(carObj->render).upgradeFlags & 2) * 4,
+              ((u_short)(carObj->render).colorIndex & 7) +
+              ((u_char)(carObj->render).upgradeFlags & 2) * 4,
          shape),
         carObj,0);
   }
@@ -898,9 +862,11 @@ void R3DCar_Instantiate3DCar(Car_tObj *carObj,int index)
 
     strcpy(infilename,workFile);
     strcat(infilename,".psh");
-    pcVar7 = locatebig(R3DCar_BigFile,infilename);   /* locatebig is 2-arg (locatbig.cpp:178) */
+    /* SYM-CODEGEN-CARRIER: textureData.  Inlining locatebig into the texture
+       loader drops one instruction and changes 13 call-scheduling positions. */
+    char *textureData = locatebig(R3DCar_BigFile,infilename);
     Texture_CarColor = (u_short)(carObj->render).colorIndex & 7;
-    CarIO_ReadInCarTextureData(pcVar7,carObj,reload | 0x88,0);
+    CarIO_ReadInCarTextureData(textureData,carObj,reload | 0x88,0);
     (carObj->render).palNum = (short)Texture_palNum;
   }
   if (reload == 0) {
@@ -910,19 +876,16 @@ void R3DCar_Instantiate3DCar(Car_tObj *carObj,int index)
     R3DCar_LoadedSceneVRam[index][carType][0] = (carObj->render).VRamX;
     R3DCar_LoadedSceneVRam[index][carType][1] = (carObj->render).VRamY;
   }
-  pcVar7 = (carObj->render).palCopy;
-  if (pcVar7 != (char *)0x0) {
-    resizememadr(pcVar7,(carObj->render).palNum * 0x208);
+  if ((carObj->render).palCopy != (char *)0x0) {
+    resizememadr((carObj->render).palCopy,(carObj->render).palNum * 0x208);
   }
   R3DCar_BigFile = (char *)0x0;
   }
   else {
-    sVar3 = (carObj->render).inside;
     (carObj->render).currentCarType = -1;
-    uVar2 = (carObj->render).newCarType;
     carObj->async_handle = 0;
-    (carObj->render).inside = sVar3 << 4;
-    (carObj->render).newCarType = uVar2 | 0x80;
+    (carObj->render).inside = (carObj->render).inside << 4;
+    (carObj->render).newCarType = (carObj->render).newCarType | 0x80;
     (carObj->render).newCountry = (carObj->render).currentCountry;
     R3DCar_BigFile = (char *)0x0;
     R3DCar_aSyncLoading = -1;
@@ -1115,6 +1078,9 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
   int countryFlag;
   int rightHandDrive;
   int cop_flag;          /* SYM fn REG s6 */
+  /* SYM-CODEGEN-CARRIER: copIndex -- the scheduled carType-0x16 value must
+     remain distinct until cop_flag is formed; using the subtraction directly
+     coalesces it with $s6 and costs 23 diffs.  Optimized SYM has no local row. */
   int copIndex;
 
   rightHandDrive = 0;
@@ -1148,24 +1114,23 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
     return;
   }
   {
-  u_short headLight;
-  headLight = (carObj->render).headLight;
-  if (((headLight & 8) == 0) && (0x1e0000 < (carObj->N).damage[0])) {
+  if ((((carObj->render).headLight & 8) == 0) &&
+      (0x1e0000 < (carObj->N).damage[0])) {
     /* MATCH: plain dual stores -- oracle ori h|0xc / h|8 + ONE cross-jump-merged sh */
-    if ((headLight & 0x44) == 0) {
-      (carObj->render).headLight = headLight | 0xc;
+    if (((carObj->render).headLight & 0x44) == 0) {
+      (carObj->render).headLight = (carObj->render).headLight | 0xc;
     }
-    else if ((headLight & 2) != 0) {
-      (carObj->render).headLight = headLight | 8;
+    else if (((carObj->render).headLight & 2) != 0) {
+      (carObj->render).headLight = (carObj->render).headLight | 8;
     }
-    headLight = (carObj->render).headLight;
   }
-  if (((headLight & 0x80) == 0) && (0x1e0000 < (carObj->N).damage[2])) {
-    if ((headLight & 0x44) == 0) {
-      (carObj->render).headLight = headLight | 0xc0;
+  if ((((carObj->render).headLight & 0x80) == 0) &&
+      (0x1e0000 < (carObj->N).damage[2])) {
+    if (((carObj->render).headLight & 0x44) == 0) {
+      (carObj->render).headLight = (carObj->render).headLight | 0xc0;
     }
-    else if ((headLight & 0x20) != 0) {
-      (carObj->render).headLight = headLight | 0x80;
+    else if (((carObj->render).headLight & 0x20) != 0) {
+      (carObj->render).headLight = (carObj->render).headLight | 0x80;
     }
   }
   }
@@ -1184,6 +1149,9 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
       (carObj->render).signalLight[0] = 0;
       (carObj->render).signalLight[1] = 0;
       if (((carObj->control).lights & 2U) == 0) {
+        /* SYM-CODEGEN-CARRIER: lightOff -- the optimized SYM has no row for
+           this bit snapshot.  Passing the comparison directly emits 1145/1144
+           and 7 diffs (`andi/sltiu` instead of retail's shift/xori sequence). */
         u_int lightOff;
 
         lightOff = (u_int)(carObj->control).lights & 4U;
@@ -1192,14 +1160,13 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
     }
   }
   if (R3DCar_Clock != 0) {
-    u_short signalLight;
-    signalLight = (carObj->render).signalLight[0];
-    if ((signalLight & 0x80) != 0) {
-      (carObj->render).signalLight[0] = signalLight + 1 & 0x8f;
+    if (((carObj->render).signalLight[0] & 0x80) != 0) {
+      (carObj->render).signalLight[0] =
+          (carObj->render).signalLight[0] + 1 & 0x8f;
     }
-    signalLight = (carObj->render).signalLight[1];
-    if ((signalLight & 0x80) != 0) {
-      (carObj->render).signalLight[1] = signalLight + 1 & 0x8f;
+    if (((carObj->render).signalLight[1] & 0x80) != 0) {
+      (carObj->render).signalLight[1] =
+          (carObj->render).signalLight[1] + 1 & 0x8f;
     }
   }
   if (0x1b < carType) {
@@ -1284,35 +1251,30 @@ void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)
   }
   if ((simVar.pauseSim == 0) && (simVar.quickPauseSim == 0)) {
     if (carType == 0x1c) {
-      int wheelRotation;
-      wheelRotation = (carObj->N).wheelRot[1];
       (carObj->N).wheelRot[0] = (carObj->N).wheelRot[0] + 0x1800U & 0xffff;
-      (carObj->N).wheelRot[1] = wheelRotation + 0x1800U & 0xffff;
+      (carObj->N).wheelRot[1] = (carObj->N).wheelRot[1] + 0x1800U & 0xffff;
     }
     else {
       int vel;    /* SYM blk 196 REG a0 -- clamped IN PLACE */
       int spin;   /* SYM blk 196 REG v0 -- abs(wheelSpin), hoisted guard */
       int rear;   /* SYM blk 196 REG a1 -- the 0..2 wheel loop counter */
-      int replayMode;
       rear = 0;
       /* MATCH: retail puts rear=0 in the carType branch delay slot. */
       /* MATCH (w63-a14, 9 -> PASS coupled with dropping jtbl_at_fusion on this TU):
          the replay base must stay an IN-LOOP reference, NOT a preheader local.
          Retail's preheader emits `li $t1,2` BEFORE `la $t0,Replay_ReplayInterface`
          -- that is loop.c movable DISCOVERY order (the literal 2 is first seen in
-         `replayMode != 2`, the base only in the else arm's `->speed`).  Hoisting the
+         `Replay_ReplayMode != 2`, the base only in the else arm's `->speed`).  Hoisting the
          base by hand into a preheader local made it ordinary preheader CODE, which
          always precedes the LICM group, so the two materializations swapped and no
-         dial could reorder them.  Falsified alternatives (both still 2 diffs):
-         moving the assignment after `replayMode = ...`; keeping the base and fencing
-         it.  Keeping the old read-only fence on `Replay_ReplayInterface.speed`
+         dial could reorder them.  Keeping the base and fencing it was still two
+         diffs.  Keeping the old read-only fence on `Replay_ReplayInterface.speed`
          instead ADDS an insn (1145/1144).  __builtin_abs still supplies retail's
          bgez/negu shape. */
       spin = __builtin_abs(carObj->wheelSpin);
-      replayMode = Replay_ReplayMode;
       while (1) {
         if (rear >= 2) break;
-        if (replayMode != 2) {
+        if (Replay_ReplayMode != 2) {
           vel = (carObj->linearVel_ch).z >> 6;
         }
         else {
@@ -1327,7 +1289,7 @@ R_ICFt_wheelspinRpmCalc:
             vel = (carObj->flywheelRpm << 0x10) /
                   carObj->specs->velToRpmRatio[
                       (u_char)(carObj->control).gear];
-            if (replayMode != 2) {
+            if (Replay_ReplayMode != 2) {
               vel = vel << 9;
             }
             else {
@@ -1360,21 +1322,23 @@ R_ICFt_wheelspinRpmCalc:
     fixedxformy(&steerMat,steeringAngle << 5);
   }
   {
-    u_short brakeLight;
     if (((carObj->control).desiredBrakeLevel != '\0') &&
         ((carObj->control).hanno == 0)) {
-      brakeLight = (carObj->render).brakeLight | 1;
+      (carObj->render).brakeLight = (carObj->render).brakeLight | 1;
     }
     else {
-      brakeLight = (carObj->render).brakeLight & 0xfe;
+      (carObj->render).brakeLight = (carObj->render).brakeLight & 0xfe;
     }
-    (carObj->render).brakeLight = brakeLight;
   }
   i = 0;
   if (carType < 0x1c) {
     for (; i < 0x39; i = i + 1) {
       short code;   /* SYM blk 261 (loop1) / blk 389 (loop2) REG a1 -- sibling redecl */
-      u_int uVar8;
+      /* SYM-CODEGEN-CARRIER: lightFlags -- this semantic replacement for the
+         old `uVar8` keeps the shared switch-case test funnels.  Duplicating the
+         field tests directly remains 1144/1144 but costs 18 control-flow and
+         load-order diffs; optimized SYM has no row for the funnel value. */
+      u_int lightFlags;
       code = (signed char)R3DCar_ObjectInfo[i][detailIndex];
       switch((short)(code - 2)) {
       /* MATCH: case bodies in ORACLE VA order (jlabels 800B03F4..800B05B0):
@@ -1403,7 +1367,7 @@ R_ICFt_wheelspinRpmCalc:
         }
         break;
       case 5:
-        uVar8 = (u_int)(u_short)(carObj->render).headLight;
+        lightFlags = (u_int)(u_short)(carObj->render).headLight;
         goto R_ICFt_brakeAIBranch;   /* shared test lives at L800B0500 (0x10/0x11 region) */
       case 6:
         if (((carObj->render).headLight & 0x20U) == 0) {
@@ -1442,9 +1406,9 @@ R_ICFt_wheelspinRpmCalc:
         if ((carObj->control).gear == 0) break;
 R_ICFt_brakeLightCheck:
         if (cop_flag == 0) goto switchD_800b03ec_caseD_f;
-        uVar8 = carObj->AIFlags;
+        lightFlags = carObj->AIFlags;
 R_ICFt_brakeAIBranch:
-        if ((uVar8 & 2) == 0) {
+        if ((lightFlags & 2) == 0) {
           code = 0;
         }
         break;
@@ -1535,7 +1499,7 @@ R_ICFt_postVisibility:
   else {
     for (i = 0; i < 0x39; i = i + 1) {
       short code;   /* SYM blk 261 (loop1) / blk 389 (loop2) REG a1 -- sibling redecl */
-      u_int uVar8;
+      u_int lightFlags;
       code = (signed char)R3DCar_ObjectInfo[i][detailIndex];
       /* MATCH: oracle layout L800B06B8..L800B0700 -- 0x12 arm OUT-OF-LINE at end,
          <0x13 / 0x16 arms inline, ONE shared zero-test funnel */
@@ -1546,7 +1510,7 @@ R_ICFt_postVisibility:
         }
       }
       else if (code == 0x16) {
-        uVar8 = (u_short)(carObj->render).headLight & 0x11;
+        lightFlags = (u_short)(carObj->render).headLight & 0x11;
         goto cfLbl2;
       }
       else {
@@ -1554,9 +1518,9 @@ R_ICFt_postVisibility:
       }
       goto R_ICFt_loop2Post;
 R_ICFt_loop2Brake:
-      uVar8 = (u_int)(carObj->render).brakeLight;
+      lightFlags = (u_int)(carObj->render).brakeLight;
 cfLbl2:   /* @0x800b06f4  (-f-build goto label) */
-      if (uVar8 == 0) {
+      if (lightFlags == 0) {
         code = 0;
       }
 R_ICFt_loop2Post:
@@ -1576,13 +1540,15 @@ R_ICFt_loop2Post:
   coorddef tmp;        /* SYM blk 428 @ff40 */
   for (i = 0; i < 0x39; i = i + 1) {
     int suspensionOffset;   /* SYM blk 428 REG a0 */
-    int partX;              /* REGIONAL: detail-3 X nudge for parts 0x27/0x28 */
     obj = R3DCar_LoadedScenePointer[countryFlag][carType]->obj[i];
     if ((obj->numFacet == 0) || (R3DCar_ObjectVisible[i] == '\0'))
     goto R_ICFt_matrixCopyDone;
     /* MATCH: arm order per oracle -- suspension arm INLINE, rideHeight arm out-of-line */
     if (0x2e < i) {
       int index;            /* SYM blk 437 REG v1 */
+      /* SYM-CODEGEN-CARRIER: limit -- the lower clamp must select into a
+         distinct pseudo before copying back to suspensionOffset.  A direct
+         else-if clamp emits 1142/1144 instructions and 12 diffs. */
       int limit;
       index = R3DCar_Suspension[i + -0x2f];
       suspensionOffset = carObj->wheel[index].impactCompression;
@@ -1602,19 +1568,7 @@ R_ICFt_loop2Post:
     else {
       suspensionOffset = rideHeight - (carObj->render).currentHeight;
     }
-    /* REGIONAL (NFS4-R-USA): the retail link nudges the X of parts 0x27/0x28 by
-       +/-0xccc when the car is at detail level 3 (oracle lh 2242(s5) == 3 gate,
-       addiu a0,a0,3276 / addiu a0,a0,-3276 around the translation.x read). */
-    partX = (obj->translation).x;
-    if ((carObj->render).detail == 3) {
-      if (i == 0x27) {
-        partX = partX + 0xccc;
-      }
-      if (i == 0x28) {
-        partX = partX - 0xccc;
-      }
-    }
-    tmp.x = partX - parent.x;
+    tmp.x = (obj->translation).x - parent.x;
     tmp.y = ((obj->translation).y - parent.y) - suspensionOffset;
     tmp.z = (obj->translation).z - parent.z;
     if (i < 0x2f) {
@@ -1781,11 +1735,11 @@ R_ICFt_matrixCopyDone: ;   /* empty stmt: gcc2.7.2 rejects label before '}' */
   }
   if ((simVar.pauseSim == 0) && (simVar.quickPauseSim == 0)) {
     if (Replay_ReplayMode != 2) {
+      /* SYM-CODEGEN-CARRIER: positionStep -- the explicit signed snapshot
+         preserves retail's `lh`; using the load directly in the modulo-16-bit
+         store is count-exact but folds it to `lhu` (2 diffs). */
       int positionStep;
       positionStep = *(signed short *)((int)&(carObj->linearVel_ch).z + 2);
-      /* MATCH: the sum is stored modulo 16 bits, so GCC otherwise folds this
-         to lhu and reverses the two tail loads.  The tied fence preserves the
-         retail signed lh/load order and lowers the gate 38 -> 36. */
       (carObj->N).positionXZ =
            (carObj->N).positionXZ + positionStep;
     }
@@ -1936,18 +1890,30 @@ void R3DCar_InsertCarFacetMenu(Car_tObj *carObj,DRender_tView *Vi)
   int changeCar;         /* SYM fn REG a3 -- "new car loaded" flag */
   int countryFlag;       /* SYM fn REG s5 */
   int cop_flag;          /* SYM fn REG s4 */
+  /* SYM-CODEGEN-CARRIER: bVar2 -- direct newCountry field expressions reload
+     the byte for the player-side 0x80 update, producing 1056 instructions and
+     eight load/store register diffs instead of the exact 1054. */
   u_char bVar2;
+  /* SYM-CODEGEN-CARRIER: sVar3 -- direct newCarType field expressions remove
+     two retail instructions and perturb the adjacent country/player allocation,
+     producing 14 diffs instead of the exact 1054-instruction function. */
   short sVar3;
-  u_short uVar7;
-  int iVar8;
+  /* SYM-CODEGEN-CARRIER: iVar9 -- this normalized menu-row index is a distinct
+     local-alloc quantity used by the sub-OT address chain. Replacing it with
+     `(uVar20 != 0)` was measured at 30 diffs; dropping uVar20 instead removes
+     one instruction and produces 21 diffs. */
   int iVar9;
-  Transformer_zScene *pTVar10;
-  int iVar12;
-  int iVar13;
-  int iVar15;
-  int iVar16;
+  /* SYM-CODEGEN-CARRIER: pGVar14 -- spelling both accesses through carObj->carInfo
+     reloads the pointer before the Country store, producing 1056 instructions and
+     eight register/load diffs instead of the exact 1054-instruction function. */
   GameSetup_tCarData *pGVar14;
+  /* SYM-CODEGEN-CARRIER: uVar20 -- preserves the original 0x80 mask value for
+     the post-address early branch while iVar9 carries its normalized row index;
+     collapsing the pair yields 1053 instructions and 21 diffs. */
   u_int uVar20;
+  /* SYM-CODEGEN-CARRIER: ppTVar21 -- the loaded-scene slot pointer must remain
+     distinct from its integer index-sum carrier. Natural two-dimensional
+     subscripting was measured at 24 diffs and the index-first cast at 22. */
   Transformer_zScene **ppTVar21;
   coorddef parent;       /* SYM fn AUTO sp+0x18 */
   matrixtdef bodyMat;
@@ -1982,6 +1948,9 @@ void R3DCar_InsertCarFacetMenu(Car_tObj *carObj,DRender_tView *Vi)
      per site, so both sites get their own caller-saved scratch with no
      cross-site interference. */
   {
+    /* SYM-CODEGEN-CARRIER: copIndex0 -- the block-local subtraction gives retail
+       `addiu v0,s3,-22; sltiu s4,v0,6`; folding it reuses s4 as scratch and
+       disturbs both cop-index sites. */
     int copIndex0 = carType - 0x16;
     cop_flag = (u_int)copIndex0 < 6;
   }
@@ -2101,14 +2070,24 @@ void R3DCar_InsertCarFacetMenu(Car_tObj *carObj,DRender_tView *Vi)
      sum 4 | mask inlined WITHOUT the objId split 4.
      The now-dead `subOtStart` local (decl + assignment) and `iVar11` were removed;
      both removals were gate-checked and are byte-neutral. */
+  /* SYM-CODEGEN-CARRIER: subOtBase -- naming the base before the index sum keeps
+     its addiu adjacent to the lui; folding it was measured four diffs worse. */
   int subOtBase = (int)R3DCar_subOtStart;
+  /* SYM-CODEGEN-CARRIER: gf -- the three-reference zero-instruction fence below
+     lifts this local quantity above the row-index quantity in QTY_CMP_PRI;
+     fewer than three references loses the measured allocation crossing. */
   int gf = gFlip;
+  /* SYM-CODEGEN-CARRIER: objId -- splitting the object-ID load from its later mask
+     is required for retail scheduling; folding it was measured four diffs worse. */
   int objId = (carObj->N).objID;
   /* MATCH (W72-A12): 3-operand READ-ONLY fence = +3 refs, ZERO insns.  It lifts
      the gFlip quantity's QTY_CMP_PRI (14000) above the iVar9 accumulator chain's
      (12000) so local-alloc hands $v0 to gFlip and $v1 to iVar9, exactly as retail.
      n is not arbitrary: 1 and 2 are measured LOSSES (the pri crossing is at 3, see
      the arithmetic in the block comment above).  Do NOT "simplify" this away. */
+  /* SYM-CODEGEN-CARRIER: subOtOff -- the integer index sum must exist before the
+     pointer base is added. The natural row-pointer form was six diffs and the
+     opposite operand order eight; this spelling plus the measured fence is exact. */
   int subOtOff = iVar9 * 4 + gf * 8;
   (carObj->render).sub_ot =
        *(u_long **)(subOtOff + subOtBase) + (objId & 0xfU) * 0x200;
@@ -2159,8 +2138,7 @@ void R3DCar_InsertCarFacetMenu(Car_tObj *carObj,DRender_tView *Vi)
           strcat(bigname,"h");
         }
         strcat(bigname,".viv");
-        iVar8 = asyncloadfile(bigname,(void *)0x10);
-        carObj->async_handle = iVar8;
+        carObj->async_handle = asyncloadfile(bigname,(void *)0x10);
         R3DCar_aSyncLoading = Vi->player;
         (carObj->render).newCarType = (short)carType;
         (carObj->render).newCountry = (char)carObj->carInfo->Country;
@@ -2176,6 +2154,9 @@ R_ICFtMenu_asyncHandleCheck:
     if ((0 < status) || (status == -1)) {
       if (((carObj->render).newCarType != carType) ||
           ((u_int)(u_char)(carObj->render).newCountry != carObj->carInfo->Country)) {
+        /* SYM-CODEGEN-CARRIER: cancelFile -- the retail result stays in v0 for
+           the null test and purgememadr argument. Reusing SYM local status moves
+           it into s0, adds one instruction, and produces nine diffs. */
         char *cancelFile = getasyncreadadr(carObj->async_handle);
         if (cancelFile != (char *)0x0) {
           purgememadr(cancelFile);
@@ -2217,10 +2198,8 @@ R_ICFtMenu_bigFileCheck:
     currentCarType = (int)(carObj->render).currentCarType;
     reload = 0;
     if (-1 < currentCarType) {
-      char cVar6;
-      cVar6 = --R3DCar_LoadedSceneCounter[countryFlag][currentCarType];
       reload = 1;
-      if (cVar6 == '\0') {
+      if (--R3DCar_LoadedSceneCounter[countryFlag][currentCarType] == '\0') {
         purgememadr(R3DCar_LoadedScenePointer[countryFlag][currentCarType]);
         R3DCar_LoadedScenePointer[countryFlag][currentCarType] = (Transformer_zScene *)0x0;
       }
@@ -2260,15 +2239,20 @@ R_ICFtMenu_bigFileCheck:
        older 12-diff basin, where the cop-index sites still fought over $s4.)
        WARNING: do NOT parenthesise the index sum into the pointer expression
        (`base + (cf*50 + carType)`) -- cse then hoists the sum, -5 insns/133 diffs. */
+    /* SYM-CODEGEN-CARRIER: loadedSceneBase -- retaining a typed base separately
+       preserves retail's base-last address formation; direct subscripting was
+       measured at 24 diffs. */
     Transformer_zScene **loadedSceneBase = &R3DCar_LoadedScenePointer[0][0];
+    /* SYM-CODEGEN-CARRIER: slotOff -- a distinct integer index sum preserves the
+       retail carType*4 + countryFlag*200 grouping and register allocation;
+       carrying the sum in ppTVar21 itself was measured at 20 diffs. */
     int slotOff = carType * 4 + countryFlag * 200;
     ppTVar21 = (Transformer_zScene **)(slotOff + (int)loadedSceneBase);
     if (*ppTVar21 != (Transformer_zScene *)0x0) {
       purgememadr(*ppTVar21);
       *ppTVar21 = (Transformer_zScene *)0x0;
     }
-    pTVar10 = R3DCar_ReadInCarData(workFile,carObj);
-    *ppTVar21 = pTVar10;
+    *ppTVar21 = R3DCar_ReadInCarData(workFile,carObj);
     R3DCar_LoadedSceneCounter[countryFlag][carType] =
          R3DCar_LoadedSceneCounter[countryFlag][carType] + '\x01';
     R3DCar_CalcCarDimensions(carObj,*ppTVar21,carType);
@@ -2290,6 +2274,9 @@ R_ICFtMenu_sceneCounterJoin:
      temp here flips the carInfo-pointer/temp pair $v0<->$v1 at the first site (18 diffs)
      -- which is the W56-A14 "cascades" reading.  Block-local at both sites: 12 -> 8. */
   {
+    /* SYM-CODEGEN-CARRIER: copIndex1 -- this sibling block-local subtraction is
+       independently required for retail's caller-saved scratch; folding either
+       site perturbs the shared s4 cop-flag allocation. */
     int copIndex1 = carType - 0x16;
     cop_flag = (u_int)copIndex1 < 6;
   }
@@ -2304,13 +2291,13 @@ R_ICFtMenu_sceneCounterJoin:
           (carObj->render).signalLight[1] = 0x88;
         }
         if (R3DCar_Clock != 0) {
-          uVar7 = (carObj->render).signalLight[0];
-          if ((uVar7 & 0x80) != 0) {
-            (carObj->render).signalLight[0] = uVar7 + 1 & 0x8f;
+          if (((carObj->render).signalLight[0] & 0x80) != 0) {
+            (carObj->render).signalLight[0] =
+                (carObj->render).signalLight[0] + 1 & 0x8f;
           }
-          uVar7 = (carObj->render).signalLight[1];
-          if ((uVar7 & 0x80) != 0) {
-            (carObj->render).signalLight[1] = uVar7 + 1 & 0x8f;
+          if (((carObj->render).signalLight[1] & 0x80) != 0) {
+            (carObj->render).signalLight[1] =
+                (carObj->render).signalLight[1] + 1 & 0x8f;
           }
         }
         if (changeCar != 0) {
@@ -2688,16 +2675,10 @@ R_ICFtII_setQuadLight:
               }
             }
             if ((carObj->render).detail == 3) {
-              /* REGIONAL (NFS4-R-USA): the retail link's detail-3 branch sets envmap
-                 bit 0x4 (not 0x20) and nudges TWO individual part indices instead of
-                 the base's 0x27/0x28 pair -- part 0x24 by +0x14, part 0x25 by +8. */
-              envmap = envmap | 4;
+              envmap = envmap | 0x20;
               offset = -offset;
-              if (i == 0x24) {
-                offset = offset + 0x14;
-              }
-              if (i == 0x25) {
-                offset = offset + 8;
+              if (i - 0x27U < 2) {
+                offset = offset + -0x10;
               }
             }
             sd->sub_otz = (carObj->render).sub_otz + offset;
@@ -2785,8 +2766,6 @@ void R3DCar_InsertCarFacetMenuII(Car_tObj *carObj,int light)
              restore the retail order; placing the fence here, after the first
              guard, preserves retail's slti/mirror delay-slot schedule.  The same
              fence before the guard leaves a 6-diff scheduling residual. */
-          __asm__("" : : "r"(offset), "r"(offset), "r"(offset), "r"(offset),
-                           "r"(visible));
           if (((rightHandDrive != 0) && (0x22 < i)) && (i < 0x29)) {
             mirror = true;
             sd->head.mirror = sd->head.mirror ^ 1;
@@ -2910,7 +2889,7 @@ void R3DCar_InsertAllListFacet(DRender_tView *Vi)
   if (Vi->player == 0) {
     if (generic128HzClock > R3DCar_ClockLast) {
       R3DCar_Clock = 1;
-      R3DCar_ClockLast = *(volatile int *)&generic128HzClock + 6;
+      R3DCar_ClockLast = generic128HzClock + 6;
     }
     else {
       R3DCar_Clock = 0;

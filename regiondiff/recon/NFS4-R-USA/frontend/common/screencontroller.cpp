@@ -72,6 +72,22 @@ void tScreenControllerConfig::TurnOffShakers()
 void tScreenControllerConfig::ShakeIt()
 
 {
+  int padState;
+  int padnum;
+  
+  padnum = this->player << 4;
+  padState = PadGetState(padnum);
+  if (padState != 6) {
+    if (padState < 4) {
+      (this->fShaker).active = '\0';
+    }
+    this->ClearActuators();
+  }
+  else if ((this->fShaker).active == '\0') {
+    (this->fShaker).active = '\x01';
+    PadSetAct(padnum,(this->fShaker).actuator,2);
+    PadSetActAlign(padnum,Force_gActAlign);
+  }
   return;
 }
 
@@ -91,10 +107,6 @@ void Controller_SetRamp(void)
      fuses the sign-extend into the address (sra ..,15). */
   i = 0;
   while (1) {
-    /* SYM-CODEGEN-CARRIER: one -- the receipt below proves this zero-insn
-       identity-fence carrier is required for retail's per-iteration `li 1`. */
-    int one;
-
     if (i >= 2) break;
     /* MATCH (SLD 797 = ONE source line): a nested ternary -- the if/else-if
        chain lays the `0` arm out inline, the oracle has it LAST. */
@@ -115,12 +127,16 @@ void Controller_SetRamp(void)
      * $8-15 t0-t7 $16-23 s0-s7 $24-25 t8-t9 $28 gp $29 sp $30 fp $31 ra.
      * Gate-lane object is byte-identical (proven by hash); see
      * scratchpad/w64a20/RECEIPTS.md. */
-    __asm__("" : : "r"(config));
-    one = 1;
-    __asm__("" : "=r"(one) : "0"(one));
-    frontEnd.rampGas[i] = (char)one;
-    frontEnd.rampBrake[i] = (char)one;
-    frontEnd.rampSteer[i] = (char)one;
+    /* [W85-S5, BOTH DEVICES REMOVED] The two fences and the `one` carrier are
+       gone: a CHAINED assignment `steer = brake = gas = 1;` reproduces retail's
+       per-iteration `li $v0,1` on its own (whole-TU 22/22 PASS).  The chain
+       gives the constant exactly one definition feeding three stores, which is
+       what stops LICM hoisting it into an extra callee-saved register the way
+       three independent literal stores do.  FALSIFIED (whole-TU re-gated):
+       three plain literal stores 26; the same plus the read-only `config`
+       fence 27; a plain (unfenced) `one` local 27; `config` fence + plain
+       `one` 27. */
+    frontEnd.rampSteer[i] = frontEnd.rampBrake[i] = frontEnd.rampGas[i] = 1;
     if (InGame_GetDevice(GetPSXPadValue(mappings[config][0][type],0)) == 1) {
       frontEnd.rampSteer[i] = '\0';
     }
@@ -344,13 +360,12 @@ void tScreenControllerConfig::SetCurrentController(bool firsttime)
   fSetMenu = (tInsideBoxMenu *)0x0;
   dialog = &this->negconPopUp;
   /* SYM-INLINE-THIS: SetString */
-  dialog->SetString(TextSys_Word(0x20c));
-  dialog->yesnowords[0] = 0x20d;
-  dialog->yesnowords[1] = 0x20e;
+  dialog->SetString(TextSys_Word(0x20b));
+  dialog->yesnowords[0] = 0x20c;
+  dialog->yesnowords[1] = 0x20d;
   dialog->fDefault = 1;
   setmenutonull = false;
-  if ((gPadinfo.buf[(this->player != 0) * 4].nopad != '\0') ||
-      (gPadinfo.buf[(this->player != 0) * 4].ID == 0x23)) {
+  if (gPadinfo.buf[(this->player != 0) * 4].nopad != '\0') {
     this->fCurrentController = '\0';
     if (0x7f < this->fArrowFade) {
       this->CurrentlyLoadedArt = 0;
@@ -361,12 +376,45 @@ void tScreenControllerConfig::SetCurrentController(bool firsttime)
   switch (gPadinfo.buf[(this->player != 0) * 4].ID) {
   case 0x23:
     {
-      tGlobalMenuDefs *menuDefinitions = menuDefs[0];
+      bool dialogIsIdle;
+      int previousNegconChoice;
 
       this->fTimeOutStartTick = 0;
-      this->fCurrentController = '\x01';
-      this->negconChoice = -1;
-      fSetMenu = &menuDefinitions->menuControllerNegcon;
+      if (((firsttime == 0) && (this->fCurrentController != '\x02')) &&
+         (this->fCurrentController != '\x01')) {
+        dialogIsIdle = false;
+        if (dialog->currentlyOn == 0) {
+          dialogIsIdle = dialog->fCurrentlyRunning == 0;
+        }
+        if (dialogIsIdle) {
+          previousNegconChoice = this->negconChoice;
+          if (previousNegconChoice != -1) {
+            goto SetCurCtrl_noNegconDialog;
+          }
+          this->fCurrentController = '\0';
+          this->fArrowFade = 0x80;
+          this->negconChoice = Run((tDialogInteractive *)dialog);
+          this->fCurrentController =
+              this->negconChoice != 0 ? '\x02' : '\x01';
+          {
+            tGlobalMenuDefs *menuDefinitions = menuDefs[0];
+
+            this->negconChoice = previousNegconChoice;
+            fSetMenu = &menuDefinitions->menuControllerNegcon;
+          }
+          goto SetCurCtrl_menuSetVertHelp;
+        }
+SetCurCtrl_noNegconDialog:
+        {
+          setmenutonull = true;
+          firsttime = true;
+          this->fArrowFade = 0x80;
+          this->fCurrentController = '\0';
+        }
+      }
+      else {
+        fSetMenu = &menuDefs[0]->menuControllerNegcon;
+      }
       goto SetCurCtrl_menuSetVertHelp;
     }
   case 0x41:
@@ -404,7 +452,7 @@ SetCurCtrl_dualShockDetected:
     else {
       if (PadGetState((this->player != 0) * 0x10) == 2) {
         this->fCurrentController = '\x05';
-        fSetMenu = (tInsideBoxMenu *)0x0;
+        fSetMenu = &menuDefs[0]->menuControllerAnalog;
       }
     }
     break;
@@ -1013,14 +1061,13 @@ void tScreenControllerConfig::HorzVertLine(short *ArrowLoc,bool type)
 void tScreenControllerConfig::DrawArrow(short *ArrowLoc)
 
 {
-  /* SYM-CODEGEN-CARRIER: clampVal
-     MATCH: SLD 1593 covers the entire clamp on one source line.  This is EA's
+  /* MATCH: SLD 1593 covers the entire clamp on one source line.  This is EA's
      duplicated MIN(MAX(field, 0), 0x40) macro expansion, not a simplified
      hand-written branch tree; keeping the field expression duplicated gives
-     retail's v1 raw value / a0 sign test / v0 clamp handout.  The named C
-     carrier represents that compiler-created COND_EXPR destination, so it is
-     correctly absent from the SYM local list. */
-  short clampVal;
+     retail's v1 raw value / a0 sign test / v0 clamp handout.
+     [W85-S5] The `short clampVal;` carrier that used to hold that COND_EXPR
+     result is GONE with the barrier it served -- storing straight into
+     `this->mult` in both arms is byte-identical (22/22 PASS). */
   this->mult = 0;
   settrans(1);
   /* MATCH: the oracle passes the literal mode (a0 = 0 here, a0 = 1 at the tail);
@@ -1038,18 +1085,23 @@ void tScreenControllerConfig::DrawArrow(short *ArrowLoc)
     }
     this->HorzVertLine(ArrowLoc,true);
   }
+  /* [W85-S5, device removed] A zero-insn `__asm__("" : : "i"(0))` barrier used
+     to sit between the `this->mult` store and this call, to stop sched2 sinking
+     the store into the call's delay slot (retail keeps `sh $v0,180($s0)` ahead
+     of the argument setup and fills the slot with `addu $a2,$zero,$zero`).
+     Writing the store INSIDE BOTH ARMS instead has the same effect for free:
+     gcc cross-jump-merges the two identical stores back into one and lands it
+     where retail has it (whole-TU 22/22 PASS).  FALSIFIED (whole-TU re-gated):
+     simply dropping the barrier 4; a named `bool horiz = false;` call-argument
+     local 4. */
   if (this->fArrowFadeDir < 0) {
     this->mult = (short)(0x80 - (uint)(ushort)this->fArrowFade);
-    clampVal = (((((int)this->mult > 0) ? (int)this->mult : 0) < 0x40)
+    this->mult = (short)(((((int)this->mult > 0) ? (int)this->mult : 0) < 0x40)
                     ? (((int)this->mult > 0) ? (int)this->mult : 0) : 0x40);
   }
   else {
-    clampVal = 0x40;
+    this->mult = 0x40;
   }
-  this->mult = clampVal;
-  /* MATCH: zero-insn scheduling barrier keeps the SLD-1596 store before the
-     HorzVertLine argument setup instead of sinking it into the call slot. */
-  __asm__("" : : "i"(0));
   this->HorzVertLine(ArrowLoc,false);
   FeDraw_SetABRMode(1);
   settrans(0);

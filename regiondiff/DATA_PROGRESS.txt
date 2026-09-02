@@ -1,11 +1,11 @@
 NFS4-PSX regional DATA reconstruction -- per-symbol progress
 (gate: regiondiff/tools/verify_data.py; audit: tools/audit_data.py)
-TOTAL: 143 rows, 5 SEALED / 6 FAIL / 30 TODO / 102 other
+TOTAL: 143 rows, 41 SEALED / 0 FAIL / 0 TODO / 102 other
 ====================================================================================
 status     deltas  region           owner                              symbol
 ASM-DATA        9  NFS4-R-AU        ?                                  _vt_18tListIteratorTrack
 ASM-DATA       24  NFS4-R-AU        ?                                  _vt_23tListIteratorTournament
-FAIL 1          1  NFS4-R-AU        recon/game/common/camera.cpp       Camera_gFlags
+SEALED          1  NFS4-R-AU        recon/game/common/camera.cpp       Camera_gFlags
 ASM-DATA        2  NFS4-R-AU        ?                                  D_80010180
 ASM-DATA        2  NFS4-R-AU        ?                                  D_800101BC
 ASM-DATA        2  NFS4-R-AU        ?                                  D_80010FD0
@@ -24,15 +24,15 @@ ASM-DATA        2  NFS4-R-AU        ?                                  D_80055FA
 ASM-DATA        1  NFS4-R-AU        ?                                  D_80056078
 ASM-DATA        1  NFS4-R-AU        ?                                  D_800565A4
 SEALED          1  NFS4-R-AU        recon/frontend/common/feapp.cpp    gLargestUnused
-FAIL 8          8  NFS4-R-AU        recon/game/psx/hud.cpp             Hud_gElementPositions
+SEALED          8  NFS4-R-AU        recon/game/psx/hud.cpp             Hud_gElementPositions
 ASM-DATA        1  NFS4-R-AU        ?                                  jtbl_80011B38
-TODO            1  NFS4-R-AU        recon/game/common/r3dcar.cpp       R3DCar_ObjectInfo
-TODO            1  NFS4-R-AU        recon/frontend/common/femenudefs.cpp SelectListOffOn
-TODO            1  NFS4-R-AU        recon/frontend/common/femenudefs.cpp SelectListTrackDirection
-TODO           80  NFS4-R-AU        recon/frontend/common/screencontroller.cpp TextLocations
+SEALED          1  NFS4-R-AU        recon/game/common/r3dcar.cpp       R3DCar_ObjectInfo
+SEALED          1  NFS4-R-AU        recon/frontend/common/femenudefs.cpp SelectListOffOn
+SEALED          1  NFS4-R-AU        recon/frontend/common/femenudefs.cpp SelectListTrackDirection
+SEALED         80  NFS4-R-AU        recon/frontend/common/screencontroller.cpp TextLocations
 ASM-DATA        9  NFS4-R-FR-DE     ?                                  _vt_18tListIteratorTrack
 ASM-DATA       14  NFS4-R-FR-DE     ?                                  _vt_23tListIteratorTournament
-TODO            1  NFS4-R-FR-DE     recon/game/common/camera.cpp       Camera_gFlags
+SEALED          1  NFS4-R-FR-DE     recon/game/common/camera.cpp       Camera_gFlags
 ASM-DATA        2  NFS4-R-FR-DE     ?                                  D_80010180
 ASM-DATA        2  NFS4-R-FR-DE     ?                                  D_80010FD0
 ASM-DATA        2  NFS4-R-FR-DE     ?                                  D_8001159C
@@ -48,17 +48,17 @@ ASM-DATA        4  NFS4-R-FR-DE     ?                                  D_8005570
 ASM-DATA        3  NFS4-R-FR-DE     ?                                  D_80055F68
 ASM-DATA        1  NFS4-R-FR-DE     ?                                  D_80056078
 ASM-DATA        1  NFS4-R-FR-DE     ?                                  D_800565A4
-TODO            1  NFS4-R-FR-DE     recon/frontend/common/feapp.cpp    gLargestUnused
-TODO            8  NFS4-R-FR-DE     recon/game/psx/hud.cpp             Hud_gElementPositions
+SEALED          1  NFS4-R-FR-DE     recon/frontend/common/feapp.cpp    gLargestUnused
+SEALED          8  NFS4-R-FR-DE     recon/game/psx/hud.cpp             Hud_gElementPositions
 ASM-DATA        1  NFS4-R-FR-DE     ?                                  jtbl_80011B38
-TODO            1  NFS4-R-FR-DE     recon/game/common/r3dcar.cpp       R3DCar_ObjectInfo
-TODO            1  NFS4-R-FR-DE     recon/frontend/common/femenudefs.cpp SelectListOffOn
-TODO            1  NFS4-R-FR-DE     recon/frontend/common/femenudefs.cpp SelectListTrackDirection
-TODO           80  NFS4-R-FR-DE     recon/frontend/common/screencontroller.cpp TextLocations
+SEALED          1  NFS4-R-FR-DE     recon/game/common/r3dcar.cpp       R3DCar_ObjectInfo
+SEALED          1  NFS4-R-FR-DE     recon/frontend/common/femenudefs.cpp SelectListOffOn
+SEALED          1  NFS4-R-FR-DE     recon/frontend/common/femenudefs.cpp SelectListTrackDirection
+SEALED         80  NFS4-R-FR-DE     recon/frontend/common/screencontroller.cpp TextLocations
 ASM-DATA        3  NFS4-R-JPN       ?                                  _vt_15tScreenUserName
 ASM-DATA        9  NFS4-R-JPN       ?                                  _vt_18tListIteratorTrack
 ASM-DATA       14  NFS4-R-JPN       ?                                  _vt_23tListIteratorTournament
-TODO            1  NFS4-R-JPN       recon/game/common/camera.cpp       Camera_gFlags
+SEALED          1  NFS4-R-JPN       recon/game/common/camera.cpp       Camera_gFlags
 ASM-DATA        2  NFS4-R-JPN       ?                                  D_80010180
 ASM-DATA        2  NFS4-R-JPN       ?                                  D_80011F6C
 ASM-DATA        5  NFS4-R-JPN       ?                                  D_800519E0
@@ -69,18 +69,18 @@ ASM-DATA        4  NFS4-R-JPN       ?                                  D_8005570
 ASM-DATA        3  NFS4-R-JPN       ?                                  D_80055F68
 ASM-DATA        1  NFS4-R-JPN       ?                                  D_80056078
 ASM-DATA        2  NFS4-R-JPN       ?                                  D_80120A34
-TODO           30  NFS4-R-JPN       recon/game/common/gmesetup.cpp     GameSetup_gPersonalityNames
+SEALED         30  NFS4-R-JPN       recon/game/common/gmesetup.cpp     GameSetup_gPersonalityNames
 SEALED          1  NFS4-R-JPN       recon/frontend/common/feapp.cpp    gLargestUnused
 ASM-DATA        1  NFS4-R-JPN       ?                                  jtbl_80011B38
 ASM-DATA        2  NFS4-R-JPN       ?                                  movieframes
 ASM-DATA        3  NFS4-R-JPN       ?                                  movienames
-TODO            1  NFS4-R-JPN       recon/game/common/r3dcar.cpp       R3DCar_ObjectInfo
-FAIL 1          1  NFS4-R-JPN       recon/frontend/common/femenudefs.cpp SelectListOffOn
-FAIL 1          1  NFS4-R-JPN       recon/frontend/common/femenudefs.cpp SelectListTrackDirection
-FAIL 80        80  NFS4-R-JPN       recon/frontend/common/screencontroller.cpp TextLocations
+SEALED          1  NFS4-R-JPN       recon/game/common/r3dcar.cpp       R3DCar_ObjectInfo
+SEALED          1  NFS4-R-JPN       recon/frontend/common/femenudefs.cpp SelectListOffOn
+SEALED          1  NFS4-R-JPN       recon/frontend/common/femenudefs.cpp SelectListTrackDirection
+SEALED         80  NFS4-R-JPN       recon/frontend/common/screencontroller.cpp TextLocations
 ASM-DATA        9  NFS4-R-UK-ES-IT  ?                                  _vt_18tListIteratorTrack
 ASM-DATA       14  NFS4-R-UK-ES-IT  ?                                  _vt_23tListIteratorTournament
-TODO            1  NFS4-R-UK-ES-IT  recon/game/common/camera.cpp       Camera_gFlags
+SEALED          1  NFS4-R-UK-ES-IT  recon/game/common/camera.cpp       Camera_gFlags
 ASM-DATA        2  NFS4-R-UK-ES-IT  ?                                  D_80010180
 ASM-DATA        2  NFS4-R-UK-ES-IT  ?                                  D_80010FD0
 ASM-DATA        2  NFS4-R-UK-ES-IT  ?                                  D_8001159C
@@ -96,16 +96,16 @@ ASM-DATA        4  NFS4-R-UK-ES-IT  ?                                  D_8005570
 ASM-DATA        3  NFS4-R-UK-ES-IT  ?                                  D_80055F68
 ASM-DATA        1  NFS4-R-UK-ES-IT  ?                                  D_80056078
 ASM-DATA        1  NFS4-R-UK-ES-IT  ?                                  D_800565A4
-TODO            1  NFS4-R-UK-ES-IT  recon/frontend/common/feapp.cpp    gLargestUnused
-TODO            8  NFS4-R-UK-ES-IT  recon/game/psx/hud.cpp             Hud_gElementPositions
+SEALED          1  NFS4-R-UK-ES-IT  recon/frontend/common/feapp.cpp    gLargestUnused
+SEALED          8  NFS4-R-UK-ES-IT  recon/game/psx/hud.cpp             Hud_gElementPositions
 ASM-DATA        1  NFS4-R-UK-ES-IT  ?                                  jtbl_80011B38
-TODO            1  NFS4-R-UK-ES-IT  recon/game/common/r3dcar.cpp       R3DCar_ObjectInfo
-TODO            1  NFS4-R-UK-ES-IT  recon/frontend/common/femenudefs.cpp SelectListOffOn
-TODO            1  NFS4-R-UK-ES-IT  recon/frontend/common/femenudefs.cpp SelectListTrackDirection
-TODO           80  NFS4-R-UK-ES-IT  recon/frontend/common/screencontroller.cpp TextLocations
+SEALED          1  NFS4-R-UK-ES-IT  recon/game/common/r3dcar.cpp       R3DCar_ObjectInfo
+SEALED          1  NFS4-R-UK-ES-IT  recon/frontend/common/femenudefs.cpp SelectListOffOn
+SEALED          1  NFS4-R-UK-ES-IT  recon/frontend/common/femenudefs.cpp SelectListTrackDirection
+SEALED         80  NFS4-R-UK-ES-IT  recon/frontend/common/screencontroller.cpp TextLocations
 ASM-DATA        9  NFS4-R-UK-SW     ?                                  _vt_18tListIteratorTrack
 ASM-DATA       14  NFS4-R-UK-SW     ?                                  _vt_23tListIteratorTournament
-TODO            1  NFS4-R-UK-SW     recon/game/common/camera.cpp       Camera_gFlags
+SEALED          1  NFS4-R-UK-SW     recon/game/common/camera.cpp       Camera_gFlags
 ASM-DATA        2  NFS4-R-UK-SW     ?                                  D_80010180
 ASM-DATA        2  NFS4-R-UK-SW     ?                                  D_80010FD0
 ASM-DATA        2  NFS4-R-UK-SW     ?                                  D_8001159C
@@ -121,16 +121,16 @@ ASM-DATA        4  NFS4-R-UK-SW     ?                                  D_8005570
 ASM-DATA        3  NFS4-R-UK-SW     ?                                  D_80055F68
 ASM-DATA        1  NFS4-R-UK-SW     ?                                  D_80056078
 ASM-DATA        1  NFS4-R-UK-SW     ?                                  D_800565A4
-TODO            1  NFS4-R-UK-SW     recon/frontend/common/feapp.cpp    gLargestUnused
-TODO            8  NFS4-R-UK-SW     recon/game/psx/hud.cpp             Hud_gElementPositions
+SEALED          1  NFS4-R-UK-SW     recon/frontend/common/feapp.cpp    gLargestUnused
+SEALED          8  NFS4-R-UK-SW     recon/game/psx/hud.cpp             Hud_gElementPositions
 ASM-DATA        1  NFS4-R-UK-SW     ?                                  jtbl_80011B38
-TODO            1  NFS4-R-UK-SW     recon/game/common/r3dcar.cpp       R3DCar_ObjectInfo
-TODO            1  NFS4-R-UK-SW     recon/frontend/common/femenudefs.cpp SelectListOffOn
-TODO            1  NFS4-R-UK-SW     recon/frontend/common/femenudefs.cpp SelectListTrackDirection
-TODO           80  NFS4-R-UK-SW     recon/frontend/common/screencontroller.cpp TextLocations
+SEALED          1  NFS4-R-UK-SW     recon/game/common/r3dcar.cpp       R3DCar_ObjectInfo
+SEALED          1  NFS4-R-UK-SW     recon/frontend/common/femenudefs.cpp SelectListOffOn
+SEALED          1  NFS4-R-UK-SW     recon/frontend/common/femenudefs.cpp SelectListTrackDirection
+SEALED         80  NFS4-R-UK-SW     recon/frontend/common/screencontroller.cpp TextLocations
 ASM-DATA        9  NFS4-R-USA       ?                                  _vt_18tListIteratorTrack
 ASM-DATA        4  NFS4-R-USA       ?                                  _vt_23tListIteratorTournament
-TODO            1  NFS4-R-USA       recon/game/common/camera.cpp       Camera_gFlags
+SEALED          1  NFS4-R-USA       recon/game/common/camera.cpp       Camera_gFlags
 ASM-DATA        2  NFS4-R-USA       ?                                  D_80010180
 ASM-DATA        2  NFS4-R-USA       ?                                  D_80011F6C
 ASM-DATA        5  NFS4-R-USA       ?                                  D_800519E0
@@ -142,7 +142,7 @@ ASM-DATA        3  NFS4-R-USA       ?                                  D_80055F6
 ASM-DATA        1  NFS4-R-USA       ?                                  D_80056078
 SEALED          1  NFS4-R-USA       recon/frontend/common/feapp.cpp    gLargestUnused
 ASM-DATA        1  NFS4-R-USA       ?                                  jtbl_80011B38
-FAIL 1          1  NFS4-R-USA       recon/game/common/r3dcar.cpp       R3DCar_ObjectInfo
+SEALED          1  NFS4-R-USA       recon/game/common/r3dcar.cpp       R3DCar_ObjectInfo
 SEALED          1  NFS4-R-USA       recon/frontend/common/femenudefs.cpp SelectListOffOn
 SEALED          1  NFS4-R-USA       recon/frontend/common/femenudefs.cpp SelectListTrackDirection
-TODO           80  NFS4-R-USA       recon/frontend/common/screencontroller.cpp TextLocations
+SEALED         80  NFS4-R-USA       recon/frontend/common/screencontroller.cpp TextLocations

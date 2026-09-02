@@ -49,7 +49,7 @@ static inline short CarStatValue(tCarStatType carStat, tCarInfo *carInfo)
 /* File-static 4x4 fixed-point matrix * 4-vector (ScreenCarSelect.obj 1st fn @0x8003a8f0).
    GCC-v2 `FRA4_iRA4_A4_iT0` decodes to the retail array-reference signature below;
    SYM REG I=$s3, J=$s0. */
-static void TransformVector(int (&vect)[4],int (&transform)[4][4],int (&result)[4]) asm("TransformVector");
+static void TransformVector(int (&vect)[4],int (&transform)[4][4],int (&result)[4]);
 static void TransformVector(int (&vect)[4],int (&transform)[4][4],int (&result)[4])
 
 {

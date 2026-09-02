@@ -2967,7 +2967,7 @@ int DrawW_GetAnimationTime(Trk_AnimateInst *animInst)
 {
   int track;
   int maxTick;
-  int iVar2; /* SYM-CODEGEN-CARRIER: iVar2 -- distinct result funnel preserves the retail copy */
+  int result; /* SYM-CODEGEN-CARRIER: result -- distinct result funnel preserves the retail copy */
 
   /* MATCH: early-return the gameTicks case (inverted condition) so gcc lays out
      [conds][gameTicks][body] like the oracle; the body then re-reads objectIndex.
@@ -2975,7 +2975,7 @@ int DrawW_GetAnimationTime(Trk_AnimateInst *animInst)
      names exactly ONE REG local, `maxTick` -- its live range spans the multiply result
      through the final compare/return, matching oracle reg $a1 (mflo -> slt -> conditional
      move -> jr-delay-slot v0). The animation_timer[] load is an unnamed expression temp
-     (shorter live range, no SYM name) -- kept here as iVar2.
+     (shorter live range, no SYM name) -- kept here as result.
      NEAR-MISS FLOOR (4 diffs, re-confirmed): oracle's `lw v0,0(v0); nop; addu v1,v0,zero`
      (a genuine load-delay stall + redundant move) vs ours `lw v1,0(v0)` straight + `mflo`
      filling the delay slot naturally (ours 31 insns vs oracle 33 -- ours is objectively
@@ -2991,17 +2991,17 @@ int DrawW_GetAnimationTime(Trk_AnimateInst *animInst)
   /* MATCH 100% (w46-a7): the missing insns were a THIRD pseudo + its copy -- oracle
      `lw v0,0(v0); nop; addu v1,v0,zero` = a block-local load temp (`tick`, dies at
      the copy, so local_alloc recycles the just-dead address register v0) feeding the
-     GLOBAL allocno that carries the result (`iVar2` -> v1).  Our single-variable form
+     GLOBAL allocno that carries the result (`result` -> v1).  Our single-variable form
      made the load dest BE the result pseudo, so the load went straight to v1 and the
      mflo filled its delay slot -- 31 insns, 2 SHORTER than retail.
      THE DIAL IS THE ASSIGNMENT SHAPE, NOT THE VARIABLE COUNT: adding `tick` and
-     writing the default-then-override (`iVar2 = tick; if (maxTick <= tick/iVar2)
-     iVar2 = maxTick;`) is copy-propagated straight back to the 4-diff base (probed
-     both compare operands this wave), and the inverted default (`iVar2 = maxTick;
-     ... if (tick < maxTick) iVar2 = tick;`) regresses to 10.  Only the SYMMETRIC
+     writing the default-then-override (`result = tick; if (maxTick <= tick/result)
+     result = maxTick;`) is copy-propagated straight back to the 4-diff base (probed
+     both compare operands this wave), and the inverted default (`result = maxTick;
+     ... if (tick < maxTick) result = tick;`) regresses to 10.  Only the SYMMETRIC
      if/else -- each arm assigning the result once -- keeps the copy alive: with two
-     assignments to iVar2 gcc has to materialize it as its own pseudo, and the
-     else-arm `iVar2 = tick` IS the oracle's `addu v1,v0,zero`, which cross-jump then
+     assignments to result gcc has to materialize it as its own pseudo, and the
+     else-arm `result = tick` IS the oracle's `addu v1,v0,zero`, which cross-jump then
      hoists above the compare.  (Catalog par.A "flat guard-chain / result-funnel"
      family; the earlier receipt's "ours is objectively better-scheduled floor,
      permuter candidate" verdict is retired.) */
@@ -3009,12 +3009,12 @@ int DrawW_GetAnimationTime(Trk_AnimateInst *animInst)
   maxTick = (animInst->count + -2) * (int)animInst->interval;
   tick = animation_timer[animInst->objectIndex - 1];
   if (maxTick <= tick) {
-    iVar2 = maxTick;
+    result = maxTick;
   }
   else {
-    iVar2 = tick;
+    result = tick;
   }
-  return iVar2;
+  return result;
 }
 
 /* ---- DrawW_SetAnimationTime__FP15Trk_AnimateInstPii  [DRAWW.CPP:1721-1779] SLD-VERIFIED ---- */
@@ -3849,7 +3849,7 @@ int DrawW_BuildCustomObjectFacets(DRender_tView *Vi,Draw_DCache *sd,Trk_SimObjec
   tQuat quat;
   int totalCount;
   int groupNumElements;
-  int bVar7; /* SYM-CODEGEN-CARRIER: bVar7 -- direct accept-condition form is current FAIL 146/196 and changes the frame */
+  int skipObject; /* SYM-CODEGEN-CARRIER: skipObject -- direct accept-condition form is current FAIL 146/196 and changes the frame */
   /* SYM (rule-8, nfs4-f-v3.txt:191805): `offsets` is a FUNCTION-SCOPE STATIC of
      THIS function (`96 Def2 class STAT type ARY CHAR size 8 dims 1 8`, recorded
      inside this fn's 8c block; unlike the file-scope static `goffsets` it has no
@@ -4009,14 +4009,14 @@ gte_SetTransMatrix(transMat);
         if ((objInstance->type == 2) ||
            (Object_GetAnim(simObjs + ((u_char *)objInstance)[0x22]) == 0)) {
           buildResult = xzsquaredist32((coorddef *)&objInstance->x,&(Vi->cview).translation);
-          bVar7 = 0;
+          skipObject = 0;
           if ((zClipSq <= buildResult) ||
              ((objInstance->type == 2 &&
               (ObjectClipped(Vi,(int)objInstance->pad,(coorddef *)&objInstance->x,
                              (Draw_tGiveShelbyMoreCache *)sd) != 0)))) {
-            bVar7 = 1;
+            skipObject = 1;
           }
-          if (bVar7 == 0) {
+          if (skipObject == 0) {
             /* MATCH (2026-07-11, rule-8/movstrsi): the oracle disasm shows a genuine
                UNALIGNED 8-byte struct copy here (`lwl/lwr` from $s2+0x14 into a temp,
                `swl/swr` into the stack `quat` local) -- groupBase_p is a variable-
@@ -4894,7 +4894,7 @@ bool ObjectClipped(DRender_tView *Vi,int ind,coorddef *pCp,Draw_tGiveShelbyMoreC
      `if(iVar1<=iVar2){slt-arm} else {pvVar3=1;}` (arms swapped from the natural
      `if(iVar2<iVar1)` reading) matches. All three combined -> 61==61, byte-identical. */
   tBoundingSphere *bSphere;
-  bool pvVar3; /* SYM-CODEGEN-CARRIER: pvVar3 -- result funnel preserves retail branch polarity; direct returns are FAIL 6 (61/61) */
+  bool clipped; /* SYM-CODEGEN-CARRIER: clipped -- result funnel preserves retail branch polarity; direct returns are FAIL 6 (61/61) */
   coorddef tmp;
   coorddef tmp2;
   coorddef trans;
@@ -4914,12 +4914,12 @@ bool ObjectClipped(DRender_tView *Vi,int ind,coorddef *pCp,Draw_tGiveShelbyMoreC
   tmp2.z = tmp2.z + trans.z;
   tmp2.z = tmp2.z + bSphere->radius * 0x400;
   if (tmp2.x <= tmp2.z) {
-    pvVar3 = (u_int)(tmp2.z < -tmp2.x);
+    clipped = (u_int)(tmp2.z < -tmp2.x);
   }
   else {
-    pvVar3 = 1;
+    clipped = 1;
   }
-  return pvVar3;
+  return clipped;
 }
 
 /* w55-a9 TRIAGE + NEGATIVE.  Re-gated 30 @222/222 (count EXACT).  chunkdiff localises the

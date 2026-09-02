@@ -459,6 +459,8 @@ stream_count:
 /* @0x8013C314: PsyQ 4.3 INDEX.tsv and retail SYM both assign this state table
  * to PADIF.obj. Keeping it after the three private words restores the retail
  * contiguous PADIF data block at 0x8013C308..0x8013C327. */
+/* SYM-GLOBAL-CARRIER: padIntFunc -- canonical PsyQ 4.3 PADIF.obj data name,
+ * confirmed at the retail address by the compact SYM record. */
 int (*padIntFunc[5])(unsigned char *info) = {
     (int (*)(unsigned char *))_padIntInit,
     (int (*)(unsigned char *))_padIntQuery,

@@ -18,12 +18,13 @@ typedef void (*DslCB)(unsigned char intr, unsigned char *result);
 
 extern int DMACallback(int ch, int func);   /* libetc INTR.obj @0x800F28AC */
 
-/* NOT gp-relative in the oracle (lui/addiu, not $gp) despite being 4 bytes -- force .bss
- * placement so it doesn't fall into the -G4 small-data window.  This is the sole
- * owner of the callback slot @0x801489E4; the old synthetic streamhelp.c duplicate
- * was removed when its C_004.obj member was restored. */
-#define ST_BSS __attribute__((section(".bss")))
-static DslCB ds_ready_cb ST_BSS;   /* @0x801489E4 : current data-ready callback */
+/* Canonical PsyQ 4.3 DSCB.obj names this exact 12-byte BSS object
+ * `GlobalCallback[3]` (extracted/INDEX.tsv).  NFS4's compact SYM independently
+ * records GlobalCallback @0x801489E0, while DsReadyCallback's retail access at
+ * 0x801489E4 proves it selects element 1.  Force regular .bss so the array is
+ * addressed absolutely rather than through the -G4 small-data window. */
+static DslCB GlobalCallback[3] /* @0x801489E0 */
+    __attribute__((section(".bss")));
 
 /* w48-a8: the old "aspsx shares one la base across consecutive same-symbol accesses" reading of
  * this fn was FALSIFIED against the REAL ASPSX 2.77 (04C law): assembling `lw $2,sym / sw $4,sym`
@@ -35,7 +36,7 @@ static DslCB ds_ready_cb ST_BSS;   /* @0x801489E4 : current data-ready callback 
  * cannot be folded back into the two MEMs.  See PER_TU_FLAGS no_split_addresses for this TU. */
 extern DslCB DsReadyCallback(DslCB func)   /* @0x80108824 */
 {
-    DslCB *p = &ds_ready_cb;
+    DslCB *p = &GlobalCallback[1];
     DslCB old = *p;
     *p = func;
     return old;

@@ -92,7 +92,7 @@ int Device_VerifyType(int port)
 }
 
 /* ---- Device_Fail__Fi  [DEVICE.CPP:72-87] SLD-VERIFIED ----
- * PASS 28/28; SYM names only the file-static failtime[2].  Direct use of the
+ * PASS 28/28; SYM names only the function-local static failtime[2].  Direct use of the
  * VerifyType result and repeated indexed byte expression lets gcc create the
  * unnamed temporaries, avoiding the fabricated iVar2/bVar1 debug records. */
 int Device_Fail(int port)
@@ -116,14 +116,16 @@ int Device_Fail(int port)
 
 /* ---- Device_Update__Fv  [DEVICE.CPP:109-160] SLD-VERIFIED ----
  * PASS 56/56.  The call-result iVar2 was removable and is now direct.  The
- * remaining iVar1 is a measured PASS carrier: deleting it makes gcc preserve
+ * remaining commMode value is a measured PASS carrier: deleting it makes gcc preserve
  * the GameSetup array base in $s0 and reload word 3 after Device_Fail (59
- * instructions), whereas retail preserves the loaded word itself in $s0.
- * SYM emits no local record, so this carrier remains explicitly backlogged. */
+ * instructions), whereas retail preserves the loaded communication mode itself
+ * in $s0.  SYM emits no local record; Ghidra and raw instructions independently
+ * identify the value as GameSetup_gData.commMode, so its source-only name is
+ * semantic rather than a decompiler placeholder. */
 void Device_Update(void)
 
 {
-  int iVar1; /* SYM-CODEGEN-CARRIER: iVar1 -- removal changes PASS 56 to 59 insns */
+  int commMode; /* SYM-CODEGEN-CARRIER: commMode -- removal changes PASS 56 to 59 insns */
 
   PAD_update();
   if (simVar[2] != 0) {
@@ -144,11 +146,11 @@ void Device_Update(void)
       Device_gPausePortIndex = '\0';
     }
     else {
-      iVar1 = GameSetup_gData[3];
-      if ((iVar1 == 1) && (Device_Fail(4) != 0)) {
-        Device_gForcePause = iVar1;
+      commMode = GameSetup_gData[3];
+      if ((commMode == 1) && (Device_Fail(4) != 0)) {
+        Device_gForcePause = commMode;
         Device_gPausePort = 4;
-        Device_gPausePortIndex = (char)iVar1;
+        Device_gPausePortIndex = (char)commMode;
       }
       else {
         Device_gForcePause = 0;

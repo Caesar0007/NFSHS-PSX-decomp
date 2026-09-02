@@ -105,6 +105,22 @@ static volatile unsigned int   *d3_madr;
 static volatile unsigned int   *d3_bcr;
 static volatile unsigned int   *d3_chcr;
 
+/* SYM-GLOBAL-CARRIER: reg0
+ * SYM-GLOBAL-CARRIER: reg1
+ * SYM-GLOBAL-CARRIER: reg2
+ * SYM-GLOBAL-CARRIER: reg3
+ * SYM-GLOBAL-CARRIER: com_delay
+ * SYM-GLOBAL-CARRIER: spu
+ * SYM-GLOBAL-CARRIER: dv5_delay
+ * SYM-GLOBAL-CARRIER: d_pcr
+ * SYM-GLOBAL-CARRIER: d3_madr
+ * SYM-GLOBAL-CARRIER: d3_bcr
+ * SYM-GLOBAL-CARRIER: d3_chcr
+ * SYM-GLOBAL-CARRIER: __ps_libinfo__
+ * SYM-GLOBAL-CARRIER: ComAttr
+ * Canonical archive layout, retail bytes, and relocation sites prove these
+ * private BIOS.obj records.  The stripped SDK member exposes no reliable SYM
+ * declarations for their private source spellings. */
 /* Address-style compatibility spellings remain only in existing function
  * commentary/expressions; emitted symbols use the archived C identifiers. */
 #define D_8013C20C reg0

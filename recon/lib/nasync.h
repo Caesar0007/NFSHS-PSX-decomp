@@ -34,18 +34,11 @@ typedef struct AsyncQueue {
     AsyncReq *tail;        /* +0x04 */
 } AsyncQueue;
 
-/* ---- nasync globals (data-materialization pass owns the addresses) ---- */
-extern AsyncReq  *request;          /* @0x8013DE98: request slot pool (reservememadr'd in initasync)    */
-extern int        numrequests;      /* @0x8013DE94: pool size                                           */
-extern int        readblocksize;    /* @0x8013DE90: per-chunk read size                                 */
-extern int        requestidcounter; /* @0x8013DEB8: rolling id stamp (+= 0x100, never 0)                */
-/* The SYM records the two original 8-byte FIFO objects directly: `freequeue`
- * @0x8013DEA0 and `callqueue` @0x8013DEA8. */
-extern AsyncQueue freequeue;        /* @0x8013DEA0: free-slot FIFO                                      */
-extern AsyncQueue callqueue;        /* @0x8013DEA8: finished-slot FIFO (user callback pending)          */
-extern int        asyncfilehandle;  /* @0x8013DEB0 : the FILE handle set by setasyncfile (segment loads)*/
-extern int        asyncfileoffset;  /* @0x8013DEB4: running file offset for segment loads                */
-extern void      *mutex;            /* @0x8013DEBC: allocmutex() handle                                 */
+/* nasync's queue and loader state is private to nasync.obj.  Do not expose it
+ * from this shared type header: the compact SYM has a local-symbol record for
+ * each object, and in particular proves two distinct `requestidcounter`
+ * objects (`nasync.obj` @0x8013DEB8 and `stream.obj` @0x8013DEDC).  The old
+ * extern declarations accidentally described one cross-TU shared object. */
 
 /* ---- cop0 IRQ-disabled critical section (host no-op; faithful intent on the MIPS target) ---- */
 #if defined(__mips__)

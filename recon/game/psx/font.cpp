@@ -267,17 +267,17 @@ Font_textbsearch(int key,char *base,u_long nmemb,u_long size)
 charactertbl * Font_Getcharacter(int targetindex)
 
 {
-  u_int base_00; /* SYM-CODEGEN-CARRIER: base_00 -- removal shrinks 35 to 33 insns */
+  u_int characterTableBase; /* SYM-CODEGEN-CARRIER: characterTableBase -- removal shrinks 35 to 33 insns */
   charactertbl *ch;
   char *base;
 
   base = (char *)&(currentfont);
-  base_00 = (*(int *)(base + 132));
+  characterTableBase = (*(int *)(base + 132));
   ch = (charactertbl *)((*(int *)(base + 132)) + (targetindex + -0x20) * 0xb);
   if (geti(ch,2) == targetindex) {
     return ch;
   }
-  return Font_textbsearch(targetindex,(char *)base_00,(*(int *)(base + 116)),0xb);
+  return Font_textbsearch(targetindex,(char *)characterTableBase,(*(int *)(base + 116)),0xb);
 }
 
 /* ---- Font_SetBlitter__FPFiiPviiP12charactertbli_v  [FONT.CPP:305-306] SLD-VERIFIED ---- */
@@ -331,12 +331,12 @@ void Font_SwitchFont(char *f1)
 
 {
   u_char *base; /* SYM-CODEGEN-CARRIER: base -- anchors the MEM_IN_STRUCT_P store view */
-  u_char *pv1; /* SYM-CODEGEN-CARRIER: pv1 -- carries the current font shape pointer */
+  u_char *fontShape; /* SYM-CODEGEN-CARRIER: fontShape -- carries the current font shape pointer */
   int abr_val; /* SYM-CODEGEN-CARRIER: abr_val -- measured load-placement carrier */
 
   setfont(f1);
   base = (u_char *)&(currentfont);
-  pv1 = *(u_char **)(base + 136);
+  fontShape = *(u_char **)(base + 136);
   abr_val = font_abr;
   /* w46-a8 SEAL (2 -> PASS, 27/27).  THE MEM_IN_STRUCT_P STORE VIEW, and it is the STORE
      side alone that is the operative bit -- font_abr is untouched.  Writing the three
@@ -356,9 +356,9 @@ void Font_SwitchFont(char *f1)
     ((DR_MODE *)(base + 0x94))->code[1] = 0;
   }
   {
-    int arg3 = (*(int *)(pv1 + 0xc) << 4) >> 0x14; /* SYM-CODEGEN-CARRIER: arg3 */
-    font_currentTPage = GetTPage(*(u_char *)pv1 & 3,abr_val,
-                                (*(int *)(pv1 + 0xc) << 0x14) >> 0x14,
+    int arg3 = (*(int *)(fontShape + 0xc) << 4) >> 0x14; /* SYM-CODEGEN-CARRIER: arg3 */
+    font_currentTPage = GetTPage(*(u_char *)fontShape & 3,abr_val,
+                                (*(int *)(fontShape + 0xc) << 0x14) >> 0x14,
                                 arg3);
   }
   gFontSpaceWidth = Font_Getcharacter(0x20)->advance;

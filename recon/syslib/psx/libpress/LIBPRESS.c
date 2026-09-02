@@ -14,6 +14,17 @@ typedef unsigned short u_short;
  * each access is `lui/lw D_80136Cxx; ...; lw/sw 0(reg)`, never a direct lui+ori of the literal
  * address).  Modeled per-cell (matching the pre-existing MDEC1_ptr convention) rather than as one
  * array, since each cell is referenced by its own fixed VA across the functions below. */
+/* SYM-GLOBAL-CARRIER: D0_MADR_ptr
+ * SYM-GLOBAL-CARRIER: D0_BCR_ptr
+ * SYM-GLOBAL-CARRIER: D0_CHCR_ptr
+ * SYM-GLOBAL-CARRIER: D1_MADR_ptr
+ * SYM-GLOBAL-CARRIER: D1_BCR_ptr
+ * SYM-GLOBAL-CARRIER: D1_CHCR_ptr
+ * SYM-GLOBAL-CARRIER: MDEC0_ptr
+ * SYM-GLOBAL-CARRIER: MDEC1_ptr
+ * SYM-GLOBAL-CARRIER: DPCR_ptr
+ * LIBPRESS.obj-private register-pointer cells, proven by the exact retail
+ * address run and per-cell relocation references described above. */
 static volatile u_long *D0_MADR_ptr __attribute__((section(".bss")));  /* @0x80136C08 */
 static volatile u_long *D0_BCR_ptr  __attribute__((section(".bss")));  /* @0x80136C0C */
 static volatile u_long *D0_CHCR_ptr __attribute__((section(".bss")));  /* @0x80136C10 */
@@ -43,6 +54,9 @@ extern int  DMACallback(int ch, int func);   /* libetc INTR.obj @0x800F28AC */
 extern int  printf(const char *fmt, ...);    /* libc   C63.obj */
 
 /* @0x80136AF8 : MDEC "set quantization tables" command (0x40000001) + 32 words of Y/C matrix. */
+/* SYM-GLOBAL-CARRIER: _mdec_iqtab
+ * SYM-GLOBAL-CARRIER: _mdec_idcttab
+ * Canonical MDEC tables restored byte-for-byte at their retail addresses. */
 static const u_long _mdec_iqtab[33] = {
     0x40000001, 0x13101002, 0x16161310, 0x16161616, 0x1b1a181a, 0x1a1a1b1b, 0x1b1b1a1a, 0x1d1d1d1b,
     0x1d222222, 0x1b1b1d1d, 0x20201d1d, 0x26252222, 0x22232325, 0x28262623, 0x30302828, 0x38382e2e,

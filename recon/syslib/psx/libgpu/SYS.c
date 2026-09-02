@@ -173,6 +173,19 @@ extern int _gpu_que_drain(void);     /* @0x800EF60C (fwd) */
  *   request (snapshotting the 8-byte RECT into the queue slot, n=8); DrawOTag/MoveImage push a
  *   DMA-chain; ClearOTagR clears via the OTC DMA; DrawSync waits on the queue/GPU. */
 
+/* SYM-GLOBAL-CARRIER: _vmode_w
+ * SYM-GLOBAL-CARRIER: _vmode_h
+ * SYM-GLOBAL-CARRIER: _move_prim
+ * SYM-GLOBAL-CARRIER: _otc_tail
+ * SYM-GLOBAL-CARRIER: D_80123760
+ * SYM-GLOBAL-CARRIER: _disp_overscan
+ * SYM-GLOBAL-CARRIER: _disp_mult
+ * SYM-GLOBAL-CARRIER: D_801237E0
+ * These private SYS.obj tables/tails are fully byte- and VA-measured in the
+ * contiguous 0x8012371C..0x801237EC retail data run.  The stripped SDK object
+ * contributes no reliable SYM declaration rows for their private spellings;
+ * address placeholders and semantic names therefore remain explicit
+ * reconstruction evidence rather than claimed recovered identifiers. */
 /* GPU_printf @0x80123698 : libgpu debug-print hook fn-ptr; null unless SetGraphDebug installs it.
  *   Defined here (SYS.obj owns it); all libgpu trace sites call through it. */
 /* GEnv block (0x80123694..) lives in REGULAR .data/.bss in the original -- the oracle addresses every

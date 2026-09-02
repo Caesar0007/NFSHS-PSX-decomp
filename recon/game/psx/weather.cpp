@@ -26,41 +26,13 @@ static int Weather_gLastProcessTime[2] __attribute__((section(".sbss")));
 #define WEATHER_GLASTPROCESSTIME0 Weather_gLastProcessTime[0]
 #define WEATHER_GLASTPROCESSTIME1 Weather_gLastProcessTime[1]
 
-/* ---- SPLIT-STORAGE data-mat for the four per-player server arrays (w39-a6) ----------------
- * Oracle evidence (Weather_Init__Fv.s): every CONSTANT-index element is reached through its
- * OWN one-instruction %gp_rel symbol -- %gp_rel(Weather_gSplatInfoServer) for [0] and
- * %gp_rel(D_8013DBCC) for [1], likewise Weather_gPServer/D_8013DBD4,
- * Weather_gPrevPServer/D_8013DBDC, Weather_gDrawnServer/D_8013DBE4.  An `extern T x[2]`
- * declaration can NEVER produce that: 8 bytes is over this build's -G4 threshold as ONE
- * object, so both elements come out as absolute lui/%lo pairs (+1 insn each, 8 sites).
- * Each 4-byte ELEMENT alone IS gp-eligible, so the true storage shape is one tentative def
- * per element (methodology 3.12 #6 applied per-element).
- * The RUNTIME-index site (Weather_DoWeather `[player]`) genuinely wants an absolute array
- * base -- its oracle has `lui/addiu %hi/%lo(Weather_gPServer)` etc.  That is served by an
- * UNSIZED asm-label array VIEW aliased onto element [0]'s symbol: unsized + extern keeps it
- * out of maspsx's sbss_entries, and `gp_allow_la` is off, so `la` stays absolute.  The view
- * ALIASES the real storage (no duplicated object, unlike the older gLastProcessTime duality). */
-/* SYM-CARRIER: Weather_gSplatInfoServer
- * SYM-CARRIER: Weather_gPServer
- * SYM-CARRIER: Weather_gPrevPServer
- * SYM-CARRIER: Weather_gDrawnServer
- * SYM-GLOBAL-CARRIER: Weather_gSplatInfoServer1
- * SYM-GLOBAL-CARRIER: Weather_gPServer1
- * SYM-GLOBAL-CARRIER: Weather_gPrevPServer1
- * SYM-GLOBAL-CARRIER: Weather_gDrawnServer1 */
-Weather_tSplatInfo *Weather_gSplatInfoServer;   /* [0] @0x8013dbc8 */
-Weather_tSplatInfo *Weather_gSplatInfoServer1;  /* [1] @0x8013dbcc (oracle D_8013DBCC) */
-SVECTOR            *Weather_gPServer;           /* [0] @0x8013dbd0 */
-SVECTOR            *Weather_gPServer1;          /* [1] @0x8013dbd4 (oracle D_8013DBD4) */
-DVECTOR            *Weather_gPrevPServer;       /* [0] @0x8013dbd8 */
-DVECTOR            *Weather_gPrevPServer1;      /* [1] @0x8013dbdc (oracle D_8013DBDC) */
-char               *Weather_gDrawnServer;       /* [0] @0x8013dbe0 */
-char               *Weather_gDrawnServer1;      /* [1] @0x8013dbe4 (oracle D_8013DBE4) */
-
-extern Weather_tSplatInfo *Weather_gSplatInfoServerA[] asm("Weather_gSplatInfoServer");
-extern SVECTOR            *Weather_gPServerA[]         asm("Weather_gPServer");
-extern DVECTOR            *Weather_gPrevPServerA[]     asm("Weather_gPrevPServer");
-extern char               *Weather_gDrawnServerA[]     asm("Weather_gDrawnServer");
+/* Retail SYM records four real two-element pointer arrays.  weather.obj is a
+ * proven -G8 TU, so these 8-byte objects remain small-data eligible without
+ * split element globals or assembler-label array views. */
+Weather_tSplatInfo *Weather_gSplatInfoServer[2];   /* @0x8013dbc8 */
+SVECTOR            *Weather_gPServer[2];           /* @0x8013dbd0 */
+DVECTOR            *Weather_gPrevPServer[2];       /* @0x8013dbd8 */
+char               *Weather_gDrawnServer[2];       /* @0x8013dbe0 */
 
 /* ---- W71-A5: a 4-BYTE SCALAR VIEW of GameSetup_gData, used ONLY by
  * Weather_DoWeather to read `.commMode` (@ +0xC = word 3).  This is the 15E
@@ -524,8 +496,8 @@ void Weather_Restart(void)
 void Weather_Init(void)
 
 {
-  matrixtdef *pmVar4; /* SYM-CODEGEN-CARRIER: pmVar4 -- second destination-base evaluation supplies retail's required register copy */
-  matrixtdef *pmVar5; /* SYM-CODEGEN-CARRIER: pmVar5 -- first aggregate-copy base preserves the measured movstrsi scratch pool */
+  matrixtdef *secondCamMatDest; /* SYM-CODEGEN-CARRIER: secondCamMatDest -- second destination-base evaluation supplies retail's required register copy */
+  matrixtdef *firstCamMatDest; /* SYM-CODEGEN-CARRIER: firstCamMatDest -- first aggregate-copy base preserves the measured movstrsi scratch pool */
   u_int *cameraWords; /* SYM-CODEGEN-CARRIER: cameraWords -- one shared
                          Camera_gInfo cursor is required for the two aggregate
                          reads; independent address expressions measured 81
@@ -596,17 +568,17 @@ void Weather_Init(void)
     }
     WEATHER_GLASTPROCESSTIME1 = WEATHER_GAME_TICKS;
     WEATHER_GLASTPROCESSTIME0 = WEATHER_GAME_TICKS;
-    Weather_gPServer = Weather_gPos;
-    Weather_gPrevPServer = Weather_gPrevPos;
-    Weather_gDrawnServer = Weather_gWasDrawn;
-    Weather_gSplatInfoServer = Weather_gSplatInfo;
+    Weather_gPServer[0] = Weather_gPos;
+    Weather_gPrevPServer[0] = Weather_gPrevPos;
+    Weather_gDrawnServer[0] = Weather_gWasDrawn;
+    Weather_gSplatInfoServer[0] = Weather_gSplatInfo;
     if (WEATHER_GAMESETUP_COMM_MODE == 1) {
-      Weather_gPServer1 = Weather_gPos + 0x4c;
-      Weather_gPrevPServer1 = Weather_gPrevPos + 0x4c;
-      Weather_gDrawnServer1 = Weather_gWasDrawn + 0x4c;
+      Weather_gPServer[1] = Weather_gPos + 0x4c;
+      Weather_gPrevPServer[1] = Weather_gPrevPos + 0x4c;
+      Weather_gDrawnServer[1] = Weather_gWasDrawn + 0x4c;
       Weather_gSys.num[0] = 0x4c;
       Weather_gSys.num[1] = 0x4c;
-      Weather_gSplatInfoServer1 = Weather_gSplatInfo + 9;
+      Weather_gSplatInfoServer[1] = Weather_gSplatInfo + 9;
     }
     /* MATCH (w39-a6): these four are plain STRUCT ASSIGNMENTS, not the hand-unrolled
      * copy loops Ghidra printed.  The oracle emits gcc's own movstrsi expansion:
@@ -622,15 +594,15 @@ void Weather_Init(void)
      * a register COPY).  One shared local is 1 insn short and shifts the whole
      * movstrsi scratch pool down a register (t1-t4 vs the oracle's t2-t5): 85 diffs.
      * Two locals => 211/211 count-exact and the entire block byte-matches (12 diffs). */
-    pmVar5 = prevCamMat;
-    pmVar4 = prevCamMat;
+    firstCamMatDest = prevCamMat;
+    secondCamMatDest = prevCamMat;
     /* One source cursor serves both aggregate reads; retail materializes
        Camera_gInfo once and keeps the member offsets on the MEM operands. */
     cameraWords = Weather_CameraWords;
     prevCamPos[1] = *(coorddef *)(cameraWords + 2);
     prevCamPos[0] = prevCamPos[1];
-    pmVar5[0] = *(matrixtdef *)(cameraWords + 12);
-    pmVar4[1] = pmVar5[0];
+    firstCamMatDest[0] = *(matrixtdef *)(cameraWords + 12);
+    secondCamMatDest[1] = firstCamMatDest[0];
     sv = Weather_gPos;
     i = 0x97;
     do {
@@ -1759,13 +1731,13 @@ void Weather_DoWeather(DRender_tView *Vi)
    * next to the real `,2600` is gone), so the dual-lane `.extern`-size hazard the W71
    * device carried is retired rather than merely tolerated. */
   player = Vi->player;
-  wpt = Weather_gPServerA[player];
-  wprevpt = Weather_gPrevPServerA[player];
+  wpt = Weather_gPServer[player];
+  wprevpt = Weather_gPrevPServer[player];
   /* W80 source-only: retain the DrawnServer slot address across the commMode read,
      then load through it.  The read-only `wdp` reference below prices that local
      against the scaled-index quantity and restores retail's a0/a1 handout.  Together
      these remove the old post-cc1 load move: strict 5 -> 2 at exact 197 words. */
-  wdp = Weather_gDrawnServerA + player;
+  wdp = Weather_gDrawnServer + player;
   int cm = WEATHER_GAMESETUP_COMM_MODE; /* SYM-CODEGEN-CARRIER: cm -- staged commMode load */
   wd = *wdp;
   int one = 1; /* SYM-CODEGEN-CARRIER: one -- early compare constant */
@@ -1826,7 +1798,7 @@ void Weather_DoWeather(DRender_tView *Vi)
     }
     Weather_SetIdentMatrix();
     if (WEATHER_CAMERA_IN_CAR(player)) {
-      Weather_DoSplats(Weather_gSys.num[player] >> 3,Weather_gSplatInfoServerA[player]);
+      Weather_DoSplats(Weather_gSys.num[player] >> 3,Weather_gSplatInfoServer[player]);
     }
     /* emit one snow/rain primitive per particle.
      * MATCH: INDEX form `wpt[n]` / `wprevpt[n]`, NOT an in-place `wpt++` walk.  The SYM

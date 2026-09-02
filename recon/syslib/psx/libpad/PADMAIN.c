@@ -31,6 +31,14 @@ extern int      chkRC2wait(void);           /* WAITRC2 @0x8010C008 */
  * interrupt/SIO bases and VSync verifier flag used only by this engine. Force
  * the zero words into .data so this remains one retail-contiguous owner block. */
 #define PADMAIN_DATA __attribute__((section(".data")))
+/* SYM-GLOBAL-CARRIER: _padFuncNextPort
+ * SYM-GLOBAL-CARRIER: _padFuncClrInfo
+ * SYM-GLOBAL-CARRIER: _padFuncRecvAuto
+ * SYM-GLOBAL-CARRIER: _padFuncClrCmdNo
+ * SYM-GLOBAL-CARRIER: _padFuncIntGun
+ * SYM-GLOBAL-CARRIER: _padFixResult
+ * Canonical PsyQ 4.3 INDEX.tsv assigns these public cells to PADMAIN.obj;
+ * the contiguous retail block and relocation sites confirm their storage. */
 int   (*_padFuncNextPort)(int flag) PADMAIN_DATA = 0;
 void  (*_padFuncClrInfo)(unsigned char *info) PADMAIN_DATA = 0;
 void   *_padFuncGetTxd PADMAIN_DATA = 0;
@@ -97,6 +105,10 @@ struct _PadIntRP {
     int        _pad0c;      /* +0x0c */
 };
 typedef struct _PadIntRP _PadIntRP;
+/* SYM-GLOBAL-CARRIER: _padVbCb
+ * SYM-GLOBAL-CARRIER: _padFrames
+ * Private PADMAIN.obj state whose exact retail addresses and source shapes
+ * are proven by the adjacent matching receipts. */
 static _PadIntRP _padVbCb;              /* @0x8014857C */
 /* MATCH (w51-a5): ONE 2-int ARRAY, not two scalars.  _padStartCom's oracle clears both through a
  * SINGLE base (`lui $v0; addiu $v0,%lo; sw $zero,4($v0); sw $zero,0($v0)`) -- only an array gives

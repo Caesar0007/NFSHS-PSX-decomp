@@ -79,6 +79,7 @@ static inline void wr_sr(unsigned int s) { __asm__ volatile("mtc0 %0,$12" : : "r
         "nop"                                                                   \
         : "=r"(sr) : : "$1", "$8", "memory")
 #else
+/* SYM-HOST-ONLY: g_sr -- portable stand-in for the target COP0 Status register. */
 static unsigned int g_sr = 0;
 static inline unsigned int rd_sr(void) { return g_sr; }
 static inline void wr_sr(unsigned int s) { g_sr = s; }

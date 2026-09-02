@@ -18,19 +18,18 @@ extern volatile int libticks; /* free-running tick counter -- volatile: IRQ-upda
                                * at each use inside systemtask() rather than caching one value */
 extern int systemtasklock;      /* live/re-entrant task-list lock */
 extern int lastsystemtasktick;  /* last tick the task list ran */
-/* W65-A6 DATA-MAT: `systemtasksubs` (8 reloc sites) was extern-only tree-wide.  systask.obj is
- * its only referencer AND its retail owner: the SYM records it as `$8013e980 6 systemtasksubs`
- * -- record type 6 = STATIC, i.e. a file-static of this object, which is exactly why no other
- * TU can define it.  Genuine BSS (0x8013E980 > t_addr+t_size 0x8013E000: no file bytes,
- * zero-init), size 256 = the SYM VA delta to the next symbol (sndss @0x8013EA80 is the next
- * EXT; 0x8013E980 + 0x100 = 0x8013EA80), matching the int[16*4] shape documented here.
- * DEVICE = file-scope asm `.section .bss` with NO `.globl` -- retail's STATIC binding is
- * reproduced exactly, the assembler still resolves this TU's references, and the C view stays
- * the UNSIZED `extern int systemtasksubs[]` that the MATCH note further down records as
- * load-bearing ("its TRUE shape").  3/3 PASS unchanged.
- * Receipts: scratchpad/w65a6/RECEIPTS.md */
-__asm__("\t.section\t.bss\n\t.align\t2\nsystemtasksubs:\n\t.space\t256\n\t.text");
-extern int systemtasksubs[];    /* int[16*4] : 16 slots of {fn, period, deadline, busy} */
+/* Compact SYM records `systemtasksubs` as systask.obj-private BSS at
+ * 0x8013E980; its exact 0x100-byte extent reaches `sndss` at 0x8013EA80.
+ * The independently matched NFS2 EAC source supplies the original source
+ * shape: a static 16-element array of four-word scheduler records. */
+typedef struct SYSTEM_TASK_SUB {
+    int fn;
+    int period;
+    int deadline;
+    int busy;
+} SYSTEM_TASK_SUB;
+
+static SYSTEM_TASK_SUB systemtasksubs[16];
 
 extern void         addsystemtask(int taskFn, int period, int delay);        /* @0x800E6AF4 */
 extern void         delsystemtask(int fn);                                   /* @0x800E6BA8 */
@@ -58,7 +57,7 @@ extern void addsystemtask(int taskFn, int period, int delay)
     taskFn = 0;
     count = systemtasklock;                    /* old value kept in a reg across the scan */
     systemtasklock = count + 1;                /* re-entrancy bracket: ++ at entry, -- at exit */
-    slot  = (int *)&systemtasksubs;
+    slot  = (int *)systemtasksubs;
     for (; taskFn < 0x10; taskFn++) {
         if (slot[taskFn * 4] == fn) {          /* MATCH: index form (strength-reduces to the oracle's
                                                 * t0 walker) -- do NOT rewrite as *slot/slot+=4 */
@@ -92,7 +91,7 @@ extern void addsystemtask(int taskFn, int period, int delay)
          *      `found*4 + base` (index first): as `base + found*4` gcc emits the commuted
          *      `addu v1,v0,v1`, and hoisting the base out of the if-block emits the `sll` before
          *      the `lui/addiu` pair (catalog: join-block fresh materialization + operand order). */
-        int *base = (int *)&systemtasksubs;
+        int *base = (int *)systemtasksubs;
         found  = (int)((found * 4) + base);    /* slot pointer, in found's own register */
         taskFn = libticks + delay;             /* MATCH: libticks read AT its use inside the if */
         ((int *)found)[0] = fn;
@@ -112,10 +111,9 @@ extern void addsystemtask(int taskFn, int period, int delay)
  *       back edge (+5 insns); the for-form (entry test provably true at i=0) compiles to the
  *       oracle's straight do-while with the `i<16` back-edge and the break jumping to the
  *       shared `slti` head.
- *   (2) `extern int systemtasksubs[]` (unsized array, its TRUE shape) -- the scalar extern
- *       self-temps the base la (`lui a2; addiu a2,a2`); the array decl gives the oracle's
- *       separate-temp form (`lui v0; addiu a2,v0`).  Section 3.12 #5 extended to an ADDRESS
- *       materialization. */
+ *   (2) the array-to-`int *` base conversion is kept explicit.  It gives the
+ *       oracle's separate-temp address materialization (`lui v0; addiu a2,v0`)
+ *       while preserving the recovered `SYSTEM_TASK_SUB[16]` definition. */
 extern void delsystemtask(int fn)
 {
     int  i    = 0;
@@ -146,14 +144,12 @@ extern void delsystemtask(int fn)
  *      strength reduction and therefore could never avoid the hoist.
  *  (2) `libticks >= p->deadline` (global first), not `p->deadline <= libticks`: gcc evaluates
  *      left-to-right, and retail loads libticks BEFORE the 0x8(s0) deadline field. */
-struct SysTaskSlot { int fn; int period; int deadline; int busy; };
-
 extern unsigned int systemtask(int arg1)
 {
     unsigned int result = 0;
     if (lastsystemtasktick != libticks) {
         int i = 0;
-        struct SysTaskSlot *p = (struct SysTaskSlot *)systemtasksubs;
+        SYSTEM_TASK_SUB *p = systemtasksubs;
         lastsystemtasktick = libticks;
     next:
         {

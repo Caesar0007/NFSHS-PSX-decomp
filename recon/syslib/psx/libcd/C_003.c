@@ -9,6 +9,10 @@ extern int DS_active;
 extern int DsReadyCallback(int func);
 extern int DsDataCallback(int func);
 
+/* SYM-GLOBAL-CARRIER: _un_cd_idx
+ * SYM-GLOBAL-CARRIER: _un_cd_reg3
+ * These exact initialized MMIO pointers are relocation- and section-proven;
+ * the stripped C_003 object contributes no private data declaration rows. */
 /* These initialized pointers are absolute-addressed retail .data, not -G4
  * small data.  Their order and section reproduce C_003.obj's data member. */
 static volatile u_char *_un_cd_idx __attribute__((section(".data"))) =

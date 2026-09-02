@@ -9,12 +9,7 @@
  * (matches the oracle's %gp_rel). section 3.12 #6. (auto: gen_gprel_defs.py) */
 BWorldSm_Pos *fogslicePos;
 FogKey *Fog_gHeadKey;
-/* SYM-CARRIER: Fog_gCurrentKey
- * SYM-GLOBAL-CARRIER: D_8013DB84
- * The SYM array is represented by the two
- * adjacent retail element labels; Fog_gCurrentKeyArr is the indexed view. */
-FogKey *Fog_gCurrentKey;
-FogKey *D_8013DB84;
+FogKey *Fog_gCurrentKey[2];
 TP_ZPaletteSystem TP_gZPaletteSystem;
 int Fog_gNumKeys;
 int gZDepth;
@@ -263,7 +258,7 @@ void Fog_Update(int player)
     BWorldSm_FindClosestQuadRez((coorddef *)(gCView + 2),fogslicePos + player,1);
     currentslice = fogslicePos[player].slice;
     {
-      FogKey **slot /* SYM-CODEGEN-CARRIER: slot -- shared indexed cell keeps the retail load/index issue order */ = &Fog_gCurrentKeyArr[player];
+      FogKey **slot /* SYM-CODEGEN-CARRIER: slot -- shared indexed cell keeps the retail load/index issue order */ = &Fog_gCurrentKey[player];
       key = Fog_FindKey(currentslice,*slot);
       *slot = key;
     }
@@ -394,11 +389,9 @@ void Fog_InitFogTriggers(void)
   }
   num_player = 1;
   /* MATCH (w39-a10, 35 -> 4).  Four levers:
-   *  (1) PER-ELEMENT gp-rel split of Fog_gCurrentKey (see the header): retail's
-   *      .sdata really does carry two separate 4-byte dlabels, and only two
-   *      distinct <=G4 objects can produce the oracle's per-element
-   *      `%gp_rel(Fog_gCurrentKey)` / `%gp_rel(D_8013DB84)` stores.  Fog_Update
-   *      keeps the runtime index and uses the unsized asm-label array view.
+   *  (1) Fog_gCurrentKey is the real two-element pointer array recorded by SYM.
+   *      Under the object's -G8 identity it remains small-data eligible for the
+   *      constant-index stores while Fog_Update retains its runtime index.
    *  (2) SPLIT the openkeys base init (`p = openkeys; p = p + 0x1f;`): the
    *      fused `openkeys + 0x1f` folds the +124 into the %lo reloc (2 insns),
    *      retail emits the discrete third `addiu $v0,$v0,0x7C`.
@@ -445,8 +438,8 @@ void Fog_InitFogTriggers(void)
    * it, but every extra reference costs an emitted instruction (57 -> 58).
    * => the `for` form below (2 diffs, wrong guard opcode) is strictly better
    * than the structurally-faithful form (12 diffs).  Do not re-fight. */
-  Fog_gCurrentKey = Fog_gHeadKey;
-  D_8013DB84 = Fog_gHeadKey;
+  Fog_gCurrentKey[0] = Fog_gHeadKey;
+  Fog_gCurrentKey[1] = Fog_gHeadKey;
   if (GameSetup_gData[3] == 1) {
     num_player = 2;
   }

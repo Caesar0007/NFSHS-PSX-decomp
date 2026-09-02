@@ -184,6 +184,10 @@ extern int            sndpsxlimits;         /* base @0x801234D4 (5-int block; +0
  * to retarget; a follow-up should migrate all 6 sites to sndpd-relative macros + delete
  * these standalone defs. Function bodies in THIS file use the HOOK_* macros below instead. */
 extern void (*snd_voice_done_hook)(void *voice);   /* @0x8014803c */
+/* SYM-GLOBAL-CARRIER: snd_voice_done_hook
+ * SYM-GLOBAL-CARRIER: snd_user_serve_hook
+ * The two adjacent callback slots are exact-VA relocation-backed BSS, while
+ * the stripped sndpsxz object contributes no reliable SYM declaration rows. */
  void (*snd_voice_done_hook)(void *voice) = 0;  /* def @0x8014803c */
              void  *snd_user_serve_hook = 0;               /* def @0x80148038 */
 extern void  *snd_user_serve_hook;                 /* @0x80148038 */

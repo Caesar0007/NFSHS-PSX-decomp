@@ -60,10 +60,10 @@
  * every C view `extern` is byte-neutral by construction: 7/7 PASS unchanged.
  * Receipts: scratchpad/w65a6/RECEIPTS.md */
 int gGameNum;         /* owned here (W65-A6 run @0x80148428) */
-int gFilterSetting;
-int gLastSubTick;     /* spchevnt's, but retail held the run in ONE object */
-int gDataRate;
-int gLastTick;
+int gFilterSetting;   /* @0x8014842C */
+int gLastSubTick;     /* @0x80148430; spchevnt's, but retail held the run in ONE object */
+int gDataRate;        /* @0x80148434 */
+int gLastTick;        /* @0x80148438 */
 /* W65-A6: the stale `int gRepeatCount;` tentative definition that stood here is GONE.  It was
  * never referenced by this TU's code (every use spells it `gVoxInGame[1]`), so maspsx turned
  * it into a private 4-byte LOCAL .sbss object at an address retail does not have -- retail's

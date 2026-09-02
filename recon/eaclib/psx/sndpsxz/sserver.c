@@ -116,7 +116,6 @@ extern void iSNDserver(void)
         { volatile char *q = (volatile char *)sndgs; q[0x3e] = 0; }
     }
 }
-
 /* iSND100hzserver @0x800EA254 : one 100 Hz tick -- bump the audio clock, run the stream/serve pump and the
  *   registered 100 Hz clients, then for every held voice step its pitch LFO, the AUTO-VOLUME ramp and the
  *   VOLUME ENVELOPE, recomputing SPU pitch/volume (and stopping voices whose envelope runs out).
@@ -317,6 +316,3 @@ shiftloop:
     if (i < *(signed char *)(base + 0x40))
         goto findloop;
 }
-
-/* owning-TU def (link-harness) */
- int request; 

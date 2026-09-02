@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """verify_asm.py CPP FUNC[,FUNC...] — compile a recon .cpp (cc1plus+maspsx) and diff each
 named function against its asm/nonmatchings/main/<FUNC>.s oracle (spimdisasm format).
+Use FUNC@VA when two file-static functions have the same retail name and the
+oracle filename must be selected by address (for example locaterequest@800FC4E4).
 Reloc-name + branch-target lenient. Prints PASS/diff per function."""
 import os, re, sys, subprocess
 from pathlib import Path
@@ -10,6 +12,16 @@ OBJD = str(MIPS / 'mipsel-none-elf-objdump.exe')
 
 cpp = ROOT / sys.argv[1]
 funcs = sys.argv[2].split(',')
+
+def _split_target(target):
+    """Return (source symbol, optional retail VA) for the diagnostic selector.
+
+    `@VA` is deliberately gate-only: it disambiguates duplicate file-static
+    names without inventing an address-suffixed identifier in reconstructed
+    source or changing any compiler/linker input.
+    """
+    m = re.fullmatch(r'(.+)@(?:0x)?([0-9A-Fa-f]{8})', target)
+    return (m.group(1), int(m.group(2), 16)) if m else (target, None)
 
 # compile via build.py's compile_cpp
 import importlib.util
@@ -139,12 +151,12 @@ def norm_ins(t):
     if m: return f"{m.group(1)} T"
     return t
 
-def _oracle_alabels(fn):
+def _oracle_alabels(fn, oracle_va=None):
     # Interior `alabel` names inside fn's oracle .s: the expected build exports them as
     # GLOBAL symbols (splat alternate labels), so our object must define them too (objdiff
     # 3.8.0 pairing), which makes objdump SPLIT our disasm block at each one.  ours() must
     # therefore continue through them -- the oracle's own span is the block authority.
-    p = _find_oracle_path(fn)
+    p = _find_oracle_path(fn, oracle_va)
     if p is None:
         return set()
     txt = p.read_text()
@@ -153,10 +165,10 @@ def _oracle_alabels(fn):
         txt = txt[:m.start()]
     return set(re.findall(r'^\s*alabel\s+(\S+)', txt, re.M))
 
-def ours(fn):
+def ours(fn, oracle_va=None):
     # Collect the function's raw objdump lines (instructions + the reloc lines that
     # objdump -r interleaves AFTER each relocated instruction).
-    interior = _oracle_alabels(fn)
+    interior = _oracle_alabels(fn, oracle_va)
     fn = _resolve(fn)                 # follow aliases to the block objdump actually labeled
     lines=[]; inb=False
     for ln in dis.splitlines():
@@ -213,6 +225,23 @@ def _exists_exact(p: Path) -> bool:
 
 
 _SYMBOL_ADDRS = None
+# Exact duplicate file-static names cannot both live in the global address map.
+# Keep the exceptional oracle routing keyed by owning source TU; this changes
+# only which immutable oracle file the verifier reads. It is not a compiler,
+# assembler, linker, or post-recompile rewrite mechanism.
+_DUPLICATE_STATIC_ORACLE_VAS = {
+    ('recon/eaclib/psx/eacpsxz/stream.c', 'locaterequest'): 0x800FC4E4,
+}
+
+# Diagnostic filename routing only.  The retail static C++ symbol below is
+# correctly emitted with its GCC-v2 mangled name, but the historical splat
+# oracle was created earlier under the shortened stem `TransformVector.s`.
+# Do not force the shortened assembler name back into reconstructed source.
+_ORACLE_FILE_STEMS = {
+    ('recon/frontend/common/screencarselect.cpp',
+     'TransformVector__FRA4_iRA4_A4_iT0'): 'TransformVector',
+}
+
 def _symbol_addrs():
     """configs/symbol_addrs.txt: `NAME = 0xVA; // type:func` per line -- the
     project's authoritative name<->address map (methodology gotcha 0b)."""
@@ -228,7 +257,7 @@ def _symbol_addrs():
     return _SYMBOL_ADDRS
 
 
-def _find_oracle_path(fn):
+def _find_oracle_path(fn, explicit_va=None):
     """Resolve a function NAME to its oracle .s path. The naive 'fn + .s' guess
     fails two ways, both discovered via the NTFS case-insensitivity bug
     (_exists_exact above): (1) splat sometimes leaves a function's oracle file
@@ -240,17 +269,26 @@ def _find_oracle_path(fn):
     through configs/symbol_addrs.txt's name->VA map rather than trusting the
     filename to equal the requested identifier."""
     segs = ('main', 'front')
-    # 1) direct case-exact name match (the common case).
-    for seg in segs:
-        p = ROOT / 'asm' / 'nonmatchings' / seg / (fn + '.s')
-        if _exists_exact(p):
-            return p
+    try:
+        source_key = cpp.relative_to(ROOT).as_posix()
+    except ValueError:
+        source_key = cpp.as_posix()
+    oracle_stem = _ORACLE_FILE_STEMS.get((source_key, fn), fn)
+    if explicit_va is None:
+        explicit_va = _DUPLICATE_STATIC_ORACLE_VAS.get((source_key, fn))
+    # 1) direct case-exact name match (the common case). An explicit VA skips
+    # this step because it exists precisely to select another same-name static.
+    if explicit_va is None:
+        for seg in segs:
+            p = ROOT / 'asm' / 'nonmatchings' / seg / (oracle_stem + '.s')
+            if _exists_exact(p):
+                return p
     # 2) VA-based fallbacks, via symbol_addrs.txt.
     addrs = _symbol_addrs()
-    va_candidates = []
-    if fn in addrs:
+    va_candidates = [explicit_va] if explicit_va is not None else []
+    if explicit_va is None and fn in addrs:
         va_candidates.append(addrs[fn])
-    else:
+    elif explicit_va is None:
         # disambiguated variant: some OTHER name in symbol_addrs.txt of the
         # form `fn_XXXXXXXX` (case-collision suffix, e.g. CD_init_80108140
         # for requested fn=CD_init).
@@ -260,15 +298,15 @@ def _find_oracle_path(fn):
                 va_candidates.append(va)
     for va in va_candidates:
         for seg in segs:
-            for cand in (f'{fn}_{va:08X}', f'func_{va:08X}'):
+            for cand in (f'{oracle_stem}_{va:08X}', f'func_{va:08X}'):
                 p = ROOT / 'asm' / 'nonmatchings' / seg / (cand + '.s')
                 if _exists_exact(p):
                     return p
     return None
 
 
-def oracle(fn):
-    p = _find_oracle_path(fn)
+def oracle(fn, oracle_va=None):
+    p = _find_oracle_path(fn, oracle_va)
     if p is None:
         return None
     out=[]
@@ -293,10 +331,11 @@ def oracle(fn):
     return out
 
 allpass=True
-for fn in funcs:
-    o=ours(fn); e=oracle(fn)
-    if e is None: print(f"  {fn}: NO ORACLE"); allpass=False; continue
-    if not o: print(f"  {fn}: NOT IN OBJECT"); allpass=False; continue
+for target in funcs:
+    fn, oracle_va = _split_target(target)
+    o=ours(fn, oracle_va); e=oracle(fn, oracle_va)
+    if e is None: print(f"  {target}: NO ORACLE"); allpass=False; continue
+    if not o: print(f"  {target}: NOT IN OBJECT"); allpass=False; continue
     # w59-a9 DEAD-%hi ARTIFACT FIX: a lui whose %hi has no paired %lo is not
     # symbolized by spimdisasm, so the oracle renders the BARE CONSTANT while
     # ours (R_MIPS_HI16 reloc) normalizes to 0.  Positionally-aligned pairs
@@ -310,8 +349,8 @@ for fn in funcs:
             mo=_lu.match(r'lui (\w+),0$',o[_i]); me=_lu.match(r'lui (\w+),\d+$',e[_i])
             if mo and me and mo.group(1)==me.group(1): e[_i]=o[_i]
     d=[l for l in __import__('difflib').unified_diff(o,e,lineterm='') if l[0] in '+-' and not l.startswith(('+++','---'))]
-    if not d: print(f"  {fn}: PASS ({len(o)} insns)")
+    if not d: print(f"  {target}: PASS ({len(o)} insns)")
     else:
-        allpass=False; print(f"  {fn}: FAIL {len(d)} diffs (ours {len(o)} / oracle {len(e)})")
+        allpass=False; print(f"  {target}: FAIL {len(d)} diffs (ours {len(o)} / oracle {len(e)})")
         for l in d[:int(os.environ.get("VA_MAX","12"))]: print("      "+l)
 sys.exit(0 if allpass else 1)

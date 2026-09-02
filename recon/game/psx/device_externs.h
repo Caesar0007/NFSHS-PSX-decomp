@@ -40,7 +40,7 @@ extern void InGame_ResetPSXController(int, int);
    retail .sdata run (SYM device.obj block):
      0x8013d778 gForcePause -> d77c gPausePort -> d780 gPaused ->
      0x8013d784 gToggleTime[2] -> d78c gPrev[2] -> d794 gPausePortIndex. */
-extern int    Device_gForcePause;      /* = iVar1/0/1 */
+extern int    Device_gForcePause;      /* nonzero requests the forced-pause state */
 extern int    Device_gPausePort;       /* holds -1/0/4 */
 extern int    Device_gPaused;          /* !=0 / =0,1 */
 extern int    Device_gToggleTime[2];   /* per-port toggle frame-count (=0x11) */

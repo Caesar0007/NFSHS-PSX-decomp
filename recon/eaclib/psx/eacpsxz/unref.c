@@ -26,16 +26,17 @@
  *   Every puti() writes 4 bytes (delay-slot a2=4 -- the RefPack "over-write 4, advance by the real count"
  *   trick; the cursor advances via the back-reference arithmetic).  refcpy/memcpyl live in unhuff.obj.
  */
-/* MATCH: chase's oracle reaches all four via %gp_rel -- tentative defs (mergeable
- * .comm; unbtree.c tentative-defines the same set, the linker folds them).
- * SYM-SHARED-COMMON: SQVd
- * SYM-SHARED-COMMON: SQVclue
- * SYM-SHARED-COMMON: SQVleft
- * SYM-SHARED-COMMON: SQVright */
-int SQVd;       /* destination cursor (shared with unbtree) */
-int SQVclue;    /* clue table base */
-int SQVleft;    /* node left-child table base */
-int SQVright;   /* node right-child table base */
+/* unbtree.obj owns this private decompressor state.  These matching tentative
+ * declarations are a measured assembler-compatibility carrier: an ordinary
+ * extern makes GNU as expand each access to HI16/LO16, while retail and the
+ * common declaration use the required one-instruction GP-relative form.  The
+ * linker coalesces the shared five-word state with unbtree.obj's definitions.
+ * The declaration order is the compact-SYM BSS order. */
+signed char   *SQVclue;
+unsigned char *SQVleft;
+unsigned char *SQVright;
+unsigned char *SQVs;
+unsigned char *SQVd;
 
 extern unsigned int   geti(void *p, char nbits);               /* getm */
 extern void           puti(unsigned char *buf, unsigned int val, int n); /* textcrnt */
@@ -347,12 +348,10 @@ extern int unrefpack(unsigned char *comp, unsigned char *out_arg, int reverse_ar
 extern void chase(unsigned int code)
 {
     unsigned int idx = code & 0xff;
-    if (*(signed char *)(SQVclue + idx) != 0) {
-        chase(*(unsigned char *)(SQVleft + idx));
-        chase(*(unsigned char *)(SQVright + idx));
+    if (SQVclue[idx] != 0) {
+        chase(SQVleft[idx]);
+        chase(SQVright[idx]);
     } else {
-        int d = SQVd;                   /* ONE load (the char* store would alias-block CSE) */
-        *(char *)d = (char)code;
-        SQVd = d + 1;
+        *SQVd++ = (unsigned char)code;
     }
 }

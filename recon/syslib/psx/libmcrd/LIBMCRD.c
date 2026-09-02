@@ -200,6 +200,22 @@ extern char *strcat(char *dst, const char *src);         /* libc C21 @0x800E78E8
  * them as struct fields let gcc CSE ONE address across the function (`lui $a0;addiu $a0` for
  * _mc_exrslt, then `addiu $s0,$a0,32` to reach _mc_chan from it) -- a shape the oracle never has.
  * The aggregate therefore STARTS at _mc_cmd (0x518) and runs to 0x5C. */
+/* SYM-GLOBAL-CARRIER: _mc_exretry
+ * SYM-GLOBAL-CARRIER: _mc_exrslt
+ * SYM-GLOBAL-CARRIER: _mc_retry
+ * SYM-GLOBAL-CARRIER: _mc_evrslt
+ * SYM-GLOBAL-CARRIER: _mc_cleared
+ * SYM-GLOBAL-CARRIER: mc
+ * SYM-GLOBAL-CARRIER: _mc_sync
+ * SYM-GLOBAL-CARRIER: _mc_save_cb
+ * SYM-GLOBAL-CARRIER: _mc_present
+ * SYM-GLOBAL-CARRIER: _mc_rd_retry
+ * SYM-GLOBAL-CARRIER: _mc_wr_retry
+ * SYM-GLOBAL-CARRIER: _mc_rf_retry
+ * SYM-GLOBAL-CARRIER: _mc_wf_retry
+ * These split/aggregate BSS objects are each justified below by exact retail
+ * VAs, relocation bases, and section tiling.  NFS4's stripped libmcrd member
+ * retains no reliable private data declaration records. */
 static int   _mc_exretry __attribute__((section(".bss")));  /* @0x80147500 : Exist retry counter  */
 static int   _mc_exrslt  __attribute__((section(".bss")));  /* @0x80147504 : Exist event scratch  */
 static int   _mc_retry   __attribute__((section(".bss")));  /* @0x80147508 : Accept retry counter */

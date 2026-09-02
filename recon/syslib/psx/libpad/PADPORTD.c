@@ -42,6 +42,11 @@ extern unsigned char *(*_padFuncPort2Info)(int slot);
 extern unsigned       (*_padFuncClrCmdNo)(unsigned char *info);
 
 /* ---- this obj's .bss: two per-port info blocks + their receive/scratch buffers --------------- */
+/* SYM-GLOBAL-CARRIER: _pad_rxbuf
+ * SYM-GLOBAL-CARRIER: _pad_buf2
+ * SYM-GLOBAL-CARRIER: _pad_info
+ * PADPORTD.obj-private storage; exact VAs and the contiguous 0x1e0-byte info
+ * extent are proven by the retail layout and neighboring symbol boundary. */
 static unsigned char _pad_rxbuf[2][0x23];          /* @0x80147570 : per-port SIO receive buffer */
 static unsigned char _pad_buf2[2][0x23];           /* @0x801475B8 : per-port scratch buffer */
 static unsigned char _pad_info[2 * 0xf0];          /* @0x80147600 : 2 info blocks, EXACTLY 0x1E0

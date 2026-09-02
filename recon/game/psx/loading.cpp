@@ -13,14 +13,6 @@ char *smallShapeFile = 0;   /* @0x8013d9d0  W67-A4: explicit =0 -- retail emits 
     cell BEFORE the "back" literal @0x8013d9d4, so it cannot have been tentative
     (16E =0 discriminator).  DO NOT strip the =0. */
 
-/* SYM-GLOBAL-CARRIER: D_8013D9D4
-   W67-A4: retail keeps the <=8-byte "back" literal in .sdata @0x8013d9d4 (-G8
-   build, 18C).  Materialized as a NAMED .sdata array (the sim.cpp/w66a6
-   section-attribute device; >G4 so the address form stays absolute and the
-   reloc-name-lenient gate is unchanged).  Whole-TU g_value 8 also gates clean
-   here (3/3 PASS 2x, w67a4) if the orchestrator prefers the wiring route. */
-static char D_8013D9D4[] __attribute__((section(".sdata"), aligned(4))) = "back";
-
 int totalAvailMem;   /* tentative: retail emits it AFTER the literal (17B). */
 
 
@@ -81,7 +73,7 @@ void Loading_UpdateLoadingScreen(int checkpoint)
   i = 0;
   if (i < max) {
     do {
-      tile = locateshapez(smallShapeFile,D_8013D9D4);   /* "back" */
+      tile = locateshapez(smallShapeFile,"back");
       y = i + 0x8e;
       Draw_DrawDirectScreen(tile,(checkpoint + -1) * 0x17 + y,0xc0);
       i = i + 1;

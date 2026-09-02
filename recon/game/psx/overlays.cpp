@@ -5,24 +5,21 @@
 #include "overlays_types.h"
 #include "overlays_externs.h"
 
-/* gp-rel owning-TU defs (section 3.12 #6): overlays.obj OWNS these (the SYM's overlays.obj
-   band defines Hud_NextPerp @0x8013d994 and StatsTimer @0x8013d998), and the oracles reach
-   them via %gp_rel -- which only happens for a <=G4 object defined (not just declared) in
-   this TU.  StatsTimer's two words are separate 4-byte symbols for exactly that reason.
-   CAUTION (documented dual-model tradeoff, catalog section E): hud_externs.h still declares
-   SYM-CARRIER: StatsTimer
-   SYM-GLOBAL-CARRIER: D_8013D99C
-   StatsTimer as `int StatsTimer[2]`.  The two 4-byte .comm symbols land adjacently in .sbss
-   in declaration order, so that array view still reaches both words -- but if StatsTimer or
-   D_8013D99C ever gains an initializer or another owner, re-check that adjacency. */
+/* overlays.obj owns SYM's logical `StatsTimer[2]`.  Repeated -G4/-G8 probes
+   prove that an 8-byte owning symbol changes code generation in four PASS
+   functions; retain two adjacent 4-byte cells as an explicit storage carrier.
+   Consumer TUs continue to see the logical array. */
 short Hud_NextPerp[2];
+/* SYM-CARRIER: StatsTimer
+   SYM-GLOBAL-CARRIER: StatsTimerPlayer2Value */
 int StatsTimer;
-/* w44-a9 probe: sized asm-label view of StatsTimer[0] -- an ARRAY_REF store sets
-   MEM_IN_STRUCT_P, which (unlike the fixed-scalar store) may-aliases the varying
-   `car->carFlags` load and should keep it BELOW the store the way retail schedules it. */
-extern int StatsTimer_v1[1] asm("StatsTimer");
-extern int D_8013D99C_v1[1] asm("D_8013D99C");
-int D_8013D99C;
+int StatsTimerPlayer2Value asm("D_8013D99C");
+/* Zero-storage constant-element compiler views.  Retail SYM owns one
+   `StatsTimer[2]` object, but the retail code addresses the two constant cells
+   through independent gp-relative relocations.  The semantic C identifiers
+   keep that codegen fact out of the source's data model. */
+extern int StatsTimerPlayer1ClampStore[1] asm("StatsTimer");
+extern int StatsTimerPlayer2ClampStore[1] asm("D_8013D99C");
 
 
 /* ---- OptionsBarThing__Fiiii  [OVERLAYS.CPP:39-47] SLD-VERIFIED ---- */
@@ -732,7 +729,7 @@ void RaceStatistics(void)
       if (0 < (int)i) {
         Hud_FBuildF4(0,col1 + -2,(int)HUD_STATS_POS_Y,1,(sizeH16 >> 0x10) + -8,0,'\0','\0');
       }
-      if (2 < D_8013D99C) {
+      if (2 < StatsTimerPlayer2Value) {
         Font_TextColor(3);
         sprintf(string,"%s",Cars_gRaceCarList[i]->carInfo->driver);
         /* CORRECTNESS (w39-a4): the Y arg is ((titleY + 0x11) * 0x10000 >> 0x10)-4, NOT (-halfH)-4.  Raw oracle
@@ -745,7 +742,7 @@ void RaceStatistics(void)
        range-fold them into a single `slti v0,v0,2`. */
     if (OVERLAYS_NUM_LAPS != 1) {
      for (j = 0; (int)j < OVERLAYS_NUM_LAPS; j = j + 1) {
-        if ((int)j * 2 + 4 < D_8013D99C) {
+        if ((int)j * 2 + 4 < StatsTimerPlayer2Value) {
           /* colour is an inline ternary (oracle puts `li $a0,3` in the `beq` delay slot
              @0x800DA33C and falls into `li $a0,4`); there is no `color` local in the SYM. */
           if (((Cars_gHumanRaceCarList[i]->stats).finalLapTime[j] != 0) &&
@@ -768,7 +765,7 @@ void RaceStatistics(void)
         }
      }
     }
-    if (OVERLAYS_NUM_LAPS * 2 + 4 < D_8013D99C) {
+    if (OVERLAYS_NUM_LAPS * 2 + 4 < StatsTimerPlayer2Value) {
       sprintf(string,TextSys_Word(0x37));
       Font_TextColor(3);
       Font_TextXY(string,(int)col1,
@@ -793,14 +790,14 @@ void RaceStatistics(void)
                    ((titleY + 0x11) * 0x10000 >> 0x10) + OVERLAYS_NUM_LAPS * 0xc : ((titleY + 0x11) * 0x10000 >> 0x10)) + 0xc);
     }
     if (OVERLAYS_RACE_TYPE == RaceType_HotPursuit) {
-      if (OVERLAYS_NUM_LAPS * 2 + 6 < D_8013D99C) {
+      if (OVERLAYS_NUM_LAPS * 2 + 6 < StatsTimerPlayer2Value) {
         sprintf(string,TextSys_Word(0x3e));
         Font_TextColor(3);
         Font_TextXY(string,(int)col1,HUD_STATS_HOTPURSUIT_Y + 1);
         sprintf(string,"%d",*(int *)((int)Cars_gHumanRaceCarList[i] + 0x3c0));
         Font_TextXY(string,col2 + 5,HUD_STATS_HOTPURSUIT_Y + 1);
       }
-      if (OVERLAYS_NUM_LAPS * 2 + 8 < D_8013D99C) {
+      if (OVERLAYS_NUM_LAPS * 2 + 8 < StatsTimerPlayer2Value) {
         sprintf(string,TextSys_Word(0x3f));
         Font_TextColor(3);
         Font_TextXY(string,(int)col1,HUD_STATS_HOTPURSUIT_Y + 0xd);
@@ -1363,7 +1360,7 @@ HudStats_setUserOne:
   screen = 1;
 HudStats_finalize:
   if (screen == 0) {
-    D_8013D99C = 0;
+    StatsTimerPlayer2Value = 0;
     /* the oracle keeps the incremented value in its own pseudo and stores it BOTH
        before and after the clamp (`addu $v1,$v0,$zero` / two `sw $v1,%gp_rel(...)`). */
     StatsTimer = StatsTimer + 1;
@@ -1371,7 +1368,7 @@ HudStats_finalize:
     if (10000 < t) {
       t = 10000;
     }
-    StatsTimer_v1[0] = t;
+    StatsTimerPlayer1ClampStore[0] = t;
     if ((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) == 0) {
       RaceSummary();
     }
@@ -1384,12 +1381,12 @@ HudStats_finalize:
   }
   else {
     StatsTimer = 0;
-    D_8013D99C = D_8013D99C + 1;
-    t = D_8013D99C;
+    StatsTimerPlayer2Value = StatsTimerPlayer2Value + 1;
+    t = StatsTimerPlayer2Value;
     if (10000 < t) {
       t = 10000;
     }
-    D_8013D99C_v1[0] = t;
+    StatsTimerPlayer2ClampStore[0] = t;
     if ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) == 0) {
       RaceStatistics();
     }

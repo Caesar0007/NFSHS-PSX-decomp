@@ -79,7 +79,7 @@ extern unsigned char  sndpdsafeloop[16];    /* DMA scratch RAM @0x80136DF0, per 
 /* w64-a18 E5 fix: retail = a 16-byte INITIALISED .data object (word 0 =
  * 0x00000700, rest zero) -- was a 1-byte .sbss tentative def (W62-A19 3.2's
  * wrong-section class; a genuine wrong runtime value). */
-unsigned char sndpdsafeloop[16] = {0x00, 0x07, 0x00, 0x00};
+unsigned char sndpdsafeloop[16] = {0x00, 0x07, 0x00, 0x00}; /* @0x80136DF0 */
 extern void          *snd_user_serve_hook;  /* @0x80148038              */
 
 /* voice-table fields (0x2c stride) -- all live INSIDE the sndpd block (same struct as sdpacket.c) */
@@ -235,6 +235,7 @@ static inline void wr_sr(unsigned int s) { __asm__ volatile("mtc0 %0,$12" : : "r
         "nop"                                                                          \
         : "=r"(sr), "=r"(channel), "=r"(callback) : "1"(channel), "2"(callback) : "$1", "$8", "memory")
 #else
+/* SYM-HOST-ONLY: g_sr -- portable stand-in for the target COP0 Status register. */
 static unsigned int g_sr = 0;
 static inline unsigned int rd_sr(void) { return g_sr; }
 static inline void wr_sr(unsigned int s) { g_sr = s; }

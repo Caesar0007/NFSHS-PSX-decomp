@@ -795,21 +795,21 @@ void CarIO_CreateLicense(char *text,int carType,int player)
 void CarIO_CleanUpLicense(int player)
 
 {
-  shapetbl **ppPlate1; /* SYM-CODEGEN-CARRIER: ppPlate1 -- shared element-address walker; the measured index form is FAIL 6 */
-  shapetbl *psVar1; /* SYM-CODEGEN-CARRIER: psVar1 -- shared loaded plate passed to purgememadr */
+  shapetbl **plateSlot; /* SYM-CODEGEN-CARRIER: plateSlot -- shared element-address walker; the measured index form is FAIL 6 */
+  shapetbl *plateShape; /* SYM-CODEGEN-CARRIER: plateShape -- shared loaded plate passed to purgememadr */
 
-  ppPlate1 = CarIO_Plate1 + player;
-  psVar1 = *ppPlate1;
-  if (psVar1 != (shapetbl *)0x0) {
-    purgememadr(psVar1);
+  plateSlot = CarIO_Plate1 + player;
+  plateShape = *plateSlot;
+  if (plateShape != (shapetbl *)0x0) {
+    purgememadr(plateShape);
   }
-  *ppPlate1 = (shapetbl *)0x0;
-  ppPlate1 = CarIO_Plate2 + player;
-  psVar1 = *ppPlate1;
-  if (psVar1 != (shapetbl *)0x0) {
-    purgememadr(psVar1);
+  *plateSlot = (shapetbl *)0x0;
+  plateSlot = CarIO_Plate2 + player;
+  plateShape = *plateSlot;
+  if (plateShape != (shapetbl *)0x0) {
+    purgememadr(plateShape);
   }
-  *ppPlate1 = (shapetbl *)0x0;
+  *plateSlot = (shapetbl *)0x0;
   return;
 }
 
@@ -817,20 +817,20 @@ void CarIO_CleanUpLicense(int player)
 void CarIO_LicenseCheck(int reload,int *license_vx,int *license_vy,Car_tObj *carObj,int plate)
 
 {
-  int sVar1; /* SYM-CODEGEN-CARRIER: sVar1 -- separates the table value from the old license_vx load; canonical reuse is FAIL 2 */
-  int sVar2; /* SYM-CODEGEN-CARRIER: sVar2 -- paired table-value staging for the exact load widths */
+  int new_sfx_vx; /* SYM-CODEGEN-CARRIER: new_sfx_vx -- separates the table value from the old license_vx load; canonical reuse is FAIL 2 */
+  int new_sfx_vy; /* SYM-CODEGEN-CARRIER: new_sfx_vy -- paired table-value staging for the exact load widths */
   int sfx_vy;
   int sfx_vx;
   
   if (((reload & 2U) != 0) && (CarIO_licenseSFX_Count < 0xc)) {
-    sVar1 = CarIO_licenseSFX_Vram[CarIO_licenseSFX_Count][0];
-    sVar2 = CarIO_licenseSFX_Vram[CarIO_licenseSFX_Count][1];
+    new_sfx_vx = CarIO_licenseSFX_Vram[CarIO_licenseSFX_Count][0];
+    new_sfx_vy = CarIO_licenseSFX_Vram[CarIO_licenseSFX_Count][1];
     sfx_vx = *license_vx;
-    (carObj->render).licenseOffsetU[plate] = (((u_char)sVar1 & 0x3f) - ((u_char)sfx_vx & 0x3f)) * '\x04'
+    (carObj->render).licenseOffsetU[plate] = (((u_char)new_sfx_vx & 0x3f) - ((u_char)sfx_vx & 0x3f)) * '\x04'
     ;
-    (carObj->render).licenseOffsetV[plate] = (char)sVar2 - (char)*license_vy;
-    *license_vx = sVar1;
-    *license_vy = sVar2;
+    (carObj->render).licenseOffsetV[plate] = (char)new_sfx_vy - (char)*license_vy;
+    *license_vx = new_sfx_vx;
+    *license_vy = new_sfx_vy;
     CarIO_licenseSFX_Count = CarIO_licenseSFX_Count + 1;
     return;
   }

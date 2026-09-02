@@ -478,10 +478,10 @@ lookahead_done:;
 
 /* ---- Camera_UpdateHeliCam__Fii  [@0x800813cc] ----
  * MATCH (187 -> 72): TailCam's priced road-sample/source-shape idiom preserves
- * BWorldSm_slices in a2 and the first sample in a0; carrying that same `first`
- * quantity through /2 and the clamp switch keeps the retail a0 funnel. Scoped
- * positionAnchor quantities reproduce the look-behind reloads, and builtin_abs
- * gives the retail raw-v0/copy handoffs without volatile.
+ * BWorldSm_slices in a2 and the first sample in a0; reusing SYM's `fallback`
+ * through /2 and the clamp switch keeps the retail a0 funnel. Direct anchor
+ * expressions reproduce the look-behind reloads, and builtin_abs gives the
+ * retail raw-v0/copy handoffs without volatile.
  *
  * W59-A4 (72 -> 57), two independent devices:
  *  (1) 09I CAST-INT ARRAY SUBSCRIPT on the FIRST Input_gLookBehind test
@@ -573,13 +573,18 @@ void Camera_UpdateHeliCam(int player,int behavior)
   maxrate = 0x1999;
   rate = maxrate;
   {
-    short mode = Camera_gInfo[player].mode;   /* MATCH: inner gInfo eval first (base lui v0) */
+    /* SYM-CODEGEN-CARRIER: mode -- the nested lookup must evaluate the
+       Camera_gInfo base before forming the Camera_gFlags index.  A direct
+       subscript is count-exact but swaps the $v0/$v1 address chain (26 diffs). */
+    short mode = Camera_gInfo[player].mode;
     arm = Camera_gFlags[mode].arm;
   }
   anchor = (Car_tObj *)Camera_gInfo[player].anchor;
   rateY = 0xCCC;
   {
-    /* MATCH: reverseTrack read ONCE before the if (single lw, shared by both arms) */
+    /* SYM-CODEGEN-CARRIER: rev -- optimized SYM has no local row, but one
+       shared reverseTrack load must dominate both arms.  Spelling the global
+       directly in both tests emits 448/443 instructions and 19 diffs. */
     int rev = Camera_GameSetupWords[12];
     if (0 < anchor->wrongway) {
       lookahead = 3;
@@ -628,9 +633,14 @@ void Camera_UpdateHeliCam(int player,int behavior)
     break;
   }
   if (behavior != 0) {
-    int x = anchor->linearVel_ch.x;
+    /* SYM-CODEGEN-CARRIER: z -- the normalized Z value must stay in a
+       short-lived quantity before the speed sum.  Reusing the SYM `rate`
+       variable directly is count-exact but changes 24 instructions. */
     int z = anchor->linearVel_ch.z;
-    int ax = __builtin_abs(x);
+    /* SYM-CODEGEN-CARRIER: ax -- both scoped absolute-X quantities preserve
+       retail's raw-value/copy handoffs.  Repeating __builtin_abs directly in
+       the first block emits 445/443 instructions and 26 diffs. */
+    int ax = __builtin_abs(anchor->linearVel_ch.x);
     if (z < 0) {
       z = -z;
     }
@@ -656,9 +666,8 @@ void Camera_UpdateHeliCam(int player,int behavior)
   }
   {
     /* heli fallback: pull the camera back by |velocity|/20, clamped to 0x20000 */
-    int x = anchor->linearVel_ch.x;
     int z = anchor->linearVel_ch.z;
-    int ax = __builtin_abs(x);
+    int ax = __builtin_abs(anchor->linearVel_ch.x);
     if (z < 0) {
       z = -z;
     }
@@ -690,62 +699,63 @@ void Camera_UpdateHeliCam(int player,int behavior)
     }
   }
   {
-    /* MATCH: keep the road base in a2 and the first sample in a0, as in TailCam. */
-    char *slices = (char *)Camera_BWorldSmSlices;
-    int offset;
-    int first = *(int *)((slice << 5) + (int)slices + 4);
-    __asm__("" : : "r"(first), "r"(first), "r"(first), "r"(first), "r"(first),
-                      "r"(first));
+    /* SYM-CODEGEN-CARRIER: second -- retail keeps the normalized comparison
+       sample as a pointer quantity separate from `slice`; reusing the SYM
+       `slice` local for that index emits 445/443 instructions and 112 diffs. */
+    char *second;
+    fallback = *(int *)((slice << 5) + (int)Camera_BWorldSmSlices + 4);
+    __asm__("" : : "r"(fallback), "r"(fallback), "r"(fallback),
+                      "r"(fallback), "r"(fallback), "r"(fallback));
     if (lookahead < 1) {
       slice = slice - lookahead;
-      offset = (slice < gNumSlices ? slice : slice - gNumSlices) << 5;
+      second = (char *)Camera_BWorldSmSlices +
+          ((slice < gNumSlices ? slice : slice - gNumSlices) << 5);
     }
     else {
       slice = slice - lookahead;
-      offset = (slice < 0 ? slice + gNumSlices : slice) << 5;
+      second = (char *)Camera_BWorldSmSlices +
+          ((slice < 0 ? slice + gNumSlices : slice) << 5);
     }
-    char *second = slices + offset;
     __asm__("" : "+r"(second));
-    first -= *(int *)(second + 4);
-    first = first / 2;
+    fallback -= *(int *)(second + 4);
+    fallback = fallback / 2;
     switch (behavior) {
     case 0:
-      first = 0;
+      fallback = 0;
       break;
     case 1:
-      first = ((0x14000 < first ? 0x14000 : first) < 0x4000) ? 0x4000
-          : (0x14000 < first ? 0x14000 : first);
+      fallback = ((0x14000 < fallback ? 0x14000 : fallback) < 0x4000) ? 0x4000
+          : (0x14000 < fallback ? 0x14000 : fallback);
       break;
     case 2:
-      first = ((0x30000 < first ? 0x30000 : first) < -0xc000) ? -0xc000
-          : (0x30000 < first ? 0x30000 : first);
+      fallback = ((0x30000 < fallback ? 0x30000 : fallback) < -0xc000) ? -0xc000
+          : (0x30000 < fallback ? 0x30000 : fallback);
       break;
     }
+    /* SYM-CODEGEN-CARRIER: armY -- loading arm.y before the boundary leaves
+       the following Input_gLookBehind high/low pair free to fill its latency
+       window.  A direct `arm.y += fallback` is count-exact but leaves 2 diffs. */
     int armY = arm.y;
-    /* MATCH: this boundary blocks the clamp-switch target steals.  Loading
-       armY before it leaves the following Input_gLookBehind high/low pair free
-       to fill the load latency window in retail order. */
+    /* MATCH: this boundary blocks the clamp-switch target steals. */
     __asm__("" : : "i"(0));
-    arm.y = armY + first;
+    arm.y = armY + fallback;
   }
   if (Input_gLookBehind[player] != 0) {
     /* audio (look-behind) arm FIRST in VA order */
     transform(&arm,((Camera_gInfo[player].anchor)->orientMat).m,&newarm);
     Camera_gInfo[player].audioPos.x = ((Camera_gInfo[player].anchor)->position).x + newarm.x;
-    {
-      BO_tNewtonObj *positionAnchor = (BO_tNewtonObj *)Camera_gInfo[player].anchor;
-      Camera_gInfo[player].audioPos.y = positionAnchor->position.y + newarm.y;
-      Camera_gInfo[player].audioPos.z = positionAnchor->position.z + newarm.z;
-    }
+    Camera_gInfo[player].audioPos.y =
+        ((BO_tNewtonObj *)Camera_gInfo[player].anchor)->position.y + newarm.y;
+    Camera_gInfo[player].audioPos.z =
+        ((BO_tNewtonObj *)Camera_gInfo[player].anchor)->position.z + newarm.z;
     arm.z = -arm.z;
     transform(&arm,((Camera_gInfo[player].anchor)->orientMat).m,&newarm);
     Camera_TunnelLimit(player,&newarm.y);
     Camera_gInfo[player].position.x = ((Camera_gInfo[player].anchor)->position).x + newarm.x;
-    {
-      BO_tNewtonObj *positionAnchor = (BO_tNewtonObj *)Camera_gInfo[player].anchor;
-      Camera_gInfo[player].position.y = positionAnchor->position.y + newarm.y;
-      Camera_gInfo[player].position.z = positionAnchor->position.z + newarm.z;
-    }
+    Camera_gInfo[player].position.y =
+        ((BO_tNewtonObj *)Camera_gInfo[player].anchor)->position.y + newarm.y;
+    Camera_gInfo[player].position.z =
+        ((BO_tNewtonObj *)Camera_gInfo[player].anchor)->position.z + newarm.z;
     return;
   }
   transform(&arm,((Camera_gInfo[player].anchor)->orientMat).m,&newarm);
@@ -770,11 +780,12 @@ void Camera_UpdateHeliCam(int player,int behavior)
   }
   Camera_gInfo[player].position.x =
        ((Camera_gInfo[player].anchor)->position).x + Camera_gInfo[player].relpos.x;
-  {
-    BO_tNewtonObj *positionAnchor = (BO_tNewtonObj *)Camera_gInfo[player].anchor;
-    Camera_gInfo[player].position.y = positionAnchor->position.y + Camera_gInfo[player].relpos.y;
-    Camera_gInfo[player].position.z = positionAnchor->position.z + Camera_gInfo[player].relpos.z;
-  }
+  Camera_gInfo[player].position.y =
+      ((BO_tNewtonObj *)Camera_gInfo[player].anchor)->position.y +
+      Camera_gInfo[player].relpos.y;
+  Camera_gInfo[player].position.z =
+      ((BO_tNewtonObj *)Camera_gInfo[player].anchor)->position.z +
+      Camera_gInfo[player].relpos.z;
   /* W61-A11 REF-STEP DIAL -- DO NOT DELETE.  Zero-insn read-only fence: it adds
      exactly ONE reference to the &Camera_gInfo[player] address pseudo, taking its
      local-alloc qty from refs 15 (QTY_CMP_PRI 1.3235) to refs 16 (1.882) so it

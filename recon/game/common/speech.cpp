@@ -3245,44 +3245,32 @@ void MobileSpeaker::Backup()
 
 {
   Car_tObj *carObj;
-  __vtbl_ptr_type (*pa_Var1) [31];
-  int iVar2;
-  Car_tObj *pCVar3;
-  SPCHNFSType_VOICE *ctx;
-  SPCHNFSType_VOICE *VOICE;
-  SPCHNFSType_COLOUR *COLOUR;
-  int ID_UNIT1;
-  SPCHNFSType_REVINTRO *REVINTRO;
-  MobileSpeaker *flags;
-  
+
   Speech_fgSpeech->fSpeakerCar = this->fCarObj;
-  pa_Var1 = (this->_base_Speaker)._vf;
-  iVar2 = (*(*pa_Var1)[0x1e].pfn)
-                    ((int)&(this->_base_Speaker).fPosition.flags + (int)(*pa_Var1)[0x1e].delta);
-  VOICE = &this->fVoice;
-  iVar2 = *(int *)(iVar2 + 4);
-  ID_UNIT1 = (this->_base_Speaker).fFrom;
-  REVINTRO = &(this->_base_Speaker).fReverse;
-  (this->_base_Speaker).fTo = iVar2;
-  ctx = VOICE;
-  SPCHNFS_C_A_INTRO(VOICE,iVar2,ID_UNIT1,REVINTRO);
+  (this->_base_Speaker).fTo = *(int *)
+      ((*(*(this->_base_Speaker)._vf)[0x1e].pfn)
+          ((int)&(this->_base_Speaker).fPosition.flags +
+           (int)(*(this->_base_Speaker)._vf)[0x1e].delta) + 4);
+  SPCHNFS_C_A_INTRO(&this->fVoice,(this->_base_Speaker).fTo,
+                    (this->_base_Speaker).fFrom,
+                    &(this->_base_Speaker).fReverse);
   SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-  pa_Var1 = (this->_base_Speaker)._vf;
-  pCVar3 = (Car_tObj *)
-           (*(*pa_Var1)[0x1b].pfn)
-                     ((int)&(this->_base_Speaker).fPosition.flags + (int)(*pa_Var1)[0x1b].delta);
-  this->_base_Speaker.SetCar(pCVar3);
-  pa_Var1 = (this->_base_Speaker)._vf;
-  pCVar3 = (Car_tObj *)
-           (*(*pa_Var1)[0x19].pfn)
-                     ((int)&(this->_base_Speaker).fPosition.flags + (int)(*pa_Var1)[0x19].delta);
-  this->_base_Speaker.FindLocation(pCVar3);
-  COLOUR = &(this->_base_Speaker).fColour;
-  flags = this;
+  this->_base_Speaker.SetCar((Car_tObj *)
+      (*(*(this->_base_Speaker)._vf)[0x1b].pfn)
+          ((int)&(this->_base_Speaker).fPosition.flags +
+           (int)(*(this->_base_Speaker)._vf)[0x1b].delta));
+  this->_base_Speaker.FindLocation((Car_tObj *)
+      (*(*(this->_base_Speaker)._vf)[0x19].pfn)
+          ((int)&(this->_base_Speaker).fPosition.flags +
+           (int)(*(this->_base_Speaker)._vf)[0x19].delta));
   {
+    /* SYM-CODEGEN-CARRIER: requestCar -- the staged third argument leaves the
+       `this` copy in the jal delay slot.  Passing fCar directly is count-exact
+       but reverses those two setup instructions (6 diffs). */
     int requestCar = (this->_base_Speaker).fCar;
-    int requestLocation = (this->_base_Speaker).fLocation;
-    SPCHNFS_C_D_REQUEST_BKUP(VOICE,COLOUR,requestCar,(SPCHNFSType_POSITION *)flags,requestLocation,
+    SPCHNFS_C_D_REQUEST_BKUP(&this->fVoice,&(this->_base_Speaker).fColour,
+               requestCar,(SPCHNFSType_POSITION *)this,
+               (this->_base_Speaker).fLocation,
                &(this->_base_Speaker).fDistance);
   }
   SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */

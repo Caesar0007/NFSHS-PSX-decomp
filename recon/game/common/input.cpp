@@ -110,6 +110,9 @@ void Input_Update(void)
   Input_tResults *r;
   u_long acc;
   u_long menukeys;
+  /* SYM-CODEGEN-CARRIER: one -- the shared literal quantity must survive to
+     the player-count comparison.  Using a direct 1 there emits 869/868
+     instructions and 7 diffs, losing retail's `$s6` compare operand. */
   u_long one;
   int i;
   int j;
@@ -118,12 +121,21 @@ void Input_Update(void)
   int right;
   char iactive[32];
   char hactive[17];
+  /* SYM-CODEGEN-CARRIER: activeBase -- retail reuses one pointer across the
+     two mode arms.  Replacing it with the SYM-visible sibling `active[17]` and
+     `hactive[17]` arrays emits 855/868 instructions and 101 diffs. */
   char *activeBase;
 
   Device_Update();
 
   {
+    /* SYM-CODEGEN-CARRIER: activePtr -- the descending pointer induction keeps
+       retail's address computation and delay-slot store.  Indexing iactive by
+       `i` is count-exact but changes 100 instructions downstream. */
     char *activePtr;
+    /* SYM-CODEGEN-CARRIER: activeValue -- staging the initial fill byte fixes
+       the position of its `li v1,1`; a direct literal is count-exact but leaves
+       2 scheduling diffs. */
     char activeValue;
 
     activeValue = 1;
@@ -253,6 +265,9 @@ void Input_Update(void)
       {
         int m;
         int k;
+        /* SYM-CODEGEN-CARRIER: dbFlags -- retaining the per-player address
+           stages the inner-loop base at retail's boundary.  Direct indexing
+           is count-exact but moves one zeroing instruction (2 diffs). */
         u_long *dbFlags;
 
         for (m = 0; m < 2; m++) {
@@ -440,11 +455,26 @@ secondHeldDone:
   }
 
   {
+    /* SYM-CODEGEN-CARRIER: interfaceActive -- the named iactive cursor is
+       spilled in retail's 184-byte frame and preserves the interface-loop
+       address lifetime.  Direct iactive indexing shrinks the frame to 176
+       bytes, emits 870/868 instructions, and produces 108 diffs. */
     char *interfaceActive;
+    /* SYM-CODEGEN-CARRIER: addressBlocker -- one of five zero-instruction
+       pressure quantities that keep the device-table base in retail's seat.
+       Removing the fifth quantity is count-exact but leaves 6 diffs. */
     int addressBlocker;
+    /* SYM-CODEGEN-CARRIER: addressBlocker2 -- same measured five-quantity
+       interface-loop allocator dial as `addressBlocker`. */
     int addressBlocker2;
+    /* SYM-CODEGEN-CARRIER: addressBlocker3 -- same measured five-quantity
+       interface-loop allocator dial as `addressBlocker`. */
     int addressBlocker3;
+    /* SYM-CODEGEN-CARRIER: addressBlocker4 -- same measured five-quantity
+       interface-loop allocator dial as `addressBlocker`. */
     int addressBlocker4;
+    /* SYM-CODEGEN-CARRIER: addressBlocker5 -- removing this fifth pressure
+       quantity produced the measured 868/868, 6-diff result above. */
     int addressBlocker5;
 
     i = 0;

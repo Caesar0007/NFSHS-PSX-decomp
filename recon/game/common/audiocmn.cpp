@@ -1518,11 +1518,12 @@ BNK5:
   goto GOTBANK;
 LOOKUP:
   {
-    /* MATCH: the typed byte intermediate is structural, not cosmetic.  Keeping
-       the lookup and bank-table reads as one expression leaves the address
-       allocnos reversed (14 diffs); naming the byte gives retail's v0 lookup
-       base and v1 index/load web, including both stolen %hi delay slots. */
+    /* SYM-CODEGEN-CARRIER: lookup -- the typed byte-table base remains a
+       separate address quantity in retail's lookup arm. */
     u_char *lookup = (u_char *)gBankNumLookupTable;
+    /* SYM-CODEGEN-CARRIER: bankNum -- the byte intermediate gives retail's
+       v0 lookup base and v1 index/load web.  Folding both names into one
+       expression is count-exact but leaves 36 authoritative diffs. */
     u_char bankNum = lookup[sndPlayer << 2];
     PatchBank = gSndBnk[bankNum].bnkID;
   }
@@ -1536,7 +1537,13 @@ GOTBANK:
   else {
     /* MATCH: goto-dispatch in oracle VA order -- [guard section][NEWSOUND][RECHECK
        vol/pan/pitch][SETM1][RET]; the natural nested if/else places NEWSOUND last. */
-    int chbase = (int)gaChannel;   /* MATCH: base materialized first, index-first addu */
+    /* SYM-CODEGEN-CARRIER: chbase -- materializing the base before the shifted
+       index gives retail's index-first add.  Direct array addressing is
+       count-exact but reverses the address chain for 8 diffs. */
+    int chbase = (int)gaChannel;
+    /* SYM-CODEGEN-CARRIER: slot -- the selected-channel pointer must survive
+       through SNDover and the async guard.  Its measured post-use reference is
+       zero-instruction and closes the former 94-diff allocation basin. */
     Channels_t *slot = (Channels_t *)((sndPlayer << 3) + chbase);
     if (slot->SFXnum != iSFXnum) goto NEWSOUND;
     if (SNDover(slot->Partial) != 0) {
@@ -1557,21 +1564,25 @@ GOTBANK:
     if (gaChannel[sndPlayer].SFXnum == iSFXnum) goto RECHECK;
 NEWSOUND:
     {
+      /* SYM-CODEGEN-CARRIER: nbase -- staging the channel-array base before
+         the shifted index fixes the `%lo` materialization position.  Direct
+         `&gaChannel[sndPlayer]` is count-exact but leaves 2 diffs. */
       int nbase = (int)gaChannel;
-      Channels_t *slot2 = (Channels_t *)((sndPlayer << 3) + nbase);
-      if (slot2->Partial != -1) {
-        SNDstop(slot2->Partial);
+      if (((Channels_t *)((sndPlayer << 3) + nbase))->Partial != -1) {
+        SNDstop(((Channels_t *)((sndPlayer << 3) + nbase))->Partial);
         NumSFXOn = NumSFXOn - 1;
       }
-      /* MATCH: block-local result r (dies in v0, no a0 copy); != arm falls through */
+      /* SYM-CODEGEN-CARRIER: r -- the block-local result dies in `$v0` and
+         preserves the shared-store control flow.  Reusing SYM's `iPartial`
+         emits 317/316 instructions and 13 diffs. */
       int r = AudioCmn_PlayDoppleredSound(PatchBank,iSFXnum,azimuth,iAmp,iFreq,iDopplerIn);
       if (r != -1) {
-        slot2->Partial = r;
-        slot2->SFXnum = iSFXnum;
+        ((Channels_t *)((sndPlayer << 3) + nbase))->Partial = r;
+        ((Channels_t *)((sndPlayer << 3) + nbase))->SFXnum = iSFXnum;
       }
       else {
-        slot2->Partial = r;
-        slot2->SFXnum = r;
+        ((Channels_t *)((sndPlayer << 3) + nbase))->Partial = r;
+        ((Channels_t *)((sndPlayer << 3) + nbase))->SFXnum = r;
       }
     }
     goto LAB_8007887c;
@@ -1611,8 +1622,17 @@ RECHECK:
     }
     else {
       if (gStereoMode != 0) {
+        /* SYM-CODEGEN-CARRIER: pbase -- the explicit base controls the stereo
+           pan block's high/low materialization.  Direct array addressing is
+           count-exact but moves both instructions (4 diffs). */
         int pbase = (int)gaChannel;
+        /* SYM-CODEGEN-CARRIER: pch -- keeping the selected channel separate
+           from the base preserves the pan-result and address webs.  Folding
+           the pointer into SNDpan is count-exact but leaves 20 diffs. */
         Channels_t *pch = (Channels_t *)((sndPlayer << 3) + pbase);
+        /* SYM-CODEGEN-CARRIER: pan -- the unsigned scoped result must remain
+           separate from SYM's earlier `iPartial` web.  Reusing `iPartial`
+           emits 322/316 instructions and 46 diffs. */
         u_int pan;
         if (azimuth - 0x4000U < 0x8000) {
           pan = 0xbfff - azimuth;
@@ -1624,10 +1644,13 @@ RECHECK:
       }
     }
     {
+      /* SYM-CODEGEN-CARRIER: bbase -- the final pitch block needs a fresh
+           base/index web.  Direct array addressing is count-exact but leaves
+           6 address-generation diffs. */
       int bbase = (int)gaChannel;
-      Channels_t *bch = (Channels_t *)((sndPlayer << 3) + bbase);
-      SNDpitchbend(bch->Partial,iFreq);
-      SNDpitchmult(bch->Partial,iDopplerIn >> 4);
+      SNDpitchbend(((Channels_t *)((sndPlayer << 3) + bbase))->Partial,iFreq);
+      SNDpitchmult(((Channels_t *)((sndPlayer << 3) + bbase))->Partial,
+                   iDopplerIn >> 4);
     }
     goto LAB_8007887c;
 SETM1:

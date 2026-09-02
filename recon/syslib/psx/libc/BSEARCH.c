@@ -21,11 +21,10 @@
  *           tail fence operands are load-bearing (drop lo 18 | drop w 12)
  *   shapes: lo split decl/init 4 | lo inside the `if` 18 | `c` at fn scope 4 |
  *           for(;;)+break 4
- * => wired as a PER_FN_TEXT_MOVES schedule-relocation row (same class as
- * physics.cpp's DoBarrierCheck mflo row): move the `sw $18,24($sp); addu
- * $18,$0,$0` pair back above the `w` parm copy.  ORCHESTRATOR: if you judge a
- * schedule-relocation row scaffolding, drop the row and this fn returns to a
- * clean 4-diff near-miss with the mechanism named above.
+ * => HISTORICAL: was once wired as a PER_FN_TEXT_MOVES schedule-relocation
+ * row; that table no longer exists in tools/build.py and bsearch PASSes
+ * 48/48 without it (verified W85-S11, 2026-09-02).  The ladder above is the
+ * record of how the source-level match was reached.
  */
 /* MATCH (w51-a8, 2026-08-09) -- BEST-KNOWN IS NOW THE 2.7.2 LANE, but it is only a
  * partial win so nothing was landed: cc1_272 + `-fno-schedule-insns` gates 24 diffs

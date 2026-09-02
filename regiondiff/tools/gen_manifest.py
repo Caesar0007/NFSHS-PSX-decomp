@@ -79,7 +79,12 @@ for ln in (RD / 'variants.tsv').read_text().splitlines()[1:]:
                 cls = 'DATA-BLOB'
             elif '/* PsyQ' in head or 'kernel gate' in head:
                 cls = 'LIB-THUNK'
-        unit = unit_of.get(name)
+        # REGION-ONLY fns that belong inside an existing unit's candidate
+        # (retail inserted them into that object): host them there.
+        UNIT_OVERRIDES = {
+            'func_8007593C': 'game/common/audioclc',   # inserted before SoundCloseCar (W84-R13)
+        }
+        unit = UNIT_OVERRIDES.get(name) or unit_of.get(name)
         if unit is None:
             unit = 'regiononly/' + fnfile(name)
         base_tu = None

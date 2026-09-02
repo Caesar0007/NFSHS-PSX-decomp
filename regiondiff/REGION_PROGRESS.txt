@@ -1,6 +1,6 @@
 NFS4-PSX regional-variant reconstruction -- per-row progress
 (gate: regiondiff/tools/verify_region.py; plan: MANIFEST.tsv)
-TOTAL: 232 rows, 211 SEALED / 11 FAIL / 1 TODO / 0 ERROR / 9 N-A (data-blob or lib-thunk)
+TOTAL: 232 rows, 212 SEALED / 11 FAIL / 0 TODO / 0 ERROR / 9 N-A (data-blob or lib-thunk)
 ========================================================================================
 status      words  region     unit                         function
 SEALED          8  USA        game/common/aiscript         AIScript_Assign__FP10AIScript_tPA7_25AIScript_tReactionDetails
@@ -11,7 +11,7 @@ SEALED         39  USA        game/psx/draw                AllocatePrimitivesBuf
 SEALED         96  USA        game/common/audioclc         AudioClc_CalcAzimuth__FP17DRender_tCalcViewP8coorddef
 SEALED         85  USA        game/common/audioclc         AudioClc_CalcTrackAzimuth__FP17DRender_tCalcViewP8Car_tObj
 SEALED        180  USA        game/common/audioclc         AudioClc_SoundCars__Fv
-TODO           61  USA        regiononly/func_8007593C     func_8007593C
+SEALED         61  USA        game/common/audioclc         func_8007593C
 SEALED        318  USA        game/common/audioclc         AudioClc_SoundCloseCar__Fii
 SEALED         99  USA        game/common/audiocmn         AudioCmn_LoadAsyncSfx__FiiPvi
 SEALED         14  USA        game/common/audiocmn         AudioCmn_MusicLevel__Fi

@@ -7,7 +7,7 @@ AllocatePrimitivesBuffer__Fv	CHANGED	AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA	USA	800BEC4
 AudioClc_CalcAzimuth__FP17DRender_tCalcViewP8coorddef	CHANGED	AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA	USA	800754C8	96	game/common/audioclc	regiondiff/recon/NFS4-R-USA/game/common/audioclc.cpp
 AudioClc_CalcTrackAzimuth__FP17DRender_tCalcViewP8Car_tObj	CHANGED	AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA	USA	8007571C	85	game/common/audioclc	regiondiff/recon/NFS4-R-USA/game/common/audioclc.cpp
 AudioClc_SoundCars__Fv	CHANGED	AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA	USA	80076B90	180	game/common/audioclc	regiondiff/recon/NFS4-R-USA/game/common/audioclc.cpp
-func_8007593C	REGION-ONLY	AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA	USA	8007593C	61	regiononly/func_8007593C	regiondiff/recon/NFS4-R-USA/regiononly/func_8007593C.cpp
+func_8007593C	REGION-ONLY	AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA	USA	8007593C	61	game/common/audioclc	regiondiff/recon/NFS4-R-USA/game/common/audioclc.cpp
 AudioClc_SoundCloseCar__Fii	CHANGED	AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA	USA	80075A30	318	game/common/audioclc	regiondiff/recon/NFS4-R-USA/game/common/audioclc.cpp
 AudioCmn_LoadAsyncSfx__FiiPvi	CHANGED	AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA	USA	80077174	99	game/common/audiocmn	regiondiff/recon/NFS4-R-USA/game/common/audiocmn.cpp
 AudioCmn_MusicLevel__Fi	CHANGED	AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA	USA	80076E60	14	game/common/audiocmn	regiondiff/recon/NFS4-R-USA/game/common/audiocmn.cpp

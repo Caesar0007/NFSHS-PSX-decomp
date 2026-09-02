@@ -127,22 +127,13 @@ void AudioEng_Set(int player,int vol,int esp,int gas,int cam,int dop,int azi,int
 void AudioEng_Update(void)
 {
   int player;
-  short sVar1;
-  short sVar2;
-  bool bVar3;
-  int iVar4;
-  u_int uVar5;
-  char cVar6;
-  u_int uVar7;
-  int iVar8;
-  int iVar9;
-  AudioEng_t *pAVar10;
-  AudioEng_t *pAVar11;
-  AudioEng_tState *pAVar12;
-  AudioEng_t *pAVar13;
-  u_short uVar14;
-  u_short uVar15;
-  AudioEng_t *pAVar16;
+  /* SYM-CODEGEN-CARRIER: rampedVolume -- replacing the left-hand ramp with
+     direct field expressions grows 366 to 373 instructions and leaves 17 diffs;
+     this value is the required signed-byte working copy for both voices. */
+  int rampedVolume;
+  /* SYM-CODEGEN-CARRIER: targetVolume -- paired with rampedVolume so the target
+     stays in retail's `$a0` flow across the two-step clamp. */
+  int targetVolume;
   
   player = 0;
   do {
@@ -263,21 +254,26 @@ void AudioEng_Update(void)
           else {
             if ((g->sep == 0) || ((signed char)g->chan[n].patchnum < 64) ||
                 (g->right[n].handle != -1)) {
-              iVar8 = (signed char)g->left[n].vol;
-              iVar9 = g->vol[n];
-              if (iVar8 != iVar9) {
-                if (iVar9 < iVar8) {
-                  iVar8 -= 2;
-                  bVar3 = iVar8 < iVar9;
+              rampedVolume = (signed char)g->left[n].vol;
+              targetVolume = g->vol[n];
+              if (rampedVolume != targetVolume) {
+                if (targetVolume < rampedVolume) {
+                  rampedVolume -= 2;
+                  if (rampedVolume < targetVolume) {
+                    rampedVolume = targetVolume;
+                  }
                 }
                 else {
-                  iVar8 += 2;
-                  bVar3 = iVar9 < iVar8;
+                  rampedVolume += 2;
+                  if (targetVolume < rampedVolume) {
+                    rampedVolume = targetVolume;
+                  }
                 }
-                if (bVar3) {
-                  iVar8 = iVar9;
-                }
-                *(volatile char *)&g->left[n].vol = iVar8;
+                /* Ordinary field stores/call operands preserve 366 instructions
+                   but move the store out of the jal delay slot and leave 20 diffs
+                   across both voices; the volatile accesses model those two
+                   required memory sequence points without emitting instructions. */
+                *(volatile char *)&g->left[n].vol = rampedVolume;
                 SNDvol(*(volatile int *)&g->left[n].handle,
                        (signed char)g->left[n].vol);
               }
@@ -302,21 +298,22 @@ void AudioEng_Update(void)
                 }
               }
               else {
-                iVar8 = (signed char)g->right[n].vol;
-                iVar9 = g->vol[n];
-                if (iVar8 != iVar9) {
-                  if (iVar9 < iVar8) {
-                    iVar8 -= 2;
-                    bVar3 = iVar8 < iVar9;
+                rampedVolume = (signed char)g->right[n].vol;
+                targetVolume = g->vol[n];
+                if (rampedVolume != targetVolume) {
+                  if (targetVolume < rampedVolume) {
+                    rampedVolume -= 2;
+                    if (rampedVolume < targetVolume) {
+                      rampedVolume = targetVolume;
+                    }
                   }
                   else {
-                    iVar8 += 2;
-                    bVar3 = iVar9 < iVar8;
+                    rampedVolume += 2;
+                    if (targetVolume < rampedVolume) {
+                      rampedVolume = targetVolume;
+                    }
                   }
-                  if (bVar3) {
-                    iVar8 = iVar9;
-                  }
-                  *(volatile char *)&g->right[n].vol = iVar8;
+                  *(volatile char *)&g->right[n].vol = rampedVolume;
                   SNDvol(*(volatile int *)&g->right[n].handle,
                          (signed char)g->right[n].vol);
                 }

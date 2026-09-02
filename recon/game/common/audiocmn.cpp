@@ -1665,15 +1665,14 @@ LAB_8007887c:
    source-PASS 530/530 in the authoritative strict TU-wide -G8 build.
    Comma-staging tunnelFlag with the load-amplitude shift, plus an input-only
    tunnelFlag fence, fills the multiply latency window and removes its load-delay
-   nop.  Staging carIndex before an immediate-only fence fixes the first two
-   PlayersRampedGasLevel address sites.  In the signed divide-by-eight block,
+   nop.  A single staged PlayersRampedGasLevel pointer preserves the retail address
+   lifetime through the ramp update; direct indexing is exact at the later read and
+   store sites.  In the signed divide-by-eight block,
    putting gasDelta's opacity use inside only the negative arm and spelling the
    nonnegative assignment explicitly keeps gasDelta as the branch operand while
    allowing gcc to fill `bgez`'s delay slot with `currentGas = gasDelta`.
-   In the final PlayersRampedGasLevel store, staging carIndex with no following
-   fence lets the -G8 `la` pair fill its load latency before the scaled index,
-   matching retail exactly.  The former +2-ref fence was a -G4-only workaround
-   and is intentionally absent in the sealed 48/48 TU lane. */
+   The former carIndex and +2-ref staging workarounds are unnecessary in the
+   restored source and are intentionally absent in the sealed 48/48 TU lane. */
 void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth,int trackazim,int relvel,
                int cardir)
 {
@@ -1691,53 +1690,58 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
   int wetNoiseAmp;
   int roadNoiseFreq;
   int wetNoiseFreq;
-  /* SLD places iAmpIn in the frame rather than a saved register.  The volatile
+  /* SLD places iAmpIn in the frame rather than a saved register.  The explicit
      defining store models that boundary; the later read remains ordinary. */
   int iAmpIn;
   int tuntrig;
+  /* SYM-CODEGEN-CARRIER: tunnelFlag -- branching directly on SYM's `tuntrig`
+     grows 530 to 531 instructions, shifts all three frame slots, and leaves 23
+     authoritative diffs; this snapshot is the required stack-layout carrier. */
   int tunnelFlag;
   int cam;
   int roadNoisePatch;
-  u_char bVar1;
-  short sVar2;
-  int iVar6;
-  u_int uVar7;
-  int sndPlayer;
-  int iVar9;
-  int iVar10;
-  int *rampedGas;
+  /* SYM-CODEGEN-CARRIER: scaledAmplitude -- folding this temporary into the
+     SYM-named `amplitude` preserves count but changes 14 instructions around the
+     clamp and multiply handoff. */
+  int scaledAmplitude;
+  /* SYM-CODEGEN-CARRIER: rpmRatio -- inlining the redline quotient into
+     AudioEng_Set grows 530 to 531 instructions and changes 43 instructions by
+     advancing the guarded divide ahead of the gas selection. */
+  int rpmRatio;
+  /* SYM-CODEGEN-CARRIER: clampedRoadNoiseAmp -- direct if/ternary clamp forms
+     shrink 530 to 529 instructions and leave seven branch/copy diffs. */
+  int clampedRoadNoiseAmp;
   
   AudioCmn_CheckState(car);
   if (AudioCmn_kAudioOn) {
+  /* SYM-CODEGEN-CARRIER: attenuation -- direct signed `/ 0x10000` grows 530 to
+     531 instructions with seven diffs; splitting the subsequent speed-noise phase
+     into another local preserves count but changes ten register-allocation sites. */
+  int attenuation;
+
   if (Camera_gInfo[car->carIndex].mode == 0xc) {
-    iVar6 = fixeddiv(0x10000000,dst + 0x10000);
+    attenuation = fixeddiv(0x10000000,dst + 0x10000);
   }
   else {
-    iVar6 = fixeddiv(0x8000000,dst + 0x20000);
+    attenuation = fixeddiv(0x8000000,dst + 0x20000);
   }
   /* Reconstruct the compiler's signed / 0x10000 rounding before the stack spill. */
-  if (iVar6 < 0) {
-    iVar6 = iVar6 + 0xffff;
+  if (attenuation < 0) {
+    attenuation = attenuation + 0xffff;
   }
-  *(int *)&iAmpIn = iVar6 >> 0x10;
-  iVar6 = -0xd8000;
-  __asm__("" : : "r"(iVar6));
-  int speed = (car->linearVel_ch).z;
-  if (speed < 0) {
-    speed = -speed;
-  }
+  *(int *)&iAmpIn = attenuation >> 0x10;
+  attenuation = -0xd8000;
+  __asm__("" : : "r"(attenuation));
   /* SYM: roadNoiseAmp is REG $s1, live from here through the camera-mode selector
-     block below -- split from iVar10 which is reused (2 more disjoint lives) for the
-     PlayersRampedGasLevel ramp scratch and cobblestoneAmp later. */
+     and later amplitude clamp. */
   roadNoiseAmp = 0;
-  iVar6 = speed + iVar6;
-  if (-1 < iVar6) {
-    roadNoiseAmp = iVar6 >> 0xf;
+  attenuation = __builtin_abs((car->linearVel_ch).z) + attenuation;
+  if (-1 < attenuation) {
+    roadNoiseAmp = attenuation >> 0xf;
   }
   /* SYM: CurCarGasLevel is REG $s0, live from here through the fixedmult-based
-     self-referencing scale below (blowout doubles it in place) -- split from iVar9
-     which is reused afterward for unrelated values (switch-case temp, particle count). */
-  CurCarGasLevel = speed >> 0xf;
+     self-referencing scale below; blowout doubles it in place. */
+  CurCarGasLevel = __builtin_abs((car->linearVel_ch).z) >> 0xf;
   if (0x7f < CurCarGasLevel) {
     CurCarGasLevel = 0x7f;
   }
@@ -1803,15 +1807,18 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
     CurCarGasLevel = CurCarGasLevel << 1;
   }
   if (dst < 0x460000) {
+    /* SYM-CODEGEN-CARRIER: distanceScale -- replacing the lowered signed-shift
+       result with the direct `/ 0x10000` source expression preserves count but
+       changes 92 instructions by perturbing the saved-register allocation. */
+    int distanceScale;
+
     /* @0x80078B7C: the final >>16 (with negative-rounding fixup) writes BACK into
-       CurCarGasLevel itself ($s0) -- not a separate "iVar6". iVar6 here is only the
-       transient fixedmult() result. */
-    iVar6 = fixedmult(dst,dst);
-    iVar6 = ((0x13240000 - iVar6) / 0x1324) * CurCarGasLevel;
-    CurCarGasLevel = iVar6 >> 0x10;
-    if (iVar6 < 0) {
-      iVar6 = iVar6 + 0xffff;
-      CurCarGasLevel = iVar6 >> 0x10;
+       CurCarGasLevel itself ($s0). */
+    distanceScale = ((0x13240000 - fixedmult(dst,dst)) / 0x1324) * CurCarGasLevel;
+    CurCarGasLevel = distanceScale >> 0x10;
+    if (distanceScale < 0) {
+      distanceScale = distanceScale + 0xffff;
+      CurCarGasLevel = distanceScale >> 0x10;
     }
   }
   else {
@@ -1844,17 +1851,16 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
   }
   /* @0x80078CB4: real oracle shape is a flat descending guard-chain (bltz; slti<2; slti<5;
      else), NOT the Ghidra comma-expression -- that convoluted form emits a spurious xor.
-     Also note the (2<=sVar2<5) case shifts by the VARIABLE iVar4 (srav), not a literal 1
-     (sra) -- iVar4 happens to equal 1 there, but the register form must be reproduced. */
-  sVar2 = Camera_gInfo[car->carIndex].mode;
-  if (sVar2 < 0) {
+     Also note the 2<=mode<5 case shifts by the VARIABLE `cam` (srav), not a literal 1
+     (sra) -- cam happens to equal 1 there, but the register form must be reproduced. */
+  if (Camera_gInfo[car->carIndex].mode < 0) {
     cam = 2;
     roadNoiseAmp = roadNoiseAmp >> 1;
   }
-  else if (sVar2 < 2) {
+  else if (Camera_gInfo[car->carIndex].mode < 2) {
     cam = 0;
   }
-  else if (sVar2 < 5) {
+  else if (Camera_gInfo[car->carIndex].mode < 5) {
     cam = 1;
     roadNoiseAmp = roadNoiseAmp >> cam;
   }
@@ -1863,25 +1869,34 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
     roadNoiseAmp = roadNoiseAmp >> 1;
   }
   {
+  /* SYM-CODEGEN-CARRIER: currentGas -- merging the adjusted difference back into
+     this byte snapshot removes retail's delay-slot copy and leaves eight diffs. */
   int currentGas;
-  int rampIndex = car->carIndex;
+  /* SYM-CODEGEN-CARRIER: previousGas -- repeated direct pointer reads grow 530 to
+     535 instructions and leave nine diffs because GCC must conservatively reload. */
+  int previousGas;
+  /* SYM-CODEGEN-CARRIER: rampedGas -- direct array expressions grow 530 to 545
+     instructions and leave 77 diffs; this scoped pointer preserves one address
+     across every conditional store. */
+  int *rampedGas;
 
-  rampedGas = PlayersRampedGasLevel + rampIndex;
+  rampedGas = PlayersRampedGasLevel + car->carIndex;
   __asm__("" : : "r"(rampedGas));
   currentGas = (u_char)(car->control).gasLevel;
-  iVar10 = *rampedGas;
+  previousGas = *rampedGas;
   amplitude = iAmpIn;
-  if (iVar10 < currentGas) {
-    int delta = (currentGas - iVar10) / 2;
-    if (0 < delta) {
-      *rampedGas = iVar10 + delta;
+  if (previousGas < currentGas) {
+    if (0 < (currentGas - previousGas) / 2) {
+      *rampedGas = previousGas + (currentGas - previousGas) / 2;
     }
     else {
-      *rampedGas = iVar10 + 1;
+      *rampedGas = previousGas + 1;
     }
   }
-  else if (currentGas < iVar10) {
-    int gasDelta = currentGas - iVar10;
+  else if (currentGas < previousGas) {
+    /* SYM-CODEGEN-CARRIER: gasDelta -- reusing currentGas for the subtraction
+       preserves count but loses the retail `bgez` delay-slot copy (eight diffs). */
+    int gasDelta = currentGas - previousGas;
     if (gasDelta < 0) {
       __asm__("" : "+r"(gasDelta));
       currentGas = gasDelta + 7;
@@ -1891,38 +1906,37 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
     }
     currentGas >>= 3;
     if (currentGas < 0) {
-      *rampedGas = iVar10 + currentGas;
+      *rampedGas = previousGas + currentGas;
     }
     else {
-      *rampedGas = iVar10 - 1;
+      *rampedGas = previousGas - 1;
     }
   }
   }
   /* SYM: cobblestoneAmp is REG $s0 (shares the register with CurCarGasLevel, whose
      live range ends earlier) -- the re-read of the just-updated ramped gas level,
      clamped and carried into the gear-shift block below. */
-  {
-  int rampIndex = car->carIndex;
-  cobblestoneAmp = *(int *)((rampIndex << 2) + (int)PlayersRampedGasLevel);
-  }
+  cobblestoneAmp = PlayersRampedGasLevel[car->carIndex];
   if (0xff < cobblestoneAmp) {
     cobblestoneAmp = 0xff;
   }
   {
+  /* SYM-CODEGEN-CARRIER: roadProduct -- folding the product into roadNoiseAmp
+     shrinks 530 to 529 instructions and leaves 11 multiply-latency diffs. */
   int roadProduct;
 
   /* Write the signed /128 as a DIVIDE, not the hand-expanded bgez/+0x7f/sra rounding:
      gcc emits that idiom itself and schedules the `li 127` into the bgez delay slot
      exactly like retail (151->145). */
   loadAmp = 0x7f;
-  uVar7 = (u_int)(amplitude * (freq + 0x28) / 128);
-  if ((int)uVar7 < amplitude) {
-    uVar7 = (u_int)amplitude;
+  scaledAmplitude = amplitude * (freq + 0x28) / 128;
+  if (scaledAmplitude < amplitude) {
+    scaledAmplitude = amplitude;
   }
-  amplitude = (int)uVar7;
-  uVar7 = (u_int)((int)uVar7 * loadAmp);
+  amplitude = scaledAmplitude;
+  scaledAmplitude = scaledAmplitude * loadAmp;
   roadProduct = roadNoiseAmp * amplitude;
-  loadAmp = (tunnelFlag = tuntrig, (int)uVar7 >> 7);
+  loadAmp = (tunnelFlag = tuntrig, scaledAmplitude >> 7);
   __asm__("" : : "r"(tunnelFlag));
   __asm__("" : : "r"(roadProduct));
   roadNoiseAmp = roadProduct >> 7;
@@ -1937,11 +1951,11 @@ SoundCar_haveWetNoise:
     wetNoiseAmp = 0x7f;
   }
   wetNoiseFreq = 0x48 - (wetNoiseAmp >> 3);
-  iVar10 = 0x7f;
+  clampedRoadNoiseAmp = 0x7f;
   if (roadNoiseAmp < 0x80) {
-    iVar10 = roadNoiseAmp;
+    clampedRoadNoiseAmp = roadNoiseAmp;
   }
-  roadNoiseAmp = iVar10;
+  roadNoiseAmp = clampedRoadNoiseAmp;
   if ((relvel != 0) || (Camera_gInfo[car->carIndex].mode == 0xb)) {
     /* @0x80078E50: the div-by-zero / INT_MIN-by(-1) guard is the automatic
        --expand-div guard on the '/' below (matches the oracle's single
@@ -1957,18 +1971,11 @@ SoundCar_haveWetNoise:
     }
   }
   if (roadNoiseAmp != 0) {
-    sndPlayer = 0x19;
-    if (car->carIndex == 0) {
-      sndPlayer = 0x18;
-    }
-    AudioCmn_PlaySFX(sndPlayer,roadNoisePatch,roadNoiseFreq,doppler,roadNoiseAmp,azimuth);
+    AudioCmn_PlaySFX(car->carIndex == 0 ? 0x18 : 0x19,
+        roadNoisePatch,roadNoiseFreq,doppler,roadNoiseAmp,azimuth);
   }
   else {
-    sndPlayer = 0x19;
-    if (car->carIndex == 0) {
-      sndPlayer = 0x18;
-    }
-    freeVoiceChannel(sndPlayer);
+    freeVoiceChannel(car->carIndex == 0 ? 0x18 : 0x19);
   }
   if (car->carIndex == 0) {
     if ((GameSetup_gData.Weather == 1) && (wetNoiseAmp != 0)) {
@@ -1979,7 +1986,8 @@ SoundCar_haveWetNoise:
     }
   }
   if (((((car->control).gearShiftTimer != '\0') &&
-       ((u_char)(car->control).gear > (bVar1 = (car->control).lastGear))) && (bVar1 != 1)) &&
+       ((u_char)(car->control).gear > (u_char)(car->control).lastGear)) &&
+      ((u_char)(car->control).lastGear != 1)) &&
      (cobblestoneAmp != 0)) {
     /* @0x8007902C-ish gearShiftDelay division: automatic --expand-div guard on '/'. */
     loadAmp = (loadAmp + loadAmp * (u_char)(car->control).gearShiftTimer /
@@ -1996,21 +2004,18 @@ SoundCar_haveWetNoise:
     else if ((u_char)(car->control).gearShiftTimer < 3) {
       cobblestoneAmp = 0;
     }
-    {
-      int rampIndex = car->carIndex;
-      PlayersRampedGasLevel[rampIndex] = cobblestoneAmp;
-    }
+    PlayersRampedGasLevel[car->carIndex] = cobblestoneAmp;
   }
   {
     int gas;
 
     /* @0x80079044 redline division (mflo a2): automatic --expand-div guard, no manual trap(). */
-    iVar9 = (car->flywheelRpm << 0x10) / car->specs->redline;
+    rpmRatio = (car->flywheelRpm << 0x10) / car->specs->redline;
     gas = 0x7f;
     if (car->revLimit == 0) {
       gas = cobblestoneAmp >> 1;
     }
-    AudioEng_Set(car->carIndex,(gMasterEngineLevel * 0xe) * loadAmp >> 0xe,iVar9,gas,cam,
+    AudioEng_Set(car->carIndex,(gMasterEngineLevel * 0xe) * loadAmp >> 0xe,rpmRatio,gas,cam,
                doppler,azimuth,cardir);
   }
   }

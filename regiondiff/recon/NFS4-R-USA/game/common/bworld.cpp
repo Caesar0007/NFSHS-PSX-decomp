@@ -1,0 +1,1268 @@
+/* game/common/bworld.cpp -- RECONSTRUCTED from Ghidra 12.0.4 decompile + PsyQ SYM v3.
+ *   bworld.obj (GAME\COMMON\bworld.cpp) = 20 fns: BWorld road geometry build/render
+ *   (chunk visibility, build lists, spike belt, glare effects, render contexts). Self-contained.
+ *   Verified vs disasm-v2.txt. NOT original source; SYM-faithful, recompilable C++.
+ */
+#include "bworld_types.h"
+#include "bworld_externs.h"
+
+/* ---- bworld.obj-owned globals (SYM-typed; .data=real EXE bytes, .bss=zero) ---- */
+matrixtdef   gWorldMat;   /* @0x8010ee40  (bss(zero)) */
+matrixtdef   gNightMat;   /* @0x8010ee64  (bss(zero)) */
+matrixtdef   gCopMat;   /* @0x8010ee88  (bss(zero)) */
+BW_tContextMgr gContextMan;   /* @0x8010eeac  (bss(zero)) */
+tBuildEntry BWorld_gChunkBuildList[36];   /* @0x8010efec  (bss(zero)) */
+int          SceneLoaded = 0;   /* @0x8013c758  W67-A4: explicit =0 -- retail emits this
+    cell FIRST in bworld.obj's .sdata run, before the fn-local statics and the -G8
+    literal pool, so it cannot have been tentative (16E =0 discriminator).
+    DO NOT strip the =0. */
+BW_tContext  *gCurrContext;   /* @0x8013c790  (bss(zero)) */
+int          gSpikeBelt;   /* @0x8013c794  (bss(zero)) */
+int          gSpikeBeltSlice;   /* @0x8013c798  (bss(zero)) */
+int          gSpikeBeltChunk;   /* @0x8013c79c  (bss(zero)) */
+int          gSpikeBeltX;   /* @0x8013c7a0  (bss(zero)) */
+int          gBWSlice;   /* @0x8013c7a4  (bss(zero)) */
+int          BWorld_gChunkCount;   /* @0x8013c7a8  (bss(zero)) */
+int          gSpikeBeltWidth;   /* @0x8013c7ac  (bss(zero)) */
+int          gSpikeBeltColourTableIndex;   /* @0x8013c7b0  (bss(zero)) */
+Car_tObj     *BW_gCopCarObj;   /* @0x8013c7b4  (bss(zero)) */
+DRender_tView *gVi2;   /* @0x8013c7b8  (bss(zero)) */
+
+
+/* ---- REGIONAL (NFS4-R-USA) extra declaration ----
+ * SetupChunkBuildList @0x8007e71c reads the track header's chunk count
+ * (`Track_header->+0x1c`) for its retail-only near-clip override.  bworld.obj's
+ * base SYM graph carries no TrackHeader record, so expose a private,
+ * layout-locked view exactly like the sibling *CodegenView structs in
+ * bworld_types.h.  Identity of the pointer global: the regional slice loads it
+ * from 0x8013e798, which sits one word above Track_gInViewCount (0x8013e794)
+ * and one below Track_chunkList (0x8013e79c) -- the same adjacency the base
+ * layout has for Track_header.  [INFERRED from that adjacency + the ->chunkCount
+ * use; not resolved through the base symbol map.] */
+struct BWorld_TrackHeaderCodegenView {
+    int type, version, maxMetaChunkSize, maxGeomCollSize;
+    int maxFullSize, maxSplitSize, metaChunkCount, chunkCount;
+};
+extern BWorld_TrackHeaderCodegenView *Track_header asm("Track_header");
+
+
+/* ---- intra-TU forward declarations ---- */
+int xzsquaredist32(coorddef *c1,coorddef *c2);
+void UpdateContext(DRender_tView *Vi,int contextHandle);
+void BWorld_BuildGlareEffects(DRender_tView *Vi,Draw_DCache *sd,Group *group);
+void BWorld_InitSpikeBelt(void);
+void BWorld_SetSpikeBelt(int slice,int x,int width);
+int BWorld_GetSpikeBelt(int *slice,int *x,int *width);
+void SetupBuildMatrices(DRender_tView *Vi,Draw_DCache *sd);
+int BWorld_CheckChunkVisible(BWorldSm_Pos *slicePosSource,BWorldSm_Pos *slicePosTest);
+int GetRezIndex(int dist);
+int SetupChunkBuildList(DRender_tView *Vi);
+bool BWorld_IsSliceInBuildList(int slice);
+void BWorld_OnyxBuildFacets(DRender_tView *Vi);
+char * BWAllocMem(long size);
+void BWorld_InitContexts(void);
+void BWorld_DeInitContexts(void);
+void SetContext(int contextHandle);
+int BWorld_OpenContext(int contextType,int client);
+void BWorld_Restart(void);
+void BWorld_StartLoop(void);
+void BWorld_Init(void);
+
+
+/* ---- xzsquaredist32__FP8coorddefT0  [@0x8007d5c4] ---- */
+int xzsquaredist32(coorddef *c1,coorddef *c2)
+{
+  return (((c2->x - c1->x >> 0xc) * (c2->x - c1->x >> 0xc)) >> 6) +
+         (((c2->z - c1->z >> 0xc) * (c2->z - c1->z >> 0xc)) >> 6);
+}
+
+/* ---- UpdateContext__FP13DRender_tViewi  [@0x8007d608] ---- */
+void UpdateContext(DRender_tView *Vi,int contextHandle)
+{
+  SetContext(contextHandle);
+  if (contextHandle == 0) {
+    gBWSlice = (int)(gCurrContext->slicePos).slice;
+  }
+  BWorldSm_FindClosestQuadRez(&Vi->cview.translation,&gCurrContext->slicePos,1);
+  if ((signed char)(gCurrContext->slicePos).offEdge != '\0') {
+    FindAbsClosestSliceCrude(&Vi->cview.translation,&gCurrContext->slicePos);
+    BWorldSm_FindClosestQuadRez(&Vi->cview.translation,&gCurrContext->slicePos,1);
+  }
+  if (gCurrContext->currentChunk != (u_int)(gCurrContext->slicePos).chunk) {
+    gCurrContext->currentChunk = (u_int)(gCurrContext->slicePos).chunk;
+  }
+  return;
+}
+
+/* ---- BWorld_BuildGlareEffects__FP13DRender_tViewP11Draw_DCacheP5Group  [@0x8007d6c0] ---- */
+void BWorld_BuildGlareEffects(DRender_tView *Vi,Draw_DCache *sd,Group *group)
+{
+  int i;
+  int j;
+  Trk_SFX *objInstance;
+  int numObjects;
+
+  i = 0;
+  objInstance = (Trk_SFX *)(group + 1);
+  numObjects = group->m_num_elements;
+  while (i < numObjects) {
+    short type;
+    short pad;
+
+    pad = objInstance[i].pad;
+    type = (short)objInstance[i].type;
+    if (objInstance[i].type == 100) {
+      coorddef dir = {0, 0xa0000, 0};
+
+      TrgSfx_AddEnviroEffect(i, 0x101,
+                             (coorddef *)&objInstance[i], &dir);
+      return;
+    }
+    if (pad != 0) {
+      int found_match;
+      int group;
+
+      found_match = 0;
+      group = pad & 0x7fff;
+      for (j = 0; j < numObjects; j++) {
+        coorddef *pt1;
+
+        pt1 = (coorddef *)&objInstance[j];
+        if (group == (objInstance[j].pad & 0x7fff)) {
+          found_match = 1;
+          break;
+        }
+      }
+      if ((found_match != 0) && (pad < 0)) {
+        Flare_Halo2(Vi, -1, (short)type,
+                    (coorddef *)&objInstance[i],
+                    (coorddef *)&objInstance[j], (BWorld_FlareCacheCodegenView *)sd);
+      }
+    }
+    else {
+      Flare_Halo(Vi, -1, (short)type,
+                 (coorddef *)&objInstance[i], (BWorld_FlareCacheCodegenView *)sd);
+    }
+    i++;
+  }
+}
+
+/* ---- BWorld_InitSpikeBelt__Fv  [@0x8007d818] ---- */
+void BWorld_InitSpikeBelt(void)
+{
+  int leastDist;
+  int leastDistInd;
+  int i;
+
+  leastDist = 0x7fffffff;
+  leastDistInd = -1;
+  gSpikeBelt = 0;
+  gSpikeBeltSlice = 0;
+  gSpikeBeltChunk = 0;
+  for (i = 0; i < Chunk_numLight; i = i + 1) {
+    int dist;
+    int r;
+    int g;
+    int b;
+
+    r = 0x80 - (u_int)Chunk_lightTable[i].r;
+    g = 0x80 - (u_int)Chunk_lightTable[i].g;
+    b = 0x80 - (u_int)Chunk_lightTable[i].b;
+    dist = r * r + g * g + b * b;
+    if (dist < leastDist) {
+      leastDist = dist;
+      leastDistInd = i;
+    }
+  }
+  gSpikeBeltColourTableIndex = leastDistInd;
+}
+
+/* ---- BWorld_SetSpikeBelt__Fiii  [@0x8007d8c4] ---- */
+void BWorld_SetSpikeBelt(int slice,int x,int width)
+{
+  gSpikeBelt = 1;
+  gSpikeBeltSlice = slice;
+  gSpikeBeltChunk = (u_int)*(u_char *)((char *)BWorldSm_slices + slice * 0x20 + 0x1c);
+  gSpikeBeltWidth = width;
+  gSpikeBeltX = x;
+  return;
+}
+
+/* ---- BWorld_GetSpikeBelt__FPiN20  [@0x8007d8f8] ---- */
+int BWorld_GetSpikeBelt(int *slice,int *x,int *width)
+{
+  if (gSpikeBelt == 1) {
+    *slice = gSpikeBeltSlice;
+    *x = gSpikeBeltX;
+    *width = gSpikeBeltWidth;
+    return 1;
+  }
+  *width = 0;
+  *x = 0;
+  *slice = 0;
+  return 0;
+}
+
+/* ---- SetupBuildMatrices__FP13DRender_tViewP11Draw_DCache  [@0x8007d940] ---- */
+/* HISTORICAL ROUND: 94 diffs (179/181 insns), reduced from a baseline of 147 diffs (170/181 insns).
+ * 🔴 THREE REAL BUGS FIXED (not just byte-match issues):
+ * (1) `gNightMat.m[1]/[7]/[4] = 0` and the identical `gCopMat.m[1]/[7]/[4] = 0` were
+ *     ZEROING these matrix elements, but the oracle NEGATES the existing value in
+ *     place (`lw;negu;sw`) -- confirmed by the compiled `sw zero,N(a0)` vs the
+ *     oracle's `lw v0,N(a0)/negu v0,v0/sw v0,N(a0)`. Same pattern as `gWorldMat`'s
+ *     already-correct `m[1]=-m[1]` a few lines above (which this function ALSO sets
+ *     up) -- gNightMat/gCopMat had regressed to the zero-fill at some point. Fixed to
+ *     `gNightMat.m[N] = -gNightMat.m[N]` / `gCopMat.m[N] = -gCopMat.m[N]`.
+ * (2) The cop-car search loop's `iVar5<0` branch read a hardcoded NULL
+ *     (`pCVar4=(Car_tObj*)0x0`), but the oracle's fall-through for that branch does
+ *     `lw a2,%lo(Cars_gList)(t4)` = `Cars_gList[0]` -- a REAL car pointer, not NULL.
+ *     Fixed to `pCVar4 = Cars_gList[0];` (added `Cars_gList` extern to
+ *     bworld_externs.h). This changed the very first loop iteration (iVar5==-1) from
+ *     "always skip (NULL deref would crash / active-flag check would read garbage)"
+ *     to "check the first car in Cars_gList", a real behavior difference.
+ * (3) The loop's per-iteration pointer walk used `Cars_gTrafficCarList + 8`, which
+ *     happens to be the SAME real address as the oracle's `Cars_gCopCarList - 4`
+ *     (0x8010FA90+32 == 0x8010FAB4-4 == 0x8010FAB0) -- functionally identical at
+ *     runtime, but expressed via a different symbol than the oracle uses, which
+ *     blocks gcc from recognizing it and produces different address-materialization
+ *     instructions. Fixed to `Cars_gCopCarList - 1` (added the extern) to match the
+ *     oracle's actual symbol reference.
+ * ALSO: removed 9 dead locals (t1/t2/t3/tm/i/maxdist/theCar/campos/dx/dz/diff/rotY/
+ * cop_angle -- two of them whole unused `matrixtdef` [36 bytes each]) left over from
+ * an earlier refactor; this alone dropped the stack frame from -192(sp) to the
+ * oracle's exact -112(sp) and got insn count from 170 (under oracle's 181) to 181
+ * (dead-on), before any further edits.
+ * STRUCTURAL LEVER: the gWorldMat row-copy (`m[0..8] = mrotationInv.m[0..8]` with the
+ * middle element of each row of 3 negated) needed explicit per-row temp locals
+ * (iVar1/iVar3/iVar5, load all 3 then store all 3) to reproduce the oracle's
+ * load-3-then-store-3 burst shape -- writing the 9 assignments directly (even in the
+ * correct 0,1,2,3,4,5,6,7,8 order) left gcc doing them one at a time instead.
+ * REMAINING 94 diffs are register-coloring only on an otherwise instruction-for-
+ * instruction-aligned body (confirmed via SequenceMatcher: every hunk is the same
+ * value in a differently-named register, e.g. oracle's v0/a1 vs ours a1/a3 for the
+ * negate-target slot) -- tried swapping which named local holds the to-be-negated
+ * value in each row (regressed to 112 diffs) and the same explicit-locals lever on
+ * gNightMat's m[1]/m[7]/m[4] negation (regressed to 152 diffs, reverted both). Same
+ * floor class as BWorld_OpenContext/BWorld_CheckChunkVisible above. ACCEPT (with the
+ * three real bugs fixed). */
+/* CURRENT: 16 diffs with exact 181/181 instruction parity (90 diffs at the
+ * start of this round).  The SLD trace recovers the retail scopes and names:
+ * tm@sp+16, rotY@sp+56, i=$a3, maxdist=$t1, theCar=$a2, plus the scoped
+ * campos/dx/dz/diff locals.  `__builtin_abs` is required for the oracle's two
+ * `bgez; nop; negu` sequences; hand-written abs lets GCC fill both delay slots.
+ * The only residual is the same scheduling/coloring tie repeated for gNightMat
+ * and gCopMat: ours processes m[4] before m[7], retail m[7] before m[4].  Direct
+ * assignments, reordered locals/definitions, aliasing and volatile-load probes
+ * were neutral; disabling sched2 regressed to 38 diffs. */
+void SetupBuildMatrices(DRender_tView *Vi,Draw_DCache *sd)
+{
+  if ((Vi->id == Draw_gPlayer1View) || (Vi->id == Draw_gPlayer2View)) {
+    UpdateContext(Vi,Vi->player);
+  }
+  else {
+    UpdateContext(Vi,1);
+  }
+  {
+    int t1;
+    int t2;
+    int t3;
+
+    t1 = (Vi->cview).mrotationInv.m[0];
+    t2 = (Vi->cview).mrotationInv.m[1];
+    t3 = (Vi->cview).mrotationInv.m[2];
+    gWorldMat.m[0] = t1;
+    gWorldMat.m[1] = -t2;
+    gWorldMat.m[2] = t3;
+    t1 = (Vi->cview).mrotationInv.m[3];
+    t2 = (Vi->cview).mrotationInv.m[4];
+    t3 = (Vi->cview).mrotationInv.m[5];
+    gWorldMat.m[3] = t1;
+    gWorldMat.m[4] = -t2;
+    gWorldMat.m[5] = t3;
+    t1 = (Vi->cview).mrotationInv.m[6];
+    t2 = (Vi->cview).mrotationInv.m[7];
+    t3 = (Vi->cview).mrotationInv.m[8];
+    gWorldMat.m[6] = t1;
+    gWorldMat.m[7] = -t2;
+    gWorldMat.m[8] = t3;
+  }
+  if (gNight_renderNight != 0) {
+    matrixtdef tm;
+    int i;
+    int maxdist;
+
+    transpose(&(Camera_gInfo[Vi->player].target)->orientMat,&gNightMat);
+    {
+      int t1;
+      int t2;
+      int t3;
+
+      /* MATCH: retail negates m[7] through the FIRST temp and m[4] through the second
+         (oracle 8007DA44 `lw v1,28` before `lw v0,16`); the 4-then-7 order emits the
+         loads/stores the other way round. */
+      t1 = gNightMat.m[1];
+      t3 = gNightMat.m[4];
+      gNightMat.m[1] = -t1;
+      t2 = gNightMat.m[7];
+      gNightMat.m[4] = -t3;
+      gNightMat.m[7] = -t2;
+    }
+    DrawW_WorldSetUpMatrix(&gNightMat,&sd->matNight);
+    BW_gCopCarObj = (Car_tObj *)0x0;
+    maxdist = 0xb40000;
+    if (GameSetup_gData.commMode != 1) {
+      for (i = -1; i < Cars_gNumCopCars; i = i + 1) {
+        Car_tObj *theCar;
+
+        if (i < 0) {
+          theCar = Cars_gList[0];
+        }
+        else {
+          theCar = Cars_gCopCarList[i];
+        }
+        if ((((theCar->N).active != '\0') && ((theCar->AIFlags & 2U) != 0)) &&
+           (((theCar->render).damageParts & 4U) == 0)) {
+          coorddef *campos = &(Vi->cview).translation;
+          int dx;
+          int dz;
+          int diff;
+
+          dx = (theCar->N).position.x - campos->x;
+          dz = (theCar->N).position.z - campos->z;
+          dx = __builtin_abs(dx);
+          dz = __builtin_abs(dz);
+          if (dz < dx) {
+            diff = dx + (dz >> 2);
+          }
+          else {
+            diff = dz + (dx >> 2);
+          }
+          if (diff < maxdist) {
+            maxdist = diff;
+            BW_gCopCarObj = theCar;
+          }
+        }
+      }
+      if (BW_gCopCarObj != (Car_tObj *)0x0) {
+        matrixtdef rotY;
+        static int cop_angle = 0;   /* @0x8013c75c; SYM STAT INT */
+
+        Night_SetCopColor(BW_gCopCarObj->carInfo);
+        cop_angle = cop_angle + 0x40;
+        xformy(&rotY,cop_angle);
+        transpose(&(BW_gCopCarObj->N).orientMat,&tm);
+        Math_fasttransmult(&tm,&rotY,&gCopMat);
+        {
+          int t1;
+          int t2;
+          int t3;
+
+          /* MATCH: retail negates m[7] through the FIRST temp and m[4] through the second
+             (oracle 8007DA44 `lw v1,28` before `lw v0,16`); the 4-then-7 order emits the
+             loads/stores the other way round. */
+          t1 = gCopMat.m[1];
+          t3 = gCopMat.m[4];
+          gCopMat.m[1] = -t1;
+          t2 = gCopMat.m[7];
+          gCopMat.m[4] = -t3;
+          gCopMat.m[7] = -t2;
+        }
+        DrawW_WorldSetUpMatrix(&gCopMat,&sd->matCop);
+      }
+    }
+  }
+  return;
+}
+
+/* ---- BWorld_CheckChunkVisible__FP12BWorldSm_PosT0  [@0x8007dc14] ---- */
+/* HISTORICAL NOTES (resolved; function now PASSes at 80/80 instructions).
+ * 🔴 REAL BUG FIXED (not just a byte-match issue): the two `chunkIndex` lookups were
+ * written as `*(u_char*)((int)BWorldSm_slices + idx*0x20 + 0x1c)` with NO cast to a byte
+ * pointer before the `idx*0x20` add. Since (int)BWorldSm_slices is `Trk_NewSlice*` (32
+ * bytes/elem), that pointer-arithmetic add scales by sizeof(Trk_NewSlice) AGAIN, so
+ * the real byte offset was idx*0x20*0x20 = idx*1024, not idx*32 as intended --
+ * confirmed by the compiled `sll $,$,10` (x1024) where the oracle has `sll $,$,5`
+ * (x32). Fixed by using `BWorldSm_slices[idx].chunkIndex` (real field, offset 0x1C,
+ * matches `struct Trk_NewSlice` in nfs4_types.h) -- lets the type system scale
+ * correctly and confirmed the compiled shift is now `sll $,$,5`. This was silently
+ * reading garbage 1000+ bytes past the intended slice record on every call.
+ * (BWorld_SetSpikeBelt's near-identical line already had an explicit `(char*)` cast
+ * and was NOT affected -- confirmed separately, still PASS.)
+ * STRUCTURAL FIX: also hoisted both chunkIndex lookups out of the search loop's `if`
+ * conditions into named locals (chunkIndFwd/chunkIndBwd) computed once before the
+ * loop, each resolved via its own wrap/no-wrap if/else -- this matches the oracle's
+ * shape (two independent address-then-lbu blocks before the loop) far better than a
+ * shared post-branch lookup, and got insn count from 66 (well under oracle's 80) up
+ * to 74 (much closer).
+ * REMAINING GAP is a branch-polarity/scheduling floor: gcc-2.8.0 -O2 picks the
+ * OPPOSITE branch as fall-through for the `testChunkIndFwd < gNumSlices` test
+ * (`bnez`+skip-to-else in ours vs the oracle's `beqz`+jump-to-wrap), independent of
+ * how the equivalent logic is phrased in source -- confirmed by testing if/else
+ * block order, explicit goto-based control flow matching the oracle's literal
+ * label targets, and both orderings of the bwd if/else; all four produced BYTE-
+ * IDENTICAL codegen to each other (same 106 diffs), confirming this is a pure
+ * compiler tie-break, not a source-shape lever. Some downstream reg-coloring
+ * (e.g. `lh a1,0(a1)` position, add-then-subtract operand order in the bwd-wrap
+ * computation) rides on this same root cause. Same floor class as
+ * BWorld_OpenContext/BWorld_InitSpikeBelt above. ACCEPT (with the real bug fixed). */
+/* PASS: ternary-selected slice pointers, packed byte counts, flat 32-short rows,
+ * and a separate count-- reproduce the retail source and allocation shape. */
+int BWorld_CheckChunkVisible(BWorldSm_Pos *slicePosSource,BWorldSm_Pos *slicePosTest)
+{
+  int sourceChunkInd;
+  int testChunkIndFwd;
+  int testChunkIndBwd;
+  int chunkIndFwd;
+  int chunkIndBwd;
+  BWorld_SliceCodegenView *sliceFwd;
+  BWorld_SliceCodegenView *sliceBwd;
+  short *chunkViewList;
+  int chunkInd;
+  int count;
+  int vis;
+
+  if (slicePosSource == slicePosTest) {
+    return 1;
+  }
+  testChunkIndFwd = slicePosTest->slice + 2;
+  sliceFwd = testChunkIndFwd < gNumSlices
+                 ? BWorldSm_slices + testChunkIndFwd
+                 : BWorldSm_slices +
+                       ((int)slicePosTest->slice - (gNumSlices + -2));
+  chunkIndFwd = (u_short)sliceFwd->chunkIndex;
+  testChunkIndBwd = slicePosTest->slice + -2;
+  sliceBwd = testChunkIndBwd >= 0
+                 ? BWorldSm_slices + testChunkIndBwd
+                 : BWorldSm_slices +
+                       ((int)slicePosTest->slice + (gNumSlices + -2));
+  chunkIndBwd = (u_short)sliceBwd->chunkIndex;
+  sourceChunkInd = slicePosSource->chunk;
+  count = ((u_char *)Track_gInViewCount)[sourceChunkInd];
+  chunkViewList = (short *)Track_gInViewList + sourceChunkInd * 32;
+  count--;
+  vis = 0;
+  if (count != -1) {
+    do {
+      chunkInd = chunkViewList[count];
+      if ((chunkInd & 0x3ff) == chunkIndFwd) {
+        if ((chunkInd & 0x800) != 0) goto visible_check;
+        vis++;
+        if (vis != 1) goto visible_check;
+      }
+      if ((chunkInd & 0x3ff) == chunkIndBwd) {
+        if ((chunkInd & 0x800) != 0) goto visible_check;
+        vis++;
+        if (vis != 1) goto visible_check;
+      }
+      count--;
+    } while (count != -1);
+  }
+visible_check:
+  return (u_int)((vis ^ 2) == 0);
+}
+
+/* ---- GetRezIndex__Fi  [@0x8007dd54] ---- */
+int GetRezIndex(int dist)
+{
+  return (gCurrContext->lowDetailDistSq < dist ^ 1) << 2;
+}
+
+/* ---- SetupChunkBuildList__FP13DRender_tView  [@0x8007dd74] ---- */
+/* NEAR-MISS 7 diffs (202/203 insns), reduced from 273 diffs. JEB recovered
+ * the high-level loop while the SLD scopes/locals and IDA register annotations
+ * established the 144-byte frame and saved-register allocation. Track_gInViewList
+ * is stored as one flat 32-short row table despite its historical short ** type;
+ * the row cast removes a spurious pointer load. Typed Trk_NewSlice indexing and
+ * the source-order `-view + point` coordinate expressions reproduce retail's
+ * address generation and load scheduling. The remaining gap is confined to two
+ * prologue scheduling choices (one temporary register and one load-delay nop). */
+int SetupChunkBuildList(DRender_tView *Vi)
+{
+  /* SYM-CODEGEN-CARRIER: buildList
+   * SYM-CODEGEN-CARRIER: viewList
+   * IDA/m2c identify their retail $s1/$s3 roles; the optimized SYM stream does
+   * not retain declarations for these two address walkers. */
+  int chunkInd;
+  int chunkCount;
+  int totalVisChunks;
+
+  {
+    int viewInd;
+    short *viewList;
+    /* REGIONAL (NFS4-R-USA): the chunk far-Z clip is CACHED in a local and can
+       be overridden per-chunk, so it is read once up front instead of from
+       gCurrContext inside the loop (oracle: sw $t0,100($sp) / lw $t0,100($sp)). */
+    int farZ;
+    tBuildEntry *buildList;
+
+    /* NEAR-MISS 7 (ours 202 / oracle 203) -- W61-A13 2026-08-15.  The residual is
+       ONE scheduling decision plus its %hi-scratch shadow.  Retail emits
+           sll a0,a1,6 ; addu s3,v1,a0 ; addu v0,v0,a1 ; lbu v0,0(v0) ; nop
+       ours
+           sll a0,a1,6 ; addu v0,v0,a1 ; lbu v0,0(v0) ; addu s3,v1,a0
+       i.e. we SINK the viewList address computation into the `lbu`'s load-delay
+       slot (so no nop is needed -> we are exactly 1 insn short), and that in turn
+       flips the %hi scratch of BWorld_gChunkBuildList from retail's $v1 to $v0.
+       FALSIFIED (each a real gate run, all 7 diffs / 202-203 unless noted):
+         index-term-first cast subscript
+           `(short *)((currentChunk << 6) + (int)Track_gInViewList)` ..... 7
+         base-first cast subscript ..................................... 7
+         statement order swapped (InViewCount first, InViewList second) . 7
+         swapped + index-term-first .................................... 7
+         void-tail fence between the two statements .................... 33
+         read-only fence on viewList ................................... 33
+         void-tail fence after both statements ......................... 15
+         void-tail fence before both statements ........................ 27
+       Note the fences never change the COUNT (202 in every case): they do not
+       stop the sink, they only re-color.  So the sink is not a sched2 barrier
+       question -- next angle is -dS/-dR on this TU to see which pass moves the
+       addu below the lbu.
+
+       W64-A15 2026-08-15 -- THE PASS IS NAMED, and the mechanism is quantified.
+       A raw CC1PLPSX A/B (scratchpad/w64a15/cc1probe.py, -O2 -G4 -fno-exceptions
+       -fno-rtti) shows the sink is entirely SCHED2:
+         default            sll ; addu $2,$2,$5 ; lbu ; addu $19,$3,$4 ; sw
+         -fno-schedule-insns2  sll ; addu $19,$3,$4 ; addu $2,$2,$5 ; lbu ; #nop ; sw
+       i.e. the pre-sched2 order ALREADY has retail's order and cc1 itself marks
+       the un-fillable load-delay slot (`#nop`).  sched2 then swaps them because
+       `addu $19` is the only insn ready at the lbu's stall cycle.
+       WHY it is only reachable through priority, not through a barrier:
+       INSN_PRIORITY in sched2 is the dependency-chain length inside the block --
+       addu $2 -> lbu -> sw = 3, while addu $19 (viewList's biv init, live-out
+       into the loop) has NO dependent in the block = 0.  And the LAUNCH_PRIORITY
+       boost cannot help: sched.c:2499 `birthing_insn_p` returns 0 outright once
+       `reload_completed`, so sched2 has no boost at all.  That is exactly why
+       every fence flavour/position re-colors without moving the count -- a
+       barrier does not change a priority.
+       ALSO FALSIFIED this wave (each a real gate run):
+         named `int cc = gCurrContext->currentChunk;` local ................ 7 @202
+         same + statement order swapped ................................... 7 @202
+         count as an unsized u_char[] subscript ........................... 7 @202
+         viewList via `(cc << 6) + (int)Track_gInViewList` ................ 7 @202
+         count address split into its own pointer local ................... 7 @202
+         ... + opacity fence on that pointer ............................. 13 @202
+         identity fence on viewList (between statements) ................. 33 @202
+         read-only fence on viewList (between statements) ................ 33 @202
+         identity fence on viewList AFTER the count statement ............ 15 @202
+         read-only fence on (viewList, totalVisChunks) after both ........ 15 @202
+         WHOLE-TU no_schedule_insns2 (vprobe W60_TU_FLAGS) ............... 44 @205
+       The `volatile u_char` read is still the ONLY count-exact form (18 @203):
+       it wins by ADDING an insn (the VOLATILE-QImode `andi v0,v0,255`, which
+       cannot fuse into the lbu), not by stopping the sink -- and it costs the
+       early Track_gInViewList materialization as well.  So it is not the basin.
+       NEXT ANGLE (named, instrument): give `addu $19` a real dependent chain of
+       length >= 3 inside this block at zero bytes, or read the -dR sched2 ready
+       list (tools/rtl_dump.py) to find a cheaper priority edge.  NOT a floor.
+
+       W69 2026-08-16 -- THAT NAMED ANGLE WAS WALKED AND IS FALSIFIED.  The
+       candidate zero-byte chain builder is the W69 device (the NON-VOLATILE
+       identity launder `asm("" : "=r"(x) : "0"(y))`, which seals StatusReply in
+       speech.cpp): N launders chained off `viewList` should give `addu $19` an
+       in-block dependent chain of length N without emitting anything.  Gated:
+         depth 1 ....... 33 diffs @202   (re-colors, sink unchanged)
+         depth 2 ....... 35 diffs @204   depth 3 ... 35 @204   depth 4 ... 35 @204
+       THE CHAIN IS NOT FREE past depth 1: from the second launder on, the
+       matching-"0" tie can no longer be coalesced away and each link costs a
+       real `addu` (+2 insns at depth 2 and it does not grow further), so the
+       device cannot buy priority at zero bytes.  The sched2-priority route
+       therefore needs a dependent that the SOURCE genuinely has (a real use of
+       viewList inside this block), not a synthetic one -- or the reload/ready-
+       list instrument.  Still NOT a floor; the axis is just narrower.
+
+       W71-A21 -- the SOURCE-genuine-dependent hunt is also falsified, and the
+       ready-list rule is now NAMED EXACTLY.  Gated (each a real run, all 7 @202):
+         `buildList = ...` moved AFTER both statements ................ 7 @202
+         `buildList = ...` moved BETWEEN the two statements ........... 7 @202
+         a `short (*viewRows)[32]` row-pointer local, viewRows[cc] ..... 7 @202
+         count statement first / viewList second ...................... 7 @202
+         INDEX form in the loop (`viewList[viewInd]`, no `viewList++`) . 7 @202
+       WHY none of them can work, from gcc-2.8 sched.c rank_for_schedule: after
+       `sll a0,a1,6` is issued, BOTH addus are ready.  rank_for_schedule compares
+       INSN_PRIORITY first, and only on a TIE falls through to the "class" test
+       (data-dependent-on-last-scheduled ranks BELOW independent) and then to
+       INSN_LUID.  `addu s3` is data-dependent on the just-issued `sll a0`, so on
+       a tie it would LOSE -- yet retail issues it first.  => retail's
+       INSN_PRIORITY(addu s3) was STRICTLY GREATER than INSN_PRIORITY(addu v0),
+       i.e. retail's `addu s3` had a dependent chain of length >= 4 inside this
+       block, while ours (and every spelling above) has ZERO in-block dependents
+       (viewList is used only after the loop-entry `beqz`).  No re-ordering, no
+       fence, and no pointer-shape change can create a successor that is not
+       there.  NEXT NAMED ANGLE (unchanged in kind, sharper in aim): find the
+       block CONTENT difference that gives s3 an in-block successor -- read the
+       -dR sched2 dependency dump (tools/rtl_dump.py) for this block and look for
+       an insn retail has here that ours emits elsewhere; alternatively price a
+       per-unit `-fno-schedule-insns2` (it reproduces retail's order for THIS
+       block, but whole-TU it costs 44 @205, so it would need per-function
+       granularity that the build system does not yet have -- same family as
+       methodology 3.25 3b's delayed-branch identity).
+
+       W72-A12 2026-08-22 -- THE W71 PREMISE IS CORRECTED, AND THE SINK IS NOW
+       PRICED AT A WIRABLE ROW (7 @202 -> 4 @203, COUNT EXACT, 0 TU regressions).
+       (1) LAW CORRECTION.  W61/W64/W71 all read gcc-2.8 INSN_PRIORITY as the
+           chain length to the END of the block ("addu $19 has no dependent = 0").
+           sched.c `priority()` walks LOG_LINKS, which are PREDECESSORS, so
+           INSN_PRIORITY is the longest chain from the block TOP, and the whole
+           scheduler runs in REVERSE (schedule_insn decrements the REF_COUNT of
+           an insn's LOG_LINKS, i.e. an insn becomes READY when all its
+           SUCCESSORS are placed; the first insn picked becomes the block TAIL).
+           The -dR dump for this block proves it and gives the exact numbers:
+             insn 419 `sw $2,96($sp)` .......... priority 4  ref_count 0
+             insn 45  `lbu`, 44 `addu $2,$2,$5`, 30 `sll`, 34 `addu $19` .. 3
+             insn 407 `addu $fp,$sp,80`, 53 `move $21,$23` ................. 1
+             ;; ready list initially: 419 34 407 53
+             ;; ready list at T-1: 419 (4) 34 (3) 407 (1) 53 (1)  -> picks 419
+             ;; ready list at T-2: 34 (3) 407 (1) 53 (1)          -> picks 34
+           45 (lbu) is QUEUED at T-2 by the 2-cycle load edge to 419, so 34 is
+           simply the highest-priority insn still available and lands in the
+           load-delay hole.  So the residual is NOT "give $19 a successor";
+           what retail had is an EMPTY ready list at T-2 -- and 407/53 have
+           ref_count 0 too, so they would fill the hole even if 34 were gone.
+           That is why every successor-building device (W69's launder chain) and
+           every barrier/fence/statement-order spelling was inert or worse: none
+           of them can empty a 3-insn ready list.
+       (2) THE PRICED FIX = a PER_FN_TEXT_MOVES row (the mechanism the guide
+           names for exactly this: "a pure line relocation").  cc1 already emits
+           retail's order (the W64-A15 -fno-schedule-insns2 A/B); only sched2
+           sinks the line.  Moving it back post-cc1 lets GNU as re-insert the
+           load-delay nop by itself, so the count becomes EXACT:
+             "recon/game/common/bworld.cpp": {
+               "SetupChunkBuildList__FP13DRender_tView": [
+                 {"take": r"\taddu\t\$19,\$3,\$4\n",
+                  "after": r"\tsll\t\$4,\$5,6\n"},
+               ],
+             },
+           MEASURED on a scratchpad copy of build.py (scratchpad/W72_A12/ptools):
+             SetupChunkBuildList 7 @202/203 -> 4 @203/203
+             whole TU 20/21 PASS, byte-identical to the un-rowed build elsewhere
+             (the un-rowed TU gate is also 20/21 with this fn at 7).
+           => ORCHESTRATOR ACTION: wire that row.
+           And a per-FN `-fno-schedule-insns2` splice is NOT the alternative the
+           W71 note hoped for: re-measured this wave on the same probe copy, the
+           flag puts THIS function at 44 (and regresses 7 TU-mates: BWorld_Init 9,
+           OnyxBuildFacets 12, InitSpikeBelt 14, BuildGlareEffects 21,
+           CheckChunkVisible 21, SetupBuildMatrices 34, UpdateContext 8).  Only
+           the single line is wrong, so only the single line should move.
+       (3) THE REMAINING 4 ARE A SEPARATE, NAMED LOCAL-ALLOC QUESTION (not a
+           shadow of the sink -- it survives the row): the %hi scratch of
+           BWorld_gChunkBuildList, ours $v0 vs retail $v1.  cc1's pre-sched2
+           stream is `lui $2,%hi(BWorld); addiu $17,$2,%lo(BWorld); move $23,$0;
+           lw $2,gCurrContext; ...`, so that qty is the FIRST one local-alloc
+           hands out in the block (highest QTY_CMP_PRI: refs 2 over a 1-insn
+           window) and find_free_reg gives it the lowest non-live reg = $2.
+           Retail's $3 REQUIRES $2 to be live across the [lui,addiu] window,
+           i.e. retail's gCurrContext value was BORN BEFORE the pair.  Every
+           attempt to make that happen is falsified (each a real gate run FROM
+           THE ROWED BASIN, 4 @203 unless noted):
+             buildList stmt moved AFTER both / BETWEEN them ......... 4 (and the
+               cc1 output is BYTE-IDENTICAL -- sched1 hoists the %hi pair to the
+               block head regardless of statement order, verified on the raw
+               -fno-schedule-insns2 .s)
+             count stmt first / viewList second (+ either buildList pos) .. 4
+             named `BW_tContext *ctx = gCurrContext;` first ............... 4
+             named `int cc = gCurrContext->currentChunk;` first ........... 4
+             buildList as a declaration initialiser ...................... 4
+             `&BWorld_gChunkBuildList[0]` spelling ....................... 4
+             'm'-operand fence on BWorld_gChunkBuildList[0] ............. 24
+             read-only fence on buildList ............................... 24
+             identity launder on buildList .............................. 24
+             bare void-tail fence before the buildList stmt ............. 24
+             ctx/cc local + void-tail fence before buildList ......... 26/24
+             read-only fence on ctx ..................................... 26
+             'm'-operand fence on Track_gInViewList .......... 33 @202 (also
+               re-opens the sink)
+           i.e. ANY asm in this function's head costs >= 20 diffs; the axis is
+           the birth ORDER of the gCurrContext load relative to the %hi pair,
+           and sched1 owns it.  NEXT NAMED ANGLE: read the local-alloc qty trace
+           for this block from the instrumented cc1 (C:/Temp/nfs4-instr-cc1;
+           cc1plus-ecoff compiles this TU fine -- see
+           scratchpad/W72_A12/instr/bw.trace.txt) and find which qty could be
+           given a window covering [lui,addiu] at zero insns.
+
+       W74-A10 2026-08-22 -- THAT ANGLE WAS WALKED WITH A *VALIDATED* INSTRUMENT,
+       and the residual now has an exact arithmetic requirement.  Two W72 claims
+       are corrected on the way.
+       (a) INSTRUMENT VALIDATION (22D-1) -- the instrumented cc1plus-ecoff needs
+           `-mgas -msplit-addresses` for this TU: without them mips.c:3696 leaves
+           mips_split_addresses = 0 and it emits `la $17,BWorld_gChunkBuildList`
+           instead of retail's %hi/%lo pair, i.e. it is NOT an oracle for exactly
+           the insn in question.  WITH them the whole function is byte-identical
+           to CC1PLPSX (286/286 lines, only the TEXT_MOVES-relocated `addu $19`
+           differs), so its allocation trace IS valid here.  Recipe:
+             GCC_TRACE_ALLOC=1 TMPDIR=<win path>\ cc1plus-ecoff.exe -quiet -O2 \
+               -G4 -mgas -msplit-addresses bworld.cpp.i -o x.s 2> trace.txt
+       (b) THE HEAD-BLOCK QTY TABLE (ours; pri = refs*floor_log2(refs)*10000/life):
+             qty5 (merged, refs 4 life 6 win[22,28)) pri 13333 -> reg 2   <- 1st
+             qty0 (THE %hi PAIR, refs 2 life 2 win[4,6)) pri 10000 -> reg 2 <- 2nd
+             qty1 refs2 life4 win[10,14) 5000 -> 2 | qty4 refs2 life4 win[20,24)
+             5000 -> 3 | qty3 refs2 life6 win[18,24) 3333 -> 4 | qty2 refs3
+             life12 win[14,26) 2500 -> 5
+           When the pair is allocated NOTHING is blocked but the fixed regs, so
+           find_free_reg hands it the lowest = $2.  Retail's $3 therefore requires
+           a qty that (i) CONFLICTS with the pair's 2-insn window and (ii) is
+           allocated BEFORE it, i.e. pri > 10000.  With life >= 6 (it must span
+           the pair) the pri formula needs refs*floor_log2(refs) > 6, i.e.
+           refs >= 4 -- a COPY-MERGED qty, exactly the shape of this block's qty5
+           (the Track_gInViewCount address+load+store chain).
+           => the requirement is NOT "make $2 live" in the vague sense, and NOT
+           the gCurrContext birth order (a plain long-lived ctx value is pri 1250,
+           allocated LAST, and would be the one pushed to $3 -- the INVERSE of
+           retail).  It is: the %hi pair must sit LATE ENOUGH in the pre-sched2
+           stream to overlap the refs-4 chain.  sched2 then hoists it back to the
+           head for free (it has no in-block dependents, so the reverse list
+           scheduler picks it last = places it first).
+       (c) A SECOND TEXT_MOVES ROW CANNOT CLOSE THIS.  The row mechanism is a
+           post-cc1 LINE relocation; the residual is a REGISTER NAME ($v0 vs $v1)
+           already chosen by local-alloc.  No arrangement of lines changes it.
+           (Spec answered in the negative -- do not spend a wave building one.)
+       (d) ALSO FALSIFIED THIS WAVE (each a real gate run, all 4 @203):
+             decl order: buildList first / second / totalVisChunks-swapped /
+               chunkInd last ..................................... 4 each
+             buildList assignment moved into the inner block after BOTH setup
+               statements (re-confirming W72's byte-identical cc1 output) ... 4
+           And the sched-flag A/B is re-confirmed sharper: `-fno-schedule-insns`
+           (sched1 OFF) still emits the pair at the head, so W72's "sched1 owns
+           the birth order" is wrong -- the pair's head position survives with
+           sched1 disabled AND with the statement moved, because `buildList` is a
+           BIV and its init sits in the entry block where loop.c leaves it
+           (catalog 21B-3: a PRE-loop assignment is unmovable; only a body
+           assignment becomes a movable that loop.c drops in the PREHEADER).
+       (e) NEXT NAMED ANGLE (sharp, unwalked): get the buildList address
+           materialization to be born as a LOOP MOVABLE so loop.c places it in
+           the preheader (= after the count chain, overlapping qty5) instead of
+           the entry block -- i.e. a shape where the pointer's base is an
+           invariant used INSIDE the loop rather than a pre-loop biv init.  The
+           obvious spelling (index form `BWorld_gChunkBuildList[chunkCount]`
+           inside the body) rewrites 6 matched store sites and is a whole-loop
+           risk, so price it on a scratch copy first.
+
+       W75-A11 2026-08-23 -- ANGLE (e) WALKED AND FALSIFIED, AND THE HEAD
+       POSITION OF THE %hi PAIR IS NOW EXPLAINED BY A LAW instead of an
+       observation.  4 STAYS @203/203; the TU stays 20/21.
+       (a) ANGLE (e) IS DEAD.  Spelling the walker as an INDEX form born in the
+           loop (`buildList = (volatile tBuildEntry *)BWorld_gChunkBuildList +
+           chunkCount;` inside the innermost visible-block, `buildList++`
+           deleted, the head-block assignment removed) so that loop.c would
+           hoist the base into the PREHEADER: gate FAIL **134 @201** -- gcc's
+           strength reduction does rebuild a walker, but it drops a callee-saved
+           register (frame 136 vs retail's 144, s4/s5 re-roled) and re-colors the
+           whole body.  Not a basin; do not re-price it.
+           (loop.c does NOT block the hoist for a volatile loop -- loop_has_volatile
+           is consulted only by the loop-REVERSAL gate at loop.c:6070, and
+           invariant_p's MEM arm turns on unknown_address_altered for the calls,
+           which is irrelevant to a constant ADDRESS.  So the falsification is
+           about strength reduction, not about volatile.)
+       (b) WHY THE PAIR IS IMMUNE TO SOURCE STATEMENT ORDER (the W72/W74
+           "byte-identical cc1 output" observation, now mechanized).  Both
+           scheduling passes are REVERSE list schedulers (W72's own correction:
+           priority() walks LOG_LINKS = PREDECESSORS, so INSN_PRIORITY is the
+           longest chain from the block TOP, and schedule_insn places the
+           first-picked insn at the block TAIL).  An address materialization has
+           NO in-block data predecessor, so `lui %hi` has priority 0 and
+           `addiu %lo` priority 1 -- the two LOWEST in this 28-insn head block,
+           hence they are picked LAST and land FIRST, whatever order RTL
+           generation emitted them in.  That is a structural property of the
+           insn's dependence depth, not of the statement position, which is
+           exactly why every statement-move measured byte-identical.
+       (c) THE REQUIREMENT, RESTATED IN THE FORM A FUTURE WAVE CAN ATTACK.
+           Retail's $v1 needs the pair to conflict with a qty already holding
+           $v0, and W74-A10(b) fixes the arithmetic: a rival with
+           pri = refs*floor_log2(refs)*10000/life > 10000 spanning the pair, i.e.
+           refs >= 4 with life <= 7 -- only this block's qty5 (the
+           Track_gInViewCount address+load+store chain, refs 4 / life 6 /
+           window [22,28)) qualifies.  Combined with (b): the pair can only
+           reach that window if it acquires an in-block DATA PREDECESSOR chain
+           of depth >= 3, because that is the only thing that raises its
+           INSN_PRIORITY.  No known zero-byte device supplies a PREDECESSOR --
+           W69's launder chain was measured in the SUCCESSOR direction and costs
+           a real `addu` per link past depth 1 -- and every asm in this head
+           costs >= 20 diffs.  NEXT NAMED ANGLE: a zero-byte predecessor device
+           (or a real source value the address legitimately derives from).
+       (d) ALSO FALSIFIED THIS WAVE -- the PER-FN CC1 FLAG axis, which had never
+           been swept for this function (instrument: scratchpad/w75/vprobe_flag.py,
+           a generic per-FUNCTION flag splice on build.py's _apply_fn_splice).
+           All real gate runs: -fno-expensive-optimizations, -fno-caller-saves,
+           -fno-rerun-cse-after-loop, -fno-cse-follow-jumps, -fno-cse-skip-blocks,
+           -fno-thread-jumps, -fno-peephole, -fno-function-cse, -fforce-addr
+           = 4 @203 (INERT); -fno-force-mem 21 @202.  Flag axis CLOSED. */
+    /* W77-root re-gated 4 @203/203 and tested the newly allowed source-pin
+       route.  A scoped `$v0` ctx pin is optimized away unless carried by ASM
+       (still 4).  Empty input/identity carriers reach 20/29/41; replacing the
+       existing currentChunk load with the carrier reaches 24/26.  A volatile
+       global load does not improve that basin.  Split source-ASM `%hi`/`%lo`
+       outputs do force the wanted v1/s1 pair, but anchor it after the prologue
+       saves and remain 24.  Correct-width comma staging of either the build
+       address or ctx copy web is byte-inert at 4.  All probes were restored.
+       W77 source landing: the SYM lists no source buildList local, and the SLD
+       attributes the %hi and %lo halves to different source lines.  Direct
+       volatile BWorld_gChunkBuildList[chunkCount] lvalues let GCC recover the
+       retail strength-reduced $s1 walker and allocate its head %hi scratch to
+       $v1 naturally.  This removes the invented pointer local and reduces the
+       independently unspliced gate from 7 @202/203 to 3 @202/203; the only
+       remaining source-only residual is the known sched2 `addu $s3` sink plus
+       its missing load-delay nop.  The standard build is PASS 203/203 through
+       the pre-existing W72 TEXT_MOVES row; this landing adds no new row or ASM.
+       Empty fences, pointer-delta dependencies, direct view-row indexing, and
+       scoped local pins/non-empty instruction probes were measured and fully
+       restored because their final unspliced scores were worse than 3.
+
+       W78-root PS1-CORPUS DEPENDENCY ROUND (strict source-only gate).  Deriving
+       the count index from `viewList` proved the needed dependency direction but
+       emitted four recovery instructions (39 @206/203).  A paired zero-byte
+       dependency chain plus source-authentic build/tmp walkers made the `$s3`
+       placement and both load-delay nops exact; its best intermediate was 17
+       @204/203, and a second stage reached exact count 203/203 but rotated the
+       four caller-register owners (42 diffs).  Typed aliases, comma staging,
+       operand order/classes, lifetime/ref dials, and direct-vs-walker variants
+       did not recover retail allocation.  The full experimental basin was
+       restored because none beat this 3-diff source-only result.
+
+       W80-root SOURCE-ONLY PASS (203/203).  The missing source shape was a
+       stable row base indexed by `viewInd`, not a source-level pointer increment:
+       use `viewList[viewInd]` at all four reads and do not emit `viewList++`.
+       GCC strength-reduces the indexed reads back into retail's exact `$s3`
+       walker and loop increment, but the different RTL provenance keeps the
+       `$s3` initialization ahead of the count-byte load.  That naturally restores
+       the retail load-delay nop.  Detailed strict verify_asm: PASS 203/203; no
+       post-cc1 rewrite, asm, volatile, or compiler flag is involved. */
+      /* REGIONAL (NFS4-R-USA @0x8007e71c): on tracks 8..10 the first and last
+         five chunks of the track get a much nearer chunk far-Z clip (0x1fa40)
+         than the context's own value -- a retail draw-distance clamp at the
+         ends of those tracks.  `GameSetup_gData.track` is the same global the
+         sibling BWorld_OpenContext slice gates on (regional 0x801144e0). */
+      chunkCount = 0;
+      buildList = BWorld_gChunkBuildList;
+      farZ = gCurrContext->chunkFarZClipSq;
+      totalVisChunks =
+          (int)*(u_char *)((char *)Track_gInViewCount +
+                           gCurrContext->currentChunk);
+      viewList =
+          ((short (*)[32])Track_gInViewList)[gCurrContext->currentChunk];
+      if ((GameSetup_gData.track >= 8) && (GameSetup_gData.track <= 10)) {
+        if ((gCurrContext->currentChunk < 5) ||
+            (Track_header->chunkCount - 5 < gCurrContext->currentChunk)) {
+          farZ = 0x1fa40;
+        }
+      }
+      viewInd = 0;
+      for (; viewInd < totalVisChunks; viewInd++) {
+       int chunkDist;
+       coorddef *pChunkCp;
+       Chunk *chunkPtr;
+       coorddef tmpPts[4];
+       coorddef tmp;
+       coorddef tmp2;
+
+      chunkInd = (u_short)viewList[viewInd] & 0x3ff;
+      pChunkCp = Chunk_chunkCenters + chunkInd;
+      chunkDist = xzsquaredist32(pChunkCp,&Vi->cview.translation);
+      if ((chunkDist <= farZ) &&
+          ((viewList[viewInd] & 0x800U) == 0)) {
+        tmp.x = -Vi->cview.translation.x + pChunkCp->x;
+        tmp.y = -Vi->cview.translation.y +
+                BWorldSm_slices[chunkInd << 3].center[1];
+        tmp.z = -Vi->cview.translation.z + pChunkCp->z;
+        chunkPtr = Track_chunkList + chunkInd;
+        TrsProj_SetPsxTransZero();
+        TrsProj_TransPt(&tmp,&tmp2);
+        TrsProj_SetPsxTrans(&tmp2);
+        TrsProj_TransPtN16(chunkPtr->boundPts,tmpPts,4);
+        if (((tmpPts[0].x <= tmpPts[0].z) ||
+             (tmpPts[1].x <= tmpPts[1].z) ||
+             (tmpPts[2].x <= tmpPts[2].z) ||
+             (tmpPts[3].x <= tmpPts[3].z)) &&
+            ((-tmpPts[0].x <= tmpPts[0].z) ||
+             (-tmpPts[1].x <= tmpPts[1].z) ||
+             (-tmpPts[2].x <= tmpPts[2].z) ||
+             (-tmpPts[3].x <= tmpPts[3].z)) &&
+            ((0 <= tmpPts[0].z) ||
+             (0 <= tmpPts[1].z) ||
+             (0 <= tmpPts[2].z) ||
+             (0 <= tmpPts[3].z))) {
+          buildList[chunkCount]
+              .enableBits = 3;
+          if (chunkDist < gCurrContext->lineFarZClipSq) {
+            buildList[chunkCount]
+                .enableBits = 7;
+          }
+          if ((viewList[viewInd] & 0x4000U) != 0) {
+            buildList[chunkCount]
+                .enableBits &= 0xfd;
+          }
+          if ((viewList[viewInd] & 0x2000U) != 0) {
+            buildList[chunkCount]
+                .enableBits &= 0xfe;
+          }
+          buildList[chunkCount].geomRez =
+              (char)GetRezIndex(chunkDist);
+          buildList[chunkCount].chunkInd =
+              (short)chunkInd;
+          chunkCount++;
+        }
+      }
+     }
+  }
+  return chunkCount;
+}
+
+/* ---- BWorld_IsSliceInBuildList__Fi  [@0x8007e0a0] ---- */
+/* PASS (21/21 insns): the indexed source loop strength-reduces its build-list
+ * address into retail's $v1 induction.  The condition and loop bound retain
+ * two textual BWorld_gChunkCount uses; GCC materializes the value in $v0 and
+ * copies it to long-lived $a2 in the guard's delay slot. */
+bool BWorld_IsSliceInBuildList(int slice)
+{
+  int bi;
+  int chunk;
+
+  bi = 0;
+  if (slice < 0) {
+    slice = slice + 7;
+  }
+  chunk = slice >> 3;
+  if (0 < BWorld_gChunkCount) {
+    do {
+      if ((int)((tBuildEntry *)BWorld_gChunkBuildList)[bi].chunkInd == chunk) {
+        return 1;
+      }
+      bi = bi + 1;
+    } while (bi < BWorld_gChunkCount);
+  }
+  return 0;
+}
+
+/* ---- BWorld_OnyxBuildFacets__FP13DRender_tView  [@0x8007e0f4] ---- */
+void BWorld_OnyxBuildFacets(DRender_tView *Vi)
+{
+  Draw_DCache *sd;
+  BWorld_TrackSpecCodegenView *ts;
+  u_short fogStart;
+  u_short fogDist;
+  u_char fogState;
+  int time;
+  int pvVar3;
+  
+  Chunk_UpdateSys(Vi);
+  gVi2 = Vi;
+  gWSavePtr = (u_long)SetSp((void *)0x1f8003fc);
+  stackSpeedUpEnbabledFlag = 1;
+  SetupBuildMatrices(gVi2,(Draw_DCache *)0x1f800000);
+  DrawW_WorldSetUpMatrix(&gWorldMat,(MATRIX *)0x1f800014);
+  BWorld_gChunkCount = SetupChunkBuildList(gVi2);
+  sd = (Draw_DCache *)0x1f800000;
+  gWSavePtr = (u_long)SetSp((void *)gWSavePtr);
+  /* @0x8007E17C-1F4: the Onyx scratchpad (Draw_tGiveShelbyMoreCache @0x1F800000) gets the fog + night
+   * params. startfog/distfog@+0xDC/+0xDE come from TrackSpec_gSpec's INT fog fields read as HALFWORDS
+   * (lhu) [the 0xDC/0xDE slots are also read back as Skid_gScratchPos1/2 in draww.cpp]; fogstate@+0x10E
+   * from the fogstate short's low byte (lbu). Ghidra AND IDA both constant-fold TrackSpec_gSpec (BSS-zero)
+   * to 0 here -- RAW oracle wins (methodology 3.2c). One 0x1F800000 base ($s2) is CSE'd across every
+  * scratchpad store (base+displacement), NOT a per-store lui. */
+  ts = &TrackSpec_gSpec;
+  fogStart = *(u_short *)&ts->fogspec.start;
+  fogDist = *(u_short *)&ts->fogspec.dist2base;
+  fogState = (u_char)ts->fogstate;
+  time = GameSetup_gData.Time;
+  /* MATCH: 0-insn void-tail fence pins the flag store BELOW the four fog/time
+     loads -- sched2 otherwise hoists it up to fill their load-delay slots
+     (oracle 8007E1A4 sits after `lw a1,0x54(s0)`). Statement reorder alone is
+     inert here (3 positions probed, all 4 diffs). */
+  __asm__("" : : "i"(0));
+  stackSpeedUpEnbabledFlag = 0;
+  ((BWorld_DrawCacheCodegenView *)sd)->startfog = fogStart;
+  ((BWorld_DrawCacheCodegenView *)sd)->distfog  = fogDist;
+  ((BWorld_DrawCacheCodegenView *)sd)->fogstate = fogState;
+  if (time != 0) {
+    short a;
+    u_char ac;
+    u_char bc;
+    u_char cc;
+    u_char dc;
+
+    a = (short)Night_gZNear;
+    ac = (u_char)Night_gXDistShift;
+    bc = (u_char)Night_gZDistShift;
+    cc = (u_char)Night_gDrawLightning;
+    dc = (u_char)Night_gLightningType;
+    ((BWorld_DrawCacheCodegenView *)sd)->night_ZNear = a;
+    ((BWorld_DrawCacheCodegenView *)sd)->night_XDistShift = ac;
+    ((BWorld_DrawCacheCodegenView *)sd)->night_ZDistShift = bc;
+    ((BWorld_DrawCacheCodegenView *)sd)->night_DrawLightning = cc;
+    ((BWorld_DrawCacheCodegenView *)sd)->night_LightningType = dc;
+  }
+  gWSavePtr = (u_long)SetSp((void *)0x1f8003fc);
+  stackSpeedUpEnbabledFlag = 1;
+  DrawW_DoTrough(Vi,(tBuildEntry *)BWorld_gChunkBuildList);
+  gWSavePtr = (u_long)SetSp((void *)gWSavePtr);
+  stackSpeedUpEnbabledFlag = 0;
+  if (GameSetup_gData.track == 0 && GameSetup_gData.Weather == 1) goto NO_LINES;
+  {
+    gWSavePtr = (u_long)SetSp((void *)0x1f8003fc);
+    stackSpeedUpEnbabledFlag = 1;
+    DrawW_DoLines(Vi,(tBuildEntry *)BWorld_gChunkBuildList,sd);
+    gWSavePtr = (u_long)SetSp((void *)gWSavePtr);
+    stackSpeedUpEnbabledFlag = 0;
+  }
+NO_LINES:
+  if (gSpikeBelt != 0) {
+    int buildInd;
+
+    for (buildInd = 0; buildInd < BWorld_gChunkCount; buildInd = buildInd + 1) {
+      if (((tBuildEntry *)BWorld_gChunkBuildList)[buildInd].chunkInd == gSpikeBeltChunk) {
+        DrawW_BuildSpikeBelt(Vi,gSpikeBeltWidth,sd);
+      }
+    }
+  }
+  if (GameSetup_gData.commMode == 0) {
+    int buildInd;
+
+    for (buildInd = 0; buildInd < BWorld_gChunkCount; buildInd = buildInd + 1) {
+      Chunk *chunkPtr;
+      int chunkInd;
+
+      chunkInd = ((tBuildEntry *)BWorld_gChunkBuildList)[buildInd].chunkInd;
+      chunkPtr = Track_chunkList + chunkInd;
+      if (chunkPtr->sfxBuf != (Group *)0x0) {
+        BWorld_BuildGlareEffects(Vi,sd,chunkPtr->sfxBuf);
+      }
+    }
+  }
+  if ((Object_customSFXInst != (Group *)0x0) &&
+     (pvVar3 = BWorld_IsSliceInBuildList(Object_customSliceNum), pvVar3 != 0)) {
+    BWorld_BuildGlareEffects(Vi,sd,Object_customSFXInst);
+  }
+  DrawW_WorldSetUpMatrix(&gWorldMat,&sd->matB);
+  DrawW_DoObjects(Vi,(tBuildEntry *)BWorld_gChunkBuildList);
+  return;
+}
+
+/* W67-A4: bworld.obj's retail .sdata run resumes here -- totalMem
+   @0x8013c760 then the -G8 string-literal pool 0x8013c764..0x8013c790 (18C):
+   "bworld" "S.grp" "N.grp" "W.grp" ".grp" "" in use order.  NEEDS whole-TU
+   g_value 8 (PER_TU_FLAGS spec, w67a4: gates 20/21 2x == baseline).  A named
+   section(".sdata") array device was probed and REVERTED: such an array is
+   la-addressed, losing the oracle's split lui/addiu delay-slot fill.
+   totalMem's definition position at BWAllocMem is load-bearing. */
+
+/* ---- BWAllocMem__Fl  [@0x8007e3f8] ---- */
+char * BWAllocMem(long size)
+{
+  /* SYM records this as BWAllocMem's function-local STAT at 0x8013c760. */
+  static int totalMem = 0;
+
+  totalMem = totalMem + size;
+  return Platform_GetDCTBuffer(size,"bworld");
+}
+
+/* ---- BWorld_InitContexts__Fv  [@0x8007e428] ---- */
+/* PASS (14/14 insns). Was a 2-diff near-miss: oracle loads `li a3,-1` BEFORE `li a2,1`; a plain
+ * `i=1` local put gcc's -O2 scheduler on the other tie-break order for the two independent
+ * constant loads. FIX: name the -1 constant as its OWN local (`noClient`) declared textually
+ * BEFORE the loop counter `i` and assigned first -- this reorders gcc's constant-materialization
+ * to match the oracle (`li a3,-1` first) without changing the loop trip count/shape, so the real
+ * `bgez` branch survives (an earlier attempt at "named local for -1" apparently didn't isolate it
+ * into its own declared-first variable and either no-op'd or risked the gcc full-unroll trap).
+ * Corrected the field this loop writes to `contexts[i].client` (was miscoded as .currentChunk,
+ * decoded from BWorld_OpenContext's independently-anchored offset map) and removed a bare-VA hack
+ * (`iVar1 = -0x7fef10b8`) that had been standing in for `&gContextMan + 0x9C` -- that literal was
+ * necessary under the old (wrong) field to block constant-propagation-driven unrolling, but is no
+ * longer needed with the array-index form. */
+void BWorld_InitContexts(void)
+{
+  /* SYM-CODEGEN-CARRIER: noClient -- the measured scheduling receipt above
+     proves that the separately named, declaration-first -1 value is required. */
+  int noClient;
+  int i;
+
+  noClient = -1;
+  gContextMan.initialized = 1;
+  gContextMan.count = 0;
+  i = 1;
+  do {
+    gContextMan.contexts[i].client = noClient;
+    i = i + -1;
+  } while (-1 < i);
+  return;
+}
+
+/* ---- BWorld_DeInitContexts__Fv  [@0x8007e460] ---- */
+void BWorld_DeInitContexts(void)
+{
+  BWorld_InitContexts();
+  return;
+}
+
+/* ---- SetContext__Fi  [@0x8007e480] ---- */
+void SetContext(int contextHandle)
+{
+  gCurrContext = gContextMan.contexts + contextHandle;
+  return;
+}
+
+/* ---- BWorld_OpenContext__Fii  [@0x8007e4ac] ---- */
+int BWorld_OpenContext(int contextType,int client)
+{
+  BW_tContext *context;
+
+  context = gContextMan.contexts + gContextMan.count;
+  context->slicePos.slice = 0;
+  context->client = client;
+  switch (contextType) {
+    case 0:
+      context->chunkFarZClipSq = 0xcea40;
+      context->polyFarZClipSq = 640000;
+      context->lineFarZClipSq = 0x4c90;
+      context->lowDetailDistSq = 0xe100;
+      break;
+    case 1:
+      /* REGIONAL (NFS4-R-USA @0x8007eea8): retail gates the chunk far-Z clip on
+         the track number -- tracks 8..10 get a nearer clip (0x33a90) than the
+         rest (0x42040); the base build had a single 0x52210.  The poly far-Z
+         clip is also pulled in, 0x44944 -> 0x3d090.  The gated global is
+         GameSetup_gData.track: regional GameSetup_gData = 0x801144a4 (fixed by
+         its field pattern in the sibling BWorld_Init slice), and the oracle
+         loads 0x801144e0 = +0x3c = track. */
+      if ((GameSetup_gData.track >= 8) && (GameSetup_gData.track <= 10)) {
+        context->chunkFarZClipSq = 0x33a90;
+      }
+      else {
+        context->chunkFarZClipSq = 0x42040;
+      }
+      context->polyFarZClipSq = 0x3d090;
+      context->lineFarZClipSq = 10000;
+      context->lowDetailDistSq = 0x8d04;
+      break;
+  }
+  return gContextMan.count++;
+}
+
+/* ---- BWorld_Restart__Fv  [@0x8007e564] ---- */
+void BWorld_Restart(void)
+{
+  Object_KillStatus();
+  Object_InitStatus();
+  SetContext(0);
+  BWorld_InitSpikeBelt();
+  Anim_Restart();
+  SceneLoaded = 0;
+  Object_ClearCustomObjects();
+  Draw_gDoVSync = 0;
+  BWorldSm_Restart();
+  return;
+}
+
+/* ---- BWorld_StartLoop__Fv  [@0x8007e5c0] ---- */
+void BWorld_StartLoop(void)
+{
+  return;
+}
+
+/* ---- BWorld_Init__Fv  [@0x8007e5c8] ---- */
+void BWorld_Init(void)
+{
+  int AudioScene;
+  /* SYM-CODEGEN-CARRIER: random -- moving rand() into the two numLaps arms
+     duplicates the signed-division expansion, growing 187 instructions to
+     191 and producing 24 word diffs.  The retained result is required across
+     the branch even though the optimized nested local is absent from SYM. */
+  int random;
+
+  if (Replay_ReplayMode == 0) {
+    if ((GameSetup_gData.commMode != 1) && (GameSetup_gData.raceType != RaceType_Tournament)) {
+      /* REGIONAL (NFS4-R-USA @0x8007efec): the scene-number draw is divided by
+         0x2000 instead of the base build's 0x4000 (oracle `addiu 8191; sra 13`
+         vs base `addiu 16383; sra 14`) -- twice as many scenes selectable.
+         The SceneStartLap fallback below keeps /0x4000. */
+      GameSetup_gData.SceneNumber = rand() / 0x2000;
+      random = rand();
+      if (GameSetup_gData.numLaps >= 2) {
+        GameSetup_gData.SceneStartLap =
+            random * GameSetup_gData.numLaps / 0x8000;
+      }
+      else {
+        GameSetup_gData.SceneStartLap = random / 0x4000;
+      }
+      GameSetup_gData.SceneEndLap = GameSetup_gData.SceneStartLap +
+          rand() * GameSetup_gData.numLaps / 0x8000;
+      if (GameSetup_gData.SceneStartLap == GameSetup_gData.SceneEndLap) {
+        GameSetup_gData.SceneEndLap = GameSetup_gData.SceneStartLap + 1;
+      }
+      if (GameSetup_gData.Weather != 0) {
+        GameSetup_gData.SceneNumber = GameSetup_gData.SceneNumber + 10;
+        GameSetup_gData.SceneEndLap = GameSetup_gData.SceneEndLap + 5;
+      }
+      else if (GameSetup_gData.trafficDensity != 0) {
+        GameSetup_gData.SceneNumber = GameSetup_gData.SceneNumber + 0x14;
+      }
+      SceneLoaded = 0;
+    }
+    else {
+      GameSetup_gData.SceneNumber = 99;
+      GameSetup_gData.SceneStartLap = 99;
+      GameSetup_gData.SceneEndLap = 99;
+    }
+  }
+  Object_InitStatus();
+  Track_SetTrackNumber(GameSetup_gData.track);
+  BWorld_InitContexts();
+  if (GameSetup_gData.commMode == 1) {
+    BWorld_OpenContext(1,0);
+    BWorld_OpenContext(1,1);
+  }
+  else {
+    BWorld_OpenContext(0,0);
+  }
+  SetContext(0);
+  if (GameSetup_gData.Time != 0) {
+    if (GameSetup_gData.Weather != 0) {
+      Track_Init(Track_MakeTrackPathName("S.grp"));
+    }
+    else {
+      Track_Init(Track_MakeTrackPathName("N.grp"));
+    }
+  }
+  else if (GameSetup_gData.Weather != 0) {
+    Track_Init(Track_MakeTrackPathName("W.grp"));
+  }
+  else {
+    Track_Init(Track_MakeTrackPathName(".grp"));
+  }
+  Object_InitCustomObjects();
+  Object_InitIMassObjectInfo();
+  if (gPersistObjDef != (Group *)0x0) {
+    Scene_Init(gPersistObjDef->m_num_elements);
+  }
+  Loading_UpdateLoadingScreen(5);
+  Anim_InitSystem(Track_MakeTrackDataPathName(""));
+  if (((GameSetup_gData.commMode != 1) && (GameSetup_gData.raceType != RaceType_HotPursuit)) &&
+     (GameSetup_gData.raceType != RaceType_Id5)) {
+    Scene_LoadSceneFile(GameSetup_gData.SceneNumber);
+  }
+  AudioScene = (u_int)(GameSetup_gData.Time != 0);
+  if (GameSetup_gData.Weather != 0) {
+    AudioScene = AudioScene + 2;
+  }
+  AudList_LoadAudioFile(AudioScene);
+  BWorld_InitSpikeBelt();
+  return;
+}
+
+/* ---- BWorld_DeInit__Fv  [@0x8007e8b4] ---- RECONSTRUCTED 2026-06-12 (Ghidra @NFS4.EXE.c:59139).
+ *  Skipped from the original bworld.obj 20-fn pass; full faithful body. */
+void Track_DeInit(void);
+void Object_DeInitIMassObjectInfo(void);
+void Scene_DeInit(void);
+void Object_DeInitCustomObjects(void);
+void AudList_PurgeAudio(void);
+void Anim_DeInitSystem(void);
+
+void BWorld_DeInit(void)
+{
+  Object_KillStatus();
+  Track_DeInit();
+  BWorld_DeInitContexts();
+  Object_DeInitIMassObjectInfo();
+  Scene_DeInit();
+  Object_DeInitCustomObjects();
+  SceneLoaded = 0;
+  AudList_PurgeAudio();
+  Anim_DeInitSystem();
+}

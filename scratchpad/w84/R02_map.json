@@ -1,0 +1,2576 @@
+[
+{
+"call": 0,
+"off": null,
+"base": [
+10,
+30,
+91
+],
+"jpn": [
+10,
+30,
+92
+],
+"line": null,
+"member": null
+},
+{
+"call": 1,
+"off": 44,
+"base": [
+10,
+40,
+92
+],
+"jpn": [
+10,
+40,
+93
+],
+"line": 3109,
+"member": "itemMainTwoPlayerRace"
+},
+{
+"call": 2,
+"off": 88,
+"base": [
+10,
+50,
+94
+],
+"jpn": [
+10,
+50,
+95
+],
+"line": 3110,
+"member": "itemMainTrophyRoom"
+},
+{
+"call": 3,
+"off": 132,
+"base": [
+10,
+60,
+93
+],
+"jpn": [
+10,
+60,
+94
+],
+"line": 3111,
+"member": "itemMainOptions"
+},
+{
+"call": 4,
+"off": 176,
+"base": [
+180,
+4116
+],
+"jpn": [
+181,
+4116
+],
+"line": 3112,
+"member": "menuMain"
+},
+{
+"call": 5,
+"off": 300,
+"base": [
+10,
+50,
+99
+],
+"jpn": [
+10,
+50,
+100
+],
+"line": 3113,
+"member": "itemTournTrophyRoom"
+},
+{
+"call": 6,
+"off": 344,
+"base": [
+10,
+50,
+105
+],
+"jpn": [
+10,
+50,
+106
+],
+"line": 3114,
+"member": "itemSETrophyRoom"
+},
+{
+"call": 7,
+"off": null,
+"base": [
+95,
+4116
+],
+"jpn": [
+96,
+4116
+],
+"line": null,
+"member": null
+},
+{
+"call": 8,
+"off": 512,
+"base": [
+-1,
+16384
+],
+"jpn": [
+-1,
+16400
+],
+"line": 3116,
+"member": "menuTrophyInfo"
+},
+{
+"call": 9,
+"off": 636,
+"base": [
+10,
+140,
+161
+],
+"jpn": [
+10,
+140,
+162
+],
+"line": 3117,
+"member": "itemSkillBeginner"
+},
+{
+"call": 10,
+"off": 680,
+"base": [
+10,
+150,
+162
+],
+"jpn": [
+10,
+150,
+163
+],
+"line": 3118,
+"member": "itemSkillIntermediate"
+},
+{
+"call": 11,
+"off": 724,
+"base": [
+10,
+160,
+163
+],
+"jpn": [
+10,
+160,
+164
+],
+"line": 3119,
+"member": "itemSkillExpert"
+},
+{
+"call": 12,
+"off": 768,
+"base": [
+183,
+4100
+],
+"jpn": [
+184,
+4100
+],
+"line": 3120,
+"member": "menuSkillLevel"
+},
+{
+"call": 13,
+"off": 892,
+"base": [
+10,
+96,
+240
+],
+"jpn": [
+10,
+97,
+240
+],
+"line": 3121,
+"member": "itemOnePlayerTestDrive"
+},
+{
+"call": 14,
+"off": 936,
+"base": [
+10,
+70,
+114
+],
+"jpn": [
+10,
+70,
+115
+],
+"line": 3122,
+"member": "itemOnePlayerSingleRace"
+},
+{
+"call": 15,
+"off": 980,
+"base": [
+10,
+80,
+113
+],
+"jpn": [
+10,
+80,
+114
+],
+"line": 3123,
+"member": "itemOnePlayerPursuit"
+},
+{
+"call": 16,
+"off": 1024,
+"base": [
+10,
+90,
+99
+],
+"jpn": [
+10,
+90,
+100
+],
+"line": 3124,
+"member": "itemOnePlayerTournament"
+},
+{
+"call": 17,
+"off": 1068,
+"base": [
+10,
+100,
+105
+],
+"jpn": [
+10,
+100,
+106
+],
+"line": 3125,
+"member": "itemOnePlayerSpecialEvents"
+},
+{
+"call": 18,
+"off": null,
+"base": [
+181,
+4100
+],
+"jpn": [
+182,
+4100
+],
+"line": null,
+"member": null
+},
+{
+"call": 19,
+"off": 1236,
+"base": [
+10,
+108,
+110
+],
+"jpn": [
+10,
+109,
+110
+],
+"line": 3127,
+"member": "itemSingleRaceSolo"
+},
+{
+"call": 20,
+"off": 1280,
+"base": [
+10,
+109,
+120
+],
+"jpn": [
+10,
+110,
+120
+],
+"line": 3128,
+"member": "itemSingleRaceDuel"
+},
+{
+"call": 21,
+"off": 1324,
+"base": [
+10,
+111,
+130
+],
+"jpn": [
+10,
+112,
+130
+],
+"line": 3129,
+"member": "itemSingleRaceFullGrid"
+},
+{
+"call": 22,
+"off": null,
+"base": [
+182,
+4100
+],
+"jpn": [
+183,
+4100
+],
+"line": null,
+"member": null
+},
+{
+"call": 23,
+"off": 1492,
+"base": [
+10,
+108,
+110
+],
+"jpn": [
+10,
+109,
+110
+],
+"line": 3131,
+"member": "itemHotPursuitSolo"
+},
+{
+"call": 24,
+"off": 1536,
+"base": [
+10,
+109,
+120
+],
+"jpn": [
+10,
+110,
+120
+],
+"line": 3132,
+"member": "itemHotPursuitDuel"
+},
+{
+"call": 25,
+"off": null,
+"base": [
+182,
+4100
+],
+"jpn": [
+183,
+4100
+],
+"line": null,
+"member": null
+},
+{
+"call": 27,
+"off": 1724,
+"base": [
+10,
+34,
+90
+],
+"jpn": [
+10,
+34,
+91
+],
+"line": 3135,
+"member": "itemTournamentContinue"
+},
+{
+"call": 28,
+"off": 1768,
+"base": [
+10,
+44,
+148
+],
+"jpn": [
+10,
+44,
+149
+],
+"line": 3136,
+"member": "itemTournamentSelect"
+},
+{
+"call": 29,
+"off": null,
+"base": [
+101,
+4096
+],
+"jpn": [
+102,
+4096
+],
+"line": null,
+"member": null
+},
+{
+"call": 31,
+"off": 1952,
+"base": [
+10,
+34,
+90
+],
+"jpn": [
+10,
+34,
+91
+],
+"line": 3139,
+"member": "itemSpecialEventContinue"
+},
+{
+"call": 32,
+"off": 1996,
+"base": [
+10,
+54,
+105
+],
+"jpn": [
+10,
+54,
+106
+],
+"line": 3140,
+"member": "itemSpecialEventSelect"
+},
+{
+"call": 33,
+"off": null,
+"base": [
+100,
+4096
+],
+"jpn": [
+101,
+4096
+],
+"line": null,
+"member": null
+},
+{
+"call": 34,
+"off": 2160,
+"base": [
+10,
+96,
+240
+],
+"jpn": [
+10,
+97,
+240
+],
+"line": 3142,
+"member": "itemTwoPlayerTestDrive"
+},
+{
+"call": 35,
+"off": 2204,
+"base": [
+10,
+70,
+114
+],
+"jpn": [
+10,
+70,
+115
+],
+"line": 3143,
+"member": "itemTwoPlayerDuel"
+},
+{
+"call": 36,
+"off": 2248,
+"base": [
+10,
+80,
+113
+],
+"jpn": [
+10,
+80,
+114
+],
+"line": 3144,
+"member": "itemTwoPlayerHotPursuit"
+},
+{
+"call": 37,
+"off": 2292,
+"base": [
+10,
+106,
+170
+],
+"jpn": [
+10,
+107,
+170
+],
+"line": 3145,
+"member": "itemTwoPlayerPinkSlips"
+},
+{
+"call": 38,
+"off": null,
+"base": [
+181,
+4100
+],
+"jpn": [
+182,
+4100
+],
+"line": null,
+"member": null
+},
+{
+"call": 39,
+"off": 2460,
+"base": [
+10,
+192
+],
+"jpn": [
+10,
+193
+],
+"line": 3147,
+"member": "itemBestOfOne"
+},
+{
+"call": 40,
+"off": 2504,
+"base": [
+10,
+193
+],
+"jpn": [
+10,
+194
+],
+"line": 3148,
+"member": "itemBestOfThree"
+},
+{
+"call": 41,
+"off": 2548,
+"base": [
+10,
+194
+],
+"jpn": [
+10,
+195
+],
+"line": 3149,
+"member": "itemBestOfFive"
+},
+{
+"call": 42,
+"off": null,
+"base": [
+182,
+4096
+],
+"jpn": [
+183,
+4096
+],
+"line": null,
+"member": null
+},
+{
+"call": 43,
+"off": 2716,
+"base": [
+10,
+36,
+90
+],
+"jpn": [
+10,
+36,
+91
+],
+"line": 3151,
+"member": "itemPinkSlipsContinue"
+},
+{
+"call": 44,
+"off": 2760,
+"base": [
+10,
+46,
+195
+],
+"jpn": [
+10,
+46,
+196
+],
+"line": 3152,
+"member": "itemTrack1"
+},
+{
+"call": 45,
+"off": 2800,
+"base": [
+10,
+46,
+196
+],
+"jpn": [
+10,
+46,
+197
+],
+"line": 3153,
+"member": "itemTrack2"
+},
+{
+"call": 46,
+"off": 2840,
+"base": [
+10,
+46,
+197
+],
+"jpn": [
+10,
+46,
+198
+],
+"line": 3154,
+"member": "itemTrack3"
+},
+{
+"call": 47,
+"off": 2880,
+"base": [
+10,
+46,
+198
+],
+"jpn": [
+10,
+46,
+199
+],
+"line": 3155,
+"member": "itemTrack4"
+},
+{
+"call": 48,
+"off": 2920,
+"base": [
+10,
+46,
+199
+],
+"jpn": [
+10,
+46,
+200
+],
+"line": 3156,
+"member": "itemTrack5"
+},
+{
+"call": 49,
+"off": null,
+"base": [
+190,
+5120
+],
+"jpn": [
+191,
+5120
+],
+"line": null,
+"member": null
+},
+{
+"call": 50,
+"off": null,
+"base": [
+191,
+5120
+],
+"jpn": [
+192,
+5120
+],
+"line": null,
+"member": null
+},
+{
+"call": 52,
+"off": 3232,
+"base": [
+10,
+28,
+90
+],
+"jpn": [
+10,
+28,
+91
+],
+"line": 3160,
+"member": "itemTrackContinue"
+},
+{
+"call": 53,
+"off": 3276,
+"base": [
+10,
+38,
+147
+],
+"jpn": [
+10,
+38,
+148
+],
+"line": 3161,
+"member": "itemTrack"
+},
+{
+"call": 54,
+"off": 3316,
+"base": [
+10,
+58,
+212
+],
+"jpn": [
+10,
+58,
+213
+],
+"line": 3162,
+"member": "itemTrackRecords"
+},
+{
+"call": 55,
+"off": null,
+"base": [
+200,
+5632
+],
+"jpn": [
+201,
+5632
+],
+"line": null,
+"member": null
+},
+{
+"call": 64,
+"off": 3744,
+"base": [
+202
+],
+"jpn": [
+203
+],
+"line": 3172,
+"member": "itemLaps"
+},
+{
+"call": 65,
+"off": 3776,
+"base": [
+204
+],
+"jpn": [
+205
+],
+"line": 3173,
+"member": "itemTrackDirection"
+},
+{
+"call": 66,
+"off": 3808,
+"base": [
+205
+],
+"jpn": [
+206
+],
+"line": 3174,
+"member": "itemTrackMirrored"
+},
+{
+"call": 67,
+"off": 3844,
+"base": [
+128,
+206
+],
+"jpn": [
+128,
+207
+],
+"line": 3175,
+"member": "itemTimeOfDay"
+},
+{
+"call": 68,
+"off": 3880,
+"base": [
+207
+],
+"jpn": [
+208
+],
+"line": 3191,
+"member": "itemWeather"
+},
+{
+"call": 69,
+"off": 3916,
+"base": [
+208
+],
+"jpn": [
+209
+],
+"line": 3192,
+"member": "itemTraffic"
+},
+{
+"call": 70,
+"off": 3952,
+"base": [
+210
+],
+"jpn": [
+211
+],
+"line": 3193,
+"member": "itemLocalSpeech"
+},
+{
+"call": 71,
+"off": null,
+"base": [
+-1,
+185,
+4096
+],
+"jpn": [
+-1,
+186,
+4096
+],
+"line": null,
+"member": null
+},
+{
+"call": 73,
+"off": null,
+"base": [
+1,
+10,
+212,
+4096
+],
+"jpn": [
+1,
+10,
+213,
+4096
+],
+"line": null,
+"member": null
+},
+{
+"call": 74,
+"off": 4292,
+"base": [
+10,
+33,
+90
+],
+"jpn": [
+10,
+33,
+91
+],
+"line": 3197,
+"member": "itemTrackInfoContinue"
+},
+{
+"call": 75,
+"off": 4336,
+"base": [
+249,
+4100
+],
+"jpn": [
+250,
+4100
+],
+"line": 3198,
+"member": "menuTrackInfo"
+},
+{
+"call": 78,
+"off": 4520,
+"base": [
+10,
+128,
+189
+],
+"jpn": [
+10,
+128,
+190
+],
+"line": 3201,
+"member": "itemCarSelectRace"
+},
+{
+"call": 79,
+"off": 4564,
+"base": [
+10,
+28,
+146
+],
+"jpn": [
+10,
+28,
+147
+],
+"line": 3202,
+"member": "itemCar"
+},
+{
+"call": 80,
+"off": 4604,
+"base": [
+10,
+38,
+288
+],
+"jpn": [
+10,
+38,
+289
+],
+"line": 3203,
+"member": "itemColor"
+},
+{
+"call": 81,
+"off": 4644,
+"base": [
+10,
+48,
+274
+],
+"jpn": [
+10,
+48,
+275
+],
+"line": 3204,
+"member": "itemShowcase"
+},
+{
+"call": 82,
+"off": 4688,
+"base": [
+186,
+6656
+],
+"jpn": [
+187,
+6656
+],
+"line": 3205,
+"member": "menuSingleCarSelect"
+},
+{
+"call": 84,
+"off": 4840,
+"base": [
+10,
+28,
+146
+],
+"jpn": [
+10,
+28,
+147
+],
+"line": 3208,
+"member": "itemGarageCar"
+},
+{
+"call": 85,
+"off": 4880,
+"base": [
+10,
+58,
+116
+],
+"jpn": [
+10,
+58,
+117
+],
+"line": 3209,
+"member": "itemCarDealer"
+},
+{
+"call": 86,
+"off": 4924,
+"base": [
+10,
+68,
+145
+],
+"jpn": [
+10,
+68,
+146
+],
+"line": 3210,
+"member": "itemUpgradeCar"
+},
+{
+"call": 87,
+"off": 4968,
+"base": [
+143,
+6656
+],
+"jpn": [
+144,
+6656
+],
+"line": 3255,
+"member": "menuCarGarage"
+},
+{
+"call": 90,
+"off": 5244,
+"base": [
+10,
+42,
+189
+],
+"jpn": [
+10,
+42,
+190
+],
+"line": 3258,
+"member": "itemDuelRace"
+},
+{
+"call": 91,
+"off": 5288,
+"base": [
+10,
+12,
+146
+],
+"jpn": [
+10,
+12,
+147
+],
+"line": 3259,
+"member": "itemCar2"
+},
+{
+"call": 92,
+"off": 5328,
+"base": [
+10,
+22,
+288
+],
+"jpn": [
+10,
+22,
+289
+],
+"line": 3260,
+"member": "itemColor2"
+},
+{
+"call": 93,
+"off": 5368,
+"base": [
+-1,
+10,
+120
+],
+"jpn": [
+-1,
+10,
+121
+],
+"line": 3261,
+"member": "itemGoToDuelBuyCar"
+},
+{
+"call": 94,
+"off": 5412,
+"base": [
+10,
+32,
+188
+],
+"jpn": [
+10,
+32,
+189
+],
+"line": 3262,
+"member": "itemOpponentCar"
+},
+{
+"call": 95,
+"off": 5452,
+"base": [
+186,
+6144
+],
+"jpn": [
+187,
+6144
+],
+"line": 3263,
+"member": "menuDuelCarSelect"
+},
+{
+"call": 96,
+"off": 5576,
+"base": [
+186,
+6144
+],
+"jpn": [
+187,
+6144
+],
+"line": 3264,
+"member": "menuHPDuelCarSelect"
+},
+{
+"call": 97,
+"off": 5700,
+"base": [
+10,
+42,
+189
+],
+"jpn": [
+10,
+42,
+190
+],
+"line": 3265,
+"member": "itemPlayerOneRace"
+},
+{
+"call": 98,
+"off": 5744,
+"base": [
+10,
+12,
+146
+],
+"jpn": [
+10,
+12,
+147
+],
+"line": 3266,
+"member": "itemCarP1"
+},
+{
+"call": 99,
+"off": 5784,
+"base": [
+10,
+22,
+288
+],
+"jpn": [
+10,
+22,
+289
+],
+"line": 3267,
+"member": "itemColorP1"
+},
+{
+"call": 100,
+"off": 5824,
+"base": [
+186,
+4104
+],
+"jpn": [
+187,
+4104
+],
+"line": 3268,
+"member": "menuPlayerOneCarSelect"
+},
+{
+"call": 101,
+"off": 5948,
+"base": [
+10,
+42,
+189
+],
+"jpn": [
+10,
+42,
+190
+],
+"line": 3269,
+"member": "itemPlayerTwoRace"
+},
+{
+"call": 102,
+"off": 5992,
+"base": [
+10,
+12,
+146
+],
+"jpn": [
+10,
+12,
+147
+],
+"line": 3270,
+"member": "itemCarP2"
+},
+{
+"call": 103,
+"off": 6032,
+"base": [
+10,
+22,
+288
+],
+"jpn": [
+10,
+22,
+289
+],
+"line": 3271,
+"member": "itemColorP2"
+},
+{
+"call": 104,
+"off": 6072,
+"base": [
+186,
+4104
+],
+"jpn": [
+187,
+4104
+],
+"line": 3272,
+"member": "menuPlayerTwoCarSelect"
+},
+{
+"call": 105,
+"off": 6196,
+"base": [
+10,
+42,
+189
+],
+"jpn": [
+10,
+42,
+190
+],
+"line": 3273,
+"member": "itemPlayerOneGarageRace"
+},
+{
+"call": 106,
+"off": 6240,
+"base": [
+10,
+12,
+146
+],
+"jpn": [
+10,
+12,
+147
+],
+"line": 3274,
+"member": "itemGarageCarP1"
+},
+{
+"call": 107,
+"off": 6280,
+"base": [
+186,
+4104
+],
+"jpn": [
+187,
+4104
+],
+"line": 3275,
+"member": "menuPlayerOneGarage"
+},
+{
+"call": 108,
+"off": 6404,
+"base": [
+10,
+42,
+189
+],
+"jpn": [
+10,
+42,
+190
+],
+"line": 3276,
+"member": "itemPlayerTwoGarageRace"
+},
+{
+"call": 109,
+"off": 6448,
+"base": [
+10,
+12,
+146
+],
+"jpn": [
+10,
+12,
+147
+],
+"line": 3277,
+"member": "itemGarageCarP2"
+},
+{
+"call": 110,
+"off": 6488,
+"base": [
+186,
+4104
+],
+"jpn": [
+187,
+4104
+],
+"line": 3278,
+"member": "menuPlayerTwoGarage"
+},
+{
+"call": 112,
+"off": 6640,
+"base": [
+10,
+42,
+189
+],
+"jpn": [
+10,
+42,
+190
+],
+"line": 3280,
+"member": "itemPlayerOnePinkSlipRace"
+},
+{
+"call": 113,
+"off": 6684,
+"base": [
+10,
+12,
+146
+],
+"jpn": [
+10,
+12,
+147
+],
+"line": 3281,
+"member": "itemPinkSlipCarP1"
+},
+{
+"call": 114,
+"off": 6724,
+"base": [
+186,
+4104
+],
+"jpn": [
+187,
+4104
+],
+"line": 3282,
+"member": "menuPlayerOnePinkSlipCarSelect"
+},
+{
+"call": 115,
+"off": 6848,
+"base": [
+10,
+42,
+189
+],
+"jpn": [
+10,
+42,
+190
+],
+"line": 3283,
+"member": "itemPlayerTwoPinkSlipRace"
+},
+{
+"call": 116,
+"off": 6892,
+"base": [
+10,
+12,
+146
+],
+"jpn": [
+10,
+12,
+147
+],
+"line": 3284,
+"member": "itemPinkSlipCarP2"
+},
+{
+"call": 117,
+"off": 6932,
+"base": [
+186,
+4104
+],
+"jpn": [
+187,
+4104
+],
+"line": 3285,
+"member": "menuPlayerTwoPinkSlipCarSelect"
+},
+{
+"call": 118,
+"off": 7056,
+"base": [
+10,
+88,
+120
+],
+"jpn": [
+10,
+88,
+121
+],
+"line": 3286,
+"member": "itemGoToBuyCar"
+},
+{
+"call": 119,
+"off": 7100,
+"base": [
+10,
+78,
+121
+],
+"jpn": [
+10,
+78,
+122
+],
+"line": 3287,
+"member": "itemGoToSellCar"
+},
+{
+"call": 120,
+"off": null,
+"base": [
+144,
+4608
+],
+"jpn": [
+145,
+8704
+],
+"line": null,
+"member": null
+},
+{
+"call": 123,
+"off": 7328,
+"base": [
+10,
+28,
+146
+],
+"jpn": [
+10,
+28,
+147
+],
+"line": 3291,
+"member": "itemDealerCar"
+},
+{
+"call": 124,
+"off": 7368,
+"base": [
+10,
+38,
+288
+],
+"jpn": [
+10,
+38,
+289
+],
+"line": 3292,
+"member": "itemDealerColor"
+},
+{
+"call": 125,
+"off": 7408,
+"base": [
+10,
+88,
+117
+],
+"jpn": [
+10,
+88,
+118
+],
+"line": 3293,
+"member": "itemBuyCar"
+},
+{
+"call": 126,
+"off": 7452,
+"base": [
+10,
+48,
+274
+],
+"jpn": [
+10,
+48,
+275
+],
+"line": 3294,
+"member": "itemDealerShowroom"
+},
+{
+"call": 127,
+"off": null,
+"base": [
+144,
+8768
+],
+"jpn": [
+145,
+8768
+],
+"line": null,
+"member": null
+},
+{
+"call": 129,
+"off": 7648,
+"base": [
+10,
+28,
+146
+],
+"jpn": [
+10,
+28,
+147
+],
+"line": 3297,
+"member": "itemSellerCar"
+},
+{
+"call": 130,
+"off": 7688,
+"base": [
+10,
+78,
+119
+],
+"jpn": [
+10,
+78,
+120
+],
+"line": 3298,
+"member": "itemSellCar"
+},
+{
+"call": 131,
+"off": 7732,
+"base": [
+144,
+8704
+],
+"jpn": [
+145,
+8704
+],
+"line": 3299,
+"member": "menuCarSeller"
+},
+{
+"call": 132,
+"off": 7856,
+"base": [
+10,
+98,
+150
+],
+"jpn": [
+10,
+98,
+151
+],
+"line": 3300,
+"member": "itemPurchaseUpgrade1"
+},
+{
+"call": 133,
+"off": 7900,
+"base": [
+10,
+108,
+151
+],
+"jpn": [
+10,
+108,
+152
+],
+"line": 3301,
+"member": "itemPurchaseUpgrade2"
+},
+{
+"call": 134,
+"off": 7944,
+"base": [
+10,
+118,
+152
+],
+"jpn": [
+10,
+118,
+153
+],
+"line": 3302,
+"member": "itemPurchaseUpgrade3"
+},
+{
+"call": 135,
+"off": 7988,
+"base": [
+145,
+8704
+],
+"jpn": [
+146,
+8704
+],
+"line": 3303,
+"member": "menuCarUpgrades"
+},
+{
+"call": 140,
+"off": 8184,
+"base": [
+266
+],
+"jpn": [
+267
+],
+"line": 3308,
+"member": "itemTransmission"
+},
+{
+"call": 141,
+"off": 8216,
+"base": [
+267
+],
+"jpn": [
+268
+],
+"line": 3309,
+"member": "itemABS"
+},
+{
+"call": 142,
+"off": 8248,
+"base": [
+273
+],
+"jpn": [
+274
+],
+"line": 3310,
+"member": "itemDamage"
+},
+{
+"call": 143,
+"off": 8280,
+"base": [
+266
+],
+"jpn": [
+267
+],
+"line": 3311,
+"member": "itemTransmission2"
+},
+{
+"call": 144,
+"off": 8312,
+"base": [
+267
+],
+"jpn": [
+268
+],
+"line": 3312,
+"member": "itemABS2"
+},
+{
+"call": 145,
+"off": 8344,
+"base": [
+273
+],
+"jpn": [
+274
+],
+"line": 3313,
+"member": "itemDamage2"
+},
+{
+"call": 146,
+"off": 8376,
+"base": [
+270
+],
+"jpn": [
+271
+],
+"line": 3314,
+"member": "itemOpponentUpgrades"
+},
+{
+"call": 147,
+"off": null,
+"base": [
+-1,
+187,
+4096
+],
+"jpn": [
+-1,
+188,
+4096
+],
+"line": null,
+"member": null
+},
+{
+"call": 153,
+"off": 9192,
+"base": [
+10,
+180,
+453
+],
+"jpn": [
+10,
+180,
+454
+],
+"line": 3321,
+"member": "itemOptionsAudio"
+},
+{
+"call": 154,
+"off": 9236,
+"base": [
+10,
+190,
+454
+],
+"jpn": [
+10,
+190,
+455
+],
+"line": 3322,
+"member": "itemOptionsDisplay"
+},
+{
+"call": 155,
+"off": 9280,
+"base": [
+10,
+200,
+456
+],
+"jpn": [
+10,
+200,
+457
+],
+"line": 3323,
+"member": "itemOptionsControllers"
+},
+{
+"call": 156,
+"off": 9324,
+"base": [
+10,
+210,
+457
+],
+"jpn": [
+10,
+210,
+458
+],
+"line": 3324,
+"member": "itemOptionsMemoryCard"
+},
+{
+"call": 157,
+"off": 9368,
+"base": [
+10,
+220,
+458
+],
+"jpn": [
+10,
+220,
+459
+],
+"line": 3325,
+"member": "itemOptionsUsername"
+},
+{
+"call": 158,
+"off": 9412,
+"base": [
+10,
+230,
+460
+],
+"jpn": [
+10,
+230,
+461
+],
+"line": 3326,
+"member": "itemOptionsCredits"
+},
+{
+"call": 159,
+"off": 9456,
+"base": [
+93,
+4116
+],
+"jpn": [
+94,
+4116
+],
+"line": 3327,
+"member": "menuOptions"
+},
+{
+"call": 166,
+"off": 9676,
+"base": [
+469
+],
+"jpn": [
+470
+],
+"line": 3334,
+"member": "itemMusicVolume"
+},
+{
+"call": 167,
+"off": 9732,
+"base": [
+1,
+470
+],
+"jpn": [
+1,
+471
+],
+"line": 3335,
+"member": "itemSoundEffectsVolume"
+},
+{
+"call": 168,
+"off": 9788,
+"base": [
+2,
+471
+],
+"jpn": [
+2,
+472
+],
+"line": 3336,
+"member": "itemEngineVolume"
+},
+{
+"call": 169,
+"off": 9844,
+"base": [
+3,
+472
+],
+"jpn": [
+3,
+473
+],
+"line": 3337,
+"member": "itemSpeechVolume"
+},
+{
+"call": 170,
+"off": 9900,
+"base": [
+4,
+473
+],
+"jpn": [
+4,
+474
+],
+"line": 3338,
+"member": "itemAmbientVolume"
+},
+{
+"call": 171,
+"off": 9956,
+"base": [
+474
+],
+"jpn": [
+475
+],
+"line": 3339,
+"member": "itemAudioMode"
+},
+{
+"call": 172,
+"off": 10000,
+"base": [
+-102,
+13,
+43,
+350,
+475
+],
+"jpn": [
+-102,
+13,
+43,
+350,
+476
+],
+"line": 3340,
+"member": "itemSlidingPlayList"
+},
+{
+"call": 174,
+"off": null,
+"base": [
+10,
+38,
+611,
+4112
+],
+"jpn": [
+10,
+38,
+612,
+4112
+],
+"line": null,
+"member": null
+},
+{
+"call": 183,
+"off": 10492,
+"base": [
+479
+],
+"jpn": [
+480
+],
+"line": 3351,
+"member": "itemDisplaySpeedometer"
+},
+{
+"call": 184,
+"off": 10536,
+"base": [
+481
+],
+"jpn": [
+482
+],
+"line": 3352,
+"member": "itemDisplayMap"
+},
+{
+"call": 185,
+"off": 10580,
+"base": [
+482
+],
+"jpn": [
+483
+],
+"line": 3353,
+"member": "itemDisplayOpponentID"
+},
+{
+"call": 186,
+"off": 10624,
+"base": [
+483
+],
+"jpn": [
+484
+],
+"line": 3354,
+"member": "itemDisplayTime"
+},
+{
+"call": 187,
+"off": 10672,
+"base": [
+486
+],
+"jpn": [
+487
+],
+"line": 3366,
+"member": "itemDisplayPosition"
+},
+{
+"call": 188,
+"off": 10720,
+"base": [
+487
+],
+"jpn": [
+488
+],
+"line": 3367,
+"member": "itemDisplayLapNumber"
+},
+{
+"call": 189,
+"off": 10768,
+"base": [
+484
+],
+"jpn": [
+485
+],
+"line": 3368,
+"member": "itemDisplaySplitTime"
+},
+{
+"call": 190,
+"off": 10812,
+"base": [
+485
+],
+"jpn": [
+486
+],
+"line": 3369,
+"member": "itemDisplaySplitDisplay"
+},
+{
+"call": 191,
+"off": null,
+"base": [
+1,
+10,
+477,
+4128
+],
+"jpn": [
+1,
+10,
+478,
+4128
+],
+"line": null,
+"member": null
+},
+{
+"call": 193,
+"off": 11004,
+"base": [
+521
+],
+"jpn": [
+522
+],
+"line": 3372,
+"member": "itemControllerConfigSelected"
+},
+{
+"call": 194,
+"off": 11048,
+"base": [
+1,
+13,
+72,
+172,
+522
+],
+"jpn": [
+1,
+13,
+72,
+172,
+523
+],
+"line": 3373,
+"member": "itemControllerSettings"
+},
+{
+"call": 195,
+"off": null,
+"base": [
+10,
+520,
+4128
+],
+"jpn": [
+10,
+521,
+4128
+],
+"line": null,
+"member": null
+},
+{
+"call": 197,
+"off": 11264,
+"base": [
+526
+],
+"jpn": [
+527
+],
+"line": 3376,
+"member": "itemControllerShockMode"
+},
+{
+"call": 199,
+"off": 11324,
+"base": [
+527
+],
+"jpn": [
+528
+],
+"line": 3378,
+"member": "itemControllerShockImpact"
+},
+{
+"call": 201,
+"off": 11384,
+"base": [
+529
+],
+"jpn": [
+530
+],
+"line": 3383,
+"member": "itemControllerSteeringRange1"
+},
+{
+"call": 203,
+"off": 11452,
+"base": [
+1,
+531
+],
+"jpn": [
+1,
+532
+],
+"line": 3385,
+"member": "itemControllerDeadSpot1"
+},
+{
+"call": 205,
+"off": 11520,
+"base": [
+2,
+528
+],
+"jpn": [
+2,
+529
+],
+"line": 3387,
+"member": "itemControllerSteeringRange2"
+},
+{
+"call": 207,
+"off": 11588,
+"base": [
+3,
+530
+],
+"jpn": [
+3,
+531
+],
+"line": 3389,
+"member": "itemControllerDeadSpot2"
+},
+{
+"call": 209,
+"off": 11656,
+"base": [
+532
+],
+"jpn": [
+533
+],
+"line": 3391,
+"member": "itemControllerJoyRange"
+},
+{
+"call": 211,
+"off": 11724,
+"base": [
+1,
+533
+],
+"jpn": [
+1,
+534
+],
+"line": 3393,
+"member": "itemControllerCenterPoint"
+},
+{
+"call": 213,
+"off": 11792,
+"base": [
+2,
+534
+],
+"jpn": [
+2,
+535
+],
+"line": 3395,
+"member": "itemControllerIMax"
+},
+{
+"call": 215,
+"off": 11860,
+"base": [
+3,
+535
+],
+"jpn": [
+3,
+536
+],
+"line": 3397,
+"member": "itemControllerIIMax"
+},
+{
+"call": 220,
+"off": 12372,
+"base": [
+646
+],
+"jpn": [
+647
+],
+"line": 3402,
+"member": "itemSaveGame"
+},
+{
+"call": 221,
+"off": 12416,
+"base": [
+647
+],
+"jpn": [
+648
+],
+"line": 3403,
+"member": "itemLoadGame"
+},
+{
+"call": 223,
+"off": 12588,
+"base": [
+504
+],
+"jpn": [
+505
+],
+"line": 3405,
+"member": "menuItemUserName"
+},
+{
+"call": 224,
+"off": 12728,
+"base": [
+504
+],
+"jpn": [
+505
+],
+"line": 3406,
+"member": "menuItemUserName1"
+},
+{
+"call": 225,
+"off": 12868,
+"base": [
+504
+],
+"jpn": [
+505
+],
+"line": 3407,
+"member": "menuItemUserName2"
+},
+{
+"call": 228,
+"off": 13152,
+"base": [
+-1,
+94
+],
+"jpn": [
+-1,
+95
+],
+"line": 3410,
+"member": "itemChangeTrophy"
+},
+{
+"call": 230,
+"off": 13316,
+"base": [
+10,
+90
+],
+"jpn": [
+10,
+91
+],
+"line": 3412,
+"member": "itemPinkSlipStandingsForward"
+},
+{
+"call": 231,
+"off": 13360,
+"base": [
+10,
+156
+],
+"jpn": [
+10,
+157
+],
+"line": 3413,
+"member": "itemPinkSlipStandingsExit"
+},
+{
+"call": 232,
+"off": 13404,
+"base": [
+756,
+4100
+],
+"jpn": [
+757,
+4100
+],
+"line": 3414,
+"member": "menuPinkSlipStandings"
+},
+{
+"call": 233,
+"off": 13528,
+"base": [
+10,
+90
+],
+"jpn": [
+10,
+91
+],
+"line": 3415,
+"member": "itemTournStandingsForward"
+},
+{
+"call": 234,
+"off": 13572,
+"base": [
+10,
+155
+],
+"jpn": [
+10,
+156
+],
+"line": 3416,
+"member": "itemTournStandingsExit"
+},
+{
+"call": 236,
+"off": 13740,
+"base": [
+10,
+90
+],
+"jpn": [
+10,
+91
+],
+"line": 3418,
+"member": "itemTournamentFinishedHome"
+},
+{
+"call": 241,
+"off": 14288,
+"base": [
+-1,
+90
+],
+"jpn": [
+-1,
+91
+],
+"line": 3423,
+"member": "itemPostGameTrackRecordsContinue"
+},
+{
+"call": 242,
+"off": 14332,
+"base": [
+1,
+10,
+212
+],
+"jpn": [
+1,
+10,
+213
+],
+"line": 3424,
+"member": "menuPostGameTrackRecords"
+},
+{
+"call": 247,
+"off": 14956,
+"base": [
+650
+],
+"jpn": [
+651
+],
+"line": 3429,
+"member": "itemMemContinue"
+}
+]

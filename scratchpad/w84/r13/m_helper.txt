@@ -1,0 +1,67 @@
+addiu sp,sp,-48
+lui v0,0x0
+lw v1,12(v0)
+li v0,1
+sw ra,40(sp)
+sw s5,36(sp)
+sw s4,32(sp)
+sw s3,28(sp)
+sw s2,24(sp)
+sw s1,20(sp)
+bne v1,v0,964 <AudioClc_SoundCloseCar__Fii+0x38>
+sw s0,16(sp)
+j a14 <AudioClc_SoundCloseCar__Fii+0xe8>
+li v0,128
+lui s0,0xc0
+lui v0,0x0
+addiu s2,v0,0
+move s1,zero
+lui s5,0x0
+lui s3,0x7f
+ori s3,s3,0xffff
+lui s4,0xff80
+slti v0,s1,4
+beqz v0,9c8 <AudioClc_SoundCloseCar__Fii+0x9c>
+nop
+lw a1,0(s2)
+nop
+beqz a1,9bc <AudioClc_SoundCloseCar__Fii+0x90>
+addiu a0,s5,0
+jal 0 <AudioClc_SndError__Fi>
+addiu a1,a1,160
+move v1,v0
+slt v0,s3,v1
+bnez v0,9bc <AudioClc_SoundCloseCar__Fii+0x90>
+addu v0,v1,s4
+addu s0,s0,v0
+addiu s2,s2,56
+j 984 <AudioClc_SoundCloseCar__Fii+0x58>
+addiu s1,s1,1
+bgez s0,9d8 <AudioClc_SoundCloseCar__Fii+0xac>
+move v0,s0
+li v0,0xffff
+addu v0,s0,v0
+sra v1,v0,0x10
+slti v0,v1,129
+bnez v0,9ec <AudioClc_SoundCloseCar__Fii+0xc0>
+nop
+li v1,128
+bltz v1,a14 <AudioClc_SoundCloseCar__Fii+0xe8>
+move v0,zero
+bgez s0,a04 <AudioClc_SoundCloseCar__Fii+0xd8>
+move v0,s0
+li v0,0xffff
+addu v0,s0,v0
+sra v1,v0,0x10
+slti v0,v1,129
+beqz v0,95c <AudioClc_SoundCloseCar__Fii+0x30>
+move v0,v1
+lw ra,40(sp)
+lw s5,36(sp)
+lw s4,32(sp)
+lw s3,28(sp)
+lw s2,24(sp)
+lw s1,20(sp)
+lw s0,16(sp)
+jr ra
+addiu sp,sp,48

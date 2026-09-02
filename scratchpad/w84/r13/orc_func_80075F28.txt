@@ -1,0 +1,465 @@
+addiu $sp,$sp,-80
+sw $a0,80($sp)
+lui $a0,0x8011
+lui $v0,0x8011
+lw $t0,80($sp)
+addiu $v0,$v0,-2684
+sw $ra,76($sp)
+sw $s8,72($sp)
+sw $s7,68($sp)
+sw $s6,64($sp)
+sw $s5,60($sp)
+sw $s4,56($sp)
+sw $s3,52($sp)
+sw $s2,48($sp)
+sw $s1,44($sp)
+sw $s0,40($sp)
+sll $v1,$t0,0x2
+addu $v1,$v1,$t0
+sll $v1,$v1,0x4
+addu $s7,$v1,$v0
+lw $s2,0($s7)
+nop 
+beqz $s2,.L8007663C
+addiu $s8,$a0,-2324
+lw $v0,608($s2)
+nop 
+andi $v0,$v0,0x200
+beqz $v0,.L80075FB8
+move $s1,$zero
+lw $v1,1360($s2)
+lw $v0,1364($s2)
+nop 
+beq $v1,$v0,.L80076040
+nop 
+j .L80076040
+li $s1,-1
+lw $a0,264($s2)
+lh $v0,8($s2)
+lui $v1,0x8014
+lw $v1,-9548($v1)
+sll $v0,$v0,0x5
+addu $v0,$v0,$v1
+lb $a1,15($v0)
+jal func_800E4F14
+nop 
+lw $a0,268($s2)
+lh $v1,8($s2)
+lui $a1,0x8014
+lw $a1,-9548($a1)
+sll $v1,$v1,0x5
+addu $v1,$v1,$a1
+lb $a1,16($v1)
+jal func_800E4F14
+move $s1,$v0
+lw $a0,272($s2)
+lh $v1,8($s2)
+lui $a1,0x8014
+lw $a1,-9548($a1)
+sll $v1,$v1,0x5
+addu $v1,$v1,$a1
+lb $a1,17($v1)
+jal func_800E4F14
+move $s0,$v0
+addu $s1,$s1,$s0
+lui $v1,0x8011
+lw $v1,17620($v1)
+nop 
+beqz $v1,.L80076040
+addu $s1,$s1,$v0
+negu $s1,$s1
+lw $v0,912($s2)
+li $a0,2
+beq $v0,$a0,.L80076164
+lui $v0,0x8011
+lw $v1,17572($v0)
+li $v0,1
+beq $v1,$v0,.L80076068
+li $v0,5
+bne $v1,$v0,.L800760CC
+nop 
+lui $v1,0x8011
+lw $v0,3340($v1)
+nop 
+lw $v0,608($v0)
+nop 
+andi $v0,$v0,0x200
+bnez $v0,.L800760B8
+addiu $v1,$v1,3340
+lui $v0,0x8014
+lw $v0,-9484($v0)
+nop 
+bne $v0,$a0,.L800760CC
+nop 
+lw $v0,4($v1)
+nop 
+lw $v0,608($v0)
+nop 
+andi $v0,$v0,0x200
+beqz $v0,.L800760CC
+nop 
+lw $v0,608($s2)
+li $v1,4
+andi $v0,$v0,0x204
+beq $v0,$v1,.L80076164
+nop 
+lw $v0,1120($s2)
+nop 
+bnez $v0,.L80076164
+nop 
+lw $v0,632($s2)
+nop 
+bnez $v0,.L80076164
+nop 
+bgez $s1,.L80076164
+nop 
+lhu $v0,380($s2)
+nop 
+bnez $v0,.L8007616C
+addiu $s0,$s2,160
+lw $v0,1932($s2)
+nop 
+bnez $v0,.L80076170
+move $a0,$s0
+lw $v0,1008($s2)
+nop 
+addiu $v1,$v0,1
+slti $v0,$v1,64
+bnez $v0,.L80076170
+sw $v1,1008($s2)
+andi $v0,$v1,0x1f
+bnez $v0,.L80076170
+slti $v0,$v1,148
+bnez $v0,.L80076154
+nop 
+lui $v0,0x8014
+lw $v0,-5092($v0)
+nop 
+beqz $v0,.L80076170
+nop 
+jal func_8007A134
+addiu $s0,$s2,160
+j .L80076170
+move $a0,$s0
+sw $zero,1008($s2)
+addiu $s0,$s2,160
+move $a0,$s0
+jal func_80075274
+addiu $a1,$s2,172
+lui $v1,0x8014
+lw $v1,-9880($v1)
+nop 
+beqz $v1,.L800761E0
+sw $v0,32($sp)
+lui $v0,0x8011
+lw $v1,17584($v0)
+li $v0,1
+bne $v1,$v0,.L800761B8
+lui $v0,0x8011
+lw $t0,80($sp)
+nop 
+beqz $t0,.L800761F4
+li $s5,0xc000
+j .L800761F4
+li $s5,16383
+lw $t0,80($sp)
+addiu $v0,$v0,1392
+sll $v1,$t0,0x4
+addu $v1,$v1,$t0
+sll $v1,$v1,0x4
+addu $v1,$v1,$v0
+lh $v0,112($v1)
+nop 
+bnez $v0,.L800761E8
+move $a0,$s8
+j .L800761F4
+move $s5,$zero
+jal func_800754C8
+move $a1,$s0
+move $s5,$v0
+move $a0,$s8
+jal func_80075440
+addiu $a1,$s2,160
+move $a0,$s8
+move $a1,$s2
+jal func_80075648
+move $s1,$v0
+move $a0,$v0
+jal func_800E4FF0
+move $a1,$s1
+lui $s0,0x1
+slt $v0,$s0,$v0
+bnez $v0,.L80076254
+move $a0,$s8
+jal func_80075648
+move $a1,$s2
+move $a0,$v0
+jal func_800E4FF0
+move $a1,$s1
+lui $v1,0xffff
+slt $v0,$v0,$v1
+bnez $v0,.L80076290
+lui $s3,0xffff
+move $a0,$s8
+jal func_80075648
+move $a1,$s2
+move $a0,$v0
+jal func_800E4FF0
+move $a1,$s1
+slt $v0,$s0,$v0
+bnez $v0,.L80076290
+lui $s3,0x1
+move $a0,$s8
+jal func_80075648
+move $a1,$s2
+move $a0,$v0
+jal func_800E4FF0
+move $a1,$s1
+move $s3,$v0
+bgez $s1,.L800762A0
+move $v0,$s1
+li $v0,0xffff
+addu $v0,$s1,$v0
+sra $s4,$v0,0x10
+mult $s4,$s4
+lw $v0,648($s2)
+nop 
+lw $v1,8($v0)
+li $v0,1
+mflo $s4
+bne $v1,$v0,.L800762D8
+nop 
+lw $v0,1124($s2)
+nop 
+lw $v0,240($v0)
+j .L800762EC
+addiu $a2,$v0,1000
+lw $v0,1124($s2)
+nop 
+lw $v0,240($v0)
+nop 
+addiu $a2,$v0,2000
+lhu $v0,380($s2)
+nop 
+sltiu $v0,$v0,6
+bnez $v0,.L80076304
+nop 
+addiu $a2,$a2,-500
+lw $v1,1128($s2)
+nop 
+sll $v0,$v1,0x7
+subu $v0,$v0,$v1
+lw $v1,192($gp)
+div $zero,$v0,$a2
+bnez $a2,.L80076328
+nop 
+break 0x7
+li $at,-1
+bne $a2,$at,.L80076340
+lui $at,0x8000
+bne $v0,$at,.L80076340
+nop 
+break 0x6
+mflo $s6
+beqz $v1,.L80076354
+nop 
+j .L8007636C
+sw $zero,12($s7)
+lw $v0,1380($s2)
+nop 
+bgez $v0,.L80076368
+nop 
+negu $v0,$v0
+sw $v0,12($s7)
+move $a0,$s8
+jal func_8007571C
+move $a1,$s2
+move $a0,$s2
+move $s0,$v0
+jal func_8007D76C
+move $a1,$s0
+move $a0,$s2
+move $a1,$s1
+sw $s5,16($sp)
+sw $s0,20($sp)
+lw $v0,12($s7)
+lw $a3,32($sp)
+move $a2,$s6
+sw $s3,28($sp)
+jal func_800792E4
+sw $v0,24($sp)
+lui $v0,0x8014
+lw $v0,-9912($v0)
+nop 
+beqz $v0,.L8007663C
+nop 
+lw $v0,1940($s2)
+nop 
+addiu $s3,$v0,-1
+bltz $s3,.L800764EC
+lui $v0,0x8011
+addiu $s6,$v0,17572
+sll $v0,$s3,0x1
+addu $v0,$v0,$s3
+sll $v0,$v0,0x3
+addu $s1,$v0,$s2
+lw $a0,1948($s1)
+li $v0,18
+bne $a0,$v0,.L80076414
+nop 
+lw $t0,80($sp)
+nop 
+beqz $t0,.L80076434
+move $s0,$v0
+j .L80076434
+li $s0,19
+li $v0,20
+bne $a0,$v0,.L80076434
+move $s0,$a0
+lw $t0,80($sp)
+nop 
+beqz $t0,.L80076434
+move $s0,$v0
+li $s0,21
+lw $v1,1944($s1)
+li $v0,5
+beq $v1,$v0,.L8007644C
+li $v0,3
+bne $v1,$v0,.L8007647C
+nop 
+bltz $s0,.L8007647C
+nop 
+jal func_80078A88
+move $a0,$s0
+addiu $v0,$s0,-18
+sltiu $v0,$v0,2
+beqz $v0,.L800764DC
+nop 
+jal func_80078A88
+addiu $a0,$s0,4
+j .L800764E0
+addiu $s1,$s1,-24
+bgez $s0,.L800764C0
+li $v0,1
+lw $v1,12($s6)
+nop 
+beq $v1,$v0,.L800764C0
+li $v0,10
+lw $v1,1952($s1)
+nop 
+beq $v1,$v0,.L800764C0
+li $v0,8
+beq $v1,$v0,.L800764C0
+move $a0,$s8
+jal func_800754C8
+addiu $a1,$s2,416
+sw $s4,16($sp)
+j .L800764C8
+sw $v0,20($sp)
+sw $s4,16($sp)
+sw $s5,20($sp)
+lw $a1,1952($s1)
+lw $a2,1956($s1)
+lw $a3,1960($s1)
+jal func_80078708
+move $a0,$s0
+addiu $s1,$s1,-24
+addiu $s3,$s3,-1
+bgez $s3,.L800763EC
+nop 
+lbu $v0,1094($s2)
+nop 
+beqz $v0,.L8007651C
+move $a1,$s4
+lw $t0,32($sp)
+li $a2,64
+sw $t0,16($sp)
+lw $a0,596($s2)
+jal func_80079ECC
+move $a3,$s5
+j .L80076538
+li $v0,1
+lw $v0,32($s7)
+nop 
+beqz $v0,.L8007653C
+nop 
+lw $a0,596($s2)
+jal func_80079FD0
+nop 
+sw $v0,32($s7)
+lw $v0,648($s2)
+nop 
+lw $v0,0($v0)
+nop 
+addiu $v0,$v0,-22
+sltiu $v0,$v0,6
+beqz $v0,.L8007663C
+nop 
+lw $v0,1392($s2)
+nop 
+andi $v0,$v0,0x2
+beqz $v0,.L80076600
+slti $v0,$s4,4900
+beqz $v0,.L800765A4
+lui $a0,0x6aff
+ori $a0,$a0,0x5f81
+li $v0,4900
+subu $v0,$v0,$s4
+sll $v1,$v0,0x7
+subu $v1,$v1,$v0
+mult $v1,$a0
+sra $v1,$v1,0x1f
+mfhi $t0
+sra $v0,$t0,0xb
+j .L800765A8
+subu $a1,$v0,$v1
+move $a1,$zero
+lui $v1,0x8011
+lw $v0,596($s2)
+addiu $v1,$v1,-1452
+addiu $a0,$v0,4
+sll $v0,$a0,0x2
+addu $v0,$v0,$v1
+lw $v0,0($v0)
+nop 
+bnez $v0,.L800765E4
+move $a3,$s5
+lw $a1,608($s2)
+jal func_8007A280
+andi $a1,$a1,0x40
+j .L8007663C
+nop 
+lw $v0,608($s2)
+lw $a2,32($sp)
+andi $v0,$v0,0x40
+jal func_8007A3E4
+sw $v0,16($sp)
+j .L8007663C
+nop 
+lui $v1,0x8011
+lw $v0,596($s2)
+addiu $v1,$v1,-1452
+addiu $a0,$v0,4
+sll $v0,$a0,0x2
+addu $v0,$v0,$v1
+lw $v0,0($v0)
+nop 
+beqz $v0,.L8007663C
+nop 
+jal func_8007A328
+nop 
+lw $a0,596($s2)
+jal func_80078A88
+addiu $a0,$a0,47
+lw $ra,76($sp)
+lw $s8,72($sp)
+lw $s7,68($sp)
+lw $s6,64($sp)
+lw $s5,60($sp)
+lw $s4,56($sp)
+lw $s3,52($sp)
+lw $s2,48($sp)
+lw $s1,44($sp)
+lw $s0,40($sp)
+jr $ra
+addiu $sp,$sp,80

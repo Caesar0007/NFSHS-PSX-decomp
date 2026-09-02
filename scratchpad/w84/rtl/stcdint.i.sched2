@@ -1,0 +1,4925 @@
+
+;; Function StCdInterrupt
+
+;;	 -- basic block number 0 from 1159 to 12 --
+;; ready list initially:
+;; 12 
+
+;; insn[1159]: priority =    1, ref_count =    1
+;; insn[1161]: priority =    1, ref_count =    1
+;; insn[   9]: priority =    1, ref_count =    1
+;; insn[  11]: priority =    1, ref_count =    1
+;; insn[  12]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 12 (7ffffeb5), now 12
+;; ready list at T-2: 1161 (1) 11 (1), now 11 1161
+;; insn 1161 has a greater potential hazard, now 1161 11
+;; launching 9 before 1161 with no stalls at T-3
+;; ready list at T-3: 11 (1) 1159 (1) 9 (1)
+;; blocking insn 9 for 1 cycles, now 11 1159
+;; launching 9 before 11 with no stalls at T-4
+;; ready list at T-4: 1159 (1) 9 (1), now 9 1159
+;; ready list at T-5: 1159 (1), now 1159
+;; total time = 5
+;; new basic block head = 1157
+;; new basic block end = 12
+
+;;	 -- basic block number 1 from 19 to 21 --
+;; ready list initially:
+;; 21 
+
+;; insn[  19]: priority =    1, ref_count =    1
+;; insn[  21]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 21 (7ffffeb5), now 21
+;; launching 19 before 21 with 1 stalls at T-2
+;; ready list at T-3: 19 (1), now 19
+;; total time = 3
+;; new basic block head = 19
+;; new basic block end = 21
+
+;;	 -- basic block number 2 from 23 to 30 --
+;; ready list initially:
+;; 30 
+
+;; insn[  23]: priority =    1, ref_count =    1
+;; insn[  25]: priority =    2, ref_count =    1
+;; insn[  27]: priority =    1, ref_count =    1
+;; insn[  28]: priority =    3, ref_count =    1
+;; insn[  30]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 30 (7ffffeb5), now 30
+;; ready list at T-2: 28 (3), now 28
+;; ready list at T-3: 27 (1), now 27
+;; launching 25 before 27 with no stalls at T-4
+;; ready list at T-4: 25 (2), now 25
+;; launching 23 before 25 with 1 stalls at T-5
+;; ready list at T-6: 23 (1), now 23
+;; total time = 6
+;; new basic block head = 23
+;; new basic block end = 30
+
+;;	 -- basic block number 3 from 39 to 41 --
+;; ready list initially:
+;; 41 
+
+;; insn[  39]: priority =    1, ref_count =    1
+;; insn[  36]: priority =    1, ref_count =    1
+;; insn[  41]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 41 (7ffffeb5), now 41
+;; ready list at T-2: 36 (1), now 36
+;; launching 39 before 36 with no stalls at T-3
+;; ready list at T-3: 39 (1)
+;; blocking insn 39 for 1 cycles
+;; launching 39 before 36 with no stalls at T-4
+;; ready list at T-4: 39 (1), now 39
+;; total time = 4
+;; new basic block head = 39
+;; new basic block end = 41
+
+;;	 -- basic block number 4 from 44 to 50 --
+;; ready list initially:
+;; 50 
+
+;; insn[  44]: priority =    1, ref_count =    2
+;; insn[  46]: priority =    2, ref_count =    1
+;; insn[  50]: priority =    2, ref_count =    0
+;; ready list at T-1: 50 (2), now 50
+;; ready list at T-2: 46 (2), now 46
+;; launching 44 before 46 with 1 stalls at T-3
+;; ready list at T-4: 44 (1), now 44
+;; total time = 4
+;; new basic block head = 44
+;; new basic block end = 50
+
+;;	 -- basic block number 5 from 51 to 58 --
+;; ready list initially:
+;; 58 
+
+;; insn[  56]: priority =    1, ref_count =    1
+;; insn[  58]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 58 (7ffffeb5), now 58
+;; ready list at T-2: 56 (1), now 56
+;; total time = 2
+;; new basic block head = 51
+;; new basic block end = 58
+
+;;	 -- basic block number 6 from 61 to 75 --
+;; ready list initially:
+;; 75 
+
+;; insn[  66]: priority =    1, ref_count =    1
+;; insn[  68]: priority =    1, ref_count =    1
+;; insn[  70]: priority =    1, ref_count =    2
+;; insn[  74]: priority =    1, ref_count =    1
+;; insn[  75]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 75 (7ffffeb5), now 75
+;; ready list at T-2: 74 (1), now 74
+;; ready list at T-3: 70 (1), now 70
+;; ready list at T-4: 66 (1) 68 (1), now 68 66
+;; ready list at T-5: 66 (1), now 66
+;; total time = 5
+;; new basic block head = 61
+;; new basic block end = 75
+
+;;	 -- basic block number 7 from 82 to 99 --
+;; ready list initially:
+;; 99 
+
+;; insn[  83]: priority =    1, ref_count =    2
+;; insn[  89]: priority =    1, ref_count =    1
+;; insn[  85]: priority =    2, ref_count =    2
+;; insn[  91]: priority =    2, ref_count =    1
+;; insn[  94]: priority =    2, ref_count =    1
+;; insn[  97]: priority =    3, ref_count =    1
+;; insn[  99]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 99 (7ffffeb5), now 99
+;; ready list at T-2: 97 (3), now 97
+;; launching 94 before 97 with 1 stalls at T-3
+;; ready list at T-4: 94 (2), now 94
+;; ready list at T-5: 91 (2), now 91
+;; ready list at T-6: 85 (2), now 85
+;; launching 89 before 85 with no stalls at T-7
+;; ready list at T-7: 89 (1)
+;; blocking insn 89 for 1 cycles
+;; launching 89 before 85 with no stalls at T-8
+;; launching 83 before 85 with no stalls at T-8
+;; ready list at T-8: 89 (1) 83 (1), now 89 83
+;; ready list at T-9: 83 (1), now 83
+;; total time = 9
+;; new basic block head = 82
+;; new basic block end = 99
+
+;;	 -- basic block number 8 from 103 to 107 --
+;; ready list initially:
+;; 107 
+
+;; insn[ 103]: priority =    1, ref_count =    1
+;; insn[ 105]: priority =    1, ref_count =    1
+;; insn[ 107]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 107 (7ffffeb5), now 107
+;; ready list at T-2: 105 (1), now 105
+;; ready list at T-3: 103 (1), now 103
+;; total time = 3
+;; new basic block head = 103
+;; new basic block end = 107
+
+;;	 -- basic block number 9 from 110 to 128 --
+;; ready list initially:
+;; 128 
+
+;; insn[ 113]: priority =    1, ref_count =    1
+;; insn[ 116]: priority =    1, ref_count =    1
+;; insn[ 114]: priority =    2, ref_count =    2
+;; insn[ 118]: priority =    2, ref_count =    2
+;; insn[ 120]: priority =    2, ref_count =    1
+;; insn[ 125]: priority =    2, ref_count =    1
+;; insn[ 128]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 128 (7ffffeb5), now 128
+;; launching 125 before 128 with 1 stalls at T-2
+;; ready list at T-3: 125 (2), now 125
+;; ready list at T-4: 120 (2), now 120
+;; ready list at T-5: 118 (2), now 118
+;; ready list at T-6: 114 (2), now 114
+;; launching 116 before 114 with no stalls at T-7
+;; ready list at T-7: 116 (1), now 116
+;; launching 113 before 116 with no stalls at T-8
+;; ready list at T-8: 113 (1), now 113
+;; total time = 8
+;; new basic block head = 110
+;; new basic block end = 128
+
+;;	 -- basic block number 10 from 132 to 134 --
+;; ready list initially:
+;; 134 
+
+;; insn[ 132]: priority =    1, ref_count =    1
+;; insn[ 134]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 134 (7ffffeb5), now 134
+;; launching 132 before 134 with 1 stalls at T-2
+;; ready list at T-3: 132 (1), now 132
+;; total time = 3
+;; new basic block head = 132
+;; new basic block end = 134
+
+;;	 -- basic block number 11 from 137 to 143 --
+;; ready list initially:
+;; 143 
+
+;; insn[ 137]: priority =    1, ref_count =    2
+;; insn[ 139]: priority =    2, ref_count =    1
+;; insn[ 143]: priority =    2, ref_count =    0
+;; ready list at T-1: 143 (2), now 143
+;; ready list at T-2: 139 (2), now 139
+;; launching 137 before 139 with 1 stalls at T-3
+;; ready list at T-4: 137 (1), now 137
+;; total time = 4
+;; new basic block head = 137
+;; new basic block end = 143
+
+;;	 -- basic block number 12 from 144 to 151 --
+;; ready list initially:
+;; 151 
+
+;; insn[ 147]: priority =    1, ref_count =    1
+;; insn[ 149]: priority =    1, ref_count =    1
+;; insn[ 151]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 151 (7ffffeb5), now 151
+;; ready list at T-2: 149 (1), now 149
+;; ready list at T-3: 147 (1), now 147
+;; total time = 3
+;; new basic block head = 144
+;; new basic block end = 151
+
+;;	 -- basic block number 13 from 154 to 198 --
+;; ready list initially:
+;; 198 
+
+;; insn[ 157]: priority =    1, ref_count =    7
+;; insn[ 159]: priority =    2, ref_count =   11
+;; insn[ 162]: priority =    2, ref_count =    6
+;; insn[ 164]: priority =    3, ref_count =    9
+;; insn[ 167]: priority =    3, ref_count =    5
+;; insn[1146]: priority =    1, ref_count =    1
+;; insn[ 169]: priority =    4, ref_count =    8
+;; insn[ 172]: priority =    4, ref_count =    4
+;; insn[ 174]: priority =    4, ref_count =    2
+;; insn[ 176]: priority =    5, ref_count =    5
+;; insn[ 179]: priority =    5, ref_count =    3
+;; insn[1147]: priority =    1, ref_count =    2
+;; insn[ 183]: priority =    6, ref_count =    5
+;; insn[ 186]: priority =    6, ref_count =    1
+;; insn[ 188]: priority =    6, ref_count =    2
+;; insn[ 190]: priority =    7, ref_count =    1
+;; insn[ 196]: priority =    7, ref_count =    1
+;; insn[ 193]: priority =    6, ref_count =    1
+;; insn[ 198]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 198 (7ffffeb5), now 198
+;; ready list at T-2: 193 (6), now 193
+;; launching 196 before 193 with no stalls at T-3
+;; ready list at T-3: 196 (7), now 196
+;; ready list at T-4: 190 (7), now 190
+;; ready list at T-5: 188 (6), now 188
+;; launching 186 before 188 with no stalls at T-6
+;; ready list at T-6: 186 (6), now 186
+;; ready list at T-7: 183 (6), now 183
+;; ready list at T-8: 1147 (1), now 1147
+;; launching 179 before 1147 with no stalls at T-9
+;; ready list at T-9: 1146 (1) 179 (5), now 179 1146
+;; ready list at T-10: 1146 (1) 176 (5), now 176 1146
+;; ready list at T-11: 1146 (1) 174 (4), now 174 1146
+;; launching 172 before 174 with no stalls at T-12
+;; ready list at T-12: 1146 (1) 172 (4), now 172 1146
+;; ready list at T-13: 1146 (1) 169 (4), now 169 1146
+;; ready list at T-14: 1146 (1), now 1146
+;; launching 167 before 1146 with no stalls at T-15
+;; ready list at T-15: 167 (3), now 167
+;; ready list at T-16: 164 (3), now 164
+;; launching 162 before 164 with 1 stalls at T-17
+;; ready list at T-18: 162 (2), now 162
+;; ready list at T-19: 159 (2), now 159
+;; launching 157 before 159 with 1 stalls at T-20
+;; ready list at T-21: 157 (1), now 157
+;; total time = 21
+;; new basic block head = 154
+;; new basic block end = 198
+
+;;	 -- basic block number 14 from 202 to 202 --
+;; ready list initially:
+;; 202 
+
+;; insn[ 202]: priority =    1, ref_count =    0
+;; ready list at T-1: 202 (1), now 202
+;; total time = 1
+;; new basic block head = 202
+;; new basic block end = 202
+
+;;	 -- basic block number 15 from 211 to 208 --
+;; ready list initially:
+;; 208 
+
+;; insn[ 215]: priority =    1, ref_count =    2
+;; insn[ 213]: priority =    1, ref_count =    2
+;; insn[ 217]: priority =    2, ref_count =    2
+;; insn[ 223]: priority =    1, ref_count =    1
+;; insn[ 219]: priority =    3, ref_count =    2
+;; insn[ 207]: priority =    3, ref_count =    1
+;; insn[ 208]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 208 (7ffffeb5), now 208
+;; ready list at T-2: 207 (3), now 207
+;; ready list at T-3: 219 (3) 223 (1), now 219 223
+;; ready list at T-4: 223 (1), now 223
+;; launching 217 before 223 with no stalls at T-5
+;; ready list at T-5: 213 (1) 217 (2), now 217 213
+;; ready list at T-6: 213 (1), now 213
+;; launching 215 before 213 with no stalls at T-7
+;; ready list at T-7: 215 (1), now 215
+;; total time = 7
+;; new basic block head = 211
+;; new basic block end = 208
+
+;;	 -- basic block number 16 from 1124 to 1144 --
+;; ready list initially:
+;; 1144 233 
+
+;; insn[ 233]: priority =    1, ref_count =    0
+;; insn[1144]: priority =    1, ref_count =    0
+;; ready list at T-1: 1144 (1) 233 (1), now 1144 233
+;; ready list at T-2: 233 (1), now 233
+;; total time = 2
+;; new basic block head = 1124
+;; new basic block end = 1144
+
+;;	 -- basic block number 17 from 241 to 238 --
+;; ready list initially:
+;; 238 
+
+;; insn[ 245]: priority =    1, ref_count =    2
+;; insn[ 249]: priority =    1, ref_count =    1
+;; insn[ 237]: priority =    1, ref_count =    1
+;; insn[ 238]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 238 (7ffffeb5), now 238
+;; ready list at T-2: 237 (1), now 237
+;; ready list at T-3: 245 (1) 249 (1), now 249 245
+;; ready list at T-4: 245 (1), now 245
+;; total time = 4
+;; new basic block head = 241
+;; new basic block end = 238
+
+;;	 -- basic block number 18 from 258 to 266 --
+;; ready list initially:
+;; 266 
+
+;; insn[ 264]: priority =    1, ref_count =    1
+;; insn[ 261]: priority =    1, ref_count =    1
+;; insn[ 266]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 266 (7ffffeb5), now 266
+;; ready list at T-2: 261 (1), now 261
+;; launching 264 before 261 with no stalls at T-3
+;; ready list at T-3: 264 (1), now 264
+;; total time = 3
+;; new basic block head = 258
+;; new basic block end = 266
+
+;;	 -- basic block number 19 from 270 to 289 --
+;; ready list initially:
+;; 289 
+
+;; insn[ 283]: priority =    1, ref_count =    1
+;; insn[ 285]: priority =    1, ref_count =    1
+;; insn[ 272]: priority =    1, ref_count =    2
+;; insn[ 279]: priority =    1, ref_count =    1
+;; insn[ 273]: priority =    2, ref_count =    2
+;; insn[ 281]: priority =    2, ref_count =    1
+;; insn[ 287]: priority =    2, ref_count =    1
+;; insn[ 289]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 289 (7ffffeb5), now 289
+;; ready list at T-2: 287 (2), now 287
+;; ready list at T-3: 281 (2) 283 (1) 285 (1), now 281 285 283
+;; launching 279 before 281 with no stalls at T-4
+;; ready list at T-4: 285 (1) 283 (1) 273 (2) 279 (1), now 273 279 285 283
+;; ready list at T-5: 279 (1) 285 (1) 283 (1), now 279 285 283
+;; launching 272 before 279 with no stalls at T-6
+;; ready list at T-6: 285 (1) 283 (1) 272 (1), now 272 285 283
+;; ready list at T-7: 285 (1) 283 (1), now 285 283
+;; ready list at T-8: 283 (1), now 283
+;; total time = 8
+;; new basic block head = 270
+;; new basic block end = 289
+
+;;	 -- basic block number 20 from 291 to 311 --
+;; ready list initially:
+;; 311 
+
+;; insn[ 303]: priority =    1, ref_count =    1
+;; insn[ 307]: priority =    1, ref_count =    1
+;; insn[ 295]: priority =    1, ref_count =    1
+;; insn[ 309]: priority =    1, ref_count =    1
+;; insn[ 297]: priority =    1, ref_count =    1
+;; insn[ 299]: priority =    1, ref_count =    1
+;; insn[ 301]: priority =    1, ref_count =    1
+;; insn[ 311]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 311 (7ffffeb5), now 311
+;; ready list at T-2: 297 (1) 299 (1) 301 (1) 303 (1) 307 (1) 309 (1), now 301 299 297 309 307 303
+;; launching 295 before 301 with no stalls at T-3
+;; ready list at T-3: 299 (1) 297 (1) 309 (1) 307 (1) 303 (1) 295 (1)
+;; blocking insn 295 for 1 cycles, now 299 297 309 307 303
+;; launching 295 before 299 with no stalls at T-4
+;; ready list at T-4: 297 (1) 309 (1) 307 (1) 303 (1) 295 (1)
+;; blocking insn 295 for 1 cycles, now 297 309 307 303
+;; launching 295 before 297 with no stalls at T-5
+;; ready list at T-5: 309 (1) 307 (1) 303 (1) 295 (1)
+;; blocking insn 295 for 1 cycles, now 309 307 303
+;; launching 295 before 309 with no stalls at T-6
+;; ready list at T-6: 307 (1) 303 (1) 295 (1), now 295 307 303
+;; ready list at T-7: 307 (1) 303 (1), now 307 303
+;; ready list at T-8: 303 (1), now 303
+;; total time = 8
+;; new basic block head = 291
+;; new basic block end = 311
+
+;;	 -- basic block number 21 from 313 to 1132 --
+;; ready list initially:
+;; 1132 
+
+;; insn[1128]: priority =    1, ref_count =    1
+;; insn[1129]: priority =    2, ref_count =    1
+;; insn[1130]: priority =    1, ref_count =    1
+;; insn[1131]: priority =    3, ref_count =    1
+;; insn[1132]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 1132 (7ffffeb5), now 1132
+;; ready list at T-2: 1131 (3), now 1131
+;; ready list at T-3: 1130 (1), now 1130
+;; launching 1129 before 1130 with no stalls at T-4
+;; ready list at T-4: 1129 (2), now 1129
+;; launching 1128 before 1129 with 1 stalls at T-5
+;; ready list at T-6: 1128 (1), now 1128
+;; total time = 6
+;; new basic block head = 313
+;; new basic block end = 1132
+
+;;	 -- basic block number 22 from 1141 to 1143 --
+;; ready list initially:
+;; 1143 
+
+;; insn[1141]: priority =    1, ref_count =    1
+;; insn[1143]: priority =    1, ref_count =    0
+;; ready list at T-1: 1143 (1), now 1143
+;; ready list at T-2: 1141 (1), now 1141
+;; total time = 2
+;; new basic block head = 1141
+;; new basic block end = 1143
+
+;;	 -- basic block number 23 from 316 to 325 --
+;; ready list initially:
+;; 325 
+
+;; insn[ 320]: priority =    1, ref_count =    1
+;; insn[ 323]: priority =    2, ref_count =    1
+;; insn[ 325]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 325 (7ffffeb5), now 325
+;; ready list at T-2: 323 (2), now 323
+;; launching 320 before 323 with 1 stalls at T-3
+;; ready list at T-4: 320 (1), now 320
+;; total time = 4
+;; new basic block head = 316
+;; new basic block end = 325
+
+;;	 -- basic block number 24 from 336 to 365 --
+;; ready list initially:
+;; 365 
+
+;; insn[1148]: priority =    1, ref_count =    1
+;; insn[1149]: priority =    1, ref_count =    1
+;; insn[ 342]: priority =    1, ref_count =    4
+;; insn[ 339]: priority =    1, ref_count =    4
+;; insn[ 347]: priority =    2, ref_count =    5
+;; insn[ 352]: priority =    2, ref_count =    3
+;; insn[ 355]: priority =    2, ref_count =    2
+;; insn[ 357]: priority =    2, ref_count =    2
+;; insn[ 359]: priority =    3, ref_count =    2
+;; insn[ 362]: priority =    3, ref_count =    1
+;; insn[ 364]: priority =    3, ref_count =    1
+;; insn[ 365]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 365 (7ffffeb5), now 365
+;; ready list at T-2: 364 (3), now 364
+;; launching 362 before 364 with no stalls at T-3
+;; ready list at T-3: 362 (3), now 362
+;; ready list at T-4: 359 (3), now 359
+;; ready list at T-5: 357 (2), now 357
+;; launching 355 before 357 with no stalls at T-6
+;; ready list at T-6: 355 (2), now 355
+;; ready list at T-7: 352 (2), now 352
+;; ready list at T-8: 1149 (1) 347 (2), now 347 1149
+;; ready list at T-9: 1149 (1) 339 (1), now 339 1149
+;; launching 342 before 339 with no stalls at T-10
+;; ready list at T-10: 1149 (1) 342 (1), now 342 1149
+;; ready list at T-11: 1149 (1), now 1149
+;; ready list at T-12: 1148 (1), now 1148
+;; total time = 12
+;; new basic block head = 336
+;; new basic block end = 365
+
+;;	 -- basic block number 25 from 367 to 369 --
+;; ready list initially:
+;; 369 
+
+;; insn[ 367]: priority =    1, ref_count =    1
+;; insn[ 369]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 369 (7ffffeb5), now 369
+;; launching 367 before 369 with 1 stalls at T-2
+;; ready list at T-3: 367 (1), now 367
+;; total time = 3
+;; new basic block head = 367
+;; new basic block end = 369
+
+;;	 -- basic block number 26 from 376 to 380 --
+;; ready list initially:
+;; 380 
+
+;; insn[ 373]: priority =    1, ref_count =    1
+;; insn[ 375]: priority =    2, ref_count =    1
+;; insn[ 380]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 380 (7ffffeb5), now 380
+;; launching 375 before 380 with 1 stalls at T-2
+;; ready list at T-3: 375 (2), now 375
+;; launching 373 before 375 with 1 stalls at T-4
+;; ready list at T-5: 373 (1), now 373
+;; total time = 5
+;; new basic block head = 376
+;; new basic block end = 380
+
+;;	 -- basic block number 27 from 394 to 399 --
+;; ready list initially:
+;; 399 
+
+;; insn[ 394]: priority =    1, ref_count =    1
+;; insn[ 397]: priority =    1, ref_count =    1
+;; insn[ 399]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 399 (7ffffeb5), now 399
+;; launching 397 before 399 with 1 stalls at T-2
+;; ready list at T-3: 397 (1), now 397
+;; ready list at T-4: 394 (1), now 394
+;; total time = 4
+;; new basic block head = 394
+;; new basic block end = 399
+
+;;	 -- basic block number 28 from 402 to 411 --
+;; ready list initially:
+;; 411 
+
+;; insn[ 402]: priority =    1, ref_count =    2
+;; insn[ 404]: priority =    2, ref_count =    1
+;; insn[ 408]: priority =    2, ref_count =    1
+;; insn[ 411]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 411 (7ffffeb5), now 411
+;; ready list at T-2: 408 (2), now 408
+;; ready list at T-3: 404 (2), now 404
+;; launching 402 before 404 with 1 stalls at T-4
+;; ready list at T-5: 402 (1), now 402
+;; total time = 5
+;; new basic block head = 402
+;; new basic block end = 411
+
+;;	 -- basic block number 29 from 388 to 384 --
+;; ready list initially:
+;; 384 
+
+;; insn[ 384]: priority =    1, ref_count =    0
+;; ready list at T-1: 384 (1), now 384
+;; total time = 1
+;; new basic block head = 388
+;; new basic block end = 384
+
+;;	 -- basic block number 30 from 416 to 425 --
+;; ready list initially:
+;; 425 
+
+;; insn[ 419]: priority =    1, ref_count =    1
+;; insn[ 422]: priority =    2, ref_count =    1
+;; insn[ 424]: priority =    1, ref_count =    1
+;; insn[ 425]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 425 (7ffffeb5), now 425
+;; ready list at T-2: 424 (1), now 424
+;; launching 422 before 424 with no stalls at T-3
+;; ready list at T-3: 422 (2), now 422
+;; launching 419 before 422 with 1 stalls at T-4
+;; ready list at T-5: 419 (1), now 419
+;; total time = 5
+;; new basic block head = 416
+;; new basic block end = 425
+
+;;	 -- basic block number 31 from 432 to 441 --
+;; ready list initially:
+;; 441 
+
+;; insn[ 431]: priority =    1, ref_count =    1
+;; insn[ 433]: priority =    2, ref_count =    1
+;; insn[ 439]: priority =    1, ref_count =    1
+;; insn[ 437]: priority =    2, ref_count =    1
+;; insn[ 441]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 441 (7ffffeb5), now 441
+;; ready list at T-2: 437 (2), now 437
+;; launching 439 before 437 with no stalls at T-3
+;; ready list at T-3: 433 (2) 439 (1), now 433 439
+;; ready list at T-4: 439 (1), now 439
+;; launching 431 before 439 with no stalls at T-5
+;; ready list at T-5: 431 (1), now 431
+;; total time = 5
+;; new basic block head = 432
+;; new basic block end = 441
+
+;;	 -- basic block number 32 from 444 to 450 --
+;; ready list initially:
+;; 450 
+
+;; insn[ 448]: priority =    1, ref_count =    1
+;; insn[ 450]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 450 (7ffffeb5), now 450
+;; launching 448 before 450 with 1 stalls at T-2
+;; ready list at T-3: 448 (1), now 448
+;; total time = 3
+;; new basic block head = 444
+;; new basic block end = 450
+
+;;	 -- basic block number 33 from 453 to 454 --
+;; ready list initially:
+;; 454 
+
+;; insn[ 453]: priority =    1, ref_count =    1
+;; insn[ 454]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 454 (7ffffeb5), now 454
+;; ready list at T-2: 453 (1), now 453
+;; total time = 2
+;; new basic block head = 453
+;; new basic block end = 454
+
+;;	 -- basic block number 34 from 456 to 462 --
+;; ready list initially:
+;; 462 
+
+;; insn[ 462]: priority =    1, ref_count =    0
+;; ready list at T-1: 462 (1), now 462
+;; total time = 1
+;; new basic block head = 456
+;; new basic block end = 462
+
+;;	 -- basic block number 35 from 463 to 475 --
+;; ready list initially:
+;; 475 
+
+;; insn[ 471]: priority =    1, ref_count =    1
+;; insn[ 466]: priority =    1, ref_count =    1
+;; insn[ 468]: priority =    1, ref_count =    1
+;; insn[ 473]: priority =    2, ref_count =    1
+;; insn[ 475]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 475 (7ffffeb5), now 475
+;; ready list at T-2: 473 (2), now 473
+;; ready list at T-3: 468 (1), now 468
+;; launching 471 before 468 with no stalls at T-4
+;; ready list at T-4: 466 (1) 471 (1)
+;; blocking insn 471 for 1 cycles, now 466
+;; launching 471 before 466 with no stalls at T-5
+;; ready list at T-5: 471 (1), now 471
+;; total time = 5
+;; new basic block head = 463
+;; new basic block end = 475
+
+;;	 -- basic block number 36 from 478 to 490 --
+;; ready list initially:
+;; 490 
+
+;; insn[ 483]: priority =    1, ref_count =    1
+;; insn[ 487]: priority =    1, ref_count =    1
+;; insn[ 490]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 490 (7ffffeb5), now 490
+;; launching 483 before 490 with 1 stalls at T-2
+;; launching 487 before 490 with 1 stalls at T-2
+;; ready list at T-3: 483 (1) 487 (1), now 487 483
+;; ready list at T-4: 483 (1), now 483
+;; total time = 4
+;; new basic block head = 478
+;; new basic block end = 490
+
+;;	 -- basic block number 37 from 492 to 494 --
+;; ready list initially:
+;; 494 
+
+;; insn[ 492]: priority =    1, ref_count =    1
+;; insn[ 494]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 494 (7ffffeb5), now 494
+;; launching 492 before 494 with 1 stalls at T-2
+;; ready list at T-3: 492 (1), now 492
+;; total time = 3
+;; new basic block head = 492
+;; new basic block end = 494
+
+;;	 -- basic block number 38 from 499 to 503 --
+;; ready list initially:
+;; 503 
+
+;; insn[ 498]: priority =    1, ref_count =    1
+;; insn[ 503]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 503 (7ffffeb5), now 503
+;; launching 498 before 503 with 1 stalls at T-2
+;; ready list at T-3: 498 (1), now 498
+;; total time = 3
+;; new basic block head = 499
+;; new basic block end = 503
+
+;;	 -- basic block number 39 from 506 to 543 --
+;; ready list initially:
+;; 543 
+
+;; insn[ 510]: priority =    1, ref_count =    1
+;; insn[ 513]: priority =    1, ref_count =    1
+;; insn[ 516]: priority =    1, ref_count =    2
+;; insn[ 518]: priority =    1, ref_count =    2
+;; insn[ 526]: priority =    2, ref_count =    1
+;; insn[ 528]: priority =    2, ref_count =    6
+;; insn[ 531]: priority =    2, ref_count =    3
+;; insn[ 536]: priority =    2, ref_count =    1
+;; insn[ 533]: priority =    3, ref_count =    2
+;; insn[ 538]: priority =    3, ref_count =    1
+;; insn[ 541]: priority =    3, ref_count =    1
+;; insn[ 543]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 543 (7ffffeb5), now 543
+;; launching 541 before 543 with 1 stalls at T-2
+;; ready list at T-3: 541 (3), now 541
+;; ready list at T-4: 538 (3), now 538
+;; ready list at T-5: 533 (3), now 533
+;; launching 536 before 533 with no stalls at T-6
+;; ready list at T-6: 536 (2)
+;; blocking insn 536 for 1 cycles
+;; launching 536 before 533 with no stalls at T-7
+;; launching 531 before 533 with no stalls at T-7
+;; ready list at T-7: 536 (2) 531 (2), now 536 531
+;; ready list at T-8: 531 (2), now 531
+;; ready list at T-9: 528 (2), now 528
+;; ready list at T-10: 510 (1) 513 (1) 526 (2), now 526 513 510
+;; ready list at T-11: 513 (1) 510 (1), now 513 510
+;; launching 518 before 513 with no stalls at T-12
+;; launching 516 before 513 with no stalls at T-12
+;; ready list at T-12: 510 (1) 518 (1) 516 (1)
+;; blocking insn 518 for 1 cycles
+;; blocking insn 516 for 1 cycles, now 510
+;; launching 516 before 510 with no stalls at T-13
+;; launching 518 before 510 with no stalls at T-13
+;; ready list at T-13: 516 (1) 518 (1)
+;; blocking insn 518 for 1 cycles
+;; blocking insn 516 for 1 cycles
+;; launching 516 before 510 with no stalls at T-14
+;; launching 518 before 510 with no stalls at T-14
+;; ready list at T-14: 516 (1) 518 (1), now 518 516
+;; ready list at T-15: 516 (1), now 516
+;; total time = 15
+;; new basic block head = 506
+;; new basic block end = 543
+
+;;	 -- basic block number 40 from 545 to 551 --
+;; ready list initially:
+;; 551 
+
+;; insn[ 545]: priority =    1, ref_count =    2
+;; insn[ 547]: priority =    2, ref_count =    1
+;; insn[ 551]: priority =    2, ref_count =    0
+;; ready list at T-1: 551 (2), now 551
+;; ready list at T-2: 547 (2), now 547
+;; launching 545 before 547 with 1 stalls at T-3
+;; ready list at T-4: 545 (1), now 545
+;; total time = 4
+;; new basic block head = 545
+;; new basic block end = 551
+
+;;	 -- basic block number 41 from 552 to 559 --
+;; ready list initially:
+;; 559 
+
+;; insn[ 555]: priority =    1, ref_count =    1
+;; insn[ 557]: priority =    1, ref_count =    1
+;; insn[ 559]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 559 (7ffffeb5), now 559
+;; ready list at T-2: 557 (1), now 557
+;; ready list at T-3: 555 (1), now 555
+;; total time = 3
+;; new basic block head = 552
+;; new basic block end = 559
+
+;;	 -- basic block number 42 from 562 to 570 --
+;; ready list initially:
+;; 570 
+
+;; insn[ 565]: priority =    1, ref_count =    1
+;; insn[ 567]: priority =    2, ref_count =    1
+;; insn[ 570]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 570 (7ffffeb5), now 570
+;; launching 567 before 570 with 1 stalls at T-2
+;; ready list at T-3: 567 (2), now 567
+;; launching 565 before 567 with 1 stalls at T-4
+;; ready list at T-5: 565 (1), now 565
+;; total time = 5
+;; new basic block head = 562
+;; new basic block end = 570
+
+;;	 -- basic block number 43 from 574 to 587 --
+;; ready list initially:
+;; 587 
+
+;; insn[ 574]: priority =    1, ref_count =    1
+;; insn[ 579]: priority =    1, ref_count =    2
+;; insn[ 585]: priority =    1, ref_count =    1
+;; insn[ 580]: priority =    2, ref_count =    1
+;; insn[ 582]: priority =    2, ref_count =    1
+;; insn[ 587]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 587 (7ffffeb5), now 587
+;; ready list at T-2: 574 (1) 582 (2), now 582 574
+;; launching 585 before 582 with no stalls at T-3
+;; ready list at T-3: 574 (1) 580 (2) 585 (1), now 580 585 574
+;; ready list at T-4: 585 (1) 574 (1), now 585 574
+;; insn 574 has a greater potential hazard, now 574 585
+;; ready list at T-5: 585 (1)
+;; blocking insn 585 for 1 cycles
+;; launching 585 before 574 with no stalls at T-6
+;; ready list at T-6: 585 (1), now 585
+;; ready list at T-7: 579 (1), now 579
+;; total time = 7
+;; new basic block head = 579
+;; new basic block end = 587
+
+;;	 -- basic block number 44 from 593 to 594 --
+;; ready list initially:
+;; 594 
+
+;; insn[ 593]: priority =    1, ref_count =    1
+;; insn[ 594]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 594 (7ffffeb5), now 594
+;; ready list at T-2: 593 (1), now 593
+;; total time = 2
+;; new basic block head = 593
+;; new basic block end = 594
+
+;;	 -- basic block number 45 from 610 to 636 --
+;; ready list initially:
+;; 636 
+
+;; insn[ 598]: priority =    1, ref_count =    1
+;; insn[ 601]: priority =    1, ref_count =    1
+;; insn[ 604]: priority =    1, ref_count =    2
+;; insn[ 606]: priority =    1, ref_count =    2
+;; insn[ 614]: priority =    2, ref_count =    1
+;; insn[ 616]: priority =    2, ref_count =    8
+;; insn[ 619]: priority =    2, ref_count =    3
+;; insn[ 624]: priority =    2, ref_count =    2
+;; insn[ 621]: priority =    3, ref_count =    2
+;; insn[ 626]: priority =    3, ref_count =    2
+;; insn[ 634]: priority =    3, ref_count =    1
+;; insn[ 629]: priority =    3, ref_count =    1
+;; insn[ 631]: priority =    3, ref_count =    1
+;; insn[ 636]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 636 (7ffffeb5), now 636
+;; ready list at T-2: 631 (3), now 631
+;; launching 634 before 631 with no stalls at T-3
+;; ready list at T-3: 629 (3) 634 (3)
+;; blocking insn 634 for 1 cycles, now 629
+;; launching 634 before 629 with no stalls at T-4
+;; ready list at T-4: 634 (3), now 634
+;; ready list at T-5: 626 (3), now 626
+;; ready list at T-6: 621 (3), now 621
+;; launching 624 before 621 with no stalls at T-7
+;; ready list at T-7: 624 (2)
+;; blocking insn 624 for 1 cycles
+;; launching 624 before 621 with no stalls at T-8
+;; launching 619 before 621 with no stalls at T-8
+;; ready list at T-8: 624 (2) 619 (2), now 624 619
+;; ready list at T-9: 619 (2), now 619
+;; ready list at T-10: 616 (2), now 616
+;; ready list at T-11: 598 (1) 601 (1) 614 (2), now 614 601 598
+;; ready list at T-12: 601 (1) 598 (1), now 601 598
+;; launching 606 before 601 with no stalls at T-13
+;; launching 604 before 601 with no stalls at T-13
+;; ready list at T-13: 598 (1) 606 (1) 604 (1)
+;; blocking insn 606 for 1 cycles
+;; blocking insn 604 for 1 cycles, now 598
+;; launching 604 before 598 with no stalls at T-14
+;; launching 606 before 598 with no stalls at T-14
+;; ready list at T-14: 604 (1) 606 (1)
+;; blocking insn 606 for 1 cycles
+;; blocking insn 604 for 1 cycles
+;; launching 604 before 598 with no stalls at T-15
+;; launching 606 before 598 with no stalls at T-15
+;; ready list at T-15: 604 (1) 606 (1), now 606 604
+;; ready list at T-16: 604 (1), now 604
+;; total time = 16
+;; new basic block head = 610
+;; new basic block end = 636
+
+;;	 -- basic block number 46 from 640 to 640 --
+;; ready list initially:
+;; 640 
+
+;; insn[ 640]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 640 (7ffffeb5), now 640
+;; total time = 1
+;; new basic block head = 640
+;; new basic block end = 640
+
+;;	 -- basic block number 47 from 641 to 646 --
+;; ready list initially:
+;; 646 
+
+;; insn[ 644]: priority =    1, ref_count =    1
+;; insn[ 646]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 646 (7ffffeb5), now 646
+;; launching 644 before 646 with 1 stalls at T-2
+;; ready list at T-3: 644 (1), now 644
+;; total time = 3
+;; new basic block head = 641
+;; new basic block end = 646
+
+;;	 -- basic block number 48 from 648 to 654 --
+;; ready list initially:
+;; 654 
+
+;; insn[ 648]: priority =    1, ref_count =    2
+;; insn[ 650]: priority =    2, ref_count =    1
+;; insn[ 654]: priority =    2, ref_count =    0
+;; ready list at T-1: 654 (2), now 654
+;; ready list at T-2: 650 (2), now 650
+;; launching 648 before 650 with 1 stalls at T-3
+;; ready list at T-4: 648 (1), now 648
+;; total time = 4
+;; new basic block head = 648
+;; new basic block end = 654
+
+;;	 -- basic block number 49 from 655 to 662 --
+;; ready list initially:
+;; 662 
+
+;; insn[ 658]: priority =    1, ref_count =    1
+;; insn[ 660]: priority =    1, ref_count =    1
+;; insn[ 662]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 662 (7ffffeb5), now 662
+;; ready list at T-2: 660 (1), now 660
+;; ready list at T-3: 658 (1), now 658
+;; total time = 3
+;; new basic block head = 655
+;; new basic block end = 662
+
+;;	 -- basic block number 50 from 665 to 682 --
+;; ready list initially:
+;; 682 
+
+;; insn[ 668]: priority =    1, ref_count =    1
+;; insn[ 670]: priority =    1, ref_count =    2
+;; insn[ 676]: priority =    1, ref_count =    1
+;; insn[ 672]: priority =    2, ref_count =    2
+;; insn[ 678]: priority =    2, ref_count =    1
+;; insn[ 674]: priority =    2, ref_count =    1
+;; insn[ 681]: priority =    3, ref_count =    1
+;; insn[ 682]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 682 (7ffffeb5), now 682
+;; ready list at T-2: 681 (3), now 681
+;; ready list at T-3: 674 (2), now 674
+;; launching 678 before 674 with no stalls at T-4
+;; ready list at T-4: 678 (2), now 678
+;; ready list at T-5: 672 (2), now 672
+;; launching 676 before 672 with no stalls at T-6
+;; ready list at T-6: 676 (1), now 676
+;; launching 670 before 676 with no stalls at T-7
+;; launching 668 before 676 with no stalls at T-7
+;; ready list at T-7: 670 (1) 668 (1), now 670 668
+;; ready list at T-8: 668 (1), now 668
+;; total time = 8
+;; new basic block head = 665
+;; new basic block end = 682
+
+;;	 -- basic block number 51 from 686 to 688 --
+;; ready list initially:
+;; 688 
+
+;; insn[ 686]: priority =    1, ref_count =    1
+;; insn[ 688]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 688 (7ffffeb5), now 688
+;; launching 686 before 688 with 1 stalls at T-2
+;; ready list at T-3: 686 (1), now 686
+;; total time = 3
+;; new basic block head = 686
+;; new basic block end = 688
+
+;;	 -- basic block number 52 from 694 to 706 --
+;; ready list initially:
+;; 706 
+
+;; insn[ 694]: priority =    1, ref_count =    2
+;; insn[ 696]: priority =    1, ref_count =    3
+;; insn[ 704]: priority =    1, ref_count =    1
+;; insn[ 699]: priority =    1, ref_count =    1
+;; insn[ 701]: priority =    1, ref_count =    1
+;; insn[ 706]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 706 (7ffffeb5), now 706
+;; ready list at T-2: 701 (1), now 701
+;; launching 704 before 701 with no stalls at T-3
+;; ready list at T-3: 699 (1) 704 (1)
+;; blocking insn 704 for 1 cycles, now 699
+;; launching 704 before 699 with no stalls at T-4
+;; ready list at T-4: 704 (1), now 704
+;; ready list at T-5: 696 (1), now 696
+;; ready list at T-6: 694 (1), now 694
+;; total time = 6
+;; new basic block head = 694
+;; new basic block end = 706
+
+;;	 -- basic block number 53 from 710 to 710 --
+;; ready list initially:
+;; 710 
+
+;; insn[ 710]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 710 (7ffffeb5), now 710
+;; total time = 1
+;; new basic block head = 710
+;; new basic block end = 710
+
+;;	 -- basic block number 54 from 711 to 716 --
+;; ready list initially:
+;; 716 
+
+;; insn[ 714]: priority =    1, ref_count =    1
+;; insn[ 716]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 716 (7ffffeb5), now 716
+;; launching 714 before 716 with 1 stalls at T-2
+;; ready list at T-3: 714 (1), now 714
+;; total time = 3
+;; new basic block head = 711
+;; new basic block end = 716
+
+;;	 -- basic block number 55 from 718 to 724 --
+;; ready list initially:
+;; 724 
+
+;; insn[ 718]: priority =    1, ref_count =    2
+;; insn[ 720]: priority =    2, ref_count =    1
+;; insn[ 724]: priority =    2, ref_count =    0
+;; ready list at T-1: 724 (2), now 724
+;; ready list at T-2: 720 (2), now 720
+;; launching 718 before 720 with 1 stalls at T-3
+;; ready list at T-4: 718 (1), now 718
+;; total time = 4
+;; new basic block head = 718
+;; new basic block end = 724
+
+;;	 -- basic block number 56 from 725 to 732 --
+;; ready list initially:
+;; 732 
+
+;; insn[ 728]: priority =    1, ref_count =    1
+;; insn[ 730]: priority =    1, ref_count =    1
+;; insn[ 732]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 732 (7ffffeb5), now 732
+;; ready list at T-2: 730 (1), now 730
+;; ready list at T-3: 728 (1), now 728
+;; total time = 3
+;; new basic block head = 725
+;; new basic block end = 732
+
+;;	 -- basic block number 57 from 735 to 744 --
+;; ready list initially:
+;; 744 
+
+;; insn[ 738]: priority =    1, ref_count =    1
+;; insn[ 742]: priority =    2, ref_count =    1
+;; insn[ 744]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 744 (7ffffeb5), now 744
+;; launching 742 before 744 with 1 stalls at T-2
+;; ready list at T-3: 742 (2), now 742
+;; launching 738 before 742 with 1 stalls at T-4
+;; ready list at T-5: 738 (1), now 738
+;; total time = 5
+;; new basic block head = 735
+;; new basic block end = 744
+
+;;	 -- basic block number 58 from 750 to 755 --
+;; ready list initially:
+;; 755 
+
+;; insn[ 750]: priority =    1, ref_count =    1
+;; insn[ 753]: priority =    1, ref_count =    1
+;; insn[ 755]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 755 (7ffffeb5), now 755
+;; launching 753 before 755 with 1 stalls at T-2
+;; ready list at T-3: 753 (1), now 753
+;; ready list at T-4: 750 (1), now 750
+;; total time = 4
+;; new basic block head = 750
+;; new basic block end = 755
+
+;;	 -- basic block number 59 from 757 to 763 --
+;; ready list initially:
+;; 763 
+
+;; insn[ 757]: priority =    1, ref_count =    2
+;; insn[ 759]: priority =    2, ref_count =    1
+;; insn[ 763]: priority =    2, ref_count =    0
+;; ready list at T-1: 763 (2), now 763
+;; ready list at T-2: 759 (2), now 759
+;; launching 757 before 759 with 1 stalls at T-3
+;; ready list at T-4: 757 (1), now 757
+;; total time = 4
+;; new basic block head = 757
+;; new basic block end = 763
+
+;;	 -- basic block number 60 from 764 to 771 --
+;; ready list initially:
+;; 771 
+
+;; insn[ 767]: priority =    1, ref_count =    1
+;; insn[ 769]: priority =    1, ref_count =    1
+;; insn[ 771]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 771 (7ffffeb5), now 771
+;; ready list at T-2: 769 (1), now 769
+;; ready list at T-3: 767 (1), now 767
+;; total time = 3
+;; new basic block head = 764
+;; new basic block end = 771
+
+;;	 -- basic block number 61 from 774 to 791 --
+;; ready list initially:
+;; 791 794 788 785 
+
+;; insn[ 779]: priority =    1, ref_count =    1
+;; insn[ 781]: priority =    1, ref_count =    4
+;; insn[ 785]: priority =    1, ref_count =    0
+;; insn[ 788]: priority =    1, ref_count =    0
+;; insn[ 794]: priority =    1, ref_count =    0
+;; insn[ 791]: priority =    1, ref_count =    0
+;; ready list at T-1: 791 (1) 794 (1) 788 (1) 785 (1), now 791 794 788 785
+;; ready list at T-2: 794 (1) 788 (1) 785 (1)
+;; blocking insn 788 for 1 cycles
+;; blocking insn 785 for 1 cycles, now 794
+;; launching 785 before 794 with no stalls at T-3
+;; launching 788 before 794 with no stalls at T-3
+;; ready list at T-3: 785 (1) 788 (1), now 788 785
+;; ready list at T-4: 785 (1), now 785
+;; ready list at T-5: 781 (1), now 781
+;; ready list at T-6: 779 (1), now 779
+;; total time = 6
+;; new basic block head = 774
+;; new basic block end = 791
+
+;;	 -- basic block number 62 from 802 to 799 --
+;; ready list initially:
+;; 799 
+
+;; insn[ 806]: priority =    1, ref_count =    3
+;; insn[ 809]: priority =    1, ref_count =    1
+;; insn[ 814]: priority =    1, ref_count =    1
+;; insn[ 808]: priority =    2, ref_count =    2
+;; insn[ 810]: priority =    2, ref_count =    1
+;; insn[ 798]: priority =    2, ref_count =    1
+;; insn[ 799]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 799 (7ffffeb5), now 799
+;; ready list at T-2: 809 (1) 810 (2) 798 (2), now 798 810 809
+;; ready list at T-3: 810 (2) 809 (1) 814 (1), now 810 814 809
+;; ready list at T-4: 814 (1) 809 (1) 808 (2), now 808 814 809
+;; ready list at T-5: 814 (1) 809 (1), now 814 809
+;; ready list at T-6: 809 (1), now 809
+;; ready list at T-7: 806 (1), now 806
+;; total time = 7
+;; new basic block head = 802
+;; new basic block end = 799
+
+;;	 -- basic block number 63 from 824 to 826 --
+;; ready list initially:
+;; 826 
+
+;; insn[ 824]: priority =    1, ref_count =    1
+;; insn[ 826]: priority =    2, ref_count =    0
+;; ready list at T-1: 826 (2), now 826
+;; launching 824 before 826 with 1 stalls at T-2
+;; ready list at T-3: 824 (1), now 824
+;; total time = 3
+;; new basic block head = 824
+;; new basic block end = 826
+
+;;	 -- basic block number 64 from 830 to 835 --
+;; ready list initially:
+;; 835 
+
+;; insn[ 833]: priority =    1, ref_count =    1
+;; insn[ 835]: priority =    2, ref_count =    0
+;; ready list at T-1: 835 (2), now 835
+;; launching 833 before 835 with 1 stalls at T-2
+;; ready list at T-3: 833 (1), now 833
+;; total time = 3
+;; new basic block head = 830
+;; new basic block end = 835
+
+;;	 -- basic block number 65 from 837 to 874 --
+;; ready list initially:
+;; 874 
+
+;; insn[ 840]: priority =    1, ref_count =    2
+;; insn[ 842]: priority =    1, ref_count =    2
+;; insn[ 845]: priority =    1, ref_count =    2
+;; insn[ 852]: priority =    1, ref_count =    1
+;; insn[ 847]: priority =    2, ref_count =    2
+;; insn[ 849]: priority =    2, ref_count =    2
+;; insn[ 853]: priority =    2, ref_count =    2
+;; insn[ 855]: priority =    1, ref_count =    1
+;; insn[ 859]: priority =    1, ref_count =    2
+;; insn[ 857]: priority =    2, ref_count =    2
+;; insn[ 862]: priority =    2, ref_count =    1
+;; insn[ 864]: priority =    2, ref_count =    1
+;; insn[ 865]: priority =    2, ref_count =    1
+;; insn[ 872]: priority =    2, ref_count =    1
+;; insn[ 867]: priority =    2, ref_count =    1
+;; insn[ 869]: priority =    2, ref_count =    1
+;; insn[ 874]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 874 (7ffffeb5), now 874
+;; ready list at T-2: 869 (2), now 869
+;; launching 872 before 869 with no stalls at T-3
+;; ready list at T-3: 867 (2) 872 (2)
+;; blocking insn 872 for 1 cycles, now 867
+;; launching 872 before 867 with no stalls at T-4
+;; ready list at T-4: 865 (2) 872 (2), now 872 865
+;; ready list at T-5: 865 (2) 857 (2), now 865 857
+;; ready list at T-6: 857 (2) 864 (2), now 864 857
+;; ready list at T-7: 857 (2) 862 (2), now 862 857
+;; ready list at T-8: 857 (2) 849 (2), now 857 849
+;; insn 849 has a greater potential hazard, now 849 857
+;; launching 859 before 849 with no stalls at T-9
+;; ready list at T-9: 857 (2) 847 (2) 859 (1), now 857 847 859
+;; ready list at T-10: 847 (2) 859 (1) 853 (2), now 853 847 859
+;; launching 855 before 853 with no stalls at T-11
+;; ready list at T-11: 847 (2) 859 (1) 855 (1), now 847 859 855
+;; launching 852 before 847 with no stalls at T-12
+;; ready list at T-12: 859 (1) 855 (1) 852 (1), now 859 855 852
+;; launching 845 before 859 with no stalls at T-13
+;; ready list at T-13: 855 (1) 852 (1) 845 (1), now 855 852 845
+;; ready list at T-14: 852 (1) 845 (1), now 852 845
+;; ready list at T-15: 845 (1), now 845
+;; ready list at T-16: 842 (1), now 842
+;; ready list at T-17: 840 (1), now 840
+;; total time = 17
+;; new basic block head = 837
+;; new basic block end = 874
+
+;;	 -- basic block number 66 from 878 to 894 --
+;; ready list initially:
+;; 894 
+
+;; insn[ 878]: priority =    1, ref_count =    1
+;; insn[1150]: priority =    1, ref_count =    1
+;; insn[ 881]: priority =    1, ref_count =    3
+;; insn[1151]: priority =    1, ref_count =    2
+;; insn[ 885]: priority =    2, ref_count =    3
+;; insn[ 888]: priority =    2, ref_count =    1
+;; insn[ 890]: priority =    2, ref_count =    1
+;; insn[ 892]: priority =    3, ref_count =    1
+;; insn[ 894]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 894 (7ffffeb5), now 894
+;; ready list at T-2: 878 (1) 892 (3), now 892 878
+;; ready list at T-3: 878 (1) 890 (2), now 890 878
+;; launching 888 before 890 with no stalls at T-4
+;; ready list at T-4: 878 (1) 888 (2), now 888 878
+;; ready list at T-5: 878 (1) 885 (2), now 885 878
+;; ready list at T-6: 878 (1) 1151 (1), now 1151 878
+;; launching 881 before 1151 with no stalls at T-7
+;; ready list at T-7: 878 (1) 1150 (1) 881 (1), now 881 1150 878
+;; ready list at T-8: 1150 (1) 878 (1), now 1150 878
+;; ready list at T-9: 878 (1), now 878
+;; total time = 9
+;; new basic block head = 878
+;; new basic block end = 894
+
+;;	 -- basic block number 67 from 896 to 904 --
+;; ready list initially:
+;; 904 1155 
+
+;; insn[1152]: priority =    1, ref_count =    1
+;; insn[1153]: priority =    1, ref_count =    1
+;; insn[1154]: priority =    1, ref_count =    1
+;; insn[ 900]: priority =    1, ref_count =    1
+;; insn[1155]: priority =    1, ref_count =    0
+;; insn[ 904]: priority =    2, ref_count =    0
+;; ready list at T-1: 904 (2) 1155 (1), now 904 1155
+;; ready list at T-2: 1155 (1) 1153 (1), now 1155 1153
+;; launching 900 before 1155 with no stalls at T-3
+;; ready list at T-3: 1153 (1) 1154 (1) 900 (1), now 900 1154 1153
+;; ready list at T-4: 1154 (1) 1153 (1), now 1154 1153
+;; ready list at T-5: 1153 (1), now 1153
+;; ready list at T-6: 1152 (1), now 1152
+;; total time = 6
+;; new basic block head = 896
+;; new basic block end = 904
+
+;;	 -- basic block number 68 from 909 to 924 --
+;; ready list initially:
+;; 924 
+
+;; insn[ 912]: priority =    1, ref_count =    2
+;; insn[ 914]: priority =    2, ref_count =    2
+;; insn[ 921]: priority =    2, ref_count =    1
+;; insn[ 917]: priority =    3, ref_count =    1
+;; insn[ 924]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 924 (7ffffeb5), now 924
+;; ready list at T-2: 917 (3), now 917
+;; launching 921 before 917 with no stalls at T-3
+;; ready list at T-3: 921 (2), now 921
+;; ready list at T-4: 914 (2), now 914
+;; launching 912 before 914 with 1 stalls at T-5
+;; ready list at T-6: 912 (1), now 912
+;; total time = 6
+;; new basic block head = 909
+;; new basic block end = 924
+
+;;	 -- basic block number 69 from 933 to 935 --
+;; ready list initially:
+;; 935 
+
+;; insn[ 933]: priority =    1, ref_count =    1
+;; insn[ 928]: priority =    1, ref_count =    1
+;; insn[ 930]: priority =    1, ref_count =    1
+;; insn[ 935]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 935 (7ffffeb5), now 935
+;; ready list at T-2: 930 (1), now 930
+;; launching 933 before 930 with no stalls at T-3
+;; ready list at T-3: 928 (1) 933 (1)
+;; blocking insn 933 for 1 cycles, now 928
+;; launching 933 before 928 with no stalls at T-4
+;; ready list at T-4: 933 (1), now 933
+;; total time = 4
+;; new basic block head = 933
+;; new basic block end = 935
+
+;;	 -- basic block number 70 from 939 to 969 --
+;; ready list initially:
+;; 969 
+
+;; insn[ 954]: priority =    1, ref_count =    1
+;; insn[ 956]: priority =    1, ref_count =    1
+;; insn[ 941]: priority =    1, ref_count =    2
+;; insn[ 950]: priority =    1, ref_count =    1
+;; insn[ 942]: priority =    2, ref_count =    2
+;; insn[ 946]: priority =    2, ref_count =    2
+;; insn[ 952]: priority =    2, ref_count =    1
+;; insn[ 958]: priority =    2, ref_count =    3
+;; insn[ 961]: priority =    2, ref_count =    2
+;; insn[ 963]: priority =    3, ref_count =    1
+;; insn[ 967]: priority =    3, ref_count =    1
+;; insn[ 969]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 969 (7ffffeb5), now 969
+;; ready list at T-2: 967 (3), now 967
+;; ready list at T-3: 963 (3), now 963
+;; launching 961 before 963 with 1 stalls at T-4
+;; ready list at T-5: 961 (2), now 961
+;; ready list at T-6: 958 (2), now 958
+;; ready list at T-7: 952 (2) 954 (1) 956 (1), now 952 956 954
+;; launching 950 before 952 with no stalls at T-8
+;; ready list at T-8: 956 (1) 954 (1) 946 (2) 950 (1), now 946 950 956 954
+;; ready list at T-9: 950 (1) 956 (1) 954 (1) 942 (2), now 942 950 956 954
+;; ready list at T-10: 950 (1) 956 (1) 954 (1), now 950 956 954
+;; launching 941 before 950 with no stalls at T-11
+;; ready list at T-11: 956 (1) 954 (1) 941 (1), now 941 956 954
+;; ready list at T-12: 956 (1) 954 (1), now 956 954
+;; ready list at T-13: 954 (1), now 954
+;; total time = 13
+;; new basic block head = 939
+;; new basic block end = 969
+
+;;	 -- basic block number 71 from 971 to 993 --
+;; ready list initially:
+;; 993 
+
+;; insn[ 985]: priority =    1, ref_count =    1
+;; insn[ 989]: priority =    1, ref_count =    1
+;; insn[ 975]: priority =    1, ref_count =    1
+;; insn[ 991]: priority =    1, ref_count =    1
+;; insn[ 977]: priority =    1, ref_count =    1
+;; insn[ 981]: priority =    1, ref_count =    1
+;; insn[ 983]: priority =    1, ref_count =    1
+;; insn[ 993]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 993 (7ffffeb5), now 993
+;; ready list at T-2: 977 (1) 981 (1) 983 (1) 985 (1) 989 (1) 991 (1), now 983 981 977 991 989 985
+;; launching 975 before 983 with no stalls at T-3
+;; ready list at T-3: 981 (1) 977 (1) 991 (1) 989 (1) 985 (1) 975 (1)
+;; blocking insn 975 for 1 cycles, now 981 977 991 989 985
+;; launching 975 before 981 with no stalls at T-4
+;; ready list at T-4: 977 (1) 991 (1) 989 (1) 985 (1) 975 (1)
+;; blocking insn 975 for 1 cycles, now 977 991 989 985
+;; launching 975 before 977 with no stalls at T-5
+;; ready list at T-5: 991 (1) 989 (1) 985 (1) 975 (1)
+;; blocking insn 975 for 1 cycles, now 991 989 985
+;; launching 975 before 991 with no stalls at T-6
+;; ready list at T-6: 989 (1) 985 (1) 975 (1), now 975 989 985
+;; ready list at T-7: 989 (1) 985 (1), now 989 985
+;; ready list at T-8: 985 (1), now 985
+;; total time = 8
+;; new basic block head = 971
+;; new basic block end = 993
+
+;;	 -- basic block number 72 from 995 to 1008 --
+;; ready list initially:
+;; 1008 
+
+;; insn[1004]: priority =    1, ref_count =    1
+;; insn[ 998]: priority =    1, ref_count =    1
+;; insn[1001]: priority =    1, ref_count =    1
+;; insn[1006]: priority =    2, ref_count =    1
+;; insn[1008]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 1008 (7ffffeb5), now 1008
+;; ready list at T-2: 998 (1) 1001 (1) 1006 (2), now 1006 1001 998
+;; ready list at T-3: 1001 (1) 998 (1), now 1001 998
+;; launching 1004 before 1001 with no stalls at T-4
+;; ready list at T-4: 998 (1) 1004 (1)
+;; blocking insn 1004 for 1 cycles, now 998
+;; launching 1004 before 998 with no stalls at T-5
+;; ready list at T-5: 1004 (1)
+;; blocking insn 1004 for 1 cycles
+;; launching 1004 before 998 with no stalls at T-6
+;; ready list at T-6: 1004 (1), now 1004
+;; total time = 6
+;; new basic block head = 995
+;; new basic block end = 1008
+
+;;	 -- basic block number 73 from 1010 to 1016 --
+;; ready list initially:
+;; 1016 
+
+;; insn[1014]: priority =    1, ref_count =    1
+;; insn[1016]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 1016 (7ffffeb5), now 1016
+;; launching 1014 before 1016 with 1 stalls at T-2
+;; ready list at T-3: 1014 (1), now 1014
+;; total time = 3
+;; new basic block head = 1010
+;; new basic block end = 1016
+
+;;	 -- basic block number 74 from 1020 to 1050 --
+;; ready list initially:
+;; 1050 
+
+;; insn[1035]: priority =    1, ref_count =    1
+;; insn[1037]: priority =    1, ref_count =    1
+;; insn[1022]: priority =    1, ref_count =    2
+;; insn[1031]: priority =    1, ref_count =    1
+;; insn[1023]: priority =    2, ref_count =    2
+;; insn[1027]: priority =    2, ref_count =    2
+;; insn[1033]: priority =    2, ref_count =    1
+;; insn[1039]: priority =    2, ref_count =    3
+;; insn[1042]: priority =    2, ref_count =    2
+;; insn[1044]: priority =    3, ref_count =    1
+;; insn[1048]: priority =    3, ref_count =    1
+;; insn[1050]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 1050 (7ffffeb5), now 1050
+;; ready list at T-2: 1048 (3), now 1048
+;; ready list at T-3: 1044 (3), now 1044
+;; launching 1042 before 1044 with 1 stalls at T-4
+;; ready list at T-5: 1042 (2), now 1042
+;; ready list at T-6: 1039 (2), now 1039
+;; ready list at T-7: 1033 (2) 1035 (1) 1037 (1), now 1033 1037 1035
+;; launching 1031 before 1033 with no stalls at T-8
+;; ready list at T-8: 1037 (1) 1035 (1) 1027 (2) 1031 (1), now 1027 1031 1037 1035
+;; ready list at T-9: 1031 (1) 1037 (1) 1035 (1) 1023 (2), now 1023 1031 1037 1035
+;; ready list at T-10: 1031 (1) 1037 (1) 1035 (1), now 1031 1037 1035
+;; launching 1022 before 1031 with no stalls at T-11
+;; ready list at T-11: 1037 (1) 1035 (1) 1022 (1), now 1022 1037 1035
+;; ready list at T-12: 1037 (1) 1035 (1), now 1037 1035
+;; ready list at T-13: 1035 (1), now 1035
+;; total time = 13
+;; new basic block head = 1020
+;; new basic block end = 1050
+
+;;	 -- basic block number 75 from 1052 to 1072 --
+;; ready list initially:
+;; 1072 
+
+;; insn[1064]: priority =    1, ref_count =    1
+;; insn[1068]: priority =    1, ref_count =    1
+;; insn[1056]: priority =    1, ref_count =    1
+;; insn[1070]: priority =    1, ref_count =    1
+;; insn[1058]: priority =    1, ref_count =    1
+;; insn[1060]: priority =    1, ref_count =    1
+;; insn[1062]: priority =    1, ref_count =    1
+;; insn[1072]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 1072 (7ffffeb5), now 1072
+;; ready list at T-2: 1058 (1) 1060 (1) 1062 (1) 1064 (1) 1068 (1) 1070 (1), now 1062 1060 1058 1070 1068 1064
+;; launching 1056 before 1062 with no stalls at T-3
+;; ready list at T-3: 1060 (1) 1058 (1) 1070 (1) 1068 (1) 1064 (1) 1056 (1)
+;; blocking insn 1056 for 1 cycles, now 1060 1058 1070 1068 1064
+;; launching 1056 before 1060 with no stalls at T-4
+;; ready list at T-4: 1058 (1) 1070 (1) 1068 (1) 1064 (1) 1056 (1)
+;; blocking insn 1056 for 1 cycles, now 1058 1070 1068 1064
+;; launching 1056 before 1058 with no stalls at T-5
+;; ready list at T-5: 1070 (1) 1068 (1) 1064 (1) 1056 (1)
+;; blocking insn 1056 for 1 cycles, now 1070 1068 1064
+;; launching 1056 before 1070 with no stalls at T-6
+;; ready list at T-6: 1068 (1) 1064 (1) 1056 (1), now 1056 1068 1064
+;; ready list at T-7: 1068 (1) 1064 (1), now 1068 1064
+;; ready list at T-8: 1064 (1), now 1064
+;; total time = 8
+;; new basic block head = 1052
+;; new basic block end = 1072
+
+;;	 -- basic block number 76 from 1076 to 1104 --
+;; ready list initially:
+;; 1104 
+
+;; insn[1079]: priority =    1, ref_count =    3
+;; insn[1081]: priority =    1, ref_count =    2
+;; insn[1083]: priority =    2, ref_count =    6
+;; insn[1086]: priority =    2, ref_count =    2
+;; insn[1088]: priority =    2, ref_count =    2
+;; insn[1090]: priority =    3, ref_count =    3
+;; insn[1093]: priority =    3, ref_count =    2
+;; insn[1102]: priority =    3, ref_count =    1
+;; insn[1095]: priority =    4, ref_count =    1
+;; insn[1099]: priority =    4, ref_count =    1
+;; insn[1104]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 1104 (7ffffeb5), now 1104
+;; ready list at T-2: 1099 (4), now 1099
+;; launching 1102 before 1099 with no stalls at T-3
+;; ready list at T-3: 1095 (4) 1102 (3), now 1095 1102
+;; ready list at T-4: 1102 (3), now 1102
+;; launching 1093 before 1102 with no stalls at T-5
+;; ready list at T-5: 1093 (3), now 1093
+;; ready list at T-6: 1090 (3), now 1090
+;; ready list at T-7: 1088 (2), now 1088
+;; launching 1086 before 1088 with no stalls at T-8
+;; ready list at T-8: 1086 (2), now 1086
+;; ready list at T-9: 1083 (2), now 1083
+;; ready list at T-10: 1081 (1), now 1081
+;; launching 1079 before 1081 with no stalls at T-11
+;; ready list at T-11: 1079 (1), now 1079
+;; total time = 11
+;; new basic block head = 1076
+;; new basic block end = 1104
+
+;;	 -- basic block number 77 from 1106 to 1108 --
+;; ready list initially:
+;; 1108 
+
+;; insn[1106]: priority =    1, ref_count =    1
+;; insn[1108]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 1108 (7ffffeb5), now 1108
+;; launching 1106 before 1108 with 1 stalls at T-2
+;; ready list at T-3: 1106 (1), now 1106
+;; total time = 3
+;; new basic block head = 1106
+;; new basic block end = 1108
+
+;;	 -- basic block number 78 from 1111 to 1111 --
+;; ready list initially:
+;; 1111 
+
+;; insn[1111]: priority = 2147483317, ref_count =    0
+;; ready list at T-1: 1111 (7ffffeb5), now 1111
+;; total time = 1
+;; new basic block head = 1111
+;; new basic block end = 1111
+
+;;	 -- basic block number 79 from 1117 to 1117 --
+(note 2 0 3 "" NOTE_INSN_DELETED)
+
+(note 3 2 4 "" NOTE_INSN_FUNCTION_BEG)
+
+(note 4 3 6 "" NOTE_INSN_DELETED)
+
+(note 6 4 1159 "" NOTE_INSN_BLOCK_BEG)
+
+(insn 1159 6 9 (set (reg:SI 29 sp)
+        (minus:SI (reg:SI 29 sp)
+            (const_int 64))) 16 {subsi3_internal} (nil)
+    (nil))
+
+(insn 9 1159 11 (set (reg:SI 2 v0)
+        (mem:SI (symbol_ref:SI ("StFinalSector")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StFinalSector")))
+        (nil)))
+
+(insn 11 9 1161 (set (reg:SI 4 a0)
+        (const_int 1)) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (const_int 1)
+        (nil)))
+
+(insn 1161 11 1157 (set (mem:SI (plus:SI (reg:SI 29 sp)
+                (const_int 56)))
+        (reg:SI 31 ra)) 159 {movsi_internal2} (insn_list 1159 (nil))
+    (nil))
+
+(note 1157 1161 12 "" NOTE_INSN_PROLOGUE_END)
+
+(jump_insn 12 1157 19 (set (pc)
+        (if_then_else (eq:SI (reg:SI 2 v0)
+                (reg:SI 4 a0))
+            (label_ref 1117)
+            (pc))) 223 {branch_equality} (insn_list:REG_DEP_ANTI 1161 (insn_list 9 (insn_list 11 (nil))))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(insn 19 12 21 (set (reg:SI 2 v0)
+        (mem:SI (symbol_ref:SI ("StRgb24")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StRgb24")))
+        (nil)))
+
+(jump_insn 21 19 23 (set (pc)
+        (if_then_else (eq:SI (reg:SI 2 v0)
+                (const_int 0))
+            (label_ref 61)
+            (pc))) 221 {branch_zero} (insn_list 19 (nil))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(insn 23 21 25 (set (reg:SI 2 v0)
+        (mem:SI (symbol_ref:SI ("_d1_chcr")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("_d1_chcr")))
+        (nil)))
+
+(insn 25 23 27 (set (reg:SI 2 v0)
+        (mem/v:SI (reg:SI 2 v0))) 159 {movsi_internal2} (insn_list 23 (nil))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(insn 27 25 28 (set (reg:SI 3 v1)
+        (const_int 16777216)) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (const_int 16777216)
+        (nil)))
+
+(insn 28 27 30 (set (reg:SI 2 v0)
+        (and:SI (reg:SI 2 v0)
+            (reg:SI 3 v1))) 92 {andsi3} (insn_list 25 (insn_list 27 (nil)))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (expr_list:REG_DEAD (reg:SI 3 v1)
+            (nil))))
+
+(jump_insn 30 28 32 (set (pc)
+        (if_then_else (eq:SI (reg:SI 2 v0)
+                (const_int 0))
+            (label_ref 61)
+            (pc))) 221 {branch_zero} (insn_list 28 (nil))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(note 32 30 39 "" NOTE_INSN_DELETED)
+
+(insn 39 32 36 (set (reg:SI 2 v0)
+        (mem:SI (symbol_ref:SI ("StEmu_Addr")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StEmu_Addr")))
+        (nil)))
+
+(insn 36 39 41 (set (mem:SI (symbol_ref:SI ("StCdIntrFlag")))
+        (reg:SI 4 a0)) 159 {movsi_internal2} (nil)
+    (nil))
+
+(jump_insn 41 36 44 (set (pc)
+        (if_then_else (eq:SI (reg:SI 2 v0)
+                (const_int 0))
+            (label_ref 51)
+            (pc))) 221 {branch_zero} (insn_list:REG_DEP_ANTI 36 (insn_list 39 (nil)))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(insn 44 41 46 (set (reg:SI 2 v0)
+        (mem:SI (symbol_ref:SI ("StEmu_Idx")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StEmu_Idx")))
+        (nil)))
+
+(insn 46 44 50 (set (reg:SI 2 v0)
+        (plus:SI (reg:SI 2 v0)
+            (const_int 1))) 3 {addsi3_internal} (insn_list 44 (nil))
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StEmu_Idx")))
+        (expr_list:REG_DEAD (reg:SI 2 v0)
+            (nil))))
+
+(insn 50 46 51 (set (mem:SI (symbol_ref:SI ("StEmu_Idx")))
+        (reg:SI 2 v0)) 159 {movsi_internal2} (insn_list:REG_DEP_ANTI 44 (insn_list 46 (nil)))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(code_label 51 50 56 4 "")
+
+(insn 56 51 58 (set (mem:SI (symbol_ref:SI ("debug_cause")))
+        (reg:SI 4 a0)) 159 {movsi_internal2} (nil)
+    (expr_list:REG_DEAD (reg:SI 4 a0)
+        (nil)))
+
+(jump_insn 58 56 59 (set (pc)
+        (label_ref 1117)) 297 {jump} (insn_list:REG_DEP_ANTI 56 (nil))
+    (nil))
+
+(barrier 59 58 61)
+
+(code_label 61 59 64 3 "")
+
+(note 64 61 72 "" NOTE_INSN_DELETED)
+
+(note 72 64 66 "" NOTE_INSN_DELETED)
+
+(insn 66 72 68 (set (reg:SI 4 a0)
+        (const_int 1)) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUAL (const_int 1)
+        (nil)))
+
+(insn:QI 68 66 70 (set (reg:SI 5 a1)
+        (plus:SI (reg:SI 29 sp)
+            (const_int 48))) 3 {addsi3_internal} (nil)
+    (nil))
+
+(call_insn 70 68 74 (parallel[ 
+            (set (reg:SI 2 v0)
+                (call (mem:SI (symbol_ref:SI ("CdReady")))
+                    (const_int 16)))
+            (clobber (reg:SI 31 ra))
+        ] ) 319 {call_value_internal1} (insn_list 66 (insn_list 68 (nil)))
+    (expr_list:REG_DEAD (reg:SI 4 a0)
+        (expr_list:REG_DEAD (reg:SI 5 a1)
+            (expr_list:REG_UNUSED (reg:SI 31 ra)
+                (nil))))
+    (expr_list (use (reg:SI 5 a1))
+        (expr_list (use (reg:SI 4 a0))
+            (nil))))
+
+(insn 74 70 75 (set (reg:SI 3 v1)
+        (const_int 5)) 159 {movsi_internal2} (insn_list:REG_DEP_ANTI 70 (nil))
+    (expr_list:REG_EQUIV (const_int 5)
+        (nil)))
+
+(jump_insn 75 74 82 (set (pc)
+        (if_then_else (eq:SI (reg:SI 2 v0)
+                (reg:SI 3 v1))
+            (label_ref 1117)
+            (pc))) 223 {branch_equality} (insn_list 70 (insn_list 74 (nil)))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (expr_list:REG_DEAD (reg:SI 3 v1)
+            (nil))))
+
+(note 82 75 88 "" NOTE_INSN_DELETED)
+
+(note 88 82 95 "" NOTE_INSN_DELETED)
+
+(note 95 88 96 "" NOTE_INSN_DELETED)
+
+(note 96 95 83 "" NOTE_INSN_DELETED)
+
+(insn:QI 83 96 89 (set (reg:HI 2 v0)
+        (zero_extend:HI (mem/s:QI (plus:SI (reg:SI 29 sp)
+                    (const_int 48))))) 117 {zero_extendqihi2} (nil)
+    (nil))
+
+(insn:QI 89 83 85 (set (reg:HI 3 v1)
+        (zero_extend:HI (mem/s:QI (plus:SI (reg:SI 29 sp)
+                    (const_int 49))))) 117 {zero_extendqihi2} (nil)
+    (nil))
+
+(insn:QI 85 89 91 (set (mem/s/v:HI (plus:SI (reg:SI 29 sp)
+                (const_int 34)))
+        (reg:HI 2 v0)) 163 {movhi_internal2} (insn_list 83 (nil))
+    (expr_list:REG_DEAD (reg:HI 2 v0)
+        (nil)))
+
+(insn:QI 91 85 94 (set (mem/s/v:HI (plus:SI (reg:SI 29 sp)
+                (const_int 36)))
+        (reg:HI 3 v1)) 163 {movhi_internal2} (insn_list:REG_DEP_OUTPUT 85 (insn_list 89 (nil)))
+    (expr_list:REG_DEAD (reg:HI 3 v1)
+        (nil)))
+
+(insn:QI 94 91 97 (set (reg:HI 2 v0)
+        (mem/s/v:HI (plus:SI (reg:SI 29 sp)
+                (const_int 34)))) 163 {movhi_internal2} (insn_list:REG_DEP_OUTPUT 83 (insn_list 85 (insn_list 91 (nil))))
+    (nil))
+
+(insn 97 94 99 (set (reg:SI 2 v0)
+        (and:SI (subreg:SI (reg:HI 2 v0) 0)
+            (const_int 4))) 92 {andsi3} (insn_list 94 (nil))
+    (expr_list:REG_DEAD (reg:HI 2 v0)
+        (nil)))
+
+(jump_insn 99 97 101 (set (pc)
+        (if_then_else (eq:SI (reg:SI 2 v0)
+                (const_int 0))
+            (label_ref 110)
+            (pc))) 221 {branch_zero} (insn_list 97 (nil))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(note 101 99 103 "" NOTE_INSN_DELETED)
+
+(insn 103 101 105 (set (reg:SI 2 v0)
+        (const_int 3)) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("debug_cause")))
+        (expr_list:REG_EQUIV (const_int 3)
+            (nil))))
+
+(insn 105 103 107 (set (mem:SI (symbol_ref:SI ("debug_cause")))
+        (reg:SI 2 v0)) 159 {movsi_internal2} (insn_list 103 (nil))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(jump_insn 107 105 108 (set (pc)
+        (label_ref 1117)) 297 {jump} (insn_list:REG_DEP_ANTI 105 (nil))
+    (nil))
+
+(barrier 108 107 110)
+
+(code_label 110 108 126 6 "")
+
+(note 126 110 113 "" NOTE_INSN_DELETED)
+
+(insn 113 126 116 (set (reg:SI 2 v0)
+        (mem:SI (symbol_ref:SI ("StRingIdx1")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StRingIdx1")))
+        (nil)))
+
+(insn 116 113 114 (set (reg:SI 3 v1)
+        (mem:SI (symbol_ref:SI ("StRingAddr")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StRingAddr")))
+        (nil)))
+
+(insn 114 116 118 (set (reg:SI 2 v0)
+        (ashift:SI (reg:SI 2 v0)
+            (const_int 5))) 181 {ashlsi3} (insn_list 113 (nil))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(insn 118 114 120 (set (reg:SI 3 v1)
+        (plus:SI (reg:SI 3 v1)
+            (reg:SI 2 v0))) 3 {addsi3_internal} (insn_list 114 (insn_list 116 (nil)))
+    (expr_list:REG_DEAD (reg:SI 3 v1)
+        (expr_list:REG_DEAD (reg:SI 2 v0)
+            (nil))))
+
+(insn 120 118 125 (set (mem:SI (symbol_ref:SI ("_st_slot")))
+        (reg:SI 3 v1)) 159 {movsi_internal2} (insn_list 118 (nil))
+    (nil))
+
+(insn 125 120 128 (set (reg:HI 2 v0)
+        (mem/v:HI (reg:SI 3 v1))) 163 {movhi_internal2} (insn_list:REG_DEP_ANTI 114 (insn_list 118 (insn_list 120 (nil))))
+    (expr_list:REG_DEAD (reg:SI 3 v1)
+        (nil)))
+
+(jump_insn 128 125 130 (set (pc)
+        (if_then_else (eq:SI (subreg:SI (reg:HI 2 v0) 0)
+                (const_int 0))
+            (label_ref 154)
+            (pc))) 221 {branch_zero} (insn_list 125 (nil))
+    (expr_list:REG_DEAD (reg:HI 2 v0)
+        (nil)))
+
+(note 130 128 132 "" NOTE_INSN_DELETED)
+
+(insn 132 130 134 (set (reg:SI 2 v0)
+        (mem:SI (symbol_ref:SI ("StEmu_Addr")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StEmu_Addr")))
+        (nil)))
+
+(jump_insn 134 132 137 (set (pc)
+        (if_then_else (eq:SI (reg:SI 2 v0)
+                (const_int 0))
+            (label_ref 144)
+            (pc))) 221 {branch_zero} (insn_list 132 (nil))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(insn 137 134 139 (set (reg:SI 2 v0)
+        (mem:SI (symbol_ref:SI ("StEmu_Idx")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StEmu_Idx")))
+        (nil)))
+
+(insn 139 137 143 (set (reg:SI 2 v0)
+        (plus:SI (reg:SI 2 v0)
+            (const_int 1))) 3 {addsi3_internal} (insn_list 137 (nil))
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StEmu_Idx")))
+        (expr_list:REG_DEAD (reg:SI 2 v0)
+            (nil))))
+
+(insn 143 139 144 (set (mem:SI (symbol_ref:SI ("StEmu_Idx")))
+        (reg:SI 2 v0)) 159 {movsi_internal2} (insn_list:REG_DEP_ANTI 137 (insn_list 139 (nil)))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(code_label 144 143 147 8 "")
+
+(insn 147 144 149 (set (reg:SI 2 v0)
+        (const_int 4)) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("debug_cause")))
+        (expr_list:REG_EQUIV (const_int 4)
+            (nil))))
+
+(insn 149 147 151 (set (mem:SI (symbol_ref:SI ("debug_cause")))
+        (reg:SI 2 v0)) 159 {movsi_internal2} (insn_list 147 (nil))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(jump_insn 151 149 152 (set (pc)
+        (label_ref 1117)) 297 {jump} (insn_list:REG_DEP_ANTI 149 (nil))
+    (nil))
+
+(barrier 152 151 154)
+
+(code_label 154 152 157 7 "")
+
+(insn 157 154 159 (set (reg:SI 2 v0)
+        (mem:SI (symbol_ref:SI ("_cd_idx")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("_cd_idx")))
+        (nil)))
+
+(insn 159 157 162 (set (mem/v:QI (reg:SI 2 v0))
+        (const_int 0)) 166 {movqi_internal2} (insn_list 157 (nil))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(insn 162 159 164 (set (reg:SI 2 v0)
+        (mem:SI (symbol_ref:SI ("_cd_reg3")))) 159 {movsi_internal2} (insn_list:REG_DEP_OUTPUT 157 (insn_list 159 (nil)))
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("_cd_reg3")))
+        (nil)))
+
+(insn 164 162 167 (set (mem/v:QI (reg:SI 2 v0))
+        (const_int 0)) 166 {movqi_internal2} (insn_list:REG_DEP_OUTPUT 159 (insn_list:REG_DEP_ANTI 157 (insn_list 162 (nil))))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(insn 167 164 1146 (set (reg:SI 2 v0)
+        (mem:SI (symbol_ref:SI ("_cd_idx")))) 159 {movsi_internal2} (insn_list:REG_DEP_OUTPUT 162 (insn_list 159 (insn_list 164 (nil))))
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("_cd_idx")))
+        (nil)))
+
+(insn 1146 167 169 (set (reg:SI 4 a0)
+        (const_int 131072)) 159 {movsi_internal2} (nil)
+    (nil))
+
+(insn 169 1146 172 (set (mem/v:QI (reg:SI 2 v0))
+        (const_int 0)) 166 {movqi_internal2} (insn_list:REG_DEP_OUTPUT 159 (insn_list:REG_DEP_OUTPUT 164 (insn_list:REG_DEP_ANTI 157 (insn_list:REG_DEP_ANTI 162 (insn_list 167 (nil))))))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(insn 172 169 174 (set (reg:SI 3 v1)
+        (mem:SI (symbol_ref:SI ("_cd_reg3")))) 159 {movsi_internal2} (insn_list 159 (insn_list 164 (insn_list 169 (nil))))
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("_cd_reg3")))
+        (nil)))
+
+(insn 174 172 176 (set (reg:QI 2 v0)
+        (const_int 128)) 166 {movqi_internal2} (insn_list:REG_DEP_OUTPUT 167 (insn_list:REG_DEP_ANTI 169 (nil)))
+    (expr_list:REG_EQUIV (const_int 128)
+        (nil)))
+
+(insn 176 174 179 (set (mem/v:QI (reg:SI 3 v1))
+        (reg:QI 2 v0)) 166 {movqi_internal2} (insn_list:REG_DEP_OUTPUT 159 (insn_list:REG_DEP_OUTPUT 164 (insn_list:REG_DEP_OUTPUT 169 (insn_list:REG_DEP_ANTI 157 (insn_list:REG_DEP_ANTI 162 (insn_list:REG_DEP_ANTI 167 (insn_list 172 (insn_list 174 (nil)))))))))
+    (expr_list:REG_DEAD (reg:SI 3 v1)
+        (expr_list:REG_DEAD (reg:QI 2 v0)
+            (nil))))
+
+(insn 179 176 1147 (set (reg:SI 2 v0)
+        (mem:SI (symbol_ref:SI ("_cdrom_delay")))) 159 {movsi_internal2} (insn_list:REG_DEP_OUTPUT 174 (insn_list 159 (insn_list 164 (insn_list 169 (insn_list 176 (nil))))))
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("_cdrom_delay")))
+        (nil)))
+
+(insn 1147 179 183 (set (reg:SI 4 a0)
+        (ior:SI (reg:SI 4 a0)
+            (const_int 2371))) 96 {iorsi3} (insn_list 1146 (nil))
+    (expr_list:REG_EQUAL (const_int 133443)
+        (nil)))
+
+(insn 183 1147 186 (set (mem/v:SI (reg:SI 2 v0))
+        (reg:SI 4 a0)) 159 {movsi_internal2} (insn_list 1147 (insn_list:REG_DEP_OUTPUT 159 (insn_list:REG_DEP_OUTPUT 164 (insn_list:REG_DEP_OUTPUT 169 (insn_list:REG_DEP_OUTPUT 176 (insn_list:REG_DEP_ANTI 157 (insn_list:REG_DEP_ANTI 162 (insn_list:REG_DEP_ANTI 167 (insn_list:REG_DEP_ANTI 172 (insn_list 179 (nil)))))))))))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (expr_list:REG_DEAD (reg:SI 4 a0)
+            (nil))))
+
+(insn 186 183 188 (set (reg:SI 3 v1)
+        (mem:SI (symbol_ref:SI ("_com_delay")))) 159 {movsi_internal2} (insn_list:REG_DEP_OUTPUT 172 (insn_list 159 (insn_list 164 (insn_list 169 (insn_list 176 (insn_list 183 (nil)))))))
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("_com_delay")))
+        (nil)))
+
+(insn 188 186 190 (set (reg:SI 2 v0)
+        (const_int 4899)) 159 {movsi_internal2} (insn_list:REG_DEP_OUTPUT 179 (insn_list:REG_DEP_ANTI 183 (nil)))
+    (expr_list:REG_EQUIV (const_int 4899)
+        (nil)))
+
+(insn 190 188 196 (set (mem/v:SI (reg:SI 3 v1))
+        (reg:SI 2 v0)) 159 {movsi_internal2} (insn_list:REG_DEP_OUTPUT 159 (insn_list:REG_DEP_OUTPUT 164 (insn_list:REG_DEP_OUTPUT 169 (insn_list:REG_DEP_OUTPUT 176 (insn_list:REG_DEP_OUTPUT 183 (insn_list:REG_DEP_ANTI 157 (insn_list:REG_DEP_ANTI 162 (insn_list:REG_DEP_ANTI 167 (insn_list:REG_DEP_ANTI 172 (insn_list:REG_DEP_ANTI 179 (insn_list 186 (insn_list 188 (nil)))))))))))))
+    (expr_list:REG_DEAD (reg:SI 3 v1)
+        (expr_list:REG_DEAD (reg:SI 2 v0)
+            (nil))))
+
+(insn 196 190 193 (set (reg:SI 2 v0)
+        (mem:SI (symbol_ref:SI ("StMode")))) 159 {movsi_internal2} (insn_list:REG_DEP_OUTPUT 188 (insn_list 159 (insn_list 164 (insn_list 169 (insn_list 176 (insn_list 183 (insn_list 190 (nil))))))))
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StMode")))
+        (nil)))
+
+(insn 193 196 198 (set (reg/v:SI 4 a0)
+        (const_int 0)) 159 {movsi_internal2} (insn_list:REG_DEP_ANTI 1147 (insn_list:REG_DEP_ANTI 183 (nil)))
+    (expr_list:REG_EQUAL (const_int 0)
+        (nil)))
+
+(jump_insn 198 193 200 (set (pc)
+        (if_then_else (ne:SI (reg:SI 2 v0)
+                (const_int 0))
+            (label_ref 258)
+            (pc))) 221 {branch_zero} (insn_list:REG_DEP_ANTI 193 (insn_list 196 (nil)))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(note 200 198 202 "" NOTE_INSN_DELETED)
+
+(insn:QI 202 200 1119 (set (reg/v:SI 5 a1)
+        (plus:SI (reg:SI 29 sp)
+            (const_int 40))) 3 {addsi3_internal} (nil)
+    (nil))
+
+(note 1119 202 204 "" NOTE_INSN_DELETED)
+
+(note 204 1119 211 "" NOTE_INSN_LOOP_BEG)
+
+(code_label 211 204 220 13 "")
+
+(note 220 211 1122 "" NOTE_INSN_LOOP_CONT)
+
+(note 1122 220 215 "" NOTE_INSN_LOOP_VTOP)
+
+(insn 215 1122 213 (set (reg:SI 2 v0)
+        (mem:SI (symbol_ref:SI ("_cd_reg2")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("_cd_reg2")))
+        (nil)))
+
+(insn 213 215 217 (set (reg:SI 3 v1)
+        (plus:SI (reg/v:SI 5 a1)
+            (reg/v:SI 4 a0))) 3 {addsi3_internal} (nil)
+    (nil))
+
+(insn 217 213 223 (set (reg:QI 2 v0)
+        (mem/v:QI (reg:SI 2 v0))) 166 {movqi_internal2} (insn_list 215 (nil))
+    (expr_list:REG_EQUIV (mem/s:QI (reg:SI 3 v1))
+        (expr_list:REG_DEAD (reg:SI 2 v0)
+            (nil))))
+
+(insn 223 217 219 (set (reg/v:SI 4 a0)
+        (plus:SI (reg/v:SI 4 a0)
+            (const_int 1))) 3 {addsi3_internal} (insn_list:REG_DEP_ANTI 213 (nil))
+    (nil))
+
+(insn 219 223 207 (set (mem/s:QI (reg:SI 3 v1))
+        (reg:QI 2 v0)) 166 {movqi_internal2} (insn_list:REG_DEP_ANTI 215 (insn_list 213 (insn_list 217 (nil))))
+    (expr_list:REG_DEAD (reg:SI 3 v1)
+        (expr_list:REG_DEAD (reg:QI 2 v0)
+            (nil))))
+
+(insn 207 219 208 (set (reg/s:SI 2 v0)
+        (ltu:SI (reg/v:SI 4 a0)
+            (const_int 4))) 276 {sltu_si} (insn_list:REG_DEP_ANTI 217 (insn_list:REG_DEP_ANTI 219 (insn_list 223 (nil))))
+    (nil))
+
+(jump_insn 208 207 229 (set (pc)
+        (if_then_else (ne:SI (reg/s:SI 2 v0)
+                (const_int 0))
+            (label_ref 211)
+            (pc))) 221 {branch_zero} (insn_list:REG_DEP_ANTI 219 (insn_list 207 (nil)))
+    (expr_list:REG_DEAD (reg/s:SI 2 v0)
+        (nil)))
+
+(note 229 208 1124 "" NOTE_INSN_LOOP_END)
+
+(note 1124 229 233 "" NOTE_INSN_DELETED)
+
+(insn 233 1124 1144 (set (reg/v:SI 4 a0)
+        (const_int 0)) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUAL (const_int 0)
+        (nil)))
+
+(insn 1144 233 234 (set (reg:SI 3 v1)
+        (mem:SI (symbol_ref:SI ("_cd_reg2")))) 159 {movsi_internal2} (nil)
+    (nil))
+
+(note 234 1144 241 "" NOTE_INSN_LOOP_BEG)
+
+(code_label 241 234 246 18 "")
+
+(note 246 241 1127 "" NOTE_INSN_LOOP_CONT)
+
+(note 1127 246 245 "" NOTE_INSN_LOOP_VTOP)
+
+(insn 245 1127 249 (set (reg:QI 2 v0)
+        (mem/v:QI (reg:SI 3 v1))) 166 {movqi_internal2} (nil)
+    (expr_list:REG_UNUSED (reg:QI 2 v0)
+        (nil)))
+
+(insn 249 245 237 (set (reg/v:SI 4 a0)
+        (plus:SI (reg/v:SI 4 a0)
+            (const_int 1))) 3 {addsi3_internal} (nil)
+    (nil))
+
+(insn 237 249 238 (set (reg/s:SI 2 v0)
+        (ltu:SI (reg/v:SI 4 a0)
+            (const_int 8))) 276 {sltu_si} (insn_list:REG_DEP_OUTPUT 245 (insn_list 249 (nil)))
+    (nil))
+
+(jump_insn 238 237 255 (set (pc)
+        (if_then_else (ne:SI (reg/s:SI 2 v0)
+                (const_int 0))
+            (label_ref 241)
+            (pc))) 221 {branch_zero} (insn_list:REG_DEP_ANTI 245 (insn_list 237 (nil)))
+    (expr_list:REG_DEAD (reg/s:SI 2 v0)
+        (nil)))
+
+(note 255 238 258 "" NOTE_INSN_LOOP_END)
+
+(code_label 258 255 264 9 "")
+
+(insn 264 258 261 (set (reg:SI 2 v0)
+        (mem:SI (symbol_ref:SI ("StEmu_Addr")))) 159 {movsi_internal2} (nil)
+    (nil))
+
+(insn 261 264 266 (set (reg/v:SI 8 t0)
+        (const_int 285212672)) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUAL (const_int 285212672)
+        (nil)))
+
+(jump_insn 266 261 268 (set (pc)
+        (if_then_else (eq:SI (reg:SI 2 v0)
+                (const_int 0))
+            (label_ref 291)
+            (pc))) 221 {branch_zero} (insn_list:REG_DEP_ANTI 261 (insn_list 264 (nil)))
+    (nil))
+
+(note 268 266 270 "" NOTE_INSN_DELETED)
+
+(note 270 268 277 "" NOTE_INSN_DELETED)
+
+(note 277 270 283 "" NOTE_INSN_DELETED)
+
+(insn 283 277 285 (set (reg:SI 6 a2)
+        (const_int 8)) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUAL (const_int 8)
+        (nil)))
+
+(insn 285 283 272 (set (reg:SI 7 a3)
+        (const_int 0)) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUAL (const_int 0)
+        (nil)))
+
+(insn 272 285 279 (set (reg:SI 5 a1)
+        (mem:SI (symbol_ref:SI ("StEmu_Idx")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StEmu_Idx")))
+        (nil)))
+
+(insn 279 272 273 (set (reg:SI 4 a0)
+        (mem:SI (symbol_ref:SI ("_st_slot")))) 159 {movsi_internal2} (nil)
+    (nil))
+
+(insn 273 279 281 (set (reg:SI 5 a1)
+        (ashift:SI (reg:SI 5 a1)
+            (const_int 11))) 181 {ashlsi3} (insn_list 272 (nil))
+    (expr_list:REG_DEAD (reg:SI 5 a1)
+        (nil)))
+
+(insn 281 273 287 (set (reg:SI 5 a1)
+        (plus:SI (reg:SI 2 v0)
+            (reg:SI 5 a1))) 3 {addsi3_internal} (insn_list 273 (nil))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (expr_list:REG_DEAD (reg:SI 5 a1)
+            (nil))))
+
+(call_insn 287 281 289 (parallel[ 
+            (call (mem:SI (symbol_ref:SI ("_st_copy_words")))
+                (const_int 16))
+            (clobber (reg:SI 31 ra))
+        ] ) 312 {call_internal1} (insn_list:REG_DEP_ANTI 272 (insn_list:REG_DEP_ANTI 273 (insn_list 279 (insn_list 281 (insn_list 283 (insn_list 285 (nil)))))))
+    (expr_list:REG_DEAD (reg:SI 4 a0)
+        (expr_list:REG_DEAD (reg:SI 5 a1)
+            (expr_list:REG_DEAD (reg:SI 6 a2)
+                (expr_list:REG_DEAD (reg:SI 7 a3)
+                    (expr_list:REG_UNUSED (reg:SI 31 ra)
+                        (nil))))))
+    (expr_list (use (reg:SI 7 a3))
+        (expr_list (use (reg:SI 6 a2))
+            (expr_list (use (reg:SI 5 a1))
+                (expr_list (use (reg:SI 4 a0))
+                    (nil))))))
+
+(jump_insn 289 287 290 (set (pc)
+        (label_ref 313)) 297 {jump} (insn_list:REG_DEP_ANTI 287 (nil))
+    (nil))
+
+(barrier 290 289 291)
+
+(code_label 291 290 293 20 "")
+
+(note 293 291 305 "" NOTE_INSN_DELETED)
+
+(note 305 293 303 "" NOTE_INSN_DELETED)
+
+(insn 303 305 307 (set (reg:SI 4 a0)
+        (const_int 3)) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUAL (const_int 3)
+        (nil)))
+
+(insn 307 303 295 (set (reg:SI 6 a2)
+        (const_int 0)) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUAL (const_int 0)
+        (nil)))
+
+(insn 295 307 309 (set (reg:SI 5 a1)
+        (mem:SI (symbol_ref:SI ("_st_slot")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("_st_slot")))
+        (nil)))
+
+(insn 309 295 297 (set (reg:SI 7 a3)
+        (const_int 8)) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUAL (const_int 8)
+        (nil)))
+
+(insn 297 309 299 (set (mem:SI (plus:SI (reg:SI 29 sp)
+                (const_int 16)))
+        (reg/v:SI 8 t0)) 159 {movsi_internal2} (nil)
+    (expr_list:REG_DEAD (reg/v:SI 8 t0)
+        (nil)))
+
+(insn 299 297 301 (set (mem:SI (plus:SI (reg:SI 29 sp)
+                (const_int 20)))
+        (const_int 0)) 159 {movsi_internal2} (nil)
+    (nil))
+
+(insn 301 299 311 (set (mem:SI (plus:SI (reg:SI 29 sp)
+                (const_int 24)))
+        (const_int 0)) 159 {movsi_internal2} (nil)
+    (nil))
+
+(call_insn 311 301 313 (parallel[ 
+            (call (mem:SI (symbol_ref:SI ("_st_dma")))
+                (const_int 32))
+            (clobber (reg:SI 31 ra))
+        ] ) 312 {call_internal1} (insn_list 295 (insn_list:REG_DEP_ANTI 297 (insn_list:REG_DEP_ANTI 299 (insn_list:REG_DEP_ANTI 301 (insn_list 303 (insn_list 307 (insn_list 309 (nil))))))))
+    (expr_list:REG_DEAD (reg:SI 4 a0)
+        (expr_list:REG_DEAD (reg:SI 5 a1)
+            (expr_list:REG_DEAD (reg:SI 6 a2)
+                (expr_list:REG_DEAD (reg:SI 7 a3)
+                    (expr_list:REG_UNUSED (reg:SI 31 ra)
+                        (nil))))))
+    (expr_list (use (reg:SI 7 a3))
+        (expr_list (use (reg:SI 6 a2))
+            (expr_list (use (reg:SI 5 a1))
+                (expr_list (use (reg:SI 4 a0))
+                    (nil))))))
+
+(code_label 313 311 1128 21 "")
+
+(insn 1128 313 1129 (set (reg:SI 4 a0)
+        (mem:SI (symbol_ref:SI ("_d3_chcr")))) 159 {movsi_internal2} (nil)
+    (nil))
+
+(insn 1129 1128 1130 (set (reg:SI 2 v0)
+        (mem/v:SI (reg:SI 4 a0))) 159 {movsi_internal2} (insn_list 1128 (nil))
+    (nil))
+
+(insn 1130 1129 1131 (set (reg:SI 3 v1)
+        (const_int 16777216)) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (const_int 16777216)
+        (nil)))
+
+(insn 1131 1130 1132 (set (reg:SI 2 v0)
+        (and:SI (reg:SI 2 v0)
+            (reg:SI 3 v1))) 92 {andsi3} (insn_list 1129 (insn_list 1130 (nil)))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (expr_list:REG_DEAD (reg:SI 3 v1)
+            (nil))))
+
+(jump_insn 1132 1131 1141 (set (pc)
+        (if_then_else (eq:SI (reg:SI 2 v0)
+                (const_int 0))
+            (label_ref 336)
+            (pc))) 221 {branch_zero} (insn_list 1131 (nil))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(insn 1141 1132 1143 (set (reg/s:SI 3 v1)
+        (reg:SI 4 a0)) 159 {movsi_internal2} (nil)
+    (expr_list:REG_DEAD (reg:SI 4 a0)
+        (nil)))
+
+(insn 1143 1141 315 (set (reg/s:SI 4 a0)
+        (const_int 16777216)) 159 {movsi_internal2} (insn_list:REG_DEP_ANTI 1141 (nil))
+    (expr_list:REG_EQUIV (const_int 16777216)
+        (nil)))
+
+(note 315 1143 329 "" NOTE_INSN_LOOP_BEG)
+
+(note 329 315 316 "" NOTE_INSN_LOOP_CONT)
+
+(code_label 316 329 1135 22 "")
+
+(note 1135 316 320 "" NOTE_INSN_LOOP_VTOP)
+
+(insn 320 1135 323 (set (reg/s:SI 2 v0)
+        (mem/v:SI (reg/s:SI 3 v1))) 159 {movsi_internal2} (nil)
+    (nil))
+
+(insn 323 320 325 (set (reg/s:SI 2 v0)
+        (and:SI (reg/s:SI 2 v0)
+            (reg/s:SI 4 a0))) 92 {andsi3} (insn_list 320 (nil))
+    (expr_list:REG_DEAD (reg/s:SI 2 v0)
+        (nil)))
+
+(jump_insn 325 323 335 (set (pc)
+        (if_then_else (ne:SI (reg/s:SI 2 v0)
+                (const_int 0))
+            (label_ref 316)
+            (pc))) 221 {branch_zero} (insn_list 323 (nil))
+    (expr_list:REG_DEAD (reg/s:SI 2 v0)
+        (nil)))
+
+(note 335 325 336 "" NOTE_INSN_LOOP_END)
+
+(code_label 336 335 1148 23 "")
+
+(insn 1148 336 1149 (set (reg:SI 4 a0)
+        (const_int 131072)) 159 {movsi_internal2} (nil)
+    (nil))
+
+(insn 1149 1148 342 (set (reg:SI 4 a0)
+        (ior:SI (reg:SI 4 a0)
+            (const_int 2115))) 96 {iorsi3} (insn_list 1148 (nil))
+    (expr_list:REG_EQUAL (const_int 133187)
+        (nil)))
+
+(insn 342 1149 339 (set (reg:SI 2 v0)
+        (mem:SI (symbol_ref:SI ("_st_slot")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("_st_slot")))
+        (nil)))
+
+(insn 339 342 347 (set (reg/v:SI 3 v1)
+        (mem:SI (symbol_ref:SI ("_cdrom_delay")))) 159 {movsi_internal2} (nil)
+    (nil))
+
+(insn:QI 347 339 352 (parallel[ 
+            (set (mem:BLK (plus:SI (reg:SI 2 v0)
+                        (const_int 28)))
+                (mem:BLK (plus:SI (reg:SI 29 sp)
+                        (const_int 40))))
+            (clobber (reg:SI 5 a1))
+            (clobber (reg:SI 6 a2))
+            (clobber (reg:SI 7 a3))
+            (clobber (reg:SI 8 t0))
+            (use (const_int 4))
+            (use (const_int 1))
+            (use (const_int 0))
+        ] ) 177 {movstrsi_internal} (insn_list:REG_DEP_ANTI 339 (insn_list 342 (nil)))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (expr_list:REG_UNUSED (reg:SI 5 a1)
+            (expr_list:REG_UNUSED (reg:SI 6 a2)
+                (expr_list:REG_UNUSED (reg:SI 7 a3)
+                    (expr_list:REG_UNUSED (reg:SI 8 t0)
+                        (nil)))))))
+
+(insn 352 347 355 (set (mem/v:SI (reg/v:SI 3 v1))
+        (reg:SI 4 a0)) 159 {movsi_internal2} (insn_list 1149 (insn_list:REG_DEP_ANTI 342 (insn_list:REG_DEP_ANTI 347 (insn_list 339 (nil)))))
+    (expr_list:REG_DEAD (reg/v:SI 3 v1)
+        (expr_list:REG_DEAD (reg:SI 4 a0)
+            (nil))))
+
+(insn 355 352 357 (set (reg:SI 3 v1)
+        (mem:SI (symbol_ref:SI ("_com_delay")))) 159 {movsi_internal2} (insn_list:REG_DEP_OUTPUT 339 (insn_list 347 (insn_list 352 (nil))))
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("_com_delay")))
+        (nil)))
+
+(insn 357 355 359 (set (reg:SI 2 v0)
+        (const_int 4901)) 159 {movsi_internal2} (insn_list:REG_DEP_OUTPUT 342 (insn_list:REG_DEP_ANTI 347 (nil)))
+    (expr_list:REG_EQUIV (const_int 4901)
+        (nil)))
+
+(insn 359 357 362 (set (mem/v:SI (reg:SI 3 v1))
+        (reg:SI 2 v0)) 159 {movsi_internal2} (insn_list:REG_DEP_OUTPUT 352 (insn_list:REG_DEP_ANTI 339 (insn_list:REG_DEP_ANTI 342 (insn_list:REG_DEP_ANTI 347 (insn_list 355 (insn_list 357 (nil)))))))
+    (expr_list:REG_DEAD (reg:SI 3 v1)
+        (expr_list:REG_DEAD (reg:SI 2 v0)
+            (nil))))
+
+(insn 362 359 364 (set (reg:SI 3 v1)
+        (mem:SI (symbol_ref:SI ("StSTART_FLAG")))) 159 {movsi_internal2} (insn_list:REG_DEP_OUTPUT 355 (insn_list 347 (insn_list 352 (insn_list 359 (nil)))))
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StSTART_FLAG")))
+        (nil)))
+
+(insn 364 362 365 (set (reg:SI 2 v0)
+        (const_int 1)) 159 {movsi_internal2} (insn_list:REG_DEP_OUTPUT 357 (insn_list:REG_DEP_ANTI 359 (nil)))
+    (expr_list:REG_EQUIV (const_int 1)
+        (nil)))
+
+(jump_insn 365 364 367 (set (pc)
+        (if_then_else (ne:SI (reg:SI 3 v1)
+                (reg:SI 2 v0))
+            (label_ref 416)
+            (pc))) 223 {branch_equality} (insn_list 362 (insn_list 364 (nil)))
+    (expr_list:REG_DEAD (reg:SI 3 v1)
+        (expr_list:REG_DEAD (reg:SI 2 v0)
+            (nil))))
+
+(insn 367 365 369 (set (reg:SI 4 a0)
+        (mem:SI (symbol_ref:SI ("StStartFrame")))) 159 {movsi_internal2} (nil)
+    (nil))
+
+(jump_insn 369 367 371 (set (pc)
+        (if_then_else (eq:SI (reg:SI 4 a0)
+                (const_int 0))
+            (label_ref 416)
+            (pc))) 221 {branch_zero} (insn_list 367 (nil))
+    (nil))
+
+(note 371 369 376 "" NOTE_INSN_DELETED)
+
+(note 376 371 373 "" NOTE_INSN_DELETED)
+
+(insn 373 376 375 (set (reg:SI 3 v1)
+        (mem:SI (symbol_ref:SI ("_st_slot")))) 159 {movsi_internal2} (nil)
+    (nil))
+
+(insn 375 373 380 (set (reg:HI 2 v0)
+        (mem/s/v:HI (plus:SI (reg:SI 3 v1)
+                (const_int 8)))) 163 {movhi_internal2} (insn_list 373 (nil))
+    (nil))
+
+(jump_insn 380 375 390 (set (pc)
+        (if_then_else (eq:SI (reg:SI 4 a0)
+                (subreg:SI (reg:HI 2 v0) 0))
+            (label_ref 388)
+            (pc))) 223 {branch_equality} (insn_list 375 (nil))
+    (expr_list:REG_DEAD (reg:SI 4 a0)
+        (expr_list:REG_DEAD (reg:HI 2 v0)
+            (nil))))
+
+(note 390 380 394 "" NOTE_INSN_DELETED)
+
+(insn 394 390 397 (set (mem/v:HI (reg:SI 3 v1))
+        (const_int 0)) 163 {movhi_internal2} (nil)
+    (expr_list:REG_DEAD (reg:SI 3 v1)
+        (nil)))
+
+(insn 397 394 399 (set (reg:SI 2 v0)
+        (mem:SI (symbol_ref:SI ("StEmu_Addr")))) 159 {movsi_internal2} (insn_list 394 (nil))
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StEmu_Addr")))
+        (nil)))
+
+(jump_insn 399 397 402 (set (pc)
+        (if_then_else (eq:SI (reg:SI 2 v0)
+                (const_int 0))
+            (label_ref 1117)
+            (pc))) 221 {branch_zero} (insn_list 397 (nil))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(insn 402 399 404 (set (reg:SI 2 v0)
+        (mem:SI (symbol_ref:SI ("StEmu_Idx")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StEmu_Idx")))
+        (nil)))
+
+(insn 404 402 408 (set (reg:SI 2 v0)
+        (plus:SI (reg:SI 2 v0)
+            (const_int 1))) 3 {addsi3_internal} (insn_list 402 (nil))
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StEmu_Idx")))
+        (expr_list:REG_DEAD (reg:SI 2 v0)
+            (nil))))
+
+(insn 408 404 411 (set (mem:SI (symbol_ref:SI ("StEmu_Idx")))
+        (reg:SI 2 v0)) 159 {movsi_internal2} (insn_list:REG_DEP_ANTI 402 (insn_list 404 (nil)))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(jump_insn 411 408 387 (set (pc)
+        (label_ref 1117)) 297 {jump} (insn_list:REG_DEP_ANTI 408 (nil))
+    (nil))
+
+(barrier 387 411 388)
+
+(code_label 388 387 382 27 "")
+
+(note 382 388 384 "" NOTE_INSN_DELETED)
+
+(insn 384 382 416 (set (mem:SI (symbol_ref:SI ("StSTART_FLAG")))
+        (const_int 0)) 159 {movsi_internal2} (nil)
+    (nil))
+
+(code_label 416 384 421 26 "")
+
+(note 421 416 419 "" NOTE_INSN_DELETED)
+
+(insn 419 421 422 (set (reg:SI 4 a0)
+        (mem:SI (symbol_ref:SI ("_st_slot")))) 159 {movsi_internal2} (nil)
+    (nil))
+
+(insn 422 419 424 (set (reg:SI 3 v1)
+        (zero_extend:SI (mem:HI (reg:SI 4 a0)))) 115 {zero_extendhisi2} (insn_list 419 (nil))
+    (nil))
+
+(insn 424 422 425 (set (reg:SI 2 v0)
+        (const_int 352)) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (const_int 352)
+        (nil)))
+
+(jump_insn 425 424 432 (set (pc)
+        (if_then_else (ne:SI (reg:SI 3 v1)
+                (reg:SI 2 v0))
+            (label_ref 444)
+            (pc))) 223 {branch_equality} (insn_list 422 (insn_list 424 (nil)))
+    (expr_list:REG_DEAD (reg:SI 3 v1)
+        (expr_list:REG_DEAD (reg:SI 2 v0)
+            (nil))))
+
+(note 432 425 436 "" NOTE_INSN_DELETED)
+
+(note 436 432 431 "" NOTE_INSN_DELETED)
+
+(insn 431 436 439 (set (reg:HI 2 v0)
+        (mem/s/v:HI (plus:SI (reg:SI 4 a0)
+                (const_int 2)))) 163 {movhi_internal2} (nil)
+    (nil))
+
+(insn 439 431 433 (set (reg:SI 3 v1)
+        (mem:SI (symbol_ref:SI ("CChannel")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("CChannel")))
+        (nil)))
+
+(insn 433 439 437 (set (reg:SI 2 v0)
+        (lshiftrt:SI (subreg:SI (reg:HI 2 v0) 0)
+            (const_int 10))) 201 {lshrsi3} (insn_list 431 (nil))
+    (expr_list:REG_DEAD (reg:HI 2 v0)
+        (nil)))
+
+(insn 437 433 441 (set (reg:SI 2 v0)
+        (and:SI (reg:SI 2 v0)
+            (const_int 31))) 92 {andsi3} (insn_list 433 (nil))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(jump_insn 441 437 444 (set (pc)
+        (if_then_else (eq:SI (reg:SI 2 v0)
+                (reg:SI 3 v1))
+            (label_ref 478)
+            (pc))) 223 {branch_equality} (insn_list 437 (insn_list 439 (nil)))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (expr_list:REG_DEAD (reg:SI 3 v1)
+            (nil))))
+
+(code_label 444 441 446 31 "")
+
+(note 446 444 448 "" NOTE_INSN_DELETED)
+
+(insn 448 446 450 (set (reg:SI 2 v0)
+        (mem:SI (symbol_ref:SI ("StEmu_Addr")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StEmu_Addr")))
+        (nil)))
+
+(jump_insn 450 448 451 (set (pc)
+        (if_then_else (eq:SI (reg:SI 2 v0)
+                (const_int 0))
+            (label_ref 456)
+            (pc))) 221 {branch_zero} (insn_list 448 (nil))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(note 451 450 453 "" NOTE_INSN_DELETED)
+
+(insn 453 451 454 (set (mem:SI (symbol_ref:SI ("StEmu_Idx")))
+        (const_int 0)) 159 {movsi_internal2} (nil)
+    (nil))
+
+(jump_insn 454 453 455 (set (pc)
+        (label_ref 463)) 297 {jump} (insn_list:REG_DEP_ANTI 453 (nil))
+    (nil))
+
+(barrier 455 454 456)
+
+(code_label 456 455 458 32 "")
+
+(note 458 456 462 "" NOTE_INSN_DELETED)
+
+(insn 462 458 463 (set (reg:HI 2 v0)
+        (mem/v:HI (reg:SI 4 a0))) 163 {movhi_internal2} (nil)
+    (expr_list:REG_DEAD (reg:SI 4 a0)
+        (expr_list:REG_UNUSED (reg:HI 2 v0)
+            (nil))))
+
+(code_label 463 462 471 33 "")
+
+(insn 471 463 466 (set (reg:SI 3 v1)
+        (mem:SI (symbol_ref:SI ("_st_slot")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("_st_slot")))
+        (nil)))
+
+(insn 466 471 468 (set (reg:SI 2 v0)
+        (const_int 5)) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("debug_cause")))
+        (expr_list:REG_EQUIV (const_int 5)
+            (nil))))
+
+(insn 468 466 473 (set (mem:SI (symbol_ref:SI ("debug_cause")))
+        (reg:SI 2 v0)) 159 {movsi_internal2} (insn_list 466 (nil))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(insn 473 468 475 (set (mem/v:HI (reg:SI 3 v1))
+        (const_int 0)) 163 {movhi_internal2} (insn_list:REG_DEP_OUTPUT 468 (insn_list 471 (nil)))
+    (expr_list:REG_DEAD (reg:SI 3 v1)
+        (nil)))
+
+(jump_insn 475 473 476 (set (pc)
+        (label_ref 1117)) 297 {jump} (insn_list:REG_DEP_ANTI 473 (nil))
+    (nil))
+
+(barrier 476 475 478)
+
+(code_label 478 476 481 30 "")
+
+(note 481 478 482 "" NOTE_INSN_DELETED)
+
+(note 482 481 488 "" NOTE_INSN_DELETED)
+
+(note 488 482 483 "" NOTE_INSN_DELETED)
+
+(insn 483 488 487 (set (reg:SI 3 v1)
+        (sign_extend:SI (mem:HI (symbol_ref:SI ("Stsector_offset"))))) 125 {extendhisi2_internal} (nil)
+    (nil))
+
+(insn 487 483 490 (set (reg:HI 2 v0)
+        (mem/s/v:HI (plus:SI (reg:SI 4 a0)
+                (const_int 4)))) 163 {movhi_internal2} (nil)
+    (nil))
+
+(jump_insn 490 487 492 (set (pc)
+        (if_then_else (ne:SI (reg:SI 3 v1)
+                (subreg:SI (reg:HI 2 v0) 0))
+            (label_ref 506)
+            (pc))) 223 {branch_equality} (insn_list 487 (insn_list 483 (nil)))
+    (expr_list:REG_DEAD (reg:SI 3 v1)
+        (expr_list:REG_DEAD (reg:HI 2 v0)
+            (nil))))
+
+(insn 492 490 494 (set (reg:SI 3 v1)
+        (mem:SI (symbol_ref:SI ("Stframe_no")))) 159 {movsi_internal2} (nil)
+    (nil))
+
+(jump_insn 494 492 499 (set (pc)
+        (if_then_else (eq:SI (reg:SI 3 v1)
+                (const_int 0))
+            (label_ref 562)
+            (pc))) 221 {branch_zero} (insn_list 492 (nil))
+    (nil))
+
+(note 499 494 498 "" NOTE_INSN_DELETED)
+
+(insn 498 499 503 (set (reg:HI 2 v0)
+        (mem/s/v:HI (plus:SI (reg:SI 4 a0)
+                (const_int 8)))) 163 {movhi_internal2} (nil)
+    (expr_list:REG_DEAD (reg:SI 4 a0)
+        (nil)))
+
+(jump_insn 503 498 506 (set (pc)
+        (if_then_else (eq:SI (reg:SI 3 v1)
+                (subreg:SI (reg:HI 2 v0) 0))
+            (label_ref 562)
+            (pc))) 223 {branch_equality} (insn_list 498 (nil))
+    (expr_list:REG_DEAD (reg:SI 3 v1)
+        (expr_list:REG_DEAD (reg:HI 2 v0)
+            (nil))))
+
+(code_label 506 503 508 35 "")
+
+(note 508 506 522 "" NOTE_INSN_DELETED)
+
+(note 522 508 524 "" NOTE_INSN_DELETED)
+
+(note 524 522 516 "" NOTE_INSN_DELETED)
+
+(insn 516 524 518 (set (reg:SI 4 a0)
+        (mem:SI (symbol_ref:SI ("StRingIdx2")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StRingIdx2")))
+        (nil)))
+
+(insn 518 516 510 (set (reg:SI 5 a1)
+        (mem:SI (symbol_ref:SI ("StRingIdx1")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StRingIdx1")))
+        (nil)))
+
+(insn 510 518 513 (set (mem:SI (symbol_ref:SI ("Stframe_no")))
+        (const_int 0)) 159 {movsi_internal2} (nil)
+    (nil))
+
+(insn 513 510 526 (set (mem:HI (symbol_ref:SI ("Stsector_offset")))
+        (const_int 0)) 163 {movhi_internal2} (nil)
+    (nil))
+
+(insn 526 513 528 (set (reg:SI 5 a1)
+        (minus:SI (reg:SI 5 a1)
+            (reg:SI 4 a0))) 16 {subsi3_internal} (insn_list 516 (insn_list 518 (nil)))
+    (expr_list:REG_DEAD (reg:SI 5 a1)
+        (nil)))
+
+(call_insn 528 526 531 (parallel[ 
+            (call (mem:SI (symbol_ref:SI ("init_ring_status")))
+                (const_int 16))
+            (clobber (reg:SI 31 ra))
+        ] ) 312 {call_internal1} (insn_list:REG_DEP_ANTI 510 (insn_list:REG_DEP_ANTI 513 (insn_list 516 (insn_list:REG_DEP_ANTI 518 (insn_list 526 (nil))))))
+    (expr_list:REG_DEAD (reg:SI 4 a0)
+        (expr_list:REG_DEAD (reg:SI 5 a1)
+            (expr_list:REG_UNUSED (reg:SI 31 ra)
+                (nil))))
+    (expr_list (use (reg:SI 5 a1))
+        (expr_list (use (reg:SI 4 a0))
+            (nil))))
+
+(insn 531 528 536 (set (reg:SI 2 v0)
+        (mem:SI (symbol_ref:SI ("StRingIdx2")))) 159 {movsi_internal2} (insn_list:REG_DEP_ANTI 528 (nil))
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StRingIdx1")))
+        (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StRingIdx2")))
+            (nil))))
+
+(insn 536 531 533 (set (reg:SI 3 v1)
+        (mem:SI (symbol_ref:SI ("_st_slot")))) 159 {movsi_internal2} (insn_list:REG_DEP_ANTI 528 (nil))
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("_st_slot")))
+        (nil)))
+
+(insn 533 536 538 (set (mem:SI (symbol_ref:SI ("StRingIdx1")))
+        (reg:SI 2 v0)) 159 {movsi_internal2} (insn_list:REG_DEP_ANTI 528 (insn_list 531 (nil)))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(insn 538 533 541 (set (mem/v:HI (reg:SI 3 v1))
+        (const_int 0)) 163 {movhi_internal2} (insn_list:REG_DEP_ANTI 528 (insn_list:REG_DEP_OUTPUT 533 (insn_list:REG_DEP_ANTI 531 (insn_list 536 (nil)))))
+    (expr_list:REG_DEAD (reg:SI 3 v1)
+        (nil)))
+
+(insn 541 538 543 (set (reg:SI 2 v0)
+        (mem:SI (symbol_ref:SI ("StEmu_Addr")))) 159 {movsi_internal2} (insn_list:REG_DEP_OUTPUT 531 (insn_list:REG_DEP_ANTI 533 (insn_list 538 (insn_list:REG_DEP_ANTI 528 (nil)))))
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StEmu_Addr")))
+        (nil)))
+
+(jump_insn 543 541 545 (set (pc)
+        (if_then_else (eq:SI (reg:SI 2 v0)
+                (const_int 0))
+            (label_ref 552)
+            (pc))) 221 {branch_zero} (insn_list:REG_DEP_ANTI 528 (insn_list 541 (nil)))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(insn 545 543 547 (set (reg:SI 2 v0)
+        (mem:SI (symbol_ref:SI ("StEmu_Idx")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StEmu_Idx")))
+        (nil)))
+
+(insn 547 545 551 (set (reg:SI 2 v0)
+        (plus:SI (reg:SI 2 v0)
+            (const_int 1))) 3 {addsi3_internal} (insn_list 545 (nil))
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StEmu_Idx")))
+        (expr_list:REG_DEAD (reg:SI 2 v0)
+            (nil))))
+
+(insn 551 547 552 (set (mem:SI (symbol_ref:SI ("StEmu_Idx")))
+        (reg:SI 2 v0)) 159 {movsi_internal2} (insn_list:REG_DEP_ANTI 545 (insn_list 547 (nil)))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(code_label 552 551 555 36 "")
+
+(insn 555 552 557 (set (reg:SI 2 v0)
+        (const_int 6)) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("debug_cause")))
+        (expr_list:REG_EQUIV (const_int 6)
+            (nil))))
+
+(insn 557 555 559 (set (mem:SI (symbol_ref:SI ("debug_cause")))
+        (reg:SI 2 v0)) 159 {movsi_internal2} (insn_list 555 (nil))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(jump_insn 559 557 560 (set (pc)
+        (label_ref 1117)) 297 {jump} (insn_list:REG_DEP_ANTI 557 (nil))
+    (nil))
+
+(barrier 560 559 562)
+
+(code_label 562 560 568 34 "")
+
+(note 568 562 565 "" NOTE_INSN_DELETED)
+
+(insn 565 568 567 (set (reg:SI 3 v1)
+        (mem:SI (symbol_ref:SI ("_st_slot")))) 159 {movsi_internal2} (nil)
+    (nil))
+
+(insn 567 565 570 (set (reg:HI 2 v0)
+        (mem/s/v:HI (plus:SI (reg:SI 3 v1)
+                (const_int 4)))) 163 {movhi_internal2} (insn_list 565 (nil))
+    (nil))
+
+(jump_insn 570 567 572 (set (pc)
+        (if_then_else (ne:SI (subreg:SI (reg:HI 2 v0) 0)
+                (const_int 0))
+            (label_ref 837)
+            (pc))) 221 {branch_zero} (insn_list 567 (nil))
+    (expr_list:REG_DEAD (reg:HI 2 v0)
+        (nil)))
+
+(note 572 570 579 "" NOTE_INSN_DELETED)
+
+(insn 579 572 585 (set (reg:HI 2 v0)
+        (mem/s/v:HI (plus:SI (reg:SI 3 v1)
+                (const_int 8)))) 163 {movhi_internal2} (nil)
+    (expr_list:REG_DEAD (reg:SI 3 v1)
+        (nil)))
+
+(insn 585 579 574 (set (reg:SI 3 v1)
+        (mem:SI (symbol_ref:SI ("StEndFrame")))) 159 {movsi_internal2} (insn_list:REG_DEP_ANTI 579 (nil))
+    (nil))
+
+(insn 574 585 580 (set (mem:HI (symbol_ref:SI ("Stsector_offset")))
+        (const_int 0)) 163 {movhi_internal2} (nil)
+    (nil))
+
+(insn 580 574 582 (set (reg:SI 2 v0)
+        (zero_extend:SI (reg:HI 2 v0))) 115 {zero_extendhisi2} (insn_list 579 (nil))
+    (expr_list:REG_DEAD (reg:HI 2 v0)
+        (nil)))
+
+(insn 582 580 587 (set (mem:SI (symbol_ref:SI ("Stframe_no")))
+        (reg:SI 2 v0)) 159 {movsi_internal2} (insn_list 580 (nil))
+    (nil))
+
+(jump_insn 587 582 593 (set (pc)
+        (if_then_else (eq:SI (reg:SI 3 v1)
+                (const_int 0))
+            (label_ref 665)
+            (pc))) 221 {branch_zero} (insn_list:REG_DEP_ANTI 574 (insn_list:REG_DEP_ANTI 582 (insn_list 585 (nil))))
+    (nil))
+
+(insn 593 587 594 (set (reg:SI 2 v0)
+        (ltu:SI (reg:SI 2 v0)
+            (reg:SI 3 v1))) 276 {sltu_si} (nil)
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (expr_list:REG_DEAD (reg:SI 3 v1)
+            (nil))))
+
+(jump_insn 594 593 596 (set (pc)
+        (if_then_else (eq:SI (reg:SI 2 v0)
+                (const_int 0))
+            (pc)
+            (label_ref 665))) 221 {branch_zero} (insn_list 593 (nil))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(note 596 594 610 "" NOTE_INSN_DELETED)
+
+(note 610 596 612 "" NOTE_INSN_DELETED)
+
+(note 612 610 604 "" NOTE_INSN_DELETED)
+
+(insn 604 612 606 (set (reg:SI 4 a0)
+        (mem:SI (symbol_ref:SI ("StRingIdx2")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StRingIdx2")))
+        (nil)))
+
+(insn 606 604 598 (set (reg:SI 5 a1)
+        (mem:SI (symbol_ref:SI ("StRingIdx1")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StRingIdx1")))
+        (nil)))
+
+(insn 598 606 601 (set (mem:SI (symbol_ref:SI ("Stframe_no")))
+        (const_int 0)) 159 {movsi_internal2} (nil)
+    (nil))
+
+(insn 601 598 614 (set (mem:HI (symbol_ref:SI ("Stsector_offset")))
+        (const_int 0)) 163 {movhi_internal2} (nil)
+    (nil))
+
+(insn 614 601 616 (set (reg:SI 5 a1)
+        (minus:SI (reg:SI 5 a1)
+            (reg:SI 4 a0))) 16 {subsi3_internal} (insn_list 604 (insn_list 606 (nil)))
+    (expr_list:REG_DEAD (reg:SI 5 a1)
+        (nil)))
+
+(call_insn 616 614 619 (parallel[ 
+            (call (mem:SI (symbol_ref:SI ("init_ring_status")))
+                (const_int 16))
+            (clobber (reg:SI 31 ra))
+        ] ) 312 {call_internal1} (insn_list:REG_DEP_ANTI 598 (insn_list:REG_DEP_ANTI 601 (insn_list 604 (insn_list:REG_DEP_ANTI 606 (insn_list 614 (nil))))))
+    (expr_list:REG_DEAD (reg:SI 4 a0)
+        (expr_list:REG_DEAD (reg:SI 5 a1)
+            (expr_list:REG_UNUSED (reg:SI 31 ra)
+                (nil))))
+    (expr_list (use (reg:SI 5 a1))
+        (expr_list (use (reg:SI 4 a0))
+            (nil))))
+
+(insn 619 616 624 (set (reg:SI 2 v0)
+        (mem:SI (symbol_ref:SI ("StRingIdx2")))) 159 {movsi_internal2} (insn_list:REG_DEP_ANTI 616 (nil))
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StRingIdx1")))
+        (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StRingIdx2")))
+            (nil))))
+
+(insn 624 619 621 (set (reg:SI 3 v1)
+        (mem:SI (symbol_ref:SI ("_st_slot")))) 159 {movsi_internal2} (insn_list:REG_DEP_ANTI 616 (nil))
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("_st_slot")))
+        (nil)))
+
+(insn 621 624 626 (set (mem:SI (symbol_ref:SI ("StRingIdx1")))
+        (reg:SI 2 v0)) 159 {movsi_internal2} (insn_list:REG_DEP_ANTI 616 (insn_list 619 (nil)))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(insn 626 621 634 (set (mem/v:HI (reg:SI 3 v1))
+        (const_int 0)) 163 {movhi_internal2} (insn_list:REG_DEP_ANTI 616 (insn_list:REG_DEP_OUTPUT 621 (insn_list:REG_DEP_ANTI 619 (insn_list 624 (nil)))))
+    (expr_list:REG_DEAD (reg:SI 3 v1)
+        (nil)))
+
+(insn 634 626 629 (set (reg:SI 3 v1)
+        (mem:SI (symbol_ref:SI ("StFunc2")))) 159 {movsi_internal2} (insn_list:REG_DEP_OUTPUT 624 (insn_list 626 (insn_list:REG_DEP_ANTI 616 (nil))))
+    (nil))
+
+(insn 629 634 631 (set (reg:SI 2 v0)
+        (const_int 1)) 159 {movsi_internal2} (insn_list:REG_DEP_OUTPUT 619 (insn_list:REG_DEP_ANTI 621 (insn_list:REG_DEP_ANTI 616 (nil))))
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StSTART_FLAG")))
+        (expr_list:REG_EQUIV (const_int 1)
+            (nil))))
+
+(insn 631 629 636 (set (mem:SI (symbol_ref:SI ("StSTART_FLAG")))
+        (reg:SI 2 v0)) 159 {movsi_internal2} (insn_list:REG_DEP_ANTI 616 (insn_list:REG_DEP_OUTPUT 626 (insn_list 629 (nil))))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(jump_insn 636 631 640 (set (pc)
+        (if_then_else (eq:SI (reg:SI 3 v1)
+                (const_int 0))
+            (label_ref 641)
+            (pc))) 221 {branch_zero} (insn_list:REG_DEP_ANTI 616 (insn_list:REG_DEP_ANTI 631 (insn_list 634 (nil))))
+    (nil))
+
+(call_insn 640 636 641 (parallel[ 
+            (call (mem:SI (reg:SI 3 v1))
+                (const_int 16))
+            (clobber (reg:SI 31 ra))
+        ] ) 312 {call_internal1} (nil)
+    (expr_list:REG_DEAD (reg:SI 3 v1)
+        (expr_list:REG_UNUSED (reg:SI 31 ra)
+            (nil)))
+    (nil))
+
+(code_label 641 640 644 39 "")
+
+(insn 644 641 646 (set (reg:SI 2 v0)
+        (mem:SI (symbol_ref:SI ("StEmu_Addr")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StEmu_Addr")))
+        (nil)))
+
+(jump_insn 646 644 648 (set (pc)
+        (if_then_else (eq:SI (reg:SI 2 v0)
+                (const_int 0))
+            (label_ref 655)
+            (pc))) 221 {branch_zero} (insn_list 644 (nil))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(insn 648 646 650 (set (reg:SI 2 v0)
+        (mem:SI (symbol_ref:SI ("StEmu_Idx")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StEmu_Idx")))
+        (nil)))
+
+(insn 650 648 654 (set (reg:SI 2 v0)
+        (plus:SI (reg:SI 2 v0)
+            (const_int 1))) 3 {addsi3_internal} (insn_list 648 (nil))
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StEmu_Idx")))
+        (expr_list:REG_DEAD (reg:SI 2 v0)
+            (nil))))
+
+(insn 654 650 655 (set (mem:SI (symbol_ref:SI ("StEmu_Idx")))
+        (reg:SI 2 v0)) 159 {movsi_internal2} (insn_list:REG_DEP_ANTI 648 (insn_list 650 (nil)))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(code_label 655 654 658 40 "")
+
+(insn 658 655 660 (set (reg:SI 2 v0)
+        (const_int 7)) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("debug_cause")))
+        (expr_list:REG_EQUIV (const_int 7)
+            (nil))))
+
+(insn 660 658 662 (set (mem:SI (symbol_ref:SI ("debug_cause")))
+        (reg:SI 2 v0)) 159 {movsi_internal2} (insn_list 658 (nil))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(jump_insn 662 660 663 (set (pc)
+        (label_ref 1117)) 297 {jump} (insn_list:REG_DEP_ANTI 660 (nil))
+    (nil))
+
+(barrier 663 662 665)
+
+(code_label 665 663 679 38 "")
+
+(note 679 665 668 "" NOTE_INSN_DELETED)
+
+(insn 668 679 670 (set (reg:SI 2 v0)
+        (mem:SI (symbol_ref:SI ("StRingSize")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StRingSize")))
+        (nil)))
+
+(insn 670 668 676 (set (reg:SI 3 v1)
+        (mem:SI (symbol_ref:SI ("StRingIdx1")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StRingIdx1")))
+        (nil)))
+
+(insn 676 670 672 (set (reg:SI 4 a0)
+        (mem:SI (symbol_ref:SI ("_st_slot")))) 159 {movsi_internal2} (nil)
+    (nil))
+
+(insn 672 676 678 (set (reg:SI 2 v0)
+        (minus:SI (reg:SI 2 v0)
+            (reg:SI 3 v1))) 16 {subsi3_internal} (insn_list 668 (insn_list 670 (nil)))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (expr_list:REG_DEAD (reg:SI 3 v1)
+            (nil))))
+
+(insn 678 672 674 (set (reg:HI 3 v1)
+        (mem/s/v:HI (plus:SI (reg:SI 4 a0)
+                (const_int 6)))) 163 {movhi_internal2} (insn_list:REG_DEP_OUTPUT 670 (insn_list:REG_DEP_ANTI 672 (insn_list 676 (nil))))
+    (nil))
+
+(insn 674 678 681 (set (reg:SI 2 v0)
+        (plus:SI (reg:SI 2 v0)
+            (const_int -1))) 3 {addsi3_internal} (insn_list 672 (nil))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(insn 681 674 682 (set (reg:SI 2 v0)
+        (ltu:SI (reg:SI 2 v0)
+            (subreg:SI (reg:HI 3 v1) 0))) 276 {sltu_si} (insn_list 678 (insn_list 674 (nil)))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (expr_list:REG_DEAD (reg:HI 3 v1)
+            (nil))))
+
+(jump_insn 682 681 684 (set (pc)
+        (if_then_else (eq:SI (reg:SI 2 v0)
+                (const_int 0))
+            (label_ref 830)
+            (pc))) 221 {branch_zero} (insn_list 681 (nil))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(note 684 682 686 "" NOTE_INSN_DELETED)
+
+(insn 686 684 688 (set (reg:SI 2 v0)
+        (mem:SI (symbol_ref:SI ("StEndFrame")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StEndFrame")))
+        (nil)))
+
+(jump_insn 688 686 690 (set (pc)
+        (if_then_else (ne:SI (reg:SI 2 v0)
+                (const_int 0))
+            (label_ref 735)
+            (pc))) 221 {branch_zero} (insn_list 686 (nil))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(note 690 688 694 "" NOTE_INSN_DELETED)
+
+(insn 694 690 696 (set (reg:HI 2 v0)
+        (const_int 1)) 163 {movhi_internal2} (nil)
+    (expr_list:REG_EQUIV (const_int 1)
+        (nil)))
+
+(insn 696 694 704 (set (mem/v:HI (reg:SI 4 a0))
+        (reg:HI 2 v0)) 163 {movhi_internal2} (insn_list 694 (nil))
+    (expr_list:REG_DEAD (reg:SI 4 a0)
+        (expr_list:REG_DEAD (reg:HI 2 v0)
+            (nil))))
+
+(insn 704 696 699 (set (reg:SI 3 v1)
+        (mem:SI (symbol_ref:SI ("StFunc2")))) 159 {movsi_internal2} (insn_list 696 (nil))
+    (nil))
+
+(insn 699 704 701 (set (reg:SI 2 v0)
+        (const_int 1)) 159 {movsi_internal2} (insn_list:REG_DEP_OUTPUT 694 (insn_list:REG_DEP_ANTI 696 (nil)))
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StSTART_FLAG")))
+        (expr_list:REG_EQUIV (const_int 1)
+            (nil))))
+
+(insn 701 699 706 (set (mem:SI (symbol_ref:SI ("StSTART_FLAG")))
+        (reg:SI 2 v0)) 159 {movsi_internal2} (insn_list:REG_DEP_OUTPUT 696 (insn_list 699 (nil)))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(jump_insn 706 701 710 (set (pc)
+        (if_then_else (eq:SI (reg:SI 3 v1)
+                (const_int 0))
+            (label_ref 711)
+            (pc))) 221 {branch_zero} (insn_list:REG_DEP_ANTI 701 (insn_list 704 (nil)))
+    (nil))
+
+(call_insn 710 706 711 (parallel[ 
+            (call (mem:SI (reg:SI 3 v1))
+                (const_int 16))
+            (clobber (reg:SI 31 ra))
+        ] ) 312 {call_internal1} (nil)
+    (expr_list:REG_DEAD (reg:SI 3 v1)
+        (expr_list:REG_UNUSED (reg:SI 31 ra)
+            (nil)))
+    (nil))
+
+(code_label 711 710 714 43 "")
+
+(insn 714 711 716 (set (reg:SI 2 v0)
+        (mem:SI (symbol_ref:SI ("StEmu_Addr")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StEmu_Addr")))
+        (nil)))
+
+(jump_insn 716 714 718 (set (pc)
+        (if_then_else (eq:SI (reg:SI 2 v0)
+                (const_int 0))
+            (label_ref 725)
+            (pc))) 221 {branch_zero} (insn_list 714 (nil))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(insn 718 716 720 (set (reg:SI 2 v0)
+        (mem:SI (symbol_ref:SI ("StEmu_Idx")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StEmu_Idx")))
+        (nil)))
+
+(insn 720 718 724 (set (reg:SI 2 v0)
+        (plus:SI (reg:SI 2 v0)
+            (const_int 1))) 3 {addsi3_internal} (insn_list 718 (nil))
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StEmu_Idx")))
+        (expr_list:REG_DEAD (reg:SI 2 v0)
+            (nil))))
+
+(insn 724 720 725 (set (mem:SI (symbol_ref:SI ("StEmu_Idx")))
+        (reg:SI 2 v0)) 159 {movsi_internal2} (insn_list:REG_DEP_ANTI 718 (insn_list 720 (nil)))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(code_label 725 724 728 44 "")
+
+(insn 728 725 730 (set (reg:SI 2 v0)
+        (const_int 8)) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("debug_cause")))
+        (expr_list:REG_EQUIV (const_int 8)
+            (nil))))
+
+(insn 730 728 732 (set (mem:SI (symbol_ref:SI ("debug_cause")))
+        (reg:SI 2 v0)) 159 {movsi_internal2} (insn_list 728 (nil))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(jump_insn 732 730 733 (set (pc)
+        (label_ref 1117)) 297 {jump} (insn_list:REG_DEP_ANTI 730 (nil))
+    (nil))
+
+(barrier 733 732 735)
+
+(code_label 735 733 740 42 "")
+
+(note 740 735 741 "" NOTE_INSN_DELETED)
+
+(note 741 740 738 "" NOTE_INSN_DELETED)
+
+(insn 738 741 742 (set (reg:SI 2 v0)
+        (mem:SI (symbol_ref:SI ("StRingAddr")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StRingAddr")))
+        (nil)))
+
+(insn 742 738 744 (set (reg:SI 2 v0)
+        (sign_extend:SI (mem:HI (reg:SI 2 v0)))) 125 {extendhisi2_internal} (insn_list 738 (nil))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(jump_insn 744 742 746 (set (pc)
+        (if_then_else (eq:SI (reg:SI 2 v0)
+                (const_int 0))
+            (label_ref 774)
+            (pc))) 221 {branch_zero} (insn_list 742 (nil))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(note 746 744 750 "" NOTE_INSN_DELETED)
+
+(insn 750 746 753 (set (mem/v:HI (reg:SI 4 a0))
+        (const_int 0)) 163 {movhi_internal2} (nil)
+    (expr_list:REG_DEAD (reg:SI 4 a0)
+        (nil)))
+
+(insn 753 750 755 (set (reg:SI 2 v0)
+        (mem:SI (symbol_ref:SI ("StEmu_Addr")))) 159 {movsi_internal2} (insn_list 750 (nil))
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StEmu_Addr")))
+        (nil)))
+
+(jump_insn 755 753 757 (set (pc)
+        (if_then_else (eq:SI (reg:SI 2 v0)
+                (const_int 0))
+            (label_ref 764)
+            (pc))) 221 {branch_zero} (insn_list 753 (nil))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(insn 757 755 759 (set (reg:SI 2 v0)
+        (mem:SI (symbol_ref:SI ("StEmu_Idx")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StEmu_Idx")))
+        (nil)))
+
+(insn 759 757 763 (set (reg:SI 2 v0)
+        (plus:SI (reg:SI 2 v0)
+            (const_int 1))) 3 {addsi3_internal} (insn_list 757 (nil))
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StEmu_Idx")))
+        (expr_list:REG_DEAD (reg:SI 2 v0)
+            (nil))))
+
+(insn 763 759 764 (set (mem:SI (symbol_ref:SI ("StEmu_Idx")))
+        (reg:SI 2 v0)) 159 {movsi_internal2} (insn_list:REG_DEP_ANTI 757 (insn_list 759 (nil)))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(code_label 764 763 767 46 "")
+
+(insn 767 764 769 (set (reg:SI 2 v0)
+        (const_int 9)) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("debug_cause")))
+        (expr_list:REG_EQUIV (const_int 9)
+            (nil))))
+
+(insn 769 767 771 (set (mem:SI (symbol_ref:SI ("debug_cause")))
+        (reg:SI 2 v0)) 159 {movsi_internal2} (insn_list 767 (nil))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(jump_insn 771 769 772 (set (pc)
+        (label_ref 1117)) 297 {jump} (insn_list:REG_DEP_ANTI 769 (nil))
+    (nil))
+
+(barrier 772 771 774)
+
+(code_label 774 772 783 45 "")
+
+(note 783 774 779 "" NOTE_INSN_BLOCK_BEG)
+
+(insn 779 783 781 (set (reg:HI 2 v0)
+        (const_int 1)) 163 {movhi_internal2} (nil)
+    (expr_list:REG_EQUIV (const_int 1)
+        (nil)))
+
+(insn 781 779 785 (set (mem/v:HI (reg:SI 4 a0))
+        (reg:HI 2 v0)) 163 {movhi_internal2} (insn_list 779 (nil))
+    (expr_list:REG_DEAD (reg:SI 4 a0)
+        (expr_list:REG_DEAD (reg:HI 2 v0)
+            (nil))))
+
+(insn 785 781 788 (set (reg/v:SI 5 a1)
+        (mem:SI (symbol_ref:SI ("StRingAddr")))) 159 {movsi_internal2} (insn_list 781 (nil))
+    (nil))
+
+(insn 788 785 794 (set (reg/v:SI 3 v1)
+        (mem:SI (symbol_ref:SI ("_st_slot")))) 159 {movsi_internal2} (insn_list 781 (nil))
+    (nil))
+
+(insn 794 788 791 (set (reg/v:SI 4 a0)
+        (const_int 0)) 159 {movsi_internal2} (insn_list:REG_DEP_ANTI 781 (nil))
+    (expr_list:REG_EQUAL (const_int 0)
+        (nil)))
+
+(insn 791 794 1137 (set (mem:SI (symbol_ref:SI ("StRingIdx1")))
+        (const_int 0)) 159 {movsi_internal2} (insn_list:REG_DEP_OUTPUT 781 (nil))
+    (nil))
+
+(note 1137 791 795 "" NOTE_INSN_DELETED)
+
+(note 795 1137 802 "" NOTE_INSN_LOOP_BEG)
+
+(code_label 802 795 811 50 "")
+
+(note 811 802 1140 "" NOTE_INSN_LOOP_CONT)
+
+(note 1140 811 806 "" NOTE_INSN_LOOP_VTOP)
+
+(insn 806 1140 809 (set (reg:SI 2 v0)
+        (mem:SI (reg/v:SI 3 v1))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (reg/v:SI 5 a1))
+        (nil)))
+
+(insn 809 806 814 (set (reg/v:SI 3 v1)
+        (plus:SI (reg/v:SI 3 v1)
+            (const_int 4))) 3 {addsi3_internal} (insn_list:REG_DEP_ANTI 806 (nil))
+    (nil))
+
+(insn 814 809 808 (set (reg/v:SI 4 a0)
+        (plus:SI (reg/v:SI 4 a0)
+            (const_int 1))) 3 {addsi3_internal} (nil)
+    (nil))
+
+(insn 808 814 810 (set (mem:SI (reg/v:SI 5 a1))
+        (reg:SI 2 v0)) 159 {movsi_internal2} (insn_list 806 (nil))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(insn 810 808 798 (set (reg/v:SI 5 a1)
+        (plus:SI (reg/v:SI 5 a1)
+            (const_int 4))) 3 {addsi3_internal} (insn_list:REG_DEP_ANTI 808 (nil))
+    (nil))
+
+(insn 798 810 799 (set (reg/s:SI 2 v0)
+        (ltu:SI (reg/v:SI 4 a0)
+            (const_int 8))) 276 {sltu_si} (insn_list:REG_DEP_OUTPUT 806 (insn_list:REG_DEP_ANTI 808 (insn_list 814 (nil))))
+    (nil))
+
+(jump_insn 799 798 820 (set (pc)
+        (if_then_else (ne:SI (reg/s:SI 2 v0)
+                (const_int 0))
+            (label_ref 802)
+            (pc))) 221 {branch_zero} (insn_list:REG_DEP_ANTI 809 (insn_list:REG_DEP_ANTI 810 (insn_list 798 (nil))))
+    (expr_list:REG_DEAD (reg/s:SI 2 v0)
+        (nil)))
+
+(note 820 799 824 "" NOTE_INSN_LOOP_END)
+
+(insn 824 820 826 (set (reg:SI 2 v0)
+        (mem:SI (symbol_ref:SI ("StRingAddr")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("_st_slot")))
+        (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StRingAddr")))
+            (nil))))
+
+(insn 826 824 828 (set (mem:SI (symbol_ref:SI ("_st_slot")))
+        (reg:SI 2 v0)) 159 {movsi_internal2} (insn_list 824 (nil))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(note 828 826 830 "" NOTE_INSN_BLOCK_END)
+
+(code_label 830 828 833 41 "")
+
+(insn 833 830 835 (set (reg:SI 2 v0)
+        (mem:SI (symbol_ref:SI ("StRingIdx1")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StRingIdx2")))
+        (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StRingIdx1")))
+            (nil))))
+
+(insn 835 833 837 (set (mem:SI (symbol_ref:SI ("StRingIdx2")))
+        (reg:SI 2 v0)) 159 {movsi_internal2} (insn_list 833 (nil))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(code_label 837 835 840 37 "")
+
+(insn 840 837 842 (set (reg:SI 2 v0)
+        (const_int 10)) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("debug_cause")))
+        (expr_list:REG_EQUIV (const_int 10)
+            (nil))))
+
+(insn 842 840 845 (set (mem:SI (symbol_ref:SI ("debug_cause")))
+        (reg:SI 2 v0)) 159 {movsi_internal2} (insn_list 840 (nil))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(insn 845 842 852 (set (reg:HI 2 v0)
+        (mem:HI (symbol_ref:SI ("Stsector_offset")))) 163 {movhi_internal2} (insn_list:REG_DEP_OUTPUT 840 (insn_list:REG_DEP_ANTI 842 (nil)))
+    (expr_list:REG_EQUIV (mem:HI (symbol_ref:SI ("Stsector_offset")))
+        (nil)))
+
+(insn 852 845 855 (set (reg:SI 4 a0)
+        (mem:SI (symbol_ref:SI ("StRingSize")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StRingSize")))
+        (nil)))
+
+(insn 855 852 859 (set (reg:SI 3 v1)
+        (mem:SI (symbol_ref:SI ("StRingAddr")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StRingAddr")))
+        (nil)))
+
+(insn 859 855 847 (set (reg:SI 5 a1)
+        (mem:SI (symbol_ref:SI ("StRingIdx1")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StRingIdx1")))
+        (nil)))
+
+(insn 847 859 853 (set (reg:SI 2 v0)
+        (plus:SI (subreg:SI (reg:HI 2 v0) 0)
+            (const_int 1))) 3 {addsi3_internal} (insn_list 845 (nil))
+    (expr_list:REG_DEAD (reg:HI 2 v0)
+        (nil)))
+
+(insn 853 847 857 (set (reg:SI 4 a0)
+        (ashift:SI (reg:SI 4 a0)
+            (const_int 5))) 181 {ashlsi3} (insn_list 852 (nil))
+    (expr_list:REG_DEAD (reg:SI 4 a0)
+        (nil)))
+
+(insn 857 853 849 (set (reg:SI 3 v1)
+        (plus:SI (reg:SI 3 v1)
+            (reg:SI 4 a0))) 3 {addsi3_internal} (insn_list 853 (insn_list 855 (nil)))
+    (expr_list:REG_DEAD (reg:SI 3 v1)
+        (expr_list:REG_DEAD (reg:SI 4 a0)
+            (nil))))
+
+(insn 849 857 862 (set (mem:HI (symbol_ref:SI ("Stsector_offset")))
+        (subreg:HI (reg:SI 2 v0) 0)) 163 {movhi_internal2} (insn_list:REG_DEP_ANTI 845 (insn_list 847 (nil)))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(insn 862 849 864 (set (reg:SI 2 v0)
+        (ashift:SI (reg:SI 5 a1)
+            (const_int 6))) 181 {ashlsi3} (insn_list:REG_DEP_ANTI 847 (insn_list:REG_DEP_ANTI 849 (insn_list 859 (nil))))
+    (expr_list:REG_EQUAL (mult:SI (reg:SI 5 a1)
+            (const_int 64))
+        (nil)))
+
+(insn 864 862 865 (set (reg:SI 2 v0)
+        (minus:SI (reg:SI 2 v0)
+            (reg:SI 5 a1))) 16 {subsi3_internal} (insn_list 859 (insn_list 862 (nil)))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (expr_list:REG_DEAD (reg:SI 5 a1)
+            (expr_list:REG_EQUAL (mult:SI (reg:SI 5 a1)
+                    (const_int 63))
+                (nil)))))
+
+(insn 865 864 872 (set (reg:SI 2 v0)
+        (ashift:SI (reg:SI 2 v0)
+            (const_int 5))) 181 {ashlsi3} (insn_list 864 (nil))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(insn 872 865 867 (set (reg:SI 4 a0)
+        (mem:SI (symbol_ref:SI ("StRgb24")))) 159 {movsi_internal2} (insn_list:REG_DEP_ANTI 853 (insn_list:REG_DEP_ANTI 857 (nil)))
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StRgb24")))
+        (nil)))
+
+(insn 867 872 869 (set (reg:SI 3 v1)
+        (plus:SI (reg:SI 3 v1)
+            (reg:SI 2 v0))) 3 {addsi3_internal} (insn_list 857 (insn_list 865 (nil)))
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StRingBase")))
+        (expr_list:REG_DEAD (reg:SI 3 v1)
+            (expr_list:REG_DEAD (reg:SI 2 v0)
+                (nil)))))
+
+(insn 869 867 874 (set (mem:SI (symbol_ref:SI ("StRingBase")))
+        (reg:SI 3 v1)) 159 {movsi_internal2} (insn_list 867 (nil))
+    (expr_list:REG_DEAD (reg:SI 3 v1)
+        (nil)))
+
+(jump_insn 874 869 876 (set (pc)
+        (if_then_else (eq:SI (reg:SI 4 a0)
+                (const_int 0))
+            (label_ref 896)
+            (pc))) 221 {branch_zero} (insn_list:REG_DEP_ANTI 842 (insn_list:REG_DEP_ANTI 849 (insn_list:REG_DEP_ANTI 869 (insn_list 872 (nil)))))
+    (expr_list:REG_DEAD (reg:SI 4 a0)
+        (nil)))
+
+(note 876 874 878 "" NOTE_INSN_DELETED)
+
+(insn 878 876 1150 (set (reg/v:SI 8 t0)
+        (const_int 285212672)) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUAL (const_int 285212672)
+        (nil)))
+
+(insn 1150 878 881 (set (reg:SI 3 v1)
+        (const_int 131072)) 159 {movsi_internal2} (nil)
+    (nil))
+
+(insn 881 1150 1151 (set (reg:SI 2 v0)
+        (mem:SI (symbol_ref:SI ("_cdrom_delay")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("_cdrom_delay")))
+        (nil)))
+
+(insn 1151 881 885 (set (reg:SI 3 v1)
+        (ior:SI (reg:SI 3 v1)
+            (const_int 2371))) 96 {iorsi3} (insn_list 1150 (nil))
+    (expr_list:REG_EQUAL (const_int 133443)
+        (nil)))
+
+(insn 885 1151 888 (set (mem/v:SI (reg:SI 2 v0))
+        (reg:SI 3 v1)) 159 {movsi_internal2} (insn_list 1151 (insn_list 881 (nil)))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (expr_list:REG_DEAD (reg:SI 3 v1)
+            (nil))))
+
+(insn 888 885 890 (set (reg:SI 3 v1)
+        (mem:SI (symbol_ref:SI ("_com_delay")))) 159 {movsi_internal2} (insn_list:REG_DEP_ANTI 1151 (insn_list 885 (nil)))
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("_com_delay")))
+        (nil)))
+
+(insn 890 888 892 (set (reg:SI 2 v0)
+        (const_int 4899)) 159 {movsi_internal2} (insn_list:REG_DEP_OUTPUT 881 (insn_list:REG_DEP_ANTI 885 (nil)))
+    (expr_list:REG_EQUIV (const_int 4899)
+        (nil)))
+
+(insn 892 890 894 (set (mem/v:SI (reg:SI 3 v1))
+        (reg:SI 2 v0)) 159 {movsi_internal2} (insn_list:REG_DEP_OUTPUT 885 (insn_list:REG_DEP_ANTI 881 (insn_list 888 (insn_list 890 (nil)))))
+    (expr_list:REG_DEAD (reg:SI 3 v1)
+        (expr_list:REG_DEAD (reg:SI 2 v0)
+            (nil))))
+
+(jump_insn 894 892 895 (set (pc)
+        (label_ref 909)) 297 {jump} (insn_list:REG_DEP_ANTI 878 (insn_list:REG_DEP_ANTI 892 (nil)))
+    (nil))
+
+(barrier 895 894 896)
+
+(code_label 896 895 898 52 "")
+
+(note 898 896 1152 "" NOTE_INSN_DELETED)
+
+(insn 1152 898 1153 (set (reg:SI 3 v1)
+        (const_int 553779200)) 159 {movsi_internal2} (nil)
+    (nil))
+
+(insn 1153 1152 1154 (set (reg:SI 3 v1)
+        (ior:SI (reg:SI 3 v1)
+            (const_int 2115))) 96 {iorsi3} (insn_list 1152 (nil))
+    (expr_list:REG_EQUAL (const_int 553781315)
+        (nil)))
+
+(insn 1154 1153 900 (set (reg/v:SI 8 t0)
+        (const_int 289406976)) 159 {movsi_internal2} (nil)
+    (nil))
+
+(insn 900 1154 1155 (set (reg:SI 2 v0)
+        (mem:SI (symbol_ref:SI ("_cdrom_delay")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("_cdrom_delay")))
+        (nil)))
+
+(insn 1155 900 904 (set (reg/v:SI 8 t0)
+        (ior:SI (reg/v:SI 8 t0)
+            (const_int 256))) 96 {iorsi3} (insn_list 1154 (nil))
+    (expr_list:REG_EQUAL (const_int 289407232)
+        (nil)))
+
+(insn 904 1155 909 (set (mem/v:SI (reg:SI 2 v0))
+        (reg:SI 3 v1)) 159 {movsi_internal2} (insn_list 1153 (insn_list 900 (nil)))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (expr_list:REG_DEAD (reg:SI 3 v1)
+            (nil))))
+
+(code_label 909 904 915 53 "")
+
+(note 915 909 922 "" NOTE_INSN_DELETED)
+
+(note 922 915 912 "" NOTE_INSN_DELETED)
+
+(insn 912 922 914 (set (reg:SI 2 v0)
+        (mem:SI (symbol_ref:SI ("_st_slot")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("_st_slot")))
+        (nil)))
+
+(insn 914 912 921 (set (reg:HI 3 v1)
+        (mem/s/v:HI (plus:SI (reg:SI 2 v0)
+                (const_int 6)))) 163 {movhi_internal2} (insn_list 912 (nil))
+    (nil))
+
+(insn 921 914 917 (set (reg:HI 2 v0)
+        (mem/s/v:HI (plus:SI (reg:SI 2 v0)
+                (const_int 4)))) 163 {movhi_internal2} (insn_list 912 (insn_list:REG_DEP_ANTI 914 (nil)))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(insn 917 921 924 (set (reg:SI 3 v1)
+        (plus:SI (subreg:SI (reg:HI 3 v1) 0)
+            (const_int -1))) 3 {addsi3_internal} (insn_list 914 (nil))
+    (expr_list:REG_DEAD (reg:HI 3 v1)
+        (nil)))
+
+(jump_insn 924 917 926 (set (pc)
+        (if_then_else (ne:SI (reg:SI 3 v1)
+                (subreg:SI (reg:HI 2 v0) 0))
+            (label_ref 1010)
+            (pc))) 223 {branch_equality} (insn_list 921 (insn_list 917 (nil)))
+    (expr_list:REG_DEAD (reg:SI 3 v1)
+        (expr_list:REG_DEAD (reg:HI 2 v0)
+            (nil))))
+
+(note 926 924 933 "" NOTE_INSN_DELETED)
+
+(insn 933 926 928 (set (reg:SI 2 v0)
+        (mem:SI (symbol_ref:SI ("StEmu_Addr")))) 159 {movsi_internal2} (nil)
+    (nil))
+
+(insn 928 933 930 (set (reg:SI 3 v1)
+        (const_int 1)) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (const_int 1)
+        (nil)))
+
+(insn 930 928 935 (set (mem:SI (symbol_ref:SI ("StFinalSector")))
+        (reg:SI 3 v1)) 159 {movsi_internal2} (insn_list 928 (nil))
+    (nil))
+
+(jump_insn 935 930 937 (set (pc)
+        (if_then_else (eq:SI (reg:SI 2 v0)
+                (const_int 0))
+            (label_ref 971)
+            (pc))) 221 {branch_zero} (insn_list:REG_DEP_ANTI 930 (insn_list 933 (nil)))
+    (nil))
+
+(note 937 935 939 "" NOTE_INSN_DELETED)
+
+(note 939 937 948 "" NOTE_INSN_DELETED)
+
+(note 948 939 954 "" NOTE_INSN_DELETED)
+
+(insn 954 948 956 (set (reg:SI 6 a2)
+        (const_int 504)) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUAL (const_int 504)
+        (nil)))
+
+(insn 956 954 941 (set (reg:SI 7 a3)
+        (const_int 1)) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUAL (const_int 1)
+        (nil)))
+
+(insn 941 956 950 (set (reg:SI 5 a1)
+        (mem:SI (symbol_ref:SI ("StEmu_Idx")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StEmu_Idx")))
+        (nil)))
+
+(insn 950 941 942 (set (reg:SI 4 a0)
+        (mem:SI (symbol_ref:SI ("StRingBase")))) 159 {movsi_internal2} (nil)
+    (nil))
+
+(insn 942 950 946 (set (reg:SI 5 a1)
+        (ashift:SI (reg:SI 5 a1)
+            (const_int 11))) 181 {ashlsi3} (insn_list 941 (nil))
+    (expr_list:REG_DEAD (reg:SI 5 a1)
+        (nil)))
+
+(insn 946 942 952 (set (reg:SI 5 a1)
+        (plus:SI (reg:SI 2 v0)
+            (reg:SI 5 a1))) 3 {addsi3_internal} (insn_list 942 (nil))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (expr_list:REG_DEAD (reg:SI 5 a1)
+            (nil))))
+
+(insn 952 946 958 (set (reg:SI 5 a1)
+        (plus:SI (reg:SI 5 a1)
+            (const_int 32))) 3 {addsi3_internal} (insn_list 946 (nil))
+    (expr_list:REG_DEAD (reg:SI 5 a1)
+        (nil)))
+
+(call_insn 958 952 961 (parallel[ 
+            (call (mem:SI (symbol_ref:SI ("_st_copy_words")))
+                (const_int 16))
+            (clobber (reg:SI 31 ra))
+        ] ) 312 {call_internal1} (insn_list:REG_DEP_ANTI 941 (insn_list:REG_DEP_ANTI 942 (insn_list:REG_DEP_ANTI 946 (insn_list 950 (insn_list 952 (insn_list 954 (insn_list 956 (nil))))))))
+    (expr_list:REG_DEAD (reg:SI 4 a0)
+        (expr_list:REG_DEAD (reg:SI 5 a1)
+            (expr_list:REG_DEAD (reg:SI 6 a2)
+                (expr_list:REG_DEAD (reg:SI 7 a3)
+                    (expr_list:REG_UNUSED (reg:SI 31 ra)
+                        (nil))))))
+    (expr_list (use (reg:SI 7 a3))
+        (expr_list (use (reg:SI 6 a2))
+            (expr_list (use (reg:SI 5 a1))
+                (expr_list (use (reg:SI 4 a0))
+                    (nil))))))
+
+(insn 961 958 963 (set (reg:SI 2 v0)
+        (mem:SI (symbol_ref:SI ("StEmu_Idx")))) 159 {movsi_internal2} (insn_list:REG_DEP_ANTI 958 (nil))
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StEmu_Idx")))
+        (nil)))
+
+(insn 963 961 967 (set (reg:SI 2 v0)
+        (plus:SI (reg:SI 2 v0)
+            (const_int 1))) 3 {addsi3_internal} (insn_list:REG_DEP_ANTI 958 (insn_list 961 (nil)))
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StEmu_Idx")))
+        (expr_list:REG_DEAD (reg:SI 2 v0)
+            (nil))))
+
+(insn 967 963 969 (set (mem:SI (symbol_ref:SI ("StEmu_Idx")))
+        (reg:SI 2 v0)) 159 {movsi_internal2} (insn_list:REG_DEP_ANTI 958 (insn_list:REG_DEP_ANTI 961 (insn_list 963 (nil))))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(jump_insn 969 967 970 (set (pc)
+        (label_ref 995)) 297 {jump} (insn_list:REG_DEP_ANTI 967 (nil))
+    (nil))
+
+(barrier 970 969 971)
+
+(code_label 971 970 973 55 "")
+
+(note 973 971 987 "" NOTE_INSN_DELETED)
+
+(note 987 973 985 "" NOTE_INSN_DELETED)
+
+(insn 985 987 989 (set (reg:SI 4 a0)
+        (const_int 3)) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUAL (const_int 3)
+        (nil)))
+
+(insn 989 985 975 (set (reg:SI 6 a2)
+        (const_int 0)) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUAL (const_int 0)
+        (nil)))
+
+(insn 975 989 991 (set (reg:SI 5 a1)
+        (mem:SI (symbol_ref:SI ("StRingBase")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StRingBase")))
+        (nil)))
+
+(insn 991 975 977 (set (reg:SI 7 a3)
+        (const_int 504)) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUAL (const_int 504)
+        (nil)))
+
+(insn 977 991 981 (set (mem:SI (plus:SI (reg:SI 29 sp)
+                (const_int 16)))
+        (reg/v:SI 8 t0)) 159 {movsi_internal2} (nil)
+    (expr_list:REG_DEAD (reg/v:SI 8 t0)
+        (nil)))
+
+(insn 981 977 983 (set (mem:SI (plus:SI (reg:SI 29 sp)
+                (const_int 20)))
+        (reg:SI 3 v1)) 159 {movsi_internal2} (nil)
+    (expr_list:REG_DEAD (reg:SI 3 v1)
+        (nil)))
+
+(insn 983 981 993 (set (mem:SI (plus:SI (reg:SI 29 sp)
+                (const_int 24)))
+        (const_int 0)) 159 {movsi_internal2} (nil)
+    (nil))
+
+(call_insn 993 983 995 (parallel[ 
+            (call (mem:SI (symbol_ref:SI ("_st_dma")))
+                (const_int 32))
+            (clobber (reg:SI 31 ra))
+        ] ) 312 {call_internal1} (insn_list 975 (insn_list:REG_DEP_ANTI 977 (insn_list:REG_DEP_ANTI 981 (insn_list:REG_DEP_ANTI 983 (insn_list 985 (insn_list 989 (insn_list 991 (nil))))))))
+    (expr_list:REG_DEAD (reg:SI 4 a0)
+        (expr_list:REG_DEAD (reg:SI 5 a1)
+            (expr_list:REG_DEAD (reg:SI 6 a2)
+                (expr_list:REG_DEAD (reg:SI 7 a3)
+                    (expr_list:REG_UNUSED (reg:SI 31 ra)
+                        (nil))))))
+    (expr_list (use (reg:SI 7 a3))
+        (expr_list (use (reg:SI 6 a2))
+            (expr_list (use (reg:SI 5 a1))
+                (expr_list (use (reg:SI 4 a0))
+                    (nil))))))
+
+(code_label 995 993 1004 56 "")
+
+(insn 1004 995 998 (set (reg:SI 2 v0)
+        (mem:SI (symbol_ref:SI ("StCHANNEL")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("CChannel")))
+        (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StCHANNEL")))
+            (nil))))
+
+(insn 998 1004 1001 (set (mem:HI (symbol_ref:SI ("Stsector_offset")))
+        (const_int 0)) 163 {movhi_internal2} (nil)
+    (nil))
+
+(insn 1001 998 1006 (set (mem:SI (symbol_ref:SI ("Stframe_no")))
+        (const_int 0)) 159 {movsi_internal2} (nil)
+    (nil))
+
+(insn 1006 1001 1008 (set (mem:SI (symbol_ref:SI ("CChannel")))
+        (reg:SI 2 v0)) 159 {movsi_internal2} (insn_list 1004 (nil))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(jump_insn 1008 1006 1009 (set (pc)
+        (label_ref 1076)) 297 {jump} (insn_list:REG_DEP_ANTI 998 (insn_list:REG_DEP_ANTI 1001 (insn_list:REG_DEP_ANTI 1006 (nil))))
+    (nil))
+
+(barrier 1009 1008 1010)
+
+(code_label 1010 1009 1012 54 "")
+
+(note 1012 1010 1014 "" NOTE_INSN_DELETED)
+
+(insn 1014 1012 1016 (set (reg:SI 2 v0)
+        (mem:SI (symbol_ref:SI ("StEmu_Addr")))) 159 {movsi_internal2} (nil)
+    (nil))
+
+(jump_insn 1016 1014 1018 (set (pc)
+        (if_then_else (eq:SI (reg:SI 2 v0)
+                (const_int 0))
+            (label_ref 1052)
+            (pc))) 221 {branch_zero} (insn_list 1014 (nil))
+    (nil))
+
+(note 1018 1016 1020 "" NOTE_INSN_DELETED)
+
+(note 1020 1018 1029 "" NOTE_INSN_DELETED)
+
+(note 1029 1020 1035 "" NOTE_INSN_DELETED)
+
+(insn 1035 1029 1037 (set (reg:SI 6 a2)
+        (const_int 504)) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUAL (const_int 504)
+        (nil)))
+
+(insn 1037 1035 1022 (set (reg:SI 7 a3)
+        (const_int 0)) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUAL (const_int 0)
+        (nil)))
+
+(insn 1022 1037 1031 (set (reg:SI 5 a1)
+        (mem:SI (symbol_ref:SI ("StEmu_Idx")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StEmu_Idx")))
+        (nil)))
+
+(insn 1031 1022 1023 (set (reg:SI 4 a0)
+        (mem:SI (symbol_ref:SI ("StRingBase")))) 159 {movsi_internal2} (nil)
+    (nil))
+
+(insn 1023 1031 1027 (set (reg:SI 5 a1)
+        (ashift:SI (reg:SI 5 a1)
+            (const_int 11))) 181 {ashlsi3} (insn_list 1022 (nil))
+    (expr_list:REG_DEAD (reg:SI 5 a1)
+        (nil)))
+
+(insn 1027 1023 1033 (set (reg:SI 5 a1)
+        (plus:SI (reg:SI 2 v0)
+            (reg:SI 5 a1))) 3 {addsi3_internal} (insn_list 1023 (nil))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (expr_list:REG_DEAD (reg:SI 5 a1)
+            (nil))))
+
+(insn 1033 1027 1039 (set (reg:SI 5 a1)
+        (plus:SI (reg:SI 5 a1)
+            (const_int 32))) 3 {addsi3_internal} (insn_list 1027 (nil))
+    (expr_list:REG_DEAD (reg:SI 5 a1)
+        (nil)))
+
+(call_insn 1039 1033 1042 (parallel[ 
+            (call (mem:SI (symbol_ref:SI ("_st_copy_words")))
+                (const_int 16))
+            (clobber (reg:SI 31 ra))
+        ] ) 312 {call_internal1} (insn_list:REG_DEP_ANTI 1022 (insn_list:REG_DEP_ANTI 1023 (insn_list:REG_DEP_ANTI 1027 (insn_list 1031 (insn_list 1033 (insn_list 1035 (insn_list 1037 (nil))))))))
+    (expr_list:REG_DEAD (reg:SI 4 a0)
+        (expr_list:REG_DEAD (reg:SI 5 a1)
+            (expr_list:REG_DEAD (reg:SI 6 a2)
+                (expr_list:REG_DEAD (reg:SI 7 a3)
+                    (expr_list:REG_UNUSED (reg:SI 31 ra)
+                        (nil))))))
+    (expr_list (use (reg:SI 7 a3))
+        (expr_list (use (reg:SI 6 a2))
+            (expr_list (use (reg:SI 5 a1))
+                (expr_list (use (reg:SI 4 a0))
+                    (nil))))))
+
+(insn 1042 1039 1044 (set (reg:SI 2 v0)
+        (mem:SI (symbol_ref:SI ("StEmu_Idx")))) 159 {movsi_internal2} (insn_list:REG_DEP_ANTI 1039 (nil))
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StEmu_Idx")))
+        (nil)))
+
+(insn 1044 1042 1048 (set (reg:SI 2 v0)
+        (plus:SI (reg:SI 2 v0)
+            (const_int 1))) 3 {addsi3_internal} (insn_list:REG_DEP_ANTI 1039 (insn_list 1042 (nil)))
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StEmu_Idx")))
+        (expr_list:REG_DEAD (reg:SI 2 v0)
+            (nil))))
+
+(insn 1048 1044 1050 (set (mem:SI (symbol_ref:SI ("StEmu_Idx")))
+        (reg:SI 2 v0)) 159 {movsi_internal2} (insn_list:REG_DEP_ANTI 1039 (insn_list:REG_DEP_ANTI 1042 (insn_list 1044 (nil))))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(jump_insn 1050 1048 1051 (set (pc)
+        (label_ref 1076)) 297 {jump} (insn_list:REG_DEP_ANTI 1048 (nil))
+    (nil))
+
+(barrier 1051 1050 1052)
+
+(code_label 1052 1051 1054 58 "")
+
+(note 1054 1052 1066 "" NOTE_INSN_DELETED)
+
+(note 1066 1054 1064 "" NOTE_INSN_DELETED)
+
+(insn 1064 1066 1068 (set (reg:SI 4 a0)
+        (const_int 3)) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUAL (const_int 3)
+        (nil)))
+
+(insn 1068 1064 1056 (set (reg:SI 6 a2)
+        (const_int 0)) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUAL (const_int 0)
+        (nil)))
+
+(insn 1056 1068 1070 (set (reg:SI 5 a1)
+        (mem:SI (symbol_ref:SI ("StRingBase")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StRingBase")))
+        (nil)))
+
+(insn 1070 1056 1058 (set (reg:SI 7 a3)
+        (const_int 504)) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUAL (const_int 504)
+        (nil)))
+
+(insn 1058 1070 1060 (set (mem:SI (plus:SI (reg:SI 29 sp)
+                (const_int 16)))
+        (reg/v:SI 8 t0)) 159 {movsi_internal2} (nil)
+    (expr_list:REG_DEAD (reg/v:SI 8 t0)
+        (nil)))
+
+(insn 1060 1058 1062 (set (mem:SI (plus:SI (reg:SI 29 sp)
+                (const_int 20)))
+        (const_int 0)) 159 {movsi_internal2} (nil)
+    (nil))
+
+(insn 1062 1060 1072 (set (mem:SI (plus:SI (reg:SI 29 sp)
+                (const_int 24)))
+        (const_int 0)) 159 {movsi_internal2} (nil)
+    (nil))
+
+(call_insn 1072 1062 1076 (parallel[ 
+            (call (mem:SI (symbol_ref:SI ("_st_dma")))
+                (const_int 32))
+            (clobber (reg:SI 31 ra))
+        ] ) 312 {call_internal1} (insn_list 1056 (insn_list:REG_DEP_ANTI 1058 (insn_list:REG_DEP_ANTI 1060 (insn_list:REG_DEP_ANTI 1062 (insn_list 1064 (insn_list 1068 (insn_list 1070 (nil))))))))
+    (expr_list:REG_DEAD (reg:SI 4 a0)
+        (expr_list:REG_DEAD (reg:SI 5 a1)
+            (expr_list:REG_DEAD (reg:SI 6 a2)
+                (expr_list:REG_DEAD (reg:SI 7 a3)
+                    (expr_list:REG_UNUSED (reg:SI 31 ra)
+                        (nil))))))
+    (expr_list (use (reg:SI 7 a3))
+        (expr_list (use (reg:SI 6 a2))
+            (expr_list (use (reg:SI 5 a1))
+                (expr_list (use (reg:SI 4 a0))
+                    (nil))))))
+
+(code_label 1076 1072 1079 57 "")
+
+(insn 1079 1076 1081 (set (reg:SI 3 v1)
+        (mem:SI (symbol_ref:SI ("_com_delay")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("_com_delay")))
+        (nil)))
+
+(insn 1081 1079 1083 (set (reg:SI 2 v0)
+        (const_int 4901)) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (const_int 4901)
+        (nil)))
+
+(insn 1083 1081 1086 (set (mem/v:SI (reg:SI 3 v1))
+        (reg:SI 2 v0)) 159 {movsi_internal2} (insn_list 1079 (insn_list 1081 (nil)))
+    (expr_list:REG_DEAD (reg:SI 3 v1)
+        (expr_list:REG_DEAD (reg:SI 2 v0)
+            (nil))))
+
+(insn 1086 1083 1088 (set (reg:SI 3 v1)
+        (mem:SI (symbol_ref:SI ("_st_slot")))) 159 {movsi_internal2} (insn_list:REG_DEP_OUTPUT 1079 (insn_list 1083 (nil)))
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("_st_slot")))
+        (nil)))
+
+(insn 1088 1086 1090 (set (reg:HI 2 v0)
+        (const_int 3)) 163 {movhi_internal2} (insn_list:REG_DEP_OUTPUT 1081 (insn_list:REG_DEP_ANTI 1083 (nil)))
+    (expr_list:REG_EQUIV (const_int 3)
+        (nil)))
+
+(insn 1090 1088 1093 (set (mem/v:HI (reg:SI 3 v1))
+        (reg:HI 2 v0)) 163 {movhi_internal2} (insn_list:REG_DEP_OUTPUT 1083 (insn_list:REG_DEP_ANTI 1079 (insn_list 1086 (insn_list 1088 (nil)))))
+    (expr_list:REG_DEAD (reg:SI 3 v1)
+        (expr_list:REG_DEAD (reg:HI 2 v0)
+            (nil))))
+
+(insn 1093 1090 1102 (set (reg:SI 2 v0)
+        (mem:SI (symbol_ref:SI ("StRingIdx1")))) 159 {movsi_internal2} (insn_list:REG_DEP_OUTPUT 1088 (insn_list 1083 (insn_list 1090 (nil))))
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StRingIdx1")))
+        (nil)))
+
+(insn 1102 1093 1095 (set (reg:SI 3 v1)
+        (mem:SI (symbol_ref:SI ("StEmu_Addr")))) 159 {movsi_internal2} (insn_list:REG_DEP_OUTPUT 1086 (insn_list 1083 (insn_list 1090 (nil))))
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StEmu_Addr")))
+        (nil)))
+
+(insn 1095 1102 1099 (set (reg:SI 2 v0)
+        (plus:SI (reg:SI 2 v0)
+            (const_int 1))) 3 {addsi3_internal} (insn_list 1093 (nil))
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StRingIdx1")))
+        (expr_list:REG_DEAD (reg:SI 2 v0)
+            (nil))))
+
+(insn 1099 1095 1104 (set (mem:SI (symbol_ref:SI ("StRingIdx1")))
+        (reg:SI 2 v0)) 159 {movsi_internal2} (insn_list:REG_DEP_OUTPUT 1083 (insn_list:REG_DEP_OUTPUT 1090 (insn_list:REG_DEP_ANTI 1093 (insn_list 1095 (nil)))))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(jump_insn 1104 1099 1106 (set (pc)
+        (if_then_else (eq:SI (reg:SI 3 v1)
+                (const_int 0))
+            (label_ref 1117)
+            (pc))) 221 {branch_zero} (insn_list:REG_DEP_ANTI 1099 (insn_list 1102 (nil)))
+    (expr_list:REG_DEAD (reg:SI 3 v1)
+        (nil)))
+
+(insn 1106 1104 1108 (set (reg:SI 2 v0)
+        (mem:SI (symbol_ref:SI ("StFinalSector")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("StFinalSector")))
+        (nil)))
+
+(jump_insn 1108 1106 1111 (set (pc)
+        (if_then_else (eq:SI (reg:SI 2 v0)
+                (const_int 0))
+            (label_ref 1117)
+            (pc))) 221 {branch_zero} (insn_list 1106 (nil))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(call_insn 1111 1108 1114 (parallel[ 
+            (call (mem:SI (symbol_ref:SI ("data_ready_callback")))
+                (const_int 16))
+            (clobber (reg:SI 31 ra))
+        ] ) 312 {call_internal1} (nil)
+    (expr_list:REG_UNUSED (reg:SI 31 ra)
+        (nil))
+    (nil))
+
+(note 1114 1111 1117 "" NOTE_INSN_BLOCK_END)
+
+(code_label 1117 1114 1145 1 "")
+
+(note 1145 1117 1156 "" NOTE_INSN_DELETED)
+
+(note 1156 1145 0 "" NOTE_INSN_DELETED)
+
+;; Function _st_copy_words
+
+;;	 -- basic block number 0 from 53 to 20 --
+;; ready list initially:
+;; 20 
+
+;; insn[  16]: priority =    1, ref_count =    1
+;; insn[  20]: priority = 2147483566, ref_count =    0
+;; ready list at T-1: 20 (7fffffae), now 20
+;; ready list at T-2: 16 (1), now 16
+;; total time = 2
+;; new basic block head = 53
+;; new basic block end = 20
+
+;;	 -- basic block number 1 from 25 to 41 --
+;; ready list initially:
+;; 41 
+
+;; insn[  30]: priority =    1, ref_count =    3
+;; insn[  33]: priority =    1, ref_count =    1
+;; insn[  37]: priority =    1, ref_count =    1
+;; insn[  32]: priority =    2, ref_count =    2
+;; insn[  34]: priority =    2, ref_count =    1
+;; insn[  40]: priority =    2, ref_count =    1
+;; insn[  41]: priority = 2147483566, ref_count =    0
+;; ready list at T-1: 41 (7fffffae), now 41
+;; ready list at T-2: 33 (1) 34 (2) 40 (2), now 40 34 33
+;; ready list at T-3: 34 (2) 33 (1) 37 (1), now 34 37 33
+;; ready list at T-4: 37 (1) 33 (1) 32 (2), now 32 37 33
+;; ready list at T-5: 37 (1) 33 (1), now 37 33
+;; ready list at T-6: 33 (1), now 33
+;; ready list at T-7: 30 (1), now 30
+;; total time = 7
+;; new basic block head = 25
+;; new basic block end = 41
+
+;;	 -- basic block number 2 from 50 to 50 --
+(note 2 0 53 "" NOTE_INSN_DELETED)
+
+(note 53 2 4 "" NOTE_INSN_PROLOGUE_END)
+
+(note 4 53 6 "" NOTE_INSN_DELETED)
+
+(note 6 4 8 "" NOTE_INSN_DELETED)
+
+(note 8 6 11 "" NOTE_INSN_DELETED)
+
+(note 11 8 12 "" NOTE_INSN_FUNCTION_BEG)
+
+(note 12 11 14 "" NOTE_INSN_DELETED)
+
+(note 14 12 16 "" NOTE_INSN_BLOCK_BEG)
+
+(insn 16 14 20 (set (reg/v:SI 3 v1)
+        (const_int 0)) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUAL (const_int 0)
+        (nil)))
+
+(jump_insn 20 16 25 (set (pc)
+        (if_then_else (eq:SI (reg/v:SI 6 a2)
+                (const_int 0))
+            (label_ref 50)
+            (pc))) 221 {branch_zero} (insn_list:REG_DEP_ANTI 16 (nil))
+    (nil))
+
+(code_label 25 20 30 70 ("loop"))
+
+(insn 30 25 33 (set (reg:SI 2 v0)
+        (mem:SI (reg/v:SI 5 a1))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (reg/v:SI 4 a0))
+        (nil)))
+
+(insn 33 30 37 (set (reg/v:SI 5 a1)
+        (plus:SI (reg/v:SI 5 a1)
+            (const_int 4))) 3 {addsi3_internal} (insn_list:REG_DEP_ANTI 30 (nil))
+    (nil))
+
+(insn 37 33 32 (set (reg/v:SI 3 v1)
+        (plus:SI (reg/v:SI 3 v1)
+            (const_int 1))) 3 {addsi3_internal} (nil)
+    (nil))
+
+(insn 32 37 34 (set (mem:SI (reg/v:SI 4 a0))
+        (reg:SI 2 v0)) 159 {movsi_internal2} (insn_list 30 (nil))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(insn 34 32 40 (set (reg/v:SI 4 a0)
+        (plus:SI (reg/v:SI 4 a0)
+            (const_int 4))) 3 {addsi3_internal} (insn_list:REG_DEP_ANTI 32 (nil))
+    (nil))
+
+(insn 40 34 41 (set (reg:SI 2 v0)
+        (ltu:SI (reg/v:SI 3 v1)
+            (reg/v:SI 6 a2))) 276 {sltu_si} (insn_list:REG_DEP_OUTPUT 30 (insn_list:REG_DEP_ANTI 32 (insn_list 37 (nil))))
+    (nil))
+
+(jump_insn 41 40 47 (set (pc)
+        (if_then_else (ne:SI (reg:SI 2 v0)
+                (const_int 0))
+            (label_ref 25)
+            (pc))) 221 {branch_zero} (insn_list:REG_DEP_ANTI 33 (insn_list:REG_DEP_ANTI 34 (insn_list 40 (nil))))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(note 47 41 50 "" NOTE_INSN_BLOCK_END)
+
+(code_label 50 47 51 68 "")
+
+(note 51 50 52 "" NOTE_INSN_DELETED)
+
+(note 52 51 0 "" NOTE_INSN_DELETED)
+
+;; Function _st_dma
+
+;;	 -- basic block number 0 from 255 to 229 --
+;; ready list initially:
+;; 229 
+
+;; insn[ 255]: priority =    1, ref_count =    7
+;; insn[ 257]: priority =    1, ref_count =    1
+;; insn[ 259]: priority =    1, ref_count =    2
+;; insn[ 261]: priority =    1, ref_count =    2
+;; insn[ 263]: priority =    1, ref_count =    2
+;; insn[ 265]: priority =    1, ref_count =    2
+;; insn[ 267]: priority =    1, ref_count =    2
+;; insn[   4]: priority =    1, ref_count =    2
+;; insn[   6]: priority =    1, ref_count =    1
+;; insn[   8]: priority =    1, ref_count =    1
+;; insn[  10]: priority =    1, ref_count =    1
+;; insn[  26]: priority =    1, ref_count =    1
+;; insn[  29]: priority =    1, ref_count =    1
+;; insn[ 225]: priority =    1, ref_count =    1
+;; insn[ 226]: priority =    1, ref_count =    1
+;; insn[ 227]: priority =    1, ref_count =    1
+;; insn[ 228]: priority =    2, ref_count =    1
+;; insn[  23]: priority =    1, ref_count =    1
+;; insn[ 229]: priority = 2147483509, ref_count =    0
+;; ready list at T-1: 229 (7fffff75), now 229
+;; ready list at T-2: 10 (1) 23 (1) 26 (1) 29 (1) 228 (2), now 228 23 29 26 10
+;; ready list at T-3: 23 (1) 29 (1) 26 (1) 10 (1) 227 (1), now 23 227 29 26 10
+;; launching 226 before 23 with no stalls at T-4
+;; ready list at T-4: 227 (1) 29 (1) 26 (1) 10 (1) 226 (1), now 227 226 29 26 10
+;; insn 226 has a greater potential hazard, now 226 227 29 26 10
+;; ready list at T-5: 227 (1) 29 (1) 26 (1) 10 (1) 257 (1) 265 (1) 225 (1), now 227 225 29 26 10 265 257
+;; insn 265 has a greater potential hazard, now 265 227 225 29 26 10 257
+;; ready list at T-6: 227 (1) 225 (1) 29 (1) 26 (1) 10 (1) 257 (1), now 227 225 29 26 10 257
+;; insn 257 has a greater potential hazard, now 257 227 225 29 26 10
+;; ready list at T-7: 227 (1) 225 (1) 29 (1) 26 (1) 10 (1), now 227 225 29 26 10
+;; ready list at T-8: 225 (1) 29 (1) 26 (1) 10 (1), now 225 29 26 10
+;; ready list at T-9: 29 (1) 26 (1) 10 (1) 6 (1), now 29 26 10 6
+;; ready list at T-10: 26 (1) 10 (1) 6 (1) 8 (1), now 26 10 8 6
+;; ready list at T-11: 10 (1) 8 (1) 6 (1) 4 (1), now 10 8 6 4
+;; ready list at T-12: 8 (1) 6 (1) 4 (1) 259 (1), now 8 6 4 259
+;; insn 259 has a greater potential hazard, now 259 8 6 4
+;; ready list at T-13: 8 (1) 6 (1) 4 (1), now 8 6 4
+;; ready list at T-14: 6 (1) 4 (1) 261 (1), now 6 4 261
+;; insn 261 has a greater potential hazard, now 261 6 4
+;; ready list at T-15: 6 (1) 4 (1), now 6 4
+;; ready list at T-16: 4 (1) 263 (1), now 4 263
+;; insn 263 has a greater potential hazard, now 263 4
+;; ready list at T-17: 4 (1), now 4
+;; ready list at T-18: 267 (1), now 267
+;; ready list at T-19: 255 (1), now 255
+;; total time = 19
+;; new basic block head = 253
+;; new basic block end = 229
+
+;;	 -- basic block number 1 from 246 to 248 --
+;; ready list initially:
+;; 248 
+
+;; insn[ 248]: priority =    1, ref_count =    0
+;; ready list at T-1: 248 (1), now 248
+;; total time = 1
+;; new basic block head = 246
+;; new basic block end = 248
+
+;;	 -- basic block number 2 from 43 to 47 --
+;; ready list initially:
+;; 47 
+
+;; insn[  47]: priority = 2147483509, ref_count =    0
+;; ready list at T-1: 47 (7fffff75), now 47
+;; total time = 1
+;; new basic block head = 43
+;; new basic block end = 47
+
+;;	 -- basic block number 3 from 70 to 40 --
+;; ready list initially:
+;; 40 
+
+;; insn[  35]: priority =    1, ref_count =    1
+;; insn[  68]: priority =    1, ref_count =    1
+;; insn[  38]: priority =    2, ref_count =    1
+;; insn[  40]: priority = 2147483509, ref_count =    0
+;; ready list at T-1: 40 (7fffff75), now 40
+;; ready list at T-2: 68 (1) 38 (2), now 38 68
+;; ready list at T-3: 68 (1), now 68
+;; launching 35 before 68 with no stalls at T-4
+;; ready list at T-4: 35 (1), now 35
+;; total time = 4
+;; new basic block head = 70
+;; new basic block end = 40
+
+;;	 -- basic block number 4 from 77 to 81 --
+;; ready list initially:
+;; 81 
+
+;; insn[  80]: priority =    1, ref_count =    1
+;; insn[  81]: priority = 2147483509, ref_count =    0
+;; ready list at T-1: 81 (7fffff75), now 81
+;; ready list at T-2: 80 (1), now 80
+;; total time = 2
+;; new basic block head = 77
+;; new basic block end = 81
+
+;;	 -- basic block number 5 from 89 to 104 --
+;; ready list initially:
+;; 104 
+
+;; insn[  86]: priority =    1, ref_count =    2
+;; insn[  90]: priority =    2, ref_count =    2
+;; insn[  94]: priority =    1, ref_count =    1
+;; insn[  99]: priority =    3, ref_count =    1
+;; insn[ 101]: priority =    3, ref_count =    1
+;; insn[ 104]: priority = 2147483509, ref_count =    0
+;; ready list at T-1: 104 (7fffff75), now 104
+;; ready list at T-2: 101 (3), now 101
+;; ready list at T-3: 99 (3), now 99
+;; ready list at T-4: 94 (1), now 94
+;; launching 90 before 94 with no stalls at T-5
+;; ready list at T-5: 90 (2), now 90
+;; launching 86 before 90 with 1 stalls at T-6
+;; ready list at T-7: 86 (1), now 86
+;; total time = 7
+;; new basic block head = 89
+;; new basic block end = 104
+
+;;	 -- basic block number 6 from 244 to 62 --
+;; ready list initially:
+;; 62 
+
+;; insn[  54]: priority =    1, ref_count =    1
+;; insn[  56]: priority =    1, ref_count =    1
+;; insn[  60]: priority =    2, ref_count =    1
+;; insn[  62]: priority = 2147483509, ref_count =    0
+;; ready list at T-1: 62 (7fffff75), now 62
+;; ready list at T-2: 60 (2), now 60
+;; ready list at T-3: 56 (1), now 56
+;; launching 54 before 56 with no stalls at T-4
+;; ready list at T-4: 54 (1), now 54
+;; total time = 4
+;; new basic block head = 244
+;; new basic block end = 62
+
+;;	 -- basic block number 7 from 106 to 129 --
+;; ready list initially:
+;; 129 
+
+;; insn[ 111]: priority =    1, ref_count =    2
+;; insn[ 115]: priority =    2, ref_count =    2
+;; insn[ 119]: priority =    1, ref_count =    1
+;; insn[ 122]: priority =    1, ref_count =    1
+;; insn[ 127]: priority =    3, ref_count =    1
+;; insn[ 129]: priority =    3, ref_count =    0
+;; ready list at T-1: 129 (3), now 129
+;; ready list at T-2: 127 (3), now 127
+;; ready list at T-3: 122 (1), now 122
+;; launching 115 before 122 with no stalls at T-4
+;; ready list at T-4: 119 (1) 115 (2), now 115 119
+;; ready list at T-5: 119 (1), now 119
+;; launching 111 before 119 with no stalls at T-6
+;; ready list at T-6: 111 (1), now 111
+;; total time = 6
+;; new basic block head = 106
+;; new basic block end = 129
+
+;;	 -- basic block number 8 from 132 to 237 --
+;; ready list initially:
+;; 237 
+
+;; insn[ 135]: priority =    1, ref_count =    2
+;; insn[ 137]: priority =    2, ref_count =    2
+;; insn[ 139]: priority =    3, ref_count =    1
+;; insn[ 141]: priority =    3, ref_count =    5
+;; insn[ 149]: priority =    3, ref_count =    2
+;; insn[ 152]: priority =    3, ref_count =    2
+;; insn[ 154]: priority =    3, ref_count =    2
+;; insn[ 155]: priority =    3, ref_count =    2
+;; insn[ 157]: priority =    3, ref_count =   14
+;; insn[ 250]: priority =    3, ref_count =    1
+;; insn[ 166]: priority =    3, ref_count =    4
+;; insn[ 251]: priority =    3, ref_count =    1
+;; insn[ 169]: priority =    4, ref_count =    5
+;; insn[ 159]: priority =    3, ref_count =    2
+;; insn[ 163]: priority =    3, ref_count =    3
+;; insn[ 171]: priority =    5, ref_count =    2
+;; insn[ 173]: priority =    5, ref_count =    4
+;; insn[ 177]: priority =    5, ref_count =    4
+;; insn[ 178]: priority =    5, ref_count =    2
+;; insn[ 181]: priority =    3, ref_count =    1
+;; insn[ 182]: priority =    3, ref_count =    2
+;; insn[ 184]: priority =    5, ref_count =    3
+;; insn[ 233]: priority =    5, ref_count =    1
+;; insn[ 234]: priority =    6, ref_count =    1
+;; insn[ 185]: priority =    5, ref_count =    1
+;; insn[ 236]: priority =    7, ref_count =    1
+;; insn[ 237]: priority = 2147483509, ref_count =    0
+;; ready list at T-1: 237 (7fffff75), now 237
+;; ready list at T-2: 185 (5) 236 (7), now 236 185
+;; ready list at T-3: 185 (5), now 185
+;; launching 234 before 185 with no stalls at T-4
+;; ready list at T-4: 234 (6), now 234
+;; launching 233 before 234 with 1 stalls at T-5
+;; ready list at T-6: 233 (5), now 233
+;; ready list at T-7: 184 (5), now 184
+;; ready list at T-8: 178 (5) 182 (3), now 178 182
+;; ready list at T-9: 182 (3) 177 (5), now 177 182
+;; ready list at T-10: 182 (3) 173 (5), now 173 182
+;; ready list at T-11: 182 (3) 171 (5), now 171 182
+;; ready list at T-12: 182 (3), now 182
+;; launching 169 before 182 with no stalls at T-13
+;; ready list at T-13: 181 (3) 169 (4), now 169 181
+;; ready list at T-14: 181 (3), now 181
+;; launching 166 before 181 with no stalls at T-15
+;; ready list at T-15: 163 (3) 166 (3), now 163 166
+;; insn 166 has a greater potential hazard, now 166 163
+;; ready list at T-16: 163 (3), now 163
+;; ready list at T-17: 251 (3) 159 (3), now 159 251
+;; ready list at T-18: 251 (3), now 251
+;; ready list at T-19: 250 (3), now 250
+;; ready list at T-20: 157 (3), now 157
+;; ready list at T-21: 155 (3), now 155
+;; ready list at T-22: 152 (3) 154 (3), now 154 152
+;; ready list at T-23: 152 (3), now 152
+;; ready list at T-24: 149 (3), now 149
+;; ready list at T-25: 141 (3), now 141
+;; ready list at T-26: 139 (3), now 139
+;; launching 137 before 139 with 1 stalls at T-27
+;; ready list at T-28: 137 (2), now 137
+;; launching 135 before 137 with 1 stalls at T-29
+;; ready list at T-30: 135 (1), now 135
+;; total time = 30
+;; new basic block head = 132
+;; new basic block end = 237
+
+;;	 -- basic block number 9 from 245 to 245 --
+;; ready list initially:
+;; 245 
+
+;; insn[ 245]: priority =    1, ref_count =    0
+;; ready list at T-1: 245 (1), now 245
+;; total time = 1
+;; new basic block head = 245
+;; new basic block end = 245
+
+;;	 -- basic block number 10 from 188 to 196 --
+;; ready list initially:
+;; 196 
+
+;; insn[ 192]: priority =    1, ref_count =    1
+;; insn[ 194]: priority =    2, ref_count =    1
+;; insn[ 196]: priority = 2147483509, ref_count =    0
+;; ready list at T-1: 196 (7fffff75), now 196
+;; ready list at T-2: 194 (2), now 194
+;; launching 192 before 194 with 1 stalls at T-3
+;; ready list at T-4: 192 (1), now 192
+;; total time = 4
+;; new basic block head = 188
+;; new basic block end = 196
+
+;;	 -- basic block number 11 from 207 to 217 --
+;; ready list initially:
+;; 217 
+
+;; insn[ 210]: priority =    1, ref_count =    3
+;; insn[ 212]: priority =    2, ref_count =    2
+;; insn[ 215]: priority =    2, ref_count =    1
+;; insn[ 217]: priority =    3, ref_count =    0
+;; ready list at T-1: 217 (3), now 217
+;; launching 215 before 217 with 1 stalls at T-2
+;; ready list at T-3: 215 (2), now 215
+;; ready list at T-4: 212 (2), now 212
+;; launching 210 before 212 with 1 stalls at T-5
+;; ready list at T-6: 210 (1), now 210
+;; total time = 6
+;; new basic block head = 207
+;; new basic block end = 217
+
+(note 2 0 12 "" NOTE_INSN_DELETED)
+
+(note 12 2 14 "" NOTE_INSN_DELETED)
+
+(note 14 12 17 "" NOTE_INSN_DELETED)
+
+(note 17 14 18 "" NOTE_INSN_FUNCTION_BEG)
+
+(note 18 17 20 "" NOTE_INSN_DELETED)
+
+(note 20 18 243 "" NOTE_INSN_BLOCK_BEG)
+
+(note 243 20 255 "" NOTE_INSN_DELETED)
+
+(insn 255 243 267 (set (reg:SI 29 sp)
+        (minus:SI (reg:SI 29 sp)
+            (const_int 48))) 16 {subsi3_internal} (nil)
+    (nil))
+
+(insn 267 255 4 (set (mem:SI (plus:SI (reg:SI 29 sp)
+                (const_int 24)))
+        (reg:SI 16 s0)) 159 {movsi_internal2} (insn_list 255 (nil))
+    (nil))
+
+(insn 4 267 263 (set (reg/v:SI 16 s0)
+        (reg:SI 4 a0)) 159 {movsi_internal2} (insn_list:REG_DEP_ANTI 267 (nil))
+    (expr_list:REG_DEAD (reg:SI 4 a0)
+        (nil)))
+
+(insn 263 4 6 (set (mem:SI (plus:SI (reg:SI 29 sp)
+                (const_int 32)))
+        (reg:SI 18 s2)) 159 {movsi_internal2} (insn_list 255 (nil))
+    (nil))
+
+(insn 6 263 261 (set (reg/v:SI 18 s2)
+        (reg:SI 5 a1)) 159 {movsi_internal2} (insn_list:REG_DEP_ANTI 263 (nil))
+    (expr_list:REG_DEAD (reg:SI 5 a1)
+        (nil)))
+
+(insn 261 6 8 (set (mem:SI (plus:SI (reg:SI 29 sp)
+                (const_int 36)))
+        (reg:SI 19 s3)) 159 {movsi_internal2} (insn_list 255 (nil))
+    (nil))
+
+(insn 8 261 259 (set (reg/v:SI 19 s3)
+        (reg:SI 6 a2)) 159 {movsi_internal2} (insn_list:REG_DEP_ANTI 261 (nil))
+    (expr_list:REG_DEAD (reg:SI 6 a2)
+        (nil)))
+
+(insn 259 8 10 (set (mem:SI (plus:SI (reg:SI 29 sp)
+                (const_int 40)))
+        (reg:SI 20 s4)) 159 {movsi_internal2} (insn_list 255 (nil))
+    (nil))
+
+(insn 10 259 26 (set (reg/v:SI 20 s4)
+        (reg:SI 7 a3)) 159 {movsi_internal2} (insn_list:REG_DEP_ANTI 259 (nil))
+    (expr_list:REG_DEAD (reg:SI 7 a3)
+        (nil)))
+
+(insn 26 10 29 (set (reg/v:SI 4 a0)
+        (const_int 0)) 159 {movsi_internal2} (insn_list:REG_DEP_ANTI 4 (nil))
+    (expr_list:REG_EQUAL (const_int 0)
+        (nil)))
+
+(insn 29 26 225 (set (reg/v:SI 6 a2)
+        (const_int 65536)) 159 {movsi_internal2} (insn_list:REG_DEP_ANTI 8 (nil))
+    (expr_list:REG_EQUIV (const_int 65536)
+        (nil)))
+
+(insn 225 29 227 (set (reg/s:SI 5 a1)
+        (ashift:SI (reg/v:SI 16 s0)
+            (const_int 4))) 181 {ashlsi3} (insn_list:REG_DEP_ANTI 6 (insn_list 4 (nil)))
+    (nil))
+
+(insn 227 225 257 (set (reg:SI 3 v1)
+        (const_int 16777216)) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (const_int 16777216)
+        (nil)))
+
+(insn 257 227 265 (set (mem:SI (plus:SI (reg:SI 29 sp)
+                (const_int 44)))
+        (reg:SI 31 ra)) 159 {movsi_internal2} (insn_list 255 (nil))
+    (nil))
+
+(insn 265 257 253 (set (mem:SI (plus:SI (reg:SI 29 sp)
+                (const_int 28)))
+        (reg:SI 17 s1)) 159 {movsi_internal2} (insn_list 255 (nil))
+    (nil))
+
+(note 253 265 226 "" NOTE_INSN_PROLOGUE_END)
+
+(insn 226 253 23 (set (reg:SI 2 v0)
+        (mem/v:SI (plus:SI (reg/s:SI 5 a1)
+                (const_int 528486536)))) 159 {movsi_internal2} (insn_list 257 (insn_list 259 (insn_list 261 (insn_list 263 (insn_list 265 (insn_list 267 (insn_list 225 (nil))))))))
+    (nil))
+
+(insn:QI 23 226 228 (set (reg/v:SI 17 s1)
+        (zero_extend:SI (mem:QI (plus:SI (reg:SI 29 sp)
+                    (const_int 68))))) 118 {zero_extendqisi2} (insn_list 255 (insn_list:REG_DEP_ANTI 265 (nil)))
+    (nil))
+
+(insn 228 23 229 (set (reg:SI 2 v0)
+        (and:SI (reg:SI 2 v0)
+            (reg:SI 3 v1))) 92 {andsi3} (insn_list 226 (insn_list 227 (nil)))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (expr_list:REG_DEAD (reg:SI 3 v1)
+            (nil))))
+
+(jump_insn 229 228 246 (set (pc)
+        (if_then_else (eq:SI (reg:SI 2 v0)
+                (const_int 0))
+            (label_ref 77)
+            (pc))) 221 {branch_zero} (insn_list:REG_DEP_ANTI 10 (insn_list:REG_DEP_ANTI 23 (insn_list:REG_DEP_ANTI 26 (insn_list:REG_DEP_ANTI 29 (insn_list 228 (nil))))))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(note 246 229 248 "" NOTE_INSN_DELETED)
+
+(insn 248 246 31 (set (reg/s:SI 3 v1)
+        (const_int 16777216)) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (const_int 16777216)
+        (nil)))
+
+(note 31 248 43 "" NOTE_INSN_LOOP_BEG)
+
+(code_label 43 31 45 75 "")
+
+(note 45 43 47 "" NOTE_INSN_DELETED)
+
+(jump_insn 47 45 70 (set (pc)
+        (if_then_else (eq:SI (reg/v:SI 4 a0)
+                (reg/v:SI 6 a2))
+            (label_ref/s 244)
+            (pc))) 223 {branch_equality} (nil)
+    (nil))
+
+(note 70 47 232 "" NOTE_INSN_LOOP_CONT)
+
+(note 232 70 35 "" NOTE_INSN_LOOP_VTOP)
+
+(insn 35 232 68 (set (reg/s:SI 2 v0)
+        (mem/v:SI (plus:SI (reg/s:SI 5 a1)
+                (const_int 528486536)))) 159 {movsi_internal2} (nil)
+    (nil))
+
+(insn 68 35 38 (set (reg/v:SI 4 a0)
+        (plus:SI (reg/v:SI 4 a0)
+            (const_int 1))) 3 {addsi3_internal} (nil)
+    (nil))
+
+(insn 38 68 40 (set (reg/s:SI 2 v0)
+        (and:SI (reg/s:SI 2 v0)
+            (reg/s:SI 3 v1))) 92 {andsi3} (insn_list 35 (nil))
+    (expr_list:REG_DEAD (reg/s:SI 2 v0)
+        (nil)))
+
+(jump_insn 40 38 76 (set (pc)
+        (if_then_else (ne:SI (reg/s:SI 2 v0)
+                (const_int 0))
+            (label_ref 43)
+            (pc))) 221 {branch_zero} (insn_list:REG_DEP_ANTI 68 (insn_list 38 (nil)))
+    (expr_list:REG_DEAD (reg/s:SI 2 v0)
+        (nil)))
+
+(note 76 40 77 "" NOTE_INSN_LOOP_END)
+
+(code_label 77 76 80 74 "")
+
+(insn 80 77 81 (set (reg:SI 2 v0)
+        (const_int 1)) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (const_int 1)
+        (nil)))
+
+(jump_insn 81 80 83 (set (pc)
+        (if_then_else (ne:SI (reg/v:SI 17 s1)
+                (reg:SI 2 v0))
+            (label_ref 106)
+            (pc))) 223 {branch_equality} (insn_list 80 (nil))
+    (expr_list:REG_DEAD (reg/v:SI 17 s1)
+        (nil)))
+
+(note 83 81 89 "" NOTE_INSN_BLOCK_BEG)
+
+(note 89 83 103 "" NOTE_INSN_DELETED)
+
+(note 103 89 86 "" NOTE_INSN_BLOCK_END)
+
+(insn 86 103 90 (set (reg/v:SI 3 v1)
+        (mem:SI (symbol_ref:SI ("_dicr")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("_dicr")))
+        (nil)))
+
+(insn 90 86 94 (set (reg/v:SI 4 a0)
+        (zero_extend:SI (mem/s:QI (plus:SI (reg/v:SI 3 v1)
+                    (const_int 2))))) 118 {zero_extendqisi2} (insn_list 86 (nil))
+    (nil))
+
+(insn 94 90 99 (set (reg:SI 2 v0)
+        (ashift:SI (reg:SI 2 v0)
+            (reg/v:SI 16 s0))) 181 {ashlsi3} (nil)
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(insn 99 94 101 (set (reg:SI 2 v0)
+        (ior:SI (reg/v:SI 4 a0)
+            (reg:SI 2 v0))) 96 {iorsi3} (insn_list 90 (insn_list 94 (nil)))
+    (expr_list:REG_DEAD (reg/v:SI 4 a0)
+        (expr_list:REG_DEAD (reg:SI 2 v0)
+            (nil))))
+
+(insn 101 99 104 (set (mem/s:QI (plus:SI (reg/v:SI 3 v1)
+                (const_int 2)))
+        (subreg:QI (reg:SI 2 v0) 0)) 166 {movqi_internal2} (insn_list 86 (insn_list:REG_DEP_ANTI 90 (insn_list 99 (nil))))
+    (expr_list:REG_DEAD (reg/v:SI 3 v1)
+        (expr_list:REG_DEAD (reg:SI 2 v0)
+            (nil))))
+
+(jump_insn 104 101 105 (set (pc)
+        (label_ref 132)) 297 {jump} (insn_list:REG_DEP_ANTI 101 (nil))
+    (nil))
+
+(barrier 105 104 244)
+
+(code_label 244 105 49 84 "")
+
+(note 49 244 51 "" NOTE_INSN_DELETED)
+
+(note 51 49 52 "" NOTE_INSN_DELETED)
+
+(note 52 51 58 "" NOTE_INSN_DELETED)
+
+(note 58 52 54 "" NOTE_INSN_DELETED)
+
+(insn 54 58 56 (set (reg:SI 5 a1)
+        (mem/v:SI (plus:SI (reg/s:SI 5 a1)
+                (const_int 528486536)))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_DEAD (reg/s:SI 5 a1)
+        (nil)))
+
+(insn 56 54 60 (set (reg:SI 4 a0)
+        (symbol_ref:SI ("*$LC0"))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUAL (symbol_ref:SI ("*$LC0"))
+        (nil)))
+
+(call_insn 60 56 62 (parallel[ 
+            (set (reg:SI 2 v0)
+                (call (mem:SI (symbol_ref:SI ("printf")))
+                    (const_int 16)))
+            (clobber (reg:SI 31 ra))
+        ] ) 319 {call_value_internal1} (insn_list 54 (insn_list 56 (nil)))
+    (expr_list:REG_DEAD (reg:SI 4 a0)
+        (expr_list:REG_DEAD (reg:SI 5 a1)
+            (expr_list:REG_UNUSED (reg:SI 2 v0)
+                (expr_list:REG_UNUSED (reg:SI 31 ra)
+                    (nil)))))
+    (expr_list (use (reg:SI 5 a1))
+        (expr_list (use (reg:SI 4 a0))
+            (nil))))
+
+(jump_insn 62 60 63 (set (pc)
+        (label_ref 77)) 297 {jump} (insn_list:REG_DEP_ANTI 60 (nil))
+    (nil))
+
+(barrier 63 62 106)
+
+(code_label 106 63 108 78 "")
+
+(note 108 106 114 "" NOTE_INSN_BLOCK_BEG)
+
+(note 114 108 111 "" NOTE_INSN_DELETED)
+
+(insn 111 114 119 (set (reg/v:SI 3 v1)
+        (mem:SI (symbol_ref:SI ("_dicr")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("_dicr")))
+        (nil)))
+
+(insn 119 111 115 (set (reg:SI 2 v0)
+        (ashift:SI (reg:SI 2 v0)
+            (reg/v:SI 16 s0))) 181 {ashlsi3} (nil)
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(insn 115 119 122 (set (reg/v:SI 4 a0)
+        (zero_extend:SI (mem/s:QI (plus:SI (reg/v:SI 3 v1)
+                    (const_int 2))))) 118 {zero_extendqisi2} (insn_list 111 (nil))
+    (nil))
+
+(insn 122 115 127 (set (reg:SI 2 v0)
+        (not:SI (reg:SI 2 v0))) 86 {one_cmplsi2} (insn_list 119 (nil))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(insn 127 122 129 (set (reg:SI 2 v0)
+        (and:SI (reg/v:SI 4 a0)
+            (reg:SI 2 v0))) 92 {andsi3} (insn_list 115 (insn_list 122 (nil)))
+    (expr_list:REG_DEAD (reg/v:SI 4 a0)
+        (expr_list:REG_DEAD (reg:SI 2 v0)
+            (nil))))
+
+(insn 129 127 131 (set (mem/s:QI (plus:SI (reg/v:SI 3 v1)
+                (const_int 2)))
+        (subreg:QI (reg:SI 2 v0) 0)) 166 {movqi_internal2} (insn_list 111 (insn_list:REG_DEP_ANTI 115 (insn_list 127 (nil))))
+    (expr_list:REG_DEAD (reg/v:SI 3 v1)
+        (expr_list:REG_DEAD (reg:SI 2 v0)
+            (nil))))
+
+(note 131 129 132 "" NOTE_INSN_BLOCK_END)
+
+(code_label 132 131 143 79 "")
+
+(note 143 132 147 "" NOTE_INSN_BLOCK_BEG)
+
+(note 147 143 235 "" NOTE_INSN_DELETED)
+
+(note 235 147 135 "" NOTE_INSN_DELETED)
+
+(insn 135 235 137 (set (reg:SI 2 v0)
+        (mem:SI (symbol_ref:SI ("_dicr")))) 159 {movsi_internal2} (nil)
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("_dicr")))
+        (nil)))
+
+(insn 137 135 139 (set (reg:SI 2 v0)
+        (mem/v:SI (reg:SI 2 v0))) 159 {movsi_internal2} (insn_list 135 (nil))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(insn:QI 139 137 141 (set (mem/v:SI (plus:SI (reg:SI 29 sp)
+                (const_int 16)))
+        (reg:SI 2 v0)) 159 {movsi_internal2} (insn_list 137 (nil))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(insn 141 139 149 (asm_input ("")) -1 (insn_list 135 (insn_list 137 (insn_list:REG_DEP_ANTI 139 (nil))))
+    (nil))
+
+(insn 149 141 152 (set (reg/v:SI 6 a2)
+        (ashift:SI (reg/v:SI 16 s0)
+            (const_int 2))) 181 {ashlsi3} (insn_list 141 (nil))
+    (nil))
+
+(insn 152 149 154 (set (reg:SI 6 a2)
+        (plus:SI (reg/v:SI 6 a2)
+            (const_int 3))) 3 {addsi3_internal} (insn_list:REG_DEP_OUTPUT 141 (insn_list 149 (nil)))
+    (expr_list:REG_DEAD (reg/v:SI 6 a2)
+        (nil)))
+
+(insn 154 152 155 (set (reg:SI 3 v1)
+        (const_int 1)) 159 {movsi_internal2} (insn_list:REG_DEP_OUTPUT 141 (nil))
+    (expr_list:REG_EQUIV (const_int 1)
+        (nil)))
+
+(insn 155 154 157 (set (reg/v:SI 3 v1)
+        (ashift:SI (reg:SI 3 v1)
+            (reg:SI 6 a2))) 181 {ashlsi3} (insn_list:REG_DEP_OUTPUT 141 (insn_list 152 (insn_list 154 (nil))))
+    (expr_list:REG_DEAD (reg:SI 3 v1)
+        (expr_list:REG_DEAD (reg:SI 6 a2)
+            (nil))))
+
+(insn 157 155 250 (asm_input ("")) -1 (insn_list 154 (insn_list 155 (insn_list 149 (insn_list 152 (insn_list 141 (nil))))))
+    (nil))
+
+(insn 250 157 251 (set (reg:SI 5 a1)
+        (const_int 528482304)) 159 {movsi_internal2} (insn_list:REG_DEP_OUTPUT 157 (nil))
+    (nil))
+
+(insn 251 250 159 (set (reg:SI 5 a1)
+        (ior:SI (reg:SI 5 a1)
+            (const_int 4224))) 96 {iorsi3} (insn_list 250 (nil))
+    (expr_list:REG_EQUAL (const_int 528486528)
+        (nil)))
+
+(insn 159 251 163 (set (reg:SI 2 v0)
+        (ashift:SI (reg/v:SI 16 s0)
+            (const_int 4))) 181 {ashlsi3} (insn_list 157 (nil))
+    (expr_list:REG_DEAD (reg/v:SI 16 s0)
+        (nil)))
+
+(insn 163 159 166 (set (reg/v:SI 5 a1)
+        (plus:SI (reg:SI 2 v0)
+            (reg:SI 5 a1))) 3 {addsi3_internal} (insn_list 251 (insn_list:REG_DEP_OUTPUT 157 (insn_list 159 (nil))))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (expr_list:REG_DEAD (reg:SI 5 a1)
+            (nil))))
+
+(insn 166 163 181 (set (reg/v:SI 4 a0)
+        (mem:SI (symbol_ref:SI ("_dpcr")))) 159 {movsi_internal2} (insn_list:REG_DEP_ANTI 157 (nil))
+    (expr_list:REG_EQUIV (mem:SI (symbol_ref:SI ("_dpcr")))
+        (nil)))
+
+(insn 181 166 169 (set (reg:SI 2 v0)
+        (ashift:SI (reg/v:SI 19 s3)
+            (const_int 16))) 181 {ashlsi3} (insn_list:REG_DEP_OUTPUT 159 (insn_list:REG_DEP_ANTI 163 (insn_list 157 (nil))))
+    (expr_list:REG_DEAD (reg/v:SI 19 s3)
+        (nil)))
+
+(insn 169 181 182 (set (reg/v:SI 6 a2)
+        (mem/v:SI (reg/v:SI 4 a0))) 159 {movsi_internal2} (insn_list:REG_DEP_ANTI 157 (insn_list 166 (nil)))
+    (nil))
+
+(insn 182 169 171 (set (reg:SI 2 v0)
+        (ior:SI (reg:SI 2 v0)
+            (reg/v:SI 20 s4))) 96 {iorsi3} (insn_list 157 (insn_list 181 (nil)))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (expr_list:REG_DEAD (reg/v:SI 20 s4)
+            (nil))))
+
+(insn 171 182 173 (set (reg:SI 6 a2)
+        (ior:SI (reg/v:SI 6 a2)
+            (reg/v:SI 3 v1))) 96 {iorsi3} (insn_list 157 (insn_list 155 (insn_list 169 (nil))))
+    (expr_list:REG_DEAD (reg/v:SI 6 a2)
+        (expr_list:REG_DEAD (reg/v:SI 3 v1)
+            (nil))))
+
+(insn 173 171 177 (set (mem/v:SI (reg/v:SI 4 a0))
+        (reg:SI 6 a2)) 159 {movsi_internal2} (insn_list:REG_DEP_ANTI 157 (insn_list 166 (insn_list:REG_DEP_ANTI 169 (insn_list 171 (nil)))))
+    (expr_list:REG_DEAD (reg/v:SI 4 a0)
+        (expr_list:REG_DEAD (reg:SI 6 a2)
+            (nil))))
+
+(insn 177 173 178 (set (mem/v:SI (reg/v:SI 5 a1))
+        (reg/v:SI 18 s2)) 159 {movsi_internal2} (insn_list 157 (insn_list:REG_DEP_OUTPUT 173 (insn_list:REG_DEP_ANTI 166 (insn_list:REG_DEP_ANTI 169 (insn_list 163 (nil))))))
+    (expr_list:REG_DEAD (reg/v:SI 18 s2)
+        (nil)))
+
+(insn 178 177 184 (set (reg/v:SI 5 a1)
+        (plus:SI (reg/v:SI 5 a1)
+            (const_int 4))) 3 {addsi3_internal} (insn_list 163 (insn_list:REG_DEP_ANTI 177 (nil)))
+    (nil))
+
+(insn 184 178 233 (set (mem/v:SI (reg/v:SI 5 a1))
+        (reg:SI 2 v0)) 159 {movsi_internal2} (insn_list:REG_DEP_ANTI 157 (insn_list:REG_DEP_OUTPUT 173 (insn_list:REG_DEP_OUTPUT 177 (insn_list:REG_DEP_ANTI 166 (insn_list:REG_DEP_ANTI 169 (insn_list 178 (insn_list 182 (nil))))))))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(insn 233 184 234 (set (reg:SI 3 v1)
+        (mem:SI (symbol_ref:SI ("_cd_idx")))) 159 {movsi_internal2} (insn_list:REG_DEP_ANTI 171 (insn_list 173 (insn_list 177 (insn_list 184 (insn_list:REG_DEP_ANTI 157 (nil))))))
+    (nil))
+
+(insn 234 233 185 (set (reg:QI 2 v0)
+        (mem/v:QI (reg:SI 3 v1))) 166 {movqi_internal2} (insn_list:REG_DEP_ANTI 182 (insn_list 173 (insn_list 177 (insn_list 184 (insn_list:REG_DEP_ANTI 169 (insn_list:REG_DEP_ANTI 157 (insn_list 233 (nil))))))))
+    (nil))
+
+(insn 185 234 236 (set (reg/v:SI 5 a1)
+        (plus:SI (reg/v:SI 5 a1)
+            (const_int 4))) 3 {addsi3_internal} (insn_list 178 (insn_list:REG_DEP_ANTI 184 (nil)))
+    (nil))
+
+(insn 236 185 237 (set (reg:SI 2 v0)
+        (and:SI (subreg:SI (reg:QI 2 v0) 0)
+            (const_int 64))) 92 {andsi3} (insn_list:REG_DEP_OUTPUT 157 (insn_list 234 (nil)))
+    (expr_list:REG_DEAD (reg:QI 2 v0)
+        (nil)))
+
+(jump_insn 237 236 245 (set (pc)
+        (if_then_else (ne:SI (reg:SI 2 v0)
+                (const_int 0))
+            (label_ref 207)
+            (pc))) 221 {branch_zero} (insn_list:REG_DEP_ANTI 185 (insn_list 236 (nil)))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(insn 245 237 187 (set (reg/s:SI 3 v1)
+        (reg:SI 3 v1)) 159 {movsi_internal2} (nil)
+    (expr_list:REG_DEAD (reg:SI 3 v1)
+        (nil)))
+
+(note 187 245 200 "" NOTE_INSN_LOOP_BEG)
+
+(note 200 187 188 "" NOTE_INSN_LOOP_CONT)
+
+(code_label 188 200 240 80 "")
+
+(note 240 188 193 "" NOTE_INSN_LOOP_VTOP)
+
+(note 193 240 192 "" NOTE_INSN_DELETED)
+
+(insn 192 193 194 (set (reg/s:QI 2 v0)
+        (mem/v:QI (reg/s:SI 3 v1))) 166 {movqi_internal2} (nil)
+    (nil))
+
+(insn 194 192 196 (set (reg/s:SI 2 v0)
+        (and:SI (subreg:SI (reg/s:QI 2 v0) 0)
+            (const_int 64))) 92 {andsi3} (insn_list 192 (nil))
+    (expr_list:REG_DEAD (reg/s:QI 2 v0)
+        (nil)))
+
+(jump_insn 196 194 206 (set (pc)
+        (if_then_else (eq:SI (reg/s:SI 2 v0)
+                (const_int 0))
+            (label_ref 188)
+            (pc))) 221 {branch_zero} (insn_list 194 (nil))
+    (expr_list:REG_DEAD (reg/s:SI 2 v0)
+        (nil)))
+
+(note 206 196 207 "" NOTE_INSN_LOOP_END)
+
+(code_label 207 206 210 81 "")
+
+(insn:QI 210 207 212 (set (reg:SI 2 v0)
+        (mem/v:SI (plus:SI (reg:SI 29 sp)
+                (const_int 64)))) 159 {movsi_internal2} (nil)
+    (nil))
+
+(insn 212 210 215 (set (mem/v:SI (reg/v:SI 5 a1))
+        (reg:SI 2 v0)) 159 {movsi_internal2} (insn_list 210 (nil))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(insn 215 212 217 (set (reg:SI 2 v0)
+        (mem/v:SI (reg/v:SI 5 a1))) 159 {movsi_internal2} (insn_list 212 (insn_list:REG_DEP_ANTI 210 (nil)))
+    (expr_list:REG_DEAD (reg/v:SI 5 a1)
+        (nil)))
+
+(insn:QI 217 215 268 (set (mem/v:SI (plus:SI (reg:SI 29 sp)
+                (const_int 16)))
+        (reg:SI 2 v0)) 159 {movsi_internal2} (insn_list:REG_DEP_OUTPUT 212 (insn_list:REG_DEP_ANTI 210 (insn_list 215 (nil))))
+    (expr_list:REG_DEAD (reg:SI 2 v0)
+        (nil)))
+
+(note 268 217 249 "" NOTE_INSN_DELETED)
+
+(note 249 268 219 "" NOTE_INSN_DELETED)
+
+(note 219 249 221 "" NOTE_INSN_BLOCK_END)
+
+(note 221 219 252 "" NOTE_INSN_BLOCK_END)
+
+(note 252 221 0 "" NOTE_INSN_DELETED)

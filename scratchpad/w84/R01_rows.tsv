@@ -1,0 +1,4 @@
+function	class	repr_region	region_va	words	unit	candidate
+MenuExtended_AwardPinkSlipsCar__FR12tMenuCommand	CHANGED	USA	8002DF34	173	frontend/common/femenudefs	regiondiff/recon/NFS4-R-USA/frontend/common/femenudefs.cpp
+MenuExtended_LoadGame__FR12tMenuCommand	CHANGED	USA	8002D950	54	frontend/common/femenudefs	regiondiff/recon/NFS4-R-USA/frontend/common/femenudefs.cpp
+__15tGlobalMenuDefs	CHANGED	USA	8002E504	3207	frontend/common/femenudefs	regiondiff/recon/NFS4-R-USA/frontend/common/femenudefs.cpp

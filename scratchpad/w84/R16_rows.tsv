@@ -1,0 +1,15 @@
+function	class	repr_region	region_va	words	unit	candidate
+CarIO_ReadInCarTextureData__FPcP8Car_tObjii	CHANGED	JPN	800BD2A0	494	game/psx/cario	regiondiff/recon/NFS4-R-JPN/game/psx/cario.cpp
+CarIO_UpdateCarTextureData__FPcP8Car_tObji	CHANGED	JPN	800BDA58	304	game/psx/cario	regiondiff/recon/NFS4-R-JPN/game/psx/cario.cpp
+CalculateDimensions__11tDialogHelp	CHANGED	JPN	80018B18	350	frontend/common/fedialog	regiondiff/recon/NFS4-R-JPN/frontend/common/fedialog.cpp
+Draw__11tDialogHelp	CHANGED	JPN	80019090	139	frontend/common/fedialog	regiondiff/recon/NFS4-R-JPN/frontend/common/fedialog.cpp
+Track_DeInit__Fv	CHANGED	USA	800BBA40	55	game/common/track	regiondiff/recon/NFS4-R-USA/game/common/track.cpp
+Track_Init__FPc	CHANGED	USA	800BB5B4	291	game/common/track	regiondiff/recon/NFS4-R-USA/game/common/track.cpp
+Draw_MenuRenderingView__FP8Car_tObjP13DRender_tViewiiiUliffii	CHANGED	AU	80012BC0	235	game/psx/fe3dmenu	regiondiff/recon/NFS4-R-AU/game/psx/fe3dmenu.cpp
+Car_DoPostCollisionStuff__FP8Car_tObj	CHANGED	USA	8008A300	180	game/common/cars	regiondiff/recon/NFS4-R-USA/game/common/cars.cpp
+iSNDdmtransfer	CHANGED	USA	8010B4BC	129	eaclib/psx/sndpsxz/sdma	regiondiff/recon/NFS4-R-USA/eaclib/psx/sndpsxz/sdma.c
+Initialize__14tScreenMemcard	CHANGED	AU	80048088	107	frontend/common/screenmemcard	regiondiff/recon/NFS4-R-AU/frontend/common/screenmemcard.cpp
+Init__14tCreditManageri	CHANGED	AU	80035CC0	54	frontend/common/fecredits	regiondiff/recon/NFS4-R-AU/frontend/common/fecredits.cpp
+func_8004DD24	REGION-ONLY	FR-DE	8004DD24	37	regiononly/func_8004DD24	regiondiff/recon/NFS4-R-FR-DE/regiononly/func_8004DD24.cpp
+func_800A7844	REGION-ONLY	USA	800A7844	8	regiononly/func_800A7844	regiondiff/recon/NFS4-R-USA/regiononly/func_800A7844.cpp
+func_800DCC98	REGION-ONLY	JPN	800DCC98	2	regiononly/func_800DCC98	regiondiff/recon/NFS4-R-JPN/regiononly/func_800DCC98.cpp

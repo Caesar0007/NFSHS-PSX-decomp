@@ -1,0 +1,550 @@
+       0 800E50A8 | sw a1,4(sp)                                  | sw a1,4(sp)
+       1 800E50AC | sw a2,8(sp)                                  | sw a2,8(sp)
+       2 800E50B0 | sw a3,12(sp)                                 | sw a3,12(sp)
+       3 800E50B4 | addiu sp,sp,-592                             | addiu sp,sp,-592
+       4 800E50B8 | sw s4,568(sp)                                | sw s4,568(sp)
+       5 800E50BC | addu s4,a0,zero                              | addu s4,a0,zero
+       6 800E50C0 | addiu v0,sp,600                              | addiu v0,sp,600
+       7 800E50C4 | sw ra,584(sp)                                | sw ra,584(sp)
+       8 800E50C8 | sw s7,580(sp)                                | sw s7,580(sp)
+       9 800E50CC | sw s6,576(sp)                                | sw s6,576(sp)
+      10 800E50D0 | sw s5,572(sp)                                | sw s5,572(sp)
+      11 800E50D4 | sw s3,564(sp)                                | sw s3,564(sp)
+      12 800E50D8 | sw s2,560(sp)                                | sw s2,560(sp)
+      13 800E50DC | sw s1,556(sp)                                | sw s1,556(sp)
+      14 800E50E0 | sw s0,552(sp)                                | sw s0,552(sp)
+      15 800E50E4 | sw a1,596(sp)                                | sw a1,596(sp)
+      16 800E50E8 | sw v0,544(sp)                                | sw v0,544(sp)
+      17 800E50EC | lb a1,0(a1)                                  | lb a1,0(a1)
+      18 800E50F0 | nop                                          | nop
+      19 800E50F4 | beqz a1,T                                    | beqz a1,T
+      20 800E50F8 | addu s2,zero,zero                            | addu s2,zero,zero
+      21 800E50FC | li s7,45                                     | li s7,45
+      22 800E5100 | li s6,43                                     | li s6,43
+      23 800E5104 | li s5,32                                     | li s5,32
+      24 800E5108 | li s3,48                                     | li s3,48
+      25 800E510C | li v0,37                                     | li v0,37
+      26 800E5110 | bne a1,v0,T                                  | bne a1,v0,T
+      27 800E5114 | addu v0,s4,s2                                | addu v0,s4,s2
+      28 800E5118 | lui a1,0                                     | lui a1,32786
+      29 800E511C | addiu a1,a1,0                                | addiu a1,a1,18300
+      30 800E5120 | lw v0,0(a1)                                  | lw v0,0(a1)
+      31 800E5124 | lw v1,4(a1)                                  | lw v1,4(a1)
+      32 800E5128 | lw a0,8(a1)                                  | lw a0,8(a1)
+      33 800E512C | sw v0,528(sp)                                | sw v0,528(sp)
+      34 800E5130 | sw v1,532(sp)                                | sw v1,532(sp)
+      35 800E5134 | sw a0,536(sp)                                | sw a0,536(sp)
+      36 800E5138 | li v1,35                                     | li v1,35
+      37 800E513C | lw a2,596(sp)                                | lw a2,596(sp)
+      38 800E5140 | nop                                          | nop
+      39 800E5144 | addiu v0,a2,1                                | addiu v0,a2,1
+      40 800E5148 | sw v0,596(sp)                                | sw v0,596(sp)
+      41 800E514C | lb a1,1(a2)                                  | lb a1,1(a2)
+      42 800E5150 | nop                                          | nop
+      43 800E5154 | bne a1,s7,T                                  | bne a1,s7,T
+      44 800E5158 | nop                                          | nop
+      45 800E515C | lw v0,528(sp)                                | lw v0,528(sp)
+      46 800E5160 | nop                                          | nop
+      47 800E5164 | ori v0,v0,1                                  | ori v0,v0,1
+      48 800E5168 | j T                                          | j T
+      49 800E516C | sw v0,528(sp)                                | sw v0,528(sp)
+      50 800E5170 | bne a1,s6,T                                  | bne a1,s6,T
+      51 800E5174 | nop                                          | nop
+      52 800E5178 | lw v0,528(sp)                                | lw v0,528(sp)
+      53 800E517C | nop                                          | nop
+      54 800E5180 | ori v0,v0,2                                  | ori v0,v0,2
+      55 800E5184 | j T                                          | j T
+      56 800E5188 | sw v0,528(sp)                                | sw v0,528(sp)
+      57 800E518C | bne a1,s5,T                                  | bne a1,s5,T
+      58 800E5190 | nop                                          | nop
+      59 800E5194 | j T                                          | j T
+      60 800E5198 | sb a1,529(sp)                                | sb a1,529(sp)
+      61 800E519C | bne a1,v1,T                                  | bne a1,v1,T
+      62 800E51A0 | nop                                          | nop
+      63 800E51A4 | lw v0,528(sp)                                | lw v0,528(sp)
+      64 800E51A8 | nop                                          | nop
+      65 800E51AC | ori v0,v0,4                                  | ori v0,v0,4
+      66 800E51B0 | j T                                          | j T
+      67 800E51B4 | sw v0,528(sp)                                | sw v0,528(sp)
+      68 800E51B8 | bne a1,s3,T                                  | bne a1,s3,T
+      69 800E51BC | li v0,42                                     | li v0,42
+      70 800E51C0 | lw v0,528(sp)                                | lw v0,528(sp)
+      71 800E51C4 | nop                                          | nop
+      72 800E51C8 | ori v0,v0,8                                  | ori v0,v0,8
+      73 800E51CC | j T                                          | j T
+      74 800E51D0 | sw v0,528(sp)                                | sw v0,528(sp)
+      75 800E51D4 | bne a1,v0,T                                  | bne a1,v0,T
+      76 800E51D8 | addiu v0,a1,-48                              | addiu v0,a1,-48
+      77 800E51DC | lw v0,544(sp)                                | lw v0,544(sp)
+      78 800E51E0 | nop                                          | nop
+      79 800E51E4 | lw a0,0(v0)                                  | lw a0,0(v0)
+      80 800E51E8 | addiu v0,v0,4                                | addiu v0,v0,4
+      81 800E51EC | sw v0,544(sp)                                | sw v0,544(sp)
+      82 800E51F0 | bgez a0,T                                    | bgez a0,T
+      83 800E51F4 | sw a0,532(sp)                                | sw a0,532(sp)
+      84 800E51F8 | lw v1,528(sp)                                | lw v1,528(sp)
+      85 800E51FC | negu v0,a0                                   | negu v0,a0
+      86 800E5200 | sw v0,532(sp)                                | sw v0,532(sp)
+      87 800E5204 | ori v1,v1,1                                  | ori v1,v1,1
+      88 800E5208 | sw v1,528(sp)                                | sw v1,528(sp)
+      89 800E520C | addiu v0,a2,2                                | addiu v0,a2,2
+      90 800E5210 | sw v0,596(sp)                                | sw v0,596(sp)
+      91 800E5214 | lb a1,2(a2)                                  | lb a1,2(a2)
+      92 800E5218 | j T                                          | j T
+      93 800E521C | li v0,46                                     | li v0,46
+      94 800E5220 | lw v1,532(sp)                                | lw v1,532(sp)
+      95 800E5224 | nop                                          | nop
+      96 800E5228 | sll v0,v1,2                                  | sll v0,v1,2
+      97 800E522C | addu v0,v0,v1                                | addu v0,v0,v1
+      98 800E5230 | sll v0,v0,1                                  | sll v0,v0,1
+      99 800E5234 | addiu v0,v0,-48                              | addiu v0,v0,-48
+     100 800E5238 | addu v0,v0,a1                                | addu v0,v0,a1
+     101 800E523C | sw v0,532(sp)                                | sw v0,532(sp)
+     102 800E5240 | lw v1,596(sp)                                | lw v1,596(sp)
+     103 800E5244 | nop                                          | nop
+     104 800E5248 | addiu v0,v1,1                                | addiu v0,v1,1
+     105 800E524C | sw v0,596(sp)                                | sw v0,596(sp)
+     106 800E5250 | lb a1,1(v1)                                  | lb a1,1(v1)
+     107 800E5254 | nop                                          | nop
+     108 800E5258 | addiu v0,a1,-48                              | addiu v0,a1,-48
+     109 800E525C | sltiu v0,v0,10                               | sltiu v0,v0,10
+     110 800E5260 | bnez v0,T                                    | bnez v0,T
+     111 800E5264 | li v0,46                                     | li v0,46
+     112 800E5268 | bne a1,v0,T                                  | bne a1,v0,T
+     113 800E526C | nop                                          | nop
+     114 800E5270 | lw a0,596(sp)                                | lw a0,596(sp)
+     115 800E5274 | nop                                          | nop
+     116 800E5278 | addiu v0,a0,1                                | addiu v0,a0,1
+     117 800E527C | sw v0,596(sp)                                | sw v0,596(sp)
+     118 800E5280 | lb a1,1(a0)                                  | lb a1,1(a0)
+     119 800E5284 | li v0,42                                     | li v0,42
+     120 800E5288 | bne a1,v0,T                                  | bne a1,v0,T
+     121 800E528C | addiu v0,a1,-48                              | addiu v0,a1,-48
+     122 800E5290 | lw v0,544(sp)                                | lw v0,544(sp)
+     123 800E5294 | nop                                          | nop
+     124 800E5298 | lw v1,0(v0)                                  | lw v1,0(v0)
+     125 800E529C | addiu v0,v0,4                                | addiu v0,v0,4
+     126 800E52A0 | sw v0,544(sp)                                | sw v0,544(sp)
+     127 800E52A4 | addiu v0,a0,2                                | addiu v0,a0,2
+     128 800E52A8 | sw v1,536(sp)                                | sw v1,536(sp)
+     129 800E52AC | sw v0,596(sp)                                | sw v0,596(sp)
+     130 800E52B0 | lb a1,2(a0)                                  | lb a1,2(a0)
+     131 800E52B4 | j T                                          | j T
+     132 800E52B8 | nop                                          | nop
+     133 800E52BC | lw v1,536(sp)                                | lw v1,536(sp)
+     134 800E52C0 | nop                                          | nop
+     135 800E52C4 | sll v0,v1,2                                  | sll v0,v1,2
+     136 800E52C8 | addu v0,v0,v1                                | addu v0,v0,v1
+     137 800E52CC | sll v0,v0,1                                  | sll v0,v0,1
+     138 800E52D0 | addiu v0,v0,-48                              | addiu v0,v0,-48
+     139 800E52D4 | addu v0,v0,a1                                | addu v0,v0,a1
+     140 800E52D8 | sw v0,536(sp)                                | sw v0,536(sp)
+     141 800E52DC | lw v1,596(sp)                                | lw v1,596(sp)
+     142 800E52E0 | nop                                          | nop
+     143 800E52E4 | addiu v0,v1,1                                | addiu v0,v1,1
+     144 800E52E8 | sw v0,596(sp)                                | sw v0,596(sp)
+     145 800E52EC | lb a1,1(v1)                                  | lb a1,1(v1)
+     146 800E52F0 | nop                                          | nop
+     147 800E52F4 | addiu v0,a1,-48                              | addiu v0,a1,-48
+     148 800E52F8 | sltiu v0,v0,10                               | sltiu v0,v0,10
+     149 800E52FC | bnez v0,T                                    | bnez v0,T
+     150 800E5300 | nop                                          | nop
+     151 800E5304 | lw v0,536(sp)                                | lw v0,536(sp)
+     152 800E5308 | nop                                          | nop
+     153 800E530C | bltz v0,T                                    | bltz v0,T
+     154 800E5310 | nop                                          | nop
+     155 800E5314 | lw v0,528(sp)                                | lw v0,528(sp)
+     156 800E5318 | nop                                          | nop
+     157 800E531C | ori v0,v0,16                                 | ori v0,v0,16
+     158 800E5320 | sw v0,528(sp)                                | sw v0,528(sp)
+     159 800E5324 | lw v1,528(sp)                                | lw v1,528(sp)
+     160 800E5328 | nop                                          | nop
+     161 800E532C | andi v0,v1,1                                 | andi v0,v1,1
+     162 800E5330 | beqz v0,T                                    | beqz v0,T
+     163 800E5334 | addiu s1,sp,528                              | addiu s1,sp,528
+     164 800E5338 | li v0,-9                                     | li v0,-9
+     165 800E533C | and v0,v1,v0                                 | and v0,v1,v0
+     166 800E5340 | sw v0,528(sp)                                | sw v0,528(sp)
+     167 800E5344 | addiu v1,a1,-76                              | addiu v1,a1,-76
+     168 800E5348 | sltiu v0,v1,45                               | sltiu v0,v1,45
+     169 800E534C | beqz v0,T                                    | beqz v0,T
+     170 800E5350 | sll v0,v1,2                                  | sll v0,v1,2
+     171 800E5354 | lui at,0                                     | lui at,0
+     172 800E5358 | addu at,at,v0                                | addu at,at,v0
+     173 800E535C | lw v0,40(at)                                 | lw v0,0(at)
+     174 800E5360 | nop                                          | nop
+     175 800E5364 | jr v0                                        | jr v0
+     176 800E5368 | nop                                          | nop
+     177 800E536C | lw v0,528(sp)                                | lw v0,528(sp)
+     178 800E5370 | j T                                          | j T
+     179 800E5374 | ori v0,v0,32                                 | ori v0,v0,32
+     180 800E5378 | lw v0,528(sp)                                | lw v0,528(sp)
+     181 800E537C | j T                                          | j T
+     182 800E5380 | ori v0,v0,64                                 | ori v0,v0,64
+     183 800E5384 | lw v0,528(sp)                                | lw v0,528(sp)
+     184 800E5388 | nop                                          | nop
+     185 800E538C | ori v0,v0,128                                | ori v0,v0,128
+     186 800E5390 | sw v0,528(sp)                                | sw v0,528(sp)
+     187 800E5394 | lw v1,596(sp)                                | lw v1,596(sp)
+     188 800E5398 | nop                                          | nop
+     189 800E539C | addiu v0,v1,1                                | addiu v0,v1,1
+     190 800E53A0 | sw v0,596(sp)                                | sw v0,596(sp)
+     191 800E53A4 | lb a1,1(v1)                                  | lb a1,1(v1)
+     192 800E53A8 | j T                                          | j T
+     193 800E53AC | addiu v1,a1,-76                              | addiu v1,a1,-76
+     194 800E53B0 | lw v0,544(sp)                                | lw v0,544(sp)
+     195 800E53B4 | nop                                          | nop
+     196 800E53B8 | lw a0,0(v0)                                  | lw a0,0(v0)
+     197 800E53BC | addiu v0,v0,4                                | addiu v0,v0,4
+     198 800E53C0 | sw v0,544(sp)                                | sw v0,544(sp)
+     199 800E53C4 | lw v1,528(sp)                                | lw v1,528(sp)
+     200 800E53C8 | nop                                          | nop
+     201 800E53CC | srl v0,v1,5                                  | srl v0,v1,5
+     202 800E53D0 | andi v0,v0,1                                 | andi v0,v0,1
+     203 800E53D4 | beqz v0,T                                    | beqz v0,T
+     204 800E53D8 | sll v0,a0,16                                 | sll v0,a0,16
+     205 800E53DC | sra a0,v0,16                                 | sra a0,v0,16
+     206 800E53E0 | bgez a0,T                                    | bgez a0,T
+     207 800E53E4 | srl v0,v1,1                                  | srl v0,v1,1
+     208 800E53E8 | negu a0,a0                                   | negu a0,a0
+     209 800E53EC | j T                                          | j T
+     210 800E53F0 | sb s7,529(sp)                                | sb s7,529(sp)
+     211 800E53F4 | andi v0,v0,1                                 | andi v0,v0,1
+     212 800E53F8 | beqz v0,T                                    | beqz v0,T
+     213 800E53FC | nop                                          | nop
+     214 800E5400 | j T                                          | j T
+     215 800E5404 | sb s6,529(sp)                                | sb s6,529(sp)
+     216 800E5408 | lw v0,544(sp)                                | lw v0,544(sp)
+     217 800E540C | nop                                          | nop
+     218 800E5410 | lw a0,0(v0)                                  | lw a0,0(v0)
+     219 800E5414 | addiu v0,v0,4                                | addiu v0,v0,4
+     220 800E5418 | sw v0,544(sp)                                | sw v0,544(sp)
+     221 800E541C | lw v0,528(sp)                                | lw v0,528(sp)
+     222 800E5420 | nop                                          | nop
+     223 800E5424 | srl v0,v0,5                                  | srl v0,v0,5
+     224 800E5428 | andi v0,v0,1                                 | andi v0,v0,1
+     225 800E542C | beqz v0,T                                    | beqz v0,T
+     226 800E5430 | nop                                          | nop
+     227 800E5434 | andi a0,a0,65535                             | andi a0,a0,65535
+     228 800E5438 | sb zero,529(sp)                              | sb zero,529(sp)
+     229 800E543C | lw v1,528(sp)                                | lw v1,528(sp)
+     230 800E5440 | nop                                          | nop
+     231 800E5444 | srl v0,v1,4                                  | srl v0,v1,4
+     232 800E5448 | andi v0,v0,1                                 | andi v0,v0,1
+     233 800E544C | bnez v0,T                                    | bnez v0,T
+     234 800E5450 | srl v0,v1,3                                  | srl v0,v1,3
+     235 800E5454 | andi v0,v0,1                                 | andi v0,v0,1
+     236 800E5458 | beqz v0,T                                    | beqz v0,T
+     237 800E545C | nop                                          | nop
+     238 800E5460 | lw v1,532(sp)                                | lw v1,532(sp)
+     239 800E5464 | lb v0,529(sp)                                | lb v0,529(sp)
+     240 800E5468 | nop                                          | nop
+     241 800E546C | beqz v0,T                                    | beqz v0,T
+     242 800E5470 | sw v1,536(sp)                                | sw v1,536(sp)
+     243 800E5474 | addiu v0,v1,-1                               | addiu v0,v1,-1
+     244 800E5478 | sw v0,536(sp)                                | sw v0,536(sp)
+     245 800E547C | lw v0,536(sp)                                | lw v0,536(sp)
+     246 800E5480 | nop                                          | nop
+     247 800E5484 | bgtz v0,T                                    | bgtz v0,T
+     248 800E5488 | li v0,1                                      | li v0,1
+     249 800E548C | sw v0,536(sp)                                | sw v0,536(sp)
+     250 800E5490 | beqz a0,T                                    | beqz a0,T
+     251 800E5494 | addu s0,zero,zero                            | addu s0,zero,zero
+     252 800E5498 | lui a1,52428                                 | lui a1,52428
+     253 800E549C | ori a1,a1,52429                              | ori a1,a1,52429
+     254 800E54A0 | multu a0,a1                                  | multu a0,a1
+     255 800E54A4 | addiu s1,s1,-1                               | addiu s1,s1,-1
+     256 800E54A8 | addiu s0,s0,1                                | addiu s0,s0,1
+     257 800E54AC | mfhi t0                                      | mfhi t0
+     258 800E54B0 | srl v1,t0,3                                  | srl v1,t0,3
+     259 800E54B4 | sll v0,v1,2                                  | sll v0,v1,2
+     260 800E54B8 | addu v0,v0,v1                                | addu v0,v0,v1
+     261 800E54BC | sll v0,v0,1                                  | sll v0,v0,1
+     262 800E54C0 | subu v0,a0,v0                                | subu v0,a0,v0
+     263 800E54C4 | addiu v0,v0,48                               | addiu v0,v0,48
+     264 800E54C8 | addu a0,v1,zero                              | addu a0,v1,zero
+     265 800E54CC | bnez a0,T                                    | bnez a0,T
+     266 800E54D0 | sb v0,0(s1)                                  | sb v0,0(s1)
+     267 800E54D4 | lw v0,536(sp)                                | lw v0,536(sp)
+     268 800E54D8 | nop                                          | nop
+     269 800E54DC | slt v0,s0,v0                                 | slt v0,s0,v0
+     270 800E54E0 | beqz v0,T                                    | beqz v0,T
+     271 800E54E4 | nop                                          | nop
+     272 800E54E8 | addiu s1,s1,-1                               | addiu s1,s1,-1
+     273 800E54EC | sb s3,0(s1)                                  | sb s3,0(s1)
+     274 800E54F0 | lw v0,536(sp)                                | lw v0,536(sp)
+     275 800E54F4 | addiu s0,s0,1                                | addiu s0,s0,1
+     276 800E54F8 | slt v0,s0,v0                                 | slt v0,s0,v0
+     277 800E54FC | bnez v0,T                                    | bnez v0,T
+     278 800E5500 | addiu s1,s1,-1                               | addiu s1,s1,-1
+     279 800E5504 | addiu s1,s1,1                                | addiu s1,s1,1
+     280 800E5508 | lb v0,529(sp)                                | lb v0,529(sp)
+     281 800E550C | lbu v1,529(sp)                               | lbu v1,529(sp)
+     282 800E5510 | beqz v0,T                                    | beqz v0,T
+     283 800E5514 | nop                                          | nop
+     284 800E5518 | addiu s1,s1,-1                               | addiu s1,s1,-1
+     285 800E551C | sb v1,0(s1)                                  | sb v1,0(s1)
+     286 800E5520 | j T                                          | j T
+     287 800E5524 | addiu s0,s0,1                                | addiu s0,s0,1
+     288 800E5528 | lw v0,544(sp)                                | lw v0,544(sp)
+     289 800E552C | nop                                          | nop
+     290 800E5530 | lw a0,0(v0)                                  | lw a0,0(v0)
+     291 800E5534 | addiu v0,v0,4                                | addiu v0,v0,4
+     292 800E5538 | sw v0,544(sp)                                | sw v0,544(sp)
+     293 800E553C | lw v1,528(sp)                                | lw v1,528(sp)
+     294 800E5540 | nop                                          | nop
+     295 800E5544 | srl v0,v1,5                                  | srl v0,v1,5
+     296 800E5548 | andi v0,v0,1                                 | andi v0,v0,1
+     297 800E554C | beqz v0,T                                    | beqz v0,T
+     298 800E5550 | srl v0,v1,4                                  | srl v0,v1,4
+     299 800E5554 | andi a0,a0,65535                             | andi a0,a0,65535
+     300 800E5558 | andi v0,v0,1                                 | andi v0,v0,1
+     301 800E555C | bnez v0,T                                    | bnez v0,T
+     302 800E5560 | srl v0,v1,3                                  | srl v0,v1,3
+     303 800E5564 | andi v0,v0,1                                 | andi v0,v0,1
+     304 800E5568 | beqz v0,T                                    | beqz v0,T
+     305 800E556C | nop                                          | nop
+     306 800E5570 | lw v0,532(sp)                                | lw v0,532(sp)
+     307 800E5574 | nop                                          | nop
+     308 800E5578 | sw v0,536(sp)                                | sw v0,536(sp)
+     309 800E557C | lw v0,536(sp)                                | lw v0,536(sp)
+     310 800E5580 | nop                                          | nop
+     311 800E5584 | bgtz v0,T                                    | bgtz v0,T
+     312 800E5588 | li v0,1                                      | li v0,1
+     313 800E558C | sw v0,536(sp)                                | sw v0,536(sp)
+     314 800E5590 | beqz a0,T                                    | beqz a0,T
+     315 800E5594 | addu s0,zero,zero                            | addu s0,zero,zero
+     316 800E5598 | addiu s1,s1,-1                               | addiu s1,s1,-1
+     317 800E559C | andi v0,a0,7                                 | andi v0,a0,7
+     318 800E55A0 | addiu v0,v0,48                               | addiu v0,v0,48
+     319 800E55A4 | sb v0,0(s1)                                  | sb v0,0(s1)
+     320 800E55A8 | srl a0,a0,3                                  | srl a0,a0,3
+     321 800E55AC | bnez a0,T                                    | bnez a0,T
+     322 800E55B0 | addiu s0,s0,1                                | addiu s0,s0,1
+     323 800E55B4 | lw v0,528(sp)                                | lw v0,528(sp)
+     324 800E55B8 | nop                                          | nop
+     325 800E55BC | srl v0,v0,2                                  | srl v0,v0,2
+     326 800E55C0 | andi v0,v0,1                                 | andi v0,v0,1
+     327 800E55C4 | beqz v0,T                                    | beqz v0,T
+     328 800E55C8 | nop                                          | nop
+     329 800E55CC | beqz s0,T                                    | beqz s0,T
+     330 800E55D0 | nop                                          | nop
+     331 800E55D4 | lb v0,0(s1)                                  | lb v0,0(s1)
+     332 800E55D8 | nop                                          | nop
+     333 800E55DC | beq v0,s3,T                                  | beq v0,s3,T
+     334 800E55E0 | nop                                          | nop
+     335 800E55E4 | addiu s1,s1,-1                               | addiu s1,s1,-1
+     336 800E55E8 | sb s3,0(s1)                                  | sb s3,0(s1)
+     337 800E55EC | addiu s0,s0,1                                | addiu s0,s0,1
+     338 800E55F0 | lw v0,536(sp)                                | lw v0,536(sp)
+     339 800E55F4 | nop                                          | nop
+     340 800E55F8 | slt v0,s0,v0                                 | slt v0,s0,v0
+     341 800E55FC | beqz v0,T                                    | beqz v0,T
+     342 800E5600 | nop                                          | nop
+     343 800E5604 | addiu s1,s1,-1                               | addiu s1,s1,-1
+     344 800E5608 | sb s3,0(s1)                                  | sb s3,0(s1)
+     345 800E560C | lw v0,536(sp)                                | lw v0,536(sp)
+     346 800E5610 | addiu s0,s0,1                                | addiu s0,s0,1
+     347 800E5614 | slt v0,s0,v0                                 | slt v0,s0,v0
+     348 800E5618 | bnez v0,T                                    | bnez v0,T
+     349 800E561C | addiu s1,s1,-1                               | addiu s1,s1,-1
+     350 800E5620 | j T                                          | j T
+     351 800E5624 | addiu s1,s1,1                                | addiu s1,s1,1
+     352 800E5628 | lw v1,528(sp)                                | lw v1,528(sp)
+     353 800E562C | li v0,8                                      | li v0,8
+     354 800E5630 | sw v0,536(sp)                                | sw v0,536(sp)
+     355 800E5634 | ori v1,v1,80                                 | ori v1,v1,80
+     356 800E5638 | sw v1,528(sp)                                | sw v1,528(sp)
+     357 800E563C | lui a3,0                                     | lui a3,32773
+     358 800E5640 | j T                                          | j T
+     359 800E5644 | addiu a3,a3,0                                | addiu a3,a3,29404
+     360 800E5648 | lui a3,0                                     | lui a3,32773
+     361 800E564C | addiu a3,a3,20                               | addiu a3,a3,29424
+     362 800E5650 | lw v0,544(sp)                                | lw v0,544(sp)
+     363 800E5654 | nop                                          | nop
+     364 800E5658 | lw a0,0(v0)                                  | lw a0,0(v0)
+     365 800E565C | addiu v0,v0,4                                | addiu v0,v0,4
+     366 800E5660 | sw v0,544(sp)                                | sw v0,544(sp)
+     367 800E5664 | lw v1,528(sp)                                | lw v1,528(sp)
+     368 800E5668 | nop                                          | nop
+     369 800E566C | srl v0,v1,5                                  | srl v0,v1,5
+     370 800E5670 | andi v0,v0,1                                 | andi v0,v0,1
+     371 800E5674 | beqz v0,T                                    | beqz v0,T
+     372 800E5678 | srl v0,v1,4                                  | srl v0,v1,4
+     373 800E567C | andi a0,a0,65535                             | andi a0,a0,65535
+     374 800E5680 | andi v0,v0,1                                 | andi v0,v0,1
+     375 800E5684 | bnez v0,T                                    | bnez v0,T
+     376 800E5688 | srl v0,v1,3                                  | srl v0,v1,3
+     377 800E568C | andi v0,v0,1                                 | andi v0,v0,1
+     378 800E5690 | beqz v0,T                                    | beqz v0,T
+     379 800E5694 | srl v0,v1,2                                  | srl v0,v1,2
+     380 800E5698 | lw a2,532(sp)                                | lw a2,532(sp)
+     381 800E569C | andi v0,v0,1                                 | andi v0,v0,1
+     382 800E56A0 | beqz v0,T                                    | beqz v0,T
+     383 800E56A4 | sw a2,536(sp)                                | sw a2,536(sp)
+     384 800E56A8 | addiu v0,a2,-2                               | addiu v0,a2,-2
+     385 800E56AC | sw v0,536(sp)                                | sw v0,536(sp)
+     386 800E56B0 | lw v0,536(sp)                                | lw v0,536(sp)
+     387 800E56B4 | nop                                          | nop
+     388 800E56B8 | bgtz v0,T                                    | bgtz v0,T
+     389 800E56BC | li v0,1                                      | li v0,1
+     390 800E56C0 | sw v0,536(sp)                                | sw v0,536(sp)
+     391 800E56C4 | beqz a0,T                                    | beqz a0,T
+     392 800E56C8 | addu s0,zero,zero                            | addu s0,zero,zero
+     393 800E56CC | addiu s1,s1,-1                               | addiu s1,s1,-1
+     394 800E56D0 | andi v0,a0,15                                | andi v0,a0,15
+     395 800E56D4 | srl a0,a0,4                                  | srl a0,a0,4
+     396 800E56D8 | addu v0,a3,v0                                | addu v0,a3,v0
+     397 800E56DC | lbu v0,0(v0)                                 | lbu v0,0(v0)
+     398 800E56E0 | addiu s0,s0,1                                | addiu s0,s0,1
+     399 800E56E4 | bnez a0,T                                    | bnez a0,T
+     400 800E56E8 | sb v0,0(s1)                                  | sb v0,0(s1)
+     401 800E56EC | lw v0,536(sp)                                | lw v0,536(sp)
+     402 800E56F0 | nop                                          | nop
+     403 800E56F4 | slt v0,s0,v0                                 | slt v0,s0,v0
+     404 800E56F8 | beqz v0,T                                    | beqz v0,T
+     405 800E56FC | nop                                          | nop
+     406 800E5700 | addiu s1,s1,-1                               | addiu s1,s1,-1
+     407 800E5704 | sb s3,0(s1)                                  | sb s3,0(s1)
+     408 800E5708 | lw v0,536(sp)                                | lw v0,536(sp)
+     409 800E570C | addiu s0,s0,1                                | addiu s0,s0,1
+     410 800E5710 | slt v0,s0,v0                                 | slt v0,s0,v0
+     411 800E5714 | bnez v0,T                                    | bnez v0,T
+     412 800E5718 | addiu s1,s1,-1                               | addiu s1,s1,-1
+     413 800E571C | addiu s1,s1,1                                | addiu s1,s1,1
+     414 800E5720 | lw v0,528(sp)                                | lw v0,528(sp)
+     415 800E5724 | nop                                          | nop
+     416 800E5728 | srl v0,v0,2                                  | srl v0,v0,2
+     417 800E572C | andi v0,v0,1                                 | andi v0,v0,1
+     418 800E5730 | beqz v0,T                                    | beqz v0,T
+     419 800E5734 | nop                                          | nop
+     420 800E5738 | addiu s1,s1,-1                               | addiu s1,s1,-1
+     421 800E573C | sb a1,0(s1)                                  | sb a1,0(s1)
+     422 800E5740 | addiu s1,s1,-1                               | addiu s1,s1,-1
+     423 800E5744 | addiu s0,s0,2                                | addiu s0,s0,2
+     424 800E5748 | j T                                          | j T
+     425 800E574C | sb s3,0(s1)                                  | sb s3,0(s1)
+     426 800E5750 | addiu s1,s1,-1                               | addiu s1,s1,-1
+     427 800E5754 | lw v0,544(sp)                                | lw v0,544(sp)
+     428 800E5758 | li s0,1                                      | li s0,1
+     429 800E575C | lbu v1,0(v0)                                 | lbu v1,0(v0)
+     430 800E5760 | addiu v0,v0,4                                | addiu v0,v0,4
+     431 800E5764 | sb v1,0(s1)                                  | sb v1,0(s1)
+     432 800E5768 | j T                                          | j T
+     433 800E576C | sw v0,544(sp)                                | sw v0,544(sp)
+     434 800E5770 | lw v0,544(sp)                                | lw v0,544(sp)
+     435 800E5774 | lw v1,528(sp)                                | lw v1,528(sp)
+     436 800E5778 | lw s1,0(v0)                                  | lw s1,0(v0)
+     437 800E577C | addiu v0,v0,4                                | addiu v0,v0,4
+     438 800E5780 | sw v0,544(sp)                                | sw v0,544(sp)
+     439 800E5784 | srl v0,v1,2                                  | srl v0,v1,2
+     440 800E5788 | andi v0,v0,1                                 | andi v0,v0,1
+     441 800E578C | beqz v0,T                                    | beqz v0,T
+     442 800E5790 | srl v0,v1,4                                  | srl v0,v1,4
+     443 800E5794 | lbu s0,0(s1)                                 | lbu s0,0(s1)
+     444 800E5798 | andi v0,v0,1                                 | andi v0,v0,1
+     445 800E579C | beqz v0,T                                    | beqz v0,T
+     446 800E57A0 | addiu s1,s1,1                                | addiu s1,s1,1
+     447 800E57A4 | lw v1,536(sp)                                | lw v1,536(sp)
+     448 800E57A8 | nop                                          | nop
+     449 800E57AC | slt v0,v1,s0                                 | slt v0,v1,s0
+     450 800E57B0 | beqz v0,T                                    | beqz v0,T
+     451 800E57B4 | nop                                          | nop
+     452 800E57B8 | j T                                          | j T
+     453 800E57BC | addu s0,v1,zero                              | addu s0,v1,zero
+     454 800E57C0 | andi v0,v0,1                                 | andi v0,v0,1
+     455 800E57C4 | bnez v0,T                                    | bnez v0,T
+     456 800E57C8 | addu a0,s1,zero                              | addu a0,s1,zero
+     457 800E57CC | jal T                                        | jal T
+     458 800E57D0 | addu a0,s1,zero                              | addu a0,s1,zero
+     459 800E57D4 | j T                                          | j T
+     460 800E57D8 | addu s0,v0,zero                              | addu s0,v0,zero
+     461 800E57DC | lw a2,536(sp)                                | lw a2,536(sp)
+     462 800E57E0 | jal T                                        | jal T
+     463 800E57E4 | addu a1,zero,zero                            | addu a1,zero,zero
+     464 800E57E8 | bnez v0,T                                    | bnez v0,T
+     465 800E57EC | subu s0,v0,s1                                | subu s0,v0,s1
+     466 800E57F0 | lw s0,536(sp)                                | lw s0,536(sp)
+     467 800E57F4 | j T                                          | j T
+     468 800E57F8 | nop                                          | nop
+     469 800E57FC | lw v0,544(sp)                                | lw v0,544(sp)
+     470 800E5800 | lw v1,528(sp)                                | lw v1,528(sp)
+     471 800E5804 | lw s1,0(v0)                                  | lw s1,0(v0)
+     472 800E5808 | addiu v0,v0,4                                | addiu v0,v0,4
+     473 800E580C | sw v0,544(sp)                                | sw v0,544(sp)
+     474 800E5810 | srl v0,v1,5                                  | srl v0,v1,5
+     475 800E5814 | andi v0,v0,1                                 | andi v0,v0,1
+     476 800E5818 | beqz v0,T                                    | beqz v0,T
+     477 800E581C | nop                                          | nop
+     478 800E5820 | j T                                          | j T
+     479 800E5824 | sh s2,0(s1)                                  | sh s2,0(s1)
+     480 800E5828 | j T                                          | j T
+     481 800E582C | sw s2,0(s1)                                  | sw s2,0(s1)
+     482 800E5830 | li v0,37                                     | li v0,37
+     483 800E5834 | bne a1,v0,T                                  | bne a1,v0,T
+     484 800E5838 | addu v0,s4,s2                                | addu v0,s4,s2
+     485 800E583C | sb a1,0(v0)                                  | sb a1,0(v0)
+     486 800E5840 | j T                                          | j T
+     487 800E5844 | addiu s2,s2,1                                | addiu s2,s2,1
+     488 800E5848 | lw v0,532(sp)                                | lw v0,532(sp)
+     489 800E584C | nop                                          | nop
+     490 800E5850 | slt v0,s0,v0                                 | slt v0,s0,v0
+     491 800E5854 | beqz v0,T                                    | beqz v0,T
+     492 800E5858 | addu a0,s4,s2                                | addu a0,s4,s2
+     493 800E585C | lw v0,528(sp)                                | lw v0,528(sp)
+     494 800E5860 | nop                                          | nop
+     495 800E5864 | andi v0,v0,1                                 | andi v0,v0,1
+     496 800E5868 | bnez v0,T                                    | bnez v0,T
+     497 800E586C | addu a1,s1,zero                              | addu a1,s1,zero
+     498 800E5870 | addu v0,s4,s2                                | addu v0,s4,s2
+     499 800E5874 | sb s5,0(v0)                                  | sb s5,0(v0)
+     500 800E5878 | lw v0,532(sp)                                | lw v0,532(sp)
+     501 800E587C | nop                                          | nop
+     502 800E5880 | addiu v0,v0,-1                               | addiu v0,v0,-1
+     503 800E5884 | sw v0,532(sp)                                | sw v0,532(sp)
+     504 800E5888 | slt v0,s0,v0                                 | slt v0,s0,v0
+     505 800E588C | bnez v0,T                                    | bnez v0,T
+     506 800E5890 | addiu s2,s2,1                                | addiu s2,s2,1
+     507 800E5894 | addu a0,s4,s2                                | addu a0,s4,s2
+     508 800E5898 | addu a1,s1,zero                              | addu a1,s1,zero
+     509 800E589C | jal T                                        | jal T
+     510 800E58A0 | addu a2,s0,zero                              | addu a2,s0,zero
+     511 800E58A4 | lw v0,532(sp)                                | lw v0,532(sp)
+     512 800E58A8 | nop                                          | nop
+     513 800E58AC | slt v0,s0,v0                                 | slt v0,s0,v0
+     514 800E58B0 | beqz v0,T                                    | beqz v0,T
+     515 800E58B4 | addu s2,s2,s0                                | addu s2,s2,s0
+     516 800E58B8 | addu v0,s4,s2                                | addu v0,s4,s2
+     517 800E58BC | sb s5,0(v0)                                  | sb s5,0(v0)
+     518 800E58C0 | lw v0,532(sp)                                | lw v0,532(sp)
+     519 800E58C4 | addiu s0,s0,1                                | addiu s0,s0,1
+     520 800E58C8 | slt v0,s0,v0                                 | slt v0,s0,v0
+     521 800E58CC | bnez v0,T                                    | bnez v0,T
+     522 800E58D0 | addiu s2,s2,1                                | addiu s2,s2,1
+     523 800E58D4 | lw v1,596(sp)                                | lw v1,596(sp)
+     524 800E58D8 | nop                                          | nop
+     525 800E58DC | addiu v0,v1,1                                | addiu v0,v1,1
+     526 800E58E0 | sw v0,596(sp)                                | sw v0,596(sp)
+     527 800E58E4 | lb a1,1(v1)                                  | lb a1,1(v1)
+     528 800E58E8 | nop                                          | nop
+     529 800E58EC | bnez a1,T                                    | bnez a1,T
+     530 800E58F0 | li v0,37                                     | li v0,37
+     531 800E58F4 | addu v0,s4,s2                                | addu v0,s4,s2
+     532 800E58F8 | sb zero,0(v0)                                | sb zero,0(v0)
+     533 800E58FC | addu v0,s2,zero                              | addu v0,s2,zero
+     534 800E5900 | lw ra,584(sp)                                | lw ra,584(sp)
+     535 800E5904 | lw s7,580(sp)                                | lw s7,580(sp)
+     536 800E5908 | lw s6,576(sp)                                | lw s6,576(sp)
+     537 800E590C | lw s5,572(sp)                                | lw s5,572(sp)
+     538 800E5910 | lw s4,568(sp)                                | lw s4,568(sp)
+     539 800E5914 | lw s3,564(sp)                                | lw s3,564(sp)
+     540 800E5918 | lw s2,560(sp)                                | lw s2,560(sp)
+     541 800E591C | lw s1,556(sp)                                | lw s1,556(sp)
+     542 800E5920 | lw s0,552(sp)                                | lw s0,552(sp)
+     543 800E5924 | jr ra                                        | jr ra
+     544 800E5928 | addiu sp,sp,592                              | addiu sp,sp,592
++OR      800E592C |                                              | nop
++OR      800E5930 |                                              | nop
++OR      800E5934 |                                              | nop
+
+sprintf: diffs 3  (ours 545 / oracle 548)

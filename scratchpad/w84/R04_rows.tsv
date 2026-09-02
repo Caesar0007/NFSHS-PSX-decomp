@@ -1,0 +1,13 @@
+function	class	repr_region	region_va	words	unit	candidate
+R3DCar_InsertCarFacetII__FP8Car_tObj	CHANGED	USA	800B2E30	382	game/common/r3dcar	regiondiff/recon/NFS4-R-USA/game/common/r3dcar.cpp
+R3DCar_InsertCarFacet__FP8Car_tObjP13DRender_tView	CHANGED	USA	800B0868	1153	game/common/r3dcar	regiondiff/recon/NFS4-R-USA/game/common/r3dcar.cpp
+CD_get_intr	CHANGED	USA	80107A2C	266	syslib/psx/libcd/drv	regiondiff/recon/NFS4-R-USA/syslib/psx/libcd/drv.c
+DoLanguageScreen__Fv	CHANGED	UK-ES-IT	8004E250	193	frontend/psx/psxfront	regiondiff/recon/NFS4-R-UK-ES-IT/frontend/psx/psxfront.cpp
+Draw_CheckFirstFrameRender__Fv	CHANGED	AU	800BEFB8	36	game/psx/draw	regiondiff/recon/NFS4-R-AU/game/psx/draw.cpp
+Draw_DirectSetEnvironment__Fiiiiiiiiii	CHANGED	AU	800BF200	69	game/psx/draw	regiondiff/recon/NFS4-R-AU/game/psx/draw.cpp
+Draw_InitRenderEngine__Fiiiiii	CHANGED	AU	800BF370	47	game/psx/draw	regiondiff/recon/NFS4-R-AU/game/psx/draw.cpp
+DrawCar__FR8tCarInfossffcbUl7tPlayer	CHANGED	AU	8003AC5C	125	frontend/common/screencarselect	regiondiff/recon/NFS4-R-AU/frontend/common/screencarselect.cpp
+func_800BB2F4	REGION-ONLY	USA	800BB2F4	57	regiononly/func_800BB2F4	regiondiff/recon/NFS4-R-USA/regiononly/func_800BB2F4.cpp
+func_8009A5AC	REGION-ONLY	USA	8009A5AC	44	regiononly/func_8009A5AC	regiondiff/recon/NFS4-R-USA/regiononly/func_8009A5AC.cpp
+func_800A77E4	REGION-ONLY	USA	800A77E4	10	regiononly/func_800A77E4	regiondiff/recon/NFS4-R-USA/regiononly/func_800A77E4.cpp
+func_800A7868	REGION-ONLY	AU	800A7868	8	regiononly/func_800A7868	regiondiff/recon/NFS4-R-AU/regiononly/func_800A7868.cpp

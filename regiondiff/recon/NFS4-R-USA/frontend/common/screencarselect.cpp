@@ -6,6 +6,12 @@
 
 extern tFEApplication *FEAppB[] asm("FEApp");
 
+/* REGION USA: region-only helper @0x80012F50 (own TU under
+   regiondiff/recon/NFS4-R-USA/regiononly/); called from DrawCar's no-car arm.
+   [INFERRED] identity: empty-showroom render setup. */
+extern "C" void func_80012F50(void *object,int screenX,int screenY,
+               int tableIndex,int tableDelta,u_long angle,float width,float height);
+
 typedef struct tPsyQPrimTag {
   unsigned int addr : 24;
   unsigned int len : 8;
@@ -117,6 +123,12 @@ void DrawCar(tCarInfo &carInfo,short x,short y,float camerax,float cameray,char 
     DrawC_MenuColorData((uint)the_simcarcolor,gCarObj[player],player);
     Draw_MenuRenderingView(gCarObj[player],&gCView,(int)x,(int)y,player,0,rotate,camerax,cameray,(uint)(byte)brightness
                ,reflection);
+  }
+  else {
+    /* REGION USA: retail renders an empty showroom through the region-only
+       helper at 0x80012F50 (see regiondiff/recon/NFS4-R-USA/regiononly/) when
+       the slot has no car; the base build just returns. */
+    func_80012F50(&gCView,(int)x,(int)y,player,0,rotate,camerax,cameray);
   }
   return;
 }
@@ -766,13 +778,21 @@ void tScreenCarSelect::ProcessInput(tPlayer,tInputKeyType &keyval,tMenuCommand &
       item = &menuDefs->itemABS2;
     }
     /* SYM-INLINE-THIS: SetTextDescription */
-    item->SetTextDescription(0x10b);
+    /* REGION USA: every ABS text id is one higher than the base build, the
+       item's flag bit 0 is cleared up front (and re-set when the car has no
+       ABS), and car 24 shares car 8's description. */
+    item->SetTextDescription(0x10c);
+    item->fFlags = item->fFlags & ~1;
     if (validCar != 0) {
-      if ((signed char)carInfo.fCarID == '\b') {
-        item->SetTextDescription(0x10c);
+      if (((signed char)carInfo.fCarID == '\b') ||
+         ((signed char)carInfo.fCarID == '\x18')) {
+        item->SetTextDescription(0x10d);
       }
       if ((signed char)carInfo.fCarID == '\x01') {
-        item->SetTextDescription(0x10d);
+        item->SetTextDescription(0x10e);
+      }
+      if (carInfo.fABSAvailable == '\0') {
+        item->fFlags = item->fFlags | 1;
       }
     }
     if ((frontEnd.oppNumber == '\x01') || (frontEnd.gameMode == '\x01')) {
@@ -1104,8 +1124,11 @@ void tScreenCarSelect::DrawForeground()
     (menuDefs->itemUpgradeCar).fFlags =
          (menuDefs->itemUpgradeCar).fFlags &
          0xfffffffe;
+    /* REGION USA: the cheat id passed here is 13, not the base build's
+       cheat_FinishedTournament(25) -- the retail cheat table is renumbered.
+       [INFERRED] identity of id 13 in the regional table is TBD. */
     if (((frontEnd.raceType == RaceType_Tournament) && (frontEnd.tier == '\0')) &&
-       (FECheat_IsCheatEnabled(cheat_FinishedTournament) != 0)) {
+       (FECheat_IsCheatEnabled(13) != 0)) {
       (menuDefs->itemOpponentUpgrades).
       fFlags = (menuDefs->itemOpponentUpgrades).fFlags & 0xfffffffe;
     }
@@ -1154,6 +1177,9 @@ void tScreenCarSelect::DrawForeground()
   }
   else if (this->fState == 4) {
     bShowStats = true;
+    /* REGION USA: the state-4 arm also raises overlays 5 and 3. */
+    this->fOverlays[5].direction = 1;
+    this->fOverlays[3].direction = 1;
   }
   if (validCar == 0) {
     bShowStats = false;
@@ -1240,7 +1266,8 @@ void tScreenCarSelect::DrawForeground()
         elapsedticks = (ticks[0] - this->fSpeechTicks) + -0x100;
         cameraZ = 0;
         if ((-1 < elapsedticks) && (-1 < (signed char)carInfo.fSpeechCarID)) {
-          textBase = (elapsedticks >> 9) % 0x13 + 0x3e4;
+          /* REGION USA: speech text ids start one higher (0x3e5). */
+          textBase = (elapsedticks >> 9) % 0x13 + 0x3e5;
           textID = textBase + (signed char)carInfo.fSpeechCarID * 0x13;
           textTicks = elapsedticks - ((elapsedticks >> 9) << 9);
           textColor = kRGBVals[(byte)textDefinitions[TextSys_WordFlags((short)textID)][4]];
@@ -1257,21 +1284,22 @@ void tScreenCarSelect::DrawForeground()
         }
         drawFlags.tint[0] = 0x551e00;
         drawFlags.custom_shapes = this->fSwapShapes.fShapes;
-        shapeTicks = this->fSpeechTicks;
-        if (shapeTicks < 0x101) {
-          shapeFade = 0x80;
-        }
-        else {
-          if (shapeTicks >= 0x181) {
-            shapeFade = 0;
-            goto DrawFG_fadeDone;
+        /* REGION USA: the shape fade is driven by the ELAPSED speech time
+           (ticks - fSpeechTicks - 0x80), and the draw itself is gated on the
+           swap shapes being loaded and the fade being partial. */
+        shapeTicks = (ticks[0] - this->fSpeechTicks) - 0x80;
+        shapeFade = 0x80;
+        if (0 < (int)shapeTicks) {
+          if ((int)shapeTicks < shapeFade) {
+            shapeFade = shapeFade - shapeTicks;
           }
-          fadeBase = 0x180;
-          shapeFade = fadeBase - shapeTicks;
-          __asm__("" : "+&r"(shapeFade) : "r"(shapeTicks), "r"(fadeBase));
+          else {
+            shapeFade = 0;
+          }
         }
-DrawFG_fadeDone:
-        DrawShapeExtended(0xA,0x200,0,0,shapeFade,0,&drawFlags);
+        if (((this->fSwapShapes.fFlags & 1) != 0) && (shapeFade < 0x80)) {
+          DrawShapeExtended(0xA,0x200,0,0,shapeFade,0,&drawFlags);
+        }
         elapsedticks = ticks[0] - this->fShowroomTicks;
         while (600 < elapsedticks) {
           this->fShowroomTicks = this->fShowroomTicks + 600;
@@ -1888,7 +1916,8 @@ void tScreenCarSelectTwoPlayer::DrawVideoWall(short y)
       videoOffset = 0x69;
     }
     this->fVideoWall->SetOffset(6,videoOffset);
-    SetAvailableText(this->fVideoWall,0xf8,0x10e,
+    /* REGION USA: text x is 0xf9 here (base build uses 0xf8). */
+    SetAvailableText(this->fVideoWall,0xf9,0x10e,
         (FEAppB[0]->fPlayer != '\0') ? 0x96 : 0x2d);
     UpdateImages(this->fVideoWall);
     this->fTVsInitialized = 1;
@@ -1898,9 +1927,11 @@ void tScreenCarSelectTwoPlayer::DrawVideoWall(short y)
     TurnOffInstant(this->fVideoWall);
     this->SetBrightness(0,0);
   }
-  ::UpdateTransition(this->fVideoWall);
+  /* REGION USA: UpdateTransition runs AFTER SetValid/SetAvailable here
+     (base build calls it first). */
   this->fVideoWall->SetValid(validCar);
   SetAvailable(this->fVideoWall,(ushort)carInfo.fAvailable);
+  ::UpdateTransition(this->fVideoWall);
   ::Draw(this->fVideoWall);
   return;
 }
@@ -1912,17 +1943,33 @@ void tScreenCarSelectTwoPlayer::GetShapeInfo(short &numPermShapes,short &numSwap
                char **permFileName,char **swapFileName)
 
 {
+  /* REGION USA: retail replaces the unconditional GetStockCar seed with the
+     virtual GetCar dispatch (as in DrawVideoWall) and only publishes a swap
+     file when that succeeded AND this is the 1-player screen; otherwise the
+     swap file name is NULL and the previous-car fields stay at -1. */
+  int useSwapCar;
   tCarInfo carInfo;
 
+  useSwapCar = 0;
   numPermShapes = 0x34;
   numSwapShapes = 5;
   *(short *)((int)this + 0x11e) = -1;
   *(short *)((int)this + 0x120) = -1;
   *(short *)((int)this + 0x122) = -1;
-  carManager.GetStockCar(0,carInfo);
   *permFileName = "zcarsb";
-  sprintf(gSwapFileName[0],"%s",carInfo.fSmallName);
-  *swapFileName = gSwapFileName[0];
+  if ((*(bool (*)(...))(*this->_vf)[13].pfn)
+          (this->fPermShapes.fFilename + -0x14 + (*this->_vf)[13].delta,&carInfo)) {
+    useSwapCar = (FEAppB[0]->fPlayer == '\0');
+  }
+  if (useSwapCar) {
+    *(short *)((int)this + 0x11e) = (ushort)carInfo.fCarIndex;
+    *(short *)((int)this + 0x122) = (ushort)carInfo.fCountry;
+    *(short *)((int)this + 0x120) = (short)(signed char)carInfo.fCarID;
+    sprintf(gSwapFileName[0],"%s",carInfo.fSmallName);
+    *swapFileName = gSwapFileName[0];
+  } else {
+    *swapFileName = (char *)0x0;
+  }
   return;
 }
 
@@ -2274,10 +2321,17 @@ void tScreenCarSelectTwoPlayer::Initialize()
 {
 
   this->tScreenCarSelect::Initialize();
+  /* REGION USA: retail gates the "previous car" reset on the 1-player flag and
+     otherwise re-lays the video-wall availability text (same args as
+     DrawVideoWall's 1-player case). */
+  if (FEAppB[0]->fPlayer == 1) {
+    this->fPreviousCar = -1;
+    this->fPreviousCarID = -1;
+    this->fPreviousCountry = -1;
+  } else {
+    SetAvailableText(this->fVideoWall,0xf9,0x10e,0x2d);
+  }
   this->fState = 0;
-  this->fPreviousCar = -1;
-  this->fPreviousCarID = -1;
-  this->fPreviousCountry = -1;
   this->fDestBrightness[1] = 0;
   this->fDestBrightness[0] = 0;
   this->fBrightness[1] = 0;
@@ -2418,8 +2472,8 @@ DoMC_dialogReady:
       FEApp->Redraw();
       ret = LoadGame((ushort)player,true,0);
       if (ret == 0) {
-        carManager.GetNumPinkSlipsCars((ushort)player);
-        carManager.CheapestCarStockPrice();
+        /* REGION USA: retail drops the base build's two result-discarded probe
+           calls (GetNumPinkSlipsCars + CheapestCarStockPrice) here. */
         if (carManager.GetNumPinkSlipsCars((ushort)player) == 0x20) {
           *pinkState = TooManyCars;
           goto DoMC_pinkSlipsIter;
@@ -2646,10 +2700,13 @@ switchD_8003f3b4_default:
 
 
 /* ---- tScreenPinkSlipsCarSelect::ProcessInput  [SCREENCARSELECT.CPP:2190-2200] ---- */
-void tScreenPinkSlipsCarSelect::ProcessInput(tPlayer,tInputKeyType &keyval,
-              tMenuCommand &)
+void tScreenPinkSlipsCarSelect::ProcessInput(tPlayer player,tInputKeyType &keyval,
+              tMenuCommand &menuCommand)
 
 {
+  /* REGION USA: every path ends in the base tScreenCarSelect::ProcessInput
+     (the base build just returns), so the two early exits become a goto to
+     the shared tail call. */
   if (keyval != kInput_KeyType_Triangle) {
     if ((keyval != kInput_KeyType_Circle) &&
        ((PinkSlipsScreenState[0] != CardLoadedFine || (PinkSlipsScreenState[1] != CardLoadedFine))))
@@ -2657,7 +2714,7 @@ void tScreenPinkSlipsCarSelect::ProcessInput(tPlayer,tInputKeyType &keyval,
       keyval = kInput_KeyType_AlreadyProcessed;
     }
     if (keyval != kInput_KeyType_Triangle) {
-      return;
+      goto processBase;
     }
   }
   if ((PinkSlipsScreenState[0] != CardLoadedFine) ||
@@ -2667,6 +2724,8 @@ void tScreenPinkSlipsCarSelect::ProcessInput(tPlayer,tInputKeyType &keyval,
     PinkSlipsScreenState[1] = WhoCaresWeBeExiting;
     ((tDialogBase *)&this->CarDialog)->Hide();
   }
+processBase:
+  this->tScreenCarSelect::ProcessInput(player,keyval,menuCommand);
   /* MATCH: NO trailing return.  The oracle stages no return value on either exit
      path -- $v0 is the just-loaded PinkSlipsScreenState[1] on the fall-through and
      Hide's incidental $v0 after the call.  An explicit `return PVar1;` makes gcc

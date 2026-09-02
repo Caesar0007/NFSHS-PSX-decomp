@@ -1,0 +1,11 @@
+function	class	repr_region	region_va	words	unit	candidate
+Physics_Real__FP8Car_tObj	CHANGED	USA	800ACDF8	1273	game/common/physics	regiondiff/recon/NFS4-R-USA/game/common/physics.cpp
+InstanceGroup__5ChunkP15SerializedGroupP9SimpleMem	CHANGED	USA	8008BE88	354	game/common/chunk	regiondiff/recon/NFS4-R-USA/game/common/chunk.cpp
+main	CHANGED	AU	800A52A8	237	game/common/nfs3	regiondiff/recon/NFS4-R-AU/game/common/nfs3.cpp
+DoLanguageScreen__Fv	CHANGED	UK-SW	8004E238	182	frontend/psx/psxfront	regiondiff/recon/NFS4-R-UK-SW/frontend/psx/psxfront.cpp
+Movie_Play__Fc	CHANGED	AU	8004D1CC	136	frontend/psx/movie	regiondiff/recon/NFS4-R-AU/frontend/psx/movie.cpp
+func_80012F40	REGION-ONLY	JPN	80012F40	106	regiononly/func_80012F40	regiondiff/recon/NFS4-R-JPN/regiononly/func_80012F40.cpp
+Device_VerifyType__Fi	CHANGED	JPN	800BDF80	47	game/psx/device	regiondiff/recon/NFS4-R-JPN/game/psx/device.cpp
+Front_InitialMemCardCheck__Fv	CHANGED	AU	800279A0	42	frontend/common/front	regiondiff/recon/NFS4-R-AU/frontend/common/front.cpp
+AIScript_Assign__FP10AIScript_tPA7_25AIScript_tReactionDetails	CHANGED	USA	8006FEF8	8	game/common/aiscript	regiondiff/recon/NFS4-R-USA/game/common/aiscript.cpp
+func_800DCED0	REGION-ONLY	AU	800DCED0	2	regiononly/func_800DCED0	regiondiff/recon/NFS4-R-AU/regiononly/func_800DCED0.cpp

@@ -35,7 +35,6 @@ int FEInput_GetNoDebounceKey(int key,int controller)
 {
   char *analogs;
   int highResult;
-  int lowResult;
 
   PAD_update();
   if (gPadinfo.buf[controller * 4].nopad != '\0') {
@@ -47,27 +46,31 @@ int FEInput_GetNoDebounceKey(int key,int controller)
       (gPadinfo.buf[controller * 4].ID == 'S')) {
     switch (key) {
     case 0x800000:
-      lowResult = (u_char)analogs[0] < 0x40;
-      goto return_bool;
+      if ((u_char)analogs[0] < 0x40) {
+        goto return_one;
+      }
+      goto return_zero;
     case 0x200000:
       highResult = (u_char)analogs[0] < 0xc1;
       goto return_not_bool;
     case 0x100000:
-      lowResult = (u_char)analogs[1] < 0x40;
-      goto return_bool;
+      if ((u_char)analogs[1] < 0x40) {
+        goto return_one;
+      }
+      goto return_zero;
     case 0x400000:
       highResult = (u_char)analogs[1] < 0xc1;
       goto return_not_bool;
     case (int)0x80000000:
-      lowResult = (u_char)analogs[2] < 0x40;
-      goto return_bool;
+      if ((u_char)analogs[2] < 0x40) {
+        goto return_one;
+      }
+      goto return_zero;
     case 0x20000000:
       highResult = (u_char)analogs[2] < 0xc1;
       goto return_not_bool;
     case 0x10000000:
-      lowResult = (u_char)analogs[3] < 0x40;
-return_bool:
-      if (lowResult) {
+      if ((u_char)analogs[3] < 0x40) {
         goto return_one;
       }
 return_zero:

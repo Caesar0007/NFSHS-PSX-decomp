@@ -55,17 +55,17 @@ void DoLanguageScreen(void)
     shapeFile = (char *)loadshapeadr(&memclass, 0);
     setmemclass(0);
 
-    i = 0;
-    shapeBase = shapes;
-    for (; i < 7; i++) {
-      *shapeBase++ = (shapetbl *)locateshapez(shapeFile, shapeNames[i]);
+    for (i = 0; i < 7; i++) {
+      shapes[i] = (shapetbl *)locateshapez(shapeFile, shapeNames[i]);
     }
 
     flash = 0;
     Quick_DD(1, 1, 1);
     settrans(0);
     movfxya(shapes[0], flash, flash);
-    shapeBase = shapes;
+    do {
+      shapeBase = shapes;
+    } while (0);
     key = 0;
 
     while ((key != 2) && (key != 0x2000)) {

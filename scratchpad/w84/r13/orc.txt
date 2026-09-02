@@ -1,0 +1,243 @@
+sw $a0,0($sp)
+sw $a1,4($sp)
+sw $a2,8($sp)
+sw $a3,12($sp)
+addiu $sp,$sp,-568
+addiu $v0,$sp,572
+sw $ra,560($sp)
+sw $s5,556($sp)
+sw $s4,552($sp)
+sw $s3,548($sp)
+sw $s2,544($sp)
+sw $s1,540($sp)
+sw $s0,536($sp)
+sw $a0,568($sp)
+bltz $a0,.L800F79E8
+sw $v0,528($sp)
+lui $v0,0x8013
+lw $v0,29384($v0)
+nop 
+slt $v0,$a0,$v0
+bnez $v0,.L800F7A20
+addiu $v0,$sp,576
+lui $v0,0x8013
+lw $v0,29388($v0)
+nop 
+sll $v1,$v0,0x1
+addu $v1,$v1,$v0
+sll $v1,$v1,0x4
+lui $at,0x8013
+addu $at,$at,$v1
+lw $v1,29036($at)
+move $s3,$a0
+bnez $v1,.L800F7A28
+sw $v0,568($sp)
+j .L800F7D2C
+li $v0,-1
+lw $s3,572($sp)
+sw $v0,528($sp)
+lw $v1,568($sp)
+nop 
+sll $v0,$v1,0x1
+addu $v0,$v0,$v1
+sll $v0,$v0,0x4
+lui $v1,0x8013
+addiu $v1,$v1,29000
+addu $s1,$v0,$v1
+lw $v1,40($s1)
+lw $v0,28($s1)
+nop 
+slt $v0,$v0,$v1
+bnez $v0,.L800F7A18
+nop 
+lb $a0,0($s3)
+nop 
+beqz $a0,.L800F7D14
+nop 
+li $s4,37
+lui $s5,0xcccc
+ori $s5,$s5,0xcccd
+bne $a0,$s4,.L800F7A98
+nop 
+addiu $s3,$s3,1
+lb $a0,0($s3)
+nop 
+bne $a0,$s4,.L800F7AC8
+move $s2,$zero
+lw $v0,40($s1)
+lw $v1,36($s1)
+nop 
+addu $v1,$v1,$v0
+sb $a0,0($v1)
+lw $v1,28($s1)
+addiu $v0,$v0,1
+slt $v1,$v1,$v0
+beqz $v1,.L800F7D00
+sw $v0,40($s1)
+j .L800F7D2C
+li $v0,-1
+xori $v0,$a0,0x30
+sltiu $v0,$v0,1
+j .L800F7AF4
+move $a2,$v0
+addu $v0,$v0,$s2
+sll $v0,$v0,0x1
+addiu $v0,$v0,-48
+addu $s2,$v0,$a0
+addiu $s3,$s3,1
+lb $a0,0($s3)
+nop 
+addiu $v0,$a0,-48
+sltiu $v0,$v0,10
+bnez $v0,.L800F7AD8
+sll $v0,$s2,0x2
+bgtz $s2,.L800F7B10
+addiu $v1,$a0,-88
+li $s2,1
+sltiu $v0,$v1,33
+beqz $v0,.L800F7C70
+addiu $s0,$sp,528
+sll $v0,$v1,0x2
+lui $at,%hi(jtbl_80057848)
+addu $at,$at,$v0
+lw $v0,%lo(jtbl_80057848)($at)
+nop 
+jr $v0
+nop 
+lw $v0,528($sp)
+nop 
+lw $a0,0($v0)
+addiu $v0,$v0,4
+bgez $a0,.L800F7B5C
+sw $v0,528($sp)
+negu $a0,$a0
+j .L800F7B60
+li $a2,45
+move $a2,$zero
+move $a1,$zero
+multu $a0,$s5
+addiu $s0,$s0,-1
+addiu $a1,$a1,1
+mfhi $a3
+srl $v1,$a3,0x3
+sll $v0,$v1,0x2
+addu $v0,$v0,$v1
+sll $v0,$v0,0x1
+subu $v0,$a0,$v0
+addiu $v0,$v0,48
+sb $v0,0($s0)
+beqz $a1,.L800F7B64
+move $a0,$v1
+bnez $a0,.L800F7B64
+nop 
+beqz $a2,.L800F7C74
+slt $v0,$a1,$s2
+addiu $s0,$s0,-1
+sb $a2,0($s0)
+j .L800F7C70
+addiu $a1,$a1,1
+lw $v0,528($sp)
+move $a1,$zero
+lw $a0,0($v0)
+addiu $v0,$v0,4
+sw $v0,528($sp)
+addiu $s0,$s0,-1
+andi $v0,$a0,0xf
+lui $v1,0x8013
+lw $v1,31956($v1)
+srl $a0,$a0,0x4
+addu $v1,$v1,$v0
+lbu $v0,0($v1)
+addiu $a1,$a1,1
+beqz $a1,.L800F7BCC
+sb $v0,0($s0)
+bnez $a0,.L800F7BD0
+addiu $s0,$s0,-1
+addiu $s0,$s0,1
+move $v0,$a2
+beqz $v0,.L800F7C70
+slt $v0,$a1,$s2
+beqz $v0,.L800F7CB4
+li $v1,48
+addiu $s0,$s0,-1
+addiu $a1,$a1,1
+slt $v0,$a1,$s2
+bnez $v0,.L800F7C14
+sb $v1,0($s0)
+j .L800F7C74
+nop 
+addiu $s0,$s0,-1
+lw $v0,528($sp)
+li $a1,1
+lbu $v1,0($v0)
+addiu $v0,$v0,4
+sb $v1,0($s0)
+j .L800F7C70
+sw $v0,528($sp)
+lw $v0,528($sp)
+nop 
+lw $s0,0($v0)
+addiu $v0,$v0,4
+sw $v0,528($sp)
+jal func_800EA8D0
+move $a0,$s0
+move $a1,$v0
+slt $v0,$a1,$s2
+beqz $v0,.L800F7CB4
+li $a0,32
+lw $v0,40($s1)
+lw $v1,36($s1)
+nop 
+addu $v1,$v1,$v0
+sb $a0,0($v1)
+lw $v1,28($s1)
+addiu $v0,$v0,1
+slt $v1,$v1,$v0
+bnez $v1,.L800F7A18
+sw $v0,40($s1)
+addiu $s2,$s2,-1
+slt $v0,$a1,$s2
+bnez $v0,.L800F7C7C
+nop 
+addiu $a1,$a1,-1
+li $v0,-1
+beq $a1,$v0,.L800F7D00
+nop 
+li $a2,-1
+lw $v1,40($s1)
+lw $v0,36($s1)
+lbu $a0,0($s0)
+addiu $s0,$s0,1
+addu $v0,$v0,$v1
+sb $a0,0($v0)
+lw $v0,28($s1)
+addiu $v1,$v1,1
+slt $v0,$v0,$v1
+bnez $v0,.L800F7A18
+sw $v1,40($s1)
+addiu $a1,$a1,-1
+bne $a1,$a2,.L800F7CC8
+nop 
+addiu $s3,$s3,1
+lb $a0,0($s3)
+nop 
+bnez $a0,.L800F7A7C
+nop 
+lw $v0,36($s1)
+lw $v1,40($s1)
+nop 
+addu $v0,$v0,$v1
+sb $zero,0($v0)
+lw $v0,40($s1)
+lw $ra,560($sp)
+lw $s5,556($sp)
+lw $s4,552($sp)
+lw $s3,548($sp)
+lw $s2,544($sp)
+lw $s1,540($sp)
+lw $s0,536($sp)
+jr $ra
+addiu $sp,$sp,568
+nop 
+nop 
+nop 

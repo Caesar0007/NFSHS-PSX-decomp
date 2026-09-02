@@ -1,0 +1,17 @@
+function	class	repr_region	region_va	words	unit	candidate
+Hud_BuildNumbers__Fi	CHANGED	USA	800D5A44	758	game/psx/hud	regiondiff/recon/NFS4-R-USA/game/psx/hud.cpp
+Hud_DebugInfo__Fv	CHANGED	USA	800D2B5C	2	game/psx/hud	regiondiff/recon/NFS4-R-USA/game/psx/hud.cpp
+Hud_ParseTime__FiPc	CHANGED	USA	800D9938	97	game/psx/hud	regiondiff/recon/NFS4-R-USA/game/psx/hud.cpp
+BWorld_Init__Fv	CHANGED	USA	8007EFEC	187	game/common/bworld	regiondiff/recon/NFS4-R-USA/game/common/bworld.cpp
+BWorld_OpenContext__Fii	CHANGED	USA	8007EEA8	56	game/common/bworld	regiondiff/recon/NFS4-R-USA/game/common/bworld.cpp
+SetupChunkBuildList__FP13DRender_tView	CHANGED	USA	8007E71C	224	game/common/bworld	regiondiff/recon/NFS4-R-USA/game/common/bworld.cpp
+Initialize__11tScreenMain	CHANGED	AU	80038960	219	frontend/common/screenmain	regiondiff/recon/NFS4-R-AU/frontend/common/screenmain.cpp
+SwapBackground__11tScreenMaini	CHANGED	AU	80037120	110	frontend/common/screenmain	regiondiff/recon/NFS4-R-AU/frontend/common/screenmain.cpp
+SetupCurrCredit__14tCreditManager	CHANGED	USA	80035F20	214	frontend/common/fecredits	regiondiff/recon/NFS4-R-USA/frontend/common/fecredits.cpp
+sprintf	CHANGED	USA	800E50A8	180	syslib/psx/libc/SPRINTF	regiondiff/recon/NFS4-R-USA/syslib/psx/libc/SPRINTF.c
+UpdateTrackFinishPoints__18tTournamentManager	CHANGED	USA	80032F80	129	frontend/common/fetourn	regiondiff/recon/NFS4-R-USA/frontend/common/fetourn.cpp
+func_80012F6C	REGION-ONLY	AU	80012F6C	107	regiononly/func_80012F6C	regiondiff/recon/NFS4-R-AU/regiononly/func_80012F6C.cpp
+func_800BB2F8	REGION-ONLY	AU	800BB2F8	57	regiononly/func_800BB2F8	regiondiff/recon/NFS4-R-AU/regiononly/func_800BB2F8.cpp
+PadInfoAct	CHANGED	USA	800F09B4	35	syslib/psx/libpad/PADENTRY	regiondiff/recon/NFS4-R-USA/syslib/psx/libpad/PADENTRY.c
+func_800A7864	REGION-ONLY	USA	800A7864	8	regiononly/func_800A7864	regiondiff/recon/NFS4-R-USA/regiononly/func_800A7864.cpp
+func_800DCEA4	REGION-ONLY	USA	800DCEA4	2	regiononly/func_800DCEA4	regiondiff/recon/NFS4-R-USA/regiononly/func_800DCEA4.cpp

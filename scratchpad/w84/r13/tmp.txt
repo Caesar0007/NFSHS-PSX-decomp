@@ -1,0 +1,465 @@
+addiu sp,sp,-80
+sw a0,80(sp)
+lui a0,0x0
+lui v0,0x0
+lw t0,80(sp)
+addiu v0,v0,24
+sw ra,76(sp)
+sw s8,72(sp)
+sw s7,68(sp)
+sw s6,64(sp)
+sw s5,60(sp)
+sw s4,56(sp)
+sw s3,52(sp)
+sw s2,48(sp)
+sw s1,44(sp)
+sw s0,40(sp)
+sll v1,t0,0x2
+addu v1,v1,t0
+sll v1,v1,0x4
+addu s7,v1,v0
+lw s2,0(s7)
+nop
+beqz s2,162c <AudioClc_SoundPlayersCar__Fi+0x714>
+addiu s8,a0,0
+lw v0,608(s2)
+nop
+andi v0,v0,0x200
+beqz v0,fa8 <AudioClc_SoundPlayersCar__Fi+0x90>
+move s1,zero
+lw v1,1360(s2)
+lw v0,1364(s2)
+nop
+beq v1,v0,1030 <AudioClc_SoundPlayersCar__Fi+0x118>
+nop
+j 1030 <AudioClc_SoundPlayersCar__Fi+0x118>
+li s1,-1
+lw a0,264(s2)
+lh v0,8(s2)
+lui v1,0x0
+lw v1,0(v1)
+sll v0,v0,0x5
+addu v0,v0,v1
+lb a1,15(v0)
+jal 0 <AudioClc_SndError__Fi>
+nop
+lw a0,268(s2)
+lh v1,8(s2)
+lui a1,0x0
+lw a1,0(a1)
+sll v1,v1,0x5
+addu v1,v1,a1
+lb a1,16(v1)
+jal 0 <AudioClc_SndError__Fi>
+move s1,v0
+lw a0,272(s2)
+lh v1,8(s2)
+lui a1,0x0
+lw a1,0(a1)
+sll v1,v1,0x5
+addu v1,v1,a1
+lb a1,17(v1)
+jal 0 <AudioClc_SndError__Fi>
+move s0,v0
+addu s1,s1,s0
+lui v1,0x0
+lw v1,48(v1)
+nop
+beqz v1,1030 <AudioClc_SoundPlayersCar__Fi+0x118>
+addu s1,s1,v0
+negu s1,s1
+lw v0,912(s2)
+li a0,2
+beq v0,a0,1154 <AudioClc_SoundPlayersCar__Fi+0x23c>
+lui v0,0x0
+lw v1,0(v0)
+li v0,1
+beq v1,v0,1058 <AudioClc_SoundPlayersCar__Fi+0x140>
+li v0,5
+bne v1,v0,10bc <AudioClc_SoundPlayersCar__Fi+0x1a4>
+nop
+lui v1,0x0
+lw v0,0(v1)
+nop
+lw v0,608(v0)
+nop
+andi v0,v0,0x200
+bnez v0,10a8 <AudioClc_SoundPlayersCar__Fi+0x190>
+addiu v1,v1,0
+lui v0,0x0
+lw v0,0(v0)
+nop
+bne v0,a0,10bc <AudioClc_SoundPlayersCar__Fi+0x1a4>
+nop
+lw v0,4(v1)
+nop
+lw v0,608(v0)
+nop
+andi v0,v0,0x200
+beqz v0,10bc <AudioClc_SoundPlayersCar__Fi+0x1a4>
+nop
+lw v0,608(s2)
+li v1,4
+andi v0,v0,0x204
+beq v0,v1,1154 <AudioClc_SoundPlayersCar__Fi+0x23c>
+nop
+lw v0,1120(s2)
+nop
+bnez v0,1154 <AudioClc_SoundPlayersCar__Fi+0x23c>
+nop
+lw v0,632(s2)
+nop
+bnez v0,1154 <AudioClc_SoundPlayersCar__Fi+0x23c>
+nop
+bgez s1,1154 <AudioClc_SoundPlayersCar__Fi+0x23c>
+nop
+lhu v0,380(s2)
+nop
+bnez v0,115c <AudioClc_SoundPlayersCar__Fi+0x244>
+addiu s0,s2,160
+lw v0,1932(s2)
+nop
+bnez v0,1160 <AudioClc_SoundPlayersCar__Fi+0x248>
+move a0,s0
+lw v0,1008(s2)
+nop
+addiu v1,v0,1
+slti v0,v1,64
+bnez v0,1160 <AudioClc_SoundPlayersCar__Fi+0x248>
+sw v1,1008(s2)
+andi v0,v1,0x1f
+bnez v0,1160 <AudioClc_SoundPlayersCar__Fi+0x248>
+slti v0,v1,148
+bnez v0,1144 <AudioClc_SoundPlayersCar__Fi+0x22c>
+nop
+lui v0,0x0
+lw v0,0(v0)
+nop
+beqz v0,1160 <AudioClc_SoundPlayersCar__Fi+0x248>
+nop
+jal 0 <AudioClc_SndError__Fi>
+addiu s0,s2,160
+j 1160 <AudioClc_SoundPlayersCar__Fi+0x248>
+move a0,s0
+sw zero,1008(s2)
+addiu s0,s2,160
+move a0,s0
+jal 0 <AudioClc_SndError__Fi>
+addiu a1,s2,172
+lui v1,0x0
+lw v1,0(v1)
+nop
+beqz v1,11d0 <AudioClc_SoundPlayersCar__Fi+0x2b8>
+sw v0,32(sp)
+lui v0,0x0
+lw v1,12(v0)
+li v0,1
+bne v1,v0,11a8 <AudioClc_SoundPlayersCar__Fi+0x290>
+lui v0,0x0
+lw t0,80(sp)
+nop
+beqz t0,11e4 <AudioClc_SoundPlayersCar__Fi+0x2cc>
+li s5,0xc000
+j 11e4 <AudioClc_SoundPlayersCar__Fi+0x2cc>
+li s5,16383
+lw t0,80(sp)
+addiu v0,v0,0
+sll v1,t0,0x4
+addu v1,v1,t0
+sll v1,v1,0x4
+addu v1,v1,v0
+lh v0,112(v1)
+nop
+bnez v0,11d8 <AudioClc_SoundPlayersCar__Fi+0x2c0>
+move a0,s8
+j 11e4 <AudioClc_SoundPlayersCar__Fi+0x2cc>
+move s5,zero
+jal 0 <AudioClc_SndError__Fi>
+move a1,s0
+move s5,v0
+move a0,s8
+jal 0 <AudioClc_SndError__Fi>
+addiu a1,s2,160
+move a0,s8
+move a1,s2
+jal 0 <AudioClc_SndError__Fi>
+move s1,v0
+move a0,v0
+jal 0 <AudioClc_SndError__Fi>
+move a1,s1
+lui s0,0x1
+slt v0,s0,v0
+bnez v0,1244 <AudioClc_SoundPlayersCar__Fi+0x32c>
+move a0,s8
+jal 0 <AudioClc_SndError__Fi>
+move a1,s2
+move a0,v0
+jal 0 <AudioClc_SndError__Fi>
+move a1,s1
+lui v1,0xffff
+slt v0,v0,v1
+bnez v0,1280 <AudioClc_SoundPlayersCar__Fi+0x368>
+lui s3,0xffff
+move a0,s8
+jal 0 <AudioClc_SndError__Fi>
+move a1,s2
+move a0,v0
+jal 0 <AudioClc_SndError__Fi>
+move a1,s1
+slt v0,s0,v0
+bnez v0,1280 <AudioClc_SoundPlayersCar__Fi+0x368>
+lui s3,0x1
+move a0,s8
+jal 0 <AudioClc_SndError__Fi>
+move a1,s2
+move a0,v0
+jal 0 <AudioClc_SndError__Fi>
+move a1,s1
+move s3,v0
+bgez s1,1290 <AudioClc_SoundPlayersCar__Fi+0x378>
+move v0,s1
+li v0,0xffff
+addu v0,s1,v0
+sra s4,v0,0x10
+mult s4,s4
+lw v0,648(s2)
+nop
+lw v1,8(v0)
+li v0,1
+mflo s4
+bne v1,v0,12c8 <AudioClc_SoundPlayersCar__Fi+0x3b0>
+nop
+lw v0,1124(s2)
+nop
+lw v0,240(v0)
+j 12dc <AudioClc_SoundPlayersCar__Fi+0x3c4>
+addiu a2,v0,1000
+lw v0,1124(s2)
+nop
+lw v0,240(v0)
+nop
+addiu a2,v0,2000
+lhu v0,380(s2)
+nop
+sltiu v0,v0,6
+bnez v0,12f4 <AudioClc_SoundPlayersCar__Fi+0x3dc>
+nop
+addiu a2,a2,-500
+lw v1,1128(s2)
+nop
+sll v0,v1,0x7
+subu v0,v0,v1
+lw v1,0(gp)
+div zero,v0,a2
+bnez a2,1318 <AudioClc_SoundPlayersCar__Fi+0x400>
+nop
+break 0x7
+li at,-1
+bne a2,at,1330 <AudioClc_SoundPlayersCar__Fi+0x418>
+lui at,0x8000
+bne v0,at,1330 <AudioClc_SoundPlayersCar__Fi+0x418>
+nop
+break 0x6
+mflo s6
+beqz v1,1344 <AudioClc_SoundPlayersCar__Fi+0x42c>
+nop
+j 135c <AudioClc_SoundPlayersCar__Fi+0x444>
+sw zero,12(s7)
+lw v0,1380(s2)
+nop
+bgez v0,1358 <AudioClc_SoundPlayersCar__Fi+0x440>
+nop
+negu v0,v0
+sw v0,12(s7)
+move a0,s8
+jal 0 <AudioClc_SndError__Fi>
+move a1,s2
+move a0,s2
+move s0,v0
+jal 0 <AudioClc_SndError__Fi>
+move a1,s0
+move a0,s2
+move a1,s1
+sw s5,16(sp)
+sw s0,20(sp)
+lw v0,12(s7)
+lw a3,32(sp)
+move a2,s6
+sw s3,28(sp)
+jal 0 <AudioClc_SndError__Fi>
+sw v0,24(sp)
+lui v0,0x0
+lw v0,0(v0)
+nop
+beqz v0,162c <AudioClc_SoundPlayersCar__Fi+0x714>
+nop
+lw v0,1940(s2)
+nop
+addiu s3,v0,-1
+bltz s3,14dc <AudioClc_SoundPlayersCar__Fi+0x5c4>
+lui v0,0x0
+addiu s6,v0,0
+sll v0,s3,0x1
+addu v0,v0,s3
+sll v0,v0,0x3
+addu s1,v0,s2
+lw a0,1948(s1)
+li v0,18
+bne a0,v0,1404 <AudioClc_SoundPlayersCar__Fi+0x4ec>
+nop
+lw t0,80(sp)
+nop
+beqz t0,1424 <AudioClc_SoundPlayersCar__Fi+0x50c>
+move s0,v0
+j 1424 <AudioClc_SoundPlayersCar__Fi+0x50c>
+li s0,19
+li v0,20
+bne a0,v0,1424 <AudioClc_SoundPlayersCar__Fi+0x50c>
+move s0,a0
+lw t0,80(sp)
+nop
+beqz t0,1424 <AudioClc_SoundPlayersCar__Fi+0x50c>
+move s0,v0
+li s0,21
+lw v1,1944(s1)
+li v0,5
+beq v1,v0,143c <AudioClc_SoundPlayersCar__Fi+0x524>
+li v0,3
+bne v1,v0,146c <AudioClc_SoundPlayersCar__Fi+0x554>
+nop
+bltz s0,146c <AudioClc_SoundPlayersCar__Fi+0x554>
+nop
+jal 0 <AudioClc_SndError__Fi>
+move a0,s0
+addiu v0,s0,-18
+sltiu v0,v0,2
+beqz v0,14cc <AudioClc_SoundPlayersCar__Fi+0x5b4>
+nop
+jal 0 <AudioClc_SndError__Fi>
+addiu a0,s0,4
+j 14d0 <AudioClc_SoundPlayersCar__Fi+0x5b8>
+addiu s1,s1,-24
+bgez s0,14b0 <AudioClc_SoundPlayersCar__Fi+0x598>
+li v0,1
+lw v1,12(s6)
+nop
+beq v1,v0,14b0 <AudioClc_SoundPlayersCar__Fi+0x598>
+li v0,10
+lw v1,1952(s1)
+nop
+beq v1,v0,14b0 <AudioClc_SoundPlayersCar__Fi+0x598>
+li v0,8
+beq v1,v0,14b0 <AudioClc_SoundPlayersCar__Fi+0x598>
+move a0,s8
+jal 0 <AudioClc_SndError__Fi>
+addiu a1,s2,416
+sw s4,16(sp)
+j 14b8 <AudioClc_SoundPlayersCar__Fi+0x5a0>
+sw v0,20(sp)
+sw s4,16(sp)
+sw s5,20(sp)
+lw a1,1952(s1)
+lw a2,1956(s1)
+lw a3,1960(s1)
+jal 0 <AudioClc_SndError__Fi>
+move a0,s0
+addiu s1,s1,-24
+addiu s3,s3,-1
+bgez s3,13dc <AudioClc_SoundPlayersCar__Fi+0x4c4>
+nop
+lbu v0,1094(s2)
+nop
+beqz v0,150c <AudioClc_SoundPlayersCar__Fi+0x5f4>
+move a1,s4
+lw t0,32(sp)
+li a2,64
+sw t0,16(sp)
+lw a0,596(s2)
+jal 0 <AudioClc_SndError__Fi>
+move a3,s5
+j 1528 <AudioClc_SoundPlayersCar__Fi+0x610>
+li v0,1
+lw v0,32(s7)
+nop
+beqz v0,152c <AudioClc_SoundPlayersCar__Fi+0x614>
+nop
+lw a0,596(s2)
+jal 0 <AudioClc_SndError__Fi>
+nop
+sw v0,32(s7)
+lw v0,648(s2)
+nop
+lw v0,0(v0)
+nop
+addiu v0,v0,-22
+sltiu v0,v0,6
+beqz v0,162c <AudioClc_SoundPlayersCar__Fi+0x714>
+nop
+lw v0,1392(s2)
+nop
+andi v0,v0,0x2
+beqz v0,15f0 <AudioClc_SoundPlayersCar__Fi+0x6d8>
+slti v0,s4,4900
+beqz v0,1594 <AudioClc_SoundPlayersCar__Fi+0x67c>
+lui a0,0x6aff
+ori a0,a0,0x5f81
+li v0,4900
+subu v0,v0,s4
+sll v1,v0,0x7
+subu v1,v1,v0
+mult v1,a0
+sra v1,v1,0x1f
+mfhi t0
+sra v0,t0,0xb
+j 1598 <AudioClc_SoundPlayersCar__Fi+0x680>
+subu a1,v0,v1
+move a1,zero
+lui v1,0x0
+lw v0,596(s2)
+addiu v1,v1,0
+addiu a0,v0,4
+sll v0,a0,0x2
+addu v0,v0,v1
+lw v0,0(v0)
+nop
+bnez v0,15d4 <AudioClc_SoundPlayersCar__Fi+0x6bc>
+move a3,s5
+lw a1,608(s2)
+jal 0 <AudioClc_SndError__Fi>
+andi a1,a1,0x40
+j 162c <AudioClc_SoundPlayersCar__Fi+0x714>
+nop
+lw v0,608(s2)
+lw a2,32(sp)
+andi v0,v0,0x40
+jal 0 <AudioClc_SndError__Fi>
+sw v0,16(sp)
+j 162c <AudioClc_SoundPlayersCar__Fi+0x714>
+nop
+lui v1,0x0
+lw v0,596(s2)
+addiu v1,v1,0
+addiu a0,v0,4
+sll v0,a0,0x2
+addu v0,v0,v1
+lw v0,0(v0)
+nop
+beqz v0,162c <AudioClc_SoundPlayersCar__Fi+0x714>
+nop
+jal 0 <AudioClc_SndError__Fi>
+nop
+lw a0,596(s2)
+jal 0 <AudioClc_SndError__Fi>
+addiu a0,a0,47
+lw ra,76(sp)
+lw s8,72(sp)
+lw s7,68(sp)
+lw s6,64(sp)
+lw s5,60(sp)
+lw s4,56(sp)
+lw s3,52(sp)
+lw s2,48(sp)
+lw s1,44(sp)
+lw s0,40(sp)
+jr ra
+addiu sp,sp,80

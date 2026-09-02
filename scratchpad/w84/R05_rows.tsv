@@ -1,0 +1,10 @@
+function	class	repr_region	region_va	words	unit	candidate
+HighExecute__10AIHigh_Cop	CHANGED	USA	800644B4	1464	game/common/aih_cop	regiondiff/recon/NFS4-R-USA/game/common/aih_cop.cpp
+MenuNFS4_DrawTextBox__FiR4RECTissbT5	CHANGED	AU	8001A180	302	frontend/common/femenuextended	regiondiff/recon/NFS4-R-AU/frontend/common/femenuextended.cpp
+Camera_GetViewInfo__FiP17DRender_tCalcViewi	CHANGED	AU	80085A2C	206	game/common/camera	regiondiff/recon/NFS4-R-AU/game/common/camera.cpp
+NFS4_LoadPerps__Fv	CHANGED	USA	800A4A6C	172	game/common/nfs3	regiondiff/recon/NFS4-R-USA/game/common/nfs3.cpp
+FeTools_DrawPSXButton__FUcUsii	CHANGED	USA	800269D0	126	frontend/common/fetools	regiondiff/recon/NFS4-R-USA/frontend/common/fetools.cpp
+Audio_InitDriver__Fii	CHANGED	USA	800BC958	61	game/psx/audio	regiondiff/recon/NFS4-R-USA/game/psx/audio.cpp
+DrawForeground__18tScreenTournSelect	CHANGED	USA	800408A8	42	frontend/common/screentournselect	regiondiff/recon/NFS4-R-USA/frontend/common/screentournselect.cpp
+func_800A77C0	REGION-ONLY	USA	800A77C0	9	regiononly/func_800A77C0	regiondiff/recon/NFS4-R-USA/regiononly/func_800A77C0.cpp
+func_800A7848	REGION-ONLY	AU	800A7848	8	regiononly/func_800A7848	regiondiff/recon/NFS4-R-AU/regiononly/func_800A7848.cpp

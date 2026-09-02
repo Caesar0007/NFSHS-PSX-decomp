@@ -1,0 +1,163 @@
+======================================================================
+###  p4_incond
+StCdInterrupt: PASS (583 insns)
+  _st_copy_words: PASS (11 insns)
+  _st_dma: FAIL 1 diffs (ours 107 / oracle 106)
+      -li v0,1
+	move	$4,$0
+	sll	$5,$16,4
+	li	$3,0x01000000		# 16777216
+	sw	$31,44($sp)
+	sw	$17,28($sp)
+	#.set	volatile
+	lw	$2,528486536($5)
+	#.set	novolatile
+	lbu	$17,68($sp)
+	and	$2,$2,$3
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L87
+	li	$2,0x00000001		# 1
+	.set	macro
+	.set	reorder
+
+	li	$6,0x00010000		# 65536
+======================================================================
+###  p5_comma
+StCdInterrupt: PASS (583 insns)
+  _st_copy_words: PASS (11 insns)
+  _st_dma: FAIL 21 diffs (ours 107 / oracle 106)
+      -lui a1,1
+      -sll a2,s0,4
+      +sll a1,s0,4
+      -addu v0,v0,a2
+      +addu v0,v0,a1
+      -li v0,1
+      -beq a0,a1,T
+      -addiu a0,a0,1
+      +lui a2,1
+      +beq a0,a2,T
+      +nop
+      -addu v0,v0,a2
+	li	$5,0x00010000		# 65536
+	sll	$6,$16,4
+	li	$3,0x01000000		# 16777216
+	sw	$31,44($sp)
+	sw	$17,28($sp)
+	#.set	volatile
+	lw	$2,528486536($6)
+	#.set	novolatile
+	lbu	$17,68($sp)
+	and	$2,$2,$3
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L86
+	li	$2,0x00000001		# 1
+	.set	macro
+	.set	reorder
+
+$L75:
+======================================================================
+###  p6_from_mode
+StCdInterrupt: PASS (583 insns)
+  _st_copy_words: PASS (11 insns)
+  _st_dma: FAIL 3 diffs (ours 107 / oracle 106)
+      -lui a2,1
+      -li v0,1
+      +lui a2,1
+	li	$6,0x00010000		# 65536
+	sll	$5,$16,4
+	li	$3,0x01000000		# 16777216
+	sw	$31,44($sp)
+	sw	$17,28($sp)
+	#.set	volatile
+	lw	$2,528486536($5)
+	#.set	novolatile
+	lbu	$17,68($sp)
+	and	$2,$2,$3
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L86
+	li	$2,0x00000001		# 1
+	.set	macro
+	.set	reorder
+
+$L75:
+======================================================================
+###  p7_from_ch
+StCdInterrupt: PASS (583 insns)
+  _st_copy_words: PASS (11 insns)
+  _st_dma: FAIL 3 diffs (ours 107 / oracle 106)
+      -lui a2,1
+      -li v0,1
+      +lui a2,1
+	li	$6,0x00010000		# 65536
+	sll	$5,$16,4
+	li	$3,0x01000000		# 16777216
+	sw	$31,44($sp)
+	sw	$17,28($sp)
+	#.set	volatile
+	lw	$2,528486536($5)
+	#.set	novolatile
+	lbu	$17,68($sp)
+	and	$2,$2,$3
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L86
+	li	$2,0x00000001		# 1
+	.set	macro
+	.set	reorder
+
+$L75:
+======================================================================
+###  p8_forinit
+StCdInterrupt: PASS (583 insns)
+  _st_copy_words: PASS (11 insns)
+  _st_dma: FAIL 3 diffs (ours 107 / oracle 106)
+      -lui a2,1
+      -li v0,1
+      +lui a2,1
+	li	$6,0x00010000		# 65536
+	sll	$5,$16,4
+	li	$3,0x01000000		# 16777216
+	sw	$31,44($sp)
+	sw	$17,28($sp)
+	#.set	volatile
+	lw	$2,528486536($5)
+	#.set	novolatile
+	lbu	$17,68($sp)
+	and	$2,$2,$3
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L87
+	li	$2,0x00000001		# 1
+	.set	macro
+	.set	reorder
+
+$L76:
+======================================================================
+###  p9_unsigned
+StCdInterrupt: PASS (583 insns)
+  _st_copy_words: PASS (11 insns)
+  _st_dma: FAIL 3 diffs (ours 107 / oracle 106)
+      -lui a2,1
+      -li v0,1
+      +lui a2,1
+	li	$6,0x00010000		# 65536
+	sll	$5,$16,4
+	li	$3,0x01000000		# 16777216
+	sw	$31,44($sp)
+	sw	$17,28($sp)
+	#.set	volatile
+	lw	$2,528486536($5)
+	#.set	novolatile
+	lbu	$17,68($sp)
+	and	$2,$2,$3
+	.set	noreorder
+	.set	nomacro
+	beq	$2,$0,$L86
+	li	$2,0x00000001		# 1
+	.set	macro
+	.set	reorder
+
+$L75:

@@ -1,0 +1,17 @@
+function	class	repr_region	region_va	words	unit	candidate
+AudioClc_CalcAzimuth__FP17DRender_tCalcViewP8coorddef	CHANGED	USA	800754C8	96	game/common/audioclc	regiondiff/recon/NFS4-R-USA/game/common/audioclc.cpp
+AudioClc_CalcTrackAzimuth__FP17DRender_tCalcViewP8Car_tObj	CHANGED	USA	8007571C	85	game/common/audioclc	regiondiff/recon/NFS4-R-USA/game/common/audioclc.cpp
+AudioClc_SoundCars__Fv	CHANGED	USA	80076B90	180	game/common/audioclc	regiondiff/recon/NFS4-R-USA/game/common/audioclc.cpp
+AudioClc_SoundCloseCar__Fii	CHANGED	USA	8007593C	61	game/common/audioclc	regiondiff/recon/NFS4-R-USA/game/common/audioclc.cpp
+AudioClc_SoundPlayersCar__Fi	CHANGED	USA	80075A30	318	game/common/audioclc	regiondiff/recon/NFS4-R-USA/game/common/audioclc.cpp
+Stats_ExtrapolateOpponentTimes__Fi	CHANGED	USA	800B92D8	490	game/common/stats	regiondiff/recon/NFS4-R-USA/game/common/stats.cpp
+Redraw__14tFEApplication	CHANGED	AU	800138B4	363	frontend/common/feapp	regiondiff/recon/NFS4-R-AU/frontend/common/feapp.cpp
+videodecode__FP11VIDEOSTRUCTP14STREAMCHUNKHDRii	CHANGED	USA	80051698	258	frontend/psx/video	regiondiff/recon/NFS4-R-USA/frontend/psx/video.cpp
+SetCurrentController__23tScreenControllerConfigb	CHANGED	JPN	80043684	183	frontend/common/screencontroller	regiondiff/recon/NFS4-R-JPN/frontend/common/screencontroller.cpp
+ShakeIt__23tScreenControllerConfig	CHANGED	JPN	80043154	2	frontend/common/screencontroller	regiondiff/recon/NFS4-R-JPN/frontend/common/screencontroller.cpp
+FntPrint	CHANGED	USA	800F7990	138	syslib/psx/libgpu/FONT	regiondiff/recon/NFS4-R-USA/syslib/psx/libgpu/FONT.c
+func_80012FC4	REGION-ONLY	FR-DE	80012FC4	107	regiononly/func_80012FC4	regiondiff/recon/NFS4-R-FR-DE/regiononly/func_80012FC4.cpp
+func_800BB0A8	REGION-ONLY	JPN	800BB0A8	57	regiononly/func_800BB0A8	regiondiff/recon/NFS4-R-JPN/regiononly/func_800BB0A8.cpp
+func_8004DCB4	REGION-ONLY	AU	8004DCB4	37	regiononly/func_8004DCB4	regiondiff/recon/NFS4-R-AU/regiononly/func_8004DCB4.cpp
+func_800A7824	REGION-ONLY	USA	800A7824	8	regiononly/func_800A7824	regiondiff/recon/NFS4-R-USA/regiononly/func_800A7824.cpp
+func_800DCC90	REGION-ONLY	JPN	800DCC90	2	regiononly/func_800DCC90	regiondiff/recon/NFS4-R-JPN/regiononly/func_800DCC90.cpp

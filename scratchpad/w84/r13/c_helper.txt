@@ -1,0 +1,61 @@
+addiu sp,sp,-32
+lui v0,0x0
+lw v1,12(v0)
+li v0,1
+sw ra,28(sp)
+sw s2,24(sp)
+sw s1,20(sp)
+bne v1,v0,958 <func_8007593C+0x2c>
+sw s0,16(sp)
+j a08 <func_8007593C+0xdc>
+li v0,128
+lui s0,0xc0
+move s2,zero
+lui v0,0x0
+addiu s1,v0,0
+slti v0,s2,4
+beqz v0,9bc <func_8007593C+0x90>
+nop
+lw a1,0(s1)
+nop
+beqz a1,9b0 <func_8007593C+0x84>
+lui a0,0x0
+addiu a0,a0,0
+jal 0 <AudioClc_SndError__Fi>
+addiu a1,a1,160
+lui v1,0x7f
+ori v1,v1,0xffff
+move a0,v0
+slt v1,v1,a0
+bnez v1,9b0 <func_8007593C+0x84>
+lui v0,0xff80
+addu v0,s0,v0
+addu s0,v0,a0
+addiu s1,s1,56
+j 968 <func_8007593C+0x3c>
+addiu s2,s2,1
+bgez s0,9cc <func_8007593C+0xa0>
+move v0,s0
+li v0,0xffff
+addu v0,s0,v0
+sra v1,v0,0x10
+slti v0,v1,129
+bnez v0,9e0 <func_8007593C+0xb4>
+nop
+li v1,128
+bltz v1,a08 <func_8007593C+0xdc>
+move v0,zero
+bgez s0,9f8 <func_8007593C+0xcc>
+move v0,s0
+li v0,0xffff
+addu v0,s0,v0
+sra v1,v0,0x10
+slti v0,v1,129
+beqz v0,950 <func_8007593C+0x24>
+move v0,v1
+lw ra,28(sp)
+lw s2,24(sp)
+lw s1,20(sp)
+lw s0,16(sp)
+jr ra
+addiu sp,sp,32

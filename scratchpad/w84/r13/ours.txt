@@ -1,0 +1,241 @@
+0000031c <FntPrint>:
+a0,0(sp)
+a1,4(sp)
+a2,8(sp)
+a3,12(sp)
+sp,sp,-568
+v0,sp,572
+ra,560(sp)
+s5,556(sp)
+s4,552(sp)
+s3,548(sp)
+s2,544(sp)
+s1,540(sp)
+s0,536(sp)
+a0,568(sp)
+a0,374 <FntPrint+0x58>
+v0,528(sp)
+v0,0x0
+v0,0(v0)
+nop
+v0,a0,v0
+v0,3ac <FntPrint+0x90>
+v0,sp,576
+v0,0x0
+v0,0(v0)
+nop
+v1,v0,0x1
+v1,v1,v0
+v1,v1,0x4
+at,0x0
+at,at,v1
+v1,36(at)
+s3,a0
+v1,3b4 <FntPrint+0x98>
+v0,568(sp)
+6b8 <FntPrint+0x39c>
+v0,-1
+s3,572(sp)
+v0,528(sp)
+v1,568(sp)
+nop
+v0,v1,0x1
+v0,v0,v1
+v0,v0,0x4
+v1,0x0
+v1,v1,0
+s1,v0,v1
+v1,40(s1)
+v0,28(s1)
+nop
+v0,v0,v1
+v0,3a4 <FntPrint+0x88>
+nop
+a0,0(s3)
+nop
+a0,6a0 <FntPrint+0x384>
+nop
+s4,37
+s5,0xcccc
+s5,s5,0xcccd
+a0,s4,424 <FntPrint+0x108>
+nop
+s3,s3,1
+a0,0(s3)
+nop
+a0,s4,454 <FntPrint+0x138>
+s2,zero
+v0,40(s1)
+v1,36(s1)
+nop
+v1,v1,v0
+a0,0(v1)
+v1,28(s1)
+v0,v0,1
+v1,v1,v0
+v1,68c <FntPrint+0x370>
+v0,40(s1)
+6b8 <FntPrint+0x39c>
+v0,-1
+v0,a0,0x30
+v0,v0,1
+480 <FntPrint+0x164>
+a2,v0
+v0,v0,s2
+v0,v0,0x1
+v0,v0,-48
+s2,v0,a0
+s3,s3,1
+a0,0(s3)
+nop
+v0,a0,-48
+v0,v0,10
+v0,464 <FntPrint+0x148>
+v0,s2,0x2
+s2,49c <FntPrint+0x180>
+v1,a0,-88
+s2,1
+v0,v1,33
+v0,5fc <FntPrint+0x2e0>
+s0,sp,528
+v0,v1,0x2
+at,0x0
+at,at,v0
+v0,0(at)
+nop
+v0
+nop
+v0,528(sp)
+nop
+a0,0(v0)
+v0,v0,4
+a0,4e8 <FntPrint+0x1cc>
+v0,528(sp)
+a0,a0
+4ec <FntPrint+0x1d0>
+a2,45
+a2,zero
+a1,zero
+a0,s5
+s0,s0,-1
+a1,a1,1
+a3
+v1,a3,0x3
+v0,v1,0x2
+v0,v0,v1
+v0,v0,0x1
+v0,a0,v0
+v0,v0,48
+v0,0(s0)
+a1,4f0 <FntPrint+0x1d4>
+a0,v1
+a0,4f0 <FntPrint+0x1d4>
+nop
+a2,600 <FntPrint+0x2e4>
+v0,a1,s2
+s0,s0,-1
+a2,0(s0)
+5fc <FntPrint+0x2e0>
+a1,a1,1
+v0,528(sp)
+a1,zero
+a0,0(v0)
+v0,v0,4
+v0,528(sp)
+s0,s0,-1
+v0,a0,0xf
+v1,0x0
+v1,0(v1)
+a0,a0,0x4
+v1,v1,v0
+v0,0(v1)
+a1,a1,1
+a1,558 <FntPrint+0x23c>
+v0,0(s0)
+a0,55c <FntPrint+0x240>
+s0,s0,-1
+s0,s0,1
+v0,a2
+v0,5fc <FntPrint+0x2e0>
+v0,a1,s2
+v0,640 <FntPrint+0x324>
+v1,48
+s0,s0,-1
+a1,a1,1
+v0,a1,s2
+v0,5a0 <FntPrint+0x284>
+v1,0(s0)
+600 <FntPrint+0x2e4>
+nop
+s0,s0,-1
+v0,528(sp)
+a1,1
+v1,0(v0)
+v0,v0,4
+v1,0(s0)
+5fc <FntPrint+0x2e0>
+v0,528(sp)
+v0,528(sp)
+nop
+s0,0(v0)
+v0,v0,4
+v0,528(sp)
+0 <FntFlush>
+a0,s0
+a1,v0
+v0,a1,s2
+v0,640 <FntPrint+0x324>
+a0,32
+v0,40(s1)
+v1,36(s1)
+nop
+v1,v1,v0
+a0,0(v1)
+v1,28(s1)
+v0,v0,1
+v1,v1,v0
+v1,3a4 <FntPrint+0x88>
+v0,40(s1)
+s2,s2,-1
+v0,a1,s2
+v0,608 <FntPrint+0x2ec>
+nop
+a1,a1,-1
+v0,-1
+a1,v0,68c <FntPrint+0x370>
+nop
+a2,-1
+v1,40(s1)
+v0,36(s1)
+a0,0(s0)
+s0,s0,1
+v0,v0,v1
+a0,0(v0)
+v0,28(s1)
+v1,v1,1
+v0,v0,v1
+v0,3a4 <FntPrint+0x88>
+v1,40(s1)
+a1,a1,-1
+a1,a2,654 <FntPrint+0x338>
+nop
+s3,s3,1
+a0,0(s3)
+nop
+a0,408 <FntPrint+0xec>
+nop
+v0,36(s1)
+v1,40(s1)
+nop
+v0,v0,v1
+zero,0(v0)
+v0,40(s1)
+ra,560(sp)
+s5,556(sp)
+s4,552(sp)
+s3,548(sp)
+s2,544(sp)
+s1,540(sp)
+s0,536(sp)
+ra
+sp,sp,568

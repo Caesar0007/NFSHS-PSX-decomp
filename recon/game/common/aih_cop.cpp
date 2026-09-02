@@ -312,8 +312,6 @@ void AIHigh_Cop::HighExecute()
       /* Idle arm = oracle FALL-THROUGH (beqz jumps to the Purgatory arm) */
       AIState_Base *newState;
 
-      AIState_Base *oldState;
-
       newState = operator new(0x10);
 
       (new(newState) AIState_Base(this->carObj_));
@@ -322,17 +320,7 @@ void AIHigh_Cop::HighExecute()
 
       newState[1]._vf = (__vtbl_ptr_type (*) [4])0x1;
 
-      oldState = this->state_;
-
-      if (oldState != (AIState_Base *)0x0) {
-
-        (*(int (**)(...))((char *)oldState->_vf + 20))((int)&oldState->carObj_ + (int)*(short *)((char *)oldState->_vf + 16),3);
-
-      }
-
-      this->state_ = newState;
-
-      this->stateType_ = (stateType_t)3;
+      this->SetState(newState,(stateType_t)3);
 
       return;
     }
@@ -340,25 +328,9 @@ void AIHigh_Cop::HighExecute()
     {
       AIState_Base *newState;
 
-      AIState_Base *oldState;
+      newState = (AIState_Base *)new AIState_Purgatory(this->carObj_);
 
-      AIState_Purgatory *p;
-
-      p = operator new(8);
-
-      newState = (AIState_Base *) (new(p) AIState_Purgatory(this->carObj_));
-
-      oldState = this->state_;
-
-      if (oldState != (AIState_Base *)0x0) {
-
-        (*(int (**)(...))((char *)oldState->_vf + 20))((int)&oldState->carObj_ + (int)*(short *)((char *)oldState->_vf + 16),3);
-
-      }
-
-      this->state_ = newState;
-
-      this->stateType_ = (stateType_t)1;
+      this->SetState(newState,(stateType_t)1);
 
       return;
     }
@@ -391,8 +363,6 @@ void AIHigh_Cop::HighExecute()
 
       AIState_Base *newState;
 
-      AIState_Base *oldState;
-
       this->AssignToPlayer(this->blockade_.target);
 
       newState = operator new(0x10);
@@ -403,26 +373,12 @@ void AIHigh_Cop::HighExecute()
 
       newState[1]._vf = (__vtbl_ptr_type (*) [4])0x1;
 
-      oldState = this->state_;
-
-      if (oldState != (AIState_Base *)0x0) {
-
-        (*(int (**)(...))((char *)oldState->_vf + 20))((int)&oldState->carObj_ + (int)*(short *)((char *)oldState->_vf + 16),3);
-
-      }
+      this->SetState(newState,(stateType_t)3);
 
       {
-        int rotation;
-
-        rotation = this->blockade_.rotation;
-
-        this->state_ = newState;
-
-        this->stateType_ = (stateType_t)3;
-
         AILife_ReencarnateCopByLatPosAndRotation(this->carObj_,this->blockade_.slice
                    ,this->blockade_.direction,
-                   this->blockade_.latPos,rotation);
+                   this->blockade_.latPos,this->blockade_.rotation);
       }
 
       this->requestSpikeBeltAtSlice_ = this->blockade_.requestSpikeBeltAtSlice;
@@ -570,8 +526,6 @@ void AIHigh_Cop::HighExecute()
 
             AIState_Offroad *newState;
 
-            AIState_Base *oldState;
-
             this->AssignToPlayer((AIHigh_Player *)0x0);
 
             newState = operator new(0x68);
@@ -580,17 +534,7 @@ void AIHigh_Cop::HighExecute()
                                 &newTrigger.offroad.position,&newTrigger.offroad.orientation,
                                 newTrigger.offroad.maxSpeed,newTrigger.offroad.releaseTime,newTrigger.offroad.endSlice));
 
-            oldState = this->state_;
-
-            if (oldState != (AIState_Base *)0x0) {
-
-              (*(int (**)(...))((char *)oldState->_vf + 20))((int)&oldState->carObj_ + (int)*(short *)((char *)oldState->_vf + 16),3);
-
-            }
-
-            this->state_ = (AIState_Base*)newState;
-
-            this->stateType_ = (stateType_t)5;
+            this->SetState((AIState_Base *)newState,(stateType_t)5);
 
             AILife_ReencarnateCopByPosition(this->carObj_,newTrigger.offroad.slice,1,
                        &newTrigger.offroad.position,&newTrigger.offroad.orientation);
@@ -621,35 +565,17 @@ void AIHigh_Cop::HighExecute()
             /* Normal arm = oracle FALL-THROUGH */
             AIState_Base *newState;
 
-            AIState_Base *oldState;
-
-            AIState_Normal *p;
-
             this->AssignToPlayer((AIHigh_Player *)0x0);
 
-            p = operator new(8);
+            newState = new AIState_Normal(this->carObj_);
 
-            newState = (AIState_Base*)(new(p) AIState_Normal(this->carObj_));
-
-            oldState = this->state_;
-
-            if (oldState != (AIState_Base *)0x0) {
-
-              (*(int (**)(...))((char *)oldState->_vf + 20))((int)&oldState->carObj_ + (int)*(short *)((char *)oldState->_vf + 16),3);
-
-            }
-
-            this->state_ = newState;
-
-            this->stateType_ = (stateType_t)2;
+            this->SetState(newState,(stateType_t)2);
 
           }
 
           else {
 
             AIState_Base *newState;
-
-            AIState_Base *oldState;
 
             this->AssignToPlayer((AIHigh_Player *)0x0);
 
@@ -661,17 +587,7 @@ void AIHigh_Cop::HighExecute()
 
             newState[1]._vf = (__vtbl_ptr_type (*) [4])0x1;
 
-            oldState = this->state_;
-
-            if (oldState != (AIState_Base *)0x0) {
-
-              (*(int (**)(...))((char *)oldState->_vf + 20))((int)&oldState->carObj_ + (int)*(short *)((char *)oldState->_vf + 16),3);
-
-            }
-
-            this->state_ = newState;
-
-            this->stateType_ = (stateType_t)3;
+            this->SetState(newState,(stateType_t)3);
 
           }
 
@@ -751,12 +667,6 @@ void AIHigh_Cop::HighExecute()
 
         AIState_Chase *newState;
 
-        AIState_Base *oldState;
-
-        Car_tObj *carObj;
-
-        Speaker *speaker;
-
         this->GetCheckChasePosition(&pos);
 
         newState = operator new(0x94);
@@ -773,25 +683,9 @@ void AIHigh_Cop::HighExecute()
                              NitroDistanceMeters[this->type_][1],
                              this->aggressionLevel_,AICop_skillDelay[(int)GameSetup_gData.skill]));
 
-        oldState = this->state_;
+        this->SetState((AIState_Base *)newState,chaseState);
 
-        if (oldState != (AIState_Base *)0x0) {
-
-          (*(int (**)(...))((char *)oldState->_vf + 20))((int)&oldState->carObj_ + (int)*(short *)((char *)oldState->_vf + 16),3);
-
-        }
-
-        carObj = this->carObj_;
-
-        this->state_ = (AIState_Base*)newState;
-
-        this->stateType_ = chaseState;
-
-        speaker = (Speaker *)Speech_Mobile(carObj);
-
-        (**(int (**)(...))((char *)speaker->_vf + 52))
-                  ((int)&(speaker->fPosition).flags + (int)*(short *)((char *)speaker->_vf + 48),
-                   (this->perpTarget_)->carObj_);
+        Speech_Mobile(this->carObj_)->VirtualEngage((this->perpTarget_)->carObj_);
 
       }
       }
@@ -807,40 +701,15 @@ void AIHigh_Cop::HighExecute()
     {
       AIState_Base *newState;
 
-      AIState_Base *oldState;
-
-      AIState_Purgatory *p;
-
-      Car_tObj *carObj;
-
-      Speaker *speaker;
-
-      carObj = this->carObj_;
-
       this->forcePurgatory_ = 0;
 
-      speaker = (Speaker *)Speech_Mobile(carObj);
-
-      (**(int (**)(...))((char *)speaker->_vf + 132))
-                ((int)&(speaker->fPosition).flags + (int)*(short *)((char *)speaker->_vf + 128));
+      Speech_Mobile(this->carObj_)->VirtualPurge();
 
       this->AssignToPlayer((AIHigh_Player *)0x0);
 
-      p = operator new(8);
+      newState = (AIState_Base *)new AIState_Purgatory(this->carObj_);
 
-      newState = (AIState_Base *) (new(p) AIState_Purgatory(this->carObj_));
-
-      oldState = this->state_;
-
-      if (oldState != (AIState_Base *)0x0) {
-
-        (*(int (**)(...))((char *)oldState->_vf + 20))((int)&oldState->carObj_ + (int)*(short *)((char *)oldState->_vf + 16),3);
-
-      }
-
-      this->state_ = newState;
-
-      this->stateType_ = (stateType_t)1;
+      this->SetState(newState,(stateType_t)1);
     }
 
     goto stateExecuteAndReturn;
@@ -854,15 +723,9 @@ void AIHigh_Cop::HighExecute()
 
     blockadeMode_t mode;
 
-    {
-      Car_tObj *carObj;
+    chaseState = (AIState_Chase *)this->state_;
 
-      carObj = this->carObj_;
-
-      chaseState = (AIState_Chase *)this->state_;
-
-      carObj->AIFlags = carObj->AIFlags | 2;
-    }
+    this->carObj_->AIFlags = this->carObj_->AIFlags | 2;
 
     if (0xa0 < chaseState->barrierTicks32_) {
 
@@ -870,40 +733,22 @@ void AIHigh_Cop::HighExecute()
 
       AIState_GotoSlice *newState;
 
-      AIState_Base *oldState;
-
-      Car_tObj *carObj;
-
-      Speaker *speaker;
-
       endSlice = (chaseState)->FindBarrierEndSlice();
 
       newState = operator new(0x10);
 
       newState = (new(newState) AIState_GotoSlice(this->carObj_,endSlice,0));
 
-      oldState = this->state_;
+      this->SetState((AIState_Base *)newState,(stateType_t)9);
 
-      if (oldState != (AIState_Base *)0x0) {
-
-        (*(int (**)(...))((char *)oldState->_vf + 20))((int)&oldState->carObj_ + (int)*(short *)((char *)oldState->_vf + 16),3);
-
-      }
-
-      carObj = this->carObj_;
-
-      this->state_ = (AIState_Base *)newState;
-
-      this->stateType_ = (stateType_t)9;
-
-      speaker = (Speaker *)Speech_Mobile(carObj);
-
-      (**(int (**)(...))((char *)speaker->_vf + 60))
-                ((int)&(speaker->fPosition).flags + (int)*(short *)((char *)speaker->_vf + 56));
+      Speech_Mobile(this->carObj_)->VirtualLose();
 
     }
 
     {
+      /* SYM-CODEGEN-CARRIER: copChasers -- keeping the selected chase-level row
+         pointer across the two element tests preserves the retail address chain;
+         direct indexed expressions add three instructions and produce 17 diffs. */
       int *copChasers;
 
       copChasers = ((this->perpTarget_->perpChaseInfo_).chaseLevel_)->copChasers +
@@ -919,6 +764,9 @@ void AIHigh_Cop::HighExecute()
     this->requestSpikeBeltAtSlice_ = -1;
 
     {
+      /* SYM-CODEGEN-CARRIER: needy -- the explicit false/default selection keeps
+         the shared -1 constant in the retail callee-saved quantity. Folding to a
+         compound condition removes one instruction and produces 17 diffs. */
       int needy;
 
       needy = 0;
@@ -941,6 +789,9 @@ void AIHigh_Cop::HighExecute()
     this->HandleBlockadeSpeech();
 
     {
+      /* SYM-CODEGEN-CARRIER: retarget -- retaining the explicit selected boolean
+         preserves the retail zero/default quantity and call-result test. Folding
+         it into a compound condition removes two instructions and produces ten diffs. */
       int retarget;
 
       retarget = 0;
@@ -965,6 +816,9 @@ void AIHigh_Cop::HighExecute()
 
       int minLongMetersDistance;
 
+      /* SYM-CODEGEN-CARRIER: murder -- the explicit selected boolean preserves
+         the retail nested-guard value flow. Folding murder and meters into one
+         compound condition removes eight instructions and produces 32 diffs. */
       int murder;
 
       minTimeInZone = AIHigh_Cop_AggressionData[this->aggressionLevel_].ticksInChaseRegionForMurder;
@@ -977,6 +831,9 @@ void AIHigh_Cop::HighExecute()
 
       if (minTimeInZone < chaseState->inTargetRegion_) {
 
+        /* SYM-CODEGEN-CARRIER: meters -- reusing this absolute-distance quantity
+           across the nested lateral/longitudinal tests is part of the same
+           measured 1452-instruction/32-diff ablation above. */
         int meters;
 
         meters = __builtin_abs(chaseState->latMetersBetween_);
@@ -999,6 +856,9 @@ void AIHigh_Cop::HighExecute()
     }
 
     {
+      /* SYM-CODEGEN-CARRIER: cutOff -- the explicit selected boolean preserves
+         retail's zero/default quantity and branch polarity. Folding it into the
+         compound condition removes two instructions and produces four diffs. */
       int cutOff;
 
       cutOff = 0;
@@ -1041,6 +901,10 @@ void AIHigh_Cop::HighExecute()
 
       if ((mode == 1) || (mode == 4)) {
 
+        /* SYM-CODEGEN-CARRIER: carObj -- each direction-reset block snapshots
+           this->carObj_ before reading reverseTrack. Folding this first snapshot
+           adds two instructions and produces 18 diffs; folding all three adds
+           three instructions and produces 57 diffs. */
         Car_tObj *carObj;
 
         int direction;
@@ -1064,27 +928,11 @@ void AIHigh_Cop::HighExecute()
       {
         AIState_Base *newState;
 
-        AIState_Base *oldState;
-
-        AIState_Normal *p;
-
         this->AssignToPlayer((AIHigh_Player *)0x0);
 
-        p = operator new(8);
+        newState = new AIState_Normal(this->carObj_);
 
-        newState = (AIState_Base*)(new(p) AIState_Normal(this->carObj_));
-
-        oldState = this->state_;
-
-        if (oldState != (AIState_Base *)0x0) {
-
-          (*(int (**)(...))((char *)oldState->_vf + 20))((int)&oldState->carObj_ + (int)*(short *)((char *)oldState->_vf + 16),3);
-
-        }
-
-        this->state_ = newState;
-
-        this->stateType_ = (stateType_t)2;
+        this->SetState(newState,(stateType_t)2);
       }
 
     }
@@ -1094,48 +942,22 @@ void AIHigh_Cop::HighExecute()
 
     if ((AILife_EvaluateLife(this->carObj_) != 0) && (this->driveAway_ == 0)) {
 
-      Speaker *speaker;
-
-      speaker = (Speaker *)Speech_Mobile(this->carObj_);
-
-      (**(int (**)(...))((char *)speaker->_vf + 60))
-                ((int)&(speaker->fPosition).flags + (int)*(short *)((char *)speaker->_vf + 56));
+      Speech_Mobile(this->carObj_)->VirtualLose();
 
     }
 
     {
       AIState_Base *newState;
 
-      AIState_Base *oldState;
-
-      AIState_Purgatory *p;
-
-      Speaker *speaker;
-
-      speaker = (Speaker *)Speech_Mobile(this->carObj_);
-
-      (**(int (**)(...))((char *)speaker->_vf + 132))
-                ((int)&(speaker->fPosition).flags + (int)*(short *)((char *)speaker->_vf + 128));
+      Speech_Mobile(this->carObj_)->VirtualPurge();
 
       this->forcePurgatory_ = 0;
 
       this->AssignToPlayer((AIHigh_Player *)0x0);
 
-      p = operator new(8);
+      newState = (AIState_Base *)new AIState_Purgatory(this->carObj_);
 
-      newState = (AIState_Base *) (new(p) AIState_Purgatory(this->carObj_));
-
-      oldState = this->state_;
-
-      if (oldState != (AIState_Base *)0x0) {
-
-        (*(int (**)(...))((char *)oldState->_vf + 20))((int)&oldState->carObj_ + (int)*(short *)((char *)oldState->_vf + 16),3);
-
-      }
-
-      this->state_ = newState;
-
-      this->stateType_ = (stateType_t)1;
+      this->SetState(newState,(stateType_t)1);
     }
 
     goto stateExecuteAndReturn;
@@ -1178,27 +1000,11 @@ void AIHigh_Cop::HighExecute()
       {
         AIState_Base *newState;
 
-        AIState_Base *oldState;
-
-        AIState_Normal *p;
-
         this->AssignToPlayer((AIHigh_Player *)0x0);
 
-        p = operator new(8);
+        newState = new AIState_Normal(this->carObj_);
 
-        newState = (AIState_Base*)(new(p) AIState_Normal(this->carObj_));
-
-        oldState = this->state_;
-
-        if (oldState != (AIState_Base *)0x0) {
-
-          (*(int (**)(...))((char *)oldState->_vf + 20))((int)&oldState->carObj_ + (int)*(short *)((char *)oldState->_vf + 16),3);
-
-        }
-
-        this->state_ = newState;
-
-        this->stateType_ = (stateType_t)2;
+        this->SetState(newState,(stateType_t)2);
       }
 
     }
@@ -1207,40 +1013,15 @@ void AIHigh_Cop::HighExecute()
 
       AIState_Base *newState;
 
-      AIState_Base *oldState;
-
-      AIState_Purgatory *p;
-
-      Car_tObj *carObj;
-
-      Speaker *speaker;
-
-      carObj = this->carObj_;
-
       this->forcePurgatory_ = 0;
 
-      speaker = (Speaker *)Speech_Mobile(carObj);
-
-      (**(int (**)(...))((char *)speaker->_vf + 132))
-                ((int)&(speaker->fPosition).flags + (int)*(short *)((char *)speaker->_vf + 128));
+      Speech_Mobile(this->carObj_)->VirtualPurge();
 
       this->AssignToPlayer((AIHigh_Player *)0x0);
 
-      p = operator new(8);
+      newState = (AIState_Base *)new AIState_Purgatory(this->carObj_);
 
-      newState = (AIState_Base *) (new(p) AIState_Purgatory(this->carObj_));
-
-      oldState = this->state_;
-
-      if (oldState != (AIState_Base *)0x0) {
-
-        (*(int (**)(...))((char *)oldState->_vf + 20))((int)&oldState->carObj_ + (int)*(short *)((char *)oldState->_vf + 16),3);
-
-      }
-
-      this->state_ = newState;
-
-      this->stateType_ = (stateType_t)1;
+      this->SetState(newState,(stateType_t)1);
 
       goto stateExecuteAndReturn;
 
@@ -1252,12 +1033,6 @@ LAB_80064a0c:
 
       {
         AIState_Base *newState;
-
-        AIState_Base *oldState;
-
-        AIState_Normal *p;
-
-        AIHigh_tDriveAwayMode driveAway;
 
         {
           Car_tObj *carObj;
@@ -1281,25 +1056,11 @@ LAB_80064a0c:
 
         this->AssignToPlayer((AIHigh_Player *)0x0);
 
-        p = operator new(8);
+        newState = new AIState_Normal(this->carObj_);
 
-        newState = (AIState_Base*)(new(p) AIState_Normal(this->carObj_));
+        this->SetState(newState,(stateType_t)2);
 
-        oldState = this->state_;
-
-        if (oldState != (AIState_Base *)0x0) {
-
-          (*(int (**)(...))((char *)oldState->_vf + 20))((int)&oldState->carObj_ + (int)*(short *)((char *)oldState->_vf + 16),3);
-
-        }
-
-        driveAway = this->driveAway_;
-
-        this->state_ = newState;
-
-        this->stateType_ = (stateType_t)2;
-
-        if (driveAway == 1) {
+        if (this->driveAway_ == 1) {
 
           Cars_ResetCollidedCars(this->carObj_,1,1);
 
@@ -1596,10 +1357,6 @@ LAB_80064d34:;
       {
         AIState_Chase *newState;
 
-        AIState_Base *oldState;
-
-        int reverse;
-
         newState = operator new(0x94);
 
         newState = (new(newState) AIState_Chase(this->carObj_,
@@ -1609,21 +1366,9 @@ LAB_80064d34:;
                              NitroDistanceMeters[this->type_][1],
                              this->aggressionLevel_,AICop_skillDelay[(int)GameSetup_gData.skill]));
 
-        oldState = this->state_;
+        this->SetState((AIState_Base *)newState,(stateType_t)4);
 
-        if (oldState != (AIState_Base *)0x0) {
-
-          (*(int (**)(...))((char *)oldState->_vf + 20))((int)&oldState->carObj_ + (int)*(short *)((char *)oldState->_vf + 16),3);
-
-        }
-
-        reverse = this->blockade_.reverse;
-
-        this->state_ = (AIState_Base*)newState;
-
-        this->stateType_ = (stateType_t)4;
-
-        if (reverse != 0) {
+        if (this->blockade_.reverse != 0) {
 
           AIPhysic_ChangeDirection(this->carObj_,0x40);
 
@@ -1650,12 +1395,6 @@ LAB_80064d34:;
 
         AIState_Chase *newState;
 
-        AIState_Base *oldState;
-
-        Car_tObj *carObj;
-
-        Speaker *speaker;
-
         this->GetCheckChasePosition(&pos);
 
         newState = operator new(0x94);
@@ -1667,25 +1406,9 @@ LAB_80064d34:;
                              NitroDistanceMeters[this->type_][1],
                              this->aggressionLevel_,AICop_skillDelay[(int)GameSetup_gData.skill]));
 
-        oldState = this->state_;
+        this->SetState((AIState_Base *)newState,(stateType_t)4);
 
-        if (oldState != (AIState_Base *)0x0) {
-
-          (*(int (**)(...))((char *)oldState->_vf + 20))((int)&oldState->carObj_ + (int)*(short *)((char *)oldState->_vf + 16),3);
-
-        }
-
-        carObj = this->carObj_;
-
-        this->state_ = (AIState_Base*)newState;
-
-        this->stateType_ = (stateType_t)4;
-
-        speaker = (Speaker *)Speech_Mobile(carObj);
-
-        (**(int (**)(...))((char *)speaker->_vf + 52))
-                  ((int)&(speaker->fPosition).flags + (int)*(short *)((char *)speaker->_vf + 48),
-                   (this->perpTarget_)->carObj_);
+        Speech_Mobile(this->carObj_)->VirtualEngage((this->perpTarget_)->carObj_);
 
         goto stateExecuteAndReturn;
 
@@ -1698,27 +1421,11 @@ LAB_80064d34:;
       {
         AIState_Base *newState;
 
-        AIState_Base *oldState;
-
-        AIState_Purgatory *p;
-
         this->AssignToPlayer((AIHigh_Player *)0x0);
 
-        p = operator new(8);
+        newState = (AIState_Base *)new AIState_Purgatory(this->carObj_);
 
-        newState = (AIState_Base *) (new(p) AIState_Purgatory(this->carObj_));
-
-        oldState = this->state_;
-
-        if (oldState != (AIState_Base *)0x0) {
-
-          (*(int (**)(...))((char *)oldState->_vf + 20))((int)&oldState->carObj_ + (int)*(short *)((char *)oldState->_vf + 16),3);
-
-        }
-
-        this->state_ = newState;
-
-        this->stateType_ = (stateType_t)1;
+        this->SetState(newState,(stateType_t)1);
       }
 
       goto stateExecuteAndReturn;
@@ -1732,19 +1439,15 @@ LAB_80064d34:;
     int hLoop;
 
     {
-      Car_tObj *carObj;
+      if ((this->carObj_->N).simOptz == '\0') {
 
-      carObj = this->carObj_;
-
-      if ((carObj->N).simOptz == '\0') {
-
-        carObj->extraWallCollisionAllowance = 0;
+        this->carObj_->extraWallCollisionAllowance = 0;
 
       }
 
       else {
 
-        carObj->extraWallCollisionAllowance = 0x18000;
+        this->carObj_->extraWallCollisionAllowance = 0x18000;
 
       }
     }
@@ -1776,47 +1479,27 @@ LAB_80064d34:;
     }
 
     {
-      Car_tObj *carObj;
-
       int slices;
 
-      carObj = this->carObj_;
-
-      slices = (carObj->N).simRoadInfo.slice * 0x20 + (int)BWorldSm_slices;
+      slices = (this->carObj_->N).simRoadInfo.slice * 0x20 + (int)BWorldSm_slices;
 
       if (((int)-((*(u_char *)(slices + 0x1e) << 15) * (*(u_char *)(slices + 0x1d) >> 4)) <=
 
-           carObj->roadPosition) &&
+           this->carObj_->roadPosition) &&
 
-         (carObj->roadPosition <=
+         (this->carObj_->roadPosition <=
 
           (*(u_char *)(slices + 0x1f) << 15) * (*(u_char *)(slices + 0x1d) & 0xf))) {
 
         AIState_Base *newState;
 
-        AIState_Base *oldState;
-
-        AIState_Normal *p;
-
-        carObj->extraWallCollisionAllowance = 0;
+        this->carObj_->extraWallCollisionAllowance = 0;
 
         this->AssignToPlayer((AIHigh_Player *)0x0);
 
-        p = operator new(8);
+        newState = new AIState_Normal(this->carObj_);
 
-        newState = (AIState_Base*)(new(p) AIState_Normal(this->carObj_));
-
-        oldState = this->state_;
-
-        if (oldState != (AIState_Base *)0x0) {
-
-          (*(int (**)(...))((char *)oldState->_vf + 20))((int)&oldState->carObj_ + (int)*(short *)((char *)oldState->_vf + 16),3);
-
-        }
-
-        this->state_ = newState;
-
-        this->stateType_ = (stateType_t)2;
+        this->SetState(newState,(stateType_t)2);
 
       }
     }
@@ -1829,31 +1512,15 @@ LAB_80064d34:;
     {
       AIState_Base *newState;
 
-      AIState_Base *oldState;
-
-      AIState_Purgatory *p;
-
       (this->carObj_)->extraWallCollisionAllowance = 0;
 
       this->forcePurgatory_ = 0;
 
       this->AssignToPlayer((AIHigh_Player *)0x0);
 
-      p = operator new(8);
+      newState = (AIState_Base *)new AIState_Purgatory(this->carObj_);
 
-      newState = (AIState_Base *) (new(p) AIState_Purgatory(this->carObj_));
-
-      oldState = this->state_;
-
-      if (oldState != (AIState_Base *)0x0) {
-
-        (*(int (**)(...))((char *)oldState->_vf + 20))((int)&oldState->carObj_ + (int)*(short *)((char *)oldState->_vf + 16),3);
-
-      }
-
-      this->state_ = newState;
-
-      this->stateType_ = (stateType_t)1;
+      this->SetState(newState,(stateType_t)1);
     }
 
     goto stateExecuteAndReturn;
@@ -1877,31 +1544,15 @@ LAB_80064d34:;
 
     AIState_Base *newState;
 
-    AIState_Base *oldState;
-
-    AIState_Normal *p;
-
     gotoState = (AIState_GotoSlice *)this->state_;
 
     this->AssignToPlayer((AIHigh_Player *)0x0);
 
     if ((gotoState)->InTargetSliceRange(0xa0000) == 0) goto stateExecuteAndReturn;
 
-    p = operator new(8);
+    newState = new AIState_Normal(this->carObj_);
 
-    newState = (AIState_Base*)(new(p) AIState_Normal(this->carObj_));
-
-    oldState = this->state_;
-
-    if (oldState != (AIState_Base *)0x0) {
-
-      (*(int (**)(...))((char *)oldState->_vf + 20))((int)&oldState->carObj_ + (int)*(short *)((char *)oldState->_vf + 16),3);
-
-    }
-
-    this->state_ = newState;
-
-    this->stateType_ = (stateType_t)2;
+    this->SetState(newState,(stateType_t)2);
     }
 
   }

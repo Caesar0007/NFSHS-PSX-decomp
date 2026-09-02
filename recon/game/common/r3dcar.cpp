@@ -1890,18 +1890,30 @@ void R3DCar_InsertCarFacetMenu(Car_tObj *carObj,DRender_tView *Vi)
   int changeCar;         /* SYM fn REG a3 -- "new car loaded" flag */
   int countryFlag;       /* SYM fn REG s5 */
   int cop_flag;          /* SYM fn REG s4 */
+  /* SYM-CODEGEN-CARRIER: bVar2 -- direct newCountry field expressions reload
+     the byte for the player-side 0x80 update, producing 1056 instructions and
+     eight load/store register diffs instead of the exact 1054. */
   u_char bVar2;
+  /* SYM-CODEGEN-CARRIER: sVar3 -- direct newCarType field expressions remove
+     two retail instructions and perturb the adjacent country/player allocation,
+     producing 14 diffs instead of the exact 1054-instruction function. */
   short sVar3;
-  u_short uVar7;
-  int iVar8;
+  /* SYM-CODEGEN-CARRIER: iVar9 -- this normalized menu-row index is a distinct
+     local-alloc quantity used by the sub-OT address chain. Replacing it with
+     `(uVar20 != 0)` was measured at 30 diffs; dropping uVar20 instead removes
+     one instruction and produces 21 diffs. */
   int iVar9;
-  Transformer_zScene *pTVar10;
-  int iVar12;
-  int iVar13;
-  int iVar15;
-  int iVar16;
+  /* SYM-CODEGEN-CARRIER: pGVar14 -- spelling both accesses through carObj->carInfo
+     reloads the pointer before the Country store, producing 1056 instructions and
+     eight register/load diffs instead of the exact 1054-instruction function. */
   GameSetup_tCarData *pGVar14;
+  /* SYM-CODEGEN-CARRIER: uVar20 -- preserves the original 0x80 mask value for
+     the post-address early branch while iVar9 carries its normalized row index;
+     collapsing the pair yields 1053 instructions and 21 diffs. */
   u_int uVar20;
+  /* SYM-CODEGEN-CARRIER: ppTVar21 -- the loaded-scene slot pointer must remain
+     distinct from its integer index-sum carrier. Natural two-dimensional
+     subscripting was measured at 24 diffs and the index-first cast at 22. */
   Transformer_zScene **ppTVar21;
   coorddef parent;       /* SYM fn AUTO sp+0x18 */
   matrixtdef bodyMat;
@@ -1936,6 +1948,9 @@ void R3DCar_InsertCarFacetMenu(Car_tObj *carObj,DRender_tView *Vi)
      per site, so both sites get their own caller-saved scratch with no
      cross-site interference. */
   {
+    /* SYM-CODEGEN-CARRIER: copIndex0 -- the block-local subtraction gives retail
+       `addiu v0,s3,-22; sltiu s4,v0,6`; folding it reuses s4 as scratch and
+       disturbs both cop-index sites. */
     int copIndex0 = carType - 0x16;
     cop_flag = (u_int)copIndex0 < 6;
   }
@@ -2055,14 +2070,24 @@ void R3DCar_InsertCarFacetMenu(Car_tObj *carObj,DRender_tView *Vi)
      sum 4 | mask inlined WITHOUT the objId split 4.
      The now-dead `subOtStart` local (decl + assignment) and `iVar11` were removed;
      both removals were gate-checked and are byte-neutral. */
+  /* SYM-CODEGEN-CARRIER: subOtBase -- naming the base before the index sum keeps
+     its addiu adjacent to the lui; folding it was measured four diffs worse. */
   int subOtBase = (int)R3DCar_subOtStart;
+  /* SYM-CODEGEN-CARRIER: gf -- the three-reference zero-instruction fence below
+     lifts this local quantity above the row-index quantity in QTY_CMP_PRI;
+     fewer than three references loses the measured allocation crossing. */
   int gf = gFlip;
+  /* SYM-CODEGEN-CARRIER: objId -- splitting the object-ID load from its later mask
+     is required for retail scheduling; folding it was measured four diffs worse. */
   int objId = (carObj->N).objID;
   /* MATCH (W72-A12): 3-operand READ-ONLY fence = +3 refs, ZERO insns.  It lifts
      the gFlip quantity's QTY_CMP_PRI (14000) above the iVar9 accumulator chain's
      (12000) so local-alloc hands $v0 to gFlip and $v1 to iVar9, exactly as retail.
      n is not arbitrary: 1 and 2 are measured LOSSES (the pri crossing is at 3, see
      the arithmetic in the block comment above).  Do NOT "simplify" this away. */
+  /* SYM-CODEGEN-CARRIER: subOtOff -- the integer index sum must exist before the
+     pointer base is added. The natural row-pointer form was six diffs and the
+     opposite operand order eight; this spelling plus the measured fence is exact. */
   int subOtOff = iVar9 * 4 + gf * 8;
   (carObj->render).sub_ot =
        *(u_long **)(subOtOff + subOtBase) + (objId & 0xfU) * 0x200;
@@ -2113,8 +2138,7 @@ void R3DCar_InsertCarFacetMenu(Car_tObj *carObj,DRender_tView *Vi)
           strcat(bigname,"h");
         }
         strcat(bigname,".viv");
-        iVar8 = asyncloadfile(bigname,(void *)0x10);
-        carObj->async_handle = iVar8;
+        carObj->async_handle = asyncloadfile(bigname,(void *)0x10);
         R3DCar_aSyncLoading = Vi->player;
         (carObj->render).newCarType = (short)carType;
         (carObj->render).newCountry = (char)carObj->carInfo->Country;
@@ -2130,6 +2154,9 @@ R_ICFtMenu_asyncHandleCheck:
     if ((0 < status) || (status == -1)) {
       if (((carObj->render).newCarType != carType) ||
           ((u_int)(u_char)(carObj->render).newCountry != carObj->carInfo->Country)) {
+        /* SYM-CODEGEN-CARRIER: cancelFile -- the retail result stays in v0 for
+           the null test and purgememadr argument. Reusing SYM local status moves
+           it into s0, adds one instruction, and produces nine diffs. */
         char *cancelFile = getasyncreadadr(carObj->async_handle);
         if (cancelFile != (char *)0x0) {
           purgememadr(cancelFile);
@@ -2171,10 +2198,8 @@ R_ICFtMenu_bigFileCheck:
     currentCarType = (int)(carObj->render).currentCarType;
     reload = 0;
     if (-1 < currentCarType) {
-      char cVar6;
-      cVar6 = --R3DCar_LoadedSceneCounter[countryFlag][currentCarType];
       reload = 1;
-      if (cVar6 == '\0') {
+      if (--R3DCar_LoadedSceneCounter[countryFlag][currentCarType] == '\0') {
         purgememadr(R3DCar_LoadedScenePointer[countryFlag][currentCarType]);
         R3DCar_LoadedScenePointer[countryFlag][currentCarType] = (Transformer_zScene *)0x0;
       }
@@ -2214,15 +2239,20 @@ R_ICFtMenu_bigFileCheck:
        older 12-diff basin, where the cop-index sites still fought over $s4.)
        WARNING: do NOT parenthesise the index sum into the pointer expression
        (`base + (cf*50 + carType)`) -- cse then hoists the sum, -5 insns/133 diffs. */
+    /* SYM-CODEGEN-CARRIER: loadedSceneBase -- retaining a typed base separately
+       preserves retail's base-last address formation; direct subscripting was
+       measured at 24 diffs. */
     Transformer_zScene **loadedSceneBase = &R3DCar_LoadedScenePointer[0][0];
+    /* SYM-CODEGEN-CARRIER: slotOff -- a distinct integer index sum preserves the
+       retail carType*4 + countryFlag*200 grouping and register allocation;
+       carrying the sum in ppTVar21 itself was measured at 20 diffs. */
     int slotOff = carType * 4 + countryFlag * 200;
     ppTVar21 = (Transformer_zScene **)(slotOff + (int)loadedSceneBase);
     if (*ppTVar21 != (Transformer_zScene *)0x0) {
       purgememadr(*ppTVar21);
       *ppTVar21 = (Transformer_zScene *)0x0;
     }
-    pTVar10 = R3DCar_ReadInCarData(workFile,carObj);
-    *ppTVar21 = pTVar10;
+    *ppTVar21 = R3DCar_ReadInCarData(workFile,carObj);
     R3DCar_LoadedSceneCounter[countryFlag][carType] =
          R3DCar_LoadedSceneCounter[countryFlag][carType] + '\x01';
     R3DCar_CalcCarDimensions(carObj,*ppTVar21,carType);
@@ -2244,6 +2274,9 @@ R_ICFtMenu_sceneCounterJoin:
      temp here flips the carInfo-pointer/temp pair $v0<->$v1 at the first site (18 diffs)
      -- which is the W56-A14 "cascades" reading.  Block-local at both sites: 12 -> 8. */
   {
+    /* SYM-CODEGEN-CARRIER: copIndex1 -- this sibling block-local subtraction is
+       independently required for retail's caller-saved scratch; folding either
+       site perturbs the shared s4 cop-flag allocation. */
     int copIndex1 = carType - 0x16;
     cop_flag = (u_int)copIndex1 < 6;
   }
@@ -2258,13 +2291,13 @@ R_ICFtMenu_sceneCounterJoin:
           (carObj->render).signalLight[1] = 0x88;
         }
         if (R3DCar_Clock != 0) {
-          uVar7 = (carObj->render).signalLight[0];
-          if ((uVar7 & 0x80) != 0) {
-            (carObj->render).signalLight[0] = uVar7 + 1 & 0x8f;
+          if (((carObj->render).signalLight[0] & 0x80) != 0) {
+            (carObj->render).signalLight[0] =
+                (carObj->render).signalLight[0] + 1 & 0x8f;
           }
-          uVar7 = (carObj->render).signalLight[1];
-          if ((uVar7 & 0x80) != 0) {
-            (carObj->render).signalLight[1] = uVar7 + 1 & 0x8f;
+          if (((carObj->render).signalLight[1] & 0x80) != 0) {
+            (carObj->render).signalLight[1] =
+                (carObj->render).signalLight[1] + 1 & 0x8f;
           }
         }
         if (changeCar != 0) {

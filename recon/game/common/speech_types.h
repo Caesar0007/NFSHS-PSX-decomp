@@ -158,6 +158,9 @@ struct Speaker {
     inline void VirtualEngage(Car_tObj *perp) {
         (*(*_vf)[6].pfn)((int)&fPosition.flags + (int)(*_vf)[6].delta, perp);
     }
+    inline void VirtualLose() {
+        (*(*_vf)[7].pfn)((int)&fPosition.flags + (int)(*_vf)[7].delta);
+    }
     inline void VirtualRoger() {
         (*(*_vf)[14].pfn)
             ((int)&fPosition.flags + (int)(*_vf)[14].delta);
@@ -165,6 +168,10 @@ struct Speaker {
     inline void VirtualBullhorn() {
         (*(*_vf)[15].pfn)
             ((int)&fPosition.flags + (int)(*_vf)[15].delta);
+    }
+    inline void VirtualPurge() {
+        (*(*_vf)[16].pfn)
+            ((int)&fPosition.flags + (int)(*_vf)[16].delta);
     }
     inline int VirtualUnit() {
         return (*(*_vf)[17].pfn)

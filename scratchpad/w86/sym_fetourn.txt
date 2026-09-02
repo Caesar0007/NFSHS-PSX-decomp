@@ -1,0 +1,202 @@
+@80032228 Initialize__18tTournamentManager   [FETOURN.CPP:36]
+    REGPARM  $4        this                       PTR STRUCT size 644 dims 0 tag tTournamentManager
+    REG      $5        i                          SHORT size 0
+
+@800322fc LoadDescription__18tTournamentManager   [FETOURN.CPP:89]
+    REGPARM  $16       this                       PTR STRUCT size 644 dims 0 tag tTournamentManager
+    AUTO     $ffffffd0 input                      PTR CHAR size 0
+    REG      $12       data                       PTR CHAR size 0
+    REG      $1e       tier                       SHORT size 0
+    REG      $14       tourney                    SHORT size 0
+    REG      $10       track                      SHORT size 0
+    AUTO     $ffffff80 filename                   ARY CHAR size 80 dims 1 80 tag
+
+@80032548 ReleaseDescription__18tTournamentManager   [FETOURN.CPP:145]
+    REGPARM  $10       this                       PTR STRUCT size 644 dims 0 tag tTournamentManager
+
+@80032584 UpdateTrackList__18tTournamentManagerss   [FETOURN.CPP:195]
+    REGPARM  $8        this                       PTR STRUCT size 644 dims 0 tag tTournamentManager
+    REGPARM  $5        tier                       SHORT size 0
+    REGPARM  $6        tournament                 SHORT size 0
+    REG      $4        currentTourney             PTR STRUCT size 84 dims 0 tag tTourneyInfo
+    REG      $a        numTracks                  SHORT size 0
+    REG      $6        trackOffset                SHORT size 0
+    REG      $7        i                          SHORT size 0
+
+@80032654 GetTrackList__18tTournamentManagerss   [FETOURN.CPP:234]
+    REGPARM  $10       this                       PTR STRUCT size 644 dims 0 tag tTournamentManager
+    REGPARM  $5        tier                       SHORT size 0
+    REGPARM  $6        tournament                 SHORT size 0
+
+@8003268c GetTrackToRace__18tTournamentManagerR10tTrackInfo   [FETOURN.CPP:243]
+    REGPARM  $10       this                       PTR STRUCT size 644 dims 0 tag tTournamentManager
+    REGPARM  $11       track                      PTR STRUCT size 40 dims 0 tag tTrackInfo
+    REG      $10       this                       PTR STRUCT size 644 dims 0 tag tTournamentManager
+
+@80032784 StartNewTournament__18tTournamentManagerUcUc   [FETOURN.CPP:264]
+    REGPARM  $13       this                       PTR STRUCT size 644 dims 0 tag tTournamentManager
+    REGPARM  $5        tier                       UCHAR size 0
+    REGPARM  $6        tournament                 UCHAR size 0
+    REG      $12       i                          SHORT size 0
+    REG      $14       tourn                      PTR STRUCT size 84 dims 0 tag tTourneyInfo
+    REG      $11       track                      PTR STRUCT size 40 dims 0 tag tTrackInfo
+    REG      $13       this                       PTR STRUCT size 644 dims 0 tag tTournamentManager
+
+@800329bc IsTournamentFinished__18tTournamentManager   [FETOURN.CPP:337]
+    REGPARM  $5        this                       PTR STRUCT size 644 dims 0 tag tTournamentManager
+    REG      $5        this                       PTR STRUCT size 644 dims 0 tag tTournamentManager
+
+@80032a50 tournPointsCompare__FPcT0   [FETOURN.CPP:349]
+    REGPARM  $4        p1                         PTR CHAR size 0
+    REGPARM  $5        p2                         PTR CHAR size 0
+    REG      $3        result                     INT size 0
+    REG      $8        dummyCars                  PTR STRUCT size 160 dims 0 tag Car_tStats
+
+@80032adc UpdateTournFinishMoney__18tTournamentManager   [FETOURN.CPP:370]
+    REGPARM  $12       this                       PTR STRUCT size 644 dims 0 tag tTournamentManager
+    REG      $10       i                          UCHAR size 0
+    REG      $13       tourn                      PTR STRUCT size 84 dims 0 tag tTourneyInfo
+    REG      $12       this                       PTR STRUCT size 644 dims 0 tag tTournamentManager
+
+@80032c0c UpdateTrackFinishMoney__18tTournamentManager   [FETOURN.CPP:405]
+    REGPARM  $10       this                       PTR STRUCT size 644 dims 0 tag tTournamentManager
+    REG      $4        dummyCars                  PTR STRUCT size 160 dims 0 tag Car_tStats
+
+@80032c6c CalcTrackFinishDamageBill__18tTournamentManagerbRlT2   [FETOURN.CPP:422]
+    REGPARM  $4        this                       PTR STRUCT size 644 dims 0 tag tTournamentManager
+    REGPARM  $5        recalculate                BOOL size 0
+    REGPARM  $11       bill                       PTR LONG size 0
+    REGPARM  $12       bonus                      PTR LONG size 0
+    STAT     $0        retbill                    LONG size 0
+    STAT     $4        retbonus                   LONG size 0
+    REG      $10       dummyCars                  PTR STRUCT size 160 dims 0 tag Car_tStats
+    AUTO     $ffffff20 carInfo                    STRUCT size 204 dims 0 tag tCarInfo
+    REG      $3        damage                     INT size 0
+    REG      $5        totalcarprice              LONG size 0
+    REG      $3        i                          INT size 0
+
+@80032e30 UpdateTrackFinishPoints__18tTournamentManager   [FETOURN.CPP:481]
+    REGPARM  $10       this                       PTR STRUCT size 644 dims 0 tag tTournamentManager
+    REG      $4        i                          INT size 0
+    REG      $7        k                          SHORT size 0
+    REG      $9        dummyCars                  PTR STRUCT size 160 dims 0 tag Car_tStats
+    REG      $8        numCompetitors             SHORT size 0
+    REG      $10       this                       PTR STRUCT size 644 dims 0 tag tTournamentManager
+
+@80033048 AdvanceToNextTrack__18tTournamentManager   [FETOURN.CPP:569]
+    REGPARM  $11       this                       PTR STRUCT size 644 dims 0 tag tTournamentManager
+    REG      $12       currentTourney             PTR STRUCT size 84 dims 0 tag tTourneyInfo
+    REG      $2        tourn                      PTR STRUCT size 84 dims 0 tag tTourneyInfo
+    REG      $13       carInfo                    PTR STRUCT size 204 dims 0 tag tCarInfo
+    REG      $5        currentTier                PTR STRUCT size 12 dims 0 tag tTierInfo
+    REG      $4        i                          SHORT size 0
+    REG      $11       this                       PTR STRUCT size 644 dims 0 tag tTournamentManager
+    REG      $10       numGarageCars              INT size 0
+
+@8003348c GetLastTrackRaced__18tTournamentManager   [FETOURN.CPP:706]
+    REGPARM  $4        this                       PTR STRUCT size 644 dims 0 tag tTournamentManager
+    REG      $4        this                       PTR STRUCT size 644 dims 0 tag tTournamentManager
+
+@800334fc SaveTournament__18tTournamentManagerR15tSaveTournament   [FETOURN.CPP:744]
+    REGPARM  $7        this                       PTR STRUCT size 644 dims 0 tag tTournamentManager
+    REGPARM  $5        save                       PTR STRUCT size 176 dims 0 tag tSaveTournament
+    REG      $6        i                          SHORT size 0
+
+@80033544 LoadTournament__18tTournamentManagerR15tSaveTournament   [FETOURN.CPP:773]
+    REGPARM  $7        this                       PTR STRUCT size 644 dims 0 tag tTournamentManager
+    REGPARM  $5        load                       PTR STRUCT size 176 dims 0 tag tSaveTournament
+    REG      $6        i                          SHORT size 0
+
+@8003358c GetNumCompetitors__18tTournamentManager   [FETOURN.CPP:803]
+    REGPARM  $4        this                       PTR STRUCT size 644 dims 0 tag tTournamentManager
+    REG      $4        this                       PTR STRUCT size 644 dims 0 tag tTournamentManager
+
+@800335d8 UpdateCarLineup__18tTournamentManager   [FETOURN.CPP:812]
+    REGPARM  $10       this                       PTR STRUCT size 644 dims 0 tag tTournamentManager
+    REG      $5        i                          SHORT size 0
+    REG      $6        k                          SHORT size 0
+
+@80033688 GetTrackFinishPrize__18tTournamentManagers   [FETOURN.CPP:844]
+    REGPARM  $12       this                       PTR STRUCT size 644 dims 0 tag tTournamentManager
+    REGPARM  $11       position                   SHORT size 0
+    REG      $13       currentTourney             PTR STRUCT size 84 dims 0 tag tTourneyInfo
+    REG      $10       result                     LONG size 0
+    AUTO     $fffffe70 carInfo                    STRUCT size 204 dims 0 tag tCarInfo
+    REG      $5        carPrice                   LONG size 0
+    AUTO     $ffffff40 openClassAdjust            ARY ARY INT size 168 dims 2 7 6 tag
+    REG      $12       this                       PTR STRUCT size 644 dims 0 tag tTournamentManager
+
+@80033860 GetTournamentFinishPrize__18tTournamentManagers   [FETOURN.CPP:897]
+    REGPARM  $6        this                       PTR STRUCT size 644 dims 0 tag tTournamentManager
+    REGPARM  $5        position                   SHORT size 0
+    REG      $6        this                       PTR STRUCT size 644 dims 0 tag tTournamentManager
+
+@800338d4 GetAwardInformation__18tTournamentManagerR17tAwardInformation   [FETOURN.CPP:913]
+    REGPARM  $4        this                       PTR STRUCT size 644 dims 0 tag tTournamentManager
+    REGPARM  $5        info                       PTR STRUCT size 68 dims 0 tag tAwardInformation
+
+@80033914 UpdateAwardInformation__18tTournamentManager   [FETOURN.CPP:920]
+    REGPARM  $11       this                       PTR STRUCT size 644 dims 0 tag tTournamentManager
+    AUTO     $ffffffec bonus                      LONG size 0
+    AUTO     $ffffffe8 bill                       LONG size 0
+
+@80033a8c TournPointTotal__18tTournamentManagerPs   [FETOURN.CPP:957]
+    REGPARM  $4        this                       PTR STRUCT size 644 dims 0 tag tTournamentManager
+    REGPARM  $5        p                          PTR SHORT size 0
+
+@80033aa8 PlayerRanking__18tTournamentManagers   [FETOURN.CPP:965]
+    REGPARM  $11       this                       PTR STRUCT size 644 dims 0 tag tTournamentManager
+    REGPARM  $5        pos                        SHORT size 0
+    REG      $4        i                          SHORT size 0
+
+@80033b38 CalcTierFinishPrize__18tTournamentManager   [FETOURN.CPP:979]
+    REGPARM  $4        this                       PTR STRUCT size 644 dims 0 tag tTournamentManager
+
+@80033b64 GetTrophyName__18tTournamentManagerP12tTourneyInfo11tTrophySizePci   [FETOURN.CPP:1040]
+    REGPARM  $4        this                       PTR STRUCT size 644 dims 0 tag tTournamentManager
+    REGPARM  $5        tourn                      PTR STRUCT size 84 dims 0 tag tTourneyInfo
+    REGPARM  $6        size                       ENUM size 4 dims 0 tag tTrophySize
+    REGPARM  $4        buffer                     PTR CHAR size 0
+    ARG      $10       place                      INT size 0
+    REG      $3        place                      INT size 0
+    REG      $2        showplace                  INT size 0
+    AUTO     $ffffffe8 trophySizeLetter           ARY CHAR size 3 dims 1 3 tag
+    AUTO     $fffffff0 trophyPlacementLetter      ARY CHAR size 4 dims 1 4 tag
+
+@80033c24 ValidCar__18tTournamentManagerR8tCarInfo   [FETOURN.CPP:1063]
+    REGPARM  $12       this                       PTR STRUCT size 644 dims 0 tag tTournamentManager
+    REGPARM  $13       carInfo                    PTR STRUCT size 204 dims 0 tag tCarInfo
+    REG      $11       tourney                    PTR STRUCT size 84 dims 0 tag tTourneyInfo
+    REG      $10       result                     BOOL size 0
+    REG      $12       this                       PTR STRUCT size 644 dims 0 tag tTournamentManager
+
+@80033d9c __23tListIteratorTournamentPcP18tTournamentManager   [FETOURN.CPP:1109]
+    REGPARM  $10       this                       PTR STRUCT size 20 dims 0 tag tListIteratorTournament
+    REGPARM  $2        valPtr                     PTR CHAR size 0
+    REGPARM  $11       tournManager               PTR STRUCT size 644 dims 0 tag tTournamentManager
+
+@80033dec _._23tListIteratorTournament   [FETOURN.CPP:1115]
+    REGPARM  $4        this                       PTR STRUCT size 20 dims 0 tag tListIteratorTournament
+    REGPARM  $5        __in_chrg                  INT size 0
+
+@80033e14 Value__23tListIteratorTournament7tPlayer   [FETOURN.CPP:1119]
+    REGPARM  $4        this                       PTR STRUCT size 20 dims 0 tag tListIteratorTournament
+
+@80033e28 TextValue__23tListIteratorTournament7tPlayer   [FETOURN.CPP:1124]
+    REGPARM  $4        this                       PTR STRUCT size 20 dims 0 tag tListIteratorTournament
+    REG      $2        tournIndex                 SHORT size 0
+
+@80033e80 Increment__23tListIteratorTournament7tPlayer   [FETOURN.CPP:1134]
+    REGPARM  $10       this                       PTR STRUCT size 20 dims 0 tag tListIteratorTournament
+    REG      $11       tier                       PTR STRUCT size 12 dims 0 tag tTierInfo
+
+@80033f20 Decrement__23tListIteratorTournament7tPlayer   [FETOURN.CPP:1148]
+    REGPARM  $10       this                       PTR STRUCT size 20 dims 0 tag tListIteratorTournament
+    REG      $11       tier                       PTR STRUCT size 12 dims 0 tag tTierInfo
+
+@80033fb0 ValidTournament__23tListIteratorTournamentc   [FETOURN.CPP:1162]
+    REGPARM  $4        this                       PTR STRUCT size 20 dims 0 tag tListIteratorTournament
+    REGPARM  $5        tourn                      CHAR size 0
+    REG      $2        currentTier                PTR STRUCT size 12 dims 0 tag tTierInfo
+    REG      $4        currentTourn               PTR STRUCT size 84 dims 0 tag tTourneyInfo
+    REG      $3        result                     BOOL size 0

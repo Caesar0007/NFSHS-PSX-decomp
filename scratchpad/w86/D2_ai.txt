@@ -1,0 +1,69 @@
+4 zero-insn asm devices in recon/game/common/aih_btccop.cpp
+
+=== line 416  vars=['addToSlice', 'startSlice']  '__asm__("" : : "r" (addToSlice), "r" (startSlice));'
+  removed            39/40 PASS   25  __19AIHigh_BTC_HumanCopP8Car_tObji
+  abs1(addToSlice)   39/40 PASS   25  __19AIHigh_BTC_HumanCopP8Car_tObji
+  abs2(addToSlice)   39/40 PASS   25  __19AIHigh_BTC_HumanCopP8Car_tObji
+  abs4(addToSlice)   39/40 PASS   25  __19AIHigh_BTC_HumanCopP8Car_tObji
+  and1(addToSlice)   39/40 PASS   25  __19AIHigh_BTC_HumanCopP8Car_tObji
+  abs1(startSlice)   39/40 PASS   25  __19AIHigh_BTC_HumanCopP8Car_tObji
+  abs2(startSlice)   39/40 PASS   25  __19AIHigh_BTC_HumanCopP8Car_tObji
+  abs4(startSlice)   39/40 PASS   25  __19AIHigh_BTC_HumanCopP8Car_tObji
+  and1(startSlice)   39/40 PASS   25  __19AIHigh_BTC_HumanCopP8Car_tObji
+  abs1(all)          39/40 PASS   25  __19AIHigh_BTC_HumanCopP8Car_tObji
+
+=== line 2745  vars=[]  '__asm__("" : : : "memory");'
+  removed            39/40 PASS   12  HighExecute__18AIHigh_BTC_Wingman
+
+=== line 3346  vars=['initSliceCandidate']  '__asm__("" : "+r"(initSliceCandidate));'
+  removed            39/40 PASS   20  SetupBlockader__18AIHigh_BTC_WingmanP19AIHigh_BTC_Huma
+  abs1(initSliceCandidate) 39/40 PASS   20  SetupBlockader__18AIHigh_BTC_WingmanP19AIHigh_BTC_Huma
+  abs2(initSliceCandidate) 39/40 PASS   20  SetupBlockader__18AIHigh_BTC_WingmanP19AIHigh_BTC_Huma
+  abs4(initSliceCandidate) 39/40 PASS   20  SetupBlockader__18AIHigh_BTC_WingmanP19AIHigh_BTC_Huma
+  and1(initSliceCandidate) 39/40 PASS   20  SetupBlockader__18AIHigh_BTC_WingmanP19AIHigh_BTC_Huma
+
+=== line 3503  vars=['slice']  '__asm__("" : "+r"(slice));'
+  removed            39/40 PASS   28  SetupBlockader__18AIHigh_BTC_WingmanP19AIHigh_BTC_Huma
+  abs1(slice)        39/40 PASS   28  SetupBlockader__18AIHigh_BTC_WingmanP19AIHigh_BTC_Huma
+  abs2(slice)        39/40 PASS   28  SetupBlockader__18AIHigh_BTC_WingmanP19AIHigh_BTC_Huma
+  abs4(slice)        39/40 PASS   28  SetupBlockader__18AIHigh_BTC_WingmanP19AIHigh_BTC_Huma
+  and1(slice)        39/40 PASS   28  SetupBlockader__18AIHigh_BTC_WingmanP19AIHigh_BTC_Huma
+6 zero-insn asm devices in recon/game/common/aistate.cpp
+
+=== line 1166  vars=['latBias']  '__asm__("" : "=r"(latBias) : "0"(latBias));'
+  removed            51/52 PASS   15  CloseTargeting__13AIState_Chase
+  abs1(latBias)      51/52 PASS   15  CloseTargeting__13AIState_Chase
+  abs2(latBias)      51/52 PASS   15  CloseTargeting__13AIState_Chase
+  abs4(latBias)      51/52 PASS   15  CloseTargeting__13AIState_Chase
+  and1(latBias)      51/52 PASS   15  CloseTargeting__13AIState_Chase
+
+=== line 1173  vars=[]  '__asm__("" : : "i"(0));'
+  removed            51/52 PASS   67  CloseTargeting__13AIState_Chase
+
+=== line 2123  vars=['search']  '__asm__("" : : "r"(search));'
+  removed            51/52 PASS   14  ___17AIState_Purgatory
+  abs1(search)       52/52 PASS   
+  abs2(search)       52/52 PASS   
+  abs4(search)       52/52 PASS   
+  and1(search)       52/52 PASS   
+
+=== line 2298  vars=['otherCarObj']  '__asm__("" : "=r"(otherCarObj) : "0"(otherCarObj));'
+  removed            51/52 PASS   2  CheckIfCarIsNearbyAndStop__21AIState_RovingTrafficP8Car
+  abs1(otherCarObj)  51/52 PASS   2  CheckIfCarIsNearbyAndStop__21AIState_RovingTrafficP8Car
+  abs2(otherCarObj)  51/52 PASS   2  CheckIfCarIsNearbyAndStop__21AIState_RovingTrafficP8Car
+  abs4(otherCarObj)  51/52 PASS   2  CheckIfCarIsNearbyAndStop__21AIState_RovingTrafficP8Car
+  and1(otherCarObj)  51/52 PASS   2  CheckIfCarIsNearbyAndStop__21AIState_RovingTrafficP8Car
+
+=== line 2857  vars=['carObj']  '__asm__("" : : "r"(carObj));'
+  removed            51/52 PASS   16  Execute__17AIState_GotoSlice
+  abs1(carObj)       51/52 PASS   24  Execute__17AIState_GotoSlice
+  abs2(carObj)       51/52 PASS   16  Execute__17AIState_GotoSlice
+  abs4(carObj)       51/52 PASS   16  Execute__17AIState_GotoSlice
+  and1(carObj)       51/52 PASS   24  Execute__17AIState_GotoSlice
+
+=== line 2874  vars=['inRange']  '__asm__("" : : "r"(inRange));'
+  removed            51/52 PASS   18  Execute__17AIState_GotoSlice
+  abs1(inRange)      52/52 PASS   
+  abs2(inRange)      52/52 PASS   
+  abs4(inRange)      52/52 PASS   
+  and1(inRange)      52/52 PASS   

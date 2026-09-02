@@ -1,0 +1,29 @@
+import pathlib
+
+OFF7D = ('              int off7d = 0x7d; /* SYM-CODEGEN-CARRIER: off7d -- one-site opacity prevents the four 0x7d stores from becoming a loop movable */\n'
+         '              __asm__("" : "=r"(off7d) : "0"(off7d)); sd->offset = off7d; }\n')
+
+def v(body):
+    return [(OFF7D, body)]
+
+variants = [
+    ('deadset0 then 0x7d', v('              int off7d = 0;\n'
+                             '              off7d = 0x7d;\n'
+                             '              sd->offset = off7d; }\n')),
+    ('deadset load then 0x7d', v('              int off7d = sd->offset;\n'
+                                 '              off7d = 0x7d;\n'
+                                 '              sd->offset = off7d; }\n')),
+    ('deadset ptr then 0x7d', v('              int off7d = (int)lorezPtr;\n'
+                                '              off7d = 0x7d;\n'
+                                '              sd->offset = off7d; }\n')),
+    ('0x7d then deadset0 then 0x7d', v('              int off7d = 0x7d;\n'
+                                       '              off7d = 0;\n'
+                                       '              off7d = 0x7d;\n'
+                                       '              sd->offset = off7d; }\n')),
+    ('store then deadset0 (post)', v('              int off7d = 0x7d;\n'
+                                     '              sd->offset = off7d; off7d = 0; }\n')),
+    ('store then deadset ptr (post)', v('              int off7d = 0x7d;\n'
+                                        '              sd->offset = off7d; off7d = (int)lorezPtr; }\n')),
+]
+pathlib.Path('scratchpad/w86/D2_p4.txt').write_text(repr(variants))
+print(len(variants))

@@ -229,7 +229,7 @@ static int Confirm(int Text,int yesText)
     int yes = yesText;
 
     dialog->string = TextSys_Word(num);
-    dialog->yesnowords[1] = 0x292;
+    dialog->yesnowords[1] = 0x293;
     dialog->yesnowords[0] = yes;
     dialog->fDefault = 0;
     if (frontEnd.language == '\x03') {
@@ -244,7 +244,7 @@ static int Confirm(int Text,int yesText)
        lw s0,0(s1) + addiu s0,s0,568 in the jal delay slot); the Display arg is a FRESH
        FEApp re-deref (selective/partial caching -- oracle recomputes it). */
     tDialogMessageString *messageDialog = &FEApp[0]->MemCardDialog;
-    char *messageText = TextSys_Word(CURRENTPLAYER[0] + 0x32b);
+    char *messageText = TextSys_Word(CURRENTPLAYER[0] + 0x32c);
     /* MATCH: form Display's fresh `this` before storing messageText. Besides matching retail's
        load-before-store schedule, this keeps the FEApp address in $s1 for the wait loop. */
     tDialogBase *displayDialog = (tDialogBase *)&FEApp[0]->MemCardDialog;
@@ -287,7 +287,7 @@ static int Confirm(int Text,int yesText)
 static int OverwriteConfirm(void)
 
 {
-  return Confirm(CURRENTPLAYER[0] + 0x323,0x28f);
+  return Confirm(CURRENTPLAYER[0] + 0x324,0x290);
 }
 
 
@@ -307,7 +307,7 @@ static int OverwriteAlwaysYes(void)
 static int FormatConfirm(void)
 
 {
-  return Confirm(CURRENTPLAYER[0] + 0x327,0x290);
+  return Confirm(CURRENTPLAYER[0] + 0x328,0x291);
 }
 
 
@@ -434,10 +434,10 @@ void Init_MemcardFile(MCRDFILE_def &memCardFile,short cardnum,bool notitle)
   }
   else {
     if (PlayerNameExist((uint)(cardnum == 5))) {
-      sprintf(TITLE,"%s%s",TextSys_Word(0x278),PlayerName((uint)(cardnum == 5)));
+      sprintf(TITLE,"%s%s",TextSys_Word(0x279),PlayerName((uint)(cardnum == 5)));
     }
     else {
-      sprintf(TITLE,TextSys_Word(0x279));
+      sprintf(TITLE,TextSys_Word(0x27a));
     }
   }
   memCardFile.title = TITLE;
@@ -930,6 +930,18 @@ SavePinkSlipsCars(short player,short withoutCarInGarageNumber)
     if (finished) break;
     func_800DCEA4();   /* REGIONAL DELTA: added nullsub */
     memCardResult = MCRD_handlecardevents(cardNum);
+    /* MATCH (W86-H2, catalog 33A-1 PURE-C ZERO-INSN INFLATOR; LOAD-BEARING,
+       DO NOT 'SIMPLIFY' AWAY -- it emits NO instruction).  `x ^= y; x ^= y;`
+       is an exact identity for any y, but a VARIABLE operand survives fold()
+       as real RTL, so loop.c counts both insns in this loop's `insn_count`
+       and flow counts the extra references; combine then cancels the pair
+       (associativity, combine.c:3303) so ZERO bytes are emitted -- verified
+       count-exact at N = 2,4,6,8.  This is the +1-RTL-insn unit W85-M4 s4
+       recorded as 'no C construct supplies', supplied.  It re-prices the
+       outer loop's LICM budget and the switch-index allocno: 38 -> 34 diffs.
+       Ladder in scratchpad/w86/H2_receipt.md (x4/x6/x8 = 52, worse). */
+    memCardResult = memCardResult ^ cardSlot;
+    memCardResult = memCardResult ^ cardSlot;
     systemtask(0);
     VSync(0);
     switch(memCardResult) {
@@ -946,7 +958,16 @@ SavePinkSlipsCars(short player,short withoutCarInGarageNumber)
           result = (PinkSlipsErrorCode)finished;   /* oracle: addu s2,s3,zero -- =1 NotOriginalCard as a COPY of finished */
           break;
         }
-        SavePinkSlipsCars(&carManager,&memCardData.carInfo,(short)(cardSlot >> 2),withoutCarInGarageNumber);
+        /* MATCH/FIDELITY (W86-H2): retail passes the PLAYER value it kept
+           live in $s7 all the way here (`addu a2,s7,zero`), not a value
+           recovered from cardSlot.  Passing `player` restores that long live
+           range, which is exactly the conflict set the {player,0x15-constant}
+           $s6/$s7 rotation needed (catalog 33B-1 variable-reuse law): the
+           whole prologue rotation W85-M4 left is gone.  W85-M4's
+           `(short)(cardSlot >> 2)` spelling removed one sign-extension but
+           kept the rotation (47 diffs); this is 38 alone, 34 with the
+           inflator above. */
+        SavePinkSlipsCars(&carManager,&memCardData.carInfo,player,withoutCarInGarageNumber);
         while (MCRD_handlecardevents(cardNum) == 0x15) {
           func_800DCEA4();   /* REGIONAL DELTA: added nullsub */
           VSync(0);
@@ -1091,7 +1112,7 @@ SavePinkSlipsCarsWithErrorDialogs(short player,short WillLoseCar,short withoutCa
      manual tScreen_dtor calls for them dropped too, oracle's two ___7tScreen calls right
      before the epilogue are exactly the implicit auto-dtors at function scope exit). */
   retry = 0;
-  RetryCancelDialog.SetChoices(0x291, 0x292, 1, player);
+  RetryCancelDialog.SetChoices(0x291, 0x293, 1, player);
   do {
     Display((tDialogBase *)&FEApp[0]->NoInputMemCardDialog);
     while (true) {

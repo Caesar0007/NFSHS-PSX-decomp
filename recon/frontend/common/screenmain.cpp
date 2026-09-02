@@ -72,9 +72,9 @@ static tVideoWallConfig videoWallConfigs[24] = {
 void tScreenMain::SwapBackground(int num)
 
 {
-  tScreenMainState oldState;
   char buffer [8];
-  
+  tScreenMainState oldState;
+
   VIDEO_abortplayback(this->hVideo);
   this->bVideoAborted = 1;
   if ((((this->fVideoShapes[this->fCurrentSlot].async_handle == 0) &&
@@ -152,9 +152,9 @@ void tScreenMain::SetState(tScreenMainState state)
      gcc-2.8 balance_case_nodes fingerprint (median-pivot `beq $v1,3` with the
      `slti $v1,4` bound test in its DELAY SLOT, case bodies out of line in
      source order) => it was a `switch`, not an if/else-if cascade. */
-  tTexture_ShapeInfo *shape;
   short i;
-  
+  tTexture_ShapeInfo *shape;
+
   if (state != this->fState) {
     VIDEO_abortplayback(this->hVideo);
     this->bVideoAborted = 1;
@@ -289,13 +289,15 @@ void tScreenMain::ProcessInput(tPlayer,tInputKeyType &keyval,tMenuCommand &)
 void tScreenMain::DrawDropShadow()
 
 {
-  int addr_24;
+  /* [SYM] the 8c block records exactly `i` then `prim`; the five carriers
+     below have no record and are declared after the SYM set. */
   int i;
+  POLY_G4 *prim;
+  int addr_24;
   uint addrMask;
   uint tagMask;
   u_char *pal_link;
   uint palTag;
-  POLY_G4 *prim;
   
   i = 0;
   do {
@@ -579,8 +581,8 @@ credits_state_done:
       startMovie = (0x280 < elapsedTicks);
     }
     if (startMovie && (this->fState == kScreenMain_StaticImage)) {
-      RECT r;
       char moviename [80];
+      RECT r;
 
       r.x = 0x200;
       r.w = 0x50;
@@ -779,9 +781,9 @@ void tScreenMain::GetShapeInfo(short &numPermShapes,short &numSwapShapes,char **
 void tScreenMain::PreLoad()
 
 {
-  short i;
   char buffer [32];
-  
+  short i;
+
   sprintf(gPermBuffer,"zMain%d",(uint)(byte)frontEnd.language);
   this->fPreviousAnim = (short)(rand() % 0x19);
   sprintf(gNameBuffer,"yVda%02d",
@@ -828,8 +830,8 @@ void tScreenMain::Initialize()
   /* SYM types it native C++ bool (four bytes in CC1PLPSX).  A call whose
      prototype also returns bool copies directly into the local; the `&&`
      below performs the only required normalization. */
-  bool shapesLoaded;
   short i;
+  bool shapesLoaded;
 
   this->tScreen::Initialize();
   do {

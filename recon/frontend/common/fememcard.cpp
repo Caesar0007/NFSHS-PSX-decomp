@@ -327,8 +327,9 @@ static void SavingProc(void)
 /* ---- Init_Memcard  [FEMEMCARD.CPP:240-316] ---- */
 void Init_Memcard(bool redraw,bool pinkslips)
 {
-  int padrestorestarttick;
+  /* SYM 8c Def-record order: mcrdopts, padrestorestarttick. */
   MCRDOPTS_def mcrdopts;
+  int padrestorestarttick;
 
   /* unsized-array true-type views (see the asm-label block at file top) */
   if (MEMCARD_INITIALIZED_arr[0] != 0) {
@@ -624,6 +625,8 @@ short LoadGame(short player,bool PinkSlips,bool WithDialogs)
   /* SYM reg map: cardNum=s3(SHORT) finished=s1(BOOL) result=s4 memCardResult=s0 count=fp
      returnmessage=s2; pCI + the fail-dialog `this` are block-scoped s0. player/PinkSlips/
      WithDialogs are ARG class (arg-slot spilled, reloaded per use). */
+  tMemCardData memCardData;
+  char memorycardbuffer [256];
   short cardNum;
   bool finished;
   int result;
@@ -633,8 +636,6 @@ short LoadGame(short player,bool PinkSlips,bool WithDialogs)
   /* SYM-CODEGEN-CARRIER: cardshifted -- retail keeps the promoted card value
      in s5 while SYM exposes only the source `cardNum` short in s3. */
   int cardshifted;                 /* s5 = (player*4|1) << 16; every card arg = >>16 */
-  tMemCardData memCardData;
-  char memorycardbuffer [256];
   /* memCardFile declared BELOW, after WarningDialog: gcc-2.8 assigns stack slots in decl
      order ascending -- SYM layout is memCardData / buffer / WarningDialog / memCardFile. */
 
@@ -826,13 +827,14 @@ SavePinkSlipsCars(short player,short withoutCarInGarageNumber)
   /* SYM reg map: shapeFile=s7 finished=s3(BOOL) finishedsave=s5(BOOL)
      result=s2(ENUM PinkSlipsErrorCode) memCardResult/event=s0 (block-scoped);
      player REGPARM fp; withoutCarInGarageNumber ARG (stack); cardNum AUTO SHORT. */
+  tMemCardData memCardData;
+  char memorycardbuffer [256];
+  char *shapeFile;
   bool finished;
   bool finishedsave;
   PinkSlipsErrorCode result;
   int memCardResult;
-  char *shapeFile;
-  tMemCardData memCardData;
-  char memorycardbuffer [256];
+  int event;
 
   MakeWayForMemoryCard();
   CURRENTPLAYER[0] = player;
@@ -896,7 +898,7 @@ SavePinkSlipsCars(short player,short withoutCarInGarageNumber)
            the shared outer-case `finished` tail.  Detailed gate: PASS 226/226. */
         while (true) {
           if (finishedsave) break;
-          int event = MCRD_handlecardevents(cardNum);
+          event = MCRD_handlecardevents(cardNum);
           systemtask(0);
           VSync(0);
           switch(event) {
@@ -918,9 +920,9 @@ SavePinkSlipsCars(short player,short withoutCarInGarageNumber)
           case 0x17:
             Hide((tDialogBase *)&FEApp[0]->NoInputMemCardDialog);
             {
-              /* SYM-CODEGEN-CARRIER: pCVar7 -- each switch arm must retain the
+              /* SYM-CODEGEN-CARRIER: cardInfo -- each switch arm must retain the
                  single MCRD_getcard result across multiple status tests. */
-              CARDINFO_def *pCVar7 = MCRD_getcard(player * 4 + 1);
+              CARDINFO_def *cardInfo = MCRD_getcard(player * 4 + 1);
               /* KEEP (W85-M4): the LAST device in this TU.  It is an operand-free
                  scheduling/CSE boundary whose ONLY effect is +1 RTL insn inside the
                  outer poll loop, which flips loop.c's marginal LICM verdict on the
@@ -935,9 +937,9 @@ SavePinkSlipsCars(short player,short withoutCarInGarageNumber)
                  receipt -- retail's USA build hoists+spills exactly this chain). */
               __asm__("");
               result = PinkSlipsError_CardFull;
-              if (pCVar7->status != -3) {
+              if (cardInfo->status != -3) {
                 result = PinkSlipsError_SaveFailed;
-                if (pCVar7->status == -1) {
+                if (cardInfo->status == -1) {
                   result = PinkSlipsError_CardNotFound;
                 }
               }
@@ -972,11 +974,11 @@ SavePinkSlipsCars(short player,short withoutCarInGarageNumber)
     case 2:
     case 0x10:
       {
-        CARDINFO_def *pCVar7 = MCRD_getcard(player * 4 + 1);
+        CARDINFO_def *cardInfo = MCRD_getcard(player * 4 + 1);
         result = PinkSlipsError_NotFormatted;
-        if (pCVar7->status != -2) {
+        if (cardInfo->status != -2) {
           result = PinkSlipsError_LoadFailed;
-          if (pCVar7->status == -1) {
+          if (cardInfo->status == -1) {
             result = PinkSlipsError_CardNotFound;
           }
         }

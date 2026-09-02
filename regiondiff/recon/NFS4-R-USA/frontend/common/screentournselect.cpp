@@ -307,19 +307,24 @@ void tScreenTournSelect::DrawBackground()
   DarkGreyCol = CalcFadeVal(0x232323,this->fScreenFadeVal);
   GreyCol = CalcFadeVal(0x505050,this->fScreenFadeVal);
   number = tournamentManager.fMoney;
-  FETextRender_MenuTextFade((int)this->fScreenFadeVal,0x7b,textState_Selected,textType_ScreenInfo);
-  DrawMoney(TextSys_WordX(0x7b) + 0x8c,TextSys_WordY(0x7b) + 9,6,
+  /* R-USA: every literal text id in this function is +1 vs the base build
+     (one extra string earlier in the retail table): 0x7b/0x99/0x9a/0x2d4/
+     0x3db here, and the two id-arithmetic constants below shift with it
+     (`i - 0x367` -> `- 0x368`, `j += 0x37a` -> `+= 0x37b`, keeping `j`'s
+     value identical so the final id also lands +1). */
+  FETextRender_MenuTextFade((int)this->fScreenFadeVal,0x7c,textState_Selected,textType_ScreenInfo);
+  DrawMoney(TextSys_WordX(0x7c) + 0x8c,TextSys_WordY(0x7c) + 9,6,
             number,YellowCol,DarkGreyCol);
-  FETextRender_MenuTextFade((int)this->fScreenFadeVal,0x99,textState_Selected,textType_Default);
-  DrawMoney(TextSys_WordX(0x99) + 0x8c,TextSys_WordY(0x99) + 9,6,
-            tourn->fEntranceFee,YellowCol,DarkGreyCol);
   FETextRender_MenuTextFade((int)this->fScreenFadeVal,0x9a,textState_Selected,textType_Default);
-  y = TextSys_WordY(0x9a) + 9;
+  DrawMoney(TextSys_WordX(0x9a) + 0x8c,TextSys_WordY(0x9a) + 9,6,
+            tourn->fEntranceFee,YellowCol,DarkGreyCol);
+  FETextRender_MenuTextFade((int)this->fScreenFadeVal,0x9b,textState_Selected,textType_Default);
+  y = TextSys_WordY(0x9b) + 9;
   i = 0;
   do {
-    FETextRender_FullTextRGB(TextSys_Word(i + 0x2d4),TextSys_WordX(0x9a),
+    FETextRender_FullTextRGB(TextSys_Word(i + 0x2d5),TextSys_WordX(0x9b),
                              y,GreyCol,'\0',0);
-    DrawMoney(TextSys_WordX(0x99) + 0x8c,y,6,tourn->fPrize[i],
+    DrawMoney(TextSys_WordX(0x9a) + 0x8c,y,6,tourn->fPrize[i],
               YellowCol,DarkGreyCol);
     y += 9;
     i++;
@@ -405,14 +410,14 @@ void tScreenTournSelect::DrawBackground()
       0x75 - FETextRender_WordWrapHeight(r.w,TextSys_Word(i));
   }
   r.y = (short)this->PreCalculatedTournamentY;
-  j = i - 0x367;
+  j = i - 0x368;
   descriptionText = TextSys_Word(i);
   i = 0;
   FETextRender_WordWrapTextRGB(descriptionText,r,
                                CalcFadeVal(0x505050,this->fScreenFadeVal));
-  FETextRender_MenuTextPositionedJustifyFade((int)this->fScreenFadeVal,0x3db,0xaa,0x75,0,textState_Selected,
+  FETextRender_MenuTextPositionedJustifyFade((int)this->fScreenFadeVal,0x3dc,0xaa,0x75,0,textState_Selected,
              textType_ScreenInfo);
-  j += 0x37a;
+  j += 0x37b;
   FETextRender_MenuTextPositionedJustifyFade((int)this->fScreenFadeVal,j,
              0xaa,0x7d,0,textState_Hilighted,textType_ScreenInfo);
   do {

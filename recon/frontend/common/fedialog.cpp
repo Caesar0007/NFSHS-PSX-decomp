@@ -256,10 +256,12 @@ tDialogBase *tDialogBase::GetTopMostDialog()
 void tDialogBase::Display()
 
 {
-  short i;
-  
-  i = 7;
+  /* SYM: `i` lives in the block that opens at 0x80018864 (the currentlyOn guard),
+     not at function scope. */
   if (this->currentlyOn == 0) {
+    short i;
+
+    i = 7;
     this->currentlyOn = 1;
     this->fFullyOpen = 0;
     this->ReturnValue = this->fDefault;
@@ -285,9 +287,10 @@ void tDialogBase::Display()
 void tDialogBase::Hide()
 
 {
-  short i;
-
+  /* SYM: `i` lives in the block that opens at 0x8001892c (the currentlyOn guard). */
   if (this->currentlyOn != 0) {
+    short i;
+
     this->currentlyOn = 0;
     for (i = 0; i < 8; i++) {
       if (DialogVisibilityList[i] == this) {
@@ -366,11 +369,13 @@ void tDialogHelp::AddItem(short textID,short controllerID)
 void tDialogHelp::CalculateDimensions()
 
 {
-  int newWidth;
-  tMenu *menu;
-  short i;
-  tPlayer player;
+  /* SYM function-scope set, in 8c Def-record order: helpArray, i, newWidth,
+     player.  showLeftRight/showCross/menu belong to the nested autoGenerate
+     block (0x80018c60). */
   tHelpData helpArray [1] = { { 1, { {0,0}, {0,0}, {0,0}, {0,0} } } };
+  short i;
+  int newWidth;
+  tPlayer player;
 
   FETextRender_SetFont(0);
   this->numItems = 0;
@@ -382,6 +387,7 @@ void tDialogHelp::CalculateDimensions()
   if (helpArray[this->variant].autoGenerate != '\0') {
     bool showLeftRight;
     bool showCross;
+    tMenu *menu;
 
     showLeftRight = false;
     showCross = false;
@@ -513,13 +519,13 @@ void tDialogHelp::Draw()
   short i;
   short j;
   char buffer [80];
+  short y;
+  long ticks;
+  int numLetters;
   /* SYM-CODEGEN-CARRIER: bufferPtr -- direct `buffer[j]`/`buffer` use is
      behaviorally equivalent but measures FAIL 2 (187/187): GCC materializes
      the stack-buffer address two instructions after retail. */
   char *bufferPtr;
-  short y;
-  long ticks;
-  int numLetters;
   /* SYM-CODEGEN-CARRIER: firstTick -- repeating `this->startTicks` directly
      measures FAIL 4 (189/187), inserting two load-delay nops and moving the
      member load past retail's tick-value copy. */
@@ -734,21 +740,24 @@ short tDialogInteractive::Run()
 {
   /* The two SLD `player` entries are inlined formals sharing $s1 with `i`.
      SYM-INLINE-LOCAL: player = DialogCanProcessCircle */
-  tInputKeyType keyVal [2];
-  tMenuCommand command;
-  
+  /* SYM: keyVal, command and debounce all live in the outer-loop block that
+     opens at 0x80019848; `i` is one level further in (0x80019858). */
   this->fCurrentlyRunning = 1;
   ((tDialogBase *)this)->Display();
   /* SYM-INLINE-THIS: CalculateDimensionsVirtual */
   this->CalculateDimensionsVirtual();
   this->ReadyToReturnValue = 0;
   while (this->ReadyToReturnValue == 0) {
+    tInputKeyType keyVal [2];
+    tMenuCommand command;
     u_long debounce = -1;
-    int i;
 
     command.type = kMenu_Command_None;
-    i = 0;
-    while (i < 2) {
+    {
+      int i;
+
+      i = 0;
+      while (i < 2) {
       keyVal[i] = FEInput_GetKeyFromPlayer((tPlayer)i,debounce);
       if (keyVal[i] == kInput_KeyType_NoKey) {
         keyVal[i] = kInput_KeyType_AlreadyProcessed;
@@ -771,7 +780,8 @@ short tDialogInteractive::Run()
         /* SYM-INLINE-THIS: ProcessInputVirtual */
         this->ProcessInputVirtual((tPlayer)i,keyVal[i],command);
       }
-      i++;
+        i++;
+      }
     }
     FEApp->Redraw();
   }
@@ -881,11 +891,11 @@ tDialogYesNo::tDialogYesNo()
 void tDialogYesNo::Draw()
 
 {
-  int col;
-  int y;
   int i;
   int x;
-  
+  int y;
+  int col;
+
   /* SYM-INLINE-THIS: CalculateDimensionsVirtual */
   this->CalculateDimensionsVirtual();
   if (this->fFadeText != 0) {
@@ -956,9 +966,9 @@ void tDialogYesNoMem::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyVal,tMen
                )
 
 {
-  bool fMemCardGone;
   int card;
-  
+  bool fMemCardGone;
+
   fMemCardGone = false;
   card = CURRENTPLAYER * 4 + 1;
   switch(MCRD_handlecardevents(card)) {

@@ -97,12 +97,16 @@ PurgeRest:
 void StatChk_SaveRecordLapTime(Car_tStats *dummyCars,short nNumCars,short nBestCarIndex)
 
 {
-  int newBestLap;
-  tCarInfo *carInfo;
-  tRecordBuffer *TrackRecords;
+  /* W86-S4: the four real locals are now in the SYM's own `8c` order
+     (RecordHolder AUTO sp+16, DummyRaceResult AUTO sp+40, TrackRecords REG $17
+     s1, carInfo REG $18 s2); the codegen carrier below is quarantined last.
+     Re-gated PASS. */
   tRecordBuffer RecordHolder;
   tRecordBuffer DummyRaceResult;
-  
+  tRecordBuffer *TrackRecords;
+  tCarInfo *carInfo;
+  int newBestLap;   /* SYM-CODEGEN-CARRIER -- see the note at its use */
+
   carInfo = GetCarFromSimID(&carManager, (short)dummyCars[nBestCarIndex].carType);
   /* MATCH: the != pair range-folds to the oracle's UNSIGNED sltiu(x-7,2);
      a `1 < x - 7` spelling emits the signed slti. */
@@ -125,7 +129,8 @@ void StatChk_SaveRecordLapTime(Car_tStats *dummyCars,short nNumCars,short nBestC
     /* SYM-CODEGEN-CARRIER: newBestLap -- not a recorded source local, but
        spelling this as `NewBestLap = 1` is FAIL6 (100/100): retail loads the
        address into $v1 and 1 into $v0, while the direct lvalue reverses those
-       registers.  Materializing the value reproduces the retail allocation. */
+       registers.  Materializing the value reproduces the retail allocation.
+       W86-S4 re-priced this in the SYM-ordered basin: still exactly 6. */
     newBestLap = 1;
     NewBestLap = newBestLap;
     purgememadr(TrackRecords);
@@ -430,11 +435,6 @@ void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
   int nTopTenSort [8];
   short nTopTenIndex [8];
   int nCheckTotalTime;
-  /* SYM-CODEGEN-CARRIER: uRecSz -- retail records no source local, but one
-     function-wide record-size variable is required to preserve the three
-     separate constant rematerializations and shift chains.  Spelling
-     sizeof(tRecordBuffer) directly is FAIL 126 (412/416). */
-  unsigned int uRecSz;
   short k;
   short nCar;
   char *buffer;
@@ -444,6 +444,11 @@ void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
   tRecordBuffer *RecordHolders;
   tCarInfo *carInfo;
   int topPlacements [2];
+  /* SYM-CODEGEN-CARRIER: uRecSz -- retail records no source local, but one
+     function-wide record-size variable is required to preserve the three
+     separate constant rematerializations and shift chains.  Spelling
+     sizeof(tRecordBuffer) directly is FAIL 126 (412/416). */
+  unsigned int uRecSz;
 
   uRecSz = sizeof(tRecordBuffer);
   bDoRecordCheck = false;
@@ -556,18 +561,16 @@ void StatChk_SaveTopTime(Car_tStats *dummyCars,short nNumCars)
 void StatChk_ClearNewRecords(void)
 
 {
-  int *pRec;
+  /* W86-S4: the SYM's `8c` block records exactly ONE local here,
+     `REG i $3 v1 INT` -- the former `int *pRec` walk-pointer carrier was a hard
+     fiction.  Folded into the down-counting index loop; the split
+     `la NewRecords` + `addiu 0x1C` shape it was buying comes out of the index
+     form for free.  Re-gated PASS. */
   int i;
-  
-  i = 7;
-  pRec = NewRecords;
-  pRec = pRec + 7;   /* MATCH: SYM-CODEGEN-CARRIER: pRec -- split -> la NewRecords
-                         + separate addiu 0x1C (oracle unfused). */
-  do {
-    *pRec = 0;
-    i = i + -1;
-    pRec = pRec + -1;
-  } while (-1 < i);
+
+  for (i = 7; -1 < i; i = i + -1) {
+    NewRecords[i] = 0;
+  }
   NewBestLap = 0;
   return;
 }

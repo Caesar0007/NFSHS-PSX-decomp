@@ -592,9 +592,10 @@ int iMCRD_DoFileLoad(int card)
 int MCRD_savefile(int card,MCRDFILE *pFILE)
 
 {
-  int i;
-  int nIcons;
+  /* decl order = SYM Def-record order (pMFI, nIcons, i) -- w86-S5 */
   MCRDFILEINFO *pMFI;
+  int nIcons;
+  int i;
 
   /* MATCH: pMFI is the function's base anchor (retail keeps &gMemCardInfo.fileinfo
    * in a saved reg; productCode is reached at -0x25C off it).  Also: getshapeclut
@@ -669,10 +670,11 @@ MCRDsave_errorDefault:
 int iMCRD_DoFileWrite(int card)
 
 {
-  int error;
-  MCRDFILEINFO *pMFI;
+  /* decl order = SYM Def-record order (cmd, res, error, pMFI) -- w86-S5 */
   long cmd;
   long res;
+  int error;
+  MCRDFILEINFO *pMFI;
   
   /* MATCH: the SYM's pMFI is the function's base anchor - the oracle keeps
    * &gMemCardInfo.fileinfo in a saved reg and derives &gMemCardInfo from it
@@ -727,8 +729,9 @@ int iMCRD_DoFileWrite(int card)
 int iMCRD_DoFileDelete(int card)
 
 {
-  MCRDFILEINFO *pMFI;
+  /* decl order = SYM Def-record order (retval, pMFI) -- w86-S5 */
   int retval;
+  MCRDFILEINFO *pMFI;
   
   retval = 0x11;
   pMFI = &gMemCardInfo.fileinfo;   /* MATCH: SYM local; la(+0x260) anchor, name=+4, base=-0x260 */
@@ -754,11 +757,12 @@ int MCRD_handlecardevents(int card)
    *   pCI    PTR CARDINFO  $12 = $s2      ret    INT           $03 = $v1
    *   cmd/res ULONG AUTO   sp-0x18 / sp-0x14
    * `ret` is the MemCardSync return; `status` is the value the funnel returns. */
-  CARDINFO *pCI;
-  int ret;
+  /* decl order = SYM Def-record order (status, pCI, cmd, res, ret) -- w86-S5 */
   int status;
+  CARDINFO *pCI;
   u_long cmd;
   u_long res;
+  int ret;
 
   /* MATCH: ONE result variable + a single tail `return status;` - every retail exit is
    * `j .L800501B0/B4; addu $v0,$s0,$zero`, i.e. a funnel, never a direct return
@@ -1131,8 +1135,9 @@ static void iMCRD_timersub(void)
 int garyMemCardGrabBlocks(int card,int filenum)
 
 {
-  CARDINFO *pCI;
+  /* decl order = SYM Def-record order (i, pCI, pDir) -- w86-S5 */
   int i;
+  CARDINFO *pCI;
   struct DIRENTRY *pDir;
   
   pCI = MCRD_getcard(card);
@@ -1158,12 +1163,14 @@ int garyMemCardGrabBlocks(int card,int filenum)
 int iMCRD_LoadCard(int card)
 
 {
+  /* decl order = SYM Def-record order (error, slot, pCI, pDir); the non-SYM
+     carrier follows it -- w86-S5 */
   int error;
+  int slot;
+  CARDINFO *pCI;
+  struct DIRENTRY *pDir;
   int size; /* SYM-CODEGEN-CARRIER: size -- direct field/ternary form is measured
                FAIL 13 (62/63); reusing the SYM error pseudo also adds two moves */
-  int slot;
-  struct DIRENTRY *pDir;
-  CARDINFO *pCI;
   
   pCI = MCRD_getcard(card);
   pDir = pCI->dir;
@@ -1206,8 +1213,9 @@ int iMCRD_LoadCard(int card)
 int iMCRD_FormatCard(int card)
 
 {
-  CARDINFO *pCI;
+  /* decl order = SYM Def-record order (result, pCI) -- w86-S5 */
   int result;
+  CARDINFO *pCI;
   
   result = 0;
   pCI = MCRD_getcard(card);
@@ -1243,14 +1251,17 @@ int iMCRD_FormatCard(int card)
 int iMCRD_HandleError(int func,int opResult,int card)
 
 {
+  /* decl order = SYM Def-record order at function scope (code, pCI); the three
+     non-SYM carriers follow it -- w86-S5.  numberoftries/result stay in the SYM's
+     nested block (see the note below). */
+  int code;
+  CARDINFO *pCI;
   int scratch_i; /* SYM-CODEGEN-CARRIER: scratch_i -- distinct case-3/case-6
                     join value; merging it with tmp_int is measured FAIL 22 */
   int tmp_int; /* SYM-CODEGEN-CARRIER: tmp_int -- shared switch-arm lasterror
                   value feeding the loop-depth-protected final store */
-  CARDINFO *pCI;
   fMemCardInfo *gmi; /* SYM-CODEGEN-CARRIER: gmi -- per-predecessor base definitions
                         are required to reuse one retail pseudo at the join */
-  int code;
 
   /* MATCH: SYM (8c @0x800504cc) lists FOUR locals - code REG $20($s4), pCI REG $17($s1),
    * and a NESTED block (90 @0x800505f4 .. 92 @0x80050644, source lines 76-98) holding

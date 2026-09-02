@@ -91,7 +91,10 @@ static char      rendering3DEnvInit__[8] asm("rendering3DEnvironmentInitialized"
 void Quick_DD(int a,int b,int c)
 
 {
-  Draw_DirectSetEnvironment(0,0,0x200,0xf0,a,b,c,0,0,0);
+  /* REGIONAL DELTA (NFS4-R-AU @8004DC70): the PAL builds set up a 256-line
+     display environment (`li a3,0x100`); the NTSC base build uses 240.  Width
+     0x200 and every other argument are unchanged. */
+  Draw_DirectSetEnvironment(0,0,0x200,0x100,a,b,c,0,0,0);
   return;
 }
 

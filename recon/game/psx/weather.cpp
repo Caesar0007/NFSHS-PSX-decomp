@@ -1432,7 +1432,12 @@ void Weather_DoSplats
           else {
             splats[i].pos.vx = (short)((u_int)random() % 320);
             q = &splats[i];
-            __asm__("" : "=r"(q) : "0"(q));
+            /* W86-D2: identity launder -> ABSORPTION IDENTITY `X | (X & 3) == X`.
+               Real RTL for cse/loop/flow (so `q` still gets the second SET that makes
+               cse forget `q == &splats[i]`), folded away by combine => zero bytes.
+               Ladder (whole-TU gate, Weather_DoSplats): device removed 36 | one
+               absorption PASS | `X & (X | 3)` PASS | two or four absorptions 28. */
+            q = (Weather_tSplatInfo *)((unsigned int)q | ((unsigned int)q & 3u));
             if (WEATHER_GAMESETUP_COMM_MODE == 1) {
               q->pos.vy = (short)((u_int)random() % 0xf0 >> 1);
             }
@@ -1741,7 +1746,11 @@ void Weather_DoWeather(DRender_tView *Vi)
   int cm = WEATHER_GAMESETUP_COMM_MODE; /* SYM-CODEGEN-CARRIER: cm -- staged commMode load */
   wd = *wdp;
   int one = 1; /* SYM-CODEGEN-CARRIER: one -- early compare constant */
-  __asm__("" : : "r"(player), "r"(wdp));
+  /* W86-D2: the w-era `"r"(player),"r"(wdp)` ref fence measured LOAD-BEARING at 16
+     diffs in W85-S4 is INERT on today's body -- the later `cm`/`one` staging in this
+     block subsumed it.  Removed; Weather_DoWeather re-gates PASS, TU 25/25.
+     (Re-probe every fence in a TU that has been edited since its receipt: W85-S1
+     process rule #4, fired again here.) */
   if ((cm != one) && (0x20 < WEATHER_GAME_TICKS - timechange)) {
     timechange = WEATHER_GAME_TICKS;
     if (Weather_gSnowTrack == 0) {

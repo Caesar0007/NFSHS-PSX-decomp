@@ -280,8 +280,27 @@ extern int unrefpack(unsigned char *comp, unsigned char *out_arg, int reverse_ar
                         advanced = out;
                     else
                         advanced = out;
-                    __asm__("" : : "r"(src),
-                                      "r"(op), "r"(op), "r"(op));
+                    /* W86-D1 MATCH (pure C, replaces the former 4-operand read-only fence):
+                     * the global-allocation order of {op,src,out} is an allocno REF-COUNT
+                     * ranking (priority = floor_log2(refs)*refs/live_length).  Retail wants
+                     * op->$s1, src->$s2, out->$s3; the natural spelling ranks src first.
+                     * Both dials below are ZERO-INSTRUCTION identities that survive to
+                     * flow's REG_N_REFS pass and are folded away by combine afterwards:
+                     *   - `src | (src & 3)` == src           (absorption law)
+                     *   - `(op & C) & op & op ...` == op & C (nested-AND same-operand fold)
+                     * Measured grid (count-EXACT 158/158 in EVERY row, oracle 158), rows =
+                     * appended `& op` terms on `len`, cols = nested src absorptions:
+                     *        src0  src1  src2  src3
+                     *   +1    122   120   120   120
+                     *   +2     78    92    92    92
+                     *   +3     78    92    92    92
+                     *   +4     78  PASS  PASS  PASS
+                     *   +5     78  PASS  PASS  PASS
+                     * (the former asm fence measured: whole fence removed 122, op-operands
+                     * only 78, src-operand only 120 -- i.e. this pure-C pair reproduces it
+                     * exactly).  Do NOT "simplify" either expression away, and do not drop a
+                     * single `& op` term -- see scratchpad/w86/D1_receipt.md. */
+                    src = (unsigned char *)((unsigned int)src | ((unsigned int)src & 3u));
                     /* MATCH: spelling both control edges identically keeps `shifted` as a
                      * separate value through combine, preserving retail's srl/sll/andi
                      * chain.  The redundant edge is merged later and emits no branch. */
@@ -292,7 +311,7 @@ extern int unrefpack(unsigned char *comp, unsigned char *out_arg, int reverse_ar
                         hi = (shifted << 8) & 0x3f00;
                     lo    = ((op >> 16) & 0xff) + 1;
                     count = hi + lo;
-                    len   = (int)(op & 0x3f) + 4;
+                    len   = (int)(((((op & 0x3f) & op) & op) & op) & op) + 4;   /* == op & 0x3f; W86-D1 ref dial */
                     out   = refcpy(advanced, count, len);
                 } else if ((op & 0x20) == 0) {            /* 4-byte command */
                     unsigned int   count;

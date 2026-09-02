@@ -1,0 +1,11 @@
+### @80021ff8 DrawTVLines__FR9tTVConfig   [FETV.CPP:25]   -> DrawTVLines
+    SYMrec: [('REGPARM', 'tv'), ('REG', 'fxHeight'), ('REG', 'x'), ('REG', 'y'), ('REG', 'videoFX')]
+    Cdecl : ['fxHeight', 'x', 'y', 'videoFX', 'abe']
+    C-ONLY  : ['abe']
+
+### @8002234c DrawTV__FR9tTVConfig   [FETV.CPP:82]   -> DrawTV
+    SYMrec: [('REGPARM', 'tv'), ('REG', 'texture'), ('REG', 'reflection'), ('REG', 'noise'), ('REG', 'videoX'), ('REG', 'videoY'), ('AUTO', 'videoWidth'), ('AUTO', 'videoHeight'), ('REG', 'fadeTop'), ('REG', 'fadeBottom'), ('REG', 'tint'), ('REG', 'bright'), ('AUTO', 'do_tint')]
+    Cdecl : ['texture', 'reflection', 'noise', 'videoX', 'videoY', 'videoWidth', 'videoHeight', 'fadeTop', 'fadeBottom', 'tint', 'bright', 'do_tint', 'rgbMask', 'noiseHeight', 'noiseShapeY', 'noiseHeight', 'noiseShapeY', 'rgbMask']
+    C-ONLY  : ['rgbMask', 'noiseHeight', 'noiseShapeY', 'noiseHeight', 'noiseShapeY', 'rgbMask']
+
+# matched 5/5 SYM blocks; 7 bodies in file

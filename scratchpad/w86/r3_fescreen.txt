@@ -1,0 +1,21 @@
+### @80025bf8 GoNonInterlaced__7tScreen   [FESCREEN.CPP:144]   -> tScreen::GoNonInterlaced
+    SYMrec: []
+    Cdecl : ['displayHeight', 'viewHeight', 'viewTable', 'frontView', 'backView', 'playerViewIndex', 'displayEnv']
+    C-ONLY  : ['displayHeight', 'viewHeight', 'viewTable', 'frontView', 'backView', 'playerViewIndex', 'displayEnv']
+
+### @80026804 TransitionOff__7tScreen22tScreen_TransitionTypeP5tMenu   [FESCREEN.CPP:621]   -> tScreen::TransitionOff
+    SYMrec: [('REGPARM', 'type')]
+    Cdecl : ['iVar1']
+    C-ONLY  : ['iVar1']
+
+### @80026824 TransitionOn__7tScreen22tScreen_TransitionTypeP5tMenu   [FESCREEN.CPP:629]   -> tScreen::TransitionOn
+    SYMrec: [('REGPARM', 'type')]
+    Cdecl : ['iVar1']
+    C-ONLY  : ['iVar1']
+
+### @80026848 UpdateTransition__7tScreen   [FESCREEN.CPP:637]   -> tScreen::UpdateTransition
+    SYMrec: []
+    Cdecl : ['transitionValue', 'fadeValue']
+    C-ONLY  : ['transitionValue', 'fadeValue']
+
+# matched 27/27 SYM blocks; 27 bodies in file

@@ -52,23 +52,17 @@ void tScreenUserName::GetShapeInfo(short &numPermShapes,short &numSwapShapes,cha
 void tScreenUserName::DrawVerticalLine(short x,short y,short gridpos)
 
 {
-  /* MATCH: SYM-CODEGEN-CARRIER: depth -- retail sign-extends the short param
-     ONCE into a separate int
-     (oracle sll $v0,$a3,16 / sra $v1,$v0,16) and TESTS that int, while the
-     clamp STORES back into the short param register $a3.  One variable for
-     both roles makes gcc clamp+test in the same reg + an extra copy. */
-  int depth;
-
-  /* MATCH (source-only): the explicit unsigned-short normalization followed by
-     signed re-extension keeps the raw short parameter in $a3 for the clamp and
-     forms retail's separate $v0 -> $v1 depth value.  This replaces the former
-     identity fence, so reorg can also steal the ra save into the first branch's
-     delay slot.  Detailed gate: 17 -> PASS 32/32. */
-  depth = ((int)(uint)(ushort)gridpos << 16) >> 16;
-  if (0 < depth) {
-    if (0x3f < depth) goto DrawVerticalLine_high;
+  /* W86-S4 SYM: the `8c` block lists ONLY the four REGPARMs -- no locals at
+     all -- so the former `int depth` carrier was a hard fiction.  Folded back
+     into the three tests; the sll/sra SPELLING is what is load-bearing (retail
+     sign-extends the short param once, `sll $v0,$a3,16 / sra $v1,$v0,16`, and
+     TESTS that value while the clamp stores back into $a3).  A plain
+     `(int)gridpos` spelling costs 17 diffs; the folded sll/sra form is
+     PASS 32/32, identical to the carrier form. */
+  if (0 < (((int)(uint)(ushort)gridpos << 16) >> 16)) {
+    if (0x3f < (((int)(uint)(ushort)gridpos << 16) >> 16)) goto DrawVerticalLine_high;
   }
-  if (depth < 0) {
+  if ((((int)(uint)(ushort)gridpos << 16) >> 16) < 0) {
     gridpos = 0;
   }
   goto DrawVerticalLine_draw;
@@ -84,15 +78,12 @@ DrawVerticalLine_draw:
 void tScreenUserName::DrawHorizontalLine(short x,short y,short gridpos)
 
 {
-  /* SYM-CODEGEN-CARRIER: depth -- same parameter-clamp source shape as
-     DrawVerticalLine.  Detailed source-only gate: 17 -> PASS 33/33. */
-  int depth;
-
-  depth = ((int)(uint)(ushort)gridpos << 16) >> 16;
-  if (0 < depth) {
-    if (0x3f < depth) goto DrawHorizontalLine_high;
+  /* W86-S4 SYM: same as DrawVerticalLine -- the `8c` block lists only the four
+     REGPARMs, so the former `int depth` carrier was folded away.  PASS 33/33. */
+  if (0 < (((int)(uint)(ushort)gridpos << 16) >> 16)) {
+    if (0x3f < (((int)(uint)(ushort)gridpos << 16) >> 16)) goto DrawHorizontalLine_high;
   }
-  if (depth < 0) {
+  if ((((int)(uint)(ushort)gridpos << 16) >> 16) < 0) {
     gridpos = 0;
   }
   goto DrawHorizontalLine_draw;
@@ -230,16 +221,22 @@ void tScreenUserName::DrawBackground()
   short y;
   int gray;
   short fade;
-  char output[2];
   short fadebox;
   short gridpos;
   short row;
   short col;
+  char output[2];
   /* SYM-CODEGEN-CARRIER: fadeboxv
      SYM-CODEGEN-CARRIER: gridposv
      SYM-CODEGEN-CARRIER: textfadev -- optimized clamp-funnel values absent
      from the retail local list.  The W72-A7 receipt above measures the direct
-     destination and alternate clamp forms; these funnels retain PASS 394/394. */
+     destination and alternate clamp forms; these funnels retain PASS 394/394.
+     W86-S4 RE-PRICED IN THE PASS BASIN (04Z): removing all three and assigning
+     the SYM destinations (fadebox / gridpos / this->fTextFade) directly in every
+     arm costs 106 diffs.  They stay, declared LAST so the ten real locals above
+     them are in the SYM's own `8c` order (i, k, x, y, gray, fade, fadebox,
+     gridpos, row, col, output -- the record sequence is declaration order, not a
+     class grouping; W86-S4 moved `output` from 7th to last and re-gated PASS). */
   short fadeboxv;
   short gridposv;
   short textfadev;
@@ -253,11 +250,17 @@ void tScreenUserName::DrawBackground()
      honest named INT holding the raw word, truncated into `fade` -- the int's
      live range is the `$a1` copy.  FALSIFIED first (whole-TU re-gated): plain
      `*(int *)&` cast 7, direct field read 7, `*(long *)&` 7,
-     `(short)*(u_int *)&` 7. */
-  {
-    int fadeWord = this->callingMenu->fScreenFade;
-    fade = (short)fadeWord;
-  }
+     `(short)*(u_int *)&` 7.
+     W86-S4: that named int (`fadeWord`) was a HARD FICTION -- the SYM's `8c`
+     block has no such local.  What it DOES have is a NESTED block, opened at
+     the function's first statement, whose only record is
+     `REG this $2 v0 PTR STRUCT size 128 tag tOptionsMenu` -- i.e. retail
+     INLINED a tOptionsMenu accessor here, and the int-typed result truncated
+     into the SHORT `fade` (SYM: REG $5 a1) is exactly the `lw`+copy pair.
+     Modelled as tOptionsMenu::GetScreenFade() (inline, screendisplay_types.h +
+     nfs4_types.h; the SYM records the inlined `this`, not the method name).
+     PASS 394/394 kept; screendisplay/screenmain/screenmemcard re-gated. */
+  fade = this->callingMenu->GetScreenFade();
   if ((short)((fade >> 1) - 0x80) < 0x80) {
     if ((short)((fade >> 1) - 0x80) <= 0) goto DrawBgUser_fadeboxZero;
   }

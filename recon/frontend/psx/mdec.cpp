@@ -4,8 +4,12 @@
  *   Field names : SYM-authentic MDECSTRUCT layout incl. nested RECT framerect/striprect.
  *   Linkage     : initmdec/restoremdec/mdec/mdecdone = extern "C" (unmangled in SYM);
  *                 mdecreset/MDECCompleteHandler = normal C++ (cfront-mangled in SYM).
- *   Locals      : SYM-authentic `mdec` (MDECSTRUCT* cast) + `timeout`; others semantic
- *                 (area/bufsize/buf/hs/stride/mode/drawsync/nextx). Magic 0x4345444d='MDEC'.
+ *   Locals      : SYM-EXACT -- the SYM's only named locals in this TU are `mdec`
+ *                 (initmdec/restoremdec/mdec/MDECCompleteHandler) and `timeout` (mdec).
+ *                 initmdec additionally keeps four NON-SYM codegen carriers
+ *                 (area/stripsize/stride/bufsize), each with a measured cost below;
+ *                 every other Ghidra temp (buf/hs/mode/drawsync/nextx) was folded away.
+ *                 Magic 0x4345444d='MDEC'.
  */
 #include "mdec.h"
 #include "mdec_externs.h"
@@ -16,6 +20,10 @@
 int initmdec(int width,int height,int bpp,int memtype)
 
 {
+  /* SYM 8c records exactly ONE local here: mdec (REG $18, MDECSTRUCT*).  It is
+     declared first, per SYM order; the four below have NO SYM record and are
+     kept only as measured codegen carriers (w86-S5 re-ordering, gate unchanged). */
+  struct MDECSTRUCT *mdec;
   int area; /* SYM-CODEGEN-CARRIER: area -- folding it into stripsize is measured
                FAIL 22 at the same 101-instruction count */
   int stripsize; /* SYM-CODEGEN-CARRIER: stripsize -- folding into bufsize is
@@ -23,9 +31,8 @@ int initmdec(int width,int height,int bpp,int memtype)
   /* strip buffer is assigned directly; SYM records no `buf` local. */
   int stride; /* SYM-CODEGEN-CARRIER: stride -- reusing area rotates both divide
                  chains and is measured FAIL 16 at the same 101-instruction count */
-  void *bufsize; /* SYM-CODEGEN-CARRIER: bufsize -- reusing stripsize is count-exact
+  int bufsize; /* SYM-CODEGEN-CARRIER: bufsize -- reusing stripsize is count-exact
                     but forces the RMW operand order and is measured FAIL 2 */
-  struct MDECSTRUCT *mdec;
 
   mdec = (struct MDECSTRUCT *)reservememadr("MDECstruct",0x2c,memtype);
   blockclear(mdec,0x2c);
@@ -46,10 +53,10 @@ int initmdec(int width,int height,int bpp,int memtype)
      A one-expression form gets the two independent chains in the opposite order; folding
      the term back into `area`/`bufsize` makes the add an in-place RMW (addu s0,s0,s1). */
   stripsize = (area >> 8) * 0x300;
-  bufsize = (void *)(bpp * 0x1e0 + stripsize);
-  mdec->stripbuf = (u_long *)reservememadr("MDEC buffers",(int)bufsize,memtype);
+  bufsize = bpp * 0x1e0 + stripsize;
+  mdec->stripbuf = (u_long *)reservememadr("MDEC buffers",bufsize,memtype);
   /* assignment performed at allocation */
-  blockclear(mdec->stripbuf,(int)bufsize);
+  blockclear(mdec->stripbuf,bufsize);
   stride = width * bpp;
   mdec->striprect.w = (short)bpp;
   mdec->vlcbuf = (u_long *)((int)mdec->stripbuf + bpp * 0x1e0);

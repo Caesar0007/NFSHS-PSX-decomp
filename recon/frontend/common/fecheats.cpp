@@ -142,8 +142,8 @@ void FECheat_EncodeString(char *input,char *output)
   /* SYM/SLD: the complete local surface is `int i`, `int j`, and
      `char buffer[8]`.  Direct indexed source removes six decompiler pointer
      temporaries and remains byte-exact (35/35). */
-  int j;
   int i;
+  int j;
   char buffer [8];
   
   i = 0;
@@ -225,18 +225,18 @@ bool FECheat_ActivateCheat(char *cheat)
      source line 14.  Collapsing this receiver into direct SetString/Display
      spellings is FAIL36-37 and swaps the long-lived result/i allocation.
      SYM-CODEGEN-CARRIER: dlgThis
-     SYM-CODEGEN-CARRIER: pcVar4
-     SYM-CODEGEN-CARRIER: ptVar2
+     SYM-CODEGEN-CARRIER: wordText
+     SYM-CODEGEN-CARRIER: feApp
      These two source-only staging names place the FEApp reload between the
      TextSys_Word call and the dialog-string store; removing either is FAIL2
      (66/66), moving that load across the store. */
-  tFEApplication *ptVar2;
-  char *pcVar4;
-  tDialogMessageString *dlgThis;
   int i;
   int j;
-  bool result;
   char buffer [8];
+  bool result;
+  tFEApplication *feApp;
+  char *wordText;
+  tDialogMessageString *dlgThis;
 
   /* MATCH: ONE result var (retail $s1) with a single return at the end; the
      `1` it holds is REUSED as the shift base of the gFECheats mask
@@ -253,10 +253,10 @@ bool FECheat_ActivateCheat(char *cheat)
     if (j == 8) {
       AudioCmn_PlayFESFX(0x1a);
       dlgThis = &FEApp->MemCardDialog;
-      pcVar4 = TextSys_Word(0x27a);
-      ptVar2 = FEApp;
-      dlgThis->SetString(pcVar4);
-      ((tDialogBase *)&ptVar2->MemCardDialog)->Display();
+      wordText = TextSys_Word(0x27a);
+      feApp = FEApp;
+      dlgThis->SetString(wordText);
+      ((tDialogBase *)&feApp->MemCardDialog)->Display();
       FECheat_HandleActivation((tCheatCode)cheatList[i].cheat);
       result = 1;
       gFECheats = gFECheats | result << cheatList[i].cheat;
@@ -328,8 +328,8 @@ bool FECheat_ActivateBonusByCode(char *code)
 {
   int i;
   int j;
-  bool result;
   char buffer [8];
+  bool result;
 
   /* MATCH: twin of FECheat_ActivateCheat -- one result var + single return,
      rotated `for` inner compare loop.  Here the OUTER loop is a real

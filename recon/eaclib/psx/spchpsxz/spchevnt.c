@@ -371,8 +371,14 @@ extern void iSPCH_InitEventQueue(void)
     int end;
     base = addr;
     __asm__("" : : "r"(addr));
-    slot = base;
-    __asm__("" : "=r"(slot) : "0"(slot));
+    /* W86-D1 2026-09-02: the SECOND device here (an identity fence on `slot`) is now PURE C.
+     * `slot = base;` is a plain register copy of an ADDRESS, so it carries a REG_EQUIV and
+     * update_equiv_regs rewrites it away, losing retail's `addu $a0,$a3,$zero`.  The absorption
+     * identity `X | (X & 3) == X` gives `slot` an IOR def instead of a copy (no REG_EQUIV), and
+     * `combine` folds it back to exactly that copy at ZERO instructions.  Measured: fence PASS
+     * 29/29 | this form PASS 29/29 | both devices absorbed 35 @28 | the `addr` use fence
+     * absorbed (any of 4 spellings) 29 @28 -- so the FIRST fence still has to stay. */
+    slot = (base | (base & 3));
     end  = slot + 0x3c0;
     gVoxEvents[0]   = 0;
     *(int *)(base + 4) = 0;   /* DAT_80148064: stored via base+4 (oracle sw 0,4(a3)) */

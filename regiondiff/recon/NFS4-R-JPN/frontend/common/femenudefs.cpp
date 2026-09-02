@@ -3199,7 +3199,30 @@ tGlobalMenuDefs::tGlobalMenuDefs()
       + falsifications -> scratchpad/w76/A1_report.md. */
  , itemWeather(0xd0, (tListIterator *)&iteratorWeather)   /* +0xF28 tMenuItemOptionsTwoItemChoice */
  , itemTraffic(0xd1, (tListIterator *)&iteratorTraffic)   /* +0xF4C tMenuItemOptionsTwoItemChoice */
- , itemLocalSpeech(0xd3, ({ &iteratorLocalSpeech; }))   /* +0xF70 tMenuItemOptionsTwoItemChoice */
+   /* [W86-H1 2026-09-02] JPN REF INFLATOR -- the dead copy + its bare `(void)`
+      reference below are LOAD-BEARING and must not be "simplified".  W85-M3
+      characterised this row's wall as two irreconcilable tie-breaks on ONE dial
+      (the cse chain-object count P): R1 (`menuSingleCarSelect`, +0x1250 -- retail
+      SPILLS the `&menuCarOptions` address, we parked it in `fp`) matched only at
+      P >= 22, R2 (`menuCarUpgrades`, +0x1F34 -- the ctor's `addiu a0,this,7988`
+      one insn before its `jal`) only at P in [17,21]; both sit after every device
+      site and the site device is additive, so no configuration reached both.
+      The resolution is that they are NOT on one dial.  Catalog 33A-1's pure-C
+      REF INFLATOR moves the ALLOCNO REF COUNT, not the chain-object count: a
+      copy of an existing local (`localSpeechIteratorRef = localSpeechIterator`)
+      plus a bare `(void)` use of it survives fold as real RTL, is counted by
+      flow as a ref, and is then deleted at ZERO bytes.  With it, R1 matches from
+      P >= 19 while R2's window is unchanged -- the two windows OVERLAP at the
+      TU's existing config (`001111133`, P = 20) and the function reaches
+      REGION-PASS 3197/3197.  PROOF that it is a second dial and not "+1 object":
+      P=19 WITH it (score 0) != P=20 WITHOUT it (R1 still in `fp`).
+      Both parts are required -- dropping the `(void)` reference, or making the
+      copy the statement expression's RESULT instead of a dead variable, returns
+      the whole function to FAIL 965.  Measured at every prefix site: the same
+      shape on menuTrackOptions' 2nd or 3rd item argument is equivalent (score 0);
+      on `itemDisplayPosition` (after both divergences) it is inert.
+      Receipt: scratchpad/w86/H1_receipt.md. */
+ , itemLocalSpeech(0xd3, ({ tListIterator *localSpeechIterator = &iteratorLocalSpeech; tListIterator *localSpeechIteratorRef = localSpeechIterator; (void)localSpeechIteratorRef; localSpeechIterator; }))   /* +0xF70 tMenuItemOptionsTwoItemChoice */
  , menuTrackOptions(0x1000, (tScreen *)0x0, (tMenu *)0x0, (tMenu *)0x0, 0, 0xba, -1, (tMenuItem *)&itemLaps, ({ &itemTrackDirection; }), ({ &itemTrackMirrored; }), &itemTimeOfDay, &itemWeather, &itemTraffic, &itemLocalSpeech, 0)   /* +0xF94 tMenuOptions */
  , menuTrackRecordsItem(0, (tMenu *)0x0, 0, -1, -1)   /* +0x1018 tBlankMenuItemGoToMenuNFS4Button */
  , menuTrackRecords(0x1000, (tScreen *)screenTrackRecords, (tMenu *)0x0, (tMenu *)0x0, 0, 0xd5, 1, 10, (tMenuItem *)0x0)   /* +0x1044 tOptionsMenu */

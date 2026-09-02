@@ -1,0 +1,157 @@
+### @8001c2dc UpdateTransition__27tMenuItemGoToMenuButtonFadeb   [FEMENUOPTIONS.CPP:195]   -> tMenuItemGoToMenuButtonFade::UpdateTransition
+    SYMrec: [('REGPARM', 'selected')]
+    Cdecl : ['iVar2']
+    C-ONLY  : ['iVar2']
+
+!! NO BODY for __22tMenuItemLeftRightFadeUiP13tListIterator  (demangled tMenuItemLeftRightFade::tMenuItemLeftRightFade)
+
+### @8001c438 UpdateTransition__22tMenuItemLeftRightFadeb   [FEMENUOPTIONS.CPP:245]   -> tMenuItemLeftRightFade::UpdateTransition
+    SYMrec: [('REGPARM', 'selected')]
+    Cdecl : ['iVar2']
+    C-ONLY  : ['iVar2']
+
+!! NO BODY for __12tOptionsMenuUiP7tScreenP5tMenuT3PFR12tMenuCommand_vsiiP9tMenuIteme  (demangled tOptionsMenu::tOptionsMenu)
+
+### @8001c854 UpdateTransition__12tOptionsMenu   [FEMENUOPTIONS.CPP:364]   -> tOptionsMenu::UpdateTransition
+    SYMrec: [('REG', 'i')]
+    Cdecl : ['i', 'citem', 'item', 'entry', 'adjusted']
+    C-ONLY  : ['citem', 'item', 'entry', 'adjusted']
+
+### @8001cb04 Draw__12tOptionsMenu   [FEMENUOPTIONS.CPP:426]   -> tOptionsMenu::Draw
+    SYMrec: [('REG', 'i'), ('AUTO', 'drawFlags')]
+    Cdecl : ['entry', 'adjusted', 'i', 'drawFlags']
+    C-ONLY  : ['entry', 'adjusted']
+
+!! NO BODY for __14tInsideBoxMenuUiP7tScreenP5tMenuT3PFR12tMenuCommand_vsP9tMenuIteme  (demangled tInsideBoxMenu::tInsideBoxMenu)
+
+### @8001ce2c ProcessInput__14tInsideBoxMenu7tPlayerR13tInputKeyTypeR12tMenuCommand   [FEMENUOPTIONS.CPP:537]   -> tInsideBoxMenu::ProcessInput
+    SYMrec: [('REGPARM', 'fromPlayer'), ('REGPARM', 'keyval'), ('REGPARM', 'command')]
+    Cdecl : ['tVar2']
+    C-ONLY  : ['tVar2']
+
+### @8001cefc Draw__14tInsideBoxMenusssss   [FEMENUOPTIONS.CPP:558]   -> tInsideBoxMenu::Draw
+    SYMrec: [('REGPARM', 'x'), ('REGPARM', 'y'), ('REGPARM', 'w'), ('ARG', 'slideOffset'), ('REG', 'slideOffset'), ('REG', 'i'), ('REG', 'j')]
+    Cdecl : ['entry10', 'entry6', 'i', 'j']
+    C-ONLY  : ['entry10', 'entry6']
+
+!! NO BODY for __20tMenuItemSlidingMenuUissssb  (demangled tMenuItemSlidingMenu::tMenuItemSlidingMenu)
+
+### @8001d31c UpdateTransition__20tMenuItemSlidingMenub   [FEMENUOPTIONS.CPP:680]   -> tMenuItemSlidingMenu::UpdateTransition
+    SYMrec: [('REGPARM', 'selected')]
+    Cdecl : ['iVar2']
+    C-ONLY  : ['iVar2']
+
+### @8001d41c UpdatefOpenHeight__20tMenuItemSlidingMenub   [FEMENUOPTIONS.CPP:711]   -> tMenuItemSlidingMenu::UpdatefOpenHeight
+    SYMrec: [('REGPARM', 'selected')]
+    Cdecl : ['fade', 'newFade', 'closeH', 'fadeOut', 'fadeOut', 'cur', 'lim', 'slide', 'shrinkH']
+    C-ONLY  : ['fade', 'newFade', 'closeH', 'fadeOut', 'fadeOut', 'cur', 'lim', 'slide', 'shrinkH']
+
+### @8001d63c Draw__20tMenuItemSlidingMenuiib   [FEMENUOPTIONS.CPP:777]   -> tMenuItemSlidingMenu::Draw
+    SYMrec: [('REGPARM', 'offx'), ('REGPARM', 'offy'), ('REGPARM', 'selected'), ('AUTO', 'ColText'), ('AUTO', 'x'), ('AUTO', 'y'), ('AUTO', 'shape'), ('STAT', 'flareextra'), ('AUTO', 'fPlayList'), ('AUTO', 'drawFlags'), ('REG', 'width'), ('REG', 'xx'), ('REG', 'yy'), ('REG', 'ww'), ('REG', 'hh'), ('AUTO', 'drenv'), ('REG', 'daprim'), ('AUTO', 'full'), ('AUTO', 'temp'), ('REG', 'gray'), ('REG', 'shapetop'), ('REG', 'shapebottom')]
+    Cdecl : ['ColText', 'x', 'y', 'shape', 'flareextra', 'fPlayList', 'drawFlags', 'width', 'drawX', 'drawY', 'xx', 'yy', 'ww', 'hh', 'drenv', 'daprim', 'full', 'temp', 'gray', 'shapetop', 'shapebottom']
+    C-ONLY  : ['drawX', 'drawY']
+
+### @8001dd6c UpdatefOpenHeight__25tMenuItemSlidingActivatedb   [FEMENUOPTIONS.CPP:925]   -> tMenuItemSlidingActivated::UpdatefOpenHeight
+    SYMrec: []
+    Cdecl : ['iVar2', 'iVar4']
+    C-ONLY  : ['iVar2', 'iVar4']
+
+### @8001dec8 UpdateTransition__25tMenuItemSlidingActivatedb   [FEMENUOPTIONS.CPP:983]   -> tMenuItemSlidingActivated::UpdateTransition
+    SYMrec: [('REGPARM', 'selected')]
+    Cdecl : ['iVar2']
+    C-ONLY  : ['iVar2']
+
+### @8001e230 Draw__31tMenuItemDisplayLeftRightChoiceiib   [FEMENUOPTIONS.CPP:1085]   -> tMenuItemDisplayLeftRightChoice::Draw
+    SYMrec: [('REGPARM', 'offx'), ('REGPARM', 'offy'), ('REG', 'ColText')]
+    Cdecl : ['ColText', 'x', 'y']
+    C-ONLY  : ['x', 'y']
+
+### @8001e384 Draw__29tMenuItemOnOffLeftRightChoiceiib   [FEMENUOPTIONS.CPP:1111]   -> tMenuItemOnOffLeftRightChoice::Draw
+    SYMrec: [('REGPARM', 'offx'), ('REGPARM', 'offy'), ('AUTO', 'ColTextOn'), ('AUTO', 'ColTextOff')]
+    Cdecl : ['x', 'y', 'ColTextOn', 'ColTextOff']
+    C-ONLY  : ['x', 'y']
+
+!! NO BODY for __29tMenuItemLeftRightAudioSliderUiP13tListIteratori  (demangled tMenuItemLeftRightAudioSlider::tMenuItemLeftRightAudioSlider)
+
+### @8001e570 Draw__29tMenuItemLeftRightAudioSlideriib   [FEMENUOPTIONS.CPP:1167]   -> tMenuItemLeftRightAudioSlider::Draw
+    SYMrec: [('REGPARM', 'ox'), ('REGPARM', 'oy'), ('REG', 'coltext'), ('AUTO', 'tCol')]
+    Cdecl : ['coltext', 'brightTextColor', 'rgbVals', 'tCol']
+    C-ONLY  : ['brightTextColor', 'rgbVals']
+
+### @8001e8d4 UpdateTransition__29tMenuItemLeftRightAudioSliderb   [FEMENUOPTIONS.CPP:1234]   -> tMenuItemLeftRightAudioSlider::UpdateTransition
+    SYMrec: [('REGPARM', 'selected')]
+    Cdecl : ['iVar1']
+    C-ONLY  : ['iVar1']
+
+!! NO BODY for __18tInsideBoxSongMenuUiP7tScreenP5tMenuT3PFR12tMenuCommand_vsP9tMenuIteme  (demangled tInsideBoxSongMenu::tInsideBoxSongMenu)
+
+### @8001e9d8 Draw__18tInsideBoxSongMenusssss   [FEMENUOPTIONS.CPP:1271]   -> tInsideBoxSongMenu::Draw
+    SYMrec: [('REGPARM', 'x'), ('REGPARM', 'y'), ('REGPARM', 'w'), ('ARG', 'slideOffset'), ('ARG', 'maxheight'), ('REG', 'slideOffset'), ('REG', 'j'), ('REG', 'drawY'), ('REG', 'song')]
+    Cdecl : ['song', 'j', 'drawY', 'drawBaseY', 'slide', 'fe', 'width', 'fadeValue', 'fadeValue']
+    C-ONLY  : ['drawBaseY', 'slide', 'fe', 'width', 'fadeValue', 'fadeValue']
+
+### @8001f084 Draw__34tMenuItemControllerLeftRightChoiceiib   [FEMENUOPTIONS.CPP:1423]   -> tMenuItemControllerLeftRightChoice::Draw
+    SYMrec: [('REGPARM', 'ox'), ('REGPARM', 'oy'), ('REG', 'shape'), ('REG', 'Col'), ('REG', 'ColText'), ('AUTO', 'drawFlags'), ('AUTO', 'tCol')]
+    Cdecl : ['shape', 'x', 'y', 'Col', 'ColText', 'w', 'tCol', 'drawFlags']
+    C-ONLY  : ['x', 'y', 'w']
+
+!! NO BODY for __25tInsideBoxLeftRightSliderUiP13tListIterator  (demangled tInsideBoxLeftRightSlider::tInsideBoxLeftRightSlider)
+
+!! NO BODY for __22tInsideBoxTwoWaySliderUiP13tListIteratori  (demangled tInsideBoxTwoWaySlider::tInsideBoxTwoWaySlider)
+
+### @8001f5a0 Draw__22tInsideBoxTwoWaySlideriiib   [FEMENUOPTIONS.CPP:1543]   -> tInsideBoxTwoWaySlider::Draw
+    SYMrec: [('REGPARM', 'x'), ('REGPARM', 'y'), ('REGPARM', 'w'), ('REG', 'ww'), ('REG', 'col'), ('REG', 'col2'), ('REG', 'coltext')]
+    Cdecl : ['selection', 'col2', 'col', 'coltext', 'fWidth', 'ww']
+    C-ONLY  : ['selection', 'fWidth']
+
+### @8001f918 Calibrate__22tInsideBoxTwoWaySlider   [FEMENUOPTIONS.CPP:1595]   -> tInsideBoxTwoWaySlider::Calibrate
+    SYMrec: [('REG', 'range'), ('REG', 'player')]
+    Cdecl : ['range', 'player', 'padInfo', 'padBase', 'screen', 'app', 'value', 'value', 'value', 'value', 'minimum', 'value']
+    C-ONLY  : ['padInfo', 'padBase', 'screen', 'app', 'value', 'value', 'value', 'value', 'minimum', 'value']
+
+!! NO BODY for __17tUserNameMenuItemUi  (demangled tUserNameMenuItem::tUserNameMenuItem)
+
+### @8001fd2c ProcessInput__17tUserNameMenuItem7tPlayerR13tInputKeyTypeR12tMenuCommand   [FEMENUOPTIONS.CPP:1712]   -> tUserNameMenuItem::ProcessInput
+    SYMrec: [('REGPARM', 'keyval')]
+    Cdecl : ['selectedChar', 'column', 'stringLength', 'character', 'rowBase', 'soundId', 'rowOffset', 'lastColumn', 'rowOffset']
+    C-ONLY  : ['selectedChar', 'column', 'stringLength', 'character', 'rowBase', 'soundId', 'rowOffset', 'lastColumn', 'rowOffset']
+
+### @8002017c Draw__17tUserNameMenuItemb   [FEMENUOPTIONS.CPP:1874]   -> tUserNameMenuItem::Draw
+    SYMrec: [('AUTO', 'x'), ('REG', 'y'), ('REG', 'shape'), ('REG', 'j'), ('AUTO', 'output'), ('REG', 'ColText'), ('REG', 'Col'), ('AUTO', 'tCol'), ('AUTO', 'sl'), ('REG', 'startx'), ('REG', 'xx'), ('REG', 'yy'), ('AUTO', 'fFlags'), ('REG', 'current'), ('REG', 'shapetodraw')]
+    Cdecl : ['x', 'y', 'shape', 'boxRight', 'j', 'output', 'ColText', 'Col', 'tCol', 'sl', 'startx', 'menuStartY', 'columnx', 'row', 'xx', 'yy', 'fFlags', 'current', 'shapetodraw', 'right']
+    C-ONLY  : ['boxRight', 'menuStartY', 'columnx', 'row', 'right']
+
+### @80020580 TransitionOn__17tUserNameMenuItem   [FEMENUOPTIONS.CPP:1978]   -> tUserNameMenuItem::TransitionOn
+    SYMrec: [('REG', 'i'), ('AUTO', 'NumberOfRows')]
+    Cdecl : ['i', 'NumberOfRows', 'dst']
+    C-ONLY  : ['dst']
+
+### @80020820 UpdateTransition__17tUserNameMenuItemb   [FEMENUOPTIONS.CPP:2032]   -> tUserNameMenuItem::UpdateTransition
+    SYMrec: [('REGPARM', 'selected')]
+    Cdecl : ['iVar2']
+    C-ONLY  : ['iVar2']
+
+### @8002089c Draw__19tMemoryCardMenuItemb   [FEMENUOPTIONS.CPP:2048]   -> tMemoryCardMenuItem::Draw
+    SYMrec: [('REG', 'fEnableFade'), ('REG', 'fEnableSlide'), ('REG', 'x'), ('REG', 'y'), ('REG', 'ColText'), ('REG', 'Col'), ('AUTO', 'tCol'), ('REG', 'fWidth'), ('REG', 'shape')]
+    Cdecl : ['shape', 'sVar2', 'x', 'y', 'Col', 'ColText', 'fEnableSlide', 'fEnableFade', 'fWidth', 'tCol', 'v', 'sv', 'less']
+    C-ONLY  : ['sVar2', 'v', 'sv', 'less']
+
+!! NO BODY for _._35tInsideBoxControllerLeftRightSlider  (demangled tInsideBoxControllerLeftRightSlider::~tInsideBoxControllerLeftRightSlider)
+
+!! NO BODY for _._19tMemoryCardMenuItem  (demangled tMemoryCardMenuItem::~tMemoryCardMenuItem)
+
+!! NO BODY for _._27tMenuItemGoToMenuButtonFade  (demangled tMenuItemGoToMenuButtonFade::~tMenuItemGoToMenuButtonFade)
+
+!! NO BODY for _._17tUserNameMenuItem  (demangled tUserNameMenuItem::~tUserNameMenuItem)
+
+!! NO BODY for _._34tMenuItemControllerLeftRightChoice  (demangled tMenuItemControllerLeftRightChoice::~tMenuItemControllerLeftRightChoice)
+
+!! NO BODY for _._29tMenuItemOnOffLeftRightChoice  (demangled tMenuItemOnOffLeftRightChoice::~tMenuItemOnOffLeftRightChoice)
+
+!! NO BODY for _._31tMenuItemDisplayLeftRightChoice  (demangled tMenuItemDisplayLeftRightChoice::~tMenuItemDisplayLeftRightChoice)
+
+!! NO BODY for _._25tMenuItemSlidingActivated  (demangled tMenuItemSlidingActivated::~tMenuItemSlidingActivated)
+
+!! NO BODY for _._22tMenuItemLeftRightFade  (demangled tMenuItemLeftRightFade::~tMenuItemLeftRightFade)
+
+# matched 74/92 SYM blocks; 84 bodies in file

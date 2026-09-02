@@ -506,7 +506,10 @@ credits_state_done:
     r.y = 0x81;
     r.w = 0x11c;
     r.h = 0x2a;
-    FETextRender_WordWrapTextRGB(TextSys_Word(0x272),r,TextCol);
+    /* REGIONAL (R-USA, W86-B8): +1 retail string-table shift on the memcard
+     * warning text id (0x272 -> 0x273; AUDIT_LO16 insn 325).  Sole
+     * TextSys_Word literal in this function -- no CSE-shared `li` (32B-5). */
+    FETextRender_WordWrapTextRGB(TextSys_Word(0x273),r,TextCol);
     FETextRender_SetABR(0,false);
     FeDraw_SetABRMode(0);
   }

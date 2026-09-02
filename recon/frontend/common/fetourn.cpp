@@ -48,16 +48,18 @@ void tTournamentManager::LoadDescription()
      SYM-CODEGEN-CARRIER: trnId
      These promoted traversal values preserve the retail loop bounds and
      callee-saved allocation; folding tourneyDef changes 77 instructions. */
-  tTournamentDefinition *tourneyDef;
-  short track;
-  uint trackId;
-  char *data;
-  short tourney;
-  uint trnId;
-  short tier;
-  char filename [80];
+  /* SYM ORDER (W86-S2): the 8c Def rows read input, data, tier, tourney,
+     track, filename; the three non-SYM carriers follow the SYM set. */
   char *input;
-  
+  char *data;
+  short tier;
+  short tourney;
+  short track;
+  char filename [80];
+  tTournamentDefinition *tourneyDef;
+  uint trackId;
+  uint trnId;
+
   sprintf(filename,"%s%s",Paths_Paths[0x25],"tourn.trn");
   this->ReleaseDescription();
   input = (char *)loadfileadr(filename,0x10);
@@ -212,6 +214,11 @@ void tTournamentManager::StartNewTournament(byte tier,byte tournament)
      SYM-CODEGEN-CARRIER: trackOffset
      These are the expression-splitting carriers documented in the PASS
      receipt above; the retail SYM records only i, tourn, and track. */
+  /* SYM ORDER (W86-S2): the 8c Def rows read i, tourn, track; the seven
+     non-SYM carriers follow the SYM set. */
+  short i;
+  tTourneyInfo* tourn;
+  tTrackInfo* track;
   byte fTrackOption;
   short numCompetitors;
   int fRandOption;
@@ -219,9 +226,6 @@ void tTournamentManager::StartNewTournament(byte tier,byte tournament)
   tTournamentDefinition* tourneyDefLocal;
   int tourneyInfoOffset;
   tTournamentDefinition* tourneyDef;
-  tTrackInfo* track;
-  short i;
-  tTourneyInfo* tourn;
 
   this->fTier = (uint)tier;
   this->fTournament = (uint)tournament;
@@ -312,10 +316,12 @@ static int tournPointsCompare(char *p1,char *p2)
      SYM-CODEGEN-CARRIER: comps
      The two-stage embedded-array base formation supplies the retail +280
      adjustment; direct tournamentManager indexing is one instruction short. */
+  /* SYM ORDER (W86-S2): the 8c Def rows read result, dummyCars; the two
+     non-SYM carriers follow the SYM set. */
+  int result;
+  Car_tStats *dummyCars;
   tTournamentManager *tm;
   tCompetitor *comps;
-  Car_tStats *dummyCars;
-  int result;
 
   tm = &tournamentManager;
   comps = tm->fCompetitors;
@@ -388,14 +394,20 @@ void tTournamentManager::CalcTrackFinishDamageBill(bool recalculate,long &bill,l
      retail srav/andi sequence; an inline (1 << i) changes 24 instructions. */
   static long retbill;
   static long retbonus;
-  int i;
-  short mask;
-  long totalcarprice;
-  int damage;
+  /* SYM ORDER (W86-S2): the depth-1 rows read
+     retbill, retbonus, dummyCars, carInfo, damage, totalcarprice. */
   Car_tStats *dummyCars;
   tCarInfo carInfo;
+  int damage;
+  long totalcarprice;
+  short mask;
 
   if (recalculate != 0) {
+    /* SYM SCOPE (W86-S2): `i` is a BLOCK local of this `if` -- its SYM row is at
+       block depth 4, below the depth-1 rows (retbill/retbonus/dummyCars/
+       carInfo/damage/totalcarprice) that are the function-scope set. */
+    int i;
+
     dummyCars = Cars_gNewCarStatsList;
     carManager.GetGarageCar((ushort)(byte)frontEnd.garageCar[0],carInfo,0);
     totalcarprice = carInfo.fPrices[0];
@@ -600,8 +612,7 @@ short tTournamentManager::AdvanceToNextTrack()
   tCarInfo *carInfo;
   tTierInfo *currentTier;
   short i;
-  int numGarageCars;
-  
+
   currentTourney = this->fDefinition->fTournaments +
                    ((uint)this->fDefinition->fTiers[this->fTier].fTournOffset + this->fTournament);
   if (this->fCurrentTrack <= (int)(currentTourney->fNumTracks - 1)) {
@@ -671,6 +682,11 @@ short tTournamentManager::AdvanceToNextTrack()
             } while (i < (int)(uint)currentTier->fNumTournaments);
           }
           if ((this->fAwards).fCompletedTier != 0) {
+            /* SYM SCOPE (W86-S2): `numGarageCars` is a BLOCK local of this
+               completed-tier arm -- its SYM row sits at block depth 11, while
+               currentTourney/tourn/carInfo/currentTier/i are the depth-1 set. */
+            int numGarageCars;
+
             numGarageCars = carManager.GetNumOwnedCars(0);
             if ((this->fAwards).fAwardCar != 0) {
               numGarageCars = numGarageCars + 1;
@@ -860,9 +876,10 @@ void tTournamentManager::GetAwardInformation(tAwardInformation &info)
 void tTournamentManager::UpdateAwardInformation()
 
 {
-  long bill;
+  /* SYM ORDER (W86-S2): the 8c Def rows read bonus, bill. */
   long bonus;
-  
+  long bill;
+
   this->CalcTrackFinishDamageBill(true,bill,bonus);   /* now takes long& */
   /* SLD names only bill and bonus: the four direct compound updates are
      retail's load/add/store chain; decompiler arithmetic temps lose a store. */
@@ -957,8 +974,8 @@ void tTournamentManager::GetTrophyName(tTourneyInfo *tourn,tTrophySize size,char
      for the 3-byte one, an unaligned lwl/lwr+swl/swr word for the 4-byte one) --
      the Ghidra body had hand-expanded gcc's own unaligned block move. */
   int showplace;
-  int best;
   char trophySizeLetter [3] = { 'S', 'M', 'L' };
+  int best;
   /* MATCH: `char` is UNSIGNED on this build -> (signed char) restores the oracle's lb.
      SLD puts this read on line 1042/1043 -- BETWEEN the two array initializers and
      before the guard, i.e. in the entry basic block (sched1 cannot move a load
@@ -1110,8 +1127,10 @@ void tListIteratorTournament::Decrement(tPlayer)
 {
   /* SYM-CODEGEN-CARRIER: value -- a single byte value web produces the retail
      branch-delay decrement; repeating *fValue adds five instructions. */
-  byte value;
+  /* SYM ORDER (W86-S2): `tier` is the only SYM row; the `value` carrier
+     follows it. */
   tTierInfo *tier;
+  byte value;
 
   tier = &this->fTournamentManager->fDefinition->fTiers[(byte)frontEnd.tier];
   do {

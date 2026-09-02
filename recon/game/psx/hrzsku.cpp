@@ -143,7 +143,11 @@ void Horizon_InterpolateLineSCoords(DVECTOR *sc,DVECTOR *s0,DVECTOR *s1,int *per
         sc->vy = s0->vy + (short)(p >> 0x10);
         s0 = s0 + 1;
         s1 = s1 + 1;
-        __asm__ __volatile__("" : : "r"(i));
+        /* W86-D2: read-only ref fence -> pure-C ABSORPTION IDENTITY `X | (X & 3) == X`.
+           Real RTL through cse/loop/flow (reference counted, second SET), folded by
+           combine => zero bytes.  Ladder (whole-TU gate, Horizon_InterpolateLineSCoords):
+           fence removed 26 | one absorption PASS | 2 or 4 PASS | `X & (X | 3)` PASS. */
+        i = (int)((unsigned int)i | ((unsigned int)i & 3u));
         i = i + 1;
         sc = sc + 1;
       } while (i < n);
@@ -2683,7 +2687,12 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
                      NOT inert once the two clip residuals are closed -- 04Z / catalog 23B(7)
                      re-pricing, worth 2 diffs and posmis 10 -> 9 here. */
                   int q = ringOffset + (int)hsd;
-                  __asm__("" : "=r"(q) : "0"(q));
+                  /* W86-D2: identity launder -> pure-C ABSORPTION IDENTITY.  `q` keeps the
+                     second SET that stops cse re-associating the index-first sum, and
+                     combine folds the identity away at zero bytes.  Ladder (whole-TU gate,
+                     Hrz_BuildHorizon): device removed 48 | one absorption PASS | 2/4 PASS |
+                     `X & (X | 3)` PASS. */
+                  q = (int)((unsigned int)q | ((unsigned int)q & 3u));
                   *(u_int *)((u_char *)prim + 8) = *(u_int *)(q + 0x9c);
                   *(u_int *)((u_char *)prim + 0x14) = *(u_int *)&right;   /* MATCH: word copy, see above */
                   *(u_int *)((u_char *)prim + 0x20) = *(u_int *)(q + 0x58);

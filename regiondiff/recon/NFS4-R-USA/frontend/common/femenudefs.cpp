@@ -4,6 +4,33 @@
  */
 #include "femenudefs.h"
 
+/* [NFS4-R-USA REGIONAL DELTA -- W86-B7] retail string-table +1 shift, applied to the
+   15 remaining FAIL rows of this candidate.  Every diff on those rows was a pure
+   `li <reg>,K` -> `li <reg>,K+1`, count-exact, matching AUDIT_LO16 word-for-word.
+   Sites (all in-statement literals, no structural change):
+     yesnowords / SetChoices pairs      0x321,0x322 -> 0x322,0x323  (9 functions)
+     AskTheUserToSaveTheGame            0x331 -> 0x332
+     GoToCarSelect                      0xeb  -> 0xec
+     GenericMenuSaveGame                0x27e -> 0x27f , 0x282 -> 0x283
+     GenericMenuLoadGame                0x27d -> 0x27e
+     PinkSlipsPreSave                   0x273 -> 0x274
+     GoToRace                     0xaa->0xab, 0xf1->0xf2, 0xf2->0xf3, 0xf3->0xf4
+     GoTo2PlayerRace              0xaa->0xab, 0xf3->0xf4, 0xf2->0xf3
+     GoToTournTrackInfo / GoToSpecialEventTrackInfo   0xf6->0xf7, 0xf7->0xf8
+     SellCar        0xa5->0xa6, 0xa9->0xaa      BuyCar   0xa4->0xa5, 0xa7->0xa8, 0x4b->0x4c
+     PurchaseUpgrade 0xa6->0xa7, 0xa8->0xa9     ExitTourney / ExitPinkSlipsEarly 0x9d->0x9e
+     ExitPinkSlipsEarly                 0x297 -> 0x298
+   NOT shifted (the shift is per-id, not blanket): GoToTwoPlayerSingleRace's
+   TextSys_Word(0x42), and every menu-item id in the tGlobalMenuDefs ctor
+   initializer list (0xa4 / 0xaa / 0x9d there are item ids, and that row was
+   already SEALED at 3207 insns -- it stayed SEALED).
+   32B-5 note: several ids form runs (0xf1/0xf2/0xf3, 0x321/0x322), so a site's
+   post-shift value equals a sibling's pre-shift value; the shift is uniform per
+   function, so the constants stay pairwise distinct and no `li` was CSE-merged
+   (all 15 rows kept their exact instruction counts).
+   MenuExtended_SetUpgradeDialogWords (static inline) was checked to have exactly
+   one caller (MenuExtended_PurchaseUpgrade) before shifting its pair. */
+
 inline void tFEApplication::DisplayMessage(int word)
 {
   tDialogMessageString *dialog = &messagePopup;
@@ -267,8 +294,8 @@ void MenuExtended_GoToTwoPlayerSingleRace(tMenuCommand &command)
   if ((short)carManager.GetNumOwnedCars(0) < 1) {
     dialog->string =
          TextSys_Word(0x42);
-    dialog->yesnowords[0] = 0x321;
-    dialog->yesnowords[1] = 0x322;
+    dialog->yesnowords[0] = 0x322;
+    dialog->yesnowords[1] = 0x323;
     dialog->fDefault = 0;
     if (((tDialogInteractive *)dialog)->Run() == 1) {
       /* SYM-CODEGEN-CARRIER: nextMenu
@@ -388,9 +415,9 @@ int AskTheUserToSaveTheGame(void)
     int answer;
     tDialogYesNo YesNoDialog;
 
-    dlgThis = YesNoDialog.SetString(TextSys_Word(0x331));
-    ((tDialogYesNo *)dlgThis)->yesnowords[0] = 0x321;
-    ((tDialogYesNo *)dlgThis)->yesnowords[1] = 0x322;
+    dlgThis = YesNoDialog.SetString(TextSys_Word(0x332));
+    ((tDialogYesNo *)dlgThis)->yesnowords[0] = 0x322;
+    ((tDialogYesNo *)dlgThis)->yesnowords[1] = 0x323;
     ((tDialogYesNo *)dlgThis)->fDefault = 0;
     answer = (short)((tDialogInteractive *)dlgThis)->Run();
     return answer;
@@ -484,7 +511,7 @@ void MenuExtended_GoToCarSelect(tMenuCommand &command)
   trackManager.GetTrack((ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex],
              trackInfo);
   if (trackInfo.fAvailable == '\0') {
-    dialog->string = TextSys_Word(0xeb);
+    dialog->string = TextSys_Word(0xec);
     ((tDialogBase *)dialog)->Display();
     return;
   }
@@ -780,7 +807,7 @@ bool GenericMenuSaveGame(int showdialog)
      calls restore the nested tScreenMemcard receivers, and SetString restores
      the nested tDialogMessageString receiver. */
   /* SYM-INLINE-THIS: SetMessage */
-  screenMemcard->SetMessage(0x27e);
+  screenMemcard->SetMessage(0x27f);
   FEApp->Redraw();
   uninitafter = false;
   if ((MEMCARD_INITIALIZED == 0) || (showdialog != 0)) {
@@ -789,7 +816,7 @@ bool GenericMenuSaveGame(int showdialog)
     tDialogNoInputMessage *noInput = &FEApp->NoInputMemCardDialog;
 
     /* SYM-INLINE-THIS: SetString */
-    noInput->SetString(TextSys_Word(0x282));
+    noInput->SetString(TextSys_Word(0x283));
     ((tDialogBase *)&FEApp->NoInputMemCardDialog)->Display();
     while (1) {
       app = FEApp;
@@ -844,9 +871,9 @@ bool PinkSlipsPreSave(void)
 
       dlgThis = &YesNoDialog;
       dlgThis->string =
-           TextSys_Word(0x273);
-      dlgThis->yesnowords[0] = 0x321;
-      dlgThis->yesnowords[1] = 0x322;
+           TextSys_Word(0x274);
+      dlgThis->yesnowords[0] = 0x322;
+      dlgThis->yesnowords[1] = 0x323;
       dlgThis->fDefault = 0;
       answer = ((tDialogInteractive *)dlgThis)->Run();
       if (answer == 1) {
@@ -977,7 +1004,7 @@ void MenuExtended_GoToRace(tMenuCommand &command)
       ((int)((uint)carManager.GetNumOwnedCars(0) << 0x10) <= 0)) &&
      ((frontEnd.raceType != RaceType_HotPursuit) && (frontEnd.raceType != RaceType_PinkSlips))) {
     /* SYM-INLINE-THIS: SetString */
-    popUp->SetString(TextSys_Word(0xaa));
+    popUp->SetString(TextSys_Word(0xab));
     ((tDialogBase *)popUp)->Display();
     command.type = kMenu_Command_None;
     return;
@@ -985,7 +1012,7 @@ void MenuExtended_GoToRace(tMenuCommand &command)
   if ((frontEnd.raceType == RaceType_Tournament) &&
      ((int)((uint)carManager.GetNumTourneyCars(0) << 0x10) < 1)) {
     /* SYM-INLINE-THIS: SetString */
-    popUp->SetString(TextSys_Word(0xf1));
+    popUp->SetString(TextSys_Word(0xf2));
     ((tDialogBase *)popUp)->Display();
     command.type = kMenu_Command_None;
     return;
@@ -994,7 +1021,7 @@ void MenuExtended_GoToRace(tMenuCommand &command)
      (carManager.GetStockCar((ushort)(byte)frontEnd.playerCar[0],carInfo),
       carInfo.fPursuitAvailable == '\x00')) {
     /* SYM-INLINE-THIS: SetString */
-    popUp->SetString(TextSys_Word(0xf2));
+    popUp->SetString(TextSys_Word(0xf3));
     ((tDialogBase *)popUp)->Display();
     command.type = kMenu_Command_None;
     return;
@@ -1007,7 +1034,7 @@ void MenuExtended_GoToRace(tMenuCommand &command)
     return;
   }
   /* SYM-INLINE-THIS: SetString */
-  popUp->SetString(TextSys_Word(0xf3));
+  popUp->SetString(TextSys_Word(0xf4));
   ((tDialogBase *)popUp)->Display();
   command.type = kMenu_Command_None;
   return;
@@ -1049,7 +1076,7 @@ void MenuExtended_GoTo2PlayerRace(tMenuCommand &command)
       ((int)((uint)carManager.GetNumOwnedCars(0) << 0x10) <= 0)) &&
      (frontEnd.raceType != RaceType_HotPursuit)) {
     /* SYM-INLINE-THIS: SetString */
-    popUp->SetString(TextSys_Word(0xaa));
+    popUp->SetString(TextSys_Word(0xab));
     ((tDialogBase *)popUp)->Display();
     command.type = kMenu_Command_None;
     return;
@@ -1060,7 +1087,7 @@ void MenuExtended_GoTo2PlayerRace(tMenuCommand &command)
           (ushort)(byte)frontEnd.playerCar[(byte)FEApp->CurrentPlayer()],carInfo),
       carInfo.fAvailable == '\x00')) {
     /* SYM-INLINE-THIS: SetString */
-    popUp->SetString(TextSys_Word(0xf3));
+    popUp->SetString(TextSys_Word(0xf4));
     ((tDialogBase *)popUp)->Display();
     command.type = kMenu_Command_None;
     return;
@@ -1075,7 +1102,7 @@ void MenuExtended_GoTo2PlayerRace(tMenuCommand &command)
     return;
   }
   /* SYM-INLINE-THIS: SetString */
-  popUp->SetString(TextSys_Word(0xf2));
+  popUp->SetString(TextSys_Word(0xf3));
   ((tDialogBase *)popUp)->Display();
   command.type = kMenu_Command_None;
   return;
@@ -1132,15 +1159,15 @@ void MenuExtended_GoToTournTrackInfo(tMenuCommand &command)
     __asm__("" : "+r" (selectedTourney));
     if (manager->fMoney < amount) {
       /* SYM-INLINE-THIS: DisplayMessage */
-      FEApp->DisplayMessage(0xf6);
+      FEApp->DisplayMessage(0xf7);
       return;
     }
     {
       tDialogYesNo popUp;
 
       /* SYM-INLINE-THIS: SetString */
-      popUp.SetString(TextSys_Word(0xf7));
-      popUp.SetChoices(0x322,0x321,0);
+      popUp.SetString(TextSys_Word(0xf8));
+      popUp.SetChoices(0x323,0x322,0);
       if (popUp.Run() == 0) {
         return;
       }
@@ -1201,15 +1228,15 @@ void MenuExtended_GoToSpecialEventTrackInfo(tMenuCommand &command)
     __asm__("" : "+r" (selectedTourney));
     if (manager->fMoney < amount) {
       /* SYM-INLINE-THIS: DisplayMessage */
-      FEApp->DisplayMessage(0xf6);
+      FEApp->DisplayMessage(0xf7);
       return;
     }
     {
       tDialogYesNo popUp;
 
       /* SYM-INLINE-THIS: SetString */
-      popUp.SetString(TextSys_Word(0xf7));
-      popUp.SetChoices(0x321,0x322,0);
+      popUp.SetString(TextSys_Word(0xf8));
+      popUp.SetChoices(0x322,0x323,0);
       if (popUp.Run() == 0) {
         return;
       }
@@ -1463,8 +1490,8 @@ void MenuExtended_SellCar(tMenuCommand &command)
     tDialogYesNo popUp;
 
     /* SYM-INLINE-THIS: SetString */
-    popUp.SetString(TextSys_Word(0xa5));
-    popUp.SetChoices(0x321,0x322,0);
+    popUp.SetString(TextSys_Word(0xa6));
+    popUp.SetChoices(0x322,0x323,0);
     if (popUp.Run() != 0) {
       tournamentManager.fMoney +=
           carManager.SellCar((ushort)(byte)frontEnd.sellerCar,0);
@@ -1475,7 +1502,7 @@ void MenuExtended_SellCar(tMenuCommand &command)
   }
   else {
     /* SYM-INLINE-THIS: DisplayMessage */
-    FEApp->DisplayMessage(0xa9);
+    FEApp->DisplayMessage(0xaa);
   }
   return;
 }
@@ -1560,9 +1587,9 @@ void MenuExtended_BuyCar(tMenuCommand &command)
       tDialogYesNo *pp = &yesNo;
 
       yesNo.string =
-           TextSys_Word(0xa4);
-      pp->yesnowords[0] = 0x321;
-      pp->yesnowords[1] = 0x322;
+           TextSys_Word(0xa5);
+      pp->yesnowords[0] = 0x322;
+      pp->yesnowords[1] = 0x323;
       yesNo.fDefault = 0;
       if (((tDialogInteractive *)&yesNo)->Run() != 0) {
         tournamentManager.fMoney -= carManager.PurchaseCar(
@@ -1573,11 +1600,11 @@ void MenuExtended_BuyCar(tMenuCommand &command)
       return;
     }
     AudioCmn_PlayFESFX(10);
-    this_00->string = TextSys_Word(0xa7);
+    this_00->string = TextSys_Word(0xa8);
     ((tDialogBase *)this_00)->Display();
     return;
   }
-  popUp->string = TextSys_Word(0x4b);
+  popUp->string = TextSys_Word(0x4c);
   ((tDialogBase *)popUp)->Display();
   return;
 }
@@ -1598,8 +1625,8 @@ static inline int MenuExtended_UpgradePriceIndex(int priceIndex)
 
 static inline void MenuExtended_SetUpgradeDialogWords(tDialogYesNo *dialog)
 {
-  dialog->yesnowords[0] = 0x321;
-  dialog->yesnowords[1] = 0x322;
+  dialog->yesnowords[0] = 0x322;
+  dialog->yesnowords[1] = 0x323;
 }
 
 /* Decoded Phase 83: MenuExtended_PurchaseUpgrade(int upgradeIdx) - shared core purchase logic
@@ -1668,7 +1695,7 @@ void MenuExtended_PurchaseUpgrade(int upgradeNumber)
       tDialogYesNo popUp;
 
       popUp.string =
-           TextSys_Word(0xa6);
+           TextSys_Word(0xa7);
       MenuExtended_SetUpgradeDialogWords(&popUp);
       popUp.fDefault = 0;
       if (((tDialogInteractive *)&popUp)->Run() != 0) {
@@ -1681,7 +1708,7 @@ void MenuExtended_PurchaseUpgrade(int upgradeNumber)
     }
     else {
       /* SYM-INLINE-THIS: DisplayMessage */
-      FEApp->DisplayMessage(0xa8);
+      FEApp->DisplayMessage(0xa9);
     }
   }
   return;
@@ -1827,7 +1854,7 @@ void GenericMenuLoadGame(int player)
     __asm__("" : : "m"(FEApp));
     app = *(tFEApplication **)&FEApp;
     mc = *(tScreenMemcard **)&screenMemcard;
-    mc->message = 0x27d;
+    mc->message = 0x27e;
     app->Redraw();
     LoadGame((short)player,false,1);
     app = *(tFEApplication **)&FEApp;
@@ -2531,11 +2558,11 @@ void MenuExtended_ExitTourney(tMenuCommand &command)
   tDialogYesNo AreYouSure;
 
   dialog = &AreYouSure;
-  dialog->yesnowords[0] = 0x321;
-  dialog->yesnowords[1] = 0x322;
+  dialog->yesnowords[0] = 0x322;
+  dialog->yesnowords[1] = 0x323;
   dialog->fDefault = 0;
   dialog->string =
-       TextSys_Word(0x9d);
+       TextSys_Word(0x9e);
   if (((tDialogInteractive *)dialog)->Run() != 0) {
     command.nextMenu = (tMenu *)&menuDefs[0]->menuMain;
     command.type = kMenu_Command_GoToMenuOneWay;
@@ -2595,17 +2622,17 @@ void MenuExtended_ExitPinkSlipsEarly(tMenuCommand &command)
   char string [80];
   
   dlgThis = &AreYouSure;
-  dlgThis->yesnowords[0] = 0x321;
-  dlgThis->yesnowords[1] = 0x322;
+  dlgThis->yesnowords[0] = 0x322;
+  dlgThis->yesnowords[1] = 0x323;
   dlgThis->fDefault = 0;
-  dlgThis->string = TextSys_Word(0x9d);
+  dlgThis->string = TextSys_Word(0x9e);
   if (((tDialogInteractive *)dlgThis)->Run() != 0) {
     Init_Memcard(false,1);
     player = 0;
     msg = string;
   nextPlayer:
     if (player < 2) {
-      sprintf(msg,TextSys_Word(0x297),PlayerName(player),player + 1);
+      sprintf(msg,TextSys_Word(0x298),PlayerName(player),player + 1);
       (FEApp->NoInputMemCardDialog).string = msg;
       SavePinkSlipsCarsWithErrorDialogs((short)player,1,-1);
       player = player + 1;

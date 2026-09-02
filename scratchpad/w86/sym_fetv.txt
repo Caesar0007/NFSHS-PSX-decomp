@@ -1,0 +1,32 @@
+@80021ff8 DrawTVLines__FR9tTVConfig   [FETV.CPP:25]
+    REGPARM  $10       tv                         PTR STRUCT size 48 dims 0 tag tTVConfig
+    REG      $a        fxHeight                   SHORT size 0
+    REG      $11       x                          SHORT size 0
+    REG      $9        y                          SHORT size 0
+    REG      $8        videoFX                    PTR STRUCT size 24 dims 0 tag POLY_F4
+
+@8002234c DrawTV__FR9tTVConfig   [FETV.CPP:82]
+    REGPARM  $12       tv                         PTR STRUCT size 48 dims 0 tag tTVConfig
+    REG      $10       texture                    PTR STRUCT size 40 dims 0 tag POLY_FT4
+    REG      $10       reflection                 PTR STRUCT size 52 dims 0 tag POLY_GT4
+    REG      $11       noise                      PTR STRUCT size 32 dims 0 tag tTexture_ShapeInfo
+    REG      $16       videoX                     SHORT size 0
+    REG      $13       videoY                     SHORT size 0
+    AUTO     $ffffffc0 videoWidth                 SHORT size 0
+    AUTO     $ffffffc8 videoHeight                SHORT size 0
+    REG      $4        fadeTop                    SHORT size 0
+    REG      $8        fadeBottom                 SHORT size 0
+    REG      $1e       tint                       ULONG size 0
+    REG      $5        bright                     SHORT size 0
+    AUTO     $ffffffd0 do_tint                    BOOL size 0
+
+@80023008 InitTV__FR9tTVConfigP18tTexture_ShapeInfos   [FETV.CPP:287]
+    REGPARM  $11       tv                         PTR STRUCT size 48 dims 0 tag tTVConfig
+    REGPARM  $5        textures                   PTR STRUCT size 32 dims 0 tag tTexture_ShapeInfo
+    REGPARM  $6        index                      SHORT size 0
+
+@80023218 TurnOffTV__FR9tTVConfig   [FETV.CPP:313]
+    REGPARM  $4        tv                         PTR STRUCT size 48 dims 0 tag tTVConfig
+
+@80023228 TurnOnTV__FR9tTVConfig   [FETV.CPP:319]
+    REGPARM  $4        tv                         PTR STRUCT size 48 dims 0 tag tTVConfig

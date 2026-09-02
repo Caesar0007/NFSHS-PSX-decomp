@@ -342,11 +342,12 @@ extern void vramfxya(unsigned int *c, int imgX, int imgY, int clutX, int clutY)
      * are sharp and zero-byte: maskHi x5 or the pair x3 re-gates FAIL14. */
     maskLo = ~0xFFFu;
     maskHi = 0xF000FFFFu;
-    __asm__("" : : "r"(maskHi));
-    __asm__("" : : "r"(maskHi));
-    __asm__("" : : "r"(maskHi));
-    __asm__("" : : "r"(maskHi));
-    __asm__("" : : "r"(maskHi));
+    /* W86-D1 2026-09-02: the FIVE `__asm__("" : : "r"(maskHi))` read-only fences that
+     * used to stand here are GONE -- their whole job was to add REG_N_REFS to maskHi, and
+     * the CLUT tail now buys the same refs in pure C with the self-absorbing nested mask
+     * `(c[3] & maskHi & maskHi & maskHi & maskHi)` (== `c[3] & maskHi`; combine collapses
+     * `(and (and X Y) Y) -> (and X Y)` at ZERO instructions).  Measured, count-EXACT
+     * 165/165 throughout: h=2 -> 12 diffs, h=3/4/5 -> PASS.  See scratchpad/w86/. */
     clutXm &= 0xff;
     clutXm |= clutXraw & 0xf00;
     clutYmasked &= 0xfff;
@@ -446,7 +447,7 @@ extern void vramfxya(unsigned int *c, int imgX, int imgY, int clutX, int clutY)
         packed = c[3] & maskLo;
         packed &= maskLo;
         c[3] = packed | clutXm;
-        c[3] = (c[3] & maskHi) | clutYm;
+        c[3] = (c[3] & maskHi & maskHi & maskHi & maskHi) | clutYm;
         *(unsigned char *)c = (unsigned char)*c | 8;
         tailX = (unsigned int)clutX & 0xff;
         tailX |= (unsigned int)clutX & 0xff00;

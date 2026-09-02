@@ -1,0 +1,61 @@
+import pathlib
+
+TAIL = ('  /* MATCH: GCC 2.8.1 allocno priority has a hard floor_log2 step at 128 refs for\n'
+        '   * `sd`.  These zero-byte macro references reproduce the retail macro-expansion\n'
+        '   * reference quantity: 65 added refs leaves sd/prim swapped (FAIL194), while the\n'
+        '   * 66th crosses 127 -> 128 and produces byte-exact retail allocation. */\n'
+        '#define DRAWW_SD_REF10() \\\n'
+        '  __asm__("" : : "r"(sd)); __asm__("" : : "r"(sd)); \\\n'
+        '  __asm__("" : : "r"(sd)); __asm__("" : : "r"(sd)); \\\n'
+        '  __asm__("" : : "r"(sd)); __asm__("" : : "r"(sd)); \\\n'
+        '  __asm__("" : : "r"(sd)); __asm__("" : : "r"(sd)); \\\n'
+        '  __asm__("" : : "r"(sd)); __asm__("" : : "r"(sd))\n'
+        '  DRAWW_SD_REF10(); DRAWW_SD_REF10(); DRAWW_SD_REF10(); DRAWW_SD_REF10();\n'
+        '  DRAWW_SD_REF10(); DRAWW_SD_REF10();\n'
+        '  __asm__("" : : "r"(sd)); __asm__("" : : "r"(sd)); __asm__("" : : "r"(sd));\n'
+        '  __asm__("" : : "r"(sd)); __asm__("" : : "r"(sd)); __asm__("" : : "r"(sd));\n'
+        '#undef DRAWW_SD_REF10\n')
+
+TAIL_NEW = ('  /* W86-D2 (2026-09-02): the 66-statement zero-byte `sd` REF DIAL that used to sit\n'
+            '   * here is GONE -- the whole thing is now ONE pure-C statement in the vertex block\n'
+            '   * above (search "W86-D2 ABSORPTION").  Do not re-add references here; the tail is\n'
+            '   * dead ground for a dial anyway (`sd` is dead after the last guard, so any pure-C\n'
+            '   * chain placed here is deleted as dead code before flow ever counts a reference --\n'
+            '   * measured on the allocno table, refs stayed 122 for chains of 2..30). */\n')
+
+ANCHOR = '    geomVertices = sd->vertices;\n'
+ANCHOR_NEW = ('    geomVertices = sd->vertices;\n'
+              '    /* ===================== W86-D2 ABSORPTION (device removal) =====================\n'
+              '     * This one statement replaces the 66 `__asm__("" : : "r"(sd))` fences that used\n'
+              '     * to sit at the function tail (their removal cost 194 diffs).  It is an ALGEBRAIC\n'
+              '     * IDENTITY -- `X | (X & 3) == X` -- so the value of `sd` is unchanged, and it is\n'
+              '     * ZERO BYTES: `fold()` cannot remove it at tree level (both operands are the same\n'
+              '     * VARIABLE, not a constant), so it survives as real RTL through cse/loop/flow, and\n'
+              '     * `combine` then collapses `(ior X (and X K))` back to `X`.  Because combine runs\n'
+              '     * AFTER flow, the references ARE counted and the instruction is NOT emitted.\n'
+              '     *   measured on the allocno table (tools/rtl_dump.py + tools/prio.py):\n'
+              '     *     66 asm fences : p80(sd) refs=128 live=1002 pri=.894 -> $s0  (prim .842 -> $s1)\n'
+              '     *     this statement: p80(sd) refs=125 live= 495 pri=1.52  -> $s0  (prim unchanged)\n'
+              '     *   i.e. it wins the same ranking by SPLITTING sd\'s live range at the second SET,\n'
+              '     *   not by crossing the 2^7 reference razor -- which is why the count is\n'
+              '     *   irrelevant here (1, 2, 4, 8, 16, 24, 33 and 44 copies all gate identically).\n'
+              '     * POSITION IS THE DIAL, and only these two positions reach zero:\n'
+              '     *     function head (before the vertex block) ....... 2 (prologue parm-copy order:\n'
+              '     *         ours `addu t4,a1,zero` before `addu s0,a0,zero`, retail after)\n'
+              '     *     after `t2 = *(u_char *)(inQuad+3)` ............ 2\n'
+              '     *     HERE, after `geomVertices = sd->vertices` ..... PASS 592/592   <- landed\n'
+              '     *     after `tx = (sd->trans).x` ................... PASS (equivalent)\n'
+              '     *     function tail ................................ 194 (dead code, see below)\n'
+              '     *   An absorption on `inQuad` instead of `sd` is inert (194); adding one on\n'
+              '     *   `inQuad` alongside this one re-breaks the prologue order (2).\n'
+              '     * FALSIFIED on the way (allocno table, not guesswork): the plain self-mask chain\n'
+              '     * `int sdr = (int)sd; sdr &= (int)sd; ... ; sd = (T *)sdr;` adds ZERO references\n'
+              '     * for any length at either end of the function -- cse proves `sdr == sd` and\n'
+              '     * deletes the whole chain before flow.  The inflator needs an operation cse\n'
+              '     * CANNOT fold but combine CAN, i.e. exactly this absorption shape.\n'
+              '     * `X & (X | 3)` is equivalent (also PASS at this site). */\n'
+              '    sd = (Draw_tGiveShelbyMoreCache *)((unsigned int)sd | ((unsigned int)sd & 3u));\n')
+
+pathlib.Path('scratchpad/w86/D2_l2.txt').write_text(
+    repr([('draww sd dial -> absorption', [(TAIL, TAIL_NEW), (ANCHOR, ANCHOR_NEW)])]))
+print('ok')

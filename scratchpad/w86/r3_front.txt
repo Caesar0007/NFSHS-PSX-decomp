@@ -1,0 +1,65 @@
+### @80027194 GetPSXPadValue__Fii   [FRONT.CPP:333]   -> GetPSXPadValue
+    SYMrec: [('REGPARM', 'value'), ('REGPARM', 'player'), ('REG', 'newControl'), ('REG', 'type')]
+    Cdecl : ['newControl', 'type', 'acc1', 'acc2', 'padBase']
+    C-ONLY  : ['acc1', 'acc2', 'padBase']
+
+### @8002750c SetPads__Fv   [FRONT.CPP:474]   -> SetPads
+    SYMrec: [('REG', 'j'), ('REG', 'pad'), ('REG', 'LookingFor'), ('REG', 'starttick'), ('REG', 'theanalogoffset'), ('REG', 'gotone'), ('REG', 'numoffsets'), ('REG', 'i')]
+    Cdecl : ['j', 'pad', 'LookingFor', 'starttick', 'waiting', 'theanalogoffset', 'gotone', 'numoffsets', 'i']
+    C-ONLY  : ['waiting']
+
+### @80027af4 Front_Menu__F21tFront_ProcessingType   [FRONT.CPP:934]   -> Front_Menu
+    SYMrec: [('REGPARM', 'role'), ('REG', 'result'), ('REG', 'extraMoney'), ('AUTO', 'tempCommand'), ('REG', 'dummyCars')]
+    Cdecl : ['extraMoney', 'result', 'one', 'needCar', 'tempCommand', 'dummyCars']
+    C-ONLY  : ['one', 'needCar']
+
+### @80027fc0 Front_GetLapsForType__Fv   [FRONT.CPP:1210]   -> Front_GetLapsForType
+    SYMrec: [('AUTO', 'lapconv')]
+    Cdecl : ['uVar1', 'lapconv']
+    C-ONLY  : ['uVar1']
+
+### @8002845c Front_InitTourneyTraffic__FR9tFEStream   [FRONT.CPP:1329]   -> Front_InitTourneyTraffic
+    SYMrec: [('REGPARM', 'streamData'), ('AUTO', 'carModel'), ('AUTO', 'carColor'), ('REG', 'i')]
+    Cdecl : ['i', 'maxTraffic', 'tourn', 'carModel', 'carColor']
+    C-ONLY  : ['maxTraffic', 'tourn']
+
+### @800285d0 Front_InitOpponentCars__FR9tFEStream   [FRONT.CPP:1366]   -> Front_InitOpponentCars
+    SYMrec: [('REGPARM', 'streamData'), ('REG', 'i'), ('REG', 'carLineup'), ('REG', 'numOpponents'), ('REG', 'carInfo'), ('AUTO', 'carModel'), ('AUTO', 'carColor'), ('REG', 'opponentClass'), ('AUTO', 'usePlayerUpgrades'), ('REG', 'tourn'), ('AUTO', 'carInfo'), ('AUTO', 'carModel'), ('AUTO', 'carColor'), ('AUTO', 'modelList')]
+    Cdecl : ['i', 'carLineup', 'numOpponents', 'carInfo', 'carModel', 'carColor', 'opponentClass', 'usePlayerUpgrades', 'tourn', 'numRacers', 'numRacers2', 'carInfo', 'carModel', 'carColor', 'modelList']
+    C-ONLY  : ['numRacers', 'numRacers2']
+
+### @80029e30 Front_AppendCopData__FPiR9tFEStream   [FRONT.CPP:2003]   -> Front_AppendCopData
+    SYMrec: [('REGPARM', 'stream'), ('REGPARM', 'streamData'), ('REG', 'i')]
+    Cdecl : ['carInfo', 'i']
+    C-ONLY  : ['carInfo']
+
+### @8002a084 Front_AppendPerpData__FPiR9tFEStream   [FRONT.CPP:2040]   -> Front_AppendPerpData
+    SYMrec: [('REGPARM', 'stream'), ('REGPARM', 'streamData'), ('REG', 'i')]
+    Cdecl : ['carInfo', 'carManagerPtr', 'i']
+    C-ONLY  : ['carInfo', 'carManagerPtr']
+
+### @8002a31c Front_AppendTrafficData__FPiR9tFEStream   [FRONT.CPP:2081]   -> Front_AppendTrafficData
+    SYMrec: [('REGPARM', 'stream'), ('REGPARM', 'streamData'), ('REG', 'i'), ('REG', 'density')]
+    Cdecl : ['carInfo', 'density', 'traffic', 'i']
+    C-ONLY  : ['carInfo', 'traffic']
+
+### @8002a56c Front_AppendTrackData__FPiR9tFEStream   [FRONT.CPP:2114]   -> Front_AppendTrackData
+    SYMrec: [('REGPARM', 'stream'), ('REGPARM', 'streamData'), ('AUTO', 'trackInfo'), ('REG', 'valtopass')]
+    Cdecl : ['valtopass', 'speedMode', 'trackInfo']
+    C-ONLY  : ['speedMode']
+
+### @8002a6ac Front_EnableLocalSpeech__Fv   [FRONT.CPP:2269]   -> Front_EnableLocalSpeech
+    SYMrec: [('REG', 'result'), ('AUTO', 'trackInfo')]
+    Cdecl : ['result', 'trackInfo', 'lang']
+    C-ONLY  : ['lang']
+
+### @8002a738 Front_BuildStream__FPi   [FRONT.CPP:2299]   -> Front_BuildStream
+    SYMrec: [('REGPARM', 'stream'), ('REG', 'd'), ('REG', 'j'), ('AUTO', 'streamData'), ('REG', 'colourLoop'), ('REG', 'numplaylistsongs'), ('REG', 'type'), ('REG', 'config'), ('REG', 'gameLang'), ('REG', 'trackLang')]
+    Cdecl : ['colourLoop', 'j', 'type', 'randomSeed', 'numplaylistsongs', 'd', 'trackLang', 'gameLang', 'config', 'streamData', 't']
+    C-ONLY  : ['randomSeed', 't']
+
+!! NO BODY for __11tAllScreens  (demangled tAllScreens::tAllScreens)
+
+!! NO BODY for _._11tAllScreens  (demangled tAllScreens::~tAllScreens)
+
+# matched 41/43 SYM blocks; 61 bodies in file

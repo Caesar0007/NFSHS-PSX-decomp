@@ -28,10 +28,12 @@ void tMissionManager::Initialize()
 void tMissionManager::LoadDescription(bool LoadHotPursuit)
 
 {
-  char *data;
+  /* SYM ORDER (W86-S2): the 8c block's Def rows read
+     input, data, numMissions, numStages, filename. */
   char *input;
-  unsigned long numStages;
+  char *data;
   unsigned long numMissions;
+  unsigned long numStages;
   char filename [80];
 
   sprintf(filename,"%s%s",Paths_Paths[0x25],

@@ -560,8 +560,14 @@ extern void iSNDfreechan(int chan)
                  * keeps its own positive displacement off the one walker, and the plain
                  * `signed char` read fuses into `lb`.  Whole scan loop is now byte-exact (16->14).
                  * Falsified in this basin: goto-loop (50), index form (50), all-volatile-dropped
-                 * without the fence (62-93, giv re-anchor returns), fence AFTER the increment (17). */
-                __asm__("" : "=r"(scan) : "0"(scan));
+                 * without the fence (62-93, giv re-anchor returns), fence AFTER the increment (17).
+                 * 🟢 W86-D1 2026-09-02: THE FENCE IS NOW PURE C.  The absorption identity below
+                 * (`X | (X & 3) == X`) is a SECOND set of `scan` inside the loop, so loop.c's
+                 * biv scan sees n_times_set != 1 and never classifies `scan` as a basic induction
+                 * variable -- exactly the anti-anchor job the opacity fence did -- while `combine`
+                 * folds the whole identity away at ZERO instructions (110/110, 4/4 PASS).
+                 * Do NOT "simplify" it; removing it costs 81 diffs.  Receipt: scratchpad/w86/. */
+                scan = (unsigned char *)((unsigned int)scan | ((unsigned int)scan & 3u));
                 if (*(unsigned char *)(scan + 0x37) == group &&
                     0 <= *(int *)scan &&
                     *(signed char *)(scan + 0xb) != 0 &&

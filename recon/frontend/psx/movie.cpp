@@ -322,16 +322,18 @@ bool Movie_Finished(void)
 int Movie_Play(char movie)
 
 {
-  bool dispRect; /* SYM-CODEGEN-CARRIER: dispRect -- direct repeated rectid tests are
-                    measured FAIL 44 (136/132), rotating saved-register allocation */
-  int joyval;
+  /* decl order = SYM Def-record order (disp, draw, joyval); the two non-SYM
+     carriers follow it -- w86-S5, gate unchanged */
   DISPENV disp;
   DRAWENV draw;
+  int joyval;
+  bool dispRect; /* SYM-CODEGEN-CARRIER: dispRect -- direct repeated rectid tests are
+                    measured FAIL 44 (136/132), rotating saved-register allocation */
   /* MATCH: SYM fsize=184 (disp@-0xA0, draw@-0x88, 3 saved regs) -- 16 bytes of
    * never-referenced frame slack our expression shape does not allocate. */
   int deadfrm[4]; /* SYM-CODEGEN-CARRIER: deadfrm -- removing this measured frame
                      carrier changes the SYM-proven 184-byte frame and stack offsets */
-  
+
   (void)deadfrm;
   SNDcdvol(gMasterMusicLevel * 0x7f >> 7);
   Movie_Init(movie);
@@ -537,9 +539,10 @@ strCallback_inlinedJoin:
 static int strNextVlc(DECENV *dec)
 
 {
-  u_long *next;
+  /* decl order = SYM Def-record order (cnt $s0, next $s1) -- w86-S5 */
   int cnt;
-  
+  u_long *next;
+
   cnt = 10;
   do {
     next = strNext(dec);
@@ -563,21 +566,23 @@ found:
 static u_long * strNext(DECENV *dec)
 
 {
+  /* decl order = SYM Def-record order: fn scope is addr(AUTO -0x18),
+     sector(AUTO -0x14), cnt(REG $s0); `rect` is a NESTED-block local (SYM
+     `90 Block start line = 50`) and is declared in that block below.  The five
+     non-SYM carriers follow the SYM set -- w86-S5, gate unchanged. */
+  u_long *addr;
+  CDSECTOR *sector;
+  int cnt;
   u_long st; /* SYM-CODEGEN-CARRIER: st -- direct StGetNext testing is measured
                 FAIL 5 (131/130), moving the loop decrement across the call setup */
-
   short mh; /* SYM-CODEGEN-CARRIER: mh -- repeating the gHeight reads is measured
                FAIL 22 (134/130), duplicating loads and changing division allocation */
   int bottom; /* SYM-CODEGEN-CARRIER: bottom -- repeating PPWBottom is measured
                  FAIL 46 (144/130), duplicating loads/divides and rotating operands */
-  int cnt;
   int wt; /* SYM-CODEGEN-CARRIER: wt -- repeating gWidth*PPWTop is measured FAIL 42
              (150/130), duplicating the multiply/divide chain */
   int *wp; /* SYM-CODEGEN-CARRIER: wp -- direct gWidth and scalar-view spellings are
               each measured one instruction long; this pointer preserves alias/schedule */
-  RECT rect;
-  u_long *addr;
-  CDSECTOR *sector;
 
   cnt = 50000;
   while( true ) {
@@ -621,6 +626,8 @@ framedone:
    * (assembler macro -> its own `lui $at`), so it stays 1 insn long too. */
   wp = width_v;
   if ((*wp != (u_int)sector->width) || (gHeight != (u_int)sector->height)) {
+    RECT rect;   /* SYM `90 Block start line = 50` scopes rect to THIS block */
+
     rect.x = 0;
     rect.y = 0;
     rect.h = 0x1e0;
@@ -648,11 +655,13 @@ static void strSync(DECENV *dec,int mode)
 {
   /* SYM-CODEGEN-CARRIER: mode -- the mangled `...i` proves the optimized-away
    * second int parameter; canonical PsyQ STR sample sources name it `mode`. */
+  /* decl order = SYM Def-record order: the SYM's ONLY local here is
+     `cnt` (AUTO -8, ULONG); the non-SYM carrier follows it -- w86-S5.
+     MATCH: the spin counter lives in a STACK SLOT and is re-loaded/stored on every
+     iteration (sw/lw 0(sp)) -- a plain register local can never reproduce that. */
+  volatile u_long cnt;
   int viewOff; /* SYM-CODEGEN-CARRIER: viewOff -- direct loop use is measured
                   FAIL 50 (44/44), losing retail loop-invariant hoisting/allocation */
-  /* MATCH: the spin counter lives in a STACK SLOT and is re-loaded/stored on every
-   * iteration (sw/lw 0(sp)) -- a plain register local can never reproduce that. */
-  volatile u_long cnt;
 
   cnt = 0x800000;
   if (dec->isdone == 0) {

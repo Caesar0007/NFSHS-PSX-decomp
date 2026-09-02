@@ -499,7 +499,7 @@ void tScreenMemcard::DrawMemCardStuff(short fadeval)
     if (this->checkingstart == 0) {
       this->checkingstart = ticks;
     }
-    this->fMemCardMessageTextSys = (800 < ticks - this->checkingstart) ? 0x27f : 0x27b;
+    this->fMemCardMessageTextSys = (800 < ticks - this->checkingstart) ? 0x280 : 0x27c;
     i = 0;
     if (0 < this->pCI->numfiles) {
       do {
@@ -530,15 +530,15 @@ void tScreenMemcard::DrawMemCardStuff(short fadeval)
   }
   if (this->pCI->status == -2) {
     this->checkingstart = 0;
-    this->fMemCardMessageTextSys = 0x288;
+    this->fMemCardMessageTextSys = 0x289;
     goto DrawMC_statusCheckFinal;
   }
   this->checkingstart = 0;
   if (this->pCI->numfiles != 0) {
-    this->fMemCardMessageTextSys = 0x27d;
+    this->fMemCardMessageTextSys = 0x27e;
   }
   else {
-    this->fMemCardMessageTextSys = 0x284;
+    this->fMemCardMessageTextSys = 0x285;
   }
   /* MATCH (w37-a9): the oracle's fGetNewIcons==0 branch jumps STRAIGHT to
      the per-file loop (label FD8); the !=0 (else) case falls THROUGH the
@@ -606,7 +606,7 @@ DrawMC_readyToGetNewIcons:
           if (this->goticon[i] != '\0') {
             if (this->fFadeIcon[i] == 0) {
               this->theNFS4icon = MCRD_fileexists(this->card,"NFS4");
-              if ((this->fMemCardMessageTextSys != 0x27f) && (this->fMemCardMessageTextSys != 0x27b)
+              if ((this->fMemCardMessageTextSys != 0x280) && (this->fMemCardMessageTextSys != 0x27c)
                  ) {
                 this->checkingstart = 0;
               }
@@ -616,7 +616,7 @@ DrawMC_readyToGetNewIcons:
                            (char *)((int)this->fMemTitle + this->theNFS4icon * 0x20));
               }
               else {
-                this->fMemCardMessageTextSys = 0x284;
+                this->fMemCardMessageTextSys = 0x285;
               }
             }
             goto DrawMC_iconActive;
@@ -656,7 +656,7 @@ DrawMC_afterPerFileLoop:
   }
 DrawMC_statusCheckFinal:
   if ((this->pCI->status == -3) && (this->theNFS4icon == -1)) {
-    this->fMemCardMessageTextSys = 0x2bf;
+    this->fMemCardMessageTextSys = 0x2c0;
   }
   if (CURRENTLYUSINGMEMCARD == 0) {
     MCRD_handlecardevents(this->card);
@@ -801,7 +801,7 @@ void tScreenMemcard::DrawBackground()
   gridpos = MAX(MIN(0x80,fade >> 1),0);
   fTextFade = MAX(MIN(0x80,fade * 2),0);
   if (this->fInitedMemCard == 0) {
-    this->fMemCardMessageTextSys = 0x27c;
+    this->fMemCardMessageTextSys = 0x27d;
     if ((this->fScreenFadeVal == 0) &&
         (ticks - this->fScreenFadeReadyTick > 0x80)) {
       Init_Memcard(true,false);
@@ -836,7 +836,7 @@ void tScreenMemcard::DrawBackground()
   rr.h = 0;
   FETextRender_WordWrapTextRGBJustify(this->fMemCardMessage,rr,ColText,2,0,false);
   FETextRender_FullTextRGB
-            (TextSys_Word(this->player + 0x293),kMemCardMessage1X,
+            (TextSys_Word(this->player + 0x294),kMemCardMessage1X,
              kMemCardMessage1Y,ColText,'\0',2);
 
   gray = 0x505050;
@@ -1037,11 +1037,11 @@ void tScreenMemcard::Initialize()
   this->checkingstart = 0;
   this->memcardanimframe = 0;
   this->count = 0;
-  msgId = 0x287;
+  msgId = 0x288;
   this->player = feApp->fInputPlayer;
   this->card = this->player * 4 + 1;
   if (this->player != 0) {
-    msgId = 0x289;
+    msgId = 0x28a;
   }
   {
     int i = 0;

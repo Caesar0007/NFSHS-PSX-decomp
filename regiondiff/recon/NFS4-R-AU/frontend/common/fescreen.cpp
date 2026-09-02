@@ -45,8 +45,10 @@ void tScreen::DisplayLoadingText()
     for (i = 0; i < 2; i = i + 1) {                                       /* 48 */
       Draw_StartFrameRender();                                            /* 51 */
       Draw_StartRenderingView(Draw_gPlayer1View);                         /* 53 */
-      FETextRender_MenuTextPositionedJustify(0x27d,0x1e0,0xdc,1,textState_Selected,textType_ScreenInfo); /* 59 */
-      PSXDrawSquare(0,0x1e0,0xdc,-textpixels(TextSys_Word(0x27d)) - 5,7); /* 60 */
+      /* R-AU: retail text-id 0x27d -> 0x27e (+1 string-table shift) and the
+         PAL loading-text y coordinate 0xdc -> 0xe4 (240->256-line field). */
+      FETextRender_MenuTextPositionedJustify(0x27e,0x1e0,0xe4,1,textState_Selected,textType_ScreenInfo); /* 59 */
+      PSXDrawSquare(0,0x1e0,0xe4,-textpixels(TextSys_Word(0x27e)) - 5,7); /* 60 */
       Draw_StopRenderingView(Draw_gPlayer1View);                          /* 63 */
       Draw_StopFrameRender();                                             /* 64 */
     }

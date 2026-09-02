@@ -13,22 +13,13 @@ extern "C" void (*RDAT_8013F044)(void);
  * byte-for-byte in DEFINITION ORDER (SYM FILE-record oracle, objruns):
  *   gSysStartUp, "cdrom:" literal, disablecard, gDctXtraMem(STAT), gLowMemory,
  *   gHighMemory, gCurrentMemory, gTotalMemory.
- * Everything carries an explicit initialiser so the whole run is ONE
- * declaration-order batch (16E =0 pair lever); the "cdrom:" literal retail kept
- * in .sdata under -G8 is materialized as a NAMED .sdata array (sim.cpp/w66a6
- * device; >G4 so its address form stays absolute -- oracle uses %hi/%lo).
- * =0 keeps the gp-rel form of the small cells (gate-proven).  DO NOT RE-SORT. */
+ * gSysStartUp precedes the startup routine.  The remaining owning definitions
+ * follow that routine, so gcc places its ordinary "cdrom:" literal between the
+ * two declaration groups exactly as retail does.  DO NOT RE-SORT.
+ * W86-B8: re-synced to the base TU's landed shape (the earlier NAMED .sdata
+ * array device for the "cdrom:" literal had gone stale against the current
+ * tree and cost Platform_SysStartUp its regional PASS). */
 int gSysStartUp = 0;        /* @0x8013da9c */
-/* SYM-GLOBAL-CARRIER: D_8013DAA0
- * D_8013DAA0 = the setdirectory("cdrom:") literal @0x8013daa0.  Defining it as a
- * named array also keeps gcc's lui+jal+addiu(delay) shape in Platform_SysStartUp. */
-char D_8013DAA0[] __attribute__((section(".sdata"), aligned(4))) = "cdrom:";
-int disablecard = 0;        /* @0x8013daa8  EXT INT per SYM; referenced nowhere in code */
-static char *gDctXtraMem = 0; /* @0x8013daac  SYM: STAT PTR CHAR */
-int gLowMemory = 0;         /* @0x8013dab0 */
-int gHighMemory = 0;        /* @0x8013dab4 */
-int gCurrentMemory = 0;     /* @0x8013dab8 */
-u_int gTotalMemory = 0;     /* @0x8013dabc */
 
 /* SYM-STORAGE-PROOF (P441): this TU does not own buffers at 0x80054D10,
    0x80148B0C, or 0x80124038.  The first two are absolute retail boundaries;
@@ -149,7 +140,7 @@ void Platform_SysStartUp(void)
   nfs2eacinit();
   Draw_SetEnvironment(0x200,0xf0,1,0,1,0,0,0);
   initlinkmode(0,1,1);
-  setdirectory(D_8013DAA0);
+  setdirectory("cdrom:");
   initlinkmode(0,1000,1);
   initlinkmode(0,1000,1);
   gSysStartUp = 1;
@@ -159,6 +150,15 @@ void Platform_SysStartUp(void)
   initasync(0x1e,0x2000,0);
   return;
 }
+
+/* These definitions follow Platform_SysStartUp in the retail source/section
+   order.  Their explicit zero initializers keep one ordered .sdata run. */
+int disablecard = 0;          /* @0x8013daa8  EXT INT; referenced nowhere in code */
+static char *gDctXtraMem = 0; /* @0x8013daac  SYM: STAT PTR CHAR */
+int gLowMemory = 0;           /* @0x8013dab0 */
+int gHighMemory = 0;          /* @0x8013dab4 */
+int gCurrentMemory = 0;       /* @0x8013dab8 */
+u_int gTotalMemory = 0;       /* @0x8013dabc */
 
 /* ---- Platform_DebuggerPollHost__Fv  [PLATFORM.CPP:326-330] SLD-VERIFIED ---- */
 void Platform_DebuggerPollHost(void)
@@ -175,7 +175,10 @@ void nfs2eacinit(void)
   ResetCallback();
   ResetGraph(3);   /* @0x800ED670 (libgpu); was mislabeled "Eac_vars" -- delay-slot arg=3 */
   initjoy(2);
-  FILE_init(10,800,0x30);
+  /* REGIONAL (R-USA, W86-B8): retail lowered the FILE_init middle argument
+   * 800 -> 710 (oracle insn 11 `li $a1,710`, AUDIT_LO16 nfs2eacinit__Fv).
+   * Sole use of the literal in this fn -- no CSE-shared-constant risk. */
+  FILE_init(10,710,0x30);
   return;
 }
 

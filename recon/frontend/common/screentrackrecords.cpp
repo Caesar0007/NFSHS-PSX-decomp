@@ -44,8 +44,10 @@ void tScreenTrackRecords::Cleanup()
 void tScreenTrackRecords::DrawOneRecord(int index,bool newrecord,int y)
 
 {
-  tMenuTextState textState;
+  /* W86-S4: SYM `8c` declaration order (sBuildOutput AUTO sp+32 ARY CHAR[80],
+     textState REG $19 s3 ENUM tMenuTextState).  Re-gated PASS. */
   char sBuildOutput [80];
+  tMenuTextState textState;
 
   textState = (tMenuTextState)((newrecord != 0) << 1);
   if (-1 < this->TrackRecords[index].nBestLap) {
@@ -155,14 +157,6 @@ void tScreenTrackRecords::DrawBackground()
   char string[50];
   char string2[50];
   int fade;
-  /* SYM-CODEGEN-CARRIER: clampTmp -- routing the fade clamp through the
-     SYM AUTO short maxitem changes its narrowing and measures 8-93 diffs;
-     this int lifetime is required for retail's unclipped $a1 comparisons. */
-  int clampTmp;
-  /* SYM-CODEGEN-CARRIER: lineFadeCalc -- assigning the nested MIN/MAX clamp
-     directly to the SYM short linefadeval measures 6-145 diffs; this int
-     carrier delays the narrowing until after retail's $s5 clamp sequence. */
-  int lineFadeCalc;
   short linefadeval;
   short maxitem;
   short boxx;
@@ -177,6 +171,27 @@ void tScreenTrackRecords::DrawBackground()
   int lbx;
   int tt;
   tDrawShapeExtended drawflags;
+  /* W86-S4: the seventeen locals above are in the SYM `8c` order exactly; the
+     two SYM-ABSENT clamp carriers below are quarantined at the end (they used to
+     sit between `fade` and `linefadeval`).
+     SYM-CODEGEN-CARRIER: clampTmp -- routing the fade clamp through the
+     SYM AUTO short maxitem changes its narrowing and measures 8-93 diffs;
+     this int lifetime is required for retail's unclipped $a1 comparisons.
+     SYM-CODEGEN-CARRIER: lineFadeCalc -- assigning the nested MIN/MAX clamp
+     directly to the SYM short linefadeval measures 6-145 diffs; this int
+     carrier delays the narrowing until after retail's $s5 clamp sequence.
+     W86-S4 SYM PROBE (measured, NOT landed): the `8c` block also carries THREE
+     2-deep nested `90 Block start line = 10` groups, all at the same VA
+     ($80042c24) and all at file line 10 -- the signature of an inline clamp
+     helper defined near the top of the file and called three times, which is
+     exactly these three clamps and would delete both carriers.  Reproducing it
+     as `static inline int TrackRecordClamp(int v,int lo,int hi)` called for
+     tt / linefadeval / maxitem measures 60 diffs (tt, linefadeval, maxitem
+     order) and 146 (tt, maxitem, linefadeval); both reverted.  The nested-block
+     evidence stands -- the helper's exact body/argument shape is the open
+     question, not whether it existed. */
+  int clampTmp;
+  int lineFadeCalc;
 
   fade = (this->fScreenFadeVal * 0x134) / 0x80;
   /* SYM restoration: tt is the declared $s2 int.  Retail uses that same

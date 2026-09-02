@@ -116,11 +116,21 @@ extern int iSNDplatformresolve(int cursor, int bank, int patch)
             end = -1;
             scan = (struct SNDResolveEntry *)e;
             do {
-                cur = scan;
-                /* MATCH: zero-insn IDENTITY fence -- breaks cse copy-prop so the compare addresses
-                 * through `cur`(a0) like retail, and blocks fill_simple_delay_slots' backward scan
-                 * from stealing the advance into the beq slot.  See the banner. DO NOT "simplify". */
-                __asm__ ("" : "=r"(cur) : "0"(cur));
+                /* MATCH (W86-D1 2026-09-02 -- PURE C, replaces the former zero-insn identity
+                 * fence).  `cur = scan;` is a plain register copy, so cse.c's `make_regs_eqv`
+                 * keeps `scan` as the class representative and `canon_reg` rewrites every later
+                 * `cur` use back to `scan` -- retail did NOT propagate that copy (it addresses
+                 * the compare and the advance through `cur`/$a0).  The w47/w85 receipts record
+                 * that no spelling of `cur = scan` avoids this because `+0`, `&scan[0]`, casts
+                 * and `x-x` all fold in fold-const before expand.  The ABSORPTION IDENTITY below
+                 * does not: `X | (X & 3) == X` has a VARIABLE operand, so it survives as real RTL
+                 * (cur's def is an IOR, not a copy => cur becomes its own qty) and `combine`
+                 * folds it back to retail's `addu a0,v1,zero` at ZERO instructions.
+                 * Measured: fence 2/2 PASS | fence removed 1/2 (7 diffs, 126/127) | this form
+                 * 2/2 PASS, count EXACT.  `&`-absorption `X & (X | 3)` is equivalent.
+                 * DO NOT "simplify" it away. */
+                cur = (struct SNDResolveEntry *)
+                          ((unsigned int)scan | ((unsigned int)scan & 3u));
                 if (*(int *)&cur->offset == offset)
                     goto found;
                 scan = cur + 1;

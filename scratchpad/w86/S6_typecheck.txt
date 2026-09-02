@@ -1,0 +1,24 @@
+name-matched locals type-checked: 4812   flagged: 23
+  bworld.cpp                 BWorld_BuildGlareEffects           group              SYM[PTR STRUCT size 4 dims 0 tag Group] C[int group;]  <SYM ptr, C non-ptr>
+  speech.cpp                 Speech::CalculateBankSize          c                  SYM[INT size 0] C[char *c;]  <C ptr, SYM non-ptr>
+  speech.cpp                 Speech::CalculateBankSize          c                  SYM[INT size 0] C[char *c;]  <C ptr, SYM non-ptr>
+  speech.cpp                 Speech::CalculateBankSize          c                  SYM[INT size 0] C[char *c;]  <C ptr, SYM non-ptr>
+  speech.cpp                 Speech::CalculateBankSize          c                  SYM[INT size 0] C[char *c;]  <C ptr, SYM non-ptr>
+  speech.cpp                 Speech::LoadBankHeaders            c                  SYM[INT size 0] C[char *c;]  <C ptr, SYM non-ptr>
+  speech.cpp                 Speech::LoadBankHeaders            c                  SYM[INT size 0] C[char *c;]  <C ptr, SYM non-ptr>
+  speech.cpp                 Speech::LoadBankHeaders            c                  SYM[INT size 0] C[char *c;]  <C ptr, SYM non-ptr>
+  speech.cpp                 Speech::LoadBankHeaders            c                  SYM[INT size 0] C[char *c;]  <C ptr, SYM non-ptr>
+  speech.cpp                 Speech::LoadBankHeaders            c                  SYM[INT size 0] C[char *c;]  <C ptr, SYM non-ptr>
+  draww.cpp                  DrawW_DrawQuad                     a                  SYM[LONG size 0] C[u_char a;]  <scalar family>
+  draww.cpp                  DrawW_DrawQuad                     c                  SYM[LONG size 0] C[u_char c;]  <scalar family>
+  draww.cpp                  DrawW_SetUpSubdividFacet_Line      a                  SYM[LONG size 0] C[u_short a;]  <scalar family>
+  draww.cpp                  DrawW_SetUpSubdividFacet_Line      b                  SYM[LONG size 0] C[u_short b;]  <scalar family>
+  draww.cpp                  DrawW_OnyxLinePrim                 a                  SYM[LONG size 0] C[CVECTOR a;]  <scalar family>
+  sfx.cpp                    Sfx_BuildSouffleFacet              dSouffle           SYM[PTR STRUCT size 48 dims 0 tag sfxsouffle] C[sfxsouffle dSouffle;]  <SYM ptr, C non-ptr>
+  sfx.cpp                    Sfx_BuildSouffleFacet              dSouffle           SYM[PTR STRUCT size 48 dims 0 tag sfxsouffle] C[sfxsouffle dSouffle;]  <SYM ptr, C non-ptr>
+  sfx.cpp                    Sfx_BuildSouffleFacet              dSouffle           SYM[PTR STRUCT size 48 dims 0 tag sfxsouffle] C[sfxsouffle dSouffle;]  <SYM ptr, C non-ptr>
+  sfx.cpp                    Sfx_BuildSouffleFacet              dSouffle           SYM[PTR STRUCT size 48 dims 0 tag sfxsouffle] C[sfxsouffle dSouffle;]  <SYM ptr, C non-ptr>
+  sfx.cpp                    Sfx_BuildSouffleFacet              dSouffle           SYM[PTR STRUCT size 48 dims 0 tag sfxsouffle] C[sfxsouffle dSouffle;]  <SYM ptr, C non-ptr>
+  sfx.cpp                    Sfx_BuildSouffleFacet              dSouffle           SYM[PTR STRUCT size 48 dims 0 tag sfxsouffle] C[sfxsouffle dSouffle;]  <SYM ptr, C non-ptr>
+  textureprocess.cpp         TextureProcess_ColorClut           r                  SYM[INT size 0] C[RECT r;]  <scalar family>
+  weather.cpp                Weather_ProcessParticles           n                  SYM[INT size 0] C[long n;]  <scalar family>

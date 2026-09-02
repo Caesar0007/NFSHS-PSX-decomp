@@ -1,0 +1,6 @@
+### @800212a4 FETextRender_WordWrapTextRGBJustify__FPcR4RECTiiib   [FETEXTRENDER.CPP:216]   -> FETextRender_WordWrapTextRGBJustify
+    SYMrec: [('REGPARM', 'str'), ('REGPARM', 'r'), ('ARG', 'col'), ('ARG', 'justify'), ('ARG', 'size'), ('ARG', 'JustGrabHeight'), ('REG', 'size'), ('AUTO', 'OriginalY'), ('REG', 'x'), ('REG', 'index1'), ('REG', 'index2'), ('REG', 'strLength'), ('AUTO', 'buffer'), ('AUTO', 'source'), ('AUTO', 'spacing')]
+    Cdecl : ['OriginalY', 'x', 'index1', 'index2', 'strLength', 'buffer', 'source', 'spacing', 'pixels']
+    C-ONLY  : ['pixels']
+
+# matched 17/17 SYM blocks; 17 bodies in file

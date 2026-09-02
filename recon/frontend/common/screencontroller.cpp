@@ -72,8 +72,8 @@ void tScreenControllerConfig::TurnOffShakers()
 void tScreenControllerConfig::ShakeIt()
 
 {
-  int padState;
   int padnum;
+  int padState;
   
   padnum = this->player << 4;
   padState = PadGetState(padnum);
@@ -353,8 +353,8 @@ void tScreenControllerConfig::SetCurrentController(bool firsttime)
      folding dialogIsIdle into a conjunction is FAIL5 at 221/222; direct
      negconPopUp member addressing is FAIL214 at 220/222 and collapses the
      retail 48-byte frame to 40 bytes. */
-  bool setmenutonull;
   tInsideBoxMenu *fSetMenu;
+  bool setmenutonull;
   tDialogYesNo *dialog;
 
   fSetMenu = (tInsideBoxMenu *)0x0;
@@ -620,15 +620,16 @@ static inline short ControllerTwistRange(int player)
 void tScreenControllerConfig::DrawController()
 
 {
-  static int flare_intensity;
-  static int max_fi = 3750;
-  static int max_fidir = 250;
   tDrawShapeExtended drawFlags;
   short shakex;
   short shakey;
   short maxshakex;
   short maxshakey;
   int fadelevel;
+  /* [SYM] the three STAT records follow `fadelevel` in the 8c block */
+  static int flare_intensity;
+  static int max_fi = 3750;
+  static int max_fidir = 250;
   /* SYM-CODEGEN-CARRIER: shockModeActive -- no debug name survives for IDA's
      first arm value (`v7`, $a0).  Folding it into the predicate is measured
      FAIL 18 at 832/836, deleting four retail instructions. */
@@ -921,6 +922,9 @@ DrawCtrl_ticksUpdate:
                  Offset[this->CurrentlyLoadedArt][1],0,0,&drawFlags);
     }
   }
+  {
+  /* [SYM] `frame` (INT, $a1) lives in the block opened at SLD 322 and
+     closed at SLD 334 -- it does NOT reach the two tail arms below. */
   int frame = (uint)(byte)this->fCurrentController;
   /* SYM-INLINE-LOCAL: range = ControllerTwistRange */
   /* SYM-CODEGEN-CARRIER: rangeValue -- promoted caller storage for the
@@ -970,6 +974,7 @@ DrawCtrl_zeroAxis:
 DrawCtrl_axisDone:
     this->ActualDrawController(frame,0,0,0,0);
     return;
+  }
   }
   if (this->fCurrentController != '\0') {
     this->ActualDrawController(0,0,0,(int)shakex,(int)shakey);
@@ -1120,7 +1125,6 @@ void tScreenControllerConfig::DrawBackground()
      the oracle's `addiu $a0,$s0,0xA` + three `addu ?,$zero,$zero` shows the
      call is ScaleShapeExtended(i + 10, 0, 0, 0, fade, 0, NULL). */
   short fade;
-  int i;
 
   /* MATCH (36->27): the SYM's inlined tOptionsMenu `this` ($a0) is a real
      pointer -- the oracle materializes `addiu $a0,$v0,11116` and then reads
@@ -1174,11 +1178,15 @@ ForceVbl_drawCtrlCheck:
   if (((this->fAnimFade != 0) || (this->fTransitioningOut == 0)) && (this->fTransitioningIn != 0)) {
     this->DrawController();
   }
-  i = 0;
-  do {
-    ScaleShapeExtended(i + 10,0,0,0,(int)fade,0,(tDrawShapeExtended *)0x0);
-    i = i + 1;
-  } while (i < 0xc);
+  {
+    int i;   /* [SYM] REG $s0, block opened at SLD 44 */
+
+    i = 0;
+    do {
+      ScaleShapeExtended(i + 10,0,0,0,(int)fade,0,(tDrawShapeExtended *)0x0);
+      i = i + 1;
+    } while (i < 0xc);
+  }
   return;
 }
 

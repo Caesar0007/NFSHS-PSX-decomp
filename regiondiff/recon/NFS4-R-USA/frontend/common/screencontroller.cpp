@@ -360,9 +360,13 @@ void tScreenControllerConfig::SetCurrentController(bool firsttime)
   fSetMenu = (tInsideBoxMenu *)0x0;
   dialog = &this->negconPopUp;
   /* SYM-INLINE-THIS: SetString */
-  dialog->SetString(TextSys_Word(0x20b));
-  dialog->yesnowords[0] = 0x20c;
-  dialog->yesnowords[1] = 0x20d;
+  /* REGIONAL (R-USA, W86-B8): +1 retail string-table shift on the negcon
+   * dialog's text ids (0x20b/0x20c/0x20d -> 0x20c/0x20d/0x20e; AUDIT_LO16
+   * insn 7/15/17).  All three literals are distinct and each occurs exactly
+   * once in this function (grep-verified) -- no CSE-shared `li` (32B-5). */
+  dialog->SetString(TextSys_Word(0x20c));
+  dialog->yesnowords[0] = 0x20d;
+  dialog->yesnowords[1] = 0x20e;
   dialog->fDefault = 1;
   setmenutonull = false;
   if (gPadinfo.buf[(this->player != 0) * 4].nopad != '\0') {
@@ -1482,16 +1486,20 @@ int tScreenControllerConfig::GetHelpText()
      through retail's named `int retvalue`; gcc collapses that source funnel
      to the same 24-byte-identical instructions.
      [SLD 1897=switch, 1899/1903/1906=case bodies, 1912=-1] */
+  /* REGIONAL (R-USA, W86-B8): retail's string table gained one entry ahead of
+   * this block, so every help-text id here is +1 (0x218/0x219/0x21a ->
+   * 0x219/0x21a/0x21b; AUDIT_LO16 insn 16/18/20).  Three distinct literals,
+   * one semantic use each -- no CSE-shared constant to co-patch (32B-5). */
   switch (this->fCurrentController) {
   case 5:
   case 6:
-    retvalue = 0x218;
-    break;
-  case 1:
     retvalue = 0x219;
     break;
-  case 2:
+  case 1:
     retvalue = 0x21a;
+    break;
+  case 2:
+    retvalue = 0x21b;
     break;
   default:
     retvalue = -1;

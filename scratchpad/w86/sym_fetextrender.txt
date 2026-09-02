@@ -1,0 +1,137 @@
+@80020cd8 FETextRender_SetFont__Fi   [FETEXTRENDER.CPP:72]
+    REGPARM  $4        size                       INT size 0
+
+@80020d4c FETextRender_FullTextRGB__FPcssics   [FETEXTRENDER.CPP:94]
+    REGPARM  $4        sMenuText                  PTR CHAR size 0
+    REGPARM  $12       x                          SHORT size 0
+    REGPARM  $15       y                          SHORT size 0
+    REGPARM  $17       col                        INT size 0
+    ARG      $10       size                       INT size 0
+    ARG      $14       justify                    INT size 0
+    REG      $16       justify                    SHORT size 0
+    REG      $11       str                        PTR CHAR size 0
+    AUTO     $ffffff58 buffer                     ARY CHAR size 128 dims 1 128 tag
+
+@80020ec0 FETextRender_FullText__FPcss13tMenuTextType14tMenuTextStates   [FETEXTRENDER.CPP:136]
+    REGPARM  $4        sMenuText                  PTR CHAR size 0
+    REGPARM  $5        x                          SHORT size 0
+    REGPARM  $6        y                          SHORT size 0
+    REGPARM  $7        textType                   ENUM size 4 dims 0 tag tMenuTextType
+    ARG      $10       textState                  ENUM size 4 dims 0 tag tMenuTextState
+    ARG      $14       justify                    INT size 0
+    REG      $2        textState                  ENUM size 4 dims 0 tag tMenuTextState
+    REG      $7        textcol                    INT size 0
+
+@80020f44 FETextRender_FullTextFade__FiPcss13tMenuTextType14tMenuTextStates   [FETEXTRENDER.CPP:144]
+    REGPARM  $4        fade                       INT size 0
+    REGPARM  $15       sMenuText                  PTR CHAR size 0
+    REGPARM  $6        x                          SHORT size 0
+    REGPARM  $7        y                          SHORT size 0
+    ARG      $10       textType                   ENUM size 4 dims 0 tag tMenuTextType
+    ARG      $14       textState                  ENUM size 4 dims 0 tag tMenuTextState
+    ARG      $18       justify                    INT size 0
+    REG      $2        textType                   ENUM size 4 dims 0 tag tMenuTextType
+    REG      $2        textState                  ENUM size 4 dims 0 tag tMenuTextState
+
+@80021014 FETextRender_MenuTextPositioned__Fsss14tMenuTextState13tMenuTextType   [FETEXTRENDER.CPP:152]
+    REGPARM  $4        index                      SHORT size 0
+    REGPARM  $5        x                          SHORT size 0
+    REGPARM  $6        y                          SHORT size 0
+    REGPARM  $13       textState                  ENUM size 4 dims 0 tag tMenuTextState
+    ARG      $10       textType                   ENUM size 4 dims 0 tag tMenuTextType
+    REG      $5        textType                   ENUM size 4 dims 0 tag tMenuTextType
+
+@800210b4 FETextRender_MenuTextFade__Fis14tMenuTextState13tMenuTextType   [FETEXTRENDER.CPP:171]
+    REGPARM  $15       fade                       INT size 0
+    REGPARM  $5        index                      SHORT size 0
+    REGPARM  $14       textState                  ENUM size 4 dims 0 tag tMenuTextState
+    REGPARM  $10       textType                   ENUM size 4 dims 0 tag tMenuTextType
+    REG      $13       x                          INT size 0
+    REG      $12       y                          INT size 0
+
+@80021180 FETextRender_MenuTextPositionedJustify__Fssss14tMenuTextState13tMenuTextType   [FETEXTRENDER.CPP:193]
+    REGPARM  $4        index                      SHORT size 0
+    REGPARM  $5        x                          SHORT size 0
+    REGPARM  $6        y                          SHORT size 0
+    REGPARM  $7        justify                    SHORT size 0
+    ARG      $10       state                      ENUM size 4 dims 0 tag tMenuTextState
+    ARG      $14       type                       ENUM size 4 dims 0 tag tMenuTextType
+    REG      $2        state                      ENUM size 4 dims 0 tag tMenuTextState
+    REG      $3        type                       ENUM size 4 dims 0 tag tMenuTextType
+
+@800211d4 FETextRender_MenuTextPositionedJustifyFade__Fissss14tMenuTextState13tMenuTextType   [FETEXTRENDER.CPP:198]
+    REGPARM  $15       fade                       INT size 0
+    REGPARM  $5        index                      SHORT size 0
+    REGPARM  $6        x                          SHORT size 0
+    REGPARM  $7        y                          SHORT size 0
+    ARG      $10       justify                    INT size 0
+    ARG      $14       textState                  ENUM size 4 dims 0 tag tMenuTextState
+    ARG      $18       textType                   ENUM size 4 dims 0 tag tMenuTextType
+    REG      $3        textState                  ENUM size 4 dims 0 tag tMenuTextState
+    REG      $10       textType                   ENUM size 4 dims 0 tag tMenuTextType
+
+@800212a4 FETextRender_WordWrapTextRGBJustify__FPcR4RECTiiib   [FETEXTRENDER.CPP:216]
+    REGPARM  $10       str                        PTR CHAR size 0
+    REGPARM  $17       r                          PTR STRUCT size 8 dims 0 tag RECT
+    ARG      $8        col                        INT size 0
+    ARG      $c        justify                    INT size 0
+    ARG      $10       size                       INT size 0
+    ARG      $14       JustGrabHeight             BOOL size 0
+    REG      $11       size                       INT size 0
+    AUTO     $ffffffc8 OriginalY                  INT size 0
+    REG      $3        x                          SHORT size 0
+    REG      $14       index1                     USHORT size 0
+    REG      $11       index2                     USHORT size 0
+    REG      $1e       strLength                  LONG size 0
+    AUTO     $fffffd48 buffer                     ARY CHAR size 128 dims 1 128 tag
+    AUTO     $fffffdc8 source                     ARY CHAR size 512 dims 1 512 tag
+    AUTO     $ffffffd0 spacing                    SHORT size 0
+
+@80021718 FETextRender_WordWrapTextRGB__FPcR4RECTi   [FETEXTRENDER.CPP:359]
+    REGPARM  $4        str                        PTR CHAR size 0
+    REGPARM  $5        r                          PTR STRUCT size 8 dims 0 tag RECT
+    REGPARM  $6        Col                        INT size 0
+
+@80021740 FETextRender_WordWrapTextFade__FiPcR4RECT14tMenuTextState13tMenuTextType   [FETEXTRENDER.CPP:364]
+    REGPARM  $8        fade                       INT size 0
+    REGPARM  $12       str                        PTR CHAR size 0
+    REGPARM  $13       r                          PTR STRUCT size 8 dims 0 tag RECT
+    REGPARM  $7        textState                  ENUM size 4 dims 0 tag tMenuTextState
+    ARG      $10       textType                   ENUM size 4 dims 0 tag tMenuTextType
+    REG      $2        textType                   ENUM size 4 dims 0 tag tMenuTextType
+
+@800217e8 FETextRender_WordWrapText__FPcR4RECT14tMenuTextState13tMenuTextType   [FETEXTRENDER.CPP:375]
+    REGPARM  $2        str                        PTR CHAR size 0
+    REGPARM  $3        r                          PTR STRUCT size 8 dims 0 tag RECT
+    REGPARM  $8        textState                  ENUM size 4 dims 0 tag tMenuTextState
+    REGPARM  $7        textType                   ENUM size 4 dims 0 tag tMenuTextType
+
+@80021824 FETextRender_WordWrapFade__FisR4RECT14tMenuTextState13tMenuTextType   [FETEXTRENDER.CPP:380]
+    REGPARM  $11       fade                       INT size 0
+    REGPARM  $5        index                      SHORT size 0
+    REGPARM  $12       r                          PTR STRUCT size 8 dims 0 tag RECT
+    REGPARM  $13       state                      ENUM size 4 dims 0 tag tMenuTextState
+    ARG      $10       type                       ENUM size 4 dims 0 tag tMenuTextType
+    REG      $10       type                       ENUM size 4 dims 0 tag tMenuTextType
+
+@8002188c FETextRender_WordWrap__FsR4RECT14tMenuTextState13tMenuTextType   [FETEXTRENDER.CPP:388]
+    REGPARM  $4        index                      SHORT size 0
+    REGPARM  $2        r                          PTR STRUCT size 8 dims 0 tag RECT
+    REGPARM  $3        textState                  ENUM size 4 dims 0 tag tMenuTextState
+    REGPARM  $7        textType                   ENUM size 4 dims 0 tag tMenuTextType
+
+@800218c8 FETextRender_WordWrapHeight__FsPc   [FETEXTRENDER.CPP:394]
+    REGPARM  $4        width                      SHORT size 0
+    REGPARM  $5        str                        PTR CHAR size 0
+    AUTO     $fffffff0 r                          STRUCT size 8 dims 0 tag RECT
+
+@80021914 FETextRender_Title__Fs   [FETEXTRENDER.CPP:420]
+    REGPARM  $4        index                      SHORT size 0
+    AUTO     $ffffff98 upstr                      ARY CHAR size 80 dims 1 80 tag
+    AUTO     $ffffffe8 r                          STRUCT size 8 dims 0 tag RECT
+    REG      $10       offset                     SHORT size 0
+    REG      $2        this                       PTR STRUCT size 896 dims 0 tag tFEApplication
+
+@800219e8 FETextRender_SetABR__Fib   [FETEXTRENDER.CPP:441]
+    REGPARM  $4        abr                        INT size 0
+    REGPARM  $5        trans                      BOOL size 0

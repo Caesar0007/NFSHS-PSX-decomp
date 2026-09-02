@@ -136,10 +136,10 @@ long tCarManager::CalcUsedPrice(short garageNumber)
    * SYM-CODEGEN-CARRIER: upgrades
    * Signed one-read slot staging restores retail's lb/-1 guard, and the
    * upgrades staging preserves the single garage-byte load used by its tests. */
+  long result;
+  tCarInfo *carInfo;
   signed char carID;
   u_char upgrades;
-  tCarInfo *carInfo;
-  long result;
 
   result = 0;
   if ((u_int)garageNumber >= this->fNumCars) {
@@ -193,8 +193,8 @@ long tCarManager::PurchaseCar(short carModel,short color,short playerNum)
 
 {
   /* SYM: locals = short i (REG $4), tCarInfo *carInfo (REG $6) */
-  tCarInfo *carInfo;
   short i;
+  tCarInfo *carInfo;
 
   carInfo = carManager.GetCarFromID(carModel);
 
@@ -240,8 +240,8 @@ long tCarManager::SellCar(short garageNumber,short playerNum)
      SYM-CODEGEN-CARRIER: playerFrontEnd
      SYM-CODEGEN-CARRIER: selectedSlotOffset
      SYM-CODEGEN-CARRIER: newSelection */
-  long result;
   short i;
+  long result;
 
   result = this->CalcUsedPrice(garageNumber);
   {
@@ -295,10 +295,10 @@ long tCarManager::SellCar(short garageNumber,short playerNum)
 long tCarManager::PurchaseUpgrade(short garageNumber,short upgradeFlags,short playerNum)
 
 {
-  tCarInfo *carInfo;
-  short mask;
   short i;
+  short mask;
   long result;
+  tCarInfo *carInfo;
 
   result = 0;
   carInfo = this->GetCarFromID((short)(signed char)
@@ -481,8 +481,8 @@ void tCarManager::AddToPinkSlipsList(short carModel,short color,short playerNum)
 void tCarManager::AddUpgradesToPinkSlipsList(short garageNumber,short upgradeFlags,short playerNum)
 
 {
-  short mask;
   short i;
+  short mask;
 
   this->GetCarFromID((short)(signed char)
       this->fPinkSlipsCars[playerNum][(int)garageNumber - (int)this->fNumCars].fCarID);
@@ -555,16 +555,20 @@ void tCarManager::SaveCars(tSaveCarInfo &save)
 void tCarManager::LoadPinkSlipsCars(tSaveCarInfo &load,short playerNum)
 
 {
-  int i;
-  
-  blockmove(&load,this->fPinkSlipsCars[playerNum],0x80);
-  i = 0;
-  if (this->fNumCars != 0) {
-    do {
-      this->fPinkSlipsAvailableCars[playerNum][i] = load.fSaveAvailable[i];
-      this->fPinkSlipsViewableCars[playerNum][i] = load.fSaveViewable[i];
-      i = i + 1;
-    } while (i < this->fNumCars);
+  /* SYM: the 8c block records `int i` one level DOWN (two `Block start line = 1`
+     records at the function entry VA), i.e. the body is one nested scope. */
+  {
+    int i;
+
+    blockmove(&load,this->fPinkSlipsCars[playerNum],0x80);
+    i = 0;
+    if (this->fNumCars != 0) {
+      do {
+        this->fPinkSlipsAvailableCars[playerNum][i] = load.fSaveAvailable[i];
+        this->fPinkSlipsViewableCars[playerNum][i] = load.fSaveViewable[i];
+        i = i + 1;
+      } while (i < this->fNumCars);
+    }
   }
   return;
 }
@@ -576,21 +580,26 @@ void tCarManager::LoadPinkSlipsCars(tSaveCarInfo &load,short playerNum)
 void tCarManager::SavePinkSlipsCars(tSaveCarInfo &save,short playerNum,short withoutCarInGarageNumber)
 
 {
-  int i;
+  /* SYM: `carInfo` is the only function-scope local; `int i` lives in the
+     nested block that opens at 0x80016c7c (SLD lines 7-20). */
   tCarInfo carInfo;
-  
+
   if (withoutCarInGarageNumber != -1) {
     this->GetPinkSlipsCar(withoutCarInGarageNumber,carInfo,playerNum);
     this->RemoveFromPinkSlipsList(withoutCarInGarageNumber,playerNum);
   }
-  blockmove(this->fPinkSlipsCars[playerNum],&save,0x80);
-  i = 0;
-  if (this->fNumCars != 0) {
-    do {
-      save.fSaveAvailable[i] = this->fPinkSlipsAvailableCars[playerNum][i];
-      save.fSaveViewable[i] = this->fPinkSlipsViewableCars[playerNum][i];
-      i = i + 1;
-    } while (i < this->fNumCars);
+  {
+    int i;
+
+    blockmove(this->fPinkSlipsCars[playerNum],&save,0x80);
+    i = 0;
+    if (this->fNumCars != 0) {
+      do {
+        save.fSaveAvailable[i] = this->fPinkSlipsAvailableCars[playerNum][i];
+        save.fSaveViewable[i] = this->fPinkSlipsViewableCars[playerNum][i];
+        i = i + 1;
+      } while (i < this->fNumCars);
+    }
   }
   if (withoutCarInGarageNumber != -1) {
     carManager.AddToPinkSlipsList((short)(signed char)carInfo.fCarID,(u_short)carInfo.fColor,playerNum);
@@ -684,10 +693,10 @@ void tCarManager::SetCarViewable(tCarModels carModel,bool view)
 void tCarManager::GetStockCar(short carNumber,tCarInfo &carInfo)
 
 {
-  /* SYM-CODEGEN-CARRIER: uVar1 -- retail schedules the fViewableCars read before
+  /* SYM-CODEGEN-CARRIER: viewable -- retail schedules the fViewableCars read before
      the two zero stores, then publishes it afterward. Inlining the read moves
      both stores across the load (PASS -> 6 diffs). */
-  uchar uVar1;
+  uchar viewable;
 
   if ((u_int)(int)carNumber >= this->fNumCars) {
     this->GetGarageCar(carNumber,carInfo,0);
@@ -695,10 +704,10 @@ void tCarManager::GetStockCar(short carNumber,tCarInfo &carInfo)
   else {
     blockmove(this->fCars + carNumber,&carInfo,0xcc);
     carInfo.fAvailable = this->fAvailableCars[(signed char)carInfo.fCarID];
-    uVar1 = this->fViewableCars[(signed char)carInfo.fCarID];
+    viewable = this->fViewableCars[(signed char)carInfo.fCarID];
     carInfo.fUpgrades = '\0';
     carInfo.fCountry = '\0';
-    carInfo.fViewable = uVar1;
+    carInfo.fViewable = viewable;
   }
   carInfo.fCarIndex = (uchar)carNumber;
   return;
@@ -765,9 +774,9 @@ void tCarManager::LoadDescription()
 {
   char *input;
   char *data;
-  short j;
-  short i;
   char filename [80];
+  short i;
+  short j;
 
   /* W55-A3 BUGFIX (06C class-5, sprintf-return-as-pointer): Ghidra attributed the
      sprintf `$v0` to `input`; the oracle (80017174 jal loadfileadr / 80017184
@@ -1010,12 +1019,12 @@ bool tCarManager::FindSimilarCar(tCarModels &model,char &color,short,tCarModels 
      because both are unused.  Keep them intentionally unnamed: their original
      identifiers are not recoverable, and decompiler `arg3`/`arg4` aliases are
      not source evidence. */
+  short i;
+  short j;
+  char carColor;
   tCarInfo *carInfo;
   short colorScheme;
   short numColors;
-  char carColor;
-  short j;
-  short i;
 
   carInfo = this->GetCarFromID((short)model);
   /* W55-A2 BUGFIX (class-1, unsigned-char deleted guard): tCarInfo::fColorOrder is a shared-header
@@ -1296,7 +1305,6 @@ bool tListIteratorCar::ValidCar(tPlayer atIndex,char carNumber)
   int carClass;
   tCarInfo *carInfo;
   tCarInfo garageCar;
-  tTrackInformation trackInfo;
 
   i = 0;
   if (atIndex != kPlayerBoth) {
@@ -1381,6 +1389,8 @@ ValidCar_classCop:
     if ((this->fCarListFilter & 0xcU) != 0) {
       if ((this->fCarManager->fCars[(u_char)carNumber].fCountries >>
            (signed char)frontEnd.carCountry[i][carID] & 1U) != 0) {
+        tTrackInformation trackInfo;
+
         trackManager.GetTrack((u_short)(u_char)frontEnd.track[0],trackInfo);
         if (FECheat_IsCheatEnabled(cheat_AllCops)) goto ValidCar_setValid;
         if ((u_char)trackInfo.fCountry == (signed char)frontEnd.carCountry[i][carID]) {
@@ -1490,8 +1500,8 @@ short tListIteratorCarColor::TextValue(tPlayer)
 void tListIteratorCarColor::Increment(tPlayer)
 
 {
-  tCarInfo *carInfo;
   int offset;
+  tCarInfo *carInfo;
   /* SYM-CODEGEN-CARRIER: notWrapped
    * SYM-CODEGEN-CARRIER: fNumColors
    * These source-only staging values are required by the sealed PASS receipt
@@ -1515,8 +1525,8 @@ void tListIteratorCarColor::Increment(tPlayer)
 void tListIteratorCarColor::Decrement(tPlayer)
 
 {
-  tCarInfo *carInfo;
   int offset;
+  tCarInfo *carInfo;
 
   carInfo = &fCarManager->fCars[fPlayerCar[*fPlayer]];
   offset = *fPlayer * fIndexSize + (signed char)carInfo->fCarID;

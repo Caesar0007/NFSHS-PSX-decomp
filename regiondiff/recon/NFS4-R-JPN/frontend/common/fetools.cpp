@@ -131,13 +131,19 @@ void FeTools_init(void)
   Font_ExitFromGame();
   sprintf(filename,"%stiny.pfn",Paths_Paths[0x21]);
   font12[0] = (char *)loadfileadrz(filename,(void *)0x0);
-  Font_LoadFont(font12[0],0x3c0,0x181,'\0');
+  /* REGIONAL (JPN): tiny.pfn glyph count 0x181 -> 0x100 (audit_lo16 insn 16;
+     oracle 80026850 `li a2,256`) -- the JPN font banks carry a different
+     character range than the western build. */
+  Font_LoadFont(font12[0],0x3c0,0x100,'\0');
   sprintf(filename,"%ssmall.pfn",Paths_Paths[0x21]);
   font18[0] = (char *)loadfileadrz(filename,(void *)0x0);
   Font_LoadFont(font18[0],0x380,0x100,'\0');
   sprintf(filename,"%stitle.pfn",Paths_Paths[0x21]);
   fontTitle[0] = (char *)loadfileadrz(filename,(void *)0x0);
-  Font_LoadFont(fontTitle[0],0x3c0,0x100,'\0');
+  /* REGIONAL (JPN): title.pfn glyph count 0x100 -> 0x160 (audit_lo16 insn 46;
+     oracle 800268C8 `li a2,352`).  Distinct `li` per call in the oracle (three
+     separate a2 loads) -- no CSE sharing here, so the per-site patch is safe. */
+  Font_LoadFont(fontTitle[0],0x3c0,0x160,'\0');
   currentSize[0] = 3;
   return;
 }

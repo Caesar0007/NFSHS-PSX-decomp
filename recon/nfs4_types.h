@@ -4952,6 +4952,13 @@ struct tOptionsMenu : public tMenu {   /* 128 bytes */
     short              fPrevItem;   /* +0x72 */
     int                fScreenFade, fFirstFrame, fNumFrames;   /* +0x74 */
 
+    /* W86-S4 SYM: tScreenUserName::DrawBackground's `8c` block carries a NESTED
+       block whose only record is `REG this $2 v0 PTR STRUCT tag tOptionsMenu`,
+       emitted at the function's first statement -- i.e. an INLINED tOptionsMenu
+       accessor read `fScreenFade` there.  Modelled as this inline getter (the
+       SYM records the inlined `this`, not the method's name). */
+    int GetScreenFade() { return fScreenFade; }
+
     /* reconstructed member fns -- FeMenuOptions.obj (ABI-neutral) */
     tOptionsMenu(unsigned int, tScreen *, tMenu *, tMenu *, void (*)(tMenuCommand &), short, int, int, tMenuItem *, ...);
     ~tOptionsMenu();

@@ -1,0 +1,19 @@
+import pathlib
+
+OLD = '    __asm__("" : : "r"(sd), "r"(sd), "r"(sd), "r"(sd), "r"(sd));\n'
+NEW = ('    /* W86-D2: the 5-operand read-only ref fence above is replaced by ONE pure-C\n'
+       '       ABSORPTION IDENTITY (`X | (X & 3) == X`).  fold() cannot remove it (both\n'
+       '       operands are the same VARIABLE), so cse/loop/flow see a real insn -- the\n'
+       '       references are counted AND `sd` gets a second SET that splits its live range --\n'
+       '       and `combine` folds `(ior X (and X K))` back to `X`, so ZERO bytes are emitted.\n'
+       '       Ladder (whole-TU gate, DrawW_SubdividFacet, count-exact 588/588 throughout):\n'
+       '         fence removed ................................. 94\n'
+       '         one absorption (LANDED) ....................... PASS\n'
+       '         two / four absorptions ........................ PASS (count is not the dial)\n'
+       '         `X & (X | 3)` form ............................ PASS\n'
+       '       This retires the "open angle" the w64-a2 ledger above names. */\n'
+       '    sd = (Draw_tGiveShelbyMoreCache *)((unsigned int)sd | ((unsigned int)sd & 3u));\n')
+
+pathlib.Path('scratchpad/w86/D2_l3.txt').write_text(
+    repr([('draww 1026 ref dial -> absorption', [(OLD, NEW)])]))
+print('ok')

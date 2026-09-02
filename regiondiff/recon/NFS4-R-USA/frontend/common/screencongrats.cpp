@@ -176,12 +176,16 @@ void tScreenCongrats::DrawBackground()
       }
       colf = CalcFadeVal(kRGBVals[(byte)textDefinitions[0xb][5]],this->fScreenFadeVal);
       colb = CalcFadeVal(0x232323,this->fScreenFadeVal);
+      /* REGIONAL DELTA (NFS4-R-USA @800485B4): every text-word index in this money
+         block is one higher than the base build's (0x318/0x319/0x317/0x31a vs
+         0x317/0x318/0x316/0x319) -- retail inserted one entry ahead of them in the
+         string table (the same +1 shift the sibling congrats messages carry). */
+      FETextRender_MenuTextFade((int)this->fScreenFadeVal,0x318,textState_Hilighted,
+                                textType_TrackRecords);
+      DrawMoney(TextSys_WordX(0x319),TextSys_WordY(0x319),6,this->CashAwarded,colf,colb);
       FETextRender_MenuTextFade((int)this->fScreenFadeVal,0x317,textState_Hilighted,
                                 textType_TrackRecords);
-      DrawMoney(TextSys_WordX(0x318),TextSys_WordY(0x318),6,this->CashAwarded,colf,colb);
-      FETextRender_MenuTextFade((int)this->fScreenFadeVal,0x316,textState_Hilighted,
-                                textType_TrackRecords);
-      DrawMoney(TextSys_WordX(0x319),TextSys_WordY(0x319),9,
+      DrawMoney(TextSys_WordX(0x31a),TextSys_WordY(0x31a),9,
                 this->TotalCash - this->CashAwarded,colf,colb);
     }
     if ((this->fSpeechToPlay != 0) && (0x80 < ticks[0] - this->starttick)) {
@@ -447,20 +451,24 @@ void tScreenPinkSlipCongrats::DrawCongratsMessage()
   r.w = 0x1a4;
   r.h = 200;
   /* @0x80048B88-90: oracle's compare is `sltiu` (unsigned) -- the range-check idiom. */
+  /* REGIONAL DELTA (NFS4-R-USA @80048FC0): both text-word indices are one higher
+     than the base build's (0x276 / car word +0x122) -- the retail string-table
+     insertion, same as the sibling BeTheCop message -- and the message is drawn
+     HILIGHTED (li a2,2) where the base build passes Selected. */
   if ((uint)((byte)frontEnd.language - 2) < 2) {
-    sprintf(buffer,TextSys_Word(0x275),PlayerName((int)this->fWinner),
-               TextSys_Word((signed char)this->fCarInfo.fCarID + 0x121),
+    sprintf(buffer,TextSys_Word(0x276),PlayerName((int)this->fWinner),
+               TextSys_Word((signed char)this->fCarInfo.fCarID + 0x122),
                PlayerName(1 - this->fWinner),this->fWinner + 1);
   }
   else {
-    sprintf(buffer,TextSys_Word(0x275),PlayerName((int)this->fWinner),
+    sprintf(buffer,TextSys_Word(0x276),PlayerName((int)this->fWinner),
                PlayerName(1 - this->fWinner),
-               TextSys_Word((signed char)this->fCarInfo.fCarID + 0x121),
+               TextSys_Word((signed char)this->fCarInfo.fCarID + 0x122),
                this->fWinner + 1);
   }
   /* @0x80048C34: WordWrapText's 1st arg is `addiu a0,sp,0x20` = BUFFER, not sprintf's
      return value (the old `fmt = (char *)sprintf(...)` funnel was a transcription bug). */
-  FETextRender_WordWrapText(buffer,r,textState_Selected,textType_PostGame);
+  FETextRender_WordWrapText(buffer,r,textState_Hilighted,textType_PostGame);
   return;
 }
 
@@ -949,15 +957,19 @@ void tScreenTournamentCongrats::DrawCongratsMessage()
    * (same idiom as the sibling DrawCongratsMessage fns) then, inside the fCompletedGarageFull branch,
    * OVERWRITES r.w/r.h to {0xB4,0x1AE} for the money-line rewrap -- the prior recon's uninitialized
    * `RECT *r;`/`tMenuTextState fade;` dropped this entirely (real bug: NULL/garbage RECT ptr). */
+  /* REGIONAL DELTA (NFS4-R-USA @80049B5C): the message RECT is 420 wide (base 200)
+     and both messages are drawn HILIGHTED (li a2,2) where the base build passes
+     Selected -- the same pair of deltas the sibling BeTheCop/PinkSlip messages
+     carry.  The 0x40 money word and the 0xb4/0x1ae rewrap are unchanged. */
   r.x = 0x29;
   r.y = 0x3c;
-  r.w = 200;
+  r.w = 420;
   r.h = 400;
-  /* oracle's FETextRender_WordWrapText 3rd arg is a LITERAL `li a2,1` (=textState_Selected), not a
-   * read of an uninitialized `fade` local (both call sites). */
+  /* oracle's FETextRender_WordWrapText 3rd arg is a LITERAL `li a2,2` (=textState_Hilighted),
+   * not a read of an uninitialized `fade` local (both call sites). */
   GetAwardInformation(&tournamentManager,&tInfo);
   FETextRender_WordWrapText(TextSys_Word((int)tInfo.fCompletedText),r,
-                            textState_Selected,textType_PostGame);
+                            textState_Hilighted,textType_PostGame);
   if (tInfo.fCompletedGarageFull != 0) {
     char buffer [256];
     char money [64];
@@ -968,7 +980,7 @@ void tScreenTournamentCongrats::DrawCongratsMessage()
     r.w = 0x1ae;
     FeTools_FormatMoney(money,tInfo.fCompletedBonusMoney);
     sprintf(buffer,TextSys_Word(0x40),money);
-    FETextRender_WordWrapText(TextSys_Word(0x40),r,textState_Selected,
+    FETextRender_WordWrapText(TextSys_Word(0x40),r,textState_Hilighted,
                               textType_PostGame);
   }
   return;

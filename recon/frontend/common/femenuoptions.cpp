@@ -43,10 +43,9 @@ void CalcPulsateYellow(void)
 void DrawLeftFlare(int y,int fSelFade,int fFadeVal,int &flareextra)
 
 {
-  int x;
   int flare_intensity;
   int glintFade;
-  
+
   /* MATCH: write through the reference directly (oracle keeps the value in $v0:
      `lw v0; addiu v0,v0,1|5; sw v0`), no held temp -- the `+5` store is gated on
      `flareextra != 0` exactly as the oracle's `beqz v0,skip-the-store`. */
@@ -87,6 +86,11 @@ void DrawLeftFlare(int y,int fSelFade,int fFadeVal,int &flareextra)
     glintFade = fFadeVal;
   }
   if (0 < flare_intensity) {
+    /* SYM SCOPE (W86-S2): `x` is declared inside this `if` -- its SYM row sits
+       in the depth-3 block that opens with the intensity test, while
+       flare_intensity/glintFade are the only function-scope locals. */
+    int x;
+
     x = TextSys_WordX(0x1de);
     Flare_2DHalo(x,y + 5,flare_intensity / 2,(flare_intensity << 1) / 3,0x17);
     DrawShapeExtended(0,0,x - 3,y - 1,glintFade,(u_int)(glintFade != 0),(tDrawShapeExtended *)0x0);
@@ -108,11 +112,13 @@ void SubtractiveBox(int x,int y,int w,int h,int col1,int col2,int col3,int col4)
      while two identity uses lift x across the refs=8 boundary into $s1.
      Removing either identity use leaves the otherwise exact 88-insn body
      with the sole $s1/$s2 permutation (24 diffs). */
+  /* SYM ORDER (W86-S2): the 8c Def rows read dr_mode, prim; the non-SYM
+     packetCell carrier follows the SYM set. */
   DR_MODE *dr_mode;
+  POLY_G4 *prim;
   /* SYM-CODEGEN-CARRIER: packetCell -- the W59 oracle receipt above proves
      this source-only address pseudo is required for retail register allocation. */
   u_char **packetCell;
-  POLY_G4 *prim;
 
   packetCell = (u_char **)0x1f800004;
   prim = (POLY_G4 *)*packetCell;
@@ -559,14 +565,16 @@ void tOptionsMenu::Draw()
 {
   /* SYM 8c block: locals are `short i` (REG $s1) + the AUTO `tDrawShapeExtended
      drawFlags`; the nested `tMenuItem *this` blocks are INLINED accessors. */
+  /* SYM ORDER (W86-S2): the SYM rows i, drawFlags lead; the two non-SYM
+     carriers follow the SYM set. */
+  short i;
+  tDrawShapeExtended drawFlags;
   /* SYM-CODEGEN-CARRIER: entry -- manual representation of the compiler's
      old-ABI virtual-dispatch row; flattening row 5 is FAIL 7 (128/129). */
   __vtbl_ptr_type *entry;
   /* SYM-CODEGEN-CARRIER: adjusted -- preserves retail's dead receiver
      mutation before the indirect call; inlining it is FAIL 25 (128/129). */
   char *adjusted;
-  short i;
-  tDrawShapeExtended drawFlags;
 
   CalcPulsateYellow();
   /* MATCH: no local for the head test either — the oracle reuses $v0 for both the
@@ -695,6 +703,10 @@ ProcInpFE_keyUpItemZero:
 void tInsideBoxMenu::Draw(short x,short y,short w,short slideOffset,short)
 
 {
+  /* SYM ORDER (W86-S2): the SYM rows i, j lead; the two non-SYM carriers
+     follow the SYM set. */
+  short i;
+  short j;
   /* SYM-CODEGEN-CARRIER: entry10 -- the original virtual dispatch created
      this row-10 compiler temporary without a source local; flattening the
      ABI-neutral manual `_vf` form is FAIL 7 (152/153). */
@@ -702,9 +714,7 @@ void tInsideBoxMenu::Draw(short x,short y,short w,short slideOffset,short)
   /* SYM-CODEGEN-CARRIER: entry6 -- distinct row-6 dispatch lifetime required
      by retail allocation; flattening it is FAIL 18 (153/153). */
   __vtbl_ptr_type *entry6;
-  short i;
-  short j;
-  
+
   if (this->fCurrentItem != this->fPrevItem) {
     if (this->fPrevItem < this->fCurrentItem) {
       this->fMoving = 0x18;
@@ -1005,7 +1015,19 @@ UpdfOpenH_currMenuCheck:
           if (cur < lim) {
             lim = cur;
           }
-          __asm__("" : : "r"(lim), "r"(lim), "r"(lim), "r"(lim));
+          /* MATCH W86-D3 2026-09-02: the four read-only `lim` refs that bought
+             the local-allocation handout (cur=$a2, lim=$v1) are now bought in
+             PURE C by an ABSORPTION inflator.  `lim & (lim | cur)` == lim for
+             ANY value of cur (absorption law), so it is a semantic no-op, but
+             cur is runtime-unknown to cse, so the AND survives to flow (which
+             counts the extra `lim` reference) and combine collapses it again
+             at ZERO bytes.  Measured this wave, whole-TU gate: fence removed
+             14 diffs; `int limM = -1; lim &= limM;` x1..x7 and `lim |= limZ`
+             x1..x6 all 14 (a constant mask is const-propagated away by cse
+             BEFORE flow counts it); the absorption forms
+             `lim &= (lim | cur)` / `lim |= (lim & cur)` / the same against the
+             `selected` parameter, at x1/x2/x4, ALL PASS 92/92. */
+          lim &= (lim | cur);
           this->fOpenHeight = (short)lim;
         }
         else {
@@ -1409,9 +1431,10 @@ SlideActivProc_callBaseProcess:
 void tMenuItemLeftRightFade::MyLeftRightDraw(int x,int y)
 
 {
-  int ColText;
+  /* SYM ORDER (W86-S2): the 8c Def rows read aCol, ColText. */
   tDrawShapeExtended aCol;
-  
+  int ColText;
+
   aCol.tint[0] = CalcFadeVal(0xc83c1e,0xbebe,
                             (int)this->fSelFade,(int)this->fFadeVal);
   DrawLeftFlare(y,(int)this->fSelFade,
@@ -1486,14 +1509,16 @@ void tMenuItemOnOffLeftRightChoice::Draw(int offx,int offy,bool selected)
      MATCH (same family as tMenuItemDisplayLeftRightChoice::Draw): no return
      funnel, in-branch fOnFade stores, x/y plain ints narrowed PER USE, and the
      TextSys_Word results consumed straight into $a0. */
+  /* SYM ORDER (W86-S2): the SYM rows ColTextOn, ColTextOff lead; the two
+     non-SYM carriers follow the SYM set. */
+  int ColTextOn;
+  int ColTextOff;
   /* SYM-CODEGEN-CARRIER: x -- adjusting the parameters directly is two
      instructions short and 68 diffs; retaining only y leaves 64 diffs. */
   int x;
   /* SYM-CODEGEN-CARRIER: y -- retaining only x leaves 80 diffs.  The two
      independent values restore the exact 94-insn frame and allocation. */
   int y;
-  int ColTextOn;
-  int ColTextOff;
 
   if (this->fFadeVal != 0x80) {
     /* MATCH: branch polarity — the `!= 0` (+0x20) arm is the FALL-THROUGH. */
@@ -1555,7 +1580,10 @@ void tMenuItemLeftRightAudioSlider::Draw(int ox,int oy,bool selected)
 
 {
   /* SYM-ABI-PARAM: selected -- unused, retained by the retail `iib` linkage. */
+  /* SYM ORDER (W86-S2): the 8c Def rows read coltext, tCol; the two non-SYM
+     carriers follow the SYM set. */
   int coltext;
+  tDrawShapeExtended tCol;
   /* SYM-CODEGEN-CARRIER: brightTextColor
      The trusted block names only `coltext` ($s0). Retail nevertheless holds
      textDefinitions[][5]'s bright palette color across DrawLeftFlare in $s2;
@@ -1566,7 +1594,6 @@ void tMenuItemLeftRightAudioSlider::Draw(int ox,int oy,bool selected)
      the address remains in $s1 across both calls; inlining the array base
      rematerializes it after the call and loses the 131/131 retail allocation. */
   int *rgbVals;
-  tDrawShapeExtended tCol;
 
   /* MATCH: `textDefinitions` is 6 bytes per row in retail (index scaling
      `sll 1; addu` = *3, then *2) — the externs header now carries the true
@@ -1758,9 +1785,11 @@ void tInsideBoxSongMenu::Draw(short x,short y,short w,short slideOffset,short ma
      slideOffset/width in IDA's gold $s6/$s4 allocation.  Natural FEPlayList
      ownership plus index-first address arithmetic preserves `addu v0,v0,fp`,
      while the right-grouped Y sum reproduces retail's addition chain. */
-  int song;
+  /* SYM ORDER (W86-S2): the 8c Def rows read j, drawY, song; the four non-SYM
+     carriers follow the SYM set. */
   int j;
   int drawY;
+  int song;
   int drawBaseY;
   u_int slide;
   tfrontEnd *fe;
@@ -1850,10 +1879,12 @@ void tInsideBoxSongMenu::DrawOneSong(short songnum,short x,short y,short w,short
      (REG $s0) and the two AUTO ints ColTextOn/ColTextOff.  The Ghidra-invented
      sVar1/pcVar3/iVar4/iVar5 pseudos cost an eighth saved reg ($s7) + 8 frame
      bytes; drop them and use the params directly. */
+  /* SYM ORDER (W86-S2): the 8c Def rows read Col, ColTextOn, ColTextOff,
+     ColText. */
   int Col;
-  int ColText;
   int ColTextOn;
   int ColTextOff;
+  int ColText;
 
   Col = CalcFadeVal(0x551e00,0x28);   /* H13: 2nd arg is the literal 0x28 (oracle 0x8001EC84 $a1=0x28), not x */
   CalcOnOffFade(textType_Options,fOnOffFade,fSelFade,0,ColTextOn,ColTextOff);  /* W58-A1: int& decl */
@@ -1972,15 +2003,18 @@ void tMenuItemControllerLeftRightChoice::Draw(int ox,int oy,bool selected)
      (d) `y` is an int MUTATED in place by -3 (`addiu s0,s0,-3`) and reused;
      (e) SYM records inner `tCol` and outer `drawFlags` at the same AUTO -56.
      Declaring drawFlags after the inner block lets gcc reuse that slot. */
+  /* SYM ORDER (W86-S2): the 8c Def rows read shape, Col, ColText (drawFlags and
+     tCol are the AUTO rows declared at their own blocks); the three non-SYM
+     carriers follow the SYM set. */
   tTexture_ShapeInfo *shape;
+  int Col;
+  int ColText;
   /* SYM-CODEGEN-CARRIER: x -- parameter mutation leaves 34 diffs; retaining
      only y leaves 24.  Its independent pseudo is required by retail. */
   int x;
   /* SYM-CODEGEN-CARRIER: y -- retaining only x leaves 28 diffs.  With both
      values exposed, GCC reproduces the exact 129-insn saved-register map. */
   int y;
-  int Col;
-  int ColText;
   int w;
 
   x = TextSys_WordX(this->fTextDescription) + ox;
@@ -2054,10 +2088,13 @@ void tInsideBoxLeftRightSlider::Draw(int x,int y,int w,bool selected)
      MATCH: no `fSelFade`/`col` return funnel — retail's Draw drops its result
      ($v0 is DrawSlider's, incidental), so the `lh 8(s0)` for the fSelFade arg is
      emitted LATE at the call instead of being hoisted into a saved reg.  Decl
-     order coltext-before-col is the s3/s4 assignment. */
-  int coltext;
+     order follows the SYM: col ($s3) then coltext ($s4).  (W86-S2 corrected an
+     earlier note here that claimed the reverse order was required -- the SYM
+     order gates identically, 92/92.) */
+  /* SYM ORDER (W86-S2): the 8c Def rows read col ($s3), coltext ($s4). */
   int col;
-  
+  int coltext;
+
   this->fX = (short)x;
   this->fY = (short)y;
   col = CalcFadeVal(0x551e00,0xc83c1e,
@@ -2159,15 +2196,17 @@ void tInsideBoxTwoWaySlider::Draw(int x,int y,int w,bool selected)
      The virtual read must remain a separate statement before fWidth so retail
      performs the jalr before the width narrowing; SYM retains only the inlined
      tListIterator `this`, so no original name survives for this value. */
-  u_short selection;
-  int col2;
+  /* SYM ORDER (W86-S2): the 8c Def rows read ww, col, col2, coltext; the two
+     non-SYM carriers follow the SYM set. */
+  int ww;
   int col;
+  int col2;
   int coltext;
+  u_short selection;
   /* SYM-CODEGEN-CARRIER: fWidth
      A named narrow value preserves the shared 16-bit width passed to both
      DrawSlider calls; inlining it changes the retail argument schedule. */
   short fWidth;
-  int ww;
 
   if (this->fActive != 0) {
     this->Calibrate();
@@ -2949,6 +2988,13 @@ void tUserNameMenuItem::TransitionOn()
      1989 the table / 1990 kUserNameRows / 1992-1994 the row+column scan /
      1996 fCurrentRow-- / 2000-2003 fade+selfade / 2010-2012 the speech. */
   short i;
+  /* SYM SCOPE MISMATCH -- INAPPLICABLE (W86-S2): SYM puts `NumberOfRows` at
+     FUNCTION scope (block depth 1, AUTO slot -0x28) while it is written here as
+     a block local of the store below.  Hoisting it to function scope was
+     measured at FAIL 28: the aggregate initializer's rodata block copy then
+     runs before the sprintf loop instead of at the store, moving the whole
+     lwl/lwr/swl/swr group above the loop.  Left as-is; the block spelling is
+     the only one that reproduces retail. */
   /* MATCH: unsized-array asm-label view of the scalar extern.  A scalar extern
      compiles to the single `lh $r,sym` / `sh $r,sym` ASSEMBLER MACRO, which is
      unschedulable (delay-slot poison) and uses the `$at` scratch on stores; the
@@ -3067,16 +3113,18 @@ void tMemoryCardMenuItem::Draw(bool selected)
      fEnableSlide $13=s3, x $14=s4, y $16=s6, ColText $11=s1, Col $10=s0,
      tCol AUTO -0x38, fWidth $10=s0, shape $11=s1.  Everything else here is a
      caller-saved temp the oracle keeps in $v0/$v1/$a0 (no saved-reg cost). */
-  tTexture_ShapeInfo *shape;
-  short sVar2;
+  /* SYM ORDER (W86-S2): the 8c Def rows read fEnableFade, fEnableSlide, x, y,
+     ColText, Col, tCol, fWidth, shape; the four non-SYM carriers follow. */
+  int fEnableFade;
+  int fEnableSlide;
   int x;
   int y;
-  int Col;
   int ColText;
-  int fEnableSlide;
-  int fEnableFade;
-  int fWidth;
+  int Col;
   tDrawShapeExtended tCol;
+  int fWidth;
+  tTexture_ShapeInfo *shape;
+  short sVar2;
   int v;
   int sv;
   int less;

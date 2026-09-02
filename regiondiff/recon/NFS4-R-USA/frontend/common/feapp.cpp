@@ -186,7 +186,11 @@ void tFEApplication::DrawHelpIcons()
     int i;
 
     string2[1] = '\0';
-    sprintf(string,TextSys_Word(0xfc));
+    /* REGIONAL (R-USA): retail string-table +1 shift -- every 0xfc use in this
+       function becomes 0xfd (audit_lo16 insns 25/149/160/163 = 4 separate
+       `li a0,252` in the base and 4 in the region, so no CSE-shared constant:
+       the 32B-5 trap does not bite here). */
+    sprintf(string,TextSys_Word(0xfd));
     i = strlen(string);
     i = i - 1;
     while (-1 < i) {
@@ -220,8 +224,8 @@ void tFEApplication::DrawHelpIcons()
       DrawShapeExtended(0x36,0x18,x,y,0,0,&flags);
       x = x + 0xf;
     }
-    FETextRender_FullTextRGB(TextSys_Word(0xfc),x,y,Col,'\0',0);
-    x += 5 + (textpixels(TextSys_Word(0xfc)) - strlen(TextSys_Word(0xfc)));
+    FETextRender_FullTextRGB(TextSys_Word(0xfd),x,y,Col,'\0',0);
+    x += 5 + (textpixels(TextSys_Word(0xfd)) - strlen(TextSys_Word(0xfd)));
     /* SYM-INLINE-THIS: HasOptionsMenu */
     if (this->fCurrentMenu[0]->HasOptionsMenu() ||
        ((this->fCurrentMenu[1] != (tMenu *)0x0 &&
@@ -235,7 +239,9 @@ void tFEApplication::DrawHelpIcons()
         DrawShapeExtended(0x38,0x18,x,y,0,0,&flags);
         x = x + 0xf;
       }
-      FETextRender_FullTextRGB(TextSys_Word(0xfd),x,y,Col,'\0',0);
+      /* REGIONAL (R-USA): retail string-table +1 shift -- 0xfd -> 0xfe
+         (audit_lo16, the 5th changed word; oracle `li a0,254`). */
+      FETextRender_FullTextRGB(TextSys_Word(0xfe),x,y,Col,'\0',0);
     }
   }
   return;
@@ -1296,7 +1302,10 @@ MainLoop_noBack:
               if ((2 <= player) || (err != PinkSlipsNoError)) break;
               memcardDialog = (tDialogMessageString *)&FEApp->NoInputMemCardDialog;
               /* SYM-INLINE-THIS: SetString */
-              memcardDialog->SetString(TextSys_Word(player + 0x295));
+              /* REGIONAL (R-USA): retail string-table +1 shift (audit_lo16 insn 941,
+                 `addiu a0,s1,661` -> 662).  The base of the per-player pair moves as
+                 a whole, so only the ONE addend changes. */
+              memcardDialog->SetString(TextSys_Word(player + 0x296));
               ((tDialogBase *)&FEApp->NoInputMemCardDialog)->Display();
               while (true) {
                 if (((FEApp->NoInputMemCardDialog).fFullyOpen ^ 1) == 0) break;
@@ -1304,7 +1313,8 @@ MainLoop_noBack:
               }
               err = SavePinkSlipsCarsWithErrorDialogs((short)player,0,(u_short)(u_char)frontEnd.pinkSlipsCar[player]);
               if ((err != PinkSlipsNoError) && (player == 1)) {
-                sprintf(string,TextSys_Word(0x297),PlayerName(0),1);
+                /* REGIONAL (R-USA): +1 shift (audit_lo16 insn 973, `li a0,663` -> 664). */
+                sprintf(string,TextSys_Word(0x298),PlayerName(0),1);
                 (FEApp->NoInputMemCardDialog).string = string;
                 SavePinkSlipsCarsWithErrorDialogs(0,1,-1);
               }

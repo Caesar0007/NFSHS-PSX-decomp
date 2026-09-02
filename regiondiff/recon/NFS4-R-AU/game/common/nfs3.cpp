@@ -350,9 +350,9 @@ void NFS4_LoadingIcon(void)
   ClearImage(&r,'\0','\0','\0');
   DrawSync(0);
   initlinkmode(0,100,0);   /* oracle 0x94650: a2=0 (dropped 3rd arg) */
-  Draw_DirectSetEnvironment(0,0,0x200,0xf0,1,1,1,0,0,0);
+  Draw_DirectSetEnvironment(0,0,0x200,0x100,1,1,1,0,0,0);   /* [REGIONAL AU/PAL] height 0xf0 -> 0x100 */
   settrans(0);
-  movfxya(shp,0x1e2 - shp->width,0xd2);
+  movfxya(shp,0x1e2 - shp->width,0xe2);   /* [REGIONAL AU/PAL] icon y 0xd2 -> 0xe2 (+0x10) */
   DrawSync(0);
   purgememadr(ldfile);
   initlinkmode(0,1,1);   /* oracle 0x946c0: a2=1 (dropped 3rd arg) */

@@ -4,6 +4,12 @@
  */
 #include "fetourn.h"
 
+/* [REGIONAL NFS4-R-USA] retail cheat enumeration is 12 entries shorter ahead of the
+ * per-tier "finished tournament" block, so cheat_FinishedTournament == 13 (base 25).
+ * Same delta shows up in Front_InitOpponentCars / screencarselect in the other regionals. */
+#undef cheat_FinishedTournament
+#define cheat_FinishedTournament 13
+
 /* ---- tTournamentManager::Initialize  [FETOURN.CPP:36-82] ---- */
 
 void tTournamentManager::Initialize()
@@ -135,7 +141,7 @@ void tTournamentManager::UpdateTrackList(short tier,short tournament)
   i = 0;
   if (numTracks != 0) {
     do {
-      this->fTrackList[i] = (signed char)this->fDefinition->fTracks[trackOffset++].fTrackNumber + 0xD5; // ?
+      this->fTrackList[i] = (signed char)this->fDefinition->fTracks[trackOffset++].fTrackNumber + 0xD6; // [REGIONAL USA] track-name text-id base 0xD5 -> 0xD6 (+1 string-table shift)
       i = i + 1;
     } while (i < numTracks);
   }
@@ -684,7 +690,7 @@ short tTournamentManager::AdvanceToNextTrack()
               carManager.PurchaseCar((short)(this->fAwards).fCompletedCar,
                          (ushort)carInfo->fDefaultColor,0);
             }
-            (this->fAwards).fCompletedText = (short)this->fTier + 0x3d9;
+            (this->fAwards).fCompletedText = (short)this->fTier + 0x3da;   /* [REGIONAL USA] text-id base +1 */
           }
         }
       }
@@ -1073,7 +1079,7 @@ short tListIteratorTournament::TextValue(tPlayer)
   tournIndex = this->fTournamentManager->fDefinition->fTiers[(byte)frontEnd.tier].fTournOffset
       + (byte)*this->fValue;
   return (signed char)this->fTournamentManager->fDefinition->fTournaments[tournIndex]
-             .fTournamentID + 0x341;
+             .fTournamentID + 0x342;   /* [REGIONAL USA] text-id base +1 */
 }
 
 

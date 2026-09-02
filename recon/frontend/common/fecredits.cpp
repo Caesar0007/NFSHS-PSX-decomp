@@ -307,28 +307,23 @@ void tCreditManager::DrawCurrCredit()
      SYM-CODEGEN-CARRIER: pixelWidth
      SYM-CODEGEN-CARRIER: tag
      PASS, 451/451 instructions. */
-  int frameTick;
+  tDrawShapeExtended drawFlags;
   tCredit *fShowCred;
-  short y;
-  int titleFadeBase;
-  int ColTextTitle;
-  int subTitleFadeBase;
-  int ColTextSubTitle;
-  int ColText;
-  char *text;
-  uint pixelWidth;
   int width;
   short x;
-  char *p, *p2;
-  byte tag;
-  bool hidden;
-  bool jaguar;
-  bool rollthedice;
-  int dist;
-  int height;
-  tDrawShapeExtended drawFlags;
+  short y;
+  int ColTextTitle;
+  int ColTextSubTitle;
+  int ColText;
   RECT r;
+  char *p, *p2;
   char buffer [292];
+  int frameTick;
+  int titleFadeBase;
+  int subTitleFadeBase;
+  char *text;
+  uint pixelWidth;
+  byte tag;
 
   drawFlags.tint[0] = 0xcec844;
   frameTick = ticks >> 4;
@@ -395,6 +390,10 @@ void tCreditManager::DrawCurrCredit()
   strcpy(buffer,fShowCred->text);
   p = (byte *)buffer;
   while (p != (byte *)0x0) {
+    bool hidden;
+    bool jaguar;
+    bool rollthedice;
+
     hidden = false;
     jaguar = false;
     rollthedice = false;
@@ -486,7 +485,10 @@ void tCreditManager::DrawCurrCredit()
        with `dist` REASSIGNED in place (matches oracle's $s0 reuse). It
        stays LIVE into the second bright-line calc (oracle's `subu s1,v0,
        s2` reuses it there). */
+    int dist;
     int width;
+    int height;
+
     dist = ((ticks - this->fLineTicks) * 0x208) / 0x50;
     width = 200;
     if (dist < 200) {

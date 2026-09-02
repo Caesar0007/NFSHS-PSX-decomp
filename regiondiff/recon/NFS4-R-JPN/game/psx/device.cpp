@@ -184,8 +184,13 @@ void Device_SetHardCodedKeys(void)
   Input_gHandler[0x9b] = 0x8003;
   Input_gHandler[0x9c] = 0x2003;
   Input_gHandler[0x9e] = 0x803;
-  Input_gHandler[0x9d] = 0x400003;
-  Input_gHandler[0xb0] = 0x100003;
+  /* REGIONAL DELTA (NFS4-R-JPN @800BE1B4): the two face-button bindings are
+     re-assigned for the Japanese confirm/cancel convention -- handler 0x9d moves
+     from CROSS (0x0040<<16) to CIRCLE (0x0020<<16) and handler 0xb0 from
+     TRIANGLE (0x0010<<16) to CROSS.  The low `| 3` and every other entry are
+     unchanged; the two words land in different registers so no `lui` is shared. */
+  Input_gHandler[0x9d] = 0x200003;
+  Input_gHandler[0xb0] = 0x400003;
   Input_gHandler[0xb1] = 0x800003;
   Input_gHandler[0xa0] = 0x103;
   Input_gHandler[0x98] = 0;

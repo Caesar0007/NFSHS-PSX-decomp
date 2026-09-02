@@ -1,0 +1,17 @@
+kept    line 1108: '__asm__("" : "=r"(g4), "=r"(one) : "0"(g4), "1"(one));'
+kept    line 1115: '__asm__("" : "=r"(one) : "0"(one));'
+kept    line 1734: '__asm__ ("" : : "r"(clutx));'
+kept    line 2093: '__asm__("" : : "i"(0));'
+kept    line 2311: '__asm__("" : : "r"(j));'
+kept    line 3372: '__asm__("" : "=r"(pktcell) : "0"(pktcell));'
+kept    line 3447: '__asm__("" : "=r"(pktcell) : "0"(pktcell) : "$5");'
+kept    line 3476: '__asm__("" : : "i"(0));'
+kept    line 4135: '__asm__("" : "=r"(lt) : "0"(lt) : "$3");'
+kept    line 4148: '__asm__("" : : "r"(lt4),"r"(lt4));'
+CLEARED line 5160: '__asm__ volatile("" : : "r"(by));' -> abs1(by)
+kept    line 5508: '__asm__ ("" : : "i"(0));'
+kept    line 5549: '__asm__("" : : "r"(pw), "r"(pw));'
+kept    line 6125: '__asm__ volatile("" : : "r"(countamount));'
+
+1 devices cleared
+final gate: 62/62 PASS

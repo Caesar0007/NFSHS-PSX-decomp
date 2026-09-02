@@ -1,0 +1,264 @@
+@80026e58 Front_ConstructAll__Fv   [FRONT.CPP:231]
+
+@80026fe8 Front_DeleteAll__Fv   [FRONT.CPP:270]
+
+@8002704c Front_ResetSettingsForCar__Fii   [FRONT.CPP:280]
+    REGPARM  $4        player                     INT size 0
+    REGPARM  $5        car                        INT size 0
+
+@8002709c Front_ResetSettingsMenu__Fi   [FRONT.CPP:288]
+    REGPARM  $11       player                     INT size 0
+    REG      $10       i                          INT size 0
+
+@800270e4 Front_ResetPSXController__Fii   [FRONT.CPP:299]
+    REGPARM  $10       player                     INT size 0
+    REGPARM  $11       config                     INT size 0
+
+@80027150 Front_ResetPSXAnalogs__Fi   [FRONT.CPP:318]
+    REGPARM  $4        player                     INT size 0
+
+@80027194 GetPSXPadValue__Fii   [FRONT.CPP:333]
+    REGPARM  $10       value                      INT size 0
+    REGPARM  $11       player                     INT size 0
+    REG      $2        newControl                 INT size 0
+    REG      $3        type                       INT size 0
+
+@8002750c SetPads__Fv   [FRONT.CPP:474]
+    REG      $15       j                          INT size 0
+    REG      $11       pad                        INT size 0
+    REG      $16       LookingFor                 INT size 0
+    REG      $10       starttick                  INT size 0
+    REG      $14       theanalogoffset            INT size 0
+    REG      $13       gotone                     BOOL size 0
+    REG      $12       numoffsets                 INT size 0
+    REG      $10       i                          INT size 0
+
+@80027648 InitFrontEndStructure__Fv   [FRONT.CPP:507]
+    REG      $13       i                          INT size 0
+    REG      $10       j                          INT size 0
+
+@80027940 LoadConfig__Fv   [FRONT.CPP:810]
+
+@80027948 Front_InitialMemCardCheck__Fv   [FRONT.CPP:819]
+
+@80027994 Front_SecondaryMemCardCheck__Fv   [FRONT.CPP:852]
+    REG      $11       j                          INT size 0
+    REG      $10       i                          INT size 0
+
+@80027a5c Front_InitGraphics__Fv   [FRONT.CPP:880]
+    AUTO     $ffffffd0 buffer                     ARY CHAR size 40 dims 1 40 tag
+
+@80027ad4 Front_InitGraphicsAndDisplayLoading__Fv   [FRONT.CPP:919]
+
+@80027af4 Front_Menu__F21tFront_ProcessingType   [FRONT.CPP:934]
+    REGPARM  $11       role                       ENUM size 4 dims 0 tag tFront_ProcessingType
+    REG      $13       result                     INT size 0
+    REG      $2        extraMoney                 LONG size 0
+    AUTO     $ffffffd8 tempCommand                STRUCT size 8 dims 0 tag tMenuCommand
+    REG      $2        dummyCars                  PTR STRUCT size 160 dims 0 tag Car_tStats
+
+@80027da8 OutputDisplaySettings__FPiiiR17tTrackInformation   [FRONT.CPP:1171]
+    REGPARM  $8        d                          PTR INT size 0
+    REGPARM  $9        c                          INT size 0
+    REGPARM  $6        player                     INT size 0
+    REGPARM  $7        trackInfo                  PTR STRUCT size 48 dims 0 tag tTrackInformation
+    REG      $4        valtopass                  INT size 0
+
+@80027fc0 Front_GetLapsForType__Fv   [FRONT.CPP:1210]
+    AUTO     $fffffff8 lapconv                    ARY SHORT size 4 dims 1 2 tag
+
+@80028068 Front_InitStream__FR9tFEStream   [FRONT.CPP:1231]
+    REGPARM  $4        streamData                 PTR STRUCT size 744 dims 0 tag tFEStream
+
+@80028098 Front_InitPlayerCars__FR9tFEStream   [FRONT.CPP:1241]
+    REGPARM  $11       streamData                 PTR STRUCT size 744 dims 0 tag tFEStream
+    REG      $12       i                          SHORT size 0
+    REG      $5        carInfo                    PTR STRUCT size 204 dims 0 tag tCarInfo
+    AUTO     $ffffffe0 carModel                   ENUM size 4 dims 0 tag tCarModels
+    AUTO     $ffffffe4 carColor                   CHAR size 0
+
+@8002845c Front_InitTourneyTraffic__FR9tFEStream   [FRONT.CPP:1329]
+    REGPARM  $10       streamData                 PTR STRUCT size 744 dims 0 tag tFEStream
+    AUTO     $ffffffd8 carModel                   ENUM size 4 dims 0 tag tCarModels
+    AUTO     $ffffffdc carColor                   CHAR size 0
+    REG      $11       i                          SHORT size 0
+
+@800285d0 Front_InitOpponentCars__FR9tFEStream   [FRONT.CPP:1366]
+    REGPARM  $12       streamData                 PTR STRUCT size 744 dims 0 tag tFEStream
+    REG      $11       i                          SHORT size 0
+    REG      $10       carLineup                  PTR STRUCT size 20 dims 0 tag tCarLineup
+    REG      $17       numOpponents               SHORT size 0
+    REG      $10       carInfo                    PTR STRUCT size 204 dims 0 tag tCarInfo
+    AUTO     $ffffffc0 carModel                   ENUM size 4 dims 0 tag tCarModels
+    AUTO     $ffffffc4 carColor                   CHAR size 0
+    REG      $3        opponentClass              ENUM size 4 dims 0 tag tCarClassType
+    AUTO     $ffffffd0 usePlayerUpgrades          BOOL size 0
+    REG      $13       tourn                      PTR STRUCT size 84 dims 0 tag tTourneyInfo
+    AUTO     $fffffee0 carInfo                    STRUCT size 204 dims 0 tag tCarInfo
+    AUTO     $ffffffc8 carModel                   ENUM size 4 dims 0 tag tCarModels
+    AUTO     $ffffffcc carColor                   CHAR size 0
+    AUTO     $ffffffb0 modelList                  ARY ENUM size 12 dims 1 3 tag tCarModels
+
+@80028b64 Front_InitMissions__FR9tFEStream   [FRONT.CPP:1536]
+    REGPARM  $14       streamData                 PTR STRUCT size 744 dims 0 tag tFEStream
+    REG      $4        i                          SHORT size 0
+    REG      $6        fBestCar                   ENUM size 4 dims 0 tag tCarModels
+    REG      $12       oldTier                    CHAR size 0
+    REG      $13       oldMission                 CHAR size 0
+
+@80028c94 Front_InitCopCars__FR9tFEStream   [FRONT.CPP:1606]
+    REGPARM  $12       streamData                 PTR STRUCT size 744 dims 0 tag tFEStream
+    REG      $5        fBestModel                 ENUM size 4 dims 0 tag tCarModels
+    REG      $6        fBestClass                 ENUM size 4 dims 0 tag tCarClassType
+    AUTO     $ffffffd0 copModel                   ENUM size 4 dims 0 tag tCarModels
+    AUTO     $ffffffd4 copColor                   CHAR size 0
+    REG      $13       i                          SHORT size 0
+
+@80029054 Front_InitPerps__FR9tFEStream   [FRONT.CPP:1702]
+    REGPARM  $10       streamData                 PTR STRUCT size 744 dims 0 tag tFEStream
+    REG      $11       i                          SHORT size 0
+    REG      $3        j                          SHORT size 0
+    REG      $5        carInfo                    PTR STRUCT size 204 dims 0 tag tCarInfo
+    AUTO     $ffffffd8 carModel                   ENUM size 4 dims 0 tag tCarModels
+    AUTO     $ffffffdc carColor                   CHAR size 0
+
+@8002921c Front_InitTrack__FR9tFEStream   [FRONT.CPP:1754]
+    REGPARM  $11       streamData                 PTR STRUCT size 744 dims 0 tag tFEStream
+    REG      $3        tournTrack                 PTR STRUCT size 40 dims 0 tag tTrackInfo
+
+@800293e0 Front_InitTraffic__FR9tFEStream   [FRONT.CPP:1809]
+    REGPARM  $13       streamData                 PTR STRUCT size 744 dims 0 tag tFEStream
+    AUTO     $ffffffd8 carModel                   ENUM size 4 dims 0 tag tCarModels
+    AUTO     $ffffffdc carColor                   CHAR size 0
+    REG      $10       i                          SHORT size 0
+    REG      $4        bTraffic                   BOOL size 0
+    REG      $6        maxTraffic                 SHORT size 0
+
+@80029618 Front_AppendPlayerCarData__FPiR9tFEStream   [FRONT.CPP:1889]
+    REGPARM  $7        stream                     PTR INT size 0
+    REGPARM  $10       streamData                 PTR STRUCT size 744 dims 0 tag tFEStream
+    REG      $11       i                          SHORT size 0
+    REG      $5        carInfo                    PTR STRUCT size 204 dims 0 tag tCarInfo
+    REG      $6        carLineup                  PTR STRUCT size 20 dims 0 tag tCarLineup
+
+@80029afc Front_AppendOpponentData__FPiR9tFEStream   [FRONT.CPP:1968]
+    REGPARM  $11       stream                     PTR INT size 0
+    REGPARM  $12       streamData                 PTR STRUCT size 744 dims 0 tag tFEStream
+    REG      $13       i                          SHORT size 0
+    REG      $2        carInfo                    PTR STRUCT size 204 dims 0 tag tCarInfo
+    REG      $10       carLineup                  PTR STRUCT size 20 dims 0 tag tCarLineup
+
+@80029e30 Front_AppendCopData__FPiR9tFEStream   [FRONT.CPP:2003]
+    REGPARM  $10       stream                     PTR INT size 0
+    REGPARM  $11       streamData                 PTR STRUCT size 744 dims 0 tag tFEStream
+    REG      $13       i                          SHORT size 0
+
+@8002a084 Front_AppendPerpData__FPiR9tFEStream   [FRONT.CPP:2040]
+    REGPARM  $11       stream                     PTR INT size 0
+    REGPARM  $12       streamData                 PTR STRUCT size 744 dims 0 tag tFEStream
+    REG      $13       i                          SHORT size 0
+
+@8002a31c Front_AppendTrafficData__FPiR9tFEStream   [FRONT.CPP:2081]
+    REGPARM  $10       stream                     PTR INT size 0
+    REGPARM  $11       streamData                 PTR STRUCT size 744 dims 0 tag tFEStream
+    REG      $12       i                          SHORT size 0
+    REG      $4        density                    INT size 0
+
+@8002a56c Front_AppendTrackData__FPiR9tFEStream   [FRONT.CPP:2114]
+    REGPARM  $11       stream                     PTR INT size 0
+    REGPARM  $12       streamData                 PTR STRUCT size 744 dims 0 tag tFEStream
+    AUTO     $ffffffc0 trackInfo                  STRUCT size 48 dims 0 tag tTrackInformation
+    REG      $4        valtopass                  INT size 0
+
+@8002a6ac Front_EnableLocalSpeech__Fv   [FRONT.CPP:2269]
+    REG      $11       result                     BOOL size 0
+    AUTO     $ffffffc0 trackInfo                  STRUCT size 48 dims 0 tag tTrackInformation
+
+@8002a738 Front_BuildStream__FPi   [FRONT.CPP:2299]
+    REGPARM  $13       stream                     PTR INT size 0
+    REG      $10       d                          PTR INT size 0
+    REG      $3        j                          INT size 0
+    AUTO     $fffffd00 streamData                 STRUCT size 744 dims 0 tag tFEStream
+    REG      $3        colourLoop                 INT size 0
+    REG      $5        numplaylistsongs           INT size 0
+    REG      $12       type                       INT size 0
+    REG      $14       config                     INT size 0
+    REG      $12       gameLang                   INT size 0
+    REG      $11       trackLang                  INT size 0
+
+@8002b6d8 Front_GetInGameVars__Fv   [FRONT.CPP:2728]
+    REG      $9        i                          INT size 0
+
+@8002b7cc SetLicensePlate__Fv   [FRONT.CPP:2762]
+    REG      $12       i                          SHORT size 0
+
+@8002b874 SetPlayList__Fi   [FRONT.CPP:2777]
+    REGPARM  $10       ivealreadygotone           INT size 0
+    REG      $3        i                          INT size 0
+    REG      $4        songlist                   PTR STRUCT size 8 dims 0 tag AudioMus_tSongList
+
+@8002b960 Front_GetTrackRaced__Fv   [FRONT.CPP:2815]
+    REG      $2        trackraced                 SHORT size 0
+    AUTO     $ffffffc8 trackInfo                  STRUCT size 48 dims 0 tag tTrackInformation
+
+@8002b9d0 PlayerNameExist__Fi   [FRONT.CPP:2834]
+    REGPARM  $4        player                     INT size 0
+
+@8002b9fc PlayerName__Fi   [FRONT.CPP:2841]
+    REGPARM  $12       player                     INT size 0
+
+@8002ba88 PlayerNameMixedCase__Fi   [FRONT.CPP:2859]
+    REGPARM  $12       player                     INT size 0
+
+@8002baf4 __11tAllScreens   [FRONT.CPP:226]
+    REGPARM  $11       this                       PTR STRUCT size 15320 dims 0 tag tAllScreens
+    REG      $11       this                       PTR STRUCT size 1464 dims 0 tag tScreenMain
+    REG      $10       this                       PTR STRUCT size 976 dims 0 tag tScreenCarSelectDuel
+    REG      $12       this                       PTR STRUCT size 1080 dims 0 tag tScreenCarSelectTwoPlayer
+    REG      $10       this                       PTR STRUCT size 152 dims 0 tag tDialogBackUpOnly
+    REG      $10       this                       PTR STRUCT size 152 dims 0 tag tDialogMessageString
+    REG      $10       this                       PTR STRUCT size 144 dims 0 tag tDialogBase
+    REG      $12       this                       PTR STRUCT size 1080 dims 0 tag tScreenCarSelectTwoPlayer
+    REG      $10       this                       PTR STRUCT size 152 dims 0 tag tDialogBackUpOnly
+    REG      $10       this                       PTR STRUCT size 152 dims 0 tag tDialogMessageString
+    REG      $10       this                       PTR STRUCT size 144 dims 0 tag tDialogBase
+    REG      $15       this                       PTR STRUCT size 1100 dims 0 tag tScreenPinkSlipsCarSelect
+    REG      $15       this                       PTR STRUCT size 1080 dims 0 tag tScreenCarSelectTwoPlayer
+    REG      $10       this                       PTR STRUCT size 152 dims 0 tag tDialogBackUpOnly
+    REG      $10       this                       PTR STRUCT size 152 dims 0 tag tDialogMessageString
+    REG      $10       this                       PTR STRUCT size 144 dims 0 tag tDialogBase
+    REG      $16       this                       PTR STRUCT size 1100 dims 0 tag tScreenPinkSlipsCarSelect
+    REG      $16       this                       PTR STRUCT size 1080 dims 0 tag tScreenCarSelectTwoPlayer
+    REG      $10       this                       PTR STRUCT size 152 dims 0 tag tDialogBackUpOnly
+    REG      $10       this                       PTR STRUCT size 152 dims 0 tag tDialogMessageString
+    REG      $10       this                       PTR STRUCT size 144 dims 0 tag tDialogBase
+    REG      $15       this                       PTR STRUCT size 116 dims 0 tag tScreenTrackRecords
+    REG      $12       this                       PTR STRUCT size 676 dims 0 tag tScreenTrackInfo
+    REG      $10       this                       PTR STRUCT size 672 dims 0 tag tScreenTrackSelect
+    REG      $10       this                       PTR STRUCT size 392 dims 0 tag tScreenTournamentTrophy
+    REG      $10       this                       PTR STRUCT size 388 dims 0 tag tScreenCongrats
+    REG      $10       this                       PTR STRUCT size 104 dims 0 tag tScreenTrophyInfo
+    REG      $10       this                       PTR STRUCT size 100 dims 0 tag tScreenDisplay
+    REG      $10       this                       PTR STRUCT size 204 dims 0 tag tScreenUserName
+    REG      $12       this                       PTR STRUCT size 392 dims 0 tag tScreenPinkSlipCongrats
+    REG      $12       this                       PTR STRUCT size 388 dims 0 tag tScreenCongrats
+    REG      $10       this                       PTR STRUCT size 148 dims 0 tag tScreenPinkSlipStandings
+    REG      $10       this                       PTR STRUCT size 148 dims 0 tag tScreenTournamentStandings3item
+    REG      $13       this                       PTR STRUCT size 148 dims 0 tag tScreenTournamentStandings3item
+    REG      $12       this                       PTR STRUCT size 712 dims 0 tag tScreenPinkSlips
+    REG      $13       this                       PTR STRUCT size 388 dims 0 tag tScreenBeTheCopCongrats
+    REG      $13       this                       PTR STRUCT size 388 dims 0 tag tScreenCongrats
+    REG      $10       this                       PTR STRUCT size 388 dims 0 tag tScreenTournamentCongrats
+    REG      $10       this                       PTR STRUCT size 388 dims 0 tag tScreenCongrats
+
+@8002bf0c _._11tAllScreens   [FRONT.CPP:226]
+    REGPARM  $12       this                       PTR STRUCT size 15320 dims 0 tag tAllScreens
+    REGPARM  $11       __in_chrg                  INT size 0
+    REG      $10       this                       PTR STRUCT size 380 dims 0 tag tScreenControllerConfig
+    REG      $10       this                       PTR STRUCT size 1100 dims 0 tag tScreenPinkSlipsCarSelect
+    REG      $10       this                       PTR STRUCT size 1080 dims 0 tag tScreenCarSelectTwoPlayer
+    REG      $10       this                       PTR STRUCT size 1100 dims 0 tag tScreenPinkSlipsCarSelect
+    REG      $10       this                       PTR STRUCT size 1080 dims 0 tag tScreenCarSelectTwoPlayer
+    REG      $10       this                       PTR STRUCT size 1080 dims 0 tag tScreenCarSelectTwoPlayer
+    REG      $10       this                       PTR STRUCT size 1080 dims 0 tag tScreenCarSelectTwoPlayer
+    REG      $12       this                       PTR STRUCT size 1464 dims 0 tag tScreenMain

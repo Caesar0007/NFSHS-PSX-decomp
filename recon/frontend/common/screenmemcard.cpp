@@ -147,9 +147,9 @@ void tScreenMemcard::LoadIcon(int filenum)
 
 {
   bool done;
-  int i;
   int clutx;
   int cluty;
+  int i;
   /* SYM-CODEGEN-CARRIER: cardInfo -- direct this->pCI access keeps the same
      215 instructions but moves the pCI load below the title store (2 diffs). */
   CARDINFO_def *cardInfo;
@@ -369,13 +369,12 @@ HL_clamped:
 void tScreenMemcard::PlaceIcons(register int i,int fadeval)
 
 {
-  short yy;
   short xx;
+  short yy;
   int j;
   /* SYM-CODEGEN-CARRIER: animFrame -- recomputing the remainder only in the
      icon-table arm is FAIL 93 at 214/213 and moves the div across the branch. */
   int animFrame;
-  tDrawShapeExtended fFlags;
 
   j = 0;
   while (1) {
@@ -425,6 +424,8 @@ void tScreenMemcard::PlaceIcons(register int i,int fadeval)
     __asm__("" : : "r"(numIcons));
     animFrame = tickFrame % numIcons;
     if (i == nfs4Icon) {
+      tDrawShapeExtended fFlags;   /* [SYM] AUTO sp+32, block opened at SLD 16 */
+
       fFlags.tint[0] = 0xb55623;
       DrawShapeExtended(this->memcardanimframe,0x410,xx - 0xf2,yy - 0x70,
                  fadeval + this->fFadeIcon[i] < 0x81 ?
@@ -898,7 +899,6 @@ void tScreenMemcard::DrawForeground()
   /* SYM-CODEGEN-CARRIER: fade -- raw retail allocation (IDA $s1; m2c var_a0)
      keeps this clamped value live across the four DrawShapeExtended calls. */
   int fade;
-  int k;
 
   fade = (int)(ushort)this->fScreenFadeVal * 2 + -0x80;
   if ((short)fade < 0x80) {
@@ -910,12 +910,16 @@ void tScreenMemcard::DrawForeground()
 DrawFg_setZero:
   fade = 0;
 DrawFg_join:
-  k = 0;
-  do {
-    DrawShapeExtended(0x38 + k,0,0,0,(short)fade,0,
-               (tDrawShapeExtended *)0x0);
-    k = k + 1;
-  } while (k < 4);
+  {
+    int k;   /* [SYM] REG $s0, block opened at SLD 5 */
+
+    k = 0;
+    do {
+      DrawShapeExtended(0x38 + k,0,0,0,(short)fade,0,
+                 (tDrawShapeExtended *)0x0);
+      k = k + 1;
+    } while (k < 4);
+  }
   return;
 }
 

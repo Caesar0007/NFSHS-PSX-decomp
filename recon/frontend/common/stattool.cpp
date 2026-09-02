@@ -28,7 +28,11 @@ void Stattool_nCreateIndex(int nNumber,int *nInput,short *nIndex)
      `one` laundered (SYM-CODEGEN-CARRIER: one), cse can no longer prove the
      compare's register holds 1, so `i = 1`
      re-materializes.  Falsified at this basin BEFORE the fence: i=1 hoisted above the guard,
-     i=1 inside the guard, guard spelled against i. */
+     i=1 inside the guard, guard spelled against i.
+     W86-S4 re-priced dropping the fence and the `one` carrier (plain
+     `if (nNumber != 1)`) in today's PASS basin: exactly 2 diffs, unchanged.
+     `one` therefore stays as a SYM-absent carrier; a pure-C replacement for the
+     cse opacity it buys is device-lane work, not a declaration question. */
   int i;
   int j;
   int nADummy;
@@ -73,7 +77,10 @@ void Stattool_ParseTime(int nTime,char *sLapTime)
      chain past those loads and pushes nTime off its SYM-declared home
      (8c block @0x8004A99C: nTime REGPARM $0a = $t2, sLapTime REGPARM $10 = $s0,
      and ZERO declared locals -- SYM-CODEGEN-CARRIER: min and
-     SYM-CODEGEN-CARRIER: sec are compiler temps). */
+     SYM-CODEGEN-CARRIER: sec are compiler temps).
+     W86-S4 re-priced the fold (both recomputed inside the sprintf argument
+     list, so the body carries no locals at all, as the SYM says): 90 diffs.
+     The two carriers stay. */
   short min;
   short sec;
 
@@ -197,10 +204,12 @@ void StatTool_UpperCaseItKeepingInMindThoseBloodySpecialCharacters(char *string)
 void Stattool_GetAllDefaultRecords(tRecordBuffer *TrackRecords,bool cheatones)
 
 {
-  tRecordBuffer *AllRecords;
-  int s;
+  /* W86-S4: SYM `8c` declaration order restored (i REG $18 s2, n REG $20 s4,
+     s REG $2 v0, AllRecords REG $21 s5).  Re-gated PASS. */
   int i;
   int n;
+  int s;
+  tRecordBuffer *AllRecords;
   
   AllRecords = (tRecordBuffer *)reservememadr("records",0xe9c,0x10);
   Stattool_ReadDefaultRecords(AllRecords,cheatones);
@@ -255,8 +264,10 @@ void Stattool_GetRecords(short nShowTrack,tRecordBuffer *TrackRecords)
 int Stattool_ReturnRecordLapTime(short nTrack)
 
 {
-  tRecordBuffer *TrackRecords;
+  /* W86-S4: SYM `8c` declaration order restored (RecordLapHolder AUTO sp+16,
+     TrackRecords REG $16 s0).  Re-gated PASS. */
   tRecordBuffer RecordLapHolder;
+  tRecordBuffer *TrackRecords;
   
   TrackRecords = (tRecordBuffer *)reservememadr("trkrcrds",0x168,0x10);
   Stattool_GetRecords(nTrack,TrackRecords);
@@ -273,9 +284,9 @@ short Stattool_CheckForHumanCar(Car_tStats *dummyCars)
    * `bHumanFlag`, but the matched NFS2 PC beta source restores this exact
    * local name and early-break loop.  Its `short` type is oracle-significant:
    * this form is PASS 34/34, while `int` is FAIL 5. */
-  short nNumCars;
   short k;
   short bHumanFlag;
+  short nNumCars;
   
   bHumanFlag = 0;
   nNumCars = (short)GameSetup_NumPlayerRaceCars +
@@ -299,7 +310,8 @@ char * Stattool_GetAINameFromPersonality(tPersonalities personality)
 {
   /* SYM-CODEGEN-CARRIER: namePtr -- the shared-result source shape is the
    * retail 15-insn basin.  Direct/ternary returns invert the branch and add a
-   * jump (FAIL 9 / 16). */
+   * jump (FAIL 9 / 16).  W86-S4 re-priced the direct-return fold in today's
+   * PASS basin: still exactly 9. */
   char (*namePtr) [8];
 
   if ((unsigned int)personality < (kPersonalityTraffic|kPersonalityCop3)) {

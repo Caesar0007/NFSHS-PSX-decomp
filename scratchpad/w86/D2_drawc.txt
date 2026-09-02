@@ -1,0 +1,137 @@
+18 zero-insn asm devices in recon/game/psx/drawc.cpp
+
+=== line 1233  vars=['envMapOffset', 'byteOffset', 'pos']  '__asm__("" : "=r"(envMapOffset)\n                : "0"(envMapOffset), "'
+  removed            19/20 PASS   28  DrawC_PrimStart__FP12Draw_tVertexP8Car_tObjiP13Draw_Ca
+  abs1(envMapOffset) 20/20 PASS   
+  abs2(envMapOffset) 20/20 PASS   
+  abs4(envMapOffset) 20/20 PASS   
+  and1(envMapOffset) 20/20 PASS   
+  abs1(byteOffset)   19/20 PASS   16  DrawC_PrimStart__FP12Draw_tVertexP8Car_tObjiP13Draw_Ca
+  abs2(byteOffset)   19/20 PASS   16  DrawC_PrimStart__FP12Draw_tVertexP8Car_tObjiP13Draw_Ca
+  abs4(byteOffset)   19/20 PASS   16  DrawC_PrimStart__FP12Draw_tVertexP8Car_tObjiP13Draw_Ca
+  and1(byteOffset)   19/20 PASS   16  DrawC_PrimStart__FP12Draw_tVertexP8Car_tObjiP13Draw_Ca
+  abs1(pos)          19/20 PASS   22  DrawC_PrimStart__FP12Draw_tVertexP8Car_tObjiP13Draw_Ca
+  abs2(pos)          19/20 PASS   22  DrawC_PrimStart__FP12Draw_tVertexP8Car_tObjiP13Draw_Ca
+  abs4(pos)          19/20 PASS   22  DrawC_PrimStart__FP12Draw_tVertexP8Car_tObjiP13Draw_Ca
+  and1(pos)          19/20 PASS   22  DrawC_PrimStart__FP12Draw_tVertexP8Car_tObjiP13Draw_Ca
+  abs1(all)          19/20 PASS   26  DrawC_PrimStart__FP12Draw_tVertexP8Car_tObjiP13Draw_Ca
+
+=== line 2372  vars=['facet_flag']  '__asm__("" : "=r"(facet_flag) : "0"(facet_flag));'
+  removed            19/20 PASS   32  DrawC_Prim__FP10matrixtdefP8coorddefP16Transformer_zOb
+  abs1(facet_flag)   19/20 PASS   2  DrawC_Prim__FP10matrixtdefP8coorddefP16Transformer_zObj
+  abs2(facet_flag)   19/20 PASS   50  DrawC_Prim__FP10matrixtdefP8coorddefP16Transformer_zOb
+  abs4(facet_flag)   19/20 PASS   28  DrawC_Prim__FP10matrixtdefP8coorddefP16Transformer_zOb
+  and1(facet_flag)   20/20 PASS   
+
+=== line 2372  vars=['ff']  '__asm__("" : "=r"(ff) : "0"(ff));'
+  removed            19/20 PASS   24  DrawC_Prim__FP10matrixtdefP8coorddefP16Transformer_zOb
+  abs1(ff)           20/20 PASS   
+  abs2(ff)           20/20 PASS   
+  abs4(ff)           20/20 PASS   
+  and1(ff)           20/20 PASS   
+
+=== line 2539  vars=['i']  '__asm__("" : : "r"(i),"r"(i),"r"(i),"r"(i),"r"(i));'
+  removed            19/20 PASS   194  DrawC_Prim__FP10matrixtdefP8coorddefP16Transformer_zO
+  abs1(i)            19/20 PASS   220  DrawC_Prim__FP10matrixtdefP8coorddefP16Transformer_zO
+  abs2(i)            19/20 PASS   26  DrawC_Prim__FP10matrixtdefP8coorddefP16Transformer_zOb
+  abs4(i)            19/20 PASS   26  DrawC_Prim__FP10matrixtdefP8coorddefP16Transformer_zOb
+  and1(i)            19/20 PASS   220  DrawC_Prim__FP10matrixtdefP8coorddefP16Transformer_zO
+
+=== line 2587  vars=['facet_flag']  '__asm__("" : "=r"(facet_flag) : "0"(facet_flag));'
+  removed            19/20 PASS   121  DrawC_Prim__FP10matrixtdefP8coorddefP16Transformer_zO
+  abs1(facet_flag)   19/20 PASS   2  DrawC_Prim__FP10matrixtdefP8coorddefP16Transformer_zObj
+  abs2(facet_flag)   19/20 PASS   2  DrawC_Prim__FP10matrixtdefP8coorddefP16Transformer_zObj
+  abs4(facet_flag)   19/20 PASS   98  DrawC_Prim__FP10matrixtdefP8coorddefP16Transformer_zOb
+  and1(facet_flag)   20/20 PASS   
+
+=== line 2587  vars=['ff']  '__asm__("" : "=r"(ff) : "0"(ff));'
+  removed            20/20 PASS   
+  abs1(ff)           20/20 PASS   
+  abs2(ff)           20/20 PASS   
+  abs4(ff)           20/20 PASS   
+  and1(ff)           20/20 PASS   
+
+=== line 3889  vars=['facet_flag']  '__asm__("" : "=r"(facet_flag) : "0"(facet_flag));'
+  removed            19/20 PASS   32  DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transformer
+  abs1(facet_flag)   19/20 PASS   2  DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transformer_
+  abs2(facet_flag)   19/20 PASS   58  DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transformer
+  abs4(facet_flag)   19/20 PASS   44  DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transformer
+  and1(facet_flag)   19/20 PASS   16  DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transformer
+
+=== line 3889  vars=['ff']  '__asm__("" : "=r"(ff) : "0"(ff));'
+  removed            19/20 PASS   24  DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transformer
+  abs1(ff)           20/20 PASS   
+  abs2(ff)           20/20 PASS   
+  abs4(ff)           20/20 PASS   
+  and1(ff)           20/20 PASS   
+
+=== line 4100  vars=['facet_flag']  '__asm__("" : "=r"(facet_flag) : "0"(facet_flag));'
+  removed            19/20 PASS   100  DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transforme
+  abs1(facet_flag)   19/20 PASS   2  DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transformer_
+  abs2(facet_flag)   19/20 PASS   68  DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transformer
+  abs4(facet_flag)   19/20 PASS   106  DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transforme
+  and1(facet_flag)   20/20 PASS   
+
+=== line 4100  vars=['ff']  '__asm__("" : "=r"(ff) : "0"(ff));'
+  removed            20/20 PASS   
+  abs1(ff)           20/20 PASS   
+  abs2(ff)           20/20 PASS   
+  abs4(ff)           20/20 PASS   
+  and1(ff)           20/20 PASS   
+
+=== line 4228  vars=['facet_flag', 'facetOverlay']  '__asm__("" : "=r"(facet_flag) : "0"(facet_flag), "r"(facetOverlay) : "'
+  removed            19/20 PASS   60  DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transformer
+  abs1(facet_flag)   19/20 PASS   60  DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transformer
+  abs2(facet_flag)   19/20 PASS   100  DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transforme
+  abs4(facet_flag)   19/20 PASS   252  DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transforme
+  and1(facet_flag)   19/20 PASS   60  DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transformer
+  abs1(facetOverlay) 19/20 PASS   60  DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transformer
+  abs2(facetOverlay) 19/20 PASS   60  DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transformer
+  abs4(facetOverlay) 19/20 PASS   60  DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transformer
+  and1(facetOverlay) 19/20 PASS   60  DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transformer
+  abs1(all)          19/20 PASS   60  DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transformer
+
+=== line 4594  vars=['tex']  '__asm__("" : : "r"(tex));'
+  removed            19/20 PASS   7  DrawC_PrimMenu__FP10matrixtdefP8coorddefP16Transformer_
+  abs1(tex)          19/20 PASS   23  DrawC_PrimMenu__FP10matrixtdefP8coorddefP16Transformer
+  abs2(tex)          19/20 PASS   23  DrawC_PrimMenu__FP10matrixtdefP8coorddefP16Transformer
+  abs4(tex)          19/20 PASS   23  DrawC_PrimMenu__FP10matrixtdefP8coorddefP16Transformer
+  and1(tex)          19/20 PASS   23  DrawC_PrimMenu__FP10matrixtdefP8coorddefP16Transformer
+
+=== line 4877  vars=['facet']  '__asm__("" : : "r"(facet));'
+  removed            19/20 PASS   26  DrawC_PrimHalo__FP10matrixtdefP8coorddefP16Transformer
+  abs1(facet)        20/20 PASS   
+  abs2(facet)        20/20 PASS   
+  abs4(facet)        19/20 PASS   28  DrawC_PrimHalo__FP10matrixtdefP8coorddefP16Transformer
+  and1(facet)        20/20 PASS   
+
+=== line 5061  vars=['ovs']  '__asm__("" : : "r"(ovs));'
+  removed            19/20 PASS   37  DrawC_PrimHalo__FP10matrixtdefP8coorddefP16Transformer
+  abs1(ovs)          19/20 PASS   13  DrawC_PrimHalo__FP10matrixtdefP8coorddefP16Transformer
+  abs2(ovs)          19/20 PASS   13  DrawC_PrimHalo__FP10matrixtdefP8coorddefP16Transformer
+  abs4(ovs)          19/20 PASS   13  DrawC_PrimHalo__FP10matrixtdefP8coorddefP16Transformer
+  and1(ovs)          19/20 PASS   13  DrawC_PrimHalo__FP10matrixtdefP8coorddefP16Transformer
+
+=== line 5069  vars=['ovs']  '__asm__("" : : "r"(ovs));'
+  removed            19/20 PASS   33  DrawC_PrimHalo__FP10matrixtdefP8coorddefP16Transformer
+  abs1(ovs)          19/20 PASS   33  DrawC_PrimHalo__FP10matrixtdefP8coorddefP16Transformer
+  abs2(ovs)          19/20 PASS   33  DrawC_PrimHalo__FP10matrixtdefP8coorddefP16Transformer
+  abs4(ovs)          19/20 PASS   33  DrawC_PrimHalo__FP10matrixtdefP8coorddefP16Transformer
+  and1(ovs)          19/20 PASS   33  DrawC_PrimHalo__FP10matrixtdefP8coorddefP16Transformer
+
+=== line 5074  vars=['ovs']  '__asm__("" : : "r"(ovs));'
+  removed            19/20 PASS   38  DrawC_PrimHalo__FP10matrixtdefP8coorddefP16Transformer
+  abs1(ovs)          19/20 PASS   14  DrawC_PrimHalo__FP10matrixtdefP8coorddefP16Transformer
+  abs2(ovs)          19/20 PASS   14  DrawC_PrimHalo__FP10matrixtdefP8coorddefP16Transformer
+  abs4(ovs)          19/20 PASS   14  DrawC_PrimHalo__FP10matrixtdefP8coorddefP16Transformer
+  and1(ovs)          19/20 PASS   14  DrawC_PrimHalo__FP10matrixtdefP8coorddefP16Transformer
+
+=== line 5082  vars=['ovs']  '__asm__("" : : "r"(ovs));'
+  removed            19/20 PASS   33  DrawC_PrimHalo__FP10matrixtdefP8coorddefP16Transformer
+  abs1(ovs)          19/20 PASS   33  DrawC_PrimHalo__FP10matrixtdefP8coorddefP16Transformer
+  abs2(ovs)          19/20 PASS   33  DrawC_PrimHalo__FP10matrixtdefP8coorddefP16Transformer
+  abs4(ovs)          19/20 PASS   33  DrawC_PrimHalo__FP10matrixtdefP8coorddefP16Transformer
+  and1(ovs)          19/20 PASS   33  DrawC_PrimHalo__FP10matrixtdefP8coorddefP16Transformer
+
+=== line 5696  vars=[]  '__asm__("" : : );'
+  removed            19/20 PASS   2  DrawC_ShowroomPrims__FP10matrixtdefP8coorddefP13Draw_Ca

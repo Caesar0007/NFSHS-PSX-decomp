@@ -1,0 +1,135 @@
+@80025ab8 DisplayLoadingText__7tScreen   [FESCREEN.CPP:36]
+    REG      $12       oldIsBg                    INT size 0
+    REG      $10       i                          SHORT size 0
+
+@80025bf8 GoNonInterlaced__7tScreen   [FESCREEN.CPP:144]
+
+@80025cc8 DrawBackgroundImage__7tScreeniiP18tTexture_ShapeInfoi   [FESCREEN.CPP:185]
+    REGPARM  $12       this                       PTR STRUCT size 100 dims 0 tag tScreen
+    REGPARM  $13       startShape                 INT size 0
+    REGPARM  $14       numShapes                  INT size 0
+    REGPARM  $7        shapes                     PTR STRUCT size 32 dims 0 tag tTexture_ShapeInfo
+    ARG      $10       flip_axis                  INT size 0
+    REG      $15       flip_axis                  INT size 0
+    AUTO     $ffffffc8 drawFlags                  STRUCT size 24 dims 0 tag tDrawShapeExtended
+    REG      $10       i                          INT size 0
+
+@80025d98 AsyncLoadPermanentShapeFile__7tScreenPc   [FESCREEN.CPP:201]
+    REGPARM  $4        this                       PTR STRUCT size 100 dims 0 tag tScreen
+    REGPARM  $5        fileName                   PTR CHAR size 0
+
+@80025db8 AsyncLoadSwapShapeFile__7tScreenPc   [FESCREEN.CPP:206]
+    REGPARM  $10       this                       PTR STRUCT size 100 dims 0 tag tScreen
+    REGPARM  $6        fileName                   PTR CHAR size 0
+    AUTO     $ffffffd8 buffer                     ARY CHAR size 32 dims 1 32 tag
+
+@80025e0c IsShapeFileLoaded__7tScreenR17tShapeInformation   [FESCREEN.CPP:218]
+    REGPARM  $12       this                       PTR STRUCT size 100 dims 0 tag tScreen
+    REGPARM  $10       shapes                     PTR STRUCT size 40 dims 0 tag tShapeInformation
+    REG      $11       result                     BOOL size 0
+    REG      $3        async_status               INT size 0
+    REG      $2        bogus                      PTR CHAR size 0
+
+@80025f84 UploadPermanentShapes__7tScreeni   [FESCREEN.CPP:284]
+    REGPARM  $10       this                       PTR STRUCT size 100 dims 0 tag tScreen
+    REGPARM  $5        numPermanentShapes         INT size 0
+
+@80025fd0 UploadSwapShapes__7tScreeni   [FESCREEN.CPP:290]
+    REGPARM  $4        this                       PTR STRUCT size 100 dims 0 tag tScreen
+    REGPARM  $5        numSwapShapes              INT size 0
+
+@80026008 GetShapeInfo__7tScreenRsT1PPcT3   [FESCREEN.CPP:321]
+    REGPARM  $4        this                       PTR STRUCT size 100 dims 0 tag tScreen
+    REGPARM  $5        numPermShapes              PTR SHORT size 0
+    REGPARM  $6        numSwapShapes              PTR SHORT size 0
+    REGPARM  $7        permFileName               PTR PTR CHAR size 0
+    ARG      $10       swapFileName               PTR PTR CHAR size 0
+    REG      $2        swapFileName               PTR PTR CHAR size 0
+
+@80026020 __7tScreen   [FESCREEN.CPP:332]
+    REGPARM  $10       this                       PTR STRUCT size 100 dims 0 tag tScreen
+
+@80026078 _._7tScreen   [FESCREEN.CPP:341]
+    REGPARM  $4        this                       PTR STRUCT size 100 dims 0 tag tScreen
+    REGPARM  $5        __in_chrg                  INT size 0
+
+@800260ac Initialize__7tScreen   [FESCREEN.CPP:345]
+    REGPARM  $11       this                       PTR STRUCT size 100 dims 0 tag tScreen
+    AUTO     $ffffffe0 numPermShapes              SHORT size 0
+    AUTO     $ffffffe2 numSwapShapes              SHORT size 0
+    AUTO     $ffffffe4 permFileName               PTR CHAR size 0
+    AUTO     $ffffffe8 swapFileName               PTR CHAR size 0
+    REG      $10       shapesLoaded               BOOL size 0
+
+@800261a0 Cleanup__7tScreen   [FESCREEN.CPP:385]
+    REGPARM  $10       this                       PTR STRUCT size 100 dims 0 tag tScreen
+
+@800261ec Draw__7tScreenb   [FESCREEN.CPP:397]
+    REGPARM  $3        this                       PTR STRUCT size 100 dims 0 tag tScreen
+    REGPARM  $5        drawBackground             BOOL size 0
+
+@80026240 AsyncLoadShapeFile__7tScreenPcR17tShapeInformation   [FESCREEN.CPP:409]
+    REGPARM  $12       this                       PTR STRUCT size 100 dims 0 tag tScreen
+    REGPARM  $11       name                       PTR CHAR size 0
+    REGPARM  $10       data                       PTR STRUCT size 40 dims 0 tag tShapeInformation
+    AUTO     $ffffff70 buffer                     ARY CHAR size 128 dims 1 128 tag
+
+@80026354 CancelAsyncLoad__7tScreenR17tShapeInformation   [FESCREEN.CPP:459]
+    REGPARM  $4        this                       PTR STRUCT size 100 dims 0 tag tScreen
+    REGPARM  $10       data                       PTR STRUCT size 40 dims 0 tag tShapeInformation
+
+@800263ec InitializeShapes__7tScreenR17tShapeInformationUi   [FESCREEN.CPP:485]
+    REGPARM  $4        this                       PTR STRUCT size 100 dims 0 tag tScreen
+    REGPARM  $10       data                       PTR STRUCT size 40 dims 0 tag tShapeInformation
+    REGPARM  $11       numShapes                  UINT size 0
+    REG      $4        i                          USHORT size 0
+
+@80026494 FreeShapes__7tScreenR17tShapeInformation   [FESCREEN.CPP:514]
+    REGPARM  $4        this                       PTR STRUCT size 100 dims 0 tag tScreen
+    REGPARM  $10       data                       PTR STRUCT size 40 dims 0 tag tShapeInformation
+    REG      $11       i                          SHORT size 0
+    REG      $2        async_status               INT size 0
+
+@800265f4 UploadShapes__7tScreenR17tShapeInformationssss   [FESCREEN.CPP:559]
+    REGPARM  $4        this                       PTR STRUCT size 100 dims 0 tag tScreen
+    REGPARM  $12       data                       PTR STRUCT size 40 dims 0 tag tShapeInformation
+    REGPARM  $1e       x                          SHORT size 0
+    REGPARM  $17       y                          SHORT size 0
+    ARG      $10       numShapes                  INT size 0
+    ARG      $14       index                      INT size 0
+    REG      $13       numShapes                  SHORT size 0
+    REG      $16       index                      SHORT size 0
+    REG      $10       i                          INT size 0
+
+@80026780 PreLoad__7tScreen   [FESCREEN.CPP:600]
+    REGPARM  $10       this                       PTR STRUCT size 100 dims 0 tag tScreen
+    AUTO     $ffffffe8 numPermShapes              SHORT size 0
+    AUTO     $ffffffea numSwapShapes              SHORT size 0
+    AUTO     $ffffffec permFileName               PTR CHAR size 0
+    AUTO     $fffffff0 swapFileName               PTR CHAR size 0
+
+@80026804 TransitionOff__7tScreen22tScreen_TransitionTypeP5tMenu   [FESCREEN.CPP:621]
+    REGPARM  $4        this                       PTR STRUCT size 100 dims 0 tag tScreen
+    REGPARM  $5        type                       ENUM size 4 dims 0 tag tScreen_TransitionType
+
+@80026824 TransitionOn__7tScreen22tScreen_TransitionTypeP5tMenu   [FESCREEN.CPP:629]
+    REGPARM  $4        this                       PTR STRUCT size 100 dims 0 tag tScreen
+    REGPARM  $5        type                       ENUM size 4 dims 0 tag tScreen_TransitionType
+
+@80026848 UpdateTransition__7tScreen   [FESCREEN.CPP:637]
+    REGPARM  $4        this                       PTR STRUCT size 100 dims 0 tag tScreen
+
+@800268c0 TransitionIsFinished__7tScreen   [FESCREEN.CPP:651]
+    REGPARM  $4        this                       PTR STRUCT size 100 dims 0 tag tScreen
+
+@800268d8 ProcessInput__7tScreen7tPlayerR13tInputKeyTypeR12tMenuCommand   [FESCREEN.CPP:663]
+    REGPARM  $4        this                       PTR STRUCT size 100 dims 0 tag tScreen
+    REGPARM  $5        fromPlayer                 ENUM size 4 dims 0 tag tPlayer
+    REGPARM  $6        keyval                     PTR ENUM size 4 dims 0 tag tInputKeyType
+    REGPARM  $7        command                    PTR STRUCT size 8 dims 0 tag tMenuCommand
+
+@800268e0 DrawForeground__7tScreen   [FESCREEN.H:97]
+    REGPARM  $4        this                       PTR STRUCT size 100 dims 0 tag tScreen
+
+@800268e8 DrawBackground__7tScreen   [FESCREEN.H:96]
+    REGPARM  $4        this                       PTR STRUCT size 100 dims 0 tag tScreen

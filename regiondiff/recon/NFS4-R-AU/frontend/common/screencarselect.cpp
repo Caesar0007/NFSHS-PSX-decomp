@@ -2249,9 +2249,13 @@ void tScreenCarSelectTwoPlayer::SetDialog()
 
   if (FEApp->waitingForOtherPlayer[player] != 0) {
     player = FEApp->fPlayer;
+    /* REGIONAL (R-AU family): dialog Y offset 0x3c -> 0x40 (audit_lo16 insns 17/18)
+       and the retail string-table +1 shift 0x2a8 -> 0x2a9 (insn 19).  Both arms of
+       the ternary move together -- the oracle keeps the two `li v0` sites separate
+       (60 and -60 are distinct constants), so this is not a CSE-shared literal. */
     ((tDialogBackUpOnly *)this->CarDialog.SetPosition(
-        0, (player == 0) ? -0x3c : 0x3c, (tPlayer)player))->string =
-      (sprintf("",TextSys_Word(0x2a8),PlayerName(1 - player)), "");
+        0, (player == 0) ? -0x40 : 0x40, (tPlayer)player))->string =
+      (sprintf("",TextSys_Word(0x2a9),PlayerName(1 - player)), "");
     this->CarDialog.Display();
   }
   else {
@@ -2557,7 +2561,9 @@ void tScreenPinkSlipsCarSelect::SetDialog()
      line-2100 inline tDialogBase receiver and its three retail halfword stores. */
   /* SYM-INLINE-THIS: GetPlayer */
   player = FEApp->GetPlayer();
-  this->CarDialog.SetPosition(0, (player == 0) ? -0x3c : 0x3c,
+  /* REGIONAL (R-AU family): dialog Y offset 0x3c -> 0x40 (audit_lo16 insns 11/12,
+     oracle 8003F6D0/8003F6D4 `li v1,64` / `li v1,-64`). */
+  this->CarDialog.SetPosition(0, (player == 0) ? -0x40 : 0x40,
                               (tPlayer)player);
   /* MATCH: the Hide+return block is OUT OF LINE -- the oracle's `bnez fExitingScreen`
      branches TO it and it sits physically right after the switch dispatch (`jr v0`),
@@ -2583,7 +2589,8 @@ switchD_8003f3b4_caseD_7:
   case CardLoadedFine:
     if ((FEApp->waitingForOtherPlayer[player] != 0) ||
         (PinkSlipsScreenState[1 - player] != CardLoadedFine)) {
-      sprintf("",TextSys_Word(0x2a8),PlayerName(1 - player));
+      /* REGIONAL: string-table +1 shift (oracle 8003F7B8 `li a0,681`). */
+      sprintf("",TextSys_Word(0x2a9),PlayerName(1 - player));
       {
         /* SYM-CODEGEN-CARRIER: dlg -- preserves the inline receiver allocation. */
         tDialogBackUpOnly *dlg = &this->CarDialog;
@@ -2600,9 +2607,9 @@ switchD_8003f3b4_caseD_7:
       if (this->fStartCheckTick == 0) {
         this->fStartCheckTick = ticks[0];
       }
-      wordnum = player + 0x2ab;
+      wordnum = player + 0x2ac;   /* REGIONAL +1 (oracle 8003F848: s0+684) */
       if (799 < ticks[0] - this->fStartCheckTick) {
-        wordnum = player + 0x2a9;
+        wordnum = player + 0x2aa; /* REGIONAL +1 (oracle 8003F84C: s0+682) */
       }
       {
         /* SYM-CODEGEN-CARRIER: dlg -- the inline receiver must be born before
@@ -2621,13 +2628,13 @@ switchD_8003f3b4_caseD_7:
     this->fStartCheckTick = 0;
     goto SetDlg_cardOkReturn;
   case CardFailedNotFound:
-    wordnum = player + 0x2af;
+    wordnum = player + 0x2b0;     /* REGIONAL +1 (oracle 8003F8B4: s0+688) */
     goto SetDlg_cardFailed;
   case CardFailedUnformatted:
-    wordnum = player + 0x2b1;
+    wordnum = player + 0x2b2;     /* REGIONAL +1 (oracle 8003F8BC: s0+690) */
     goto SetDlg_cardFailed;
   case CardFailed:
-    wordnum = player + 0x2ad;
+    wordnum = player + 0x2ae;     /* REGIONAL +1 (oracle 8003F8C0: s0+686) */
 SetDlg_cardFailed:
     {
       /* SYM-CODEGEN-CARRIER: dlg -- preserves the inline receiver allocation. */
@@ -2638,13 +2645,13 @@ SetDlg_cardFailed:
     this->fStartCheckTick = 0;
     return;
   case NotEnoughCars:
-    wordnum = player + 0x32d;
+    wordnum = player + 0x32e;     /* REGIONAL +1 (oracle 8003F8EC: s0+814) */
     goto SetDlg_loadingWord;
   case TooManyCars:
-    wordnum = player + 0x32f;
+    wordnum = player + 0x330;     /* REGIONAL +1 (oracle 8003F8F4: s0+816) */
     goto SetDlg_loadingWord;
   case CardCurrentlyLoading:
-    wordnum = player + 0x280;
+    wordnum = player + 0x281;     /* REGIONAL +1 (oracle 8003F8F8: s0+641) */
 SetDlg_loadingWord:
     {
       /* The shared selector remains block-local in RTL across this funnel. */

@@ -132,13 +132,18 @@ void tScreenTrackRecords::DrawRecords(short maxitem)
   }
   for (k = 0; k < 8; k = k + 1) {
     if (maxitem <= k) break;
-    FETextRender_FullText(TextSys_Word(k + 599),(short)TextSys_WordX(0x249),
-                          (short)TextSys_WordY(k + 599),textType_TrackRecords,
+    /* REGIONAL: retail's string table gained one entry ahead of this block --
+       every text id in this TU is the base id + 1 (same shift already sealed in
+       DrawOneRecord).  NOTE the k+599 term is written THREE times but gcc CSEs
+       two of them into ONE addiu: the per-jal word audit shows only 2 words, so
+       all three source sites must be shifted (catalog 32B-5). */
+    FETextRender_FullText(TextSys_Word(k + 600),(short)TextSys_WordX(0x24a),
+                          (short)TextSys_WordY(k + 600),textType_TrackRecords,
                           (NewRecords[k] == 0) ? textState_Unselected : textState_Hilighted,0);
-    this->DrawOneRecord(k + nLapIndicator,NewRecords[k],TextSys_WordY(k + 599));
+    this->DrawOneRecord(k + nLapIndicator,NewRecords[k],TextSys_WordY(k + 600));
   }
   if (8 < maxitem) {
-    this->DrawOneRecord(0,NewBestLapA[0],TextSys_WordY(0x260));
+    this->DrawOneRecord(0,NewBestLapA[0],TextSys_WordY(0x261));
   }
   return;
 }
@@ -205,18 +210,18 @@ void tScreenTrackRecords::DrawBackground()
   }
   linefadeval = lineFadeCalc;
   maxitem = (0xb4 - (short)clampTmp) / 0x14;
-  boxx = TextSys_WordX(0x248);
-  boxy = TextSys_WordY(0x256);
-  boxw = TextSys_WordX(0x24f) - boxx;
-  midy = TextSys_WordY(0x25f);
+  boxx = TextSys_WordX(0x249);
+  boxy = TextSys_WordY(0x257);
+  boxw = TextSys_WordX(0x250) - boxx;
+  midy = TextSys_WordY(0x260);
   Col = 0x232323;
   ColTextSel = CalcFadeVal(kRGBVals[(byte)textDefinitions[0xb][4]],(short)tt);
   ColTextBright = CalcFadeVal(kRGBVals[(byte)textDefinitions[0xb][5]],(short)tt);
   this->DrawRecords(maxitem);
-  sprintf(string2,TextSys_Word(0x251),Front_GetLapsForType());
-  sprintf(string,"%s %s",TextSys_Word((short)Front_GetTrackRaced() + 0xd5),string2);
-  FETextRender_FullTextRGB(string,0x104,(short)TextSys_WordY(0x255),ColTextBright,0,2);
-  PSXDrawSquare(0,0x104 - (textpixels(string) >> 1),TextSys_WordY(0x255),textpixels(string),9);
+  sprintf(string2,TextSys_Word(0x252),Front_GetLapsForType());
+  sprintf(string,"%s %s",TextSys_Word((short)Front_GetTrackRaced() + 0xd6),string2);
+  FETextRender_FullTextRGB(string,0x104,(short)TextSys_WordY(0x256),ColTextBright,0,2);
+  PSXDrawSquare(0,0x104 - (textpixels(string) >> 1),TextSys_WordY(0x256),textpixels(string),9);
   shape = &gCurrentShapes[0][0x26];
   /* MATCH (W57-A7, 28 -> 24): fold's constant reassociation is STATEMENT-granular --
      written flat, `((w>>1) - cx) - 2` folds to `subu; addiu -2`; retail has
@@ -233,21 +238,21 @@ void tScreenTrackRecords::DrawBackground()
   if (((short)shape->width / 2) < tt) {
     tt = (short)shape->width - tt;
   }
-  DrawShapeExtended(0x27,0,lbx + tt,TextSys_WordY(0x255) + 1,
+  DrawShapeExtended(0x27,0,lbx + tt,TextSys_WordY(0x256) + 1,
                     (int)this->fScreenFadeVal,1,(tDrawShapeExtended *)0x0);
-  DrawShapeExtended(0x27,0,lbx - tt,TextSys_WordY(0x255) + 1,
+  DrawShapeExtended(0x27,0,lbx - tt,TextSys_WordY(0x256) + 1,
                     (int)this->fScreenFadeVal,1,(tDrawShapeExtended *)0x0);
   drawflags.tint[0] = 0x505050;
   DrawShapeExtended(0x26,0x410,-2,0,(int)this->fScreenFadeVal,0,&drawflags);
   for (j = 0; j < 3; j++) {
-    int xx = TextSys_WordX(j + 0x24c);
-    FETextRender_FullTextRGB(TextSys_Word(j + 0x252),(short)xx,(short)(boxy + 4),
+    int xx = TextSys_WordX(j + 0x24d);
+    FETextRender_FullTextRGB(TextSys_Word(j + 0x253),(short)xx,(short)(boxy + 4),
                              ColTextSel,0,0);
     if (0 < maxitem) {
       PSXDrawSquare(Col,xx - 6,(short)boxy + 2,2,(0x80 - linefadeval) / 0x10);
     }
   }
-  FETextRender_FullTextRGB(TextSys_Word(0x262),(short)TextSys_WordX(0x249),
+  FETextRender_FullTextRGB(TextSys_Word(0x263),(short)TextSys_WordX(0x24a),
                            (short)(midy + 3),ColTextSel,0,0);
   PSXDrawBrightEndLine(Col,boxx,(short)boxy + 3,boxw,-1,2,linefadeval,0x23);
   /* MATCH (W57-A7/W66, 24 -> 6 -> PASS): the SECOND instance of the statement-granular
@@ -260,12 +265,12 @@ void tScreenTrackRecords::DrawBackground()
      local that rotates the saved-register band.  Falsified: direct cast expression
      (24), `int liney` (52), in-place subtraction, and a separate short local (6). */
   {
-    PSXDrawBrightEndLine(Col,TextSys_WordX(0x24c) - 6,(short)boxy + 4,2,
+    PSXDrawBrightEndLine(Col,TextSys_WordX(0x24d) - 6,(short)boxy + 4,2,
                          TrackRecordLineY((short)midy) - (short)boxy,
                          1,linefadeval,0);
   }
   if (8 < maxitem) {
-    PSXDrawSquare(Col,TextSys_WordX(0x24c) - 6,TextSys_WordY(0x260) - 1,2,8);
+    PSXDrawSquare(Col,TextSys_WordX(0x24d) - 6,TextSys_WordY(0x261) - 1,2,8);
   }
   ::DrawBackgroundImage((tScreen *)this,0xb,0x1b,gCurrentShapes[0],0);
   return;

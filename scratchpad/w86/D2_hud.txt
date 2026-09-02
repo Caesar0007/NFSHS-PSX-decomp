@@ -1,0 +1,92 @@
+14 zero-insn asm devices in recon/game/psx/hud.cpp
+
+=== line 1108  vars=['g4', 'one']  '__asm__("" : "=r"(g4), "=r"(one) : "0"(g4), "1"(one));'
+  removed            61/62 PASS   4  Hud_Init__Fv
+  abs1(g4)           61/62 PASS   4  Hud_Init__Fv
+  abs2(g4)           61/62 PASS   4  Hud_Init__Fv
+  abs4(g4)           61/62 PASS   4  Hud_Init__Fv
+  and1(g4)           61/62 PASS   4  Hud_Init__Fv
+  abs1(one)          61/62 PASS   4  Hud_Init__Fv
+  abs2(one)          61/62 PASS   4  Hud_Init__Fv
+  abs4(one)          61/62 PASS   4  Hud_Init__Fv
+  and1(one)          61/62 PASS   4  Hud_Init__Fv
+  abs1(all)          61/62 PASS   4  Hud_Init__Fv
+
+=== line 1115  vars=['one']  '__asm__("" : "=r"(one) : "0"(one));'
+  removed            61/62 PASS   2  Hud_Init__Fv
+  abs1(one)          61/62 PASS   2  Hud_Init__Fv
+  abs2(one)          61/62 PASS   2  Hud_Init__Fv
+  abs4(one)          61/62 PASS   2  Hud_Init__Fv
+  and1(one)          61/62 PASS   2  Hud_Init__Fv
+
+=== line 1734  vars=['clutx']  '__asm__ ("" : : "r"(clutx));'
+  removed            61/62 PASS   7  Hud_BuildTach__Fi
+  abs1(clutx)        61/62 PASS   7  Hud_BuildTach__Fi
+  abs2(clutx)        61/62 PASS   7  Hud_BuildTach__Fi
+  abs4(clutx)        61/62 PASS   7  Hud_BuildTach__Fi
+  and1(clutx)        61/62 PASS   7  Hud_BuildTach__Fi
+
+=== line 2093  vars=[]  '__asm__("" : : "i"(0));'
+  removed            61/62 PASS   4  Hud_BuildString__FPciiiib
+
+=== line 2311  vars=['j']  '__asm__("" : : "r"(j));'
+  removed            61/62 PASS   24  Hud_BuildNumbers0__Fi
+  abs1(j)            61/62 PASS   24  Hud_BuildNumbers0__Fi
+  abs2(j)            61/62 PASS   24  Hud_BuildNumbers0__Fi
+  abs4(j)            61/62 PASS   24  Hud_BuildNumbers0__Fi
+  and1(j)            61/62 PASS   24  Hud_BuildNumbers0__Fi
+
+=== line 3372  vars=['pktcell']  '__asm__("" : "=r"(pktcell) : "0"(pktcell));'
+  removed            61/62 PASS   38  Hud_BuildMapMarkers__Fi
+  abs1(pktcell)      61/62 PASS   38  Hud_BuildMapMarkers__Fi
+  abs2(pktcell)      61/62 PASS   38  Hud_BuildMapMarkers__Fi
+  abs4(pktcell)      61/62 PASS   38  Hud_BuildMapMarkers__Fi
+  and1(pktcell)      61/62 PASS   38  Hud_BuildMapMarkers__Fi
+
+=== line 3447  vars=['pktcell']  '__asm__("" : "=r"(pktcell) : "0"(pktcell) : "$5");'
+  removed            61/62 PASS   44  Hud_BuildMapMarkers__Fi
+  abs1(pktcell)      61/62 PASS   44  Hud_BuildMapMarkers__Fi
+  abs2(pktcell)      61/62 PASS   44  Hud_BuildMapMarkers__Fi
+  abs4(pktcell)      61/62 PASS   44  Hud_BuildMapMarkers__Fi
+  and1(pktcell)      61/62 PASS   44  Hud_BuildMapMarkers__Fi
+
+=== line 3476  vars=[]  '__asm__("" : : "i"(0));'
+  removed            61/62 PASS   8  Hud_BuildMapMarkers__Fi
+
+=== line 4135  vars=['lt']  '__asm__("" : "=r"(lt) : "0"(lt) : "$3");'
+  removed            61/62 PASS   14  Hud_BuildCdPlayer__Fii
+  abs1(lt)           61/62 PASS   14  Hud_BuildCdPlayer__Fii
+  abs2(lt)           61/62 PASS   14  Hud_BuildCdPlayer__Fii
+  abs4(lt)           61/62 PASS   14  Hud_BuildCdPlayer__Fii
+  and1(lt)           61/62 PASS   14  Hud_BuildCdPlayer__Fii
+
+=== line 4148  vars=['lt4']  '__asm__("" : : "r"(lt4),"r"(lt4));'
+  removed            61/62 PASS   8  Hud_BuildCdPlayer__Fii
+  abs1(lt4)          61/62 PASS   8  Hud_BuildCdPlayer__Fii
+  abs2(lt4)          61/62 PASS   8  Hud_BuildCdPlayer__Fii
+  abs4(lt4)          61/62 PASS   8  Hud_BuildCdPlayer__Fii
+  and1(lt4)          61/62 PASS   8  Hud_BuildCdPlayer__Fii
+
+=== line 5160  vars=['by']  '__asm__ volatile("" : : "r"(by));'
+  removed            61/62 PASS   65  Hud_Draw321Num__Fiiiiii
+  abs1(by)           62/62 PASS   
+  abs2(by)           62/62 PASS   
+  abs4(by)           62/62 PASS   
+  and1(by)           62/62 PASS   
+
+=== line 5508  vars=[]  '__asm__ ("" : : "i"(0));'
+  removed            61/62 PASS   4  Hud_RenderHudView__Fv
+
+=== line 5549  vars=['pw']  '__asm__("" : : "r"(pw), "r"(pw));'
+  removed            61/62 PASS   4  Hud_RenderHudView__Fv
+  abs1(pw)           61/62 PASS   4  Hud_RenderHudView__Fv
+  abs2(pw)           61/62 PASS   4  Hud_RenderHudView__Fv
+  abs4(pw)           61/62 PASS   4  Hud_RenderHudView__Fv
+  and1(pw)           61/62 PASS   4  Hud_RenderHudView__Fv
+
+=== line 6125  vars=['countamount']  '__asm__ volatile("" : : "r"(countamount));'
+  removed            61/62 PASS   4  Hud_Render__Fv
+  abs1(countamount)  61/62 PASS   4  Hud_Render__Fv
+  abs2(countamount)  61/62 PASS   4  Hud_Render__Fv
+  abs4(countamount)  61/62 PASS   4  Hud_Render__Fv
+  and1(countamount)  61/62 PASS   4  Hud_Render__Fv

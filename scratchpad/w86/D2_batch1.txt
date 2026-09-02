@@ -1,0 +1,138 @@
+5 zero-insn asm devices in recon/game/psx/flare.cpp
+
+=== line 707  vars=['c']  '__asm__ volatile("" : : "r"(c));'
+  removed            26/27 PASS   3  Flare_CarShapedHalo__FiP7COORD16N21siP15Draw_FlareCache
+  abs1(c)            26/27 PASS   3  Flare_CarShapedHalo__FiP7COORD16N21siP15Draw_FlareCache
+  abs2(c)            26/27 PASS   3  Flare_CarShapedHalo__FiP7COORD16N21siP15Draw_FlareCache
+  abs4(c)            26/27 PASS   3  Flare_CarShapedHalo__FiP7COORD16N21siP15Draw_FlareCache
+  and1(c)            26/27 PASS   3  Flare_CarShapedHalo__FiP7COORD16N21siP15Draw_FlareCache
+
+=== line 1184  vars=['rgb']  '__asm__ volatile("" : : "r"(rgb));'
+  removed            26/27 PASS   2  Flare_2DSpike__FPlT0i
+  abs1(rgb)          26/27 PASS   10  Flare_2DSpike__FPlT0i
+  abs2(rgb)          26/27 PASS   10  Flare_2DSpike__FPlT0i
+  abs4(rgb)          26/27 PASS   10  Flare_2DSpike__FPlT0i
+  and1(rgb)          26/27 PASS   10  Flare_2DSpike__FPlT0i
+
+=== line 1953  vars=['pp', 'cp']  '__asm__("" : : "r"(pp), "r"(cp));'
+  removed            26/27 PASS   2  Flare_LensFlare__FP7DVECTORP15Draw_FlareCache
+  abs1(pp)           26/27 PASS   11  Flare_LensFlare__FP7DVECTORP15Draw_FlareCache
+  abs2(pp)           26/27 PASS   11  Flare_LensFlare__FP7DVECTORP15Draw_FlareCache
+  abs4(pp)           26/27 PASS   11  Flare_LensFlare__FP7DVECTORP15Draw_FlareCache
+  and1(pp)           26/27 PASS   11  Flare_LensFlare__FP7DVECTORP15Draw_FlareCache
+  abs1(cp)           26/27 PASS   11  Flare_LensFlare__FP7DVECTORP15Draw_FlareCache
+  abs2(cp)           26/27 PASS   11  Flare_LensFlare__FP7DVECTORP15Draw_FlareCache
+  abs4(cp)           26/27 PASS   11  Flare_LensFlare__FP7DVECTORP15Draw_FlareCache
+  and1(cp)           26/27 PASS   11  Flare_LensFlare__FP7DVECTORP15Draw_FlareCache
+  abs1(all)          26/27 PASS   11  Flare_LensFlare__FP7DVECTORP15Draw_FlareCache
+
+=== line 1958  vars=['vx0', 'vy0']  '__asm__ volatile("" : : "r"(vx0), "r"(vy0));'
+  removed            26/27 PASS   12  Flare_LensFlare__FP7DVECTORP15Draw_FlareCache
+  abs1(vx0)          26/27 PASS   19  Flare_LensFlare__FP7DVECTORP15Draw_FlareCache
+  abs2(vx0)          26/27 PASS   19  Flare_LensFlare__FP7DVECTORP15Draw_FlareCache
+  abs4(vx0)          26/27 PASS   19  Flare_LensFlare__FP7DVECTORP15Draw_FlareCache
+  and1(vx0)          26/27 PASS   19  Flare_LensFlare__FP7DVECTORP15Draw_FlareCache
+  abs1(vy0)          26/27 PASS   12  Flare_LensFlare__FP7DVECTORP15Draw_FlareCache
+  abs2(vy0)          26/27 PASS   12  Flare_LensFlare__FP7DVECTORP15Draw_FlareCache
+  abs4(vy0)          26/27 PASS   12  Flare_LensFlare__FP7DVECTORP15Draw_FlareCache
+  and1(vy0)          26/27 PASS   12  Flare_LensFlare__FP7DVECTORP15Draw_FlareCache
+  abs1(all)          26/27 PASS   18  Flare_LensFlare__FP7DVECTORP15Draw_FlareCache
+
+=== line 1961  vars=['otSize']  '__asm__ volatile("" : : "r"(otSize), "m"(col));'
+  removed            26/27 PASS   4  Flare_LensFlare__FP7DVECTORP15Draw_FlareCache
+  abs1(otSize)       26/27 PASS   4  Flare_LensFlare__FP7DVECTORP15Draw_FlareCache
+  abs2(otSize)       26/27 PASS   4  Flare_LensFlare__FP7DVECTORP15Draw_FlareCache
+  abs4(otSize)       26/27 PASS   4  Flare_LensFlare__FP7DVECTORP15Draw_FlareCache
+  and1(otSize)       26/27 PASS   4  Flare_LensFlare__FP7DVECTORP15Draw_FlareCache
+3 zero-insn asm devices in recon/game/psx/weather.cpp
+
+=== line 1426  vars=['i']  '__asm__("" : : "r"(i));'
+  removed            24/25 PASS   14  Weather_DoSplats__FiP18Weather_tSplatInfo
+  abs1(i)            24/25 PASS   49  Weather_DoSplats__FiP18Weather_tSplatInfo
+  abs2(i)            24/25 PASS   49  Weather_DoSplats__FiP18Weather_tSplatInfo
+  abs4(i)            24/25 PASS   49  Weather_DoSplats__FiP18Weather_tSplatInfo
+  and1(i)            24/25 PASS   49  Weather_DoSplats__FiP18Weather_tSplatInfo
+
+=== line 1435  vars=['q']  '__asm__("" : "=r"(q) : "0"(q));'
+  removed            24/25 PASS   36  Weather_DoSplats__FiP18Weather_tSplatInfo
+  abs1(q)            25/25 PASS   
+  abs2(q)            24/25 PASS   28  Weather_DoSplats__FiP18Weather_tSplatInfo
+  abs4(q)            24/25 PASS   28  Weather_DoSplats__FiP18Weather_tSplatInfo
+  and1(q)            25/25 PASS   
+
+=== line 1744  vars=['player', 'wdp']  '__asm__("" : : "r"(player), "r"(wdp));'
+  removed            25/25 PASS   
+  abs1(player)       24/25 PASS   16  Weather_DoWeather__FP13DRender_tView
+  abs2(player)       24/25 PASS   36  Weather_DoWeather__FP13DRender_tView
+  abs4(player)       24/25 PASS   54  Weather_DoWeather__FP13DRender_tView
+  and1(player)       24/25 PASS   16  Weather_DoWeather__FP13DRender_tView
+  abs1(wdp)          25/25 PASS   
+  abs2(wdp)          25/25 PASS   
+  abs4(wdp)          25/25 PASS   
+  and1(wdp)          25/25 PASS   
+  abs1(all)          24/25 PASS   16  Weather_DoWeather__FP13DRender_tView
+9 zero-insn asm devices in recon/game/psx/hrzsku.cpp
+
+=== line 146  vars=['i']  '__asm__ __volatile__("" : : "r"(i));'
+  removed            21/22 PASS   26  Horizon_InterpolateLineSCoords__FP7DVECTORN20Piii
+  abs1(i)            22/22 PASS   
+  abs2(i)            22/22 PASS   
+  abs4(i)            22/22 PASS   
+  and1(i)            22/22 PASS   
+
+=== line 402  vars=['height', 'radius']  '__asm__ ("" : : "r"(height), "r"(radius));'
+  removed            21/22 PASS   16  Hrz_InitSky__Fv
+  abs1(height)       21/22 PASS   60  Hrz_InitSky__Fv
+  abs2(height)       21/22 PASS   76  Hrz_InitSky__Fv
+  abs4(height)       21/22 PASS   130  Hrz_InitSky__Fv
+  and1(height)       21/22 PASS   60  Hrz_InitSky__Fv
+  abs1(radius)       21/22 PASS   60  Hrz_InitSky__Fv
+  abs2(radius)       21/22 PASS   76  Hrz_InitSky__Fv
+  abs4(radius)       21/22 PASS   130  Hrz_InitSky__Fv
+  and1(radius)       21/22 PASS   60  Hrz_InitSky__Fv
+  abs1(all)          21/22 PASS   54  Hrz_InitSky__Fv
+
+=== line 2454  vars=['i']  '__asm__("" : : "r"(i));'
+  removed            21/22 PASS   52  Hrz_BuildHorizon__FP13DRender_tView
+  abs1(i)            21/22 PASS   52  Hrz_BuildHorizon__FP13DRender_tView
+  abs2(i)            21/22 PASS   52  Hrz_BuildHorizon__FP13DRender_tView
+  abs4(i)            21/22 PASS   52  Hrz_BuildHorizon__FP13DRender_tView
+  and1(i)            21/22 PASS   52  Hrz_BuildHorizon__FP13DRender_tView
+
+=== line 2471  vars=[]  '__asm__("" : : "i"(0));'
+  removed            21/22 PASS   3  Hrz_BuildHorizon__FP13DRender_tView
+
+=== line 2586  vars=['cw']  '__asm__("" : "=r"(cw) : "0"(cw), "r"((int)mpts[0].vx));'
+  removed            21/22 PASS   19  Hrz_BuildHorizon__FP13DRender_tView
+  abs1(cw)           21/22 PASS   19  Hrz_BuildHorizon__FP13DRender_tView
+  abs2(cw)           21/22 PASS   19  Hrz_BuildHorizon__FP13DRender_tView
+  abs4(cw)           21/22 PASS   19  Hrz_BuildHorizon__FP13DRender_tView
+  and1(cw)           21/22 PASS   19  Hrz_BuildHorizon__FP13DRender_tView
+
+=== line 2602  vars=['ch']  '__asm__("" : "=r"(ch) : "0"(ch), "r"((int)mpts[0].vy));'
+  removed            21/22 PASS   44  Hrz_BuildHorizon__FP13DRender_tView
+  abs1(ch)           21/22 PASS   44  Hrz_BuildHorizon__FP13DRender_tView
+  abs2(ch)           21/22 PASS   44  Hrz_BuildHorizon__FP13DRender_tView
+  abs4(ch)           21/22 PASS   44  Hrz_BuildHorizon__FP13DRender_tView
+  and1(ch)           21/22 PASS   44  Hrz_BuildHorizon__FP13DRender_tView
+
+=== line 2625  vars=['pp']  '__asm__("" : "=r"(pp) : "0"(pp));'
+  removed            21/22 PASS   72  Hrz_BuildHorizon__FP13DRender_tView
+  abs1(pp)           21/22 PASS   72  Hrz_BuildHorizon__FP13DRender_tView
+  abs2(pp)           21/22 PASS   72  Hrz_BuildHorizon__FP13DRender_tView
+  abs4(pp)           21/22 PASS   72  Hrz_BuildHorizon__FP13DRender_tView
+  and1(pp)           21/22 PASS   72  Hrz_BuildHorizon__FP13DRender_tView
+
+=== line 2651  vars=['m24']  '__asm__("" : : "r"(m24));'
+  removed            21/22 PASS   18  Hrz_BuildHorizon__FP13DRender_tView
+  abs1(m24)          21/22 PASS   69  Hrz_BuildHorizon__FP13DRender_tView
+  abs2(m24)          21/22 PASS   69  Hrz_BuildHorizon__FP13DRender_tView
+  abs4(m24)          21/22 PASS   119  Hrz_BuildHorizon__FP13DRender_tView
+  and1(m24)          21/22 PASS   69  Hrz_BuildHorizon__FP13DRender_tView
+
+=== line 2686  vars=['q']  '__asm__("" : "=r"(q) : "0"(q));'
+  removed            21/22 PASS   48  Hrz_BuildHorizon__FP13DRender_tView
+  abs1(q)            22/22 PASS   
+  abs2(q)            22/22 PASS   
+  abs4(q)            22/22 PASS   
+  and1(q)            22/22 PASS   

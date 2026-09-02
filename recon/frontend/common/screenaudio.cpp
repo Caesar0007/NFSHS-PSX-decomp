@@ -183,11 +183,11 @@ void tScreenAudio::DrawBackground()
   static int lastpercentage;   /* [SYM] STAT @0x800528e0 (last % shown) */
   static int perfade;          /* [SYM] STAT @0x800528e4 (bg fade accumulator) */
   short fade;
+  int percent;
   /* SYM-CODEGEN-CARRIER: optionsMenu -- direct `menuDefs[0]->menuAudio`
      access is FAIL7 (153/154); this shared pointer restores retail's two-load
      base formation and the recorded 154-instruction stream. */
   tOptionsMenu *optionsMenu;
-  int percent;
   /* SYM-CODEGEN-CARRIER: fadeValue -- clamping `perfade` directly is FAIL20
      (156/154): retail keeps the clamp in a register and stores it once. */
   int fadeValue;

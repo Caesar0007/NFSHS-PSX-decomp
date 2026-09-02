@@ -21,13 +21,15 @@ extern int A_ticks[] __asm__("ticks");
 void tScreenPinkSlips::DrawBackground()
 
 {
-  static int flareextra;
+  /* W86-S4: SYM `8c` declaration order -- the fn-static `flareextra` (STAT) is
+     recorded BETWEEN trackInfo and shapeY, not at the top.  Re-gated PASS. */
   RECT r;
   short i;
   short j;
   short tv;
   tMenuTextState textState;
   tTrackInformation trackInfo;
+  static int flareextra;
   short shapeY;
   /* SYM-CODEGEN-CARRIER: movieVramX -- the tpage x is a SHORT local (retail
      rematerializes it as
@@ -199,15 +201,18 @@ void tScreenPinkSlips::GetShapeInfo(short &numPermShapes,short &numSwapShapes,ch
 void tScreenPinkSlips::Initialize()
 
 {
+  /* W86-S4: SYM `8c` order is r (AUTO sp+24), moviename (AUTO sp+32),
+     trackInfo (AUTO sp+112) -- the two SYM-ABSENT carriers are quarantined
+     after them.  Re-gated PASS. */
+  RECT r;
+  char moviename [80];
+  tTrackInformation trackInfo;
   /* SYM-CODEGEN-CARRIER: iVar1 -- direct ticks storage is measured FAIL 9
      (83/82) and changes the final load-delay/store schedule. */
   int iVar1;
   /* SYM-CODEGEN-CARRIER: tmp -- direct hVideo reuse is paired with that
      one-instruction regression. */
   int tmp;
-  RECT r;
-  char moviename [80];
-  tTrackInformation trackInfo;
   
   r.x = 0x200;
   r.w = 0xaa;

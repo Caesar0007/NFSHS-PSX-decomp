@@ -2476,7 +2476,10 @@ void Camera_SetMode(int cviewP,int mode)
   if (Camera_gInfo[cviewP].modechange == 0) {
     if ((u_int)((u_short)Camera_gInfo[cviewP].mode - 0xb) < 2) {
       Camera_gGeomScreen = 0xbe;
-      TrsProj_SetProjection(0,0,0x140,0xf0);
+      /* REGIONAL DELTA (NFS4-R-AU): the PAL builds project to a 256-line screen
+         (`li a3,0x100`), the NTSC base build to 240 -- the width 0x140 is
+         unchanged.  Same one-word delta in both mode-change entry points. */
+      TrsProj_SetProjection(0,0,0x140,0x100);
     }
     if (5 < (u_int)((u_short)Camera_gInfo[cviewP].mode - 2)) {
       Camera_ResetRelPos(cviewP + 1);
@@ -2517,7 +2520,10 @@ void Camera_NextMode(int cviewP)
   if ((Camera_gInfo[cviewP].mode != 0xe) && (Camera_gInfo[cviewP].modechange == 0)) {
     if ((u_int)(modeForRange - 0xb) < 2) {
       Camera_gGeomScreen = 0xbe;
-      TrsProj_SetProjection(0,0,0x140,0xf0);
+      /* REGIONAL DELTA (NFS4-R-AU): the PAL builds project to a 256-line screen
+         (`li a3,0x100`), the NTSC base build to 240 -- the width 0x140 is
+         unchanged.  Same one-word delta in both mode-change entry points. */
+      TrsProj_SetProjection(0,0,0x140,0x100);
     }
     if (5 < (u_int)((u_short)Camera_gInfo[cviewP].mode - 2)) {
       Camera_ResetRelPos(cviewP + 1);

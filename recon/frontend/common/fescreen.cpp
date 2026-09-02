@@ -135,9 +135,10 @@ void tScreen::GoNonInterlaced()
 void tScreen::DrawBackgroundImage(int startShape,int numShapes,tTexture_ShapeInfo *shapes,int flip_axis)
 
 {
-  int i;
+  /* SYM ORDER (W86-S2): the 8c Def rows read drawFlags, i. */
   tDrawShapeExtended drawFlags;
-  
+  int i;
+
   /* SLD statements: 189 flip_axis / 190 custom_shapes (UNCONDITIONAL, before the
      loop) / 192 the `for` head / 194 / 195 / 196 / 197 back-edge. */
   drawFlags.flip_axis = (short)flip_axis;
@@ -188,9 +189,10 @@ void tScreen::AsyncLoadSwapShapeFile(char *fileName)
 bool tScreen::IsShapeFileLoaded(tShapeInformation &shapes)
 
 {
+  /* SYM ORDER (W86-S2): the 8c Def rows read result, async_status, bogus. */
+  bool result;
   int async_status;
   char *bogus;
-  bool result;
 
   /* MATCH: ONE result var (retail's $s1, set to 1 in the entry branch's delay
      slot) with a single return -- the per-arm `pvVar3 = 0` funnel Ghidra
@@ -338,11 +340,13 @@ void tScreen::Initialize()
      reuses $s0. `BOOL` is the retail spelling and aliases `int`; the explicit
      cast from the currently misdeclared `void *` return preserves retail's raw
      move exactly. */
-  bool shapesLoaded;
+  /* SYM ORDER (W86-S2): the 8c Def rows read numPermShapes, numSwapShapes,
+     permFileName, swapFileName, shapesLoaded. */
   short numPermShapes;
   short numSwapShapes;
   char *permFileName;
   char *swapFileName;
+  bool shapesLoaded;
 
   this->DisplayLoadingText();
   (*(*this->_vf)[5].pfn)((char *)this + (*this->_vf)[5].delta);
@@ -500,8 +504,9 @@ void tScreen::InitializeShapes(tShapeInformation &data,u_int numShapes)
 void tScreen::FreeShapes(tShapeInformation &data)
 
 {
-  int async_status;
+  /* SYM ORDER (W86-S2): the 8c Def rows read i, async_status. */
   short i;
+  int async_status;
 
   this->CancelAsyncLoad(data);
   /* MATCH: a plain top-tested `while` -- gcc rotates it (entry test + bottom

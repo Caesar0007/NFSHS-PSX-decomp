@@ -1230,8 +1230,14 @@ DrawCPrimStart_camRotMatrix:
         u_int ev /* SYM-CODEGEN-CARRIER: ev -- W71 stages the unsigned texture index before the offset scale */ = evraw >> 6;
         u_int byteOffset /* SYM-CODEGEN-CARRIER: byteOffset -- W76 exposes the exact halfword-table byte address quantity */ = ev << 1;
         short *envMapOffset /* SYM-CODEGEN-CARRIER: envMapOffset -- W76 identity fence preserves retail address handout */ = DrawC_gEnvMapOffset;
-        __asm__("" : "=r"(envMapOffset)
-                : "0"(envMapOffset), "r"(byteOffset), "r"(pos), "r"(pos));
+        /* W86-D2: pure-C ABSORPTION IDENTITY (`X | (X & 3) == X`, or the `X & (X | 3)`
+           twin) replacing a zero-insn identity/ref __asm__ device.  It is a real RTL insn
+           (both operands are the same VARIABLE, so fold() keeps it), so cse/loop/flow see
+           the reference AND the second SET; `combine` then folds it back to X, so ZERO
+           bytes are emitted.  Whole-TU gate 20/20 PASS with all nine of this file's
+           W86-D2 replacements in place; see scratchpad/w86/D2_receipt.md for the ladder. */
+
+        envMapOffset = (__typeof__(envMapOffset))((unsigned int)envMapOffset | ((unsigned int)envMapOffset & 3u));
         sd->eAddZ =
             (pos & 0x3fU) +
             (int)*(short *)(byteOffset + (u_int)envMapOffset);
@@ -2369,7 +2375,9 @@ gte_SetTransMatrix(((char *)sd + 0x14));
              * they no longer stand BETWEEN that copy and the `beqz`, so
              * reorg.c:685 stop_search_p lets the backward scan reach the copy
              * and fill the guard's delay slot with it -- retail's stream. */
-            __asm__("" : "=r"(facet_flag) : "0"(facet_flag)); __asm__("" : "=r"(ff) : "0"(ff));
+            /* W86-D2 absorption identity: zero-byte device replacement, see above. */
+            facet_flag = (__typeof__(facet_flag))((unsigned int)facet_flag & ((unsigned int)facet_flag | 3u));
+            ff = (__typeof__(ff))((unsigned int)ff | ((unsigned int)ff & 3u));
             overlayFlag = overlayFlag & ((u_int)ff >> 4);
           if (overlayFlag != 0) {
             while ((overlayFlag & 3) == 0) {
@@ -2584,7 +2592,8 @@ gte_SetTransMatrix(((char *)sd + 0x14));
              * they no longer stand BETWEEN that copy and the `beqz`, so
              * reorg.c:685 stop_search_p lets the backward scan reach the copy
              * and fill the guard's delay slot with it -- retail's stream. */
-            __asm__("" : "=r"(facet_flag) : "0"(facet_flag)); __asm__("" : "=r"(ff) : "0"(ff));
+            /* W86-D2 absorption identity: zero-byte device replacement, see above. */
+            facet_flag = (__typeof__(facet_flag))((unsigned int)facet_flag & ((unsigned int)facet_flag | 3u));
             overlayFlag = overlayFlag & ((u_int)ff >> 4);
           if (overlayFlag != 0) {
             while ((overlayFlag & 3) == 0) {
@@ -3886,7 +3895,8 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
              * reorg eager-steals the following srl instead.  Inside the body
              * the launders still break the cse collapse that would delete
              * the copy, but the slot is reachable again. */
-            __asm__("" : "=r"(facet_flag) : "0"(facet_flag)); __asm__("" : "=r"(ff) : "0"(ff));
+            /* W86-D2 absorption identity: zero-byte device replacement, see above. */
+            __asm__("" : "=r"(facet_flag) : "0"(facet_flag)); ff = (__typeof__(ff))((unsigned int)ff | ((unsigned int)ff & 3u));
             overlayFlag = overlayFlag & ((u_int)ff >> 4);
           if (overlayFlag != 0) {
             while ((overlayFlag & 3) == 0) {
@@ -4097,7 +4107,8 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
              * reorg eager-steals the following srl instead.  Inside the body
              * the launders still break the cse collapse that would delete
              * the copy, but the slot is reachable again. */
-            __asm__("" : "=r"(facet_flag) : "0"(facet_flag)); __asm__("" : "=r"(ff) : "0"(ff));
+            /* W86-D2 absorption identity: zero-byte device replacement, see above. */
+            facet_flag = (__typeof__(facet_flag))((unsigned int)facet_flag & ((unsigned int)facet_flag | 3u));
             overlayFlag = overlayFlag & ((u_int)ff >> 4);
           if (overlayFlag != 0) {
             while ((overlayFlag & 3) == 0) {
@@ -4874,7 +4885,8 @@ void DrawC_PrimHalo(matrixtdef *m,coorddef *t,Transformer_zObj *obj,int type,int
           /* W50-A3 ALLOCNO DIAL: +1 zero-insn ref on `facet` right after its def
              raises its allocno priority above `real_type` so facet takes $s1 and
              real_type $s3 (retail).  Without it the two swap (26 diffs, count-exact). */
-          __asm__("" : : "r"(facet));
+          /* W86-D2 absorption identity: zero-byte device replacement, see above. */
+          facet = (__typeof__(facet))((unsigned int)facet | ((unsigned int)facet & 3u));
           /* ALLOCNO DIAL (w39-a3): retail emits `andi $s3,type,0xffbf` AFTER the
              sub_otSize gate, but computing it there gives real_type a SHORTER
              live range than `facet` and it wins retail's $s1 (facet's home),

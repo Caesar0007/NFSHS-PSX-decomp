@@ -511,12 +511,16 @@ int Object_CheckCollisionResults(Object_tSimObjList *objList,int objIndex,BO_tNe
 void Object_InitCustomObjects(void)
 
 {
-  Object_customObjInst = reservememadr("Custom Objects",0x400,0);
+  /* REGIONAL (R-USA, W86-B8): retail re-tuned the three custom-object pool
+   * sizes -- 0x400/0x400/0x400 -> 1372/764/612, and the blockfill span with
+   * them (pool-4: 0x3fc -> 760).  AUDIT_LO16 insn 3/11/17/23; each literal is
+   * a separate `li $a1` across three calls (no CSE-shared constant). */
+  Object_customObjInst = reservememadr("Custom Objects",1372,0);
   Object_customObjInst->m_num_elements = 0;
-  Object_customSimObjs = reservememadr("Custom SimObjects",0x400,0);
+  Object_customSimObjs = reservememadr("Custom SimObjects",764,0);
   Object_customSimObjs->m_num_elements = 0;
-  blockfill(Object_customSimObjs + 1,0x3fc,0);
-  Object_customSFXInst = reservememadr("Custom SimObjects",0x400,0);
+  blockfill(Object_customSimObjs + 1,760,0);
+  Object_customSFXInst = reservememadr("Custom SimObjects",612,0);
   Object_customSFXInst->m_num_elements = 0;
   Object_customSliceNum = 0;
   return;

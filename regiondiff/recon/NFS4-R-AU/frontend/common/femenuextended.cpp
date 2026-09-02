@@ -1093,12 +1093,16 @@ void tMenuOptions::Draw()
   }
   h = h + 0x12;
   x = (int)(screenwidth - w) >> 1;
-  y = (0xf0 - h) >> 1;
+  /* REGIONAL (AU/FR-DE/UK-ES-IT/UK-SW = PAL): screen height 256, not 240.
+     `0xf0 - h` is spelled THREE times but cse emits ONE `li v1,240` shared by
+     all three (the audit shows a single changed word, insn 67) -- so all three
+     source sites must move together or the sharing breaks (catalog 32B-5). */
+  y = (0x100 - h) >> 1;
   if (this->fPlayer == 0) {
-    y = y - ((0xf0 - h) >> 2);
+    y = y - ((0x100 - h) >> 2);
   }
   else if (this->fPlayer == 1) {
-    y = y + ((0xf0 - h) >> 2);
+    y = y + ((0x100 - h) >> 2);
   }
   if (this->fInMenuTransition == 0) {
     if (-1 < this->fTitle) {

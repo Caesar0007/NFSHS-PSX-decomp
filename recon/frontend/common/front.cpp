@@ -851,8 +851,9 @@ void SetPads(void)
 void InitFrontEndStructure(void)
 
 {
-  int j;
+  /* SYM ORDER (W86-S2): the 8c Def rows read i, j. */
   int i;
+  int j;
 
   frontEnd.randomSeed = 0;
   frontEnd.catchup = '\x01';
@@ -1024,7 +1025,8 @@ void Front_InitialMemCardCheck(void)
 void Front_SecondaryMemCardCheck(void)
 
 {
-  int i;
+  /* SYM SCOPE/ORDER (W86-S2): `j` is the only function-scope row; `i` is
+     recorded one block deeper, inside the loop body. */
   int j;
 
   MEMCARDFRONTENDISINITTED_words[0] = 0;
@@ -1037,6 +1039,8 @@ void Front_SecondaryMemCardCheck(void)
      EXIT-IN-THE-MIDDLE keeps the test+unconditional-j-back TOP-TEST shape the oracle uses
      (a plain `while(card_i<2)` rotates to a bottom-test loop instead). */
   while (true) {
+    int i;
+
     if (!(j < 2)) break;
     i = 0;
     if (memCardReadOK[0] == 0) {
@@ -1115,7 +1119,8 @@ void Front_InitGraphicsAndDisplayLoading(void)
 int Front_Menu(tFront_ProcessingType role)
 
 {
-  long extraMoney;
+  /* SYM SCOPE/ORDER (W86-S2): `result` is the only function-scope SYM row;
+     `extraMoney` is recorded at block depth 4, inside the guarded arm below. */
   int result;
   /* SYM-CODEGEN-CARRIER: one -- a shared value of one preserves retail's s4
      lifetime and `extraMoney + one` evaluation tree.  Literal replacement is
@@ -1125,7 +1130,6 @@ int Front_Menu(tFront_ProcessingType role)
      condition accumulator before the guarded money test.  The equivalent
      short-circuit condition is FAIL 51 with 168/173 instructions. */
   int needCar;
-  tMenuCommand tempCommand;
   
   result = kApp_Command_StartRace;
   _7tScreen_fSuppressLoadingText = 1;
@@ -1139,6 +1143,8 @@ int Front_Menu(tFront_ProcessingType role)
     needCar = tournamentManager.fMoney < one;
   }
   if (needCar) {
+    long extraMoney;
+
     extraMoney = carManager.CheapestCarStockPrice();
     tournamentManager.fMoney += extraMoney + one;
   }
@@ -1147,6 +1153,8 @@ int Front_Menu(tFront_ProcessingType role)
     LoadConfig();
   case kFront_QuitToGameSetup:
     if (gUseFrontend != 0) {
+      tMenuCommand tempCommand;
+
       MenuExtended_TransitionFromPostGameToMainMenu(tempCommand);
       result = FEApp[0]->RunFrontEnd();
     }
@@ -1279,8 +1287,10 @@ int Front_GetLapsForType(void)
   /* SYM-CODEGEN-CARRIER: uVar1 -- the shared-result source shape preserves
    * retail's non-tournament fall-through and common return.  Direct returns
    * invert the branch and move the 11-insn lap-table arm (FAIL 22 / 42). */
-  uint uVar1;
+  /* SYM ORDER (W86-S2): the SYM row lapconv leads; the non-SYM uVar1 carrier
+     follows it. */
   short lapconv [2];
+  uint uVar1;
 
   lapconv[0] = 2;
   lapconv[1] = 4;
@@ -1332,10 +1342,11 @@ static void Front_InitStream(tFEStream &streamData)
 static void Front_InitPlayerCars(tFEStream &streamData)
 
 {
-  /* SYM: function-scope locals are exactly `carInfo` and `i`; carModel and
-     carColor are declared only in the final loop block. */
-  tCarInfo *carInfo;
+  /* SYM: function-scope locals are exactly `i` and `carInfo` (in that Def-record
+     order -- W86-S2); carModel and carColor are declared only in the final loop
+     block. */
   short i;
+  tCarInfo *carInfo;
   
   streamData.numPlayers = 0;
   /* MATCH: EACH arm carries its OWN `carInfo->fColor = fColorOrder[fColor]; numPlayers++`
@@ -1442,6 +1453,10 @@ static void Front_InitPlayerCars(tFEStream &streamData)
 static void Front_InitTourneyTraffic(tFEStream &streamData)
 
 {
+  /* SYM ORDER (W86-S2): the 8c Def rows read carModel, carColor, i; the two
+     non-SYM carriers follow the SYM set. */
+  tCarModels carModel;
+  char carColor;
   short i;
   /* SYM-CODEGEN-CARRIER: maxTraffic -- the named bound preserves retail's
      saved s5 and register `slt`; literal 3 is FAIL 13 at 90/93 instructions. */
@@ -1451,8 +1466,6 @@ static void Front_InitTourneyTraffic(tFEStream &streamData)
      and pointer-relative fTraffic load.  Repeating the expression is FAIL 21
      at 92/93 instructions. */
   tTourneyInfo *tourn;
-  tCarModels carModel;
-  char carColor;
 
   maxTraffic = 3;
   carColor = '\0';
@@ -1808,11 +1821,13 @@ static void Front_InitMissions(tFEStream &streamData)
 static void Front_InitCopCars(tFEStream &streamData)
 
 {
+  /* SYM ORDER (W86-S2): the 8c Def rows read fBestModel, fBestClass, copModel,
+     copColor, i. */
   tCarModels fBestModel;
   tCarClassType fBestClass;
-  short i;
   tCarModels copModel;
   char copColor;
+  short i;
 
   fBestModel = cm_MercedesSLK;
   i = 0;
@@ -2028,11 +2043,13 @@ static void Front_InitTraffic(tFEStream &streamData)
      (s3), i REG $16 (s0, SHORT), bTraffic REG $4 (a0, BOOL), maxTraffic REG $6
      (a2, SHORT), carModel AUTO -0x28 (sp+0x10), carColor AUTO -0x24 (sp+0x14).
      The Ghidra bVar1/sVar2/iVar3/iVar5/sVar6 temps are NOT real locals. */
-  bool bTraffic;
-  short maxTraffic;
-  short i;
+  /* SYM ORDER (W86-S2): the 8c Def rows read carModel, carColor, i, bTraffic,
+     maxTraffic. */
   tCarModels carModel;
   char carColor;
+  short i;
+  bool bTraffic;
+  short maxTraffic;
 
   carColor = '\0';
   maxTraffic = 6;
@@ -2114,9 +2131,10 @@ static void Front_InitTraffic(tFEStream &streamData)
 static int *Front_AppendPlayerCarData(int *stream,tFEStream &streamData)
 
 {
+  /* SYM ORDER (W86-S2): the 8c Def rows read i, carInfo, carLineup. */
+  short i;
   tCarInfo *carInfo;
   tCarLineup *carLineup;
-  short i;
 
   /* MATCH: SYM-implied `short i` loop counter (index form) + pointer-increment stores
      (*stream++ = v;), same idiom as the sibling Append* fns.
@@ -2276,9 +2294,10 @@ static int *Front_AppendPlayerCarData(int *stream,tFEStream &streamData)
 static int *Front_AppendOpponentData(int *stream,tFEStream &streamData)
 
 {
+  /* SYM ORDER (W86-S2): the 8c Def rows read i, carInfo, carLineup. */
+  short i;
   tCarInfo *carInfo;
   tCarLineup *carLineup;
-  short i;
 
   /* MATCH: SYM-implied `short i` loop counter (index form) + pointer-increment stores
      (*stream++ = v;), same idiom as the sibling Append* fns. Materialize p=stream FIRST (before
@@ -2369,10 +2388,11 @@ static int *Front_AppendOpponentData(int *stream,tFEStream &streamData)
 static int *Front_AppendCopData(int *stream,tFEStream &streamData)
 
 {
+  /* SYM ORDER (W86-S2): the SYM row i leads; the non-SYM carrier follows it. */
+  short i;
   /* SYM-CODEGEN-CARRIER: carInfo -- inlining GetCarFromID at fSimNumber
      moves the call past the leading tag stores (FAIL 14 at 149/149). */
   tCarInfo *carInfo;
-  short i;
 
   if (0 < (int)streamData.numCops + (int)streamData.numSuperCops) {
     *stream++ = 0xc;
@@ -2447,6 +2467,8 @@ static int *Front_AppendCopData(int *stream,tFEStream &streamData)
 static int *Front_AppendPerpData(int *stream,tFEStream &streamData)
 
 {
+  /* SYM ORDER (W86-S2): the SYM row i leads; the two non-SYM carriers follow. */
+  short i;
   /* SYM-CODEGEN-CARRIER: carInfo -- inlining the lookup at fSimNumber moves
      the call past the leading tag/cursor updates and changes the entire
      handout (FAIL 248 at 168/166). */
@@ -2455,7 +2477,6 @@ static int *Front_AppendPerpData(int *stream,tFEStream &streamData)
      count-exact but schedules its `lui a0` four instructions too early
      (FAIL 2 at 166/166).  The pointer preserves retail placement. */
   tCarManager *carManagerPtr;
-  short i;
 
   /* MATCH: pointer-increment stores here too (same idiom as the rest of the fn). Branch
      polarity/arm order flipped vs the natural null-check-first form -- the oracle's `beqz`
@@ -2537,16 +2558,18 @@ static int *Front_AppendPerpData(int *stream,tFEStream &streamData)
 static int *Front_AppendTrafficData(int *stream,tFEStream &streamData)
 
 {
+  /* SYM ORDER (W86-S2): the 8c Def rows read i, density; the two non-SYM
+     carriers follow the SYM set. */
+  short i;
+  int density;
   /* SYM-CODEGEN-CARRIER: carInfo -- the lookup result must survive the two
      leading stream stores while `i` advances.  Inlining GetCarFromID at the
      fSimNumber use is count-exact but FAIL 24 (148/148). */
   tCarInfo *carInfo;
-  int density;
   /* SYM-CODEGEN-CARRIER: traffic -- widening numTraffic before division
      avoids a narrow-subreg sign-extension chain.  Direct field division is
      FAIL 4 at 150/148 instructions. */
   int traffic;
-  short i;
 
   /* MATCH: use the SYM-implied `short i` loop counter directly (index the short array by it)
      instead of the decompiler's `int iVar2` + manual `(i<<0x10)>>0xf`/`*0x10000>>0x10`
@@ -2617,10 +2640,12 @@ static int *Front_AppendTrafficData(int *stream,tFEStream &streamData)
 static int *Front_AppendTrackData(int *stream,tFEStream &streamData)
 
 {
+  /* SYM ORDER (W86-S2): the 8c Def rows read trackInfo, valtopass; the non-SYM
+     speedMode carrier follows the SYM set. */
+  tTrackInformation trackInfo;
   int valtopass;
   int speedMode;
-  tTrackInformation trackInfo;
-  
+
   trackManager.GetTrack((ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex],
              trackInfo);
   valtopass = 0;
@@ -2719,19 +2744,23 @@ bool Front_EnableLocalSpeech(void)
 int * Front_BuildStream(int *stream)
 
 {
+  /* SYM ORDER (W86-S2): the 8c Def rows read d, j, streamData, colourLoop,
+     numplaylistsongs, type, config, gameLang, trackLang; the non-SYM randomSeed
+     carrier follows the SYM set. */
+  int *d;
+  int j;
+  tFEStream streamData;
   int colourLoop;
-  int j, type;
+  int numplaylistsongs;
+  int type;
+  int config;
+  int gameLang;
+  int trackLang;
   /* SYM-CODEGEN-CARRIER: randomSeed -- direct assignment to stream[0x31]
      is FAIL 5 at 1001/1000: it keeps the value in $a0 and removes retail's
      load-delay nop.  The captured value restores `lh v0` plus that delay. */
   int randomSeed;
-  int numplaylistsongs;
-  int *d;
-  int trackLang;
-  int gameLang;
-  int config;
-  tFEStream streamData;
-  
+
   Front_InitStream(streamData);
   Front_InitPlayerCars(streamData);
   Front_InitTrack(streamData);

@@ -1,0 +1,22 @@
+import pathlib
+
+Q = ('            q = &splats[i];\n'
+     '            __asm__("" : "=r"(q) : "0"(q));\n')
+Q_NEW = ('            q = &splats[i];\n'
+         '            /* W86-D2: identity launder -> ABSORPTION IDENTITY `X | (X & 3) == X`.\n'
+         '               Real RTL for cse/loop/flow (so `q` still gets the second SET that makes\n'
+         '               cse forget `q == &splats[i]`), folded away by combine => zero bytes.\n'
+         '               Ladder (whole-TU gate, Weather_DoSplats): device removed 36 | one\n'
+         '               absorption PASS | `X & (X | 3)` PASS | two or four absorptions 28. */\n'
+         '            q = (Weather_tSplatInfo *)((unsigned int)q | ((unsigned int)q & 3u));\n')
+
+W = ('  __asm__("" : : "r"(player), "r"(wdp));\n')
+W_NEW = ('  /* W86-D2: the w-era `"r"(player),"r"(wdp)` ref fence measured LOAD-BEARING at 16\n'
+         '     diffs in W85-S4 is INERT on today\'s body -- the later `cm`/`one` staging in this\n'
+         '     block subsumed it.  Removed; Weather_DoWeather re-gates PASS, TU 25/25.\n'
+         '     (Re-probe every fence in a TU that has been edited since its receipt: W85-S1\n'
+         '     process rule #4, fired again here.) */\n')
+
+pathlib.Path('scratchpad/w86/D2_w1.txt').write_text(
+    repr([('weather 2 clears', [(Q, Q_NEW), (W, W_NEW)])]))
+print('ok')

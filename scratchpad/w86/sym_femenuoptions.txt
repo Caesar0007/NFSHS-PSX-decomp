@@ -1,0 +1,530 @@
+@8001bf48 CalcPulsateYellow__Fv   [FEMENUOPTIONS.CPP:77]
+    REG      $5        pulsateval                 INT size 0
+
+@8001bfa0 DrawLeftFlare__FiiiRi   [FEMENUOPTIONS.CPP:86]
+    REGPARM  $14       y                          INT size 0
+    REGPARM  $5        fSelFade                   INT size 0
+    REGPARM  $6        fFadeVal                   INT size 0
+    REGPARM  $7        flareextra                 PTR INT size 0
+    REG      $11       flare_intensity            INT size 0
+    REG      $13       glintFade                  INT size 0
+    REG      $10       x                          INT size 0
+
+@8001c0fc SubtractiveBox__Fiiiiiiii   [FEMENUOPTIONS.CPP:115]
+    REGPARM  $11       x                          INT size 0
+    REGPARM  $c        y                          INT size 0
+    REGPARM  $6        w                          INT size 0
+    REGPARM  $7        h                          INT size 0
+    ARG      $10       col1                       INT size 0
+    ARG      $14       col2                       INT size 0
+    ARG      $18       col3                       INT size 0
+    ARG      $1c       col4                       INT size 0
+    REG      $d        col1                       INT size 0
+    REG      $e        col2                       INT size 0
+    REG      $f        col3                       INT size 0
+    REG      $10       col4                       INT size 0
+    REG      $10       dr_mode                    PTR STRUCT size 12 dims 0 tag DR_MODE
+    REG      $8        prim                       PTR STRUCT size 36 dims 0 tag POLY_G4
+
+@8001c25c TransitionOff__27tMenuItemGoToMenuButtonFade   [FEMENUOPTIONS.CPP:168]
+    REGPARM  $4        this                       PTR STRUCT size 44 dims 0 tag tMenuItemGoToMenuButtonFade
+
+@8001c268 TransitionOn__27tMenuItemGoToMenuButtonFade   [FEMENUOPTIONS.CPP:173]
+    REGPARM  $4        this                       PTR STRUCT size 44 dims 0 tag tMenuItemGoToMenuButtonFade
+
+@8001c284 TransitionIsFinished__27tMenuItemGoToMenuButtonFade   [FEMENUOPTIONS.CPP:183]
+    REGPARM  $4        this                       PTR STRUCT size 44 dims 0 tag tMenuItemGoToMenuButtonFade
+
+@8001c2dc UpdateTransition__27tMenuItemGoToMenuButtonFadeb   [FEMENUOPTIONS.CPP:195]
+    REGPARM  $10       this                       PTR STRUCT size 44 dims 0 tag tMenuItemGoToMenuButtonFade
+    REGPARM  $11       selected                   BOOL size 0
+
+@8001c358 __22tMenuItemLeftRightFadeUiP13tListIterator   [FEMENUOPTIONS.CPP:204]
+    REGPARM  $10       this                       PTR STRUCT size 44 dims 0 tag tMenuItemLeftRightFade
+    REGPARM  $5        textDescription            UINT size 0
+    REGPARM  $6        dataPtr                    PTR STRUCT size 16 dims 0 tag tListIterator
+
+@8001c394 TransitionOff__22tMenuItemLeftRightFade   [FEMENUOPTIONS.CPP:215]
+    REGPARM  $4        this                       PTR STRUCT size 44 dims 0 tag tMenuItemLeftRightFade
+
+@8001c3ac TransitionOn__22tMenuItemLeftRightFade   [FEMENUOPTIONS.CPP:221]
+    REGPARM  $4        this                       PTR STRUCT size 44 dims 0 tag tMenuItemLeftRightFade
+
+@8001c3d0 TransitionIsFinished__22tMenuItemLeftRightFade   [FEMENUOPTIONS.CPP:231]
+    REGPARM  $4        this                       PTR STRUCT size 44 dims 0 tag tMenuItemLeftRightFade
+
+@8001c438 UpdateTransition__22tMenuItemLeftRightFadeb   [FEMENUOPTIONS.CPP:245]
+    REGPARM  $10       this                       PTR STRUCT size 44 dims 0 tag tMenuItemLeftRightFade
+    REGPARM  $11       selected                   BOOL size 0
+
+@8001c4b4 __12tOptionsMenuUiP7tScreenP5tMenuT3PFR12tMenuCommand_vsiiP9tMenuIteme   [FEMENUOPTIONS.CPP:267]
+    REGPARM  $10       this                       PTR STRUCT size 128 dims 0 tag tOptionsMenu
+    REGPARM  $5        flags                      UINT size 0
+    REGPARM  $6        screenHandler              PTR STRUCT size 100 dims 0 tag tScreen
+    REGPARM  $7        nextMenu                   PTR STRUCT size 108 dims 0 tag tMenu
+    ARG      $10       optionsMenu                PTR STRUCT size 108 dims 0 tag tMenu
+    ARG      $14       OnButtonPress              PTR FCN VOID size 0
+    ARG      $18       title                      INT size 0
+    ARG      $1c       firstframe                 INT size 0
+    ARG      $20       numframes                  INT size 0
+    ARG      $24       firstItem                  PTR STRUCT size 28 dims 0 tag tMenuItem
+    REG      $8        optionsMenu                PTR STRUCT size 108 dims 0 tag tMenu
+    REG      $9        OnButtonPress              PTR FCN VOID size 0
+    REG      $11       firstframe                 INT size 0
+    REG      $12       numframes                  INT size 0
+
+@8001c544 _._12tOptionsMenu   [FEMENUOPTIONS.CPP:281]
+    REGPARM  $4        this                       PTR STRUCT size 128 dims 0 tag tOptionsMenu
+    REGPARM  $5        __in_chrg                  INT size 0
+
+@8001c56c DebounceKeys__12tOptionsMenu   [FEMENUOPTIONS.CPP:286]
+    REGPARM  $4        this                       PTR STRUCT size 128 dims 0 tag tOptionsMenu
+
+@8001c5d8 TransitionOff__12tOptionsMenu   [FEMENUOPTIONS.CPP:293]
+    REGPARM  $11       this                       PTR STRUCT size 128 dims 0 tag tOptionsMenu
+    REG      $10       i                          SHORT size 0
+
+@8001c670 TransitionOn__12tOptionsMenu   [FEMENUOPTIONS.CPP:308]
+    REGPARM  $11       this                       PTR STRUCT size 128 dims 0 tag tOptionsMenu
+    REG      $10       i                          SHORT size 0
+
+@8001c70c TransitionIsFinished__12tOptionsMenu   [FEMENUOPTIONS.CPP:325]
+    REGPARM  $11       this                       PTR STRUCT size 128 dims 0 tag tOptionsMenu
+    REG      $10       i                          SHORT size 0
+    REG      $2        this                       PTR STRUCT size 896 dims 0 tag tFEApplication
+
+@8001c854 UpdateTransition__12tOptionsMenu   [FEMENUOPTIONS.CPP:364]
+    REGPARM  $11       this                       PTR STRUCT size 128 dims 0 tag tOptionsMenu
+    REG      $10       i                          SHORT size 0
+
+@8001cb04 Draw__12tOptionsMenu   [FEMENUOPTIONS.CPP:426]
+    REGPARM  $10       this                       PTR STRUCT size 128 dims 0 tag tOptionsMenu
+    REG      $11       i                          SHORT size 0
+    AUTO     $ffffffd8 drawFlags                  STRUCT size 24 dims 0 tag tDrawShapeExtended
+    REG      $2        this                       PTR STRUCT size 28 dims 0 tag tMenuItem
+    REG      $2        this                       PTR STRUCT size 28 dims 0 tag tMenuItem
+
+@8001cd08 ProcessInput__12tOptionsMenu7tPlayerR13tInputKeyTypeR12tMenuCommand   [FEMENUOPTIONS.CPP:462]
+    REGPARM  $10       this                       PTR STRUCT size 128 dims 0 tag tOptionsMenu
+    REGPARM  $12       fromPlayer                 ENUM size 4 dims 0 tag tPlayer
+    REGPARM  $11       keyval                     PTR ENUM size 4 dims 0 tag tInputKeyType
+    REGPARM  $13       command                    PTR STRUCT size 8 dims 0 tag tMenuCommand
+
+@8001cd90 __14tInsideBoxMenuUiP7tScreenP5tMenuT3PFR12tMenuCommand_vsP9tMenuIteme   [FEMENUOPTIONS.CPP:520]
+    REGPARM  $10       this                       PTR STRUCT size 116 dims 0 tag tInsideBoxMenu
+    REGPARM  $5        flags                      UINT size 0
+    REGPARM  $6        screenHandler              PTR STRUCT size 100 dims 0 tag tScreen
+    REGPARM  $7        nextMenu                   PTR STRUCT size 108 dims 0 tag tMenu
+    ARG      $10       optionsMenu                PTR STRUCT size 108 dims 0 tag tMenu
+    ARG      $14       OnButtonPress              PTR FCN VOID size 0
+    ARG      $18       title                      INT size 0
+    ARG      $1c       firstItem                  PTR STRUCT size 28 dims 0 tag tMenuItem
+    REG      $8        optionsMenu                PTR STRUCT size 108 dims 0 tag tMenu
+    REG      $9        OnButtonPress              PTR FCN VOID size 0
+
+@8001ce04 _._14tInsideBoxMenu   [FEMENUOPTIONS.CPP:532]
+    REGPARM  $4        this                       PTR STRUCT size 116 dims 0 tag tInsideBoxMenu
+    REGPARM  $5        __in_chrg                  INT size 0
+
+@8001ce2c ProcessInput__14tInsideBoxMenu7tPlayerR13tInputKeyTypeR12tMenuCommand   [FEMENUOPTIONS.CPP:537]
+    REGPARM  $4        this                       PTR STRUCT size 116 dims 0 tag tInsideBoxMenu
+    REGPARM  $5        fromPlayer                 ENUM size 4 dims 0 tag tPlayer
+    REGPARM  $6        keyval                     PTR ENUM size 4 dims 0 tag tInputKeyType
+    REGPARM  $7        command                    PTR STRUCT size 8 dims 0 tag tMenuCommand
+
+@8001cefc Draw__14tInsideBoxMenusssss   [FEMENUOPTIONS.CPP:558]
+    REGPARM  $10       this                       PTR STRUCT size 116 dims 0 tag tInsideBoxMenu
+    REGPARM  $5        x                          SHORT size 0
+    REGPARM  $6        y                          SHORT size 0
+    REGPARM  $7        w                          SHORT size 0
+    ARG      $10       slideOffset                INT size 0
+    REG      $16       slideOffset                SHORT size 0
+    REG      $12       i                          SHORT size 0
+    REG      $11       j                          SHORT size 0
+
+@8001d160 __20tMenuItemSlidingMenuUissssb   [FEMENUOPTIONS.CPP:612]
+    REGPARM  $10       this                       PTR STRUCT size 68 dims 0 tag tMenuItemSlidingMenu
+    REGPARM  $5        textDescription            UINT size 0
+    REGPARM  $6        width                      SHORT size 0
+    REGPARM  $7        height                     SHORT size 0
+    ARG      $10       diffx                      INT size 0
+    ARG      $14       diffy                      INT size 0
+    ARG      $18       fillback                   BOOL size 0
+    REG      $13       fillback                   BOOL size 0
+
+@8001d208 _._20tMenuItemSlidingMenu   [FEMENUOPTIONS.CPP:628]
+    REGPARM  $4        this                       PTR STRUCT size 68 dims 0 tag tMenuItemSlidingMenu
+    REGPARM  $5        __in_chrg                  INT size 0
+
+@8001d230 TransitionOff__20tMenuItemSlidingMenu   [FEMENUOPTIONS.CPP:634]
+    REGPARM  $4        this                       PTR STRUCT size 68 dims 0 tag tMenuItemSlidingMenu
+
+@8001d25c TransitionOn__20tMenuItemSlidingMenu   [FEMENUOPTIONS.CPP:648]
+    REGPARM  $4        this                       PTR STRUCT size 68 dims 0 tag tMenuItemSlidingMenu
+
+@8001d294 TransitionIsFinished__20tMenuItemSlidingMenu   [FEMENUOPTIONS.CPP:661]
+    REGPARM  $4        this                       PTR STRUCT size 68 dims 0 tag tMenuItemSlidingMenu
+
+@8001d31c UpdateTransition__20tMenuItemSlidingMenub   [FEMENUOPTIONS.CPP:680]
+    REGPARM  $10       this                       PTR STRUCT size 68 dims 0 tag tMenuItemSlidingMenu
+    REGPARM  $11       selected                   BOOL size 0
+
+@8001d398 DebounceKeys__20tMenuItemSlidingMenu   [FEMENUOPTIONS.CPP:696]
+    REGPARM  $4        this                       PTR STRUCT size 68 dims 0 tag tMenuItemSlidingMenu
+
+@8001d3e0 Draw__20tMenuItemSlidingMenub   [FEMENUOPTIONS.CPP:705]
+    REGPARM  $4        this                       PTR STRUCT size 68 dims 0 tag tMenuItemSlidingMenu
+    REGPARM  $7        selected                   BOOL size 0
+
+@8001d41c UpdatefOpenHeight__20tMenuItemSlidingMenub   [FEMENUOPTIONS.CPP:711]
+    REGPARM  $4        this                       PTR STRUCT size 68 dims 0 tag tMenuItemSlidingMenu
+    REGPARM  $5        selected                   BOOL size 0
+
+@8001d63c Draw__20tMenuItemSlidingMenuiib   [FEMENUOPTIONS.CPP:777]
+    REGPARM  $16       this                       PTR STRUCT size 68 dims 0 tag tMenuItemSlidingMenu
+    REGPARM  $10       offx                       INT size 0
+    REGPARM  $11       offy                       INT size 0
+    REGPARM  $7        selected                   BOOL size 0
+    AUTO     $ffffffc0 ColText                    INT size 0
+    AUTO     $ffffffc4 x                          INT size 0
+    AUTO     $ffffffc8 y                          INT size 0
+    AUTO     $ffffffcc shape                      PTR STRUCT size 32 dims 0 tag tTexture_ShapeInfo
+    STAT     $0        flareextra                 INT size 0
+    AUTO     $ffffffd0 fPlayList                  BOOL size 0
+    AUTO     $ffffffa8 drawFlags                  STRUCT size 24 dims 0 tag tDrawShapeExtended
+    REG      $10       width                      INT size 0
+    REG      $14       xx                         INT size 0
+    REG      $15       yy                         INT size 0
+    REG      $1e       ww                         INT size 0
+    REG      $12       hh                         INT size 0
+    AUTO     $ffffffd4 drenv                      PTR STRUCT size 92 dims 0 tag DRAWENV
+    REG      $4        daprim                     PTR STRUCT size 12 dims 0 tag DR_AREA
+    AUTO     $ffffffa8 full                       STRUCT size 8 dims 0 tag RECT
+    AUTO     $ffffffb0 temp                       STRUCT size 8 dims 0 tag RECT
+    REG      $11       gray                       INT size 0
+    REG      $17       shapetop                   PTR STRUCT size 32 dims 0 tag tTexture_ShapeInfo
+    REG      $13       shapebottom                PTR STRUCT size 32 dims 0 tag tTexture_ShapeInfo
+
+@8001dc80 ProcessInput__20tMenuItemSlidingMenu7tPlayerR13tInputKeyTypeR12tMenuCommand   [FEMENUOPTIONS.CPP:890]
+    REGPARM  $10       this                       PTR STRUCT size 68 dims 0 tag tMenuItemSlidingMenu
+    REGPARM  $12       fromPlayer                 ENUM size 4 dims 0 tag tPlayer
+    REGPARM  $11       keyval                     PTR ENUM size 4 dims 0 tag tInputKeyType
+    REGPARM  $13       command                    PTR STRUCT size 8 dims 0 tag tMenuCommand
+
+@8001dd28 SetMenu__20tMenuItemSlidingMenubP14tInsideBoxMenu   [FEMENUOPTIONS.CPP:904]
+    REGPARM  $4        this                       PTR STRUCT size 68 dims 0 tag tMenuItemSlidingMenu
+    REGPARM  $5        bothmenus                  BOOL size 0
+    REGPARM  $6        menu                       PTR STRUCT size 116 dims 0 tag tInsideBoxMenu
+    REG      $4        this                       PTR STRUCT size 28 dims 0 tag tMenuItem
+    REG      $4        this                       PTR STRUCT size 28 dims 0 tag tMenuItem
+
+@8001dd6c UpdatefOpenHeight__25tMenuItemSlidingActivatedb   [FEMENUOPTIONS.CPP:925]
+    REGPARM  $4        this                       PTR STRUCT size 72 dims 0 tag tMenuItemSlidingActivated
+
+@8001ddd4 TransitionOff__25tMenuItemSlidingActivated   [FEMENUOPTIONS.CPP:937]
+    REGPARM  $4        this                       PTR STRUCT size 72 dims 0 tag tMenuItemSlidingActivated
+
+@8001de00 TransitionOn__25tMenuItemSlidingActivated   [FEMENUOPTIONS.CPP:949]
+    REGPARM  $4        this                       PTR STRUCT size 72 dims 0 tag tMenuItemSlidingActivated
+
+@8001de40 TransitionIsFinished__25tMenuItemSlidingActivated   [FEMENUOPTIONS.CPP:964]
+    REGPARM  $4        this                       PTR STRUCT size 72 dims 0 tag tMenuItemSlidingActivated
+
+@8001dec8 UpdateTransition__25tMenuItemSlidingActivatedb   [FEMENUOPTIONS.CPP:983]
+    REGPARM  $10       this                       PTR STRUCT size 72 dims 0 tag tMenuItemSlidingActivated
+    REGPARM  $11       selected                   BOOL size 0
+
+@8001df44 ProcessInput__25tMenuItemSlidingActivated7tPlayerR13tInputKeyTypeR12tMenuCommand   [FEMENUOPTIONS.CPP:990]
+    REGPARM  $11       this                       PTR STRUCT size 72 dims 0 tag tMenuItemSlidingActivated
+    REGPARM  $13       fromPlayer                 ENUM size 4 dims 0 tag tPlayer
+    REGPARM  $12       keyval                     PTR ENUM size 4 dims 0 tag tInputKeyType
+    REGPARM  $14       command                    PTR STRUCT size 8 dims 0 tag tMenuCommand
+
+@8001e13c MyLeftRightDraw__22tMenuItemLeftRightFadeii   [FEMENUOPTIONS.CPP:1063]
+    REGPARM  $10       this                       PTR STRUCT size 44 dims 0 tag tMenuItemLeftRightFade
+    REGPARM  $12       x                          INT size 0
+    REGPARM  $11       y                          INT size 0
+    AUTO     $ffffffd8 aCol                       STRUCT size 24 dims 0 tag tDrawShapeExtended
+    REG      $10       ColText                    INT size 0
+
+@8001e230 Draw__31tMenuItemDisplayLeftRightChoiceiib   [FEMENUOPTIONS.CPP:1085]
+    REGPARM  $13       this                       PTR STRUCT size 44 dims 0 tag tMenuItemDisplayLeftRightChoice
+    REGPARM  $10       offx                       INT size 0
+    REGPARM  $12       offy                       INT size 0
+    REG      $12       ColText                    INT size 0
+
+@8001e320 TransitionOn__29tMenuItemOnOffLeftRightChoice   [FEMENUOPTIONS.CPP:1105]
+    REGPARM  $10       this                       PTR STRUCT size 48 dims 0 tag tMenuItemOnOffLeftRightChoice
+
+@8001e384 Draw__29tMenuItemOnOffLeftRightChoiceiib   [FEMENUOPTIONS.CPP:1111]
+    REGPARM  $12       this                       PTR STRUCT size 48 dims 0 tag tMenuItemOnOffLeftRightChoice
+    REGPARM  $10       offx                       INT size 0
+    REGPARM  $13       offy                       INT size 0
+    AUTO     $ffffffe0 ColTextOn                  INT size 0
+    AUTO     $ffffffe4 ColTextOff                 INT size 0
+
+@8001e4fc __29tMenuItemLeftRightAudioSliderUiP13tListIteratori   [FEMENUOPTIONS.CPP:1152]
+    REGPARM  $10       this                       PTR STRUCT size 56 dims 0 tag tMenuItemLeftRightAudioSlider
+    REGPARM  $5        textDescription            UINT size 0
+    REGPARM  $6        dataPtr                    PTR STRUCT size 16 dims 0 tag tListIterator
+    REGPARM  $11       AudioArt                   INT size 0
+
+@8001e548 _._29tMenuItemLeftRightAudioSlider   [FEMENUOPTIONS.CPP:1160]
+    REGPARM  $4        this                       PTR STRUCT size 56 dims 0 tag tMenuItemLeftRightAudioSlider
+    REGPARM  $5        __in_chrg                  INT size 0
+
+@8001e570 Draw__29tMenuItemLeftRightAudioSlideriib   [FEMENUOPTIONS.CPP:1167]
+    REGPARM  $13       this                       PTR STRUCT size 56 dims 0 tag tMenuItemLeftRightAudioSlider
+    REGPARM  $10       ox                         INT size 0
+    REGPARM  $11       oy                         INT size 0
+    REG      $10       coltext                    INT size 0
+    AUTO     $ffffffd0 tCol                       STRUCT size 24 dims 0 tag tDrawShapeExtended
+    REG      $2        this                       PTR STRUCT size 16 dims 0 tag tListIterator
+
+@8001e77c Percentage__29tMenuItemLeftRightAudioSlider   [FEMENUOPTIONS.CPP:1204]
+    REGPARM  $10       this                       PTR STRUCT size 56 dims 0 tag tMenuItemLeftRightAudioSlider
+    REG      $10       percent                    INT size 0
+    REG      $6        this                       PTR STRUCT size 16 dims 0 tag tListIterator
+
+@8001e850 TransitionOff__29tMenuItemLeftRightAudioSlider   [FEMENUOPTIONS.CPP:1212]
+    REGPARM  $4        this                       PTR STRUCT size 56 dims 0 tag tMenuItemLeftRightAudioSlider
+
+@8001e860 TransitionOn__29tMenuItemLeftRightAudioSlider   [FEMENUOPTIONS.CPP:1217]
+    REGPARM  $4        this                       PTR STRUCT size 56 dims 0 tag tMenuItemLeftRightAudioSlider
+
+@8001e878 TransitionIsFinished__29tMenuItemLeftRightAudioSlider   [FEMENUOPTIONS.CPP:1223]
+    REGPARM  $4        this                       PTR STRUCT size 56 dims 0 tag tMenuItemLeftRightAudioSlider
+
+@8001e8d4 UpdateTransition__29tMenuItemLeftRightAudioSliderb   [FEMENUOPTIONS.CPP:1234]
+    REGPARM  $4        this                       PTR STRUCT size 56 dims 0 tag tMenuItemLeftRightAudioSlider
+    REGPARM  $5        selected                   BOOL size 0
+
+@8001e920 __18tInsideBoxSongMenuUiP7tScreenP5tMenuT3PFR12tMenuCommand_vsP9tMenuIteme   [FEMENUOPTIONS.CPP:1247]
+    REGPARM  $10       this                       PTR STRUCT size 136 dims 0 tag tInsideBoxSongMenu
+    REGPARM  $5        flags                      UINT size 0
+    REGPARM  $6        screenHandler              PTR STRUCT size 100 dims 0 tag tScreen
+    REGPARM  $7        nextMenu                   PTR STRUCT size 108 dims 0 tag tMenu
+    ARG      $10       optionsMenu                PTR STRUCT size 108 dims 0 tag tMenu
+    ARG      $14       OnButtonPress              PTR FCN VOID size 0
+    ARG      $18       title                      INT size 0
+    ARG      $1c       firstItem                  PTR STRUCT size 28 dims 0 tag tMenuItem
+    REG      $8        optionsMenu                PTR STRUCT size 108 dims 0 tag tMenu
+    REG      $9        OnButtonPress              PTR FCN VOID size 0
+    REG      $10       this                       PTR STRUCT size 116 dims 0 tag tInsideBoxMenu
+    REG      $8        optionsMenu                PTR STRUCT size 108 dims 0 tag tMenu
+    REG      $9        OnButtonPress              PTR FCN VOID size 0
+    REG      $4        j                          INT size 0
+
+@8001e9b0 _._18tInsideBoxSongMenu   [FEMENUOPTIONS.CPP:1263]
+    REGPARM  $4        this                       PTR STRUCT size 136 dims 0 tag tInsideBoxSongMenu
+    REGPARM  $5        __in_chrg                  INT size 0
+
+@8001e9d8 Draw__18tInsideBoxSongMenusssss   [FEMENUOPTIONS.CPP:1271]
+    REGPARM  $12       this                       PTR STRUCT size 136 dims 0 tag tInsideBoxSongMenu
+    REGPARM  $17       x                          SHORT size 0
+    REGPARM  $6        y                          SHORT size 0
+    REGPARM  $7        w                          SHORT size 0
+    ARG      $10       slideOffset                INT size 0
+    ARG      $14       maxheight                  INT size 0
+    REG      $16       slideOffset                SHORT size 0
+    REG      $11       j                          INT size 0
+    REG      $15       drawY                      INT size 0
+    REG      $5        song                       INT size 0
+
+@8001ec48 DrawOneSong__18tInsideBoxSongMenussssss   [FEMENUOPTIONS.CPP:1317]
+    REGPARM  $4        this                       PTR STRUCT size 136 dims 0 tag tInsideBoxSongMenu
+    REGPARM  $5        songnum                    SHORT size 0
+    REGPARM  $6        x                          SHORT size 0
+    REGPARM  $7        y                          SHORT size 0
+    ARG      $10       w                          INT size 0
+    ARG      $14       fOnOffFade                 INT size 0
+    ARG      $18       fSelFade                   INT size 0
+    REG      $16       Col                        INT size 0
+    AUTO     $ffffffd8 ColTextOn                  INT size 0
+    AUTO     $ffffffdc ColTextOff                 INT size 0
+    REG      $10       ColText                    INT size 0
+
+@8001ee74 DebounceKeys__18tInsideBoxSongMenu   [FEMENUOPTIONS.CPP:1344]
+    REGPARM  $4        this                       PTR STRUCT size 136 dims 0 tag tInsideBoxSongMenu
+
+@8001ee7c ProcessInput__18tInsideBoxSongMenu7tPlayerR13tInputKeyTypeR12tMenuCommand   [FEMENUOPTIONS.CPP:1350]
+    REGPARM  $10       this                       PTR STRUCT size 136 dims 0 tag tInsideBoxSongMenu
+    REGPARM  $11       keyval                     PTR ENUM size 4 dims 0 tag tInputKeyType
+    REG      $5        j                          INT size 0
+
+@8001f084 Draw__34tMenuItemControllerLeftRightChoiceiib   [FEMENUOPTIONS.CPP:1423]
+    REGPARM  $14       this                       PTR STRUCT size 44 dims 0 tag tMenuItemControllerLeftRightChoice
+    REGPARM  $10       ox                         INT size 0
+    REGPARM  $11       oy                         INT size 0
+    REG      $15       shape                      PTR STRUCT size 32 dims 0 tag tTexture_ShapeInfo
+    REG      $10       Col                        INT size 0
+    REG      $11       ColText                    INT size 0
+    AUTO     $ffffffc8 drawFlags                  STRUCT size 24 dims 0 tag tDrawShapeExtended
+    AUTO     $ffffffc8 tCol                       STRUCT size 24 dims 0 tag tDrawShapeExtended
+
+@8001f288 __25tInsideBoxLeftRightSliderUiP13tListIterator   [FEMENUOPTIONS.CPP:1465]
+    REGPARM  $10       this                       PTR STRUCT size 40 dims 0 tag tInsideBoxLeftRightSlider
+    REGPARM  $5        textDescription            UINT size 0
+    REGPARM  $6        dataPtr                    PTR STRUCT size 16 dims 0 tag tListIterator
+
+@8001f2c8 _._25tInsideBoxLeftRightSlider   [FEMENUOPTIONS.CPP:1473]
+    REGPARM  $4        this                       PTR STRUCT size 40 dims 0 tag tInsideBoxLeftRightSlider
+    REGPARM  $5        __in_chrg                  INT size 0
+
+@8001f2f0 Draw__25tInsideBoxLeftRightSlideriiib   [FEMENUOPTIONS.CPP:1480]
+    REGPARM  $10       this                       PTR STRUCT size 40 dims 0 tag tInsideBoxLeftRightSlider
+    REGPARM  $5        x                          INT size 0
+    REGPARM  $6        y                          INT size 0
+    REGPARM  $11       w                          INT size 0
+    REG      $13       col                        INT size 0
+    REG      $14       coltext                    INT size 0
+    REG      $3        this                       PTR STRUCT size 16 dims 0 tag tListIterator
+
+@8001f474 __22tInsideBoxTwoWaySliderUiP13tListIteratori   [FEMENUOPTIONS.CPP:1497]
+    REGPARM  $10       this                       PTR STRUCT size 48 dims 0 tag tInsideBoxTwoWaySlider
+    REGPARM  $5        textDescription            UINT size 0
+    REGPARM  $6        dataPtr                    PTR STRUCT size 16 dims 0 tag tListIterator
+    REGPARM  $11       type                       INT size 0
+
+@8001f4c8 _._22tInsideBoxTwoWaySlider   [FEMENUOPTIONS.CPP:1508]
+    REGPARM  $4        this                       PTR STRUCT size 48 dims 0 tag tInsideBoxTwoWaySlider
+    REGPARM  $5        __in_chrg                  INT size 0
+
+@8001f4f0 ProcessInput__22tInsideBoxTwoWaySlider7tPlayerR13tInputKeyTypeR12tMenuCommand   [FEMENUOPTIONS.CPP:1512]
+    REGPARM  $11       this                       PTR STRUCT size 48 dims 0 tag tInsideBoxTwoWaySlider
+    REGPARM  $10       keyval                     PTR ENUM size 4 dims 0 tag tInputKeyType
+
+@8001f5a0 Draw__22tInsideBoxTwoWaySlideriiib   [FEMENUOPTIONS.CPP:1543]
+    REGPARM  $16       this                       PTR STRUCT size 48 dims 0 tag tInsideBoxTwoWaySlider
+    REGPARM  $10       x                          INT size 0
+    REGPARM  $11       y                          INT size 0
+    REGPARM  $12       w                          INT size 0
+    REG      $11       ww                         INT size 0
+    REG      $10       col                        INT size 0
+    REG      $14       col2                       INT size 0
+    REG      $15       coltext                    INT size 0
+    REG      $3        this                       PTR STRUCT size 16 dims 0 tag tListIterator
+    REG      $2        this                       PTR STRUCT size 16 dims 0 tag tListIterator
+
+@8001f860 GetCurrentStickRange__Fi   [FEMENUOPTIONS.CPP:1578]
+    REGPARM  $4        player                     INT size 0
+    REG      $5        range1                     INT size 0
+    REG      $2        range2                     INT size 0
+
+@8001f8bc GetCurrentStickRange2__Fi   [FEMENUOPTIONS.CPP:1586]
+    REGPARM  $4        player                     INT size 0
+    REG      $5        range1                     INT size 0
+    REG      $2        range2                     INT size 0
+
+@8001f918 Calibrate__22tInsideBoxTwoWaySlider   [FEMENUOPTIONS.CPP:1595]
+    REGPARM  $10       this                       PTR STRUCT size 48 dims 0 tag tInsideBoxTwoWaySlider
+    REG      $5        range                      INT size 0
+    REG      $12       player                     INT size 0
+
+@8001fc38 __17tUserNameMenuItemUi   [FEMENUOPTIONS.CPP:1688]
+    REGPARM  $10       this                       PTR STRUCT size 140 dims 0 tag tUserNameMenuItem
+    REGPARM  $5        textDescription            UINT size 0
+    REG      $4        i                          SHORT size 0
+
+@8001fcac CheckForCheats__FPc   [FEMENUOPTIONS.CPP:1701]
+    REGPARM  $10       fData                      PTR CHAR size 0
+    REG      $3        len                        INT size 0
+
+@8001fd2c ProcessInput__17tUserNameMenuItem7tPlayerR13tInputKeyTypeR12tMenuCommand   [FEMENUOPTIONS.CPP:1712]
+    REGPARM  $10       this                       PTR STRUCT size 140 dims 0 tag tUserNameMenuItem
+    REGPARM  $11       keyval                     PTR ENUM size 4 dims 0 tag tInputKeyType
+    REG      $2        this                       PTR STRUCT size 896 dims 0 tag tFEApplication
+
+@800200ec SpecialCharacter__Fc   [FEMENUOPTIONS.CPP:1853]
+    REGPARM  $4        current                    CHAR size 0
+    REG      $5        ret                        INT size 0
+
+@8002017c Draw__17tUserNameMenuItemb   [FEMENUOPTIONS.CPP:1874]
+    REGPARM  $12       this                       PTR STRUCT size 140 dims 0 tag tUserNameMenuItem
+    AUTO     $ffffffd0 x                          INT size 0
+    REG      $1e       y                          INT size 0
+    REG      $16       shape                      PTR STRUCT size 32 dims 0 tag tTexture_ShapeInfo
+    REG      $10       j                          SHORT size 0
+    AUTO     $ffffff98 output                     ARY CHAR size 2 dims 1 2 tag
+    REG      $13       ColText                    INT size 0
+    REG      $17       Col                        INT size 0
+    AUTO     $ffffffa0 tCol                       STRUCT size 24 dims 0 tag tDrawShapeExtended
+    AUTO     $ffffffd4 sl                         SHORT size 0
+    REG      $11       startx                     SHORT size 0
+    REG      $11       xx                         INT size 0
+    REG      $10       yy                         INT size 0
+    AUTO     $ffffffb8 fFlags                     STRUCT size 24 dims 0 tag tDrawShapeExtended
+    REG      $3        current                    CHAR size 0
+    REG      $2        shapetodraw                INT size 0
+
+@80020574 TransitionOff__17tUserNameMenuItem   [FEMENUOPTIONS.CPP:1973]
+    REGPARM  $4        this                       PTR STRUCT size 140 dims 0 tag tUserNameMenuItem
+
+@80020580 TransitionOn__17tUserNameMenuItem   [FEMENUOPTIONS.CPP:1978]
+    REGPARM  $11       this                       PTR STRUCT size 140 dims 0 tag tUserNameMenuItem
+    REG      $12       i                          SHORT size 0
+    AUTO     $ffffffd8 NumberOfRows               ARY SHORT size 12 dims 1 6 tag
+
+@800207b4 TransitionIsFinished__17tUserNameMenuItem   [FEMENUOPTIONS.CPP:2018]
+    REGPARM  $4        this                       PTR STRUCT size 140 dims 0 tag tUserNameMenuItem
+
+@80020820 UpdateTransition__17tUserNameMenuItemb   [FEMENUOPTIONS.CPP:2032]
+    REGPARM  $10       this                       PTR STRUCT size 140 dims 0 tag tUserNameMenuItem
+    REGPARM  $11       selected                   BOOL size 0
+
+@8002089c Draw__19tMemoryCardMenuItemb   [FEMENUOPTIONS.CPP:2048]
+    REGPARM  $12       this                       PTR STRUCT size 44 dims 0 tag tMemoryCardMenuItem
+    REG      $10       fEnableFade                INT size 0
+    REG      $13       fEnableSlide               INT size 0
+    REG      $14       x                          INT size 0
+    REG      $16       y                          INT size 0
+    REG      $11       ColText                    INT size 0
+    REG      $10       Col                        INT size 0
+    AUTO     $ffffffc8 tCol                       STRUCT size 24 dims 0 tag tDrawShapeExtended
+    REG      $10       fWidth                     INT size 0
+    REG      $11       shape                      PTR STRUCT size 32 dims 0 tag tTexture_ShapeInfo
+    REG      $12       this                       PTR STRUCT size 28 dims 0 tag tMenuItem
+
+@80020af4 ProcessInput__35tInsideBoxControllerLeftRightSlider7tPlayerR13tInputKeyTypeR12tMenuCommand   [FEMENUOPTIONS.CPP:2088]
+    REGPARM  $10       this                       PTR STRUCT size 40 dims 0 tag tInsideBoxControllerLeftRightSlider
+    REGPARM  $12       fromPlayer                 ENUM size 4 dims 0 tag tPlayer
+    REGPARM  $11       keyval                     PTR ENUM size 4 dims 0 tag tInputKeyType
+    REGPARM  $13       command                    PTR STRUCT size 8 dims 0 tag tMenuCommand
+    REG      $3        this                       PTR STRUCT size 16 dims 0 tag tListIterator
+    REG      $3        this                       PTR STRUCT size 380 dims 0 tag tScreenControllerConfig
+
+@80020bb8 _._35tInsideBoxControllerLeftRightSlider   [FEMENUOPTIONS.H:428]
+    REGPARM  $4        this                       PTR STRUCT size 40 dims 0 tag tInsideBoxControllerLeftRightSlider
+    REGPARM  $5        __in_chrg                  INT size 0
+
+@80020bd8 _._19tMemoryCardMenuItem   [FEMENUOPTIONS.H:407]
+    REGPARM  $4        this                       PTR STRUCT size 44 dims 0 tag tMemoryCardMenuItem
+    REGPARM  $5        __in_chrg                  INT size 0
+
+@80020bf8 _._27tMenuItemGoToMenuButtonFade   [FEMENUOPTIONS.H:396]
+    REGPARM  $4        this                       PTR STRUCT size 44 dims 0 tag tMenuItemGoToMenuButtonFade
+    REGPARM  $5        __in_chrg                  INT size 0
+
+@80020c18 _._17tUserNameMenuItem   [FEMENUOPTIONS.H:375]
+    REGPARM  $4        this                       PTR STRUCT size 140 dims 0 tag tUserNameMenuItem
+    REGPARM  $5        __in_chrg                  INT size 0
+
+@80020c38 _._34tMenuItemControllerLeftRightChoice   [FEMENUOPTIONS.H:290]
+    REGPARM  $4        this                       PTR STRUCT size 44 dims 0 tag tMenuItemControllerLeftRightChoice
+    REGPARM  $5        __in_chrg                  INT size 0
+
+@80020c58 _._29tMenuItemOnOffLeftRightChoice   [FEMENUOPTIONS.H:217]
+    REGPARM  $4        this                       PTR STRUCT size 48 dims 0 tag tMenuItemOnOffLeftRightChoice
+    REGPARM  $5        __in_chrg                  INT size 0
+
+@80020c78 _._31tMenuItemDisplayLeftRightChoice   [FEMENUOPTIONS.H:206]
+    REGPARM  $4        this                       PTR STRUCT size 44 dims 0 tag tMenuItemDisplayLeftRightChoice
+    REGPARM  $5        __in_chrg                  INT size 0
+
+@80020c98 _._25tMenuItemSlidingActivated   [FEMENUOPTIONS.H:193]
+    REGPARM  $4        this                       PTR STRUCT size 72 dims 0 tag tMenuItemSlidingActivated
+    REGPARM  $5        __in_chrg                  INT size 0
+
+@80020cb8 _._22tMenuItemLeftRightFade   [FEMENUOPTIONS.H:46]
+    REGPARM  $4        this                       PTR STRUCT size 44 dims 0 tag tMenuItemLeftRightFade
+    REGPARM  $5        __in_chrg                  INT size 0

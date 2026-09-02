@@ -1,0 +1,26 @@
+@80034060 Initialize__15tMissionManager   [FEMISSION.CPP:59]
+    REGPARM  $4        this                       PTR STRUCT size 8 dims 0 tag tMissionManager
+
+@8003407c LoadDescription__15tMissionManagerb   [FEMISSION.CPP:79]
+    REGPARM  $14       this                       PTR STRUCT size 8 dims 0 tag tMissionManager
+    REGPARM  $5        LoadHotPursuit             BOOL size 0
+    REG      $12       input                      PTR CHAR size 0
+    REG      $11       data                       PTR CHAR size 0
+    REG      $15       numMissions                ULONG size 0
+    REG      $13       numStages                  ULONG size 0
+    AUTO     $ffffff90 filename                   ARY CHAR size 80 dims 1 80 tag
+
+@800341b8 ReleaseDescription__15tMissionManager   [FEMISSION.CPP:139]
+    REGPARM  $10       this                       PTR STRUCT size 8 dims 0 tag tMissionManager
+
+@800341f4 GetMissionStages__15tMissionManagerssPP10tStageInfo   [FEMISSION.CPP:172]
+    REGPARM  $4        this                       PTR STRUCT size 8 dims 0 tag tMissionManager
+    REGPARM  $5        tier                       SHORT size 0
+    REGPARM  $6        mission                    SHORT size 0
+    REGPARM  $7        pStages                    PTR PTR STRUCT size 44 dims 0 tag tStageInfo
+    REG      $3        pMissionInfo               PTR STRUCT size 20 dims 0 tag tMissionInfo
+
+@8003425c GetMissionToRace__15tMissionManagerPP12tMissionInfo   [FEMISSION.CPP:186]
+    REGPARM  $4        this                       PTR STRUCT size 8 dims 0 tag tMissionManager
+    REGPARM  $5        mission                    PTR PTR STRUCT size 20 dims 0 tag tMissionInfo
+    REG      $2        currentTier                PTR STRUCT size 4 dims 0 tag tMissionTierInfo

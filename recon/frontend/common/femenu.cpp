@@ -1414,13 +1414,16 @@ void tMenuItemGoToMenuButton::ProcessInput(tPlayer,tInputKeyType &keyval,
 void tMenu::tMenuConstructor(tMenuItem *firstItem,void *ap)
 
 {
+  /* SYM: `i` is the only function-scope local; `p` belongs to the loop block
+     that opens at 0x80025440 (SLD line 8). */
   int i;
-  tMenuItem *p;
-  
+
   i = 0;
   this->VertHelp = 0;
   this->fItemList[0] = firstItem;
   while (1) {
+    tMenuItem *p;
+
     ap = (int *)((int)ap + 4);
     p = ((tMenuItem **)ap)[-1];
     this->fItemList[i + 1] = p;
@@ -1626,18 +1629,22 @@ GetNumberEnabledItems_loop:
 void tMenu::Draw()
 
 {
-  short item;
-
+  /* SYM: `item` lives in the block that opens at 0x80025928, after the title
+     guard -- not at function scope. */
   if (-1 < this->fTitle) {
     FETextRender_Title(this->fTitle);
   }
-  item = 0;
-  while (this->fItemList[item] != (tMenuItem *)0x0) {
-    (*(*this->fItemList[item]->_vf)[4].pfn)
-              ((char *)this->fItemList[item] +
-               (int)(*this->fItemList[item]->_vf)[4].delta,
-               (int)item == this->fCurrentItem);
-    item = item + 1;
+  {
+    short item;
+
+    item = 0;
+    while (this->fItemList[item] != (tMenuItem *)0x0) {
+      (*(*this->fItemList[item]->_vf)[4].pfn)
+                ((char *)this->fItemList[item] +
+                 (int)(*this->fItemList[item]->_vf)[4].delta,
+                 (int)item == this->fCurrentItem);
+      item = item + 1;
+    }
   }
   return;
 }

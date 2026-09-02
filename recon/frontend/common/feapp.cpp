@@ -175,25 +175,29 @@ void tFEApplication::DrawHelpIcons()
   int Col;
   int x;
   int y;
-  char string [12];
-  char string2 [2];
 
+  /* SYM: string/string2 belong to the VertHelp block (0x800133a0), not fn scope. */
   Col = 0x786e14;
   x = 0xe;
   flags.tint[0] = Col;
   y = screenheight + -0x19;
   if ((this->fCurrentMenu[0] != (tMenu *)0x0) && (this->fCurrentMenu[0]->VertHelp != 0)) {
-    int i;
+    char string [12];
+    char string2 [2];
 
     string2[1] = '\0';
     sprintf(string,TextSys_Word(0xfc));
-    i = strlen(string);
-    i = i - 1;
-    while (-1 < i) {
-      string2[0] = string[i];
-      FETextRender_FullTextRGB(string2,x,y,Col,'\0',0);
-      y = y - 8;
+    {
+      int i;
+
+      i = strlen(string);
       i = i - 1;
+      while (-1 < i) {
+        string2[0] = string[i];
+        FETextRender_FullTextRGB(string2,x,y,Col,'\0',0);
+        y = y - 8;
+        i = i - 1;
+      }
     }
     y = y + 8;
     if (((gPadinfo.buf[0].nopad == '\0') && (gPadinfo.buf[0].ID != '#')) ||
@@ -259,11 +263,11 @@ void tFEApplication::Redraw()
   char buffer [32];
   DRAWENV *drenv;
   DR_AREA *daprim;
+  RECT r;
   /* SYM-CODEGEN-CARRIER: pc -- see the W76-A12 receipt below. */
   u_char **pc;
   /* SYM-CODEGEN-CARRIER: pal2 -- see the W76-A12 receipt below. */
   u_int pal2;
-  RECT r;
 
   saveFPlayer = this->fPlayer;
   FeAudio_systemtask(0);
@@ -714,25 +718,25 @@ void tFEApplication::SetMenu(short i,tMenu *menu)
 void tFEApplication::SetScreen(short i,tScreen *screen)
 
 {
-  /* SYM-CODEGEN-CARRIER: this_00
-     SYM-CODEGEN-CARRIER: iVar1 */
-  tScreen *this_00;
-  int iVar1;
+  /* SYM-CODEGEN-CARRIER: currentScreen
+     SYM-CODEGEN-CARRIER: slotOffset */
+  tScreen *currentScreen;
+  int slotOffset;
 
-  /* MATCH (permuter multi-basin re-seed, 2026-06-30): the residual was a base↔this_00 register SWAP —
-   * the oracle reuses the dead `this` reg as the `this+i*4` base (addu a0,a0,a1), forcing this_00 into
-   * $v0 + an `addu a0,v0,zero` move before the virtual call; ours kept this_00 in $a0 (no move). The
+  /* MATCH (permuter multi-basin re-seed, 2026-06-30): the residual was a base↔currentScreen register SWAP —
+   * the oracle reuses the dead `this` reg as the `this+i*4` base (addu a0,a0,a1), forcing currentScreen into
+   * $v0 + an `addu a0,v0,zero` move before the virtual call; ours kept currentScreen in $a0 (no move). The
    * winning combo (re-read basin, score 25→0 @iter 490): (1) the `(long long)` cast on the first
    * fCurrentScreen[i] address load shifts how gcc materializes the base; (2) the call RE-READS
-   * fCurrentScreen[i] instead of the cached this_00; (3) the `0 != this_00` (operands swapped) compare.
+   * fCurrentScreen[i] instead of the cached currentScreen; (3) the `0 != currentScreen` (operands swapped) compare.
    * No `this` reassignment, so it transcribes cleanly to the method. (Manual base-once / §3.12#14 /
    * char*p all failed; this is the "no floors" proof — an apparent ours-better floor was permuter-reachable.) */
-  iVar1 = (int)((u_int)(u_short)i << 0x10) >> 0xe;
-  this_00 = *(tScreen **)((long long)((int)this->fCurrentScreen + iVar1));
-  if (((screen != this_00) &&
-      (*(tScreen **)((int)this->fTransitionToScreen + iVar1) = screen, (tScreen *)0x0 != this_00))
+  slotOffset = (int)((u_int)(u_short)i << 0x10) >> 0xe;
+  currentScreen = *(tScreen **)((long long)((int)this->fCurrentScreen + slotOffset));
+  if (((screen != currentScreen) &&
+      (*(tScreen **)((int)this->fTransitionToScreen + slotOffset) = screen, (tScreen *)0x0 != currentScreen))
      && (screen != (tScreen *)0x0)) {
-    (*(tScreen **)((int)this->fCurrentScreen + iVar1))->TransitionOff(kScreen_TransitionTypeScreen,(tMenu *)0x0);
+    (*(tScreen **)((int)this->fCurrentScreen + slotOffset))->TransitionOff(kScreen_TransitionTypeScreen,(tMenu *)0x0);
   }
   return;
 }
@@ -1363,13 +1367,16 @@ tAppCommand tFEApplication::RunPostGame()
    * aliases represent those inlined receiver values, not caller-scope locals;
    * spelling the receivers as repeated globals is FAIL 59 / 201 versus PASS 194. */
   tMenuCommand command;
-  int ret;
-  Car_tStats *dummyCars;
-  int i;
-  short nBestCarIndex;
-  
+
+  /* SYM: `command` is the only function-scope local; ret/dummyCars/i/
+     nBestCarIndex live in the SLD line-5 block (the raceType guard). */
   if ((frontEnd.raceType != RaceType_PinkSlips) &&
      ((frontEnd.raceType != RaceType_SingleRace || (frontEnd.carListType != '\0')))) {
+    int ret;
+    Car_tStats *dummyCars;
+    int i;
+    short nBestCarIndex;
+
     dummyCars = (Car_tStats *)Cars_gNewCarStatsList;
     StatChk_ClearNewRecords();
     i = 0;

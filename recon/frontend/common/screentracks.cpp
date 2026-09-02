@@ -14,18 +14,21 @@ typedef struct tTrackSelectPrimTag {
 void tScreenTrackSelect::DrawBackground()
 
 {
+  /* W86-S4: SYM `8c` order is r (AUTO sp+16), trackInfo (AUTO sp+24),
+     shapeY (REG $22 s6), prim (REG $30 fp), state (REG $3 v1) -- the two
+     SYM-ABSENT carriers are quarantined after them.  Re-gated PASS. */
+  RECT r;
+  tTrackInformation trackInfo;
+  short shapeY;
+  POLY_FT4 *prim;
+  VIDEOSTATE state;
   /* SYM-CODEGEN-CARRIER: shapeX -- replacing its two-stage 0x200/0x250
      value web with literals is FAIL 190 at 285/299 and collapses the mask,
      UV, tpage, frame, and saved-register structure documented below. */
   short shapeX;
-  short shapeY;
   /* SYM-CODEGEN-CARRIER: videoY -- using only SYM-visible `shapeY` is
      FAIL 10 at 297/299 and loses retail's distinct `$s0`/`$s6` value webs. */
   int videoY;
-  RECT r;
-  tTrackInformation trackInfo;
-  POLY_FT4 *prim;
-  VIDEOSTATE state;
   
   r.x = 0x140;
   r.y = 200;
@@ -448,10 +451,12 @@ void tScreenTrackSelect::ProcessInput(tPlayer player,tInputKeyType &keyval,
      call expression.  With ptVar1 retained for its two stores, GCC assigns
      retail's menuDefs base to $a0 and the masked flags to $a1 without a
      source identity, reload, or extra instruction. */
+  /* W86-S4: SYM `8c` records exactly one local here, AUTO trackInfo sp+16;
+     the carrier below is quarantined after it.  Re-gated PASS. */
+  tTrackInformation trackInfo;
   /* SYM-CODEGEN-CARRIER: ptVar1 -- direct menuDefsA[0] spellings are FAIL 8
      at 116/114 and reload the global base instead of retaining `$a0`. */
   tGlobalMenuDefs *ptVar1;
-  tTrackInformation trackInfo;
 
   if (keyval == kInput_KeyType_Square) {
     GetTrack(&trackManager,(ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex],

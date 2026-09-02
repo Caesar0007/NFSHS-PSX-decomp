@@ -1,0 +1,42 @@
+### @8001a018 MenuNFS4_DrawTextBox__FiR4RECTissbT5   [FEMENUEXTENDED.CPP:66]   -> MenuNFS4_DrawTextBox
+    SYMrec: [('REGPARM', 'helpText'), ('REGPARM', 'r'), ('REGPARM', 'initialWidth'), ('REGPARM', 'drawOffset'), ('ARG', 'fSelFade'), ('ARG', 'drawArrows'), ('ARG', 'reflected'), ('REG', 'reflected'), ('REG', 'drenv'), ('REG', 'daprim'), ('AUTO', 'temp'), ('REG', 'textpix'), ('REG', 'dist'), ('AUTO', 'drawFlags'), ('AUTO', 'buffer'), ('REG', 'shape'), ('REG', 'col'), ('REG', 'ypos')]
+    Cdecl : ['drenv', 'daprim', 'temp', 'dist', 'textpix', 'drawFlags', 'buffer', 'shape', 'textType', 'selFade', 'fade', 'selected', 'col', 'ypos']
+    C-ONLY  : ['textType', 'selFade', 'fade', 'selected']
+
+!! NO BODY for __27tMenuItemGoToMenuNFS4ButtonUiP5tMenuPFR12tMenuCommand_vii  (demangled tMenuItemGoToMenuNFS4Button::tMenuItemGoToMenuNFS4Button)
+
+!! NO BODY for __28tMenuItemNFS4LeftRightChoiceUiP13tListIteratorii  (demangled tMenuItemNFS4LeftRightChoice::tMenuItemNFS4LeftRightChoice)
+
+### @8001b360 TransitionIsFinished__9tMenuNFS4   [FEMENUEXTENDED.CPP:504]   -> tMenuNFS4::TransitionIsFinished
+    SYMrec: [('REG', 'i'), ('REG', 'result')]
+    Cdecl : ['ptVar1', 'iVar2', 'uVar3', 'iVar4', 'result', 'i']
+    C-ONLY  : ['ptVar1', 'iVar2', 'uVar3', 'iVar4']
+
+### @8001b4f4 Draw__9tMenuNFS4   [FEMENUEXTENDED.CPP:534]   -> tMenuNFS4::Draw
+    SYMrec: [('REG', 'i'), ('AUTO', 'drawFlags')]
+    Cdecl : ['iVar3', 'iVar4', 'i', 'drawFlags']
+    C-ONLY  : ['iVar3', 'iVar4']
+
+!! NO BODY for __18tMenuNFS4TwoPlayerUiP7tScreenP5tMenuT3PFR12tMenuCommand_vsP9tMenuIteme  (demangled tMenuNFS4TwoPlayer::tMenuNFS4TwoPlayer)
+
+!! NO BODY for __15tMenuNFS4BottomUiP7tScreenP5tMenuT3PFR12tMenuCommand_vsP9tMenuIteme  (demangled tMenuNFS4Bottom::tMenuNFS4Bottom)
+
+!! NO BODY for __10tMenuBlankUiP7tScreenP5tMenuT3PFR12tMenuCommand_vs  (demangled tMenuBlank::tMenuBlank)
+
+!! NO BODY for __12tMenuOptionsUiP7tScreenP5tMenuT3PFR12tMenuCommand_vssP9tMenuIteme  (demangled tMenuOptions::tMenuOptions)
+
+### @8001bdc4 TransitionOff__12tMenuOptions   [FEMENUEXTENDED.CPP:855]   -> tMenuOptions::TransitionOff
+    SYMrec: []
+    Cdecl : ['iVar1']
+    C-ONLY  : ['iVar1']
+
+### @8001be00 TransitionOn__12tMenuOptions   [FEMENUEXTENDED.CPP:863]   -> tMenuOptions::TransitionOn
+    SYMrec: []
+    Cdecl : ['enterTicks', 'itemCursor']
+    C-ONLY  : ['enterTicks', 'itemCursor']
+
+!! NO BODY for _._29tMenuItemOptionsTwoItemChoice  (demangled tMenuItemOptionsTwoItemChoice::~tMenuItemOptionsTwoItemChoice)
+
+!! NO BODY for _._31tMenuItemOptionsLeftRightChoice  (demangled tMenuItemOptionsLeftRightChoice::~tMenuItemOptionsLeftRightChoice)
+
+# matched 49/57 SYM blocks; 57 bodies in file

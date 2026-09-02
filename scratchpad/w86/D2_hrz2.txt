@@ -1,0 +1,51 @@
+7 zero-insn asm devices in recon/game/psx/hrzsku.cpp
+
+=== line 406  vars=['height', 'radius']  '__asm__ ("" : : "r"(height), "r"(radius));'
+  removed            21/22 PASS   16  Hrz_InitSky__Fv
+  abs1(height)       21/22 PASS   60  Hrz_InitSky__Fv
+  abs2(height)       21/22 PASS   76  Hrz_InitSky__Fv
+  abs4(height)       21/22 PASS   130  Hrz_InitSky__Fv
+  and1(height)       21/22 PASS   60  Hrz_InitSky__Fv
+  abs1(radius)       21/22 PASS   60  Hrz_InitSky__Fv
+  abs2(radius)       21/22 PASS   76  Hrz_InitSky__Fv
+  abs4(radius)       21/22 PASS   130  Hrz_InitSky__Fv
+  and1(radius)       21/22 PASS   60  Hrz_InitSky__Fv
+  abs1(all)          21/22 PASS   54  Hrz_InitSky__Fv
+
+=== line 2458  vars=['i']  '__asm__("" : : "r"(i));'
+  removed            21/22 PASS   52  Hrz_BuildHorizon__FP13DRender_tView
+  abs1(i)            21/22 PASS   52  Hrz_BuildHorizon__FP13DRender_tView
+  abs2(i)            21/22 PASS   52  Hrz_BuildHorizon__FP13DRender_tView
+  abs4(i)            21/22 PASS   52  Hrz_BuildHorizon__FP13DRender_tView
+  and1(i)            21/22 PASS   52  Hrz_BuildHorizon__FP13DRender_tView
+
+=== line 2475  vars=[]  '__asm__("" : : "i"(0));'
+  removed            21/22 PASS   3  Hrz_BuildHorizon__FP13DRender_tView
+
+=== line 2590  vars=['cw']  '__asm__("" : "=r"(cw) : "0"(cw), "r"((int)mpts[0].vx));'
+  removed            21/22 PASS   19  Hrz_BuildHorizon__FP13DRender_tView
+  abs1(cw)           21/22 PASS   19  Hrz_BuildHorizon__FP13DRender_tView
+  abs2(cw)           21/22 PASS   19  Hrz_BuildHorizon__FP13DRender_tView
+  abs4(cw)           21/22 PASS   19  Hrz_BuildHorizon__FP13DRender_tView
+  and1(cw)           21/22 PASS   19  Hrz_BuildHorizon__FP13DRender_tView
+
+=== line 2606  vars=['ch']  '__asm__("" : "=r"(ch) : "0"(ch), "r"((int)mpts[0].vy));'
+  removed            21/22 PASS   44  Hrz_BuildHorizon__FP13DRender_tView
+  abs1(ch)           21/22 PASS   44  Hrz_BuildHorizon__FP13DRender_tView
+  abs2(ch)           21/22 PASS   44  Hrz_BuildHorizon__FP13DRender_tView
+  abs4(ch)           21/22 PASS   44  Hrz_BuildHorizon__FP13DRender_tView
+  and1(ch)           21/22 PASS   44  Hrz_BuildHorizon__FP13DRender_tView
+
+=== line 2629  vars=['pp']  '__asm__("" : "=r"(pp) : "0"(pp));'
+  removed            21/22 PASS   72  Hrz_BuildHorizon__FP13DRender_tView
+  abs1(pp)           21/22 PASS   72  Hrz_BuildHorizon__FP13DRender_tView
+  abs2(pp)           21/22 PASS   72  Hrz_BuildHorizon__FP13DRender_tView
+  abs4(pp)           21/22 PASS   72  Hrz_BuildHorizon__FP13DRender_tView
+  and1(pp)           21/22 PASS   72  Hrz_BuildHorizon__FP13DRender_tView
+
+=== line 2655  vars=['m24']  '__asm__("" : : "r"(m24));'
+  removed            21/22 PASS   18  Hrz_BuildHorizon__FP13DRender_tView
+  abs1(m24)          21/22 PASS   69  Hrz_BuildHorizon__FP13DRender_tView
+  abs2(m24)          21/22 PASS   69  Hrz_BuildHorizon__FP13DRender_tView
+  abs4(m24)          21/22 PASS   119  Hrz_BuildHorizon__FP13DRender_tView
+  and1(m24)          21/22 PASS   69  Hrz_BuildHorizon__FP13DRender_tView

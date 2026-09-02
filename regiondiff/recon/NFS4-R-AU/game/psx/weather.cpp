@@ -262,9 +262,14 @@ void Weather_InitSplats(void)
   while (true) {
     result = i < 0x13;
     if (result == 0) break;
-    ySize = 0xf0;
+    /* REGIONAL (R-AU/FR-DE/UK-ES-IT/UK-SW = the PAL builds): the splat spread
+     * height is the PAL 256-line frame -- 0xf0/0x78 (240/120) in the base
+     * become 0x100/0x80 (256/128), exactly matching the PAL projection
+     * viewport in trsproj.  AUDIT_LO16 insn 17: 241100f0 -> 24110100,
+     * insn 18: 24110078 -> 24110080. */
+    ySize = 0x100;
     if (gs[3] == commModeNetwork) {
-      ySize = 0x78;
+      ySize = 0x80;
     }
     Weather_gSplatInfo[i].pos.vx = (short)((u_int)random() % 320);
     if (ySize == 0) {

@@ -1,0 +1,69 @@
+### @80032228 Initialize__18tTournamentManager   [FETOURN.CPP:36]   -> tTournamentManager::Initialize
+    SYMrec: [('REG', 'i')]
+    Cdecl : ['i', 'numCars']
+    C-ONLY  : ['numCars']
+
+### @800322fc LoadDescription__18tTournamentManager   [FETOURN.CPP:89]   -> tTournamentManager::LoadDescription
+    SYMrec: [('AUTO', 'input'), ('REG', 'data'), ('REG', 'tier'), ('REG', 'tourney'), ('REG', 'track'), ('AUTO', 'filename')]
+    Cdecl : ['tourneyDef', 'track', 'trackId', 'data', 'tourney', 'trnId', 'tier', 'filename', 'input']
+    C-ONLY  : ['tourneyDef', 'trackId', 'trnId']
+
+### @80032784 StartNewTournament__18tTournamentManagerUcUc   [FETOURN.CPP:264]   -> tTournamentManager::StartNewTournament
+    SYMrec: [('REGPARM', 'tier'), ('REGPARM', 'tournament'), ('REG', 'i'), ('REG', 'tourn'), ('REG', 'track')]
+    Cdecl : ['fTrackOption', 'numCompetitors', 'fRandOption', 'trackOffset', 'tourneyInfoOffset', 'i']
+    C-ONLY  : ['fTrackOption', 'numCompetitors', 'fRandOption', 'trackOffset', 'tourneyInfoOffset']
+    SYM-ONLY: ['tourn', 'track']
+
+### @800329bc IsTournamentFinished__18tTournamentManager   [FETOURN.CPP:337]   -> tTournamentManager::IsTournamentFinished
+    SYMrec: []
+    Cdecl : ['currentTourney']
+    C-ONLY  : ['currentTourney']
+
+### @80032a50 tournPointsCompare__FPcT0   [FETOURN.CPP:349]   -> tournPointsCompare
+    SYMrec: [('REGPARM', 'p1'), ('REGPARM', 'p2'), ('REG', 'result'), ('REG', 'dummyCars')]
+    Cdecl : ['tm', 'comps', 'dummyCars', 'result']
+    C-ONLY  : ['tm', 'comps']
+
+### @80032c6c CalcTrackFinishDamageBill__18tTournamentManagerbRlT2   [FETOURN.CPP:422]   -> tTournamentManager::CalcTrackFinishDamageBill
+    SYMrec: [('REGPARM', 'recalculate'), ('REGPARM', 'bill'), ('REGPARM', 'bonus'), ('STAT', 'retbill'), ('STAT', 'retbonus'), ('REG', 'dummyCars'), ('AUTO', 'carInfo'), ('REG', 'damage'), ('REG', 'totalcarprice'), ('REG', 'i')]
+    Cdecl : ['retbill', 'retbonus', 'i', 'mask', 'totalcarprice', 'damage', 'dummyCars', 'carInfo']
+    C-ONLY  : ['mask']
+
+### @80032e30 UpdateTrackFinishPoints__18tTournamentManager   [FETOURN.CPP:481]   -> tTournamentManager::UpdateTrackFinishPoints
+    SYMrec: [('REG', 'i'), ('REG', 'k'), ('REG', 'dummyCars'), ('REG', 'numCompetitors')]
+    Cdecl : ['i', 'k', 'dummyCars', 'numCompetitors', 'stats', 'comp', 'rankVal', 'knockout', 'ranking', 'ranked']
+    C-ONLY  : ['stats', 'comp', 'rankVal', 'knockout', 'ranking', 'ranked']
+
+### @800335d8 UpdateCarLineup__18tTournamentManager   [FETOURN.CPP:812]   -> tTournamentManager::UpdateCarLineup
+    SYMrec: [('REG', 'i'), ('REG', 'k')]
+    Cdecl : ['i', 'k', 'numCompetitors']
+    C-ONLY  : ['numCompetitors']
+
+### @80033688 GetTrackFinishPrize__18tTournamentManagers   [FETOURN.CPP:844]   -> tTournamentManager::GetTrackFinishPrize
+    SYMrec: [('REGPARM', 'position'), ('REG', 'currentTourney'), ('REG', 'result'), ('AUTO', 'carInfo'), ('REG', 'carPrice'), ('AUTO', 'openClassAdjust')]
+    Cdecl : ['currentTourney', 'result', 'carInfo', 'carPrice']
+    SYM-ONLY: ['openClassAdjust']
+
+### @80033860 GetTournamentFinishPrize__18tTournamentManagers   [FETOURN.CPP:897]   -> tTournamentManager::GetTournamentFinishPrize
+    SYMrec: [('REGPARM', 'position')]
+    Cdecl : ['tourn']
+    C-ONLY  : ['tourn']
+
+### @80033aa8 PlayerRanking__18tTournamentManagers   [FETOURN.CPP:965]   -> tTournamentManager::PlayerRanking
+    SYMrec: [('REGPARM', 'pos'), ('REG', 'i')]
+    Cdecl : ['i', 'numCompetitors']
+    C-ONLY  : ['numCompetitors']
+
+### @80033b64 GetTrophyName__18tTournamentManagerP12tTourneyInfo11tTrophySizePci   [FETOURN.CPP:1040]   -> tTournamentManager::GetTrophyName
+    SYMrec: [('REGPARM', 'tourn'), ('REGPARM', 'size'), ('REGPARM', 'buffer'), ('ARG', 'place'), ('REG', 'place'), ('REG', 'showplace'), ('AUTO', 'trophySizeLetter'), ('AUTO', 'trophyPlacementLetter')]
+    Cdecl : ['showplace', 'best', 'trophySizeLetter', 'trophyPlacementLetter', 't']
+    C-ONLY  : ['best', 't']
+
+!! NO BODY for __23tListIteratorTournamentPcP18tTournamentManager  (demangled tListIteratorTournament::tListIteratorTournament)
+
+### @80033f20 Decrement__23tListIteratorTournament7tPlayer   [FETOURN.CPP:1148]   -> tListIteratorTournament::Decrement
+    SYMrec: [('REG', 'tier')]
+    Cdecl : ['value', 'tier']
+    C-ONLY  : ['value']
+
+# matched 34/35 SYM blocks; 35 bodies in file

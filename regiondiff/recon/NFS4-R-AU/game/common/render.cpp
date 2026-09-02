@@ -100,7 +100,7 @@ void Render_CreatePauseMenuViews(void)
 {
   
   Render_gPauseMenuView =
-       Draw_SetView(0,0x100,0x140,0x100,0x140,0xf0,0,0,1);
+       Draw_SetView(0,0x100,0x140,0x100,0x140,0x100,0,0,1);   /* [REGIONAL AU/PAL] screen height 0xf0 -> 0x100 */
   return;
 }
 

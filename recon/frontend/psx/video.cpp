@@ -29,11 +29,12 @@ extern int ticks_a[] asm("ticks");
 int VIDEO_create(int width,int height,int fps,int streambuffersize,int memtype)
 
 {
+  /* decl order = SYM Def-record order (vid, playopts, handle, fname) */
   struct VIDEOSTRUCT *vid;
-  int handle;
   SNDPLAYOPTS playopts;
+  int handle;
   char fname [60];
-  
+
   Platform_ResetDCTBuffer();
   sprintf(fname,"%sDCT.BIN",Paths_Paths[0x20]);
   handle = asyncloadfileat(fname,(int)CF_DVLC);
@@ -159,13 +160,15 @@ enum VIDEOSTATE VIDEO_state(int handle)
 int VIDEO_updateframexy(int handle,int x,int y)
 
 {
+  /* decl order = SYM Def-record order (vid, chunk, audiostatus, currenttime,
+     dropped); `result` has NO SYM record -- see the carrier note below. */
+  struct VIDEOSTRUCT *vid;
+  struct STREAMCHUNKHDR *chunk;
+  SNDREQUESTSTATUS audiostatus;
+  int currenttime;
+  int dropped;
   int result; /* SYM-CODEGEN-CARRIER: result -- direct videodecode testing rotates
                  retail chunk/dropped ($s2/$s1) and is measured FAIL 17 (81/80) */
-  struct STREAMCHUNKHDR *chunk;
-  struct VIDEOSTRUCT *vid;
-  int dropped;
-  int currenttime;
-  SNDREQUESTSTATUS audiostatus;
   vid = (struct VIDEOSTRUCT *)handle;
   
   if (vid->id == 0x57444956   /* 'VIDW' */) {

@@ -620,7 +620,10 @@ void AudioMus_DriverStartUp(int buffersize,int spusize)
 void AudioMus_SysStartUp(int buffersize,int spusize,char *songs)
 {
   if (AudioMus_g == (AudioMus_tMusicGlobals *)0x0) {
-    AudioMus_g = reservememadr("Music Globals",0x158,0);
+    /* REGIONAL DELTA: sizeof(AudioMus_tMusicGlobals) is 4 bytes smaller in retail
+       -- the struct lost its `failby` field (see the regional layout at the top of
+       this TU), so the allocation literal drops 0x158 -> 0x154. */
+    AudioMus_g = reservememadr("Music Globals",0x154,0);
     if (AudioMus_g != (AudioMus_tMusicGlobals *)0x0) {
       AudioMus_InitGlobals();
       AudioMus_g->streambuffer =

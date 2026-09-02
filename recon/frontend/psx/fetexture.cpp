@@ -22,13 +22,17 @@ void FETexture_LoadPmxAtOffset(char *f,int index,tTexture_ShapeInfo *dest,int yo
    * + block-scoped is_compressed(char $s4) and oldptr(char*)/newptr(int).
    * Ghidra's savedHdr0..4 are ONE `shapetbl old_shape` struct copy (the oracle's
    * 4-word + 1-word movstrsi block, save AND restore); ts1[20]/ts2..ts5/tc6/
-   * loc_48/shapeData/decompBuf/clutmode/hdrflags/uploadResult were fictions. */
-  shapetbl *unpacked;
-  int yclut;
-  int xclut;
-  int bpp;
-  shapetbl old_shape;
+   * loc_48/shapeData/decompBuf/clutmode/hdrflags/uploadResult were fictions.
+   * Declaration ORDER below = the SYM Def-record order (w86-S5; the user's own
+   * closed game/psx series proves SYM record order == source decl order --
+   * cf. Device_Analog min/max/v, CarIO_CopyFromShape columns/mask/*Mask).
+   * Was emitted reversed here; re-ordered, gate unchanged at 2/2 PASS. */
   shapetbl *shpptr;
+  shapetbl old_shape;
+  int bpp;
+  int xclut;
+  int yclut;
+  shapetbl *unpacked;
 
   xclut = 0;
   yclut = 0;

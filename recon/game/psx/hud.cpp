@@ -2076,7 +2076,16 @@ int Hud_BuildString(char *str,int x,int y,int color,int player,bool justwidth)
               /* MATCH (w51-a9 b): third identity fence -- forces the 0xE5 arm's OWN
                * `lbu v1,0(s2)` re-read (retail's `addiu s0,v1,67`); without it cse reuses
                * the byte loaded for the `- 0x30` range test and we run 1 insn short. */
-              __asm__("" : "=r"(str) : "0"(str));
+              /* W86-D2: the identity fence is replaced by a PURE-C save/dead-set/restore.
+                 The pseudo still gets the extra SET that makes cse forget the byte it
+                 loaded for the `- 0x30` range test, so the 0xE5 arm re-reads `lbu v1,0(s2)`
+                 exactly as retail does; the dead `= 0` store is deleted by flow, so this
+                 costs zero instructions.  Ladder (whole-TU gate, Hud_BuildString):
+                   device removed ............................ 33
+                   `str = 0;` after the last read (dead set) .. 33
+                   save / dead set / restore ................. PASS  <- landed
+                 (the dead value is free: 0, 1 and -1 all PASS). */
+              { char *s_ = str; str = 0; str = s_; }
               alphShape = *str + 0x43;
               if ((u_char)*str == 0xe5) {
                 alphShape = 0x67;
@@ -5148,7 +5157,13 @@ void Hud_Draw321Num(int x,int y,int num,int flare_intensity,int,int)
    * after the hoists is a giv whose add_val is a zero-cost register invariant -- i.e. get
    * `y` out of its ARG home across loop 1 without adding a pseudo (the w44 "share the `y-2`
    * term with the following Hud_BlackThinBox call so cse keeps y live" idea). */
-  __asm__ volatile("" : : "r"(by));
+  /* W86-D2: the w-era read-only ref fence `__asm__ volatile("" : : "r"(by))`
+     (removal cost 65 diffs) is replaced by the pure-C ABSORPTION IDENTITY
+     `X | (X & 3) == X`.  Real RTL for cse/loop/flow (the reference is counted and
+     `by` gets a second SET), folded back to X by combine => ZERO bytes.  Ladder
+     (whole-TU gate, Hud_Draw321Num): fence removed 65 | one absorption PASS |
+     two or four absorptions PASS | `X & (X | 3)` PASS. */
+  by = (__typeof__(by))((unsigned int)by | ((unsigned int)by & 3u));
   k = 0;
   i = 0;
   do {

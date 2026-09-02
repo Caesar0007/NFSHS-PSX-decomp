@@ -135,8 +135,8 @@ void DrawCar(tCarInfo &carInfo,short x,short y,float camerax,float cameray,char 
 tScreenCarSelect::tScreenCarSelect()
 
 {
-  short i;
   tOverlay *overlay;
+  short i;
 
   this->_vf = (__vtbl_ptr_type (*)[10])tScreenCarSelect_vtable;
   this->fPreviousCar = 0;
@@ -202,17 +202,19 @@ void tScreenCarSelect::Cleanup()
 void tScreenCarSelect::DrawOverlay(tOverlay *overlay)
 
 {
-  long value;
-  short text;
-  int moneyColor;
-  bool validCar;
-  short i;
-  short j;
-  short fade;
+  /* [SYM] 8c decl order: pos, temp, carInfo, fade, i, j, drawFlags, text,
+     value, validCar, moneyColor, upgradeTranslate, upgradeIcons */
   RECT pos;
   RECT temp;
   tCarInfo carInfo;
+  short fade;
+  short i;
+  short j;
   tDrawShapeExtended drawFlags;
+  short text;
+  long value;
+  bool validCar;
+  int moneyColor;
   short upgradeTranslate [3] = {2, 3, 1};
   short upgradeIcons [3] = {2, 4, 1};
   
@@ -313,13 +315,16 @@ DrawOvl_transitionPos:
       if ((carInfo.fUpgrades & upgradeIcons[i]) == 0) {
         yOffset = 0x60;
       }
-      /* ASPSX-DIALECT (w64-a20): the asm below uses NUMERIC registers and no
-       * `.set push/pop` -- ASPSX 2.77, the PRODUCTION assembler, rejects ABI
-       * register NAMES and push/pop.  $0 zero $1 at $2-3 v0-v1 $4-7 a0-a3
-       * $8-15 t0-t7 $16-23 s0-s7 $24-25 t8-t9 $28 gp $29 sp $30 fp $31 ra.
-       * Gate-lane object is byte-identical (proven by hash); see
-       * scratchpad/w64a20/RECEIPTS.md. */
-      __asm__("" : : "r"(yOffset));
+      /* MATCH W86-D3 2026-09-02: the read-only `yOffset` fence that bought the
+         QTY reference for retail's $a0 handout is replaced by a pure-C
+         ABSORPTION inflator.  `yOffset & (yOffset | i)` == yOffset for ANY i
+         (absorption law) -- a semantic no-op whose operand is runtime-unknown
+         to cse, so the AND survives to flow (which counts the extra reference)
+         and combine collapses it at ZERO bytes.  Whole-TU gate 59/59, and the
+         twin loop below takes the same edit (both together also PASS).
+         Measured: either fence removed 74; the absorption against
+         `carInfo.fUpgrades` 22; against the OTHER loop's counter `j` 46. */
+      yOffset &= (yOffset | i);
       drawFlags.tint[0] = 0xbebe;
       flags = (carInfo.fUpgrades & upgradeIcons[i]) == 0;
       flags |= 0x410;
@@ -341,7 +346,9 @@ DrawOvl_transitionPos:
         if ((carInfo.fUpgrades & upgradeIcons[i]) == 0) {
           yOffset = 0x60;
         }
-        __asm__("" : : "r"(yOffset));
+        /* MATCH W86-D3 2026-09-02: twin of the fence above -- same pure-C
+           absorption inflator, whole-TU gate 59/59. */
+        yOffset &= (yOffset | i);
         drawFlags.tint[0] = 0xbebe;
         flags = (carInfo.fUpgrades & upgradeIcons[i]) == 0;
         flags |= 0x410;
@@ -524,12 +531,13 @@ void tScreenCarSelect::CalcSplinePosition(int knot1,int knot2,int knot3,int knot
 {
   /* SYM-CODEGEN-CARRIER: _i -- writing through the output references directly
      is measured FAIL 107 (185/176); this scalar preserves retail allocation. */
-  int _i;
-  short i;
+  /* [SYM] 8c decl order: T, G, i, Result1, Result2 */
   int T [4];
   int G [4] [4];
+  short i;
   int Result1 [4];
   int Result2 [4];
+  int _i;
   
   T[2] = fixeddiv(elapsed << 0x10,0x2580000);
   T[1] = fixedmult(T[2],T[2]);
@@ -608,9 +616,9 @@ void tScreenCarSelect::GetShapeInfo(short &numPermShapes,short &numSwapShapes,ch
 void tScreenCarSelect::UpdateVideoWall(tCarInfo &carInfo)
 
 {
-  /* SYM-CODEGEN-CARRIER: bVar1 -- direct fCountry storage is measured FAIL 2
+  /* SYM-CODEGEN-CARRIER: country -- direct fCountry storage is measured FAIL 2
      (52/52) because its relocation/reference identity differs from retail. */
-  u_int bVar1;
+  u_int country;
 
   if ((((ushort)carInfo.fCarIndex != this->fPreviousCar) ||
       ((int)(signed char)carInfo.fCarID != (int)this->fPreviousCarID)) ||
@@ -620,9 +628,9 @@ void tScreenCarSelect::UpdateVideoWall(tCarInfo &carInfo)
     }
     this->fPreviousCar = (ushort)carInfo.fCarIndex;
     this->fPreviousCarID = (short)(signed char)carInfo.fCarID;
-    bVar1 = carInfo.fCountry;
+    country = carInfo.fCountry;
     this->fTVsInitialized = 0;
-    this->fPreviousCountry = (ushort)bVar1;
+    this->fPreviousCountry = (ushort)country;
     this->SetBrightness(0,0);
     TurnOff(this->fVideoWall);
   }
@@ -762,11 +770,14 @@ void tScreenCarSelect::ProcessInput(tPlayer,tInputKeyType &keyval,tMenuCommand &
      fState reads remove tVar4/state2.  The selected ABS menu item is SYM's
      `item`, and its three nested tMenuItem receivers are the inlined
      SetTextDescription stores reconstructed in nfs4_types.h. */
-  bool validCar;
-  tMenuItem *item;
-  tCarInfo carInfo;
-  
+
   if (keyval == kInput_KeyType_Square) {
+    /* [SYM] all three live in the block opened at SLD 3 (this `if`), in the
+       8c order carInfo, validCar, item. */
+    tCarInfo carInfo;
+    bool validCar;
+    tMenuItem *item;
+
     validCar = (*(bool (*)(...))(*this->_vf)[13].pfn)
         ((char *)this + (*this->_vf)[13].delta,&carInfo);
     if (FEApp->fPlayer == '\0') {
@@ -847,14 +858,15 @@ done:
 void tScreenCarSelect::DrawVideoWall(short y)
 
 {
+  /* [SYM] 8c decl order: carInfo, validCar */
+  tCarInfo carInfo;
   bool validCar;
   /* SYM-CODEGEN-CARRIER: vtbl -- the retail virtual GetCar call's implicit
      dispatch temporary has no SYM source local.  The manual non-virtual ABI
      model needs this cached row pointer: direct this->_vf[1][3] dispatch is
      byte-identical, but fails audit_vtable_indexing as unsafe row indexing. */
   __vtbl_ptr_type (*vtbl) [10];
-  tCarInfo carInfo;
-  
+
   vtbl = this->_vf;
   validCar = (*(bool (*)(...))vtbl[1][3].pfn)
                     (this->fPermShapes.fFilename + -0x14 + vtbl[1][3].delta,&carInfo);
@@ -897,12 +909,12 @@ extern byte D_8011472A, D_80114604, D_80114723, D_80114729;
 bool tScreenCarSelect::GetCar(tCarInfo &carInfo)
 
 {
-  /* SYM-CODEGEN-CARRIER: uVar1 -- retail records no caller locals.  Directly
+  /* SYM-CODEGEN-CARRIER: color -- retail records no caller locals.  Directly
      assigning the color expression is FAIL 9 at 159/160: it collapses the
      available/color value split and removes retail's intervening nop.  The
      separate color byte keeps the exact $v1/$v0 store pair.  The former
      `count` cache is not required: direct GetNum*Cars comparisons remain PASS. */
-  uchar uVar1;
+  uchar color;
 
   switch(this->fState) {
   case 0:
@@ -916,9 +928,9 @@ bool tScreenCarSelect::GetCar(tCarInfo &carInfo)
   case 2:
   case 6:
     carManager.GetStockCar((ushort)(byte)frontEnd.dealerCar,carInfo);
-    uVar1 = frontEnd.carColors[0][(signed char)carInfo.fCarID];
+    color = frontEnd.carColors[0][(signed char)carInfo.fCarID];
     carInfo.fAvailable = '\x01';
-    carInfo.fColor = uVar1;
+    carInfo.fColor = color;
     break;
   case 7:
     if (D_8011472A == 1) {
@@ -1086,11 +1098,12 @@ void tScreenCarSelect::DrawForeground()
   tCarInfo carInfo;
   short bShowStats;
   tMenuItem *currentItem;
+  /* SYM: validCar (REG BOOL) closes the 8c fn-scope set */
+  bool validCar;
   /* SYM-CODEGEN-CARRIER: currentItemValue -- using only the SYM-visible
      `currentItem` is FAIL 11 at 556/557 and collapses retail's `$s0`->$s2
      handoff, rotating the shared -2 mask into the wrong saved register. */
   tMenuItem *currentItemValue;
-  bool validCar;
   /* SYM-CODEGEN-CARRIER: validCarValue -- assigning the virtual-call result
      directly to `validCar` is count-exact FAIL 14 and moves retail's `$v0`
      ->`$s5` handoff ahead of menu-flag initialization. */
@@ -1102,8 +1115,17 @@ void tScreenCarSelect::DrawForeground()
   currentItemValue = FEApp->fCurrentMenu[0]->fItemList[FEApp->fCurrentMenu[0]->fCurrentItem];
   validCarValue = (*(bool (*)(...))(*this->_vf)[13].pfn)
                     (this->fPermShapes.fFilename + -0x14 + (*this->_vf)[13].delta,&carInfo);
-  __asm__("" : "=r"(currentItemValue) : "0"(currentItemValue));
-  currentItem = currentItemValue;
+  /* MATCH W86-D3 2026-09-02: the identity launder that kept `currentItem` and
+     `currentItemValue` in two registers (gcc otherwise copy-propagates one into
+     the other -- the "old-gcc no-copy-prop" identity, W85-S5) is replaced by a
+     pure-C ABSORPTION copy.  `v & (v | q)` == v for ANY q (absorption law), so
+     the value is unchanged, but it is a DIFFERENT expression, so cse cannot
+     record currentItem == currentItemValue; combine collapses the AND/OR pair
+     at ZERO bytes.  Whole-TU gate 59/59; plain removal is 2 (count-exact
+     557/557, `bne s0` vs retail `bne s2`).  Also PASS: the OR spelling, the
+     same absorption against `FEApp`, and absorbing currentItemValue in place
+     before a plain copy. */
+  currentItem = (tMenuItem *)((int)currentItemValue & ((int)currentItemValue | (int)menuDefs));
   validCar = validCarValue;
   bShowStats = false;
   (menuDefs->itemOpponentUpgrades).fFlags =
@@ -1351,9 +1373,10 @@ void tScreenCarSelectDuel::PreLoad()
      guard is FAIL4 (74/74), replacing retail's xori/beqz with li/beq.  SYM
      cannot recover an identifier for this optimized boolean; useDefault is
      the semantic reconstruction of the required materialized predicate. */
-  bool useDefault;
+  /* [SYM] 8c decl order: carInfo, buffer */
   tCarInfo carInfo;
   char buffer [32];
+  bool useDefault;
   
   (this->fOpponentShapes).fShapes = (tTexture_ShapeInfo *)0x0;
   ::InitializeShapes((tScreen *)this,&this->fOpponentShapes,5);
@@ -1457,14 +1480,15 @@ void tScreenCarSelectDuel::Cleanup()
 void tScreenCarSelectDuel::DrawVideoWall(short y)
 
 {
+  /* [SYM] 8c decl order: validCar, carInfo, i */
   bool validCar;
+  tCarInfo carInfo;
+  short i;
   /* SYM-CODEGEN-CARRIER: vtbl -- the retail virtual GetCar call's implicit
      dispatch temporary has no SYM source local.  The manual non-virtual ABI
      model needs this cached row pointer: direct this->_vf[1][3] dispatch is
      byte-identical, but fails audit_vtable_indexing as unsafe row indexing. */
   __vtbl_ptr_type (*vtbl) [10];
-  short i;
-  tCarInfo carInfo;
 
   vtbl = this->_vf;
   validCar = (*(bool (*)(...))vtbl[1][3].pfn)
@@ -1563,9 +1587,9 @@ void tScreenCarSelectDuel::GetShapeInfo(short &numPermShapes,short &numSwapShape
 void tScreenCarSelectDuel::UpdateVideoWall(tCarInfo &carInfo)
 
 {
-  /* SYM-CODEGEN-CARRIER: bVar1 -- direct fCountry storage is measured FAIL 2
+  /* SYM-CODEGEN-CARRIER: country -- direct fCountry storage is measured FAIL 2
      (52/52) because its relocation/reference identity differs from retail. */
-  u_int bVar1;
+  u_int country;
 
   if ((((ushort)carInfo.fCarIndex != this->fPreviousCar) ||
       ((int)(signed char)carInfo.fCarID != (int)this->fPreviousCarID)) ||
@@ -1576,9 +1600,9 @@ void tScreenCarSelectDuel::UpdateVideoWall(tCarInfo &carInfo)
     }
     this->fPreviousCar = (ushort)carInfo.fCarIndex;
     this->fPreviousCarID = (short)(signed char)carInfo.fCarID;
-    bVar1 = carInfo.fCountry;
+    country = carInfo.fCountry;
     this->fTVsInitialized = 0;
-    this->fPreviousCountry = (ushort)bVar1;
+    this->fPreviousCountry = (ushort)country;
     this->SetBrightness(0,0);
     TurnOff(this->fVideoWall);
   }
@@ -1619,19 +1643,20 @@ void tScreenCarSelectDuel::UpdateOpponentVideoWall(tCarInfo &carInfo)
 void tScreenCarSelectDuel::DrawBackground()
 
 {
-  DRAWENV *drenv;
-  bool validCar;
+  /* [SYM] 8c decl order: r, carInfo, drenv, daprim, temp, validCar */
   RECT r;
   tCarInfo carInfo;
+  DRAWENV *drenv;
+  DR_AREA *daprim;
   RECT temp;
-  /* SYM-CODEGEN-CARRIER: bVar1 -- nesting the player-two readiness body
+  bool validCar;
+  /* SYM-CODEGEN-CARRIER: p2Ready -- nesting the player-two readiness body
      directly is count-exact FAIL 16 and loses retail's held opponent-shape
      base plus explicit BOOL branch web. */
-  BOOL bVar1;
-  DR_AREA *daprim;
-  /* SYM-CODEGEN-CARRIER: bVar2 -- nesting the player-one readiness body
+  BOOL p2Ready;
+  /* SYM-CODEGEN-CARRIER: p1Ready -- nesting the player-one readiness body
      directly is FAIL 7 at 413/414 and changes retail's explicit BOOL branch. */
-  BOOL bVar2;
+  BOOL p1Ready;
   
   drenv = (DRAWENV *)Draw_GetDRAWENV(Draw_gPlayer1View,gFlip);
   daprim = (DR_AREA *)Render_gPacketPtr;
@@ -1654,7 +1679,7 @@ void tScreenCarSelectDuel::DrawBackground()
   carInfo.fColor = carInfo.fColorOrder[carInfo.fDefaultColor];
   this->UpdateOpponentVideoWall(carInfo);
   ::IsShapeFileLoaded((tScreen *)this,&this->fOpponentShapes);
-  bVar1 = false;
+  p2Ready = false;
   if ((((this->fOpponentShapes).fFile != (char *)0x0) &&
       (this->fVideoWall[1].fTransitionDirection != -1)) &&
      (gCarObj[1]->async_handle == 0)) {
@@ -1662,9 +1687,9 @@ void tScreenCarSelectDuel::DrawBackground()
        values into their comparisons is count-exact FAIL 20 and reverses each
        retail load/subtract destination web. */
     int elapsed = ticks[0] - this->fFadeTicks[1];
-    bVar1 = 0x80 < elapsed;
+    p2Ready = 0x80 < elapsed;
   }
-  if ((bool)bVar1) {
+  if ((bool)p2Ready) {
     this->tScreen::UploadShapes(this->fOpponentShapes,0,0x41,5,0);
     this->fOpponentTVsInitialized = 0;
     TurnOn(this->fVideoWall + 1);
@@ -1738,14 +1763,14 @@ void tScreenCarSelectDuel::DrawBackground()
   }
   if (validCar != 0) {
     ::IsShapeFileLoaded((tScreen *)this,&this->fSwapShapes);
-    bVar2 = false;
+    p1Ready = false;
     if (((this->fSwapShapes.fFile != (char *)0x0) &&
         (this->fVideoWall[0].fTransitionDirection != -1)) &&
        (gCarObj[0]->async_handle == 0)) {
       int elapsed = ticks[0] - this->fFadeTicks[0];
-      bVar2 = 0x80 < elapsed;
+      p1Ready = 0x80 < elapsed;
     }
-    if ((bool)bVar2) {
+    if ((bool)p1Ready) {
       this->tScreen::UploadSwapShapes(5);
       TurnOn(this->fVideoWall);
       if (this->fDestBrightness[0] == this->fBrightness[0]) {
@@ -1874,13 +1899,14 @@ bool tScreenCarSelectTwoPlayer::GetCar(tCarInfo &carInfo)
 void tScreenCarSelectTwoPlayer::DrawVideoWall(short y)
 
 {
+  /* [SYM] 8c decl order: i, validCar, carInfo */
+  short i;
   bool validCar;
+  tCarInfo carInfo;
   /* SYM-CODEGEN-CARRIER: videoOffset
    * Retail initializes the third SetOffset argument in the FEApp branch delay
    * slot.  A direct ternary is one instruction shorter and measures FAIL 5. */
   int videoOffset;
-  short i;
-  tCarInfo carInfo;
 
   validCar = (*(bool (*)(...))(*this->_vf)[13].pfn)
                     (this->fPermShapes.fFilename + -0x14 +
@@ -1942,9 +1968,9 @@ void tScreenCarSelectTwoPlayer::GetShapeInfo(short &numPermShapes,short &numSwap
 void tScreenCarSelectTwoPlayer::UpdateVideoWall(tCarInfo &carInfo)
 
 {
-  /* SYM-CODEGEN-CARRIER: bVar1 -- direct fCountry storage is measured FAIL 3
+  /* SYM-CODEGEN-CARRIER: country -- direct fCountry storage is measured FAIL 3
      (52/53); this temporary retains retail's load-delay-slot schedule. */
-  u_int bVar1;
+  u_int country;
 
   if ((((ushort)carInfo.fCarIndex != this->fPreviousCar) ||
       ((int)(signed char)carInfo.fCarID != (int)this->fPreviousCarID)) ||
@@ -1955,9 +1981,9 @@ void tScreenCarSelectTwoPlayer::UpdateVideoWall(tCarInfo &carInfo)
     }
     this->fPreviousCar = (ushort)carInfo.fCarIndex;
     this->fPreviousCarID = (short)(signed char)carInfo.fCarID;
-    bVar1 = carInfo.fCountry;
+    country = carInfo.fCountry;
     this->fTVsInitialized = 0;
-    this->fPreviousCountry = (ushort)bVar1;
+    this->fPreviousCountry = (ushort)country;
     TurnOff(this->fVideoWall);
     this->SetBrightness(0,0);
   }
@@ -1986,6 +2012,16 @@ void tScreenCarSelectTwoPlayer::TurnOffVideoWall()
 void tScreenCarSelectTwoPlayer::DrawBackground()
 
 {
+  /* [SYM] 8c decl order: r, carInfo, carY, drenv, daprim, temp */
+  RECT r;
+  union {
+    tCarInfo carInfo;
+    signed char signedCarID;
+  }; /* SYM-CARRIER: carInfo (AUTO -248; union alias is codegen-only) */
+  short carY;
+  DRAWENV *drenv;
+  DR_AREA *daprim;
+  RECT temp;
   /* SYM-CODEGEN-CARRIER: vtbl -- direct this->_vf[1][slot] indexing is
      byte-identical, but is structurally unsafe for the pointer-to-row type and
      fails the repository vtable-index audit.  This typed dispatch carrier
@@ -1999,15 +2035,6 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
      into UploadShapes is count-exact FAIL 6 and moves `li a3,65` relative to
      the receiver setup. */
   short uploadY;
-  short carY;
-  DRAWENV *drenv;
-  RECT r;
-  union {
-    tCarInfo carInfo;
-    signed char signedCarID;
-  }; /* SYM-CARRIER: carInfo (AUTO -248; union alias is codegen-only) */
-  RECT temp;
-  DR_AREA *daprim;
   /* SYM-CODEGEN-CARRIER: uploadReady -- nesting the readiness body directly
      is FAIL 24 at 338/342, losing four retail instructions and the held
      shape-file base. */
@@ -2375,13 +2402,14 @@ void tScreenPinkSlipsCarSelect::DoMemCardStuff()
      SYM-CODEGEN-CARRIER: resultStatePtr
      SYM-CODEGEN-CARRIER: pinkState
      SYM-CODEGEN-CARRIER: stateBase */
+  /* [SYM] 8c decl order at fn scope: player, card (`ret` is block-scoped
+     to the load arm opened at SLD 39). */
+  int player;
+  int card;
   CARDINFO_def *cardInfo;
   PinkSlipsCarSelectState resultState;
   PinkSlipsCarSelectState *resultStatePtr;
-  int ret;
   PinkSlipsCarSelectState *pinkState;
-  int card;
-  int player;
   
   /* SYM-INLINE-THIS: GetPlayer */
   player = FEApp->GetPlayer();
@@ -2423,6 +2451,8 @@ DoMC_dialogReady:
       *pinkState = NoCardInserted;
     }
     else if ((CURRENTLYUSINGMEMCARD == 0) && (*pinkState == NoCardInserted)) {
+      int ret;   /* [SYM] REG $v1, block opened at SLD 39 */
+
       PinkSlipsScreenState[player] = CardCurrentlyLoading;
       FEApp->Redraw();
       FEApp->Redraw();
@@ -2534,6 +2564,8 @@ void tScreenPinkSlipsCarSelect::Cleanup()
 void tScreenPinkSlipsCarSelect::SetDialog()
 
 {
+  /* [SYM] `player` (REG $s0) is the fn's sole 8c record; the carrier follows. */
+  int player;
   /* SYM-CODEGEN-CARRIER: wordnum -- retail lists no durable caller local for
      this selector.  Each definition feeds TextSys_Word in $a0 and dies there;
      duplicated selector-free arms are count-exact FAIL 2 (the final store uses
@@ -2541,7 +2573,6 @@ void tScreenPinkSlipsCarSelect::SetDialog()
      and loading funnels is PASS and does not join their RTL lifetimes.  Neither
      SYM nor the binary can distinguish this optimized local from a macro temp. */
   int wordnum;
-  int player;
   
   /* SYM: `player` is the sole caller local ($s0).  SetPosition reconstructs the
      line-2100 inline tDialogBase receiver and its three retail halfword stores. */

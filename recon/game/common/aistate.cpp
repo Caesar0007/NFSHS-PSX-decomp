@@ -2120,7 +2120,13 @@ extern "C" void ___17AIState_Purgatory(AIState_Purgatory *pThis,int __in_chrg)
 
   ppCVar3 = (sortedList = Cars_gSortedList, sortedList + search);
 
-  __asm__("" : : "r"(search));
+  /* W86-D2: read-only ref fence -> pure-C ABSORPTION IDENTITY `X | (X & 3) == X`.
+     A real RTL insn (both operands are the same VARIABLE, so fold() keeps it) that
+     cse/loop/flow see -- the reference is counted and `search` gets a second SET --
+     and combine folds `(ior X (and X K))` back to X, so no byte is emitted.
+     Ladder (whole-TU gate, AIState_Purgatory dtor): fence removed 14 | one
+     absorption PASS | 2 or 4 absorptions PASS | `X & (X | 3)` PASS. */
+  search = (int)((unsigned int)search | ((unsigned int)search & 3u));
 
 LOOP_800716DC:
 
@@ -2870,8 +2876,12 @@ void AIState_GotoSlice::Execute()
         inRange = limit < desiredSpeed;
       }
       /* W54-A15 REF-STEP #2 (reqdelta): +1 ref on inRange (3->4 floor_log2 step) rotates the
-         desiredSpeed/limit/inRange trio onto retail's $a3/$a2/$v0; 0 insns. */
-      __asm__("" : : "r"(inRange));
+         desiredSpeed/limit/inRange trio onto retail's $a3/$a2/$v0; 0 insns.
+         W86-D2: the step is now supplied in PURE C by the ABSORPTION IDENTITY
+         `X | (X & 3) == X` -- real RTL for cse/loop/flow, folded by combine, zero
+         bytes.  Ladder (whole-TU gate, AIState_GotoSlice::Execute): fence removed 18 |
+         one absorption PASS | 2 or 4 PASS | `X & (X | 3)` PASS. */
+      inRange = (int)((unsigned int)inRange | ((unsigned int)inRange & 3u));
       if (inRange) {
         limit = desiredSpeed;
       }

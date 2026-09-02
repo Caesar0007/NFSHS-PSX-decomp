@@ -1391,13 +1391,25 @@ void Night_SetEnviroment(DRender_tView *Vi)
     u_char *tgt /* SYM-CODEGEN-CARRIER: tgt -- direct target access is FAIL 6 (68/68) */ =
         (u_char *)NIGHT_CAMERA_TARGET(Vi->player);
     /* W80 QTY_CMP_PRI dial: five zero-byte refs are the minimal whole-step crossing
-     * for tgt (7/18) over zn2 (3/4); four refs only tie at 0.7500 and stay FAIL. */
+     * for tgt (7/18) over zn2 (3/4); four refs only tie at 0.7500 and stay FAIL.
+     * W86-D2: FOUR of the five zero-byte references are now PURE C -- the ABSORPTION
+     * IDENTITY `X | (X & 3) == X`.  It is a real RTL insn that fold() cannot remove
+     * (variable operand), so cse/loop/flow see it and count the reference, and
+     * `combine` collapses `(ior X (and X K))` back to X at ZERO BYTES.
+     * Measured (whole-TU gate, Night_SetEnviroment, 68/68 count-exact throughout):
+     *   all 5 fences (old baseline) ....................... PASS
+     *   1 fence + 4 absorptions (LANDED) .................. PASS
+     *   0 fences + 1..4 absorptions, every subset (32 cells) .. 8
+     *   0 fences at all ................................... 8
+     * So the FIRST reference must still be the asm one: an absorption also SETS the
+     * carrier, which splits its live range, and with no fence left the split costs
+     * more than the reference buys.  The surviving fence is the irreducible one. */
     __asm__("" : : "r"(tgt));
-    __asm__("" : : "r"(tgt));
-    __asm__("" : : "r"(tgt));
-    __asm__("" : : "r"(tgt));
+    tgt = (u_char *)((unsigned int)tgt | ((unsigned int)tgt & 3u));
+    tgt = (u_char *)((unsigned int)tgt | ((unsigned int)tgt & 3u));
+    tgt = (u_char *)((unsigned int)tgt | ((unsigned int)tgt & 3u));
     int zn2 /* SYM-CODEGEN-CARRIER: zn2 -- direct constant store is FAIL 8 (68/68) */ = 0x80;
-    __asm__("" : : "r"(zn2));
+    zn2 = (int)((unsigned int)zn2 | ((unsigned int)zn2 & 3u));
     Night_gZNear = zn2;
     if ((tgt[0x447] & 4) != 0) {
       Night_gZDistShift = 0xd;

@@ -163,17 +163,19 @@ void DrawShape_SubtractNFS4RectEdges(RECT &rect)
    *    that lever targets the LICM decline which `prevPrim` already fixed.
    *  o ROUTE: permuter (multi-basin), or the per-object toolchain-identity
    *    investigation that already owns the allocno_compare delta. */
+  /* decl order = SYM Def-record order (dr_mode, prim, x1, y1, x2, y2, i);
+     the two non-SYM OT-link macro carriers follow it -- w86-S5, gate unchanged */
   DR_MODE *dr_mode;
-  u_char *prevPrim; /* SYM-CODEGEN-CARRIER: prevPrim -- removing the cached addPrim
-                       palette pointer is measured 107/108 and loses retail LICM */
   POLY_G4 *prim;
-  u_long linkWord; /* SYM-CODEGEN-CARRIER: linkWord -- folding the addPrim link RMW
-                      moves its store before the packet bump; the split form is PASS */
   short x1;
   short y1;
   short x2;
   short y2;
   short i;
+  u_char *prevPrim; /* SYM-CODEGEN-CARRIER: prevPrim -- removing the cached addPrim
+                       palette pointer is measured 107/108 and loses retail LICM */
+  u_long linkWord; /* SYM-CODEGEN-CARRIER: linkWord -- folding the addPrim link RMW
+                      moves its store before the packet bump; the split form is PASS */
 
   i = 0;
   y1 = rect.y + 1;
@@ -275,11 +277,13 @@ void DrawShape_NFS4Rectangle(RECT &position)
    * `dseY` were Ghidra fictions: all four DrawShapeExtended calls and every
    * PSXDraw* coordinate were UNINITIALISED locals (real bug).  Recovered from
    * the raw oracle. */
-  tDrawShapeExtended drawFlags;
-  tTexture_ShapeInfo *bottomright;
+  /* decl order = SYM Def-record order (topleft, topright, bottomleft,
+     bottomright, drawFlags) -- w86-S5, gate unchanged */
+  tTexture_ShapeInfo *topleft;
   tTexture_ShapeInfo *topright;
   tTexture_ShapeInfo *bottomleft;
-  tTexture_ShapeInfo *topleft;
+  tTexture_ShapeInfo *bottomright;
+  tDrawShapeExtended drawFlags;
 
   drawFlags.tint[0] = 0x7b2908;
   drawFlags.tint[1] = 0x150800;

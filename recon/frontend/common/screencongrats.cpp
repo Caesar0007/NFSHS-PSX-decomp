@@ -35,12 +35,10 @@ void tScreenCongrats::GetShapeInfo(short &numPermShapes,short &numSwapShapes,cha
      express both message choices directly, and keep the racer bound short;
      the decompiler's prefix/ranking locals changed statement order and the
      $s4/$s5 allocation.  The trophy test branches away to the switch arm. */
+  tTourneyInfo *tourneyInfo;
   short numRanked; /* SYM-CODEGEN-CARRIER: numRanked -- spelling the bound directly
                       is measured FAIL 100 (156/150), grows the frame, and rotates
                       every saved register; this short carrier preserves retail. */
-  int i;
-  int j;
-  tTourneyInfo *tourneyInfo;
 
   tourneyInfo = &(tournamentManager.fDefinition)->fTournaments
       [(uint)(tournamentManager.fDefinition)->fTiers[tournamentManager.fTier].fTournOffset +
@@ -56,17 +54,25 @@ void tScreenCongrats::GetShapeInfo(short &numPermShapes,short &numSwapShapes,cha
           (uint)(byte)frontEnd.language);
   *permFileName = fPermFileNameBuf;
   if (2 <= (u_int)(this->trophy - kTrophyCar)) {
+    /* [SYM] j lives in the block opened at SLD 19; i in the block nested
+       inside it (same source line) -- the 8c record order is j then i. */
+    int j;
+
     j = 900;
     numRanked = (short)((short)tournamentManager.fNumRacers +
                         (tourneyInfo->fKnockout != '\0'));
-    i = 1;
-    if (0 < numRanked) {
-      do {
-        if (PlayerRanking(&tournamentManager,(short)i) == 0) {
-          j = i;
-        }
-        i = i + 1;
-      } while (i <= numRanked);
+    {
+      int i;
+
+      i = 1;
+      if (0 < numRanked) {
+        do {
+          if (PlayerRanking(&tournamentManager,(short)i) == 0) {
+            j = i;
+          }
+          i = i + 1;
+        } while (i <= numRanked);
+      }
     }
     GetTrophyName(&tournamentManager,tourneyInfo,ts_Large,congratsSwapFileName,j);
     *swapFileName = congratsSwapFileName;
@@ -495,11 +501,11 @@ void tScreenPinkSlipCongrats::CalculatePrizes()
   /* SYM-CODEGEN-CARRIER: player -- SYM omits this source local, but folding
      the winner-derived value into the two CarIO calls is measured FAIL71
      (65/68 instructions) and changes the frame/saved-register allocation. */
+  tCarInfo carinfo;   /* [SYM] the ONLY 8c-recorded local of this fn (AUTO) */
   int player;
   /* SYM-CODEGEN-CARRIER: speechId2 -- the documented three-step in-place
      mutation is required for retail's $v1 lifetime and unmerged arm stores. */
   int speechId2;
-  tCarInfo carinfo;
 
   /* MATCH (W54-A7, from the SYM SLD line map of 0x80048CDC..0x80048DEC):
      retail's statement order is EXACTLY 464 TotalCash / 465 CashAwarded /
@@ -603,9 +609,10 @@ void tScreenTournamentTrophy::ProcessInput(tPlayer p,tInputKeyType &keyval,tMenu
 bool tScreenTournamentTrophy::GetCar(tCarInfo &carInfo)
 
 {
-  tAwardInformation tInfo;
-  
+
   if (this->congratsMessage == kScreenCongrats_Congrats) {
+    tAwardInformation tInfo;   /* [SYM] AUTO sp+16, block opened at SLD 3 */
+
     GetAwardInformation(&tournamentManager,&tInfo);
     blockmove(GetCarFromID(&carManager, (u_short)tInfo.fAwardCarModel),&carInfo,0xcc);
     carInfo.fUpgrades = tInfo.fAwardCarUpgrades;
@@ -624,9 +631,10 @@ void tScreenTournamentTrophy::DrawCongratsMessage()
 {
   /* MATCH: locals + block scopes taken VERBATIM from the SYM 8c block
      (fsize 1456, mask $801f0000 = ra,s0-s4):
-       fn scope  AUTO  r, tInfo, buffer1[500], buffer2[500], buffer[256], money[64]
+       fn scope  AUTO  r, tInfo, buffer1[500], buffer2[500]
        blk @567  REG   firstmessage($s2), secondmessage($s3), tourneyInfo($s1)
        blk @575  REG   placeoffset($s0)
+       blk @626  AUTO  buffer[256](sp+1112), money[64](sp+1368)
        blk @639  REG   yyy($s0)
      Ghidra's word/word2/trophyClass are FABRICATED (absent from the SYM) --
      they cost a 6th saved register ($s5) and 8 bytes of frame. */
@@ -634,8 +642,6 @@ void tScreenTournamentTrophy::DrawCongratsMessage()
   tAwardInformation tInfo;
   char buffer1 [500];
   char buffer2 [500];
-  char buffer [256];
-  char money [64];
 
   r.x = 0x29;
   r.y = 0x3c;
@@ -702,6 +708,9 @@ void tScreenTournamentTrophy::DrawCongratsMessage()
     }
     GetAwardInformation(&tournamentManager,&tInfo);
     if (tInfo.fAwardCarGarageFull != 0) {
+      char buffer [256];
+      char money [64];
+
       r.x = 0x104;
       r.y = 200;
       r.w = 0xf0;
@@ -874,8 +883,8 @@ void tScreenBeTheCopCongrats::CalculatePrizes()
 void tScreenBeTheCopCongrats::DrawCongratsMessage()
 
 {
-  RECT r;
   short congrats;
+  RECT r;
   char buffer [250];
 
   /* @0x80049540-58: oracle materializes a real RECT{x=0x29,y=0x3C,w=0xC8,h=0xC8} local (same idiom

@@ -257,7 +257,7 @@ DrawOvl_transitionPos:
   switch(overlay->ID) {
   case 0:
     if (validCar != 0) {
-      DrawShape_NFS4RoundRectangle((signed char)carInfo.fCarID + 0x121,pos,0);   /* W58-A1: RECT& decl */
+      DrawShape_NFS4RoundRectangle((signed char)carInfo.fCarID + 0x122,pos,0);   /* W58-A1: RECT& decl; REGION USA +1 text id */
     }
     break;
   case 1:
@@ -268,10 +268,11 @@ DrawOvl_transitionPos:
     temp.y = pos.y + pos.h + -0x1e;
     temp.w = pos.w + -0x1e;
     if (validCar != 0) {
-      FETextRender_MenuTextPositionedJustify((signed char)carInfo.fCarID + 0x121,temp.x + temp.w + -0xc,pos.y + 2,1,textState_Selected,
+      FETextRender_MenuTextPositionedJustify((signed char)carInfo.fCarID + 0x122,temp.x + temp.w + -0xc,pos.y + 2,1,textState_Selected,
                  textType_FramedInfo);
     }
-    text = overlay->ID == 2 ? 0x8d : overlay->ID == 3 ? 0x8e : 0x8c;
+    /* REGION USA: +1 text ids (retail string table gained an entry). */
+    text = overlay->ID == 2 ? 0x8e : overlay->ID == 3 ? 0x8f : 0x8d;
     if (validCar != 0) {
       moneyColor = 0xbebe;
       if (overlay->ID == 2) {
@@ -303,7 +304,7 @@ DrawOvl_transitionPos:
       DrawMoney((int)temp.x + (int)temp.w + -0xc,temp.y + 0xd,9,
                  tournamentMoney,0xbebe,0x232323);
     }
-    FETextRender_MenuTextPositionedJustify(0x7b,temp.x + (temp.w >> 1),
+    FETextRender_MenuTextPositionedJustify(0x7c,temp.x + (temp.w >> 1),
                             temp.y + 0xd,1,textState_Selected,textType_FramedInfo);
     DrawShape_NFS4Rectangle(temp);   /* W58-A1: RECT& decl */
     PSXDrawSquare(0,(int)pos.x,(int)pos.y,(int)pos.w,10);
@@ -368,26 +369,26 @@ DrawOvl_transitionPos:
       temp.w = pos.w + -0x3c;
       temp.h = pos.h + -0x4b;
       FETextRender_MenuTextPositionedJustify
-                (*(volatile int *)&menuDefs->menuCarUpgrades.fCurrentItem + 0x96,
+                (*(volatile int *)&menuDefs->menuCarUpgrades.fCurrentItem + 0x97,
                  pos.x + (pos.w >> 1),pos.y + 0x18,2,
                  textState_Hilighted,textType_FramedInfo);
       {
         int descrItem;
 
-        descrItem = (short)menuDefs->menuCarUpgrades.fCurrentItem + 0xaf;
-        if ((descrItem == 0xb0) &&
+        descrItem = (short)menuDefs->menuCarUpgrades.fCurrentItem + 0xb0;
+        if ((descrItem == 0xb1) &&
             (((signed char)carInfo.fCarID == 0xc) ||
              ((signed char)carInfo.fCarID == 10))) {
           descrItem = 0x41;
         }
         FETextRender_WordWrap((short)descrItem,temp,textState_Hilighted,textType_PopUpText);
       }
-      text = 0xa0;
+      text = 0xa1;
       if ((carInfo.fUpgrades &
            upgradeIcons[(short)menuDefs->menuCarUpgrades.fCurrentItem]) == 0) {
-        text = 0x9e;
+        text = 0x9f;
         if (gPadinfo.buf[0].ID == '#') {
-          text = 0x9f;
+          text = 0xa0;
         }
       }
       FETextRender_MenuTextPositionedJustify(text,pos.x + pos.w + -0xf,pos.y + pos.h + -0x14,1,textState_Hilighted,
@@ -660,7 +661,9 @@ void tScreenCarSelect::InitializeVideoWall()
 
 {
   ::Initialize(&this->fVideoWall[0],this->tvConfigs,this->fSwapShapes.fShapes,0,10,tvOrder,0x96);
-  SetAvailableText(this->fVideoWall,0xf8,0x140,0x50);
+  /* REGION USA: retail string table gained one entry ahead of this id, so the
+     "available" text id is one higher than the base build (0xf8 -> 0xf9). */
+  SetAvailableText(this->fVideoWall,0xf9,0x140,0x50);
   this->fVideoWall->SetAvailableIcon(0x1c,10,0x136,0x3c,this->fPermShapes.fShapes);
   if ((this->fSwapShapes.fFlags & 1) != 0) {
     UpdateImages(this->fVideoWall);
@@ -1440,7 +1443,8 @@ void tScreenCarSelectDuel::InitializeVideoWall()
      and $s0 without the former vw_player/vw_opp source identities. */
   ::Initialize(&this->fVideoWall[0],this->tvConfigs,
              this->fSwapShapes.fShapes,0,5,tvSplitOrder,0);
-  SetAvailableText(this->fVideoWall,0xf8,0x10e,0x2d);
+  /* REGION USA: +1 text id (see tScreenCarSelect::InitializeVideoWall). */
+  SetAvailableText(this->fVideoWall,0xf9,0x10e,0x2d);
   if ((this->fSwapShapes.fFlags & 1) != 0) {
     this->fVideoWall->SetOffset(6,0);
     UpdateImages(this->fVideoWall);
@@ -1448,7 +1452,8 @@ void tScreenCarSelectDuel::InitializeVideoWall()
   }
   ::Initialize(&this->fVideoWall[1],this->tvConfigs + 5,(this->fOpponentShapes).fShapes,0,5,
              tvSplitOrder,0);
-  SetAvailableText(this->fVideoWall,0xf8,0x10e,0x96);
+  /* REGION USA: +1 text id (see tScreenCarSelect::InitializeVideoWall). */
+  SetAvailableText(this->fVideoWall,0xf9,0x10e,0x96);
   if (((this->fOpponentShapes).fFlags & 1) != 0) {
     (this->fVideoWall + 1)->SetOffset(6,0x69);
     UpdateImages(this->fVideoWall + 1);
@@ -2091,7 +2096,7 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
       r.y = 0x80;
     }
     this->fCameraRotation = this->fCameraRotation + 3;
-    DrawShape_NFS4RoundRectangle((signed char)carInfo.fCarID + 0x121,r,0);   /* W58-A1: RECT& decl */
+    DrawShape_NFS4RoundRectangle((signed char)carInfo.fCarID + 0x122,r,0);   /* W58-A1: RECT& decl; REGION USA +1 text id */
     vtbl = this->_vf;
     (*vtbl[1][2].pfn)
               (vtbl[1][2].delta + -0x14 +
@@ -2291,7 +2296,8 @@ void tScreenCarSelectTwoPlayer::SetDialog()
     player = FEApp->fPlayer;
     ((tDialogBackUpOnly *)this->CarDialog.SetPosition(
         0, (player == 0) ? -0x3c : 0x3c, (tPlayer)player))->string =
-      (sprintf("",TextSys_Word(0x2a8),PlayerName(1 - player)), "");
+      /* REGION USA: +1 text id. */
+      (sprintf("",TextSys_Word(0x2a9),PlayerName(1 - player)), "");
     this->CarDialog.Display();
   }
   else {
@@ -2631,7 +2637,7 @@ switchD_8003f3b4_caseD_7:
   case CardLoadedFine:
     if ((FEApp->waitingForOtherPlayer[player] != 0) ||
         (PinkSlipsScreenState[1 - player] != CardLoadedFine)) {
-      sprintf("",TextSys_Word(0x2a8),PlayerName(1 - player));
+      sprintf("",TextSys_Word(0x2a9),PlayerName(1 - player));   /* REGION USA: +1 */
       {
         /* SYM-CODEGEN-CARRIER: dlg -- preserves the inline receiver allocation. */
         tDialogBackUpOnly *dlg = &this->CarDialog;
@@ -2648,9 +2654,9 @@ switchD_8003f3b4_caseD_7:
       if (this->fStartCheckTick == 0) {
         this->fStartCheckTick = ticks[0];
       }
-      wordnum = player + 0x2ab;
+      wordnum = player + 0x2ac;   /* REGION USA: +1 */
       if (799 < ticks[0] - this->fStartCheckTick) {
-        wordnum = player + 0x2a9;
+        wordnum = player + 0x2aa;   /* REGION USA: +1 */
       }
       {
         /* SYM-CODEGEN-CARRIER: dlg -- the inline receiver must be born before
@@ -2669,13 +2675,13 @@ switchD_8003f3b4_caseD_7:
     this->fStartCheckTick = 0;
     goto SetDlg_cardOkReturn;
   case CardFailedNotFound:
-    wordnum = player + 0x2af;
+    wordnum = player + 0x2b0;   /* REGION USA: +1 */
     goto SetDlg_cardFailed;
   case CardFailedUnformatted:
-    wordnum = player + 0x2b1;
+    wordnum = player + 0x2b2;   /* REGION USA: +1 */
     goto SetDlg_cardFailed;
   case CardFailed:
-    wordnum = player + 0x2ad;
+    wordnum = player + 0x2ae;   /* REGION USA: +1 */
 SetDlg_cardFailed:
     {
       /* SYM-CODEGEN-CARRIER: dlg -- preserves the inline receiver allocation. */
@@ -2686,13 +2692,13 @@ SetDlg_cardFailed:
     this->fStartCheckTick = 0;
     return;
   case NotEnoughCars:
-    wordnum = player + 0x32d;
+    wordnum = player + 0x32e;   /* REGION USA: +1 */
     goto SetDlg_loadingWord;
   case TooManyCars:
-    wordnum = player + 0x32f;
+    wordnum = player + 0x330;   /* REGION USA: +1 */
     goto SetDlg_loadingWord;
   case CardCurrentlyLoading:
-    wordnum = player + 0x280;
+    wordnum = player + 0x281;   /* REGION USA: +1 */
 SetDlg_loadingWord:
     {
       /* The shared selector remains block-local in RTL across this funnel. */

@@ -44,8 +44,10 @@ void MenuNFS4_DrawTextBox(int helpText,RECT &r,int initialWidth,short drawOffset
   DRAWENV *drenv;
   DR_AREA *daprim;
   RECT temp;
-  int dist;
+  /* SYM ORDER (W86-S2): the 8c Def rows read drenv, daprim, temp, textpix,
+     dist, drawFlags, buffer, shape. */
   int textpix;
+  int dist;
   tDrawShapeExtended drawFlags;
   char buffer [64];
   tTexture_ShapeInfo *shape;
@@ -96,7 +98,17 @@ void MenuNFS4_DrawTextBox(int helpText,RECT &r,int initialWidth,short drawOffset
         int selected = textpix >= dist ? textpix : dist;
         selFade = fSelFade;
         textType = textType_FlybyHelp;
-        __asm__("" : "=r"(textType) : "0"(textType));
+        /* MATCH W86-D3 2026-09-02: textType's identity launder replaced by a
+           PURE-C ABSORPTION inflator.  `textType & (textType | selected)` ==
+           textType for ANY value of selected (absorption law) -- a semantic
+           no-op whose operand is runtime-unknown to cse, so the AND survives
+           to flow (the extra reference is counted) and combine collapses it at
+           ZERO bytes.  Whole-TU gate 57/57 with x1 and x2.  The sibling
+           launders are NOT reachable this way: selFade absorbed against
+           selected/textpix/helpText 20, against dist 46, against fSelFade 4,
+           the OR form 20; fade absorbed against any of them 4; all three at
+           once 26 (removal of all three is 4). */
+        textType &= (textType | selected);
         __asm__("" : "=r"(selFade) : "0"(selFade));
         fade = 0;
         __asm__("" : "=r"(fade) : "0"(fade));
@@ -180,10 +192,11 @@ tMenuItemGoToMenuNFS4Button::~tMenuItemGoToMenuNFS4Button()
 void tMenuItemGoToMenuNFS4Button::Draw(int x,int y,bool selected)
 
 {
-  short dist;
+  /* SYM ORDER (W86-S2): the 8c Def rows read rect, dist, buffer. */
   RECT rect;
+  short dist;
   char buffer [64];
-  
+
   if ((selected == 0) && (this->fOffset + -0xe < 2)) {
     this->fOffset = 0xe;
   }
@@ -354,9 +367,10 @@ tMenuItemNFS4LeftRightChoice::~tMenuItemNFS4LeftRightChoice()
 void tMenuItemNFS4LeftRightChoice::Draw(int x,int y,bool selected)
 
 {
-  short dist;
+  /* SYM ORDER (W86-S2): the 8c Def rows read rect, dist. */
   RECT rect;
-  
+  short dist;
+
   /* MATCH (W57-A5): shape taken VERBATIM from the PASSing sibling
      tMenuItemGoToMenuNFS4Button::Draw -- guard arm order (selected==0 && offset-14<2),
      field-direct offset step (`lh`+`lhu` re-read pair), and the field-direct
@@ -489,11 +503,12 @@ UpdTrans_callBaseLRChoice:
 void tMenuItemOptionsLeftRightChoice::Draw(int x,int y,bool selected)
 
 {
+  /* SYM ORDER (W86-S2): the 8c Def rows read r, left, col, drawFlags. */
+  RECT r;
   tTexture_ShapeInfo *left;
   int col;
-  RECT r;
   tDrawShapeExtended drawFlags;
-  
+
   left = &gHelpShapes[0x29];
   col = CalcTextFadeSelToHi(textType_Options,
                       this->fSelFade,0);
@@ -551,13 +566,15 @@ void tMenuItemOptionsTwoItemChoice::TransitionOn()
 void tMenuItemOptionsTwoItemChoice::Draw(int x,int y,bool selected)
 
 {
-  tTexture_ShapeInfo *left;
-  int Col;
+  /* SYM ORDER (W86-S2): the 8c Def rows read r, left, ColTextOn, ColTextOff,
+     Col, drawFlags. */
   RECT r;
-  tDrawShapeExtended drawFlags;
+  tTexture_ShapeInfo *left;
   int ColTextOn;
   int ColTextOff;
-  
+  int Col;
+  tDrawShapeExtended drawFlags;
+
   left = &gHelpShapes[0x29];
   if ((u_char)(*(*this->fData->_vf)[2].pfn)
       ((char *)this->fData + (int)(*this->fData->_vf)[2].delta,0xffffffff) != 0) {
@@ -640,8 +657,6 @@ tMenuNFS4::~tMenuNFS4()
 void tMenuNFS4::Initialize()
 
 {
-  short item;
-
   this->tMenu::Initialize();
   this->fLastItem = (char)this->fCurrentItem;
   this->fInItemTransition = 0;
@@ -651,6 +666,11 @@ void tMenuNFS4::Initialize()
     this->fNumItems++;
   }
   if ((this->fFlags & 0x200) != 0) {
+    /* SYM SCOPE (W86-S2): `item` is a BLOCK local of this `if` (SYM `Def class
+       REG SHORT name item` sits inside the depth-4 block that opens at the
+       flag test), not a function-scope declaration. */
+    short item;
+
     item = 0;
     while (true) {
       if (this->fItemList[item] == (tMenuItem *)0x0) break;
@@ -711,12 +731,14 @@ void tMenuNFS4::TransitionOn()
 bool tMenuNFS4::TransitionIsFinished()
 
 {
+  /* SYM ORDER (W86-S2): the 8c Def rows read i, result; the four non-SYM
+     carriers follow the SYM set. */
+  short i;
+  bool result;
   tMenuItem *ptVar1;
   int iVar2;
   u_int uVar3;
   int iVar4;
-  bool result;
-  short i;
 
   result = 1;
   i = 0;
@@ -785,10 +807,12 @@ void tMenuNFS4::Draw()
    * These two optimized field-value carriers preserve the retail register
    * handout: collapsing both into direct member reads is FAIL 31 / 85 insns
    * versus PASS 82, while the direct title, item-pointer, and vtable forms pass. */
-  int iVar3;
-  int iVar4;
+  /* SYM ORDER (W86-S2): the SYM rows i, drawFlags lead; the two non-SYM
+     carriers follow them. */
   short i;
   tDrawShapeExtended drawFlags;
+  int iVar3;
+  int iVar4;
 
   if (-1 < this->fTitle) {
     FETextRender_Title(this->fTitle);
@@ -1059,15 +1083,17 @@ tMenuOptions::~tMenuOptions()
 void tMenuOptions::Draw()
 
 {
+  /* SYM ORDER (W86-S2): the 8c Def rows read numItems, i, deltaTicks, x, y,
+     w, h, itemY. */
   short numItems;
-  u_long deltaTicks;
-  long itemY;
   short i;
-  long y;
+  u_long deltaTicks;
   long x;
-  long h;
+  long y;
   long w;
-  
+  long h;
+  long itemY;
+
   numItems = ((tMenu *)this)->GetNumberEnabledItems();
   w = 0x140;
   (*(*this->_vf)[7].pfn)((int)this + (*this->_vf)[7].delta);

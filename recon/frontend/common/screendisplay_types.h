@@ -385,6 +385,12 @@ struct tOptionsMenu : public tMenu {
     signed char fTransitionDirection;
     short fPrevItem;
     int fScreenFade, fFirstFrame, fNumFrames;
+    /* W86-S4 SYM: tScreenUserName::DrawBackground's `8c` block carries a NESTED
+       block whose only record is `REG this $2 v0 PTR STRUCT tag tOptionsMenu`,
+       emitted at the function's first statement -- an INLINED tOptionsMenu
+       accessor reading fScreenFade there (the SYM records the inlined `this`,
+       not the method's name). */
+    int GetScreenFade() { return fScreenFade; }
 #ifdef NFS4_FEMENUOPTIONS_SURFACE
     tOptionsMenu(unsigned int, tScreen *, tMenu *, tMenu *,
                  void (*)(tMenuCommand &), short, int, int,

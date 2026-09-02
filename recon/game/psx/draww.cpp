@@ -1023,7 +1023,18 @@ DrawWSubdiv_edgedone:
        N=5..8 -> 26.  Landed the modelled MINIMUM.  The natural-source alternative
        (retail simply re-reads `sd` 5 more times than our CSE'd body does) is the
        open angle that would retire this device. */
-    __asm__("" : : "r"(sd), "r"(sd), "r"(sd), "r"(sd), "r"(sd));
+    /* W86-D2: the 5-operand read-only ref fence above is replaced by ONE pure-C
+       ABSORPTION IDENTITY (`X | (X & 3) == X`).  fold() cannot remove it (both
+       operands are the same VARIABLE), so cse/loop/flow see a real insn -- the
+       references are counted AND `sd` gets a second SET that splits its live range --
+       and `combine` folds `(ior X (and X K))` back to `X`, so ZERO bytes are emitted.
+       Ladder (whole-TU gate, DrawW_SubdividFacet, count-exact 588/588 throughout):
+         fence removed ................................. 94
+         one absorption (LANDED) ....................... PASS
+         two / four absorptions ........................ PASS (count is not the dial)
+         `X & (X | 3)` form ............................ PASS
+       This retires the "open angle" the w64-a2 ledger above names. */
+    sd = (Draw_tGiveShelbyMoreCache *)((unsigned int)sd | ((unsigned int)sd & 3u));
     DrawW_AddSubdividPrimGT4((POLY_GT4 *)v4,v0,v1,v2,v3,sd);
     return;
   }
@@ -1632,6 +1643,36 @@ void DrawW_DrawQuad(Draw_tGiveShelbyMoreCache *sd,Trk_Quad *inQuad)
 
     t2 = *(u_char *)((char *)inQuad + 3);
     geomVertices = sd->vertices;
+    /* ===================== W86-D2 ABSORPTION (device removal) =====================
+     * This one statement replaces the 66 `__asm__("" : : "r"(sd))` fences that used
+     * to sit at the function tail (their removal cost 194 diffs).  It is an ALGEBRAIC
+     * IDENTITY -- `X | (X & 3) == X` -- so the value of `sd` is unchanged, and it is
+     * ZERO BYTES: `fold()` cannot remove it at tree level (both operands are the same
+     * VARIABLE, not a constant), so it survives as real RTL through cse/loop/flow, and
+     * `combine` then collapses `(ior X (and X K))` back to `X`.  Because combine runs
+     * AFTER flow, the references ARE counted and the instruction is NOT emitted.
+     *   measured on the allocno table (tools/rtl_dump.py + tools/prio.py):
+     *     66 asm fences : p80(sd) refs=128 live=1002 pri=.894 -> $s0  (prim .842 -> $s1)
+     *     this statement: p80(sd) refs=125 live= 495 pri=1.52  -> $s0  (prim unchanged)
+     *   i.e. it wins the same ranking by SPLITTING sd's live range at the second SET,
+     *   not by crossing the 2^7 reference razor -- which is why the count is
+     *   irrelevant here (1, 2, 4, 8, 16, 24, 33 and 44 copies all gate identically).
+     * POSITION IS THE DIAL, and only these two positions reach zero:
+     *     function head (before the vertex block) ....... 2 (prologue parm-copy order:
+     *         ours `addu t4,a1,zero` before `addu s0,a0,zero`, retail after)
+     *     after `t2 = *(u_char *)(inQuad+3)` ............ 2
+     *     HERE, after `geomVertices = sd->vertices` ..... PASS 592/592   <- landed
+     *     after `tx = (sd->trans).x` ................... PASS (equivalent)
+     *     function tail ................................ 194 (dead code, see below)
+     *   An absorption on `inQuad` instead of `sd` is inert (194); adding one on
+     *   `inQuad` alongside this one re-breaks the prologue order (2).
+     * FALSIFIED on the way (allocno table, not guesswork): the plain self-mask chain
+     * `int sdr = (int)sd; sdr &= (int)sd; ... ; sd = (T *)sdr;` adds ZERO references
+     * for any length at either end of the function -- cse proves `sdr == sd` and
+     * deletes the whole chain before flow.  The inflator needs an operation cse
+     * CANNOT fold but combine CAN, i.e. exactly this absorption shape.
+     * `X & (X | 3)` is equivalent (also PASS at this site). */
+    sd = (Draw_tGiveShelbyMoreCache *)((unsigned int)sd | ((unsigned int)sd & 3u));
     tx = (sd->trans).x;
     ty = (sd->trans).y;
     a = *(u_char *)((char *)inQuad + 2);
@@ -2189,21 +2230,12 @@ gte_SetTransMatrix(((char *)sd + 0x14));
       }
     }
   }
-  /* MATCH: GCC 2.8.1 allocno priority has a hard floor_log2 step at 128 refs for
-   * `sd`.  These zero-byte macro references reproduce the retail macro-expansion
-   * reference quantity: 65 added refs leaves sd/prim swapped (FAIL194), while the
-   * 66th crosses 127 -> 128 and produces byte-exact retail allocation. */
-#define DRAWW_SD_REF10() \
-  __asm__("" : : "r"(sd)); __asm__("" : : "r"(sd)); \
-  __asm__("" : : "r"(sd)); __asm__("" : : "r"(sd)); \
-  __asm__("" : : "r"(sd)); __asm__("" : : "r"(sd)); \
-  __asm__("" : : "r"(sd)); __asm__("" : : "r"(sd)); \
-  __asm__("" : : "r"(sd)); __asm__("" : : "r"(sd))
-  DRAWW_SD_REF10(); DRAWW_SD_REF10(); DRAWW_SD_REF10(); DRAWW_SD_REF10();
-  DRAWW_SD_REF10(); DRAWW_SD_REF10();
-  __asm__("" : : "r"(sd)); __asm__("" : : "r"(sd)); __asm__("" : : "r"(sd));
-  __asm__("" : : "r"(sd)); __asm__("" : : "r"(sd)); __asm__("" : : "r"(sd));
-#undef DRAWW_SD_REF10
+  /* W86-D2 (2026-09-02): the 66-statement zero-byte `sd` REF DIAL that used to sit
+   * here is GONE -- the whole thing is now ONE pure-C statement in the vertex block
+   * above (search "W86-D2 ABSORPTION").  Do not re-add references here; the tail is
+   * dead ground for a dial anyway (`sd` is dead after the last guard, so any pure-C
+   * chain placed here is deleted as dead code before flow ever counts a reference --
+   * measured on the allocno table, refs stayed 122 for chains of 2..30). */
   return;
 }
 
@@ -2776,8 +2808,17 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
                flr2(4)*4*4/1 = the block maximum).  Zero insns at THIS site; site-wise
                probe: 2524 -> 22@359, 2585 -> 11@358, 2645 -> 15@358, 2666 -> 19@360,
                every pair/triple worse. */
-              int off7d = 0x7d; /* SYM-CODEGEN-CARRIER: off7d -- one-site opacity prevents the four 0x7d stores from becoming a loop movable */
-              __asm__("" : "=r"(off7d) : "0"(off7d)); sd->offset = off7d; }
+              /* W86-D2: the identity launder is replaced by a PURE-C DEAD FIRST SET.
+                 A second (non-consecutive-value) SET of the carrier is all loop.c needs
+                 to refuse the movable; the dead `= 0` store is deleted by flow, so this
+                 costs zero instructions.  Ladder (whole-TU gate, DrawW_DoTrough):
+                   device removed .................... 44
+                   `off7d = 0x7d;` twice (consecutive) . 44 (cse folds the 2nd set)
+                   `off7d = 0; off7d = 0x7d;` ......... PASS  <- landed
+                   `... = 0x7d; store; off7d = 0;` .... PASS (equivalent) */
+              int off7d = 0; /* SYM-CODEGEN-CARRIER: off7d -- the dead first set is what stops loop.c merging the four 0x7d stores into one movable */
+              off7d = 0x7d;
+              sd->offset = off7d; }
             DrawW_StripDraw_High(sd);
           }
         }
@@ -3408,8 +3449,11 @@ int DrawW_BuildObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
      ============================================================================ */
   totalCount = 0;
   group = gObjInfo->objInstanceBuf;
+  /* W86-D2: identity launder -> PURE-C save/dead-set/restore (zero insns, no asm).
+     `objInstance = 0;` alone BEFORE the real assignment does NOT work (34); the
+     working shape is real-value first, then the dead set, then the restore. */
   objInstance = (Trk_SimpleInst *)(group + 1);
-  __asm__("" : "=r"(objInstance) : "0"(objInstance));
+  { Trk_SimpleInst *oi = objInstance; objInstance = 0; objInstance = oi; }
   groupNumElements = group->m_num_elements;
   sd = (Draw_DCache *)&Render_gPalettePtr;
   /* MATCH (w46-a6): the zero-count arm RETURNS instead of assigning the
@@ -3917,7 +3961,8 @@ gte_SetTransMatrix(transMat);
        at the head block (before groupNumElements) it costs the guard
        polarity / a store slot (3 @199); here, inside the guarded body
        (24D-6), it is free and the fn is PASS 200/200. */
-    __asm__("" : "=r"(objInstance) : "0"(objInstance));
+    /* W86-D2: identity launder -> PURE-C save/dead-set/restore (zero insns, no asm). */
+    { Trk_SimpleInst *oi = objInstance; objInstance = 0; objInstance = oi; }
     /* MATCH (w71-a1): the oracle's element loop is UN-ROTATED -- the test sits at
        the loop TOP (`lw t1,84(sp); nop; slt v0,s7,t1; beqz v0,exit`) and the
        back-edge is an unconditional `j` whose DELAY SLOT carries `addiu s7,s7,1`

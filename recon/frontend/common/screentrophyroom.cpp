@@ -145,6 +145,10 @@ void tScreenTrophyRoom::Initialize()
      SYM-omitted value webs have measured counterfactual receipts beside their
      declarations; explicit `tournIdx`/`tourney`, in particular, retain retail's
      address-add result and operand order. */
+  /* W86-S4: the SYM `8c` block records exactly ONE function-scope local here,
+     `REG i $17 s1 SHORT`; the two SYM-ABSENT carriers are quarantined after it.
+     Re-gated PASS. */
+  short i;
   /* SYM-CODEGEN-CARRIER: curIdx -- the direct EA `MIN(current,count - 1)`
      expansion is FAIL 16 at 120/118 because it reloads both operands; retail
      keeps one candidate and one current-tournament load. */
@@ -153,7 +157,6 @@ void tScreenTrophyRoom::Initialize()
      117/118; it loses retail's caller-saved-to-`$s3` handoff and rotates the
      tier/constant allocation web. */
   tfrontEnd *loopFe;
-  short i;
 
   this->tScreen::Initialize();
   do {
@@ -246,11 +249,16 @@ void tScreenTrophyRoom::DrawBackground()
   int fModNumber;
   int TROPHY_LEFTOFFSET;
   tDrawShapeExtended drawFlags;
-  tDrawShapeExtended *drawFlagsPtr;
   short i;
   short x;
   short y;
   int texttoshow;
+  /* W86-S4: the eight locals above are now in the SYM `8c` order exactly
+     (drawFlags3 AUTO sp+32, fModNumber REG $19 s3, TROPHY_LEFTOFFSET REG $21 s5,
+     drawFlags AUTO sp+56, i REG $17 s1, x REG $6 a2, y REG $7 a3, texttoshow
+     REG $4 a0); the SYM-ABSENT drawFlagsPtr carrier is quarantined after them.
+     Re-gated PASS. */
+  tDrawShapeExtended *drawFlagsPtr;
   
   drawFlags3.tint[0] = 0xcec844;
   DrawShapeExtended((ticks >> 4) % 10 + 0x1c,

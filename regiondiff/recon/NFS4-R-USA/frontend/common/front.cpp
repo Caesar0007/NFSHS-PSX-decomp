@@ -4,6 +4,21 @@
  */
 #include "front.h"
 
+/* REGIONAL (all 6 retail regionals) -- the retail `tCheatCode` enumeration is
+ * renumbered: it is 12 entries shorter ahead of cheat_FinishedTournament, so
+ * that ordinal is 13, not the base build's 25.  AUDIT_LO16
+ * Front_InitOpponentCars__FR9tFEStream insn 170: 24040019 -> 2404000d (the
+ * ONLY differing word in that 357-insn function -- this is NOT the +1
+ * text-id shift class).  Confirmed corpus-wide by W86-B9, which measured the
+ * same delta in fetourn/fecars plus cheat_AllCops 12 -> 11.
+ * Applied as a candidate-local post-include override, per B9's recipe, so the
+ * base headers stay untouched and the call site keeps the retail enumerator
+ * NAME (the identifier is an enum member in fecheats_types.h/nfs4_types.h and
+ * a macro in fetourn_types.h/screencarselect_types.h; a macro defined after
+ * the includes covers every spelling and cannot disturb the parsed enum). */
+#undef cheat_FinishedTournament
+#define cheat_FinishedTournament 13     /* front.cpp, [REGIONAL] was 25 */
+
 extern void NFS4_LoadingIcon(void);
 
 struct RUSA_GameSetupAudioModeView {
@@ -1626,6 +1641,9 @@ static void Front_InitOpponentCars(tFEStream &streamData)
         streamData.carLineup[i + 1].carUpgrades = tourn->fOpponentUpgrades[i];
       }
       if ((frontEnd.raceType == RaceType_Tournament) && (frontEnd.tier == '\0')) {
+        /* REGIONAL: cheat_FinishedTournament == 13 here, via the TU-local
+         * post-include override at the top of this candidate (retail enum
+         * renumbering, not a text-id shift). */
         if ((FECheat_IsCheatEnabled(cheat_FinishedTournament) != 0) &&
            (frontEnd.opponentUpgrades != '\0')) {
           streamData.carLineup[i + 1].carUpgrades = tourn->fOpponentUpgrades[i];
@@ -3225,10 +3243,14 @@ char * PlayerName(int player)
       (frontEnd.allUpperCasedPlayerNameList[player]);
     return frontEnd.allUpperCasedPlayerNameList[player];
   }
+  /* REGIONAL (all 6 retail regionals): the retail string table gained one
+   * entry ahead of these ids, so every text id from here up shifts by +1 --
+   * 0x50 -> 0x51 ("PLAYER n") and 0x4e -> 0x4f ("PLAYER").
+   * AUDIT_LO16 insn 25: 2404004e -> 2404004f, insn 26: 26440050 -> 26440051. */
   if (frontEnd.gameMode == '\x01') {
-    return (char *)TextSys_Word(player + 0x50);
+    return (char *)TextSys_Word(player + 0x51);
   }
-  return (char *)TextSys_Word(0x4e);
+  return (char *)TextSys_Word(0x4f);
 }
 
 
@@ -3256,10 +3278,12 @@ char * PlayerNameMixedCase(int player)
   if (strlen(frontEnd.playerNameList[player]) != 0) {
     return frontEnd.playerNameList[player];
   }
+  /* REGIONAL (all 6 retail regionals): same +1 text-id shift as PlayerName.
+   * AUDIT_LO16 insn 17: 2404004e -> 2404004f, insn 18: 26440050 -> 26440051. */
   if (frontEnd.gameMode == '\x01') {
-    return (char *)TextSys_Word(player + 0x50);
+    return (char *)TextSys_Word(player + 0x51);
   }
-  return (char *)TextSys_Word(0x4e);
+  return (char *)TextSys_Word(0x4f);
 }
 
 

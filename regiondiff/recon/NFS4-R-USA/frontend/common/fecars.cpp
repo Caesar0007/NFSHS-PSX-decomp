@@ -5,6 +5,11 @@
  */
 #include "fecars.h"
 
+/* [REGIONAL NFS4-R-USA] the retail cheat enumeration is renumbered: cheat_AllCops == 11
+ * (base build 12).  Same family as fetourn's cheat_FinishedTournament 25 -> 13. */
+#undef cheat_AllCops
+#define cheat_AllCops 11
+
 /* ---- FECars.obj-OWNED globals -- DEFINED here (self-contained; .bss zero; SYM-typed) ---- */
 char         cars_disableBonuses;   /* @0x80051540  (bss(zero)) */
 char         gCarSelected[2][50];   /* @0x80051544  (bss(zero)) */

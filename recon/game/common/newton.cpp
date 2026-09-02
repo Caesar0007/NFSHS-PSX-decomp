@@ -1904,9 +1904,14 @@ extern "C" void Newton_DoPostBarrierCollisionHandling(BO_tNewtonObj *newtonObj,c
      past `barrierVec.y = 0;` 43 (equivalent -- any later block works). */
   nz = normal.z;
   barrierVec.x = -(nz / 0x100 * 0x100);
-  __asm__("" : : "r"(nz));  /* zero-insn: crosses the divide's own BB boundary */
-  __asm__("" : : "i"(0));   /* w62-a11 reorg slot-steal barrier, see receipt */
-  __asm__("" : : "i"(0));   /* W72-A9 3rd void fence -- see the nx receipt below */
+  /* W86-D2 (2026-09-02): THREE devices retired here at once.  The `"r"(nz)` ref fence
+     is now the pure-C ABSORPTION IDENTITY `X | (X & 3) == X` -- a real RTL insn (both
+     operands are the same VARIABLE, so fold() keeps it) that cse/loop/flow count as a
+     reference AND as a second SET, and that `combine` folds back to X, so ZERO bytes
+     are emitted.  With that in place the w62-a11 and W72-A9 void `"i"(0)` fences that
+     stood on the next two lines are INERT and were deleted (whole-TU gate 32/32 PASS
+     with all three gone, verified together and after each step). */
+  nz = (int)((unsigned int)nz | ((unsigned int)nz & 3u));  /* zero-insn: crosses the divide's own BB boundary */
   /* MATCH (W72-A9): `nx` IS the two-use survivor pseudo retail parks in $a3.
      Retail's FIRST read of normal.x is store-forwarded off the parm home
      (`addu $a3,$a1,$zero`) into a pseudo that feeds BOTH the /256 divide AND
@@ -1938,7 +1943,8 @@ extern "C" void Newton_DoPostBarrierCollisionHandling(BO_tNewtonObj *newtonObj,c
      stack store remain reconstructed C; only retail's final quotient shift is
      fixed here so the store remains immediately before it. */
   __asm__("sra %0,%1,8" : "=r"(nyq) : "r"(yTemp));
-  __asm__("" : : "r"(ny));         /* W76-A10: divide-copy law carrier for the y-divide
+  /* W86-D2: the W76-A10 `"r"(ny)` ref fence -> the same pure-C absorption identity. */
+  ny = (int)((unsigned int)ny | ((unsigned int)ny & 3u));   /* W76-A10: divide-copy law carrier for
                                       the y-divide
                                       (mints `addu v0,a2,zero`); must sit near the divide
                                       (deferring past the dot loses the copy, 7 @105) */

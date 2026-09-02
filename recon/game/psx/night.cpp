@@ -1605,9 +1605,13 @@ void Night_AdditiveNightCalc(VECTOR *v,CVECTOR *color)
      (catalog 05C), and colour needs 16 refs to cross the flr2 step that beats 0.889
      (4*16/62 = 1.03 > 0.889); 16 - (10 - 1) = 7 operands.  MEASURED: 1..6 operands =
      31 diffs, SEVEN = PASS 64/64, 8 and 10 also PASS -- take the cheapest.  Allocated
-     third, colour takes $a1, xdist/zfar shift to $a2 and newB follows. */
-  __asm__("" : : "r"(color), "r"(color), "r"(color), "r"(color), "r"(color),
-                 "r"(color), "r"(color));
+     third, colour takes $a1, xdist/zfar shift to $a2 and newB follows.
+     ---- W85-S4 DEVICE PURITY: the 7-operand fence is GONE and the function still
+     PASSes 64/64 (whole TU 19/19).  The W71 ref-step was needed against the THEN
+     basin; later structural work in this TU moved `color`'s allocno ahead of
+     xdist/zfar on its own, so the device had become pure scaffolding.  Re-measured
+     2026-09-02: removed = PASS, i.e. no ref step is required any more. */
+
   z = v->vz;
   znear = Night_gZNear;
   zfar = znear + (1 << (Night_gZDistShift + 6));

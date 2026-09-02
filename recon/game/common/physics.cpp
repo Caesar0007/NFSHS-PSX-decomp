@@ -498,7 +498,6 @@ int Physics_DoBarrierCheck(Car_tObj *carObj)
 
     raw1 = (int)(signed char)PHYSICS_SLICE_RIGHT(slice,0);
     raw3 = (int)(signed char)PHYSICS_SLICE_RIGHT(slice,2);
-    __asm__("" : : "r"(raw3), "r"(raw3));
     r1 = raw1 << 9;
     __asm__("" : : "r"(raw1), "r"(raw1));
     raw2 = (int)(signed char)PHYSICS_SLICE_RIGHT(slice,1);
@@ -506,7 +505,6 @@ int Physics_DoBarrierCheck(Car_tObj *carObj)
     right.x = r1;
     __asm__("" : "+m"(right.x));
     x1raw = right.x;
-    __asm__("" : : "r"(x1raw));
     r3 = raw3 << 9;
     right.z = r3;
     r2 = raw2 << 9;
@@ -518,7 +516,6 @@ int Physics_DoBarrierCheck(Car_tObj *carObj)
     __asm__("" : : "r"(centerX), "r"(centerX));
     positionX = (carObj->N).position.x;
     velocityX = positionX + ((carObj->N).linearVel.x >> 5) - centerX;
-    __asm__("" : : "r"(velocityX), "r"(velocityX));
     vel_b.x = velocityX;
     __asm__("" : : "r"(positionX));
     centerY = PHYSICS_SLICE_CENTER(slice,1);
@@ -527,7 +524,6 @@ int Physics_DoBarrierCheck(Car_tObj *carObj)
     vel_b.y = positionY + ((carObj->N).linearVel.y >> 5) - centerY;
     __asm__("" : : "r"(positionY));
     centerZ = PHYSICS_SLICE_CENTER(slice,2);
-    __asm__("" : : "r"(centerZ), "r"(centerZ));
     linearZ = (carObj->N).linearVel.z;
     positionZ = (carObj->N).position.z;
     __asm__("" : : "r"(PHYSICS_SLICE_ADDR(slice)),
@@ -1131,7 +1127,6 @@ void Physics_FixEngineRpm(Car_tObj *carObj)
   firstProduct = nextVelX * ((carObj->N).shadowMat.m[6] / 256);
   nextVelY = (carObj->N).linearVel.y / 256;
   nextMatY = (carObj->N).shadowMat.m[7] / 256;
-  __asm__("" : : "r"(nextVelX));
   transformedZ = firstProduct + nextVelY * nextMatY;
   transformedZ +=
        (carObj->N).linearVel.z / 256 * ((carObj->N).shadowMat.m[8] / 256);
@@ -1432,9 +1427,7 @@ int Physics_CalculateCarAcceleration(Car_tObj *carObj)
        the jump and loses retail's store in the jump delay slot (W83-A8). */
     int clampedFlywheelRpm;
     if (damage) {
-      __asm__("" : : "i"(0));
       clampedFlywheelRpm = carObj->flywheelRpm + -100;
-      __asm__("" : : "i"(0));
       carObj->flywheelRpm = clampedFlywheelRpm;
       goto cfLbl1;   /* retail: j into the shared >=0 clamp @0x800aae34 */
     }
@@ -1599,7 +1592,6 @@ Phy_CalcAcc_clearWheelSpinExit:
         else {
           carObj->flywheelRpm = wheelRpm;
         }
-        __asm__("" : : "r"(diffFlywheelRpm), "r"(diffFlywheelRpm));
         driveAcc = fixedmult(driveAcc,gGasRatio);
       }
       int currentFlywheelRpm = carObj->flywheelRpm;
@@ -1619,7 +1611,6 @@ Phy_CalcAcc_clearWheelSpinExit:
       else if (0x20000 < ratio) {
         ratio = 0x20000;
       }
-      __asm__("" : : "i"(0));
       diffDesiredRpm = driveAcc;
       if (driveAcc < 0) {
         diffDesiredRpm = driveAcc + 0xff;
@@ -2785,10 +2776,6 @@ void Physics_Real(Car_tObj *carObj)
       else {
         lookAhead = rsControl * 3;
       }
-      __asm__("" : : "r"(lookAhead), "r"(lookAhead), "r"(lookAhead),
-                       "r"(lookAhead), "r"(lookAhead), "r"(lookAhead),
-                       "r"(lookAhead), "r"(lookAhead), "r"(lookAhead),
-                       "r"(lookAhead));
       if (lookAhead >= 0) {
         sliceAhead = (carObj->N).simRoadInfo.slice + lookAhead;
         if (gNumSlices <= sliceAhead) {

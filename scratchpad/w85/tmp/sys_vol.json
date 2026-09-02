@@ -1,0 +1,14 @@
+{
+ "graphState5": [["*(volatile u_char *)graphState = graphType;", "*(u_char *)graphState = graphType;"],
+                 ["int st0 = (int)*(volatile char *)graphState << 2;", "int st0 = (int)*(char *)graphState << 2;"],
+                 ["*(volatile u_char *)(graphState + 1) = 1;", "*(u_char *)(graphState + 1) = 1;"],
+                 ["st1 = (int)*(volatile char *)graphState << 2;", "st1 = (int)*(char *)graphState << 2;"],
+                 ["return *(volatile u_char *)graphState;", "return *(u_char *)graphState;"]],
+ "pbase":       [["volatile u_long *pbase = (volatile u_long *)((u_char *)_que.shared + 12);", "u_long *pbase = (u_long *)((u_char *)_que.shared + 12);"]],
+ "both":        [["*(volatile u_char *)graphState = graphType;", "*(u_char *)graphState = graphType;"],
+                 ["int st0 = (int)*(volatile char *)graphState << 2;", "int st0 = (int)*(char *)graphState << 2;"],
+                 ["*(volatile u_char *)(graphState + 1) = 1;", "*(u_char *)(graphState + 1) = 1;"],
+                 ["st1 = (int)*(volatile char *)graphState << 2;", "st1 = (int)*(char *)graphState << 2;"],
+                 ["return *(volatile u_char *)graphState;", "return *(u_char *)graphState;"],
+                 ["volatile u_long *pbase = (volatile u_long *)((u_char *)_que.shared + 12);", "u_long *pbase = (u_long *)((u_char *)_que.shared + 12);"]]
+}

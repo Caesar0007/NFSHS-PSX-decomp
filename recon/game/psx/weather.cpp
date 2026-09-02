@@ -1052,8 +1052,11 @@ void Weather_CreateSnow(SVECTOR *pt)
    *      INSIDE it, between the palette read and the addr24 mask -- retail's
    *      `sw $v1,0($t1)` issues there and no whole-statement placement reaches it.
    * Measured from this basin: fence-only 8, split-bump-only 8, split-RMW + store
-   * after the block 6, store at the END of the block 6, this form 2. */
-  __asm__ __volatile__("");
+   * after the block 6, store at the END of the block 6, this form 2.
+   * ---- W85-S4 DEVICE PURITY: dial (1), the `__asm__ __volatile__("")` fence, is
+   * RETIRED.  Re-measured after removal: this function and the whole TU stay
+   * 25/25 PASS -- dials (2) split bump + (3) split palette RMW carry the match on
+   * their own, so the fence was scaffolding left over from the pre-split basin. */
   {
     u_char *next = (u_char *)prim + 0x28; /* SYM-CODEGEN-CARRIER: next -- split packet bump */
     u_int palw = *pal; /* SYM-CODEGEN-CARRIER: palw -- split palette RMW */
@@ -1234,11 +1237,13 @@ void Weather_CreateSplat
    *  (2) SPLIT the palette read-modify-write itself (`palw` read, then the write)
    *      -- the read must issue before the addr24 mask, exactly as the oracle's
    *      `lw $v0,0($a1) / and $a0,$t0,$a0` pair shows (w43 SPLIT-RMW row).
-   *  (3) a zero-operand USE fence after the `next` value statement pins the
-   *      `addiu $v1,$t0,0x28` into the tag merge instead of letting it sink. */
+   *  (3) a zero-operand USE fence after the `next` value statement pinned the
+   *      `addiu $v1,$t0,0x28` into the tag merge instead of letting it sink.
+   * ---- W85-S4 DEVICE PURITY: dial (3) is RETIRED.  Removing the fence leaves the
+   * function and the whole TU at 25/25 PASS -- the two SPLITS (1)+(2) already pin
+   * the addiu; the fence was redundant scaffolding from the pre-split basin. */
   {
     u_char *next = (u_char *)prim + 0x28; /* SYM-CODEGEN-CARRIER: next -- split packet bump */
-    __asm__ __volatile__("");
     {
       u_int palw = *(u_int *)tp3; /* SYM-CODEGEN-CARRIER: palw -- split palette RMW */
       u_int addr24 = (u_int)prim & 0xffffff; /* SYM-CODEGEN-CARRIER: addr24 */
@@ -1256,12 +1261,18 @@ void Weather_CreateSplat
   /* w46-a9: retail issues `li $v0,-128 / subu $v0,$v0,$a0` BEFORE `sra $v1,$v1,3`
    * (both are ready right after the `sll`, a sched2 ready-list tie).  Naming the
    * colour value and fencing the shift behind it wins the tie at 0 insns; a bare
-   * fence between the two ORIGINAL statements over-shoots (sra sinks too far). */
+   * fence between the two ORIGINAL statements over-shoots (sra sinks too far).
+   * ---- W85-S4 DEVICE PURITY (fence RETIRED, PASS held): the tie is won by a
+   * SECOND named value carrier instead.  Spelling the shift as its own temp `sh`
+   * DECLARED AFTER `col` puts the subu's pseudo ahead of the sra's in the RTL
+   * stream, so sched2's ready-list tie breaks retail's way at zero instructions.
+   * Re-measured from this basin with the fence gone: this form PASS; store-before-
+   * shift with no temp 2; `(u_char)(-0x80 - splatTick*4)` inline + shift after 2. */
   {
     int col = -0x80 - splatTick * 4; /* SYM-CODEGEN-CARRIER: col -- wins the retail shift tie */
-    __asm__ __volatile__("");
-    splatTick = splatTick >> 3;
+    int sh = splatTick >> 3;         /* SYM-CODEGEN-CARRIER: sh  -- ditto, must be declared AFTER col */
     prim->r0 = prim->g0 = prim->b0 = (u_char)col;
+    splatTick = sh;
   }
   prim->x0 = vx - splatTick;
   prim->y0 = vy + splatTick - splatTick;
@@ -1769,11 +1780,12 @@ void Weather_DoWeather(DRender_tView *Vi)
   if (Weather_gSys.num[0] != 0) {
     /* force a wasDrawn-clear when the look-behind state or the camera mode just changed */
     ab = Input_gLookBehind[player];
-    /* MATCH (w50-a10): OPACITY FENCE -- retail keeps `ab` in a caller-saved arg
-     * reg ($a1) whose value cse/copy-prop would otherwise fold into the compare,
-     * and loads it BEFORE building the prevLookBehind[] address.  The zero-insn
-     * identity fence blocks the value-numbering that reorders the two.  40->36. */
-    __asm__("" : "=r"(ab) : "0"(ab));
+    /* w50-a10 shipped an OPACITY FENCE here (`__asm__("" : "=r"(ab) : "0"(ab))`,
+     * 40->36) to keep `ab` in a caller-saved arg reg and load it before building
+     * the prevLookBehind[] address.
+     * ---- W85-S4 DEVICE PURITY: RETIRED.  The later w63-a13 dead-pseudo staging
+     * rewrite of this block subsumed it -- removing the fence leaves this function
+     * and the whole TU at 25/25 PASS (re-measured, count still EXACT 197/197). */
     plb = &prevLookBehind[player];
     clean_up = 0;
     if (ab != *plb) {

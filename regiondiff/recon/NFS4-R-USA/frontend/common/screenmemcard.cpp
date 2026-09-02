@@ -912,8 +912,29 @@ void tScreenMemcard::DrawForeground()
   /* SYM-CODEGEN-CARRIER: fade -- raw retail allocation (IDA $s1; m2c var_a0)
      keeps this clamped value live across the four DrawShapeExtended calls. */
   int fade;
+  /* SYM-CODEGEN-CARRIER (regional, W85-M6): fadeArg -- retail keeps the CLAMPED
+     value in caller-saved $a0 through the clamp and copies it into callee-saved
+     $s1 (`addu s1,a0,zero`, which reorg then puts in the guard's bnez delay
+     slot) before the new text/square calls.  One variable cannot express that:
+     a single `fade` crosses the calls, so global alloc homes it in $s1 outright
+     and the copy is coalesced away (that WAS the whole 16-diff W84-R10
+     residual).  See the `fade = 0;` note at the join for why the copy survives. */
+  int fadeArg;
   int k;
 
+  /* MATCH (catalog 32B-2 cse-copy lever): the doubled value is spelled TWICE so
+     cse rewrites the second as a copy of the first pseudo = retail's
+     `addu a1,v0,zero`.  RESIDUAL (2 diffs): retail emits that copy BEFORE the
+     `addiu a0,v0,-128`; ours emits it after.  Root cause read off cc1plus -dS:
+     both insns have scheduler priority 2, but the copy's destination has
+     REG_N_SETS==1 so sched.c's adjust_priority()/birthing_insn_p() bumps it to
+     LAUNCH_PRIORITY and the backward list scheduler places it at the LATER slot;
+     `fade` has three sets (the clamp arms) so it is never bumped.  With both
+     unbumped the LUID tie-break would preserve source order.  Writing the pair
+     in retail's order instead (`doubled` temp, copy first) reproduces the RTL
+     order exactly but sched still swaps them, and killing the bump needs a
+     second, non-dead set of fadeRaw -- every spelling of one costs at least the
+     2 diffs it saves (see scratchpad/w85/M6_receipt.md). */
   fade = (int)(ushort)this->fScreenFadeVal * 2 + -0x80;
   fadeRaw = (int)(ushort)this->fScreenFadeVal * 2;
   if ((short)fade < 0x80) {
@@ -925,6 +946,7 @@ void tScreenMemcard::DrawForeground()
 DrawFg_setZero:
   fade = 0;
 DrawFg_join:
+  fadeArg = fade;
   /* REGIONAL DELTA (NFS4-R-USA @80047EC0): once the screen has faded in far
      enough, retail draws word 638 centred and underlines it with a square
      whose width is the rendered pixel width of that same word. */
@@ -932,9 +954,17 @@ DrawFg_join:
     FETextRender_MenuTextPositionedJustify(638,480,220,1,1,4);
     PSXDrawSquare(0,480,220,-textpixels(TextSys_Word(638)) + -5,7);
   }
+  /* MATCH (W85-M6) -- LOAD-BEARING, DO NOT DELETE, emits NO instruction.
+     `fadeArg = fade` above is a plain reg-reg copy; cse2 (running after loop's
+     LICM has hoisted the `(short)fadeArg` sign-extension into the preheader)
+     copy-propagates fadeArg's uses back to `fade` and the copy dies, unless
+     `fade` is redefined between the copy and that use.  This store does exactly
+     that; `fade` is dead here, so flow deletes it again after cse2 has been
+     blocked.  Removing it costs 14 diffs (16 total). */
+  fade = 0;
   k = 0;
   do {
-    DrawShapeExtended(0x38 + k,0,0,0,(short)fade,0,
+    DrawShapeExtended(0x38 + k,0,0,0,(short)fadeArg,0,
                (tDrawShapeExtended *)0x0);
     k = k + 1;
   } while (k < 4);

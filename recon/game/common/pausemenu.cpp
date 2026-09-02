@@ -38,6 +38,15 @@ void PauseMenu_FullText(char *sMenuText,short x,short flags,short color)
 
 
 
+/* MATCH + SEMANTICS (W85-S10): retail reads the "disabled" flag as the low BIT of
+   the 32-bit fFlags word (`lw a2,0(this); andi a2,a2,1`).  A plain `fFlags & 1`
+   passed to the `short disabled` parameter lets combine narrow the load to `lhu`
+   (gen_lowpart_for_combine on a non-volatile MEM, combine.c:8998), so the bit is
+   read through a 1-bit bitfield VIEW -- gcc-2.8.0 always reads a bitfield with a
+   full WORD load, which is exactly retail's shape, and needs no volatile. */
+struct tPMenuItemFlagBits { u_int fDisabled : 1; };
+#define PMENU_ITEM_DISABLED(itm) (((tPMenuItemFlagBits *)&(itm)->fFlags)->fDisabled)
+
 /* ---- PauseMenu_MenuTextPositioned  [PAUSEMENU.CPP:87-99] SLD-VERIFIED ---- */
 
 void PauseMenu_MenuTextPositioned(short index,short selected,short disabled,short x)
@@ -462,14 +471,14 @@ void tPMenuItemLeftRightChoice::Draw(bool selected)
   int y;
 
   PauseMenu_MenuTextPositioned((short)this->fTextDescription, (short)selected,
-             *(volatile u_int *)&this->fFlags & 1,
+             PMENU_ITEM_DISABLED(this),
              (short)TextSys_WordX(this->fTextDescription));
   text = (*(*this->fData->_vf)[3].pfn)
                     ((int)&this->fData->fSelectionList +
                      (int)(*this->fData->_vf)[3].delta,0xffffffff);
   textX = (short)TextSys_WordX((int)text);
   PauseMenu_MenuTextPositioned(text, (short)selected,
-                               *(volatile u_int *)&this->fFlags & 1, textX);
+                               PMENU_ITEM_DISABLED(this), textX);
   y = gPause_CurrentY;
   if ((selected != 0) && (GameSetup_gData.userSetting.language == 0))
   {
@@ -660,7 +669,7 @@ void tPMenuItemLeftRightSlider::Draw(bool selected)
   x = (short)TextSys_WordX(this->fTextDescription);
   y = gPause_CurrentY;
   PauseMenu_MenuTextPositioned((short)this->fTextDescription, (short)selected,
-             *(volatile u_int *)&this->fFlags & 1, x);
+             PMENU_ITEM_DISABLED(this), x);
   y += 4;
   i = 0;
   while (i < 15) {

@@ -1,0 +1,7 @@
+OLD = '  if (((this->StartedTextFade == 0) && (this->StartedLines != 0)) &&\n     (0x1e < ticks - this->fLineTicks)) {\n    int startTicksSnapshot = *(volatile int *)&ticks;\n    this->StartedTextFade = 1;\n    this->fTextFadeDir = -8;\n    this->fStartTicks = startTicksSnapshot;\n  }'
+VARIANTS = [
+  ('H1 one shared read, block scope', OLD, '  {\n    int nowTicks = ticks;\n\n    if (((this->StartedTextFade == 0) && (this->StartedLines != 0)) &&\n       (0x1e < nowTicks - this->fLineTicks)) {\n      this->StartedTextFade = 1;\n      this->fTextFadeDir = -8;\n      this->fStartTicks = nowTicks;\n    }\n  }'),
+  ('H2 one shared read, store first', OLD, '  {\n    int nowTicks = ticks;\n\n    if (((this->StartedTextFade == 0) && (this->StartedLines != 0)) &&\n       (0x1e < nowTicks - this->fLineTicks)) {\n      this->fStartTicks = nowTicks;\n      this->StartedTextFade = 1;\n      this->fTextFadeDir = -8;\n    }\n  }'),
+  ('H3 one shared read, store mid', OLD, '  {\n    int nowTicks = ticks;\n\n    if (((this->StartedTextFade == 0) && (this->StartedLines != 0)) &&\n       (0x1e < nowTicks - this->fLineTicks)) {\n      this->StartedTextFade = 1;\n      this->fStartTicks = nowTicks;\n      this->fTextFadeDir = -8;\n    }\n  }'),
+  ('H4 G4 shape with named local', OLD, '  if (((this->StartedTextFade == 0) && (this->StartedLines != 0)) &&\n     (0x1e < ticks - this->fLineTicks)) {\n    int startTicksSnapshot;\n\n    this->StartedTextFade = 1;\n    startTicksSnapshot = ticks;\n    this->fTextFadeDir = -8;\n    this->fStartTicks = startTicksSnapshot;\n  }'),
+]

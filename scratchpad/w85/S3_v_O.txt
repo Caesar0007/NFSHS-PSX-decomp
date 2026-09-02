@@ -1,0 +1,31 @@
+  int *p;
+  /* SYM-CODEGEN-CARRIER: e -- the retail SYM retains only `p`, but this
+   * separate loop-bound pseudo is required by the W74-W76 GCC 2.8.1
+   * global/reload receipt above; folding it into `g` changes the exact
+   * guard-copy and trap-operand allocation. */
+  int *e;
+
+  p = (int *)gFileMgr.oparray;
+  {
+  int *g = (int *)gFileMgr.handlearray;
+  if (p < g) {
+    e = g;
+    do {
+      if (*p != 0) {
+#if defined(__mips__)
+        /* MATCH: trap() is INLINE in retail -- `break 0x666` (objdump: break 1,614) plus two
+         * zeroed register args; no jal, so the function stays a leaf (no frame, no $ra save). */
+        {
+          register int z0 __asm__("$6") = 0;
+          register int z1 __asm__("$4") = 0;
+          __asm__ __volatile__("break 0x666
+	nop" : : "r"(z0), "r"(z1));
+        }
+#else
+        trap(0x666);   /* host build: no MIPS break */
+#endif
+      }
+      p = p + 1;
+    } while (p < e);
+  }
+  }

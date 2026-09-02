@@ -1,0 +1,36 @@
+        license = 0;
+        clut = CarIO_carPixMap[palIndex].clut;
+        cx = (clut & 0x3f) << 4;
+        cy = (int)(clut >> 6);
+        /* R-JPN delta: retail guards the licence-plate arms with a
+           NON-NEGATIVE plate index -- `CarIO_licensePlate[carType][0]` is read
+           into a `short` local BEFORE the recolour test (the oracle's
+           `lhu`+`sll/sra` pair is a HImode pseudo, not a plain `lh` array
+           read) and the arms only run when it is >= 0. */
+        plate0 = CarIO_licensePlate[carType][0];
+        if (carType < 0x16 && plate0 >= 0) {
+          if (i == plate0) {
+            int license_vx;
+            int license_vy;
+
+            license_vx = vx + CarIO_licensePlate[carType][1];
+            license_vy = vy + CarIO_licensePlate[carType][2];
+            license = 1;      /* flag-first: keeps `license` call-crossing -> $s0 */
+            CarIO_LicenseCheck(reload,&license_vx,&license_vy,carObj,0);
+            Texture_LoadPmx((char *)0x0,(char *)CarIO_Plate1[player],0x20,license_vx,license_vy,
+                       cx,cy,&CarIO_carPixMap[carPixMapCount]);
+            CarIO_carPixMap[carPixMapCount].flag = 1;
+          }
+          else if (i == CarIO_licensePlate[carType][3]) {
+            int license_vx;
+            int license_vy;
+
+            license_vx = vx + CarIO_licensePlate[carType][4];
+            license_vy = vy + CarIO_licensePlate[carType][5];
+            CarIO_LicenseCheck(reload,&license_vx,&license_vy,carObj,1);
+            Texture_LoadPmx((char *)0x0,(char *)CarIO_Plate2[player],0x20,license_vx,license_vy,
+                       cx,cy,&CarIO_carPixMap[carPixMapCount]);
+            license = 1;
+            CarIO_carPixMap[carPixMapCount].flag = 2;
+          }
+        }

@@ -38,7 +38,6 @@ int          textSysMemCardFail_Index[7] = { 0, 677, 685, 675, 811, 671, 669 }; 
      reload + hoisted %hi base.
    - MEMCARD_INITIALIZED / MEMCARDFRONTENDISINITTED are 4-byte BOOLs (SYM; oracle uses lw/sw
      word ops). */
-extern volatile int ticks_vol            asm("ticks");
 extern int          MEMCARDFRONTENDISINITTED_word asm("MEMCARDFRONTENDISINITTED");
 /* base-class vtables for the inlined WarningDialog ctor chains (declared in feapp_externs.h
    for other TUs; TU-local externs here) */
@@ -357,7 +356,7 @@ void Init_Memcard(bool redraw,bool pinkslips)
   mcrdopts.ConfirmFormatProc = FormatConfirm;
   mcrdopts.ConfirmOverwriteProc = pinkslips ? OverwriteAlwaysYes : OverwriteConfirm;
   mcrdopts.LoadingDataProc = redraw ? LoadingRedrawProc : LoadingProc;
-  *(void (** volatile)(void))&mcrdopts.SavingDataProc = SavingProc;
+  mcrdopts.SavingDataProc = SavingProc;
   MCRD_setopts(&mcrdopts);
   addtimer(Clock_MasterInterruptHandler);
   timedwait(0x14);
@@ -554,10 +553,23 @@ bool SaveGame(short player)
   while (MCRD_handlecardevents(cardNum) != 0x16) {
     VSync(0);
   }
-  __asm__("" : : "r"(player));
   purgememadr(shapeFile);
   BringThatBeatBack();
-  if (nomessage_arr[0] == 0) {
+  /* MATCH (W85-M4, 2026-09-02): pure-C replacement for the removed
+     `__asm__("" : : "r"(player))` read fence.  The three tail allocnos are a
+     0.3%-wide priority cluster -- player refs=5/live=214 (0.04673),
+     returnvalue refs=4/live=171 (0.04678), shapeFile refs=3/live=64 (0.04688)
+     -- so gcc-2.8 handed out s5/s6/s7 in the order shapeFile,returnvalue,player
+     while retail wants player,returnvalue,shapeFile.  flow.c:1969 adds
+     `loop_depth` per reference, so the two degenerate scopes below re-weight
+     exactly the references that decide the cluster and emit nothing:
+     the outer scope (epilogue block + `return returnvalue`) gives returnvalue
+     a 5th ref (10/171 = 0.0585 > shapeFile's 0.0469) and the inner scope gives
+     player its 6th and 7th (14/214 = 0.0654, back on top).  Measured ladder:
+     no scopes = FAIL 26; inner only = FAIL 12 (player fixed, the
+     returnvalue/shapeFile pair still swapped); both = PASS 292/292. */
+  do {
+  if (nomessage_arr[0] == 0) do {
     Hide((tDialogBase *)&FEApp[0]->NoInputMemCardDialog);
     /* SYM-CODEGEN-CARRIER: dlgmsg -- held across TextSys_Word as the nested
        inline receiver in s0. */
@@ -576,13 +588,14 @@ bool SaveGame(short player)
       Redraw(FEApp[0]);
     }
     Redraw(FEApp[0]);
-  }
+  } while (0);
   screenMemcard->fGetNewIcons = 1;
   Hide((tDialogBase *)&WarningDialog);
   Redraw(FEApp[0]);
   CURRENTLYUSINGMEMCARD_arr[0] = 0;
   /* [phantom-dtor drop] implicit ___7tScreen(&WarningDialog,2) at scope exit */
   return returnvalue;
+  } while (0);
 }
 
 
@@ -908,6 +921,18 @@ SavePinkSlipsCars(short player,short withoutCarInGarageNumber)
               /* SYM-CODEGEN-CARRIER: pCVar7 -- each switch arm must retain the
                  single MCRD_getcard result across multiple status tests. */
               CARDINFO_def *pCVar7 = MCRD_getcard(player * 4 + 1);
+              /* KEEP (W85-M4): the LAST device in this TU.  It is an operand-free
+                 scheduling/CSE boundary whose ONLY effect is +1 RTL insn inside the
+                 outer poll loop, which flips loop.c's marginal LICM verdict on the
+                 `&frontEnd + player*4` address chain (`threshold * savings * life`
+                 vs `insn_count`, loop.c:1640).  Removing it lets loop.c hoist that
+                 chain into the loop preheader AND spill it, costing an extra frame
+                 slot (5744 vs retail's 5736) -- FAIL 92 @228/226.  Every source-level
+                 replacement measured this wave is in scratchpad/w85/M4_receipt.md;
+                 the best (struct-cast index-first address view) reaches FAIL 46 @224
+                 but cannot put the `sll` back at the use.  Restored verbatim under the
+                 wave's iron rule; the removal IS the regional USA body (see the
+                 receipt -- retail's USA build hoists+spills exactly this chain). */
               __asm__("");
               result = PinkSlipsError_CardFull;
               if (pCVar7->status != -3) {

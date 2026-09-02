@@ -1,0 +1,11 @@
+  int *p;
+
+  for (p = (int *)gFileMgr.oparray; p < (int *)gFileMgr.handlearray; p++) {
+    if (*p != 0) {
+#if defined(__mips__)
+      __asm__ __volatile__("break 0x666\n\tnop" : : "r"(0), "r"(0));
+#else
+      trap(0x666);
+#endif
+    }
+  }

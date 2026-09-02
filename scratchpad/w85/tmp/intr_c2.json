@@ -1,0 +1,9 @@
+{
+ "cl_2_3_5":  [["            register intrEnv_t *c2 __asm__(\"$6\");\n            __asm__(\"\" : \"=r\"(c2) : \"0\"(ctl));", "            intrEnv_t *c2;\n            __asm__(\"\" : \"=r\"(c2) : \"0\"(ctl) : \"$2\", \"$3\", \"$5\");"]],
+ "cl_5":      [["            register intrEnv_t *c2 __asm__(\"$6\");\n            __asm__(\"\" : \"=r\"(c2) : \"0\"(ctl));", "            intrEnv_t *c2;\n            __asm__(\"\" : \"=r\"(c2) : \"0\"(ctl) : \"$5\");"]],
+ "cl_2_5":    [["            register intrEnv_t *c2 __asm__(\"$6\");\n            __asm__(\"\" : \"=r\"(c2) : \"0\"(ctl));", "            intrEnv_t *c2;\n            __asm__(\"\" : \"=r\"(c2) : \"0\"(ctl) : \"$2\", \"$5\");"]],
+ "cl_3_5":    [["            register intrEnv_t *c2 __asm__(\"$6\");\n            __asm__(\"\" : \"=r\"(c2) : \"0\"(ctl));", "            intrEnv_t *c2;\n            __asm__(\"\" : \"=r\"(c2) : \"0\"(ctl) : \"$3\", \"$5\");"]],
+ "cl_2_3":    [["            register intrEnv_t *c2 __asm__(\"$6\");\n            __asm__(\"\" : \"=r\"(c2) : \"0\"(ctl));", "            intrEnv_t *c2;\n            __asm__(\"\" : \"=r\"(c2) : \"0\"(ctl) : \"$2\", \"$3\");"]],
+ "cl_2_3_5_7":[["            register intrEnv_t *c2 __asm__(\"$6\");\n            __asm__(\"\" : \"=r\"(c2) : \"0\"(ctl));", "            intrEnv_t *c2;\n            __asm__(\"\" : \"=r\"(c2) : \"0\"(ctl) : \"$2\", \"$3\", \"$5\", \"$7\");"]],
+ "nopin_plain":[["            register intrEnv_t *c2 __asm__(\"$6\");\n            __asm__(\"\" : \"=r\"(c2) : \"0\"(ctl));", "            intrEnv_t *c2;\n            __asm__(\"\" : \"=r\"(c2) : \"0\"(ctl));"]]
+}

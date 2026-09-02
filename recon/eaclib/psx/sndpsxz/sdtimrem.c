@@ -3,6 +3,13 @@
  *   1 fn @0x801049A8.  iSNDtimeremaining -- samples left to play on a voice = (loopEnd - servedPos) / pitch.
  *   Ghidra nfs4-f.exe.c (sdtimrem) + IDA sig.  Voice table @0x801479F0 (0x2c byte / 0xb int stride per voice).
  */
+/* W85-S8 VOLATILE AUDIT (2026-09-02): the `volatile` qualifiers on 19 (`voice+8` sample-rate word; line 22 is load-bearing and stays)
+ * were REMOVED -- plain main-RAM driver state, not MMIO and not IRQ-mutated; removal is
+ * gate-neutral (whole-TU verify_asm/tugate PASS before and after).  Every REMAINING
+ * `volatile` in this file was measured individually or as a group and is load-bearing
+ * (MMIO, or state the oracle provably re-reads) -- do not strip them.  Receipt:
+ * scratchpad/w85/S8_receipt.md. */
+
 extern int           DAT_801479f8;   /* +0x08 hw pitch/rate (int view: [chan*0xb])    */
 extern unsigned char DAT_801479fc;   /* +0x0c served byte position (int via &+chan*0x2c) */
 extern unsigned char DAT_80147a04;   /* +0x14 loop-end byte position                  */
@@ -16,7 +23,7 @@ extern unsigned int iSNDtimeremaining(int chan);   /* @0x801049A8 */
 extern unsigned int iSNDtimeremaining(int chan)
 {
     unsigned char *voice = D_801479F0 + chan * 0x2c;
-    if (*(volatile unsigned int *)(voice + 8) == 0)
+    if (*(unsigned int *)(voice + 8) == 0)
         return 0x7fffffff;
     return (unsigned int)(*(int *)(voice + 0x14) - *(int *)(voice + 0xc)) /
            *(volatile unsigned int *)(voice + 8);

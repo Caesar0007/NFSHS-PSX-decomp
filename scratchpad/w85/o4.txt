@@ -1,0 +1,4 @@
+        state = textState_Selected;
+        FETextRender_FullText(bufferPtr,this->left + this->lefttext,y,
+                             i == 0 ? textType_PopUpTitle : textType_PopUpText,
+                             state,0);

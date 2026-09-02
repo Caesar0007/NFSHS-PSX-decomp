@@ -1141,7 +1141,7 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
         point.z += wheelFrontZ.z;
       }
       TrgSfx_AddCarExtraSfx((carObj->N).objID,1,&point,0xd,&(carObj->N).linearVel,(carObj->N).speedXZ,
-                 *(volatile int *)&point.y,(carObj->render).light);
+                 point.y,(carObj->render).light);
     }
   }
 
@@ -1239,7 +1239,7 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
         point.z -= wheelBackZ.z;
       }
       TrgSfx_AddCarExtraSfx((carObj->N).objID,2,&point,0xd,&(carObj->N).linearVel,(carObj->N).speedXZ,
-                 *(volatile int *)&point.y,(carObj->render).light);
+                 point.y,(carObj->render).light);
     }
   }
 
@@ -1335,7 +1335,7 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
         point.z -= wheelBackZ.z;
       }
       TrgSfx_AddCarExtraSfx((carObj->N).objID,3,&point,0xd,&(carObj->N).linearVel,(carObj->N).speedXZ,
-                 *(volatile int *)&point.y,(carObj->render).light);
+                 point.y,(carObj->render).light);
     }
   }
   if (front != 0) {

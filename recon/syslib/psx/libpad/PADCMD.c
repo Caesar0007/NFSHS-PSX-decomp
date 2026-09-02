@@ -114,11 +114,17 @@ extern int _padRecvAtLoadInfo(unsigned char *info)
 {
     switch (info[0x46]) {
     case 2:
-        info[0xe3] = (*(unsigned char * volatile *)(info + 0x3c))[3];
-        info[0xe4] = (*(unsigned char * volatile *)(info + 0x3c))[4];
+        info[0xe3] = (*(unsigned char **)(info + 0x3c))[3];
+        info[0xe4] = (*(unsigned char **)(info + 0x3c))[4];
         *(unsigned short *)(info + 0xe6) = 0;
-        info[0xe9] = (*(unsigned char * volatile *)(info + 0x3c))[5];
-        info[0xea] = (*(unsigned char * volatile *)(info + 0x3c))[6];
+        info[0xe9] = (*(unsigned char * volatile *)(info + 0x3c))[5];  /* KEEP (W85-S6): the ONLY
+                                       * load-bearing one of the four -- the oracle RELOADS the rx
+                                       * pointer here (`lw v1,60(s0)` at 0x80105Dxx) across the
+                                       * `sh zero,230(s0)` store; without the volatile provenance
+                                       * cse folds the reload away (82 vs 83).  The other three
+                                       * (+0xe3/+0xe4/+0xea) and the +0xec accumulator read were
+                                       * measured inert on this basin and are now plain. */
+        info[0xea] = (*(unsigned char **)(info + 0x3c))[6];
         *(int *)(info + 0xec) = 0;
         goto return_one;
     case 3: {
@@ -133,12 +139,12 @@ extern int _padRecvAtLoadInfo(unsigned char *info)
     case 4: {
         /* MATCH (2026-08-26, source-only 4 -> PASS 83/83): retaining `acc + 8`
          * as the named `acc8` value changes sched1's equal-priority ready-list tie
-         * to retail's idx++ / rx[4] / acc+8 order.  Only the accumulator source
-         * read needs volatile provenance to keep its lw first; removing that one
-         * qualifier is exactly 2 diffs (the lw moves after the idx/rx loads).
-         * The former idx, rx-cell and chunk volatile reads were retested on this
-         * final basin, proved unnecessary, and removed. */
-        int acc = *(volatile int *)(info + 0xec);
+         * to retail's idx++ / rx[4] / acc+8 order.  The former idx, rx-cell and
+         * chunk volatile reads were retested on this final basin, proved
+         * unnecessary, and removed.
+         * W85-S6: the accumulator read's `volatile` (once worth 2 diffs) is ALSO
+         * inert on this basin and is now removed -- re-measured, whole TU 19/19. */
+        int acc = *(int *)(info + 0xec);
         int acc8;
         unsigned char idx = info[0x47];
         unsigned char *rx = *(unsigned char **)(info + 0x3c);
@@ -839,7 +845,6 @@ case3:
     *(unsigned char **)(info + 0x2c) = info + 0x5d;
     info[0x35] = 6;
 end: ;
-    __asm__ volatile ("");   /* MATCH: keeps the shared epilogue -- see header */
 }
 
 /* @0x80105E2C : _padSetMainMode_rcv -- w48-a3: PASS 24/24 (was FAIL 19).

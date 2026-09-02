@@ -1,0 +1,8 @@
+{
+ "V_all5": [["(*(unsigned char * volatile *)(info + 0x3c))", "(*(unsigned char **)(info + 0x3c))"],
+            ["int acc = *(volatile int *)(info + 0xec);", "int acc = *(int *)(info + 0xec);"]],
+ "A_842":  [["    __asm__ volatile (\"\");   /* MATCH: keeps the shared epilogue -- see header */\n", ""]],
+ "BOTH":   [["(*(unsigned char * volatile *)(info + 0x3c))", "(*(unsigned char **)(info + 0x3c))"],
+            ["int acc = *(volatile int *)(info + 0xec);", "int acc = *(int *)(info + 0xec);"],
+            ["    __asm__ volatile (\"\");   /* MATCH: keeps the shared epilogue -- see header */\n", ""]]
+}

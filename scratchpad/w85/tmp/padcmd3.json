@@ -1,0 +1,4 @@
+{
+ "e9_only": [["info[0xe9] = (*(unsigned char * volatile *)(info + 0x3c))[5];", "info[0xe9] = (*(unsigned char **)(info + 0x3c))[5];"]],
+ "ea_only": [["info[0xea] = (*(unsigned char * volatile *)(info + 0x3c))[6];", "info[0xea] = (*(unsigned char **)(info + 0x3c))[6];"]]
+}

@@ -563,13 +563,19 @@ void tTournamentManager::UpdateTrackFinishPoints()
     qsort(this->fRanking,(int)numCompetitors,1,
                tournPointsCompare);
     i = 0;
+    /* W85-S5 (device removed): this loop used to launder `i + 1` through an
+       `__asm__("" : "=r"(next) : "0"(i + 1), "r"(rankVal))` identity fence and
+       then assign `i = next`.  Writing the stored value as `(uchar)(i + 1)`
+       and incrementing AFTERWARDS is byte-identical (35/35 PASS) -- retail
+       simply materialises the rank as `i+1` at the store and bumps the counter
+       after it.  FALSIFIED first (whole-TU re-gated): increment-before-store
+       with a `ranked` temp 3; increment-before-store inline 5; a plain
+       `int next = i + 1;` local in the old position 3. */
     do {
       rankVal = this->fRanking[i];
-      int next;
-      __asm__("" : "=r"(next) : "0"(i + 1), "r"(rankVal));
       char *ranked = (char *)this + rankVal * (int)sizeof(tCompetitor);
-      i = next;
-      ranked[294] = (uchar)i;
+      ranked[294] = (uchar)(i + 1);
+      i = i + 1;
     } while (i < 6);
   }
   return;

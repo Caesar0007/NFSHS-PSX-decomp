@@ -206,9 +206,23 @@ void tScreenCongrats::DrawBackground()
              Reading ticks[0] directly is FAIL 13 (540/541). */
           int spinTicks;
 
+          /* W85-S5: this block carried TWO boundaries -- a void `__asm__("" : :
+             "i"(0))` before `scale = true` and an `__asm__("" : : "r"(scale))`
+             after it.  Measured: they are REDUNDANT WITH EACH OTHER (either one
+             alone holds the TU at 28/28 PASS; both gone = FAIL 3), so the
+             "r"(scale) one is deleted here.
+             What the survivor buys (vdiff of the both-gone build): retail leaves
+             a `nop` in the `bnez` delay slot and materialises `li $v0,20` AFTER
+             the starttick/ticks loads; without a boundary sched2 hoists
+             `li $v0,20` to the head of the block and reorg then steals it into
+             that slot (ours 540 insns / oracle 541).  FALSIFIED pure-C
+             substitutes, each re-gated whole-TU: ticks-read first 3, framenum
+             before the ticks read 20, framenum after the inner `if` 18,
+             starttick hoisted to a block temp 8, `scale = true` last 3,
+             `(short)0x14` cast 3.  The residual is a sched2 placement decision
+             on a constant with no source anchor. */
           __asm__("" : : "i"(0));
           scale = true;
-          __asm__("" : : "r"(scale));
           spinTicks = ticks[0];
           this->framenum = 0x14;
           if ((spinTicks - this->starttick / 4) % 0x5dc < 0x2d) {
@@ -801,7 +815,8 @@ eliminated:
   this->smallSpinningThing = kSpinningNone;
 
 prizes_done:
-  __asm__("" : : "i"(0));
+  /* W85-S5: a void `__asm__("" : : "i"(0))` boundary stood here.  Measured
+     INERT (TU stays 28/28 PASS without it) -- removed. */
   this->fCarPlayer = 0;
   this->TotalCash = tournamentManager.fMoney;
   if (tInfo.fCompletedGarageFull != 0) {

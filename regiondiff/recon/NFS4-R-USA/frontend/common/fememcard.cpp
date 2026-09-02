@@ -38,7 +38,6 @@ int          textSysMemCardFail_Index[7] = { 0, 677, 685, 675, 811, 671, 669 }; 
      reload + hoisted %hi base.
    - MEMCARD_INITIALIZED / MEMCARDFRONTENDISINITTED are 4-byte BOOLs (SYM; oracle uses lw/sw
      word ops). */
-extern volatile int ticks_vol            asm("ticks");
 extern int          MEMCARDFRONTENDISINITTED_word asm("MEMCARDFRONTENDISINITTED");
 /* base-class vtables for the inlined WarningDialog ctor chains (declared in feapp_externs.h
    for other TUs; TU-local externs here) */
@@ -377,7 +376,7 @@ void Init_Memcard(bool redraw,bool pinkslips)
   mcrdopts.ConfirmFormatProc = FormatConfirm;
   mcrdopts.ConfirmOverwriteProc = pinkslips ? OverwriteAlwaysYes : OverwriteConfirm;
   mcrdopts.LoadingDataProc = redraw ? LoadingRedrawProc : LoadingProc;
-  *(void (** volatile)(void))&mcrdopts.SavingDataProc = SavingProc;
+  mcrdopts.SavingDataProc = SavingProc;
   MCRD_setopts(&mcrdopts);
   addtimer(Clock_MasterInterruptHandler);
   timedwait(0x14);
@@ -586,10 +585,13 @@ bool SaveGame(short player)
     func_800DCEA4();   /* REGIONAL DELTA: added nullsub, see Init_Memcard */
     VSync(0);
   }
-  __asm__("" : : "r"(player));
   purgememadr(shapeFile);
   BringThatBeatBack();
-  if (nomessage_arr[0] == 0) {
+  /* MATCH (W85-M4): pure-C replacement for the removed
+     `__asm__("" : : "r"(player))` read fence -- see the base TU
+     recon/frontend/common/fememcard.cpp and scratchpad/w85/M4_receipt.md. */
+  do {
+  if (nomessage_arr[0] == 0) do {
     Hide((tDialogBase *)&FEApp[0]->NoInputMemCardDialog);
     /* SYM-CODEGEN-CARRIER: dlgmsg -- held across TextSys_Word as the nested
        inline receiver in s0. */
@@ -608,13 +610,14 @@ bool SaveGame(short player)
       Redraw(FEApp[0]);
     }
     Redraw(FEApp[0]);
-  }
+  } while (0);
   screenMemcard->fGetNewIcons = 1;
   Hide((tDialogBase *)&WarningDialog);
   Redraw(FEApp[0]);
   CURRENTLYUSINGMEMCARD_arr[0] = 0;
   /* [phantom-dtor drop] implicit ___7tScreen(&WarningDialog,2) at scope exit */
   return returnvalue;
+  } while (0);
 }
 
 
@@ -885,6 +888,7 @@ SavePinkSlipsCars(short player,short withoutCarInGarageNumber)
   CURRENTPLAYER[0] = player;
   char shapeFileName [64];
   short cardNum;
+  tfrontEnd *fePlayer[1];
   MCRDFILE_def memCardFile;
   cardNum = player * 4 + 1;
   finished = false;
@@ -899,7 +903,23 @@ SavePinkSlipsCars(short player,short withoutCarInGarageNumber)
     func_800DCEA4();   /* REGIONAL DELTA: added nullsub, see Init_Memcard */
     VSync(0);
   }
-  cardSlot = player * 4;
+  /* REGIONAL DELTA / MATCH (W85-M4, 88 -> 47 diffs): retail's USA build LIFTS
+     `&frontEnd + player*4` into this preheader and keeps it in the FRAME
+     (`sw $v0,5696($sp)`; `lw $t0,5696($sp); lw $v1,1084($t0)` at the use) --
+     that extra slot is the whole 5744-vs-5736 frame delta.  The base object
+     recomputes the address inside the `case 0xf` arm instead, and no LICM dial
+     reaches retail's verdict from a plain `frontEnd.gPinkSlipsNoCheat[player]`
+     (loop.c's `threshold*savings*life >= insn_count` budget is shifted by the
+     five added nullsub calls).  A POINTER-ARRAY local is memory BY CONSTRUCTION
+     (methodology 3.25-3d(b)), so it reproduces both the preheader store and the
+     per-use reload without any device; declared AFTER `cardNum` so its slot
+     lands above cardNum's, matching retail's frame map.  The struct-cast view
+     keeps the base at offset 0 with 0x43C in the load displacement (no
+     magic-offset arithmetic).  `do{}while(0)` on the cardSlot statement is the
+     flow.c:1969 ref dial: it lifts `player` over `shapeFile` in global-alloc
+     priority, giving retail's shapeFile=$fp handout. */
+  do { cardSlot = player * 4; } while (0);
+  fePlayer[0] = (tfrontEnd *)((char *)&frontEnd + cardSlot);
   memCardFile.pData = (u_char *)&memCardData;
   memCardFile.flags = 0;
   /* outer switch-loop: real switch (jtbl_800117A8), case bodies in oracle VA order --
@@ -920,13 +940,13 @@ SavePinkSlipsCars(short player,short withoutCarInGarageNumber)
       /* MATCH arm order: success path INLINE (beqz jumps the fail block out-of-line to the
          arm end); nocheat-mismatch = 2-insn inline wedge (beq skips it into the save body). */
       if (VerifySuccessfulRead(&memCardData)) {
-        if (frontEnd.gPinkSlipsNoCheat[player] != memCardData.pinkSlipsNoCheat) {
+        if (fePlayer[0]->gPinkSlipsNoCheat[0] != memCardData.pinkSlipsNoCheat) {
           /* anti-cheat token mismatch: not the original card */
           finished = true;
           result = (PinkSlipsErrorCode)finished;   /* oracle: addu s2,s3,zero -- =1 NotOriginalCard as a COPY of finished */
           break;
         }
-        SavePinkSlipsCars(&carManager,&memCardData.carInfo,player,withoutCarInGarageNumber);
+        SavePinkSlipsCars(&carManager,&memCardData.carInfo,(short)(cardSlot >> 2),withoutCarInGarageNumber);
         while (MCRD_handlecardevents(cardNum) == 0x15) {
           func_800DCEA4();   /* REGIONAL DELTA: added nullsub */
           VSync(0);
@@ -973,7 +993,6 @@ SavePinkSlipsCars(short player,short withoutCarInGarageNumber)
               /* SYM-CODEGEN-CARRIER: pCVar7 -- each switch arm must retain the
                  single MCRD_getcard result across multiple status tests. */
               CARDINFO_def *pCVar7 = MCRD_getcard(cardSlot + 1);
-              __asm__("");
               result = PinkSlipsError_CardFull;
               if (pCVar7->status != -3) {
                 result = PinkSlipsError_SaveFailed;

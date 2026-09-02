@@ -1,0 +1,12 @@
+        bufferPtr[numLetters] = '\0';
+        state = textState_Selected;
+        FETextRender_FullText(bufferPtr,this->left + this->lefttext,y,
+                             i == 0 ? textType_PopUpTitle : textType_PopUpText,
+                             state,0);
+      }
+      else {
+        state = textState_Selected;
+        FETextRender_FullText(this->text[i],this->left + this->lefttext,y,
+                             i == 0 ? textType_PopUpTitle : textType_PopUpText,
+                             state,0);
+      }

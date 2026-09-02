@@ -153,11 +153,14 @@ extern int  shapetoclutid(unsigned int *shape);          /* shpclut */
 extern int  vramimage(RECT *rect, u_long *data);         /* vramfxya */
 extern int  fastmovfxya(int shape, int x, int y);        /* fastmovf (deferred-trio sibling) */
 extern char *primptr;                                    /* primate : primitive write cursor */
-extern char * volatile nextprim;                         /* primate : OT link target (prev prim).
-                               * volatile HERE (per-TU codegen device): the retail OT-stitch loads
-                               * nextprim TWICE (dead 2nd load = placeholder-call setup the EA
-                               * post-processor left) -- volatile keeps both reads as direct
-                               * lui/lw self-temp loads, matching the oracle. */
+extern char *nextprim;                                   /* primate : OT link target (prev prim).
+                               * W85-S7 (2026-09-02): this decl used to be `char * volatile` as a
+                               * per-TU codegen device (keeping the OT-stitch's two reads as direct
+                               * lui/lw self-temp loads).  It is INERT here now -- movfxya re-gates
+                               * PASS 1/1 without it -- so the volatile is deleted.  NOTE the SIBLING
+                               * fastmovf.c still needs it (dropping it there costs 3 diffs on
+                               * fastmovfxya): that one is the sanctioned DMPSX-template dummy-input
+                               * volatile, do not "harmonise" the two declarations. */
 extern int   semitrans;                                  /* primate : semi-transparency mode */
 /* W65-A6 DATA-MAT: `currentwindow` was extern-only tree-wide (4 reloc-referenced undefined
  * sites, from movf.c + fastmovf.c).  Retail .bss run @0x801485AC (VA > t_addr+t_size

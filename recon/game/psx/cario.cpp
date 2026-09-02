@@ -384,7 +384,7 @@ void CarIO_CopyToShape(short *source,short *dest,int mirror)
        * opq(pixel3) 13 @45, opq(n0) 8 @44, opq(n1) 24 @44, opq(n3) 24 @44, opq(n1)+opq(n2)
        * 24 @44, n0-first + opq(n1) 24 @44.  Every one breaks the exact 42/42 count.
        * STRONG floor re-confirmed at 4 with the current kit. */
-      __asm__ __volatile__("");
+      __asm__("");
       source = source + 0xc;
     }
   }

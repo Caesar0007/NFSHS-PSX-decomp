@@ -103,7 +103,7 @@ extern int  syncblockio(int fd, int buf, int offset, int len, int cbarg,
  *   unscheduled-cc1 signature.  => partial per-obj old-gcc no-copy-prop identity (methodology 3.25
  *   / catalog §G); source-reachable ceiling is roughly the non-rename half of the residual.
  *   w32-a3 CHANGE for (a): the three advance accumulates are now written through the volatile view
- *   (`*(volatile int *)&c->buf += done;` etc.) -- the SyncCtrl block is async/IRQ-written (the
+ *   (`c->buf += done;` etc.) -- the SyncCtrl block is async/IRQ-written (the
  *   remain re-reads below already model that, methodology 3.12 #13), and volatile MEM ordering is
  *   what produces the oracle's STRICTLY SERIAL `lw; nop; addu; sw` chains.  The buf chain now
  *   matches the oracle instruction-for-instruction and the count gap narrows -4 -> -2 (67 -> 69 of
@@ -169,7 +169,7 @@ extern int  syncblockio(int fd, int buf, int offset, int len, int cbarg,
  *   load's delay slot (the rest).  Both are ref/live dials away; see the wrapper row above for
  *   the proof that (a) IS reachable.
  *   w50-a4 -- the "zero-insn +refs on `c`" hunt, with numbers.  The CHEAPEST wrapper is a
- *   ONE-STATEMENT depth wrapper on a single advance accumulate (`do { *(volatile int *)&c->buf +=
+ *   ONE-STATEMENT depth wrapper on a single advance accumulate (`do { c->buf +=
  *   done; } while (0);` -- or the same on `c->done`): 19 -> 14 diffs and the WHOLE BODY register
  *   map becomes retail-exact (advance on $s1, re-issue on $s2, every body insn identical); the
  *   residual 14 is then only (i) the PROLOGUE pair -- ours saves/copies param->$s2, copy->$s1,
@@ -207,16 +207,16 @@ extern void synccallback(int op, int type, SyncCtrl *c)
      * with pure C and keeps the function count-exact at 71/71. */
     if (type == 1) {
         do {
-            *(volatile int *)&c->buf += done;
+            c->buf += done;
         } while (0);
-        *(volatile int *)&c->done += done;
+        c->done += done;
         c->offset += done;
         if ((int)done < c->chunk) {                 /* short transfer => this was the last chunk */
             *(volatile int *)&c->remain = 0;
         } else {
             c->remain -= done;
         }
-        if (0 < *(volatile int *)&c->remain) {
+        if (0 < c->remain) {
             int r;
             if (0x2000 < *(volatile int *)&c->remain)
                 c->chunk = 0x2000;
@@ -253,12 +253,28 @@ extern int syncblockio(int fd, int buf, int offset, int len, int cbarg,
     *(volatile int *)&c.done   = 0;
     *(volatile int *)&c.chunk  = len;
     firstchunk = *(volatile int *)&c.chunk;
-    *(volatile int *)&c.offset = offset;
+    c.offset = offset;
     /* MATCH (disasm-v4 trace): the volatile initialization view preserves the oracle's ordered
      * stack stores.  It then re-reads the just-stored chunk before storing offset; keeping that
      * value in `firstchunk` recovers the exact load/save-ra/store-offset/compare sequence.
      * `c.iofn = iofn` is unconditional and lands in the chunk-test branch delay slot.  Reading
      * c.offset and c.chunk for the first call recovers the oracle's a2/a3 stack reloads. */
+    /* W85-S7 DEVICE PURITY (2026-09-02): the volatile VIEW on this TU was audited site by site
+     * against the source-only gate (whole TU 8/8 PASS before and after).  SIX of the sixteen
+     * `*(volatile int *)&` casts were CODEGEN CRUTCHES and are DELETED: `c->buf +=`, `c->done +=`
+     * and `c->offset =` in synccallback's advance chain, the `0 < c->remain` re-issue guard, plus
+     * the two the earlier waves had already folded.  TEN are SEMANTIC and stay -- the SyncCtrl
+     * block is asynchronously written by synccallback while syncblockio blocks in FILE_waitop
+     * (it is literally polled by `while (c.remain != 0 || c.op != 0)`), and the ORACLE PROVES the
+     * re-reads: the init block's `lw v0,44(sp)` reload of the just-stored `chunk` (ours folds it to
+     * the `len` register and comes out ONE INSN SHORT, 47 vs 48) and the ordered stack-store
+     * sequence 24/28/32/36/40/44 in source order (ours reorders them without the volatile view).
+     * FALSIFIED alternatives for the init block, all gated: `volatile SyncCtrl c;` as one object
+     * = 9 diffs (it also volatilises iofn/op and loses the branch-delay-slot stores); dropping any
+     * single init cast = 2 diffs; dropping all seven = 8 diffs at 47/48 insns.
+     * NON-ADDITIVITY WARNING: the `0 < c->remain` guard cast and the `c->chunk = c->remain` clamp
+     * cast are EACH free in isolation but cost 10 diffs when BOTH are dropped -- only the guard is
+     * removed.  Do not "finish the job" without re-gating. */
     c.iofn = iofn;
     if (firstchunk > 0x2000)
         c.chunk = 0x2000;

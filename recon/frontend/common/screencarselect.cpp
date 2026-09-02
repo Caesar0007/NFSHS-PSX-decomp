@@ -355,10 +355,20 @@ DrawOvl_transitionPos:
       temp.x = pos.x + 0x1e;
       temp.w = pos.w + -0x3c;
       temp.h = pos.h + -0x4b;
-      FETextRender_MenuTextPositionedJustify
-                (*(volatile int *)&menuDefs->menuCarUpgrades.fCurrentItem + 0x96,
-                 pos.x + (pos.w >> 1),pos.y + 0x18,2,
-                 textState_Hilighted,textType_FramedInfo);
+      /* [W85-S5, volatile removed] This argument used to be spelled
+         `*(volatile int *)&menuDefs->menuCarUpgrades.fCurrentItem + 0x96`.
+         What the volatile bought is the FULL-WORD load retail uses; a plain
+         read narrows to `lhu`.  An honest named `int` local holding the field
+         reproduces it with no volatile (whole-TU 59/59 PASS).  FALSIFIED:
+         a plain `*(int *)&` cast 2; the direct field read 2. */
+      {
+        int curItem = menuDefs->menuCarUpgrades.fCurrentItem;
+
+        FETextRender_MenuTextPositionedJustify
+                  (curItem + 0x96,
+                   pos.x + (pos.w >> 1),pos.y + 0x18,2,
+                   textState_Hilighted,textType_FramedInfo);
+      }
       {
         int descrItem;
 

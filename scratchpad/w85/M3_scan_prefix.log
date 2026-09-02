@@ -1,0 +1,50 @@
+sum=0   000000111 score=1951 insns=3197 
+sum=5   000001111 score=None insns=3198 len 3198 != 3197
+sum=9   000002111 score=None insns=3198 len 3198 != 3197
+sum=10  000011111 score=None insns=3198 len 3198 != 3197
+sum=13  000003111 score=None insns=3198 len 3198 != 3197
+sum=14  000012111 score=None insns=3198 len 3198 != 3197
+sum=15  000111111 score=None insns=3198 len 3198 != 3197
+sum=18  000013111 score=1797 insns=3197 
+sum=19  000112111 score=1797 insns=3197 
+sum=20  001111111 score=1797 insns=3197 
+sum=22  000023111 score=None insns=3198 len 3198 != 3197
+sum=23  000113111 score=None insns=3198 len 3198 != 3197
+sum=24  001112111 score=None insns=3198 len 3198 != 3197
+sum=25  011111111 score=None insns=3198 len 3198 != 3197
+sum=26  000033111 score=None insns=3198 len 3198 != 3197
+sum=27  000123111 score=None insns=3198 len 3198 != 3197
+sum=28  001113111 score=None insns=3198 len 3198 != 3197
+sum=29  011112111 score=None insns=3198 len 3198 != 3197
+sum=30  111111111 score=None insns=3198 len 3198 != 3197
+sum=31  000133111 score=None insns=3199 len 3199 != 3197
+sum=32  001123111 score=None insns=3198 len 3198 != 3197
+sum=33  011113111 score=714 insns=3197 
+sum=34  111112111 score=714 insns=3197 
+sum=35  000233111 score=714 insns=3197 
+sum=36  001133111 score=714 insns=3197 
+sum=37  011123111 score=714 insns=3197 
+sum=38  111113111 score=729 insns=3197 
+sum=39  000333111 score=729 insns=3197 
+sum=40  001233111 score=729 insns=3197 
+sum=41  011133111 score=729 insns=3197 
+sum=42  111123111 score=729 insns=3197 
+sum=44  001333111 score=729 insns=3197 
+sum=45  011233111 score=729 insns=3197 
+sum=46  111133111 score=729 insns=3197 
+sum=48  002333111 score=729 insns=3197 
+sum=49  011333111 score=729 insns=3197 
+sum=50  111233111 score=729 insns=3197 
+sum=52  003333111 score=729 insns=3197 
+sum=53  012333111 score=None insns=3198 len 3198 != 3197
+sum=54  111333111 score=None insns=3199 len 3199 != 3197
+sum=57  013333111 score=None insns=3199 len 3199 != 3197
+sum=58  112333111 score=None insns=3199 len 3199 != 3197
+sum=61  023333111 score=None insns=3199 len 3199 != 3197
+sum=62  113333111 score=None insns=3199 len 3199 != 3197
+sum=65  033333111 score=None insns=3199 len 3199 != 3197
+sum=66  123333111 score=None insns=3199 len 3199 != 3197
+sum=70  133333111 score=None insns=3199 len 3199 != 3197
+sum=74  233333111 score=None insns=3199 len 3199 != 3197
+sum=78  333333111 score=None insns=3199 len 3199 != 3197
+BEST: [(714, 33, '011113111', 3197, ''), (714, 34, '111112111', 3197, ''), (714, 35, '000233111', 3197, ''), (714, 36, '001133111', 3197, ''), (714, 37, '011123111', 3197, ''), (729, 38, '111113111', 3197, ''), (729, 39, '000333111', 3197, ''), (729, 40, '001233111', 3197, '')]

@@ -1,0 +1,15 @@
+      if (numLetters < (int)strlen(this->text[i])) {
+        j = 0;
+        state = 0;
+        if (numLetters > 0) {
+          do {
+            bufferPtr[j] = this->text[i][j];
+            j = j + 1;
+          } while (j < numLetters);
+        }
+        bufferPtr[numLetters] = '\0';
+        state = textState_Selected;
+        FETextRender_FullText(bufferPtr,this->left + this->lefttext,y,
+                             i == 0 ? textType_PopUpTitle : textType_PopUpText,
+                             state,0);
+      }

@@ -22,6 +22,13 @@
  * "loop.c APPENDS hoisted movables after the straight-line preheader" verdict on
  * iSNDpacketsetirq's 2-diff residual is now also closed on the COMPILER-VERSION axis.
  */
+/* W85-S8 VOLATILE AUDIT (2026-09-02): the `volatile` qualifiers on 881 (`iSNDpacketserve`'s `pp+0x20` DMA-handle read -- the following call already orders it)
+ * were REMOVED -- plain main-RAM driver state, not MMIO and not IRQ-mutated; removal is
+ * gate-neutral (whole-TU verify_asm/tugate PASS before and after).  Every REMAINING
+ * `volatile` in this file was measured individually or as a group and is load-bearing
+ * (MMIO, or state the oracle provably re-reads) -- do not strip them.  Receipt:
+ * scratchpad/w85/S8_receipt.md. */
+
 /* eaclib/psx/sndpsxz/sdpacket.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 8/13 PASS
  *   (w20-a8 2026-07-19/20: getirq 76->39, setirq 31->10, purgeframes 85->15, serve 75->60,
  *   platformpacketplaycreate 55->0 PASS, psxpacketstop 42->18; residual = fillspuwithpackets 480,
@@ -878,7 +885,7 @@ have_advance:
             iSNDpacketpurgeframes(p, (unsigned)*(int *)(pp + 0x1c), (int)adv);
             *(int *)(pp + 0x1c) = newPos;
             if (*(int *)(pp + 0x14) - *(int *)(pp + 0x18) < *(int *)(pp + 0x10)) {
-                if (iSNDdmcomplete(*(volatile int *)(pp + 0x20)) != 0) {
+                if (iSNDdmcomplete(*(int *)(pp + 0x20)) != 0) {
                     int idx;
                     idx = (int)*(unsigned short *)(pp + 0x3a);
                     idx++;

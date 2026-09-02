@@ -243,10 +243,9 @@ int AIHigh_BasicPerp::CheckIfCaught()
 
           if (AIHigh_BasicPerp_CaughtDistance[skill] <= distanceAbsMeters) continue;
 
-          __asm__("" : : "r"(this), "r"(this), "r"(this),
-                          "r"(this), "r"(this), "r"(this));
-          __asm__("" : : "r"(this), "r"(this), "r"(this),
-                          "r"(this), "r"(this));
+          /* W85-S1 (device clearance): TWO 11-operand zero-insn `"r"(this)` ref-step
+             fences stood here.  Both are DEAD -- removed singly and together, the whole
+             TU re-gates 9/9 PASS byte-identical.  Do not re-add. */
           if (barrierInWay) continue;
 
           {

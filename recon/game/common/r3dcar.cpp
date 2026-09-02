@@ -2766,8 +2766,6 @@ void R3DCar_InsertCarFacetMenuII(Car_tObj *carObj,int light)
              restore the retail order; placing the fence here, after the first
              guard, preserves retail's slti/mirror delay-slot schedule.  The same
              fence before the guard leaves a 6-diff scheduling residual. */
-          __asm__("" : : "r"(offset), "r"(offset), "r"(offset), "r"(offset),
-                           "r"(visible));
           if (((rightHandDrive != 0) && (0x22 < i)) && (i < 0x29)) {
             mirror = true;
             sd->head.mirror = sd->head.mirror ^ 1;
@@ -2891,7 +2889,7 @@ void R3DCar_InsertAllListFacet(DRender_tView *Vi)
   if (Vi->player == 0) {
     if (generic128HzClock > R3DCar_ClockLast) {
       R3DCar_Clock = 1;
-      R3DCar_ClockLast = *(volatile int *)&generic128HzClock + 6;
+      R3DCar_ClockLast = generic128HzClock + 6;
     }
     else {
       R3DCar_Clock = 0;

@@ -26,7 +26,6 @@
   if (((flags) & 2) != 0) {                  \
     (v) = vraw - 1;                          \
   }                                          \
-  __asm__ volatile("" : : "r"(vraw));       \
 }
 
 #define PSXFRONT_STORE_BOTTOM_V(prim,vh,v) { \
@@ -801,9 +800,11 @@ static void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *
    *   ratio the w45 trust rules predict.  The `prim[0x30] = prim[0x18];` read-back variant
    *   is count-EXACT 245/245 at 34 -- parked as a second basin for a future round. */
   PSXFRONT_INIT_V(shp,flags,v);
-  /* vraw's outliving consumer (see decl note) + the W61-A18 v ref-step: the "r"(v)
-     operand is a ZERO-INSN out-of-loop +1 ref that keeps v above the colour pointer
-     in allocno_compare so v holds $t4 and colour holds $t5, as retail does. */
+  /* W85-S11 DEVICE REMOVED (2026-09-02): PSXFRONT_INIT_V used to end with an
+     `__asm__ volatile("" : : "r"(vraw));` availability fence (a W61-A18 ref-step
+     dial meant to keep v above the colour pointer in allocno_compare).  It is
+     MEASURED INERT in the current basin: deleting it leaves this function
+     PASS 245/245 and the whole TU 25/25.  Do not reintroduce it. */
   /* PROBE FALSIFIED (2026-08-02): an identical `vh = shp->height;` 2nd def in the
    * flags&2 arm is CSE-DELETED before local-alloc (160 unchanged) -- breaking the
    * single-set REG_EQUIV needs a def cse cannot merge (volatile view / different
@@ -946,11 +947,19 @@ static void DrawGouraudShape(tTexture_ShapeInfo *shp,int flags,int x,int y,int *
        * ({w1=a0,addw=a1,u+w1=v0} ours vs {w1=a1,addw=a2,u+w1=v1} retail). */
       addwm1 = addw - 1;
       *(short *)(prim + 8) = ((width + x) - i) + addwm1;
-      /* MATCH (source-only, 2026-08-26): the packet macro's x0 field is a
-       * memory dependency for the following y0 write.  The zero-byte memory
-       * input keeps y0 behind x0 without changing the established register
-       * budget; it also occupies the exposed lhu delay cycle, reproducing
-       * retail's nop.  Detailed gate: 3 -> PASS 245/245. */
+      /* DEVICE KEPT (audited W85-S11 2026-09-02): zero-byte memory INPUT on the
+       * x0 packet field.  It is the only source-expressible store-store ordering
+       * constraint here: gcc-2.8 disambiguates `prim+8` and `prim+10` (constant
+       * offsets off one pseudo, provably disjoint) so `output_dependence` is
+       * false and the post-reload scheduler hoists the y0 `sh` into the exposed
+       * delay cycle of the `lhu t8,16(sp)` spill reload.  Removing it = FAIL 3
+       * (ours 244/245: the retail nop is gone).  Re-crack attempts, all gated:
+       *   (a) separate `short *py10 = (short*)(prim+10);` pointer local ......  3 (cse folds it back to the same base+const)
+       *   (b) y0 store written BEFORE x0 ........................ 2, count-EXACT 245/245 but y0 lands 6 slots too early (above the reload)
+       *   (c) y0 store written AFTER the x1 store ............... 2, count-EXACT 245/245 but y0 lands 2 slots too late
+       * (b)/(c) bracket the retail slot without hitting it; only the memory
+       * input pins y0 immediately after x0.  Restored verbatim.
+       * Detailed gate: 3 -> PASS 245/245. */
       __asm__("" : : "m"(*(short *)(prim + 8)));
       *(short *)(prim + 10) = y;
       *(short *)(prim + 0x14) = ((shp->width + x) - (i + w1)) + addwm1;

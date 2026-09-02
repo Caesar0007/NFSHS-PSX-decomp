@@ -1,0 +1,17 @@
+{
+ "D1_two_out_slot_first": [
+  ["            register intrEnv_t *c2 __asm__(\"$6\");\n            __asm__(\"\" : \"=r\"(c2) : \"0\"(ctl));\n            intrEnv.handlers[idx] = handler;",
+   "            intrEnv_t *c2;\n            Callback *slot = &intrEnv.handlers[idx];\n            __asm__(\"\" : \"=r\"(slot), \"=r\"(c2) : \"0\"(slot), \"1\"(ctl));\n            *slot = handler;"]],
+ "D2_two_out_c2_first": [
+  ["            register intrEnv_t *c2 __asm__(\"$6\");\n            __asm__(\"\" : \"=r\"(c2) : \"0\"(ctl));\n            intrEnv.handlers[idx] = handler;",
+   "            intrEnv_t *c2;\n            Callback *slot = &intrEnv.handlers[idx];\n            __asm__(\"\" : \"=r\"(c2), \"=r\"(slot) : \"0\"(ctl), \"1\"(slot));\n            *slot = handler;"]],
+ "D3_three_out": [
+  ["            register intrEnv_t *c2 __asm__(\"$6\");\n            __asm__(\"\" : \"=r\"(c2) : \"0\"(ctl));\n            intrEnv.handlers[idx] = handler;\n            nNewMask = nNewMask | (1 << idx);",
+   "            intrEnv_t *c2;\n            Callback *slot = &intrEnv.handlers[idx];\n            __asm__(\"\" : \"=r\"(slot), \"=r\"(nNewMask), \"=r\"(c2) : \"0\"(slot), \"1\"(nNewMask), \"2\"(ctl));\n            *slot = handler;\n            nNewMask = nNewMask | (1 << idx);"]],
+ "D4_two_out_mask_then_c2": [
+  ["            register intrEnv_t *c2 __asm__(\"$6\");\n            __asm__(\"\" : \"=r\"(c2) : \"0\"(ctl));\n            intrEnv.handlers[idx] = handler;\n            nNewMask = nNewMask | (1 << idx);",
+   "            intrEnv_t *c2;\n            __asm__(\"\" : \"=r\"(nNewMask), \"=r\"(c2) : \"0\"(nNewMask), \"1\"(ctl));\n            intrEnv.handlers[idx] = handler;\n            nNewMask = nNewMask | (1 << idx);"]],
+ "D5_slot_local_only": [
+  ["            register intrEnv_t *c2 __asm__(\"$6\");\n            __asm__(\"\" : \"=r\"(c2) : \"0\"(ctl));\n            intrEnv.handlers[idx] = handler;",
+   "            intrEnv_t *c2;\n            Callback *slot = &intrEnv.handlers[idx];\n            __asm__(\"\" : \"=r\"(slot) : \"0\"(slot));\n            __asm__(\"\" : \"=r\"(c2) : \"0\"(ctl));\n            *slot = handler;"]]
+}

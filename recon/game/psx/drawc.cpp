@@ -5225,8 +5225,12 @@ gte_stsxy3((char *)prim + 0x10,(char *)prim + 0x20,(char *)prim + 0x18);
       prim = (POLY_FT4 *)(sd->head).cprim.PrimPtr;
       ot = (sd->head).cprim.LastPrim;
       (sd->head).cprim.PrimPtr = (char *)prim + 0x28;
-      /* volatile: the oracle reloads sd->otz fresh here (stored just above) */
-      otp = (u_int *)(ot + *(int volatile *)&sd->otz);
+      /* W85-S4 DEVICE PURITY: the `*(int volatile *)&sd->otz` cast that used to
+       * force the oracle's fresh reload here is RETIRED -- a plain `sd->otz` read
+       * emits the same reload and this function plus the whole TU stay 20/20 PASS
+       * (re-measured 2026-09-02).  sd is a scratchpad cache object, not MMIO, so
+       * the qualifier was a codegen crutch, not a semantic one. */
+      otp = (u_int *)(ot + sd->otz);
       *(u_int *)prim = *(u_int *)prim & 0xff000000 | *otp & 0xffffff;
       *otp = *otp & 0xff000000 | (u_int)prim & 0xffffff;
       }

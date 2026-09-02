@@ -70,16 +70,21 @@
  * Receipts: scratchpad/w65a6/RECEIPTS.md */
 __asm__("\t.globl\tgPreLoadTicks\n\t.globl\tgEventDats\n\t.globl\tgVoxInGame\n"
         "\t.globl\tgRepeatCount\n\t.globl\tgVoxEvents\n\t.globl\tDAT_80148064\n"
+        /* W85-S9: the two co-equal VIEW names of the same storage are plain extra LABELS here
+         * (they used to be `__asm__("gVoxEvents")` labels on their C declarations below). */
+        "\t.globl\tgVoxEventQueue\n\t.globl\tgVoxQueue\n"
         "\t.section\t.bss\n\t.align\t2\n"
         "gPreLoadTicks:\n\t.space\t4\n"
         "gEventDats:\n\t.space\t16\n"
         "gVoxInGame:\n\t.space\t4\n"
         "gRepeatCount:\n\t.space\t4\n"
-        "gVoxEvents:\n\t.space\t4\n"
+        "gVoxEvents:\ngVoxEventQueue:\ngVoxQueue:\n\t.space\t4\n"
         "DAT_80148064:\n\t.space\t964\n\t.text");
 extern int            gVoxEvents[];      /* @0x80148060 : live event count + base of the 16-slot queue */
-/* gVoxEventQueue: a SECOND declaration of the same storage (co-equal XDEF / asm-label view, catalog
- * wave-13 "unsized-array asm-label view").  The 0x80148060 block is a deliberate OVERLAY -- slot 0's
+/* gVoxEventQueue: a SECOND declaration of the same storage.  W85-S9: the co-equal name is now a
+ * plain extra LABEL in the .bss definition block above (was an `__asm__("gVoxEvents")` label on
+ * this declaration) -- same address, same zero instructions, no asm in the C decls.  16/16 PASS
+ * unchanged.  The 0x80148060 block is a deliberate OVERLAY -- slot 0's
  * first two words (its fields start at +8) double as the live-count and the 'd'-flag -- so the queue
  * array and the counter were two named objects in EA's source.  Keeping them DISTINCT symbol_refs is
  * load-bearing for iSPCH_ChooseEvent: with one symbol, cse merges the slot cursor's base pseudo with
@@ -90,7 +95,7 @@ extern int            gVoxEvents[];      /* @0x80148060 : live event count + bas
  * and the whole callee-saved assignment matches retail exactly (46 -> 35 diffs).  ⚠ the SLOT()/count
  * sites must STAY on `gVoxEvents` -- routing them through the queue view costs 22 diffs here and
  * breaks SPCH_ChooseSpeech's PASS. */
-extern unsigned char  gVoxEventQueue[] __asm__("gVoxEvents");
+extern unsigned char  gVoxEventQueue[];
 /* Typed view of the same queue for iSPCH_ChooseEvent: a 0x3c-byte slot whose named fields start
  * at +8 (the first two words overlay the live count / 'd' flag, see above). */
 typedef struct {
@@ -102,7 +107,7 @@ typedef struct {
     int            event;        /* +0x10 VoxEvent ptr */
     int            args[10];     /* +0x14 .. 0x3c */
 } VoxSlot;
-extern VoxSlot        gVoxQueue[] __asm__("gVoxEvents");
+extern VoxSlot        gVoxQueue[];
 extern int            DAT_80148064;   /* @0x80148064 : "kept a 'd' event" flag */
 extern int            gLastTick[];    /* last insert tick (array decl -> explicit lui+%lo) */
 extern unsigned short gLastSubTick[]; /* sub-tick counter for same-tick inserts */
@@ -338,6 +343,27 @@ extern void iSPCH_InitEventQueue(void)
      * through $a0), fence(addr)+fence(slot) with `end = base + 0x3c0` (2 -- `addiu $t0,$a3`),
      * hoisting the `base+4` store above `slot = base` (2), and the whole-chain fence variants
      * without the `addr` step (30, register rotation: slot 19 refs -> $v1 ahead of off's 8/11). */
+    /* W85-S9 (device purity, PASS 29/29 held).  The four queue-header stores were
+     * `*(volatile short/int *)` -- the qualifier was there only to stop loop.c anchoring them on
+     * the inner loop's giv (`addiu $a1,$a2,16` + -8/-6/-4/0 displacements).  The honest form is
+     * retail's own shape, which w32-a9 already documented: this is a LABEL+GOTO DOUBLE loop that
+     * never went through loop.c.  Writing the OUTER loop as a bare `outer: ... if (slot < end)
+     * goto outer;` (no do/while wrapper at all -- a `do{...}while(0)` around it still emits the
+     * LOOP_BEG/LOOP_END notes and loop.c re-forms the anchor, measured 36 diffs / 31 insns)
+     * removes all four qualifiers at zero cost.
+     * The two OPACITY FENCES below RESIST removal and are restored (see the falsification list at
+     * the end of this note).  They keep retail's two reg-reg copies `addu $a3,$v0,$zero` /
+     * `addu $a0,$a3,$zero` alive; without them cc1 fuses `addr` with `slot` and emits 28 insns
+     * against retail's 29 (31 diffs).  W85-S9 falsified, all at 28 insns / 31 diffs unless noted:
+     * `base`/`slot` from a 2nd and 3rd evaluation of `(int)gVoxEvents`; `slot` from a 2nd
+     * evaluation with `base = addr`; `end` sourced from `addr` / from `base` / from a 3rd
+     * evaluation; the `base+4` store hoisted above `slot = base` (29 diffs); `*(int *)addr = 0`
+     * for the count store; the count store moved between the two copies; depth-2 and depth-3
+     * `do{}while(0)` ref inflators on either copy or on the `addr` def; and the two DISTINCT
+     * SYMBOL VIEWS (`gVoxEventQueue`/`gVoxQueue`) for base/slot -- that one costs a second
+     * `lui/addiu` PAIR (30 insns) instead of retail's one-insn copy.  Mechanism is unchanged from
+     * the w47-a2 reading: an ADDRESS carries a REG_EQUIV, so update_equiv_regs rewrites the copy
+     * away and there is no copy insn left for local-alloc to preserve. */
     int argBase = 0;
     int addr = (int)gVoxEvents;
     int base;
@@ -350,13 +376,16 @@ extern void iSPCH_InitEventQueue(void)
     end  = slot + 0x3c0;
     gVoxEvents[0]   = 0;
     *(int *)(base + 4) = 0;   /* DAT_80148064: stored via base+4 (oracle sw 0,4(a3)) */
-    do {
-        int j = 0;
-        int off = argBase;
-        *(volatile short *)(slot + 8)  = 0;
-        *(volatile short *)(slot + 0xa) = 0;
-        *(volatile int *)(slot + 0xc)  = 0;
-        *(volatile int *)(slot + 0x10) = 0;
+    {
+        int j;
+        int off;
+      outer:
+        j = 0;
+        off = argBase;
+        *(short *)(slot + 8)  = 0;
+        *(short *)(slot + 0xa) = 0;
+        *(int *)(slot + 0xc)  = 0;
+        *(int *)(slot + 0x10) = 0;
       inner:
         *(int *)(off + base + 0x14) = 0;
         j = j + 1;
@@ -365,7 +394,9 @@ extern void iSPCH_InitEventQueue(void)
             goto inner;
         slot = slot + 0x3c;
         argBase = argBase + 0x3c;
-    } while (slot < end);
+        if (slot < end)
+            goto outer;
+    }
     gLastTick[0]    = 0;
     gLastSubTick[0] = 0;
 }

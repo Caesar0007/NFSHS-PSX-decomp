@@ -426,7 +426,23 @@ void tScreenMain::DrawBackground()
      edges, while the zero-byte fence prevents GCC from sharing the reload.
      Detailed verify_asm is PASS 822/822 and strict_branch compares all 54 raw
      branch words CLEAN; the former structured else entered .L80037B44 from
-     both paths and hid one wrong branch target behind normalized labels. */
+     both paths and hid one wrong branch target behind normalized labels.
+     [W85-S5, device removed] The zero-byte fence that used to sit in front of
+     `test_credits_menu:` is GONE.  What it bought is retail's one-instruction
+     landing pad `.L80037B44: lui $v0,%hi(FEApp)` that falls into `.L80037B48`
+     -- the fall-through entry must RELOAD the FEApp %hi because the first
+     comparison's `addiu $v0,$v0,0x39F0` clobbered it, while the branch entry
+     inherits the %hi from the `bne` delay slot.  Without a boundary gcc shares
+     the one materialization across both edges (821 insns vs 822).
+     The pure-C equivalent is simply to READ THE MENU POINTER INTO A NAMED
+     BLOCK LOCAL before the comparison: that gives the second test its own
+     address pseudo, so the %hi is re-materialized on the fall-through edge.
+     FALSIFIED first (each whole-TU re-gated): dropping the fence outright 1;
+     an unsized-array `extern tFEApplication *FEAppSM[] asm("FEApp")` view on
+     the 2nd test 1, on the 1st test 1, on both 1; a redundant
+     `goto test_credits_menu;` immediately before the label 1; the structured
+     `if (A && B) ... else if (C)` form 1; Yoda order on the 2nd compare 13;
+     a fully nested if/else 8. */
   if (this->fState != kScreenMain_Credits) {
     goto test_credits_menu;
   }
@@ -434,10 +450,12 @@ void tScreenMain::DrawBackground()
     this->SetState(kScreenMain_StaticImage);
     goto credits_state_done;
   }
-  __asm__("" : : "i"(0));
 test_credits_menu:
-  if (FEApp->fCurrentMenu[0] == (tMenu *)&menuDefs->menuCredits) {
-    this->SetState(kScreenMain_Credits);
+  {
+    tMenu *curMenu = FEApp->fCurrentMenu[0];
+    if (curMenu == (tMenu *)&menuDefs->menuCredits) {
+      this->SetState(kScreenMain_Credits);
+    }
   }
 credits_state_done:
   ::Draw(&CreditManager,this->fState == kScreenMain_Credits);

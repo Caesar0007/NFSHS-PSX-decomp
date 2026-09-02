@@ -17,6 +17,13 @@
  * patch diverges from stock 2.8.1) -- the ladder is consistent with that: no stock rung,
  * old or new, reproduces it better than our patched-2.8.0 lane does.
  */
+/* W85-S8 VOLATILE AUDIT (2026-09-02): the `volatile` qualifiers on 377, 394, 413 (the three `postmask_spu`/`vr`/`post_ctrl` reads of the LATCHED SPU base at `sndpd+0x510/0x514`; every inline re-read of that word inside an MMIO store stays volatile -- stripping those costs iSNDinit 33 diffs)
+ * were REMOVED -- plain main-RAM driver state, not MMIO and not IRQ-mutated; removal is
+ * gate-neutral (whole-TU verify_asm/tugate PASS before and after).  Every REMAINING
+ * `volatile` in this file was measured individually or as a group and is load-bearing
+ * (MMIO, or state the oracle provably re-reads) -- do not strip them.  Receipt:
+ * scratchpad/w85/S8_receipt.md. */
+
 /* eaclib/psx/sndpsxz/slib.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 5/5 PASS ***
  *   Source obj : nfs4\eaclib\psx\slib.obj ; archive C:\nfs4\EACLIB\PSX\SNDPSXZ.LIB (xlsx col11)
  *   5 fns @[0x800FF5A8 .. 0x800FFAF4].  The PSX SPU sound-system: boot init (iSNDinit), teardown
@@ -183,10 +190,28 @@ extern void iSNDserve(void);                /* @0x800FFAF4 */
 #if defined(__mips__)
 static inline unsigned int rd_sr(void) { unsigned int s; __asm__ volatile("mfc0 %0,$12" : "=r"(s)); return s; }
 static inline void wr_sr(unsigned int s) { __asm__ volatile("mtc0 %0,$12" : : "r"(s)); }
-/* CP0 transaction shim: keep the DMA channel in $a0 across the status-register
- * mask and spell the required R3000 load/write hazard slots explicitly. */
-#define DECLARE_DMA_CHANNEL(name) register int name __asm__("$4")
-#define DECLARE_DMA_CALLBACK(name) register int name __asm__("$5")
+/* CP0 critical section around the DMA4 (SPU) callback (re)install.  This IS the sanctioned cop0
+ * macro block: the oracle carries the identical hand-written sequence verbatim (iSNDinit
+ * @800FF82C / iSNDrestore @800FFAA0, both tagged `/ * handwritten instruction * /` by splat),
+ * including the `nop` after `mfc0` and the three `nop`s after `mtc0` -- the R3000 CP0 hazard
+ * slots no C compiler emits.
+ *
+ * W85-S8 (2026-09-02): the two `register int x __asm__("$4"/"$5")` HARD-REGISTER PINS that used
+ * to hold the DMACallback arguments across this block are GONE.  They are replaced by threading
+ * the argument values THROUGH the cop0 block as matching in/out operands, which is what the
+ * critical section semantically is (those values must survive the masked window).  Measured:
+ *   pins + `"+r"` operands ........................ 5/5 PASS (old form)
+ *   plain ints + `"+r"` operands .................. cc1 ABNORMAL TERMINATION (2.8.0 ICE)
+ *   plain ints, operands dropped entirely ......... iSNDinit 3 / iSNDrestore 2 -- the only
+ *       residual is the POSITION of `addiu $a0,$zero,4`: retail materializes the channel BEFORE
+ *       `mfc0`, gcc sinks the constant to the `jal DMACallback` (statement order, a literal arg,
+ *       and moving `dma = 4` above `iSNDpsxfxinit` all leave it at 2)
+ *   plain ints + read-only `"r"(channel)` inputs .. iSNDinit 7 / iSNDrestore 3 (worse)
+ *   plain ints + `"=r"(x)` / `"N"(x)` MATCHING in/out operands ... 5/5 PASS  <- kept
+ * No hard register is named anywhere; gcc chooses $a0/$a1 on its own because they are the
+ * outgoing arguments of the `DMACallback` call that follows. */
+#define DECLARE_DMA_CHANNEL(name) int name
+#define DECLARE_DMA_CALLBACK(name) int name
 #define MASK_SR_FOR_DMA(sr, channel)                                                   \
     __asm__ volatile(                                                                 \
         "mfc0 %0,$12\n\t"                                                            \
@@ -197,7 +222,7 @@ static inline void wr_sr(unsigned int s) { __asm__ volatile("mtc0 %0,$12" : : "r
         "nop\n\t"                                                                     \
         "nop\n\t"                                                                     \
         "nop"                                                                         \
-        : "=r"(sr), "+r"(channel) : : "$1", "$8", "memory")
+        : "=r"(sr), "=r"(channel) : "1"(channel) : "$1", "$8", "memory")
 #define MASK_SR_FOR_DMA_CALLBACK(sr, channel, callback)                                \
     __asm__ volatile(                                                                  \
         "mfc0 %0,$12\n\t"                                                             \
@@ -208,7 +233,7 @@ static inline void wr_sr(unsigned int s) { __asm__ volatile("mtc0 %0,$12" : : "r
         "nop\n\t"                                                                      \
         "nop\n\t"                                                                      \
         "nop"                                                                          \
-        : "=r"(sr), "+r"(channel), "+r"(callback) : : "$1", "$8", "memory")
+        : "=r"(sr), "=r"(channel), "=r"(callback) : "1"(channel), "2"(callback) : "$1", "$8", "memory")
 #else
 static unsigned int g_sr = 0;
 static inline unsigned int rd_sr(void) { return g_sr; }
@@ -356,7 +381,7 @@ extern int iSNDinit(void)
     *(volatile unsigned short *)(*(volatile int *)(latched + 0x514) + 0x1b0) = 0;
     *(volatile unsigned short *)(*(volatile int *)(latched + 0x514) + 0x1b2) = 0;
     *(volatile unsigned short *)(*(volatile int *)(latched + 0x514) + 0x1b4) = 0;
-    postmask_spu = *(volatile int *)(latched + 0x514);
+    postmask_spu = *(int *)(latched + 0x514);
     MASK_SR_FOR_DMA_CALLBACK(sr, ch, callback);
     *(volatile unsigned short *)(postmask_spu + 0x1b6) = 0;
     *(volatile unsigned short *)(*(volatile int *)(latched + 0x514) + 0x1aa) = 0xc000;
@@ -373,7 +398,7 @@ extern int iSNDinit(void)
         loop_gs = gs;
         vp = (int)latched;
         do {
-            int vr = *(volatile int *)(loop_pd + 0x510) + i * 0x10;
+            int vr = *(int *)(loop_pd + 0x510) + i * 0x10;
             *(short *)(vr + 0) = 0;
             *(short *)(vr + 2) = 0;
             *(short *)(vr + 4) = 0;
@@ -392,7 +417,7 @@ extern int iSNDinit(void)
     master = 0x3fff;
     *(volatile unsigned short *)(*(volatile int *)(post + 0x514) + 0x180) = master;
     *(volatile unsigned short *)(*(volatile int *)(post + 0x514) + 0x182) = master;
-    post_ctrl = *(volatile int *)(post + 0x514);
+    post_ctrl = *(int *)(post + 0x514);
     *(volatile unsigned short *)(post_ctrl + 0x1aa) =
         *(volatile unsigned short *)(post_ctrl + 0x1aa) | 1;
     iSNDpsxfxinit(*(int *)(post + 4));

@@ -1,0 +1,6 @@
+{
+ "N0_nofence": [["        __asm__(\"\" : : \"i\"(0));  /* MATCH: void-tail fence -- keeps `retry--` OUT of the bne delay slot */\n", ""]],
+ "N1_predec":  [["        __asm__(\"\" : : \"i\"(0));  /* MATCH: void-tail fence -- keeps `retry--` OUT of the bne delay slot */\n        retry--;\n        if (retry != -1) goto loop;", "        if (--retry != -1) goto loop;"]],
+ "N2_postdec": [["        __asm__(\"\" : : \"i\"(0));  /* MATCH: void-tail fence -- keeps `retry--` OUT of the bne delay slot */\n        retry--;\n        if (retry != -1) goto loop;", "        if (retry-- != 0) goto loop;"]],
+ "N3_printf_first": [["        __asm__(\"\" : : \"i\"(0));  /* MATCH: void-tail fence -- keeps `retry--` OUT of the bne delay slot */\n        retry--;\n        if (retry != -1) goto loop;\n        printf(\"CdInit: Init failed\n\");\n        return 0;", "        if (retry == 0) {\n            printf(\"CdInit: Init failed\n\");\n            return 0;\n        }\n        retry--;\n        goto loop;"]]
+}

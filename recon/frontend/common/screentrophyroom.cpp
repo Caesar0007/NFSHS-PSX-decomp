@@ -313,7 +313,9 @@ void tScreenTrophyRoom::DrawBackground()
     }
     i = i + 1;
   }
-  __asm__("" : : "r"(fModNumber), "r"(fModNumber));
+  /* W85-S5: an `__asm__("" : : "r"(fModNumber), "r"(fModNumber))` liveness fence
+     stood here.  Measured INERT -- deleting it leaves the whole TU 9/9 PASS
+     (byte-identical object), so it was dead scaffolding, not a codegen device. */
   return;
 }
 

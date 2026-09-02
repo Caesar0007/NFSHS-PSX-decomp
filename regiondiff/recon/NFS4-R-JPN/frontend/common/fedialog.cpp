@@ -519,6 +519,23 @@ void tDialogHelp::Draw()
   short y;
   long ticks;
   int numLetters;
+  /* R-JPN LICM SHIELD (W85-M7).  With BOTH FETextRender_FullText arms passing a
+     bare `textState_Selected` literal, loop.c builds two identical `li 1`
+     movables; combine_movables MATCHES them (savings 1+1, life 1+1) and
+     move_movables fires on `threshold*savings*life >= insn_count`
+     (4*T >= 112, this build's T measured 29..30 by replaying the -dL budget),
+     hoisting the constant into $s7 and widening the frame 136 -> 144.
+     Giving the truncating arm a NAMED carrier that is SET TWICE in the loop
+     (the dead `state = 0` before the copy loop, then the real value) makes
+     n_times_set == 2 with NON-consecutive sets, so scan_loop rejects it as a
+     movable outright (consec_sets_invariant_p fails).  The remaining arm's
+     movable is then alone -- savings 1 * life 1 * T < 112, "not desirable" --
+     and both constants stay in place, exactly as retail.  flow deletes the
+     dead store before regalloc, so the carrier costs no instruction; writing
+     the live set INSIDE the argument keeps its live range in one basic block
+     (after the textType ternary's branch) so it colors $v0 like retail
+     instead of a global-allocno $t0.  Verified by the -dL loop dump. */
+  int state;
   /* SYM-CODEGEN-CARRIER: firstTick -- repeating `this->startTicks` directly
      measures FAIL 4 (189/187), inserting two load-delay nops and moving the
      member load past retail's tick-value copy. */
@@ -564,6 +581,7 @@ void tDialogHelp::Draw()
       }
       if (numLetters < (int)strlen(this->text[i])) {
         j = 0;
+        state = 0;
         if (numLetters > 0) {
           do {
             bufferPtr[j] = this->text[i][j];
@@ -573,7 +591,7 @@ void tDialogHelp::Draw()
         bufferPtr[numLetters] = '\0';
         FETextRender_FullText(bufferPtr,this->left + this->lefttext,y,
                              i == 0 ? textType_PopUpTitle : textType_PopUpText,
-                             textState_Selected,0);
+                             state = textState_Selected,0);
       }
       else {
         FETextRender_FullText(this->text[i],this->left + this->lefttext,y,

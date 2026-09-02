@@ -1,0 +1,15 @@
+    case 0x10000000:
+      lowResult = (u_char)analogs[3] < 0x40;
+return_bool:
+      if (lowResult) {
+        goto return_one;
+      }
+      return 0;
+    case 0x40000000:
+      highResult = (u_char)analogs[3] < 0xc1;
+return_not_bool:
+      if (!highResult) {
+        goto return_one;
+      }
+return_zero:
+      return 0;

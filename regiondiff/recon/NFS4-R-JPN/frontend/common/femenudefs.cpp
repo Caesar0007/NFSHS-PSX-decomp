@@ -3143,7 +3143,16 @@ tGlobalMenuDefs::tGlobalMenuDefs()
  , itemTwoPlayerDuel(0x73, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_GoToTwoPlayerSingleRace, 0x46, 10)   /* +0x89C tMenuItemGoToMenuNFS4Button */
  , itemTwoPlayerHotPursuit(0x72, (tMenu*)&menuSkillLevel, (void (*)(tMenuCommand&))MenuExtended_SetHotPursuit, 0x50, 10)   /* +0x8C8 tMenuItemGoToMenuNFS4Button */
  , itemTwoPlayerPinkSlips(0x6b, (tMenu*)&menuPinkSlipSelect, (void (*)(tMenuCommand&))MenuExtended_SetPinkSlips, 0xaa, 10)   /* +0x8F4 tMenuItemGoToMenuNFS4Button */
- , menuTwoPlayer(0x1004, (tScreen *)screenMain[0], (tMenu *)0x0, (tMenu *)0x0, 0, 0xb6, (tMenuItem *)&itemTwoPlayerTestDrive, &itemTwoPlayerDuel, &itemTwoPlayerHotPursuit, &itemTwoPlayerPinkSlips, 0)   /* +0x920 tMenuNFS4 */
+   /* [W85-M3 2026-09-02] REGIONAL SOURCE DELTA (JPN): the Japanese build drops
+      &itemTwoPlayerPinkSlips from this menu's item list -- the member is still
+      constructed, only the list is shorter.  PROOF: the per-call outgoing-argument
+      audit (scratchpad/w85/M3_args.py) over the 254 jal-delimited blocks gives
+      base=[16,20,24,28,32,36,40,44] vs JPN=[16,20,24,28,32,36,40] for THIS call
+      (call 38), and the spill-slot->member map (M3_slotmap.py) resolves base's
+      slot 40 to +0x8F4 = itemTwoPlayerPinkSlips.  W84's "the source is identical"
+      finding missed this: a jal-sequence / member-offset / constant audit cannot
+      see a dropped stack argument. */
+ , menuTwoPlayer(0x1004, (tScreen *)screenMain[0], (tMenu *)0x0, (tMenu *)0x0, 0, 0xb6, (tMenuItem *)&itemTwoPlayerTestDrive, &itemTwoPlayerDuel, &itemTwoPlayerHotPursuit, 0)   /* +0x920 tMenuNFS4 */
  , itemBestOfOne(0xc1, (tMenu*)&menuSingleTrackSelect, (void (*)(tMenuCommand&))MenuExtended_GoToBestOfOne, 0xaa, 10)   /* +0x99C tMenuItemGoToMenuNFS4Button */
  , itemBestOfThree(0xc2, (tMenu*)&menuPinkSlipsBestOfThree, (void (*)(tMenuCommand&))MenuExtended_GoToBestOfThree, 0xaa, 10)   /* +0x9C8 tMenuItemGoToMenuNFS4Button */
  , itemBestOfFive(0xc3, (tMenu*)&menuPinkSlipsBestOfFive, (void (*)(tMenuCommand&))MenuExtended_GoToBestOfFive, 0xaa, 10)   /* +0x9F4 tMenuItemGoToMenuNFS4Button */
@@ -3202,7 +3211,7 @@ tGlobalMenuDefs::tGlobalMenuDefs()
  , itemCar(0x93, (tListIterator *)&iteratorCar1, 0x1c, 10)   /* +0x11D4 tMenuItemNFS4LeftRightChoice */
  , itemColor(0x121, (tListIterator *)&iteratorColor, 0x26, 10)   /* +0x11FC tMenuItemNFS4LeftRightChoice */
  , itemShowcase(0x113, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_GoToShowroom, 0x30, 10)   /* +0x1224 tMenuItemGoToMenuNFS4Button */
- , menuSingleCarSelect(0x1a00, (tScreen *)screenCarSelect[0], (tMenu *)0x0, (tMenu *)&menuCarOptions, (void (*)(tMenuCommand&))MenuExtended_GoToRace, 0xbb, (tMenuItem *)&itemCarSelectRace, &itemCar, &itemColor, &itemShowcase, 0)   /* +0x1250 tMenuNFS4 */
+ , menuSingleCarSelect(({ tMenuItem *garageCarItem = &itemGarageCar; (void)garageCarItem; 0x1a00; }), (tScreen *)screenCarSelect[0], (tMenu *)0x0, (tMenu *)&menuCarOptions, (void (*)(tMenuCommand&))MenuExtended_GoToRace, 0xbb, (tMenuItem *)&itemCarSelectRace, &itemCar, &itemColor, &itemShowcase, 0)   /* +0x1250 tMenuNFS4 */
 
  , iteratorGarageCar(frontEnd.garageCar, &carManager)   /* +0x12CC tListIteratorCar */
  , itemGarageCar(0x93, (tListIterator *)&iteratorGarageCar, 0x1c, 10)   /* +0x12E8 tMenuItemNFS4LeftRightChoice */
@@ -3363,9 +3372,23 @@ tGlobalMenuDefs::tGlobalMenuDefs()
       old read-only FEApp fences promoted a full pointer pseudo at every site,
       emitted eight extra instructions (3223 total), and are intentionally
       removed.  Count/site/depth are load-bearing; re-price before changing. */
- , itemDisplayPosition(0x1e7, (tListIterator *)&iteratorDisplayPosition)   /* +0x29B0 tMenuItemOnOffLeftRightChoice */
- , itemDisplayLapNumber(0x1e8, (tListIterator *)({ &iteratorDisplayLapNumber; }))   /* +0x29E0 tMenuItemOnOffLeftRightChoice */
- , itemDisplaySplitTime(0x1e5, ({ &iteratorDisplaySplitTime; }))   /* +0x2A10 tMenuItemDisplayLeftRightChoice */
+   /* [W85-M3 2026-09-02] REGIONAL DEVICE RE-TUNE.  Dropping the two item
+      arguments above removes chain objects at init-list line 3146, which moves
+      every later cse hash-table flush boundary, so the base TU's all-nine
+      depth-1 set no longer lands the %hi(FEApp) hoist.  This candidate runs the
+      SAME nine sites with per-site DEPTHS (a depth-d statement expression costs
+      4d+1 chain objects; depth 1 = the base's 5): weather OFF, traffic OFF,
+      speech/mto_dir/mto_mir/garage depth 1, dpos depth 1, dlap depth 3,
+      dsplit depth 3  (prefix 20 + suffix 31 = 48).  Measured floor over the
+      whole dial -- 512-subset sweep, every achievable prefix sum 0-78, a 2-D
+      (prefix,total) scan and a 125-config (A,G,S) search: gate 965, frame 632
+      (retail), residual confined to stream indices 1000-1899.  The two
+      remaining tie-breaks (menuSingleCarSelect fp-vs-spill needs shift >= 22;
+      menuCarUpgrades ctor-a0 scheduling needs shift in [17,21]) are
+      irreconcilable with an additive device -- see scratchpad/w85/M3_receipt.md. */
+ , itemDisplayPosition(0x1e7, (tListIterator *)({ &iteratorDisplayPosition; }))   /* +0x29B0 tMenuItemOnOffLeftRightChoice */
+ , itemDisplayLapNumber(0x1e8, (tListIterator *)({ ({ ({ &iteratorDisplayLapNumber; }); }); }))   /* +0x29E0 tMenuItemOnOffLeftRightChoice */
+ , itemDisplaySplitTime(0x1e5, ({ ({ ({ &iteratorDisplaySplitTime; }); }); }))   /* +0x2A10 tMenuItemDisplayLeftRightChoice */
  , itemDisplaySplitDisplay(0x1e6, (tListIterator *)&iteratorDisplaySplitDisplay)   /* +0x2A3C tMenuItemDisplayLeftRightChoice */
  , menuDisplayOptions(0x1020, (tScreen *)screenDisplay, (tMenu *)0x0, (tMenu *)0x0, 0, 0x1de, 1, 10, (tMenuItem *)&itemDisplaySpeedometer, &itemDisplayMap, &itemDisplayOpponentID, &itemDisplayTime, &itemDisplaySplitTime, &itemDisplaySplitDisplay, &itemDisplayPosition, &itemDisplayLapNumber, 0)   /* +0x2A68 tOptionsMenu */
  , iteratorControllerConfigSelected(SelectListControllerConfig, frontEnd.controlConfig, &FEApp->fInputPlayer)   /* +0x2AE8 tListIteratorIndexed */
@@ -3397,7 +3420,11 @@ tGlobalMenuDefs::tGlobalMenuDefs()
  , itemControllerIIMax(0x218, (tListIterator *)&iteratorControllerIIMax, 3)   /* +0x2E54 tInsideBoxTwoWaySlider */
  , menuControllerDualShock(0x1000, (tScreen *)0x0, (tMenu *)0x0, (tMenu *)0x0, 0, 0, (tMenuItem *)&itemControllerShockMode, &itemControllerShockImpact, 0)   /* +0x2E84 tInsideBoxMenu */
  , menuControllerAnalog(0x1000, (tScreen *)0x0, (tMenu *)0x0, (tMenu *)0x0, 0, 0, (tMenuItem *)&itemControllerSteeringRange1, &itemControllerDeadSpot1, &itemControllerSteeringRange2, &itemControllerDeadSpot2, 0)   /* +0x2EF8 tInsideBoxMenu */
- , menuControllerDualShockAnalog(0x1000, (tScreen *)0x0, (tMenu *)0x0, (tMenu *)0x0, 0, 0, (tMenuItem *)&itemControllerShockMode, &itemControllerShockImpact, &itemControllerDeadSpot1, &itemControllerDeadSpot2, 0)   /* +0x2F6C tInsideBoxMenu */
+   /* [W85-M3 2026-09-02] REGIONAL SOURCE DELTA (JPN): the Japanese build drops
+      &itemControllerDeadSpot1 and &itemControllerDeadSpot2 here (call 218:
+      base=[16,20,24,28,32,36,40,44] vs JPN=[16,20,24,28,32,36]), leaving the same
+      two items as menuControllerDualShock.  Same audit as menuTwoPlayer above. */
+ , menuControllerDualShockAnalog(0x1000, (tScreen *)0x0, (tMenu *)0x0, (tMenu *)0x0, 0, 0, (tMenuItem *)&itemControllerShockMode, &itemControllerShockImpact, 0)   /* +0x2F6C tInsideBoxMenu */
  , menuControllerNegcon(0x1000, (tScreen *)0x0, (tMenu *)0x0, (tMenu *)0x0, 0, 0, (tMenuItem *)&itemControllerJoyRange, &itemControllerCenterPoint, &itemControllerIMax, &itemControllerIIMax, 0)   /* +0x2FE0 tInsideBoxMenu */
  , itemSaveGame(0x287, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_SaveGame)   /* +0x3054 tMemoryCardMenuItem */
  , itemLoadGame(0x288, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_LoadGame)   /* +0x3080 tMemoryCardMenuItem */

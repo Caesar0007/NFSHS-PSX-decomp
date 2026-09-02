@@ -723,25 +723,39 @@ extern void _st_dma(int ch, int madr, int blocks, int blocksize, volatile int ch
      * read WHY $v0 is offered to the dv chain before idx -- i.e. whether it is the priority
      * order at all, or a qty_phys_copy_sugg/prune_preferences effect (the same correction
      * W74-A14 had to make to the CD_cw certificate one file over). */
-    /* [PIN] W76-A17: 21 -> 1 @107/106 -- THE RAGE-RACER CELL (PIN-SEALED residual-1; the
-     * pin is LAST-RESORT per the W76 policy ladder, receipt below).
-     * SIBLING-CORPUS HIT (the angle the W75 receipt had not run): the 100%-byte-exact
-     * Rage Racer decomp's CD_dmastart (C:/Temp/rage-racer-decomp/src/main/PAL/lib/libcd/
-     * dma_start.c) IS this routine, and its matched source needed `register long dv
-     * asm("$6")` -- the SAME seat our dv/idx inversion wants.  Independent proof the
-     * dv->$a2 seat is pin-territory, not a missed source dial.
-     * THE LANDING IS A JOINT CELL (each part alone measured WORSE, all gated):
-     *   pin dv -> $6 alone (idx machinery kept)                 35
-     *   pin dv + drop idx fence                                 35
-     *   pin dv + drop idx local (p = 0x1F801080 + (ch << 4))    35
-     *   FULL CELL: pin dv + drop idx local/fence + drop the two
-     *     `bit` identity fences + drop the `dp` identity fence   1  <- landed
-     *   full cell + also drop the bv read-only fence            19  (shared-dptr basin;
-     *     superseded by the branch-local dptr source shape below)
-     *   full cell + bv PINNED to $4 instead of its fence          7
-     *   full cell but keep the dp fence                          15
-     * (23B-3 at work: the W64/W75 bit/dp/idx devices were scaffolding for the wrong
-     * seating; once dv sits in $a2 they are net-negative and are REMOVED.)
+    /* 🏆 W85-M9: THE `register int dv __asm__("$6")` PIN IS RETIRED -- the same
+     * residual 1 @107/106 is now reached PIN-FREE by two plain-C shape levers, and the
+     * `__asm__ __volatile__("")` fence that used to sit inside this block is gone too.
+     * (History: W76-A17 landed 21 -> 1 with a pin because the dv/$a2 seat looked
+     * pin-territory; the Rage Racer decomp needed `register long dv asm("$6")` for the
+     * same seat.  It was NOT pin-territory -- it was two missed source dials.)
+     *  (1) `dv = ch << 2;` NOT `dv = ch * 4;`.  With the pin dropped, the multiply
+     *      spelling alone costs 38 diffs: plain `int dv;` + `ch * 4` = 47, plain
+     *      `int dv;` + `ch << 2` = 9.  (`ch * 4` is folded to the same `sll`, but the
+     *      MULT rtx shape reaches local-alloc with a different qty/copy structure.)
+     *  (2) 3.12 #14 IN-PLACE MUTATION, at BOTH dv sites.  Retail mutates the dead dv
+     *      register in place -- `addiu $a2,$a2,3` and `or $a2,$a2,$v1` -- where an
+     *      anonymous sub-expression lands in a fresh temp (`addiu $v0,$a2,3`,
+     *      `or $v1,$a2,$v1`).  Write `dv += 3;` before `bit = 1 << dv;` and
+     *      `dv |= bit; *dp = dv;` instead of `*dp = dv | bit;`.
+     *      Measured (all whole-TU gated, both neighbours PASS throughout):
+     *        no pin, `ch * 4`, both stores anonymous ....... 47
+     *        no pin, `ch << 2` .............................  9
+     *        no pin, `ch << 2` + in-place at site 1 .........  5
+     *        no pin, `ch << 2` + in-place at site 2 .........  5
+     *        no pin, `ch * 4`  + in-place at both ...........  5
+     *        no pin, `ch << 2` + in-place at BOTH ...........  1  <- landed, pin-free
+     *        PIN kept + `ch << 2` + in-place at both ........  3  (the pin is now a LOSS)
+     *      Falsified on the way: `int bit` declared first (47), `unsigned dv` (47),
+     *      `register int dv` with no seat (47), two separate dv variables (47),
+     *      `bit = 8 << dv` folding the +3 away (46 @106; and 4 @106 with the fence).
+     *  (3) The in-block `__asm__ __volatile__("")` (the second Rage Racer barrier) is
+     *      REPLACED by spelling the shift as two statements, `bit = 1; bit <<= dv;`.
+     *      The fence existed to stop sched1 sinking the `li $v1,1; sllv` pair two insns
+     *      past the `lui $a1/ori $a1` address pair (5 diffs without it); the split
+     *      spelling holds the pair in place with no device (1 diff).  Falsified:
+     *      four statement orders of {dv,bit,p,dp} without the fence (all 5), `p` or
+     *      `dp` hoisted out of the block (34 / 28).
      * THE RESIDUAL 1 = `li v0,1` duplicated into the busy-guard's beqz delay slot, and it
      * is the CURRENT pipeline-identity residual (sec.3.25-3b), mechanism read from
      * reorg.c + dumps:
@@ -759,24 +773,76 @@ extern void _st_dma(int ch, int madr, int blocks, int blocksize, volatile int ch
      *   3.25-3b identity); per-fn -fno-delayed-branch was re-measured at 35 (W75) because
      *   GNU-as reorder cannot reproduce ASPSX's fills elsewhere in the fn.  The presently
      *   available compiler/route ladder does not reach 106/106, so the residual remains
-     *   open for a better source shape or a newly identified original toolchain input. */
+     *   open for a better source shape or a newly identified original toolchain input.
+     * 🔑 W85-M9 -- THE REFUSAL CONDITION IS NOW DEMONSTRATED, NOT ONLY DERIVED, AND IT IS
+     *   NOT THE `volatil` BAR.  W84-C4 read the mechanism out of reorg.c: the guard's
+     *   target `.L800F8838` has NO `BARRIER` before it (the loop back-edge is a
+     *   CONDITIONAL branch), so `find_basic_block` returns block 0, the live-set walk
+     *   starts at the function head and passes THROUGH the limit constant's own defining
+     *   insn, and `insn_sets_resource_p (trial, &opposite_needed, 1)` then refuses the
+     *   fall-through trial for ANY register and ANY placement.  This wave PROVED that
+     *   reading by CONSTRUCTING the barrier: writing the printf arm out of line with an
+     *   unconditional `goto` over it --
+     *       while (busy) { if (i == 0x10000) goto st_busy; i++; }
+     *       goto st_ok;  st_busy: printf(...);  st_ok: ;
+     *   -- puts a real `j` (hence a BARRIER) immediately before the loop-exit label, and
+     *   our cc1 THEN PERFORMS RETAIL'S FALL-THROUGH STEAL: the emitted `.s` reads
+     *   `beq $2,$0,$L79 / li $6,0x00010000`, insn count is EXACT (106 == 106), and
+     *   oracle indices 19-21 (`beqz`/`lui a2,1`/`beq a0,a2`) match byte for byte.
+     *   It scores 18 only because that same `goto` forces the printf block INLINE
+     *   (our idx 30-37) where retail keeps it out of line after the `mode == 1` arm
+     *   (oracle idx 40-47).  ⇒ THE FLOOR IS EXACTLY THIS INCOMPATIBILITY: on this cc1 the
+     *   steal needs an unconditional jump immediately before the loop-exit label, and
+     *   retail's block order has the loop's conditional back-edge there.  Retail's cc1
+     *   did not need one (post-2.7.2 `find_dead_or_set_registers` follows both arms of one
+     *   conditional jump; W84-C4 §3.5 rung table) -- so this is a REORG-VINTAGE identity,
+     *   and the acquisition target named in W84-C4 (a 2.7.2-codegen cc1 carrying the
+     *   post-2.7.2 reorg) is unchanged and now has a second, sharper acceptance test.
+     *   ALSO CLOSED THIS WAVE, with numbers:
+     *     - the busy read IS genuine MMIO (`0x1F801088 + ch*16` = D<ch>_CHCR), so the
+     *       3.25-3c cast-away-volatile lever does not apply on semantic grounds; measured
+     *       anyway as a pure diagnostic -- non-volatile loop condition 27 @105, both reads
+     *       non-volatile 27 @105 (cse hoists the address out of the loop).  Branch shut.
+     *     - a 1-word non-load, non-volatile insn between the volatile read and the guard:
+     *       structurally unavailable.  The oracle's own window there is `lbu $s1,0x44($sp)`
+     *       (a load -- barred from a slot by mips.md `define_delay`), and W84-C4's sched2
+     *       trace shows that single load-delay filler position is taken by that `lbu`.  Any
+     *       insn we add is +1; the only insn whose move would MATCH is the limit constant
+     *       itself, and it cannot be scheduled there (named limit 3, named limit + late
+     *       `mode` read 15, no `mode` variable 13).
+     *     - RAW rewrite of the busy-wait head: `for(;;)`+break 1 (gcc re-rotates), goto
+     *       form with an explicit unconditional back edge 43 @109, `do/while` 15 @109,
+     *       counter tested after the increment 11 @111, printf-to-tail 18 @106 (above). */
     /* W82-root: branch-local `dptr` variables give each arm its own short-lived
      * pointer quantity.  That naturally hands dptr/bv the retail $v1/$a0 pair,
      * so the former read-only asm fence on `bv` is no longer needed.  Detailed
      * gate remains 1 @107/106; both TU neighbors remain PASS. */
     dummy = *(volatile int *)_dicr;
+    /* KEEP (W85-M9, measured): the ONLY surviving device in this function.  Retail keeps
+     * the DICR read-back SERIAL (`lui;lw;nop;lw;nop;sw`); without a full scheduling
+     * barrier sched1 SINKS the whole read-back below the dv/bit chain and interleaves it
+     * (17 diffs @105).  In gcc-2.7.2's sched.c ONLY an asm gives a whole-block barrier --
+     * a volatile MEM orders against other MEMs but not against the ALU insns that do the
+     * filling -- and the read-back's `sw` is a leaf with no data successor, so its
+     * priority is minimal and no statement order can hold it up (the whole tail is ONE
+     * basic block, so source order is inert by construction).  Falsified this wave:
+     * `bit` last (5), `p` hoisted out of the block (34), `dp` hoisted out (28), the split
+     * `bit = 1; bit <<= dv;` alone (17 @105).  Transplanted verbatim from the byte-exact
+     * Rage Racer CD_dmastart, i.e. a reference-decomp idiom, not an invented device. */
     __asm__ __volatile__("");  /* MATCH: Rage Racer CD_dmastart barrier -- keep the DICR read-back serial */
     {
-        register int dv __asm__("$6");  /* PIN (W76-A17, last-resort): dv -> $a2, retail seat. */
+        int dv;
         int bit;
 
-        dv  = ch * 4;
-        bit = 1 << (dv + 3);
-        __asm__ __volatile__("");  /* MATCH: Rage Racer CD_dmastart barrier */
+        dv  = ch << 2;   /* MATCH (W85-M9): `<< 2`, NOT `* 4` -- see the receipt above */
+        dv += 3;         /* MATCH: 3.12 #14 in-place mutation -> retail `addiu a2,a2,3` */
+        bit = 1;         /* MATCH: split shift replaces the second Rage Racer asm fence  */
+        bit <<= dv;
         p   = (volatile int *)(0x1F801080 + (ch << 4));
         dp  = _dpcr;
         dv  = *dp;
-        *dp = dv | bit;
+        dv |= bit;       /* MATCH: 3.12 #14 in-place -> retail `or a2,a2,v1; sw a2,0(a0)` */
+        *dp = dv;
         *p++ = madr;                                /* MADR */
         *p++ = (blocks << 16) | blocksize;          /* BCR  */
         while ((*_cd_idx & 0x40) == 0)              /* wait until the CD is ready to DMA */

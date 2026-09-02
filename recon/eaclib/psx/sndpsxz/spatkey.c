@@ -9,6 +9,13 @@
  *   Packet-voice table @0x801479F0 (0x2c stride): +0x1c playstate, +0x1e routing mode, +0x1f channels,
  *   +0x20 linked voice, +0x22 fx send, +0x24/0x25 L/R cache, +0x26 flag.
  */
+/* W85-S8 VOLATILE AUDIT (2026-09-02): the `volatile` qualifiers on 20, 109, 120, 131, 146, 161 (`SNDPD_VOICEREG` and the five `int *base = (int *)sndpd` driver-state bases; the SPU-register accesses THROUGH them keep their volatile)
+ * were REMOVED -- plain main-RAM driver state, not MMIO and not IRQ-mutated; removal is
+ * gate-neutral (whole-TU verify_asm/tugate PASS before and after).  Every REMAINING
+ * `volatile` in this file was measured individually or as a group and is load-bearing
+ * (MMIO, or state the oracle provably re-reads) -- do not strip them.  Receipt:
+ * scratchpad/w85/S8_receipt.md. */
+
 
 extern int sndgs[];
 extern unsigned char sndpd[];   /* EA sound-driver state base @0x80147918 (unsized array: forces
@@ -17,7 +24,7 @@ extern unsigned char sndpd[];   /* EA sound-driver state base @0x80147918 (unsiz
 /* SPU register-base pointers live as fields inside the sndpd state block:
  *   DAT_80147e28 (voice regs)   = *(int*)(sndpd + 0x510)
  *   DAT_80147e2c (control regs) = *(int*)(sndpd + 0x514) */
-#define SNDPD_VOICEREG   (((volatile int *)sndpd)[0x510/4])
+#define SNDPD_VOICEREG   (((int *)sndpd)[0x510/4])
 extern int DAT_80147e28[];      /* one-word SPU voice register base storage */
 extern int DAT_801479f0;        /* packet-voice table base; entry +0x00 = SPU start addr, +0x04 idx src, +0x08 sample-rate src */
 /* packet-voice table fields (0x2c stride, indexed [chan*0x2c]) */
@@ -106,7 +113,7 @@ extern void iSNDcalcvol(int chan)
 /* iSNDpsxkeyon @0x800FF140 : strobe the SPU key-on register for `mask` (24 voices). */
 extern int iSNDpsxkeyon(int mask)
 {
-    volatile int *base = (volatile int *)sndpd;
+    int *base = (int *)sndpd;
     int r;
     *(volatile short *)(base[0x514/4] + 0x188) = (short)mask;
     r = base[0x514/4];
@@ -117,7 +124,7 @@ extern int iSNDpsxkeyon(int mask)
 /* iSNDpsxkeyoff @0x800FF168 : strobe the SPU key-off register for `mask`. */
 extern int iSNDpsxkeyoff(int mask)
 {
-    volatile int *base = (volatile int *)sndpd;
+    int *base = (int *)sndpd;
     int r;
     *(volatile short *)(base[0x514/4] + 0x18c) = (short)mask;
     r = base[0x514/4];
@@ -128,7 +135,7 @@ extern int iSNDpsxkeyoff(int mask)
 /* iSNDpsxeffecton @0x800FF190 : enable reverb on the `mask` voices (OR into the SPU echo-on register). */
 extern unsigned int iSNDpsxeffecton(int mask)
 {
-    volatile int *base = (volatile int *)sndpd;
+    int *base = (int *)sndpd;
     unsigned int r;
     int          c0 = base[0x514/4];
     *(volatile unsigned short *)(c0 + 0x198) = *(volatile unsigned short *)(c0 + 0x198) | (unsigned short)mask;
@@ -143,7 +150,7 @@ extern unsigned int iSNDpsxeffecton(int mask)
 /* iSNDpsxeffectoff @0x800FF1D0 : disable reverb on the `mask` voices. */
 extern unsigned int iSNDpsxeffectoff(int mask)
 {
-    volatile int *base = (volatile int *)sndpd;
+    int *base = (int *)sndpd;
     unsigned int r;
     int          c0 = base[0x514/4];
     *(volatile unsigned short *)(c0 + 0x198) = *(volatile unsigned short *)(c0 + 0x198) & ~(unsigned short)mask;
@@ -158,7 +165,7 @@ extern unsigned int iSNDpsxeffectoff(int mask)
 /* iSNDpsxeffectvol @0x800FF210 : set the SPU reverb (echo) L/R output volume. */
 extern int iSNDpsxeffectvol(int left, int right)
 {
-    volatile int *base = (volatile int *)sndpd;
+    int *base = (int *)sndpd;
     int r;
     *(volatile short *)(base[0x514/4] + 0x184) = (short)left;
     r = base[0x514/4];

@@ -410,8 +410,12 @@ void tCreditManager::DrawCurrCredit()
       do {
         p = p + 1;
       } while (*p == tag);
-      tag = *(volatile byte *)p;
     }
+    /* W85-S5: was `tag = *(volatile byte *)p;` INSIDE the block.  A plain
+       re-read placed at the JOIN is byte-identical (7/7 PASS): the skip loop
+       invalidates gcc's value for `*p`, so the join load is emitted fresh --
+       no volatile needed.  Same shape the tag==9 arm already used. */
+    tag = *p;
     if (tag == 9) {
       hidden = true;
       do {
@@ -424,8 +428,9 @@ void tCreditManager::DrawCurrCredit()
       do {
         p = p + 1;
       } while (*p == tag);
-      tag = *(volatile byte *)p;
     }
+    /* W85-S5: same removal as the tag==10 arm above -- plain join re-read. */
+    tag = *p;
     if (tag == 0x5e) {
       rollthedice = true;
       do {

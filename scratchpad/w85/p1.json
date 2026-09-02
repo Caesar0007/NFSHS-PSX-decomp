@@ -1,0 +1,1 @@
+[{"old": "  type = gPadinfo.buf[player * 4].ID;\n  __asm__(\"\");\n", "new": "  type = gPadinfo.buf[player * 4].ID;\n"}]

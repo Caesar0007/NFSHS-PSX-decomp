@@ -1,0 +1,6 @@
+{
+ "only4ptr": [["(*(unsigned char * volatile *)(info + 0x3c))", "(*(unsigned char **)(info + 0x3c))"]],
+ "only_acc": [["int acc = *(volatile int *)(info + 0xec);", "int acc = *(int *)(info + 0xec);"]],
+ "ptr_e3e4": [["info[0xe3] = (*(unsigned char * volatile *)(info + 0x3c))[3];\n        info[0xe4] = (*(unsigned char * volatile *)(info + 0x3c))[4];", "info[0xe3] = (*(unsigned char **)(info + 0x3c))[3];\n        info[0xe4] = (*(unsigned char **)(info + 0x3c))[4];"]],
+ "ptr_e9ea": [["info[0xe9] = (*(unsigned char * volatile *)(info + 0x3c))[5];\n        info[0xea] = (*(unsigned char * volatile *)(info + 0x3c))[6];", "info[0xe9] = (*(unsigned char **)(info + 0x3c))[5];\n        info[0xea] = (*(unsigned char **)(info + 0x3c))[6];"]]
+}

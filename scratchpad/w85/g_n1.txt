@@ -1,0 +1,4 @@
+      if (lowResult) {
+        goto return_one;
+      }
+      return 0;

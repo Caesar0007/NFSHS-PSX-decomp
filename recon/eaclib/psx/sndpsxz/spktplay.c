@@ -197,26 +197,33 @@ extern int SNDPKTPLAY_start(int p, int rate, int hdr, int params)
 {
     int ppp, note, allocOut, ch, dur, r;
     int rateb2;
-    int gp;                                       /* &sndgs as an int, then REUSED to hold the
-                                                    * packet-play length (retail's s3: the oracle
-                                                    * redefines the very register that held the
-                                                    * sndgs base with the 0x10/-0x40<<8 length right
-                                                    * after `lw v1,0x94(s3)` -- one source variable,
-                                                    * two roles) */                     /* MATCH: hoist &sndgs ONCE into a var that
-                                                    * survives across enteraudio/allocchan -- the
-                                                    * guard and the 0x25 pool-base lookup share the
-                                                    * SAME materialized base in the oracle ($s3),
-                                                    * held in a callee-saved reg across both calls.
-                                                    * W31 RESIDUAL: retail allocates gp->s3 BEFORE the
-                                                    * params/hdr copies (s4/s5); ours orders params,
-                                                    * hdr, gp (s3,s4,s5) -- the same constant-init-
-                                                    * promoted allocno ordering seen in sbdload/purge
-                                                    * this wave; decl order, direct-sndgs (140, rev.),
-                                                    * and psq45 cc1 (same as ours) all fail to move it.
-                                                    * ~100 of the 132 diffs are this one rotation
-                                                    * cascading through the field stores. */
-    gp = (int)sndgs;
-    if (*(signed char *)(gp + 0x3c) == 0)
+    int gsp;                                      /* &sndgs, held in a callee-saved reg across
+                                                    * enteraudio/allocchan: the enable guard and the
+                                                    * 0x25 pool-base lookup share the SAME
+                                                    * materialized base in the oracle ($s3). */
+    int gp;                                       /* the packet-play length (oracle redefines the
+                                                    * very register that held the sndgs base right
+                                                    * after `lw v1,0x94(s3)`). */
+    /* MATCH (W85-S8, 2026-09-02): the two ROLES are TWO SOURCE VARIABLES, not one.
+     * Retail reuses ONE hard register ($s3) for both, and this file used to model that with one
+     * `int gp` -- which is what forced the two `__asm__("" : : "r"(note))` USE FENCES (w50-a8):
+     * a single 2-role `gp` collects the refs of BOTH roles, and with the 3-statement in-place
+     * length arithmetic below that is 10 REG_N_REFS.  Measured on the -dl dump of the one-var
+     * form (gcc-2.8 priority = floor_log2(refs)*refs/live_length):
+     *     gp   (p91) 10 refs / 108 insns -> 3*10/108 = .2778
+     *     note (p85)  9 refs / 110 insns -> 3* 9/110 = .2454     -> gp allocated first
+     * so gp took $s2 and note $s3, the exact inverse of retail (38 diffs, count-EXACT 187/187).
+     * The fences bought note 9->11 refs (3*11/110 = .300 > .2778) at zero instructions; dropping
+     * gp to the 2-statement form instead bought 10->8 refs (.222) but cost the oracle's in-place
+     * `sll s3,s3,8 / andi s3,s3,0xffff` (4 diffs) -- at -O2 `flag_expensive_optimizations` makes
+     * `preserve_subexpressions_p()` true, so expand_expr NEVER reuses the assignment target as a
+     * subexpression temp; the in-place shape is structurally tied to one-op-per-statement.
+     * SPLITTING the variable dissolves the whole trade: each role keeps its own REG_N_REFS /
+     * live_length, the length allocno stops out-ranking `note`, and both fences become
+     * unnecessary.  PASS 187/187 with ZERO devices.  (Register-level fidelity is unchanged:
+     * gcc still hands both roles $s3 -- the source-level split is invisible in the output.) */
+    gsp = (int)sndgs;
+    if (*(signed char *)(gsp + 0x3c) == 0)
         return -10;
     rateb2 = MB(rate, 2);                         /* MATCH: evaluated before the ppp lookup/
                                                     * enteraudio -- oracle hoists this arg early */
@@ -250,7 +257,7 @@ extern int SNDPKTPLAY_start(int p, int rate, int hdr, int params)
                                                    * note fences below lengthen note's range,
                                                    * sched1 no longer hoists it on its own. */
     *(SNDSAMPLEFORMAT *)(ppp + 0x24) = *(SNDSAMPLEFORMAT *)rate; /* unaligned rate-word copy */
-    ch = *(int *)(gp + 0x94) + dur;        /* MATCH: AFTER the unaligned copy -- the oracle's
+    ch = *(int *)(gsp + 0x94) + dur;       /* MATCH: AFTER the unaligned copy -- the oracle's
                                                     * `lw v1,0x94(s3)` sits between the swl/swr pair
                                                     * and the params[0xb] test, with the pool-base
                                                     * add filling the test's beqz delay slot (sched1
@@ -338,11 +345,6 @@ extern int SNDPKTPLAY_start(int p, int rate, int hdr, int params)
         iSNDleaveaudio();
         return r;
     }
-    __asm__("" : : "r"(note));       /* MATCH: two zero-insn w45 USE FENCES = REF INFLATOR on
-                                      * `note` (see the tail receipt).  They emit nothing; they
-                                      * exist only to move note's REG_N_REFS across the
-                                      * floor_log2 step so it out-ranks the 3-statement `gp`. */
-    __asm__("" : : "r"(note));
     iSNDleaveaudio();
     return MI(ppp, 0);
 }

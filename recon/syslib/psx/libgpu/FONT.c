@@ -381,7 +381,40 @@ extern char *D_801369E4;        /* @0x801369E4 : "0123456789ABCDEF" */
  *   using the exact proven vendor-style flags.  Its complete FntFlush region is accepted under
  *   a narrow structural contract even though that compiler faults while beginning FntPrint.
  *   Normal and NFS4_SOURCE_ONLY gates both PASS 199/199; strict_branch is CLEAN for all 20
- *   branch words, FntPrint remains PASS 240/240, and PER_FN_TEXT_MOVES stays empty. */
+ *   branch words, FntPrint remains PASS 240/240, and PER_FN_TEXT_MOVES stays empty.
+ *
+ *   W85-M1 (2026-09-02) -- RE-GATED 6 @199/199 (source-only lane, no compiler swap).  Two
+ *   corrections, both read off STOCK retail-cc1 RTL dumps (tools/rtl_dump_c.py -dg/-dJ; full
+ *   numbers in scratchpad/w85/M1_receipt.md):
+ *   (1) THE 4-DIFF COLOUR HALF AND THE 2-DIFF dr HALF ARE ONE PASS.  reload emits THREE separate
+ *       `li $6,128` insns for the three spilled colour defaults (greg insns 14/16/18, each with
+ *       its own output-reload store 538/541/544); `reload_cse_regs` deletes two of them via
+ *       reload_cse_noop_set_p (measured: 3 such insns in FONT.i.greg, 1 in FONT.i.jump2, 1 in
+ *       the .s -- and reload_cse_regs is the ONLY pass between those two dumps, toplev.c:3501).
+ *       The deletion is what leaves sched2 free to float the surviving pair away from its `li`.
+ *   (2) THEREFORE THE STANDING "GET A 2.8-SHAPE cc1 WITHOUT reload_cse_regs" ANGLE (W76-A15
+ *       sufficiency lab, W84-C1 named-next-angle) IS REFUTED AS STATED: without the pass the
+ *       function emits 201 insns, not 199 -- the lab's "the colour stores move to retail's early
+ *       position" is exactly what three surviving li/sw pairs look like, and the two extra `li`s
+ *       were never counted.  Retail's FONT.OBJ compiler must run the SAME-REGISTER noop deletion
+ *       (reload_cse_noop_set_p) while NOT running the CROSS-REGISTER substitution
+ *       (reload_cse_simplify_set) -- two separate reload1.c functions.  Three one-compile
+ *       acceptance tests for any candidate rung: FntFlush `.s` has exactly ONE `li $6,128`; its
+ *       dr region reads `sw $6,16($sp) ; lw $4,16($sp)`; FntPrint's sentinel reads `li $6,-1`
+ *       (not `addu $6,$2,$0`).
+ *   ANGLE (a) "remove the spill so reload_cse has nothing to rewrite" IS SELF-DEFEATING, with
+ *   numbers: -dg lists 23 allocnos, all nine callee-saved regs (s0-s7,fp) taken, and pseudos
+ *   81/85/86/97/98/99 get no disposition -- exactly retail's six slots dr@0x10 xscreen@0x14
+ *   max_y@0x18 r@0x1C g@0x20 b@0x24 in a 0x50 frame.  The ORACLE CONTAINS the spill pair, so a
+ *   no-spill shape lands at 198.  ANGLE (c) "raw rewrite" is falsified at the RTL level rather
+ *   than sampled: greg already holds retail's `addiu a2,s3,16 ; sw a2,16(sp) ; lw a0,16(sp)`
+ *   verbatim, so the C is already right and no rewrite can reach a post-reload pass.
+ *   FALSIFIED THIS PASS (all gated, all reverted): `{int c=0x80; r=c; g=c; b=c;}` 6 * `r=0x80;
+ *   g=r; b=r;` 6 * `b=0x80; g=b; r=g;` 8 * `xscreen=0;` after the colours 10 * an `int rgb[3]`
+ *   array giving one `li` + three real stores 106 @201 (frame 0x50->0x58, the array takes its own
+ *   frame pool).  DEVICE AUDIT: FONT.c holds 0 pins, 0 `volatile` in code, 0 `&&label` devices;
+ *   the three `__asm__("Font"/"D_80135FD8"/"D_80135FDC")` on the externs are asm-NAME attributes
+ *   (symbol aliases onto splat's blob labels), not codegen devices -- KEEP. */
 extern u_long *FntFlush(int id)
 {
     DR_MODE  *dr;
@@ -557,7 +590,24 @@ extern int FntPrint(const char *id, ...)
      * instrument that reaches reorg (stop_search_p returns 1 at any asm) and it is
      * zero-insn.  Placement variants all measure identically (2/240): fence before
      * this block, fence inside it, and a read-only fence on `ch`; the void-tail form
-     * is kept because it neither adds a ref nor names a value. */
+     * is kept because it neither adds a ref nor names a value.
+     * W85-M1 (2026-09-02) -- the blocker list is now EXHAUSTIVE, read off reorg.c
+     * and confirmed by probe.  fill_eager_delay_slots takes `li $20,37` because it
+     * is the first insn of the fall-through thread; the only refusals are (i) an
+     * `asm` (stop_search_p returns 1 at ASM_INPUT/asm_noperands -- what this fence
+     * is), (ii) a surviving CODE_LABEL right after the branch (own_thread_p with
+     * label==NULL_RTX returns 0 for ANY label there, so the fall-through fill is
+     * skipped entirely; jump.c deletes a label whose only reference is a
+     * fall-through goto, so every C vehicle for one costs insns), and (iii) the
+     * trial setting a register live at the branch target (insn_sets_resource_p vs
+     * opposite_needed) -- PROVEN by probe: `return fs->written + (percent & 1);`
+     * makes the slot come out `#nop` with `li $20,37` left in place (248 @240, so
+     * diagnostic only).  An INELIGIBLE thread head does NOT protect it (lose=1 but
+     * own_thread=1, the scan continues).  Falsified source-only this wave:
+     * `percent = '%'` plain 15 @239 (loses the s4/s5 assignment -- the xor
+     * dependency shape is load-bearing), the same before the zero-test 15,
+     * LICM-shielded inside the loop 15, `(ch ^ ch) ^ '%'` 15; dropping just the
+     * block braces is inert (3). */
     __asm__("" : : "i"(0));
     {
         percent = ch ^ (ch ^ '%');
@@ -650,7 +700,26 @@ extern int FntPrint(const char *id, ...)
          * gives us a COPY of the peel's -1 (`addu $a2,$v0,$zero`) -- cse's
          * constant-sharing: at the sentinel's DEF a register already holds -1, and
          * cse substitutes it (the launder protects USES, so a sentinel declared
-         * INSIDE the guard is still copied).  Cure = give the sentinel its own
+         * INSIDE the guard is still copied).
+         * W85-M1 CORRECTION (2026-09-02): the actor is NOT cse -- it is
+         * `reload_cse_regs`, the same pass as FntFlush's certificate (23A-2).
+         * The per-pass dumps show BOTH `-1`s surviving as independent
+         * `(set reg (const_int -1))` through cse/loop/cse2/combine AND greg
+         * (greg is printed before reload_cse_regs); the copy appears only in
+         * the .s.  reload_cse_simplify_set (reload1.c:8178) rewrites the second
+         * into the lowest-numbered hard reg already holding -1 ($v0), gated only
+         * by MEMORY_MOVE_COST>=2 / REGISTER_MOVE_COST==2 (mips.h:3172/3188, both
+         * fixed) and `optimize > 0` -- no -f switch.  The launder below works
+         * because the asm SETS the pseudo, so note_stores ->
+         * reload_cse_invalidate_rtx (reload1.c:7786) clears $v0's value record at
+         * ZERO instruction cost; that is its whole mechanism.  Re-falsified
+         * source-only this wave (all gated, all reverted, FntPrint diffs):
+         * the flat `for (len--; len != -1; len--) WriteChar(*bufPtr++);` 3 (which
+         * also shows this nested block scaffolding is otherwise INERT), `len--;
+         * while (len != -1)` 3, natural peel+do-while 3, inner `~0` 3, inner
+         * `do{neg1=-1;}while(0)` 3, inner `len + 1 != 0` 5 @239, `for (len--;
+         * len >= 0; len--)` 9 @237.  Detail: scratchpad/w85/M1_receipt.md.
+         * Cure = give the sentinel its own
          * pseudo BEFORE the peel test, then identity-launder it so cse can neither
          * fold it back nor feed it to the peel's own compare -- both -1s are then
          * materialized independently, exactly retail's instruction set.

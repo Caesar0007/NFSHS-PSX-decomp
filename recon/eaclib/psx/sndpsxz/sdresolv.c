@@ -7,6 +7,13 @@
  *   channel count, 0x85 = sample byte size, 0x8a = the field that receives the resolved SPU address.
  *   PATCH RESOLVE TABLE (the `patch`/scratch arg): {ramOffset, spuAddr}[] terminated by -1.
  */
+/* W85-S8 VOLATILE AUDIT (2026-09-02): the `volatile` qualifiers on 108, 117, 121 (resolve-table entry reads in main RAM)
+ * were REMOVED -- plain main-RAM driver state, not MMIO and not IRQ-mutated; removal is
+ * gate-neutral (whole-TU verify_asm/tugate PASS before and after).  Every REMAINING
+ * `volatile` in this file was measured individually or as a group and is load-bearing
+ * (MMIO, or state the oracle provably re-reads) -- do not strip them.  Receipt:
+ * scratchpad/w85/S8_receipt.md. */
+
 
 extern int iSNDgettag(int *cursor, unsigned int *outId, int *outVal, int *outPtr);  /* sgettag  */
 extern int iSNDpsxmalloc(int size);                                                 /* sdmemman */
@@ -105,7 +112,7 @@ extern int iSNDplatformresolve(int cursor, int bank, int patch)
     }
     if (bank != 0) {
         e = (int *)(idx * 8 + patch);               /* find an existing resolve for this offset */
-        if (*(volatile int *)e != -1) {
+        if (*(int *)e != -1) {
             end = -1;
             scan = (struct SNDResolveEntry *)e;
             do {
@@ -114,11 +121,11 @@ extern int iSNDplatformresolve(int cursor, int bank, int patch)
                  * through `cur`(a0) like retail, and blocks fill_simple_delay_slots' backward scan
                  * from stealing the advance into the beq slot.  See the banner. DO NOT "simplify". */
                 __asm__ ("" : "=r"(cur) : "0"(cur));
-                if (*(volatile int *)&cur->offset == offset)
+                if (*(int *)&cur->offset == offset)
                     goto found;
                 scan = cur + 1;
                 idx++;
-            } while (*(volatile int *)&cur[1].offset != end);
+            } while (*(int *)&cur[1].offset != end);
         }
 checked:
         if (*spuField != 0)

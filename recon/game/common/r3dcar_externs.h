@@ -56,7 +56,12 @@ extern char              *Paths_Paths[];
 extern int                Texture_CarColor, Texture_palNum;
 extern DRender_tView      gCView;
 extern int                gFlip, gNight_renderNight;
-extern int                generic128HzClock, stackSpeedUpEnbabledFlag;
+/* generic128HzClock is the IRQ/VBlank-incremented 128Hz tick counter -> genuinely
+   VOLATILE (same declaration fe3dmenu_externs.h already carries): the oracle
+   RE-LOADS it inside the `if` body instead of reusing the value it just
+   compared -- a plain int lets cse.c forward the compare's load. */
+extern volatile int       generic128HzClock;
+extern int                stackSpeedUpEnbabledFlag;
 extern u_long             gWSavePtr;
 
 /* ---- cross-TU functions ---- */

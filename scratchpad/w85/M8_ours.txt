@@ -1,0 +1,494 @@
+addiu  sp,sp,-136
+sw  s0,96(sp)
+move  s0,a3
+li  t1,8
+sw  ra,132(sp)
+sw  s8,128(sp)
+sw  s7,124(sp)
+sw  s6,120(sp)
+sw  s5,116(sp)
+sw  s4,112(sp)
+sw  s3,108(sp)
+sw  s2,104(sp)
+sw  s1,100(sp)
+sw  a0,136(sp)
+sw  a1,140(sp)
+sw  a2,144(sp)
+sw  t1,72(sp)
+lh  t2,2236(a1)
+andi  v0,a2,0x1
+bnez  v0,974 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x180>
+sw  t2,64(sp)
+lui  v0,0x0   {R3DCar_InMenu}
+lw  v0,0(v0)   {R3DCar_InMenu}
+nop
+bnez  v0,918 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x124>
+lui  v0,0x0   {CarIO_carVRamSlotsMenu}
+lui  v0,0x0   {CarIO_carVRamSlots}
+lw  a0,0(gp)   {CarIO_carVRamCount}
+addiu  v0,v0,0   {CarIO_carVRamSlots}
+sll  v1,a0,0x2
+addu  v1,v1,v0
+lhu  v0,0(v1)
+nop
+sh  v0,2244(a1)
+sll  v0,v0,0x10
+sra  s6,v0,0x10
+lhu  v1,2(v1)
+lw  t1,140(sp)
+sll  v0,v1,0x10
+sra  s7,v0,0x10
+slti  v0,t2,28
+beqz  v0,908 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x114>
+sh  v1,2246(t1)
+lhu  v0,2240(t1)
+nop
+andi  v0,v0,0x1
+beqz  v0,8f8 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x104>
+lui  v0,0x5555
+ori  v0,v0,0x5556
+mult  a0,v0
+sra  v0,a0,0x1f
+lui  v1,0x0   {CarIO_carVRamAdd}
+addiu  v1,v1,0   {CarIO_carVRamAdd}
+mfhi  t1
+subu  v0,t1,v0
+sll  v0,v0,0x1
+addu  v0,v0,v1
+lh  v1,0(v0)
+nop
+sll  v0,v1,0x1
+addu  v0,v0,v1
+addu  v0,a0,v0
+sw  v0,0(gp)   {CarIO_carVRamCount}
+j  984 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x190>   {.text}
+nop
+addiu  v0,a0,3
+sw  v0,0(gp)   {CarIO_carVRamCount}
+j  984 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x190>   {.text}
+nop
+addiu  v0,a0,1
+sw  v0,0(gp)   {CarIO_carVRamCount}
+j  984 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x190>   {.text}
+nop
+addiu  v0,v0,0   {CarIO_carVRamSlotsMenu}
+lw  a1,0(gp)   {CarIO_carVRamCount}
+lw  t2,140(sp)
+sll  v1,a1,0x2
+addu  v1,v1,v0
+lhu  v0,0(v1)
+nop
+sh  v0,2244(t2)
+sll  v0,v0,0x10
+sra  s6,v0,0x10
+lhu  a0,2(v1)
+lui  v1,0x0   {CarIO_carVRamAdd}
+addiu  v1,v1,0   {CarIO_carVRamAdd}
+sll  v0,a1,0x1
+addu  v0,v0,v1
+sh  a0,2246(t2)
+sll  a0,a0,0x10
+lh  v0,0(v0)
+nop
+addu  a1,a1,v0
+sw  a1,0(gp)   {CarIO_carVRamCount}
+j  984 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x190>   {.text}
+sra  s7,a0,0x10
+lw  t1,140(sp)
+nop
+lh  s6,2244(t1)
+lh  s7,2246(t1)
+lw  t2,144(sp)
+nop
+andi  v0,t2,0x10
+bnez  v0,9ac <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x1b8>
+nop
+lw  v0,0(gp)   {CarIO_carPixMapCount}
+lw  t1,140(sp)
+sw  v0,68(sp)
+j  9c0 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x1cc>   {.text}
+sw  v0,2116(t1)
+lw  t2,140(sp)
+nop
+lw  t2,2116(t2)
+nop
+sw  t2,68(sp)
+lw  t1,144(sp)
+nop
+andi  v0,t1,0x8
+beqz  v0,a40 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x24c>
+nop
+lw  t2,140(sp)
+nop
+lhu  v0,2240(t2)
+nop
+andi  v0,v0,0x1
+beqz  v0,a2c <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x238>
+andi  v0,s6,0x3f
+lui  v0,0x0   {R3DCar_InMenu}
+lw  v0,0(v0)   {R3DCar_InMenu}
+nop
+bnez  v0,a08 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x214>
+addiu  v1,s6,-512
+addiu  v1,s6,-640
+sra  v1,v1,0x6
+lui  v0,0x0   {CarIO_carVRamOffset}
+addiu  v0,v0,0   {CarIO_carVRamOffset}
+sll  v1,v1,0x1
+addu  v1,v1,v0
+lh  v0,0(v1)
+nop
+addu  s6,s6,v0
+andi  v0,s6,0x3f
+lw  t1,140(sp)
+sll  v0,v0,0x2
+sh  v0,2248(t1)
+andi  v0,s7,0xff
+sh  v0,2250(t1)
+lui  v0,0x0   {R3DCar_InMenu}
+lw  v0,0(v0)   {R3DCar_InMenu}
+nop
+bnez  v0,a64 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x270>
+move  s4,zero
+lw  t2,72(sp)
+nop
+ori  t2,t2,0x10
+sw  t2,72(sp)
+lw  t1,140(sp)
+lw  t2,68(sp)
+lw  v0,2180(t1)
+lui  at,0x0   {Texture_palCopy}
+sw  v0,0(at)   {Texture_palCopy}
+jal  0 <CarIO_StartUp__Fv>   {Texture_ResetPaletteSharing__Fv}
+sll  s2,t2,0x4
+sll  v1,s0,0x2
+lui  v0,0x0   {CarIO_Plate1}
+addiu  v0,v0,0   {CarIO_Plate1}
+addu  v0,v1,v0
+sw  v0,80(sp)
+lui  v0,0x0   {CarIO_Plate2}
+addiu  v0,v0,0   {CarIO_Plate2}
+addu  v1,v1,v0
+lui  v0,0x0   {D_8011E804}
+lw  t1,140(sp)
+addiu  s8,v0,0   {D_8011E804}
+sw  v1,84(sp)
+slti  v0,s4,51
+beqz  v0,f5c <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x768>
+sw  t1,88(sp)
+lw  a0,136(sp)
+lw  a1,4(s8)
+jal  0 <CarIO_StartUp__Fv>   {locateshapez}
+li  s1,1
+lw  t2,8(s8)
+move  s3,v0
+bnez  s3,af8 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x304>
+sw  t2,76(sp)
+bnez  t2,afc <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x308>
+li  v0,20
+lw  a1,0(s8)
+lw  a0,136(sp)
+jal  0 <CarIO_StartUp__Fv>   {locateshapez}
+move  s1,zero
+move  s3,v0
+li  v0,20
+bne  s4,v0,b08 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x314>
+nop
+sw  zero,72(sp)
+beqz  s3,cec <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x4f8>
+lui  t2,0x0   {CarIO_licensePlate}
+lw  t1,64(sp)
+addiu  t2,t2,0   {CarIO_licensePlate}
+sll  v0,t1,0x1
+addu  v0,v0,t1
+sll  v0,v0,0x2
+addu  v1,v0,t2
+lw  t1,72(sp)
+lhu  a0,0(v1)
+beqz  t1,b4c <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x358>
+move  s0,zero
+lui  v0,0x0   {Texture_palNum}
+lhu  v0,0(v0)   {Texture_palNum}
+lw  t2,88(sp)
+nop
+sh  v0,2186(t2)
+lw  t1,64(sp)
+nop
+slti  v0,t1,22
+beqz  v0,c78 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x484>
+sll  v0,a0,0x10
+sra  v0,v0,0x10
+bltz  v0,c78 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x484>
+nop
+bne  s4,v0,bec <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x3f8>
+addiu  a1,sp,32
+addiu  a2,sp,36
+lw  a0,144(sp)
+lw  a3,140(sp)
+lh  v0,2(v1)
+lh  v1,4(v1)
+addu  v0,s6,v0
+addu  v1,s7,v1
+sw  v0,32(sp)
+sw  v1,36(sp)
+jal  0 <CarIO_StartUp__Fv>   {CarIO_LicenseCheck__FiPiT1P8Car_tObji}
+sw  zero,16(sp)
+lw  a2,72(sp)
+lw  a3,32(sp)
+lw  a1,36(sp)
+lw  v1,0(gp)   {CarIO_carPixMap}
+lw  t2,80(sp)
+li  v0,-1
+sw  v0,20(sp)
+sw  v0,24(sp)
+addu  v1,v1,s2
+sw  a1,16(sp)
+sw  v1,28(sp)
+lw  a1,0(t2)
+jal  0 <CarIO_StartUp__Fv>   {Texture_LoadPmx__FPcT0iiiiiP12Draw_tPixMap}
+move  a0,zero
+lw  v0,0(gp)   {CarIO_carPixMap}
+li  s0,1
+addu  v0,s2,v0
+j  c78 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x484>   {.text}
+sh  s0,14(v0)
+lh  v0,6(v1)
+nop
+bne  s4,v0,c78 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x484>
+addiu  a1,sp,40
+addiu  a2,sp,44
+lw  a0,144(sp)
+lw  a3,140(sp)
+lh  v0,8(v1)
+lh  v1,10(v1)
+addu  v0,s6,v0
+addu  v1,s7,v1
+sw  v0,40(sp)
+li  v0,1
+sw  v1,44(sp)
+jal  0 <CarIO_StartUp__Fv>   {CarIO_LicenseCheck__FiPiT1P8Car_tObji}
+sw  v0,16(sp)
+lw  a2,72(sp)
+lw  a3,40(sp)
+lw  a1,44(sp)
+lw  v1,0(gp)   {CarIO_carPixMap}
+lw  t1,84(sp)
+li  v0,-1
+sw  v0,20(sp)
+sw  v0,24(sp)
+addu  v1,v1,s2
+sw  a1,16(sp)
+sw  v1,28(sp)
+lw  a1,0(t1)
+jal  0 <CarIO_StartUp__Fv>   {Texture_LoadPmx__FPcT0iiiiiP12Draw_tPixMap}
+move  a0,zero
+li  s0,1
+lw  v1,0(gp)   {CarIO_carPixMap}
+li  v0,2
+addu  v1,s2,v1
+sh  v0,14(v1)
+bnez  s0,cb4 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x4c0>
+li  v0,32
+move  a0,zero
+move  a1,s3
+move  a3,s6
+lw  a2,72(sp)
+lw  v1,0(gp)   {CarIO_carPixMap}
+li  v0,-1
+sw  s7,16(sp)
+sw  v0,20(sp)
+sw  v0,24(sp)
+addu  v1,v1,s2
+jal  0 <CarIO_StartUp__Fv>   {Texture_LoadPmx__FPcT0iiiiiP12Draw_tPixMap}
+sw  v1,28(sp)
+li  v0,32
+bne  s4,v0,cd0 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x4dc>
+li  a1,2
+lw  a0,0(gp)   {CarIO_carPixMap}
+nop
+addu  a0,a0,s2
+jal  0 <CarIO_StartUp__Fv>   {ChangeTPage__FPUsi}
+addiu  a0,a0,6
+lw  v1,0(gp)   {CarIO_carPixMap}
+nop
+addu  v1,s2,v1
+lhu  v0,14(v1)
+nop
+ori  v0,v0,0x80
+sh  v0,14(v1)
+beqz  s1,f38 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x744>
+nop
+lw  t2,76(sp)
+lw  s0,68(sp)
+beqz  t2,d44 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x550>
+nop
+lw  t1,72(sp)
+nop
+beqz  t1,d30 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x53c>
+addiu  s0,t2,-1
+sll  v0,s0,0x1
+lw  t2,140(sp)
+lw  t1,88(sp)
+addu  v0,t2,v0
+lhu  v0,2186(v0)
+nop
+sh  v0,2186(t1)
+lw  t2,140(sp)
+nop
+lw  v0,2116(t2)
+nop
+addu  s0,s0,v0
+lw  a1,0(s8)
+lw  a0,136(sp)
+jal  0 <CarIO_StartUp__Fv>   {locateshapez}
+nop
+move  s3,v0
+beqz  s3,f38 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x744>
+move  s1,zero
+sll  v1,s0,0x4
+lui  t2,0x0   {CarIO_licensePlate}
+addiu  t2,t2,0   {CarIO_licensePlate}
+lw  v0,0(gp)   {CarIO_carPixMap}
+lw  t1,64(sp)
+addu  v1,v1,v0
+sll  v0,t1,0x1
+addu  v0,v0,t1
+sll  v0,v0,0x2
+addu  t0,v0,t2
+lhu  v1,2(v1)
+lhu  a0,0(t0)
+andi  v0,v1,0x3f
+sll  s0,v0,0x4
+slti  v0,t1,22
+beqz  v0,eb8 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x6c4>
+srl  s5,v1,0x6
+sll  v0,a0,0x10
+sra  v0,v0,0x10
+bltz  v0,eb8 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x6c4>
+nop
+bne  s4,v0,e30 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x63c>
+addiu  a1,sp,48
+addiu  a2,sp,52
+lw  a0,144(sp)
+lw  a3,140(sp)
+lh  v0,2(t0)
+lh  v1,4(t0)
+addu  v0,s6,v0
+addu  v1,s7,v1
+sw  v0,48(sp)
+sw  v1,52(sp)
+jal  0 <CarIO_StartUp__Fv>   {CarIO_LicenseCheck__FiPiT1P8Car_tObji}
+sw  zero,16(sp)
+lw  a3,48(sp)
+lw  v1,52(sp)
+lw  v0,0(gp)   {CarIO_carPixMap}
+lw  t1,80(sp)
+move  a0,s1
+sw  s0,20(sp)
+sw  s5,24(sp)
+addu  v0,v0,s2
+sw  v1,16(sp)
+sw  v0,28(sp)
+lw  a1,0(t1)
+jal  0 <CarIO_StartUp__Fv>   {Texture_LoadPmx__FPcT0iiiiiP12Draw_tPixMap}
+li  a2,32
+lw  v0,0(gp)   {CarIO_carPixMap}
+li  s1,1
+addu  v0,s2,v0
+j  eb8 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x6c4>   {.text}
+sh  s1,14(v0)
+lh  v0,6(t0)
+nop
+bne  s4,v0,eb8 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x6c4>
+addiu  a1,sp,56
+addiu  a2,sp,60
+lw  a0,144(sp)
+lw  a3,140(sp)
+lh  v0,8(t0)
+lh  v1,10(t0)
+addu  v0,s6,v0
+addu  v1,s7,v1
+sw  v0,56(sp)
+li  v0,1
+sw  v1,60(sp)
+jal  0 <CarIO_StartUp__Fv>   {CarIO_LicenseCheck__FiPiT1P8Car_tObji}
+sw  v0,16(sp)
+lw  a3,56(sp)
+lw  v1,60(sp)
+lw  v0,0(gp)   {CarIO_carPixMap}
+lw  t2,84(sp)
+move  a0,zero
+sw  s0,20(sp)
+sw  s5,24(sp)
+addu  v0,v0,s2
+sw  v1,16(sp)
+sw  v0,28(sp)
+lw  a1,0(t2)
+jal  0 <CarIO_StartUp__Fv>   {Texture_LoadPmx__FPcT0iiiiiP12Draw_tPixMap}
+li  a2,32
+li  s1,1
+lw  v1,0(gp)   {CarIO_carPixMap}
+li  v0,2
+addu  v1,s2,v1
+sh  v0,14(v1)
+bnez  s1,ef0 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x6fc>
+li  v0,32
+move  a0,zero
+move  a1,s3
+li  a2,32
+lw  v0,0(gp)   {CarIO_carPixMap}
+move  a3,s6
+sw  s7,16(sp)
+sw  s0,20(sp)
+sw  s5,24(sp)
+addu  v0,v0,s2
+jal  0 <CarIO_StartUp__Fv>   {Texture_LoadPmx__FPcT0iiiiiP12Draw_tPixMap}
+sw  v0,28(sp)
+li  v0,32
+bne  s4,v0,f0c <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x718>
+li  a1,2
+lw  a0,0(gp)   {CarIO_carPixMap}
+nop
+addu  a0,a0,s2
+jal  0 <CarIO_StartUp__Fv>   {ChangeTPage__FPUsi}
+addiu  a0,a0,6
+lw  t1,76(sp)
+nop
+bnez  t1,f38 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x744>
+nop
+lw  v1,0(gp)   {CarIO_carPixMap}
+nop
+addu  v1,s2,v1
+lhu  v0,14(v1)
+nop
+ori  v0,v0,0x80
+sh  v0,14(v1)
+addiu  s2,s2,16
+addiu  s8,s8,12
+addiu  s4,s4,1
+lw  t2,68(sp)
+lw  t1,88(sp)
+addiu  t2,t2,1
+addiu  t1,t1,2
+j  ab0 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x2bc>   {.text}
+sw  t2,68(sp)
+lw  t2,144(sp)
+nop
+andi  v0,t2,0x80
+beqz  v0,f7c <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x788>
+nop
+lw  t1,68(sp)
+nop
+sw  t1,0(gp)   {CarIO_carPixMapCount}
+lw  ra,132(sp)
+lw  s8,128(sp)
+lw  s7,124(sp)
+lw  s6,120(sp)
+lw  s5,116(sp)
+lw  s4,112(sp)
+lw  s3,108(sp)
+lw  s2,104(sp)
+lw  s1,100(sp)
+lw  s0,96(sp)
+jr  ra
+addiu  sp,sp,136

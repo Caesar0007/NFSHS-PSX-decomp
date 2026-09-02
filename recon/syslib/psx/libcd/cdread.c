@@ -767,7 +767,6 @@ extern int _read_issue(int retry)
     }
 
     if (retry != 0) {
-        __asm__("" : : "i"(0));
         puts("CdRead: retry...\n");
         CdControl(9, 0, 0);                                  /* CdlPause */
         if (CdControl(2, (u_char *)CdLastPos(), 0) == 0)     /* CdlSetloc */
@@ -783,7 +782,6 @@ extern int _read_issue(int retry)
      * 12-diff basin): before CdFlush 12 (inert), AFTER CdFlush 11, error-label head 9,
      * before-CdFlush+error 9, AFTER-CdFlush+error 8 -- POSITION is the dial, exactly
      * per the W45 fence-fixpoint law. */
-    __asm__("" : : "i"(0));
     {
         int    m;
         u_char modeb;
@@ -794,7 +792,6 @@ extern int _read_issue(int retry)
         if ((m & 0xFF) != CdMode() || retry != 0) {
             if (CdControl(0xE, &modeb, 0) == 0) {            /* CdlSetmode */
             error:
-                __asm__("" : : "i"(0));
                 {
                     volatile CdrEnv *er = &_cdr;
                     __asm__("" : "=r"(er) : "0"(er));
@@ -1051,7 +1048,6 @@ extern int CdRead(int sectors, u_long *buf, int mode)
     g = &_cdr;
     g->w0c = read_mode;
     sel = g->w0c & 0x30;
-    __asm__("" : : "r"(sel));   /* W61-A7: +1 ref, reqdelta272-priced (see the receipt) */
     switch (sel) {
     case 0:    *(int *)&g->w10 = 0x200; break;               /* 2048 bytes */
     case 0x20: *(int *)&g->w10 = 0x249; break;               /* 2340 bytes (full raw) */

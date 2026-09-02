@@ -487,14 +487,28 @@ void AIHigh_Cop::HighExecute()
              read with the select is required by the measured two-cell receipt. */
           int dir = newTrigger.roadblock.dir;
 
+          /* W85-S1: the two arms compute the WRONG-WAY BOOLEAN DIRECTLY
+             (`dir == 1` forward / `dir == -1` on a reversed track) instead of
+             building an intermediate `rev` and testing it for zero.  gcc-2.8
+             lowers `x == 1` to `xori v0,x,1; sltiu v0,v0,1` and `x == -1` to
+             `nor v0,zero,x; sltiu v0,v0,1`, then CROSS-JUMP-MERGES the shared
+             `sltiu` into the join -- which IS retail's
+             `bnez rev; nor(delay); xori; .L: sltiu; bnez`.  This replaces the
+             `__asm__("" : "=r"(wrongWayHit) : "0"(wrongWayHit))` identity fence
+             that was standing in for the materialized boolean: the fence forced
+             gcc to keep a value it would otherwise fold into the branch, but the
+             value retail materializes is the COMPARISON RESULT of the two arms,
+             not an opaque copy.  Plain-temp control (`rev = dir^1 / ~dir` then
+             `wrongWayHit = (rev == 0)`, no fence) = 3 diffs @1459. */
+          int wrongWayHit;
           if (rev == 0) {
 
-            rev = dir ^ 1;
+            wrongWayHit = (dir == 1);
 
           }
           else {
 
-            rev = ~dir;
+            wrongWayHit = (dir == -1);
 
           }
 
@@ -548,9 +562,6 @@ void AIHigh_Cop::HighExecute()
           /* SYM-CODEGEN-CARRIER: wrongWayHit -- the assigned boolean plus the
              zero-instruction identity fence is the measured source mechanism
              for retail's materialized sltiu value; a plain temporary folds. */
-          int wrongWayHit;
-          wrongWayHit = (rev == 0);
-          __asm__("" : "=r"(wrongWayHit) : "0"(wrongWayHit));
 
           if (wrongWayHit || (*(int *)&newTrigger.roadblock.dir == 0)) {
 
@@ -1109,15 +1120,14 @@ LAB_80064a0c:
 
       int release;
 
-      /* 🔴 W72-A11 -- ZERO-INSN OPACITY FENCE on the POINTER, DO NOT "SIMPLIFY": it stops
-         cse proving `co == this->carObj_`, which flips retail's ptr->$v1 / value->$v0
-         handout for this RMW (38 -> 26; the un-fenced named pointer is inert, and fencing
-         the VALUE instead is inert). */
-      { /* SYM-CODEGEN-CARRIER: co -- the pointer snapshot and zero-instruction
-           identity fence reproduce retail's pointer/value register handout;
-           an unfenced pointer or a value fence is inert. */
+      /* W85-S1 (device clearance): the W72-A11 zero-insn opacity fence
+         `__asm__("" : "=r"(co) : "0"(co))` that stood here is DEAD on today's body --
+         removed, the whole TU re-gates 10/10 PASS byte-identical.  (Its "38 -> 26"
+         receipt predates several later edits to this block.)  The NAMED POINTER
+         SNAPSHOT `co` is still the carrier; only the fence is gone.  Do not re-add it. */
+      { /* SYM-CODEGEN-CARRIER: co -- the pointer snapshot reproduces retail's
+           pointer/value register handout for this RMW. */
         Car_tObj *co = this->carObj_;
-        __asm__("" : "=r"(co) : "0"(co));
         co->AIFlags = co->AIFlags | 2; }
 
       {

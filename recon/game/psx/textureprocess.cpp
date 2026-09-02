@@ -470,7 +470,7 @@ void Fog_InitFogTriggers(void)
     k = 0;
     slice_off = k;
     do {
-      __asm__ __volatile__("" : : "r"(k));
+      __asm__("" : : "r"(k));
       BWorldSm_SetSlice(0,(BWorldSm_Pos *)((char *)fogslicePos + slice_off));
       k = k + 1;
       slice_off = slice_off + 0x84;

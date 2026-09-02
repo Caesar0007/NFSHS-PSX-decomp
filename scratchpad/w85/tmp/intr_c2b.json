@@ -1,0 +1,17 @@
+{
+ "B1_ctl_blocklocal": [
+   ["        intrEnv_t *ctl = &intrEnv;\n        if (handler != 0) {\n            register intrEnv_t *c2 __asm__(\"$6\");\n            __asm__(\"\" : \"=r\"(c2) : \"0\"(ctl));",
+    "        if (handler != 0) {\n            intrEnv_t *ctl = &intrEnv;\n            intrEnv_t *c2;\n            __asm__(\"\" : \"=r\"(c2) : \"0\"(ctl));"]],
+ "B2_inplace": [
+   ["            register intrEnv_t *c2 __asm__(\"$6\");\n            __asm__(\"\" : \"=r\"(c2) : \"0\"(ctl));",
+    "            intrEnv_t *c2 = ctl;\n            __asm__(\"\" : \"=r\"(c2) : \"0\"(c2));"]],
+ "B3_ctl_blocklocal_inplace": [
+   ["        intrEnv_t *ctl = &intrEnv;\n        if (handler != 0) {\n            register intrEnv_t *c2 __asm__(\"$6\");\n            __asm__(\"\" : \"=r\"(c2) : \"0\"(ctl));",
+    "        if (handler != 0) {\n            intrEnv_t *c2 = &intrEnv;\n            __asm__(\"\" : \"=r\"(c2) : \"0\"(c2));"]],
+ "B4_untied": [
+   ["            register intrEnv_t *c2 __asm__(\"$6\");\n            __asm__(\"\" : \"=r\"(c2) : \"0\"(ctl));",
+    "            intrEnv_t *c2;\n            __asm__(\"\" : \"=r\"(c2) : \"r\"(ctl));"]],
+ "B5_blocklocal_cl45": [
+   ["        intrEnv_t *ctl = &intrEnv;\n        if (handler != 0) {\n            register intrEnv_t *c2 __asm__(\"$6\");\n            __asm__(\"\" : \"=r\"(c2) : \"0\"(ctl));",
+    "        if (handler != 0) {\n            intrEnv_t *ctl = &intrEnv;\n            intrEnv_t *c2;\n            __asm__(\"\" : \"=r\"(c2) : \"0\"(ctl) : \"$4\", \"$5\");"]]
+}

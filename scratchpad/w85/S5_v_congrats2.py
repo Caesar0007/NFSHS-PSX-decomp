@@ -1,0 +1,7 @@
+OLD = '      drawFlags.tint[0] = CalcFadeVal(0x646464,fJustFadeOff);\n      drawFlags2.tint[0] = CalcFadeVal(0x808080,fJustFadeOff);\n      this->framenum = (ticks[0] - this->starttick) / 4;\n      if (0x14 < this->framenum) {\n        this->framenum = 0x14;\n      }\n      __asm__("" : : "i"(0));\n    }'
+VARIANTS = [
+  ('G1 drop', OLD, '      drawFlags.tint[0] = CalcFadeVal(0x646464,fJustFadeOff);\n      drawFlags2.tint[0] = CalcFadeVal(0x808080,fJustFadeOff);\n      this->framenum = (ticks[0] - this->starttick) / 4;\n      if (0x14 < this->framenum) {\n        this->framenum = 0x14;\n      }\n    }'),
+  ('G2 ternary clamp', OLD, '      drawFlags.tint[0] = CalcFadeVal(0x646464,fJustFadeOff);\n      drawFlags2.tint[0] = CalcFadeVal(0x808080,fJustFadeOff);\n      this->framenum = (ticks[0] - this->starttick) / 4;\n      this->framenum = 0x14 < this->framenum ? 0x14 : this->framenum;\n    }'),
+  ('G3 clamp via temp', OLD, '      drawFlags.tint[0] = CalcFadeVal(0x646464,fJustFadeOff);\n      drawFlags2.tint[0] = CalcFadeVal(0x808080,fJustFadeOff);\n      {\n        int fnum = (ticks[0] - this->starttick) / 4;\n\n        this->framenum = fnum;\n        if (0x14 < fnum) {\n          this->framenum = 0x14;\n        }\n      }\n    }'),
+  ('G4 tint order swapped', OLD, '      drawFlags2.tint[0] = CalcFadeVal(0x808080,fJustFadeOff);\n      drawFlags.tint[0] = CalcFadeVal(0x646464,fJustFadeOff);\n      this->framenum = (ticks[0] - this->starttick) / 4;\n      if (0x14 < this->framenum) {\n        this->framenum = 0x14;\n      }\n    }'),
+]

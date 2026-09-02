@@ -1,0 +1,11 @@
+{
+ "R2_cast": [["    volatile unsigned char result[8];", "    unsigned char result[8];"],
+             ["        CD_status  = result[0];", "        CD_status  = (unsigned char)result[0];"]],
+ "R3_mask": [["    volatile unsigned char result[8];", "    unsigned char result[8];"],
+             ["        CD_status  = result[0];", "        CD_status  = result[0] & 0xff;"]],
+ "R1_temp": [["    volatile unsigned char result[8];", "    unsigned char result[8];"],
+             ["    int bHasError;", "    int bHasError;\n    unsigned char st;"],
+             ["        CD_status  = result[0];", "        st = result[0];\n        CD_status  = st;"]],
+ "R4_int_mask": [["    volatile unsigned char result[8];", "    unsigned char result[8];"],
+             ["        bHasError  = CD_status & 0x1d;", "        bHasError  = (CD_status & 0xff) & 0x1d;"]]
+}

@@ -1,0 +1,3 @@
+  short y;
+  long ticks;
+  int numLetters;

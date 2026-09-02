@@ -1,0 +1,17 @@
+{
+ "T1_ternary": [
+  ["    int r;\n\n    if ((*(unsigned short *)(info + 0xe6) == 0) ||\n        (info[0x46] != 0xff)) {\n        r = 1;\n    } else {\n        r = 0;\n    }\n    __asm__(\"\" : \"=r\"(r) : \"0\"(r));\n    return r;",
+   "    int r;\n\n    r = ((*(unsigned short *)(info + 0xe6) == 0) ||\n         (info[0x46] != 0xff)) ? 1 : 0;\n    return r;"]],
+ "T2_default1": [
+  ["    int r;\n\n    if ((*(unsigned short *)(info + 0xe6) == 0) ||\n        (info[0x46] != 0xff)) {\n        r = 1;\n    } else {\n        r = 0;\n    }\n    __asm__(\"\" : \"=r\"(r) : \"0\"(r));\n    return r;",
+   "    int r;\n\n    r = 1;\n    if (*(unsigned short *)(info + 0xe6) != 0 && info[0x46] == 0xff)\n        r = 0;\n    return r;"]],
+ "T3_default0": [
+  ["    int r;\n\n    if ((*(unsigned short *)(info + 0xe6) == 0) ||\n        (info[0x46] != 0xff)) {\n        r = 1;\n    } else {\n        r = 0;\n    }\n    __asm__(\"\" : \"=r\"(r) : \"0\"(r));\n    return r;",
+   "    int r;\n\n    r = 0;\n    if ((*(unsigned short *)(info + 0xe6) == 0) || (info[0x46] != 0xff))\n        r = 1;\n    return r;"]],
+ "T4_goto_out_only": [
+  ["    int r;\n\n    if ((*(unsigned short *)(info + 0xe6) == 0) ||\n        (info[0x46] != 0xff)) {\n        r = 1;\n    } else {\n        r = 0;\n    }\n    __asm__(\"\" : \"=r\"(r) : \"0\"(r));\n    return r;",
+   "    int r;\n\n    if (*(unsigned short *)(info + 0xe6) != 0) {\n        r = 0;\n        if (info[0x46] == 0xff) goto out;\n    }\n    r = 1;\nout:\n    return r;"]],
+ "T5_bool_expr": [
+  ["    int r;\n\n    if ((*(unsigned short *)(info + 0xe6) == 0) ||\n        (info[0x46] != 0xff)) {\n        r = 1;\n    } else {\n        r = 0;\n    }\n    __asm__(\"\" : \"=r\"(r) : \"0\"(r));\n    return r;",
+   "    return (*(unsigned short *)(info + 0xe6) == 0) || (info[0x46] != 0xff);"]]
+}

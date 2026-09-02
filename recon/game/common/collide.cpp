@@ -1501,7 +1501,7 @@ int Collide_TestObjectVertices(BO_tNewtonObj *o0,BO_tNewtonObj *o1,coorddef *p,c
                multi-block so combine_regs cannot fold retail's X copy, and the "a1"
                clobber pushes the live z carrier off $5 onto retail's $a2.  Deleting
                either half costs 4 and 4 diffs respectively. */
-            asm volatile("" : : "r"(rpx) : "a1");
+            __asm__("" : : "r"(rpx) : "a1");
             maxrv = rpz;   /* dead maxrv IS retail's z carrier (SYM: maxrv = REG $3) */
             maxrp = maxrp * maxrp + (maxrv / 256) * (maxrv / 256);
             if (maxrp < 0xCCC) {
@@ -2011,8 +2011,5 @@ nextObj:
       }
     }
   }
-  __asm__("" : : "r"(newObj), "r"(newObj), "r"(newObj),
-                 "r"(newObj), "r"(newObj), "r"(newObj),
-                 "r"(newObj), "r"(newObj), "r"(newObj));
   return;
 }

@@ -1,0 +1,3 @@
+OLD = '    {\n    register char *dn __asm__("$4") = devname;\n    register long  m1 __asm__("$5") = 1;\n    __asm__ __volatile__("" : : "i"(0));\n    _mc_present |= 1 << (base[3]);\n    fd = open(dn, m1);                           /* probe: does it already exist? */\n    }'
+SUBS = [(OLD, '    {\n    char *dn = devname;\n    long  m1 = 1;\n    _mc_present |= 1 << (base[3]);\n    __asm__("" : "=r"(dn), "=r"(m1) : "0"(dn), "1"(m1));\n    __asm__ __volatile__("" : : "i"(0));\n    fd = open(dn, m1);                           /* probe: does it already exist? */\n    }')]
+FNS = "MemCardCreateFile"

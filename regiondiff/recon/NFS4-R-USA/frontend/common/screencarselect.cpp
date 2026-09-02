@@ -847,8 +847,13 @@ done:
      nop'd and the `lui` lands in the preceding `bnez` (fState<2) slot instead.
      A zero-insn `asm("" : : "i"(0))` at THIS label (the bnez's target head) is
      the only placement that flips it -- at the gamemode head it costs a real
-     insn (99), before the `goto` / after the guard it is inert. */
-  __asm__("" : : "i"(0));
+     insn (99), before the `goto` / after the guard it is inert.
+     W85-M6: DEVICE CLEARED.  The `__asm__` was never doing the work -- what the
+     label needs is simply A STATEMENT to be attached to (C forbids a label at
+     the end of a block), and a plain empty statement gives reorg the same
+     otherwise-empty target head.  Re-gated REGION-PASS (111), and all ten
+     screencarselect USA rows re-gated PASS with it. */
+  ;
 }
 
 
@@ -1251,13 +1256,10 @@ void tScreenCarSelect::DrawForeground()
            the draw call is FAIL 11 at 558/557 and stores the result via `$v0`.
            Its explicit early-clobber identity keeps retail's `$t0` value web. */
         int shapeFade;
-        /* SYM-CODEGEN-CARRIER: shapeTicks -- repeated direct member reads are
-           FAIL 12 at 559/557, reload the value, and reshape both fade arms. */
-        u_long shapeTicks;
-        /* SYM-CODEGEN-CARRIER: fadeBase -- using literal 0x180 directly in
-           the explicit branch form is count-exact FAIL 8 and moves the fade
-           result from retail `$t0` to `$v0`. */
-        int fadeBase;
+        /* MATCH (W85-M6): the regional shape-fade tick delta is NOT a local of
+           its own -- retail REUSES `elapsedticks` for it (see the fade block
+           below).  A dedicated `u_long shapeTicks` local left the row count-exact
+           FAIL 16 with a pure two-register rotation. */
 
         screenX = 0;
         screenY = 0;
@@ -1286,12 +1288,23 @@ void tScreenCarSelect::DrawForeground()
         drawFlags.custom_shapes = this->fSwapShapes.fShapes;
         /* REGION USA: the shape fade is driven by the ELAPSED speech time
            (ticks - fSpeechTicks - 0x80), and the draw itself is gated on the
-           swap shapes being loaded and the fade being partial. */
-        shapeTicks = (ticks[0] - this->fSpeechTicks) - 0x80;
+           swap shapes being loaded and the fade being partial.
+           MATCH (W85-M6, count-exact FAIL 16 -> REGION-PASS): the tick delta is
+           carried by the FUNCTION-SCOPE `elapsedticks`, not by a fresh local.
+           greg's conflict table is the proof: a fresh local's live range ends at
+           the `subu` and only conflicts with $v0, so global alloc hands it $v1
+           and shapeFade $t0 (ours), whereas `elapsedticks` -- whose OTHER live
+           ranges (the speech-text block above, the 600-tick loop below) cross
+           the FETextRender / DrawShapeExtended argument setups -- carries
+           conflicts with $a0-$a3, so it takes $t0 and shapeFade $t1, exactly the
+           retail pair.  Retail's `$t0` is visibly the same register for all
+           three tick deltas in the oracle slice (8003CF4C / 8003D0A0 /
+           8003D108). */
+        elapsedticks = (ticks[0] - this->fSpeechTicks) - 0x80;
         shapeFade = 0x80;
-        if (0 < (int)shapeTicks) {
-          if ((int)shapeTicks < shapeFade) {
-            shapeFade = shapeFade - shapeTicks;
+        if (0 < elapsedticks) {
+          if (elapsedticks < shapeFade) {
+            shapeFade = shapeFade - elapsedticks;
           }
           else {
             shapeFade = 0;

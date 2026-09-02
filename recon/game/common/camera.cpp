@@ -231,10 +231,11 @@ void Camera_UpdateBumperCam(int player)
     Camera_LookBack(&Camera_gInfo[player].anchor->orientMat,&Camera_gInfo[player].rotation);
   }
   else {
-    /* MATCH: FRESH anchor re-load here (kills the anchor+240 CSE with the if-arm);
-     * plain struct assignment -> gcc movstrsi unrolled copy (9 words) */
-    Camera_gInfo[player].rotation =
-         (*(BO_tNewtonObj *volatile *)&Camera_gInfo[player].anchor)->orientMat;
+    /* MATCH: plain struct assignment -> gcc movstrsi unrolled copy (9 words).
+     * W85-S10: the old `*(BO_tNewtonObj *volatile *)&...anchor` view claimed to
+     * force a FRESH anchor re-load; measured device-free -- removing the
+     * volatile holds camera.cpp at 38/38 PASS, so it was a codegen crutch. */
+    Camera_gInfo[player].rotation = Camera_gInfo[player].anchor->orientMat;
   }
   return;
 }
@@ -400,7 +401,6 @@ lookahead_done:;
   __asm__("" : "+r"(lookBehindBase));
   arm.y = armY + vertigo;
   /* End vertigo's scheduling region before the shared &arm value is born. */
-  __asm__("" : : "i"(3));
   /* SYM-CODEGEN-CARRIER: armPtr.  Plain &arm in both branches was measured at
      403 instructions/three diffs; this scoped identity yields exact 402/402. */
   coorddef *armPtr = &arm;
@@ -726,8 +726,6 @@ void Camera_UpdateHeliCam(int player,int behavior)
        `slice` local for that index emits 445/443 instructions and 112 diffs. */
     char *second;
     fallback = *(int *)((slice << 5) + (int)Camera_BWorldSmSlices + 4);
-    __asm__("" : : "r"(fallback), "r"(fallback), "r"(fallback),
-                      "r"(fallback), "r"(fallback), "r"(fallback));
     if (lookahead < 1) {
       slice = slice - lookahead;
       second = (char *)Camera_BWorldSmSlices +
@@ -738,7 +736,6 @@ void Camera_UpdateHeliCam(int player,int behavior)
       second = (char *)Camera_BWorldSmSlices +
           ((slice < 0 ? slice + gNumSlices : slice) << 5);
     }
-    __asm__("" : "+r"(second));
     fallback -= *(int *)(second + 4);
     fallback = fallback / 2;
     switch (behavior) {
@@ -814,7 +811,6 @@ void Camera_UpdateHeliCam(int player,int behavior)
      out-ranks the two position adds (1.3333) and wins $v0 -- retail's seat.
      Removing it puts the whole epilogue block back on the $v0<->$v1 swap (57).
      See the fn header for the qty table and the position sweep. */
-  __asm__("" : : "r"(&Camera_gInfo[player]));
   return;
 }
 

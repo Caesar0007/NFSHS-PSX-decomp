@@ -1,0 +1,128 @@
+/* eaclib/psx/sndpsxz/ssysserv.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 3/3 ***
+ *   Source obj : nfs4\eaclib\psx\ssysserv.obj ; archive C:\nfs4\EACLIB\PSX\SNDPSXZ.LIB (xlsx col11)
+ *   3 fns @[0x8010479C .. 0x80104878].  The (per-frame) "service-client" list -- callbacks the game
+ *   registers to run on each SNDSYS_service tick.  Ghidra nfs4-f.exe.c (ssysserv) + IDA sigs.
+ *
+ *   Client list lives at sndgs[0x19..] (int fn-ptrs); the count is sndgs[0x10]._1_1_ = ((char*)sndgs)[0x41].
+ */
+
+extern int sndgs[];
+
+extern short *iSNDserveraddclient(int cb);       /* @0x8010479C */
+extern void   iSNDserverremoveclient(int cb);    /* @0x801047CC */
+extern void   SNDSYS_service(void);              /* @0x80104878 */
+
+#define NCLIENT (((char *)sndgs)[0x41])   /* sndgs[0x10]._1_1_ : service-client count */
+
+/* iSNDserveraddclient @0x8010479C : append callback `cb` to the service-client list; returns sndgs.
+ *   The count is read SIGNED (lb) for the array index but UNSIGNED (lbu) for the increment-store. */
+extern short *iSNDserveraddclient(int cb)
+{
+    /* MATCH: index sndgs by the raw client count ONLY (base = sndgs + count*4) and fold the 0x19-slot
+     * (0x64-byte) client-array offset into the store DISPLACEMENT via a single explicit char* base --
+     * oracle emits sll(count*4); addu base; sw a0,0x64(base). (Same lever as the sibling
+     * iSNDserveradd100hzclient in sserver.cpp: sndgs[count+0x19] adds 0x19 to the INDEX before the *4
+     * scale, and a second independent `sndgs`-typed expression makes gcc rematerialize the base twice;
+     * routing EVERYTHING through one already-materialized char* base fixes both.) */
+    char *base = (char *)sndgs;
+    *(int *)(base + (signed char)NCLIENT * 4 + 0x64) = cb;
+    NCLIENT = NCLIENT + 1;
+    return (short *)sndgs;
+}
+
+/* iSNDserverremoveclient @0x801047CC : unregister `cb`, compacting the list.  void -- $v0 at every
+ *   exit is incidental (numclients / slt scratch / i<<2), matching the eaclib.h `void` prototype. */
+extern void iSNDserverremoveclient(int cb)
+{
+    int i;
+    int j;
+    int target;
+    char *base;
+    char *p;
+    __asm__("" : "=r"(target) : "0"(cb));
+    p = (char *)sndgs;
+    /* MATCH: goto-formed loops (no gcc LOOP notes -> NO strength reduction; the oracle recomputes
+     * `sll i,2` EVERY iteration instead of walking a +4 offset giv); ONE char* base for every
+     * access (same lever as iSNDserveraddclient above) so +0x64/+0x41 fold into DISPLACEMENTS off
+     * a held base reg; the compaction saves the SCALED old offset before the increment
+     * (`j = i*4; i++; [j+0x64] = [i*4+0x64]`) so BOTH sides use displacement 0x64 and the sll
+     * lands in the entry/back-edge delay slots (an `[i]=[i+1]; i++` form emits 100/104 instead).
+     *
+     * MATCH (w49-a7, 3 -> PASS 43/43; the 2-wave "volatile param / no clean lever exists" floor is
+     * RETIRED).  The residual was exactly the 3-way rotation w34-a8 named:
+     *     ours   { cb=$a0, i=$a1, base=$a2 }      (plain `int cb`, no entry copy, 42 insns)
+     *     retail { i=$a0,  base=$a1, cb=$a2 }     (+ `addu $a2,$a0,$zero` at insn 0, 43 insns)
+     * MECHANISM, read off `-dg` (`;; 5 regs to allocate: 81 84 85 83 80`, `;; 80 preferences: 4`,
+     * `;; 83 preferences: 4`): `i` IS allocated first, but global.c `find_reg` pass 0 ORs
+     * `regs_someone_prefers[i]` into `used`, and both the parm pseudo (`cb`) and its copy (`target`)
+     * carry a COPY PREFERENCE for $a0 (global.c `set_preference` fires on any `(set pseudo (reg $a0))`).
+     * With $a0 excluded, `i` takes $a1 in pass 0 and the whole trio rotates.  The w34 conclusion --
+     * "needs a lever that removes the parm-copy PREFERENCE without forcing a stack home" -- is exactly
+     * the w47 OPACITY/IDENTITY FENCE: `__asm__("" : "=r"(target) : "0"(cb))` as the FIRST statement.
+     *   - `target`'s def is an `asm_operands`, not a REG, so `set_preference` RETURNS EARLY: target has
+     *     NO $a0 preference (an empty template emits no code -- the w45 zero-insn cost profile, the
+     *     value is already register-resident).
+     *   - `cb`'s live range now ENDS at the fence, before the loop, so it no longer CONFLICTS with `i`
+     *     and its own $a0 preference never reaches `regs_someone_prefers[i]`.  `i` -> $a0, `base` -> $a1.
+     *   - the `"0"` matching constraint is what makes it FAITHFUL rather than scaffolding: reload sees
+     *     input $a0 / output $a2 and materializes retail's `addu $a2,$a0,$zero` at insn 0 for free.
+     * `volatile int cb` (the old 3-diff form) is the same idea paid for with a stack home
+     * (`sw a0,0(sp) ... lw a2,0(sp)`); the fence buys the identical allocation at zero instructions.
+     * Twin-transcribed verbatim to sserver.c iSNDserverremove100hzclient (also PASS).
+     */
+    if (*(signed char *)(p + 0x41) <= 0)                      /* lb count (signed-char view of the byte) */
+        return;
+    i = 0;
+    base = p;
+findloop:
+    if (*(int *)(base + i * 4 + 0x64) == target) {            /* client slots @+0x64 */
+        *(char *)(base + 0x41) = *(char *)(base + 0x41) - 1;  /* lbu/addiu/sb (plain char is unsigned) */
+        if (i < *(signed char *)(base + 0x41)) {
+shiftloop:                                                    /* compact the tail down one slot */
+            j = i * 4;                                        /* scale BEFORE the increment (sll in the entry/back-edge delay slot) */
+            i++;
+            *(int *)((unsigned int)j + (unsigned int)base + 0x64) =
+                *(int *)(base + i * 4 + 0x64);
+            if (i < *(signed char *)(base + 0x41))
+                goto shiftloop;
+        }
+        return;
+    }
+    i++;
+    if (i < *(signed char *)(base + 0x41))
+        goto findloop;
+}
+
+/* SNDSYS_service @0x80104878 : run every registered service-client callback (called once per game frame).
+ *   MATCH: oracle reads the count as SIGNED (`lb`, not the macro's unsigned `lbu`) and branches `blez`
+ *   (signed <=0), matching the signed-char convention iSNDserverremoveclient already uses for this same
+ *   byte. Walking pointer `p` starts at `base` (raw sndgs, not sndgs+0x19) and steps +4 bytes/iter with
+ *   the client-array's +0x64 folded into the load DISPLACEMENT (not a separately materialized `cb`
+ *   pointer var -- computing the fn-ptr via one deref expression lets the +0x64 fuse into `lw`). */
+/* Historical 9-diff form: `base` materialized into a caller-saved temp (v1)
+ *   for the initial `lb`/`blez` test and is copied into its callee-saved home (s2) only after the branch
+ *   is taken; our compile promotes it to s2 one instruction earlier. Coloring floor (§A lazy-promotion
+ *   tie-break), not source-shapable via decl/assignment-order tried so far. */
+/* MATCH: a separate `guard` pointer fixes that lazy promotion.  Initializing `i` before the
+ * signed-count test puts `i = 0` in the oracle's `blez` delay slot; repeating the initialization
+ * when entering the loop preserves the expected loop setup and is harmless. */
+extern void SNDSYS_service(void)
+{
+    char *base;
+    char *guard;
+    char *p;
+    int   i;
+    guard = (char *)sndgs;
+    i = 0;
+    if (i < *(signed char *)(guard + 0x41)) {
+        base = guard;
+        p = base;
+        i = 0;
+        do {
+            void (*cb)(void) = *(void (**)(void))(p + 0x64);
+            p = p + 4;
+            (*cb)();
+            i++;
+        } while (i < *(signed char *)(base + 0x41));
+    }
+}

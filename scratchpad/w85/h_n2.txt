@@ -1,0 +1,6 @@
+    default:
+      if (((~(u_int)gPadinfo.buf[controller * 4].data.standard.state) & key) != 0) {
+        goto return_one;
+      }
+return_zero:
+      return 0;

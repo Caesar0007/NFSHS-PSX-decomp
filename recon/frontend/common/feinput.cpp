@@ -96,10 +96,17 @@ int FEInput_GetNoDebounceKey(int key,int controller)
     case 0x800000:
       result = gPadinfo.buf[controller * 4].data.negcon.twist < 0x62;
 return_bool:
+      /* W85-S5 (device removed): this used to be `if (result) return 1;` +
+         a void `__asm__("" : : "i"(0))` boundary + `return 0;`.  Without a
+         boundary gcc collapses the pair into the `sltu $v0,$zero,$v0`
+         normalization and drops retail's explicit `bnez`/`li 1`-in-delay-slot
+         + `j <shared tail>`/`addu $v0,$zero,$zero` shape (157 vs 159 insns).
+         The pure-C equivalent is the catalog's goto-to-shared-tail: branch to
+         the SAME `return_one` label the sibling arm already uses, which is
+         exactly the `j` target retail shares. */
       if (result) {
-        return 1;
+        goto return_one;
       }
-      __asm__("" : : "i"(0));
       return 0;
     case 0x8000:
       result = gPadinfo.buf[controller * 4].data.negcon.buttonII < 0x41;

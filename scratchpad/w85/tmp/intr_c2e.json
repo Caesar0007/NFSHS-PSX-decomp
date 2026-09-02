@@ -1,0 +1,17 @@
+{
+ "E1_no_device": [
+  ["        intrEnv_t *ctl = &intrEnv;\n        if (handler != 0) {\n            register intrEnv_t *c2 __asm__(\"$6\");\n            __asm__(\"\" : \"=r\"(c2) : \"0\"(ctl));\n            intrEnv.handlers[idx] = handler;\n            nNewMask = nNewMask | (1 << idx);\n            c2->enabledInterruptsMask |= (1 << idx);",
+   "        if (handler != 0) {\n            intrEnv.handlers[idx] = handler;\n            nNewMask = nNewMask | (1 << idx);\n            intrEnv.enabledInterruptsMask |= (1 << idx);"]],
+ "E2_local_base": [
+  ["        intrEnv_t *ctl = &intrEnv;\n        if (handler != 0) {\n            register intrEnv_t *c2 __asm__(\"$6\");\n            __asm__(\"\" : \"=r\"(c2) : \"0\"(ctl));\n            intrEnv.handlers[idx] = handler;\n            nNewMask = nNewMask | (1 << idx);\n            c2->enabledInterruptsMask |= (1 << idx);",
+   "        if (handler != 0) {\n            intrEnv_t *c2 = &intrEnv;\n            intrEnv.handlers[idx] = handler;\n            nNewMask = nNewMask | (1 << idx);\n            c2->enabledInterruptsMask |= (1 << idx);"]],
+ "E3_arm2_via_h": [
+  ["        intrEnv_t *ctl = &intrEnv;\n        if (handler != 0) {\n            register intrEnv_t *c2 __asm__(\"$6\");\n            __asm__(\"\" : \"=r\"(c2) : \"0\"(ctl));\n            intrEnv.handlers[idx] = handler;\n            nNewMask = nNewMask | (1 << idx);\n            c2->enabledInterruptsMask |= (1 << idx);\n        } else {\n            intrEnv.handlers[idx] = 0;\n            nNewMask = nNewMask & ~(1 << idx);\n            intrEnv.enabledInterruptsMask &= ~(1 << idx);",
+   "        if (handler != 0) {\n            intrEnv.handlers[idx] = handler;\n            nNewMask = nNewMask | (1 << idx);\n            intrEnv.enabledInterruptsMask |= (1 << idx);\n        } else {\n            Callback *h = intrEnv.handlers;\n            h[idx] = 0;\n            nNewMask = nNewMask & ~(1 << idx);\n            intrEnv.enabledInterruptsMask &= ~(1 << idx);"]],
+ "E4_h_hoisted": [
+  ["        intrEnv_t *ctl = &intrEnv;\n        if (handler != 0) {\n            register intrEnv_t *c2 __asm__(\"$6\");\n            __asm__(\"\" : \"=r\"(c2) : \"0\"(ctl));\n            intrEnv.handlers[idx] = handler;\n            nNewMask = nNewMask | (1 << idx);\n            c2->enabledInterruptsMask |= (1 << idx);\n        } else {\n            intrEnv.handlers[idx] = 0;",
+   "        Callback *h = intrEnv.handlers;\n        if (handler != 0) {\n            h[idx] = handler;\n            nNewMask = nNewMask | (1 << idx);\n            intrEnv.enabledInterruptsMask |= (1 << idx);\n        } else {\n            h[idx] = 0;"]],
+ "E5_oldcb_via_h": [
+  ["        oldCallback = intrEnv.handlers[idx];",
+   "        oldCallback = (&intrEnv.handlers[0])[idx];"]]
+}

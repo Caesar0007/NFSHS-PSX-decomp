@@ -244,7 +244,20 @@ void tScreenUserName::DrawBackground()
   short gridposv;
   short textfadev;
 
-  fade = *(volatile int *)&this->callingMenu->fScreenFade;
+  /* W85-S5 (device removed): this was `fade = *(volatile int *)&this->
+     callingMenu->fScreenFade;`.  What the volatile bought is retail's FULL
+     WORD load: `lw $v0,116($v0)` + an `addu $a1,$v0,$zero` copy that keeps the
+     raw word live, then `sll/sra 17` sign-extends its low half for the shift.
+     A plain read straight into the `short fade` lets gcc narrow the load to
+     `lhu` and drop the copy (393 insns vs 394).  The pure-C equivalent is an
+     honest named INT holding the raw word, truncated into `fade` -- the int's
+     live range is the `$a1` copy.  FALSIFIED first (whole-TU re-gated): plain
+     `*(int *)&` cast 7, direct field read 7, `*(long *)&` 7,
+     `(short)*(u_int *)&` 7. */
+  {
+    int fadeWord = this->callingMenu->fScreenFade;
+    fade = (short)fadeWord;
+  }
   if ((short)((fade >> 1) - 0x80) < 0x80) {
     if ((short)((fade >> 1) - 0x80) <= 0) goto DrawBgUser_fadeboxZero;
   }

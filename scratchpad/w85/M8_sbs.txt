@@ -1,0 +1,494 @@
+   1  addiu  sp,sp,-136                             addiu $sp,$sp,-136
+   2  sw  s0,96(sp)                                 sw $s0,96($sp)
+   3  move  s0,a3                                   move $s0,$a3
+   4  li  t1,8                                      li $t0,8
+   5  sw  ra,132(sp)                                sw $ra,132($sp)
+   6  sw  s8,128(sp)                                sw $s8,128($sp)
+   7  sw  s7,124(sp)                                sw $s7,124($sp)
+   8  sw  s6,120(sp)                                sw $s6,120($sp)
+   9  sw  s5,116(sp)                                sw $s5,116($sp)
+  10  sw  s4,112(sp)                                sw $s4,112($sp)
+  11  sw  s3,108(sp)                                sw $s3,108($sp)
+  12  sw  s2,104(sp)                                sw $s2,104($sp)
+  13  sw  s1,100(sp)                                sw $s1,100($sp)
+  14  sw  a0,136(sp)                                sw $a0,136($sp)
+  15  sw  a1,140(sp)                                sw $a1,140($sp)
+  16  sw  a2,144(sp)                                sw $a2,144($sp)
+  17  sw  t1,72(sp)                                 sw $t0,72($sp)
+  18  lh  t2,2236(a1)                               lh $t1,2236($a1)
+  19  andi  v0,a2,0x1                               andi $v0,$a2,0x1
+  20  bnez  v0,974 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x180> bnez $v0,.L800BD420
+  21  sw  t2,64(sp)                                 sw $t1,64($sp)
+  22  lui  v0,0x0   {R3DCar_InMenu}                 lui $v0,0x8014
+  23  lw  v0,0(v0)   {R3DCar_InMenu}                lw $v0,-7180($v0)
+  24  nop                                           nop
+  25  bnez  v0,918 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x124> bnez $v0,.L800BD3C4
+  26  lui  v0,0x0   {CarIO_carVRamSlotsMenu}        lui $v0,0x8012
+  27  lui  v0,0x0   {CarIO_carVRamSlots}            lui $v0,0x8012
+  28  lw  a0,0(gp)   {CarIO_carVRamCount}           lw $a0,4588($gp)
+  29  addiu  v0,v0,0   {CarIO_carVRamSlots}         addiu $v0,$v0,-1212
+  30  sll  v1,a0,0x2                                sll $v1,$a0,0x2
+  31  addu  v1,v1,v0                                addu $v1,$v1,$v0
+  32  lhu  v0,0(v1)                                 lhu $v0,0($v1)
+  33  nop                                           nop
+  34  sh  v0,2244(a1)                               sh $v0,2244($a1)
+  35  sll  v0,v0,0x10                               sll $v0,$v0,0x10
+  36  sra  s6,v0,0x10                               sra $s6,$v0,0x10
+  37  lhu  v1,2(v1)                                 lhu $v1,2($v1)
+  38  lw  t1,140(sp)                                lw $t0,140($sp)
+  39  sll  v0,v1,0x10                               sll $v0,$v1,0x10
+  40  sra  s7,v0,0x10                               sra $s7,$v0,0x10
+  41  slti  v0,t2,28                                slti $v0,$t1,28
+  42  beqz  v0,908 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x114> beqz $v0,.L800BD3B4
+  43  sh  v1,2246(t1)                               sh $v1,2246($t0)
+  44  lhu  v0,2240(t1)                              lhu $v0,2240($t0)
+  45  nop                                           nop
+  46  andi  v0,v0,0x1                               andi $v0,$v0,0x1
+  47  beqz  v0,8f8 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x104> beqz $v0,.L800BD3A4
+  48  lui  v0,0x5555                                lui $v0,0x5555
+  49  ori  v0,v0,0x5556                             ori $v0,$v0,0x5556
+  50  mult  a0,v0                                   mult $a0,$v0
+  51  sra  v0,a0,0x1f                               sra $v0,$a0,0x1f
+  52  lui  v1,0x0   {CarIO_carVRamAdd}              lui $v1,0x8012
+  53  addiu  v1,v1,0   {CarIO_carVRamAdd}           addiu $v1,$v1,-1116
+  54  mfhi  t1                                      mfhi $t0
+  55  subu  v0,t1,v0                                subu $v0,$t0,$v0
+  56  sll  v0,v0,0x1                                sll $v0,$v0,0x1
+  57  addu  v0,v0,v1                                addu $v0,$v0,$v1
+  58  lh  v1,0(v0)                                  lh $v1,0($v0)
+  59  nop                                           nop
+  60  sll  v0,v1,0x1                                sll $v0,$v1,0x1
+  61  addu  v0,v0,v1                                addu $v0,$v0,$v1
+  62  addu  v0,a0,v0                                addu $v0,$a0,$v0
+  63  sw  v0,0(gp)   {CarIO_carVRamCount}           sw $v0,4588($gp)
+  64  j  984 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x190>   {.text} j .L800BD430
+  65  nop                                           nop
+  66  addiu  v0,a0,3                                addiu $v0,$a0,3
+  67  sw  v0,0(gp)   {CarIO_carVRamCount}           sw $v0,4588($gp)
+  68  j  984 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x190>   {.text} j .L800BD430
+  69  nop                                           nop
+  70  addiu  v0,a0,1                                addiu $v0,$a0,1
+  71  sw  v0,0(gp)   {CarIO_carVRamCount}           sw $v0,4588($gp)
+  72  j  984 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x190>   {.text} j .L800BD430
+  73  nop                                           nop
+  74  addiu  v0,v0,0   {CarIO_carVRamSlotsMenu}     addiu $v0,$v0,-1140
+  75  lw  a1,0(gp)   {CarIO_carVRamCount}           lw $a1,4588($gp)
+  76  lw  t2,140(sp)                                lw $t1,140($sp)
+  77  sll  v1,a1,0x2                                sll $v1,$a1,0x2
+  78  addu  v1,v1,v0                                addu $v1,$v1,$v0
+  79  lhu  v0,0(v1)                                 lhu $v0,0($v1)
+  80  nop                                           nop
+  81  sh  v0,2244(t2)                               sh $v0,2244($t1)
+  82  sll  v0,v0,0x10                               sll $v0,$v0,0x10
+  83  sra  s6,v0,0x10                               sra $s6,$v0,0x10
+  84  lhu  a0,2(v1)                                 lhu $a0,2($v1)
+  85  lui  v1,0x0   {CarIO_carVRamAdd}              lui $v1,0x8012
+  86  addiu  v1,v1,0   {CarIO_carVRamAdd}           addiu $v1,$v1,-1116
+  87  sll  v0,a1,0x1                                sll $v0,$a1,0x1
+  88  addu  v0,v0,v1                                addu $v0,$v0,$v1
+  89  sh  a0,2246(t2)                               sh $a0,2246($t1)
+  90  sll  a0,a0,0x10                               sll $a0,$a0,0x10
+  91  lh  v0,0(v0)                                  lh $v0,0($v0)
+  92  nop                                           nop
+  93  addu  a1,a1,v0                                addu $a1,$a1,$v0
+  94  sw  a1,0(gp)   {CarIO_carVRamCount}           sw $a1,4588($gp)
+  95  j  984 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x190>   {.text} j .L800BD430
+  96  sra  s7,a0,0x10                               sra $s7,$a0,0x10
+  97  lw  t1,140(sp)                                lw $t0,140($sp)
+  98  nop                                           nop
+  99  lh  s6,2244(t1)                               lh $s6,2244($t0)
+ 100  lh  s7,2246(t1)                               lh $s7,2246($t0)
+ 101  lw  t2,144(sp)                                lw $t1,144($sp)
+ 102  nop                                           nop
+ 103  andi  v0,t2,0x10                              andi $v0,$t1,0x10
+ 104  bnez  v0,9ac <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x1b8> bnez $v0,.L800BD458
+ 105  nop                                           nop
+ 106  lw  v0,0(gp)   {CarIO_carPixMapCount}         lw $v0,4584($gp)
+ 107  lw  t1,140(sp)                                lw $t0,140($sp)
+ 108  sw  v0,68(sp)                                 sw $v0,68($sp)
+ 109  j  9c0 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x1cc>   {.text} j .L800BD46C
+ 110  sw  v0,2116(t1)                               sw $v0,2116($t0)
+ 111  lw  t2,140(sp)                                lw $t1,140($sp)
+ 112  nop                                           nop
+ 113  lw  t2,2116(t2)                               lw $t1,2116($t1)
+ 114  nop                                           nop
+ 115  sw  t2,68(sp)                                 sw $t1,68($sp)
+ 116  lw  t1,144(sp)                                lw $t0,144($sp)
+ 117  nop                                           nop
+ 118  andi  v0,t1,0x8                               andi $v0,$t0,0x8
+ 119  beqz  v0,a40 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x24c> beqz $v0,.L800BD4EC
+ 120  nop                                           nop
+ 121  lw  t2,140(sp)                                lw $t1,140($sp)
+ 122  nop                                           nop
+ 123  lhu  v0,2240(t2)                              lhu $v0,2240($t1)
+ 124  nop                                           nop
+ 125  andi  v0,v0,0x1                               andi $v0,$v0,0x1
+ 126  beqz  v0,a2c <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x238> beqz $v0,.L800BD4D8
+ 127  andi  v0,s6,0x3f                              andi $v0,$s6,0x3f
+ 128  lui  v0,0x0   {R3DCar_InMenu}                 lui $v0,0x8014
+ 129  lw  v0,0(v0)   {R3DCar_InMenu}                lw $v0,-7180($v0)
+ 130  nop                                           nop
+ 131  bnez  v0,a08 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x214> bnez $v0,.L800BD4B4
+ 132  addiu  v1,s6,-512                             addiu $v1,$s6,-512
+ 133  addiu  v1,s6,-640                             addiu $v1,$s6,-640
+ 134  sra  v1,v1,0x6                                sra $v1,$v1,0x6
+ 135  lui  v0,0x0   {CarIO_carVRamOffset}           lui $v0,0x8012
+ 136  addiu  v0,v0,0   {CarIO_carVRamOffset}        addiu $v0,$v0,-1104
+ 137  sll  v1,v1,0x1                                sll $v1,$v1,0x1
+ 138  addu  v1,v1,v0                                addu $v1,$v1,$v0
+ 139  lh  v0,0(v1)                                  lh $v0,0($v1)
+ 140  nop                                           nop
+ 141  addu  s6,s6,v0                                addu $s6,$s6,$v0
+ 142  andi  v0,s6,0x3f                              andi $v0,$s6,0x3f
+ 143  lw  t1,140(sp)                                lw $t0,140($sp)
+ 144  sll  v0,v0,0x2                                sll $v0,$v0,0x2
+ 145  sh  v0,2248(t1)                               sh $v0,2248($t0)
+ 146  andi  v0,s7,0xff                              andi $v0,$s7,0xff
+ 147  sh  v0,2250(t1)                               sh $v0,2250($t0)
+ 148  lui  v0,0x0   {R3DCar_InMenu}                 lui $v0,0x8014
+ 149  lw  v0,0(v0)   {R3DCar_InMenu}                lw $v0,-7180($v0)
+ 150  nop                                           nop
+ 151  bnez  v0,a64 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x270> bnez $v0,.L800BD510
+ 152  move  s4,zero                                 move $s4,$zero
+ 153  lw  t2,72(sp)                                 lw $t1,72($sp)
+ 154  nop                                           nop
+ 155  ori  t2,t2,0x10                               ori $t1,$t1,0x10
+ 156  sw  t2,72(sp)                                 sw $t1,72($sp)
+ 157  lw  t1,140(sp)                                lw $t0,140($sp)
+ 158  lw  t2,68(sp)                                 lw $t1,68($sp)
+ 159  lw  v0,2180(t1)                               lw $v0,2180($t0)
+ 160  lui  at,0x0   {Texture_palCopy}               lui $at,0x8014
+ 161  sw  v0,0(at)   {Texture_palCopy}              sw $v0,-5160($at)
+ 162  jal  0 <CarIO_StartUp__Fv>   {Texture_ResetPaletteSharing__Fv} jal func_800E0070
+ 163  sll  s2,t2,0x4                                sll $s2,$t1,0x4
+ 164  sll  v1,s0,0x2                                sll $v1,$s0,0x2
+ 165  lui  v0,0x0   {CarIO_Plate1}                  lui $v0,0x8014
+ 166  addiu  v0,v0,0   {CarIO_Plate1}               addiu $v0,$v0,-6116
+ 167  addu  v0,v1,v0                                addu $v0,$v1,$v0
+ 168  sw  v0,80(sp)                                 sw $v0,80($sp)
+ 169  lui  v0,0x0   {CarIO_Plate2}                  lui $v0,0x8014
+ 170  addiu  v0,v0,0   {CarIO_Plate2}               addiu $v0,$v0,-6108
+ 171  addu  v1,v1,v0                                addu $v1,$v1,$v0
+ 172  lui  v0,0x0   {D_8011E804}                    lui $v0,0x8012
+ 173  lw  t1,140(sp)                                lw $t0,140($sp)
+ 174  addiu  s8,v0,0   {D_8011E804}                 addiu $s8,$v0,-1824
+ 175  sw  v1,84(sp)                                 sw $v1,84($sp)
+ 176  slti  v0,s4,51                                slti $v0,$s4,51
+ 177  beqz  v0,f5c <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x768> beqz $v0,.L800BDA08
+ 178  sw  t1,88(sp)                                 sw $t0,88($sp)
+ 179  lw  a0,136(sp)                                lw $a0,136($sp)
+ 180  lw  a1,4(s8)                                  lw $a1,4($s8)
+ 181  jal  0 <CarIO_StartUp__Fv>   {locateshapez}   jal func_800EB8B8
+ 182  li  s1,1                                      li $s1,1
+ 183  lw  t2,8(s8)                                  lw $t1,8($s8)
+ 184  move  s3,v0                                   move $s3,$v0
+ 185  bnez  s3,af8 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x304> bnez $s3,.L800BD5A4
+ 186  sw  t2,76(sp)                                 sw $t1,76($sp)
+ 187  bnez  t2,afc <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x308> bnez $t1,.L800BD5A8
+ 188  li  v0,20                                     li $v0,20
+ 189  lw  a1,0(s8)                                  lw $a1,0($s8)
+ 190  lw  a0,136(sp)                                lw $a0,136($sp)
+ 191  jal  0 <CarIO_StartUp__Fv>   {locateshapez}   jal func_800EB8B8
+ 192  move  s1,zero                                 move $s1,$zero
+ 193  move  s3,v0                                   move $s3,$v0
+ 194  li  v0,20                                     li $v0,20
+ 195  bne  s4,v0,b08 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x314> bne $s4,$v0,.L800BD5B4
+ 196  nop                                           nop
+ 197  sw  zero,72(sp)                               sw $zero,72($sp)
+ 198  beqz  s3,cec <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x4f8> beqz $s3,.L800BD798
+ 199  lui  t2,0x0   {CarIO_licensePlate}            lui $t1,0x8012
+ 200  lw  t1,64(sp)                                 lw $t0,64($sp)
+ 201  addiu  t2,t2,0   {CarIO_licensePlate}         addiu $t1,$t1,-1092
+ 202  sll  v0,t1,0x1                                sll $v0,$t0,0x1
+ 203  addu  v0,v0,t1                                addu $v0,$v0,$t0
+ 204  sll  v0,v0,0x2                                sll $v0,$v0,0x2
+ 205  addu  v1,v0,t2                                addu $v1,$v0,$t1
+ 206  lw  t1,72(sp)                                 lw $t0,72($sp)
+ 207  lhu  a0,0(v1)                                 lhu $a0,0($v1)
+ 208  beqz  t1,b4c <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x358> beqz $t0,.L800BD5F8
+ 209  move  s0,zero                                 move $s0,$zero
+ 210  lui  v0,0x0   {Texture_palNum}                lui $v0,0x8014
+ 211  lhu  v0,0(v0)   {Texture_palNum}              lhu $v0,-5156($v0)
+ 212  lw  t2,88(sp)                                 lw $t1,88($sp)
+ 213  nop                                           nop
+ 214  sh  v0,2186(t2)                               sh $v0,2186($t1)
+ 215  lw  t1,64(sp)                                 lw $t0,64($sp)
+ 216  nop                                           nop
+ 217  slti  v0,t1,22                                slti $v0,$t0,22
+ 218  beqz  v0,c78 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x484> beqz $v0,.L800BD724
+ 219  sll  v0,a0,0x10                               sll $v0,$a0,0x10
+ 220  sra  v0,v0,0x10                               sra $v0,$v0,0x10
+ 221  bltz  v0,c78 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x484> bltz $v0,.L800BD724
+ 222  nop                                           nop
+ 223  bne  s4,v0,bec <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x3f8> bne $s4,$v0,.L800BD698
+ 224  addiu  a1,sp,32                               addiu $a1,$sp,32
+ 225  addiu  a2,sp,36                               addiu $a2,$sp,36
+ 226  lw  a0,144(sp)                                lw $a0,144($sp)
+ 227  lw  a3,140(sp)                                lw $a3,140($sp)
+ 228  lh  v0,2(v1)                                  lh $v0,2($v1)
+ 229  lh  v1,4(v1)                                  lh $v1,4($v1)
+ 230  addu  v0,s6,v0                                addu $v0,$s6,$v0
+ 231  addu  v1,s7,v1                                addu $v1,$s7,$v1
+ 232  sw  v0,32(sp)                                 sw $v0,32($sp)
+ 233  sw  v1,36(sp)                                 sw $v1,36($sp)
+ 234  jal  0 <CarIO_StartUp__Fv>   {CarIO_LicenseCheck__FiPiT1P8Car_tObji} jal func_800BD204
+ 235  sw  zero,16(sp)                               sw $zero,16($sp)
+ 236  lw  a2,72(sp)                                 lw $a2,72($sp)
+ 237  lw  a3,32(sp)                                 lw $a3,32($sp)
+ 238  lw  a1,36(sp)                                 lw $a1,36($sp)
+ 239  lw  v1,0(gp)   {CarIO_carPixMap}              lw $v1,4552($gp)
+ 240  lw  t2,80(sp)                                 lw $t1,80($sp)
+ 241  li  v0,-1                                     li $v0,-1
+ 242  sw  v0,20(sp)                                 sw $v0,20($sp)
+ 243  sw  v0,24(sp)                                 sw $v0,24($sp)
+ 244  addu  v1,v1,s2                                addu $v1,$v1,$s2
+ 245  sw  a1,16(sp)                                 sw $a1,16($sp)
+ 246  sw  v1,28(sp)                                 sw $v1,28($sp)
+ 247  lw  a1,0(t2)                                  lw $a1,0($t1)
+ 248  jal  0 <CarIO_StartUp__Fv>   {Texture_LoadPmx__FPcT0iiiiiP12Draw_tPixMap} jal func_800E0910
+ 249  move  a0,zero                                 move $a0,$zero
+ 250  lw  v0,0(gp)   {CarIO_carPixMap}              lw $v0,4552($gp)
+ 251  li  s0,1                                      li $s0,1
+ 252  addu  v0,s2,v0                                addu $v0,$s2,$v0
+ 253  j  c78 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x484>   {.text} j .L800BD724
+ 254  sh  s0,14(v0)                                 sh $s0,14($v0)
+ 255  lh  v0,6(v1)                                  lh $v0,6($v1)
+ 256  nop                                           nop
+ 257  bne  s4,v0,c78 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x484> bne $s4,$v0,.L800BD724
+ 258  addiu  a1,sp,40                               addiu $a1,$sp,40
+ 259  addiu  a2,sp,44                               addiu $a2,$sp,44
+ 260  lw  a0,144(sp)                                lw $a0,144($sp)
+ 261  lw  a3,140(sp)                                lw $a3,140($sp)
+ 262  lh  v0,8(v1)                                  lh $v0,8($v1)
+ 263  lh  v1,10(v1)                                 lh $v1,10($v1)
+ 264  addu  v0,s6,v0                                addu $v0,$s6,$v0
+ 265  addu  v1,s7,v1                                addu $v1,$s7,$v1
+ 266  sw  v0,40(sp)                                 sw $v0,40($sp)
+ 267  li  v0,1                                      li $v0,1
+ 268  sw  v1,44(sp)                                 sw $v1,44($sp)
+ 269  jal  0 <CarIO_StartUp__Fv>   {CarIO_LicenseCheck__FiPiT1P8Car_tObji} jal func_800BD204
+ 270  sw  v0,16(sp)                                 sw $v0,16($sp)
+ 271  lw  a2,72(sp)                                 lw $a2,72($sp)
+ 272  lw  a3,40(sp)                                 lw $a3,40($sp)
+ 273  lw  a1,44(sp)                                 lw $a1,44($sp)
+ 274  lw  v1,0(gp)   {CarIO_carPixMap}              lw $v1,4552($gp)
+ 275  lw  t1,84(sp)                                 lw $t0,84($sp)
+ 276  li  v0,-1                                     li $v0,-1
+ 277  sw  v0,20(sp)                                 sw $v0,20($sp)
+ 278  sw  v0,24(sp)                                 sw $v0,24($sp)
+ 279  addu  v1,v1,s2                                addu $v1,$v1,$s2
+ 280  sw  a1,16(sp)                                 sw $a1,16($sp)
+ 281  sw  v1,28(sp)                                 sw $v1,28($sp)
+ 282  lw  a1,0(t1)                                  lw $a1,0($t0)
+ 283  jal  0 <CarIO_StartUp__Fv>   {Texture_LoadPmx__FPcT0iiiiiP12Draw_tPixMap} jal func_800E0910
+ 284  move  a0,zero                                 move $a0,$zero
+ 285  li  s0,1                                      li $s0,1
+ 286  lw  v1,0(gp)   {CarIO_carPixMap}              lw $v1,4552($gp)
+ 287  li  v0,2                                      li $v0,2
+ 288  addu  v1,s2,v1                                addu $v1,$s2,$v1
+ 289  sh  v0,14(v1)                                 sh $v0,14($v1)
+ 290  bnez  s0,cb4 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x4c0> bnez $s0,.L800BD760
+ 291  li  v0,32                                     li $v0,32
+ 292  move  a0,zero                                 move $a0,$zero
+ 293  move  a1,s3                                   move $a1,$s3
+ 294  move  a3,s6                                   move $a3,$s6
+ 295  lw  a2,72(sp)                                 lw $a2,72($sp)
+ 296  lw  v1,0(gp)   {CarIO_carPixMap}              lw $v1,4552($gp)
+ 297  li  v0,-1                                     li $v0,-1
+ 298  sw  s7,16(sp)                                 sw $s7,16($sp)
+ 299  sw  v0,20(sp)                                 sw $v0,20($sp)
+ 300  sw  v0,24(sp)                                 sw $v0,24($sp)
+ 301  addu  v1,v1,s2                                addu $v1,$v1,$s2
+ 302  jal  0 <CarIO_StartUp__Fv>   {Texture_LoadPmx__FPcT0iiiiiP12Draw_tPixMap} jal func_800E0910
+ 303  sw  v1,28(sp)                                 sw $v1,28($sp)
+ 304  li  v0,32                                     li $v0,32
+ 305  bne  s4,v0,cd0 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x4dc> bne $s4,$v0,.L800BD77C
+ 306  li  a1,2                                      li $a1,2
+ 307  lw  a0,0(gp)   {CarIO_carPixMap}              lw $a0,4552($gp)
+ 308  nop                                           nop
+ 309  addu  a0,a0,s2                                addu $a0,$a0,$s2
+ 310  jal  0 <CarIO_StartUp__Fv>   {ChangeTPage__FPUsi} jal func_800BF240
+ 311  addiu  a0,a0,6                                addiu $a0,$a0,6
+ 312  lw  v1,0(gp)   {CarIO_carPixMap}              lw $v1,4552($gp)
+ 313  nop                                           nop
+ 314  addu  v1,s2,v1                                addu $v1,$s2,$v1
+ 315  lhu  v0,14(v1)                                lhu $v0,14($v1)
+ 316  nop                                           nop
+ 317  ori  v0,v0,0x80                               ori $v0,$v0,0x80
+ 318  sh  v0,14(v1)                                 sh $v0,14($v1)
+ 319  beqz  s1,f38 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x744> beqz $s1,.L800BD9E4
+ 320  nop                                           nop
+ 321  lw  t2,76(sp)                                 lw $t1,76($sp)
+ 322  lw  s0,68(sp)                                 lw $s0,68($sp)
+ 323  beqz  t2,d44 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x550> beqz $t1,.L800BD7F0
+ 324  nop                                           nop
+ 325  lw  t1,72(sp)                                 lw $t0,72($sp)
+ 326  nop                                           nop
+ 327  beqz  t1,d30 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x53c> beqz $t0,.L800BD7DC
+ 328  addiu  s0,t2,-1                               addiu $s0,$t1,-1
+ 329  sll  v0,s0,0x1                                sll $v0,$s0,0x1
+ 330  lw  t2,140(sp)                                lw $t1,140($sp)
+ 331  lw  t1,88(sp)                                 lw $t0,88($sp)
+ 332  addu  v0,t2,v0                                addu $v0,$t1,$v0
+ 333  lhu  v0,2186(v0)                              lhu $v0,2186($v0)
+ 334  nop                                           nop
+ 335  sh  v0,2186(t1)                               sh $v0,2186($t0)
+ 336  lw  t2,140(sp)                                lw $t1,140($sp)
+ 337  nop                                           nop
+ 338  lw  v0,2116(t2)                               lw $v0,2116($t1)
+ 339  nop                                           nop
+ 340  addu  s0,s0,v0                                addu $s0,$s0,$v0
+ 341  lw  a1,0(s8)                                  lw $a1,0($s8)
+ 342  lw  a0,136(sp)                                lw $a0,136($sp)
+ 343  jal  0 <CarIO_StartUp__Fv>   {locateshapez}   jal func_800EB8B8
+ 344  nop                                           nop
+ 345  move  s3,v0                                   move $s3,$v0
+ 346  beqz  s3,f38 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x744> beqz $s3,.L800BD9E4
+ 347  move  s1,zero                                 sll $v0,$s0,0x4
+ 348  sll  v1,s0,0x4                                lui $t1,0x8012
+ 349  lui  t2,0x0   {CarIO_licensePlate}            addiu $t1,$t1,-1092
+ 350  addiu  t2,t2,0   {CarIO_licensePlate}         lw $t0,64($sp)
+ 351  lw  v0,0(gp)   {CarIO_carPixMap}              lw $a0,4552($gp)
+ 352  lw  t1,64(sp)                                 sll $v1,$t0,0x1
+ 353  addu  v1,v1,v0                                addu $v1,$v1,$t0
+ 354  sll  v0,t1,0x1                                sll $v1,$v1,0x2
+ 355  addu  v0,v0,t1                                addu $v0,$v0,$a0
+ 356  sll  v0,v0,0x2                                lhu $a0,2($v0)
+ 357  addu  t0,v0,t2                                addu $v1,$v1,$t1
+ 358  lhu  v1,2(v1)                                 andi $v0,$a0,0x3f
+ 359  lhu  a0,0(t0)                                 sll $s0,$v0,0x4
+ 360  andi  v0,v1,0x3f                              srl $s5,$a0,0x6
+ 361  sll  s0,v0,0x4                                slti $v0,$t0,22
+ 362  slti  v0,t1,22                                lhu $a0,0($v1)
+ 363  beqz  v0,eb8 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x6c4> beqz $v0,.L800BD964
+ 364  srl  s5,v1,0x6                                move $s1,$zero
+ 365  sll  v0,a0,0x10                               sll $v0,$a0,0x10
+ 366  sra  v0,v0,0x10                               sra $v0,$v0,0x10
+ 367  bltz  v0,eb8 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x6c4> bltz $v0,.L800BD964
+ 368  nop                                           nop
+ 369  bne  s4,v0,e30 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x63c> bne $s4,$v0,.L800BD8DC
+ 370  addiu  a1,sp,48                               addiu $a1,$sp,48
+ 371  addiu  a2,sp,52                               addiu $a2,$sp,52
+ 372  lw  a0,144(sp)                                lw $a0,144($sp)
+ 373  lw  a3,140(sp)                                lw $a3,140($sp)
+ 374  lh  v0,2(t0)                                  lh $v0,2($v1)
+ 375  lh  v1,4(t0)                                  lh $v1,4($v1)
+ 376  addu  v0,s6,v0                                addu $v0,$s6,$v0
+ 377  addu  v1,s7,v1                                addu $v1,$s7,$v1
+ 378  sw  v0,48(sp)                                 sw $v0,48($sp)
+ 379  sw  v1,52(sp)                                 sw $v1,52($sp)
+ 380  jal  0 <CarIO_StartUp__Fv>   {CarIO_LicenseCheck__FiPiT1P8Car_tObji} jal func_800BD204
+ 381  sw  zero,16(sp)                               sw $zero,16($sp)
+ 382  lw  a3,48(sp)                                 lw $a3,48($sp)
+ 383  lw  v1,52(sp)                                 lw $v1,52($sp)
+ 384  lw  v0,0(gp)   {CarIO_carPixMap}              lw $v0,4552($gp)
+ 385  lw  t1,80(sp)                                 lw $t0,80($sp)
+ 386  move  a0,s1                                   move $a0,$s1
+ 387  sw  s0,20(sp)                                 sw $s0,20($sp)
+ 388  sw  s5,24(sp)                                 sw $s5,24($sp)
+ 389  addu  v0,v0,s2                                addu $v0,$v0,$s2
+ 390  sw  v1,16(sp)                                 sw $v1,16($sp)
+ 391  sw  v0,28(sp)                                 sw $v0,28($sp)
+ 392  lw  a1,0(t1)                                  lw $a1,0($t0)
+ 393  jal  0 <CarIO_StartUp__Fv>   {Texture_LoadPmx__FPcT0iiiiiP12Draw_tPixMap} jal func_800E0910
+ 394  li  a2,32                                     li $a2,32
+ 395  lw  v0,0(gp)   {CarIO_carPixMap}              lw $v0,4552($gp)
+ 396  li  s1,1                                      li $s1,1
+ 397  addu  v0,s2,v0                                addu $v0,$s2,$v0
+ 398  j  eb8 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x6c4>   {.text} j .L800BD964
+ 399  sh  s1,14(v0)                                 sh $s1,14($v0)
+ 400  lh  v0,6(t0)                                  lh $v0,6($v1)
+ 401  nop                                           nop
+ 402  bne  s4,v0,eb8 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x6c4> bne $s4,$v0,.L800BD964
+ 403  addiu  a1,sp,56                               addiu $a1,$sp,56
+ 404  addiu  a2,sp,60                               addiu $a2,$sp,60
+ 405  lw  a0,144(sp)                                lw $a0,144($sp)
+ 406  lw  a3,140(sp)                                lw $a3,140($sp)
+ 407  lh  v0,8(t0)                                  lh $v0,8($v1)
+ 408  lh  v1,10(t0)                                 lh $v1,10($v1)
+ 409  addu  v0,s6,v0                                addu $v0,$s6,$v0
+ 410  addu  v1,s7,v1                                addu $v1,$s7,$v1
+ 411  sw  v0,56(sp)                                 sw $v0,56($sp)
+ 412  li  v0,1                                      li $v0,1
+ 413  sw  v1,60(sp)                                 sw $v1,60($sp)
+ 414  jal  0 <CarIO_StartUp__Fv>   {CarIO_LicenseCheck__FiPiT1P8Car_tObji} jal func_800BD204
+ 415  sw  v0,16(sp)                                 sw $v0,16($sp)
+ 416  lw  a3,56(sp)                                 lw $a3,56($sp)
+ 417  lw  v1,60(sp)                                 lw $v1,60($sp)
+ 418  lw  v0,0(gp)   {CarIO_carPixMap}              lw $v0,4552($gp)
+ 419  lw  t2,84(sp)                                 lw $t1,84($sp)
+ 420  move  a0,zero                                 move $a0,$zero
+ 421  sw  s0,20(sp)                                 sw $s0,20($sp)
+ 422  sw  s5,24(sp)                                 sw $s5,24($sp)
+ 423  addu  v0,v0,s2                                addu $v0,$v0,$s2
+ 424  sw  v1,16(sp)                                 sw $v1,16($sp)
+ 425  sw  v0,28(sp)                                 sw $v0,28($sp)
+ 426  lw  a1,0(t2)                                  lw $a1,0($t1)
+ 427  jal  0 <CarIO_StartUp__Fv>   {Texture_LoadPmx__FPcT0iiiiiP12Draw_tPixMap} jal func_800E0910
+ 428  li  a2,32                                     li $a2,32
+ 429  li  s1,1                                      li $s1,1
+ 430  lw  v1,0(gp)   {CarIO_carPixMap}              lw $v1,4552($gp)
+ 431  li  v0,2                                      li $v0,2
+ 432  addu  v1,s2,v1                                addu $v1,$s2,$v1
+ 433  sh  v0,14(v1)                                 sh $v0,14($v1)
+ 434  bnez  s1,ef0 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x6fc> bnez $s1,.L800BD99C
+ 435  li  v0,32                                     li $v0,32
+ 436  move  a0,zero                                 move $a0,$zero
+ 437  move  a1,s3                                   move $a1,$s3
+ 438  li  a2,32                                     li $a2,32
+ 439  lw  v0,0(gp)   {CarIO_carPixMap}              lw $v0,4552($gp)
+ 440  move  a3,s6                                   move $a3,$s6
+ 441  sw  s7,16(sp)                                 sw $s7,16($sp)
+ 442  sw  s0,20(sp)                                 sw $s0,20($sp)
+ 443  sw  s5,24(sp)                                 sw $s5,24($sp)
+ 444  addu  v0,v0,s2                                addu $v0,$v0,$s2
+ 445  jal  0 <CarIO_StartUp__Fv>   {Texture_LoadPmx__FPcT0iiiiiP12Draw_tPixMap} jal func_800E0910
+ 446  sw  v0,28(sp)                                 sw $v0,28($sp)
+ 447  li  v0,32                                     li $v0,32
+ 448  bne  s4,v0,f0c <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x718> bne $s4,$v0,.L800BD9B8
+ 449  li  a1,2                                      li $a1,2
+ 450  lw  a0,0(gp)   {CarIO_carPixMap}              lw $a0,4552($gp)
+ 451  nop                                           nop
+ 452  addu  a0,a0,s2                                addu $a0,$a0,$s2
+ 453  jal  0 <CarIO_StartUp__Fv>   {ChangeTPage__FPUsi} jal func_800BF240
+ 454  addiu  a0,a0,6                                addiu $a0,$a0,6
+ 455  lw  t1,76(sp)                                 lw $t0,76($sp)
+ 456  nop                                           nop
+ 457  bnez  t1,f38 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x744> bnez $t0,.L800BD9E4
+ 458  nop                                           nop
+ 459  lw  v1,0(gp)   {CarIO_carPixMap}              lw $v1,4552($gp)
+ 460  nop                                           nop
+ 461  addu  v1,s2,v1                                addu $v1,$s2,$v1
+ 462  lhu  v0,14(v1)                                lhu $v0,14($v1)
+ 463  nop                                           nop
+ 464  ori  v0,v0,0x80                               ori $v0,$v0,0x80
+ 465  sh  v0,14(v1)                                 sh $v0,14($v1)
+ 466  addiu  s2,s2,16                               addiu $s2,$s2,16
+ 467  addiu  s8,s8,12                               addiu $s8,$s8,12
+ 468  addiu  s4,s4,1                                addiu $s4,$s4,1
+ 469  lw  t2,68(sp)                                 lw $t1,68($sp)
+ 470  lw  t1,88(sp)                                 lw $t0,88($sp)
+ 471  addiu  t2,t2,1                                addiu $t1,$t1,1
+ 472  addiu  t1,t1,2                                addiu $t0,$t0,2
+ 473  j  ab0 <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x2bc>   {.text} j .L800BD55C
+ 474  sw  t2,68(sp)                                 sw $t1,68($sp)
+ 475  lw  t2,144(sp)                                lw $t1,144($sp)
+ 476  nop                                           nop
+ 477  andi  v0,t2,0x80                              andi $v0,$t1,0x80
+ 478  beqz  v0,f7c <CarIO_ReadInCarTextureData__FPcP8Car_tObjii+0x788> beqz $v0,.L800BDA28
+ 479  nop                                           nop
+ 480  lw  t1,68(sp)                                 lw $t0,68($sp)
+ 481  nop                                           nop
+ 482  sw  t1,0(gp)   {CarIO_carPixMapCount}         sw $t0,4584($gp)
+ 483  lw  ra,132(sp)                                lw $ra,132($sp)
+ 484  lw  s8,128(sp)                                lw $s8,128($sp)
+ 485  lw  s7,124(sp)                                lw $s7,124($sp)
+ 486  lw  s6,120(sp)                                lw $s6,120($sp)
+ 487  lw  s5,116(sp)                                lw $s5,116($sp)
+ 488  lw  s4,112(sp)                                lw $s4,112($sp)
+ 489  lw  s3,108(sp)                                lw $s3,108($sp)
+ 490  lw  s2,104(sp)                                lw $s2,104($sp)
+ 491  lw  s1,100(sp)                                lw $s1,100($sp)
+ 492  lw  s0,96(sp)                                 lw $s0,96($sp)
+ 493  jr  ra                                        jr $ra
+ 494  addiu  sp,sp,136                               addiu $sp,$sp,136

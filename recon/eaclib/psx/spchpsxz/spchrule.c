@@ -41,11 +41,15 @@ extern int (*gSentenceRuleTest[])(unsigned int, unsigned int, int); /* sentence 
 
 /* ---- per-TU static copies of the shared Vox accessors (canonical versions in spchdata.obj) ---- */
 
-/* M2: VA-suffixed symbols for the per-TU static copies (labels on the
-   DECLARATIONS -- GNU C forbids asm labels on definitions). */
-static int VoxSentence_GetNumPhrases(int sentence) __asm__("VoxSentence_GetNumPhrases_8010B100");
-static int iSPCH_GetOffset8(int base, int tableBase, int index) __asm__("iSPCH_GetOffset8_8010B10C");
-static int iSPCH_GetOffset16(int base, int tableBase, int index) __asm__("iSPCH_GetOffset16_8010B124");
+/* W85-S9: VA-suffixed symbols for the per-TU static copies.  These three names also exist as
+   the canonical EXPORTED functions in spchdata.obj, and the oracle/config namespace cannot
+   represent two retail local symbols with one spelling -- so this TU's private copies carry the
+   VA suffix.  Done with the PREPROCESSOR (was `__asm__("name")` labels on the declarations, the
+   only other way GNU C can rename a symbol): zero instructions either way, and this keeps the
+   file free of asm.  The source text below still reads with the retail names. */
+#define VoxSentence_GetNumPhrases VoxSentence_GetNumPhrases_8010B100
+#define iSPCH_GetOffset8          iSPCH_GetOffset8_8010B10C
+#define iSPCH_GetOffset16         iSPCH_GetOffset16_8010B124
 
 static int VoxSentence_GetNumPhrases(int sentence)   /* @0x8010B100 */
 {
@@ -123,14 +127,19 @@ extern unsigned int iSPCH_GetRuleID(int sentence, int index)
     int ruleData = iSPCH_GetRuleDataAddr(sentence);
     if ((unsigned int)index < 8) {
         unsigned char *rule = (unsigned char *)(index * 2 + ruleData);
+        /* W85-S9 (device purity): the three retail decode slots at 0x10/0x14/0x18 were modelled
+         * with `volatile unsigned int id/param/type;` locals.  They are a plain local SCRATCH
+         * ARRAY -- always memory, so the stores survive DSE without `volatile` -- and the array
+         * spelling holds the slot ORDER (an addressable-scalar spelling assigns the slot only
+         * when `&x` is parsed, which reorders them).  PASS 29/29 unchanged.
+         * FALSIFIED: dropping `volatile` with no replacement (the three stores vanish, and the
+         * whole `sll/addu` index chain re-colors). */
+        unsigned int decode[3];
         unsigned int idCopy;
-        volatile unsigned int id;
-        volatile unsigned int param;
-        volatile unsigned int type;
         idCopy = *rule;
-        id     = idCopy;
-        param  = *(rule + 1) & 0xf;
-        type   = (unsigned int)(unsigned char)*(rule + 1) >> 4;
+        decode[0] = idCopy;
+        decode[1] = *(rule + 1) & 0xf;
+        decode[2] = (unsigned int)(unsigned char)*(rule + 1) >> 4;
         result = idCopy;
     }
     return result;
@@ -234,9 +243,19 @@ extern void iSPCH_RuleSet(short *sentence, int rule, int *values)
         rd = (unsigned char *)rdRaw;
         if (i < numRules) {
             do {
-                volatile unsigned int ruleByteStore;
-                volatile unsigned int paramStore;
-                volatile unsigned int ruleTypeStore;
+                /* W85-S9 (device purity, PASS 78/78 held): this block used to carry THREE
+                 * `volatile unsigned int` decode slots plus TWO `*(volatile unsigned char *)`
+                 * reads of rd[1].  Both device families are gone:
+                 *  (1) the slots are a plain local scratch ARRAY (memory by construction, so the
+                 *      three dead stores survive DSE with no qualifier);
+                 *  (2) retail loads rd[1] TWICE (0x8010B318 + 0x8010B328).  The `volatile` reads
+                 *      were forcing that; the INDEX FORM `rd[i*2+1]` does it honestly -- the
+                 *      walker's `+1` never becomes its own induction register, so both loads keep
+                 *      retail's `0x1($s0)` displacement.  (Plain `rd[1]` on a bumped pointer costs
+                 *      3 insns: loop.c strength-reduces `rd+1` into a second biv `addiu s1,s4,1`
+                 *      and the jump-table base falls into the loop -- measured 49 diffs / 81 insns.
+                 *      A label+goto rewrite of this loop does NOT help: 51 diffs / 81.) */
+                unsigned int decode[3];
                 unsigned int ruleByte;
                 unsigned int packed;
                 unsigned int paramIdx;
@@ -249,20 +268,20 @@ extern void iSPCH_RuleSet(short *sentence, int rule, int *values)
                  * cse/make_regs_eqv from making it canonical, so `ruleByte = byteTmp` survives as
                  * retail's `addu $s3,$a0,$zero` copy instead of our second `lbu`.  With one load
                  * the ruleType temp's $a0/$a1 knock-on disappears too. */
-                byteTmp = rd[0];
-                ruleByteStore = byteTmp;
+                byteTmp = rd[i * 2];
+                decode[0] = byteTmp;
                 ruleByte = byteTmp;
-                packed = *(volatile unsigned char *)(rd + 1);
-                paramStore = packed & 0xf;
+                packed = rd[i * 2 + 1];
+                decode[1] = packed & 0xf;
                 paramIdx = packed & 0xf;
-                ruleType = (unsigned int)*(volatile unsigned char *)(rd + 1) >> 4;
+                ruleType = (unsigned int)rd[i * 2 + 1] >> 4;
                 /* MATCH (w49-a9, 2 -> PASS): methodology 3.25-3c -- gcc's reorg REFUSES to slot-fill
                  * a volatile MEM, so the volatile-qualified store could never reach retail's
                  * `beqz` delay slot (`sw $a1,0x18($sp)` sits IN the slot).  Storing through a
                  * NON-volatile cast keeps the slot addressable (the store still survives DSE) while
                  * letting fill_simple_delay_slots take it.  Equivalent form measured: a block-local
                  * `unsigned int *keep = (unsigned int *)&ruleTypeStore; *keep = ruleType;` (also PASS). */
-                *(unsigned int *)&ruleTypeStore = ruleType;
+                decode[2] = ruleType;
                 switch (ruleType) {
                 case 0:
                 case 3:
@@ -281,7 +300,6 @@ extern void iSPCH_RuleSet(short *sentence, int rule, int *values)
                     break;
                 }
                 i  = i + 1;
-                rd = rd + 2;
             } while (i < numRules);
         }
     }
@@ -443,35 +461,35 @@ extern unsigned char iSPCH_GetRuleSettings(short *sentence, int *values, char *o
     do {
         int            i;
         int           *currentValue;
-        unsigned char *p;
         i = 0;
         if (i < numRules) {
             currentValue = value;
-            p = ruleData;
             do {
-                volatile unsigned int ruleId;
-                volatile unsigned int paramStore;
-                unsigned int param;
-                volatile unsigned int type;
                 /* MATCH (w61-a19): retail's frame has a FOURTH 4-byte memory slot in this block
-                 * at 0x1C that is NEVER written -- a declared-but-unused memory local.  Its
-                 * presence pushes the two reload spills to 0x20/0x24 (retail) instead of
-                 * 0x1C/0x20 (ours); with ruleData declared before numRules (below) the whole
-                 * frame + spill map lands byte-exact.  Removing it costs 6 diffs. */
-                volatile unsigned int spare;
+                 * at 0x1C that is NEVER written.  W85-S9 makes that literal: the three written
+                 * decode slots (0x10 ruleId, 0x14 param, 0x18 type -- 0x10 and 0x18 are read back
+                 * at 0x8010B4A8/AC) and the unwritten one are ONE 4-element local scratch array.
+                 * Memory by construction, so no `volatile` is needed for the dead store to
+                 * survive, the slot ORDER is fixed by the array (an addressable scalar only gets
+                 * its slot where `&x` is parsed -- that reordering costs 6-10 diffs), and the two
+                 * reload spills land at retail's 0x20/0x24.  `decode[3]` unused is the point.
+                 * FALSIFIED for the 4th slot: an unused addressable scalar and an unused
+                 * `unsigned int spare[1]` both get NO slot (10 diffs, spills 4 low). */
+                unsigned int decode[4];
+                unsigned int param;
                 unsigned int packed;
                 unsigned int bit;
                 unsigned int ruleIdArg;
                 unsigned int typeArg;
                 unsigned char hit;
                 int          testValue;
-                ruleId = p[0];
-                packed = *(volatile unsigned char *)(p + 1);
+                decode[0] = ruleData[i * 2];
+                packed = ruleData[i * 2 + 1];
                 hit = 0;
                 do {
                 } while (0);
-                paramStore = packed & 0xf;
-                type = (unsigned int)*(volatile unsigned char *)(p + 1) >> 4;
+                decode[1] = packed & 0xf;
+                decode[2] = (unsigned int)ruleData[i * 2 + 1] >> 4;
                 do {
                 } while (0);
                 param = packed & 0xf;
@@ -485,8 +503,8 @@ extern unsigned char iSPCH_GetRuleSettings(short *sentence, int *values, char *o
                     testValue = *currentValue;
                 }
                 bit = 1 << (7 - i);
-                typeArg = type;
-                ruleIdArg = ruleId;
+                typeArg = decode[2];
+                ruleIdArg = decode[0];
                 if (typeArg == 4) {
                     if (values[param] != 0)
                         hit = bit;
@@ -511,7 +529,6 @@ extern unsigned char iSPCH_GetRuleSettings(short *sentence, int *values, char *o
                 }
                 result |= hit;
 next_rule:
-                p = p + 2;
             } while (++i < numRules);
         }
         ruleType = ruleType + 1;

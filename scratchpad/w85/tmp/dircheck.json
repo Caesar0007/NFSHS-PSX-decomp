@@ -1,0 +1,19 @@
+{
+ "S0_nolaunder": [
+  ["    __asm__(\"\" : \"=r\"(r) : \"0\"(r));\n    return r;", "    return r;"]],
+ "S1_and_early": [
+  ["    int r;\n\n    if ((*(unsigned short *)(info + 0xe6) == 0) ||\n        (info[0x46] != 0xff)) {\n        r = 1;\n    } else {\n        r = 0;\n    }\n    __asm__(\"\" : \"=r\"(r) : \"0\"(r));\n    return r;",
+   "    if (*(unsigned short *)(info + 0xe6) != 0 && info[0x46] == 0xff)\n        return 0;\n    return 1;"]],
+ "S2_goto": [
+  ["    int r;\n\n    if ((*(unsigned short *)(info + 0xe6) == 0) ||\n        (info[0x46] != 0xff)) {\n        r = 1;\n    } else {\n        r = 0;\n    }\n    __asm__(\"\" : \"=r\"(r) : \"0\"(r));\n    return r;",
+   "    int r;\n\n    if (*(unsigned short *)(info + 0xe6) == 0) goto one;\n    if (info[0x46] != 0xff) goto one;\n    r = 0;\n    goto out;\none:\n    r = 1;\nout:\n    return r;"]],
+ "S3_two_returns": [
+  ["    int r;\n\n    if ((*(unsigned short *)(info + 0xe6) == 0) ||\n        (info[0x46] != 0xff)) {\n        r = 1;\n    } else {\n        r = 0;\n    }\n    __asm__(\"\" : \"=r\"(r) : \"0\"(r));\n    return r;",
+   "    if (*(unsigned short *)(info + 0xe6) == 0) return 1;\n    if (info[0x46] != 0xff) return 1;\n    return 0;"]],
+ "S4_nested_if": [
+  ["    int r;\n\n    if ((*(unsigned short *)(info + 0xe6) == 0) ||\n        (info[0x46] != 0xff)) {\n        r = 1;\n    } else {\n        r = 0;\n    }\n    __asm__(\"\" : \"=r\"(r) : \"0\"(r));\n    return r;",
+   "    if (*(unsigned short *)(info + 0xe6) != 0) {\n        if (info[0x46] == 0xff)\n            return 0;\n    }\n    return 1;"]],
+ "S5_named_ff": [
+  ["    int r;\n\n    if ((*(unsigned short *)(info + 0xe6) == 0) ||\n        (info[0x46] != 0xff)) {\n        r = 1;\n    } else {\n        r = 0;\n    }\n    __asm__(\"\" : \"=r\"(r) : \"0\"(r));\n    return r;",
+   "    int r;\n\n    r = 0xff;\n    if (*(unsigned short *)(info + 0xe6) == 0) goto one;\n    if (info[0x46] != r) goto one;\n    r = 0;\n    goto out;\none:\n    r = 1;\nout:\n    return r;"]]
+}

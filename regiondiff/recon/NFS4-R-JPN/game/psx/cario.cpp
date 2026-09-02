@@ -933,7 +933,6 @@ void CarIO_ReadInCarTextureData(char *shpfile,Car_tObj *carObj,int reload,int pl
   int vy;
   int carPixMapCount;
   int recolor_flag;
-  short plate0;   /* R-JPN delta carrier */
 
   recolor_flag = 8;
   carType = (carObj->render).currentCarType;
@@ -1291,6 +1290,7 @@ void CarIO_ReadInCarTextureData(char *shpfile,Car_tObj *carObj,int reload,int pl
     }
     if (shape != (shapetbl *)0x0) {
       int license;
+      short plate0;
 
       license = 0;
       /* R-JPN delta: non-negative plate-index guard (see the palette block). */
@@ -1359,17 +1359,30 @@ void CarIO_ReadInCarTextureData(char *shpfile,Car_tObj *carObj,int reload,int pl
         u_short clut;
         int cx;
         int cy;
+        short plate0;
 
+        /* R-JPN delta: retail guards the licence-plate arms with a
+           NON-NEGATIVE plate index -- `CarIO_licensePlate[carType][0]` is read
+           into a `short` local (the oracle's `lhu` + `sll/sra` pair is a HImode
+           pseudo, not a plain `lh` array read) and the arms only run when it is
+           >= 0.
+           MATCH (w85-m8, 228 -> REGION-PASS): plate0 is a BLOCK-SCOPE short in
+           THIS block and its read comes BEFORE the `clut` read.  Both halves are
+           needed and neither works alone (block scope alone 312, read-first with
+           a function-scope carrier 228).  Mechanism, from `-dg`: with one
+           function-scope carrier the licence-plate ROW BASE pseudo is the only
+           thing in the whole function that lands in $t0, which takes $t0 out of
+           the zero-use reload-scratch set and rotates the spill pool {t0,t1} ->
+           {t1,t2} for all 494 insns (~200 of the 228 diffs).  A fresh block
+           pseudo whose read precedes the clut chain gives sched1 retail's order
+           -- clut load first, row-base add as its delay-slot filler, plate0 load
+           deferred past cx/cy -- so the clut dies into $a0 before plate0 is
+           loaded, the row base takes $v1 like retail, and nothing occupies $t0. */
         license = 0;
+        plate0 = CarIO_licensePlate[carType][0];
         clut = CarIO_carPixMap[palIndex].clut;
         cx = (clut & 0x3f) << 4;
         cy = (int)(clut >> 6);
-        /* R-JPN delta: retail guards the licence-plate arms with a
-           NON-NEGATIVE plate index -- `CarIO_licensePlate[carType][0]` is read
-           into a `short` local BEFORE the recolour test (the oracle's
-           `lhu`+`sll/sra` pair is a HImode pseudo, not a plain `lh` array
-           read) and the arms only run when it is >= 0. */
-        plate0 = CarIO_licensePlate[carType][0];
         if (carType < 0x16 && plate0 >= 0) {
           if (i == plate0) {
             int license_vx;

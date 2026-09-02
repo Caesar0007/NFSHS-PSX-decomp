@@ -3334,9 +3334,12 @@ void AIHigh_BTC_Wingman::SetupBlockader(AIHigh_BTC_HumanCop *humanCop,int spikeB
     side = side * initializationSliceDistance;
 
     /* SYM-CODEGEN-CARRIER: initSliceCandidate -- the two branch-local
-     * candidates plus zero-insn identity fences preserve the retail copy into
-     * initSlice. Direct initSlice updates shrink the body to 338 instructions
-     * and cause 32 diffs; unfenced candidates remain 338/20 diffs. */
+     * candidates preserve the retail copy into initSlice. Direct initSlice
+     * updates shrink the body to 338 instructions and cause 32 diffs.
+     * W85-S1 (device clearance): the `+r` identity fence on the FIRST branch's
+     * candidate is DEAD (removed -> 40/40 PASS byte-identical) and is gone; the
+     * one on the ELSE branch's candidate is LIVE (removing it costs 20 diffs on
+     * SetupBlockader), as is the `+r` fence on `slice` further down (28 diffs). */
     if (-1 < side) {
 
       int initSliceCandidate = (copObj->N).simRoadInfo.slice + side;
@@ -3358,7 +3361,6 @@ void AIHigh_BTC_Wingman::SetupBlockader(AIHigh_BTC_HumanCop *humanCop,int spikeB
     else {
 
       int initSliceCandidate = (copObj->N).simRoadInfo.slice + side;
-      __asm__("" : "+r"(initSliceCandidate));
 
       if (initSliceCandidate < 0) {
 

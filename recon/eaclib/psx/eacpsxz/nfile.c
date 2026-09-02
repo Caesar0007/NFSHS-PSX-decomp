@@ -806,12 +806,19 @@ extern int FILE_completeop(unsigned int id)
     int result;
     result = 0;
     op = (FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30);
+    /* W85-S7 DEVICE PURITY (2026-09-02): the volatile view on `op->status` was audited site by
+     * site against the source-only gate.  FILE_completeop's SECOND read (`if (op->status != 1)`,
+     * just below) needed no volatile and is now plain -- whole TU re-gated 27/27 PASS.  The
+     * remaining FOUR volatile status reads in this TU are SEMANTIC and stay: `op->status` is
+     * written by the IRQ/DMA completion path while these functions poll it, and each one is
+     * oracle-proven (dropping it regresses: FILE_cancelop 2, FILE_waitop 1, THIS first read 13,
+     * iFILE_CommandCompleteCallback 20; dropping all five = 23/27 PASS). */
     st = *(volatile int *)&op->status;
     id ^= st;
     id ^= st;
     if (id != raw)
         id = raw;
-    if (*(volatile int *)&op->status != 1) {
+    if (op->status != 1) {
     } else {                                    /* op finished */
         int type = (op->id >> 0x14) & 0xF;  /* op type nibble */
         switch (type) {

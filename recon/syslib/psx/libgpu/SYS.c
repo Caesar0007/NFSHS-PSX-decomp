@@ -386,20 +386,20 @@ extern int ResetGraph(int mode)
          * v0/v1 allocation exactly.  A direct expression reached 20 diffs and
          * ordinary int/byte comma-staging was neutral or count-worse. */
         {
-            int st0 = (int)*(volatile char *)graphState << 2;
+            int st0 = (int)*(char *)graphState << 2;
             u_short v;
             int st1;
 
-            *(volatile u_char *)(graphState + 1) = 1;
+            *(u_char *)(graphState + 1) = 1;
             v = *(u_short *)((char *)_vmode_w + st0);
-            st1 = (int)*(volatile char *)graphState << 2;
+            st1 = (int)*(char *)graphState << 2;
             fillValue = -1;
             g->screenW = v;
             g->screenH = *(u_short *)((char *)_vmode_h + st1);
         }
         _memset((char *)clearEnv, fillValue, 0x5c);
         _memset((char *)graphState + 0x6c, -1, 0x14);
-        return *(volatile u_char *)graphState;
+        return *(u_char *)graphState;
     }
     if (GEnv.debug >= 2)
         GPU_printf("ResetGraph(%d)...\n", mode);   /* @0x80056D30 */
@@ -1996,7 +1996,7 @@ extern int _gpu_que_push(QueFunc func, u_long *arg, int n, int extra)
     }
     DMACallback(2, (int)_gpu_que_drain);         /* (re)attach drain to channel-2 interrupt */
     if (n != 0) {
-        volatile u_long *pbase = (volatile u_long *)((u_char *)_que.shared + 12);
+        u_long *pbase = (u_long *)((u_char *)_que.shared + 12);
         int i = 0;
         u_long *src = arg;
         while (i < n / 4) {

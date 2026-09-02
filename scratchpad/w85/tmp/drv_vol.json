@@ -1,0 +1,7 @@
+{
+ "nReg_only":   [["    volatile unsigned char nReg;", "    unsigned char nReg;"]],
+ "result_only": [["    volatile unsigned char result[8];", "    unsigned char result[8];"]],
+ "q_only":      [["        volatile unsigned char *q = &result[i];", "        unsigned char *q = &result[i];"]],
+ "result_and_q":[["    volatile unsigned char result[8];", "    unsigned char result[8];"],
+                 ["        volatile unsigned char *q = &result[i];", "        unsigned char *q = &result[i];"]]
+}

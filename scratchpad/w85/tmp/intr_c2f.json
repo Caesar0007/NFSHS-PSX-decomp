@@ -1,0 +1,20 @@
+{
+ "F1_early_1in": [
+  ["            register intrEnv_t *c2 __asm__(\"$6\");\n            __asm__(\"\" : \"=r\"(c2) : \"0\"(ctl));",
+   "            intrEnv_t *c2;\n            __asm__(\"\" : \"=&r\"(c2) : \"r\"(ctl));"]],
+ "F2_early_2in": [
+  ["            register intrEnv_t *c2 __asm__(\"$6\");\n            __asm__(\"\" : \"=r\"(c2) : \"0\"(ctl));",
+   "            intrEnv_t *c2;\n            __asm__(\"\" : \"=&r\"(c2) : \"r\"(ctl), \"r\"(idx));"]],
+ "F3_early_3in": [
+  ["            register intrEnv_t *c2 __asm__(\"$6\");\n            __asm__(\"\" : \"=r\"(c2) : \"0\"(ctl));",
+   "            intrEnv_t *c2;\n            __asm__(\"\" : \"=&r\"(c2) : \"r\"(ctl), \"r\"(idx), \"r\"(handler));"]],
+ "F4_early_4in": [
+  ["            register intrEnv_t *c2 __asm__(\"$6\");\n            __asm__(\"\" : \"=r\"(c2) : \"0\"(ctl));",
+   "            intrEnv_t *c2;\n            __asm__(\"\" : \"=&r\"(c2) : \"r\"(ctl), \"r\"(idx), \"r\"(handler), \"r\"(nNewMask));"]],
+ "F5_early_2in_dupctl": [
+  ["            register intrEnv_t *c2 __asm__(\"$6\");\n            __asm__(\"\" : \"=r\"(c2) : \"0\"(ctl));",
+   "            intrEnv_t *c2;\n            __asm__(\"\" : \"=&r\"(c2) : \"r\"(ctl), \"r\"(ctl));"]],
+ "F6_early_tied": [
+  ["            register intrEnv_t *c2 __asm__(\"$6\");\n            __asm__(\"\" : \"=r\"(c2) : \"0\"(ctl));",
+   "            intrEnv_t *c2;\n            __asm__(\"\" : \"=&r\"(c2) : \"r\"(ctl), \"r\"(idx), \"r\"(handler), \"r\"(nMask));"]]
+}

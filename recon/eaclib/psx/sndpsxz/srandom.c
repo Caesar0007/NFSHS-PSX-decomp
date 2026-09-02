@@ -3,6 +3,13 @@
  *   1 fn @0x8010BE80.  iSNDrandom -- a 160-bit additive lagged-Fibonacci PRNG (5 state words + carry into
  *   sndseed); returns the accumulated seed.  Ghidra nfs4-f.exe.c (srandom) + IDA (returns int; Ghidra void).
  */
+/* W85-S8 VOLATILE AUDIT (2026-09-02): the `volatile` qualifiers on 16 (the RNG state pointer)
+ * were REMOVED -- plain main-RAM driver state, not MMIO and not IRQ-mutated; removal is
+ * gate-neutral (whole-TU verify_asm/tugate PASS before and after).  Every REMAINING
+ * `volatile` in this file was measured individually or as a group and is load-bearing
+ * (MMIO, or state the oracle provably re-reads) -- do not strip them.  Receipt:
+ * scratchpad/w85/S8_receipt.md. */
+
 
 extern unsigned int sndseed[6];
 #define SNDSEED(i) state[(i)]
@@ -13,7 +20,7 @@ extern int iSNDrandom(void);   /* @0x8010BE80 */
 /* iSNDrandom @0x8010BE80 : step the additive generator (with carry propagation) and return the new seed. */
 extern int iSNDrandom(void)
 {
-    volatile unsigned int *state;
+    unsigned int *state;
     unsigned int sum;
     unsigned int old1, old2, old3, old4, old5;
     unsigned int carry = 0;

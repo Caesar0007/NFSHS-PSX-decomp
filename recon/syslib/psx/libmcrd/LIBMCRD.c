@@ -1376,7 +1376,11 @@ extern long MemCardGetDirentry(long chan, char *name, DIRENTRY *dir,
     __asm__("" : : "r"(dir), "r"(dir));
     mcp = &mc;
     local.files = files;
-    offset = *(volatile long *)&ofs;
+    /* W85-M2: the former `*(volatile long *)&ofs` re-read here was a DEAD
+     * codegen crutch -- `ofs` is a plain parameter, not IRQ/DMA-shared state,
+     * and dropping the qualifier is diff-INERT (6 -> 6, whole TU 24/26 PASS
+     * unchanged).  Removed under the W85 device sweep; do not re-add. */
+    offset = ofs;
 
     if (mcp->cmd != 0) {
         printf("Access Denied. : system busy\n");
@@ -1862,7 +1866,21 @@ extern long MemCardCreateFile(long chan, char *file, long blocks)
      *      the RMW -- stop_search_p wall: the backward scan now dies before reaching either
      *      pinned set, the slot stays empty, and gas produces retail's macro split.
      * The pins carry values the ABI puts in those registers at the call anyway (a0/a1 = the
-     * open() args); no allocation is being forced that the call itself does not force. */
+     * open() args); no allocation is being forced that the call itself does not force.
+     * 🔑 W85-M2 -- THE PIN-FREE CELL IS NOW AT **FAIL 2**, NOT 4 (full table +
+     * mechanism in scratchpad/w85/M2_receipt.md sec.4).  Replace the two pins with
+     *   char *dn = devname;  long m1 = 1;
+     *   __asm__("" : "=r"(dn) : "0"(dn));   __asm__("" : "=r"(m1) : "0"(m1));
+     *   <the wall below, unchanged>
+     *   { long c = base[3]; _mc_present |= 1 << c; __asm__("" : : "r"(c)); }
+     * and everything becomes retail-exact -- both args early, the gas `$at`-macro
+     * split in the `jal open` slot, and the retail $v0/$v1 RMW colouring -- EXCEPT one
+     * adjacent sched swap: ours `lw $a2,0xC($s2); li $v0,1`, retail `li $v0,1;
+     * lw $a2,0xC($s2)`.  The IDENTITY (copy) form of the two fences is load-bearing (a
+     * read-only fence leaves `li $a1,1` at the call to be stolen: 14); the chan ref-bump
+     * is what fixes the colouring, and naming the constant or the loaded _mc_present
+     * instead flips it back (12) -- 60+ shapes priced in the receipt.  Land that one
+     * sched swap and this function is a PIN-FREE PASS. */
     {
     register char *dn __asm__("$4") = devname;
     register long  m1 __asm__("$5") = 1;
@@ -2233,7 +2251,10 @@ extern long MemCardDeleteFile(long chan, char *file)
         if (rslt != 2)
             break;
         retry = retry + 1;
-        __asm__("" : : "r"(retry));
+        /* W85-M2: a read-only `"r"(retry)` fence used to sit here.  Priced by
+         * deletion: MemCardDeleteFile stays PASS (111/111), whole TU unchanged
+         * -- a DEAD device, removed.  (Its CreateFile sibling at the analogous
+         * site is NOT dead: removing that one costs 26 diffs.) */
         if (retry >= 4)
             break;
     }

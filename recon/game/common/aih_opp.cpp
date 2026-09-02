@@ -314,17 +314,30 @@ void AIHigh_Opponent::CheckForWipeOut()
            - __builtin_abs(*(int *)((char *)carObj_h + 1380)) inlined at the compare
              site 19 @121 (re-confirms W71 inline-the-abs-load falsification).
          Probes: scratchpad/w75/A9_v5.py, A9_v6.py; dumps scratch/rtl/aih_opp.i.{sched,sched2}. */
-      /* W76-A1 2026-08-24 -- PASS 120/120, source-level only.  The W75 scheduler
-         trace named the last hinge correctly.  A pinned $a1 split constant puts
-         its `ori 21844` in the list-element load delay slot.  The retail $v0/$v1
-         ownership is then fixed at the two independent field loads, and one
-         three-instruction inline sequence preserves retail's load-delay-safe
-         `lw field1380; sll carIndex; addu tableBase` order.  This sequence replaces
-         the same three compiler instructions; it adds no code and there is no
-         post-compilation rewrite.  Its hlai input adds one allocator reference, so
-         the former zero-insn hlai operand above is deliberately removed to preserve
-         the proven $t4/$t5 priority ranking.  Detailed verify_asm and slotcheck pass. */
-      /* ==== */
+      /* W76-A1 2026-08-24 -- SUPERSEDED BY W85-S1, kept for the mechanism.  It reached
+         PASS 120/120 with a `register int speedLimit asm("$5")` + `register int carIndex
+         asm("$2")` + `register int field1380 asm("$3")` triple, an `__asm__("ori
+         %0,%0,21844")` and a three-instruction `__asm__("lw/sll/addu")` block. */
+      /* ==== W85-S1 2026-09-02 -- SAME PASS 120/120 WITH ALL FIVE DEVICES GONE, plain C.
+         The three jobs those devices did are each reachable from the source:
+           (1) the $a1 SPLIT CONSTANT is just `0xd0000` then `| 0x5554` -- two
+               independently schedulable insns.  The OR must share the existing zero-insn
+               `do{}while(0)` with the list-element load so both stay in ONE basic block;
+               only then can the `ori` reach that load's delay slot (outside it: a nop
+               appears and the ori sinks below the field loads, 5 diffs @121).
+           (2) the deleted asm block's `"r"(hlai)` operand was a +1 REG_N_REFS step (flow.c
+               weights a ref by 1+loop_depth) on the highLevelAIObjs base -- reproduced by
+               putting ONLY THE ADDRESS ARITHMETIC in its own `do{}while(0)`.  The DEREF
+               must stay outside it, else the phony block ends before `lw v0,0(v0)` can be
+               scheduled after the abs (exactly 2 diffs).
+           (3) the $v0/$v1 ownership of the two field loads follows from a NAMED
+               `absField` computed AFTER the address arithmetic and BEFORE the deref;
+               `__builtin_abs(field1380)` inlined at the compare keeps the wrong coloring.
+         Ladder, every rung re-gated: naive plain C 26 -> named absField 16 -> address in
+         a phony loop 2 -> abs before the deref PASS.  The three surviving zero-insn
+         `__asm__("")` REF-STEP fences below were each probed for removal this wave and
+         are LIVE (fence1 38, fence2 38, fence3 10, all three 46) -- they carry the
+         $a2/$a3/$t0..$t3 band, which this rewrite does not touch. ==== */
       /* ---- W62-A10 (51 diffs, ours 121 / oracle 120) -- SUPERSEDED by the block above;
          kept for its falsification list.  The residual is now ONE
          NAMED gcc question, not a spelling search.  NEW MEASUREMENTS this session
@@ -402,7 +415,7 @@ void AIHigh_Opponent::CheckForWipeOut()
            movable clears the budget with the loop unchanged. */
         for (; hLoop < (numRacers = Cars_gNumHumanRaceCars); hLoop = hLoop + 1) {   /* 0x80063450 */
           Car_tObj    *thisPlayerObj;
-          register int speedLimit asm("$5");
+          int speedLimit;
           /* 🔴 W72-A11: the do{}while(0) is a ZERO-INSN REF DIAL, not a stray brace.
              flow.c weights a reference by 1 + loop_depth, so wrapping this ONE use lifts
              it 2 -> 3 = +1 ref on the loop.c-hoisted Cars_gHumanRaceCarList BASE pseudo
@@ -411,25 +424,36 @@ void AIHigh_Opponent::CheckForWipeOut()
              scheduler.  It is the only zero-insn way to add an IN-LOOP ref here: every
              in-loop asm in this loop costs +2 insns (measured 4x -- the barrier breaks
              both branch delay-slot fills).  Unwrapping it costs ~40 diffs. */
+          /* W85-S1: the pre-loop constant is SPLIT in the source (`0xd0000` then
+             `| 0x5554`) so the `ori` half is a separate insn the scheduler can drop into
+             the list-element load's delay slot -- retail's `lui a1,0xD; lw a0,0(a2);
+             ori a1,a1,0x5554`.  The OR shares the existing zero-insn `do{}while(0)` so it
+             stays in the same basic block as that load.  Replaces a `register int
+             speedLimit asm("$5")` pin + an `__asm__("ori %0,%0,21844")`. */
           speedLimit = 0xd0000;
-          do { thisPlayerObj = Cars_gHumanRaceCarList[hLoop]; } while (0);  /* 0x8006345C */
-          __asm__("ori %0,%0,21844" : "+r"(speedLimit));
-          register int carIndex asm("$2") =
-              *(int *)((char *)thisPlayerObj + 596);
-          register int field1380 asm("$3");
-          __asm__("lw %0,1380(%2)\n\t"
-                  "sll %1,%1,2\n\t"
-                  "addu %1,%1,%3"
-                  : "=r"(field1380), "+r"(carIndex)
-                  : "r"(thisPlayerObj), "r"(hlai)); /* 0x80063468 */
-          AIHigh_Player *thisPlayer = *(AIHigh_Player **)carIndex; /* carIndex, 0x80063464-84 */
+          do { thisPlayerObj = Cars_gHumanRaceCarList[hLoop];
+               speedLimit = speedLimit | 0x5554; } while (0);  /* 0x8006345C */
+          int carIndex = *(int *)((char *)thisPlayerObj + 596);
+          int field1380 = *(int *)((char *)thisPlayerObj + 1380);
+          /* W85-S1: the ADDRESS arithmetic (not the load) sits in its own zero-insn
+             `do{}while(0)`.  flow.c weights a reference by 1+loop_depth, so this is the
+             +1 REG_N_REFS on the highLevelAIObjs base that lifts it over oppFines/oppLevel
+             into retail's $t5 (it replaces the `"r"(hlai)` operand of the deleted asm
+             block).  The DEREF must stay OUTSIDE, or the phony block ends before
+             `lw v0,0(v0)` can be scheduled after the abs (measured: 2 diffs).
+             Replaces `register int carIndex asm("$2")` + `register int field1380 asm("$3")`
+             + a 3-instruction `__asm__("lw/sll/addu")` block. */
+          int slotAddr;
+          do { slotAddr = (carIndex << 2) + (int)hlai; } while (0);
+          int absField = __builtin_abs(field1380);
+          AIHigh_Player *thisPlayer = *(AIHigh_Player **)slotAddr; /* 0x80063464-84 */
           int          playFines    = *(int *)((char *)thisPlayerObj + 932);   /* SYM REG $3=$v1, 0x80063488 */
           /* SYM-CODEGEN-CARRIER: state -- naming the preloaded state keeps its
              load ahead of the branch and avoids two load-delay nops.  Reading
              it only in the condition emits 122 instructions and four ordered
              diffs. */
           int          state        = *(int *)((char *)thisPlayer + 148);      /* 0x8006348C */
-          if (speedLimit < __builtin_abs(field1380)) { /* 0x80063480/90: permuter-found
+          if (speedLimit < absField) { /* 0x80063480/90: permuter-found
                                             double-roll -- oracle RE-DERIVES the ternary at the compare site
                                             instead of reusing absField1380 (740 vs 1015 base permuter score) */
             if (state < 2 && !(oppLevel < 3)) {                                /* 0x80063494-A0: skips the fines check */

@@ -57,8 +57,16 @@ extern int iSPCH_GetOffset16(int base, int tableBase, int index)
     return base + ((int)*(unsigned short *)(tableBase + index * 2) << 2);
 }
 
-/* Tool-only co-equal labels for the two duplicated retail names. These emit
- * no code and preserve the natural exported identifiers used by spchpick.c. */
+/* Tool-only co-equal labels for the two duplicated retail names. These emit no code and preserve
+ * the natural exported identifiers used by spchpick.c.
+ * W85-S9 (device purity) -- KEPT, with both non-asm alternatives falsified on this toolchain:
+ *   - `__attribute__((alias("...")))` on the VA-suffixed name, both `extern` and plain: ccpsx
+ *     cc1 (gcc-2.8.0) SILENTLY IGNORES it -- no diagnostic, and nm shows the alias symbols are
+ *     simply absent, so the gate drops 8/8 -> 6/6 (the two VA-suffixed oracles lose their symbol);
+ *   - a `#define` rename cannot serve: the VA-suffixed spelling must be an ADDITIONAL symbol, not
+ *     a rename, because spchpick.c calls these two by their plain exported names.
+ * This block emits ZERO instructions (a `.globl` + a symbol assignment) -- it is linkage
+ * plumbing for the oracle namespace, not a codegen device. */
 __asm__(".globl VoxEvent_GetFilterLengthFlag_8010073C\n"
         "VoxEvent_GetFilterLengthFlag_8010073C = VoxEvent_GetFilterLengthFlag\n"
         ".globl iSPCH_GetOffset16_80100760\n"

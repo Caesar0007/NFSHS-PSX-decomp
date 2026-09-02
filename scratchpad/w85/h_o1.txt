@@ -1,0 +1,5 @@
+return_one:
+  return 1;
+return_zero:
+  return 0;
+}

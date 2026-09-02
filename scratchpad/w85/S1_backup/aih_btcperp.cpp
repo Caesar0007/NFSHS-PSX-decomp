@@ -1,0 +1,1931 @@
+/* game/common/aih_btcperp.cpp -- RECONSTRUCTED (AI state-machine hierarchy; C++ TU)
+ *   52 fns across 11 classes (AIState_Base + Normal/NonActive/Idle/Chase/Offroad/Purgatory/
+ *   RovingTraffic/Donuts/GotoSlice/Cruise) + 3 free AIState_StartUp/Restart/CleanUp.
+ *   Composition-modeled inheritance (_base_ members); manual _vf vtable dispatch (8-byte
+ *   __vtbl_ptr_type entries); deleting dtors. Each ctor/dtor installs AIState_<C>_vtable.
+ *   Faithful C++ (option A). NOT original source; SYM-faithful, recompilable. vs disasm-v2.
+ */
+#include "../../lib/nfs4_new.h"
+#include "aih_btcperp_types.h"
+#include "aih_btcperp_externs.h"
+
+extern int AI_elapsedTime;   /* H21: ai.cpp @0x8013C554 (not in this TU's externs) */
+
+#define WRAP_SLICE(a,b) (((a) >= 0) \
+    ? ((((b) + (a)) >= gNumSlices) ? ((b) + (a)) - gNumSlices : ((b) + (a))) \
+    : ((((b) + (a)) < 0) ? ((b) + (a)) + gNumSlices : ((b) + (a))))
+
+struct SpeakerVirtualDispatch {
+  char data[76];
+  virtual int slot0(Car_tObj *carObj);
+  virtual int slot1();
+  virtual int slot2();
+  virtual int slot3();
+  virtual int slot4();
+  virtual int slot5(Car_tObj *carObj);
+  virtual int slot6();
+  virtual int slot7();
+  virtual int slot8();
+  virtual int slot9();
+  virtual int slot10();
+  virtual int slot11();
+  virtual int slot12();
+  virtual int slot13();
+  virtual int slot14();
+  virtual int slot15();
+};
+
+/* Retail aih_btcperp.obj owns this vague-linkage NonActive vtable copy. */
+extern __vtbl_ptr_type D_80055000[];
+
+/* The inline constructor shape is corroborated by the NFSU2 mobile twin and
+   the independently matched aih_btccop.cpp AIState_BTCInactive idiom. */
+struct AIState_BTCInactive : public AIState_Base {
+  AIState_BTCInactive(Car_tObj *carObj) : AIState_Base(carObj) {
+    coorddef trafficOffset;
+
+    _vf = (__vtbl_ptr_type (*)[4])D_80055000;
+    memset((u_char *)&trafficOffset,0,12);
+    trafficOffset.y = carObj->carIndex * 0xa0000;
+    Newton_SetInitialSlicePositionOrientationEtc(
+        &this->carObj_->N,0,&trafficOffset,1);
+    this->carObj_->N.active = 0;
+  }
+};
+
+/* ---- aistate.obj-owned globals (.bss zero) ---- */
+u_char       strategyChart[5][3] = { 4u, 4u, 4u, 0, 0, 0, 1u, 0, 1u, 1u, 1u, 1u, 2u, 2u, 2u };   /* @0x8010ce7c */
+int          AIHigh_BTC_uTurnProb1000Skills[3] = { 3, 4, 5 };   /* @0x8010ce8c */
+
+
+/* ---- ReleaseCops__15AIHigh_BTC_Perp  AIHigh_BTC_Perp::ReleaseCops  [AIH_BTCPERP.CPP:63-75] SLD-VERIFIED ---- */
+
+void AIHigh_BTC_Perp::ReleaseCops()
+
+
+
+{
+  int carLoop;
+
+  Car_tObj *otherCarObj;
+
+
+
+  carLoop = 0;
+  while (true) {
+
+    if (Cars_gNumCars <= carLoop) {
+      break;
+    }
+
+    otherCarObj = Cars_gList[carLoop];
+
+    if (((otherCarObj->carFlags & 0x200U) != 0) && ((otherCarObj->N).active != '\0')) {
+
+      ((AIHigh_BTC_HumanCop *)highLevelAIObjs[otherCarObj->carIndex])->ReleaseAndStartChase(this);
+
+    }
+
+    carLoop = carLoop + 1;
+
+  }
+
+  (this->carObj_)->forceNoSimOptz = 0;
+
+  return;
+
+}
+
+
+
+
+
+
+
+
+/* ---- HandleCops__15AIHigh_BTC_Perp  AIHigh_BTC_Perp::HandleCops  [AIH_BTCPERP.CPP:82-86] SLD-VERIFIED ---- */
+
+void AIHigh_BTC_Perp::HandleCops()
+
+
+
+{
+
+  this->HandlePullOver();
+
+  return;
+
+}
+
+
+
+
+
+
+
+
+/* ---- IsFalseArrest__15AIHigh_BTC_Perp  AIHigh_BTC_Perp::IsFalseArrest  [AIH_BTCPERP.CPP:93-126] SLD-VERIFIED ---- */
+
+int AIHigh_BTC_Perp::IsFalseArrest()
+
+
+
+{
+  /* SYM whole-function rewrite (w22-a13): SYM @0x8005f798 names ONLY randNum1000(REG v0),
+   * carLoop(REG s5), cop(REG a1), xDot(REG s2), zDot(REG s1), and carCopVector (AUTO
+   * coorddef, sp+0x10/14/18) -- NO iVar1..iVar5/delta[3] temps exist in the real source.
+   * xDot uses incremental accumulation while zDot remains one expression: this gives the
+   * closest allocator shape found (6 detailed diffs, down from 11). Per-term iVarN temps
+   * still force a substantially worse combine-afterward shape.
+   * w54-a12 SEALED (6 -> PASS 136/136). Three receipts, all needed (each removal re-fails):
+   *  (1) xDot's 2nd/3rd terms are NAMED temps (dotTerm/dotTerm2) issued BEFORE the two
+   *      accumulate statements, so the term-2 value is live across the term-3 call ->
+   *      retail's `addu s0,v0,zero` copy into a callee-saved reg lands in that jal's
+   *      delay slot and `addu s2,s2,s0` sits AFTER the call.
+   *  (2) a VOID FENCE (`__asm__("" : : "i"(0))`, 0 insns, implicitly volatile = scheduling
+   *      barrier -- catalog 05H/w48-a1) before the two `xDot +=` statements pins them
+   *      below the term-3 call; without it sched1/reorg hoists `xDot += dotTerm` into the
+   *      call's delay slot and we come out 1 insn short.
+   *  (3) two more void fences at the HEADS of the `if (xDot < 0)` test and of the join
+   *      block after it -- they defeat reorg's eager-steal into the `bgez`/`negu` delay
+   *      slots (retail leaves `nop` there). Do NOT "simplify" these away. */
+  int randNum1000;
+
+  int carLoop;
+
+  Car_tObj *cop;
+
+  int xDot;
+
+  int zDot;
+
+  /* SYM-CODEGEN-CARRIER: dotTerm -- removing this named second dot-product
+     term loses the retail callee-saved lifetime across the third call. */
+  int dotTerm;
+
+  /* SYM-CODEGEN-CARRIER: dotTerm2 -- the separately born third term is
+     required with `dotTerm` for the retail post-call accumulation order. */
+  int dotTerm2;
+
+  coorddef carCopVector;
+
+
+
+  randtemp = fastRandom * randSeed;
+
+  fastRandom = randtemp & 0xffff;
+
+  randNum1000 = (randtemp >> 8 & 0xffff) * 1000 >> 0x10;
+
+  if ((((this->carObj_)->carFlags & 4U) == 0) &&
+
+    (0x3d3 < randNum1000)) {
+
+    carLoop = 0;
+    while (true) {
+
+      if (Cars_gNumCars <= carLoop) {
+        break;
+      }
+
+      cop = Cars_gList[carLoop];
+
+      if ((cop->carFlags & 0x200U) != 0) {
+
+        carCopVector.x = (cop->N).position.x - ((this->carObj_)->N).position.x;
+
+        carCopVector.y = (cop->N).position.y -
+
+                ((this->carObj_)->N).position.y;
+
+        carCopVector.z = (cop->N).position.z -
+
+                ((this->carObj_)->N).position.z;
+
+        xDot = fixedmult(carCopVector.x,((this->carObj_)->N).orientMat.m[0]);
+
+        dotTerm = fixedmult(carCopVector.y,((this->carObj_)->N).orientMat.m[1]);
+
+        dotTerm2 = fixedmult(carCopVector.z,((this->carObj_)->N).orientMat.m[2]);
+
+        __asm__("" : : "i"(0));
+
+        xDot += dotTerm;
+
+        xDot += dotTerm2;
+
+        zDot = fixedmult(carCopVector.x,((this->carObj_)->N).orientMat.m[6]) +
+
+               fixedmult(carCopVector.y,((this->carObj_)->N).orientMat.m[7]) +
+
+               fixedmult(carCopVector.z,((this->carObj_)->N).orientMat.m[8]);
+
+        __asm__("" : : "i"(0));
+
+        if (xDot < 0) {
+
+          xDot = -xDot;
+
+        }
+
+        __asm__("" : : "i"(0));
+
+        if (((0x30000 < xDot) || (0x80000 < zDot)) || (zDot < 0)) {
+
+          AudioClc_HonkHorn(this->carObj_,2,0x80,0x20);
+
+          return 1;
+
+        }
+
+      }
+
+      carLoop = carLoop + 1;
+
+    }
+
+  }
+
+  return 0;
+
+}
+
+
+
+
+
+
+
+
+/* ---- CheckForControlsPressed__15AIHigh_BTC_Perp  AIHigh_BTC_Perp::CheckForControlsPressed  [AIH_BTCPERP.CPP:130-147] SLD-VERIFIED ---- */
+
+int AIHigh_BTC_Perp::CheckForControlsPressed()
+
+
+
+{
+  int pressed;
+
+
+
+  pressed = 0;
+
+  if (((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0) {
+    Car_tControl *control = &Cars_gHumanRaceCarList[0]->control;
+    if (*(u_short *)control != 0 || control->handBrake == '\x01') {
+
+      pressed = 1;
+
+    }
+  }
+
+  /* H20: player-2 check must read Cars_gHumanRaceCarList[1] (oracle 0x8005FA10 base 0x8010FA4C = list+4), not [0] */
+  if ((Cars_gNumHumanRaceCars == 2) &&
+      (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)) {
+    Car_tControl *control = &Cars_gHumanRaceCarList[1]->control;
+    if (*(u_short *)control != 0 || control->handBrake == '\x01') {
+
+      pressed = 1;
+
+    }
+  }
+
+  return pressed;
+
+}
+
+
+
+
+
+
+
+
+/* ---- HandlePullOver__15AIHigh_BTC_Perp  AIHigh_BTC_Perp::HandlePullOver  [AIH_BTCPERP.CPP:153-222] SLD-VERIFIED ---- */
+
+void AIHigh_BTC_Perp::HandlePullOver()
+
+
+
+{
+  int userReadyToContinue;
+
+  /* SYM-CODEGEN-CARRIER: caught -- a direct compound guard compiles to
+     116 rather than 118 instructions and produces eight control-flow diffs. */
+  bool caught;
+
+  /* SYM-CODEGEN-CARRIER: mobileSpeaker -- the typed
+     `SpeakerVirtualDispatch::slot15()` spelling preserves 118 instructions
+     but selects table offsets 56/60 instead of retail 128/132 (four diffs). */
+  Speaker *mobileSpeaker;
+
+  if (this->pullOverMode_ != 0) {
+
+    this->NotifyCopsOfArrest();
+
+    this->beatingTicksLeft_ -= AI_elapsedTime;   /* H21: oracle 0x8005FA94 v0=beatingTicksLeft_-AI_elapsedTime, 0x8005FA9C store */
+
+    if ((this->beatingTicksLeft_ < 1) && (this->hudActivated_ == 0)) {
+
+      if (this->IsFalseArrest() != 0) {
+
+        this->lastPullOverTime_ = simGlobal.gameTicks + -0x280;
+
+        this->NotifyCopsOfFalseArrest();
+
+        (this->carObj_)->pullOver = 0;
+
+        this->pullOverMode_ = 0;
+
+        mobileSpeaker = (Speaker *)Speech_Mobile(Cars_gList[0]);
+
+        (**(int (**)(...))((int)*mobileSpeaker->_vf + 0x3c))
+
+                  ((int)&(mobileSpeaker->fPosition).flags +
+                   (int)*(short *)((int)*mobileSpeaker->_vf + 0x38));
+
+      }
+
+      else {
+
+        if (this->hudActivated_ == 0) {
+
+          this->NotifyHumanCopsOfArrestHud();
+
+          this->hudActivated_ = 1;
+
+        }
+
+      }
+
+    }
+
+    userReadyToContinue = this->CheckForControlsPressed();
+
+    if ((((this->beatingTicksLeft_ < 1) &&
+
+         (this->pullOverMode_ != 0)) && (userReadyToContinue != 0)) &&
+
+       ((this->hudActivated_ == 1 &&
+
+        (0x140 < simGlobal.gameTicks - this->lastPullOverTime_)))) {
+
+      this->lastPullOverTime_ = simGlobal.gameTicks;
+
+      this->basicPerpInfo_.crime_ = 0;
+
+      this->NotifyCopsOfArrestComplete();
+
+      (this->carObj_)->pullOver = 0;
+
+      this->pullOverMode_ = 0;
+
+      this->caught_ = 1;
+
+      this->hudActivated_ = 0;
+
+    }
+
+  }
+
+  else {
+
+    /* SYM-CODEGEN-CARRIER: gameTicks -- assigning the global directly to
+       `lastPullOverTime_` compiles to 119 rather than 118 instructions and
+       produces seven load/register/store diffs. */
+    int gameTicks;
+    /* SYM-CODEGEN-CARRIER: activationCopReady -- folding this comparison
+       into `caught` compiles to 117 instructions with three branch-polarity
+       diffs. */
+    int activationCopReady;
+    activationCopReady = 5 < this->originalActivationCop_->timeLeft_;
+    caught = activationCopReady && (this->CheckIfCaught() != 0);
+
+    if (caught) {
+
+      (this->carObj_)->pullOver = 1;
+
+      this->beatingTicksLeft_ = 0x60;
+
+      gameTicks = simGlobal.gameTicks;
+
+      this->pullOverMode_ = 2;
+
+      this->lastPullOverTime_ = gameTicks;
+
+    }
+
+  }
+
+  return;
+
+}
+
+
+
+
+
+
+
+
+/* ---- NotifyCopsOfArrest__15AIHigh_BTC_Perp  AIHigh_BTC_Perp::NotifyCopsOfArrest  [AIH_BTCPERP.CPP:233-245] SLD-VERIFIED ---- */
+
+void AIHigh_BTC_Perp::NotifyCopsOfArrest()
+
+
+
+{
+  int carLoop;
+  Car_tObj *otherCarObj;
+  
+
+  carLoop = 0;
+  while (true) {
+
+    if (Cars_gNumCars <= carLoop) {
+      break;
+    }
+
+    otherCarObj = Cars_gList[carLoop];
+
+    if (((otherCarObj->carFlags & 0x220U) != 0) &&
+        ((otherCarObj->N).active != '\0')) {
+
+      ((AIHigh_BTC_Cop *)highLevelAIObjs[otherCarObj->carIndex])->StartArrest(this);
+
+    }
+
+    carLoop = carLoop + 1;
+
+  }
+
+  return;
+
+}
+
+
+
+
+
+
+
+
+/* ---- NotifyCopsOfArrestComplete__15AIHigh_BTC_Perp  AIHigh_BTC_Perp::NotifyCopsOfArrestComplete  [AIH_BTCPERP.CPP:251-266] SLD-VERIFIED ---- */
+
+void AIHigh_BTC_Perp::NotifyCopsOfArrestComplete()
+
+
+
+{
+  int carLoop;
+  Car_tObj *otherCarObj;
+
+  
+
+  carLoop = 0;
+  while (true) {
+
+    if (Cars_gNumCars <= carLoop) {
+      break;
+    }
+
+    otherCarObj = Cars_gList[carLoop];
+
+    if (((otherCarObj->carFlags & 0x220U) != 0) &&
+        ((otherCarObj->N).active != '\0')) {
+
+      ((AIHigh_BTC_Cop *)highLevelAIObjs[otherCarObj->carIndex])->FinishArrest(this);
+
+    }
+
+    carLoop = carLoop + 1;
+
+  }
+
+  return;
+
+}
+
+
+
+
+
+
+
+
+/* ---- NotifyCopsOfFalseArrest__15AIHigh_BTC_Perp  AIHigh_BTC_Perp::NotifyCopsOfFalseArrest  [AIH_BTCPERP.CPP:271-283] SLD-VERIFIED ---- */
+
+void AIHigh_BTC_Perp::NotifyCopsOfFalseArrest()
+
+
+
+{
+  int carLoop;
+  Car_tObj *otherCarObj;
+
+  
+
+  carLoop = 0;
+  while (true) {
+
+    if (Cars_gNumCars <= carLoop) {
+      break;
+    }
+
+    otherCarObj = Cars_gList[carLoop];
+
+    if (((otherCarObj->carFlags & 0x220U) != 0) &&
+        ((otherCarObj->N).active != '\0')) {
+
+      ((AIHigh_BTC_Cop *)highLevelAIObjs[otherCarObj->carIndex])->FalseArrest(this);
+
+    }
+
+    carLoop = carLoop + 1;
+
+  }
+
+  return;
+
+}
+
+
+
+
+
+
+
+
+/* ---- NotifyHumanCopsOfArrestHud__15AIHigh_BTC_Perp  AIHigh_BTC_Perp::NotifyHumanCopsOfArrestHud  [AIH_BTCPERP.CPP:288-301] SLD-VERIFIED ---- */
+
+void AIHigh_BTC_Perp::NotifyHumanCopsOfArrestHud()
+
+
+
+{
+  int carLoop;
+  Car_tObj *otherCarObj;
+
+  
+
+  carLoop = 0;
+  while (true) {
+
+    if (Cars_gNumCars <= carLoop) {
+      break;
+    }
+
+    otherCarObj = Cars_gList[carLoop];
+
+    if (((otherCarObj->carFlags & 0x200U) != 0) &&
+        ((otherCarObj->N).active != '\0')) {
+
+      ((AIHigh_BTC_HumanCop *)highLevelAIObjs[otherCarObj->carIndex])->HudOn(this,0,
+
+                 this->lastArrestingCop_);
+
+    }
+
+    carLoop = carLoop + 1;
+
+  }
+
+  return;
+
+}
+
+
+
+
+
+
+
+
+/* ---- ClearForNewStage__15AIHigh_BTC_PerpP19AIHigh_BTC_HumanCop  AIHigh_BTC_Perp::ClearForNewStage  [AIH_BTCPERP.CPP:304-316] SLD-VERIFIED ---- */
+
+void AIHigh_BTC_Perp::ClearForNewStage(AIHigh_BTC_HumanCop *chaserCop)
+
+
+
+{
+  this->Clear();
+
+  this->basicPerpInfo_.copsAssigned_[0] = 0;
+
+  this->basicPerpInfo_.copsAssigned_[1] = 0;
+
+  this->basicPerpInfo_.crime_ = 1;
+
+  this->caught_ = 0;
+
+  this->carObj_->unlap = 0;
+
+  (this->carObj_)->lap =
+
+       ((chaserCop)->carObj_)->lap;
+
+  chaserCop->needPerp_ = 0;
+
+  return;
+
+}
+
+
+
+
+
+
+
+
+/* ---- CheckForActivation__15AIHigh_BTC_Perp  AIHigh_BTC_Perp::CheckForActivation  [AIH_BTCPERP.CPP:322-354] SLD-VERIFIED ---- */
+AIHigh_BTC_HumanCop *
+
+AIHigh_BTC_Perp::CheckForActivation()
+
+
+
+{
+  int carLoop;
+  Car_tObj *humanCopCarObj;
+  AIHigh_BTC_HumanCop *carHigh;
+  int carType;
+
+  /* SYM-CODEGEN-CARRIER: activationRequested -- folding the materialized
+     cop-index/need-perp result into a direct short-circuit preserves 66
+     instructions but changes six retail value-birth/test instructions. */
+  int activationRequested;
+
+  
+
+  carLoop = 0;
+
+  while (true) {
+
+    if (Cars_gNumCars <= carLoop) {
+
+      break;
+
+    }
+
+    humanCopCarObj = Cars_gList[carLoop];
+
+    if (((humanCopCarObj->carFlags & 0x200U) != 0) &&
+        ((humanCopCarObj->N).active != '\0')) {
+
+      carHigh = (AIHigh_BTC_HumanCop *)highLevelAIObjs[humanCopCarObj->carIndex];
+
+      activationRequested = 0;
+
+      if (carHigh->copIndex_ == 0) {
+
+        activationRequested = carHigh->needPerp_;
+
+      }
+
+      if (activationRequested != 0) {
+
+        if ((this->carObj_->carFlags & 4U) != 0) {
+
+          return carHigh;
+
+        }
+
+        carType = GameSetup_gData.perpInfo[carHigh->currentStage_].CarType;
+
+        if (carType == this->carObj_->carInfo->carType) {
+
+          return carHigh;
+
+        }
+
+      }
+
+    }
+
+    carLoop = carLoop + 1;
+
+  }
+
+  return (AIHigh_BTC_HumanCop *)0x0;
+
+}
+
+
+
+
+
+
+
+
+/* ---- NewStage__20AIHigh_BTC_HumanPerpP19AIHigh_BTC_HumanCop  AIHigh_BTC_HumanPerp::NewStage  [AIH_BTCPERP.CPP:366-416] SLD-VERIFIED ---- */
+
+void AIHigh_BTC_HumanPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
+
+
+
+{
+  int placementSide;
+  int placementDirection;
+  int humanDirection;
+  int newLatPos;
+  int throwAway;
+  /* SYM-CODEGEN-CARRIER: carObj
+     SYM-CODEGEN-CARRIER: wrappedSlice
+     Neither optimized quantity survives in the retail debug block. Removing only carObj is
+     count-exact at 136 instructions but changes 28 allocation/value-flow
+     instructions. Replacing wrappedSlice with direct per-arm stores is also
+     count-exact but changes 18 instructions; a single typed conditional grows
+     to 137 instructions/45 diffs, and the generic WRAP_SLICE expansion grows
+     to 139/75. These eliminated snapshots alone reproduce the retail $a2
+     destination pointer and the branch-merged $v0/$v1 short result. */
+  Car_tObj *carObj;
+
+  
+
+  humanDirection = chaserCop->initialDirection_;
+
+  this->originalActivationCop_ = chaserCop;
+
+  this->ClearForNewStage(chaserCop);
+
+  this->ReleaseCops();
+
+  randtemp = fastRandom * randSeed;
+
+  placementSide = 1;
+
+  carObj = this->carObj_;
+
+  fastRandom = randtemp & 0xffff;
+
+  placementDirection = placementSide;
+
+  if (0 <= humanDirection * 0x10) {
+    short wrappedSlice;
+
+    if (gNumSlices <=
+        (short)(chaserCop->carObj_->N).simRoadInfo.slice +
+            humanDirection * 0x10) {
+
+      wrappedSlice = (u_short)(chaserCop->carObj_->N).simRoadInfo.slice +
+                     humanDirection * 0x10 - (u_short)gNumSlices;
+      goto storePositiveSlice;
+
+    }
+
+    wrappedSlice = (u_short)(chaserCop->carObj_->N).simRoadInfo.slice +
+                   humanDirection * 0x10;
+
+  storePositiveSlice:
+    (carObj->N).simRoadInfo.slice = wrappedSlice;
+
+  }
+
+  else {
+
+    short wrappedSlice;
+
+    if ((short)(chaserCop->carObj_->N).simRoadInfo.slice +
+            humanDirection * 0x10 < 0) {
+
+      wrappedSlice = (u_short)gNumSlices +
+                     ((u_short)(chaserCop->carObj_->N).simRoadInfo.slice +
+                      humanDirection * 0x10);
+
+    }
+
+    else {
+
+      wrappedSlice = (u_short)(chaserCop->carObj_->N).simRoadInfo.slice +
+                     humanDirection * 0x10;
+
+    }
+
+    (carObj->N).simRoadInfo.slice = wrappedSlice;
+
+  }
+
+  if (placementDirection == 1) {
+
+    (this->carObj_)->desiredDirection = placementSide * humanDirection;
+
+  }
+
+  else {
+
+    (this->carObj_)->desiredDirection = -(placementSide * humanDirection);
+
+  }
+
+  this->carObj_->direction = this->carObj_->desiredDirection;
+
+  newLatPos = 0;
+
+  throwAway = 0;
+
+  AIWorld_FindBarrierLessLaneAndPosition(this->carObj_,&throwAway,&newLatPos);
+
+  AILife_PlaceCarAtLocation(this->carObj_,
+
+             (int)(this->carObj_->N).simRoadInfo.slice,newLatPos,
+             this->carObj_->direction,0,0);
+
+  ((SpeakerVirtualDispatch *)Speech_Mobile(chaserCop->carObj_))->slot15();
+
+  ((SpeakerVirtualDispatch *)Speech_Dispatch())->slot0(this->carObj_);
+
+  ((SpeakerVirtualDispatch *)Speech_Mobile(chaserCop->carObj_))->slot0(this->carObj_);
+
+  ((SpeakerVirtualDispatch *)Speech_Mobile(chaserCop->carObj_))->slot5(this->carObj_);
+
+  TrgSfx_RestartTrgSfx();
+
+  return;
+
+}
+
+
+
+
+
+
+
+
+/* ---- HighExecute__20AIHigh_BTC_HumanPerp  AIHigh_BTC_HumanPerp::HighExecute  [AIH_BTCPERP.CPP:421-427] SLD-VERIFIED ---- */
+
+void AIHigh_BTC_HumanPerp::HighExecute()
+
+
+
+{
+
+  AIHigh_BTC_HumanCop *chaserCop;
+
+  
+
+  if ((this->caught_ == 1) &&
+
+     (chaserCop = this->CheckForActivation(),
+
+     chaserCop != (AIHigh_BTC_HumanCop *)0x0)) {
+
+    this->NewStage(chaserCop);
+
+  }
+
+  else {
+
+    this->HandleCops();
+
+  }
+
+  return;
+
+}
+
+
+
+
+
+
+
+
+/* ---- __17AIHigh_BTC_AIPerpP8Car_tObj  AIHigh_BTC_AIPerp::ctor  [AIH_BTCPERP.CPP:441-454] SLD-VERIFIED ---- */
+AIHigh_BTC_AIPerp::AIHigh_BTC_AIPerp(Car_tObj *carObj)
+
+
+
+{
+
+  (new((AIHigh_BasicPerp *)this) AIHigh_BasicPerp(carObj));
+
+  this->_vf =
+
+       (__vtbl_ptr_type (*) [3])(AIHigh_BTC_HumanPerp_vtable + 8);
+
+  this->caught_ = 1;
+
+  this->_vf =
+
+       (__vtbl_ptr_type (*) [3])AIHigh_BTC_AIPerp_vtable;
+
+  this->hudActivated_ = 0;
+
+  this->originalActivationCop_ = (AIHigh_BTC_HumanCop *)0x0;
+
+  this->perpMode_ = 0;
+
+  this->creationTime_ = 0;
+
+  this->madeContactTime_ = 0;
+
+  this->timeUntilContact_ = 64000;
+
+  this->escapeDuration_ = 0;
+
+  this->originalMass_ = (this->carObj_->N).mass;
+
+  this->originalMassInv_ = (this->carObj_->N).massInv;
+
+  this->closestCopCarObj_ = (Car_tObj *)0x0;
+
+  this->closestCopCarDistanceMeters_ = 0;
+
+  return;
+
+}
+
+
+
+
+
+
+
+
+/* ---- _._17AIHigh_BTC_AIPerp  AIHigh_BTC_AIPerp::dtor  [AIH_BTCPERP.CPP:461-465] SLD-VERIFIED ---- */
+
+AIHigh_BTC_AIPerp::~AIHigh_BTC_AIPerp()
+
+
+
+{
+
+  this->_vf =
+
+       (__vtbl_ptr_type (*) [3])AIHigh_BTC_AIPerp_vtable;
+
+  (this->carObj_->N).mass = this->originalMass_;
+
+  ((this->carObj_)->N).massInv =
+
+       this->originalMassInv_;
+
+  this->_vf =
+
+       (__vtbl_ptr_type (*) [3])AIHigh_BasicPerp_vtable;
+
+
+  return;
+
+}
+
+
+
+
+
+
+
+
+/* ---- AvoidCops__17AIHigh_BTC_AIPerp  AIHigh_BTC_AIPerp::AvoidCops  [AIH_BTCPERP.CPP:488-552] SLD-VERIFIED ---- */
+
+/* PASS (209/209 insns; was 200 diffs).  Retail's missing first-roll threshold is
+ * `AI_elapsedTime * 7 + pullOver * 500`.  The SYM starts xPosition, zPosition,
+ * xPositionIndex, and zPositionIndex in the nested block at 0x80060428; using
+ * precisely that scope fixes the caller-register interference graph.  Spelling
+ * xPosition as load, subtract, then multiply keeps it in retail's $v1 through
+ * the multiply.  Direct __builtin_abs comparisons recover the branch shapes.
+ * No volatile, register pin, or empty-asm allocation fence is required. */
+
+void AIHigh_BTC_AIPerp::AvoidCops()
+
+
+
+{
+  int doBrake;
+
+  
+
+  doBrake = 0;
+
+  if ((this->closestCopCarObj_ != (Car_tObj *)0x0) &&
+      (this->closestCopCarObj_->RSControl == 0)) {
+
+    if (this->closestCopCarObj_->direction == this->carObj_->direction) {
+
+      if (__builtin_abs(this->closestCopCarDistanceMeters_) < 0x1f40000) {
+        int xPosition;
+        int zPosition;
+        int xPositionIndex;
+        int zPositionIndex;
+
+        xPosition = this->carObj_->roadPosition;
+        xPosition -= this->closestCopCarObj_->roadPosition;
+        xPosition *= this->closestCopCarObj_->direction;
+
+        zPosition = this->closestCopCarDistanceMeters_ * this->closestCopCarObj_->direction;
+
+        xPositionIndex = doBrake;
+
+        if ((-(this->closestCopCarObj_->N).dimension.x <= xPosition) &&
+            (xPositionIndex = 1,
+             (this->closestCopCarObj_->N).dimension.x < xPosition)) {
+
+          xPositionIndex = 2;
+
+        }
+
+        zPositionIndex = 0;
+
+        if (zPosition <= 0x190000) {
+
+          zPositionIndex = 1;
+
+          if (zPosition <= (this->closestCopCarObj_->N).dimension.z) {
+
+            zPositionIndex = 4;
+
+            if (-0x190000 <= zPosition) {
+
+              zPositionIndex = 2;
+
+              if (zPosition < -(this->closestCopCarObj_->N).dimension.z) {
+
+                zPositionIndex = 3;
+
+              }
+
+            }
+
+          }
+
+        }
+
+        if ((strategyChart[zPositionIndex][xPositionIndex] & 1) != 0) {
+
+          randtemp = fastRandom * randSeed;
+
+          fastRandom = randtemp & 0xffff;
+
+          if ((randtemp >> 8 & 0xffff) * 1000 >> 0x10 <
+              (u_int)(AI_elapsedTime * 7 + this->carObj_->pullOver * 500)) {
+
+            if (0x11c71c < __builtin_abs(this->closestCopCarObj_->currentSpeed)) {
+
+              if (0x11c71c < __builtin_abs(this->carObj_->currentSpeed)) {
+
+                doBrake = 1;
+
+                goto LAB_800606f0;
+
+              }
+
+            }
+
+          }
+
+        }
+
+        if ((strategyChart[zPositionIndex][xPositionIndex] & 2) != 0) {
+
+          randtemp = fastRandom * randSeed;
+
+          fastRandom = randtemp & 0xffff;
+
+          /* H-AVOID2: u-turn probability roll (was a stub -- oracle 0x80060600-0x800606EC does a
+             full skill/elapsed-time-scaled random roll + dual speed-threshold check + direction flip) */
+          if ((randtemp >> 8 & 0xffff) * 1000 >> 0x10 <
+              (u_int)(AIHigh_BTC_uTurnProb1000Skills[GameSetup_gData.skill] * AI_elapsedTime)) {
+
+            if (0x11c71c < __builtin_abs(this->closestCopCarObj_->currentSpeed)) {
+
+              if (0x11c71c < __builtin_abs((this->carObj_)->currentSpeed)) {
+
+                if ((this->carObj_)->direction == (this->carObj_)->desiredDirection) {
+
+                  (this->carObj_)->desiredDirection = -(this->carObj_)->direction;
+
+                }
+
+              }
+
+            }
+
+          }
+
+        }
+
+      }
+
+    }
+
+  }
+
+LAB_800606f0:
+
+  if (doBrake) {
+
+    (this->carObj_)->pullOver = 1;
+
+    return;
+
+  }
+
+  (this->carObj_)->pullOver = 0;
+
+  return;
+
+}
+
+
+
+
+
+
+
+
+/* ---- CalculateTimeTillContact__17AIHigh_BTC_AIPerp  AIHigh_BTC_AIPerp::CalculateTimeTillContact  [AIH_BTCPERP.CPP:557-573] SLD-VERIFIED ---- */
+
+void AIHigh_BTC_AIPerp::CalculateTimeTillContact()
+
+
+
+{
+  int distance;
+  int relVel;
+
+
+
+  if ((this->closestCopCarObj_ != (Car_tObj *)0x0) && ((u_int)this->perpMode_ < 2)) {
+
+    relVel = (this->carObj_)->currentSpeed -
+
+        this->closestCopCarObj_->currentSpeed;
+
+    /* SYM-CODEGEN-CARRIER: copDistance -- the optimized field snapshot is
+       absent from the retained debug block. Direct use moves the load below
+       the range check and inserts a nop (42/41 instructions, three diffs);
+       this statement preserves the retail unconditional pre-check load. */
+    int copDistance = this->closestCopCarDistanceMeters_;
+
+    if (0xfffe < relVel + 0x7fffU) {
+
+      distance = fixeddiv(copDistance,relVel);
+
+      if (distance < 0) {
+
+        distance = distance + 0x3ff;
+
+      }
+
+      this->timeUntilContact_ = -(distance >> 10);
+
+    } else {
+
+      this->timeUntilContact_ = 0x3e80000;
+
+    }
+
+    if (-1 < this->timeUntilContact_) {
+
+      return;
+
+    }
+
+  }
+
+  this->timeUntilContact_ = 64000;
+
+  return;
+
+}
+
+
+
+
+
+
+
+
+/* ---- FindClosestCop__17AIHigh_BTC_AIPerp  AIHigh_BTC_AIPerp::FindClosestCop  [AIH_BTCPERP.CPP:582-609] SLD-VERIFIED ---- */
+
+void AIHigh_BTC_AIPerp::FindClosestCop()
+
+
+
+{
+  int closestCopInMeters;
+  int closestCopInMetersAbs;
+  int closestCarIndex;
+  int copLoop;
+  int longMetersBetween;
+  int absLongMetersBetween;
+
+  closestCopInMeters = 0x270f0000;
+
+  closestCopInMetersAbs = 0x270f0000;
+
+  closestCarIndex = -1;
+
+  copLoop = 0;
+
+  while (true) {
+
+    if (Cars_gNumHumanRaceCars <= copLoop) {
+      break;
+    }
+
+    if ((Cars_gHumanRaceCarList[copLoop]->carFlags & 0x200U) != 0) {
+
+      longMetersBetween = AIWorld_ApxSplineDistance(
+          this->carObj_,Cars_gHumanRaceCarList[copLoop]);
+
+      absLongMetersBetween = __builtin_abs(longMetersBetween);
+
+      if (absLongMetersBetween < closestCopInMetersAbs) {
+
+        closestCopInMeters = longMetersBetween;
+
+        closestCopInMetersAbs = absLongMetersBetween;
+
+        closestCarIndex = Cars_gHumanRaceCarList[copLoop]->carIndex;
+
+      }
+
+    }
+
+    copLoop = copLoop + 1;
+
+  }
+
+  if (closestCarIndex == -1) {
+
+    this->closestCopCarObj_ = (Car_tObj *)0x0;
+
+  }
+
+  else {
+
+    this->closestCopCarObj_ = Cars_gList[closestCarIndex];
+
+    this->closestCopCarDistanceMeters_ = closestCopInMeters;
+
+  }
+
+  return;
+
+}
+
+
+
+
+
+
+
+
+/* ---- HighExecute__17AIHigh_BTC_AIPerp  AIHigh_BTC_AIPerp::HighExecute  [AIH_BTCPERP.CPP:620-802] SLD-VERIFIED ---- */
+
+void AIHigh_BTC_AIPerp::HighExecute()
+
+
+
+{
+  AIHigh_BTC_HumanCop *chaserCop;
+
+  
+
+  if (((this->carObj_)->N).active != '\0') {
+
+    this->FindClosestCop();
+
+    this->CalculateTimeTillContact();
+
+  }
+
+  switch(this->stateType_) {
+
+  case 1:   /* MATCH: oracle's compare-chain routes stateType_==1 into the SAME body as case 2 */
+
+  case 2:
+
+    switch(this->perpMode_) {
+
+    case 0:
+
+    case 3:
+
+    case 5:
+
+      break;
+
+    case 1:
+
+      if (this->timeUntilContact_ < 0x140) {
+
+        this->madeContactTime_ = simGlobal.gameTicks;
+
+        if (this->perpMode_ != 2) {
+
+          ((SpeakerVirtualDispatch *)Speech_Mobile(((this->originalActivationCop_))->carObj_))
+              ->slot0(this->carObj_);
+
+        }
+
+        this->perpMode_ = 2;
+
+        Camera_gInfo[0].forceFocus = 2;
+
+        Camera_gInfo[0].focusOnAICar =
+
+             (char)(this->carObj_)->carIndex;
+
+        Camera_gInfo[1].forceFocus = 2;
+
+        Camera_gInfo[1].focusOnAICar =
+
+             (char)(this->carObj_)->carIndex;
+
+      }
+
+      break;
+
+    case 2:
+
+      this->perpMode_ = 4;
+
+      break;
+
+    case 4:
+
+      if (this->escapeDuration_ < simGlobal.gameTicks - this->madeContactTime_) {
+
+        this->perpMode_ = 5;
+
+        this->ReleaseCops();
+
+      }
+
+      if (simGlobal.gameTicks - this->madeContactTime_ > this->escapeDuration_ - 0x40) {
+
+        if (Camera_gInfo[0].forceFocus != 0) {
+
+          ((SpeakerVirtualDispatch *)Speech_Mobile(((this->originalActivationCop_))->carObj_))
+              ->slot5(this->carObj_);
+
+          Camera_ResetRelPos(3);
+
+        }
+
+        Camera_gInfo[0].forceFocus = 0;
+
+        Camera_gInfo[0].focusOnAICar =
+
+             (char)(this->carObj_)->carIndex;
+
+        Camera_gInfo[1].forceFocus = 0;
+
+        Camera_gInfo[1].focusOnAICar =
+
+             (char)(this->carObj_)->carIndex;
+
+      }
+
+      if (this->originalActivationCop_->carObj_->direction ==
+          this->carObj_->direction) {
+
+        if (0 < AIWorld_ApxSplineDistance(
+                    this->carObj_,this->originalActivationCop_->carObj_) *
+                    this->carObj_->direction) {
+
+          this->originalActivationCop_->requestedDesiredSpeed_ =
+              fixedmult(__builtin_abs(this->carObj_->currentSpeed),0xcccc);
+
+        }
+
+      }
+
+      break;
+
+    default:
+
+      goto perpMode_merge;
+
+    }
+
+perpMode_merge:
+
+    if (this->perpMode_ != 5) break;
+
+    this->HandleCops();
+
+    if (this->pullOverMode_ != 2) {
+
+      this->AvoidCops();
+
+    }
+
+    if (this->caught_ == 0) break;
+
+  case 0:
+
+    /* SYM-INLINE-LOCAL: carObj = AIState_BTCInactive
+       SYM-INLINE-LOCAL: trafficOffset = AIState_BTCInactive */
+    this->SetState(new AIState_BTCInactive(this->carObj_),STATE_NONACTIVE);
+
+    this->perpMode_ = 0;
+
+    break;
+
+  case 7:
+
+    chaserCop = this->CheckForActivation();
+
+    if (chaserCop != (AIHigh_BTC_HumanCop *)0x0) {
+
+      this->NewStage(chaserCop);
+
+      this->schedulingOff_ = 0;
+
+    }
+
+    else {
+
+      this->schedulingOff_ = 1;
+
+    }
+
+    break;
+
+  case 10:
+
+    if ((this->perpMode_ == 0) && (this->timeUntilContact_ < 0x140)) {
+
+      this->madeContactTime_ = simGlobal.gameTicks;
+
+      if (this->perpMode_ != 2) {
+
+        ((SpeakerVirtualDispatch *)Speech_Mobile(((this->originalActivationCop_))->carObj_))
+            ->slot0(this->carObj_);
+
+      }
+
+      this->perpMode_ = 2;
+
+      Camera_gInfo[0].forceFocus = 2;
+
+      Camera_gInfo[0].focusOnAICar =
+
+           (char)(this->carObj_)->carIndex;
+
+      Camera_gInfo[1].forceFocus = 2;
+
+      Camera_gInfo[1].focusOnAICar =
+
+           (char)(this->carObj_)->carIndex;
+
+    }
+
+    else if (this->perpMode_ == 2) {
+      AIState_Base *newState;
+
+      newState = new AIState_Normal(this->carObj_);
+      this->SetState(newState,STATE_NORMAL);
+
+      this->perpMode_ = 4;
+
+    }
+
+  }
+
+  (this->state_)->StateExecute();
+
+  return;
+
+}
+
+
+
+
+
+
+
+
+/* ---- NewStage__17AIHigh_BTC_AIPerpP19AIHigh_BTC_HumanCop  AIHigh_BTC_AIPerp::NewStage  [AIH_BTCPERP.CPP:807-1007] SLD-VERIFIED ---- */
+
+/* SYM-local reconstruction: 153 detailed diffs -> PASS (363/363 insns).
+ * The retail outer locals are stage, humanCopCarObj,
+ * placementDistance/Side/Direction/Speed, randPlacement, humanDirection,
+ * humanMovement, the two AUTO lane outputs, and i.  State `newState` and the
+ * state temporaries are block-scoped.  Direct virtual calls recover the retail
+ * vtable-load form.  WRAP_SLICE keeps the positive raw placement distance in
+ * v1 while the signed offset is an unnamed a0 temporary, and repeated inline
+ * GetCarObj calls recover the retail return-value copy before the placement
+ * call.  One branch-local, pin-free identity fence prevents placementSide's
+ * known value from folding away the retail a3-to-t1 copy.  No volatile or
+ * register pin is used. */
+
+void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
+
+
+
+{
+  int stage;
+  Car_tObj*humanCopCarObj;
+  int placementDistance;
+  int placementSide;
+  int placementDirection;
+  enum {
+    PLACEMENTSPEED_SLOW,
+    PLACEMENTSPEED_FAST
+  } placementSpeed;
+  int randPlacement;
+  int humanDirection;
+  int humanMovement;
+  int newLatPos;
+  int throwAway;
+  int i;
+
+  
+
+  stage = chaserCop->currentStage_;
+
+  humanCopCarObj = chaserCop->carObj_;
+
+  this->originalActivationCop_ = chaserCop;
+
+  this->ClearForNewStage(chaserCop);
+
+  i = 0;
+
+  do {
+
+    ((this->carObj_)->N).damage[i] = 0;
+
+    i++;
+
+  } while (i < 10);
+
+  ((this->carObj_)->render).headLight = 0;
+
+  ((this->carObj_)->render).brakeLight = 0;
+
+  if (GameSetup_gData.Time != 0) {
+
+    ((this->carObj_)->render).headLight = 0x33;
+
+    ((this->carObj_)->render).brakeLight = 2;
+
+  }
+
+  ((this->carObj_)->render).signalLight[0] = 0;
+
+  ((this->carObj_)->render).signalLight[1] = 0;
+
+  ((this->carObj_)->render).damageParts = 0;
+
+  (this->carObj_)->forceNoSimOptz = 1;
+
+  Camera_gInfo[0].forceFocus = 1;
+
+  Camera_gInfo[0].focusOnAICar =
+
+       (char)(this->carObj_)->carIndex;
+
+  Camera_gInfo[1].forceFocus = 1;
+
+  Camera_gInfo[1].focusOnAICar =
+
+       (char)(this->carObj_)->carIndex;
+
+  Object_ClearCustomObjects();
+
+  randtemp = fastRandom * randSeed;
+
+  humanDirection = chaserCop->initialDirection_;
+
+  AICop_gRoadBlockState = kAICop_RoadBlockState_None;
+
+  fastRandom = randtemp & 0xffff;
+
+  humanMovement = chaserCop->initialMovement_;
+
+  placementSide = -1;
+
+  randPlacement = (randtemp >> 8 & 0xffff) * 1000 >> 0x10;
+
+  if (randPlacement < 0x14d) {
+
+    placementDirection = 0;
+
+    placementSpeed = PLACEMENTSPEED_FAST;
+
+    humanCopCarObj->desiredSpeed = 0xd5555;
+
+    chaserCop->requestedDesiredSpeed_ = 0xd5555;
+
+    if (humanMovement != 0) {
+
+      this->escapeDuration_ = 0x280;
+
+      placementDistance = 0xe1;
+
+    }
+
+    else {
+
+      this->escapeDuration_ = 0x180;
+
+      placementDistance = 400;
+
+    }
+
+  }
+
+  else {
+
+    placementSide = 1;
+
+    if (humanMovement == 0) {
+
+      placementDirection = 0;
+
+      placementSpeed = PLACEMENTSPEED_FAST;
+
+      humanCopCarObj->desiredSpeed = 0x2c71c7;
+
+      placementDistance = 400;
+
+      chaserCop->requestedDesiredSpeed_ = 0x2c71c7;
+
+      this->escapeDuration_ = 0x180;
+
+    }
+
+    else {
+
+      placementDistance = 0x28;
+
+      __asm__("" : "=r"(placementSide) : "0"(placementSide));
+      placementDirection = placementSide;
+
+      placementSpeed = PLACEMENTSPEED_SLOW;
+
+      humanCopCarObj->desiredSpeed = 0x2c71c7;
+
+      chaserCop->requestedDesiredSpeed_ = 0x2c71c7;
+
+      this->escapeDuration_ = 0x1e0;
+
+    }
+
+  }
+
+  (this->carObj_->N).simRoadInfo.slice = WRAP_SLICE(
+      (placementDistance / 6) * placementSide * humanDirection,
+      (humanCopCarObj->N).simRoadInfo.slice);
+
+  if (placementDirection == 1) {
+
+    (this->carObj_)->desiredDirection = placementSide * humanDirection;
+
+  }
+
+  else {
+
+    (this->carObj_)->desiredDirection = -(placementSide * humanDirection);
+
+  }
+
+  this->carObj_->direction = this->carObj_->desiredDirection;
+
+  newLatPos = 0;
+
+  throwAway = 0;
+
+  AIWorld_FindBarrierLessLaneAndPosition(this->carObj_,&throwAway,&newLatPos);
+
+  {
+    AILife_PlaceCarAtLocation(this->carObj_,
+
+               (int)(this->GetCarObj()->N).simRoadInfo.slice,newLatPos,
+               this->GetCarObj()->direction,
+               placementSpeed == PLACEMENTSPEED_FAST ? 0x1f1c71 : 0x11c71c,0);
+  }
+
+  Camera_Update();
+
+  (this->carObj_)->btcGlueModifier =
+      fixedmult(GameSetup_gData.perpInfo[stage].GlueFactor,
+                AITune_BTC[GameSetup_gData.skill].glueMult);
+
+  (this->carObj_)->speedFactor =
+      fixedmult(GameSetup_gData.perpInfo[stage].SpeedFactor,
+                AITune_BTC[GameSetup_gData.skill].speedMult);
+
+  ((this->carObj_)->N).mass =
+      fixedmult(fixedmult(this->originalMass_,
+                          GameSetup_gData.perpInfo[stage].WeightFactor),
+                AITune_BTC[GameSetup_gData.skill].weightMult);
+
+  ((this->carObj_)->N).massInv = fixeddiv(0x10000,((this->carObj_)->N).mass);
+
+  AIPerson_SetPersonality(this->carObj_,
+
+             GameSetup_gData.perpInfo[stage].Personality);
+
+  R3DCar_ChangeTrafficColor(this->carObj_,
+
+             GameSetup_gData.perpInfo[stage].Colour);
+
+  (this->carObj_)->carInfo->SpeechColour =
+
+       GameSetup_gData.perpInfo[stage].SpeechColour;
+
+  (this->carObj_)->carInfo->HudColour =
+
+       GameSetup_gData.perpInfo[stage].HudColour;
+
+  Hud_InitMap();
+
+  this->creationTime_ = simGlobal.gameTicks;
+
+  if (placementSpeed == PLACEMENTSPEED_FAST) {
+
+    AIState_Base *newState;
+
+    newState = new AIState_Normal(this->carObj_);
+
+    if (this->state_ != (AIState_Base *)0x0) {
+
+      (*(int (**)(...))((int)this->state_->_vf + 0x14))
+          ((int)&this->state_->carObj_ + (int)*(short *)((int)this->state_->_vf + 0x10),3);
+
+    }
+
+    this->state_ = newState;
+
+    this->stateType_ = 2;
+
+    this->perpMode_ = (cruiseMode_t)placementSpeed;
+
+  }
+
+  else {
+
+    AIState_Base *newState;
+
+    newState = new AIState_Cruise(this->carObj_,(cruiseMode_t)1,0x8000);
+
+    if (this->state_ != (AIState_Base *)0x0) {
+
+      (*(int (**)(...))((int)this->state_->_vf + 0x14))
+          ((int)&this->state_->carObj_ + (int)*(short *)((int)this->state_->_vf + 0x10),3);
+
+    }
+
+    this->state_ = newState;
+
+    this->stateType_ = 10;
+
+    this->perpMode_ = 0;
+
+  }
+
+  ((SpeakerVirtualDispatch *)Speech_Mobile(humanCopCarObj))->slot15();
+
+  ((SpeakerVirtualDispatch *)Speech_Dispatch())->slot0(this->carObj_);
+
+  TrgSfx_RestartTrgSfx();
+
+  return;
+
+}
+
+
+
+
+
+
+
+
+/* ---- _._20AIHigh_BTC_HumanPerp  AIHigh_BTC_HumanPerp::dtor  [AIH_BTCPERP.CPP:?] SLD-FLAG:NO_SLD ---- */
+
+AIHigh_BTC_HumanPerp::~AIHigh_BTC_HumanPerp()
+
+
+
+{
+
+  this->_vf =
+
+       (__vtbl_ptr_type (*) [3])AIHigh_BasicPerp_vtable;
+
+
+  return;
+
+}
+
+
+
+
+
+
+
+
+/* ---- ___15AIHigh_BTC_Perp_80061348 @0x80061348 : AIHigh_BTC_Perp dtor, THIS obj's
+ * vague-linkage instance (w60 unlock: was spelled as the canonical member dtor, which
+ * collides with AIHIGH.OBJ's canonical @0x8005B438 -- oracles byte-identical 10/10).
+ * cfront chain: own-base vtable store in the jal delay slot + tail call of the next
+ * NON-TRIVIAL base dtor (___11AIHigh_Base, ONE arg -- same device as aih_basicperp). ---- */
+
+extern "C" void ___11AIHigh_Base_1arg(void *) __asm__("___11AIHigh_Base");
+extern "C" void ___15AIHigh_BTC_Perp_80061348(AIHigh_BTC_Perp *pThis)
+
+
+
+{
+
+  pThis->_vf = (__vtbl_ptr_type (*) [3])AIHigh_BasicPerp_vtable;
+
+  ___11AIHigh_Base_1arg(pThis);
+
+  return;
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ==== AIState vague-linkage tail (2026-08-03 name-fix): btcperp's OWN compiled copies of the
+ * shared AIState helpers -- retail emitted one instance per .obj (SYM names them identically at
+ * distinct VAs; oracle vtable copies D_80055000/D_80055020 are this obj's NonActive/Base vtables,
+ * recon binds the shared vtable symbols like every other 100% fn in this TU).  Bodies mirror the
+ * aistate.cpp instances (100%-proven spellings). */
+extern __vtbl_ptr_type AIState_NonActive_vtable[], AIState_Base_vtable[];
+
+/* ---- Execute__17AIState_NonActive_80061370 @0x80061370 : empty per-frame body (real method --
+ * the cc1plus demangle guard rejects the mangled name as a plain identifier) ---- */
+extern "C" void Execute__17AIState_NonActive_80061370(AIState_NonActive *pThis)
+{
+  return;
+}
+
+/* w60 unlock: the surplus canonical `AIState_NonActive::Execute()` member def that
+ * lived here collided with aih_btccop's (owner of 0x8005F624) -- removed. */
+
+/* ---- ___17AIState_NonActive_80061378 @0x80061378 : deleting dtor (SYM _._17AIState_NonActive) ---- */
+extern "C" void ___17AIState_NonActive_80061378(AIState_NonActive *pThis,int __in_chrg)
+{
+  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_NonActive_vtable;
+  ((pThis->carObj_)->N).active = '\x01';
+  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
+  if ((__in_chrg & 1U) != 0) {
+    __builtin_delete(pThis);
+  }
+  return;
+}
+
+/* ---- TestForRelease__12AIState_Base_800613C4 @0x800613C4 : shared default impl (real method) ---- */
+extern "C" int TestForRelease__12AIState_Base_800613C4(AIState_Base *pThis)
+{
+  return 0;
+}
+
+/* w60 unlock: the surplus canonical `AIState_Base::TestForRelease()` member def that
+ * lived here collided with aihigh.cpp's (owner of 0x8005B4C4) -- removed. */
+
+/* ---- ___12AIState_Base_800613CC @0x800613CC : deleting dtor (SYM _._12AIState_Base) ---- */
+extern "C" void ___12AIState_Base_800613CC(AIState_Base *pThis,int __in_chrg)
+{
+  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
+  if ((__in_chrg & 1U) != 0) {
+    __builtin_delete(pThis);
+  }
+  return;
+}
+
+/* end of aih_btcperp.cpp */

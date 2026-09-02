@@ -1,0 +1,17 @@
+{
+ "P1_after_store": [
+  ["            register intrEnv_t *c2 __asm__(\"$6\");\n            __asm__(\"\" : \"=r\"(c2) : \"0\"(ctl));\n            intrEnv.handlers[idx] = handler;\n            nNewMask = nNewMask | (1 << idx);",
+   "            intrEnv_t *c2;\n            intrEnv.handlers[idx] = handler;\n            __asm__(\"\" : \"=r\"(c2) : \"r\"(ctl));\n            nNewMask = nNewMask | (1 << idx);"]],
+ "P2_after_mask": [
+  ["            register intrEnv_t *c2 __asm__(\"$6\");\n            __asm__(\"\" : \"=r\"(c2) : \"0\"(ctl));\n            intrEnv.handlers[idx] = handler;\n            nNewMask = nNewMask | (1 << idx);",
+   "            intrEnv_t *c2;\n            intrEnv.handlers[idx] = handler;\n            nNewMask = nNewMask | (1 << idx);\n            __asm__(\"\" : \"=r\"(c2) : \"r\"(ctl));"]],
+ "P3_after_store_tied": [
+  ["            register intrEnv_t *c2 __asm__(\"$6\");\n            __asm__(\"\" : \"=r\"(c2) : \"0\"(ctl));\n            intrEnv.handlers[idx] = handler;\n            nNewMask = nNewMask | (1 << idx);",
+   "            intrEnv_t *c2;\n            intrEnv.handlers[idx] = handler;\n            __asm__(\"\" : \"=r\"(c2) : \"0\"(ctl));\n            nNewMask = nNewMask | (1 << idx);"]],
+ "P4_untied_slotptr_input": [
+  ["            register intrEnv_t *c2 __asm__(\"$6\");\n            __asm__(\"\" : \"=r\"(c2) : \"0\"(ctl));\n            intrEnv.handlers[idx] = handler;",
+   "            intrEnv_t *c2;\n            Callback *slot = &intrEnv.handlers[idx];\n            __asm__(\"\" : \"=r\"(c2) : \"r\"(ctl), \"r\"(slot));\n            *slot = handler;"]],
+ "P5_untied_slotptr_first": [
+  ["            register intrEnv_t *c2 __asm__(\"$6\");\n            __asm__(\"\" : \"=r\"(c2) : \"0\"(ctl));\n            intrEnv.handlers[idx] = handler;",
+   "            intrEnv_t *c2;\n            Callback *slot = &intrEnv.handlers[idx];\n            *slot = handler;\n            __asm__(\"\" : \"=r\"(c2) : \"r\"(ctl));\n            slot = slot;"]]
+}

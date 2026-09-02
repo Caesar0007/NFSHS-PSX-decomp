@@ -19,6 +19,13 @@
  * its load-delay slot -- is now closed on the compiler-version axis as well.  (The 2.6.x
  * rungs reject this TU outright, so they are not evidence either way.)
  */
+/* W85-S8 VOLATILE AUDIT (2026-09-02): the `volatile` qualifiers on 720, 733, 754, 903, 912 (SPU-alloc-table words in main RAM: `pd+0x51A`, `entry`, `base+0x518`, and the two PackedAllocSlot copy views)
+ * were REMOVED -- plain main-RAM driver state, not MMIO and not IRQ-mutated; removal is
+ * gate-neutral (whole-TU verify_asm/tugate PASS before and after).  Every REMAINING
+ * `volatile` in this file was measured individually or as a group and is load-bearing
+ * (MMIO, or state the oracle provably re-reads) -- do not strip them.  Receipt:
+ * scratchpad/w85/S8_receipt.md. */
+
 /* eaclib/psx/sndpsxz/sdmemman.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 1/3 PASS ***
  *   Source obj : nfs4\eaclib\psx\sdmemman.obj ; archive C:\nfs4\EACLIB\PSX\SNDPSXZ.LIB (xlsx col11)
  *   3 fns @[0x8010A550 .. 0x8010A7C8].  SPU local-RAM block allocator -- a sorted free-list of up to 128
@@ -717,7 +724,7 @@ nonempty:
         unsigned char *previous;
         table = base + 0x520;
         if (idx >= (int)(unsigned int)
-                       *(volatile unsigned short *)(base + 0x518))
+                       *(unsigned short *)(base + 0x518))
             goto scan_done;
         pd = base;
         previous = pd + 0x51c;
@@ -730,7 +737,7 @@ scan:
             if (idx == 0) {
                 unsigned int block =
                     (unsigned int)*(unsigned short *)(pd + 0x51A);
-                int avail = *(volatile unsigned short *)entry - (int)block;
+                int avail = *(unsigned short *)entry - (int)block;
                 local_block = block;
                 local_avail = avail;
             } else {
@@ -751,7 +758,7 @@ scan:
                             unsigned char pad[0x520];
                             int word;
                         } __attribute__((packed));
-                        volatile struct PackedAllocSlot *dst =
+                        struct PackedAllocSlot *dst =
                             (struct PackedAllocSlot *)
                                 ((unsigned int)(blk * 4) + (unsigned int)pd);
                         src = blk - 1;
@@ -900,7 +907,7 @@ extern int iSNDpsxfree(int ptr)
                         unsigned char pad[0x520];
                         int word;
                     } __attribute__((packed));
-                    volatile struct PackedAllocSlot *dst =
+                    struct PackedAllocSlot *dst =
                         (struct PackedAllocSlot *)((unsigned int)(idx * 4) +
                                                   (unsigned int)base);
                     int next = idx + 1;
@@ -909,7 +916,7 @@ extern int iSNDpsxfree(int ptr)
                                                    (base + next * 4))->word,
                                      4);
                     idx = next;
-                  } while (idx < (int)(unsigned int)*(volatile unsigned short *)(base + 0x518));
+                  } while (idx < (int)(unsigned int)*(unsigned short *)(base + 0x518));
                 }
                 return 0;
             }

@@ -1,0 +1,1 @@
+[["baseline", [["percent = ch ^ (ch ^ '%');", "percent = ch ^ (ch ^ '%');"]]], ["T2 percent live at fnt_done", [["fnt_done:\n    fs->buffer[fs->written] = 0;\n    return fs->written;\n", "fnt_done:\n    fs->buffer[fs->written] = 0;\n    return fs->written + (percent & 1);\n"]]]]

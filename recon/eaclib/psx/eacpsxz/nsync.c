@@ -397,8 +397,21 @@ purgefail:
      * fence blocks) or at `closefail` (8 @79); bare everywhere + an opacity fence on `retry`
      * before the success close (30 @79); and the assignment folded into the arg LIST via a comma
      * on arg1/arg3/arg4 (all 4 @81 -- a comma's assignment still expands ahead of the arg group,
-     * so it is not a route into it). */
-    __asm__("" : "=r"(rm1) : "0"(rm1));
+     * so it is not a route into it).
+     * W85-S7 DEVICE PURITY (2026-09-02): the zero-insn OPACITY FENCE
+     * `__asm__("" : "=r"(rm1) : "0"(rm1))` that used to sit here is REPLACED by a pure-C
+     * equivalent -- a DEAD REASSIGNMENT of the laundered variable.  `rm1` has no reader
+     * after the second FILE_readsync, so cse still sees the write (killing the value-number
+     * equality `rm1 == retry - 1`, which is the whole point -- both trailing closes then
+     * recompute `addiu a1,s4,-1` and `retry` keeps its long live range), while flow's
+     * dead-store elimination deletes the insn again: 81/81 insns, PASS, ZERO asm.
+     * MEASURED (this file, loadbigfileheaderatomic, source-only gate): no device 24 diffs;
+     * `rm1 = 0` / `= retry` / `= handle` / `= -1` ALL PASS; `rm1 = rm1 + 0` folds away and
+     * gives 24 (the write must be to a value cse cannot prove equal to the old one);
+     * block-scoping rm1 inside the inner `{ }` 24 (C scope is not a cse boundary);
+     * compiler axis CLOSED -- 2.6.3 / 2.7.2 / 2.8.0 / 2.8.1 / 2.95.2 all 24 without a device.
+     * DO NOT "clean up" the dead store: it is the match. */
+    rm1 = 0;                 /* MATCH: dead store -- cse-kill, deleted again by flow */
     FILE_closesync(handle, retry - 1);
     return buf;
 

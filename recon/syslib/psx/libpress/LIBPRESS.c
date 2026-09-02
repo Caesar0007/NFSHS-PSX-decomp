@@ -142,8 +142,12 @@ static void MDEC_rest(u_long mode)
      *   - the bad-option printf is the switch's FALL-THROUGH tail, not a `default:` case --
      *     that is what puts the `j` to it before the case blocks in the oracle;
      *   - printf takes the FORMAT STRING ONLY (the oracle sets up `$a0` and nothing else).
-     * The quant-table pointer is hoisted into a local ahead of the switch, as in the original. */
-    volatile u_long *inBuffer = (volatile u_long *)_mdec_iqtab;
+     * The quant-table pointer is hoisted into a local ahead of the switch, as in the original.
+     * W85-S11 (2026-09-02): this local used to be `volatile u_long *inBuffer =
+     * (volatile u_long *)_mdec_iqtab;`.  `_mdec_iqtab` is a plain const RAM table,
+     * NOT MMIO, so that volatile was a codegen crutch -- MEASURED INERT (dropping it
+     * keeps MDEC_rest PASS 60/60 and the TU 12/12).  Do not reintroduce it. */
+    const u_long *inBuffer = _mdec_iqtab;
     long option = (long)mode;
     /* MATCH (2026-08-14, 6 @60/60 -> 5 @59/60): keep Rage Racer's signed `long`
      * option type, but do not retain its hard-register pin or the former opacity fence.

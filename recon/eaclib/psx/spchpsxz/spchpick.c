@@ -432,7 +432,11 @@ extern unsigned int iSPCH_SampleExists(int choice, int bankPtr, int bank)
 
 /* iSPCH_ChooseSamples @0x80100B4C : collect up to `maxToPick` matching sample indices for `choice` into the
  *   pick pool, returning the count chosen. */
-extern int iSPCH_ChooseSamples(short *choice, int maxToPick, volatile int phraseTemplate, volatile int unused)
+/* W85-S9 (device purity): `phraseTemplate` / `unused` used to be declared `volatile int`
+ * parameters.  The qualifier was INERT here -- dropping it holds PASS 68/68 exactly.  (An
+ * addressable spelling `int *p = &phraseTemplate;` in the loop body is NOT equivalent: it costs
+ * a frame pointer + the incoming home slots, 22 diffs / 72 insns.) */
+extern int iSPCH_ChooseSamples(short *choice, int maxToPick, int phraseTemplate, int unused)
 {
     int           sampleIdx = 0;
     int           bankIdx   = *choice;
@@ -850,13 +854,17 @@ extern int iSPCH_IterateChoice(int sentence)
     int exhausted = 0;
     int n = VoxSentence_GetNumPhrases(sentence) - 1;
     int count, pbase, limit, loopDone, cur;
-    /* MATCH: named base => the `la` is emitted before the n*6 chain; the three zero-insn opacity
-     * fences lift its qty to 8 refs so it wins $v0.  Do NOT "simplify" them away (see note above). */
-    int chBase = (int)ispch_gChoice;
+    /* MATCH: named base => the `la` is emitted before the n*6 chain, and the base qty must reach
+     * >= 8 REG_N_REFS to beat the mult chain for $v0 (w47-a2's own number, see the note above).
+     * W85-S9 (device purity, PASS 44/44 held): the ref step is now paid by the DEPTH-2
+     * `do{}while(0)` wrapper the w49-a9 note already identified as an equivalent -- it was only
+     * skipped then because that worker was barred from do/while.  It replaces the three
+     * `__asm__("" : "=r"(chBase) : "0"(chBase))` opacity fences 1:1 and emits nothing.
+     * Measured this wave: depth-2 PASS, depth-3 PASS, depth-1 12 diffs, no wrapper 12 diffs.
+     * Do NOT "simplify" the wrapper away. */
+    int chBase;
     short *choice;
-    __asm__("" : "=r"(chBase) : "0"(chBase));
-    __asm__("" : "=r"(chBase) : "0"(chBase));
-    __asm__("" : "=r"(chBase) : "0"(chBase));
+    do { do { chBase = (int)ispch_gChoice; } while (0); } while (0);
     choice = (short *)(n * 12 + chBase);
     count = choice[2];
     pbase = choice[3];
@@ -1122,6 +1130,19 @@ extern void iSPCH_ConstantRuleSet(short *sentence, int rule)
                             do {
                                 setRule = gSentenceRuleSet;
                             } while (0);
+                            /* W85-S9: this `volatile` halfword read RESISTS removal and is KEPT.
+                             * It is the sched2 barrier that holds retail's issue order
+                             * `lui %hi(gSentenceRuleSet); lhu $a0,0($s6); lbu $a2,0x1C($v1);
+                             *  lw %lo(...); nop; jalr` (0x8010149C-0x801014B0).  Without it sched2
+                             * sinks the `lhu` into the `lw`'s load-delay shadow and the oracle's
+                             * `nop` disappears: 3 diffs at 82/83 insns.  Falsified this wave, every
+                             * one still 3 @82/83 unless noted: plain `*(unsigned short *)sentence`,
+                             * `sentence[0]` with the cast, an `(int)` cast without the `unsigned`,
+                             * a named `unsigned short` temp, a trailing `do{}while(0)` boundary,
+                             * and the read hoisted above `one = 1`; wrapping the read itself in a
+                             * depth-1 or depth-2 `do{}while(0)` rotates the callee-saved file
+                             * instead (17 @82/83); moving `callee = *setRule` above the shift is
+                             * 9 @84/83 and dropping the phony loop on it is 14 @85/83. */
                             sentenceArg =
                                 (int)(unsigned int)*(volatile unsigned short *)sentence;
                             bit = one << cycle[0x1c];

@@ -1,0 +1,2195 @@
+== NFS4-R-AU: 2689 rows checked, 92 skipped (size-mismatch/no-oracle), HIDDEN-CHANGED: 100
+  DrawHelpIcons__14tFEApplication  (LO16, base 80013344 -> 800134BC, 5 words)
+      insn 25: base 240400fc  region 240400fd
+      insn 149: base 240400fc  region 240400fd
+      insn 160: base 240400fc  region 240400fd
+      insn 163: base 240400fc  region 240400fd
+  MainLoop__14tFEApplicationP5tMenu  (LO16, base 800142A4 -> 800143F4, 2 words)
+      insn 941: base 26240295  region 26240296
+      insn 973: base 24040297  region 24040298
+  ValidCar__16tListIteratorCar7tPlayerc  (LO16, base 800180D4 -> 8001823C, 1 words)
+      insn 193: base 2404000c  region 2404000b
+  CalculateDimensions__11tDialogHelp  (LO16, base 80018B90 -> 80018CF8, 10 words)
+      insn 32: base 24050059  region 2405005a
+      insn 87: base 24050052  region 24050053
+      insn 92: base 24050053  region 24050054
+      insn 110: base 24050056  region 24050057
+  CalculateDimensions__20tDialogMessageString  (LO16, base 80019418 -> 80019580, 1 words)
+      insn 121: base 240200f0  region 24020100
+  CalculateDimensions__12tDialogYesNo  (LO16, base 800199D4 -> 80019B3C, 1 words)
+      insn 34: base 240200f0  region 24020100
+  Draw__12tMenuOptions  (LO16, base 8001BAEC -> 8001BC78, 1 words)
+      insn 67: base 240300f0  region 24030100
+  DrawLeftFlare__FiiiRi  (LO16, base 8001BFA0 -> 8001C130, 1 words)
+      insn 53: base 240401de  region 240401df
+  Draw__29tMenuItemOnOffLeftRightChoiceiib  (LO16, base 8001E384 -> 8001E518, 2 words)
+      insn 66: base 24040066  region 24040067
+      insn 77: base 24040067  region 24040068
+  DrawOneSong__18tInsideBoxSongMenussssss  (LO16, base 8001EC48 -> 8001EDDC, 2 words)
+      insn 69: base 24040066  region 24040067
+      insn 85: base 24040067  region 24040068
+  TransitionOn__17tUserNameMenuItem  (LO16, base 80020580 -> 80020714, 1 words)
+      insn 11: base 260401fb  region 260401fc
+  TextValue__18tListIteratorTrack7tPlayer  (LO16, base 80021DD4 -> 80021F6C, 1 words)
+      insn 15: base 244200d5  region 244200d6
+  DisplayLoadingText__7tScreen  (LO16, base 80025AB8 -> 80025B10, 4 words)
+      insn 30: base 2404027d  region 2404027e
+      insn 32: base 240600dc  region 240600e4
+      insn 40: base 2404027d  region 2404027e
+      insn 45: base 240600dc  region 240600e4
+  Front_InitOpponentCars__FR9tFEStream  (LO16, base 800285D0 -> 80028690, 1 words)
+      insn 170: base 24040019  region 2404000d
+  PlayerName__Fi  (LO16, base 8002B9FC -> 8002BAF8, 2 words)
+      insn 25: base 2404004e  region 2404004f
+      insn 26: base 26440050  region 26440051
+  PlayerNameMixedCase__Fi  (LO16, base 8002BA88 -> 8002BB84, 2 words)
+      insn 17: base 2404004e  region 2404004f
+      insn 18: base 26440050  region 26440051
+  MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand  (LO16, base 8002C288 -> 8002C380, 2 words)
+      insn 22: base 24020321  region 24020322
+      insn 24: base 24020322  region 24020323
+  AskTheUserToSaveTheGame__Fv  (LO16, base 8002C41C -> 8002C514, 3 words)
+      insn 10: base 24040331  region 24040332
+      insn 14: base 24020321  region 24020322
+      insn 16: base 24020322  region 24020323
+  MenuExtended_GoToCarSelect__FR12tMenuCommand  (LO16, base 8002C4FC -> 8002C5F4, 1 words)
+      insn 23: base 240400eb  region 240400ec
+  GenericMenuSaveGame__Fi  (LO16, base 8002C9A0 -> 8002CA98, 2 words)
+      insn 8: base 2402027e  region 2402027f
+      insn 21: base 24040282  region 24040283
+  PinkSlipsPreSave__Fv  (LO16, base 8002CABC -> 8002CBB4, 3 words)
+      insn 11: base 24040273  region 24040274
+      insn 18: base 24020321  region 24020322
+      insn 20: base 24020322  region 24020323
+  MenuExtended_GoToRace__FR12tMenuCommand  (LO16, base 8002CC98 -> 8002CD90, 4 words)
+      insn 30: base 240400aa  region 240400ab
+      insn 44: base 240400f1  region 240400f2
+      insn 60: base 240400f2  region 240400f3
+      insn 73: base 240400f3  region 240400f4
+  MenuExtended_GoTo2PlayerRace__FR12tMenuCommand  (LO16, base 8002CDF4 -> 8002CEEC, 3 words)
+      insn 31: base 240400aa  region 240400ab
+      insn 52: base 240400f3  region 240400f4
+      insn 69: base 240400f2  region 240400f3
+  MenuExtended_GoToTournTrackInfo__FR12tMenuCommand  (LO16, base 8002CF40 -> 8002D038, 4 words)
+      insn 34: base 240400f6  region 240400f7
+      insn 45: base 240400f7  region 240400f8
+      insn 49: base 24020322  region 24020323
+      insn 51: base 24020321  region 24020322
+  MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand  (LO16, base 8002D0A8 -> 8002D1A0, 4 words)
+      insn 35: base 240400f6  region 240400f7
+      insn 46: base 240400f7  region 240400f8
+      insn 50: base 24020321  region 24020322
+      insn 52: base 24020322  region 24020323
+  MenuExtended_SellCar__FR12tMenuCommand  (LO16, base 8002D3A0 -> 8002D498, 4 words)
+      insn 34: base 240400a5  region 240400a6
+      insn 38: base 24020321  region 24020322
+      insn 40: base 24020322  region 24020323
+      insn 74: base 240400a9  region 240400aa
+  MenuExtended_BuyCar__FR12tMenuCommand  (LO16, base 8002D4F8 -> 8002D5F0, 5 words)
+      insn 37: base 240400a4  region 240400a5
+      insn 40: base 24020321  region 24020322
+      insn 42: base 24020322  region 24020323
+      insn 68: base 240400a7  region 240400a8
+  MenuExtended_PurchaseUpgrade__Fi  (LO16, base 8002D64C -> 8002D744, 4 words)
+      insn 38: base 240400a6  region 240400a7
+      insn 41: base 24020321  region 24020322
+      insn 43: base 24020322  region 24020323
+      insn 66: base 240400a8  region 240400a9
+  GenericMenuLoadGame__Fi  (LO16, base 8002D83C -> 8002D934, 1 words)
+      insn 13: base 2402027d  region 2402027e
+  MenuExtended_ExitTourney__FR12tMenuCommand  (LO16, base 8002E18C -> 8002E350, 3 words)
+      insn 7: base 2404009d  region 2404009e
+      insn 9: base 24020321  region 24020322
+      insn 11: base 24020322  region 24020323
+  MenuExtended_ExitPinkSlipsEarly__FR12tMenuCommand  (LO16, base 8002E21C -> 8002E3E0, 4 words)
+      insn 9: base 2404009d  region 2404009e
+      insn 11: base 24020321  region 24020322
+      insn 13: base 24020322  region 24020323
+      insn 31: base 24040297  region 24040298
+  UpdateTrackList__18tTournamentManagerss  (LO16, base 80032584 -> 8003274C, 1 words)
+      insn 45: base 244200d5  region 244200d6
+  AdvanceToNextTrack__18tTournamentManager  (LO16, base 80033048 -> 800331FC, 3 words)
+      insn 169: base 24840019  region 2484000d
+      insn 227: base 24840019  region 2484000d
+      insn 262: base 244203d9  region 244203da
+  ValidCar__18tTournamentManagerR8tCarInfo  (LO16, base 80033C24 -> 80033DD8, 1 words)
+      insn 30: base 24040019  region 2404000d
+  TextValue__23tListIteratorTournament7tPlayer  (LO16, base 80033E28 -> 80033FDC, 1 words)
+      insn 21: base 24420341  region 24420342
+  Confirm__Fii  (LO16, base 80034438 -> 800345E0, 2 words)
+      insn 28: base 24020292  region 24020293
+      insn 48: base 2484032b  region 2484032c
+  OverwriteConfirm__Fv  (LO16, base 800345EC -> 80034794, 2 words)
+      insn 3: base 2405028f  region 24050290
+      insn 6: base 24840323  region 24840324
+  FormatConfirm__Fv  (LO16, base 80034620 -> 800347C8, 2 words)
+      insn 3: base 24050290  region 24050291
+      insn 6: base 24840327  region 24840328
+  DrawBackground__11tScreenMain  (LO16, base 800379C0 -> 80037BBC, 1 words)
+      insn 325: base 24040272  region 24040273
+  DrawMoney__Fiiilii  (LO16, base 800397F0 -> 80039A78, 3 words)
+      insn 24: base 24040086  region 24040087
+      insn 32: base 24040087  region 24040088
+      insn 41: base 24040088  region 24040089
+  DrawBackground__26tScreenTournamentStandings  (LO16, base 80039B84 -> 80039E0C, 39 words)
+      insn 24: base 241602fe  region 241602ff
+      insn 63: base 26840257  region 26840258
+      insn 64: base 240402f7  region 240402f8
+      insn 95: base 240402f8  region 240402f9
+  DrawBackground__24tScreenPinkSlipStandings  (LO16, base 8003A448 -> 8003A6D0, 18 words)
+      insn 11: base 241102fe  region 241102ff
+      insn 35: base 240402f7  region 240402f8
+      insn 50: base 24a500d5  region 24a500d6
+      insn 61: base 2404030d  region 2404030e
+  DrawOverlay__16tScreenCarSelectP8tOverlay  (LO16, base 8003AD00 -> 8003AFD0, 12 words)
+      insn 123: base 24840121  region 24840122
+      insn 155: base 24840121  region 24840122
+      insn 164: base 2410008c  region 2410008d
+      insn 166: base 2410008e  region 2410008f
+  InitializeVideoWall__16tScreenCarSelect  (LO16, base 8003BCD0 -> 8003BFA0, 1 words)
+      insn 19: base 240500f8  region 240500f9
+  InitializeVideoWall__20tScreenCarSelectDuel  (LO16, base 8003D1E8 -> 8003D510, 2 words)
+      insn 21: base 240500f8  region 240500f9
+      insn 47: base 240500f8  region 240500f9
+  DrawBackground__25tScreenCarSelectTwoPlayer  (LO16, base 8003E4BC -> 8003E834, 1 words)
+      insn 88: base 24840121  region 24840122
+  SetDialog__25tScreenCarSelectTwoPlayer  (LO16, base 8003EC50 -> 8003EFC8, 3 words)
+      insn 17: base 2402003c  region 24020040
+      insn 18: base 2402ffc4  region 2402ffc0
+      insn 19: base 240402a8  region 240402a9
+  SetDialog__25tScreenPinkSlipsCarSelect  (LO16, base 8003F300 -> 8003F6A4, 11 words)
+      insn 11: base 2403003c  region 24030040
+      insn 12: base 2403ffc4  region 2403ffc0
+      insn 69: base 240402a8  region 240402a9
+      insn 105: base 260402ab  region 260402ac
+  DrawBackground__18tScreenTournSelect  (LO16, base 8003FE5C -> 80040224, 14 words)
+      insn 52: base 2405007b  region 2405007c
+      insn 60: base 2404007b  region 2404007c
+      insn 61: base 2404007b  region 2404007c
+      insn 71: base 24050099  region 2405009a
+  DrawBackground__17tScreenTrophyRoom  (LO16, base 80040B18 -> 80040EF0, 4 words)
+      insn 115: base 24a50354  region 24a50355
+      insn 124: base 240403de  region 240403df
+      insn 144: base 240403df  region 240403e0
+      insn 155: base 240403e0  region 240403e1
+  DrawBackground__17tScreenTrophyInfo  (LO16, base 80041138 -> 80041510, 8 words)
+      insn 59: base 24840341  region 24840342
+      insn 68: base 26b0037a  region 26b0037b
+      insn 75: base 240503db  region 240503dc
+      insn 100: base 26b203a0  region 26b203a1
+  Initialize__18tScreenTrackSelect  (LO16, base 80041B6C -> 80041F4C, 1 words)
+      insn 76: base 240500f8  region 240500f9
+  DrawRecords__19tScreenTrackRecordss  (LO16, base 80042968 -> 80042D50, 4 words)
+      insn 51: base 26300257  region 26300258
+      insn 54: base 24040249  region 2404024a
+      insn 80: base 26040257  region 26040258
+      insn 101: base 24040260  region 24040261
+  DrawBackground__19tScreenTrackRecords  (LO16, base 80042B48 -> 80042F30, 17 words)
+      insn 62: base 24040248  region 24040249
+      insn 68: base 24040256  region 24040257
+      insn 71: base 2404024f  region 24040250
+      insn 75: base 2404025f  region 24040260
+  SetCurrentController__23tScreenControllerConfigb  (LO16, base 80043778 -> 80043B60, 3 words)
+      insn 7: base 2404020b  region 2404020c
+      insn 15: base 2402020c  region 2402020d
+      insn 17: base 2402020d  region 2402020e
+  GetHelpText__23tScreenControllerConfig  (LO16, base 800458AC -> 80045C94, 3 words)
+      insn 16: base 24020218  region 24020219
+      insn 18: base 24020219  region 2402021a
+      insn 20: base 2402021a  region 2402021b
+  DrawForeground__12tScreenAudio  (LO16, base 80045DC8 -> 800461B0, 2 words)
+      insn 41: base 2404027d  region 2404027e
+      insn 51: base 2404027d  region 2404027e
+  DrawBackground__12tScreenAudio  (LO16, base 80045ED8 -> 800462C0, 2 words)
+      insn 118: base 240401dc  region 240401dd
+      insn 119: base 240401dc  region 240401dd
+  DrawMemCardStuff__14tScreenMemcards  (LO16, base 80046D60 -> 80047148, 9 words)
+      insn 59: base 2404027b  region 2404027c
+      insn 60: base 2404027f  region 24040280
+      insn 112: base 24020288  region 24020289
+      insn 121: base 2402027d  region 2402027e
+  DrawBackground__14tScreenMemcard  (LO16, base 80047470 -> 80047858, 2 words)
+      insn 69: base 2402027c  region 2402027d
+      insn 163: base 24840293  region 24840294
+  DrawBackground__15tScreenCongrats  (LO16, base 8004813C -> 800485BC, 6 words)
+      insn 108: base 24050317  region 24050318
+      insn 115: base 24040318  region 24040319
+      insn 116: base 24040318  region 24040319
+      insn 126: base 24050316  region 24050317
+  DrawCongratsMessage__23tScreenPinkSlipCongrats  (LO16, base 80048B48 -> 80048FC8, 5 words)
+      insn 21: base 24040275  region 24040276
+      insn 28: base 24840121  region 24840122
+      insn 37: base 24040275  region 24040276
+      insn 49: base 24840121  region 24840122
+  DrawCongratsMessage__25tScreenTournamentCongrats  (LO16, base 800496D4 -> 80049B64, 3 words)
+      insn 8: base 240200c8  region 240201a4
+      insn 20: base 24060001  region 24060002
+      insn 44: base 24060001  region 24060002
+  Initialize__15tScreenUserName  (LO16, base 8004AF88 -> 8004B470, 1 words)
+      insn 24: base 260401fb  region 260401fc
+  DrawBackground__15tScreenUserName  (LO16, base 8004B1AC -> 8004B694, 6 words)
+      insn 139: base 24040205  region 24040206
+      insn 141: base 24040205  region 24040206
+      insn 176: base 24040206  region 24040207
+      insn 178: base 24040206  region 24040207
+  Quick_DD__Fiii  (LO16, base 8004D778 -> 8004DC70, 1 words)
+      insn 7: base 240700f0  region 24070100
+  AudioMus_RefreshStatus__Fv  (LO16, base 80079EF4 -> 8007A960, 6 words)
+      insn 3: base 8ca40074  region 8ca40070
+      insn 8: base 24a50090  region 24a5008c
+      insn 11: base 8ca20090  region 8ca2008c
+      insn 15: base 8ca40094  region 8ca40090
+  AudioMus_Threshold__Fv  (LO16, base 80079F58 -> 8007A9C4, 6 words)
+      insn 4: base 8c82008c  region 8c820088
+      insn 10: base 8c820020  region 8c82001c
+      insn 18: base 8c820088  region 8c820084
+      insn 21: base 8c820090  region 8c82008c
+  AudioMus_Buffered__Fv  (LO16, base 80079FDC -> 8007AA48, 3 words)
+      insn 4: base 8c62008c  region 8c620088
+      insn 10: base 8c620090  region 8c62008c
+      insn 14: base 8c6200a8  region 8c6200a4
+  AudioMus_GetCurrentSong__Fv  (LO16, base 8007A028 -> 8007AA94, 7 words)
+      insn 3: base 2464010c  region 24640108
+      insn 6: base 8c6200a4  region 8c6200a0
+      insn 9: base 8c620020  region 8c62001c
+      insn 19: base 8c430020  region 8c43001c
+  AudioMus_SwitchSong__Fv  (LO16, base 8007A0E4 -> 8007AB50, 7 words)
+      insn 13: base 24620118  region 24620114
+      insn 14: base ac60002c  region ac600028
+      insn 15: base ac600020  region ac60001c
+      insn 16: base ac600114  region ac600110
+  AudioMus_SetCurrentSongInfo__Fv  (LO16, base 8007A390 -> 8007AE0C, 6 words)
+      insn 3: base 8c6200a4  region 8c6200a0
+      insn 4: base 8c6500a0  region 8c65009c
+      insn 5: base 24640118  region 24640114
+      insn 6: base ac620114  region ac620110
+  AudioMus_GetSongList__FPci  (LO16, base 8007A880 -> 8007B214, 3 words)
+      insn 21: base 8c64008c  region 8c640088
+      insn 60: base 8c64008c  region 8c640088
+      insn 86: base 8c82002c  region 8c820028
+  AudioMus_InitGlobals__Fv  (LO16, base 8007AA54 -> 8007B3E8, 5 words)
+      insn 2: base ac40008c  region ac400088
+      insn 3: base ac400070  region ac40006c
+      insn 4: base ac430074  region ac430070
+      insn 5: base ac40007c  region ac400078
+  AudioMus_InitDriverGlobals__Fv  (LO16, base 8007AA78 -> 8007B40C, 8 words)
+      insn 3: base 24430118  region 24430114
+      insn 5: base ac400024  region ac400020
+      insn 9: base ac40002c  region ac400028
+      insn 11: base ac400020  region ac40001c
+  AudioMus_DriverStartUp__Fii  (LO16, base 8007AAD4 -> 8007B468, 10 words)
+      insn 9: base 8c420080  region 8c42007c
+      insn 17: base 8c830074  region 8c830070
+      insn 20: base ac820088  region ac820084
+      insn 21: base 8c820070  region 8c82006c
+  AudioMus_SysStartUp__FiiPc  (LO16, base 8007AC18 -> 8007B5AC, 5 words)
+      insn 12: base 24050158  region 24050154
+      insn 35: base ac620070  region ac62006c
+      insn 43: base 248400ac  region 248400a8
+      insn 47: base 248400ac  region 248400a8
+  AudioMus_DriverCleanUp__Fv  (LO16, base 8007AD10 -> 8007B6A4, 5 words)
+      insn 4: base 8c42007c  region 8c420078
+      insn 12: base ac40007c  region ac400078
+      insn 15: base 8c440074  region 8c440070
+      insn 23: base ac620074  region ac620070
+  AudioMus_SysCleanUp__Fv  (LO16, base 8007AD8C -> 8007B720, 2 words)
+      insn 8: base 8c440070  region 8c44006c
+      insn 16: base 8c44008c  region 8c440088
+  AudioMus_StopSong__Fi  (LO16, base 8007AE04 -> 8007B798, 7 words)
+      insn 13: base 8c840074  region 8c840070
+      insn 21: base ac400024  region ac400020
+      insn 22: base ac40002c  region ac400028
+      insn 29: base 8c820074  region 8c820070
+  AudioMus_BuildPlayList__FiPi  (LO16, base 8007AED8 -> 8007B86C, 1 words)
+      insn 21: base a04300ec  region a04300e8
+  AudioMus_BuildPattern__FPc  (LO16, base 8007AF60 -> 8007B8F4, 2 words)
+      insn 20: base 8c64008c  region 8c640088
+      insn 33: base a05000ec  region a05000e8
+  AudioMus_PlaySong__FPc  (LO16, base 8007B030 -> 8007B9C4, 7 words)
+      insn 42: base ac620028  region ac620024
+      insn 123: base 8c640074  region 8c640070
+      insn 128: base ac430024  region ac430020
+      insn 133: base ac40002c  region ac400028
+  AudioMus_Volume__Fi  (LO16, base 8007B2B0 -> 8007BC44, 7 words)
+      insn 18: base 8c820024  region 8c820020
+      insn 22: base 8c840074  region 8c840070
+      insn 37: base 8c420024  region 8c420020
+      insn 59: base 8c450024  region 8c450020
+  AudioMus_AutoVolume__Fii  (LO16, base 8007B46C -> 8007BE00, 2 words)
+      insn 33: base 8c820024  region 8c820020
+      insn 37: base 8c840074  region 8c840070
+  Camera_SetMode__Fii  (LO16, base 80085608 -> 80086030, 1 words)
+      insn 30: base 240700f0  region 24070100
+  Camera_NextMode__Fi  (LO16, base 8008581C -> 80086244, 1 words)
+      insn 29: base 240700f0  region 24070100
+  NFS4_LoadingIcon__Fv  (LO16, base 800A45B8 -> 800A5130, 2 words)
+      insn 43: base 240700f0  region 24070100
+      insn 55: base 240600d2  region 240600e2
+  Object_InitCustomObjects__Fv  (LO16, base 800A5588 -> 800A6104, 4 words)
+      insn 3: base 24050400  region 2405055c
+      insn 11: base 24050400  region 240502fc
+      insn 17: base 240503fc  region 240502f8
+      insn 23: base 24050400  region 24050264
+  Render_CreatePauseMenuViews__Fv  (LO16, base 800B3198 -> 800B3E64, 1 words)
+      insn 3: base 240200f0  region 24020100
+  Flare_LensFlare__FP7DVECTORP15Draw_FlareCache  (LO16, base 800CEB6C -> 800CF8F8, 1 words)
+      insn 53: base 240200f0  region 24020100
+  Flare_Sun__FP7SVECTORP15Draw_FlareCache  (LO16, base 800CF1D0 -> 800CFF5C, 4 words)
+      insn 9: base 24060078  region 24060080
+      insn 10: base 2406003c  region 24060040
+      insn 39: base 24030078  region 24030080
+      insn 46: base 2403003c  region 24030040
+  Flare_Moon__FP7SVECTORP15Draw_FlareCache  (LO16, base 800CF4BC -> 800D0248, 2 words)
+      insn 1: base 24060078  region 24060080
+      insn 7: base 2406003c  region 24060040
+  Hrz_BuildSky__Fv  (LO16, base 800D0A38 -> 800D17C4, 2 words)
+      insn 2: base 24100078  region 24100080
+      insn 12: base 2410003c  region 24100040
+  Sky_RenderStars__FP13Draw_SkyCachei  (LO16, base 800D1160 -> 800D1EEC, 2 words)
+      insn 6: base 24110078  region 24110080
+      insn 13: base 2411003c  region 24110040
+  Loading_DrawLoadingScreen__Fv  (LO16, base 800DB0B8 -> 800DBCD0, 2 words)
+      insn 32: base 240500f0  region 24050100
+      insn 68: base 240500f0  region 24050100
+  nfs2eacinit__Fv  (LO16, base 800DC458 -> 800DD090, 1 words)
+      insn 11: base 24050320  region 240502c6
+  TrsProj_SetViewTrsProjEnviro__FP13DRender_tView  (LO16, base 800E1A08 -> 800E2640, 2 words)
+      insn 10: base 24070078  region 24070080
+      insn 14: base 240700f0  region 24070100
+  Weather_InitSplats__Fv  (LO16, base 800E1FD8 -> 800E2C10, 2 words)
+      insn 17: base 241100f0  region 24110100
+      insn 18: base 24110078  region 24110080
+  savegp  (LO16, base 800EB090 -> 800EB9D8, 1 words)
+      insn 2: base 8f9c34e8  region 8f9c4804
+== NFS4-R-FR-DE: 2690 rows checked, 92 skipped (size-mismatch/no-oracle), HIDDEN-CHANGED: 100
+  DrawHelpIcons__14tFEApplication  (LO16, base 80013344 -> 80013514, 5 words)
+      insn 25: base 240400fc  region 240400fd
+      insn 149: base 240400fc  region 240400fd
+      insn 160: base 240400fc  region 240400fd
+      insn 163: base 240400fc  region 240400fd
+  MainLoop__14tFEApplicationP5tMenu  (LO16, base 800142A4 -> 8001444C, 2 words)
+      insn 941: base 26240295  region 26240296
+      insn 973: base 24040297  region 24040298
+  ValidCar__16tListIteratorCar7tPlayerc  (LO16, base 800180D4 -> 80018294, 1 words)
+      insn 193: base 2404000c  region 2404000b
+  CalculateDimensions__11tDialogHelp  (LO16, base 80018B90 -> 80018D50, 10 words)
+      insn 32: base 24050059  region 2405005a
+      insn 87: base 24050052  region 24050053
+      insn 92: base 24050053  region 24050054
+      insn 110: base 24050056  region 24050057
+  CalculateDimensions__20tDialogMessageString  (LO16, base 80019418 -> 800195D8, 1 words)
+      insn 121: base 240200f0  region 24020100
+  CalculateDimensions__12tDialogYesNo  (LO16, base 800199D4 -> 80019B94, 1 words)
+      insn 34: base 240200f0  region 24020100
+  Draw__12tMenuOptions  (LO16, base 8001BAEC -> 8001BCD0, 1 words)
+      insn 67: base 240300f0  region 24030100
+  DrawLeftFlare__FiiiRi  (LO16, base 8001BFA0 -> 8001C188, 1 words)
+      insn 53: base 240401de  region 240401df
+  Draw__29tMenuItemOnOffLeftRightChoiceiib  (LO16, base 8001E384 -> 8001E570, 2 words)
+      insn 66: base 24040066  region 24040067
+      insn 77: base 24040067  region 24040068
+  DrawOneSong__18tInsideBoxSongMenussssss  (LO16, base 8001EC48 -> 8001EE34, 2 words)
+      insn 69: base 24040066  region 24040067
+      insn 85: base 24040067  region 24040068
+  TransitionOn__17tUserNameMenuItem  (LO16, base 80020580 -> 8002076C, 1 words)
+      insn 11: base 260401fb  region 260401fc
+  TextValue__18tListIteratorTrack7tPlayer  (LO16, base 80021DD4 -> 80021FC4, 1 words)
+      insn 15: base 244200d5  region 244200d6
+  DisplayLoadingText__7tScreen  (LO16, base 80025AB8 -> 80025B68, 4 words)
+      insn 30: base 2404027d  region 2404027e
+      insn 32: base 240600dc  region 240600e4
+      insn 40: base 2404027d  region 2404027e
+      insn 45: base 240600dc  region 240600e4
+  Front_InitOpponentCars__FR9tFEStream  (LO16, base 800285D0 -> 800286E8, 1 words)
+      insn 170: base 24040019  region 2404000d
+  PlayerName__Fi  (LO16, base 8002B9FC -> 8002BB50, 2 words)
+      insn 25: base 2404004e  region 2404004f
+      insn 26: base 26440050  region 26440051
+  PlayerNameMixedCase__Fi  (LO16, base 8002BA88 -> 8002BBDC, 2 words)
+      insn 17: base 2404004e  region 2404004f
+      insn 18: base 26440050  region 26440051
+  MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand  (LO16, base 8002C288 -> 8002C3D8, 2 words)
+      insn 22: base 24020321  region 24020322
+      insn 24: base 24020322  region 24020323
+  AskTheUserToSaveTheGame__Fv  (LO16, base 8002C41C -> 8002C56C, 3 words)
+      insn 10: base 24040331  region 24040332
+      insn 14: base 24020321  region 24020322
+      insn 16: base 24020322  region 24020323
+  MenuExtended_GoToCarSelect__FR12tMenuCommand  (LO16, base 8002C4FC -> 8002C64C, 1 words)
+      insn 23: base 240400eb  region 240400ec
+  GenericMenuSaveGame__Fi  (LO16, base 8002C9A0 -> 8002CAF0, 2 words)
+      insn 8: base 2402027e  region 2402027f
+      insn 21: base 24040282  region 24040283
+  PinkSlipsPreSave__Fv  (LO16, base 8002CABC -> 8002CC0C, 3 words)
+      insn 11: base 24040273  region 24040274
+      insn 18: base 24020321  region 24020322
+      insn 20: base 24020322  region 24020323
+  MenuExtended_GoToRace__FR12tMenuCommand  (LO16, base 8002CC98 -> 8002CDE8, 4 words)
+      insn 30: base 240400aa  region 240400ab
+      insn 44: base 240400f1  region 240400f2
+      insn 60: base 240400f2  region 240400f3
+      insn 73: base 240400f3  region 240400f4
+  MenuExtended_GoTo2PlayerRace__FR12tMenuCommand  (LO16, base 8002CDF4 -> 8002CF44, 3 words)
+      insn 31: base 240400aa  region 240400ab
+      insn 52: base 240400f3  region 240400f4
+      insn 69: base 240400f2  region 240400f3
+  MenuExtended_GoToTournTrackInfo__FR12tMenuCommand  (LO16, base 8002CF40 -> 8002D090, 4 words)
+      insn 34: base 240400f6  region 240400f7
+      insn 45: base 240400f7  region 240400f8
+      insn 49: base 24020322  region 24020323
+      insn 51: base 24020321  region 24020322
+  MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand  (LO16, base 8002D0A8 -> 8002D1F8, 4 words)
+      insn 35: base 240400f6  region 240400f7
+      insn 46: base 240400f7  region 240400f8
+      insn 50: base 24020321  region 24020322
+      insn 52: base 24020322  region 24020323
+  MenuExtended_SellCar__FR12tMenuCommand  (LO16, base 8002D3A0 -> 8002D4F0, 4 words)
+      insn 34: base 240400a5  region 240400a6
+      insn 38: base 24020321  region 24020322
+      insn 40: base 24020322  region 24020323
+      insn 74: base 240400a9  region 240400aa
+  MenuExtended_BuyCar__FR12tMenuCommand  (LO16, base 8002D4F8 -> 8002D648, 5 words)
+      insn 37: base 240400a4  region 240400a5
+      insn 40: base 24020321  region 24020322
+      insn 42: base 24020322  region 24020323
+      insn 68: base 240400a7  region 240400a8
+  MenuExtended_PurchaseUpgrade__Fi  (LO16, base 8002D64C -> 8002D79C, 4 words)
+      insn 38: base 240400a6  region 240400a7
+      insn 41: base 24020321  region 24020322
+      insn 43: base 24020322  region 24020323
+      insn 66: base 240400a8  region 240400a9
+  GenericMenuLoadGame__Fi  (LO16, base 8002D83C -> 8002D98C, 1 words)
+      insn 13: base 2402027d  region 2402027e
+  MenuExtended_ExitTourney__FR12tMenuCommand  (LO16, base 8002E18C -> 8002E3A8, 3 words)
+      insn 7: base 2404009d  region 2404009e
+      insn 9: base 24020321  region 24020322
+      insn 11: base 24020322  region 24020323
+  MenuExtended_ExitPinkSlipsEarly__FR12tMenuCommand  (LO16, base 8002E21C -> 8002E438, 4 words)
+      insn 9: base 2404009d  region 2404009e
+      insn 11: base 24020321  region 24020322
+      insn 13: base 24020322  region 24020323
+      insn 31: base 24040297  region 24040298
+  UpdateTrackList__18tTournamentManagerss  (LO16, base 80032584 -> 800327A4, 1 words)
+      insn 45: base 244200d5  region 244200d6
+  AdvanceToNextTrack__18tTournamentManager  (LO16, base 80033048 -> 80033254, 3 words)
+      insn 169: base 24840019  region 2484000d
+      insn 227: base 24840019  region 2484000d
+      insn 262: base 244203d9  region 244203da
+  ValidCar__18tTournamentManagerR8tCarInfo  (LO16, base 80033C24 -> 80033E30, 1 words)
+      insn 30: base 24040019  region 2404000d
+  TextValue__23tListIteratorTournament7tPlayer  (LO16, base 80033E28 -> 80034034, 1 words)
+      insn 21: base 24420341  region 24420342
+  Confirm__Fii  (LO16, base 80034438 -> 80034638, 2 words)
+      insn 28: base 24020292  region 24020293
+      insn 48: base 2484032b  region 2484032c
+  OverwriteConfirm__Fv  (LO16, base 800345EC -> 800347EC, 2 words)
+      insn 3: base 2405028f  region 24050290
+      insn 6: base 24840323  region 24840324
+  FormatConfirm__Fv  (LO16, base 80034620 -> 80034820, 2 words)
+      insn 3: base 24050290  region 24050291
+      insn 6: base 24840327  region 24840328
+  DrawBackground__11tScreenMain  (LO16, base 800379C0 -> 80037C20, 1 words)
+      insn 325: base 24040272  region 24040273
+  DrawMoney__Fiiilii  (LO16, base 800397F0 -> 80039AE8, 3 words)
+      insn 24: base 24040086  region 24040087
+      insn 32: base 24040087  region 24040088
+      insn 41: base 24040088  region 24040089
+  DrawBackground__26tScreenTournamentStandings  (LO16, base 80039B84 -> 80039E7C, 39 words)
+      insn 24: base 241602fe  region 241602ff
+      insn 63: base 26840257  region 26840258
+      insn 64: base 240402f7  region 240402f8
+      insn 95: base 240402f8  region 240402f9
+  DrawBackground__24tScreenPinkSlipStandings  (LO16, base 8003A448 -> 8003A740, 18 words)
+      insn 11: base 241102fe  region 241102ff
+      insn 35: base 240402f7  region 240402f8
+      insn 50: base 24a500d5  region 24a500d6
+      insn 61: base 2404030d  region 2404030e
+  DrawOverlay__16tScreenCarSelectP8tOverlay  (LO16, base 8003AD00 -> 8003B040, 12 words)
+      insn 123: base 24840121  region 24840122
+      insn 155: base 24840121  region 24840122
+      insn 164: base 2410008c  region 2410008d
+      insn 166: base 2410008e  region 2410008f
+  InitializeVideoWall__16tScreenCarSelect  (LO16, base 8003BCD0 -> 8003C010, 1 words)
+      insn 19: base 240500f8  region 240500f9
+  InitializeVideoWall__20tScreenCarSelectDuel  (LO16, base 8003D1E8 -> 8003D580, 2 words)
+      insn 21: base 240500f8  region 240500f9
+      insn 47: base 240500f8  region 240500f9
+  DrawBackground__25tScreenCarSelectTwoPlayer  (LO16, base 8003E4BC -> 8003E8A4, 1 words)
+      insn 88: base 24840121  region 24840122
+  SetDialog__25tScreenCarSelectTwoPlayer  (LO16, base 8003EC50 -> 8003F038, 3 words)
+      insn 17: base 2402003c  region 24020040
+      insn 18: base 2402ffc4  region 2402ffc0
+      insn 19: base 240402a8  region 240402a9
+  SetDialog__25tScreenPinkSlipsCarSelect  (LO16, base 8003F300 -> 8003F714, 11 words)
+      insn 11: base 2403003c  region 24030040
+      insn 12: base 2403ffc4  region 2403ffc0
+      insn 69: base 240402a8  region 240402a9
+      insn 105: base 260402ab  region 260402ac
+  DrawBackground__18tScreenTournSelect  (LO16, base 8003FE5C -> 80040294, 14 words)
+      insn 52: base 2405007b  region 2405007c
+      insn 60: base 2404007b  region 2404007c
+      insn 61: base 2404007b  region 2404007c
+      insn 71: base 24050099  region 2405009a
+  DrawBackground__17tScreenTrophyRoom  (LO16, base 80040B18 -> 80040F60, 4 words)
+      insn 115: base 24a50354  region 24a50355
+      insn 124: base 240403de  region 240403df
+      insn 144: base 240403df  region 240403e0
+      insn 155: base 240403e0  region 240403e1
+  DrawBackground__17tScreenTrophyInfo  (LO16, base 80041138 -> 80041580, 8 words)
+      insn 59: base 24840341  region 24840342
+      insn 68: base 26b0037a  region 26b0037b
+      insn 75: base 240503db  region 240503dc
+      insn 100: base 26b203a0  region 26b203a1
+  Initialize__18tScreenTrackSelect  (LO16, base 80041B6C -> 80041FBC, 1 words)
+      insn 76: base 240500f8  region 240500f9
+  DrawRecords__19tScreenTrackRecordss  (LO16, base 80042968 -> 80042DC0, 4 words)
+      insn 51: base 26300257  region 26300258
+      insn 54: base 24040249  region 2404024a
+      insn 80: base 26040257  region 26040258
+      insn 101: base 24040260  region 24040261
+  DrawBackground__19tScreenTrackRecords  (LO16, base 80042B48 -> 80042FA0, 17 words)
+      insn 62: base 24040248  region 24040249
+      insn 68: base 24040256  region 24040257
+      insn 71: base 2404024f  region 24040250
+      insn 75: base 2404025f  region 24040260
+  SetCurrentController__23tScreenControllerConfigb  (LO16, base 80043778 -> 80043BD0, 3 words)
+      insn 7: base 2404020b  region 2404020c
+      insn 15: base 2402020c  region 2402020d
+      insn 17: base 2402020d  region 2402020e
+  GetHelpText__23tScreenControllerConfig  (LO16, base 800458AC -> 80045D04, 3 words)
+      insn 16: base 24020218  region 24020219
+      insn 18: base 24020219  region 2402021a
+      insn 20: base 2402021a  region 2402021b
+  DrawForeground__12tScreenAudio  (LO16, base 80045DC8 -> 80046220, 2 words)
+      insn 41: base 2404027d  region 2404027e
+      insn 51: base 2404027d  region 2404027e
+  DrawBackground__12tScreenAudio  (LO16, base 80045ED8 -> 80046330, 2 words)
+      insn 118: base 240401dc  region 240401dd
+      insn 119: base 240401dc  region 240401dd
+  DrawMemCardStuff__14tScreenMemcards  (LO16, base 80046D60 -> 800471B8, 9 words)
+      insn 59: base 2404027b  region 2404027c
+      insn 60: base 2404027f  region 24040280
+      insn 112: base 24020288  region 24020289
+      insn 121: base 2402027d  region 2402027e
+  DrawBackground__14tScreenMemcard  (LO16, base 80047470 -> 800478C8, 2 words)
+      insn 69: base 2402027c  region 2402027d
+      insn 163: base 24840293  region 24840294
+  DrawBackground__15tScreenCongrats  (LO16, base 8004813C -> 8004862C, 6 words)
+      insn 108: base 24050317  region 24050318
+      insn 115: base 24040318  region 24040319
+      insn 116: base 24040318  region 24040319
+      insn 126: base 24050316  region 24050317
+  DrawCongratsMessage__23tScreenPinkSlipCongrats  (LO16, base 80048B48 -> 80049038, 5 words)
+      insn 21: base 24040275  region 24040276
+      insn 28: base 24840121  region 24840122
+      insn 37: base 24040275  region 24040276
+      insn 49: base 24840121  region 24840122
+  DrawCongratsMessage__25tScreenTournamentCongrats  (LO16, base 800496D4 -> 80049BD4, 3 words)
+      insn 8: base 240200c8  region 240201a4
+      insn 20: base 24060001  region 24060002
+      insn 44: base 24060001  region 24060002
+  Initialize__15tScreenUserName  (LO16, base 8004AF88 -> 8004B4E0, 1 words)
+      insn 24: base 260401fb  region 260401fc
+  DrawBackground__15tScreenUserName  (LO16, base 8004B1AC -> 8004B704, 6 words)
+      insn 139: base 24040205  region 24040206
+      insn 141: base 24040205  region 24040206
+      insn 176: base 24040206  region 24040207
+      insn 178: base 24040206  region 24040207
+  Quick_DD__Fiii  (LO16, base 8004D778 -> 8004DCE0, 1 words)
+      insn 7: base 240700f0  region 24070100
+  AudioMus_RefreshStatus__Fv  (LO16, base 80079EF4 -> 8007A960, 6 words)
+      insn 3: base 8ca40074  region 8ca40070
+      insn 8: base 24a50090  region 24a5008c
+      insn 11: base 8ca20090  region 8ca2008c
+      insn 15: base 8ca40094  region 8ca40090
+  AudioMus_Threshold__Fv  (LO16, base 80079F58 -> 8007A9C4, 6 words)
+      insn 4: base 8c82008c  region 8c820088
+      insn 10: base 8c820020  region 8c82001c
+      insn 18: base 8c820088  region 8c820084
+      insn 21: base 8c820090  region 8c82008c
+  AudioMus_Buffered__Fv  (LO16, base 80079FDC -> 8007AA48, 3 words)
+      insn 4: base 8c62008c  region 8c620088
+      insn 10: base 8c620090  region 8c62008c
+      insn 14: base 8c6200a8  region 8c6200a4
+  AudioMus_GetCurrentSong__Fv  (LO16, base 8007A028 -> 8007AA94, 7 words)
+      insn 3: base 2464010c  region 24640108
+      insn 6: base 8c6200a4  region 8c6200a0
+      insn 9: base 8c620020  region 8c62001c
+      insn 19: base 8c430020  region 8c43001c
+  AudioMus_SwitchSong__Fv  (LO16, base 8007A0E4 -> 8007AB50, 7 words)
+      insn 13: base 24620118  region 24620114
+      insn 14: base ac60002c  region ac600028
+      insn 15: base ac600020  region ac60001c
+      insn 16: base ac600114  region ac600110
+  AudioMus_SetCurrentSongInfo__Fv  (LO16, base 8007A390 -> 8007AE0C, 6 words)
+      insn 3: base 8c6200a4  region 8c6200a0
+      insn 4: base 8c6500a0  region 8c65009c
+      insn 5: base 24640118  region 24640114
+      insn 6: base ac620114  region ac620110
+  AudioMus_GetSongList__FPci  (LO16, base 8007A880 -> 8007B214, 3 words)
+      insn 21: base 8c64008c  region 8c640088
+      insn 60: base 8c64008c  region 8c640088
+      insn 86: base 8c82002c  region 8c820028
+  AudioMus_InitGlobals__Fv  (LO16, base 8007AA54 -> 8007B3E8, 5 words)
+      insn 2: base ac40008c  region ac400088
+      insn 3: base ac400070  region ac40006c
+      insn 4: base ac430074  region ac430070
+      insn 5: base ac40007c  region ac400078
+  AudioMus_InitDriverGlobals__Fv  (LO16, base 8007AA78 -> 8007B40C, 8 words)
+      insn 3: base 24430118  region 24430114
+      insn 5: base ac400024  region ac400020
+      insn 9: base ac40002c  region ac400028
+      insn 11: base ac400020  region ac40001c
+  AudioMus_DriverStartUp__Fii  (LO16, base 8007AAD4 -> 8007B468, 10 words)
+      insn 9: base 8c420080  region 8c42007c
+      insn 17: base 8c830074  region 8c830070
+      insn 20: base ac820088  region ac820084
+      insn 21: base 8c820070  region 8c82006c
+  AudioMus_SysStartUp__FiiPc  (LO16, base 8007AC18 -> 8007B5AC, 5 words)
+      insn 12: base 24050158  region 24050154
+      insn 35: base ac620070  region ac62006c
+      insn 43: base 248400ac  region 248400a8
+      insn 47: base 248400ac  region 248400a8
+  AudioMus_DriverCleanUp__Fv  (LO16, base 8007AD10 -> 8007B6A4, 5 words)
+      insn 4: base 8c42007c  region 8c420078
+      insn 12: base ac40007c  region ac400078
+      insn 15: base 8c440074  region 8c440070
+      insn 23: base ac620074  region ac620070
+  AudioMus_SysCleanUp__Fv  (LO16, base 8007AD8C -> 8007B720, 2 words)
+      insn 8: base 8c440070  region 8c44006c
+      insn 16: base 8c44008c  region 8c440088
+  AudioMus_StopSong__Fi  (LO16, base 8007AE04 -> 8007B798, 7 words)
+      insn 13: base 8c840074  region 8c840070
+      insn 21: base ac400024  region ac400020
+      insn 22: base ac40002c  region ac400028
+      insn 29: base 8c820074  region 8c820070
+  AudioMus_BuildPlayList__FiPi  (LO16, base 8007AED8 -> 8007B86C, 1 words)
+      insn 21: base a04300ec  region a04300e8
+  AudioMus_BuildPattern__FPc  (LO16, base 8007AF60 -> 8007B8F4, 2 words)
+      insn 20: base 8c64008c  region 8c640088
+      insn 33: base a05000ec  region a05000e8
+  AudioMus_PlaySong__FPc  (LO16, base 8007B030 -> 8007B9C4, 7 words)
+      insn 42: base ac620028  region ac620024
+      insn 123: base 8c640074  region 8c640070
+      insn 128: base ac430024  region ac430020
+      insn 133: base ac40002c  region ac400028
+  AudioMus_Volume__Fi  (LO16, base 8007B2B0 -> 8007BC44, 7 words)
+      insn 18: base 8c820024  region 8c820020
+      insn 22: base 8c840074  region 8c840070
+      insn 37: base 8c420024  region 8c420020
+      insn 59: base 8c450024  region 8c450020
+  AudioMus_AutoVolume__Fii  (LO16, base 8007B46C -> 8007BE00, 2 words)
+      insn 33: base 8c820024  region 8c820020
+      insn 37: base 8c840074  region 8c840070
+  Camera_SetMode__Fii  (LO16, base 80085608 -> 80086030, 1 words)
+      insn 30: base 240700f0  region 24070100
+  Camera_NextMode__Fi  (LO16, base 8008581C -> 80086244, 1 words)
+      insn 29: base 240700f0  region 24070100
+  NFS4_LoadingIcon__Fv  (LO16, base 800A45B8 -> 800A5130, 2 words)
+      insn 43: base 240700f0  region 24070100
+      insn 55: base 240600d2  region 240600e2
+  Object_InitCustomObjects__Fv  (LO16, base 800A5588 -> 800A6104, 4 words)
+      insn 3: base 24050400  region 2405055c
+      insn 11: base 24050400  region 240502fc
+      insn 17: base 240503fc  region 240502f8
+      insn 23: base 24050400  region 24050264
+  Render_CreatePauseMenuViews__Fv  (LO16, base 800B3198 -> 800B3E64, 1 words)
+      insn 3: base 240200f0  region 24020100
+  Flare_LensFlare__FP7DVECTORP15Draw_FlareCache  (LO16, base 800CEB6C -> 800CF8F8, 1 words)
+      insn 53: base 240200f0  region 24020100
+  Flare_Sun__FP7SVECTORP15Draw_FlareCache  (LO16, base 800CF1D0 -> 800CFF5C, 4 words)
+      insn 9: base 24060078  region 24060080
+      insn 10: base 2406003c  region 24060040
+      insn 39: base 24030078  region 24030080
+      insn 46: base 2403003c  region 24030040
+  Flare_Moon__FP7SVECTORP15Draw_FlareCache  (LO16, base 800CF4BC -> 800D0248, 2 words)
+      insn 1: base 24060078  region 24060080
+      insn 7: base 2406003c  region 24060040
+  Hrz_BuildSky__Fv  (LO16, base 800D0A38 -> 800D17C4, 2 words)
+      insn 2: base 24100078  region 24100080
+      insn 12: base 2410003c  region 24100040
+  Sky_RenderStars__FP13Draw_SkyCachei  (LO16, base 800D1160 -> 800D1EEC, 2 words)
+      insn 6: base 24110078  region 24110080
+      insn 13: base 2411003c  region 24110040
+  Loading_DrawLoadingScreen__Fv  (LO16, base 800DB0B8 -> 800DBCD0, 2 words)
+      insn 32: base 240500f0  region 24050100
+      insn 68: base 240500f0  region 24050100
+  nfs2eacinit__Fv  (LO16, base 800DC458 -> 800DD090, 1 words)
+      insn 11: base 24050320  region 240502c6
+  TrsProj_SetViewTrsProjEnviro__FP13DRender_tView  (LO16, base 800E1A08 -> 800E2640, 2 words)
+      insn 10: base 24070078  region 24070080
+      insn 14: base 240700f0  region 24070100
+  Weather_InitSplats__Fv  (LO16, base 800E1FD8 -> 800E2C10, 2 words)
+      insn 17: base 241100f0  region 24110100
+      insn 18: base 24110078  region 24110080
+  savegp  (LO16, base 800EB090 -> 800EB9D8, 1 words)
+      insn 2: base 8f9c34e8  region 8f9c4804
+== NFS4-R-JPN: 2690 rows checked, 90 skipped (size-mismatch/no-oracle), HIDDEN-CHANGED: 84
+  MainLoop__14tFEApplicationP5tMenu  (LO16, base 800142A4 -> 80014214, 2 words)
+      insn 941: base 26240295  region 26240296
+      insn 973: base 24040297  region 24040298
+  ValidCar__16tListIteratorCar7tPlayerc  (LO16, base 800180D4 -> 8001805C, 1 words)
+      insn 193: base 2404000c  region 2404000b
+  DrawLeftFlare__FiiiRi  (LO16, base 8001BFA0 -> 8001BE60, 1 words)
+      insn 53: base 240401de  region 240401df
+  Draw__29tMenuItemOnOffLeftRightChoiceiib  (LO16, base 8001E384 -> 8001E244, 2 words)
+      insn 66: base 24040066  region 24040067
+      insn 77: base 24040067  region 24040068
+  DrawOneSong__18tInsideBoxSongMenussssss  (LO16, base 8001EC48 -> 8001EB08, 2 words)
+      insn 69: base 24040066  region 24040067
+      insn 85: base 24040067  region 24040068
+  TransitionOn__17tUserNameMenuItem  (LO16, base 80020580 -> 80020440, 1 words)
+      insn 11: base 260401fb  region 260401fc
+  TextValue__18tListIteratorTrack7tPlayer  (LO16, base 80021DD4 -> 80021C94, 1 words)
+      insn 15: base 244200d5  region 244200d6
+  DisplayLoadingText__7tScreen  (LO16, base 80025AB8 -> 800257A0, 2 words)
+      insn 30: base 2404027d  region 2404027e
+      insn 40: base 2404027d  region 2404027e
+  FeTools_init__Fv  (LO16, base 80026BA8 -> 80026810, 2 words)
+      insn 16: base 24060181  region 24060100
+      insn 46: base 24060100  region 24060160
+  Front_InitOpponentCars__FR9tFEStream  (LO16, base 800285D0 -> 8002825C, 1 words)
+      insn 170: base 24040019  region 2404000d
+  PlayerName__Fi  (LO16, base 8002B9FC -> 8002B6C4, 2 words)
+      insn 25: base 2404004e  region 2404004f
+      insn 26: base 26440050  region 26440051
+  PlayerNameMixedCase__Fi  (LO16, base 8002BA88 -> 8002B750, 2 words)
+      insn 17: base 2404004e  region 2404004f
+      insn 18: base 26440050  region 26440051
+  MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand  (LO16, base 8002C288 -> 8002BF50, 2 words)
+      insn 22: base 24020321  region 24020322
+      insn 24: base 24020322  region 24020323
+  AskTheUserToSaveTheGame__Fv  (LO16, base 8002C41C -> 8002C0E4, 3 words)
+      insn 10: base 24040331  region 24040332
+      insn 14: base 24020321  region 24020322
+      insn 16: base 24020322  region 24020323
+  MenuExtended_GoToCarSelect__FR12tMenuCommand  (LO16, base 8002C4FC -> 8002C1C4, 1 words)
+      insn 23: base 240400eb  region 240400ec
+  GenericMenuSaveGame__Fi  (LO16, base 8002C9A0 -> 8002C668, 2 words)
+      insn 8: base 2402027e  region 2402027f
+      insn 21: base 24040282  region 24040283
+  PinkSlipsPreSave__Fv  (LO16, base 8002CABC -> 8002C784, 3 words)
+      insn 11: base 24040273  region 24040274
+      insn 18: base 24020321  region 24020322
+      insn 20: base 24020322  region 24020323
+  MenuExtended_GoToRace__FR12tMenuCommand  (LO16, base 8002CC98 -> 8002C960, 4 words)
+      insn 30: base 240400aa  region 240400ab
+      insn 44: base 240400f1  region 240400f2
+      insn 60: base 240400f2  region 240400f3
+      insn 73: base 240400f3  region 240400f4
+  MenuExtended_GoTo2PlayerRace__FR12tMenuCommand  (LO16, base 8002CDF4 -> 8002CABC, 3 words)
+      insn 31: base 240400aa  region 240400ab
+      insn 52: base 240400f3  region 240400f4
+      insn 69: base 240400f2  region 240400f3
+  MenuExtended_GoToTournTrackInfo__FR12tMenuCommand  (LO16, base 8002CF40 -> 8002CC08, 4 words)
+      insn 34: base 240400f6  region 240400f7
+      insn 45: base 240400f7  region 240400f8
+      insn 49: base 24020322  region 24020323
+      insn 51: base 24020321  region 24020322
+  MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand  (LO16, base 8002D0A8 -> 8002CD70, 4 words)
+      insn 35: base 240400f6  region 240400f7
+      insn 46: base 240400f7  region 240400f8
+      insn 50: base 24020321  region 24020322
+      insn 52: base 24020322  region 24020323
+  MenuExtended_SellCar__FR12tMenuCommand  (LO16, base 8002D3A0 -> 8002D068, 4 words)
+      insn 34: base 240400a5  region 240400a6
+      insn 38: base 24020321  region 24020322
+      insn 40: base 24020322  region 24020323
+      insn 74: base 240400a9  region 240400aa
+  MenuExtended_BuyCar__FR12tMenuCommand  (LO16, base 8002D4F8 -> 8002D1C0, 5 words)
+      insn 37: base 240400a4  region 240400a5
+      insn 40: base 24020321  region 24020322
+      insn 42: base 24020322  region 24020323
+      insn 68: base 240400a7  region 240400a8
+  MenuExtended_PurchaseUpgrade__Fi  (LO16, base 8002D64C -> 8002D314, 4 words)
+      insn 38: base 240400a6  region 240400a7
+      insn 41: base 24020321  region 24020322
+      insn 43: base 24020322  region 24020323
+      insn 66: base 240400a8  region 240400a9
+  GenericMenuLoadGame__Fi  (LO16, base 8002D83C -> 8002D504, 1 words)
+      insn 13: base 2402027d  region 2402027e
+  MenuExtended_ExitTourney__FR12tMenuCommand  (LO16, base 8002E18C -> 8002DF20, 3 words)
+      insn 7: base 2404009d  region 2404009e
+      insn 9: base 24020321  region 24020322
+      insn 11: base 24020322  region 24020323
+  MenuExtended_ExitPinkSlipsEarly__FR12tMenuCommand  (LO16, base 8002E21C -> 8002DFB0, 4 words)
+      insn 9: base 2404009d  region 2404009e
+      insn 11: base 24020321  region 24020322
+      insn 13: base 24020322  region 24020323
+      insn 31: base 24040297  region 24040298
+  UpdateTrackList__18tTournamentManagerss  (LO16, base 80032584 -> 800322F4, 1 words)
+      insn 45: base 244200d5  region 244200d6
+  AdvanceToNextTrack__18tTournamentManager  (LO16, base 80033048 -> 80032DA4, 3 words)
+      insn 169: base 24840019  region 2484000d
+      insn 227: base 24840019  region 2484000d
+      insn 262: base 244203d9  region 244203da
+  ValidCar__18tTournamentManagerR8tCarInfo  (LO16, base 80033C24 -> 80033980, 1 words)
+      insn 30: base 24040019  region 2404000d
+  TextValue__23tListIteratorTournament7tPlayer  (LO16, base 80033E28 -> 80033B84, 1 words)
+      insn 21: base 24420341  region 24420342
+  OverwriteConfirm__Fv  (LO16, base 800345EC -> 8003433C, 2 words)
+      insn 3: base 2405028f  region 24050290
+      insn 6: base 24840323  region 24840324
+  FormatConfirm__Fv  (LO16, base 80034620 -> 80034370, 2 words)
+      insn 3: base 24050290  region 24050291
+      insn 6: base 24840327  region 24840328
+  DrawBackground__11tScreenMain  (LO16, base 800379C0 -> 80037768, 1 words)
+      insn 325: base 24040272  region 24040273
+  DrawMoney__Fiiilii  (LO16, base 800397F0 -> 80039638, 3 words)
+      insn 24: base 24040086  region 24040087
+      insn 32: base 24040087  region 24040088
+      insn 41: base 24040088  region 24040089
+  DrawBackground__26tScreenTournamentStandings  (LO16, base 80039B84 -> 800399CC, 39 words)
+      insn 24: base 241602fe  region 241602ff
+      insn 63: base 26840257  region 26840258
+      insn 64: base 240402f7  region 240402f8
+      insn 95: base 240402f8  region 240402f9
+  DrawBackground__24tScreenPinkSlipStandings  (LO16, base 8003A448 -> 8003A290, 18 words)
+      insn 11: base 241102fe  region 241102ff
+      insn 35: base 240402f7  region 240402f8
+      insn 50: base 24a500d5  region 24a500d6
+      insn 61: base 2404030d  region 2404030e
+  DrawOverlay__16tScreenCarSelectP8tOverlay  (LO16, base 8003AD00 -> 8003AB90, 12 words)
+      insn 123: base 24840121  region 24840122
+      insn 155: base 24840121  region 24840122
+      insn 164: base 2410008c  region 2410008d
+      insn 166: base 2410008e  region 2410008f
+  InitializeVideoWall__16tScreenCarSelect  (LO16, base 8003BCD0 -> 8003BB60, 1 words)
+      insn 19: base 240500f8  region 240500f9
+  InitializeVideoWall__20tScreenCarSelectDuel  (LO16, base 8003D1E8 -> 8003D0D0, 2 words)
+      insn 21: base 240500f8  region 240500f9
+      insn 47: base 240500f8  region 240500f9
+  DrawBackground__25tScreenCarSelectTwoPlayer  (LO16, base 8003E4BC -> 8003E3F4, 1 words)
+      insn 88: base 24840121  region 24840122
+  SetDialog__25tScreenCarSelectTwoPlayer  (LO16, base 8003EC50 -> 8003EB88, 1 words)
+      insn 19: base 240402a8  region 240402a9
+  SetDialog__25tScreenPinkSlipsCarSelect  (LO16, base 8003F300 -> 8003F264, 9 words)
+      insn 69: base 240402a8  region 240402a9
+      insn 105: base 260402ab  region 260402ac
+      insn 106: base 260402a9  region 260402aa
+      insn 132: base 260402af  region 260402b0
+  DrawBackground__18tScreenTournSelect  (LO16, base 8003FE5C -> 8003FDE4, 14 words)
+      insn 52: base 2405007b  region 2405007c
+      insn 60: base 2404007b  region 2404007c
+      insn 61: base 2404007b  region 2404007c
+      insn 71: base 24050099  region 2405009a
+  DrawBackground__17tScreenTrophyRoom  (LO16, base 80040B18 -> 80040AB0, 4 words)
+      insn 115: base 24a50354  region 24a50355
+      insn 124: base 240403de  region 240403df
+      insn 144: base 240403df  region 240403e0
+      insn 155: base 240403e0  region 240403e1
+  DrawBackground__17tScreenTrophyInfo  (LO16, base 80041138 -> 800410D0, 8 words)
+      insn 59: base 24840341  region 24840342
+      insn 68: base 26b0037a  region 26b0037b
+      insn 75: base 240503db  region 240503dc
+      insn 100: base 26b203a0  region 26b203a1
+  Initialize__18tScreenTrackSelect  (LO16, base 80041B6C -> 80041B04, 1 words)
+      insn 76: base 240500f8  region 240500f9
+  DrawRecords__19tScreenTrackRecordss  (LO16, base 80042968 -> 80042908, 4 words)
+      insn 51: base 26300257  region 26300258
+      insn 54: base 24040249  region 2404024a
+      insn 80: base 26040257  region 26040258
+      insn 101: base 24040260  region 24040261
+  DrawBackground__19tScreenTrackRecords  (LO16, base 80042B48 -> 80042AE8, 17 words)
+      insn 62: base 24040248  region 24040249
+      insn 68: base 24040256  region 24040257
+      insn 71: base 2404024f  region 24040250
+      insn 75: base 2404025f  region 24040260
+  GetHelpText__23tScreenControllerConfig  (LO16, base 800458AC -> 8004571C, 3 words)
+      insn 16: base 24020218  region 24020219
+      insn 18: base 24020219  region 2402021a
+      insn 20: base 2402021a  region 2402021b
+  DrawForeground__12tScreenAudio  (LO16, base 80045DC8 -> 80045C38, 2 words)
+      insn 41: base 2404027d  region 2404027e
+      insn 51: base 2404027d  region 2404027e
+  DrawBackground__12tScreenAudio  (LO16, base 80045ED8 -> 80045D48, 2 words)
+      insn 118: base 240401dc  region 240401dd
+      insn 119: base 240401dc  region 240401dd
+  DrawMemCardStuff__14tScreenMemcards  (LO16, base 80046D60 -> 80046BD0, 9 words)
+      insn 59: base 2404027b  region 2404027c
+      insn 60: base 2404027f  region 24040280
+      insn 112: base 24020288  region 24020289
+      insn 121: base 2402027d  region 2402027e
+  DrawBackground__14tScreenMemcard  (LO16, base 80047470 -> 800472E0, 2 words)
+      insn 69: base 2402027c  region 2402027d
+      insn 163: base 24840293  region 24840294
+  Initialize__14tScreenMemcard  (LO16, base 80047C30 -> 80047B10, 2 words)
+      insn 64: base 24070287  region 24070288
+      insn 71: base 24070289  region 2407028a
+  DrawBackground__15tScreenCongrats  (LO16, base 8004813C -> 8004803C, 6 words)
+      insn 108: base 24050317  region 24050318
+      insn 115: base 24040318  region 24040319
+      insn 116: base 24040318  region 24040319
+      insn 126: base 24050316  region 24050317
+  DrawCongratsMessage__23tScreenPinkSlipCongrats  (LO16, base 80048B48 -> 80048A48, 5 words)
+      insn 21: base 24040275  region 24040276
+      insn 28: base 24840121  region 24840122
+      insn 37: base 24040275  region 24040276
+      insn 49: base 24840121  region 24840122
+  DrawCongratsMessage__25tScreenTournamentCongrats  (LO16, base 800496D4 -> 80049620, 3 words)
+      insn 8: base 240200c8  region 240201a4
+      insn 20: base 24060001  region 24060002
+      insn 44: base 24060001  region 24060002
+  Initialize__15tScreenUserName  (LO16, base 8004AF88 -> 8004AF30, 1 words)
+      insn 24: base 260401fb  region 260401fc
+  DrawBackground__15tScreenUserName  (LO16, base 8004B1AC -> 8004B154, 6 words)
+      insn 139: base 24040205  region 24040206
+      insn 141: base 24040205  region 24040206
+      insn 176: base 24040206  region 24040207
+      insn 178: base 24040206  region 24040207
+  PSXFront_AllocateDrawMemory__Fv  (LO16, base 8004D7BC -> 8004D76C, 3 words)
+      insn 7: base 34a53880  region 34a55180
+      insn 13: base 34a53880  region 34a55180
+      insn 22: base 34a53880  region 34a55180
+  AudioMus_RefreshStatus__Fv  (LO16, base 80079EF4 -> 8007A960, 6 words)
+      insn 3: base 8ca40074  region 8ca40070
+      insn 8: base 24a50090  region 24a5008c
+      insn 11: base 8ca20090  region 8ca2008c
+      insn 15: base 8ca40094  region 8ca40090
+  AudioMus_Threshold__Fv  (LO16, base 80079F58 -> 8007A9C4, 6 words)
+      insn 4: base 8c82008c  region 8c820088
+      insn 10: base 8c820020  region 8c82001c
+      insn 18: base 8c820088  region 8c820084
+      insn 21: base 8c820090  region 8c82008c
+  AudioMus_Buffered__Fv  (LO16, base 80079FDC -> 8007AA48, 3 words)
+      insn 4: base 8c62008c  region 8c620088
+      insn 10: base 8c620090  region 8c62008c
+      insn 14: base 8c6200a8  region 8c6200a4
+  AudioMus_GetCurrentSong__Fv  (LO16, base 8007A028 -> 8007AA94, 7 words)
+      insn 3: base 2464010c  region 24640108
+      insn 6: base 8c6200a4  region 8c6200a0
+      insn 9: base 8c620020  region 8c62001c
+      insn 19: base 8c430020  region 8c43001c
+  AudioMus_SwitchSong__Fv  (LO16, base 8007A0E4 -> 8007AB50, 7 words)
+      insn 13: base 24620118  region 24620114
+      insn 14: base ac60002c  region ac600028
+      insn 15: base ac600020  region ac60001c
+      insn 16: base ac600114  region ac600110
+  AudioMus_SetCurrentSongInfo__Fv  (LO16, base 8007A390 -> 8007AE0C, 6 words)
+      insn 3: base 8c6200a4  region 8c6200a0
+      insn 4: base 8c6500a0  region 8c65009c
+      insn 5: base 24640118  region 24640114
+      insn 6: base ac620114  region ac620110
+  AudioMus_GetSongList__FPci  (LO16, base 8007A880 -> 8007B214, 3 words)
+      insn 21: base 8c64008c  region 8c640088
+      insn 60: base 8c64008c  region 8c640088
+      insn 86: base 8c82002c  region 8c820028
+  AudioMus_InitGlobals__Fv  (LO16, base 8007AA54 -> 8007B3E8, 5 words)
+      insn 2: base ac40008c  region ac400088
+      insn 3: base ac400070  region ac40006c
+      insn 4: base ac430074  region ac430070
+      insn 5: base ac40007c  region ac400078
+  AudioMus_InitDriverGlobals__Fv  (LO16, base 8007AA78 -> 8007B40C, 8 words)
+      insn 3: base 24430118  region 24430114
+      insn 5: base ac400024  region ac400020
+      insn 9: base ac40002c  region ac400028
+      insn 11: base ac400020  region ac40001c
+  AudioMus_DriverStartUp__Fii  (LO16, base 8007AAD4 -> 8007B468, 10 words)
+      insn 9: base 8c420080  region 8c42007c
+      insn 17: base 8c830074  region 8c830070
+      insn 20: base ac820088  region ac820084
+      insn 21: base 8c820070  region 8c82006c
+  AudioMus_SysStartUp__FiiPc  (LO16, base 8007AC18 -> 8007B5AC, 5 words)
+      insn 12: base 24050158  region 24050154
+      insn 35: base ac620070  region ac62006c
+      insn 43: base 248400ac  region 248400a8
+      insn 47: base 248400ac  region 248400a8
+  AudioMus_DriverCleanUp__Fv  (LO16, base 8007AD10 -> 8007B6A4, 5 words)
+      insn 4: base 8c42007c  region 8c420078
+      insn 12: base ac40007c  region ac400078
+      insn 15: base 8c440074  region 8c440070
+      insn 23: base ac620074  region ac620070
+  AudioMus_SysCleanUp__Fv  (LO16, base 8007AD8C -> 8007B720, 2 words)
+      insn 8: base 8c440070  region 8c44006c
+      insn 16: base 8c44008c  region 8c440088
+  AudioMus_StopSong__Fi  (LO16, base 8007AE04 -> 8007B798, 7 words)
+      insn 13: base 8c840074  region 8c840070
+      insn 21: base ac400024  region ac400020
+      insn 22: base ac40002c  region ac400028
+      insn 29: base 8c820074  region 8c820070
+  AudioMus_BuildPlayList__FiPi  (LO16, base 8007AED8 -> 8007B86C, 1 words)
+      insn 21: base a04300ec  region a04300e8
+  AudioMus_BuildPattern__FPc  (LO16, base 8007AF60 -> 8007B8F4, 2 words)
+      insn 20: base 8c64008c  region 8c640088
+      insn 33: base a05000ec  region a05000e8
+  AudioMus_PlaySong__FPc  (LO16, base 8007B030 -> 8007B9C4, 7 words)
+      insn 42: base ac620028  region ac620024
+      insn 123: base 8c640074  region 8c640070
+      insn 128: base ac430024  region ac430020
+      insn 133: base ac40002c  region ac400028
+  AudioMus_Volume__Fi  (LO16, base 8007B2B0 -> 8007BC44, 7 words)
+      insn 18: base 8c820024  region 8c820020
+      insn 22: base 8c840074  region 8c840070
+      insn 37: base 8c420024  region 8c420020
+      insn 59: base 8c450024  region 8c450020
+  AudioMus_AutoVolume__Fii  (LO16, base 8007B46C -> 8007BE00, 2 words)
+      insn 33: base 8c820024  region 8c820020
+      insn 37: base 8c840074  region 8c840070
+  Object_InitCustomObjects__Fv  (LO16, base 800A5588 -> 800A6100, 4 words)
+      insn 3: base 24050400  region 2405055c
+      insn 11: base 24050400  region 240502fc
+      insn 17: base 240503fc  region 240502f8
+      insn 23: base 24050400  region 24050264
+  Device_SetHardCodedKeys__Fv  (LO16, base 800BD5E0 -> 800BE1B4, 2 words)
+      insn 0: base 3c060040  region 3c060020
+      insn 2: base 3c050010  region 3c050040
+  nfs2eacinit__Fv  (LO16, base 800DC458 -> 800DCE50, 1 words)
+      insn 11: base 24050320  region 240502c6
+  savegp  (LO16, base 800EB090 -> 800EB7D8, 1 words)
+      insn 2: base 8f9c34e8  region 8f9c45c4
+== NFS4-R-UK-ES-IT: 2690 rows checked, 92 skipped (size-mismatch/no-oracle), HIDDEN-CHANGED: 100
+  DrawHelpIcons__14tFEApplication  (LO16, base 80013344 -> 8001352C, 5 words)
+      insn 25: base 240400fc  region 240400fd
+      insn 149: base 240400fc  region 240400fd
+      insn 160: base 240400fc  region 240400fd
+      insn 163: base 240400fc  region 240400fd
+  MainLoop__14tFEApplicationP5tMenu  (LO16, base 800142A4 -> 80014464, 2 words)
+      insn 941: base 26240295  region 26240296
+      insn 973: base 24040297  region 24040298
+  ValidCar__16tListIteratorCar7tPlayerc  (LO16, base 800180D4 -> 800182AC, 1 words)
+      insn 193: base 2404000c  region 2404000b
+  CalculateDimensions__11tDialogHelp  (LO16, base 80018B90 -> 80018D68, 10 words)
+      insn 32: base 24050059  region 2405005a
+      insn 87: base 24050052  region 24050053
+      insn 92: base 24050053  region 24050054
+      insn 110: base 24050056  region 24050057
+  CalculateDimensions__20tDialogMessageString  (LO16, base 80019418 -> 800195F0, 1 words)
+      insn 121: base 240200f0  region 24020100
+  CalculateDimensions__12tDialogYesNo  (LO16, base 800199D4 -> 80019BAC, 1 words)
+      insn 34: base 240200f0  region 24020100
+  Draw__12tMenuOptions  (LO16, base 8001BAEC -> 8001BCE8, 1 words)
+      insn 67: base 240300f0  region 24030100
+  DrawLeftFlare__FiiiRi  (LO16, base 8001BFA0 -> 8001C1A0, 1 words)
+      insn 53: base 240401de  region 240401df
+  Draw__29tMenuItemOnOffLeftRightChoiceiib  (LO16, base 8001E384 -> 8001E588, 2 words)
+      insn 66: base 24040066  region 24040067
+      insn 77: base 24040067  region 24040068
+  DrawOneSong__18tInsideBoxSongMenussssss  (LO16, base 8001EC48 -> 8001EE4C, 2 words)
+      insn 69: base 24040066  region 24040067
+      insn 85: base 24040067  region 24040068
+  TransitionOn__17tUserNameMenuItem  (LO16, base 80020580 -> 80020784, 1 words)
+      insn 11: base 260401fb  region 260401fc
+  TextValue__18tListIteratorTrack7tPlayer  (LO16, base 80021DD4 -> 80021FDC, 1 words)
+      insn 15: base 244200d5  region 244200d6
+  DisplayLoadingText__7tScreen  (LO16, base 80025AB8 -> 80025B80, 4 words)
+      insn 30: base 2404027d  region 2404027e
+      insn 32: base 240600dc  region 240600e4
+      insn 40: base 2404027d  region 2404027e
+      insn 45: base 240600dc  region 240600e4
+  Front_InitOpponentCars__FR9tFEStream  (LO16, base 800285D0 -> 80028700, 1 words)
+      insn 170: base 24040019  region 2404000d
+  PlayerName__Fi  (LO16, base 8002B9FC -> 8002BB68, 2 words)
+      insn 25: base 2404004e  region 2404004f
+      insn 26: base 26440050  region 26440051
+  PlayerNameMixedCase__Fi  (LO16, base 8002BA88 -> 8002BBF4, 2 words)
+      insn 17: base 2404004e  region 2404004f
+      insn 18: base 26440050  region 26440051
+  MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand  (LO16, base 8002C288 -> 8002C3F0, 2 words)
+      insn 22: base 24020321  region 24020322
+      insn 24: base 24020322  region 24020323
+  AskTheUserToSaveTheGame__Fv  (LO16, base 8002C41C -> 8002C584, 3 words)
+      insn 10: base 24040331  region 24040332
+      insn 14: base 24020321  region 24020322
+      insn 16: base 24020322  region 24020323
+  MenuExtended_GoToCarSelect__FR12tMenuCommand  (LO16, base 8002C4FC -> 8002C664, 1 words)
+      insn 23: base 240400eb  region 240400ec
+  GenericMenuSaveGame__Fi  (LO16, base 8002C9A0 -> 8002CB08, 2 words)
+      insn 8: base 2402027e  region 2402027f
+      insn 21: base 24040282  region 24040283
+  PinkSlipsPreSave__Fv  (LO16, base 8002CABC -> 8002CC24, 3 words)
+      insn 11: base 24040273  region 24040274
+      insn 18: base 24020321  region 24020322
+      insn 20: base 24020322  region 24020323
+  MenuExtended_GoToRace__FR12tMenuCommand  (LO16, base 8002CC98 -> 8002CE00, 4 words)
+      insn 30: base 240400aa  region 240400ab
+      insn 44: base 240400f1  region 240400f2
+      insn 60: base 240400f2  region 240400f3
+      insn 73: base 240400f3  region 240400f4
+  MenuExtended_GoTo2PlayerRace__FR12tMenuCommand  (LO16, base 8002CDF4 -> 8002CF5C, 3 words)
+      insn 31: base 240400aa  region 240400ab
+      insn 52: base 240400f3  region 240400f4
+      insn 69: base 240400f2  region 240400f3
+  MenuExtended_GoToTournTrackInfo__FR12tMenuCommand  (LO16, base 8002CF40 -> 8002D0A8, 4 words)
+      insn 34: base 240400f6  region 240400f7
+      insn 45: base 240400f7  region 240400f8
+      insn 49: base 24020322  region 24020323
+      insn 51: base 24020321  region 24020322
+  MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand  (LO16, base 8002D0A8 -> 8002D210, 4 words)
+      insn 35: base 240400f6  region 240400f7
+      insn 46: base 240400f7  region 240400f8
+      insn 50: base 24020321  region 24020322
+      insn 52: base 24020322  region 24020323
+  MenuExtended_SellCar__FR12tMenuCommand  (LO16, base 8002D3A0 -> 8002D508, 4 words)
+      insn 34: base 240400a5  region 240400a6
+      insn 38: base 24020321  region 24020322
+      insn 40: base 24020322  region 24020323
+      insn 74: base 240400a9  region 240400aa
+  MenuExtended_BuyCar__FR12tMenuCommand  (LO16, base 8002D4F8 -> 8002D660, 5 words)
+      insn 37: base 240400a4  region 240400a5
+      insn 40: base 24020321  region 24020322
+      insn 42: base 24020322  region 24020323
+      insn 68: base 240400a7  region 240400a8
+  MenuExtended_PurchaseUpgrade__Fi  (LO16, base 8002D64C -> 8002D7B4, 4 words)
+      insn 38: base 240400a6  region 240400a7
+      insn 41: base 24020321  region 24020322
+      insn 43: base 24020322  region 24020323
+      insn 66: base 240400a8  region 240400a9
+  GenericMenuLoadGame__Fi  (LO16, base 8002D83C -> 8002D9A4, 1 words)
+      insn 13: base 2402027d  region 2402027e
+  MenuExtended_ExitTourney__FR12tMenuCommand  (LO16, base 8002E18C -> 8002E3C0, 3 words)
+      insn 7: base 2404009d  region 2404009e
+      insn 9: base 24020321  region 24020322
+      insn 11: base 24020322  region 24020323
+  MenuExtended_ExitPinkSlipsEarly__FR12tMenuCommand  (LO16, base 8002E21C -> 8002E450, 4 words)
+      insn 9: base 2404009d  region 2404009e
+      insn 11: base 24020321  region 24020322
+      insn 13: base 24020322  region 24020323
+      insn 31: base 24040297  region 24040298
+  UpdateTrackList__18tTournamentManagerss  (LO16, base 80032584 -> 800327BC, 1 words)
+      insn 45: base 244200d5  region 244200d6
+  AdvanceToNextTrack__18tTournamentManager  (LO16, base 80033048 -> 8003326C, 3 words)
+      insn 169: base 24840019  region 2484000d
+      insn 227: base 24840019  region 2484000d
+      insn 262: base 244203d9  region 244203da
+  ValidCar__18tTournamentManagerR8tCarInfo  (LO16, base 80033C24 -> 80033E48, 1 words)
+      insn 30: base 24040019  region 2404000d
+  TextValue__23tListIteratorTournament7tPlayer  (LO16, base 80033E28 -> 8003404C, 1 words)
+      insn 21: base 24420341  region 24420342
+  Confirm__Fii  (LO16, base 80034438 -> 80034650, 2 words)
+      insn 28: base 24020292  region 24020293
+      insn 48: base 2484032b  region 2484032c
+  OverwriteConfirm__Fv  (LO16, base 800345EC -> 80034804, 2 words)
+      insn 3: base 2405028f  region 24050290
+      insn 6: base 24840323  region 24840324
+  FormatConfirm__Fv  (LO16, base 80034620 -> 80034838, 2 words)
+      insn 3: base 24050290  region 24050291
+      insn 6: base 24840327  region 24840328
+  DrawBackground__11tScreenMain  (LO16, base 800379C0 -> 80037C38, 1 words)
+      insn 325: base 24040272  region 24040273
+  DrawMoney__Fiiilii  (LO16, base 800397F0 -> 80039B00, 3 words)
+      insn 24: base 24040086  region 24040087
+      insn 32: base 24040087  region 24040088
+      insn 41: base 24040088  region 24040089
+  DrawBackground__26tScreenTournamentStandings  (LO16, base 80039B84 -> 80039E94, 39 words)
+      insn 24: base 241602fe  region 241602ff
+      insn 63: base 26840257  region 26840258
+      insn 64: base 240402f7  region 240402f8
+      insn 95: base 240402f8  region 240402f9
+  DrawBackground__24tScreenPinkSlipStandings  (LO16, base 8003A448 -> 8003A758, 18 words)
+      insn 11: base 241102fe  region 241102ff
+      insn 35: base 240402f7  region 240402f8
+      insn 50: base 24a500d5  region 24a500d6
+      insn 61: base 2404030d  region 2404030e
+  DrawOverlay__16tScreenCarSelectP8tOverlay  (LO16, base 8003AD00 -> 8003B058, 12 words)
+      insn 123: base 24840121  region 24840122
+      insn 155: base 24840121  region 24840122
+      insn 164: base 2410008c  region 2410008d
+      insn 166: base 2410008e  region 2410008f
+  InitializeVideoWall__16tScreenCarSelect  (LO16, base 8003BCD0 -> 8003C028, 1 words)
+      insn 19: base 240500f8  region 240500f9
+  InitializeVideoWall__20tScreenCarSelectDuel  (LO16, base 8003D1E8 -> 8003D598, 2 words)
+      insn 21: base 240500f8  region 240500f9
+      insn 47: base 240500f8  region 240500f9
+  DrawBackground__25tScreenCarSelectTwoPlayer  (LO16, base 8003E4BC -> 8003E8BC, 1 words)
+      insn 88: base 24840121  region 24840122
+  SetDialog__25tScreenCarSelectTwoPlayer  (LO16, base 8003EC50 -> 8003F050, 3 words)
+      insn 17: base 2402003c  region 24020040
+      insn 18: base 2402ffc4  region 2402ffc0
+      insn 19: base 240402a8  region 240402a9
+  SetDialog__25tScreenPinkSlipsCarSelect  (LO16, base 8003F300 -> 8003F72C, 11 words)
+      insn 11: base 2403003c  region 24030040
+      insn 12: base 2403ffc4  region 2403ffc0
+      insn 69: base 240402a8  region 240402a9
+      insn 105: base 260402ab  region 260402ac
+  DrawBackground__18tScreenTournSelect  (LO16, base 8003FE5C -> 800402AC, 14 words)
+      insn 52: base 2405007b  region 2405007c
+      insn 60: base 2404007b  region 2404007c
+      insn 61: base 2404007b  region 2404007c
+      insn 71: base 24050099  region 2405009a
+  DrawBackground__17tScreenTrophyRoom  (LO16, base 80040B18 -> 80040F78, 4 words)
+      insn 115: base 24a50354  region 24a50355
+      insn 124: base 240403de  region 240403df
+      insn 144: base 240403df  region 240403e0
+      insn 155: base 240403e0  region 240403e1
+  DrawBackground__17tScreenTrophyInfo  (LO16, base 80041138 -> 80041598, 8 words)
+      insn 59: base 24840341  region 24840342
+      insn 68: base 26b0037a  region 26b0037b
+      insn 75: base 240503db  region 240503dc
+      insn 100: base 26b203a0  region 26b203a1
+  Initialize__18tScreenTrackSelect  (LO16, base 80041B6C -> 80041FD4, 1 words)
+      insn 76: base 240500f8  region 240500f9
+  DrawRecords__19tScreenTrackRecordss  (LO16, base 80042968 -> 80042DD8, 4 words)
+      insn 51: base 26300257  region 26300258
+      insn 54: base 24040249  region 2404024a
+      insn 80: base 26040257  region 26040258
+      insn 101: base 24040260  region 24040261
+  DrawBackground__19tScreenTrackRecords  (LO16, base 80042B48 -> 80042FB8, 17 words)
+      insn 62: base 24040248  region 24040249
+      insn 68: base 24040256  region 24040257
+      insn 71: base 2404024f  region 24040250
+      insn 75: base 2404025f  region 24040260
+  SetCurrentController__23tScreenControllerConfigb  (LO16, base 80043778 -> 80043BE8, 3 words)
+      insn 7: base 2404020b  region 2404020c
+      insn 15: base 2402020c  region 2402020d
+      insn 17: base 2402020d  region 2402020e
+  GetHelpText__23tScreenControllerConfig  (LO16, base 800458AC -> 80045D1C, 3 words)
+      insn 16: base 24020218  region 24020219
+      insn 18: base 24020219  region 2402021a
+      insn 20: base 2402021a  region 2402021b
+  DrawForeground__12tScreenAudio  (LO16, base 80045DC8 -> 80046238, 2 words)
+      insn 41: base 2404027d  region 2404027e
+      insn 51: base 2404027d  region 2404027e
+  DrawBackground__12tScreenAudio  (LO16, base 80045ED8 -> 80046348, 2 words)
+      insn 118: base 240401dc  region 240401dd
+      insn 119: base 240401dc  region 240401dd
+  DrawMemCardStuff__14tScreenMemcards  (LO16, base 80046D60 -> 800471D0, 9 words)
+      insn 59: base 2404027b  region 2404027c
+      insn 60: base 2404027f  region 24040280
+      insn 112: base 24020288  region 24020289
+      insn 121: base 2402027d  region 2402027e
+  DrawBackground__14tScreenMemcard  (LO16, base 80047470 -> 800478E0, 2 words)
+      insn 69: base 2402027c  region 2402027d
+      insn 163: base 24840293  region 24840294
+  DrawBackground__15tScreenCongrats  (LO16, base 8004813C -> 80048644, 6 words)
+      insn 108: base 24050317  region 24050318
+      insn 115: base 24040318  region 24040319
+      insn 116: base 24040318  region 24040319
+      insn 126: base 24050316  region 24050317
+  DrawCongratsMessage__23tScreenPinkSlipCongrats  (LO16, base 80048B48 -> 80049050, 5 words)
+      insn 21: base 24040275  region 24040276
+      insn 28: base 24840121  region 24840122
+      insn 37: base 24040275  region 24040276
+      insn 49: base 24840121  region 24840122
+  DrawCongratsMessage__25tScreenTournamentCongrats  (LO16, base 800496D4 -> 80049BEC, 3 words)
+      insn 8: base 240200c8  region 240201a4
+      insn 20: base 24060001  region 24060002
+      insn 44: base 24060001  region 24060002
+  Initialize__15tScreenUserName  (LO16, base 8004AF88 -> 8004B4F8, 1 words)
+      insn 24: base 260401fb  region 260401fc
+  DrawBackground__15tScreenUserName  (LO16, base 8004B1AC -> 8004B71C, 6 words)
+      insn 139: base 24040205  region 24040206
+      insn 141: base 24040205  region 24040206
+      insn 176: base 24040206  region 24040207
+      insn 178: base 24040206  region 24040207
+  Quick_DD__Fiii  (LO16, base 8004D778 -> 8004DCF8, 1 words)
+      insn 7: base 240700f0  region 24070100
+  AudioMus_RefreshStatus__Fv  (LO16, base 80079EF4 -> 8007A960, 6 words)
+      insn 3: base 8ca40074  region 8ca40070
+      insn 8: base 24a50090  region 24a5008c
+      insn 11: base 8ca20090  region 8ca2008c
+      insn 15: base 8ca40094  region 8ca40090
+  AudioMus_Threshold__Fv  (LO16, base 80079F58 -> 8007A9C4, 6 words)
+      insn 4: base 8c82008c  region 8c820088
+      insn 10: base 8c820020  region 8c82001c
+      insn 18: base 8c820088  region 8c820084
+      insn 21: base 8c820090  region 8c82008c
+  AudioMus_Buffered__Fv  (LO16, base 80079FDC -> 8007AA48, 3 words)
+      insn 4: base 8c62008c  region 8c620088
+      insn 10: base 8c620090  region 8c62008c
+      insn 14: base 8c6200a8  region 8c6200a4
+  AudioMus_GetCurrentSong__Fv  (LO16, base 8007A028 -> 8007AA94, 7 words)
+      insn 3: base 2464010c  region 24640108
+      insn 6: base 8c6200a4  region 8c6200a0
+      insn 9: base 8c620020  region 8c62001c
+      insn 19: base 8c430020  region 8c43001c
+  AudioMus_SwitchSong__Fv  (LO16, base 8007A0E4 -> 8007AB50, 7 words)
+      insn 13: base 24620118  region 24620114
+      insn 14: base ac60002c  region ac600028
+      insn 15: base ac600020  region ac60001c
+      insn 16: base ac600114  region ac600110
+  AudioMus_SetCurrentSongInfo__Fv  (LO16, base 8007A390 -> 8007AE0C, 6 words)
+      insn 3: base 8c6200a4  region 8c6200a0
+      insn 4: base 8c6500a0  region 8c65009c
+      insn 5: base 24640118  region 24640114
+      insn 6: base ac620114  region ac620110
+  AudioMus_GetSongList__FPci  (LO16, base 8007A880 -> 8007B214, 3 words)
+      insn 21: base 8c64008c  region 8c640088
+      insn 60: base 8c64008c  region 8c640088
+      insn 86: base 8c82002c  region 8c820028
+  AudioMus_InitGlobals__Fv  (LO16, base 8007AA54 -> 8007B3E8, 5 words)
+      insn 2: base ac40008c  region ac400088
+      insn 3: base ac400070  region ac40006c
+      insn 4: base ac430074  region ac430070
+      insn 5: base ac40007c  region ac400078
+  AudioMus_InitDriverGlobals__Fv  (LO16, base 8007AA78 -> 8007B40C, 8 words)
+      insn 3: base 24430118  region 24430114
+      insn 5: base ac400024  region ac400020
+      insn 9: base ac40002c  region ac400028
+      insn 11: base ac400020  region ac40001c
+  AudioMus_DriverStartUp__Fii  (LO16, base 8007AAD4 -> 8007B468, 10 words)
+      insn 9: base 8c420080  region 8c42007c
+      insn 17: base 8c830074  region 8c830070
+      insn 20: base ac820088  region ac820084
+      insn 21: base 8c820070  region 8c82006c
+  AudioMus_SysStartUp__FiiPc  (LO16, base 8007AC18 -> 8007B5AC, 5 words)
+      insn 12: base 24050158  region 24050154
+      insn 35: base ac620070  region ac62006c
+      insn 43: base 248400ac  region 248400a8
+      insn 47: base 248400ac  region 248400a8
+  AudioMus_DriverCleanUp__Fv  (LO16, base 8007AD10 -> 8007B6A4, 5 words)
+      insn 4: base 8c42007c  region 8c420078
+      insn 12: base ac40007c  region ac400078
+      insn 15: base 8c440074  region 8c440070
+      insn 23: base ac620074  region ac620070
+  AudioMus_SysCleanUp__Fv  (LO16, base 8007AD8C -> 8007B720, 2 words)
+      insn 8: base 8c440070  region 8c44006c
+      insn 16: base 8c44008c  region 8c440088
+  AudioMus_StopSong__Fi  (LO16, base 8007AE04 -> 8007B798, 7 words)
+      insn 13: base 8c840074  region 8c840070
+      insn 21: base ac400024  region ac400020
+      insn 22: base ac40002c  region ac400028
+      insn 29: base 8c820074  region 8c820070
+  AudioMus_BuildPlayList__FiPi  (LO16, base 8007AED8 -> 8007B86C, 1 words)
+      insn 21: base a04300ec  region a04300e8
+  AudioMus_BuildPattern__FPc  (LO16, base 8007AF60 -> 8007B8F4, 2 words)
+      insn 20: base 8c64008c  region 8c640088
+      insn 33: base a05000ec  region a05000e8
+  AudioMus_PlaySong__FPc  (LO16, base 8007B030 -> 8007B9C4, 7 words)
+      insn 42: base ac620028  region ac620024
+      insn 123: base 8c640074  region 8c640070
+      insn 128: base ac430024  region ac430020
+      insn 133: base ac40002c  region ac400028
+  AudioMus_Volume__Fi  (LO16, base 8007B2B0 -> 8007BC44, 7 words)
+      insn 18: base 8c820024  region 8c820020
+      insn 22: base 8c840074  region 8c840070
+      insn 37: base 8c420024  region 8c420020
+      insn 59: base 8c450024  region 8c450020
+  AudioMus_AutoVolume__Fii  (LO16, base 8007B46C -> 8007BE00, 2 words)
+      insn 33: base 8c820024  region 8c820020
+      insn 37: base 8c840074  region 8c840070
+  Camera_SetMode__Fii  (LO16, base 80085608 -> 80086030, 1 words)
+      insn 30: base 240700f0  region 24070100
+  Camera_NextMode__Fi  (LO16, base 8008581C -> 80086244, 1 words)
+      insn 29: base 240700f0  region 24070100
+  NFS4_LoadingIcon__Fv  (LO16, base 800A45B8 -> 800A5130, 2 words)
+      insn 43: base 240700f0  region 24070100
+      insn 55: base 240600d2  region 240600e2
+  Object_InitCustomObjects__Fv  (LO16, base 800A5588 -> 800A6104, 4 words)
+      insn 3: base 24050400  region 2405055c
+      insn 11: base 24050400  region 240502fc
+      insn 17: base 240503fc  region 240502f8
+      insn 23: base 24050400  region 24050264
+  Render_CreatePauseMenuViews__Fv  (LO16, base 800B3198 -> 800B3E64, 1 words)
+      insn 3: base 240200f0  region 24020100
+  Flare_LensFlare__FP7DVECTORP15Draw_FlareCache  (LO16, base 800CEB6C -> 800CF8F8, 1 words)
+      insn 53: base 240200f0  region 24020100
+  Flare_Sun__FP7SVECTORP15Draw_FlareCache  (LO16, base 800CF1D0 -> 800CFF5C, 4 words)
+      insn 9: base 24060078  region 24060080
+      insn 10: base 2406003c  region 24060040
+      insn 39: base 24030078  region 24030080
+      insn 46: base 2403003c  region 24030040
+  Flare_Moon__FP7SVECTORP15Draw_FlareCache  (LO16, base 800CF4BC -> 800D0248, 2 words)
+      insn 1: base 24060078  region 24060080
+      insn 7: base 2406003c  region 24060040
+  Hrz_BuildSky__Fv  (LO16, base 800D0A38 -> 800D17C4, 2 words)
+      insn 2: base 24100078  region 24100080
+      insn 12: base 2410003c  region 24100040
+  Sky_RenderStars__FP13Draw_SkyCachei  (LO16, base 800D1160 -> 800D1EEC, 2 words)
+      insn 6: base 24110078  region 24110080
+      insn 13: base 2411003c  region 24110040
+  Loading_DrawLoadingScreen__Fv  (LO16, base 800DB0B8 -> 800DBCD0, 2 words)
+      insn 32: base 240500f0  region 24050100
+      insn 68: base 240500f0  region 24050100
+  nfs2eacinit__Fv  (LO16, base 800DC458 -> 800DD090, 1 words)
+      insn 11: base 24050320  region 240502c6
+  TrsProj_SetViewTrsProjEnviro__FP13DRender_tView  (LO16, base 800E1A08 -> 800E2640, 2 words)
+      insn 10: base 24070078  region 24070080
+      insn 14: base 240700f0  region 24070100
+  Weather_InitSplats__Fv  (LO16, base 800E1FD8 -> 800E2C10, 2 words)
+      insn 17: base 241100f0  region 24110100
+      insn 18: base 24110078  region 24110080
+  savegp  (LO16, base 800EB090 -> 800EB9D8, 1 words)
+      insn 2: base 8f9c34e8  region 8f9c4804
+== NFS4-R-UK-SW: 2690 rows checked, 92 skipped (size-mismatch/no-oracle), HIDDEN-CHANGED: 100
+  DrawHelpIcons__14tFEApplication  (LO16, base 80013344 -> 80013514, 5 words)
+      insn 25: base 240400fc  region 240400fd
+      insn 149: base 240400fc  region 240400fd
+      insn 160: base 240400fc  region 240400fd
+      insn 163: base 240400fc  region 240400fd
+  MainLoop__14tFEApplicationP5tMenu  (LO16, base 800142A4 -> 8001444C, 2 words)
+      insn 941: base 26240295  region 26240296
+      insn 973: base 24040297  region 24040298
+  ValidCar__16tListIteratorCar7tPlayerc  (LO16, base 800180D4 -> 80018294, 1 words)
+      insn 193: base 2404000c  region 2404000b
+  CalculateDimensions__11tDialogHelp  (LO16, base 80018B90 -> 80018D50, 10 words)
+      insn 32: base 24050059  region 2405005a
+      insn 87: base 24050052  region 24050053
+      insn 92: base 24050053  region 24050054
+      insn 110: base 24050056  region 24050057
+  CalculateDimensions__20tDialogMessageString  (LO16, base 80019418 -> 800195D8, 1 words)
+      insn 121: base 240200f0  region 24020100
+  CalculateDimensions__12tDialogYesNo  (LO16, base 800199D4 -> 80019B94, 1 words)
+      insn 34: base 240200f0  region 24020100
+  Draw__12tMenuOptions  (LO16, base 8001BAEC -> 8001BCD0, 1 words)
+      insn 67: base 240300f0  region 24030100
+  DrawLeftFlare__FiiiRi  (LO16, base 8001BFA0 -> 8001C188, 1 words)
+      insn 53: base 240401de  region 240401df
+  Draw__29tMenuItemOnOffLeftRightChoiceiib  (LO16, base 8001E384 -> 8001E570, 2 words)
+      insn 66: base 24040066  region 24040067
+      insn 77: base 24040067  region 24040068
+  DrawOneSong__18tInsideBoxSongMenussssss  (LO16, base 8001EC48 -> 8001EE34, 2 words)
+      insn 69: base 24040066  region 24040067
+      insn 85: base 24040067  region 24040068
+  TransitionOn__17tUserNameMenuItem  (LO16, base 80020580 -> 8002076C, 1 words)
+      insn 11: base 260401fb  region 260401fc
+  TextValue__18tListIteratorTrack7tPlayer  (LO16, base 80021DD4 -> 80021FC4, 1 words)
+      insn 15: base 244200d5  region 244200d6
+  DisplayLoadingText__7tScreen  (LO16, base 80025AB8 -> 80025B68, 4 words)
+      insn 30: base 2404027d  region 2404027e
+      insn 32: base 240600dc  region 240600e4
+      insn 40: base 2404027d  region 2404027e
+      insn 45: base 240600dc  region 240600e4
+  Front_InitOpponentCars__FR9tFEStream  (LO16, base 800285D0 -> 800286E8, 1 words)
+      insn 170: base 24040019  region 2404000d
+  PlayerName__Fi  (LO16, base 8002B9FC -> 8002BB50, 2 words)
+      insn 25: base 2404004e  region 2404004f
+      insn 26: base 26440050  region 26440051
+  PlayerNameMixedCase__Fi  (LO16, base 8002BA88 -> 8002BBDC, 2 words)
+      insn 17: base 2404004e  region 2404004f
+      insn 18: base 26440050  region 26440051
+  MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand  (LO16, base 8002C288 -> 8002C3D8, 2 words)
+      insn 22: base 24020321  region 24020322
+      insn 24: base 24020322  region 24020323
+  AskTheUserToSaveTheGame__Fv  (LO16, base 8002C41C -> 8002C56C, 3 words)
+      insn 10: base 24040331  region 24040332
+      insn 14: base 24020321  region 24020322
+      insn 16: base 24020322  region 24020323
+  MenuExtended_GoToCarSelect__FR12tMenuCommand  (LO16, base 8002C4FC -> 8002C64C, 1 words)
+      insn 23: base 240400eb  region 240400ec
+  GenericMenuSaveGame__Fi  (LO16, base 8002C9A0 -> 8002CAF0, 2 words)
+      insn 8: base 2402027e  region 2402027f
+      insn 21: base 24040282  region 24040283
+  PinkSlipsPreSave__Fv  (LO16, base 8002CABC -> 8002CC0C, 3 words)
+      insn 11: base 24040273  region 24040274
+      insn 18: base 24020321  region 24020322
+      insn 20: base 24020322  region 24020323
+  MenuExtended_GoToRace__FR12tMenuCommand  (LO16, base 8002CC98 -> 8002CDE8, 4 words)
+      insn 30: base 240400aa  region 240400ab
+      insn 44: base 240400f1  region 240400f2
+      insn 60: base 240400f2  region 240400f3
+      insn 73: base 240400f3  region 240400f4
+  MenuExtended_GoTo2PlayerRace__FR12tMenuCommand  (LO16, base 8002CDF4 -> 8002CF44, 3 words)
+      insn 31: base 240400aa  region 240400ab
+      insn 52: base 240400f3  region 240400f4
+      insn 69: base 240400f2  region 240400f3
+  MenuExtended_GoToTournTrackInfo__FR12tMenuCommand  (LO16, base 8002CF40 -> 8002D090, 4 words)
+      insn 34: base 240400f6  region 240400f7
+      insn 45: base 240400f7  region 240400f8
+      insn 49: base 24020322  region 24020323
+      insn 51: base 24020321  region 24020322
+  MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand  (LO16, base 8002D0A8 -> 8002D1F8, 4 words)
+      insn 35: base 240400f6  region 240400f7
+      insn 46: base 240400f7  region 240400f8
+      insn 50: base 24020321  region 24020322
+      insn 52: base 24020322  region 24020323
+  MenuExtended_SellCar__FR12tMenuCommand  (LO16, base 8002D3A0 -> 8002D4F0, 4 words)
+      insn 34: base 240400a5  region 240400a6
+      insn 38: base 24020321  region 24020322
+      insn 40: base 24020322  region 24020323
+      insn 74: base 240400a9  region 240400aa
+  MenuExtended_BuyCar__FR12tMenuCommand  (LO16, base 8002D4F8 -> 8002D648, 5 words)
+      insn 37: base 240400a4  region 240400a5
+      insn 40: base 24020321  region 24020322
+      insn 42: base 24020322  region 24020323
+      insn 68: base 240400a7  region 240400a8
+  MenuExtended_PurchaseUpgrade__Fi  (LO16, base 8002D64C -> 8002D79C, 4 words)
+      insn 38: base 240400a6  region 240400a7
+      insn 41: base 24020321  region 24020322
+      insn 43: base 24020322  region 24020323
+      insn 66: base 240400a8  region 240400a9
+  GenericMenuLoadGame__Fi  (LO16, base 8002D83C -> 8002D98C, 1 words)
+      insn 13: base 2402027d  region 2402027e
+  MenuExtended_ExitTourney__FR12tMenuCommand  (LO16, base 8002E18C -> 8002E3A8, 3 words)
+      insn 7: base 2404009d  region 2404009e
+      insn 9: base 24020321  region 24020322
+      insn 11: base 24020322  region 24020323
+  MenuExtended_ExitPinkSlipsEarly__FR12tMenuCommand  (LO16, base 8002E21C -> 8002E438, 4 words)
+      insn 9: base 2404009d  region 2404009e
+      insn 11: base 24020321  region 24020322
+      insn 13: base 24020322  region 24020323
+      insn 31: base 24040297  region 24040298
+  UpdateTrackList__18tTournamentManagerss  (LO16, base 80032584 -> 800327A4, 1 words)
+      insn 45: base 244200d5  region 244200d6
+  AdvanceToNextTrack__18tTournamentManager  (LO16, base 80033048 -> 80033254, 3 words)
+      insn 169: base 24840019  region 2484000d
+      insn 227: base 24840019  region 2484000d
+      insn 262: base 244203d9  region 244203da
+  ValidCar__18tTournamentManagerR8tCarInfo  (LO16, base 80033C24 -> 80033E30, 1 words)
+      insn 30: base 24040019  region 2404000d
+  TextValue__23tListIteratorTournament7tPlayer  (LO16, base 80033E28 -> 80034034, 1 words)
+      insn 21: base 24420341  region 24420342
+  Confirm__Fii  (LO16, base 80034438 -> 80034638, 2 words)
+      insn 28: base 24020292  region 24020293
+      insn 48: base 2484032b  region 2484032c
+  OverwriteConfirm__Fv  (LO16, base 800345EC -> 800347EC, 2 words)
+      insn 3: base 2405028f  region 24050290
+      insn 6: base 24840323  region 24840324
+  FormatConfirm__Fv  (LO16, base 80034620 -> 80034820, 2 words)
+      insn 3: base 24050290  region 24050291
+      insn 6: base 24840327  region 24840328
+  DrawBackground__11tScreenMain  (LO16, base 800379C0 -> 80037C20, 1 words)
+      insn 325: base 24040272  region 24040273
+  DrawMoney__Fiiilii  (LO16, base 800397F0 -> 80039AE8, 3 words)
+      insn 24: base 24040086  region 24040087
+      insn 32: base 24040087  region 24040088
+      insn 41: base 24040088  region 24040089
+  DrawBackground__26tScreenTournamentStandings  (LO16, base 80039B84 -> 80039E7C, 39 words)
+      insn 24: base 241602fe  region 241602ff
+      insn 63: base 26840257  region 26840258
+      insn 64: base 240402f7  region 240402f8
+      insn 95: base 240402f8  region 240402f9
+  DrawBackground__24tScreenPinkSlipStandings  (LO16, base 8003A448 -> 8003A740, 18 words)
+      insn 11: base 241102fe  region 241102ff
+      insn 35: base 240402f7  region 240402f8
+      insn 50: base 24a500d5  region 24a500d6
+      insn 61: base 2404030d  region 2404030e
+  DrawOverlay__16tScreenCarSelectP8tOverlay  (LO16, base 8003AD00 -> 8003B040, 12 words)
+      insn 123: base 24840121  region 24840122
+      insn 155: base 24840121  region 24840122
+      insn 164: base 2410008c  region 2410008d
+      insn 166: base 2410008e  region 2410008f
+  InitializeVideoWall__16tScreenCarSelect  (LO16, base 8003BCD0 -> 8003C010, 1 words)
+      insn 19: base 240500f8  region 240500f9
+  InitializeVideoWall__20tScreenCarSelectDuel  (LO16, base 8003D1E8 -> 8003D580, 2 words)
+      insn 21: base 240500f8  region 240500f9
+      insn 47: base 240500f8  region 240500f9
+  DrawBackground__25tScreenCarSelectTwoPlayer  (LO16, base 8003E4BC -> 8003E8A4, 1 words)
+      insn 88: base 24840121  region 24840122
+  SetDialog__25tScreenCarSelectTwoPlayer  (LO16, base 8003EC50 -> 8003F038, 3 words)
+      insn 17: base 2402003c  region 24020040
+      insn 18: base 2402ffc4  region 2402ffc0
+      insn 19: base 240402a8  region 240402a9
+  SetDialog__25tScreenPinkSlipsCarSelect  (LO16, base 8003F300 -> 8003F714, 11 words)
+      insn 11: base 2403003c  region 24030040
+      insn 12: base 2403ffc4  region 2403ffc0
+      insn 69: base 240402a8  region 240402a9
+      insn 105: base 260402ab  region 260402ac
+  DrawBackground__18tScreenTournSelect  (LO16, base 8003FE5C -> 80040294, 14 words)
+      insn 52: base 2405007b  region 2405007c
+      insn 60: base 2404007b  region 2404007c
+      insn 61: base 2404007b  region 2404007c
+      insn 71: base 24050099  region 2405009a
+  DrawBackground__17tScreenTrophyRoom  (LO16, base 80040B18 -> 80040F60, 4 words)
+      insn 115: base 24a50354  region 24a50355
+      insn 124: base 240403de  region 240403df
+      insn 144: base 240403df  region 240403e0
+      insn 155: base 240403e0  region 240403e1
+  DrawBackground__17tScreenTrophyInfo  (LO16, base 80041138 -> 80041580, 8 words)
+      insn 59: base 24840341  region 24840342
+      insn 68: base 26b0037a  region 26b0037b
+      insn 75: base 240503db  region 240503dc
+      insn 100: base 26b203a0  region 26b203a1
+  Initialize__18tScreenTrackSelect  (LO16, base 80041B6C -> 80041FBC, 1 words)
+      insn 76: base 240500f8  region 240500f9
+  DrawRecords__19tScreenTrackRecordss  (LO16, base 80042968 -> 80042DC0, 4 words)
+      insn 51: base 26300257  region 26300258
+      insn 54: base 24040249  region 2404024a
+      insn 80: base 26040257  region 26040258
+      insn 101: base 24040260  region 24040261
+  DrawBackground__19tScreenTrackRecords  (LO16, base 80042B48 -> 80042FA0, 17 words)
+      insn 62: base 24040248  region 24040249
+      insn 68: base 24040256  region 24040257
+      insn 71: base 2404024f  region 24040250
+      insn 75: base 2404025f  region 24040260
+  SetCurrentController__23tScreenControllerConfigb  (LO16, base 80043778 -> 80043BD0, 3 words)
+      insn 7: base 2404020b  region 2404020c
+      insn 15: base 2402020c  region 2402020d
+      insn 17: base 2402020d  region 2402020e
+  GetHelpText__23tScreenControllerConfig  (LO16, base 800458AC -> 80045D04, 3 words)
+      insn 16: base 24020218  region 24020219
+      insn 18: base 24020219  region 2402021a
+      insn 20: base 2402021a  region 2402021b
+  DrawForeground__12tScreenAudio  (LO16, base 80045DC8 -> 80046220, 2 words)
+      insn 41: base 2404027d  region 2404027e
+      insn 51: base 2404027d  region 2404027e
+  DrawBackground__12tScreenAudio  (LO16, base 80045ED8 -> 80046330, 2 words)
+      insn 118: base 240401dc  region 240401dd
+      insn 119: base 240401dc  region 240401dd
+  DrawMemCardStuff__14tScreenMemcards  (LO16, base 80046D60 -> 800471B8, 9 words)
+      insn 59: base 2404027b  region 2404027c
+      insn 60: base 2404027f  region 24040280
+      insn 112: base 24020288  region 24020289
+      insn 121: base 2402027d  region 2402027e
+  DrawBackground__14tScreenMemcard  (LO16, base 80047470 -> 800478C8, 2 words)
+      insn 69: base 2402027c  region 2402027d
+      insn 163: base 24840293  region 24840294
+  DrawBackground__15tScreenCongrats  (LO16, base 8004813C -> 8004862C, 6 words)
+      insn 108: base 24050317  region 24050318
+      insn 115: base 24040318  region 24040319
+      insn 116: base 24040318  region 24040319
+      insn 126: base 24050316  region 24050317
+  DrawCongratsMessage__23tScreenPinkSlipCongrats  (LO16, base 80048B48 -> 80049038, 5 words)
+      insn 21: base 24040275  region 24040276
+      insn 28: base 24840121  region 24840122
+      insn 37: base 24040275  region 24040276
+      insn 49: base 24840121  region 24840122
+  DrawCongratsMessage__25tScreenTournamentCongrats  (LO16, base 800496D4 -> 80049BD4, 3 words)
+      insn 8: base 240200c8  region 240201a4
+      insn 20: base 24060001  region 24060002
+      insn 44: base 24060001  region 24060002
+  Initialize__15tScreenUserName  (LO16, base 8004AF88 -> 8004B4E0, 1 words)
+      insn 24: base 260401fb  region 260401fc
+  DrawBackground__15tScreenUserName  (LO16, base 8004B1AC -> 8004B704, 6 words)
+      insn 139: base 24040205  region 24040206
+      insn 141: base 24040205  region 24040206
+      insn 176: base 24040206  region 24040207
+      insn 178: base 24040206  region 24040207
+  Quick_DD__Fiii  (LO16, base 8004D778 -> 8004DCE0, 1 words)
+      insn 7: base 240700f0  region 24070100
+  AudioMus_RefreshStatus__Fv  (LO16, base 80079EF4 -> 8007A960, 6 words)
+      insn 3: base 8ca40074  region 8ca40070
+      insn 8: base 24a50090  region 24a5008c
+      insn 11: base 8ca20090  region 8ca2008c
+      insn 15: base 8ca40094  region 8ca40090
+  AudioMus_Threshold__Fv  (LO16, base 80079F58 -> 8007A9C4, 6 words)
+      insn 4: base 8c82008c  region 8c820088
+      insn 10: base 8c820020  region 8c82001c
+      insn 18: base 8c820088  region 8c820084
+      insn 21: base 8c820090  region 8c82008c
+  AudioMus_Buffered__Fv  (LO16, base 80079FDC -> 8007AA48, 3 words)
+      insn 4: base 8c62008c  region 8c620088
+      insn 10: base 8c620090  region 8c62008c
+      insn 14: base 8c6200a8  region 8c6200a4
+  AudioMus_GetCurrentSong__Fv  (LO16, base 8007A028 -> 8007AA94, 7 words)
+      insn 3: base 2464010c  region 24640108
+      insn 6: base 8c6200a4  region 8c6200a0
+      insn 9: base 8c620020  region 8c62001c
+      insn 19: base 8c430020  region 8c43001c
+  AudioMus_SwitchSong__Fv  (LO16, base 8007A0E4 -> 8007AB50, 7 words)
+      insn 13: base 24620118  region 24620114
+      insn 14: base ac60002c  region ac600028
+      insn 15: base ac600020  region ac60001c
+      insn 16: base ac600114  region ac600110
+  AudioMus_SetCurrentSongInfo__Fv  (LO16, base 8007A390 -> 8007AE0C, 6 words)
+      insn 3: base 8c6200a4  region 8c6200a0
+      insn 4: base 8c6500a0  region 8c65009c
+      insn 5: base 24640118  region 24640114
+      insn 6: base ac620114  region ac620110
+  AudioMus_GetSongList__FPci  (LO16, base 8007A880 -> 8007B214, 3 words)
+      insn 21: base 8c64008c  region 8c640088
+      insn 60: base 8c64008c  region 8c640088
+      insn 86: base 8c82002c  region 8c820028
+  AudioMus_InitGlobals__Fv  (LO16, base 8007AA54 -> 8007B3E8, 5 words)
+      insn 2: base ac40008c  region ac400088
+      insn 3: base ac400070  region ac40006c
+      insn 4: base ac430074  region ac430070
+      insn 5: base ac40007c  region ac400078
+  AudioMus_InitDriverGlobals__Fv  (LO16, base 8007AA78 -> 8007B40C, 8 words)
+      insn 3: base 24430118  region 24430114
+      insn 5: base ac400024  region ac400020
+      insn 9: base ac40002c  region ac400028
+      insn 11: base ac400020  region ac40001c
+  AudioMus_DriverStartUp__Fii  (LO16, base 8007AAD4 -> 8007B468, 10 words)
+      insn 9: base 8c420080  region 8c42007c
+      insn 17: base 8c830074  region 8c830070
+      insn 20: base ac820088  region ac820084
+      insn 21: base 8c820070  region 8c82006c
+  AudioMus_SysStartUp__FiiPc  (LO16, base 8007AC18 -> 8007B5AC, 5 words)
+      insn 12: base 24050158  region 24050154
+      insn 35: base ac620070  region ac62006c
+      insn 43: base 248400ac  region 248400a8
+      insn 47: base 248400ac  region 248400a8
+  AudioMus_DriverCleanUp__Fv  (LO16, base 8007AD10 -> 8007B6A4, 5 words)
+      insn 4: base 8c42007c  region 8c420078
+      insn 12: base ac40007c  region ac400078
+      insn 15: base 8c440074  region 8c440070
+      insn 23: base ac620074  region ac620070
+  AudioMus_SysCleanUp__Fv  (LO16, base 8007AD8C -> 8007B720, 2 words)
+      insn 8: base 8c440070  region 8c44006c
+      insn 16: base 8c44008c  region 8c440088
+  AudioMus_StopSong__Fi  (LO16, base 8007AE04 -> 8007B798, 7 words)
+      insn 13: base 8c840074  region 8c840070
+      insn 21: base ac400024  region ac400020
+      insn 22: base ac40002c  region ac400028
+      insn 29: base 8c820074  region 8c820070
+  AudioMus_BuildPlayList__FiPi  (LO16, base 8007AED8 -> 8007B86C, 1 words)
+      insn 21: base a04300ec  region a04300e8
+  AudioMus_BuildPattern__FPc  (LO16, base 8007AF60 -> 8007B8F4, 2 words)
+      insn 20: base 8c64008c  region 8c640088
+      insn 33: base a05000ec  region a05000e8
+  AudioMus_PlaySong__FPc  (LO16, base 8007B030 -> 8007B9C4, 7 words)
+      insn 42: base ac620028  region ac620024
+      insn 123: base 8c640074  region 8c640070
+      insn 128: base ac430024  region ac430020
+      insn 133: base ac40002c  region ac400028
+  AudioMus_Volume__Fi  (LO16, base 8007B2B0 -> 8007BC44, 7 words)
+      insn 18: base 8c820024  region 8c820020
+      insn 22: base 8c840074  region 8c840070
+      insn 37: base 8c420024  region 8c420020
+      insn 59: base 8c450024  region 8c450020
+  AudioMus_AutoVolume__Fii  (LO16, base 8007B46C -> 8007BE00, 2 words)
+      insn 33: base 8c820024  region 8c820020
+      insn 37: base 8c840074  region 8c840070
+  Camera_SetMode__Fii  (LO16, base 80085608 -> 80086030, 1 words)
+      insn 30: base 240700f0  region 24070100
+  Camera_NextMode__Fi  (LO16, base 8008581C -> 80086244, 1 words)
+      insn 29: base 240700f0  region 24070100
+  NFS4_LoadingIcon__Fv  (LO16, base 800A45B8 -> 800A5130, 2 words)
+      insn 43: base 240700f0  region 24070100
+      insn 55: base 240600d2  region 240600e2
+  Object_InitCustomObjects__Fv  (LO16, base 800A5588 -> 800A6104, 4 words)
+      insn 3: base 24050400  region 2405055c
+      insn 11: base 24050400  region 240502fc
+      insn 17: base 240503fc  region 240502f8
+      insn 23: base 24050400  region 24050264
+  Render_CreatePauseMenuViews__Fv  (LO16, base 800B3198 -> 800B3E64, 1 words)
+      insn 3: base 240200f0  region 24020100
+  Flare_LensFlare__FP7DVECTORP15Draw_FlareCache  (LO16, base 800CEB6C -> 800CF8F8, 1 words)
+      insn 53: base 240200f0  region 24020100
+  Flare_Sun__FP7SVECTORP15Draw_FlareCache  (LO16, base 800CF1D0 -> 800CFF5C, 4 words)
+      insn 9: base 24060078  region 24060080
+      insn 10: base 2406003c  region 24060040
+      insn 39: base 24030078  region 24030080
+      insn 46: base 2403003c  region 24030040
+  Flare_Moon__FP7SVECTORP15Draw_FlareCache  (LO16, base 800CF4BC -> 800D0248, 2 words)
+      insn 1: base 24060078  region 24060080
+      insn 7: base 2406003c  region 24060040
+  Hrz_BuildSky__Fv  (LO16, base 800D0A38 -> 800D17C4, 2 words)
+      insn 2: base 24100078  region 24100080
+      insn 12: base 2410003c  region 24100040
+  Sky_RenderStars__FP13Draw_SkyCachei  (LO16, base 800D1160 -> 800D1EEC, 2 words)
+      insn 6: base 24110078  region 24110080
+      insn 13: base 2411003c  region 24110040
+  Loading_DrawLoadingScreen__Fv  (LO16, base 800DB0B8 -> 800DBCD0, 2 words)
+      insn 32: base 240500f0  region 24050100
+      insn 68: base 240500f0  region 24050100
+  nfs2eacinit__Fv  (LO16, base 800DC458 -> 800DD090, 1 words)
+      insn 11: base 24050320  region 240502c6
+  TrsProj_SetViewTrsProjEnviro__FP13DRender_tView  (LO16, base 800E1A08 -> 800E2640, 2 words)
+      insn 10: base 24070078  region 24070080
+      insn 14: base 240700f0  region 24070100
+  Weather_InitSplats__Fv  (LO16, base 800E1FD8 -> 800E2C10, 2 words)
+      insn 17: base 241100f0  region 24110100
+      insn 18: base 24110078  region 24110080
+  savegp  (LO16, base 800EB090 -> 800EB9D8, 1 words)
+      insn 2: base 8f9c34e8  region 8f9c4804
+== NFS4-R-USA: 2708 rows checked, 90 skipped (size-mismatch/no-oracle), HIDDEN-CHANGED: 86
+  DrawHelpIcons__14tFEApplication  (LO16, base 80013344 -> 8001349C, 5 words)
+      insn 25: base 240400fc  region 240400fd
+      insn 149: base 240400fc  region 240400fd
+      insn 160: base 240400fc  region 240400fd
+      insn 163: base 240400fc  region 240400fd
+  MainLoop__14tFEApplicationP5tMenu  (LO16, base 800142A4 -> 800143C8, 2 words)
+      insn 941: base 26240295  region 26240296
+      insn 973: base 24040297  region 24040298
+  ValidCar__16tListIteratorCar7tPlayerc  (LO16, base 800180D4 -> 80018214, 1 words)
+      insn 193: base 2404000c  region 2404000b
+  CalculateDimensions__11tDialogHelp  (LO16, base 80018B90 -> 80018CD0, 9 words)
+      insn 32: base 24050059  region 2405005a
+      insn 87: base 24050052  region 24050053
+      insn 92: base 24050053  region 24050054
+      insn 110: base 24050056  region 24050057
+  DrawLeftFlare__FiiiRi  (LO16, base 8001BFA0 -> 8001C100, 1 words)
+      insn 53: base 240401de  region 240401df
+  Draw__29tMenuItemOnOffLeftRightChoiceiib  (LO16, base 8001E384 -> 8001E4E4, 2 words)
+      insn 66: base 24040066  region 24040067
+      insn 77: base 24040067  region 24040068
+  DrawOneSong__18tInsideBoxSongMenussssss  (LO16, base 8001EC48 -> 8001EDA8, 2 words)
+      insn 69: base 24040066  region 24040067
+      insn 85: base 24040067  region 24040068
+  TransitionOn__17tUserNameMenuItem  (LO16, base 80020580 -> 800206E0, 1 words)
+      insn 11: base 260401fb  region 260401fc
+  TextValue__18tListIteratorTrack7tPlayer  (LO16, base 80021DD4 -> 80021F34, 1 words)
+      insn 15: base 244200d5  region 244200d6
+  DisplayLoadingText__7tScreen  (LO16, base 80025AB8 -> 80025AD8, 2 words)
+      insn 30: base 2404027d  region 2404027e
+      insn 40: base 2404027d  region 2404027e
+  Front_InitOpponentCars__FR9tFEStream  (LO16, base 800285D0 -> 80028614, 1 words)
+      insn 170: base 24040019  region 2404000d
+  PlayerName__Fi  (LO16, base 8002B9FC -> 8002BA7C, 2 words)
+      insn 25: base 2404004e  region 2404004f
+      insn 26: base 26440050  region 26440051
+  PlayerNameMixedCase__Fi  (LO16, base 8002BA88 -> 8002BB08, 2 words)
+      insn 17: base 2404004e  region 2404004f
+      insn 18: base 26440050  region 26440051
+  MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand  (LO16, base 8002C288 -> 8002C308, 2 words)
+      insn 22: base 24020321  region 24020322
+      insn 24: base 24020322  region 24020323
+  AskTheUserToSaveTheGame__Fv  (LO16, base 8002C41C -> 8002C49C, 3 words)
+      insn 10: base 24040331  region 24040332
+      insn 14: base 24020321  region 24020322
+      insn 16: base 24020322  region 24020323
+  MenuExtended_GoToCarSelect__FR12tMenuCommand  (LO16, base 8002C4FC -> 8002C57C, 1 words)
+      insn 23: base 240400eb  region 240400ec
+  GenericMenuSaveGame__Fi  (LO16, base 8002C9A0 -> 8002CA20, 2 words)
+      insn 8: base 2402027e  region 2402027f
+      insn 21: base 24040282  region 24040283
+  PinkSlipsPreSave__Fv  (LO16, base 8002CABC -> 8002CB3C, 3 words)
+      insn 11: base 24040273  region 24040274
+      insn 18: base 24020321  region 24020322
+      insn 20: base 24020322  region 24020323
+  MenuExtended_GoToRace__FR12tMenuCommand  (LO16, base 8002CC98 -> 8002CD18, 4 words)
+      insn 30: base 240400aa  region 240400ab
+      insn 44: base 240400f1  region 240400f2
+      insn 60: base 240400f2  region 240400f3
+      insn 73: base 240400f3  region 240400f4
+  MenuExtended_GoTo2PlayerRace__FR12tMenuCommand  (LO16, base 8002CDF4 -> 8002CE74, 3 words)
+      insn 31: base 240400aa  region 240400ab
+      insn 52: base 240400f3  region 240400f4
+      insn 69: base 240400f2  region 240400f3
+  MenuExtended_GoToTournTrackInfo__FR12tMenuCommand  (LO16, base 8002CF40 -> 8002CFC0, 4 words)
+      insn 34: base 240400f6  region 240400f7
+      insn 45: base 240400f7  region 240400f8
+      insn 49: base 24020322  region 24020323
+      insn 51: base 24020321  region 24020322
+  MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand  (LO16, base 8002D0A8 -> 8002D128, 4 words)
+      insn 35: base 240400f6  region 240400f7
+      insn 46: base 240400f7  region 240400f8
+      insn 50: base 24020321  region 24020322
+      insn 52: base 24020322  region 24020323
+  MenuExtended_SellCar__FR12tMenuCommand  (LO16, base 8002D3A0 -> 8002D420, 4 words)
+      insn 34: base 240400a5  region 240400a6
+      insn 38: base 24020321  region 24020322
+      insn 40: base 24020322  region 24020323
+      insn 74: base 240400a9  region 240400aa
+  MenuExtended_BuyCar__FR12tMenuCommand  (LO16, base 8002D4F8 -> 8002D578, 5 words)
+      insn 37: base 240400a4  region 240400a5
+      insn 40: base 24020321  region 24020322
+      insn 42: base 24020322  region 24020323
+      insn 68: base 240400a7  region 240400a8
+  MenuExtended_PurchaseUpgrade__Fi  (LO16, base 8002D64C -> 8002D6CC, 4 words)
+      insn 38: base 240400a6  region 240400a7
+      insn 41: base 24020321  region 24020322
+      insn 43: base 24020322  region 24020323
+      insn 66: base 240400a8  region 240400a9
+  GenericMenuLoadGame__Fi  (LO16, base 8002D83C -> 8002D8BC, 1 words)
+      insn 13: base 2402027d  region 2402027e
+  MenuExtended_ExitTourney__FR12tMenuCommand  (LO16, base 8002E18C -> 8002E2D8, 3 words)
+      insn 7: base 2404009d  region 2404009e
+      insn 9: base 24020321  region 24020322
+      insn 11: base 24020322  region 24020323
+  MenuExtended_ExitPinkSlipsEarly__FR12tMenuCommand  (LO16, base 8002E21C -> 8002E368, 4 words)
+      insn 9: base 2404009d  region 2404009e
+      insn 11: base 24020321  region 24020322
+      insn 13: base 24020322  region 24020323
+      insn 31: base 24040297  region 24040298
+  UpdateTrackList__18tTournamentManagerss  (LO16, base 80032584 -> 800326D4, 1 words)
+      insn 45: base 244200d5  region 244200d6
+  AdvanceToNextTrack__18tTournamentManager  (LO16, base 80033048 -> 80033184, 3 words)
+      insn 169: base 24840019  region 2484000d
+      insn 227: base 24840019  region 2484000d
+      insn 262: base 244203d9  region 244203da
+  ValidCar__18tTournamentManagerR8tCarInfo  (LO16, base 80033C24 -> 80033D60, 1 words)
+      insn 30: base 24040019  region 2404000d
+  TextValue__23tListIteratorTournament7tPlayer  (LO16, base 80033E28 -> 80033F64, 1 words)
+      insn 21: base 24420341  region 24420342
+  Confirm__Fii  (LO16, base 80034438 -> 80034568, 2 words)
+      insn 28: base 24020292  region 24020293
+      insn 48: base 2484032b  region 2484032c
+  OverwriteConfirm__Fv  (LO16, base 800345EC -> 8003471C, 2 words)
+      insn 3: base 2405028f  region 24050290
+      insn 6: base 24840323  region 24840324
+  FormatConfirm__Fv  (LO16, base 80034620 -> 80034750, 2 words)
+      insn 3: base 24050290  region 24050291
+      insn 6: base 24840327  region 24840328
+  Init_MemcardFile__FR12MCRDFILE_defsb  (LO16, base 800348A0 -> 800349E0, 2 words)
+      insn 26: base 24040278  region 24040279
+      insn 40: base 24040279  region 2404027a
+  DrawBackground__11tScreenMain  (LO16, base 800379C0 -> 80037BB8, 1 words)
+      insn 325: base 24040272  region 24040273
+  DrawMoney__Fiiilii  (LO16, base 800397F0 -> 80039A80, 3 words)
+      insn 24: base 24040086  region 24040087
+      insn 32: base 24040087  region 24040088
+      insn 41: base 24040088  region 24040089
+  DrawBackground__26tScreenTournamentStandings  (LO16, base 80039B84 -> 80039E14, 39 words)
+      insn 24: base 241602fe  region 241602ff
+      insn 63: base 26840257  region 26840258
+      insn 64: base 240402f7  region 240402f8
+      insn 95: base 240402f8  region 240402f9
+  DrawBackground__24tScreenPinkSlipStandings  (LO16, base 8003A448 -> 8003A6D8, 18 words)
+      insn 11: base 241102fe  region 241102ff
+      insn 35: base 240402f7  region 240402f8
+      insn 50: base 24a500d5  region 24a500d6
+      insn 61: base 2404030d  region 2404030e
+  DrawOverlay__16tScreenCarSelectP8tOverlay  (LO16, base 8003AD00 -> 8003AFD8, 12 words)
+      insn 123: base 24840121  region 24840122
+      insn 155: base 24840121  region 24840122
+      insn 164: base 2410008c  region 2410008d
+      insn 166: base 2410008e  region 2410008f
+  InitializeVideoWall__16tScreenCarSelect  (LO16, base 8003BCD0 -> 8003BFA8, 1 words)
+      insn 19: base 240500f8  region 240500f9
+  InitializeVideoWall__20tScreenCarSelectDuel  (LO16, base 8003D1E8 -> 8003D518, 2 words)
+      insn 21: base 240500f8  region 240500f9
+      insn 47: base 240500f8  region 240500f9
+  DrawBackground__25tScreenCarSelectTwoPlayer  (LO16, base 8003E4BC -> 8003E83C, 1 words)
+      insn 88: base 24840121  region 24840122
+  SetDialog__25tScreenCarSelectTwoPlayer  (LO16, base 8003EC50 -> 8003EFD0, 1 words)
+      insn 19: base 240402a8  region 240402a9
+  SetDialog__25tScreenPinkSlipsCarSelect  (LO16, base 8003F300 -> 8003F6AC, 9 words)
+      insn 69: base 240402a8  region 240402a9
+      insn 105: base 260402ab  region 260402ac
+      insn 106: base 260402a9  region 260402aa
+      insn 132: base 260402af  region 260402b0
+  DrawBackground__18tScreenTournSelect  (LO16, base 8003FE5C -> 8004022C, 14 words)
+      insn 52: base 2405007b  region 2405007c
+      insn 60: base 2404007b  region 2404007c
+      insn 61: base 2404007b  region 2404007c
+      insn 71: base 24050099  region 2405009a
+  DrawBackground__17tScreenTrophyRoom  (LO16, base 80040B18 -> 80040EF8, 4 words)
+      insn 115: base 24a50354  region 24a50355
+      insn 124: base 240403de  region 240403df
+      insn 144: base 240403df  region 240403e0
+      insn 155: base 240403e0  region 240403e1
+  DrawBackground__17tScreenTrophyInfo  (LO16, base 80041138 -> 80041518, 8 words)
+      insn 59: base 24840341  region 24840342
+      insn 68: base 26b0037a  region 26b0037b
+      insn 75: base 240503db  region 240503dc
+      insn 100: base 26b203a0  region 26b203a1
+  Initialize__18tScreenTrackSelect  (LO16, base 80041B6C -> 80041F4C, 1 words)
+      insn 76: base 240500f8  region 240500f9
+  DrawRecords__19tScreenTrackRecordss  (LO16, base 80042968 -> 80042D50, 4 words)
+      insn 51: base 26300257  region 26300258
+      insn 54: base 24040249  region 2404024a
+      insn 80: base 26040257  region 26040258
+      insn 101: base 24040260  region 24040261
+  DrawBackground__19tScreenTrackRecords  (LO16, base 80042B48 -> 80042F30, 17 words)
+      insn 62: base 24040248  region 24040249
+      insn 68: base 24040256  region 24040257
+      insn 71: base 2404024f  region 24040250
+      insn 75: base 2404025f  region 24040260
+  SetCurrentController__23tScreenControllerConfigb  (LO16, base 80043778 -> 80043B60, 3 words)
+      insn 7: base 2404020b  region 2404020c
+      insn 15: base 2402020c  region 2402020d
+      insn 17: base 2402020d  region 2402020e
+  GetHelpText__23tScreenControllerConfig  (LO16, base 800458AC -> 80045C94, 3 words)
+      insn 16: base 24020218  region 24020219
+      insn 18: base 24020219  region 2402021a
+      insn 20: base 2402021a  region 2402021b
+  DrawForeground__12tScreenAudio  (LO16, base 80045DC8 -> 800461B0, 2 words)
+      insn 41: base 2404027d  region 2404027e
+      insn 51: base 2404027d  region 2404027e
+  DrawBackground__12tScreenAudio  (LO16, base 80045ED8 -> 800462C0, 2 words)
+      insn 118: base 240401dc  region 240401dd
+      insn 119: base 240401dc  region 240401dd
+  DrawMemCardStuff__14tScreenMemcards  (LO16, base 80046D60 -> 80047148, 9 words)
+      insn 59: base 2404027b  region 2404027c
+      insn 60: base 2404027f  region 24040280
+      insn 112: base 24020288  region 24020289
+      insn 121: base 2402027d  region 2402027e
+  DrawBackground__14tScreenMemcard  (LO16, base 80047470 -> 80047858, 2 words)
+      insn 69: base 2402027c  region 2402027d
+      insn 163: base 24840293  region 24840294
+  Initialize__14tScreenMemcard  (LO16, base 80047C30 -> 80048088, 2 words)
+      insn 64: base 24070287  region 24070288
+      insn 71: base 24070289  region 2407028a
+  DrawBackground__15tScreenCongrats  (LO16, base 8004813C -> 800485B4, 6 words)
+      insn 108: base 24050317  region 24050318
+      insn 115: base 24040318  region 24040319
+      insn 116: base 24040318  region 24040319
+      insn 126: base 24050316  region 24050317
+  DrawCongratsMessage__23tScreenPinkSlipCongrats  (LO16, base 80048B48 -> 80048FC0, 5 words)
+      insn 21: base 24040275  region 24040276
+      insn 28: base 24840121  region 24840122
+      insn 37: base 24040275  region 24040276
+      insn 49: base 24840121  region 24840122
+  DrawCongratsMessage__25tScreenTournamentCongrats  (LO16, base 800496D4 -> 80049B5C, 3 words)
+      insn 8: base 240200c8  region 240201a4
+      insn 20: base 24060001  region 24060002
+      insn 44: base 24060001  region 24060002
+  Initialize__15tScreenUserName  (LO16, base 8004AF88 -> 8004B468, 1 words)
+      insn 24: base 260401fb  region 260401fc
+  DrawBackground__15tScreenUserName  (LO16, base 8004B1AC -> 8004B68C, 6 words)
+      insn 139: base 24040205  region 24040206
+      insn 141: base 24040205  region 24040206
+      insn 176: base 24040206  region 24040207
+      insn 178: base 24040206  region 24040207
+  AudioMus_RefreshStatus__Fv  (LO16, base 80079EF4 -> 8007A960, 6 words)
+      insn 3: base 8ca40074  region 8ca40070
+      insn 8: base 24a50090  region 24a5008c
+      insn 11: base 8ca20090  region 8ca2008c
+      insn 15: base 8ca40094  region 8ca40090
+  AudioMus_Threshold__Fv  (LO16, base 80079F58 -> 8007A9C4, 6 words)
+      insn 4: base 8c82008c  region 8c820088
+      insn 10: base 8c820020  region 8c82001c
+      insn 18: base 8c820088  region 8c820084
+      insn 21: base 8c820090  region 8c82008c
+  AudioMus_Buffered__Fv  (LO16, base 80079FDC -> 8007AA48, 3 words)
+      insn 4: base 8c62008c  region 8c620088
+      insn 10: base 8c620090  region 8c62008c
+      insn 14: base 8c6200a8  region 8c6200a4
+  AudioMus_GetCurrentSong__Fv  (LO16, base 8007A028 -> 8007AA94, 7 words)
+      insn 3: base 2464010c  region 24640108
+      insn 6: base 8c6200a4  region 8c6200a0
+      insn 9: base 8c620020  region 8c62001c
+      insn 19: base 8c430020  region 8c43001c
+  AudioMus_SwitchSong__Fv  (LO16, base 8007A0E4 -> 8007AB50, 7 words)
+      insn 13: base 24620118  region 24620114
+      insn 14: base ac60002c  region ac600028
+      insn 15: base ac600020  region ac60001c
+      insn 16: base ac600114  region ac600110
+  AudioMus_SetCurrentSongInfo__Fv  (LO16, base 8007A390 -> 8007AE0C, 6 words)
+      insn 3: base 8c6200a4  region 8c6200a0
+      insn 4: base 8c6500a0  region 8c65009c
+      insn 5: base 24640118  region 24640114
+      insn 6: base ac620114  region ac620110
+  AudioMus_GetSongList__FPci  (LO16, base 8007A880 -> 8007B214, 3 words)
+      insn 21: base 8c64008c  region 8c640088
+      insn 60: base 8c64008c  region 8c640088
+      insn 86: base 8c82002c  region 8c820028
+  AudioMus_InitGlobals__Fv  (LO16, base 8007AA54 -> 8007B3E8, 5 words)
+      insn 2: base ac40008c  region ac400088
+      insn 3: base ac400070  region ac40006c
+      insn 4: base ac430074  region ac430070
+      insn 5: base ac40007c  region ac400078
+  AudioMus_InitDriverGlobals__Fv  (LO16, base 8007AA78 -> 8007B40C, 8 words)
+      insn 3: base 24430118  region 24430114
+      insn 5: base ac400024  region ac400020
+      insn 9: base ac40002c  region ac400028
+      insn 11: base ac400020  region ac40001c
+  AudioMus_DriverStartUp__Fii  (LO16, base 8007AAD4 -> 8007B468, 10 words)
+      insn 9: base 8c420080  region 8c42007c
+      insn 17: base 8c830074  region 8c830070
+      insn 20: base ac820088  region ac820084
+      insn 21: base 8c820070  region 8c82006c
+  AudioMus_SysStartUp__FiiPc  (LO16, base 8007AC18 -> 8007B5AC, 5 words)
+      insn 12: base 24050158  region 24050154
+      insn 35: base ac620070  region ac62006c
+      insn 43: base 248400ac  region 248400a8
+      insn 47: base 248400ac  region 248400a8
+  AudioMus_DriverCleanUp__Fv  (LO16, base 8007AD10 -> 8007B6A4, 5 words)
+      insn 4: base 8c42007c  region 8c420078
+      insn 12: base ac40007c  region ac400078
+      insn 15: base 8c440074  region 8c440070
+      insn 23: base ac620074  region ac620070
+  AudioMus_SysCleanUp__Fv  (LO16, base 8007AD8C -> 8007B720, 2 words)
+      insn 8: base 8c440070  region 8c44006c
+      insn 16: base 8c44008c  region 8c440088
+  AudioMus_StopSong__Fi  (LO16, base 8007AE04 -> 8007B798, 7 words)
+      insn 13: base 8c840074  region 8c840070
+      insn 21: base ac400024  region ac400020
+      insn 22: base ac40002c  region ac400028
+      insn 29: base 8c820074  region 8c820070
+  AudioMus_BuildPlayList__FiPi  (LO16, base 8007AED8 -> 8007B86C, 1 words)
+      insn 21: base a04300ec  region a04300e8
+  AudioMus_BuildPattern__FPc  (LO16, base 8007AF60 -> 8007B8F4, 2 words)
+      insn 20: base 8c64008c  region 8c640088
+      insn 33: base a05000ec  region a05000e8
+  AudioMus_PlaySong__FPc  (LO16, base 8007B030 -> 8007B9C4, 7 words)
+      insn 42: base ac620028  region ac620024
+      insn 123: base 8c640074  region 8c640070
+      insn 128: base ac430024  region ac430020
+      insn 133: base ac40002c  region ac400028
+  AudioMus_Volume__Fi  (LO16, base 8007B2B0 -> 8007BC44, 7 words)
+      insn 18: base 8c820024  region 8c820020
+      insn 22: base 8c840074  region 8c840070
+      insn 37: base 8c420024  region 8c420020
+      insn 59: base 8c450024  region 8c450020
+  AudioMus_AutoVolume__Fii  (LO16, base 8007B46C -> 8007BE00, 2 words)
+      insn 33: base 8c820024  region 8c820020
+      insn 37: base 8c840074  region 8c840070
+  Object_InitCustomObjects__Fv  (LO16, base 800A5588 -> 800A6100, 4 words)
+      insn 3: base 24050400  region 2405055c
+      insn 11: base 24050400  region 240502fc
+      insn 17: base 240503fc  region 240502f8
+      insn 23: base 24050400  region 24050264
+  nfs2eacinit__Fv  (LO16, base 800DC458 -> 800DD064, 1 words)
+      insn 11: base 24050320  region 240502c6
+  savegp  (LO16, base 800EB090 -> 800EB9EC, 1 words)
+      insn 2: base 8f9c34e8  region 8f9c47d8
+
+== UNION of hidden-changed functions: 105
+  AdvanceToNextTrack__18tTournamentManager  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  AskTheUserToSaveTheGame__Fv  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  AudioMus_AutoVolume__Fii  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  AudioMus_Buffered__Fv  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  AudioMus_BuildPattern__FPc  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  AudioMus_BuildPlayList__FiPi  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  AudioMus_DriverCleanUp__Fv  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  AudioMus_DriverStartUp__Fii  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  AudioMus_GetCurrentSong__Fv  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  AudioMus_GetSongList__FPci  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  AudioMus_InitDriverGlobals__Fv  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  AudioMus_InitGlobals__Fv  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  AudioMus_PlaySong__FPc  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  AudioMus_RefreshStatus__Fv  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  AudioMus_SetCurrentSongInfo__Fv  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  AudioMus_StopSong__Fi  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  AudioMus_SwitchSong__Fv  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  AudioMus_SysCleanUp__Fv  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  AudioMus_SysStartUp__FiiPc  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  AudioMus_Threshold__Fv  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  AudioMus_Volume__Fi  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  CalculateDimensions__11tDialogHelp  [AU+FR-DE+UK-ES-IT+UK-SW+USA]
+  CalculateDimensions__12tDialogYesNo  [AU+FR-DE+UK-ES-IT+UK-SW]
+  CalculateDimensions__20tDialogMessageString  [AU+FR-DE+UK-ES-IT+UK-SW]
+  Camera_NextMode__Fi  [AU+FR-DE+UK-ES-IT+UK-SW]
+  Camera_SetMode__Fii  [AU+FR-DE+UK-ES-IT+UK-SW]
+  Confirm__Fii  [AU+FR-DE+UK-ES-IT+UK-SW+USA]
+  Device_SetHardCodedKeys__Fv  [JPN]
+  DisplayLoadingText__7tScreen  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  DrawBackground__11tScreenMain  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  DrawBackground__12tScreenAudio  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  DrawBackground__14tScreenMemcard  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  DrawBackground__15tScreenCongrats  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  DrawBackground__15tScreenUserName  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  DrawBackground__17tScreenTrophyInfo  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  DrawBackground__17tScreenTrophyRoom  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  DrawBackground__18tScreenTournSelect  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  DrawBackground__19tScreenTrackRecords  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  DrawBackground__24tScreenPinkSlipStandings  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  DrawBackground__25tScreenCarSelectTwoPlayer  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  DrawBackground__26tScreenTournamentStandings  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  DrawCongratsMessage__23tScreenPinkSlipCongrats  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  DrawCongratsMessage__25tScreenTournamentCongrats  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  DrawForeground__12tScreenAudio  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  DrawHelpIcons__14tFEApplication  [AU+FR-DE+UK-ES-IT+UK-SW+USA]
+  DrawLeftFlare__FiiiRi  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  DrawMemCardStuff__14tScreenMemcards  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  DrawMoney__Fiiilii  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  DrawOneSong__18tInsideBoxSongMenussssss  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  DrawOverlay__16tScreenCarSelectP8tOverlay  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  DrawRecords__19tScreenTrackRecordss  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  Draw__12tMenuOptions  [AU+FR-DE+UK-ES-IT+UK-SW]
+  Draw__29tMenuItemOnOffLeftRightChoiceiib  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  FeTools_init__Fv  [JPN]
+  Flare_LensFlare__FP7DVECTORP15Draw_FlareCache  [AU+FR-DE+UK-ES-IT+UK-SW]
+  Flare_Moon__FP7SVECTORP15Draw_FlareCache  [AU+FR-DE+UK-ES-IT+UK-SW]
+  Flare_Sun__FP7SVECTORP15Draw_FlareCache  [AU+FR-DE+UK-ES-IT+UK-SW]
+  FormatConfirm__Fv  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  Front_InitOpponentCars__FR9tFEStream  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  GenericMenuLoadGame__Fi  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  GenericMenuSaveGame__Fi  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  GetHelpText__23tScreenControllerConfig  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  Hrz_BuildSky__Fv  [AU+FR-DE+UK-ES-IT+UK-SW]
+  Init_MemcardFile__FR12MCRDFILE_defsb  [USA]
+  InitializeVideoWall__16tScreenCarSelect  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  InitializeVideoWall__20tScreenCarSelectDuel  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  Initialize__14tScreenMemcard  [JPN+USA]
+  Initialize__15tScreenUserName  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  Initialize__18tScreenTrackSelect  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  Loading_DrawLoadingScreen__Fv  [AU+FR-DE+UK-ES-IT+UK-SW]
+  MainLoop__14tFEApplicationP5tMenu  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  MenuExtended_BuyCar__FR12tMenuCommand  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  MenuExtended_ExitPinkSlipsEarly__FR12tMenuCommand  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  MenuExtended_ExitTourney__FR12tMenuCommand  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  MenuExtended_GoTo2PlayerRace__FR12tMenuCommand  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  MenuExtended_GoToCarSelect__FR12tMenuCommand  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  MenuExtended_GoToRace__FR12tMenuCommand  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  MenuExtended_GoToTournTrackInfo__FR12tMenuCommand  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  MenuExtended_PurchaseUpgrade__Fi  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  MenuExtended_SellCar__FR12tMenuCommand  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  NFS4_LoadingIcon__Fv  [AU+FR-DE+UK-ES-IT+UK-SW]
+  Object_InitCustomObjects__Fv  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  OverwriteConfirm__Fv  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  PSXFront_AllocateDrawMemory__Fv  [JPN]
+  PinkSlipsPreSave__Fv  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  PlayerNameMixedCase__Fi  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  PlayerName__Fi  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  Quick_DD__Fiii  [AU+FR-DE+UK-ES-IT+UK-SW]
+  Render_CreatePauseMenuViews__Fv  [AU+FR-DE+UK-ES-IT+UK-SW]
+  SetCurrentController__23tScreenControllerConfigb  [AU+FR-DE+UK-ES-IT+UK-SW+USA]
+  SetDialog__25tScreenCarSelectTwoPlayer  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  SetDialog__25tScreenPinkSlipsCarSelect  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  Sky_RenderStars__FP13Draw_SkyCachei  [AU+FR-DE+UK-ES-IT+UK-SW]
+  TextValue__18tListIteratorTrack7tPlayer  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  TextValue__23tListIteratorTournament7tPlayer  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  TransitionOn__17tUserNameMenuItem  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  TrsProj_SetViewTrsProjEnviro__FP13DRender_tView  [AU+FR-DE+UK-ES-IT+UK-SW]
+  UpdateTrackList__18tTournamentManagerss  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  ValidCar__16tListIteratorCar7tPlayerc  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  ValidCar__18tTournamentManagerR8tCarInfo  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  Weather_InitSplats__Fv  [AU+FR-DE+UK-ES-IT+UK-SW]
+  nfs2eacinit__Fv  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]
+  savegp  [AU+FR-DE+JPN+UK-ES-IT+UK-SW+USA]

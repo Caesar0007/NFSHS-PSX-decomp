@@ -66,7 +66,9 @@ python regiondiff/tools/verify_region.py USA regiondiff/recon/NFS4-R-USA/game/co
    and `...\memory\reference_psx_cpp_reconstruction_methodology.md`, then
    `reference_asm_pattern_catalog.md` for symptom→fix lookups.
 1. Pick a TODO row from `REGION_PROGRESS.txt` / `MANIFEST.tsv`.
-2. **Seed** the candidate at the row's `candidate` path:
+2. **Seed** the candidate at the row's `candidate` path — ⚠️ **NEVER
+   overwrite an existing candidate** (it may hold other rows' sealed
+   regional edits; check first, and add your rows' edits to it instead):
    - CHANGED: copy the base TU `recon/<unit>.<ext>` verbatim (the base body
      is the sealed starting point; usually only the target fns change).
    - REGION-ONLY: new standalone TU seeded from `m2c/<REGION>/<fn>.c`.
@@ -109,3 +111,22 @@ logic (language menus, display timing, memcard formats). Sealing them both
 documents the retail deltas and fingerprints the retail toolchain rungs
 (e.g. FntPrint CHANGED while FntFlush stayed LO16 — evidence toward the
 FntFlush vendor-identity certificate).
+
+## Corpus maintenance tools (2026-09-02)
+
+- `tools/audit_lo16.py` — re-checks every LO16/RELOC row with a PRECISE
+  reloc mask from the base oracle's own `%hi/%lo/%gp_rel` markers; found
+  105 HIDDEN-CHANGED fns the LOOSE fingerprint missed (report:
+  `AUDIT_LO16.txt`). Most are the retail string-table +1 shift; some are
+  real gameplay constants.
+- `tools/extend_corpus.py` — promotes audit findings into the corpus
+  (slices + INDEX rows + variants groups by exact delta signature).
+- `tools/gen_symmap.py` — derives a PER-REGION data-symbol address map
+  (`oracles/<R>/symmap.tsv`, ~2500 symbols/region, consensus-voted from
+  the linked images at oracle-marked reloc sites). The foundation for
+  byte-authority (brdist-R) and a future regional DATA audit.
+- Upstream `regionrecon.py` (in C:\Temp
+fs4-clean\Binaries) carries the
+  W85 fixes: $sp displacements excluded from jtbl symbolization, trailing
+  zero-word trim. The audit-vs-oracle size check catches name-shift and
+  boundary over-runs on regeneration.

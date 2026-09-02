@@ -1,6 +1,6 @@
 NFS4-PSX regional-variant reconstruction -- per-row progress
 (gate: regiondiff/tools/verify_region.py; plan: MANIFEST.tsv)
-TOTAL: 232 rows, 217 SEALED / 6 FAIL / 0 TODO / 0 ERROR / 9 N-A (data-blob or lib-thunk)
+TOTAL: 343 rows, 235 SEALED / 66 FAIL / 33 TODO / 0 ERROR / 9 N-A (data-blob or lib-thunk)
 ========================================================================================
 status      words  region     unit                         function
 SEALED          8  USA        game/common/aiscript         AIScript_Assign__FP10AIScript_tPA7_25AIScript_tReactionDetails
@@ -235,3 +235,114 @@ SEALED          8  JPN        frontend/common/fetools      s_lower__FPc
 SEALED          8  JPN        frontend/common/fetools      s_upper__FPc
 SEALED        180  USA        syslib/psx/libc/SPRINTF      sprintf
 SEALED        258  USA        frontend/psx/video           videodecode__FP11VIDEOSTRUCTP14STREAMCHUNKHDRii
+FAIL 6        273  USA        frontend/common/fetourn      AdvanceToNextTrack__18tTournamentManager
+FAIL 6         30  USA        frontend/common/femenudefs   AskTheUserToSaveTheGame__Fv
+SEALED         48  USA        game/common/audiomus         AudioMus_AutoVolume__Fii
+SEALED         19  USA        game/common/audiomus         AudioMus_Buffered__Fv
+SEALED         52  USA        game/common/audiomus         AudioMus_BuildPattern__FPc
+SEALED         34  USA        game/common/audiomus         AudioMus_BuildPlayList__FiPi
+SEALED         31  USA        game/common/audiomus         AudioMus_DriverCleanUp__Fv
+SEALED         81  USA        game/common/audiomus         AudioMus_DriverStartUp__Fii
+SEALED         47  USA        game/common/audiomus         AudioMus_GetCurrentSong__Fv
+SEALED        117  USA        game/common/audiomus         AudioMus_GetSongList__FPci
+SEALED         23  USA        game/common/audiomus         AudioMus_InitDriverGlobals__Fv
+SEALED          9  USA        game/common/audiomus         AudioMus_InitGlobals__Fv
+SEALED        160  USA        game/common/audiomus         AudioMus_PlaySong__FPc
+SEALED         25  USA        game/common/audiomus         AudioMus_RefreshStatus__Fv
+SEALED         16  USA        game/common/audiomus         AudioMus_SetCurrentSongInfo__Fv
+SEALED         53  USA        game/common/audiomus         AudioMus_StopSong__Fi
+SEALED         62  USA        game/common/audiomus         AudioMus_SwitchSong__Fv
+SEALED         30  USA        game/common/audiomus         AudioMus_SysCleanUp__Fv
+FAIL 2         62  USA        game/common/audiomus         AudioMus_SysStartUp__FiiPc
+SEALED         33  USA        game/common/audiomus         AudioMus_Threshold__Fv
+SEALED        111  USA        game/common/audiomus         AudioMus_Volume__Fi
+TODO           46  AU         frontend/common/fedialog     CalculateDimensions__12tDialogYesNo
+TODO          133  AU         frontend/common/fedialog     CalculateDimensions__20tDialogMessageString
+FAIL 2        237  AU         game/common/camera           Camera_NextMode__Fi
+FAIL 2        133  AU         game/common/camera           Camera_SetMode__Fii
+FAIL 4         25  JPN        game/psx/device              Device_SetHardCodedKeys__Fv
+FAIL 8         80  AU         frontend/common/fescreen     DisplayLoadingText__7tScreen
+TODO           80  USA        frontend/common/fescreen     DisplayLoadingText__7tScreen
+FAIL 2        822  USA        frontend/common/screenmain   DrawBackground__11tScreenMain
+TODO          154  USA        frontend/common/screenaudio  DrawBackground__12tScreenAudio
+FAIL 4        410  USA        frontend/common/screenmemcard DrawBackground__14tScreenMemcard
+FAIL 12       541  USA        frontend/common/screencongrats DrawBackground__15tScreenCongrats
+TODO          394  USA        frontend/common/screenusername DrawBackground__15tScreenUserName
+TODO          298  USA        frontend/common/screentrophyinfo DrawBackground__17tScreenTrophyInfo
+TODO          261  USA        frontend/common/screentrophyroom DrawBackground__17tScreenTrophyRoom
+FAIL 28       415  USA        frontend/common/screentournselect DrawBackground__18tScreenTournSelect
+FAIL 34       364  USA        frontend/common/screentrackrecords DrawBackground__19tScreenTrackRecords
+TODO          265  USA        frontend/common/screenpost   DrawBackground__24tScreenPinkSlipStandings
+FAIL 2        342  USA        frontend/common/screencarselect DrawBackground__25tScreenCarSelectTwoPlayer
+TODO          561  USA        frontend/common/screenpost   DrawBackground__26tScreenTournamentStandings
+FAIL 10        71  USA        frontend/common/screencongrats DrawCongratsMessage__23tScreenPinkSlipCongrats
+FAIL 6         51  USA        frontend/common/screencongrats DrawCongratsMessage__25tScreenTournamentCongrats
+TODO           68  USA        frontend/common/screenaudio  DrawForeground__12tScreenAudio
+TODO           87  USA        frontend/common/femenuoptions DrawLeftFlare__FiiiRi
+FAIL 18       343  USA        frontend/common/screenmemcard DrawMemCardStuff__14tScreenMemcards
+TODO           78  USA        frontend/common/screenpost   DrawMoney__Fiiilii
+TODO          139  USA        frontend/common/femenuoptions DrawOneSong__18tInsideBoxSongMenussssss
+FAIL 24       551  USA        frontend/common/screencarselect DrawOverlay__16tScreenCarSelectP8tOverlay
+FAIL 8        120  USA        frontend/common/screentrackrecords DrawRecords__19tScreenTrackRecordss
+FAIL 2        182  AU         frontend/common/femenuextended Draw__12tMenuOptions
+TODO           94  USA        frontend/common/femenuoptions Draw__29tMenuItemOnOffLeftRightChoiceiib
+FAIL 4         58  JPN        frontend/common/fetools      FeTools_init__Fv
+TODO          409  AU         game/psx/flare               Flare_LensFlare__FP7DVECTORP15Draw_FlareCache
+TODO           46  AU         game/psx/flare               Flare_Moon__FP7SVECTORP15Draw_FlareCache
+TODO          187  AU         game/psx/flare               Flare_Sun__FP7SVECTORP15Draw_FlareCache
+FAIL 4         11  USA        frontend/common/fememcard    FormatConfirm__Fv
+FAIL 2        357  USA        frontend/common/front        Front_InitOpponentCars__FR9tFEStream
+FAIL 2         37  USA        frontend/common/femenudefs   GenericMenuLoadGame__Fi
+FAIL 4         71  USA        frontend/common/femenudefs   GenericMenuSaveGame__Fi
+TODO           24  USA        frontend/common/screencontroller GetHelpText__23tScreenControllerConfig
+TODO          458  AU         game/psx/hrzsku              Hrz_BuildSky__Fv
+FAIL 2         46  USA        frontend/common/screencarselect InitializeVideoWall__16tScreenCarSelect
+FAIL 4         71  USA        frontend/common/screencarselect InitializeVideoWall__20tScreenCarSelectDuel
+TODO           48  USA        frontend/common/screenusername Initialize__15tScreenUserName
+TODO          111  USA        frontend/common/screentracks Initialize__18tScreenTrackSelect
+TODO           82  AU         game/psx/loading             Loading_DrawLoadingScreen__Fv
+FAIL 4       1123  USA        frontend/common/feapp        MainLoop__14tFEApplicationP5tMenu
+FAIL 10        85  USA        frontend/common/femenudefs   MenuExtended_BuyCar__FR12tMenuCommand
+FAIL 8         76  USA        frontend/common/femenudefs   MenuExtended_ExitPinkSlipsEarly__FR12tMenuCommand
+FAIL 6         36  USA        frontend/common/femenudefs   MenuExtended_ExitTourney__FR12tMenuCommand
+FAIL 6         83  USA        frontend/common/femenudefs   MenuExtended_GoTo2PlayerRace__FR12tMenuCommand
+FAIL 2        229  USA        frontend/common/femenudefs   MenuExtended_GoToCarSelect__FR12tMenuCommand
+FAIL 8         87  USA        frontend/common/femenudefs   MenuExtended_GoToRace__FR12tMenuCommand
+FAIL 8         91  USA        frontend/common/femenudefs   MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand
+FAIL 8         90  USA        frontend/common/femenudefs   MenuExtended_GoToTournTrackInfo__FR12tMenuCommand
+FAIL 4         69  USA        frontend/common/femenudefs   MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand
+FAIL 8         80  USA        frontend/common/femenudefs   MenuExtended_PurchaseUpgrade__Fi
+FAIL 8         86  USA        frontend/common/femenudefs   MenuExtended_SellCar__FR12tMenuCommand
+FAIL 4         73  AU         game/common/nfs3             NFS4_LoadingIcon__Fv
+FAIL 8         33  USA        game/common/object           Object_InitCustomObjects__Fv
+FAIL 4         11  USA        frontend/common/fememcard    OverwriteConfirm__Fv
+TODO           29  JPN        frontend/psx/psxfront        PSXFront_AllocateDrawMemory__Fv
+FAIL 6         50  USA        frontend/common/femenudefs   PinkSlipsPreSave__Fv
+FAIL 4         27  USA        frontend/common/front        PlayerNameMixedCase__Fi
+FAIL 4         35  USA        frontend/common/front        PlayerName__Fi
+FAIL 2         17  AU         frontend/psx/psxfront        Quick_DD__Fiii
+FAIL 2         19  AU         game/common/render           Render_CreatePauseMenuViews__Fv
+FAIL 6         48  AU         frontend/common/screencarselect SetDialog__25tScreenCarSelectTwoPlayer
+FAIL 2         48  USA        frontend/common/screencarselect SetDialog__25tScreenCarSelectTwoPlayer
+FAIL 22       164  AU         frontend/common/screencarselect SetDialog__25tScreenPinkSlipsCarSelect
+FAIL 18       164  USA        frontend/common/screencarselect SetDialog__25tScreenPinkSlipsCarSelect
+TODO          111  AU         game/psx/hrzsku              Sky_RenderStars__FP13Draw_SkyCachei
+TODO           16  USA        frontend/common/fetracks     TextValue__18tListIteratorTrack7tPlayer
+FAIL 2         22  USA        frontend/common/fetourn      TextValue__23tListIteratorTournament7tPlayer
+TODO          141  USA        frontend/common/femenuoptions TransitionOn__17tUserNameMenuItem
+TODO           21  AU         game/psx/trsproj             TrsProj_SetViewTrsProjEnviro__FP13DRender_tView
+FAIL 2         52  USA        frontend/common/fetourn      UpdateTrackList__18tTournamentManagerss
+FAIL 2        243  USA        frontend/common/fecars       ValidCar__16tListIteratorCar7tPlayerc
+FAIL 2         94  USA        frontend/common/fetourn      ValidCar__18tTournamentManagerR8tCarInfo
+FAIL 4         69  AU         game/psx/weather             Weather_InitSplats__Fv
+FAIL 2         18  USA        game/psx/platform            nfs2eacinit__Fv
+TODO            5  AU         eaclib/psx/eacpsxz/savegp    savegp
+TODO            5  JPN        eaclib/psx/eacpsxz/savegp    savegp
+TODO            5  USA        eaclib/psx/eacpsxz/savegp    savegp
+TODO          359  AU         frontend/common/fedialog     CalculateDimensions__11tDialogHelp
+TODO          359  USA        frontend/common/fedialog     CalculateDimensions__11tDialogHelp
+FAIL 4        109  USA        frontend/common/fememcard    Confirm__Fii
+FAIL 10       254  USA        frontend/common/feapp        DrawHelpIcons__14tFEApplication
+FAIL 4         58  USA        frontend/common/fememcard    Init_MemcardFile__FR12MCRDFILE_defsb
+FAIL 4        106  USA        frontend/common/screenmemcard Initialize__14tScreenMemcard
+TODO          222  USA        frontend/common/screencontroller SetCurrentController__23tScreenControllerConfigb

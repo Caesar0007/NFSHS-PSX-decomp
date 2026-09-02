@@ -92,7 +92,23 @@ if os.environ.get('NFS4_SOURCE_ONLY') == '1':
         _table.clear()
 bld.OUT = bld.BUILD
 
+# Per-candidate LANE OVERRIDES -- rows whose REGIONAL object has a different
+# build identity than the base TU's wired lane.  W84-R15 falsified the base
+# PAD lane on the regional slices themselves (split gPadinfo addresses +
+# filled epilogues = plain 2.8.0 default lane, vs the base object's
+# no_split_addresses + 2.7.2 splices): the retail regionals link a LATER
+# PAD.OBJ vintage.  addtimer.c is the nearest base TU with no lane entries,
+# used as a clean default-lane + include-dir proxy (4/4 REGION-PASS).
+LANE_OVERRIDES = {
+    'regiondiff/recon/NFS4-R-USA/eaclib/psx/pad.c':
+        'recon/eaclib/psx/eacpsxz/addtimer.c',
+}
+
 lane_as = opts.get('--lane-as')
+_cand_rel = cand.resolve().relative_to(ROOT.resolve()).as_posix() \
+    if str(cand.resolve()).startswith(str(ROOT.resolve())) else str(cand)
+if _cand_rel in LANE_OVERRIDES:
+    lane_as = LANE_OVERRIDES[_cand_rel]      # identity fix wins over the manifest lane
 if not lane_as:
     man = _manifest()
     for r in man.get(funcs[0], []):
@@ -111,7 +127,9 @@ try:
             sys.exit(f'--lane-as target not found: {lane_as}')
         # temp copy NEXT TO the base TU: sibling includes + directory-prefix
         # class rules (e.g. frontend/common -G0) resolve exactly as the base.
-        tmp = base.parent / (base.stem + '__region_gate' + cand.suffix)
+        # PID-suffixed: two concurrent gates on the SAME unit (different
+        # regions/agents) must not clobber each other's temp copy.
+        tmp = base.parent / ('%s__region_gate_%d%s' % (base.stem, os.getpid(), cand.suffix))
         shutil.copyfile(cand, tmp)
         src = tmp
         # alias every exact-rel-keyed lane table entry onto the temp path
@@ -243,6 +261,19 @@ def oracle(fn):
         s = ln.strip()
         if s.startswith('.section'):
             break                              # jtbl .rodata tail: not the fn
+        # Only rows carrying the slicer's `/* VA word */` prefix are image
+        # instructions.  regionrecon's jump-table fixup can INJECT synthetic
+        # prefix-less `lui/addiu %hi/%lo(jtbl_...)` helper lines; counting
+        # them made every jr-dispatched switch a 2-diff-per-table floor
+        # (W84-R04 finding: R3DCar_InsertCarFacet 1153/1153 real rows, 6
+        # phantom diffs from 3 tables).  Labels/directives are skipped below
+        # either way; a bare-instruction line without the prefix is synthetic.
+        if not re.match(r'/\* [0-9A-F]{8} [0-9a-f]{8} \*/', s):
+            base = re.sub(r'/\*.*?\*/', '', ln).strip()
+            if base and not base.startswith(('.', 'glabel', 'nonmatching',
+                                             'dlabel', 'jlabel', 'alabel')) \
+                    and not base.endswith(':'):
+                continue                       # synthetic helper line: skip
         s = re.sub(r'/\*.*?\*/', '', ln).strip()
         mw = re.match(r'\.word\s+0x([0-9a-fA-F]+)\b', s)
         if mw and (int(mw.group(1),16) >> 26) == 0x12:

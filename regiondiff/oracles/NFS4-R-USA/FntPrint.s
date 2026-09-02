@@ -270,9 +270,6 @@ glabel func_800F7990
 /* 800F7D44 8fb00218 */  lw       $s0,536($sp)
 /* 800F7D48 03e00008 */  jr       $ra
 /* 800F7D4C 27bd0238 */  addiu    $sp,$sp,568
-/* 800F7D50 00000000 */  nop      
-/* 800F7D54 00000000 */  nop      
-/* 800F7D58 00000000 */  nop      
 
 .section .rodata
 glabel jtbl_80057848

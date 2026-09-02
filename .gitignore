@@ -47,5 +47,5 @@ scratch/
 tools/objdiff/objdiff.exe
 
 # verify_region.py gate temp copies (compiled beside the base TU, auto-deleted)
-recon/**/*__region_gate.cpp
-recon/**/*__region_gate.c
+recon/**/*__region_gate*.cpp
+recon/**/*__region_gate*.c

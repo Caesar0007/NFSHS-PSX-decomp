@@ -614,9 +614,6 @@ glabel func_800E4E94
 /* 800E570C 8fb00228 */  lw       $s0,552($sp)
 /* 800E5710 03e00008 */  jr       $ra
 /* 800E5714 27bd0250 */  addiu    $sp,$sp,592
-/* 800E5718 00000000 */  nop      
-/* 800E571C 00000000 */  nop      
-/* 800E5720 00000000 */  nop      
 
 .section .rodata
 glabel jtbl_80057304

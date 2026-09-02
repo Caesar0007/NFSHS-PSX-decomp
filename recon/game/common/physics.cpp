@@ -449,25 +449,51 @@ int Physics_DoBarrierCheck(Car_tObj *carObj)
   diff = 0;
   slice = (carObj->N).simRoadInfo.slice;
   {
+    /* SYM-CODEGEN-CARRIER: x1raw.  Reloading right.x in the later product adds
+       one instruction and changes its surrounding handout (359/358, 27 diffs). */
     int x1raw;
-    int centerX;
-    int centerY;
+    /* SYM-CODEGEN-CARRIER: centerZ.  Merging this live range with centerKeep
+       retains size but changes 64 register/schedule positions. */
     int centerZ;
+    /* SYM-CODEGEN-CARRIER: centerX.  Inlining the slice-center access preserves
+       size but moves its load, leaving two detailed diffs. */
+    int centerX;
+    /* SYM-CODEGEN-CARRIER: centerY.  Its direct slice-center expression has the
+       same unchanged-size, two-diff moved-load result. */
+    int centerY;
+    /* SYM-CODEGEN-CARRIER: positionX.  Direct field use with no alias-only
+       fence keeps 358 instructions but recolors/schedules 42 positions. */
     int positionX;
+    /* SYM-CODEGEN-CARRIER: positionY.  Its direct field form independently
+       preserves size but reproduces the same 42-diff allocation shift. */
     int positionY;
+    /* SYM-CODEGEN-CARRIER: positionZ.  Direct field use moves its load past
+       the slice-address fences and produces 54 diffs at unchanged size. */
     int positionZ;
+    /* SYM-CODEGEN-CARRIER: linearZ.  Direct field use moves its load and adds
+       a nop (359/358, three diffs); load-first ordering also reverses the addu
+       operands (five diffs). */
     int linearZ;
+    /* SYM-CODEGEN-CARRIER: velocityX.  Directly storing the expression into
+       vel_b.x keeps 358 instructions but changes 16 allocation positions. */
     int velocityX;
-    int velocityY;
+    /* SYM-CODEGEN-CARRIER: velocityZ.  Directly storing into vel_b.z while
+       removing the register-only uses keeps size but produces 68 diffs. */
     int velocityZ;
+    /* SYM-CODEGEN-CARRIER: centerKeep.  Reusing centerZ keeps 358 instructions
+       but changes the x3 multiply live range and produces 64 detailed diffs. */
     int centerKeep;
 
     {
     int r1;
     int r2;
     int r3;
+    /* SYM-CODEGEN-CARRIER: raw1.  Direct signed-byte shifts into r1/r2/r3
+       add two instructions and change 14 detailed positions (360/358). */
     int raw1;
+    /* SYM-CODEGEN-CARRIER: raw2.  See the grouped direct-shift receipt above. */
     int raw2;
+    /* SYM-CODEGEN-CARRIER: raw3.  See the grouped direct-shift receipt above. */
     int raw3;
 
     raw1 = (int)(signed char)PHYSICS_SLICE_RIGHT(slice,0);
@@ -498,9 +524,7 @@ int Physics_DoBarrierCheck(Car_tObj *carObj)
     centerY = PHYSICS_SLICE_CENTER(slice,1);
     __asm__("" : : "r"(centerY), "r"(centerY));
     positionY = (carObj->N).position.y;
-    velocityY = positionY + ((carObj->N).linearVel.y >> 5) - centerY;
-    __asm__("" : : "r"(velocityY));
-    vel_b.y = velocityY;
+    vel_b.y = positionY + ((carObj->N).linearVel.y >> 5) - centerY;
     __asm__("" : : "r"(positionY));
     centerZ = PHYSICS_SLICE_CENTER(slice,2);
     __asm__("" : : "r"(centerZ), "r"(centerZ));
@@ -525,7 +549,11 @@ int Physics_DoBarrierCheck(Car_tObj *carObj)
     {
     int x1;
     int x2;
+    /* SYM-CODEGEN-CARRIER: x3factor.  Together with x3left this stages both
+       signed divisions before the centerKeep boundary and the multiply after it. */
     int x3factor;
+    /* SYM-CODEGEN-CARRIER: x3left.  A single combined product loses retail's
+       independent division live ranges and the W78 exact multiply schedule. */
     int x3left;
     int x3;
 
@@ -626,10 +654,8 @@ int Physics_DoBarrierCheck(Car_tObj *carObj)
       }
     }
     else {
-      int impact;
-
-      impact = __builtin_abs(diff * 2);
-      wallType = Physics_AttenuateVelocity(carObj,collide * impact,&(carObj->N).roadMatrix);
+      wallType = Physics_AttenuateVelocity(
+          carObj,collide * __builtin_abs(diff * 2),&(carObj->N).roadMatrix);
       Physics_CorrectPostCollisionYaw(carObj,wallType,normal);
     }
     return collide;
@@ -1325,10 +1351,10 @@ int Physics_CalculateCarAcceleration(Car_tObj *carObj)
   wheelRpm = 0;
   smokeRpm = carObj->specs->redline / 8;
   damage = 0;
-  int damageAmount = (carObj->N).damage[1] + (carObj->N).damage[5];
   randtemp = fastRandom * randSeed;
   fastRandom = randtemp & 0xffff;
-  if ((randtemp >> 8 & 0xffff) < (u_int)(damageAmount / 0x100)) {
+  if ((randtemp >> 8 & 0xffff) <
+      (u_int)(((carObj->N).damage[1] + (carObj->N).damage[5]) / 0x100)) {
     damage = 1;
   }
   specs = carObj->specs;
@@ -1345,6 +1371,9 @@ int Physics_CalculateCarAcceleration(Car_tObj *carObj)
   drag = fixedmult(specs->dragCoeff,
                    (drag / 0x10000) * (drag / 0x10000) * (drag / 0x10000));
   if (((carObj->control).gear == '\x01') || (powerControl == 0)) {
+    /* SYM-CODEGEN-CARRIER: candidateRpm.  Repeating the source expression
+       removes eight instructions and changes the saved-register allocation
+       (702/710 instructions, 438 detailed diffs). */
     int candidateRpm = specs->redline + 0xfa;
     if (fixedmult(candidateRpm,gGasRatio) >= candidateRpm) {
       desiredRpm = specs->redline + 0xfa;
@@ -1360,15 +1389,23 @@ int Physics_CalculateCarAcceleration(Car_tObj *carObj)
       desiredRpm = fixedmult(specs->redline + 100,gGasRatio);
     }
   }
+  /* SYM-CODEGEN-CARRIER: currentFlywheelRpm.  Direct fields fail independently:
+     the redline comparison moves one load (710/710, two diffs), the rpm-rise
+     ternary repeats the load (714/710, 12 diffs), and the final MIN adds a nop
+     around its moved load (711/710, three diffs). */
   int currentFlywheelRpm = carObj->flywheelRpm;
-  int redlineRpm = specs->redline;
-  if (redlineRpm <= currentFlywheelRpm) {
-    carObj->flywheelRpm = redlineRpm + 0x32;
+  if (specs->redline <= currentFlywheelRpm) {
+    carObj->flywheelRpm = specs->redline + 0x32;
     carObj->revLimit =
         (((carObj->control).gear == '\x01') || (powerControl == 0)) ? 3 : 4;
   }
   if (0 < carObj->revLimit) {
+    /* SYM-CODEGEN-CARRIER: revLimitedRpm.  Merging it into
+       adjustedDesiredRpm removes retail's v0-to-v1 copy (709/710, five diffs). */
     int revLimitedRpm;
+    /* SYM-CODEGEN-CARRIER: adjustedDesiredRpm.  Assigning desiredRpm through
+       PHY_MIN instead removes two instructions and recolors saved registers
+       (708/710, 60 detailed diffs). */
     int adjustedDesiredRpm;
     if (((carObj->control).gear == '\x01') || (powerControl == 0)) {
       revLimitedRpm = specs->redline + -800;
@@ -1390,13 +1427,15 @@ int Physics_CalculateCarAcceleration(Car_tObj *carObj)
        local owned by the non-jumping arms makes the damage arm's `goto` land
        PAST the reload, matching retail's j +4 (brdist word #25) -- the
        skipped insn was a semantics-neutral re-read of flywheelRpm. */
+    /* SYM-CODEGEN-CARRIER: clampedFlywheelRpm.  This value spans the damage
+       jump into the shared >=0 clamp; using the field directly reloads after
+       the jump and loses retail's store in the jump delay slot (W83-A8). */
     int clampedFlywheelRpm;
     if (damage) {
       __asm__("" : : "i"(0));
-      int damagedFlywheelRpm = carObj->flywheelRpm + -100;
+      clampedFlywheelRpm = carObj->flywheelRpm + -100;
       __asm__("" : : "i"(0));
-      carObj->flywheelRpm = damagedFlywheelRpm;
-      clampedFlywheelRpm = damagedFlywheelRpm;
+      carObj->flywheelRpm = clampedFlywheelRpm;
       goto cfLbl1;   /* retail: j into the shared >=0 clamp @0x800aae34 */
     }
     else {
@@ -1421,6 +1460,8 @@ int Physics_CalculateCarAcceleration(Car_tObj *carObj)
             carObj->flywheelRpm =
                 carObj->flywheelRpm + blip[(u_char)(carObj->control).desiredGear];
           }
+          /* SYM-CODEGEN-CARRIER: downshiftRedlineRpm.  The isolated snapshot
+             preserves retail's lw-v0 then move-v1-v0 before the clamp. */
           int downshiftRedlineRpm = specs->redline;
           __asm__("" : : "r"(downshiftRedlineRpm));
           ratio = downshiftRedlineRpm;
@@ -1508,11 +1549,8 @@ Phy_CalcAcc_clearWheelSpinExit:
     if (smokeRpm < diffFlywheelRpm) {
       carObj->wheelSpin = 2;
     }
-    int newFlywheelRpm = carObj->flywheelRpm;
-    int adjustedFlywheelRpm = (rpmDrop >= diffFlywheelRpm) ?
-        newFlywheelRpm - diffFlywheelRpm :
-        newFlywheelRpm - rpmDrop;
-    carObj->flywheelRpm = adjustedFlywheelRpm;
+    carObj->flywheelRpm -=
+        (rpmDrop >= diffFlywheelRpm) ? diffFlywheelRpm : rpmDrop;
   }
   else {
     if (diffDesiredRpm < 0) {
@@ -1529,15 +1567,13 @@ Phy_CalcAcc_clearWheelSpinExit:
         if (rpmRise < -diffFlywheelRpm) {
           rpmRise = -diffFlywheelRpm;
         }
-        int adjustedFlywheelRpm = carObj->flywheelRpm + rpmRise;
-        carObj->flywheelRpm = adjustedFlywheelRpm;
+        carObj->flywheelRpm += rpmRise;
       }
       else {
         int currentFlywheelRpm = carObj->flywheelRpm;
-        int adjustedFlywheelRpm = (rpmRise < -diffFlywheelRpm) ?
+        carObj->flywheelRpm = (rpmRise < -diffFlywheelRpm) ?
             currentFlywheelRpm + rpmRise :
             currentFlywheelRpm - diffFlywheelRpm;
-        carObj->flywheelRpm = adjustedFlywheelRpm;
       }
       if (exceedRedline == 0) {
         carObj->flywheelRpm =
@@ -1588,6 +1624,9 @@ Phy_CalcAcc_clearWheelSpinExit:
       if (driveAcc < 0) {
         diffDesiredRpm = driveAcc + 0xff;
       }
+      /* SYM-CODEGEN-CARRIER: scaledRatio.  The separate identity-laundered
+         divisor copy is required for retail's signed /256 interleave; direct
+         and identity-only divisor forms leave four and six diffs respectively. */
       int scaledRatio = ratio;
       __asm__("" : "=r"(scaledRatio) : "0"(scaledRatio));
       diffDesiredRpm = diffDesiredRpm >> 8;
@@ -2207,21 +2246,9 @@ void Physics_Real(Car_tObj *carObj)
   int tempSteer;
   int frontGrip;
   int roadGrip;
-  bool bVar1;
-  void *pvVar2;
-  int iVar3;
-  int iVar4;
-  int iVar5;
-  int iVar6;
-  int iVar7;
-  u_int uVar8;
-  Trk_NewSlice *pTVar9;
-  int iVar10;
-  int iVar11;
   int damp;
   int rotationalAccCap;
   Car_tSpecs *specs;
-  u_int uVar13;
   Physics_tWheelAccStruct frontWheel;
   Physics_tWheelAccStruct rearWheel;
   coorddef temp;
@@ -2449,8 +2476,12 @@ void Physics_Real(Car_tObj *carObj)
   brakeAcc =
       (gBrakeRatio / 0x100) * (specs->maxBrakeAcc / 0x100);
   {
+    /* SYM-CODEGEN-CARRIER: brakeCap.  Collapsing the clamp to one temporary
+       keeps 1272 instructions but loses retail's v1-to-a0 copy (ten diffs). */
     int brakeCap = __builtin_abs((carObj->linearVel_ch).z) << 5;
     __asm__("" : "=r"(brakeCap) : "0"(brakeCap));
+    /* SYM-CODEGEN-CARRIER: limitedBrakeAcc.  See the measured one-temporary
+       clamp receipt above. */
     int limitedBrakeAcc = brakeCap;
     if (limitedBrakeAcc >= brakeAcc) {
       limitedBrakeAcc = brakeAcc;
@@ -2586,9 +2617,17 @@ void Physics_Real(Car_tObj *carObj)
          `lw $3,leftMult` past `lw $4,100($sp)`) NO LONGER FIRES -- its anchor
          lookahead names `lw $2,52($sp)` and the seat is now `$6`; it is dead and
          can be deleted by whoever owns tools/build.py. */
+      /* SYM-CODEGEN-CARRIER: wheelMult.  Fully inlining leftMult-rightMult was
+         measured at ten diffs; the named live range is required by W71-A20. */
       int wheelMult;
+      /* SYM-CODEGEN-CARRIER: fz.  Its tied zero-insn conflict must sit inside
+         this live range to seat retail front-z in $a2. */
       int fz;
+      /* SYM-CODEGEN-CARRIER: sumZ.  The phony-loop depth reference is the
+         zero-instruction issue-order dial that closes the last schedule slot. */
       int sumZ;
+      /* SYM-CODEGEN-CARRIER: lm.  Its separate tied conflict seats leftMult in
+         retail $v1; a combined two-operand fence was measured at 10-12 diffs. */
       int lm;
 
       fz = frontWheel.finalAcc.z;
@@ -2681,6 +2720,9 @@ void Physics_Real(Car_tObj *carObj)
                             ? 2 : (u_char)(carObj->control).gear]) /
           0x10000;
     }
+    /* SYM-CODEGEN-CARRIER: adjustedRpm.  Reusing SYM currentRpm stays count
+       exact but seats this signed adjustment in $a1 instead of retail $a2,
+       leaving eight diffs; one and four read-only reference dials are inert. */
     int adjustedRpm =
         fixedmult((carObj->linearVel_ch).z,
                   specs->velToRpmRatio[
@@ -2693,6 +2735,9 @@ void Physics_Real(Car_tObj *carObj)
     __asm__("" : "=r"(tempGas) : "0"(tempGas));
     diffRpm = desiredRpm - (adjustedRpm >> 16);
     if (diffRpm >= 0xc9) {
+      /* SYM-CODEGEN-CARRIER: gasLevel.  Reusing tempGas drops the retail copy
+         (1271/1272, 13 diffs); a direct ternary store is count-exact but changes
+         14 branch/store instructions. */
       int gasLevel;
 
       tempGas += (diffRpm * 0x80) / desiredRpm;
@@ -2711,6 +2756,8 @@ void Physics_Real(Car_tObj *carObj)
         carObj->RSGasLevel = '\0';
       }
       if (diffRpm < 0) {
+        /* SYM-CODEGEN-CARRIER: brakeLevel.  Reusing dead tempGas is count-exact
+           but moves the quotient from retail $a0 to $v1 (16 detailed diffs). */
         u_int brakeLevel =
             __builtin_abs(diffRpm << 9) / specs->redline;
         if (0xff < (int)brakeLevel) {
@@ -2729,6 +2776,8 @@ void Physics_Real(Car_tObj *carObj)
       coorddef dirVector;
 
       currentRpm = __builtin_abs(carObj->currentSpeed) / 0x60000;
+      /* SYM-CODEGEN-CARRIER: rsControl.  Repeating the field read in both arms
+         adds four instructions and produces 16 detailed diffs (1276/1272). */
       int rsControl = carObj->RSControl;
       if (currentRpm >= 3) {
         lookAhead = rsControl * currentRpm;

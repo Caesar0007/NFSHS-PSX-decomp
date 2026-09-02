@@ -257,6 +257,8 @@ void Camera_UpdateTailCam(int player,int behavior)
   maxrate = 0x1999;
   rate = maxrate;
   {
+    /* SYM-CODEGEN-CARRIER: mode.  Direct Camera_gFlags indexing moves its
+       address materialization and leaves two authoritative schedule diffs. */
     short mode = Camera_gInfo[player].mode;   /* MATCH: inner gInfo eval first (base lui v0) */
     arm = Camera_gFlags[mode].arm;
   }
@@ -264,8 +266,12 @@ void Camera_UpdateTailCam(int player,int behavior)
   rateY = 0xCCC;
   {
     /* MATCH: reverseTrack read ONCE before the if (single lw, shared by both arms) */
+    /* SYM-CODEGEN-CARRIER: rev.  Per-arm reverseTrack reads were measured at
+       76 diffs and lose retail's single shared load. */
     int rev = Camera_GameSetupWords[12];
     if (0 < anchor->wrongway) {
+      /* SYM-CODEGEN-CARRIER: flip.  Direct `if (rev ^ 1)` emits xori/bnez
+         instead of retail's compare-to-one form (18 diffs at 402/402). */
       int flip = rev ^ 1;
       /* MATCH: pin-free zero-instruction fence keeps the XOR ahead of the branch. */
       lookahead = 3;
@@ -298,9 +304,12 @@ lookahead_done:;
     break;
   }
   if (behavior != 0) {
-    int x = anchor->linearVel_ch.x;
+    /* SYM-CODEGEN-CARRIER: z.  Writing this as builtin_abs swaps the X/Z
+       loads and changes 16 instructions at unchanged size. */
     int z = anchor->linearVel_ch.z;
-    int ax = __builtin_abs(x);
+    /* SYM-CODEGEN-CARRIER: ax.  Reusing SYM rate for the absolute X speed keeps
+       402 instructions but shifts the saved-register allocation across 150 diffs. */
+    int ax = __builtin_abs(anchor->linearVel_ch.x);
     if (z < 0) {
       z = -z;
     }
@@ -337,8 +346,14 @@ lookahead_done:;
     /* MATCH: BWorldSm_slices stays in a2 and the first road sample stays in a0.
      * The priced, pin-free fence adds six allocator references without instructions,
      * leaving gNumSlices in a1 and the shifted wrap offset in v0. */
+    /* SYM-CODEGEN-CARRIER: slices.  This named base is the priced quantity that
+       remains in retail $a2 across both road samples. */
     char *slices = (char *)Camera_BWorldSmSlices;
+    /* SYM-CODEGEN-CARRIER: offset.  Reusing dead SYM slice yields 403/402 and
+       loses retail's explicit v0-to-v1 offset copy (three detailed diffs). */
     int offset;
+    /* SYM-CODEGEN-CARRIER: first.  Six zero-insn references are the measured
+       allocator dial that seats the first road sample in retail $a0. */
     int first = *(int *)((slice << 5) + (int)slices + 4);
     __asm__("" : : "r"(first), "r"(first), "r"(first), "r"(first), "r"(first),
                       "r"(first));
@@ -350,6 +365,8 @@ lookahead_done:;
       slice = slice - lookahead;
       offset = (slice < 0 ? slice + gNumSlices : slice) << 5;
     }
+    /* SYM-CODEGEN-CARRIER: second.  Directly folding this address into the load
+       is count-exact but moves its addu, leaving two schedule diffs. */
     char *second = slices + offset;
     __asm__("" : "+r"(second));
     first -= *(int *)(second + 4);
@@ -371,18 +388,23 @@ lookahead_done:;
   }
   /* MATCH: split the compound assignment at the existing scheduler boundary.
    * Loading arm.y before the boundary restores the retail load order (4 -> 2). */
+  /* SYM-CODEGEN-CARRIER: armY.  The pre-boundary snapshot is the measured
+     source-side load-order fix; a compound arm.y update leaves two diffs. */
   int armY = arm.y;
   __asm__("" : : "i"(2));
   /* W78 source-only closure: force the look-behind base into the arm-load
      latency window; it occupies v1 while vertigo retains retail's a0. */
+  /* SYM-CODEGEN-CARRIER: lookBehindBase.  This fenced base supplies retail's
+     load-latency filler and reserves $v1 while vertigo remains live. */
   int *lookBehindBase = Input_gLookBehind;
   __asm__("" : "+r"(lookBehindBase));
   arm.y = armY + vertigo;
   /* End vertigo's scheduling region before the shared &arm value is born. */
   __asm__("" : : "i"(3));
-  int lookBehind = lookBehindBase[player];
+  /* SYM-CODEGEN-CARRIER: armPtr.  Plain &arm in both branches was measured at
+     403 instructions/three diffs; this scoped identity yields exact 402/402. */
   coorddef *armPtr = &arm;
-  if (lookBehind != 0) {
+  if (lookBehindBase[player] != 0) {
     /* audio (look-behind) arm FIRST in VA order */
     {
       /* MATCH: a scoped identity keeps &arm caller-saved (direct spelling promotes it

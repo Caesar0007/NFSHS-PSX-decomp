@@ -1,0 +1,13 @@
+status	words	region	unit	function
+FAIL 12	541	USA	frontend/common/screencongrats	DrawBackground__15tScreenCongrats
+FAIL 10	71	USA	frontend/common/screencongrats	DrawCongratsMessage__23tScreenPinkSlipCongrats
+FAIL 6	51	USA	frontend/common/screencongrats	DrawCongratsMessage__25tScreenTournamentCongrats
+TODO	87	USA	frontend/common/femenuoptions	DrawLeftFlare__FiiiRi
+TODO	139	USA	frontend/common/femenuoptions	DrawOneSong__18tInsideBoxSongMenussssss
+TODO	94	USA	frontend/common/femenuoptions	Draw__29tMenuItemOnOffLeftRightChoiceiib
+TODO	141	USA	frontend/common/femenuoptions	TransitionOn__17tUserNameMenuItem
+FAIL 2	237	AU	game/common/camera	Camera_NextMode__Fi
+FAIL 2	133	AU	game/common/camera	Camera_SetMode__Fii
+TODO	111	USA	frontend/common/screentracks	Initialize__18tScreenTrackSelect
+FAIL 4	25	JPN	game/psx/device	Device_SetHardCodedKeys__Fv
+FAIL 2	17	AU	frontend/psx/psxfront	Quick_DD__Fiii

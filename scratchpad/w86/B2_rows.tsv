@@ -1,0 +1,8 @@
+status	words	region	unit	function
+TODO	409	AU	game/psx/flare	Flare_LensFlare__FP7DVECTORP15Draw_FlareCache
+TODO	46	AU	game/psx/flare	Flare_Moon__FP7SVECTORP15Draw_FlareCache
+TODO	187	AU	game/psx/flare	Flare_Sun__FP7SVECTORP15Draw_FlareCache
+FAIL 34	364	USA	frontend/common/screentrackrecords	DrawBackground__19tScreenTrackRecords
+FAIL 8	120	USA	frontend/common/screentrackrecords	DrawRecords__19tScreenTrackRecordss
+TODO	359	USA	frontend/common/fedialog	CalculateDimensions__11tDialogHelp
+FAIL 2	182	AU	frontend/common/femenuextended	Draw__12tMenuOptions

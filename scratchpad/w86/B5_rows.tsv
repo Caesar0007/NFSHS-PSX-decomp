@@ -1,0 +1,6 @@
+status	words	region	unit	function
+FAIL 4	1123	USA	frontend/common/feapp	MainLoop__14tFEApplicationP5tMenu
+FAIL 10	254	USA	frontend/common/feapp	DrawHelpIcons__14tFEApplication
+FAIL 6	48	AU	frontend/common/screencarselect	SetDialog__25tScreenCarSelectTwoPlayer
+FAIL 22	164	AU	frontend/common/screencarselect	SetDialog__25tScreenPinkSlipsCarSelect
+FAIL 4	58	JPN	frontend/common/fetools	FeTools_init__Fv

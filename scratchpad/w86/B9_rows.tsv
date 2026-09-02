@@ -1,0 +1,12 @@
+status	words	region	unit	function
+FAIL 4	410	USA	frontend/common/screenmemcard	DrawBackground__14tScreenMemcard
+FAIL 18	343	USA	frontend/common/screenmemcard	DrawMemCardStuff__14tScreenMemcards
+FAIL 4	106	USA	frontend/common/screenmemcard	Initialize__14tScreenMemcard
+FAIL 6	273	USA	frontend/common/fetourn	AdvanceToNextTrack__18tTournamentManager
+FAIL 2	22	USA	frontend/common/fetourn	TextValue__23tListIteratorTournament7tPlayer
+FAIL 2	52	USA	frontend/common/fetourn	UpdateTrackList__18tTournamentManagerss
+FAIL 2	94	USA	frontend/common/fetourn	ValidCar__18tTournamentManagerR8tCarInfo
+FAIL 2	243	USA	frontend/common/fecars	ValidCar__16tListIteratorCar7tPlayerc
+FAIL 4	73	AU	game/common/nfs3	NFS4_LoadingIcon__Fv
+FAIL 2	19	AU	game/common/render	Render_CreatePauseMenuViews__Fv
+TODO	5	JPN	eaclib/psx/eacpsxz/savegp	savegp

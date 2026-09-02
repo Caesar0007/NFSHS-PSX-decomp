@@ -1,0 +1,13 @@
+status	words	region	unit	function
+TODO	265	USA	frontend/common/screenpost	DrawBackground__24tScreenPinkSlipStandings
+TODO	561	USA	frontend/common/screenpost	DrawBackground__26tScreenTournamentStandings
+TODO	78	USA	frontend/common/screenpost	DrawMoney__Fiiilii
+FAIL 2	357	USA	frontend/common/front	Front_InitOpponentCars__FR9tFEStream
+FAIL 4	27	USA	frontend/common/front	PlayerNameMixedCase__Fi
+FAIL 4	35	USA	frontend/common/front	PlayerName__Fi
+TODO	154	USA	frontend/common/screenaudio	DrawBackground__12tScreenAudio
+TODO	68	USA	frontend/common/screenaudio	DrawForeground__12tScreenAudio
+FAIL 4	69	AU	game/psx/weather	Weather_InitSplats__Fv
+TODO	21	AU	game/psx/trsproj	TrsProj_SetViewTrsProjEnviro__FP13DRender_tView
+TODO	5	USA	eaclib/psx/eacpsxz/savegp	savegp
+TODO	5	AU	eaclib/psx/eacpsxz/savegp	savegp

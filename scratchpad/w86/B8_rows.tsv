@@ -1,0 +1,9 @@
+status	words	region	unit	function
+FAIL 2	822	USA	frontend/common/screenmain	DrawBackground__11tScreenMain
+TODO	394	USA	frontend/common/screenusername	DrawBackground__15tScreenUserName
+TODO	48	USA	frontend/common/screenusername	Initialize__15tScreenUserName
+FAIL 6	24	USA	frontend/common/screencontroller	GetHelpText__23tScreenControllerConfig
+FAIL 6	222	USA	frontend/common/screencontroller	SetCurrentController__23tScreenControllerConfigb
+TODO	80	USA	frontend/common/fescreen	DisplayLoadingText__7tScreen
+FAIL 8	33	USA	game/common/object	Object_InitCustomObjects__Fv
+FAIL 2	18	USA	game/psx/platform	nfs2eacinit__Fv

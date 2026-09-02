@@ -1,0 +1,19 @@
+status	words	region	unit	function
+FAIL 6	30	USA	frontend/common/femenudefs	AskTheUserToSaveTheGame__Fv
+FAIL 2	37	USA	frontend/common/femenudefs	GenericMenuLoadGame__Fi
+FAIL 4	71	USA	frontend/common/femenudefs	GenericMenuSaveGame__Fi
+FAIL 10	85	USA	frontend/common/femenudefs	MenuExtended_BuyCar__FR12tMenuCommand
+FAIL 8	76	USA	frontend/common/femenudefs	MenuExtended_ExitPinkSlipsEarly__FR12tMenuCommand
+FAIL 6	36	USA	frontend/common/femenudefs	MenuExtended_ExitTourney__FR12tMenuCommand
+FAIL 6	83	USA	frontend/common/femenudefs	MenuExtended_GoTo2PlayerRace__FR12tMenuCommand
+FAIL 2	229	USA	frontend/common/femenudefs	MenuExtended_GoToCarSelect__FR12tMenuCommand
+FAIL 8	87	USA	frontend/common/femenudefs	MenuExtended_GoToRace__FR12tMenuCommand
+FAIL 8	91	USA	frontend/common/femenudefs	MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand
+FAIL 8	90	USA	frontend/common/femenudefs	MenuExtended_GoToTournTrackInfo__FR12tMenuCommand
+FAIL 4	69	USA	frontend/common/femenudefs	MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand
+FAIL 8	80	USA	frontend/common/femenudefs	MenuExtended_PurchaseUpgrade__Fi
+FAIL 8	86	USA	frontend/common/femenudefs	MenuExtended_SellCar__FR12tMenuCommand
+FAIL 6	50	USA	frontend/common/femenudefs	PinkSlipsPreSave__Fv
+TODO	298	USA	frontend/common/screentrophyinfo	DrawBackground__17tScreenTrophyInfo
+TODO	82	AU	game/psx/loading	Loading_DrawLoadingScreen__Fv
+FAIL 2	62	USA	game/common/audiomus	AudioMus_SysStartUp__FiiPc

@@ -1,0 +1,10 @@
+status	words	region	unit	function
+TODO	458	AU	game/psx/hrzsku	Hrz_BuildSky__Fv
+TODO	111	AU	game/psx/hrzsku	Sky_RenderStars__FP13Draw_SkyCachei
+TODO	46	AU	frontend/common/fedialog	CalculateDimensions__12tDialogYesNo
+TODO	133	AU	frontend/common/fedialog	CalculateDimensions__20tDialogMessageString
+TODO	359	AU	frontend/common/fedialog	CalculateDimensions__11tDialogHelp
+FAIL 28	415	USA	frontend/common/screentournselect	DrawBackground__18tScreenTournSelect
+FAIL 8	80	AU	frontend/common/fescreen	DisplayLoadingText__7tScreen
+TODO	29	JPN	frontend/psx/psxfront	PSXFront_AllocateDrawMemory__Fv
+TODO	16	USA	frontend/common/fetracks	TextValue__18tListIteratorTrack7tPlayer

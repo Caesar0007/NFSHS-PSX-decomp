@@ -1,0 +1,12 @@
+status	words	region	unit	function
+FAIL 2	342	USA	frontend/common/screencarselect	DrawBackground__25tScreenCarSelectTwoPlayer
+FAIL 24	551	USA	frontend/common/screencarselect	DrawOverlay__16tScreenCarSelectP8tOverlay
+FAIL 2	46	USA	frontend/common/screencarselect	InitializeVideoWall__16tScreenCarSelect
+FAIL 4	71	USA	frontend/common/screencarselect	InitializeVideoWall__20tScreenCarSelectDuel
+FAIL 2	48	USA	frontend/common/screencarselect	SetDialog__25tScreenCarSelectTwoPlayer
+FAIL 18	164	USA	frontend/common/screencarselect	SetDialog__25tScreenPinkSlipsCarSelect
+TODO	261	USA	frontend/common/screentrophyroom	DrawBackground__17tScreenTrophyRoom
+FAIL 4	11	USA	frontend/common/fememcard	FormatConfirm__Fv
+FAIL 4	11	USA	frontend/common/fememcard	OverwriteConfirm__Fv
+FAIL 4	109	USA	frontend/common/fememcard	Confirm__Fii
+FAIL 4	58	USA	frontend/common/fememcard	Init_MemcardFile__FR12MCRDFILE_defsb

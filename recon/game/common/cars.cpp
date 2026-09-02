@@ -1423,20 +1423,20 @@ void Car_DoSkiddingStuff(Car_tObj *carObj)
 /* ---- Car_DoPostCollisionStuff__FP8Car_tObj  [@0x800898dc] ---- */
 void Car_DoPostCollisionStuff(Car_tObj *carObj)
 {
-  /* MATCH: 34->16 via restoring the `gvClamp`/`clampCond` compiler-carrier
-     shape: the oracle computes `clampCond = MIN(roundedGV>>5, 1310)`
+  /* MATCH: the oracle computes `clampCond = MIN(roundedGV>>5, 1310)`
      FIRST (a real 2-branch min-clamp, `slti v0,v1,1311; ... li v1,1310;`), THEN tests
      `clampCond < -2620` -- NOT the single `-2621 < roundedGV>>5` test the prior recon had.
      Both are logically equivalent when roundedGV>>5 < -2620 (since -2620<1310 the MIN never
      fires there) but the oracle's ACTUAL codegen needs the min-clamp-first shape to byte-match
      (a<1311 && a<-2620 folds to a<-2620 logically, but NOT in codegen). Using
-     `__builtin_abs(fixedmult(...))` for the roll term keeps the result in v0 like retail and
-     reduces 16->5. Removing the named second quotient temporary and writing its upper clamp
+     `__builtin_abs(fixedmult(...))` for the roll term keeps the result in v0 like retail.
+     Removing the named second quotient temporary and writing its upper clamp
      as a real if/else reproduces retail's direct-a0 signed `/32` expansion and schedules the
-     `Yoffset = 0x51e` default into the comparison branch delay slot (5->PASS154). */
-  int Yoffset;
-  Car_tSpecs *pCVar2;
-
+     `Yoffset = 0x51e` default into the comparison branch delay slot.  SLD maps this
+     computation to source line 1718 and retains only `Yoffset`; the known nested
+     MIN/MAX spelling compiles to 146/154 with 142 diffs, while an upper-first
+     three-way clamp compiles to 147/154 with 27 diffs.  The exact EA macro spelling
+     therefore is not recoverable from SYM plus retail code alone. */
   carObj->audioCount = 0;
   if ((carObj->N).collision.impulse != 0) {
     (carObj->N).collision.lastImpulse = (carObj->N).collision.impulse;
@@ -1451,17 +1451,13 @@ void Car_DoPostCollisionStuff(Car_tObj *carObj)
   if ((carObj->N).simOptz != '\0') goto SHORT;
   if ((carObj->N).active != '\0') goto LONG;
 SHORT:
-  pCVar2 = carObj->specs;
   (carObj->render).bodyPitch = 0;
   (carObj->render).bodyRoll = 0;
-  (carObj->render).currentHeight = -pCVar2->rideOffset;
+  (carObj->render).currentHeight = -carObj->specs->rideOffset;
   Cars_DoExtraCarCollisionProcessing(carObj);
   return;
 LONG:
   {
-    int negGroundVel, roundedGV, gvClamp, clampCond;
-    int absRoll, currentRollVal, rideOffsetVal, negPitch, bodyPitchVal;
-
     AIPhysic_ProcessCollision(carObj);
     Cars_DoExtraCarCollisionProcessing(carObj);
     Car_DoSkiddingStuff(carObj);
@@ -1477,40 +1473,56 @@ LONG:
       (carObj->render).currentRoll =
            (carObj->render).currentRoll * 7 + (carObj->linearAcc_ch).x >> 3;
     }
-    negGroundVel = -(carObj->N).groundVel;
-    roundedGV = negGroundVel;
-    if (negGroundVel < 0) {
-      roundedGV = negGroundVel + 0x1f;
-    }
-    gvClamp = roundedGV >> 5;
-    clampCond = gvClamp;
-    if (0x51e < gvClamp) {
-      clampCond = 0x51e;
-    }
-    if (clampCond < -0xa3c) {
-      Yoffset = -0xa3d;
-    }
-    else {
-      if (negGroundVel / 0x20 < 0x51f) {
-        Yoffset = negGroundVel / 0x20;
+    {
+      /* SYM-CODEGEN-CARRIER: roundedGV -- sharing this quantity with
+         `clampCond` is count-exact but changes six instructions ($v0->$v1).
+         It models the anonymous signed-/32 expansion on SLD line 1718. */
+      int roundedGV;
+      /* SYM-CODEGEN-CARRIER: clampCond -- using the real SYM local `Yoffset`
+         for the intermediate clamp is count-exact with 30 diffs; a direct
+         MIN expression emits 155/154 instructions and 33 diffs. */
+      int clampCond;
+      /* SYM-CODEGEN-CARRIER: absRoll -- inlining the absolute fixedmult result
+         into currentHeight emits 158/154 instructions and 122 diffs, including
+         a different saved-register set. */
+      int absRoll;
+      /* SYM-CODEGEN-CARRIER: rideOffsetVal -- a direct specs->rideOffset use is
+         count-exact with six load-scheduling diffs. */
+      int rideOffsetVal;
+      int Yoffset;
+
+      roundedGV = -(carObj->N).groundVel;
+      if (-(carObj->N).groundVel < 0) {
+        roundedGV = -(carObj->N).groundVel + 0x1f;
+      }
+      clampCond = roundedGV >> 5;
+      if (0x51e < clampCond) {
+        clampCond = 0x51e;
+      }
+      if (clampCond < -0xa3c) {
+        Yoffset = -0xa3d;
       }
       else {
-        Yoffset = 0x51e;
+        if (-(carObj->N).groundVel / 0x20 < 0x51f) {
+          Yoffset = -(carObj->N).groundVel / 0x20;
+        }
+        else {
+          Yoffset = 0x51e;
+        }
       }
+      absRoll = __builtin_abs(fixedmult(((carObj->render).currentRoll * 3) / 2,
+                                       carObj->specs->bodyRollFactor));
+      rideOffsetVal = carObj->specs->rideOffset;
+      (carObj->render).bodyRoll = (carObj->render).currentRoll;
+      (carObj->render).currentHeight = (Yoffset - absRoll) - rideOffsetVal;
     }
-    absRoll = __builtin_abs(fixedmult(((carObj->render).currentRoll * 3) / 2,
-                                     carObj->specs->bodyRollFactor));
-    currentRollVal = (carObj->render).currentRoll;
-    rideOffsetVal = carObj->specs->rideOffset;
-    (carObj->render).bodyRoll = currentRollVal;
-    (carObj->render).currentHeight = (Yoffset - absRoll) - rideOffsetVal;
-    (carObj->render).bodyRoll = fixedmult(currentRollVal,(carObj->render).rollFactor);
-    negPitch = -(carObj->render).currentPitch;
-    (carObj->render).bodyPitch = negPitch;
-    bodyPitchVal = fixedmult(negPitch,(carObj->render).pitchFactor);
-    (carObj->render).bodyPitch = bodyPitchVal;
+    (carObj->render).bodyRoll =
+         fixedmult((carObj->render).bodyRoll,(carObj->render).rollFactor);
+    (carObj->render).bodyPitch = -(carObj->render).currentPitch;
+    (carObj->render).bodyPitch =
+         fixedmult((carObj->render).bodyPitch,(carObj->render).pitchFactor);
     if ((carObj->carInfo->WeightTransfer == 1) || ((carObj->carFlags & 4U) == 0)) {
-      (carObj->render).bodyPitch = bodyPitchVal / 2;
+      (carObj->render).bodyPitch = (carObj->render).bodyPitch / 2;
       (carObj->render).bodyRoll = (carObj->render).bodyRoll / 2;
     }
   }

@@ -1,6 +1,6 @@
 NFS4-PSX regional-variant reconstruction -- per-row progress
 (gate: regiondiff/tools/verify_region.py; plan: MANIFEST.tsv)
-TOTAL: 232 rows, 212 SEALED / 11 FAIL / 0 TODO / 0 ERROR / 9 N-A (data-blob or lib-thunk)
+TOTAL: 232 rows, 217 SEALED / 6 FAIL / 0 TODO / 0 ERROR / 9 N-A (data-blob or lib-thunk)
 ========================================================================================
 status      words  region     unit                         function
 SEALED          8  USA        game/common/aiscript         AIScript_Assign__FP10AIScript_tPA7_25AIScript_tReactionDetails
@@ -34,7 +34,7 @@ SEALED        108  USA        eaclib/psx/eacpsxz/cdfs      CD_systaskfunc
 SEALED         24  USA        eaclib/psx/eacpsxz/cdfs      CD_timerfunc
 SEALED        350  JPN        frontend/common/fedialog     CalculateDimensions__11tDialogHelp
 SEALED        206  AU         game/common/camera           Camera_GetViewInfo__FiP17DRender_tCalcViewi
-FAIL 228      494  JPN        game/psx/cario               CarIO_ReadInCarTextureData__FPcP8Car_tObjii
+SEALED        494  JPN        game/psx/cario               CarIO_ReadInCarTextureData__FPcP8Car_tObjii
 SEALED        304  JPN        game/psx/cario               CarIO_UpdateCarTextureData__FPcP8Car_tObji
 SEALED        180  USA        game/common/cars             Car_DoPostCollisionStuff__FP8Car_tObj
 SEALED        300  USA        eaclib/psx/eacpsxz/cdfs      CdReadyHandler
@@ -54,8 +54,8 @@ SEALED         84  USA        game/common/copspeak         CopSpeak_Request__FP1
 SEALED         42  USA        frontend/common/fememcard    DeInit_Memcard__Fv
 SEALED         47  JPN        game/psx/device              Device_VerifyType__Fi
 SEALED        183  FR-DE      frontend/psx/psxfront        DoLanguageScreen__Fv
-FAIL 50       193  UK-ES-IT   frontend/psx/psxfront        DoLanguageScreen__Fv
-FAIL 4        182  UK-SW      frontend/psx/psxfront        DoLanguageScreen__Fv
+SEALED        193  UK-ES-IT   frontend/psx/psxfront        DoLanguageScreen__Fv
+SEALED        182  UK-SW      frontend/psx/psxfront        DoLanguageScreen__Fv
 SEALED        193  USA        frontend/common/screencarselect DoMemCardStuff__25tScreenPinkSlipsCarSelect
 SEALED         66  AU         frontend/psx/psxfront        DoTitleScreen__Fv
 SEALED        390  USA        frontend/common/screenpinkslips DrawBackground__16tScreenPinkSlips
@@ -66,8 +66,8 @@ SEALED        125  USA        frontend/common/screencarselect DrawCar__FR8tCarIn
 SEALED         48  USA        frontend/common/screencongrats DrawCongratsMessage__23tScreenBeTheCopCongrats
 SEALED        185  USA        frontend/common/screencongrats DrawCongratsMessage__23tScreenTournamentTrophy
 FAIL 4        200  JPN        frontend/common/screencongrats DrawCongratsMessage__23tScreenTournamentTrophy
-FAIL 16        67  USA        frontend/common/screenmemcard DrawForeground__14tScreenMemcard
-FAIL 16       566  USA        frontend/common/screencarselect DrawForeground__16tScreenCarSelect
+FAIL 2         67  USA        frontend/common/screenmemcard DrawForeground__14tScreenMemcard
+SEALED        566  USA        frontend/common/screencarselect DrawForeground__16tScreenCarSelect
 SEALED         42  USA        frontend/common/screentournselect DrawForeground__18tScreenTournSelect
 SEALED        136  JPN        frontend/common/feapp        DrawHelpIcons__14tFEApplication
 SEALED        156  USA        frontend/common/screentrackrecords DrawOneRecord__19tScreenTrackRecordsibi
@@ -80,7 +80,7 @@ SEALED         47  AU         game/psx/draw                Draw_InitRenderEngine
 SEALED        235  AU         game/psx/fe3dmenu            Draw_MenuRenderingView__FP8Car_tObjP13DRender_tViewiiiUliffii
 SEALED         11  USA        game/psx/draw                Draw_SetViewMemBudget__Fii
 SEALED         60  USA        game/psx/draw                Draw_StartRenderingView__Fi
-FAIL 17       139  JPN        frontend/common/fedialog     Draw__11tDialogHelp
+SEALED        139  JPN        frontend/common/fedialog     Draw__11tDialogHelp
 SEALED        402  AU         frontend/common/femenuoptions Draw__20tMenuItemSlidingMenuiib
 SEALED         44  JPN        game/common/pausemenu        Draw__25tPMenuItemLeftRightChoiceb
 SEALED         96  JPN        game/common/pausemenu        Draw__25tPMenuItemLeftRightSliderb
@@ -158,7 +158,7 @@ SEALED         41  USA        game/common/render           Render_RenderWorld__F
 SEALED         82  USA        game/common/render           Render_Render__Fi
 SEALED        184  USA        frontend/common/feapp        RunDemoVideo__14tFEApplication
 SEALED        298  USA        frontend/common/fememcard    SaveGame__Fs
-FAIL 88       236  USA        frontend/common/fememcard    SavePinkSlipsCars__Fss
+FAIL 47       236  USA        frontend/common/fememcard    SavePinkSlipsCars__Fss
 SEALED        183  JPN        frontend/common/screencontroller SetCurrentController__23tScreenControllerConfigb
 SEALED        224  USA        game/common/bworld           SetupChunkBuildList__FP13DRender_tView
 SEALED        214  USA        frontend/common/fecredits    SetupCurrCredit__14tCreditManager
@@ -176,7 +176,7 @@ SEALED        129  USA        frontend/common/fetourn      UpdateTrackFinishPoin
 SEALED         72  USA        frontend/common/stattool     UserNameUpperCaseOneLetter__FPc
 SEALED         97  AU         game/psx/weather             Weather_DoSplats__FiP18Weather_tSplatInfo
 SEALED       3207  USA        frontend/common/femenudefs   __15tGlobalMenuDefs
-FAIL 2196    3197  JPN        frontend/common/femenudefs   __15tGlobalMenuDefs
+FAIL 965     3197  JPN        frontend/common/femenudefs   __15tGlobalMenuDefs
 SEALED        106  JPN        regiononly/func_80012F40     func_80012F40
 SEALED        106  USA        regiononly/func_80012F50     func_80012F50
 SEALED        107  AU         regiononly/func_80012F6C     func_80012F6C

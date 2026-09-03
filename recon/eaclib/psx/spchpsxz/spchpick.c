@@ -59,6 +59,7 @@
  * Receipts: scratchpad/w65a6/RECEIPTS.md */
 
 #include "../eaclib_types.h"
+#include "spch_types.h"
 
  __asm__("\t.globl\tgSentenceChoice\n\t.globl\tDAT_80148448\n\t.globl\tispch_gPickSamples\n"
         "\t.globl\tgChooseShort\n\t.globl\tispch_gChoice\n"
@@ -77,8 +78,7 @@ extern int            gSentenceChoice[];   /* @0x8014843C saved chosen sentence 
 extern int            DAT_80148448;        /* "one chosen" flag (one word @gSentenceChoice+0xC; scalar
                                                  * decl OK under -G0 -- the storage stays the asm .bss label) */
 
-extern int *gVoxBanks;        /* spchbank: the bank-handle array (heap-allocated by iSPCH_BankMemAlloc);
-                               * this one word holds its base -- honest pointer type, 2026-09-02 */
+extern VoxBank **gVoxBanks;   /* spchbank: heap array of VoxBank pointers (fully typed 2026-09-04) */
 /* 2026-09-02 pseudo-array retirement: every one-word global below was declared as an UNSIZED
  * ARRAY and read as sym[0] -- the pre--G0 device that forced the split `lui %hi`+`lw %lo`
  * address pair (a plain scalar extern went to the gp-relative/assembler-macro form, which is
@@ -107,7 +107,7 @@ extern int  iSPCH_GetOffset16(int base, int tableBase, int index);    /* spchdat
 extern int  VoxEvent_GetFilterLengthFlag(int e);                      /* spchdata */
 extern int  iSPCH_FindBank(unsigned short key);                                  /* spchbank (returns bank index) */
 extern bool iSPCH_TestSubBankBounds(int bankIdx, int subIdx); /* spchbank */
-extern int  iSPCH_UnPackSample(int bank, int sampleIdx, int *out); /* spchsamp */
+extern int  iSPCH_UnPackSample(VoxBank *bank, int sampleIdx, int *out); /* spchsamp */
 extern int  iSPCH_Rand(int n);                                        /* spchrand */
 extern unsigned int iSPCH_GetRuleID(int sentence, int index);         /* spchrule */
 extern void iSPCH_RuleSet(short *sentence, int rule, int *values);    /* spchrule */
@@ -119,15 +119,15 @@ extern void trap(unsigned int code);
 
 extern int  iSPCH_MatchSample(int bankIdx, int sample, int phraseTemplate, int paramTable); /* @0x8010077C : bankIdx UNUSED */
 extern unsigned int iSPCH_GetPhraseBank(short *phraseTemplate, int paramTable, short *outChoice); /* @0x80100880 */
-extern char *iSPCH_GetBankBits(char *bank);                              /* @0x80100994 */
-extern unsigned char *iSPCH_ClearCycleBit(int bank, int cycle);      /* @0x801009B8 */
-extern unsigned int iSPCH_CheckBankBit(char *bank, int cycle); /* @0x80100A1C : return must stay WORD-typed --
+extern char *iSPCH_GetBankBits(VoxBank *bank);                        /* @0x80100994 */
+extern unsigned char *iSPCH_ClearCycleBit(VoxBank *bank, int cycle); /* @0x801009B8 */
+extern unsigned int iSPCH_CheckBankBit(VoxBank *bank, int cycle); /* @0x80100A1C : return must stay WORD-typed --
                                             * a char/unsigned char return makes the CALLERS re-narrow it
                                             * (`andi ...,0xff` in CheckTemplateSample/SampleExists, 2 diffs
                                             * each) where retail has a plain register copy (A/B/C-measured
                                             * 2026-09-03) */
-extern unsigned int iSPCH_CheckTemplateSample(int choice, int bank, int base); /* @0x80100A70 */
-extern unsigned int iSPCH_SampleExists(int choice, int bankPtr, int bank); /* @0x80100AC0 */
+extern unsigned int iSPCH_CheckTemplateSample(int choice, VoxBank *bank, int base); /* @0x80100A70 */
+extern unsigned int iSPCH_SampleExists(int choice, VoxBank *bank, int sampleIdx); /* @0x80100AC0 */
 extern int  iSPCH_ChooseSamples(short *choice, int maxToPick, int phraseTemplate, int unused); /* @0x80100B4C */
 extern int  iSPCH_SampleLength(short *choice);                        /* @0x80100C5C */
 extern int  iSPCH_ConvertTime(int samples);                          /* @0x80100CC4 */
@@ -377,16 +377,16 @@ done:
 
 /* iSPCH_GetBankBits @0x80100994 : address of a bank's cycle-bits array (after its sample table).
  * MATCH: in-place dead-ptr: bank+=8 forces oracle's addiu a0,a0,8; addu v0,a0,mflo */
-extern char* iSPCH_GetBankBits(char *bank)
+extern char *iSPCH_GetBankBits(VoxBank *bank)
 {
-    int stride = (bank[2] & 0xf) + 2;
-    int nSamp  = bank[3];
-    bank += 8;
-    return &bank[nSamp * stride];
+    int   stride = (bank->flags & 0xf) + 2;
+    int   nSamp  = bank->numSamples;
+    char *p      = (char *)(bank + 1);   /* +8: the packed sample table */
+    return &p[nSamp * stride];
 }
 
 /* iSPCH_ClearCycleBit @0x801009B8 : clear cycle bit `cycle` in `bank`'s bits array; returns the byte ptr. */
-extern unsigned char *iSPCH_ClearCycleBit(int bank, int cycle)
+extern unsigned char *iSPCH_ClearCycleBit(VoxBank *bank, int cycle)
 {
     int            r = cycle;
     int            off;
@@ -405,7 +405,7 @@ extern unsigned char *iSPCH_ClearCycleBit(int bank, int cycle)
 }
 
 /* iSPCH_CheckBankBit @0x80100A1C : test cycle bit `cycle` in `bank`'s bits array. */
-extern unsigned int iSPCH_CheckBankBit(char *bank, int cycle)
+extern unsigned int iSPCH_CheckBankBit(VoxBank *bank, int cycle)
 {
     int byteIdx = cycle / 8;   /* MATCH: plain signed /8 -> gcc's bgez/+7/sra COPY form (cycle stays $a1) */
     int bit = 1 << (cycle - (byteIdx * 8));
@@ -414,26 +414,26 @@ extern unsigned int iSPCH_CheckBankBit(char *bank, int cycle)
 }
 
 /* iSPCH_CheckTemplateSample @0x80100A70 : whether choice's template sample bit is set for this bank. */
-extern unsigned int iSPCH_CheckTemplateSample(int choice, int bank, int base)
+extern unsigned int iSPCH_CheckTemplateSample(int choice, VoxBank *bank, int base)
 {
     unsigned int result = 0;
-    if ((int)(unsigned int)*(unsigned short *)(bank + 6) > (int)*(short *)(choice + 2))
-        result = iSPCH_CheckBankBit(bank, base + (int)(unsigned int)*(unsigned char *)(bank + 3) *
+    if ((int)bank->subBankCount > (int)*(short *)(choice + 2))
+        result = iSPCH_CheckBankBit(bank, base + bank->numSamples *
                                                    (int)*(short *)(choice + 2));
     return result;
 }
 
 /* iSPCH_SampleExists @0x80100AC0 : whether sample `bank` of `choice` is present (template + cycle checks). */
-extern unsigned int iSPCH_SampleExists(int choice, int bankPtr, int bank)
+extern unsigned int iSPCH_SampleExists(int choice, VoxBank *bank, int sampleIdx)
 {
     unsigned int result = 1;
-    if ((int)(unsigned int)*(unsigned char *)(bankPtr + 3) < bank) {
+    if ((int)bank->numSamples < sampleIdx) {
         result = 0;
     } else {
         if (*(short *)(choice + 2) != -1)
-            result = iSPCH_CheckTemplateSample(choice, bankPtr, bank);
-        if ((*(unsigned char *)(bankPtr + 2) & 0xf0) != 0)
-            result = iSPCH_CheckBankBit(bankPtr, bank + 8);
+            result = iSPCH_CheckTemplateSample(choice, bank, sampleIdx);
+        if ((bank->flags & 0xf0) != 0)
+            result = iSPCH_CheckBankBit(bank, sampleIdx + 8);
     }
     return result;
 }
@@ -448,8 +448,8 @@ extern int iSPCH_ChooseSamples(short *choice, int maxToPick, int phraseTemplate,
 {
     int           sampleIdx = 0;
     int           bankIdx   = *choice;
-    int           bank      = gVoxBanks[bankIdx];
-    unsigned int  nSamples  = *(unsigned char *)(bank + 3);
+    VoxBank      *bank      = gVoxBanks[bankIdx];
+    unsigned int  nSamples  = bank->numSamples;
     int           pickPos   = (int)choice[3];
     int           chosen    = 0;
     int           tmp[4];
@@ -476,7 +476,7 @@ extern int iSPCH_ChooseSamples(short *choice, int maxToPick, int phraseTemplate,
 /* iSPCH_SampleLength @0x80100C5C : sample-data length (in samples) of the current pick of `choice`. */
 extern int iSPCH_SampleLength(short *choice)
 {
-    int bank;
+    VoxBank *bank;
     int r;
     int tmp[4];
     /* MATCH (w33-a9, 14 -> 0): the pick address must be accumulated INTO the INDEX
@@ -490,10 +490,9 @@ extern int iSPCH_SampleLength(short *choice)
      * dead-pointer store) read the other way round: mutate the INDEX, not the base. */
     int            len      = 0;
     unsigned char *pickBase = ispch_gPickSamples;
-    int            voxBase  = (int)gVoxBanks;
     int            pick     = choice[4];
     pick = (int)(pickBase + pick);
-    bank = *(int *)(*choice * 4 + voxBase);
+    bank = gVoxBanks[*choice];
     r = iSPCH_UnPackSample(bank, (unsigned int)*(unsigned char *)pick, tmp);
     if (r != 0)
         len = tmp[0];
@@ -1180,12 +1179,12 @@ extern int iSPCH_MakeSampleRequests(int sentence, int paramTable)
     if (0 < n) {
         do {
             short        *choice = CHOICE(i);
-            int           bank = gVoxBanks[*choice];
+            VoxBank      *bank = gVoxBanks[*choice];
             unsigned int  idx  = (unsigned int)PICK(choice[4]);
             int           tmp[4];
             /* MATCH: the ClearCycleBit call is gated on BOTH bank[2]&0xf0 AND the separate global
              * gClearCycle != 0 -- the earlier recon only had the bank-flags half of the gate. */
-            if ((*(unsigned char *)(bank + 2) & 0xf0) != 0 && gClearCycle != 0)
+            if ((bank->flags & 0xf0) != 0 && gClearCycle != 0)
                 iSPCH_ClearCycleBit(bank, idx);
             if (iSPCH_UnPackSample(bank, idx, tmp) != 0) {
                 /* MATCH: stride computed UNCONDITIONALLY before the -1 test (oracle lhu+sll precede
@@ -1194,7 +1193,7 @@ extern int iSPCH_MakeSampleRequests(int sentence, int paramTable)
                  * &choice[1] giv (addiu s3,s2,2 anchor, +2 insns). */
                 int spuAddr = tmp[1];
                 int sub     = (int)choice[1];
-                int stride  = (int)(unsigned int)*(unsigned short *)(bank + 4) << 8;
+                int stride  = (int)bank->dataSize256 << 8;
                 if (sub != -1)
                     spuAddr = spuAddr + sub * stride;
                 samples = samples + tmp[0];

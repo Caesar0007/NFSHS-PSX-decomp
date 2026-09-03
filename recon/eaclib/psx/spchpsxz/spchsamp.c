@@ -12,9 +12,10 @@
  */
 
  #include "../eaclib_types.h"
+#include "spch_types.h"
  
 extern void iSPCH_InitSample(int *out);                            /* @0x8010B5AC */
-extern int  iSPCH_UnPackSample(int bank, int sampleIdx, int *out); /* @0x8010B5D4 */
+extern int  iSPCH_UnPackSample(VoxBank *bank, int sampleIdx, int *out); /* @0x8010B5D4 */
 
 /* iSPCH_InitSample @0x8010B5AC : reset a VoxSample descriptor to "empty" (length 0, start -1, no filter,
  *   filter bytes 0xff). */
@@ -37,17 +38,17 @@ extern void iSPCH_InitSample(int *out)
  *   (1 insn short) and colored startOff into a fresh temp instead of reusing dead `entry`/$a2.
  *   The InitSample 1-arg fix (above) removed sampleIdx's phantom 7th ref, restoring the oracle's
  *   result->s1 / done->s2 / sampleIdx->s3 allocation order. */
-extern int iSPCH_UnPackSample(int bank, int sampleIdx, int *out)
+extern int iSPCH_UnPackSample(VoxBank *bank, int sampleIdx, int *out)
 {
     int result = 0;
     int done = result;
     int endOff = result;
 
     iSPCH_InitSample(out);
-    if (sampleIdx < (int)*(unsigned char *)(bank + 3)) {
-        int filterCnt = *(unsigned char *)(bank + 2) & 0xf;
+    if (sampleIdx < (int)bank->numSamples) {
+        int filterCnt = bank->flags & 0xf;
         int stride = filterCnt + 2;
-        unsigned char *entry = (unsigned char *)(bank + 8);
+        unsigned char *entry = (unsigned char *)(bank + 1);   /* +8: sample table */
         int i = 0;
 
         entry = entry + sampleIdx * stride;
@@ -61,7 +62,7 @@ extern int iSPCH_UnPackSample(int bank, int sampleIdx, int *out)
 
         if ((*entry & 0x80) != 0) {
             sampleIdx = entry[1];
-            entry = (unsigned char *)(bank + 8);
+            entry = (unsigned char *)(bank + 1);
             entry = entry + sampleIdx * stride;
         }
 
@@ -73,9 +74,9 @@ extern int iSPCH_UnPackSample(int bank, int sampleIdx, int *out)
 
             out[1] = startOff;
             while (!done) {
-                if ((int)*(unsigned char *)(bank + 3) <= nextIndex) {
+                if ((int)bank->numSamples <= nextIndex) {
                     done = 1;
-                    endOff = (int)*(unsigned short *)(bank + 4) << 8;
+                    endOff = (int)bank->dataSize256 << 8;
                 } else if ((*nextEntry & 0x80) != 0) {
                     nextEntry = nextEntry + stride;
                     nextIndex = nextIndex + 1;

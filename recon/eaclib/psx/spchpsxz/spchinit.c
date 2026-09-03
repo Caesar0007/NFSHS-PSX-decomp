@@ -61,6 +61,7 @@
  * Receipts: scratchpad/w65a6/RECEIPTS.md */
 
 #include "../eaclib_types.h"
+#include "spch_types.h"
 
 int gGameNum;         /* owned here (W65-A6 run @0x80148428) */
 int gFilterSetting;   /* @0x8014842C */
@@ -91,7 +92,7 @@ int gLastTick;        /* @0x80148438 */
 /* 2026-09-02: the five callback slots are honest FUNCTION POINTERS now (they were `int`
  * Ghidra-isms; SYM v3 is bare for all five, so the types are ours to choose -- byte-neutral,
  * SImode either way). */
-typedef int *(*SPCHAllocFn)(int numBytes, const char *tag);
+typedef void *(*SPCHAllocFn)(int numBytes, const char *tag);
 typedef void (*SPCHFreeFn)(void);
 extern SPCHAllocFn gMemAlloc;      /* user alloc callback @0x801370A8 */
 extern SPCHFreeFn  gMemFree;       /* user free callback  @0x801370AC */
@@ -104,28 +105,28 @@ extern int gVoxInGame[];       /* in-game speech enable (-1 = on); [1] aliases g
 
 extern void iSPCH_DisposeBanks(void);                      /* spchbank */
 extern void iSPCH_InitBanks(void);                         /* spchbank */
-extern int *iSPCH_BankMemAlloc(unsigned int numBanks);     /* spchbank; returns gVoxBanks */
+extern VoxBank **iSPCH_BankMemAlloc(unsigned int numBanks); /* spchbank; returns gVoxBanks */
 extern void iSPCH_InitEventDat(void);                      /* spchevnt */
 extern void iSPCH_InitEventQueue(void);                    /* spchevnt */
 extern int *iSPCH_EACseedrandom(unsigned int seed);        /* spchrand */
 extern void iSPCH_ClearChosen(void);                       /* spchpick */
 extern int  SPCH_SetPreLoadTicks(int ticks);              /* spchpick */
 
-extern int *iSPCH_MemAlloc(int numBytes, const char *tag);              /* @0x800EB5A4 */
+extern void *iSPCH_MemAlloc(int numBytes, const char *tag);             /* @0x800EB5A4 */
 extern void iSPCH_MemFree(void);                                        /* @0x800EB5D4 */
 extern void SPCH_Deinit(void);                                          /* @0x800EB600 */
 extern void iSPCH_InitInGame(void);                                     /* @0x800EB654 */
 extern int  SPCH_GetSampleDataRate(int numSamples, int rate, int channels); /* @0x800EB66C */
-extern int *SPCH_InitBankMem(SPCHAllocFn memAllocFn, SPCHFreeFn memFreeFn, int numBanks);  /* @0x800EB6F0 */
+extern VoxBank **SPCH_InitBankMem(SPCHAllocFn memAllocFn, SPCHFreeFn memFreeFn, int numBanks);  /* @0x800EB6F0 */
 extern int  SPCH_Init(void (*sampleRequestCb)(int, int, int, int), unsigned int gameNum, int dataRate); /* @0x800EB748 */
 
 /* iSPCH_MemAlloc @0x800EB5A4 : invoke the user's allocation callback (which fills gVoxBanks); returns
  *   the callback's result, or 0 if no callback is registered.  `numBytes`/`tag` are passed through to
  *   the callback (a debug-tagging alloc convention -- e.g. "spch banks") but this wrapper itself never
  *   reads them (its own oracle body takes no args -- classic nullsub-still-takes-real-args). */
-extern int *iSPCH_MemAlloc(int numBytes, const char *tag)
+extern void *iSPCH_MemAlloc(int numBytes, const char *tag)
 {
-    int *result = 0;
+    void *result = 0;
     if (gMemAlloc != 0)
         result = gMemAlloc(numBytes, tag);
     return result;
@@ -190,9 +191,9 @@ done:
 
 /* SPCH_InitBankMem @0x800EB6F0 : register the alloc/free callbacks and allocate `numBanks` bank slots.
  *   Returns the bank array (gVoxBanks) or 0 if not initialised / no alloc callback. */
-extern int *SPCH_InitBankMem(SPCHAllocFn memAllocFn, SPCHFreeFn memFreeFn, int numBanks)
+extern VoxBank **SPCH_InitBankMem(SPCHAllocFn memAllocFn, SPCHFreeFn memFreeFn, int numBanks)
 {
-    int *result = 0;
+    VoxBank **result = 0;
     if (gSPCH_Initialized == 0x1789a34 && memAllocFn != 0 && memFreeFn != 0) {
         gMemAlloc = memAllocFn;
         gMemFree = memFreeFn;

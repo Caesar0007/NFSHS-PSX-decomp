@@ -991,10 +991,9 @@ PER_FN_FORCE_ADDR = {
     "recon/game/psx/weather.cpp": {
         "Weather_Init__Fv",   # FAIL 12 (211/211) -> PASS, byte-exact
     },
-    # w53-a11: the "missing address-copy" class -- update_equiv_regs rewrites
-    # base=<addr> through REG_EQUIV so no copy exists for combine_regs to
-    # keep; -fforce-addr restores it. TU 15/16 -> 16/16, 0 regressions.
-    "recon/eaclib/psx/spchpsxz/spchevnt.c": {"SPCH_AddEvent"},  # 3 -> PASS 82/82
+    # (spchevnt's SPCH_AddEvent entry RETIRED 2026-09-04: the indexed-addressing
+    # rewrite seals it source-only, 82/82 -- the giv preheader inits supply the
+    # missing address copies the w53-a11 splice used to force.)
 }
 
 

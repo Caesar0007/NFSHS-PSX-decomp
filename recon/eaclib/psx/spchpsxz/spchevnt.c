@@ -323,54 +323,9 @@ extern int iSPCH_FindEventSlot(unsigned int priority)
     return result;
 }
 
-/* SPCH_AddEvent @0x800E71B8 : queue the event identified by table[0] (randomly accepted per its accept
- *   probability), copying table[0..11] into the chosen slot's eventArgs.  Returns 0.
- *   MATCH (w32-a9, 18 -> 16 diffs): the slot address is built OFFSET-FIRST (`off + base`, both plain
- *   ints) -- the oracle's per-iteration `addu v0,a1,t0` has the byte offset as operand 0, and C
- *   pointer arithmetic (`base + off`, base a `char *`) always canonicalises the POINTER to operand 0,
- *   giving the reversed `addu v0,t0,a1`.  RESIDUAL 16 (80/82) = the two redundant preheader COPIES
- *   retail keeps and our cc1 fuses (`lui;addiu v0;addu t0,v0,zero` vs our `lui;addiu t0,v0`, and
- *   `sll v0,v0,2;addu a1,v0,zero` vs our `sll a1,v0,2`) -- the per-obj no-copy-prop identity
- *   (catalog SSG), not a source shape. */
-/* SPCH_AddEvent RESIDUAL 16 diffs, ours 80 / oracle 82 -- FLOOR RE-CONFIRMED
- * (w33-a10, against three fresh levers; none moved it):
- *   - SLD is UNAVAILABLE for this TU. D:\nfs4\EACLIB\PSX\PAD.C is the ONLY
- *     eaclib C file with SLD line records in nfs4-f-v3.txt; every SPCHPSXZ /
- *     EACPSXZ / SNDPSXZ member is debug-stripped (the only other SLD in the
- *     whole 0x800E4000-0x8010C000 span is C:\LIB\PSX\*.ASM). So the wave's
- *     "did the two preheader copies come from source statements?" question
- *     CANNOT be settled from debug info -- it has to be settled by codegen.
- *   - -mno-split-addresses (the new PER_TU_FLAGS key that fixed pad.c): a
- *     whole-TU probe REGRESSES every FAILing function here and breaks 9
- *     PASSes. SPCHPSXZ.OBJ was definitively built WITH split addresses.
- *   - per-function -fno-delayed-branch splice: 16 -> 31 (85 insns). No.
- *   - a3's giv-anchor levers: index form with power-of-2 stride
- *     `((unsigned int *)(off + base))[5]` = NEUTRAL (16 diffs, same insns);
- *     anonymous `(int)&gVoxEvents` re-eval in the pre-loop stores = 28;
- *     anonymous re-eval inside the loop = 25 (81 insns); a dead
- *     `anchor = off + base` eval = neutral.
- * The 2-insn gap is exactly the oracle's two preheader COPIES
- * (`addu $t0,$v0,$zero` for base, `addu $a1,$v0,$zero` for off) which our cc1
- * always fuses into the producing `addiu`/`sll`; the remaining textual diffs
- * are the tail's `addu $v0,$v0,$v1` vs our `addu $v1,$v1,$v0` (dying-operand
- * choice, which then flips the `li 1` and `sh` registers -- source-level
- * operand order is canonicalized away, verified). This is the w32-a7
- * "coalesce-with-dying-pseudo vs fresh reg" irreducible core, not a shape
- * error. PROTOTYPE AUDIT (w33-a10): 1 arg -- $a1..$a3 are never read before
- * being written; returns a literal 0 in $v0 at the single epilogue, so `int`
- * is correct, not void.
- * w47-a2 MECHANISM SHARPENED (same class as iSPCH_InitEventQueue's prologue, see its note):
- * the two missing insns are `delete_noop_moves`, not copy propagation.  Retail computes BOTH
- * values into the SAME scratch ($v0) and then moves each to its home ($t0 base, $a1 off), i.e.
- * the producing insn's dest is a separate BLOCK-LOCAL pseudo and the variable is a GLOBAL
- * allocno; local-alloc's combine_regs REFUSES to tie a local qty to a global pseudo
- * (`if (reg_qty[sreg] >= -1) return 0`), so the copy survives with two different hard regs.
- * Ours produces the value straight into the variable's own pseudo, so there is no copy to keep.
- * The reachable lever is therefore "make the PRODUCER's destination a distinct short-lived
- * pseudo", which needs a second live use of that temp (cse/make_regs_eqv otherwise makes the
- * long-lived variable canonical and the move becomes a noop).  No faithful source form found
- * this wave; the falsified spelling list above stands and the flag axis is closed for the TU
- * (-mno-split-addresses breaks 9 PASSes here). */
+/* SPCH_AddEvent @0x800E71B8 : queue the event identified by table[0] (randomly accepted per its
+ *   accept probability), copying table[0..11] into the chosen slot's eventArgs.  Returns 0.
+ *   Sealed source-only 2026-09-04 -- see the note in the body. */
 extern int SPCH_AddEvent(unsigned int *table)
 {
     VoxEvent *voxEvent = iSPCH_FindEvent(*table);
@@ -382,111 +337,27 @@ extern int SPCH_AddEvent(unsigned int *table)
                 int            tick = gettick();
                 short          sub;
                 int            j;
-                int            base;
-                int            off;
-                unsigned int  *p;
-                int            baseTmp;
-                int            offTmp;
-                int            tailOff;
-                /* MATCH (w49-a9, 16 -> 3, insns 80 -> 81/82).  Three independent fixes, all from the
-                 * w45/w47 fence + expression-shape rows; the old note's "no source form found" was
-                 * BASIN-RELATIVE:
-                 *  (a) OFF's preheader copy (`sll $v0,..; addu $a1,$v0,$zero`) is recovered by the
-                 *      w47-a1/a4/a5 OPACITY FENCE on a distinct producer temp -- `offTmp` is a
-                 *      short-lived pseudo, the fence stops cse/make_regs_eqv making it canonical, so
-                 *      `off = offTmp` survives as a real copy instead of the `sll` writing $a1 direct.
-                 *  (b) the gLastSubTick READ is scheduled AFTER the gLastTick store in retail; our
-                 *      `sub = ...` sat before `j = 0` and got hoisted with its own %hi.  Moving the
-                 *      assignment below `gLastTick = tick;` puts it in retail's slot (-5 diffs).
-                 *  (c) the TAIL `sh 1,8()` store: retail mutates the OFFSET register
-                 *      (`addu $v0,$v0,$v1`), ours mutated the base (`addu $v1,$v1,$v0`).  The w45
-                 *      EXPRESSION-vs-MUTATION sharpening applies -- a spelling change to the single
-                 *      expression is canonicalized away (verified again), but writing the add as an
-                 *      in-place mutation OF THE OFFSET temp reproduces it exactly (-6 diffs).
-                 * RESIDUAL 3 = BASE's preheader copy only (`lui $v0; addiu $v0,$v0,%lo; addu $t0,$v0`
-                 * vs our 2-insn `lui $v0; addiu $t0,$v0,%lo`): the split-address lo_sum is generated
-                 * straight into base's own pseudo.  The `__asm__("" : : "r"(baseTmp))` USE fence below
-                 * keeps baseTmp live past the copy (that is what pins the `lui` to $v0 and holds the
-                 * rest of the fn at 3) but cc1 still lowers the lo_sum into base.  Falsified this pass,
-                 * each measured: opacity fence on baseTmp (17 -- adds 2 refs, rotates base/tick $t0<->
-                 * $a3), opacity fence on `base` after the copy (17), opacity+use fence together (17),
-                 * no fence at all (5).  The base/tick rotation those forms cause IS dialable -- a
-                 * zero-insn `__asm__("" : : "r"(tick))` after the tick store takes 17 -> 5 (allocno
-                 * receipt: base 4 refs/22 = .3636 vs tick 4/23 = .3478, one tick ref flips it) -- but
-                 * the copy itself never appears.  Named angle for the next pass: force the lo_sum into
-                 * a pseudo distinct from `base` (a cse DOUBLE-EVALUATION of the address, w45 row),
-                 * not another spelling of the copy.
-                 * 🔴 w50-a9 2026-08-09: that named angle is FALSIFIED, together with the whole
-                 * "give baseTmp a second live use" family.  Measured, all at ours 81 / oracle 82
-                 * unless noted -- i.e. the copy NEVER appears:
-                 *   - baseTmp given a REAL second use (the three pre-loop stores at +0x10/+0xc/+0xa
-                 *     rewritten off baseTmp instead of base) = 5;  same with only the in-loop store
-                 *     off baseTmp = 5;  either + an opacity fence on baseTmp = 17;
-                 *   - opacity fence on baseTmp alone = 17, + a use fence = 17, + the receipted
-                 *     `__asm__("" : : "r"(tick))` rotation dial = 5 (ours `lui $t0; addiu $t0,$t0`
-                 *     -- the whole `la` still lands in base's own home register);
-                 *   - ZERO-COST REF INFLATORS on the copy statement (catalog w44, the family that
-                 *     cracked spchbank this wave): depth-2 `do{}while(0)` wrapper on
-                 *     `base = baseTmp;` = 3 (neutral); arm-dup `base = baseTmp; base = baseTmp;`
-                 *     = 3 (neutral).  Inflators steer WHICH register a pseudo wins; they cannot
-                 *     mint a pseudo that does not exist -- and here the copy does not exist.
-                 *   - DISTINCT SYMBOL VIEWS of the same storage (this TU already carries the
-                 *     gVoxEventQueue / gVoxQueue asm-label views): baseTmp off the byte view = 3
-                 *     (cse merges the symbol_refs anyway); base off a DIFFERENT view than baseTmp
-                 *     = 5 at 83 insns -- two full materializations, i.e. +2, the wrong extra insn;
-                 *   - `(int)&gVoxEvents.words[0]` and a pointer-typed `unsigned char *bp` intermediate = 3.
-                 * MECHANISM SHARPENED: the `off` half of this very preheader IS fence-fixable
-                 * (fix (a) above) because `slot * 0x3c` is a COMPUTED value with no REG_EQUIV; an
-                 * ADDRESS carries one, so cse/update_equiv_regs rewrites `base = <addr>` and the
-                 * lo_sum is generated straight into base's pseudo -- there is no copy insn for
-                 * local-alloc's combine_regs (or the w47-a2 global-allocno refusal) to preserve.
-                 * Any C form cse can prove equal collapses to ONE `la` into `base`; any form it
-                 * cannot costs a second `lui/addiu` PAIR instead of retail's one-insn copy.
-                 * NEXT: an instrumented -dl/-dg read to confirm the copy is absent from RTL before
-                 * local-alloc (=> an update_equiv_regs question, not a combine_regs one). */
-                /* *** SOLVED w53-a11 (2026-08-09): 3 -> PASS 82/82 with `-fforce-addr`, via the
-                 * EXISTING per-fn dual-compile splice mechanism (build.py PER_FN_FORCE_ADDR).
-                 * WIRING (orchestrator, this worker is barred from tools/):
-                 *     PER_FN_FORCE_ADDR["recon/eaclib/psx/spchpsxz/spchevnt.c"] = {"SPCH_AddEvent"}
-                 * Whole-TU gate under the splice: 15/16 -> 16/16, totaldiffs 3 -> 0, ZERO
-                 * regressions (the splice only rewrites this fn's .ent/.end region).
-                 * MECHANISM -- it is exactly the mechanism the note above named and could not
-                 * reach from C: -fforce-addr makes cc1 force an address into a REGISTER before
-                 * use, so the `la gVoxEvents` lo_sum is generated into its OWN pseudo instead of
-                 * straight into `base`'s (update_equiv_regs never rewrites `base = <addr>`), and
-                 * the `addu $t0,$v0,$zero` copy survives -- retail's missing 82nd instruction.
-                 * The `__asm__("" : : "r"(baseTmp))` use fence above is STILL REQUIRED (dropping
-                 * it under the splice is 5 @81/82); the two cooperate.
-                 * Also probed w53-a11 and NEGATIVE on this fn: PER_FN_NO_THREAD_JUMPS (3, inert).
-                 * Flag axis for the whole TU stays closed (g_value 0/8, -mno-split-addresses,
-                 * cc1_ver 2.8.1 all inert-or-worse, w53-a11 matrix). */
+                /* ✅ SEALED SOURCE-ONLY (2026-09-04): PASS 82/82 by the INDEXED-ADDRESSING
+                 * lever (third confirmation after InitEventQueue and BankMemAlloc).  The
+                 * `gVoxEvents.slots[slot].field` spellings make cc1's own giv machinery
+                 * materialize retail's preheader copies (`addu t0,v0,zero` base copy -- the
+                 * w53-a11 missing-address-copy that no C spelling could keep alive -- and the
+                 * `addu a1,v0,zero` off copy), so the PER_FN_FORCE_ADDR splice, BOTH asm
+                 * fences, and the whole base/off/tailOff device apparatus are retired at
+                 * once.  Full w32..w53 floor archaeology: git history of this comment. */
                 if (tick == gLastTick)
                     gLastSubTick = gLastSubTick + 1;
                 else
                     gLastSubTick = 0;
-                j    = 0;
-                baseTmp = (int)&gVoxEvents;
-                base = baseTmp;
-                __asm__("" : : "r"(baseTmp));
-                p    = table;
-                offTmp = slot * 0x3c;
-                __asm__("" : "=r"(offTmp) : "0"(offTmp));
-                off  = offTmp;
                 gLastTick = tick;
                 sub  = (short)gLastSubTick;
-                *(int *)(off + base + 0x10)  = (int)voxEvent;
-                *(int *)(off + base + 0xc)   = tick;
-                *(short *)(off + base + 0xa) = sub;
-                do {
-                    *(unsigned int *)(off + base + 0x14) = *p;
-                    p   = p + 1;
-                    off = off + 4;
-                    j   = j + 1;
-                } while (j < 0xc);
+                gVoxEvents.slots[slot].event   = voxEvent;
+                gVoxEvents.slots[slot].tick    = tick;
+                gVoxEvents.slots[slot].subTick = sub;
+                for (j = 0; j < 12; j++)
+                    gVoxEvents.slots[slot].args[j] = table[j];
                 gVoxEvents.liveCount = gVoxEvents.liveCount + 1;
-                tailOff = slot * 0x3c;
-                tailOff = tailOff + (int)&gVoxEvents;   /* MATCH (c): mutate the OFFSET, not the base */
-                *(short *)(tailOff + 8) = 1;
+                gVoxEvents.slots[slot].enabled = 1;
             }
         }
     }

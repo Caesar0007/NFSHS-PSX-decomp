@@ -136,24 +136,18 @@ extern void iSPCH_SetCycleBits(VoxBank *bank)
 {
     char *bits;
     int   nGroups;
-    int   startBit, count, byteIdx, bitInByte;
-    int   t1, t2, t3, i;
-
+    
     bits    = iSPCH_GetBankBits(bank);
     nGroups = *bits;
     if (nGroups > 0) {
-        t1       = (gGameNum % nGroups) * bank->numSamples;
-        startBit = t1 / nGroups;
-        t2       = (gGameNum % nGroups + 1) * bank->numSamples;
-        count    = t2 / nGroups - startBit;
-        t3       = startBit;
-        if (startBit < 0)
-            t3 = startBit + 7;
-        {
-            int shifted = t3 >> 3;
-            byteIdx   = shifted + 1;
-            bitInByte = startBit + shifted * -8;
-        }
+        int startBit, count, shifted, byteIdx, bitInByte;
+        int i;
+
+        startBit  = (gGameNum % nGroups) * bank->numSamples / nGroups;
+        count     = (gGameNum % nGroups + 1) * bank->numSamples / nGroups - startBit;
+        shifted   = startBit / 8;
+        byteIdx   = shifted + 1;
+        bitInByte = startBit % 8;
 
         for(i = 0; i < count; i++) {
             unsigned char mask = 1u << bitInByte;

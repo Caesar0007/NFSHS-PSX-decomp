@@ -33,22 +33,10 @@ int Sched_ExecuteCheck(int staggered,int module,int distance,int carId,int *time
   int mask;
   int index;
   int distanceIndex;
-  /* SYM-CODEGEN-CARRIER: distanceTemp -- the separate rounded-distance
-     destination is required for retail's a0->a2 handoff.  In-place reuse is
-     76 instructions/5 diffs; reusing parameter `distance` is 77/20, reusing
-     SYM `index` is 76/31, and a conditional expression is 79/38. */
-  int distanceTemp;
 
   if (0xf < Sched_simGlobalWords[1]) {
-    if (distance < 0) {
-      distance = distance + 0xf;
-    }
-    distanceIndex = distance >> 4;
-    distanceTemp = distanceIndex;
-    if (distanceIndex < 0) {
-      distanceTemp = distanceIndex + 0xffff;
-    }
-    distanceIndex = distanceTemp >> 0x10;
+    distanceIndex = distance / 16;
+    distanceIndex = distanceIndex / 65536;
     if (0x13 < distanceIndex) {
       distanceIndex = 0x13;
     }

@@ -1095,20 +1095,16 @@ void Camera_SetSplineCam(int player)
       numSlice = -numSlice;
     }
     if (numSlice >= 0) {
-      /* SYM-CODEGEN-CARRIER: slice -- staging the wrapped halfword keeps the
-         final camera store after the branch and preserves saved-register seats. */
-      short slice = anchor->N.simRoadInfo.slice + (short)numSlice;
-      if (gNumSlices <= anchor->N.simRoadInfo.slice + numSlice) {
-        slice = slice - (short)gNumSlices;
-      }
-      Camera_gInfo[player].slicePos.slice = slice;
+      Camera_gInfo[player].slicePos.slice =
+          (gNumSlices <= anchor->N.simRoadInfo.slice + numSlice)
+              ? anchor->N.simRoadInfo.slice + numSlice - gNumSlices
+              : anchor->N.simRoadInfo.slice + numSlice;
     }
     else {
-      short slice = anchor->N.simRoadInfo.slice + (short)numSlice;
-      if (anchor->N.simRoadInfo.slice + numSlice < 0) {
-        slice = (short)gNumSlices + slice;
-      }
-      Camera_gInfo[player].slicePos.slice = slice;
+      Camera_gInfo[player].slicePos.slice =
+          (anchor->N.simRoadInfo.slice + numSlice < 0)
+              ? anchor->N.simRoadInfo.slice + numSlice + gNumSlices
+              : anchor->N.simRoadInfo.slice + numSlice;
     }
     Camera_gInfo[player].position =
          *CAMERA_SLICE_CENTER(Camera_gInfo[player].slicePos.slice);

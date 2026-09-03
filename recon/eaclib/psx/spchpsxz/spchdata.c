@@ -13,38 +13,38 @@
  */
 
 #include "../eaclib_types.h"
+#include "spch_types.h"
 
-extern int iSPCH_GetMatchValue(int base, int index);                  /* @0x80100710 */
-extern int VoxSentence_GetShortRule(int sentence);                    /* @0x80100724 */
-extern int VoxSentence_GetNumPhrases(int sentence);                   /* @0x80100730 */
-extern int VoxEvent_GetFilterLengthFlag(int event);                  /* @0x8010073C */
+extern int iSPCH_GetMatchValue(VoxPhrase *phrase, int index);         /* @0x80100710 */
+extern int VoxSentence_GetShortRule(VoxSentence *sentence);           /* @0x80100724 */
+extern int VoxSentence_GetNumPhrases(VoxSentence *sentence);          /* @0x80100730 */
+extern int VoxEvent_GetFilterLengthFlag(VoxEvent *event);            /* @0x8010073C */
 extern int iSPCH_GetOffset8(int base, int tableBase, int index);      /* @0x80100748 */
 extern int iSPCH_GetOffset16(int base, int tableBase, int index);    /* @0x80100760 */
 
-/* iSPCH_GetMatchValue @0x80100710 : read the int at entry `index` of the table that starts at base+8.
- * MATCH: in-place dead-ptr mutate: base += index*4 forces oracle's addu a0,a0,a1; lw v0,8(a0) */
-extern int iSPCH_GetMatchValue(int base, int index)
+/* iSPCH_GetMatchValue @0x80100710 : matchValues[index] -- the int table right after the header. */
+extern int iSPCH_GetMatchValue(VoxPhrase *phrase, int index)
 {
-    base += index * 4;
-    return *(int *)(base + 8);
+    int *values = (int *)(phrase + 1);   /* +0x8 */
+    return values[index];
 }
 
 /* VoxSentence_GetShortRule @0x80100724 : low 2 bits of the sentence's flags byte (+3). */
-extern int VoxSentence_GetShortRule(int sentence)
+extern int VoxSentence_GetShortRule(VoxSentence *sentence)
 {
-    return (int)*(unsigned char *)(sentence + 3) & 3;
+    return sentence->flags & 3;
 }
 
 /* VoxSentence_GetNumPhrases @0x80100730 : upper 6 bits of the sentence's flags byte (+3). */
-extern int VoxSentence_GetNumPhrases(int sentence)
+extern int VoxSentence_GetNumPhrases(VoxSentence *sentence)
 {
-    return (int)((unsigned int)*(unsigned char *)(sentence + 3) >> 2);
+    return sentence->flags >> 2;
 }
 
 /* VoxEvent_GetFilterLengthFlag @0x8010073C : bit 0 of the event's flags byte (+0xa). */
-extern int VoxEvent_GetFilterLengthFlag(int event)
+extern int VoxEvent_GetFilterLengthFlag(VoxEvent *event)
 {
-    return (int)*(unsigned char *)(event + 0xa) & 1;
+    return event->flags & 1;
 }
 
 /* iSPCH_GetOffset8 @0x80100748 : follow an 8-bit offset table -- base + (table[index] << 2). */

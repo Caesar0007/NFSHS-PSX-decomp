@@ -99,7 +99,7 @@ extern int  gClearCycle;      /* @0x801370BC "cycle-bit clearing enabled" flag (
                                     * spchbank.c or spchinit.c alongside its neighbors, out of this
                                     * file's scope. */
 
-extern int  iSPCH_GetMatchValue(int base, int index);                 /* spchdata */
+extern int  iSPCH_GetMatchValue(VoxPhrase *phrase, int index);        /* spchdata */
 extern int  VoxSentence_GetNumPhrases(int sentence);                  /* spchdata */
 extern int  VoxSentence_GetShortRule(int sentence);                   /* spchdata */
 extern int  iSPCH_GetOffset8(int base, int tableBase, int index);     /* spchdata */
@@ -117,8 +117,8 @@ extern int  iSPCH_FindEvent(unsigned int eventID);                    /* spchevn
 extern int  GetFilterLength(void);                                    /* spchevnt */
 extern void trap(unsigned int code);
 
-extern int  iSPCH_MatchSample(int bankIdx, int sample, int phraseTemplate, int paramTable); /* @0x8010077C : bankIdx UNUSED */
-extern unsigned int iSPCH_GetPhraseBank(short *phraseTemplate, int paramTable, short *outChoice); /* @0x80100880 */
+extern int  iSPCH_MatchSample(int bankIdx, int sample, VoxPhrase *phraseTemplate, int paramTable); /* @0x8010077C : bankIdx UNUSED */
+extern unsigned int iSPCH_GetPhraseBank(VoxPhrase *phraseTemplate, int paramTable, short *outChoice); /* @0x80100880 */
 extern char *iSPCH_GetBankBits(VoxBank *bank);                        /* @0x80100994 */
 extern unsigned char *iSPCH_ClearCycleBit(VoxBank *bank, int cycle); /* @0x801009B8 */
 extern unsigned int iSPCH_CheckBankBit(VoxBank *bank, int cycle); /* @0x80100A1C : return must stay WORD-typed --
@@ -128,7 +128,7 @@ extern unsigned int iSPCH_CheckBankBit(VoxBank *bank, int cycle); /* @0x80100A1C
                                             * 2026-09-03) */
 extern unsigned int iSPCH_CheckTemplateSample(int choice, VoxBank *bank, int base); /* @0x80100A70 */
 extern unsigned int iSPCH_SampleExists(int choice, VoxBank *bank, int sampleIdx); /* @0x80100AC0 */
-extern int  iSPCH_ChooseSamples(short *choice, int maxToPick, int phraseTemplate, int unused); /* @0x80100B4C */
+extern int  iSPCH_ChooseSamples(short *choice, int maxToPick, VoxPhrase *phraseTemplate, int unused); /* @0x80100B4C */
 extern int  iSPCH_SampleLength(short *choice);                        /* @0x80100C5C */
 extern int  iSPCH_ConvertTime(int samples);                          /* @0x80100CC4 */
 extern int  iSPCH_SentenceLength(int sentence);                      /* @0x80100D20 */
@@ -215,7 +215,7 @@ extern void SPCH_SetPreLoadTicks(int ticks);                       /* @0x801018F
  * emits `addu $v1,$s6,$zero` (the 6-diff residual, plus the $v1-vs-$v0 coloring that
  * followed from it).  RULE: when the SAME insn appears in the preheader and in the
  * back-branch delay slot, it is one loop-top statement, not two. */
-extern int iSPCH_MatchSample(int bankIdx, int sample, int phraseTemplate, int paramTable)
+extern int iSPCH_MatchSample(int bankIdx, int sample, VoxPhrase *phraseTemplate, int paramTable)
 {
     /* w31-a4 NOTE (kept at baseline per strict-drop seal law; findings for a future wave):
      * a GOTO-loop body (label `loop:` + `if (i<count) goto loop;` instead of do-while) reaches
@@ -230,7 +230,7 @@ extern int iSPCH_MatchSample(int bankIdx, int sample, int phraseTemplate, int pa
      * shape found that moves those counts (bit two-stmt split self-shifts s0,s0 vs oracle's
      * li v1,1;sllv s2,v1,a0 temp split; lowNib &=-split would self-andi s0,s0 vs oracle
      * andi s0,v0).  Diff counts: goto form 42, baseline 28 (alignment luck) -> reverted. */
-    int count = (int)*(signed char *)(phraseTemplate + 3);
+    int count = phraseTemplate->count;
     int result = 1;
     (void)bankIdx;
     if (count < 5)
@@ -311,7 +311,7 @@ valid_count:
                 int lowNib;
                 unsigned int one = 1;
                 bit = one << cycleByte;
-                lowNib = (int)*(unsigned char *)(phraseTemplate + i + 4) & 0xf;
+                lowNib = phraseTemplate->nibbles[i] & 0xf;
                 one = 0;
                 if ((bit & (unsigned int)iSPCH_GetMatchValue(phraseTemplate, i)) != 0 &&
                     (lowNib == 0 ||
@@ -330,10 +330,10 @@ done:
 
 /* iSPCH_GetPhraseBank @0x80100880 : resolve a phrase template's bank choice (fixed / by-param / sub-bank)
  *   into outChoice[0..1].  Returns 0 on success, nonzero (sign of ~choice) on failure. */
-extern unsigned int iSPCH_GetPhraseBank(short *phraseTemplate, int paramTable, short *outChoice)
+extern unsigned int iSPCH_GetPhraseBank(VoxPhrase *phraseTemplate, int paramTable, short *outChoice)
 {
-    unsigned short wanted = *(unsigned short *)phraseTemplate;
-    unsigned int   flags  = *(unsigned char *)(phraseTemplate + 1);
+    unsigned short wanted = phraseTemplate->bankId;
+    unsigned int   flags  = phraseTemplate->modeParam;
     unsigned int   mode   = flags >> 4;
     unsigned int   param  = flags & 0xf;
     int            choice;
@@ -444,7 +444,7 @@ extern unsigned int iSPCH_SampleExists(int choice, VoxBank *bank, int sampleIdx)
  * parameters.  The qualifier was INERT here -- dropping it holds PASS 68/68 exactly.  (An
  * addressable spelling `int *p = &phraseTemplate;` in the loop body is NOT equivalent: it costs
  * a frame pointer + the incoming home slots, 22 diffs / 72 insns.) */
-extern int iSPCH_ChooseSamples(short *choice, int maxToPick, int phraseTemplate, int unused)
+extern int iSPCH_ChooseSamples(short *choice, int maxToPick, VoxPhrase *phraseTemplate, int unused)
 {
     int           sampleIdx = 0;
     int           bankIdx   = *choice;
@@ -686,9 +686,9 @@ choose:
             do {
                 short *outChoice = CHOICE(table);
                 int    r;
-                short *phraseTemplate;
+                VoxPhrase *phraseTemplate;
                 outChoice[3] = (short)picked;
-                phraseTemplate = (short *)iSPCH_GetOffset8(sentence, sentence + 4, table);
+                phraseTemplate = (VoxPhrase *)iSPCH_GetOffset8(sentence, sentence + 4, table);
                 if (iSPCH_GetPhraseBank(phraseTemplate, paramTable, outChoice) == 0) {
                     /* MATCH (w34-a9, 7 -> 1 diff): the compare constant is carried by a
                      * loop-body local `mark` that is SET TWICE in the loop (-2 for the test,
@@ -748,7 +748,7 @@ choose:
                     }
                     goto out;
                 }
-                r = iSPCH_ChooseSamples(outChoice, 100 - picked, (int)phraseTemplate, paramTable);
+                r = iSPCH_ChooseSamples(outChoice, 100 - picked, phraseTemplate, paramTable);
                 picked = picked + r;
                 if (r == 0)
                     goto fail;

@@ -84,6 +84,7 @@
    a one-way sched fence of the SPCH_Init &&label family at the preheader. */
 
 #include "../eaclib_types.h"
+#include "spch_types.h"
 
 int gPreLoadTicks;        /* @0x80148044 */
 int gEventDats[4];        /* @0x80148048 bound event-data blob table */
@@ -98,7 +99,7 @@ typedef struct {
     unsigned short enabled;      /* +0x0 (run-relative +0x8)  */
     unsigned short subTick;      /* +0x2 (+0xa)  */
     int            tick;         /* +0x4 (+0xc)  insert tick */
-    int            event;        /* +0x8 (+0x10) VoxEvent ptr */
+    VoxEvent      *event;        /* +0x8 (+0x10) */
     int            args[12];     /* +0xc..0x3b (+0x14..+0x43) */
 } VoxSlot;                       /* 0x3c */
 typedef struct {
@@ -138,15 +139,15 @@ extern int  iSPCH_ChooseSentence(unsigned int *eventArgs);  /* spchpick (returns
 extern int gReparm;    /* one-word callback storage; cast to its callable signature at use */
 
 /* ---- per-TU static copies of shared helpers (canon in spchdata.obj) ---- */
-static int VoxEvent_GetFilterLengthFlag(int e)   /* @0x800E6E88 */
+static int VoxEvent_GetFilterLengthFlag(VoxEvent *e)   /* @0x800E6E88 */
 {
-    return (int)*(unsigned char *)(e + 0xa) & 1;
+    return e->flags & 1;
 }
 
 /* VoxEvent_GetKeepTillExpiresFlag @0x800E6E94 : bit 2 of the event flags byte (+0xa). */
-extern unsigned int VoxEvent_GetKeepTillExpiresFlag(int e)
+extern unsigned int VoxEvent_GetKeepTillExpiresFlag(VoxEvent *e)
 {
-    return (unsigned int)*(unsigned char *)(e + 10) >> 2 & 1;
+    return (unsigned int)e->flags >> 2 & 1;
 }
 
 static int iSPCH_GetOffset16(int base, int tableBase, int index)  /* @0x800E6EA8 */
@@ -159,8 +160,8 @@ static inline int *iSPCH_EventBase(int *base)
     return base;
 }
 
-extern int  iSPCH_SearchEventDat(int dat, unsigned int eventID);      /* @0x800E6EC4 */
-extern int  iSPCH_FindEvent(unsigned int eventID);                    /* @0x800E6F4C */
+extern VoxEvent *iSPCH_SearchEventDat(int dat, unsigned int eventID); /* @0x800E6EC4 */
+extern VoxEvent *iSPCH_FindEvent(unsigned int eventID);               /* @0x800E6F4C */
 extern void iSPCH_InitEventDat(void);                                 /* @0x800E6FBC */
 extern int  GetFilterLength(void);                                    /* @0x800E6FE4 */
 extern int  GetFilterPriority(void);                                  /* @0x800E6FFC */
@@ -176,27 +177,27 @@ extern int  SPCH_ChooseSpeech(void);                                 /* @0x800E7
 #define SLOT(i)  ((unsigned char *)&gVoxEvents + (i) * 0x3c)
 
 /* iSPCH_SearchEventDat @0x800E6EC4 : address of the entry in blob `dat` whose id == eventID, or 0. */
-extern int iSPCH_SearchEventDat(int dat, unsigned int eventID)
+extern VoxEvent *iSPCH_SearchEventDat(int dat, unsigned int eventID)
 {
     unsigned int count = *(unsigned short *)(dat + 2);
     int table = 0;
     if (count != 0) {
         do {
-            unsigned short *p = (unsigned short *)iSPCH_GetOffset16(dat, dat + 0xc, table);
+            VoxEvent *p = (VoxEvent *)iSPCH_GetOffset16(dat, dat + 0xc, table);
             table = table + 1;
-            if (*p == eventID)
-                return (int)p;
+            if (p->id == eventID)
+                return p;
         } while (table < (int)count);
     }
     return 0;
 }
 
 /* iSPCH_FindEvent @0x800E6F4C : search all 4 bound blobs for eventID; returns its entry ptr, or 0. */
-extern int iSPCH_FindEvent(unsigned int eventID)
+extern VoxEvent *iSPCH_FindEvent(unsigned int eventID)
 {
     int  i = 0;
     int *p = gEventDats;
-    int  result;
+    VoxEvent *result;
     while (*p == 0 || (result = iSPCH_SearchEventDat(*p, eventID), result == 0)) {
         i = i + 1;
         p = p + 1;
@@ -293,8 +294,8 @@ extern int iSPCH_FindEventSlot(unsigned int priority)
         i = 0;
         do {
             unsigned char *slot     = SLOT(i);
-            int            voxEvent = *(int *)(slot + 0x10);
-            unsigned short maxAge   = *(unsigned short *)(voxEvent + 2);
+            VoxEvent      *voxEvent = (VoxEvent *)*(int *)(slot + 0x10);
+            unsigned short maxAge   = voxEvent->maxAge;
             if (maxAge != 0 &&
                 maxAge < (unsigned int)(tick - *(int *)(slot + 0xc))) {
                 *(short *)(slot + 8) = 0;
@@ -308,8 +309,8 @@ extern int iSPCH_FindEventSlot(unsigned int priority)
     i = 0;
     do {
         unsigned char *slot       = SLOT(i);
-        int            voxEvent   = *(int *)(slot + 0x10);
-        unsigned int   evPriority = (unsigned int)*(unsigned short *)(voxEvent + 4);
+        VoxEvent      *voxEvent   = (VoxEvent *)*(int *)(slot + 0x10);
+        unsigned int   evPriority = voxEvent->priority;
         if (priority >= evPriority) {
             *(short *)(slot + 8) = 0;
             result = i;
@@ -372,11 +373,11 @@ extern int iSPCH_FindEventSlot(unsigned int priority)
  * (-mno-split-addresses breaks 9 PASSes here). */
 extern int SPCH_AddEvent(unsigned int *table)
 {
-    int voxEvent = iSPCH_FindEvent(*table);
+    VoxEvent *voxEvent = iSPCH_FindEvent(*table);
     if (voxEvent != 0) {
-        int acceptProb = *(signed char *)(voxEvent + 9);
+        int acceptProb = voxEvent->acceptProb;
         if (iSPCH_Rand(100) <= acceptProb) {
-            int slot = iSPCH_FindEventSlot((unsigned int)*(unsigned short *)(voxEvent + 4));
+            int slot = iSPCH_FindEventSlot(voxEvent->priority);
             if (-1 < slot) {
                 int            tick = gettick();
                 short          sub;
@@ -473,7 +474,7 @@ extern int SPCH_AddEvent(unsigned int *table)
                 off  = offTmp;
                 gLastTick = tick;
                 sub  = (short)gLastSubTick;
-                *(int *)(off + base + 0x10)  = voxEvent;
+                *(int *)(off + base + 0x10)  = (int)voxEvent;
                 *(int *)(off + base + 0xc)   = tick;
                 *(short *)(off + base + 0xa) = sub;
                 do {
@@ -540,29 +541,30 @@ extern int iSPCH_ChooseEvent(void)
 	
     for (i = 0; i < 16; i++) {
         if (gVoxEvents.slots[i].enabled != 0) {
-            int          event   = gVoxEvents.slots[i].event;
+            VoxEvent    *event   = gVoxEvents.slots[i].event;
             unsigned int age     = now - gVoxEvents.slots[i].tick;
             int          expired = 0;
             int          filtered = 0;
-            if (*(unsigned short *)(event + 2) != 0) {
-                unsigned int maxAge = *(unsigned short *)(event + 2);
+            
+            if (event->maxAge != 0) {
+                unsigned int maxAge = event->maxAge;
                 expired = maxAge < age;
             }
             if (gFilterSetting == 1) {
                 if ((VoxEvent_GetFilterLengthFlag(event) & 0xff) != 0) {
-                    if (*(unsigned short *)(event + 4) < GetFilterPriority())
+                    if (event->priority < GetFilterPriority())
                         filtered = 1;
                 }
             }
             if (expired || filtered) {
                 gVoxEvents.slots[i].enabled = 0;
                 gVoxEvents.liveCount = gVoxEvents.liveCount - 1;
-            } else if (bestPri < *(unsigned short *)(event + 4)) {
+            } else if (bestPri < event->priority) {
                 winner  = i;
                 bestSub = gVoxQueue.slots[winner].subTick;
                 bestAge = age;
-                bestPri = *(unsigned short *)(event + 4);
-            } else if (*(unsigned short *)(event + 4) == bestPri) {
+                bestPri = event->priority;
+            } else if (event->priority == bestPri) {
                 if (age < bestAge ||
                     (age == bestAge && bestSub < gVoxEvents.slots[i].subTick)) {
                     winner  = i;
@@ -617,13 +619,13 @@ extern void iSPCH_ClearOldEvents(int winnerSlot)
             if (sub >= winSub)
                 goto dcheck;
           disable:
-            if ((VoxEvent_GetKeepTillExpiresFlag(*(int *)(slot + 0x10)) & 0xff) != 0)
+            if ((VoxEvent_GetKeepTillExpiresFlag((VoxEvent *)*(int *)(slot + 0x10)) & 0xff) != 0)
                 goto cont;
             *(short *)(slot + 8) = 0;
             gVoxEvents.liveCount = gVoxEvents.liveCount - 1;
             goto cont;
           dcheck:
-            if (*(signed char *)(*(int *)(slot + 0x10) + 9) == 'd')
+            if (((VoxEvent *)*(int *)(slot + 0x10))->acceptProb == 'd')
                 ((VoxSlotsStruct *)base)->dFlag = 1;
         }
       cont:

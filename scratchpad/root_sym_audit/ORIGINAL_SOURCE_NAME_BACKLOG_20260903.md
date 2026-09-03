@@ -46,21 +46,21 @@ spelling.  A row leaves this queue only when direct source-bearing evidence is
 recorded and its marker is replaced by `ORIGINAL-NAME-RECOVERED` (or when the
 extra source object is eliminated while preserving the oracle).
 
-Current measured queue: **1,601 unresolved carrier-marker rows project-wide**,
-of which **610 are in `recon/game/common`**.  There are currently **24
+Current measured queue: **1,603 unresolved carrier-marker rows project-wide**,
+of which **609 are in `recon/game/common`**.  There are currently **24
 `ORIGINAL-NAME-RECOVERED` evidence rows**.  These counts were measured from the
 working tree on 2026-09-04 and must be regenerated after each recovery round.
 
-## Strict per-directory snapshot through P822
+## Strict per-directory snapshot through P823
 
 These reports measure the current source tree; they are evidence of remaining
 work, not completion certificates.  `Explicit source-only codegen carriers`
-counts unique function/name mappings, whereas the 1,601 figure above counts raw
+counts unique function/name mappings, whereas the 1,603 figure above counts raw
 marker rows (a few names have more than one scoped marker row).
 
 | Directory | SYM functions | Mapped | Declaration-clean | Missing names | Extra names | Type/storage findings | Source-only carriers | Mapping review |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| `recon/game/common` | 1,258 | 1,258 | 1,228 | 0 | 6 | 28 / 28 | 610 | 0 |
+| `recon/game/common` | 1,258 | 1,258 | 1,228 | 0 | 6 | 28 / 28 | 609 | 0 |
 | `recon/frontend/common` | 838 | 833 | 781 | 0 | 46 | 9 / 9 | 519 | 3 |
 | `recon/frontend/psx` | 85 | 85 | 85 | 0 | 0 | 0 / 0 | 54 | 0 |
 | `recon/game/psx` | 395 | 395 | 392 | 0 | 3 | 0 / 0 | 397 | 0 |
@@ -69,7 +69,7 @@ marker rows (a few names have more than one scoped marker row).
 | `recon/syslib/psx` | 0 | 0 | 0 | 0 | 0 | 0 / 0 | 0 | 0 |
 
 The authoritative report files are
-`game_common_strict_p822_20260904.md`,
+`game_common_strict_p823_20260904.md`,
 `frontend_common_strict_p783_20260903.md`,
 `frontend_psx_strict_p780_20260903.md`,
 `game_psx_strict_p779_20260903.md`,
@@ -765,6 +765,27 @@ declaration-clean, zero missing names, 6 extra names, 12 deleting-destructor
 ABI carriers, 610 source-only carriers, 22 exact cross-build/canonical name
 recoveries, and zero mapping-review items.  The tracked-source raw carrier
 queue is 1,601 project-wide / 610 in game/common.
+
+### Removed `AI_CalculateLaneSpeeds::forwardDistanceIntMeters` at P823
+
+The invented `forwardDistanceIntMeters` sign-correction carrier and its
+hand-expanded signed shift are removed.  NFS4 retail SYM retains
+`distanceIntMeters` and no second distance local, while the symbol-bearing NFS2
+matched source uses the ordinary signed-division statement
+`distanceApart = distance / 0x10000 - 2`.  Restoring that source shape with the
+NFS4 names emits the same 229 retail instructions: `AI_CalculateLaneSpeeds`
+remains PASS 229/229 and the complete `ai.cpp` TU remains 40/40 PASS.  Evidence:
+`C:\Temp\nfs2-clean\pc-beta\match\ai\AI_CalculateLaneSpeeds.c` and the NFS4
+`AI_CalculateLaneSpeeds__FP8Car_tObj` 8c block.
+
+The current authoritative game/common report is
+`game_common_strict_p823_20260904.md`: 1,258/1,258 functions mapped, 1,228
+declaration-clean, zero missing names, 6 extra names, 12 deleting-destructor
+ABI carriers, 609 source-only carriers, 22 exact cross-build/canonical name
+recoveries, and zero mapping-review items.  A fresh `git grep` recount found
+that the prior raw project-wide figures had undercounted three tracked marker
+rows: HEAD at P822 contains 1,604, so the post-removal tracked-source raw queue
+is 1,603 project-wide / 609 in game/common.
 
 ### Retained after P813 source-shape retests
 

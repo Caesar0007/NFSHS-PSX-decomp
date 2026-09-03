@@ -713,17 +713,7 @@ void AI_CalculateLaneSpeeds(Car_tObj *carObj)
       if (((carObj->N).dimension.z < distanceFixedMetersSignChecked) &&
         (distanceFixedMetersSignChecked < maxDistanceToCheck)) {
         if (carObj->direction == 1) {
-          /* SYM-CODEGEN-CARRIER: forwardDistanceIntMeters -- assigning the
-             sign-corrected ternary directly to `distanceIntMeters` compiles
-             to 227 rather than 229 instructions and produces six oracle
-             branch/value-flow diffs. */
-          int forwardDistanceIntMeters;
-
-          forwardDistanceIntMeters = (distanceFixedMeters < 0)
-              ? distanceFixedMeters + 0xffff
-              : distanceFixedMeters;
-          distanceIntMeters =
-              (forwardDistanceIntMeters >> 0x10) + -2;
+          distanceIntMeters = distanceFixedMeters / 0x10000 - 2;
           if ((carObj->carFlags & 0x28U) != 0) {
             if (distanceIntMeters <= 0) {
               distanceIntMeters = 1;

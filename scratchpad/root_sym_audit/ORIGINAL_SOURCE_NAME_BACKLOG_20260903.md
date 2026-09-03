@@ -682,12 +682,6 @@ remains PASS 279/279 and the complete `physics.cpp` TU remains 22/22 PASS.
 Evidence: `C:\Temp\nfs2-clean\pc-beta\match\physics\Physics_AttenuateVelocity.c`
 and `C:\Temp\nfs2-clean\pc-beta\locals\local_033_[physics.c].txt`.
 
-The current authoritative game/common report is
-`game_common_strict_p817_20260904.md`: 1,258/1,258 functions mapped, 1,228
-declaration-clean, zero missing names, 6 extra names, 12 deleting-destructor
-ABI carriers, 615 source-only carriers, 22 exact cross-build/canonical name
-recoveries, and zero mapping-review items.
-
 ### SYM-exact `Collide_TestWithPlane::height` source shape at P818
 
 The invented `relDotFull` carrier is removed.  NFS4 retail SYM assigns the
@@ -716,12 +710,6 @@ source shape produces the same 120 retail instructions: `Souffle_Add` remains
 PASS 120/120 and the complete `souffle.cpp` TU remains 10/10 PASS.  Evidence:
 `C:\Temp\nfs2-clean\pc-beta\match\souffle\Souffle_Add.c` and the NFS4
 `Souffle_Add__FP8coorddefiT0iii` 8c block.
-
-The current authoritative game/common report is
-`game_common_strict_p819_20260904.md`: 1,258/1,258 functions mapped, 1,228
-declaration-clean, zero missing names, 6 extra names, 12 deleting-destructor
-ABI carriers, 613 source-only carriers, 22 exact cross-build/canonical name
-recoveries, and zero mapping-review items.
 
 ### Removed both `AudioCmn_SFX::forceAmp` copies at P820
 

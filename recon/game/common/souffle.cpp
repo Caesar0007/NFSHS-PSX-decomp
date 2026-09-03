@@ -65,10 +65,6 @@ Souffle_Add(coorddef *soufflept,int type,coorddef *vec,int velVX,int ground,int 
 
 {
   int i;
-  /* SYM-CODEGEN-CARRIER: limit -- the named 60 keeps retail's register
-     compare.  A literal emits one fewer instruction (`slti`) and produces
-     17 word diffs instead of the oracle's `li` plus `slt` sequence. */
-  int limit;
   int maxc;
   int inserti;
   Souffle_tISouffle *is;
@@ -77,9 +73,8 @@ Souffle_Add(coorddef *soufflept,int type,coorddef *vec,int velVX,int ground,int 
   inserti = 0;
   if (gCISouffle == 0x3c) {
     i = 1;
-    limit = 0x3c;
     maxc = gISouffle[0].cycle;
-    while (i < limit) {
+    while (i < gCISouffle) {
       if (gISouffle[i].cycle < maxc) {
         inserti = i;
         maxc = gISouffle[i].cycle;

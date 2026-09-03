@@ -46,21 +46,21 @@ spelling.  A row leaves this queue only when direct source-bearing evidence is
 recorded and its marker is replaced by `ORIGINAL-NAME-RECOVERED` (or when the
 extra source object is eliminated while preserving the oracle).
 
-Current measured queue: **1,605 unresolved carrier-marker rows project-wide**,
-of which **614 are in `recon/game/common`**.  There are currently **24
+Current measured queue: **1,603 unresolved carrier-marker rows project-wide**,
+of which **612 are in `recon/game/common`**.  There are currently **24
 `ORIGINAL-NAME-RECOVERED` evidence rows**.  These counts were measured from the
 working tree on 2026-09-04 and must be regenerated after each recovery round.
 
-## Strict per-directory snapshot through P818
+## Strict per-directory snapshot through P820
 
 These reports measure the current source tree; they are evidence of remaining
 work, not completion certificates.  `Explicit source-only codegen carriers`
-counts unique function/name mappings, whereas the 1,605 figure above counts raw
+counts unique function/name mappings, whereas the 1,603 figure above counts raw
 marker rows (a few names have more than one scoped marker row).
 
 | Directory | SYM functions | Mapped | Declaration-clean | Missing names | Extra names | Type/storage findings | Source-only carriers | Mapping review |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| `recon/game/common` | 1,258 | 1,258 | 1,228 | 0 | 6 | 28 / 28 | 614 | 0 |
+| `recon/game/common` | 1,258 | 1,258 | 1,228 | 0 | 6 | 28 / 28 | 612 | 0 |
 | `recon/frontend/common` | 838 | 833 | 781 | 0 | 46 | 9 / 9 | 519 | 3 |
 | `recon/frontend/psx` | 85 | 85 | 85 | 0 | 0 | 0 / 0 | 54 | 0 |
 | `recon/game/psx` | 395 | 395 | 392 | 0 | 3 | 0 / 0 | 397 | 0 |
@@ -69,7 +69,7 @@ marker rows (a few names have more than one scoped marker row).
 | `recon/syslib/psx` | 0 | 0 | 0 | 0 | 0 | 0 / 0 | 0 | 0 |
 
 The authoritative report files are
-`game_common_strict_p818_20260904.md`,
+`game_common_strict_p820_20260904.md`,
 `frontend_common_strict_p783_20260903.md`,
 `frontend_psx_strict_p780_20260903.md`,
 `game_psx_strict_p779_20260903.md`,
@@ -705,6 +705,39 @@ The current authoritative game/common report is
 `game_common_strict_p818_20260904.md`: 1,258/1,258 functions mapped, 1,228
 declaration-clean, zero missing names, 6 extra names, 12 deleting-destructor
 ABI carriers, 614 source-only carriers, 22 exact cross-build/canonical name
+recoveries, and zero mapping-review items.
+
+### Removed `Souffle_Add::limit` source-only carrier at P819
+
+The invented `limit` local is removed.  NFS4 retail SYM retains only `i` and
+`maxc` in the full-pool search block, while the symbol-bearing NFS2 matched
+source uses `i < gCISouffle` directly.  Restoring that direct global-bound
+source shape produces the same 120 retail instructions: `Souffle_Add` remains
+PASS 120/120 and the complete `souffle.cpp` TU remains 10/10 PASS.  Evidence:
+`C:\Temp\nfs2-clean\pc-beta\match\souffle\Souffle_Add.c` and the NFS4
+`Souffle_Add__FP8coorddefiT0iii` 8c block.
+
+The current authoritative game/common report is
+`game_common_strict_p819_20260904.md`: 1,258/1,258 functions mapped, 1,228
+declaration-clean, zero missing names, 6 extra names, 12 deleting-destructor
+ABI carriers, 613 source-only carriers, 22 exact cross-build/canonical name
+recoveries, and zero mapping-review items.
+
+### Removed both `AudioCmn_SFX::forceAmp` copies at P820
+
+Both invented `forceAmp` clamp results are removed.  The symbol-bearing NFS2
+matched source assigns the expanded `MIN((tweakedForce * 127) / 0xa0000, 127)`
+back to the `tweakedForce` parameter in both the impact and damage-scrape
+branches.  NFS4 retail SYM likewise retains no `forceAmp` local.  Restoring
+that macro/parameter source shape is byte-identical: `AudioCmn_SFX` remains
+PASS 224/224 and the complete `audiocmn.cpp` TU remains 48/48 PASS.  Evidence:
+`C:\Temp\nfs2-clean\pc-beta\match\audiocmn\AudioCmn_SFX.c` and the NFS4
+`AudioCmn_SFX__Fi6s_typeT1iii` 8c block.
+
+The current authoritative game/common report is
+`game_common_strict_p820_20260904.md`: 1,258/1,258 functions mapped, 1,228
+declaration-clean, zero missing names, 6 extra names, 12 deleting-destructor
+ABI carriers, 612 source-only carriers, 22 exact cross-build/canonical name
 recoveries, and zero mapping-review items.
 
 ### Retained after P813 source-shape retests

@@ -1226,19 +1226,10 @@ void AudioCmn_SFX(int sndPlayer,s_type surface1,s_type surface2,int tweakedForce
        cross-jumps it into the shared tail `jal` at 0x800780A0, entering one instruction
        late because it stores tempAmp instead of amplitude into 0x10(sp). */
     int tempAmp;
-    /* SYM-CODEGEN-CARRIER: forceAmp -- retaining the pre-call clamp result
-     * outside the SYM-recorded tempAmp preserves retail's `$a0` argument and
-     * `$s0` result handoff.  Reusing tempAmp directly remains 224 instructions
-     * but produces eight authoritative register/call-delay-slot diffs. */
-    int forceAmp;
-
-    forceAmp = 0x7f;
-    if ((tweakedForce * 0x7f) / 0xa0000 < 0x80) {
-      forceAmp = (tweakedForce * 0x7f) / 0xa0000;
-    }
-    iSFXnumber = ChooseImpactSample(tempAmp = forceAmp,surface1,surface2);
+    tweakedForce = MIN((tweakedForce * 0x7f) / 0xa0000,0x7f);
+    iSFXnumber = ChooseImpactSample(tweakedForce,surface1,surface2);
     if (iSFXnumber == 0x1f) {
-      tempAmp = ((amplitude * tempAmp) / 0x7f) * 2;
+      tempAmp = ((amplitude * tweakedForce) / 0x7f) * 2;
       if (0x7f < tempAmp) {
         tempAmp = 0x7f;
       }
@@ -1275,13 +1266,8 @@ void AudioCmn_SFX(int sndPlayer,s_type surface1,s_type surface2,int tweakedForce
                    "r"(iSFXnumber), "r"(iSFXnumber), "r"(amplitude),
                    "r"(amplitude), "r"(amplitude), "r"(amplitude));
     if (sndPlayer - 0x12U < 2) {
-      int forceAmp;
-
-      forceAmp = 0x7f;
-      if ((tweakedForce * 0x7f) / 0xa0000 < 0x80) {
-        forceAmp = (tweakedForce * 0x7f) / 0xa0000;
-      }
-      amplitude = amplitude * forceAmp >> 7;
+      tweakedForce = MIN((tweakedForce * 0x7f) / 0xa0000,0x7f);
+      amplitude = amplitude * tweakedForce >> 7;
       if (amplitude >= 0x1f) {
         Car_tObj*c;
 

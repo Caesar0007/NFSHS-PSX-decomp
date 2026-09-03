@@ -46,21 +46,21 @@ spelling.  A row leaves this queue only when direct source-bearing evidence is
 recorded and its marker is replaced by `ORIGINAL-NAME-RECOVERED` (or when the
 extra source object is eliminated while preserving the oracle).
 
-Current measured queue: **1,603 unresolved carrier-marker rows project-wide**,
-of which **612 are in `recon/game/common`**.  There are currently **24
+Current measured queue: **1,602 unresolved carrier-marker rows project-wide**,
+of which **611 are in `recon/game/common`**.  There are currently **24
 `ORIGINAL-NAME-RECOVERED` evidence rows**.  These counts were measured from the
 working tree on 2026-09-04 and must be regenerated after each recovery round.
 
-## Strict per-directory snapshot through P820
+## Strict per-directory snapshot through P821
 
 These reports measure the current source tree; they are evidence of remaining
 work, not completion certificates.  `Explicit source-only codegen carriers`
-counts unique function/name mappings, whereas the 1,603 figure above counts raw
+counts unique function/name mappings, whereas the 1,602 figure above counts raw
 marker rows (a few names have more than one scoped marker row).
 
 | Directory | SYM functions | Mapped | Declaration-clean | Missing names | Extra names | Type/storage findings | Source-only carriers | Mapping review |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| `recon/game/common` | 1,258 | 1,258 | 1,228 | 0 | 6 | 28 / 28 | 612 | 0 |
+| `recon/game/common` | 1,258 | 1,258 | 1,228 | 0 | 6 | 28 / 28 | 611 | 0 |
 | `recon/frontend/common` | 838 | 833 | 781 | 0 | 46 | 9 / 9 | 519 | 3 |
 | `recon/frontend/psx` | 85 | 85 | 85 | 0 | 0 | 0 / 0 | 54 | 0 |
 | `recon/game/psx` | 395 | 395 | 392 | 0 | 3 | 0 / 0 | 397 | 0 |
@@ -69,7 +69,7 @@ marker rows (a few names have more than one scoped marker row).
 | `recon/syslib/psx` | 0 | 0 | 0 | 0 | 0 | 0 / 0 | 0 | 0 |
 
 The authoritative report files are
-`game_common_strict_p820_20260904.md`,
+`game_common_strict_p821_20260904.md`,
 `frontend_common_strict_p783_20260903.md`,
 `frontend_psx_strict_p780_20260903.md`,
 `game_psx_strict_p779_20260903.md`,
@@ -727,6 +727,25 @@ The current authoritative game/common report is
 declaration-clean, zero missing names, 6 extra names, 12 deleting-destructor
 ABI carriers, 612 source-only carriers, 22 exact cross-build/canonical name
 recoveries, and zero mapping-review items.
+
+### Removed `Physics_RampCarControlValues::incValue` at P821
+
+Both scoped copies of the invented `incValue` carrier and their empty lifetime
+fence are removed.  NFS4 retail SYM retains only the `CHAR inc` declaration in
+this block, while the symbol-bearing NFS2 matched source expresses the two
+updates directly as `gasLevel += MIN(inc,diff)` and
+`gasLevel -= MIN(inc,-diff)`.  Restoring that exact macro/source shape emits
+the same 502 retail instructions: `Physics_RampCarControlValues` remains PASS
+502/502 and the complete `physics.cpp` TU remains 22/22 PASS.  Evidence:
+`C:\Temp\nfs2-clean\pc-beta\match\physics\Physics_RampCarControlValues.c`
+and the NFS4 `Physics_RampCarControlValues__FP8Car_tObj` 8c block.
+
+The current authoritative game/common report is
+`game_common_strict_p821_20260904.md`: 1,258/1,258 functions mapped, 1,228
+declaration-clean, zero missing names, 6 extra names, 12 deleting-destructor
+ABI carriers, 611 source-only carriers, 22 exact cross-build/canonical name
+recoveries, and zero mapping-review items.  The tracked-source raw carrier
+queue is 1,602 project-wide / 611 in game/common.
 
 ### Retained after P813 source-shape retests
 

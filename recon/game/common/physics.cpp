@@ -855,10 +855,6 @@ void Physics_RampCarControlValues(Car_tObj *carObj)
   {
     char inc;
 
-    /* SYM-CODEGEN-CARRIER: incValue -- SYM proves `inc` is CHAR, while retail
-       applies an unsigned-byte promotion independently in each sign arm.  The
-       scoped int carrier represents that promotion; the empty input fence in
-       the negative arm preserves retail's mask-before-negu schedule. */
     if (carObj->carInfo->RampGas != 0) {
       inc = 0x24;
     }
@@ -867,24 +863,11 @@ void Physics_RampCarControlValues(Car_tObj *carObj)
     }
     diff = (carObj->control).desiredGasLevel - (carObj->control).gasLevel;
     if (diff >= 0) {
-      int incValue = (u_char)inc;
-      (carObj->control).gasLevel =
-          diff < incValue ? (carObj->control).gasLevel + diff
-                          : (carObj->control).gasLevel + incValue;
+      (carObj->control).gasLevel += MIN(inc,diff);
     }
     else {
-      int incValue = (u_char)inc;
-      __asm__("" : : "r"(incValue));
-      diff = -diff;
-      (carObj->control).gasLevel =
-          diff < incValue ? (carObj->control).gasLevel - diff
-                          : (carObj->control).gasLevel - incValue;
+      (carObj->control).gasLevel -= MIN(inc,-diff);
     }
-    /* MATCH: PASS 502/502.  Retail keeps `inc` in a0, masks it independently
-       in both sign arms, and computes the two complete gas-value candidates
-       before their shared store.  The zero-instruction identity barrier keeps
-       gcc from range-folding the 0x24/0x30 choice; the explicit per-arm masks
-       then reproduce the two destructive `andi a0,a0,255` operations. */
   }
   if (carObj->carInfo->RampBrake != 0) {
     diff = (carObj->control).desiredBrakeLevel - (carObj->control).brakeLevel;

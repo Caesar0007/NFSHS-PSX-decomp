@@ -243,6 +243,9 @@ struct AIHigh_BasicPerp : public AIHigh_Base {
     int CheckChaserPosition(int a, int b);
     AIHigh_BasicPerp() {}
     AIHigh_BasicPerp(Car_tObj *carObj);
+#ifdef NFS4_AIH_BASICPERP_OWNER_DTOR
+    ~AIHigh_BasicPerp();
+#endif
     void CheckForCrimes();
     int CheckIfCaught();
     void RemoveCloseCops();
@@ -254,6 +257,9 @@ struct AIHigh_Player : public AIHigh_BasicPerp {
     AICop_PerpChaseInfo perpChaseInfo_;
     AIHigh_Player() {}
     AIHigh_Player(Car_tObj *carObj);
+#ifdef NFS4_AIH_PLAYER_OWNER_DTOR
+    ~AIHigh_Player();
+#endif
     void HandleCops();
     int CheckIfABlockadeCanBeSetup();
     void SetupBlockade();
@@ -269,6 +275,9 @@ struct AIHigh_BTC_Perp : public AIHigh_BasicPerp {
     int caught_, hudActivated_;
     AIHigh_BTC_HumanCop *originalActivationCop_;
     AIHigh_BTC_Perp() {}
+#ifdef NFS4_AIH_BTCPERP_OWNER_DTOR
+    ~AIHigh_BTC_Perp();
+#endif
     void ReleaseCops();
     void HandleCops();
     int IsFalseArrest();
@@ -297,6 +306,9 @@ struct AIHigh_BasicCop : public AIHigh_Base {
     AIHigh_tDriveAwayMode driveAway_;
     AIHigh_BasicCop() {}
     AIHigh_BasicCop(Car_tObj *carObj, int idx);
+#ifdef NFS4_AIH_BASICCOP_OWNER_DTOR
+    ~AIHigh_BasicCop();
+#endif
     void CheckSpikeBelt();
     void SetupBlockadeElements(blockade_t *blockade);
     void HandleBlockadeSpeech();

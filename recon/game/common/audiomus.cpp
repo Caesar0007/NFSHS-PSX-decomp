@@ -247,60 +247,39 @@ void AudioMus_SetEntry(AudioMus_tSongEntry *info)
 {
   int titlechar;
   int havefile;
-  /* SYM-CODEGEN-CARRIER: iVar3 -- reusing the SYM-named titlechar as the
-   * string-buffer index and reading `*p` directly produces 36 instructions
-   * and 28 oracle diffs.  The separate index/current-character values retain
-   * retail's exact 34-instruction loop rotation and allocation. */
-  int iVar3;
   char *p;
 
-  /* MATCH (w54-a11) -- SEALED; retires the w30-a7 "proven scheduler floor" receipt.
-   * Two edits, both read straight off retail's SLD (LAW 05A):
-   *  (1) STATEMENT ORDER.  SLD: 346 artist=0 · 347 label=0 · 348 date=0 · 349 notes=0 ·
-   *      351 iVar3=0 (an explicit `Set SLD linenum to 351` record at 0x8007a30c -- i.e.
-   *      a SCHEDULER-MOVED insn, its own statement) · 354 owns the filename load AND the
-   *      loop guard.  So the four zero-stores come first and the filename load belongs
-   *      to the loop statement (the lw only LOOKS leading because sched hoists it for
-   *      load latency).
-   *  (2) REORG DELAY-SLOT COMPETITION (the actual crack).  bVar2's init must live
-   *      OUTSIDE the rotated `if`, in the loop PREHEADER.  With it inside, the only
-   *      fill candidate for the `beqz` slot is `addu a1,zero,zero` (iVar3=0), so reorg
-   *      sinks it there and the a1 init never reaches its scheduled slot 1.  Hoisted
-   *      out, `addu a3,a1,zero` becomes the nearest independent insn before the branch,
-   *      reorg takes THAT (= retail's slot), and a1=0 stays at slot 1.  Zero insn cost.
-   * Generalization: an "unmovable constant in the delay slot" is a reorg CANDIDATE-SET
-   * problem, not a scheduler floor -- give reorg a better candidate. */
+  /* Retail SYM names exactly `titlechar` ($a1), `havefile` ($a3), and the
+   * nested-block `p` ($a2).  SLD lines 351/354 prove that titlechar is the
+   * buffer index initialized before the filename loop, while repeated `*p`
+   * reads supply the unnamed compiler temporary in $v1.  This natural while
+   * form preserves retail's rotated loop and removes the former synthetic
+   * iVar3 source object. */
   info->artist = (char *)0x0;
   info->label = (char *)0x0;
   info->date = (char *)0x0;
   info->notes = (char *)0x0;
-  iVar3 = 0;
+  titlechar = 0;
   havefile = false;
   p = info->filename;
-  titlechar = *p;
-  if (titlechar != '\0') {   /* loop-rotated: oracle tests the FIRST char once up-front, then the */
-                         /* back-edge test is the ONLY other '\0' check (matches the rotated */
-    do {               /* while-loop gcc emits for a plain `while` — see methodology §3.12#15a) */
-      if (titlechar == '-') {
-        if (!havefile) {
-          havefile = true;
-          iVar3 = 0;
-        }
-        else {
-          info->artist = p + 1;
-          goto LAB_8007a37c;
-        }
+  while (*p != '\0') {
+    if (*p == '-') {
+      if (!havefile) {
+        havefile = true;
+        titlechar = 0;
       }
-      else if (iVar3 < 0x1f) {
-        info->strbuf[iVar3] = titlechar;
-        iVar3 = iVar3 + 1;
+      else {
+        info->artist = p + 1;
+        break;
       }
-      p = p + 1;
-      titlechar = *p;
-    } while (titlechar != '\0');
+    }
+    else if (titlechar < 0x1f) {
+      info->strbuf[titlechar] = *p;
+      titlechar = titlechar + 1;
+    }
+    p = p + 1;
   }
-LAB_8007a37c:
-  info->strbuf[iVar3] = '\0';
+  info->strbuf[titlechar] = '\0';
   info->title = info->strbuf;
 }
 

@@ -30,6 +30,11 @@ void AIHigh_Opponent::CheckForWipeOut()
   int oppLevel;
   int oppFines;
   int hLoop;
+  /* ORIGINAL-NAME-UNRESOLVED: `numRacers`, `bVar1`, `hlai`, `speedLimit`,
+     `carIndex`, `field1380`, `slotAddr`, `absField`, and `state` are retained
+     allocation/source-shape objects.  NFS4 SYM does not preserve their source
+     spellings, and no checked symbol-bearing reference proves them.  The
+     current identifiers are placeholders, not accepted semantic restorations. */
   /* SYM-CODEGEN-CARRIER: numRacers -- its named lifetime makes the loop-bound
      load a profitable loop.c movable and the zero-op references reproduce
      retail $t3.  Reading Cars_gNumHumanRaceCars directly was measured at 30
@@ -864,15 +869,11 @@ int AIHigh_Opponent::DoProvokedAttack()
 
 /* end of aih_opp.cpp */
 
-/* cont.35 B3b: base-forward dtor re-attributed from main.c (�3.23 simple variant);
-   oracle = jal ___11AIHigh_Base; extern-C free fn exports the exact symbol. */
-extern "C" {
-void ___11AIHigh_Base(void *);
-}
 extern __vtbl_ptr_type AIHigh_BasicPerp_vtable[];   /* owned by aih_basicperp.obj */
-extern "C" {
-void ___15AIHigh_Opponent(void *thisp) {
-  *(void**)((char*)thisp + 0x14) = (void*)AIHigh_BasicPerp_vtable;
-  ___11AIHigh_Base(thisp);
-}
+/* Retail restores the shared BasicPerp dispatch table before the implicit
+   base destruction.  Expressing it as the actual member destructor supplies
+   C++'s implicit `this` and eliminates the synthetic free-function receiver. */
+AIHigh_Opponent::~AIHigh_Opponent()
+{
+  this->_vf = (__vtbl_ptr_type (*)[3])AIHigh_BasicPerp_vtable;
 }

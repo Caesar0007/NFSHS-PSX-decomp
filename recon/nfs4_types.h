@@ -1940,6 +1940,8 @@ struct AnimScript {   /* 20 bytes */
     AnimScript(int num);
     AnimScript(int num, int numParts);
     AnimScript(Group *instanceGroup, int type, int boomIndex, int numParts);
+    /* Inline owner definition recovered from all four retail delete sites. */
+    ~AnimScript() { delete [] inst; }
     void SetAnimAttrib(int flags);
     void GetAnimFrameInfo(int *frame, int *numFrames);
     int GetTimedAnimPosRot(coorddef *pt, matrixtdef *mat);

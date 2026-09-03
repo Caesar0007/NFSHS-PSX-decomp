@@ -79,8 +79,6 @@ void Cars_DoGravityEffectsOnAcc(Car_tObj *carObj, int a);
 void Cars_ResetCollidedCars(Car_tObj *car, int a, int b);
 
 /* PSX runtime helpers used by ported fns */
-extern "C" void *__builtin_new(unsigned int);
-extern "C" void  __builtin_delete(void *);
 
 /* globals (AIPhysicConfig / AIPhysic_time / AIPhysic_iTime are aiphysic.obj-owned —
  *  defined as tentative defs in aiphysic.cpp, like AIPhysic_elapsedTime) */

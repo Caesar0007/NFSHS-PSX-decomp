@@ -22,8 +22,6 @@ extern Car_tObj *AIInit_leaderBoardCars[] asm("leaderBoard");
 extern int AIInit_AIInfoWords[] asm("AI_Info");
 extern int AIInit_AIPhysicConfigWords[] asm("AIPhysicConfig");
 extern int AIInit_accelerationScaleWords[] asm("AITune_accelerationScale");
-extern void AITrigger_Init(AITrigger_TriggerManager *,char *)
-  asm("Init__24AITrigger_TriggerManagerPc");
 extern Udff_tInfo * Udff_Opena(char *name,char *mem,int abortFlag);
 extern int            Cars_gNumCars;
 extern int   Udff_GetInt(Udff_tInfo *handle);
@@ -48,8 +46,6 @@ extern void AITune_StartUp1(void);
 extern void AITune_StartUp2(void);
 extern void Udff_Close(Udff_tInfo *handle);
 extern void Udff_GetBuffer(Udff_tInfo *handle,char *mem,int size);
-int __builtin_delete(...);
-int __builtin_new(...);
 void AI_CleanUp(void);
 void AI_StartUp(void);
 /* AIDataRecord_t::StartUp1/2 + CleanUp1/2 (static), AITrigger_TriggerManager::Init, AIDataRecord_CurveSpeedTable_t::Upgrade now called as C++ members -- flat externs removed */

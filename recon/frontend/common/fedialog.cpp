@@ -157,10 +157,6 @@ static inline int DialogYesNoOpenElapsed(tDialogYesNo *dialog)
   return ticks[0] - dialog->startTicks;
 }
 
-extern "C" {
-void ___7tScreen(void *);
-void ___31tDialogMessageStringWithTimeout(void *thisp) { ___7tScreen(thisp); }
-}
 /* ---- tDialogBase::ShouldTimeOut  [FEDIALOG.CPP:73-76] SLD-VERIFIED ---- */
 
 short tDialogBase::ShouldTimeOut()

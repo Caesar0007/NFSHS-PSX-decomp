@@ -23,15 +23,14 @@ void *__6Speech(void *);
 void ___6Speech(void *, int);
 int FECheat_ActivateBonus__F10tCheatCode(int);
 int Front_Menu__F21tFront_ProcessingType(int);
-extern const void *_vt_Q26Speech7Speaker[];
 }
 
 void *__builtin_new(unsigned int);
 
 /* cross-TU globals + unmangled lib fns referenced by nfs3.obj */
-extern int _6Speech_fgUndefined;            /* Speech::fgUndefined (Speaker*) */
+extern Speaker *Speech_fgUndefined asm("_6Speech_fgUndefined");
+                                             /* Speech::fgUndefined */
 extern int _6Speech_fgSpeech;               /* Speech::fgSpeech (Speech*) */
-#define Speaker_vtable _vt_Q26Speech7Speaker /* @0x80055dc4; defined in speech.cpp */
 #define FECheat_ActivateBonus FECheat_ActivateBonus__F10tCheatCode
 #define Front_Menu Front_Menu__F21tFront_ProcessingType
 // [owned->defined in nfs3.cpp] extern char befuddleExtensions[][4];

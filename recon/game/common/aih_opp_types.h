@@ -37,6 +37,7 @@ struct AIHigh_Opponent : public AIHigh_Player {
     int hitCount_, attackTicksLeft_;
     AIHigh_Opponent() {}
     AIHigh_Opponent(Car_tObj *carObj);
+    ~AIHigh_Opponent();
     void CheckForWipeOut();
     int DoRearEnder();
     void HighExecute();

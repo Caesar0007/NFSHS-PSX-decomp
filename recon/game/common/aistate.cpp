@@ -170,21 +170,11 @@ void AIState_Normal::Execute()
 AIState_Normal::AIState_Normal(Car_tObj *carObj)
   : AIState_Base(carObj)
 {
-  /* SYM-CODEGEN-CARRIER: pCVar1 -- absent from the constructor's surviving
-   * locals. Using `this->carObj_` directly CSEs two retail reloads (8 diffs,
-   * 4 insns shorter); using the real `carObj` parameter extends it across the
-   * base-constructor call and changes the frame/register assignment (26 diffs). */
-  Car_tObj *pCVar1;
-
-  pCVar1 = this->carObj_;
-
   this->_vf = (__vtbl_ptr_type (*) [4])AIState_Normal_vtable;
 
-  (pCVar1->targetPos).z = 0;
-
-  (pCVar1->targetPos).y = 0;
-
-  (pCVar1->targetPos).x = 0;
+  (this->carObj_)->targetPos.x =
+      (this->carObj_)->targetPos.y =
+      (this->carObj_)->targetPos.z = 0;
 
   (this->carObj_)->targetLatPos = 0;
 
@@ -405,47 +395,31 @@ AIState_Chase::AIState_Chase(Car_tObj *carObj,Car_tObj *targetCar,coorddef *relP
 
 
 /* ---- _._13AIState_Chase  AIState_Chase::dtor  [AISTATE.CPP:205-212] SLD-VERIFIED ---- */
-/* reconstructed as extern "C" ___13AIState_Chase(AIState_Chase*,int) free fn (SaveSurface/
-   ObjectFinishedSignAnim pattern): the oracle is a REAL per-class deleting dtor (__in_chrg +
-   andi&1 + __builtin_delete), not a base-forward; a real C++ member dtor for this non-
-   polymorphic single-inheritance shape always compiles to gcc's default simple base-forward
-   (proven empirically), so the ABI-shape is hand-written. */
+/* The owner graph now exposes this as the real member destructor; GCC supplies
+   its implicit receiver and in-charge deletion sequence. */
 
-extern "C" void ___13AIState_Chase(AIState_Chase *pThis,int __in_chrg)
+AIState_Chase::~AIState_Chase()
 
 
 
 {
-  /* SYM-CODEGEN-CARRIER: pCVar1 -- the deleting-destructor ABI body has no
-   * surviving source-local record. Direct target-position accesses add four
-   * reload instructions and produce 8 diffs. */
-  Car_tObj *pCVar1;
+  this->_vf = (__vtbl_ptr_type (*) [4])AIState_Chase_vtable;
 
-  pCVar1 = pThis->carObj_;
+  (this->carObj_)->targetPos.x =
+      (this->carObj_)->targetPos.y =
+      (this->carObj_)->targetPos.z = 0;
 
-  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_Chase_vtable;
+  (this->carObj_)->targetLatPos = 0;
 
-  (pCVar1->targetPos).z = 0;
+  (this->carObj_)->preferredLateralPosition = 0;
 
-  (pCVar1->targetPos).y = 0;
+  (this->carObj_)->preferredLateralPositionPower = 0;
 
-  (pCVar1->targetPos).x = 0;
+  (this->carObj_)->accNitrous = 0x10000;
 
-  (pThis->carObj_)->targetLatPos = 0;
+  (this->carObj_)->speedNitrous = 0x10000;
 
-  (pThis->carObj_)->preferredLateralPosition = 0;
-
-  (pThis->carObj_)->preferredLateralPositionPower = 0;
-
-  (pThis->carObj_)->accNitrous = 0x10000;
-
-  (pThis->carObj_)->speedNitrous = 0x10000;
-
-  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
-
-  if ((__in_chrg & 1U) != 0) {
-    __builtin_delete(pThis);
-  }
+  this->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
 
   return;
 
@@ -559,12 +533,6 @@ void AIState_Chase::SetUp()
 
 {
   coorddef targetCarPosition;
-  /* SYM-CODEGEN-CARRIER: pCVar2 -- absent from the surviving outer locals.
-   * Direct member accesses CSE the last two target-position stores, producing
-   * 8 diffs and four extra reload instructions; this cached pointer is needed
-   * for the exact 87-insn body. */
-  Car_tObj *pCVar2;
-
   /* SYM-CODEGEN-CARRIER: iVar2 -- absent from the surviving local records.
    * Folding its two sign selections and spline-call result into assignments
    * changes 75 instructions and adds one. */
@@ -610,15 +578,11 @@ void AIState_Chase::SetUp()
 
   iVar2 = AIWorld_SplineDistance(this->carObj_,dc->slice_,&targetCarPosition);
 
-  pCVar2 = this->carObj_;
-
   this->longMetersBetween_ = iVar2;
 
-  (pCVar2->targetPos).z = 0;
-
-  (pCVar2->targetPos).y = 0;
-
-  (pCVar2->targetPos).x = 0;
+  (this->carObj_)->targetPos.x =
+      (this->carObj_)->targetPos.y =
+      (this->carObj_)->targetPos.z = 0;
 
   (this->carObj_)->targetLatPos = 0;
 
@@ -1740,41 +1704,27 @@ int AIState_Chase::FindBarrierEndSlice()
 
 
 /* ---- _._15AIState_Offroad  AIState_Offroad::dtor  [AISTATE.CPP:887-891] SLD-VERIFIED ---- */
-/* reconstructed as extern "C" ___15AIState_Offroad(AIState_Offroad*,int) free fn -- see
-   AIState_Chase dtor comment for why (real per-class deleting dtor in the oracle).
-   MATCH: the carFlags RMW must use a fresh direct `carObj_` expression, not reuse
-   pCVar1. This naturally creates the distinct pseudo seen by retail; reusing
-   pCVar1 merges webs and changes 25 instructions. */
+/* The real member destructor supplies implicit receiver/in-charge handling.
+   MATCH: the carFlags RMW must use a fresh direct `carObj_` expression after
+   the chained target-position assignment.  Sharing one cached base across the
+   two statements merges webs and changes 25 instructions. */
 
-extern "C" void ___15AIState_Offroad(AIState_Offroad *pThis,int __in_chrg)
+AIState_Offroad::~AIState_Offroad()
 
 
 
 {
-  /* SYM-CODEGEN-CARRIER: pCVar1 -- the deleting-destructor ABI body has no
-   * surviving local record. Direct target-position accesses add four reload
-   * instructions and produce 8 diffs. */
-  Car_tObj *pCVar1;
+  this->_vf = (__vtbl_ptr_type (*) [4])AIState_Offroad_vtable;
 
-  pCVar1 = pThis->carObj_;
+  (this->carObj_)->targetPos.x =
+      (this->carObj_)->targetPos.y =
+      (this->carObj_)->targetPos.z = 0;
 
-  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_Offroad_vtable;
+  (this->carObj_)->targetLatPos = 0;
 
-  (pCVar1->targetPos).z = 0;
+  this->carObj_->carFlags = this->carObj_->carFlags & 0xfffff7ff;
 
-  (pCVar1->targetPos).y = 0;
-
-  (pCVar1->targetPos).x = 0;
-
-  (pThis->carObj_)->targetLatPos = 0;
-
-  pThis->carObj_->carFlags = pThis->carObj_->carFlags & 0xfffff7ff;
-
-  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
-
-  if ((__in_chrg & 1U) != 0) {
-    __builtin_delete(pThis);
-  }
+  this->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
 
   return;
 
@@ -1872,11 +1822,6 @@ void AIState_Offroad::Execute()
 
 {
   coorddef zero;
-  /* SYM-CODEGEN-CARRIER: pCVar3 -- absent from the surviving local records.
-   * Direct target-position members add three redundant `carObj_` reload
-   * instructions; the cached pointer preserves the exact 107-insn body. */
-  Car_tObj *pCVar3;
-
   /* SYM-CODEGEN-CARRIER: iVar4 -- absent from the surviving local records.
    * Folding the spline-call result into `longMetersBetween_` changes 73
    * instructions and adds one by changing the saved-register/frame web. */
@@ -1898,13 +1843,9 @@ void AIState_Offroad::Execute()
 
     (this->carObj_->N).orientMat = this->startOrientation_;
 
-    pCVar3 = this->carObj_;
-
-    (pCVar3->targetPos).z = 0;
-
-    (pCVar3->targetPos).y = 0;
-
-    (pCVar3->targetPos).x = 0;
+    (this->carObj_)->targetPos.x =
+        (this->carObj_)->targetPos.y =
+        (this->carObj_)->targetPos.z = 0;
 
   }
 
@@ -2014,9 +1955,8 @@ AIState_Purgatory::AIState_Purgatory(Car_tObj *carObj)
 
 
 /* ---- _._17AIState_Purgatory  AIState_Purgatory::dtor  [AISTATE.CPP:1021-1041] SLD-VERIFIED ---- */
-/* reconstructed as extern "C" ___17AIState_Purgatory(AIState_Purgatory*,int) free fn -- see
-   AIState_Chase dtor comment for why (real per-class deleting dtor in the oracle); __in_chrg
-   is now a real usable param (was previously unreachable/removed from a true member dtor).
+/* The owner graph now exposes the real member destructor; GCC supplies its
+   implicit receiver and in-charge deletion sequence.
    WALL (register-coloring near-miss) -- same root symptom as the AIState_Offroad dtor (see
    its WALL comment): oracle copies pThis a0->a3 up front (this fn's bigger body needs a3 not
    a2, one more caller-saved reg already in play), ours keeps pThis in a0. Same gcc-2.x
@@ -2029,7 +1969,7 @@ AIState_Purgatory::AIState_Purgatory(Car_tObj *carObj)
    allocator just prefers the lowest-numbered free temp, ours doesn't; same coin-flip class,
    not a shape bug. */
 
-extern "C" void ___17AIState_Purgatory(AIState_Purgatory *pThis,int __in_chrg)
+AIState_Purgatory::~AIState_Purgatory()
 
 
 
@@ -2044,28 +1984,21 @@ extern "C" void ___17AIState_Purgatory(AIState_Purgatory *pThis,int __in_chrg)
      preserves 72 instructions but changes the final ready-list pair. */
   Car_tObj **sortedList;
 
-  /* SYM-CODEGEN-CARRIER: pCVar4 -- direct repeated carObj_ member stores
-     preserve 72 instructions but change 32 retail words. */
-  Car_tObj *pCVar4;
-  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_Purgatory_vtable;
+  this->_vf = (__vtbl_ptr_type (*) [4])AIState_Purgatory_vtable;
 
-  (pThis->carObj_->collision).resetTimer = 0;
+  (this->carObj_->collision).resetTimer = 0;
 
-  ((pThis->carObj_)->N).collision.disableCollisionTimer = 0;
+  ((this->carObj_)->N).collision.disableCollisionTimer = 0;
 
-  pThis->carObj_->AIFlags = pThis->carObj_->AIFlags & 0xfffffffb;
+  this->carObj_->AIFlags = this->carObj_->AIFlags & 0xfffffffb;
 
-  if (((pThis->carObj_)->carFlags & 0x10U) != 0) {
+  if (((this->carObj_)->carFlags & 0x10U) != 0) {
 
     AIState_Purgatory_numTrafficCarsInPurgatory = AIState_Purgatory_numTrafficCarsInPurgatory + -1;
 
   }
 
-  pCVar4 = pThis->carObj_;
-
-  pCVar4->direction = 1;
-
-  pCVar4->desiredDirection = 1;
+  this->carObj_->desiredDirection = this->carObj_->direction = 1;
 
   /* W54-A15 / LAW 05A: the SLD puts the whole loop header (index init, the sortedList base
    * materialization, the scaled-index add and the `bltz` test) on retail line 1034 -- i.e.
@@ -2144,21 +2077,17 @@ LOOP_800716DC:
 
     }
 
-    (pThis->carObj_)->basisCar = test;
+    (this->carObj_)->basisCar = test;
 
   }
 
-  pThis->_vf =
+  this->_vf =
 
        (__vtbl_ptr_type (*) [4])((char *)AIState_NonActive_vtable + 8);
 
-  (pThis->carObj_->N).active = '\x01';
+  (this->carObj_->N).active = '\x01';
 
-  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
-
-  if ((__in_chrg & 1U) != 0) {
-    __builtin_delete(pThis);
-  }
+  this->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
 
   return;
 
@@ -2516,38 +2445,24 @@ void AIState_RovingTraffic::Execute()
 
 
 /* ---- _._14AIState_Donuts  AIState_Donuts::dtor  [AISTATE.CPP:1248-1253] SLD-VERIFIED ---- */
-/* reconstructed as extern "C" ___14AIState_Donuts(AIState_Donuts*,int) free fn -- see
-   AIState_Chase dtor comment for why (real per-class deleting dtor in the oracle). */
+/* Ordinary member form supplies the implicit receiver and in-charge handling. */
 
-extern "C" void ___14AIState_Donuts(AIState_Donuts *pThis,int __in_chrg)
+AIState_Donuts::~AIState_Donuts()
 
 
 
 {
-  /* SYM-CODEGEN-CARRIER: pCVar1 -- the deleting-destructor ABI body has no
-   * surviving local record. Direct target-position accesses add four reload
-   * instructions and produce 8 diffs. */
-  Car_tObj *pCVar1;
+  this->_vf = (__vtbl_ptr_type (*) [4])AIState_Donuts_vtable;
 
-  pCVar1 = pThis->carObj_;
+  (this->carObj_)->targetPos.x =
+      (this->carObj_)->targetPos.y =
+      (this->carObj_)->targetPos.z = 0;
 
-  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_Donuts_vtable;
+  (this->carObj_)->targetLatPos = 0;
 
-  (pCVar1->targetPos).z = 0;
+  (this->carObj_)->donutMode = 0;
 
-  (pCVar1->targetPos).y = 0;
-
-  (pCVar1->targetPos).x = 0;
-
-  (pThis->carObj_)->targetLatPos = 0;
-
-  (pThis->carObj_)->donutMode = 0;
-
-  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
-
-  if ((__in_chrg & 1U) != 0) {
-    __builtin_delete(pThis);
-  }
+  this->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
 
   return;
 
@@ -3014,21 +2929,16 @@ void AIState_Cruise::Execute()
 
 
 /* ---- _._14AIState_Cruise  AIState_Cruise::dtor  [AISTATE.CPP:?] SLD-FLAG:NO_SLD ---- */
-/* reconstructed as extern "C" ___14AIState_Cruise(AIState_Cruise*,int) free fn -- see
-   AIState_Chase dtor comment for why (real per-class deleting dtor in the oracle). */
+/* Ordinary member form supplies the implicit receiver and in-charge handling. */
 
-extern "C" void ___14AIState_Cruise(AIState_Cruise *pThis,int __in_chrg)
+AIState_Cruise::~AIState_Cruise()
 
 
 
 {
 
 
-  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
-
-  if ((__in_chrg & 1U) != 0) {
-    __builtin_delete(pThis);
-  }
+  this->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
 
   return;
 
@@ -3042,21 +2952,16 @@ extern "C" void ___14AIState_Cruise(AIState_Cruise *pThis,int __in_chrg)
 
 
 /* ---- _._17AIState_GotoSlice  AIState_GotoSlice::dtor  [AISTATE.CPP:?] SLD-FLAG:NO_SLD ---- */
-/* reconstructed as extern "C" ___17AIState_GotoSlice(AIState_GotoSlice*,int) free fn -- see
-   AIState_Chase dtor comment for why (real per-class deleting dtor in the oracle). */
+/* Ordinary member form supplies the implicit receiver and in-charge handling. */
 
-extern "C" void ___17AIState_GotoSlice(AIState_GotoSlice *pThis,int __in_chrg)
+AIState_GotoSlice::~AIState_GotoSlice()
 
 
 
 {
 
 
-  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
-
-  if ((__in_chrg & 1U) != 0) {
-    __builtin_delete(pThis);
-  }
+  this->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
 
   return;
 
@@ -3088,45 +2993,26 @@ int AIState_RovingTraffic::TestForRelease()
 
 
 
-/* ---- _._21AIState_RovingTraffic  AIState_RovingTraffic::dtor  [AISTATE.CPP:?] SLD-FLAG:NO_SLD ---- */
-/* reconstructed as extern "C" ___21AIState_RovingTraffic(AIState_RovingTraffic*,int) free fn
-   -- see AIState_Chase dtor comment for why (real per-class deleting dtor in the oracle).
-   MATCH: fresh pCVar2 for the carFlags RMW (3 distinct carObj_ pseudos) -- see the
-   AIState_Offroad dtor MATCH note. 25->0. */
-
-extern "C" void ___21AIState_RovingTraffic(AIState_RovingTraffic *pThis,int __in_chrg)
+/* ---- _._21AIState_RovingTraffic  AIState_RovingTraffic::dtor  [AISTATE.CPP:?] SLD-FLAG:NO_SLD ----
+   An ordinary member destructor exposes the real source cleanup and lets GCC
+   provide its implicit receiver/in-charge handling. */
+AIState_RovingTraffic::~AIState_RovingTraffic()
 
 
 
 {
 
-  Car_tObj *pCVar1;
+  this->_vf = (__vtbl_ptr_type (*) [4])AIState_RovingTraffic_vtable;
 
-  Car_tObj *pCVar2;
+  (this->carObj_)->targetPos.x =
+      (this->carObj_)->targetPos.y =
+      (this->carObj_)->targetPos.z = 0;
 
+  this->carObj_->targetLatPos = 0;
 
+  this->carObj_->carFlags &= 0xfffff7ff;
 
-  pCVar1 = pThis->carObj_;
-
-  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_RovingTraffic_vtable;
-
-  (pCVar1->targetPos).z = 0;
-
-  (pCVar1->targetPos).y = 0;
-
-  (pCVar1->targetPos).x = 0;
-
-  (pThis->carObj_)->targetLatPos = 0;
-
-  pCVar2 = pThis->carObj_;
-
-  pCVar2->carFlags = pCVar2->carFlags & 0xfffff7ff;
-
-  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
-
-  if ((__in_chrg & 1U) != 0) {
-    __builtin_delete(pThis);
-  }
+  this->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
 
   return;
 
@@ -3154,7 +3040,7 @@ extern "C" void ___21AIState_RovingTraffic(AIState_RovingTraffic *pThis,int __in
    PROOF: asm/data/rdata_80054548.rodata.s @0x800555AC (AIState_NonActive_vtable Execute slot,
    D_800555A0+0xC) holds the literal word `func_80072750`. */
 
-extern "C" void Execute__17AIState_NonActive_80072750(AIState_NonActive *pThis)
+extern "C" void Execute__17AIState_NonActive_80072750(AIState_NonActive *)
 
 {
 
@@ -3198,31 +3084,20 @@ extern "C" void ___17AIState_NonActive_80072758(AIState_NonActive *pThis,int __i
 
 
 
-/* ---- _._12AIState_Idle  AIState_Idle::dtor  [AISTATE.CPP:?] SLD-FLAG:NO_SLD ---- */
-/* reconstructed as extern "C" ___12AIState_Idle(AIState_Idle*,int) free fn -- see
-   AIState_Chase dtor comment for why (real per-class deleting dtor in the oracle). */
-
-extern "C" void ___12AIState_Idle(AIState_Idle *pThis,int __in_chrg)
+/* ---- _._12AIState_Idle  AIState_Idle::dtor  [AISTATE.CPP:?] SLD-FLAG:NO_SLD ----
+   Ordinary member form removes the reconstructed receiver, in-charge parameter,
+   and cached-car placeholder from the source surface. */
+AIState_Idle::~AIState_Idle()
 
 
 
 {
 
-  Car_tObj *pCVar1;
+  this->_vf = (__vtbl_ptr_type (*) [4])AIState_Idle_vtable;
 
+  this->carObj_->carFlags = this->carObj_->carFlags & 0xfffffbff;
 
-
-  pCVar1 = pThis->carObj_;
-
-  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_Idle_vtable;
-
-  pCVar1->carFlags = pCVar1->carFlags & 0xfffffbff;
-
-  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
-
-  if ((__in_chrg & 1U) != 0) {
-    __builtin_delete(pThis);
-  }
+  this->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
 
   return;
 
@@ -3268,7 +3143,7 @@ extern "C" void ___14AIState_Normal(AIState_Normal *pThis,int __in_chrg)
    _vt (@0x800555DC), AIState_Chase's _vt (@0x800555FC), AIState_Idle's _vt (@0x8005561C),
    AIState_Normal's _vt (@0x8005563C) AND AIState_Base_vtable itself (@0x8005565C). */
 
-extern "C" int TestForRelease__12AIState_Base_80072830(AIState_Base *pThis)
+extern "C" int TestForRelease__12AIState_Base_80072830(AIState_Base *)
 
 {
 

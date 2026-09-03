@@ -167,14 +167,14 @@ void AI_TrafficStartUp(void)
   char filename[100];
 
   if (AIInit_GameSetupWords[6] != 0) {
-    triggerManagerTraffic = __builtin_new(0x34c);
+    triggerManagerTraffic = new AITrigger_TriggerManager;
     sprintf(filename,D_8005521C,D_801164B0[0],AIInit_GameSetupWords[15]);
     AITraffic_rawTriggers = (u_char *)loadfileadrz(filename,(void *)0x0);
     if (AITraffic_rawTriggers != (u_char *)0x0) {
-      AITrigger_Init(triggerManagerTraffic,(char *)AITraffic_rawTriggers);
+      triggerManagerTraffic->Init((char *)AITraffic_rawTriggers);
     }
     else {
-      AITrigger_Init(triggerManagerTraffic,(char *)0x0);
+      triggerManagerTraffic->Init((char *)0x0);
     }
   }
   return;
@@ -184,7 +184,7 @@ void AI_TrafficStartUp(void)
 void AI_TrafficCleanUp(void)
 {
   if (triggerManagerTraffic != (AITrigger_TriggerManager *)0x0) {
-    __builtin_delete(triggerManagerTraffic);
+    delete triggerManagerTraffic;
     triggerManagerTraffic = (AITrigger_TriggerManager *)0x0;
   }
   if (AITraffic_rawTriggers != (u_char *)0x0) {

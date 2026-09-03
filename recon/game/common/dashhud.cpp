@@ -125,7 +125,7 @@ void DashHUD_HUDCalc(int player)
    * Def/Def2 type record, so retail preserves the declaration/storage but the
    * optimizer removed every use.  Restoring it here recovers dashhud.obj's
    * complete 8-byte private-BSS footprint without changing instructions. */
-  static int tick32;
+  static int tick32;         /* @0x8013DDB4: compact SYM `tick32.32` */
   Car_tObj *car;
 
   if (DashHUD_gInfo.showhud) {

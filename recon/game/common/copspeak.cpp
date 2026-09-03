@@ -1027,7 +1027,7 @@ void CopSpeak_Debug(void)
    * function-local static; the SLD trace places this declaration in the
    * otherwise two-line CopSpeak_Debug source region.  No retail code use
    * survives, so this declaration changes storage only. */
-  static char Copspeak_gTimeString[16];
+  static char Copspeak_gTimeString[16]; /* @0x8013E0B0: compact SYM `Copspeak_gTimeString.308` */
   CopSpeak_ShowQueue();
   return;
 }

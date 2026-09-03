@@ -103,7 +103,13 @@ union trigger_t {
     trigger_trafficPath_t trafficPath;
 };
 
-struct AITrigger_TriggerManager;
+struct AITrigger_TriggerManager {
+    int numTriggers_, invNumTriggers_;
+    trigger_t *triggers_[100];
+    int checkTime_[100];
+    int lastTriggerChecked_[9];
+    void Init(char *rawTriggers);
+};
 
 typedef int CarLogic_tObservations[1][3];
 

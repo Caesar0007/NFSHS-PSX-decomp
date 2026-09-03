@@ -4,9 +4,8 @@
 #define _GAME_COMMON_ANIM_EXTERNS_H_
 char *Platform_GetDCTBuffer(int, char *); void Platform_ResetDCTBuffer();
 extern Group              *gPersistObjInst;          /* track.obj */
-extern int Anim_simGlobalWords[] __asm__("simGlobal");
+extern Sim_tSimGlobalVar simGlobal;
 extern void  Quatern_QuatToMat(tQuat *q, matrixtdef *m);     /* quatern.obj */
-extern void *__builtin_vec_new(unsigned int size);
 extern void DrawW_ResetAnimationTimer(void);
 extern void Quatern_Interpolate(tQuat *q0,tQuat *q1,coorddef *cp0,coorddef *cp1,int weight,tQuat *q,coorddef *cp);
 extern void Quatern_VecInterpolate(coorddef *cp0,coorddef *cp1,int weight,coorddef *cp);

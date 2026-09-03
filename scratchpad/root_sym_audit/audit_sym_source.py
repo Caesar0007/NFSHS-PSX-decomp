@@ -722,6 +722,39 @@ def source_vtable_va(record: dict) -> str:
     return source_decl_va(record)
 
 
+def compact_static_local_names(
+    src: SourceFunction, sym_addresses: list[SymAddress]
+) -> dict[str, str]:
+    """Map source-local statics retained only as compact ``name.N`` rows.
+
+    Old GCC appends a numeric discriminator to a function-local static's
+    linkage symbol.  The suffix is not part of the C/C++ identifier.  Accept a
+    recovery only when Ctags proves function-local static storage, the source
+    declaration carries an exact retail VA receipt, and exactly one compact
+    SYM record at that VA is the same base name plus ``.<digits>``.  This is a
+    name-and-address proof, not a semantic-name exemption.
+    """
+    recovered: dict[str, str] = {}
+    by_va: dict[str, list[str]] = collections.defaultdict(list)
+    for address in sym_addresses:
+        by_va[address.va].append(address.name)
+    for declaration in src.decls:
+        name = declaration.get("name", "")
+        if not declaration.get("file") or not name:
+            continue
+        va = source_decl_va(declaration)
+        if not va:
+            continue
+        candidates = [
+            sym_name
+            for sym_name in by_va.get(va, [])
+            if re.fullmatch(re.escape(name) + r"\.\d+", sym_name)
+        ]
+        if len(candidates) == 1:
+            recovered[name] = candidates[0]
+    return recovered
+
+
 def source_basename(sym_path: str) -> str:
     return re.split(r"[\\/]", sym_path)[-1].lower()
 
@@ -1269,11 +1302,31 @@ def map_function(sym: SymFunction, candidates: list[SourceFunction]) -> tuple[So
         if len(carrier_hits) == 1:
             return carrier_hits[0], "abi-carrier"
 
+    # GCC 2.x emits header-inline functions once per consuming object.  A
+    # linked image cannot retain several global symbols with the same mangled
+    # spelling, so reconstructed duplicate copies carry their exact retail VA
+    # as a suffix.  Admit only a unique, owner-selected, exact-VA suffix; local,
+    # type, and storage comparisons remain active for the mapped function.
+    va_copy_name = f"{sym.name}_{sym.va.removeprefix('0x')}".lower()
+    va_copy_hits = [
+        f for f in same_file
+        if not f.scope and f.name.lower() == va_copy_name
+    ]
+    if len(va_copy_hits) == 1:
+        return va_copy_hits[0], "header-owner-va-copy" if header_owned else "va-copy"
+
     exact = [f for f in same_file if f.name == simple and f.scope == cls]
     if len(exact) == 1:
         return exact[0], "header-owner" if header_owned else "exact"
     overload_hints = {
         "Draw__27tMenuItemGoToMenuNFS4Buttoniib": "(int x,int y,bool selected)",
+        # Header-emitted null overloads have no retained parameter Def rows,
+        # so the GCC-v2 linkage spelling is the authoritative arity/type key.
+        # Match the exact ctags signatures; this disambiguates overloads and
+        # does not suppress any local/type/storage comparison.
+        "Draw__27tMenuItemGoToMenuNFS4Buttonb": "(bool selected)",
+        "Draw__32tBlankMenuItemGoToMenuNFS4Buttoniib": "(int,int,bool)",
+        "Draw__32tBlankMenuItemGoToMenuNFS4Buttonb": "(bool)",
         "Draw__20tMenuItemSlidingMenub": "(bool selected)",
         "Draw__20tMenuItemSlidingMenuiib": "(int offx,int offy,bool selected)",
         "Draw__9tMenuItemiib": "(int x,int y,bool selected)",
@@ -1344,6 +1397,36 @@ def documented_codegen_names(target: Path, src: SourceFunction) -> set[str]:
     return set(
         re.findall(r"\bSYM-CODEGEN-CARRIER:\s*([A-Za-z_]\w*)", text)
     )
+
+
+def documented_recovered_names(target: Path, src: SourceFunction) -> set[str]:
+    """Return exact source names recovered from direct source-bearing evidence.
+
+    ``ORIGINAL-NAME-RECOVERED: name`` is deliberately distinct from a semantic
+    carrier receipt: the adjacent comment must cite the symbol-bearing build or
+    canonical source that retains the spelling.  Ctags must also prove that the
+    marked identifier is a real declaration in this function.  Unmarked prose
+    and merely plausible semantic names receive no exemption.
+    """
+    path = target / src.path
+    try:
+        body = path.read_text(encoding="utf-8", errors="replace").splitlines()[
+            src.line - 1 : src.end
+        ]
+    except OSError:
+        return set()
+    marked = set(
+        re.findall(
+            r"\bORIGINAL-NAME-RECOVERED:\s*([A-Za-z_]\w*)",
+            "\n".join(body),
+        )
+    )
+    declarations = {
+        declaration["name"]
+        for declaration in src.decls
+        if declaration.get("kind") in ("local", "parameter")
+    }
+    return marked & declarations
 
 
 def documented_abi_params(target: Path, src: SourceFunction) -> set[str]:
@@ -1492,11 +1575,21 @@ def documented_inline_locals(
 
     reachable_helpers: collections.Counter[str] = collections.Counter()
     for helper_name in header_helpers:
-        reachable_helpers[helper_name] = len(
+        member_calls = len(
             re.findall(
                 rf"(?:->|\.)\s*{re.escape(helper_name)}\s*\(", body_text
             )
         )
+        # Inline constructors are invoked by a new-expression rather than
+        # `obj.helper()`.  Count only the exact reconstructed class spelling;
+        # declaration admission below still requires one unique header body
+        # and a real parameter/local owned by that constructor.  This keeps
+        # constructor receipts evidence-backed instead of making them a
+        # generic missing-name exemption.
+        constructor_calls = len(
+            re.findall(rf"\bnew\s+{re.escape(helper_name)}\b", body_text)
+        )
+        reachable_helpers[helper_name] = member_calls + constructor_calls
     pending = [name for name, count in reachable_helpers.items() if count]
     expanded: set[str] = set()
     while pending:
@@ -1750,6 +1843,10 @@ def audit(
     inline_local_rows: list[tuple[SymFunction, dict[str, str]]] = []
     macro_local_total = 0
     macro_local_rows: list[tuple[SymFunction, dict[str, str]]] = []
+    compact_static_local_total = 0
+    compact_static_local_rows: list[tuple[SymFunction, dict[str, str]]] = []
+    recovered_name_total = 0
+    recovered_name_rows: list[tuple[SymFunction, set[str]]] = []
     abi_param_total = 0
     abi_param_rows: list[tuple[SymFunction, set[str]]] = []
     codegen_total = 0
@@ -1773,6 +1870,7 @@ def audit(
             "exact-signature",
             "header-owner",
             "header-owner-signature",
+            "header-owner-va-copy",
         )
         linkage_spelled += quality == "linkage-spelled"
         abi_carrier_total += quality == "abi-carrier"
@@ -1806,6 +1904,14 @@ def audit(
         if abi_params:
             abi_param_total += len(abi_params)
             abi_param_rows.append((sf, abi_params))
+        compact_statics = compact_static_local_names(src, sym_addresses)
+        if compact_statics:
+            compact_static_local_total += len(compact_statics)
+            compact_static_local_rows.append((sf, compact_statics))
+        recovered_names = documented_recovered_names(target, src)
+        if recovered_names:
+            recovered_name_total += len(recovered_names)
+            recovered_name_rows.append((sf, recovered_names))
         # A hard-register annotation is a reconstruction carrier only when its
         # base name is absent from SYM.  SYM-owned names such as DesiredSlice
         # remain ordinary matched declarations even though their allocation is
@@ -1838,7 +1944,14 @@ def audit(
             for d in src.decls
             if not d["name"].startswith("__anon") and d["name"] not in source_ignored_names
         }
-        extra = sorted(source_local_names - sym_names - codegen - abi_params)
+        extra = sorted(
+            source_local_names
+            - sym_names
+            - codegen
+            - abi_params
+            - compact_statics.keys()
+            - recovered_names
+        )
         type_mismatch: list[str] = []
         source_linkage = "STAT" if src.file_scope else "EXT"
         if sf.linkage_cls and sf.linkage_cls != source_linkage:
@@ -2164,6 +2277,8 @@ def audit(
         f"- Explicit oracle-receipted carrier mappings: {documented_total}",
         f"- Explicit restored inline-local mappings: {inline_local_total}",
         f"- Explicit restored macro-local mappings: {macro_local_total}",
+        f"- Explicit compact static-local mappings: {compact_static_local_total}",
+        f"- Exact cross-build/canonical name recoveries: {recovered_name_total}",
         f"- Explicit linkage-proven ABI parameters omitted from SYM: {abi_param_total}",
         f"- Explicit source-only codegen carriers: {codegen_total}",
         f"- Explicit oracle-proven function type overrides: {function_type_override_total}",
@@ -2239,6 +2354,18 @@ def audit(
             for name, helper in sorted(owners.items())
         ]
         lines.append(f"- `{sf.name}`: " + ", ".join(entries))
+    lines.extend(["", "## Explicit compact static-local mappings", ""])
+    for sf, names in compact_static_local_rows:
+        entries = [
+            f"`{source_name}` from compact SYM `{linkage_name}`"
+            for source_name, linkage_name in sorted(names.items())
+        ]
+        lines.append(f"- `{sf.name}`: " + ", ".join(entries))
+    lines.extend(["", "## Exact cross-build/canonical name recoveries", ""])
+    for sf, names in recovered_name_rows:
+        lines.append(
+            f"- `{sf.name}`: " + ", ".join(f"`{name}`" for name in sorted(names))
+        )
     lines.extend(["", "## Explicit restored macro-local mappings", ""])
     for sf, owners in macro_local_rows:
         entries = [

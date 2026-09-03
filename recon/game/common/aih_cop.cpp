@@ -2119,9 +2119,9 @@ trigger_t * AIHigh_Cop::CheckForNewTriggers()
 
 /* end of aih_cop.cpp */
 
-/* cont.35 B3b: base-forward dtor re-attributed from main.c (�3.23 simple variant);
-   oracle = jal ___11AIHigh_Base; extern-C free fn exports the exact symbol. */
-extern "C" {
-void ___11AIHigh_Base(void *);
-void ___10AIHigh_Cop(void *thisp) { ___11AIHigh_Base(thisp); }
+/* The empty source destructor naturally emits retail's base-forward
+   `___10AIHigh_Cop` and supplies implicit `this`; no free-function receiver
+   name is needed. */
+AIHigh_Cop::~AIHigh_Cop()
+{
 }

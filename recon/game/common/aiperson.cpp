@@ -172,9 +172,6 @@ void AIPerson_LoadScriptData(Udff_tInfo *handle)
   /* SYM-CODEGEN-CARRIER: scriptBase -- spelling AIPerson_ScriptData directly
      adds three instructions and changes address formation to 13 diffs. */
   int scriptBase;
-  /* SYM-CODEGEN-CARRIER: iVar1 -- direct first-byte assignment preserves the
-     55-instruction count but changes call setup/scheduling at six positions. */
-  int iVar1;
 
   Udff_GetInt(handle);
   perLoop = 0;
@@ -190,9 +187,8 @@ void AIPerson_LoadScriptData(Udff_tInfo *handle)
         actionMul = actionLoop * 8;
         byteOff2 = byteOffset;
         do {
-          iVar1 = Udff_GetInt(handle);
           *(char *)(reactionLoop + actionMul + byteOff2 + scriptBase) =
-              (char)iVar1;
+              (char)Udff_GetInt(handle);
           *(char *)(reactionLoop + actionMul + byteOff2 + scriptBase + 4) =
               (char)Udff_GetInt(handle);
           reactionLoop = reactionLoop + 1;

@@ -30,10 +30,6 @@ SerializedGroup * SerializedGroup::LocateNextGroupType(int type)
 SerializedGroup * SerializedGroup::LocateGroupType(int type,int index)
 
 {
-  u_int uVar2;     /* SYM-CODEGEN-CARRIER: uVar2 -- declaration order
-                      (uVar2, group, newLen, numElems, count)
-                      sets gcc's pseudo numbering to the matching allocation -- do NOT
-                      remove or reorder (reverts to a 28-diff miss). */
   SerializedGroup *group;
   int newLen;      /* SYM-CODEGEN-CARRIER: newLen -- function-scope split temp
                       (NOT block-local) -- see align below */

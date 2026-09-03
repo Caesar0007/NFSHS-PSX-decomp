@@ -77,7 +77,5 @@ void blockfill(...);
 extern __vtbl_ptr_type ObjectAnim_vtable[];   /* @0x800560e8 base ObjectAnim vtable (vtables_object.cpp) */
 extern __vtbl_ptr_type ObjectMultiAnim_vtable[];
 extern __vtbl_ptr_type ObjectSignAnim_vtable[];
-extern __vtbl_ptr_type ObjectFinishedMultiAnim_vtable[];
-extern __vtbl_ptr_type ObjectFinishedSignAnim_vtable[];
 
 #endif /* _GAME_COMMON_OBJECT_EXTERNS_H_ */

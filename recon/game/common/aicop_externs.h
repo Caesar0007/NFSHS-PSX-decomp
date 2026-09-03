@@ -17,11 +17,6 @@ int AIWorld_ApxSplineDistance(Car_tObj *a, Car_tObj *b);
 int AIWorld_ApxSplineDistance(Car_tObj *a, int sliceB);
 int AIWorld_ApxSplineDistance(int sliceA, Car_tObj *b);
 int AIWorld_ApxSplineDistance(int sliceA, int sliceB);
-/* The retail AICOP graph retains an opaque 844-byte class pointer but no class
- * body.  A readable ABI alias preserves that boundary and the exact member
- * call target without fabricating a source-visible complete class here. */
-extern "C" void AITrigger_Init(AITrigger_TriggerManager *self, char *rawTriggers)
-    asm("Init__24AITrigger_TriggerManagerPc");
 extern "C" int sprintf(...);
 extern "C" char *loadfileadrz(...);
 extern "C" int purgememadr(...);

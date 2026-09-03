@@ -33,6 +33,7 @@ struct AnimScript {
     AnimScript(int num);
     AnimScript(int num, int numParts);
     AnimScript(Group *instanceGroup, int type, int boomIndex, int numParts);
+    ~AnimScript() { delete [] inst; }
     void SetAnimAttrib(int flags);
     void GetAnimFrameInfo(int *frame, int *numFrames);
     int GetTimedAnimPosRot(coorddef *pt, matrixtdef *mat);

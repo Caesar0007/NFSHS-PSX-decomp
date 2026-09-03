@@ -40,6 +40,9 @@ struct AnimScript {
     AnimScript(int num);
     AnimScript(int num, int numParts);
     AnimScript(Group *instanceGroup, int type, int boomIndex, int numParts);
+    /* Same inline class definition owned by anim.cpp; required here so the
+       two object-animation deleting destructors expand byte-exactly. */
+    ~AnimScript() { delete [] inst; }
     void SetAnimAttrib(int flags);
     void GetAnimFrameInfo(int *frame, int *numFrames);
     int GetTimedAnimPosRot(coorddef *pt, matrixtdef *mat);
@@ -80,8 +83,15 @@ struct ObjectAnim {
     __vtbl_ptr_type (*_vf)[3];
     ~ObjectAnim();
 };
+extern __vtbl_ptr_type ObjectFinishedMultiAnim_vtable[];
+extern __vtbl_ptr_type ObjectFinishedSignAnim_vtable[];
 struct ObjectFinishedMultiAnim {
     ObjectAnim _base_ObjectAnim;
+    ObjectFinishedMultiAnim()
+    {
+        _base_ObjectAnim._vf =
+            (__vtbl_ptr_type (*)[3])ObjectFinishedMultiAnim_vtable;
+    }
     int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset);
 };
 struct ObjectFinishedSignAnim {
@@ -89,6 +99,11 @@ struct ObjectFinishedSignAnim {
     matrixtdef finalMatrix;
     Trk_ObjectDef *objDef;
     Trk_CollideBoomInst *objCollideInstance;
+    ObjectFinishedSignAnim()
+    {
+        _base_ObjectAnim._vf =
+            (__vtbl_ptr_type (*)[3])ObjectFinishedSignAnim_vtable;
+    }
     int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset);
 };
 struct ObjectMultiAnim {

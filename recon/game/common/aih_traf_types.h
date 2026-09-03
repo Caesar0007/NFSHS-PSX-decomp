@@ -25,6 +25,7 @@ struct AIHigh_Traffic : public AIHigh_Base {
     SceneElem *accidentData_;
     AIHigh_Traffic() {}
     AIHigh_Traffic(Car_tObj *carObj);
+    ~AIHigh_Traffic();
     Car_tObj *CheckForCops(int *p);
     AIHigh_Cop *CopCheck(int *p);
     void HighExecute();

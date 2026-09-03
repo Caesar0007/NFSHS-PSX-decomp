@@ -237,6 +237,9 @@ struct tDialogHelp : public tDialogBase {
 struct tDialogMessageStringWithTimeout : public tDialogMessageString {
 #ifdef NFS4_SCREENMEMCARD_FEAPP_METHODS
     tDialogMessageStringWithTimeout();
+    /* SYM/SLD: header-defined destructor at FEDIALOG.H:215, emitted STAT by
+     * FEApp.obj.  The definition is carried by feapp.cpp's owner surface. */
+    ~tDialogMessageStringWithTimeout();
 #endif
 };
 struct tDialogNoInputMessage : public tDialogMessageString {

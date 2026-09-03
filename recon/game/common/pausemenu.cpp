@@ -1211,12 +1211,6 @@ bool tPMenuItem::IsEnabled()
 bool tPMenuItem::IsDisabled()
 
 {
-  int ret;
-  short item;
-  int *orgdata;
-  u_int col;
-  int i;
-  
   return this->fFlags & 1;
 }
 

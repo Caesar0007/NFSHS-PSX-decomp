@@ -5,14 +5,12 @@
 #include "physics_types.h"
 #include "physics_externs.h"
 
-/* EA-era MIN/MAX clamp macros.  The oracle proves retail used the TERNARY form
-   (a COND_EXPR whose result lands in a fresh temp reg, then one store) for the
-   rpm clamps, NOT the `if (a < b) a = b;` override form -- see the
-   CalculateCarAcceleration receipt.  Locally named so nothing in the shared
-   headers can collide (an UNDEFINED `MAX(...)` makes cc1 emit an implicit
-   variadic `jal MAX` = a phantom link symbol, catalog 08B). */
-#define PHY_MIN(a,b) ((a) < (b) ? (a) : (b))
-#define PHY_MAX(a,b) ((a) > (b) ? (a) : (b))
+/* EA's canonical NFS2 symbol-bearing source uses these exact MIN/MAX
+   expansions in Physics_GetTorque.  The NFS4 oracle confirms the same nested
+   COND_EXPR shape; leaving either macro undefined emits a phantom `jal`, while
+   reversing MIN's comparison changes retail's branch/allocation sequence. */
+#define MIN(a,b) (((a) > (b)) ? (b) : (a))
+#define MAX(a,b) (((a) > (b)) ? (a) : (b))
 
 /* physics.obj small-data globals in exact SYM order.  The explicit zero on the
  * file-static currentWallType is source-significant: it keeps that word in
@@ -121,10 +119,12 @@ void Physics_CalculateDerivedCarSpecs(Car_tObj *carObj)
 
 {
   int i;
-  /* SYM-CODEGEN-CARRIER: rpmAtMaxSpeedInHighestGear -- the retail SYM retains
-     only the following acceleration result. Inlining this fixedmult/divide
-     shrinks 324 instructions to 320 and produces 38 allocation/load diffs;
-     the eliminated intermediate preserves the retail saved-register web. */
+  /* ORIGINAL-NAME-RECOVERED: rpmAtMaxSpeedInHighestGear -- the symbol-bearing NFS2
+     Physics_CalculateDerivedCarSpecs records this same intermediate as
+     `rpmAtMaxSpeedInHighestGear`.  NFS4's retail SYM retains only the following
+     acceleration result. Inlining this fixedmult/divide shrinks 324
+     instructions to 320 and produces 38 allocation/load diffs; the
+     intermediate preserves the retail saved-register web. */
   int rpmAtMaxSpeedInHighestGear;
   int accAtMaxSpeedInHighestGear;
 
@@ -221,12 +221,15 @@ void Physics_CheckGamedata(void)
 int Physics_AttenuateVelocity(Car_tObj *carObj,int force,matrixtdef *roadMat)
 
 {
-  /* SYM-CODEGEN-CARRIER: vy -- inlining this one-use transform component
-     changes retail allocation to 109 diffs and grows 279 to 294 instructions. */
+  /* ORIGINAL-NAME-RECOVERED: vy -- the symbol-bearing NFS2
+     Physics_AttenuateVelocity records this transform component as `vy`.
+     Inlining the one-use value changes retail allocation to 109 diffs and
+     grows 279 to 294 instructions. */
   int vy;
   register int vx;
-  /* SYM-CODEGEN-CARRIER: vz -- inlining this one-use transform component
-     changes retail allocation to 78 diffs and grows 279 to 293 instructions. */
+  /* ORIGINAL-NAME-RECOVERED: vz -- the same NFS2 function and debug-local record
+     name this transform component `vz`.  Inlining the one-use value changes
+     retail allocation to 78 diffs and grows 279 to 293 instructions. */
   int vz;
   int absvelbx;
   coorddef vel_b;
@@ -293,8 +296,11 @@ int Physics_AttenuateVelocity(Car_tObj *carObj,int force,matrixtdef *roadMat)
                              fixedmult((carObj->N).linearVel.z,(carObj->N).orientMat.m[8]);
 
   {
-    /* SYM-CODEGEN-CARRIER: x -- repeating the absolute-x expression preserves
-       279 instructions but reverses operand/load order and leaves 12 diffs. */
+    /* SYM-CODEGEN-CARRIER: x -- NFS2's reconstructed matching body also uses
+       `x`, but its debug-local record does not retain that block-local name,
+       so the spelling is not accepted as original-source proof.  Repeating
+       the absolute-x expression preserves 279 instructions but reverses
+       operand/load order and leaves 12 diffs. */
     int x = (0 <= (carObj->N).linearVel.x) ?
             (carObj->N).linearVel.x : -(carObj->N).linearVel.x;
     (carObj->N).speedXZ =
@@ -320,26 +326,10 @@ void Physics_SetCurrentWallType(int wallType)
 int Physics_GetTorque(Car_tObj *carObj,int index)
 
 {
-  /* SYM-CODEGEN-CARRIER: iVar1 -- eliminated upper-clamp result web.  SYM
-     retains only `index`; imperative clamps and the tested MIN/MAX expansions
-     emit 13-17 instructions instead of retail's 15.  This first web preserves
-     retail's `index < 41` selection and its distinct `$v0` result. */
-  int iVar1;
-  /* SYM-CODEGEN-CARRIER: iVar2 -- eliminated lower-clamp/join result web.  It
-     retains the second selection and delays the torque-table base load exactly
-     as retail; direct nested expressions hoist/fold that access and differ by
-     18-30 instructions in the authoritative comparison. */
-  int iVar2;
-
-  iVar1 = index;
-  if (0x28 < index) {
-    iVar1 = 0x28;
-  }
-  iVar2 = 0;
-  if ((0 < iVar1) && (iVar2 = 0x28, 0x28 >= index)) {
-    iVar2 = index;
-  }
-  return carObj->specs->torqueCurve[iVar2];
+  /* Recovered verbatim from the symbol-bearing NFS2 PC Physics_GetTorque;
+     NFS4 SYM likewise records only carObj/index and this spelling is 15/15. */
+  index = MAX(MIN(index,40),0);
+  return carObj->specs->torqueCurve[index];
 }
 
 /* ---- Physics_CorrectPostCollisionYaw__FP8Car_tObjiG8coorddef  [PHYSICS.CPP:680-721] SLD-VERIFIED ---- */
@@ -1287,7 +1277,7 @@ void Physics_CalculateRoadGripModifiers(Car_tObj *carObj)
    (1) STRUCTURE, not coloring -- retail wrote the rpm clamps as MIN/MAX TERNARIES
        whose result lands in a fresh temp reg (oracle `addu v1,<arm>,zero; slt; b*;
        addu v1,<other>,zero` then ONE store), not as `if (a<b) a=b;` overrides.
-       Four sites converted (PHY_MIN/PHY_MAX above).  The cfLbl1 GOTO DIRECTION was
+       Four sites converted (MIN/MAX above).  The cfLbl1 GOTO DIRECTION was
        also backwards: retail's label sits on the shared >=0 clamp inside the
        downshift else-arm (SLD 1541) and the DAMAGE arm jumps INTO it (oracle
        j @800aad14 -> .L800aae34); ours had it the other way round.  Also the
@@ -1399,7 +1389,7 @@ int Physics_CalculateCarAcceleration(Car_tObj *carObj)
        adjustedDesiredRpm removes retail's v0-to-v1 copy (709/710, five diffs). */
     int revLimitedRpm;
     /* SYM-CODEGEN-CARRIER: adjustedDesiredRpm.  Assigning desiredRpm through
-       PHY_MIN instead removes two instructions and recolors saved registers
+       MIN instead removes two instructions and recolors saved registers
        (708/710, 60 detailed diffs). */
     int adjustedDesiredRpm;
     if (((carObj->control).gear == '\x01') || (powerControl == 0)) {
@@ -1483,7 +1473,7 @@ cfLbl1:   /* @0x800aae34  (retail's shared clamp; the damage arm jumps here) */
       else {
         if (carObj->flywheelRpm < desiredRpm) goto Phy_CalcAcc_clearWheelSpinExit;
         carObj->flywheelRpm = carObj->flywheelRpm + -200;
-        carObj->flywheelRpm = PHY_MAX(carObj->flywheelRpm,desiredRpm);
+        carObj->flywheelRpm = MAX(carObj->flywheelRpm,desiredRpm);
       }
     }
 Phy_CalcAcc_clearWheelSpinExit:
@@ -1655,6 +1645,10 @@ void Physics_CalcWheelLockAcc(Car_tObj *carObj,Physics_tWheelAccStruct *wheel)
 
 {
   int totalAcc;
+  /* ORIGINAL-NAME-RECOVERED: NFS4 retail SYM directly records these locals as
+     `optVar1` and `optVar2`; the symbol-bearing NFS2 version independently
+     records the same spellings and uses them for the same absolute X/Z
+     intermediates and max-plus-quarter calculation. */
   int optVar1;
   int optVar2;
   int roadGrip;

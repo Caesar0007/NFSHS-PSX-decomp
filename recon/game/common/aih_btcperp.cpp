@@ -1889,7 +1889,7 @@ extern __vtbl_ptr_type AIState_NonActive_vtable[], AIState_Base_vtable[];
 
 /* ---- Execute__17AIState_NonActive_80061370 @0x80061370 : empty per-frame body (real method --
  * the cc1plus demangle guard rejects the mangled name as a plain identifier) ---- */
-extern "C" void Execute__17AIState_NonActive_80061370(AIState_NonActive *pThis)
+extern "C" void Execute__17AIState_NonActive_80061370(AIState_NonActive *)
 {
   return;
 }
@@ -1910,7 +1910,7 @@ extern "C" void ___17AIState_NonActive_80061378(AIState_NonActive *pThis,int __i
 }
 
 /* ---- TestForRelease__12AIState_Base_800613C4 @0x800613C4 : shared default impl (real method) ---- */
-extern "C" int TestForRelease__12AIState_Base_800613C4(AIState_Base *pThis)
+extern "C" int TestForRelease__12AIState_Base_800613C4(AIState_Base *)
 {
   return 0;
 }

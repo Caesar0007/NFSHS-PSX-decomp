@@ -75,7 +75,6 @@ struct AIState_Base {
     __vtbl_ptr_type (*_vf)[4];
     AIState_Base() {}
     AIState_Base(Car_tObj *carObj);
-    ~AIState_Base();
     void StateExecute();
     int TestForRelease();
 };
@@ -98,6 +97,7 @@ struct AIState_NonActive : public AIState_Base {
 struct AIState_Idle : public AIState_Base {
     int roadPosition_, idleInPlaceFlag_;
     AIState_Idle() {}
+    ~AIState_Idle();
     void Execute();
     void SetIdlePosition(int pos);
 };
@@ -113,6 +113,7 @@ struct AIState_Chase : public AIState_Base {
     int aggressionLevel_, slowDownEndTime_, barrierTicks32_;
     AIState_Chase() {}
     AIState_Chase(Car_tObj *, Car_tObj *, coorddef *, int, int, int, int, int);
+    ~AIState_Chase();
     void SetTarget(Car_tObj *, coorddef *);
     void SetMurderMode(int, int);
     void SetUp();
@@ -137,6 +138,7 @@ struct AIState_Offroad : public AIState_Base {
     int longMetersBetween_, letGo_, maxSpeedMPS_, releaseTime_;
     AIState_Offroad() {}
     AIState_Offroad(Car_tObj *, int, coorddef *, matrixtdef *, int, int, int);
+    ~AIState_Offroad();
     void UnleashIfInRange(Car_tObj *);
     void Execute();
 };
@@ -144,6 +146,7 @@ struct AIState_Offroad : public AIState_Base {
 struct AIState_Purgatory : public AIState_NonActive {
     AIState_Purgatory() {}
     AIState_Purgatory(Car_tObj *);
+    ~AIState_Purgatory();
     int TestForRelease();
     void Execute();
     static void StartUp();
@@ -155,6 +158,7 @@ struct AIState_RovingTraffic : public AIState_Base {
     long waitTick_;
     AIState_RovingTraffic() {}
     AIState_RovingTraffic(Car_tObj *, trigger_t *);
+    ~AIState_RovingTraffic();
     void CheckIfCarIsNearbyAndStop(Car_tObj *, int &);
     void Execute();
     int TestForRelease();
@@ -164,6 +168,7 @@ struct AIState_Donuts : public AIState_Base {
     int donutLookForward_;
     donutMode_t donutMode_;
     AIState_Donuts() {}
+    ~AIState_Donuts();
     void Execute();
 };
 
@@ -171,6 +176,7 @@ struct AIState_GotoSlice : public AIState_Normal {
     int targetSlice_, stopWhenArrivedAtSlice_;
     AIState_GotoSlice() {}
     AIState_GotoSlice(Car_tObj *, int, int);
+    ~AIState_GotoSlice();
     void Execute();
     int InTargetSliceRange(int);
 };
@@ -180,6 +186,7 @@ struct AIState_Cruise : public AIState_Normal {
     int cruiseSpeed_, cruiseFactor_;
     AIState_Cruise() {}
     AIState_Cruise(Car_tObj *, cruiseMode_t, int);
+    ~AIState_Cruise();
     void Execute();
 };
 

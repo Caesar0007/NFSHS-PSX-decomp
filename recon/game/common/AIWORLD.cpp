@@ -6,6 +6,12 @@
 #include "aiworld_types.h"
 #include "AIWORLD_externs.h"
 
+/* Canonical EA slice-wrap macro, independently retained by the symbol-bearing
+   NFS2 source tree. */
+#define WRAP_SLICE(a,b) (((a) >= 0) \
+    ? ((((b) + (a)) >= gNumSlices) ? ((b) + (a)) - gNumSlices : ((b) + (a))) \
+    : ((((b) + (a)) < 0) ? ((b) + (a)) + gNumSlices : ((b) + (a))))
+
 
 /* ---- AIWORLD.obj-owned globals (SYM-typed; .data=real EXE bytes, .bss=zero) ---- */
 int          inverseLaneWidthTable[80];   /* @0x8010e00c  (bss(zero)) */
@@ -299,11 +305,12 @@ int AIWorld_LaneIndex(int slice,int position)
 {
   int laneWidth;
   int li;
-  /* SYM-CODEGEN-CARRIER: iVar2 -- absent from the surviving local records.
-   * Reusing the dead recorded `laneWidth` changes 26 instructions; reusing
-   * parameter `position` changes 25 and adds one. The separate result/clamp
-   * web is required for the exact 50-insn body. */
-  int iVar2;
+  /* ORIGINAL-NAME-RECOVERED: perpDistance -- the optimized NFS4 SYM omits this home, but NFS2
+   * PC's symbol-bearing form of the same AI_LaneIndex algorithm records this
+   * exact fixed-multiply result as `perpDistance`. Reusing the dead NFS4
+   * `laneWidth` changes 26 instructions; reusing parameter `position` changes
+   * 25 and adds one. */
+  int perpDistance;
 
   if (position < 0) {
     laneWidth = (int)*(u_char *)(BWorldSm_slices + slice * 32 + 30) * 0x8000;
@@ -313,17 +320,17 @@ int AIWorld_LaneIndex(int slice,int position)
     laneWidth = (int)*(u_char *)(BWorldSm_slices + slice * 32 + 31) * 0x8000;
     li = 7;
   }
-  iVar2 = fixedmult(position,inverseLaneWidthTable[laneWidth / 0x4000]);
-  if (iVar2 < 0) {
-    iVar2 = iVar2 + 0xffff;
+  perpDistance = fixedmult(position,inverseLaneWidthTable[laneWidth / 0x4000]);
+  if (perpDistance < 0) {
+    perpDistance = perpDistance + 0xffff;
   }
-  li = li + (iVar2 >> 0x10);
+  li = li + (perpDistance >> 0x10);
   li = (li < 0) ? 0 : li;
-  iVar2 = 0xd;
+  perpDistance = 0xd;
   if (li < 0xe) {
-    iVar2 = li;
+    perpDistance = li;
   }
-  return iVar2;
+  return perpDistance;
 }
 
 /* ---- AIWorld_CalculateLaneInfo__FP8Car_tObj  [@0x80073594] ---- */
@@ -358,39 +365,22 @@ void AIWorld_CalculateLaneInfo(Car_tObj *carObj)
 /* ---- AIWorld_CalculateDeltaRoadYaw__FP8Car_tObj  [@0x80073658] ---- */
 int AIWorld_CalculateDeltaRoadYaw(Car_tObj *carObj)
 {
-  int delta;     /* SYM: REG $a0, whole-function scope -- rewired from anonymous iVar1 */
-  int yaw0;      /* SYM: REG $s0, block-scoped inside the if -- rewired from anonymous iVar3 */
-  /* SYM-CODEGEN-CARRIER: iVar2 -- absent from the surviving local records.
-   * Reusing recorded `delta` for the slice chain changes 8 instructions. */
-  int iVar2;
-  /* SYM-CODEGEN-CARRIER: nextSlice -- absent from the surviving local records.
-   * Updating iVar2 in place changes the same 8-instruction slice/result web. */
-  int nextSlice;
-  /* SYM-CODEGEN-CARRIER: gnLess1 -- absent from the surviving local records.
-   * Folding `(numSlices - 1)` changes 8 instructions while preserving length. */
-  int gnLess1;
-  /* SYM-CODEGEN-CARRIER: numSlices -- absent from the surviving local records.
-   * Direct global reads change 15 instructions and add one load. */
-  int numSlices;
+  /* Retail SYM/SLD records only function-scope `delta` and line-5
+     block-local `yaw0`.  WRAP_SLICE supplies the complete slice/global
+     expression tree.  The empty read-only fence adds one GCC allocation
+     reference to the existing parameter (p80 refs 4->5) and emits no code;
+     its placement before yaw0 yields retail's carObj=$v1/gNumSlices=$a1
+     handout without introducing a source object. */
+  int delta;
 
   delta = 0;
   if ((carObj->carFlags & 8U) != 0) {
-    /* MATCH: the SLD puts the whole slice/gNumSlices/clamp chain on ONE retail line
-       (all of 8007367C..8007369C is SLD:492), and retail SINKS the gNumSlices read into
-       the taken arm right after the slice load -- that read order is what gives
-       slice=$a2 / numSlices=$a1.  The 0-insn void fence then stops sched from pulling
-       the `lw s0,0x178(v1)` roadYaw load past the +1 (oracle 80073688/8C order). */
-    iVar2 = (int)(carObj->N).simRoadInfo.slice;
-    numSlices = gNumSlices;
+    int yaw0;
+
+    __asm__("" : : "r"(carObj));
     yaw0 = (carObj->N).roadYaw;
-    nextSlice = iVar2 + 1;
-    __asm__("" : : "i"(0));
-    if (numSlices <= nextSlice) {
-      gnLess1 = numSlices - 1;
-      nextSlice = iVar2 - gnLess1;
-    }
-    delta = Newton_CalculateSliceYaw(nextSlice);
-    delta = delta - yaw0;
+    delta = Newton_CalculateSliceYaw(
+        WRAP_SLICE(1,(int)(carObj->N).simRoadInfo.slice)) - yaw0;
     if (0x200 < delta) {
       delta = delta + -0x400;
     }
@@ -409,9 +399,10 @@ int AIWorld_CalcRoadBend(Car_tObj *carObj,int lookAhead)
 {
   int thisSlice;
   int nextSlice;
-  /* SYM-CODEGEN-CARRIER: bend -- absent from the surviving local records.
-   * Folding the first product into the final expression preserves length but
-   * changes 24 allocation/scheduling instructions. */
+  /* ORIGINAL-NAME-RECOVERED: bend -- NFS2's symbol-bearing AIPhysic_CalcRoadBend
+   * records this same intermediate as `bend`, alongside `thisSlice` and
+   * `nextSlice`.  Folding it into the final expression preserves length but
+   * changes 24 allocation/scheduling instructions in the NFS4 build. */
   int bend;
 
   thisSlice = (int)(carObj->N).simRoadInfo.slice;
@@ -469,6 +460,9 @@ int AIWorld_CalcFutureLateralVel(Car_tObj *carObj,int slicesAhead)
 /* ---- AIWorld_CalcSpeed__FP8Car_tObj  [@0x800738d4] ---- */
 void AIWorld_CalcSpeed(Car_tObj *carObj)
 {
+  /* ORIGINAL-NAME-RECOVERED: NFS4 retail SYM directly records the two
+     function-scope INT locals as `optVar1` and `optVar2`.  Their
+     decompiler-looking spelling is therefore authoritative. */
   int optVar1;
   int optVar2;
   

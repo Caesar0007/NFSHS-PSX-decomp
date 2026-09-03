@@ -5,6 +5,8 @@
 
 #include "game_common_min_types.h"
 
+extern "C" int purgememadr(...);
+
 struct SimpleMem {
     void *heap;
     void *freeMem;
@@ -13,6 +15,9 @@ struct SimpleMem {
     void *Alloc(int len, int feign);
     void *FeignAlloc(int len);
     void ResizeToFit();
+    /* Inline in the original allocator class: Track_DeInit's `delete
+       Track_mem` expands to this exact heap cleanup before object deletion. */
+    ~SimpleMem() { purgememadr(heap); freeMem = (void *)0x0; }
 };
 
 #endif

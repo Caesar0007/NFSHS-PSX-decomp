@@ -82,7 +82,14 @@ union trigger_t {
 
 typedef int CarLogic_tObservations[1][3];
 
-/* AICOP.SYM keeps only pointer identity for this externally defined class. */
-struct AITrigger_TriggerManager;
+/* Exact externally owned layout from AITRIGER.SYM; needed here for the
+ * original C++ new/delete and member-call expressions. */
+struct AITrigger_TriggerManager {
+    int numTriggers_, invNumTriggers_;
+    trigger_t *triggers_[100];
+    int checkTime_[100];
+    int lastTriggerChecked_[9];
+    void Init(char *rawTriggers);
+};
 
 #endif

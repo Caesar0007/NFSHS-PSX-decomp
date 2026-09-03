@@ -21,6 +21,10 @@ void Cars_SortCars(void);
     ? ((((b) + (a)) >= gNumSlices) ? ((b) + (a)) - gNumSlices : ((b) + (a))) \
     : ((((b) + (a)) < 0) ? ((b) + (a)) + gNumSlices : ((b) + (a))))
 
+/* Canonical EA/NFS2 source macro; its repeated-expression ternary shape is
+   source-significant in Cars_CalculateRoadSpan. */
+#define ABS(a) (((a) > 0) ? (a) : -(a))
+
 
 /* ---- clock.obj-owned globals (.bss zero) ---- */
 int          Cars_topSpeedCap[22] = { 4107141, 3932160, 4653056, 4587520, 4660264, 4631429, 4805754, 4514775, 4543610, 5097390, 5388369, 5417861, 5796003, 6087639, 5825495, 6552944, 7274496, 7274496, 7274496, 7274496, 7274496, 7274496 };   /* @0x8010f828 */
@@ -899,15 +903,15 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
     position.y = (carObj->N).position.y;
     position.z = (carObj->N).position.z;
     position.y = (carObj->N).groundElevation;
-    do {
+      do {
       if (carObj->frontSkid > 0) {
-        /* SYM-CODEGEN-CARRIER: cappedFront -- the separate clamp result keeps
-           retail's 0xa0000 constant and selected value in s3 without a0 moves. */
-        int cappedFront =
+        /* P815: NFS2's symbol-bearing source has no clamp-result local and
+           writes through `front`; the PSX-added skid-field update is the
+           same value.  Chaining those destinations preserves retail's
+           separate clamp result pseudo without an invented source name. */
+        front = carObj->frontSkid =
             (0xa0000 < carObj->frontSkid) ? 0xa0000 : carObj->frontSkid;
-        front = cappedFront;
         originalFront = front;
-        carObj->frontSkid = front;
         if (__builtin_abs((carObj->linearVel_ch).z) > 0x140000) {
           skidFront = front - __builtin_abs((carObj->linearVel_ch).z / 8);
           break;
@@ -1889,33 +1893,17 @@ void Cars_Restart(void)
 {
   /* SLD exposes only i=$s0. */
   int i;
-  /* SYM-CODEGEN-CARRIER: numCars -- caching the first-loop bound gives the
-   * retail a2 lifetime.  Repeating Cars_gNumCars keeps 58 instructions but
-   * produces five load/branch/copy diffs. */
-  int numCars;
-  /* SYM-CODEGEN-CARRIER: carCursor -- the retail second loop advances a
-   * pointer-to-pointer in s1.  Direct indexing with the label loop loses that
-   * strength reduction (24 diffs); a natural for loop rotates differently
-   * and produces 18 diffs.  SYM omits the optimized cursor's spelling. */
-  Car_tObj **carCursor;
-
-  numCars = Cars_gNumCars;
-  i = 0;
-  if (0 < numCars) {
-    do {
-      Cars_gSortedList[i] = Cars_gList[i];
-      Cars_gTotalSortedList[i] = Cars_gList[i];
-      i = i + 1;
-    } while (i < numCars);
+  for (i = 0; i < Cars_gNumCars; i++) {
+    Cars_gSortedList[i] = Cars_gList[i];
+    Cars_gTotalSortedList[i] = Cars_gList[i];
   }
-  i = 0;
-  carCursor = Cars_gList;
-LAB_ini:
-  if (i < Cars_gNumCars) {
-    Cars_IniCarObjects(*carCursor,i);
-    carCursor = carCursor + 1;
-    i = i + 1;
-    goto LAB_ini;
+  for (i = 0; i < Cars_gNumCars; i++) {
+    /* ORIGINAL-NAME-RECOVERED: carObj -- the symbol-bearing NFS2
+       Cars_Restart block records this exact local and its canonical source
+       initializes it from Cars_gList[i].  NFS4 SLD likewise opens the nested
+       second-loop block at line 10; this spelling remains retail-exact. */
+    Car_tObj *carObj = Cars_gList[i];
+    Cars_IniCarObjects(carObj,i);
   }
   i = 0;
   while( true ) {
@@ -2055,13 +2043,13 @@ void Cars_StartUp(void)
 void Cars_CleanUp(void)
 {
   int i;
-  /* SYM-CODEGEN-CARRIER: pCVar2 -- direct Cars_gList[i] expressions add two
-     loads (100 versus retail's 98 instructions) and leave six diffs. */
-  Car_tObj *pCVar2;
 
   i = 0;
   if (0 < Cars_gNumCars) {
-    /* MATCH (W54-A13): the ex-"preheader-order floor" is SOLVED -- it was the INDEX-vs-POINTER
+    /* MATCH (W54-A13/P814): NFS4 SLD and the symbol-bearing NFS2 predecessor
+       both prove direct Cars_gList[i] source expressions and an explicit final
+       carFlags if/else; the former pCVar2 cache was reconstruction-only.
+       The ex-"preheader-order floor" is SOLVED -- it was the INDEX-vs-POINTER
        shape.  Oracle materializes &simGlobal (LICM invariant) BEFORE the Cars_gList base;
        loop.c emits LICM invariants first and strength-reduction GIV inits after, so a source
        `p = Cars_gList;` statement (a real preheader insn) can never come second.  Writing the
@@ -2070,12 +2058,10 @@ void Cars_CleanUp(void)
     do {
       Sched_DeleteFunction(simGlobal.schedule32Hz,Cars_gList[i]->funcUpdateRoadInfo,Cars_gList[i]);
       Sched_DeleteFunction(simGlobal.schedule32Hz,Cars_gList[i]->funcControl,Cars_gList[i]);
-      pCVar2 = Cars_gList[i];
-      if ((pCVar2->carFlags & 1U) != 0) {
-        Sched_DeleteFunction(simGlobal.schedule64Hz,pCVar2->funcStats,pCVar2);
-        pCVar2 = Cars_gList[i];
+      if ((Cars_gList[i]->carFlags & 1U) != 0) {
+        Sched_DeleteFunction(simGlobal.schedule64Hz,Cars_gList[i]->funcStats,Cars_gList[i]);
       }
-      Sched_DeleteFunction(simGlobal.schedule32Hz,pCVar2->funcHandlingPhysics,pCVar2);
+      Sched_DeleteFunction(simGlobal.schedule32Hz,Cars_gList[i]->funcHandlingPhysics,Cars_gList[i]);
       Sched_DeleteFunction(simGlobal.schedule32Hz,Cars_gList[i]->funcGravityPhysics,Cars_gList[i]);
       Sched_DeleteFunction(simGlobal.schedule64Hz,Cars_gList[i]->funcQDPhysicsUpdateVel,Cars_gList[i]);
       Sched_DeleteFunction(simGlobal.schedule32Hz,Cars_gList[i]->funcTestMeForCollisions,Cars_gList[i]);
@@ -2083,12 +2069,14 @@ void Cars_CleanUp(void)
       if (Force_IsForceOn(Cars_gList[i]) != 0) {
         Sched_DeleteFunction(simGlobal.schedule32Hz,Force_Update,Cars_gList[i]);
       }
-      pCVar2 = Cars_gList[i];
-      Sched_DeleteFunction(
-          ((pCVar2->carFlags & 4U) != 0)
-              ? simGlobal.schedule64Hz
-              : simGlobal.schedule32Hz2,
-          pCVar2->funcQDPhysicsUpdateRot,pCVar2);
+      if ((Cars_gList[i]->carFlags & 4U) != 0) {
+        Sched_DeleteFunction(simGlobal.schedule64Hz,
+                             Cars_gList[i]->funcQDPhysicsUpdateRot,Cars_gList[i]);
+      }
+      else {
+        Sched_DeleteFunction(simGlobal.schedule32Hz2,
+                             Cars_gList[i]->funcQDPhysicsUpdateRot,Cars_gList[i]);
+      }
       Cars_DeInitCar(Cars_gList[i]);
       purgememadr(Cars_gList[i]);
       i = i + 1;
@@ -2134,31 +2122,25 @@ int Cars_CalculateRoadSpan(Car_tObj *carObj)
 {
   int span;
   int tempSpan;
-  /* SYM-CODEGEN-CARRIER: absSpan -- see the measured allocator receipt below. */
-  int absSpan;
-
   span = ((carObj->N).roadMatrix.m[0] / 256) *
              ((carObj->N).orientMat.m[0] / 256) +
          ((carObj->N).roadMatrix.m[1] / 256) *
              ((carObj->N).orientMat.m[1] / 256) +
          ((carObj->N).roadMatrix.m[2] / 256) *
              ((carObj->N).orientMat.m[2] / 256);
-  /* MATCH (W54-A13): TWO cooperating devices, both zero-insn.
-     (1) the abs result needs its OWN variable.  `span = __builtin_abs(span)` makes gcc
-         negate IN PLACE (`bgez a1; nop; negu a1,a1`) and then spend a fresh reg + the
-         guard's delay slot on the /256 copy; retail is the other way round -- abs into a
-         fresh reg (`bgez a1; addu v0,a1,zero; negu v0,v0`) and the /256 IN PLACE on it
-         (`bgez v0; nop; addiu v0,v0,255; sra a1,v0,8`).  Splitting the destination
-         reproduces the oracle exactly.  Keep the THREE statements: folding them into one
-         expression (any association) costs 62-90 diffs.
+  /* MATCH (W54-A13/P794): TWO cooperating source features, both zero-insn.
+     (1) The canonical EA `ABS(a)` macro above creates the retail fresh result
+         pseudo (`bgez a1; addu v0,a1,zero; negu v0,v0`) without an invented
+         `absSpan` source local.  `__builtin_abs(span)` instead negates `span`
+         in place and changes the following signed-/256 web.  Keep the THREE
+         statements: folding them into one expression costs 62-90 diffs.
      (2) the fresh pseudo then re-colors `span` a2<-a1 (uniform a1<->a2 swap, count exact).
          allocsim/reqdelta: span = p81 refs=8 live=76 pri .3157 loses a1 to p139
          (refs=2 live=6 pri .3333); the minimal single dial is span refs 8->9, i.e. one
          zero-insn read-only fence -> floor_log2(9)*9/76 = .355 wins a1.  Fence POSITION is
          load-bearing (after the *dim.x = PASS; after the /256 = +1 insn/13 diffs; after the
          dim.y term = +2 insns/6 diffs).  146/146 PASS. */
-  absSpan = __builtin_abs(span);
-  span = absSpan / 256;
+  span = ABS(span) / 256;
   span *= (carObj->N).dimension.x / 256;
   __asm__("" : : "r"(span));
   tempSpan = ((carObj->N).roadMatrix.m[0] / 256) *
@@ -2167,7 +2149,7 @@ int Cars_CalculateRoadSpan(Car_tObj *carObj)
                  ((carObj->N).orientMat.m[4] / 256) +
              ((carObj->N).roadMatrix.m[2] / 256) *
                  ((carObj->N).orientMat.m[5] / 256);
-  span += (__builtin_abs(tempSpan) / 256) *
+  span += (ABS(tempSpan) / 256) *
           ((carObj->N).dimension.y / 256);
   tempSpan = ((carObj->N).roadMatrix.m[0] / 256) *
                  ((carObj->N).orientMat.m[6] / 256) +
@@ -2175,7 +2157,7 @@ int Cars_CalculateRoadSpan(Car_tObj *carObj)
                  ((carObj->N).orientMat.m[7] / 256) +
              ((carObj->N).roadMatrix.m[2] / 256) *
                  ((carObj->N).orientMat.m[8] / 256);
-  return span + (__builtin_abs(tempSpan) / 256) *
+  return span + (ABS(tempSpan) / 256) *
                 ((carObj->N).dimension.z / 256);
 }
 

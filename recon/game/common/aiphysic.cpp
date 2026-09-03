@@ -2058,53 +2058,24 @@ void AIPhysic_ResetCar(Car_tObj *carObj)
 void AIPhysic_InitCar(Car_tObj *carObj)
 {
   if ((carObj->carFlags & 2) != 0) {
-    /* SYM-OPTIMIZED: d -- `d` (block @cc94) and `deceleration` (inlined ctor
-       block) share REG $16=s0; the exact reconstruction models their optimized,
-       repurposed value as the single `deceleration` source variable below. */
-    {
-      /* SYM-INLINE-THIS: AIPhysic_BrakeInfo::AIPhysic_BrakeInfo
-       * SYM-CODEGEN-CARRIER: this_ -- `this` is a reserved C++ keyword outside
-       * the inlined constructor body. Storing the allocation directly in
-       * carObj->brakeInfo shrinks 93 to 91 instructions with 26 frame,
-       * allocation, and member-load diffs. */
-      AIPhysic_BrakeInfo *this_;
-      int deceleration;
-      int invDeceleration;
-      int brakeTableLoop;
+      int d;
 
-      deceleration = 0xc0000;
+      d = 0xc0000;
       if ((carObj->carFlags & 0x28) != 0) {
-        deceleration = 0xb0000;
+        d = 0xb0000;
       }
-      deceleration = *(int *)((char *)carObj->personality + 0x20) / 256 * (deceleration / 256);
+      d = *(int *)((char *)carObj->personality + 0x20) / 256 * (d / 256);
       if ((carObj->carFlags & 8) != 0) {
-        deceleration = deceleration / 256 * (AISpeeds_GetUpgradeBrakeMult(carObj->carIndex) / 256);
+        d = d / 256 * (AISpeeds_GetUpgradeBrakeMult(carObj->carIndex) / 256);
       }
-      this_ = (AIPhysic_BrakeInfo *)__builtin_new(0x84);
-      this_->deceleration_ = deceleration;
-      invDeceleration = fixeddiv(0x10000,deceleration);
-      brakeTableLoop = 0;
-      while (true) {
-        if (!(brakeTableLoop < 0x80)) break;
-        {
-          int distance = brakeTableLoop << 0x10;
-          int brakeDistanceMeters = fixedmult(fixedmult(distance,invDeceleration),distance) / 2;
-          {
-            int sIndex = distance / 0x10000;
-            if (sIndex < 0) {
-              sIndex = -sIndex;
-            }
-            if (!(sIndex < 0x80)) {
-              sIndex = 0x80;
-            }
-            this_->brakeTable_[sIndex] =
-                (u_char)(brakeDistanceMeters / 0x20000);
-          }
-        }
-        brakeTableLoop = brakeTableLoop + 1;
-      }
-      carObj->brakeInfo = this_;
-    }
+      /* SYM-INLINE-THIS: AIPhysic_BrakeInfo
+       * SYM-INLINE-LOCAL: deceleration = AIPhysic_BrakeInfo
+       * SYM-INLINE-LOCAL: invDeceleration = AIPhysic_BrakeInfo
+       * SYM-INLINE-LOCAL: brakeTableLoop = AIPhysic_BrakeInfo
+       * SYM-INLINE-LOCAL: distance = AIPhysic_BrakeInfo
+       * SYM-INLINE-LOCAL: brakeDistanceMeters = AIPhysic_BrakeInfo
+       * SYM-INLINE-LOCAL: sIndex = AIPhysic_BrakeInfo */
+      carObj->brakeInfo = new AIPhysic_BrakeInfo(d);
   }
   return;
 }

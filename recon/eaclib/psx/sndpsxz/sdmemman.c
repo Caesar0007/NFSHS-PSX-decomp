@@ -701,6 +701,9 @@ extern int iSNDpsxmalloc(int size)
     unsigned short *prev;
     unsigned int blk, src;
     int          idx = 0;
+    /* ORIGINAL-NAME-UNRESOLVED: `local_block` and `local_avail` are retained
+     * placeholders.  NFS4 has no local debug records for iSNDpsxmalloc and no
+     * source-bearing cross-version implementation currently proves them. */
     unsigned int local_block;
     int          local_avail;
     unsigned short count = *(unsigned short *)(base + 0x518);

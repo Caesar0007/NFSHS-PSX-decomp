@@ -73,22 +73,24 @@ char * Replay_Compress(char *uncompressed_data)
   int count;
   register int c_pointer;
   char begin_byte;
-  /* SYM-CODEGEN-CARRIER: u -- this source induction variable is eliminated by
-   * loop.c into the walked $a0 cursor; the two retail end cursors in $t2/$t3
-   * are compiler temporaries derived from the same `u < 32` bounds.  It has no
-   * runtime home and therefore no local record in the optimized SYM block. */
-  int u;   /* eliminated biv: loop.c strength-reduces it away, hence no SYM record */
+  /* ORIGINAL-NAME-RECOVERED: u_pointer -- the symbol-bearing NFS2
+   * Replay_Compress source and debug-local record preserve this exact spelling
+   * for the same input induction variable.  NFS4 loop.c eliminates its debug
+   * home into the walked $a0 cursor and derives the paired end cursors from its
+   * `u_pointer < 32` bounds. */
+  int u_pointer;
 
   done = 0;
-  u = 0;
+  u_pointer = 0;
   c_pointer = 1;
   do {
-    begin_byte = uncompressed_data[u];
+    begin_byte = uncompressed_data[u_pointer];
     count = 0;
     do {
-      u = u + 1;
+      u_pointer = u_pointer + 1;
       count = count + 1;
-    } while ((uncompressed_data[u] == begin_byte) && (u < 0x20));
+    } while ((uncompressed_data[u_pointer] == begin_byte) &&
+             (u_pointer < 0x20));
     if (count >= 3) {
       compressed_data[c_pointer] = (char)0xff;
       compressed_data[c_pointer + 1] = (char)count;
@@ -105,7 +107,7 @@ char * Replay_Compress(char *uncompressed_data)
         } while (i < count);
       }
     }
-    if (0x20 <= u) {
+    if (0x20 <= u_pointer) {
       done = 1;
     }
   } while (!done);
@@ -127,10 +129,11 @@ char * Replay_Decompress(char *compressed_data)
   char current_byte;
   int c_pointer;
   int data_size;
-  /* SYM-CODEGEN-CARRIER: u_pointer -- GCC eliminates this output index into
-   * the walked $a1 pointer rooted at the global uncompressed_data array.  The
-   * retail SYM consequently records no local home; retaining the source BIV
-   * is what produces the exact pointer-walk code without changing the array's
+  /* ORIGINAL-NAME-RECOVERED: u_pointer -- the symbol-bearing NFS2 Replay_Decompress
+   * records this output index as `u_pointer`.  GCC eliminates it into the
+   * walked $a1 pointer rooted at the global uncompressed_data array, so the
+   * NFS4 retail SYM has no local home for it.  Retaining the recovered source
+   * BIV produces the exact pointer-walk code without changing the array's
    * authoritative global type. */
   int u_pointer;
 
@@ -450,15 +453,13 @@ void Replay_GetInput(int car)
         controlData[car].gas[Replay_ReplayCounter[car]] & 0x7f;
     controlData[car].brake[Replay_ReplayCounter[car]] =
         controlData[car].brake[Replay_ReplayCounter[car]] & 0x7f;
-    {
-      /* SYM-CODEGEN-CARRIER: steering
-         The explicit promoted value makes GCC select retail's signed `lb`.
-         Folding the cast into the assignment remains 280/280 but selects
-         `lbu`, producing two diffs. */
-      int steering =
-          (signed char)controlData[car].steering[Replay_ReplayCounter[car]];
-      Input_gSim.steering = (char)((steering - '@') << 2);
-    }
+    /* SYM-CODEGEN-CARRIER: steering
+       SYM retains no locals in this function.  The signed temporary keeps
+       the retail `lb` load; the direct expression is count-exact but uses
+       `lbu` because the final store truncates the value back to a byte. */
+    int steering =
+        (signed char)controlData[car].steering[Replay_ReplayCounter[car]];
+    Input_gSim.steering = (char)((steering - '@') << 2);
     Input_gSim.gas = controlData[car].gas[Replay_ReplayCounter[car]] << 3;
     Input_gSim.brake = controlData[car].brake[Replay_ReplayCounter[car]] << 3;
     Input_gSim.flags = controlData[car].states[Replay_ReplayCounter[car]];

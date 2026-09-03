@@ -578,16 +578,12 @@ void AIHigh_BasicCop::HandleBlockadeSpeech()
 
 
 /* ---- ___15AIHigh_BasicCop  AIHigh_BasicCop::dtor  [AIH_BASICCOP.CPP:?] SLD-FLAG:NO_SLD ----
-   W56-A2 (2026-08-09): NOT-IN-OBJECT dtor landed. §3.23 base-forward: empty body -> the
-   compiler emits the implicit AIHigh_Base::~ base-dtor call (jal ___11AIHigh_Base), matching
-   the 8-insn oracle exactly. Mirrors AIHigh_BTC_Cop::~AIHigh_BTC_Cop() at aih_btccop.cpp. */
-
-/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
- * nfs4_types.h) so every derived dtor and every scope-exit collapses to
- * ___11AIHigh_Base the way retail does; the standalone symbol gcc then stops
- * emitting is supplied here, in place, with C linkage. */
-extern "C" void ___11AIHigh_Base(void *);
-extern "C" void ___15AIHigh_BasicCop(void *thisp) { ___11AIHigh_Base(thisp); }
+   The owner-scoped declaration lets this ordinary empty destructor emit the
+   standalone retail symbol while derived owners still see the implicit base
+   destructor that retail inlines through to AIHigh_Base. */
+AIHigh_BasicCop::~AIHigh_BasicCop()
+{
+}
 
 
 

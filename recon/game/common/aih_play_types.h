@@ -2,7 +2,9 @@
 #ifndef NFS4_GAME_COMMON_AIH_PLAY_TYPES_H
 #define NFS4_GAME_COMMON_AIH_PLAY_TYPES_H
 
+#define NFS4_AIH_PLAYER_OWNER_DTOR
 #include "aih_hierarchy_types.h"
+#undef NFS4_AIH_PLAYER_OWNER_DTOR
 
 typedef enum forceFocus_t {
     FOCUS_NORMAL = 0,

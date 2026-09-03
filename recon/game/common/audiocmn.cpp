@@ -6,6 +6,9 @@
 #include "audiocmn_types.h"
 #include "audiocmn_externs.h"
 
+/* Canonical EA spelling recovered from the symbol-bearing NFS2 audiocmn.c. */
+#define MIN(a,b) (((a) > (b)) ? (b) : (a))
+
 /* w64-a19 LINK FIX: called at :576/:722/:2429/:2472/:2500 but only DEFINED at :2518,
  * with no prior prototype -> implicit declaration -> the five calls were emitted
  * UNMANGLED (`AudioCmn_ReverbOff`) and could never resolve to `AudioCmn_ReverbOff__Fv`
@@ -222,31 +225,16 @@ void AudioCmn_PlayThunder(int intensity,int azimuth)
 /* ---- AudioCmn_UpdateThunder__Fv  [@0x800764d0] ---- */
 void AudioCmn_UpdateThunder(void)
 {
-  /* SYM-CODEGEN-CARRIER: uVar1 -- removing the random-mask snapshot while
-   * retaining the amplitude result shrinks 43 to 40 instructions with 25
-   * frame/control-flow diffs; retaining only this snapshot is 43/43 with 16
-   * arithmetic/register diffs. */
-  u_int uVar1;
-  /* SYM-CODEGEN-CARRIER: iVar2 -- folding both quantities directly keeps
-   * 43 instructions but reassociates the per-arm additions for eight diffs.
-   * The later random result also preserves retail's saved-register lifetime. */
-  int iVar2;
-
   if ((0 < AudioCmn_ThunderAmp) &&
      (AudioCmn_ThunderDel = AudioCmn_ThunderDel + -1, AudioCmn_ThunderDel < 0)) {
     AudioCmn_PlaySound(gSndBnk[3].bnkID,0x16,AudioCmn_ThunderAzi,AudioCmn_ThunderAmp,0x40);
     if (0x2e <= AudioCmn_ThunderAmp) {
-      uVar1 = random() & 0xf;
-      iVar2 = AudioCmn_ThunderAmp + 3;
+      AudioCmn_ThunderAmp += 3 - (random() & 0xf);
     }
     else {
-      uVar1 = random() & 7;
-      iVar2 = AudioCmn_ThunderAmp + 2;
+      AudioCmn_ThunderAmp += 2 - (random() & 7);
     }
-    iVar2 -= uVar1;
-    AudioCmn_ThunderAmp = iVar2;
-    iVar2 = random();
-    AudioCmn_ThunderDel = (iVar2 + 0x14U) & 3;
+    AudioCmn_ThunderDel = (random() + 0x14U) & 3;
   }
   return;
 }
@@ -1015,31 +1003,15 @@ void AudioCmn_InitChannelArray(void)
 int scaleFrequency(int sndPlayer,int iSFXnum,int tweakedForce)
 {
   int scaledFreq;
-  /* SYM-CODEGEN-CARRIER: uVar1 -- reusing parameter `tweakedForce` for the
-   * scaled quotient keeps 51 instructions but changes 12 quotient/clamp
-   * register instructions; the distinct value must remain in retail `$a2`. */
-  u_int uVar1;
 
   if (sndPlayer - 0x12U < 2) {
-    uVar1 = (tweakedForce * 0x7f) / 0xa0000;
-    scaledFreq = 0x7f;
-    if ((int)uVar1 < 0x80) {
-      scaledFreq = uVar1;
-    }
+    scaledFreq = MIN((tweakedForce * 0x7f) / 0xa0000,0x7f);
   }
   else if (sndPlayer - 0x14U < 2) {
-    uVar1 = (tweakedForce * 0x7f) / 0xa0000;
-    scaledFreq = 0x7f;
-    if ((int)uVar1 < 0x80) {
-      scaledFreq = uVar1;
-    }
+    scaledFreq = MIN((tweakedForce * 0x7f) / 0xa0000,0x7f);
   }
   else if (gaChannel[sndPlayer].SFXnum != iSFXnum) {
-    uVar1 = (tweakedForce * 0x7f) / 0xa0000;
-    scaledFreq = 0x7f;
-    if ((int)uVar1 < 0x80) {
-      scaledFreq = uVar1;
-    }
+    scaledFreq = MIN((tweakedForce * 0x7f) / 0xa0000,0x7f);
     SkidInitMaxFreq[sndPlayer] = (char)scaledFreq;
   }
   else {
@@ -1521,9 +1493,10 @@ LOOKUP:
     /* SYM-CODEGEN-CARRIER: lookup -- the typed byte-table base remains a
        separate address quantity in retail's lookup arm. */
     u_char *lookup = (u_char *)gBankNumLookupTable;
-    /* SYM-CODEGEN-CARRIER: bankNum -- the byte intermediate gives retail's
-       v0 lookup base and v1 index/load web.  Folding both names into one
-       expression is count-exact but leaves 36 authoritative diffs. */
+    /* ORIGINAL-NAME-RECOVERED: bankNum -- the symbol-bearing NFS2 AudioCmn_PlaySFX
+       records the same byte-table index as `bankNum`.  The intermediate gives
+       retail's v0 lookup base and v1 index/load web; folding both names into
+       one expression is count-exact but leaves 36 authoritative diffs. */
     u_char bankNum = lookup[sndPlayer << 2];
     PatchBank = gSndBnk[bankNum].bnkID;
   }

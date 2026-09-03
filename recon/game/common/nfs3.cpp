@@ -50,22 +50,10 @@ char         finishOrder[8];   /* @0x8013d2c0 */
 void Nfs2_SystemNLibStartUp(void)
 
 {
-  /* SYM-CODEGEN-CARRIER: p -- retail's source-level
-   * `Speech::fgUndefined = new Speech::Speaker` has no named local, but the
-   * flattened reconstruction must spell the implicit new-expression result
-   * explicitly while installing Speaker's vptr and zeroing fSub.  Assigning
-   * __builtin_new directly to the global keeps 25 instructions but moves both
-   * constructor stores after the global store (4 authoritative diffs); this
-   * carrier preserves retail's constructor-before-publication order exactly. */
-  int p;
-
   Platform_SysStartUp();
   Loading_GetInitialMemory();
-  if (_6Speech_fgUndefined == 0) {
-    p = (int)__builtin_new(0x50);
-    *(void ***)(p + 0x4c) = (void **)Speaker_vtable;
-    *(int *)(p + 0x48) = 0;
-    _6Speech_fgUndefined = p;
+  if (Speech_fgUndefined == 0) {
+    Speech_fgUndefined = new Speaker;
   }
   Render_InitLibRender();
   return;
@@ -760,17 +748,16 @@ void NFS3_CheckForFileOperations(void)
    * needed (empty template), clobbers none, reg names "$N" accepted by this
    * CC1PLPSX. */
   int *p;
-  /* SYM-CODEGEN-CARRIER: e -- the retail SYM retains only `p`, but this
-   * separate loop-bound pseudo is required by the W74-W76 GCC 2.8.1
-   * global/reload receipt above; folding it into `g` changes the exact
-   * guard-copy and trap-operand allocation. */
+  /* ORIGINAL-NAME-UNRESOLVED: `e` remains a conspicuous loop-bound placeholder.
+   * Retail SYM retains only `p`; removing this distinct bound and comparing
+   * directly against the global changes the W74-W76 allocation receipt.  The
+   * former guard-only `g` declaration was unnecessary and has been eliminated
+   * by repeating the member expression, which CSEs to the exact retail value. */
   int *e;
 
   p = (int *)gFileMgr.oparray;
-  {
-  int *g = (int *)gFileMgr.handlearray;
-  if (p < g) {
-    e = g;
+  if (p < (int *)gFileMgr.handlearray) {
+    e = (int *)gFileMgr.handlearray;
     do {
       if (*p != 0) {
 #if defined(__mips__)
@@ -788,7 +775,6 @@ void NFS3_CheckForFileOperations(void)
       }
       p = p + 1;
     } while (p < e);
-  }
   }
   return;
 }

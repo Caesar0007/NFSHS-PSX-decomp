@@ -37,7 +37,35 @@ struct AIDataRecord_AccTable_t : public AIDataRecord_t {
 };
 struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t { int Get(int i); };
 
-struct AIPhysic_BrakeInfo { u_char brakeTable_[128]; int deceleration_; };
+extern "C" int fixeddiv(...);
+extern "C" int fixedmult(...);
+
+struct AIPhysic_BrakeInfo {
+    u_char brakeTable_[128];
+    int deceleration_;
+
+    AIPhysic_BrakeInfo(int deceleration)
+    {
+        int invDeceleration;
+        int brakeTableLoop;
+
+        deceleration_ = deceleration;
+        invDeceleration = fixeddiv(0x10000, deceleration);
+        brakeTableLoop = 0;
+        while (brakeTableLoop < 0x80) {
+            int distance = brakeTableLoop << 0x10;
+            int brakeDistanceMeters =
+                fixedmult(fixedmult(distance, invDeceleration), distance) / 2;
+            int sIndex = distance / 0x10000;
+            if (sIndex < 0)
+                sIndex = -sIndex;
+            if (!(sIndex < 0x80))
+                sIndex = 0x80;
+            brakeTable_[sIndex] = (u_char)(brakeDistanceMeters / 0x20000);
+            brakeTableLoop = brakeTableLoop + 1;
+        }
+    }
+};
 
 typedef enum Gear_t {
     GEAR_REVERSE = 0,

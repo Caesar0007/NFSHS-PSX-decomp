@@ -464,33 +464,22 @@ int Object_CheckCollisionResults(Object_tSimObjList *objList,int objIndex,BO_tNe
         goto done;
       }
       /* SYM-INLINE-THIS: ObjectFinishedMultiAnim::ObjectFinishedMultiAnim
-       * SYM-CODEGEN-CARRIER: finishedMulti -- reusing the dead SYM-named
-       * `objStatus` for this inlined constructor receiver shrinks 166 to 165
-       * instructions with 33 frame/allocation/control-flow diffs. */
+       * SYM-CODEGEN-CARRIER: finishedMulti -- the allocation result must stay
+       * distinct from the enclosing ObjectMultiAnim construction. */
       ObjectFinishedMultiAnim *finishedMulti;
 
-      finishedMulti = (ObjectFinishedMultiAnim *)__builtin_new(sizeof(ObjectFinishedMultiAnim));
-      (finishedMulti->_base_ObjectAnim)._vf =
-           (__vtbl_ptr_type (*) [3])ObjectFinishedMultiAnim_vtable;
+      finishedMulti = new ObjectFinishedMultiAnim;
       gSimObjAnims[simObj->serialNum] =
           &(new ObjectMultiAnim(&N->linearVel,animDef,
                                 (Trk_CollideBoomInst *)(void *)objInstance,objDef,simObj,
                                 finishedMulti))->_base_ObjectAnim;
     }
     else {
-      /* SYM-INLINE-THIS: ObjectFinishedSignAnim::ObjectFinishedSignAnim
-       * SYM-CODEGEN-CARRIER: finishedSign -- the paired allocation has the
-       * same implicit-constructor source role and shares the failed
-       * `objStatus`-reuse receipt above. */
-      ObjectFinishedSignAnim *finishedSign;
-
-      finishedSign = (ObjectFinishedSignAnim *)__builtin_new(sizeof(ObjectFinishedSignAnim));
-      (finishedSign->_base_ObjectAnim)._vf =
-           (__vtbl_ptr_type (*) [3])ObjectFinishedSignAnim_vtable;
+      /* SYM-INLINE-THIS: ObjectFinishedSignAnim */
       gSimObjAnims[simObj->serialNum] =
           &Object_CreateSignAnim(N,animDef,
                                  (Trk_CollideBoomInst *)(void *)objInstance,
-                                 objDef,simObj,finishedSign)
+                                 objDef,simObj,new ObjectFinishedSignAnim)
                ->_base_ObjectAnim;
     }
     ret = -1;
@@ -1283,22 +1272,12 @@ int ObjectSignAnim::Draw(DRender_tView *Vi,Draw_DCache *sd,int offset)
 extern "C" void ___14ObjectSignAnim(ObjectSignAnim *pThis,int __in_chrg)
 
 {
-  __vtbl_ptr_type (*pa_Var1) [3];
-  ObjectFinishedSignAnim *pOVar2;
-  AnimScript *deleteMe;
-  
-  deleteMe = pThis->script;
   (pThis->_base_ObjectAnim)._vf = (__vtbl_ptr_type (*) [3])ObjectSignAnim_vtable;
-  if (deleteMe != (AnimScript *)0x0) {
-    if (deleteMe->inst != (Trk_AnimateInst **)0x0) {
-      __builtin_vec_delete(deleteMe->inst);
-    }
-    __builtin_delete(deleteMe);
-  }
-  pOVar2 = pThis->finishedAnim;
-  if (pOVar2 != (ObjectFinishedSignAnim *)0x0) {
-    pa_Var1 = (pOVar2->_base_ObjectAnim)._vf;
-    (*(*pa_Var1)[1].pfn)((int)&(pOVar2->_base_ObjectAnim)._vf + (int)(*pa_Var1)[1].delta,3);
+  delete pThis->script;
+  if (pThis->finishedAnim != (ObjectFinishedSignAnim *)0x0) {
+    (*(*(pThis->finishedAnim->_base_ObjectAnim)._vf)[1].pfn)
+      ((int)&(pThis->finishedAnim->_base_ObjectAnim)._vf +
+       (int)(*(pThis->finishedAnim->_base_ObjectAnim)._vf)[1].delta,3);
   }
   (pThis->_base_ObjectAnim)._vf = (__vtbl_ptr_type (*) [3])ObjectAnim_vtable;
   if ((__in_chrg & 1U) != 0) {
@@ -1328,22 +1307,12 @@ extern "C" void ___22ObjectFinishedSignAnim(ObjectFinishedSignAnim *pThis,int __
 extern "C" void ___15ObjectMultiAnim(ObjectMultiAnim *pThis,int __in_chrg)
 
 {
-  __vtbl_ptr_type (*pa_Var1) [3];
-  ObjectFinishedMultiAnim *pOVar2;
-  AnimScript *deleteMe;
-  
-  deleteMe = pThis->script;
   (pThis->_base_ObjectAnim)._vf = (__vtbl_ptr_type (*) [3])ObjectMultiAnim_vtable;
-  if (deleteMe != (AnimScript *)0x0) {
-    if (deleteMe->inst != (Trk_AnimateInst **)0x0) {
-      __builtin_vec_delete(deleteMe->inst);
-    }
-    __builtin_delete(deleteMe);
-  }
-  pOVar2 = pThis->finishedAnim;
-  if (pOVar2 != (ObjectFinishedMultiAnim *)0x0) {
-    pa_Var1 = (pOVar2->_base_ObjectAnim)._vf;
-    (*(*pa_Var1)[1].pfn)((int)&(pOVar2->_base_ObjectAnim)._vf + (int)(*pa_Var1)[1].delta,3);
+  delete pThis->script;
+  if (pThis->finishedAnim != (ObjectFinishedMultiAnim *)0x0) {
+    (*(*(pThis->finishedAnim->_base_ObjectAnim)._vf)[1].pfn)
+      ((int)&(pThis->finishedAnim->_base_ObjectAnim)._vf +
+       (int)(*(pThis->finishedAnim->_base_ObjectAnim)._vf)[1].delta,3);
   }
   (pThis->_base_ObjectAnim)._vf = (__vtbl_ptr_type (*) [3])ObjectAnim_vtable;
   if ((__in_chrg & 1U) != 0) {

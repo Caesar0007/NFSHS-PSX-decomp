@@ -969,18 +969,7 @@ void Track_Init(char *tempName)
 void Track_DeInit(void)
 
 {
-  /* SYM-CODEGEN-CARRIER: deleteMe -- replacing this cached Track_mem value
-   * with direct global expressions compiles to 50 instructions and 15 oracle
-   * diffs.  The retained pointer produces retail's 53-instruction saved-
-   * register lifetime across purgememadr and __builtin_delete. */
-  SimpleMem *deleteMe;
-  
-  deleteMe = Track_mem;
-  if (Track_mem != (SimpleMem *)0x0) {
-    purgememadr(Track_mem->heap);
-    deleteMe->freeMem = (u_char *)0x0;
-    __builtin_delete(deleteMe);
-  }
+  delete Track_mem;
   if (Track_gSaveSurface != (SaveSurface *)0x0) {
     delete Track_gSaveSurface;
     Track_gSaveSurface = (SaveSurface *)0x0;

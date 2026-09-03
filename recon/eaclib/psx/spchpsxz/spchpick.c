@@ -1288,6 +1288,9 @@ extern void iSPCH_PlayChosen(void)
  *   passes its rules, choose samples for it, and save the result.  Returns the chosen-sentence index or -1. */
 extern int iSPCH_ChooseSentence(unsigned int *eventArgs)
 {
+    /* ORIGINAL-NAME-UNRESOLVED: `local_order` and `local_30` are retained
+     * decompiler placeholders.  NFS4 has no local debug records for this
+     * library function and no canonical source has yet recovered the names. */
     unsigned char local_order[104];
     char          local_30 = 0;
     int           idx = 0;

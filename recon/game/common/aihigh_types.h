@@ -2,7 +2,9 @@
 #ifndef NFS4_GAME_COMMON_AIHIGH_TYPES_H
 #define NFS4_GAME_COMMON_AIHIGH_TYPES_H
 
+#define NFS4_AIH_BTCPERP_OWNER_DTOR
 #include "aih_hierarchy_types.h"
+#undef NFS4_AIH_BTCPERP_OWNER_DTOR
 
 typedef enum AIHigh_CopGameType_t {
     COP_GAME_NO = 0,

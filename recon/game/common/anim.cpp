@@ -17,34 +17,15 @@ Trk_AnimateInst *animScripts[10];   /* @0x8010e24c  (bss(zero)) */
 /* ---- Anim_Restart  [@0x80073a94] ---- */
 void Anim_Restart(void)
 {
-  /* SYM-CODEGEN-CARRIER: deleteMe -- the loaded slot object remains in s0
-     across its nested array/object deletes; direct repeated `*p` spelling emits
-     33/34 instructions with 31 frame, allocation, and load differences. */
-  AnimScript *deleteMe;
-  /* SYM-CODEGEN-CARRIER: p -- optimized SYM omits the strength-reduced slot
-     cursor.  An indexed for-loop emits 33/34 instructions with seven
-     loop-branch/layout differences. */
-  AnimScript **p;
-  /* SYM-CODEGEN-CARRIER: pEnd -- optimized SYM omits the fixed loop bound,
-     but retaining it in s2 preserves retail's 34-instruction saved-register
-     frame; direct animSlots+32 emits 33 instructions with eleven differences. */
-  AnimScript **pEnd;
+  /* ORIGINAL-NAME-RECOVERED: i -- the symbol-bearing NFS2 Anim_Restart
+     retains `i` for the same 32-entry animation-table loop; NFS4 SLD line 86
+     identifies the loop while retail optimization omits its local record. */
+  int i;
 
-  p = animSlots;
-  pEnd = animSlots + 32;
-AnimRestart_Test:
-  if (!((int)p < (int)pEnd)) goto AnimRestart_End;
-  deleteMe = *p;
-  if (deleteMe != (AnimScript *)0x0) {
-    if (deleteMe->inst != (Trk_AnimateInst **)0x0) {
-      __builtin_vec_delete(deleteMe->inst);
-    }
-    __builtin_delete(deleteMe);
+  for (i = 0; i < 32; i++) {
+    delete animSlots[i];
+    animSlots[i] = (AnimScript *)0x0;
   }
-  *p = (AnimScript *)0x0;
-  p = p + 1;
-  goto AnimRestart_Test;
-AnimRestart_End:;
   DrawW_ResetAnimationTimer();
   return;
 }
@@ -121,19 +102,7 @@ int Anim_Handle(int num)
 /* ---- Anim_FreeHandle  [@0x80073d6c] ---- */
 int Anim_FreeHandle(int handle)
 {
-  /* SYM-CODEGEN-CARRIER: deleteMe -- SYM records no named local, but direct
-   * repeated animSlots[handle] expressions compile to 33 instructions and 19
-   * oracle diffs.  Retaining the loaded pointer produces the exact 32-
-   * instruction body and the retail saved-register/base-address schedule. */
-  AnimScript *deleteMe;
-  
-  deleteMe = animSlots[handle];
-  if (deleteMe != (AnimScript *)0x0) {
-    if (deleteMe->inst != (Trk_AnimateInst **)0x0) {
-      __builtin_vec_delete(deleteMe->inst);
-    }
-    __builtin_delete(deleteMe);
-  }
+  delete animSlots[handle];
   animSlots[handle] = (AnimScript *)0x0;
   return 0;
 }
@@ -262,41 +231,28 @@ int Anim_GetPos(Trk_AnimateInst *animInst,int flags,int ticks,coorddef *pt,int *
 /* ---- AnimScript::AnimScript  [@0x80074360] ---- */
 AnimScript::AnimScript(int num)
 {
-  /* SYM-CODEGEN-CARRIER: iVar1 -- assigning Anim_simGlobalWords[1] directly
-   * to baseTicks keeps 27 instructions but produces 26 oracle diffs. */
-  int iVar1;
-
-  this->inst = __builtin_vec_new(4);
+  this->inst = new Trk_AnimateInst *[1];
   *this->inst = animScripts[num];
-  iVar1 = Anim_simGlobalWords[1];
+  this->baseTicks = simGlobal.gameTicks;
   this->flags = 6;
-  this->baseTicks = iVar1;
   return;
 }
 
 /* ---- AnimScript::AnimScript  [@0x800743cc] ---- */
 AnimScript::AnimScript(int num,int numParts)
 {
-  /* SYM-CODEGEN-CARRIER: ppTVar1 -- assigning __builtin_vec_new directly to
-   * inst grows the function from 39 to 41 instructions with 44 oracle diffs. */
-  Trk_AnimateInst **ppTVar1;
-  /* SYM-CODEGEN-CARRIER: iVar2 -- assigning Anim_simGlobalWords[1] directly
-   * to baseTicks keeps 39 instructions but produces 10 oracle diffs. */
-  int iVar2;
   int i;
 
-  ppTVar1 = __builtin_vec_new(numParts << 2);
+  this->inst = new Trk_AnimateInst *[numParts];
   i = 0;
-  this->inst = ppTVar1;
   if (0 < numParts) {
     do {
       this->inst[i] = animScripts[num + i];
       i = i + 1;
     } while (i < numParts);
   }
-  iVar2 = Anim_simGlobalWords[1];
+  this->baseTicks = simGlobal.gameTicks;
   this->flags = 6;
-  this->baseTicks = iVar2;
   return;
 }
 
@@ -304,15 +260,12 @@ AnimScript::AnimScript(int num,int numParts)
 AnimScript::AnimScript(Group *instanceGroup,int type,int boomIndex,int numParts)
 {
   int i;
-  /* SYM-CODEGEN-CARRIER: iVar3 -- assigning Anim_simGlobalWords[1] directly
-   * to baseTicks keeps 51 instructions but produces 10 oracle diffs. */
-  int iVar3;
   Trk_AnimateBoomInst *objInstance;
   int numElems;
 
   objInstance = (Trk_AnimateBoomInst *)(instanceGroup + 1);
   numElems = instanceGroup->m_num_elements;
-  this->inst = __builtin_vec_new(numParts << 2);
+  this->inst = new Trk_AnimateInst *[numParts];
   i = 0;
   numElems = numElems - 1;
   if (numElems != -1) {
@@ -325,9 +278,8 @@ AnimScript::AnimScript(Group *instanceGroup,int type,int boomIndex,int numParts)
       numElems = numElems - 1;
     } while (numElems != -1);
   }
-  iVar3 = Anim_simGlobalWords[1];
+  this->baseTicks = simGlobal.gameTicks;
   this->flags = 6;
-  this->baseTicks = iVar3;
   return;
 }
 
@@ -345,7 +297,7 @@ void AnimScript::GetAnimFrameInfo(int *frame,int *numFrames)
   int interval;
   int ticks;
 
-  ticks = Anim_simGlobalWords[1] - this->baseTicks;
+  ticks = simGlobal.gameTicks - this->baseTicks;
   animInst = *this->inst;
   if ((u_int)((u_short)animInst->interval - 1) < 400) {
     interval = (int)animInst->interval;
@@ -372,7 +324,7 @@ int AnimScript::GetTimedAnimPosRot(int index,coorddef *pt,matrixtdef *mat)
   if (this->GetStatus() != 1) {
     return -1;
   }
-  tmp = Anim_simGlobalWords[1] - this->baseTicks;
+  tmp = simGlobal.gameTicks - this->baseTicks;
   if (Anim_GetRotPos(this->inst[index],this->flags,tmp,pt,mat) == 0) {
     this->baseTicks = -1;
     this->inst[index] = (Trk_AnimateInst *)0x0;

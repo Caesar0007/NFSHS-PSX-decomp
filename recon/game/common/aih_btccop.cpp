@@ -3603,12 +3603,12 @@ AIHigh_BTC_HumanCop::~AIHigh_BTC_HumanCop()
 
 /* ---- _._14AIHigh_BTC_Cop  AIHigh_BTC_Cop::dtor  [AIH_BTCCOP.CPP:?] SLD-FLAG:NO_SLD ---- */
 
-/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
- * nfs4_types.h) so every derived dtor and every scope-exit collapses to
- * ___11AIHigh_Base the way retail does; the standalone symbol gcc then stops
- * emitting is supplied here, in place, with C linkage. */
-extern "C" void ___11AIHigh_Base(void *);
-extern "C" void ___14AIHigh_BTC_Cop(void *thisp) { ___11AIHigh_Base(thisp); }
+/* The empty source destructor naturally emits retail's base-forward
+   `___14AIHigh_BTC_Cop` and supplies implicit `this`; no free-function receiver
+   name is needed. */
+AIHigh_BTC_Cop::~AIHigh_BTC_Cop()
+{
+}
 
 
 
@@ -3663,19 +3663,16 @@ void AIState_NonActive::Execute()
 }
 
 /* ---- ___17AIState_NonActive @0x8005F62C : deleting dtor (SYM _._17AIState_NonActive) ---- */
-extern "C" void ___17AIState_NonActive(AIState_NonActive *pThis,int __in_chrg)
+AIState_NonActive::~AIState_NonActive()
 {
-  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_NonActive_vtable;
-  ((pThis->carObj_)->N).active = '\x01';
-  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
-  if ((__in_chrg & 1U) != 0) {
-    __builtin_delete(pThis);
-  }
+  this->_vf = (__vtbl_ptr_type (*) [4])AIState_NonActive_vtable;
+  ((this->carObj_)->N).active = '\x01';
+  this->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
   return;
 }
 
 /* ---- TestForRelease__12AIState_Base_8005F678 @0x8005F678 : shared default impl (real method) ---- */
-extern "C" int TestForRelease__12AIState_Base_8005F678(AIState_Base *pThis)
+extern "C" int TestForRelease__12AIState_Base_8005F678(AIState_Base *)
 {
   return 0;
 }

@@ -65,6 +65,12 @@ struct Anim_tFrame {
     short qx, qy, qz, qw;
 };
 
+struct Sched_tSchedule;
+struct Sim_tSimGlobalVar {
+    int gameStarted, gameTicks, time32Hz;
+    Sched_tSchedule *schedule64Hz, *schedule32Hz, *schedule32Hz2;
+};
+
 struct AnimScript {
     int baseTicks, baseFrame, flags, numParts;
     Trk_AnimateInst **inst;
@@ -72,6 +78,9 @@ struct AnimScript {
     AnimScript(int num);
     AnimScript(int num, int numParts);
     AnimScript(Group *instanceGroup, int type, int boomIndex, int numParts);
+    /* Inline in the original class: its expansion is the exact retail delete
+       sequence in Anim_Restart and Anim_FreeHandle; no out-of-line dtor exists. */
+    ~AnimScript() { delete [] inst; }
     void SetAnimAttrib(int flags);
     void GetAnimFrameInfo(int *frame, int *numFrames);
     int GetTimedAnimPosRot(coorddef *pt, matrixtdef *mat);

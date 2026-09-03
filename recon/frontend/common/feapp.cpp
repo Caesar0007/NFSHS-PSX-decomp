@@ -59,6 +59,14 @@ inline tDialogMessageStringWithTimeout::tDialogMessageStringWithTimeout()
   timeOutTicks = 0x480;
 }
 
+/* Retail SYM owns this STAT destructor in FEApp.obj, and SLD identifies its
+ * original definition as FEDIALOG.H:215.  It is materialized beside the
+ * FEApp-owned class surface because reconstructed vtables are data-only TUs;
+ * the natural C++ destructor still emits retail's exact call to ~tScreen. */
+tDialogMessageStringWithTimeout::~tDialogMessageStringWithTimeout()
+{
+}
+
 inline tDialogNoInputMessage::tDialogNoInputMessage()
 {
   _vf = (__typeof__(_vf))tDialogNoInputMessage_vtable;   /* w76-A20 vptr-store alias dial (24A) */

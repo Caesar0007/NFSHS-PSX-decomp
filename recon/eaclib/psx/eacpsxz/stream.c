@@ -347,6 +347,10 @@ extern unsigned int filterchunk(int s, int chunk)
  *   Returns 1 if the end-of-stream marker was reached, else 0. */
 extern int parsechunks(int s)
 {
+    /* ORIGINAL-NAME-UNRESOLVED: `bvar1` and `uVar5` are retained
+     * decompiler-style spellings.  NFS4 has no local debug records for this
+     * library function, and no source-bearing cross-version body has been
+     * found; neither spelling is accepted as original. */
     int   bvar1;
     int   consumer;
     int   consumerCount;
@@ -460,6 +464,9 @@ extern void closecallback(int a0, int a1, int s)
  * allocno priority above reqcur's, so bvar1 takes $s1 and reqcur $s2 as in retail. */
 extern int readcallback(int a0, int a1, int s)
 {
+    /* ORIGINAL-NAME-UNRESOLVED: `bvar1`, `iVar2`, and `uVar3` are retained
+     * placeholders.  The binary proves their value roles but NFS4 supplies no
+     * local-name records for this library function. */
     int bvar1;
     int iVar2;
     unsigned int uVar3;
@@ -740,6 +747,9 @@ extern int restartstream(int s, unsigned int prio)
 
     /* compute the next contiguous fill region [fillptr .. readptr) */
     {
+        /* ORIGINAL-NAME-UNRESOLVED: `uVar3` and `uVar5` are retained
+         * placeholders; no source-bearing or debug-local record currently
+         * proves their original spellings. */
         unsigned int uVar3;
         unsigned int uVar5;
         int room;

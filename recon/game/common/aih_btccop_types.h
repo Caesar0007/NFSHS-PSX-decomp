@@ -202,7 +202,6 @@ struct AIState_Base {
     __vtbl_ptr_type (*_vf)[4];
     AIState_Base() {}
     AIState_Base(Car_tObj *carObj);
-    ~AIState_Base();
     void StateExecute();
     int TestForRelease();
 };
@@ -224,6 +223,7 @@ struct AIState_NonActive : public AIState_Base {
     AIState_NonActive(Car_tObj *carObj) : AIState_Base(carObj) {
         _vf = (__vtbl_ptr_type (*)[4])((char *)AIState_NonActive_vtable + 8);
     }
+    ~AIState_NonActive();
     void Execute();
 };
 
@@ -338,6 +338,7 @@ struct AIHigh_BTC_Cop : public AIHigh_BasicCop {
     } freezeMode_;
     AIHigh_BTC_Cop() {}
     AIHigh_BTC_Cop(Car_tObj *carObj, int copIndex);
+    ~AIHigh_BTC_Cop();
     void AssignToPlayer(AIHigh_BTC_Perp *target);
     int GetCheckChasePosition(coorddef *pos);
     int CheckForNewTarget();

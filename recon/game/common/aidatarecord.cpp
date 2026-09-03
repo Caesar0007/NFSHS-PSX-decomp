@@ -183,17 +183,13 @@ int AIDataRecord_AccTable_t::Get(int speed)
 void AIDataRecord_AccTable_t::Setup()
 {
   int loop;
-  /* SYM-CODEGEN-CARRIER: iVar1 -- folding the Get/fixedmult/store chain
-   * directly changes the exact function by 6 oracle diffs. */
-  int iVar1;
 
   this->AIDataRecord_t::Setup();
   loop = 0;
 loopTop:
   if (loop < 0x70) {
-    iVar1 = this->Get(loop);
-    iVar1 = fixedmult(iVar1,this->scale_);
-    *(short *)(this->dataBuffer_ + loop * 2) = (short)(iVar1 >> 8);
+    *(short *)(this->dataBuffer_ + loop * 2) =
+        (short)(fixedmult(this->Get(loop),this->scale_) >> 8);
     loop = loop + 1;
     goto loopTop;
   }
@@ -342,8 +338,6 @@ AIDataRecord_BestLine_t::~AIDataRecord_BestLine_t()
 /* ---- ___23AIDataRecord_AccTable_t  AccTable::dtor ---- */
 AIDataRecord_AccTable_t::~AIDataRecord_AccTable_t()
 {
-  int recordLoop;
-  int curveLoop;
   return;
 }
 

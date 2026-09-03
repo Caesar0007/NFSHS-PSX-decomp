@@ -1341,20 +1341,12 @@ LAB_8006322c:
 
 
 /* ---- ___13AIHigh_Player  AIHigh_Player::~AIHigh_Player  @0x80063248 ----
- * Reconstructed 2026-07-11 (wave-5 consolidation): declared in aihigh.h + oracle .s existed but
- * the fn was defined NOWHERE in the tree (rule-8 unreconstructed-fn class, found by the aih agent).
- * Oracle: set vptr(+0x14) = _vt_16AIHigh_BasicPerp (the BASE class vtable -- gcc2.8 dtor of
- * AIHigh_Player collapses the inlined ~AIHigh_BasicPerp body, which resets its own vptr), then
- * jal ___11AIHigh_Base with the vptr store in the delay slot. Same extern-C free-fn recipe as
- * ___10AIHigh_Cop (aih_cop.cpp:2090). */
-extern "C" {
-extern char _vt_16AIHigh_BasicPerp[];
-void ___11AIHigh_Base(void *);
-void ___13AIHigh_Player(void *thisp)
+ * Retail restores AIHigh_BasicPerp's dispatch table, then ordinary implicit
+ * base destruction reaches AIHigh_Base.  The real member definition removes
+ * the reconstructed free-function receiver. */
+AIHigh_Player::~AIHigh_Player()
 {
-  *(char **)((char *)thisp + 0x14) = _vt_16AIHigh_BasicPerp;
-  ___11AIHigh_Base(thisp);
-}
+  this->_vf = (__vtbl_ptr_type (*)[3])AIHigh_BasicPerp_vtable;
 }
 
 /* end of aih_play.cpp */

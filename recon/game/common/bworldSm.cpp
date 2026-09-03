@@ -101,10 +101,11 @@ void FindAbsClosestSliceCrude(coorddef *pt,BWorldSm_Pos *slicePos)
 int BWorldSm_FindClosestSlice(coorddef *pt,BWorldSm_Pos *slicePos)
 {
   int startSlice;
-  /* SYM-CODEGEN-CARRIER: bVar3 -- repeating the slice comparison directly
-   * for the two stores and return grows 39 to 45 instructions with 40 oracle
-   * diffs; this shared optimized result preserves retail's single boolean. */
-  bool bVar3;
+  /* ORIGINAL-NAME-RECOVERED: sliceChanged -- `sliceChanged` comes from the symbol-bearing
+   * NFS2 BWorldSm_FindClosestSlice, where the same comparison result feeds the
+   * two change fields and the return. Repeating the comparison directly grows
+   * NFS4 from 39 to 45 instructions with 40 oracle diffs. */
+  int sliceChanged;
 
   startSlice = slicePos->slice;
   if (0x800000 <
@@ -114,10 +115,10 @@ int BWorldSm_FindClosestSlice(coorddef *pt,BWorldSm_Pos *slicePos)
   RawFindClosestSlice(pt,slicePos);
   slicePos->chunk =
       *(u_char *)(slicePos->slice * 0x20 + (char *)BWorldSm_slices + 0x1c);
-  bVar3 = slicePos->slice != startSlice;
-  slicePos->quadChanged = bVar3;
-  slicePos->sliceChanged = bVar3;
-  return (u_int)bVar3;
+  sliceChanged = slicePos->slice != startSlice;
+  slicePos->quadChanged = sliceChanged;
+  slicePos->sliceChanged = sliceChanged;
+  return sliceChanged;
 }
 
 /* ---- RawFindClosestSlice__FP8coorddefP12BWorldSm_Pos  [@0x8007eab0] ---- */
@@ -205,24 +206,23 @@ void RawFindClosestSlice(coorddef *pt,BWorldSm_Pos *slicePos)
 /* ---- BWorldSm_SetSlice__FiP12BWorldSm_Pos  [@0x8007ed64] ---- */
 void BWorldSm_SetSlice(int slice,BWorldSm_Pos *slicePos)
 {
-  /* SYM-CODEGEN-CARRIER: uVar1 -- loading chunkIndex directly at the final
-   * store keeps 21 instructions but changes 18 load/store scheduling and
-   * register-allocation instructions. */
-  u_char uVar1;
-
+  /* SLD statement order is source-significant here: lines 263, 266-271,
+   * 273, and 275-278 place the pointer resets before the change flags and
+   * the direct chunk assignment before the final status bytes.  With that
+   * order GCC hoists the chunkIndex load exactly as retail; no unrecorded
+   * source local is required. */
   slicePos->slice = (short)slice;
-  slicePos->sliceChanged = '\0';
-  slicePos->quadChanged = '\0';
-  slicePos->offEdge = '\0';
   slicePos->simSlice = (Trk_NewSimSlice *)0x0;
   slicePos->simQuad = (Trk_NewSimQuad *)0x0;
   slicePos->simRotFlag = 0;
-  uVar1 = BWorldSm_slices[slicePos->slice].chunkIndex;
+  slicePos->sliceChanged = '\0';
+  slicePos->quadChanged = '\0';
+  slicePos->offEdge = '\0';
+  slicePos->chunk = BWorldSm_slices[slicePos->slice].chunkIndex;
   *(signed char *)&slicePos->lastRezRequested = -2;
   slicePos->rez = '\x01';
   slicePos->triangleFlag = '\0';
   *(signed char *)&slicePos->quad = -1;
-  slicePos->chunk = uVar1;
   return;
 }
 
@@ -231,7 +231,8 @@ void GetStmQuadPts(BWorldSm_Pos *slicePos,coorddef *cp)
 {
   Trk_NewStrip *pStrip;
   coorddef *pts;
-  /* SYM-CODEGEN-CARRIER: vertices -- expanding the inlined GetData/index
+  /* ORIGINAL-NAME-RECOVERED: vertices -- the symbol-bearing NFS2 GetStmQuadPts names this
+   * same cached geometry-vertex base `vertices`.  Expanding the GetData/index
    * expression at each use compiles to 101 instructions and 119 oracle diffs.
    * This cached result preserves the exact 74-instruction coordinate-load
    * schedule; SYM still records the inlined member receiver separately. */
@@ -373,26 +374,24 @@ void BWorld_SetSimSlice(BWorldSm_Pos *slicePos)
 /* ---- BworldSm_UpdateSimQuad__FP12BWorldSm_Pos  [@0x8007f094] ---- */
 void BworldSm_UpdateSimQuad(BWorldSm_Pos *slicePos)
 {
-  /* SYM-CODEGEN-CARRIER: iVar3 -- the retail local map records only
-   * simIndex in a2.  Folding this delta into simIndex swaps the live
-   * sim-slice base from a1 to a2 and produces 28 instruction diffs;
-   * repeating the expression produces 34 diffs.  This short-lived alias
-   * preserves the exact retail allocation while the later, recorded
-   * simIndex retains its original name and scope. */
-  int iVar3;
+  /* SYM/SLD records exactly this function-scope `simIndex` in $a2 and the
+     nested line-6 `startsimquad`.  Grouping the final offset as
+     startsimquad + (simquadIndex + simIndex) preserves that allocation; no
+     decompiler-only delta temporary is part of the source. */
   int simIndex;
 
-  iVar3 = (int)(signed char)slicePos->quad -
-          (u_int)slicePos->simSlice->simquadStartIndex;
-  if ((-1 < iVar3) &&
-      (iVar3 < (int)(u_int)slicePos->simSlice->simquadCount)) {
+  simIndex = (int)(signed char)slicePos->quad -
+             (u_int)slicePos->simSlice->simquadStartIndex;
+  if ((-1 < simIndex) &&
+      (simIndex < (int)(u_int)slicePos->simSlice->simquadCount)) {
     Trk_NewSimQuad *startsimquad;
 
     startsimquad = (Trk_NewSimQuad *)
         (Track_chunkList[slicePos->chunk].simQuadBuf + 1);
     slicePos->simQuad = startsimquad;
-    simIndex = (u_int)slicePos->simSlice->simquadIndex + iVar3;
-    slicePos->simQuad = (Trk_NewSimQuad *)((int)startsimquad + simIndex);
+    slicePos->simQuad = (Trk_NewSimQuad *)
+        ((int)startsimquad +
+         ((u_int)slicePos->simSlice->simquadIndex + simIndex));
     return;
   }
   slicePos->simQuad = &GlobalSimQuad;
@@ -628,10 +627,12 @@ int FindClosestQuad(coorddef *pt,BWorldSm_Pos *slicePos)
   int foundSlice;
   static coorddef corrPt;
   int rCount;
-  /* SYM-CODEGEN-CARRIER: sliceChanged -- reusing the stored byte adds an
-   * `andi` (116 instructions), while recomputing the comparison produces 117
-   * instructions/four diffs.  This shared boolean gives the exact 115-
-   * instruction stores to sliceChanged and quadChanged. */
+  /* ORIGINAL-NAME-RECOVERED: sliceChanged -- NFS2 FindClosestQuad's debug block and matching
+   * source name the same post-search comparison local `sliceChanged`.
+   * Reusing the stored byte adds an `andi` (116 instructions), while
+   * recomputing the comparison produces 117 instructions/four diffs.  This
+   * shared boolean gives the exact 115-instruction stores to sliceChanged and
+   * quadChanged. */
   int sliceChanged;
   
   startSlice = slicePos->slice;
@@ -889,7 +890,7 @@ void NormalCache_Init(void)
    * The named value preserves retail's separate $a2=-1 and $a1=255 values
    * and exact 15-instruction initialization loop. */
   int invalid;
-  
+
   BWSM_NormalCacheSysTime = 0;
   i = 0;
   invalid = -1;

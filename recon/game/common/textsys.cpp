@@ -77,40 +77,64 @@ void TextSys_LoadWords(int language)
 char * TextSys_Word(int wordnum)
 
 {
-  /* SYM-CODEGEN-CARRIER: off -- both natural direct-address operand orders
-     are count-exact FAIL 2 at 8/8; staging the product is PASS. */
-  int off = wordnum * 0xc;
-  return wordFile + *(int *)(wordFile + off + 8);
+  /* ORIGINAL-NAME-RECOVERED: offset -- the symbol-bearing NFS2 Textsys.c
+     retains this name for the same 12-byte word-table lookup. */
+  /* ORIGINAL-NAME-RECOVERED: phrase -- the same symbol-bearing function
+     retains this name for the resolved string pointer. */
+  int *offset;
+  char *phrase;
+
+  offset = (int *)(wordFile + wordnum * 12 + 8);
+  phrase = wordFile + *offset;
+  return phrase;
 }
 
 /* ---- TextSys_WordFlags__Fi  [TEXTSYS.CPP:120-126] SLD-VERIFIED ---- */
 int TextSys_WordFlags(int wordnum)
 
 {
-  /* SYM-CODEGEN-CARRIER: off -- both natural direct-address operand orders
-     are count-exact FAIL 4 at 8/8; staging the product is PASS. */
-  int off = wordnum * 0xc;
-  return (u_int)*(u_char *)(wordFile + off + 3);
+  /* ORIGINAL-NAME-RECOVERED: sptr -- retained by the symbol-bearing NFS2
+     Textsys.c implementation of the same flags lookup. */
+  /* ORIGINAL-NAME-RECOVERED: s -- the same symbol-bearing function retains
+     this name for the zero-extended flags result. */
+  char *sptr;
+  int s;
+
+  sptr = wordFile + wordnum * 12 + 3;
+  s = *sptr & 0xff;
+  return s;
 }
 
 /* ---- TextSys_WordX__Fi  [TEXTSYS.CPP:132-141] SLD-VERIFIED ---- */
 int TextSys_WordX(int wordnum)
 
 {
-  /* SYM-CODEGEN-CARRIER: off -- both natural direct-address operand orders
-     are count-exact FAIL 4 at 8/8; staging the product is PASS. */
-  int off = wordnum * 0xc;
-  return (int)*(short *)(wordFile + off + 4);
+  /* ORIGINAL-NAME-RECOVERED: xptr -- retained by the symbol-bearing NFS2
+     Textsys.c implementation of the same X-coordinate lookup. */
+  /* ORIGINAL-NAME-RECOVERED: x -- the same symbol-bearing function retains
+     this name for the loaded coordinate. */
+  short *xptr;
+  int x;
+
+  xptr = (short *)(wordFile + wordnum * 12 + 4);
+  x = *xptr;
+  return x;
 }
 
 /* ---- TextSys_WordY__Fi  [TEXTSYS.CPP:147-156] SLD-VERIFIED ---- */
 int TextSys_WordY(int wordnum)
 
 {
-  /* SYM-CODEGEN-CARRIER: off -- both natural direct-address operand orders
-     are count-exact FAIL 4 at 8/8; staging the product is PASS. */
-  int off = wordnum * 0xc;
-  return (int)*(short *)(wordFile + off + 6);
+  /* ORIGINAL-NAME-RECOVERED: yptr -- retained by the symbol-bearing NFS2
+     Textsys.c implementation of the same Y-coordinate lookup. */
+  /* ORIGINAL-NAME-RECOVERED: y -- the same symbol-bearing function retains
+     this name for the loaded coordinate. */
+  short *yptr;
+  int y;
+
+  yptr = (short *)(wordFile + wordnum * 12 + 6);
+  y = *yptr;
+  return y;
 }
 
 /* ---- TextSys_UnloadWords__Fv  [TEXTSYS.CPP:162-165] SLD-VERIFIED ---- */

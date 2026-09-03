@@ -1,0 +1,889 @@
+# Original-source name recovery backlog
+
+## Policy
+
+A descriptive semantic identifier is not evidence of the original source
+spelling and is not an accepted correction.  When retail SYM/SLD proves that a
+distinct source object existed but does not retain its name, the conspicuous
+decompiler placeholder remains in source as an unresolved signal.  The item
+remains **unresolved** until canonical source, another symbol-bearing build, or
+equivalent direct evidence recovers the actual spelling.  Byte-exact code
+generation does not close an original-name item.
+
+The placeholder names below must not be described as recovered, SYM-exact, or
+final.  Future work must replace each one with the proven original spelling;
+invented semantic substitutions do not close the item.
+
+## Open items
+
+| Owner/function | Retained unresolved identifier | What is proved | Missing evidence / closure condition |
+|---|---|---|---|
+| `recon/game/common/replay.cpp` — `Replay_ResetReplay__Fv` | `piVar2` (decompiler placeholder, not an accepted semantic replacement; invented `counterCursor` was rejected and reverted) | A distinct decrementing pointer is required: direct array indexing produces 87 rather than 86 instructions and one oracle mismatch; retained form is PASS 86/86. | Retail SYM names only `i`; recover the pointer's original source spelling from canonical/source-bearing evidence. |
+| `recon/game/common/copspeak.cpp` — `CopSpeak_PlayNextRequest__Fv` | `iVar3` (decompiler placeholder, not an accepted semantic replacement; invented `queueIndex` was rejected and reverted) | A distinct cached queue index is required: direct global indexing/advancement produces six oracle diffs; retained form is PASS 71/71. | SYM names only `r` and `handle`; recover the cached index's original spelling. |
+| `recon/game/common/aihigh.cpp` — `AIHigh_Execute__Fv` | `bVar1` (decompiler placeholder, not an accepted semantic replacement; invented `executeHighLevelAI` was rejected and reverted) | A distinct decision object is required: direct short-circuit reconstruction produces 61 rather than 66 instructions and 33 oracle diffs; retained form is PASS 66/66. | SYM names only `carLoop` and `carObj`; recover the decision object's original spelling. |
+| `recon/game/common/pausemenu.cpp` — `PauseMenu_MenuText__FsbT1` | `iVar1` (decompiler placeholder) | A distinct `TextSys_WordX` result statement is required: inlining the call remains count-exact but causes two scheduling diffs; retained form is PASS 25/25. | Retail SYM retains no result-local name; recover the original spelling from source-bearing evidence. |
+| `recon/game/common/nfs3.cpp` — `NFS3_CheckForFileOperations__Fv` | `e` (temporary placeholder, not an accepted source spelling) | The former guard-only `g` declaration was eliminated: repeating `gFileMgr.handlearray` is CSE'd to the exact retail guard value. A distinct loop bound remains required for PASS 21/21; direct loop comparison changes allocation. | Retail NFS4 SYM retains only `p`; this PSX-only function has no NFS2 PC counterpart, and the checked reference trees retain no source name for the bound. Recover it from canonical/source-bearing evidence or eliminate it with a byte-exact loop form. |
+| `recon/game/common/aih_opp.cpp` — `AIHigh_Opponent::CheckForWipeOut` | `numRacers`, `bVar1`, `hlai`, `speedLimit`, `carIndex`, `field1380`, `slotAddr`, `absField`, `state` (all placeholders, including semantic-looking spellings) | Detailed GCC allocation/scheduling receipts prove that distinct source-shape quantities are required for the current PASS 120/120 body. | Retail NFS4 SYM retains only `perTickProb`, `randVal`, `oppLevel`, `oppFines`, `hLoop`, `thisPlayerObj`, `thisPlayer`, and `playFines`. Recover every other spelling from canonical/source-bearing evidence; behavior and register role are insufficient. |
+| `recon/game/common/aidatarecord.cpp` — `AIDataRecord_t::StartUp2` | `pAVar1` (decompiler placeholder) | Retail SYM retains only `recordLoop`. Ordinary `recordCollection[recordLoop]->Setup()` emits 22 rather than 27 instructions and 11 oracle diffs because GCC devirtualizes the call; the explicit cached object/vtable dispatch remains PASS 27/27. | Recover the exact cached-pointer spelling from source-bearing evidence, or find an ordinary C++ expression that preserves retail virtual dispatch without an extra named source object. |
+| `recon/game/common/aidatarecord.cpp` — `AIDataRecord_t::CleanUp1` | `pa_Var1` (decompiler placeholder) | Retail SYM retains no local. Ordinary `delete AIDataRecord_BestLine` / `delete AIDataRecord_TrackCurve` emit 18 rather than 28 instructions and 24 oracle diffs; the shared cached vtable row remains PASS 28/28. | Recover the exact source spelling from source-bearing evidence, or restore a class/deleting-destructor declaration that makes ordinary `delete` reproduce retail dispatch. |
+
+## Expansion requirement
+
+This is a living backlog.  Every retained source-only carrier whose spelling is
+not directly recoverable must be added as the exhaustive carrier audit reaches
+it.  Completion of the project-wide goal requires recovery of each original
+spelling; a backlog entry records incomplete work and never converts an
+underdetermined spelling into an accepted solution.
+
+## Project-wide unresolved carrier queue
+
+Every remaining `SYM-CODEGEN-CARRIER` marker in `recon/**/*.c` and
+`recon/**/*.cpp` is an open original-source item, even when its identifier is a
+plausible semantic phrase rather than an obvious decompiler placeholder.  The
+marker itself records the owning function, identifier, and code-generation
+receipt; it must not be interpreted as proof of the identifier's original
+spelling.  A row leaves this queue only when direct source-bearing evidence is
+recorded and its marker is replaced by `ORIGINAL-NAME-RECOVERED` (or when the
+extra source object is eliminated while preserving the oracle).
+
+Current measured queue: **1,607 unresolved carrier-marker rows project-wide**,
+of which **616 are in `recon/game/common`**.  There are currently **23
+`ORIGINAL-NAME-RECOVERED` evidence rows**.  These counts were measured from the
+working tree on 2026-09-03 and must be regenerated after each recovery round.
+
+## Strict per-directory snapshot through P816
+
+These reports measure the current source tree; they are evidence of remaining
+work, not completion certificates.  `Explicit source-only codegen carriers`
+counts unique function/name mappings, whereas the 1,613 figure above counts raw
+marker rows (a few names have more than one scoped marker row).
+
+| Directory | SYM functions | Mapped | Declaration-clean | Missing names | Extra names | Type/storage findings | Source-only carriers | Mapping review |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| `recon/game/common` | 1,258 | 1,258 | 1,228 | 0 | 6 | 28 / 28 | 616 | 0 |
+| `recon/frontend/common` | 838 | 833 | 781 | 0 | 46 | 9 / 9 | 519 | 3 |
+| `recon/frontend/psx` | 85 | 85 | 85 | 0 | 0 | 0 / 0 | 54 | 0 |
+| `recon/game/psx` | 395 | 395 | 392 | 0 | 3 | 0 / 0 | 397 | 0 |
+| `recon/eaclib/psx` | 5 | 5 | 5 | 0 | 0 | 0 / 0 | 5 | 0 |
+| `recon/lib` | 0 | 0 | 0 | 0 | 0 | 0 / 0 | 0 | 0 |
+| `recon/syslib/psx` | 0 | 0 | 0 | 0 | 0 | 0 / 0 | 0 | 0 |
+
+The authoritative report files are
+`game_common_strict_p816_20260903.md`,
+`frontend_common_strict_p783_20260903.md`,
+`frontend_psx_strict_p780_20260903.md`,
+`game_psx_strict_p779_20260903.md`,
+`eaclib_psx_strict_p779_20260903.md`,
+`lib_strict_p779_20260903.md`, and
+`syslib_psx_strict_p779_20260903.md` in this directory.
+
+P780 also closed a source-scanning defect: two literal NUL bytes embedded in
+`psxfront.cpp` character constants caused Universal Ctags to stop after
+`CleanupSpinningCars`.  Re-spelling them as the source token `'\\0'` preserved
+the 25/25 byte-exact TU and zero branch-distance divergence while improving the
+frontend/PSX audit from 65/85 mapped with 20 false mapping-review items and
+three false missing names to 85/85 mapped, zero review items, and zero missing
+names.
+
+### Frontend/common ownership and overload progress at P783
+
+Retail places `_._31tDialogMessageStringWithTimeout` at
+`FEDIALOG.H:215` but emits its STAT copy from `FEApp.obj`.  The misplaced
+free ABI carrier was removed from `fedialog.cpp`; `feapp.cpp` now materializes
+the real C++ destructor from the FEApp owner surface.  The destructor remains
+**PASS 8/8**, and both affected translation units remain fully byte-exact
+(`feapp.cpp` 16/16, `fedialog.cpp` 32/32).  The strict audit now maps this
+record, although its remaining STAT-vs-EXT finding documents the manual-vtable
+reconstruction gap rather than hiding it.
+
+Three formerly ambiguous header-inline `Draw` records are now selected by
+their exact GCC-v2 mangled parameter encodings (`b` versus `iib`).  This is an
+audit disambiguation only: it does not exempt parameters, locals, types, or
+storage.  Frontend/common therefore improved from **829/838 mapped with seven
+mapping-review items** to **833/838 mapped with three mapping-review items**.
+
+The three remaining mapping-review records are known byte-exact top-level
+assembly destructor islands, not missing retail symbols:
+
+| SYM function | Current carrier | Exact-source closure condition |
+|---|---|---|
+| `_._25tScreenPinkSlipsCarSelect` | `screencarselect.cpp` top-level `___25tScreenPinkSlipsCarSelect` | Restore compiler-generated implicit-`this` destructor emission while keeping the implicit `tAllScreens` destructor PASS. |
+| `_._25tScreenCarSelectTwoPlayer` | `screencarselect.cpp` top-level `___25tScreenCarSelectTwoPlayer` | Same: generate the standalone vtable target from the real member destructor without losing the required inline teardown at aggregate call sites. |
+| `_._23tScreenControllerConfig` | `screencontroller.cpp` top-level `___23tScreenControllerConfig` | Restore the real member destructor/vtable relationship while preserving `tAllScreens` inline teardown. |
+
+An ordinary C wrapper for `___23tScreenControllerConfig` was tested and was
+byte-exact (17/17), but rejected and reverted because it necessarily introduced
+an invented explicit receiver identifier where the original C++ source had
+implicit `this`.  These three records remain visibly unresolved.
+
+P783 regression gates: `audit_vtable_indexing.py` passed across 1,017 files;
+`relink.py --lane recon` remained GREEN across 757 objects with zero real
+duplicates, zero hidden phantoms, and zero relocation-referenced unresolved
+symbols.  `brdist.py` found zero branch-distance/count divergence in all 16
+FEApp and 32 FEDialog functions.
+
+### Game/common header-copy progress at P785
+
+Five repeated GCC-v2 header-inline copies are now mapped by the conjunction of
+their exact SYM name, exact retail VA suffix, and owning object.  This closes
+the game/common mapping-review queue without relaxing any declaration check:
+
+- `TestForRelease__12AIState_Base` at `0x8005F678`, `0x800613C4`, and
+  `0x80072830`;
+- `Execute__17AIState_NonActive` at `0x80061370` and `0x80072750`.
+
+The explicit, unused `pThis` spelling was removed from all five ABI copies;
+their receiver parameters are now unnamed because the original C++ source had
+implicit `this`, and retail SYM retains no explicit source identifier to spell.
+Every copy remains **PASS 2/2**.  The affected TUs remain fully byte-exact
+(`aih_btccop.cpp` 40/40, `aih_btcperp.cpp` 26/26, `aistate.cpp` 52/52), with
+zero branch-distance/count divergence.  Game/common now maps **1,258/1,258
+functions with zero mapping-review items**.  Its type/storage counts rose from
+23/23 to 28/28 because the five newly mapped copies expose their real
+STAT-vs-EXT manual-vtable linkage debt; those findings remain open.
+
+The project-wide vtable audit still passes across 1,017 files, and relink stays
+GREEN across 757 objects with zero real duplicates, zero hidden phantoms, and
+zero relocation-referenced unresolved symbols.
+
+### Exact compact static-local recovery at P786
+
+Compact opcode-6 SYM records retain old GCC's internal linkage spelling for
+function-local statics as `sourceName.<numeric discriminator>`.  The numeric
+suffix is compiler-generated and is not part of the C/C++ identifier.  The
+strict audit now accepts such a local only when all three facts agree: Ctags
+identifies function-local `static` storage, the declaration carries the exact
+retail VA, and exactly one compact record at that VA has the same base spelling
+plus a decimal suffix.  This is an exact name-and-address mapping; it is not a
+semantic-name exemption.
+
+Four game/common declarations meet that proof, including the newly closed
+review items `Copspeak_gTimeString` from `Copspeak_gTimeString.308` at
+`0x8013E0B0` and `tick32` from `tick32.32` at `0x8013DDB4`.  The two existing
+`strspc` declarations in `Track_MakeTrackPathName` and
+`Track_MakeTrackDataPathName` also satisfy the same rule.  Game/common improves
+from **1,206 to 1,208 declaration-clean functions** and from **42 to 40 extra
+source-local names**.  `CopSpeak_Debug` remains PASS 8/8 and
+`DashHUD_HUDCalc` remains PASS 176/176; their TUs remain 27/27 and 6/6 PASS,
+respectively, with zero branch-distance/count divergence.
+
+### Exact symbol-bearing cross-build recovery at P787
+
+Ten optimized-away NFS4 locals now carry a machine-checkable
+`ORIGINAL-NAME-RECOVERED: <name>` receipt.  Each adjacent receipt identifies
+the corresponding NFS2 function, and NFS2's own debug-local record—not merely
+its reconstructed C text—retains the exact spelling.  The scratch audit admits
+only marked names that Ctags independently finds as real declarations; ordinary
+semantic carrier comments remain unresolved.
+
+The recovered names are `perpDistance`, `bend`, `bankNum`, two instances of
+`sliceChanged`, `vertices`, `rpmAtMaxSpeedInHighestGear`, `vy`, `vz`, and
+`u_pointer`.  They cover nine functions in `AIWORLD.cpp`, `audiocmn.cpp`,
+`bworldSm.cpp`, `physics.cpp`, and `replay.cpp`.  Game/common improves from
+**1,208 to 1,217 declaration-clean functions** and from **40 to 30 extra
+source-local names**.  The five affected TUs remain **22/22, 48/48, 28/28,
+22/22, and 16/16 PASS**, respectively, with zero branch-distance/count
+divergence throughout.
+
+### Dead synthetic-declaration removal at P788/P789
+
+Two byte-exact bodies contained declarations with no SYM/SLD ownership and no
+retail use.  `tPMenuItem::IsDisabled` carried five unrelated dead names
+(`ret`, `item`, `orgdata`, `col`, `i`) around a single return expression;
+removing them preserves PASS 3/3 and the complete `pausemenu.cpp` TU remains
+60/60 PASS.  `AIDataRecord_AccTable_t::~AIDataRecord_AccTable_t` similarly
+carried dead `recordLoop` and `curveLoop` declarations in an otherwise empty
+compiler-synthesized destructor; removing them preserves PASS 8/8 and the
+complete `aidatarecord.cpp` TU remains 26/26 PASS.  Both TUs have zero
+branch-distance/count divergence.
+
+These source corrections improve game/common from **1,217 to 1,219
+declaration-clean functions** and from **30 to 23 extra source-local names**.
+`NFS3_CheckForFileOperations::g` and all nine unproven
+`AIHigh_Opponent::CheckForWipeOut` carrier spellings were explicitly marked
+unresolved rather than being replaced by invented semantic names.
+
+### Real member-destructor restoration at P790/P791
+
+Eight AI hierarchy destructor bodies formerly existed as top-level C-linkage
+wrappers with an invented `thisp` receiver.  They are now ordinary C++ member
+destructors with implicit `this`: `AIHigh_Traffic`, `AIHigh_Cop`,
+`AIHigh_BTC_Cop`, `AIHigh_Opponent`, `AIHigh_BasicCop`,
+`AIHigh_BasicPerp`, `AIHigh_Player`, and `AIHigh_BTC_Perp`.  All eight retain
+their exact 8- or 10-instruction retail bodies; all owning TUs remain fully
+PASS with zero branch-distance/count divergence.
+
+The same conversion removed the invented receiver and in-charge parameters
+from `AIState_RovingTraffic` and `AIState_Idle`.  `AIState_Idle` also no longer
+needs its `pCVar1` cached-car placeholder and remains PASS 22/22.
+At that point `AIState_RovingTraffic` remained PASS 29/29 with two cached
+quantities; P813 below supersedes that interim conclusion by recovering the
+chained-assignment and compound-assignment source shapes.
+
+Finally, direct virtual-call expressions eliminated `pa_Var1` and `pOVar2`
+from both object-animation destructors without a byte change.  Their remaining
+cached `deleteMe` pointer is explicitly unresolved: removing it through either
+repeated member accesses or C++ `delete[]`/`delete` measures 44/45 with 33
+oracle diffs in the Sign variant.  Both retained object destructors remain
+PASS 45/45 and `object.cpp` remains 37/37 PASS.
+
+Together these changes reduce game/common's explicit deleting-destructor ABI
+carriers from **29 to 19**, improve declaration-clean functions from **1,219
+to 1,225**, and reduce extra source-local names from **23 to 10**.  The current
+report for that round is `game_common_strict_p791_20260903.md`.
+
+### Further member-destructor and placeholder cleanup at P792/P793
+
+Seven additional deleting-destructor wrappers were restored as real C++ member
+destructors with implicit `this`: `AIState_NonActive` in `aih_btccop.cpp`, plus
+`AIState_Chase`, `AIState_Offroad`, `AIState_Purgatory`, `AIState_Donuts`,
+`AIState_GotoSlice`, and `AIState_Cruise` in `aistate.cpp`.  Their exact retail
+bodies remain PASS at 19, 34, 29, 72, 25, 13, and 13 instructions,
+respectively; both owning TUs remain fully PASS with zero branch-distance/count
+divergence.  This reduces the explicit deleting-destructor ABI carrier count
+from **19 to 12**.
+
+`AIState_None` was also tested as a member destructor but rejected and fully
+reverted: the available class graph makes GCC delegate to the base destructor,
+emitting 10 rather than retail's 13 instructions and five authoritative diffs.
+It therefore remains a visible ABI-carrier restoration item rather than being
+declared solved without evidence.
+
+In `NFS3_CheckForFileOperations`, direct spelling of
+`gFileMgr.handlearray` lets GCC CSE the guard value and eliminates the former
+unproved `g` local while preserving PASS 21/21.  The distinct loop bound is
+still codegen-relevant, so its placeholder `e` is now explicitly marked
+`ORIGINAL-NAME-UNRESOLVED` rather than hidden behind a carrier exemption.
+Consequently the strict audit still reports a truthful **10 extra names**, while
+the game/common source-only carrier count falls from **656 to 655**.
+
+The game/common report for that round is
+`game_common_strict_p793_20260903.md`: 1,258/1,258 functions mapped, 1,225
+declaration-clean, zero missing names, 10 extra names, 12 deleting-destructor
+ABI carriers, 655 source-only carriers, and zero mapping-review items.
+
+### Canonical loop/macro restoration at P794
+
+Two NFS2 symbol-bearing source shapes removed three more unproved source
+objects without changing retail output.  `Cars_Restart` now uses its canonical
+two `for` loops.  GCC naturally strength-reduces the second loop's
+`Cars_gList[i]` expression into retail's `$s1` pointer walk, eliminating the
+invented `carCursor`; direct use of `Cars_gNumCars` likewise eliminates the
+unrecorded `numCars`.  The block-local `carObj` spelling is accepted because
+NFS2 debug data records that exact name and type in the same function, its
+matched source initializes it from `Cars_gList[i]`, and NFS4 SLD opens the
+corresponding nested second-loop block at line 10.  The function remains PASS
+58/58.
+
+`Cars_CalculateRoadSpan` now uses EA's canonical
+`ABS(a) (((a) > 0) ? (a) : -(a))` macro shape recovered from the symbol-bearing
+NFS2 tree.  That ternary itself creates retail's fresh result pseudo, so the
+invented `absSpan` declaration is no longer required.  The function remains
+PASS 146/146, and the complete `cars.cpp` translation unit remains 33/33 PASS.
+
+The game/common report for that round is
+`game_common_strict_p794_20260903.md`: 1,258/1,258 functions mapped, 1,225
+declaration-clean, zero missing names, 10 extra names, 12 deleting-destructor
+ABI carriers, 652 source-only carriers, 11 exact cross-build/canonical name
+recoveries, and zero mapping-review items.
+
+### Local-free thunder update restoration at P795
+
+Retail SYM and SLD record no source locals in `AudioCmn_UpdateThunder`.
+Replacing the decompiler-style `uVar1` and `iVar2` carriers with direct
+per-branch compound assignments lets GCC perform the same common-tail store
+and random-mask scheduling as retail.  The reconstructed function remains
+PASS 43/43 with no invented local names; `audiocmn.cpp` remains 48/48 PASS and
+has zero branch-distance/count divergence.  A tempting local-free rewrite of
+`AudioTrk_StartUp` did not match and was fully reverted, so its conspicuous
+unresolved `neg1` placeholder remains open rather than receiving a guessed
+name.
+
+The game/common report for that round is
+`game_common_strict_p795_20260903.md`: 1,258/1,258 functions mapped, 1,225
+declaration-clean, zero missing names, 10 extra names, 12 deleting-destructor
+ABI carriers, 650 source-only carriers, 11 exact cross-build/canonical name
+recoveries, and zero mapping-review items.
+
+### SLD-exact `BworldSm_UpdateSimQuad` restoration at P796
+
+The function now follows its retained debug structure exactly: one
+function-scope `simIndex` in `$a2`, plus the nested line-6 `startsimquad`.
+The decompiler-only `iVar3` delta was removed.  Grouping the final address as
+`startsimquad + (simquadIndex + simIndex)` supplies retail's expression tree
+and register allocation without another source object.  The function remains
+PASS 34/34; `bworldSm.cpp` remains 28/28 PASS with zero branch-distance/count
+divergence.
+
+The game/common report for that round is
+`game_common_strict_p796_20260903.md`: 1,258/1,258 functions mapped, 1,225
+declaration-clean, zero missing names, 10 extra names, 12 deleting-destructor
+ABI carriers, 649 source-only carriers, 11 exact cross-build/canonical name
+recoveries, and zero mapping-review items.
+
+### SLD-exact `AIWorld_CalculateDeltaRoadYaw` restoration at P797
+
+Retail SYM/SLD records only function-scope `delta` and the nested line-5
+`yaw0`.  The decompiler-only `iVar2`, `nextSlice`, `gnLess1`, and `numSlices`
+carriers were therefore removed rather than assigned invented semantic names.
+The canonical EA/NFS2 `WRAP_SLICE` macro restores the complete repeated
+expression tree.  Instrumented GCC allocation traces then proved that one
+additional reference to the existing `carObj` parameter (p80 references 4 to
+5) produces retail's `carObj=$v1` / `gNumSlices=$a1` handout; the retained
+zero-instruction read-only compiler fence supplies that reference without
+inventing another source object.  The function remains PASS 34/34, and
+`AIWORLD.cpp` remains 22/22 PASS with zero branch-distance/count divergence.
+
+The game/common report for that round is
+`game_common_strict_p797_20260903.md`: 1,258/1,258 functions mapped, 1,225
+declaration-clean, zero missing names, 10 extra names, 12 deleting-destructor
+ABI carriers, 645 source-only carriers, 11 exact cross-build/canonical name
+recoveries, and zero mapping-review items.
+
+### SYM-register-exact `AudioMus_SetEntry` restoration at P798
+
+Retail SYM names exactly `titlechar` in `$a1`, `havefile` in `$a3`, and the
+nested-block `p` in `$a2`.  The former PASS source had assigned the current
+character to `titlechar` and introduced an unrecorded `$a1` index named
+`iVar3`, so name-presence auditing alone had concealed a role/register
+mismatch.  SLD lines 351 and 354 establish that `titlechar` is initialized
+before the filename loop and that the filename load belongs to the loop
+statement.  Restoring the natural `while (*p)` form lets GCC create the
+unnamed `$v1` character pseudo while the three source locals retain their
+recorded roles and registers.  The synthetic `iVar3` object is eliminated;
+the function remains PASS 34/34, `audiomus.cpp` remains 23/23 PASS, and the
+debug twin has zero branch-distance/count divergence.
+
+The game/common report for that round is
+`game_common_strict_p798_20260903.md`: 1,258/1,258 functions mapped, 1,225
+declaration-clean, zero missing names, 10 extra names, 12 deleting-destructor
+ABI carriers, 644 source-only carriers, 11 exact cross-build/canonical name
+recoveries, and zero mapping-review items.
+
+### SLD-order-exact `BWorldSm_SetSlice` restoration at P799
+
+Retail SYM records no source local in this function.  Its SLD sequence places
+the `simSlice`, `simQuad`, and `simRotFlag` resets before the three change-flag
+stores, followed by the direct chunk assignment and then the final status
+bytes.  The prior PASS body used a different source order and an unrecorded
+`uVar1` to force the desired schedule.  Restoring the retail statement order
+allows the direct `BWorldSm_slices[slicePos->slice].chunkIndex` expression to
+be hoisted exactly as the oracle without a source-only object.  The function
+remains PASS 21/21, `bworldSm.cpp` remains 28/28 PASS, and its debug twin has
+zero branch-distance/count divergence.  A neighboring attempt to eliminate
+`NormalCache_Init`'s unresolved `invalid` carrier regressed to five diffs and
+was fully reverted; that placeholder remains visibly open.
+
+The game/common report for that round is
+`game_common_strict_p799_20260903.md`: 1,258/1,258 functions mapped, 1,225
+declaration-clean, zero missing names, 10 extra names, 12 deleting-destructor
+ABI carriers, 643 source-only carriers, 11 exact cross-build/canonical name
+recoveries, and zero mapping-review items.
+
+### Symbol-bearing NFS2 `TextSys_Word*` restoration at P801
+
+The matched NFS2 PC-beta `Textsys.c` and its debug-local records preserve the
+original lookup-local spellings for the same 12-byte word-table operations:
+`offset` and `phrase`, `sptr` and `s`, `xptr` and `x`, and `yptr` and `y`.
+Porting those four canonical source shapes removes the invented `off` carrier
+from `TextSys_Word`, `TextSys_WordFlags`, `TextSys_WordX`, and `TextSys_WordY`.
+The NFS4 `offset` field is 32-bit rather than NFS2's 16-bit field, so its
+pointer type is correctly restored as `int *` from the NFS4 retail `lw`.
+Every function remains PASS 8/8, `textsys.cpp` remains 8/8 PASS, and all four
+debug twins have zero branch-distance/count divergence.
+
+The prior game/common report was
+`game_common_strict_p801_20260903.md`: 1,258/1,258 functions mapped, 1,225
+declaration-clean, zero missing names, 10 extra names, 12 deleting-destructor
+ABI carriers, 639 source-only carriers, 19 exact cross-build/canonical name
+recoveries, and zero mapping-review items.
+
+### Inline `AnimScript` destructor restoration at P802
+
+Retail has no out-of-line `AnimScript` destructor, but four independent exact
+call sites prove its missing inline class definition: `delete [] inst`.  With
+that destructor restored, `Anim_FreeHandle` collapses from an explicit
+`deleteMe` temporary and two raw builtin calls to `delete animSlots[handle]`;
+the result remains PASS 32/32 with an exact debug twin.  `Anim_Restart` likewise
+loses `deleteMe`, `p`, and `pEnd` and returns to a 32-entry indexed loop.  Its
+counter name `i` is retained by the symbol-bearing NFS2 `Anim_Restart`, and the
+NFS4 SLD maps the loop to line 86; the restored function remains PASS 34/34.
+
+The same inline class definition eliminates the unproved `deleteMe` local from
+the compiler-emitted `ObjectSignAnim` and `ObjectMultiAnim` deleting
+destructors.  Both now use `delete pThis->script` and remain PASS 45/45 with
+exact debug twins.  `anim.cpp` is 18/18 PASS and `object.cpp` is 37/37 PASS.
+
+The game/common report for that round is
+`game_common_strict_p802_20260903.md`: 1,258/1,258 functions mapped, 1,227
+declaration-clean, zero missing names, 8 extra names, 12 deleting-destructor
+ABI carriers, 635 source-only carriers, 20 exact cross-build/canonical name
+recoveries, and zero mapping-review items.
+
+### Inline `SimpleMem` destructor restoration at P803
+
+`Track_DeInit` formerly carried an unproved `deleteMe` copy of `Track_mem` to
+hold the object across heap cleanup and object deletion.  Restoring the missing
+inline `SimpleMem` destructor—`purgememadr(heap); freeMem = 0`—lets the call
+site return to the original C++ expression `delete Track_mem`.  GCC's delete
+expansion creates the required anonymous saved-register lifetime itself, so no
+source local or invented name remains.  `Track_DeInit` remains PASS 53/53 with
+an exact debug twin; `track.cpp` remains 29/29 PASS and `simplemem.cpp` remains
+3/3 PASS.
+
+The current authoritative game/common report is
+`game_common_strict_p803_20260903.md`: 1,258/1,258 functions mapped, 1,227
+declaration-clean, zero missing names, 8 extra names, 12 deleting-destructor
+ABI carriers, 634 source-only carriers, 20 exact cross-build/canonical name
+recoveries, and zero mapping-review items.
+
+### Ordinary `AITrigger_TriggerManager` lifetime restoration at P804
+
+`AI_TrafficStartUp` and `AI_TrafficCleanUp` still exposed GCC implementation
+internals as reconstructed source: literal-size `__builtin_new(0x34c)`,
+`__builtin_delete`, and a flat asm-aliased `AITrigger_Init` declaration.
+Restoring the exact 0x34c-byte `AITrigger_TriggerManager` class layout in the
+owning TU allows the original-source C++ forms `new AITrigger_TriggerManager`,
+`delete triggerManagerTraffic`, and `triggerManagerTraffic->Init(...)`.
+Both functions remain byte-exact (39/39 and 20/20), both debug twins are exact,
+and the complete `aiinit.cpp` TU remains 17/17 PASS.  No source identifier was
+invented or renamed in this closure.
+
+The adjacent `AIDataRecord_t::StartUp2` and `CleanUp1` carriers were retested
+after the class/destructor restoration work.  Natural member-call and `delete`
+forms still produce 11 and 24 oracle diffs respectively, so `pAVar1` and
+`pa_Var1` remain conspicuous unresolved placeholders and are now explicit open
+items above; they were not replaced by semantic guesses.
+
+The game/common report for that round is
+`game_common_strict_p804_20260903.md`: 1,258/1,258 functions mapped, 1,227
+declaration-clean, zero missing names, 8 extra names, 12 deleting-destructor
+ABI carriers, 634 source-only carriers, 20 exact cross-build/canonical name
+recoveries, and zero mapping-review items.
+
+### Ordinary `AITrigger_TriggerManager` lifetime restoration at P805
+
+The same exact class layout was then restored in `aicop.cpp`'s type surface.
+This replaces literal-size `operator new(0x34c)`, `operator delete`, and the
+flat asm-aliased `AITrigger_Init` helper with `new AITrigger_TriggerManager`,
+`delete triggerManagerCops`, and `triggerManagerCops->Init(...)`.  `AICop_StartUp`,
+`AICop_Restart`, and `AICop_CleanUp` remain byte-exact at 43/43, 20/20, and
+24/24; all three debug twins are exact and `aicop.cpp` remains 4/4 PASS.  This
+round changes no identifier spelling and introduces no inferred name.
+
+The game/common report for that round is
+`game_common_strict_p805_20260903.md`: 1,258/1,258 functions mapped, 1,227
+declaration-clean, zero missing names, 8 extra names, 12 deleting-destructor
+ABI carriers, 634 source-only carriers, 20 exact cross-build/canonical name
+recoveries, and zero mapping-review items.
+
+### Exact inline `AIPhysic_BrakeInfo` constructor restoration at P808
+
+Retail SYM records `d` in `AIPhysic_InitCar` and then a line-47 inlined
+`AIPhysic_BrakeInfo` constructor scope containing implicit `this` plus the
+exact names `deceleration`, `invDeceleration`, `brakeTableLoop`, `distance`,
+`brakeDistanceMeters`, and `sIndex`.  Reconstructing that inline constructor
+lets the call site return to `carObj->brakeInfo = new AIPhysic_BrakeInfo(d)`.
+The decompiler stand-in `this_`, raw `__builtin_new(0x84)`, and the expanded
+constructor body are gone.  The result remains PASS 93/93 with an exact debug
+twin, and `aiphysic.cpp` remains 42/42 PASS.
+
+The declaration audit was extended narrowly to recognize `new Class(...)` as
+an inline-constructor invocation.  It admits constructor-local receipts only
+when Ctags finds the unique header-defined constructor and its actual named
+parameter/local; it is not a generic missing-name exemption.  The corrected
+audit maps all seven retail inline records and restores zero missing names.
+
+The current authoritative game/common report is
+`game_common_strict_p808_20260903.md`: 1,258/1,258 functions mapped, 1,227
+declaration-clean, zero missing names, 8 extra names, 12 deleting-destructor
+ABI carriers, 633 source-only carriers, 20 exact cross-build/canonical name
+recoveries, and zero mapping-review items.
+
+### Exact inline finished-animation constructors at P809
+
+The default constructors for `ObjectFinishedMultiAnim` and
+`ObjectFinishedSignAnim` are now represented as real inline class constructors
+instead of raw `__builtin_new` calls followed by manual vtable stores.  At the
+`ObjectFinishedSignAnim` call site, the exact ordinary expression
+`new ObjectFinishedSignAnim` also eliminates the decompiler-only
+`finishedSign` carrier while preserving `Object_CheckCollisionResults` at PASS
+166/166 with an exact debug twin.  The complete `object.cpp` TU remains 37/37
+PASS.
+
+Directly nesting `new ObjectFinishedMultiAnim` at its call site was separately
+tested and produces 14 oracle diffs.  Therefore the distinct `finishedMulti`
+quantity remains marked as unresolved; it has not been given an invented
+semantic replacement.  This is an unresolved original-source recovery item,
+not a confirmed final name.
+
+The current authoritative game/common report is
+`game_common_strict_p809_20260903.md`: 1,258/1,258 functions mapped, 1,227
+declaration-clean, zero missing names, 8 extra names, 12 deleting-destructor
+ABI carriers, 632 source-only carriers, 20 exact cross-build/canonical name
+recoveries, and zero mapping-review items.  The report contains 57 exact inline
+local mappings and zero mapping-review items.
+
+### Exact `Speech::Speaker` construction at P810
+
+Retail SYM gives `Nfs2_SystemNLibStartUp` no named local, while its nested SLD
+blocks and instruction order identify an inlined default construction at the
+`Speech::fgUndefined` assignment.  Restoring the real inline `Speaker` default
+constructor and the ordinary expression `Speech_fgUndefined = new Speaker`
+eliminates the decompiler-only `p` object entirely.  No replacement identifier
+was introduced.  The constructor preserves retail's vptr-before-`fSub` store
+order and the existing global spelling is directly backed by the retail
+`_6Speech.fgUndefined` record.
+
+`Nfs2_SystemNLibStartUp` remains PASS 25/25 with an exact debug/SLD twin.  All
+11 functions in `nfs3.cpp` remain PASS, and direct dependent consumers of the
+shared `Speaker` type compile successfully.  The current authoritative
+game/common report is `game_common_strict_p810_20260903.md`: 1,258/1,258
+functions mapped, 1,227 declaration-clean, zero missing names, 8 extra names,
+12 deleting-destructor ABI carriers, 631 source-only carriers, 20 exact
+cross-build/canonical name recoveries, and zero mapping-review items.
+
+### Four synthetic `AnimScript` constructor objects eliminated at P811
+
+Retail SYM names only `this` and `num` in `AnimScript::AnimScript(int)`, only
+`this`, `num`, `numParts`, and `i` in `AnimScript::AnimScript(int,int)`, and
+only `this`, `instanceGroup`, `type`, `boomIndex`, `numParts`, `numElems`,
+`objInstance`, and `i` in the four-argument constructor.  It contains no
+records for `iVar1`, `iVar2`, `iVar3`, or `ppTVar1`.
+
+Rebuilding from the SLD statement order proved that all four decompiler-only
+objects can be removed: each constructor now assigns
+`baseTicks = simGlobal.gameTicks` directly, and the two-argument constructor
+assigns its `new[]` result directly to `inst`.  No replacement identifiers
+were introduced.  The three constructors remain PASS at 27/27, 39/39, and
+51/51, each with an exact debug/SLD twin; all 18 functions in `anim.cpp`
+remain PASS.
+
+The current authoritative game/common report is
+`game_common_strict_p811_20260903.md`: 1,258/1,258 functions mapped, 1,227
+declaration-clean, zero missing names, 8 extra names, 12 deleting-destructor
+ABI carriers, 627 source-only carriers, 20 exact cross-build/canonical name
+recoveries, and zero mapping-review items.
+
+### Synthetic acceleration-table result eliminated at P812
+
+Retail SYM records only `this` and `loop` for
+`AIDataRecord_AccTable_t::Setup`; it has no source record corresponding to the
+decompiler-only `iVar1`.  Restoring the SLD-ordered nested
+`Get`/`fixedmult`/shift/store expression eliminates that object without adding
+any replacement identifier.  The function remains PASS 27/27 with an exact
+debug/SLD twin, and all 26 functions in `aidatarecord.cpp` remain PASS.
+
+The adjacent `Upgrade` carriers were re-tested independently.  Direct buffer
+indexing still produces 16 oracle diffs and a literal `0xffff` still produces
+25, so `pcVar1` and `round` remain conspicuous unresolved placeholders rather
+than receiving guessed names.  `AudioMus_Threshold` was likewise re-tested;
+removing its cached pointer still produces four diffs, so it also remains
+unresolved.
+
+The current authoritative game/common report is
+`game_common_strict_p812_20260903.md`: 1,258/1,258 functions mapped, 1,227
+declaration-clean, zero missing names, 8 extra names, 12 deleting-destructor
+ABI carriers, 626 source-only carriers, 20 exact cross-build/canonical name
+recoveries, and zero mapping-review items.
+
+### Nine synthetic AI-state pointer objects eliminated at P813
+
+Retail SLD assigns the three `targetPos` stores to one source statement and
+the oracle executes them in `z`, `y`, `x` order.  Restoring the ordinary
+right-associative assignment
+`targetPos.x = targetPos.y = targetPos.z = 0` preserves the single car-object
+load naturally and removes seven decompiler-only cached pointers without
+inventing replacement names.  This applies to `AIState_Normal` construction,
+the `AIState_Chase`, `AIState_Offroad`, `AIState_Donuts`, and
+`AIState_RovingTraffic` destructors, `AIState_Chase::SetUp`, and
+`AIState_Offroad::Execute`.
+
+The second `AIState_RovingTraffic` destructor pointer existed only for a
+`carFlags` read-modify-write.  The ordinary compound assignment
+`carFlags &= 0xfffff7ff` emits the same retail sequence and eliminates that
+object as well.  In `AIState_Purgatory`, SLD puts the adjacent `direction` and
+`desiredDirection` stores on one statement; restoring the correctly ordered
+chain `desiredDirection = direction = 1` removes its `pCVar4` placeholder and
+preserves the 72-instruction retail body.  All eight affected functions remain
+PASS with exact debug/SLD twins, and all 52 oracle-backed text symbols in
+`aistate.cpp` remain PASS.
+
+The current authoritative game/common report is
+`game_common_strict_p813_20260903.md`: 1,258/1,258 functions mapped, 1,228
+declaration-clean, zero missing names, 6 extra names, 12 deleting-destructor
+ABI carriers, 619 source-only carriers, 20 exact cross-build/canonical name
+recoveries, and zero mapping-review items.
+
+### SLD/NFS2-exact `Cars_CleanUp` restoration at P814
+
+The decompiler-only `pCVar2` cache is removed.  NFS4 SLD attributes each
+`Cars_gList[i]` reload to its individual condition or scheduler-call source
+line, while the symbol-bearing NFS2 predecessor records only `i` and uses the
+same direct list expressions plus an explicit final `if/else`.  Restoring that
+complete source shape, rather than the previously tested partial direct-index
+rewrite, emits the exact NFS4 retail body: 98/98 PASS, debug twin exact, and
+the complete `cars.cpp` TU remains 33/33 PASS.  Evidence:
+`C:\Temp\nfs2-clean\pc-beta\match\cars\Cars_CleanUp.c`, retail SYM/SLD for
+`Cars_CleanUp__Fv`, and the authoritative source-only gate.
+
+The current authoritative game/common report is
+`game_common_strict_p814_20260903.md`: 1,258/1,258 functions mapped, 1,228
+declaration-clean, zero missing names, 6 extra names, 12 deleting-destructor
+ABI carriers, 618 source-only carriers, 20 exact cross-build/canonical name
+recoveries, and zero mapping-review items.
+
+### Carrier-free `Car_TireSkiddingStuff` front clamp at P815
+
+The decompiler-only `cappedFront` local is removed.  NFS4 SYM retains
+`front=$s3` but no separate clamp-result local; the symbol-bearing NFS2
+predecessor likewise performs the clamp through `front`.  For the PSX source,
+chaining the added `carObj->frontSkid` destination to `front` preserves GCC's
+retail clamp-result pseudo without exposing another source object.  The result
+is PASS 1,957/1,957 with an exact debug twin.  A direct `MIN` spelling measured
+1,954/1,957 with 21 diffs, while `MAX(front,1)` for the adjacent unresolved
+`splashFront` measured 1,958/1,957 with nine diffs and was reverted.  Evidence:
+`C:\Temp\nfs2-clean\pc-beta\match\cars\Car_TireSkiddingStuff.c`, NFS4
+SYM/SLD for `Car_TireSkiddingStuff__FP8Car_tObj`, and the source-only oracle.
+
+The current authoritative game/common report is
+`game_common_strict_p815_20260903.md`: 1,258/1,258 functions mapped, 1,228
+declaration-clean, zero missing names, 6 extra names, 12 deleting-destructor
+ABI carriers, 617 source-only carriers, 20 exact cross-build/canonical name
+recoveries, and zero mapping-review items.
+
+### Exact `Replay_Compress::u_pointer` recovery at P816
+
+The NFS4 `u` marker is replaced with the exact original spelling
+`u_pointer`.  The symbol-bearing NFS2 `Replay_Compress` source and its debug
+local record both name that same input induction variable `u_pointer`; NFS4
+loop optimization removes its local debug home but preserves the identical
+walk and bound role.  This is direct source-bearing name evidence rather than
+a semantic inference.  `Replay_Compress` remains PASS 49/49 with an exact
+debug twin, and the complete `replay.cpp` TU remains 16/16 PASS.  Evidence:
+`C:\Temp\nfs2-clean\pc-beta\match\replay\Replay_Compress.c` and
+`C:\Temp\nfs2-clean\pc-beta\locals\local_038_[replay.c].txt`.
+
+The current authoritative game/common report is
+`game_common_strict_p816_20260903.md`: 1,258/1,258 functions mapped, 1,228
+declaration-clean, zero missing names, 6 extra names, 12 deleting-destructor
+ABI carriers, 616 source-only carriers, 21 exact cross-build/canonical name
+recoveries, and zero mapping-review items.
+
+### Retained after P813 source-shape retests
+
+Three nearby groups remain deliberately conspicuous because no exact original
+spelling or eliminating source form is yet proved:
+
+- `AIState_Purgatory::~AIState_Purgatory`: natural
+  `Cars_gSortedList[search]` indexing emits 68/72 instructions with 38 diffs;
+  direct pointer arithmetic is count-exact with two scheduling diffs; split
+  pointer initialization emits 71/72 with 15 diffs.  The exact
+  `ppCVar3`/`sortedList` form was restored.
+- `AIState_RovingTraffic::Execute`: replacing `iVar8`/`iVar9` with direct
+  `field = field >> 12` statements emits 231/233 instructions with 38 diffs.
+  Both unresolved placeholders were restored.
+- `AudioTrk_Reset`: typed `AudioElem` indexing emits 62/56 instructions with
+  38 diffs; a typed `AudioElem *` induction pointer is count-exact but differs
+  in six address-immediate/store instructions because GCC biases the cursor to
+  `nextDelay` rather than retail's `chan` byte.  The exact `puVar3` placeholder
+  remains until source-bearing evidence recovers its spelling.
+
+## Prior marked generic-placeholder census at P777
+
+The table below is an immutable historical snapshot of 89
+`SYM-CODEGEN-CARRIER` marker rows whose identifier had a decompiler-style
+spelling at P777.  Each row was open at P777; later sections and the current
+source tree supersede rows resolved after that snapshot.  Existing
+inline receipts may prove that the distinct codegen quantity is required, but
+they do not prove its original name.  Closure requires either eliminating the
+quantity with byte-exact source or recovering its exact spelling from direct
+source-bearing evidence.  The broader declaration-level P780 census below
+supersedes this table as the current completeness/count authority.
+
+| Translation unit / function | Unresolved placeholder(s) | Count |
+|---|---|---:|
+| `frontend/common/femenuextended.cpp` — `tMenuNFS4::TransitionIsFinished` | `ptVar1`, `iVar2`, `uVar3`, `iVar4` | 4 |
+| `frontend/common/femenuextended.cpp` — `tMenuNFS4::Draw` | `iVar3`, `iVar4` | 2 |
+| `frontend/common/femenuextended.cpp` — `tMenuOptions::TransitionOff` | `iVar1` | 1 |
+| `frontend/common/femenuoptions.cpp` — `tMenuItemGoToMenuButtonFade::UpdateTransition` | `iVar2` | 1 |
+| `frontend/common/femenuoptions.cpp` — `tMenuItemLeftRightFade::UpdateTransition` | `iVar2` | 1 |
+| `frontend/common/femenuoptions.cpp` — `tInsideBoxMenu::ProcessInput` | `tVar2` | 1 |
+| `frontend/common/femenuoptions.cpp` — `tMenuItemSlidingMenu::UpdateTransition` | `iVar2` | 1 |
+| `frontend/common/femenuoptions.cpp` — `tMenuItemSlidingActivated::UpdatefOpenHeight` | `iVar2`, `iVar4` | 2 |
+| `frontend/common/femenuoptions.cpp` — `tMenuItemSlidingActivated::UpdateTransition` | `iVar2` | 1 |
+| `frontend/common/femenuoptions.cpp` — `tMenuItemLeftRightAudioSlider::UpdateTransition` | `iVar1` | 1 |
+| `frontend/common/femenuoptions.cpp` — `tUserNameMenuItem::UpdateTransition` | `iVar2` | 1 |
+| `frontend/common/femenuoptions.cpp` — `tMemoryCardMenuItem::Draw` | `sVar2` | 1 |
+| `frontend/common/fescreen.cpp` — `tScreen::TransitionOff` | `iVar1` | 1 |
+| `frontend/common/fescreen.cpp` — `tScreen::TransitionOn` | `iVar1` | 1 |
+| `frontend/common/fetracks.cpp` — `tListIteratorTrack::TextValue` | `uVar1` | 1 |
+| `frontend/common/front.cpp` — `Front_GetLapsForType` | `uVar1` | 1 |
+| `frontend/common/screenpinkslips.cpp` — `tScreenPinkSlips::Initialize` | `iVar1` | 1 |
+| `frontend/common/screentracks.cpp` — `tScreenTrackSelect::ProcessInput` | `ptVar1` | 1 |
+| `game/common/aidatarecord.cpp` — `AIDataRecord_t::StartUp2` | `pAVar1` | 1 |
+| `game/common/aidatarecord.cpp` — `AIDataRecord_AccTable_t::Setup` | `iVar1` | 1 |
+| `game/common/aidatarecord.cpp` — `AIDataRecord_CurveSpeedTable_t::Upgrade` | `pcVar1`, `iVar1` | 2 |
+| `game/common/aih_basicperp.cpp` — `AIHigh_BasicPerp::RemoveChaser` | `piVar2` | 1 |
+| `game/common/aih_basicperp.cpp` — `AIHigh_BasicPerp::AddChaser` | `piVar2` | 1 |
+| `game/common/aih_opp.cpp` — `AIHigh_Opponent::CheckForWipeOut` | `bVar1` | 1 |
+| `game/common/aih_opp.cpp` — `AIHigh_Opponent::DoProvokedAttack` | `iVar1`, `pCVar3` | 2 |
+| `game/common/aih_play.cpp` — `AIHigh_Player::SetupBlockade` | `bVar2` | 1 |
+| `game/common/aih_play.cpp` — `AIHigh_Player::HandlePullOver` | `bVar1` | 1 |
+| `game/common/aihigh.cpp` — `AIHigh_Execute` | `bVar1` | 1 |
+| `game/common/ailife.cpp` — `AILife_IsSliceInAnyVisibleArea` | `ppCVar2` | 1 |
+| `game/common/ailife.cpp` — `AILife_IsSliceCloseToAnyCopCar` | `ppCVar2` | 1 |
+| `game/common/aiphysic.cpp` — `AIPhysic_ProcessCollision` | `iVar1`, `iVar4` | 2 |
+| `game/common/aistate.cpp` — `AIState_Normal::AIState_Normal` | `pCVar1` | 1 |
+| `game/common/aistate.cpp` — `AIState_Chase::~AIState_Chase` | `pCVar1` | 1 |
+| `game/common/aistate.cpp` — `AIState_Chase::SetUp` | `pCVar2`, `iVar2` | 2 |
+| `game/common/aistate.cpp` — `AIState_Chase::ApproachTargeting` | `iVar5`, `pCVar4` | 2 |
+| `game/common/aistate.cpp` — `AIState_Offroad::~AIState_Offroad` | `pCVar1` | 1 |
+| `game/common/aistate.cpp` — `AIState_Offroad::Execute` | `pCVar3`, `iVar4` | 2 |
+| `game/common/aistate.cpp` — `AIState_Purgatory::~AIState_Purgatory` | `ppCVar3`, `pCVar4` | 2 |
+| `game/common/aistate.cpp` — `AIState_RovingTraffic::Execute` | `iVar8`, `iVar9` | 2 |
+| `game/common/aistate.cpp` — `AIState_Donuts::~AIState_Donuts` | `pCVar1` | 1 |
+| `game/common/AIWORLD.cpp` — `AIWorld_CalculateDeltaRoadYaw` | `iVar2` | 1 |
+| `game/common/anim.cpp` — `AnimScript::AnimScript` | `iVar1`, `ppTVar1`, `iVar2`, `iVar3` | 4 |
+| `game/common/audiocmn.cpp` — `AudioCmn_UpdateThunder` | `uVar1`, `iVar2` | 2 |
+| `game/common/audiotrk.cpp` — `AudioTrk_Reset` | `pCVar2`, `puVar3` | 2 |
+| `game/common/bworldSm.cpp` — `BworldSm_UpdateSimQuad` | `iVar3` | 1 |
+| `game/common/camera.cpp` — `Camera_UpdateSimpleCam` | `sVar1` | 1 |
+| `game/common/camera.cpp` — `Camera_UpdateAnimCam` | `cVar1`, `cVar4` | 2 |
+| `game/common/cars.cpp` — `Cars_CleanUp` | `pCVar2` | 1 |
+| `game/common/copspeak.cpp` — `CopSpeak_PlayNextRequest` | `iVar3` | 1 |
+| `game/common/mpause.cpp` — `MPause_MusicLogic` | `bVar1`, `iVar3` | 2 |
+| `game/common/pausemenu.cpp` — `PauseMenu_MenuText` | `iVar1` | 1 |
+| `game/common/r3dcar.cpp` — `R3DCar_Restart` | `ppCVar3` | 1 |
+| `game/common/r3dcar.cpp` — `R3DCar_InsertCarFacetMenu` | `bVar2`, `sVar3`, `iVar9`, `pGVar14`, `uVar20`, `ppTVar21` | 6 |
+| `game/common/replay.cpp` — `Replay_ResetReplay` | `piVar2` | 1 |
+| `game/common/speech.cpp` — `Speech::DispatchSpeaker::Activate` | `iVar1` | 1 |
+| `game/common/speech.cpp` — `Speech::MobileSpeaker::Status` | `iVar4`, `uVar8`, `pSVar10`, `pMVar12` | 4 |
+| `game/common/speech.cpp` — `Speech::MobileSpeaker::Activate` | `iVar3` | 1 |
+| `game/common/speech.cpp` — `Speech::MobileSpeaker::Lose` | `iVar3` | 1 |
+| `game/common/track.cpp` — `Track_Init` | `this_00` | 1 |
+
+P777 table total: **89 unresolved generic-placeholder carrier rows**.
+
+## Synthetic-declaration closure at P780
+
+A broader declaration-level Universal Ctags census (comments excluded) found
+**114 synthetic/decompiler-style declarations**.  Of these, **95 carry an
+explicit `SYM-CODEGEN-CARRIER` marker**.  Nineteen are unmarked, but four of
+those (`optVar1`/`optVar2` in `AIWorld_CalcSpeed` and
+`Physics_CalcWheelLockAcc`) are directly proven exact by NFS4 retail SYM.
+Therefore **110 synthetic-shaped declarations remain unresolved**: 95 marked
+with `SYM-CODEGEN-CARRIER` and the following **15 now marked explicitly with
+`ORIGINAL-NAME-UNRESOLVED`**.  Their current spellings are not accepted names.
+No same-function symbol-bearing NFS2 record was found for the eaclib entries,
+and NFS4 has only address/name records (no retained local records) for those
+five eaclib functions.
+
+| Translation unit / function | Unmarked unresolved declaration(s) | Count |
+|---|---|---:|
+| `eaclib/psx/eacpsxz/stream.c` — `parsechunks` | `bvar1`, `uVar5` | 2 |
+| `eaclib/psx/eacpsxz/stream.c` — `readcallback` | `bvar1`, `iVar2`, `uVar3` | 3 |
+| `eaclib/psx/eacpsxz/stream.c` — `restartstream` | `uVar3`, `uVar5` | 2 |
+| `eaclib/psx/sndpsxz/sdmemman.c` — `iSNDpsxmalloc` | `local_block`, `local_avail` | 2 |
+| `eaclib/psx/spchpsxz/spchpick.c` — `iSPCH_ChooseSentence` | `local_order`, `local_30` | 2 |
+
+This census is intentionally separate from semantic-looking carriers: a name
+such as `slot`, `result`, or `nextSlice` can still be invented and remains open
+whenever it carries `SYM-CODEGEN-CARRIER`.  “Not decompiler-shaped” is not
+evidence of original spelling.
+
+### P780 verification receipt
+
+- `psxfront.cpp`: 25/25 TU PASS; 25 functions with zero branch-distance/count
+  divergence; strict audit 85/85 mapped and declaration-clean, with zero
+  missing/extra names and zero mapping-review items.
+- `AIWORLD.cpp` and `physics.cpp`: 22/22 TU PASS each, with zero
+  branch-distance/count divergence after recording the exact `optVar` names.
+- `stream.c`, `sdmemman.c`, `spchpick.c`, and `object.cpp`: 99/99 TU PASS
+  combined, with zero branch-distance/count divergence after adding the
+  unresolved-name receipts.
+- Vtable-indexing audit: PASS across 1,017 files.
+- Reconstructed-lane relink: GREEN; 0 real duplicates, 0 hidden phantoms, and
+  0 relocation-referenced unresolved symbols.
+
+## Recovered names closed through P780
+
+- `game/common/AIWORLD.cpp` — `AIWorld_LaneIndex`: `iVar2` is restored as
+  `perpDistance`.  NFS2 PC's symbol-bearing `AI_LaneIndex` records
+  `laneWidth`, `inverseLaneWidth`, `perpDistance`, and `li`; its
+  `perpDistance = FIXMUL(position, inverseLaneWidth)` value is the same value
+  represented by the NFS4 carrier.  Closure evidence:
+  `C:\Temp\nfs2-clean\pc-beta\locals\local_000_[ai.c].txt` and
+  `C:\Temp\nfs2-clean\pc-beta\match\ai\AI_LaneIndex.c`.
+- `game/common/physics.cpp` — `Physics_GetTorque`: `iVar1` and `iVar2` were
+  not source locals.  The symbol-bearing NFS2 PC function records only
+  `carObj` and `index` and supplies the original statement
+  `index = MAX(MIN(index, 40), 0)`.  Restoring the canonical EA macro
+  definitions produces the exact NFS4 15-instruction body.  Closure evidence:
+  `C:\Temp\nfs2-clean\pc-beta\match\physics\Physics_GetTorque.c` and
+  `C:\Temp\nfs2-clean\pc-beta\locals\local_033_[physics.c].txt`.
+- `game/common/audiocmn.cpp` — `scaleFrequency`: `uVar1` was not an original
+  local.  NFS2 PC's symbol-bearing function records only `scaledFreq` and uses
+  the quotient directly as the first operand of EA's `MIN` macro.  Applying
+  that recovered expression to all three NFS4 channel arms remains exact at
+  51 instructions.  Closure evidence:
+  `C:\Temp\nfs2-clean\pc-beta\match\audiocmn\scaleFrequency.c` and
+  `C:\Temp\nfs2-clean\pc-beta\locals\local_005_[audiocmn.c].txt`.
+- `game/common/bworldSm.cpp` — `BWorldSm_FindClosestSlice`: `bVar3` is restored
+  as `sliceChanged`.  The symbol-bearing NFS2 PC function records that exact
+  local and assigns the same slice comparison through `sliceChanged` to both
+  change fields and the return.  Closure evidence:
+  `C:\Temp\nfs2-clean\pc-beta\match\bworldSm\BWorldSm_FindClosestSlice.c`
+  and `C:\Temp\nfs2-clean\pc-beta\locals\local_009_[bworldSm.c].txt`.
+- `game/common/AIWORLD.cpp` — `AIWorld_CalcRoadBend`: `bend` is an
+  evidence-backed original spelling, not an invented semantic label.  The
+  symbol-bearing NFS2 PC predecessor `AIPhysic_CalcRoadBend` records the local
+  set `bend`, `thisSlice`, and `nextSlice`, and its matching source assigns the
+  same first fixed-point road-bend product through `bend`.  Closure evidence:
+  `C:\Temp\nfs2-clean\pc-beta\match\aiphysic\AIPhysic_CalcRoadBend.c`
+  and `C:\Temp\nfs2-clean\pc-beta\locals\local_001_[aiphysic.c].txt`.
+- `game/common/physics.cpp` — `Physics_CalculateDerivedCarSpecs`:
+  `rpmAtMaxSpeedInHighestGear` is the exact spelling retained by the
+  symbol-bearing NFS2 predecessor and is used for the same fixed-point
+  max-speed RPM intermediate.  Closure evidence:
+  `C:\Temp\nfs2-clean\pc-beta\match\physics\Physics_CalculateDerivedCarSpecs.c`
+  and `C:\Temp\nfs2-clean\pc-beta\locals\local_033_[physics.c].txt`.
+- `game/common/physics.cpp` — `Physics_AttenuateVelocity`: `vy` and `vz` are
+  exact spellings in the same NFS2 function's matching source and debug-local
+  record.  Closure evidence:
+  `C:\Temp\nfs2-clean\pc-beta\match\physics\Physics_AttenuateVelocity.c`
+  and `C:\Temp\nfs2-clean\pc-beta\locals\local_033_[physics.c].txt`.
+- `game/common/bworldSm.cpp` — `GetStmQuadPts`: `vertices` is the exact name
+  of the cached geometry-vertex base in the symbol-bearing NFS2 predecessor.
+  Closure evidence:
+  `C:\Temp\nfs2-clean\pc-beta\match\bworldSm\GetStmQuadPts.c` and
+  `C:\Temp\nfs2-clean\pc-beta\locals\local_009_[bworldSm.c].txt`.
+- `game/common/bworldSm.cpp` — `FindClosestQuad`: `sliceChanged` is the exact
+  name of the comparison local in NFS2's matching source and nested debug
+  blocks.  Closure evidence:
+  `C:\Temp\nfs2-clean\pc-beta\match\bworldSm\FindClosestQuad.c` and
+  `C:\Temp\nfs2-clean\pc-beta\locals\local_009_[bworldSm.c].txt`.
+- `game/common/audiocmn.cpp` — `AudioCmn_PlaySFX`: `bankNum` is the exact name
+  of the byte bank-table index in NFS2's matching source and debug-local
+  record.  Closure evidence:
+  `C:\Temp\nfs2-clean\pc-beta\match\audiocmn\AudioCmn_PlaySFX.c` and
+  `C:\Temp\nfs2-clean\pc-beta\locals\local_005_[audiocmn.c].txt`.
+- `game/common/replay.cpp` — `Replay_Decompress`: `u_pointer` is the exact
+  output-index name in the symbol-bearing NFS2 function's matching source and
+  debug-local record.  The later NFS4 compiler eliminates its debug home but
+  preserves the same induction role.  Closure evidence:
+  `C:\Temp\nfs2-clean\pc-beta\match\replay\Replay_Decompress.c` and
+  `C:\Temp\nfs2-clean\pc-beta\locals\local_038_[replay.c].txt`.
+- `game/common/physics.cpp` — `Physics_CalcWheelLockAcc`: NFS4 retail SYM
+  directly records `optVar1` and `optVar2` as the exact names of the absolute
+  X/Z intermediates.  The same NFS2 function's matched source and debug-local
+  record independently preserve those spellings.  Their decompiler-like form
+  is original evidence, not a reason to rename them.  Closure evidence:
+  `C:\Temp\nfs4-clean\nfs4-f-v3.txt` at the function's 8c record, plus
+  `C:\Temp\nfs2-clean\pc-beta\match\physics\Physics_CalcWheelLockAcc.c` and
+  `C:\Temp\nfs2-clean\pc-beta\locals\local_033_[physics.c].txt`.
+- `game/common/AIWORLD.cpp` — `AIWorld_CalcSpeed`: NFS4 retail SYM directly
+  records `optVar1` and `optVar2` as the function's two INT locals.  Their
+  synthetic-looking spelling is authoritative and must not be normalized.
+  Closure evidence: `C:\Temp\nfs4-clean\nfs4-f-v3.txt`, function record
+  `AIWorld_CalcSpeed__FP8Car_tObj` at `0x800738D4`.

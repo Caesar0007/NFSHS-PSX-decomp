@@ -622,11 +622,16 @@ PER_TU_FLAGS = {
     # PAD_restore / PAD_state. Whole-TU sweep with the flag: 5/5 functions
     # improve or hold (see the per-fn table in recon/eaclib/psx/pad.c).
     "recon/eaclib/psx/pad.c":               {"no_split_addresses": True},
-    # W82-root: strict source-only whole-TU gate.  -fforce-addr makes
-    # SPCH_AddEvent emit the retail address-producer/copy pair (82/82); the
-    # paired source copy-boundary fix keeps iSPCH_InitEventQueue exact.  All
-    # 16 functions PASS without a post-compiler splice.
-    "recon/eaclib/psx/spchpsxz/spchevnt.c": {"g_value": 0, "force_addr": True},
+    # 2026-09-03 FLAG RETIRED (user's indexed-form seal): whole-TU -fforce-addr
+    # (the W82-root device) is GONE.  iSPCH_InitEventQueue now PASSes 29/29
+    # source-only -- the indexed `gVoxEvents.slots[i].field` walk makes loop.c
+    # generate the retail address copies as its OWN giv preheader inits, which
+    # no pointer-cursor spelling could keep (REG_EQUIV/combine ate them; ~25
+    # falsified forms, see the fn's seal note).  The library profile is now a
+    # clean uniform -G0.  SPCH_AddEvent still rides PER_FN_FORCE_ADDR for the
+    # same missing-copy class (3 diffs without) -- candidate for the same
+    # indexed lever.
+    "recon/eaclib/psx/spchpsxz/spchevnt.c": {"g_value": 0},
     # w48 (2026-08-04) SYSLIB -mno-split-addresses IDENTITY -- found
     # independently by five agents (a9's 512-run ladder, a2's oracle-side
     # proof on libgpu, a1 libmcrd, a4 PADENTRY, a6 iso9660) and concordant

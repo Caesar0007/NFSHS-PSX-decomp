@@ -88,26 +88,32 @@
 int gPreLoadTicks;        /* @0x80148044 */
 int gEventDats[4];        /* @0x80148048 bound event-data blob table */
 int gVoxInGame[2];        /* @0x80148058; [1] is retail's gRepeatCount @0x8014805C */
+#define VOX_NSLOTS 16
+/* EA's TRUE record (2026-09-03, user model): the queue header is the run's first 8 bytes and
+ * the 16 records start at run+8, stride 0x3c -- args[12] fills a record EXACTLY (2+2+4+4+48),
+ * no cross-slot overlay games.  MEASURED: with INDEXED addressing this honest spelling is
+ * codegen-identical to the old -8-shifted window (cc1 anchors the giv base at run+0 and folds
+ * the +8 into the field displacements). */
 typedef struct {
-    int            _ovl0;        /* +0x0 (slot 0: live event count) */
-    int            _ovl4;        /* +0x4 (slot 0: 'd'-event flag)   */
-    unsigned short enabled;      /* +0x8  */
-    unsigned short subTick;      /* +0xa  */
-    int            tick;         /* +0xc  insert tick */
-    int            event;        /* +0x10 VoxEvent ptr */
-    int            args[10];     /* +0x14 .. 0x3c */
-} VoxSlot;
-union VoxRun {
-    int     words[242];   /* [0] live count, [1] 'd'-flag (retail's DAT_80148064) */
-    VoxSlot slots[16];    /* the 16 queue slots, 0x3c apart */
-} gVoxEvents;             /* @0x80148060, 968 bytes */
-/* VIEW RAZOR (2026-08-31, union basin): the winner arms must reach the slots
-   through a DIFFERENT declaration than the loop cursor, or cse merges their
-   base pseudos (iSPCH_ChooseEvent 2 -> 26; cursor=view/arms=union measures 8;
-   this split measures 2).  The union above is the honest model of the overlay;
-   this ONE asm-label view is the C spelling of EA's second name for the run
-   (their toolchain could name one storage twice in asm/linker; C cannot). */
-extern VoxSlot gVoxQueue[] __asm__("gVoxEvents");
+    unsigned short enabled;      /* +0x0 (run-relative +0x8)  */
+    unsigned short subTick;      /* +0x2 (+0xa)  */
+    int            tick;         /* +0x4 (+0xc)  insert tick */
+    int            event;        /* +0x8 (+0x10) VoxEvent ptr */
+    int            args[12];     /* +0xc..0x3b (+0x14..+0x43) */
+} VoxSlot;                       /* 0x3c */
+typedef struct {
+    int     liveCount;           /* +0x0 number of enabled slots (AddEvent ++, FindEventSlot/
+                                  * ClearEventQueue/ClearOldEvents/ChooseEvent/ChooseSpeech --,
+                                  * gated `< 16` / `!= 0`) */
+    int     dFlag;               /* +0x4 "a 'd'-tagged event survived" flag (set by
+                                  * ClearOldEvents, read by spchpick's filter bump;
+                                  * retail's DAT_80148064) */
+    VoxSlot slots[VOX_NSLOTS];   /* +0x8 the 16 records */
+} VoxSlotsStruct;                /* 8 + 16*0x3c = 968 */
+VoxSlotsStruct gVoxEvents;    /* @0x80148060, 968 bytes (the whole retail run is this ONE
+                               * struct; the old `int words[242]` union view retired 2026-09-03
+                               * -- nothing referenced it after the liveCount/dFlag migration) */
+extern VoxSlotsStruct gVoxQueue __asm__("gVoxEvents");
 /* VIEW RAZOR (re-measured 2026-08-31 in the -G0/in-TU-definition basin): the
    winner arms and the slot cursor must reach the queue through DIFFERENT
    declarations, or cse merges their base pseudos and the cursor's weighted
@@ -117,8 +123,6 @@ extern VoxSlot gVoxQueue[] __asm__("gVoxEvents");
    cursor/count.  The former SECOND view (`unsigned char gVoxEventQueue[]
    __asm__("gVoxEvents")`) is retired: arms straight off gVoxEvents measure
    IDENTICALLY (2), and every all-one-decl form measures 26. */
-/* Typed view of the same queue for iSPCH_ChooseEvent: a 0x3c-byte slot whose named fields start
- * at +8 (the first two words overlay the live count / 'd' flag, see above). */
 extern int            gLastTick;      /* last insert tick (spchinit-owned) */
 extern unsigned short gLastSubTick;   /* sub-tick counter (spchinit owns it as int; low half) */
 extern int            gFilterSetting; /* active filter mode (1 = length/priority filter on) */
@@ -169,7 +173,7 @@ extern void iSPCH_ClearOldEvents(int winnerSlot);                    /* @0x800E7
 extern void SPCH_PlaySpeech(void);                                   /* @0x800E7644 */
 extern int  SPCH_ChooseSpeech(void);                                 /* @0x800E7684 */
 
-#define SLOT(i)  ((unsigned char *)&gVoxEvents.slots[i])
+#define SLOT(i)  ((unsigned char *)&gVoxEvents + (i) * 0x3c)
 
 /* iSPCH_SearchEventDat @0x800E6EC4 : address of the entry in blob `dat` whose id == eventID, or 0. */
 extern int iSPCH_SearchEventDat(int dat, unsigned int eventID)
@@ -227,181 +231,42 @@ extern int GetFilterPriority(void)
 /* iSPCH_InitEventQueue @0x800E7014 : zero all 16 queue slots (header + 12 eventArgs each) and the ticks. */
 extern void iSPCH_InitEventQueue(void)
 {
-    /* Residual 17: the indexed outer walk and volatile ascending argument clear recover the oracle's
-     * offsets/up-count loop; gcc still folds the separate base, slot, and end induction values together.
-     *
-     * w32-a9 INVESTIGATION (kept as a floor + a toolchain-identity data point, source form NOT changed):
-     * the retail SHAPE is a label+goto double loop with SIX live values -- argBase($a2), base($a3),
-     * slot($a0), end($t0), j($a1), off($v1) -- i.e. it never went through loop.c (no biv elimination,
-     * no giv reduction of `base+off`, no up-count->down-count reversal).  Writing both loops as
-     * label+goto reproduces that shape EXACTLY: 28/29 insns, every instruction in the oracle's order,
-     * every value in its own register.  It is REJECTED here only because the ALLOCATION order differs
-     * and costs more textual diffs than this form (31 vs 17):
-     *   cc1 -dl says slot = 11 refs / 21 insns => prio floor_log2(11)*11/21 = 1.57  -> takes $v1 (1st)
-     *                off  =  4 refs / 12 insns => prio            2*4/12 = 0.67  -> takes $a0 (3rd)
-     *   retail has the REVERSE (off=$v1 first, slot=$a0 second), which this priority formula cannot
-     *   produce for ANY spelling of the same six values: with slot at 9-11 refs it would need
-     *   live_length(slot) > 3.4x live_length(off), impossible in a 29-insn function.  => retail's cc1
-     *   weights SHORT LIVE RANGE over REF COUNT more strongly than psq43 cc1 does; same family as the
-     *   catalog's suspected `allocno_compare` delta (sbdload/purge/start/serve).  Additionally retail
-     *   keeps a redundant `addu a3,v0,zero` copy of the la result that our cc1 always fuses into the
-     *   `addiu` (the known no-copy-prop identity gap) -- that is the 29th instruction.
-     *
-     * w33-a10 RE-VERDICT: FLOOR HOLDS, and a9's derivation can no longer be reopened with SLD --
-     * SPCHPSXZ has NO SLD records at all (see SPCH_AddEvent's note), so there is no independent
-     * statement-segmentation evidence to test the label+goto hypothesis against.  Two build-lane
-     * probes are also negative: -mno-split-addresses (the flag that turned out to be PAD.OBJ's
-     * identity) takes this fn 17 -> 40, and the per-function -fno-delayed-branch splice takes it
-     * 17 -> 22 -- though note the splice DOES reach exact insn parity 29/29, i.e. it supplies the
-     * two missing instructions but puts them in the wrong places.  PROTOTYPE AUDIT: void(void)
-     * confirmed -- no $aN is read before being written and $v0 holds only a leftover %hi at the
-     * epilogue.
-     * w34-a9 NEW MEASUREMENTS (form NOT changed; the baseline do-while stays at 17).
-     * A HYBRID that a9/a10 had not tried -- OUTER loop label+goto (kills the giv
-     * anchor / keeps the retail shape) with the INNER loop left a natural do-while
-     * (so its refs still get the loop-depth doubling) -- compiles to 28 insns in the
-     * oracle's exact instruction ORDER, 31 diffs.  cc1 -dl/-dg for it: slot(r83)
-     * 11 refs/21 insns = 1.571 -> $v1, off(r86) 7/11 = 1.273 -> $a0, j(r85) 7/12 =
-     * 1.167 -> $a1, argBase(r80) 4/23 = 0.348 -> $a2, base(r81) 3/40 = 0.075 -> $a3,
-     * end(r84) 2/38 = 0.053 -> $t0.  Retail is off->$v1, slot->$a0 with the rest
-     * identical, i.e. it needs prio(off) > prio(slot): off at 8 refs would give
-     * 3*8/11 = 2.18, or slot at <= 8 refs would give 3*8/21 = 1.14.  A diagnostic
-     * that DOES flip it -- writing the outer-loop bump as `argBase = off + 0xc`
-     * instead of `argBase += 0x3c` (one extra off ref) -- gives slot=$a0 correctly
-     * but then cc1 MERGES off and argBase into one induction pseudo, losing the
-     * `addu $v1,$a2,$zero` copy (27 insns, 22 diffs).  Making BOTH loops natural
-     * re-introduces the giv anchor (`addiu a1,a2,16` + -8/-6/-4/0 displacements,
-     * 30 insns / 41 diffs).  The 29th instruction retail has and we never emit is
-     * the second la copy (`addu $a0,$a3,$zero`): our cc1 copy-propagates
-     * `base -> slot` because `base` is never modified, and only the copy that
-     * SURVIVES a modification (`addu a3,v1,zero`) is kept.  Same no-copy-prop
-     * identity as SPCH_AddEvent's two preheader copies.
-     * w34-a9 BEST SHAPE FOUND (29 diffs / 28 insns -- still worse than this 17-diff
-     * short form, so NOT kept, but it is the one to hand a permuter): a NATURAL
-     * do-while outer loop over a `slot` walker + `end` bound, with the four header
-     * stores marked `volatile`.  The volatile qualifier is what kills the giv anchor
-     * (28 insns, not 30) WITHOUT giving up the loop notes -- so the inner loop's refs
-     * keep their loop-depth weighting, which is the whole point: it lifts off from
-     * 7/11 (goto-outer) to 11/11 = 3.00.  Remaining blocker is one allocno step:
-     * slot 16 refs / 20 insns = 4*16/20 = 3.20 still edges out off's 3.00, and 16 is
-     * again an exact floor_log2 razor edge -- slot at <= 15 refs collapses to
-     * 3*15/20 = 2.25, or off at >= 12 refs rises to 3*12/11 = 3.27.  Sourcing BOTH
-     * `end` and the `gVoxEvents[1]` store from `base` (not from `slot`) already took
-     * slot 18 -> 16 refs and 31 -> 29 diffs; the last ref cannot be shed without
-     * changing an instruction retail has (the outer test is `slt slot,end`, the four
-     * header stores and the `addiu slot,slot,0x3c` are all retail's).  Falsified for
-     * the off side: `argBase = off + 0xc` (cc1 then MERGES off and argBase into one
-     * induction pseudo, 27 insns / 34 diffs) and a named `a = off + base` address
-     * temp (neutral, 29). */
-    /* w35-a4 (17 -> 12, and insn parity is now EXACT 29/29; every register matches retail and the
-     * ONLY residual is the 6-insn prologue).  a9's "best shape" was right; what it lacked was the
-     * two REF DIALS that make the allocator produce retail's assignment:
-     *   (1) the six-value retail shape, with the INNER loop written label+goto so loop.c never sees
-     *       it (a natural inner do-while gets REVERSED to a down-counter `li 11; addiu -1; bgez`,
-     *       because with `off` carrying the address `j` is a pure counter) and the four header
-     *       stores `volatile` so the giv anchor never forms.
-     *   (2) `slot` taken from a SEPARATE declaration of the storage (gVoxEventQueue, see the decl
-     *       comment) so cse cannot fuse it with `base`.  With one symbol our cc1 copy-propagates
-     *       base -> slot, which BOTH loses retail's `addu $a0,$a3,$zero` copy AND moves the
-     *       `sw zero,4(base)` onto slot's register -- costing `base` the ref that lifts it over
-     *       `end`.  Two views: base 4 refs/36 = 0.222 > end 3/42 = 0.071, so base takes $a3 and
-     *       end $t0 exactly as retail.
-     *   (3) `end = base + 0x3c0` instead of `slot + 0x3c0`.  Retail computes it off slot
-     *       (`addiu $t0,$a0,0x3C0`) but that OUT-OF-LOOP ref is slot's 16th weighted REG_N_REFS,
-     *       and 16 is a floor_log2 razor edge: 4*16/22 = 2.909 beats off's 3*8/11 = 2.18 and the
-     *       two swap $v1/$a0.  Sourcing `end` from `base` sheds it: slot 3*15/22 = 2.045, which
-     *       lands BETWEEN off (2.18) and j (2.00) -- the exact retail order
-     *       off=$v1, slot=$a0, j=$a1, argBase=$a2, base=$a3, end=$t0.  Cost: one operand diff on
-     *       the `addiu $t0` (a3 vs a0).  (Falsified on the way: moving `off = argBase` below the
-     *       header stores does not shorten its live range, 30 unchanged.)
-     * RESIDUAL 12 = the prologue only: retail materializes the address ONCE and makes two copies
-     * (`lui $v1; addiu $v0; addu $a3,$v0; addu $a0,$a3; addiu $t0,$a0; sw $zero,%lo($v1)`), we
-     * materialize it twice (one `lui/addiu` per view) and keep no copies -- the per-obj
-     * no-copy-prop identity (catalog SSG) crossed with the two-view requirement above.  Reverting
-     * to one symbol restores the single `lui` but costs the whole register assignment (31 diffs).
-     * w47-a2 MECHANISM SHARPENED (still 12; NEW NAMED ANGLE for whoever takes it next): the two
-     * missing insns are NOT a copy-PROPAGATION difference, they are `delete_noop_moves`.  A
-     * `(set (reg d) (reg s))` whose source DIES there is tied by local-alloc's combine_regs into
-     * ONE quantity, both ends land in the same hard reg, and flow deletes the now-noop move -- which
-     * is exactly what happens to every copy-chain spelling.  Retail's `addu $a3,$v0,$zero` +
-     * `addu $a0,$a3,$zero` survive only because its allocator gave the two ends DIFFERENT hard regs,
-     * i.e. combine_regs did NOT tie them.  So the reachable lever is anything that BLOCKS the tie
-     * (source still live after the copy, or a qty conflict) -- not another spelling of the copy.
-     * Falsified this wave (mini-TU probe scratch/w47_a2_ieq.py, all 28 insns / 33 diffs, i.e. the
-     * copy deleted): addr->base->slot chains with the store through `addr`, with `end` off `slot`
-     * or off `base`, and with the chain rooted at either view.  Flag axis also swept and CLOSED
-     * (19 -f/-m options): only -fno-schedule-insns moves the count (29, but it trades the inner
-     * bound test `slti`->`slt`); -fno-delayed-branch 32 insns, -fno-omit-frame-pointer 35, every
-     * cse/loop/inline/defer-pop/function-cse/caller-saves/peephole switch is diff-neutral. */
-    /* MATCH (w49-a9, 12 -> PASS 29/29): the w47-a2 "delete_noop_moves / combine_regs tie" angle,
-     * landed with the w47-a1/a4/a5 OPACITY FENCE (`__asm__("" : "=r"(x) : "0"(x))` = a zero-insn
-     * value-numbering barrier).  Retail materializes the address ONCE and keeps TWO reg-reg copies
-     * (`lui $v1,%hi; addiu $v0,$v1,%lo; addu $a3,$v0; addu $a0,$a3; addiu $t0,$a0,0x3C0`).  The old
-     * two-view form (gVoxEvents + gVoxEventQueue) got every REGISTER right but materialized the
-     * address TWICE (the 12-diff prologue).  A plain single-symbol addr->base->slot chain loses the
-     * copies (combine_regs ties a copy whose SOURCE DIES, then flow deletes the noop move) -- which
-     * is what every w47-a2 probe measured.  The fences block exactly that tie at zero instructions:
-     *   fence(addr)  keeps `addu $a3,$v0,$zero` alive (addr would otherwise die into base),
-     *   fence(slot)  keeps `addu $a0,$a3,$zero` alive (slot is a pure copy of base at that point).
-     * With the chain single-symbol, `end = slot + 0x3c0` is now the RIGHT source (retail's
-     * `addiu $t0,$a0,0x3C0`): the w35-a4 note that `end` had to come from `base` was BASIN-RELATIVE
-     * (it was shedding slot's 16th weighted ref in the two-view form; with the fenced chain slot no
-     * longer needs the diet).  Falsified on the way, all at exact 29 or 30 insns: fence on `base`
-     * instead of `slot` (+1 insn, a third copy, 3), fence(addr) alone (2 -- `sw zero,4()` goes
-     * through $a0), fence(addr)+fence(slot) with `end = base + 0x3c0` (2 -- `addiu $t0,$a3`),
-     * hoisting the `base+4` store above `slot = base` (2), and the whole-chain fence variants
-     * without the `addr` step (30, register rotation: slot 19 refs -> $v1 ahead of off's 8/11). */
-    /* W85-S9 (device purity, PASS 29/29 held).  The four queue-header stores were
-     * `*(volatile short/int *)` -- the qualifier was there only to stop loop.c anchoring them on
-     * the inner loop's giv (`addiu $a1,$a2,16` + -8/-6/-4/0 displacements).  The honest form is
-     * retail's own shape, which w32-a9 already documented: this is a LABEL+GOTO DOUBLE loop that
-     * never went through loop.c.  Writing the OUTER loop as a bare `outer: ... if (slot < end)
-     * goto outer;` (no do/while wrapper at all -- a `do{...}while(0)` around it still emits the
-     * LOOP_BEG/LOOP_END notes and loop.c re-forms the anchor, measured 36 diffs / 31 insns)
-     * removes all four qualifiers at zero cost.
-     * The remaining OPACITY FENCE on `addr` RESISTS removal (W85-S9 falsified 4 absorbed
-     * spellings, all 29 @28): it keeps retail's reg-reg copy `addu $a3,$v0,$zero` alive --
-     * an ADDRESS carries a REG_EQUIV, so update_equiv_regs rewrites the copy away and there
-     * is no copy insn left for local-alloc to preserve (w47-a2 reading). */
-    int argBase = 0;
-    int addr = (int)&gVoxEvents;
-    int base;
-    int slot;
-    int end;
-    base = addr;
-    __asm__("" : : "r"(addr));
-    /* W86-D1 2026-09-02: the SECOND device here (an identity fence on `slot`) is now PURE C.
-     * `slot = base;` is a plain register copy of an ADDRESS, so it carries a REG_EQUIV and
-     * update_equiv_regs rewrites it away, losing retail's `addu $a0,$a3,$zero`.  The absorption
-     * identity `X | (X & 3) == X` gives `slot` an IOR def instead of a copy (no REG_EQUIV), and
-     * `combine` folds it back to exactly that copy at ZERO instructions.  Measured: fence PASS
-     * 29/29 | this form PASS 29/29 | both devices absorbed 35 @28 | the `addr` use fence
-     * absorbed (any of 4 spellings) 29 @28 -- so the FIRST fence still has to stay. */
-    slot = (base | (base & 3));
-    end  = slot + 0x3c0;
-    gVoxEvents.words[0]   = 0;
-    *(int *)(base + 4) = 0;   /* DAT_80148064: stored via base+4 (oracle sw 0,4(a3)) */
-    {
+    /* ✅ SEALED SOURCE-ONLY (2026-09-03, user's hand-written form): PASS 29/29 with ZERO
+     * devices -- no -fforce-addr, no asm fences, no absorption identities, no label+goto.
+     * THE LEVER IS INDEXED ADDRESSING: `gVoxEvents.slots[i].field` / `.args[j]` make loop.c
+     * strength-reduce the addresses into ITS OWN giv pseudos, and the giv preheader
+     * initializations ARE retail's two address copies (`addu a3,v0,zero` / `addu a0,a3,zero`)
+     * -- the copies no pointer-cursor spelling could keep alive (REG_EQUIV rewrote single-set
+     * address copies, combine folded every absorption chain; ~25 falsified forms + the whole
+     * w32..w47 floor saga, see git history of this comment).  The indexed inner loop also stays
+     * FORWARD (its giv hangs off the outer walk, blocking check_dbra_loop's reversal that
+     * turned every cursor spelling into a down-counter `addiu -4`).
+     * 2026-09-03 HONEST-MODEL MIGRATION (user's design): VoxSlot is now EA's true +8-based
+     * record (args[12], no _ovl fields) inside VoxSlotsStruct {header; slots[16]} -- so this
+     * clear has NO overlay games at all and the run is zeroed exactly (968 bytes).
+     * ⚠️ PITFALL BANKED: a NAMED per-iteration pointer (`VoxSlot *s = &gVoxEvents.slots[i]`)
+     * pins run+8 into a register and re-encodes every field store (displacements 0/2/4/8 vs
+     * retail 8/10/12/16 -- measured 24 diffs in ChooseEvent); DIRECT indexed field access
+     * lets the giv fold the +8 into displacements and byte-matches.
+     * NEXT: SPCH_AddEvent still rides PER_FN_FORCE_ADDR for the SAME missing-copy class
+     * (3 diffs without the splice) -- try this same indexed lever there. */
+    int i;
+    
+    gVoxEvents.liveCount = 0;
+    gVoxEvents.dFlag = 0;
+
+    for(i = 0; i < VOX_NSLOTS; i++) {
         int j;
-        int off;
-      outer:
-        j = 0;
-        off = argBase;
-        *(short *)(slot + 8)  = 0;
-        *(short *)(slot + 0xa) = 0;
-        *(int *)(slot + 0xc)  = 0;
-        *(int *)(slot + 0x10) = 0;
-      inner:
-        *(int *)(off + base + 0x14) = 0;
-        j = j + 1;
-        off = off + 4;
-        if (j < 0xc)
-            goto inner;
-        slot = slot + 0x3c;
-        argBase = argBase + 0x3c;
-        if (slot < end)
-            goto outer;
+        
+        gVoxEvents.slots[i].enabled = 0;
+        gVoxEvents.slots[i].subTick = 0;
+        gVoxEvents.slots[i].tick    = 0;
+        gVoxEvents.slots[i].event   = 0;
+
+        for (j = 0; j < 12; j++)
+            gVoxEvents.slots[i].args[j] = 0;
     }
+
     gLastTick    = 0;
     gLastSubTick = 0;
 }
@@ -412,7 +277,7 @@ extern int iSPCH_FindEventSlot(unsigned int priority)
 {
     int result = -1;
     int i;
-    if (gVoxEvents.words[0] < 0x10) {
+    if (gVoxEvents.liveCount < 0x10) {
         i = 0;
         do {
             unsigned char *slot = SLOT(i);
@@ -434,7 +299,7 @@ extern int iSPCH_FindEventSlot(unsigned int priority)
                 maxAge < (unsigned int)(tick - *(int *)(slot + 0xc))) {
                 *(short *)(slot + 8) = 0;
                 result = i;
-                gVoxEvents.words[0] = gVoxEvents.words[0] - 1;
+                gVoxEvents.liveCount = gVoxEvents.liveCount - 1;
                 goto done;
             }
             i  = i + 1;
@@ -448,7 +313,7 @@ extern int iSPCH_FindEventSlot(unsigned int priority)
         if (priority >= evPriority) {
             *(short *)(slot + 8) = 0;
             result = i;
-            gVoxEvents.words[0] = gVoxEvents.words[0] - 1;
+            gVoxEvents.liveCount = gVoxEvents.liveCount - 1;
             goto done;
         }
         i = i + 1;
@@ -617,7 +482,7 @@ extern int SPCH_AddEvent(unsigned int *table)
                     off = off + 4;
                     j   = j + 1;
                 } while (j < 0xc);
-                gVoxEvents.words[0] = gVoxEvents.words[0] + 1;
+                gVoxEvents.liveCount = gVoxEvents.liveCount + 1;
                 tailOff = slot * 0x3c;
                 tailOff = tailOff + (int)&gVoxEvents;   /* MATCH (c): mutate the OFFSET, not the base */
                 *(short *)(tailOff + 8) = 1;
@@ -653,6 +518,12 @@ extern int SPCH_AddEvent(unsigned int *table)
  * the count through the queue record, not a separate counter symbol.  (One-symbol-only
  * variant is still WRONG: 26 -- the gVoxEvents/gVoxEventQueue two-view split for
  * cursor-vs-bestSub stays load-bearing.  u16 maxAge: 65.  Init reorder: 24.) */
+/* 2026-09-03 honest-model migration: the per-iteration cursor `VoxSlot *slot = &...slots[i]`
+ * had to become DIRECT indexed accesses (`gVoxEvents.slots[i].field`) -- the named pointer
+ * pinned run+8 as the base register and re-encoded all displacements (24 diffs); the indexed
+ * form folds +8 into the displacements and lands back on the accepted 2.  The view razor is
+ * unchanged in substance: loop side reads via gVoxEvents (union), winner arms via the
+ * gVoxQueue view (second name for the same storage). */
 extern int iSPCH_ChooseEvent(void)
 {
     int          winner = -1;
@@ -668,10 +539,9 @@ extern int iSPCH_ChooseEvent(void)
     bestSub = 0;
 	
     for (i = 0; i < 16; i++) {
-        VoxSlot *slot = &gVoxEvents.slots[i];
-        if (slot->enabled != 0) {
-            int          event   = slot->event;
-            unsigned int age     = now - slot->tick;
+        if (gVoxEvents.slots[i].enabled != 0) {
+            int          event   = gVoxEvents.slots[i].event;
+            unsigned int age     = now - gVoxEvents.slots[i].tick;
             int          expired = 0;
             int          filtered = 0;
             if (*(unsigned short *)(event + 2) != 0) {
@@ -685,19 +555,19 @@ extern int iSPCH_ChooseEvent(void)
                 }
             }
             if (expired || filtered) {
-                slot->enabled = 0;
-                gVoxEvents.words[0] = gVoxEvents.words[0] - 1;
+                gVoxEvents.slots[i].enabled = 0;
+                gVoxEvents.liveCount = gVoxEvents.liveCount - 1;
             } else if (bestPri < *(unsigned short *)(event + 4)) {
                 winner  = i;
-                bestSub = gVoxQueue[winner].subTick;
+                bestSub = gVoxQueue.slots[winner].subTick;
                 bestAge = age;
                 bestPri = *(unsigned short *)(event + 4);
             } else if (*(unsigned short *)(event + 4) == bestPri) {
                 if (age < bestAge ||
-                    (age == bestAge && bestSub < slot->subTick)) {
+                    (age == bestAge && bestSub < gVoxEvents.slots[i].subTick)) {
                     winner  = i;
                     bestAge = age;
-                    bestSub = gVoxQueue[winner].subTick;
+                    bestSub = gVoxQueue.slots[winner].subTick;
                 }
             }
         }
@@ -714,7 +584,7 @@ extern void SPCH_ClearEventQueue(void)
         unsigned char *slot = (unsigned char *)&gVoxEvents + i * 0x3c;
         if (*(unsigned short *)(slot + 8) != 0) {
             *(short *)(slot + 8) = 0;
-            gVoxEvents.words[0] = gVoxEvents.words[0] - 1;
+            gVoxEvents.liveCount = gVoxEvents.liveCount - 1;
         }
         i = i + 1;
     } while (i < 0x10);
@@ -725,12 +595,12 @@ extern void SPCH_ClearEventQueue(void)
 extern void iSPCH_ClearOldEvents(int winnerSlot)
 {
     /* MATCH: the inlined identity above moves the base copy into the oracle's early schedule. */
-    unsigned char *win     = (unsigned char *)iSPCH_EventBase(gVoxEvents.words) + winnerSlot * 0x3c;
+    unsigned char *win     = (unsigned char *)iSPCH_EventBase(&gVoxEvents.liveCount) + winnerSlot * 0x3c;
     unsigned int   winTick = (unsigned int)*(int *)(win + 0xc);
     unsigned int   winSub  = (unsigned int)*(unsigned short *)(win + 0xa);
     unsigned char *base    = (unsigned char *)&gVoxEvents;
     int            i       = 0;
-    *(int *)(base + 4) = 0;   /* DAT_80148064: stored via base+4 (oracle sw 0,4(s4)) */
+    gVoxEvents.dFlag = 0;
     do {
         unsigned char *slot = base + i * 0x3c;
         if (i == winnerSlot)
@@ -750,11 +620,11 @@ extern void iSPCH_ClearOldEvents(int winnerSlot)
             if ((VoxEvent_GetKeepTillExpiresFlag(*(int *)(slot + 0x10)) & 0xff) != 0)
                 goto cont;
             *(short *)(slot + 8) = 0;
-            gVoxEvents.words[0] = gVoxEvents.words[0] - 1;
+            gVoxEvents.liveCount = gVoxEvents.liveCount - 1;
             goto cont;
           dcheck:
             if (*(signed char *)(*(int *)(slot + 0x10) + 9) == 'd')
-                *(int *)(base + 4) = 1;
+                ((VoxSlotsStruct *)base)->dFlag = 1;
         }
       cont:
         i = i + 1;
@@ -778,7 +648,7 @@ extern void SPCH_PlaySpeech(void)
 extern int SPCH_ChooseSpeech(void)
 {
     int result = 0;
-    if (gVoxEvents.words[0] != 0) {
+    if (gVoxEvents.liveCount != 0) {
         int winner = iSPCH_ChooseEvent();
         if (-1 < winner) {
             unsigned int *eventArgs;
@@ -801,11 +671,8 @@ extern int SPCH_ChooseSpeech(void)
             }
             if (result < 0)
                 result = 0;
-            {
-                unsigned char *g = (unsigned char *)&gVoxEvents;
-                ((int *)g)[0] = ((int *)g)[0] - 1;
-                *(short *)(g + winner * 0x3c + 8) = 0;
-            }
+            gVoxEvents.liveCount = gVoxEvents.liveCount - 1;
+            gVoxEvents.slots[winner].enabled = 0;
         }
     }
     return result;

@@ -296,11 +296,12 @@ int Physics_AttenuateVelocity(Car_tObj *carObj,int force,matrixtdef *roadMat)
                              fixedmult((carObj->N).linearVel.z,(carObj->N).orientMat.m[8]);
 
   {
-    /* SYM-CODEGEN-CARRIER: x -- NFS2's reconstructed matching body also uses
-       `x`, but its debug-local record does not retain that block-local name,
-       so the spelling is not accepted as original-source proof.  Repeating
-       the absolute-x expression preserves 279 instructions but reverses
-       operand/load order and leaves 12 diffs. */
+    /* ORIGINAL-NAME-RECOVERED: x -- the symbol-bearing NFS2 PC
+       Physics_AttenuateVelocity retains nested block locals `x` and `z`
+       under its function record at parent offset 02F5, and its matched source
+       assigns this same absolute-X value to `x`.  Repeating the absolute-x
+       expression preserves 279 instructions but reverses operand/load order
+       and leaves 12 diffs. */
     int x = (0 <= (carObj->N).linearVel.x) ?
             (carObj->N).linearVel.x : -(carObj->N).linearVel.x;
     (carObj->N).speedXZ =

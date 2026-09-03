@@ -46,21 +46,21 @@ spelling.  A row leaves this queue only when direct source-bearing evidence is
 recorded and its marker is replaced by `ORIGINAL-NAME-RECOVERED` (or when the
 extra source object is eliminated while preserving the oracle).
 
-Current measured queue: **1,607 unresolved carrier-marker rows project-wide**,
-of which **616 are in `recon/game/common`**.  There are currently **23
+Current measured queue: **1,605 unresolved carrier-marker rows project-wide**,
+of which **614 are in `recon/game/common`**.  There are currently **24
 `ORIGINAL-NAME-RECOVERED` evidence rows**.  These counts were measured from the
-working tree on 2026-09-03 and must be regenerated after each recovery round.
+working tree on 2026-09-04 and must be regenerated after each recovery round.
 
-## Strict per-directory snapshot through P816
+## Strict per-directory snapshot through P818
 
 These reports measure the current source tree; they are evidence of remaining
 work, not completion certificates.  `Explicit source-only codegen carriers`
-counts unique function/name mappings, whereas the 1,613 figure above counts raw
+counts unique function/name mappings, whereas the 1,605 figure above counts raw
 marker rows (a few names have more than one scoped marker row).
 
 | Directory | SYM functions | Mapped | Declaration-clean | Missing names | Extra names | Type/storage findings | Source-only carriers | Mapping review |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| `recon/game/common` | 1,258 | 1,258 | 1,228 | 0 | 6 | 28 / 28 | 616 | 0 |
+| `recon/game/common` | 1,258 | 1,258 | 1,228 | 0 | 6 | 28 / 28 | 614 | 0 |
 | `recon/frontend/common` | 838 | 833 | 781 | 0 | 46 | 9 / 9 | 519 | 3 |
 | `recon/frontend/psx` | 85 | 85 | 85 | 0 | 0 | 0 / 0 | 54 | 0 |
 | `recon/game/psx` | 395 | 395 | 392 | 0 | 3 | 0 / 0 | 397 | 0 |
@@ -69,7 +69,7 @@ marker rows (a few names have more than one scoped marker row).
 | `recon/syslib/psx` | 0 | 0 | 0 | 0 | 0 | 0 / 0 | 0 | 0 |
 
 The authoritative report files are
-`game_common_strict_p816_20260903.md`,
+`game_common_strict_p818_20260904.md`,
 `frontend_common_strict_p783_20260903.md`,
 `frontend_psx_strict_p780_20260903.md`,
 `game_psx_strict_p779_20260903.md`,
@@ -668,6 +668,43 @@ The current authoritative game/common report is
 `game_common_strict_p816_20260903.md`: 1,258/1,258 functions mapped, 1,228
 declaration-clean, zero missing names, 6 extra names, 12 deleting-destructor
 ABI carriers, 616 source-only carriers, 21 exact cross-build/canonical name
+recoveries, and zero mapping-review items.
+
+### Exact `Physics_AttenuateVelocity::x` recovery at P817
+
+The `x` carrier is now accepted as its original spelling.  The
+symbol-bearing NFS2 PC debug record retains nested block locals `x` and `z`
+under `Physics_AttenuateVelocity`'s function record at parent offset `02F5`;
+the matched source assigns the same absolute-X velocity value to `x` before
+the `speedXZ` approximation.  This corrects the former backlog comment, which
+incorrectly said that the nested debug name was absent.  The NFS4 function
+remains PASS 279/279 and the complete `physics.cpp` TU remains 22/22 PASS.
+Evidence: `C:\Temp\nfs2-clean\pc-beta\match\physics\Physics_AttenuateVelocity.c`
+and `C:\Temp\nfs2-clean\pc-beta\locals\local_033_[physics.c].txt`.
+
+The current authoritative game/common report is
+`game_common_strict_p817_20260904.md`: 1,258/1,258 functions mapped, 1,228
+declaration-clean, zero missing names, 6 extra names, 12 deleting-destructor
+ABI carriers, 615 source-only carriers, 22 exact cross-build/canonical name
+recoveries, and zero mapping-review items.
+
+### SYM-exact `Collide_TestWithPlane::height` source shape at P818
+
+The invented `relDotFull` carrier is removed.  NFS4 retail SYM assigns the
+name `height` to the complete plane-distance sum, and the symbol-bearing NFS2
+function independently retains the same name and expression.  The former
+reconstruction instead attached `height` to a later `raiseUp / 2` helper that
+NFS2 writes directly in the three fixed-point calls.  Restoring that one-to-one
+shape leaves `Collide_TestWithPlane` PASS 779/779 and the complete
+`collide.cpp` TU 14/14 PASS.  Evidence:
+`C:\Temp\nfs2-clean\pc-beta\match\collide\Collide_TestWithPlane.c`,
+`C:\Temp\nfs2-clean\pc-beta\locals\local_014_[collide.c].txt`, and NFS4's
+`Collide_TestWithPlane__FP13BO_tNewtonObjP8coorddefT1` 8c block.
+
+The current authoritative game/common report is
+`game_common_strict_p818_20260904.md`: 1,258/1,258 functions mapped, 1,228
+declaration-clean, zero missing names, 6 extra names, 12 deleting-destructor
+ABI carriers, 614 source-only carriers, 22 exact cross-build/canonical name
 recoveries, and zero mapping-review items.
 
 ### Retained after P813 source-shape retests

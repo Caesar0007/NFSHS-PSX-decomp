@@ -401,11 +401,10 @@ void Collide_TestWithPlane(BO_tNewtonObj *o,coorddef *normal,coorddef *samplePoi
   int xDir;
   int Y_DIR;
   int zDir;
-  /* SYM-CODEGEN-CARRIER: relDotFull -- the retail SYM retains relativeDot in $v1
-     but not this final sum. Reusing relativeDot keeps the instruction count at
-     779 yet changes 250 allocated instructions; this separate result restores
-     the byte-exact $a1 scratch web without inventing observable storage. */
-  int relDotFull;
+  /* NFS4 SYM and the symbol-bearing NFS2 source both assign `height` to the
+     complete signed plane-distance sum.  NFS2 writes the later raiseUp/2
+     fixedmult arguments directly, so no second source local is required. */
+  int height;
 
   /* MATCH: SYM rule-8 rebuild - names/blocks from the SYM 8c block; inline /256 idiom
      (no hoisted temps); X_DIR*((m/256)*(dim/256)) association.
@@ -450,9 +449,8 @@ void Collide_TestWithPlane(BO_tNewtonObj *o,coorddef *normal,coorddef *samplePoi
   relativeDot = (normal->x / 256) * (relativePos.x / 256) +
                 (normal->y / 256) * (relativePos.y / 256) +
                 (normal->z / 256) * (relativePos.z / 256);
-  relDotFull = (xDir * basisDots[0] + Y_DIR * basisDots[1] + zDir * basisDots[2]) + relativeDot;
-  if (relDotFull < 0) {
-    int height;
+  height = (xDir * basisDots[0] + Y_DIR * basisDots[1] + zDir * basisDots[2]) + relativeDot;
+  if (height < 0) {
     coorddef Raise;
     coorddef vertexVelocity;
     coorddef r;
@@ -470,15 +468,14 @@ void Collide_TestWithPlane(BO_tNewtonObj *o,coorddef *normal,coorddef *samplePoi
              xDir * (((o->orientMat).m[2] / 256) * ((o->dimension).x / 256)) +
              Y_DIR * (((o->orientMat).m[5] / 256) * ((o->dimension).y / 256)) +
              zDir * (((o->orientMat).m[8] / 256) * ((o->dimension).z / 256));
-    if (raiseUp < -relDotFull) {
-      raiseUp = -relDotFull;
+    if (raiseUp < -height) {
+      raiseUp = -height;
     }
     if (Collide_gRaiseUp != 0) {
       if (raiseUp != 0) {
-        height = raiseUp / 2;
-        Raise.x = fixedmult(height,normal->x);
-        Raise.y = fixedmult(height,normal->y);
-        Raise.z = fixedmult(height,normal->z);
+        Raise.x = fixedmult(raiseUp / 2,normal->x);
+        Raise.y = fixedmult(raiseUp / 2,normal->y);
+        Raise.z = fixedmult(raiseUp / 2,normal->z);
         (o->position).x = (o->position).x + Raise.x;
         (o->position).y = (o->position).y + Raise.y;
         (o->position).z = (o->position).z + Raise.z;

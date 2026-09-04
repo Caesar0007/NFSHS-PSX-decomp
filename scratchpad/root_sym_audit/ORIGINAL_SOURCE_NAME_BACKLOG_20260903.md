@@ -46,21 +46,21 @@ spelling.  A row leaves this queue only when direct source-bearing evidence is
 recorded and its marker is replaced by `ORIGINAL-NAME-RECOVERED` (or when the
 extra source object is eliminated while preserving the oracle).
 
-Current measured queue: **1,597 unresolved carrier-marker rows project-wide**,
-of which **603 are in `recon/game/common`**.  There are currently **24
+Current measured queue: **1,596 unresolved carrier-marker rows project-wide**,
+of which **602 are in `recon/game/common`**.  There are currently **24
 `ORIGINAL-NAME-RECOVERED` evidence rows**.  These counts were measured from the
 working tree on 2026-09-04 and must be regenerated after each recovery round.
 
-## Strict per-directory snapshot through P825
+## Strict per-directory snapshot through P826
 
 These reports measure the current source tree; they are evidence of remaining
 work, not completion certificates.  `Explicit source-only codegen carriers`
-counts unique function/name mappings, whereas the 1,597 figure above counts raw
+counts unique function/name mappings, whereas the 1,596 figure above counts raw
 marker rows (a few names have more than one scoped marker row).
 
 | Directory | SYM functions | Mapped | Declaration-clean | Missing names | Extra names | Type/storage findings | Source-only carriers | Mapping review |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| `recon/game/common` | 1,258 | 1,258 | 1,228 | 0 | 6 | 28 / 28 | 603 | 0 |
+| `recon/game/common` | 1,258 | 1,258 | 1,228 | 0 | 6 | 28 / 28 | 602 | 0 |
 | `recon/frontend/common` | 838 | 833 | 781 | 0 | 46 | 9 / 9 | 519 | 3 |
 | `recon/frontend/psx` | 85 | 85 | 85 | 0 | 0 | 0 / 0 | 54 | 0 |
 | `recon/game/psx` | 395 | 395 | 392 | 0 | 3 | 0 / 0 | 397 | 0 |
@@ -69,7 +69,7 @@ marker rows (a few names have more than one scoped marker row).
 | `recon/syslib/psx` | 0 | 0 | 0 | 0 | 0 | 0 / 0 | 0 | 0 |
 
 The authoritative report files are
-`game_common_strict_p825_20260904.md`,
+`game_common_strict_p826_20260904.md`,
 `frontend_common_strict_p783_20260903.md`,
 `frontend_psx_strict_p780_20260903.md`,
 `game_psx_strict_p779_20260903.md`,
@@ -829,6 +829,32 @@ declaration-clean, zero missing names, 6 extra names, 12 deleting-destructor
 ABI carriers, 603 source-only carriers, 22 exact cross-build/canonical name
 recoveries, and zero mapping-review items.  The tracked-source raw carrier queue
 is 1,597 project-wide / 603 in game/common.
+
+### Restored canonical pause-menu `GameSetup_tData` access at P826
+
+The invented `MPause_GameSetupWords` integer-array alias is removed from the
+pause-menu TU.  The gmesetup owner record proves that `controllerData` begins at
+offset `0x60`, that its first field is `controllerConfig[2]`, and that the other
+pause-menu words are the named `raceType`, `userSetting.language`,
+`userSetting.audioMode`, `controllerData.shockMode`, and
+`controllerData.shockImpact` fields.  Restoring those canonical aggregate
+expressions removes the invented `MPause_EndPauseMenu::deviceSetup` local:
+`GameSetup_gData.controllerData.controllerConfig[Device_gPausePortIndex]`
+naturally emits retail's `lw 96(base)` form without a staging object.
+
+The entire `mpause.cpp` TU remains byte-exact: constructor PASS 216/216,
+destructor PASS 109/109, `MPause_MusicLogic` PASS 174/174,
+`MPause_ControllerLogic` PASS 57/57, `MPause_Logic` PASS 199/199,
+`MPause_Render` PASS 106/106, `MPause_InitMPause` PASS 14/14,
+`MPause_StartPauseMenu` PASS 140/140, `MPause_EndPauseMenu` PASS 15/15, and
+`MPause_KillMPause` PASS 16/16.
+
+The current authoritative game/common report is
+`game_common_strict_p826_20260904.md`: 1,258/1,258 functions mapped, 1,228
+declaration-clean, zero missing names, 6 extra names, 12 deleting-destructor
+ABI carriers, 602 source-only carriers, 22 exact cross-build/canonical name
+recoveries, and zero mapping-review items.  The tracked-source raw carrier queue
+is 1,596 project-wide / 602 in game/common.
 
 ### Retained after P813 source-shape retests
 

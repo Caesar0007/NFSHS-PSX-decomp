@@ -84,7 +84,7 @@ tPauseMenuDefs::tPauseMenuDefs()
     itemControllerSettings(8,&menuControllerConfig,0),
     menuOptions(&itemOptionsTitle,&itemAudioSettings,&itemControllerSettings,0),
     itemAudioSettingsTitle(10),
-    iteratorAudioMode(InGameSelectListAudioMode,&MPause_GameSetupWords[59]),
+    iteratorAudioMode(InGameSelectListAudioMode,&GameSetup_gData.userSetting.audioMode),
     itemAudioSettingsAudioMode(0xb,&iteratorAudioMode),
     itemAudioSettingsMusicVolume(0xc,&gMasterMusicLevel,0x7f),
     itemAudioSettingsFXVolume(0xd,&gMasterSFXLevel,0x7f),
@@ -95,13 +95,13 @@ tPauseMenuDefs::tPauseMenuDefs()
                       &itemAudioSettingsMusicVolume,&itemAudioSettingsFXVolume,
                       &itemAudioSettingsSpeechVolume,&itemAudioSettingsEngineVolume,
                       &itemAudioSettingsAmbientVolume,0),
-    iteratorConfig(SelectListConfig,&MPause_GameSetupWords[24],
+    iteratorConfig(SelectListConfig,&GameSetup_gData.controllerData.controllerConfig[0],
                    &Device_gPausePortIndex),
     itemControllerSettingsTitle(0x14),
     itemControllerConfig(0x15,&iteratorConfig),
-    itemControllerShockMode(0x1b,&MPause_GameSetupWords[42],0x7f,
+    itemControllerShockMode(0x1b,&GameSetup_gData.controllerData.shockMode[0],0x7f,
                             &Device_gPausePortIndex),
-    itemControllerShockImpact(0x1c,&MPause_GameSetupWords[44],0x7f,
+    itemControllerShockImpact(0x1c,&GameSetup_gData.controllerData.shockImpact[0],0x7f,
                               &Device_gPausePortIndex),
     menuControllerConfig(&itemControllerSettingsTitle,&itemControllerConfig,
                          &itemControllerShockMode,&itemControllerShockImpact,0),
@@ -140,7 +140,7 @@ void MPause_MusicLogic(char active)
   
   sndover = 1;
   samp = 0x10;
-  switch (MPause_GameSetupWords[59]) {
+  switch (GameSetup_gData.userSetting.audioMode) {
     case 0:
       gStereoMode = 1;
       Audio_direct3davail = 0;
@@ -417,7 +417,7 @@ void MPause_Render(void)
 void MPause_InitMPause(void)
 
 {
-  TextSys_LoadInGame(MPause_GameSetupWords[56]);
+  TextSys_LoadInGame(GameSetup_gData.userSetting.language);
   gPauseMenuDefs = new tPauseMenuDefs;
   return;
 }
@@ -430,13 +430,14 @@ void MPause_StartPauseMenu(void)
   MPause_InitializeMenu(gPauseCurrentMenu);
   gBackDepth = 0;
 
-  if ((MPause_GameSetupWords[0] != RaceType_PinkSlips) && (MPause_GameSetupWords[0] != RaceType_Tournament)) {
+  if ((GameSetup_gData.raceType != RaceType_PinkSlips) &&
+      (GameSetup_gData.raceType != RaceType_Tournament)) {
     MPause_EnableItem(&gPauseMenuDefs->itemRestart);
   } else {
     MPause_DisableItem(&gPauseMenuDefs->itemRestart);
   }
 
-  if (MPause_GameSetupWords[0] == RaceType_PinkSlips) {
+  if (GameSetup_gData.raceType == RaceType_PinkSlips) {
     MPause_EnableItem(&gPauseMenuDefs->itemForfeitRace);
     MPause_DisableItem(&gPauseMenuDefs->itemQuitRace);
   }
@@ -462,16 +463,9 @@ void MPause_StartPauseMenu(void)
 void MPause_EndPauseMenu(void)
 
 {
-  {
-    /* SYM-CODEGEN-CARRIER: deviceSetup -- a direct word index emits 16/15
-       instructions with five diffs; direct byte arithmetic is count-exact but
-       folds +96 into the pointer and leaves two MEM-offset diffs. This scoped
-       base preserves retail's `index<<2` address plus `lw 96(base)` form. */
-    int *deviceSetup = (int *)((char *)MPause_GameSetupWords +
-                              ((u_char)Device_gPausePortIndex << 2));
-    InGame_ResetPSXController((u_int)(u_char)Device_gPausePortIndex,
-                              deviceSetup[24]);
-  }
+  InGame_ResetPSXController((u_int)(u_char)Device_gPausePortIndex,
+      GameSetup_gData.controllerData.controllerConfig[
+          (u_char)Device_gPausePortIndex]);
   return;
 }
 

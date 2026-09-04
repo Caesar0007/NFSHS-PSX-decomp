@@ -13,6 +13,7 @@ extern Group              *Object_customObjInst;     /* 0x8013d2c8 */
 extern Group              *Object_customSimObjs;     /* 0x8013d2cc */
 extern Sim_tSimGlobalVar simGlobal;
 extern char *AI_BWorldSmSlices asm("BWorldSm_slices");
+extern Trk_NewSlice *BWorldSm_slices;
 extern int                 Cars_gNumCopCars;
 extern int                 Cars_gNumTrafficCars;
 extern int                AITune_driveSide;

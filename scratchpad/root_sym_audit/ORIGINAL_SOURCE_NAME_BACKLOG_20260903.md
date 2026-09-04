@@ -27,6 +27,7 @@ invented semantic substitutions do not close the item.
 | `recon/game/common/aih_basiccop.cpp` — `AIHigh_BasicCop::CheckSpikeBelt` | `freshenElapsed` (temporary placeholder) | Two separate nested `int timeNow` declarations are now restored to their exact SLD blocks. A distinct optimized-out predicate is still required for the retail zero initialization and `slti`/`sltiu` sequence; the function remains PASS 50/50. | Recover the predicate or timer-macro source spelling. Direct conditions and ternaries change allocation/control flow, and retail retains no name for the predicate. |
 | `recon/game/common/aih_play.cpp` — `AIHigh_Player::SetupBlockade` / `HandlePullOver` | `bVar2`, `bVar1` (decompiler placeholders) | Retail materializes optimized-out short-circuit results in `$a1`/`$a2`. Carrier-free forms regress to 669/674 with 121 diffs and to 307/307 with register/scheduling diffs respectively. | Recover the exact boolean or macro spelling from source-bearing evidence; NFS4 SYM/SLD retains no name and the checked NFS2/NFS3/NFS4-PC families have no authoritative twin. |
 | `recon/game/common/aiphysic.cpp` — `AIPhysic_RevEngine` | `deadfrm` (temporary two-word array) | The retail leaf has `fsize=8` while SYM records only register locals `increase` and `redLine`. Removing the source object produces three oracle diffs; the NFS3 retail twin has the same otherwise-unused frame. | Recover the original frame-producing construct or exact spelling from source-bearing evidence. The array name/type are not accepted as original. |
+| `recon/game/common/ailife.cpp` — `AILife_RCPickSliceAndDirection` | `basisCarIndex`, `basisCar` (reconstruction carriers, not accepted source spellings) | Retail SYM records neither object. SLD places the index calculation, list lookup, and member store on one source statement; raw retail computes the index transiently, stores `carObj->basisCar`, then reloads and shares that member. The symbol-bearing NFS2 twin likewise has no pointer/index local and uses `theCar->basisCar` directly. | Reproduce the PASS body with direct list/member spelling and no volatile snapshot. Canonical PsyQ 4.3 `ABS(x)` is a source-family candidate for the speed test, but target-specific evidence does not yet prove that macro spelling. |
 | `recon/game/common/aidatarecord.cpp` — `AIDataRecord_t::StartUp2` | direct manual vtable dispatch (no extra local remains) | Retail SYM retains only `recordLoop`. Repeating the indexed object/vtable expression lets GCC recreate the anonymous `$v1/$v0` temporaries and remains PASS 27/27; the disproved `pAVar1` source local is gone. | Restore the exact class/virtual declaration that lets ordinary `recordCollection[recordLoop]->Setup()` reproduce retail dispatch; current manual vtable syntax is an intermediate reconstruction, not final original C++. |
 | `recon/game/common/aidatarecord.cpp` — `AIDataRecord_t::CleanUp1` | direct manual deleting-destructor dispatch (no extra local remains) | Retail SYM retains no local. Repeated global/vtable expressions recreate the anonymous temporaries and remain PASS 28/28; the disproved `pa_Var1` source local is gone. | Restore the exact class/deleting-destructor model so ordinary `delete` reproduces retail dispatch. Current manual vtable syntax remains an explicit source-restoration backlog item. |
 
@@ -65,6 +66,28 @@ spelling.  Carrier-free `SetupBlockade`/`HandlePullOver` conditions likewise
 failed their detailed oracles.  The incoming placeholder forms were restored
 instead of turning plausible semantics into invented source.
 
+## P844 typed `Trk_NewSlice` source-model round
+
+The symbol-bearing NFS2 AI sources and the exact 32-byte retail slice layout
+recover the real `Trk_NewSlice` field model used by `ai.cpp`.  Adding that type
+and the canonical `Trk_NewSlice *BWorldSm_slices` declaration allowed two
+source-only carrier mappings to disappear without inventing local names:
+
+- `AI_HandleChangeInNumLanes` now reads `.laneCount` directly.  GCC naturally
+  recreates the former anonymous byte cache, eliminating the unsupported
+  `laneCount` source local while preserving **PASS 92/92** and an exact
+  `-g`/SLD twin.
+- `AI_HandleShouldersAndOffRoad` now uses `.leftDrive`, `.rightDrive`,
+  `.laneCount`, `.avgPavedWidthLf`, and `.avgPavedWidthRt` instead of scoped
+  `char *sl` offset carriers.  The natural typed expressions preserve
+  **PASS 241/241** and an exact `-g`/SLD twin.
+
+The complete `ai.cpp` translation unit remains **40/40 PASS**, and both
+functions have zero branch-opcode census divergence.  Closure evidence is the
+retail SYM/SLD plus
+`C:\Temp\nfs2-clean\pc-beta\match\ai\AI_HandleChangeInNumLanes.c` and
+`C:\Temp\nfs2-clean\pc-beta\match\ai\AI_HandleShouldersAndOffRoad.c`.
+
 ## Expansion requirement
 
 This is a living backlog.  Every retained source-only carrier whose spelling is
@@ -84,21 +107,21 @@ spelling.  A row leaves this queue only when direct source-bearing evidence is
 recorded and its marker is replaced by `ORIGINAL-NAME-RECOVERED` (or when the
 extra source object is eliminated while preserving the oracle).
 
-Current measured queue: **1,574 unresolved carrier-marker rows project-wide**,
-of which **583 are in `recon/game/common`**.  There are currently **28
+Current measured queue: **1,572 unresolved carrier-marker rows project-wide**,
+of which **581 are in `recon/game/common`**.  There are currently **28
 `ORIGINAL-NAME-RECOVERED` evidence rows**.  These counts were measured from the
 working tree on 2026-09-04 and must be regenerated after each recovery round.
 
-## Strict per-directory snapshot through P843
+## Strict per-directory snapshot through P844
 
 These reports measure the current source tree; they are evidence of remaining
 work, not completion certificates.  `Explicit source-only codegen carriers`
-counts unique function/name mappings, whereas the 1,574 figure above counts raw
+counts unique function/name mappings, whereas the 1,572 figure above counts raw
 marker rows (a few names have more than one scoped marker row).
 
 | Directory | SYM functions | Mapped | Declaration-clean | Missing names | Extra names | Type/storage findings | Source-only carriers | Mapping review |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| `recon/game/common` | 1,258 | 1,258 | 1,228 | 0 | 6 | 28 / 28 | 583 | 0 |
+| `recon/game/common` | 1,258 | 1,258 | 1,228 | 0 | 6 | 28 / 28 | 581 | 0 |
 | `recon/frontend/common` | 838 | 833 | 781 | 0 | 46 | 9 / 9 | 519 | 3 |
 | `recon/frontend/psx` | 85 | 85 | 85 | 0 | 0 | 0 / 0 | 54 | 0 |
 | `recon/game/psx` | 395 | 395 | 392 | 0 | 3 | 0 / 0 | 395 | 0 |
@@ -107,7 +130,7 @@ marker rows (a few names have more than one scoped marker row).
 | `recon/syslib/psx` | 0 | 0 | 0 | 0 | 0 | 0 / 0 | 0 | 0 |
 
 The authoritative report files are
-`game_common_strict_p843_20260904.md`,
+`game_common_strict_p844_20260904.md`,
 `frontend_common_strict_p783_20260903.md`,
 `frontend_psx_strict_p780_20260903.md`,
 `game_psx_strict_p838_20260904.md`,

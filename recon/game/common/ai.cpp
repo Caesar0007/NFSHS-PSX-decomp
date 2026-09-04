@@ -514,11 +514,6 @@ void AI_HandleChangeInNumLanes(Car_tObj *carObj)
   int absLaneLookAhead;
   int lookAhead;
   int laneIndex;
-  /* SYM-CODEGEN-CARRIER: laneCount -- retail names only the four int locals above.  This
-   * byte cache recreates the compiler web needed by the authoritative PASS;
-   * spelling both laneCount reads directly removes one instruction and
-   * recolors lookAhead/laneIndex. */
-  u_char laneCount;
 
   absLaneLookAhead = carObj->currentSpeed;
   if (absLaneLookAhead < 0) {
@@ -548,15 +543,15 @@ void AI_HandleChangeInNumLanes(Car_tObj *carObj)
     }
   }
 LAB_800588a4:
-  laneCount = AI_SLICE_BYTE(lookAheadSlice,0x1d);
   laneIndex = carObj->laneIndex;
-  if ((laneIndex < (int)(7 - (u_int)(laneCount >> 4))) ||
-      ((int)((laneCount & 0xf) + 6) < laneIndex)) {
-    laneCount = AI_SLICE_BYTE((carObj->N).simRoadInfo.slice,0x1d);
-    if (laneIndex < (int)(7 - (u_int)(laneCount >> 4))) {
+  if ((laneIndex < 7 - (BWorldSm_slices[lookAheadSlice].laneCount >> 4)) ||
+      ((BWorldSm_slices[lookAheadSlice].laneCount & 0xf) + 6 < laneIndex)) {
+    if (laneIndex <
+        7 - (BWorldSm_slices[(carObj->N).simRoadInfo.slice].laneCount >> 4)) {
       return;
     }
-    if ((int)((laneCount & 0xf) + 6) < laneIndex) {
+    if ((BWorldSm_slices[(carObj->N).simRoadInfo.slice].laneCount & 0xf) + 6 <
+        laneIndex) {
       return;
     }
     if (laneIndex < 7) {
@@ -585,52 +580,47 @@ void AI_HandleShouldersAndOffRoad(Car_tObj *carObj)
     shoulder_merit = 0x50000;
   }
   if ((carObj->laneIndex - 1 ==
-       6 - (u_int)(AI_SLICE_BYTE(slice,0x1d) >> 4)) ||
+       6 - (u_int)(BWorldSm_slices[slice].laneCount >> 4)) ||
       (carObj->laneIndex - 1 ==
-       (AI_SLICE_BYTE(slice,0x1d) & 0xf) + 7)) {
+       (BWorldSm_slices[slice].laneCount & 0xf) + 7)) {
     CarLogic_gObs[0][0] = CarLogic_gObs[0][0] + shoulder_merit;
-    /* SYM-CODEGEN-CARRIER: sl -- direct typed slice access drops retail from
-       241 to 221 instructions and produces 222 allocation/order diffs. */
-    char *sl = (char *)((carObj->N).simRoadInfo.slice * 0x20 +
-                        (int)AI_BWorldSmSlices);
-    if ((*(short *)(sl + 0x18) << 8) -
-        (*(u_char *)(sl + 0x1e) << 0xf) * (*(u_char *)(sl + 0x1d) >> 4) <
+    if ((BWorldSm_slices[(carObj->N).simRoadInfo.slice].leftDrive << 8) -
+        (BWorldSm_slices[(carObj->N).simRoadInfo.slice].avgPavedWidthLf << 0xf) *
+        (BWorldSm_slices[(carObj->N).simRoadInfo.slice].laneCount >> 4) <
         (carObj->N).dimension.x) {
       CarLogic_gObs[0][0] = CarLogic_gObs[0][0] + -0x640000;
     }
   }
   if ((carObj->laneIndex + 1 ==
-       6 - (u_int)(AI_SLICE_BYTE(slice,0x1d) >> 4)) ||
+       6 - (u_int)(BWorldSm_slices[slice].laneCount >> 4)) ||
       (carObj->laneIndex + 1 ==
-       (AI_SLICE_BYTE(slice,0x1d) & 0xf) + 7)) {
+       (BWorldSm_slices[slice].laneCount & 0xf) + 7)) {
     CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + shoulder_merit;
-    char *sl = (char *)((carObj->N).simRoadInfo.slice * 0x20 +
-                        (int)AI_BWorldSmSlices);
-    if ((*(short *)(sl + 0x1a) << 8) -
-        (*(u_char *)(sl + 0x1f) << 0xf) * (*(u_char *)(sl + 0x1d) & 0xf) <
+    if ((BWorldSm_slices[(carObj->N).simRoadInfo.slice].rightDrive << 8) -
+        (BWorldSm_slices[(carObj->N).simRoadInfo.slice].avgPavedWidthRt << 0xf) *
+        (BWorldSm_slices[(carObj->N).simRoadInfo.slice].laneCount & 0xf) <
         (carObj->N).dimension.x) {
       CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + -0x640000;
     }
   }
-  if ((carObj->laneIndex == 6 - (u_int)(AI_SLICE_BYTE(slice,0x1d) >> 4)) ||
-      (carObj->laneIndex == (AI_SLICE_BYTE(slice,0x1d) & 0xf) + 7)) {
+  if ((carObj->laneIndex ==
+       6 - (u_int)(BWorldSm_slices[slice].laneCount >> 4)) ||
+      (carObj->laneIndex ==
+       (BWorldSm_slices[slice].laneCount & 0xf) + 7)) {
     CarLogic_gObs[0][1] = CarLogic_gObs[0][1] + shoulder_merit;
     isRight = (carObj->laneIndex < 7) ^ 1;
     if (carObj->laneIndex < 7) {
-      char *sl = (char *)((carObj->N).simRoadInfo.slice * 0x20 +
-                          (int)AI_BWorldSmSlices);
-      if ((*(short *)(sl + 0x18) << 8) -
-          (*(u_char *)(sl + 0x1e) << 0xf) * (*(u_char *)(sl + 0x1d) >> 4) <
+      if ((BWorldSm_slices[(carObj->N).simRoadInfo.slice].leftDrive << 8) -
+          (BWorldSm_slices[(carObj->N).simRoadInfo.slice].avgPavedWidthLf << 0xf) *
+          (BWorldSm_slices[(carObj->N).simRoadInfo.slice].laneCount >> 4) <
           (carObj->N).dimension.x) {
         goto CENTER_DEMERIT;
       }
     }
     if (isRight != 0) {
-      char *sl;
-      sl = (char *)((carObj->N).simRoadInfo.slice * 0x20 +
-                    (int)AI_BWorldSmSlices);
-      if ((*(short *)(sl + 0x1a) << 8) -
-          (*(u_char *)(sl + 0x1f) << 0xf) * (*(u_char *)(sl + 0x1d) & 0xf) <
+      if ((BWorldSm_slices[(carObj->N).simRoadInfo.slice].rightDrive << 8) -
+          (BWorldSm_slices[(carObj->N).simRoadInfo.slice].avgPavedWidthRt << 0xf) *
+          (BWorldSm_slices[(carObj->N).simRoadInfo.slice].laneCount & 0xf) <
           (carObj->N).dimension.x) {
 CENTER_DEMERIT:
         CarLogic_gObs[0][1] = CarLogic_gObs[0][1] + -0x640000;
@@ -638,18 +628,19 @@ CENTER_DEMERIT:
     }
   }
   if ((carObj->laneIndex - 1 <
-       (int)(6 - (u_int)(AI_SLICE_BYTE(slice,0x1d) >> 4))) ||
-      ((int)((AI_SLICE_BYTE(slice,0x1d) & 0xf) + 7) <
+       (int)(6 - (u_int)(BWorldSm_slices[slice].laneCount >> 4))) ||
+      ((int)((BWorldSm_slices[slice].laneCount & 0xf) + 7) <
        carObj->laneIndex - 1)) {
     CarLogic_gObs[0][0] = CarLogic_gObs[0][0] + -0x3e80000;
   }
-  if ((carObj->laneIndex < (int)(6 - (u_int)(AI_SLICE_BYTE(slice,0x1d) >> 4))) ||
-      ((int)((AI_SLICE_BYTE(slice,0x1d) & 0xf) + 7) < carObj->laneIndex)) {
+  if ((carObj->laneIndex <
+       (int)(6 - (u_int)(BWorldSm_slices[slice].laneCount >> 4))) ||
+      ((int)((BWorldSm_slices[slice].laneCount & 0xf) + 7) < carObj->laneIndex)) {
     CarLogic_gObs[0][1] = CarLogic_gObs[0][1] + -0x3e80000;
   }
   if ((carObj->laneIndex + 1 <
-       (int)(6 - (u_int)(AI_SLICE_BYTE(slice,0x1d) >> 4))) ||
-      ((int)((AI_SLICE_BYTE(slice,0x1d) & 0xf) + 7) <
+       (int)(6 - (u_int)(BWorldSm_slices[slice].laneCount >> 4))) ||
+      ((int)((BWorldSm_slices[slice].laneCount & 0xf) + 7) <
        carObj->laneIndex + 1)) {
     CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + -0x3e80000;
   }

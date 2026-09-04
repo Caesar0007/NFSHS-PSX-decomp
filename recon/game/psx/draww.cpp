@@ -2669,16 +2669,16 @@ void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList)
         /* MATCH (w77 source restoration, still 9 @358): unary-negation plus addition
            preserves the retail subtrahend-first loads (`target` before `pChunkCp`)
            without the non-SYM px/pz aliases used by the prior split spelling. */
-        cx = (-((DrawW_Camera[Vi->player].target)->position).x + pChunkCp->x) >> 10;
-        cz = (-((DrawW_Camera[Vi->player].target)->position).z + pChunkCp->z) >> 10;
+        cx = (-((Camera_gInfo[Vi->player].target)->position).x + pChunkCp->x) >> 10;
+        cz = (-((Camera_gInfo[Vi->player].target)->position).z + pChunkCp->z) >> 10;
         dist = cx * cx + cz * cz;
         if (dist <= 0x47DFFFF) {
           if (((Cars_gList[Vi->player]->control).lights & 6U) != 0) {
             sd->nightFlags = 5;
           }
-          tmp.x = -((DrawW_Camera[Vi->player].target)->position).x + (Vi->cview).translation.x;
-          tmp.y = -((DrawW_Camera[Vi->player].target)->position).y + (Vi->cview).translation.y;
-          tmp.z = -((DrawW_Camera[Vi->player].target)->position).z + (Vi->cview).translation.z;
+          tmp.x = -((Camera_gInfo[Vi->player].target)->position).x + (Vi->cview).translation.x;
+          tmp.y = -((Camera_gInfo[Vi->player].target)->position).y + (Vi->cview).translation.y;
+          tmp.z = -((Camera_gInfo[Vi->player].target)->position).z + (Vi->cview).translation.z;
           transform(&tmp.x,gNightMat.m,&tmp2.x);
           DrawW_WorldSetUpTranslation(&tmp2,&sd->matNight);
         }
@@ -3025,9 +3025,9 @@ int DrawW_GetAnimationTime(Trk_AnimateInst *animInst)
      the identical 4-diff register-coloring floor or regress further. Not reachable by a
      source lever; candidate for permuter (no pointer/int cast on the hot path, so a
      re-seed is viable) or accept-as-is. */
-  track = DrawW_GameSetup.track;
+  track = GameSetup_gData.track;
   if (((animInst->objectIndex == '\0') || (track == 3)) || (track == 7)) {
-    return DrawW_SimGlobal.gameTicks;
+    return simGlobal.gameTicks;
   }
   /* MATCH 100% (w46-a7): the missing insns were a THIRD pseudo + its copy -- oracle
      `lw v0,0(v0); nop; addu v1,v0,zero` = a block-local load temp (`tick`, dies at
@@ -3124,7 +3124,7 @@ void DrawW_DoObjectAnimations(void)
   int *trackPtr;
   int time;
 
-  track = DrawW_GameSetup.track;
+  track = GameSetup_gData.track;
   if (track == 0) {
     trackPtr = trk0[0];
   }
@@ -3134,7 +3134,7 @@ void DrawW_DoObjectAnimations(void)
     }
     trackPtr = trk4[0];
   }
-  time = DrawW_SimGlobal.gameTicks;   /* MATCH: load deferred past the track test (oracle order) */
+  time = simGlobal.gameTicks;   /* MATCH: load deferred past the track test (oracle order) */
   i = 0;
   do {
     if (Anim_gInstanceFromIndex[i]->objectIndex != '\0') {
@@ -4071,13 +4071,10 @@ gte_SetTransMatrix(transMat);
                (tQuat, {qx,qy,qz,qw} at CollideBoomInst+0x14) is a plain aligned type.
                Ghidra hand-expanded that single compiler-generated lwl/lwr/swl/swr
                block move into ~20 lines of shift/mask bit math (the classic
-               "movstrsi disease", methodology 3d/§catalog-row-303) -- a byte-array
-               PACK8 cast reproduces the exact unaligned copy the oracle performs. */
-            {
-              struct DrawW_Pack8CodegenView { char b[8]; };
-              *(struct DrawW_Pack8CodegenView *)&quat =
-                  *(struct DrawW_Pack8CodegenView *)&objCollideBoomInstance->qx;
-            }
+               "movstrsi disease", methodology 3d/§catalog-row-303).  The canonical
+               tQuat copy from the short-member address retains that unaligned
+               movstrsi path and reproduces the oracle exactly. */
+            quat = *(tQuat *)&objCollideBoomInstance->qx;
             Quatern_QuatToMat(&quat,&matrix);
             sx = (int)objCollideBoomInstance->sx << 8;
             sy = (int)objCollideBoomInstance->sy << 8;
@@ -4237,9 +4234,9 @@ int DrawObjectTransform(DRender_tView *Vi,Draw_DCache *sd,matrixtdef *matrix,Trk
     if (((Cars_gList[Vi->player]->control).lights & 6U) != 0) {
       *(u_char *)((int)sd[1].matB.t + 2) = 5;
     }
-    { int posX = ((DrawW_Camera[Vi->player].target)->position).x; /* SYM-CODEGEN-CARRIER: posX -- split target-position loads preserve the retail pointer chase */ tmp.x = pCp->x - posX; }
-    { int posY = ((DrawW_Camera[Vi->player].target)->position).y; /* SYM-CODEGEN-CARRIER: posY -- y-axis member of the measured split-load shape */ tmp.y = pCp->y - posY; }
-    { int posZ = ((DrawW_Camera[Vi->player].target)->position).z; /* SYM-CODEGEN-CARRIER: posZ -- direct three-axis source previously expands to 217/214 instructions */ tmp.z = pCp->z - posZ; }
+    { int posX = ((Camera_gInfo[Vi->player].target)->position).x; /* SYM-CODEGEN-CARRIER: posX -- split target-position loads preserve the retail pointer chase */ tmp.x = pCp->x - posX; }
+    { int posY = ((Camera_gInfo[Vi->player].target)->position).y; /* SYM-CODEGEN-CARRIER: posY -- y-axis member of the measured split-load shape */ tmp.y = pCp->y - posY; }
+    { int posZ = ((Camera_gInfo[Vi->player].target)->position).z; /* SYM-CODEGEN-CARRIER: posZ -- direct three-axis source previously expands to 217/214 instructions */ tmp.z = pCp->z - posZ; }
     transform(&tmp.x,gNightMat.m,&tmp2.x);
     DrawW_WorldSetUpTranslation(&tmp2,&sd->matNight);
     if (BW_gCopCarObj != (Car_tObj *)0x0) {
@@ -4414,9 +4411,9 @@ int DrawObjectSimple(DRender_tView *Vi,Draw_DCache *sd,Trk_ObjectDef *objDef,coo
     if (((Cars_gList[Vi->player]->control).lights & 6U) != 0) {
       *(u_char *)((int)sd[1].matB.t + 2) = 5;
     }
-    { int posX = ((DrawW_Camera[Vi->player].target)->position).x; /* SYM-CODEGEN-CARRIER: posX -- split target-position load preserves the retail pointer chase */ tmp.x = (Vi->cview).translation.x - posX; }
-    { int posY = ((DrawW_Camera[Vi->player].target)->position).y; /* SYM-CODEGEN-CARRIER: posY -- y-axis member of the measured split-load shape */ tmp.y = (Vi->cview).translation.y - posY; }
-    { int posZ = ((DrawW_Camera[Vi->player].target)->position).z; /* SYM-CODEGEN-CARRIER: posZ -- direct three-axis expressions are current FAIL 38/185 */ tmp.z = (Vi->cview).translation.z - posZ; }
+    { int posX = ((Camera_gInfo[Vi->player].target)->position).x; /* SYM-CODEGEN-CARRIER: posX -- split target-position load preserves the retail pointer chase */ tmp.x = (Vi->cview).translation.x - posX; }
+    { int posY = ((Camera_gInfo[Vi->player].target)->position).y; /* SYM-CODEGEN-CARRIER: posY -- y-axis member of the measured split-load shape */ tmp.y = (Vi->cview).translation.y - posY; }
+    { int posZ = ((Camera_gInfo[Vi->player].target)->position).z; /* SYM-CODEGEN-CARRIER: posZ -- direct three-axis expressions are current FAIL 38/185 */ tmp.z = (Vi->cview).translation.z - posZ; }
     transform(&tmp.x,gNightMat.m,&tmp2.x);
     DrawW_WorldSetUpTranslation(&tmp2,&sd->matNight);
     if (BW_gCopCarObj != (Car_tObj *)0x0) {
@@ -5112,7 +5109,7 @@ void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList)
         gWSavePtr = (u_long)SetSp((void *)gWSavePtr);
         stackSpeedUpEnbabledFlag = 0;
       }
-      if (((DrawW_GameSetup.Time == 0) && (DrawW_GameSetup.Weather == 0)) &&
+      if (((GameSetup_gData.Time == 0) && (GameSetup_gData.Weather == 0)) &&
          (chunkDat->objSpecialInstanceBuf != (Group *)0x0)) {
         ((Draw_tGiveShelbyMoreCache *)sd)->offsubdivid = 0x400;
         sd->doublelayer = 0;
@@ -5209,9 +5206,9 @@ void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList)
        chains, and the only untried instrument is a -dS/-dR + cse dump on the
        30-diff basin.  ⚠️ lab fidelity for THIS fn is IDENTICAL per w62-a2, so the
        instrumented cc1plus is quotable. */
-    if (((DrawW_GameSetup.track != 4) ||
+    if (((GameSetup_gData.track != 4) ||
         (((0x27 < ({ u_int c = thisChunkInd - 1U;  c; }) && (0x1d < thisChunkInd - 0x3dU)) && (8 < thisChunkInd - 0x6cU)))) &&
-       ((DrawW_GameSetup.track != 0 ||
+       ((GameSetup_gData.track != 0 ||
         (((0x34 < (u_int)(thisChunkInd - 1U) && (0x1b < thisChunkInd - 0x44U)) && (0x13 < thisChunkInd - 0x6cU)))))) {
       gChunkObjInfo.objInstanceBuf = gPersistObjInst;
       gChunkObjInfo.simObjs = (Trk_SimObject *)0x0;
@@ -6728,7 +6725,7 @@ void DrawW_BuildChunkCenterLineFacets(Chunk *chunkDat,Group *group,Draw_tGiveShe
     short wz;
 
     pts = wpts + (u_int)lineQuad->firstPoint;
-    rn = ((DrawW_SliceCodegenView *)(((slice + (u_int)lineQuad->slice) << 5) + (int)DrawW_Slices))->right;
+    rn = ((Trk_NewSlice *)(((slice + (u_int)lineQuad->slice) << 5) + (int)BWorldSm_slices))->right;
     wx = (signed char)rn[0] >> 3;
     wy = (signed char)rn[1] >> 3;
     wz = (signed char)rn[2] >> 3;
@@ -6885,15 +6882,15 @@ void DrawW_DoLines(DRender_tView *Vi,tBuildEntry *buildList,Draw_DCache *sd)
               *(u_char *)((int)sd[1].matB.t + 2) = geomRez | 5;
             }
             {
-              int posX = ((DrawW_Camera[Vi->player].target)->position).x;
+              int posX = ((Camera_gInfo[Vi->player].target)->position).x;
               tmp.x = (Vi->cview).translation.x - posX;
             }
             {
-              int posY = ((DrawW_Camera[Vi->player].target)->position).y;
+              int posY = ((Camera_gInfo[Vi->player].target)->position).y;
               tmp.y = (Vi->cview).translation.y - posY;
             }
             {
-              int posZ = ((DrawW_Camera[Vi->player].target)->position).z;
+              int posZ = ((Camera_gInfo[Vi->player].target)->position).z;
               tmp.z = (Vi->cview).translation.z - posZ;
             }
             transform(&tmp.x,gNightMat.m,&tmp2.x);
@@ -6989,11 +6986,11 @@ void DrawW_BuildSpikeBelt(DRender_tView *Vi,int scale,Draw_DCache *sd)
   coorddef *cp;
 
   slice = gSpikeBeltSlice;
-  cp = (coorddef *)(DrawW_Slices + slice);
+  cp = (coorddef *)(BWorldSm_slices + slice);
   scale = scale / 8;
-  wx = (short)((u_int)fixedmult((int)(signed char)((DrawW_SliceCodegenView *)cp)->right[0] << 9,scale) >> 10);
-  wy = (short)((u_int)fixedmult((int)(signed char)DrawW_Slices[slice].right[1] << 9,scale) >> 10);
-  wz = (short)((u_int)fixedmult((int)(signed char)DrawW_Slices[slice].right[2] << 9,scale) >> 10);
+  wx = (short)((u_int)fixedmult((int)(signed char)((Trk_NewSlice *)cp)->right[0] << 9,scale) >> 10);
+  wy = (short)((u_int)fixedmult((int)(signed char)BWorldSm_slices[slice].right[1] << 9,scale) >> 10);
+  wz = (short)((u_int)fixedmult((int)(signed char)BWorldSm_slices[slice].right[2] << 9,scale) >> 10);
   /* MATCH: `lb;sra 1` -- a bare `(signed char)f >> 1` gets combine-merged into
      lbu+sll24+sra25 on cc1plus 2.8.0 (proven invariant across 8 source shapes,
      scratchpad/lbtest*.cpp); an int temp with a net-zero ++/-- pair blocks the
@@ -7183,13 +7180,13 @@ void DrawW_BuildSpikeBelt(DRender_tView *Vi,int scale,Draw_DCache *sd)
      after the `do`, and `i = 1` lifted out of the block with `int kk = C` inside
      all gate 8 @268. */
   {
-    fx = (signed char)DrawW_Slices[slice].forward[0]; fx++; fx--; fx >>= 1;
-    fy = (signed char)DrawW_Slices[slice].forward[1]; fy++; fy--; fy >>= 1;
-    fz = (signed char)DrawW_Slices[slice].forward[2]; fz++; fz--; fz >>= 1;
+    fx = (signed char)BWorldSm_slices[slice].forward[0]; fx++; fx--; fx >>= 1;
+    fy = (signed char)BWorldSm_slices[slice].forward[1]; fy++; fy--; fy >>= 1;
+    fz = (signed char)BWorldSm_slices[slice].forward[2]; fz++; fz--; fz >>= 1;
   }
-  sx = (u_short)(fixedmult(gSpikeBeltX,(int)(signed char)DrawW_Slices[slice].right[0] << 9) >> 10);
-  sy = (u_short)(fixedmult(gSpikeBeltX,(int)(signed char)DrawW_Slices[slice].right[1] << 9) >> 10);
-  sz = (short)(fixedmult(gSpikeBeltX,(int)(signed char)DrawW_Slices[slice].right[2] << 9) >> 10);
+  sx = (u_short)(fixedmult(gSpikeBeltX,(int)(signed char)BWorldSm_slices[slice].right[0] << 9) >> 10);
+  sy = (u_short)(fixedmult(gSpikeBeltX,(int)(signed char)BWorldSm_slices[slice].right[1] << 9) >> 10);
+  sz = (short)(fixedmult(gSpikeBeltX,(int)(signed char)BWorldSm_slices[slice].right[2] << 9) >> 10);
   vertex3d[0].x = sx - fx;
   vertex3d[0].y = sy - fy;
   vertex3d[0].z = sz - fz;
@@ -7330,9 +7327,9 @@ void DrawW_BuildSpikeBelt(DRender_tView *Vi,int scale,Draw_DCache *sd)
 void DepthCue_Init(void)
 
 {
-  SetFogNear(DrawW_TrackSpec.depthcuespec.distance << 6,0xa0);
-  SetFarColor((u_int)DrawW_TrackSpec.depthcuespec.color.r,(u_int)DrawW_TrackSpec.depthcuespec.color.g,
-             (u_int)DrawW_TrackSpec.depthcuespec.color.b);
+  SetFogNear(TrackSpec_gSpec.depthcuespec.distance << 6,0xa0);
+  SetFarColor((u_int)TrackSpec_gSpec.depthcuespec.color.r,(u_int)TrackSpec_gSpec.depthcuespec.color.g,
+             (u_int)TrackSpec_gSpec.depthcuespec.color.b);
   return;
 }
 

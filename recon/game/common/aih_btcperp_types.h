@@ -123,37 +123,66 @@ struct Speaker {
     __vtbl_ptr_type (*_vf)[31];
 };
 
-/* Foreign globals whose completed tags are absent from this retail owner. */
-struct AIH_BTCPerp_AITuneBTCCodegenView {
+/* Canonical foreign aggregates used by this translation unit. */
+struct AITune_BTC_t {
     int glueMult, speedMult, weightMult, baseChaseTime;
     int wingmanTime, blockaderTime, spikeBeltTime;
 };
-struct AIH_BTCPerp_GameSetupCodegenView {
+struct GameSetup_tData {
     int raceType, numLaps, skill, commMode, tournamentMultiplier, cops;
     int trafficDensity, localCar, catchupLogic, replayMode, instantReplay;
     int mirrorTrack, reverseTrack, measurement, sgge, track, trackSegment;
-    int song, Weather, Fog, Damage, Time;
-    char _pad58[356];
+    int song, Weather, Fog, Damage, Time, randSeed, easter;
+    GameSetup_tControllerData controllerData;
+    int pinkSlipsForfeit, checkpointType;
+    int checkpointHUD[2];
+    int dispatchSpeech, reverseCallSpeech, languageSpeech;
+    int SceneNumber, SceneStartLap, SceneEndLap;
+    GameSetup_tUserSetting userSetting;
+    int numPerps, stageOffset, perpArrests, finalPerpArrests;
     GameSetup_tPerpData perpInfo[10];
-    char _rest[1636];
+    int numCars, numPlayerRaceCars, numOpponentRaceCars, opponentCarType;
+    GameSetup_tCarData carInfo[9];
 };
-struct AIH_BTCPerp_SimGlobalCodegenView {
+struct Sim_tSimGlobalVar {
     int gameStarted, gameTicks, time32Hz;
     Sched_tSchedule *schedule64Hz, *schedule32Hz, *schedule32Hz2;
 };
-struct AIH_BTCPerp_CameraCodegenView {
-    char _pad00[128];
-    int forceFocus;
+struct camera_info {
+    BO_tNewtonObj *anchor, *target;
+    coorddef position, relpos, audioPos;
+    int TVHeight;
+    matrixtdef rotation;
+    int twist;
+    coorddef wallLeft, wallRight;
+    short mode, camNum;
+    char modechange : 1;
+    char pitch : 1;
+    char jostling : 1;
+    char tracking : 1;
+    char checkwalls : 1;
+    char noLookBack : 1;
+    char checkcollisions : 1;
+    char splitscreen : 1;
+    char intransition, tumbling;
+    char direction : 1;
+    char zooming : 2;
+    char inCar : 1;
+    short circleCounter, circleAngle;
+    char animNum;
+    signed char animHandle;
+    char splineMode;
+    forceFocus_t forceFocus;
     signed char focusOnAICar;
-    char _rest[139];
+    int POInhibitor;
+    BWorldSm_Pos slicePos;
 };
 
-#define AITune_BTC_t AIH_BTCPerp_AITuneBTCCodegenView
-#define GameSetup_tData AIH_BTCPerp_GameSetupCodegenView
-#define Sim_tSimGlobalVar AIH_BTCPerp_SimGlobalCodegenView
-#define camera_info AIH_BTCPerp_CameraCodegenView
-#define AICop_RoadBlockState int
-#define kAICop_RoadBlockState_None 0
+typedef enum AICop_RoadBlockState {
+    kAICop_RoadBlockState_None = 0,
+    kAICop_RoadBlockState_WaitingForPerp = 1,
+    kAICop_RoadBlockState_PerpPassed = 2
+} AICop_RoadBlockState;
 
 typedef int CarLogic_tObservations[1][3];
 typedef long (*ReparmFuncPtr)();

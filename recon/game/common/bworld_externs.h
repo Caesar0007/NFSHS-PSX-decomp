@@ -51,10 +51,8 @@ extern void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList);
 extern void DrawW_DoTrough(DRender_tView *Vi,tBuildEntry *buildList);
 extern void DrawW_WorldSetUpMatrix(matrixtdef *, MATRIX *);
 extern void FindAbsClosestSliceCrude(coorddef *pt,BWorldSm_Pos *slicePos);
-extern void Flare_Halo(DRender_tView *Vi,int scale,int type,coorddef *fpt,BWorld_FlareCacheCodegenView *sd)
-    asm("Flare_Halo__FP13DRender_tViewiiP8coorddefP15Draw_FlareCache");
-extern void Flare_Halo2(DRender_tView *, int, int, coorddef *, coorddef *, BWorld_FlareCacheCodegenView *)
-    asm("Flare_Halo2__FP13DRender_tViewiiP8coorddefT3P15Draw_FlareCache");
+extern void Flare_Halo(DRender_tView *Vi,int scale,int type,coorddef *fpt,Draw_FlareCache *sd);
+extern void Flare_Halo2(DRender_tView *, int, int, coorddef *, coorddef *, Draw_FlareCache *);
 extern void Night_SetCopColor(GameSetup_tCarData *carinfo);
 extern void Object_ClearCustomObjects(void);
 extern void Object_InitCustomObjects(void);

@@ -51,14 +51,13 @@ struct Trk_SimObject {
     u_char topCRAP, bottomCRAP, instIndex, type;
 };
 
-struct Cars_TrkNewSliceCodegenView {
+struct Trk_NewSlice {
     int center[3];
     char normal[3], forward[3], right[3];
     u_char acousticType;
     short pavedProfile, leftDrive, rightDrive;
     u_char chunkIndex, laneCount, avgPavedWidthLf, avgPavedWidthRt;
 };
-#define Trk_NewSlice Cars_TrkNewSliceCodegenView
 
 struct AIDataRecord_t {
     int numElements_, bSize_;
@@ -107,12 +106,11 @@ struct ObjectFinishedSignAnim {
     Trk_CollideBoomInst *objCollideInstance;
 };
 
-struct Cars_ObjectIMassCodegenView {
+struct Object_tIMassObjInfo {
     Trk_AnimateInst *animInst;
     coorddef dimension, lastPos;
     int lastTick;
 };
-#define Object_tIMassObjInfo Cars_ObjectIMassCodegenView
 
 struct Udff_tInfo {
     Udff_tAccessType type;

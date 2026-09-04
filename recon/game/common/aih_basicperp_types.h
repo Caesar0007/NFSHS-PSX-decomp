@@ -91,18 +91,28 @@ struct Speaker {
     virtual void Purge() asm("Purge__Q26Speech7Speaker");
 };
 
-/* Foreign globals whose completed tags are absent from this retail owner. */
-struct AIH_BasicPerp_GameSetupCodegenView {
+/* Canonical foreign aggregates used by this translation unit. */
+struct GameSetup_tData {
     int raceType, numLaps, skill, commMode, tournamentMultiplier, cops;
     int trafficDensity, localCar, catchupLogic, replayMode, instantReplay;
-    int mirrorTrack, reverseTrack;
-    char _rest[2548];
+    int mirrorTrack, reverseTrack, measurement, sgge, track, trackSegment, song;
+    int Weather, Fog, Damage, Time, randSeed, easter;
+    GameSetup_tControllerData controllerData;
+    int pinkSlipsForfeit, checkpointType;
+    int checkpointHUD[2];
+    int dispatchSpeech, reverseCallSpeech, languageSpeech;
+    int SceneNumber, SceneStartLap, SceneEndLap;
+    GameSetup_tUserSetting userSetting;
+    int numPerps, stageOffset, perpArrests, finalPerpArrests;
+    GameSetup_tPerpData perpInfo[10];
+    int numCars, numPlayerRaceCars, numOpponentRaceCars, opponentCarType;
+    GameSetup_tCarData carInfo[9];
 };
-struct AIH_BasicPerp_SimGlobalCodegenView {
+struct Sim_tSimGlobalVar {
     int gameStarted, gameTicks, time32Hz;
     Sched_tSchedule *schedule64Hz, *schedule32Hz, *schedule32Hz2;
 };
-struct AIH_BasicPerp_SliceCodegenView {
+struct Trk_NewSlice {
     int center[3];
     char normal[3], forward[3], right[3];
     u_char acousticType;
@@ -110,9 +120,6 @@ struct AIH_BasicPerp_SliceCodegenView {
     u_char chunkIndex, laneCount, avgPavedWidthLf, avgPavedWidthRt;
 };
 
-#define GameSetup_tData AIH_BasicPerp_GameSetupCodegenView
-#define Sim_tSimGlobalVar AIH_BasicPerp_SimGlobalCodegenView
-#define Trk_NewSlice AIH_BasicPerp_SliceCodegenView
 #define RaceType_HotPursuit 1
 #define RaceType_Id5 5
 

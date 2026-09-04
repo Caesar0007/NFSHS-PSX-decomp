@@ -112,22 +112,32 @@ struct AITrigger_TriggerManager {
     void Sort();
 };
 
-/* Foreign globals whose completed tags are absent from this retail owner. */
-struct AIH_Play_GameSetupCodegenView {
+/* Canonical foreign aggregates used by this translation unit. */
+struct GameSetup_tData {
     int raceType, numLaps, skill, commMode, tournamentMultiplier, cops;
     int trafficDensity, localCar, catchupLogic, replayMode, instantReplay;
-    int mirrorTrack, reverseTrack;
-    char _rest[2548];
+    int mirrorTrack, reverseTrack, measurement, sgge, track, trackSegment, song;
+    int Weather, Fog, Damage, Time, randSeed, easter;
+    GameSetup_tControllerData controllerData;
+    int pinkSlipsForfeit, checkpointType;
+    int checkpointHUD[2];
+    int dispatchSpeech, reverseCallSpeech, languageSpeech;
+    int SceneNumber, SceneStartLap, SceneEndLap;
+    GameSetup_tUserSetting userSetting;
+    int numPerps, stageOffset, perpArrests, finalPerpArrests;
+    GameSetup_tPerpData perpInfo[10];
+    int numCars, numPlayerRaceCars, numOpponentRaceCars, opponentCarType;
+    GameSetup_tCarData carInfo[9];
 };
-struct AIH_Play_SimGlobalCodegenView {
+struct Sim_tSimGlobalVar {
     int gameStarted, gameTicks, time32Hz;
     Sched_tSchedule *schedule64Hz, *schedule32Hz, *schedule32Hz2;
 };
-struct AIH_Play_SimSystemCodegenView {
+struct Sim_tSimSystemVar {
     int restartGame, endSimGame, pauseSim, keyRelease;
     int quickPauseSim, goalClockTicks, currentClockTicks;
 };
-struct AIH_Play_DashHudCodegenView {
+struct dashhud_info {
     int splitscreen;
     char name[9];
     int conversion, flashtime, flashlap;
@@ -136,7 +146,7 @@ struct AIH_Play_DashHudCodegenView {
     int position, opponents, record, tutor;
     int warning[2];
 };
-struct AIH_Play_SliceCodegenView {
+struct Trk_NewSlice {
     int center[3];
     char normal[3], forward[3], right[3];
     u_char acousticType;
@@ -144,15 +154,11 @@ struct AIH_Play_SliceCodegenView {
     u_char chunkIndex, laneCount, avgPavedWidthLf, avgPavedWidthRt;
 };
 
-#define GameSetup_tData AIH_Play_GameSetupCodegenView
-#define Sim_tSimGlobalVar AIH_Play_SimGlobalCodegenView
-#define Sim_tSimSystemVar AIH_Play_SimSystemCodegenView
-#define dashhud_info AIH_Play_DashHudCodegenView
-#define Trk_NewSlice AIH_Play_SliceCodegenView
-#define AICop_RoadBlockState int
-#define kAICop_RoadBlockState_None 0
-#define kAICop_RoadBlockState_WaitingForPerp 1
-#define kAICop_RoadBlockState_PerpPassed 2
+typedef enum AICop_RoadBlockState {
+    kAICop_RoadBlockState_None = 0,
+    kAICop_RoadBlockState_WaitingForPerp = 1,
+    kAICop_RoadBlockState_PerpPassed = 2
+} AICop_RoadBlockState;
 #define RaceType_HotPursuit 1
 #define RaceType_Id5 5
 

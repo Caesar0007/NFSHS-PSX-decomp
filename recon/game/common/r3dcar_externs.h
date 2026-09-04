@@ -39,18 +39,18 @@ extern "C" void transform(...);
 extern "C" void trap(int code);                  /* gcc MIPS div-by-zero/overflow break helper */
 
 /* ---- cross-TU globals ---- */
-extern R3DCar_AITuneTrackInfoCodegenView AITune_trackInfo[];
-extern R3DCar_SimGlobalCodegenView simGlobal;
-extern R3DCar_SimSystemCodegenView simVar;
-extern R3DCar_ReplayCodegenView Replay_ReplayInterface;
+extern AITune_tTrackInfo AITune_trackInfo[];
+extern Sim_tSimGlobalVar simGlobal;
+extern Sim_tSimSystemVar simVar;
+extern tReplayInterface Replay_ReplayInterface;
 extern int                Replay_ReplayMode;
-extern R3DCar_CameraInfoCodegenView Camera_gInfo[];
+extern camera_info Camera_gInfo[];
 extern Car_tObj          *Cars_gList[];
 extern int                Cars_gNumCars, Cars_gNumTrafficCars;
-extern R3DCar_DrawCEnvMapCodegenView *DrawC_gEnvMap, *DrawC_gShadow;
+extern DrawC_tEnvMap *DrawC_gEnvMap, *DrawC_gShadow;
 extern int                DrawC_gEnvMapMax, DrawC_gShadowMax, DrawC_gWetRoad;
 extern MATRIX             DrawC_gScreenMat;
-extern R3DCar_GameSetupCodegenView GameSetup_gData;
+extern GameSetup_tData GameSetup_gData;
 extern char               GameSetup_gCarNames[51][5];
 extern char              *Paths_Paths[];
 extern int                Texture_CarColor, Texture_palNum;

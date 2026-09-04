@@ -20,11 +20,6 @@ struct AudioMus_tSongEntry {
     char strbuf[32];
 };
 
-struct DRender_tView {
-    int id, player;
-    DRender_tCalcView cview;
-};
-
 struct Transformer_zScene {
     Transformer_zObj *obj[57];
     Transformer_zOverlay overlay[90];
@@ -34,32 +29,13 @@ struct R3DCar_tEnvMapInfo {
     int eScaleX, eScaleY, rideHeight, upgradeHeight;
 };
 
-/* Completed foreign-owner tags are absent from R3DCar.obj's SYM graph. These
- * private views preserve the exact retail offsets and aggregate MEM shapes
- * used by its already-matched functions without claiming those foreign tags
- * as part of this translation unit's source-visible type surface. */
-struct R3DCar_AITuneTrackInfoCodegenView {
+/* Canonical AITune.obj aggregate used by this translation unit. */
+struct AITune_tTrackInfo {
     int oneWay, driveSide, roughLapTimeSeconds;
 };
 
-struct R3DCar_GameSetupCodegenView {
-    int raceType, numLaps, skill, commMode, tournamentMultiplier, cops;
-    int trafficDensity, localCar, catchupLogic, replayMode, instantReplay;
-    int mirrorTrack, reverseTrack, measurement, sgge, track, trackSegment;
-    int song, Weather, Fog, Damage, Time, randSeed, easter;
-    GameSetup_tControllerData controllerData;
-    int pinkSlipsForfeit, checkpointType;
-    int checkpointHUD[2];
-    int dispatchSpeech, reverseCallSpeech, languageSpeech;
-    int SceneNumber, SceneStartLap, SceneEndLap;
-    GameSetup_tUserSetting userSetting;
-    int numPerps, stageOffset, perpArrests, finalPerpArrests;
-    GameSetup_tPerpData perpInfo[10];
-    int numCars, numPlayerRaceCars, numOpponentRaceCars, opponentCarType;
-    GameSetup_tCarData carInfo[9];
-};
-
-struct R3DCar_CameraInfoCodegenView {
+/* Canonical camera.obj aggregate used by this translation unit. */
+struct camera_info {
     BO_tNewtonObj *anchor, *target;
     coorddef position, relpos, audioPos;
     int TVHeight;
@@ -89,21 +65,24 @@ struct R3DCar_CameraInfoCodegenView {
     BWorldSm_Pos slicePos;
 };
 
-struct R3DCar_SimGlobalCodegenView {
+/* Canonical sim.obj aggregates used by this translation unit. */
+struct Sim_tSimGlobalVar {
     int gameStarted, gameTicks, time32Hz;
-    void *schedule64Hz, *schedule32Hz, *schedule32Hz2;
+    Sched_tSchedule *schedule64Hz, *schedule32Hz, *schedule32Hz2;
 };
 
-struct R3DCar_SimSystemCodegenView {
+struct Sim_tSimSystemVar {
     int restartGame, endSimGame, pauseSim, keyRelease, quickPauseSim;
     int goalClockTicks, currentClockTicks;
 };
 
-struct R3DCar_ReplayCodegenView {
+/* Canonical replay.obj aggregate used by this translation unit. */
+struct tReplayInterface {
     int pause, speed, end, camera, selection, depressed, changeCamera, statsScreen;
 };
 
-struct R3DCar_DrawCEnvMapCodegenView {
+/* Canonical DrawC.obj aggregate used by this translation unit. */
+struct DrawC_tEnvMap {
     short slice, tex, extra;
 };
 

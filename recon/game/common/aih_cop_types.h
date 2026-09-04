@@ -171,32 +171,52 @@ struct Speaker {
     }
 };
 
-/* Foreign globals whose completed tags are absent from this retail owner. */
-struct AIH_Cop_GameSetupCodegenView {
+/* Canonical foreign aggregates used by this translation unit. */
+struct GameSetup_tData {
     int raceType, numLaps, skill, commMode, tournamentMultiplier, cops;
     int trafficDensity, localCar, catchupLogic, replayMode, instantReplay;
-    int mirrorTrack, reverseTrack;
-    char _rest[2548];
+    int mirrorTrack, reverseTrack, measurement, sgge, track, trackSegment, song;
+    int Weather, Fog, Damage, Time, randSeed, easter;
+    GameSetup_tControllerData controllerData;
+    int pinkSlipsForfeit, checkpointType;
+    int checkpointHUD[2];
+    int dispatchSpeech, reverseCallSpeech, languageSpeech;
+    int SceneNumber, SceneStartLap, SceneEndLap;
+    GameSetup_tUserSetting userSetting;
+    int numPerps, stageOffset, perpArrests, finalPerpArrests;
+    GameSetup_tPerpData perpInfo[10];
+    int numCars, numPlayerRaceCars, numOpponentRaceCars, opponentCarType;
+    GameSetup_tCarData carInfo[9];
 };
-struct AIH_Cop_SimGlobalCodegenView {
+struct Sim_tSimGlobalVar {
     int gameStarted, gameTicks, time32Hz;
     Sched_tSchedule *schedule64Hz, *schedule32Hz, *schedule32Hz2;
 };
-struct AIH_Cop_SpikeBeltCodegenView {
+struct AICop_spikeBelt_t {
     int active_, slice_, leftLatPos_, rightLatPos_, freshenTime_;
 };
-struct AIH_Cop_SliceCodegenView {
+struct Trk_NewSlice {
     int center[3];
     char normal[3], forward[3], right[3];
     u_char acousticType;
     short pavedProfile, leftDrive, rightDrive;
     u_char chunkIndex, laneCount, avgPavedWidthLf, avgPavedWidthRt;
 };
-struct AIH_Cop_CopTuningCodegenView {
+struct copTuning_t {
     int regularCopAccMultiplier, superCopAccMultiplier;
     int regularCopTopSpeedCap, superCopTopSpeedCap;
 };
-struct AIH_Cop_TriggerManagerCodegenView {
+typedef enum triggerType {
+    TRIGGER_NONE = 0,
+    TRIGGER_COP_SIMPLE = 1,
+    TRIGGER_COP_ROADBLOCK = 2,
+    TRIGGER_COP_OFFROAD = 3,
+    TRIGGER_TRAFFIC_ACCIDENT = 4,
+    TRIGGER_TRAFFIC_PATH = 5,
+    TRIGGER_NUM_TRIGGER_TYPES = 6
+} triggerType;
+
+struct AITrigger_TriggerManager {
     int numTriggers_, invNumTriggers_;
     trigger_t *triggers_[100];
     int checkTime_[100];
@@ -205,26 +225,18 @@ struct AIH_Cop_TriggerManagerCodegenView {
     int InsertTrigger(trigger_t *trigger, bool fromFile);
     trigger_t *GetNextTrigger(int car);
     trigger_t *GetPrevTrigger(int car);
-    int CheckForTriggerAtSlice(int car, int slice)
-        asm("CheckForTriggerAtSlice__24AITrigger_TriggerManagerii");
-    trigger_t *GetTrigger(int trigger, int *used)
-        asm("GetTrigger__24AITrigger_TriggerManageriPi");
-    int CheckForClosestTriggerOfType(int slice, int type, int direction);
-    void DescribeTrigger(trigger_t *trigger)
-        asm("DescribeTrigger__24AITrigger_TriggerManagerP9trigger_t");
+    int CheckForTriggerAtSlice(int car, int slice);
+    trigger_t *GetTrigger(int trigger, int *used);
+    int CheckForClosestTriggerOfType(int slice, triggerType type, int direction);
+    void DescribeTrigger(trigger_t *trigger);
     void Sort();
 };
 
-#define GameSetup_tData AIH_Cop_GameSetupCodegenView
-#define Sim_tSimGlobalVar AIH_Cop_SimGlobalCodegenView
-#define AICop_spikeBelt_t AIH_Cop_SpikeBeltCodegenView
-#define Trk_NewSlice AIH_Cop_SliceCodegenView
-#define copTuning_t AIH_Cop_CopTuningCodegenView
-#define AITrigger_TriggerManager AIH_Cop_TriggerManagerCodegenView
-#define AICop_RoadBlockState int
-#define kAICop_RoadBlockState_None 0
-#define kAICop_RoadBlockState_WaitingForPerp 1
-#define kAICop_RoadBlockState_PerpPassed 2
+typedef enum AICop_RoadBlockState {
+    kAICop_RoadBlockState_None = 0,
+    kAICop_RoadBlockState_WaitingForPerp = 1,
+    kAICop_RoadBlockState_PerpPassed = 2
+} AICop_RoadBlockState;
 
 typedef int CarLogic_tObservations[1][3];
 typedef long (*ReparmFuncPtr)();

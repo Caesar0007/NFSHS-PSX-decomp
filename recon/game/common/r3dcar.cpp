@@ -172,7 +172,7 @@ void R3DCar_Restart(void)
   int numCars;
   /* SYM-CODEGEN-CARRIER: gsData -- direct GameSetup_gData.Time access removes
      one instruction and changes loop allocation to 21 diffs. */
-  R3DCar_GameSetupCodegenView *gsData;
+  GameSetup_tData *gsData;
   /* SYM-CODEGEN-CARRIER: headOn -- direct 0x33 storage removes one instruction
      and changes the light-store allocation to nine diffs. */
   short headOn;

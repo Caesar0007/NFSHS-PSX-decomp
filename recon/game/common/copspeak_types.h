@@ -35,8 +35,7 @@
 #endif
 #undef NFS4_AUDIOCLC_OMIT_SCENE_TYPES
 
-struct Copspeak_SndBnkCodegenView { int bnkID; char *phdr, *pdata; };
-#define SndBnk_t Copspeak_SndBnkCodegenView
+struct SndBnk_t { int bnkID; char *phdr, *pdata; };
 
 #if !defined(NFS4_COPSPEAK_OMIT_OWNER_ONLY_TYPES) || \
     defined(NFS4_COPSPEAK_KEEP_BW_CONTEXT)
@@ -107,14 +106,6 @@ struct Speaker {
         *(const void ***)&_vf = _vt_Q26Speech7Speaker;
         fSub = 0;
     }
-};
-
-/* Speech's completed outer class is absent from copspeak.obj, but its three
- * anonymous bank aggregates are retained by this owner's SYM graph. */
-struct Copspeak_SpeechAnonCodegenView {
-    struct { CarBank Mobile[9], Dispatch[9]; } fCarBank;
-    struct { LocationBank Mobile[16], Dispatch[16]; } fLocationBank;
-    struct { CallSignBank Mobile, Dispatch; } fCallSignBank;
 };
 
 #endif

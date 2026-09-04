@@ -67,23 +67,25 @@ struct tReplayBuffer {
     char buffer[24576];
 };
 
-/* Foreign globals whose completed tags are absent from this retail owner. */
-struct Replay_SimGlobalCodegenView {
+/* Canonical sim.obj aggregates used by this translation unit. */
+struct Sim_tSimGlobalVar {
     int gameStarted, gameTicks, time32Hz;
     Sched_tSchedule *schedule64Hz, *schedule32Hz, *schedule32Hz2;
 };
 
-struct Replay_SimSystemCodegenView {
+struct Sim_tSimSystemVar {
     int restartGame, endSimGame, pauseSim, keyRelease, quickPauseSim;
     int goalClockTicks, currentClockTicks;
 };
 
-struct Replay_InputResultsCodegenView {
+/* Canonical input.obj result aggregate used by this translation unit. */
+struct Input_tResults {
     char steering;
     u_char gas, brake, flags;
 };
 
-struct Replay_CameraInfoCodegenView {
+/* Canonical camera.obj aggregate used by this translation unit. */
+struct camera_info {
     BO_tNewtonObj *anchor, *target;
     coorddef position, relpos, audioPos;
     int TVHeight;
@@ -112,11 +114,6 @@ struct Replay_CameraInfoCodegenView {
     int POInhibitor;
     BWorldSm_Pos slicePos;
 };
-
-#define Sim_tSimGlobalVar Replay_SimGlobalCodegenView
-#define Sim_tSimSystemVar Replay_SimSystemCodegenView
-#define Input_tResults Replay_InputResultsCodegenView
-#define camera_info Replay_CameraInfoCodegenView
 
 typedef int Input_tDeviceCall();
 

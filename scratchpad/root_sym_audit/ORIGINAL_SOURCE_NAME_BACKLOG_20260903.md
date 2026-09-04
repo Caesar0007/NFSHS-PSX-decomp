@@ -1126,6 +1126,42 @@ was explicitly falsified at 239/233 instructions and 170 diffs; the PASS
 `ORIGINAL-NAME-UNRESOLVED`, because the retail evidence proves the distinct
 pointer quantity but not its original spelling.
 
+### Canonical foreign-type closure at P840
+
+This round removes the remaining explicit `CodegenView`/`CodegenSlice`
+foreign-type wrappers from `game/common` and `game/PSX`.  The affected owners
+now spell the retail types directly: `SndBnk_t`, `Chunk`, `Trk_NewSlice`,
+`Object_tIMassObjInfo`, `AITune_BTC_t`, `GameSetup_tData`,
+`Sim_tSimGlobalVar`, `Sim_tSimSystemVar`, `camera_info`,
+`AICop_spikeBelt_t`, `copTuning_t`, `AITrigger_TriggerManager`,
+`AIState_Idle`, `AICop_RoadBlockState`, `dashhud_info`, `Draw_FlareCache`,
+`Draw_tGiveShelbyMoreCache`, `CTrackSpec`, `tReplayInterface`, and
+`DrawC_tEnvMap`.  `Replay`, `R3DCar`, and `DrawW` now declare their external
+objects under those canonical types rather than same-symbol asm-label shims.
+The last local wrapper, `DrawW_Pack8CodegenView`, is also gone: the canonical
+`tQuat` assignment retains GCC's retail unaligned `movstrsi` sequence and the
+entire DrawW TU remains exact.  The p839-era source contained 56 Codegen-named
+struct tags, 126 identifier occurrences, and 39 type-alias macros; a current
+active-source scan finds zero in all three classes.
+
+All seventeen affected translation units retain every oracle-known function:
+game/common `aih_basiccop` 9/9, `aih_basicperp` 9/9, `aih_btccop` 40/40,
+`aih_btcperp` 26/26, `aih_cop` 10/10, `aih_opp` 6/6, `aih_play` 10/10,
+`aihigh` 14/14, `anim` 18/18, `bworld` 21/21, `bworldSm` 28/28, `cars` 33/33,
+`copspeak` 27/27, `nfs3` 11/11, `r3dcar` 27/27, and `replay` 16/16;
+game/PSX `draww` remains 35/35.  The combined gate is 340/340 PASS.  The exact
+CI build pair (`expected`, then `build --skip-asm`) completes with zero skipped
+TUs, and objdiff report generation opens all 466 configured units.
+
+The authoritative reports are `game_common_strict_p840_20260904.md`
+(1,258/1,258 mapped, zero missing names, zero mapping-review items, 600
+explicit source-only carriers) and `game_psx_strict_p840_20260904.md`
+(395/395 mapped, zero missing names, zero mapping-review items, 394 explicit
+source-only carriers).  Those carrier counts deliberately do not fall in this
+round: this batch removes foreign type-alias scaffolding, not the still-open
+marker-bearing local quantities.  No retained carrier is presented as an
+original recovered spelling.
+
 ### Retained after P813 source-shape retests
 
 Four nearby groups remain deliberately conspicuous because no exact original

@@ -210,13 +210,13 @@ struct AIState_Normal : public AIState_Base {
     AIState_Normal(Car_tObj *carObj);
     void Execute();
 };
-struct AIH_BTCCop_IdleStateCodegenView : public AIState_Base {
+struct AIState_Idle : public AIState_Base {
     int roadPosition_, idleInPlaceFlag_;
-    AIH_BTCCop_IdleStateCodegenView() {}
+    AIState_Idle() {}
+    ~AIState_Idle();
     void Execute();
     void SetIdlePosition(int pos);
 };
-#define AIState_Idle AIH_BTCCop_IdleStateCodegenView
 extern __vtbl_ptr_type AIState_NonActive_vtable[];
 struct AIState_NonActive : public AIState_Base {
     AIState_NonActive() {}
@@ -513,41 +513,22 @@ struct Speaker {
     }
 };
 
-/*
- * These owner-external objects are dereferenced by PASS code, but their
- * defining tags are deliberately absent from aih_btccop.obj's retail graph.
- * Keep only the instruction-proven fields and offsets under private carrier
- * names; the canonical audit pair-locks every body to this exact owner.
- */
-struct AIH_BTCCop_AITuneBTCCodegenView {
+/* Canonical foreign aggregates used by this translation unit. */
+struct AITune_BTC_t {
     int glueMult, speedMult, weightMult, baseChaseTime;
     int wingmanTime, blockaderTime, spikeBeltTime;
 };
-struct AIH_BTCCop_GameSetupCodegenView {
-    int raceType, numLaps, skill;
-    char _pad0c[0x1a0];
-    int numPerps, stageOffset, perpArrests, finalPerpArrests;
-    GameSetup_tPerpData perpInfo[10];
+struct Sim_tSimSystemVar {
+    int restartGame, endSimGame, pauseSim, keyRelease, quickPauseSim;
+    int goalClockTicks, currentClockTicks;
 };
-struct AIH_BTCCop_SimGlobalCodegenView { int gameStarted, gameTicks; };
-struct AIH_BTCCop_SimSystemCodegenView { int restartGame, endSimGame; };
-struct AIH_BTCCop_SpikeBeltCodegenView {
-    int active_, slice_, leftLatPos_, rightLatPos_, freshenTime_;
-};
-struct AIH_BTCCop_SliceCodegenView {
+struct Trk_NewSlice {
     int center[3];
     char normal[3], forward[3], right[3];
     u_char acousticType;
     short pavedProfile, leftDrive, rightDrive;
     u_char chunkIndex, laneCount, avgPavedWidthLf, avgPavedWidthRt;
 };
-
-#define AITune_BTC_t AIH_BTCCop_AITuneBTCCodegenView
-#define GameSetup_tData AIH_BTCCop_GameSetupCodegenView
-#define Sim_tSimGlobalVar AIH_BTCCop_SimGlobalCodegenView
-#define Sim_tSimSystemVar AIH_BTCCop_SimSystemCodegenView
-#define AICop_spikeBelt_t AIH_BTCCop_SpikeBeltCodegenView
-#define Trk_NewSlice AIH_BTCCop_SliceCodegenView
 
 typedef int CarLogic_tObservations[1][3];
 typedef int Input_tDeviceCall();

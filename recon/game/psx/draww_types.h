@@ -71,6 +71,17 @@ struct Trk_SimObject {
     u_char topCRAP, bottomCRAP, instIndex, type;
 };
 
+#ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES
+/* Canonical bworldSm.obj aggregate (SYM: Trk_NewSlice, size 32). */
+struct Trk_NewSlice {
+    int center[3];
+    char normal[3], forward[3], right[3];
+    u_char acousticType;
+    short pavedProfile, leftDrive, rightDrive;
+    u_char chunkIndex, laneCount, avgPavedWidthLf, avgPavedWidthRt;
+};
+#endif
+
 struct BW_tContext {
     int client;
     BWorldSm_Pos slicePos;
@@ -148,6 +159,70 @@ struct CWorldColor {
     CVECTOR contrast_color;
     short worldR, worldG, worldB, type;
 };
+
+#ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES
+/* Canonical gmesetup.obj aggregate (SYM: GameSetup_tData, size 2600). */
+struct GameSetup_tData {
+    int raceType, numLaps, skill, commMode, tournamentMultiplier, cops;
+    int trafficDensity, localCar, catchupLogic, replayMode, instantReplay;
+    int mirrorTrack, reverseTrack, measurement, sgge, track, trackSegment;
+    int song, Weather, Fog, Damage, Time, randSeed, easter;
+    GameSetup_tControllerData controllerData;
+    int pinkSlipsForfeit, checkpointType;
+    int checkpointHUD[2];
+    int dispatchSpeech, reverseCallSpeech, languageSpeech;
+    int SceneNumber, SceneStartLap, SceneEndLap;
+    GameSetup_tUserSetting userSetting;
+    int numPerps, stageOffset, perpArrests, finalPerpArrests;
+    GameSetup_tPerpData perpInfo[10];
+    int numCars, numPlayerRaceCars, numOpponentRaceCars, opponentCarType;
+    GameSetup_tCarData carInfo[9];
+};
+
+/* Canonical trackspec.obj aggregate (SYM: CTrackSpec, size 264). */
+struct CTrackSpec {
+    short fogstate, weatherstate, horizonstate, skystate;
+    short nightstate, depthcuestate, worldcolorstate, pad0;
+    CFogSpec fogspec;
+    CWeatherSpec weatherspec;
+    CHorizonSpec horizonspec;
+    CSkySpec skyspec;
+    CNightSpec nightspec;
+    CDepthCueSpec depthcuespec;
+    CWorldColor worldcolorspec;
+};
+
+/* Canonical camera.obj aggregate (SYM: camera_info, size 272). */
+struct camera_info {
+    BO_tNewtonObj *anchor, *target;
+    coorddef position, relpos, audioPos;
+    int TVHeight;
+    matrixtdef rotation;
+    int twist;
+    coorddef wallLeft, wallRight;
+    short mode, camNum;
+    char modechange : 1;
+    char pitch : 1;
+    char jostling : 1;
+    char tracking : 1;
+    char checkwalls : 1;
+    char noLookBack : 1;
+    char checkcollisions : 1;
+    char splitscreen : 1;
+    char intransition, tumbling;
+    char direction : 1;
+    char zooming : 2;
+    char inCar : 1;
+    short circleCounter, circleAngle;
+    char animNum;
+    signed char animHandle;
+    char splineMode;
+    forceFocus_t forceFocus;
+    signed char focusOnAICar;
+    int POInhibitor;
+    BWorldSm_Pos slicePos;
+};
+#endif
 
 struct TCB { long status, mode; u_long reg[40]; long system[6]; };
 struct EXEC {
@@ -254,6 +329,11 @@ struct Sched_tSchedule {
     Sched_tFunctionSchedule func[1];
 };
 #ifndef NFS4_DRAWW_OMIT_BWORLD_FOREIGN_TYPES
+/* Canonical sim.obj aggregate (SYM: Sim_tSimGlobalVar, size 24). */
+struct Sim_tSimGlobalVar {
+    int gameStarted, gameTicks, time32Hz;
+    Sched_tSchedule *schedule64Hz, *schedule32Hz, *schedule32Hz2;
+};
 struct tBoundingSphere { COORD16 cp; short radius; };
 struct tQuat { short x, y, z, w; };
 struct kernpair {

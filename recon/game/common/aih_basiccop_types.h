@@ -100,20 +100,17 @@ struct FLARE_PIECE_DEF {
     char type;
 };
 
-/* Foreign globals whose completed tags are absent from this retail owner. */
-struct AIH_BasicCop_SpikeBeltCodegenView {
+/* Canonical foreign aggregates from the retail aicop.obj/bworldSm.obj type graphs. */
+struct AICop_spikeBelt_t {
     int active_, slice_, leftLatPos_, rightLatPos_, freshenTime_;
 };
-struct AIH_BasicCop_SliceCodegenView {
+struct Trk_NewSlice {
     int center[3];
     char normal[3], forward[3], right[3];
     u_char acousticType;
     short pavedProfile, leftDrive, rightDrive;
     u_char chunkIndex, laneCount, avgPavedWidthLf, avgPavedWidthRt;
 };
-
-#define AICop_spikeBelt_t AIH_BasicCop_SpikeBeltCodegenView
-#define Trk_NewSlice AIH_BasicCop_SliceCodegenView
 
 typedef int CarLogic_tObservations[1][3];
 typedef long (*ReparmFuncPtr)();

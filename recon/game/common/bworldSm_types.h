@@ -13,6 +13,18 @@ struct Trk_NewSlice {
     u_char chunkIndex, laneCount, avgPavedWidthLf, avgPavedWidthRt;
 };
 
+struct Chunk {
+    RelCoord16 boundPts[4], chunkboundPts[4];
+    u_char quadCounts[6];
+    u_char pad[2];
+    Trk_Quad *renderQuads[4];
+    Group *stripBuf, *lorezstripBuf, *objInstanceBuf, *objSpecialInstanceBuf;
+    Group *simSliceBuf, *simQuadBuf, *simObjBuf, *sfxBuf, *lineBuf;
+    Group *objVertexBuf, *objQuadBuf, *objQuadInstanceBuf;
+    short firstSimSliceInd, chunkInd;
+    Group *vertexBuf;
+};
+
 struct BW_tContext {
     int client;
     BWorldSm_Pos slicePos;

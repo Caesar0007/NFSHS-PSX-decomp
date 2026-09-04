@@ -13,8 +13,10 @@
  *   stride 0x3c) selected by priority/age/subtick; events are looked up in the bound gEventDats[] blobs.
  *   Ghidra nfs4-f.exe.c (spchevnt) + disasm-v3 (authoritative) + IDA sigs.
  *
- *   Slot layout (0x3c) @ &gVoxEvents + i*0x3c:  +0x8 enabled(short) +0xa subTick(short) +0xc insertTick(int)
- *     +0x10 voxEvent(int ptr) +0x14 eventArgs[12](int).  gVoxEvents itself = the live-count (slot[0] +0).
+ *   The queue is one object (spch_types.h): VoxSlotsStruct {liveCount; dFlag; VoxSlot slots[16]},
+ *   each 0x3c-byte record {enabled; subTick; tick; event; args[12]}.  2026-09-04: every walk in
+ *   this TU is a plain `gVoxEvents.slots[i].field` -- the SLOT() byte macro, the byte cursors and
+ *   the iSPCH_EventBase identity helper they needed are all retired, byte-neutrally.
  *   VoxEvent fields: +2 maxAge(u16) +4 priority(u16) +9 acceptProb/'d'(char) +0xa flags.
  *
  *   Ghidra-isms resolved (from updated disasm-v3): iSPCH_ChooseEvent returns the winner slot in $s4 which
@@ -74,8 +76,6 @@
 #include "spchrand.h"
 #include "spchpick.h"
 
-#define SLOT(i)  ((unsigned char *)&gVoxEvents + (i) * 0x3c)
-
 /* W65-A6 DATA-MAT run @0x80148044 -- file-scope asm .bss definition, RESTORED 2026-09-04.
  * ⚠️ LOAD-BEARING FOR DATA LAYOUT (measured, objdump/nm): it is the only spelling that gives
  * BOTH the right section and retail's ORDER.  Plain C tentative definitions land in .bss but
@@ -129,24 +129,18 @@ static int iSPCH_GetOffset16(int base, int tableBase, int index)  /* @0x800E6EA8
 {
     return base + ((int)*(unsigned short *)(tableBase + index * 2) << 2);
 }
-static inline int *iSPCH_EventBase(int *base)
-{
-    /* Identity keeps the winner lookup's base materialization ahead of its index arithmetic. */
-    return base;
-}
 
 /* iSPCH_SearchEventDat @0x800E6EC4 : address of the entry in blob `dat` whose id == eventID, or 0. */
 VoxEvent *iSPCH_SearchEventDat(int dat, unsigned int eventID)
 {
     unsigned int count = *(unsigned short *)(dat + 2);
-    int table = 0;
-    if (count != 0) {
-        do {
-            VoxEvent *p = (VoxEvent *)iSPCH_GetOffset16(dat, dat + 0xc, table);
-            table = table + 1;
-            if (p->id == eventID)
-                return p;
-        } while (table < (int)count);
+    int table;
+
+    for (table = 0; table < (int)count; table++) {
+        VoxEvent *p = (VoxEvent *)iSPCH_GetOffset16(dat, dat + 0xc, table);
+
+        if (p->id == eventID)
+            return p;
     }
     return 0;
 }
@@ -154,16 +148,17 @@ VoxEvent *iSPCH_SearchEventDat(int dat, unsigned int eventID)
 /* iSPCH_FindEvent @0x800E6F4C : search all 4 bound blobs for eventID; returns its entry ptr, or 0. */
 VoxEvent *iSPCH_FindEvent(unsigned int eventID)
 {
-    int  i = 0;
-    int *p = gEventDats;
-    VoxEvent *result;
-    while (*p == 0 || (result = iSPCH_SearchEventDat(*p, eventID), result == 0)) {
-        i = i + 1;
-        p = p + 1;
-        if (3 < i)
-            return 0;
+    int i;
+
+    for (i = 0; i < 4; i++) {
+        if (gEventDats[i] != 0) {
+            VoxEvent *result = iSPCH_SearchEventDat(gEventDats[i], eventID);
+
+            if (result != 0)
+                return result;
+        }
     }
-    return result;
+    return 0;
 }
 
 /* iSPCH_InitEventDat @0x800E6FBC : clear the 4 bound event-data blob pointers. */
@@ -172,7 +167,7 @@ void iSPCH_InitEventDat(void)
     int i = 3;
     do {
         gEventDats[i] = 0;
-        i = i - 1;
+        i--;
     } while (-1 < i);
 }
 
@@ -237,47 +232,43 @@ int iSPCH_FindEventSlot(unsigned int priority)
 {
     int result = -1;
     int i;
-    if (gVoxEvents.liveCount < 0x10) {
-        i = 0;
-        do {
-            unsigned char *slot = SLOT(i);
-            if (*(unsigned short *)(slot + 8) == 0) {
+
+    /* MATCH: the three loops leave through ONE shared exit (`goto done` + `result`), not three
+     * textual `return i;` -- gcc cross-jumps the identical tails only AFTER register allocation,
+     * so the direct-return spelling changes REG_N_REFS(result) and re-colors the whole function
+     * (measured: 85 diffs at 71 insns, five short of retail's 76).  Same shared-exit law as
+     * spchpick's iSPCH_ChooseSentence. */
+    if (gVoxEvents.liveCount < VOX_NSLOTS) {
+        for (i = 0; i < VOX_NSLOTS; i++) {
+            if (gVoxEvents.slots[i].enabled == 0) {
                 result = i;
                 goto done;
             }
-            i = i + 1;
-        } while (i < 0x10);
+        }
     }
     {
         int tick = gettick();
-        i = 0;
-        do {
-            unsigned char *slot     = SLOT(i);
-            VoxEvent      *voxEvent = (VoxEvent *)*(int *)(slot + 0x10);
-            unsigned short maxAge   = voxEvent->maxAge;
+
+        for (i = 0; i < VOX_NSLOTS; i++) {
+            unsigned short maxAge = gVoxEvents.slots[i].event->maxAge;
+
             if (maxAge != 0 &&
-                maxAge < (unsigned int)(tick - *(int *)(slot + 0xc))) {
-                *(short *)(slot + 8) = 0;
+                maxAge < (unsigned int)(tick - gVoxEvents.slots[i].tick)) {
+                gVoxEvents.slots[i].enabled = 0;
+                gVoxEvents.liveCount--;
                 result = i;
-                gVoxEvents.liveCount = gVoxEvents.liveCount - 1;
                 goto done;
             }
-            i  = i + 1;
-        } while (i < 0x10);
+        }
     }
-    i = 0;
-    do {
-        unsigned char *slot       = SLOT(i);
-        VoxEvent      *voxEvent   = (VoxEvent *)*(int *)(slot + 0x10);
-        unsigned int   evPriority = voxEvent->priority;
-        if (priority >= evPriority) {
-            *(short *)(slot + 8) = 0;
+    for (i = 0; i < VOX_NSLOTS; i++) {
+        if (priority >= gVoxEvents.slots[i].event->priority) {
+            gVoxEvents.slots[i].enabled = 0;
+            gVoxEvents.liveCount--;
             result = i;
-            gVoxEvents.liveCount = gVoxEvents.liveCount - 1;
             goto done;
         }
-        i = i + 1;
-    } while (i < 0x10);
+    }
   done:
     return result;
 }
@@ -424,57 +415,46 @@ int iSPCH_ChooseEvent(void)
 /* SPCH_ClearEventQueue @0x800E74E0 : disable every active slot. */
 void SPCH_ClearEventQueue(void)
 {
-    /* MATCH: indexing by i before strength reduction keeps the walking pointer at the slot base. */
-    int            i = 0;
-    do {
-        unsigned char *slot = (unsigned char *)&gVoxEvents + i * 0x3c;
-        if (*(unsigned short *)(slot + 8) != 0) {
-            *(short *)(slot + 8) = 0;
-            gVoxEvents.liveCount = gVoxEvents.liveCount - 1;
+    int i;
+    for(i = 0; i < VOX_NSLOTS; i++) {
+        if (gVoxEvents.slots[i].enabled != 0) {
+            gVoxEvents.slots[i].enabled = 0;
+            gVoxEvents.liveCount--;
         }
-        i = i + 1;
-    } while (i < 0x10);
+    }
 }
 
 /* iSPCH_ClearOldEvents @0x800E7528 : disable slots older than the winner (unless keep-till-expires); note a
  *   surviving 'd'-tagged event in DAT_80148064.  Returns 0. */
 void iSPCH_ClearOldEvents(int winnerSlot)
 {
-    /* MATCH: the inlined identity above moves the base copy into the oracle's early schedule. */
-    unsigned char *win     = (unsigned char *)iSPCH_EventBase(&gVoxEvents.liveCount) + winnerSlot * 0x3c;
-    unsigned int   winTick = (unsigned int)*(int *)(win + 0xc);
-    unsigned int   winSub  = (unsigned int)*(unsigned short *)(win + 0xa);
-    unsigned char *base    = (unsigned char *)&gVoxEvents;
-    int            i       = 0;
+    unsigned int   winTick = (unsigned int)gVoxEvents.slots[winnerSlot].tick;
+    unsigned int   winSub  = (unsigned int)gVoxEvents.slots[winnerSlot].subTick;
+    int            i;
+
     gVoxEvents.dFlag = 0;
-    do {
-        unsigned char *slot = base + i * 0x3c;
+
+    for (i = 0; i < VOX_NSLOTS; i++) {
+        unsigned int tick, sub;
+
         if (i == winnerSlot)
-            goto cont;
-        if (*(unsigned short *)(slot + 8) == 0)
-            goto cont;
-        {
-            unsigned int tick = (unsigned int)*(int *)(slot + 0xc);
-            unsigned int sub  = (unsigned int)*(unsigned short *)(slot + 0xa);
-            if (tick < winTick)
-                goto disable;
-            if (tick != winTick)
-                goto dcheck;
-            if (sub >= winSub)
-                goto dcheck;
-          disable:
-            if ((VoxEvent_GetKeepTillExpiresFlag((VoxEvent *)*(int *)(slot + 0x10)) & 0xff) != 0)
-                goto cont;
-            *(short *)(slot + 8) = 0;
-            gVoxEvents.liveCount = gVoxEvents.liveCount - 1;
-            goto cont;
-          dcheck:
-            if (((VoxEvent *)*(int *)(slot + 0x10))->acceptProb == 'd')
-                ((VoxSlotsStruct *)base)->dFlag = 1;
+            continue;
+        if (gVoxEvents.slots[i].enabled == 0)
+            continue;
+
+        tick = (unsigned int)gVoxEvents.slots[i].tick;
+        sub  = (unsigned int)gVoxEvents.slots[i].subTick;
+        /* MATCH: the "older than the winner" test must stay ONE expression -- hoisting it into
+         * a named flag, or splitting it into two ifs, costs 3 insns (5 diffs @74/71). */
+        if (tick < winTick || (tick == winTick && sub < winSub)) {
+            if ((VoxEvent_GetKeepTillExpiresFlag(gVoxEvents.slots[i].event) & 0xff) == 0) {
+                gVoxEvents.slots[i].enabled = 0;
+                gVoxEvents.liveCount--;
+            }
+        } else if (gVoxEvents.slots[i].event->acceptProb == 'd') {
+            gVoxEvents.dFlag = 1;
         }
-      cont:
-        i = i + 1;
-    } while (i < 0x10);
+    }
 }
 
 /* SPCH_PlaySpeech @0x800E7644 : if nothing chosen, choose; then play the chosen speech. */
@@ -499,7 +479,7 @@ int SPCH_ChooseSpeech(void)
         if (-1 < winner) {
             unsigned int *eventArgs;
             iSPCH_ClearOldEvents(winner);
-            eventArgs = (unsigned int *)(SLOT(winner) + 0x14);
+            eventArgs = (unsigned int *)gVoxEvents.slots[winner].args;
             result = iSPCH_ChooseSentence(eventArgs);
             if (result == 0) {
                 if (gReparm != 0) {
@@ -509,7 +489,7 @@ int SPCH_ChooseSpeech(void)
                         rc = ((int (*)(int, unsigned int *))gReparm)(i, eventArgs);
                         if (-1 < rc)
                             result = iSPCH_ChooseSentence(eventArgs);
-                        i = i + 1;
+                        i++;
                         if (result != 0)
                             break;
                     } while (0 < rc);

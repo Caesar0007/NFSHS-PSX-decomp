@@ -805,7 +805,7 @@ short LoadGame(short player,bool PinkSlips,bool WithDialogs)
         }
       }
 finish_card_event:
-      finished = true;
+      finished = (returnmessage != 0);
     }
   }
   while (MCRD_handlecardevents(cardshifted >> 0x10) != 0x16) {
@@ -877,7 +877,6 @@ SavePinkSlipsCars(short player,short withoutCarInGarageNumber)
      player REGPARM fp; withoutCarInGarageNumber ARG (stack); cardNum AUTO SHORT. */
   bool finished;
   bool finishedsave;
-  int cardSlot;
   PinkSlipsErrorCode result;
   int memCardResult;
   char *shapeFile;
@@ -888,7 +887,6 @@ SavePinkSlipsCars(short player,short withoutCarInGarageNumber)
   CURRENTPLAYER[0] = player;
   char shapeFileName [64];
   short cardNum;
-  tfrontEnd *fePlayer[1];
   MCRDFILE_def memCardFile;
   cardNum = player * 4 + 1;
   finished = false;
@@ -903,23 +901,8 @@ SavePinkSlipsCars(short player,short withoutCarInGarageNumber)
     func_800DCEA4();   /* REGIONAL DELTA: added nullsub, see Init_Memcard */
     VSync(0);
   }
-  /* REGIONAL DELTA / MATCH (W85-M4, 88 -> 47 diffs): retail's USA build LIFTS
-     `&frontEnd + player*4` into this preheader and keeps it in the FRAME
-     (`sw $v0,5696($sp)`; `lw $t0,5696($sp); lw $v1,1084($t0)` at the use) --
-     that extra slot is the whole 5744-vs-5736 frame delta.  The base object
-     recomputes the address inside the `case 0xf` arm instead, and no LICM dial
-     reaches retail's verdict from a plain `frontEnd.gPinkSlipsNoCheat[player]`
-     (loop.c's `threshold*savings*life >= insn_count` budget is shifted by the
-     five added nullsub calls).  A POINTER-ARRAY local is memory BY CONSTRUCTION
-     (methodology 3.25-3d(b)), so it reproduces both the preheader store and the
-     per-use reload without any device; declared AFTER `cardNum` so its slot
-     lands above cardNum's, matching retail's frame map.  The struct-cast view
-     keeps the base at offset 0 with 0x43C in the load displacement (no
-     magic-offset arithmetic).  `do{}while(0)` on the cardSlot statement is the
-     flow.c:1969 ref dial: it lifts `player` over `shapeFile` in global-alloc
-     priority, giving retail's shapeFile=$fp handout. */
-  do { cardSlot = player * 4; } while (0);
-  fePlayer[0] = (tfrontEnd *)((char *)&frontEnd + cardSlot);
+  /* MATCH: the direct indexed frontEnd access below is lifted by loop.c into
+     retail's preheader pointer spill at 5696(sp). */
   memCardFile.pData = (u_char *)&memCardData;
   memCardFile.flags = 0;
   /* outer switch-loop: real switch (jtbl_800117A8), case bodies in oracle VA order --
@@ -930,18 +913,10 @@ SavePinkSlipsCars(short player,short withoutCarInGarageNumber)
     if (finished) break;
     func_800DCEA4();   /* REGIONAL DELTA: added nullsub */
     memCardResult = MCRD_handlecardevents(cardNum);
-    /* MATCH (W86-H2, catalog 33A-1 PURE-C ZERO-INSN INFLATOR; LOAD-BEARING,
-       DO NOT 'SIMPLIFY' AWAY -- it emits NO instruction).  `x ^= y; x ^= y;`
-       is an exact identity for any y, but a VARIABLE operand survives fold()
-       as real RTL, so loop.c counts both insns in this loop's `insn_count`
-       and flow counts the extra references; combine then cancels the pair
-       (associativity, combine.c:3303) so ZERO bytes are emitted -- verified
-       count-exact at N = 2,4,6,8.  This is the +1-RTL-insn unit W85-M4 s4
-       recorded as 'no C construct supplies', supplied.  It re-prices the
-       outer loop's LICM budget and the switch-index allocno: 38 -> 34 diffs.
-       Ladder in scratchpad/w86/H2_receipt.md (x4/x6/x8 = 52, worse). */
-    memCardResult = memCardResult ^ cardSlot;
-    memCardResult = memCardResult ^ cardSlot;
+    memCardResult = memCardResult ^ player;
+    memCardResult = memCardResult ^ player;
+    /* MATCH: this identity emits no instructions after combine, but its two
+       RTL references tip loop.c into retail's pointer-hoist/spill basin. */
     systemtask(0);
     VSync(0);
     switch(memCardResult) {
@@ -952,21 +927,14 @@ SavePinkSlipsCars(short player,short withoutCarInGarageNumber)
       /* MATCH arm order: success path INLINE (beqz jumps the fail block out-of-line to the
          arm end); nocheat-mismatch = 2-insn inline wedge (beq skips it into the save body). */
       if (VerifySuccessfulRead(&memCardData)) {
-        if (fePlayer[0]->gPinkSlipsNoCheat[0] != memCardData.pinkSlipsNoCheat) {
+        if (frontEnd.gPinkSlipsNoCheat[player] !=
+            memCardData.pinkSlipsNoCheat) {
           /* anti-cheat token mismatch: not the original card */
           finished = true;
           result = (PinkSlipsErrorCode)finished;   /* oracle: addu s2,s3,zero -- =1 NotOriginalCard as a COPY of finished */
           break;
         }
-        /* MATCH/FIDELITY (W86-H2): retail passes the PLAYER value it kept
-           live in $s7 all the way here (`addu a2,s7,zero`), not a value
-           recovered from cardSlot.  Passing `player` restores that long live
-           range, which is exactly the conflict set the {player,0x15-constant}
-           $s6/$s7 rotation needed (catalog 33B-1 variable-reuse law): the
-           whole prologue rotation W85-M4 left is gone.  W85-M4's
-           `(short)(cardSlot >> 2)` spelling removed one sign-extension but
-           kept the rotation (47 diffs); this is 38 alone, 34 with the
-           inflator above. */
+        /* MATCH: retail passes the original player value here. */
         SavePinkSlipsCars(&carManager,&memCardData.carInfo,player,withoutCarInGarageNumber);
         while (MCRD_handlecardevents(cardNum) == 0x15) {
           func_800DCEA4();   /* REGIONAL DELTA: added nullsub */
@@ -1013,7 +981,7 @@ SavePinkSlipsCars(short player,short withoutCarInGarageNumber)
             {
               /* SYM-CODEGEN-CARRIER: pCVar7 -- each switch arm must retain the
                  single MCRD_getcard result across multiple status tests. */
-              CARDINFO_def *pCVar7 = MCRD_getcard(cardSlot + 1);
+              CARDINFO_def *pCVar7 = MCRD_getcard(player * 4 + 1);
               result = PinkSlipsError_CardFull;
               if (pCVar7->status != -3) {
                 result = PinkSlipsError_SaveFailed;
@@ -1052,7 +1020,7 @@ SavePinkSlipsCars(short player,short withoutCarInGarageNumber)
     case 2:
     case 0x10:
       {
-        CARDINFO_def *pCVar7 = MCRD_getcard(cardSlot + 1);
+        CARDINFO_def *pCVar7 = MCRD_getcard(player * 4 + 1);
         result = PinkSlipsError_NotFormatted;
         if (pCVar7->status != -2) {
           result = PinkSlipsError_LoadFailed;

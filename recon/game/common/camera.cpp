@@ -126,9 +126,9 @@ void Camera_TunnelLimit(int player,int *armheight)
     coorddef underCam = Camera_gInfo[player].position;
     int roadheight =
         Newton_FindGroundElevationGeneral(&underCam,&quadnormal,slicePos->quadPts);
-    int track = Camera_GameSetupWords[15];
-    if (0xf < Camera_GameSetupWords[15]) {
-      track = Camera_GameSetupWords[15] + -7;
+    int track = GameSetup_gData.track;
+    if (0xf < GameSetup_gData.track) {
+      track = GameSetup_gData.track + -7;
     }
     int maxheight =
         (gTunnelCamHeight[track] - Camera_gInfo[player].anchor->position.y) +
@@ -253,7 +253,7 @@ void Camera_UpdateTailCam(int player,int behavior)
     /* MATCH: reverseTrack read ONCE before the if (single lw, shared by both arms) */
     /* SYM-CODEGEN-CARRIER: rev.  Per-arm reverseTrack reads were measured at
        76 diffs and lose retail's single shared load. */
-    int rev = Camera_GameSetupWords[12];
+    int rev = GameSetup_gData.reverseTrack;
     if (0 < anchor->wrongway) {
       /* SYM-CODEGEN-CARRIER: flip.  Direct `if (rev ^ 1)` emits xori/bnez
          instead of retail's compare-to-one form (18 diffs at 402/402). */
@@ -585,7 +585,7 @@ void Camera_UpdateHeliCam(int player,int behavior)
     /* SYM-CODEGEN-CARRIER: rev -- optimized SYM has no local row, but one
        shared reverseTrack load must dominate both arms.  Spelling the global
        directly in both tests emits 448/443 instructions and 19 diffs. */
-    int rev = Camera_GameSetupWords[12];
+    int rev = GameSetup_gData.reverseTrack;
     if (0 < anchor->wrongway) {
       lookahead = 3;
       if ((rev ^ 1) == 0) {
@@ -934,7 +934,7 @@ void Camera_UpdateAnimCam(int player)
     cVar1 = (signed char)Camera_gInfo[player].animNum;
     Camera_gInfo[player].animNum = cVar1 - 1;
     Camera_gInfo[player].animHandle = (char)Anim_Handle(
-        (u_int)(u_char)gAnimCams[Camera_GameSetupWords[15]][cVar1]);
+        (u_int)(u_char)gAnimCams[GameSetup_gData.track][cVar1]);
   }
   if (Camera_AnimGetTimedAnimPosRot(
           Anim_GetAnim((int)(signed char)Camera_gInfo[player].animHandle),
@@ -945,7 +945,7 @@ void Camera_UpdateAnimCam(int player)
       cVar4 = (signed char)Camera_gInfo[player].animNum;
       Camera_gInfo[player].animNum--;
       Camera_gInfo[player].animHandle = (char)Anim_Handle(
-          (u_int)(u_char)gAnimCams[Camera_GameSetupWords[15]][cVar4]);
+          (u_int)(u_char)gAnimCams[GameSetup_gData.track][cVar4]);
       Camera_AnimGetTimedAnimPosRot(
           Anim_GetAnim((int)(signed char)Camera_gInfo[player].animHandle),
           &animPos,&animRot);
@@ -960,14 +960,14 @@ void Camera_UpdateAnimCam(int player)
         Camera_gInfo[player].splineMode = '\x03';
         return;
       }
-      Camera_SetMode(player,CAMERA_SETUP_CAMERA(player,0));
+      Camera_SetMode(player,GameSetup_gData.carInfo[player].Camera[0]);
       return;
     }
   }
   /* BUGFIX (H-class): Ghidra rendered gAnimMode[track] as the string "\x02" (mis-render trap);
    * also dropped the Ghidra-ism & 0x1f shift-count mask */
   /* MATCH: direct-copy arm FIRST in VA order (beqz jumps to the transform arm) */
-  if ((gAnimMode[Camera_GameSetupWords[15]] >> (signed char)Camera_gInfo[player].animNum & 1U) != 0) {
+  if ((gAnimMode[GameSetup_gData.track] >> (signed char)Camera_gInfo[player].animNum & 1U) != 0) {
     Camera_gInfo[player].position = animPos;   /* struct copies -> grouped/movstrsi */
     Camera_gInfo[player].rotation = animRot;
   }
@@ -1368,7 +1368,7 @@ void Camera_UpdateSplineCam(int player)
       relativeVel = fixedmult(anchor->N.linearVel.x,splineVel.x) +
                     fixedmult(anchor->N.linearVel.y,splineVel.y) +
                     fixedmult(anchor->N.linearVel.z,splineVel.z);
-      if ((Camera_GameSetupWords[14] & 4U) != 0) {
+      if ((GameSetup_gData.sgge & 4U) != 0) {
         relativeVel = fixedmult(relativeVel,0xcccc);
       }
       relativeVel = fixedmult(relativeVel,
@@ -1835,12 +1835,12 @@ void Camera_Init(void)
   int i;
   int type;
   
-  splitScreen = Camera_GameSetupWords[3] == 1;
+  splitScreen = GameSetup_gData.commMode == 1;
   memset((u_char *)&slicePos,'\0',sizeof(slicePos));
   for (i = 0; i <= splitScreen; i++) {
     localCar = i;
     if (splitScreen == 0) {
-      localCar = Camera_GameSetupWords[7];
+      localCar = GameSetup_gData.localCar;
     }
     Camera_gInfo[i].anchor = &Cars_gHumanRaceCarList[localCar]->N;
     Camera_gInfo[i].target = &Cars_gHumanRaceCarList[localCar]->N;
@@ -1868,8 +1868,8 @@ void Camera_Init(void)
     Camera_gInfo[i].inCar = 0;
     Camera_gInfo[i].circleCounter = 0;
     Camera_gInfo[i].circleAngle = 0;
-    Camera_gInfo[i].animNum = gAnimCams[Camera_GameSetupWords[15]][0];
-    if (((Camera_GameSetupWords[0] == RaceType_HotPursuit) || (Camera_GameSetupWords[0] == RaceType_Id5)) &&
+    Camera_gInfo[i].animNum = gAnimCams[GameSetup_gData.track][0];
+    if (((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) &&
        ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 ||
         ((Cars_gNumHumanRaceCars == 2 && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) {
       Camera_gInfo[i].animNum = '\x01';
@@ -1884,8 +1884,8 @@ void Camera_Init(void)
   Camera_ResetRelPos(3);
   type = *(*(int **)((char *)Cars_gHumanRaceCarList[0] + 0x288));
   Camera_gGeomScreen = 0xbe;
-  if (((type < 0x1c) && ((Camera_GameSetupWords[14] & 0x100U) != 0)) && (splitScreen == 0)) {
-    CAMERA_SETUP_CAMERA(0,0) = 1;
+  if (((type < 0x1c) && ((GameSetup_gData.sgge & 0x100U) != 0)) && (splitScreen == 0)) {
+    GameSetup_gData.carInfo[0].Camera[0] = 1;
     Camera_gFlags[1].arm = gDriverCam[type];
                     
                     
@@ -1900,7 +1900,7 @@ void Camera_Kill(void)
   int i;            /* SYM: REG i INT */
   int splitScreen;  /* SYM: REG splitScreen INT */
 
-  splitScreen = Camera_GameSetupWords[3] == 1;
+  splitScreen = GameSetup_gData.commMode == 1;
   /* MATCH: index form (SYM has NO pointer local) — gcc strength-reduces to the s0+=0x110 walk
    * keeping animHandle's 0x7D displacement; a hand pointer-walk folds base+125 into the biv */
   for (i = 0; i <= splitScreen; i = i + 1) {
@@ -2338,7 +2338,7 @@ void Camera_GetViewInfo(int cviewP,DRender_tCalcView *cview,int viewID)
     }
   }
   cview->mrotation = Camera_gInfo[cviewP].rotation;
-  if (Camera_GameSetupWords[11] != 0) {
+  if (GameSetup_gData.mirrorTrack != 0) {
     int t1 = cview->mrotation.m[0];
     int t2 = cview->mrotation.m[1];
     int t3 = cview->mrotation.m[2];
@@ -2456,7 +2456,7 @@ void Camera_SetMode(int cviewP,int mode)
     }
     Camera_gInfo[cviewP].mode = (short)mode;
     if (0x13 < (short)mode) {
-      Camera_gInfo[cviewP].mode = (short)CAMERA_SETUP_CAMERA(cviewP,0);
+      Camera_gInfo[cviewP].mode = (short)GameSetup_gData.carInfo[cviewP].Camera[0];
     }
     if (Camera_gInfo[cviewP].mode == 0xb) {
       Camera_SetSplineCam(cviewP);
@@ -2505,35 +2505,22 @@ void Camera_NextMode(int cviewP)
            *(short *)(splitBase +
                      (((int)Camera_gInfo[cviewP].camNum % 3) * 0x10000 >> 0xe));
     }
-    else if (((Camera_GameSetupWords[0] == RaceType_HotPursuit) || (Camera_GameSetupWords[0] == RaceType_Id5)) &&
+    else if (((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) &&
             ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 ||
              ((Cars_gNumHumanRaceCars == 2 && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) {
       Camera_gInfo[cviewP].camNum = Camera_gInfo[cviewP].camNum + 1;
       Camera_gInfo[cviewP].mode =
-          (short)CAMERA_SETUP_CAMERA(
-              cviewP,(u_short)Camera_gInfo[cviewP].camNum & 3);
+          (short)GameSetup_gData.carInfo[cviewP].Camera[
+              (u_short)Camera_gInfo[cviewP].camNum & 3];
     }
     else {
-      /* SYM-CODEGEN-CARRIER: setupBase -- direct Camera_GameSetupWords use
-         keeps 237 instructions but changes base allocation at six positions. */
-      int *setupBase;
-      /* SYM-CODEGEN-CARRIER: setupOffset -- folding the two offset terms into
-         the final address keeps 237 instructions but changes four positions. */
-      int setupOffset;
-
       Camera_gInfo[cviewP].camNum = Camera_gInfo[cviewP].camNum + 1;
-      /* MATCH: comma-stage the GameSetup base with the signed %3 byte offset,
-         then extend that offset in place.  This gives GCC the retail latency
-         schedule: the base pair sits between mult and its sign correction. */
-      setupOffset =
-          (setupBase = Camera_GameSetupWords,
-           ((int)Camera_gInfo[cviewP].camNum % 3) << 2);
-      setupOffset += cviewP * 180;
       Camera_gInfo[cviewP].mode =
-           ((Car_tObj *)((char *)setupBase + setupOffset))->slide;
+          (short)GameSetup_gData.carInfo[cviewP].Camera[
+              (int)Camera_gInfo[cviewP].camNum % 3];
     }
     if (0x13 < Camera_gInfo[cviewP].mode) {
-      Camera_gInfo[cviewP].mode = (short)CAMERA_SETUP_CAMERA(cviewP,0);
+      Camera_gInfo[cviewP].mode = (short)GameSetup_gData.carInfo[cviewP].Camera[0];
     }
     if (Camera_gInfo[cviewP].mode == 0xb) {
       Camera_SetSplineCam(cviewP);

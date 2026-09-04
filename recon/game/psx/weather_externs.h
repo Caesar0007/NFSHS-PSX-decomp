@@ -37,13 +37,10 @@ extern int               Weather_gTrackIntensityLimit;         /* 0x8013dc0c */
  * per-element in weather.cpp with an asm()-label array view; no cross-TU extern. */
 
 /* ---- shared game globals (SYM Globals.jsonl; declared in their owning TUs) ---- */
-extern int               Weather_GameSetupWords[] asm("GameSetup_gData");
+extern GameSetup_tData   GameSetup_gData;
 extern int               Weather_SimWords[] asm("simGlobal");
 extern char              Weather_TrackSpecBytes[] asm("TrackSpec_gSpec");
 extern u_int             Weather_CameraWords[] asm("Camera_gInfo");
-#define WEATHER_GAMESETUP_COMM_MODE Weather_GameSetupWords[3]
-#define WEATHER_GAMESETUP_TRACK     Weather_GameSetupWords[15]
-#define WEATHER_GAMESETUP_WEATHER   Weather_GameSetupWords[18]
 #define WEATHER_GAME_TICKS          Weather_SimWords[1]
 #define WEATHER_TRACK_WEATHER       (*(CWeatherSpec *)(Weather_TrackSpecBytes + 0x20))
 #define WEATHER_CAMERA_POSITION(i)  (*(coorddef *)(Weather_CameraWords + (i) * 68 + 2))

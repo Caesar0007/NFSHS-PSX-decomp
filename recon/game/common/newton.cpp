@@ -88,7 +88,7 @@ void Newton_AddDamageZone(BO_tNewtonObj *newtonObj,int impulse,int zone,int type
   if (Force_IsForceOn((Car_tObj *)newtonObj) != 0) {
     Force_HitWall((newtonObj->collision).impulse);
   }
-  if (Newton_GameSetupWords[20] != 0) {
+  if (GameSetup_gData.Damage != 0) {
     int imp;
 
     if (0x640000 < impulse / 2) {
@@ -1177,10 +1177,10 @@ void Newton_CalcDistToClosestPlayerCar(BO_tNewtonObj *n)
 
   whichPlayer = 0;
   forcedSimOptz = 0;
-  x = (n->position).x - (Cars_gHumanRaceCarList[Newton_GameSetupWords[7]]->N).position.x;
-  if (x < 1) { x = (Cars_gHumanRaceCarList[Newton_GameSetupWords[7]]->N).position.x - (n->position).x; }
-  z = (n->position).z - (Cars_gHumanRaceCarList[Newton_GameSetupWords[7]]->N).position.z;
-  if (z < 1) { z = (Cars_gHumanRaceCarList[Newton_GameSetupWords[7]]->N).position.z - (n->position).z; }
+  x = (n->position).x - (Cars_gHumanRaceCarList[GameSetup_gData.localCar]->N).position.x;
+  if (x < 1) { x = (Cars_gHumanRaceCarList[GameSetup_gData.localCar]->N).position.x - (n->position).x; }
+  z = (n->position).z - (Cars_gHumanRaceCarList[GameSetup_gData.localCar]->N).position.z;
+  if (z < 1) { z = (Cars_gHumanRaceCarList[GameSetup_gData.localCar]->N).position.z - (n->position).z; }
   if (z < x) {
     n->distToPlayer = x + (z >> 2);
   }
@@ -1188,10 +1188,10 @@ void Newton_CalcDistToClosestPlayerCar(BO_tNewtonObj *n)
     n->distToPlayer = z + (x >> 2);
   }
   if (Cars_gNumHumanRaceCars == 2) {
-    x = (n->position).x - (Cars_gHumanRaceCarList[1 - Newton_GameSetupWords[7]]->N).position.x;
-    if (x < 1) { x = (Cars_gHumanRaceCarList[1 - Newton_GameSetupWords[7]]->N).position.x - (n->position).x; }
-    z = (n->position).z - (Cars_gHumanRaceCarList[1 - Newton_GameSetupWords[7]]->N).position.z;
-    if (z < 1) { z = (Cars_gHumanRaceCarList[1 - Newton_GameSetupWords[7]]->N).position.z - (n->position).z; }
+    x = (n->position).x - (Cars_gHumanRaceCarList[1 - GameSetup_gData.localCar]->N).position.x;
+    if (x < 1) { x = (Cars_gHumanRaceCarList[1 - GameSetup_gData.localCar]->N).position.x - (n->position).x; }
+    z = (n->position).z - (Cars_gHumanRaceCarList[1 - GameSetup_gData.localCar]->N).position.z;
+    if (z < 1) { z = (Cars_gHumanRaceCarList[1 - GameSetup_gData.localCar]->N).position.z - (n->position).z; }
     if (z < x) {
       dist = x + (z >> 2);
     }
@@ -1454,12 +1454,12 @@ extern "C" void Newton_InitBaseNewtonObj(
   newtonObj->linearVel.y = 0;
   newtonObj->linearVel.z = 0;
   newtonObj->mass = mass;
-  if (((Newton_GameSetupWords[14] & 2U) != 0) &&
+  if (((GameSetup_gData.sgge & 2U) != 0) &&
       ((((Car_tObj *)newtonObj)->carFlags & 4) != 0)) {
     newtonObj->mass = mass * 5;
   }
   if ((((Car_tObj *)newtonObj)->carFlags & 0x20) != 0) {
-    if ((Newton_GameSetupWords[3] == 1) &&
+    if ((GameSetup_gData.commMode == 1) &&
         ((Cars_gHumanRaceCarList[0]->carInfo->carType < 0x16 ||
           Cars_gHumanRaceCarList[1]->carInfo->carType < 0x16))) {
       newtonObj->mass = newtonObj->mass << 1;
@@ -1523,7 +1523,7 @@ extern "C" void Newton_QDUpdateVel(BO_tNewtonObj *newtonObj)
   int t3;
 
   if (newtonObj->active != '\0') {
-    if ((Newton_GameSetupWords[14] & 4U) != 0) {
+    if ((GameSetup_gData.sgge & 4U) != 0) {
       t1 = newtonObj->linearVel.x >> 6;
       t2 = newtonObj->linearVel.y >> 6;
       t3 = newtonObj->linearVel.z >> 6;

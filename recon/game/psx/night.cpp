@@ -1000,7 +1000,7 @@ void Night_GenerateAllLightTables(void)
       {
         int i;
 
-        if (NIGHT_GAMESETUP_WEATHER == 1) {
+        if (GameSetup_gData.Weather == 1) {
           Night_SetWeatherColors(colorIndex);
           i = 0;
         }
@@ -1012,7 +1012,7 @@ void Night_GenerateAllLightTables(void)
 
           bright = colorCreationTable[i];
           Night_SetPlayerHeadLightColor(0,colorIndex,bright);
-          if ((NIGHT_GAMESETUP_COPS != 0) && (i < 8)) {
+          if ((GameSetup_gData.cops != 0) && (i < 8)) {
             Night_SetCopLightColors(colorIndex,bright);
           }
           i = i + 1;
@@ -1070,8 +1070,8 @@ void Night_InitNightDriving(void)
      and RE-LOADS the flag for the early-out.  A leading `= 0` plus an overwrite emits
      two stores; an if/else pair or a ternary both come out 4-7 instructions long
      (measured).  Same lever family as methodology sec.3.12 #7. */
-  gNight_renderNight = NIGHT_GAMESETUP_TIME != 0 && NIGHT_GAMESETUP_COMM_MODE != 1;
-  if ((NIGHT_GAMESETUP_TIME != 0) && (gNight_renderNight == 0)) {
+  gNight_renderNight = GameSetup_gData.Time != 0 && GameSetup_gData.commMode != 1;
+  if ((GameSetup_gData.Time != 0) && (gNight_renderNight == 0)) {
     /* the whole 4-byte CVECTOR is cleared with ONE word store (oracle
        `sw $zero,0xF0($v0)`), not four `sb`s; distance is an int at +0xF4
        (`sw $v1,0xF4($v0)`).  Per-field byte clears cost 4 extra instructions. */
@@ -1096,14 +1096,14 @@ void Night_InitNightDriving(void)
   mem = (char *)locateshape(nightfile,(int *)"nght");
   Night_gNightTbl = mem + 0x10;
   Night_InitPlayerHeadLightColor(0);
-  if (NIGHT_GAMESETUP_COPS != 0) {
+  if (GameSetup_gData.cops != 0) {
     Night_InitCopLightColors();
   }
-  if (NIGHT_GAMESETUP_WEATHER == 1) {
+  if (GameSetup_gData.Weather == 1) {
     Night_InitWeatherTables();
   }
   Night_GenerateAllLightTables();
-  if (NIGHT_GAMESETUP_WEATHER == 1) {
+  if (GameSetup_gData.Weather == 1) {
     Night_gLightning = 0;
     Night_gNextLightning = D_8011E0B0[0] + (random() & 0x1ff);
     Night_gEndNextLightning = Night_gNextLightning + (random() & 0x31);
@@ -1154,7 +1154,7 @@ void Night_KillNightDriving(void)
 void Night_RestartNightDriving(void)
 
 {
-  if ((NIGHT_GAMESETUP_WEATHER == 1) && (NIGHT_GAMESETUP_TIME != 0)) {
+  if ((GameSetup_gData.Weather == 1) && (GameSetup_gData.Time != 0)) {
     Night_gLightning = 0;
     Night_gNextLightning = NIGHT_GAME_TICKS + (random() & 0x1ff);
     Night_gEndNextLightning = Night_gNextLightning + (random() & 0x31);
@@ -1377,10 +1377,10 @@ void Night_RestartNightDriving(void)
 void Night_SetEnviroment(DRender_tView *Vi)
 
 {
-  if (NIGHT_GAMESETUP_TIME != 0) {
+  if (GameSetup_gData.Time != 0) {
     Night_gDrawLightning = '\0';
     Night_gCurrentNightColor = Night_gPlayerLightingTable;
-    if ((NIGHT_GAMESETUP_WEATHER == 1) &&
+    if ((GameSetup_gData.Weather == 1) &&
        (Night_PauseLightningEffect(Vi->player), Vi->player == 0)) {
       Night_DoLightningEffect(Vi);
     }

@@ -80,7 +80,7 @@ void Render_CreatePlayerViews(void)
 
 {
   
-  if (Render_GameSetupWords[3] == 1) {
+  if (GameSetup_gData.commMode == 1) {
     Draw_gPlayer1View = Draw_SetView(0,0x100,0x140,0x100,0x140,0x78,0,1,2000);
     Draw_gPlayer2View = Draw_SetView(0,0x178,0x140,0x178,0x140,0x78,0,1,2000);
   }
@@ -120,7 +120,7 @@ void Render_StartRenderingWorldView(int viewid)
   Camera_SetCamera(&gCView);
   Track_AnimateTrackLighting();
   Draw_StartRenderingView(viewid);
-  *(int *)0x1F80000C = Render_GameSetupWords[11];
+  *(int *)0x1F80000C = GameSetup_gData.mirrorTrack;
   Fog_Update(gCView.player);
   DrawC_SetEnviroment();
   TrsProj_ResetTransPrecision();
@@ -262,7 +262,7 @@ void Render_Render(int pause)
       gPauseRender = 0;
     }
     else {
-      if (Render_GameSetupWords[3] == 1) {
+      if (GameSetup_gData.commMode == 1) {
         Render_StartFrameRender();
         Render_RenderPlayerView(Draw_gPlayer1View,0);
         Render_RenderPlayerView(Draw_gPlayer2View,1);
@@ -286,7 +286,7 @@ void FlareThing(void)
   int players;
   
   players = 1;
-  if (Render_GameSetupWords[3] == 1) {
+  if (GameSetup_gData.commMode == 1) {
     players = 2;
   }
   for (int i = 0; i < players; i++) {
@@ -308,7 +308,7 @@ void FlareThing(void)
 void Render_InitTrackRender(void)
 
 {
-  TrackSpec_Load(Render_GameSetupWords[18],Render_GameSetupWords[21]);
+  TrackSpec_Load(GameSetup_gData.Weather,GameSetup_gData.Time);
   Render_CreateViews();
   Draw_InitRenderEngine(0x140,0x100,0,0x100,0x140,0xf0);
   DrawC_BuildRenderingData();
@@ -431,7 +431,7 @@ void StampImage(int xo,int depth)
 void Render_InitBlurMode(void)
 
 {
-  switch (Render_GameSetupWords[14]) {
+  switch (GameSetup_gData.sgge) {
   case 0x10:
     Render_gBlurEffectMode = 0xb;
     break;

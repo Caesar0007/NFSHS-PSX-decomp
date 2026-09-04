@@ -34,29 +34,8 @@ SVECTOR            *Weather_gPServer[2];           /* @0x8013dbd0 */
 DVECTOR            *Weather_gPrevPServer[2];       /* @0x8013dbd8 */
 char               *Weather_gDrawnServer[2];       /* @0x8013dbe0 */
 
-/* ---- W71-A5: a 4-BYTE SCALAR VIEW of GameSetup_gData, used ONLY by
- * Weather_DoWeather to read `.commMode` (@ +0xC = word 3).  This is the 15E
- * storage-shape menu form 1 (the POSITION-PINNED assembler-macro read) applied to a
- * STRUCT FIELD, which the w64/w67 receipts in that function had filed unreachable:
- * `GameSetup_gData.commMode` goes through the 2600-byte object, so cc1 pre-SPLITS the
- * address into a schedulable `lui`/`lo_sum` pair, sched1 hoists the `lui` into the
- * prologue address group, its live range then spans the three server-array bases and
- * local-alloc cannot combine it with the load's destination -- our `lui $a3` + `lw
- * $v0,0($a3)` against retail's SELF-TEMP `lui $v0` ... `lw $v0,0($v0)`.  A 4-byte
- * scalar view is AT/UNDER -G, so cc1 emits the one-line `lw $r,SYM` assembler macro
- * instead (catalog 14D "-G-THRESHOLD GATE-GLOBAL LEVER"); maspsx expands it to
- * `lui $v0,%hi; lw $v0,%lo($v0)` = retail's register exactly.  4 -> 2 diffs, count
- * still EXACT 197/197.  (w67-a7's `__asm__("GameSetup_gData+12")` label route stays
- * dead -- cc1 emits `.extern GameSetup_gData+12,4` and GNU-as rejects the expression;
- * the offset has to live in the C subscript, not in the asm label.  An ARRAY view
- * -- unsized, [1], [4] or [16] -- measures 4, i.e. UNCHANGED: only the SCALAR
- * declaration reaches the macro form.)
- * ---- W72-A14 (2026-08-22): REVERTED TO THE UNSIZED ARRAY VIEW.  The scalar/macro
- * form was only ever buying the LUI's REGISTER, and the cm-read POSITION buys the same
- * register for free while leaving the load SCHEDULABLE (which the macro form is not).
- * With `cm` read LAST the split view reaches PASS 197/197 on both lanes -- see the
- * W72-A14 receipt inside Weather_DoWeather.  The array view also emits no second
- * `.extern GameSetup_gData`, retiring the doubled-`.extern` dual-lane hazard. */
+/* GameSetup_gData uses its canonical aggregate declaration.  Direct typed field
+ * reads reproduce retail, so weather.cpp needs no word-array or scalar alias. */
 
 /* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
  * but OWNED here; tentative defs -> cc1 `.comm` -> stock maspsx gp-rels them
@@ -217,7 +196,7 @@ void Weather_InitRain(void)
  * (increment at body END, break tested via the result var, NOT a for(;;i++) head-increment) keeps
  * the oracle's top-test `slti;beqz->exit` + unconditional `j` back-edge. MATCH: exit-in-the-middle
  * no-rotation + result-var break.  PASS-only SYM cleanup restored canonical
- * `i/ySize` and direct random-call expressions.  Direct `Weather_GameSetupWords[3] == 1`
+ * `i/ySize` and direct random-call expressions.  Direct `GameSetup_gData.commMode == 1`
  * is FAIL 15 (66/69), so the setup base/value remain explicit carriers. */
 void Weather_InitSplats(void)
 
@@ -225,17 +204,17 @@ void Weather_InitSplats(void)
   int ySize;
   int i;
   int result; /* SYM-CODEGEN-CARRIER: result -- required by the measured exit-in-the-middle no-rotation loop */
-  int *gs; /* SYM-CODEGEN-CARRIER: gs -- direct global indexing is part of the measured FAIL 15 form */
+  GameSetup_tData *gameSetup; /* SYM-CODEGEN-CARRIER: gameSetup -- direct field access is part of the measured FAIL 10 form */
   int commModeNetwork; /* SYM-CODEGEN-CARRIER: commModeNetwork -- direct literal comparison is part of the measured FAIL 15 form */
 
   i = 0;
-  gs = Weather_GameSetupWords;
+  gameSetup = &GameSetup_gData;
   commModeNetwork = 1;
   while (true) {
     result = i < 0x13;
     if (result == 0) break;
     ySize = 0xf0;
-    if (gs[3] == commModeNetwork) {
+    if (gameSetup->commMode == commModeNetwork) {
       ySize = 0x78;
     }
     Weather_gSplatInfo[i].pos.vx = (short)((u_int)random() % 320);
@@ -423,7 +402,7 @@ void Weather_InitStateControls(void)
 {
   int track;
 
-  track = WEATHER_GAMESETUP_TRACK;
+  track = GameSetup_gData.track;
   Weather_gTrackIntensityLimit = Weather_gTrackIntensityLimitTbl[track];
   if ((track == 0) || (track == 4)) {
     Weather_gSnowTrack = 1;
@@ -463,8 +442,8 @@ void Weather_Restart(void)
 {
   int i;
   
-  if (WEATHER_GAMESETUP_WEATHER != 0) {
-    if (WEATHER_GAMESETUP_COMM_MODE != 1) {
+  if (GameSetup_gData.Weather != 0) {
+    if (GameSetup_gData.commMode != 1) {
       Weather_InitStateControls();
     }
     i = 0;
@@ -546,7 +525,7 @@ void Weather_Init(void)
    * the exact movstrsi bases/scratch handout, and makes the per-fn force-addr
    * aid unnecessary. */
   Weather_gTrackSpec = &WEATHER_TRACK_WEATHER;
-  if (WEATHER_GAMESETUP_WEATHER != 0) {
+  if (GameSetup_gData.Weather != 0) {
     Weather_gType = WEATHER_TRACK_WEATHER.type;
     if (WEATHER_TRACK_WEATHER.type == 1) {
       Weather_InitRain();
@@ -572,7 +551,7 @@ void Weather_Init(void)
     Weather_gPrevPServer[0] = Weather_gPrevPos;
     Weather_gDrawnServer[0] = Weather_gWasDrawn;
     Weather_gSplatInfoServer[0] = Weather_gSplatInfo;
-    if (WEATHER_GAMESETUP_COMM_MODE == 1) {
+    if (GameSetup_gData.commMode == 1) {
       Weather_gPServer[1] = Weather_gPos + 0x4c;
       Weather_gPrevPServer[1] = Weather_gPrevPos + 0x4c;
       Weather_gDrawnServer[1] = Weather_gWasDrawn + 0x4c;
@@ -633,7 +612,7 @@ void Weather_Init(void)
 void Weather_DeInit(void)
 
 {
-  if (WEATHER_GAMESETUP_WEATHER != 0) {
+  if (GameSetup_gData.Weather != 0) {
     if (Weather_gSplatInfo != (Weather_tSplatInfo *)0x0) {
       purgememadr(Weather_gSplatInfo);
     }
@@ -1438,7 +1417,7 @@ void Weather_DoSplats
                Ladder (whole-TU gate, Weather_DoSplats): device removed 36 | one
                absorption PASS | `X & (X | 3)` PASS | two or four absorptions 28. */
             q = (Weather_tSplatInfo *)((unsigned int)q | ((unsigned int)q & 3u));
-            if (WEATHER_GAMESETUP_COMM_MODE == 1) {
+            if (GameSetup_gData.commMode == 1) {
               q->pos.vy = (short)((u_int)random() % 0xf0 >> 1);
             }
             else {
@@ -1524,9 +1503,8 @@ void Weather_DoWeather(DRender_tView *Vi)
   DR_MODE *prim;
   int *plb; /* SYM-CODEGEN-CARRIER: plb -- laundered prevLookBehind slot */
   u_int *pal; /* SYM-CODEGEN-CARRIER: pal -- palette cursor CSE value */
-  char **wdp; /* SYM-CODEGEN-CARRIER: wdp -- retaining the DrawnServer slot
-                 through the commMode read restores retail's local-alloc
-                 handout and keeps Weather_DoWeather PASS197. */
+  char **wdp; /* SYM-CODEGEN-CARRIER: wdp -- retaining the DrawnServer slot restores
+                 retail's local-alloc handout and keeps Weather_DoWeather PASS197. */
 
   /* NEAR-MISS 36 (count EXACT 197/197) -- CLASSIFIED (W55-A16).  allocsim replicates
      this function's GLOBAL handout 25/25 EXACTLY, so none of the residual is a global
@@ -1738,20 +1716,13 @@ void Weather_DoWeather(DRender_tView *Vi)
   player = Vi->player;
   wpt = Weather_gPServer[player];
   wprevpt = Weather_gPrevPServer[player];
-  /* W80 source-only: retain the DrawnServer slot address across the commMode read,
-     then load through it.  The read-only `wdp` reference below prices that local
-     against the scaled-index quantity and restores retail's a0/a1 handout.  Together
-     these remove the old post-cc1 load move: strict 5 -> 2 at exact 197 words. */
+  /* W80 source-only: load through an explicit DrawnServer slot pointer.  This prices
+     the local against the scaled-index quantity and restores retail's a0/a1 handout. */
   wdp = Weather_gDrawnServer + player;
-  int cm = WEATHER_GAMESETUP_COMM_MODE; /* SYM-CODEGEN-CARRIER: cm -- staged commMode load */
   wd = *wdp;
-  int one = 1; /* SYM-CODEGEN-CARRIER: one -- early compare constant */
-  /* W86-D2: the w-era `"r"(player),"r"(wdp)` ref fence measured LOAD-BEARING at 16
-     diffs in W85-S4 is INERT on today's body -- the later `cm`/`one` staging in this
-     block subsumed it.  Removed; Weather_DoWeather re-gates PASS, TU 25/25.
-     (Re-probe every fence in a TU that has been edited since its receipt: W85-S1
-     process rule #4, fired again here.) */
-  if ((cm != one) && (0x20 < WEATHER_GAME_TICKS - timechange)) {
+  /* The canonical typed declaration makes the direct guard byte-exact; the former
+     staged `cm` and `one` codegen carriers are not required. */
+  if ((GameSetup_gData.commMode != 1) && (0x20 < WEATHER_GAME_TICKS - timechange)) {
     timechange = WEATHER_GAME_TICKS;
     if (Weather_gSnowTrack == 0) {
       Weather_ChangeIntensityBasedOnTime();
@@ -1861,7 +1832,7 @@ void Weather_DoWeather(DRender_tView *Vi)
 void Weather_BuildWeather(DRender_tView *Vi)
 
 {
-  if ((WEATHER_GAMESETUP_WEATHER != 0) &&
+  if ((GameSetup_gData.Weather != 0) &&
       (BWorldSm_TunnelFlagSm(&WEATHER_CAMERA_SLICE_POS(Vi->player)) == 0)) {
     Weather_DoWeather(Vi);
   }

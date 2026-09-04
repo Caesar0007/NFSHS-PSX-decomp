@@ -46,33 +46,33 @@ spelling.  A row leaves this queue only when direct source-bearing evidence is
 recorded and its marker is replaced by `ORIGINAL-NAME-RECOVERED` (or when the
 extra source object is eliminated while preserving the oracle).
 
-Current measured queue: **1,596 unresolved carrier-marker rows project-wide**,
-of which **602 are in `recon/game/common`**.  There are currently **24
+Current measured queue: **1,592 unresolved carrier-marker rows project-wide**,
+of which **600 are in `recon/game/common`**.  There are currently **24
 `ORIGINAL-NAME-RECOVERED` evidence rows**.  These counts were measured from the
 working tree on 2026-09-04 and must be regenerated after each recovery round.
 
-## Strict per-directory snapshot through P836
+## Strict per-directory snapshot through P837
 
 These reports measure the current source tree; they are evidence of remaining
 work, not completion certificates.  `Explicit source-only codegen carriers`
-counts unique function/name mappings, whereas the 1,596 figure above counts raw
+counts unique function/name mappings, whereas the 1,592 figure above counts raw
 marker rows (a few names have more than one scoped marker row).
 
 | Directory | SYM functions | Mapped | Declaration-clean | Missing names | Extra names | Type/storage findings | Source-only carriers | Mapping review |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| `recon/game/common` | 1,258 | 1,258 | 1,228 | 0 | 6 | 28 / 28 | 602 | 0 |
+| `recon/game/common` | 1,258 | 1,258 | 1,228 | 0 | 6 | 28 / 28 | 600 | 0 |
 | `recon/frontend/common` | 838 | 833 | 781 | 0 | 46 | 9 / 9 | 519 | 3 |
 | `recon/frontend/psx` | 85 | 85 | 85 | 0 | 0 | 0 / 0 | 54 | 0 |
-| `recon/game/psx` | 395 | 395 | 392 | 0 | 3 | 0 / 0 | 397 | 0 |
+| `recon/game/psx` | 395 | 395 | 392 | 0 | 3 | 0 / 0 | 395 | 0 |
 | `recon/eaclib/psx` | 5 | 5 | 5 | 0 | 0 | 0 / 0 | 5 | 0 |
 | `recon/lib` | 0 | 0 | 0 | 0 | 0 | 0 / 0 | 0 | 0 |
 | `recon/syslib/psx` | 0 | 0 | 0 | 0 | 0 | 0 / 0 | 0 | 0 |
 
 The authoritative report files are
-`game_common_strict_p829_20260904.md`,
+`game_common_strict_p837_20260904.md`,
 `frontend_common_strict_p783_20260903.md`,
 `frontend_psx_strict_p780_20260903.md`,
-`game_psx_strict_p836_20260904.md`,
+`game_psx_strict_p837_20260904.md`,
 `eaclib_psx_strict_p779_20260903.md`,
 `lib_strict_p779_20260903.md`, and
 `syslib_psx_strict_p779_20260903.md` in this directory.
@@ -1018,6 +1018,36 @@ The current authoritative game/PSX report is
 `game_psx_strict_p836_20260904.md`: 395/395 functions mapped, 392
 declaration-clean, zero missing names, 3 extra names, 397 source-only carriers,
 and zero mapping-review items.
+
+### Eliminated the remaining `GameSetupWords` aliases at P837
+
+All remaining raw integer-array views of `GameSetup_gData` are removed from
+`recon/game/common` and `recon/game/psx`.  The canonical 2,600-byte
+`GameSetup_tData` fields now replace the aliases in `camera`, `aiphysic`,
+`newton`, `render`, `night`, `overlays`, and `weather`; the unused `hud` alias
+is deleted.  The game/common inventory falls from 4 declarations / 48 reference
+lines to zero, and game/PSX falls from 4 declarations / 17 reference lines to
+zero.
+
+This round also recovers two deeper aggregate shapes.  Camera's opaque
+`CAMERA_SETUP_CAMERA` cast is the exact
+`GameSetup_gData.carInfo[player].Camera[index]` member at `+0x478`; direct use
+eliminates the non-SYM `setupBase` and `setupOffset` locals from
+`Camera_NextMode`.  Overlays' raw `simGlobal` array and wrapper macros are
+replaced by `simGlobal.gameTicks`.  Weather's canonical typed access makes the
+non-SYM staged `cm` and `one` locals unnecessary; both are removed from
+`Weather_DoWeather`, while its independently measured `gameSetup` and
+`commModeNetwork` carriers remain explicit.
+
+All eight changed translation units retain every oracle-known function:
+game/common `camera` 38/38, `aiphysic` 42/42, `newton` 32/32, and `render`
+23/23; game/PSX `hud` 62/62, `night` 19/19, `overlays` 5/5, and `weather`
+25/25.  The authoritative reports are
+`game_common_strict_p837_20260904.md` (1,258/1,258 mapped, 600 source-only
+carriers) and `game_psx_strict_p837_20260904.md` (395/395 mapped, 395
+source-only carriers), both with zero missing names and zero mapping-review
+items.  The raw carrier-marker queue is now 1,592 project-wide / 600 in
+game/common.
 
 ### Retained after P813 source-shape retests
 

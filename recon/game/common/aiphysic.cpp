@@ -238,17 +238,17 @@ int AIPhysic_CalcAcceleration(Car_tObj *carObj,int speed)
       acceleration = acceleration / 256 * (carObj->accNitrous / 256);
     }
     acceleration = acceleration / 256 * (carObj->accUpgradeMult / 256);
-    if (0 < AIPhysic_GameSetupWords[18]) {
+    if (0 < GameSetup_gData.Weather) {
       acceleration = acceleration / 256 * 0xe6;
     }
     if ((carObj->carFlags & 0x20U) != 0) {
       acceleration = acceleration / 256 * (carObj->copAccMult / 256);
     }
-    if ((((AIPhysic_GameSetupWords[0] == RaceType_HotPursuit) || (AIPhysic_GameSetupWords[0] == RaceType_Id5)) &&
+    if ((((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) &&
         ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 ||
          ((Cars_gNumHumanRaceCars == 2 && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) &&
        ((carObj->carFlags & 8U) != 0)) {
-      acceleration = acceleration / 256 * (AITune_BTCPerpAccMults[AIPhysic_GameSetupWords[2]] / 256);
+      acceleration = acceleration / 256 * (AITune_BTCPerpAccMults[GameSetup_gData.skill] / 256);
     }
     acceleration = AIPhysic_ModifyAccelerationAccordingToScript(carObj,acceleration);
     /* The NFSU2-mobile logic twin and PSX SLD prove this ordinary shared-return
@@ -361,8 +361,8 @@ void AIPhysic_CheckDesiredDirection(Car_tObj *carObj)
 {
   int turnAroundSpeed = 0x8e38e;
   if (carObj->carFlags & 0x20) {
-    *(volatile int *)&AIPhysic_GameSetupWords[0];
-    __asm__("" : : "m"(AIPhysic_GameSetupWords[0]));   /* w64-a12 SEAL: the "m"-CONSTRAINT FENCE.
+    *(volatile int *)&GameSetup_gData.raceType;
+    __asm__("" : : "m"(GameSetup_gData.raceType));   /* w64-a12 SEAL: the "m"-CONSTRAINT FENCE.
                        Zero insns AND zero extra address materialization -- it is a second
                        MEMORY reference off the SAME %hi pseudo, which is exactly what the
                        w59 certificate said was the only thing that could keep that pseudo
@@ -1640,7 +1640,7 @@ void AIPhysic_InControlPhysics(Car_tObj *carObj)
     }
     skid = 0xa0000;
   }
-  copCollisionFirmness = AIPhysic_GameSetupWords[2];
+  copCollisionFirmness = GameSetup_gData.skill;
   if (lastCollisionTickDiff < 0x10) {
     carObj->wipeOutStartTick = carObj->wipeOutStartTick - 0x14;
   }

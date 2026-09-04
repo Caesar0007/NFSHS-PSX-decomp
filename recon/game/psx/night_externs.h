@@ -42,7 +42,7 @@
  * are fixed by the linked SYM: GameSetup cops/Weather/Time at +20/+72/+84,
  * simGlobal gameTicks at +4, TrackSpec night/depth-cue at +236/+240, and
  * camera target/slicePos at +4/+140 with a 272-byte element stride. */
-extern int Night_GameSetupWords[] asm("GameSetup_gData");
+extern GameSetup_tData GameSetup_gData;
 extern coorddef Night_SimView asm("simGlobal");
 extern int Night_TrackSpecWords[] asm("TrackSpec_gSpec");
 /* The retail load shape proves a 272-byte row with slicePos at +140.  This
@@ -55,10 +55,6 @@ struct Night_CameraCodegenView {
     BWorldSm_Pos slicePos;
 };
 extern Night_CameraCodegenView Night_CameraView[] asm("Camera_gInfo");
-#define NIGHT_GAMESETUP_COMM_MODE Night_GameSetupWords[3]
-#define NIGHT_GAMESETUP_COPS      Night_GameSetupWords[5]
-#define NIGHT_GAMESETUP_WEATHER   Night_GameSetupWords[18]
-#define NIGHT_GAMESETUP_TIME      Night_GameSetupWords[21]
 #define NIGHT_GAME_TICKS          Night_SimView.y
 #define NIGHT_TRACK_NIGHT               (*(CNightSpec *)&Night_TrackSpecWords[59])
 #define NIGHT_TRACK_DEPTH_CUE_COLOR_WORD Night_TrackSpecWords[60]

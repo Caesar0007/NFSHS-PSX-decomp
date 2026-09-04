@@ -13,7 +13,7 @@ void AIPhysic_OutOfControlPhysics(Car_tObj *car);
 void AIPhysic_InControlPhysics(Car_tObj *car);
 void AIPhysic_FinishUp(Car_tObj *car);
 void Cars_ResetCollidedCars(Car_tObj *car, int a, int b);
-extern int AIPhysic_GameSetupWords[] asm("GameSetup_gData");
+extern GameSetup_tData GameSetup_gData;
 extern char *AIPhysic_BWorldSmSlices asm("BWorldSm_slices");
 /* W65-A8 ORDER IS LOAD-BEARING: a TU-owned tentative definition is emitted in
  * the order its identifier is FIRST DECLARED (here, not at the .cpp def).

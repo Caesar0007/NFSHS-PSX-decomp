@@ -116,11 +116,11 @@ void RaceSummary(void)
   int titleX; /* SYM-CODEGEN-CARRIER: titleX -- direct title-coordinate spelling is FAIL 79 (350/349) */
 
   HUD_STATS_POS_X = 8;
-  if (OVERLAYS_NUM_LAPS == 1) {
+  if (GameSetup_gData.numLaps == 1) {
     HUD_STATS_POS_X = 0x28;
   }
   HUD_STATS_SIZE_W = 0x130;
-  if (OVERLAYS_NUM_LAPS == 1) {
+  if (GameSetup_gData.numLaps == 1) {
     HUD_STATS_SIZE_W = 0xef;
   }
   HUD_STATS_SIZE_H = (short)((Cars_gNumRaceCars + 1) * 0xc + 0x1e);
@@ -152,14 +152,14 @@ void RaceSummary(void)
   coltime = HUD_STATS_POS_X + 0xa7;
   Font_TextXY(TextSys_Word(0x3b),coltime,(titleY + 0xf) * 0x10000 >> 0x10);
   colbestlap = HUD_STATS_POS_X + 0xe1;
-  if (OVERLAYS_NUM_LAPS != 1) {
+  if (GameSetup_gData.numLaps != 1) {
     Font_TextXY(TextSys_Word(0x3c),colbestlap,(titleY + 0xf) * 0x10000 >> 0x10);
   }
   Hud_FBuildF4(0,HUD_STATS_POS_X,((titleY + 0x11) * 0x10000 >> 0x10) + 0xc,(u_short)HUD_STATS_SIZE_W,1,0,'\0','\0');
   Hud_FBuildF4(0,colname + -2,HUD_STATS_POS_Y,1,HUD_STATS_SIZE_H + -8,0,'\0','\0');
   Hud_FBuildF4(0,colcar + -2,HUD_STATS_POS_Y,1,HUD_STATS_SIZE_H + -8,0,'\0','\0');
   Hud_FBuildF4(0,coltime + -2,HUD_STATS_POS_Y,1,HUD_STATS_SIZE_H + -8,0,'\0','\0');
-  if (OVERLAYS_NUM_LAPS != 1) {
+  if (GameSetup_gData.numLaps != 1) {
     Hud_FBuildF4(0,colbestlap + -2,HUD_STATS_POS_Y,1,HUD_STATS_SIZE_H + -8,0,'\0','\0');
   }
   i = 0;
@@ -190,10 +190,10 @@ void RaceSummary(void)
       }
       sprintf(string,"%s",Cars_gRaceCarList[i]->carNameLocalized);
       Font_TextXY(string,colcar,((titleY + 0x11) * 0x10000 >> 0x10) + pos * 0xc);
-      if (OVERLAYS_PINK_SLIPS_FORFEIT == i) {
+      if (GameSetup_gData.pinkSlipsForfeit == i) {
         sprintf(string,TextSys_Word(0x36));
       }
-      else if ((OVERLAYS_RACE_TYPE == RaceType_HotPursuit) &&
+      else if ((GameSetup_gData.raceType == RaceType_HotPursuit) &&
                (Cars_gRaceCarList[i]->stats.finalNumArrests != 0)) {
         sprintf(string,TextSys_Word(0x3d));
       }
@@ -204,7 +204,7 @@ void RaceSummary(void)
         sprintf(string,TextSys_Word(0x35));
       }
       Font_TextXY(string,coltime,((titleY + 0x11) * 0x10000 >> 0x10) + pos * 0xc);
-      if (OVERLAYS_NUM_LAPS != 1) {
+      if (GameSetup_gData.numLaps != 1) {
         if (*(int *)((int)Cars_gRaceCarList[i] + 0x3e8) != 0) {
           Hud_ParseTime(*(int *)((int)Cars_gRaceCarList[i] + 0x3e8),string);
         }
@@ -502,7 +502,7 @@ void RaceStatistics(void)
   int rowInset; /* SYM-CODEGEN-CARRIER: rowInset -- literal +0x13 must be escaped with colInset; single escapes are FAIL 214/215 */
 
   pitch = 0x96;
-  rows = (OVERLAYS_NUM_LAPS + 1) * 0xc;
+  rows = (GameSetup_gData.numLaps + 1) * 0xc;
   HUD_STATS_SIZE_H = rows + 0x28;
   /* ===== MATCH (W74-A12, 2026-08-22/23): 77 -> 71 @474/475.  THE HEAD CLUSTER IS
      PARTLY SOLVED and the w49/w63/w64 "named constants" reading is VINDICATED -- what
@@ -659,7 +659,7 @@ void RaceStatistics(void)
      (`addiu $a1,$a1,0x1C; sh` == oracle `addiu $a0,$a0,0x1C; sh`) -- retail kept the
      product live in a local.  Insn count unchanged 459/475 but LCS 230->236, so land
      it TOGETHER with the head register rotation (ours s1/s4/s7/s2 vs oracle s4/s7/s2/s3). */
-  if (OVERLAYS_NUM_LAPS == one) {
+  if (GameSetup_gData.numLaps == one) {
     HUD_STATS_SIZE_H = rows + 0x1c;
   }
   /* W74-A12: the `pitch` availability fence lives HERE, one basic block below its
@@ -668,7 +668,7 @@ void RaceStatistics(void)
      `mult $v1,$a1`) WITHOUT its implicit-volatile barrier landing inside block 0, where
      it would fence the `Cars_gNumHumanRaceCars` load out of the head schedule.  Moving
      it up to the assignment costs 2 diffs; deleting it costs 12. */
-  if (OVERLAYS_RACE_TYPE == RaceType_HotPursuit) {
+  if (GameSetup_gData.raceType == RaceType_HotPursuit) {
     HUD_STATS_SIZE_H = HUD_STATS_SIZE_H + 0x1b;
   }
   sizeH16 = (int)((u_int)(u_short)HUD_STATS_SIZE_H << 0x10);
@@ -689,7 +689,7 @@ void RaceStatistics(void)
   titleY = 0x76 - (sizeH16 >> 0x11);
   short HUD_STATS_HOTPURSUIT_Y;
   HUD_STATS_HOTPURSUIT_Y =
-      (short)(titleY + (OVERLAYS_NUM_LAPS + 2) * 0xc + 0x13);
+      (short)(titleY + (GameSetup_gData.numLaps + 2) * 0xc + 0x13);
   col1 = colX;
   col2 = 0xa0;
   if (1 < Cars_gNumHumanRaceCars) {
@@ -698,7 +698,7 @@ void RaceStatistics(void)
   Font_TextColor(6);
   Font_TextXY(TextSys_Word(0x39),titleX * 0x10000 >> 0x10,titleY);
   Hud_FBuildF4(0,HUD_STATS_POS_X,((titleY + 0x11) * 0x10000 >> 0x10) + 0xb,(int)HUD_STATS_SIZE_W,1,0,'\0','\0');
-  if (OVERLAYS_RACE_TYPE == RaceType_HotPursuit) {
+  if (GameSetup_gData.raceType == RaceType_HotPursuit) {
     Hud_FBuildF4(0,HUD_STATS_POS_X,HUD_STATS_HOTPURSUIT_Y,(int)HUD_STATS_SIZE_W,1,0,'\0','\0');
   }
   i = 0;
@@ -740,8 +740,8 @@ void RaceStatistics(void)
     /* NOT `a && b`: the oracle keeps two separate compares off ONE load
        (`beq $v0,1` @0x800DA2E0 then `blez $v0` @0x800DA2EC); the &&-form lets gcc
        range-fold them into a single `slti v0,v0,2`. */
-    if (OVERLAYS_NUM_LAPS != 1) {
-     for (j = 0; (int)j < OVERLAYS_NUM_LAPS; j = j + 1) {
+    if (GameSetup_gData.numLaps != 1) {
+     for (j = 0; (int)j < GameSetup_gData.numLaps; j = j + 1) {
         if ((int)j * 2 + 4 < StatsTimerPlayer2Value) {
           /* colour is an inline ternary (oracle puts `li $a0,3` in the `beq` delay slot
              @0x800DA33C and falls into `li $a0,4`); there is no `color` local in the SYM. */
@@ -765,20 +765,20 @@ void RaceStatistics(void)
         }
      }
     }
-    if (OVERLAYS_NUM_LAPS * 2 + 4 < StatsTimerPlayer2Value) {
+    if (GameSetup_gData.numLaps * 2 + 4 < StatsTimerPlayer2Value) {
       sprintf(string,TextSys_Word(0x37));
       Font_TextColor(3);
       Font_TextXY(string,(int)col1,
-                  OVERLAYS_NUM_LAPS != 1 ?
-                  ((titleY + 0x11) * 0x10000 >> 0x10) + OVERLAYS_NUM_LAPS * 0xc + 0xc :
-                  ((titleY + 0x11) * 0x10000 >> 0x10) + OVERLAYS_NUM_LAPS * 0xc);
-      if (OVERLAYS_PINK_SLIPS_FORFEIT == i) {
+                  GameSetup_gData.numLaps != 1 ?
+                  ((titleY + 0x11) * 0x10000 >> 0x10) + GameSetup_gData.numLaps * 0xc + 0xc :
+                  ((titleY + 0x11) * 0x10000 >> 0x10) + GameSetup_gData.numLaps * 0xc);
+      if (GameSetup_gData.pinkSlipsForfeit == i) {
         sprintf(string,TextSys_Word(0x36));
       }
       else if ((Cars_gHumanRaceCarList[i]->stats).finalFinishType == 2) {
         Hud_ParseTime((Cars_gHumanRaceCarList[i]->stats).finalTotalTime,string);
       }
-      else if ((OVERLAYS_RACE_TYPE == RaceType_HotPursuit) &&
+      else if ((GameSetup_gData.raceType == RaceType_HotPursuit) &&
                ((Cars_gHumanRaceCarList[i]->stats).finalNumArrests != 0)) {
         sprintf(string,TextSys_Word(0x3d));
       }
@@ -786,18 +786,18 @@ void RaceStatistics(void)
         sprintf(string,TextSys_Word(0x35));
       }
       Font_TextXY(string,col2 + 5,
-                  (OVERLAYS_NUM_LAPS != 1 ?
-                   ((titleY + 0x11) * 0x10000 >> 0x10) + OVERLAYS_NUM_LAPS * 0xc : ((titleY + 0x11) * 0x10000 >> 0x10)) + 0xc);
+                  (GameSetup_gData.numLaps != 1 ?
+                   ((titleY + 0x11) * 0x10000 >> 0x10) + GameSetup_gData.numLaps * 0xc : ((titleY + 0x11) * 0x10000 >> 0x10)) + 0xc);
     }
-    if (OVERLAYS_RACE_TYPE == RaceType_HotPursuit) {
-      if (OVERLAYS_NUM_LAPS * 2 + 6 < StatsTimerPlayer2Value) {
+    if (GameSetup_gData.raceType == RaceType_HotPursuit) {
+      if (GameSetup_gData.numLaps * 2 + 6 < StatsTimerPlayer2Value) {
         sprintf(string,TextSys_Word(0x3e));
         Font_TextColor(3);
         Font_TextXY(string,(int)col1,HUD_STATS_HOTPURSUIT_Y + 1);
         sprintf(string,"%d",*(int *)((int)Cars_gHumanRaceCarList[i] + 0x3c0));
         Font_TextXY(string,col2 + 5,HUD_STATS_HOTPURSUIT_Y + 1);
       }
-      if (OVERLAYS_NUM_LAPS * 2 + 8 < StatsTimerPlayer2Value) {
+      if (GameSetup_gData.numLaps * 2 + 8 < StatsTimerPlayer2Value) {
         sprintf(string,TextSys_Word(0x3f));
         Font_TextColor(3);
         Font_TextXY(string,(int)col1,HUD_STATS_HOTPURSUIT_Y + 0xd);
@@ -1326,18 +1326,18 @@ void Hud_RenderStatsView(void)
   int screen;
   int t; /* SYM-CODEGEN-CARRIER: t -- distinct clamped result produces the two retail global stores; in-place clamp is FAIL 15 */
 
-  screen = OVERLAYS_GAME_TICKS >> 9 & 1;
+  screen = simGlobal.gameTicks >> 9 & 1;
   /* Block order + branch polarity transcribed from the oracle CFG (0x800DAE94..0x800DAFE8):
      the flags!=0 arm is the if-BODY (oracle `beqz` skips to the ==0 block), the shared
      screen=0 block sits EARLY at .L800DAED0, and the "one player" tail (.L800DAFE4)
      falls out of the numRaceCars test at .L800DAFD0. */
   if ((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) != 0) {
-    if (OVERLAYS_COMM_MODE == 1) goto HudStats_common;
+    if (GameSetup_gData.commMode == 1) goto HudStats_common;
 HudStats_setUserZero:
     screen = 0;
     goto HudStats_finalize;
   }
-  if (OVERLAYS_COMM_MODE != 1) goto HudStats_checkNumCars;
+  if (GameSetup_gData.commMode != 1) goto HudStats_checkNumCars;
 HudStats_common:
   if ((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) != 0) {
     if ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) != 0) goto HudStats_check200B;
@@ -1347,10 +1347,10 @@ HudStats_common:
 HudStats_check200B:
   if ((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) == 0) goto HudStats_setUserOne;
   if (Hud_NextPerp[0] != 0) goto HudStats_setUserZero;
-  if (OVERLAYS_COMM_MODE != 1) goto HudStats_setUserZero;
+  if (GameSetup_gData.commMode != 1) goto HudStats_setUserZero;
 HudStats_secondCar:
   if ((D_8010FA4C->carFlags & 0x200U) == 0) goto HudStats_finalize;
-  if (OVERLAYS_COMM_MODE != 1) goto HudStats_finalize;
+  if (GameSetup_gData.commMode != 1) goto HudStats_finalize;
   if (Hud_NextPerp[1] == 0) goto HudStats_finalize;
   screen = 1;
   goto HudStats_finalize;
@@ -1390,7 +1390,7 @@ HudStats_finalize:
     if ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) == 0) {
       RaceStatistics();
     }
-    else if (OVERLAYS_COMM_MODE == 1) {
+    else if (GameSetup_gData.commMode == 1) {
       Hud_BTCStats(1,true);
     }
     else {

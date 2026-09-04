@@ -113,7 +113,6 @@ extern Hud_GameSetupCodegenView Hud_GameSetup asm("GameSetup_gData");
 extern Hud_SimGlobalCodegenView Hud_SimGlobal asm("simGlobal");
 extern Hud_CameraCodegenView Hud_Camera[2] asm("Camera_gInfo");
 extern Hud_DashCodegenView Hud_Dash asm("DashHUD_gInfo");
-extern int Hud_GameSetupWords[] asm("GameSetup_gData");
 extern int Hud_DashWords[] asm("DashHUD_gInfo");
 #define HUD_GS_RACE_TYPE        Hud_GameSetup.raceType
 #define HUD_GS_COMM_MODE        Hud_GameSetup.commMode

@@ -6,7 +6,7 @@
 
 /* ---- harvested from sealed *_externs.h ---- */
 extern Draw_tPixMap *CarIO_carPixMap;
-extern int             CarIO_GameSetupWords[] asm("GameSetup_gData");
+extern GameSetup_tData GameSetup_gData;
 extern void           *Texture_palCopy;         /* 0x8013db0c */
 extern int             Texture_palNum;          /* 0x8013db10 */
 extern int R3DCar_InMenu;

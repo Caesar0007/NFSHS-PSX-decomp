@@ -51,7 +51,7 @@ of which **602 are in `recon/game/common`**.  There are currently **24
 `ORIGINAL-NAME-RECOVERED` evidence rows**.  These counts were measured from the
 working tree on 2026-09-04 and must be regenerated after each recovery round.
 
-## Strict per-directory snapshot through P829
+## Strict per-directory snapshot through P830
 
 These reports measure the current source tree; they are evidence of remaining
 work, not completion certificates.  `Explicit source-only codegen carriers`
@@ -72,7 +72,7 @@ The authoritative report files are
 `game_common_strict_p829_20260904.md`,
 `frontend_common_strict_p783_20260903.md`,
 `frontend_psx_strict_p780_20260903.md`,
-`game_psx_strict_p779_20260903.md`,
+`game_psx_strict_p830_20260904.md`,
 `eaclib_psx_strict_p779_20260903.md`,
 `lib_strict_p779_20260903.md`, and
 `syslib_psx_strict_p779_20260903.md` in this directory.
@@ -920,6 +920,20 @@ declaration-clean, zero missing names, 6 extra names, 12 deleting-destructor
 ABI carriers, 602 source-only carriers, 22 exact cross-build/canonical name
 recoveries, and zero mapping-review items.  The tracked-source raw carrier queue
 remains 1,596 project-wide / 602 in game/common.
+
+### Removed `CarIO_GameSetupWords` at P830
+
+The invented `CarIO_GameSetupWords` integer-array alias is removed.  Its source
+site now uses the exact gmesetup owner field `GameSetup_gData.mirrorTrack`.
+Every function in `cario.cpp` remains byte-exact (11/11 PASS), including the
+affected `CarIO_CreateLicense` at 229/229.  The game/PSX raw alias inventory
+falls from 11 declarations / 40 reference lines at P829 to 10 declarations / 38
+reference lines.
+
+The current authoritative game/PSX report is
+`game_psx_strict_p830_20260904.md`: 395/395 functions mapped, 392
+declaration-clean, zero missing names, 3 extra names, 397 source-only carriers,
+and zero mapping-review items.
 
 ### Retained after P813 source-shape retests
 

@@ -774,7 +774,7 @@ void CarIO_CreateLicense(char *text,int carType,int player)
         start = start + 6;
       }
     }
-    if ((R3DCar_InMenu == 0) && (CarIO_GameSetupWords[11] != 0)) {
+    if ((R3DCar_InMenu == 0) && (GameSetup_gData.mirrorTrack != 0)) {
       CarIO_CopyToShape(thePlate + 6,(short *)&CarIO_Plate1[player]->data,1);
       CarIO_CopyToShape(thePlate,(short *)&CarIO_Plate2[player]->data,1);
     }

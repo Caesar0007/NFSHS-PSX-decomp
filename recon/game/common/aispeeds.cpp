@@ -5,18 +5,13 @@
 #include "aispeeds_types.h"
 #include "aispeeds_externs.h"
 
+#define MAX(a,b) (((a) > (b)) ? (a) : (b))
+
 /* w64-a19 LINK FIX: called at :1229 but only DEFINED at :1235 with no prior
  * prototype -> cc1plus used an implicit declaration and emitted the call with the
  * UNMANGLED name `AISpeeds_CalcHumanCurveSpeed`, unresolvable against our own
  * `AISpeeds_CalcHumanCurveSpeed__FP8Car_tObj`.  Prototype hoisted, signature unchanged. */
 int AISpeeds_CalcHumanCurveSpeed(Car_tObj *carObj);
-
-/* SYM-INFERRED-INLINE-NAME: no linkage/debug record preserves this helper's
- * identifier; the two call sites and the lower-bound body are oracle-proven. */
-static inline int AISpeeds_Max(int minimum,int value)
-{
-  return minimum - 1 < value ? value : minimum;
-}
 
 extern int AI_elapsedTime;   /* @0x8013C554 (ai.cpp:15) -- AI frame elapsed-time global; used by GetCaravanFactor caravanTimer decrement (H35) */
 
@@ -749,7 +744,7 @@ int AISpeeds_GetDamageFactor(Car_tObj *carObj)
   }
   carObj->damageMult =
       0x10000 - *(int *)((char *)carObj + 0x778);
-  carObj->damageMult = AISpeeds_Max(0x8000,carObj->damageMult);
+  carObj->damageMult = MAX(0x8000,carObj->damageMult);
   return carObj->damageMult;
 }
 
@@ -849,15 +844,7 @@ int AISpeeds_CalcTrafficTopSpeed(Car_tObj *carObj)
     desired = AISpeeds_RandomizeTrafficSpeed(carObj,desired);
     desired = (desired / 256) * (carObj->speedFactor / 256);
   }
-  {
-    /* SYM-CODEGEN-CARRIER: minimumSpeed -- the literal clamp canonicalizes
-     * to the inverse 0x8e38d comparison (6 diffs); the inline lower-bound
-     * helper changes the result live range (12 diffs). */
-    int minimumSpeed = 0x8e38e;
-    if (desired < minimumSpeed) {
-      desired = minimumSpeed;
-    }
-  }
+  desired = MAX(desired,0x8e38e);
   return desired * carObj->direction;
 }
 

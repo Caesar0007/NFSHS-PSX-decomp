@@ -314,6 +314,28 @@ All three `-g` twins are exact and all 56 branch words are clean.  The complete
 PASS**, respectively.  No volatile, assembly, invented replacement name, or
 postcompile rewrite was introduced.
 
+## P855 canonical lower-bound macro round
+
+Two `aispeeds.cpp` lower-bound clamps now use EA's canonical
+`MAX(a,b)` macro spelling instead of reconstruction-only source objects:
+
+- `AISpeeds_GetDamageFactor` directly assigns
+  `MAX(0x8000, carObj->damageMult)`.  This removes the invented inline helper
+  identifier `AISpeeds_Max`, for which neither SYM nor SLD preserves a source
+  declaration.  The constant-first argument order is allocation-significant
+  and preserves the exact **70/70** body.
+- `AISpeeds_CalcTrafficTopSpeed` directly returns through
+  `MAX(desired, 0x8e38e)`.  This removes the unsupported `minimumSpeed` local
+  represented by **one raw `SYM-CODEGEN-CARRIER` row** and preserves the exact
+  **104/104** body; reversing the macro arguments gives 12 differences.
+
+`AISpeeds_BTCGetGlueFactor` was also challenged with direct-index, ternary,
+and all eight nested `MIN`/`MAX` argument-order forms.  None reproduced the
+retail allocation (best result: 8 differences), so its receipted
+`clampedGlueIndex` carrier remains open and exact at **111/111**.  All three
+functions were gated twice and the complete `aispeeds.cpp` TU remains
+**29/29 PASS**.  No volatile, assembly, or postcompile rewrite was introduced.
+
 ## Expansion requirement
 
 This is a living backlog.  Every retained source-only carrier whose spelling is
@@ -333,21 +355,21 @@ spelling.  A row leaves this queue only when direct source-bearing evidence is
 recorded and its marker is replaced by `ORIGINAL-NAME-RECOVERED` (or when the
 extra source object is eliminated while preserving the oracle).
 
-Current measured queue: **1,533 unresolved carrier-marker rows project-wide**,
-of which **542 are in `recon/game/common`**.  There are currently **32
+Current measured queue: **1,532 unresolved carrier-marker rows project-wide**,
+of which **541 are in `recon/game/common`**.  There are currently **32
 `ORIGINAL-NAME-RECOVERED` evidence rows**.  These counts were measured from the
 working tree on 2026-09-04 and must be regenerated after each recovery round.
 
-## Strict per-directory snapshot through P854
+## Strict per-directory snapshot through P855
 
 These reports measure the current source tree; they are evidence of remaining
 work, not completion certificates.  `Explicit source-only codegen carriers`
-counts unique function/name mappings, whereas the 1,543 figure above counts raw
+counts unique function/name mappings, whereas the 1,532 figure above counts raw
 marker rows (a few names have more than one scoped marker row).
 
 | Directory | SYM functions | Mapped | Declaration-clean | Missing names | Extra names | Type/storage findings | Source-only carriers | Mapping review |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| `recon/game/common` | 1,258 | 1,258 | 1,228 | 0 | 6 | 28 / 28 | 542 | 0 |
+| `recon/game/common` | 1,258 | 1,258 | 1,228 | 0 | 6 | 28 / 28 | 541 | 0 |
 | `recon/frontend/common` | 838 | 833 | 781 | 0 | 46 | 9 / 9 | 519 | 3 |
 | `recon/frontend/psx` | 85 | 85 | 85 | 0 | 0 | 0 / 0 | 54 | 0 |
 | `recon/game/psx` | 395 | 395 | 392 | 0 | 3 | 0 / 0 | 395 | 0 |
@@ -356,7 +378,7 @@ marker rows (a few names have more than one scoped marker row).
 | `recon/syslib/psx` | 0 | 0 | 0 | 0 | 0 | 0 / 0 | 0 | 0 |
 
 The authoritative report files are
-`game_common_strict_p854_20260904.md`,
+`game_common_strict_p855_20260904.md`,
 `frontend_common_strict_p783_20260903.md`,
 `frontend_psx_strict_p780_20260903.md`,
 `game_psx_strict_p838_20260904.md`,

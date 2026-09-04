@@ -17,7 +17,7 @@ int systemtask(...);
 
 extern CAudioList *gGameAudioList;
 extern DRender_tCalcView AudioClc_gRenderView;
-extern int AudioTrk_GameSetupWords[] asm("GameSetup_gData");
+extern GameSetup_tData GameSetup_gData;
 extern int AudioTrk_simGlobalWords[] asm("simGlobal");
 extern Trk_AnimateInst * Anim_gInstanceFromIndex[8];
 extern char *AudioTrk_BWorldSmSlices asm("BWorldSm_slices");

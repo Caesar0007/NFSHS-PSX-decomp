@@ -355,7 +355,7 @@ AudioTrk_volume_done:
 /* ---- AudioTrk_SoundTrack__FP8Car_tObji  [@0x8007cdc4] ---- */
 void AudioTrk_SoundTrack(Car_tObj *car,int trkazi)
 {
-  if (AudioTrk_GameSetupWords[3] != 1) {
+  if (GameSetup_gData.commMode != 1) {
     if (gMasterAmbientLevel != 0) {
       if (AudioTrk_g != 0) {
         if (gGameAudioList != 0) {

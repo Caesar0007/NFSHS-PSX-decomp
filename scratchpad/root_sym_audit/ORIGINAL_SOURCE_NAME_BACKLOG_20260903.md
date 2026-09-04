@@ -51,7 +51,7 @@ of which **602 are in `recon/game/common`**.  There are currently **24
 `ORIGINAL-NAME-RECOVERED` evidence rows**.  These counts were measured from the
 working tree on 2026-09-04 and must be regenerated after each recovery round.
 
-## Strict per-directory snapshot through P826
+## Strict per-directory snapshot through P827
 
 These reports measure the current source tree; they are evidence of remaining
 work, not completion certificates.  `Explicit source-only codegen carriers`
@@ -69,7 +69,7 @@ marker rows (a few names have more than one scoped marker row).
 | `recon/syslib/psx` | 0 | 0 | 0 | 0 | 0 | 0 / 0 | 0 | 0 |
 
 The authoritative report files are
-`game_common_strict_p826_20260904.md`,
+`game_common_strict_p827_20260904.md`,
 `frontend_common_strict_p783_20260903.md`,
 `frontend_psx_strict_p780_20260903.md`,
 `game_psx_strict_p779_20260903.md`,
@@ -855,6 +855,32 @@ declaration-clean, zero missing names, 6 extra names, 12 deleting-destructor
 ABI carriers, 602 source-only carriers, 22 exact cross-build/canonical name
 recoveries, and zero mapping-review items.  The tracked-source raw carrier queue
 is 1,596 project-wide / 602 in game/common.
+
+### Removed audio `GameSetupWords` aliases at P827
+
+The invented `AudioEng_GameSetupWords` and `AudioTrk_GameSetupWords` integer
+array aliases are removed.  Both TUs now declare the canonical
+`GameSetup_tData GameSetup_gData` aggregate proved by the gmesetup owner record,
+and the four affected expressions use its exact `commMode` member.  This reduces
+the tracked project-wide raw-GameSetup alias inventory from 15 declarations / 70
+uses at P826 to 13 declarations / 66 uses, without introducing source locals or
+changing generated code.
+
+The complete `audioeng.cpp` TU remains 9/9 PASS (`AudioEng_Set` 159/159,
+`AudioEng_Update` 366/366, `AudioEng_LoadDef` 30/30, `AudioEng_StartUp`
+376/376, `AudioEng_StartServer` 9/9, `AudioEng_StopServer` 9/9,
+`AudioEng_Pause` 44/44, `AudioEng_Resume` 2/2, and `AudioEng_CleanUp` 56/56).
+The complete `audiotrk.cpp` TU remains 6/6 PASS (`AudioTrk_Reset` 56/56,
+`AudioTrk_StartUp` 23/23, `AudioTrk_AddCustomObject` 413/413,
+`AudioTrk_SoundTrack` 358/358, `AudioTrk_PreLoad` 116/116, and
+`AudioTrk_CleanUp` 38/38).
+
+The current authoritative game/common report is
+`game_common_strict_p827_20260904.md`: 1,258/1,258 functions mapped, 1,228
+declaration-clean, zero missing names, 6 extra names, 12 deleting-destructor
+ABI carriers, 602 source-only carriers, 22 exact cross-build/canonical name
+recoveries, and zero mapping-review items.  The tracked-source raw carrier queue
+remains 1,596 project-wide / 602 in game/common.
 
 ### Retained after P813 source-shape retests
 

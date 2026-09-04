@@ -28,7 +28,7 @@ int wildcard(...);
 }
 
 extern Car_tObj *Cars_gList[];   /* was stale Car_tObj** (extra indirection); real def cars.cpp Car_tObj *Cars_gList[9] */
-extern int AudioEng_GameSetupWords[] asm("GameSetup_gData");
+extern GameSetup_tData GameSetup_gData;
 extern int AudioEng_gSndBnkWords[][3] asm("gSndBnk");
 extern int AudioCmn_AddBank(char *filename,int size,char *pdata,int BankNum);
 

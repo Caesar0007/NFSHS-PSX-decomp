@@ -88,7 +88,7 @@ void AudioEng_Set(int player,int vol,int esp,int gas,int cam,int dop,int azi,int
         }
         if (camera == 0) {
           s->exh = a->inCarExhaust;
-          if (AudioEng_GameSetupWords[3] == 1) {
+          if (GameSetup_gData.commMode == 1) {
             s->sep = 0;
             s->azi = (u_short)azimuth;
           }
@@ -422,7 +422,7 @@ int AudioEng_StartUp(int player,char *carname)
   g->setpos = '\0';
   g->plypos = '\0';
   bankloaded = 0;
-  if (AudioEng_GameSetupWords[3] == 1) {
+  if (GameSetup_gData.commMode == 1) {
     sprintf(filename,"%s%sens.viv",Paths_Paths[28],carname);
   }
   else {
@@ -430,7 +430,7 @@ int AudioEng_StartUp(int player,char *carname)
   }
   header = (char *)loadbigfileheader(filename,(void *)16);
   if (header == (char *)0x0) {
-    if (AudioEng_GameSetupWords[3] == 1) {
+    if (GameSetup_gData.commMode == 1) {
       sprintf(filename,"%sp993ens.viv",Paths_Paths[28]);
     }
     else {

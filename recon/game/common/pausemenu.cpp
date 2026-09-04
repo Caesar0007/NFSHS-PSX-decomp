@@ -77,15 +77,16 @@ void PauseMenu_MenuTextPositioned(short index,short selected,short disabled,shor
 void PauseMenu_MenuText(short index,bool selected,bool disabled)
 
 {
-  /* SYM-CODEGEN-CARRIER: iVar1 -- the retail SYM retains no distinct result,
-     but inlining TextSys_WordX is count-exact at 25 instructions with two
-     scheduling diffs: its result shift moves ahead of both bool extensions.
-     The separate statement restores the retail argument-preparation order. */
-  int iVar1;
-  
-  iVar1 = TextSys_WordX((int)index);
+  /* ORIGINAL-NAME-RECOVERED: x -- same-TU SYM content cross-match; retail
+     PAUSEMENU.CPP records a SHORT `x` for the same TextSys_WordX ->
+     PauseMenu_MenuTextPositioned path in tPMenuItemLeftRightSlider::Draw; the
+     callee also names its SHORT fourth parameter `x`. NFS2's matched
+     MenuSys_Display source independently uses `short x` for this coordinate. */
+  short x;
+
+  x = (short)TextSys_WordX((int)index);
   PauseMenu_MenuTextPositioned(index,(short)selected,
-             (short)disabled,(short)iVar1);
+             (short)disabled,x);
   return;
 }
 

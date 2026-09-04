@@ -1162,6 +1162,40 @@ round: this batch removes foreign type-alias scaffolding, not the still-open
 marker-bearing local quantities.  No retained carrier is presented as an
 original recovered spelling.
 
+### Recovered pause-menu coordinate at P841
+
+`PauseMenu_MenuText` no longer retains the synthetic `iVar1` result carrier.
+The restored source declares `short x`, assigns the `TextSys_WordX(index)`
+result to it, and passes it to `PauseMenu_MenuTextPositioned`.  This spelling
+is recorded as an evidence-backed cross-build recovery, not as a direct local
+from the target function: the target's optimized SYM block contains only its
+three parameters and no local record.  Its SLD trace nevertheless separates
+the `TextSys_WordX` work at source line 106 from the positioned call at line
+109.  In the same retail `PAUSEMENU.CPP` object,
+`tPMenuItemLeftRightSlider::Draw` records `AUTO SHORT x` for the identical
+WordX-to-positioned-text path, and the callee names its fourth parameter
+`SHORT x`.  Matched NFS2 `MenuSys_Display` independently declares `short x`
+and uses the same assignment-then-call idiom.  A nested expression was
+count-exact but had two scheduling diffs; the two-statement `short x` form is
+exact at 25 instructions and the full TU remains 60/60 PASS.
+
+The nearby `AIDataRecord_CurveSpeedTable_t::Upgrade` carrier was not renamed
+or hidden.  Retail SYM records only `curveLoop`, and the natural compact
+`fixedmult(Get(...), handlingUpgrade) / 0x10000` form emitted 34/35
+instructions with 25 diffs.  GCC 2.8.1 allocation traces show why: the natural
+form keeps `handlingUpgrade` in `s2` and rematerializes the signed-rounding
+bias in `v0`, while retail requires the parameter in `s3` and a loop-invariant
+`0xffff` in `s2`.  With no source-bearing evidence for `iVar1`, `pcVar1`, or
+`round`, the exact 35-instruction baseline remains explicitly unresolved and
+the TU is restored to 26/26 PASS.
+
+The authoritative report `game_common_strict_p841_20260904.md` maps all
+1,258/1,258 functions with zero missing names and zero mapping-review items.
+It records 23 exact cross-build/canonical recoveries and 599 explicit
+source-only carriers, one fewer than P840.  `x` is counted only through its
+adjacent source-bearing evidence receipt; no generic carrier exemption was
+added.
+
 ### Retained after P813 source-shape retests
 
 Four nearby groups remain deliberately conspicuous because no exact original

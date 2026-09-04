@@ -214,7 +214,7 @@ void Force_Update(Car_tObj *car)
     f->time = '\0';
     return;
   }
-  controller = (GameSetup_tControllerData *)Force_GameSetupWords;
+  controller = (GameSetup_tControllerData *)&GameSetup_gData;
   skids = *(int *)((char *)&controller->shockMode[car->carIndex] + 96);
   impacts = *(int *)((char *)&controller->shockImpact[car->carIndex] + 96);
   if (skids != 0) {
@@ -355,7 +355,7 @@ void Force_StartUp(void)
   }
   VSyncCallback(Force_Vbl);
   Sched_AddFunction((Sched_tSchedule *)Force_SimWords[4],Force_Update,Cars_gHumanRaceCarList[0],0x32);
-  if (Force_GameSetupWords[3] == 1) {
+  if (GameSetup_gData.commMode == 1) {
     Sched_AddFunction((Sched_tSchedule *)Force_SimWords[4],Force_Update,Cars_gHumanRaceCarList[1],0x32);
   }
   return;

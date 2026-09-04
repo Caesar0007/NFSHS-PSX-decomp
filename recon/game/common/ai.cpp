@@ -192,7 +192,7 @@ void AI_DoReactions(Car_tObj *carObj)
   
   target = AIScript_DoReAction(&carObj->script,8);
   if (target == -1) goto LAB_horncheck;
-  if (AI_GameSetupWords[0] == RaceType_HotPursuit) goto LAB_horncheck;
+  if (GameSetup_gData.raceType == RaceType_HotPursuit) goto LAB_horncheck;
   AudioClc_SetHorn(carObj,1);
   goto LAB_afterhorn;
 LAB_horncheck:
@@ -202,7 +202,7 @@ LAB_horncheck:
 LAB_afterhorn:
   target = AIScript_DoReAction(&carObj->script,0x1000);
   if (target == -1) goto LAB_80057cc0;
-  if (AI_GameSetupWords[0] == RaceType_HotPursuit) goto LAB_80057cc0;
+  if (GameSetup_gData.raceType == RaceType_HotPursuit) goto LAB_80057cc0;
   {
     switch ((int)(AI_SimGlobalWords[1] & 0x18U) >> 3) {
     case 0:
@@ -306,7 +306,7 @@ LAB_80057f34:
   }
   if (((absDistance < 0x1e0000) &&
        ((otherCarObj->control).horn != '\0')) &&
-      (AI_GameSetupWords[21] == 0))
+      (GameSetup_gData.Time == 0))
   {
     AIScript_SubmitPlayerAction(&carObj->script,
                                 otherCarObj->carIndex,6,
@@ -1123,7 +1123,7 @@ void AI_HandleTrafficHonking(Car_tObj *carObj)
       randtemp = fastRandom * randSeed;
       fastRandom = randtemp & 0xffff;
       randomValue = (int)((randtemp >> 8 & 0xffff) * 1000 >> 0x10);
-      if (((AI_GameSetupWords[3] != 1) && (randomValue < 5)) &&
+      if (((GameSetup_gData.commMode != 1) && (randomValue < 5)) &&
          (carObj->currentSpeed != 0)) {
         AudioClc_HonkHorn(carObj,2,0x20,8);
       }
@@ -1559,7 +1559,7 @@ void AI_PushFinishedCarsToSide(Car_tObj *carObj)
   int totalSortIndex;
   
   if (((carObj->carFlags & 1U) != 0) && ((carObj->stats).finishType == 2)) {
-    if ((AI_GameSetupWords[0] == 1) || (AI_GameSetupWords[0] == 5)) {
+    if ((GameSetup_gData.raceType == 1) || (GameSetup_gData.raceType == 5)) {
       if (((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) == 0) {
         if (Cars_gNumHumanRaceCars == 2) {
           /* BUGFIX: second check reads human player [1] (oracle 0x8010E924), was [0] */

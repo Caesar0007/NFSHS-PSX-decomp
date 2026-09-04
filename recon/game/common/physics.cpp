@@ -1843,52 +1843,9 @@ PhyTracCircle_skidAdjust:
 }
 
 /* ---- Physics_CalculateTireForces__FP8Car_tObjP23Physics_tWheelAccStruct  [PHYSICS.CPP:1815-1979] SLD-VERIFIED ---- */
-/* RECEIPT (w59-a2): 68 -> 55, count 346==346 both ways (no missing statements).
-   LANDED: the FRONT-tire velCap clamp funnels its THEN arm through a block-local
-   `xAcc` and stores `wheel->finalAcc.x` inside that arm, while the ELSE arm still
-   stores directly.  Retail funnels BOTH arms into one register (`addu v1,a2,zero` in
-   each `j` delay slot + a single shared `sw`); the asymmetric spelling is what our
-   cc1plus needs to stop cross_jump collapsing the two selects into one.
-   FALSIFIED IN THIS BASIN (each gated): symmetric front funnel (both arms -> xAcc,
-   one store) 56@348; whole front block as ONE nested COND_EXPR 79@337; front arms as
-   per-arm ternaries 79; rear block funnelled through `xAcc` 59@349; front+rear both
-   as nested COND_EXPRs 87@347; rear-only nested COND_EXPR 72@348; Yoda-ing the
-   arm-2 `min` to `(velCap.z < acc) ? velCap.z : acc` 76@348; deleting the SYM-absent
-   block local `minSlipAngle` and inlining 0x8000 75@347 (09K: the invented local IS
-   load-bearing here -- do NOT "clean" it).
-   RESIDUAL 55, dominant cluster = the REAR-tire clamp (SLD 1957/1959, 15 diffs):
-   retail computes `abs(latAcc)` SEPARATELY INSIDE EACH ARM (`bgez a1; addu v0,a1,zero;
-   negu v0,v0` twice) and funnels both selects into v1 for one shared store; ours
-   cse's the abs once and merges the arms.
-   ---- w59-a2 ROUND 2: the W59-A11 mobile twin (sub_507671,
-   `scratchpad/w59a11/Physics_CalculateTireForces_twin.md`) was tried IN FULL and is
-   FALSIFIED on PSX in this basin -- every item measured, none adopted:
-     - twin A "the wheel-lock path is ONE `||`-guarded INLINE block with an early
-       return, not two `goto`s to a shared label": 120 @ EXACT 346/346 (our two-goto
-       form is the PSX oracle's block order; the mobile's is a port artifact).
-     - twin D "roadGrip clamp arms nested inside the TRUE arm of the upper test"
-       + twin E "`gameTicks % 4 != 0` with the arms swapped": 61 @347 on the 55
-       baseline; NEUTRAL (120) on top of twin A.
-     - twin C "abs is the `(x <= 0 ? -x : x)` macro, not `__builtin_abs`" applied to
-       the three wheel-lock guards: 55 @347 (one insn LONG -- no gain).
-     - twin C applied to the REAR clamp (per-arm re-emission of the abs, which is the
-       shape the residual below asks for): 56 @350.
-   => keep `__builtin_abs` and the goto form here; the PSX oracle's words win.
-   W62-A11 LANDED 55 -> 49 (@349/346).  Re-baselined 55.  The BRANCH CENSUS is the
-   new diagnostic: ours had 71 conditional/uncond branches vs retail's 72, and the
-   missing one is in the arm-1 max -- retail emits `slt v0,v1,a0; beqz v0,T; nop;
-   j T; addu v1,a0,zero`, i.e. the SAME both-arms-funnel-into-one-register-then-one-
-   store shape already banked for the FRONT velCap clamp.  Rewriting the arm-1
-   ternary as an explicit if/else through a block-local `a` buys it (-6).
-   MEASURED this wave: arm-2 min funnelled the same way ALSO 49 @349 on its own,
-   but BOTH funnels together fall back to 55 @347 (non-additive -- cross_jump
-   re-merges the two selects once they are the same shape), so exactly ONE funnel
-   is the landed form; arm-1 Yoda 67 @351; arm-2 Yoda 51 @351.
-   NEXT ANGLE: re-run the branch census after this landing (tools-free: compare the
-   per-branch instruction DISTANCE ours-vs-oracle, scratchpad/w62a11/brdist.py) --
-   it localises a missing/extra guard far faster than reading the diff, and it is
-   the only view that sees branch-OFFSET divergence at all (verify_asm normalises
-   branch targets). */
+/* MATCH: the two signed-acceleration clamps use the canonical ealib MAX/MIN
+   macros found in the matched NFS2 source.  NFS4 SYM retains only latAcc,
+   brakingSituation, slipAngle and roadGrip; no anonymous clamp locals exist. */
 void Physics_CalculateTireForces(Car_tObj *carObj,Physics_tWheelAccStruct *wheel)
 
 {
@@ -1906,48 +1863,13 @@ void Physics_CalculateTireForces(Car_tObj *carObj,Physics_tWheelAccStruct *wheel
   }
   if ((wheel->acc < 0) && (wheel->velCap.z < 0)) {
     if ((gGasRatio < 0x4001) || ((carObj->control).gear != '\0')) {
-      /* w62-a11: ARM-1 MAX FUNNELLED through a block-local (55 -> 49).  Retail
-         funnels both arms into one register and stores once -- the same device
-         as the FRONT velCap clamp above.  Doing the SAME to the arm-2 min also
-         scores 49 alone, but BOTH together fall back to 55 (non-additive:
-         cross_jump re-merges them) -- keep exactly one. */
-      {
-        /* SYM-CODEGEN-CARRIER: a -- exactly one arm clamp must funnel through a
-           scoped result; applying the same shape to both re-merges the selects. */
-        int a;
-        if (wheel->acc > wheel->velCap.z) {
-          a = wheel->acc;
-        } else {
-          a = wheel->velCap.z;
-        }
-        wheel->acc = a;
-      }
+      wheel->acc = MAX(wheel->acc,wheel->velCap.z);
       brakingSituation = 1;
     }
   }
   else if (((0 < wheel->acc) && (0 < wheel->velCap.z)) &&
            ((gGasRatio < 0x4001) || ((u_char)(carObj->control).gear < 2))) {
-    /* MATCH (w64-a11, the SEALING edit): DEFAULT-THEN-OVERRIDE onto the value the
-       GUARD already left live.  Retail's `.L800ABB20: bnez $v0,.L800ABB2C; nop;
-       addu $v1,$a0,$zero; .L800ABB2C: sw $v1,0($s1)` funnels through $v1, which
-       ALREADY holds velCap.z from the `0 < velCap.z` guard, so the default costs
-       ZERO instructions and only the override emits a move; and `acc <= velCap`
-       is the only phrasing that yields retail's `slt $v0,$v1,$a0` + `bnez`
-       (gcc negates the <= into a velCap-first slt and inverts the branch).
-       MEASURED on this basin, all worse: the original ternary
-       `(acc < velCap) ? acc : velCap` 6 @346 (slt operands + polarity flipped);
-       `(velCap < acc) ? velCap : acc` 25 @349 (reverses the GUARD's own load
-       roles -- it reloads acc into $v1 and velCap into $a0); the same as a
-       `<=` ternary 14 @348; the arm-1-style explicit if/else funnel
-       `if (velCap < acc) a = velCap; else a = acc;` 20 @346 count-exact.
-       The dial is WHICH value the funnel defaults to, not the operand order. */
-    {
-      int a = wheel->velCap.z;
-      if (wheel->acc <= wheel->velCap.z) {
-        a = wheel->acc;
-      }
-      wheel->acc = a;
-    }
+    wheel->acc = MIN(wheel->acc,wheel->velCap.z);
     brakingSituation = 1;
   }
   wheel->acc = fixedmult(wheel->acc,carObj->specs->lateralGripMult);
@@ -2444,19 +2366,7 @@ void Physics_Real(Car_tObj *carObj)
   carObj->crash = 0;
   brakeAcc =
       (gBrakeRatio / 0x100) * (specs->maxBrakeAcc / 0x100);
-  {
-    /* SYM-CODEGEN-CARRIER: brakeCap.  Collapsing the clamp to one temporary
-       keeps 1272 instructions but loses retail's v1-to-a0 copy (ten diffs). */
-    int brakeCap = __builtin_abs((carObj->linearVel_ch).z) << 5;
-    __asm__("" : "=r"(brakeCap) : "0"(brakeCap));
-    /* SYM-CODEGEN-CARRIER: limitedBrakeAcc.  See the measured one-temporary
-       clamp receipt above. */
-    int limitedBrakeAcc = brakeCap;
-    if (limitedBrakeAcc >= brakeAcc) {
-      limitedBrakeAcc = brakeAcc;
-    }
-    brakeAcc = limitedBrakeAcc;
-  }
+  brakeAcc = MIN(brakeAcc,__builtin_abs((carObj->linearVel_ch).z) * 32);
   {
     int damage;
     int damageMult;

@@ -6,6 +6,8 @@
 #include "newton_types.h"
 #include "newton_externs.h"
 
+#define MAX(a,b) (((a) > (b)) ? (a) : (b))
+
 #define NEWTON_SLICE_INT(slice, offset) \
     (*(int *)(Newton_BWorldSmSlices + (slice) * 0x20 + (offset)))
 #define NEWTON_SLICE_CHAR(slice, offset) \
@@ -2983,16 +2985,8 @@ extern "C" void Newton_ApplyTheLawOfGravity(BO_tNewtonObj *newtonObj)
             collisionPoint.y -= 0x1999;
             Collide_TestWithPlane(newtonObj,&normal,&collisionPoint);
             if (newtonObj->collision.impulse > 0x50000) {
-              /* SYM-CODEGEN-CARRIER: maxImpulse -- this optimized selection
-                 has no retained debug record. The direct range clamp emits
-                 314/315 with 21 diffs; the direct ternary emits 314/315 with
-                 13 diffs. This eliminated source result alone reproduces the
-                 retail two-branch $a0 selection and byte-exact 315 instructions. */
-              int maxImpulse = 0x140000;
-              if (newtonObj->collision.impulse > 0x13ffff) {
-                maxImpulse = newtonObj->collision.impulse;
-              }
-              newtonObj->collision.impulse = maxImpulse;
+              newtonObj->collision.impulse =
+                  MAX(0x140000,newtonObj->collision.impulse);
             }
             if (newtonObj->orientationToGround.y < 0x3333) {
               ((Car_tObj *)newtonObj)->collision.smoking = 1;

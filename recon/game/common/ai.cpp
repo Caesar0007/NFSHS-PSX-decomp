@@ -269,12 +269,8 @@ void AI_CheckForPlayerActions(Car_tObj *carObj,Car_tObj *otherCarObj)
                                 otherCarObj->carIndex,0,
                                 simGlobal.gameTicks);
   }
-  /* SYM-CODEGEN-CARRIER: direction -- repeating the member expression keeps
-     144 instructions but moves retail's `lw v1,1364(s1)`, producing two
-     oracle ordering diffs. */
-  int direction = carObj->direction;
-  if (otherCarObj->currentSpeed * direction + 0x280000 <
-      carObj->currentSpeed * carObj->direction) {
+  if (carObj->currentSpeed * carObj->direction >
+      otherCarObj->currentSpeed * carObj->direction + 0x280000) {
     if (0xbffff < absDistance) goto LAB_80057f34;
     AIScript_SubmitPlayerAction(&carObj->script,
                                 otherCarObj->carIndex,1,
@@ -1420,12 +1416,13 @@ RET0:
 /* ---- AI_KeepCarsInLane__FP8Car_tObj  [@0x8005a714] ---- */
 void AI_KeepCarsInLane(Car_tObj *carObj)
 {
-  /* SYM-CODEGEN-CARRIER: local -- retail has an otherwise empty 16-byte
-     frame (`addiu sp,-16` / `addiu sp,16`) although the SYM records no named
-     local.  Removing this unused four-int array is FAIL 2 at 2/4 instructions;
-     retaining it is PASS at 4/4.  The evidence cannot recover its source name. */
-  int local[4];
-  (void)local;
+  /* SOURCE-BODY-UNRESOLVED: retail SYM has no AUTO local, while the function's
+     exact 16-byte leaf frame is GCC's mandatory outgoing-argument area.  A
+     compile-time-dead call records that area before jump optimization removes
+     the body.  This proves the compiler mechanism, not the lost dead body. */
+  if (0) {
+    AI_IsMellowZone(carObj,0);
+  }
   return;
 }
 

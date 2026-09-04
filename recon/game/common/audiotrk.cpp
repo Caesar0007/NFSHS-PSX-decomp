@@ -66,20 +66,12 @@ void AudioTrk_Reset(void)
 void AudioTrk_StartUp(void)
 {
   int i;
-  /* SYM-CODEGEN-CARRIER: neg1 -- SYM records only `i`, but spelling the
-     reverse indexed loop with a literal -1 emits the same 23 instructions
-     with a two-diff invariant-load ordering.  This separately initialized
-     value materializes retail a0 before i is initialized in v1. */
-  int neg1;
 
   if (AudioTrk_g == (AudioTrk_tGlobals *)0x0) {
     AudioTrk_g = reservememadr("trck globals",0x100,0);
-    neg1 = -1;
-    i = 0xf;
-    do {
-      AudioTrk_g->chan[i].handle = neg1;
-      i--;
-    } while (i >= 0);
+    for (i = 0; i < 16; i++) {
+      AudioTrk_g->chan[i].handle = -1;
+    }
   }
   AudioTrk_Reset();
 }

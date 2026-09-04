@@ -6,6 +6,8 @@
 #include "aiphysic_types.h"
 #include "aiphysic_externs.h"
 
+#define MAX(a,b) (((a) > (b)) ? (a) : (b))
+
 /* Owner-module tentative definition: AIPhysic_elapsedTime ($8013c59c) lives in this TU's
  * small-common (.comm,4) so -G4 addresses it gp-relative (`lw $v1,N($gp)`), matching the
  * oracle (HitWallCheck etc.). As a bare `extern` it degraded to absolute lui/lw (+1 insn). */
@@ -648,10 +650,6 @@ void AIPhysic_SimplePhysics_LongVel(Car_tObj *carObj)
 {
   int acceleration;
   int deceleration;
-  /* SYM-CODEGEN-CARRIER: t -- optimized SYM omits the max-selection result,
-     but expressing the selection directly keeps 214 instructions with
-     eighteen a1/v0 allocation and branch-selection differences. */
-  int t;
 
   acceleration = AIPhysic_CalcAcceleration(carObj,carObj->currentSpeed);
   deceleration = AIPhysic_CalcDeceleration(carObj);
@@ -718,9 +716,7 @@ void AIPhysic_SimplePhysics_LongVel(Car_tObj *carObj)
       if (carObj->direction != carObj->desiredDirection) {
         return;
       }
-      t = carObj->desiredSpeed;
-      if (t < carObj->currentSpeed) t = carObj->currentSpeed;
-      carObj->currentSpeed = t;
+      carObj->currentSpeed = MAX(carObj->currentSpeed,carObj->desiredSpeed);
     }
     else {
       carObj->currentSpeed += acceleration / 256 * (AIPhysic_iTime / 256);
@@ -1122,10 +1118,9 @@ ret0:
 /* ---- AIPhysic_OutOfControlPhysics__FP8Car_tObj ---- */
 void AIPhysic_OutOfControlPhysics(Car_tObj *carObj)
 {
-  /* SYM-CODEGEN-CARRIER: cfg
-   * SYM-CODEGEN-CARRIER: r
-   * Both are measured source carriers: removing cfg regresses 5->9, while r
-   * preserves the repeated clamp-result shape without adding retail storage. */
+  /* SYM-CODEGEN-CARRIER: cfg -- removing the cached configuration base
+   * regresses the exact function by four instructions.  The lower clamps use
+   * the canonical ealib MAX macro and therefore need no SYM-absent locals. */
   /* MATCH (W77-root): PASS 412/412 from 5 @413/412, with no post-compile edit.
    * The SYM-listed `dir` local carries the first direction load.  Two narrow
    * source-ASM expressions reproduce retail's non-full-address head: a pinned
@@ -1338,48 +1333,23 @@ void AIPhysic_OutOfControlPhysics(Car_tObj *carObj)
   desiredAngVel = -carObj->aCarWRTDesired * fixedmult(0x80,cfg->OOCModel.dangle_to_dav);
   desiredAngVel = (desiredAngVel < cfg->OOCModel.max_dav)
       ? desiredAngVel : cfg->OOCModel.max_dav;
-  {
-    int r;
-    r = -cfg->OOCModel.max_dav;
-    if (r < desiredAngVel) r = desiredAngVel;
-    desiredAngVel = r;
-  }
+  desiredAngVel = MAX(desiredAngVel,-cfg->OOCModel.max_dav);
   desiredLatVel = (desiredAngVel / 256) * 0xa00;
   desiredLatVel = (desiredLatVel < cfg->OOCModel.max_dlvel)
       ? desiredLatVel : cfg->OOCModel.max_dlvel;
-  {
-    int r;
-    r = -cfg->OOCModel.max_dlvel;
-    if (r < desiredLatVel) r = desiredLatVel;
-    desiredLatVel = r;
-  }
+  desiredLatVel = MAX(desiredLatVel,-cfg->OOCModel.max_dlvel);
   desiredLatVel = (desiredLatVel < carObj->speed) ? desiredLatVel : carObj->speed;
-  {
-    int r;
-    r = -carObj->speed;
-    if (r < desiredLatVel) r = desiredLatVel;
-    desiredLatVel = r;
-  }
+  desiredLatVel = MAX(desiredLatVel,-carObj->speed);
   if ((-cfg->OOCModel.vel_limit_range < carObj->currentSpeed) &&
       (carObj->currentSpeed < cfg->OOCModel.vel_limit_range)) {
     maxLatVel = (carObj->speed / 256) * (cfg->OOCModel.lat_vel_limit_factor / 256);
     maxLatVel = __builtin_abs(maxLatVel);
     desiredLatVel = (desiredLatVel < maxLatVel) ? desiredLatVel : maxLatVel;
-    {
-      int r;
-      r = -maxLatVel;
-      if (r < desiredLatVel) r = desiredLatVel;
-      desiredLatVel = r;
-    }
+    desiredLatVel = MAX(desiredLatVel,-maxLatVel);
     maxAngVel = (carObj->speed / 256) * (cfg->OOCModel.ang_vel_limit_factor / 256);
     maxAngVel = __builtin_abs(maxAngVel);
     desiredAngVel = (desiredAngVel < maxAngVel) ? desiredAngVel : maxAngVel;
-    {
-      int r;
-      r = -maxAngVel;
-      if (r < desiredAngVel) r = desiredAngVel;
-      desiredAngVel = r;
-    }
+    desiredAngVel = MAX(desiredAngVel,-maxAngVel);
   }
   if (carObj->donutMode == 2) {
     desiredAngVel = desiredAngVel * 5;
@@ -1390,21 +1360,11 @@ void AIPhysic_OutOfControlPhysics(Car_tObj *carObj)
     currentAngAcc = currentAngAcc / 2;
   }
   currentAngAcc = (currentAngAcc < carObj->max_aa) ? currentAngAcc : carObj->max_aa;
-  {
-    int r;
-    r = -carObj->max_aa;
-    if (r < currentAngAcc) r = currentAngAcc;
-    currentAngAcc = r;
-  }
+  currentAngAcc = MAX(currentAngAcc,-carObj->max_aa);
   currentLatAcc = -((((carObj->linearVel_ch).x - desiredLatVel) / 256) *
                     (AIPhysicConfig.OOCModel.dlvel_to_clacc / 256));
   currentLatAcc = (currentLatAcc < carObj->max_clacc) ? currentLatAcc : carObj->max_clacc;
-  {
-    int r;
-    r = -carObj->max_clacc;
-    if (r < currentLatAcc) r = currentLatAcc;
-    currentLatAcc = r;
-  }
+  currentLatAcc = MAX(currentLatAcc,-carObj->max_clacc);
   currentVel = (carObj->linearVel_ch).z;
   if (((carObj->driveDirection == -1) && ((carObj->targetPos).x == 0)) &&
       ((carObj->targetPos).y == 0) && ((carObj->targetPos).z == 0)) {

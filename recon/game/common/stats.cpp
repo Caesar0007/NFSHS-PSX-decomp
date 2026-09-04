@@ -5,6 +5,8 @@
 #include "stats_types.h"
 #include "stats_externs.h"
 
+#define MIN(a,b) (((a) > (b)) ? (b) : (a))
+
 /* stats.obj-owned race-order scratch table.
  * SYM: EXT Stats_tPosition[6], 96 bytes at 0x8011E0E0.  The retail image is
  * entirely zero-initialized, and CC1PLPSX emits this tentative aggregate in
@@ -140,10 +142,8 @@ void Stats_TrackStats(Car_tObj *carObj)
          (carObj->stats).topSpeed[(carObj->stats).lap])) {
       if (((carObj->carFlags & 8U) != 0) && (carObj->carInfo->carType < 0x13)) {
         (carObj->stats).topSpeed[(carObj->stats).lap] =
-            Cars_topSpeedCap[carObj->carInfo->carType] - rand() * 3 <
-                    (carObj->linearVel_ch).z
-                ? Cars_topSpeedCap[carObj->carInfo->carType] - rand() * 3
-                : (carObj->linearVel_ch).z;
+            MIN((carObj->linearVel_ch).z,
+                Cars_topSpeedCap[carObj->carInfo->carType] - rand() * 3);
       }
       else {
         (carObj->stats).topSpeed[(carObj->stats).lap] = (carObj->linearVel_ch).z;

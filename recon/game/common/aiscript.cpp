@@ -26,18 +26,9 @@ void AIScript_Assign(AIScript_t *script,AIScript_tReactionDetails (*data) [7])
 void AIScript_ClearLastReactionIndex(AIScript_t *script)
 {
   int initLoop;
-  /* SYM-CODEGEN-CARRIER: neg1 -- absent from the surviving outer-local
-   * records. A literal or const local preserves the 9-insn body but schedules
-   * `li $v1,-1` after `li $v0,6` (2 diffs); a mutable scalar reproduces the
-   * retail constant order exactly. */
-  int neg1;
-
-  neg1 = -1;
-  initLoop = 6;
-  do {
-    script->lastReactionIndex[initLoop] = neg1;
-    initLoop = initLoop + -1;
-  } while (-1 < initLoop);
+  for (initLoop = 0; initLoop < 7; initLoop++) {
+    script->lastReactionIndex[initLoop] = -1;
+  }
   return;
 }
 

@@ -1026,33 +1026,15 @@ char * BWAllocMem(long size)
 }
 
 /* ---- BWorld_InitContexts__Fv  [@0x8007e428] ---- */
-/* PASS (14/14 insns). Was a 2-diff near-miss: oracle loads `li a3,-1` BEFORE `li a2,1`; a plain
- * `i=1` local put gcc's -O2 scheduler on the other tie-break order for the two independent
- * constant loads. FIX: name the -1 constant as its OWN local (`noClient`) declared textually
- * BEFORE the loop counter `i` and assigned first -- this reorders gcc's constant-materialization
- * to match the oracle (`li a3,-1` first) without changing the loop trip count/shape, so the real
- * `bgez` branch survives (an earlier attempt at "named local for -1" apparently didn't isolate it
- * into its own declared-first variable and either no-op'd or risked the gcc full-unroll trap).
- * Corrected the field this loop writes to `contexts[i].client` (was miscoded as .currentChunk,
- * decoded from BWorld_OpenContext's independently-anchored offset map) and removed a bare-VA hack
- * (`iVar1 = -0x7fef10b8`) that had been standing in for `&gContextMan + 0x9C` -- that literal was
- * necessary under the old (wrong) field to block constant-propagation-driven unrolling, but is no
- * longer needed with the array-index form. */
 void BWorld_InitContexts(void)
 {
-  /* SYM-CODEGEN-CARRIER: noClient -- the measured scheduling receipt above
-     proves that the separately named, declaration-first -1 value is required. */
-  int noClient;
   int i;
 
-  noClient = -1;
   gContextMan.initialized = 1;
   gContextMan.count = 0;
-  i = 1;
-  do {
-    gContextMan.contexts[i].client = noClient;
-    i = i + -1;
-  } while (-1 < i);
+  for (i = 0; i < 2; i++) {
+    gContextMan.contexts[i].client = -1;
+  }
   return;
 }
 

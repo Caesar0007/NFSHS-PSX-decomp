@@ -38,7 +38,7 @@ struct BW_tContext {
 struct tNormalCacheEntry {
     short sliceInd;
     u_char triangleFlag;
-    char quadInd;
+    signed char quadInd;
     coorddef normal, forward;
     u_long accessTime;
 };

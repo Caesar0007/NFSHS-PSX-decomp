@@ -864,7 +864,7 @@ bool NormalCache_FindEntry(BWorldSm_Pos *slicePos)
   quad = *(signed char *)&slicePos->quad;
   while (i < 0x10) {
     if ((ce->sliceInd == slice) &&
-        (*(signed char *)&ce->quadInd == quad) &&
+        (ce->quadInd == quad) &&
         ((u_int)ce->triangleFlag ==
          (int)*(signed char *)&slicePos->triangleFlag)) {
       ce->accessTime = BWSM_NormalCacheSysTime;
@@ -885,18 +885,12 @@ bool NormalCache_FindEntry(BWorldSm_Pos *slicePos)
 void NormalCache_Init(void)
 {
   int i;
-  /* SYM-CODEGEN-CARRIER: invalid -- literal -1 stores compile to 16
-   * instructions and five oracle diffs by merging the constant into $a1.
-   * The named value preserves retail's separate $a2=-1 and $a1=255 values
-   * and exact 15-instruction initialization loop. */
-  int invalid;
 
   BWSM_NormalCacheSysTime = 0;
   i = 0;
-  invalid = -1;
   do {
-    BWSM_NormalCache[i].sliceInd = invalid;
-    BWSM_NormalCache[i].quadInd = invalid;
+    BWSM_NormalCache[i].sliceInd = -1;
+    BWSM_NormalCache[i].quadInd = -1;
     BWSM_NormalCache[i].triangleFlag = '\0';
     BWSM_NormalCache[i].accessTime = 0;
     i++;

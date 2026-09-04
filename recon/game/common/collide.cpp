@@ -6,6 +6,9 @@
 #include "collide_types.h"
 #include "collide_externs.h"
 
+#define MIN(a,b) (((a) > (b)) ? (b) : (a))
+#define MAX(a,b) (((a) > (b)) ? (a) : (b))
+
 
 /* ---- collide.obj-owned globals (real NFS4.EXE bytes / .bss zero) ---- */
 BO_tNewtonObj *Collide_gRegistry[16];   /* @0x80110c30  (bss(zero)) */
@@ -370,25 +373,19 @@ void Collide_LimitAngularVel(BO_tNewtonObj *o)
 
 {
   if ((o->angularVel).x < 0)
-    (o->angularVel).x =
-        (o->angularVel).x > -0x18000 ? (o->angularVel).x : -0x18000;
+    (o->angularVel).x = MAX((o->angularVel).x,-0x18000);
   else
-    (o->angularVel).x =
-        (o->angularVel).x > 0x18000 ? 0x18000 : (o->angularVel).x;
+    (o->angularVel).x = MIN((o->angularVel).x,0x18000);
 
   if ((o->angularVel).y < 0)
-    (o->angularVel).y =
-        (o->angularVel).y > -0x18000 ? (o->angularVel).y : -0x18000;
+    (o->angularVel).y = MAX((o->angularVel).y,-0x18000);
   else
-    (o->angularVel).y =
-        (o->angularVel).y > 0x18000 ? 0x18000 : (o->angularVel).y;
+    (o->angularVel).y = MIN((o->angularVel).y,0x18000);
 
   if ((o->angularVel).z < 0)
-    (o->angularVel).z =
-        (o->angularVel).z > -0x18000 ? (o->angularVel).z : -0x18000;
+    (o->angularVel).z = MAX((o->angularVel).z,-0x18000);
   else
-    (o->angularVel).z =
-        (o->angularVel).z > 0x18000 ? 0x18000 : (o->angularVel).z;
+    (o->angularVel).z = MIN((o->angularVel).z,0x18000);
 }
 
 /* ---- Collide_TestWithPlane__FP13BO_tNewtonObjP8coorddefT1  [@0x8008d9a8] ---- */

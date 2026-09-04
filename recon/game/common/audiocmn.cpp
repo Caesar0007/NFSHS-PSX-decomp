@@ -1667,9 +1667,6 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
      AudioEng_Set grows 530 to 531 instructions and changes 43 instructions by
      advancing the guarded divide ahead of the gas selection. */
   int rpmRatio;
-  /* SYM-CODEGEN-CARRIER: clampedRoadNoiseAmp -- direct if/ternary clamp forms
-     shrink 530 to 529 instructions and leave seven branch/copy diffs. */
-  int clampedRoadNoiseAmp;
   
   AudioCmn_CheckState(car);
   if (AudioCmn_kAudioOn) {
@@ -1911,11 +1908,7 @@ SoundCar_haveWetNoise:
     wetNoiseAmp = 0x7f;
   }
   wetNoiseFreq = 0x48 - (wetNoiseAmp >> 3);
-  clampedRoadNoiseAmp = 0x7f;
-  if (roadNoiseAmp < 0x80) {
-    clampedRoadNoiseAmp = roadNoiseAmp;
-  }
-  roadNoiseAmp = clampedRoadNoiseAmp;
+  roadNoiseAmp = MIN(roadNoiseAmp,0x7f);
   if ((relvel != 0) || (Camera_gInfo[car->carIndex].mode == 0xb)) {
     /* @0x80078E50: the div-by-zero / INT_MIN-by(-1) guard is the automatic
        --expand-div guard on the '/' below (matches the oracle's single

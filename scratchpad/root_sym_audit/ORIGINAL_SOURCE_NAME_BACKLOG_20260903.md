@@ -27,6 +27,7 @@ invented semantic substitutions do not close the item.
 | `recon/game/common/aih_basiccop.cpp` — `AIHigh_BasicCop::CheckSpikeBelt` | `freshenElapsed` (temporary placeholder) | Two separate nested `int timeNow` declarations are now restored to their exact SLD blocks. A distinct optimized-out predicate is still required for the retail zero initialization and `slti`/`sltiu` sequence; the function remains PASS 50/50. | Recover the predicate or timer-macro source spelling. Direct conditions and ternaries change allocation/control flow, and retail retains no name for the predicate. |
 | `recon/game/common/aih_play.cpp` — `AIHigh_Player::SetupBlockade` / `HandlePullOver` | `bVar2`, `bVar1` (decompiler placeholders) | Retail materializes optimized-out short-circuit results in `$a1`/`$a2`. Carrier-free forms regress to 669/674 with 121 diffs and to 307/307 with register/scheduling diffs respectively. | Recover the exact boolean or macro spelling from source-bearing evidence; NFS4 SYM/SLD retains no name and the checked NFS2/NFS3/NFS4-PC families have no authoritative twin. |
 | `recon/game/common/aiphysic.cpp` — `AIPhysic_RevEngine` | `deadfrm` (temporary two-word array) | Retail has an unused 8-byte leaf frame with no stack loads/stores, while SYM records only register locals `increase` and `redLine`. The generated debug twin emits `deadfrm` as an AUTO, proving the current array is not SYM-exact. The identical NFS3 routine has the same otherwise-unused frame. | Recover a natural shared source/compiler construct that recreates the 8-byte frame without a third debug local. Neither the current name nor its two-int array type is accepted as original. |
+| `recon/game/common/ai.cpp` — `AI_KeepCarsInLane` | lost compile-time-dead body (the former `local[4]` claim is eliminated) | NFS2/NFS3/NFS4 PSX share the exact four-word leaf. A compile-time-dead ordinary call produces `.frame $sp,16,$31` with `vars=0,args=16`, no AUTO record, and exact retail code; the frame is GCC's surviving outgoing-argument area rather than source storage. | Recover the original disabled/dead body from source-bearing evidence. The retained dead call proves the compiler mechanism and SYM-valid frame class but is not asserted as the unique lost body. |
 | `recon/game/common/aidatarecord.cpp` — `AIDataRecord_t::StartUp2` | direct manual vtable dispatch (no extra local remains) | Retail SYM retains only `recordLoop`. Repeating the indexed object/vtable expression lets GCC recreate the anonymous `$v1/$v0` temporaries and remains PASS 27/27; the disproved `pAVar1` source local is gone. | Restore the exact class/virtual declaration that lets ordinary `recordCollection[recordLoop]->Setup()` reproduce retail dispatch; current manual vtable syntax is an intermediate reconstruction, not final original C++. |
 | `recon/game/common/aidatarecord.cpp` — `AIDataRecord_t::CleanUp1` | direct manual deleting-destructor dispatch (no extra local remains) | Retail SYM retains no local. Repeated global/vtable expressions recreate the anonymous temporaries and remain PASS 28/28; the disproved `pa_Var1` source local is gone. | Restore the exact class/deleting-destructor model so ordinary `delete` reproduces retail dispatch. Current manual vtable syntax remains an explicit source-restoration backlog item. |
 
@@ -187,6 +188,50 @@ The complete `ai.cpp` TU remains **40/40 PASS**.  This round removes eight raw
 `SYM-CODEGEN-CARRIER` rows and adds two exact cross-build name recoveries
 without adding volatile, assembly, or postcompile rewriting.
 
+## P850 canonical macro, forward-loop, and compiler-frame round
+
+This round eliminates **20 reconstruction-only local declarations** represented
+by **13 raw `SYM-CODEGEN-CARRIER` rows**, while every affected function remains
+byte-exact and every `-g` twin is exact:
+
+- The matched NFS2 source's canonical `MIN`/`MAX` family removes `t` from
+  `AIPhysic_SimplePhysics_LongVel`, all seven scoped `r` clamp results from
+  `AIPhysic_OutOfControlPhysics`, `clampedRoadNoiseAmp` from
+  `AudioCmn_SoundCar`, `maxImpulse` from `Newton_ApplyTheLawOfGravity`, both
+  scoped `a` results from `Physics_CalculateTireForces`, and `brakeCap` plus
+  `limitedBrakeAcc` (including their empty compiler fence) from
+  `Physics_Real`.  The functions remain **214/214**, **412/412**, **530/530**,
+  **315/315**, **346/346**, and **1272/1272**, respectively.
+- GCC 2.8.1 loop reversal explains the retail countdowns in
+  `AIScript_ClearLastReactionIndex`, `AudioTrk_StartUp`, and
+  `BWorld_InitContexts`.  Restoring ordinary forward `for` loops with direct
+  `-1` stores removes both `neg1` locals and `noClient` while preserving
+  **9/9**, **23/23**, and **14/14**.
+- `AI_CheckForPlayerActions` now repeats the source member expression in the
+  conventional multiplication order; GCC recreates the anonymous direction
+  value and preserves **144/144**.
+- `AI_KeepCarsInLane` no longer lies about a 16-byte AUTO array.  A
+  compile-time-dead call produces the exact four-word leaf and the debug twin
+  reports `vars=0,args=16` with no extra `.def`; the unrecovered dead body is
+  kept open above.
+- `NormalCache_Init` now uses the ordinary two-statement source implied by the
+  retail SLD: `sliceInd = -1` and `quadInd = -1` occupy distinct line records
+  1416 and 1417.  The `quadInd` member is restored as `signed char`: retail
+  consumes it with `lb`, uses `-1` as its sentinel, and GCC 2.8 emits the same
+  SYM `CHAR` debug code for `char` and `signed char`.  This removes both the
+  unsupported `invalid` local and the chained-cast workaround while preserving
+  **15/15**; `NormalCache_FindEntry` also remains **49/49** with direct typed
+  access.
+
+Two additional source-only expansions were collapsed back to their canonical
+matched-source spellings without changing declarations or code: the six
+`Collide_LimitAngularVel` clamps use NFS2/NFS3's `MIN`/`MAX` family at
+**61/61**, and `Stats_TrackStats` uses NFS2's `MIN(speed, cap-rand*3)` at
+**258/258**.  All fourteen touched branch-word audits are clean.  TU gates are
+green for `ai` 40/40, `aiphysic` 42/42, `aiscript` 8/8, `audiocmn` 48/48,
+`audiotrk` 6/6, `bworld` 21/21, `bworldSm` 28/28, `collide` 14/14, `newton`
+32/32, `physics` 22/22, and `stats` 7/7.
+
 ## Expansion requirement
 
 This is a living backlog.  Every retained source-only carrier whose spelling is
@@ -206,21 +251,21 @@ spelling.  A row leaves this queue only when direct source-bearing evidence is
 recorded and its marker is replaced by `ORIGINAL-NAME-RECOVERED` (or when the
 extra source object is eliminated while preserving the oracle).
 
-Current measured queue: **1,556 unresolved carrier-marker rows project-wide**,
-of which **565 are in `recon/game/common`**.  There are currently **32
+Current measured queue: **1,543 unresolved carrier-marker rows project-wide**,
+of which **552 are in `recon/game/common`**.  There are currently **32
 `ORIGINAL-NAME-RECOVERED` evidence rows**.  These counts were measured from the
 working tree on 2026-09-04 and must be regenerated after each recovery round.
 
-## Strict per-directory snapshot through P849
+## Strict per-directory snapshot through P850
 
 These reports measure the current source tree; they are evidence of remaining
 work, not completion certificates.  `Explicit source-only codegen carriers`
-counts unique function/name mappings, whereas the 1,564 figure above counts raw
+counts unique function/name mappings, whereas the 1,543 figure above counts raw
 marker rows (a few names have more than one scoped marker row).
 
 | Directory | SYM functions | Mapped | Declaration-clean | Missing names | Extra names | Type/storage findings | Source-only carriers | Mapping review |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| `recon/game/common` | 1,258 | 1,258 | 1,228 | 0 | 6 | 28 / 28 | 565 | 0 |
+| `recon/game/common` | 1,258 | 1,258 | 1,228 | 0 | 6 | 28 / 28 | 552 | 0 |
 | `recon/frontend/common` | 838 | 833 | 781 | 0 | 46 | 9 / 9 | 519 | 3 |
 | `recon/frontend/psx` | 85 | 85 | 85 | 0 | 0 | 0 / 0 | 54 | 0 |
 | `recon/game/psx` | 395 | 395 | 392 | 0 | 3 | 0 / 0 | 395 | 0 |
@@ -229,7 +274,7 @@ marker rows (a few names have more than one scoped marker row).
 | `recon/syslib/psx` | 0 | 0 | 0 | 0 | 0 | 0 / 0 | 0 | 0 |
 
 The authoritative report files are
-`game_common_strict_p849_20260904.md`,
+`game_common_strict_p850_20260904.md`,
 `frontend_common_strict_p783_20260903.md`,
 `frontend_psx_strict_p780_20260903.md`,
 `game_psx_strict_p838_20260904.md`,

@@ -131,12 +131,6 @@ void MPause_MusicLogic(char active)
   static int lastplaytick;
   int sndover;
   int samp;
-  /* SYM-CODEGEN-CARRIER: bVar1 -- preserving the explicit menu-range decision
-     prevents GCC from folding the two equality tests into a range check. */
-  bool bVar1;
-  /* SYM-CODEGEN-CARRIER: iVar3 -- shared current-item/call-result quantity;
-     direct field and nested-call expressions swap retail's v1/a0 allocation. */
-  int iVar3;
   
   sndover = 1;
   samp = 0x10;
@@ -158,37 +152,27 @@ void MPause_MusicLogic(char active)
     if (wasActive == '\0') {
       AudioMus_AutoVolume(500,AudioCmn_MusicLevel(gMasterMusicLevel));
     }
-    bVar1 = false;
-    iVar3 = *((int *)gPauseCurrentMenu);
-    if (iVar3 == 1) {
-      bVar1 = true;
+    if ((MPause_CurrentItem(gPauseCurrentMenu) == 1) ||
+        (MPause_CurrentItem(gPauseCurrentMenu) == 2)) {
+      AudioMus_Volume(AudioCmn_MusicLevel(gMasterMusicLevel));
     }
-    else if (iVar3 == 2) {
-      bVar1 = true;
-    }
-    if (bVar1) {
-      iVar3 = AudioCmn_MusicLevel(gMasterMusicLevel);
-      AudioMus_Volume(iVar3);
-    }
-    iVar3 = *((int *)gPauseCurrentMenu);
     testSFX = false;
-    if (iVar3 == 3) {
+    if (gPauseCurrentMenu->fCurrentItem == 3) {
       samp = 0x10;
       vol = gMasterSFXLevel;
       testSFX = true;
     }
-    if (*((int *)gPauseCurrentMenu) == 4) {
+    if (gPauseCurrentMenu->fCurrentItem == 4) {
       samp = 0x10;
       vol = gMasterFENarrationLevel;
       testSFX = true;
     }
-    iVar3 = *((int *)gPauseCurrentMenu);
-    if (iVar3 == 5) {
+    if (gPauseCurrentMenu->fCurrentItem == 5) {
       samp = 0x10;
       vol = gMasterEngineLevel;
       testSFX = true;
     }
-    if (*((int *)gPauseCurrentMenu) == 6) {
+    if (gPauseCurrentMenu->fCurrentItem == 6) {
       samp = 0x10;
       vol = gMasterAmbientLevel;
       testSFX = true;

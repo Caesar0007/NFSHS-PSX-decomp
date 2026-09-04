@@ -23,17 +23,6 @@ void AudioTrk_CleanUp(void);
 /* ---- AudioTrk_Reset__Fv  [@0x8007c614] ---- */
 void AudioTrk_Reset(void)
 {
-  /* SYM-CODEGEN-CARRIER: pCVar2 -- reloading the list base before the loop
-     condition fills retail's halfword-store delay slot and avoids a nop. */
-  CAudioList *pCVar2;
-  /* SYM-CODEGEN-CARRIER: puVar3 -- the induction pointer is required for
-     retail's strength-reduced 24-byte element walk; indexed spelling adds six
-     instructions and changes 38 oracle positions. */
-  signed char *puVar3;
-  /* SYM-CODEGEN-CARRIER: neg1 -- the separately initialized byte sentinel
-     preserves retail's placement of the invariant `li a1,-1`. */
-  signed char neg1;
-
   if (AudioTrk_g != (AudioTrk_tGlobals *)0x0) {
     int i;
 
@@ -50,17 +39,24 @@ void AudioTrk_Reset(void)
   }
   {
     int i;
+    /* ORIGINAL-NAME-RECOVERED: se -- Reset's retail SYM lists only `i`, but
+       the exact 24-byte strength-reduced walk requires a distinct AudioElem
+       induction object.  `se` is the owning TU's exact SYM name for this same
+       AudioElem * role in AudioTrk_SoundTrack and AudioTrk_PreLoad.  Keeping
+       it scoped to the second list loop, with nextDelay before chan as SLD
+       lines 78/79 require, emits retail's chan-biased cursor and removes
+       pCVar2/puVar3/neg1. */
+    AudioElem *se;
 
-    if ((gGameAudioList != (CAudioList *)0x0) && (i = 0, 0 < gGameAudioList->numElements_)) {
-      neg1 = -1;
-      puVar3 = (signed char *)((int)&gGameAudioList[2].numElements_ + 1);
+    if ((gGameAudioList != (CAudioList *)0x0) &&
+        (i = 0, 0 < gGameAudioList->numElements_)) {
+      se = (AudioElem *)(gGameAudioList + 1);
       do {
-        *puVar3 = neg1;
-        pCVar2 = gGameAudioList;
-        *(u_short *)(puVar3 + -9) = 0;
-        puVar3 = puVar3 + 0x18;
-        i = i + 1;
-      } while (i < pCVar2->numElements_);
+        se->nextDelay = 0;
+        se->chan = -1;
+        se++;
+        i++;
+      } while (i < gGameAudioList->numElements_);
     }
   }
   return;

@@ -811,9 +811,9 @@ void CopSpeak_PlayNextRequest(void)
    * allocation/scheduling instructions. */
   int iVar3;
   int handle;
-  /* SYM-CODEGEN-CARRIER: next -- spelling the wraparound assignment as a
-   * direct conditional expression is 73/71 with eight oracle diffs; reusing
-   * SYM's `handle` keeps 71 instructions but changes six register choices. */
+  /* ORIGINAL-NAME-RECOVERED: next -- the same retail COPSPEAK.CPP object
+   * records `next` for the wraparound queue-output quantity in
+   * CopSpeak_DirectRequest, CopSpeak_GenericBankRequest, and CopSpeak_Request. */
   int next;
   CopSpeak_tRequest *r;
 

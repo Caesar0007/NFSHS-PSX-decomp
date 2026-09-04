@@ -814,16 +814,11 @@ int AIHigh_Opponent::DoProvokedAttack()
 
 
 {
-  /* SYM-CODEGEN-CARRIER: iVar1 -- retail reuses one optimized scalar for the
-     incremented hit count and then attackTime.  Folding both uses into member
-     expressions emits 46 instead of 43 instructions and changes 35
-     authoritative allocation/load/store instructions. */
-  int iVar1;
-
-  /* SYM-CODEGEN-CARRIER: pCVar3 -- retail keeps the collision object in one
-     optimized scalar across the hit-state updates.  Repeating the member
+  /* SYM-CODEGEN-CARRIER: pCVar3 -- SOURCE SPELLING UNRESOLVED.  The retail
+     SYM lists only `this`, while GCC must retain this collision-object value
+     across the hit-state updates and the final return.  Repeating the member
      expression emits 46 instead of 43 instructions and 15 authoritative
-     load/register diffs. */
+     load/register diffs; IDA/m2c expose only their own generated temporaries. */
   Car_tObj *pCVar3;
 
   if (((simGlobal.gameTicks - this->carObj_->N.collision.lastTime < 0xf) &&
@@ -841,15 +836,14 @@ int AIHigh_Opponent::DoProvokedAttack()
 
     }
 
-    iVar1 = ++this->hitCount_;
+    this->hitCount_++;
 
-    if (this->carObj_->personality->attackActivationHits < iVar1) {
+    if (this->hitCount_ >
+        this->carObj_->personality->attackActivationHits) {
 
-      iVar1 = this->carObj_->personality->attackTime;
+      this->attackTicksLeft_ = this->carObj_->personality->attackTime;
 
       this->hitCount_ = 0;
-
-      this->attackTicksLeft_ = iVar1;
 
       return pCVar3->carIndex;
 

@@ -21,7 +21,6 @@ invented semantic substitutions do not close the item.
 | `recon/game/common/replay.cpp` — `Replay_ResetReplay__Fv` | `piVar2` (decompiler placeholder, not an accepted semantic replacement; invented `counterCursor` was rejected and reverted) | A distinct decrementing pointer is required: direct array indexing produces 87 rather than 86 instructions and one oracle mismatch; retained form is PASS 86/86. | Retail SYM names only `i`; recover the pointer's original source spelling from canonical/source-bearing evidence. |
 | `recon/game/common/copspeak.cpp` — `CopSpeak_PlayNextRequest__Fv` | `iVar3` (decompiler placeholder, not an accepted semantic replacement; invented `queueIndex` was rejected and reverted) | A distinct cached queue index is required: direct global indexing/advancement produces six oracle diffs; retained form is PASS 71/71. | SYM names only `r` and `handle`; recover the cached index's original spelling. |
 | `recon/game/common/aihigh.cpp` — `AIHigh_Execute__Fv` | `bVar1` (decompiler placeholder, not an accepted semantic replacement; invented `executeHighLevelAI` was rejected and reverted) | A distinct decision object is required: direct short-circuit reconstruction produces 61 rather than 66 instructions and 33 oracle diffs; retained form is PASS 66/66. | SYM names only `carLoop` and `carObj`; recover the decision object's original spelling. |
-| `recon/game/common/pausemenu.cpp` — `PauseMenu_MenuText__FsbT1` | `iVar1` (decompiler placeholder) | A distinct `TextSys_WordX` result statement is required: inlining the call remains count-exact but causes two scheduling diffs; retained form is PASS 25/25. | Retail SYM retains no result-local name; recover the original spelling from source-bearing evidence. |
 | `recon/game/common/nfs3.cpp` — `NFS3_CheckForFileOperations__Fv` | `e` (temporary placeholder, not an accepted source spelling) | The former guard-only `g` declaration was eliminated: repeating `gFileMgr.handlearray` is CSE'd to the exact retail guard value. A distinct loop bound remains required for PASS 21/21; direct loop comparison changes allocation. | Retail NFS4 SYM retains only `p`; this PSX-only function has no NFS2 PC counterpart, and the checked reference trees retain no source name for the bound. Recover it from canonical/source-bearing evidence or eliminate it with a byte-exact loop form. |
 | `recon/game/common/aih_opp.cpp` — `AIHigh_Opponent::CheckForWipeOut` | `numRacers`, `bVar1`, `hlai`, `speedLimit`, `carIndex`, `field1380`, `slotAddr`, `absField`, `state` (all placeholders, including semantic-looking spellings) | Detailed GCC allocation/scheduling receipts prove that distinct source-shape quantities are required for the current PASS 120/120 body. | Retail NFS4 SYM retains only `perTickProb`, `randVal`, `oppLevel`, `oppFines`, `hLoop`, `thisPlayerObj`, `thisPlayer`, and `playFines`. Recover every other spelling from canonical/source-bearing evidence; behavior and register role are insufficient. |
 | `recon/game/common/aidatarecord.cpp` — `AIDataRecord_t::StartUp2` | `pAVar1` (decompiler placeholder) | Retail SYM retains only `recordLoop`. Ordinary `recordCollection[recordLoop]->Setup()` emits 22 rather than 27 instructions and 11 oracle diffs because GCC devirtualizes the call; the explicit cached object/vtable dispatch remains PASS 27/27. | Recover the exact cached-pointer spelling from source-bearing evidence, or find an ordinary C++ expression that preserves retail virtual dispatch without an extra named source object. |
@@ -46,12 +45,12 @@ spelling.  A row leaves this queue only when direct source-bearing evidence is
 recorded and its marker is replaced by `ORIGINAL-NAME-RECOVERED` (or when the
 extra source object is eliminated while preserving the oracle).
 
-Current measured queue: **1,592 unresolved carrier-marker rows project-wide**,
-of which **600 are in `recon/game/common`**.  There are currently **24
+Current measured queue: **1,578 unresolved carrier-marker rows project-wide**,
+of which **590 are in `recon/game/common`**.  There are currently **27
 `ORIGINAL-NAME-RECOVERED` evidence rows**.  These counts were measured from the
 working tree on 2026-09-04 and must be regenerated after each recovery round.
 
-## Strict per-directory snapshot through P838
+## Strict per-directory snapshot through P842
 
 These reports measure the current source tree; they are evidence of remaining
 work, not completion certificates.  `Explicit source-only codegen carriers`
@@ -60,7 +59,7 @@ marker rows (a few names have more than one scoped marker row).
 
 | Directory | SYM functions | Mapped | Declaration-clean | Missing names | Extra names | Type/storage findings | Source-only carriers | Mapping review |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| `recon/game/common` | 1,258 | 1,258 | 1,228 | 0 | 6 | 28 / 28 | 600 | 0 |
+| `recon/game/common` | 1,258 | 1,258 | 1,228 | 0 | 6 | 28 / 28 | 590 | 0 |
 | `recon/frontend/common` | 838 | 833 | 781 | 0 | 46 | 9 / 9 | 519 | 3 |
 | `recon/frontend/psx` | 85 | 85 | 85 | 0 | 0 | 0 / 0 | 54 | 0 |
 | `recon/game/psx` | 395 | 395 | 392 | 0 | 3 | 0 / 0 | 395 | 0 |
@@ -69,7 +68,7 @@ marker rows (a few names have more than one scoped marker row).
 | `recon/syslib/psx` | 0 | 0 | 0 | 0 | 0 | 0 / 0 | 0 | 0 |
 
 The authoritative report files are
-`game_common_strict_p838_20260904.md`,
+`game_common_strict_p842_20260904.md`,
 `frontend_common_strict_p783_20260903.md`,
 `frontend_psx_strict_p780_20260903.md`,
 `game_psx_strict_p838_20260904.md`,
@@ -1196,7 +1195,66 @@ source-only carriers, one fewer than P840.  `x` is counted only through its
 adjacent source-bearing evidence receipt; no generic carrier exemption was
 added.
 
+### SLD source-shape and same-object name recovery at P842
+
+Five owning translation units retain every oracle-known function while nine
+source-only carrier mappings leave the current queue.
+
+- `CopSpeak_PlayNextRequest` retains its required unresolved `iVar3` queue-index
+  carrier, but the wraparound output local is now `next`.  This is an exact
+  same-object recovery: retail `COPSPEAK.CPP` records `int next` for the same
+  queue-output role in `CopSpeak_DirectRequest`,
+  `CopSpeak_GenericBankRequest`, and `CopSpeak_Request`.  The target remains
+  PASS 71/71 and `copspeak.cpp` remains 27/27 PASS.
+- `AudioTrk_Reset` no longer uses `pCVar2`, `puVar3`, or `neg1`.  A scoped
+  `AudioElem *se` performs the natural 24-byte walk; `se` is the exact retail
+  SYM spelling for the same `AudioElem *` role in both
+  `AudioTrk_SoundTrack` and `AudioTrk_PreLoad` in the owning
+  `AUDIOTRK.CPP` object.  SLD lines 78/79 require `nextDelay` before `chan`,
+  which produces retail's chan-biased induction cursor.  The target remains
+  PASS 56/56 and the TU remains 6/6 PASS.
+- `MPause_MusicLogic` no longer materializes `bVar1` or `iVar3`.  Retail SLD's
+  nested inline blocks and artificial `this` records at the menu-item test
+  prove the existing `MPause_CurrentItem` accessor shape for the `1 || 2`
+  decision; the later item tests and music-level call are direct expressions.
+  The target remains PASS 174/174 and `mpause.cpp` remains 10/10 PASS.
+- `AIHigh_Opponent::DoProvokedAttack` no longer materializes `iVar1`.  SLD
+  statement order places `attackTicksLeft_ = personality->attackTime` before
+  `hitCount_ = 0`; with that order, ordinary `hitCount_++` and the direct
+  threshold test emit the exact 43-instruction body.  `pCVar3` remains an open
+  spelling item because repeating `lastOtherObj` emits 46/43 instructions and
+  15 authoritative diffs, while retail SYM retains only `this`.  The TU remains
+  6/6 PASS.
+- `AIPhysic_CheckForGripReduction` no longer materializes `iVar1` or `iVar4`.
+  SLD and the raw CFG place the recent-collision/null-object test and recovery
+  threshold in one short-circuit OR.  That source shape lets GCC emit its signed
+  `/ 4` bias naturally and retain `gripFactor` in retail's register, preserving
+  PASS 101/101; `aiphysic.cpp` remains 42/42 PASS.  The separate `pers` carrier
+  remains explicitly unresolved.
+
+Two PASS-only routes were deliberately rejected.  A
+`switch (bool) { case false: ... default: ... }` spelling can reproduce
+`AIHigh_Execute` 66/66, but SLD proves only a materialized predicate, not a
+switch/default source construct, so the honest `bVar1` backlog form was
+restored.  `Speech::DispatchSpeaker::Activate` likewise remains unchanged at
+39/39: instrumented GCC proves that its `iVar1` carrier extends the loop-address
+pseudo's lifetime enough to give the loop address `$a0` and the SYM-owned `i`
+`$a1`, but neither SYM nor checked source-bearing references recover a spelling
+or a natural eliminating form.
+
+The authoritative report `game_common_strict_p842_20260904.md` maps all
+1,258/1,258 functions, with zero missing names, zero mapping-review items, 25
+exact cross-build/canonical recoveries, and 590 explicit source-only carrier
+mappings (down from 599 at P841).  A raw current-tree census records 1,578
+carrier-marker rows project-wide and 27 `ORIGINAL-NAME-RECOVERED` evidence
+rows.  Detailed target/TU oracle checks remain exact throughout; no asm,
+volatile, postcompile rewrite, generic audit exemption, or invented semantic
+replacement was added.
+
 ### Retained after P813 source-shape retests
+
+This subsection is a historical P813 receipt.  The P842 section above
+supersedes its `AudioTrk_Reset` bullet; the other listed items remain open.
 
 Four nearby groups remain deliberately conspicuous because no exact original
 spelling or eliminating source form is yet proved:

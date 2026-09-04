@@ -1991,33 +1991,16 @@ void AIPhysic_CheckForGripReduction(Car_tObj *carObj)
 {
   int randVal;
   int perTickProb;
-  /* SYM-CODEGEN-CARRIER: iVar1 -- the separately materialized
-     (0x10000-minimum) quotient selects retail's a1 constant lifetime; direct
-     division keeps 101 instructions with eight allocation/store differences. */
-  int iVar1;
-  /* SYM-CODEGEN-CARRIER: iVar4 -- retaining the recovered grip value across
-     update and threshold comparison preserves retail's a0/v0 lifetime; direct
-     member spelling emits 102/101 instructions with fifteen differences. */
-  int iVar4;
 
-  iVar4 = carObj->gripFactor;
-  if (iVar4 < 0x10000) {
-    iVar4 = iVar4 +
+  if (carObj->gripFactor < 0x10000) {
+    carObj->gripFactor +=
         AIPhysic_elapsedTime * carObj->personality->gripLossRecoveryPerTick;
-    carObj->gripFactor = iVar4;
-    if ((simGlobal[1] - (carObj->N).collision.lastTime < 0x40) &&
-       ((carObj->N).collision.lastOtherObj == (BO_tNewtonObj *)0x0)) {
+    if (((simGlobal[1] - (carObj->N).collision.lastTime < 0x40) &&
+         ((carObj->N).collision.lastOtherObj == (BO_tNewtonObj *)0x0)) ||
+        (carObj->personality->gripLossMinFactor +
+             ((0x10000 - carObj->personality->gripLossMinFactor) / 4) <
+         carObj->gripFactor)) {
       carObj->gripFactor = 0x10000;
-    }
-    else {
-      iVar1 = 0x10000;
-      iVar1 = iVar1 - carObj->personality->gripLossMinFactor;
-      if (iVar1 < 0) {
-        iVar1 = iVar1 + 3;
-      }
-      if (carObj->personality->gripLossMinFactor + (iVar1 >> 2) < iVar4) {
-        carObj->gripFactor = 0x10000;
-      }
     }
   }
   else if (((carObj->N).simOptz == '\0') && ((carObj->carFlags & 0x28U) != 0)) {

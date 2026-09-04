@@ -189,14 +189,6 @@ int AIWorld_IsDriveableLaneInSliceRange(int startSlice,int numSlicesToCheck,int 
   int mask;             /* SYM: REG -- computed ONCE before the loop */
   int checkSliceOffset;  /* SYM: REG */
   int checkSlice;         /* SYM: REG */
-  /* SYM-CODEGEN-CARRIER: sliceDelta -- absent from the surviving block
-   * records. Mutating startSlice/direction instead changes 31 instructions
-   * and shortens the function by one. */
-  int sliceDelta;
-  /* SYM-CODEGEN-CARRIER: i -- absent from the surviving block records.
-   * Decrementing numSlicesToCheck instead changes 14 instructions and
-   * shortens the function by two. */
-  int i;
 
   laneOffset = 7 - laneIndex;
   profileIndex = 8 - laneOffset;
@@ -207,28 +199,16 @@ int AIWorld_IsDriveableLaneInSliceRange(int startSlice,int numSlicesToCheck,int 
     profileIndex = 0xf;
   }
   mask = 1 << (0xfU - profileIndex);
-  i = 0;
-  sliceDelta = 0;
+  checkSliceOffset = 0;
   while (true) {
-    if (numSlicesToCheck <= i) {
+    if (numSlicesToCheck <= checkSliceOffset) {
       break;
     }
-    checkSlice = startSlice + sliceDelta;
-    if (sliceDelta >= 0) {    /* De Morgan complement -- oracle's sliceDelta<0 case is the
-                                  branch-TAKEN target, sliceDelta>=0 is the fall-through */
-      if (gNumSlices <= checkSlice) {
-        checkSlice = checkSlice - gNumSlices;
-      }
-    }
-    else if (checkSlice < 0) {
-      checkSlice = checkSlice + gNumSlices;
-    }
-    checkSliceOffset = checkSlice * 0x20;
-    sliceDelta = sliceDelta + direction;
-    if ((*(short *)(checkSliceOffset + (int)BWorldSm_slices + 0x16) & mask) == 0) {
+    checkSlice = WRAP_SLICE(checkSliceOffset * direction,startSlice);
+    if ((*(short *)(checkSlice * 0x20 + (int)BWorldSm_slices + 0x16) & mask) == 0) {
       return 0;
     }
-    i = i + 1;
+    checkSliceOffset = checkSliceOffset + 1;
   }
   /* Exiting with `break` keeps the success value in the final return delay slot. */
   return 1;

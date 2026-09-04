@@ -1409,6 +1409,17 @@ PER_FN_CC1PLUS_VER_SPLICE = {
     # retail-only ruling): the fn's 2.8.0 residual is the orphan (use reg)
     # note class -- unfixable from source on 2.8.0 by construction.
     "recon/game/psx/night.cpp": {"2.8.1-sn": {"Night_CreateNightTableElement__FiliPUc"}},
+    # P852 (2026-09-04): retail SLD and the symbol-bearing matched NFS2 source
+    # both describe four ordinary memcpy/Replay_Compress stanzas with only the
+    # AUTO packeddata[33].  Retail Sony GCC 2.8.1 SN32 naturally emits the four
+    # returned-pointer moves present in the oracle (243/243); 2.8.0 omits one
+    # move per stanza and required false locals plus empty asm fences.  The
+    # clean body and the complete 16-function replay TU were independently
+    # gated on the hash-pinned retail rung.  Pre-change tool state is preserved
+    # by the pushed db0984cb checkpoint.
+    "recon/game/common/replay.cpp": {
+        "2.8.1-sn": {"Replay_StoringControllerData__FG15tControllerData"},
+    },
 }
 
 

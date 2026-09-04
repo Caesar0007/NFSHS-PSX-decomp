@@ -123,6 +123,11 @@ def compile_debug_twin(src: Path) -> Path:
     r = bld.run([cc1, *flags, i_file, "-o", s_file])
     if r.returncode:
         sys.exit(f"[diffsrc cc1 -g] {rel}\n{r.stdout}{r.stderr}")
+    # Keep the attribution twin on the same retail C++ compiler identity as
+    # the gate object.  Without this mirror, a per-function 2.8.1 source body
+    # is compared against a 2.8.0 -g twin and is falsely reported as FUZZY.
+    if not is_c:
+        bld._apply_cc1plus_ver_splice(rel.as_posix(), s_file, i_file, flags)
     bld._apply_fn_splice(rel.as_posix(), s_file, i_file, cc1, flags)
     _uniquify_dbg_labels(s_file)
     maspsx_cmd = [bld.PY, bld.MASPSX, f"--aspsx-version={bld.ASPSX_VERSION}",

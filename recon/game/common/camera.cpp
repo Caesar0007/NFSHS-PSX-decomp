@@ -5,6 +5,8 @@
 #include "camera_types.h"
 #include "camera_externs.h"
 
+#define MIN(a,b) (((a) > (b)) ? (b) : (a))
+
 
 /* ---- clock.obj-owned globals (.bss zero) ---- */
 camera_info  Camera_gInfo[2];   /* @0x8010f2ac  (bss(zero)) */
@@ -1040,19 +1042,13 @@ void Camera_SetSplineCam(int player)
 {
   Car_tObj *anchor;
   int numSlice;
-  /* SYM-CODEGEN-CARRIER: sliceStep -- the separate clamp result preserves
-     retail's saved-register priority cycle and 128-instruction frame shape. */
-  int sliceStep;
-  int direction;
 
   anchor = (Car_tObj *)Camera_gInfo[player].anchor;
   numSlice = (0xf * (0x10000 - camSpeedTable[(u_char)Camera_gInfo[player].splineMode])) >> 0x10;
-  sliceStep = 8;
-  if (numSlice + 1 < 9) {
-    sliceStep = numSlice + 1;
-  }
-  numSlice = sliceStep;
+  numSlice = MIN(numSlice + 1,8);
   if (CAMERA_REPLAY_DEFAULT(player) == 0) {
+    int direction;
+
     /* SYM-CODEGEN-CARRIER: cameraDirection -- retail uses an int-stride base
        for rotation.m[6..8]; direct field indexing loses two instructions and
        changes 48 oracle positions. */

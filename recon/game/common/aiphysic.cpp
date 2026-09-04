@@ -934,23 +934,13 @@ void AIPhysic_GetDesiredVector(Car_tObj *carObj)
     sliceLookAhead = AIPhysicConfig.max_lookahead / 6;
   }
   dirCorrectedSliceLookAhead = sliceLookAhead * carObj->driveDirection * carObj->direction;
-  /* SYM-CODEGEN-CARRIER: v -- optimized SYM omits the four mutually exclusive
-     wrapped-slice temporaries.  Normalizing the member directly keeps 378
-     instructions but produces 24 detailed store/schedule differences. */
-  if (!(dirCorrectedSliceLookAhead < 0)) {
-    int v = thisSlice + dirCorrectedSliceLookAhead;
-    if (!(v < gNumSlices)) {
-      v = v - gNumSlices;
-    }
-    carObj->lookAheadSlice = v;
-  }
-  else {
-    int v = thisSlice + dirCorrectedSliceLookAhead;
-    if (v < 0) {
-      v = v + gNumSlices;
-    }
-    carObj->lookAheadSlice = v;
-  }
+  carObj->lookAheadSlice = (dirCorrectedSliceLookAhead >= 0)
+      ? ((thisSlice + dirCorrectedSliceLookAhead >= gNumSlices)
+          ? thisSlice + dirCorrectedSliceLookAhead - gNumSlices
+          : thisSlice + dirCorrectedSliceLookAhead)
+      : ((thisSlice + dirCorrectedSliceLookAhead < 0)
+          ? (thisSlice + dirCorrectedSliceLookAhead) + gNumSlices
+          : thisSlice + dirCorrectedSliceLookAhead);
   futureBend = __builtin_abs(AIWorld_CalcRoadBend(carObj,dirCorrectedSliceLookAhead));
   roadWidth =
       (u_int)(*(u_char *)(carObj->lookAheadSlice * 0x20 +
@@ -977,20 +967,13 @@ void AIPhysic_GetDesiredVector(Car_tObj *carObj)
   }
   do {
     dirCorrectedSliceLookAhead = sliceLookAhead * carObj->driveDirection * carObj->direction;
-    if (!(dirCorrectedSliceLookAhead < 0)) {
-      int v = thisSlice + dirCorrectedSliceLookAhead;
-      if (!(v < gNumSlices)) {
-        v = v - gNumSlices;
-      }
-      carObj->lookAheadSlice = v;
-    }
-    else {
-      int v = thisSlice + dirCorrectedSliceLookAhead;
-      if (v < 0) {
-        v = v + gNumSlices;
-      }
-      carObj->lookAheadSlice = v;
-    }
+    carObj->lookAheadSlice = (dirCorrectedSliceLookAhead >= 0)
+        ? ((thisSlice + dirCorrectedSliceLookAhead >= gNumSlices)
+            ? thisSlice + dirCorrectedSliceLookAhead - gNumSlices
+            : thisSlice + dirCorrectedSliceLookAhead)
+        : ((thisSlice + dirCorrectedSliceLookAhead < 0)
+            ? (thisSlice + dirCorrectedSliceLookAhead) + gNumSlices
+            : thisSlice + dirCorrectedSliceLookAhead);
     fCPoint = *(coorddef *)(carObj->lookAheadSlice * 0x20 + (int)AIPhysic_BWorldSmSlices);
     right.x = (int)*(signed char *)(carObj->lookAheadSlice * 0x20 + (int)AIPhysic_BWorldSmSlices + 0x12) << 9;
     right.y = (int)*(signed char *)(carObj->lookAheadSlice * 0x20 + (int)AIPhysic_BWorldSmSlices + 0x13) << 9;

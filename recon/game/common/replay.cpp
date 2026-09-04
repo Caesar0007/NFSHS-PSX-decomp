@@ -272,71 +272,33 @@ void Replay_StoringReplay(void)
 void Replay_StoringControllerData(tControllerData controllerdata)
 
 {
-  /* Struct assignment reproduces the oracle's unknown-alignment 33-byte movstrsi
-   * expansion.  The source identities preserve the returned-pointer handoff in v1.
-   * For the final copy, staging packedPtr before replayBuffer plus a read-only fence
-   * preserves the retail a1 branch slots and keeps the store-pointer load below the
-   * byte-copy tail: exact 243/243. */
-  struct PackedBuf33 { char b[33]; };
   char packeddata [33];
 
-  if (0x6000 <= Replay_ReplayStorePtr + 0x80) {
-    Replay_ReplayMode = 1;
+  if (Replay_ReplayStorePtr + 128 >= 0x6000) {
     Replay_Size = simGlobal.gameTicks;
-    return;
+    Replay_ReplayMode = 1;
   }
-  {
-    /* SYM-CODEGEN-CARRIER: source
-       SYM retains only `packeddata`; this repeated return-pointer handoff is
-       anonymous in retail debug data.  Folding the first handoff directly
-       into the struct assignment gives 242/243 instructions and 49 diffs,
-       while the identity fence preserves retail's v1 copy web. */
-    struct PackedBuf33 *source =
-        (struct PackedBuf33 *)Replay_Compress(controllerdata.steering);
-    __asm__("" : "=r"(source) : "0"(source));
-    *(struct PackedBuf33 *)packeddata = *source;
-  }
-  memcpy(Replay_ReplayBuffer.buffer + Replay_ReplayStorePtr,packeddata,(u_int)(u_char)packeddata[0]);
-  Replay_ReplayStorePtr = Replay_ReplayStorePtr + (u_int)(u_char)packeddata[0];
+  else {
+    memcpy(packeddata,Replay_Compress((char *)controllerdata.steering),33);
+    memcpy(&Replay_ReplayBuffer.buffer[Replay_ReplayStorePtr],
+           packeddata,(unsigned char)packeddata[0]);
+    Replay_ReplayStorePtr += (unsigned char)packeddata[0];
 
-  {
-    struct PackedBuf33 *source =
-        (struct PackedBuf33 *)Replay_Compress((char *)controllerdata.gas);
-    __asm__("" : "=r"(source) : "0"(source));
-    *(struct PackedBuf33 *)packeddata = *source;
-  }
-  memcpy(Replay_ReplayBuffer.buffer + Replay_ReplayStorePtr,packeddata,(u_int)(u_char)packeddata[0]);
-  Replay_ReplayStorePtr = Replay_ReplayStorePtr + (u_int)(u_char)packeddata[0];
+    memcpy(packeddata,Replay_Compress((char *)controllerdata.gas),33);
+    memcpy(&Replay_ReplayBuffer.buffer[Replay_ReplayStorePtr],
+           packeddata,(unsigned char)packeddata[0]);
+    Replay_ReplayStorePtr += (unsigned char)packeddata[0];
 
-  {
-    struct PackedBuf33 *source =
-        (struct PackedBuf33 *)Replay_Compress((char *)controllerdata.brake);
-    __asm__("" : "=r"(source) : "0"(source));
-    *(struct PackedBuf33 *)packeddata = *source;
-  }
-  memcpy(Replay_ReplayBuffer.buffer + Replay_ReplayStorePtr,packeddata,(u_int)(u_char)packeddata[0]);
-  Replay_ReplayStorePtr = Replay_ReplayStorePtr + (u_int)(u_char)packeddata[0];
+    memcpy(packeddata,Replay_Compress((char *)controllerdata.brake),33);
+    memcpy(&Replay_ReplayBuffer.buffer[Replay_ReplayStorePtr],
+           packeddata,(unsigned char)packeddata[0]);
+    Replay_ReplayStorePtr += (unsigned char)packeddata[0];
 
-  {
-    struct PackedBuf33 *source =
-        (struct PackedBuf33 *)Replay_Compress((char *)controllerdata.states);
-    __asm__("" : "=r"(source) : "0"(source));
-    *(struct PackedBuf33 *)packeddata = *source;
+    memcpy(packeddata,Replay_Compress((char *)controllerdata.states),33);
+    memcpy(&Replay_ReplayBuffer.buffer[Replay_ReplayStorePtr],
+           packeddata,(unsigned char)packeddata[0]);
+    Replay_ReplayStorePtr += (unsigned char)packeddata[0];
   }
-  /* SYM-CODEGEN-CARRIER: packedPtr
-     SYM retains the underlying `packeddata` array, not this final copy
-     cursor.  Direct use is instruction-count exact but moves the gp-relative
-     store-pointer load upward, producing two scheduling diffs. */
-  char *packedPtr = packeddata;
-  /* SYM-CODEGEN-CARRIER: replayBuffer
-     The final base alias pairs with `packedPtr` and the read-only fence to
-     keep the retail memcpy argument schedule; its identifier is not
-     recoverable from SYM or code. */
-  char *replayBuffer = Replay_ReplayBuffer.buffer;
-  __asm__("" : : "r"(packedPtr));
-  memcpy(replayBuffer + Replay_ReplayStorePtr,packedPtr,(u_int)(u_char)packedPtr[0]);
-  Replay_ReplayStorePtr = Replay_ReplayStorePtr + (u_int)(u_char)packeddata[0];
-  return;
 }
 /* ---- Replay_RetreivingControllerData__Fv  [REPLAY.CPP:314-335] SLD-VERIFIED ---- */
 tControllerData Replay_RetreivingControllerData(void)

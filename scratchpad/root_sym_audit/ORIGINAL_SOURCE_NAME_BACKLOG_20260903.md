@@ -232,6 +232,63 @@ green for `ai` 40/40, `aiphysic` 42/42, `aiscript` 8/8, `audiocmn` 48/48,
 `audiotrk` 6/6, `bworld` 21/21, `bworldSm` 28/28, `collide` 14/14, `newton`
 32/32, `physics` 22/22, and `stats` 7/7.
 
+## P851 ring-wrap and SLD block-scope round
+
+This round eliminates **five reconstruction-only local declarations**
+represented by **two raw `SYM-CODEGEN-CARRIER` rows**, while both functions
+remain byte-exact and both `-g` twins are exact:
+
+- `AIPhysic_GetDesiredVector` now uses the nested conditional wrap expression
+  found in the matched NFS2 implementation.  Its two complete assignments
+  correspond to single retail SLD statements at `0x8006AD64-0x8006ADA4` and
+  `0x8006AF38-0x8006AF7C`; SYM contains no `v` local.  Repeating the original
+  expression in both wrap sites removes four mutually exclusive scoped `v`
+  declarations and preserves **378/378**.
+- `Camera_SetSplineCam` now uses the canonical
+  `MIN(numSlice + 1, 8)` expression and declares `direction` in the replay
+  block where its retail SLD lifetime begins at `0x8008255C`.  The two changes
+  are allocator-coupled: the macro shape alone changes 46 instructions, while
+  restoring the block scope recreates the exact saved-register allocation.
+  The unsupported `sliceStep` local disappears and the function remains
+  **128/128**.
+
+The complete `aiphysic.cpp` and `camera.cpp` TU gates remain **42/42 PASS** and
+**38/38 PASS**, respectively.  Neither restoration uses volatile, assembly,
+or postcompile rewriting.
+
+## P852 replay source and retail-compiler identity round
+
+`Replay_StoringControllerData` is restored to the ordinary four-stanza source
+preserved by the symbol-bearing matched NFS2 implementation and by the retail
+NFS4 SLD.  The only AUTO is `packeddata[33]`; each stanza directly copies the
+33-byte result of `Replay_Compress`, appends the encoded byte count, and advances
+`Replay_ReplayStorePtr`.  This removes four scoped `source` locals,
+`packedPtr`, `replayBuffer`, their local aggregate workaround, and all five
+empty asm fences represented by **three raw `SYM-CODEGEN-CARRIER` rows**.
+
+The clean body exposes the original compiler identity.  Sony GCC 2.8.0 omits
+one returned-pointer move after each `Replay_Compress` call and produces
+239/243 instructions; the hash-pinned retail PsyQ 2.8.1 SN32 C++ compiler
+naturally emits all four moves and is exact at **243/243**.  A narrowly scoped
+`PER_FN_CC1PLUS_VER_SPLICE` entry selects that retail compiler for this function
+only.  `diffsrc.py` now mirrors the same retail compiler selection for its
+diagnostic `-g` twin, so the source/SLD attribution is exact rather than a
+false 2.8.0 fuzzy comparison.  The complete `replay.cpp` TU remains
+**16/16 PASS**.  This is compiler-input selection, not a postcompile text move
+or opcode rewrite.
+
+## P853 canonical slice-loop round
+
+`AIWorld_IsDriveableLaneInSliceRange` now uses its retail SYM local
+`checkSliceOffset` as the loop counter and the existing canonical
+`WRAP_SLICE(checkSliceOffset * direction, startSlice)` macro.  The matched NFS2
+source preserves the same loop/macro idiom, while NFS4 SLD assigns the loop
+counter, complete wrap expression, profile access, and increment to the
+corresponding source statements.  This removes the unsupported `sliceDelta`
+and `i` declarations represented by **two raw `SYM-CODEGEN-CARRIER` rows**.
+The function remains **46/46**, its `-g` twin is exact, all seven branch words
+are clean, and the complete `AIWORLD.cpp` TU remains **22/22 PASS**.
+
 ## Expansion requirement
 
 This is a living backlog.  Every retained source-only carrier whose spelling is
@@ -251,12 +308,12 @@ spelling.  A row leaves this queue only when direct source-bearing evidence is
 recorded and its marker is replaced by `ORIGINAL-NAME-RECOVERED` (or when the
 extra source object is eliminated while preserving the oracle).
 
-Current measured queue: **1,543 unresolved carrier-marker rows project-wide**,
-of which **552 are in `recon/game/common`**.  There are currently **32
+Current measured queue: **1,536 unresolved carrier-marker rows project-wide**,
+of which **545 are in `recon/game/common`**.  There are currently **32
 `ORIGINAL-NAME-RECOVERED` evidence rows**.  These counts were measured from the
 working tree on 2026-09-04 and must be regenerated after each recovery round.
 
-## Strict per-directory snapshot through P850
+## Strict per-directory snapshot through P853
 
 These reports measure the current source tree; they are evidence of remaining
 work, not completion certificates.  `Explicit source-only codegen carriers`
@@ -265,7 +322,7 @@ marker rows (a few names have more than one scoped marker row).
 
 | Directory | SYM functions | Mapped | Declaration-clean | Missing names | Extra names | Type/storage findings | Source-only carriers | Mapping review |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| `recon/game/common` | 1,258 | 1,258 | 1,228 | 0 | 6 | 28 / 28 | 552 | 0 |
+| `recon/game/common` | 1,258 | 1,258 | 1,228 | 0 | 6 | 28 / 28 | 545 | 0 |
 | `recon/frontend/common` | 838 | 833 | 781 | 0 | 46 | 9 / 9 | 519 | 3 |
 | `recon/frontend/psx` | 85 | 85 | 85 | 0 | 0 | 0 / 0 | 54 | 0 |
 | `recon/game/psx` | 395 | 395 | 392 | 0 | 3 | 0 / 0 | 395 | 0 |
@@ -274,7 +331,7 @@ marker rows (a few names have more than one scoped marker row).
 | `recon/syslib/psx` | 0 | 0 | 0 | 0 | 0 | 0 / 0 | 0 | 0 |
 
 The authoritative report files are
-`game_common_strict_p850_20260904.md`,
+`game_common_strict_p853_20260904.md`,
 `frontend_common_strict_p783_20260903.md`,
 `frontend_psx_strict_p780_20260903.md`,
 `game_psx_strict_p838_20260904.md`,

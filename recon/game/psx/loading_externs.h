@@ -6,9 +6,7 @@
 extern char          *loading_languageNames[] __asm__("D_80120D00"); /* 0x80120d00 */
 extern char          *smallShapeFile;          /* 0x8013d9d0  Loadb.psh progress tiles */
 extern int            totalAvailMem;           /* 0x8013d9dc */
-/* GameSetup_tData is externally owned and absent from loading.obj's retail
- * graph.  Retain the exact symbol and its three proven word offsets. */
-extern int             Loading_GameSetupWords[] asm("GameSetup_gData");
+extern GameSetup_tData GameSetup_gData;
 extern char          *Paths_Paths[];           /* 0x80116468 */
 
 /* ---- eaclib / syslib / Draw helpers ---- */

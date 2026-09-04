@@ -336,6 +336,38 @@ retail allocation (best result: 8 differences), so its receipted
 functions were gated twice and the complete `aispeeds.cpp` TU remains
 **29/29 PASS**.  No volatile, assembly, or postcompile rewrite was introduced.
 
+## P856 cross-build view identity and natural group-expression round
+
+Three unsupported carrier rows have been closed without changing retail code:
+
+- `AudioClc_GetClosestCars` now uses `DRender_tCalcView *view` and
+  `view->translation.x/y/z`.  The symbol-bearing, byte-matched NFS2 PC source
+  preserves that exact pointer name, type, and member-access spelling; NFS4
+  replaces the earlier parameter with `&AudioClc_gRenderView`.  The optimized
+  NFS4 SYM omits the pointer home, so this is recorded explicitly as an exact
+  cross-build recovery rather than an invented semantic name.  The former
+  `viewpos` carrier is gone and the function remains **267/267**.
+- `SerializedGroup::LocateNextGroupType` now uses the natural mismatch guard
+  and returns `group` afterward.  Retail SYM records only `group`; the
+  reconstruction-only XOR operand `zero` is gone and the function remains
+  **10/10**.
+- `SerializedGroup::LocateGroupType` now expresses alignment directly as
+  `group->m_length += 4 - (group->m_length & 3)`.  Retail SYM records only
+  `group`, `numElems`, and `count`, while the IDA body independently preserves
+  this `(length + 4) - (length & 3)` form.  The unsupported `newLen` carrier is
+  gone and the function remains **28/28**.
+
+All three source-only gates passed twice, all three `-g` twins are exact, and
+all 45 branch words are clean.  Complete TU gates remain **18/18 PASS** for
+`audioclc.cpp` and **6/6 PASS** for `group.cpp`.  The strict all-TU object build
+also completes without skipped objects; vtable and source-policy audits pass,
+and the complete `recon`/`src` relink gate is GREEN with zero real duplicates,
+hidden phantoms, or relocation-referenced unresolved names.  Direct inlining of
+`ObjectFinishedMultiAnim` was measured and rejected at 14 differences;
+carrier-free `Paths_StartUp` candidates were rejected because the best natural
+form retained two scheduling differences and the exact helper form damaged SLD
+line/block provenance.  Those receipted exact carriers remain open.
+
 ## Expansion requirement
 
 This is a living backlog.  Every retained source-only carrier whose spelling is
@@ -355,12 +387,12 @@ spelling.  A row leaves this queue only when direct source-bearing evidence is
 recorded and its marker is replaced by `ORIGINAL-NAME-RECOVERED` (or when the
 extra source object is eliminated while preserving the oracle).
 
-Current measured queue: **1,532 unresolved carrier-marker rows project-wide**,
-of which **541 are in `recon/game/common`**.  There are currently **32
+Current measured queue: **1,529 unresolved carrier-marker rows project-wide**,
+of which **538 are in `recon/game/common`**.  There are currently **33
 `ORIGINAL-NAME-RECOVERED` evidence rows**.  These counts were measured from the
 working tree on 2026-09-04 and must be regenerated after each recovery round.
 
-## Strict per-directory snapshot through P855
+## Strict per-directory snapshot through P856
 
 These reports measure the current source tree; they are evidence of remaining
 work, not completion certificates.  `Explicit source-only codegen carriers`
@@ -369,7 +401,7 @@ marker rows (a few names have more than one scoped marker row).
 
 | Directory | SYM functions | Mapped | Declaration-clean | Missing names | Extra names | Type/storage findings | Source-only carriers | Mapping review |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| `recon/game/common` | 1,258 | 1,258 | 1,228 | 0 | 6 | 28 / 28 | 541 | 0 |
+| `recon/game/common` | 1,258 | 1,258 | 1,228 | 0 | 6 | 28 / 28 | 538 | 0 |
 | `recon/frontend/common` | 838 | 833 | 781 | 0 | 46 | 9 / 9 | 519 | 3 |
 | `recon/frontend/psx` | 85 | 85 | 85 | 0 | 0 | 0 / 0 | 54 | 0 |
 | `recon/game/psx` | 395 | 395 | 392 | 0 | 3 | 0 / 0 | 395 | 0 |
@@ -378,7 +410,7 @@ marker rows (a few names have more than one scoped marker row).
 | `recon/syslib/psx` | 0 | 0 | 0 | 0 | 0 | 0 / 0 | 0 | 0 |
 
 The authoritative report files are
-`game_common_strict_p855_20260904.md`,
+`game_common_strict_p856_20260904.md`,
 `frontend_common_strict_p783_20260903.md`,
 `frontend_psx_strict_p780_20260903.md`,
 `game_psx_strict_p838_20260904.md`,

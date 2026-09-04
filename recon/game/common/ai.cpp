@@ -765,6 +765,9 @@ void AI_CalculateLaneSpeeds(Car_tObj *carObj)
 /* ---- AI_CalcMeritsBasedOnSpeed__FP8Car_tObj  [@0x800590b4] ---- */
 void AI_CalcMeritsBasedOnSpeed(Car_tObj *carObj)
 {
+  /* ORIGINAL-NAME-RECOVERED: i -- the symbol-bearing NFS2 predecessor
+     records this exact loop counter as `int i`. */
+  int i;
   int dSpeed;
   int cSpeed;
   int considerDesired;
@@ -782,108 +785,56 @@ void AI_CalcMeritsBasedOnSpeed(Car_tObj *carObj)
     CarLogic_gObs[0][2] = CarLogic_gObs[0][2] + -0xe0000;
   }
   if (carObj->direction == 1) {
-    /* SYM-CODEGEN-CARRIER: observation -- the matched NFS2 `for (i...)`
-       source form compiles NFS4 to 226 rather than 224 instructions and
-       produces 266 allocation/flow diffs. */
-    int *observation;
-    /* SYM-CODEGEN-CARRIER: observationBase -- direct end-bound spellings
-       compile to 222 instructions with ten oracle diffs. */
-    int *observationBase;
-    /* SYM-CODEGEN-CARRIER: laneInfo -- required strength-reduced AI_Info base. */
-    AI_tInfo *laneInfo;
-    /* SYM-CODEGEN-CARRIER: laneSpeed -- required retail load/result lifetime. */
-    int laneSpeed;
-    /* SYM-CODEGEN-CARRIER: lane -- literal `[0]` changes the saved-register
-       set/frame and compiles to 230 instructions with 232 oracle diffs. */
-    int lane;
-
-    lane = 0;
-    observation = &CarLogic_gObs[0][0];
-    observationBase = observation;
-    laneInfo = &AI_Info;
+    i = 0;
     do {
-      laneSpeed = laneInfo->laneSpeeds[lane];
-      if (laneSpeed <= cSpeed) {
-        if (laneInfo->blockingCars[lane] != (Car_tObj *)0x0) {
-          *observation =
-              *observation + fixedmult(cSpeed - laneSpeed,-0x14ccc);
-          laneSpeed = laneInfo->laneSpeeds[lane];
+      if (AI_Info.laneSpeeds[i] <= cSpeed) {
+        if (AI_Info.blockingCars[i] != (Car_tObj *)0x0) {
+          CarLogic_gObs[0][i] +=
+              fixedmult(cSpeed - AI_Info.laneSpeeds[i],-0x14ccc);
         }
       }
-      if (((laneSpeed <= dSpeed) &&
-           (laneInfo->blockingCars[lane] != (Car_tObj *)0x0)) &&
-          considerDesired)
-      {
-        *observation =
-            *observation + fixedmult(dSpeed - laneSpeed,-0x8000);
-      }
-      laneSpeed = laneInfo->laneSpeedsAhead[lane];
-      if (laneSpeed <= cSpeed) {
-        if (laneInfo->blockingCars[lane] != (Car_tObj *)0x0) {
-          *observation =
-              *observation + fixedmult(cSpeed - laneSpeed,-0x8000);
-          laneSpeed = laneInfo->laneSpeedsAhead[lane];
+      if ((AI_Info.laneSpeeds[i] <= dSpeed) &&
+          (AI_Info.blockingCars[i] != (Car_tObj *)0x0) && considerDesired)
+        CarLogic_gObs[0][i] +=
+            fixedmult(dSpeed - AI_Info.laneSpeeds[i],-0x8000);
+      if (AI_Info.laneSpeedsAhead[i] <= cSpeed) {
+        if (AI_Info.blockingCars[i] != (Car_tObj *)0x0) {
+          CarLogic_gObs[0][i] +=
+              fixedmult(cSpeed - AI_Info.laneSpeedsAhead[i],-0x8000);
         }
       }
-      if (((laneSpeed <= dSpeed) &&
-           (laneInfo->blockingCars[lane] != (Car_tObj *)0x0)) &&
-          considerDesired)
-      {
-        *observation =
-            *observation + fixedmult(dSpeed - laneSpeed,-0x1999);
-      }
-      observation = observation + 1;
-      laneInfo = (AI_tInfo *)(laneInfo->blockingCars + 1);
-    } while ((int)observation < (int)(observationBase + 3));
+      if ((AI_Info.laneSpeedsAhead[i] <= dSpeed) &&
+          (AI_Info.blockingCars[i] != (Car_tObj *)0x0) && considerDesired)
+        CarLogic_gObs[0][i] +=
+            fixedmult(dSpeed - AI_Info.laneSpeedsAhead[i],-0x1999);
+      i = i + 1;
+    } while (i < 3);
   }
   else {
-    int *observation;
-    int *observationBase;
-    AI_tInfo *laneInfo;
-    int laneSpeed;
-    int lane;
-
-    lane = 0;
-    observation = &CarLogic_gObs[0][0];
-    observationBase = observation;
-    laneInfo = &AI_Info;
+    i = 0;
     do {
-      /* 04Q (objdiff 99.96 -> 100): the old `goto noLaneSpeedMerit` skip device
-       * FORCED a jump-threaded flow (blockingCars==0 skipping the dSpeed block
-       * entirely) that the oracle does NOT have -- retail re-enters the dSpeed
-       * block and re-tests.  verify_asm was blind to it (branch targets are
-       * normalized to T); objdiff caught the 2 target diffs.  The plain
-       * nested-if shape below (same as the direction==1 loop) is behaviorally
-       * identical and produces the oracle's un-threaded targets. */
-      laneSpeed = laneInfo->laneSpeeds[lane];
-      if (cSpeed <= laneSpeed) {
-        if (laneInfo->blockingCars[lane] != (Car_tObj *)0x0) {
-          *observation =
-              *observation + fixedmult(laneSpeed - cSpeed,-0x14ccc);
+      if (cSpeed <= AI_Info.laneSpeeds[i]) {
+        if (AI_Info.blockingCars[i] != (Car_tObj *)0x0) {
+          CarLogic_gObs[0][i] +=
+              fixedmult(AI_Info.laneSpeeds[i] - cSpeed,-0x14ccc);
         }
-        laneSpeed = laneInfo->laneSpeeds[lane];  /* reload OUTSIDE the inner if */
       }
-      if ((dSpeed <= laneSpeed) &&
-          (laneInfo->blockingCars[lane] != (Car_tObj *)0x0)) {
-        *observation =
-            *observation + fixedmult(laneSpeed - dSpeed,-0x8000);
-      }
-      laneSpeed = laneInfo->laneSpeedsAhead[lane];
-      if (cSpeed <= laneSpeed) {
-        if (laneInfo->blockingCars[lane] != (Car_tObj *)0x0) {
-          *observation =
-              *observation + fixedmult(laneSpeed - cSpeed,-0x8000);
+      if ((dSpeed <= AI_Info.laneSpeeds[i]) &&
+          (AI_Info.blockingCars[i] != (Car_tObj *)0x0))
+        CarLogic_gObs[0][i] +=
+            fixedmult(AI_Info.laneSpeeds[i] - dSpeed,-0x8000);
+      if (cSpeed <= AI_Info.laneSpeedsAhead[i]) {
+        if (AI_Info.blockingCars[i] != (Car_tObj *)0x0) {
+          CarLogic_gObs[0][i] +=
+              fixedmult(AI_Info.laneSpeedsAhead[i] - cSpeed,-0x8000);
         }
-        laneSpeed = laneInfo->laneSpeedsAhead[lane];
       }
-      if ((dSpeed <= laneSpeed) &&
-          (laneInfo->blockingCars[lane] != (Car_tObj *)0x0)) {
-        *observation =
-            *observation + fixedmult(laneSpeed - dSpeed,-0x1999);
-      }
-      observation = observation + 1;
-      laneInfo = (AI_tInfo *)(laneInfo->blockingCars + 1);
-    } while ((int)observation < (int)(observationBase + 3));
+      if ((dSpeed <= AI_Info.laneSpeedsAhead[i]) &&
+          (AI_Info.blockingCars[i] != (Car_tObj *)0x0))
+        CarLogic_gObs[0][i] +=
+            fixedmult(AI_Info.laneSpeedsAhead[i] - dSpeed,-0x1999);
+      i = i + 1;
+    } while (i < 3);
   }
   return;
 }
@@ -1085,42 +1036,27 @@ void AI_SubmitObstacle(Car_tObj *carObj,int importance,int leftLatPosition,int r
   return;
 }
 
-/* D_8011321C == GameSetup_gData.reverseTrack (GameSetup_gData+0x30) -- standalone-symbol
- * form matches the reloc, same precedent as aiinit.cpp AIInit_RestartAICar / hud.cpp. */
-extern int D_8011321C;
-
 /* ---- AI_HandleTrafficHonking__FP8Car_tObj  [@0x80059b88] ---- */
 void AI_HandleTrafficHonking(Car_tObj *carObj)
 {
   Car_tObj*visibleCar;
-  /* SYM-CODEGEN-CARRIER: randomValue -- folding the scaled RNG result into
-     the following guard remains 65 instructions but rotates the `$a0/$v1`
-     allocation across the RNG stores, producing 24 oracle diffs. */
-  int randomValue;
 
   visibleCar = AILife_IsCarInAnyVisibleArea(carObj);
-  if ((carObj->carFlags & 0x10U) != 0) {
-    /* SYM-CODEGEN-CARRIER: direction -- repeating the member read in both
-       ternary arms compiles to 73 instructions/16 oracle diffs instead of
-       retail's single load and 65-instruction PASS. */
-    int direction = carObj->direction;
-    /* @0x80059BC8: stored bool (sltu zero,result) of the ternary -- honk unless value == 0
-     * (value = ~direction when D_8011321C, else direction^1). */
-    /* SYM-CODEGEN-CARRIER: shouldHonk -- testing the ternary directly, while
-       retaining `direction`, creates a branch diamond: 68 instructions and
-       5 oracle diffs rather than retail's materialized boolean PASS. */
-    bool shouldHonk =
-      ((D_8011321C == 0) ? (direction ^ 1) : ~direction) != 0;
-    if ((shouldHonk &&
-         (visibleCar != (Car_tObj *)0x0)) &&
-        (-0x30000 < AI_Info.laneSpeeds[1])) {
-      randtemp = fastRandom * randSeed;
-      fastRandom = randtemp & 0xffff;
-      randomValue = (int)((randtemp >> 8 & 0xffff) * 1000 >> 0x10);
-      if (((GameSetup_gData.commMode != 1) && (randomValue < 5)) &&
-         (carObj->currentSpeed != 0)) {
-        AudioClc_HonkHorn(carObj,2,0x20,8);
-      }
+  if (((carObj->carFlags & 0x10U) != 0) &&
+      (carObj->direction != ((GameSetup_gData.reverseTrack == 0) ? 1 : -1)) &&
+      (visibleCar != (Car_tObj *)0x0) &&
+      (-0x30000 < AI_Info.laneSpeeds[1])) {
+    /* ORIGINAL-NAME-RECOVERED: honkprob -- the symbol-bearing NFS2
+       predecessor records this same RNG probability intermediate as `int honkprob`. */
+    int honkprob;
+
+    randtemp = fastRandom * randSeed;
+    fastRandom = randtemp & 0xffff;
+    honkprob = (int)((randtemp >> 8 & 0xffff) * 1000 >> 0x10);
+    if (((GameSetup_gData.commMode != 1) &&
+         (honkprob < 5)) &&
+       (carObj->currentSpeed != 0)) {
+      AudioClc_HonkHorn(carObj,2,0x20,8);
     }
   }
   return;

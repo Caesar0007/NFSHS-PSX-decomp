@@ -28,9 +28,9 @@ functions are mapped to their demangled C++ names and class scopes.
 - Explicit restored inline-local mappings: 57
 - Explicit restored macro-local mappings: 0
 - Explicit compact static-local mappings: 4
-- Exact cross-build/canonical name recoveries: 28
+- Exact cross-build/canonical name recoveries: 30
 - Explicit linkage-proven ABI parameters omitted from SYM: 13
-- Explicit source-only codegen carriers: 573
+- Explicit source-only codegen carriers: 565
 - Explicit oracle-proven function type overrides: 0
 - Functions needing mapping review: 0
 - SYM object-owned data records in target TUs: 547
@@ -220,6 +220,8 @@ functions are mapped to their demangled C++ names and class scopes.
 
 ## Exact cross-build/canonical name recoveries
 
+- `AI_CalcMeritsBasedOnSpeed__FP8Car_tObj`: `i`
+- `AI_HandleTrafficHonking__FP8Car_tObj`: `honkprob`
 - `DoProvokedAttack__15AIHigh_Opponent`: `otherCar`
 - `AILife_ReencarnateTraffic__FP8Car_tObj`: `paintIndex`
 - `AILife_ReencarnateTrafficByPosition__FP8Car_tObjiiP8coorddefP10matrixtdef`: `paintIndex`
@@ -264,8 +266,6 @@ functions are mapped to their demangled C++ names and class scopes.
 ## Explicit source-only codegen carriers
 
 - `AI_CheckForPlayerActions__FP8Car_tObjT0`: `direction`
-- `AI_CalcMeritsBasedOnSpeed__FP8Car_tObj`: `lane`, `laneInfo`, `laneSpeed`, `observation`, `observationBase`
-- `AI_HandleTrafficHonking__FP8Car_tObj`: `direction`, `randomValue`, `shouldHonk`
 - `AI_KeepCarsInLane__FP8Car_tObj`: `local`
 - `AIHigh_StartUp__Fv`: `carFlags`, `copCarFlag`, `newHigh`, `slot`
 - `AIHigh_Execute__Fv`: `bVar1`

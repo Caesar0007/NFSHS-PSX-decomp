@@ -160,6 +160,33 @@ remain **PASS 44/44** and **PASS 131/131**, respectively, with exact `-g`
 twins.  `ailife.cpp` remains **20/20 PASS** and all affected branch-word audits
 are clean.
 
+## P849 AI indexed merits and traffic-honking source round
+
+`AI_CalcMeritsBasedOnSpeed` no longer exposes the five reconstruction-only
+objects `lane`, `laneInfo`, `laneSpeed`, `observation`, and
+`observationBase`.  NFS4 SYM retains only `dSpeed`, `cSpeed`, and
+`considerDesired`, while the exact symbol-bearing NFS2 predecessor recovers
+the optimized loop counter as `int i`.  Direct indexed `AI_Info` and
+`CarLogic_gObs` expressions in source, expressed as the retail-compatible
+`do/while`, let GCC recreate all pointer induction anonymously.  The function
+remains **PASS 224/224** twice, with an exact `-g`/SLD twin and 27/27 strict
+branch words clean.
+
+`AI_HandleTrafficHonking` now uses the typed source member
+`GameSetup_gData.reverseTrack` and the source-family comparison
+`direction != (reverseTrack == 0 ? 1 : -1)`.  This eliminates the synthetic
+address alias `D_8011321C` and the unsupported `direction` and `shouldHonk`
+locals.  The RNG intermediate is no longer named with the invented
+`randomValue`: the matched, symbol-bearing NFS2 predecessor recovers its exact
+spelling and type as block-local `int honkprob`, in the same lexical RNG block
+shown by NFS4 SLD.  NFS4's optimized SYM omits that home, just as it omits the
+recovered loop counter above.  The function remains **PASS 65/65** twice, its
+`-g` twin is exact, and all 8 strict branch words are clean.
+
+The complete `ai.cpp` TU remains **40/40 PASS**.  This round removes eight raw
+`SYM-CODEGEN-CARRIER` rows and adds two exact cross-build name recoveries
+without adding volatile, assembly, or postcompile rewriting.
+
 ## Expansion requirement
 
 This is a living backlog.  Every retained source-only carrier whose spelling is
@@ -179,12 +206,12 @@ spelling.  A row leaves this queue only when direct source-bearing evidence is
 recorded and its marker is replaced by `ORIGINAL-NAME-RECOVERED` (or when the
 extra source object is eliminated while preserving the oracle).
 
-Current measured queue: **1,564 unresolved carrier-marker rows project-wide**,
-of which **573 are in `recon/game/common`**.  There are currently **30
+Current measured queue: **1,556 unresolved carrier-marker rows project-wide**,
+of which **565 are in `recon/game/common`**.  There are currently **32
 `ORIGINAL-NAME-RECOVERED` evidence rows**.  These counts were measured from the
 working tree on 2026-09-04 and must be regenerated after each recovery round.
 
-## Strict per-directory snapshot through P848
+## Strict per-directory snapshot through P849
 
 These reports measure the current source tree; they are evidence of remaining
 work, not completion certificates.  `Explicit source-only codegen carriers`
@@ -193,7 +220,7 @@ marker rows (a few names have more than one scoped marker row).
 
 | Directory | SYM functions | Mapped | Declaration-clean | Missing names | Extra names | Type/storage findings | Source-only carriers | Mapping review |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| `recon/game/common` | 1,258 | 1,258 | 1,228 | 0 | 6 | 28 / 28 | 573 | 0 |
+| `recon/game/common` | 1,258 | 1,258 | 1,228 | 0 | 6 | 28 / 28 | 565 | 0 |
 | `recon/frontend/common` | 838 | 833 | 781 | 0 | 46 | 9 / 9 | 519 | 3 |
 | `recon/frontend/psx` | 85 | 85 | 85 | 0 | 0 | 0 / 0 | 54 | 0 |
 | `recon/game/psx` | 395 | 395 | 392 | 0 | 3 | 0 / 0 | 395 | 0 |
@@ -202,7 +229,7 @@ marker rows (a few names have more than one scoped marker row).
 | `recon/syslib/psx` | 0 | 0 | 0 | 0 | 0 | 0 / 0 | 0 | 0 |
 
 The authoritative report files are
-`game_common_strict_p848_20260904.md`,
+`game_common_strict_p849_20260904.md`,
 `frontend_common_strict_p783_20260903.md`,
 `frontend_psx_strict_p780_20260903.md`,
 `game_psx_strict_p838_20260904.md`,

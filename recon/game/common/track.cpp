@@ -634,12 +634,14 @@ void Track_LinkMaterials(SerializedGroup *group,int length,Track_tMaterial *matL
 void ReduceObjectPrecision(Group *instGroup,Group *defGroup,int bits)
 
 {
-  Trk_SimpleInst *inst;
   int count;
+  Trk_SimpleInst *inst;
 
   if (instGroup != (Group *)0x0) {
     inst = (Trk_SimpleInst *)(instGroup + 1);
-    count = instGroup->m_num_elements;
+    /* SYM-INLINE-THIS: GetNumElements -- retail SLD line 6 records the
+       Group receiver at 0x800ba264 for this exact member expansion. */
+    count = instGroup->GetNumElements();
     while (--count != -1) {
       if (defGroup != (Group *)0x0) {
         Trk_ObjectDef *objDef = Track_gObjDefs[inst->pad];
@@ -675,11 +677,13 @@ void ReduceObjectPrecision(Group *instGroup,Group *defGroup,int bits)
 void InvalidatePersistentCollideBoomObjects(Group *instGroup,Group *defGroup)
 
 {
-  Trk_SimpleInst * inst;
   int count;
+  Trk_SimpleInst * inst;
   
   if ((instGroup != (Group *)0x0) && (defGroup != (Group *)0x0)) {
-    count = instGroup->m_num_elements;
+    /* SYM-INLINE-THIS: GetNumElements -- retail SLD line 6 records the
+       Group receiver at 0x800ba30c for this count load. */
+    count = instGroup->GetNumElements();
     inst = (Trk_SimpleInst *)(instGroup + 1);
     while (--count != -1) {
       if (Track_gObjDefs[inst->pad]->id != -1) {
@@ -699,8 +703,13 @@ void CalcObjectBoundingSphere(Group *defGroup,Group *boundingSphereGroup)
   tBoundingSphere *bSphere;
   int objCount;
 
-  bSphere = (tBoundingSphere *)(boundingSphereGroup + 1);
-  objCount = defGroup->m_num_elements;
+  /* SYM-INLINE-THIS: GetData -- retail's first line-1 inline scope retains
+     the boundingSphereGroup receiver in $s3.  The immediately following
+     empty line-1 scope pair is GetNumElements: its defGroup receiver was
+     optimized without a materialized `this` record.  The $s3 receiver also
+     feeds the final group count update. */
+  bSphere = (tBoundingSphere *)boundingSphereGroup->GetData();
+  objCount = defGroup->GetNumElements();
 
   for (int i = 0; i < objCount; i = i + 1) {
     int ptCount;
@@ -1041,22 +1050,24 @@ void Track_LoadObjectKillData(void)
       chunkDat = Track_chunkList + chunkInd;
       group = chunkDat->objInstanceBuf;
       if (group != (Group *)0x0) {
-        /* SYM-CODEGEN-CARRIER: groupElements -- direct member comparison is
-           count-exact at 86 instructions but schedules the group load after
-           the objInd stack reload, leaving two diffs. This optimized snapshot
-           preserves retail's load order without observable storage. */
-        int groupElements;
+        Trk_SimpleInst *inst;
 
-        groupElements = group->m_num_elements;
-        if (objInd < groupElements) {
-          Trk_SimpleInst *inst;
-          int index;
+        /* SYM-INLINE-THIS: GetNumElements
+         * SYM-INLINE-THIS: GetData
+         * Retail SLD line 25 contains the two nested Group receiver records
+         * at 0x800bae3c.  The member calls also reproduce the exact load and
+         * branch-delay-slot address calculation without an extra local. */
+        if (objInd < group->GetNumElements()) {
+          inst = (Trk_SimpleInst *)group->GetData();
 
-          inst = (Trk_SimpleInst *)(group + 1);
-          index = 0;
-          while (index < objInd) {
-            index = index + 1;
-            inst = (Trk_SimpleInst *)((char *)inst + inst->size);
+          {
+            int index;
+
+            index = 0;
+            while (index < objInd) {
+              index = index + 1;
+              inst = (Trk_SimpleInst *)((char *)inst + inst->size);
+            }
           }
 
           {
@@ -1066,17 +1077,25 @@ void Track_LoadObjectKillData(void)
             if (simGroup != (Group *)0x0) {
               Trk_SimObject *simObjs;
               int numElements;
-              int j;
 
-              j = 0;
-              simObjs = (Trk_SimObject *)(simGroup + 1);
-              numElements = simGroup->m_num_elements;
-              while (j < numElements) {
-                if (Math_DistXZ((coorddef *)&simObjs[j],
-                                (coorddef *)&inst->x) < 0x1999) {
-                  simObjs[j].type = 0x10;
+              /* SYM-INLINE-THIS: GetData
+               * SYM-INLINE-THIS: GetNumElements
+               * Retail SLD line 44 records both inline receivers together at
+               * 0x800bae84, matching these two Group member calls. */
+              simObjs = (Trk_SimObject *)simGroup->GetData();
+              numElements = simGroup->GetNumElements();
+
+              {
+                int j;
+
+                j = 0;
+                while (j < numElements) {
+                  if (Math_DistXZ((coorddef *)&simObjs[j],
+                                  (coorddef *)&inst->x) < 0x1999) {
+                    simObjs[j].type = 0x10;
+                  }
+                  j = j + 1;
                 }
-                j = j + 1;
               }
             }
           }

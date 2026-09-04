@@ -22,6 +22,8 @@ invented semantic substitutions do not close the item.
 | `recon/game/common/copspeak.cpp` — `CopSpeak_PlayNextRequest__Fv` | `iVar3` (decompiler placeholder, not an accepted semantic replacement; invented `queueIndex` was rejected and reverted) | A distinct cached queue index is required: direct global indexing/advancement produces six oracle diffs; retained form is PASS 71/71. | SYM names only `r` and `handle`; recover the cached index's original spelling. |
 | `recon/game/common/aihigh.cpp` — `AIHigh_Execute__Fv` | `bVar1` (decompiler placeholder, not an accepted semantic replacement; invented `executeHighLevelAI` was rejected and reverted) | A distinct decision object is required: direct short-circuit reconstruction produces 61 rather than 66 instructions and 33 oracle diffs; retained form is PASS 66/66. | SYM names only `carLoop` and `carObj`; recover the decision object's original spelling. |
 | `recon/game/common/nfs3.cpp` — `NFS3_CheckForFileOperations__Fv` | `e` (temporary placeholder, not an accepted source spelling) | The former guard-only `g` declaration was eliminated: repeating `gFileMgr.handlearray` is CSE'd to the exact retail guard value. A distinct loop bound remains required for PASS 21/21; direct loop comparison changes allocation. | Retail NFS4 SYM retains only `p`; this PSX-only function has no NFS2 PC counterpart, and the checked reference trees retain no source name for the bound. Recover it from canonical/source-bearing evidence or eliminate it with a byte-exact loop form. |
+| `recon/game/common/mpause.cpp` — `MPause_Logic__Fv` | `oldItem`, `newItem` (descriptive reconstruction placeholders, not accepted original spellings) | Retail code and SLD require distinct immutable before/after `fCurrentItem` snapshots across `VirtualProcessInput`. Declaring them as block-local `const int` objects produces the exact 199-instruction body and GCC 2.8.0 emits no debug definition for either, matching retail's local/block topology. | Retail SYM retains only `command`, `keyVal`, `debounce`, nested `start`, and nested `finish`. CPE/MAP, every split decompiler, NFS2/NFS3, NFS4 PC/mobile, and region references recover no spelling. Recover both names from source-bearing evidence or eliminate them with an exact ordinary expression shape. |
+| `recon/game/common/sim.cpp` — `Sim_ProcessSimSchedules__Fv` | `firstSfx` (descriptive reconstruction placeholder; narrow integer spelling also underdetermined) | Retail SLD/debug topology proves a block-local optimized quantity initialized to `0x23` beside retained `int i`: non-const `char`, `u_char`, and `short` variants all preserve PASS 201/201 without emitting a `.def`, while `int` emits a forbidden extra debug local and literal/const forms collapse to 197 instructions. The natural clamp/`for` reconstruction now matches retail's six block starts and first block end. | Retail SYM names only `i`; all checked decompilers generate placeholders and the NFS2/NFS3/NFS4-PC/mobile/source references recover neither the lexeme nor a unique narrow type. Recover direct source-bearing evidence or an exact carrier-free source form. |
 | `recon/game/common/aih_opp.cpp` — `AIHigh_Opponent::CheckForWipeOut` | `numRacers`, `bVar1`, `hlai`, `speedLimit`, `carIndex`, `field1380`, `slotAddr`, `absField`, `state` (all placeholders, including semantic-looking spellings) | Detailed GCC allocation/scheduling receipts prove that distinct source-shape quantities are required for the current PASS 120/120 body. | Retail NFS4 SYM retains only `perTickProb`, `randVal`, `oppLevel`, `oppFines`, `hLoop`, `thisPlayerObj`, `thisPlayer`, and `playFines`. Recover every other spelling from canonical/source-bearing evidence; behavior and register role are insufficient. |
 | `recon/game/common/aih_basicperp.cpp` — `AIHigh_BasicPerp::RemoveChaser` / `AddChaser` | `piBase`, `piVar2` (decompiler placeholders) | Retail records an inlined `AICop_BasicPerpInfo this` receiver and, at the third indexed-read site, formal `copType type`. An inline reference-returning `operator[]` experiment made all three sites exact (15/15, 21/21, 202/202) and all ten header consumers stayed green. | SYM/SLD does not retain the accessor spelling; a named reference-returning member is observationally equivalent. Recover the actual member/operator spelling before replacing the conspicuous placeholders. |
 | `recon/game/common/aih_basiccop.cpp` — `AIHigh_BasicCop::CheckSpikeBelt` | `freshenElapsed` (temporary placeholder) | Two separate nested `int timeNow` declarations are now restored to their exact SLD blocks. A distinct optimized-out predicate is still required for the retail zero initialization and `slti`/`sltiu` sequence; the function remains PASS 50/50. | Recover the predicate or timer-macro source spelling. Direct conditions and ternaries change allocation/control flow, and retail retains no name for the predicate. |
@@ -368,6 +370,63 @@ carrier-free `Paths_StartUp` candidates were rejected because the best natural
 form retained two scheduling differences and the exact helper form damaged SLD
 line/block provenance.  Those receipted exact carriers remain open.
 
+## P857 canonical quad macros, Group receivers, and SLD lexical round
+
+This round removes **six raw `SYM-CODEGEN-CARRIER` rows** without inventing
+replacement names, and improves two additional functions' lexical/debug source
+shape while keeping their unrecoverable names explicitly open:
+
+- `BWorldSm_FindClosestQuadRez` and `BWorldSm_FindClosestTriangleRez` now use
+  the exact `QUAD_PT_DIR` / `PT_IN_QUAD` macro family preserved by the matched,
+  symbol-bearing NFS2 `RawFindClosestQuad` source.  The macros naturally
+  recreate retail's condition values, eliminating `inQuad`, `crossA`, and
+  `crossB`; the functions remain **PASS 115/115** and **PASS 39/39**.
+  `BWorldSm_TunnelFlagSm::surfVal` remains open: direct, ternary, reversed, and
+  default-valued name-free forms leave 6, 9, or 13 differences.
+- `Track_LoadObjectKillData` now uses the pre-existing `Group::GetNumElements`
+  and `Group::GetData` inline surface at both sites.  Retail records the paired
+  nested `Group this` receivers at `0x800BAE3C` and `0x800BAE84`, proving that
+  the former `groupElements` source object was spurious.  `inst`, `index`,
+  `simObjs`, `numElements`, and `j` were also moved into retail's declaration
+  order and nested lexical regions.  `ReduceObjectPrecision` and
+  `InvalidatePersistentCollideBoomObjects` now use their recorded
+  `GetNumElements` receiver scopes and declare `count` before `inst`;
+  `CalcObjectBoundingSphere` restores the consecutive `GetData` and
+  optimized-empty `GetNumElements` inline pairs.  The four functions remain
+  **PASS 86/86**, **40/40**, **27/27**, and **152/152**.  Broader pre-existing
+  compound-control wrapper `.begin/.bend` differences remain a future SLD
+  source-structure item; this round claims the proven accessor and local-scope
+  topology, not a globally identical raw debug stream.
+- `PauseMenu_MenuTextPositioned::flags` is restored as `short flags`, exactly
+  as retained by the byte-matched NFS2 `FeTools_Text` source.  GCC 2.8.0 emits
+  no debug definition for the optimized NFS4 home, matching retail's `str` /
+  `color`-only local list, and the function remains **PASS 30/30**.
+- `MPause_ControllerLogic` now uses the TU's existing inline enable/disable
+  source surface directly, eliminating the unsupported retained `item` pointer
+  while preserving **PASS 57/57** and retail's zero-local record.
+  `MPause_Logic` improves from function-scope mutable carrier declarations to
+  block-local immutable before/after snapshots; GCC emits no `.def` and the
+  function remains **PASS 199/199**.  The names `oldItem` and `newItem` are not
+  source-backed, so both remain explicit carriers and open backlog entries.
+- `Sim_ProcessSimSchedules` replaces its reconstruction-only `goto` clamp and
+  `do/while` with the natural nested clamp/`for` topology recorded by SLD.
+  Block-local `int i` now occupies retail's exact region.  A non-const narrow
+  `firstSfx` object is required to retain `$s1 = 0x23` at **PASS 201/201** and
+  is optimized out of the debug table; its spelling and unique narrow type are
+  underdetermined, so the carrier remains explicitly open above.
+
+All ten landed functions pass the source-only gate twice, their diagnostic
+`-g` twins are exact, and all **77** of their strict branch words are clean;
+the challenged-but-restored `BWorldSm_TunnelFlagSm` also remains PASS with its
+two branch words clean.  Complete
+TU gates remain **28/28** (`bworldSm.cpp`), **10/10** (`mpause.cpp`), **60/60**
+(`pausemenu.cpp`), **8/8** (`sim.cpp`), and **29/29** (`track.cpp`).  The matched
+NFS2-style carrier-free `Clock_MasterInterruptHandler` was also retested: all
+ordinary postfix, prefix, assignment, pointer, and reference forms converge on
+the same 42/43 scheduling result, so `clock.cpp` was restored byte-for-byte.
+No volatile, new assembly, postcompile rewriting, or invented recovered name
+was added.
+
 ## Expansion requirement
 
 This is a living backlog.  Every retained source-only carrier whose spelling is
@@ -387,21 +446,21 @@ spelling.  A row leaves this queue only when direct source-bearing evidence is
 recorded and its marker is replaced by `ORIGINAL-NAME-RECOVERED` (or when the
 extra source object is eliminated while preserving the oracle).
 
-Current measured queue: **1,529 unresolved carrier-marker rows project-wide**,
-of which **538 are in `recon/game/common`**.  There are currently **33
+Current measured queue: **1,523 unresolved carrier-marker rows project-wide**,
+of which **532 are in `recon/game/common`**.  There are currently **34
 `ORIGINAL-NAME-RECOVERED` evidence rows**.  These counts were measured from the
 working tree on 2026-09-04 and must be regenerated after each recovery round.
 
-## Strict per-directory snapshot through P856
+## Strict per-directory snapshot through P857
 
 These reports measure the current source tree; they are evidence of remaining
 work, not completion certificates.  `Explicit source-only codegen carriers`
-counts unique function/name mappings, whereas the 1,532 figure above counts raw
+counts unique function/name mappings, whereas the 1,523 figure above counts raw
 marker rows (a few names have more than one scoped marker row).
 
 | Directory | SYM functions | Mapped | Declaration-clean | Missing names | Extra names | Type/storage findings | Source-only carriers | Mapping review |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| `recon/game/common` | 1,258 | 1,258 | 1,228 | 0 | 6 | 28 / 28 | 538 | 0 |
+| `recon/game/common` | 1,258 | 1,258 | 1,228 | 0 | 6 | 28 / 28 | 532 | 0 |
 | `recon/frontend/common` | 838 | 833 | 781 | 0 | 46 | 9 / 9 | 519 | 3 |
 | `recon/frontend/psx` | 85 | 85 | 85 | 0 | 0 | 0 / 0 | 54 | 0 |
 | `recon/game/psx` | 395 | 395 | 392 | 0 | 3 | 0 / 0 | 395 | 0 |
@@ -410,7 +469,7 @@ marker rows (a few names have more than one scoped marker row).
 | `recon/syslib/psx` | 0 | 0 | 0 | 0 | 0 | 0 / 0 | 0 | 0 |
 
 The authoritative report files are
-`game_common_strict_p856_20260904.md`,
+`game_common_strict_p857_20260904.md`,
 `frontend_common_strict_p783_20260903.md`,
 `frontend_psx_strict_p780_20260903.md`,
 `game_psx_strict_p838_20260904.md`,

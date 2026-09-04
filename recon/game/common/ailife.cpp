@@ -5,6 +5,8 @@
 #include "ailife_types.h"
 #include "ailife_externs.h"
 
+#define ABS(a) (((a) > 0) ? (a) : -(a))
+
 #define WRAP_SLICE(a,b) (((a) >= 0) \
     ? ((((b) + (a)) >= gNumSlices) ? ((b) + (a)) - gNumSlices : ((b) + (a))) \
     : ((((b) + (a)) < 0) ? ((b) + (a)) + gNumSlices : ((b) + (a))))
@@ -226,17 +228,9 @@ void AILife_PlaceCarAtLocation(Car_tObj *carObj,int rotation1024)
   if (carObj->currentSpeed != 0) {
     coorddef targetDirection;
     int speed;
-    /* SYM-CODEGEN-CARRIER: direction -- caching targetDirection.x keeps the
-     * retail load live across the speed-sign branch.  Reading the field
-     * directly adds a load-delay nop and gives 3 diffs (130 vs 129 insns). */
-    int direction;
     targetDirection = *(coorddef *)&(carObj->N).orientMat.m[6];
-    speed = carObj->currentSpeed;
-    direction = targetDirection.x;
-    if (speed < 0) {
-      speed = -speed;
-    }
-    targetDirection.x = fixedmult(speed,direction);
+    speed = ABS(carObj->currentSpeed);
+    targetDirection.x = fixedmult(speed,targetDirection.x);
     targetDirection.y = fixedmult(speed,targetDirection.y);
     targetDirection.z = fixedmult(speed,targetDirection.z);
     (carObj->N).linearVel = targetDirection;
@@ -268,17 +262,15 @@ void AILife_PlaceCarAtLocation(Car_tObj *carObj,int rotation1024)
 /* ---- AILife_ReencarnateTraffic__FP8Car_tObj  [@0x80067ee4] ---- */
 void AILife_ReencarnateTraffic(Car_tObj *carObj)
 {
-  /* SYM-CODEGEN-CARRIER: colorIdx -- the SYM omits this optimized value, but
-   * retail computes it unconditionally before testing carFlags.  Inlining the
-   * expression into the conditional call gives 29 diffs and 43 vs 44 insns;
-   * this PERMUTER-proven form is authoritative PASS. */
-  u_int colorIdx;
+  /* ORIGINAL-NAME-RECOVERED: paintIndex -- exact symbol-bearing NFS2 ancestor
+   * name/type; retail NFS4 SLD retains the same standalone assignment shape. */
+  int paintIndex;
 
   randtemp = fastRandom * randSeed;
   fastRandom = randtemp & 0xffff;
-  colorIdx = (randtemp >> 8 & 0xffff) * 3 >> 0x10;
+  paintIndex = (((randtemp & 0xffff00) >> 8) * 3) >> 0x10;
   if ((carObj->carFlags & 0x10U) != 0) {
-    R3DCar_ChangeTrafficColor(carObj,colorIdx);
+    R3DCar_ChangeTrafficColor(carObj,paintIndex);
   }
   AI_ChooseNewLaneSlack(carObj);
   AISpeeds_SetTrafficSpeedRandomFactor(carObj);
@@ -300,19 +292,17 @@ void AILife_ReencarnateTrafficByPosition(Car_tObj *carObj,int slice,int travelDi
    * decls the earlier pass left unused (w18-a7). */
   coorddef zero;
   coorddef offset;
-  /* SYM-CODEGEN-CARRIER: colorIdx -- the SYM omits this optimized value, but
-   * keeping its lexical assignment reproduces retail allocation.  Inlining
-   * the expression into the conditional call gives 30 diffs at 131 insns;
-   * this separate carrier is authoritative PASS. */
-  u_int colorIdx;
+  /* ORIGINAL-NAME-RECOVERED: paintIndex -- exact symbol-bearing NFS2 ancestor
+   * name/type; retail NFS4 SLD retains the same standalone assignment shape. */
+  int paintIndex;
 
   memset((u_char *)&zero,'\0',0xc);
   memset((u_char *)&offset,'\0',0xc);
   randtemp = fastRandom * randSeed;
   fastRandom = randtemp & 0xffff;
-  colorIdx = (randtemp >> 8 & 0xffff) * 3 >> 0x10;
+  paintIndex = (((randtemp & 0xffff00) >> 8) * 3) >> 0x10;
   if ((carObj->carFlags & 0x10U) != 0) {
-    R3DCar_ChangeTrafficColor(carObj,colorIdx);
+    R3DCar_ChangeTrafficColor(carObj,paintIndex);
   }
   AI_ChooseNewLaneSlack(carObj);
   AISpeeds_SetTrafficSpeedRandomFactor(carObj);

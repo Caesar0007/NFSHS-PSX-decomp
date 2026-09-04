@@ -123,6 +123,43 @@ instead of `void *locatebig(...)`.  All four false `void *`-to-`char *`
 warnings disappear, `r3dcar.cpp` remains **27/27 PASS**, and its branch census
 is unchanged.
 
+## P847 carrier-free AI lane-position source
+
+Retail SYM records no `laneWidth` local in either `AI_TryToShareLanes` or
+`AI_CalculateDesiredLatPosition`, and no `blockingCarNearby` local in the
+latter.  SLD assigns every width load/shift/multiply to the surrounding edge
+or desired-position statement; it also assigns the compiler's false/true
+condition materialization to one compound-condition line rather than to
+source-local assignments.  This is independently corroborated by the matched,
+symbol-bearing NFS2 `AI_CalculateDesiredPosition` ancestor and the NFS4 mobile
+descendants.
+
+Both functions now use the exact `Trk_NewSlice *BWorldSm_slices` fields
+directly.  The source-backed `ABS(a)` expansion and nested condition let GCC
+recreate the former anonymous `$s2` truth value without exposing a fake local.
+All six scoped `laneWidth` declarations and the invented
+`blockingCarNearby` declaration are gone.  `AI_TryToShareLanes` remains
+**PASS 63/63**, `AI_CalculateDesiredLatPosition` remains **PASS 141/141**,
+both `-g` twins are exact, and the complete `ai.cpp` TU remains **40/40 PASS**.
+
+## P848 AILife source-backed ABS and paint index round
+
+Retail SYM and SLD show that `AILife_PlaceCarAtLocation` has only
+`targetDirection` and `speed` in its moving branch: the reconstruction's
+`direction` cache was not a source local.  The matched NFS2 `AI_ReInit`
+ancestor supplies the exact source family—`speed = ABS(currentSpeed)` followed
+by direct `targetDirection.x` use—and the canonical `ABS(a)` expansion lets
+GCC retain the field value anonymously.  The carrier is eliminated while the
+function remains **PASS 129/129** with an exact `-g` twin.
+
+The two traffic reincarnation functions genuinely require a standalone scalar,
+but `colorIdx` was invented.  The symbol-bearing NFS2 source and SYM recover its
+exact name and type as `int paintIndex`, plus the original
+`(((randtemp & 0xffff00) >> 8) * 3) >> 16` expression.  Both NFS4 functions
+remain **PASS 44/44** and **PASS 131/131**, respectively, with exact `-g`
+twins.  `ailife.cpp` remains **20/20 PASS** and all affected branch-word audits
+are clean.
+
 ## Expansion requirement
 
 This is a living backlog.  Every retained source-only carrier whose spelling is
@@ -142,21 +179,21 @@ spelling.  A row leaves this queue only when direct source-bearing evidence is
 recorded and its marker is replaced by `ORIGINAL-NAME-RECOVERED` (or when the
 extra source object is eliminated while preserving the oracle).
 
-Current measured queue: **1,570 unresolved carrier-marker rows project-wide**,
-of which **579 are in `recon/game/common`**.  There are currently **28
+Current measured queue: **1,564 unresolved carrier-marker rows project-wide**,
+of which **573 are in `recon/game/common`**.  There are currently **30
 `ORIGINAL-NAME-RECOVERED` evidence rows**.  These counts were measured from the
 working tree on 2026-09-04 and must be regenerated after each recovery round.
 
-## Strict per-directory snapshot through P845
+## Strict per-directory snapshot through P848
 
 These reports measure the current source tree; they are evidence of remaining
 work, not completion certificates.  `Explicit source-only codegen carriers`
-counts unique function/name mappings, whereas the 1,570 figure above counts raw
+counts unique function/name mappings, whereas the 1,564 figure above counts raw
 marker rows (a few names have more than one scoped marker row).
 
 | Directory | SYM functions | Mapped | Declaration-clean | Missing names | Extra names | Type/storage findings | Source-only carriers | Mapping review |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| `recon/game/common` | 1,258 | 1,258 | 1,228 | 0 | 6 | 28 / 28 | 579 | 0 |
+| `recon/game/common` | 1,258 | 1,258 | 1,228 | 0 | 6 | 28 / 28 | 573 | 0 |
 | `recon/frontend/common` | 838 | 833 | 781 | 0 | 46 | 9 / 9 | 519 | 3 |
 | `recon/frontend/psx` | 85 | 85 | 85 | 0 | 0 | 0 / 0 | 54 | 0 |
 | `recon/game/psx` | 395 | 395 | 392 | 0 | 3 | 0 / 0 | 395 | 0 |
@@ -165,7 +202,7 @@ marker rows (a few names have more than one scoped marker row).
 | `recon/syslib/psx` | 0 | 0 | 0 | 0 | 0 | 0 / 0 | 0 | 0 |
 
 The authoritative report files are
-`game_common_strict_p845_20260904.md`,
+`game_common_strict_p848_20260904.md`,
 `frontend_common_strict_p783_20260903.md`,
 `frontend_psx_strict_p780_20260903.md`,
 `game_psx_strict_p838_20260904.md`,

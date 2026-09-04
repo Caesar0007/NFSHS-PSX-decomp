@@ -7,6 +7,7 @@
 #include "ai_externs.h"
 
 #define MAX(a,b) (((a) > (b)) ? (a) : (b))
+#define ABS(a) (((a) > 0) ? (a) : -(a))
 
 #define WRAP_SLICE(a,b) (((a) >= 0) \
     ? ((((b) + (a)) >= gNumSlices) ? ((b) + (a)) - gNumSlices : ((b) + (a))) \
@@ -1266,27 +1267,21 @@ int AI_TryToShareLanes(Car_tObj *carObj,Car_tObj *carInWay)
   minGapSize =
       (carObj->N).dimension.x + (carObj->N).dimension.x / 2;
   absLaneIndex = AI_Info.desiredLane;
-  /* SYM-CODEGEN-CARRIER: laneWidth -- PsyQ omits both block-local instances,
-   * but their separate lexical lifetimes reproduce the retail allocation.
-   * Reusing the later SYM-named gapLeft instead gives 64 diffs; this form is
-   * authoritative PASS at 63/63 instructions. */
   if (7 <= absLaneIndex) {
-    u_int laneWidth =
-        (u_int)*(u_char *)((char *)AI_BWorldSmSlices +
-                           (carInWay->N).simRoadInfo.slice * 0x20 + 0x1f);
-
-    laneWidth = laneWidth * 0x8000;
-    leftRoadEdge = (absLaneIndex + -7) * laneWidth;
-    rightRoadEdge = leftRoadEdge + laneWidth;
+    leftRoadEdge =
+        (absLaneIndex + -7) *
+        (BWorldSm_slices[(carInWay->N).simRoadInfo.slice].avgPavedWidthRt << 0xf);
+    rightRoadEdge =
+        leftRoadEdge +
+        (BWorldSm_slices[(carInWay->N).simRoadInfo.slice].avgPavedWidthRt << 0xf);
   }
   else {
-    u_int laneWidth =
-        (u_int)*(u_char *)((char *)AI_BWorldSmSlices +
-                           (carInWay->N).simRoadInfo.slice * 0x20 + 0x1e);
-
-    laneWidth = laneWidth * 0x8000;
-    rightRoadEdge = (absLaneIndex + -6) * laneWidth;
-    leftRoadEdge = rightRoadEdge - laneWidth;
+    rightRoadEdge =
+        (absLaneIndex + -6) *
+        (BWorldSm_slices[(carInWay->N).simRoadInfo.slice].avgPavedWidthLf << 0xf);
+    leftRoadEdge =
+        rightRoadEdge -
+        (BWorldSm_slices[(carInWay->N).simRoadInfo.slice].avgPavedWidthLf << 0xf);
   }
   gapLeft =
       (carInWay->roadPosition - carInWay->roadSpan) - leftRoadEdge;
@@ -1311,10 +1306,6 @@ void AI_CalculateDesiredLatPosition(Car_tObj *carObj)
 {
   Car_tObj *carInWay;
   int slice;
-  /* SYM-CODEGEN-CARRIER: blockingCarNearby -- folding this materialized
-     result into the MellowZone/TryToShareLanes short-circuit compiles to 139
-     rather than 141 instructions and rotates saved registers across 60 diffs. */
-  bool blockingCarNearby;
 
   slice = (int)(carObj->N).simRoadInfo.slice;
   carInWay = AI_Info.blockingCars[AI_Info.desiredLaneSide];
@@ -1322,77 +1313,52 @@ void AI_CalculateDesiredLatPosition(Car_tObj *carObj)
       (AI_CheckPreferredLateralPosition(carObj) == 1)) {
     return;
   }
-  blockingCarNearby = false;
-  if (carInWay != (Car_tObj *)0x0) {
-    if (0 < AIWorld_ApxSplineDistance(carInWay,carObj)) {
-      if (AIWorld_ApxSplineDistance(carInWay,carObj) <= 0x13ffff) {
-        goto blockingCar;
-      }
-      goto noBlockingCar;
+  if ((carInWay != (Car_tObj *)0x0) &&
+      (ABS(AIWorld_ApxSplineDistance(carInWay,carObj)) <= 0x13ffff) &&
+      (AI_IsMellowZone(carObj,0x3e80000) == 0))
+    if (AI_TryToShareLanes(carObj,carInWay) == 1) {
+      return;
     }
-    else {
-      if (0x13ffff <
-          -AIWorld_ApxSplineDistance(carInWay,carObj)) {
-        goto noBlockingCar;
-      }
-    }
-blockingCar:
-    if (AI_IsMellowZone(carObj,0x3e80000) == 0) {
-      blockingCarNearby = true;
-    }
-  }
-noBlockingCar:
-  if ((blockingCarNearby) &&
-      (AI_TryToShareLanes(carObj,carInWay) == 1)) {
-    return;
-  }
   if ((AI_Info.desiredLane ==
-       6 - (AI_SLICE_BYTE(slice,0x1d) >> 4)) ||
+       6 - (BWorldSm_slices[slice].laneCount >> 4)) ||
       (AI_Info.desiredLane ==
-       (AI_SLICE_BYTE(slice,0x1d) & 0xf) + 7)) {
+       (BWorldSm_slices[slice].laneCount & 0xf) + 7)) {
     if (AI_Info.desiredLane < 7) {
-      /* SYM-CODEGEN-CARRIER: laneWidth -- direct width expressions compile
-         to 140 rather than 141 instructions and produce 25 operand-birth and
-         scheduling diffs, including reversed multiply registers. */
-      int laneWidth;
-
-      laneWidth = (u_int)AI_SLICE_BYTE(slice,0x1e) * 0x8000;
       carObj->desiredLatPos =
-          (AI_Info.desiredLane + -6) * laneWidth - (carObj->N).dimension.x;
+          (AI_Info.desiredLane + -6) *
+              (BWorldSm_slices[slice].avgPavedWidthLf << 0xf) -
+          (carObj->N).dimension.x;
     }
     else {
-      int laneWidth;
-
-      laneWidth = (u_int)AI_SLICE_BYTE(slice,0x1f) * 0x8000;
       carObj->desiredLatPos =
-          (AI_Info.desiredLane + -7) * laneWidth + (carObj->N).dimension.x;
+          (AI_Info.desiredLane + -7) *
+              (BWorldSm_slices[slice].avgPavedWidthRt << 0xf) +
+          (carObj->N).dimension.x;
     }
   }
   else {
     if (AI_Info.desiredLane < 7) {
-      int laneWidth;
-
-      laneWidth = (u_int)AI_SLICE_BYTE(slice,0x1e) * 0x8000;
       carObj->desiredLatPos =
-          (AI_Info.desiredLane + -6) * laneWidth - ((u_int)laneWidth >> 1);
+          (AI_Info.desiredLane + -6) *
+              (BWorldSm_slices[slice].avgPavedWidthLf << 0xf) -
+          ((u_int)(BWorldSm_slices[slice].avgPavedWidthLf << 0xf) >> 1);
     }
     else {
-      int laneWidth;
-
-      laneWidth = (u_int)AI_SLICE_BYTE(slice,0x1f) * 0x8000;
       carObj->desiredLatPos =
-          (AI_Info.desiredLane + -7) * laneWidth + ((u_int)laneWidth >> 1);
+          (AI_Info.desiredLane + -7) *
+              (BWorldSm_slices[slice].avgPavedWidthRt << 0xf) +
+          ((u_int)(BWorldSm_slices[slice].avgPavedWidthRt << 0xf) >> 1);
     }
   }
-  if (AI_SLICE_SHORT(slice,0x1a) * 0x100 -
+  if ((BWorldSm_slices[slice].rightDrive << 8) -
         (carObj->N).dimension.x < carObj->desiredLatPos) {
     carObj->desiredLatPos =
-        AI_SLICE_SHORT(slice,0x1a) * 0x100 - (carObj->N).dimension.x;
+        (BWorldSm_slices[slice].rightDrive << 8) - (carObj->N).dimension.x;
   }
   if (carObj->desiredLatPos <
-      (carObj->N).dimension.x + AI_SLICE_SHORT(slice,0x18) * -0x100) {
+      (carObj->N).dimension.x - (BWorldSm_slices[slice].leftDrive << 8)) {
     carObj->desiredLatPos =
-        (carObj->N).dimension.x + AI_SLICE_SHORT(slice,0x18) * -0x100;
+        (carObj->N).dimension.x - (BWorldSm_slices[slice].leftDrive << 8);
   }
   return;
 }

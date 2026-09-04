@@ -181,13 +181,8 @@ void Camera_UpdateSimpleCam(int player)
 {
   coorddef arm;
   coorddef newarm;
-  /* SYM-CODEGEN-CARRIER: sVar1 -- indexing Camera_gFlags directly keeps all
-   * 57 instructions but schedules its address `lui` four instructions too
-   * early, producing two authoritative order diffs. */
-  short sVar1;
 
-  sVar1 = Camera_gInfo[player].mode;
-  arm = Camera_gFlags[sVar1].arm;
+  arm = (Camera_gInfo[player].mode + Camera_gFlags)->arm;
   transform((int *)&arm,Camera_gInfo[player].anchor->orientMat.m,(int *)&newarm);
   Camera_TunnelLimit(player,&newarm.y);
   Camera_gInfo[player].position.x = Camera_gInfo[player].anchor->position.x + newarm.x;
@@ -206,13 +201,7 @@ void Camera_UpdateBumperCam(int player)
   int lookingBehind;   /* SYM: REG ($s1) */
 
   lookingBehind = 0;
-  {
-    /* SYM-CODEGEN-CARRIER: mode -- indexing Camera_gFlags directly keeps all
-     * 118 instructions but schedules its address `lui` four instructions too
-     * early, producing two authoritative order diffs. */
-    short mode = Camera_gInfo[player].mode;
-    arm = Camera_gFlags[mode].arm;
-  }
+  arm = (Camera_gInfo[player].mode + Camera_gFlags)->arm;
   if (Camera_gInfo[player].noLookBack == 0) {
     lookingBehind = *(int *)((player << 2) + (int)Input_gLookBehind) != 0;
   }
@@ -257,12 +246,7 @@ void Camera_UpdateTailCam(int player,int behavior)
 
   maxrate = 0x1999;
   rate = maxrate;
-  {
-    /* SYM-CODEGEN-CARRIER: mode.  Direct Camera_gFlags indexing moves its
-       address materialization and leaves two authoritative schedule diffs. */
-    short mode = Camera_gInfo[player].mode;   /* MATCH: inner gInfo eval first (base lui v0) */
-    arm = Camera_gFlags[mode].arm;
-  }
+  arm = (Camera_gInfo[player].mode + Camera_gFlags)->arm;
   anchor = (Car_tObj *)Camera_gInfo[player].anchor;
   rateY = 0xCCC;
   {
@@ -594,13 +578,7 @@ void Camera_UpdateHeliCam(int player,int behavior)
 
   maxrate = 0x1999;
   rate = maxrate;
-  {
-    /* SYM-CODEGEN-CARRIER: mode -- the nested lookup must evaluate the
-       Camera_gInfo base before forming the Camera_gFlags index.  A direct
-       subscript is count-exact but swaps the $v0/$v1 address chain (26 diffs). */
-    short mode = Camera_gInfo[player].mode;
-    arm = Camera_gFlags[mode].arm;
-  }
+  arm = (Camera_gInfo[player].mode + Camera_gFlags)->arm;
   anchor = (Car_tObj *)Camera_gInfo[player].anchor;
   rateY = 0xCCC;
   {
@@ -1042,12 +1020,8 @@ void Camera_UpdateBlimpCam(int player)
 {
   coorddef arm;
   coorddef oldarm;
-  /* SYM-CODEGEN-CARRIER: mode -- the cached halfword keeps the retail
-     Camera_gFlags address materialization in its scheduled slot. */
-  short mode;
 
-  mode = Camera_gInfo[player].mode;
-  arm = Camera_gFlags[mode].arm;
+  arm = (Camera_gInfo[player].mode + Camera_gFlags)->arm;
   Camera_TunnelLimit(player,&arm.y);
   oldarm.x = Camera_gInfo[player].position.x - Camera_gInfo[player].anchor->position.x;
   oldarm.y = Camera_gInfo[player].position.y - Camera_gInfo[player].anchor->position.y;

@@ -46,21 +46,21 @@ spelling.  A row leaves this queue only when direct source-bearing evidence is
 recorded and its marker is replaced by `ORIGINAL-NAME-RECOVERED` (or when the
 extra source object is eliminated while preserving the oracle).
 
-Current measured queue: **1,602 unresolved carrier-marker rows project-wide**,
-of which **608 are in `recon/game/common`**.  There are currently **24
+Current measured queue: **1,597 unresolved carrier-marker rows project-wide**,
+of which **603 are in `recon/game/common`**.  There are currently **24
 `ORIGINAL-NAME-RECOVERED` evidence rows**.  These counts were measured from the
 working tree on 2026-09-04 and must be regenerated after each recovery round.
 
-## Strict per-directory snapshot through P824
+## Strict per-directory snapshot through P825
 
 These reports measure the current source tree; they are evidence of remaining
 work, not completion certificates.  `Explicit source-only codegen carriers`
-counts unique function/name mappings, whereas the 1,602 figure above counts raw
+counts unique function/name mappings, whereas the 1,597 figure above counts raw
 marker rows (a few names have more than one scoped marker row).
 
 | Directory | SYM functions | Mapped | Declaration-clean | Missing names | Extra names | Type/storage findings | Source-only carriers | Mapping review |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| `recon/game/common` | 1,258 | 1,258 | 1,228 | 0 | 6 | 28 / 28 | 608 | 0 |
+| `recon/game/common` | 1,258 | 1,258 | 1,228 | 0 | 6 | 28 / 28 | 603 | 0 |
 | `recon/frontend/common` | 838 | 833 | 781 | 0 | 46 | 9 / 9 | 519 | 3 |
 | `recon/frontend/psx` | 85 | 85 | 85 | 0 | 0 | 0 / 0 | 54 | 0 |
 | `recon/game/psx` | 395 | 395 | 392 | 0 | 3 | 0 / 0 | 397 | 0 |
@@ -69,7 +69,7 @@ marker rows (a few names have more than one scoped marker row).
 | `recon/syslib/psx` | 0 | 0 | 0 | 0 | 0 | 0 / 0 | 0 | 0 |
 
 The authoritative report files are
-`game_common_strict_p824_20260904.md`,
+`game_common_strict_p825_20260904.md`,
 `frontend_common_strict_p783_20260903.md`,
 `frontend_psx_strict_p780_20260903.md`,
 `game_psx_strict_p779_20260903.md`,
@@ -805,6 +805,30 @@ declaration-clean, zero missing names, 6 extra names, 12 deleting-destructor
 ABI carriers, 608 source-only carriers, 22 exact cross-build/canonical name
 recoveries, and zero mapping-review items.  The tracked-source raw carrier queue
 is 1,602 project-wide / 608 in game/common.
+
+### Removed five `Camera_gFlags` mode caches at P825
+
+The invented `sVar1`/`mode` staging objects are removed from
+`Camera_UpdateSimpleCam`, `Camera_UpdateBumperCam`, `Camera_UpdateTailCam`,
+`Camera_UpdateHeliCam`, and `Camera_UpdateBlimpCam`.  Retail NFS4 SYM retains no
+cached mode local in these functions.  Standard C/C++ defines `a[b]` as
+`*(a + b)`, and pointer addition is commutative; consequently
+`(Camera_gInfo[player].mode + Camera_gFlags)->arm` is the same direct array
+lookup while making GCC evaluate the camera-info index row before materializing
+the flag-table base.  That source expression reproduces the retail allocation
+and scheduling without an extra source object.
+
+All five functions remain byte-exact: `Camera_UpdateSimpleCam` PASS 57/57,
+`Camera_UpdateBumperCam` PASS 118/118, `Camera_UpdateTailCam` PASS 402/402,
+`Camera_UpdateHeliCam` PASS 443/443, and `Camera_UpdateBlimpCam` PASS 81/81.
+The complete `camera.cpp` TU remains 38/38 PASS.
+
+The current authoritative game/common report is
+`game_common_strict_p825_20260904.md`: 1,258/1,258 functions mapped, 1,228
+declaration-clean, zero missing names, 6 extra names, 12 deleting-destructor
+ABI carriers, 603 source-only carriers, 22 exact cross-build/canonical name
+recoveries, and zero mapping-review items.  The tracked-source raw carrier queue
+is 1,597 project-wide / 603 in game/common.
 
 ### Retained after P813 source-shape retests
 

@@ -13,28 +13,22 @@
  */
 
 #include "../eaclib_types.h"
+#include "spchrand.h"
+#include "spchevnt.h"
 
 /* ---- 6-word PRNG state @0x801235F4 (.data; runtime-seeded by iSPCH_EACseedrandom).  data-mat #75.
  *   Contiguous int[6]: [0]=seedX accumulator, [1]=..f8, [2]=..fc, [3]=..600, [4]=..604, [5]=..608. ---- */
-extern unsigned int seedX[];        /* @0x801235F4 : the 6-word state (word0 = accumulator) */
 #define DAT_801235f8  seedX[1]
 #define DAT_801235fc  seedX[2]
 #define DAT_80123600  seedX[3]
 #define DAT_80123604  seedX[4]
 #define DAT_80123608  seedX[5]
 
-extern int  gEventDats[];           /* @0x80148048 : int[4] bound event-data pointers (shared w/ spchevnt) */
-extern void trap(unsigned int code);
-
-extern int   iSPCH_EACrandom(void);                 /* @0x800EB9C4 */
-extern int  *iSPCH_EACseedrandom(unsigned int seed);/* @0x800EBAC4 */
-extern int   iSPCH_Rand(int n);                     /* @0x800EBB30 */
-extern int   iSPCH_BindData(unsigned short *dat);   /* @0x800EBB84 */
 
 /* iSPCH_EACrandom @0x800EB9C4 : step the additive generator (carry-propagated) and return the new seed.
  *   MATCH: ONE in-place running `sum` (oracle keeps it in $a2 end-to-end, incl. the return) + rollover as
  *   nested ifs incrementing the GLOBALS directly (oracle reloads each word: lw;addiu;bnez;sw-in-slot). */
-extern int iSPCH_EACrandom(void)
+int iSPCH_EACrandom(void)
 {
     unsigned int sum;
     unsigned int carry;
@@ -78,7 +72,7 @@ extern int iSPCH_EACrandom(void)
 /* iSPCH_EACseedrandom @0x800EBAC4 : seed all 6 state words from `seed` (each = seed + a fixed constant; the
  *   constants are eacpsxz srandom's default seeds, so seed==0 reproduces that default state).  Returns base.
  *   The original chains the constants (running += delta) and stores all 6 off the shared seedX[] base. */
-extern int *iSPCH_EACseedrandom(unsigned int seed)
+int *iSPCH_EACseedrandom(unsigned int seed)
 {
     unsigned int w = seed + 0xf22d0e56u;
     seedX[0] = w;                    /* seed + 0xF22D0E56 */
@@ -92,7 +86,7 @@ extern int *iSPCH_EACseedrandom(unsigned int seed)
 
 /* iSPCH_Rand @0x800EBB30 : a uniform pseudo-random in [0, n) from the low 16 bits of EACrandom.  The n==-1 /
  *   INT_MIN guard is the compiler's signed-division-overflow trap (dead here: (r&0xffff) is never INT_MIN). */
-extern int iSPCH_Rand(int n)
+int iSPCH_Rand(int n)
 {
     unsigned int r = (unsigned int)iSPCH_EACrandom();
     /* signed % emits the div + break 0x1c00 (div0) + break 0x1800 (overflow)
@@ -102,7 +96,7 @@ extern int iSPCH_Rand(int n)
 
 /* iSPCH_BindData @0x800EBB84 : register a speech data blob (header word > 0x11d) into the first free
  *   gEventDats[0..3] slot.  Returns 1 on success, 0 if rejected or the table is full. */
-extern int iSPCH_BindData(unsigned short *dat)
+int iSPCH_BindData(unsigned short *dat)
 {
     int *p;
     int  i;

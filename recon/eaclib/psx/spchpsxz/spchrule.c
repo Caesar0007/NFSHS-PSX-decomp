@@ -29,28 +29,25 @@
  *   IDA); iSPCH_SentenceUsesParm reads in_v0 = VoxSentence_GetNumPhrases' dropped return.
  */
 
- #include "../eaclib_types.h"
- 
+#include "../eaclib_types.h"
+#include "spchrule.h"
+#include "spchinit.h"
+
 /* 2026-09-02 pseudo-array retirement: both callback slots were UNSIZED-ARRAY decls read as
  * sym[0] -- the pre--G0 device against <= -G4 small-data eligibility (w47-a9 fingerprint: the
  * scalar decl compiled to the unschedulable assembler macro `lw $r,sym` where retail has the
  * %hi/%lo split -- catalog SSE #5 / IDT Ch9).  Under the library-wide -G0 (build.py
  * PER_TU_FLAGS, 2026-08-31) the plain scalars emit the identical split pairs; 9/9 PASS. */
-extern void (*gSentenceRuleSet)(unsigned int, unsigned int, int, int); /* sentence rule-set callback
-                                               * (spchinit-owned) */
-extern int (*gSentenceRuleTest)(unsigned int, unsigned int, int); /* sentence rule-test callback */
 
 /* ---- per-TU static copies of the shared Vox accessors (canonical versions in spchdata.obj) ---- */
 
-/* W85-S9: VA-suffixed symbols for the per-TU static copies.  These three names also exist as
-   the canonical EXPORTED functions in spchdata.obj, and the oracle/config namespace cannot
-   represent two retail local symbols with one spelling -- so this TU's private copies carry the
-   VA suffix.  Done with the PREPROCESSOR (was `__asm__("name")` labels on the declarations, the
-   only other way GNU C can rename a symbol): zero instructions either way, and this keeps the
-   file free of asm.  The source text below still reads with the retail names. */
-#define VoxSentence_GetNumPhrases VoxSentence_GetNumPhrases_8010B100
-#define iSPCH_GetOffset8          iSPCH_GetOffset8_8010B10C
-#define iSPCH_GetOffset16         iSPCH_GetOffset16_8010B124
+/* These three are per-TU `static` copies of the shared-header helpers (the canonical exported
+   versions live in spchdata.obj) -- exactly what retail has, and `static` is all the source
+   needs to say.  They used to be renamed here (asm labels, later #defines) so that the flat
+   oracle/config namespace could tell the copies apart; that renaming is NOT the source's job:
+   tools/verify_asm.py takes a `FUNC@VA` selector for precisely this case ("gate-only ... without
+   inventing an address-suffixed identifier in reconstructed source"), so the gate says
+   VoxSentence_GetNumPhrases@8010B100 and the code keeps retail's spelling. */
 
 static int VoxSentence_GetNumPhrases(int sentence)   /* @0x8010B100 */
 {
@@ -65,17 +62,9 @@ static int iSPCH_GetOffset16(int base, int tableBase, int index)  /* @0x8010B124
     return base + ((int)*(unsigned short *)(tableBase + index * 2) << 2);
 }
 
-
-extern int  iSPCH_GetRuleDataAddr(int sentence);                       /* @0x8010B140 */
-extern int  iSPCH_SentenceUsesParm(int sentence, unsigned int paramIdx); /* @0x8010B158 */
-extern unsigned int iSPCH_GetRuleID(int sentence, int index);         /* @0x8010B220 */
-extern void iSPCH_RuleSet(short *sentence, int rule, int *values);    /* @0x8010B294 */
-extern unsigned char iSPCH_GetRuleSettings(short *sentence, int *values, char *out); /* @0x8010B3CC */
-extern unsigned int iSPCH_CheckSentenceRules(int testVal, int clearMask, int rulePtr); /* @0x8010B58C */
-
 /* iSPCH_GetRuleDataAddr @0x8010B140 : address of a sentence's rule-data block (after its phrase table).
  * MATCH: keep the +0xc on the offset before adding sentence (delay-slot addu v0,a0,v0) */
-extern int iSPCH_GetRuleDataAddr(int sentence)
+int iSPCH_GetRuleDataAddr(int sentence)
 {
     int off = (int)(unsigned int)*(unsigned char *)(sentence + 6) * 2 + 0xc;
     return sentence + off;
@@ -90,7 +79,7 @@ extern int iSPCH_GetRuleDataAddr(int sentence)
  * draft papered over it with an `spchAdd2()`/no-op-statement scheduling trick (also reached 0, but was
  * scaffolding no EA programmer would write); this per-iteration-local `p` is the honest source form
  * that reaches the same byte-exact match without either. */
-extern int iSPCH_SentenceUsesParm(int sentence, unsigned int paramIdx)
+int iSPCH_SentenceUsesParm(int sentence, unsigned int paramIdx)
 {
     int numPhrases = VoxSentence_GetNumPhrases(sentence);
     int phraseIdx  = 0;
@@ -122,7 +111,7 @@ done:
 }
 
 /* iSPCH_GetRuleID @0x8010B220 : the rule-id byte at `index` (< 8) of a sentence's rule data, or 0xffffffff. */
-extern unsigned int iSPCH_GetRuleID(int sentence, int index)
+unsigned int iSPCH_GetRuleID(int sentence, int index)
 {
     unsigned int result = 0xffffffff;
     int ruleData = iSPCH_GetRuleDataAddr(sentence);
@@ -148,7 +137,7 @@ extern unsigned int iSPCH_GetRuleID(int sentence, int index)
 
 /* iSPCH_RuleSet @0x8010B294 : for each type-0/3 rule whose parameter the (offset) sentence uses, fire the
  *   gSentenceRuleSet callback with that rule + the parameter value from val[]. */
-extern void iSPCH_RuleSet(short *sentence, int rule, int *values)
+void iSPCH_RuleSet(short *sentence, int rule, int *values)
 {
     /* MATCH (w32-a9, 57 -> 52 diffs, insn count now EXACT 78/78):
      * (1) `values` is ADDRESSABLE in retail -- the oracle keeps it in its incoming home slot and
@@ -448,7 +437,7 @@ extern void iSPCH_RuleSet(short *sentence, int rule, int *values)
  *   41@109 | opacity fence on arg1 31@113 | plain `sentence` for both args while still 4-arg
  *   90@112.  After the fix, decl-order-only variants: ruleData-decl-first 10, +result/flags
  *   reorder 10, ruleData/ruleType/value first 10, all-split 48@108. */
-extern unsigned char iSPCH_GetRuleSettings(short *sentence, int *values, char *out)
+unsigned char iSPCH_GetRuleSettings(short *sentence, int *values, char *out)
 {
     unsigned char *ruleData;
     int            numRules = *(signed char *)((int)sentence + 7);
@@ -487,12 +476,8 @@ extern unsigned char iSPCH_GetRuleSettings(short *sentence, int *values, char *o
                 decode[0] = ruleData[i * 2];
                 packed = ruleData[i * 2 + 1];
                 hit = 0;
-                do {
-                } while (0);
                 decode[1] = packed & 0xf;
                 decode[2] = (unsigned int)ruleData[i * 2 + 1] >> 4;
-                do {
-                } while (0);
                 param = packed & 0xf;
                 if (ruleType == 0xc) {
                     if (param != 0)
@@ -540,7 +525,7 @@ next_rule:
 }
 
 /* iSPCH_CheckSentenceRules @0x8010B58C : 1 if (rule[+2] ^ testVal) masked by rule[+1] and ~clearMask is 0. */
-extern unsigned int iSPCH_CheckSentenceRules(int testVal, int clearMask, int rulePtr)
+unsigned int iSPCH_CheckSentenceRules(int testVal, int clearMask, int rulePtr)
 {
     unsigned int active = (unsigned int)*(unsigned char *)(rulePtr + 1) & ~(unsigned int)clearMask;
     unsigned int delta  = (unsigned int)*(unsigned char *)(rulePtr + 2) ^ (unsigned int)testVal;

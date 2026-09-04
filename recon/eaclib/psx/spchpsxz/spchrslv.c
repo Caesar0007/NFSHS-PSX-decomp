@@ -9,14 +9,11 @@
  */
 
 #include "../eaclib_types.h"
-
-extern int iSPCH_BindData(unsigned short *dat);   /* spchrand */
-
-extern int SPCH_ResolveData(unsigned short *dat); /* @0x800EBBD4 */
+#include "spchrslv.h"
 
 /* SPCH_ResolveData @0x800EBBD4 : bind `dat` into the speech event-data table; returns iSPCH_BindData's result
  *   (1 if accepted into a free gEventDats slot, 0 if rejected/full). */
-extern int SPCH_ResolveData(unsigned short *dat)
+int SPCH_ResolveData(unsigned short *dat)
 {
     return iSPCH_BindData(dat);
 }

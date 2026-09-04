@@ -62,12 +62,25 @@
 
 #include "../eaclib_types.h"
 #include "spch_types.h"
+#include "spchinit.h"
+#include "spchbank.h"
+#include "spchevnt.h"
+#include "spchrand.h"
+#include "spchpick.h"
 
-int gGameNum;         /* owned here (W65-A6 run @0x80148428) */
-int gFilterSetting;   /* @0x8014842C */
-int gLastSubTick;     /* @0x80148430; spchevnt's, but retail held the run in ONE object */
-int gDataRate;        /* @0x80148434 */
-int gLastTick;        /* @0x80148438 */
+/* W65-A6 DATA-MAT run @0x80148428 -- file-scope asm .bss definition, RESTORED 2026-09-04 for
+ * the same measured reason as spchevnt's (plain C definitions land in .bss but maspsx re-orders
+ * the run -- gLastSubTick ends up last instead of third; -fno-common moves it to .data).
+ * The C views are `extern` in spchinit.h (and gLastSubTick's `unsigned short` view lives in
+ * spchevnt.c, which is the only reader of its low half). */
+__asm__("\t.globl\tgGameNum\n\t.globl\tgFilterSetting\n\t.globl\tgLastSubTick\n"
+        "\t.globl\tgDataRate\n\t.globl\tgLastTick\n"
+        "\t.section\t.bss\n\t.align\t2\n"
+        "gGameNum:\n\t.space\t4\n"
+        "gFilterSetting:\n\t.space\t4\n"
+        "gLastSubTick:\n\t.space\t4\n"
+        "gDataRate:\n\t.space\t4\n"
+        "gLastTick:\n\t.space\t4\n\t.text");
 /* W65-A6: the stale `int gRepeatCount;` tentative definition that stood here is GONE.  It was
  * never referenced by this TU's code (every use spells it `gVoxInGame[1]`), so maspsx turned
  * it into a private 4-byte LOCAL .sbss object at an address retail does not have -- retail's
@@ -75,6 +88,16 @@ int gLastTick;        /* @0x80148438 */
  * run in spchevnt.c.  Deleting an unreferenced `.comm` is codegen-neutral (7/7 PASS before
  * and after; the only delta is 4 fewer dead .sbss bytes). */
 
+/* ⚠️ ORDER CAVEAT (measured 2026-09-04, nm/objdump): these plain C tentative definitions land
+   in .bss correctly, but their ORDER inside the object is chosen by maspsx, not by the source --
+   this run comes out {gGameNum, gFilterSetting, gDataRate, gLastTick, gLastSubTick} instead
+   of retail's {gGameNum, gFilterSetting, gLastSubTick, gDataRate, gLastTick}.  Sizes and section are right, the run's
+   internal layout is not.  Falsified cures: `-fno-common` restores declaration order but moves
+   the storage to .data (file bytes; these VAs are pure zero-init BSS) and
+   `__attribute__((section(".bss")))` is inert on this cc1.  The only spelling that gives BOTH
+   is the file-scope asm .bss block this TU used to carry (spchpick.c still does).  Harmless for
+   the match lane and for today's src/-linked ROM; it matters whenever recon objects own the
+   storage at link (first-light).  DECISION PENDING -- do not re-assert "nm-verified order". */
 /* DECL SHAPE (2026-08-31): plain scalars, as EA wrote them.  They used to be
    spelled `extern int g[];` + `g[0]` -- the unsized-array lever (methodology
    §3.12 #5), which stops gcc folding the address into the load/store destination
@@ -92,39 +115,13 @@ int gLastTick;        /* @0x80148438 */
 /* 2026-09-02: the five callback slots are honest FUNCTION POINTERS now (they were `int`
  * Ghidra-isms; SYM v3 is bare for all five, so the types are ours to choose -- byte-neutral,
  * SImode either way). */
-typedef void *(*SPCHAllocFn)(int numBytes, const char *tag);
-typedef void (*SPCHFreeFn)(void);
-extern SPCHAllocFn gMemAlloc;      /* user alloc callback @0x801370A8 */
-extern SPCHFreeFn  gMemFree;       /* user free callback  @0x801370AC */
-extern int gSPCH_Initialized;      /* 0x1789a34 when initialised */
-extern void (*gSampleRequest)(int, int, int, int);            /* sample-request callback @0x80137094 */
-extern int  (*gSentenceRuleTest)(unsigned int, unsigned int, int);       /* rule-test callback @0x80137098 */
-extern void (*gSentenceRuleSet)(unsigned int, unsigned int, int, int);   /* rule-set callback @0x8013709C */
-extern int gVoxInGame[];       /* in-game speech enable (-1 = on); [1] aliases gRepeatCount@+4
-                                * (the standalone gRepeatCount symbol is retired -- see spchevnt.c) */
 
-extern void iSPCH_DisposeBanks(void);                      /* spchbank */
-extern void iSPCH_InitBanks(void);                         /* spchbank */
-extern VoxBank **iSPCH_BankMemAlloc(unsigned int numBanks); /* spchbank; returns gVoxBanks */
-extern void iSPCH_InitEventDat(void);                      /* spchevnt */
-extern void iSPCH_InitEventQueue(void);                    /* spchevnt */
-extern int *iSPCH_EACseedrandom(unsigned int seed);        /* spchrand */
-extern void iSPCH_ClearChosen(void);                       /* spchpick */
-extern int  SPCH_SetPreLoadTicks(int ticks);              /* spchpick */
-
-extern void *iSPCH_MemAlloc(int numBytes, const char *tag);             /* @0x800EB5A4 */
-extern void iSPCH_MemFree(void);                                        /* @0x800EB5D4 */
-extern void SPCH_Deinit(void);                                          /* @0x800EB600 */
-extern void iSPCH_InitInGame(void);                                     /* @0x800EB654 */
-extern int  SPCH_GetSampleDataRate(int numSamples, int rate, int channels); /* @0x800EB66C */
-extern VoxBank **SPCH_InitBankMem(SPCHAllocFn memAllocFn, SPCHFreeFn memFreeFn, int numBanks);  /* @0x800EB6F0 */
-extern int  SPCH_Init(void (*sampleRequestCb)(int, int, int, int), unsigned int gameNum, int dataRate); /* @0x800EB748 */
 
 /* iSPCH_MemAlloc @0x800EB5A4 : invoke the user's allocation callback (which fills gVoxBanks); returns
  *   the callback's result, or 0 if no callback is registered.  `numBytes`/`tag` are passed through to
  *   the callback (a debug-tagging alloc convention -- e.g. "spch banks") but this wrapper itself never
  *   reads them (its own oracle body takes no args -- classic nullsub-still-takes-real-args). */
-extern void *iSPCH_MemAlloc(int numBytes, const char *tag)
+void *iSPCH_MemAlloc(int numBytes, const char *tag)
 {
     void *result = 0;
     if (gMemAlloc != 0)
@@ -133,14 +130,14 @@ extern void *iSPCH_MemAlloc(int numBytes, const char *tag)
 }
 
 /* iSPCH_MemFree @0x800EB5D4 : invoke the user's free callback. */
-extern void iSPCH_MemFree(void)
+void iSPCH_MemFree(void *block)
 {
     if (gMemFree != 0)
         gMemFree();
 }
 
 /* SPCH_Deinit @0x800EB600 : tear down the speech system (only if it was initialised). */
-extern void SPCH_Deinit(void)
+void SPCH_Deinit(void)
 {
     if (gSPCH_Initialized == 0x1789a34) {
         gSampleRequest    = 0;
@@ -155,7 +152,7 @@ extern void SPCH_Deinit(void)
 /* iSPCH_InitInGame @0x800EB654 : reset the in-game speech state.  (Residual = the original shared the
  *   %hi base for gVoxInGame + the adjacent gRepeatCount@+4 and put the 2nd store in the jr delay slot;
  *   maspsx always emits a nop after jr, so the delay-slot store can't be reproduced -- jr-slot floor.) */
-extern void iSPCH_InitInGame(void)
+void iSPCH_InitInGame(void)
 {
     /* gRepeatCount sits at gVoxInGame+4; the original wrote both through the shared %hi base
      * (gcc materializes &gVoxInGame once, stores -1 at [0], and slots the [1]=0 store into the
@@ -166,7 +163,7 @@ extern void iSPCH_InitInGame(void)
 
 /* SPCH_GetSampleDataRate @0x800EB66C : bytes/sec for `numSamples` at `rate`, scaled by channel mode
  *   (1 = /10, 2 = *2/7).  The (x+7)>>3 is a round-toward-zero divide-by-8. */
-extern int SPCH_GetSampleDataRate(int numSamples, int rate, int channels)
+int SPCH_GetSampleDataRate(int numSamples, int rate, int channels)
 {
     int raw = numSamples * rate;
     int v;
@@ -191,7 +188,7 @@ done:
 
 /* SPCH_InitBankMem @0x800EB6F0 : register the alloc/free callbacks and allocate `numBanks` bank slots.
  *   Returns the bank array (gVoxBanks) or 0 if not initialised / no alloc callback. */
-extern VoxBank **SPCH_InitBankMem(SPCHAllocFn memAllocFn, SPCHFreeFn memFreeFn, int numBanks)
+VoxBank **SPCH_InitBankMem(SPCHAllocFn memAllocFn, SPCHFreeFn memFreeFn, int numBanks)
 {
     VoxBank **result = 0;
     if (gSPCH_Initialized == 0x1789a34 && memAllocFn != 0 && memFreeFn != 0) {
@@ -250,7 +247,7 @@ extern VoxBank **SPCH_InitBankMem(SPCHAllocFn memAllocFn, SPCHFreeFn memFreeFn, 
  * `void *const`; with and without the locals).  Gates: verify_asm 7/7 PASS,
  * tugate 7/7, brdist 0/7, slotcheck 0, wordcmp REAL=0.
  * Receipts: scratchpad/w82/A4_receipt.md */
-extern int SPCH_Init(void (*sampleRequestCb)(int, int, int, int), unsigned int gameNum, int dataRate)
+int SPCH_Init(void (*sampleRequestCb)(int, int, int, int), unsigned int gameNum, int dataRate)
 {
     gSampleRequest    = sampleRequestCb;
     gGameNum       = gameNum;

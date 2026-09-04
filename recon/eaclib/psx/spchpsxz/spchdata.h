@@ -3,7 +3,6 @@
 
 #include "spch_types.h"
 
-
 extern int iSPCH_GetMatchValue(VoxPhrase *phrase, int index);         /* @0x80100710 */
 extern int VoxSentence_GetShortRule(VoxSentence *sentence);           /* @0x80100724 */
 extern int VoxSentence_GetNumPhrases(VoxSentence *sentence);          /* @0x80100730 */

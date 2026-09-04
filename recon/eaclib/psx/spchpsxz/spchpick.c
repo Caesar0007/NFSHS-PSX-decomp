@@ -887,7 +887,18 @@ int iSPCH_ChooseShortSentence(int sentence)
     return found;
 }
 
-/* iSPCH_SentenceMakeChoice @0x80101310 : finalise the per-phrase pick (random or short-fit). */
+/* iSPCH_SentenceMakeChoice @0x80101310 : finalise the per-phrase pick (random or short-fit).
+ * ✅ SEALED DEVICE-FREE (2026-09-04): plain `for` over CHOICE(i), no goto loop and no
+ * do{}while(0) ref dial -- both are retired.  They existed together because the older
+ * WALKER spelling (`sentence` reused as a byte cursor, bumped by 0xc) made loop.c strength-
+ * reduce the three in-loop accesses onto one giv anchor (+1 insn, displacements rebased to
+ * -4/-2/0 instead of retail's bare 4/6/8); the goto loop killed the anchor but then cost the
+ * $s2<->$s3 rotation of `ok`/`n`, which the phony-loop wrapper had to dial back.  Recomputing
+ * the record from the counter each iteration removes the biv entirely, so there is nothing to
+ * reduce and nothing to re-weight: 43/43 byte-exact.  (Measured this pass: this form PASS;
+ * typed walker + goto + dial also PASS but keeps both devices; a `for` over a walking pointer
+ * without them is 9 diffs @44/43 -- the anchor is back.  An earlier note filed CHOICE(i) as
+ * "does not work, 36 diffs" -- that verdict was basin-relative and is now superseded.) */
 int iSPCH_SentenceMakeChoice(int sentence, int mode)
 {
     int ok = 0;
@@ -899,73 +910,16 @@ int iSPCH_SentenceMakeChoice(int sentence, int mode)
         int i = 0;
         if (ok < n) {
             ok = 1;
-            sentence = (int)ispch_gChoice + i * 0xc;
-/* residual 7 (44/43): the +1 insn is the giv anchor -- loop.c combines all
-             * three in-loop address givs onto the LAST one (the +8 store), so ours folds
-             * +8 into the record pointer at loop entry (`addiu s0,s0,8`) and the reads
-             * become -4/-2, while retail keeps the pointer at the record base with bare
-             * +4/+6/+8.
-             * w33-a9 RE-VERDICT (was filed a "base-anchor FLOOR"): it IS the catalog's
-             * giv-anchor class, and cure A (label+goto loop => no LOOP notes => no
-             * strength reduction) DOES fix it -- the goto form reaches EXACT 43/43 parity
-             * with the whole loop body byte-identical (lh 4(s0) / lhu 6(s0) / sh 8(s0) /
-             * addiu s0,s0,12).  NOT KEPT because its residual is an 18-diff s2<->s3
-             * rotation of `ok` and `n`, and that is the allocno_compare LIVE-LENGTH
-             * identity, not a source shape: cc1 -dl gives ok = 5 refs / 24 insns
-             * (priority .417) vs n = 3 refs / 15 insns (.200) under
-             * floor_log2(refs)*refs/live_length, so psq43 cc1 allocates ok first; retail
-             * allocates n first, which needs len(ok)/len(n) > 3.33 (ours is 1.6).  Same
-             * >3.4x weighting exhibit as iSPCH_InitEventQueue (hub w32 identity core (b)).
-             * Cure B (recompute the record pointer from the counter each iteration --
-             * CHOICE(i) or an inline i*0xc) does NOT work here: 36 diffs / 45 insns,
-             * loop.c re-derives the same anchor.  Restore the goto form when the cc1
-             * snapshot question is settled.
-             * w34-a9 RE-MEASURED the goto form directly from cc1 -dl/-dg (it is EXACT
-             * 43/43 with the whole loop byte-identical; the 18 diffs are the $s2<->$s3
-             * swap only).  Allocation there: walker(r80) 10 refs/17 insns = 1.765 ->
-             * $s0, i(r85) 4/16 = 0.500 -> $s1, ok(r82) 5/24 = 0.417 -> $s2, n(r84)
-             * 3/15 = 0.200 -> $s3; retail wants walker > i > n > ok.  The flip needs
-             * EITHER n's priority inside (0.417, 0.500) -- 4 refs at live length 17-19,
-             * because 4 refs at the present length 15 gives 0.533 and overshoots i --
-             * OR ok down to <= 3 refs (1*3/24 = 0.125).  All FIVE ok refs exist in the
-             * retail oracle itself (addu s3,zero,zero / addu s3,v0,zero / slt v0,s3,s2
-             * / addiu s3,zero,1 / addu v0,s3,zero), and n's 3 refs are unweighted
-             * precisely BECAUSE a goto loop carries no LOOP notes -- so no spelling
-             * reaches the window without re-introducing loop notes (which brings back
-             * the giv anchor this form exists to kill) or deleting an instruction
-             * retail has.  Also falsified on the do-while form: a `volatile` store to
-             * break combine_givs (51 diffs / 46 insns).  allocno_compare live-length
-             * identity; the goto form is the permuter seed.
-             * 🏆 w47-a2 SEALED (7 -> PASS 43/43): the "no spelling reaches the window"
-             * verdict was right about SPELLINGS and wrong about DIALS -- the w44/w45
-             * do{}while(0) loop-depth ref dial supplies exactly the missing refs at zero
-             * instructions (see the MATCH note on the loop-back test below).  RULE: a
-             * goto-loop that trades a giv anchor for an allocno rotation is only HALF the
-             * fix -- re-weight the counter/bound with a phony-loop wrapper to get the
-             * loop-depth refs the goto form threw away. */
-top:
-            {
-                int r = iSPCH_Rand((int)*(short *)(sentence + 4));
-                i = i + 1;
-                *(short *)(sentence + 8) = *(unsigned short *)(sentence + 6) + (short)r;
-                sentence = sentence + 0xc;
+            for (i = 0; i < n; i++) {
+                short *choice = CHOICE(i);
+                int r = iSPCH_Rand(choice[2]);
+
+                choice[4] = choice[3] + (short)r;
             }
-            /* MATCH (w47-a2): the loop-back test is wrapped in do{...}while(0) as a pure
-             * REF DIAL -- do NOT "simplify" it away.  The label+goto loop (above) is what
-             * kills loop.c's giv anchor (43/43), but without LOOP notes `n` and `i` lose
-             * their loop weighting and `ok` outranks `n` in allocno_compare, rotating
-             * $s2<->$s3 (the 18-diff residual w33/w34 filed as an allocno live-length
-             * identity).  A do{}while(0) is stripped by loop.c as a phony loop (so it can
-             * NOT bring the giv anchor back) but flow.c still counts the refs inside it at
-             * loop depth 1, i.e. DOUBLED: i 4->5 refs, n 3->4.  New priorities
-             * (floor_log2(refs)*refs/live): walker 1.765 > i 0.625 > n 0.533 > ok 0.417 =
-             * retail's exact order walker $s0 / i $s1 / n $s2 / ok $s3.  Zero instructions. */
-            do { if (i < n) goto top; } while (0);
         }
     }
     return ok;
 }
-
 /* iSPCH_ConstantRuleSet @0x801013BC : fire gSentenceRuleSet for each phrase's constant (type != 0xf) rules.
  * ARITY (w32-a10 prototype audit, R3): TWO args, not three.  The sole call site (iSPCH_PlayChosen
  * @0x801016F4) sets a0/a1 only and leaves a bare `nop` in the jal delay slot; the callee never reads an

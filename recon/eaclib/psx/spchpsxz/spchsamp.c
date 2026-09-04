@@ -19,8 +19,8 @@
  *   filter bytes 0xff). */
 void iSPCH_InitSample(int *out)
 {
+    out[0] = 0;
     out[1] = -1;
-    *out   = 0;
     out[2] = 0;
     *((unsigned char *)out + 0xc) = 0xff;
     *((unsigned char *)out + 0xd) = 0xff;
@@ -43,45 +43,43 @@ int iSPCH_UnPackSample(VoxBank *bank, int sampleIdx, int *out)
     int endOff = result;
 
     iSPCH_InitSample(out);
-    if (sampleIdx < (int)bank->numSamples) {
+    if (sampleIdx < bank->numSamples) {
         int filterCnt = bank->flags & 0xf;
         int stride = filterCnt + 2;
         unsigned char *entry = (unsigned char *)(bank + 1);   /* +8: sample table */
-        int i = 0;
+        int i;
 
-        entry = entry + sampleIdx * stride;
+        entry += sampleIdx * stride;
         out[2] = filterCnt;
-        if (i < filterCnt) {
-            do {
-                *((unsigned char *)out + i + 0xc) = entry[i + 2];
-                i = i + 1;
-            } while (i < filterCnt);
+        
+        for(i = 0; i < filterCnt; i++) {
+            *((unsigned char *)out + i + 0xc) = entry[i + 2];
         }
 
-        if ((*entry & 0x80) != 0) {
+        if (*entry & 0x80) {
             sampleIdx = entry[1];
             entry = (unsigned char *)(bank + 1);
-            entry = entry + sampleIdx * stride;
+            entry += sampleIdx * stride;
         }
 
         {
             unsigned char *nextEntry = entry + stride;
             int nextIndex = sampleIdx + 1;
-            int startOff = (int)entry[0] * 0x100 + (int)entry[1];
-            startOff = startOff * 0x100;
+            int startOff = (entry[0] << 8) + entry[1];
+            startOff <<= 8;
 
             out[1] = startOff;
             while (!done) {
-                if ((int)bank->numSamples <= nextIndex) {
+                if (bank->numSamples <= nextIndex) {
                     done = 1;
                     endOff = (int)bank->dataSize256 << 8;
-                } else if ((*nextEntry & 0x80) != 0) {
+                } else if (*nextEntry & 0x80) {
                     nextEntry = nextEntry + stride;
                     nextIndex = nextIndex + 1;
                 } else {
                     done = 1;
-                    endOff = (int)nextEntry[0] * 0x100 + (int)nextEntry[1];
-                    endOff = endOff * 0x100;
+                    endOff = (nextEntry[0] << 8) + nextEntry[1];
+                    endOff <<= 8;
                 }
             }
             *out = endOff - startOff;

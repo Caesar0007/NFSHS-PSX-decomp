@@ -25,7 +25,7 @@ extern "C" char *getasyncreadadr(...);
 extern "C" int getasyncreadstatus(...);
 extern "C" void *loadfileadr(...);
 extern "C" void *loadfileatadr(...);
-extern "C" void *locatebig(...);
+extern "C" char *locatebig(void *bigfile, char *name);
 extern "C" void *locatebigentry(...);
 extern "C" int purgememadr(...);
 extern "C" void *reservememadr(...);

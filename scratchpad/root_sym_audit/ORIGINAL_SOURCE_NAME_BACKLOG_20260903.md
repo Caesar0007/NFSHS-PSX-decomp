@@ -105,6 +105,24 @@ pointer-add lookup
 **20/20 PASS**.  The previous explicit `basisCarIndex` local and volatile
 `basisCar` snapshot are eliminated rather than renamed.
 
+## P846 R3DCar CI diagnosis and canonical `locatebig` prototype
+
+The reported two-TU CI failure was traced to the older `971772f7` tree.  Its
+fatal errors were duplicate completed foreign types (`Sim_tSimGlobalVar` in
+`anim_types.h` and `DRender_tView` in `r3dcar_types.h`); `build.py` displayed
+only each compiler diagnostic's final line, making R3DCar's unrelated line
+1863 conversion warning look fatal.  Commit `6ebbe9a3` had already removed
+both duplicate definitions, and every subsequent workflow through the current
+tree is green.
+
+The warning nevertheless exposed a real declaration error.  The matched NFS4
+callee in `recon/eaclib/psx/eacpsxz/locatbig.c` defines
+`char *locatebig(void *, char *)`, independently corroborated by the
+symbol-bearing NFS2 source.  `r3dcar_externs.h` now uses that exact prototype
+instead of `void *locatebig(...)`.  All four false `void *`-to-`char *`
+warnings disappear, `r3dcar.cpp` remains **27/27 PASS**, and its branch census
+is unchanged.
+
 ## Expansion requirement
 
 This is a living backlog.  Every retained source-only carrier whose spelling is

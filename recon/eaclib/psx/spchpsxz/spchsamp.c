@@ -11,15 +11,13 @@
  *   (iSPCH_UnPackSample) passes (out, sampleId) -- kept 2-arg as the formal API, sampleId unused here.
  */
 
- #include "../eaclib_types.h"
+#include "../eaclib_types.h"
 #include "spch_types.h"
- 
-extern void iSPCH_InitSample(int *out);                            /* @0x8010B5AC */
-extern int  iSPCH_UnPackSample(VoxBank *bank, int sampleIdx, int *out); /* @0x8010B5D4 */
+#include "spchsamp.h"
 
 /* iSPCH_InitSample @0x8010B5AC : reset a VoxSample descriptor to "empty" (length 0, start -1, no filter,
  *   filter bytes 0xff). */
-extern void iSPCH_InitSample(int *out)
+void iSPCH_InitSample(int *out)
 {
     out[1] = -1;
     *out   = 0;
@@ -38,7 +36,7 @@ extern void iSPCH_InitSample(int *out)
  *   (1 insn short) and colored startOff into a fresh temp instead of reusing dead `entry`/$a2.
  *   The InitSample 1-arg fix (above) removed sampleIdx's phantom 7th ref, restoring the oracle's
  *   result->s1 / done->s2 / sampleIdx->s3 allocation order. */
-extern int iSPCH_UnPackSample(VoxBank *bank, int sampleIdx, int *out)
+int iSPCH_UnPackSample(VoxBank *bank, int sampleIdx, int *out)
 {
     int result = 0;
     int done = result;

@@ -49,3 +49,6 @@ tools/objdiff/objdiff.exe
 # verify_region.py gate temp copies (compiled beside the base TU, auto-deleted)
 recon/**/*__region_gate*.cpp
 recon/**/*__region_gate*.c
+
+# VS Code local workspace data (any depth)
+.vscode/

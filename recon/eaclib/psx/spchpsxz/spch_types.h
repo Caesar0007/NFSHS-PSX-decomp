@@ -58,4 +58,28 @@ typedef struct {
     /* +0x8: int matchValues[count] -- iSPCH_GetMatchValue */
 } VoxPhrase;
 
+/* EA's TRUE record (2026-09-03, user model): the queue header is the run's first 8 bytes and
+ * the 16 records start at run+8, stride 0x3c -- args[12] fills a record EXACTLY (2+2+4+4+48),
+ * no cross-slot overlay games.  MEASURED: with INDEXED addressing this honest spelling is
+ * codegen-identical to the old -8-shifted window (cc1 anchors the giv base at run+0 and folds
+ * the +8 into the field displacements). */
+#define VOX_NSLOTS 16
+
+typedef struct {
+    unsigned short enabled;      /* +0x0 (run-relative +0x8)  */
+    unsigned short subTick;      /* +0x2 (+0xa)  */
+    int            tick;         /* +0x4 (+0xc)  insert tick */
+    VoxEvent      *event;        /* +0x8 (+0x10) */
+    int            args[12];     /* +0xc..0x3b (+0x14..+0x43) */
+} VoxSlot;                       /* 0x3c */
+typedef struct {
+    int     liveCount;           /* +0x0 number of enabled slots (AddEvent ++, FindEventSlot/
+                                  * ClearEventQueue/ClearOldEvents/ChooseEvent/ChooseSpeech --,
+                                  * gated `< 16` / `!= 0`) */
+    int     dFlag;               /* +0x4 "a 'd'-tagged event survived" flag (set by
+                                  * ClearOldEvents, read by spchpick's filter bump;
+                                  * retail's DAT_80148064) */
+    VoxSlot slots[VOX_NSLOTS];   /* +0x8 the 16 records */
+} VoxSlotsStruct;                /* 8 + 16*0x3c = 968 */
+
 #endif

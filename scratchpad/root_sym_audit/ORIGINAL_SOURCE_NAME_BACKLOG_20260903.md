@@ -289,6 +289,31 @@ and `i` declarations represented by **two raw `SYM-CODEGEN-CARRIER` rows**.
 The function remains **46/46**, its `-g` twin is exact, all seven branch words
 are clean, and the complete `AIWORLD.cpp` TU remains **22/22 PASS**.
 
+## P854 nested macro and typed-row round
+
+This round eliminates **four reconstruction-only local declarations**
+represented by **three raw `SYM-CODEGEN-CARRIER` rows**:
+
+- `AIPhysic_SimplePhysics` now uses the same repeated nested ring-wrap
+  expression preserved by the symbol-bearing NFS2 AI-physics source.  GCC
+  common-subexpression elimination recreates the retail value web without the
+  two mutually exclusive scoped `v` declarations; the function remains
+  **219/219**.
+- The final look-ahead clamp in `AIPhysic_GetDesiredVector` is restored as
+  `MAX(4, sliceLookAhead)`.  The constant-first argument order is allocation
+  significant: reversing it gives 11 differences and 377/378 instructions,
+  while the canonical retained form removes `t` and remains **378/378**.
+- `Camera_SetSplineCam` now reads the camera and road matrix rows through
+  `(coorddef *)&rotation.m[6]` views, the same typed row idiom preserved in the
+  matched NFS2 camera source.  IDA's `$s1` is therefore a compiler-generated
+  row pointer rather than a source local; removing `cameraDirection` preserves
+  **128/128** and matches the single retail SLD dot-product statement.
+
+All three `-g` twins are exact and all 56 branch words are clean.  The complete
+`aiphysic.cpp` and `camera.cpp` TU gates remain **42/42 PASS** and **38/38
+PASS**, respectively.  No volatile, assembly, invented replacement name, or
+postcompile rewrite was introduced.
+
 ## Expansion requirement
 
 This is a living backlog.  Every retained source-only carrier whose spelling is
@@ -308,12 +333,12 @@ spelling.  A row leaves this queue only when direct source-bearing evidence is
 recorded and its marker is replaced by `ORIGINAL-NAME-RECOVERED` (or when the
 extra source object is eliminated while preserving the oracle).
 
-Current measured queue: **1,536 unresolved carrier-marker rows project-wide**,
-of which **545 are in `recon/game/common`**.  There are currently **32
+Current measured queue: **1,533 unresolved carrier-marker rows project-wide**,
+of which **542 are in `recon/game/common`**.  There are currently **32
 `ORIGINAL-NAME-RECOVERED` evidence rows**.  These counts were measured from the
 working tree on 2026-09-04 and must be regenerated after each recovery round.
 
-## Strict per-directory snapshot through P853
+## Strict per-directory snapshot through P854
 
 These reports measure the current source tree; they are evidence of remaining
 work, not completion certificates.  `Explicit source-only codegen carriers`
@@ -322,7 +347,7 @@ marker rows (a few names have more than one scoped marker row).
 
 | Directory | SYM functions | Mapped | Declaration-clean | Missing names | Extra names | Type/storage findings | Source-only carriers | Mapping review |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| `recon/game/common` | 1,258 | 1,258 | 1,228 | 0 | 6 | 28 / 28 | 545 | 0 |
+| `recon/game/common` | 1,258 | 1,258 | 1,228 | 0 | 6 | 28 / 28 | 542 | 0 |
 | `recon/frontend/common` | 838 | 833 | 781 | 0 | 46 | 9 / 9 | 519 | 3 |
 | `recon/frontend/psx` | 85 | 85 | 85 | 0 | 0 | 0 / 0 | 54 | 0 |
 | `recon/game/psx` | 395 | 395 | 392 | 0 | 3 | 0 / 0 | 395 | 0 |
@@ -331,7 +356,7 @@ marker rows (a few names have more than one scoped marker row).
 | `recon/syslib/psx` | 0 | 0 | 0 | 0 | 0 | 0 / 0 | 0 | 0 |
 
 The authoritative report files are
-`game_common_strict_p853_20260904.md`,
+`game_common_strict_p854_20260904.md`,
 `frontend_common_strict_p783_20260903.md`,
 `frontend_psx_strict_p780_20260903.md`,
 `game_psx_strict_p838_20260904.md`,

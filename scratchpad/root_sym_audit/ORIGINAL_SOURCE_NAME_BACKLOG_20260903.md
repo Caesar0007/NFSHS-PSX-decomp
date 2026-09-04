@@ -923,7 +923,7 @@ remains 1,596 project-wide / 602 in game/common.
 
 ### Retained after P813 source-shape retests
 
-Three nearby groups remain deliberately conspicuous because no exact original
+Four nearby groups remain deliberately conspicuous because no exact original
 spelling or eliminating source form is yet proved:
 
 - `AIState_Purgatory::~AIState_Purgatory`: natural
@@ -939,6 +939,11 @@ spelling or eliminating source form is yet proved:
   in six address-immediate/store instructions because GCC biases the cursor to
   `nextDelay` rather than retail's `chan` byte.  The exact `puVar3` placeholder
   remains until source-bearing evidence recovers its spelling.
+- `Paths_StartUp`: deleting `scanFrame` emits a frameless 17/19-instruction
+  body with four diffs.  A direct PsyQ 4.3 CC1PLPSX `-g` probe also emits that
+  frameless body and records `scan` as REG rather than the retail AUTO at -8.
+  The PASS 19/19 carrier remains until the exact address-taken/source mechanism
+  is recovered.
 
 ## Prior marked generic-placeholder census at P777
 

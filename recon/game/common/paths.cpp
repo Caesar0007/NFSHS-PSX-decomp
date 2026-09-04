@@ -24,7 +24,10 @@ void Paths_StartUp(void)
    * uses are promoted to a0.  This compiler drops scan's home entirely;
    * reserving the equivalent 20-byte local area restores only the retail
    * prologue/epilogue.  Taking &scan in dead source is folded too early;
-   * __builtin_alloca adds four unwanted frame-pointer instructions. */
+   * __builtin_alloca adds four unwanted frame-pointer instructions.  A direct
+   * PsyQ 4.3 CC1PLPSX `-g` probe without this carrier still emits the frameless
+   * 17-instruction body and records scan as REG, so debug mode is not the
+   * missing mechanism. */
   int scanFrame[5];
 
   scan = burnPath;

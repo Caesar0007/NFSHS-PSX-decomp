@@ -27,6 +27,11 @@ struct Sched_tSchedule {
     Sched_tFunctionSchedule func[1];
 };
 
+struct Sim_tSimGlobalVar {
+    int gameStarted, gameTicks, time32Hz;
+    Sched_tSchedule *schedule64Hz, *schedule32Hz, *schedule32Hz2;
+};
+
 struct Force_tGlobal {
     u_char active, high, low, jolt, time, fade;
     u_char actuator[2];

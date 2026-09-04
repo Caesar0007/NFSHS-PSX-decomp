@@ -204,7 +204,7 @@ LAB_afterhorn:
   if (target == -1) goto LAB_80057cc0;
   if (GameSetup_gData.raceType == RaceType_HotPursuit) goto LAB_80057cc0;
   {
-    switch ((int)(AI_SimGlobalWords[1] & 0x18U) >> 3) {
+    switch ((int)(simGlobal.gameTicks & 0x18U) >> 3) {
     case 0:
       AudioClc_HonkHorn(carObj,4,0x10,8);
       break;
@@ -259,12 +259,12 @@ void AI_CheckForPlayerActions(Car_tObj *carObj,Car_tObj *otherCarObj)
   if (AIWorld_GameOdometer(carObj) < 0x3200000) {
     return;
   }
-  if (((AI_SimGlobalWords[1] - (otherCarObj->N).collision.lastTime < 0xf) &&
+  if (((simGlobal.gameTicks - (otherCarObj->N).collision.lastTime < 0xf) &&
        ((otherCarObj->N).collision.lastOtherObj != (BO_tNewtonObj *)0x0)) &&
       ((Car_tObj *)(otherCarObj->N).collision.lastOtherObj == carObj)) {
     AIScript_SubmitPlayerAction(&carObj->script,
                                 otherCarObj->carIndex,0,
-                                AI_SimGlobalWords[1]);
+                                simGlobal.gameTicks);
   }
   /* SYM-CODEGEN-CARRIER: direction -- repeating the member expression keeps
      144 instructions but moves retail's `lw v1,1364(s1)`, producing two
@@ -275,33 +275,33 @@ void AI_CheckForPlayerActions(Car_tObj *carObj,Car_tObj *otherCarObj)
     if (0xbffff < absDistance) goto LAB_80057f34;
     AIScript_SubmitPlayerAction(&carObj->script,
                                 otherCarObj->carIndex,1,
-                                AI_SimGlobalWords[1]);
+                                simGlobal.gameTicks);
   }
   if ((absDistance < 0xc0000) &&
       (otherCarObj->laneIndex == carObj->laneIndex)) {
     if (AIWorld_GameOdometer(otherCarObj) > AIWorld_GameOdometer(carObj)) {
       AIScript_SubmitPlayerAction(&carObj->script,
                                   otherCarObj->carIndex,2,
-                                  AI_SimGlobalWords[1]);
+                                  simGlobal.gameTicks);
     }
     else {
       AIScript_SubmitPlayerAction(&carObj->script,
                                   otherCarObj->carIndex,3,
-                                  AI_SimGlobalWords[1]);
+                                  simGlobal.gameTicks);
     }
   }
 LAB_80057f34:
   if ((otherCarObj->swapCar == carObj) &&
-      (AI_SimGlobalWords[1] - carObj->swapTime < 0xf)) {
+      (simGlobal.gameTicks - carObj->swapTime < 0xf)) {
     if (AIWorld_GameOdometer(carObj) > AIWorld_GameOdometer(otherCarObj)) {
       AIScript_SubmitPlayerAction(&carObj->script,
                                   otherCarObj->carIndex,4,
-                                  AI_SimGlobalWords[1]);
+                                  simGlobal.gameTicks);
     }
     else {
       AIScript_SubmitPlayerAction(&carObj->script,
                                   otherCarObj->carIndex,5,
-                                  AI_SimGlobalWords[1]);
+                                  simGlobal.gameTicks);
     }
   }
   if (((absDistance < 0x1e0000) &&
@@ -310,7 +310,7 @@ LAB_80057f34:
   {
     AIScript_SubmitPlayerAction(&carObj->script,
                                 otherCarObj->carIndex,6,
-                                AI_SimGlobalWords[1]);
+                                simGlobal.gameTicks);
   }
   return;
 }

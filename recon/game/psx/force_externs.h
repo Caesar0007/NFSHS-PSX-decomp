@@ -13,7 +13,7 @@ extern long              colourRGB[16];       /* 0x8011fd70  array-end sentinel 
 // [owned->defined in force.cpp] extern long              Force_gVblHandle;    /* 0x8013d850 */
 
 /* ---- shared game globals ---- */
-extern int               Force_SimWords[] asm("simGlobal");
+extern Sim_tSimGlobalVar simGlobal;
 extern GameSetup_tData   GameSetup_gData;
 extern Car_tObj         *Cars_gHumanRaceCarList[9]; /* 0x8010fa48 (36 bytes) */
 extern int               Replay_ReplayMode;   /* 0x8013d3f4 */

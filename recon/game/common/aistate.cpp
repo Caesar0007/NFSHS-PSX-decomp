@@ -510,7 +510,7 @@ void AIState_Chase::SetMurderMode(int murderMode,int murderTicks)
 
     this->murderMode_ = murderMode;
 
-    this->murderEndTime_ = AIState_SimGlobalWords[1] + murderTicks;
+    this->murderEndTime_ = simGlobal.gameTicks + murderTicks;
 
   }
 
@@ -586,7 +586,7 @@ void AIState_Chase::SetUp()
 
   (this->carObj_)->targetLatPos = 0;
 
-  if ((this->murderMode_ != 0) && (!(AIState_SimGlobalWords[1] < this->murderEndTime_))) {
+  if ((this->murderMode_ != 0) && (!(simGlobal.gameTicks < this->murderEndTime_))) {
 
     this->murderMode_ = 0;
 
@@ -654,7 +654,7 @@ void AIState_Chase::DoNitrous(int checkForHumans)
 
 
 
-  if ((0 < this->nitrousTicks_) && (AIState_SimGlobalWords[1] >= this->slowDownEndTime_)) {
+  if ((0 < this->nitrousTicks_) && (simGlobal.gameTicks >= this->slowDownEndTime_)) {
 
     (this->carObj_)->accNitrous = 0x30000;
 
@@ -789,7 +789,7 @@ LAB_80070244:
 
 LAB_800702a0:
 
-  if (AIState_SimGlobalWords[1] < this->slowDownEndTime_) {
+  if (simGlobal.gameTicks < this->slowDownEndTime_) {
 
     this->DoSlowNitrous();
 
@@ -818,7 +818,7 @@ void AIState_Chase::FarTargeting()
 
   this->inTargetRegion_ = 0;
 
-  if (AIState_SimGlobalWords[1] > this->noTurnAroundEndTime_) {
+  if (simGlobal.gameTicks > this->noTurnAroundEndTime_) {
 
     if (0 < this->longMetersBetween_) {
 
@@ -1222,7 +1222,7 @@ void AIState_Chase::ApproachTargeting(int intercept)
 
   this->inTargetRegion_ = 0;
 
-  iVar5 = AIState_SimGlobalWords[1];
+  iVar5 = simGlobal.gameTicks;
 
   if (this->noTurnAroundEndTime_ < iVar5) {
 
@@ -2147,7 +2147,7 @@ void AIState_Purgatory::Execute()
   ((this->carObj_)->N).collision.disableCollisionTimer = 0;
 
   if ((((this->carObj_)->carFlags & 0x20U) == 0) &&
-      (0x3bf < AIState_SimGlobalWords[1])) {
+      (0x3bf < simGlobal.gameTicks)) {
 
     (this->carObj_)->physicsModelTimer =
         (this->carObj_)->physicsModelTimer - AI_elapsedTime;
@@ -2378,11 +2378,11 @@ void AIState_RovingTraffic::Execute()
 
     if (this->waitTick_ == 0) {
 
-      this->waitTick_ = AIState_SimGlobalWords[1] + this->path_[this->pathIndex_].waitTime;
+      this->waitTick_ = simGlobal.gameTicks + this->path_[this->pathIndex_].waitTime;
 
     }
 
-    if (AIState_SimGlobalWords[1] < this->waitTick_) {
+    if (simGlobal.gameTicks < this->waitTick_) {
 
       (this->carObj_)->desiredSpeed = 0;
 

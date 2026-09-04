@@ -24,8 +24,6 @@ extern int GameSetup_gData[22];
 #define AISPEEDS_WEATHER GameSetup_gData[18]
 #define AISPEEDS_TIME GameSetup_gData[21]
 extern Sim_tSimGlobalVar simGlobal;
-extern int AISpeeds_simGlobalWords[] asm("simGlobal");
-#define AISPEEDS_GAME_TICKS AISpeeds_simGlobalWords[1]
 extern u_char (*BWorldSm_slices)[32];
 #define AISPEEDS_SLICE_LANE_COUNT(i) BWorldSm_slices[(i)][0x1d]
 #define AISPEEDS_SLICE_WIDTH_LF(i) BWorldSm_slices[(i)][0x1e]

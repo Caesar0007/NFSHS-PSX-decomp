@@ -188,7 +188,7 @@ int AISpeeds_SuperDuperSpeedUpTheCarsAtTheStartBecauseWeCannotActuallyHandleRend
   int f_crappyFrameRateCompensatingSpeedup;
   leadIndex = Cars_gNumAIRaceCars - carObj->AISlot;   /* H41: compute EARLY (oracle: subu right after loading Cars_gNumAIRaceCars, before the guard) */
   if ((((1 < Cars_gNumAIRaceCars) && (AISPEEDS_RACE_TYPE != RaceType_HotPursuit)) &&
-      (AISPEEDS_GAME_TICKS < 0x780)) &&
+      (simGlobal.gameTicks < 0x780)) &&
      ((Cars_gNumHumanRaceCars == 1 && ((*(u_short *)((char *)Cars_gHumanRaceCarList[0] + 6)) < (carObj->N).totalSlice)))) {
     return leadIndex * 0x3333 + 0x10000;
   }

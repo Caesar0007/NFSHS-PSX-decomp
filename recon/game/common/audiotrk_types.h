@@ -60,6 +60,12 @@ struct Sched_tSchedule {
     Sched_tFunctionSchedule func[1];
 };
 
+/* Canonical sim.obj aggregate from the retail SYM type graph. */
+struct Sim_tSimGlobalVar {
+    int gameStarted, gameTicks, time32Hz;
+    Sched_tSchedule *schedule64Hz, *schedule32Hz, *schedule32Hz2;
+};
+
 struct Trk_AnimateInst {
     short size;
     u_char type, objectIndex, zoffset, flags;

@@ -202,7 +202,7 @@ void MPause_MusicLogic(char active)
       }
       if ((sndover != 0) && (0xc0 < ticks - lastplaytick)) {
         lastplaytick = *(volatile int *)&ticks;
-        SFXHandle = AudioCmn_PlaySound(MPause_SndBnkWords[3][0],samp,0,vol,0x40)
+        SFXHandle = AudioCmn_PlaySound(gSndBnk[3].bnkID,samp,0,vol,0x40)
         ;
       }
     }

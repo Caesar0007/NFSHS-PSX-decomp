@@ -4,6 +4,8 @@
 
 #include "../common/color_types.h"
 
+struct SndBnk_t { int bnkID; char *phdr, *pdata; };
+
 struct SNDSYSCAP {
     u_short outputratemin, outputratemax;
     u_char outputchannelsmin, outputchannelsmax, inputvoicesmax;

@@ -3,9 +3,7 @@
 #ifndef GMESETUP_EXTERNS_H
 #define GMESETUP_EXTERNS_H
 
-extern int GameSetup_DeviceListWords[][3] asm("Device_gDeviceList");
-#define GAMESETUP_DEVICE_STARTUP(i) \
-    ((int (*)(int))GameSetup_DeviceListWords[(i)][2])
+extern Input_tDeviceList Device_gDeviceList[5];
 extern void Device_SetHardCodedKeys(void);       /* device.obj */
 extern void Input_StartUp(void);                 /* input.obj */
                  /* libpad (eaclib PADPSXZ) */

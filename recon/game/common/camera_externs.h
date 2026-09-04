@@ -17,8 +17,8 @@ extern Car_tObj *Cars_gList[];   /* real ARRAY @0x8010F9DC (asm/data), NOT ptr-t
  * SYM graph.  Keep their exact symbols and source field offsets without
  * importing unrelated foreign type definitions into this translation unit. */
 extern GameSetup_tData GameSetup_gData;
-extern int Camera_SimGlobalWords[] asm("simGlobal");
-extern int Camera_SimVarWords[] asm("simVar");
+extern Sim_tSimGlobalVar simGlobal;
+extern Sim_tSimSystemVar simVar;
 extern u_char (*Camera_BWorldSmSlices)[32] asm("BWorldSm_slices");
 #define CAMERA_SLICE_CENTER(slice) ((coorddef *)&Camera_BWorldSmSlices[(slice)][0])
 #define CAMERA_SLICE_FORWARD(slice, axis) ((signed char)Camera_BWorldSmSlices[(slice)][0x0f + (axis)])
@@ -35,7 +35,7 @@ extern int InBetween;
 extern int Math_Dist3D(coorddef *a,coorddef *b);
 extern int Newton_FindGroundElevationGeneral(coorddef *point,coorddef *normal,coorddef *pointOnQuad);
 extern linedef Camera_ReplayCamera[] asm("Replay_ReplayCamera");
-extern int Camera_ReplayInterfaceWords[] asm("Replay_ReplayInterface");
+extern tReplayInterface Replay_ReplayInterface;
 #define CAMERA_REPLAY_DEFAULT(player) Camera_ReplayCamera[(player)].start
 #define CAMERA_REPLAY_MODE(player) Camera_ReplayCamera[(player)].colour
 extern void  Math_fasttransmult(matrixtdef *a, matrixtdef *b, matrixtdef *out);

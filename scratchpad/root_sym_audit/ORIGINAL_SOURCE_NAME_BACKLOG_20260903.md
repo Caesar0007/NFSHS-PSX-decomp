@@ -51,7 +51,7 @@ of which **600 are in `recon/game/common`**.  There are currently **24
 `ORIGINAL-NAME-RECOVERED` evidence rows**.  These counts were measured from the
 working tree on 2026-09-04 and must be regenerated after each recovery round.
 
-## Strict per-directory snapshot through P837
+## Strict per-directory snapshot through P838
 
 These reports measure the current source tree; they are evidence of remaining
 work, not completion certificates.  `Explicit source-only codegen carriers`
@@ -69,10 +69,10 @@ marker rows (a few names have more than one scoped marker row).
 | `recon/syslib/psx` | 0 | 0 | 0 | 0 | 0 | 0 / 0 | 0 | 0 |
 
 The authoritative report files are
-`game_common_strict_p837_20260904.md`,
+`game_common_strict_p838_20260904.md`,
 `frontend_common_strict_p783_20260903.md`,
 `frontend_psx_strict_p780_20260903.md`,
-`game_psx_strict_p837_20260904.md`,
+`game_psx_strict_p838_20260904.md`,
 `eaclib_psx_strict_p779_20260903.md`,
 `lib_strict_p779_20260903.md`, and
 `syslib_psx_strict_p779_20260903.md` in this directory.
@@ -1048,6 +1048,34 @@ carriers) and `game_psx_strict_p837_20260904.md` (395/395 mapped, 395
 source-only carriers), both with zero missing names and zero mapping-review
 items.  The raw carrier-marker queue is now 1,592 project-wide / 600 in
 game/common.
+
+### Restored canonical shared-runtime fields at P838
+
+The remaining raw word-array views in this focused runtime batch are replaced
+by their exact aggregate declarations and fields.  `AI`, `AISpeeds`,
+`AIState`, `AudioTrk`, `Force`, `Night`, `Weather`, and `Camera` now access the
+canonical `Sim_tSimGlobalVar` object directly, including `gameTicks` and
+`schedule32Hz`.  Camera additionally uses the exact `Sim_tSimSystemVar`
+`pauseSim`/`quickPauseSim` fields and
+`Replay_ReplayInterface.changeCamera`, eliminating its three integer-array
+views.
+
+The same round restores the canonical 12-byte `SndBnk_t` declaration and its
+`bnkID`/`pdata` fields in `Audio`, `AudioEng`, and `MPause`, and the canonical
+12-byte `Input_tDeviceList.startupfunc` entry used by `GameSetup_StartUp`.
+These are source-shape recoveries backed by the retail SYM layouts; no semantic
+names were invented.
+
+All twelve affected translation units retain every oracle-known function:
+game/common `ai` 40/40, `aispeeds` 29/29, `aistate` 52/52, `audioeng` 9/9,
+`audiotrk` 6/6, `camera` 38/38, `gmesetup` 2/2, and `mpause` 10/10;
+game/PSX `audio` 6/6, `force` 9/9, `night` 19/19, and `weather` 25/25.  The
+authoritative reports are `game_common_strict_p838_20260904.md` (1,258/1,258
+mapped, 600 source-only carriers) and `game_psx_strict_p838_20260904.md`
+(395/395 mapped, 395 source-only carriers), both with zero missing names and
+zero mapping-review items.  This batch removes typed alias scaffolding rather
+than marker-bearing local rows, so the measured raw carrier-marker queue
+remains 1,592 project-wide / 600 in game/common.
 
 ### Retained after P813 source-shape retests
 

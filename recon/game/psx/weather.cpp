@@ -263,7 +263,7 @@ void Weather_ChangeDensityState(void)
   Weather_gDensityChangeFactor = statechange;
   Weather_gDensityGoalState = Weather_gDensityGoalState + statechange;
   if (statechange == 0) {
-    Weather_gDensityTimerGoal = WEATHER_GAME_TICKS + 0x400;
+    Weather_gDensityTimerGoal = simGlobal.gameTicks + 0x400;
   }
   return;
 }
@@ -286,7 +286,7 @@ void Weather_ChangeIntensityState(void)
   Weather_gIntensityChangeFactor = statechange;
   Weather_gIntensityGoalState = Weather_gIntensityGoalState + statechange;
   if (statechange == 0) {
-    Weather_gIntensityTimerGoal = WEATHER_GAME_TICKS + 0x400;
+    Weather_gIntensityTimerGoal = simGlobal.gameTicks + 0x400;
   }
   return;
 }
@@ -314,7 +314,7 @@ void Weather_ChangeDensityBasedOnTime(void)
       Weather_ChangeDensityState();
     }
   }
-  else if (WEATHER_GAME_TICKS > Weather_gDensityTimerGoal) {
+  else if (simGlobal.gameTicks > Weather_gDensityTimerGoal) {
     Weather_ChangeDensityState();
   }
   Weather_gSys.num[0] = Weather_gSys.num[0] + Weather_gDensityChangeFactor;
@@ -382,7 +382,7 @@ WeatherIntensity_checkZero:
   goto WeatherIntensity_velYUpdate;
   goto WeatherIntensity_call;
 WeatherIntensity_checkTime:
-  if (WEATHER_GAME_TICKS <= Weather_gIntensityTimerGoal) goto WeatherIntensity_velYUpdate;
+  if (simGlobal.gameTicks <= Weather_gIntensityTimerGoal) goto WeatherIntensity_velYUpdate;
 WeatherIntensity_call:
   Weather_ChangeIntensityState();
 WeatherIntensity_velYUpdate:
@@ -422,10 +422,10 @@ void Weather_InitStateControls(void)
   Weather_gDensityGoalState = 3;
   Weather_gIntensityChangeFactor = 0;
   Weather_gDensityChangeFactor = 0;
-  Weather_gIntensityTimerGoal = WEATHER_GAME_TICKS + 0x400;
+  Weather_gIntensityTimerGoal = simGlobal.gameTicks + 0x400;
   Weather_gSys.num[0] = Weather_gDensityTbl[3];
-  Weather_gDensityTimerGoal = WEATHER_GAME_TICKS + 0x400;
-  timechange = WEATHER_GAME_TICKS;
+  Weather_gDensityTimerGoal = simGlobal.gameTicks + 0x400;
+  timechange = simGlobal.gameTicks;
   return;
 }
 
@@ -447,8 +447,8 @@ void Weather_Restart(void)
       Weather_InitStateControls();
     }
     i = 0;
-    WEATHER_GLASTPROCESSTIME1 = WEATHER_GAME_TICKS;
-    WEATHER_GLASTPROCESSTIME0 = WEATHER_GAME_TICKS;
+    WEATHER_GLASTPROCESSTIME1 = simGlobal.gameTicks;
+    WEATHER_GLASTPROCESSTIME0 = simGlobal.gameTicks;
     do {
       Weather_gWasDrawn[i] = '\0';
       i = i + 1;
@@ -545,8 +545,8 @@ void Weather_Init(void)
     if (Weather_gWasDrawn == (char *)0x0) {
       Weather_gWasDrawn = reservememadr("weather3",0x98,0);
     }
-    WEATHER_GLASTPROCESSTIME1 = WEATHER_GAME_TICKS;
-    WEATHER_GLASTPROCESSTIME0 = WEATHER_GAME_TICKS;
+    WEATHER_GLASTPROCESSTIME1 = simGlobal.gameTicks;
+    WEATHER_GLASTPROCESSTIME0 = simGlobal.gameTicks;
     Weather_gPServer[0] = Weather_gPos;
     Weather_gPrevPServer[0] = Weather_gPrevPos;
     Weather_gDrawnServer[0] = Weather_gWasDrawn;
@@ -1208,7 +1208,7 @@ void Weather_CreateSplat
   if (((splat->pos).vx & 1U) != 0) {
     size = 0xc;
   }
-  splatTick = WEATHER_GAME_TICKS - splat->startTick;
+  splatTick = simGlobal.gameTicks - splat->startTick;
   /* w46-a9: retail issues `li $v0,-128 / subu $v0,$v0,$a0` BEFORE `sra $v1,$v1,3`
    * (both are ready right after the `sll`, a sched2 ready-list tie).  Naming the
    * colour value and fencing the shift behind it wins the tie at 0 insns; a bare
@@ -1403,8 +1403,8 @@ void Weather_DoSplats
   i = 0;
   while (i < gCurrentNumSplats) {
       __asm__("" : : "r"(i));
-      if (WEATHER_GAME_TICKS >= splats[i].startTick) {
-        if (splats[i].startTick + 0x20 < WEATHER_GAME_TICKS) {
+      if (simGlobal.gameTicks >= splats[i].startTick) {
+        if (splats[i].startTick + 0x20 < simGlobal.gameTicks) {
           if ((num < gCurrentNumSplats) && (i == gCurrentNumSplats + -1)) {
             gCurrentNumSplats = i;
           }
@@ -1423,7 +1423,7 @@ void Weather_DoSplats
             else {
               q->pos.vy = (short)((u_int)random() % 0xf0);
             }
-            splats[i].startTick = WEATHER_GAME_TICKS + (u_int)random() % 100;
+            splats[i].startTick = simGlobal.gameTicks + (u_int)random() % 100;
           }
         }
         else {
@@ -1722,8 +1722,8 @@ void Weather_DoWeather(DRender_tView *Vi)
   wd = *wdp;
   /* The canonical typed declaration makes the direct guard byte-exact; the former
      staged `cm` and `one` codegen carriers are not required. */
-  if ((GameSetup_gData.commMode != 1) && (0x20 < WEATHER_GAME_TICKS - timechange)) {
-    timechange = WEATHER_GAME_TICKS;
+  if ((GameSetup_gData.commMode != 1) && (0x20 < simGlobal.gameTicks - timechange)) {
+    timechange = simGlobal.gameTicks;
     if (Weather_gSnowTrack == 0) {
       Weather_ChangeIntensityBasedOnTime();
     }
@@ -1772,8 +1772,8 @@ void Weather_DoWeather(DRender_tView *Vi)
     /* Source-level identity: use the real file-static array.  Its known
        eight-byte size is above -G4, so this runtime index stays absolute while
        the constant-index sites above remain gp-relative. */
-    if (1 < WEATHER_GAME_TICKS - Weather_gLastProcessTime[player]) {
-      Weather_gLastProcessTime[player] = WEATHER_GAME_TICKS;
+    if (1 < simGlobal.gameTicks - Weather_gLastProcessTime[player]) {
+      Weather_gLastProcessTime[player] = simGlobal.gameTicks;
       Weather_ProcessParticles(Vi,Weather_gSys.num[player],wpt,wd);
     }
     Weather_SetIdentMatrix();

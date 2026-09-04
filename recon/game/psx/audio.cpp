@@ -29,8 +29,8 @@ void Audio_InitDriver(int buffersize,int spusize)
 
   i = 0;
   do {
-    Audio_gSndBnkWords[i][0] = i;
-    Audio_gSndBnkWords[i][2] = 0;
+    gSndBnk[i].bnkID = i;
+    gSndBnk[i].pdata = 0;
     i = i + 1;
   } while (i < 7);
   if ((AudioCmn_kAudioOn != 0) || (AudioCmn_kAudioStreamingOn != 0)) {
@@ -70,9 +70,9 @@ void Audio_CleanUp(void)
 
   i = 0;
   do {
-    if (Audio_gSndBnkWords[i][2] != 0) {
-      purgememadr((char *)Audio_gSndBnkWords[i][2]);
-      Audio_gSndBnkWords[i][2] = 0;
+    if (gSndBnk[i].pdata != 0) {
+      purgememadr(gSndBnk[i].pdata);
+      gSndBnk[i].pdata = 0;
     }
     i = i + 1;
   } while (i < 7);
@@ -84,9 +84,9 @@ void Audio_FECleanUp(void)
 
 {
   SNDbankremove(-1);
-  if (Audio_gSndBnkWords[0][2] != 0) {
-    purgememadr((char *)Audio_gSndBnkWords[0][2]);
-    Audio_gSndBnkWords[0][2] = 0;
+  if (gSndBnk[0].pdata != 0) {
+    purgememadr(gSndBnk[0].pdata);
+    gSndBnk[0].pdata = 0;
   }
   return;
 }
@@ -126,8 +126,8 @@ int AudioCmn_AddBank(char *filename,int size,char *pdata,int BankNum)
     AudioClc_SndError(check);
   }
   purgememadr(pdata);
-  Audio_gSndBnkWords[BankNum][2] = (int)p;
-  Audio_gSndBnkWords[BankNum][0] = bhandle;
+  gSndBnk[BankNum].pdata = p;
+  gSndBnk[BankNum].bnkID = bhandle;
   return size;
 }
 

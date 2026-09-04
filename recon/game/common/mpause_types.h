@@ -4,6 +4,8 @@
 
 #include "color_types.h"
 
+struct SndBnk_t { int bnkID; char *phdr, *pdata; };
+
 #define RaceType_Tournament 2
 #define RaceType_PinkSlips 6
 

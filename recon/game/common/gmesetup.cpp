@@ -74,8 +74,8 @@ void GameSetup_StartUp(int *FrontEndDataStream)
         }
         else if (i >= 0x4D) {
             h[i - 0x4D] = s[1];
-            if (GAMESETUP_DEVICE_STARTUP(s[1] & 0xFF) != 0) {
-                GAMESETUP_DEVICE_STARTUP(s[1] & 0xFF)(s[1] >> 8);
+            if (Device_gDeviceList[s[1] & 0xFF].startupfunc != 0) {
+                Device_gDeviceList[s[1] & 0xFF].startupfunc(s[1] >> 8);
             }
             s += 2;
         }

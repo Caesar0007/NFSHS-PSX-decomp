@@ -43,7 +43,7 @@
  * simGlobal gameTicks at +4, TrackSpec night/depth-cue at +236/+240, and
  * camera target/slicePos at +4/+140 with a 272-byte element stride. */
 extern GameSetup_tData GameSetup_gData;
-extern coorddef Night_SimView asm("simGlobal");
+extern Sim_tSimGlobalVar simGlobal;
 extern int Night_TrackSpecWords[] asm("TrackSpec_gSpec");
 /* The retail load shape proves a 272-byte row with slicePos at +140.  This
  * codegen-only carrier is intentionally not part of night.obj's SYM graph;
@@ -55,7 +55,6 @@ struct Night_CameraCodegenView {
     BWorldSm_Pos slicePos;
 };
 extern Night_CameraCodegenView Night_CameraView[] asm("Camera_gInfo");
-#define NIGHT_GAME_TICKS          Night_SimView.y
 #define NIGHT_TRACK_NIGHT               (*(CNightSpec *)&Night_TrackSpecWords[59])
 #define NIGHT_TRACK_DEPTH_CUE_COLOR_WORD Night_TrackSpecWords[60]
 #define NIGHT_TRACK_DEPTH_CUE_DISTANCE   Night_TrackSpecWords[61]

@@ -25,6 +25,22 @@ struct GameSetup_tData {
     GameSetup_tCarData carInfo[9];
 };
 
+struct Sched_tSchedule;
+struct Sim_tSimGlobalVar {
+    int gameStarted, gameTicks, time32Hz;
+    Sched_tSchedule *schedule64Hz, *schedule32Hz, *schedule32Hz2;
+};
+
+struct Sim_tSimSystemVar {
+    int restartGame, endSimGame, pauseSim, keyRelease, quickPauseSim;
+    int goalClockTicks, currentClockTicks;
+};
+
+struct tReplayInterface {
+    int pause, speed, end, camera, selection, depressed, changeCamera;
+    int statsScreen;
+};
+
 typedef enum forceFocus_t {
     FOCUS_NORMAL = 0,
     FOCUS_AI = 1,

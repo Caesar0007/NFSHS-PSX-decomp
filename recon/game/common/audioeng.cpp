@@ -460,7 +460,7 @@ int AudioEng_StartUp(int player,char *carname)
               bankloaded = 1;
               FILE_readsync(handle,offset,pdata,size,100);
               spu = AudioCmn_AddBank(name,size,pdata,player);
-              g->bhandle = (char)AudioEng_gSndBnkWords[player][0];
+              g->bhandle = (char)gSndBnk[player].bnkID;
             }
           }
           else if ((wildcard((u_char *)name,"*.ltb") != 0) &&

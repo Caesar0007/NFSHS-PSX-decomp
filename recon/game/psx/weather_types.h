@@ -152,6 +152,11 @@ struct Sched_tSchedule {
     Sched_tFunctionSchedule func[1];
 };
 
+struct Sim_tSimGlobalVar {
+    int gameStarted, gameTicks, time32Hz;
+    Sched_tSchedule *schedule64Hz, *schedule32Hz, *schedule32Hz2;
+};
+
 struct POLY_F4 {
     u_long tag;
     u_char r0, g0, b0, code;

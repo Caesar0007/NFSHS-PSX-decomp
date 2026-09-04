@@ -4,6 +4,8 @@
 
 #include "color_types.h"
 
+struct SndBnk_t { int bnkID; char *phdr, *pdata; };
+
 /* Canonical gmesetup.obj aggregate used by this translation unit. */
 struct GameSetup_tData {
     int raceType, numLaps, skill, commMode, tournamentMultiplier, cops;

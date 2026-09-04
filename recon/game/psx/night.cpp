@@ -681,7 +681,7 @@ void Night_GenerateNextLightningEvent(void)
   int rmask; /* SYM-CODEGEN-CARRIER: rmask -- shared masked-delay result; direct expressions are FAIL 8 (29/29) */
   int *ticksp; /* SYM-CODEGEN-CARRIER: ticksp -- explicit gameTicks cell preserves retail relocation/issue order; direct global is FAIL 2 */
 
-  ticksp = &NIGHT_GAME_TICKS;
+  ticksp = &simGlobal.gameTicks;
   rmask = (random() & 0x7ff) + 0x1f;
   Night_gNextLightning = *ticksp + rmask;
   rmask = (random() & 0xf) + 0xf;
@@ -731,8 +731,8 @@ void Night_DoLightningEffect(DRender_tView *Vi)
     Hrz_LightningFlicker(0);
     Night_gLightning = 0;
   }
-  if (((NIGHT_GAME_TICKS > Night_gNextLightning) &&
-      (NIGHT_GAME_TICKS < Night_gEndNextLightning)) && (Night_gNextFlicker < NIGHT_GAME_TICKS)
+  if (((simGlobal.gameTicks > Night_gNextLightning) &&
+      (simGlobal.gameTicks < Night_gEndNextLightning)) && (Night_gNextFlicker < simGlobal.gameTicks)
      ) {
     Night_gLightningType = random() & 1;
     Hrz_LightningFlicker(1);
@@ -746,7 +746,7 @@ void Night_DoLightningEffect(DRender_tView *Vi)
       Night_gDrawLightning = 1;
     }
     Night_gLightning = 1;
-    Night_gNextFlicker = NIGHT_GAME_TICKS + (random() & 3);
+    Night_gNextFlicker = simGlobal.gameTicks + (random() & 3);
     Night_gFlashIntensity = (Night_gLightningType + 1) * (random() & 0x1f) + 0x40;
     if (lightningInit != '\0') {
       if (Night_gShowForks != '\0') {
@@ -755,7 +755,7 @@ void Night_DoLightningEffect(DRender_tView *Vi)
       lightningInit = '\0';
     }
   }
-  if (NIGHT_GAME_TICKS > Night_gEndNextLightning) {
+  if (simGlobal.gameTicks > Night_gEndNextLightning) {
     Night_GenerateNextLightningEvent();
     Hrz_CalculateLightning();
     lightningInit = '\x01';
@@ -1156,7 +1156,7 @@ void Night_RestartNightDriving(void)
 {
   if ((GameSetup_gData.Weather == 1) && (GameSetup_gData.Time != 0)) {
     Night_gLightning = 0;
-    Night_gNextLightning = NIGHT_GAME_TICKS + (random() & 0x1ff);
+    Night_gNextLightning = simGlobal.gameTicks + (random() & 0x1ff);
     Night_gEndNextLightning = Night_gNextLightning + (random() & 0x31);
     Night_gNextFlicker = Night_gNextLightning;
     Hrz_LightningFlicker(0);

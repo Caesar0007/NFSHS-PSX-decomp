@@ -354,9 +354,9 @@ void Force_StartUp(void)
     } while (f < Force_g + 2);
   }
   VSyncCallback(Force_Vbl);
-  Sched_AddFunction((Sched_tSchedule *)Force_SimWords[4],Force_Update,Cars_gHumanRaceCarList[0],0x32);
+  Sched_AddFunction(simGlobal.schedule32Hz,Force_Update,Cars_gHumanRaceCarList[0],0x32);
   if (GameSetup_gData.commMode == 1) {
-    Sched_AddFunction((Sched_tSchedule *)Force_SimWords[4],Force_Update,Cars_gHumanRaceCarList[1],0x32);
+    Sched_AddFunction(simGlobal.schedule32Hz,Force_Update,Cars_gHumanRaceCarList[1],0x32);
   }
   return;
 }

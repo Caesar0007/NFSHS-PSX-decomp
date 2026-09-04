@@ -147,7 +147,7 @@ void Camera_UpdateCollisionCam(int player)
   coorddef newarm;   /* SYM: AUTO */
   coorddef oldarm;   /* SYM: AUTO */
 
-  if (((Camera_SimVarWords[4] == 0) || (Camera_ReplayInterfaceWords[6] != 0)) &&
+  if (((simVar.quickPauseSim == 0) || (Replay_ReplayInterface.changeCamera != 0)) &&
      (InBetween == 0)) {
     if (Camera_gInfo[player].direction != 0) {
       arm.z = -arm.z;   /* MATCH: negate, not a 0xA0000 re-store */
@@ -270,7 +270,7 @@ void Camera_UpdateTailCam(int player,int behavior)
     lookahead = -3;
 lookahead_done:;
   }
-  if ((Camera_SimVarWords[4] != 0) && (Camera_ReplayInterfaceWords[6] == 0)) {
+  if ((simVar.quickPauseSim != 0) && (Replay_ReplayInterface.changeCamera == 0)) {
     return;
   }
   if (InBetween != 0) {
@@ -614,7 +614,7 @@ void Camera_UpdateHeliCam(int player,int behavior)
       __asm__("" : : "i"(0));
     }
   }
-  if ((Camera_SimVarWords[4] != 0) && (Camera_ReplayInterfaceWords[6] == 0)) {
+  if ((simVar.quickPauseSim != 0) && (Replay_ReplayInterface.changeCamera == 0)) {
     return;
   }
   if (InBetween != 0) {
@@ -801,8 +801,8 @@ void Camera_UpdateCircleCam(int player)
   int cos;
   int circle_height[3] = { 0x10000, 0x20000, 0x30000 };
 
-  if ((((Camera_SimVarWords[4] == 0) || (Camera_ReplayInterfaceWords[6] != 0)) &&
-      (InBetween == 0)) && (Camera_SimVarWords[2] == 0)) {
+  if ((((simVar.quickPauseSim == 0) || (Replay_ReplayInterface.changeCamera != 0)) &&
+      (InBetween == 0)) && (simVar.pauseSim == 0)) {
     intsincos((int)++Camera_gInfo[player].circleAngle,&sin,&cos);
     src.x = fixedmult(0x48000,cos);
     src.z = fixedmult(0x60000,sin);
@@ -1230,8 +1230,8 @@ void Camera_UpdateSplineCam(int player)
   int change;
   anchor = (Car_tObj *)Camera_gInfo[player].anchor;
   change = 0;
-  if (((Camera_SimVarWords[4] == 0) ||
-       (Camera_ReplayInterfaceWords[6] != 0)) && (InBetween == 0)) {
+  if (((simVar.quickPauseSim == 0) ||
+       (Replay_ReplayInterface.changeCamera != 0)) && (InBetween == 0)) {
     int sliceDist;
     int numSlice;
 
@@ -1429,7 +1429,7 @@ void Camera_UpdatePulloverCam(int player)
      the profile call preserves retail's live range and 223-instruction body. */
   int side;
 
-  if (((Camera_SimVarWords[4] == 0) || (Camera_ReplayInterfaceWords[6] != 0)) &&
+  if (((simVar.quickPauseSim == 0) || (Replay_ReplayInterface.changeCamera != 0)) &&
      (InBetween == 0)) {
     /* SYM-CODEGEN-CARRIER: gameTicks -- the separate snapshot keeps retail's
        SimGlobal address materialization in v0 instead of a0. */
@@ -1437,7 +1437,7 @@ void Camera_UpdatePulloverCam(int player)
 
     SetGeomScreen(0xbe);
     /* MATCH: separate tick/index values keep Camera_gInfo[player] itself in s1. */
-    gameTicks = Camera_SimGlobalWords[1];
+    gameTicks = simGlobal.gameTicks;
     if (gameTicks < Camera_gInfo[player].POInhibitor) {
       Camera_UpdateCopCam2(player);
       return;
@@ -1555,7 +1555,7 @@ void Camera_UpdateBTCopCam(int player)
     break;
   }
   Camera_gGeomScreen = 0xbe;
-  Camera_gInfo[player].POInhibitor = Camera_SimGlobalWords[1] + 0x140;
+  Camera_gInfo[player].POInhibitor = simGlobal.gameTicks + 0x140;
   /* MATCH: real bitfield assignments; checkcollisions=0 LAST (m2c: (x&~2&~4|0x38)&~0x40) */
   Camera_gInfo[player].pitch = 0;
   Camera_gInfo[player].jostling = 0;

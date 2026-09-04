@@ -15,7 +15,7 @@ extern int   gMasterMusicLevel, gMasterSFXLevel, gMasterEngineLevel,
              gMasterAmbientLevel, gMasterFENarrationLevel;   /* audiocmn.obj */
 extern int   Replay_ReplayMode;           /* replay.obj */
 extern char  Device_gPausePortIndex;      /* device.obj */
-extern int MPause_SndBnkWords[][3] asm("gSndBnk");
+extern SndBnk_t gSndBnk[7];
 extern int   ticks;                       /* sys frame counter (EXT 0x8013dcac) */
 extern bool  ChangedEnabling;             /* PauseMenu.obj (SYM EXT BOOL 0x8013d2ec) */
 extern GameSetup_tData GameSetup_gData;

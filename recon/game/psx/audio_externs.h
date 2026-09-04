@@ -5,7 +5,7 @@
 /* ---- harvested ---- */
 /* audio.obj's SYM graph does not contain SndBnk_t.  Preserve the exact
  * external symbol and its 3-word element layout without inventing that tag. */
-extern int Audio_gSndBnkWords[7][3] asm("gSndBnk");
+extern SndBnk_t gSndBnk[7];
 extern int Audio_direct3davail;
 
 /* ---- SYM Globals + free fns ---- */

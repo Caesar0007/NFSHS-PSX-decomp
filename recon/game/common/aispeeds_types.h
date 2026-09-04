@@ -100,7 +100,12 @@ struct AISpeeds_tSlotInfo {
 struct speedData_t { u_short endSlice, speedMPS; };
 
 struct AIDataRecord_TrackCurve_t;
-struct Sim_tSimGlobalVar;
+
+/* Canonical sim.obj aggregate from the retail SYM type graph. */
+struct Sim_tSimGlobalVar {
+    int gameStarted, gameTicks, time32Hz;
+    Sched_tSchedule *schedule64Hz, *schedule32Hz, *schedule32Hz2;
+};
 
 typedef int CarLogic_tObservations[1][3];
 typedef void (*fontblit)();

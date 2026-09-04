@@ -13,6 +13,12 @@ typedef struct __nfs4_vtbl_ptr_t {
 #ifndef NFS4_GMESETUP_OMIT_OWNER_RECORDS
 struct FEI_tList { int v; int *p; };
 
+struct Input_tDeviceList {
+    char *devicename;
+    int (*devicefunc)(u_long);
+    int (*startupfunc)(int);
+};
+
 struct GameSetup_tData {
     int raceType, numLaps, skill, commMode, tournamentMultiplier, cops;
     int trafficDensity, localCar, catchupLogic, replayMode, instantReplay;

@@ -362,12 +362,12 @@ void AudioTrk_SoundTrack(Car_tObj *car,int trkazi)
           AudioElem *se;
           int numelems = gGameAudioList->numElements_;
           int quater = (numelems >> 2) + 1;
-          int gtck = AudioTrk_simGlobalWords[1] >> 3;
+          int gtck = simGlobal.gameTicks >> 3;
           int vx = AudioClc_gRenderView.translation.x;
           se = (AudioElem *)(gGameAudioList + 1);
           int vz = AudioClc_gRenderView.translation.z;
           coorddef v;
-          int start = ((AudioTrk_simGlobalWords[1] >> 1) % 4) * quater;
+          int start = ((simGlobal.gameTicks >> 1) % 4) * quater;
           /* MATCH: retail PRE-SETS the default (end = numelems, `addu fp,a3,zero`
              at 8007CE94) and only overrides it on the `<=` arm -- the min ternary
              emits the compare with the operands the other way round. */

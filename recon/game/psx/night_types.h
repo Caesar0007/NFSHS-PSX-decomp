@@ -84,6 +84,11 @@ struct Sched_tSchedule {
     Sched_tFunctionSchedule func[1];
 };
 
+struct Sim_tSimGlobalVar {
+    int gameStarted, gameTicks, time32Hz;
+    Sched_tSchedule *schedule64Hz, *schedule32Hz, *schedule32Hz2;
+};
+
 #ifndef NFS4_NIGHT_OMIT_PRIVATE_TYPES
 struct tCompRGB { char r, g, b; };
 struct tNightInitCache { tCompRGB table[257]; };

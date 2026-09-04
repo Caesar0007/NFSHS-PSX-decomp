@@ -90,10 +90,8 @@ struct Track_tMaterialController {
     Track_tMaterial *matPtr;
 };
 
-/* These completed foreign tags are absent from Track.obj's linked SYM graph,
- * but retail directly reads their storage. Keep exact private compiler views
- * at the translation-unit boundary. */
-struct Track_TrackSpecCodegenView {
+/* Canonical trackspec.obj aggregate used by this translation unit. */
+struct CTrackSpec {
     short fogstate, weatherstate, horizonstate, skystate;
     short nightstate, depthcuestate, worldcolorstate, pad0;
     CFogSpec fogspec;
@@ -104,13 +102,15 @@ struct Track_TrackSpecCodegenView {
     CDepthCueSpec depthcuespec;
     CWorldColor worldcolorspec;
 };
-struct Track_GameSetupCodegenView {
-    int raceType, numLaps, skill, commMode;
-    int setup04_10[7];
-    int mirrorTrack, reverseTrack, measurement, sgge, track, trackSegment;
-    int song, Weather, Fog, Damage, Time, randSeed, easter;
-    int controllerWords[22];
-    int pinkSlipsForfeit, checkpointType, checkpointHUD[2];
+/* Canonical gmesetup.obj aggregate used by this translation unit. */
+struct GameSetup_tData {
+    int raceType, numLaps, skill, commMode, tournamentMultiplier, cops;
+    int trafficDensity, localCar, catchupLogic, replayMode, instantReplay;
+    int mirrorTrack, reverseTrack, measurement, sgge, track, trackSegment, song;
+    int Weather, Fog, Damage, Time, randSeed, easter;
+    GameSetup_tControllerData controllerData;
+    int pinkSlipsForfeit, checkpointType;
+    int checkpointHUD[2];
     int dispatchSpeech, reverseCallSpeech, languageSpeech;
     int SceneNumber, SceneStartLap, SceneEndLap;
     GameSetup_tUserSetting userSetting;
@@ -119,9 +119,9 @@ struct Track_GameSetupCodegenView {
     int numCars, numPlayerRaceCars, numOpponentRaceCars, opponentCarType;
     GameSetup_tCarData carInfo[9];
 };
-struct Track_SimGlobalCodegenView {
+struct Sim_tSimGlobalVar {
     int gameStarted, gameTicks, time32Hz;
-    void *schedule64Hz, *schedule32Hz, *schedule32Hz2;
+    Sched_tSchedule *schedule64Hz, *schedule32Hz, *schedule32Hz2;
 };
 
 #endif

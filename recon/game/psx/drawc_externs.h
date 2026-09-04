@@ -45,33 +45,8 @@ extern int Draw_gViewOtSize;
 extern COORD16  Fe3D_lightsVertex[64];   /* 0x80051334  ARY STRUCT COORD16 x64 */
 extern COORD16  Fe3D_spotVertex[33];     /* 0x8005126c  ARY STRUCT COORD16 x33 */
 extern void Flare_CarShapedHalo(int, COORD16 *, int, int, short, int, Draw_FlareCache *) asm("Flare_CarShapedHalo__FiP7COORD16N21siP15Draw_FlareCache");
-/* Layout-locked exact-symbol views.  DrawC.obj omits the foreign owning tags,
- * while retail code retains member-shaped accesses to these two globals. */
-struct DrawC_GameSetupCodegenView {
-    int raceType, numLaps, skill, commMode;
-    int setup04_10[7];
-    int mirrorTrack, reverseTrack, measurement, sgge, track, trackSegment;
-    int song, Weather, Fog, Damage, Time, randSeed, easter;
-    int controllerWords[22];
-    int pinkSlipsForfeit, checkpointType, checkpointHUD[2];
-    int dispatchSpeech, reverseCallSpeech, languageSpeech;
-    int SceneNumber, SceneStartLap, SceneEndLap;
-    GameSetup_tUserSetting userSetting;
-    int numPerps, stageOffset, perpArrests, finalPerpArrests;
-    GameSetup_tPerpData perpInfo[10];
-    int numCars, numPlayerRaceCars, numOpponentRaceCars, opponentCarType;
-    GameSetup_tCarData carInfo[9];
-};
-struct DrawC_CViewCodegenView {
-    int id, player;
-    u_char cviewBytes[132];
-};
-extern DrawC_GameSetupCodegenView DrawC_GameSetup asm("GameSetup_gData");
-extern DrawC_CViewCodegenView DrawC_CView asm("gCView");
-#define DRAWC_GS_TRACK   DrawC_GameSetup.track
-#define DRAWC_GS_WEATHER DrawC_GameSetup.Weather
-#define DRAWC_CVIEW_ID   DrawC_CView.id
-#define DRAWC_CVIEW_PLAYER DrawC_CView.player
+extern GameSetup_tData GameSetup_gData;
+extern DRender_tView gCView;
 extern void Night_AdditiveNightCalc(VECTOR *, CVECTOR *);
 extern char          *Paths_Paths[];           /* 0x80116468 */
 extern void R3DCar_GetCarName(char *, int, int);

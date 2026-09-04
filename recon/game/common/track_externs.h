@@ -29,15 +29,15 @@ extern void trap(int);  /* MIPS break (gcc div-guard) */
 /* ---- libc ---- */
 
 /* ---- harvested ---- */
-extern Track_TrackSpecCodegenView TrackSpec_gSpec asm("TrackSpec_gSpec");
+extern CTrackSpec TrackSpec_gSpec;
 extern CVECTOR * Chunk_lightTable;
 extern Chunk * Track_chunkList;
 extern Draw_tPixMap Track_gReflectionMaps[4];
-extern Track_GameSetupCodegenView GameSetup_gData asm("GameSetup_gData");
+extern GameSetup_tData GameSetup_gData;
 extern Group * gPersistMidgroundObjInst;
 extern Group * gPersistObjDefBoundingSpheres;
 extern Group * gPersistObjInst;
-extern Track_SimGlobalCodegenView simGlobal asm("simGlobal");
+extern Sim_tSimGlobalVar simGlobal;
 extern Track_tArtresource gInitialArt;
 extern char *D_8011E15C[];                         /* gInitialArt.shapeFile alias */
 extern Track_tMaterial * Track_materials;

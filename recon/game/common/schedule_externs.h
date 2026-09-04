@@ -11,10 +11,6 @@ void *reservememadr(const char *name, int size, int memory_class);
 
 /* ---- sim global (provides .gameTicks tick counter) ---- */
 extern Sim_tSimGlobalVar simGlobal;                /* 0x8011e0ac */
-/* schedule.obj does not emit Sim_tSimGlobalVar's body, but its code addresses
- * gameTicks directly at word 1.  This guide-permitted symbol alias keeps the
- * retail data symbol while leaving the struct definition in sim.obj. */
-extern int Sched_simGlobalWords[] __asm__("simGlobal");
 
 /* ---- Sched_ExecuteCheck staggered-execution tables (indexed by Sched_gExecuteInfo entry) ---- */
 extern int  Sched_ExecuteTimes[7];                 /* 0x8011dfdc */

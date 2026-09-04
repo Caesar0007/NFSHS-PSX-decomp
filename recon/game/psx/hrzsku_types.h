@@ -8,6 +8,24 @@
 #define Render_gPacketPtr  (*(u_char **)0x1F800004)
 #define Render_gPalettePtr (*(u_char **)0x1F800000)
 
+/* Canonical gmesetup.obj aggregate retained by hrzsku.obj. */
+struct GameSetup_tData {
+    int raceType, numLaps, skill, commMode, tournamentMultiplier, cops;
+    int trafficDensity, localCar, catchupLogic, replayMode, instantReplay;
+    int mirrorTrack, reverseTrack, measurement, sgge, track, trackSegment, song;
+    int Weather, Fog, Damage, Time, randSeed, easter;
+    GameSetup_tControllerData controllerData;
+    int pinkSlipsForfeit, checkpointType;
+    int checkpointHUD[2];
+    int dispatchSpeech, reverseCallSpeech, languageSpeech;
+    int SceneNumber, SceneStartLap, SceneEndLap;
+    GameSetup_tUserSetting userSetting;
+    int numPerps, stageOffset, perpArrests, finalPerpArrests;
+    GameSetup_tPerpData perpInfo[10];
+    int numCars, numPlayerRaceCars, numOpponentRaceCars, opponentCarType;
+    GameSetup_tCarData carInfo[9];
+};
+
 struct TCB { long status, mode; u_long reg[40]; long system[6]; };
 struct EXEC {
     u_long pc0, gp0, t_addr, t_size, d_addr, d_size, b_addr, b_size;
@@ -93,6 +111,17 @@ struct CWeatherSpec { int type,intensity_limit; };
 struct CFogSpec { int contrast; CVECTOR color; int start,dist2base; };
 struct CDepthCueSpec { CVECTOR color; int distance; };
 struct CWorldColor { int contrast; CVECTOR contrast_color; short worldR,worldG,worldB,type; };
+struct CTrackSpec {
+    short fogstate, weatherstate, horizonstate, skystate;
+    short nightstate, depthcuestate, worldcolorstate, pad0;
+    CFogSpec fogspec;
+    CWeatherSpec weatherspec;
+    CHorizonSpec horizonspec;
+    CSkySpec skyspec;
+    CNightSpec nightspec;
+    CDepthCueSpec depthcuespec;
+    CWorldColor worldcolorspec;
+};
 struct kernpair { u_short previouscode,code; char kernvalue; char pad[3]; };
 typedef kernpair KERN;
 typedef void Trk_Chunk;

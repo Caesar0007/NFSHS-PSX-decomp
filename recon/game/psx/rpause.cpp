@@ -37,15 +37,12 @@ void RPause_StopPauseMenu(void)
 
 {
   
-  PutDispEnv(&RPAUSE_ENVIRO1_DISP);
+  PutDispEnv(&gEnviro[1].disp);
   DrawSync(0);
   VSync(0);
   RPause_CopyBackToFrontBuffer();
-  /* MATCH: zero-byte raw-base receipt keeps GCC's shared Draw_gView anchor at
-     offset zero; RPause_ViewOTAt then retains retail's +192 load displacement. */
-  __asm__("" : : "m"(RPause_DrawViewRows[0][0]));
-  DrawOTag(RPAUSE_VIEW_OT(Render_gPauseMenuView,gFlip) +
-             RPAUSE_VIEW_OTSIZE(Render_gPauseMenuView) + -1);
+  DrawOTag(Draw_gView[Render_gPauseMenuView].ot[gFlip] +
+             Draw_gView[Render_gPauseMenuView].otsize + -1);
   systemtask(0);
   gFlip = 1 - gFlip;
   return;

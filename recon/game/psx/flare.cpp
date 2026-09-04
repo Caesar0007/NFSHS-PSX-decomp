@@ -946,12 +946,12 @@ void Flare_Halo2(DRender_tView *Vi,int scale,int type,coorddef *fpt,coorddef *fp
     }
   }
   if ((flags & 0x10U) != 0) {
-    if (((FLARE_GAME_TICKS >> 6) & 1U) != 0) {
+    if (((simGlobal.gameTicks >> 6) & 1U) != 0) {
       return;
     }
   }
   else if ((flags & 0x20U) != 0) {
-    if (((FLARE_GAME_TICKS + 0x1b >> 5) & 1U) != 0) {
+    if (((simGlobal.gameTicks + 0x1b >> 5) & 1U) != 0) {
       return;
     }
   }
@@ -2075,7 +2075,7 @@ void Flare_LensFlare(DVECTOR *screenPos,Draw_FlareCache *sd)
       *(int *)((char *)&scalemat + 0x10) = 0;
       *(int *)((char *)&scalemat + 4) = 0;
       *(int *)((char *)&scalemat + 0xc) = 0;
-      *(u_long *)&gfrgb2 = *(u_long *)&FLARE_TRACK_SKY.sunBeamColor;
+      *(u_long *)&gfrgb2 = *(u_long *)&TrackSpec_gSpec.skyspec.sunBeamColor;
       Flare_IdentMatrix(&mtx);
       RotMatrixZ(angleZ,&mtx);
 gte_SetRotMatrix(&scalemat);
@@ -2107,7 +2107,7 @@ gte_SetRotMatrix(&mtx);
       Flare_Spikes((long *)screenPos,0);
       i = 0;
       *(u_long *)&(gFlare_LensFlare.piece)->color =
-           *(u_long *)&FLARE_TRACK_SKY.sunHaloColor;
+           *(u_long *)&TrackSpec_gSpec.skyspec.sunHaloColor;
       while (i < 9) {
         piece = gFlare_LensFlare.piece + i;
         pxy.vx = (short)(((0x10000 - piece->distance) * sx + piece->distance * dx) / 0x10000);
@@ -2209,7 +2209,7 @@ void Flare_Sun(SVECTOR *worldPos,Draw_FlareCache *sd)
    * correctness bug: garbage GTE translation), scalemat 0x400-diag init (was fed
    * UNINITIALIZED to gte_SetRotMatrix), gfrgb = color struct-assign (lwl/lwr). */
   pshift = 0x78;
-  if (FLARE_COMM_MODE == 1) {
+  if (GameSetup_gData.commMode == 1) {
     pshift = 0x3c;
   }
   if ((sd->head).cprim.PrimPtr < (sd->head).cprim.MPrimPtr + -0x400) {
@@ -2221,7 +2221,7 @@ gte_stlvnl(&diff);
       gte_stsxy(&posOnScreen);
       vertRezBy2 = 0x78;
       posOnScreen.vy = (short)((diff.vy >> 2) + pshift);
-      if (FLARE_COMM_MODE == 1) {
+      if (GameSetup_gData.commMode == 1) {
         vertRezBy2 = 0x3c;
       }
       diff.vy = (posOnScreen.vy - vertRezBy2) * 4;
@@ -2232,8 +2232,8 @@ gte_stlvnl(&diff);
       }
       diff.vz = dvz;
       gte_SetTransVector(&diff);
-      if (((posOnScreen.vx < 0x13d) && (FLARE_COMM_MODE != 1)) &&
-         ((FLARE_TRACK_SKY.flags & 0x100U) == 0)) {
+      if (((posOnScreen.vx < 0x13d) && (GameSetup_gData.commMode != 1)) &&
+         ((TrackSpec_gSpec.skyspec.flags & 0x100U) == 0)) {
         Flare_LensFlare(&posOnScreen,sd);
       }
       gfrgb = color;
@@ -2261,10 +2261,10 @@ gte_SetRotMatrix(&scalemat);
       {
         u_char *trackSpec; /* SYM-CODEGEN-CARRIER: trackSpec -- the retail
                               function has no debug local for this shared base.
-                              Direct Flare_TrackSpecRows expressions measure
+                              Direct TrackSpec_gSpec.skyspec expressions measure
                               FAIL 9 at 188/187; this staged base is PASS 187. */
 
-        trackSpec = (u_char *)Flare_TrackSpecRows;
+        trackSpec = (u_char *)&TrackSpec_gSpec;
         if ((*(u_int *)(trackSpec + 92) & 0x100U) != 0) {
           Flare_SingleColorTex(&posOnScreen,(CVECTOR *)(trackSpec + 188),0x10,0x10,'\0',otz);
         }
@@ -2297,7 +2297,7 @@ void Flare_Moon(SVECTOR *worldPos,Draw_FlareCache *sd)
   DVECTOR posOnScreen;
 
   pshift = 0x78;
-  if (FLARE_COMM_MODE == 1) {
+  if (GameSetup_gData.commMode == 1) {
     pshift = 0x3c;
   }
 gte_ldv0(worldPos);

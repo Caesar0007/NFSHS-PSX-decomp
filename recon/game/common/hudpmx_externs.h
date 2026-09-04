@@ -4,11 +4,8 @@
 #define HUDPMX_EXTERNS_H
 
 /* ---- cross-TU globals ---- */
-/* HudPmx.obj's SYM references these owner-defined globals without emitting
- * either large owner type body.  Word aliases retain their retail symbols and
- * the independently proven field offsets used by this TU. */
-extern int HudPmx_gameSetupWords[] __asm__("GameSetup_gData");
-extern int HudPmx_dashHUDWords[] __asm__("DashHUD_gInfo");
+extern GameSetup_tData  GameSetup_gData;          /* gmesetup.obj */
+extern dashhud_info     DashHUD_gInfo;             /* dashHUD.obj */
 extern char           *Paths_Paths[50];          /* paths.obj */
 extern u_short         gFontClut;                /* font.obj */
 

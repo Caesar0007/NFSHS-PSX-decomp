@@ -1,6 +1,4 @@
-/* schedule.obj's exact source-visible type surface.  Sim_tSimGlobalVar is
- * deliberately only forward-declared here: its body is owned and emitted by
- * sim.obj, while schedule.obj's SYM records only the tagged external object. */
+/* schedule.obj's exact source-visible type surface. */
 #ifndef NFS4_GAME_COMMON_SCHEDULE_TYPES_H
 #define NFS4_GAME_COMMON_SCHEDULE_TYPES_H
 
@@ -21,6 +19,10 @@ struct Sched_tSchedule {
 
 #include "gamesetup_leaf_types.h"
 
-struct Sim_tSimGlobalVar;
+/* Canonical sim.obj aggregate from the retail SYM type graph. */
+struct Sim_tSimGlobalVar {
+    int gameStarted, gameTicks, time32Hz;
+    Sched_tSchedule *schedule64Hz, *schedule32Hz, *schedule32Hz2;
+};
 
 #endif

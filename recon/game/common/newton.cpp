@@ -23,11 +23,11 @@ static inline int Newton_GetSpikeBelt(int *slice,int *leftLatPos,int *rightLatPo
 {
   int active;
 
-  active = Newton_SpikeBeltWords[0];
+  active = AICop_spikeBelt.active_;
   if (active != 0) {
-    *slice = Newton_SpikeBeltWords[1];
-    *leftLatPos = Newton_SpikeBeltWords[2];
-    *rightLatPos = Newton_SpikeBeltWords[3];
+    *slice = AICop_spikeBelt.slice_;
+    *leftLatPos = AICop_spikeBelt.leftLatPos_;
+    *rightLatPos = AICop_spikeBelt.rightLatPos_;
   }
   return active;
 }
@@ -1074,7 +1074,7 @@ nextWheel:;
             fixedmult(newtonObj[1].shadowCoord[0].x,transposeMat.m[7]) +
             fixedmult(newtonObj[1].shadowCoord[0].y,transposeMat.m[8]);
       }
-      if (Newton_SimGlobalWords[1] < 0x40) {
+      if (simGlobal.gameTicks < 0x40) {
         newtonObj->objAltitude = Newton_CalcPerpenHeightOfCenterPointFromGround
                                    (newtonObj,normal,&newtonObj->roadCenterPoint);
       }
@@ -1210,7 +1210,7 @@ void Newton_CalcDistToClosestPlayerCar(BO_tNewtonObj *n)
     }
   }
   if ((0x600000 < n->distToPlayer) || (forcedSimOptz != 0)) {
-    if ((n[3].lastUpdated == 0) || (Newton_SimGlobalWords[1] < 3)) {
+    if ((n[3].lastUpdated == 0) || (simGlobal.gameTicks < 3)) {
       if (n->simOptz != '\x02') {
         n->groundSurfaceType = 1;
         n->driveSurfaceType = 1;
@@ -1226,7 +1226,7 @@ void Newton_CalcDistToClosestPlayerCar(BO_tNewtonObj *n)
 
     oldOptz = n->simOptz;
     if (((n[1].simRoadInfo.quadPts[1].y & 0x30U) == 0) &&
-       (((n[3].lastUpdated == 0 || (Newton_SimGlobalWords[1] < 3)) && (0x480000 < n->distToPlayer)))) {
+       (((n[3].lastUpdated == 0 || (simGlobal.gameTicks < 3)) && (0x480000 < n->distToPlayer)))) {
       n->simOptz = '\x01';
     }
     else {
@@ -1809,7 +1809,7 @@ extern "C" void Newton_CheckForSpikeBelts(BO_tNewtonObj *newtonObj)
   int latPos;
 
   if (Newton_GetSpikeBelt(&slice,&leftLatPos,&rightLatPos) != 0) {
-    if ((Newton_SpikeBeltWords[0] != 0) &&
+    if ((AICop_spikeBelt.active_ != 0) &&
         (newtonObj->simRoadInfo.slice == slice)) {
       latPos = ((Car_tObj *)newtonObj)->roadPosition;
       if (((((Car_tObj *)newtonObj)->carFlags & 0x230) == 0) &&
@@ -3052,7 +3052,7 @@ extern "C" void Newton_ApplyTheLawOfGravity(BO_tNewtonObj *newtonObj)
         }
       }
 
-      newtonObj->lastUpdated = Newton_SimGlobalWords[1];
+      newtonObj->lastUpdated = simGlobal.gameTicks;
       if (BWorldSm_TunnelFlagSm(&newtonObj->simRoadInfo) &&
           newtonObj->linearVel.y > 0 &&
           newtonObj->position.y - newtonObj->roadCenterPoint.y > 0x80000) {

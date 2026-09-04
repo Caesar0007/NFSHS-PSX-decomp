@@ -18,10 +18,8 @@ struct BW_tContextMgr {
     BW_tContext contexts[2];
 };
 
-/* Foreign completed tags are absent from bworld.obj's SYM graph even though
- * retail retains member-shaped accesses to their storage.  These private,
- * layout-locked views expose precisely the offsets consumed by this owner. */
-struct BWorld_SliceCodegenView {
+/* Canonical bworldSm.obj aggregate used by this translation unit. */
+struct Trk_NewSlice {
     int center[3];
     char normal[3], forward[3], right[3];
     u_char acousticType;
@@ -29,12 +27,39 @@ struct BWorld_SliceCodegenView {
     u_char chunkIndex, laneCount, avgPavedWidthLf, avgPavedWidthRt;
 };
 
-struct BWorld_CameraCodegenView {
+/* Canonical camera.obj aggregate used by this translation unit. */
+struct camera_info {
     BO_tNewtonObj *anchor, *target;
-    u_char remaining[264];
+    coorddef position, relpos, audioPos;
+    int TVHeight;
+    matrixtdef rotation;
+    int twist;
+    coorddef wallLeft, wallRight;
+    short mode, camNum;
+    char modechange : 1;
+    char pitch : 1;
+    char jostling : 1;
+    char tracking : 1;
+    char checkwalls : 1;
+    char noLookBack : 1;
+    char checkcollisions : 1;
+    char splitscreen : 1;
+    char intransition, tumbling;
+    char direction : 1;
+    char zooming : 2;
+    char inCar : 1;
+    short circleCounter, circleAngle;
+    char animNum;
+    signed char animHandle;
+    char splineMode;
+    forceFocus_t forceFocus;
+    signed char focusOnAICar;
+    int POInhibitor;
+    BWorldSm_Pos slicePos;
 };
 
-struct BWorld_GameSetupCodegenView {
+/* Canonical gmesetup.obj aggregate used by this translation unit. */
+struct GameSetup_tData {
     int raceType, numLaps, skill, commMode, tournamentMultiplier, cops;
     int trafficDensity, localCar, catchupLogic, replayMode, instantReplay;
     int mirrorTrack, reverseTrack, measurement, sgge, track, trackSegment;
@@ -51,7 +76,8 @@ struct BWorld_GameSetupCodegenView {
     GameSetup_tCarData carInfo[9];
 };
 
-struct BWorld_TrackSpecCodegenView {
+/* Canonical trackspec.obj aggregate used by this translation unit. */
+struct CTrackSpec {
     short fogstate, weatherstate, horizonstate, skystate;
     short nightstate, depthcuestate, worldcolorstate, pad0;
     CFogSpec fogspec;

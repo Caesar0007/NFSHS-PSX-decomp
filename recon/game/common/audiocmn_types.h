@@ -72,20 +72,13 @@ struct AudioCmn_tAsyncSfxSlot {
 };
 #endif
 
-/* These completed foreign tags are absent from audiocmn.obj. Exact private
- * views retain the member layouts used by its already-matched bodies. */
-struct AudioCmn_SimGlobalCodegenView {
+struct Sim_tSimGlobalVar {
     int gameStarted, gameTicks, time32Hz;
     Sched_tSchedule *schedule64Hz, *schedule32Hz, *schedule32Hz2;
 };
-struct AudioCmn_ReplayCodegenView {
+struct tReplayInterface {
     int pause, speed, end, camera, selection, depressed, changeCamera, statsScreen;
 };
-
-#define GameSetup_tData AudioClc_GameSetupCodegenView
-#define Sim_tSimGlobalVar AudioCmn_SimGlobalCodegenView
-#define camera_info AudioClc_CameraInfoCodegenView
-#define tReplayInterface AudioCmn_ReplayCodegenView
 
 struct tTexture_ShapeInfo {
     shapetbl *shpptr;

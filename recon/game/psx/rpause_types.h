@@ -17,4 +17,15 @@ struct DIRENTRY {
     char system[4];
 };
 
+struct Draw_tView {
+    int otsize, membudget;
+    DRAWENV drawenv[2];
+    u_long *ot[2];
+};
+
+struct dflip {
+    DISPENV disp;
+    char *server;
+};
+
 #endif

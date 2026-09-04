@@ -37,7 +37,7 @@ extern void  Physics_SetCurrentWallType(int type);
 
 /* ---- AI ---- */
 extern void  AIPhysic_ProcessBarrierCollision(Car_tObj *car);
-extern int Newton_SpikeBeltWords[] asm("AICop_spikeBelt");
+extern AICop_spikeBelt_t AICop_spikeBelt;
 
 /* ---- Cars ---- */
 extern void  Cars_SetCarUpForHiRezSim(Car_tObj *car);
@@ -53,7 +53,7 @@ extern int   Sched_ExecuteCheck(int a, int b, int c, int d, int *e, int *f, int 
 
 /* ---- globals ---- */
 extern GameSetup_tData GameSetup_gData;
-extern int Newton_SimGlobalWords[] asm("simGlobal");
+extern Sim_tSimGlobalVar simGlobal;
 extern u_int               fastRandom, randSeed, randtemp;   /* fastrand.obj PRNG state */
 extern int                 generic128HzClock, stackSpeedUpEnbabledFlag;
 extern u_long              gWSavePtr;

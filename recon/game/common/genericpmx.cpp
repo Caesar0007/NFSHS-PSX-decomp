@@ -61,8 +61,8 @@ void GenericPMX_LoadTexture(void)
 
   np = 0;
   pmx_height = 0xa0;
-  if ((GenericPMX_gameSetupWords[15] & 0xfU) == 4) {
-    if (GenericPMX_gameSetupWords[18] != 0) {
+  if ((GameSetup_gData.track & 0xfU) == 4) {
+    if (GameSetup_gData.Weather != 0) {
       sprintf(name,"%sSfx4w.psh",Paths_Paths[0x19]);
     }
     else {
@@ -114,7 +114,7 @@ void GenericPMX_LoadTexture(void)
   ChangeTPage(&gSkidMarkPixmap[0]->tpage,2);
   ChangeTPage(&gSkidMarkPixmap[1]->tpage,2);
 
-  if (GenericPMX_gameSetupWords[18] != 0) {
+  if (GameSetup_gData.Weather != 0) {
     {
       Draw_tPixMap *pmx = &gPixmaps[np++];
       Texture_LoadPmx(shpfile,"FLAK",0x40,0,pmx_height,-1,-1,pmx);
@@ -190,11 +190,11 @@ void GenericPMX_LoadTexture(void)
     }
   }
 
-  if ((GenericPMX_gameSetupWords[21] == 0) &&
-      (GenericPMX_gameSetupWords[3] != 1)) {
+  if ((GameSetup_gData.Time == 0) &&
+      (GameSetup_gData.commMode != 1)) {
     shapetbl *shape;
     char shpname[5];
-    sprintf(shpname,"LF%02d",GenericPMX_gameSetupWords[15]);
+    sprintf(shpname,"LF%02d",GameSetup_gData.track);
     shape = (shapetbl *)locateshapez(shpfile,shpname);
     if (shape != 0) {
       Draw_tPixMap *pmx = &gPixmaps[np++];
@@ -215,7 +215,7 @@ void GenericPMX_LoadTexture(void)
     gDamagePixmap = pmx;
   }
 
-  if (GenericPMX_gameSetupWords[18] != 0) {
+  if (GameSetup_gData.Weather != 0) {
     for (i = 0; i < 8; i++) {
       sprintf(name,"LNG%d",i);
       {
@@ -232,13 +232,13 @@ void GenericPMX_LoadTexture(void)
     }
   }
   else {
-    if ((GenericPMX_trackSpecWords[23] & 8U) != 0) {
+    if ((TrackSpec_gSpec.skyspec.flags & 8U) != 0) {
       Draw_tPixMap *pmx = &gPixmaps[np++];
       Texture_LoadPmx(shpfile,"MONF",0x40,0,pmx_height,-1,-1,pmx);
       gFlarePixmap[0] = pmx;
     }
 
-    if ((GenericPMX_trackSpecWords[23] & 4U) != 0) {
+    if ((TrackSpec_gSpec.skyspec.flags & 4U) != 0) {
       {
         Draw_tPixMap *pmx = &gPixmaps[np++];
         Texture_LoadPmx(shpfile,"FLR0",0x40,0,pmx_height,-1,-1,pmx);

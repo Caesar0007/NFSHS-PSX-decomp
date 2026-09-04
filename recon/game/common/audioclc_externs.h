@@ -11,11 +11,11 @@ extern "C" int intatan(...);
 extern "C" CARDINFO_def *MCRD_getcard(int);
 extern Car_tObj         *Cars_gHumanRaceCarList[9];  /* cars.obj */
 extern Car_tObj *Cars_gList[];   /* was stale Car_tObj** (extra indirection); real def cars.cpp Car_tObj *Cars_gList[9] */
-extern AudioClc_GameSetupCodegenView GameSetup_gData asm("GameSetup_gData");
+extern GameSetup_tData GameSetup_gData;
 extern Trk_NewSlice  *BWorldSm_slices;
 extern bool Hud_BeTheCop;
 extern bool bSirenOn[];
-extern AudioClc_CameraInfoCodegenView Camera_gInfo[2] asm("Camera_gInfo");
+extern camera_info Camera_gInfo[2];
 extern int            Cars_gNumCars;
 extern int          gMasterSFXLevel;
 extern int       Cars_gNumHumanRaceCars;

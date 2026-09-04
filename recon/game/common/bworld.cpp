@@ -164,7 +164,7 @@ void BWorld_SetSpikeBelt(int slice,int x,int width)
 {
   gSpikeBelt = 1;
   gSpikeBeltSlice = slice;
-  gSpikeBeltChunk = (u_int)*(u_char *)((char *)BWorldSm_slices + slice * 0x20 + 0x1c);
+  gSpikeBeltChunk = (u_int)BWorldSm_slices[slice].chunkIndex;
   gSpikeBeltWidth = width;
   gSpikeBeltX = x;
   return;
@@ -368,8 +368,8 @@ void SetupBuildMatrices(DRender_tView *Vi,Draw_DCache *sd)
  * matches `struct Trk_NewSlice` in nfs4_types.h) -- lets the type system scale
  * correctly and confirmed the compiled shift is now `sll $,$,5`. This was silently
  * reading garbage 1000+ bytes past the intended slice record on every call.
- * (BWorld_SetSpikeBelt's near-identical line already had an explicit `(char*)` cast
- * and was NOT affected -- confirmed separately, still PASS.)
+ * (BWorld_SetSpikeBelt's near-identical line was not affected; it now uses the
+ * canonical `.chunkIndex` field directly and remains independently PASS.)
  * STRUCTURAL FIX: also hoisted both chunkIndex lookups out of the search loop's `if`
  * conditions into named locals (chunkIndFwd/chunkIndBwd) computed once before the
  * loop, each resolved via its own wrap/no-wrap if/else -- this matches the oracle's
@@ -900,7 +900,7 @@ void BWorld_OnyxBuildFacets(DRender_tView *Vi)
   Draw_DCache *sd;
   /* SYM-CODEGEN-CARRIER: ts -- direct TrackSpec_gSpec fields preserve 193
      instructions but change the split-base/offset addressing at ten positions. */
-  BWorld_TrackSpecCodegenView *ts;
+  CTrackSpec *ts;
   /* SYM-CODEGEN-CARRIER: fogStart -- storing the field directly preserves 193
      instructions but changes pre-fence load/allocation order to 18 diffs. */
   u_short fogStart;

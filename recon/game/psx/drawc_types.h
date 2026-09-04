@@ -78,6 +78,7 @@ struct Sched_tSchedule {
 };
 
 struct Draw_tVertex { PCOORD16 sv; };
+struct DRender_tView { int id, player; DRender_tCalcView cview; };
 struct Draw_CarCache {
     Draw_tCacheHeader head;
     MATRIX matB;

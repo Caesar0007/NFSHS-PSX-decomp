@@ -1077,6 +1077,55 @@ zero mapping-review items.  This batch removes typed alias scaffolding rather
 than marker-bearing local rows, so the measured raw carrier-marker queue
 remains 1,592 project-wide / 600 in game/common.
 
+### Restored canonical aggregate ownership at P839
+
+This round removes another broad layer of same-symbol word/byte/row overlays
+and private `*CodegenView` tags.  The common owners now use the retail SYM
+aggregates directly: `AI_Info`, `AIPhysicConfig`, `AITune_accelerationScale`,
+`GameSetup_gData`, `simGlobal`, `Camera_gInfo`, `TrackSpec_gSpec`,
+`BWorldSm_slices`, `Track_gSaveSurface`, `Device_gDeviceList`,
+`DashHUD_gInfo`, and `HudPmx_gShapes`.  The exact canonical types introduced
+or reused include `AI_tInfo`, `AIPhysic_Config_t`, `accelscale_t`,
+`GameSetup_tData`, `Sim_tSimGlobalVar`, `Sim_tSimSystemVar`, `camera_info`,
+`CTrackSpec`, `Trk_NewSlice`, `SaveSurface`, `Input_tDeviceList`,
+`dashhud_info`, and `HudPmx_tShape`.  Dependent `audiocmn` and `speech`
+headers were also corrected after a whole-tree compile gate exposed their
+stale references to the removed AudioClc aliases.
+
+The PSX owners likewise use canonical `DRender_tView`, `Draw_tView`, `dflip`,
+`FLARE_DEF`, `tPadModuleState`, `tBTCPerpInfo`, `tReplayInterface`, and the
+same shared runtime aggregates.  In particular, HUD's GameSetup/sim/camera/
+dash/replay/pad/BTC views are now direct named fields, and RPause's raw
+200-byte Draw-view rows, raw environment bytes, accessor macros, and empty
+inline-assembly anchor are all gone.  RPause remains 3/3 PASS with ordinary
+member access.
+
+All twenty-four affected or dependency-gated translation units retain every
+oracle-known function: game/common `aiinit` 17/17, `audioclc` 18/18,
+`audiocmn` 48/48, `bworld` 21/21, `genericpmx` 1/1, `hudpmx` 3/3, `input`
+8/8, `newton` 32/32, `object` 37/37, `pausemenu` 60/60, `render` 23/23,
+`schedule` 6/6, `sim` 8/8, `speech` 102/102, and `track` 29/29; game/PSX
+`device` 10/10, `drawc` 20/20, `flare` 27/27, `hrzsku` 22/22, `hud` 62/62,
+`night` 19/19, `psxcontroller` 4/4, `rpause` 3/3, and `weather` 25/25.  The
+combined gate is 605/605 PASS.
+
+The authoritative reports are `game_common_strict_p839_20260904.md`
+(1,258/1,258 mapped, 600 source-only carriers) and
+`game_psx_strict_p839_20260904.md` (395/395 mapped, 394 source-only carriers),
+both with zero missing names and zero mapping-review items.  The raw
+carrier-marker queue is now 1,588 project-wide / 600 in game/common / 404 in
+game/PSX.
+
+The remaining load-bearing quantities are not presented as recovered source
+names.  Among them, Flare's `trackSpec`, Track's `simPtr`, BWorld's `ts` and
+fog/time staging, AudioClc's `viewpos`, PauseMenu's `packetPtr`, HUD's
+`DashHUD_view` and `dh`, and PSXController's three `index` quantities retain
+their measured receipts.  The attempted direct PSXController field spelling
+was explicitly falsified at 239/233 instructions and 170 diffs; the PASS
+233-instruction form was restored.  `dh` is marked
+`ORIGINAL-NAME-UNRESOLVED`, because the retail evidence proves the distinct
+pointer quantity but not its original spelling.
+
 ### Retained after P813 source-shape retests
 
 Four nearby groups remain deliberately conspicuous because no exact original

@@ -104,23 +104,23 @@ void AIInit_Reset2(void)
   AIInit_leaderBoardCars[3] = Cars_gAIRaceCarList[0];
   AIInit_leaderBoardCars[2] = Cars_gAIRaceCarList[0];
   AIPhysic_Reset();
-  AIInit_AIInfoWords[2] = 0;
-  AIInit_AIInfoWords[1] = 0;
-  AIInit_AIInfoWords[0] = 0;
-  AIInit_AIInfoWords[5] = 0;
-  AIInit_AIInfoWords[4] = 0;
-  AIInit_AIInfoWords[3] = 0;
-  AIInit_AIInfoWords[8] = 0;
-  AIInit_AIInfoWords[7] = 0;
-  AIInit_AIInfoWords[6] = 0;
-  AIInit_AIInfoWords[11] = 0;
-  AIInit_AIInfoWords[10] = 0;
-  AIInit_AIInfoWords[9] = 0;
-  AIInit_AIInfoWords[14] = 0;
-  AIInit_AIInfoWords[13] = 0;
-  AIInit_AIInfoWords[12] = 0;
-  AIInit_AIInfoWords[15] = 0;
-  AIInit_AIInfoWords[17] = 0;
+  AI_Info.blockingCars[2] = 0;
+  AI_Info.blockingCars[1] = 0;
+  AI_Info.blockingCars[0] = 0;
+  AI_Info.blockingCarsDist[2] = 0;
+  AI_Info.blockingCarsDist[1] = 0;
+  AI_Info.blockingCarsDist[0] = 0;
+  AI_Info.laneSpeeds[2] = 0;
+  AI_Info.laneSpeeds[1] = 0;
+  AI_Info.laneSpeeds[0] = 0;
+  AI_Info.laneSpeedsAhead[2] = 0;
+  AI_Info.laneSpeedsAhead[1] = 0;
+  AI_Info.laneSpeedsAhead[0] = 0;
+  AI_Info.laneWeights[2] = 0;
+  AI_Info.laneWeights[1] = 0;
+  AI_Info.laneWeights[0] = 0;
+  AI_Info.desiredLane = 0;
+  AI_Info.deltaYaw = 0;
   return;
 }
 
@@ -216,18 +216,18 @@ void AIInit_LoadPhysicsConfig(Udff_tInfo *handle)
   AIPhysic_ModelConfig_t*model;
   int loop;
   
-  AIInit_AIPhysicConfigWords[0] = Udff_GetInt(handle);
-  AIInit_AIPhysicConfigWords[1] = Udff_GetInt(handle);
-  AIInit_AIPhysicConfigWords[2] = Udff_GetInt(handle);
-  AIInit_AIPhysicConfigWords[3] = Udff_GetInt(handle);
-  AIInit_AIPhysicConfigWords[4] = Udff_GetInt(handle);
+  AIPhysicConfig.latvelcalc_lookahead = Udff_GetInt(handle);
+  AIPhysicConfig.min_lookahead = Udff_GetInt(handle);
+  AIPhysicConfig.max_lookahead = Udff_GetInt(handle);
+  AIPhysicConfig.look_ahead_factor = Udff_GetInt(handle);
+  AIPhysicConfig.skid_value = Udff_GetInt(handle);
   loop = 0;
   do {
     if (loop == 0) {
-      model = (AIPhysic_ModelConfig_t *)(AIInit_AIPhysicConfigWords + 5);
+      model = &AIPhysicConfig.ICModel;
     }
     else {
-      model = (AIPhysic_ModelConfig_t *)(AIInit_AIPhysicConfigWords + 16);
+      model = &AIPhysicConfig.OOCModel;
     }
     model->dlpos_to_dlvel = Udff_GetInt(handle);
     model->max_dlvel = Udff_GetInt(handle);
@@ -267,17 +267,14 @@ void AIInit_ClearAICar(Car_tObj *carObj)
 }
 
 /* ---- AIInit_RestartAICar__FP8Car_tObj  [@0x800671ec] ---- */
-/* Body sourced from the NFS4-F reconstruction tree (game/common/aiinit.cpp).
- * D_8011321C == GameSetup_gData.reverseTrack (GameSetup_gData+0x30) — standalone-
- * symbol form matches the reloc.  The chained direction assignment preserves
- * the retail shared value without introducing a source local absent from SYM;
- * copTopSpeed-before-copAccMult preserves the observed store schedule. */
-extern int D_8011321C;   /* standalone global @0x8011321C (== GameSetup_gData+0x30) */
+/* The chained direction assignment preserves the retail shared value without
+ * introducing a source local absent from SYM; copTopSpeed-before-copAccMult
+ * preserves the observed store schedule. */
 
 void AIInit_RestartAICar(Car_tObj *carObj)
 {
   carObj->desiredDirection = carObj->direction =
-      (D_8011321C == 0) ? 1 : -1;
+      (GameSetup_gData.reverseTrack == 0) ? 1 : -1;
   carObj->targetLatPos = 0;
   (carObj->targetPos).z = 0;
   (carObj->targetPos).y = 0;
@@ -366,7 +363,7 @@ void AIInit_InitAICar(Car_tObj *carObj,Udff_tInfo *handle)
     int carType;
 
     carType = carObj->carInfo->carType;
-    accelerationScale = AIInit_accelerationScaleWords[carType];
+    accelerationScale = AITune_accelerationScale[carType].scale;
   }
   carObj->accelerationRecord = new AIDataRecord_AccTable_t((char *)carObj->accTable,accelerationScale,3);  /* enum body is not emitted in aiinit.obj; ABI name retained by the owner declaration */
   if (AIInit_IsNonStandardCarFile(carObj->carInfo->carType) != 0) {

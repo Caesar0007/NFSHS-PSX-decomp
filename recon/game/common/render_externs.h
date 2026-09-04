@@ -18,8 +18,8 @@ extern "C" int StoreImage(...);
 extern int gFlip;
 extern bool gMPauseUpdate, gMPauseUpdateNextTime;  /* SYM BOOL; C++ source spelling */
 // [owned->defined in render.cpp] extern RECT gPauseMenuRect;  /* SYM: one 8-byte RECT; render.cpp uses -G8 */
-extern Render_DFlipCodegenView gEnviro[] asm("gEnviro");
-extern Render_FlareCodegenView gFlare_LensFlare asm("gFlare_LensFlare");
+extern dflip gEnviro[2];
+extern FLARE_DEF gFlare_LensFlare;
 extern GameSetup_tData GameSetup_gData;
 
 /* ---- functions ---- */

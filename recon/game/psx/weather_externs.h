@@ -39,13 +39,8 @@ extern int               Weather_gTrackIntensityLimit;         /* 0x8013dc0c */
 /* ---- shared game globals (SYM Globals.jsonl; declared in their owning TUs) ---- */
 extern GameSetup_tData   GameSetup_gData;
 extern Sim_tSimGlobalVar simGlobal;
-extern char              Weather_TrackSpecBytes[] asm("TrackSpec_gSpec");
-extern u_int             Weather_CameraWords[] asm("Camera_gInfo");
-#define WEATHER_TRACK_WEATHER       (*(CWeatherSpec *)(Weather_TrackSpecBytes + 0x20))
-#define WEATHER_CAMERA_POSITION(i)  (*(coorddef *)(Weather_CameraWords + (i) * 68 + 2))
-#define WEATHER_CAMERA_ROTATION(i)  (*(matrixtdef *)(Weather_CameraWords + (i) * 68 + 12))
-#define WEATHER_CAMERA_IN_CAR(i)    ((Weather_CameraWords[(i) * 68 + 29] >> 27) & 1)
-#define WEATHER_CAMERA_SLICE_POS(i) (*(BWorldSm_Pos *)(Weather_CameraWords + (i) * 68 + 35))
+extern CTrackSpec        TrackSpec_gSpec;
+extern camera_info       Camera_gInfo[2];
 extern coorddef          prevCamPos[2];            /* 0x8012342c */
 extern matrixtdef        prevCamMat[2];            /* 0x80123444 */
 extern int               gCurrentNumSplats;        /* 0x8013dba0 */

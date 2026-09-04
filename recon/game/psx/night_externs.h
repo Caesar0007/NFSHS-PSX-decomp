@@ -38,42 +38,17 @@
 // [owned->defined in night.cpp] extern char           Night_gCopCountryLightTbl[][5][2]; /* 0x80120d18 */
 
 /* ---- engine globals ---- */
-/* Exact-symbol views use only records retained by night.obj.  Their offsets
- * are fixed by the linked SYM: GameSetup cops/Weather/Time at +20/+72/+84,
- * simGlobal gameTicks at +4, TrackSpec night/depth-cue at +236/+240, and
- * camera target/slicePos at +4/+140 with a 272-byte element stride. */
+/* Exact retail aggregates and offsets retained by the linked SYM. */
 extern GameSetup_tData GameSetup_gData;
 extern Sim_tSimGlobalVar simGlobal;
-extern int Night_TrackSpecWords[] asm("TrackSpec_gSpec");
-/* The retail load shape proves a 272-byte row with slicePos at +140.  This
- * codegen-only carrier is intentionally not part of night.obj's SYM graph;
- * the canonical audit excludes this one exact tag after validating its body. */
-struct Night_CameraCodegenView {
-    u_char anchorBytes[4];
-    BO_tNewtonObj *target;
-    u_char prefix[132];
-    BWorldSm_Pos slicePos;
-};
-extern Night_CameraCodegenView Night_CameraView[] asm("Camera_gInfo");
-#define NIGHT_TRACK_NIGHT               (*(CNightSpec *)&Night_TrackSpecWords[59])
-#define NIGHT_TRACK_DEPTH_CUE_COLOR_WORD Night_TrackSpecWords[60]
-#define NIGHT_TRACK_DEPTH_CUE_DISTANCE   Night_TrackSpecWords[61]
-#define NIGHT_CAMERA_TARGET(p)   Night_CameraView[p].target
-#define NIGHT_CAMERA_SLICEPOS(p) Night_CameraView[p].slicePos
-#define NIGHT_CAMERA_SLICE(p)    Night_CameraView[p].slicePos.slice
+extern CTrackSpec TrackSpec_gSpec;
+extern camera_info Camera_gInfo[2];
 extern char          *Paths_Paths[];             /* 0x80116468 */
 extern CVECTOR       *Chunk_lightTable;          /* 0x8013c818  (was stale tCompRGB* -- 3-byte stride vs
                                                      the real 4-byte CVECTOR* owner def in chunk.cpp;
                                                      wrong-stride bug, this fn indexes Chunk_lightTable[i]) */
 extern int            Chunk_numLight;            /* 0x8013d4ec */
 extern int             Night_WeatherType asm("Weather_gType"); /* 0x8013dbec */
-extern int             D_80113228[];             /* @0x80113228 == &GameSetup_gData.track; distinct
-                                                     alias symbol the oracle addresses directly (unsized
-                                                     array shape, §3.12#5) -- same global used this way
-                                                     in aidatarecord.cpp */
-extern int             D_8011E0B0[];             /* == &simGlobal.gameTicks; distinct alias symbol the
-                                                     oracle addresses directly (unsized array, §3.12#5) --
-                                                     same global used this way in aiphysic.cpp/aih_*.cpp */
 
 /* ---- eaclib / syslib / sibling-module helpers ---- */
 extern void  AudioCmn_PlayThunder(int intensity, int azimuth);

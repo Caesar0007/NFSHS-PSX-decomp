@@ -91,6 +91,22 @@ struct AIPhysic_ModelConfig_t {
     int vel_limit_range, lat_vel_limit_factor, ang_vel_limit_factor;
 };
 
+struct AIPhysic_Config_t {
+    int latvelcalc_lookahead, min_lookahead, max_lookahead, look_ahead_factor;
+    int skid_value;
+    AIPhysic_ModelConfig_t ICModel, OOCModel;
+};
+
+struct AI_tInfo {
+    Car_tObj *blockingCars[3];
+    int blockingCarsDist[3], laneSpeeds[3], laneSpeedsAhead[3], laneWeights[3];
+    int desiredLane, desiredLaneSide, deltaYaw;
+};
+
+struct accelscale_t {
+    int scale;
+};
+
 struct trigger_anyTrigger_t { int type, slice; };
 struct trigger_simple_t { int type, slice, dir, side, moving; };
 struct trigger_roadblock_t { int type, slice, dir, numCars, spikeBelt; };

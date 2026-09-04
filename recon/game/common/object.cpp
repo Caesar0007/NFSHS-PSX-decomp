@@ -170,7 +170,7 @@ void Object_InitCollisionCheckLoop(BWorldSm_Pos *slicePos,Object_tSimObjList *ob
    * pairs (four diffs); an integer-address form drops an instruction and gives
    * 11 diffs.  The cached pointer preserves the exact address-construction
    * order in both wrap arms. */
-  Object_SliceCodegenView *altSlice;
+  Trk_NewSlice *altSlice;
 
   if (Track_chunkList[slicePos->chunk].simObjBuf != (Group *)0x0) {
     objList->numObjects = Track_chunkList[slicePos->chunk].simObjBuf->m_num_elements;
@@ -558,7 +558,7 @@ void Object_ClearCustomObjects(void)
     Cars_gCopCarList[i]->carFlags =
         Cars_gCopCarList[i]->carFlags & 0xfffffbff;
   }
-  if (Track_gSaveSurface != (Object_SaveSurfaceCodegenView *)0x0) {
+  if (Track_gSaveSurface != (SaveSurface *)0x0) {
     (Track_gSaveSurface)->RestoreAll();
   }
   return;

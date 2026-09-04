@@ -34,11 +34,11 @@ extern Group              *gPersistObjInst;          /* track.obj */
 extern Group              *gPersistObjDef;           /* track.obj */
 extern Trk_ObjectDef     **Track_gObjDefs;           /* draww/track */
 extern Chunk              *Track_chunkList;
-extern Object_SliceCodegenView *BWorldSm_slices asm("BWorldSm_slices");
+extern Trk_NewSlice        *BWorldSm_slices;
 extern int                 gNumSlices;
 extern AnimDef             gAnimDefs[14];
-extern Object_SaveSurfaceCodegenView *Track_gSaveSurface asm("Track_gSaveSurface");
-extern Object_SimGlobalCodegenView simGlobal asm("simGlobal");
+extern SaveSurface         *Track_gSaveSurface;
+extern Sim_tSimGlobalVar    simGlobal;
 extern AIHigh_Traffic     *highLevelAIObjs[];        /* per-car AI obj (accidentData_ @+0x20) */
 extern Car_tObj           *Cars_gTrafficCarList[];
 extern int                 Cars_gNumTrafficCars;

@@ -356,7 +356,7 @@ void Sim_MainGameLoop(void)
      This anonymous GCC CSE address occupies retail $s5.  Removing it makes
      the function four instructions short and produces 45 diffs; the adjacent
      W57-A12 receipt documents the allocator alternatives. */
-  Sim_GameSetupCodegenView *replaySetup;
+  GameSetup_tData *replaySetup;
 
   quitType = 1;
   lastRealTick = clock_realTime.time64Hz + 10000;

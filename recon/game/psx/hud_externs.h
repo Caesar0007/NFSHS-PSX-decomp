@@ -23,12 +23,7 @@ extern u_short        gFontClut;
 extern int            gFlip;             /* 0x8013d7b4 */
 // [owned->defined in hud.cpp] extern int            gMapOffX, gMapOffY, gMapRotate, gMapScaleX, gMapScaleY;
 // [owned->defined in hud.cpp] extern int gMapOffX, gMapOffY, gMapRotate, gMapScaleX, gMapScaleY;
-struct Hud_CViewCodegenView {
-    int id, player;
-    u_char cviewBytes[132];
-};
-extern Hud_CViewCodegenView Hud_CView asm("gCView"); /* 0x80116f7c */
-#define HUD_CVIEW_ID Hud_CView.id
+extern DRender_tView gCView; /* 0x80116f7c */
 
 /* ---- GPU packet cursors (scratchpad linked-list) ---- */
 
@@ -73,101 +68,13 @@ extern int            Cars_gNumRaceCars;        /* 0x8013c7f8 */
 extern int            Cars_gNumHumanRaceCars;   /* 0x8013c800 */
 extern int            Cars_gNumCars;
 extern int            Cars_gNumCopCars;
-/* Layout-locked exact-symbol views.  These names are reconstruction-only
- * codegen carriers: hud.obj's retail graph deliberately omits the foreign
- * owner tags, while its instructions retain their member-MEM shapes.  The
- * canonical-type audit filters only these exact owner/name/layout tuples. */
-struct Hud_GameSetupCodegenView {
-    int raceType, numLaps, skill, commMode;
-    int setup04_10[7];
-    int mirrorTrack, reverseTrack, measurement, sgge, track, trackSegment;
-    int song, Weather, Fog, Damage, Time, randSeed, easter;
-    int controllerWords[22];
-    int pinkSlipsForfeit, checkpointType, checkpointHUD[2];
-    int dispatchSpeech, reverseCallSpeech, languageSpeech;
-    int SceneNumber, SceneStartLap, SceneEndLap;
-    GameSetup_tUserSetting userSetting;
-    int numPerps, stageOffset, perpArrests, finalPerpArrests;
-    GameSetup_tPerpData perpInfo[10];
-    int numCars, numPlayerRaceCars, numOpponentRaceCars, opponentCarType;
-    GameSetup_tCarData carInfo[9];
-};
-struct Hud_SimGlobalCodegenView {
-    int gameStarted, gameTicks, time32Hz;
-    void *schedule64Hz, *schedule32Hz, *schedule32Hz2;
-};
-struct Hud_CameraCodegenView {
-    BO_tNewtonObj *anchor, *target;
-    u_char remaining[264];
-};
-struct Hud_DashCodegenView {
-    int splitscreen;
-    char name[9];
-    char align13_15[3];
-    int conversion, flashtime, flashlap;
-    int showhud[2], showmap[2], wrongway[2];
-    int laptime, lap, maxlaps, rpm, redline, gear, speed, topspeed;
-    int position, opponents, record, tutor, warning[2];
-};
-extern Hud_GameSetupCodegenView Hud_GameSetup asm("GameSetup_gData");
-extern Hud_SimGlobalCodegenView Hud_SimGlobal asm("simGlobal");
-extern Hud_CameraCodegenView Hud_Camera[2] asm("Camera_gInfo");
-extern Hud_DashCodegenView Hud_Dash asm("DashHUD_gInfo");
-extern int Hud_DashWords[] asm("DashHUD_gInfo");
-#define HUD_GS_RACE_TYPE        Hud_GameSetup.raceType
-#define HUD_GS_COMM_MODE        Hud_GameSetup.commMode
-#define HUD_GS_MIRROR_TRACK     Hud_GameSetup.mirrorTrack
-#define HUD_GS_REVERSE_TRACK    Hud_GameSetup.reverseTrack
-#define HUD_GS_TRACK            Hud_GameSetup.track
-#define HUD_GS_TIME             Hud_GameSetup.Time
-#define HUD_GS_CHECKPOINT_TYPE  Hud_GameSetup.checkpointType
-#define HUD_GS_CHECKPOINT_HUD(p) Hud_GameSetup.checkpointHUD[p]
-#define HUD_GS_LANGUAGE         Hud_GameSetup.userSetting.language
-#define HUD_GS_NUM_CARS         Hud_GameSetup.numCars
-#define HUD_GS_NUM_PLAYER_CARS  Hud_GameSetup.numPlayerRaceCars
-#define HUD_GS_NUM_OPP_CARS     Hud_GameSetup.numOpponentRaceCars
-#define HUD_GS_CAR_TYPE(p)        Hud_GameSetup.carInfo[p].carType
-#define HUD_GS_CAR_CLASS(p)       Hud_GameSetup.carInfo[p].carClass
-#define HUD_GS_CAR_HUD_SPEED(p)   Hud_GameSetup.carInfo[p].HudSpeed
-#define HUD_GS_CAR_SPEED_MULT(p)  Hud_GameSetup.carInfo[p].HudSpeedMult
-#define HUD_GS_CAR_HUD_TACH(p)    Hud_GameSetup.carInfo[p].HudTach
-#define HUD_GS_CAR_HUD_MAP(p)     Hud_GameSetup.carInfo[p].HudMap
-#define HUD_GS_CAR_OPPONENT_ID(p) Hud_GameSetup.carInfo[p].HudOpponentID
-#define HUD_GS_CAR_HUD_TIME(p)    Hud_GameSetup.carInfo[p].HudTime
-#define HUD_GS_CAR_HUD_LAPNUM(p)  Hud_GameSetup.carInfo[p].HudLapnum
-#define HUD_GS_CAR_POSITION(p)    Hud_GameSetup.carInfo[p].HudPosition
-#define HUD_GAME_TICKS          Hud_SimGlobal.gameTicks
-#define HUD_CAMERA_ANCHOR(p)    Hud_Camera[p].anchor
-#define HUD_DASH_SPLITSCREEN    Hud_Dash.splitscreen
-#define HUD_DASH_FLASHTIME      Hud_Dash.flashtime
-#define HUD_DASH_SHOWHUD        Hud_Dash.showhud
-#define HUD_DASH_WRONGWAY       Hud_Dash.wrongway
-#define HUD_DASH_SHOWHUD_AT(p)  Hud_Dash.showhud[p]
-#define HUD_DASH_WRONGWAY_AT(p) Hud_Dash.wrongway[p]
-#define HUD_DASH_LAPTIME        Hud_Dash.laptime
-#define HUD_DASH_LAP            Hud_Dash.lap
-#define HUD_DASH_MAXLAPS        Hud_Dash.maxlaps
-#define HUD_DASH_RPM            Hud_Dash.rpm
-#define HUD_DASH_REDLINE        Hud_Dash.redline
-#define HUD_DASH_GEAR           Hud_Dash.gear
-#define HUD_DASH_SPEED          Hud_Dash.speed
-#define HUD_DASH_TOPSPEED       Hud_Dash.topspeed
-#define HUD_DASH_POSITION       Hud_Dash.position
-#define HUD_DASH_OPPONENTS      Hud_Dash.opponents
-#define HUD_DASH_RECORD         Hud_Dash.record
-#define HUD_DASH_TUTOR          Hud_Dash.tutor
+extern GameSetup_tData GameSetup_gData;
+extern Sim_tSimGlobalVar simGlobal;
+extern camera_info Camera_gInfo[2];
+extern dashhud_info DashHUD_gInfo;
 extern int            Input_gLookBehind[2];
-struct Hud_PadCodegenView {
-    int initialized;
-    PAD_COMMON buf[8];
-    u_char stateBytes[16];
-};
-extern Hud_PadCodegenView Hud_Pad asm("gPadinfo"); /* 0x8013e89c */
-#define HUD_PAD_BUF Hud_Pad.buf
-extern int Hud_BTCPerpInfoWords[][10][4] asm("BTCPerpInfo"); /* 0x80120bc0 */
-#define HUD_BTC_NAME(p,n)    ((char *)&Hud_BTCPerpInfoWords[p][n][0])
-#define HUD_BTC_TIME(p,n)    Hud_BTCPerpInfoWords[p][n][2]
-#define HUD_BTC_CAUGHT(p,n)  Hud_BTCPerpInfoWords[p][n][3]
+extern tPadModuleState gPadinfo; /* 0x8013e89c */
+extern tBTCPerpInfo BTCPerpInfo[2][10]; /* 0x80120bc0 */
 
 /* ---- PsyQ libgpu primitive helpers ---- */
 
@@ -218,15 +125,7 @@ extern void           trap(int code);        /* HW/debug trap */
 // [owned->defined in hud.cpp] extern int            Hud_kTurnSongOffNext;
 // [owned->defined in hud.cpp] extern int Hud_kTurnSongOffNext;
 extern int            Replay_ReplayMode;
-struct Hud_ReplayCodegenView {
-    int pause, speed, end, camera, selection, depressed, changeCamera, statsScreen;
-};
-extern Hud_ReplayCodegenView Hud_Replay asm("Replay_ReplayInterface");
-#define HUD_REPLAY_PAUSE        Hud_Replay.pause
-#define HUD_REPLAY_SPEED        Hud_Replay.speed
-#define HUD_REPLAY_CAMERA       Hud_Replay.camera
-#define HUD_REPLAY_SELECTION    Hud_Replay.selection
-#define HUD_REPLAY_STATS_SCREEN Hud_Replay.statsScreen
+extern tReplayInterface Replay_ReplayInterface;
 // [owned->defined in hud.cpp] extern int            currentSpriteColor;
 // [owned->defined in hud.cpp] extern int currentSpriteColor;
 // [owned->defined in hud.cpp] extern char           currentSpriteTransparent;
@@ -238,12 +137,7 @@ extern Hud_ReplayCodegenView Hud_Replay asm("Replay_ReplayInterface");
 // [owned->defined in hud.cpp] extern void          *day_needle, *night_needle;
 // [owned->defined in hud.cpp] extern void *day_needle, *night_needle;
 extern int (*BWorldSm_slices)[8]; /* loaded pointer; 32-byte slice rows */
-struct Hud_SimVarCodegenView {
-    int restartGame, endSimGame, pauseSim, keyRelease, quickPauseSim;
-    int goalClockTicks, currentClockTicks;
-};
-extern Hud_SimVarCodegenView Hud_SimVar asm("simVar");
-#define HUD_QUICK_PAUSE Hud_SimVar.quickPauseSim
+extern Sim_tSimSystemVar simVar;
 /* BTC state */
 // [owned->defined in hud.cpp] extern int            BTC_BonusTime, BTC_BonusTimeTick, BTC_Countdown;
 // [owned->defined in hud.cpp] extern int BTC_BonusTime, BTC_BonusTimeTick, BTC_Countdown;

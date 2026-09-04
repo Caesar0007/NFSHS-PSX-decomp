@@ -139,7 +139,7 @@ struct ObjectSignAnim {
 struct tQuat { short x, y, z, w; };
 typedef tQuat Quatern_quat;
 
-struct Object_SliceCodegenView {
+struct Trk_NewSlice {
     int center[3];
     char normal[3], forward[3], right[3];
     u_char acousticType;
@@ -147,16 +147,16 @@ struct Object_SliceCodegenView {
     u_char chunkIndex, laneCount, avgPavedWidthLf, avgPavedWidthRt;
 };
 
-struct Object_SimGlobalCodegenView {
+struct Sim_tSimGlobalVar {
     int gameStarted, gameTicks, time32Hz;
     Sched_tSchedule *schedule64Hz, *schedule32Hz, *schedule32Hz2;
 };
 
-struct Object_SaveSurfaceCodegenView {
+struct SaveSurface {
     short fCount, fMaxCount;
     tSaveSurface *fStack;
-    void Save(Trk_NewSimQuad *) asm("Save__11SaveSurfaceP14Trk_NewSimQuad");
-    void RestoreAll() asm("RestoreAll__11SaveSurface");
+    void Save(Trk_NewSimQuad *);
+    void RestoreAll();
 };
 
 struct AIHigh_Traffic : public AIHigh_Base {

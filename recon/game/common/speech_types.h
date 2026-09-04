@@ -19,9 +19,6 @@
 #undef NFS4_AUDIOCLC_OMIT_SCENE_TYPES
 #undef NFS4_AUDIOCLC_OMIT_AUDIOCLC_ONLY_TYPES
 
-/* Speech.obj uses GameSetup storage without retaining its completed tag. */
-#define GameSetup_tData AudioClc_GameSetupCodegenView
-
 typedef struct __nfs4_vtbl_ptr_t {
     short delta, index;
     int (*pfn)(...);

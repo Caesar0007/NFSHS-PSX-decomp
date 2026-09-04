@@ -75,10 +75,9 @@ struct POLY_FT4 {
 
 struct DR_STP { u_long tag; u_long code[2]; };
 
-/* Foreign completed tags absent from render.obj's linked type graph. */
-struct Render_DFlipCodegenView { DISPENV disp; char *server; };
+struct dflip { DISPENV disp; char *server; };
 
-struct Render_FlareCodegenView {
+struct FLARE_DEF {
     DVECTOR pos[2], oldpos[2];
     u_short screenData[2][5][5];
     int size;

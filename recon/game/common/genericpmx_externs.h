@@ -5,9 +5,9 @@
 #define GENERICPMX_EXTERNS_H
 
 /* ---- cross-TU globals ---- */
-extern int GenericPMX_gameSetupWords[] __asm__("GameSetup_gData");
+extern GameSetup_tData GameSetup_gData;       /* gmesetup.obj */
 extern char     *Paths_Paths[50];          /* paths.obj */
-extern int GenericPMX_trackSpecWords[] __asm__("TrackSpec_gSpec");
+extern CTrackSpec TrackSpec_gSpec;            /* trackspec.obj */
 
 /* ---- cross-TU functions ---- */
 extern void ChangeTPage(u_short *p, int n);                                      /* gfx */

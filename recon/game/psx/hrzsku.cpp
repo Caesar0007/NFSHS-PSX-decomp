@@ -348,16 +348,16 @@ void Hrz_InitSky(void)
   SUNPOS_VX = (short)fixedmult(fixedcos(Sky_gTrackSpec->sunAngleInSky),1000);
   SUNPOS_VZ = (short)fixedmult(fixedsin(Sky_gTrackSpec->sunAngleInSky),1000);
   SUNPOS_VY =
-       (short)HRZ_TRACK_SUN_HEIGHT + (short)HRZ_TRACK_SKY_YOFFSET;
+       (short)TrackSpec_gSpec.skyspec.sunHeightInSky + (short)TrackSpec_gSpec.skyspec.yoffset;
   MOONPOS_VX = (short)fixedmult(fixedcos(Sky_gTrackSpec->moonAngleInSky),1000);
   MOONPOS_VZ = (short)fixedmult(fixedsin(Sky_gTrackSpec->moonAngleInSky),1000);
   MOONPOS_VY =
-       (short)HRZ_TRACK_MOON_HEIGHT + (short)HRZ_TRACK_SKY_YOFFSET;
+       (short)TrackSpec_gSpec.skyspec.moonHeightInSky + (short)TrackSpec_gSpec.skyspec.yoffset;
   /* MATCH: duplicated SetViewColor calls (comm arm calls P1 then P2; else arm P1 only) --
      gcc cross-jump merges the two P1-tails into the oracle's shared lbu/jal block; a
      select-variable form (`v = P1; if(comm) {call; v = P2;} call(v)`) caches the view in
      a temp the oracle doesn't have. */
-  if (HRZ_GAMESETUP_COMM_MODE == 1) {
+  if (GameSetup_gData.commMode == 1) {
     Draw_SetViewColor(Draw_gPlayer1View,(u_int)(Sky_gTrackSpec->clearcolor).r,
                (u_int)(Sky_gTrackSpec->clearcolor).g,(u_int)(Sky_gTrackSpec->clearcolor).b);
     Draw_SetViewColor(Draw_gPlayer2View,(u_int)(Sky_gTrackSpec->clearcolor).r,
@@ -548,11 +548,11 @@ void Hrz_GetHorizonPixMap(Draw_tPixMap *p)
 void Hrz_InitHorizon(void)
 
 {
-  Hrz_gTrackSpec = HRZ_TRACK_HORIZON_PTR;
-  Sky_gTrackSpec = HRZ_TRACK_SKY_PTR;
+  Hrz_gTrackSpec = &TrackSpec_gSpec.horizonspec;
+  Sky_gTrackSpec = &TrackSpec_gSpec.skyspec;
   gRngCoordTop = (SVECTOR *)reservememadr("gRngCoordTop",0x88,0);
   Hrz_Init2DRing();
-  if ((HRZ_TRACK_INIT_SKY_FLAGS & 0x10U) != 0) {
+  if ((TrackSpec_gSpec.skyspec.flags & 0x10U) != 0) {
     Sky_InitStars();
   }
   return;
@@ -1578,7 +1578,7 @@ void Hrz_BuildSky(void)
      Harness: scratchpad/w75/{probe,posmis,sbsdump}.py + e_{s,t,u,v,w,x,y}*.py. */
 
   otz_old = 0x78;
-  if (HRZ_GAMESETUP_COMM_MODE == 1) {
+  if (GameSetup_gData.commMode == 1) {
     otz_old = 0x3c;
   }
   sd = (Draw_DCache *)0x1f800000;        /* PSX scratchpad base (held in $s2) */
@@ -1673,7 +1673,7 @@ void Hrz_BuildSky(void)
   if ((Sky_gTrackSpec->flags & 0x40U) != 0) {
     Hrz_SetDitheringPrim(0,Draw_gViewOtSize + -2);
   }
-  if ((HRZ_TRACK_SKY_FLAGS & 4U) != 0) {
+  if ((TrackSpec_gSpec.skyspec.flags & 4U) != 0) {
     pshift = sd->otz;                       /* save (scratchpad +0x94) around the flare */
     Flare_Sun(SUNPOS,(Draw_FlareCache *)sd);
     sd->otz = pshift;
@@ -1861,7 +1861,7 @@ void Sky_RenderStars(Draw_SkyCache *sd,int otz)
   int zcnt;
 
   pshift = 0x78;
-  if (HRZ_GAMESETUP_COMM_MODE == 1) {
+  if (GameSetup_gData.commMode == 1) {
     pshift = 0x3c;
   }
   pcnt = starPosInSky;
@@ -2528,7 +2528,7 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
     DVECTOR mpts [4];
 
     i = 0;
-    if (HRZ_TRACK_HORIZON_STATE != 0) {
+    if (TrackSpec_gSpec.horizonstate != 0) {
       /* SYM block line=142: right/prim/pmx -- nested one level deeper again. */
       DVECTOR right;
       POLY_GT4 *prim;
@@ -2712,16 +2712,16 @@ void Hrz_BuildHorizon(DRender_tView *Vi)
   if ((Night_gLightning != 0) && (Night_gShowForks != '\0')) {
     Hrz_BuildForkLightning((Draw_DCache *)&Render_gPalettePtr);
   }
-  if ((HRZ_TRACK_SKY_FLAGS & 8U) != 0) {
+  if ((TrackSpec_gSpec.skyspec.flags & 8U) != 0) {
     coorddef trans2;
     memset(&trans2,0,0xc);
     HrzSetPsxTranslation(&trans2);
     Flare_Moon(MOONPOS,(Draw_FlareCache *)&Render_gPalettePtr);
   }
-  if ((HRZ_TRACK_SKY_FLAGS & 0x10U) != 0) {
+  if ((TrackSpec_gSpec.skyspec.flags & 0x10U) != 0) {
     Sky_RenderStars((Draw_SkyCache *)&Render_gPalettePtr,Draw_gViewOtSize + -2);
   }
-  if (HRZ_TRACK_SKY_STATE != 0) {
+  if (TrackSpec_gSpec.skystate != 0) {
     Hrz_BuildSky();
   }
   if (hrz_projchange != 0) {

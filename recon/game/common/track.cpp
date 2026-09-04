@@ -344,7 +344,7 @@ void Track_AnimateTextures(void)
   /* SYM-CODEGEN-CARRIER: simPtr -- direct `simGlobal.gameTicks` accesses
      shorten the function to 101/102 instructions and produce 19 diffs;
      the explicit base is retail's loop-invariant $t1 address. */
-  Track_SimGlobalCodegenView *simPtr;
+  Sim_tSimGlobalVar *simPtr;
   /* SYM-CODEGEN-CARRIER: artPtr -- direct `gInitialArt.pPmx` is count-exact
      but produces 14 diffs; this base preserves retail's loop-invariant $t2
      address and the exact constant/register ordering. */

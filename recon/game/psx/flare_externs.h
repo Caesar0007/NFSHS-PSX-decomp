@@ -15,14 +15,9 @@ extern short         DrawC_gReflectOffset;       /* 0x8013d814 */
 extern int           R3DCar_InMenu;              /* 0x8013d324 */
 
 /* ---- track / setup / sim ---- */
-/* Exact-symbol views use only records retained by flare.obj.  The field
- * offsets are GameSetup +12, TrackSpec +88, and simGlobal +4 respectively. */
-extern GameSetup_tPerpData Flare_GameSetupView asm("GameSetup_gData");
-extern BO_tNewtonCollisionInfo Flare_TrackSpecRows[] asm("TrackSpec_gSpec");
-extern coorddef Flare_SimView asm("simGlobal");
-#define FLARE_COMM_MODE  Flare_GameSetupView.HudColour
-#define FLARE_TRACK_SKY  (*(CSkySpec *)((u_char *)Flare_TrackSpecRows + 88))
-#define FLARE_GAME_TICKS Flare_SimView.y
+extern GameSetup_tData GameSetup_gData;
+extern CTrackSpec TrackSpec_gSpec;
+extern Sim_tSimGlobalVar simGlobal;
 
 /* ---- flare geometry + colour tables ---- */
 // [owned->defined in flare.cpp] extern Flare_tInfo      Flare_gType[34];          /* 0x8011ff68 (544 B) flare-type defs (chalo/cbeam/flags/scale) */

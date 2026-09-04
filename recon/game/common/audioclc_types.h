@@ -148,9 +148,8 @@ struct AudioClc_tPlayer {
 struct AudioClc_tCLCache { Car_tObj *ptr; int dst; };
 #endif
 
-/* Foreign completed tags are absent from audioclc.obj. These exact member
- * views retain every retail offset used by its already-matched functions. */
-struct AudioClc_GameSetupCodegenView {
+/* Canonical gmesetup.obj aggregate used by this translation unit. */
+struct GameSetup_tData {
     int raceType, numLaps, skill, commMode, tournamentMultiplier, cops;
     int trafficDensity, localCar, catchupLogic, replayMode, instantReplay;
     int mirrorTrack, reverseTrack, measurement, sgge, track, trackSegment;
@@ -168,7 +167,7 @@ struct AudioClc_GameSetupCodegenView {
 };
 
 #ifndef NFS4_AUDIOCLC_OMIT_CAMERA_VIEW
-struct AudioClc_CameraInfoCodegenView {
+struct camera_info {
     BO_tNewtonObj *anchor, *target;
     coorddef position, relpos, audioPos;
     int TVHeight;

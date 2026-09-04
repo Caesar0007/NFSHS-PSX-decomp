@@ -97,20 +97,18 @@ void InGame_ResetPSXController(int player,int config)
   int type;
   int *h;
 
-  type = PSXController_gPadBytes[player * 4][5];
+  type = gPadinfo.buf[player * 4].ID;
   h = Input_gHandler;
   type = (type == 0x23) ? 0 : (((type == 0x53) || (type == 0x73)) ? 1 : 2);
   /* Exact-SYM lifetime probe: express every related address from the same
      player-scaled byte offset without introducing a source local. */
 #define INGAME_PLAYER_OFFSET (player << 2)
 #define INGAME_CONTROL_TYPE (frontEnd.controlType[player])
-#define INGAME_PAD_ID (PSXController_gPadBytes[INGAME_PLAYER_OFFSET][5])
+#define INGAME_PAD_ID (gPadinfo.buf[INGAME_PLAYER_OFFSET].ID)
   if (INGAME_CONTROL_TYPE != (u_short)INGAME_PAD_ID) {
     INGAME_CONTROL_TYPE = (u_short)INGAME_PAD_ID;
   }
-  ((GameSetup_tControllerData *)(INGAME_PLAYER_OFFSET +
-                                 (int)&GameSetup_gData))
-      ->controllerConfig[24] = config;
+  GameSetup_gData.controllerData.controllerConfig[player] = config;
 #undef INGAME_PAD_ID
 #undef INGAME_CONTROL_TYPE
 #undef INGAME_PLAYER_OFFSET
@@ -239,7 +237,7 @@ void InGame_ResetPSXController(int player,int config)
      statement of a post-`jal` block and the plain subscript issues the `lui/addiu` pair
      ahead of the `sll`, which retail does not.  Do NOT "simplify" them back to
      `hoff[player]`: that costs 12 diffs.  Every other site in this fn stays natural. */
-  if (GameSetup_gData[21] != 0) {
+  if (GameSetup_gData.Time != 0) {
     h[0x73 - *(int *)((player << 2) + (int)hoff)] = InGame_GetPSXPadValue(mappings[config][9][type],player);
     h[0x54 - hoff[player]] = InGame_GetPSXPadValue(
         (type == 1) ? 6 : 0, player);
@@ -284,11 +282,11 @@ int InGame_GetPSXPadValue(int value, int player)
      same .text, but its nested scope + `pad` local emit two -g2 debug records
      the SYM does not have:
        {
-         u_char *pad = (u_char *)PSXController_gPadBytes;
+         u_char *pad = (u_char *)&gPadinfo;
          type = (int)pad + (player << 5);
        }
   */
-  newControl = (int)PSXController_gPadBytes;
+  newControl = (int)&gPadinfo;
   type = player << 5;
   type += newControl;
   if (*(u_char *)(type + 4) != 0)

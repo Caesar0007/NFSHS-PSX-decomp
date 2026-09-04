@@ -34,6 +34,17 @@ struct Sched_tSchedule {
     int maxNumFunctions, numFunctions;
     Sched_tFunctionSchedule func[1];
 };
+
+/* Canonical sim.obj aggregate from the retail SYM type graph. */
+struct Sim_tSimGlobalVar {
+    int gameStarted, gameTicks, time32Hz;
+    Sched_tSchedule *schedule64Hz, *schedule32Hz, *schedule32Hz2;
+};
+
+struct AICop_spikeBelt_t {
+    int active_, slice_, leftLatPos_, rightLatPos_, freshenTime_;
+};
+
 struct AIPhysic_BrakeInfo { u_char brakeTable_[128]; int deceleration_; };
 struct AIPhysic_ModelConfig_t {
     int dlpos_to_dlvel, max_dlvel, dlvel_to_clacc, max_clacc;

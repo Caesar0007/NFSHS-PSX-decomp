@@ -198,23 +198,8 @@ struct tfrontEnd {
     bool AnalogOn[2];
 };
 
-/* Exact foreign storage needed by matched PauseMenu bodies. */
-struct PauseMenu_GameSetupCodegenView {
-    int raceType, numLaps, skill, commMode, tournamentMultiplier, cops;
-    int trafficDensity, localCar, catchupLogic, replayMode, instantReplay;
-    int mirrorTrack, reverseTrack, measurement, sgge, track, trackSegment;
-    int song, Weather, Fog, Damage, Time, randSeed, easter;
-    GameSetup_tControllerData controllerData;
-    int pinkSlipsForfeit, checkpointType, checkpointHUD[2];
-    int dispatchSpeech, reverseCallSpeech, languageSpeech;
-    int SceneNumber, SceneStartLap, SceneEndLap;
-    GameSetup_tUserSetting userSetting;
-    int numPerps, stageOffset, perpArrests, finalPerpArrests;
-    GameSetup_tPerpData perpInfo[10];
-    int numCars, numPlayerRaceCars, numOpponentRaceCars, opponentCarType;
-    GameSetup_tCarData carInfo[9];
-};
-struct PauseMenu_HudShapeCodegenView {
+/* Canonical hudpmx.obj aggregate used by this translation unit. */
+struct HudPmx_tShape {
     Draw_tPixMap pixmap;
     short width, height;
 };

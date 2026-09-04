@@ -10,19 +10,12 @@ extern void trap(int);  /* Ghidra builtin = MIPS `break` (gcc div-by-zero 0x1C00
 /* ---- PsyQ libpad ---- */
 
 /* ---- harvested from sealed *_externs.h ---- */
-extern int               GameSetup_gData[];
-/* Row 1 begins at the attested controllerData offset 0x60; the inner direct
- * comparison subscript preserves retail's negu/andi address lowering. */
-extern int               Device_gControllerConfig[][24] asm("GameSetup_gData");
-extern int               simVar[];
+extern GameSetup_tData   GameSetup_gData;
+extern Sim_tSimSystemVar simVar;
 extern int               Replay_ReplayMode;   /* 0x8013d3f4 */
 extern int             Input_gHandler[];        /* 0x80113c14  per-control packed input descriptor */
 extern int gUseFrontend;
-/* Four-byte address rows over the exact gPadinfo symbol.  Device code uses
- * inner constants as byte displacements, retaining gPadinfo+port*8 in one
- * compiler pseudo without completing the absent retail tPadModuleState tag. */
-extern PAD_COMMON        gPadinfo[];
-extern u_char            Device_gPadBytes[][4] asm("gPadinfo");
+extern tPadModuleState   gPadinfo;
 extern tfrontEnd         frontEnd;
 
 extern "C" {

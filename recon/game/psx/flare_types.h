@@ -9,6 +9,24 @@
 #define Render_gPacketPtr  (*(u_char **)0x1F800004)
 #define Render_gPalettePtr (*(u_char **)0x1F800000)
 
+/* Canonical gmesetup.obj aggregate retained by flare.obj. */
+struct GameSetup_tData {
+    int raceType, numLaps, skill, commMode, tournamentMultiplier, cops;
+    int trafficDensity, localCar, catchupLogic, replayMode, instantReplay;
+    int mirrorTrack, reverseTrack, measurement, sgge, track, trackSegment, song;
+    int Weather, Fog, Damage, Time, randSeed, easter;
+    GameSetup_tControllerData controllerData;
+    int pinkSlipsForfeit, checkpointType;
+    int checkpointHUD[2];
+    int dispatchSpeech, reverseCallSpeech, languageSpeech;
+    int SceneNumber, SceneStartLap, SceneEndLap;
+    GameSetup_tUserSetting userSetting;
+    int numPerps, stageOffset, perpArrests, finalPerpArrests;
+    GameSetup_tPerpData perpInfo[10];
+    int numCars, numPlayerRaceCars, numOpponentRaceCars, opponentCarType;
+    GameSetup_tCarData carInfo[9];
+};
+
 struct TCB { long status, mode; u_long reg[40]; long system[6]; };
 struct EXEC {
     u_long pc0, gp0, t_addr, t_size, d_addr, d_size, b_addr, b_size;
@@ -47,6 +65,10 @@ struct Sched_tSchedule {
     int maxNumFunctions, numFunctions;
     Sched_tFunctionSchedule func[1];
 };
+struct Sim_tSimGlobalVar {
+    int gameStarted, gameTicks, time32Hz;
+    Sched_tSchedule *schedule64Hz, *schedule32Hz, *schedule32Hz2;
+};
 
 typedef enum forceFocus_t {
     FOCUS_NORMAL = 0, FOCUS_AI = 1, FOCUS_COPANDAI = 2
@@ -80,6 +102,17 @@ struct CFogSpec { int contrast; CVECTOR color; int start,dist2base; };
 struct CDepthCueSpec { CVECTOR color; int distance; };
 struct CWorldColor {
     int contrast; CVECTOR contrast_color; short worldR,worldG,worldB,type;
+};
+struct CTrackSpec {
+    short fogstate, weatherstate, horizonstate, skystate;
+    short nightstate, depthcuestate, worldcolorstate, pad0;
+    CFogSpec fogspec;
+    CWeatherSpec weatherspec;
+    CHorizonSpec horizonspec;
+    CSkySpec skyspec;
+    CNightSpec nightspec;
+    CDepthCueSpec depthcuespec;
+    CWorldColor worldcolorspec;
 };
 
 #endif

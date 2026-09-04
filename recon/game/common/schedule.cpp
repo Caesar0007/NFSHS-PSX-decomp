@@ -34,7 +34,7 @@ int Sched_ExecuteCheck(int staggered,int module,int distance,int carId,int *time
   int index;
   int distanceIndex;
 
-  if (0xf < Sched_simGlobalWords[1]) {
+  if (0xf < simGlobal.gameTicks) {
     distanceIndex = distance / 16;
     distanceIndex = distanceIndex / 65536;
     if (0x13 < distanceIndex) {
@@ -48,7 +48,7 @@ int Sched_ExecuteCheck(int staggered,int module,int distance,int carId,int *time
     *iTime = Sched_ExecuteiTimes[index];
     *elapsedTime = Sched_ExecuteElapsedTimes[index];
     mask = Sched_ExecuteMasks[index];
-    return (u_int)((Sched_simGlobalWords[1] / 2 + carId * staggered & mask) == mask);
+    return (u_int)((simGlobal.gameTicks / 2 + carId * staggered & mask) == mask);
   }
   *time = Sched_ExecuteTimes[6];
   *iTime = Sched_ExecuteiTimes[6];

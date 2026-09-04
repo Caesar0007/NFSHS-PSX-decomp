@@ -702,8 +702,8 @@ void Night_PauseLightningEffect(int player)
   int endp;
   int pause_flag;
 
-  slice = NIGHT_CAMERA_SLICE(player);
-  track = D_80113228[0];
+  slice = Camera_gInfo[player].slicePos.slice;
+  track = GameSetup_gData.track;
   pause_flag = 0;
   startp = Night_gLightningPauseAreas[track][0];
   endp = Night_gLightningPauseAreas[track][1];
@@ -714,8 +714,8 @@ void Night_PauseLightningEffect(int player)
     pause_flag = 1;
   }
   if (pause_flag != 0) {
-    Night_gNextLightning = D_8011E0B0[0];
-    Night_gEndNextLightning = D_8011E0B0[0];
+    Night_gNextLightning = simGlobal.gameTicks;
+    Night_gEndNextLightning = simGlobal.gameTicks;
   }
   return;
 }
@@ -739,7 +739,7 @@ void Night_DoLightningEffect(DRender_tView *Vi)
     /* branched if/else, NOT `= (tunnel == 0)`: the oracle emits
        `beqz $v0,.L; addiu $v0,zero,1` + two separate `sb` stores with a `j` over the
        else arm; the boolean-expression form folds to a single sltiu. */
-    if (BWorldSm_TunnelFlagSm(&NIGHT_CAMERA_SLICEPOS(Vi->player)) != 0) {
+    if (BWorldSm_TunnelFlagSm(&Camera_gInfo[Vi->player].slicePos) != 0) {
       Night_gDrawLightning = 0;
     }
     else {
@@ -849,7 +849,7 @@ void Night_InitPlayerHeadLightColor(int player)
   if (Night_gPlayerLightingTable == (u_char (*) [256] [16])0x0) {
     Night_gPlayerLightingTable = reservememadr("plnight",0x1000,0);
   }
-  Night_gPlayerHeadLightColor[player] = *(long *)&NIGHT_TRACK_NIGHT.nightcolor;
+  Night_gPlayerHeadLightColor[player] = *(long *)&TrackSpec_gSpec.nightspec.nightcolor;
   return;
 }
 
@@ -1075,8 +1075,8 @@ void Night_InitNightDriving(void)
     /* the whole 4-byte CVECTOR is cleared with ONE word store (oracle
        `sw $zero,0xF0($v0)`), not four `sb`s; distance is an int at +0xF4
        (`sw $v1,0xF4($v0)`).  Per-field byte clears cost 4 extra instructions. */
-    NIGHT_TRACK_DEPTH_CUE_DISTANCE = 0xff;
-    NIGHT_TRACK_DEPTH_CUE_COLOR_WORD = 0;
+    TrackSpec_gSpec.depthcuespec.distance = 0xff;
+    *(long *)&TrackSpec_gSpec.depthcuespec.color = 0;
   }
   if (gNight_renderNight == 0) {
     return;
@@ -1105,7 +1105,7 @@ void Night_InitNightDriving(void)
   Night_GenerateAllLightTables();
   if (GameSetup_gData.Weather == 1) {
     Night_gLightning = 0;
-    Night_gNextLightning = D_8011E0B0[0] + (random() & 0x1ff);
+    Night_gNextLightning = simGlobal.gameTicks + (random() & 0x1ff);
     Night_gEndNextLightning = Night_gNextLightning + (random() & 0x31);
     Night_gNextFlicker = Night_gNextLightning;
     Hrz_CalculateLightning();
@@ -1389,7 +1389,7 @@ void Night_SetEnviroment(DRender_tView *Vi)
     /* MATCH (w63-a13): 6 -> 2, count still EXACT 68/68.  See the w63-a13 block
      * above the function for the mechanism and the falsification list. */
     u_char *tgt /* SYM-CODEGEN-CARRIER: tgt -- direct target access is FAIL 6 (68/68) */ =
-        (u_char *)NIGHT_CAMERA_TARGET(Vi->player);
+        (u_char *)Camera_gInfo[Vi->player].target;
     /* W80 QTY_CMP_PRI dial: five zero-byte refs are the minimal whole-step crossing
      * for tgt (7/18) over zn2 (3/4); four refs only tie at 0.7500 and stay FAIL.
      * W86-D2: FOUR of the five zero-byte references are now PURE C -- the ABSORPTION

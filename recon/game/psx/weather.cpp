@@ -477,10 +477,6 @@ void Weather_Init(void)
 {
   matrixtdef *secondCamMatDest; /* SYM-CODEGEN-CARRIER: secondCamMatDest -- second destination-base evaluation supplies retail's required register copy */
   matrixtdef *firstCamMatDest; /* SYM-CODEGEN-CARRIER: firstCamMatDest -- first aggregate-copy base preserves the measured movstrsi scratch pool */
-  u_int *cameraWords; /* SYM-CODEGEN-CARRIER: cameraWords -- one shared
-                         Camera_gInfo cursor is required for the two aggregate
-                         reads; independent address expressions measured 81
-                         diffs, while this spelling keeps Weather_Init PASS211. */
   int i;
   SVECTOR *sv;
   
@@ -516,21 +512,18 @@ void Weather_Init(void)
    * Diagnostic sweep that isolated the flag: -fno-cse-follow-jumps / -fno-gcse /
    * -fno-cse-skip-blocks all leave the fold in place; -mno-split-addresses changes the whole
    * address form (la + 1-insn guard load), only -fforce-addr lands retail's shape. */
-  /* MATCH (2026-08-26, strict source-only 81 -> PASS 211/211): the earlier
-   * -fforce-addr closure was basin-specific.  The raw source mismatch was the
-   * aggregate-copy source address: the offset macros independently formed
-   * Camera_gInfo+8 and Camera_gInfo+48, while retail keeps one Camera_gInfo
-   * cursor and uses +8/+48 MEM offsets.  Feeding both copies from the shared
-   * `cameraWords` cursor removes the redundant address-only fence, restores
-   * the exact movstrsi bases/scratch handout, and makes the per-fn force-addr
-   * aid unnecessary. */
-  Weather_gTrackSpec = &WEATHER_TRACK_WEATHER;
+  /* MATCH (2026-09-04, strict source-only): canonical `camera_info` member
+   * copies let CSE retain one Camera_gInfo base with +8/+48 MEM offsets.  The
+   * earlier raw-offset spelling needed an invented cameraWords cursor to get
+   * the same shape; the exact aggregate declaration removes that carrier and
+   * remains PASS 211/211. */
+  Weather_gTrackSpec = &TrackSpec_gSpec.weatherspec;
   if (GameSetup_gData.Weather != 0) {
-    Weather_gType = WEATHER_TRACK_WEATHER.type;
-    if (WEATHER_TRACK_WEATHER.type == 1) {
+    Weather_gType = TrackSpec_gSpec.weatherspec.type;
+    if (TrackSpec_gSpec.weatherspec.type == 1) {
       Weather_InitRain();
     }
-    else if (WEATHER_TRACK_WEATHER.type == 0) {
+    else if (TrackSpec_gSpec.weatherspec.type == 0) {
       Weather_InitSnow();
     }
     if (Weather_gSplatInfo == (Weather_tSplatInfo *)0x0) {
@@ -577,10 +570,9 @@ void Weather_Init(void)
     secondCamMatDest = prevCamMat;
     /* One source cursor serves both aggregate reads; retail materializes
        Camera_gInfo once and keeps the member offsets on the MEM operands. */
-    cameraWords = Weather_CameraWords;
-    prevCamPos[1] = *(coorddef *)(cameraWords + 2);
+    prevCamPos[1] = Camera_gInfo[0].position;
     prevCamPos[0] = prevCamPos[1];
-    firstCamMatDest[0] = *(matrixtdef *)(cameraWords + 12);
+    firstCamMatDest[0] = Camera_gInfo[0].rotation;
     secondCamMatDest[1] = firstCamMatDest[0];
     sv = Weather_gPos;
     i = 0x97;
@@ -1777,7 +1769,7 @@ void Weather_DoWeather(DRender_tView *Vi)
       Weather_ProcessParticles(Vi,Weather_gSys.num[player],wpt,wd);
     }
     Weather_SetIdentMatrix();
-    if (WEATHER_CAMERA_IN_CAR(player)) {
+    if (Camera_gInfo[player].inCar) {
       Weather_DoSplats(Weather_gSys.num[player] >> 3,Weather_gSplatInfoServer[player]);
     }
     /* emit one snow/rain primitive per particle.
@@ -1833,7 +1825,7 @@ void Weather_BuildWeather(DRender_tView *Vi)
 
 {
   if ((GameSetup_gData.Weather != 0) &&
-      (BWorldSm_TunnelFlagSm(&WEATHER_CAMERA_SLICE_POS(Vi->player)) == 0)) {
+      (BWorldSm_TunnelFlagSm(&Camera_gInfo[Vi->player].slicePos) == 0)) {
     Weather_DoWeather(Vi);
   }
   return;

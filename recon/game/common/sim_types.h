@@ -88,9 +88,7 @@ struct Track_tArtresource {
 struct Track_tMaterial { char flag, mipmap_offset; short pmxIndex; };
 
 #ifndef NFS4_SIM_OMIT_OBJECT_FOREIGN_TYPES
-/* Completed foreign tags are absent from sim.obj but their storage is
- * dereferenced by retail. These private views retain exact consumed offsets. */
-struct Sim_GameSetupCodegenView {
+struct GameSetup_tData {
     int raceType, numLaps, skill, commMode, tournamentMultiplier, cops;
     int trafficDensity, localCar, catchupLogic, replayMode, instantReplay;
     int mirrorTrack, reverseTrack, measurement, sgge, track, trackSegment;
@@ -106,11 +104,11 @@ struct Sim_GameSetupCodegenView {
     GameSetup_tCarData carInfo[9];
 };
 
-struct Sim_ReplayCodegenView {
+struct tReplayInterface {
     int pause, speed, end, camera, selection, depressed, changeCamera, statsScreen;
 };
 
-struct Sim_ClockCodegenView { int time128Hz, time64Hz, time32Hz; };
+struct Clock_tGameClock { int time128Hz, time64Hz, time32Hz; };
 #endif
 
 typedef int CarLogic_tObservations[1][3];

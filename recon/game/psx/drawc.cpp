@@ -182,7 +182,7 @@ void DrawC_ReadLightingData(void)
   /* MATCH: track staged through a block-local int (oracle schedules the format-string
      %hi(lui a1) between the two global loads only when a3 comes from a reg temp);
      + for(;;)-form loops below give i the SYM's s1 (REG $11) vs the &ScaneData temp. */
-  {int trk /* SYM-CODEGEN-CARRIER: trk -- stages a3 so the format address schedules between global loads */ = DRAWC_GS_TRACK; sprintf(name,"%sTr%02d.env",Paths_Paths[6],trk);}
+  {int trk /* SYM-CODEGEN-CARRIER: trk -- stages a3 so the format address schedules between global loads */ = GameSetup_gData.track; sprintf(name,"%sTr%02d.env",Paths_Paths[6],trk);}
   RenderingFileData = (char *)loadfileadr(name,0x10);
   ScaneData = RenderingFileData;
   DrawC_gEnvMapMax = Risk_ReadNextValue(&ScaneData);
@@ -256,7 +256,7 @@ void DrawC_NightHeadlight(Car_tObj *carObj)
    * $a2) = &carObj->N.position, likewise materialized unconditionally (the compiler schedules the
    * pure-address addiu into the branch's delay slot regardless of source position). */
   light = (int *)&(carObj->render).light;
-  i = DRAWC_CVIEW_PLAYER;
+  i = gCView.player;
   pos = &(carObj->N).position;
   if (((Cars_gList[i]->control).lights & 6U) != 0) {
     coorddef tmp;
@@ -1011,7 +1011,7 @@ DrawCPrimStart_camRotMatrix:
     DRAWENV *LEnv;
     int eSpeed;
     eSpeed = 3;
-    LEnv = Draw_GetDRAWENV(DRAWC_CVIEW_ID,gFlip);
+    LEnv = Draw_GetDRAWENV(gCView.id,gFlip);
     /* quad = SIGNED byte (oracle lb 124); each .extra read ONCE as lhu into a
      * temp -- the &0xff and <<16>>24 both derive from the SAME halfword value */
     /* MATCH (w53-a2, 70 -> 60, count-exact 976/976).  Two independent edits:
@@ -1243,7 +1243,7 @@ DrawCPrimStart_camRotMatrix:
             (int)*(short *)(byteOffset + (u_int)envMapOffset);
       }
     }
-    if (((DRAWC_GS_WEATHER != 0) &&
+    if (((GameSetup_gData.Weather != 0) &&
         (tunnelFlag = (int)BWorldSm_TunnelFlagSm(&(carObj->N).simRoadInfo), tunnelFlag != 1)) &&
        (Cars_kSkidMarkSurface[(carObj->N).driveSurfaceType] == 1)) {
       DrawC_gWetRoad = 1;
@@ -1252,7 +1252,7 @@ DrawCPrimStart_camRotMatrix:
          (short)((((carObj->N).dimension.y * 3 >> 1) + (carObj->N).objAltitude) >> 8);
   }
   else {
-    DRAWENV *LEnv = Draw_GetDRAWENV(DRAWC_CVIEW_ID,gFlip);
+    DRAWENV *LEnv = Draw_GetDRAWENV(gCView.id,gFlip);
     SetDrawMode(&sd->drawModeOn,(u_int)LEnv->dfe,1,
                (u_int)LEnv->tpage,(RECT *)0x0);
     SetDrawMode(&sd->drawModeOff,(u_int)LEnv->dfe,0,

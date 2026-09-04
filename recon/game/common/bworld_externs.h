@@ -14,11 +14,11 @@ extern Car_tObj           *Cars_gCopCarList[];       /* 0x8010faB4 -- alias-adja
                                                        * addresses this cluster via
                                                        * Cars_gCopCarList directly. */
 extern Chunk              *Track_chunkList;
-extern BWorld_GameSetupCodegenView GameSetup_gData asm("GameSetup_gData");
+extern GameSetup_tData GameSetup_gData;
 extern Group              *Object_customSFXInst;     /* 0x8013d2d0 */
 extern Group              *gPersistObjDef;           /* track.obj */
-extern BWorld_SliceCodegenView *BWorldSm_slices asm("BWorldSm_slices");
-extern BWorld_CameraCodegenView Camera_gInfo[2] asm("Camera_gInfo");
+extern Trk_NewSlice *BWorldSm_slices;
+extern camera_info Camera_gInfo[2];
 extern char * Track_MakeTrackDataPathName(char *ext);
 extern char * Track_MakeTrackPathName(char *ext);
 extern char Night_gDrawLightning;
@@ -31,7 +31,7 @@ extern int               screenheight, ticks, gFlip, gLargestUnused, Draw_gPlaye
 extern int            Chunk_numLight;            /* 0x8013d4ec */
 extern int            Draw_gPlayer1View, Draw_gPlayer2View;
 extern int            gNumSlices;
-extern BWorld_TrackSpecCodegenView TrackSpec_gSpec asm("TrackSpec_gSpec");
+extern CTrackSpec TrackSpec_gSpec;
 extern int   BWorldSm_FindClosestQuadRez(coorddef *c, BWorldSm_Pos *pos, int rez);
 extern u_char *Track_gInViewCount;     /* = Alloc(...), indexed */
 extern int Loading_UpdateLoadingScreen(int);

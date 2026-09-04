@@ -283,13 +283,13 @@ void AllocatePrimitivesBuffer(void)
   Draw_tView *view1;
   Draw_tView *view;
 
-  if (Draw_GameSetupWords[3] == 1) {
+  if (GameSetup_gData.commMode == 1) {
     Draw_InitViewOT();
   }
   else {
     Draw_InitViewOTInGame();
   }
-  if (Draw_GameSetupWords[3] == 1) {
+  if (GameSetup_gData.commMode == 1) {
     gTotalMem = 0x22500;
   }
   else {
@@ -297,7 +297,7 @@ void AllocatePrimitivesBuffer(void)
   }
   gEnviro[0].server = Platform_ReserveMemory(gTotalMem,"ps0");
   gEnviro[1].server = Platform_ReserveMemory(gTotalMem,"ps1");
-  if (Draw_GameSetupWords[3] == 1) {
+  if (GameSetup_gData.commMode == 1) {
     view0 = &Draw_gView[Draw_gPlayer1View];
     view0->membudget = (gTotalMem >> 1) + -0x1a00;
     view1 = &Draw_gView[Draw_gPlayer2View];
@@ -334,7 +334,7 @@ void ClearPlatformPrimitivesBuffer(void)
   DrawSync(0);
   gEnviro[1].server = (char *)0x0;
   gEnviro[0].server = (char *)0x0;
-  if (Draw_GameSetupWords[3] == 1) {
+  if (GameSetup_gData.commMode == 1) {
     Draw_DeInitViews();
   }
   else {

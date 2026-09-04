@@ -192,7 +192,7 @@ void Sfx_AdditivePrim(Draw_tPixMap *pmx,SVECTOR *pt,int mode,int offset,Sfx_tCac
     if ((mode & 2U) != 0) {
       *(int *)&prim->r0 = 0x2e5898b8;
     }
-    else if (Sfx_GameSetupWords[21] == 0) {
+    else if (GameSetup_gData.Time == 0) {
       *(int *)&prim->r0 = 0x2e181818;
     }
     else {

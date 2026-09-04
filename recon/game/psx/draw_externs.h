@@ -8,7 +8,7 @@ extern int timerhz;  /* global tick-rate (used as value: timerhz>>1) */
 
 /* ---- harvested from sealed *_externs.h ---- */
 extern Draw_tView     Draw_gView[];                  /* @0x8011ec54 */
-extern int Draw_GameSetupWords[] asm("GameSetup_gData");
+extern GameSetup_tData GameSetup_gData;
 extern dflip          gEnviro[2];                    /* @0x8011f424 */
 extern int            Draw_gPlayer1View, Draw_gPlayer2View;
 extern int            Draw_gPlayer1View;             /* @0x8013d3cc */

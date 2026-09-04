@@ -51,7 +51,7 @@ of which **602 are in `recon/game/common`**.  There are currently **24
 `ORIGINAL-NAME-RECOVERED` evidence rows**.  These counts were measured from the
 working tree on 2026-09-04 and must be regenerated after each recovery round.
 
-## Strict per-directory snapshot through P830
+## Strict per-directory snapshot through P833
 
 These reports measure the current source tree; they are evidence of remaining
 work, not completion certificates.  `Explicit source-only codegen carriers`
@@ -72,7 +72,7 @@ The authoritative report files are
 `game_common_strict_p829_20260904.md`,
 `frontend_common_strict_p783_20260903.md`,
 `frontend_psx_strict_p780_20260903.md`,
-`game_psx_strict_p830_20260904.md`,
+`game_psx_strict_p833_20260904.md`,
 `eaclib_psx_strict_p779_20260903.md`,
 `lib_strict_p779_20260903.md`, and
 `syslib_psx_strict_p779_20260903.md` in this directory.
@@ -932,6 +932,46 @@ reference lines.
 
 The current authoritative game/PSX report is
 `game_psx_strict_p830_20260904.md`: 395/395 functions mapped, 392
+declaration-clean, zero missing names, 3 extra names, 397 source-only carriers,
+and zero mapping-review items.
+
+### Removed `Sfx_GameSetupWords` at P831
+
+The invented `Sfx_GameSetupWords` integer-array alias is removed.  Its only
+source site now uses the exact gmesetup owner field `GameSetup_gData.Time`.
+The affected `Sfx_AdditivePrim` remains byte-exact at 126/126 instructions.
+The game/PSX raw alias inventory falls from 10 declarations / 38 reference
+lines at P830 to 9 declarations / 36 reference lines.
+
+The current authoritative game/PSX report is
+`game_psx_strict_p831_20260904.md`: 395/395 functions mapped, 392
+declaration-clean, zero missing names, 3 extra names, 397 source-only carriers,
+and zero mapping-review items.
+
+### Removed `TrsProj_GameSetupWords` at P832
+
+The invented `TrsProj_GameSetupWords` integer-array alias is removed.  Its only
+source site now uses the exact gmesetup owner field `GameSetup_gData.commMode`.
+The affected `TrsProj_SetViewTrsProjEnviro` remains byte-exact at 21/21
+instructions.  The game/PSX raw alias inventory falls from 9 declarations / 36
+reference lines at P831 to 8 declarations / 34 reference lines.
+
+The current authoritative game/PSX report is
+`game_psx_strict_p832_20260904.md`: 395/395 functions mapped, 392
+declaration-clean, zero missing names, 3 extra names, 397 source-only carriers,
+and zero mapping-review items.
+
+### Removed `Draw_GameSetupWords` at P833
+
+The invented `Draw_GameSetupWords` integer-array alias is removed.  Its four
+source sites now use the exact gmesetup owner field `GameSetup_gData.commMode`.
+Both affected functions remain byte-exact: `AllocatePrimitivesBuffer` 79/79 and
+`ClearPlatformPrimitivesBuffer` 23/23.  The game/PSX raw alias inventory falls
+from 8 declarations / 34 reference lines at P832 to 7 declarations / 29
+reference lines.
+
+The current authoritative game/PSX report is
+`game_psx_strict_p833_20260904.md`: 395/395 functions mapped, 392
 declaration-clean, zero missing names, 3 extra names, 397 source-only carriers,
 and zero mapping-review items.
 

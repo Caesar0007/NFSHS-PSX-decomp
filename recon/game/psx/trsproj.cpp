@@ -51,7 +51,7 @@ void TrsProj_SetMenuProjection(int cx,int cy,int w,int h)
 void TrsProj_SetViewTrsProjEnviro(DRender_tView *Vi)
 
 {
-  if (TrsProj_GameSetupWords[3] == 1) {
+  if (GameSetup_gData.commMode == 1) {
     TrsProj_SetProjection(0,0,0x140,0x78);
   }
   else {

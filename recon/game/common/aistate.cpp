@@ -2113,7 +2113,8 @@ int AIState_Purgatory::TestForRelease()
     trafficInWorld = Cars_gNumTrafficCars - AIState_Purgatory_numTrafficCarsInPurgatory;
 
     if (trafficInWorld <
-        AITune_MaxTraffic[AIState_GameSetupWords[3] == 1][AIState_GameSetupWords[6]]) {
+        AITune_MaxTraffic[GameSetup_gData.commMode == 1]
+                         [GameSetup_gData.trafficDensity]) {
 
       return 1;
 

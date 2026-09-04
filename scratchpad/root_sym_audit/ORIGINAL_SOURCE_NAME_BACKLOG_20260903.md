@@ -51,7 +51,7 @@ of which **602 are in `recon/game/common`**.  There are currently **24
 `ORIGINAL-NAME-RECOVERED` evidence rows**.  These counts were measured from the
 working tree on 2026-09-04 and must be regenerated after each recovery round.
 
-## Strict per-directory snapshot through P827
+## Strict per-directory snapshot through P828
 
 These reports measure the current source tree; they are evidence of remaining
 work, not completion certificates.  `Explicit source-only codegen carriers`
@@ -69,7 +69,7 @@ marker rows (a few names have more than one scoped marker row).
 | `recon/syslib/psx` | 0 | 0 | 0 | 0 | 0 | 0 / 0 | 0 | 0 |
 
 The authoritative report files are
-`game_common_strict_p827_20260904.md`,
+`game_common_strict_p828_20260904.md`,
 `frontend_common_strict_p783_20260903.md`,
 `frontend_psx_strict_p780_20260903.md`,
 `game_psx_strict_p779_20260903.md`,
@@ -877,6 +877,27 @@ The complete `audiotrk.cpp` TU remains 6/6 PASS (`AudioTrk_Reset` 56/56,
 
 The current authoritative game/common report is
 `game_common_strict_p827_20260904.md`: 1,258/1,258 functions mapped, 1,228
+declaration-clean, zero missing names, 6 extra names, 12 deleting-destructor
+ABI carriers, 602 source-only carriers, 22 exact cross-build/canonical name
+recoveries, and zero mapping-review items.  The tracked-source raw carrier queue
+remains 1,596 project-wide / 602 in game/common.
+
+### Removed AI-init/state `GameSetupWords` aliases at P828
+
+The invented `AIInit_GameSetupWords` and `AIState_GameSetupWords` integer-array
+aliases are removed.  `aiinit.cpp` now uses the exact `GameSetup_tData` members
+`raceType`, `trafficDensity`, and `track`; `AIState_Purgatory::TestForRelease`
+uses `commMode` and `trafficDensity`.  All field spellings and offsets come from
+the gmesetup owner record rather than semantic inference.  The tracked raw alias
+inventory falls from 13 declarations / 66 reference lines at P827 to 11
+declarations / 62 reference lines.
+
+Every function in `aiinit.cpp` remains byte-exact (17/17 PASS), including the
+affected `AIInit_Reset2` at 65/65 and `AI_TrafficStartUp` at 39/39.
+`AIState_Purgatory::TestForRelease` remains PASS 31/31.
+
+The current authoritative game/common report is
+`game_common_strict_p828_20260904.md`: 1,258/1,258 functions mapped, 1,228
 declaration-clean, zero missing names, 6 extra names, 12 deleting-destructor
 ABI carriers, 602 source-only carriers, 22 exact cross-build/canonical name
 recoveries, and zero mapping-review items.  The tracked-source raw carrier queue

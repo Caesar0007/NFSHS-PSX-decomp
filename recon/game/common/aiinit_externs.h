@@ -17,7 +17,7 @@ extern AITrigger_TriggerManager *triggerManagerTraffic;
 extern Car_tObj *Cars_gList[];
 extern Car_tObj *Cars_gHumanRaceCarList[];
 extern Car_tObj *Cars_gAIRaceCarList[];
-extern int AIInit_GameSetupWords[] asm("GameSetup_gData");
+extern GameSetup_tData GameSetup_gData;
 extern Car_tObj *AIInit_leaderBoardCars[] asm("leaderBoard");
 extern int AIInit_AIInfoWords[] asm("AI_Info");
 extern int AIInit_AIPhysicConfigWords[] asm("AIPhysicConfig");

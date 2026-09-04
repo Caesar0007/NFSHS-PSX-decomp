@@ -26,7 +26,7 @@ extern "C" void ___14AIState_Cruise(AIState_Cruise*,int);
 
 extern Car_tObj         *Cars_gHumanRaceCarList[9];  /* cars.obj */
 extern Car_tObj      *Cars_gSortedList[];
-extern int AIState_GameSetupWords[] asm("GameSetup_gData");
+extern GameSetup_tData GameSetup_gData;
 extern int AIState_SimGlobalWords[] asm("simGlobal");
 extern int                 AI_elapsedTime;     /* ai.cpp    @0x8013C554 */
 extern char *AIState_BWorldSmSlices asm("BWorldSm_slices");

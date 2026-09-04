@@ -87,7 +87,7 @@ void AIInit_Reset1(void)
 /* ---- AIInit_Reset2__Fv  [@0x80066d08] ---- */
 void AIInit_Reset2(void)
 {
-  if (AIInit_GameSetupWords[0] != RaceType_Id3) {
+  if (GameSetup_gData.raceType != RaceType_Id3) {
     AIInit_useSpreadForce = 1;
   }
   else {
@@ -166,9 +166,9 @@ void AI_TrafficStartUp(void)
 {
   char filename[100];
 
-  if (AIInit_GameSetupWords[6] != 0) {
+  if (GameSetup_gData.trafficDensity != 0) {
     triggerManagerTraffic = new AITrigger_TriggerManager;
-    sprintf(filename,D_8005521C,D_801164B0[0],AIInit_GameSetupWords[15]);
+    sprintf(filename,D_8005521C,D_801164B0[0],GameSetup_gData.track);
     AITraffic_rawTriggers = (u_char *)loadfileadrz(filename,(void *)0x0);
     if (AITraffic_rawTriggers != (u_char *)0x0) {
       triggerManagerTraffic->Init((char *)AITraffic_rawTriggers);

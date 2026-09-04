@@ -84,14 +84,12 @@ void AIDataRecord_t::StartUp1(void)
 void AIDataRecord_t::StartUp2(void)
 {
   int recordLoop;
-  /* SYM-CODEGEN-CARRIER: pAVar1 -- direct virtual call through the indexed
-   * collection element produces 11 oracle diffs. */
-  AIDataRecord_t *pAVar1;
 
   for (recordLoop = 0; recordLoop < 0x18; recordLoop++) {
-    pAVar1 = recordCollection[recordLoop];
-    if (pAVar1 != (AIDataRecord_t *)0x0) {
-      (*(*pAVar1->_vf)[2].pfn)((char *)pAVar1 + (*pAVar1->_vf)[2].delta);
+    if (recordCollection[recordLoop] != (AIDataRecord_t *)0x0) {
+      (*(*recordCollection[recordLoop]->_vf)[2].pfn)
+        ((char *)recordCollection[recordLoop] +
+         (*recordCollection[recordLoop]->_vf)[2].delta);
     }
   }
   return;
@@ -100,18 +98,14 @@ void AIDataRecord_t::StartUp2(void)
 /* ---- CleanUp1__14AIDataRecord_t ---- */
 void AIDataRecord_t::CleanUp1(void)
 {
-  /* SYM-CODEGEN-CARRIER: pa_Var1 -- natural delete expressions produce 24
-   * oracle diffs; the shared vtable row preserves retail dispatch allocation. */
-  __vtbl_ptr_type (*pa_Var1) [3];
-
   if (AIDataRecord_BestLine != (AIDataRecord_BestLine_t *)0x0) {
-    pa_Var1 = AIDataRecord_BestLine->_vf;
-    (*(*pa_Var1)[1].pfn)((char *)AIDataRecord_BestLine + (*pa_Var1)[1].delta,3);
+    (*(*AIDataRecord_BestLine->_vf)[1].pfn)
+      ((char *)AIDataRecord_BestLine + (*AIDataRecord_BestLine->_vf)[1].delta,3);
     AIDataRecord_BestLine = (AIDataRecord_BestLine_t *)0x0;
   }
   if (AIDataRecord_TrackCurve != (AIDataRecord_TrackCurve_t *)0x0) {
-    pa_Var1 = AIDataRecord_TrackCurve->_vf;
-    (*(*pa_Var1)[1].pfn)((char *)AIDataRecord_TrackCurve + (*pa_Var1)[1].delta,3);
+    (*(*AIDataRecord_TrackCurve->_vf)[1].pfn)
+      ((char *)AIDataRecord_TrackCurve + (*AIDataRecord_TrackCurve->_vf)[1].delta,3);
     AIDataRecord_TrackCurve = (AIDataRecord_TrackCurve_t *)0x0;
   }
   return;

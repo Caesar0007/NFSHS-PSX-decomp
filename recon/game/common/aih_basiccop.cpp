@@ -66,16 +66,18 @@ void AIHigh_BasicCop::CheckSpikeBelt()
 
 
 {
-  int timeNow;
-  /* SYM-CODEGEN-CARRIER: freshenElapsed -- the explicit comparison result is
-     required to reproduce retail's zero initialization, slti/sltiu pair and
-     saved global-base lifetime.  Using the SYM-only `timeNow` directly keeps
-     50 instructions but produces 18 diffs. */
+  /* SYM-CODEGEN-CARRIER: freshenElapsed -- retail's short-circuit result is
+     optimized out of the local table, but a distinct predicate is required
+     for the exact zero initialization and slti/sltiu sequence.  The two
+     `timeNow` declarations below are the exact names and lexical regions
+     retained by the SLD for the elapsed-time and refresh expansions. */
   int freshenElapsed;
 
   freshenElapsed = 0;
 
   if (AICop_spikeBelt.active_ != 0) {
+    int timeNow;
+
     timeNow = D_8011E0B0[0];
     timeNow -= AICop_spikeBelt.freshenTime_;
     timeNow = timeNow < 0x140;
@@ -91,8 +93,10 @@ void AIHigh_BasicCop::CheckSpikeBelt()
 
     }
     else {
+      int timeNow;
 
-      AICop_spikeBelt.freshenTime_ = D_8011E0B0[0];
+      timeNow = D_8011E0B0[0];
+      AICop_spikeBelt.freshenTime_ = timeNow;
 
     }
   }

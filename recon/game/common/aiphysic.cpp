@@ -152,15 +152,8 @@ Gear_t AIPhysic_CalculateGear(Car_tObj *carObj)
         gear = 0;
         goto end;
     }
-    for (;;) {
-        /* SYM-CODEGEN-CARRIER: found -- absent from the retained debug locals;
-         * both nested and compound no-local branch forms produce 54 diffs. */
-        int found = 0;
-        hi = AIPhysic_GearTopSpeed(carObj, gear) < speed;
-        if (hi || speed < AIPhysic_GearBottomSpeed(carObj, gear))
-            found = 1;
-        if (!found)
-            return gear;
+    while ((hi = AIPhysic_GearTopSpeed(carObj, gear) < speed) ||
+           AIPhysic_GearBottomSpeed(carObj, gear) > speed) {
         if (hi) {
             if (AIPhysic_GearTopSpeed(carObj, (Gear_t)(gear + 1)) == 0)
                 return gear;

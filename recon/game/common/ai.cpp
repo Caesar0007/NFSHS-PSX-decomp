@@ -6,6 +6,8 @@
 #include "ai_types.h"
 #include "ai_externs.h"
 
+#define MAX(a,b) (((a) > (b)) ? (a) : (b))
+
 #define WRAP_SLICE(a,b) (((a) >= 0) \
     ? ((((b) + (a)) >= gNumSlices) ? ((b) + (a)) - gNumSlices : ((b) + (a))) \
     : ((((b) + (a)) < 0) ? ((b) + (a)) + gNumSlices : ((b) + (a))))
@@ -1404,11 +1406,6 @@ noBlockingCar:
   return;
 }
 
-static inline int AI_AdjustedLaneMinSpeed(void)
-{
-  return 0x6aaaa;
-}
-
 /* ---- AI_CalculateAdjustedDesiredSpeed__FP8Car_tObj  [@0x8005a390] ---- */
 void AI_CalculateAdjustedDesiredSpeed(Car_tObj *carObj)
 {
@@ -1479,26 +1476,13 @@ void AI_CalculateAdjustedDesiredSpeed(Car_tObj *carObj)
   }
   if ((AI_Info.desiredLane != carObj->laneIndex) && (AI_Info.blockingCars[1] != (Car_tObj *)0x0)) {
     if (__builtin_abs(AI_Info.blockingCars[1]->currentSpeed) < 0xa0000) {
-      /* SYM-CODEGEN-CARRIER: adjustedSpeed -- the retail debug block retains
-         no result name. Direct per-arm member clamping shrinks 166 to 160
-         instructions and leaves 22 diffs; a single conditional assignment is
-         165/166 with 77 allocation/control-flow diffs. This scoped result
-         preserves retail's shared final store and saved-register web. */
-      int adjustedSpeed;
-
       if (carObj->direction == 1) {
-        adjustedSpeed = carObj->desiredSpeed;
-        if (adjustedSpeed < AI_AdjustedLaneMinSpeed()) {
-          adjustedSpeed = 0x6aaaa;
-        }
+        carObj->desiredSpeed = MAX(carObj->desiredSpeed,0x6aaaa);
       }
       else {
-        adjustedSpeed = carObj->desiredSpeed;
-        if (-0x6aaaa < adjustedSpeed) {
-          adjustedSpeed = -0x6aaaa;
-        }
+        carObj->desiredSpeed =
+            (carObj->desiredSpeed < -0x6aaaa) ? carObj->desiredSpeed : -0x6aaaa;
       }
-      carObj->desiredSpeed = adjustedSpeed;
     }
   }
   return;

@@ -563,59 +563,41 @@ Car_tObj * AILife_IsCarInAnyVisibleArea(Car_tObj *carObj)
 /* ---- AILife_IsSliceInAnyVisibleArea__Fi  [@0x8006880c] ---- */
 Car_tObj * AILife_IsSliceInAnyVisibleArea(int slice)
 {
-  /* SYM @0x8006880c: racerLoop($s1)/sliceDist($v0, scratch) -- 2 named locals; the earlier
-   * recon left them declared-but-unwired and reintroduced generic iVar1/iVar3 instead, which
-   * pulled in an unneeded extra saved register (w22-a14). */
+  /* SYM @0x8006880c: racerLoop($s1) is outer; sliceDist($v0) starts in the
+     loop-body block at +0x24.  With that lexical scope, the natural indexed
+     loop strength-reduces to retail's unnamed $s0 list cursor. */
   int racerLoop;
-  int sliceDist;
-  /* SYM-CODEGEN-CARRIER: ppCVar2 -- absent from retained debug locals;
-   * direct indexed goto form is 23 diffs and a natural for-loop is 49. */
-  Car_tObj **ppCVar2;
 
-  racerLoop = 0;
-  ppCVar2 = Cars_gHumanRaceCarList;
-RACER_TEST:
-  if (Cars_gNumHumanRaceCars <= racerLoop) {
-    goto RACER_NOT_FOUND;
+  for (racerLoop = 0; racerLoop < Cars_gNumHumanRaceCars; racerLoop++) {
+    int sliceDist;
+
+    sliceDist = AIWorld_ApxSplineDistance(
+        (int)(Cars_gHumanRaceCarList[racerLoop]->N).simRoadInfo.slice,slice);
+    sliceDist = __builtin_abs(sliceDist);
+    if (sliceDist <= 0xabffff) {
+      return Cars_gHumanRaceCarList[racerLoop];
+    }
   }
-  sliceDist = AIWorld_ApxSplineDistance((int)((*ppCVar2)->N).simRoadInfo.slice,slice);
-  sliceDist = __builtin_abs(sliceDist);
-  if (0xabffff < sliceDist) goto RACER_CONTINUE;
-  return *ppCVar2;
-RACER_CONTINUE:
-  ppCVar2 = ppCVar2 + 1;
-  racerLoop = racerLoop + 1;
-  goto RACER_TEST;
-RACER_NOT_FOUND:
   return (Car_tObj *)0x0;
 }
 
 /* ---- AILife_IsSliceCloseToAnyCopCar__Fi  [@0x800688ac] ---- */
 Car_tObj * AILife_IsSliceCloseToAnyCopCar(int slice)
 {
-  /* SYM @0x800688ac: copLoop($s1)/sliceDist($v0, scratch) -- same declared-but-unwired-locals
-   * fix as IsSliceInAnyVisibleArea (w22-a14). */
+  /* SYM @0x800688ac gives the parallel shape: copLoop($s1) is outer and
+     sliceDist($v0) belongs to the loop-body block at +0x24. */
   int copLoop;
-  int sliceDist;
-  /* SYM-CODEGEN-CARRIER: ppCVar2 -- direct indexed access produces 23
-   * oracle diffs in this structurally parallel cop-list loop. */
-  Car_tObj **ppCVar2;
 
-  copLoop = 0;
-  ppCVar2 = Cars_gCopCarList;
-COP_TEST:
-  if (Cars_gNumCopCars <= copLoop) {
-    goto COP_NOT_FOUND;
+  for (copLoop = 0; copLoop < Cars_gNumCopCars; copLoop++) {
+    int sliceDist;
+
+    sliceDist = AIWorld_ApxSplineDistance(
+        (int)(Cars_gCopCarList[copLoop]->N).simRoadInfo.slice,slice);
+    sliceDist = __builtin_abs(sliceDist);
+    if (sliceDist <= 0x31ffff) {
+      return Cars_gCopCarList[copLoop];
+    }
   }
-  sliceDist = AIWorld_ApxSplineDistance((int)((*ppCVar2)->N).simRoadInfo.slice,slice);
-  sliceDist = __builtin_abs(sliceDist);
-  if (0x31ffff < sliceDist) goto COP_CONTINUE;
-  return *ppCVar2;
-COP_CONTINUE:
-  ppCVar2 = ppCVar2 + 1;
-  copLoop = copLoop + 1;
-  goto COP_TEST;
-COP_NOT_FOUND:
   return (Car_tObj *)0x0;
 }
 

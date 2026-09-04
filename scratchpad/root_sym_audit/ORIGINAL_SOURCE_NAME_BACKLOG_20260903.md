@@ -23,8 +23,47 @@ invented semantic substitutions do not close the item.
 | `recon/game/common/aihigh.cpp` — `AIHigh_Execute__Fv` | `bVar1` (decompiler placeholder, not an accepted semantic replacement; invented `executeHighLevelAI` was rejected and reverted) | A distinct decision object is required: direct short-circuit reconstruction produces 61 rather than 66 instructions and 33 oracle diffs; retained form is PASS 66/66. | SYM names only `carLoop` and `carObj`; recover the decision object's original spelling. |
 | `recon/game/common/nfs3.cpp` — `NFS3_CheckForFileOperations__Fv` | `e` (temporary placeholder, not an accepted source spelling) | The former guard-only `g` declaration was eliminated: repeating `gFileMgr.handlearray` is CSE'd to the exact retail guard value. A distinct loop bound remains required for PASS 21/21; direct loop comparison changes allocation. | Retail NFS4 SYM retains only `p`; this PSX-only function has no NFS2 PC counterpart, and the checked reference trees retain no source name for the bound. Recover it from canonical/source-bearing evidence or eliminate it with a byte-exact loop form. |
 | `recon/game/common/aih_opp.cpp` — `AIHigh_Opponent::CheckForWipeOut` | `numRacers`, `bVar1`, `hlai`, `speedLimit`, `carIndex`, `field1380`, `slotAddr`, `absField`, `state` (all placeholders, including semantic-looking spellings) | Detailed GCC allocation/scheduling receipts prove that distinct source-shape quantities are required for the current PASS 120/120 body. | Retail NFS4 SYM retains only `perTickProb`, `randVal`, `oppLevel`, `oppFines`, `hLoop`, `thisPlayerObj`, `thisPlayer`, and `playFines`. Recover every other spelling from canonical/source-bearing evidence; behavior and register role are insufficient. |
-| `recon/game/common/aidatarecord.cpp` — `AIDataRecord_t::StartUp2` | `pAVar1` (decompiler placeholder) | Retail SYM retains only `recordLoop`. Ordinary `recordCollection[recordLoop]->Setup()` emits 22 rather than 27 instructions and 11 oracle diffs because GCC devirtualizes the call; the explicit cached object/vtable dispatch remains PASS 27/27. | Recover the exact cached-pointer spelling from source-bearing evidence, or find an ordinary C++ expression that preserves retail virtual dispatch without an extra named source object. |
-| `recon/game/common/aidatarecord.cpp` — `AIDataRecord_t::CleanUp1` | `pa_Var1` (decompiler placeholder) | Retail SYM retains no local. Ordinary `delete AIDataRecord_BestLine` / `delete AIDataRecord_TrackCurve` emit 18 rather than 28 instructions and 24 oracle diffs; the shared cached vtable row remains PASS 28/28. | Recover the exact source spelling from source-bearing evidence, or restore a class/deleting-destructor declaration that makes ordinary `delete` reproduce retail dispatch. |
+| `recon/game/common/aih_basicperp.cpp` — `AIHigh_BasicPerp::RemoveChaser` / `AddChaser` | `piBase`, `piVar2` (decompiler placeholders) | Retail records an inlined `AICop_BasicPerpInfo this` receiver and, at the third indexed-read site, formal `copType type`. An inline reference-returning `operator[]` experiment made all three sites exact (15/15, 21/21, 202/202) and all ten header consumers stayed green. | SYM/SLD does not retain the accessor spelling; a named reference-returning member is observationally equivalent. Recover the actual member/operator spelling before replacing the conspicuous placeholders. |
+| `recon/game/common/aih_basiccop.cpp` — `AIHigh_BasicCop::CheckSpikeBelt` | `freshenElapsed` (temporary placeholder) | Two separate nested `int timeNow` declarations are now restored to their exact SLD blocks. A distinct optimized-out predicate is still required for the retail zero initialization and `slti`/`sltiu` sequence; the function remains PASS 50/50. | Recover the predicate or timer-macro source spelling. Direct conditions and ternaries change allocation/control flow, and retail retains no name for the predicate. |
+| `recon/game/common/aih_play.cpp` — `AIHigh_Player::SetupBlockade` / `HandlePullOver` | `bVar2`, `bVar1` (decompiler placeholders) | Retail materializes optimized-out short-circuit results in `$a1`/`$a2`. Carrier-free forms regress to 669/674 with 121 diffs and to 307/307 with register/scheduling diffs respectively. | Recover the exact boolean or macro spelling from source-bearing evidence; NFS4 SYM/SLD retains no name and the checked NFS2/NFS3/NFS4-PC families have no authoritative twin. |
+| `recon/game/common/aiphysic.cpp` — `AIPhysic_RevEngine` | `deadfrm` (temporary two-word array) | The retail leaf has `fsize=8` while SYM records only register locals `increase` and `redLine`. Removing the source object produces three oracle diffs; the NFS3 retail twin has the same otherwise-unused frame. | Recover the original frame-producing construct or exact spelling from source-bearing evidence. The array name/type are not accepted as original. |
+| `recon/game/common/aidatarecord.cpp` — `AIDataRecord_t::StartUp2` | direct manual vtable dispatch (no extra local remains) | Retail SYM retains only `recordLoop`. Repeating the indexed object/vtable expression lets GCC recreate the anonymous `$v1/$v0` temporaries and remains PASS 27/27; the disproved `pAVar1` source local is gone. | Restore the exact class/virtual declaration that lets ordinary `recordCollection[recordLoop]->Setup()` reproduce retail dispatch; current manual vtable syntax is an intermediate reconstruction, not final original C++. |
+| `recon/game/common/aidatarecord.cpp` — `AIDataRecord_t::CleanUp1` | direct manual deleting-destructor dispatch (no extra local remains) | Retail SYM retains no local. Repeated global/vtable expressions recreate the anonymous temporaries and remain PASS 28/28; the disproved `pa_Var1` source local is gone. | Restore the exact class/deleting-destructor model so ordinary `delete` reproduces retail dispatch. Current manual vtable syntax remains an explicit source-restoration backlog item. |
+
+## P843 verified game/common source-shape round
+
+This round removed seven source-only carrier mappings without inventing NFS4
+spellings and kept every touched function byte-exact:
+
+- `AIPhysic_CalculateGear` now uses the source-bearing NFS2 compound `while`
+  condition.  GCC naturally recreates the former `found` result; NFS4 remains
+  **PASS 65/65** with an exact `-g`/SLD twin.
+- Both AILife slice-visibility searches are natural indexed `for` loops with
+  `sliceDist` in the exact retained inner block.  GCC strength-reduces the
+  indexing into retail's anonymous cursor, eliminating both `ppCVar2`
+  placeholders; each remains **PASS 40/40** with an exact debug twin.
+- `AI_CalculateAdjustedDesiredSpeed` now follows the symbol-bearing NFS2
+  `MAX(member, constant)` / ternary source family.  Restoring the canonical
+  `MAX` macro expansion removed both the invented `adjustedSpeed` local and
+  the invented constant-return helper while preserving **PASS 166/166** and
+  the exact SLD twin.
+- `AIHigh_Opponent::DoProvokedAttack` now uses `otherCar`, the exact spelling
+  retained by the independent NFS2 SYM and source-bearing collision ancestor;
+  NFS4 remains **PASS 43/43** with an exact debug twin.
+- `AIDataRecord_t::StartUp2` and `CleanUp1` no longer claim source locals that
+  retail does not record.  Direct expressions reproduce the anonymous
+  compiler temporaries at **27/27** and **28/28**; the remaining manual-vtable
+  source-model debt is kept explicitly open above.
+- `CheckSpikeBelt` restores both exact nested `timeNow` declarations and their
+  SLD regions while leaving the still-undetermined predicate conspicuous.
+  It remains **PASS 50/50**.
+
+Two attractive but underdetermined rewrites were deliberately rejected.  An
+inline `AICop_BasicPerpInfo::operator[]` made all three indexed sites exact and
+kept every header consumer green, but retail does not retain the accessor
+spelling.  Carrier-free `SetupBlockade`/`HandlePullOver` conditions likewise
+failed their detailed oracles.  The incoming placeholder forms were restored
+instead of turning plausible semantics into invented source.
 
 ## Expansion requirement
 
@@ -45,21 +84,21 @@ spelling.  A row leaves this queue only when direct source-bearing evidence is
 recorded and its marker is replaced by `ORIGINAL-NAME-RECOVERED` (or when the
 extra source object is eliminated while preserving the oracle).
 
-Current measured queue: **1,578 unresolved carrier-marker rows project-wide**,
-of which **590 are in `recon/game/common`**.  There are currently **27
+Current measured queue: **1,574 unresolved carrier-marker rows project-wide**,
+of which **583 are in `recon/game/common`**.  There are currently **28
 `ORIGINAL-NAME-RECOVERED` evidence rows**.  These counts were measured from the
 working tree on 2026-09-04 and must be regenerated after each recovery round.
 
-## Strict per-directory snapshot through P842
+## Strict per-directory snapshot through P843
 
 These reports measure the current source tree; they are evidence of remaining
 work, not completion certificates.  `Explicit source-only codegen carriers`
-counts unique function/name mappings, whereas the 1,592 figure above counts raw
+counts unique function/name mappings, whereas the 1,574 figure above counts raw
 marker rows (a few names have more than one scoped marker row).
 
 | Directory | SYM functions | Mapped | Declaration-clean | Missing names | Extra names | Type/storage findings | Source-only carriers | Mapping review |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| `recon/game/common` | 1,258 | 1,258 | 1,228 | 0 | 6 | 28 / 28 | 590 | 0 |
+| `recon/game/common` | 1,258 | 1,258 | 1,228 | 0 | 6 | 28 / 28 | 583 | 0 |
 | `recon/frontend/common` | 838 | 833 | 781 | 0 | 46 | 9 / 9 | 519 | 3 |
 | `recon/frontend/psx` | 85 | 85 | 85 | 0 | 0 | 0 / 0 | 54 | 0 |
 | `recon/game/psx` | 395 | 395 | 392 | 0 | 3 | 0 / 0 | 395 | 0 |
@@ -68,7 +107,7 @@ marker rows (a few names have more than one scoped marker row).
 | `recon/syslib/psx` | 0 | 0 | 0 | 0 | 0 | 0 / 0 | 0 | 0 |
 
 The authoritative report files are
-`game_common_strict_p842_20260904.md`,
+`game_common_strict_p843_20260904.md`,
 `frontend_common_strict_p783_20260903.md`,
 `frontend_psx_strict_p780_20260903.md`,
 `game_psx_strict_p838_20260904.md`,

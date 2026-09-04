@@ -814,23 +814,22 @@ int AIHigh_Opponent::DoProvokedAttack()
 
 
 {
-  /* SYM-CODEGEN-CARRIER: pCVar3 -- SOURCE SPELLING UNRESOLVED.  The retail
-     SYM lists only `this`, while GCC must retain this collision-object value
-     across the hit-state updates and the final return.  Repeating the member
-     expression emits 46 instead of 43 instructions and 15 authoritative
-     load/register diffs; IDA/m2c expose only their own generated temporaries. */
-  Car_tObj *pCVar3;
+  /* ORIGINAL-NAME-RECOVERED: otherCar -- NFS2 PC beta's source-bearing
+     AI_ProcessCollision ancestor and its independent SYM both retain this
+     spelling for the corresponding collision object.  NFS4's optimized SYM
+     omits the local; raw/IDA/m2c confirm its retail $a2 role. */
+  Car_tObj *otherCar;
 
   if (((simGlobal.gameTicks - this->carObj_->N.collision.lastTime < 0xf) &&
 
-      (pCVar3 = (Car_tObj *)this->carObj_->N.collision.lastOtherObj,
-       pCVar3 != (Car_tObj *)0x0)) &&
+      (otherCar = (Car_tObj *)this->carObj_->N.collision.lastOtherObj,
+       otherCar != (Car_tObj *)0x0)) &&
 
-     ((pCVar3->carFlags & 4U) != 0)) {
+     ((otherCar->carFlags & 4U) != 0)) {
 
-    if (this->lastHumanHitter_ != pCVar3) {
+    if (this->lastHumanHitter_ != otherCar) {
 
-      this->lastHumanHitter_ = pCVar3;
+      this->lastHumanHitter_ = otherCar;
 
       this->hitCount_ = 0;
 
@@ -845,7 +844,7 @@ int AIHigh_Opponent::DoProvokedAttack()
 
       this->hitCount_ = 0;
 
-      return pCVar3->carIndex;
+      return otherCar->carIndex;
 
     }
 

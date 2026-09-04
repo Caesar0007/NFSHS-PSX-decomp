@@ -69,36 +69,23 @@ void AILife_RCPickSliceAndDirection(Car_tObj *carObj)
   Car_tObj *checkCar;
 
   {
-    /* SYM-CODEGEN-CARRIER: basisCarIndex -- optimized SYM omits the array
-       index, but retaining its assignment selects retail's v0/v1 address
-       allocation; direct indexing keeps 270 instructions but gives twelve
-       detailed register/address differences. */
-    int basisCarIndex;
     randtemp = fastRandom * randSeed;
     fastRandom = randtemp & 0xffff;
-    basisCarIndex =
-        Cars_gNumLifeBasisCars * ((randtemp & 0xffff00) >> 8) >> 0x10;
+    carObj->basisCar = *(Cars_gLifeBasisCarList +
+        (Cars_gNumLifeBasisCars * ((randtemp & 0xffff00) >> 8) >> 0x10));
     randtemp = fastRandom * randSeed;
     fastRandom = randtemp & 0xffff;
     approachSide = 1;
-    carObj->basisCar = Cars_gLifeBasisCarList[basisCarIndex];
     if ((int)(((randtemp & 0xffff00) >> 8) * 1000 >> 0x10) < 500) {
       approachSide = -1;
     }
   }
-  {
-    /* SYM-CODEGEN-CARRIER: basisCar -- optimized SYM omits this shared member
-       base.  The volatile snapshot is a measured load-order barrier: ordinary
-       assignment/direct member spelling emits 268/270 instructions with 36
-       detailed allocation and load-order differences. */
-    Car_tObj *basisCar =
-        *(Car_tObj *volatile *)&carObj->basisCar;
-    if (0x1e0000 < ((basisCar->currentSpeed < 0) ?
-                    -basisCar->currentSpeed : basisCar->currentSpeed)) {
-      approachSide = basisCar->direction;
-    }
-    search = basisCar->sortIndex;
+  if (0x1e0000 < ((carObj->basisCar->currentSpeed < 0) ?
+                  -carObj->basisCar->currentSpeed :
+                  carObj->basisCar->currentSpeed)) {
+    approachSide = carObj->basisCar->direction;
   }
+  search = carObj->basisCar->sortIndex;
   for (count = 0; count < Cars_gNumCars;
        search = search + approachSide, count = count + 1) {
     checkCar = Cars_gSortedList[(search + Cars_gNumCars) % Cars_gNumCars];

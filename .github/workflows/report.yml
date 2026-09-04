@@ -91,6 +91,10 @@ jobs:
           NFS4_CC1:      ${{ github.workspace }}/tc/toolchain/psyq/CC1PSX.EXE
           NFS4_CC1PL:    ${{ github.workspace }}/tc/toolchain/psyq/CC1PLPSX.EXE
           NFS4_MIPS_BIN: ${{ github.workspace }}/tc/toolchain/mips/bin
+          # The fixed objdiff project requires every configured object.  Stop
+          # at the complete compiler diagnostic instead of tolerating a failed
+          # TU and later obscuring it with objdiff's missing-object error.
+          NFS4_STRICT:   "1"
           # maspsx is VENDORED in-repo (tools/maspsx, MIT) so CI runs the exact
           # same patched assembler stack as the local gate (--jtbl-at-fusion +
           # generalized .section parsing). The copy inside the toolchain zip is

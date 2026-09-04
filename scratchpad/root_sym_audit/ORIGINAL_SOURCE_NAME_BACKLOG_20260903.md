@@ -51,7 +51,7 @@ of which **602 are in `recon/game/common`**.  There are currently **24
 `ORIGINAL-NAME-RECOVERED` evidence rows**.  These counts were measured from the
 working tree on 2026-09-04 and must be regenerated after each recovery round.
 
-## Strict per-directory snapshot through P835
+## Strict per-directory snapshot through P836
 
 These reports measure the current source tree; they are evidence of remaining
 work, not completion certificates.  `Explicit source-only codegen carriers`
@@ -72,7 +72,7 @@ The authoritative report files are
 `game_common_strict_p829_20260904.md`,
 `frontend_common_strict_p783_20260903.md`,
 `frontend_psx_strict_p780_20260903.md`,
-`game_psx_strict_p835_20260904.md`,
+`game_psx_strict_p836_20260904.md`,
 `eaclib_psx_strict_p779_20260903.md`,
 `lib_strict_p779_20260903.md`, and
 `syslib_psx_strict_p779_20260903.md` in this directory.
@@ -1002,6 +1002,20 @@ lines.
 
 The current authoritative game/PSX report is
 `game_psx_strict_p835_20260904.md`: 395/395 functions mapped, 392
+declaration-clean, zero missing names, 3 extra names, 397 source-only carriers,
+and zero mapping-review items.
+
+### Removed `TrackSpec_GameSetupWords` at P836
+
+The invented `TrackSpec_GameSetupWords` integer-array alias is removed.  Its
+five accesses now use the exact `Weather`, `Time`, and `track` fields.  All
+three affected functions remain byte-exact: `TrackSpec_SetDefault` 142/142,
+`TrackSpec_SetUp` 9/9, and `TrackSpec_Read` 63/63.  The game/PSX raw alias
+inventory falls from 5 declarations / 23 reference lines at P835 to 4
+declarations / 17 reference lines.
+
+The current authoritative game/PSX report is
+`game_psx_strict_p836_20260904.md`: 395/395 functions mapped, 392
 declaration-clean, zero missing names, 3 extra names, 397 source-only carriers,
 and zero mapping-review items.
 

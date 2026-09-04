@@ -4,7 +4,7 @@
 
 /* GameSetup_tData is externally owned and absent from trackspec.obj's retail
  * type graph.  Retain the exact symbol and the three proven word offsets. */
-extern int TrackSpec_GameSetupWords[] asm("GameSetup_gData");
+extern GameSetup_tData GameSetup_gData;
 extern CTrackSpec      TrackSpec_gSpec;          /* 0x8012327c */
 extern int             TrackSpec_gPrevSpec;      /* 0x8013db90 */
 extern int             TrackSpec_gCurrentSpec;   /* 0x8013db94 */

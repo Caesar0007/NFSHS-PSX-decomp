@@ -31,7 +31,7 @@
  * they carry NO file bytes -- pure zero-init BSS.  Sizes are exact, not guessed: the run is
  * fully accounted, 0x80148428 (gGameNum) - 0x80148044 = 0x3E4 = 4 + 16 + 8 + 968.
  *   gPreLoadTicks @0x80148044   4
- *   gEventDats    @0x80148048  16   (int[4] bound event-data blobs)
+ *   gEventDats    @0x80148048  16   (VoxEventDat *[4] bound event-data blobs)
  *   gVoxInGame    @0x80148058   8   (+ interior gRepeatCount @0x8014805C == gVoxInGame[1])
  *   gVoxEvents    @0x80148060 968   (+ interior DAT_80148064 == gVoxEvents+4)
  * OWNERSHIP: the four are INTERLEAVED in VA with each other while being referenced from four
@@ -131,13 +131,13 @@ static int iSPCH_GetOffset16(int base, int tableBase, int index)  /* @0x800E6EA8
 }
 
 /* iSPCH_SearchEventDat @0x800E6EC4 : address of the entry in blob `dat` whose id == eventID, or 0. */
-VoxEvent *iSPCH_SearchEventDat(int dat, unsigned int eventID)
+VoxEvent *iSPCH_SearchEventDat(VoxEventDat *dat, unsigned int eventID)
 {
-    unsigned int count = *(unsigned short *)(dat + 2);
+    unsigned int count = dat->numEvents;
     int table;
 
     for (table = 0; table < (int)count; table++) {
-        VoxEvent *p = (VoxEvent *)iSPCH_GetOffset16(dat, dat + 0xc, table);
+        VoxEvent *p = (VoxEvent *)iSPCH_GetOffset16((int)dat, (int)dat->eventOffs, table);
 
         if (p->id == eventID)
             return p;
@@ -164,23 +164,23 @@ VoxEvent *iSPCH_FindEvent(unsigned int eventID)
 /* iSPCH_InitEventDat @0x800E6FBC : clear the 4 bound event-data blob pointers. */
 void iSPCH_InitEventDat(void)
 {
-    int i = 3;
-    do {
+    int i;
+
+    for(i = 0; i < 4; i++) {
         gEventDats[i] = 0;
-        i--;
-    } while (-1 < i);
+    }
 }
 
 /* GetFilterLength @0x800E6FE4 : the filter-length config word from the first bound blob (+4). */
 int GetFilterLength(void)
 {
-    return *(int *)(gEventDats[0] + 4);
+    return gEventDats[0]->filterLength;
 }
 
 /* GetFilterPriority @0x800E6FFC : the filter-priority config word from the first bound blob (+8). */
 int GetFilterPriority(void)
 {
-    return *(int *)(gEventDats[0] + 8);
+    return gEventDats[0]->filterPriority;
 }
 
 /* iSPCH_InitEventQueue @0x800E7014 : zero all 16 queue slots (header + 12 eventArgs each) and the ticks. */
@@ -283,10 +283,10 @@ int SPCH_AddEvent(unsigned int *table)
         int acceptProb = voxEvent->acceptProb;
         if (iSPCH_Rand(100) <= acceptProb) {
             int slot = iSPCH_FindEventSlot(voxEvent->priority);
-            if (-1 < slot) {
-                int            tick = gettick();
-                short          sub;
-                int            j;
+            if (slot > -1) {
+                int   tick = gettick();
+                unsigned short sub;
+                int   j;
                 /* ✅ SEALED SOURCE-ONLY (2026-09-04): PASS 82/82 by the INDEXED-ADDRESSING
                  * lever (third confirmation after InitEventQueue and BankMemAlloc).  The
                  * `gVoxEvents.slots[slot].field` spellings make cc1's own giv machinery
@@ -296,17 +296,17 @@ int SPCH_AddEvent(unsigned int *table)
                  * fences, and the whole base/off/tailOff device apparatus are retired at
                  * once.  Full w32..w53 floor archaeology: git history of this comment. */
                 if (tick == gLastTick)
-                    gLastSubTick = gLastSubTick + 1;
+                    gLastSubTick++;
                 else
                     gLastSubTick = 0;
                 gLastTick = tick;
-                sub  = (short)gLastSubTick;
+                sub = gLastSubTick;
                 gVoxEvents.slots[slot].event   = voxEvent;
                 gVoxEvents.slots[slot].tick    = tick;
                 gVoxEvents.slots[slot].subTick = sub;
                 for (j = 0; j < 12; j++)
                     gVoxEvents.slots[slot].args[j] = table[j];
-                gVoxEvents.liveCount = gVoxEvents.liveCount + 1;
+                gVoxEvents.liveCount++;
                 gVoxEvents.slots[slot].enabled = 1;
             }
         }
@@ -435,15 +435,16 @@ void iSPCH_ClearOldEvents(int winnerSlot)
     gVoxEvents.dFlag = 0;
 
     for (i = 0; i < VOX_NSLOTS; i++) {
-        unsigned int tick, sub;
+        int tick;
+        unsigned short sub;
 
         if (i == winnerSlot)
             continue;
         if (gVoxEvents.slots[i].enabled == 0)
             continue;
 
-        tick = (unsigned int)gVoxEvents.slots[i].tick;
-        sub  = (unsigned int)gVoxEvents.slots[i].subTick;
+        tick = gVoxEvents.slots[i].tick;
+        sub  = gVoxEvents.slots[i].subTick;
         /* MATCH: the "older than the winner" test must stay ONE expression -- hoisting it into
          * a named flag, or splitting it into two ifs, costs 3 insns (5 diffs @74/71). */
         if (tick < winTick || (tick == winTick && sub < winSub)) {
@@ -485,6 +486,7 @@ int SPCH_ChooseSpeech(void)
                 if (gReparm != 0) {
                     int i = 0;
                     int rc;
+                    
                     do {
                         rc = ((int (*)(int, unsigned int *))gReparm)(i, eventArgs);
                         if (-1 < rc)
@@ -497,7 +499,7 @@ int SPCH_ChooseSpeech(void)
             }
             if (result < 0)
                 result = 0;
-            gVoxEvents.liveCount = gVoxEvents.liveCount - 1;
+            gVoxEvents.liveCount--;
             gVoxEvents.slots[winner].enabled = 0;
         }
     }

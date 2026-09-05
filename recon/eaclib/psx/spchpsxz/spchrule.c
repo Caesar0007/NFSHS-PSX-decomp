@@ -49,9 +49,9 @@
    inventing an address-suffixed identifier in reconstructed source"), so the gate says
    VoxSentence_GetNumPhrases@8010B100 and the code keeps retail's spelling. */
 
-static int VoxSentence_GetNumPhrases(int sentence)   /* @0x8010B100 */
+static int VoxSentence_GetNumPhrases(VoxSentence *sentence)   /* @0x8010B100 */
 {
-    return (int)((unsigned int)*(unsigned char *)(sentence + 3) >> 2);
+    return (int)((unsigned int)sentence->flags >> 2);
 }
 static int iSPCH_GetOffset8(int base, int tableBase, int index)   /* @0x8010B10C */
 {
@@ -62,12 +62,12 @@ static int iSPCH_GetOffset16(int base, int tableBase, int index)  /* @0x8010B124
     return base + ((int)*(unsigned short *)(tableBase + index * 2) << 2);
 }
 
-/* iSPCH_GetRuleDataAddr @0x8010B140 : address of a sentence's rule-data block (after its phrase table).
+/* iSPCH_GetRuleDataAddr @0x8010B140 : address of an EVENT's rule-data block (right after its sentence-offset table).
  * MATCH: keep the +0xc on the offset before adding sentence (delay-slot addu v0,a0,v0) */
-int iSPCH_GetRuleDataAddr(int sentence)
+int iSPCH_GetRuleDataAddr(VoxEvent *event)
 {
-    int off = (int)(unsigned int)*(unsigned char *)(sentence + 6) * 2 + 0xc;
-    return sentence + off;
+    int off = (int)(unsigned int)event->numSentences * 2 + 0xc;
+    return (int)event + off;
 }
 
 /* iSPCH_SentenceUsesParm @0x8010B158 : 1 if any phrase of `sentence` references parameter `paramIdx`.
@@ -79,7 +79,7 @@ int iSPCH_GetRuleDataAddr(int sentence)
  * draft papered over it with an `spchAdd2()`/no-op-statement scheduling trick (also reached 0, but was
  * scaffolding no EA programmer would write); this per-iteration-local `p` is the honest source form
  * that reaches the same byte-exact match without either. */
-int iSPCH_SentenceUsesParm(int sentence, unsigned int paramIdx)
+int iSPCH_SentenceUsesParm(VoxSentence *sentence, unsigned int paramIdx)
 {
     int numPhrases = VoxSentence_GetNumPhrases(sentence);
     int phraseIdx  = 0;
@@ -87,7 +87,7 @@ int iSPCH_SentenceUsesParm(int sentence, unsigned int paramIdx)
     if (0 < numPhrases) {
         do {
             int phrase;
-            phrase = iSPCH_GetOffset8(sentence, sentence + 4, phraseIdx);
+            phrase = iSPCH_GetOffset8((int)sentence, (int)sentence->phraseOffs, phraseIdx);
             if (((unsigned int)*(unsigned char *)(phrase + 2) & 0xf) == paramIdx) {
                 found = 1;
                 goto done;
@@ -110,11 +110,11 @@ done:
     return found;
 }
 
-/* iSPCH_GetRuleID @0x8010B220 : the rule-id byte at `index` (< 8) of a sentence's rule data, or 0xffffffff. */
-unsigned int iSPCH_GetRuleID(int sentence, int index)
+/* iSPCH_GetRuleID @0x8010B220 : the rule-id byte at `index` (< 8) of an event's rule data, or 0xffffffff. */
+unsigned int iSPCH_GetRuleID(VoxEvent *event, int index)
 {
     unsigned int result = 0xffffffff;
-    int ruleData = iSPCH_GetRuleDataAddr(sentence);
+    int ruleData = iSPCH_GetRuleDataAddr(event);
     if ((unsigned int)index < 8) {
         unsigned char *rule = (unsigned char *)(index * 2 + ruleData);
         /* W85-S9 (device purity): the three retail decode slots at 0x10/0x14/0x18 were modelled
@@ -137,7 +137,7 @@ unsigned int iSPCH_GetRuleID(int sentence, int index)
 
 /* iSPCH_RuleSet @0x8010B294 : for each type-0/3 rule whose parameter the (offset) sentence uses, fire the
  *   gSentenceRuleSet callback with that rule + the parameter value from val[]. */
-void iSPCH_RuleSet(short *sentence, int rule, int *values)
+void iSPCH_RuleSet(VoxEvent *event, int sentenceIdx, int *values)
 {
     /* MATCH (w32-a9, 57 -> 52 diffs, insn count now EXACT 78/78):
      * (1) `values` is ADDRESSABLE in retail -- the oracle keeps it in its incoming home slot and
@@ -225,11 +225,11 @@ void iSPCH_RuleSet(short *sentence, int rule, int *values)
      * only alias-invalidated rather than flushed. */
     if (gSentenceRuleSet != 0) {
         int offSent;
-        int            numRules = *(signed char *)((int)sentence + 7);
+        int            numRules = event->numRules;
         int            i        = 0;
         unsigned char *rd;
-        int            rdRaw    = iSPCH_GetRuleDataAddr((int)sentence);
-        offSent = iSPCH_GetOffset16((int)sentence, (int)(sentence + 6), rule);
+        int            rdRaw    = iSPCH_GetRuleDataAddr(event);
+        offSent = iSPCH_GetOffset16((int)event, (int)event->sentenceOffs, sentenceIdx);
         rd = (unsigned char *)rdRaw;
         if (i < numRules) {
             do {
@@ -278,7 +278,7 @@ void iSPCH_RuleSet(short *sentence, int rule, int *values)
                     if (iSPCH_SentenceUsesParm(offSent, paramIdx) != 0) {
                         int **valuesSlot = &values;
                         int *valuesNow = *valuesSlot;
-                        gSentenceRuleSet((unsigned short)*sentence, ruleByte,
+                        gSentenceRuleSet(event->id, ruleByte,
                             valuesNow[paramIdx], (int)valuesNow);
                     }
                     break;
@@ -437,15 +437,15 @@ void iSPCH_RuleSet(short *sentence, int rule, int *values)
  *   41@109 | opacity fence on arg1 31@113 | plain `sentence` for both args while still 4-arg
  *   90@112.  After the fix, decl-order-only variants: ruleData-decl-first 10, +result/flags
  *   reorder 10, ruleData/ruleType/value first 10, all-split 48@108. */
-unsigned char iSPCH_GetRuleSettings(short *sentence, int *values, char *out)
+unsigned char iSPCH_GetRuleSettings(VoxEvent *event, int *values, char *out)
 {
     unsigned char *ruleData;
-    int            numRules = *(signed char *)((int)sentence + 7);
+    int            numRules = event->numRules;
     unsigned char  result = 0;
     unsigned char  flags = 0;
     int            ruleType;
     int           *value;
-    ruleData = (unsigned char *)iSPCH_GetRuleDataAddr((int)sentence);
+    ruleData = (unsigned char *)iSPCH_GetRuleDataAddr(event);
     ruleType = 1;
     value = values + 1;
     do {
@@ -500,10 +500,10 @@ unsigned char iSPCH_GetRuleSettings(short *sentence, int *values, char *out)
                      * + reloads).  After the 3-arg fix below, taking its address here is the ONLY
                      * remaining reason gcc keeps it in its incoming home slot -- dropping this
                      * decl costs a callee-saved reg + an 88-byte frame (w34-a10 receipt). */
-                    short **sentSlot = &sentence;
+                    VoxEvent **sentSlot = &event;
                     if (gSentenceRuleTest != 0)
                         testResult = gSentenceRuleTest(
-                            (unsigned short)*sentence, ruleIdArg, testValue);
+                            event->id, ruleIdArg, testValue);
                     else
                         testResult = -1;
                     if (testResult == 0)

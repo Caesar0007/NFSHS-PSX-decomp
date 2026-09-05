@@ -13,7 +13,6 @@ int SNDstop(...);
 void *SetSp(...);
 int fixedmult(...);
 int gettick(...);
-void iSPCH_EACseedrandom(...);
 int loadbigfileheader(...);
 void *locatebigentry(...);
 void *memcpy(...);
@@ -82,17 +81,12 @@ long SPCHNFS_S_C_SUPER_COP_ARRIVAL(int = 0, ...);
 long SPCHNFS_S_C_SUPER_COP_CRITICISM(int = 0, ...);
 long SPCHNFS_W_D_RDBLK_PLC(int = 0, ...);
 long SPCHNFS_W_D_SPBLT_PLC(int = 0, ...);
-long SPCH_AddBank(int = 0, ...);
-void SPCH_ClearEventQueue(void);
-void SPCH_Deinit(void);
-long SPCH_GetSampleDataRate(int = 0, ...);
-long SPCH_Init(int = 0, ...);
-long SPCH_InitBankMem(int = 0, ...);
-long SPCH_PlaySpeech(...);
-long SPCH_ResolveData(int = 0, ...);
 }
 
-/* ---- SPCH_ speech-runtime API ---- */  /* (declared above; variadic) */
+/* ---- SPCH_ speech-runtime API: the SPCHPSXZ library's own headers (recon/eaclib/psx/spchpsxz) ---- */
+extern "C" {
+#include "eaclib/psx/spchpsxz/spch_externs.h"
+}
 
 /* ---- audio ---- */
 /* W55-A2 BUGFIX (class-3, synthetic default-args): these four were placeholder

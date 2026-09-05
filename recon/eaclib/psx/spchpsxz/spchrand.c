@@ -96,18 +96,18 @@ int iSPCH_Rand(int n)
 
 /* iSPCH_BindData @0x800EBB84 : register a speech data blob (header word > 0x11d) into the first free
  *   gEventDats[0..3] slot.  Returns 1 on success, 0 if rejected or the table is full. */
-int iSPCH_BindData(unsigned short *dat)
+int iSPCH_BindData(VoxEventDat *dat)
 {
-    int *p;
+    VoxEventDat **p;
     int  i;
     int  result = 0;
-    if (0x11d < *dat) {
+    if (0x11d < dat->version) {
         i = 0;
         p = gEventDats;
         do {
             i++;
             if (*p == 0) {
-                *p = (int)dat;
+                *p = dat;
                 result = 1;
                 goto done;
             }

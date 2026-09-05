@@ -24,6 +24,10 @@ r = subprocess.run([str(c) for c in [B.CPP, *B.CPP_FLAGS, src, "-o", i_file]],
 if r.returncode:
     sys.exit("[cpp] " + r.stderr)
 cc1 = list(B.CC1_FLAGS)
+# Honour the TU's own -G (PER_TU_FLAGS g_value), exactly as build.py does --
+# a -G0 library TU dumped at the global -G4 gives a different allocation.
+if "g_value" in tu_flags:
+    cc1 = [f for f in cc1 if not f.startswith("-G")] + [f"-G{tu_flags['g_value']}"]
 for k, f in (("no_delayed_branch", "-fno-delayed-branch"),
              ("no_split_addresses", "-mno-split-addresses"),
              ("no_schedule_insns", "-fno-schedule-insns"),

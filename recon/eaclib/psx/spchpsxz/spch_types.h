@@ -23,39 +23,40 @@ typedef struct {
     unsigned short id;            /* +0x0 */
     unsigned short maxAge;        /* +0x2 ticks, 0 = never expires (FindEventSlot/ChooseEvent) */
     unsigned short priority;      /* +0x4 slot eviction + winner choice */
-    unsigned char  numSentences;  /* +0x6 OrderSentences/ChooseSentence bound */
-    unsigned char  _unk7;         /* +0x7 (no read sites found) */
+    unsigned char  numSentences;  /* +0x6 OrderSentences/ChooseSentence bound; also sizes the rule data */
+    signed char    numRules;      /* +0x7 2-byte rules {idByte, type<<4|paramIdx} start at +0xc+2*numSentences (iSPCH_GetRuleDataAddr) */
     unsigned char  _unk8;         /* +0x8 (no read sites found) */
     signed char    acceptProb;    /* +0x9 accept probability; 'd' tags the kept-event class */
     unsigned char  flags;         /* +0xa bit0 = filter-length, bit2 = keep-till-expires */
     unsigned char  _unkB;         /* +0xb (no read sites found) */
-    /* +0xc: u16 sentence-offset table (numSentences entries, <<2 from the event base;
-     *       walked via iSPCH_GetOffset16). */
+    unsigned short sentenceOffs[1];/* +0xc trailing: numSentences word offsets (<<2 from the event base) to the
+                                    VoxSentence records, then the rule bytes.  Measured (census tool): record =
+                                    0xc + 2*numSentences + 2*numRules, padded to 4. */
 } VoxEvent;
 
-/* VoxSentence: PARTIAL map -- only the unambiguous head is typed; the tail is variable.
- * Full layout by census (2026-09-04, corrected -- the "+6 rule table" reading was short*
- * arithmetic misread as bytes):
- *   +0x4  u8 phrase-offset table (numPhrases entries; iSPCH_GetOffset8(sentence, +4, i))
- *   +0x6  u8 rule-table half-length (iSPCH_GetRuleDataAddr: ruleData = sentence + [+6]*2 + 0xc)
- *   +0x7  s8 numRules (iSPCH_RuleSet)
- *   +0xc  u16 rule-offset table (spchrule RuleSet: GetOffset16(sentence, byte +0xc, rule))
- *   ruleData (@ +0xc + [+6]*2): 2-byte rule entries {idByte, packed nibble-pair}
- * (+4..+5 phrase offsets vs +6..+7 metadata coexist only for numPhrases <= 2 -- the format
- * evidently sizes the phrase table into the +4 region for the sentences that use rules). */
+/* VoxSentence: 4-byte head + numPhrases byte offsets, padded to 4.  Measured on the retail
+ * event.dat (2026-09-05, tools/spch_eventdat_census.py, 222 sentences): record size is exactly
+ * 4 + numPhrases rounded up to 4 (8 for 1..4 phrases, 12 for 5..8, 16 for 9..10).  A sentence
+ * carries NO rule data -- the earlier "+6 half-length / +7 numRules / +0xc rule table" reading
+ * was the VoxEvent layout seen through the mis-named `sentence` parameter of spchrule's
+ * GetRuleDataAddr / GetRuleID / RuleSet / GetRuleSettings (those take the EVENT). */
 typedef struct {
     unsigned short id;            /* +0x0 (its LOW byte is read as the random weight by OrderSentences) */
     unsigned char  _unk2;         /* +0x2 */
     unsigned char  flags;         /* +0x3 bits 0-1 = short rule, bits 2-7 = numPhrases */
+    unsigned char  phraseOffs[1]; /* +0x4 trailing: numPhrases word offsets (<<2 from the sentence base) to VoxPhrase */
 } VoxSentence;
 
-/* VoxPhrase: one phrase template (spchpick's phraseTemplate). */
+/* VoxPhrase: one phrase template (spchpick's phraseTemplate).  VARIABLE-LENGTH record:
+ * 8-byte header + count ints.  Measured on the retail ZZZZZENG.VIV event.dat (2026-09-05,
+ * tools/spch_eventdat_census.py): 1059 records, count 0..4, every record exactly 8+4*count
+ * bytes -- so matchValues is a trailing array, not a fixed 4-slot field. */
 typedef struct {
     unsigned short bankId;        /* +0x0 wanted bank id (iSPCH_GetPhraseBank) */
     unsigned char  modeParam;     /* +0x2 high nibble = bank-select mode, low = param index */
     signed char    count;         /* +0x3 (valid < 5) */
     unsigned char  nibbles[4];    /* +0x4..0x7 per-index low-nibble selectors (iSPCH_MatchSample) */
-    /* +0x8: int matchValues[count] -- iSPCH_GetMatchValue */
+    int            matchValues[1];/* +0x8 trailing: `count` bit-masks (0..4), one per nibbles[] index -- iSPCH_GetMatchValue */
 } VoxPhrase;
 
 /* EA's TRUE record (2026-09-03, user model): the queue header is the run's first 8 bytes and
@@ -81,5 +82,16 @@ typedef struct {
                                   * retail's DAT_80148064) */
     VoxSlot slots[VOX_NSLOTS];   /* +0x8 the 16 records */
 } VoxSlotsStruct;                /* 8 + 16*0x3c = 968 */
+
+/* VoxEventDat: one bound speech event-data blob (event.dat); up to 4 live in gEventDats[]
+ * (bound by SPCH_ResolveData -> iSPCH_BindData, first free slot).  Layout by access census:
+ * spchrand (version gate), spchevnt (numEvents / eventOffs walk, the two filter words). */
+typedef struct {
+    unsigned short version;        /* +0x0 must be > 0x11d to be accepted by iSPCH_BindData */
+    unsigned short numEvents;      /* +0x2 entries in eventOffs[] */
+    int            filterLength;   /* +0x4 default filter length (GetFilterLength: slot 0 only) */
+    int            filterPriority; /* +0x8 filter priority threshold (GetFilterPriority: slot 0 only) */
+    unsigned short eventOffs[1];   /* +0xc word offsets (<<2 from the blob base) to the VoxEvent records */
+} VoxEventDat;
 
 #endif

@@ -176,7 +176,6 @@ int iSPCH_MatchSample(int bankIdx, int sample, VoxPhrase *phraseTemplate, int pa
      * andi s0,v0).  Diff counts: goto form 42, baseline 28 (alignment luck) -> reverted. */
     int count = phraseTemplate->count;
     int result = 1;
-    (void)bankIdx;
     if (count < 5)
         goto valid_count;
     result = 0;
@@ -454,7 +453,7 @@ int iSPCH_ConvertTime(int samples)
 }
 
 /* iSPCH_SentenceLength @0x80100D20 : total time of all phrases' current picks for `sentence`. */
-int iSPCH_SentenceLength(int sentence)
+int iSPCH_SentenceLength(VoxSentence *sentence)
 {
     int total = 0;
     int n = VoxSentence_GetNumPhrases(sentence);
@@ -579,7 +578,7 @@ unsigned int iSPCH_RepeatEvent(unsigned short *eventArgs)
 }
 
 /* iSPCH_ShortRuleStatus @0x80100F24 : evaluate a sentence's short-rule against `mode`. */
-int iSPCH_ShortRuleStatus(int sentence, int mode)
+int iSPCH_ShortRuleStatus(VoxSentence *sentence, int mode)
 {
     int ok = 0;
     int rule = VoxSentence_GetShortRule(sentence);
@@ -603,7 +602,7 @@ end:
  *   (NOT paramTable/ruleByte1); GetPhraseBank's 2nd arg is `paramTable` (NOT filterMode); and
  *   ChooseSamples' last two args are `(int)phraseTemplate, paramTable` (NOT filterMode, 0) -- the
  *   earlier recon's "0/filterMode" both came from reading the WRONG incoming register. */
-int iSPCH_SentenceGetChoices(int sentence, int paramTable, unsigned int ruleByte1,
+int iSPCH_SentenceGetChoices(VoxSentence *sentence, int paramTable, unsigned int ruleByte1,
                                         unsigned int ruleByte2, int filterMode)
 {
     /* MATCH (w31-a4, 54->?): single result funnel (`fail:` block laid between the rule checks and
@@ -632,7 +631,7 @@ choose:
                 int    r;
                 VoxPhrase *phraseTemplate;
                 outChoice[3] = (short)picked;
-                phraseTemplate = (VoxPhrase *)iSPCH_GetOffset8(sentence, sentence + 4, table);
+                phraseTemplate = (VoxPhrase *)iSPCH_GetOffset8((int)sentence, (int)sentence->phraseOffs, table);
                 if (iSPCH_GetPhraseBank(phraseTemplate, paramTable, outChoice) == 0) {
                     /* MATCH (w34-a9, 7 -> 1 diff): the compare constant is carried by a
                      * loop-body local `mark` that is SET TWICE in the loop (-2 for the test,
@@ -706,7 +705,7 @@ out:
 }
 
 /* iSPCH_RandomizeSentencePicks @0x801010CC : shuffle the chosen samples of each phrase of `sentence`. */
-void iSPCH_RandomizeSentencePicks(int sentence)
+void iSPCH_RandomizeSentencePicks(VoxSentence *sentence)
 {
     int n = VoxSentence_GetNumPhrases(sentence);
     int i = 0;
@@ -800,36 +799,40 @@ void iSPCH_RandomizeSentencePicks(int sentence)
  *   The 15 spellings + the flag axis a2 falsified are NOT re-enumerated; none of them touched refs.
  * Returns 1 only when every phrase has been exhausted (Ghidra void-bug -- real int return, read
  * at the epilogue: $v0 = the "ran out" flag). */
-int iSPCH_IterateChoice(int sentence)
+int iSPCH_IterateChoice(VoxSentence *sentence)
 {
     int exhausted = 0;
     int n = VoxSentence_GetNumPhrases(sentence) - 1;
     int count, pbase, limit, loopDone, cur;
-    /* ⚠️ DEVICE IN PLACE (2026-09-04): the depth-2 `do{}while(0)` below is the zero-instruction
-     * REF INFLATOR that buys the base qty its 8th REG_N_REFS and hands it $v0 -- PASS 44/44.
-     * It is a device, not a source shape; it is kept only because every device-free spelling
-     * measured this pass stops 4 diffs short (position of the la, see below).  Whoever picks
-     * this up next: the goal is those 4 diffs WITHOUT the wrapper.
-     * DEVICE-FREE FLOOR (`choice = CHOICE(n);`): 4 diffs @44/44 -- every register matches
-     * retail, the base la IS in $v0, only its POSITION differs (retail emits `lui/addiu
-     * %hi/%lo` before the n*12 sll chain, we emit it between the chain and the addu).
-     * Two stable basins, measured:
-     *   ANONYMOUS base (this form, CHOICE(n), &sym[n*6], byte-cast sym + n*12, named-offset
-     *     variants): correct registers, la LAST -> 4 diffs;
-     *   NAMED base (int, short ptr, char ptr, const -- offset-mutated or not): la FIRST but the local-alloc
-     *     case-2 tie flips -- base qty 4 refs/life 10 = PRI 0.8 loses $v0 to the mult chain's
-     *     6 refs/life 6 = 2.0 -> 12 diffs.
-     * Crossing over needs the base qty at >= 8 refs, which only a ZERO-COST REF INFLATOR buys:
-     * the retired depth-2 do{}while(0), the w49 opacity fences, or `chBase |= (chBase & 3);`
-     * twice (all three PASS 44/44; one absorption is not enough, and inflating the offset side
-     * instead does nothing).  All are artificial devices, so the natural macro spelling is kept
-     * and the 4-diff position residual is accepted.
-     * LOOP SHAPE re-tested 2026-09-04 (the label+goto below is NOT a device, it is retail's own
-     * shape -- w31-a4's reading confirmed): rewriting it as a real loop is measurably worse and
-     * never moves the la -- `for(;;)` + two breaks 49 diffs @47 insns, `while(1)` with the reads
-     * kept before the exit test 30 @40, `do {...} while (!loopDone)` 19 @45.  The do-while form
-     * shows exactly why: loop.c reduces the three in-loop address givs onto an anchor
-     * (`addiu $v1,$v1,6` with displacements rebased to -2/0/2 instead of retail's 4/6/8). */
+    /* SHAPE (re-measured 2026-09-05 against cc1 -dL/-dS/-dl and the gcc-2.8.0 sources):
+     * 1. The label+goto below IS retail's shape, not a device.  Any real loop (do/while,
+     *    while(1)+break, for(;;), goto-into-body) hands the body to loop.c, which records the
+     *    six address givs (+4/+6/+8 off the walking pointer), combines them onto the LAST one
+     *    recorded (the +6 of the limit re-read) and reduces it: `addiu $v1,$v1,6` anchor with
+     *    displacements -2/0/2 -- 45 insns vs retail's 44 with bare 4/6/8.  Combined benefit is
+     *    10 against a "not worth while" bar of lifetime*62*benefit < 24, so it is ALWAYS
+     *    reduced; the indexed form `CHOICE(n)[k]` cannot combine at all (express_from wants a
+     *    CONST_INT add_val, ours carries the symbol) and yields three separate pointers (52).
+     *    Retail's walk therefore never went through loop.c: its source had no loop notes.
+     * 2. The wrapper below is a DEVICE, kept only because the device-free floor is 4 diffs.
+     *    Device-free floor = `choice = CHOICE(n);` -> 44/44, every register right, only the
+     *    `la` POSITION differs (retail: lui/addiu before the n*12 sll chain; ours: after).
+     *    Mechanism: sched1 is a backward list scheduler; single-set ("birthing") insns get
+     *    LAUNCH priority, ties fall to LUID = emission order, and `CHOICE(n)` emits the la
+     *    AFTER the chain (expand_binop forces the symbol into a reg after op0).  A named base
+     *    emits it first, but then local-alloc's QTY_CMP_PRI = floor_log2(refs)*refs/life gives
+     *    the base {high,lo_sum} 4 refs over 11 half-insns (0.73) against the tied mult chain
+     *    {t1,t2,t3} 6 refs over 7 (1.71): the chain is allocated first and takes $v0 (12 diffs).
+     *    The base wins only at >= 8 refs; refs are loop-depth weighted in flow.c, and that is
+     *    exactly what this depth-2 `do{}while(0)` buys (measured: depth 1 -> 7 refs, still
+     *    loses; depth 2 -> 10 refs, PASS).  No hard-reg suggestion path exists (the preheader
+     *    holds only $v0, the call's return).  Chains accumulated through `choice` itself lose
+     *    the launch bonus (multi-set) and drop the la between the two halves.
+     *    Falsified this pass (all 44/44 unless noted): anonymous CHOICE/&sym[n*6]/byte-cast/
+     *    int-cast/named-offset (4), named int / short-pointer / const base (12), choice=sym;choice+=n*6
+     *    (10), chain-into-choice with anon/named base (4-6), n3=n*3 split (4-6), limit as
+     *    scratch (6), depth-1 wrapper (12), for(;;){la;break;} (4), and 8 real-loop forms
+     *    (19..58 diffs at 45..53 insns). */
     int chBase;
     short *choice;
     do { do { chBase = (int)ispch_gChoice; } while (0); } while (0);
@@ -860,7 +863,7 @@ top:
 }
 
 /* iSPCH_ChooseShortSentence @0x8010125C : pick a short sentence variant that fits the filter length. */
-int iSPCH_ChooseShortSentence(int sentence)
+int iSPCH_ChooseShortSentence(VoxSentence *sentence)
 {
     int done = 0;
     int n = VoxSentence_GetNumPhrases(sentence);
@@ -899,7 +902,7 @@ int iSPCH_ChooseShortSentence(int sentence)
  * typed walker + goto + dial also PASS but keeps both devices; a `for` over a walking pointer
  * without them is 9 diffs @44/43 -- the anchor is back.  An earlier note filed CHOICE(i) as
  * "does not work, 36 diffs" -- that verdict was basin-relative and is now superseded.) */
-int iSPCH_SentenceMakeChoice(int sentence, int mode)
+int iSPCH_SentenceMakeChoice(VoxSentence *sentence, int mode)
 {
     int ok = 0;
     if (mode == 1) {
@@ -926,10 +929,10 @@ int iSPCH_SentenceMakeChoice(int sentence, int mode)
  * incoming $a2.  The old 3rd param `val` was a decompiler phantom kept alive by a `(void)val;` plus a
  * 2-arg fn-ptr cast at the call site -- both removed.  Diff-neutral (10 before and after), PlayChosen
  * still PASS. */
-void iSPCH_ConstantRuleSet(short *sentence, int rule)
+void iSPCH_ConstantRuleSet(VoxEvent *event, VoxSentence *sentence)
 {
     if (gSentenceRuleSet != 0) {
-        int n = VoxSentence_GetNumPhrases(rule);
+        int n = VoxSentence_GetNumPhrases(sentence);
         int table = 0;
         if (0 < n) {
             unsigned char *pickBase = ispch_gPickSamples;
@@ -938,7 +941,7 @@ void iSPCH_ConstantRuleSet(short *sentence, int rule)
                 unsigned int rid;
                 int j;
                 int ruleEntry;
-                ruleEntry = iSPCH_GetOffset8(rule, rule + 4, table);
+                ruleEntry = iSPCH_GetOffset8((int)sentence, (int)sentence->phraseOffs, table);
                 j = 0;
                 do {
                     unsigned int ruleType =
@@ -949,7 +952,7 @@ void iSPCH_ConstantRuleSet(short *sentence, int rule)
                         int callRid;
                         unsigned int one;
                         unsigned char *cycle;
-                        rid = iSPCH_GetRuleID((int)sentence, (int)ruleType);
+                        rid = iSPCH_GetRuleID(event, (int)ruleType);
    /* MATCH: was int[3] (too small -- oracle's frame reserves the
                                        * full 16 bytes and reads byte [0xc+j], i.e. tmp[3]'s bytes,
                                        * the same "cycle byte array" field iSPCH_MatchSample reads at
@@ -1041,13 +1044,9 @@ void iSPCH_ConstantRuleSet(short *sentence, int rule)
                         if (r != 0) {
                             void (**setRule)(int, int, int, int);
                             void (*callee)(int, int, int, int);
-                            int sentenceArg;
+                            unsigned int eventIdArg;
                             unsigned int bit;
                             cycle = (unsigned char *)(j + (int)tmp - 0x10);
-                            do {
-                                cycle++;
-                                cycle--;
-                            } while (0);
                             one = 1;
                             do {
                                 setRule = &gSentenceRuleSet;
@@ -1065,14 +1064,14 @@ void iSPCH_ConstantRuleSet(short *sentence, int rule)
                              * depth-1 or depth-2 `do{}while(0)` rotates the callee-saved file
                              * instead (17 @82/83); moving `callee = *setRule` above the shift is
                              * 9 @84/83 and dropping the phony loop on it is 14 @85/83. */
-                            sentenceArg =
-                                (int)(unsigned int)*(volatile unsigned short *)sentence;
+                            eventIdArg =
+                                (int)(unsigned int)*(volatile unsigned short *)event;
                             bit = one << cycle[0x1c];
                             do {
                                 callee = *setRule;
                             } while (0);
                             callee(
-                                sentenceArg, callRid, bit, one);
+                                eventIdArg, callRid, bit, one);
                         }
                         one = 0;
                     }
@@ -1086,7 +1085,7 @@ void iSPCH_ConstantRuleSet(short *sentence, int rule)
 }
 
 /* iSPCH_MakeSampleRequests @0x80101508 : issue gSampleRequest for each chosen sample; returns total time. */
-int iSPCH_MakeSampleRequests(int sentence, int paramTable)
+int iSPCH_MakeSampleRequests(VoxSentence *sentence, int paramTable)
 {
     int samples = 0;
     int n = VoxSentence_GetNumPhrases(sentence);
@@ -1136,16 +1135,16 @@ void iSPCH_ClearChosen(void)
     DAT_80148448 = 0;
 }
 
-/* iSPCH_SaveChosenSentence @0x8010165C : record the chosen sentence + its 12 eventArgs.  Returns 1. */
-int iSPCH_SaveChosenSentence(int sentence, int paramTable, int ruleCtx, int *eventArgs)
+/* iSPCH_SaveChosenSentence @0x8010165C : record the winning event, its chosen sentence + index, and the 12 eventArgs.  Returns 1. */
+int iSPCH_SaveChosenSentence(VoxEvent *event, VoxSentence *sentence, int sentenceIdx, int *eventArgs)
 {
     /* gSentenceChoice[0..2] = DAT_8014843C/40/44 (one contiguous block); [4..15] = the 12 eventArgs.
      * The original reaches all three head fields + the loop off a single shared base. */
     int  i = 0;
     int *p;
-    gSentenceChoice[0] = sentence;      /* DAT_8014843C (via %hi reg) */
-    gSentenceChoice[1] = paramTable;    /* DAT_80148440 */
-    gSentenceChoice[2] = ruleCtx;       /* DAT_80148444 */
+    gSentenceChoice[0] = (int)event;    /* DAT_8014843C (via %hi reg) */
+    gSentenceChoice[1] = (int)sentence; /* DAT_80148440 */
+    gSentenceChoice[2] = sentenceIdx;   /* DAT_80148444 */
     p = gSentenceChoice;
     do {
         p[4] = *eventArgs;
@@ -1178,9 +1177,9 @@ void iSPCH_PlayChosen(void)
          * callee (already `(void)val`) AND the caller never materializes it; cast the call through
          * a 2-arg fn-ptr type so the compiler doesn't force an a2 setup here (§D dropped-arg lever). */
         int eventId = gSentenceChoice[4];
-        iSPCH_RuleSet((short *)gSentenceChoice[0], gSentenceChoice[2], &gSentenceChoice[4]);
-        iSPCH_ConstantRuleSet((short *)gSentenceChoice[0], gSentenceChoice[1]);
-        iSPCH_MakeSampleRequests(gSentenceChoice[1], eventId);
+        iSPCH_RuleSet((VoxEvent *)gSentenceChoice[0], gSentenceChoice[2], &gSentenceChoice[4]);
+        iSPCH_ConstantRuleSet((VoxEvent *)gSentenceChoice[0], (VoxSentence *)gSentenceChoice[1]);
+        iSPCH_MakeSampleRequests((VoxSentence *)gSentenceChoice[1], eventId);
         {
             int *inGame = gVoxInGame;
             int newRepeatCount;   /* MATCH: gVoxInGame[1] == gRepeatCount; a SHARED store after the
@@ -1241,7 +1240,7 @@ int iSPCH_ChooseSentence(unsigned int *eventArgs)
                  * gate above -- the oracle never saves it (bare `andi v0,v0,0xff; beqz`).
                  * The old recon reused useLen for both, which both mis-typed the argument
                  * and pinned useLen into a callee-saved reg for the whole function. */
-                ruleBits = iSPCH_GetRuleSettings((short *)event, (int *)eventArgs, &local_30);
+                ruleBits = iSPCH_GetRuleSettings((VoxEvent *)event, (int *)eventArgs, &local_30);
                 iSPCH_OrderSentences(event, (int)local_order);
                 {
                     unsigned int n = (unsigned int)*(unsigned char *)(event + 6);
@@ -1256,7 +1255,7 @@ int iSPCH_ChooseSentence(unsigned int *eventArgs)
                                           * here; this compiler only emits `lb` for an EXPLICIT signed
                                           * cast, never implicitly -- see reference_asm_pattern_catalog
                                           * §C "char IS UNSIGNED on this build"). */
-                            int          sentence;
+                            VoxSentence *sentence;
                             int          r;
                             /* MATCH (w33-a9): the three range guards leave via `goto out`
                              * (ONE shared `return result`), not three textual `return result;`.
@@ -1282,7 +1281,7 @@ int iSPCH_ChooseSentence(unsigned int *eventArgs)
                             if (0 < r) {
                                 result = iSPCH_SentenceMakeChoice(sentence, (int)filterMode);
                                 if (result != 0)
-                                    iSPCH_SaveChosenSentence(event, sentence, (int)table, (int *)eventArgs);
+                                    iSPCH_SaveChosenSentence((VoxEvent *)event, sentence, (int)table, (int *)eventArgs);
                             }
                             idx = idx + 1;
                         } while (result == 0);

@@ -23,19 +23,19 @@ extern unsigned int iSPCH_SampleExists(int choice, VoxBank *bank, int sampleIdx)
 extern int  iSPCH_ChooseSamples(short *choice, int maxToPick, VoxPhrase *phraseTemplate, int unused); /* @0x80100B4C */
 extern int  iSPCH_SampleLength(short *choice);                        /* @0x80100C5C */
 extern int  iSPCH_ConvertTime(int samples);                          /* @0x80100CC4 */
-extern int  iSPCH_SentenceLength(int sentence);                      /* @0x80100D20 */
+extern int  iSPCH_SentenceLength(VoxSentence *sentence);                      /* @0x80100D20 */
 extern void iSPCH_OrderSentences(int event, int outOrder); /* @0x80100D94 */
 extern unsigned int iSPCH_RepeatEvent(unsigned short *eventArgs);    /* @0x80100EE0 */
-extern int  iSPCH_ShortRuleStatus(int sentence, int mode);           /* @0x80100F24 */
-extern int  iSPCH_SentenceGetChoices(int sentence, int paramTable, unsigned int ruleByte1, unsigned int ruleByte2, int filterMode); /* @0x80100F8C */
-extern void iSPCH_RandomizeSentencePicks(int sentence);             /* @0x801010CC */
-extern int  iSPCH_IterateChoice(int sentence);                      /* @0x801011AC : returns 1 if the odometer is exhausted (Ghidra void-bug: real return, read at epilogue) */
-extern int  iSPCH_ChooseShortSentence(int sentence);               /* @0x8010125C */
-extern int  iSPCH_SentenceMakeChoice(int sentence, int mode);      /* @0x80101310 */
-extern void iSPCH_ConstantRuleSet(short *sentence, int rule); /* @0x801013BC */
-extern int  iSPCH_MakeSampleRequests(int sentence, int paramTable); /* @0x80101508 */
+extern int  iSPCH_ShortRuleStatus(VoxSentence *sentence, int mode);           /* @0x80100F24 */
+extern int  iSPCH_SentenceGetChoices(VoxSentence *sentence, int paramTable, unsigned int ruleByte1, unsigned int ruleByte2, int filterMode); /* @0x80100F8C */
+extern void iSPCH_RandomizeSentencePicks(VoxSentence *sentence);             /* @0x801010CC */
+extern int  iSPCH_IterateChoice(VoxSentence *sentence);                      /* @0x801011AC : returns 1 if the odometer is exhausted (Ghidra void-bug: real return, read at epilogue) */
+extern int  iSPCH_ChooseShortSentence(VoxSentence *sentence);               /* @0x8010125C */
+extern int  iSPCH_SentenceMakeChoice(VoxSentence *sentence, int mode);      /* @0x80101310 */
+extern void iSPCH_ConstantRuleSet(VoxEvent *event, VoxSentence *sentence); /* @0x801013BC */
+extern int  iSPCH_MakeSampleRequests(VoxSentence *sentence, int paramTable); /* @0x80101508 */
 extern void iSPCH_ClearChosen(void);                               /* @0x80101650 */
-extern int  iSPCH_SaveChosenSentence(int sentence, int paramTable, int ruleCtx, int *eventArgs); /* @0x8010165C */
+extern int  iSPCH_SaveChosenSentence(VoxEvent *event, VoxSentence *sentence, int sentenceIdx, int *eventArgs); /* @0x8010165C */
 extern int  iSPCH_OneChosen(void);                                 /* @0x801016A4 */
 extern void iSPCH_PlayChosen(void);                                /* @0x801016B4 */
 extern int  iSPCH_ChooseSentence(unsigned int *eventArgs);         /* @0x80101754 */

@@ -2010,3 +2010,68 @@ original names.
   `NFS3_CheckForFileOperations::e` also remains after direct-bound and natural
   one-local `for` forms regressed to 11 and 10 diffs respectively.  Both files
   were restored byte-for-byte and retain their PASS functions/TUs.
+
+## P860 source-shape closure (2026-09-05)
+
+This round removes **eight source-only declarations** without inventing
+replacement names.  The strict `game/common` census moves from 507 to **499**
+marked source-only carriers.  All 1,258 SYM functions remain mapped; 1,228 are
+declaration-clean, with zero missing SYM names and zero mapping-review items.
+All 547 object-owned globals and all 115 special vtable records remain mapped.
+The six extra source locals remain explicit review items.
+
+- `game/common/aiphysic.cpp` — `AIPhysic_HandleWipeoutTimer`: removed
+  `info` and uses the typed `carObj->personality` member directly for the two
+  retail fields.  Retail SYM records no locals; the still-marked `limit` is a
+  measured source-only carrier.  The direct member spelling remains PASS at
+  37 instructions.  `AIPhysic_CheckForGripReduction` removes
+  `pers`, restores the SLD-supported random-update statements before the
+  probability calculation, and reads both personality members directly.
+  Retail SYM records only `perTickProb` and `randVal`; `randtemp` is a global,
+  and there is no shared personality-pointer local.  It remains PASS at 101
+  instructions.  The whole TU is 42/42 PASS with zero
+  branch-distance/count divergence.
+- `game/common/audiocmn.cpp` — `AudioCmn_Init`: removed `backwards` by
+  reusing retail-SYM local `j` for `reverseTrack` before its later loop-index
+  definition.  `AudioCmn_TrafficSFX` removes `patch` and reuses retail-SYM
+  local `player` for the first engine-patch result.  Both statement orders are
+  supported by the retail SLD stream; the functions remain PASS at 94 and 163
+  instructions respectively.  `AudioCmn_PlayFESFXVol` removes `volScaled` and
+  expresses 120 as `((vol * 0xf) << 3)`, preserving the retail multiplication
+  tree without a local absent from SYM.  That expression is a compiler-tree
+  inference rather than a textual lineage quote.  Removing its redundant
+  final return also makes the normalized source debug-transition boundaries
+  exactly equal to retail.  `UpdateSiren` removes `bend` by reusing the sole
+  retail-SYM local `iFreq` for its upper clamp; its normalized transition
+  boundaries are likewise exact.  The latter functions remain PASS at 34 and
+  129 instructions.  The whole TU is 48/48 PASS with zero branch divergence.
+- `game/common/audioeng.cpp` — `AudioEng_Update`: removed `targetVolume` and
+  uses `g->vol[n]` directly in both left- and right-voice ramps.  Retail SYM
+  has no target-volume local, and its SLD/assembly repeatedly loads that field
+  through the clamp arms.  The function remains PASS at 366 instructions; the
+  whole TU is 9/9 PASS with zero branch divergence.
+- `game/common/bworldSm.cpp` — `BWorldSm_TunnelFlagSm`: removed `surfVal` and
+  restores the surface selection as one conditional expression assigned to
+  retail-SYM local `surf`.  The `% 16` spelling is an oracle/codegen inference,
+  not a recovered textual source quote; it preserves the retail instruction
+  stream and SLD statement interval exactly.  The function remains PASS at 22
+  instructions; the whole TU is 28/28 PASS with zero branch divergence.
+
+### P860 retained source-shape debt
+
+- `AIPhysic_HandleWipeoutTimer::limit`,
+  `AISpeeds_BTCGetGlueFactor::clampedGlueIndex`, and the tested
+  `AIPhysic_CheckForGripReduction` neighboring shapes remain open.  Direct
+  repetitions/removals produced measured 3-, 4-, 9-, or 12/13-diff
+  regressions, so none was accepted as original source.
+- `AudioCmn_Init::setup`, `AudioCmn_TrafficSFX::fade`, and
+  `AudioEng_Update::rampedVolume` remain marked carriers.  Direct forms alter
+  allocation or scheduling; the best tested replacements produced 17 to 51
+  authoritative diffs.  `AudioEng_CleanUp::player` and both
+  `AudioEng_StartUp::chanbase` instances remain pending recovery of the
+  natural pointer-walk/GIV source shape documented by SYM, SLD, IDA, and the
+  PC predecessor.
+- The four changed TUs total 127/127 PASS in source-only whole-TU gates, and
+  every one of their 127 functions has matching branch offsets/counts.  No
+  asm, volatile qualifier, postcompile rewrite, or tool modification was added
+  by this round.

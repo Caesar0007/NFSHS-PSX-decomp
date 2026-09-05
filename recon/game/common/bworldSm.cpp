@@ -784,20 +784,11 @@ int BWorldSm_QuadLight(BWorldSm_Pos *slicePos)
 bool BWorldSm_TunnelFlagSm(BWorldSm_Pos *slicePos)
 {
   int surf;
-  /* SYM-CODEGEN-CARRIER: surfVal -- consuming simQuad->surface directly keeps
-   * 22 instructions but changes six pointer-load register instructions. */
-  u_long surfVal;
 
   if ((*(u_char *)(slicePos->slice * 0x20 + (char *)BWorldSm_slices + 0x15) & 0x44) != 0) {
     return 1;
   }
-  if (slicePos->simQuad != (Trk_NewSimQuad *)0x0) {
-    surfVal = slicePos->simQuad->surface;
-    surf = surfVal & 0xf;
-  }
-  else {
-    surf = 0xe;
-  }
+  surf = (slicePos->simQuad != (Trk_NewSimQuad *)0x0) ? slicePos->simQuad->surface % 16 : 0xe;
   return (u_int)((surf ^ 8) < 1);
 }
 

@@ -419,10 +419,10 @@ void AIPhysic_HandleSignalling(Car_tObj *carObj)
  * two structural misses: (1) `limit` was a scalar `D_8011E0B0` → self-temp HI-scratch load; making
  * D_8011E0B0 an UNSIZED ARRAY (`extern int D_8011E0B0[]`, access `[0]`) gives the oracle's
  * separate-temp `lui v0; lw a2,(v0)` (§3.12#5) — also fixed HandleDirection as a bonus. (2) the
- * `base = limit + info->0x30` add had to be computed EARLY (before the PRNG, as the oracle does)
- * to force the 4-live-value peak that puts car in $a3. (3) the final `((r>>8)&0xFFFF) & info->0x34`:
+ * single final assignment lets the scheduler compute `limit + personality->0x30` before `mflo`,
+ * preserving the 4-live-value peak that puts car in $a3. (3) the final `((r>>8)&0xFFFF) & field`:
  * gcc-2.7.2 narrows the `&0xFFFF` into a HALFWORD load (`lhu`, dropping the andi) — write the random
- * as `(unsigned short)(r>>8)` to anchor the andi on the random + keep the full `lw` of info->0x34. */
+ * as `(unsigned short)(r>>8)` to anchor the andi on the random + keep the full `lw` of the personality field. */
 void AIPhysic_HandleWipeoutTimer(Car_tObj *carObj)
 {
     /* SYM-CODEGEN-CARRIER: limit -- optimized SYM omits this scalar, but the
@@ -430,23 +430,17 @@ void AIPhysic_HandleWipeoutTimer(Car_tObj *carObj)
        repeating D_8011E0B0[0] keeps 37 instructions with four detailed
        address-register/load-order differences. */
     int limit;
-    /* SYM-CODEGEN-CARRIER: info -- the shared typed personality base preserves
-       retail's a1 lifetime across both field loads; direct member spelling
-       keeps 37 instructions but gives 22 detailed allocation/load-order
-       differences. */
-    AIPerson_t *info;
     if ((carObj->carFlags & 8) == 0)
         return;
     limit = D_8011E0B0[0];
     if (!(carObj->wipeOutStartTick < limit))
         return;
-    info = carObj->personality;
     randtemp = fastRandom * randSeed;
     fastRandom = randtemp & 0xFFFF;
     carObj->wipeOutStartTick =
-        limit + info->minimumBetweenWipeoutTicks +
+        limit + carObj->personality->minimumBetweenWipeoutTicks +
         (int)((unsigned int)(unsigned short)(randtemp >> 8) &
-              info->randomBetweenWipeoutTicks);
+              carObj->personality->randomBetweenWipeoutTicks);
 }
 
 /* ---- AIPhysic_Main__FP8Car_tObj ---- */
@@ -1924,16 +1918,13 @@ void AIPhysic_CheckForGripReduction(Car_tObj *carObj)
     if (2000 < ((AIWorld_CalcRoadBend(carObj,1) >= 1) ?
                 AIWorld_CalcRoadBend(carObj,1) :
                 -AIWorld_CalcRoadBend(carObj,1))) {
-      /* SYM-CODEGEN-CARRIER: pers -- the shared personality base is kept in a1
-         across both probability/minimum loads; direct member spelling emits
-         103/101 instructions with eight load/allocation differences. */
-      AIPerson_t *pers = carObj->personality;
-      perTickProb = AIPhysic_elapsedTime * pers->gripLossProbPerSecond;
       randtemp = fastRandom * randSeed;
       randVal = (int)(((u_int)randtemp >> 8) & 0xffff);
       fastRandom = randtemp & 0xffff;
+      perTickProb = AIPhysic_elapsedTime *
+                    carObj->personality->gripLossProbPerSecond;
       if (randVal < perTickProb / 32) {
-        carObj->gripFactor = pers->gripLossMinFactor;
+        carObj->gripFactor = carObj->personality->gripLossMinFactor;
       }
     }
   }

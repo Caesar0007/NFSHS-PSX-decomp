@@ -131,9 +131,6 @@ void AudioEng_Update(void)
      direct field expressions grows 366 to 373 instructions and leaves 17 diffs;
      this value is the required signed-byte working copy for both voices. */
   int rampedVolume;
-  /* SYM-CODEGEN-CARRIER: targetVolume -- paired with rampedVolume so the target
-     stays in retail's `$a0` flow across the two-step clamp. */
-  int targetVolume;
   
   player = 0;
   do {
@@ -255,8 +252,7 @@ void AudioEng_Update(void)
             if ((g->sep == 0) || ((signed char)g->chan[n].patchnum < 64) ||
                 (g->right[n].handle != -1)) {
               rampedVolume = (signed char)g->left[n].vol;
-              targetVolume = g->vol[n];
-              if (rampedVolume != targetVolume) {
+              if (rampedVolume != g->vol[n]) {
                 /* MATCH (W85-S2, device removal): retail STORES the ramped byte and
                    then RE-LOADS it sign-extended for the call argument
                    (`sb v1,476(s0) / lb a1,476(s0) / jal`), where a single trailing
@@ -268,17 +264,17 @@ void AudioEng_Update(void)
                    to retail's single `sb`) leaves the call in a LATER block, where the
                    store-forwarding equivalence is no longer available and the `lb`
                    reload is emitted.  Same lever as the arm-duplication ref-step. */
-                if (targetVolume < rampedVolume) {
+                if (g->vol[n] < rampedVolume) {
                   rampedVolume -= 2;
-                  if (rampedVolume < targetVolume) {
-                    rampedVolume = targetVolume;
+                  if (rampedVolume < g->vol[n]) {
+                    rampedVolume = g->vol[n];
                   }
                   g->left[n].vol = rampedVolume;
                 }
                 else {
                   rampedVolume += 2;
-                  if (targetVolume < rampedVolume) {
-                    rampedVolume = targetVolume;
+                  if (g->vol[n] < rampedVolume) {
+                    rampedVolume = g->vol[n];
                   }
                   g->left[n].vol = rampedVolume;
                 }
@@ -307,21 +303,20 @@ void AudioEng_Update(void)
               }
               else {
                 rampedVolume = (signed char)g->right[n].vol;
-                targetVolume = g->vol[n];
-                if (rampedVolume != targetVolume) {
+                if (rampedVolume != g->vol[n]) {
                   /* MATCH (W85-S2): same store-at-the-tail-of-each-arm shape as the
                      left voice above -- retires this voice's two `volatile` views. */
-                  if (targetVolume < rampedVolume) {
+                  if (g->vol[n] < rampedVolume) {
                     rampedVolume -= 2;
-                    if (rampedVolume < targetVolume) {
-                      rampedVolume = targetVolume;
+                    if (rampedVolume < g->vol[n]) {
+                      rampedVolume = g->vol[n];
                     }
                     g->right[n].vol = rampedVolume;
                   }
                   else {
                     rampedVolume += 2;
-                    if (targetVolume < rampedVolume) {
-                      rampedVolume = targetVolume;
+                    if (g->vol[n] < rampedVolume) {
+                      rampedVolume = g->vol[n];
                     }
                     g->right[n].vol = rampedVolume;
                   }

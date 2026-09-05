@@ -444,9 +444,6 @@ void AudioCmn_Init(void)
 {
   int j;
   int temptrack;
-  /* SYM-CODEGEN-CARRIER: backwards -- staging reverseTrack separately preserves
-     retail's v1 load/store scheduling without the extra load-delay nop. */
-  int backwards;
 
   /* @0x80076A7C: if(AudioCmn_kAudioOn==0) goto lbl_80076AF0 (the per-player loop, which always runs).
    * The channel-array init + false-lap-trigger select + backwards-direction are audio-on-guarded (H42). */
@@ -456,17 +453,17 @@ void AudioCmn_Init(void)
        identity fence preserve retail's reverseTrack load/store schedule. */
     GameSetup_tData *setup = &GameSetup_gData;
     /* MATCH (SYM rule-8): temptrack = REG $4 (a0), mutated IN PLACE by the &0x10 arm
-       (addiu a0,v0,5); track is loaded ONCE. audioBackwardsDirection is stored then
-       RE-READ for the table select (the join point starts a new EBB, so no CSE) --
-       the reverse-track temp (v1) dies at the store. */
+       (addiu a0,v0,5); track is loaded ONCE.  The SYM-owned j local is reused for
+       reverseTrack here and redefined as the later loop index.  audioBackwardsDirection
+       is stored then RE-READ for the table select (the join starts a new EBB). */
     temptrack = setup->track;
-    backwards = setup->reverseTrack;
+    j = setup->reverseTrack;
     /* MATCH: stage reverseTrack across the zero-insn identity fence.  This keeps
        the shared setup base live through both loads (so reverseTrack uses v1),
        while leaving its store and the temptrack mask in the same schedulable EBB.
        Result: retail's lw a0 / lw v1 / andi v0 / sw v1 head order (22 -> 18). */
     __asm__("" : "=r"(setup) : "0"(setup));
-    audioBackwardsDirection = backwards;
+    audioBackwardsDirection = j;
     if ((temptrack & 0x10) != 0) {
       temptrack = (temptrack & 0xf) + 5;
     }
@@ -528,7 +525,6 @@ void AudioCmn_Init(void)
   AudioCmn_gStreamRestartTimer = 0;
   gQuickSirenCount = 0;
   GameSetup_gData.userSetting.sfxLevel = gMasterSFXLevel;
-  return;
 }
 
 /* ---- AudioCmn_Reset__Fv  [@0x80076bec] ---- (Ghidra/IDA + SLD cross-checked:
@@ -1985,7 +1981,8 @@ void AudioCmn_TrafficSFX(int iChan,int iSFXnum,int freq,int doppler,int dst,int 
      MATCH (2026-08-14): PASS 163/163.  qtytrace priced the saved-register cycle: five
      zero-instruction pitchmult references cross its local-allocation priority boundary;
      direct crossfade indices reproduce retail's `(dir12+64)-dir10` chain; staging the
-     nested patch result and Xfade base plus a between-call scheduling fence
+      first patch result reused through the SYM-owned player local, the Xfade base,
+      and a between-call scheduling fence
      gives the exact call/shift order.  No register pin or emitted asm instruction is used.
      Earlier basins: 53 -> 51 (post-`>>10` pitch scale), 24 (priced pitch refs),
      14 (destructive dir12 chain), 10/6/4/2 (statement/fence placement) -> PASS. */
@@ -2015,9 +2012,6 @@ void AudioCmn_TrafficSFX(int iChan,int iSFXnum,int freq,int doppler,int dst,int 
     }
   }
   else {
-    /* SYM-CODEGEN-CARRIER: patch -- retaining the first patch lookup result as a
-       named pseudo is required for retail's a0/a1 setup order around the jal. */
-    int patch;
     /* SYM-CODEGEN-CARRIER: fade -- the named Xfade base preserves retail's
        placement of the destructive dir shift between the two call sequences. */
     u_char *fade;
@@ -2027,11 +2021,11 @@ void AudioCmn_TrafficSFX(int iChan,int iSFXnum,int freq,int doppler,int dst,int 
        BUG FIX (wave-13): 2nd index IS +0x40 biased -- oracle mutates s2=(dir>>12)-0x40 then
        s1-s2 = (dir>>10)-(dir>>12)+0x40 (the wave-6 note claiming "no +0x40" misread the raw;
        the two calls use the symmetric +-0x40 crossfade pair). */
-    patch = CopSpeak_GetEnginePatch(iSFXnum,0);
+    player = CopSpeak_GetEnginePatch(iSFXnum,0);
     fade = Xfade;
     /* W85-S2: an INERT zero-insn fence was deleted here -- measured PASS
        alone and jointly with the other two, on the WHOLE-TU gate (48/48). */
-    AudioCmn_PlaySFX(iChan + 4,patch,0x40,pitchmult << 4,
+    AudioCmn_PlaySFX(iChan + 4,player,0x40,pitchmult << 4,
                iAmpIn * fade[((dir >> 0xc) + 0x40) - (dir >> 10)] >> 7,azimuth);
     /* W85-S2: an INERT zero-insn fence was deleted here -- measured PASS
        alone and jointly with the other two, on the WHOLE-TU gate (48/48). */
@@ -2160,17 +2154,12 @@ void AudioCmn_PlayFESFXVol(int SFXnum,int vol)
   playopts.bend = 0x40;
   playopts.pan = 0x40;
   playopts.bhandle = (char)gSndBnk[0].bnkID;
-  {
-    /* SYM-CODEGEN-CARRIER: volScaled -- the named product is optimized into
-     * retail's value flow but blocks GCC from reassociating the multiplications.
-     * Folding it into the field assignment grows 34 instructions to 35 and
-     * produces seven authoritative diffs. */
-    int volScaled = vol * 0x78;
-    playopts.vol = (char)((gMasterSFXLevel * volScaled) >> 0xe);
-  }
+  /* MATCH: keep the 120 scale as a shift of the 15-product.  This preserves
+     retail's multiply tree without introducing a local absent from SYM. */
+  playopts.vol =
+      (char)((gMasterSFXLevel * ((vol * 0xf) << 3)) >> 0xe);
   SNDplay(&playopts);
   NumSFXOn = NumSFXOn + 1;
-  return;
 }
 
 /* ---- AudioCmn_PlayWrongWaySFX__Fv  [@0x800796ac] ---- */
@@ -2247,8 +2236,8 @@ void SirenOff(int sirennum)
 void UpdateSiren(int sirennum,int amp,int dop,int azimuth,int supercop)
 {
   /* SYM rule-8: params sirennum=s1 amp=s2 dop=s5 azimuth=s4, supercop ARG->REG s0;
-     ONE block-local iFreq (a2). No other named locals: bend is a ternary straight into
-     the call arg (li a1,0x7F in the slti delay slot), the channel-slot ADDRESS for the
+     ONE block-local iFreq (a2). No other named locals: iFreq is reused for its upper
+     clamp before the call, and the channel-slot ADDRESS for the
      pitchbend/vol pair is a scoped anonymous pointer (s0, reusing dead supercop; Partial
      RELOADED per call since the jals clobber memory), and the vol arms are per-arm INLINE
      SNDvol calls cross-jumped into one jal. */
@@ -2270,20 +2259,8 @@ void UpdateSiren(int sirennum,int amp,int dop,int azimuth,int supercop)
        gaChannel[sirennum + 0x2b].Partial; gcc CSEs it into s0 by itself and hoists the
        shared %hi(gaChannel) above the 3dpos/stereo branch (it lands in that beqz's
        delay slot), which is exactly the `addiu v1,v1,0` the pan arm reuses. */
-    /* MATCH (W55-A10, sealed 129/129 PASS; was 10 diffs, count-exact).  The whole residual
-       was ARG-EVALUATION ORDER at this one call: retail expands the CLAMP first and only then
-       materializes the channel-slot address (`lui/addiu %hi/%lo(gaChannel)` + `addiu v0,s1,43`
-       + `sll 3` + `addu s0`), so the 5-insn address block sits AFTER the slti/beqz/li-127 pair
-       -- ours expanded the address first (and got the v0/v1 pair the other way round as a
-       consequence).  Giving the clamp its own statement (a block-scoped temp, so it does not
-       join the SYM's named-local budget) fixes the issue order; the register naming follows. */
-    { /* SYM-CODEGEN-CARRIER: bend -- this scoped argument-order carrier is
-         absent from retail's optimized local list.  Inlining the ternary
-         expands the channel address before the clamp and produces the
-         previously measured 10-diff ordering residual; the separate statement
-         yields the retail clamp-before-address sequence with no extra code. */
-      int bend = (0x7f < iFreq) ? 0x7f : iFreq;
-      SNDpitchbend(gaChannel[sirennum + 0x2b].Partial,bend); }
+    iFreq = (0x7f < iFreq) ? 0x7f : iFreq;
+    SNDpitchbend(gaChannel[sirennum + 0x2b].Partial,iFreq);
     /* MATCH: 0x25/0x2f written as (amp*9)*4+amp / (amp*3)*0x10-amp -- the inner +/-
        node blocks gcc's multiply-chain regrouping of the constant onto the LEVEL
        (same lever as PlayDoppleredSound's (vol*0x41)<<1). */

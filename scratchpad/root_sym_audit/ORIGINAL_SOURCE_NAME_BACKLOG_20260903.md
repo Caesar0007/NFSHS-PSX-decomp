@@ -1877,3 +1877,48 @@ evidence of original spelling.
   synthetic-looking spelling is authoritative and must not be normalized.
   Closure evidence: `C:\Temp\nfs4-clean\nfs4-f-v3.txt`, function record
   `AIWorld_CalcSpeed__FP8Car_tObj` at `0x800738D4`.
+
+## P858 source-shape closure (2026-09-05)
+
+This round removes five `SYM-CODEGEN-CARRIER` declarations without adding
+replacement names.  The strict `game/common` census falls from 532 to 527
+source-only carriers while all three affected retail functions remain exact.
+
+- `game/common/aispeeds.cpp` —
+  `AISpeeds_CalcHumanCurveSpeed`: removed `off`.  The five repeated offset and
+  wrap blocks are invocations of EA's `WRAP_SLICE(a,b)` macro.  This exact
+  expansion survives in the NFS4 `ai.cpp`, `cars.cpp`, and `AIWORLD.cpp`
+  translation units; matched NFS2 AI source retains the same macro family.
+  Retail SYM records
+  only `sliceHere`, `sliceAhead`, `curveAhead`, and `tightestCurve`; its SLD
+  statement boundaries agree with one macro invocation per look-ahead.
+  Source-only `verify_asm` is PASS at 183 instructions, `diffsrc` is zero with
+  an exact `-g` twin, strict branches are clean, and the whole TU is 29/29
+  PASS.
+- `game/common/aidatarecord.cpp` —
+  `AIDataRecord_CurveSpeedTable_t::Upgrade`: removed `round`, `pcVar1`, and
+  `iVar1`.  Retail SYM records only `curveLoop`.  The NFS4 mobile descendant
+  `sub_5115A8` independently preserves the direct
+  `fixedmult(Get(...), handlingUpgrade) / 0x10000` byte-store expression.
+  The infinite loop with its mid-loop exit is the natural GCC source shape
+  that preserves retail's single top test; bounded-loop spellings rotate and
+  add an instruction.  Source-only `verify_asm` is PASS at 35 instructions,
+  `diffsrc` is zero with an exact `-g` twin, strict branches are clean, and the
+  whole TU is 26/26 PASS.
+- `game/common/aitriger.cpp` — `AITrigger_TriggerManager::Init`: removed
+  `deletedCheckTime`.  The NFS4 mobile descendant and NFS3 predecessor both
+  retain direct forward loops with the literal `-0xa00`; retail SYM records
+  only `numTriggers`, `currentTrigger`, and `tLoop`.  Retail SLD separately
+  attributes the two loop initializations/stores.  Source-only `verify_asm` is
+  PASS at 55 instructions, `diffsrc` is zero with an exact `-g` twin, strict
+  branches are clean, and the whole TU is 10/10 PASS.
+
+Three neighboring carriers remain deliberately open.  Direct and canonical
+clamp spellings for `AISpeeds_BTCGetGlueFactor::clampedGlueIndex`, direct
+surface reads for `BWorldSm_TunnelFlagSm::surfVal`, and ordinary boolean
+spellings for `AIHigh_Traffic::HighExecute::release` do not reproduce retail
+allocation.  A carrier-free `switch` spelling can shape the last function
+exactly, but has no source-lineage evidence and contradicts the SLD topology,
+so it was rejected rather than accepted as invented source.  The traffic SYM
+trace instead suggests an as-yet-unrecovered inline accessor around
+`forcePurgatory_`.

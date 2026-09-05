@@ -258,32 +258,17 @@ int AIDataRecord_CurveSpeedTable_t::Get(int curve)
 /* ---- Upgrade__30AIDataRecord_CurveSpeedTable_ti ---- */
 void AIDataRecord_CurveSpeedTable_t::Upgrade(int handlingUpgrade)
 {
-  /* SYM-CODEGEN-CARRIER: round -- spelling the bias as literal 0xffff
-   * changes this exact function by 25 oracle diffs and drops one instruction. */
-  int round;
-  /* SYM-CODEGEN-CARRIER: pcVar1 -- indexing dataBuffer_ directly changes
-   * this exact function by 16 oracle diffs and adds two instructions. */
-  char *pcVar1;
-  /* SYM-CODEGEN-CARRIER: iVar1 -- the fixedmult result must stay live across
-   * the signed rounding branch; folding the expression changes allocation. */
-  int iVar1;
   int curveLoop;
 
   curveLoop = 0;
-  round = 0xffff;
- loopTop:
-  if (curveLoop < this->numElements_) {
-    iVar1 = this->Get(curveLoop);
-    iVar1 = fixedmult(iVar1,handlingUpgrade);
-    pcVar1 = this->dataBuffer_ + curveLoop;
-    if (iVar1 < 0) {
-      iVar1 = iVar1 + round;
+  while (1) {
+    if (curveLoop >= this->numElements_) {
+      return;
     }
-    *pcVar1 = (char)(iVar1 >> 16);
-    curveLoop = curveLoop + 1;
-    goto loopTop;
+    this->dataBuffer_[curveLoop] =
+        fixedmult(this->Get(curveLoop), handlingUpgrade) / 0x10000;
+    curveLoop++;
   }
-  return;
 }
 
 /* ---- Get__26AIDataRecord_CarTracking_ti  [@0x8006d50c] ---- */

@@ -30,8 +30,8 @@
  *   nested ifs incrementing the GLOBALS directly (oracle reloads each word: lw;addiu;bnez;sw-in-slot). */
 int iSPCH_EACrandom(void)
 {
-    unsigned int sum;
-    unsigned int carry;
+    int sum;
+    int carry;
 
     sum = seedX[5] + seedX[4];
     carry = 0;
@@ -51,22 +51,22 @@ int iSPCH_EACrandom(void)
     seedX[0] = sum;
     seedX[5] = seedX[5] + 1;
     if (seedX[5] == 0) {
-        seedX[4] = seedX[4] + 1;
+        seedX[4]++;
         if (seedX[4] == 0) {
-            seedX[3] = seedX[3] + 1;
+            seedX[3]++;
             if (seedX[3] == 0) {
-                seedX[2] = seedX[2] + 1;
+                seedX[2]++;
                 if (seedX[2] == 0) {
-                    seedX[1] = seedX[1] + 1;
+                    seedX[1]++;
                     if (seedX[1] == 0) {
                         seedX[0] = sum + 1;   /* MATCH: temp v0 = sum+1 for the store ... */
-                        sum = sum + 1;        /* ... then CSE copies it back into sum ($a2) */
+                        sum++;        /* ... then CSE copies it back into sum ($a2) */
                     }
                 }
             }
         }
     }
-    return (int)sum;
+    return sum;
 }
 
 /* iSPCH_EACseedrandom @0x800EBAC4 : seed all 6 state words from `seed` (each = seed + a fixed constant; the
@@ -88,32 +88,27 @@ int *iSPCH_EACseedrandom(unsigned int seed)
  *   INT_MIN guard is the compiler's signed-division-overflow trap (dead here: (r&0xffff) is never INT_MIN). */
 int iSPCH_Rand(int n)
 {
-    unsigned int r = (unsigned int)iSPCH_EACrandom();
+    int r = iSPCH_EACrandom();
     /* signed % emits the div + break 0x1c00 (div0) + break 0x1800 (overflow)
        guards itself under maspsx --expand-div; no manual trap() needed. */
-    return (int)(r & 0xffff) % n;
+    return (r & 0xffff) % n;
 }
 
 /* iSPCH_BindData @0x800EBB84 : register a speech data blob (header word > 0x11d) into the first free
  *   gEventDats[0..3] slot.  Returns 1 on success, 0 if rejected or the table is full. */
 int iSPCH_BindData(VoxEventDat *dat)
 {
-    VoxEventDat **p;
-    int  i;
-    int  result = 0;
-    if (0x11d < dat->version) {
-        i = 0;
-        p = gEventDats;
-        do {
-            i++;
-            if (*p == 0) {
+    int result = false;
+    if (dat->version > 0x11d) {
+        int i;
+        VoxEventDat **p;
+        for(i = 0, p = gEventDats; i < 4; i++, p++) {
+            if (*p == NULL) {
                 *p = dat;
-                result = 1;
-                goto done;
+                result = true;
+                break;
             }
-            p++;
-        } while (i < 4);
+        }
     }
-done:
     return result;
 }

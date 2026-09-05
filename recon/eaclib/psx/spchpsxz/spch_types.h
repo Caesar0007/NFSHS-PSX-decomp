@@ -34,6 +34,23 @@ typedef struct {
                                     0xc + 2*numSentences + 2*numRules, padded to 4. */
 } VoxEvent;
 
+/* VoxRule: one 2-byte rule entry of a VoxEvent (numRules of them right after sentenceOffs[];
+ * iSPCH_GetRuleDataAddr).  typeParam: high nibble = rule type (0..4 constant rules handled by
+ * RuleSet/ConstantRuleSet, 1..12 tested by GetRuleSettings, 0xf = none), low nibble = param index. */
+typedef struct {
+    unsigned char id;             /* +0x0 rule id passed to the gSentenceRuleSet/gSentenceRuleTest callbacks */
+    unsigned char typeParam;      /* +0x1 type << 4 | paramIdx */
+} VoxRule;
+
+/* VoxRuleDecoded: a VoxRule unpacked into three words.  Retail keeps these three on the stack in
+ * every rule reader (GetRuleID stores all three and reads only .id) -- gcc 2.8 does not scalarise
+ * aggregate locals, so a decoded struct is the source shape that reproduces those stores. */
+typedef struct {
+    unsigned int id;
+    unsigned int paramIdx;
+    unsigned int type;
+} VoxRuleDecoded;
+
 /* VoxSentence: 4-byte head + numPhrases byte offsets, padded to 4.  Measured on the retail
  * event.dat (2026-09-05, tools/spch_eventdat_census.py, 222 sentences): record size is exactly
  * 4 + numPhrases rounded up to 4 (8 for 1..4 phrases, 12 for 5..8, 16 for 9..10).  A sentence

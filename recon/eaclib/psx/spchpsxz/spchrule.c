@@ -63,11 +63,11 @@ static int iSPCH_GetOffset16(int base, int tableBase, int index)  /* @0x8010B124
 }
 
 /* iSPCH_GetRuleDataAddr @0x8010B140 : address of an EVENT's rule-data block (right after its sentence-offset table).
- * MATCH: keep the +0xc on the offset before adding sentence (delay-slot addu v0,a0,v0) */
-int iSPCH_GetRuleDataAddr(VoxEvent *event)
+ * The rules start where the sentence-offset table ends: &sentenceOffs[numSentences] (retail folds the
+ * +0xc into the scaled index and adds the base last, in the jr delay slot). */
+VoxRule *iSPCH_GetRuleDataAddr(VoxEvent *event)
 {
-    int off = (int)(unsigned int)event->numSentences * 2 + 0xc;
-    return (int)event + off;
+    return (VoxRule *)&event->sentenceOffs[event->numSentences];
 }
 
 /* iSPCH_SentenceUsesParm @0x8010B158 : 1 if any phrase of `sentence` references parameter `paramIdx`.
@@ -81,56 +81,52 @@ int iSPCH_GetRuleDataAddr(VoxEvent *event)
  * that reaches the same byte-exact match without either. */
 int iSPCH_SentenceUsesParm(VoxSentence *sentence, unsigned int paramIdx)
 {
-    int numPhrases = VoxSentence_GetNumPhrases(sentence);
-    int phraseIdx  = 0;
-    int found      = 0;
-    if (0 < numPhrases) {
-        do {
-            int phrase;
-            phrase = iSPCH_GetOffset8((int)sentence, (int)sentence->phraseOffs, phraseIdx);
-            if (((unsigned int)*(unsigned char *)(phrase + 2) & 0xf) == paramIdx) {
-                found = 1;
-                goto done;
+    int numPhrases;
+    int phraseIdx;
+    int found;
+
+    numPhrases = VoxSentence_GetNumPhrases(sentence);
+    found = false;
+
+    for(phraseIdx = 0; phraseIdx < numPhrases; phraseIdx++) {
+        VoxPhrase *phrase;
+        int j;
+
+        phrase = (VoxPhrase *)iSPCH_GetOffset8((int)sentence, (int)sentence->phraseOffs, phraseIdx);
+        if ((phrase->modeParam & 0xf) == paramIdx) {
+            found = true;
+            break;
+        }
+        
+        for(j = 0; j < 4; j++) {
+            if ((phrase->nibbles[j] & 0xf) == paramIdx) {
+                found = true;
+                break;
             }
-            {
-                int j = 0;
-                do {
-                    unsigned char *p = (unsigned char *)(phrase + j);
-                    if (((unsigned int)*(p + 4) & 0xf) == paramIdx) {
-                        found = 1;
-                        break;
-                    }
-                    j = j + 1;
-                } while (j < 4);
-            }
-            phraseIdx = phraseIdx + 1;
-        } while (phraseIdx < numPhrases);
+        }
     }
-done:
     return found;
 }
 
-/* iSPCH_GetRuleID @0x8010B220 : the rule-id byte at `index` (< 8) of an event's rule data, or 0xffffffff. */
-unsigned int iSPCH_GetRuleID(VoxEvent *event, int index)
+/* iSPCH_GetRuleID @0x8010B220 : the rule-id byte at `index` (0..7) of an event's rule data, or -1. */
+int iSPCH_GetRuleID(VoxEvent *event, int index)
 {
-    unsigned int result = 0xffffffff;
-    int ruleData = iSPCH_GetRuleDataAddr(event);
-    if ((unsigned int)index < 8) {
-        unsigned char *rule = (unsigned char *)(index * 2 + ruleData);
-        /* W85-S9 (device purity): the three retail decode slots at 0x10/0x14/0x18 were modelled
-         * with `volatile unsigned int id/param/type;` locals.  They are a plain local SCRATCH
-         * ARRAY -- always memory, so the stores survive DSE without `volatile` -- and the array
-         * spelling holds the slot ORDER (an addressable-scalar spelling assigns the slot only
-         * when `&x` is parsed, which reorders them).  PASS 29/29 unchanged.
-         * FALSIFIED: dropping `volatile` with no replacement (the three stores vanish, and the
-         * whole `sll/addu` index chain re-colors). */
-        unsigned int decode[3];
-        unsigned int idCopy;
-        idCopy = *rule;
-        decode[0] = idCopy;
-        decode[1] = *(rule + 1) & 0xf;
-        decode[2] = (unsigned int)(unsigned char)*(rule + 1) >> 4;
-        result = idCopy;
+    int result = -1;
+    VoxRule *rules = iSPCH_GetRuleDataAddr(event);
+    if (index >= 0 && index < 8) {   /* gcc folds the signed range check to retail's `sltiu index,8` */
+        VoxRule *rule = (VoxRule *)(index * 2 + (int)rules);   /* MATCH: int-sum operand order (mult first); `rules + index` swaps the addu */
+        /* Retail stores the decoded id/param/type to 0x10/0x14/0x18 and reads back only the id:
+         * the source unpacked the rule into a LOCAL STRUCT (gcc 2.8 never scalarises aggregates,
+         * so the three member stores stay in memory and cse forwards .id into the result).  The
+         * struct also fixes the slot ORDER.  History: modelled first with `volatile` scalars, then
+         * with a scratch array (W85-S9); the struct is the honest spelling, PASS 29/29 (2026-09-05).
+         * FALSIFIED: plain scalars without the aggregate (the three stores vanish, the
+         * `sll/addu` index chain re-colors). */
+        VoxRuleDecoded d;
+        d.id       = rule->id;
+        d.paramIdx = rule->typeParam & 0xf;
+        d.type     = rule->typeParam >> 4;
+        result = d.id;
     }
     return result;
 }
@@ -227,17 +223,17 @@ void iSPCH_RuleSet(VoxEvent *event, int sentenceIdx, int *values)
         int offSent;
         int            numRules = event->numRules;
         int            i        = 0;
-        unsigned char *rd;
-        int            rdRaw    = iSPCH_GetRuleDataAddr(event);
+        VoxRule       *rd;
+        VoxRule       *rdRaw    = iSPCH_GetRuleDataAddr(event);
         offSent = iSPCH_GetOffset16((int)event, (int)event->sentenceOffs, sentenceIdx);
-        rd = (unsigned char *)rdRaw;
+        rd = rdRaw;
         if (i < numRules) {
             do {
                 /* W85-S9 (device purity, PASS 78/78 held): this block used to carry THREE
                  * `volatile unsigned int` decode slots plus TWO `*(volatile unsigned char *)`
                  * reads of rd[1].  Both device families are gone:
-                 *  (1) the slots are a plain local scratch ARRAY (memory by construction, so the
-                 *      three dead stores survive DSE with no qualifier);
+                 *  (1) the slots are a local VoxRuleDecoded struct (an aggregate is memory by
+                 *      construction in gcc 2.8, so the three dead stores survive with no qualifier);
                  *  (2) retail loads rd[1] TWICE (0x8010B318 + 0x8010B328).  The `volatile` reads
                  *      were forcing that; the INDEX FORM `rd[i*2+1]` does it honestly -- the
                  *      walker's `+1` never becomes its own induction register, so both loads keep
@@ -245,7 +241,7 @@ void iSPCH_RuleSet(VoxEvent *event, int sentenceIdx, int *values)
                  *      3 insns: loop.c strength-reduces `rd+1` into a second biv `addiu s1,s4,1`
                  *      and the jump-table base falls into the loop -- measured 49 diffs / 81 insns.
                  *      A label+goto rewrite of this loop does NOT help: 51 diffs / 81.) */
-                unsigned int decode[3];
+                VoxRuleDecoded decode;
                 unsigned int ruleByte;
                 unsigned int packed;
                 unsigned int paramIdx;
@@ -258,28 +254,27 @@ void iSPCH_RuleSet(VoxEvent *event, int sentenceIdx, int *values)
                  * cse/make_regs_eqv from making it canonical, so `ruleByte = byteTmp` survives as
                  * retail's `addu $s3,$a0,$zero` copy instead of our second `lbu`.  With one load
                  * the ruleType temp's $a0/$a1 knock-on disappears too. */
-                byteTmp = rd[i * 2];
-                decode[0] = byteTmp;
+                byteTmp = rd[i].id;
+                decode.id = byteTmp;
                 ruleByte = byteTmp;
-                packed = rd[i * 2 + 1];
-                decode[1] = packed & 0xf;
+                packed = rd[i].typeParam;
+                decode.paramIdx = packed & 0xf;
                 paramIdx = packed & 0xf;
-                ruleType = (unsigned int)rd[i * 2 + 1] >> 4;
+                ruleType = (unsigned int)rd[i].typeParam >> 4;
                 /* MATCH (w49-a9, 2 -> PASS): methodology 3.25-3c -- gcc's reorg REFUSES to slot-fill
                  * a volatile MEM, so the volatile-qualified store could never reach retail's
                  * `beqz` delay slot (`sw $a1,0x18($sp)` sits IN the slot).  Storing through a
                  * NON-volatile cast keeps the slot addressable (the store still survives DSE) while
                  * letting fill_simple_delay_slots take it.  Equivalent form measured: a block-local
                  * `unsigned int *keep = (unsigned int *)&ruleTypeStore; *keep = ruleType;` (also PASS). */
-                decode[2] = ruleType;
+                decode.type = ruleType;
                 switch (ruleType) {
                 case 0:
                 case 3:
                     if (iSPCH_SentenceUsesParm(offSent, paramIdx) != 0) {
                         int **valuesSlot = &values;
                         int *valuesNow = *valuesSlot;
-                        gSentenceRuleSet(event->id, ruleByte,
-                            valuesNow[paramIdx], (int)valuesNow);
+                        gSentenceRuleSet(event->id, ruleByte, valuesNow[paramIdx], (int)valuesNow);
                     }
                     break;
                 case 1:
@@ -289,7 +284,7 @@ void iSPCH_RuleSet(VoxEvent *event, int sentenceIdx, int *values)
                 default:
                     break;
                 }
-                i  = i + 1;
+                i++;
             } while (i < numRules);
         }
     }
@@ -439,33 +434,30 @@ void iSPCH_RuleSet(VoxEvent *event, int sentenceIdx, int *values)
  *   reorder 10, ruleData/ruleType/value first 10, all-split 48@108. */
 unsigned char iSPCH_GetRuleSettings(VoxEvent *event, int *values, char *out)
 {
-    unsigned char *ruleData;
+    VoxRule       *ruleData;
     int            numRules = event->numRules;
     unsigned char  result = 0;
     unsigned char  flags = 0;
     int            ruleType;
     int           *value;
-    ruleData = (unsigned char *)iSPCH_GetRuleDataAddr(event);
+    ruleData = iSPCH_GetRuleDataAddr(event);
     ruleType = 1;
     value = values + 1;
     do {
-        int            i;
-        int           *currentValue;
+        int  i;
+        int *currentValue;
         i = 0;
         if (i < numRules) {
             currentValue = value;
             do {
-                /* MATCH (w61-a19): retail's frame has a FOURTH 4-byte memory slot in this block
-                 * at 0x1C that is NEVER written.  W85-S9 makes that literal: the three written
-                 * decode slots (0x10 ruleId, 0x14 param, 0x18 type -- 0x10 and 0x18 are read back
-                 * at 0x8010B4A8/AC) and the unwritten one are ONE 4-element local scratch array.
-                 * Memory by construction, so no `volatile` is needed for the dead store to
-                 * survive, the slot ORDER is fixed by the array (an addressable scalar only gets
-                 * its slot where `&x` is parsed -- that reordering costs 6-10 diffs), and the two
-                 * reload spills land at retail's 0x20/0x24.  `decode[3]` unused is the point.
-                 * FALSIFIED for the 4th slot: an unused addressable scalar and an unused
-                 * `unsigned int spare[1]` both get NO slot (10 diffs, spills 4 low). */
-                unsigned int decode[4];
+                /* The decoded rule lives in a local VoxRuleDecoded (0x10 id, 0x14 paramIdx, 0x18
+                 * type; .id and .type are read back at 0x8010B4A8/AC).  An aggregate is memory by
+                 * construction in gcc 2.8, so the dead paramIdx store survives with no `volatile`
+                 * and the member order fixes the slot order.  The 4th frame word at 0x1C that
+                 * w61-a19 / W85-S9 modelled as an unused `decode[3]` array element is NOT needed:
+                 * the 12-byte struct gates 112/112 with the reload spills still at 0x20/0x24
+                 * (2026-09-05). */
+                VoxRuleDecoded decode;
                 unsigned int param;
                 unsigned int packed;
                 unsigned int bit;
@@ -473,11 +465,11 @@ unsigned char iSPCH_GetRuleSettings(VoxEvent *event, int *values, char *out)
                 unsigned int typeArg;
                 unsigned char hit;
                 int          testValue;
-                decode[0] = ruleData[i * 2];
-                packed = ruleData[i * 2 + 1];
+                decode.id = ruleData[i].id;
+                packed = ruleData[i].typeParam;
                 hit = 0;
-                decode[1] = packed & 0xf;
-                decode[2] = (unsigned int)ruleData[i * 2 + 1] >> 4;
+                decode.paramIdx = packed & 0xf;
+                decode.type = (unsigned int)ruleData[i].typeParam >> 4;
                 param = packed & 0xf;
                 if (ruleType == 0xc) {
                     if (param != 0)
@@ -489,8 +481,8 @@ unsigned char iSPCH_GetRuleSettings(VoxEvent *event, int *values, char *out)
                     testValue = *currentValue;
                 }
                 bit = 1 << (7 - i);
-                typeArg = decode[2];
-                ruleIdArg = decode[0];
+                typeArg = decode.type;
+                ruleIdArg = decode.id;
                 if (typeArg == 4) {
                     if (values[param] != 0)
                         hit = bit;
@@ -502,8 +494,7 @@ unsigned char iSPCH_GetRuleSettings(VoxEvent *event, int *values, char *out)
                      * decl costs a callee-saved reg + an 88-byte frame (w34-a10 receipt). */
                     VoxEvent **sentSlot = &event;
                     if (gSentenceRuleTest != 0)
-                        testResult = gSentenceRuleTest(
-                            event->id, ruleIdArg, testValue);
+                        testResult = gSentenceRuleTest(event->id, ruleIdArg, testValue);
                     else
                         testResult = -1;
                     if (testResult == 0)
@@ -517,8 +508,8 @@ unsigned char iSPCH_GetRuleSettings(VoxEvent *event, int *values, char *out)
 next_rule:
             } while (++i < numRules);
         }
-        ruleType = ruleType + 1;
-        value = value + 1;
+        ruleType++;
+        value++;
     } while (ruleType < 0xd);
     *out = (char)flags;
     return (unsigned char)result;

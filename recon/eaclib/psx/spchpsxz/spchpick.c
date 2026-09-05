@@ -938,7 +938,7 @@ void iSPCH_ConstantRuleSet(VoxEvent *event, VoxSentence *sentence)
             unsigned char *pickBase = ispch_gPickSamples;
             short *choice = ispch_gChoice;
             do {
-                unsigned int rid;
+                int rid;
                 int j;
                 int ruleEntry;
                 ruleEntry = iSPCH_GetOffset8((int)sentence, (int)sentence->phraseOffs, table);

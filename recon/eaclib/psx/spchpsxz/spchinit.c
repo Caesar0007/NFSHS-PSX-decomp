@@ -121,7 +121,7 @@ __asm__("\t.globl\tgGameNum\n\t.globl\tgFilterSetting\n\t.globl\tgLastSubTick\n"
  *   the callback's result, or 0 if no callback is registered.  `numBytes`/`tag` are passed through to
  *   the callback (a debug-tagging alloc convention -- e.g. "spch banks") but this wrapper itself never
  *   reads them (its own oracle body takes no args -- classic nullsub-still-takes-real-args). */
-void *iSPCH_MemAlloc(int numBytes, const char *tag)
+void *iSPCH_MemAlloc(int numBytes, char *tag)
 {
     void *result = 0;
     if (gMemAlloc != 0)
@@ -133,7 +133,7 @@ void *iSPCH_MemAlloc(int numBytes, const char *tag)
 void iSPCH_MemFree(void *block)
 {
     if (gMemFree != 0)
-        gMemFree();
+        gMemFree((char *)block);
 }
 
 /* SPCH_Deinit @0x800EB600 : tear down the speech system (only if it was initialised). */
@@ -247,7 +247,7 @@ VoxBank **SPCH_InitBankMem(SPCHAllocFn memAllocFn, SPCHFreeFn memFreeFn, int num
  * `void *const`; with and without the locals).  Gates: verify_asm 7/7 PASS,
  * tugate 7/7, brdist 0/7, slotcheck 0, wordcmp REAL=0.
  * Receipts: scratchpad/w82/A4_receipt.md */
-int SPCH_Init(void (*sampleRequestCb)(int, int, int, int), unsigned int gameNum, int dataRate)
+int SPCH_Init(SPCHSampleRequestFn sampleRequestCb, unsigned int gameNum, int dataRate)
 {
     gSampleRequest    = sampleRequestCb;
     gGameNum       = gameNum;

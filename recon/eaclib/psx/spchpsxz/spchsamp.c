@@ -39,8 +39,8 @@ void iSPCH_InitSample(int *out)
 int iSPCH_UnPackSample(VoxBank *bank, int sampleIdx, int *out)
 {
     int result = 0;
-    int done = result;
-    int endOff = result;
+    int done = 0;
+    int endOff = 0;
 
     iSPCH_InitSample(out);
     if (sampleIdx < bank->numSamples) {

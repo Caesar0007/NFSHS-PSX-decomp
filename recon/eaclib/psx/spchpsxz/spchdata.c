@@ -19,8 +19,7 @@
 /* iSPCH_GetMatchValue @0x80100710 : matchValues[index] -- the int table right after the header. */
 int iSPCH_GetMatchValue(VoxPhrase *phrase, int index)
 {
-    int *values = (int *)(phrase + 1);   /* +0x8 */
-    return values[index];
+    return phrase->matchValues[index];
 }
 
 /* VoxSentence_GetShortRule @0x80100724 : low 2 bits of the sentence's flags byte (+3). */

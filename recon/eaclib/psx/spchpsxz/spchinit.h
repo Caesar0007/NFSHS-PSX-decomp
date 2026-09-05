@@ -3,8 +3,11 @@
 
 #include "spch_types.h"
 
-typedef void *(*SPCHAllocFn)(int numBytes, const char *tag);
-typedef void (*SPCHFreeFn)(void);
+/* Callback types = the game's SLD-verified entry points (speech.cpp: Speech_AllocateRAM__FlPc,
+ * Speech_PurgeRAM__FPc, Speech_HandleRequest__Fllll), so a C++ caller needs no casts. */
+typedef char *(*SPCHAllocFn)(long numBytes, char *tag);
+typedef void  (*SPCHFreeFn)(char *block);
+typedef long  (*SPCHSampleRequestFn)(long bank, long offset, long size, long event);
 
 /* ---- speech state owned by spchinit.obj (+ the callback slots next to it) ---- */
 extern int gGameNum;           /* @0x80148428 current game/race number */
@@ -16,16 +19,16 @@ extern int gSPCH_Initialized;  /* 0x1789a34 when initialised */
  * signatures are ours -- unified across the library 2026-09-04, byte-neutral (measured) */
 extern SPCHAllocFn gMemAlloc;                                          /* @0x801370A8 */
 extern SPCHFreeFn  gMemFree;                                           /* @0x801370AC */
-extern void (*gSampleRequest)(int, int, int, int);                     /* @0x80137094 */
+extern SPCHSampleRequestFn gSampleRequest;                             /* @0x80137094 */
 extern int  (*gSentenceRuleTest)(unsigned int, unsigned int, int);     /* @0x80137098 */
 extern void (*gSentenceRuleSet)(unsigned int, unsigned int, int, int); /* @0x8013709C */
 
-extern void *iSPCH_MemAlloc(int numBytes, const char *tag);             /* @0x800EB5A4 */
+extern void *iSPCH_MemAlloc(int numBytes, char *tag);                   /* @0x800EB5A4 */
 extern void iSPCH_MemFree(void *block);                                        /* @0x800EB5D4 */
 extern void SPCH_Deinit(void);                                          /* @0x800EB600 */
 extern void iSPCH_InitInGame(void);                                     /* @0x800EB654 */
 extern int  SPCH_GetSampleDataRate(int numSamples, int rate, int channels); /* @0x800EB66C */
 extern VoxBank **SPCH_InitBankMem(SPCHAllocFn memAllocFn, SPCHFreeFn memFreeFn, int numBanks);  /* @0x800EB6F0 */
-extern int  SPCH_Init(void (*sampleRequestCb)(int, int, int, int), unsigned int gameNum, int dataRate); /* @0x800EB748 */
+extern int  SPCH_Init(SPCHSampleRequestFn sampleRequestCb, unsigned int gameNum, int dataRate); /* @0x800EB748 */
 
 #endif

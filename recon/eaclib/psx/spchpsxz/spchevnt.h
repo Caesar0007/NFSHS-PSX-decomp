@@ -6,11 +6,11 @@
 /* ---- storage owned by spchevnt.obj ---- */
 extern VoxSlotsStruct gVoxEvents;   /* @0x80148060 the 16-slot queue + its header */
 extern int gPreLoadTicks;           /* @0x80148044 */
-extern int gEventDats[4];           /* @0x80148048 bound event-data blob table */
+extern VoxEventDat *gEventDats[4];  /* @0x80148048 the 4 bound event-data blobs */
 extern int gVoxInGame[2];           /* @0x80148058; [1] is retail's gRepeatCount */
 extern int gReparm;                 /* @0x801370A0 optional re-parameterize hook slot */
 
-extern VoxEvent *iSPCH_SearchEventDat(int dat, unsigned int eventID); /* @0x800E6EC4 */
+extern VoxEvent *iSPCH_SearchEventDat(VoxEventDat *dat, unsigned int eventID); /* @0x800E6EC4 */
 extern VoxEvent *iSPCH_FindEvent(unsigned int eventID);               /* @0x800E6F4C */
 extern void iSPCH_InitEventDat(void);                                 /* @0x800E6FBC */
 extern int  GetFilterLength(void);                                    /* @0x800E6FE4 */

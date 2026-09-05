@@ -3,6 +3,6 @@
 
 #include "spch_types.h"
 
-extern int SPCH_ResolveData(unsigned short *dat); /* @0x800EBBD4 */
+extern int SPCH_ResolveData(VoxEventDat *dat); /* @0x800EBBD4 */
 
 #endif

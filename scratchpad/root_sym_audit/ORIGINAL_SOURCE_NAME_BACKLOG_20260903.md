@@ -1922,3 +1922,91 @@ exactly, but has no source-lineage evidence and contradicts the SLD topology,
 so it was rejected rather than accepted as invented source.  The traffic SYM
 trace instead suggests an as-yet-unrecovered inline accessor around
 `forcePurgatory_`.
+
+## P859 source-shape closure (2026-09-05)
+
+This round removes **21 source-only declarations** and recovers one exact
+cross-build name without adding asm or volatile.  The strict `game/common`
+census moves from 527 to **507** marked source-only carriers and from 32 to
+**33** canonical name recoveries.  All 1,258 SYM functions remain mapped,
+with zero missing names or mapping-review items; 547/547 object-owned globals
+and 115/115 special vtable records remain mapped.  The six extra source locals
+left by the strict report are explicitly retained review items, not accepted
+original names.
+
+- `game/common/aiperson.cpp` — `AIPerson_LoadScriptData`: removed
+  `byteOffset`, `actionMul`, `byteOff2`, and `scriptBase`.  Retail SYM records
+  exactly `perLoop`, `actionLoop`, and `reactionLoop`.  The recovered source is
+  now a natural triple nested `for`, with direct
+  `AIPerson_ScriptData[perLoop][actionLoop]` member indexing and no synthetic
+  source label.  Its generated debug stream matches the retail block-start
+  VAs (`EA4` twice, `EE8`, `EF4` twice, `F00`), block-end VAs (`F3C` twice,
+  `F44` twice, `F50` twice), local ordering, and registers (`perLoop=$s7`,
+  `actionLoop=$s2`, `reactionLoop=$s1`).  It is PASS 55/55, `diffsrc` zero
+  with an exact `-g` twin, 3/3 branches clean, and the TU is 8/8 PASS.
+- `game/common/audiotrk.cpp` — `AudioTrk_AddCustomObject`: removed
+  `fadevol`, both full-width `level` declarations, and `dopClamped`.  Retail
+  SYM retains only `rangesq` in the near branch and
+  `range`/`rangesq`/`ambdist` in the fade branch.  The 127 scale uses the
+  source-backed shift/subtract idiom `((fade << 7) - fade)` found in matched
+  Rage Racer code; signed division and the duplicated clamp expression retain
+  retail code without extra names.  It is PASS 413/413, `diffsrc` zero with an
+  exact `-g` twin, and 57/57 branches clean; `AudioTrk_SoundTrack` remains PASS
+  358/358 and the TU remains 6/6 PASS.
+- `game/common/bworld.cpp` — `SetupChunkBuildList`: replaced the unproven
+  `viewList` spelling with `chunkViewList`, the exact name used for the same
+  per-chunk visibility-row walker in matched NFS2 `bworld` source, and removed
+  a stale `buildList` carrier marker for which no declaration existed.  The
+  function is PASS 203/203, `diffsrc` zero with an exact `-g` twin, and 18/18
+  branches clean.  `BWorld_OnyxBuildFacets` removes `fogStart`, `fogDist`,
+  `fogState`, and `time`; none exists in the retail function's SYM block, and
+  the direct typed field/global expressions are exact.  It is PASS 193/193
+  with 12/12 branches clean; the TU is 21/21 PASS.
+- `game/common/cars.cpp` — `Car_TireSkiddingStuff`: removed four scoped
+  `splashFront`/`splashRear` copies.  Retail SYM has no splash-result locals;
+  the orientation-sensitive `front = front <= 0 ? 1 : front` and rear twin
+  each occupy exactly one corresponding retail SLD statement interval.  The
+  function is PASS 1957/1957, `diffsrc` zero with an exact `-g` twin, 248/248
+  branches clean, and the TU is 33/33 PASS.
+- `game/common/chunk.cpp` — `Chunk::InstanceGroup`: removed `renderQuad`,
+  `quadCount`, `probe`, and `cur`.  The group walk now uses retail-SYM `inst`,
+  the clamp uses the natural indexed `simObjs[count]` form and the recovered
+  inline `GetNumElements()` calls, and the four render-quad boundaries are
+  direct member chains at the retail SLD intervals.  The function is PASS
+  329/329, `diffsrc` zero with an exact `-g` twin, 20/20 branches clean, and the
+  TU is 4/4 PASS.
+- `game/common/replay.cpp` — `Replay_ResetReplay`: removed `pBuf`.  Matched
+  NFS2 source has the same unbraced ascending indexed buffer-clear `for`;
+  NFS4 SLD maps its setup to the first interval and its store plus reversed
+  induction update to the second.  GCC reverses that source loop into retail's
+  decrementing pointer walk.  The function is PASS 86/86, `diffsrc` zero with
+  an exact `-g` twin, and 8/8 branches clean.  The normal TU gate is 16/16;
+  the source-only lane remains 15/16 because of the unrelated existing
+  `Replay_StoringControllerData` residual.
+
+### P859 retained source-shape debt
+
+- `AIPerson_LoadPersonalityData::copCollisionFirmness` remains: the spelling
+  is the exact destination member name, but no corresponding local survives
+  in that function's SYM block and direct assignment removes three retail
+  instructions.  `AudioTrk_SoundTrack::curBack` likewise remains required to
+  prevent reassociation; neither declaration has unique source-bearing proof.
+- `BWorld_OnyxBuildFacets::ts` remains because direct
+  `TrackSpec_gSpec` fields are count-exact but differ at ten words.
+  `chunkIndFwd`/`chunkIndBwd` and `BWorld_Init::random` remain after their
+  direct/canonical probes regressed substantially.
+- `Chunk::InstanceGroup::groupData` remains because direct group access emits
+  328/329 instructions with five diffs.  `quadData` awaits recovery of the
+  likely original inline payload accessor.  The first-loop `simObjs` spelling
+  is semantically sound but optimizes away and is not independently named in
+  that lexical SYM scope.  Removing the inherited volatile guard read was
+  tested and rejected at 328/329 with three diffs; no new volatile was added.
+- `Replay_ResetReplay::piVar2` remains: direct counter indexing emits 87/86
+  instructions with an extra address increment.  Its first buffer loop is now
+  SLD-aligned, but the later camera/counter loops and epilogue still carry
+  source-line grouping debt.
+- The five non-SYM values in `AIHigh_Opponent::CheckForWipeOut` remain after
+  six direct-expression/source-order probes (best: three diffs at 121/120).
+  `NFS3_CheckForFileOperations::e` also remains after direct-bound and natural
+  one-local `for` forms regressed to 11 and 10 diffs respectively.  Both files
+  were restored byte-for-byte and retain their PASS functions/TUs.

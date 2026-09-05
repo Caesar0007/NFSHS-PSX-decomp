@@ -197,29 +197,20 @@ void Replay_ResetReplay(void)
   /* SYM (nfs4-f-v3.txt) lists exactly ONE local for this whole function: `i` (REG INT), one
    * flat block spanning the entire body -- the true source reuses a SINGLE int counter across
    * all three loops below (buffer clear / camera-mode init / ReplayCounter clear), not three
-   * separate Ghidra-named ints. The buffer-clear loop's address is a genuine anonymous pointer
-   * walk (oracle strength-reduces base+i into a decrementing pointer, §3.12 #1). The camera
-  * loop is source-level Cars_gHumanRaceCarList[i]; gcc strength-reduces that index to the
-  * oracle's incrementing $s2 cursor and hoists it after the GameSetup/ReplayCamera bases. */
+   * separate Ghidra-named ints.  The NFS2 lineage spells the buffer clear as an ascending
+   * indexed loop; NFS4's SLD assigns its initializer/address setup to line 209 and its store and
+   * increments to line 210, and gcc loop.c reverses that source loop into the retail decrementing
+   * pointer walk.  The camera loop is source-level Cars_gHumanRaceCarList[i]; gcc strength-reduces
+   * that index to the oracle's incrementing $s2 cursor and hoists it after the
+   * GameSetup/ReplayCamera bases. */
   int i;
-  /* SYM-CODEGEN-CARRIER: pBuf -- no local record survives because loop.c
-   * eliminates this source pointer into the decrementing retail $v0 walk.
-   * Natural `Replay_ReplayBuffer.buffer[i]` spelling measures 85/86 with
-   * seven diffs, including the wrong address-add order and an extra decrement. */
-  char *pBuf;
   /* SYM-CODEGEN-CARRIER: piVar2 -- the decrementing pointer produces retail's
    * two-store walk.  Direct `Replay_ReplayCounter[i]` measures 87/86 and adds
    * one address increment, so SYM cannot recover a unique source identifier. */
   int *piVar2;
-
   if ((u_int)Replay_ReplayMode < 2) {
-    i = 0x5fff;
-    pBuf = (char *)&Replay_ReplayBuffer + i;
-    do {
-      ((tReplayBuffer *)pBuf)->buffer[0] = 0;
-      pBuf = pBuf - 1;
-      i = i + -1;
-    } while (-1 < i);
+    for (i = 0; i < 0x6000; i++)
+      Replay_ReplayBuffer.buffer[i] = 0;
     Replay_ReplayStorePtr = 0;
     Replay_ReplayGetPtr = 0;
   }

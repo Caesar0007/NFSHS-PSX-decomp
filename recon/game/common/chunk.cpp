@@ -28,13 +28,6 @@ void Chunk_DeInit(void);
 void Chunk::InstanceGroup(SerializedGroup *chunkGroup, SimpleMem *mem)
 {
   SerializedGroup *geomGroup;
-  /* SYM-CODEGEN-CARRIER: renderQuad -- reading renderQuads[1] directly emits
-     331/329 instructions and 82 diffs; assigning the call result to this
-     cursor before the field store is count-exact with two scheduling diffs. */
-  Trk_Quad *renderQuad;
-  /* SYM-CODEGEN-CARRIER: quadCount -- repeating the semantic quad count emits
-     334/329 instructions and 67 diffs. */
-  short quadCount;
   /* SYM-CODEGEN-CARRIER: groupData -- spelling every access from the returned
      SerializedGroup directly emits 328/329 instructions and five diffs; retail
      materializes the +0x10 data base while retaining the call result. */
@@ -71,7 +64,8 @@ void Chunk::InstanceGroup(SerializedGroup *chunkGroup, SimpleMem *mem)
     else {
       int i = 0;
       int numElements = simGroup->m_num_elements;
-      Trk_SimpleInst *inst = (Trk_SimpleInst *)(simGroup + 1);
+      Trk_SimObject *simObjs = (Trk_SimObject *)(simGroup + 1);
+      Trk_SimpleInst *inst;
       for (; i < numElements; i = i + 1) {
         /* MATCH (reqdelta receipt, allocsim 27/27 on this fn): retail puts the counter
            `i` in $a2 and the inner while-loop's -1 sentinel in $a3; we had them swapped
@@ -79,19 +73,18 @@ void Chunk::InstanceGroup(SerializedGroup *chunkGroup, SimpleMem *mem)
            is refs(i) 8 -> 11, and flow.c weights a ref by loop depth (+2 in-loop, +1
            outside): these two 0-insn use fences deliver exactly +3.  Count stays 329. */
         __asm__("" : : "r"(i));
-        if (((volatile Trk_SimObject *)inst)[i].instIndex != 0x7f) {
-          int index = (int)((Trk_SimObject *)inst)[i].instIndex;
-          /* SYM-INLINE-THIS: LocateGroupNum
-             SYM-CODEGEN-CARRIER: probe -- this is the inlined method's group
-             cursor; `instGroup` itself remains live for the later copy. */
-          SerializedGroup *probe = instGroup + 1;
+        /* MATCH: retail reloads instIndex for `index` after the guard; without
+           this volatile read GCC forwards the guard value and drops one insn. */
+        if (((volatile Trk_SimObject *)simObjs)[i].instIndex != 0x7f) {
+          int index = (int)simObjs[i].instIndex;
+          /* SYM-INLINE-THIS: LocateGroupNum */
+          inst = (Trk_SimpleInst *)(instGroup + 1);
           if (instGroup->m_num_elements <= index) break;
           while (index--) {
-            probe = (SerializedGroup *)((int)&probe->m_type + (int)(short)probe->m_type);
+            inst = (Trk_SimpleInst *)((int)inst + (int)inst->size);
           }
-          if (((probe == (SerializedGroup *)0x0) ||
-               (*(char *)((int)&probe->m_type + 2) != '\x05')) ||
-              (*(char *)((int)&probe[2].m_type + 3) != '\0')) break;
+          if (((inst == (Trk_SimpleInst *)0x0) || (inst->type != '\x05')) ||
+              (*((char *)inst + 0x23) != '\0')) break;
         }
       }
       __asm__("" : : "r"(i));
@@ -147,16 +140,15 @@ InstanceGroup_instancesDone:
     ;
     /* ---- clamp out-of-range instance indices to 0x7f ---- */
     if ((this->simObjBuf != (Group *)0x0) && (this->objInstanceBuf != (Group *)0x0)) {
-      int count = this->simObjBuf->m_num_elements;
-      Trk_SimObject *simObjs = (Trk_SimObject *)(simGroup + 1);
-      while (count--) {
-        /* SYM-CODEGEN-CARRIER: cur -- indexing simObjs directly emits 331/329
-           instructions and 86 diffs, including a different saved-register set. */
-        Trk_SimObject *cur;
+      Trk_SimObject *simObjs;
+      int count;
 
-        cur = simObjs + count;
-        if (this->objInstanceBuf->m_num_elements <= (int)(u_int)cur->instIndex) {
-          cur->instIndex = 0x7f;
+      simObjs = (Trk_SimObject *)(simGroup + 1);
+      count = this->simObjBuf->GetNumElements();
+      while (count--) {
+        if ((int)(u_int)simObjs[count].instIndex >=
+            this->objInstanceBuf->GetNumElements()) {
+          simObjs[count].instIndex = 0x7f;
         }
       }
     }
@@ -188,12 +180,9 @@ InstanceGroup_instancesDone:
     this->quadCounts[5] = *(u_char *)(quadData + 22);
     this->renderQuads[0] =
          (Trk_Quad *)((Group *)(geomGroup)->LocateCreateGroupType(0x19, mem, 0) + 1);
-    renderQuad = this->renderQuads[0];
-    renderQuad = renderQuad + *(short *)(quadData + 12);
-    this->renderQuads[1] = renderQuad;
-    quadCount = *(short *)(quadData + 14);
-    this->renderQuads[2] = renderQuad + quadCount;
-    this->renderQuads[3] = renderQuad + quadCount + *(short *)(quadData + 20);
+    this->renderQuads[1] = this->renderQuads[0] + *(short *)(quadData + 12);
+    this->renderQuads[2] = this->renderQuads[1] + *(short *)(quadData + 14);
+    this->renderQuads[3] = this->renderQuads[2] + *(short *)(quadData + 20);
   }
   this->stripBuf =
        (Group *)(geomGroup)->LocateCreateGroupType(0x1a, mem, 0);

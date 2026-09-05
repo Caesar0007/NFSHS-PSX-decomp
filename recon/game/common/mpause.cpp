@@ -207,35 +207,18 @@ void MPause_MusicLogic(char active)
 void MPause_ControllerLogic(void)
 
 {
-  /* SYM-CODEGEN-CARRIER: item -- the optimized retail pointer has no retained
-     debug record. Direct member calls grow the function from 57 to 64
-     instructions and produce 57 frame/allocation/load diffs; this shared
-     pointer restores the retail caller-saved address web. */
-  tPMenuItemLeftRightSliderIndexed *item;
-
+  /* SOURCE-SHAPE RECEIPT: the retail SYM block has no function local here;
+     its SLD has the two disable expansions in the line-378 region and the
+     two enable expansions in the line-383 region.  The same TU helpers are
+     already used by MPause_StartPauseMenu and preserve the four transient
+     $s0 item-address webs byte-for-byte without inventing a retained local. */
   if (PadGetState((u_int)(Device_gPausePortIndex != '\0') << 4) == 2) {
-    item = &gPauseMenuDefs->itemControllerShockMode;
-    if (item->IsEnabled()) {
-      ChangedEnabling = 1;
-      item->fFlags |= 1;
-    }
-    item = &gPauseMenuDefs->itemControllerShockImpact;
-    if (item->IsEnabled()) {
-      ChangedEnabling = 1;
-      item->fFlags |= 1;
-    }
+    MPause_DisableItem(&gPauseMenuDefs->itemControllerShockMode);
+    MPause_DisableItem(&gPauseMenuDefs->itemControllerShockImpact);
   }
   else {
-    item = &gPauseMenuDefs->itemControllerShockMode;
-    if (item->IsDisabled()) {
-      ChangedEnabling = 1;
-      item->fFlags &= ~1U;
-    }
-    item = &gPauseMenuDefs->itemControllerShockImpact;
-    if (item->IsDisabled()) {
-      ChangedEnabling = 1;
-      item->fFlags &= ~1U;
-    }
+    MPause_EnableItem(&gPauseMenuDefs->itemControllerShockMode);
+    MPause_EnableItem(&gPauseMenuDefs->itemControllerShockImpact);
   }
 }
 
@@ -246,16 +229,6 @@ int MPause_Logic(void)
   tPMenuCommand command;
   tInputKeyType keyVal;
   bool debounce;
-  /* SYM-CODEGEN-CARRIER: oldItem -- this snapshot spans the virtual
-   * ProcessInput call and feeds the recorded nested start/finish calculation.
-   * Reusing start/finish for both phases grows 199 to 200 instructions and
-   * produces 57 allocation/call-setup diffs because the snapshot and
-   * pixel-position lifetimes require distinct pseudos. */
-  int oldItem;
-  /* SYM-CODEGEN-CARRIER: newItem -- post-call companion to oldItem; keeping a
-   * distinct pseudo preserves its retail s1 lifetime before nested finish is
-   * allocated independently in v1. */
-  int newItem;
 
   keyVal = kInput_KeyType_NoKey;
   debounce = Debounce(gPauseCurrentMenu);
@@ -285,9 +258,21 @@ int MPause_Logic(void)
   if (kMovingHighlight == 0) {
     if (keyVal != kInput_KeyType_NoKey) {
       gMPauseUpdate = 1;
-      oldItem = gPauseCurrentMenu->fCurrentItem;
+      /* SYM-CODEGEN-CARRIER: oldItem -- the block-local const source shape is
+         debug-compatible: GCC 2.8.0 emits no .def for this immutable pre-call
+         snapshot, matching the retail SLD line-421..425 region.  Its spelling
+         is not retained by SYM and is not recovered by the checked NFS2,
+         NFS3, NFS4-PC, CPE/MAP, or split-decompiler references.
+         ORIGINAL-NAME-UNRESOLVED: oldItem is a descriptive reconstruction
+         placeholder, not an accepted original identifier. */
+      const int oldItem = gPauseCurrentMenu->fCurrentItem;
       gPauseCurrentMenu->VirtualProcessInput(keyVal,command);
-      newItem = gPauseCurrentMenu->fCurrentItem;
+      /* SYM-CODEGEN-CARRIER: newItem -- a distinct post-call snapshot is
+         required: removing it produces 197/199 instructions and 18 diffs
+         because ItemEnabledNum may clobber the menu state before the second
+         position calculation.  Its original spelling is likewise absent.
+         ORIGINAL-NAME-UNRESOLVED: newItem remains source-name backlog. */
+      const int newItem = gPauseCurrentMenu->fCurrentItem;
       if ((short)oldItem != (short)newItem) {
         int start;
         int finish;

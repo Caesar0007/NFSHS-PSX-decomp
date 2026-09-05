@@ -19,25 +19,15 @@ void AITrigger_TriggerManager::Init(char *rawTriggers)
   int *numTriggers;
   char *currentTrigger;
   int tLoop;
-  /* SYM-CODEGEN-CARRIER: deletedCheckTime -- direct `-0xa00` typed-array
-     stores are count-exact but move `li a0,-2560` after `li s0,99`, producing
-     two scheduling diffs.  This correctly typed value restores retail order;
-     its original identifier is not recoverable from SYM or optimized code. */
-  int deletedCheckTime;
 
-  deletedCheckTime = -0xa00;
-  tLoop = 99;
   this->numTriggers_ = 0;
   this->invNumTriggers_ = 0;
-  do {
-    this->checkTime_[tLoop] = deletedCheckTime;
-    tLoop = tLoop + -1;
-  } while (-1 < tLoop);
-  tLoop = 8;
-  do {
+  for (tLoop = 0; tLoop < 100; tLoop++) {
+    this->checkTime_[tLoop] = -0xa00;
+  }
+  for (tLoop = 0; tLoop < 9; tLoop++) {
     this->lastTriggerChecked_[tLoop] = 0;
-    tLoop = tLoop + -1;
-  } while (-1 < tLoop);
+  }
   if (rawTriggers != (char *)0x0) {
     numTriggers = (int *)rawTriggers;   /* SYM: numTriggers is a REG PTR INT, aliases rawTriggers's count header */
     currentTrigger = (char *)(numTriggers + 1);   /* SYM: currentTrigger is a REG PTR CHAR (byte cursor, NOT trigger_t* -- must NOT scale by sizeof(trigger_t)=72) */

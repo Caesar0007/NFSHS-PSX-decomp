@@ -672,35 +672,21 @@ int FindClosestQuad(coorddef *pt,BWorldSm_Pos *slicePos)
 }
 
 /* ---- BWorldSm_FindClosestQuadRez__FP8coorddefP12BWorldSm_Posi  [@0x8007fac4] ---- */
-#define BW_QUAD_PT_DIR(p1, p2, p3) \
+#define QUAD_PT_DIR(p1, p2, p3) \
   (fixedmult((p1).x - (p2).x,(p3).z - (p2).z) - \
    fixedmult((p3).x - (p2).x,(p1).z - (p2).z))
+#define PT_IN_QUAD(q, p) \
+  ((QUAD_PT_DIR((q)[1],(q)[2],(p)) <= 0 ? 1 : 0) && \
+   QUAD_PT_DIR((q)[0],(q)[1],(p)) <= 0 && \
+   QUAD_PT_DIR((q)[2],(q)[3],(p)) <= 0 && \
+   (QUAD_PT_DIR((q)[3],(q)[0],(p)) <= 0 ? 1 : 0))
 int BWorldSm_FindClosestQuadRez(coorddef *pt,BWorldSm_Pos *slicePos,int hiRezFlag)
 {
   slicePos->triangleFlag = '\x03';
   if (hiRezFlag != 0) {
     slicePos->lastRezRequested = '\x02';
     if (slicePos->simQuad != (Trk_NewSimQuad *)0x0) {
-      /* SYM-CODEGEN-CARRIER: inQuad -- embedding the fourth direction test
-       * into the success branch shrinks 115 to 112 instructions and leaves
-       * 21 frame/allocation/scheduling diffs. */
-      int inQuad;
-
-      inQuad = 0;
-      if (BW_QUAD_PT_DIR(slicePos->quadPts[1],
-                         slicePos->quadPts[2],*pt) <= 0) {
-        if (BW_QUAD_PT_DIR(slicePos->quadPts[0],
-                           slicePos->quadPts[1],*pt) <= 0) {
-          if (BW_QUAD_PT_DIR(slicePos->quadPts[2],
-                             slicePos->quadPts[3],*pt) <= 0) {
-            if (BW_QUAD_PT_DIR(slicePos->quadPts[3],
-                               slicePos->quadPts[0],*pt) < 1) {
-              inQuad = 1;
-            }
-          }
-        }
-      }
-      if (inQuad) {
+      if (PT_IN_QUAD(slicePos->quadPts,*pt)) {
         slicePos->quadChanged = '\0';
         slicePos->sliceChanged = '\0';
         return 0;
@@ -716,7 +702,7 @@ int BWorldSm_FindClosestQuadRez(coorddef *pt,BWorldSm_Pos *slicePos,int hiRezFla
   slicePos->triangleFlag = '\0';
   return BWorldSm_FindClosestSlice(pt,slicePos);
 }
-#undef BW_QUAD_PT_DIR
+#undef PT_IN_QUAD
 
 /* ---- BWorldSm_FindClosestQuadMaxIterations__FP8coorddefP12BWorldSm_Posi  [@0x8007fc90] ---- */
 int BWorldSm_FindClosestQuadMaxIterations(coorddef *pt,BWorldSm_Pos *slicePos,int maxIterations)
@@ -975,17 +961,13 @@ int BWorldSm_FindClosestTriangleRez(coorddef *pt,BWorldSm_Pos *slicePos,int hiRe
   
   ret = BWorldSm_FindClosestQuadRez(pt,slicePos,hiRezFlag);
   if (slicePos->simQuad != (Trk_NewSimQuad *)0x0) {
-    /* SYM-CODEGEN-CARRIER: crossA -- SYM exposes only ret; these paired
-       expression carriers keep retail's final triangle selector in v1.
-       SYM-CODEGEN-CARRIER: crossB -- folding both products is count-exact at
-       39 instructions but leaves 6 li/store register diffs (v1 versus v0). */
-    int crossA = fixedmult(
-        slicePos->quadPts[2].x - slicePos->quadPts[0].x,
-        pt->z - slicePos->quadPts[0].z);
-    int crossB = fixedmult(
-        pt->x - slicePos->quadPts[0].x,
-        slicePos->quadPts[2].z - slicePos->quadPts[0].z);
-    slicePos->triangleFlag = 0 < crossA - crossB ? 1 : 2;
+    if (QUAD_PT_DIR(slicePos->quadPts[2],slicePos->quadPts[0],*pt) > 0) {
+      slicePos->triangleFlag = 1;
+    }
+    else {
+      slicePos->triangleFlag = 2;
+    }
   }
   return ret;
 }
+#undef QUAD_PT_DIR

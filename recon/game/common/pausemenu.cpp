@@ -53,20 +53,23 @@ void PauseMenu_MenuTextPositioned(short index,short selected,short disabled,shor
 
 {
   char *str;
-  /* SYM-CODEGEN-CARRIER: flags -- GCC strength-reuses the dead `index` home
-     for this call result, matching retail's $s0 lifetime.  Reusing the
-     otherwise-unused `disabled` parameter preserves the instruction multiset
-     but moves six scheduled rows; nesting the calls moves eighteen. */
-  int flags;
+  /* ORIGINAL-NAME-RECOVERED: flags -- the byte-matched NFS2 PC
+     FeTools_Text source declares this same TextSys_WordFlags result as
+     `short flags`.  With this exact short local, CC1PLPSX -O2 -g emits no
+     debug definition for it (it is coalesced into dead `index`), while it
+     still emits retail's only two local records, `str` and `color`.  That
+     compiler receipt explains the optimized SYM omission without a carrier
+     exemption; SLD keeps the calls in retail order: flags, str, color, draw. */
+  short flags;
   short color;
   
-  flags = TextSys_WordFlags((int)index);
-  str = TextSys_Word((int)index);
+  flags = TextSys_WordFlags(index);
+  str = TextSys_Word(index);
   color = 4;
   if (selected != 0) {
     color = 3;
   }
-  PauseMenu_FullText(str,x,(short)flags,color);
+  PauseMenu_FullText(str,x,flags,color);
   return;
 }
 

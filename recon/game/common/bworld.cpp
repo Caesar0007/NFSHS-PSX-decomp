@@ -450,27 +450,22 @@ int GetRezIndex(int dist)
 }
 
 /* ---- SetupChunkBuildList__FP13DRender_tView  [@0x8007dd74] ---- */
-/* NEAR-MISS 7 diffs (202/203 insns), reduced from 273 diffs. JEB recovered
- * the high-level loop while the SLD scopes/locals and IDA register annotations
- * established the 144-byte frame and saved-register allocation. Track_gInViewList
- * is stored as one flat 32-short row table despite its historical short ** type;
- * the row cast removes a spurious pointer load. Typed Trk_NewSlice indexing and
- * the source-order `-view + point` coordinate expressions reproduce retail's
- * address generation and load scheduling. The remaining gap is confined to two
- * prologue scheduling choices (one temporary register and one load-delay nop). */
+/* PASS 203/203.  JEB recovered the high-level loop while the SLD scopes/locals
+ * and IDA register annotations established the 144-byte frame and saved-register
+ * allocation.  The indexed chunkViewList reads preserve the source shape needed
+ * for GCC to strength-reduce the retail walker without a post-compile rewrite. */
 int SetupChunkBuildList(DRender_tView *Vi)
 {
-  /* SYM-CODEGEN-CARRIER: buildList
-   * SYM-CODEGEN-CARRIER: viewList
-   * IDA/m2c identify their retail $s1/$s3 roles; the optimized SYM stream does
-   * not retain declarations for these two address walkers. */
+  /* ORIGINAL-NAME-RECOVERED: chunkViewList -- matched NFS2 bworld.c uses this
+     exact name for the same per-chunk visibility-row walker; optimized NFS4
+     SYM omits its debug home. */
   int chunkInd;
   int chunkCount;
   int totalVisChunks;
 
   {
     int viewInd;
-    short *viewList;
+    short *chunkViewList;
 
     /* NEAR-MISS 7 (ours 202 / oracle 203) -- W61-A13 2026-08-15.  The residual is
        ONE scheduling decision plus its %hi-scratch shadow.  Retail emits
@@ -804,7 +799,7 @@ int SetupChunkBuildList(DRender_tView *Vi)
       totalVisChunks =
           (int)*(u_char *)((char *)Track_gInViewCount +
                            gCurrContext->currentChunk);
-      viewList =
+      chunkViewList =
           ((short (*)[32])Track_gInViewList)[gCurrContext->currentChunk];
       chunkCount = 0;
       viewInd = chunkCount;
@@ -816,11 +811,11 @@ int SetupChunkBuildList(DRender_tView *Vi)
        coorddef tmp;
        coorddef tmp2;
 
-      chunkInd = (u_short)viewList[viewInd] & 0x3ff;
+      chunkInd = (u_short)chunkViewList[viewInd] & 0x3ff;
       pChunkCp = Chunk_chunkCenters + chunkInd;
       chunkDist = xzsquaredist32(pChunkCp,&Vi->cview.translation);
       if ((chunkDist <= gCurrContext->chunkFarZClipSq) &&
-          ((viewList[viewInd] & 0x800U) == 0)) {
+          ((chunkViewList[viewInd] & 0x800U) == 0)) {
         tmp.x = -Vi->cview.translation.x + pChunkCp->x;
         tmp.y = -Vi->cview.translation.y +
                 BWorldSm_slices[chunkInd << 3].center[1];
@@ -848,11 +843,11 @@ int SetupChunkBuildList(DRender_tView *Vi)
             ((tBuildEntry *)BWorld_gChunkBuildList)[chunkCount]
                 .enableBits = 7;
           }
-          if ((viewList[viewInd] & 0x4000U) != 0) {
+          if ((chunkViewList[viewInd] & 0x4000U) != 0) {
             ((tBuildEntry *)BWorld_gChunkBuildList)[chunkCount]
                 .enableBits &= 0xfd;
           }
-          if ((viewList[viewInd] & 0x2000U) != 0) {
+          if ((chunkViewList[viewInd] & 0x2000U) != 0) {
             ((tBuildEntry *)BWorld_gChunkBuildList)[chunkCount]
                 .enableBits &= 0xfe;
           }
@@ -898,21 +893,9 @@ bool BWorld_IsSliceInBuildList(int slice)
 void BWorld_OnyxBuildFacets(DRender_tView *Vi)
 {
   Draw_DCache *sd;
-  /* SYM-CODEGEN-CARRIER: ts -- direct TrackSpec_gSpec fields preserve 193
-     instructions but change the split-base/offset addressing at ten positions. */
+  /* SYM-CODEGEN-CARRIER: ts -- absent from optimized NFS4 SYM; direct typed
+     TrackSpec_gSpec field accesses keep 193 instructions but fail at 10 words. */
   CTrackSpec *ts;
-  /* SYM-CODEGEN-CARRIER: fogStart -- storing the field directly preserves 193
-     instructions but changes pre-fence load/allocation order to 18 diffs. */
-  u_short fogStart;
-  /* SYM-CODEGEN-CARRIER: fogDist -- storing the field directly preserves 193
-     instructions but changes pre-fence load/allocation order to 20 diffs. */
-  u_short fogDist;
-  /* SYM-CODEGEN-CARRIER: fogState -- storing the field directly preserves 193
-     instructions but changes fog/time allocation to 12 diffs. */
-  u_char fogState;
-  /* SYM-CODEGEN-CARRIER: time -- testing GameSetup_gData.Time directly keeps
-     193 instructions but moves the load across the fence and yields 20 diffs. */
-  int time;
   
   Chunk_UpdateSys(Vi);
   gVi2 = Vi;
@@ -930,20 +913,19 @@ void BWorld_OnyxBuildFacets(DRender_tView *Vi)
    * to 0 here -- RAW oracle wins (methodology 3.2c). One 0x1F800000 base ($s2) is CSE'd across every
   * scratchpad store (base+displacement), NOT a per-store lui. */
   ts = &TrackSpec_gSpec;
-  fogStart = *(u_short *)&ts->fogspec.start;
-  fogDist = *(u_short *)&ts->fogspec.dist2base;
-  fogState = (u_char)ts->fogstate;
-  time = GameSetup_gData.Time;
   /* MATCH: 0-insn void-tail fence pins the flag store BELOW the four fog/time
      loads -- sched2 otherwise hoists it up to fill their load-delay slots
      (oracle 8007E1A4 sits after `lw a1,0x54(s0)`). Statement reorder alone is
      inert here (3 positions probed, all 4 diffs). */
   __asm__("" : : "i"(0));
   stackSpeedUpEnbabledFlag = 0;
-  ((Draw_tGiveShelbyMoreCache *)sd)->startfog = fogStart;
-  ((Draw_tGiveShelbyMoreCache *)sd)->distfog = fogDist;
-  ((Draw_tGiveShelbyMoreCache *)sd)->fogstate = fogState;
-  if (time != 0) {
+  ((Draw_tGiveShelbyMoreCache *)sd)->startfog =
+      *(u_short *)&ts->fogspec.start;
+  ((Draw_tGiveShelbyMoreCache *)sd)->distfog =
+      *(u_short *)&ts->fogspec.dist2base;
+  ((Draw_tGiveShelbyMoreCache *)sd)->fogstate =
+      (u_char)ts->fogstate;
+  if (GameSetup_gData.Time != 0) {
     short a;
     u_char ac;
     u_char bc;

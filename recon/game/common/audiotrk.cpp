@@ -270,24 +270,13 @@ AudioTrk_channel_found:
 AudioTrk_near_volume:
           {
             int rangesq = (int)se->range * (int)se->range;
-            /* SYM-CODEGEN-CARRIER: fadevol -- folding `fade * 0x7f` into the
-               product reverses retail's multiply operands and removes its
-               scheduled gap instruction. */
-            int fadevol;
-            /* SYM-CODEGEN-CARRIER: level -- SYM's `vol` is a char; these
-               scoped full-width pre-bias/pre-shift results cannot be expressed
-               through that retail local without premature truncation. */
-            int level =
-                (((rangesq >> 4) * 0x10000 -
-                  fixedmult(dst >> 2,dst >> 2)) /
-                 rangesq);
-            fadevol = fade * 0x7f;
-            level *= fadevol;
-
-            if ((int)level < 0) {
-              level += 0xffff;
-            }
-            vol = level >> 0x13;
+            vol = ((((((rangesq >> 4) * 0x10000 -
+                        fixedmult(dst >> 2,dst >> 2)) /
+                       rangesq) *
+                      /* MATCH: keep the 127 scale as its shift/subtract idiom so
+                         GCC does not reassociate 127 onto the distance quotient. */
+                      ((fade << 7) - fade)) /
+                    0x10000) >> 3);
             goto AudioTrk_volume_done;
           }
 
@@ -298,37 +287,25 @@ AudioTrk_fade_volume:
               int range = (int)se->range - (u_char)se->fadeIn;
               int rangesq = range * range;
               int ambdist = (dst - (u_char)se->fadeIn * 0x10000) >> 2;
-              u_int level =
-                  (((rangesq >> 4) * 0x10000 -
-                    fixedmult(ambdist,ambdist)) /
-                   rangesq) *
-                  0x7f0;
-
-              if ((int)level < 0) {
-                level += 0xffff;
-              }
-              vol = level >> 0x10;
+              /* SOURCE-SHAPE: retail SYM retains range/rangesq/ambdist but no
+                 full-width level temporary.  Signed division supplies the
+                 exact negative bias before the result narrows into vol. */
+              vol = (((((rangesq >> 4) * 0x10000 -
+                         fixedmult(ambdist,ambdist)) /
+                        rangesq) *
+                       0x7f0) /
+                     0x10000);
             }
           }
 
 AudioTrk_volume_done:
           ;
         }
-        /* MATCH: retail evaluates min(0xA0000,dop) TWICE
-           (8007CD34 and 8007CD40 share
-           the one `slt a0` but each select gets its own arm pair), assigns the clamp
-           unconditionally and only overrides it with 1 on the <=0 arm -- the ternary
-           `((min)>1)?(min):1` form CSEs the pair and inverts the branch polarity.
-           `(dop < K) ? dop : K` (not `(dop > K) ? K : dop`) picks retail's arm order. */
-        {
-          /* SYM-CODEGEN-CARRIER: dopClamped -- the separately materialized
-             minimum/select web described above is omitted from SYM. */
-          int dopClamped = (dop < 0xa0000) ? dop : 0xa0000;
-          if (((dop > 0xa0000) ? 0xa0000 : dop) <= 0) {
-            dopClamped = 1;
-          }
-          dop = dopClamped;
-        }
+        /* MATCH: retail materializes both minimum arms independently; the
+           usual single temporary or MIN/MAX spelling CSEs this select web. */
+        dop = (((dop > 0xa0000) ? 0xa0000 : dop) <= 0)
+                  ? 1
+                  : ((dop < 0xa0000) ? dop : 0xa0000);
         if ((PAD_state(4) & 0x400) == 0) {
           c->handle =
               AudioCmn_PlaySFX(n + 0x37,(int)c->patch,0x40,dop,vol & 0xff,

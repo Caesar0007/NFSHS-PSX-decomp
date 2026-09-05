@@ -1013,17 +1013,10 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
         point.z += wheelFrontZ.z;
       }
       TrgSfx_AddCarSplash((carObj->N).objID,0,&point,10,&(carObj->N).linearVel,0,(carObj->N).speedXZ);
-      {
-        /* SYM-CODEGEN-CARRIER: splashFront -- the scoped copy lets GCC coalesce
-           the positive value into s3; direct mutation adds two moves here. */
-        int splashFront;
-
-        splashFront = front;
-        if (splashFront <= 0) {
-          splashFront = 1;
-        }
-        front = splashFront;
-      }
+      /* SOURCE-SHAPE: the retail SYM has no splash-result locals.  Keeping the
+         non-positive arm first preserves GCC's anonymous select pseudo; the
+         equivalent reversed ternary folds the result directly into front. */
+      front = front <= 0 ? 1 : front;
     }
   }
   if ((roadSurfaceWheel & 0x20) != 0 && gLeafPixmap != (Draw_tPixMap *)0x0 &&
@@ -1111,15 +1104,7 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
         point.z += wheelFrontZ.z;
       }
       TrgSfx_AddCarSplash((carObj->N).objID,1,&point,10,&(carObj->N).linearVel,0,(carObj->N).speedXZ);
-      {
-        int splashFront;
-
-        splashFront = front;
-        if (splashFront <= 0) {
-          splashFront = 1;
-        }
-        front = splashFront;
-      }
+      front = front <= 0 ? 1 : front;
     }
   }
   if ((roadSurfaceWheel & 0x20) != 0 && gLeafPixmap != (Draw_tPixMap *)0x0 &&
@@ -1207,17 +1192,7 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
         point.z -= wheelBackZ.z;
       }
       TrgSfx_AddCarSplash((carObj->N).objID,2,&point,10,&(carObj->N).linearVel,0,(carObj->N).speedXZ);
-      {
-        /* SYM-CODEGEN-CARRIER: splashRear -- the scoped copy lets GCC coalesce
-           the positive value into s4; direct mutation adds two moves here. */
-        int splashRear;
-
-        splashRear = rear;
-        if (splashRear <= 0) {
-          splashRear = 1;
-        }
-        rear = splashRear;
-      }
+      rear = rear <= 0 ? 1 : rear;
     }
   }
   if ((roadSurfaceWheel & 0x20) != 0 && gLeafPixmap != (Draw_tPixMap *)0x0 &&
@@ -1305,15 +1280,7 @@ void Car_TireSkiddingStuff(Car_tObj *carObj)
         point.z -= wheelBackZ.z;
       }
       TrgSfx_AddCarSplash((carObj->N).objID,3,&point,10,&(carObj->N).linearVel,0,(carObj->N).speedXZ);
-      {
-        int splashRear;
-
-        splashRear = rear;
-        if (splashRear <= 0) {
-          splashRear = 1;
-        }
-        rear = splashRear;
-      }
+      rear = rear <= 0 ? 1 : rear;
     }
   }
   if ((roadSurfaceWheel & 0x20) != 0 && gLeafPixmap != (Draw_tPixMap *)0x0 &&

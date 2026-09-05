@@ -13,17 +13,12 @@ SerializedGroup * SerializedGroup::LocateNextGroupType(int type)
 
 {
   SerializedGroup *group;
-  int zero;      /* SYM-CODEGEN-CARRIER: zero -- `== ^ zero` (runtime 0, not folded) reserves
-                    $v0 for the result so next->m_type loads into $v1 -> byte-match.
-                    Logically a no-op; do NOT simplify to `if (next->m_type==type)`
-                    (reverts to a 10-diff v0/v1 coloring miss). permuter-derived. */
 
   group = (SerializedGroup *)((int)this + this->m_length);
-  zero = 0;
-  if ((group->m_type == type) ^ zero) {
-    return group;
+  if (group->m_type != type) {
+    return (SerializedGroup *)0x0;
   }
-  return (SerializedGroup *)0x0;
+  return group;
 }
 
 /* ---- LocateGroupType__15SerializedGroupii  [GROUP.CPP:63-99] SLD-VERIFIED ---- */
@@ -31,8 +26,6 @@ SerializedGroup * SerializedGroup::LocateGroupType(int type,int index)
 
 {
   SerializedGroup *group;
-  int newLen;      /* SYM-CODEGEN-CARRIER: newLen -- function-scope split temp
-                      (NOT block-local) -- see align below */
   int numElems;
   int count;
 
@@ -47,10 +40,7 @@ SerializedGroup * SerializedGroup::LocateGroupType(int type,int index)
       count = count + 1;
     }
     if ((group->m_length & 3) != 0) {
-      newLen = group->m_length + 4;   /* split temp keeps m_length in $v0 so the align
-                                          emits `(len+4) - (len&3)` like the oracle, not
-                                          the reassociated `len - ((len&3) - 4)`. */
-      group->m_length = newLen - (group->m_length & 3);
+      group->m_length += 4 - (group->m_length & 3);
     }
     group = (SerializedGroup *)((int)group + group->m_length);
   }

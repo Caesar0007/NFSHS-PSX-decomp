@@ -623,25 +623,13 @@ void AIPhysic_SimplePhysics(Car_tObj *carObj)
   if (AIPhysicConfig.max_lookahead / 6 < sliceLookAhead) {
     sliceLookAhead = AIPhysicConfig.max_lookahead / 6;
   }
-  /* SYM-CODEGEN-CARRIER: v -- optimized SYM omits the mutually exclusive
-     wrapped-slice temporaries, but assigning the member before normalization
-     keeps 219 instructions with fourteen store/schedule differences. */
-  if (!(sliceLookAhead * carObj->direction < 0)) {
-    int v = (carObj->N).simRoadInfo.slice +
-            sliceLookAhead * carObj->direction;
-    if (!(v < gNumSlices)) {
-      v = v - gNumSlices;
-    }
-    carObj->lookAheadSlice = v;
-  }
-  else {
-    int v = (carObj->N).simRoadInfo.slice +
-            sliceLookAhead * carObj->direction;
-    if (v < 0) {
-      v = v + gNumSlices;
-    }
-    carObj->lookAheadSlice = v;
-  }
+  carObj->lookAheadSlice = (sliceLookAhead * carObj->direction >= 0)
+      ? (((carObj->N).simRoadInfo.slice + sliceLookAhead * carObj->direction >= gNumSlices)
+          ? (carObj->N).simRoadInfo.slice + sliceLookAhead * carObj->direction - gNumSlices
+          : (carObj->N).simRoadInfo.slice + sliceLookAhead * carObj->direction)
+      : (((carObj->N).simRoadInfo.slice + sliceLookAhead * carObj->direction < 0)
+          ? ((carObj->N).simRoadInfo.slice + sliceLookAhead * carObj->direction) + gNumSlices
+          : (carObj->N).simRoadInfo.slice + sliceLookAhead * carObj->direction);
   return;
 }
 
@@ -1015,14 +1003,7 @@ void AIPhysic_GetDesiredVector(Car_tObj *carObj)
     numReductions = numReductions + 1;
     sliceLookAhead = sliceLookAhead * 0xcccc;
     sliceLookAhead = sliceLookAhead / 0x10000;
-    {
-      /* SYM-CODEGEN-CARRIER: t -- optimized SYM omits this clamp result, but
-         direct in-place clamping emits 377/378 instructions with eleven
-         compare/branch/allocation differences. */
-      int t = 4;
-      if (!(sliceLookAhead < 4)) t = sliceLookAhead;
-      sliceLookAhead = t;
-    }
+    sliceLookAhead = MAX(4,sliceLookAhead);
   } while ((numReductions < 5) && (goodVector == 0));
   (carObj->desiredVector).x = fPoint.x - (carObj->N).position.x;
   (carObj->desiredVector).y = fPoint.y - (carObj->N).position.y;

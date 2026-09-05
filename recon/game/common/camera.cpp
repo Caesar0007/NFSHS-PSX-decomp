@@ -1049,16 +1049,13 @@ void Camera_SetSplineCam(int player)
   if (CAMERA_REPLAY_DEFAULT(player) == 0) {
     int direction;
 
-    /* SYM-CODEGEN-CARRIER: cameraDirection -- retail uses an int-stride base
-       for rotation.m[6..8]; direct field indexing loses two instructions and
-       changes 48 oracle positions. */
-    int *cameraDirection = (int *)Camera_gInfo + player * 68 + 18;
-    direction = fixedmult(cameraDirection[0],anchor->N.roadMatrix.m[6]);
+    direction = fixedmult(((coorddef *)&Camera_gInfo[player].rotation.m[6])->x,
+                          ((coorddef *)&anchor->N.roadMatrix.m[6])->x);
     if (direction +
-        fixedmult(cameraDirection[1],
-                  Camera_gInfo[player].anchor->roadMatrix.m[7]) +
-        fixedmult(cameraDirection[2],
-                  Camera_gInfo[player].anchor->roadMatrix.m[8]) < 0) {
+        fixedmult(((coorddef *)&Camera_gInfo[player].rotation.m[6])->y,
+                  ((coorddef *)&Camera_gInfo[player].anchor->roadMatrix.m[6])->y) +
+        fixedmult(((coorddef *)&Camera_gInfo[player].rotation.m[6])->z,
+                  ((coorddef *)&Camera_gInfo[player].anchor->roadMatrix.m[6])->z) < 0) {
       numSlice = -numSlice;
     }
     if (anchor->linearVel_ch.z < 0) {

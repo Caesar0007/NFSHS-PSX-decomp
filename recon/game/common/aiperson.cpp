@@ -157,49 +157,20 @@ void AIPerson_LoadPersonalityData(Udff_tInfo *handle)
 /* ---- AIPerson_LoadScriptData__FP10Udff_tInfo  [@0x80068ea4] ---- */
 void AIPerson_LoadScriptData(Udff_tInfo *handle)
 {
-  int perLoop;
-  int actionLoop;
-  int reactionLoop;
-  /* SYM-CODEGEN-CARRIER: byteOffset -- deriving perLoop * 0x38 directly keeps
-     55 instructions but changes induction/allocation at 12 positions. */
-  int byteOffset;
-  /* SYM-CODEGEN-CARRIER: actionMul -- spelling actionLoop * 8 directly keeps
-     55 instructions but swaps the two address terms at eight positions. */
-  int actionMul;
-  /* SYM-CODEGEN-CARRIER: byteOff2 -- using byteOffset directly removes three
-     instructions and changes frame/register allocation to 31 diffs. */
-  int byteOff2;
-  /* SYM-CODEGEN-CARRIER: scriptBase -- spelling AIPerson_ScriptData directly
-     adds three instructions and changes address formation to 13 diffs. */
-  int scriptBase;
-
   Udff_GetInt(handle);
-  perLoop = 0;
-  scriptBase = (int)AIPerson_ScriptData;
-  byteOffset = 0;
- loop_1:
-  actionLoop = 0;
-  if (perLoop < 9) {
-    do {                              /* permuter-found while(0) scope: pin-free 100% */
-     loop_2:
-      reactionLoop = 0;
-      if (actionLoop < 7) {
-        actionMul = actionLoop * 8;
-        byteOff2 = byteOffset;
-        do {
-          *(char *)(reactionLoop + actionMul + byteOff2 + scriptBase) =
+  for (int perLoop = 0; perLoop < 9; perLoop++) {
+    for (int actionLoop = 0; actionLoop < 7; actionLoop++) {
+      {
+        int reactionLoop;
+
+        for (reactionLoop = 0; reactionLoop < 4; reactionLoop++) {
+          AIPerson_ScriptData[perLoop][actionLoop].reaction[reactionLoop] =
               (char)Udff_GetInt(handle);
-          *(char *)(reactionLoop + actionMul + byteOff2 + scriptBase + 4) =
+          AIPerson_ScriptData[perLoop][actionLoop].halfSeconds[reactionLoop] =
               (char)Udff_GetInt(handle);
-          reactionLoop = reactionLoop + 1;
-        } while (reactionLoop < 4);
-        actionLoop = actionLoop + 1;
-        goto loop_2;
+        }
       }
-      byteOffset = byteOffset + 0x38;
-    } while (0);
-    perLoop = perLoop + 1;
-    goto loop_1;
+    }
   }
   return;
 }

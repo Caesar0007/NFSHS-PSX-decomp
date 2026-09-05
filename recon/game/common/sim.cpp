@@ -159,37 +159,32 @@ void Sim_FadeInSFX(void)
 }
 
 /* ---- Sim_ProcessSimSchedules__Fv  [SIM.CPP:312-531] SLD-VERIFIED ---- */
-/* PASS (201/201 insns). The `firstSfx` loop invariant must be declared inside
- * the `i < 4` block: that SLD-confirmed scope keeps its `$s1` initialization
- * after the branch and lets gcc fill the branch delay slot with the speculative
- * `%hi(simGlobal)` load used by the no-loop path. */
+/* PASS (201/201 insns). Retail SYM records only block-local `int i` in $s0.
+ * A non-const `char` preload base reproduces retail's $s1 = 0x23 without
+ * emitting another local definition; `int` emits a non-retail .def and a
+ * literal/const folds to 197 instructions.  Its declaration beside `i` and
+ * use as the natural `for` initializer reproduce retail's block starts at
+ * +0/+0, +0x7c/+0x7c, +0x8c/+0x8c and first block end at +0xd8. */
 void Sim_ProcessSimSchedules(void)
 
 {
-  int i;
-
   if (!(((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) &&
        (((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) != 0 ||
         ((Cars_gNumHumanRaceCars == 2 &&
           ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) != 0))))))) {
     if (simGlobal.gameStarted == 0) {
-      i = (u_char)countdown - 1;
-      if (i >= 0) goto countdown_index_ready;
-      i = 0;
-countdown_index_ready:
       {
-        if (i < 4) {
-          /* SYM-CODEGEN-CARRIER: firstSfx -- removing the block-local 0x23
-             shrinks retail's 201 instructions to 197 and produces eight word
-             diffs, changing both the pre-loop branch layout and invariant
-             constant materialization.  Its SLD-confirmed scope is documented
-             in the function receipt above. */
-          int firstSfx = 0x23;
-
-          do {
-            AudioCmn_GetAsyncSfx(2,i + firstSfx,false);
-            i = i + 1;
-          } while (i < 4);
+        int i = (u_char)countdown - 1;
+        /* SYM-CODEGEN-CARRIER: firstSfx -- the optimized narrow quantity is
+           required for the exact $s1 invariant, but retail emits no .def.
+           ORIGINAL-NAME-UNRESOLVED: neither its spelling nor its unique
+           narrow integer type is recoverable from the available artifacts. */
+        char firstSfx;
+        if (i < 0) {
+          i = 0;
+        }
+        for (firstSfx = 0x23; i < 4; i = i + 1) {
+          AudioCmn_GetAsyncSfx(2,i + firstSfx,false);
         }
       }
       if (simGlobal.gameTicks >= counter[(u_char)countdown]) {

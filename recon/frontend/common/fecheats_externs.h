@@ -4,16 +4,18 @@
 #include "fecheats_types.h"
 
 /* ===== globals ===== */
-extern unsigned int       gFECheats;
-extern unsigned int       gFEBonus;
+/* P881: native SYM 2c74a1/2c74b8 are ULONG scalars, matching the u_long
+   owning definitions in game/common/nfs3.cpp (not U_INT array views). */
+extern unsigned long      gFECheats;
+extern unsigned long      gFEBonus;
 extern tFEApplication    *FEApp;
 extern tCarManager        carManager;
 extern tTrackManager      trackManager;
 extern tTournamentManager tournamentManager;
 /* TRUE TYPE = the array object (was `tRecordBuffer *`; W62-A17): every oracle ref is an
    ADDRESS materialization (`addiu`), never a pointer load.  Owner def in
-   game/common/nfs3.cpp.  (fecheats.cpp still carries its own unsized-array asm-label
-   view for the %hi-as-RTL-pseudo codegen lever; this decl is the link-correct one.) */
+   game/common/nfs3.cpp. P881 uses this actual array directly; no replacement
+   scalar or CPP-local asm-label view is needed. */
 extern tRecordBuffer     Stats_gTrackRecords[187];
 
 /* ===== helpers ===== */

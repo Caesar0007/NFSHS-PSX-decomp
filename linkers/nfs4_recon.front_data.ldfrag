@@ -19,6 +19,9 @@
     build/asm/data/front_data_r02.data.s.o(.data);
     build/recon/frontend/common/feinput.cpp.o(.data);   /* 0x8005173c..0x800517bc  was front_data_o02.data.s */
     build/asm/data/front_data_r03.data.s.o(.data);
+    /* P881: source-owned CREDFADETICKS + local static lasttick (8 bytes). */
+    build/recon/frontend/common/fecredits.cpp.o(.data);
+    build/asm/data/front_data_r03_after_fecredits.data.s.o(.data);
     build/recon/frontend/common/screentournselect.cpp.o(.data);   /* 0x80052058..0x80052060  was front_data_o03.data.s */
     build/recon/frontend/common/screentrophyroom.cpp.o(.data);   /* 0x80052060..0x80052074  was front_data_o04.data.s */
     build/asm/data/front_data_r04.data.s.o(.data);

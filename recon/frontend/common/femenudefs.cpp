@@ -255,34 +255,29 @@ void MenuExtended_GoToTwoPlayerSingleRace(tMenuCommand &command)
 
 {
   /* Reliable SYM names only command, YesNoDialog, and the nested dialog
-     receiver.  These optimized-away aliases are required by the receipts:
-     SYM-CODEGEN-CARRIER: menuDefinitions
-     SYM-CODEGEN-CARRIER: carSelectScreen
-     SYM-CODEGEN-CARRIER: dialog */
-  tGlobalMenuDefs *menuDefinitions;
+     receiver. P879 removes both menuDefinitions declarations using the
+     corrected scalar global. The existing inline dialog operations also
+     remove the extra caller receiver without introducing new local names.
+     SYM-CODEGEN-CARRIER: carSelectScreen */
   tScreenCarSelect *carSelectScreen;
   int screenState;
-  tDialogYesNoTri *dialog;
   tDialogYesNoTri YesNoDialog;
 
-  dialog = &YesNoDialog;
   if ((short)carManager.GetNumOwnedCars(0) < 1) {
-    dialog->string =
-         TextSys_Word(0x42);
-    dialog->yesnowords[0] = 0x321;
-    dialog->yesnowords[1] = 0x322;
-    dialog->fDefault = 0;
-    if (((tDialogInteractive *)dialog)->Run() == 1) {
+    /* P879: existing inferred inline names, not newly recovered spellings.
+       Separate setup/call statements preserve the native SLD 225/229 groups. */
+    YesNoDialog.SetString(TextSys_Word(0x42));
+    YesNoDialog.SetChoices(0x321,0x322,0);
+    if (YesNoDialog.Run() == 1) {
       /* SYM-CODEGEN-CARRIER: nextMenu
          SYM-CODEGEN-CARRIER: screenState -- neither name is present in retail
          SYM; together they carry the measured source-only lifetime described
          in the receipt above. */
       tMenu *nextMenu;
 
-      menuDefinitions = menuDefs;
       frontEnd.raceType = '\0';
       command.type = kMenu_Command_GoToMenu;
-      menuDefinitions->iteratorDealerCar.Decrement(kPlayerBoth);
+      menuDefs->iteratorDealerCar.Decrement(kPlayerBoth);
       menuDefs->iteratorDealerCar.Increment(kPlayerBoth);
       screenState = 2;
       __asm__("" : "+r" (screenState));
@@ -307,12 +302,9 @@ void MenuExtended_GoToTwoPlayerSingleRace(tMenuCommand &command)
     }
   }
   else {
-    tGlobalMenuDefs *menuDefinitions;
-
     MenuExtended_SetSoloRace(command);
-    menuDefinitions = menuDefs;
     command.type = kMenu_Command_GoToMenu;
-    command.nextMenu = (tMenu *)(tMenu*)&menuDefinitions->menuSingleTrackSelect;
+    command.nextMenu = (tMenu *)(tMenu*)&menuDefs->menuSingleTrackSelect;
   }
   return;
 }
@@ -1074,12 +1066,14 @@ void MenuExtended_GoTo2PlayerRace(tMenuCommand &command)
 /* P878: the corrected scalar menuDefs declaration makes the ordinary final
    command stores exact; no additional menus alias is needed. Other marked
    webs, fences and nested inline-local ownership remain review work. */
+/* P879: amount belongs to the nested post-sound debit, not the initial guard.
+   The success-first Run arm restores its native REG3/collapsed-PC placement.
+   One native inline-body scope and its original helper spelling remain open. */
 
 void MenuExtended_GoToTournTrackInfo(tMenuCommand &command)
 
 {
   tTourneyInfo *tourn;
-  long amount;
   /* SYM-CODEGEN-CARRIER: selectedTourney -- folding into the SYM `tourn`
      web is count-exact FAIL 6; fencing `tourn` directly is FAIL 22. */
   tTourneyInfo *selectedTourney;
@@ -1100,12 +1094,11 @@ void MenuExtended_GoToTournTrackInfo(tMenuCommand &command)
   tourn = &manager->fDefinition->fTournaments[
       (uint)manager->fDefinition->fTiers[0].fTournOffset +
       (uint)(byte)frontEndState->tournament];
-  amount = tourn->fEntranceFee;
-  if (0 < amount) {
+  if (0 < tourn->fEntranceFee) {
     selectedTourney = tourn;
 
     __asm__("" : "+r" (selectedTourney));
-    if (manager->fMoney < amount) {
+    if (manager->fMoney < tourn->fEntranceFee) {
       /* SYM-INLINE-THIS: DisplayMessage */
       FEApp->DisplayMessage(0xf6);
       return;
@@ -1116,11 +1109,15 @@ void MenuExtended_GoToTournTrackInfo(tMenuCommand &command)
       /* SYM-INLINE-THIS: SetString */
       popUp.SetString(TextSys_Word(0xf7));
       popUp.SetChoices(0x322,0x321,0);
-      if (popUp.Run() == 0) {
+      if (popUp.Run() != 0) {
+        AudioCmn_PlayFESFX(0x1a);
+        {
+          long amount = selectedTourney->fEntranceFee;
+          manager->fMoney -= amount;
+        }
+      } else {
         return;
       }
-      AudioCmn_PlayFESFX(0x1a);
-      manager->fMoney = -selectedTourney->fEntranceFee + manager->fMoney;
     }
   }
   tournamentManager.StartNewTournament(0,frontEnd.tournament);
@@ -1147,12 +1144,14 @@ void MenuExtended_GoToTournTrackInfo(tMenuCommand &command)
 /* P878: ordinary final command stores now match with the corrected scalar
    menuDefs interface. The former menus carrier and its obsolete failure
    receipt are removed; other source-shape/inline ownership debt remains. */
+/* P879: the nested amount and success-first Run arm recover the native LONG
+   REG3 and collapsed cancellation-PC scope. The lost inline-body shell/name
+   and other source-only carriers are still explicit restoration work. */
 
 void MenuExtended_GoToSpecialEventTrackInfo(tMenuCommand &command)
 
 {
   tTourneyInfo *tourn;
-  long amount;
   /* SYM-CODEGEN-CARRIER: selectedTourney -- folding into the SYM `tourn`
      web is count-exact FAIL 6. */
   tTourneyInfo *selectedTourney;
@@ -1170,11 +1169,10 @@ void MenuExtended_GoToSpecialEventTrackInfo(tMenuCommand &command)
   tourn = &manager->fDefinition->fTournaments[
       (uint)manager->fDefinition->fTiers[1].fTournOffset +
       (uint)(byte)frontEndState->specialevent];
-  amount = tourn->fEntranceFee;
-  if (0 < amount) {
+  if (0 < tourn->fEntranceFee) {
     selectedTourney = tourn;
     __asm__("" : "+r" (selectedTourney));
-    if (manager->fMoney < amount) {
+    if (manager->fMoney < tourn->fEntranceFee) {
       /* SYM-INLINE-THIS: DisplayMessage */
       FEApp->DisplayMessage(0xf6);
       return;
@@ -1185,11 +1183,15 @@ void MenuExtended_GoToSpecialEventTrackInfo(tMenuCommand &command)
       /* SYM-INLINE-THIS: SetString */
       popUp.SetString(TextSys_Word(0xf7));
       popUp.SetChoices(0x321,0x322,0);
-      if (popUp.Run() == 0) {
+      if (popUp.Run() != 0) {
+        AudioCmn_PlayFESFX(0x1a);
+        {
+          long amount = selectedTourney->fEntranceFee;
+          manager->fMoney -= amount;
+        }
+      } else {
         return;
       }
-      AudioCmn_PlayFESFX(0x1a);
-      manager->fMoney = -selectedTourney->fEntranceFee + manager->fMoney;
     }
   }
   tournamentManager.StartNewTournament(1,frontEnd.specialevent);
@@ -1212,34 +1214,24 @@ void MenuExtended_GoToSpecialEventTrackInfo(tMenuCommand &command)
    identifiers are absent from the optimized SYM, so the descriptive names in
    nfs4_types.h are explicitly inferred rather than claimed as recovered text.
 
-   The source-only `player`/`defs` carriers are measured, not decompiler residue.
-   GCC suppresses `player` from its -g output; its distinct first byte read is
-   required for retail's a3/v1 pair.  GCC does emit `defs`, while retail omits
-   that optimized alias; removing it reloads menuDefs and grows the function to
-   29 instructions.  This is retained as an explicit non-unique source-shape
-   proof until stronger original-header evidence resolves the spelling. */
+   P879 supersedes the former player/defs workaround: direct arguments and
+   the corrected scalar menuDefs interface preserve both byte loads and all 25
+   instructions without either caller local or the volatile read. Native
+   command/inline-this/data/m records and statement grouping are retained;
+   the private inline identifiers remain inferred, not recovered spellings. */
 
 void MenuExtended_EnterUserName(tMenuCommand &command)
 
 {
-  /* SYM-CODEGEN-CARRIER: player -- the first byte read is suppressed from the
-     -g record; keeping it distinct is required for retail's two lbu values. */
-  u_int player;
-  /* SYM-CODEGEN-CARRIER: defs -- a direct repeated menuDefs[0] expression
-     reloads the base and emits 29 rather than retail's 25 instructions. */
-  tGlobalMenuDefs *defs;
-
-  player = *(volatile u_char *)&FEApp->fInputPlayer;
-  defs = menuDefs;
   /* SYM-INLINE-THIS: SetUserNameData
      SYM-INLINE-LOCAL: data = SetUserNameData */
-  defs->menuItemUserName.SetUserNameData(
-      player, frontEnd.playerNameList[FEApp->fInputPlayer]);
+  menuDefs->menuItemUserName.SetUserNameData(
+      FEApp->fInputPlayer, frontEnd.playerNameList[FEApp->fInputPlayer]);
   /* SYM-INLINE-THIS: SetCallingMenu
      SYM-INLINE-LOCAL: m = SetCallingMenu */
-  screenUserName->SetCallingMenu(&defs->menuUserName);
+  screenUserName->SetCallingMenu(&menuDefs->menuUserName);
   command.type = kMenu_Command_GoToMenu;
-  command.nextMenu = (tMenu *)&defs->menuUserName;
+  command.nextMenu = (tMenu *)&menuDefs->menuUserName;
   return;
 }
 
@@ -2029,28 +2021,23 @@ void MenuExtended_PostGameMenu(tMenuCommand &command)
    command/dummyCars/nBestCarIndex.  The records arm now genuinely assigns and
    reuses dummyCars while its two call-result temporaries fold away.  The
    post-game name setup is one inferred SetPostGameNameData expansion followed
-   by SetCallingMenu (including its recorded `m` formal).  Direct repeated
-   menuDefs access is FAIL 20 at 70/68, so the descriptive `defs` base remains
-   an explicit non-unique carrier; all six generic decompiler names are gone. */
+   by SetCallingMenu (including its recorded `m` formal). P879's corrected
+   scalar menuDefs context makes direct repeated member access exact at 68/68;
+   the obsolete defs carrier and its earlier context-specific miss are gone. */
 
 void MenuExtended_FinishedPlayer1GetName(tMenuCommand &command)
 
 {
-  /* SYM-CODEGEN-CARRIER: defs -- direct repeated menuDefs[0] spelling is
-     FAIL 20 at 70/68 instructions because it reloads and recolors the base. */
-  tGlobalMenuDefs *defs;
-
   /* SYM: dummyCars and nBestCarIndex belong to the else block, not fn scope. */
   command.type = kMenu_Command_GoToMenuOneWay;
   if ((FEApp->needName[1] != 0) && (FEApp->gotName[1] == 0)) {
-    defs = menuDefs;
     /* SYM-INLINE-THIS: SetPostGameNameData */
-    defs->menuItemUserName2.SetPostGameNameData(
+    menuDefs->menuItemUserName2.SetPostGameNameData(
         1, frontEnd.playerNameList[4]);
     /* SYM-INLINE-THIS: SetCallingMenu
        SYM-INLINE-LOCAL: m = SetCallingMenu */
-    screenUserName->SetCallingMenu(&defs->menuPostGamePlayer2Name);
-    command.nextMenu = (tMenu *)(tMenu*)&defs->menuPostGamePlayer2Name;
+    screenUserName->SetCallingMenu(&menuDefs->menuPostGamePlayer2Name);
+    command.nextMenu = (tMenu *)(tMenu*)&menuDefs->menuPostGamePlayer2Name;
   }
   else {
     Car_tStats *dummyCars;
@@ -2081,12 +2068,7 @@ void MenuExtended_FinishedPlayer1GetName(tMenuCommand &command)
 void MenuExtended_FinishedPlayer2GetName(tMenuCommand &command)
 
 {
-  /* SYM-CODEGEN-CARRIER: defs -- SYM records only `dummyCars` in $s1 and
-     stack `nBestCarIndex`; the two boolean/short call-result temporaries fold
-     away exactly.  Direct `menuDefs[0]->menuPostGameTrackRecords` is FAIL7
-     (41/40), moving the command stores around the address-load delay slot, so
-     this source-only final-menu carrier preserves retail's exact schedule. */
-  tGlobalMenuDefs *defs;
+  /* P879: direct scalar menuDefs use removes the unrecorded final-menu base. */
   Car_tStats *dummyCars;
   short nBestCarIndex;
 
@@ -2099,9 +2081,8 @@ void MenuExtended_FinishedPlayer2GetName(tMenuCommand &command)
   if (StatChk_IsTopTime(dummyCars,(short)Cars_gNumRaceCars) != 0) {
     StatChk_SaveTopTime(dummyCars,(short)Cars_gNumRaceCars);
   }
-  defs = menuDefs;
   command.type = kMenu_Command_GoToMenuOneWay;
-  command.nextMenu = (tMenu *)(tMenu*)&defs->menuPostGameTrackRecords;
+  command.nextMenu = (tMenu *)(tMenu*)&menuDefs->menuPostGameTrackRecords;
   return;
 }
 
@@ -2203,6 +2184,8 @@ static inline tCarManager *AwardPinkSlipsCarManagerArg(tCarManager *mgr)
 void MenuExtended_AwardPinkSlipsCar(tMenuCommand &command)
 
 {
+  /* P879: both final-menu selections use the actual scalar menuDefs pointer;
+     no extra base local is needed. Other marked source-shape debt remains. */
   /* SYM 8c Def-record order: string, RetryCancelDialog, fWinner, carInfo, mess;
      the measured codegen carriers follow the SYM set. */
   char string [80];
@@ -2210,12 +2193,8 @@ void MenuExtended_AwardPinkSlipsCar(tMenuCommand &command)
   int fWinner;
   tCarInfo carInfo;
   char *mess;
-  /* SYM-CODEGEN-CARRIER: menuDefsBase -- direct final menuDefs[0] use is
-     count-exact FAIL 6 and changes the command-type constant from `$v0` to `$a1`. */
-  tGlobalMenuDefs *menuDefsBase;
-  /* SYM-CODEGEN-CARRIER: dlgThis2 -- direct RetryCancelDialog members are
-     FAIL 13 at 137/138 and lose retail's stack-base `$s0` handoff. */
-  tDialogYesNo *dlgThis2;
+  /* P880: the existing choice-setup inline preserves the retail stack-base
+     handoff without the additional dlgThis2 caller declaration. */
   /* SYM-CODEGEN-CARRIER: dlgThis3 -- direct first-dialog member spellings are
      count-exact FAIL 6 and collapse retail's separate base/store addresses. */
   tDialogNoInputMessage *dlgThis3;
@@ -2232,10 +2211,7 @@ void MenuExtended_AwardPinkSlipsCar(tMenuCommand &command)
      [BUG FIX 2026-07-27, 130->124] The matching manual `tScreen_dtor((tScreen*)&RetryCancelDialog,2)`
      at the function's tail was left in -- same DOUBLE-DESTRUCTION bug, firing alongside
      RetryCancelDialog's own auto-invoked destructor at the real `}`. Dropped it. */
-  dlgThis2 = &RetryCancelDialog;
-  dlgThis2->yesnowords[0] = 0x291;
-  dlgThis2->yesnowords[1] = 0x292;
-  dlgThis2->fDefault = 1;
+  RetryCancelDialog.SetChoices(0x291,0x292,1);
   fWinner = screenPinkSlipCongrats->fWinner;
   mess = TextSys_Word(0x29a);
   sprintf(string,mess,PlayerName(fWinner),fWinner + 1);
@@ -2273,9 +2249,8 @@ void MenuExtended_AwardPinkSlipsCar(tMenuCommand &command)
   GenericMenuLoadGame(0);
   DeInit_Memcard();
   ((tDialogBase *)&FEApp->NoInputMemCardDialog)->Hide();
-  menuDefsBase = menuDefs;
   command.type = kMenu_Command_GoToMenuOneWay;
-  command.nextMenu = (tMenu *)(tMenu*)&menuDefsBase->menuMain;
+  command.nextMenu = (tMenu *)(tMenu*)&menuDefs->menuMain;
   return;
 }
 
@@ -2459,27 +2434,20 @@ void MenuExtended_SetExpert(tMenuCommand &)
    stack object `AreYouSure`.  Consuming Run directly removes the unrecorded
    result local at exact 36/36.  Spelling nextMenu before type removes the
    unrecorded menu pointer while the scheduler retains retail's type-first
-   store order.  The remaining `dialog` alias is an evidenced codegen carrier,
-   documented at its declaration below. */
+   store order. P880 removes the remaining dialog carrier through the existing
+   inline setup boundary; raw direct field stores alone did not preserve it. */
 
 void MenuExtended_ExitTourney(tMenuCommand &command)
 
 {
-  /* SYM-CODEGEN-CARRIER: dialog -- SYM records the derived-constructor receiver
-     `this` in $s0, not an additional caller local.  Reusing that receiver for
-     the subsequent field stores and Run is exact PASS 36/36.  Direct stack-
-     object spelling is FAIL 39 at 33/36 and changes the frame from 200 to 192
-     bytes, so this alias represents the retail optimized receiver lifetime. */
-  tDialogYesNo *dialog;
+  /* P880: existing inline operations recover native this REG16 without an
+     extra caller pointer. PASS36/exact-g; original inline spellings and the
+     combined constructor/setup SLD boundary remain unresolved. */
   tDialogYesNo AreYouSure;
 
-  dialog = &AreYouSure;
-  dialog->yesnowords[0] = 0x321;
-  dialog->yesnowords[1] = 0x322;
-  dialog->fDefault = 0;
-  dialog->string =
-       TextSys_Word(0x9d);
-  if (((tDialogInteractive *)dialog)->Run() != 0) {
+  AreYouSure.SetChoices(0x321,0x322,0);
+  AreYouSure.SetString(TextSys_Word(0x9d));
+  if (AreYouSure.Run() != 0) {
     command.nextMenu = (tMenu *)&menuDefs->menuMain;
     command.type = kMenu_Command_GoToMenuOneWay;
   }
@@ -2524,25 +2492,19 @@ void MenuExtended_ExitTourney(tMenuCommand &command)
 void MenuExtended_ExitPinkSlipsEarly(tMenuCommand &command)
 
 {
+  /* P879: the final command stores no longer require a menuDefsBase alias. */
   /* SYM 8c Def-record order: AreYouSure, string, player; the measured codegen
      carriers follow the SYM set. */
   tDialogYesNo AreYouSure;
-  /* SYM-CODEGEN-CARRIER: menuDefsBase -- direct final menuDefs[0] use is FAIL 5
-     at 77/76 and delays the command-type store behind the global load. */
-  tGlobalMenuDefs *menuDefsBase;
-  /* SYM-CODEGEN-CARRIER: dlgThis -- direct AreYouSure members are FAIL 11 at
-     75/76 and lose retail's one `$s0` stack-base lifetime. */
-  tDialogYesNo *dlgThis;
+  /* P880: existing inline choice/string operations replace dlgThis and keep
+     native this REG16. The independent msg/loop-scope debt is unchanged. */
   /* SYM-CODEGEN-CARRIER: msg -- direct `string` use is count-exact FAIL 20
      and births the frame address inside the loop instead of pre-loop `$s2`. */
   char *msg;
   
-  dlgThis = &AreYouSure;
-  dlgThis->yesnowords[0] = 0x321;
-  dlgThis->yesnowords[1] = 0x322;
-  dlgThis->fDefault = 0;
-  dlgThis->string = TextSys_Word(0x9d);
-  if (((tDialogInteractive *)dlgThis)->Run() != 0) {
+  AreYouSure.SetChoices(0x321,0x322,0);
+  AreYouSure.SetString(TextSys_Word(0x9d));
+  if (AreYouSure.Run() != 0) {
     char string [80];
     int player;
 
@@ -2559,9 +2521,8 @@ void MenuExtended_ExitPinkSlipsEarly(tMenuCommand &command)
     }
     DeInit_Memcard();
     ((tDialogBase *)&FEApp->NoInputMemCardDialog)->Hide();
-    menuDefsBase = menuDefs;
     command.type = kMenu_Command_GoToMenuOneWay;
-    command.nextMenu = (tMenu *)(tMenu*)&menuDefsBase->menuMain;
+    command.nextMenu = (tMenu *)(tMenu*)&menuDefs->menuMain;
     frontEnd.raceType = '\0';
   }
   return;

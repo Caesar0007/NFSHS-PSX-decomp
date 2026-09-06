@@ -5,21 +5,10 @@
 #include "fecredits.h"
 
 /* ---- FECredits.obj-OWNED globals -- DEFINED here (self-contained; real NFS4.EXE bytes) ---- */
-/* MATCH (w35-a10): strong .sdata symbol in front_data.data.s, reached
-   absolutely by both oracles (0 %gp_rel tree-wide); an initialised TU-owned
-   int is <=G4 -> .sdata -> gp-relative.  Unsized-array asm-label view. */
+/* P880: ticks and screenMain use their existing scalar declarations from
+   fecredits_externs.h. Their former unsized-array aliases were not source
+   storage; deleting them preserves the entire seven-function object. */
 int CREDFADETICKS = 700;   /* @0x80051aa0; SYM EXT INT */
-extern int A_ticks[] __asm__("ticks");
-#define ticks A_ticks[0]
-extern tScreenMain *A_screenMain[] __asm__("screenMain");
-#define screenMain A_screenMain[0]
-/* W66-A3 (link): the storage is the blob's `D_80051AA4` (front_data_r03.data.s,
- * the word right after CREDFADETICKS) -- point the asm-label view at the label
- * that actually exists instead of at the project spelling, which nothing defines.
- * Name-only: the unsized-array view (and its absolute lui/lw addressing) is
- * unchanged. */
-extern int A_FECredits_lastFadeTick[] __asm__("D_80051AA4");
-#define FECredits_lastFadeTick A_FECredits_lastFadeTick[0]
 
 
 /* ---- tCreditManager::Setup  [FECREDITS.CPP:32-35] ---- */
@@ -96,14 +85,10 @@ void tCreditManager::Draw(bool selected)
    EA's nested MIN/MAX expansion restores both fade clamps without the old
    decompiler `iVar2`/`fadeValue`/`uVar3` aliases or an empty asm fence.  The
    fTextFade MAX argument order is significant: field first reproduces the
-   retail v1/a0 comparison and result funnel. */
+   retail v1/a0 comparison and result funnel.
+   P880: direct scalar screenMain access also removes the extra mainScreen
+   local; the native i/REG6 loop and all normal object bytes stay unchanged. */
 {
-  /* SYM-CODEGEN-CARRIER: mainScreen -- caching the global pointer gives the
-     retail $a1 48-byte GIV while leaving the real SYM local `i` in $a2.
-     Direct `screenMain->tvConfigs[i]` was measured FAIL 25 (84/81); the
-     optimized source spelling that caused this handout is not unique. */
-  tScreenMain *mainScreen;
-
   if (selected) {
     this->fTVFade = this->fTVFade + 4;
   }
@@ -114,14 +99,13 @@ void tCreditManager::Draw(bool selected)
   if (this->fTVFade < 0x5c) {
     this->fTextFade = MAX(this->fTextFade,0x80 - this->fTVFade);
   }
-  mainScreen = screenMain;
   {
     int i;
 
     i = 0;
     do {
-      mainScreen->tvConfigs[i].flags = mainScreen->tvConfigs[i].flags | 2;
-      mainScreen->tvConfigs[i].tint =
+      screenMain->tvConfigs[i].flags = screenMain->tvConfigs[i].flags | 2;
+      screenMain->tvConfigs[i].tint =
           (0x80 - this->fTVFade) * 0x10000 |
           (0x80 - this->fTVFade) * 0x100 |
           (0x80 - this->fTVFade);
@@ -148,7 +132,7 @@ void tCreditManager::Draw(bool selected)
 void tCreditManager::SetupCurrCredit()
 
 /* MATCH (w37-a2 + 2026-08-03 follow-up, 58->PASS): SYM records the function-static
-   `lasttick` (i.e. FECredits_lastFadeTick; SYM-CARRIER: lasttick), plus the nested
+   `lasttick` (restored to real local-static storage in P881), plus the nested
    line-66 `int NNNNN` in $v1 and the outer `this` receiver.  The remaining seven
    identities are optimized away and their private original spellings are not
    recoverable from SYM:
@@ -174,6 +158,10 @@ void tCreditManager::SetupCurrCredit()
    wrap test as `fCurrCredit >= fNumCredits` presents GCC with retail's operand
    order while preserving the same comparison and branch. */
 {
+  /* SYM5f1f9a: function-local STAT INT at object data+4, retail80051AA4.
+     Explicit zero initialization retains the native initialized data run
+     after CREDFADETICKS; link ownership excludes the raw oracle-only copy. */
+  static int lasttick = 0;
   bool advanceRequested;
   int inputPressed;
   int nextCredit;
@@ -181,7 +169,7 @@ void tCreditManager::SetupCurrCredit()
   int currentCredit;
   bool backgroundReady;
 
-  if (((0xc < ticks - FECredits_lastFadeTick) && (this->fTextFade == 0)) &&
+  if (((0xc < ticks - lasttick) && (this->fTextFade == 0)) &&
      (advanceRequested = false, this->fCurrCredit == this->fShowCreditNum)) {
     inputPressed = FEInput_GetNoDebounceKey(0x20,0);
     if ((inputPressed != 0) ||
@@ -193,7 +181,7 @@ void tCreditManager::SetupCurrCredit()
       AudioCmn_PlayFESFX(6);
       this->fStartTicks = 0;
       this->fCurrCredit = this->fShowCreditNum + 1;
-      FECredits_lastFadeTick = ticks;
+      lasttick = ticks;
     }
     if (this->fCurrCredit >= this->fNumCredits) {
       this->fCurrCredit = 0;

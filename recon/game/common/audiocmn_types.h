@@ -53,7 +53,12 @@ struct AudioMus_tSongEntry {
 struct CopSpeak_tRequest {
     Car_tObj *car;
     int buffer, offset, size, filehandle, ophandle, phrase;
-    char player, sfx, bank, noise;
+    char player, sfx;
+    /* P879: retail bank accesses/invalid sentinel are signed. Native CHAR
+       encodes both char spellings; this restores the access contract, not
+       an unprovable original keyword/flag choice. Layout stays byte +30. */
+    signed char bank;
+    char noise;
 };
 #endif
 

@@ -43,23 +43,29 @@
     build/recon/game/common/chunk.cpp.o(.sdata);   /* 0x8013c818..0x8013c820  was sdata_8013C54C_o16.sdata.s */
     build/recon/game/common/clock.cpp.o(.sdata);   /* 0x8013c820..0x8013c82c  was sdata_8013C54C_o17.sdata.s */
     build/asm/data/sdata_8013C54C_r09.sdata.s.o(.sdata);
+    /* P882 native owner: 0x535 payload + three zero alignment bytes. */
+    build/recon/game/common/hudpmx.cpp.o(.sdata);   /* 0x8013c84c..0x8013cd81, next input 0x8013cd84 */
+    build/asm/data/sdata_8013C54C_r09_between_hudpmx_copspeak.sdata.s.o(.sdata);
+    /* P882 native owner: 0x7e payload + two zero alignment bytes. */
+    build/recon/game/common/copspeak.cpp.o(.sdata);   /* 0x8013d07c..0x8013d0fa, next input 0x8013d0fc */
     build/recon/game/common/fastrand.cpp.o(.sdata);   /* 0x8013d0fc..0x8013d10c  was sdata_8013C54C_o18.sdata.s */
     build/recon/game/common/genericpmx.cpp.o(.sdata);   /* 0x8013d10c..0x8013d220  was sdata_8013C54C_o19.sdata.s */
     build/recon/game/common/input.cpp.o(.sdata);   /* 0x8013d220..0x8013d240  was sdata_8013C54C_o20.sdata.s */
     build/asm/data/sdata_8013C54C_r10.sdata.s.o(.sdata.r10_pre_new);
     /* SYM ownership seam: new.obj's one-word C++ allocation heap pointer. */
     build/recon/game/common/new.cpp.o(.sdata);   /* 0x8013d26c..0x8013d270 */
-    build/asm/data/sdata_8013C54C_r10.sdata.s.o(.sdata.r10_after_new);
+    build/recon/game/common/nfs3.cpp.o(.sdata);   /* P882: 0x8013d270..0x8013d2c8 */
     build/recon/game/common/object.cpp.o(.sdata);   /* 0x8013d2c8..0x8013d2e0  was sdata_8013C54C_o21.sdata.s */
     build/recon/game/common/paths.cpp.o(.sdata);   /* 0x8013d2e0..0x8013d2ec  SYM owner: paths.obj */
     build/recon/game/common/pausemenu.cpp.o(.sdata);   /* 0x8013d2ec..0x8013d2f0  SYM owner: PauseMenu.obj */
     build/recon/game/common/physics.cpp.o(.sdata);   /* 0x8013d2f0..0x8013d324  was sdata_8013C54C_o23.sdata.s */
+    build/recon/game/common/r3dcar.cpp.o(.sdata);   /* P882: 0x8013d324..0x8013d3c0 */
     build/asm/data/sdata_8013C54C_r13.sdata.s.o(.sdata);
     build/recon/game/common/replay.cpp.o(.sdata);   /* 0x8013d3ec..0x8013d400  was sdata_8013C54C_o24.sdata.s */
     /* SYM ownership seam: replay.obj's two-word per-player counter follows its five scalars. */
     build/recon/game/common/replay.cpp.o(.sdata.replay_counter);   /* 0x8013d400..0x8013d408 */
     build/recon/game/common/scene.cpp.o(.sdata);   /* 0x8013d408..0x8013d40c  was sdata_8013C54C_o25.sdata.s */
-    build/asm/data/sdata_8013C54C_r15.sdata.s.o(.sdata.r15_pre_simqueue);
+    build/recon/game/common/sim.cpp.o(.sdata);   /* P882: 0x8013d40c..0x8013d434 */
     /* SYM ownership seam: simqueue.obj's initialized ticker/blocking state. */
     build/recon/game/common/simqueue.cpp.o(.sdata);   /* 0x8013d434..0x8013d440 */
     build/asm/data/sdata_8013C54C_r15.sdata.s.o(.sdata.r15_after_simqueue);

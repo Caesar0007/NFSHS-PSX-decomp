@@ -1,0 +1,62 @@
+{
+  "source_sha256": "f9260fc28d8a360cd7c0e4be7ce90c8e978ccfbb2366bc413d0c8c1374a6105f",
+  "object_sha256": "a84ea3901e372b00286db36de01e45637d0a72bed38763c0aa27cef55766db70",
+  "whole_object_unchanged": true,
+  "checks": [
+    {
+      "command": [
+        "tools/tugate.py",
+        "recon/frontend/common/fecredits.cpp"
+      ],
+      "stdout": "  __none__: NO ORACLE\nrecon/frontend/common/fecredits.cpp: 7/7 PASS\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "tools/brdist.py",
+        "recon/frontend/common/fecredits.cpp"
+      ],
+      "stdout": "# 7 fns checked, 0 with branch-offset/count divergence\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "tools/diffsrc.py",
+        "recon/frontend/common/fecredits.cpp",
+        "Draw__14tCreditManagerb"
+      ],
+      "stdout": "Draw__14tCreditManagerb: 0 diff insns across 0 blocks (ours 81 / oracle 81; -g twin EXACT)\n\nSOURCE-STATEMENT HOTSPOTS (our diff insns per line):\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "tools/symblk.py",
+        "Draw__14tCreditManagerb"
+      ],
+      "stdout": "  fsize = 24\n  mask = $80010000\n  maskoffs = -4\n  line = 120\n  REGPARM    this     $16  s0     PTR STRUCT size 56 dims 0 tag tCreditManager\n  REGPARM    selected $5   a1     BOOL size 0\n  5f1ed1: $80035c24 90 Block start  line = 1\n  5f1eda: $80035ca8 90 Block start  line = 10\n  REG        i        $6   a2     INT size 0\n  5f1ef2: $80035cf8 92 Block end  line = 14\n  5f1efb: $80035d58 92 Block end  line = 30\n  5f1f04: $80035d68 8e Function end   line 151\n",
+      "stderr": ""
+    }
+  ],
+  "raw_oracle_words": 81,
+  "debug_locals": [
+    [
+      "this",
+      "\t.val\t16;\t.scl\t17;\t.tag\ttCreditManager;\t.size\t56;\t.type\t0x18;\t.endef"
+    ],
+    [
+      "selected",
+      "\t.val\t5;\t.scl\t17;\t.type\t0x0;\t.endef"
+    ],
+    [
+      "i",
+      "\t.val\t6;\t.scl\t4;\t.type\t0x4;\t.endef"
+    ]
+  ],
+  "removed_array_views": [
+    "A_ticks",
+    "A_screenMain"
+  ],
+  "removed_local": "mainScreen",
+  "newly_unexempted_native_static": "lasttick",
+  "qualification": "Whole-object identity preserves all data/relocations; raw check establishes oracle provenance, not an independent full link of this TU. lasttick declaration/storage ownership remains unresolved."
+}

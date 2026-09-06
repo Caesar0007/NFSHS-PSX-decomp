@@ -1,0 +1,742 @@
+{
+  "task": "P881",
+  "scope": "recon/frontend/common/fetextrender.cpp",
+  "retained": {
+    "removed_view": "extern int gSemiTransText_arr[] asm(\"gSemiTransText\")",
+    "native_definition": "bool gSemiTransText = false (existing .data section attribute preserved)",
+    "reads_corrected": 2,
+    "writes_corrected": 1,
+    "source_header_comment": "Corrected stale [6][14] documentation to actual native [14][6]",
+    "new_symbols": 0,
+    "new_asm_or_volatile": 0
+  },
+  "native": {
+    "gSemiTransText": "522963 EXT BOOL @8005160C",
+    "textDefinitions": "52293b EXT ARY ARY CHAR size84 dims14,6 @800515B8",
+    "SetABR": "5228fc abr INT a0;52290d trans BOOL a1",
+    "WordWrap": "521f79; x nativeSHORT$v1, size nativeINT$s1; no named pixels local"
+  },
+  "verified": {
+    "whole_tu_pass": "17/17",
+    "branch_divergences": 0,
+    "exact_debug_twins": {
+      "FullTextRGB": 93,
+      "WordWrapTextRGBJustify": 285,
+      "SetABR": 9
+    },
+    "whole_ELF_bytes": 8080,
+    "whole_ELF_identical": true,
+    "sha256": "fc573287922a2dc9949dd2cc97b5d714612ba489c1ea87a6a07c9e3fb0a62260",
+    "raw_oracle_words": 388,
+    "raw_oracle_mismatches": 0,
+    "raw_initialized_data_bytes": 88,
+    "raw_initialized_data_identical": true
+  },
+  "remaining_pixels": {
+    "collapse_x": "64diff,289vs285,branch-count37vs36",
+    "reuse_size": "22diff,285vs285; shifts size and index2 register allocation; not retained",
+    "note": "No evidence-backed complete original source repair retained; existing carrier left visible."
+  },
+  "experiments": [
+    {
+      "name": "baseline",
+      "candidate": "C:\\Temp\\nfs4-decomp\\scratchpad\\p881_fetextrender\\baseline.cpp",
+      "mode": "280",
+      "compiler": "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+      "object": "C:\\Temp\\nfs4-decomp\\build\\p881\\280\\scratchpad\\p881_fetextrender\\baseline.cpp.o",
+      "tu_flags": {
+        "g_value": "0"
+      },
+      "global_G": "4",
+      "compiler_commands": [
+        [
+          "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+          "-quiet",
+          "-O2",
+          "-G0",
+          "C:\\Temp\\nfs4-decomp\\build\\p881\\280\\scratchpad\\p881_fetextrender\\baseline.cpp.i",
+          "-o",
+          "C:\\Temp\\nfs4-decomp\\build\\p881\\280\\scratchpad\\p881_fetextrender\\baseline.cpp.s"
+        ]
+      ],
+      "source_sha256": "f780039fe1656296cf941108734eae11b41d1addf25bb17138b0b3dea8055b03",
+      "pass": 17,
+      "total": 17,
+      "rows": [
+        {
+          "name": "FETextRender_FullTextFade__FiPcss13tMenuTextType14tMenuTextStates",
+          "diffs": 0,
+          "ours": 52,
+          "retail": 52,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_FullTextRGB__FPcssics",
+          "diffs": 0,
+          "ours": 93,
+          "retail": 93,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_FullText__FPcss13tMenuTextType14tMenuTextStates",
+          "diffs": 0,
+          "ours": 33,
+          "retail": 33,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_MenuTextFade__Fis14tMenuTextState13tMenuTextType",
+          "diffs": 0,
+          "ours": 51,
+          "retail": 51,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_MenuTextPositionedJustifyFade__Fissss14tMenuTextState13tMenuTextType",
+          "diffs": 0,
+          "ours": 52,
+          "retail": 52,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_MenuTextPositionedJustify__Fssss14tMenuTextState13tMenuTextType",
+          "diffs": 0,
+          "ours": 21,
+          "retail": 21,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_MenuTextPositioned__Fsss14tMenuTextState13tMenuTextType",
+          "diffs": 0,
+          "ours": 40,
+          "retail": 40,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_SetABR__Fib",
+          "diffs": 0,
+          "ours": 9,
+          "retail": 9,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_SetFont__Fi",
+          "diffs": 0,
+          "ours": 29,
+          "retail": 29,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_Title__Fs",
+          "diffs": 0,
+          "ours": 53,
+          "retail": 53,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_WordWrapFade__FisR4RECT14tMenuTextState13tMenuTextType",
+          "diffs": 0,
+          "ours": 26,
+          "retail": 26,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_WordWrapHeight__FsPc",
+          "diffs": 0,
+          "ours": 19,
+          "retail": 19,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_WordWrapTextFade__FiPcR4RECT14tMenuTextState13tMenuTextType",
+          "diffs": 0,
+          "ours": 42,
+          "retail": 42,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_WordWrapTextRGBJustify__FPcR4RECTiiib",
+          "diffs": 0,
+          "ours": 285,
+          "retail": 285,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_WordWrapTextRGB__FPcR4RECTi",
+          "diffs": 0,
+          "ours": 10,
+          "retail": 10,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_WordWrapText__FPcR4RECT14tMenuTextState13tMenuTextType",
+          "diffs": 0,
+          "ours": 15,
+          "retail": 15,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_WordWrap__FsR4RECT14tMenuTextState13tMenuTextType",
+          "diffs": 0,
+          "ours": 15,
+          "retail": 15,
+          "branch_differences": [],
+          "first_differences": []
+        }
+      ]
+    },
+    {
+      "name": "scalar",
+      "candidate": "C:\\Temp\\nfs4-decomp\\scratchpad\\p881_fetextrender\\scalar.cpp",
+      "mode": "280",
+      "compiler": "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+      "object": "C:\\Temp\\nfs4-decomp\\build\\p881\\280\\scratchpad\\p881_fetextrender\\scalar.cpp.o",
+      "tu_flags": {
+        "g_value": "0"
+      },
+      "global_G": "4",
+      "compiler_commands": [
+        [
+          "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+          "-quiet",
+          "-O2",
+          "-G0",
+          "C:\\Temp\\nfs4-decomp\\build\\p881\\280\\scratchpad\\p881_fetextrender\\scalar.cpp.i",
+          "-o",
+          "C:\\Temp\\nfs4-decomp\\build\\p881\\280\\scratchpad\\p881_fetextrender\\scalar.cpp.s"
+        ]
+      ],
+      "source_sha256": "682b96b292f6e6db5bef91b0e4a1f7d613c5c6178bc15971e3d8814e1b5414d8",
+      "pass": 17,
+      "total": 17,
+      "rows": [
+        {
+          "name": "FETextRender_FullTextFade__FiPcss13tMenuTextType14tMenuTextStates",
+          "diffs": 0,
+          "ours": 52,
+          "retail": 52,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_FullTextRGB__FPcssics",
+          "diffs": 0,
+          "ours": 93,
+          "retail": 93,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_FullText__FPcss13tMenuTextType14tMenuTextStates",
+          "diffs": 0,
+          "ours": 33,
+          "retail": 33,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_MenuTextFade__Fis14tMenuTextState13tMenuTextType",
+          "diffs": 0,
+          "ours": 51,
+          "retail": 51,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_MenuTextPositionedJustifyFade__Fissss14tMenuTextState13tMenuTextType",
+          "diffs": 0,
+          "ours": 52,
+          "retail": 52,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_MenuTextPositionedJustify__Fssss14tMenuTextState13tMenuTextType",
+          "diffs": 0,
+          "ours": 21,
+          "retail": 21,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_MenuTextPositioned__Fsss14tMenuTextState13tMenuTextType",
+          "diffs": 0,
+          "ours": 40,
+          "retail": 40,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_SetABR__Fib",
+          "diffs": 0,
+          "ours": 9,
+          "retail": 9,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_SetFont__Fi",
+          "diffs": 0,
+          "ours": 29,
+          "retail": 29,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_Title__Fs",
+          "diffs": 0,
+          "ours": 53,
+          "retail": 53,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_WordWrapFade__FisR4RECT14tMenuTextState13tMenuTextType",
+          "diffs": 0,
+          "ours": 26,
+          "retail": 26,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_WordWrapHeight__FsPc",
+          "diffs": 0,
+          "ours": 19,
+          "retail": 19,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_WordWrapTextFade__FiPcR4RECT14tMenuTextState13tMenuTextType",
+          "diffs": 0,
+          "ours": 42,
+          "retail": 42,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_WordWrapTextRGBJustify__FPcR4RECTiiib",
+          "diffs": 0,
+          "ours": 285,
+          "retail": 285,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_WordWrapTextRGB__FPcR4RECTi",
+          "diffs": 0,
+          "ours": 10,
+          "retail": 10,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_WordWrapText__FPcR4RECT14tMenuTextState13tMenuTextType",
+          "diffs": 0,
+          "ours": 15,
+          "retail": 15,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_WordWrap__FsR4RECT14tMenuTextState13tMenuTextType",
+          "diffs": 0,
+          "ours": 15,
+          "retail": 15,
+          "branch_differences": [],
+          "first_differences": []
+        }
+      ]
+    },
+    {
+      "name": "collapse_x",
+      "candidate": "C:\\Temp\\nfs4-decomp\\scratchpad\\p881_fetextrender\\collapse_x.cpp",
+      "mode": "280",
+      "compiler": "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+      "object": "C:\\Temp\\nfs4-decomp\\build\\p881\\280\\scratchpad\\p881_fetextrender\\collapse_x.cpp.o",
+      "tu_flags": {
+        "g_value": "0"
+      },
+      "global_G": "4",
+      "compiler_commands": [
+        [
+          "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+          "-quiet",
+          "-O2",
+          "-G0",
+          "C:\\Temp\\nfs4-decomp\\build\\p881\\280\\scratchpad\\p881_fetextrender\\collapse_x.cpp.i",
+          "-o",
+          "C:\\Temp\\nfs4-decomp\\build\\p881\\280\\scratchpad\\p881_fetextrender\\collapse_x.cpp.s"
+        ]
+      ],
+      "source_sha256": "a291cc6eb9ffd0267f28bd895d1d7eaf0f2ff87a1606b175f27e19b3949e57de",
+      "pass": 16,
+      "total": 17,
+      "rows": [
+        {
+          "name": "FETextRender_FullTextFade__FiPcss13tMenuTextType14tMenuTextStates",
+          "diffs": 0,
+          "ours": 52,
+          "retail": 52,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_FullTextRGB__FPcssics",
+          "diffs": 0,
+          "ours": 93,
+          "retail": 93,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_FullText__FPcss13tMenuTextType14tMenuTextStates",
+          "diffs": 0,
+          "ours": 33,
+          "retail": 33,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_MenuTextFade__Fis14tMenuTextState13tMenuTextType",
+          "diffs": 0,
+          "ours": 51,
+          "retail": 51,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_MenuTextPositionedJustifyFade__Fissss14tMenuTextState13tMenuTextType",
+          "diffs": 0,
+          "ours": 52,
+          "retail": 52,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_MenuTextPositionedJustify__Fssss14tMenuTextState13tMenuTextType",
+          "diffs": 0,
+          "ours": 21,
+          "retail": 21,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_MenuTextPositioned__Fsss14tMenuTextState13tMenuTextType",
+          "diffs": 0,
+          "ours": 40,
+          "retail": 40,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_SetABR__Fib",
+          "diffs": 0,
+          "ours": 9,
+          "retail": 9,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_SetFont__Fi",
+          "diffs": 0,
+          "ours": 29,
+          "retail": 29,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_Title__Fs",
+          "diffs": 0,
+          "ours": 53,
+          "retail": 53,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_WordWrapFade__FisR4RECT14tMenuTextState13tMenuTextType",
+          "diffs": 0,
+          "ours": 26,
+          "retail": 26,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_WordWrapHeight__FsPc",
+          "diffs": 0,
+          "ours": 19,
+          "retail": 19,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_WordWrapTextFade__FiPcR4RECT14tMenuTextState13tMenuTextType",
+          "diffs": 0,
+          "ours": 42,
+          "retail": 42,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_WordWrapTextRGBJustify__FPcR4RECTiiib",
+          "diffs": 64,
+          "ours": 289,
+          "retail": 285,
+          "branch_differences": [
+            [
+              "count",
+              37,
+              36
+            ]
+          ],
+          "first_differences": [
+            "-sw s6,696(sp)",
+            "-addu s6,a1,zero",
+            "+sw s7,700(sp)",
+            "+addu s7,a1,zero",
+            "-sw s7,700(sp)",
+            "+sw s6,696(sp)",
+            "-lh t0,2(s6)",
+            "+lh t0,2(s7)",
+            "-li s7,32",
+            "+li s6,32",
+            "-bne v0,s7,T",
+            "+bne v0,s6,T",
+            "-lhu v0,4(s6)",
+            "+lhu v0,4(s7)",
+            "-lh v1,4(s6)",
+            "+lh v1,4(s7)",
+            "-beq v0,s7,T",
+            "+beq v0,s6,T",
+            "-bne v0,s7,T",
+            "+bne v0,s6,T"
+          ]
+        },
+        {
+          "name": "FETextRender_WordWrapTextRGB__FPcR4RECTi",
+          "diffs": 0,
+          "ours": 10,
+          "retail": 10,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_WordWrapText__FPcR4RECT14tMenuTextState13tMenuTextType",
+          "diffs": 0,
+          "ours": 15,
+          "retail": 15,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_WordWrap__FsR4RECT14tMenuTextState13tMenuTextType",
+          "diffs": 0,
+          "ours": 15,
+          "retail": 15,
+          "branch_differences": [],
+          "first_differences": []
+        }
+      ]
+    },
+    {
+      "name": "reuse_size",
+      "candidate": "C:\\Temp\\nfs4-decomp\\scratchpad\\p881_fetextrender\\reuse_size.cpp",
+      "mode": "280",
+      "compiler": "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+      "object": "C:\\Temp\\nfs4-decomp\\build\\p881\\280\\scratchpad\\p881_fetextrender\\reuse_size.cpp.o",
+      "tu_flags": {
+        "g_value": "0"
+      },
+      "global_G": "4",
+      "compiler_commands": [
+        [
+          "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+          "-quiet",
+          "-O2",
+          "-G0",
+          "C:\\Temp\\nfs4-decomp\\build\\p881\\280\\scratchpad\\p881_fetextrender\\reuse_size.cpp.i",
+          "-o",
+          "C:\\Temp\\nfs4-decomp\\build\\p881\\280\\scratchpad\\p881_fetextrender\\reuse_size.cpp.s"
+        ]
+      ],
+      "source_sha256": "935fdff51ff6086b4387e1a2c4a76eda193af747ca429e4d4cea75799548d113",
+      "pass": 16,
+      "total": 17,
+      "rows": [
+        {
+          "name": "FETextRender_FullTextFade__FiPcss13tMenuTextType14tMenuTextStates",
+          "diffs": 0,
+          "ours": 52,
+          "retail": 52,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_FullTextRGB__FPcssics",
+          "diffs": 0,
+          "ours": 93,
+          "retail": 93,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_FullText__FPcss13tMenuTextType14tMenuTextStates",
+          "diffs": 0,
+          "ours": 33,
+          "retail": 33,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_MenuTextFade__Fis14tMenuTextState13tMenuTextType",
+          "diffs": 0,
+          "ours": 51,
+          "retail": 51,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_MenuTextPositionedJustifyFade__Fissss14tMenuTextState13tMenuTextType",
+          "diffs": 0,
+          "ours": 52,
+          "retail": 52,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_MenuTextPositionedJustify__Fssss14tMenuTextState13tMenuTextType",
+          "diffs": 0,
+          "ours": 21,
+          "retail": 21,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_MenuTextPositioned__Fsss14tMenuTextState13tMenuTextType",
+          "diffs": 0,
+          "ours": 40,
+          "retail": 40,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_SetABR__Fib",
+          "diffs": 0,
+          "ours": 9,
+          "retail": 9,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_SetFont__Fi",
+          "diffs": 0,
+          "ours": 29,
+          "retail": 29,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_Title__Fs",
+          "diffs": 0,
+          "ours": 53,
+          "retail": 53,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_WordWrapFade__FisR4RECT14tMenuTextState13tMenuTextType",
+          "diffs": 0,
+          "ours": 26,
+          "retail": 26,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_WordWrapHeight__FsPc",
+          "diffs": 0,
+          "ours": 19,
+          "retail": 19,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_WordWrapTextFade__FiPcR4RECT14tMenuTextState13tMenuTextType",
+          "diffs": 0,
+          "ours": 42,
+          "retail": 42,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_WordWrapTextRGBJustify__FPcR4RECTiiib",
+          "diffs": 22,
+          "ours": 285,
+          "retail": 285,
+          "branch_differences": [],
+          "first_differences": [
+            "-sw s2,680(sp)",
+            "-lw s2,728(sp)",
+            "+sw s1,676(sp)",
+            "+lw s1,728(sp)",
+            "-sw s1,676(sp)",
+            "+sw s2,680(sp)",
+            "-addu a0,s2,zero",
+            "+addu a0,s1,zero",
+            "-beq s2,v0,T",
+            "-slti v0,s2,2",
+            "+beq s1,v0,T",
+            "+slti v0,s1,2",
+            "-bnez s2,T",
+            "+bnez s1,T",
+            "-bnez s2,T",
+            "+bnez s1,T",
+            "-addu s2,v0,zero",
+            "+addu a0,v0,zero",
+            "-subu v1,v1,s2",
+            "+subu v1,v1,a0"
+          ]
+        },
+        {
+          "name": "FETextRender_WordWrapTextRGB__FPcR4RECTi",
+          "diffs": 0,
+          "ours": 10,
+          "retail": 10,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_WordWrapText__FPcR4RECT14tMenuTextState13tMenuTextType",
+          "diffs": 0,
+          "ours": 15,
+          "retail": 15,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FETextRender_WordWrap__FsR4RECT14tMenuTextState13tMenuTextType",
+          "diffs": 0,
+          "ours": 15,
+          "retail": 15,
+          "branch_differences": [],
+          "first_differences": []
+        }
+      ]
+    }
+  ]
+}

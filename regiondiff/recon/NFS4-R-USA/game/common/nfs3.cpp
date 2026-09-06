@@ -50,22 +50,12 @@ char         finishOrder[8];   /* @0x8013d2c0 */
 void Nfs2_SystemNLibStartUp(void)
 
 {
-  /* SYM-CODEGEN-CARRIER: p -- retail's source-level
-   * `Speech::fgUndefined = new Speech::Speaker` has no named local, but the
-   * flattened reconstruction must spell the implicit new-expression result
-   * explicitly while installing Speaker's vptr and zeroing fSub.  Assigning
-   * __builtin_new directly to the global keeps 25 instructions but moves both
-   * constructor stores after the global store (4 authoritative diffs); this
-   * carrier preserves retail's constructor-before-publication order exactly. */
-  int p;
-
   Platform_SysStartUp();
   Loading_GetInitialMemory();
-  if (_6Speech_fgUndefined == 0) {
-    p = (int)__builtin_new(0x50);
-    *(void ***)(p + 0x4c) = (void **)Speaker_vtable;
-    *(int *)(p + 0x48) = 0;
-    _6Speech_fgUndefined = p;
+  /* P879: use the restored shared type/name, preserving construction before
+     publication. Native startup records no separate allocation-result local. */
+  if (Speech_fgUndefined == 0) {
+    Speech_fgUndefined = new Speaker;
   }
   Render_InitLibRender();
   return;

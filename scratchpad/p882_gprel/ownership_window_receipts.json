@@ -1,0 +1,201 @@
+{
+  "owners": [
+    {
+      "name": "hudpmx",
+      "base": "0x8013c84c",
+      "source_size": 1333,
+      "oracle_size": 1336,
+      "source_sha256": "3351804d144ffcc98ae338b917cea61b12696514f5f521a41548423b16ec36af",
+      "oracle_sha256": "1a420a5f66eefef0cbd25fe007c583c21e06046fc2ee2aa31761fa6c3e997e57",
+      "padding": "000000",
+      "data_relocations": 0
+    },
+    {
+      "name": "copspeak",
+      "base": "0x8013d07c",
+      "source_size": 126,
+      "oracle_size": 128,
+      "source_sha256": "9916e2deea22d489a0ca65a78ff2ed67c7beb13ff564c1b52beea4cbe70767f1",
+      "oracle_sha256": "b2d7d035cf339742d810f03f3c17de317ffc1150d517396599cbd22209485f50",
+      "padding": "0000",
+      "data_relocations": 0
+    },
+    {
+      "name": "nfs3",
+      "base": "0x8013d270",
+      "source_size": 88,
+      "oracle_size": 88,
+      "source_sha256": "2d87c1156c33b9e238babab757c4501968dbe30f9d5b9a645429665ea21c068a",
+      "oracle_sha256": "2d87c1156c33b9e238babab757c4501968dbe30f9d5b9a645429665ea21c068a",
+      "padding": "",
+      "data_relocations": 0
+    },
+    {
+      "name": "r3dcar",
+      "base": "0x8013d324",
+      "source_size": 156,
+      "oracle_size": 156,
+      "source_sha256": "8e3a0d3cbd549fdabdaf42d3c37494688098efef57ecf6410d273f468b77c9ca",
+      "oracle_sha256": "8e3a0d3cbd549fdabdaf42d3c37494688098efef57ecf6410d273f468b77c9ca",
+      "padding": "",
+      "data_relocations": 0
+    },
+    {
+      "name": "sim",
+      "base": "0x8013d40c",
+      "source_size": 40,
+      "oracle_size": 40,
+      "source_sha256": "58eec09fc902fa59a719ff705a371adb51f37cf5bd2342194f9ff25f778af04d",
+      "oracle_sha256": "58eec09fc902fa59a719ff705a371adb51f37cf5bd2342194f9ff25f778af04d",
+      "padding": "",
+      "data_relocations": 0
+    }
+  ],
+  "lanes": {
+    "baseline": {
+      "windows": [
+        {
+          "window": "r09",
+          "address": "0x8013c82c",
+          "size": 2272,
+          "sha256": "c26b12f564ccc5befb5b0f662b3f3a4f01218bb8af1ead75eda71a3d1ea014aa",
+          "raw_differences": 0
+        },
+        {
+          "window": "r10",
+          "address": "0x8013d240",
+          "size": 160,
+          "sha256": "32808cfc9ad45cdabdd9877e344aec776eab4e7fdb7fb5f9f481d0c54d37cb05",
+          "raw_differences": 0
+        },
+        {
+          "window": "r13",
+          "address": "0x8013d324",
+          "size": 200,
+          "sha256": "01bc10251565349ca9ea8a3180ff3d7bfa8755e22b49923632cc747c1bca9e8b",
+          "raw_differences": 0
+        },
+        {
+          "window": "r15",
+          "address": "0x8013d40c",
+          "size": 60,
+          "sha256": "8209fe0e3a16b62b81edb0d27fe4e87d592e1207ddfcfad89f885e301a798f41",
+          "raw_differences": 0
+        }
+      ],
+      "neighbor_symbols": {
+        "_6Speech_fgSpeech": "0x8013cd84",
+        "cdsectorreseek": "0x8013d07c",
+        "New_cplusplus_heap": "0x8013d26c",
+        "gMusicInSimIsOn": "0x8013d270",
+        "R3DCar_InMenu": "0x8013d324",
+        "Render_gBlurEffectDepth1": "0x8013d3c0",
+        "InBetween": "0x8013d40c",
+        "gSimQueue_Ticker": "0x8013d434"
+      },
+      "link_stderr": ""
+    },
+    "src": {
+      "windows": [
+        {
+          "window": "r09",
+          "address": "0x8013c82c",
+          "size": 2272,
+          "sha256": "c26b12f564ccc5befb5b0f662b3f3a4f01218bb8af1ead75eda71a3d1ea014aa",
+          "raw_differences": 0
+        },
+        {
+          "window": "r10",
+          "address": "0x8013d240",
+          "size": 160,
+          "sha256": "32808cfc9ad45cdabdd9877e344aec776eab4e7fdb7fb5f9f481d0c54d37cb05",
+          "raw_differences": 0
+        },
+        {
+          "window": "r13",
+          "address": "0x8013d324",
+          "size": 200,
+          "sha256": "01bc10251565349ca9ea8a3180ff3d7bfa8755e22b49923632cc747c1bca9e8b",
+          "raw_differences": 0
+        },
+        {
+          "window": "r15",
+          "address": "0x8013d40c",
+          "size": 60,
+          "sha256": "8209fe0e3a16b62b81edb0d27fe4e87d592e1207ddfcfad89f885e301a798f41",
+          "raw_differences": 0
+        }
+      ],
+      "neighbor_symbols": {
+        "_6Speech_fgSpeech": "0x8013cd84",
+        "cdsectorreseek": "0x8013d07c",
+        "New_cplusplus_heap": "0x8013d26c",
+        "gMusicInSimIsOn": "0x8013d270",
+        "R3DCar_InMenu": "0x8013d324",
+        "Render_gBlurEffectDepth1": "0x8013d3c0",
+        "InBetween": "0x8013d40c",
+        "gSimQueue_Ticker": "0x8013d434"
+      },
+      "link_stderr": ""
+    },
+    "recon": {
+      "windows": [
+        {
+          "window": "r09",
+          "address": "0x8013c82c",
+          "size": 2272,
+          "sha256": "c26b12f564ccc5befb5b0f662b3f3a4f01218bb8af1ead75eda71a3d1ea014aa",
+          "raw_differences": 0
+        },
+        {
+          "window": "r10",
+          "address": "0x8013d240",
+          "size": 160,
+          "sha256": "32808cfc9ad45cdabdd9877e344aec776eab4e7fdb7fb5f9f481d0c54d37cb05",
+          "raw_differences": 0
+        },
+        {
+          "window": "r13",
+          "address": "0x8013d324",
+          "size": 200,
+          "sha256": "01bc10251565349ca9ea8a3180ff3d7bfa8755e22b49923632cc747c1bca9e8b",
+          "raw_differences": 0
+        },
+        {
+          "window": "r15",
+          "address": "0x8013d40c",
+          "size": 60,
+          "sha256": "8209fe0e3a16b62b81edb0d27fe4e87d592e1207ddfcfad89f885e301a798f41",
+          "raw_differences": 0
+        }
+      ],
+      "neighbor_symbols": {
+        "_6Speech_fgSpeech": "0x8013cd84",
+        "cdsectorreseek": "0x8013d07c",
+        "New_cplusplus_heap": "0x8013d26c",
+        "gMusicInSimIsOn": "0x8013d270",
+        "R3DCar_InMenu": "0x8013d324",
+        "Render_gBlurEffectDepth1": "0x8013d3c0",
+        "InBetween": "0x8013d40c",
+        "gSimQueue_Ticker": "0x8013d434"
+      },
+      "link_stderr": ""
+    }
+  },
+  "typed_input_hashes": {
+    "hudpmx": "1999a066a551d2dc24c5f2a455806914ca26c37a62cd8974a822b936aef3ade9",
+    "copspeak": "70fc97ebe71e9feeb970a4af6af67f16969a2171d4a82bfc1a35834376f9807e",
+    "nfs3": "ed3390faba0dff90ca5a780e763100ec856d40415478a6f74a1272bf5c5c27e1",
+    "r3dcar": "1d23d35f5b1f7ab7e0fc385db93dd69e8fdc4675cdb0aa9e7bb566e45205517a",
+    "sim": "d42f37b5eb7c8a3e6bb72cfd6da48c6d2290e21ccadc2137fc9e28720dd04d79"
+  },
+  "total_bytes_per_lane": 2692,
+  "hudpmx_linker_padding": {
+    "address": "0x8013cd81",
+    "size": 3
+  },
+  "copspeak_linker_padding": {
+    "address": "0x8013d0fa",
+    "size": 2
+  }
+}

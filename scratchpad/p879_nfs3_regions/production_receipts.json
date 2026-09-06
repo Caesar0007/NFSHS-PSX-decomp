@@ -1,0 +1,435 @@
+{
+  "production_gates": [
+    {
+      "source": "regiondiff/recon/NFS4-R-AU/game/common/nfs3.cpp",
+      "stage": "final_regional_p879",
+      "source_sha256": "8714d5f12ac692d16b2f76f220ec99845eb849730beb1a3c9a3291f34de913af",
+      "regional_targets": [
+        "NFS4_LoadPerps__Fv",
+        "main",
+        "NFS4_LoadingIcon__Fv"
+      ],
+      "gate": "  NFS4_LoadPerps__Fv: REGION-PASS (172 insns) [NFS4-R-AU]\n  main: REGION-PASS (237 insns) [NFS4-R-AU]\n  NFS4_LoadingIcon__Fv: REGION-PASS (73 insns) [NFS4-R-AU]\n",
+      "gate_exit": 0,
+      "lane_as": "recon/game/common/nfs3.cpp",
+      "object_snapshot": {
+        "file": "C:\\Temp\\nfs4-decomp\\scratchpad\\p879_copspeak\\final_regional_p879\\regiondiff__recon__NFS4-R-AU__game__common__nfs3.cpp.o",
+        "sha256": "48022f632f58250cea44ee7d827fdce26e79202ba2aacf1c3bc904574aaab0cd",
+        "semantic_sha256": "069cdb498cdceeb71b96f88291ced7c788eaa31b286e2ba7ebfc254e7b15c239",
+        "CURRENTPLAYER": [],
+        "sections": [
+          [
+            ".text",
+            1,
+            6,
+            0,
+            3336,
+            4,
+            "3afd84c051cefd93436d8d3976652785d6d6e5439febb19adc25176530e10f0d"
+          ],
+          [
+            ".data",
+            1,
+            3,
+            0,
+            6666,
+            4,
+            "60dafb03b1448d0801f6846d674647c48f232f9b666f59a30157525e0a33c908"
+          ],
+          [
+            ".bss",
+            8,
+            3,
+            0,
+            0,
+            1,
+            "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          ],
+          [
+            ".reginfo",
+            1879048198,
+            0,
+            0,
+            24,
+            4,
+            "6405d26732e7440596ad1215d5112fd1f025c6126c2ba9e3b717e27527bca417"
+          ],
+          [
+            ".MIPS.abiflags",
+            1879048234,
+            2,
+            0,
+            24,
+            8,
+            "9e70292a32ba11ef2132089aab266b191f38da634e80b1c34087db93153bd643"
+          ],
+          [
+            ".pdr",
+            1,
+            0,
+            0,
+            352,
+            4,
+            "a206dabdd6a4efe44b0b9b577a81606216c2f497609147b781f532d2b48c28a0"
+          ],
+          [
+            ".sdata",
+            1,
+            268435459,
+            0,
+            88,
+            4,
+            "2d87c1156c33b9e238babab757c4501968dbe30f9d5b9a645429665ea21c068a"
+          ],
+          [
+            ".rodata",
+            1,
+            2,
+            0,
+            71,
+            4,
+            "69ba7e975395d47ce0e178d026de683a660586248ce824b8ef3e774aee625f6a"
+          ],
+          [
+            ".gnu.attributes",
+            1879048181,
+            0,
+            0,
+            16,
+            1,
+            "216973f3f0fc143f32165e8cd6114664ee49b39e03ccb13ea3a576fbe3a5f43b"
+          ]
+        ]
+      }
+    },
+    {
+      "source": "regiondiff/recon/NFS4-R-USA/game/common/nfs3.cpp",
+      "stage": "final_regional_p879",
+      "source_sha256": "ff2d5d55f1b26d36c080ebf72317b52cb779e11e12fc4a7a05484f23eabf47e2",
+      "regional_targets": [
+        "NFS4_LoadPerps__Fv"
+      ],
+      "gate": "  NFS4_LoadPerps__Fv: REGION-PASS (172 insns) [NFS4-R-USA]\n",
+      "gate_exit": 0,
+      "lane_as": "recon/game/common/nfs3.cpp",
+      "object_snapshot": {
+        "file": "C:\\Temp\\nfs4-decomp\\scratchpad\\p879_copspeak\\final_regional_p879\\regiondiff__recon__NFS4-R-USA__game__common__nfs3.cpp.o",
+        "sha256": "c524f30389acbc38210c9a1cdcc7bbd7ac7c8cd0715167d39fc415442242cdc9",
+        "semantic_sha256": "63d7e3b6d5a6f3415f6f5b395aa5e67fb26fa9b066c1ad39e1c274254566ae8a",
+        "CURRENTPLAYER": [],
+        "sections": [
+          [
+            ".text",
+            1,
+            6,
+            0,
+            3336,
+            4,
+            "5ff32c440ce6efdfc94a1f9b9593a1adb8f801fdad9c4ca8c07caaee599a17fd"
+          ],
+          [
+            ".data",
+            1,
+            3,
+            0,
+            6666,
+            4,
+            "60dafb03b1448d0801f6846d674647c48f232f9b666f59a30157525e0a33c908"
+          ],
+          [
+            ".bss",
+            8,
+            3,
+            0,
+            0,
+            1,
+            "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          ],
+          [
+            ".reginfo",
+            1879048198,
+            0,
+            0,
+            24,
+            4,
+            "6405d26732e7440596ad1215d5112fd1f025c6126c2ba9e3b717e27527bca417"
+          ],
+          [
+            ".MIPS.abiflags",
+            1879048234,
+            2,
+            0,
+            24,
+            8,
+            "9e70292a32ba11ef2132089aab266b191f38da634e80b1c34087db93153bd643"
+          ],
+          [
+            ".pdr",
+            1,
+            0,
+            0,
+            352,
+            4,
+            "a206dabdd6a4efe44b0b9b577a81606216c2f497609147b781f532d2b48c28a0"
+          ],
+          [
+            ".sdata",
+            1,
+            268435459,
+            0,
+            88,
+            4,
+            "2d87c1156c33b9e238babab757c4501968dbe30f9d5b9a645429665ea21c068a"
+          ],
+          [
+            ".rodata",
+            1,
+            2,
+            0,
+            71,
+            4,
+            "4575afc7bd400940eb79f44cc33130d5f3fb18d66e697e4d39cad1cf4cfad6fb"
+          ],
+          [
+            ".gnu.attributes",
+            1879048181,
+            0,
+            0,
+            16,
+            1,
+            "216973f3f0fc143f32165e8cd6114664ee49b39e03ccb13ea3a576fbe3a5f43b"
+          ]
+        ]
+      }
+    }
+  ],
+  "raw_startups": [
+    {
+      "region": "AU",
+      "startup_va": "0x800a4954",
+      "words_checked": 25,
+      "object": "C:\\Temp\\nfs4-decomp\\scratchpad\\p879_copspeak\\final_regional_p879\\regiondiff__recon__NFS4-R-AU__game__common__nfs3.cpp.o",
+      "object_sha256": "48022f632f58250cea44ee7d827fdce26e79202ba2aacf1c3bc904574aaab0cd",
+      "nonrelocated_words_exact": 15,
+      "all_relocated_opcode_register_and_target_fields_exact": true,
+      "sites": [
+        {
+          "offset": "0x8",
+          "kind": 4,
+          "symbol": "Platform_SysStartUp__Fv",
+          "target": "0x800dcfa0"
+        },
+        {
+          "offset": "0x10",
+          "kind": 4,
+          "symbol": "Loading_GetInitialMemory__Fv",
+          "target": "0x800dbf10"
+        },
+        {
+          "offset": "0x18",
+          "kind": 5,
+          "symbol": "_6Speech_fgUndefined",
+          "target": "0x8013e0a8"
+        },
+        {
+          "offset": "0x1c",
+          "kind": 6,
+          "symbol": "_6Speech_fgUndefined",
+          "target": "0x8013e0a8"
+        },
+        {
+          "offset": "0x2c",
+          "kind": 4,
+          "symbol": "__builtin_new",
+          "target": "0x800a48c4"
+        },
+        {
+          "offset": "0x34",
+          "kind": 5,
+          "symbol": "_vt_Q26Speech7Speaker",
+          "target": "0x80056574"
+        },
+        {
+          "offset": "0x38",
+          "kind": 6,
+          "symbol": "_vt_Q26Speech7Speaker",
+          "target": "0x80056574"
+        },
+        {
+          "offset": "0x44",
+          "kind": 5,
+          "symbol": "_6Speech_fgUndefined",
+          "target": "0x8013e0a8"
+        },
+        {
+          "offset": "0x48",
+          "kind": 6,
+          "symbol": "_6Speech_fgUndefined",
+          "target": "0x8013e0a8"
+        },
+        {
+          "offset": "0x4c",
+          "kind": 4,
+          "symbol": "Render_InitLibRender__Fv",
+          "target": "0x800b455c"
+        }
+      ]
+    },
+    {
+      "region": "USA",
+      "startup_va": "0x800a4950",
+      "words_checked": 25,
+      "object": "C:\\Temp\\nfs4-decomp\\scratchpad\\p879_copspeak\\final_regional_p879\\regiondiff__recon__NFS4-R-USA__game__common__nfs3.cpp.o",
+      "object_sha256": "c524f30389acbc38210c9a1cdcc7bbd7ac7c8cd0715167d39fc415442242cdc9",
+      "nonrelocated_words_exact": 15,
+      "all_relocated_opcode_register_and_target_fields_exact": true,
+      "sites": [
+        {
+          "offset": "0x8",
+          "kind": 4,
+          "symbol": "Platform_SysStartUp__Fv",
+          "target": "0x800dcf74"
+        },
+        {
+          "offset": "0x10",
+          "kind": 4,
+          "symbol": "Loading_GetInitialMemory__Fv",
+          "target": "0x800dbee4"
+        },
+        {
+          "offset": "0x18",
+          "kind": 5,
+          "symbol": "_6Speech_fgUndefined",
+          "target": "0x8013e07c"
+        },
+        {
+          "offset": "0x1c",
+          "kind": 6,
+          "symbol": "_6Speech_fgUndefined",
+          "target": "0x8013e07c"
+        },
+        {
+          "offset": "0x2c",
+          "kind": 4,
+          "symbol": "__builtin_new",
+          "target": "0x800a48c0"
+        },
+        {
+          "offset": "0x34",
+          "kind": 5,
+          "symbol": "_vt_Q26Speech7Speaker",
+          "target": "0x80056574"
+        },
+        {
+          "offset": "0x38",
+          "kind": 6,
+          "symbol": "_vt_Q26Speech7Speaker",
+          "target": "0x80056574"
+        },
+        {
+          "offset": "0x44",
+          "kind": 5,
+          "symbol": "_6Speech_fgUndefined",
+          "target": "0x8013e07c"
+        },
+        {
+          "offset": "0x48",
+          "kind": 6,
+          "symbol": "_6Speech_fgUndefined",
+          "target": "0x8013e07c"
+        },
+        {
+          "offset": "0x4c",
+          "kind": 4,
+          "symbol": "Render_InitLibRender__Fv",
+          "target": "0x800b4558"
+        }
+      ]
+    }
+  ],
+  "au_loadperps": {
+    "region": "AU",
+    "function_va": "0x800a4a70",
+    "words": 172,
+    "object": "C:\\Temp\\nfs4-decomp\\scratchpad\\p879_copspeak\\final_regional_p879\\regiondiff__recon__NFS4-R-AU__game__common__nfs3.cpp.o",
+    "object_sha256": "48022f632f58250cea44ee7d827fdce26e79202ba2aacf1c3bc904574aaab0cd",
+    "whole_rodata_bytes_exact": 71,
+    "nonrelocated_words_exact_including_conditional_branch_offsets": 145,
+    "relocated_opcode_and_register_fields_exact": 27,
+    "all_relocated_target_fields_verified": true,
+    "call_and_internal_jump_targets": [
+      {
+        "offset": "0x58",
+        "symbol": ".text",
+        "target": "0x800a4ad4"
+      },
+      {
+        "offset": "0x68",
+        "symbol": "sprintf",
+        "target": "0x800e5094"
+      },
+      {
+        "offset": "0x74",
+        "symbol": "loadfileadr",
+        "target": "0x800e63c0"
+      },
+      {
+        "offset": "0x98",
+        "symbol": "sprintf",
+        "target": "0x800e5094"
+      },
+      {
+        "offset": "0xa4",
+        "symbol": "loadfileadr",
+        "target": "0x800e63c0"
+      },
+      {
+        "offset": "0x1d4",
+        "symbol": ".text",
+        "target": "0x800a4c58"
+      },
+      {
+        "offset": "0x28c",
+        "symbol": "purgememadr",
+        "target": "0x800e6118"
+      },
+      {
+        "offset": "0x294",
+        "symbol": "purgememadr",
+        "target": "0x800e6118"
+      }
+    ],
+    "data_targets": {
+      "GameSetup_gData": "0x801144d0",
+      "Paths_Paths": "0x8011774c"
+    },
+    "string_references": [
+      {
+        "section": ".sdata",
+        "offset": "0x24",
+        "retail_va": "0x8013e59c",
+        "value": "%s%s"
+      },
+      {
+        "section": ".rodata",
+        "offset": "0x0",
+        "retail_va": "0x800567ac",
+        "value": "zHPurs.mis"
+      },
+      {
+        "section": ".rodata",
+        "offset": "0xc",
+        "retail_va": "0x800567b8",
+        "value": "zHPurs2.mis"
+      },
+      {
+        "section": ".rodata",
+        "offset": "0x18",
+        "retail_va": "0x800567c4",
+        "value": "fecarsb.car"
+      }
+    ],
+    "qualification": "Source literal content and raw targets checked; not a whole-regional-data-layout or full-linked-image claim."
+  },
+  "qualification": "AU LoadPerps is now repaired at172/172 with raw-proven regional filename; missing USA LoadingIcon/main oracles are not claimed as PASS."
+}

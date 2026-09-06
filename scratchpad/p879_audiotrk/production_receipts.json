@@ -1,0 +1,63 @@
+{
+  "production_source": "recon/game/common/audiotrk.cpp",
+  "source_sha256": "8c59fd7ac6005495eb1de198603593440c4ba77b66e2bcaef4d12dc6bcf696ba",
+  "object_sha256": "d57d2dcfda69e37d673af8256b7b2823778956967d09a72db500a3d0e6036bb2",
+  "checks": [
+    {
+      "command": [
+        "tools/tugate.py",
+        "recon/game/common/audiotrk.cpp"
+      ],
+      "stdout": "  __none__: NO ORACLE\nrecon/game/common/audiotrk.cpp: 6/6 PASS\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "tools/brdist.py",
+        "recon/game/common/audiotrk.cpp"
+      ],
+      "stdout": "# 6 fns checked, 0 with branch-offset/count divergence\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "tools/diffsrc.py",
+        "recon/game/common/audiotrk.cpp",
+        "AudioTrk_AddCustomObject__FP9AudioElemiP8coorddefiP8Car_tObji"
+      ],
+      "stdout": "AudioTrk_AddCustomObject__FP9AudioElemiP8coorddefiP8Car_tObji: 0 diff insns across 0 blocks (ours 413 / oracle 413; -g twin EXACT)\n\nSOURCE-STATEMENT HOTSPOTS (our diff insns per line):\n",
+      "stderr": ""
+    }
+  ],
+  "linker_command": [
+    "C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe",
+    "-T",
+    "C:\\Temp\\nfs4-decomp\\scratchpad\\p879_audiotrk\\retail.ld",
+    "-o",
+    "C:\\Temp\\nfs4-decomp\\build\\p879_audiotrk_production.elf",
+    "C:\\Temp\\nfs4-decomp\\build\\recon\\game\\common\\audiotrk.cpp.o"
+  ],
+  "raw": [
+    {
+      "section": ".text",
+      "va": "0x8007c614",
+      "bytes": 4016,
+      "differences": 0
+    },
+    {
+      "section": ".rodata",
+      "va": "0x80055864",
+      "bytes": 13,
+      "differences": 0
+    },
+    {
+      "section": ".sdata",
+      "va": "0x8013c754",
+      "bytes": 4,
+      "differences": 0
+    }
+  ],
+  "linked_instruction_words": 1004,
+  "external_bindings_checked": 28,
+  "instruction_rewrites": false
+}

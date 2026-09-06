@@ -1,0 +1,428 @@
+[
+  {
+    "mode": "baseline",
+    "debug": false,
+    "input_sha256": "92e5f8eb7eed7d53a9b7964a4e1862d6b9539d5985d5312cdbea2e199831ab38",
+    "pass": true,
+    "instructions": [
+      69,
+      69
+    ],
+    "diff": [],
+    "whole_tu": [
+      66,
+      66
+    ],
+    "failures": [],
+    "object": "C:\\Temp\\nfs4-decomp\\build\\p879_femenudefs_shapes\\baseline\\normal\\recon\\frontend\\common\\femenudefs.cpp.o",
+    "object_sha256": "e5f8a1f116f2e9aeecfbf0d2d96c5e4e6a6164caea5ef588aec3690449580fd0"
+  },
+  {
+    "mode": "direct_screen",
+    "debug": false,
+    "input_sha256": "f747d0958b88d318f048adb478af9ce76c914b88851e6dd118d2a0edbfd13399",
+    "pass": false,
+    "instructions": [
+      71,
+      69
+    ],
+    "diff": [
+      "--- ",
+      "+++ ",
+      "@@ -43,14 +43,12 @@",
+      " jal T",
+      " addiu a0,a0,7268",
+      " li a1,2",
+      "+lui v1,0",
+      " lw v0,0(s0)",
+      "-nop",
+      "+lw a0,0(v1)",
+      " addiu v0,v0,7496",
+      "+jal T",
+      " sw v0,4(s1)",
+      "-lui v0,0",
+      "-lw a0,0(v0)",
+      "-jal T",
+      "-nop",
+      " j T",
+      " addiu a0,sp,16",
+      " jal T"
+    ],
+    "whole_tu": [
+      65,
+      66
+    ],
+    "failures": [
+      {
+        "name": "MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand",
+        "pass": false,
+        "instructions": [
+          71,
+          69
+        ]
+      }
+    ],
+    "object": "C:\\Temp\\nfs4-decomp\\build\\p879_femenudefs_shapes\\direct_screen\\normal\\recon\\frontend\\common\\femenudefs.cpp.o",
+    "object_sha256": "9a3d9769a1b9ea6b412e3e3cbb773512694a0b9ecc51f33af003e9039ae5188e"
+  },
+  {
+    "mode": "direct_menu",
+    "debug": false,
+    "input_sha256": "ac14383dbd78d92bceb9b9b98cddde58192aeb44000830e68f7ac5b12bac5354",
+    "pass": false,
+    "instructions": [
+      70,
+      69
+    ],
+    "diff": [
+      "--- ",
+      "+++ ",
+      "@@ -43,10 +43,9 @@",
+      " jal T",
+      " addiu a0,a0,7268",
+      " li a1,2",
+      "-lui v0,0",
+      "-lw a0,0(v0)",
+      "+lui v1,0",
+      " lw v0,0(s0)",
+      "-nop",
+      "+lw a0,0(v1)",
+      " addiu v0,v0,7496",
+      " jal T",
+      " sw v0,4(s1)"
+    ],
+    "whole_tu": [
+      65,
+      66
+    ],
+    "failures": [
+      {
+        "name": "MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand",
+        "pass": false,
+        "instructions": [
+          70,
+          69
+        ]
+      }
+    ],
+    "object": "C:\\Temp\\nfs4-decomp\\build\\p879_femenudefs_shapes\\direct_menu\\normal\\recon\\frontend\\common\\femenudefs.cpp.o",
+    "object_sha256": "19d2c820ada0fcd05ae28eebc80c500f36021abbd86126196adf055e134156c3"
+  },
+  {
+    "mode": "direct_dialog",
+    "debug": false,
+    "input_sha256": "19fe50720329d878c2535ee5f22f4f69057529b6019e562fd054ea8773b74fb4",
+    "pass": false,
+    "instructions": [
+      69,
+      69
+    ],
+    "diff": [
+      "--- ",
+      "+++ ",
+      "@@ -19,13 +19,13 @@",
+      " jal T",
+      " li a0,66",
+      " addu a0,s0,zero",
+      "-sw v0,160(sp)",
+      "+sw v0,144(a0)",
+      " li v0,801",
+      "-sw v0,176(sp)",
+      "+sw v0,160(a0)",
+      " li v0,802",
+      "-sw v0,180(sp)",
+      "+sw v0,164(a0)",
+      " jal T",
+      "-sh zero,152(sp)",
+      "+sh zero,136(a0)",
+      " sll v0,v0,16",
+      " sra v1,v0,16",
+      " li v0,1"
+    ],
+    "whole_tu": [
+      65,
+      66
+    ],
+    "failures": [
+      {
+        "name": "MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand",
+        "pass": false,
+        "instructions": [
+          69,
+          69
+        ]
+      }
+    ],
+    "object": "C:\\Temp\\nfs4-decomp\\build\\p879_femenudefs_shapes\\direct_dialog\\normal\\recon\\frontend\\common\\femenudefs.cpp.o",
+    "object_sha256": "33fb21f32ba75fc424fa39c1066350062bfadc0eb364fad4bf6b3b4f06b6dd50"
+  },
+  {
+    "mode": "no_state_fence",
+    "debug": false,
+    "input_sha256": "f0e38cfd0d19be7643c18b33744f43772bb1ae63eab048ca123189fb91eb3250",
+    "pass": false,
+    "instructions": [
+      69,
+      69
+    ],
+    "diff": [
+      "--- ",
+      "+++ ",
+      "@@ -42,13 +42,13 @@",
+      " li a1,-1",
+      " jal T",
+      " addiu a0,a0,7268",
+      "+li a1,2",
+      " lui v1,0",
+      " lw v0,0(s0)",
+      " lw a0,0(v1)",
+      " addiu v0,v0,7496",
+      "+jal T",
+      " sw v0,4(s1)",
+      "-jal T",
+      "-li a1,2",
+      " j T",
+      " addiu a0,sp,16",
+      " jal T"
+    ],
+    "whole_tu": [
+      65,
+      66
+    ],
+    "failures": [
+      {
+        "name": "MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand",
+        "pass": false,
+        "instructions": [
+          69,
+          69
+        ]
+      }
+    ],
+    "object": "C:\\Temp\\nfs4-decomp\\build\\p879_femenudefs_shapes\\no_state_fence\\normal\\recon\\frontend\\common\\femenudefs.cpp.o",
+    "object_sha256": "6cb21ef63deb2f5a170261f92ddad2adab004f6e113792cf132785ba7c6e6059"
+  },
+  {
+    "mode": "literal_state",
+    "debug": false,
+    "input_sha256": "0e0ac239f5aca473ebbb22109fbc3ad05c19955a5c371d0b0b7b287318dff642",
+    "pass": false,
+    "instructions": [
+      69,
+      69
+    ],
+    "diff": [
+      "--- ",
+      "+++ ",
+      "@@ -42,13 +42,13 @@",
+      " li a1,-1",
+      " jal T",
+      " addiu a0,a0,7268",
+      "+li a1,2",
+      " lui v1,0",
+      " lw v0,0(s0)",
+      " lw a0,0(v1)",
+      " addiu v0,v0,7496",
+      "+jal T",
+      " sw v0,4(s1)",
+      "-jal T",
+      "-li a1,2",
+      " j T",
+      " addiu a0,sp,16",
+      " jal T"
+    ],
+    "whole_tu": [
+      65,
+      66
+    ],
+    "failures": [
+      {
+        "name": "MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand",
+        "pass": false,
+        "instructions": [
+          69,
+          69
+        ]
+      }
+    ],
+    "object": "C:\\Temp\\nfs4-decomp\\build\\p879_femenudefs_shapes\\literal_state\\normal\\recon\\frontend\\common\\femenudefs.cpp.o",
+    "object_sha256": "6cb21ef63deb2f5a170261f92ddad2adab004f6e113792cf132785ba7c6e6059"
+  },
+  {
+    "mode": "direct_screen_literal",
+    "debug": false,
+    "input_sha256": "1cb5198ac64f003bc89d5835c5805072f9f95bda367db0c422e7cd62242a6db8",
+    "pass": false,
+    "instructions": [
+      70,
+      69
+    ],
+    "diff": [
+      "--- ",
+      "+++ ",
+      "@@ -42,14 +42,13 @@",
+      " li a1,-1",
+      " jal T",
+      " addiu a0,a0,7268",
+      "+li a1,2",
+      "+lui v1,0",
+      " lw v0,0(s0)",
+      "-nop",
+      "+lw a0,0(v1)",
+      " addiu v0,v0,7496",
+      "+jal T",
+      " sw v0,4(s1)",
+      "-lui v0,0",
+      "-lw a0,0(v0)",
+      "-jal T",
+      "-li a1,2",
+      " j T",
+      " addiu a0,sp,16",
+      " jal T"
+    ],
+    "whole_tu": [
+      65,
+      66
+    ],
+    "failures": [
+      {
+        "name": "MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand",
+        "pass": false,
+        "instructions": [
+          70,
+          69
+        ]
+      }
+    ],
+    "object": "C:\\Temp\\nfs4-decomp\\build\\p879_femenudefs_shapes\\direct_screen_literal\\normal\\recon\\frontend\\common\\femenudefs.cpp.o",
+    "object_sha256": "a7fcaf3c049991ad84d5f28e2d49610cd1b3fca737c9ec61ea8a45dfde933bbf"
+  },
+  {
+    "mode": "direct_both_literal",
+    "debug": false,
+    "input_sha256": "71dab38266cb97fd6b219ada2679a6d20735fed4f6a179a18e2a5de51bf0269c",
+    "pass": false,
+    "instructions": [
+      70,
+      69
+    ],
+    "diff": [
+      "--- ",
+      "+++ ",
+      "@@ -42,14 +42,13 @@",
+      " li a1,-1",
+      " jal T",
+      " addiu a0,a0,7268",
+      "+li a1,2",
+      "+lui v1,0",
+      " lw v0,0(s0)",
+      "-nop",
+      "+lw a0,0(v1)",
+      " addiu v0,v0,7496",
+      "+jal T",
+      " sw v0,4(s1)",
+      "-lui v0,0",
+      "-lw a0,0(v0)",
+      "-jal T",
+      "-li a1,2",
+      " j T",
+      " addiu a0,sp,16",
+      " jal T"
+    ],
+    "whole_tu": [
+      65,
+      66
+    ],
+    "failures": [
+      {
+        "name": "MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand",
+        "pass": false,
+        "instructions": [
+          70,
+          69
+        ]
+      }
+    ],
+    "object": "C:\\Temp\\nfs4-decomp\\build\\p879_femenudefs_shapes\\direct_both_literal\\normal\\recon\\frontend\\common\\femenudefs.cpp.o",
+    "object_sha256": "a7fcaf3c049991ad84d5f28e2d49610cd1b3fca737c9ec61ea8a45dfde933bbf"
+  },
+  {
+    "mode": "plain_menu_store",
+    "debug": false,
+    "input_sha256": "5c1b8b8712b7eff243c50a7441dcfd9a0b0d31f26a3595e357587efdfe6f44d3",
+    "pass": false,
+    "instructions": [
+      70,
+      69
+    ],
+    "diff": [
+      "--- ",
+      "+++ ",
+      "@@ -43,10 +43,9 @@",
+      " jal T",
+      " addiu a0,a0,7268",
+      " li a1,2",
+      "-lui v0,0",
+      "-lw a0,0(v0)",
+      "+lui v1,0",
+      " lw v0,0(s0)",
+      "-nop",
+      "+lw a0,0(v1)",
+      " addiu v0,v0,7496",
+      " jal T",
+      " sw v0,4(s1)"
+    ],
+    "whole_tu": [
+      65,
+      66
+    ],
+    "failures": [
+      {
+        "name": "MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand",
+        "pass": false,
+        "instructions": [
+          70,
+          69
+        ]
+      }
+    ],
+    "object": "C:\\Temp\\nfs4-decomp\\build\\p879_femenudefs_shapes\\plain_menu_store\\normal\\recon\\frontend\\common\\femenudefs.cpp.o",
+    "object_sha256": "19d2c820ada0fcd05ae28eebc80c500f36021abbd86126196adf055e134156c3"
+  },
+  {
+    "mode": "dialog_members",
+    "debug": false,
+    "input_sha256": "1a0f369e97021624610c864212c00d54528f7f6d884e327a9cdbfb55c6d69625",
+    "pass": true,
+    "instructions": [
+      69,
+      69
+    ],
+    "diff": [],
+    "whole_tu": [
+      66,
+      66
+    ],
+    "failures": [],
+    "object": "C:\\Temp\\nfs4-decomp\\build\\p879_femenudefs_shapes\\dialog_members\\normal\\recon\\frontend\\common\\femenudefs.cpp.o",
+    "object_sha256": "e5f8a1f116f2e9aeecfbf0d2d96c5e4e6a6164caea5ef588aec3690449580fd0"
+  },
+  {
+    "mode": "dialog_chain",
+    "debug": false,
+    "input_sha256": "ee2b4c42283fa992cc3ed48fe445a57bcb14fc44d44bbd079c0ee6053e034562",
+    "pass": true,
+    "instructions": [
+      69,
+      69
+    ],
+    "diff": [],
+    "whole_tu": [
+      66,
+      66
+    ],
+    "failures": [],
+    "object": "C:\\Temp\\nfs4-decomp\\build\\p879_femenudefs_shapes\\dialog_chain\\normal\\recon\\frontend\\common\\femenudefs.cpp.o",
+    "object_sha256": "e5f8a1f116f2e9aeecfbf0d2d96c5e4e6a6164caea5ef588aec3690449580fd0"
+  }
+]

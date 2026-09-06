@@ -1,0 +1,293 @@
+{
+  "source": "recon/game/common/copspeak.cpp",
+  "function": "CopSpeak_Flush__Fv",
+  "normal_object_sha256": "70fc97ebe71e9feeb970a4af6af67f16969a2171d4a82bfc1a35834376f9807e",
+  "whole_tu_text_bytes": 6880,
+  "whole_tu_debug_text_equal": true,
+  "whole_tu_text_relocations_equal": true,
+  "flush_words": 20,
+  "raw_linked_words_equal": true,
+  "oracle_comment_bytes_equal_raw": true,
+  "relocations": [
+    {
+      "word": 0,
+      "reloc_type": 7,
+      "symbol": "CopSpeak_gQueuePlay",
+      "address": "0x8013d0cc"
+    },
+    {
+      "word": 1,
+      "reloc_type": 7,
+      "symbol": "CopSpeak_gQueueHead",
+      "address": "0x8013d0c8"
+    },
+    {
+      "word": 4,
+      "reloc_type": 5,
+      "symbol": "CopSpeak_gQueue",
+      "address": "0x80111f24"
+    },
+    {
+      "word": 5,
+      "reloc_type": 6,
+      "symbol": "CopSpeak_gQueue",
+      "address": "0x80111f24"
+    },
+    {
+      "word": 14,
+      "reloc_type": 7,
+      "symbol": "CopSpeak_gQueueHead",
+      "address": "0x8013d0c8"
+    }
+  ],
+  "debug_local_defs": [
+    "\t.def\ti;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef"
+  ],
+  "debug_blocks": [
+    {
+      "kind": "begin",
+      "label": "$Lb98",
+      "source_relative_line": 1,
+      "function_offset": 0,
+      "same_address_retained_label": "CopSpeak_Flush__Fv"
+    },
+    {
+      "kind": "begin",
+      "label": "$Lb99",
+      "source_relative_line": 4,
+      "function_offset": 0,
+      "same_address_retained_label": "LM530"
+    },
+    {
+      "kind": "bend",
+      "label": "$Le100",
+      "source_relative_line": 7,
+      "function_offset": 72,
+      "same_address_retained_label": "LM533"
+    },
+    {
+      "kind": "bend",
+      "label": "$Le101",
+      "source_relative_line": 8,
+      "function_offset": 72,
+      "same_address_retained_label": "LM533"
+    }
+  ],
+  "native_sld": [
+    {
+      "address": "0x8009a944",
+      "line": 1251
+    },
+    {
+      "address": "0x8009a944",
+      "line": 1257
+    },
+    {
+      "address": "0x8009a944",
+      "line": 1257
+    },
+    {
+      "address": "0x8009a944",
+      "line": 1258
+    },
+    {
+      "address": "0x8009a944",
+      "line": 1258
+    },
+    {
+      "address": "0x8009a960",
+      "line": 1259
+    },
+    {
+      "address": "0x8009a960",
+      "line": 1259
+    }
+  ],
+  "layouts": [
+    {
+      "header": "private",
+      "asserts_pass": true,
+      "request_size": 32,
+      "bank_offset": 30,
+      "bank_size": 1,
+      "bank_debug_record": ".def\tbank;\t.val\t30;\t.scl\t8;\t.type\t0x2;\t.endef",
+      "signed_load_lb": true,
+      "negative_store_li_minus_one": true
+    },
+    {
+      "header": "universal",
+      "asserts_pass": true,
+      "request_size": 32,
+      "bank_offset": 30,
+      "bank_size": 1,
+      "bank_debug_record": ".def\tbank;\t.val\t30;\t.scl\t8;\t.type\t0x2;\t.endef",
+      "signed_load_lb": true,
+      "negative_store_li_minus_one": true
+    }
+  ],
+  "commands": [
+    [
+      "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+      "-x",
+      "c",
+      "-D__cplusplus=1",
+      "-nostdinc",
+      "-undef",
+      "-Dmips",
+      "-D__mips__",
+      "-D__psx__",
+      "-IC:\\Temp\\nfs4-decomp\\recon",
+      "C:\\Temp\\nfs4-decomp\\recon\\game\\common\\copspeak.cpp",
+      "-o",
+      "C:\\Temp\\nfs4-decomp\\scratchpad\\p879_copspeak\\final.i"
+    ],
+    [
+      "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+      "-quiet",
+      "-O2",
+      "-G8",
+      "C:\\Temp\\nfs4-decomp\\scratchpad\\p879_copspeak\\final.i",
+      "-o",
+      "C:\\Temp\\nfs4-decomp\\scratchpad\\p879_copspeak\\final.s"
+    ],
+    [
+      "C:\\Python314\\python.exe",
+      "C:\\Temp\\nfs4-decomp\\tools\\maspsx\\maspsx.py",
+      "--aspsx-version=2.77",
+      "--expand-div",
+      "--run-assembler",
+      "--gnu-as-path=C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-as.exe",
+      "-EL",
+      "-march=r3000",
+      "-mtune=r3000",
+      "-G8",
+      "-I",
+      "C:\\Temp\\nfs4-decomp\\recon",
+      "-o",
+      "C:\\Temp\\nfs4-decomp\\scratchpad\\p879_copspeak\\final.o"
+    ],
+    [
+      "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+      "-x",
+      "c",
+      "-D__cplusplus=1",
+      "-nostdinc",
+      "-undef",
+      "-Dmips",
+      "-D__mips__",
+      "-D__psx__",
+      "-IC:\\Temp\\nfs4-decomp\\recon",
+      "C:\\Temp\\nfs4-decomp\\recon\\game\\common\\copspeak.cpp",
+      "-o",
+      "C:\\Temp\\nfs4-decomp\\scratchpad\\p879_copspeak\\final_g.i"
+    ],
+    [
+      "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+      "-quiet",
+      "-O2",
+      "-G8",
+      "-g",
+      "C:\\Temp\\nfs4-decomp\\scratchpad\\p879_copspeak\\final_g.i",
+      "-o",
+      "C:\\Temp\\nfs4-decomp\\scratchpad\\p879_copspeak\\final_g.s"
+    ],
+    [
+      "C:\\Python314\\python.exe",
+      "C:\\Temp\\nfs4-decomp\\tools\\maspsx\\maspsx.py",
+      "--aspsx-version=2.77",
+      "--expand-div",
+      "--run-assembler",
+      "--gnu-as-path=C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-as.exe",
+      "-EL",
+      "-march=r3000",
+      "-mtune=r3000",
+      "-G8",
+      "-I",
+      "C:\\Temp\\nfs4-decomp\\recon",
+      "-o",
+      "C:\\Temp\\nfs4-decomp\\scratchpad\\p879_copspeak\\final_g.o"
+    ],
+    [
+      "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+      "-x",
+      "c",
+      "-D__cplusplus=1",
+      "-nostdinc",
+      "-undef",
+      "-Dmips",
+      "-D__mips__",
+      "-D__psx__",
+      "-IC:\\Temp\\nfs4-decomp\\recon",
+      "C:\\Temp\\nfs4-decomp\\scratchpad\\p879_copspeak\\layout_private.cpp",
+      "-o",
+      "C:\\Temp\\nfs4-decomp\\scratchpad\\p879_copspeak\\layout_private.i"
+    ],
+    [
+      "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+      "-quiet",
+      "-O2",
+      "-G8",
+      "-g",
+      "C:\\Temp\\nfs4-decomp\\scratchpad\\p879_copspeak\\layout_private.i",
+      "-o",
+      "C:\\Temp\\nfs4-decomp\\scratchpad\\p879_copspeak\\layout_private.s"
+    ],
+    [
+      "C:\\Python314\\python.exe",
+      "C:\\Temp\\nfs4-decomp\\tools\\maspsx\\maspsx.py",
+      "--aspsx-version=2.77",
+      "--expand-div",
+      "--run-assembler",
+      "--gnu-as-path=C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-as.exe",
+      "-EL",
+      "-march=r3000",
+      "-mtune=r3000",
+      "-G8",
+      "-I",
+      "C:\\Temp\\nfs4-decomp\\recon",
+      "-o",
+      "C:\\Temp\\nfs4-decomp\\scratchpad\\p879_copspeak\\layout_private.o"
+    ],
+    [
+      "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+      "-x",
+      "c",
+      "-D__cplusplus=1",
+      "-nostdinc",
+      "-undef",
+      "-Dmips",
+      "-D__mips__",
+      "-D__psx__",
+      "-IC:\\Temp\\nfs4-decomp\\recon",
+      "C:\\Temp\\nfs4-decomp\\scratchpad\\p879_copspeak\\layout_universal.cpp",
+      "-o",
+      "C:\\Temp\\nfs4-decomp\\scratchpad\\p879_copspeak\\layout_universal.i"
+    ],
+    [
+      "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+      "-quiet",
+      "-O2",
+      "-G8",
+      "-g",
+      "C:\\Temp\\nfs4-decomp\\scratchpad\\p879_copspeak\\layout_universal.i",
+      "-o",
+      "C:\\Temp\\nfs4-decomp\\scratchpad\\p879_copspeak\\layout_universal.s"
+    ],
+    [
+      "C:\\Python314\\python.exe",
+      "C:\\Temp\\nfs4-decomp\\tools\\maspsx\\maspsx.py",
+      "--aspsx-version=2.77",
+      "--expand-div",
+      "--run-assembler",
+      "--gnu-as-path=C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-as.exe",
+      "-EL",
+      "-march=r3000",
+      "-mtune=r3000",
+      "-G8",
+      "-I",
+      "C:\\Temp\\nfs4-decomp\\recon",
+      "-o",
+      "C:\\Temp\\nfs4-decomp\\scratchpad\\p879_copspeak\\layout_universal.o"
+    ]
+  ]
+}

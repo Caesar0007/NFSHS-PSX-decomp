@@ -1,0 +1,113 @@
+{
+  "round": "P880",
+  "units": [
+    {
+      "source": "recon/frontend/common/femenudefs.cpp",
+      "source_sha256": "a8ea67a66f30ee759ff4f489f10dec121bb85fbace68d3df698fca5165ba0db2",
+      "checks": [
+        {
+          "tool": "tugate.py",
+          "stdout": "  __none__: NO ORACLE\nrecon/frontend/common/femenudefs.cpp: 66/66 PASS\n",
+          "stderr": ""
+        },
+        {
+          "tool": "brdist.py",
+          "stdout": "# 66 fns checked, 0 with branch-offset/count divergence\n",
+          "stderr": ""
+        }
+      ],
+      "object_sha256": "e5f8a1f116f2e9aeecfbf0d2d96c5e4e6a6164caea5ef588aec3690449580fd0"
+    },
+    {
+      "source": "recon/frontend/common/feapp.cpp",
+      "source_sha256": "b4394b022b1e629fa200c2929e997ccc3727ec6215d865aa13d9c549276d7fc3",
+      "checks": [
+        {
+          "tool": "tugate.py",
+          "stdout": "  __none__: NO ORACLE\nrecon/frontend/common/feapp.cpp: 16/16 PASS\n",
+          "stderr": ""
+        },
+        {
+          "tool": "brdist.py",
+          "stdout": "# 16 fns checked, 0 with branch-offset/count divergence\n",
+          "stderr": ""
+        }
+      ],
+      "object_sha256": "aed59b1d17dd6befe6112862e1d2233441c9a484a071c86f50132db2e17ca65a"
+    },
+    {
+      "source": "recon/frontend/common/screenmemcard.cpp",
+      "source_sha256": "a50b60e67728a7638428837a5d54b859e202fefe05571a5011e874f3ac94a993",
+      "checks": [
+        {
+          "tool": "tugate.py",
+          "stdout": "  __none__: NO ORACLE\nrecon/frontend/common/screenmemcard.cpp: 15/15 PASS\n",
+          "stderr": ""
+        },
+        {
+          "tool": "brdist.py",
+          "stdout": "# 15 fns checked, 0 with branch-offset/count divergence\n",
+          "stderr": ""
+        }
+      ],
+      "object_sha256": "fa86b7250da7ac05498145ad09161ae01fb10664eb1c91838aec57401b666c25"
+    },
+    {
+      "source": "recon/frontend/common/fecredits.cpp",
+      "source_sha256": "f9260fc28d8a360cd7c0e4be7ce90c8e978ccfbb2366bc413d0c8c1374a6105f",
+      "checks": [
+        {
+          "tool": "tugate.py",
+          "stdout": "  __none__: NO ORACLE\nrecon/frontend/common/fecredits.cpp: 7/7 PASS\n",
+          "stderr": ""
+        },
+        {
+          "tool": "brdist.py",
+          "stdout": "# 7 fns checked, 0 with branch-offset/count divergence\n",
+          "stderr": ""
+        }
+      ],
+      "object_sha256": "a84ea3901e372b00286db36de01e45637d0a72bed38763c0aa27cef55766db70"
+    }
+  ],
+  "functions_pass": 104,
+  "functions_total": 104,
+  "checks": [
+    {
+      "command": [
+        "tools/relink.py",
+        "--lane",
+        "both",
+        "--json",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\p880_checkpoint\\relink.json"
+      ],
+      "stdout": "== lane recon: 757 objects (excluded: {'diffsrc': 149, 'scratch': 80, 'scratchpad': 118, 'pbuild': 0, 'relink': 2})\n   ld -r rc=1\n   DUP total=964  blob-class=964  REAL=0          [REAL must be 0]\n   HIDDEN PHANTOMS=0                          [must be 0]\n   UNRESOLVED (reloc-referenced)=0  (linker-resolved=8; symtab-only, benign=0)\n== lane src: 706 objects (excluded: {'diffsrc': 149, 'scratch': 80, 'scratchpad': 118, 'pbuild': 0, 'relink': 2})\n   ld -r rc=0\n   DUP total=0  blob-class=0  REAL=0          [REAL must be 0]\n   HIDDEN PHANTOMS=0                          [must be 0]\n   UNRESOLVED (reloc-referenced)=0  (linker-resolved=193; symtab-only, benign=3489)\nGATE: GREEN\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "tools/audit_vtable_indexing.py"
+      ],
+      "stdout": "PASS: no unsafe vtable row indexing in 1029 files\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "tools/textmoves_audit.py"
+      ],
+      "stdout": "PASS: source-only policy; no post-compiler text moves or branch retargets configured\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "scratchpad/p880_fecredits/verify.py"
+      ],
+      "stdout": "PASS: credits7/7,branch0,Draw81/exact-g/native-only locals; entire object unchanged.\n",
+      "stderr": ""
+    }
+  ],
+  "headers_changed": false,
+  "compiler_flags_changed": false,
+  "committed": false,
+  "full_goal_complete": false
+}

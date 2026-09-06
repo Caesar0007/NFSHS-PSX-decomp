@@ -7,8 +7,6 @@
    ABSOLUTELY by every oracle (%hi/%lo as an RTL pseudo, CSE-able and
    delay-slot schedulable); a plain extern leaves cc1plus emitting the lw/sw
    assembler macro, which GNU-as expands per-access (self-temp / $at). */
-extern tFEApplication *A_FEApp[] __asm__("FEApp");
-#define FEApp A_FEApp[0]
 extern int A_ticks[] __asm__("ticks");
 #define ticks A_ticks[0]
 extern int A_CURRENTLYUSINGMEMCARD[] __asm__("CURRENTLYUSINGMEMCARD");
@@ -962,10 +960,6 @@ void tScreenMemcard::ReleaseIcons()
 void tScreenMemcard::Initialize()
 
 {
-  /* SYM-CODEGEN-CARRIER: feApp -- direct FEApp member access is count-exact
-     FAIL 6 because retail loads the application pointer before publishing the
-     reservememadr result; this alias preserves that observable load order. */
-  tFEApplication *feApp;
   /* SYM-CODEGEN-CARRIER: msgId -- folding this conditional into the later
      menu-field store is FAIL 43 at 107/106 instructions; the staged value is
      retail's live $a3 across the menuDefs load and has no recoverable name. */
@@ -990,25 +984,20 @@ void tScreenMemcard::Initialize()
   this->fScreenFadeReadyTick = 0;
   kMemCardMessageY = 0xc6;
   fMemIcon = (char (*)[15][3][192])reservememadr("records",0x21c0,0);
-  feApp = FEApp;
   this->checkingstart = 0;
   this->memcardanimframe = 0;
   this->count = 0;
   msgId = 0x287;
-  this->player = feApp->fInputPlayer;
+  this->player = FEApp->fInputPlayer;
   this->card = this->player * 4 + 1;
   if (this->player != 0) {
     msgId = 0x289;
   }
   {
     int i = 0;
-    /* SYM-CODEGEN-CARRIER: menus -- repeated direct menuDefs[0] addressing is
-       FAIL 38 at 110/106 instructions; the shared pointer preserves retail's
-       single load and the paired flags-update web. */
-    tGlobalMenuDefs *menus = menuDefs;
-    (menus->itemLoadGame).fTextDescription = msgId;
-    (menus->itemSaveGame).fFlags |= 1;
-    (menus->itemLoadGame).fFlags |= 1;
+    (menuDefs->itemLoadGame).fTextDescription = msgId;
+    (menuDefs->itemSaveGame).fFlags |= 1;
+    (menuDefs->itemLoadGame).fFlags |= 1;
     do {
       this->goticon[i] = '\0';
       this->numicon[i] = '\0';
@@ -1032,21 +1021,13 @@ void tScreenMemcard::Initialize()
 void tScreenMemcard::Cleanup()
 
 {
-  /* SYM-CODEGEN-CARRIER: menus -- direct global/member spelling is measured
-     FAIL 20 (27/25) and loses retail's shared menuDefs base. */
-  tGlobalMenuDefs *menus;
-  /* SYM-CODEGEN-CARRIER: iconTable -- paired address carrier in that receipt. */
-  char (*iconTable) [15] [3] [192];
-
   this->ReleaseIcons();
   DeInit_Memcard();
-  iconTable = fMemIcon;
-  menus = menuDefs;
-  (menus->itemSaveGame).fFlags =
-       (menus->itemSaveGame).fFlags & 0xfffffffe;
-  (menus->itemLoadGame).fFlags =
-       (menus->itemLoadGame).fFlags & 0xfffffffe;
-  purgememadr(iconTable);
+  (menuDefs->itemSaveGame).fFlags =
+       (menuDefs->itemSaveGame).fFlags & 0xfffffffe;
+  (menuDefs->itemLoadGame).fFlags =
+       (menuDefs->itemLoadGame).fFlags & 0xfffffffe;
+  purgememadr(fMemIcon);
   this->tScreen::Cleanup();
   return;
 }

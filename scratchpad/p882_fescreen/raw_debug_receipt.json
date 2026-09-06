@@ -1,0 +1,153 @@
+{
+  "whole_object_sha256": "7228f949f9999f27c5fd1395036b6cf88d71fd1307c21e8fffd279728e59f0c0",
+  "whole_object_byte_equal": true,
+  "whole_text_bytes": 3640,
+  "whole_old_final_debug_text_and_relocations_equal": true,
+  "functions": [
+    {
+      "function": "DisplayLoadingText__7tScreen",
+      "va": "0x80025ab8",
+      "insns": 80,
+      "oracle_comment_words_equal_raw": true,
+      "local_debug_definitions_unchanged": true,
+      "source_statement_partition_unchanged": true,
+      "changed_global_raw_references": [
+        {
+          "offset": 0,
+          "symbol": "_7tScreen_fSuppressLoadingText",
+          "native_va": "0x800517c8",
+          "relocation_type": 5,
+          "linked_word": "0x3c038005"
+        },
+        {
+          "offset": 4,
+          "symbol": "_7tScreen_fSuppressLoadingText",
+          "native_va": "0x800517c8",
+          "relocation_type": 6,
+          "linked_word": "0x8c6217c8"
+        },
+        {
+          "offset": 36,
+          "symbol": "_7tScreen_fSuppressLoadingText",
+          "native_va": "0x800517c8",
+          "relocation_type": 6,
+          "linked_word": "0xac6017c8"
+        },
+        {
+          "offset": 48,
+          "symbol": "Draw_gPlayer1View",
+          "native_va": "0x8013d3cc",
+          "relocation_type": 5,
+          "linked_word": "0x3c058014"
+        },
+        {
+          "offset": 52,
+          "symbol": "Draw_gPlayer1View",
+          "native_va": "0x8013d3cc",
+          "relocation_type": 6,
+          "linked_word": "0x8ca3d3cc"
+        },
+        {
+          "offset": 108,
+          "symbol": "Draw_gPlayer1View",
+          "native_va": "0x8013d3cc",
+          "relocation_type": 6,
+          "linked_word": "0x8e24d3cc"
+        },
+        {
+          "offset": 204,
+          "symbol": "Draw_gPlayer1View",
+          "native_va": "0x8013d3cc",
+          "relocation_type": 6,
+          "linked_word": "0x8e24d3cc"
+        },
+        {
+          "offset": 248,
+          "symbol": "Draw_gPlayer1View",
+          "native_va": "0x8013d3cc",
+          "relocation_type": 5,
+          "linked_word": "0x3c028014"
+        },
+        {
+          "offset": 256,
+          "symbol": "Draw_gPlayer1View",
+          "native_va": "0x8013d3cc",
+          "relocation_type": 6,
+          "linked_word": "0x8c43d3cc"
+        }
+      ],
+      "debug_locals": [
+        "\t.def\toldIsBg;\t.val\t18;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\ti;\t.val\t16;\t.scl\t4;\t.type\t0x3;\t.endef"
+      ]
+    },
+    {
+      "function": "GoNonInterlaced__7tScreen",
+      "va": "0x80025bf8",
+      "insns": 52,
+      "oracle_comment_words_equal_raw": true,
+      "local_debug_definitions_unchanged": true,
+      "source_statement_partition_unchanged": true,
+      "changed_global_raw_references": [
+        {
+          "offset": 4,
+          "symbol": "screenheight",
+          "native_va": "0x8013dc8c",
+          "relocation_type": 5,
+          "linked_word": "0x3c088014"
+        },
+        {
+          "offset": 12,
+          "symbol": "screenheight",
+          "native_va": "0x8013dc8c",
+          "relocation_type": 6,
+          "linked_word": "0xad02dc8c"
+        },
+        {
+          "offset": 32,
+          "symbol": "screenheight",
+          "native_va": "0x8013dc8c",
+          "relocation_type": 6,
+          "linked_word": "0x9505dc8c"
+        },
+        {
+          "offset": 36,
+          "symbol": "Draw_gPlayer1View",
+          "native_va": "0x8013d3cc",
+          "relocation_type": 5,
+          "linked_word": "0x3c048014"
+        },
+        {
+          "offset": 52,
+          "symbol": "Draw_gPlayer1View",
+          "native_va": "0x8013d3cc",
+          "relocation_type": 6,
+          "linked_word": "0x8c83d3cc"
+        },
+        {
+          "offset": 108,
+          "symbol": "Draw_gPlayer1View",
+          "native_va": "0x8013d3cc",
+          "relocation_type": 6,
+          "linked_word": "0x8c83d3cc"
+        },
+        {
+          "offset": 152,
+          "symbol": "screenheight",
+          "native_va": "0x8013dc8c",
+          "relocation_type": 6,
+          "linked_word": "0x9503dc8c"
+        }
+      ],
+      "debug_locals": [
+        "\t.def\tdisplayHeight;\t.val\t5;\t.scl\t4;\t.type\t0xd;\t.endef",
+        "\t.def\tviewHeight;\t.val\t3;\t.scl\t4;\t.type\t0x3;\t.endef",
+        "\t.def\tviewTable;\t.val\t6;\t.scl\t4;\t.tag\tFEScreen_DrawViewCodegenView;\t.size\t200;\t.type\t0x18;\t.endef",
+        "\t.def\tfrontView;\t.val\t2;\t.scl\t4;\t.tag\tFEScreen_DrawViewCodegenView;\t.size\t200;\t.type\t0x18;\t.endef",
+        "\t.def\tbackView;\t.val\t2;\t.scl\t4;\t.tag\tFEScreen_DrawViewCodegenView;\t.size\t200;\t.type\t0x18;\t.endef",
+        "\t.def\tdisplayEnv;\t.val\t2;\t.scl\t4;\t.tag\tFEScreen_DFlipCodegenView;\t.size\t24;\t.type\t0x18;\t.endef"
+      ]
+    }
+  ],
+  "global_debug_definitions": []
+}

@@ -4,11 +4,6 @@
  */
 #include "front.h"
 
-/* The public declaration is the honest C++ bool.  This TU's retail code uses
-   an array-shaped RTL address carrier for its word stores, so keep that
-   codegen-only view local instead of falsifying the shared declaration. */
-extern int MEMCARDFRONTENDISINITTED_words[] asm("MEMCARDFRONTENDISINITTED");
-
 /* ---- Front.obj-OWNED globals -- DEFINED here (self-contained; .data=real EXE bytes, .bss=zero) ---- */
 /* overRide + ComingIntoTheFrontEndTheVeryFirstTime lead Front.obj's run at
    0x800517e8, BEFORE the two initialised cop-model tables -- a tentative
@@ -998,7 +993,7 @@ int LoadConfig(void)
 void Front_InitialMemCardCheck(void)
 
 {
-  MEMCARDFRONTENDISINITTED_words[0] = 0;
+  MEMCARDFRONTENDISINITTED = false;
   gPSXMemCardFull = 0;
   memCardReadOK = 0;
   Stattool_GetAllDefaultRecords((tRecordBuffer *)&Stats_gTrackRecords,false);
@@ -1029,7 +1024,7 @@ void Front_SecondaryMemCardCheck(void)
      recorded one block deeper, inside the loop body. */
   int j;
 
-  MEMCARDFRONTENDISINITTED_words[0] = 0;
+  MEMCARDFRONTENDISINITTED = false;
   Init_Memcard(false,0);
   j = 0;
   /* MATCH: loop-top guard (j<2) with the RARE exit/cleanup pushed OUT-OF-LINE after
@@ -1055,7 +1050,7 @@ void Front_SecondaryMemCardCheck(void)
   }
   DeInit_Memcard();
   SetPads();
-  MEMCARDFRONTENDISINITTED_words[0] = 1;
+  MEMCARDFRONTENDISINITTED = true;
 }
 
 

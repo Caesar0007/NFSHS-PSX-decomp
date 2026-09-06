@@ -1,0 +1,107 @@
+{
+  "table_size": 129,
+  "table_sha256": "d3ca4007e97054deeb66d809e73c7b766c1156c598fb7b92d403aa7b71fbbb0a",
+  "data_relocations": 0,
+  "nonctype_sections_unchanged": [
+    {
+      "section": ".text",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "section": ".data",
+      "size": 976,
+      "sha256": "d67b30bc3ef4ba136696b5e68c0e1b4cc2f31b2a508f4e78ba3c51eff66efc88"
+    },
+    {
+      "section": ".bss",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "section": ".MIPS.abiflags",
+      "size": 24,
+      "sha256": "9e70292a32ba11ef2132089aab266b191f38da634e80b1c34087db93153bd643"
+    },
+    {
+      "section": ".data.r18_gap_after_ctype",
+      "size": 12,
+      "sha256": "15ec7bf0b50732b49f8228e07d24365338f9e3ab994b00af08e5a3bffe55fd8b"
+    },
+    {
+      "section": ".data.asintbl_blob",
+      "size": 512,
+      "sha256": "fff107aee0cc92ff9a79d1acb10342cae29db4449b41bdfc1a4a082e9d541e0c"
+    },
+    {
+      "section": ".data.r18_gap_after_asintbl",
+      "size": 4,
+      "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119"
+    },
+    {
+      "section": ".data.sintbl_blob",
+      "size": 1028,
+      "sha256": "c3b03a2581960f9b22f2f29fb52f30bf36eb87c3896c8e4f62c708b3c247f880"
+    },
+    {
+      "section": ".data.fatantbl_blob",
+      "size": 1028,
+      "sha256": "a3ab1c0b30ea38a25c2d7f7c7b13969a0e3448547b839c92b1ae5789c3942b64"
+    },
+    {
+      "section": ".data.r18_post_tables",
+      "size": 180,
+      "sha256": "801b2509603ad3a850f12315089a1ed1c1888699a3ef285a6d3a948a83fed2d8"
+    },
+    {
+      "section": ".data.cstbl_blob",
+      "size": 16384,
+      "sha256": "b40c47b014ca8650c539760fd4c519cabce6f091628566ca0dd22318bb2c5b7a"
+    },
+    {
+      "section": ".data.r18_post_cstbl",
+      "size": 240,
+      "sha256": "61b5fca105b9da6f40cc4545867aa1919d79b4f70415f13e43d9070684842ad9"
+    }
+  ],
+  "nonctype_symbols_unchanged": true,
+  "lanes": {
+    "baseline": {
+      "address": "0x80136e00",
+      "size": 1632,
+      "raw_differences": 0,
+      "sha256": "09b94c5e9576be50882e43c9333bea89a073f0601789fda36ee0504c86012007",
+      "ctype": "0x801371d0",
+      "asintbl": "0x80137260",
+      "alignment_padding": 3,
+      "explicit_gap": 12,
+      "link_stderr": ""
+    },
+    "src": {
+      "address": "0x80136e00",
+      "size": 1632,
+      "raw_differences": 0,
+      "sha256": "09b94c5e9576be50882e43c9333bea89a073f0601789fda36ee0504c86012007",
+      "ctype": "0x801371d0",
+      "asintbl": "0x80137260",
+      "alignment_padding": 3,
+      "explicit_gap": 12,
+      "link_stderr": ""
+    },
+    "recon": {
+      "address": "0x80136e00",
+      "size": 1632,
+      "raw_differences": 0,
+      "sha256": "09b94c5e9576be50882e43c9333bea89a073f0601789fda36ee0504c86012007",
+      "ctype": "0x801371d0",
+      "asintbl": "0x80137260",
+      "alignment_padding": 3,
+      "explicit_gap": 12,
+      "link_stderr": ""
+    }
+  },
+  "table_gap_asintbl_bytes": 656,
+  "full_window_with_prefix_bytes": 1632,
+  "typed_object_sha256": "daedead9c8792627233dd7fd85dac3e1cfeb7d4d2e1f1759516445ff3852b467",
+  "unrelated_negative_control": "Whole r18 plus typed asintbl is a pre-existing duplicate definition; strict bounded recon test uses only unchanged prefix/gap source copied before assembly."
+}

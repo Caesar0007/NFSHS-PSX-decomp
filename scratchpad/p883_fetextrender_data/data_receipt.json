@@ -1,0 +1,630 @@
+{
+  "base": "0x800515b8",
+  "end_exclusive": "0x80051610",
+  "size": 88,
+  "payload_sha256": "82a7158d55efa9688e94d835ee9d71f3780c8a4d17881e69f4ce1edb5a605053",
+  "source_literals_equal_raw_asm_equal_object_equal_rom": true,
+  "object_sha256": "fc573287922a2dc9949dd2cc97b5d714612ba489c1ea87a6a07c9e3fb0a62260",
+  "data_relocations": [],
+  "source_symbols": [
+    [
+      "textDefinitions",
+      0,
+      0,
+      16,
+      0,
+      ".data"
+    ],
+    [
+      "gSemiTransText",
+      84,
+      0,
+      16,
+      0,
+      ".data"
+    ]
+  ],
+  "rows": [
+    [
+      3,
+      0,
+      0,
+      9,
+      9,
+      9
+    ],
+    [
+      0,
+      0,
+      0,
+      10,
+      10,
+      9
+    ],
+    [
+      0,
+      0,
+      0,
+      20,
+      17,
+      9
+    ],
+    [
+      0,
+      0,
+      0,
+      9,
+      9,
+      9
+    ],
+    [
+      0,
+      0,
+      0,
+      16,
+      20,
+      9
+    ],
+    [
+      0,
+      0,
+      0,
+      20,
+      20,
+      20
+    ],
+    [
+      0,
+      0,
+      0,
+      16,
+      20,
+      9
+    ],
+    [
+      0,
+      0,
+      0,
+      17,
+      17,
+      17
+    ],
+    [
+      0,
+      0,
+      0,
+      15,
+      15,
+      9
+    ],
+    [
+      0,
+      0,
+      0,
+      9,
+      9,
+      9
+    ],
+    [
+      0,
+      0,
+      0,
+      15,
+      10,
+      9
+    ],
+    [
+      0,
+      0,
+      0,
+      6,
+      20,
+      9
+    ],
+    [
+      1,
+      0,
+      0,
+      16,
+      20,
+      9
+    ],
+    [
+      3,
+      2,
+      0,
+      9,
+      9,
+      9
+    ]
+  ],
+  "gSemiTransText_bytes": "00000000",
+  "raw_labels": {
+    "textDefinitions": 0,
+    "D_800515D5": 29,
+    "D_800515E1": 41,
+    "D_800515EC": 52,
+    "D_800515FD": 69,
+    "D_800515FF": 71,
+    "gSemiTransText": 84
+  },
+  "raw_synthetic_aliases": {
+    "D_800515D5": {
+      "offset": 29,
+      "address": "0x800515d5",
+      "row": 4,
+      "column": 5,
+      "byte": 9
+    },
+    "D_800515E1": {
+      "offset": 41,
+      "address": "0x800515e1",
+      "row": 6,
+      "column": 5,
+      "byte": 9
+    },
+    "D_800515EC": {
+      "offset": 52,
+      "address": "0x800515ec",
+      "row": 8,
+      "column": 4,
+      "byte": 15
+    },
+    "D_800515FD": {
+      "offset": 69,
+      "address": "0x800515fd",
+      "row": 11,
+      "column": 3,
+      "byte": 6
+    },
+    "D_800515FF": {
+      "offset": 71,
+      "address": "0x800515ff",
+      "row": 11,
+      "column": 5,
+      "byte": 9
+    }
+  },
+  "compiled_production_objects_scanned": 519,
+  "compiled_definitions": [
+    {
+      "source": "recon/frontend/common/fetextrender.cpp",
+      "symbol": [
+        "textDefinitions",
+        0,
+        0,
+        16,
+        0,
+        ".data"
+      ]
+    },
+    {
+      "source": "recon/frontend/common/fetextrender.cpp",
+      "symbol": [
+        "gSemiTransText",
+        84,
+        0,
+        16,
+        0,
+        ".data"
+      ]
+    }
+  ],
+  "compiled_consumers": [
+    {
+      "source": "recon/frontend/common/fedialog.cpp",
+      "object": "build/recon/frontend/common/fedialog.cpp.o",
+      "references": [
+        {
+          "section": ".text",
+          "offset": 4044,
+          "relocation_type": 5,
+          "target": "textDefinitions",
+          "function": "Draw__20tDialogMessageString"
+        },
+        {
+          "section": ".text",
+          "offset": 4052,
+          "relocation_type": 6,
+          "target": "textDefinitions",
+          "function": "Draw__20tDialogMessageString"
+        },
+        {
+          "section": ".text",
+          "offset": 5372,
+          "relocation_type": 5,
+          "target": "textDefinitions",
+          "function": "Draw__12tDialogYesNo"
+        },
+        {
+          "section": ".text",
+          "offset": 5376,
+          "relocation_type": 6,
+          "target": "textDefinitions",
+          "function": "Draw__12tDialogYesNo"
+        }
+      ]
+    },
+    {
+      "source": "recon/frontend/common/fefades.cpp",
+      "object": "build/recon/frontend/common/fefades.cpp.o",
+      "references": [
+        {
+          "section": ".text",
+          "offset": 240,
+          "relocation_type": 5,
+          "target": "textDefinitions",
+          "function": "CalcTextFadeUnselToSel__F13tMenuTextTypess"
+        },
+        {
+          "section": ".text",
+          "offset": 244,
+          "relocation_type": 6,
+          "target": "textDefinitions",
+          "function": "CalcTextFadeUnselToSel__F13tMenuTextTypess"
+        },
+        {
+          "section": ".text",
+          "offset": 360,
+          "relocation_type": 5,
+          "target": "textDefinitions",
+          "function": "CalcTextFadeSelToHi__F13tMenuTextTypess"
+        },
+        {
+          "section": ".text",
+          "offset": 364,
+          "relocation_type": 6,
+          "target": "textDefinitions",
+          "function": "CalcTextFadeSelToHi__F13tMenuTextTypess"
+        },
+        {
+          "section": ".text",
+          "offset": 520,
+          "relocation_type": 5,
+          "target": "textDefinitions",
+          "function": "CalcOnOffFade__F13tMenuTextTypesssRiT4"
+        },
+        {
+          "section": ".text",
+          "offset": 524,
+          "relocation_type": 6,
+          "target": "textDefinitions",
+          "function": "CalcOnOffFade__F13tMenuTextTypesssRiT4"
+        }
+      ]
+    },
+    {
+      "source": "recon/frontend/common/femenuoptions.cpp",
+      "object": "build/recon/frontend/common/femenuoptions.cpp.o",
+      "references": [
+        {
+          "section": ".text",
+          "offset": 9852,
+          "relocation_type": 5,
+          "target": "textDefinitions",
+          "function": "Draw__29tMenuItemLeftRightAudioSlideriib"
+        },
+        {
+          "section": ".text",
+          "offset": 9856,
+          "relocation_type": 6,
+          "target": "textDefinitions",
+          "function": "Draw__29tMenuItemLeftRightAudioSlideriib"
+        }
+      ]
+    },
+    {
+      "source": "recon/frontend/common/fetextrender.cpp",
+      "object": "build/recon/frontend/common/fetextrender.cpp.o",
+      "references": [
+        {
+          "section": ".text",
+          "offset": 328,
+          "relocation_type": 5,
+          "target": "gSemiTransText",
+          "function": "FETextRender_FullTextRGB__FPcssics"
+        },
+        {
+          "section": ".text",
+          "offset": 300,
+          "relocation_type": 5,
+          "target": "gSemiTransText",
+          "function": "FETextRender_FullTextRGB__FPcssics"
+        },
+        {
+          "section": ".text",
+          "offset": 332,
+          "relocation_type": 6,
+          "target": "gSemiTransText",
+          "function": "FETextRender_FullTextRGB__FPcssics"
+        },
+        {
+          "section": ".text",
+          "offset": 496,
+          "relocation_type": 5,
+          "target": "textDefinitions",
+          "function": "FETextRender_FullText__FPcss13tMenuTextType14tMenuTextStates"
+        },
+        {
+          "section": ".text",
+          "offset": 1072,
+          "relocation_type": 5,
+          "target": "textDefinitions",
+          "function": "FETextRender_MenuTextFade__Fis14tMenuTextState13tMenuTextType"
+        },
+        {
+          "section": ".text",
+          "offset": 500,
+          "relocation_type": 6,
+          "target": "textDefinitions",
+          "function": "FETextRender_FullText__FPcss13tMenuTextType14tMenuTextStates"
+        },
+        {
+          "section": ".text",
+          "offset": 656,
+          "relocation_type": 5,
+          "target": "textDefinitions",
+          "function": "FETextRender_FullTextFade__FiPcss13tMenuTextType14tMenuTextStates"
+        },
+        {
+          "section": ".text",
+          "offset": 664,
+          "relocation_type": 6,
+          "target": "textDefinitions",
+          "function": "FETextRender_FullTextFade__FiPcss13tMenuTextType14tMenuTextStates"
+        },
+        {
+          "section": ".text",
+          "offset": 900,
+          "relocation_type": 5,
+          "target": "textDefinitions",
+          "function": "FETextRender_MenuTextPositioned__Fsss14tMenuTextState13tMenuTextType"
+        },
+        {
+          "section": ".text",
+          "offset": 904,
+          "relocation_type": 6,
+          "target": "textDefinitions",
+          "function": "FETextRender_MenuTextPositioned__Fsss14tMenuTextState13tMenuTextType"
+        },
+        {
+          "section": ".text",
+          "offset": 1088,
+          "relocation_type": 5,
+          "target": "textDefinitions",
+          "function": "FETextRender_MenuTextFade__Fis14tMenuTextState13tMenuTextType"
+        },
+        {
+          "section": ".text",
+          "offset": 1092,
+          "relocation_type": 6,
+          "target": "textDefinitions",
+          "function": "FETextRender_MenuTextFade__Fis14tMenuTextState13tMenuTextType"
+        },
+        {
+          "section": ".text",
+          "offset": 1624,
+          "relocation_type": 5,
+          "target": "gSemiTransText",
+          "function": "FETextRender_WordWrapTextRGBJustify__FPcR4RECTiiib"
+        },
+        {
+          "section": ".text",
+          "offset": 1628,
+          "relocation_type": 6,
+          "target": "gSemiTransText",
+          "function": "FETextRender_WordWrapTextRGBJustify__FPcR4RECTiiib"
+        },
+        {
+          "section": ".text",
+          "offset": 2696,
+          "relocation_type": 5,
+          "target": "textDefinitions",
+          "function": "FETextRender_WordWrapTextFade__FiPcR4RECT14tMenuTextState13tMenuTextType"
+        },
+        {
+          "section": ".text",
+          "offset": 2704,
+          "relocation_type": 6,
+          "target": "textDefinitions",
+          "function": "FETextRender_WordWrapTextFade__FiPcR4RECT14tMenuTextState13tMenuTextType"
+        },
+        {
+          "section": ".text",
+          "offset": 3348,
+          "relocation_type": 5,
+          "target": "gSemiTransText",
+          "function": "FETextRender_SetABR__Fib"
+        },
+        {
+          "section": ".text",
+          "offset": 3360,
+          "relocation_type": 6,
+          "target": "gSemiTransText",
+          "function": "FETextRender_SetABR__Fib"
+        }
+      ]
+    },
+    {
+      "source": "recon/frontend/common/screenaudio.cpp",
+      "object": "build/recon/frontend/common/screenaudio.cpp.o",
+      "references": [
+        {
+          "section": ".text",
+          "offset": 1580,
+          "relocation_type": 5,
+          "target": "textDefinitions",
+          "function": "DrawBackground__12tScreenAudio"
+        },
+        {
+          "section": ".text",
+          "offset": 1584,
+          "relocation_type": 6,
+          "target": "textDefinitions",
+          "function": "DrawBackground__12tScreenAudio"
+        }
+      ]
+    },
+    {
+      "source": "recon/frontend/common/screencarselect.cpp",
+      "object": "build/recon/frontend/common/screencarselect.cpp.o",
+      "references": [
+        {
+          "section": ".text",
+          "offset": 9160,
+          "relocation_type": 5,
+          "target": "textDefinitions",
+          "function": "DrawForeground__16tScreenCarSelect"
+        },
+        {
+          "section": ".text",
+          "offset": 9164,
+          "relocation_type": 6,
+          "target": "textDefinitions",
+          "function": "DrawForeground__16tScreenCarSelect"
+        }
+      ]
+    },
+    {
+      "source": "recon/frontend/common/screencongrats.cpp",
+      "object": "build/recon/frontend/common/screencongrats.cpp.o",
+      "references": [
+        {
+          "section": ".text",
+          "offset": 1108,
+          "relocation_type": 5,
+          "target": "textDefinitions",
+          "function": "DrawBackground__15tScreenCongrats"
+        },
+        {
+          "section": ".text",
+          "offset": 1116,
+          "relocation_type": 6,
+          "target": "textDefinitions",
+          "function": "DrawBackground__15tScreenCongrats"
+        }
+      ]
+    },
+    {
+      "source": "recon/frontend/common/screencontroller.cpp",
+      "object": "build/recon/frontend/common/screencontroller.cpp.o",
+      "references": [
+        {
+          "section": ".text",
+          "offset": 8448,
+          "relocation_type": 5,
+          "target": "textDefinitions",
+          "function": "DrawForeground__23tScreenControllerConfig"
+        },
+        {
+          "section": ".text",
+          "offset": 8452,
+          "relocation_type": 6,
+          "target": "textDefinitions",
+          "function": "DrawForeground__23tScreenControllerConfig"
+        }
+      ]
+    },
+    {
+      "source": "recon/frontend/common/screenmemcard.cpp",
+      "object": "build/recon/frontend/common/screenmemcard.cpp.o",
+      "references": [
+        {
+          "section": ".text",
+          "offset": 4904,
+          "relocation_type": 5,
+          "target": "textDefinitions",
+          "function": "DrawBackground__14tScreenMemcard"
+        },
+        {
+          "section": ".text",
+          "offset": 4912,
+          "relocation_type": 6,
+          "target": "textDefinitions",
+          "function": "DrawBackground__14tScreenMemcard"
+        }
+      ]
+    },
+    {
+      "source": "recon/frontend/common/screenpost.cpp",
+      "object": "build/recon/frontend/common/screenpost.cpp.o",
+      "references": [
+        {
+          "section": ".text",
+          "offset": 2236,
+          "relocation_type": 5,
+          "target": "textDefinitions",
+          "function": "DrawBackground__26tScreenTournamentStandings"
+        },
+        {
+          "section": ".text",
+          "offset": 2240,
+          "relocation_type": 6,
+          "target": "textDefinitions",
+          "function": "DrawBackground__26tScreenTournamentStandings"
+        }
+      ]
+    },
+    {
+      "source": "recon/frontend/common/screentrackrecords.cpp",
+      "object": "build/recon/frontend/common/screentrackrecords.cpp.o",
+      "references": [
+        {
+          "section": ".text",
+          "offset": 1604,
+          "relocation_type": 5,
+          "target": "textDefinitions",
+          "function": "DrawBackground__19tScreenTrackRecords"
+        },
+        {
+          "section": ".text",
+          "offset": 1608,
+          "relocation_type": 6,
+          "target": "textDefinitions",
+          "function": "DrawBackground__19tScreenTrackRecords"
+        }
+      ]
+    },
+    {
+      "source": "recon/frontend/common/screentrophyinfo.cpp",
+      "object": "build/recon/frontend/common/screentrophyinfo.cpp.o",
+      "references": [
+        {
+          "section": ".text",
+          "offset": 452,
+          "relocation_type": 5,
+          "target": "textDefinitions",
+          "function": "DrawBackground__17tScreenTrophyInfo"
+        },
+        {
+          "section": ".text",
+          "offset": 456,
+          "relocation_type": 6,
+          "target": "textDefinitions",
+          "function": "DrawBackground__17tScreenTrophyInfo"
+        }
+      ]
+    }
+  ],
+  "compiled_synthetic_alias_consumers": [],
+  "oracle_alias_consumers": {
+    "D_800515D5": [
+      "asm/nonmatchings/front/DrawBackground__17tScreenTrophyInfo.s"
+    ],
+    "D_800515E1": [
+      "asm/nonmatchings/front/DrawBackground__12tScreenAudio.s",
+      "asm/nonmatchings/front/DrawBackground__14tScreenMemcard.s"
+    ],
+    "D_800515EC": [
+      "asm/nonmatchings/front/Draw__20tDialogMessageString.s"
+    ],
+    "D_800515FD": [
+      "asm/nonmatchings/front/DrawForeground__23tScreenControllerConfig.s"
+    ],
+    "D_800515FF": [
+      "asm/nonmatchings/front/DrawBackground__15tScreenCongrats.s",
+      "asm/nonmatchings/front/DrawBackground__26tScreenTournamentStandings.s"
+    ]
+  },
+  "storage_free_alias_note": "The five D_ names are interior byte labels, not independent storage. Current compiled recon consumers use native textDefinitions/gSemiTransText. Retain raw labels in src lane; add only storage-free textDefinitions+offset aliases if a mixed raw consumer actually needs them."
+}

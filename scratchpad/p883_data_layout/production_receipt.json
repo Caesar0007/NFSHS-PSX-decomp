@@ -1,0 +1,2672 @@
+{
+  "status": "PASS",
+  "qualification": "Native owner/data/reference proof in the diagnostic production ELF; not a whole-image match. Existing output-section overlaps and other unrelated layout/reference debt remain explicitly reported.",
+  "artifacts": {
+    "build\\gen_ld\\recon_multdef-ok.elf": "89127b6af5bd9a3534c544a5e9ff154c8685dd6961ce8bcfc249612fc8296324",
+    "build\\gen_ld\\recon_multdef-ok.map": "c8789989e2525b74bd874ddc2281de2886728ce11205a5690078ba1075665727",
+    "build\\gen_ld\\recon_link.rsp": "aac77ef4b9d36d5feaac4fd75ad578054b991b4bb68f03471202636ee94bd55b",
+    "linkers\\nfs4_recon.ld": "2dfb51fa3d8e0f8bd3abd9d5686cdf40fd51fe50044ca7ecb525d291a712407d"
+  },
+  "owners": [
+    {
+      "index": 0,
+      "source": "recon/frontend/common/fecredits.cpp",
+      "section": ".data",
+      "output_section": ".source_data_0",
+      "native_address": "0x80051aa0",
+      "bytes": 8,
+      "reserved": 8,
+      "padding_bytes": 0,
+      "raw_equal": true,
+      "payload_sha256": "7eefc9cbf8f5333e69b2c2510b4140055a5c18dd53dcfd5d5806fa3786fc9667",
+      "actual_map_placement": {
+        "object": "build/recon/frontend/common/fecredits.cpp.o",
+        "section": ".data",
+        "address": 2147818144,
+        "size": 8,
+        "output": ".source_data_0"
+      },
+      "source_selector_count": 1,
+      "source_input_count": 1,
+      "oracle_input_excluded": true,
+      "src_oracle_selector_retained": true
+    },
+    {
+      "index": 1,
+      "source": "recon/game/common/hudpmx.cpp",
+      "section": ".sdata",
+      "output_section": ".sdata",
+      "native_address": "0x8013c84c",
+      "bytes": 1333,
+      "reserved": 1336,
+      "padding_bytes": 3,
+      "raw_equal": true,
+      "payload_sha256": "3351804d144ffcc98ae338b917cea61b12696514f5f521a41548423b16ec36af",
+      "actual_map_placement": {
+        "object": "build/recon/game/common/hudpmx.cpp.o",
+        "section": ".sdata",
+        "address": 2148780108,
+        "size": 1333,
+        "output": ".sdata"
+      },
+      "source_selector_count": 1,
+      "source_input_count": 1,
+      "oracle_input_excluded": true,
+      "src_oracle_selector_retained": true
+    },
+    {
+      "index": 2,
+      "source": "recon/game/common/copspeak.cpp",
+      "section": ".sdata",
+      "output_section": ".sdata",
+      "native_address": "0x8013d07c",
+      "bytes": 126,
+      "reserved": 128,
+      "padding_bytes": 2,
+      "raw_equal": true,
+      "payload_sha256": "9916e2deea22d489a0ca65a78ff2ed67c7beb13ff564c1b52beea4cbe70767f1",
+      "actual_map_placement": {
+        "object": "build/recon/game/common/copspeak.cpp.o",
+        "section": ".sdata",
+        "address": 2148782204,
+        "size": 126,
+        "output": ".sdata"
+      },
+      "source_selector_count": 1,
+      "source_input_count": 1,
+      "oracle_input_excluded": true,
+      "src_oracle_selector_retained": true
+    },
+    {
+      "index": 3,
+      "source": "recon/game/common/nfs3.cpp",
+      "section": ".sdata",
+      "output_section": ".sdata",
+      "native_address": "0x8013d270",
+      "bytes": 88,
+      "reserved": 88,
+      "padding_bytes": 0,
+      "raw_equal": true,
+      "payload_sha256": "2d87c1156c33b9e238babab757c4501968dbe30f9d5b9a645429665ea21c068a",
+      "actual_map_placement": {
+        "object": "build/recon/game/common/nfs3.cpp.o",
+        "section": ".sdata",
+        "address": 2148782704,
+        "size": 88,
+        "output": ".sdata"
+      },
+      "source_selector_count": 1,
+      "source_input_count": 1,
+      "oracle_input_excluded": true,
+      "src_oracle_selector_retained": true
+    },
+    {
+      "index": 4,
+      "source": "recon/game/common/r3dcar.cpp",
+      "section": ".sdata",
+      "output_section": ".sdata",
+      "native_address": "0x8013d324",
+      "bytes": 156,
+      "reserved": 156,
+      "padding_bytes": 0,
+      "raw_equal": true,
+      "payload_sha256": "8e3a0d3cbd549fdabdaf42d3c37494688098efef57ecf6410d273f468b77c9ca",
+      "actual_map_placement": {
+        "object": "build/recon/game/common/r3dcar.cpp.o",
+        "section": ".sdata",
+        "address": 2148782884,
+        "size": 156,
+        "output": ".sdata"
+      },
+      "source_selector_count": 1,
+      "source_input_count": 1,
+      "oracle_input_excluded": true,
+      "src_oracle_selector_retained": true
+    },
+    {
+      "index": 5,
+      "source": "recon/game/common/sim.cpp",
+      "section": ".sdata",
+      "output_section": ".sdata",
+      "native_address": "0x8013d40c",
+      "bytes": 40,
+      "reserved": 40,
+      "padding_bytes": 0,
+      "raw_equal": true,
+      "payload_sha256": "58eec09fc902fa59a719ff705a371adb51f37cf5bd2342194f9ff25f778af04d",
+      "actual_map_placement": {
+        "object": "build/recon/game/common/sim.cpp.o",
+        "section": ".sdata",
+        "address": 2148783116,
+        "size": 40,
+        "output": ".sdata"
+      },
+      "source_selector_count": 1,
+      "source_input_count": 1,
+      "oracle_input_excluded": true,
+      "src_oracle_selector_retained": true
+    },
+    {
+      "index": 6,
+      "source": "recon/syslib/psx/libc/CTYPE0.c",
+      "section": ".data",
+      "output_section": ".data",
+      "native_address": "0x801371d0",
+      "bytes": 129,
+      "reserved": 129,
+      "padding_bytes": 0,
+      "raw_equal": true,
+      "payload_sha256": "d3ca4007e97054deeb66d809e73c7b766c1156c598fb7b92d403aa7b71fbbb0a",
+      "actual_map_placement": {
+        "object": "build/recon/syslib/psx/libc/CTYPE0.c.o",
+        "section": ".data",
+        "address": 2148757968,
+        "size": 129,
+        "output": ".data"
+      },
+      "source_selector_count": 1,
+      "source_input_count": 1,
+      "oracle_input_excluded": true,
+      "src_oracle_selector_retained": true
+    },
+    {
+      "index": 7,
+      "source": "recon/frontend/common/fetextrender.cpp",
+      "section": ".data",
+      "output_section": ".source_data_7",
+      "native_address": "0x800515b8",
+      "bytes": 88,
+      "reserved": 88,
+      "padding_bytes": 0,
+      "raw_equal": true,
+      "payload_sha256": "82a7158d55efa9688e94d835ee9d71f3780c8a4d17881e69f4ce1edb5a605053",
+      "actual_map_placement": {
+        "object": "build/recon/frontend/common/fetextrender.cpp.o",
+        "section": ".data",
+        "address": 2147816888,
+        "size": 88,
+        "output": ".source_data_7"
+      },
+      "source_selector_count": 1,
+      "source_input_count": 1,
+      "oracle_input_excluded": true,
+      "src_oracle_selector_retained": true
+    }
+  ],
+  "owner_window_overlap_observations": [
+    {
+      "address": "0x8013c84c",
+      "bytes": 1333,
+      "sections": [
+        ".data",
+        ".sdata"
+      ],
+      "selected_verified_owner_section": ".sdata"
+    },
+    {
+      "address": "0x8013cd81",
+      "bytes": 3,
+      "sections": [
+        ".data",
+        ".sdata"
+      ],
+      "selected_verified_owner_section": ".sdata"
+    },
+    {
+      "address": "0x8013d07c",
+      "bytes": 126,
+      "sections": [
+        ".data",
+        ".sdata"
+      ],
+      "selected_verified_owner_section": ".sdata"
+    },
+    {
+      "address": "0x8013d0fa",
+      "bytes": 2,
+      "sections": [
+        ".data",
+        ".sdata"
+      ],
+      "selected_verified_owner_section": ".sdata"
+    },
+    {
+      "address": "0x8013d270",
+      "bytes": 88,
+      "sections": [
+        ".data",
+        ".sdata"
+      ],
+      "selected_verified_owner_section": ".sdata"
+    },
+    {
+      "address": "0x8013d324",
+      "bytes": 156,
+      "sections": [
+        ".data",
+        ".sdata"
+      ],
+      "selected_verified_owner_section": ".sdata"
+    },
+    {
+      "address": "0x8013d40c",
+      "bytes": 40,
+      "sections": [
+        ".data",
+        ".sdata"
+      ],
+      "selected_verified_owner_section": ".sdata"
+    },
+    {
+      "address": "0x8013c84c",
+      "bytes": 8,
+      "sections": [
+        ".data",
+        ".sdata"
+      ],
+      "selected_verified_owner_section": ".sdata"
+    },
+    {
+      "address": "0x8013c854",
+      "bytes": 8,
+      "sections": [
+        ".data",
+        ".sdata"
+      ],
+      "selected_verified_owner_section": ".sdata"
+    },
+    {
+      "address": "0x8013c85c",
+      "bytes": 8,
+      "sections": [
+        ".data",
+        ".sdata"
+      ],
+      "selected_verified_owner_section": ".sdata"
+    },
+    {
+      "address": "0x8013c864",
+      "bytes": 8,
+      "sections": [
+        ".data",
+        ".sdata"
+      ],
+      "selected_verified_owner_section": ".sdata"
+    },
+    {
+      "address": "0x8013c86c",
+      "bytes": 8,
+      "sections": [
+        ".data",
+        ".sdata"
+      ],
+      "selected_verified_owner_section": ".sdata"
+    },
+    {
+      "address": "0x8013c874",
+      "bytes": 8,
+      "sections": [
+        ".data",
+        ".sdata"
+      ],
+      "selected_verified_owner_section": ".sdata"
+    },
+    {
+      "address": "0x8013c87c",
+      "bytes": 8,
+      "sections": [
+        ".data",
+        ".sdata"
+      ],
+      "selected_verified_owner_section": ".sdata"
+    },
+    {
+      "address": "0x8013c884",
+      "bytes": 8,
+      "sections": [
+        ".data",
+        ".sdata"
+      ],
+      "selected_verified_owner_section": ".sdata"
+    },
+    {
+      "address": "0x8013c88c",
+      "bytes": 8,
+      "sections": [
+        ".data",
+        ".sdata"
+      ],
+      "selected_verified_owner_section": ".sdata"
+    },
+    {
+      "address": "0x8013c894",
+      "bytes": 8,
+      "sections": [
+        ".data",
+        ".sdata"
+      ],
+      "selected_verified_owner_section": ".sdata"
+    },
+    {
+      "address": "0x8013c89c",
+      "bytes": 8,
+      "sections": [
+        ".data",
+        ".sdata"
+      ],
+      "selected_verified_owner_section": ".sdata"
+    },
+    {
+      "address": "0x8013c8a4",
+      "bytes": 8,
+      "sections": [
+        ".data",
+        ".sdata"
+      ],
+      "selected_verified_owner_section": ".sdata"
+    },
+    {
+      "address": "0x8013c8ac",
+      "bytes": 8,
+      "sections": [
+        ".data",
+        ".sdata"
+      ],
+      "selected_verified_owner_section": ".sdata"
+    },
+    {
+      "address": "0x8013c8b4",
+      "bytes": 8,
+      "sections": [
+        ".data",
+        ".sdata"
+      ],
+      "selected_verified_owner_section": ".sdata"
+    },
+    {
+      "address": "0x8013c8bc",
+      "bytes": 8,
+      "sections": [
+        ".data",
+        ".sdata"
+      ],
+      "selected_verified_owner_section": ".sdata"
+    },
+    {
+      "address": "0x8013c8c4",
+      "bytes": 8,
+      "sections": [
+        ".data",
+        ".sdata"
+      ],
+      "selected_verified_owner_section": ".sdata"
+    },
+    {
+      "address": "0x8013c8cc",
+      "bytes": 8,
+      "sections": [
+        ".data",
+        ".sdata"
+      ],
+      "selected_verified_owner_section": ".sdata"
+    },
+    {
+      "address": "0x8013c8d4",
+      "bytes": 8,
+      "sections": [
+        ".data",
+        ".sdata"
+      ],
+      "selected_verified_owner_section": ".sdata"
+    },
+    {
+      "address": "0x8013c8dc",
+      "bytes": 8,
+      "sections": [
+        ".data",
+        ".sdata"
+      ],
+      "selected_verified_owner_section": ".sdata"
+    },
+    {
+      "address": "0x8013c8e4",
+      "bytes": 8,
+      "sections": [
+        ".data",
+        ".sdata"
+      ],
+      "selected_verified_owner_section": ".sdata"
+    },
+    {
+      "address": "0x8013c8ec",
+      "bytes": 8,
+      "sections": [
+        ".data",
+        ".sdata"
+      ],
+      "selected_verified_owner_section": ".sdata"
+    },
+    {
+      "address": "0x8013c8f4",
+      "bytes": 8,
+      "sections": [
+        ".data",
+        ".sdata"
+      ],
+      "selected_verified_owner_section": ".sdata"
+    },
+    {
+      "address": "0x8013c8fc",
+      "bytes": 8,
+      "sections": [
+        ".data",
+        ".sdata"
+      ],
+      "selected_verified_owner_section": ".sdata"
+    },
+    {
+      "address": "0x8013c904",
+      "bytes": 8,
+      "sections": [
+        ".data",
+        ".sdata"
+      ],
+      "selected_verified_owner_section": ".sdata"
+    },
+    {
+      "address": "0x8013c90c",
+      "bytes": 8,
+      "sections": [
+        ".data",
+        ".sdata"
+      ],
+      "selected_verified_owner_section": ".sdata"
+    },
+    {
+      "address": "0x8013c914",
+      "bytes": 8,
+      "sections": [
+        ".data",
+        ".sdata"
+      ],
+      "selected_verified_owner_section": ".sdata"
+    },
+    {
+      "address": "0x8013c91c",
+      "bytes": 8,
+      "sections": [
+        ".data",
+        ".sdata"
+      ],
+      "selected_verified_owner_section": ".sdata"
+    },
+    {
+      "address": "0x8013c924",
+      "bytes": 8,
+      "sections": [
+        ".data",
+        ".sdata"
+      ],
+      "selected_verified_owner_section": ".sdata"
+    },
+    {
+      "address": "0x8013c92c",
+      "bytes": 8,
+      "sections": [
+        ".data",
+        ".sdata"
+      ],
+      "selected_verified_owner_section": ".sdata"
+    },
+    {
+      "address": "0x8013c934",
+      "bytes": 8,
+      "sections": [
+        ".data",
+        ".sdata"
+      ],
+      "selected_verified_owner_section": ".sdata"
+    },
+    {
+      "address": "0x8013c93c",
+      "bytes": 8,
+      "sections": [
+        ".data",
+        ".sdata"
+      ],
+      "selected_verified_owner_section": ".sdata"
+    },
+    {
+      "address": "0x8013c944",
+      "bytes": 8,
+      "sections": [
+        ".data",
+        ".sdata"
+      ],
+      "selected_verified_owner_section": ".sdata"
+    },
+    {
+      "address": "0x8013c94c",
+      "bytes": 8,
+      "sections": [
+        ".data",
+        ".sdata"
+      ],
+      "selected_verified_owner_section": ".sdata"
+    },
+    {
+      "address": "0x8013c954",
+      "bytes": 8,
+      "sections": [
+        ".data",
+        ".sdata"
+      ],
+      "selected_verified_owner_section": ".sdata"
+    },
+    {
+      "address": "0x80055a54",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055a58",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055a5c",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055a60",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055a64",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055a68",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055a6c",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055a70",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055a74",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055a78",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055a7c",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055a80",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055a84",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055a88",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055a8c",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055a90",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055a94",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055a98",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055a9c",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055aa0",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055aa4",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055aa8",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055aac",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055ab0",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055ab4",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055ab8",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055abc",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055ac0",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055ac4",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055ac8",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055acc",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055ad0",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055ad4",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055ad8",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055adc",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055ae0",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055ae4",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055ae8",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055aec",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055af0",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055af4",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055af8",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055afc",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055b00",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055b04",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055b08",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055b0c",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055b10",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055b14",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055b18",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055b1c",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055b20",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055b24",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055b28",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055b2c",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055b30",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055b34",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    },
+    {
+      "address": "0x80055b38",
+      "bytes": 4,
+      "sections": [
+        ".rodata_main",
+        ".ro0049"
+      ],
+      "selected_verified_owner_section": ".rodata_main"
+    }
+  ],
+  "allocated_output_overlaps": [
+    {
+      "first": ".rodata_front",
+      "second": ".ro0000",
+      "start": "0x80010078",
+      "end_exclusive": "0x80010098",
+      "bytes": 32,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_front",
+      "second": ".ro0001",
+      "start": "0x8001012c",
+      "end_exclusive": "0x800101a1",
+      "bytes": 117,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_front",
+      "second": ".ro0002",
+      "start": "0x800101b4",
+      "end_exclusive": "0x800101da",
+      "bytes": 38,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_front",
+      "second": ".ro0003",
+      "start": "0x80010258",
+      "end_exclusive": "0x800102c8",
+      "bytes": 112,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_front",
+      "second": ".ro0004",
+      "start": "0x80010968",
+      "end_exclusive": "0x80010a0c",
+      "bytes": 164,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_front",
+      "second": ".ro0005",
+      "start": "0x80010fc8",
+      "end_exclusive": "0x80010fe7",
+      "bytes": 31,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_front",
+      "second": ".ro0006",
+      "start": "0x80011028",
+      "end_exclusive": "0x800110a4",
+      "bytes": 124,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_front",
+      "second": ".ro0007",
+      "start": "0x800113f8",
+      "end_exclusive": "0x80011413",
+      "bytes": 27,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_front",
+      "second": ".ro0008",
+      "start": "0x80011474",
+      "end_exclusive": "0x80011498",
+      "bytes": 36,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_front",
+      "second": ".ro0009",
+      "start": "0x800114a4",
+      "end_exclusive": "0x800114c5",
+      "bytes": 33,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_front",
+      "second": ".ro0010",
+      "start": "0x80011594",
+      "end_exclusive": "0x8001166b",
+      "bytes": 215,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_front",
+      "second": ".ro0011",
+      "start": "0x800116a0",
+      "end_exclusive": "0x800116c9",
+      "bytes": 41,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_front",
+      "second": ".ro0012",
+      "start": "0x800116d8",
+      "end_exclusive": "0x80011858",
+      "bytes": 384,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_front",
+      "second": ".ro0013",
+      "start": "0x80011864",
+      "end_exclusive": "0x8001187c",
+      "bytes": 24,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_front",
+      "second": ".ro0014",
+      "start": "0x80011880",
+      "end_exclusive": "0x800118b0",
+      "bytes": 48,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_front",
+      "second": ".ro0015",
+      "start": "0x8001190c",
+      "end_exclusive": "0x8001192d",
+      "bytes": 33,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_front",
+      "second": ".ro0016",
+      "start": "0x8001198c",
+      "end_exclusive": "0x800119a2",
+      "bytes": 22,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_front",
+      "second": ".ro0017",
+      "start": "0x80011d94",
+      "end_exclusive": "0x80011da9",
+      "bytes": 21,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_front",
+      "second": ".ro0018",
+      "start": "0x80011e0c",
+      "end_exclusive": "0x80011e22",
+      "bytes": 22,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_front",
+      "second": ".ro0019",
+      "start": "0x80011eec",
+      "end_exclusive": "0x80011f07",
+      "bytes": 27,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_front",
+      "second": ".ro0020",
+      "start": "0x80011f58",
+      "end_exclusive": "0x80011f74",
+      "bytes": 28,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_front",
+      "second": ".ro0021",
+      "start": "0x80011fd4",
+      "end_exclusive": "0x80011fee",
+      "bytes": 26,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_front",
+      "second": ".ro0022",
+      "start": "0x8001204c",
+      "end_exclusive": "0x80012073",
+      "bytes": 39,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_front",
+      "second": ".ro0023",
+      "start": "0x80012130",
+      "end_exclusive": "0x80012153",
+      "bytes": 35,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_front",
+      "second": ".ro0024",
+      "start": "0x800121b8",
+      "end_exclusive": "0x80012228",
+      "bytes": 112,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_front",
+      "second": ".ro0025",
+      "start": "0x80012284",
+      "end_exclusive": "0x800122a5",
+      "bytes": 33,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_front",
+      "second": ".ro0026",
+      "start": "0x800124bc",
+      "end_exclusive": "0x80012504",
+      "bytes": 72,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_front",
+      "second": ".ro0027",
+      "start": "0x80012518",
+      "end_exclusive": "0x800125dd",
+      "bytes": 197,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_front",
+      "second": ".ro0028",
+      "start": "0x80012790",
+      "end_exclusive": "0x800127c1",
+      "bytes": 49,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_front",
+      "second": ".ro0029",
+      "start": "0x800127f4",
+      "end_exclusive": "0x8001283c",
+      "bytes": 72,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_front",
+      "second": ".ro0030",
+      "start": "0x80012848",
+      "end_exclusive": "0x80012851",
+      "bytes": 9,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_front",
+      "second": ".ro0031",
+      "start": "0x80012858",
+      "end_exclusive": "0x800128a8",
+      "bytes": 80,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_front",
+      "second": ".ro0032",
+      "start": "0x800128a8",
+      "end_exclusive": "0x800128c1",
+      "bytes": 25,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_front",
+      "second": ".ro0033",
+      "start": "0x800128c8",
+      "end_exclusive": "0x800128ed",
+      "bytes": 37,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0034",
+      "start": "0x80054f64",
+      "end_exclusive": "0x80054f90",
+      "bytes": 44,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0035",
+      "start": "0x80055040",
+      "end_exclusive": "0x80055088",
+      "bytes": 72,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0036",
+      "start": "0x80055118",
+      "end_exclusive": "0x80055144",
+      "bytes": 44,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0037",
+      "start": "0x800551b8",
+      "end_exclusive": "0x800551f4",
+      "bytes": 60,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0038",
+      "start": "0x80055200",
+      "end_exclusive": "0x8005520d",
+      "bytes": 13,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0039",
+      "start": "0x80055310",
+      "end_exclusive": "0x80055350",
+      "bytes": 64,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0040",
+      "start": "0x800554d0",
+      "end_exclusive": "0x800554f0",
+      "bytes": 32,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0041",
+      "start": "0x800556d0",
+      "end_exclusive": "0x80055768",
+      "bytes": 152,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0042",
+      "start": "0x80055778",
+      "end_exclusive": "0x800557e1",
+      "bytes": 105,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0043",
+      "start": "0x800557e8",
+      "end_exclusive": "0x800557f3",
+      "bytes": 11,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0044",
+      "start": "0x80055800",
+      "end_exclusive": "0x80055856",
+      "bytes": 86,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0045",
+      "start": "0x80055864",
+      "end_exclusive": "0x80055871",
+      "bytes": 13,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0046",
+      "start": "0x800558a0",
+      "end_exclusive": "0x8005597c",
+      "bytes": 220,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0047",
+      "start": "0x80055988",
+      "end_exclusive": "0x800559cd",
+      "bytes": 69,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0048",
+      "start": "0x80055a28",
+      "end_exclusive": "0x80055a54",
+      "bytes": 44,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0049",
+      "start": "0x80055a54",
+      "end_exclusive": "0x80055b52",
+      "bytes": 254,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0050",
+      "start": "0x80055b60",
+      "end_exclusive": "0x8005616c",
+      "bytes": 1548,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0051",
+      "start": "0x80055ec8",
+      "end_exclusive": "0x80055f76",
+      "bytes": 174,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".ro0050",
+      "second": ".ro0051",
+      "start": "0x80055ec8",
+      "end_exclusive": "0x80055f76",
+      "bytes": 174,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0052",
+      "start": "0x80055f94",
+      "end_exclusive": "0x80055fb6",
+      "bytes": 34,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".ro0050",
+      "second": ".ro0052",
+      "start": "0x80055f94",
+      "end_exclusive": "0x80055fb6",
+      "bytes": 34,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0053",
+      "start": "0x80056000",
+      "end_exclusive": "0x80056047",
+      "bytes": 71,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".ro0050",
+      "second": ".ro0053",
+      "start": "0x80056000",
+      "end_exclusive": "0x80056047",
+      "bytes": 71,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0054",
+      "start": "0x80056054",
+      "end_exclusive": "0x80056083",
+      "bytes": 47,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".ro0050",
+      "second": ".ro0054",
+      "start": "0x80056054",
+      "end_exclusive": "0x80056083",
+      "bytes": 47,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0055",
+      "start": "0x80056370",
+      "end_exclusive": "0x800563b0",
+      "bytes": 64,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0056",
+      "start": "0x800563b8",
+      "end_exclusive": "0x80056534",
+      "bytes": 380,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0057",
+      "start": "0x80056550",
+      "end_exclusive": "0x8005658c",
+      "bytes": 60,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0058",
+      "start": "0x80056598",
+      "end_exclusive": "0x800565b3",
+      "bytes": 27,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0059",
+      "start": "0x80056730",
+      "end_exclusive": "0x8005673b",
+      "bytes": 11,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0060",
+      "start": "0x80056770",
+      "end_exclusive": "0x800567fc",
+      "bytes": 140,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0061",
+      "start": "0x8005684c",
+      "end_exclusive": "0x80056884",
+      "bytes": 56,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0062",
+      "start": "0x80056894",
+      "end_exclusive": "0x800568a8",
+      "bytes": 20,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0063",
+      "start": "0x800568dc",
+      "end_exclusive": "0x80056929",
+      "bytes": 77,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0064",
+      "start": "0x80056938",
+      "end_exclusive": "0x80056960",
+      "bytes": 40,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0065",
+      "start": "0x8005696c",
+      "end_exclusive": "0x80056982",
+      "bytes": 22,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0066",
+      "start": "0x8005699c",
+      "end_exclusive": "0x80056a08",
+      "bytes": 108,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0067",
+      "start": "0x80056a14",
+      "end_exclusive": "0x80056a1d",
+      "bytes": 9,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0068",
+      "start": "0x80056ac4",
+      "end_exclusive": "0x80056ae4",
+      "bytes": 32,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0069",
+      "start": "0x80056afc",
+      "end_exclusive": "0x80056b38",
+      "bytes": 60,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0070",
+      "start": "0x80056b38",
+      "end_exclusive": "0x80056c14",
+      "bytes": 220,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0071",
+      "start": "0x80056c18",
+      "end_exclusive": "0x80056c2e",
+      "bytes": 22,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0072",
+      "start": "0x80056c38",
+      "end_exclusive": "0x80056c43",
+      "bytes": 11,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0073",
+      "start": "0x80056c44",
+      "end_exclusive": "0x80056cb8",
+      "bytes": 116,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0074",
+      "start": "0x80056ef8",
+      "end_exclusive": "0x80056f0c",
+      "bytes": 20,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0075",
+      "start": "0x80056f18",
+      "end_exclusive": "0x80056f23",
+      "bytes": 11,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0076",
+      "start": "0x80056f24",
+      "end_exclusive": "0x80056f39",
+      "bytes": 21,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0077",
+      "start": "0x80056f3c",
+      "end_exclusive": "0x80056f4c",
+      "bytes": 16,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0078",
+      "start": "0x80056f80",
+      "end_exclusive": "0x80056fb5",
+      "bytes": 53,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0079",
+      "start": "0x80056fbc",
+      "end_exclusive": "0x80056fd8",
+      "bytes": 28,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0080",
+      "start": "0x80056fd8",
+      "end_exclusive": "0x80057060",
+      "bytes": 136,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0081",
+      "start": "0x80057078",
+      "end_exclusive": "0x800570fc",
+      "bytes": 132,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0082",
+      "start": "0x80057180",
+      "end_exclusive": "0x8005736a",
+      "bytes": 490,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0083",
+      "start": "0x80057370",
+      "end_exclusive": "0x800574e6",
+      "bytes": 374,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0084",
+      "start": "0x800574f0",
+      "end_exclusive": "0x80057538",
+      "bytes": 72,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0085",
+      "start": "0x80057538",
+      "end_exclusive": "0x800575b8",
+      "bytes": 128,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0086",
+      "start": "0x80057608",
+      "end_exclusive": "0x80057633",
+      "bytes": 43,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0087",
+      "start": "0x80057638",
+      "end_exclusive": "0x80057898",
+      "bytes": 608,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0088",
+      "start": "0x80057898",
+      "end_exclusive": "0x800578da",
+      "bytes": 66,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0089",
+      "start": "0x800578e8",
+      "end_exclusive": "0x800578fd",
+      "bytes": 21,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0090",
+      "start": "0x80057908",
+      "end_exclusive": "0x80057946",
+      "bytes": 62,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".rodata_main",
+      "second": ".ro0091",
+      "start": "0x80057948",
+      "end_exclusive": "0x80057961",
+      "bytes": 25,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".data",
+      "second": ".sdata",
+      "start": "0x8013c54c",
+      "end_exclusive": "0x8013e3a4",
+      "bytes": 7768,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".data",
+      "second": ".tail_data",
+      "start": "0x8013dd7c",
+      "end_exclusive": "0x8013e000",
+      "bytes": 644,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".sdata",
+      "second": ".tail_data",
+      "start": "0x8013dd7c",
+      "end_exclusive": "0x8013e000",
+      "bytes": 644,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".data",
+      "second": ".newton_bss_124",
+      "start": "0x8013e0d8",
+      "end_exclusive": "0x8013e0e4",
+      "bytes": 12,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".sdata",
+      "second": ".newton_bss_124",
+      "start": "0x8013e0d8",
+      "end_exclusive": "0x8013e0e4",
+      "bytes": 12,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".data",
+      "second": ".newton_bss_133",
+      "start": "0x8013e0e8",
+      "end_exclusive": "0x8013e0f4",
+      "bytes": 12,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".sdata",
+      "second": ".newton_bss_133",
+      "start": "0x8013e0e8",
+      "end_exclusive": "0x8013e0f4",
+      "bytes": 12,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".data",
+      "second": ".simqueue_bss",
+      "start": "0x8013e0f4",
+      "end_exclusive": "0x8013e300",
+      "bytes": 524,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".sdata",
+      "second": ".simqueue_bss",
+      "start": "0x8013e0f4",
+      "end_exclusive": "0x8013e300",
+      "bytes": 524,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".data",
+      "second": ".rodata_rest",
+      "start": "0x8013e300",
+      "end_exclusive": "0x8013ecea",
+      "bytes": 2538,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".sdata",
+      "second": ".rodata_rest",
+      "start": "0x8013e300",
+      "end_exclusive": "0x8013e3a4",
+      "bytes": 164,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".data",
+      "second": ".sbss",
+      "start": "0x8013ecec",
+      "end_exclusive": "0x8013eeb4",
+      "bytes": 456,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".data",
+      "second": ".bss",
+      "start": "0x8013eeb4",
+      "end_exclusive": "0x80143408",
+      "bytes": 17748,
+      "first_type": 1,
+      "second_type": 8
+    },
+    {
+      "first": ".bss",
+      "second": ".data.r09_gmesetup_names_legacy",
+      "start": "0x80143408",
+      "end_exclusive": "0x801435b0",
+      "bytes": 424,
+      "first_type": 8,
+      "second_type": 1
+    },
+    {
+      "first": ".bss",
+      "second": ".data.r13_replay_legacy",
+      "start": "0x801435b0",
+      "end_exclusive": "0x801457ac",
+      "bytes": 8700,
+      "first_type": 8,
+      "second_type": 1
+    },
+    {
+      "first": ".data.r13_replay_legacy",
+      "second": ".data_rest",
+      "start": "0x801457ac",
+      "end_exclusive": "0x8014a584",
+      "bytes": 19928,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".data_rest",
+      "second": ".data.r13_schedule_legacy",
+      "start": "0x8014a584",
+      "end_exclusive": "0x8014a644",
+      "bytes": 192,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".data_rest",
+      "second": ".data.r13_sim_legacy",
+      "start": "0x8014a644",
+      "end_exclusive": "0x8014a688",
+      "bytes": 68,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".data_rest",
+      "second": ".data.r13_stats_legacy",
+      "start": "0x8014a688",
+      "end_exclusive": "0x8014a6e8",
+      "bytes": 96,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".data_rest",
+      "second": ".data.r13_textsys_legacy",
+      "start": "0x8014a6e8",
+      "end_exclusive": "0x8014a700",
+      "bytes": 24,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".data_rest",
+      "second": ".data.r13_track_legacy",
+      "start": "0x8014a700",
+      "end_exclusive": "0x8014a758",
+      "bytes": 88,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".data_rest",
+      "second": ".data.r13_trgsfx_legacy",
+      "start": "0x8014a758",
+      "end_exclusive": "0x8014ad98",
+      "bytes": 1600,
+      "first_type": 1,
+      "second_type": 1
+    },
+    {
+      "first": ".data_rest",
+      "second": ".data.table_blob",
+      "start": "0x8014ad98",
+      "end_exclusive": "0x80154440",
+      "bytes": 38568,
+      "first_type": 1,
+      "second_type": 1
+    }
+  ],
+  "allocated_output_overlap_count": 119,
+  "unregistered_neighbor_symbol_debt": [
+    {
+      "name": "asintbl",
+      "native_address": "0x80137260",
+      "actual_symbol_address": "0x8015beb4",
+      "actual_owner_section": ".data.asintbl_blob",
+      "reason": "Pre-existing raw duplicate still wins binding; typed native section placement alone is not a public-symbol fix."
+    }
+  ],
+  "ctype_and_table_neighbors": [
+    {
+      "object": "build/recon/syslib/psx/libc/CTYPE0.c.o",
+      "section": ".data",
+      "address": 2148757968,
+      "size": 129,
+      "output": ".data",
+      "end_exclusive": "0x80137251",
+      "raw_equal": true
+    },
+    {
+      "object": "build/asm/data/data_8010CCD4_r18.data.s.o",
+      "section": ".data.r18_gap_after_ctype",
+      "address": 2148758100,
+      "size": 12,
+      "output": ".data",
+      "end_exclusive": "0x80137260",
+      "raw_equal": true
+    },
+    {
+      "object": "build/recon/eaclib/psx/eacpsxz/asintbl.c.o",
+      "section": ".data",
+      "address": 2148758112,
+      "size": 512,
+      "output": ".data",
+      "end_exclusive": "0x80137460",
+      "raw_equal": true
+    },
+    {
+      "object": "build/asm/data/data_8010CCD4_r18.data.s.o",
+      "section": ".data.r18_gap_after_asintbl",
+      "address": 2148758624,
+      "size": 4,
+      "output": ".data",
+      "end_exclusive": "0x80137464",
+      "raw_equal": true
+    },
+    {
+      "object": "build/recon/eaclib/psx/eacpsxz/sintbl.c.o",
+      "section": ".data",
+      "address": 2148758628,
+      "size": 1028,
+      "output": ".data",
+      "end_exclusive": "0x80137868",
+      "raw_equal": true
+    },
+    {
+      "object": "build/recon/eaclib/psx/eacpsxz/fatantbl.c.o",
+      "section": ".data",
+      "address": 2148759656,
+      "size": 1028,
+      "output": ".data",
+      "end_exclusive": "0x80137c6c",
+      "raw_equal": true
+    }
+  ],
+  "ordered_data_run": {
+    "last_native_input": {
+      "object": "build/asm/data/data_8010CCD4_r21.data.s.o",
+      "section": ".data",
+      "address": 2148778760,
+      "size": 580,
+      "output": ".data"
+    },
+    "end_exclusive": "0x8013c54c",
+    "native_sdata_start": "0x8013c54c",
+    "actual_output_data_end": "0x80143408",
+    "appended_or_overlap_bytes": 28348
+  },
+  "fetextrender_globals": [
+    {
+      "name": "textDefinitions",
+      "address": "0x800515b8",
+      "native_storage_bytes": 84,
+      "elf_size": 0,
+      "elf_type": 0,
+      "output_section": ".source_data_7"
+    },
+    {
+      "name": "gSemiTransText",
+      "address": "0x8005160c",
+      "native_storage_bytes": 4,
+      "elf_size": 0,
+      "elf_type": 0,
+      "output_section": ".source_data_7"
+    }
+  ],
+  "legacy_pointer_aliases": [
+    {
+      "name": "D_8013C84C",
+      "offset": 0,
+      "target": "0x8013c84c"
+    },
+    {
+      "name": "D_8013C854",
+      "offset": 8,
+      "target": "0x8013c854"
+    },
+    {
+      "name": "D_8013C85C",
+      "offset": 16,
+      "target": "0x8013c85c"
+    },
+    {
+      "name": "D_8013C864",
+      "offset": 24,
+      "target": "0x8013c864"
+    },
+    {
+      "name": "D_8013C86C",
+      "offset": 32,
+      "target": "0x8013c86c"
+    },
+    {
+      "name": "D_8013C874",
+      "offset": 40,
+      "target": "0x8013c874"
+    },
+    {
+      "name": "D_8013C87C",
+      "offset": 48,
+      "target": "0x8013c87c"
+    },
+    {
+      "name": "D_8013C884",
+      "offset": 56,
+      "target": "0x8013c884"
+    },
+    {
+      "name": "D_8013C88C",
+      "offset": 64,
+      "target": "0x8013c88c"
+    },
+    {
+      "name": "D_8013C894",
+      "offset": 72,
+      "target": "0x8013c894"
+    },
+    {
+      "name": "D_8013C89C",
+      "offset": 80,
+      "target": "0x8013c89c"
+    },
+    {
+      "name": "D_8013C8A4",
+      "offset": 88,
+      "target": "0x8013c8a4"
+    },
+    {
+      "name": "D_8013C8AC",
+      "offset": 96,
+      "target": "0x8013c8ac"
+    },
+    {
+      "name": "D_8013C8B4",
+      "offset": 104,
+      "target": "0x8013c8b4"
+    },
+    {
+      "name": "D_8013C8BC",
+      "offset": 112,
+      "target": "0x8013c8bc"
+    },
+    {
+      "name": "D_8013C8C4",
+      "offset": 120,
+      "target": "0x8013c8c4"
+    },
+    {
+      "name": "D_8013C8CC",
+      "offset": 128,
+      "target": "0x8013c8cc"
+    },
+    {
+      "name": "D_8013C8D4",
+      "offset": 136,
+      "target": "0x8013c8d4"
+    },
+    {
+      "name": "D_8013C8DC",
+      "offset": 144,
+      "target": "0x8013c8dc"
+    },
+    {
+      "name": "D_8013C8E4",
+      "offset": 152,
+      "target": "0x8013c8e4"
+    },
+    {
+      "name": "D_8013C8EC",
+      "offset": 160,
+      "target": "0x8013c8ec"
+    },
+    {
+      "name": "D_8013C8F4",
+      "offset": 168,
+      "target": "0x8013c8f4"
+    },
+    {
+      "name": "D_8013C8FC",
+      "offset": 176,
+      "target": "0x8013c8fc"
+    },
+    {
+      "name": "D_8013C904",
+      "offset": 184,
+      "target": "0x8013c904"
+    },
+    {
+      "name": "D_8013C90C",
+      "offset": 192,
+      "target": "0x8013c90c"
+    },
+    {
+      "name": "D_8013C914",
+      "offset": 200,
+      "target": "0x8013c914"
+    },
+    {
+      "name": "D_8013C91C",
+      "offset": 208,
+      "target": "0x8013c91c"
+    },
+    {
+      "name": "D_8013C924",
+      "offset": 216,
+      "target": "0x8013c924"
+    },
+    {
+      "name": "D_8013C92C",
+      "offset": 224,
+      "target": "0x8013c92c"
+    },
+    {
+      "name": "D_8013C934",
+      "offset": 232,
+      "target": "0x8013c934"
+    },
+    {
+      "name": "D_8013C93C",
+      "offset": 240,
+      "target": "0x8013c93c"
+    },
+    {
+      "name": "D_8013C944",
+      "offset": 248,
+      "target": "0x8013c944"
+    },
+    {
+      "name": "D_8013C94C",
+      "offset": 256,
+      "target": "0x8013c94c"
+    },
+    {
+      "name": "D_8013C954",
+      "offset": 264,
+      "target": "0x8013c954"
+    }
+  ],
+  "raw_pointer_table_references": [
+    {
+      "table_address": "0x80055a54",
+      "target_symbol": "D_8013C84C"
+    },
+    {
+      "table_address": "0x80055a58",
+      "target_symbol": "D_8013C854"
+    },
+    {
+      "table_address": "0x80055a5c",
+      "target_symbol": "D_8013C85C"
+    },
+    {
+      "table_address": "0x80055a60",
+      "target_symbol": "D_8013C864"
+    },
+    {
+      "table_address": "0x80055a64",
+      "target_symbol": "D_8013C86C"
+    },
+    {
+      "table_address": "0x80055a68",
+      "target_symbol": "D_8013C874"
+    },
+    {
+      "table_address": "0x80055a6c",
+      "target_symbol": "D_8013C87C"
+    },
+    {
+      "table_address": "0x80055a70",
+      "target_symbol": "D_8013C884"
+    },
+    {
+      "table_address": "0x80055a74",
+      "target_symbol": "D_8013C88C"
+    },
+    {
+      "table_address": "0x80055a78",
+      "target_symbol": "D_8013C894"
+    },
+    {
+      "table_address": "0x80055a7c",
+      "target_symbol": "D_8013C89C"
+    },
+    {
+      "table_address": "0x80055a80",
+      "target_symbol": "D_8013C8A4"
+    },
+    {
+      "table_address": "0x80055a84",
+      "target_symbol": "D_8013C8AC"
+    },
+    {
+      "table_address": "0x80055a88",
+      "target_symbol": "D_8013C8B4"
+    },
+    {
+      "table_address": "0x80055a8c",
+      "target_symbol": "D_8013C8BC"
+    },
+    {
+      "table_address": "0x80055a90",
+      "target_symbol": "D_8013C8C4"
+    },
+    {
+      "table_address": "0x80055a94",
+      "target_symbol": "D_8013C8A4"
+    },
+    {
+      "table_address": "0x80055a98",
+      "target_symbol": "D_8013C85C"
+    },
+    {
+      "table_address": "0x80055a9c",
+      "target_symbol": "D_8013C894"
+    },
+    {
+      "table_address": "0x80055aa0",
+      "target_symbol": "D_8013C8CC"
+    },
+    {
+      "table_address": "0x80055aa4",
+      "target_symbol": "D_8013C8CC"
+    },
+    {
+      "table_address": "0x80055aa8",
+      "target_symbol": "D_8013C8CC"
+    },
+    {
+      "table_address": "0x80055aac",
+      "target_symbol": "D_8013C8D4"
+    },
+    {
+      "table_address": "0x80055ab0",
+      "target_symbol": "D_8013C85C"
+    },
+    {
+      "table_address": "0x80055ab4",
+      "target_symbol": "D_8013C88C"
+    },
+    {
+      "table_address": "0x80055ab8",
+      "target_symbol": "D_8013C894"
+    },
+    {
+      "table_address": "0x80055abc",
+      "target_symbol": "D_8013C8A4"
+    },
+    {
+      "table_address": "0x80055ac0",
+      "target_symbol": "D_8013C8B4"
+    },
+    {
+      "table_address": "0x80055ac4",
+      "target_symbol": "D_8013C8CC"
+    },
+    {
+      "table_address": "0x80055ac8",
+      "target_symbol": "D_8013C8DC"
+    },
+    {
+      "table_address": "0x80055acc",
+      "target_symbol": "D_8013C8E4"
+    },
+    {
+      "table_address": "0x80055ad0",
+      "target_symbol": "D_8013C8EC"
+    },
+    {
+      "table_address": "0x80055ad4",
+      "target_symbol": "D_8013C8F4"
+    },
+    {
+      "table_address": "0x80055ad8",
+      "target_symbol": "D_8013C8FC"
+    },
+    {
+      "table_address": "0x80055adc",
+      "target_symbol": "D_8013C904"
+    },
+    {
+      "table_address": "0x80055ae0",
+      "target_symbol": "D_8013C90C"
+    },
+    {
+      "table_address": "0x80055ae4",
+      "target_symbol": "D_8013C914"
+    },
+    {
+      "table_address": "0x80055ae8",
+      "target_symbol": "D_8013C91C"
+    },
+    {
+      "table_address": "0x80055aec",
+      "target_symbol": "D_8013C924"
+    },
+    {
+      "table_address": "0x80055af0",
+      "target_symbol": "D_8013C92C"
+    },
+    {
+      "table_address": "0x80055af4",
+      "target_symbol": "D_8013C934"
+    },
+    {
+      "table_address": "0x80055af8",
+      "target_symbol": "D_8013C93C"
+    },
+    {
+      "table_address": "0x80055afc",
+      "target_symbol": "D_8013C8B4"
+    },
+    {
+      "table_address": "0x80055b00",
+      "target_symbol": "D_8013C8BC"
+    },
+    {
+      "table_address": "0x80055b04",
+      "target_symbol": "D_8013C944"
+    },
+    {
+      "table_address": "0x80055b08",
+      "target_symbol": "D_8013C934"
+    },
+    {
+      "table_address": "0x80055b0c",
+      "target_symbol": "D_8013C8EC"
+    },
+    {
+      "table_address": "0x80055b10",
+      "target_symbol": "D_8013C924"
+    },
+    {
+      "table_address": "0x80055b14",
+      "target_symbol": "D_8013C94C"
+    },
+    {
+      "table_address": "0x80055b18",
+      "target_symbol": "D_8013C94C"
+    },
+    {
+      "table_address": "0x80055b1c",
+      "target_symbol": "D_8013C94C"
+    },
+    {
+      "table_address": "0x80055b20",
+      "target_symbol": "D_8013C954"
+    },
+    {
+      "table_address": "0x80055b24",
+      "target_symbol": "D_8013C8EC"
+    },
+    {
+      "table_address": "0x80055b28",
+      "target_symbol": "D_8013C91C"
+    },
+    {
+      "table_address": "0x80055b2c",
+      "target_symbol": "D_8013C924"
+    },
+    {
+      "table_address": "0x80055b30",
+      "target_symbol": "D_8013C934"
+    },
+    {
+      "table_address": "0x80055b34",
+      "target_symbol": "D_8013C8B4"
+    },
+    {
+      "table_address": "0x80055b38",
+      "target_symbol": "D_8013C94C"
+    }
+  ],
+  "link_diagnostics": {
+    "undefined_references": 0,
+    "relocation_truncations": 0,
+    "warning_or_error_lines": [
+      "C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe: warning: section `.sbss' type changed to PROGBITS"
+    ]
+  }
+}

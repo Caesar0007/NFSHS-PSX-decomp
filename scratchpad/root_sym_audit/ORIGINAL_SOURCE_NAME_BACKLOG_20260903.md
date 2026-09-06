@@ -3789,3 +3789,456 @@ Detailed receipts and protected-tool backups: ../p878_checkpoint/README.md,
 and ../p878_copspeak/README.md. The user authorized commit and push of the
 verified P869-P878 checkpoint to origin/main, excluding unrelated edits and
 generated build files. Git publication is performed only after final checks.
+
+## P879: source names, native scope placement and a raw branch repair (2026-09-06)
+
+P869-P878 was published as 88bad579. The following P879 work is not part of
+that commit and remains uncommitted. The original-source/SYM/SLD goal is still
+active; none of the partial results below certifies the entire project exact.
+
+### Frontend: nine extra declarations removed, two real locals relocated
+
+The repaired scalar menuDefs interface now permits removal of both
+menuDefinitions declarations in GoToTwoPlayerSingleRace, player/defs in
+EnterUserName, defs in both FinishedPlayer name callbacks, and menuDefsBase
+in AwardPinkSlipsCar and ExitPinkSlipsEarly. Direct username arguments also
+remove the volatile byte read while retaining both native LBU instructions.
+
+GoToTwoPlayerSingleRace additionally uses the existing SetString/SetChoices
+member operations and ordinary Run call, removing its dialog caller alias.
+The separate member statements preserve native SLD 225/229 grouping; a
+byte-identical chained expression does not and was rejected. No new helper
+name was introduced, and the existing inferred private spellings remain
+unproven. carSelectScreen, nextMenu and screenState are still open. Eight
+further direct-source/fence-removal basins were tested and not retained.
+
+The tournament and special-event callbacks now declare amount only in the
+post-sound debit block. The early fee guards use tourn->fEntranceFee directly.
+Success-first if/else restores native LONG REG3 and the zero-width debug scope
+at cancellation PCs 8002D028/8002D194. The fee is still read on the successful
+path after AudioCmn_PlayFESFX, not during cancellation. A remaining inner
+inline-body shell/name, separate debit statement notes, and the existing
+selectedTourney/tourn register mismatch are explicitly unresolved. This is
+scope recovery, not a claim that name presence alone makes the source exact.
+
+All eight touched callbacks PASS at 69/25/68/40/138/76/90/91 instructions,
+with exact-g code twins; Femenudefs remains 66/66 and branch-clean. Its entire
+normal object still equals published P878, including every relocation and
+data byte (e5f8a1f116f2e9aeecfbf0d2d96c5e4e6a6164caea5ef588aec3690449580fd0).
+All 597 oracle comment words were checked against the raw EXE; independent
+ordinary links additionally prove all 100 username and 724 tournament bytes.
+The pre-existing whole-debug-TU constructor discrepancy remains 3205/3207;
+exact-g target checks must not be reported as a 66/66 debug-lane result.
+
+### CopSpeak: signed field semantics remove the remaining Flush pointer
+
+CopSpeak_tRequest.bank is signed char at byte +30 in both existing type homes.
+CopSpeak_Flush now writes CopSpeak_gQueue[i].bank directly, removing request
+and its per-use signed pointer cast. Native loop-scoped int i is preserved.
+Native CHAR encodes plain and signed char identically in this compiler's
+debug output; signed loads/negative sentinel use and source-only A/B establish
+the access contract, not an exact recovered keyword or compiler command line.
+The other three byte fields and all offsets/size remain unchanged. A whole-TU
+signed-char flag regressed eight neighbors and was not used.
+
+Fresh actual-preprocessor dependency census found 47 consumers among 698
+C/C++ sources: 40 base and seven regional. All 40 base objects are entirely
+byte-identical before/after, including 119/119 covered functions and 36
+data/no-covered-function TUs. Five buildable regional consumers preserve all
+code/data/symbol/relocation fingerprints and 21/21 selected oracle matches.
+Two regional nfs3 copies have the same pre-existing obsolete-Speech-alias
+compile failures before and after; their repair is investigated separately,
+not silently counted as verified shared-header consumers. The complete
+CopSpeak object remains 70fc97ebe71e9feeb970a4af6af67f16969a2171d4a82bfc1a35834376f9807e,
+27/27 PASS and branch-clean. Protected headers have pre-edit backups.
+
+### AudioTrk: resolve the real branch-target mismatch without output rewrites
+
+AudioTrk_AddCustomObject now tests the type interval with two byte comparisons,
+type >= 4 and type < 36, instead of unsigned subtraction and a range bound.
+No new name, local, asm, volatile, compiler flag or post-compiler action is
+used. The source statement remains the native type-range test at SLD 279.
+
+Stock compiler RTL proves why it works: the earlier spelling yields an SI
+zero-extend load identical to the earlier type-test pattern. During delayed
+branch scheduling, redundant_insn finds that earlier load and redirects the
+type-3 edge past retail's reload. The two bounds keep a QI-mode load that emits
+the very same LBU but is not RTL-identical, so the native edge survives.
+Instrumented compiler/GDB traces corroborate the mechanism; only stock PsyQ
+results are used as byte authority. Its unsigned-char flag is necessary to
+make the instrumented compiler reproduce stock defaults, not a production flag.
+
+Root rebuilt the landed production source and independently linked it at
+native addresses: all 1,004 text words plus 13 rodata bytes and four sdata
+bytes match rom/nfs4-f.exe. The former 8007CBBC jump to 8007CBF4 now correctly
+targets 8007CBF0. All six functions PASS, no branch differences, target 413
+exact-g. The old 1,003/1,004 result is superseded, not a verifier false positive.
+The suspicious null-base c->handle access remains because raw retail proves
+it; no intent-based behavioral repair was made.
+
+### Strict audit state and evidence
+
+Frontend carriers 470 -> 462; game/common 479 -> 478. Other review counts
+remain visible: frontend 781 declaration-clean, 46 extra locals, nine type,
+nine storage and three mapping findings; game 1228 declaration-clean, six
+extra locals, 28 type and 28 storage findings. Both have zero missing names
+in these definition audits. These are scoped declaration reports, not proof
+that every raw SYM record or SLD statement in the entire project is restored.
+
+Primary receipts: ../p879_femenudefs/README.md and receipts.json,
+../p879_username/RECEIPT_20260906.md, ../p879_amount/RECEIPT_20260906.md,
+../p879_audiotrk/reorg_receipts.json and production_receipts.json, and the
+../p879_copspeak before/after consumer records. Full-build, relink and source
+policy results belong in ../p879_checkpoint/validation_receipts.json; a
+partially written runner log is not proof that the whole sequence finished.
+
+### Follow-up: repair the two pre-existing regional startup copies
+
+The AU and USA nfs3 copies now use the already-restored shared Speech_fgUndefined
+name and ordinary new Speaker expression, matching the base source. This
+removes their obsolete undeclared flattened aliases and one unrecorded p
+carrier per copy without adding any helper, name or header declaration.
+The constructor still installs the vtable and clears fSub before publication.
+
+Both production TUs compile again. AU LoadingIcon73/main237 and USA LoadPerps172,
+all three owned manifest rows, retain REGION-PASS. Each 25-word startup was
+also checked against its own regional raw EXE, including every relocation's
+opcode/register bits and resolved target; the function has no standalone
+manifest row. Whole text/data/relocations equal a compatibility-only legacy
+control, not a fictitious object built from the initially broken source.
+
+AU's separate copied LoadPerps remains a pre-existing 12-difference 168/172
+body; it is not changed or counted as PASS. USA has no separate regional
+LoadingIcon/main oracles. These coverage limitations remain explicit.
+See ../p879_nfs3_regions/README.md, receipts.json and production_receipts.json.
+This follow-up supersedes the two unresolved compile failures in the earlier
+bank-only consumer comparison; the before/after failure receipts are retained.
+
+### Next evidence-backed angle: native tourn's missing copy boundary
+
+The follow-up single-tourn investigation tested 14 ordinary source controls
+against the landed amount/Run shape. None is retained. Even removing only
+the selectedTourney fence while leaving both declarations makes stock CSE
+delete pointer-copy instruction 66 before allocation. Six global pseudos
+become five; the initial pointer moves from a1 directly into s2. The closest
+90/91-instruction result still has three replacements and a true first-branch
+distance of 46 instead of 45, so it is not a safe source cleanup.
+
+Native selector/guard SLD 661/699 and 663/704 identifies an anonymous selector
+result versus the named cross-call tourn in REG18. The next question is the
+original inline/return-expression boundary, using actual header/sibling
+evidence. It is not a QTY handout-priority problem in the tested source and
+does not justify a newly invented getter or a disguised fence. The 64 other
+normal functions remain unchanged; all P879 production wins are preserved.
+Stock CSE/global excerpts and exact negative controls are retained in
+../p879_tourn/RECEIPT_20260906.md. No compiler-floor claim is made.
+
+### Final regional closure and regression results
+
+The separate AU LoadPerps mismatch noted above is now repaired: the existing
+USA code representative provides the missing trafficDensity <= 0 selection,
+as independently confirmed by the AU raw load at field +0x18 and branch. This
+changes 12 differences at 168/172 to REGION-PASS 172/172. Raw reference checking
+then revealed AU uses fecarsb.car, not the representative's fecars.car. The AU
+literal is corrected from its actual bytes, not guessed from a sibling region.
+
+Root's landed-source checks require AU3/3 and USA1/1 with no failing selected
+row, both startup 25-word/reference checks, all 172 AU LoadPerps instruction
+and relocation fields, and every byte of its 71-byte rodata section exact.
+The ten neighboring bodies are preserved modulo necessary local-jump rebasing;
+startup bytes and data/sdata are unchanged. Missing USA oracles and unverified
+whole-regional-data owner layout remain outside this targeted proof.
+pre_loadperps_production_receipts.json retains the earlier explicit failure;
+production_receipts.json is the final verified state.
+
+Three complete strict build lanes passed with no failed/skipped TUs (skip-asm,
+expected/no-link, then assembly-inclusive build/no-link for the actual src link
+input). Both unchanged standing link gates pass: REAL duplicates, hidden
+phantoms and relocation-referenced unresolveds are zero. The known recon
+blob-class duplicate count remains 964; a green standing gate does not close
+that source/data integration backlog. Vtable/source-only policy audits pass.
+The fresh 79-owner sweep is 1301/1301 normalized PASS, 79/79 identical accepted
+rebuilds, and all 79 branch checks clean. No post-compiler instruction rewrite
+or checker relaxation was used. P879 remains uncommitted and the full goal active.
+
+## P880: remove frontend locals and false extern views; expose a real static gap
+
+Eleven additional source-only local declarations are removed without replacing
+them with invented semantic names: three dialog aliases in Femenudefs, two
+globalMenuDefs declarations plus helpDialog in FEApp, four Initialize/Cleanup
+aliases in ScreenMemcard, and Draw's mainScreen in FECredits. They represented
+ten audit carrier mappings because one mapping covered two same-name blocks.
+Frontend mappings therefore decrease462 to452; game remains478.
+
+Five CPP-local extern array views are also gone: FEApp's ticks_array and
+Draw_gDoVSync_arr, ScreenMemcard's A_FEApp, and FECredits' A_ticks/A_screenMain.
+Each now uses the existing scalar declarations. Native local ticks is preserved
+via ::ticks for global accesses; no source name was invented. Removing these
+false storage views unlocks direct expressions that older array-based receipts
+had reported as failures. Remaining private foreign CodegenView types and
+inferred inline helper spellings are not certified as original source.
+
+All four entire normal objects are byte-identical to their respective accepted
+baselines, including data, symbols, relocation addends and branch encodings:
+Femenudefs66/66, FEApp16/16, ScreenMemcard15/15 and FECredits7/7, totaling104/104
+PASS with zero branch discrepancies. Detailed debug/raw receipts independently
+check the changed native locals/scopes and relevant references. Both unchanged
+standing relink lanes and vtable/source-only policy checks pass. No shared
+header, compiler flag, new asm/volatile or post-compiler rewrite was introduced.
+
+The strict report is intentionally more honest about one existing source gap:
+FECredits lasttick is a known function-local STAT INT record, not restored by
+the current blob-backed extern view. The SYM-CARRIER exemption is removed.
+Missing native declarations therefore changes0 to1 and declaration-clean781
+to780, with no compiled-code regression. The raw static name is known and the
+actual declaration/data ownership must be restored, not hidden by a mapping.
+
+An additional lexical inventory finds100 remaining extern-array/asm-label sites
+across37 reconstructed source/header files. This is one syntax-family review
+inventory, not proof all100 are wrong or active, nor exhaustive macro-view
+coverage. Native arrays/hardware views require individual adjudication.
+It explains why zero global carrier markers did not prove absence of extern
+storage-view debt. See ../p880_checkpoint/EXTERN_ARRAY_VIEW_REVIEW.md.
+
+Clock's ordinary parity conditions still miss43 by one instruction. New stock
+RTL proves the direct source already has native-like order before delay-slot
+scheduling: pointer low completion27, parity ANDI50, generic store43, branch52.
+The .dbr pass moves27 into52's slot (sequence148), replacing retail's NOP.
+Narrow casts add a wrong byte/halfword reload; whole no-delay/no-split flags
+regress all three functions; 2.8.1/no-thread/debug forms do not solve it.
+No failing Clock source was retained. The next evidence-backed question is
+the original source/assembler scheduling boundary, not an allocator floor.
+
+Primary receipts: ../p880_checkpoint/receipts.json, ../p880_fem_dialogs/
+RECEIPT_20260906.md, ../p880_feapp/README.md and views_receipts.json,
+../p880_screenmemcard/receipt.json and raw_debug_receipt.json,
+../p880_fecredits/receipts.json, and ../p880_clock/README.md. P879's source
+receipts remain historical; its object-level wins and regional repairs remain
+intact. P880 is uncommitted. The full original-source/SYM/SLD goal stays active.
+
+## P881: native lasttick declaration and single-cell data ownership restored
+
+The missing SetupCurrCredit lasttick is now an actual function-local
+`static int lasttick = 0`, matching SYM5f1f9a STAT INT and object data offset4.
+The FECredits_lastFadeTick/A_ array view and erroneous public extern are gone.
+The initialized owner section contains CREDFADETICKS700 at+0 and lasttick0
+at+4, exactly the native eight-byte run80051AA0..80051AA8. A tentative static
+also code-PASSes but produces BSS rather than the native data run; it was not
+retained. No carrier exemption or invented identifier closes this record.
+
+All seven credits functions remain PASS, branches0 and SetupCurrCredit199
+exact-g. Of3240 text bytes, only two unlinked data-addend bytes change0->4;
+the references now resolve to the true local static instead of an extern
+alias. The live debug record is STAT/INT in the owning function scope.
+The rest of SetupCurrCredit's source-only names/inline/SLD debt remains open.
+
+Raw r03 is split into its740-byte prefix, eight-byte oracle-only credits
+piece, and1456-byte suffix. No original data byte is removed. Src selects
+the three raw pieces; recon uses the typed source section instead of the
+raw eight-byte owner. Independent ordinary links prove both2204-byte windows
+exact against retail, with one local lasttick at80051AA4 and no raw D_80051AA4
+definition in recon. ScreenMain's neighboring tvOrder starts80051AA8 and is
+not absorbed into credits. CPE is only the zero overlay reservation here;
+native SYM/MAP plus merged nfs4-f.exe establish this initialized content.
+
+Commented protected-tool changes, with backups, add explicit source-data
+ownership metadata and fail-closed payload/global/local-offset validation.
+Relink and the canonical generator exclude the validated oracle-only input.
+The active generator places credits data at80051AA0 and removes it from the
+resident catch-all; the otherwise dormant frontend fragment is updated too.
+Live-source object selection prevents stale cache/probe copies from returning.
+The link command now consumes existing recovered linker-data PROVIDE metadata,
+which clears the previously omitted _front_objend/D_8014899C references without
+new storage. The generated linker script is regenerated, not hand-patched.
+
+Canonical output shows the exact owner address, one lasttick cell, no raw
+duplicate and all four lasttick-reference words equal retail. The broader
+generated diagnostic image still has ten small-data relocation truncations;
+rc0 under --noinhibit-exec is not a clean final-executable claim. Standing
+link gates pass with zero REAL duplicates, phantoms and referenced unresolveds;
+the known blob-class duplicate count decreases964 to963.
+
+### Additional native global-view/type corrections
+
+Fecheats loses four A_ array/asm views while retaining the genuine187-element
+Stats_gTrackRecords array. Cheat/bonus externs are corrected from unsigned int
+to native ULONG, consistent with the existing u_long owner definitions.
+Base10/10/branch0 and the entire object remain unchanged; the only additional
+actual header consumer, USA, retains4/4 and exact program/data/relocation
+identity. Native data shapes and26 changed-reference words were checked.
+
+FETextRender uses native BOOL gSemiTransText directly instead of its int-array
+view. Its true textDefinitions[14][6] remains intact. Whole17/17/branch0 and
+the entire8080-byte object remain unchanged. Failed pixels-local experiments
+were not retained. Across this round six extern views are removed, including
+the credits static view; no new asm/volatile or instruction rewrite is added.
+
+### Verification and remaining goal
+
+Three full build lanes complete without failures/skips, both standing link
+lanes pass, and source-only/vtable policies pass. Detailed source, data-window,
+debug, raw-reference and fail-closed controls are retained in
+../p881_lasttick/{source_receipts,storage_receipts,full_validation_receipts}.json
+and README.md. The independent ownership analysis is in
+../p881_lasttick_ownership/OWNERSHIP_ROUTE_20260906.md; other source receipts
+are in ../p881_fecheats and ../p881_fetextrender.
+
+The strict frontend report returns to781 declaration-clean/zero missing names
+because lasttick is genuinely restored, not exempted. Carrier mappings remain
+452 frontend/478 game; other type/storage/source/SLD reviews remain open.
+P881 remains uncommitted. The complete original-source restoration goal is
+not achieved by this bounded data-and-declaration closure.
+
+## P882: native source scopes/views and exhaustive GP/data ownership (2026-09-07)
+
+### Source restoration
+
+Fescreen removes three false scalar-array views, preserving the existing
+suppression-flag linkage bridge rather than inventing its original class
+declaration. FeMenuOptions removes scalar FEApp/menu_kUserNameRows views and
+the dst local; genuine NumberOfRows[6] is restored to the first function block
+without moving its post-sprintf initializer. FEDialog removes gHelpShapesA[]
+and uses the existing scalar pointer while keeping the pointed-to shape table.
+All three entire objects are unchanged:27/27,92/92 and32/32 PASS, branches0.
+Native NumberOfRows SHORT/dim6/AUTO-40 scope and raw table values are proved.
+Frontend carrier mappings decrease452 to451; other review counts remain open.
+
+The FEDialog scalar ticks header experiment is not retained. Its four actual
+consumers regress only Help CalculateDimensions by9 differences/one instruction;
+passing currentTicks through the existing helper is neutral. All five files
+were restored to their pre-ticks state, preserving root's gHelpShapes edit;
+base32/32 and all6 selected regional cases/fingerprints are reverified.
+
+### Correct the old overflow count and repair the actual cause
+
+The earlier ten-truncation statement was only the linker's printed error count;
+it explicitly omitted additional overflows. An exhaustive frozen baseline
+checks2381 GP-relative relocations in78 live TUs:324 true signed-16 overflows,
+1696 wrong retail addresses,1372 of which were still in range. All expected
+addresses are established, including three FIRST cases using non-retail GP
+addressing for a raw absolute slot. Native GP8013C54C is independently derived
+from1867 raw/MAP sites; it is not changed to conceal displacement errors.
+
+The canonical generator wrongly treated selecting an object's .data as also
+selecting its .sdata. Section-qualified (object,section) accounting fixes the
+omission and eliminates all324 overflows, but by itself fixes zero wrong native
+addresses. That intermediate result is saved explicitly, not called a native
+match. Fragment ownership checks use actual parsed selectors and fail closed.
+
+### Five proven native data-owner transfers
+
+Complete relocation-free payloads and independent native anchors justify
+Hudpmx.sdata@8013C84C/0x535, CopSpeak@8013D07C/0x7E, NFS3@8013D270/0x58,
+R3DCar@8013D324/0x9C and Sim@8013D40C/0x28. Raw copies are split into separate
+oracle-only files; recon selects the typed source sections in their native
+fragment slots. The three Hudpmx and two CopSpeak alignment bytes are preserved.
+The other five omitted sections remain unpromoted because they lack complete
+native placement/payload proof or have genuine packing/value mismatches.
+
+All2692 bytes across checked windows match raw retail in baseline, src and
+recon links, with neighboring addresses preserved. Source-owner validation
+checks exact sizes/hashes and rejects unexpected data relocations. The P881
+credits window and its stricter global/local-static checks remain intact.
+
+Thirty-four existing raw string labels are retained as storage-free PROVIDEs
+for the still-raw Hudpmx pointer tables. Each is proved from the excluded raw
+object's symbol offset, the native bytes and every actual pointer-table use;
+no additional string storage is allocated. Repeated table entries are checked
+from their real records, not assumed sequential.
+
+The actual generated link now has234 more native GP targets correct, with
+zero formerly correct targets regressing. All2381 remain in range and resolve;
+1462 wrong-but-in-range targets remain explicit. Source-owned raw duplicate
+inputs are excluded, decreasing known blob duplicates963 to912. REAL duplicate,
+phantom and referenced-unresolved standing checks remain zero.
+
+### Remaining integration debt and evidence
+
+The generated diagnostic ELF still has overlapping output sections, including
+an oversized .data range over .sdata, and a .sbss PROGBITS warning. Native-owner
+checks select the actual owning output section and record those overlaps; they
+do not certify a valid flattened final image. FIRST's three non-retail addressing
+sites need source/toolchain correction, not just placement. These remain part
+of the full original-source/link restoration goal.
+
+Authoritative receipts: ../p882_gprel/BASELINE_RECEIPT_20260906.md,
+baseline_complete.json, section_accounting_complete.json, native_owners_complete.json,
+OWNERSHIP_LANDING_20260907.md, ownership_window_receipts.json and
+production_owner_receipts.json. Full regression commands/results are recorded
+by full_validation.py in that directory; only the complete sequence counts.
+Source receipts are in ../p882_fescreen, ../p882_femenuoptions,
+../p882_fedialog and ../p882_fedialog_ticks. No new names/helpers, asm/volatile,
+compiler flags or instruction rewrites were added. P882 remains uncommitted;
+the full original-source/SYM/SLD objective remains active.
+
+P882 final regression sequence is complete: all three full builds passed
+without failed/skipped TUs, both data-lane window checks and actual native-owner
+placement/reference checks passed, and the exhaustive final2381-site GP audit
+confirms zero overflows/unresolveds/encoding discrepancies,234 newly correct
+retail targets and zero regressed targets. The remaining1462 wrong addresses
+are not waived. Standing link,151/151 frontend, vtable and source-only policy
+checks pass. These complete results are in p882_gprel/full_validation_receipts.json
+and final_complete.json; no commit or push has occurred.
+
+## P883 / 2026-09-07: native data slots and verified publication checkpoint
+
+The user has now explicitly approved committing and pushing the verified
+P879-P883 checkpoint to origin/main. Earlier uncommitted statements above
+describe their historical round state, not the current publication authority.
+
+Front.cpp's MEMCARDFRONTENDISINITTED_words array alias is removed. Native
+SYM2c74e8 EXT BOOL already agrees with the public/owning bool declarations;
+ordinary false/false/true stores preserve all43 functions, branches and the
+entire39004-byte object. Both affected debug twins and all69 raw words match.
+No original name was invented, and no new asm or volatile was introduced.
+
+CTYPE0's canonical mutable129-byte table is selected from its real .data,
+not the stale .rodata selector. Native _ctype_=801371D0, the three alignment
+zeros and unchanged twelve-byte gap are proved. The typed asintbl section
+resumes at80137260; the native ordered main .data run again ends8013C54C.
+All1632 seam bytes match in three isolated links. Only CTYPE's raw copy is
+split into its own oracle-only file; the remainder of r18 is preserved.
+
+FETextRender's existing88-byte data becomes source-owned at800515B8:
+textDefinitions CHAR[14][6], followed by gSemiTransText BOOL at8005160C.
+The source/object/raw payloads agree exactly and have zero data relocations.
+The inactive historical frontend fragment is not confused with actual link
+selection; this owner receives explicit output section source_data_7.
+
+There are now eight validated source-owned windows. Each source section is
+selected once at its native address, and its raw copy is kept in src but
+excluded from recon. Hud's34 storage-free aliases and every actual raw-table
+reference remain exact. Known raw/source duplicates fall912->909; REAL
+duplicates, hidden phantoms and relocation-referenced unresolveds remain zero.
+
+The broad diagnostic link is NOT final-image exact. Its .data still extends
+28348 bytes past the native ordered run (88 fewer than P882);119 allocated
+output overlap pairs remain. Public asintbl still binds to its pre-existing
+raw duplicate at8015BEB4, not the correctly placed typed section. This is
+explicit separate ownership/reference work, not solved by the CTYPE fix.
+All2381 GP relocations resolve/in-range/encode correctly;234 native targets
+are restored versus the frozen baseline, none regress, and1462 wrong-but-
+in-range targets remain open. The sbss section-type warning also remains.
+
+Final checkpoint verification completed: all three full builds without
+failed/skipped TUs; all518 live source objects reproducible byte-for-byte;
+358/358 across all12 changed base TUs with branches0; AU3/3 and USA1/1,
+AudioTrk1004 raw words, credits local-static references, both data windows,
+all eight actual owner placements, vtable/source-policy and standing relink
+checks pass. The CI-style objdiff report also generated successfully.
+
+P883's first validation attempt exposed a diagnostic lexer bug: slash-star
+inside build/src/*(.text) is a filename wildcard, not a comment. The parser
+was corrected and all remaining checks rerun. Its subsequent asintbl public-
+binding assertion exposed the genuine pre-existing neighbor debt documented
+above; the receipt now distinguishes typed placement from legacy binding.
+Neither finding was hidden by changing production instructions or by claiming
+the overall diagnostic link is clean.
+
+Current reproducible gates and consolidated receipts are in
+../p883_data_layout/README.md, verify_production.py,
+verify_checkpoint_sources.py, production_receipt.json,
+checkpoint_source_receipts.json and full_validation_receipts.json.
+Historical baseline-object comparisons are labelled as such; no old binary
+cache, generated build output or unrelated scratch work is part of the
+published source checkpoint. The full original-source/SYM/SLD goal is active.

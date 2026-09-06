@@ -1,0 +1,56 @@
+[
+  {
+    "source": "recon/frontend/common/fedialog.cpp",
+    "source_sha256": "9c7d40d27db3f3675d9fca2034f8eff866e55ded2fdfcfbb2f823f14b2dd7844",
+    "object_sha256": "c6c396dcd266d5d211506f03e71c8ee09ae2cc0f01282b4ef0bcbf9897156983",
+    "normal_pass": 32,
+    "checks": [
+      {
+        "tool": "tugate.py",
+        "stdout": "  __none__: NO ORACLE\nrecon/frontend/common/fedialog.cpp: 32/32 PASS\n",
+        "stderr": ""
+      },
+      {
+        "tool": "brdist.py",
+        "stdout": "# 32 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      }
+    ]
+  },
+  {
+    "source": "recon/frontend/common/fescreen.cpp",
+    "source_sha256": "47fe8ff2bc3d33a318bdd859b41ea31636b8ee7d18ce47d9d68c1a5dc21622ce",
+    "object_sha256": "7228f949f9999f27c5fd1395036b6cf88d71fd1307c21e8fffd279728e59f0c0",
+    "normal_pass": 27,
+    "checks": [
+      {
+        "tool": "tugate.py",
+        "stdout": "  __none__: NO ORACLE\nrecon/frontend/common/fescreen.cpp: 27/27 PASS\n",
+        "stderr": ""
+      },
+      {
+        "tool": "brdist.py",
+        "stdout": "# 27 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      }
+    ]
+  },
+  {
+    "source": "recon/frontend/common/femenuoptions.cpp",
+    "source_sha256": "ce239247308873890f5f5b916ff5126c2fa0f107a5748f5871d9f4d1a20f004a",
+    "object_sha256": "1eb642e6b40eb40eeb8c6e198d711f468fc51731a1997c822c5ed1ecd3a2cbf6",
+    "normal_pass": 92,
+    "checks": [
+      {
+        "tool": "tugate.py",
+        "stdout": "  __none__: NO ORACLE\nrecon/frontend/common/femenuoptions.cpp: 92/92 PASS\n",
+        "stderr": ""
+      },
+      {
+        "tool": "brdist.py",
+        "stdout": "# 92 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      }
+    ]
+  }
+]

@@ -1,0 +1,855 @@
+{
+  "task": "P880 extern array-view follow-up",
+  "source": "recon/frontend/common/feapp.cpp",
+  "retained": {
+    "removed_extern_array_views": [
+      "ticks_array[] __asm__(\"ticks\")",
+      "Draw_gDoVSync_arr[] asm(\"Draw_gDoVSync\")"
+    ],
+    "removed_tick_macros": [
+      "#undef ticks",
+      "#define ticks ticks_array[0]"
+    ],
+    "existing_scalar_declarations": "feapp_externs.h extern int ticks, Draw_gDoVSync",
+    "new_identifiers": 0,
+    "global_access": "::ticks distinguishes the native block-local u_long ticks without renaming it",
+    "prior_three_local_removals_preserved": true
+  },
+  "authority": {
+    "Draw_gDoVSync": {
+      "NFS4_record": "3af4b6",
+      "storage": "EXT INT",
+      "VA": "0x8013D7A8",
+      "owner": "recon/game/psx/draw.cpp"
+    },
+    "ticks": {
+      "NFS4_record": "019199",
+      "NFS4_record_kind": "top-level symbol only; no typed EXT record found",
+      "VA": "0x8013DCAC",
+      "storage_evidence": "four-byte vars.obj cell, raw gettick LW, existing vars.c int definition",
+      "type_corroboration": "NFS2 PC beta native13bb6c class EXT type INT name _ticks"
+    },
+    "local_ticks": {
+      "NFS4_record": "4b4942",
+      "storage": "REG ULONG",
+      "reg": "s0"
+    }
+  },
+  "verification": {
+    "whole_tu": "16/16 PASS",
+    "branch_divergences": 0,
+    "entire_same_path_ELF_identical": true,
+    "bytes": 19220,
+    "sha256": "aed59b1d17dd6befe6112862e1d2233441c9a484a071c86f50132db2e17ca65a",
+    "debug_twins": {
+      "MainLoop": 1123,
+      "PerformMenuInitialization": 26,
+      "PerformMenuDestruction": 42
+    },
+    "raw_additional_init_destruction_words": 68,
+    "raw_mismatches": 0,
+    "remaining_alias_occurrences_in_cpp": 0
+  },
+  "failed_currentTicks_probe": {
+    "diffs": 6,
+    "instructions": 1123,
+    "branch_differences": [
+      [
+        101,
+        -1027,
+        -1026
+      ]
+    ],
+    "disposition": "Not retained; native scalar accesses retained together with pre-existing local/read fence"
+  },
+  "cases": [
+    {
+      "name": "views_baseline",
+      "candidate": "C:\\Temp\\nfs4-decomp\\scratchpad\\p880_feapp\\views_baseline.cpp",
+      "mode": "280",
+      "compiler": "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+      "object": "C:\\Temp\\nfs4-decomp\\build\\p880\\280\\scratchpad\\p880_feapp\\views_baseline.cpp.o",
+      "tu_flags": {
+        "g_value": "0"
+      },
+      "global_G": "4",
+      "compiler_commands": [
+        [
+          "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+          "-quiet",
+          "-O2",
+          "-G0",
+          "C:\\Temp\\nfs4-decomp\\build\\p880\\280\\scratchpad\\p880_feapp\\views_baseline.cpp.i",
+          "-o",
+          "C:\\Temp\\nfs4-decomp\\build\\p880\\280\\scratchpad\\p880_feapp\\views_baseline.cpp.s"
+        ]
+      ],
+      "source_sha256": "0810e73b7d737a60ad6c70fd8e3c0d014daa1afa22f933b2f4346d50186ddcff",
+      "pass": 16,
+      "total": 16,
+      "rows": [
+        {
+          "name": "DisplayHelp__14tFEApplications",
+          "diffs": 0,
+          "ours": 9,
+          "retail": 9,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "DrawHelpIcons__14tFEApplication",
+          "diffs": 0,
+          "ours": 254,
+          "retail": 254,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FreeHelpShapeCluts__Fv",
+          "diffs": 0,
+          "ours": 31,
+          "retail": 31,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "MainLoop__14tFEApplicationP5tMenu",
+          "diffs": 0,
+          "ours": 1123,
+          "retail": 1123,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "PerformMenuDestruction__14tFEApplication",
+          "diffs": 0,
+          "ours": 42,
+          "retail": 42,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "PerformMenuInitialization__14tFEApplication",
+          "diffs": 0,
+          "ours": 26,
+          "retail": 26,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "Redraw__14tFEApplication",
+          "diffs": 0,
+          "ours": 393,
+          "retail": 393,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "RunDemoVideo__14tFEApplication",
+          "diffs": 0,
+          "ours": 164,
+          "retail": 164,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "RunFrontEnd__14tFEApplication",
+          "diffs": 0,
+          "ours": 10,
+          "retail": 10,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "RunPostGame__14tFEApplication",
+          "diffs": 0,
+          "ours": 194,
+          "retail": 194,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "SetMenu__14tFEApplicationsP5tMenu",
+          "diffs": 0,
+          "ours": 65,
+          "retail": 65,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "SetScreen__14tFEApplicationsP7tScreen",
+          "diffs": 0,
+          "ours": 20,
+          "retail": 20,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "UpdateMusic__14tFEApplication",
+          "diffs": 0,
+          "ours": 48,
+          "retail": 48,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "__14tFEApplication",
+          "diffs": 0,
+          "ours": 137,
+          "retail": 137,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "___14tFEApplication",
+          "diffs": 0,
+          "ours": 28,
+          "retail": 28,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "___31tDialogMessageStringWithTimeout",
+          "diffs": 0,
+          "ours": 8,
+          "retail": 8,
+          "branch_differences": [],
+          "first_differences": []
+        }
+      ]
+    },
+    {
+      "name": "view_vsync",
+      "candidate": "C:\\Temp\\nfs4-decomp\\scratchpad\\p880_feapp\\view_vsync.cpp",
+      "mode": "280",
+      "compiler": "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+      "object": "C:\\Temp\\nfs4-decomp\\build\\p880\\280\\scratchpad\\p880_feapp\\view_vsync.cpp.o",
+      "tu_flags": {
+        "g_value": "0"
+      },
+      "global_G": "4",
+      "compiler_commands": [
+        [
+          "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+          "-quiet",
+          "-O2",
+          "-G0",
+          "C:\\Temp\\nfs4-decomp\\build\\p880\\280\\scratchpad\\p880_feapp\\view_vsync.cpp.i",
+          "-o",
+          "C:\\Temp\\nfs4-decomp\\build\\p880\\280\\scratchpad\\p880_feapp\\view_vsync.cpp.s"
+        ]
+      ],
+      "source_sha256": "eef6e9f4e5cfa9407750769c10844e1840f3d4737c88d03fb399e46af9d7463b",
+      "pass": 16,
+      "total": 16,
+      "rows": [
+        {
+          "name": "DisplayHelp__14tFEApplications",
+          "diffs": 0,
+          "ours": 9,
+          "retail": 9,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "DrawHelpIcons__14tFEApplication",
+          "diffs": 0,
+          "ours": 254,
+          "retail": 254,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FreeHelpShapeCluts__Fv",
+          "diffs": 0,
+          "ours": 31,
+          "retail": 31,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "MainLoop__14tFEApplicationP5tMenu",
+          "diffs": 0,
+          "ours": 1123,
+          "retail": 1123,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "PerformMenuDestruction__14tFEApplication",
+          "diffs": 0,
+          "ours": 42,
+          "retail": 42,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "PerformMenuInitialization__14tFEApplication",
+          "diffs": 0,
+          "ours": 26,
+          "retail": 26,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "Redraw__14tFEApplication",
+          "diffs": 0,
+          "ours": 393,
+          "retail": 393,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "RunDemoVideo__14tFEApplication",
+          "diffs": 0,
+          "ours": 164,
+          "retail": 164,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "RunFrontEnd__14tFEApplication",
+          "diffs": 0,
+          "ours": 10,
+          "retail": 10,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "RunPostGame__14tFEApplication",
+          "diffs": 0,
+          "ours": 194,
+          "retail": 194,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "SetMenu__14tFEApplicationsP5tMenu",
+          "diffs": 0,
+          "ours": 65,
+          "retail": 65,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "SetScreen__14tFEApplicationsP7tScreen",
+          "diffs": 0,
+          "ours": 20,
+          "retail": 20,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "UpdateMusic__14tFEApplication",
+          "diffs": 0,
+          "ours": 48,
+          "retail": 48,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "__14tFEApplication",
+          "diffs": 0,
+          "ours": 137,
+          "retail": 137,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "___14tFEApplication",
+          "diffs": 0,
+          "ours": 28,
+          "retail": 28,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "___31tDialogMessageStringWithTimeout",
+          "diffs": 0,
+          "ours": 8,
+          "retail": 8,
+          "branch_differences": [],
+          "first_differences": []
+        }
+      ]
+    },
+    {
+      "name": "view_ticks",
+      "candidate": "C:\\Temp\\nfs4-decomp\\scratchpad\\p880_feapp\\view_ticks.cpp",
+      "mode": "280",
+      "compiler": "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+      "object": "C:\\Temp\\nfs4-decomp\\build\\p880\\280\\scratchpad\\p880_feapp\\view_ticks.cpp.o",
+      "tu_flags": {
+        "g_value": "0"
+      },
+      "global_G": "4",
+      "compiler_commands": [
+        [
+          "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+          "-quiet",
+          "-O2",
+          "-G0",
+          "C:\\Temp\\nfs4-decomp\\build\\p880\\280\\scratchpad\\p880_feapp\\view_ticks.cpp.i",
+          "-o",
+          "C:\\Temp\\nfs4-decomp\\build\\p880\\280\\scratchpad\\p880_feapp\\view_ticks.cpp.s"
+        ]
+      ],
+      "source_sha256": "c6617822ce01907152d628c9594ce43bfb06e23a647bc1b9b0292e56a05bc464",
+      "pass": 16,
+      "total": 16,
+      "rows": [
+        {
+          "name": "DisplayHelp__14tFEApplications",
+          "diffs": 0,
+          "ours": 9,
+          "retail": 9,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "DrawHelpIcons__14tFEApplication",
+          "diffs": 0,
+          "ours": 254,
+          "retail": 254,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FreeHelpShapeCluts__Fv",
+          "diffs": 0,
+          "ours": 31,
+          "retail": 31,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "MainLoop__14tFEApplicationP5tMenu",
+          "diffs": 0,
+          "ours": 1123,
+          "retail": 1123,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "PerformMenuDestruction__14tFEApplication",
+          "diffs": 0,
+          "ours": 42,
+          "retail": 42,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "PerformMenuInitialization__14tFEApplication",
+          "diffs": 0,
+          "ours": 26,
+          "retail": 26,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "Redraw__14tFEApplication",
+          "diffs": 0,
+          "ours": 393,
+          "retail": 393,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "RunDemoVideo__14tFEApplication",
+          "diffs": 0,
+          "ours": 164,
+          "retail": 164,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "RunFrontEnd__14tFEApplication",
+          "diffs": 0,
+          "ours": 10,
+          "retail": 10,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "RunPostGame__14tFEApplication",
+          "diffs": 0,
+          "ours": 194,
+          "retail": 194,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "SetMenu__14tFEApplicationsP5tMenu",
+          "diffs": 0,
+          "ours": 65,
+          "retail": 65,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "SetScreen__14tFEApplicationsP7tScreen",
+          "diffs": 0,
+          "ours": 20,
+          "retail": 20,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "UpdateMusic__14tFEApplication",
+          "diffs": 0,
+          "ours": 48,
+          "retail": 48,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "__14tFEApplication",
+          "diffs": 0,
+          "ours": 137,
+          "retail": 137,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "___14tFEApplication",
+          "diffs": 0,
+          "ours": 28,
+          "retail": 28,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "___31tDialogMessageStringWithTimeout",
+          "diffs": 0,
+          "ours": 8,
+          "retail": 8,
+          "branch_differences": [],
+          "first_differences": []
+        }
+      ]
+    },
+    {
+      "name": "views_combined",
+      "candidate": "C:\\Temp\\nfs4-decomp\\scratchpad\\p880_feapp\\views_combined.cpp",
+      "mode": "280",
+      "compiler": "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+      "object": "C:\\Temp\\nfs4-decomp\\build\\p880\\280\\scratchpad\\p880_feapp\\views_combined.cpp.o",
+      "tu_flags": {
+        "g_value": "0"
+      },
+      "global_G": "4",
+      "compiler_commands": [
+        [
+          "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+          "-quiet",
+          "-O2",
+          "-G0",
+          "C:\\Temp\\nfs4-decomp\\build\\p880\\280\\scratchpad\\p880_feapp\\views_combined.cpp.i",
+          "-o",
+          "C:\\Temp\\nfs4-decomp\\build\\p880\\280\\scratchpad\\p880_feapp\\views_combined.cpp.s"
+        ]
+      ],
+      "source_sha256": "46c7eb30262329eb4dd5db98b00d7d0c7e294e344f6677876ff425004f833e9a",
+      "pass": 16,
+      "total": 16,
+      "rows": [
+        {
+          "name": "DisplayHelp__14tFEApplications",
+          "diffs": 0,
+          "ours": 9,
+          "retail": 9,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "DrawHelpIcons__14tFEApplication",
+          "diffs": 0,
+          "ours": 254,
+          "retail": 254,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FreeHelpShapeCluts__Fv",
+          "diffs": 0,
+          "ours": 31,
+          "retail": 31,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "MainLoop__14tFEApplicationP5tMenu",
+          "diffs": 0,
+          "ours": 1123,
+          "retail": 1123,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "PerformMenuDestruction__14tFEApplication",
+          "diffs": 0,
+          "ours": 42,
+          "retail": 42,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "PerformMenuInitialization__14tFEApplication",
+          "diffs": 0,
+          "ours": 26,
+          "retail": 26,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "Redraw__14tFEApplication",
+          "diffs": 0,
+          "ours": 393,
+          "retail": 393,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "RunDemoVideo__14tFEApplication",
+          "diffs": 0,
+          "ours": 164,
+          "retail": 164,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "RunFrontEnd__14tFEApplication",
+          "diffs": 0,
+          "ours": 10,
+          "retail": 10,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "RunPostGame__14tFEApplication",
+          "diffs": 0,
+          "ours": 194,
+          "retail": 194,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "SetMenu__14tFEApplicationsP5tMenu",
+          "diffs": 0,
+          "ours": 65,
+          "retail": 65,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "SetScreen__14tFEApplicationsP7tScreen",
+          "diffs": 0,
+          "ours": 20,
+          "retail": 20,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "UpdateMusic__14tFEApplication",
+          "diffs": 0,
+          "ours": 48,
+          "retail": 48,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "__14tFEApplication",
+          "diffs": 0,
+          "ours": 137,
+          "retail": 137,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "___14tFEApplication",
+          "diffs": 0,
+          "ours": 28,
+          "retail": 28,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "___31tDialogMessageStringWithTimeout",
+          "diffs": 0,
+          "ours": 8,
+          "retail": 8,
+          "branch_differences": [],
+          "first_differences": []
+        }
+      ]
+    },
+    {
+      "name": "views_no_currentTicks",
+      "candidate": "C:\\Temp\\nfs4-decomp\\scratchpad\\p880_feapp\\views_no_currentTicks.cpp",
+      "mode": "280",
+      "compiler": "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+      "object": "C:\\Temp\\nfs4-decomp\\build\\p880\\280\\scratchpad\\p880_feapp\\views_no_currentTicks.cpp.o",
+      "tu_flags": {
+        "g_value": "0"
+      },
+      "global_G": "4",
+      "compiler_commands": [
+        [
+          "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+          "-quiet",
+          "-O2",
+          "-G0",
+          "C:\\Temp\\nfs4-decomp\\build\\p880\\280\\scratchpad\\p880_feapp\\views_no_currentTicks.cpp.i",
+          "-o",
+          "C:\\Temp\\nfs4-decomp\\build\\p880\\280\\scratchpad\\p880_feapp\\views_no_currentTicks.cpp.s"
+        ]
+      ],
+      "source_sha256": "d1a7ee5a75c3e6235e0656f86e7317c10607623aa7b08fca780556eb816fd8b6",
+      "pass": 15,
+      "total": 16,
+      "rows": [
+        {
+          "name": "DisplayHelp__14tFEApplications",
+          "diffs": 0,
+          "ours": 9,
+          "retail": 9,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "DrawHelpIcons__14tFEApplication",
+          "diffs": 0,
+          "ours": 254,
+          "retail": 254,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "FreeHelpShapeCluts__Fv",
+          "diffs": 0,
+          "ours": 31,
+          "retail": 31,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "MainLoop__14tFEApplicationP5tMenu",
+          "diffs": 6,
+          "ours": 1123,
+          "retail": 1123,
+          "branch_differences": [
+            [
+              101,
+              -1027,
+              -1026
+            ]
+          ],
+          "first_differences": [
+            "-lw t0,0(t0)",
+            "-j T",
+            "-sw t0,356(sp)",
+            "+lw v0,0(t0)",
+            "+j T",
+            "+sw v0,356(sp)"
+          ]
+        },
+        {
+          "name": "PerformMenuDestruction__14tFEApplication",
+          "diffs": 0,
+          "ours": 42,
+          "retail": 42,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "PerformMenuInitialization__14tFEApplication",
+          "diffs": 0,
+          "ours": 26,
+          "retail": 26,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "Redraw__14tFEApplication",
+          "diffs": 0,
+          "ours": 393,
+          "retail": 393,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "RunDemoVideo__14tFEApplication",
+          "diffs": 0,
+          "ours": 164,
+          "retail": 164,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "RunFrontEnd__14tFEApplication",
+          "diffs": 0,
+          "ours": 10,
+          "retail": 10,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "RunPostGame__14tFEApplication",
+          "diffs": 0,
+          "ours": 194,
+          "retail": 194,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "SetMenu__14tFEApplicationsP5tMenu",
+          "diffs": 0,
+          "ours": 65,
+          "retail": 65,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "SetScreen__14tFEApplicationsP7tScreen",
+          "diffs": 0,
+          "ours": 20,
+          "retail": 20,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "UpdateMusic__14tFEApplication",
+          "diffs": 0,
+          "ours": 48,
+          "retail": 48,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "__14tFEApplication",
+          "diffs": 0,
+          "ours": 137,
+          "retail": 137,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "___14tFEApplication",
+          "diffs": 0,
+          "ours": 28,
+          "retail": 28,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "___31tDialogMessageStringWithTimeout",
+          "diffs": 0,
+          "ours": 8,
+          "retail": 8,
+          "branch_differences": [],
+          "first_differences": []
+        }
+      ]
+    }
+  ]
+}

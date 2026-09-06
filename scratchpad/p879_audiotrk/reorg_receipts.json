@@ -1,0 +1,151 @@
+{
+  "status": "Verified one-line precompiler source candidate; parent to land",
+  "production_modified": false,
+  "candidate": "rangecheck.cpp",
+  "patch": "candidate.patch",
+  "change": {
+    "before": "(u_int)((u_char)se->type - 4) < 0x20",
+    "after": "((u_char)se->type >= 4) && ((u_char)se->type < 36)"
+  },
+  "native": {
+    "field_record": "1b6d5b",
+    "field_type": "CHAR",
+    "field_offset": 20,
+    "source_line": 279,
+    "azimuth_arm_source_line": 272,
+    "wording_caveat": "SYM proves native field type and statement grouping, not exact original spelling of the range condition."
+  },
+  "candidate_gate": {
+    "candidate": "C:\\Temp\\nfs4-decomp\\scratchpad\\p879_audiotrk\\rangecheck.cpp",
+    "mode": "280",
+    "compiler": "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+    "object": "C:\\Temp\\nfs4-decomp\\build\\p879\\280\\scratchpad\\p879_audiotrk\\rangecheck.cpp.o",
+    "tu_flags": {
+      "g_value": "4"
+    },
+    "global_G": "4",
+    "compiler_commands": [
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\build\\p879\\280\\scratchpad\\p879_audiotrk\\rangecheck.cpp.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\build\\p879\\280\\scratchpad\\p879_audiotrk\\rangecheck.cpp.s"
+      ]
+    ],
+    "source_sha256": "22255c810be9ae7bfe4ce0417ac1baa18ad464410940cc1a9a7ed0efd75619c7",
+    "pass": 6,
+    "total": 6,
+    "rows": [
+      {
+        "name": "AudioTrk_AddCustomObject__FP9AudioElemiP8coorddefiP8Car_tObji",
+        "diffs": 0,
+        "ours": 413,
+        "retail": 413,
+        "branch_differences": [],
+        "first_differences": []
+      },
+      {
+        "name": "AudioTrk_CleanUp__Fv",
+        "diffs": 0,
+        "ours": 38,
+        "retail": 38,
+        "branch_differences": [],
+        "first_differences": []
+      },
+      {
+        "name": "AudioTrk_PreLoad__Fv",
+        "diffs": 0,
+        "ours": 116,
+        "retail": 116,
+        "branch_differences": [],
+        "first_differences": []
+      },
+      {
+        "name": "AudioTrk_Reset__Fv",
+        "diffs": 0,
+        "ours": 56,
+        "retail": 56,
+        "branch_differences": [],
+        "first_differences": []
+      },
+      {
+        "name": "AudioTrk_SoundTrack__FP8Car_tObji",
+        "diffs": 0,
+        "ours": 358,
+        "retail": 358,
+        "branch_differences": [],
+        "first_differences": []
+      },
+      {
+        "name": "AudioTrk_StartUp__Fv",
+        "diffs": 0,
+        "ours": 23,
+        "retail": 23,
+        "branch_differences": [],
+        "first_differences": []
+      }
+    ]
+  },
+  "stock_rtl": {
+    "before_reorg_dump": "build/p879/rtl_stock.jump2",
+    "after_reorg_dump": "build/p879/rtl_stock.dbr",
+    "prior_load_uid": 813,
+    "prior_load": "SET reg:SI 3 = ZERO_EXTEND:SI(mem/s:QI(s4+20))",
+    "reload_uid": 867,
+    "reload": "SET reg:SI 3 = ZERO_EXTEND:SI(mem/s:QI(s4+20))",
+    "jump_uid": 826,
+    "pre_target_uid": 864,
+    "post_target_uid": 1317,
+    "post_target_position": "after reload UID867",
+    "candidate_dump": "build/p879/rtl_rangecheck.jump2",
+    "candidate_reload_uid": 868,
+    "candidate_reload": "SET reg:QI 3 = mem/s:QI(s4+20)",
+    "candidate_insn_pattern": "movqi_internal2",
+    "candidate_post_target_uid": 864
+  },
+  "instrumented_gdb": {
+    "binary": "C:/Temp/nfs4-instr-cc1/cc1plus-ecoff.exe",
+    "flags": "-O2 -G4 -funsigned-char",
+    "authority": "Diagnostic only, not byte oracle",
+    "baseline_redundant_query": {
+      "trial": 867,
+      "target_sequence": 1254,
+      "returned_prior": 813
+    },
+    "baseline_redirect": {
+      "jump": 826,
+      "new_label": 1308
+    },
+    "candidate_redundant_query": {
+      "trial": 868,
+      "target_sequence": 1256,
+      "returned_prior": 0
+    },
+    "candidate_redirect_seen": false,
+    "source_location": "GCC2.8.1 reorg.c relax_delay_slots, redundant target-insn path at4122-4143; inlined into dbr_schedule in instrumented build"
+  },
+  "verified": {
+    "normalized_tu_pass": "6/6",
+    "target_instructions": 413,
+    "branch_divergences": 0,
+    "exact_debug_twin": true,
+    "fully_linked_text_words": 1004,
+    "fully_linked_word_mismatches": 0,
+    "rodata_bytes_exact": 13,
+    "sdata_bytes_exact": 4,
+    "rel_text_bytes_unchanged": 896,
+    "rel_pdr_bytes_unchanged": 48,
+    "pdr_bytes_unchanged": 192,
+    "reginfo_bytes_unchanged": 24,
+    "abiflags_bytes_unchanged": 24,
+    "only_text_change": {
+      "object_offset": "0x5A8",
+      "old_word": "0x08000178",
+      "new_word": "0x08000177",
+      "retail_va": "0x8007CBBC"
+    }
+  }
+}

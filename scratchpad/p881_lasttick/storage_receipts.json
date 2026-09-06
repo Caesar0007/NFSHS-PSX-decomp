@@ -1,0 +1,37 @@
+{
+  "data_windows": [
+    {
+      "lane": "src",
+      "bytes": 2204,
+      "raw_equal": true,
+      "owner_symbols": {
+        "CREDFADETICKS": 2147818144,
+        "D_80051AA4": 2147818148
+      }
+    },
+    {
+      "lane": "recon",
+      "bytes": 2204,
+      "raw_equal": true,
+      "owner_symbols": {
+        "lasttick.18": 2147818148,
+        "CREDFADETICKS": 2147818144
+      }
+    }
+  ],
+  "stale_owner_rejected": true,
+  "canonical_owner_address": "0x80051aa0",
+  "canonical_raw_copy_absent": true,
+  "canonical_reference_words_raw_exact": [
+    "0x80035d6c",
+    "0x80035d74",
+    "0x80035e0c",
+    "0x80035e10"
+  ],
+  "final_executable_claim": false,
+  "existing_full_graph_diagnostics": {
+    "undefined": 0,
+    "truncated": 10
+  },
+  "source_sha256": "532b4daa4961a45da373f90f7c0c0b44e347d00e87280a8d28cbb4cc6ee89920"
+}

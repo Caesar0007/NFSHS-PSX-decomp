@@ -1,0 +1,357 @@
+{
+  "production_gates": [
+    {
+      "source": "regiondiff/recon/NFS4-R-AU/game/common/nfs3.cpp",
+      "stage": "after_regional_repair",
+      "source_sha256": "e175c7b36a44c0ef8682327c591d20ffeb34e22b736b192b931a8c89162d805a",
+      "regional_targets": [
+        "NFS4_LoadPerps__Fv",
+        "main",
+        "NFS4_LoadingIcon__Fv"
+      ],
+      "gate": "  NFS4_LoadPerps__Fv: FAIL 12 diffs (ours 168 / oracle 172) [NFS4-R-AU]\n      - addiu v1,v0,0\n      + addiu a0,v0,17616\n      - lw v0,428(v1)\n      + lw v0,428(a0)\n      - lw v1,12(v1)\n      + lw v1,12(a0)\n      + lw v0,24(a0)\n      + nop\n      + bgtz v0,T\n      + lui v0,32773\n      + lui v0,32773\n      - lui v0,0\n  main: REGION-PASS (237 insns) [NFS4-R-AU]\n  NFS4_LoadingIcon__Fv: REGION-PASS (73 insns) [NFS4-R-AU]\n",
+      "gate_exit": 1,
+      "lane_as": "recon/game/common/nfs3.cpp",
+      "object_snapshot": {
+        "file": "C:\\Temp\\nfs4-decomp\\scratchpad\\p879_copspeak\\after_regional_repair\\regiondiff__recon__NFS4-R-AU__game__common__nfs3.cpp.o",
+        "sha256": "f3acaa43f7da82b6162e38bf3a2c412e5ea0d0735cbb1840e75fef0098d3d8c0",
+        "semantic_sha256": "58f72aa15e78d2cf03d35215c6f1ed4fad797d010ee746ca1249021488bdad9f",
+        "CURRENTPLAYER": [],
+        "sections": [
+          [
+            ".text",
+            1,
+            6,
+            0,
+            3320,
+            4,
+            "e23415d9b2b730027d728fe44a41d9354f8014a7183f80be96b3ca154065b6c7"
+          ],
+          [
+            ".data",
+            1,
+            3,
+            0,
+            6666,
+            4,
+            "60dafb03b1448d0801f6846d674647c48f232f9b666f59a30157525e0a33c908"
+          ],
+          [
+            ".bss",
+            8,
+            3,
+            0,
+            0,
+            1,
+            "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          ],
+          [
+            ".reginfo",
+            1879048198,
+            0,
+            0,
+            24,
+            4,
+            "6405d26732e7440596ad1215d5112fd1f025c6126c2ba9e3b717e27527bca417"
+          ],
+          [
+            ".MIPS.abiflags",
+            1879048234,
+            2,
+            0,
+            24,
+            8,
+            "9e70292a32ba11ef2132089aab266b191f38da634e80b1c34087db93153bd643"
+          ],
+          [
+            ".pdr",
+            1,
+            0,
+            0,
+            352,
+            4,
+            "a206dabdd6a4efe44b0b9b577a81606216c2f497609147b781f532d2b48c28a0"
+          ],
+          [
+            ".sdata",
+            1,
+            268435459,
+            0,
+            88,
+            4,
+            "2d87c1156c33b9e238babab757c4501968dbe30f9d5b9a645429665ea21c068a"
+          ],
+          [
+            ".rodata",
+            1,
+            2,
+            0,
+            71,
+            4,
+            "4575afc7bd400940eb79f44cc33130d5f3fb18d66e697e4d39cad1cf4cfad6fb"
+          ],
+          [
+            ".gnu.attributes",
+            1879048181,
+            0,
+            0,
+            16,
+            1,
+            "216973f3f0fc143f32165e8cd6114664ee49b39e03ccb13ea3a576fbe3a5f43b"
+          ]
+        ]
+      },
+      "known_unchanged_nonstartup_failure": [
+        [
+          "NFS4_LoadPerps__Fv",
+          "12 diffs (ours 168 / oracle 172) [NFS4-R-AU]"
+        ]
+      ]
+    },
+    {
+      "source": "regiondiff/recon/NFS4-R-USA/game/common/nfs3.cpp",
+      "stage": "after_regional_repair",
+      "source_sha256": "ff2d5d55f1b26d36c080ebf72317b52cb779e11e12fc4a7a05484f23eabf47e2",
+      "regional_targets": [
+        "NFS4_LoadPerps__Fv"
+      ],
+      "gate": "  NFS4_LoadPerps__Fv: REGION-PASS (172 insns) [NFS4-R-USA]\n",
+      "gate_exit": 0,
+      "lane_as": "recon/game/common/nfs3.cpp",
+      "object_snapshot": {
+        "file": "C:\\Temp\\nfs4-decomp\\scratchpad\\p879_copspeak\\after_regional_repair\\regiondiff__recon__NFS4-R-USA__game__common__nfs3.cpp.o",
+        "sha256": "ec9a7c7d9df79262ab69435d292d7879497c604512e9c29d6ada333b1872437d",
+        "semantic_sha256": "63d7e3b6d5a6f3415f6f5b395aa5e67fb26fa9b066c1ad39e1c274254566ae8a",
+        "CURRENTPLAYER": [],
+        "sections": [
+          [
+            ".text",
+            1,
+            6,
+            0,
+            3336,
+            4,
+            "5ff32c440ce6efdfc94a1f9b9593a1adb8f801fdad9c4ca8c07caaee599a17fd"
+          ],
+          [
+            ".data",
+            1,
+            3,
+            0,
+            6666,
+            4,
+            "60dafb03b1448d0801f6846d674647c48f232f9b666f59a30157525e0a33c908"
+          ],
+          [
+            ".bss",
+            8,
+            3,
+            0,
+            0,
+            1,
+            "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          ],
+          [
+            ".reginfo",
+            1879048198,
+            0,
+            0,
+            24,
+            4,
+            "6405d26732e7440596ad1215d5112fd1f025c6126c2ba9e3b717e27527bca417"
+          ],
+          [
+            ".MIPS.abiflags",
+            1879048234,
+            2,
+            0,
+            24,
+            8,
+            "9e70292a32ba11ef2132089aab266b191f38da634e80b1c34087db93153bd643"
+          ],
+          [
+            ".pdr",
+            1,
+            0,
+            0,
+            352,
+            4,
+            "a206dabdd6a4efe44b0b9b577a81606216c2f497609147b781f532d2b48c28a0"
+          ],
+          [
+            ".sdata",
+            1,
+            268435459,
+            0,
+            88,
+            4,
+            "2d87c1156c33b9e238babab757c4501968dbe30f9d5b9a645429665ea21c068a"
+          ],
+          [
+            ".rodata",
+            1,
+            2,
+            0,
+            71,
+            4,
+            "4575afc7bd400940eb79f44cc33130d5f3fb18d66e697e4d39cad1cf4cfad6fb"
+          ],
+          [
+            ".gnu.attributes",
+            1879048181,
+            0,
+            0,
+            16,
+            1,
+            "216973f3f0fc143f32165e8cd6114664ee49b39e03ccb13ea3a576fbe3a5f43b"
+          ]
+        ]
+      }
+    }
+  ],
+  "raw_startups": [
+    {
+      "region": "AU",
+      "startup_va": "0x800a4954",
+      "words_checked": 25,
+      "object": "C:\\Temp\\nfs4-decomp\\scratchpad\\p879_copspeak\\after_regional_repair\\regiondiff__recon__NFS4-R-AU__game__common__nfs3.cpp.o",
+      "object_sha256": "f3acaa43f7da82b6162e38bf3a2c412e5ea0d0735cbb1840e75fef0098d3d8c0",
+      "nonrelocated_words_exact": 15,
+      "all_relocated_opcode_register_and_target_fields_exact": true,
+      "sites": [
+        {
+          "offset": "0x8",
+          "kind": 4,
+          "symbol": "Platform_SysStartUp__Fv",
+          "target": "0x800dcfa0"
+        },
+        {
+          "offset": "0x10",
+          "kind": 4,
+          "symbol": "Loading_GetInitialMemory__Fv",
+          "target": "0x800dbf10"
+        },
+        {
+          "offset": "0x18",
+          "kind": 5,
+          "symbol": "_6Speech_fgUndefined",
+          "target": "0x8013e0a8"
+        },
+        {
+          "offset": "0x1c",
+          "kind": 6,
+          "symbol": "_6Speech_fgUndefined",
+          "target": "0x8013e0a8"
+        },
+        {
+          "offset": "0x2c",
+          "kind": 4,
+          "symbol": "__builtin_new",
+          "target": "0x800a48c4"
+        },
+        {
+          "offset": "0x34",
+          "kind": 5,
+          "symbol": "_vt_Q26Speech7Speaker",
+          "target": "0x80056574"
+        },
+        {
+          "offset": "0x38",
+          "kind": 6,
+          "symbol": "_vt_Q26Speech7Speaker",
+          "target": "0x80056574"
+        },
+        {
+          "offset": "0x44",
+          "kind": 5,
+          "symbol": "_6Speech_fgUndefined",
+          "target": "0x8013e0a8"
+        },
+        {
+          "offset": "0x48",
+          "kind": 6,
+          "symbol": "_6Speech_fgUndefined",
+          "target": "0x8013e0a8"
+        },
+        {
+          "offset": "0x4c",
+          "kind": 4,
+          "symbol": "Render_InitLibRender__Fv",
+          "target": "0x800b455c"
+        }
+      ]
+    },
+    {
+      "region": "USA",
+      "startup_va": "0x800a4950",
+      "words_checked": 25,
+      "object": "C:\\Temp\\nfs4-decomp\\scratchpad\\p879_copspeak\\after_regional_repair\\regiondiff__recon__NFS4-R-USA__game__common__nfs3.cpp.o",
+      "object_sha256": "ec9a7c7d9df79262ab69435d292d7879497c604512e9c29d6ada333b1872437d",
+      "nonrelocated_words_exact": 15,
+      "all_relocated_opcode_register_and_target_fields_exact": true,
+      "sites": [
+        {
+          "offset": "0x8",
+          "kind": 4,
+          "symbol": "Platform_SysStartUp__Fv",
+          "target": "0x800dcf74"
+        },
+        {
+          "offset": "0x10",
+          "kind": 4,
+          "symbol": "Loading_GetInitialMemory__Fv",
+          "target": "0x800dbee4"
+        },
+        {
+          "offset": "0x18",
+          "kind": 5,
+          "symbol": "_6Speech_fgUndefined",
+          "target": "0x8013e07c"
+        },
+        {
+          "offset": "0x1c",
+          "kind": 6,
+          "symbol": "_6Speech_fgUndefined",
+          "target": "0x8013e07c"
+        },
+        {
+          "offset": "0x2c",
+          "kind": 4,
+          "symbol": "__builtin_new",
+          "target": "0x800a48c0"
+        },
+        {
+          "offset": "0x34",
+          "kind": 5,
+          "symbol": "_vt_Q26Speech7Speaker",
+          "target": "0x80056574"
+        },
+        {
+          "offset": "0x38",
+          "kind": 6,
+          "symbol": "_vt_Q26Speech7Speaker",
+          "target": "0x80056574"
+        },
+        {
+          "offset": "0x44",
+          "kind": 5,
+          "symbol": "_6Speech_fgUndefined",
+          "target": "0x8013e07c"
+        },
+        {
+          "offset": "0x48",
+          "kind": 6,
+          "symbol": "_6Speech_fgUndefined",
+          "target": "0x8013e07c"
+        },
+        {
+          "offset": "0x4c",
+          "kind": 4,
+          "symbol": "Render_InitLibRender__Fv",
+          "target": "0x800b4558"
+        }
+      ]
+    }
+  ],
+  "qualification": "AU LoadPerps remains the separately documented pre-existing 168/172 mismatch; missing USA oracles are not claimed as PASS."
+}

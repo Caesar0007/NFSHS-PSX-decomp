@@ -1,0 +1,625 @@
+{
+  "map_path": "C:\\Temp\\nfs4-decomp\\build\\gen_ld\\recon_multdef-ok.map",
+  "map_sha256": "095d645cc379a74090aece2ed1300cbcb2e98b7df8c682ade6b4910640d9677f",
+  "native_data_size": 194680,
+  "actual_data_size": 223116,
+  "overflow_bytes": 28436,
+  "ordered_end": 2148779208,
+  "ordered_shortfall": 132,
+  "extras": [
+    {
+      "address": 2148779208,
+      "size": 512,
+      "object": "build/recon/eaclib/psx/sndpsxz/sclcptch.c.o",
+      "group": "eaclib"
+    },
+    {
+      "address": 2148779720,
+      "size": 660,
+      "object": "build/recon/eaclib/psx/sndpsxz/sdfx.c.o",
+      "group": "eaclib"
+    },
+    {
+      "address": 2148780380,
+      "size": 4,
+      "object": "build/recon/eaclib/psx/spchpsxz/spchinit.c.o",
+      "group": "eaclib"
+    },
+    {
+      "address": 2148780384,
+      "size": 8,
+      "object": "build/recon/frontend/common/feapp.cpp.o",
+      "group": "frontend"
+    },
+    {
+      "address": 2148780392,
+      "size": 116,
+      "object": "build/recon/frontend/common/feaudio.cpp.o",
+      "group": "frontend"
+    },
+    {
+      "address": 2148780508,
+      "size": 104,
+      "object": "build/recon/frontend/common/fecars.cpp.o",
+      "group": "frontend"
+    },
+    {
+      "address": 2148780612,
+      "size": 156,
+      "object": "build/recon/frontend/common/fecheats.cpp.o",
+      "group": "frontend"
+    },
+    {
+      "address": 2148780768,
+      "size": 112,
+      "object": "build/recon/frontend/common/fecolor.cpp.o",
+      "group": "frontend"
+    },
+    {
+      "address": 2148780880,
+      "size": 132,
+      "object": "build/recon/frontend/common/feinput.cpp.o",
+      "group": "frontend"
+    },
+    {
+      "address": 2148781012,
+      "size": 56,
+      "object": "build/recon/frontend/common/fememcard.cpp.o",
+      "group": "frontend"
+    },
+    {
+      "address": 2148781068,
+      "size": 4,
+      "object": "build/recon/frontend/common/femenu.cpp.o",
+      "group": "frontend"
+    },
+    {
+      "address": 2148781072,
+      "size": 236,
+      "object": "build/recon/frontend/common/femenudefs.cpp.o",
+      "group": "frontend"
+    },
+    {
+      "address": 2148781308,
+      "size": 8,
+      "object": "build/recon/frontend/common/femenuoptions.cpp.o",
+      "group": "frontend"
+    },
+    {
+      "address": 2148781316,
+      "size": 4,
+      "object": "build/recon/frontend/common/fescreen.cpp.o",
+      "group": "frontend"
+    },
+    {
+      "address": 2148781320,
+      "size": 88,
+      "object": "build/recon/frontend/common/fetextrender.cpp.o",
+      "group": "frontend"
+    },
+    {
+      "address": 2148781408,
+      "size": 18,
+      "object": "build/recon/frontend/common/fetools.cpp.o",
+      "group": "frontend"
+    },
+    {
+      "address": 2148781428,
+      "size": 20,
+      "object": "build/recon/frontend/common/fetracks.cpp.o",
+      "group": "frontend"
+    },
+    {
+      "address": 2148781448,
+      "size": 387,
+      "object": "build/recon/frontend/common/front.cpp.o",
+      "group": "frontend"
+    },
+    {
+      "address": 2148781836,
+      "size": 4,
+      "object": "build/recon/frontend/common/screenaudio.cpp.o",
+      "group": "frontend"
+    },
+    {
+      "address": 2148781840,
+      "size": 476,
+      "object": "build/recon/frontend/common/screencarselect.cpp.o",
+      "group": "frontend"
+    },
+    {
+      "address": 2148782316,
+      "size": 48,
+      "object": "build/recon/frontend/common/screencongrats.cpp.o",
+      "group": "frontend"
+    },
+    {
+      "address": 2148782364,
+      "size": 2040,
+      "object": "build/recon/frontend/common/screencontroller.cpp.o",
+      "group": "frontend"
+    },
+    {
+      "address": 2148784404,
+      "size": 4,
+      "object": "build/recon/frontend/common/screendisplay.cpp.o",
+      "group": "frontend"
+    },
+    {
+      "address": 2148784408,
+      "size": 948,
+      "object": "build/recon/frontend/common/screenmain.cpp.o",
+      "group": "frontend"
+    },
+    {
+      "address": 2148785356,
+      "size": 76,
+      "object": "build/recon/frontend/common/screenmemcard.cpp.o",
+      "group": "frontend"
+    },
+    {
+      "address": 2148785432,
+      "size": 8,
+      "object": "build/recon/frontend/common/screenpinkslips.cpp.o",
+      "group": "frontend"
+    },
+    {
+      "address": 2148785440,
+      "size": 12,
+      "object": "build/recon/frontend/common/screenpost.cpp.o",
+      "group": "frontend"
+    },
+    {
+      "address": 2148785452,
+      "size": 8,
+      "object": "build/recon/frontend/common/screentournselect.cpp.o",
+      "group": "frontend"
+    },
+    {
+      "address": 2148785460,
+      "size": 24,
+      "object": "build/recon/frontend/common/screentrackinfo.cpp.o",
+      "group": "frontend"
+    },
+    {
+      "address": 2148785484,
+      "size": 4,
+      "object": "build/recon/frontend/common/screentrackrecords.cpp.o",
+      "group": "frontend"
+    },
+    {
+      "address": 2148785488,
+      "size": 24,
+      "object": "build/recon/frontend/common/screentracks.cpp.o",
+      "group": "frontend"
+    },
+    {
+      "address": 2148785512,
+      "size": 36,
+      "object": "build/recon/frontend/common/screentrophyinfo.cpp.o",
+      "group": "frontend"
+    },
+    {
+      "address": 2148785548,
+      "size": 20,
+      "object": "build/recon/frontend/common/screentrophyroom.cpp.o",
+      "group": "frontend"
+    },
+    {
+      "address": 2148785568,
+      "size": 28,
+      "object": "build/recon/frontend/common/screenusername.cpp.o",
+      "group": "frontend"
+    },
+    {
+      "address": 2148785596,
+      "size": 36,
+      "object": "build/recon/frontend/common/statchk.cpp.o",
+      "group": "frontend"
+    },
+    {
+      "address": 2148785632,
+      "size": 14,
+      "object": "build/recon/frontend/common/stattool.cpp.o",
+      "group": "frontend"
+    },
+    {
+      "address": 2148785648,
+      "size": 176,
+      "object": "build/recon/frontend/psx/memcard.c.o",
+      "group": "frontend"
+    },
+    {
+      "address": 2148785824,
+      "size": 100,
+      "object": "build/recon/game/common/ai.cpp.o",
+      "group": "game_other"
+    },
+    {
+      "address": 2148785924,
+      "size": 12,
+      "object": "build/recon/game/common/aih_play.cpp.o",
+      "group": "game_other"
+    },
+    {
+      "address": 2148785936,
+      "size": 92,
+      "object": "build/recon/game/common/aihigh.cpp.o",
+      "group": "game_other"
+    },
+    {
+      "address": 2148786028,
+      "size": 308,
+      "object": "build/recon/game/common/aispeeds.cpp.o",
+      "group": "game_other"
+    },
+    {
+      "address": 2148786336,
+      "size": 2416,
+      "object": "build/recon/game/common/audiocmn.cpp.o",
+      "group": "game_other"
+    },
+    {
+      "address": 2148788752,
+      "size": 1404,
+      "object": "build/recon/game/common/camera.cpp.o",
+      "group": "game_other"
+    },
+    {
+      "address": 2148790156,
+      "size": 64,
+      "object": "build/recon/game/common/collide.cpp.o",
+      "group": "game_other"
+    },
+    {
+      "address": 2148790220,
+      "size": 1304,
+      "object": "build/recon/game/common/genericpmx.cpp.o",
+      "group": "game_other"
+    },
+    {
+      "address": 2148791524,
+      "size": 544,
+      "object": "build/recon/game/common/newton.cpp.o",
+      "group": "game_other"
+    },
+    {
+      "address": 2148792068,
+      "size": 140,
+      "object": "build/recon/game/common/render.cpp.o",
+      "group": "game_other"
+    },
+    {
+      "address": 2148792208,
+      "size": 1120,
+      "object": "build/recon/game/common/speech.cpp.o",
+      "group": "game_other"
+    },
+    {
+      "address": 2148793328,
+      "size": 152,
+      "object": "build/recon/game/common/vtables_aidatarecord.cpp.o",
+      "group": "vtable_sources"
+    },
+    {
+      "address": 2148793480,
+      "size": 336,
+      "object": "build/recon/game/common/vtables_aihigh.cpp.o",
+      "group": "vtable_sources"
+    },
+    {
+      "address": 2148793816,
+      "size": 384,
+      "object": "build/recon/game/common/vtables_aistate.cpp.o",
+      "group": "vtable_sources"
+    },
+    {
+      "address": 2148794200,
+      "size": 120,
+      "object": "build/recon/game/common/vtables_object.cpp.o",
+      "group": "vtable_sources"
+    },
+    {
+      "address": 2148794320,
+      "size": 960,
+      "object": "build/recon/game/common/vtables_tdialog.cpp.o",
+      "group": "vtable_sources"
+    },
+    {
+      "address": 2148795280,
+      "size": 480,
+      "object": "build/recon/game/common/vtables_tlist.cpp.o",
+      "group": "vtable_sources"
+    },
+    {
+      "address": 2148795760,
+      "size": 2520,
+      "object": "build/recon/game/common/vtables_tmenu.cpp.o",
+      "group": "vtable_sources"
+    },
+    {
+      "address": 2148798280,
+      "size": 1048,
+      "object": "build/recon/game/common/vtables_tpausemenu.cpp.o",
+      "group": "vtable_sources"
+    },
+    {
+      "address": 2148799328,
+      "size": 1720,
+      "object": "build/recon/game/common/vtables_tscreen.cpp.o",
+      "group": "vtable_sources"
+    },
+    {
+      "address": 2148801048,
+      "size": 712,
+      "object": "build/recon/game/common/vtables_tscreen2.cpp.o",
+      "group": "vtable_sources"
+    },
+    {
+      "address": 2148801760,
+      "size": 1792,
+      "object": "build/recon/game/psx/draww.cpp.o",
+      "group": "game_other"
+    },
+    {
+      "address": 2148803552,
+      "size": 1580,
+      "object": "build/recon/game/psx/hrzsku.cpp.o",
+      "group": "game_other"
+    },
+    {
+      "address": 2148805132,
+      "size": 668,
+      "object": "build/recon/game/psx/hud.cpp.o",
+      "group": "game_other"
+    },
+    {
+      "address": 2148805800,
+      "size": 228,
+      "object": "build/recon/game/psx/night.cpp.o",
+      "group": "game_other"
+    },
+    {
+      "address": 2148806028,
+      "size": 24,
+      "object": "build/recon/syslib/psx/libapi/COUNTER_data.c.o",
+      "group": "syslib"
+    },
+    {
+      "address": 2148806052,
+      "size": 129,
+      "object": "build/recon/syslib/psx/libc/CTYPE0.c.o",
+      "group": "syslib"
+    },
+    {
+      "address": 2148806184,
+      "size": 8,
+      "object": "build/recon/syslib/psx/libcd/C_003.c.o",
+      "group": "syslib"
+    },
+    {
+      "address": 2148806192,
+      "size": 128,
+      "object": "build/recon/syslib/psx/libcd/cdcont.c.o",
+      "group": "syslib"
+    },
+    {
+      "address": 2148806320,
+      "size": 800,
+      "object": "build/recon/syslib/psx/libcd/drv.c.o",
+      "group": "syslib"
+    },
+    {
+      "address": 2148807120,
+      "size": 36,
+      "object": "build/recon/syslib/psx/libcd/stcdint.c.o",
+      "group": "syslib"
+    },
+    {
+      "address": 2148807156,
+      "size": 408,
+      "object": "build/recon/syslib/psx/libgpu/SYS.c.o",
+      "group": "syslib"
+    },
+    {
+      "address": 2148807564,
+      "size": 64,
+      "object": "build/recon/syslib/psx/libmcrd/BIOS.c.o",
+      "group": "syslib"
+    },
+    {
+      "address": 2148807628,
+      "size": 4,
+      "object": "build/recon/syslib/psx/libmcrd/USERFUNC.c.o",
+      "group": "syslib"
+    },
+    {
+      "address": 2148807632,
+      "size": 32,
+      "object": "build/recon/syslib/psx/libpad/PADIF.c.o",
+      "group": "syslib"
+    },
+    {
+      "address": 2148807664,
+      "size": 108,
+      "object": "build/recon/syslib/psx/libpad/PADMAIN.c.o",
+      "group": "syslib"
+    },
+    {
+      "address": 2148807772,
+      "size": 4,
+      "object": "build/recon/syslib/psx/libpress/VLC.c.o",
+      "group": "syslib"
+    }
+  ],
+  "groups": {
+    "eaclib": {
+      "count": 3,
+      "bytes": 1176
+    },
+    "frontend": {
+      "count": 34,
+      "bytes": 5435
+    },
+    "game_other": {
+      "count": 15,
+      "bytes": 11772
+    },
+    "vtable_sources": {
+      "count": 10,
+      "bytes": 8432
+    },
+    "syslib": {
+      "count": 12,
+      "bytes": 1745
+    }
+  },
+  "extra_payload_bytes": 28560,
+  "extra_span_bytes": 28568,
+  "legacy_orphan_sections": [
+    {
+      "section": ".data.r09_gmesetup_names_legacy",
+      "address": 2148807776,
+      "size": 424
+    },
+    {
+      "section": ".data.r13_replay_legacy",
+      "address": 2148808200,
+      "size": 28628
+    },
+    {
+      "section": ".data.r13_schedule_legacy",
+      "address": 2148836828,
+      "size": 192
+    },
+    {
+      "section": ".data.r13_sim_legacy",
+      "address": 2148837020,
+      "size": 68
+    },
+    {
+      "section": ".data.r13_stats_legacy",
+      "address": 2148837088,
+      "size": 96
+    },
+    {
+      "section": ".data.r13_textsys_legacy",
+      "address": 2148837184,
+      "size": 24
+    },
+    {
+      "section": ".data.r13_track_legacy",
+      "address": 2148837208,
+      "size": 88
+    },
+    {
+      "section": ".data.r13_trgsfx_legacy",
+      "address": 2148837296,
+      "size": 1600
+    },
+    {
+      "section": ".data.table_blob",
+      "address": 2148838896,
+      "size": 69632
+    },
+    {
+      "section": ".data.iso9660_blob",
+      "address": 2148908528,
+      "size": 16
+    },
+    {
+      "section": ".data.sndef_blob",
+      "address": 2148908544,
+      "size": 8
+    },
+    {
+      "section": ".data.atantbl_blob",
+      "address": 2148908552,
+      "size": 260
+    },
+    {
+      "section": ".data.ctype_blob",
+      "address": 2148908812,
+      "size": 129
+    },
+    {
+      "section": ".data.asintbl_blob",
+      "address": 2148908944,
+      "size": 512
+    },
+    {
+      "section": ".data.sintbl_blob",
+      "address": 2148909456,
+      "size": 1028
+    },
+    {
+      "section": ".data.fatantbl_blob",
+      "address": 2148910484,
+      "size": 1028
+    },
+    {
+      "section": ".data.cstbl_blob",
+      "address": 2148911512,
+      "size": 16384
+    },
+    {
+      "section": ".sdata.r10_new_legacy",
+      "address": 2148927896,
+      "size": 4
+    },
+    {
+      "section": ".sdata.r15_simqueue_legacy",
+      "address": 2148927900,
+      "size": 12
+    },
+    {
+      "section": ".sdata.vars_blob",
+      "address": 2148927912,
+      "size": 160
+    },
+    {
+      "section": ".data.tail_simqueue_output_legacy",
+      "address": 2148928072,
+      "size": 8
+    },
+    {
+      "section": ".data.tail_simqueue_max_legacy",
+      "address": 2148928080,
+      "size": 4
+    },
+    {
+      "section": ".sdata.r14_replay_counter_legacy",
+      "address": 2148928084,
+      "size": 8
+    }
+  ],
+  "legacy_orphan_payload_bytes": 120313,
+  "proofs": [
+    {
+      "source_object": "build/recon/syslib/psx/libc/CTYPE0.c.o",
+      "section": ".data",
+      "native_address": 2148757968,
+      "size": 129,
+      "relocation_bytes": 0,
+      "raw_copy_object": "build/asm/data/data_8010CCD4_r18.data.s.o",
+      "raw_copy_section": ".data.ctype_blob",
+      "raw_copy_relocation_bytes": 0,
+      "source_equals_rom": true,
+      "raw_copy_equals_source": true,
+      "sha256": "d3ca4007e97054deeb66d809e73c7b766c1156c598fb7b92d403aa7b71fbbb0a"
+    },
+    {
+      "source_object": "build/recon/frontend/common/fetextrender.cpp.o",
+      "section": ".data",
+      "native_address": 2147816888,
+      "size": 88,
+      "relocation_bytes": 0,
+      "raw_copy_object": "build/asm/data/front_data_o00.data.s.o",
+      "raw_copy_section": ".data",
+      "raw_copy_relocation_bytes": 0,
+      "source_equals_rom": true,
+      "raw_copy_equals_source": true,
+      "sha256": "82a7158d55efa9688e94d835ee9d71f3780c8a4d17881e69f4ce1edb5a605053"
+    }
+  ]
+}

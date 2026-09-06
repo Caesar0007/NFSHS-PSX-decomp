@@ -2988,37 +2988,19 @@ void tUserNameMenuItem::TransitionOn()
      1989 the table / 1990 kUserNameRows / 1992-1994 the row+column scan /
      1996 fCurrentRow-- / 2000-2003 fade+selfade / 2010-2012 the speech. */
   short i;
-  /* SYM SCOPE MISMATCH -- INAPPLICABLE (W86-S2): SYM puts `NumberOfRows` at
-     FUNCTION scope (block depth 1, AUTO slot -0x28) while it is written here as
-     a block local of the store below.  Hoisting it to function scope was
-     measured at FAIL 28: the aggregate initializer's rodata block copy then
-     runs before the sprintf loop instead of at the store, moving the whole
-     lwl/lwr/swl/swr group above the loop.  Left as-is; the block spelling is
-     the only one that reproduces retail. */
-  /* MATCH: unsized-array asm-label view of the scalar extern.  A scalar extern
-     compiles to the single `lh $r,sym` / `sh $r,sym` ASSEMBLER MACRO, which is
-     unschedulable (delay-slot poison) and uses the `$at` scratch on stores; the
-     array view splits it into a schedulable lui + lh/sh pair like the oracle. */
-  extern short menu_kUserNameRowsA[] __asm__("menu_kUserNameRows");
 
   for (i = 0; i < 10; i++) {
     sprintf(this->fRowList[i],TextSys_Word(i + 0x1fb));
   }
 
-  {
-    short NumberOfRows [6] = { 7, 9, 9, 9, 8, 9 };   /* @0x80010A00 */
-    /* SYM-CODEGEN-CARRIER: dst
-       Hoists the store-address lui before the frontEnd.language lbu; the
-       compiler-generated address pseudo is absent from the SYM local list. */
-    short *dst = menu_kUserNameRowsA;
-
-    dst[0] = NumberOfRows[(u_char)frontEnd.language];
-  }
+  /* Native function scope; retain the initializer after the sprintf loop. */
+  short NumberOfRows [6] = { 7, 9, 9, 9, 8, 9 };   /* @0x80010A00 */
+  menu_kUserNameRows = NumberOfRows[(u_char)frontEnd.language];
 
   this->fCurrentRow = 0;
   while ((this->fRowList[this->fCurrentRow][this->fCurrentColumn] != '!') &&
          (this->fRowList[this->fCurrentRow][this->fCurrentColumn] != '@') &&
-         (this->fCurrentRow < menu_kUserNameRowsA[0])) {
+         (this->fCurrentRow < menu_kUserNameRows)) {
     this->fCurrentColumn = 0;
     while ((this->fRowList[this->fCurrentRow][this->fCurrentColumn] != '!') &&
            (this->fRowList[this->fCurrentRow][this->fCurrentColumn] != '@') &&
@@ -3032,13 +3014,9 @@ void tUserNameMenuItem::TransitionOn()
   this->fFadeDir = -0x1e;
   this->fSelFade = 0;
   {
-    /* MATCH (methodology #16): the oracle keeps &FEApp in a callee-saved reg
-       ($s2) ACROSS the FeAudio_AsyncPlaySpeech call and reloads the pointer
-       through it; taking the address into a local forces the sN hoist. */
-    extern tFEApplication *FEAppA[] __asm__("FEApp");
-    if (FEAppA[0]->speechToPlay[this->fPlayer] != -1) {
-      FeAudio_AsyncPlaySpeech(2,FEAppA[0]->speechToPlay[this->fPlayer]);
-      FEAppA[0]->speechToPlay[this->fPlayer] = -1;
+    if (FEApp->speechToPlay[this->fPlayer] != -1) {
+      FeAudio_AsyncPlaySpeech(2,FEApp->speechToPlay[this->fPlayer]);
+      FEApp->speechToPlay[this->fPlayer] = -1;
     }
   }
   return;

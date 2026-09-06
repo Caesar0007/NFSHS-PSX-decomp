@@ -1,0 +1,109 @@
+{
+  "task": "P883 front scalar-state cleanup",
+  "source": "recon/frontend/common/front.cpp",
+  "retained": {
+    "removed_extern_view": "extern int MEMCARDFRONTENDISINITTED_words[] asm(\"MEMCARDFRONTENDISINITTED\")",
+    "ordinary_accesses": "Two false assignments and one true assignment to existing scalar bool",
+    "new_identifiers": 0,
+    "new_asm_or_volatile": 0,
+    "other_source_carriers_and_constructors_unchanged": true
+  },
+  "authority": {
+    "native_global": "2c74e8 EXT BOOL @8013D284",
+    "public": "front_externs.h extern bool MEMCARDFRONTENDISINITTED",
+    "owner": "recon/game/common/nfs3.cpp bool initialized false",
+    "initial_fn": "595777, no native locals",
+    "secondary_fn": "5957eb, native j at595858 and nested i at595870; scopes preserved"
+  },
+  "verification": {
+    "whole_tu": "43/43 PASS",
+    "branch_divergences": 0,
+    "exact_debug_twins": {
+      "Front_InitialMemCardCheck": 19,
+      "Front_SecondaryMemCardCheck": 50
+    },
+    "whole_ELF_bytes": 39004,
+    "same_path_whole_ELF_identical": true,
+    "sha256": "aa730506c2578190bce89be3559cef70c4494582b1af0d37a37497f5a4c8c5fb",
+    "all_code_data_symbols_relocations_preserved": true,
+    "raw_oracle_words": 69,
+    "raw_mismatches": 0,
+    "native_state_cell_bytes": "00000000"
+  },
+  "cases": [
+    {
+      "name": "baseline",
+      "pass": 43,
+      "total": 43,
+      "compiler": "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+      "compiler_commands": [
+        [
+          "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+          "-quiet",
+          "-O2",
+          "-G0",
+          "C:\\Temp\\nfs4-decomp\\build\\p883\\280\\scratchpad\\p883_front\\baseline.cpp.i",
+          "-o",
+          "C:\\Temp\\nfs4-decomp\\build\\p883\\280\\scratchpad\\p883_front\\baseline.cpp.s"
+        ]
+      ],
+      "source_sha256": "68b5c90ce8ad9be9649e39d44f75b2a3062be844516fedad6b37bdc63b6b42d4",
+      "targets": [
+        {
+          "name": "Front_InitialMemCardCheck__Fv",
+          "diffs": 0,
+          "ours": 19,
+          "retail": 19,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "Front_SecondaryMemCardCheck__Fv",
+          "diffs": 0,
+          "ours": 50,
+          "retail": 50,
+          "branch_differences": [],
+          "first_differences": []
+        }
+      ],
+      "failures": []
+    },
+    {
+      "name": "scalar",
+      "pass": 43,
+      "total": 43,
+      "compiler": "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+      "compiler_commands": [
+        [
+          "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+          "-quiet",
+          "-O2",
+          "-G0",
+          "C:\\Temp\\nfs4-decomp\\build\\p883\\280\\scratchpad\\p883_front\\scalar.cpp.i",
+          "-o",
+          "C:\\Temp\\nfs4-decomp\\build\\p883\\280\\scratchpad\\p883_front\\scalar.cpp.s"
+        ]
+      ],
+      "source_sha256": "f8ea45ab2571c1f958f5e9f099fa374ce74958ad16fce16054c074286392a28f",
+      "targets": [
+        {
+          "name": "Front_InitialMemCardCheck__Fv",
+          "diffs": 0,
+          "ours": 19,
+          "retail": 19,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "Front_SecondaryMemCardCheck__Fv",
+          "diffs": 0,
+          "ours": 50,
+          "retail": 50,
+          "branch_differences": [],
+          "first_differences": []
+        }
+      ],
+      "failures": []
+    }
+  ]
+}

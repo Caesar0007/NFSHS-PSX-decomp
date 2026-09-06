@@ -619,6 +619,9 @@ SECTIONS
         build/asm/data/front_data_r02.data.s.o(.data);
         build/asm/data/front_data_o02.data.s.o(.data);
         build/asm/data/front_data_r03.data.s.o(.data);
+        /* P881: preserve the original raw eight-byte owner window in src. */
+        build/asm/data/front_data_fecredits_legacy.data.s.o(.data);
+        build/asm/data/front_data_r03_after_fecredits.data.s.o(.data);
         build/asm/data/front_data_o03.data.s.o(.data);
         build/asm/data/front_data_o04.data.s.o(.data);
         build/asm/data/front_data_r04.data.s.o(.data);
@@ -811,7 +814,7 @@ SECTIONS
         build/asm/data/data_8010CCD4_r17.data.s.o(.data.r17_post_atantbl);
         build/asm/data/data_8010CCD4_o30.data.s.o(.data);
         build/asm/data/data_8010CCD4_r18.data.s.o(.data);
-        build/asm/data/data_8010CCD4_r18.data.s.o(.data.ctype_blob);
+        build/asm/data/data_ctype_legacy.data.s.o(.data);   /* P883: 129-byte oracle table; existing gap stays below */
         build/asm/data/data_8010CCD4_r18.data.s.o(.data.r18_gap_after_ctype);
         build/asm/data/data_8010CCD4_r18.data.s.o(.data.asintbl_blob);
         build/asm/data/data_8010CCD4_r18.data.s.o(.data.r18_gap_after_asintbl);
@@ -870,23 +873,28 @@ SECTIONS
         build/asm/data/sdata_8013C54C_o16.sdata.s.o(.sdata);
         build/asm/data/sdata_8013C54C_o17.sdata.s.o(.sdata);
         build/asm/data/sdata_8013C54C_r09.sdata.s.o(.sdata);
+        /* P882: oracle-owned images of five native source .sdata windows. */
+        build/asm/data/sdata_hudpmx_legacy.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_r09_between_hudpmx_copspeak.sdata.s.o(.sdata);
+        build/asm/data/sdata_copspeak_legacy.sdata.s.o(.sdata);
         build/asm/data/sdata_8013C54C_o18.sdata.s.o(.sdata);
         build/asm/data/sdata_8013C54C_o19.sdata.s.o(.sdata);
         build/asm/data/sdata_8013C54C_o20.sdata.s.o(.sdata);
         build/asm/data/sdata_8013C54C_r10.sdata.s.o(.sdata.r10_pre_new);
         /* Legacy lane retains the original new.obj heap-pointer word. */
         build/asm/data/sdata_8013C54C_r10.sdata.s.o(.sdata.r10_new_legacy);
-        build/asm/data/sdata_8013C54C_r10.sdata.s.o(.sdata.r10_after_new);
+        build/asm/data/sdata_nfs3_legacy.sdata.s.o(.sdata);
         build/asm/data/sdata_8013C54C_o21.sdata.s.o(.sdata);
         build/asm/data/sdata_8013C54C_r11.sdata.s.o(.sdata);
         build/asm/data/sdata_8013C54C_o22.sdata.s.o(.sdata);
         build/asm/data/sdata_8013C54C_r12.sdata.s.o(.sdata);
         build/asm/data/sdata_8013C54C_o23.sdata.s.o(.sdata);
+        build/asm/data/sdata_r3dcar_legacy.sdata.s.o(.sdata);
         build/asm/data/sdata_8013C54C_r13.sdata.s.o(.sdata);
         build/asm/data/sdata_8013C54C_o24.sdata.s.o(.sdata);
         build/asm/data/sdata_8013C54C_r14.sdata.s.o(.sdata.r14_replay_counter_legacy);
         build/asm/data/sdata_8013C54C_o25.sdata.s.o(.sdata);
-        build/asm/data/sdata_8013C54C_r15.sdata.s.o(.sdata.r15_pre_simqueue);
+        build/asm/data/sdata_sim_legacy.sdata.s.o(.sdata);
         /* Legacy lane retains simqueue.obj's three initialized state words. */
         build/asm/data/sdata_8013C54C_r15.sdata.s.o(.sdata.r15_simqueue_legacy);
         build/asm/data/sdata_8013C54C_r15.sdata.s.o(.sdata.r15_after_simqueue);

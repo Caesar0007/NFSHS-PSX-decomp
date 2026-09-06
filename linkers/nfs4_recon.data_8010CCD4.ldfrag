@@ -102,7 +102,8 @@
     build/asm/data/data_8010CCD4_r17.data.s.o(.data.r17_post_atantbl);
     build/recon/eaclib/psx/sndpsxz/slib.c.o(.data);   /* 0x80136df0..0x80136e00  was data_8010CCD4_o30.data.s */
     build/asm/data/data_8010CCD4_r18.data.s.o(.data);
-    build/recon/syslib/psx/libc/CTYPE0.c.o(.rodata);       /* 0x801371d0..0x80137251 */
+    /* P883: canonical mutable char table is .data; SUBALIGN supplies 3-byte tail. */
+    build/recon/syslib/psx/libc/CTYPE0.c.o(.data);         /* 0x801371d0..0x80137251 */
     build/asm/data/data_8010CCD4_r18.data.s.o(.data.r18_gap_after_ctype);
     build/recon/eaclib/psx/eacpsxz/asintbl.c.o(.data);    /* 0x80137260..0x80137460 */
     build/asm/data/data_8010CCD4_r18.data.s.o(.data.r18_gap_after_asintbl);

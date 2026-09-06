@@ -6,27 +6,6 @@
  */
 #include "fecheats.h"
 
-/* MATCH (w35-a10): UNSIZED-ARRAY ASM-LABEL VIEWS of the two cheat bitmasks.
-   Both are strong .sdata symbols (asm/data/sdata_8013C54C.sdata.s) that every
-   oracle reaches with an absolute %hi/%lo pair sharing ONE gcc-allocated base
-   register across a read+write pair; a bare `extern unsigned int` leaves
-   cc1plus emitting the `lw $2,sym` / `sw $2,sym` assembler macros, which
-   GNU-as expands per-access (self-temp load + $at store).  The array view
-   turns %hi back into an RTL pseudo (catalog wave-13 lever). */
-/* MATCH (w35-a10): unsized-array asm-label views -- these globals are reached
-   ABSOLUTELY by every oracle (%hi/%lo as an RTL pseudo, CSE-able and
-   delay-slot schedulable); a plain extern leaves cc1plus emitting the lw/sw
-   assembler macro, which GNU-as expands per-access (self-temp / $at). */
-extern tRecordBuffer A_Stats_gTrackRecords[] __asm__("Stats_gTrackRecords");
-#define Stats_gTrackRecords A_Stats_gTrackRecords
-
-extern tFEApplication *A_FEApp[] __asm__("FEApp");
-#define FEApp A_FEApp[0]
-extern unsigned int A_gFECheats[] __asm__("gFECheats");
-extern unsigned int A_gFEBonus[]  __asm__("gFEBonus");
-#define gFECheats A_gFECheats[0]
-#define gFEBonus  A_gFEBonus[0]
-
 static tCheat cheatList[10] = {   /* @0x80051628, byte-exact from retail binary */
     {{0x59,0x68,0x06,0x06,0x60,0x7e,0x7f,0x00}, 11},
     {{0x59,0x58,0x16,0x16,0x60,0x7e,0x7f,0x00}, 12},

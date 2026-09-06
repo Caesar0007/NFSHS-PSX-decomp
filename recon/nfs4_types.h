@@ -2999,7 +2999,11 @@ struct tfrontEnd {   /* 1104 bytes */
 struct CopSpeak_tRequest {   /* 32 bytes */
     Car_tObj           *car;   /* +0x0 */
     int                buffer, offset, size, filehandle, ophandle, phrase;   /* +0x4 */
-    char               player, sfx, bank, noise;   /* +0x1C */
+    char               player, sfx;   /* +0x1C */
+    /* P879: signed bank access/invalid-sentinel contract from retail. Native
+       CHAR alone cannot recover the exact signed-char spelling/compiler flag. */
+    signed char        bank;   /* +0x1E */
+    char               noise;   /* +0x1F */
 };
 
 struct AudioCmn_tReTrig {   /* 32 bytes */

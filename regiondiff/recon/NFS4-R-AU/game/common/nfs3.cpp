@@ -50,22 +50,12 @@ char         finishOrder[8];   /* @0x8013d2c0 */
 void Nfs2_SystemNLibStartUp(void)
 
 {
-  /* SYM-CODEGEN-CARRIER: p -- retail's source-level
-   * `Speech::fgUndefined = new Speech::Speaker` has no named local, but the
-   * flattened reconstruction must spell the implicit new-expression result
-   * explicitly while installing Speaker's vptr and zeroing fSub.  Assigning
-   * __builtin_new directly to the global keeps 25 instructions but moves both
-   * constructor stores after the global store (4 authoritative diffs); this
-   * carrier preserves retail's constructor-before-publication order exactly. */
-  int p;
-
   Platform_SysStartUp();
   Loading_GetInitialMemory();
-  if (_6Speech_fgUndefined == 0) {
-    p = (int)__builtin_new(0x50);
-    *(void ***)(p + 0x4c) = (void **)Speaker_vtable;
-    *(int *)(p + 0x48) = 0;
-    _6Speech_fgUndefined = p;
+  /* P879: use the restored shared type/name, preserving construction before
+     publication. Native startup records no separate allocation-result local. */
+  if (Speech_fgUndefined == 0) {
+    Speech_fgUndefined = new Speaker;
   }
   Render_InitLibRender();
   return;
@@ -131,9 +121,12 @@ static void NFS4_LoadPerps(void)
 
   if (0 < GameSetup_gData.numPerps) {
     sprintf(filename,"%s%s",Paths_Paths[0x25],
-            GameSetup_gData.commMode != 1 ? "zHPurs.mis" : "zHPurs2.mis");
+            (GameSetup_gData.commMode != 1 && GameSetup_gData.trafficDensity <= 0)
+                ? "zHPurs.mis" : "zHPurs2.mis");
     buffer = (char *)loadfileadr(filename,0x10);
-    sprintf(filename,"%s%s",Paths_Paths[0x25],"fecars.car");
+    /* P879: AU retail uses the b variant; the shared code representative's
+       filename is not a data oracle for this region (raw 800567C4). */
+    sprintf(filename,"%s%s",Paths_Paths[0x25],"fecarsb.car");
     cars = (char *)loadfileadr(filename,0x10);
 
     numTiers = *(u_long *)buffer;

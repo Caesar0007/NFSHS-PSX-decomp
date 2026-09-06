@@ -847,14 +847,11 @@ void CopSpeak_PlayNextRequest(void)
 void CopSpeak_Flush(void)
 
 {
-  /* SYM-CODEGEN-CARRIER: request -- retaining the queue-entry base pointer
-     preserves the retail signed-byte store while SYM records only i. */
-  CopSpeak_tRequest *request;
-
+  /* P879: the signed bank field permits the native direct store (li -1,
+     sb +30) without an unrecorded request pointer or per-use address cast. */
   for (int i = CopSpeak_gQueuePlay; i != CopSpeak_gQueueHead;
        i = i < 0x3f ? i + 1 : 0) {
-    request = &CopSpeak_gQueue[i];
-    *(signed char *)&request->bank = -1;
+    CopSpeak_gQueue[i].bank = -1;
   }
   return;
 }

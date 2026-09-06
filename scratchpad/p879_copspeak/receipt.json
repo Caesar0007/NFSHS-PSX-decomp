@@ -1,0 +1,443 @@
+{
+  "round": "P879",
+  "date": "2026-09-06",
+  "baseline_commit": "88bad579",
+  "function": "CopSpeak_Flush__Fv",
+  "retained_change": "Restore signed bank access contract in the two authorized type declarations; replace the unrecorded request pointer with direct CopSpeak_gQueue[i].bank = -1.",
+  "production_files": [
+    "recon/game/common/copspeak.cpp",
+    "recon/game/common/audiocmn_types.h",
+    "recon/nfs4_types.h"
+  ],
+  "outside_flush_source_unchanged": true,
+  "carriers_removed": [
+    "request"
+  ],
+  "new_production_identifiers": [],
+  "asm_added": false,
+  "volatile_added": false,
+  "production_tool_edits": false,
+  "postcompiler_instruction_rewrites": false,
+  "native": {
+    "struct_record": "261dde",
+    "struct_size": 32,
+    "bank_record": "261eba",
+    "bank_offset": 30,
+    "bank_debug_type": "CHAR (T_CHAR/0x2)",
+    "function_record": "26bc7b",
+    "i_record": "26bcda",
+    "locals": [
+      {
+        "name": "i",
+        "type": "INT",
+        "storage": "REG",
+        "register": 3,
+        "scope_start": "0x8009a944",
+        "scope_end": "0x8009a98c"
+      }
+    ],
+    "frame_size": 0,
+    "mask": 0
+  },
+  "char_conclusion": {
+    "proved": "Retail bank loads are signed; invalid-bank stores use li -1 then sb +30. Explicit signed char restores this field contract under the current default unsigned-char compiler and retains native T_CHAR debug encoding.",
+    "unproved": "Whether the original lexeme was signed char, plain char under a source/flag convention, or a macro/typedef. Native CHAR encodes both plain and signed char.",
+    "global_fsigned_char_rejected": true,
+    "reason": "Eight of 27 CopSpeak functions regress because sfx/noise/string reads need unsigned access."
+  },
+  "whole_tu": {
+    "pass": 27,
+    "total": 27,
+    "branch_divergences": 0,
+    "text_bytes": 6880,
+    "debug_text_exact": true,
+    "debug_text_relocations_exact": true
+  },
+  "production_object_sha256_before": "70fc97ebe71e9feeb970a4af6af67f16969a2171d4a82bfc1a35834376f9807e",
+  "production_object_sha256_after": "70fc97ebe71e9feeb970a4af6af67f16969a2171d4a82bfc1a35834376f9807e",
+  "flush": {
+    "pass": true,
+    "insns": 20,
+    "raw_linked_words_exact": 20,
+    "oracle_comment_words_exact": 20,
+    "relocation_sites": 5,
+    "native_only_locals": true,
+    "native_register_and_machine_scope_exact": true,
+    "exact_original_source_spelling": false,
+    "full_sld_exact": false,
+    "sld_note": "Native setup group 1258 covers +0..+28; native 1259 covers +28..+80. Generated final source subdivides the latter into store/step/exit groups. No cross-native-group merge introduced; exact line numbers/spelling/whole-file SLD remain open."
+  },
+  "consumer_census": {
+    "scanned": 698,
+    "consumers": 47,
+    "preprocess_failures": 0,
+    "base_built": 40,
+    "base_raw_whole_objects_equal": 40,
+    "base_functions_pass": 119,
+    "base_functions_total": 119,
+    "base_data_or_empty_objects": 36,
+    "regional_built": 5,
+    "regional_section_symbol_relocation_equal": 5,
+    "regional_selected_functions_pass": 21,
+    "regional_selected_functions_total": 21,
+    "regional_preexisting_build_failures": [
+      {
+        "source": "regiondiff/recon/NFS4-R-AU/game/common/nfs3.cpp",
+        "diagnostics_equal_ignoring_pid": true,
+        "unavailable_object_proof": true,
+        "reason": "Pre-existing _6Speech_fgUndefined and Speaker_vtable undeclared in Nfs2_SystemNLibStartUp."
+      },
+      {
+        "source": "regiondiff/recon/NFS4-R-USA/game/common/nfs3.cpp",
+        "diagnostics_equal_ignoring_pid": true,
+        "unavailable_object_proof": true,
+        "reason": "Pre-existing _6Speech_fgUndefined and Speaker_vtable undeclared in Nfs2_SystemNLibStartUp."
+      }
+    ],
+    "regional_branch_note": "No separate regional brdist run is claimed. Entire pre/post executable payload and resolved relocation identities are unchanged, so branch destinations are preserved."
+  },
+  "matrix": [
+    {
+      "variant": "before_default",
+      "pass": 27,
+      "total": 27,
+      "flush": {
+        "function": "CopSpeak_Flush__Fv",
+        "diffs": 0,
+        "ours_insns": 20,
+        "oracle_insns": 20,
+        "diff_sample": [],
+        "branches_equal": true,
+        "branch_count": 3
+      },
+      "misses": [],
+      "branch_mismatch_functions": []
+    },
+    {
+      "variant": "before_signed",
+      "pass": 19,
+      "total": 27,
+      "flush": {
+        "function": "CopSpeak_Flush__Fv",
+        "diffs": 0,
+        "ours_insns": 20,
+        "oracle_insns": 20,
+        "diff_sample": [],
+        "branches_equal": true,
+        "branch_count": 3
+      },
+      "misses": [
+        {
+          "function": "CopSpeak_LoadNextRequest__Fv",
+          "diffs": 4,
+          "ours_insns": 125,
+          "oracle_insns": 125,
+          "diff_sample": [
+            "-lb v0,29(s0)",
+            "+lbu v0,29(s0)",
+            "-lb v0,29(s0)",
+            "+lbu v0,29(s0)"
+          ],
+          "branches_equal": true,
+          "branch_count": 23
+        },
+        {
+          "function": "CopSpeak_PlayNextRequest__Fv",
+          "diffs": 2,
+          "ours_insns": 71,
+          "oracle_insns": 71,
+          "diff_sample": [
+            "-lb v0,29(s0)",
+            "+lbu v0,29(s0)"
+          ],
+          "branches_equal": true,
+          "branch_count": 8
+        },
+        {
+          "function": "CopSpeak_ReadyNextRequest__Fv",
+          "diffs": 6,
+          "ours_insns": 156,
+          "oracle_insns": 156,
+          "diff_sample": [
+            "-lb v0,29(s0)",
+            "+lbu v0,29(s0)",
+            "-lb v0,29(s0)",
+            "+lbu v0,29(s0)",
+            "-lb v0,29(s0)",
+            "+lbu v0,29(s0)"
+          ],
+          "branches_equal": true,
+          "branch_count": 22
+        },
+        {
+          "function": "CopSpeak_Server__Fv",
+          "diffs": 6,
+          "ours_insns": 179,
+          "oracle_insns": 179,
+          "diff_sample": [
+            "-lb v0,29(v1)",
+            "+lbu v0,29(v1)",
+            "-lb v0,31(a0)",
+            "+lbu v0,31(a0)",
+            "-lb v0,29(v1)",
+            "+lbu v0,29(v1)"
+          ],
+          "branches_equal": true,
+          "branch_count": 31
+        },
+        {
+          "function": "CopSpeak_SfxQueued__Fv",
+          "diffs": 2,
+          "ours_insns": 27,
+          "oracle_insns": 27,
+          "diff_sample": [
+            "-lb v0,29(v1)",
+            "+lbu v0,29(v1)"
+          ],
+          "branches_equal": true,
+          "branch_count": 5
+        },
+        {
+          "function": "CopSpeak_ShowQueue__Fv",
+          "diffs": 2,
+          "ours_insns": 116,
+          "oracle_insns": 116,
+          "diff_sample": [
+            "-lb v0,29(v1)",
+            "+lbu v0,29(v1)"
+          ],
+          "branches_equal": true,
+          "branch_count": 16
+        },
+        {
+          "function": "CopSpeak_Skip__Fv",
+          "diffs": 2,
+          "ours_insns": 27,
+          "oracle_insns": 27,
+          "diff_sample": [
+            "-lb v1,29(a0)",
+            "+lbu v1,29(a0)"
+          ],
+          "branches_equal": true,
+          "branch_count": 2
+        },
+        {
+          "function": "CopSpeak_StartUp__Fv",
+          "diffs": 4,
+          "ours_insns": 356,
+          "oracle_insns": 356,
+          "diff_sample": [
+            "-lb v0,0(s0)",
+            "+lbu v0,0(s0)",
+            "-lb v1,0(s0)",
+            "+lbu v1,0(s0)"
+          ],
+          "branches_equal": true,
+          "branch_count": 29
+        }
+      ],
+      "branch_mismatch_functions": []
+    },
+    {
+      "variant": "direct_default",
+      "pass": 26,
+      "total": 27,
+      "flush": {
+        "function": "CopSpeak_Flush__Fv",
+        "diffs": 2,
+        "ours_insns": 20,
+        "oracle_insns": 20,
+        "diff_sample": [
+          "-li a1,255",
+          "+li a1,-1"
+        ],
+        "branches_equal": true,
+        "branch_count": 3
+      },
+      "misses": [
+        {
+          "function": "CopSpeak_Flush__Fv",
+          "diffs": 2,
+          "ours_insns": 20,
+          "oracle_insns": 20,
+          "diff_sample": [
+            "-li a1,255",
+            "+li a1,-1"
+          ],
+          "branches_equal": true,
+          "branch_count": 3
+        }
+      ],
+      "branch_mismatch_functions": []
+    },
+    {
+      "variant": "direct_signed",
+      "pass": 19,
+      "total": 27,
+      "flush": {
+        "function": "CopSpeak_Flush__Fv",
+        "diffs": 0,
+        "ours_insns": 20,
+        "oracle_insns": 20,
+        "diff_sample": [],
+        "branches_equal": true,
+        "branch_count": 3
+      },
+      "misses": [
+        {
+          "function": "CopSpeak_LoadNextRequest__Fv",
+          "diffs": 4,
+          "ours_insns": 125,
+          "oracle_insns": 125,
+          "diff_sample": [
+            "-lb v0,29(s0)",
+            "+lbu v0,29(s0)",
+            "-lb v0,29(s0)",
+            "+lbu v0,29(s0)"
+          ],
+          "branches_equal": true,
+          "branch_count": 23
+        },
+        {
+          "function": "CopSpeak_PlayNextRequest__Fv",
+          "diffs": 2,
+          "ours_insns": 71,
+          "oracle_insns": 71,
+          "diff_sample": [
+            "-lb v0,29(s0)",
+            "+lbu v0,29(s0)"
+          ],
+          "branches_equal": true,
+          "branch_count": 8
+        },
+        {
+          "function": "CopSpeak_ReadyNextRequest__Fv",
+          "diffs": 6,
+          "ours_insns": 156,
+          "oracle_insns": 156,
+          "diff_sample": [
+            "-lb v0,29(s0)",
+            "+lbu v0,29(s0)",
+            "-lb v0,29(s0)",
+            "+lbu v0,29(s0)",
+            "-lb v0,29(s0)",
+            "+lbu v0,29(s0)"
+          ],
+          "branches_equal": true,
+          "branch_count": 22
+        },
+        {
+          "function": "CopSpeak_Server__Fv",
+          "diffs": 6,
+          "ours_insns": 179,
+          "oracle_insns": 179,
+          "diff_sample": [
+            "-lb v0,29(v1)",
+            "+lbu v0,29(v1)",
+            "-lb v0,31(a0)",
+            "+lbu v0,31(a0)",
+            "-lb v0,29(v1)",
+            "+lbu v0,29(v1)"
+          ],
+          "branches_equal": true,
+          "branch_count": 31
+        },
+        {
+          "function": "CopSpeak_SfxQueued__Fv",
+          "diffs": 2,
+          "ours_insns": 27,
+          "oracle_insns": 27,
+          "diff_sample": [
+            "-lb v0,29(v1)",
+            "+lbu v0,29(v1)"
+          ],
+          "branches_equal": true,
+          "branch_count": 5
+        },
+        {
+          "function": "CopSpeak_ShowQueue__Fv",
+          "diffs": 2,
+          "ours_insns": 116,
+          "oracle_insns": 116,
+          "diff_sample": [
+            "-lb v0,29(v1)",
+            "+lbu v0,29(v1)"
+          ],
+          "branches_equal": true,
+          "branch_count": 16
+        },
+        {
+          "function": "CopSpeak_Skip__Fv",
+          "diffs": 2,
+          "ours_insns": 27,
+          "oracle_insns": 27,
+          "diff_sample": [
+            "-lb v1,29(a0)",
+            "+lbu v1,29(a0)"
+          ],
+          "branches_equal": true,
+          "branch_count": 2
+        },
+        {
+          "function": "CopSpeak_StartUp__Fv",
+          "diffs": 4,
+          "ours_insns": 356,
+          "oracle_insns": 356,
+          "diff_sample": [
+            "-lb v0,0(s0)",
+            "+lbu v0,0(s0)",
+            "-lb v1,0(s0)",
+            "+lbu v1,0(s0)"
+          ],
+          "branches_equal": true,
+          "branch_count": 29
+        }
+      ],
+      "branch_mismatch_functions": []
+    },
+    {
+      "variant": "before_bank_signed",
+      "pass": 27,
+      "total": 27,
+      "flush": {
+        "function": "CopSpeak_Flush__Fv",
+        "diffs": 0,
+        "ours_insns": 20,
+        "oracle_insns": 20,
+        "diff_sample": [],
+        "branches_equal": true,
+        "branch_count": 3
+      },
+      "misses": [],
+      "branch_mismatch_functions": []
+    },
+    {
+      "variant": "direct_bank_signed",
+      "pass": 27,
+      "total": 27,
+      "flush": {
+        "function": "CopSpeak_Flush__Fv",
+        "diffs": 0,
+        "ours_insns": 20,
+        "oracle_insns": 20,
+        "diff_sample": [],
+        "branches_equal": true,
+        "branch_count": 3
+      },
+      "misses": [],
+      "branch_mismatch_functions": []
+    }
+  ],
+  "backups": [
+    "headers_before/audiocmn_types.h.before",
+    "headers_before/nfs4_types.h.before",
+    "Flush.before.cpp"
+  ],
+  "additional_refs": [
+    "C:/Temp/nfs4-clean/Binaries/NFS4-B-USA/c/func_8009A944.c",
+    "C:/Temp/gcc-2.8.1-src/gcc281.tar.gz:gcc-2.8.1/sdbout.c",
+    "C:/Temp/gcc-2.8.1-src/gcc281.tar.gz:gcc-2.8.1/invoke.texi",
+    "C:/Temp/nfs4-clean/NFS4.MAP:__SN_GP_BASE=8013C54C"
+  ],
+  "root_handoff": "Production source frozen and all consumer compiles finished; root handles both full-build lanes and any commit/push. No new experiments."
+}

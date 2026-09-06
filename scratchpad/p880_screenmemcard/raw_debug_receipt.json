@@ -1,0 +1,1324 @@
+{
+  "whole_object_sha256": "fa86b7250da7ac05498145ad09161ae01fb10664eb1c91838aec57401b666c25",
+  "whole_object_byte_equal": true,
+  "whole_tu_text_bytes": 6972,
+  "before_after_debug_code_and_text_relocs_equal": true,
+  "functions": [
+    {
+      "function": "Initialize__14tScreenMemcard",
+      "va": "0x80047c30",
+      "words": 106,
+      "linked_words_equal_raw": true,
+      "oracle_comment_words_equal_raw": true,
+      "references": [
+        {
+          "offset": 12,
+          "relocation_type": 5,
+          "symbol": ".rodata",
+          "base": "0x800121b8",
+          "word_after_link": "0x3c048001"
+        },
+        {
+          "offset": 16,
+          "relocation_type": 6,
+          "symbol": ".rodata",
+          "base": "0x800121b8",
+          "word_after_link": "0x24842220"
+        },
+        {
+          "offset": 20,
+          "relocation_type": 5,
+          "symbol": "GRIDMEMCARD_STARTX",
+          "base": "0x800528f4",
+          "word_after_link": "0x3c038005"
+        },
+        {
+          "offset": 28,
+          "relocation_type": 6,
+          "symbol": "GRIDMEMCARD_STARTX",
+          "base": "0x800528f4",
+          "word_after_link": "0xac6228f4"
+        },
+        {
+          "offset": 32,
+          "relocation_type": 5,
+          "symbol": "GRIDMEMCARD_STARTY",
+          "base": "0x800528f8",
+          "word_after_link": "0x3c038005"
+        },
+        {
+          "offset": 40,
+          "relocation_type": 6,
+          "symbol": "GRIDMEMCARD_STARTY",
+          "base": "0x800528f8",
+          "word_after_link": "0xac6228f8"
+        },
+        {
+          "offset": 44,
+          "relocation_type": 5,
+          "symbol": "MEMCARD_DELTAX",
+          "base": "0x800528fc",
+          "word_after_link": "0x3c038005"
+        },
+        {
+          "offset": 52,
+          "relocation_type": 6,
+          "symbol": "MEMCARD_DELTAX",
+          "base": "0x800528fc",
+          "word_after_link": "0xac6228fc"
+        },
+        {
+          "offset": 56,
+          "relocation_type": 5,
+          "symbol": "MEMCARD_DELTAY",
+          "base": "0x80052900",
+          "word_after_link": "0x3c038005"
+        },
+        {
+          "offset": 64,
+          "relocation_type": 6,
+          "symbol": "MEMCARD_DELTAY",
+          "base": "0x80052900",
+          "word_after_link": "0xac622900"
+        },
+        {
+          "offset": 68,
+          "relocation_type": 5,
+          "symbol": "kMemCardMessageH1",
+          "base": "0x80052908",
+          "word_after_link": "0x3c028005"
+        },
+        {
+          "offset": 76,
+          "relocation_type": 6,
+          "symbol": "kMemCardMessageH1",
+          "base": "0x80052908",
+          "word_after_link": "0xac452908"
+        },
+        {
+          "offset": 80,
+          "relocation_type": 5,
+          "symbol": "kMemCardMessageH",
+          "base": "0x80052904",
+          "word_after_link": "0x3c028005"
+        },
+        {
+          "offset": 84,
+          "relocation_type": 6,
+          "symbol": "kMemCardMessageH",
+          "base": "0x80052904",
+          "word_after_link": "0xac452904"
+        },
+        {
+          "offset": 88,
+          "relocation_type": 5,
+          "symbol": "EXTRAYATTOP",
+          "base": "0x8005290c",
+          "word_after_link": "0x3c028005"
+        },
+        {
+          "offset": 96,
+          "relocation_type": 6,
+          "symbol": "EXTRAYATTOP",
+          "base": "0x8005290c",
+          "word_after_link": "0xac45290c"
+        },
+        {
+          "offset": 92,
+          "relocation_type": 5,
+          "symbol": "GRIDMEMCARD_WIDTH",
+          "base": "0x80052910",
+          "word_after_link": "0x3c038005"
+        },
+        {
+          "offset": 104,
+          "relocation_type": 6,
+          "symbol": "GRIDMEMCARD_WIDTH",
+          "base": "0x80052910",
+          "word_after_link": "0xac622910"
+        },
+        {
+          "offset": 108,
+          "relocation_type": 5,
+          "symbol": "GRIDMEMCARD_HEIGHT",
+          "base": "0x80052914",
+          "word_after_link": "0x3c038005"
+        },
+        {
+          "offset": 116,
+          "relocation_type": 6,
+          "symbol": "GRIDMEMCARD_HEIGHT",
+          "base": "0x80052914",
+          "word_after_link": "0xac622914"
+        },
+        {
+          "offset": 120,
+          "relocation_type": 5,
+          "symbol": "GRIDMEMCARDGOURAUDBIT_X",
+          "base": "0x80052918",
+          "word_after_link": "0x3c028005"
+        },
+        {
+          "offset": 124,
+          "relocation_type": 6,
+          "symbol": "GRIDMEMCARDGOURAUDBIT_X",
+          "base": "0x80052918",
+          "word_after_link": "0xac452918"
+        },
+        {
+          "offset": 128,
+          "relocation_type": 5,
+          "symbol": "GRIDMEMCARDGOURAUDBIT_Y",
+          "base": "0x8005291c",
+          "word_after_link": "0x3c028005"
+        },
+        {
+          "offset": 140,
+          "relocation_type": 6,
+          "symbol": "GRIDMEMCARDGOURAUDBIT_Y",
+          "base": "0x8005291c",
+          "word_after_link": "0xac45291c"
+        },
+        {
+          "offset": 136,
+          "relocation_type": 5,
+          "symbol": "MEMCARDICONOFFX",
+          "base": "0x80052920",
+          "word_after_link": "0x3c038005"
+        },
+        {
+          "offset": 148,
+          "relocation_type": 6,
+          "symbol": "MEMCARDICONOFFX",
+          "base": "0x80052920",
+          "word_after_link": "0xac622920"
+        },
+        {
+          "offset": 152,
+          "relocation_type": 5,
+          "symbol": "MEMCARDICONOFFY",
+          "base": "0x80052924",
+          "word_after_link": "0x3c028005"
+        },
+        {
+          "offset": 160,
+          "relocation_type": 6,
+          "symbol": "MEMCARDICONOFFY",
+          "base": "0x80052924",
+          "word_after_link": "0xac452924"
+        },
+        {
+          "offset": 156,
+          "relocation_type": 5,
+          "symbol": "kMemCardMessage1Y",
+          "base": "0x8005292c",
+          "word_after_link": "0x3c038005"
+        },
+        {
+          "offset": 168,
+          "relocation_type": 6,
+          "symbol": "kMemCardMessage1Y",
+          "base": "0x8005292c",
+          "word_after_link": "0xac62292c"
+        },
+        {
+          "offset": 172,
+          "relocation_type": 5,
+          "symbol": "kMemCardMessageX",
+          "base": "0x80052930",
+          "word_after_link": "0x3c028005"
+        },
+        {
+          "offset": 180,
+          "relocation_type": 6,
+          "symbol": "kMemCardMessageX",
+          "base": "0x80052930",
+          "word_after_link": "0xac432930"
+        },
+        {
+          "offset": 184,
+          "relocation_type": 5,
+          "symbol": "kMemCardMessage1X",
+          "base": "0x80052928",
+          "word_after_link": "0x3c028005"
+        },
+        {
+          "offset": 188,
+          "relocation_type": 6,
+          "symbol": "kMemCardMessage1X",
+          "base": "0x80052928",
+          "word_after_link": "0xac432928"
+        },
+        {
+          "offset": 216,
+          "relocation_type": 4,
+          "symbol": "reservememadr",
+          "base": "0x800e533c",
+          "word_after_link": "0xc0394cf"
+        },
+        {
+          "offset": 192,
+          "relocation_type": 5,
+          "symbol": "kMemCardMessageY",
+          "base": "0x80052934",
+          "word_after_link": "0x3c038005"
+        },
+        {
+          "offset": 220,
+          "relocation_type": 6,
+          "symbol": "kMemCardMessageY",
+          "base": "0x80052934",
+          "word_after_link": "0xac622934"
+        },
+        {
+          "offset": 224,
+          "relocation_type": 5,
+          "symbol": "FEApp",
+          "base": "0x800514c0",
+          "word_after_link": "0x3c038005"
+        },
+        {
+          "offset": 228,
+          "relocation_type": 6,
+          "symbol": "FEApp",
+          "base": "0x800514c0",
+          "word_after_link": "0x8c6414c0"
+        },
+        {
+          "offset": 232,
+          "relocation_type": 5,
+          "symbol": "fMemIcon",
+          "base": "0x80052938",
+          "word_after_link": "0x3c038005"
+        },
+        {
+          "offset": 236,
+          "relocation_type": 6,
+          "symbol": "fMemIcon",
+          "base": "0x80052938",
+          "word_after_link": "0xac622938"
+        },
+        {
+          "offset": 292,
+          "relocation_type": 5,
+          "symbol": "menuDefs",
+          "base": "0x80051a58",
+          "word_after_link": "0x3c028005"
+        },
+        {
+          "offset": 296,
+          "relocation_type": 6,
+          "symbol": "menuDefs",
+          "base": "0x80051a58",
+          "word_after_link": "0x8c441a58"
+        },
+        {
+          "offset": 400,
+          "relocation_type": 4,
+          "symbol": "Initialize__7tScreen",
+          "base": "0x800260ac",
+          "word_after_link": "0xc00982b"
+        }
+      ],
+      "debug_before": [
+        "\t.def\tthis;\t.val\t16;\t.scl\t17;\t.tag\ttScreenMemcard;\t.size\t1444;\t.type\t0x18;\t.endef",
+        "\t.def\tfeApp;\t.val\t4;\t.scl\t4;\t.tag\tScreenMemcard_FEApplicationCodegenView;\t.size\t558;\t.type\t0x18;\t.endef",
+        "\t.def\tmsgId;\t.val\t7;\t.scl\t4;\t.type\t0xe;\t.endef",
+        "\t.def\ti;\t.val\t6;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tmenus;\t.val\t4;\t.scl\t4;\t.tag\tScreenMemcard_GlobalMenuDefsCodegenView;\t.size\t12460;\t.type\t0x18;\t.endef"
+      ],
+      "debug_after": [
+        "\t.def\tthis;\t.val\t16;\t.scl\t17;\t.tag\ttScreenMemcard;\t.size\t1444;\t.type\t0x18;\t.endef",
+        "\t.def\tmsgId;\t.val\t7;\t.scl\t4;\t.type\t0xe;\t.endef",
+        "\t.def\ti;\t.val\t6;\t.scl\t4;\t.type\t0x4;\t.endef"
+      ],
+      "debug_blocks_before": [
+        {
+          "kind": "begin",
+          "relative_source_line": 1,
+          "function_offset": 0,
+          "anchor": "Initialize__14tScreenMemcard"
+        },
+        {
+          "kind": "begin",
+          "relative_source_line": 40,
+          "function_offset": 288,
+          "anchor": "LM533"
+        },
+        {
+          "kind": "bend",
+          "relative_source_line": 57,
+          "function_offset": 376,
+          "anchor": "LM552"
+        },
+        {
+          "kind": "bend",
+          "relative_source_line": 64,
+          "function_offset": 376,
+          "anchor": "LM552"
+        }
+      ],
+      "debug_blocks_after": [
+        {
+          "kind": "begin",
+          "relative_source_line": 1,
+          "function_offset": 0,
+          "anchor": "Initialize__14tScreenMemcard"
+        },
+        {
+          "kind": "begin",
+          "relative_source_line": 35,
+          "function_offset": 288,
+          "anchor": "LM533"
+        },
+        {
+          "kind": "bend",
+          "relative_source_line": 48,
+          "function_offset": 376,
+          "anchor": "LM552"
+        },
+        {
+          "kind": "bend",
+          "relative_source_line": 55,
+          "function_offset": 376,
+          "anchor": "LM552"
+        }
+      ],
+      "lines": [
+        {
+          "offset": 0,
+          "native_line": 734,
+          "old_line": 964,
+          "new_line": 962
+        },
+        {
+          "offset": 4,
+          "native_line": 734,
+          "old_line": 964,
+          "new_line": 962
+        },
+        {
+          "offset": 8,
+          "native_line": 734,
+          "old_line": 964,
+          "new_line": 962
+        },
+        {
+          "offset": 12,
+          "native_line": 797,
+          "old_line": 992,
+          "new_line": 986
+        },
+        {
+          "offset": 16,
+          "native_line": 797,
+          "old_line": 992,
+          "new_line": 986
+        },
+        {
+          "offset": 20,
+          "native_line": 740,
+          "old_line": 974,
+          "new_line": 968
+        },
+        {
+          "offset": 24,
+          "native_line": 740,
+          "old_line": 974,
+          "new_line": 968
+        },
+        {
+          "offset": 28,
+          "native_line": 740,
+          "old_line": 974,
+          "new_line": 968
+        },
+        {
+          "offset": 32,
+          "native_line": 741,
+          "old_line": 975,
+          "new_line": 969
+        },
+        {
+          "offset": 36,
+          "native_line": 741,
+          "old_line": 975,
+          "new_line": 969
+        },
+        {
+          "offset": 40,
+          "native_line": 741,
+          "old_line": 975,
+          "new_line": 969
+        },
+        {
+          "offset": 44,
+          "native_line": 743,
+          "old_line": 976,
+          "new_line": 970
+        },
+        {
+          "offset": 48,
+          "native_line": 743,
+          "old_line": 976,
+          "new_line": 970
+        },
+        {
+          "offset": 52,
+          "native_line": 743,
+          "old_line": 976,
+          "new_line": 970
+        },
+        {
+          "offset": 56,
+          "native_line": 744,
+          "old_line": 977,
+          "new_line": 971
+        },
+        {
+          "offset": 60,
+          "native_line": 744,
+          "old_line": 977,
+          "new_line": 971
+        },
+        {
+          "offset": 64,
+          "native_line": 744,
+          "old_line": 977,
+          "new_line": 971
+        },
+        {
+          "offset": 68,
+          "native_line": 746,
+          "old_line": 978,
+          "new_line": 972
+        },
+        {
+          "offset": 72,
+          "native_line": 746,
+          "old_line": 978,
+          "new_line": 972
+        },
+        {
+          "offset": 76,
+          "native_line": 746,
+          "old_line": 978,
+          "new_line": 972
+        },
+        {
+          "offset": 80,
+          "native_line": 747,
+          "old_line": 979,
+          "new_line": 973
+        },
+        {
+          "offset": 84,
+          "native_line": 747,
+          "old_line": 979,
+          "new_line": 973
+        },
+        {
+          "offset": 88,
+          "native_line": 748,
+          "old_line": 980,
+          "new_line": 974
+        },
+        {
+          "offset": 92,
+          "native_line": 750,
+          "old_line": 981,
+          "new_line": 975
+        },
+        {
+          "offset": 96,
+          "native_line": 748,
+          "old_line": 980,
+          "new_line": 974
+        },
+        {
+          "offset": 100,
+          "native_line": 750,
+          "old_line": 981,
+          "new_line": 975
+        },
+        {
+          "offset": 104,
+          "native_line": 750,
+          "old_line": 981,
+          "new_line": 975
+        },
+        {
+          "offset": 108,
+          "native_line": 751,
+          "old_line": 982,
+          "new_line": 976
+        },
+        {
+          "offset": 112,
+          "native_line": 751,
+          "old_line": 982,
+          "new_line": 976
+        },
+        {
+          "offset": 116,
+          "native_line": 751,
+          "old_line": 982,
+          "new_line": 976
+        },
+        {
+          "offset": 120,
+          "native_line": 752,
+          "old_line": 983,
+          "new_line": 977
+        },
+        {
+          "offset": 124,
+          "native_line": 752,
+          "old_line": 983,
+          "new_line": 977
+        },
+        {
+          "offset": 128,
+          "native_line": 753,
+          "old_line": 984,
+          "new_line": 978
+        },
+        {
+          "offset": 132,
+          "native_line": 753,
+          "old_line": 984,
+          "new_line": 978
+        },
+        {
+          "offset": 136,
+          "native_line": 755,
+          "old_line": 985,
+          "new_line": 979
+        },
+        {
+          "offset": 140,
+          "native_line": 753,
+          "old_line": 984,
+          "new_line": 978
+        },
+        {
+          "offset": 144,
+          "native_line": 755,
+          "old_line": 985,
+          "new_line": 979
+        },
+        {
+          "offset": 148,
+          "native_line": 755,
+          "old_line": 985,
+          "new_line": 979
+        },
+        {
+          "offset": 152,
+          "native_line": 756,
+          "old_line": 986,
+          "new_line": 980
+        },
+        {
+          "offset": 156,
+          "native_line": 758,
+          "old_line": 987,
+          "new_line": 981
+        },
+        {
+          "offset": 160,
+          "native_line": 756,
+          "old_line": 986,
+          "new_line": 980
+        },
+        {
+          "offset": 164,
+          "native_line": 758,
+          "old_line": 987,
+          "new_line": 981
+        },
+        {
+          "offset": 168,
+          "native_line": 758,
+          "old_line": 987,
+          "new_line": 981
+        },
+        {
+          "offset": 172,
+          "native_line": 759,
+          "old_line": 988,
+          "new_line": 982
+        },
+        {
+          "offset": 176,
+          "native_line": 759,
+          "old_line": 988,
+          "new_line": 982
+        },
+        {
+          "offset": 180,
+          "native_line": 759,
+          "old_line": 988,
+          "new_line": 982
+        },
+        {
+          "offset": 184,
+          "native_line": 760,
+          "old_line": 989,
+          "new_line": 983
+        },
+        {
+          "offset": 188,
+          "native_line": 760,
+          "old_line": 989,
+          "new_line": 983
+        },
+        {
+          "offset": 192,
+          "native_line": 761,
+          "old_line": 991,
+          "new_line": 985
+        },
+        {
+          "offset": 196,
+          "native_line": 761,
+          "old_line": 991,
+          "new_line": 985
+        },
+        {
+          "offset": 200,
+          "native_line": 797,
+          "old_line": 992,
+          "new_line": 986
+        },
+        {
+          "offset": 204,
+          "native_line": 797,
+          "old_line": 992,
+          "new_line": 986
+        },
+        {
+          "offset": 208,
+          "native_line": 734,
+          "old_line": 964,
+          "new_line": 962
+        },
+        {
+          "offset": 212,
+          "native_line": 736,
+          "old_line": 990,
+          "new_line": 984
+        },
+        {
+          "offset": 216,
+          "native_line": 797,
+          "old_line": 992,
+          "new_line": 986
+        },
+        {
+          "offset": 220,
+          "native_line": 797,
+          "old_line": 992,
+          "new_line": 986
+        },
+        {
+          "offset": 224,
+          "native_line": 803,
+          "old_line": 993,
+          "new_line": 991
+        },
+        {
+          "offset": 228,
+          "native_line": 803,
+          "old_line": 993,
+          "new_line": 991
+        },
+        {
+          "offset": 232,
+          "native_line": 797,
+          "old_line": 992,
+          "new_line": 986
+        },
+        {
+          "offset": 236,
+          "native_line": 797,
+          "old_line": 992,
+          "new_line": 986
+        },
+        {
+          "offset": 240,
+          "native_line": 799,
+          "old_line": 994,
+          "new_line": 987
+        },
+        {
+          "offset": 244,
+          "native_line": 800,
+          "old_line": 995,
+          "new_line": 988
+        },
+        {
+          "offset": 248,
+          "native_line": 801,
+          "old_line": 996,
+          "new_line": 989
+        },
+        {
+          "offset": 252,
+          "native_line": 803,
+          "old_line": 998,
+          "new_line": 991
+        },
+        {
+          "offset": 256,
+          "native_line": 806,
+          "old_line": 997,
+          "new_line": 990
+        },
+        {
+          "offset": 260,
+          "native_line": 803,
+          "old_line": 998,
+          "new_line": 991
+        },
+        {
+          "offset": 264,
+          "native_line": 804,
+          "old_line": 999,
+          "new_line": 992
+        },
+        {
+          "offset": 268,
+          "native_line": 806,
+          "old_line": 1000,
+          "new_line": 993
+        },
+        {
+          "offset": 272,
+          "native_line": 804,
+          "old_line": 999,
+          "new_line": 992
+        },
+        {
+          "offset": 276,
+          "native_line": 806,
+          "old_line": 1000,
+          "new_line": 993
+        },
+        {
+          "offset": 280,
+          "native_line": 806,
+          "old_line": 1000,
+          "new_line": 993
+        },
+        {
+          "offset": 284,
+          "native_line": 806,
+          "old_line": 1001,
+          "new_line": 994
+        },
+        {
+          "offset": 288,
+          "native_line": 811,
+          "old_line": 1004,
+          "new_line": 997
+        },
+        {
+          "offset": 292,
+          "native_line": 811,
+          "old_line": 1008,
+          "new_line": 998
+        },
+        {
+          "offset": 296,
+          "native_line": 811,
+          "old_line": 1008,
+          "new_line": 998
+        },
+        {
+          "offset": 300,
+          "native_line": 811,
+          "old_line": 1012,
+          "new_line": 1001
+        },
+        {
+          "offset": 304,
+          "native_line": 811,
+          "old_line": 1010,
+          "new_line": 999
+        },
+        {
+          "offset": 308,
+          "native_line": 811,
+          "old_line": 1011,
+          "new_line": 1000
+        },
+        {
+          "offset": 312,
+          "native_line": 811,
+          "old_line": 1012,
+          "new_line": 1001
+        },
+        {
+          "offset": 316,
+          "native_line": 811,
+          "old_line": 1009,
+          "new_line": 998
+        },
+        {
+          "offset": 320,
+          "native_line": 811,
+          "old_line": 1010,
+          "new_line": 999
+        },
+        {
+          "offset": 324,
+          "native_line": 811,
+          "old_line": 1011,
+          "new_line": 1000
+        },
+        {
+          "offset": 328,
+          "native_line": 811,
+          "old_line": 1010,
+          "new_line": 999
+        },
+        {
+          "offset": 332,
+          "native_line": 811,
+          "old_line": 1011,
+          "new_line": 1000
+        },
+        {
+          "offset": 336,
+          "native_line": 813,
+          "old_line": 1013,
+          "new_line": 1002
+        },
+        {
+          "offset": 340,
+          "native_line": 813,
+          "old_line": 1013,
+          "new_line": 1002
+        },
+        {
+          "offset": 344,
+          "native_line": 814,
+          "old_line": 1014,
+          "new_line": 1003
+        },
+        {
+          "offset": 348,
+          "native_line": 815,
+          "old_line": 1015,
+          "new_line": 1004
+        },
+        {
+          "offset": 352,
+          "native_line": 816,
+          "old_line": 1017,
+          "new_line": 1006
+        },
+        {
+          "offset": 356,
+          "native_line": 817,
+          "old_line": 1018,
+          "new_line": 1007
+        },
+        {
+          "offset": 360,
+          "native_line": 818,
+          "old_line": 1019,
+          "new_line": 1008
+        },
+        {
+          "offset": 364,
+          "native_line": 818,
+          "old_line": 1020,
+          "new_line": 1009
+        },
+        {
+          "offset": 368,
+          "native_line": 818,
+          "old_line": 1020,
+          "new_line": 1009
+        },
+        {
+          "offset": 372,
+          "native_line": 818,
+          "old_line": 1020,
+          "new_line": 1009
+        },
+        {
+          "offset": 376,
+          "native_line": 828,
+          "old_line": 1027,
+          "new_line": 1016
+        },
+        {
+          "offset": 380,
+          "native_line": 823,
+          "old_line": 1025,
+          "new_line": 1014
+        },
+        {
+          "offset": 384,
+          "native_line": 820,
+          "old_line": 1022,
+          "new_line": 1011
+        },
+        {
+          "offset": 388,
+          "native_line": 821,
+          "old_line": 1023,
+          "new_line": 1012
+        },
+        {
+          "offset": 392,
+          "native_line": 822,
+          "old_line": 1024,
+          "new_line": 1013
+        },
+        {
+          "offset": 396,
+          "native_line": 823,
+          "old_line": 1025,
+          "new_line": 1014
+        },
+        {
+          "offset": 400,
+          "native_line": 828,
+          "old_line": 1027,
+          "new_line": 1016
+        },
+        {
+          "offset": 404,
+          "native_line": 828,
+          "old_line": 1027,
+          "new_line": 1016
+        },
+        {
+          "offset": 408,
+          "native_line": 828,
+          "old_line": 1028,
+          "new_line": 1017
+        },
+        {
+          "offset": 412,
+          "native_line": 828,
+          "old_line": 1028,
+          "new_line": 1017
+        },
+        {
+          "offset": 416,
+          "native_line": 828,
+          "old_line": 1028,
+          "new_line": 1017
+        },
+        {
+          "offset": 420,
+          "native_line": 828,
+          "old_line": 1028,
+          "new_line": 1017
+        }
+      ]
+    },
+    {
+      "function": "Cleanup__14tScreenMemcard",
+      "va": "0x80047dd8",
+      "words": 25,
+      "linked_words_equal_raw": true,
+      "oracle_comment_words_equal_raw": true,
+      "references": [
+        {
+          "offset": 12,
+          "relocation_type": 4,
+          "symbol": "ReleaseIcons__14tScreenMemcard",
+          "base": "0x80047bb8",
+          "word_after_link": "0xc011eee"
+        },
+        {
+          "offset": 20,
+          "relocation_type": 4,
+          "symbol": "DeInit_Memcard__Fv",
+          "base": "0x80034800",
+          "word_after_link": "0xc00d200"
+        },
+        {
+          "offset": 28,
+          "relocation_type": 5,
+          "symbol": "fMemIcon",
+          "base": "0x80052938",
+          "word_after_link": "0x3c028005"
+        },
+        {
+          "offset": 32,
+          "relocation_type": 6,
+          "symbol": "fMemIcon",
+          "base": "0x80052938",
+          "word_after_link": "0x8c442938"
+        },
+        {
+          "offset": 36,
+          "relocation_type": 5,
+          "symbol": "menuDefs",
+          "base": "0x80051a58",
+          "word_after_link": "0x3c028005"
+        },
+        {
+          "offset": 40,
+          "relocation_type": 6,
+          "symbol": "menuDefs",
+          "base": "0x80051a58",
+          "word_after_link": "0x8c451a58"
+        },
+        {
+          "offset": 68,
+          "relocation_type": 4,
+          "symbol": "purgememadr",
+          "base": "0x800e5540",
+          "word_after_link": "0xc039550"
+        },
+        {
+          "offset": 76,
+          "relocation_type": 4,
+          "symbol": "Cleanup__7tScreen",
+          "base": "0x800261a0",
+          "word_after_link": "0xc009868"
+        }
+      ],
+      "debug_before": [
+        "\t.def\tthis;\t.val\t16;\t.scl\t17;\t.tag\ttScreenMemcard;\t.size\t1444;\t.type\t0x18;\t.endef",
+        "\t.def\tmenus;\t.val\t5;\t.scl\t4;\t.tag\tScreenMemcard_GlobalMenuDefsCodegenView;\t.size\t12460;\t.type\t0x18;\t.endef",
+        "\t.def\ticonTable;\t.val\t4;\t.scl\t4;\t.dim\t15,3,192;\t.size\t4;\t.type\t0xfd2;\t.endef"
+      ],
+      "debug_after": [
+        "\t.def\tthis;\t.val\t16;\t.scl\t17;\t.tag\ttScreenMemcard;\t.size\t1444;\t.type\t0x18;\t.endef"
+      ],
+      "debug_blocks_before": [
+        {
+          "kind": "begin",
+          "relative_source_line": 1,
+          "function_offset": 0,
+          "anchor": "Cleanup__14tScreenMemcard"
+        },
+        {
+          "kind": "bend",
+          "relative_source_line": 1,
+          "function_offset": 0,
+          "anchor": "Cleanup__14tScreenMemcard"
+        }
+      ],
+      "debug_blocks_after": [
+        {
+          "kind": "begin",
+          "relative_source_line": 1,
+          "function_offset": 0,
+          "anchor": "Cleanup__14tScreenMemcard"
+        },
+        {
+          "kind": "bend",
+          "relative_source_line": 1,
+          "function_offset": 0,
+          "anchor": "Cleanup__14tScreenMemcard"
+        }
+      ],
+      "lines": [
+        {
+          "offset": 0,
+          "native_line": 833,
+          "old_line": 1034,
+          "new_line": 1023
+        },
+        {
+          "offset": 4,
+          "native_line": 833,
+          "old_line": 1034,
+          "new_line": 1023
+        },
+        {
+          "offset": 8,
+          "native_line": 833,
+          "old_line": 1034,
+          "new_line": 1023
+        },
+        {
+          "offset": 12,
+          "native_line": 834,
+          "old_line": 1041,
+          "new_line": 1024
+        },
+        {
+          "offset": 16,
+          "native_line": 834,
+          "old_line": 1041,
+          "new_line": 1024
+        },
+        {
+          "offset": 20,
+          "native_line": 835,
+          "old_line": 1042,
+          "new_line": 1025
+        },
+        {
+          "offset": 24,
+          "native_line": 835,
+          "old_line": 1042,
+          "new_line": 1025
+        },
+        {
+          "offset": 28,
+          "native_line": 839,
+          "old_line": 1043,
+          "new_line": 1030
+        },
+        {
+          "offset": 32,
+          "native_line": 839,
+          "old_line": 1043,
+          "new_line": 1030
+        },
+        {
+          "offset": 36,
+          "native_line": 839,
+          "old_line": 1044,
+          "new_line": 1027
+        },
+        {
+          "offset": 40,
+          "native_line": 839,
+          "old_line": 1044,
+          "new_line": 1027
+        },
+        {
+          "offset": 44,
+          "native_line": 839,
+          "old_line": 1046,
+          "new_line": 1027
+        },
+        {
+          "offset": 48,
+          "native_line": 839,
+          "old_line": 1046,
+          "new_line": 1027
+        },
+        {
+          "offset": 52,
+          "native_line": 839,
+          "old_line": 1048,
+          "new_line": 1029
+        },
+        {
+          "offset": 56,
+          "native_line": 839,
+          "old_line": 1046,
+          "new_line": 1027
+        },
+        {
+          "offset": 60,
+          "native_line": 839,
+          "old_line": 1048,
+          "new_line": 1029
+        },
+        {
+          "offset": 64,
+          "native_line": 839,
+          "old_line": 1046,
+          "new_line": 1027
+        },
+        {
+          "offset": 68,
+          "native_line": 839,
+          "old_line": 1049,
+          "new_line": 1030
+        },
+        {
+          "offset": 72,
+          "native_line": 839,
+          "old_line": 1049,
+          "new_line": 1030
+        },
+        {
+          "offset": 76,
+          "native_line": 844,
+          "old_line": 1050,
+          "new_line": 1031
+        },
+        {
+          "offset": 80,
+          "native_line": 844,
+          "old_line": 1050,
+          "new_line": 1031
+        },
+        {
+          "offset": 84,
+          "native_line": 844,
+          "old_line": 1051,
+          "new_line": 1032
+        },
+        {
+          "offset": 88,
+          "native_line": 844,
+          "old_line": 1051,
+          "new_line": 1032
+        },
+        {
+          "offset": 92,
+          "native_line": 844,
+          "old_line": 1051,
+          "new_line": 1032
+        },
+        {
+          "offset": 96,
+          "native_line": 844,
+          "old_line": 1051,
+          "new_line": 1032
+        }
+      ]
+    }
+  ],
+  "isolated_before_debug_commands": [
+    [
+      "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+      "-x",
+      "c",
+      "-D__cplusplus=1",
+      "-nostdinc",
+      "-undef",
+      "-Dmips",
+      "-D__mips__",
+      "-D__psx__",
+      "-IC:\\Temp\\nfs4-decomp\\recon\\frontend\\common",
+      "-IC:\\Temp\\nfs4-decomp\\recon",
+      "C:\\Temp\\nfs4-decomp\\scratchpad\\p880_screenmemcard\\screenmemcard.cpp.before",
+      "-o",
+      "C:\\Temp\\nfs4-decomp\\scratchpad\\p880_screenmemcard\\before_g.i"
+    ],
+    [
+      "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+      "-quiet",
+      "-O2",
+      "-G0",
+      "-g",
+      "C:\\Temp\\nfs4-decomp\\scratchpad\\p880_screenmemcard\\before_g.i",
+      "-o",
+      "C:\\Temp\\nfs4-decomp\\scratchpad\\p880_screenmemcard\\before_g.s"
+    ],
+    [
+      "C:\\Python314\\python.exe",
+      "C:\\Temp\\nfs4-decomp\\tools\\maspsx\\maspsx.py",
+      "--aspsx-version=2.77",
+      "--expand-div",
+      "--run-assembler",
+      "--gnu-as-path=C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-as.exe",
+      "-EL",
+      "-march=r3000",
+      "-mtune=r3000",
+      "-G0",
+      "-I",
+      "C:\\Temp\\nfs4-decomp\\recon",
+      "-o",
+      "C:\\Temp\\nfs4-decomp\\scratchpad\\p880_screenmemcard\\before_g.o"
+    ]
+  ]
+}

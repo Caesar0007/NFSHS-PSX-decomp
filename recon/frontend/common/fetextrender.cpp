@@ -1,7 +1,7 @@
 /* frontend/common/fetextrender.cpp -- RECONSTRUCTED (front-end text renderer; C++ TU)
  *   17 free fns (ns nfs4::FRONTEND::COMMON::FETextRender): SetFont, FullText/FullTextRGB/
  *   FullTextFade, MenuText{Positioned,Fade,PositionedJustify(+Fade)}, WordWrap* family
- *   (RGB/Justify/Fade/Height), Title, SetABR. + textDefinitions[6][14] / gSemiTransText data.
+ *   (RGB/Justify/Fade/Height), Title, SetABR. + textDefinitions[14][6] / gSemiTransText data.
  */
 #include "fetextrender.h"
 
@@ -23,7 +23,6 @@ char textDefinitions[14][6] = {   /* @0x800515b8 (ARY ARY CHAR, SYM dims 14x6 ->
   {3,2,0,9,9,9},
 };
 bool gSemiTransText __attribute__((section(".data"))) = false;
-extern int gSemiTransText_arr[] asm("gSemiTransText");
 
 
 /* ---- FETextRender_SetFont  [FETEXTRENDER.CPP:72-88] SLD-VERIFIED ---- */
@@ -71,7 +70,7 @@ void FETextRender_FullTextRGB(char *sMenuText,short x,short y,int col,char size,
   else if ((justify == 2) || (justify == 5)) {
     x = x - (short)(textpixels(str) / 2);
   }
-  Font_TextColor(gSemiTransText_arr[0] != 0 ? 0xf : 1);
+  Font_TextColor(gSemiTransText != 0 ? 0xf : 1);
   Font_TextTint(col);
   Font_TextXY(str,(int)x,(int)y);
   if ((u_short)(justify - 3U) < 3) {
@@ -208,7 +207,7 @@ int FETextRender_WordWrapTextRGBJustify(char *str,RECT &r,int col,int justify,in
   }
   index1 = 0;
   strLength = strlen(str);
-  Font_TextColor(gSemiTransText_arr[0] != 0 ? 0xf : 1);
+  Font_TextColor(gSemiTransText != 0 ? 0xf : 1);
   Font_TextTint(col);
   blockmove(str,source,strLength + 1);
   if (size == 0) {
@@ -389,7 +388,7 @@ void FETextRender_SetABR(int abr,bool trans)
 
 {
   
-  gSemiTransText_arr[0] = trans;
+  gSemiTransText = trans;
   Font_SetABR(abr);
   return;
 }

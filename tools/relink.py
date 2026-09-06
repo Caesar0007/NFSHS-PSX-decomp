@@ -37,6 +37,7 @@ import subprocess
 import sys
 from collections import defaultdict
 from pathlib import Path
+from source_data_owners import oracle_only_objects, validate_source_data_owners
 
 ROOT = Path(__file__).resolve().parents[1]      # tools/ -> repo root
 MIPS = Path(r"C:/Tools/mips-ps1/mips/bin")
@@ -63,6 +64,13 @@ def batched(seq, n):
 
 
 def lane_objects(lane):
+    # P881: a differently named raw copy of a local static evades duplicate-
+    # symbol counts. Validate the real source owner before excluding its
+    # oracle-only object from recon. Backups: scratchpad/p881_lasttick/backups.
+    excluded_oracles = set()
+    if lane == "recon":
+        validate_source_data_owners(ROOT / "build")
+        excluded_oracles = oracle_only_objects(ROOT / "build")
     # Build directories intentionally survive normal incremental builds, so
     # scanning build/** directly admits objects for renamed/deleted probes and
     # backup TUs.  Those stale files created hundreds of false REAL duplicates
@@ -81,7 +89,7 @@ def lane_objects(lane):
     objs = []
     for src in sources:
         obj = ROOT / "build" / (str(src.relative_to(ROOT)) + ".o")
-        if obj.is_file():
+        if obj.is_file() and obj.resolve() not in excluded_oracles:
             objs.append(obj)
     return objs
 
@@ -328,6 +336,9 @@ def run_lane(lane, verbose=False):
         "phantoms": len(phantoms),
         "multi_va_names_excluded": len(multiva),
         "excluded_subtrees": excluded_census(),
+        "source_owned_oracle_exclusions": (
+            sorted(p.relative_to(ROOT).as_posix() for p in oracle_only_objects(ROOT / "build"))
+            if lane == "recon" else []),
         "dup_real_rows": dup_real, "phantom_rows": phantoms,
         "unresolved_names": unres,
         "linker_resolved_names": link_resolved,
@@ -335,6 +346,9 @@ def run_lane(lane, verbose=False):
     print(f"== lane {lane}: {len(objs)} objects "
           f"(excluded: {res['excluded_subtrees']})")
     print(f"   ld -r rc={r.returncode}")
+    if res["source_owned_oracle_exclusions"]:
+        print(f"   SOURCE-OWNED oracle copies excluded={len(res['source_owned_oracle_exclusions'])} "
+              "[owner payload/symbols validated]")
     print(f"   DUP total={len(dups)}  blob-class={len(dup_blob)}  "
           f"REAL={len(dup_real)}          [REAL must be 0]")
     print(f"   HIDDEN PHANTOMS={len(phantoms)}                          "

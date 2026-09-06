@@ -11,15 +11,6 @@
 tTexture_ShapeInfo *gCurrentShapes;   /* @0x800517cc; SYM EXT */
 
 
-/* MATCH (w35-a10): unsized-array asm-label views -- these globals are
-   reached ABSOLUTELY by every oracle here (%hi/%lo pair as an RTL pseudo);
-   the plain extern leaves cc1plus emitting the lw/sw assembler macro. */
-extern int A_Draw_gPlayer1View[] __asm__("Draw_gPlayer1View");
-#define Draw_gPlayer1View A_Draw_gPlayer1View[0]
-extern int A_screenheight[] __asm__("screenheight");
-#define screenheight A_screenheight[0]
-extern int A__7tScreen_fSuppressLoadingText[] __asm__("_7tScreen_fSuppressLoadingText");
-#define _7tScreen_fSuppressLoadingText A__7tScreen_fSuppressLoadingText[0]
 /* ---- tScreen::DisplayLoadingText  [FESCREEN.CPP:36-67] SLD-VERIFIED ---- */
 
 void tScreen::DisplayLoadingText()
@@ -109,7 +100,7 @@ void tScreen::GoNonInterlaced()
   gEnviro[1].disp.screen.h = displayHeight;
   displayEnv[1].disp.isinter = '\0';
   viewTable = Draw_gView;
-  playerViewIndex = A_Draw_gPlayer1View;
+  playerViewIndex = &Draw_gPlayer1View;
   frontView = viewTable + *playerViewIndex;
   frontView->drawenv[0].dfe = '\0';
   backView = viewTable + *playerViewIndex;

@@ -1,0 +1,50 @@
+{
+  "checks": [
+    {
+      "command": [
+        "tools/tugate.py",
+        "recon/frontend/common/fecredits.cpp"
+      ],
+      "stdout": "  __none__: NO ORACLE\nrecon/frontend/common/fecredits.cpp: 7/7 PASS\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "tools/brdist.py",
+        "recon/frontend/common/fecredits.cpp"
+      ],
+      "stdout": "# 7 fns checked, 0 with branch-offset/count divergence\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "tools/diffsrc.py",
+        "recon/frontend/common/fecredits.cpp",
+        "SetupCurrCredit__14tCreditManager"
+      ],
+      "stdout": "SetupCurrCredit__14tCreditManager: 0 diff insns across 0 blocks (ours 199 / oracle 199; -g twin EXACT)\n\nSOURCE-STATEMENT HOTSPOTS (our diff insns per line):\n",
+      "stderr": ""
+    }
+  ],
+  "text_bytes": 3240,
+  "changed_unlinked_bytes": [
+    652,
+    808
+  ],
+  "changed_bytes_are_only_two_native_data_addends": true,
+  "static_symbol": [
+    "lasttick.18",
+    [
+      4,
+      0,
+      0,
+      3
+    ]
+  ],
+  "native_debug_record": "\t.val\tlasttick.18;\t.scl\t3;\t.type\t0x4;\t.endef",
+  "native_record": "5f1f9a: STAT INT lasttick, relative data offset4",
+  "source_sha256": "532b4daa4961a45da373f90f7c0c0b44e347d00e87280a8d28cbb4cc6ee89920",
+  "old_object_sha256": "a84ea3901e372b00286db36de01e45637d0a72bed38763c0aa27cef55766db70",
+  "new_object_sha256": "7aa4311fd102fe201acee98f8a5ee60c319cd1800aee714ae0e984f93e838571",
+  "qualification": "Source scope/type/storage and native data cell are restored; other SetupCurrCredit carriers and complete SLD fidelity remain open. Exact linked addresses/words are verified by verify_storage.py."
+}

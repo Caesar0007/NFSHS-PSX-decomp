@@ -6,8 +6,6 @@
 #include "../../lib/nfs4_new.h"
 #include "feapp.h"
 
-extern int ticks_array[] __asm__("ticks");
-
 typedef struct tPsyQPrimTag {
   unsigned int addr : 24;
   unsigned int len : 8;
@@ -19,7 +17,6 @@ typedef struct tPsyQPrimTag {
    retail addressing without the old array carrier; keep declaration order. */
 u_long          gLargestUnused;   /* @0x800514b8 */
 tFEApplication *FEApp;            /* @0x800514c0  global FE application pointer */
-extern int Draw_gDoVSync_arr[] asm("Draw_gDoVSync");
 
 inline tDialogBase::tDialogBase()
 {
@@ -115,7 +112,7 @@ void tFEApplication::PerformMenuInitialization()
   AudioMus_Volume((int)((u_int)(u_char)frontEnd.musicVolume * 0x23) >> 6);
   InitializeClass_noarg();
   Clock_SystemStartUp();
-  Draw_gDoVSync_arr[0] = 1;
+  Draw_gDoVSync = 1;
   FETextRender_SetABR(0,false);
   return;
 }
@@ -141,7 +138,7 @@ void tFEApplication::PerformMenuDestruction()
     i = i + 1;
   } while (i < 2);
   AudioMus_StopSong(1000);
-  Draw_gDoVSync_arr[0] = 0;
+  Draw_gDoVSync = 0;
   FETextRender_SetABR(0,false);
   return;
 }
@@ -299,17 +296,14 @@ void tFEApplication::Redraw()
   tDialogBase::DrawAllDialogs();
   this->DrawHelpIcons();
   if ((gPadinfo.buf[0].nopad != '\0') || (gPadinfo.buf[4].nopad != '\0')) {
-    /* SYM-CODEGEN-CARRIER: globalMenuDefs -- a shared menuDefs load is needed
-       for the retail register/address schedule in this block. */
-    tGlobalMenuDefs *globalMenuDefs = menuDefs;
-    (globalMenuDefs->itemMainTwoPlayerRace).fFlags
-         = (globalMenuDefs->itemMainTwoPlayerRace).fFlags | 1;
+    (menuDefs->itemMainTwoPlayerRace).fFlags
+         = (menuDefs->itemMainTwoPlayerRace).fFlags | 1;
     tMenuCommand emptycommand;
     tInputKeyType JustOneToPass = kInput_KeyType_Up;
     if ((tMenuItemGoToMenuNFS4Button *)
         this->fCurrentMenu[0]->fItemList[this->fCurrentMenu[0]->fCurrentItem] ==
-        &globalMenuDefs->itemMainTwoPlayerRace) {
-      (&globalMenuDefs->menuMain)->ProcessInput(kPlayerOne,JustOneToPass,emptycommand);
+        &menuDefs->itemMainTwoPlayerRace) {
+      (&menuDefs->menuMain)->ProcessInput(kPlayerOne,JustOneToPass,emptycommand);
     }
   }
   else {
@@ -317,14 +311,13 @@ void tFEApplication::Redraw()
          = (menuDefs->itemMainTwoPlayerRace).fFlags & 0xfffffffe;
   }
   if (gPadinfo.buf[0].nopad != '\0') {
-    tGlobalMenuDefs *globalMenuDefs = menuDefs;
-    (globalMenuDefs->itemMainOnePlayerRace).fFlags
-         = (globalMenuDefs->itemMainOnePlayerRace).fFlags | 1;
+    (menuDefs->itemMainOnePlayerRace).fFlags
+         = (menuDefs->itemMainOnePlayerRace).fFlags | 1;
     tMenuCommand emptycommand;
     tInputKeyType JustOneToPass = kInput_KeyType_Down;
     if ((tGlobalMenuDefs *)this->fCurrentMenu[0]->fItemList[this->fCurrentMenu[0]->fCurrentItem]
-        == globalMenuDefs) {
-      (&globalMenuDefs->menuMain)->ProcessInput(kPlayerOne,JustOneToPass,emptycommand);
+        == menuDefs) {
+      (&menuDefs->menuMain)->ProcessInput(kPlayerOne,JustOneToPass,emptycommand);
     }
   }
   else {
@@ -915,7 +908,6 @@ void tFEApplication::RunDemoVideo()
  * rotates the whole `$t0/$t1` scratch band (255) and was rejected.  P139 names that
  * surviving value `currentTicks` and records the current count-exact FAIL-6 direct probe. */
 
-#undef ticks
 tAppCommand tFEApplication::MainLoop(tMenu *newMenu)
 
 {
@@ -935,7 +927,7 @@ tAppCommand tFEApplication::MainLoop(tMenu *newMenu)
   memset(ticksAtLastInput,0,8);
   this->fInputPlayer = '\0';
   this->PerformMenuInitialization();
-  demoLoopLastInputTick = ticks_array[0];
+  demoLoopLastInputTick = ::ticks;
   gFlip = 0;
   this->fPlayer = '\0';
   do {
@@ -954,7 +946,7 @@ tAppCommand tFEApplication::MainLoop(tMenu *newMenu)
   tMenuCommand command [2];
   tInputKeyType keyVal [2];
   do {
-    tick = ticks_array[0];
+    tick = ::ticks;
     doRedraw = true;
     this->fPlayer = '\0';
     while ((u_char)this->fPlayer < 2) {
@@ -1006,7 +998,7 @@ tAppCommand tFEApplication::MainLoop(tMenu *newMenu)
             needToSetChildMenu = false;
           }
         }
-        demoLoopLastInputTick = ticks_array[0];
+        demoLoopLastInputTick = ::ticks;
       }
 MainLoop_subMenuDetect:
       if ((u_char)this->fPlayer == kPlayerTwo) {
@@ -1099,7 +1091,7 @@ MainLoop_perPlayerFlagCheck:
           if (keyVal[i] != kInput_KeyType_NoKey) {
             this->fInputPlayer = (char)i;
           }
-          if ((0xf < ticks_array[0] - ticksAtLastInput[i]) ||
+          if ((0xf < ::ticks - ticksAtLastInput[i]) ||
              ((debounce & keyVal[i]) == kInput_KeyType_NoKey)) {
             this->fLastKeyPressed[i] = keyVal[i];
           }
@@ -1111,15 +1103,10 @@ MainLoop_perPlayerFlagCheck:
              * move and feeds both stores without a load-use nop.  This pin-free,
              * zero-insn boundary reproduces that grouping (3 diffs -> PASS). */
             __asm__("" : : "i"(0));
-            /* SYM-CODEGEN-CARRIER: helpDialog -- calling IsVisible/Hide on
-               helpPopup directly is FAIL 7 at 1124/1123; this typed receiver
-               preserves retail's load-before-address schedule for the
-               recorded inline `this`. */
-            tDialogBase *helpDialog = (tDialogBase *)&this->helpPopup;
             /* SYM-INLINE-THIS: IsVisible */
-            if ((keyVal[i] == 4) && helpDialog->IsVisible()) {
+            if ((keyVal[i] == 4) && this->helpPopup.IsVisible()) {
               keyVal[i] = kInput_KeyType_AlreadyProcessed;
-              helpDialog->Hide();
+              this->helpPopup.Hide();
             }
             if (dialog != 0) {
               if (keyVal[i] != kInput_KeyType_Circle) {
@@ -1322,9 +1309,9 @@ MainLoop_carInfoApplied:
             if (carInfo.fEnginePatch != 0) {
               AudioCmn_PlayFESFX((u_int)carInfo.fEnginePatch);
             }
-            ticks = ticks_array[0];
+            ticks = ::ticks;
             while (true) {
-              if ((u_int)(ticks_array[0] - ticks) >= 0x100) break;
+              if ((u_int)(::ticks - ticks) >= 0x100) break;
               FeAudio_systemtask(0);
             }
             GameSetup_gData.replayMode = 0;
@@ -1350,18 +1337,16 @@ MainLoop_nextPlayer:
     }
     if (0xf00 < (int)(tick - demoLoopLastInputTick)) {
       this->RunDemoVideo();
-      /* SYM-CODEGEN-CARRIER: currentTicks -- assigning ticks_array[0]
-         directly is count-exact FAIL 6, selecting $v0 instead of retail $t0
-         for the final load and delay-slot store. */
-      int currentTicks = ticks_array[0];
+      /* SYM-CODEGEN-CARRIER: currentTicks -- P880 retires the global array
+         view, but direct scalar assignment still changes the final load
+         schedule; this remaining local/fence needs a separate source repair. */
+      int currentTicks = ::ticks;
       __asm__("" : : "r"(currentTicks));
       demoLoopLastInputTick = currentTicks;
     }
   } while( true );
   }
 }
-
-#define ticks ticks_array[0]
 
 
 

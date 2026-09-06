@@ -45,6 +45,7 @@ import subprocess
 import sys
 from collections import defaultdict
 from pathlib import Path
+from source_data_owners import SOURCE_DATA_OWNERS, oracle_only_objects, validate_source_data_owners
 
 ROOT = Path(__file__).resolve().parents[1]      # tools/ -> repo root (16F!)
 LD = r"C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe"
@@ -107,8 +108,14 @@ def scan():
     """fresh {obj: {syms:[{off,sec,name}], secs:{}}} census of build/recon
     (the shape scratchpad/w66a4/scan.py produced, minus the reloc dump the
     generator never reads).  Batched objdump; empty output is a hard exit."""
-    objs = sorted(o for o in (ROOT / "build" / "recon").rglob("*.o")
-                  if "diffsrc" not in o.parts)
+    # P881: source-data ownership must not admit a stale probe/renamed TU's
+    # second backing cell. Match build.py/relink.py's live-source census,
+    # rather than treating every surviving cache object as a project input.
+    # This changes input selection only; no object or instruction is modified.
+    sources = [*(ROOT / "recon").rglob("*.cpp"), *(ROOT / "recon").rglob("*.c")]
+    objs = sorted(ROOT / "build" / (str(src.relative_to(ROOT)) + ".o")
+                  for src in sources
+                  if (ROOT / "build" / (str(src.relative_to(ROOT)) + ".o")).is_file())
     assert objs, "no build/recon objects -- run tools/build.py --no-link first"
     data = {}
 
@@ -359,19 +366,36 @@ def main():
     # separately-measured landing -- see the w66a4 continuation cursor).
     assert sdata_lines and data_lines, "empty .ldfrag -- refusing a vacuous script"
 
-    in_frag = set()
+    # P881: native local-static storage is source-owned even though the full
+    # frontend fragment above remains a separate layout task. Validate exact
+    # payload and global/local offsets before removing the raw duplicate.
+    # Protected-tool backups: scratchpad/p881_lasttick/backups.
+    validate_source_data_owners(ROOT / "build")
+
+    fragment_sections = set()
     for L in sdata_lines + data_lines:
-        m = re.search(r"(build/\S+?\.o)\(", L)
-        if m:
-            in_frag.add(m.group(1))
+        for m in re.finditer(r"(build/\S+?\.o)\(([^)]*)\)", L):
+            fragment_sections.update((m.group(1), section) for section in m.group(2).split())
+    in_frag = set(fragment_sections)
+    for owner in SOURCE_DATA_OWNERS:
+        pair = ("build/" + owner["source"] + ".o", owner["section"])
+        if owner.get("placement") == "fragment":
+            assert pair in fragment_sections, f"source-data owner missing from fragment: {pair}"
+        in_frag.add(pair)
+
+    # P882: ownership is per input SECTION, not per object. Placing .data
+    # must not suppress that TU's unplaced .sdata; the old object-only set
+    # stranded those cells after .bss and produced real GP16 overflows.
+    # Backup/diagnostic receipts: scratchpad/p882_gprel. This fixes omitted
+    # section handling, not every section's still-unrecovered native address.
 
     extra_data, extra_sdata = [], []
     for o, d in sorted(objdata.items()):
         if not o.startswith("build/recon"):
             continue
-        if d.get("secs", {}).get(".data", 0) and o not in in_frag:
+        if d.get("secs", {}).get(".data", 0) and (o, ".data") not in in_frag:
             extra_data.append(f"        {o}(.data);")
-        if d.get("secs", {}).get(".sdata", 0) and o not in in_frag:
+        if d.get("secs", {}).get(".sdata", 0) and (o, ".sdata") not in in_frag:
             extra_sdata.append(f"        {o}(.sdata);")
 
     # --------------------------------------------------------- emit the ld
@@ -438,6 +462,18 @@ def main():
     A("")
     for i, (base, sz, o) in enumerate(main_t):
         A(f"    .t{i:04d} {base:#x} : SUBALIGN(4) {{ {o}(.text); }}")
+    A("")
+    A("    /* P881: source-owned native data; raw copies are oracle-only. */")
+    for i, owner in enumerate(SOURCE_DATA_OWNERS):
+        if owner.get("placement") == "fragment":
+            # P882: selected at its native slot inside the ordered .sdata
+            # fragment. Do not consume it again in a second output section.
+            assert ("build/" + owner["source"] + ".o", owner["section"]) in fragment_sections
+            continue
+        obj = "build/" + owner["source"] + ".o"
+        section = owner["section"]
+        A(f"    .source_data_{i} {owner['address']:#x} : SUBALIGN(4) {{ {obj}({section}); }}")
+        A(f"    ASSERT(SIZEOF(.source_data_{i}) == {owner['size']}, \"source data owner size mismatch\")")
     A("")
     A(f"    .data {DATA_START:#x} : SUBALIGN(4)")
     A("    {")
@@ -531,9 +567,16 @@ def main():
 
     # ------------------------------------------------------------------- link
     if "--link" in sys.argv:
-        objs = sorted(objdata) + [str(p.relative_to(ROOT)).replace("\\", "/")
-                                  for p in sorted((ROOT / "build/asm").rglob("*.o"))]
-        objs = [o for o in dict.fromkeys(objs) if o not in jtbl_objs]
+        # Same live-source rule for raw inputs: removed/renamed cache objects
+        # must not reintroduce an oracle copy under a different filename.
+        asm_sources = [*(ROOT / "asm").glob("*.s"), *(ROOT / "asm/data").glob("*.s")]
+        asm_objects = ["build/" + p.relative_to(ROOT).as_posix() + ".o"
+                       for p in sorted(asm_sources)
+                       if (ROOT / "build" / (p.relative_to(ROOT).as_posix() + ".o")).is_file()]
+        objs = sorted(objdata) + asm_objects
+        oracle_only = oracle_only_objects(ROOT / "build")
+        objs = [o for o in dict.fromkeys(objs)
+                if o not in jtbl_objs and (ROOT / o).resolve() not in oracle_only]
         assert objs, "empty object list -- vacuous link refused"
         rsp = OUTDIR / "recon_link.rsp"
         rsp.write_text("\n".join('"%s"' % o for o in objs))
@@ -541,7 +584,11 @@ def main():
         for label, extra in (("strict", []),
                              ("multdef-ok", ["--allow-multiple-definition"])):
             cmd = [LD, "-T", str(TARGET)]
-            for auto in ("undefined_syms_auto.txt", "undefined_funcs_auto.txt"):
+            # P881: use the same recovered linker-owned data/boundary names
+            # as the standing relink/source lane. PROVIDE yields to real
+            # source definitions and allocates no duplicate storage.
+            for auto in ("undefined_syms_auto.txt", "undefined_funcs_auto.txt",
+                         "retail_data_symbols.ld"):
                 p = ROOT / "linkers" / auto
                 if p.exists():
                     cmd += ["-T", str(p)]

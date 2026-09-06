@@ -1,0 +1,103 @@
+[
+  {
+    "command": [
+      "scratchpad/p876_ai_bridges/full_build.py",
+      "--skip-asm"
+    ],
+    "returncode": 0,
+    "stdout": "== output -> build  (skip_asm=True) ==\n== assembling data/header ==\n== compiling C TUs ==\n== compiling vendored reconstruction C++ TUs ==\n== objects only (no link) ==\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "scratchpad/p876_ai_bridges/full_build.py",
+      "--out",
+      "expected",
+      "--no-link"
+    ],
+    "returncode": 0,
+    "stdout": "== output -> expected  (skip_asm=False) ==\n== assembling data/header ==\n== compiling C TUs ==\n== compiling vendored reconstruction C++ TUs ==\n== objects only (no link) ==\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "scratchpad/p876_ai_bridges/full_build.py",
+      "--no-link"
+    ],
+    "returncode": 0,
+    "stdout": "== output -> build  (skip_asm=False) ==\n== assembling data/header ==\n== compiling C TUs ==\n== compiling vendored reconstruction C++ TUs ==\n== objects only (no link) ==\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "tools/relink.py",
+      "--lane",
+      "both",
+      "--json",
+      "C:\\Temp\\nfs4-decomp\\scratchpad\\p879_checkpoint\\relink_receipts.json"
+    ],
+    "returncode": 0,
+    "stdout": "== lane recon: 757 objects (excluded: {'diffsrc': 149, 'scratch': 80, 'scratchpad': 118, 'pbuild': 0, 'relink': 2})\n   ld -r rc=1\n   DUP total=964  blob-class=964  REAL=0          [REAL must be 0]\n   HIDDEN PHANTOMS=0                          [must be 0]\n   UNRESOLVED (reloc-referenced)=0  (linker-resolved=8; symtab-only, benign=0)\n== lane src: 706 objects (excluded: {'diffsrc': 149, 'scratch': 80, 'scratchpad': 118, 'pbuild': 0, 'relink': 2})\n   ld -r rc=0\n   DUP total=0  blob-class=0  REAL=0          [REAL must be 0]\n   HIDDEN PHANTOMS=0                          [must be 0]\n   UNRESOLVED (reloc-referenced)=0  (linker-resolved=193; symtab-only, benign=3489)\nGATE: GREEN\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "tools/audit_vtable_indexing.py"
+    ],
+    "returncode": 0,
+    "stdout": "PASS: no unsafe vtable row indexing in 1029 files\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "tools/textmoves_audit.py"
+    ],
+    "returncode": 0,
+    "stdout": "PASS: source-only policy; no post-compiler text moves or branch retargets configured\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "scratchpad/p879_femenudefs/verify.py"
+    ],
+    "returncode": 0,
+    "stdout": "PASS:8 targets,597 raw oracle words,66/66 wholeTU,branch0,all target debug twins exact.\nEntire object matches published P878 bytes; no source/helper/compiler names invented.\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "scratchpad/p879_audiotrk/verify_production.py"
+    ],
+    "returncode": 0,
+    "stdout": "PASS: production AudioTrk 6/6, branch0, exact-g; all1004 linked words and17 data bytes equal retail.\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "tools/tugate.py",
+      "recon/game/common/copspeak.cpp"
+    ],
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/common/copspeak.cpp: 27/27 PASS\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "tools/brdist.py",
+      "recon/game/common/copspeak.cpp"
+    ],
+    "returncode": 0,
+    "stdout": "# 27 fns checked, 0 with branch-offset/count divergence\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "tools/diffsrc.py",
+      "recon/game/common/copspeak.cpp",
+      "CopSpeak_Flush__Fv"
+    ],
+    "returncode": 0,
+    "stdout": "CopSpeak_Flush__Fv: 0 diff insns across 0 blocks (ours 20 / oracle 20; -g twin EXACT)\n\nSOURCE-STATEMENT HOTSPOTS (our diff insns per line):\n",
+    "stderr": ""
+  }
+]

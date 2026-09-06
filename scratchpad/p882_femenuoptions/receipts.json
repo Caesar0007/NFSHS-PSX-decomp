@@ -1,0 +1,216 @@
+{
+  "task": "P882",
+  "source": "recon/frontend/common/femenuoptions.cpp",
+  "retained": {
+    "removed_extern_views": [
+      "FEAppA[] __asm__(\"FEApp\")",
+      "menu_kUserNameRowsA[] __asm__(\"menu_kUserNameRows\")"
+    ],
+    "removed_unrecorded_local": "short *dst",
+    "native_array_scope_restored": "NumberOfRows[6] is now function-scope; initializer stays after sprintf loop",
+    "new_identifiers": 0,
+    "new_asm_or_volatile": 0,
+    "genuine_arrays_preserved": true
+  },
+  "native": {
+    "FEApp": "4b4f01 EXT PTR tFEApplication size896 @800514C0",
+    "menu_kUserNameRows": "736bfa EXT SHORT @800529B0 (not an array)",
+    "NumberOfRows": "5152c0 AUTO ARY SHORT dim6,size12,slot-0x28 in function block5152a8",
+    "i": "5152b1 REG SHORT s2",
+    "SLD": "1982-1985 sprintf loop,1989 NumberOfRows initializer,1990 scalar row-count assignment"
+  },
+  "verification": {
+    "whole_tu": "92/92 PASS",
+    "branch_divergences": 0,
+    "target_insns": 141,
+    "exact_debug_twin": true,
+    "debug_NumberOfRows": {
+      "scope": "function first block",
+      "storage_class": 1,
+      "slot": -40,
+      "dim": 6,
+      "size": 12,
+      "type": "0x33 (ARY SHORT)"
+    },
+    "same_source_path_entire_ELF_equal": true,
+    "ELF_bytes": 37180,
+    "sha256": "1eb642e6b40eb40eeb8c6e198d711f468fc51731a1997c822c5ed1ecd3a2cbf6",
+    "all_symbols_data_relocations_preserved": true,
+    "raw_oracle_words": 141,
+    "raw_mismatches": 0,
+    "raw_array_values": [
+      7,
+      9,
+      9,
+      9,
+      8,
+      9
+    ],
+    "raw_array_va": "0x80010A00",
+    "raw_global_short_at_800529B0": 0
+  },
+  "cases": [
+    {
+      "name": "baseline",
+      "pass": 92,
+      "total": 92,
+      "object": "C:\\Temp\\nfs4-decomp\\build\\p882\\280\\scratchpad\\p882_femenuoptions\\baseline.cpp.o",
+      "source_sha256": "262d6d0405a23ba36923067bd2e4242c36f826ca0e70fc22bbf5ddca631640ad",
+      "compiler_commands": [
+        [
+          "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+          "-quiet",
+          "-O2",
+          "-G0",
+          "C:\\Temp\\nfs4-decomp\\build\\p882\\280\\scratchpad\\p882_femenuoptions\\baseline.cpp.i",
+          "-o",
+          "C:\\Temp\\nfs4-decomp\\build\\p882\\280\\scratchpad\\p882_femenuoptions\\baseline.cpp.s"
+        ]
+      ],
+      "target": {
+        "name": "TransitionOn__17tUserNameMenuItem",
+        "diffs": 0,
+        "ours": 141,
+        "retail": 141,
+        "branch_differences": [],
+        "first_differences": []
+      },
+      "failures": []
+    },
+    {
+      "name": "fe_scalar",
+      "pass": 92,
+      "total": 92,
+      "object": "C:\\Temp\\nfs4-decomp\\build\\p882\\280\\scratchpad\\p882_femenuoptions\\fe_scalar.cpp.o",
+      "source_sha256": "70c8da1fa629f5c0ae0cd91de418a2f6d867efa392f16dca611428d6c6e36907",
+      "compiler_commands": [
+        [
+          "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+          "-quiet",
+          "-O2",
+          "-G0",
+          "C:\\Temp\\nfs4-decomp\\build\\p882\\280\\scratchpad\\p882_femenuoptions\\fe_scalar.cpp.i",
+          "-o",
+          "C:\\Temp\\nfs4-decomp\\build\\p882\\280\\scratchpad\\p882_femenuoptions\\fe_scalar.cpp.s"
+        ]
+      ],
+      "target": {
+        "name": "TransitionOn__17tUserNameMenuItem",
+        "diffs": 0,
+        "ours": 141,
+        "retail": 141,
+        "branch_differences": [],
+        "first_differences": []
+      },
+      "failures": []
+    },
+    {
+      "name": "rows_scalar",
+      "pass": 92,
+      "total": 92,
+      "object": "C:\\Temp\\nfs4-decomp\\build\\p882\\280\\scratchpad\\p882_femenuoptions\\rows_scalar.cpp.o",
+      "source_sha256": "1ddfce79c27a781dc14ffa3ef30aad8d11b306a1245b2d106130221c1a0b61e3",
+      "compiler_commands": [
+        [
+          "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+          "-quiet",
+          "-O2",
+          "-G0",
+          "C:\\Temp\\nfs4-decomp\\build\\p882\\280\\scratchpad\\p882_femenuoptions\\rows_scalar.cpp.i",
+          "-o",
+          "C:\\Temp\\nfs4-decomp\\build\\p882\\280\\scratchpad\\p882_femenuoptions\\rows_scalar.cpp.s"
+        ]
+      ],
+      "target": {
+        "name": "TransitionOn__17tUserNameMenuItem",
+        "diffs": 0,
+        "ours": 141,
+        "retail": 141,
+        "branch_differences": [],
+        "first_differences": []
+      },
+      "failures": []
+    },
+    {
+      "name": "rows_direct",
+      "pass": 92,
+      "total": 92,
+      "object": "C:\\Temp\\nfs4-decomp\\build\\p882\\280\\scratchpad\\p882_femenuoptions\\rows_direct.cpp.o",
+      "source_sha256": "27f26c15985af4b2e4a7ed226e1e827de99122e8e73068e759469a19c293c402",
+      "compiler_commands": [
+        [
+          "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+          "-quiet",
+          "-O2",
+          "-G0",
+          "C:\\Temp\\nfs4-decomp\\build\\p882\\280\\scratchpad\\p882_femenuoptions\\rows_direct.cpp.i",
+          "-o",
+          "C:\\Temp\\nfs4-decomp\\build\\p882\\280\\scratchpad\\p882_femenuoptions\\rows_direct.cpp.s"
+        ]
+      ],
+      "target": {
+        "name": "TransitionOn__17tUserNameMenuItem",
+        "diffs": 0,
+        "ours": 141,
+        "retail": 141,
+        "branch_differences": [],
+        "first_differences": []
+      },
+      "failures": []
+    },
+    {
+      "name": "rows_functionscope",
+      "pass": 92,
+      "total": 92,
+      "object": "C:\\Temp\\nfs4-decomp\\build\\p882\\280\\scratchpad\\p882_femenuoptions\\rows_functionscope.cpp.o",
+      "source_sha256": "07a3e4f8bc8a825fa159e6066aef9b222f687dd06452e380d9db0d5f51518ca7",
+      "compiler_commands": [
+        [
+          "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+          "-quiet",
+          "-O2",
+          "-G0",
+          "C:\\Temp\\nfs4-decomp\\build\\p882\\280\\scratchpad\\p882_femenuoptions\\rows_functionscope.cpp.i",
+          "-o",
+          "C:\\Temp\\nfs4-decomp\\build\\p882\\280\\scratchpad\\p882_femenuoptions\\rows_functionscope.cpp.s"
+        ]
+      ],
+      "target": {
+        "name": "TransitionOn__17tUserNameMenuItem",
+        "diffs": 0,
+        "ours": 141,
+        "retail": 141,
+        "branch_differences": [],
+        "first_differences": []
+      },
+      "failures": []
+    },
+    {
+      "name": "combined",
+      "pass": 92,
+      "total": 92,
+      "object": "C:\\Temp\\nfs4-decomp\\build\\p882\\280\\scratchpad\\p882_femenuoptions\\combined.cpp.o",
+      "source_sha256": "bee5ea30c7430671326bd8b804e3de48a6acdaad6ddc7e2ba8e76e404bf1e9ee",
+      "compiler_commands": [
+        [
+          "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+          "-quiet",
+          "-O2",
+          "-G0",
+          "C:\\Temp\\nfs4-decomp\\build\\p882\\280\\scratchpad\\p882_femenuoptions\\combined.cpp.i",
+          "-o",
+          "C:\\Temp\\nfs4-decomp\\build\\p882\\280\\scratchpad\\p882_femenuoptions\\combined.cpp.s"
+        ]
+      ],
+      "target": {
+        "name": "TransitionOn__17tUserNameMenuItem",
+        "diffs": 0,
+        "ours": 141,
+        "retail": 141,
+        "branch_differences": [],
+        "first_differences": []
+      },
+      "failures": []
+    }
+  ]
+}

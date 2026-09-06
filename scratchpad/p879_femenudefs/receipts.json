@@ -1,0 +1,143 @@
+{
+  "functions": 8,
+  "raw_words": 597,
+  "normal_tu_pass": "66/66",
+  "branches": 0,
+  "object_equals_p878": true,
+  "object_sha256": "e5f8a1f116f2e9aeecfbf0d2d96c5e4e6a6164caea5ef588aec3690449580fd0",
+  "checks": [
+    {
+      "command": [
+        "tools/verify_asm.py",
+        "recon/frontend/common/femenudefs.cpp",
+        "MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand,MenuExtended_EnterUserName__FR12tMenuCommand,MenuExtended_FinishedPlayer1GetName__FR12tMenuCommand,MenuExtended_FinishedPlayer2GetName__FR12tMenuCommand,MenuExtended_AwardPinkSlipsCar__FR12tMenuCommand,MenuExtended_ExitPinkSlipsEarly__FR12tMenuCommand,MenuExtended_GoToTournTrackInfo__FR12tMenuCommand,MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand"
+      ],
+      "stdout": "  MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand: PASS (69 insns)\n  MenuExtended_EnterUserName__FR12tMenuCommand: PASS (25 insns)\n  MenuExtended_FinishedPlayer1GetName__FR12tMenuCommand: PASS (68 insns)\n  MenuExtended_FinishedPlayer2GetName__FR12tMenuCommand: PASS (40 insns)\n  MenuExtended_AwardPinkSlipsCar__FR12tMenuCommand: PASS (138 insns)\n  MenuExtended_ExitPinkSlipsEarly__FR12tMenuCommand: PASS (76 insns)\n  MenuExtended_GoToTournTrackInfo__FR12tMenuCommand: PASS (90 insns)\n  MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand: PASS (91 insns)\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "tools/tugate.py",
+        "recon/frontend/common/femenudefs.cpp"
+      ],
+      "stdout": "  __none__: NO ORACLE\nrecon/frontend/common/femenudefs.cpp: 66/66 PASS\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "tools/brdist.py",
+        "recon/frontend/common/femenudefs.cpp"
+      ],
+      "stdout": "# 66 fns checked, 0 with branch-offset/count divergence\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "tools/diffsrc.py",
+        "recon/frontend/common/femenudefs.cpp",
+        "MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand"
+      ],
+      "stdout": "MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand: 0 diff insns across 0 blocks (ours 69 / oracle 69; -g twin EXACT)\n\nSOURCE-STATEMENT HOTSPOTS (our diff insns per line):\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "tools/diffsrc.py",
+        "recon/frontend/common/femenudefs.cpp",
+        "MenuExtended_EnterUserName__FR12tMenuCommand"
+      ],
+      "stdout": "MenuExtended_EnterUserName__FR12tMenuCommand: 0 diff insns across 0 blocks (ours 25 / oracle 25; -g twin EXACT)\n\nSOURCE-STATEMENT HOTSPOTS (our diff insns per line):\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "tools/diffsrc.py",
+        "recon/frontend/common/femenudefs.cpp",
+        "MenuExtended_FinishedPlayer1GetName__FR12tMenuCommand"
+      ],
+      "stdout": "MenuExtended_FinishedPlayer1GetName__FR12tMenuCommand: 0 diff insns across 0 blocks (ours 68 / oracle 68; -g twin EXACT)\n\nSOURCE-STATEMENT HOTSPOTS (our diff insns per line):\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "tools/diffsrc.py",
+        "recon/frontend/common/femenudefs.cpp",
+        "MenuExtended_FinishedPlayer2GetName__FR12tMenuCommand"
+      ],
+      "stdout": "MenuExtended_FinishedPlayer2GetName__FR12tMenuCommand: 0 diff insns across 0 blocks (ours 40 / oracle 40; -g twin EXACT)\n\nSOURCE-STATEMENT HOTSPOTS (our diff insns per line):\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "tools/diffsrc.py",
+        "recon/frontend/common/femenudefs.cpp",
+        "MenuExtended_AwardPinkSlipsCar__FR12tMenuCommand"
+      ],
+      "stdout": "MenuExtended_AwardPinkSlipsCar__FR12tMenuCommand: 0 diff insns across 0 blocks (ours 138 / oracle 138; -g twin EXACT)\n\nSOURCE-STATEMENT HOTSPOTS (our diff insns per line):\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "tools/diffsrc.py",
+        "recon/frontend/common/femenudefs.cpp",
+        "MenuExtended_ExitPinkSlipsEarly__FR12tMenuCommand"
+      ],
+      "stdout": "MenuExtended_ExitPinkSlipsEarly__FR12tMenuCommand: 0 diff insns across 0 blocks (ours 76 / oracle 76; -g twin EXACT)\n\nSOURCE-STATEMENT HOTSPOTS (our diff insns per line):\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "tools/diffsrc.py",
+        "recon/frontend/common/femenudefs.cpp",
+        "MenuExtended_GoToTournTrackInfo__FR12tMenuCommand"
+      ],
+      "stdout": "MenuExtended_GoToTournTrackInfo__FR12tMenuCommand: 0 diff insns across 0 blocks (ours 90 / oracle 90; -g twin EXACT)\n\nSOURCE-STATEMENT HOTSPOTS (our diff insns per line):\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "tools/diffsrc.py",
+        "recon/frontend/common/femenudefs.cpp",
+        "MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand"
+      ],
+      "stdout": "MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand: 0 diff insns across 0 blocks (ours 91 / oracle 91; -g twin EXACT)\n\nSOURCE-STATEMENT HOTSPOTS (our diff insns per line):\n",
+      "stderr": ""
+    }
+  ],
+  "raw": [
+    {
+      "function": "MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand",
+      "words": 69
+    },
+    {
+      "function": "MenuExtended_EnterUserName__FR12tMenuCommand",
+      "words": 25
+    },
+    {
+      "function": "MenuExtended_FinishedPlayer1GetName__FR12tMenuCommand",
+      "words": 68
+    },
+    {
+      "function": "MenuExtended_FinishedPlayer2GetName__FR12tMenuCommand",
+      "words": 40
+    },
+    {
+      "function": "MenuExtended_AwardPinkSlipsCar__FR12tMenuCommand",
+      "words": 138
+    },
+    {
+      "function": "MenuExtended_ExitPinkSlipsEarly__FR12tMenuCommand",
+      "words": 76
+    },
+    {
+      "function": "MenuExtended_GoToTournTrackInfo__FR12tMenuCommand",
+      "words": 90
+    },
+    {
+      "function": "MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand",
+      "words": 91
+    }
+  ],
+  "source_sha256": "814f7f963a9e05aac291b599441c6b87ddc06e92f7f8ab0950a08e8d2be2864c",
+  "qualification": "Eight target -g twins exact; whole-TU debug constructor discrepancy remains pre-existing. Native scope evidence is qualified in the dedicated receipts."
+}

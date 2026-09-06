@@ -1,0 +1,150 @@
+[
+  {
+    "command": [
+      "scratchpad/p876_ai_bridges/full_build.py",
+      "--skip-asm"
+    ],
+    "returncode": 0,
+    "stdout": "== output -> build  (skip_asm=True) ==\n== assembling data/header ==\n== compiling C TUs ==\n== compiling vendored reconstruction C++ TUs ==\n== objects only (no link) ==\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "scratchpad/p876_ai_bridges/full_build.py",
+      "--out",
+      "expected",
+      "--no-link"
+    ],
+    "returncode": 0,
+    "stdout": "== output -> expected  (skip_asm=False) ==\n== assembling data/header ==\n== compiling C TUs ==\n== compiling vendored reconstruction C++ TUs ==\n== objects only (no link) ==\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "scratchpad/p876_ai_bridges/full_build.py",
+      "--no-link"
+    ],
+    "returncode": 0,
+    "stdout": "== output -> build  (skip_asm=False) ==\n== assembling data/header ==\n== compiling C TUs ==\n== compiling vendored reconstruction C++ TUs ==\n== objects only (no link) ==\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "tools/gen_ld.py",
+      "--check-nfs4ld"
+    ],
+    "returncode": 0,
+    "stdout": "[nfs4.ld] verified -- 233 cut-blob pieces over 5 stems: every piece referenced, no per-section duplicates, per-letter blob order held (file untouched)\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "tools/gen_ld.py",
+      "--link"
+    ],
+    "returncode": 0,
+    "stdout": "[census] fresh scan: 518 objects\ncut enabled                  : True\nobjects with text            : 464\n  placed (front overlay)     : 0\n  placed (resident .text)    : 461\n  DROPPED (interleaved)      : 3\nobjects with text but NO base: 1\nfront rodata pieces          : 33 (18 jump-table, excluded=True)\n_jNN objects excluded        : 54\nmain rodata pieces           : 61 (36 jump-table, excluded=True)\nrecon .rodata windows placed : 93 (+9 outside a rodata blob span -> data-lane ldfrag)\n.data  fragment lines        : 95 (+72 appended; front_data NOT placed -- see the w66a4 cursor)\n.sdata fragment lines        : 73 (+34)\n-> C:\\Temp\\nfs4-decomp\\linkers\\nfs4_recon.ld, C:\\Temp\\nfs4-decomp\\build\\gen_ld\\genld_report.txt\n[strict] rc=0 stderr=1819 undefined-names=0 (.L=0) multiple-def=909 reloc-truncated=0\n[multdef-ok] rc=0 stderr=1 undefined-names=0 (.L=0) multiple-def=0 reloc-truncated=0\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "scratchpad/p883_data_layout/verify_production.py"
+    ],
+    "returncode": 0,
+    "stdout": "PASS: all8 native source owners; exact padding and CTYPE/table seam; FETextRender globals;34 Hud aliases/raw references. Existing allocated output overlaps recorded: 119.\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "scratchpad/p883_ctype/verify_window.py"
+    ],
+    "returncode": 0,
+    "stdout": "{\n  \"table_size\": 129,\n  \"table_sha256\": \"d3ca4007e97054deeb66d809e73c7b766c1156c598fb7b92d403aa7b71fbbb0a\",\n  \"data_relocations\": 0,\n  \"nonctype_sections_unchanged\": [\n    {\n      \"section\": \".text\",\n      \"size\": 0,\n      \"sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n    },\n    {\n      \"section\": \".data\",\n      \"size\": 976,\n      \"sha256\": \"d67b30bc3ef4ba136696b5e68c0e1b4cc2f31b2a508f4e78ba3c51eff66efc88\"\n    },\n    {\n      \"section\": \".bss\",\n      \"size\": 0,\n      \"sha256\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\"\n    },\n    {\n      \"section\": \".MIPS.abiflags\",\n      \"size\": 24,\n      \"sha256\": \"9e70292a32ba11ef2132089aab266b191f38da634e80b1c34087db93153bd643\"\n    },\n    {\n      \"section\": \".data.r18_gap_after_ctype\",\n      \"size\": 12,\n      \"sha256\": \"15ec7bf0b50732b49f8228e07d24365338f9e3ab994b00af08e5a3bffe55fd8b\"\n    },\n    {\n      \"section\": \".data.asintbl_blob\",\n      \"size\": 512,\n      \"sha256\": \"fff107aee0cc92ff9a79d1acb10342cae29db4449b41bdfc1a4a082e9d541e0c\"\n    },\n    {\n      \"section\": \".data.r18_gap_after_asintbl\",\n      \"size\": 4,\n      \"sha256\": \"df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119\"\n    },\n    {\n      \"section\": \".data.sintbl_blob\",\n      \"size\": 1028,\n      \"sha256\": \"c3b03a2581960f9b22f2f29fb52f30bf36eb87c3896c8e4f62c708b3c247f880\"\n    },\n    {\n      \"section\": \".data.fatantbl_blob\",\n      \"size\": 1028,\n      \"sha256\": \"a3ab1c0b30ea38a25c2d7f7c7b13969a0e3448547b839c92b1ae5789c3942b64\"\n    },\n    {\n      \"section\": \".data.r18_post_tables\",\n      \"size\": 180,\n      \"sha256\": \"801b2509603ad3a850f12315089a1ed1c1888699a3ef285a6d3a948a83fed2d8\"\n    },\n    {\n      \"section\": \".data.cstbl_blob\",\n      \"size\": 16384,\n      \"sha256\": \"b40c47b014ca8650c539760fd4c519cabce6f091628566ca0dd22318bb2c5b7a\"\n    },\n    {\n      \"section\": \".data.r18_post_cstbl\",\n      \"size\": 240,\n      \"sha256\": \"61b5fca105b9da6f40cc4545867aa1919d79b4f70415f13e43d9070684842ad9\"\n    }\n  ],\n  \"nonctype_symbols_unchanged\": true,\n  \"lanes\": {\n    \"baseline\": {\n      \"address\": \"0x80136e00\",\n      \"size\": 1632,\n      \"raw_differences\": 0,\n      \"sha256\": \"09b94c5e9576be50882e43c9333bea89a073f0601789fda36ee0504c86012007\",\n      \"ctype\": \"0x801371d0\",\n      \"asintbl\": \"0x80137260\",\n      \"alignment_padding\": 3,\n      \"explicit_gap\": 12,\n      \"link_stderr\": \"\"\n    },\n    \"src\": {\n      \"address\": \"0x80136e00\",\n      \"size\": 1632,\n      \"raw_differences\": 0,\n      \"sha256\": \"09b94c5e9576be50882e43c9333bea89a073f0601789fda36ee0504c86012007\",\n      \"ctype\": \"0x801371d0\",\n      \"asintbl\": \"0x80137260\",\n      \"alignment_padding\": 3,\n      \"explicit_gap\": 12,\n      \"link_stderr\": \"\"\n    },\n    \"recon\": {\n      \"address\": \"0x80136e00\",\n      \"size\": 1632,\n      \"raw_differences\": 0,\n      \"sha256\": \"09b94c5e9576be50882e43c9333bea89a073f0601789fda36ee0504c86012007\",\n      \"ctype\": \"0x801371d0\",\n      \"asintbl\": \"0x80137260\",\n      \"alignment_padding\": 3,\n      \"explicit_gap\": 12,\n      \"link_stderr\": \"\"\n    }\n  },\n  \"table_gap_asintbl_bytes\": 656,\n  \"full_window_with_prefix_bytes\": 1632,\n  \"typed_object_sha256\": \"daedead9c8792627233dd7fd85dac3e1cfeb7d4d2e1f1759516445ff3852b467\",\n  \"unrelated_negative_control\": \"Whole r18 plus typed asintbl is a pre-existing duplicate definition; strict bounded recon test uses only unchanged prefix/gap source copied before assembly.\"\n}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "scratchpad/p882_gprel/verify_owner_windows.py"
+    ],
+    "returncode": 0,
+    "stdout": "{\n  \"owners\": [\n    {\n      \"name\": \"hudpmx\",\n      \"base\": \"0x8013c84c\",\n      \"source_size\": 1333,\n      \"oracle_size\": 1336,\n      \"source_sha256\": \"3351804d144ffcc98ae338b917cea61b12696514f5f521a41548423b16ec36af\",\n      \"oracle_sha256\": \"1a420a5f66eefef0cbd25fe007c583c21e06046fc2ee2aa31761fa6c3e997e57\",\n      \"padding\": \"000000\",\n      \"data_relocations\": 0\n    },\n    {\n      \"name\": \"copspeak\",\n      \"base\": \"0x8013d07c\",\n      \"source_size\": 126,\n      \"oracle_size\": 128,\n      \"source_sha256\": \"9916e2deea22d489a0ca65a78ff2ed67c7beb13ff564c1b52beea4cbe70767f1\",\n      \"oracle_sha256\": \"b2d7d035cf339742d810f03f3c17de317ffc1150d517396599cbd22209485f50\",\n      \"padding\": \"0000\",\n      \"data_relocations\": 0\n    },\n    {\n      \"name\": \"nfs3\",\n      \"base\": \"0x8013d270\",\n      \"source_size\": 88,\n      \"oracle_size\": 88,\n      \"source_sha256\": \"2d87c1156c33b9e238babab757c4501968dbe30f9d5b9a645429665ea21c068a\",\n      \"oracle_sha256\": \"2d87c1156c33b9e238babab757c4501968dbe30f9d5b9a645429665ea21c068a\",\n      \"padding\": \"\",\n      \"data_relocations\": 0\n    },\n    {\n      \"name\": \"r3dcar\",\n      \"base\": \"0x8013d324\",\n      \"source_size\": 156,\n      \"oracle_size\": 156,\n      \"source_sha256\": \"8e3a0d3cbd549fdabdaf42d3c37494688098efef57ecf6410d273f468b77c9ca\",\n      \"oracle_sha256\": \"8e3a0d3cbd549fdabdaf42d3c37494688098efef57ecf6410d273f468b77c9ca\",\n      \"padding\": \"\",\n      \"data_relocations\": 0\n    },\n    {\n      \"name\": \"sim\",\n      \"base\": \"0x8013d40c\",\n      \"source_size\": 40,\n      \"oracle_size\": 40,\n      \"source_sha256\": \"58eec09fc902fa59a719ff705a371adb51f37cf5bd2342194f9ff25f778af04d\",\n      \"oracle_sha256\": \"58eec09fc902fa59a719ff705a371adb51f37cf5bd2342194f9ff25f778af04d\",\n      \"padding\": \"\",\n      \"data_relocations\": 0\n    }\n  ],\n  \"lanes\": [\n    \"baseline\",\n    \"src\",\n    \"recon\"\n  ],\n  \"bytes_per_lane\": 2692,\n  \"all_raw_exact\": true,\n  \"neighbor_symbols_exact\": true,\n  \"recon_padding_exact\": true\n}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "scratchpad/p882_gprel/audit.py"
+    ],
+    "returncode": 0,
+    "stdout": "{\n  \"live_sources\": 518,\n  \"missing_objects\": [],\n  \"gp_objects\": 78,\n  \"gp_relocations\": 2381,\n  \"relocation_type_counts\": {\n    \"5\": 9272,\n    \"6\": 9505,\n    \"2\": 5829,\n    \"4\": 15782,\n    \"7\": 2381\n  },\n  \"gp_input_values\": {\n    \"0\": 78\n  },\n  \"gp\": \"0x8013c54c\",\n  \"resolved\": 2381,\n  \"unresolved\": 0,\n  \"out_of_range\": 0,\n  \"expected_known\": 2378,\n  \"wrong_target\": 1459,\n  \"in_range_wrong_target\": 1459,\n  \"in_range_encoding_mismatch\": 0,\n  \"encoding_checked\": 2381,\n  \"native_raw_conflicts\": 4,\n  \"output_elf_sha256\": \"89127b6af5bd9a3534c544a5e9ff154c8685dd6961ce8bcfc249612fc8296324\",\n  \"output_map_sha256\": \"c8789989e2525b74bd874ddc2281de2886728ce11205a5690078ba1075665727\"\n}\nOVERFLOW OBJECTS\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "scratchpad/p882_gprel/compare_current.py",
+      "p883"
+    ],
+    "returncode": 0,
+    "stdout": "{\n  \"live_sources\": 518,\n  \"missing_objects\": [],\n  \"gp_objects\": 78,\n  \"gp_relocations\": 2381,\n  \"relocation_type_counts\": {\n    \"5\": 9272,\n    \"6\": 9505,\n    \"2\": 5829,\n    \"4\": 15782,\n    \"7\": 2381\n  },\n  \"gp_input_values\": {\n    \"0\": 78\n  },\n  \"gp\": \"0x8013c54c\",\n  \"resolved\": 2381,\n  \"unresolved\": 0,\n  \"out_of_range\": 0,\n  \"expected_known\": 2381,\n  \"wrong_target\": 1462,\n  \"in_range_wrong_target\": 1462,\n  \"in_range_encoding_mismatch\": 0,\n  \"encoding_checked\": 2381,\n  \"native_raw_conflicts\": 4,\n  \"output_elf_sha256\": \"89127b6af5bd9a3534c544a5e9ff154c8685dd6961ce8bcfc249612fc8296324\",\n  \"output_map_sha256\": \"c8789989e2525b74bd874ddc2281de2886728ce11205a5690078ba1075665727\",\n  \"expected_unknown\": 0,\n  \"fixed_native_targets\": 234,\n  \"regressed_native_targets\": 0\n}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "tools/relink.py",
+      "--lane",
+      "both",
+      "--json",
+      "C:\\Temp\\nfs4-decomp\\scratchpad\\p883_data_layout\\relink_final.json"
+    ],
+    "returncode": 0,
+    "stdout": "== lane recon: 758 objects (excluded: {'diffsrc': 149, 'scratch': 80, 'scratchpad': 118, 'pbuild': 0, 'relink': 2})\n   ld -r rc=1\n   SOURCE-OWNED oracle copies excluded=8 [owner payload/symbols validated]\n   DUP total=909  blob-class=909  REAL=0          [REAL must be 0]\n   HIDDEN PHANTOMS=0                          [must be 0]\n   UNRESOLVED (reloc-referenced)=0  (linker-resolved=42; symtab-only, benign=0)\n== lane src: 715 objects (excluded: {'diffsrc': 149, 'scratch': 80, 'scratchpad': 118, 'pbuild': 0, 'relink': 2})\n   ld -r rc=0\n   DUP total=0  blob-class=0  REAL=0          [REAL must be 0]\n   HIDDEN PHANTOMS=0                          [must be 0]\n   UNRESOLVED (reloc-referenced)=0  (linker-resolved=193; symtab-only, benign=3489)\nGATE: GREEN\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "scratchpad/p882_fedialog/verify_frontend.py"
+    ],
+    "returncode": 0,
+    "stdout": "PASS:151/151 frontend functions,3 whole objects unchanged,all branch checks clean.\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "scratchpad/p879_audiotrk/verify_production.py"
+    ],
+    "returncode": 0,
+    "stdout": "PASS: production AudioTrk 6/6, branch0, exact-g; all1004 linked words and17 data bytes equal retail.\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "scratchpad/p879_nfs3_regions/verify_production.py"
+    ],
+    "returncode": 0,
+    "stdout": "PASS: AU3/3 + USA1/1; both25-word startups and AU172-word LoadPerps raw/reference checks; all71 AU rodata bytes exact.\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "scratchpad/p881_lasttick/verify_source.py"
+    ],
+    "returncode": 0,
+    "stdout": "PASS: real STAT INT lasttick at data+4;7/7/branch0/exact-g; only two unlinked data addend bytes differ.\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "tools/audit_vtable_indexing.py"
+    ],
+    "returncode": 0,
+    "stdout": "PASS: no unsafe vtable row indexing in 1029 files\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "tools/textmoves_audit.py"
+    ],
+    "returncode": 0,
+    "stdout": "PASS: source-only policy; no post-compiler text moves or branch retargets configured\n",
+    "stderr": ""
+  }
+]

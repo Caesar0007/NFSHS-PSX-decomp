@@ -1,0 +1,15 @@
+{
+  "generator": "tools/gen_ld.py",
+  "active_fragments": [
+    "linkers/nfs4_recon.sdata_8013C54C.ldfrag",
+    "linkers/nfs4_recon.data_8010CCD4.ldfrag"
+  ],
+  "historical_inactive_fragment": "linkers/nfs4_recon.front_data.ldfrag",
+  "front_fragment_read_by_generator": false,
+  "required_owner_placement": "explicit",
+  "required_address": "0x800515b8",
+  "required_size": 88,
+  "initial_fragment_suggestion_corrected": true,
+  "reason": "A historical fragment listing does not establish active membership; actual gen_ld lines362-367 explicitly exclude the frontend fragment. The explicit owner loop at467-476 supplies this native slot.",
+  "production_edits_by_this_agent": false
+}

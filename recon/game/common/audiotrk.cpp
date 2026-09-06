@@ -260,7 +260,11 @@ AudioTrk_channel_found:
             azimuth = AudioClc_CalcAzimuth(&AudioClc_gRenderView,&se->cp);
             dop = AudioClc_CalcDopplerShiftRatio(&se->cp,vel);
           }
-          if ((u_int)((u_char)se->type - 4) < 0x20) {
+          /* P879: keep the byte interval as two bounds. GCC otherwise gives
+             this reload the same SI-mode RTL as the earlier type test and
+             bypasses it on the type-3 edge. Both emit LBU, but only these
+             bounds retain the retail jump target (SLD 279, 8007CBF0). */
+          if (((u_char)se->type >= 4) && ((u_char)se->type < 36)) {
             goto AudioTrk_near_volume;
           }
           if ((u_char)se->type != 1) {

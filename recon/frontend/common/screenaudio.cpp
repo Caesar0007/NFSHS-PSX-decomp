@@ -306,19 +306,20 @@ void tScreenAudio::Initialize()
   /* SYM-CODEGEN-CARRIER: menus -- direct menuDefs accesses are measured FAIL 9
      (25/24) and add an address materialization. */
   tGlobalMenuDefs *menus;
-  /* SYM-CODEGEN-CARRIER: audioMode -- paired load-delay carrier in that receipt. */
-  char audioMode;
 
   menus = menuDefs[0];
   this->fPrevSelectedSong = -1;
   SetMenu((tMenuItemSlidingMenu *)&menus->itemSlidingPlayList,true,
              (tInsideBoxMenu*)&menus->menuPlayListMenu);
   this->tScreen::Initialize();
-  audioMode = frontEnd.audioMode;
+  /* P864: SLD 311 owns both the audio-mode load and the final delayed store;
+     lines 312-314 own the intervening zero stores.  Writing the member
+     assignment here removes the non-SYM audioMode carrier (PASS 24/24,
+     exact -g twin) without claiming that original expression spelling survives. */
+  this->prevAudioMode = frontEnd.audioMode;
   this->audioTest = 0;
   this->audioTestHandle = 0;
   this->songlist = (AudioMus_tSongList *)0x0;
-  this->prevAudioMode = audioMode;
   return;
 }
 

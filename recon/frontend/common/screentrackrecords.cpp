@@ -146,11 +146,6 @@ void tScreenTrackRecords::DrawRecords(short maxitem)
 }
 
 /* ---- tScreenTrackRecords::DrawBackground  (screentrackrec.cpp:210) ---- */
-static inline int TrackRecordLineY(short y)
-{
-  return y - 0xc;
-}
-
 void tScreenTrackRecords::DrawBackground()
 
 {
@@ -171,55 +166,23 @@ void tScreenTrackRecords::DrawBackground()
   int lbx;
   int tt;
   tDrawShapeExtended drawflags;
-  /* W86-S4: the seventeen locals above are in the SYM `8c` order exactly; the
-     two SYM-ABSENT clamp carriers below are quarantined at the end (they used to
-     sit between `fade` and `linefadeval`).
-     SYM-CODEGEN-CARRIER: clampTmp -- routing the fade clamp through the
-     SYM AUTO short maxitem changes its narrowing and measures 8-93 diffs;
-     this int lifetime is required for retail's unclipped $a1 comparisons.
-     SYM-CODEGEN-CARRIER: lineFadeCalc -- assigning the nested MIN/MAX clamp
-     directly to the SYM short linefadeval measures 6-145 diffs; this int
-     carrier delays the narrowing until after retail's $s5 clamp sequence.
-     W86-S4 SYM PROBE (measured, NOT landed): the `8c` block also carries THREE
-     2-deep nested `90 Block start line = 10` groups, all at the same VA
-     ($80042c24) and all at file line 10 -- the signature of an inline clamp
-     helper defined near the top of the file and called three times, which is
-     exactly these three clamps and would delete both carriers.  Reproducing it
-     as `static inline int TrackRecordClamp(int v,int lo,int hi)` called for
-     tt / linefadeval / maxitem measures 60 diffs (tt, linefadeval, maxitem
-     order) and 146 (tt, maxitem, linefadeval); both reverted.  The nested-block
-     evidence stands -- the helper's exact body/argument shape is the open
-     question, not whether it existed. */
-  int clampTmp;
-  int lineFadeCalc;
+  /* P865: the seventeen outer locals retain SYM order, with no invented
+     clamp carriers.  Period GNU C++ min/max operators keep comparisons at
+     int width and narrow only the selected result into the recorded shorts.
+     These statements preserve PASS 364/364 and the SLD 216/218/219 clamp
+     groups.  Their exact original spelling is not recovered: SYM also has
+     three empty two-level block pairs at 80042c24 (line 10), still absent
+     from our debug output.  An inlined helper is a hypothesis, not a proven
+     original declaration; the earlier failed helper probes do not settle it. */
 
   fade = (this->fScreenFadeVal * 0x134) / 0x80;
   /* SYM restoration: tt is the declared $s2 int.  Retail uses that same
      non-overlapping lifetime for this text-fade clamp and later overwrites
      it with the texture tick offset; a separate fadeAmt name is unnecessary. */
-  tt = fade - 0xb4;
-  if (tt < 0) {
-    tt = 0;
-  }
-  if (0x80 < tt) {
-    tt = 0x80;
-  }
-  clampTmp = fade;
-  if (clampTmp < 0) {
-    clampTmp = 0;
-  }
-  if (0xb4 < clampTmp) {
-    clampTmp = 0xb4;
-  }
-  lineFadeCalc = (fade * 0x80) / 0xb4;
-  if (lineFadeCalc < 0) {
-    lineFadeCalc = 0;
-  }
-  if (0x80 < lineFadeCalc) {
-    lineFadeCalc = 0x80;
-  }
-  linefadeval = lineFadeCalc;
-  maxitem = (0xb4 - (short)clampTmp) / 0x14;
+  tt = ((fade - 0xb4) >? 0) <? 0x80;
+  maxitem = (fade >? 0) <? 0xb4;
+  linefadeval = (((fade * 0x80) / 0xb4) >? 0) <? 0x80;
+  maxitem = (0xb4 - maxitem) / 0x14;
   boxx = TextSys_WordX(0x248);
   boxy = TextSys_WordY(0x256);
   boxw = TextSys_WordX(0x24f) - boxx;
@@ -233,17 +196,10 @@ void tScreenTrackRecords::DrawBackground()
   FETextRender_FullTextRGB(string,0x104,(short)TextSys_WordY(0x255),ColTextBright,0,2);
   PSXDrawSquare(0,0x104 - (textpixels(string) >> 1),TextSys_WordY(0x255),textpixels(string),9);
   shape = &gCurrentShapes[0][0x26];
-  /* MATCH (W57-A7, 28 -> 24): fold's constant reassociation is STATEMENT-granular --
-     written flat, `((w>>1) - cx) - 2` folds to `subu; addiu -2`; retail has
-     `addiu v0,v0,-2; subu s3,v0,a0`, i.e. the -2 is applied to the half-width FIRST.
-     Only a separate statement stops fold from re-associating it back. */
-  {
-    /* SYM-CODEGEN-CARRIER: half -- the separate assignment is the measured
-       statement boundary required to prevent fold's constant reassociation. */
-    short half = ((short)shape->width >> 1) - 2;
-
-    lbx = half - shape->centerx;
-  }
+  /* P865: widening the bounded half-width expression preserves retail's
+     addiu -2 before the centerx subtraction, without a non-SYM half local.
+     This is a verified source shape, not proof of the original cast spelling. */
+  lbx = (long long)(((short)shape->width >> 1) - 2) - shape->centerx;
   tt = ticks[0] % (short)shape->width;
   if (((short)shape->width / 2) < tt) {
     tt = (short)shape->width - tt;
@@ -265,20 +221,12 @@ void tScreenTrackRecords::DrawBackground()
   FETextRender_FullTextRGB(TextSys_Word(0x262),(short)TextSys_WordX(0x249),
                            (short)(midy + 3),ColTextSel,0,0);
   PSXDrawBrightEndLine(Col,boxx,(short)boxy + 3,boxw,-1,2,linefadeval,0x23);
-  /* MATCH (W57-A7/W66, 24 -> 6 -> PASS): the SECOND instance of the statement-granular
-     constant-reassociation -- inline, fold rewrites `(midy-0xc) - boxy` into
-     `midy - (boxy+0xc)` (ours emitted `addiu s0,s0,12; subu v0,v0,s0`), and the
-     resulting extra pseudo also flipped the two short temps' $s0/$s1 homes.
-     Naming the `midy - 0xc` half in its own statement fixed both at once.  The
-     final lever is the inlined TrackRecordLineY helper: its short formal creates
-     the retail conversion boundary (`sll; sra; addiu -12`) without the live int
-     local that rotates the saved-register band.  Falsified: direct cast expression
-     (24), `int liney` (52), in-place subtraction, and a separate short local (6). */
-  {
-    PSXDrawBrightEndLine(Col,TextSys_WordX(0x24c) - 6,(short)boxy + 4,2,
-                         TrackRecordLineY((short)midy) - (short)boxy,
-                         1,linefadeval,0);
-  }
+  /* P865: retain short sign extension and subtract 12 before boxy, with no
+     invented helper or local.  The complete 8004301c..8004305c call setup
+     is one source statement, as in retail SLD 284; PASS and exact debug twin. */
+  PSXDrawBrightEndLine(Col,TextSys_WordX(0x24c) - 6,(short)boxy + 4,2,
+                       (long long)((short)midy - 0xc) - (short)boxy,
+                       1,linefadeval,0);
   if (8 < maxitem) {
     PSXDrawSquare(Col,TextSys_WordX(0x24c) - 6,TextSys_WordY(0x260) - 1,2,8);
   }

@@ -41,7 +41,8 @@ void tScreenTrackSelect::DrawBackground()
   ::IsShapeFileLoaded((tScreen *)this,&this->fSwapShapes);
   {
     /* SYM-CODEGEN-CARRIER: videoWall -- direct member spellings are
-       count-exact FAIL 6 and create a saved `$s0` base before retail does. */
+       count-exact FAIL 6; the original inline-receiver source is unresolved.
+       P867: pointer-to-member field spelling also FAIL6 at 299/299. */
     tVideoWall *videoWall = &this->fVideoWall;
 
     if (((this->fSwapShapes.fFile != (char *)0x0) &&
@@ -57,7 +58,10 @@ void tScreenTrackSelect::DrawBackground()
   if (state == VIDEOSTATE_SPOOLING) {
     RECT r;
     /* SYM-CODEGEN-CARRIER: startTicks -- direct field assignment is FAIL 3
-       at 300/299 and moves the tick load after the brightness store. */
+       at 300/299 and moves the tick load after the brightness store.
+       P867: staging through fStartTicks adds one sw (FAIL1, 300/299);
+       embedding the brightness store in subtraction is FAIL3 (300/299),
+       or FAIL8 (305/299) with a widened tick operand. All restored. */
     int startTicks;
 
     r.x = shapeX;
@@ -80,16 +84,17 @@ void tScreenTrackSelect::DrawBackground()
   }
   else if (((this->fTicksSet != 0) || (this->fDestBrightness < this->fBrightness)) &&
           ((uint)(ticks[0] - this->fVideoTicks) >= 0x101U)) {
+    /* P867: SYM 691546/69154f/69156d owns moviename (AUTO -128, char[80])
+       in the whole 800417f8-80041864 block, source 143-150: before the
+       brightness guard through VIDEO_startplayback. PASS 299, exact debug twin. */
+    char moviename[80];
+
     if (this->fDestBrightness >= this->fBrightness) {
       this->SetBrightness(trackInfo.fAvailable != '\0' ? 0x80 : 0x20);
     }
-    {
-      char moviename[80];
-
-      sprintf(moviename,"%szzzTR%02d.dct",Paths_Paths[0x29],
-              (int)this->fMovieTrack);
-      VIDEO_spoolfile(this->hVideo,moviename);
-    }
+    sprintf(moviename,"%szzzTR%02d.dct",Paths_Paths[0x29],
+            (int)this->fMovieTrack);
+    VIDEO_spoolfile(this->hVideo,moviename);
     VIDEO_startplayback(this->hVideo);
   }
   if (0 < this->fBrightness) {
@@ -455,7 +460,9 @@ void tScreenTrackSelect::ProcessInput(tPlayer player,tInputKeyType &keyval,
      the carrier below is quarantined after it.  Re-gated PASS. */
   tTrackInformation trackInfo;
   /* SYM-CODEGEN-CARRIER: ptVar1 -- direct menuDefsA[0] spellings are FAIL 8
-     at 116/114 and reload the global base instead of retaining `$a0`. */
+     at 116/114 and reload the global base instead of retaining `$a0`.
+     P867: chaining clear and conditional bit-set as one compound lvalue
+     expression was FAIL21 at 117/114; restored, not ruled out. */
   tGlobalMenuDefs *ptVar1;
 
   if (keyval == kInput_KeyType_Square) {

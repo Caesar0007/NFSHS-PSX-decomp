@@ -1456,19 +1456,16 @@ LAB_TICKS0:
 
 /* ---- FindBarrierEndSlice__13AIState_Chase  AIState_Chase::FindBarrierEndSlice  [AISTATE.CPP:764-866] SLD-VERIFIED ---- */
 /* MATCH: IDA/SYM register allocation and the raw SLD line trace recover both
-   mirrored scan scopes. Keeping gNumSlices-6 as an explicit branch-local
-   temporary and spelling the non-wrapping return arm first preserves retail's
-   v0 result web and branch layout. */
+   mirrored scan scopes. Each final wrap occupies one retail SLD line. The
+   widened inner subtraction preserves the gNumSlices-6 arithmetic tree until
+   the final int return; this spelling is a compiler-shape inference, not a
+   recovered source quote. No extra wrap local is present in SYM. */
 
 int AIState_Chase::FindBarrierEndSlice()
 
 
 
 {
-  /* SYM-CODEGEN-CARRIER: numSlicesLess6 -- the two branch-scoped instances
-   * are absent from the surviving local records. Folding both expressions
-   * changes 21 instructions and shortens the function by three; the explicit
-   * values preserve retail's return-arm layout and exact 230-insn body. */
   int mySlice;
   int myLane;
   int targetLane;
@@ -1673,26 +1670,11 @@ int AIState_Chase::FindBarrierEndSlice()
 
   if (forwardBarrierDistance < backwardsBarrierDistance) {
 
-    if (forwardBarrierEndSlice + 6 < gNumSlices) {
-      return forwardBarrierEndSlice + 6;
-
-    }
-
-    {
-      int numSlicesLess6 = gNumSlices - 6;
-      return forwardBarrierEndSlice - numSlicesLess6;
-    }
+    return (forwardBarrierEndSlice + 6 < gNumSlices) ? forwardBarrierEndSlice + 6 : forwardBarrierEndSlice - (long long)(gNumSlices - 6);
 
   }
 
-  if (backwardsBarrierEndSlice - 6 < 0) {
-    int numSlicesLess6 = gNumSlices - 6;
-
-    return backwardsBarrierEndSlice + numSlicesLess6;
-
-  }
-
-  return backwardsBarrierEndSlice - 6;
+  return (backwardsBarrierEndSlice - 6 < 0) ? backwardsBarrierEndSlice + (long long)(gNumSlices - 6) : backwardsBarrierEndSlice - 6;
 
 }
 
@@ -2531,10 +2513,9 @@ void AIState_Donuts::Execute()
     int forwardSlice;
     int forwardDot;
     int dCarToCenter;
-    /* SYM-CODEGEN-CARRIER: numSlicesLess3 -- absent from the surviving block
-     * locals. Folding both wrap expressions changes 37 instructions and
-     * shortens the function by three. */
-    int numSlicesLess3;
+    /* Each wrap is one retail SLD statement (1281/1283). As in
+     * FindBarrierEndSlice, widening the inner subtraction preserves its
+     * arithmetic tree without adding an unrecorded source local. */
 
     forwardDot =
         (this->carObj_->N.orientMat.m[6] / 256) * (this->carObj_->N.roadMatrix.m[6] / 256) +
@@ -2544,25 +2525,13 @@ void AIState_Donuts::Execute()
     if (0 <= forwardDot)
 
     {
-      /* Repeating `slice + 3` preserves retail's non-empty then arm and its
-       * `addu v0,v1,zero` jump delay slot without a source-only temporary. */
-      if (slice + 3 < gNumSlices) {
-        forwardSlice = slice + 3;
-      }
-      else {
-        numSlicesLess3 = gNumSlices - 3;
-        forwardSlice = slice - numSlicesLess3;
-      }
+      forwardSlice = (slice + 3 < gNumSlices) ? slice + 3 : slice - (long long)(gNumSlices - 3);
 
     }
 
     else {
 
-      forwardSlice = slice + -3;
-      if (forwardSlice < 0) {
-        numSlicesLess3 = gNumSlices - 3;
-        forwardSlice = slice + numSlicesLess3;
-      }
+      forwardSlice = (slice - 3 < 0) ? slice + (long long)(gNumSlices - 3) : slice - 3;
 
     }
 

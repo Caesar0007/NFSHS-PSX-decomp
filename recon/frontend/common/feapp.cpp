@@ -726,10 +726,8 @@ void tFEApplication::SetMenu(short i,tMenu *menu)
 void tFEApplication::SetScreen(short i,tScreen *screen)
 
 {
-  /* SYM-CODEGEN-CARRIER: currentScreen
-     SYM-CODEGEN-CARRIER: slotOffset */
+  /* SYM-CODEGEN-CARRIER: currentScreen */
   tScreen *currentScreen;
-  int slotOffset;
 
   /* MATCH (permuter multi-basin re-seed, 2026-06-30): the residual was a base↔currentScreen register SWAP —
    * the oracle reuses the dead `this` reg as the `this+i*4` base (addu a0,a0,a1), forcing currentScreen into
@@ -739,12 +737,15 @@ void tFEApplication::SetScreen(short i,tScreen *screen)
    * fCurrentScreen[i] instead of the cached currentScreen; (3) the `0 != currentScreen` (operands swapped) compare.
    * No `this` reassignment, so it transcribes cleanly to the method. (Manual base-once / §3.12#14 /
    * char*p all failed; this is the "no floors" proof — an apparent ours-better floor was permuter-reachable.) */
-  slotOffset = (int)((u_int)(u_short)i << 0x10) >> 0xe;
-  currentScreen = *(tScreen **)((long long)((int)this->fCurrentScreen + slotOffset));
+  /* P868: SYM records no slotOffset local. Repeating the signed-short
+     scaling expression removes it while preserving PASS20; spelling the
+     same scale as (int)i * 4 was count-exact FAIL6 (base-register swap).
+     The surviving currentScreen source carrier still needs recovery. */
+  currentScreen = *(tScreen **)((long long)((int)this->fCurrentScreen + ((int)((u_int)(u_short)i << 0x10) >> 0xe)));
   if (((screen != currentScreen) &&
-      (*(tScreen **)((int)this->fTransitionToScreen + slotOffset) = screen, (tScreen *)0x0 != currentScreen))
+      (*(tScreen **)((int)this->fTransitionToScreen + ((int)((u_int)(u_short)i << 0x10) >> 0xe)) = screen, (tScreen *)0x0 != currentScreen))
      && (screen != (tScreen *)0x0)) {
-    (*(tScreen **)((int)this->fCurrentScreen + slotOffset))->TransitionOff(kScreen_TransitionTypeScreen,(tMenu *)0x0);
+    (*(tScreen **)((int)this->fCurrentScreen + ((int)((u_int)(u_short)i << 0x10) >> 0xe)))->TransitionOff(kScreen_TransitionTypeScreen,(tMenu *)0x0);
   }
   return;
 }
@@ -762,6 +763,9 @@ void tFEApplication::DisplayHelp(short variant)
    * the helpPopup pointer (base = this+0x158) so gcc reuses that
    * same base ($a0) for the Display() call AND the `sh a1,0x90(a0)` store (in the jal delay
    * slot) — not the full `sh a1,0x1E8(this)` offset with a separate base computation. */
+  /* P868: direct member use, with or without widening its address,
+     gave FAIL4 at 9/9 and moved the variant store out of the call slot.
+     Those probes were restored; original inline-method spelling is open. */
   this_tDialogHelp = &this->helpPopup;
   this_tDialogHelp->variant = variant;
   ((tDialogBase *)this_tDialogHelp)->Display();

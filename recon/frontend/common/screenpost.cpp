@@ -320,6 +320,12 @@ void tScreenTournamentStandings::ProcessInput(tPlayer,tInputKeyType &keyval,
    Removed both legacy empty-asm constraints.  Together their removal is byte-neutral
    in the current no-self basin, so the target remains source-only FAIL3 without
    reconstructed asm in this function. */
+/* P867: the historical probes above do not describe the current PASS basin.
+   Source-only verification is 561/561 with no post-compilation text moves.
+   The unrecorded line and halfWidth objects are now gone; grouped widened
+   expressions preserve the retail induction/temporary webs without adding
+   replacement names.  This recovers SYM ownership and SLD grouping, not proof
+   of the lost source's exact expression or macro spelling. */
 /* ---- tScreenTournamentStandings::DrawBackground  [SCREENPOST.CPP:164-312] ---- */
 void tScreenTournamentStandings::DrawBackground()
 
@@ -346,9 +352,6 @@ void tScreenTournamentStandings::DrawBackground()
   /* SYM-CODEGEN-CARRIER: lastRacer -- inlining `numRacers - 1` is
      count-exact FAIL 56, shrinks the frame to 240, and changes its stack web. */
   int lastRacer;
-  /* SYM-CODEGEN-CARRIER: line -- replacing the independent row counter with
-     `0x2fe + i` raises the residual from 3 to 76 and rotates the whole loop. */
-  int line;
   /* SYM-CODEGEN-CARRIER: type -- repeating textType_TrackRecords raises the
      residual from 3 to 35 and rematerializes the value at each call site. */
   tMenuTextType type;
@@ -357,7 +360,6 @@ void tScreenTournamentStandings::DrawBackground()
   type = textType_TrackRecords;
   fade = this->fScreenFadeVal;
   fadeline = fade;
-  line = 0x2fe;
   /* The retail address web reuses the existing SYM `shape` local as the
      short-lived tournament-definition carrier. */
   shape = (tTexture_ShapeInfo *)tournamentManager.fDefinition;
@@ -367,6 +369,10 @@ void tScreenTournamentStandings::DrawBackground()
   numRacers = (short)((short)tournamentManager.fNumRacers +
                       (tourneyInfo->fKnockout != 0));
   lastRacer = numRacers - 1;
+  /* SYM records i, not line.  The widened row expression below regenerates
+     the s6 induction value without a source local: SLD 203/208/223 uses and
+     line-224 back edge stay exact.  i is bounded by the signed-short count,
+     so the addition and its conversion back to int cannot overflow. */
   for (; i < numRacers; i++) {
     short p;
 
@@ -380,12 +386,12 @@ void tScreenTournamentStandings::DrawBackground()
       statedull = textState_Unselected;
     }
     FETextRender_FullTextFade(fade,TextSys_Word(i + 599),(short)TextSys_WordX(0x2f7),
-                             (short)TextSys_WordY(line),type,statedull,0);
+                             (short)TextSys_WordY((int)((long long)i + 0x2fe)),type,statedull,0);
     FETextRender_FullTextFade(
         fade,
         j == 0 ? PlayerName(0) :
                  Stattool_GetAINameFromPersonality(tournamentManager.fCompetitors[j].fPersonality),
-        (short)TextSys_WordX(0x2f8),(short)TextSys_WordY(line),
+        (short)TextSys_WordX(0x2f8),(short)TextSys_WordY((int)((long long)i + 0x2fe)),
         type,state,0);
     p = j;
     if (tourneyInfo->fKnockout != 0) {
@@ -395,8 +401,7 @@ void tScreenTournamentStandings::DrawBackground()
       sprintf(sBuildOutput,"%d %s",(int)tournamentManager.TournPointTotal(&p),TextSys_Word(0x31d));
     }
     FETextRender_FullTextFade(fade,sBuildOutput,(short)TextSys_WordX(0x2fb),
-                             (short)TextSys_WordY(line),type,state,1);
-    line++;
+                             (short)TextSys_WordY((int)((long long)i + 0x2fe)),type,state,1);
   }
   trackManager.GetTrack((short)Front_GetTrackRaced(),trackInfo);
   FETextRender_FullTextFade(fade,TextSys_Word((short)Front_GetTrackRaced() + 0xd5),(short)TextSys_WordX(0x2f6),
@@ -412,10 +417,10 @@ void tScreenTournamentStandings::DrawBackground()
   /* Start the packet-table lifetime without joining it to the definition
      carrier above. */
   shape = (shape = gCurrentShapes[0], &shape[0x27]);
-  /* SYM-CODEGEN-CARRIER: halfWidth -- folding the center adjustment raises
-     the authoritative residual from 3 to 11 and reverses retail's value web. */
-  int halfWidth = ((short)shape->width >> 1) - 2;
-  lbx = halfWidth - shape->centerx;
+  /* SLD 250 is one lbx expression.  Widen the grouped width adjustment to
+     keep its evaluation order without halfWidth; signed-short width/centerx
+     bound the final int result to -49153..49149.  Exact -g twin and PASS. */
+  lbx = (long long)(((short)shape->width >> 1) - 2) - shape->centerx;
   tt = ticks[0] % (short)shape->width;
   if (((short)shape->width / 2) < tt) {
     tt = (short)shape->width - tt;
@@ -540,12 +545,10 @@ void tScreenPinkSlipStandings::DrawBackground()
   PSXDrawSquare(0,TextSys_WordX(0x2f6) - (wwwww >> 1),
                TextSys_WordY(0x2fc) - 1,wwwww,9);
   shape = &gCurrentShapes[0][0x27];
-  /* SYM-CODEGEN-CARRIER: halfWidth
-   * Retail keeps this short-lived value in $v0 and only places the final
-   * center-adjusted result in lbx/$s2.  Folding the expression is FAIL 8;
-   * assigning both steps through lbx is FAIL 4. */
-  int halfWidth = (shape->width >> 1) - 2;
-  lbx = halfWidth - shape->centerx;
+  /* P867: SLD 390 is the same single lbx expression as SLD 250 above.
+     No halfWidth local in SYM; widening preserves the grouping and PASS
+     without changing the bounded signed result or claiming original syntax. */
+  lbx = (long long)((shape->width >> 1) - 2) - shape->centerx;
   tt = ticks[0] % (short)shape->width;
   if ((shape->width / 2) < tt) {
     tt = shape->width - tt;

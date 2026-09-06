@@ -503,9 +503,6 @@ void tScreenPinkSlipCongrats::CalculatePrizes()
      (65/68 instructions) and changes the frame/saved-register allocation. */
   tCarInfo carinfo;   /* [SYM] the ONLY 8c-recorded local of this fn (AUTO) */
   int player;
-  /* SYM-CODEGEN-CARRIER: speechId2 -- the documented three-step in-place
-     mutation is required for retail's $v1 lifetime and unmerged arm stores. */
-  int speechId2;
 
   /* MATCH (W54-A7, from the SYM SLD line map of 0x80048CDC..0x80048DEC):
      retail's statement order is EXACTLY 464 TotalCash / 465 CashAwarded /
@@ -532,30 +529,17 @@ void tScreenPinkSlipCongrats::CalculatePrizes()
    * unsigned on this toolchain, hence a stray `lbu` -- cast to `signed char` here, in-TU only).
    * @0x80048D7C: oracle's `beq v1,s2,.L(==-1 case)` computes the `!=-1` (else) body INLINE on the
    * fallthrough and jumps PAST the ==-1 body -- invert the branch polarity to match. */
-  speechId2 = (signed char)carinfo.fSpeechCarID;
-  if (speechId2 != -1) {
+  if ((signed char)carinfo.fSpeechCarID != -1) {
     /* @0x80048D84-8C: oracle adds 0x13 to fWinner FIRST (`lh v0,388;addiu v0,19`), THEN adds the
      * doubled speech-car-id (`addu v1,v1,v0`) -- explicit grouping to match that addition order. */
-    /* MATCH (W57-A7 SEAL, 3 -> PASS 68/68): a THREE-STEP IN-PLACE MUTATION CHAIN on ONE
-       local is the whole lever -- `speechId2 = (signed char)fSpeechCarID;` before the test,
-       then `speechId2 = speechId2 * 2;` and `speechId2 = speechId2 + base;` inside the arm.
-       Each `x = x <op> y` keeps the SAME pseudo as dest, so the load lands in $v1, the sll is
-       in-place (`sll v1,v1,1`, reorg steals it into the beq slot), and the sum's dest is that
-       dying $v1 (`addu v1,v1,v0`).  Because arm-1's value then lives in $v1 while the else
-       arm's lives in $v0, post-reload cross_jump CANNOT merge the two `sw ...,0x174` stores
-       (rtx_renumbered_equal_p on different hard regs) -> retail's per-arm store, arm-1's copy
-       riding the `j` delay slot.  `base` MUST stay its own statement (fold's constant
-       reassociation is statement-granular: inlining `(fWinner + 0x13)` re-associates to
-       `(id2 + 0x13) + fWinner` -> 9-14 diffs).  Falsified at the pre-mutation basin: <<1 vs *2,
-       both operand orders, flat 3-term forms, a named product temp, a named speech
-       accumulator, void-tail fences in/after the else arm. */
-    /* SYM-CODEGEN-CARRIER: base -- folding this expression reassociates the
-       three-term sum and has been measured at 9-14 instruction diffs. */
-    int base = this->fWinner + 0x13;
-
-    speechId2 = speechId2 * 2;
-    speechId2 = speechId2 + base;
-    this->fSpeechToPlay = speechId2;
+    /* P864: SYM records only carinfo, not the former speechId2/base carriers.
+       Widening the grouped right operand prevents 32-bit reassociation while
+       assignment truncates to the retail int result.  Direct carinfo access
+       preserves the $v1 load/shift/sum and both arm stores: PASS 68/68, exact
+       debug twin, SLD 477's single award statement.  This is an inferred
+       source-shape reconstruction, not proof of the original cast spelling;
+       the former split-temp requirement is superseded by this measured form. */
+    this->fSpeechToPlay = (signed char)carinfo.fSpeechCarID * 2 + (long long)(this->fWinner + 0x13);
   }
   else {
     this->fSpeechToPlay = this->fWinner + 0x17;

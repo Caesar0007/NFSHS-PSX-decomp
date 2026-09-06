@@ -1125,22 +1125,22 @@ void tListIteratorTournament::Increment(tPlayer)
 void tListIteratorTournament::Decrement(tPlayer)
 
 {
-  /* SYM-CODEGEN-CARRIER: value -- a single byte value web produces the retail
-     branch-delay decrement; repeating *fValue adds five instructions. */
-  /* SYM ORDER (W86-S2): `tier` is the only SYM row; the `value` carrier
-     follows it. */
+  /* P863 source recovery: SYM 5cbc89 records only tier, not a byte-value
+     local. Store each branch's decremented result directly; GCC merges the
+     store and fills the nonzero branch's delay slot with the decrement.
+     Retail SLD 1153/1154/1156/1158 corroborates guard / wrap load /
+     decrement-store / validity test. Exact original spelling is unavailable;
+     this source shape and its 36-instruction debug twin are verified. */
   tTierInfo *tier;
-  byte value;
 
   tier = &this->fTournamentManager->fDefinition->fTiers[(byte)frontEnd.tier];
   do {
-    value = *this->fValue;
-    if (value == 0) {
-      value = tier->fNumTournaments;
+    if (*this->fValue == 0) {
+      *this->fValue = tier->fNumTournaments - 1;
+    } else {
+      *this->fValue = *this->fValue - 1;
     }
-    *this->fValue = value - 1;
   } while (!this->ValidTournament(*this->fValue));
-  return;
 }
 
 

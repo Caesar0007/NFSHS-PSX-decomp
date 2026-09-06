@@ -201,18 +201,16 @@ void tScreenPinkSlips::GetShapeInfo(short &numPermShapes,short &numSwapShapes,ch
 void tScreenPinkSlips::Initialize()
 
 {
-  /* W86-S4: SYM `8c` order is r (AUTO sp+24), moviename (AUTO sp+32),
-     trackInfo (AUTO sp+112) -- the two SYM-ABSENT carriers are quarantined
-     after them.  Re-gated PASS. */
+  /* SYM `8c` order is r (AUTO sp+24), moviename (AUTO sp+32),
+     trackInfo (AUTO sp+112).  P865 removes the two non-SYM value carriers:
+     hVideo owns VIDEO_create's result, and fTVTicks owns the ticks snapshot.
+     This preserves PASS 82/82 with an exact debug twin.  SLD still cannot
+     establish the snapshot's original spelling/order: retail labels the
+     hoisted load as 252 and its store as 258; putting the assignment after
+     the resets (lexical 258) instead schedules that load too late (FAIL 4). */
   RECT r;
   char moviename [80];
   tTrackInformation trackInfo;
-  /* SYM-CODEGEN-CARRIER: iVar1 -- direct ticks storage is measured FAIL 9
-     (83/82) and changes the final load-delay/store schedule. */
-  int iVar1;
-  /* SYM-CODEGEN-CARRIER: tmp -- direct hVideo reuse is paired with that
-     one-instruction regression. */
-  int tmp;
   
   r.x = 0x200;
   r.w = 0xaa;
@@ -228,17 +226,15 @@ void tScreenPinkSlips::Initialize()
   this->fTVsInitialized = 0;
   GetTrack(&trackManager,(ushort)(byte)frontEnd.track[0],&trackInfo);
   sprintf(moviename,"%szzzTR%02d.dct",Paths_Paths[0x29],*(signed char *)&trackInfo.fTrackID);  /* MATCH: lb -- plain char is unsigned on this build */
-  tmp = VIDEO_create(0xa0,0x80,0xf0000,0x20000,0x10);
-  this->hVideo = tmp;
-  VIDEO_spoolfile(tmp,moviename);
+  this->hVideo = VIDEO_create(0xa0,0x80,0xf0000,0x20000,0x10);
+  VIDEO_spoolfile(this->hVideo,moviename);
   VIDEO_startplayback(this->hVideo);
-  iVar1 = ticks;
+  this->fTVTicks = ticks;
   this->fFrame = 0;
   this->fBrightness = 0;
   this->fDestBrightness = 0;
   this->fTVsInitialized = 0;
   this->fTransitionDirection = '\x01';
-  this->fTVTicks = iVar1;
   return;
 }
 

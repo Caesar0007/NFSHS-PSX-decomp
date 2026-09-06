@@ -274,9 +274,6 @@ void tScreenTournSelect::DrawBackground()
   /* SYM-CODEGEN-CARRIER: number -- direct fMoney use is FAIL 9 at 414/415;
      retail keeps the early value in `$s1` across the label-render call. */
   long number;
-  /* SYM-CODEGEN-CARRIER: word -- a conditional TextValue call embedded in
-     WordWrapFade is FAIL 15 at 414/415 and changes both call-arm delay slots. */
-  int word;
   /* SYM-CODEGEN-CARRIER: descriptionText -- deriving the pointer back from
      `j` is FAIL 9 at 416/415 and destroys retail's delay-slot subtraction. */
   char *descriptionText;
@@ -284,7 +281,6 @@ void tScreenTournSelect::DrawBackground()
   /* SYM-CODEGEN-CARRIER: shapeX -- repeating literal 0x200 is FAIL 43 at
      410/415; retail retains the signed-short coordinate in `$s6`. */
   short shapeX;
-  char moviename [80];
   u_long movieRGB;
   /* SYM-CODEGEN-CARRIER: tournament -- embedding the tier selection into
      the definition index is count-exact FAIL 60 and reshapes the prologue
@@ -368,6 +364,9 @@ void tScreenTournSelect::DrawBackground()
     }
   }
   else {
+    /* SYM 65e013-65e03a: this buffer belongs to the nested block at
+       80040254-80040288 (source 331-336), AUTO -136, not function scope. */
+    char moviename [80];
     this->fCurrentMovie = 0;
     sprintf(moviename,"%szzzTRN.dct",Paths_Paths[0x29]);
     VIDEO_spoolfile(this->hVideo,moviename);
@@ -382,14 +381,17 @@ void tScreenTournSelect::DrawBackground()
   r.y = 0x2b;
   r.w = 0x13a;
   r.h = 10;
-  if (frontEnd.tier != '\0') {
-    word = TextValue(&menuDefs->iteratorSpecialEvent,kPlayerBoth);
-  }
-  else {
-    word = TextValue(&menuDefs->iteratorTournament,kPlayerBoth);
-  }
-  FETextRender_WordWrapFade((int)this->fScreenFadeVal,(short)word,&r,textState_Hilighted,
-             textType_VideoWall);
+  /* P865: select complete calls so GCC tail-merges them without an unrecorded
+     word local. PASS 415; the title-render expression shares retail SLD 347.
+     Selecting only the TextValue receiver is FAIL 15 at 414/415. This is an
+     inferred source expression, not recovered original macro spelling. */
+  frontEnd.tier != '\0' ?
+    FETextRender_WordWrapFade((int)this->fScreenFadeVal,
+               TextValue(&menuDefs->iteratorSpecialEvent,kPlayerBoth),&r,textState_Hilighted,
+               textType_VideoWall) :
+    FETextRender_WordWrapFade((int)this->fScreenFadeVal,
+               TextValue(&menuDefs->iteratorTournament,kPlayerBoth),&r,textState_Hilighted,
+               textType_VideoWall);
   r.x = 0xaa;
   r.w = r.w + -10;
   if (frontEnd.tier != '\0') {

@@ -1,5 +1,7 @@
 /* frontend/common/feaudio.cpp -- RECONSTRUCTED (NFS4 front-end audio / commentary; C++ TU)
  *   10 free Feaudio_* fns (commentary VIV streaming, speech levels, language select).
+ *   P867: restored four literals from retail instead of bigBuf-relative views;
+ *   the resulting 117-byte rodata pool matches retail beginning at 80010104.
  */
 #include "feaudio.h"
 
@@ -8,22 +10,24 @@
 int FEAudio_StartLoadPatch(SPEECHINFO *info)
 
 {
-  int offset;
+  /* P867: declaration/debug-record order and homes match SYM: length AUTO-12,
+     offset AUTO-16. The combined guard below is one retail SLD51 expression. */
   int length;
+  int offset;
   
   asyncidle();
   FeAudio_LocateBigfile(speechfileHeader[0],info->name,&offset,&length);
-  if (offset == 0) {
+  if ((offset == 0) || (length == 0)) {
     return 0;
   }
-  if (length == 0) {
-    return 0;
-  }
-  if (info->sSpeechData != (char *)0x0) {
-    purgememadr(info->sSpeechData);
-    info->sSpeechData = (char *)0x0;
-  }
-  info->sSpeechData = FeAudio_StartBigfileRead("",offset,length,&info->vivHandle);
+  /* The conditional purge/reset is one retail SLD55 group. This expression
+     preserves it without naming an unproven original macro. PASS41. */
+  info->sSpeechData != (char *)0x0
+    ? (purgememadr(info->sSpeechData), info->sSpeechData = (char *)0x0)
+    : (char *)0x0;
+  /* P867: SYM currentSpeechViv[40] at 80051510 is the filename passed at
+     800157e8/ec, not an empty literal; relocation normalization hid the error. */
+  info->sSpeechData = FeAudio_StartBigfileRead(currentSpeechViv,offset,length,&info->vivHandle);
   info->areLoading = '\x01';
   info->playNextOne = '\0';
   return 1;
@@ -40,7 +44,7 @@ void Feaudio_StartPatch(SPEECHINFO *info)
   
   if (info->sSpeechData != (char *)0x0) {
     if (SNDbankadd(&info->nHandle,info->sSpeechData) == 7) {
-      info->pBankHeader = reservememadr((char *)(bigBuf + 0x104),
+      info->pBankHeader = reservememadr("comHeader", /* retail rodata 80010104 */
                                        SNDbankheadersize(info->nHandle),0x10);
       SNDbankheadercopy(info->pBankHeader,info->nHandle);
       if (info->sSpeechData != (char *)0x0) {
@@ -186,13 +190,13 @@ short FeAudio_AsyncPlaySpeech(int type,int index)
   char vivname [5];
   
   if (type == 2) {
-    sprintf(vivname,(char *)(bigBuf + 0x110),99,index);
+    sprintf(vivname,"%c%02d",99,index); /* retail rodata 80010110 */
   }
   else if (type == 0) {
-    sprintf(vivname,(char *)(bigBuf + 0x118),0x61,index + 0x61);
+    sprintf(vivname,"%c%ca",0x61,index + 0x61); /* retail rodata 80010118 */
   }
   else {
-    sprintf(vivname,(char *)(bigBuf + 0x118),type + 0x61,index + 0x30);
+    sprintf(vivname,"%c%ca",type + 0x61,index + 0x30);
   }
   return FeAudio_AsyncPlayCommentary(vivname);
 }
@@ -209,7 +213,7 @@ char * FeAudio_StartBigfileRead(char *fname,int offset,int length,int *vivHandle
   if (length == 0) {
     return (char *)0x0;
   }
-  streamBuffer = reservememadr((char *)(bigBuf + 0x120),length,0);
+  streamBuffer = reservememadr("streamBuffer",length,0); /* retail rodata 80010120 */
   if (streamBuffer == (char *)0x0) {
     return (char *)0x0;
   }
@@ -225,9 +229,11 @@ char * FeAudio_StartBigfileRead(char *fname,int offset,int length,int *vivHandle
 void FeAudio_LocateBigfile(LUMPYHEAD *bigfileHeader,char *name,int *offset,int *length)
 
 {
-  char *tempChar;
-  FILEINFO *info;
+  /* P867: SYM declaration order and generated homes: i REG18/UINT,
+     info REG17/PTR FILEINFO, tempChar REG5/PTR CHAR. PASS86. */
   u_int i;
+  FILEINFO *info;
+  char *tempChar;
   
   *offset = 0;
   *length = 0;
@@ -331,12 +337,13 @@ char *allLanguages[6] = {"zEngl","zGerm","zFren","zSpan","zItal","zSwed"}; /* @0
 
 /* ---- FeAudio_InitCommentary  [FEAUDIO.CPP:360-377] SLD-VERIFIED ---- */
 
-void FeAudio_InitCommentary(int language,int arg1)
+void FeAudio_InitCommentary(int language,int)
 
 {
-  /* SYM-CODEGEN-CARRIER: arg1 -- the `__Fii` mangling proves two source
-     arguments. SYM/m2c expose only `language` because the trailing int is
-     unused and therefore has no surviving parameter record or machine use. */
+  /* P867: __Fii proves the trailing int parameter, but SYM records only
+     language. Keep the unused parameter unnamed rather than invent arg1;
+     its original spelling cannot be recovered from the current SYM block.
+     NFS2's raw Watcom debug data calls it postGame; NFS4 identity is unproven. */
   strcpy(ginfo.name,"000");
   ginfo.nHandle = 0;
   ginfo.multiplay = 1;
@@ -348,8 +355,8 @@ void FeAudio_InitCommentary(int language,int arg1)
   ginfo.sSpeechData = (char *)0x0;
   ginfo.lastSpeechData = (char *)0x0;
   ginfo.vivHandle = 0;
-  /* The volatile value read keeps the language pointer load at the call site,
-     matching retail while leaving the Paths_Paths %hi free to schedule early. */
+  /* The language pointer load remains at the call site, while the
+     Paths_Paths high-half load is free to schedule early. */
   sprintf(currentSpeechViv,"%s%s.viv",Paths_Paths[0x26],
           *(char * *)&allLanguages[language]);  /* H11: dest was "" (oracle 0x800160EC $a0=$s0=&currentSpeechViv @0x80051510) */
   speechfileHeader[0] = FeAudio_InitViv(currentSpeechViv);  /* H11: arg was "" (oracle 0x8001615C $a0=$s0) */

@@ -1161,7 +1161,6 @@ useNormalZ:
         int xDiff;
         int yDiff;
         int zDiff;
-        int selectedRange;
 
         if (xRange < 0) {
           xDiff = (o1->dimension).x + xRange;
@@ -1183,18 +1182,18 @@ useNormalZ:
         }
         if (xDiff < yDiff && xDiff < zDiff) {
           *normal = *(coorddef *)&(o1->orientMat).m[0];
-          selectedRange = xRange;
+          /* P862: retail SLD 999/1009/1019 tests each selected axis separately.
+             NFS2's sibling body has the same per-axis tests; GCC joins their
+             common negation tail without a selectedRange source local. */
+          if (xRange >= 0) goto returnOne;
         }
         else if (yDiff < zDiff) {
           *normal = *(coorddef *)&(o1->orientMat).m[3];
-          selectedRange = yRange;
+          if (yRange >= 0) goto returnOne;
         }
         else {
           *normal = *(coorddef *)&(o1->orientMat).m[6];
-          selectedRange = zRange;
-        }
-        if (0 <= selectedRange) {
-          goto returnOne;
+          if (zRange >= 0) goto returnOne;
         }
 negateNormal:
         normal->x = -normal->x;
@@ -1806,8 +1805,9 @@ void Collide_CheckMeForCollisions(BO_tNewtonObj *newObj)
      closestPoint.  That deliberately moved the function 39 -> 225 while entering the right
      allocation basin.  allocsim then proved newObj needed +9 refs and the registry index +1;
      the two tail read-only fences implement those exact zero-insn dials, fixing both saved-reg
-     webs.  The minImpulse identity fence preserves retail's direct `slt impulse,min` clamp
-     (removes the 0x1dffff compare and one instruction).  Result is count-exact 381 and 2 diffs;
+     webs.  The historical threshold carrier preserved retail's direct slt clamp.
+     P862 replaces it with the constant-left maximum expression at SLD 1604;
+     no threshold local is needed and the function remains PASS 381/381.
      MATCH (W61-A13, 2026-08-15): SEALED 2 -> PASS 381/381 by a PURE SOURCE lever; the
      previously-specified PER_FN_TEXT_MOVES wiring is WITHDRAWN (no longer needed).
      The 2-diff residual was a delay-slot COMPETITION, not a text relocation: `j = 0;` sat
@@ -1900,17 +1900,7 @@ void Collide_CheckMeForCollisions(BO_tNewtonObj *newObj)
                 }
               }
               else if (0x190000 < newObj->speedXZ) {
-                /* SYM-CODEGEN-CARRIER: minImpulse -- a literal comparison is
-                   canonicalized to 0x1dffff and adds one instruction (7 diffs,
-                   382/381); the ternary is count-exact but has 12 diffs. This
-                   eliminated threshold quantity preserves retail's direct slt. */
-                int minImpulse;
-
-                impulse = newObj->speedXZ;
-                minImpulse = 0x1E0000;
-                if (impulse < minImpulse) {
-                  impulse = 0x1E0000;
-                }
+                impulse = 0x1E0000 < newObj->speedXZ ? newObj->speedXZ : 0x1E0000;
               }
               else {
                 /* MATCH: oracle stores the signCase register (sw s1) - value is 1 on this path */

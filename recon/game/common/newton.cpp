@@ -167,22 +167,16 @@ void Newton_AddDamageZone(BO_tNewtonObj *newtonObj,int impulse,int zone,int type
         }
       }
       else {
-        /* SYM-CODEGEN-CARRIER: result -- SYM retains only the average `temp`.
-           Retail nevertheless has a distinct joined maximum-result web; the
-           direct conditional member assignment is count-exact at 502 but
-           rotates 60 instructions.  Keeping the two branch assignments in
-           this eliminated result local reproduces retail's v0-to-v1 flow. */
         int temp;
-        int result;
 
         temp = (imp + newtonObj->damage[zone + 2]) / 2;
         if (temp < newtonObj->damage[zone + 1]) {
-          result = newtonObj->damage[zone + 1];
+          imp = newtonObj->damage[zone + 1];
         }
         else {
-          result = temp;
+          imp = temp;
         }
-        newtonObj->damage[zone + 1] = result;
+        newtonObj->damage[zone + 1] = imp;
         temp = (newtonObj->damage[zone] + newtonObj->damage[zone - 2]) / 2;
         if (temp < newtonObj->damage[zone - 1]) {
           temp = newtonObj->damage[zone - 1];
@@ -203,16 +197,6 @@ Newton_AddDmgZ_typeSet:
     yMult = 0;
     zMult = 0x20000;
     if (impulse > 0x5a0000) {
-      /* SYM-CODEGEN-CARRIER: newYVel -- the optimized debug block retains no
-         clamp temporaries.  This pre-clamp value must remain a separate web
-         from the selected result; a single in-place local and a direct
-         conditional are both 501/502 with the same 11 retail diffs. */
-      int newYVel;
-      /* SYM-CODEGEN-CARRIER: cappedYVel -- the joined clamp result supplies
-         retail's distinct `$a0` web, branch orientation, and unconditional
-         member store.  It is required jointly with `newYVel` for 502/502. */
-      int cappedYVel;
-
       impulse /= 4;
       newtonObj->flightTime = 1;
       (newtonObj->collision).lastCollision = 0;
@@ -220,14 +204,8 @@ Newton_AddDmgZ_typeSet:
       if (newtonObj->objAltitude < 0x20000) {
         (newtonObj->position).y = (newtonObj->position).y + 0x10000;
       }
-      newYVel = newtonObj->linearVel.y + impulse / 3;
-      if (newYVel <= 0xc0000) {
-        cappedYVel = newYVel;
-      }
-      else {
-        cappedYVel = 0xc0000;
-      }
-      newtonObj->linearVel.y = cappedYVel;
+      newtonObj->linearVel.y = 0xc0000 < newtonObj->linearVel.y + impulse / 3 ?
+          0xc0000 : newtonObj->linearVel.y + impulse / 3;
       intensity = impulse / 32;
       if (0x9999 < intensity) {
         intensity = 0x9999;

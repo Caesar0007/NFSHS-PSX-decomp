@@ -14,6 +14,12 @@ The placeholder names below must not be described as recovered, SYM-exact, or
 final.  Future work must replace each one with the proven original spelling;
 invented semantic substitutions do not close the item.
 
+Evidence limit: a failed finite set of carrier-removal experiments proves only
+that those tested source shapes do not match. Historical statements below that
+a carrier is "required" must not be read as proof that it existed in the lost
+source or that every carrier-free form is impossible. Such items remain open to
+source-shape recovery, including intermediate higher-diff experiments.
+
 ## Open items
 
 | Owner/function | Retained unresolved identifier | What is proved | Missing evidence / closure condition |
@@ -2075,3 +2081,743 @@ The six extra source locals remain explicit review items.
   every one of their 127 functions has matching branch offsets/counts.  No
   asm, volatile qualifier, postcompile rewrite, or tool modification was added
   by this round.
+
+## P861 source-shape closure (2026-09-06)
+
+This round removes **four audited per-function carrier names across five
+declarations** without introducing replacement names.  The two scoped replay
+`counter` declarations count as one name in the census.  The strict
+`game/common` audit moves from 499 to **495** source-only carriers.  Its other
+headline counts remain unchanged: 1,258/1,258 functions mapped, 1,228
+declaration-clean functions, zero missing SYM names or mapping-review items,
+six extra source-local names, 547/547 object-owned globals, and 115/115 special
+vtables.  The generated receipt is
+`game_common_strict_p861_20260906.md`.
+
+- `game/common/newton.cpp` -- `Newton_AddDamageZone`: removed `result`,
+  `newYVel`, and `cappedYVel`.  The first damage-neighbor selection now reuses
+  the existing retail-SYM `imp`; its old value is dead after the average is
+  calculated.  Both outer `imp` and inner `temp` have retail REG 3 records.
+  This is an allocation-compatible reconstruction, **not proof that the
+  original source reused `imp` rather than `temp`**.  The vertical-velocity
+  clamp is a constant-left conditional expression with no local declarations.
+  All 15 instructions from VA `8009f290` through `8009f2c8` now map to one
+  source statement, exactly the retail SLD line-149 interval.  The conditional
+  spelling/macro identity is inferred, not recovered textual lineage.  An
+  independent raw-executable read confirms all 51 oracle instructions across
+  the two edited regions.  The function remains source-only PASS 502/502,
+  `diffsrc` zero with an exact debug twin; the TU is 32/32 PASS with zero
+  branch-count or branch-offset divergence.
+- `game/common/replay.cpp` -- `Replay_GetInput`: removed both `counter`
+  pointer declarations.  The index-first byte-offset lvalues retain pointer
+  arithmetic and produce retail's address setup without an invented local.
+  SYM records no locals for this function.  Nested camera guards and removal
+  of the redundant final return also restore the tail's normalized SLD
+  transition boundaries.  These lvalue spellings are compiler/source-shape
+  inferences, not quoted original source.  The function remains source-only
+  PASS 280/280, `diffsrc` zero with an exact debug twin, and has no branch
+  divergence.  The source-only TU remains 15/16: the pre-existing unrelated
+  `Replay_StoringControllerData` residual is still 188 diff lines with one
+  branch-offset mismatch.  No previously passing function regressed.
+
+### P861 retained source-shape debt and regression scope
+
+- `Newton_AddDamageZone` is not fully SLD/source-exact.  Its damage clamps
+  still split retail single-line statement intervals across source branches,
+  and the `imp` reuse does not establish the original local lifetime.  A
+  combined conditional/member assignment remained count-exact but produced
+  60 authoritative diffs; the in-place maximum probe produced 51 diffs at
+  501/502.  Those failed experiments were removed.
+- `Replay_GetInput::hasCameras` and `steering` remain marked carriers.  Fully
+  typed index-first counter expressions produced 30 verification diffs at
+  280/280.  Removing `hasCameras` disturbed address scheduling (24 diffs at
+  280/280 or 34 at 282/280); direct widened steering selected `lbu` instead of
+  retail `lb` (two diffs).  None was retained.  Whole-function SLD recovery
+  remains open despite the corrected tail.
+- `pausemenu.cpp` has no retained content changes.  Slider `ProcessInput`
+  still has the non-SYM `max`/`value` carriers; its only named SYM local is
+  `sound`.  Direct conditional/native min-max probes produced 15 diffs at
+  70/71, direct memory-update clamps 47 at 80/71, and max-only removal 12 at
+  71/71.  Baseline restoration was verified: Slider PASS 71, Choice `Draw`
+  PASS 118, TU 60/60, zero branch divergence, and an exact Slider debug twin.
+- The source-policy audit and vtable-indexing audit pass.  The reconstruction
+  link gate is green across 757 live objects: zero real duplicate definitions,
+  zero hidden phantoms, and zero relocation-referenced unresolved names; its
+  964 known blob-class duplicates are not new source duplicates.  This is a
+  relocatable-link regression check, not a claim of complete image equality.
+  No asm, volatile, postcompile rewrite, tool/header modification, or invented
+  replacement identifier was added.  Unrelated user edits remain untouched.
+
+## P862 source-shape and SLD cleanup (2026-09-06)
+
+This round removes **eight audited per-function carrier names across ten
+declarations**, with no invented replacement name. The game/common census
+falls from 495 to **492**, and frontend/common from 519 to **514**. The two
+generated receipts are `game_common_strict_p862_20260906.md` and
+`frontend_common_strict_p862_20260906.md`. These counts measure the explicit
+carrier queue, not full original-source or SLD completion.
+
+- `frontend/common/fecredits.cpp` -- `tCreditManager::DrawCurrCredit` removes
+  `frameTick`, `titleFadeBase`, `subTitleFadeBase`, `text`, and `pixelWidth`.
+  The animation argument now directly uses `(ticks >> 4) % 10`; the raw oracle
+  confirms the shift precedes the signed remainder, despite the split M2C's
+  misleading `/160` shortcut. Text lookups feed their consumers directly,
+  and the subtitle width uses one difference expression. The updated split
+  M2C `func_80036084.c` independently supports the call structure. Each color
+  is faded in two statements using its actual SYM-named local, `ColTextTitle`
+  or `ColTextSubTitle`. An initially passing nested-call form was superseded
+  because it collapsed distinct retail SLD intervals: the retained form
+  restores the transitions at `80036164` (269 to 270) and `80036184` (272 to
+  273) while still introducing no local. The animation statement grouping
+  agrees with retail line 249, and the width expression agrees with line 318.
+  The function remains source-only **PASS 451/451**, `diffsrc` zero with an
+  exact debug twin. These expression spellings are reconstructions, not a
+  uniquely recovered textual source.
+- `tCreditManager::Draw` moves the recorded `int i` into its loop-local
+  block. Generated debug metadata now places REG 6 inside the block bounded
+  by the instructions at `80035ca8` and `80035cf8`, matching the retail SYM
+  block range. The function stays **PASS 81/81**, with an exact debug twin.
+  `mainScreen` remains an explicitly unresolved source-only cache; the loop's
+  full line-attribution pattern is not yet retail-exact.
+- `game/common/collide.cpp` -- `Collide_CheckMeForCollisions` removes
+  `minImpulse` using a constant-left maximum expression. Its whole clamp
+  interval `80091b88` through `80091b9c` now belongs to one statement, matching
+  retail SLD 1604. The function remains **PASS 381/381** with an exact debug
+  twin. `Collide_DoActualObjectCollisionCheck` removes the `o1` half's
+  `selectedRange` declaration by checking the selected axis in each branch;
+  GCC merges the common negation tail. The NFS2 source-bearing sibling
+  supports this per-axis sign-test family, and the retail axis tests belong
+  to SLD 999/1009/1019. The function remains **PASS 765/765**, with an exact
+  debug twin. The `o0` half still uses `selectedRange`, so that audited name
+  remains in the per-function census.
+- `game/common/aistate.cpp` -- `AIState_Chase::FindBarrierEndSlice` removes
+  both branch-local `numSlicesLess6` declarations; `AIState_Donuts::Execute`
+  removes `numSlicesLess3`. Conditional expressions with an explicitly widened
+  inner `(long long)(gNumSlices - N)` preserve the arithmetic tree until final
+  `int` conversion. This conversion is a tested compiler-shape inference,
+  not proof of the lost spelling. The barrier tail's normalized SLD
+  transitions are restored at instruction indices 194/200/210, and the
+  Donuts wrap transitions at 97/99/109/117 (retail 1281/1283). Both remain
+  source-only **PASS 230/230** and **319/319**, with zero `diffsrc` differences
+  and exact debug twins.
+
+### P862 unresolved items, failed probes, and gates
+
+- Credits `tag` remains unresolved. Direct literal/tag tests shortened the
+  function to 444/451 with 69 diffs and were restored. Removing `mainScreen`
+  produced 25 diffs at 84/81 and was restored, keeping only `i`'s corrected
+  scope. The unused `Init(int arg1)` parameter's arity is linkage-proven but
+  its spelling is not recovered; making it anonymous would conceal that
+  name-recovery debt, so it is left marked. The existing volatile tag reads
+  and start-tick snapshot are unchanged, not newly introduced or endorsed as
+  original source by this round.
+- Collision `n` and `o0`'s `selectedRange` remain unresolved. Postincrement
+  loop and both-half per-axis probes produced 11 diffs at 131/128 and
+  10/4 diffs at 773/765 or 769/765. Only the independently passing `o1`
+  change was retained. Some jump-line attribution at `800900a8`/`800900d8`
+  still collapses retail SLD 1003/1013 into guard lines; full SLD equality
+  is not claimed.
+- Reusing AIState `mySlice` produced 13 diffs at 229/230; unsigned wrap
+  folding produced 21 at 227/230; reusing GotoSlice `distMeters` for
+  `desiredSpeed` produced 14 at 70/70. These experiments were restored.
+  They are evidence about those specific forms, not impossibility proofs.
+- All three edited TUs pass their source-only whole-TU gates: credits 7/7,
+  collision 14/14, AIState 52/52 (**73/73 total**). All 73 have zero branch
+  count/offset divergence. Independent raw-ROM reads corroborate all oracle
+  words in the six changed functions: 532 credits, 1,146 collision, and 549
+  AIState words. This verifies the oracle against the executable, not a
+  separately linked byte-for-byte final image.
+- Strict game/common declaration coverage remains 1,258/1,258 mapped and
+  1,228 declaration-clean, with zero missing names/mapping-review items and
+  six extra source-local names. Its 547 globals and 115 special vtables
+  remain mapped. Frontend/common remains 833/838 mapped, plus two correctly
+  implicit special members and three existing assembly-destructor mapping
+  reviews; 781 declaration-clean, zero missing names, and 46 extra locals.
+  Its 190 object-data records comprise 171 source definitions and 19
+  blob-backed records. These other queues did not shrink in P862.
+- Source-policy and vtable-indexing audits pass (1,029 files for the latter).
+  The 757-object reconstruction link gate is green with zero real duplicate
+  definitions, hidden phantoms, or relocation-referenced unresolved names;
+  964 known blob-class duplicates remain. Scoped `git diff --check` is clean.
+  No new asm, volatile qualifier, postcompile rewrite, tool/header change,
+  audit exemption, or fabricated identifier was introduced. Unrelated edits
+  were preserved. This round and P861 remain uncommitted at this checkpoint.
+
+## P863 frontend source expressions and statement ownership (2026-09-06)
+
+Six more explicit source-only names/declarations are removed, without inventing
+replacement names. Frontend/common's marked-carrier census is now **508**, down
+from P862's 514 (`frontend_common_strict_p863_20260906.md`). Its other headline
+queues are unchanged: 838 SYM functions, 833 mapped definitions, two correctly
+implicit special members, three mapping reviews, 781 declaration-clean
+functions, zero missing names, and 46 extra source-local names. The explicit
+carrier census and extra-local review queue are separate metrics.
+
+- `screenmain.cpp`, `tScreenMain::DrawBackground`: removed `fadeComponent`.
+  The first passing direct packed expression was not the final answer: SLD
+  showed that retail line 529 computes the division result and line 530
+  complements it, packs the color, and writes both TV tints. The retained
+  source therefore assigns `((int)fWarningFade << 6) / 0x60` to the actual SYM
+  `int fade`, then uses a single chained assignment to `tvConfigs[5].tint`
+  and `tvConfigs[6].tint`, with repeated unsigned `0x80 - fade` terms.
+  GCC's debug definition places `fade` in REG 2, exactly as retail SYM does.
+  The normalized statement partition agrees at `80037ce4..80037d0c` (529),
+  the independently scheduled 537 instructions at `80037cf8/80037cfc`, and
+  `80037d10..80037d2c` (530). The stores remain in retail order, slot 6 then
+  slot 5. Target **PASS 822/822**, zero `diffsrc`, exact debug twin; whole TU
+  **13/13 PASS**, zero branch-count/offset divergence. All 822 oracle words
+  were independently checked against raw `rom/nfs4-f.exe`.
+- `femenuextended.cpp`, `tMenuNFS4::TransitionIsFinished`: removed `ptVar1`,
+  `iVar2`, `uVar3`, and `iVar4`. A direct indexed `for` loop and typed vtable
+  entry 9 access leave only retail `short i` and `bool result`. Slot byte
+  offsets remain the retail delta at `0x48` and function pointer at `0x4c`.
+  The exact debug twin's partitions match retail prologue 504, result 506,
+  loop test 508, call/backedge 509, and return 511. Target **PASS 40/40**;
+  whole TU **57/57 PASS**, zero branch divergence; all 40 oracle words match
+  the raw executable. The ordinary virtual-method/class reconstruction is
+  still open: direct manual dispatch removes fabricated locals but is not
+  asserted to be the lost C++ spelling or a fully restored class model.
+- `fetourn.cpp`, `tListIteratorTournament::Decrement`: removed `value` using
+  direct decremented stores in the zero/nonzero arms. Only the recorded
+  `tTierInfo *tier` remains. GCC merges the store and supplies the retail
+  branch-delay decrement. Removing the redundant final `return` additionally
+  restores one statement group for the validity test through the epilogue,
+  `80033f7c..80033fac`, corresponding to retail SLD 1158. Target **PASS 36/36**,
+  zero `diffsrc`, exact debug twin; whole TU **35/35 PASS**, zero branch
+  divergence; all 36 oracle words match raw ROM. The guard, wrap load, shared
+  decrement/store and validity test correspond to 1153/1154/1156/1158, but the
+  load-delay nop at `80033f70` still inherits the wrap-load source line while
+  retail assigns it to 1156. Full numerical/partition SLD equality is not
+  claimed for this function.
+
+### P863 probes restored and remaining source recovery
+
+- ScreenMain's `curMenu` remains in the extra-local review queue. Direct
+  cast/widened comparison was one instruction short (821/822). Retail records
+  an inlined `tFEApplication this` at the two menu tests, so recovering the
+  accessor is still relevant; the broad header's descriptive `CurrentMenu`
+  name is explicitly not source-proven and was not propagated. The isolated
+  screenmain type has no such method. No header or helper was fabricated.
+  `elapsedTicks` removal by reusing `deltaTicks` or by widened direct
+  comparisons gave ten diffs at 822/822. Reusing `deltaTicks` for
+  `animationFrame` gave six diffs at 822/822. All were restored. `videoY`,
+  `startMovie`, `elapsedTicks`, `nextAnimation`, and `animationFrame` remain
+  marked, alongside the separate `curMenu` review.
+- Menu `Draw` carrier removals were restored (26 diffs at 88/82 and 35 at
+  87/82). Direct widened timer reads in TransitionOff/On also failed (seven
+  diffs at 16/15 and ten at 38/38); restored neighbors remain PASS 82/15/38.
+- Tournament Initialize's widened direct car-count gave four diffs at 53
+  instructions; GetTournamentFinishPrize's inline pointer gave eleven at
+  28/29. GetTrophyName conditional/reuse probes gave 8/16/6/40 diffs (the
+  conditional form 46/48). All were restored. These finite failures are not
+  proofs that a carrier or its current spelling existed in the lost source.
+- All **105 functions** across the three edited TUs remain PASS and have
+  zero branch-count/offset divergence. Source-policy and vtable-indexing
+  guards pass; the 757-object reconstruction link gate is green with zero
+  real duplicates, hidden phantoms, or relocation-referenced unresolved names
+  (964 existing blob-class duplicates remain). No new asm, volatile qualifier,
+  postcompile rewrite, tool/header change, or audit exemption was introduced.
+  Unrelated edits and the uncommitted P861/P862 checkpoint are preserved;
+  P863 is also uncommitted/unpushed. The project-wide original-source/SLD
+  goal remains open.
+
+## P864 frontend expression recovery and SLD ownership (2026-09-06)
+
+Five further source-only names/declarations are removed, without replacement
+names. The strict frontend report is `frontend_common_strict_p864_20260906.md`:
+**503** explicit carriers (P863: 508), 781 declaration-clean functions, zero
+missing names, 46 extra source-local reviews, and three mapping reviews.
+The other headline counts are unchanged: 838 SYM functions, 833 mapped
+definitions, two implicit special members, nine type and nine function-storage
+findings, 190 object-owned data records (171 source definitions / 19 blob-backed).
+These are separate review metrics, not proof of complete original-source recovery.
+
+- `screentrophyinfo.cpp`, `tScreenTrophyInfo::DrawBackground`: removed `fade`
+  and `word`. The lower clamp is now an expression assigned to the real SYM
+  `FadePartI`, without a pre-clamp source local. The text renderer nests both
+  `TextSys_Word` and `CalcFadeVal` calls directly, removing the extra text
+  pointer and later reassignment of `col`. The entire call range
+  `8004128c..800412c0` now has one source statement corresponding to retail
+  SLD94, instead of three reconstructed statements. The real local declaration
+  order is also restored: FadePartI, FadePartIITheRevenge, r, col, yyy,
+  drawFlags, drawFlags2, i. The exact debug twin reproduces their register/
+  storage records respectively: REG19, REG20, AUTO-88/8B, REG16, REG17,
+  AUTO-80/24B, AUTO-56/24B, REG16 (register numbers decimal).
+- The same renderer's second fade uses period GNU C++ min/max operators,
+  `(((int)fScreenFadeVal << 1) >? 0) <? 0x80`. These are explicitly supported
+  by the retail-family compiler: gcc-2.8.1 `cp/lex.c` around 4198 maps the tokens
+  to MIN_EXPR/MAX_EXPR; `cp/typeck.c` around 3521 handles numeric operands.
+  One clamp expression restores the normalized SLD72 interval
+  `80041178..80041190`; the preceding expression restores SLD71 at
+  `80041160..80041174`, including the scheduled second-fade shift. This is an
+  **inferred, compiler-supported expression**, not recovery of unique original
+  tokens or macro text. It uses the period GNU C++ dialect, not modern ISO C++.
+  Target **PASS298**, zero diffs, exact debug twin; TU **3/3 PASS**, branch
+  divergence zero, all 298 oracle words checked against raw `rom/nfs4-f.exe`.
+- `screenaudio.cpp`, `tScreenAudio::Initialize`: removed `audioMode` by moving
+  `this->prevAudioMode = frontEnd.audioMode` before the three resets. This puts
+  the load and delayed store (`800461dc/e0` and `800461f0`) in the same SLD311
+  statement, while the intervening resets retain distinct SLD312/313/314
+  ownership. SYM has no local besides the receiver. Target **PASS24**, exact
+  debug twin and raw 24-word corroboration; TU **8/8 PASS**, branch divergence
+  zero. `screenoptions.cpp` was inspected first but is an intentionally empty
+  data/code-free object marker; no speculative body was introduced there.
+- `screencongrats.cpp`, `tScreenPinkSlipCongrats::CalculatePrizes`: removed
+  `speechId2` and `base`. The signed speech byte is read directly from SYM's
+  `carinfo`, and the award uses its doubled value plus
+  `(long long)(this->fWinner + 0x13)`. Widening the already-grouped right operand
+  preserves the retail addition order; the int member assignment truncates the
+  result. This is an inferred expression spelling, not a recovered cast token.
+  Guard `80048d74..80048d80`, award `80048d84..80048d98`, and else
+  `80048d9c..80048da8` now each form one source group matching SLD475/477/481.
+  The owning SYM block records only `carinfo` AUTO-232/204B and receiver REG19,
+  frame248. Target **PASS68**, zero diffs with exact debug twin, raw 68-word
+  corroboration; TU **28/28 PASS**, zero branch divergence (105 branch words).
+
+### P864 restored probes and remaining recovery work
+
+- TrophyInfo GetShapeInfo's conditional placement lookup, including casts
+  around the conditional or its selected value, still gave FAIL27 at 73/76;
+  restored. Placement, idx, feTier, and currentTourn remain unresolved there.
+  DrawBackground's nested/two-stage plain ternary clamps gave 28 diffs at
+  300/298, six at 300/298, and nineteen at 303/298; all replaced by the passing
+  GNU expression above. None is a proof that the lost source required carriers.
+  DrawBackground still has tournID, tourn, feTier, and currentTourn, and other
+  statement/block gaps remain. The header's descriptive TrophyRoomTierView /
+  TrophyRoomCurrentView helpers also remain source-model debt; this round did
+  not recover their original accessor spelling or change that shared surface.
+- Audio Initialize's `menus` still splits retail SLD308; direct accesses after
+  the reordered assignment gave six diffs at 24/24. The epilogue also retains
+  a retail311-versus-source-return attribution difference. PlaySound's direct
+  range predicate compared with true gave 21 diffs at 231/232; restored to
+  PASS232 with `validItem` still visible. No whole-function SLD equality claim.
+- PinkSlip CalculatePrizes still has `player`; the CarIO call and coordinate /
+  float-store partitions remain open. Removing widening from the direct-field
+  award expression gave FAIL12 at 66/68 and was restored. The old assertions
+  that the split speech/base locals were required are superseded by this round.
+- Parent independently rechecked all **39 functions** across these three TUs:
+  all PASS, zero branch-count/offset divergence. Source-policy and vtable guards
+  pass (1,029 files); the reconstruction relink gate is green across 757
+  objects, with zero real duplicates, hidden phantoms, or relocation-referenced
+  unresolved names (964 existing blob-class duplicates). Scoped diff checks
+  are clean. No new asm, volatile, postcompile rewrite, tool/header modification,
+  invented identifier, or audit exemption was introduced. Unrelated edits are
+  preserved. P861-P864 remain uncommitted/unpushed; the full goal remains open.
+
+## P865 frontend local and lexical-scope recovery (2026-09-06)
+
+Six more non-SYM local names/declarations are removed without replacement names.
+The strict frontend report is `frontend_common_strict_p865_20260906.md`:
+**497** explicit source-only carriers (P864: 503), 781 declaration-clean mapped
+functions, zero missing SYM names, 46 extra-local reviews, and three mapping
+reviews. Other headline counts remain 838 SYM functions / 833 mapped definitions,
+two implicit special members, nine type and nine function-storage findings,
+190 object-owned data records (171 source definitions / 19 blob-backed).
+These distinct counts do not establish complete original-source or SLD recovery.
+
+- `screentrackrecords.cpp`, `tScreenTrackRecords::DrawBackground`: removed
+  `clampTmp`, `lineFadeCalc`, and `half`, plus the invented file-local
+  `TrackRecordLineY` helper. The 17 outer locals now exactly reproduce the
+  recorded names, types, order, and debug homes: string AUTO-232/50B,
+  string2 AUTO-176/50B, fade REG3, linefadeval AUTO-96/SHORT, maxitem
+  AUTO-88/SHORT, boxx AUTO-80/SHORT, boxy AUTO-72/SHORT, boxw AUTO-64/SHORT,
+  midy AUTO-56/SHORT, j REG17/SHORT, Col REG22, ColTextSel REG30,
+  ColTextBright REG18, shape REG4/PTR tTexture_ShapeInfo, lbx REG19,
+  tt REG18, and drawflags AUTO-120/24B. The frame remains 264 bytes,
+  saved-register mask `0xc0ff0000`, receiver ARG0. The nested `xx` remains
+  REG16/INT. Register numbers are decimal; unqualified numeric locals are INT.
+- Period GNU C++ `>?` / `<?` expressions keep the clamp operands at int width
+  and assign directly to the recorded `tt`, `maxitem`, and `linefadeval`.
+  The exact debug twin has one statement per retail clamp group:
+  `80042bac..80042bc8` / SLD216, `80042bcc..80042be4` / SLD218,
+  `80042be8..80042c20` / SLD219, followed by maxitem arithmetic SLD220.
+  The delayed short stores at `80042e00/e04` still have SLD219/220 ownership.
+  Widening the already-bounded half-width subtraction preserves the retail
+  `addiu -2` before subtracting centerx, without `half`. Widening the
+  sign-extended `midy - 12` likewise removes the invented helper; the entire
+  final bright-line setup `8004301c..8004305c` is one source statement,
+  matching SLD284. These are inferred, compiler-supported expression forms,
+  not proof of original tokens or macro text; min/max uses the period GNU
+  dialect, not modern ISO C++.
+- Independent range review confirmed that no removed narrowing changes
+  behavior: SHORT screen fade gives fade in [-78848,78845], whose product
+  with 128 fits INT; clamp outputs fit their SHORT destinations. The former
+  half-width intermediate lies in [-16386,16381], so its SHORT narrowing
+  was redundant; lbx lies in [-49153,49149]. The line-height subtraction
+  lies in [-65547,65523], so the widened result converts losslessly to INT.
+  The existing generated block boundaries around the xx loop still align
+  with `80042e38`, `80042efc`, `80042f7c`, and `80042f84`. Target **PASS364**,
+  zero diffs and exact debug twin; TU **7/7 PASS**, branch divergence zero,
+  raw executable corroborates all 364 oracle words.
+- `screenpinkslips.cpp`, `tScreenPinkSlips::Initialize`: removed `iVar1` and
+  `tmp`. The hVideo member receives VIDEO_create directly and feeds
+  VIDEO_spoolfile; fTVTicks receives the ticks snapshot before the reset
+  statements, with GCC retaining the retail delayed store. Only recorded
+  outer locals r, moviename[80], and trackInfo remain, in order; their
+  generated homes are AUTO-152/8B, AUTO-144/80B, AUTO-64/48B, frame176,
+  receiver REG16. Target **PASS82**, exact debug twin; TU **8/8 PASS**, branch
+  divergence zero; raw 82-word corroboration.
+- `screentournselect.cpp`, `tScreenTournSelect::DrawBackground`: removed
+  `word` by selecting between complete FETextRender_WordWrapFade calls,
+  each nesting its TextValue call. GCC tail-merges the conditional expression
+  exactly, and the title-render block corresponding to SLD347 becomes one
+  source statement. Also moved `char moviename[80]` from function scope
+  into its recorded nested branch. SYM records 65e013-65e03a specify block
+  `80040254..80040288`, relative lines93-98 / file331-336, declaration
+  65e01c AUTO-136/80B. Target **PASS415**, zero diffs and exact debug twin;
+  TU **9/9 PASS**, branch divergence zero (35 strict branch words), raw
+  415-word corroboration. The conditional spelling is inferred, not claimed
+  as the uniquely recovered original expression.
+
+### P865 remaining recovery and restored probes
+
+- TrackRecords still lacks the three empty two-level block pairs at
+  `80042c24`, line10. They suggest inline/macro expansion but do not prove
+  a particular helper name, signature, or body. Earlier assertions that
+  the deleted locals/helper were required are superseded by the passing
+  expressions. Shape/tick-load scheduling attribution, the tt conditional,
+  other statement groups and the full numerical SLD stream remain open.
+  No fresh failed TrackRecords probe was retained this round.
+- PinkSlips Initialize still lacks the inline tFEApplication receiver
+  scope. Retail assigns the hoisted ticks load at `800392e4/e8` to SLD252
+  and its store `80039304` to SLD258; direct source assignment does not
+  recover that partition or prove the original lexical order. Moving it
+  after the resets at lexical258 gave FAIL4 at 82/82 and was restored.
+  Epilogue attribution also remains open. Its DrawBackground carriers and
+  ProcessInput::defs were not changed.
+- TournSelect's receiver-only conditional inside TextValue gave FAIL15
+  at 414/415 and was restored. Rectangle initialization, later iterator
+  selection and description rendering retain SLD partition differences.
+  Six existing carriers remain visible: tvIdx, number, descriptionText,
+  shapeX, tournament, and fe. Neither these finite probes nor the existing
+  comments prove that the lost source required those names or objects.
+- Parent independently rechecked all **24 functions** across the three
+  edited TUs: all PASS, no branch-count/offset divergence. Source-policy and
+  vtable guards pass (1,029 files). Reconstruction relink is green across
+  757 objects: zero real duplicates, hidden phantoms, and relocation-referenced
+  unresolved names; 964 existing blob-class duplicates remain. No new asm,
+  volatile, postcompile rewrite, tool/header modification, invented identifier,
+  or audit exemption was introduced. Unrelated edits are preserved. P861-P865
+  remain uncommitted/unpushed, and the full original-source/SLD goal remains open.
+
+## P866 - three wrong-buffer references corrected; three carriers removed (2026-09-06)
+
+Strict frontend report: `frontend_common_strict_p866_20260906.md`.
+Source-only local carriers fall **497 -> 494**. Declaration-clean mapped
+functions remain 781, missing SYM names 0, extra source-local names 46,
+type/storage findings 9/9 and mapping-review functions 3. The 190 object-owned
+data records still map to 171 source definitions and 19 blob-backed globals,
+with zero missing/extra global definitions. These declaration counts do NOT
+prove that all uses refer to the right objects: this round found and fixed
+three real wrong-buffer bugs in functions that already passed the normalized
+instruction gate.
+
+### P866 proven storage-reference repairs
+
+- `screenusername.cpp`, `tScreenUserName::GetShapeInfo`: replaced the empty
+  literal used both as sprintf's destination and as `*permFileName` with the
+  existing `UserPermFileName`. Owning SYM record `736c69` specifies EXT
+  `char UserPermFileName[20]` at `800529b8`. Its declaration and definition
+  already existed; no header, storage definition, or invented name was added.
+  Retail `8004b058/05c` loads that address into s0, `8004b064` passes it as
+  sprintf's a0, and `8004b090` stores the same pointer to the output. Updated
+  M2C `func_8004B048.c` corroborates both references. Raw bytes at `800125e0`
+  confirm the unchanged format `zUser%d`. The debug object's HI16/LO16
+  relocations explicitly name UserPermFileName and preserve the shared s0
+  path. **PASS24**, zero diffs, exact debug twin; all 24 oracle words checked
+  against `rom/nfs4-f.exe`.
+- `screencarselect.cpp`, `tScreenCarSelectTwoPlayer::SetDialog` and
+  `tScreenPinkSlipsCarSelect::SetDialog`: replaced each empty sprintf
+  destination and its corresponding dialog string with existing
+  `WaitingString`. SYM record `64b3d1` specifies module-static
+  `char WaitingString[50]` at `80052c58`; the definition already exists in
+  `screencarselect_externs.h`. The TwoPlayer oracle loads this address at
+  `8003ecc4/c8`, passes s0 to sprintf at `8003eccc`, and stores s0 to the
+  dialog string at `8003ece4`. PinkSlips does the corresponding operations
+  at `8003f428/42c`, `8003f430`, and `8003f448`. Updated M2C bodies
+  `func_8003EC50.c` and `func_8003F300.c` independently corroborate the
+  shared buffer. The debug-object symbol table places WaitingString at
+  `.bss+0x38`; both functions' HI16/LO16 .bss relocations have addend 0x38
+  and retain the same pointer for formatting and display. **PASS48/164**,
+  zero diffs and exact debug twins; raw executable confirms all 212 words.
+- This fixes six pointer uses across three functions, not three new PASSes.
+  Normalization clears relocation identities/addends, so the old wrong
+  literals and the corrected storage references both passed verify_asm.
+  Source/global-use correctness must remain a separate oracle-backed gate.
+  A targeted scan of frontend empty sprintf/strcpy destinations and filename
+  assignments found one remaining filename literal in ScreenCongrats'
+  no-swap-shapes default. It is legitimate: retail points at the read-only
+  empty string `D_800122A4` and returns zero swap shapes. It was not changed.
+  This limited scan is NOT an exhaustive reference-use audit.
+
+### P866 local and SLD improvements
+
+- `screenusername.cpp`, `tScreenUserName::DrawBackground`: removed
+  `textfadev` without a replacement identifier. Period GNU C++ `fade <? 0x80`
+  supplies the common normal/high result directly to fTextFade while the
+  separate zero store and original outer check remain. **PASS394**, exact
+  debug twin, raw 394-word corroboration. The eleven recorded outer locals
+  retain their SYM names/types/order/homes: i REG16/SHORT, k REG16/SHORT,
+  x REG17/SHORT, y REG21/SHORT, gray REG16/INT, fade REG5/SHORT,
+  fadebox AUTO-72/SHORT, gridpos AUTO-64/SHORT, row AUTO-56/SHORT,
+  col AUTO-48/SHORT, output AUTO-80/CHAR[2]; nested colText remains REG16/INT.
+  Frame112, mask `0xc0ff0000`, receiver ARG0. The GNU expression is an
+  inferred source form, not proven original macro text or modern ISO C++.
+- `screentrackinfo.cpp`, `tScreenTrackInfo::GetShapeInfo`: removed
+  `dayTimes2` and `weatherPlus`, leaving the no-local shape recorded in SYM.
+  Widening the grouped day contribution within sprintf's expression retains
+  retail evaluation order; the final int cast preserves a single-word
+  vararg. Both input fields are UCHAR, so the result is bounded by 97..862.
+  Arithmetic and call at `8004223c..4224c` and `8004225c..42274` now belong
+  to one expression, as in SLD53; neighboring assignment groups 52/54
+  remain distinct. **PASS40**, exact debug twin, raw 40-word corroboration.
+  The expression spelling remains inferred; epilogue attribution is open.
+- `screenmemcard.cpp`, `tScreenMemcard::DrawVerticalLine(short,short,short,short)`:
+  retained existing innerHeight but comma-sequenced its two arithmetic
+  stages in one expression, then passed it to PSXDrawBrightEndLine. Removing
+  the redundant final return lets the call and epilogue share SLD269.
+  The geometry instructions at `800468f0/f4/f8/fc`, `80046908/0c`, and
+  `80046918/1c/20` now share one statement as in SLD267. **PASS45**, exact
+  debug twin and raw 45-word corroboration. No carrier count is credited
+  here. The comma spelling is inferred, not recovered original text.
+
+### P866 restored probes and remaining original-source work
+
+- UserName DrawBackground still has the unrecorded fadeboxv/gridposv clamps,
+  an alignment carrier, an inferred accessor name, and an existing empty
+  asm use marker. These were not removed, renamed, or claimed original.
+  Retail SLD95 remains fragmented across the nested checks, GNU-min/store,
+  goto, and zero-store source lines; full SLD exactness is not claimed.
+  Restored probes: combined logical textfade check 17 diffs at 391/394;
+  gridpos ternary/logical condition 102 at 394/394 (widened-zero variant
+  identical); direct GNU-min/zero gridpos stores 100 at 396/394; direct
+  SHORT fadebox destination plus GNU min 144 at 394/394. Finite failures
+  do not prove any remaining carrier is necessary.
+- TrackInfo's alternative widening on the weather operand gave 12 diffs
+  at 40/40 and was restored. Its separate ProcessInput fee-field probes
+  gave 4/6/4 diffs at 39/39 and were also restored. Proven field identity
+  is fTournaments base +0x24, stride84, fEntranceFee +0x30 (= access +0x54);
+  finding a passing original-field source expression remains open.
+- Memcard's four unrecorded carriers innerHeight/pos/test/shifted and the
+  fragmented SLD265 clamp remain open. Restored probes: GNU min/max 23
+  diffs at 44/45, MIN/MAX macro 11 at 46/45, oracle-shaped ternary 7 at
+  44/45, widened height forms 9 at 46/45. Existing assembly was unchanged.
+- Parent regression-checked all four edited TUs: UserName **6/6**,
+  TrackInfo **5/5**, Memcard **15/15**, CarSelect **59/59**: **85/85 PASS**,
+  zero branch-count/offset divergence. Six targeted function oracles were
+  corroborated against 715 raw executable words. Source-policy and vtable
+  guards PASS (1,029 files). Reconstruction relink is GREEN across 757
+  objects: zero real duplicates, hidden phantoms, and relocation-referenced
+  unresolved names; 964 pre-existing blob-class duplicates remain.
+- No new asm, volatile, postcompile rewrite, header/tool change, invented
+  identifier, or audit exemption was introduced. Unrelated edits remain
+  preserved. P861-P866 remain unstaged, uncommitted and unpushed. The full
+  SYM/global-use/original-source/SLD goal remains active and incomplete.
+
+## P867 (2026-09-06): audio references, standings locals, TrackSelect scope
+
+Retained verified restoration in three frontend TUs, plus a read-only review
+of the user's CPE-derived data map. No new function PASS is credited: these
+functions already passed the normalized gate, and the work improves source
+declarations, actual reference identity, and selected SLD groups.
+
+### P867 actual reference and literal recovery
+
+- `feaudio.cpp`, `FEAudio_StartLoadPatch__FP10SPEECHINFO` at 80015780:
+  replaced the empty filename passed to FeAudio_StartBigfileRead with the
+  existing `currentSpeechViv`. Native SYM `4bfaec` records CHAR[40] at
+  80051510. Retail 800157e8/ec materializes this address, calls at
+  800157f8 and stores the result at 80015800; updated M2C func_80015780.c
+  corroborates it. The debug object explicitly relocates HI16/LO16 to
+  currentSpeechViv. **PASS41**, exact debug twin. The old empty literal
+  also passed because relocation normalization does not verify identity.
+- Replaced five bigBuf-relative literal uses with four recovered strings:
+  comHeader at 80010104, %c%02d at 80010110, %c%ca at 80010118 (two uses),
+  and streamBuffer at 80010120. Raw bytes, caller instructions, and M2C
+  agree. Targets StartPatch/AsyncPlaySpeech/StartBigfileRead remain
+  **PASS73/31/38**, exact debug twins. The complete emitted 117-byte
+  .rodata pool now equals merged retail beginning at 80010104, including
+  string pooling and inter-string padding. No claim is made about the
+  following three alignment bytes or complete frontend data linkage.
+
+### P867 SYM declaration and SLD recovery
+
+- StartLoadPatch's declaration order is now length then offset, as in
+  records `4bf401`/`4bf415`; generated homes remain AUTO-12/AUTO-16.
+  Combined offset/length rejection forms one expression for SLD51 at
+  800157ac..800157c8. Conditional purge and reset form one expression
+  for SLD55 at 800157cc..800157e4; no unproven macro name was introduced.
+  The filename call remains one SLD57 group. The concrete conditional
+  spelling is inferred, not recovered source text. SLD59/61/64 return
+  and epilogue attribution still needs work; full SLD exactness is not
+  claimed. All retained steps independently preserve PASS41/exact -g.
+- LocateBigfile declarations now follow SYM order i, info, tempChar:
+  REG18/UINT, REG17/PTR FILEINFO, REG5/PTR CHAR. Parameter homes and
+  frame56/mask c0ff0000 remain exact. **PASS86**, exact debug twin.
+- InitCommentary keeps its linkage-proven second int parameter but
+  leaves it unnamed. Removed synthetic arg1 and its audit exemption;
+  **PASS40**, exact debug twin, no replacement identifier. Native NFS4
+  SYM records language only. NFS2's raw Watcom Feaudio.c locals dump
+  names the corresponding unused argument postGame (BP-4); its matched
+  PC body has closely related initialization. This is a strong lineage
+  candidate, NOT proof of the original NFS4 spelling. The NFS4 caller
+  supplies trailing zero, which proves a value, not a name. Original
+  parameter-name recovery remains in the backlog.
+- `screenpost.cpp`, TournamentStandings DrawBackground: removed line
+  and halfWidth with no replacement names. The widened grouped
+  `(int)((long long)i + 0x2fe)` expression generates the separate row
+  induction value while retaining only SYM i. Row-call groups SLD203,
+  208/223 and back edge224 remain correct; i is bounded by the
+  signed-short racer count, so this sum narrows losslessly. A grouped
+  widened width adjustment directly computes lbx in SLD250.
+  **PASS561**, exact debug twin; frame248/mask c0ff0000 unchanged.
+- PinkSlipStandings DrawBackground: removed halfWidth in the equivalent
+  lbx expression, matching SLD390. **PASS265**, exact debug twin;
+  frame208/mask c0ff0000 unchanged. Both signed-short width/centerx
+  expressions have final range -49153..49149. Retail subtraction delay
+  slots 80039fc8/8003a78c remain unchanged. Widening is an inferred
+  source expression, not an assertion about original macro tokens.
+- `screentracks.cpp`, TrackSelect DrawBackground: moved existing
+  moviename[80] into its full SYM-recorded playback-start scope before
+  the brightness guard, through VIDEO_startplayback. Records
+  `691546/69154f/69156d` specify AUTO-128 in block
+  800417f8..80041864, source143..150. Executable groups agree with
+  SLD145/146/148/149/150. **PASS299**, exact debug twin. No carrier
+  count credit: this is the same recorded object with corrected scope.
+
+### P867 restored probes and remaining recovery queue
+
+- TrackSelect ProcessInput ptVar1 chained clear/set: FAIL21 at 117/114.
+  DrawBackground startTicks field staging: FAIL1 at 300/299 (extra sw);
+  embedding brightness store in subtraction: FAIL3 at 300/299;
+  widened tick operand: FAIL8 at 305/299. videoWall pointer-to-member
+  expression: FAIL6 at 299/299. Every probe was restored; source comments
+  record these attempts without claiming any carrier is indispensable.
+- Remaining TrackSelect carriers include shapeX, videoY, videoWall,
+  startTicks, packetPtrSlot, ptVar1; original inline receiver form,
+  empty inline blocks, and whole-function SLD remain open.
+- TournamentStandings retains numRacers, lastRacer, type. Its separate
+  Initialize method also retains an invented SCREENPOST_SET_COUNT_SPEED
+  macro with max_money/max_damage locals, not counted by the declaration
+  audit. Do not mistake their absence from the count for original-source
+  validity. No new names were assigned to these unresolved values.
+- No canonical guarded-purge-and-null macro was found in the searched
+  references. NFS2 has an explicit guard/purge/reset sequence; its
+  `_purgememadr` definition is only an alias, not such a macro. This
+  search failure is not proof that no original macro existed.
+
+### P867 final gates and CPE evidence
+
+- Fresh parent gates: Feaudio **10/10**, Screenpost **13/13**,
+  Screentracks **10/10**: **33/33 PASS**, zero branch-offset/count
+  divergences. Fourteen associated function oracles corroborated against
+  **1,891 raw executable words**, zero mismatches.
+- Refreshed strict audit `frontend_common_strict_p867_20260906.md`:
+  recorded source-only carriers **494 -> 490** (three local declarations
+  and one unused parameter name, not four runtime objects). Unchanged:
+  781 declaration-clean mapped functions; missing names 0, extra locals 46,
+  type findings 9, storage findings 9, mapping review 3. Globals remain
+  190 records / 171 source definitions / 19 blob-backed, missing/extra 0,
+  type/storage findings 0. These figures are review coverage, not full
+  original-source or SLD proof.
+- Reconstruction relink GREEN: 757 objects, zero real duplicates,
+  hidden phantoms, or relocation-referenced unresolved names; 964
+  pre-existing blob-class duplicates remain. Vtable indexing guard
+  PASS across 1,029 files; source-only policy PASS; diff-check clean.
+- New user reference `C:\Temp\nfs4-clean\nfs4_data.txt` validated as
+  an address-range index: all 1,328 numbered CPE extents and all 211,949
+  payload bytes corroborate raw CPE/merged retail. It is NOT an exact
+  source-object/type map. Detailed pitfalls and reproducible read-only
+  receipt are in `CPE_DATA_MAP_REFERENCE_20260906.md` and
+  `probe_cpe_data_map_p867.py`: pointer-pointee size confusion,
+  unrelated MOS-name fallback, multi-object load chunks, and the
+  reserved zero overlay hole must not drive false source edits.
+- No new reconstructed asm, volatile, postcompile rewrite, invented
+  identifier, or audit exemption. No production build-tool/header edits;
+  the new scratch probe is read-only and does not affect matching.
+  Existing unrelated edits are preserved. P861-P867 remain unstaged,
+  uncommitted and unpushed; no fresh commit/push was requested. Full
+  SYM/global-use/original-source/SLD restoration remains incomplete.
+
+## P868: close current work, commit to main, and pause (2026-09-06)
+
+The user requested finishing the current work, committing, pushing, and
+pausing. No new matching targets were started after that request. This
+checkpoint includes the retained P861-P868 work and excludes unrelated
+working-tree edits. Original-source/SYM/SLD restoration is still incomplete;
+pausing this work is not completion of the larger goal.
+
+### Retained SetScreen cleanup
+
+- `feapp.cpp`, `tFEApplication::SetScreen`: removed the unrecorded
+  slotOffset declaration and its exemption without introducing another
+  identifier. Repeating the existing signed-short scaling expression
+  preserves **PASS20**, including the exact debug twin. The simpler
+  `(int)i * 4` spelling was count-exact FAIL6 and was restored.
+- Native SYM records only this, i, screen (REGPARM4/5/6; pointer, SHORT,
+  pointer); frame 24 / mask 80000000 / offset -8 remain unchanged. The remaining
+  currentScreen source carrier is not claimed as an original local.
+- Joining the scale and load agrees better with retail SLD454 at
+  80013f28..80013f3c. Whole-function SLD is not exact: the currentScreen
+  assignment and comparison still split retail 454, the condition joins
+  454/457, and the epilogue remains separate from 458. These are open
+  recovery items, not a claim that the current spelling is original.
+- DisplayHelp direct-member probes, with or without a widened address,
+  gave FAIL4 at 9/9 and moved the variant store out of the call slot.
+  Restored the original body, retaining only the experiment receipt.
+  Final **PASS9**, exact debug twin; owning Feapp TU **16/16 PASS**,
+  zero branch divergences. Original inline-method spelling remains open.
+
+### Byte-PASS alternatives rejected for SLD regressions
+
+- `stattool.cpp`: directly using the signed-short sum as the loop bound
+  removes nNumCars and gives PASS34/exact-g, but joins the separate
+  retail 418 assignment (8004aec8) to the retail 422/436 conditions
+  (8004aee0/8004af30). Removing namePtr through a conditional
+  pointer-to-array expression gives PASS15/exact-g but merges retail
+  457/458/459 predicate, assignments, and return into one statement.
+  Both probes restored; final **11/11 PASS**, zero branch divergences,
+  raw oracle checks **34/34 + 15/15 words**.
+- `fevideowall.cpp`: storing ticksA[0] into fTVTicks before setting
+  fTransitionDirection removes tickCounter and reaches ordinary-source
+  PASS9/exact-g in both TurnOff/TurnOn. It merges distinct retail SLD
+  264/265 and 289/290 groups, so both edits were restored. A canonical
+  ticks alias cleanup also passed but was restored to keep this
+  checkpoint scoped. Final **12/12 PASS**, zero branch divergences,
+  **18/18 raw oracle words**. Recover the original inline-method form
+  in a future round; these are successful byte alternatives, not floors.
+- `fecheats.cpp`: removing feApp in HandleActivation gives FAIL2;
+  direct best-placement indexing gives FAIL10/116; mutating cheat to
+  remove its carrier gives FAIL9/117. All experiments restored.
+  Final HandleActivation **PASS116**, ActivateCheat **PASS66**, owning
+  TU **10/10 PASS**, zero branch divergences. No retained source edits
+  in fecheats.cpp, stattool.cpp, or fevideowall.cpp.
+
+### Final checkpoint validation and remaining work
+
+- Final strict frontend report: `frontend_common_strict_p868_20260906.md`.
+  Source-only carrier count **490 -> 489**; unchanged declaration-clean
+  mapped functions 781, missing names 0, extra locals 46, type findings 9,
+  storage findings 9, mapping-review 3. These are audit coverage metrics,
+  not proof of complete original-source or SLD recovery.
+- Parent rebuilt and checked all **22 retained source TUs**: frontend
+  **309/309 PASS**; game **113/114 PASS**; total **422/423 PASS**.
+  The only miss is the unchanged pre-existing
+  Replay_StoringControllerData__FG15tControllerData (188 diffs and one
+  branch-offset divergence). It was not edited. Replay_GetInput remains
+  PASS280. No previously passing function regressed in this batch; all
+  other checked branch-offset/count gates are zero.
+- Final relink remains GREEN: 757 objects, 964 known blob duplicates,
+  zero real duplicates, hidden phantoms, or relocation-referenced
+  unresolved names. Vtable indexing PASS across 1,029 files; source-only
+  policy PASS. The CPE reference probe again corroborates all 1,328 numbered
+  ranges and 211,949 payload bytes, without claiming source ownership.
+- Fetched origin/main and fast-forwarded over disjoint sound-library
+  commit 2a75cf16 before preparing this checkpoint. No production
+  build-tool/header changes, new reconstructed asm/volatile, invented
+  source names, or postcompile rewrites were introduced by this batch.
+- Commit scope is the 22 retained source files, this backlog, P861-P868
+  strict audit receipts, and the CPE reference note/read-only probe.
+  Existing unrelated edits and untracked archives are excluded and
+  preserved. The exact commit/push result is reported separately after
+  Git confirms it. All bounded agents have stopped; pause after push.

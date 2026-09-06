@@ -383,9 +383,10 @@ void tScreenMain::DrawVideoLines()
    RECT declarations deliberately share retail stack offset sp+88 over
    disjoint scopes.  Decompiled one-shot aliases for VIDEO results, text,
    async state, warning-loop tint, and the unused TV bound are folded back into
-   their owning statements.  Six SYM-omitted value webs remain below as
-   individually measured SYM-CODEGEN-CARRIER records; retail bytes prove their
-   existence but optimized debug data cannot recover their private spellings. */
+   their owning statements. P863 also folds the packed-tint component into
+   its owning expression. Five marked source-only temporaries and the curMenu
+   cache remain unresolved; their machine value webs do not prove that
+   distinct named objects existed in the lost source. */
 void tScreenMain::DrawBackground()
 
 {
@@ -495,22 +496,14 @@ credits_state_done:
         (0x80 - (int)this->fWarningFade) * 0x100 |
         (0x80 - (int)this->fWarningFade);
     }
-    /* MATCH W63-A17 (44 -> 12, count still EXACT 822/822): W46 STORAGE-SCOPE LAW.
-       Retail homes the packed-tint scratch in $a1 INSIDE the tvConfigs[4..0xb]
-       loop and in $v1 AFTER it -- two different registers for what our recon
-       carried in one function-scope decompiler temp, i.e. one global allocno whose merged
-       conflict set was barred from both.  Giving the POST-LOOP use its own
-       block-scoped variable turns it into a local qty and the whole a1/a2 (loop)
-       plus a2/v1 (tail) rotation collapses.  Splitting the IN-LOOP use instead --
-       alone, in-place-mutated, or together with this one -- REGRESSES to 52
-       (all three re-gated): only the second site is the dial. */
-    /* SYM-CODEGEN-CARRIER: fadeComponent -- feeding the component through
-       the SYM `fade` local is count-exact FAIL 22; this separate value web
-       gives retail's $v1 component and $v0 packed result. */
-    { uint fadeComponent = 0x80 - ((int)this->fWarningFade << 6) / 0x60;
-    fade = fadeComponent * 0x10000 | fadeComponent * 0x100 | fadeComponent; }
-    this->tvConfigs[6].tint = fade;
-    this->tvConfigs[5].tint = fade;
+    /* P863: SLD 529 computes SYM's int fade in $v0; SLD 530 complements,
+       packs and stores it to both TVs. Repeated unsigned components let GCC
+       recreate the anonymous $v1/$v0 values without fadeComponent.
+       Both statement intervals and PASS 822/822 are preserved. */
+    fade = ((int)this->fWarningFade << 6) / 0x60;
+    this->tvConfigs[5].tint = this->tvConfigs[6].tint =
+        (uint)(0x80 - fade) * 0x10000 |
+        (uint)(0x80 - fade) * 0x100 | (uint)(0x80 - fade);
     drawFlags.tint[0] = 0xbebe;
     DrawShapeExtended((gettick() / 0xf) % 10 + 0x101,0x411,0xa3,-0xf,0x60 - this->fWarningFade
                ,1,&drawFlags);

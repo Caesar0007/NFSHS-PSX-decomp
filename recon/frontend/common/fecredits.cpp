@@ -103,7 +103,6 @@ void tCreditManager::Draw(bool selected)
      Direct `screenMain->tvConfigs[i]` was measured FAIL 25 (84/81); the
      optimized source spelling that caused this handout is not unique. */
   tScreenMain *mainScreen;
-  int i;
 
   if (selected) {
     this->fTVFade = this->fTVFade + 4;
@@ -116,15 +115,19 @@ void tCreditManager::Draw(bool selected)
     this->fTextFade = MAX(this->fTextFade,0x80 - this->fTVFade);
   }
   mainScreen = screenMain;
-  i = 0;
-  do {
-    mainScreen->tvConfigs[i].flags = mainScreen->tvConfigs[i].flags | 2;
-    mainScreen->tvConfigs[i].tint =
-        (0x80 - this->fTVFade) * 0x10000 |
-        (0x80 - this->fTVFade) * 0x100 |
-        (0x80 - this->fTVFade);
-    i = i + 1;
-  } while (i < 0x10);
+  {
+    int i;
+
+    i = 0;
+    do {
+      mainScreen->tvConfigs[i].flags = mainScreen->tvConfigs[i].flags | 2;
+      mainScreen->tvConfigs[i].tint =
+          (0x80 - this->fTVFade) * 0x10000 |
+          (0x80 - this->fTVFade) * 0x100 |
+          (0x80 - this->fTVFade);
+      i = i + 1;
+    } while (i < 0x10);
+  }
   if (this->fTVFade == 0) {
     if (this->fRequestDeInit != 0) {
       this->RealDeInit();
@@ -298,13 +301,10 @@ void tCreditManager::DrawCurrCredit()
      falsely required an unsigned full-width carrier.  A direct `textY` test
      followed by its unsigned source load reproduces retail's `lh`/`lhu` pair.
      The tail now restores SYM's nested `int width` in $s2 literally, shadowing
-     the top-level `width` in $s0.  The six remaining optimized-away identities
-     have no recoverable private spelling:
-     SYM-CODEGEN-CARRIER: frameTick
-     SYM-CODEGEN-CARRIER: titleFadeBase
-     SYM-CODEGEN-CARRIER: subTitleFadeBase
-     SYM-CODEGEN-CARRIER: text
-     SYM-CODEGEN-CARRIER: pixelWidth
+     the top-level `width` in $s0.  P862 removes five source-only locals with
+     direct expressions and the retained color locals. Each color's two-step
+     fade follows retail SLD 269/270 and 272/273; the remaining tag snapshot
+     has no recovered spelling:
      SYM-CODEGEN-CARRIER: tag
      PASS, 451/451 instructions. */
   tDrawShapeExtended drawFlags;
@@ -318,23 +318,17 @@ void tCreditManager::DrawCurrCredit()
   RECT r;
   char *p, *p2;
   char buffer [292];
-  int frameTick;
-  int titleFadeBase;
-  int subTitleFadeBase;
-  char *text;
-  uint pixelWidth;
   byte tag;
 
   drawFlags.tint[0] = 0xcec844;
-  frameTick = ticks >> 4;
-  DrawShapeExtended((frameTick - (frameTick / 10) * 10) + 0xe6,0x410,0x10,0x10,0,0,&drawFlags);
+  DrawShapeExtended(((ticks >> 4) % 10) + 0xe6,0x410,0x10,0x10,0,0,&drawFlags);
   fShowCred = this->CreditBuffer + this->fShowCreditNum;
   FETextRender_SetABR(1,true);
   y = (u_short)fShowCred->subTitleY;
-  titleFadeBase = CalcFadeVal(0xbebe,this->fTextFade);
-  ColTextTitle = CalcFadeVal(titleFadeBase,0x28);
-  subTitleFadeBase = CalcFadeVal(0xbebe,this->fTextFade);
-  ColTextSubTitle = CalcFadeVal(subTitleFadeBase,0x28);
+  ColTextTitle = CalcFadeVal(0xbebe,this->fTextFade);
+  ColTextTitle = CalcFadeVal(ColTextTitle,0x28);
+  ColTextSubTitle = CalcFadeVal(0xbebe,this->fTextFade);
+  ColTextSubTitle = CalcFadeVal(ColTextSubTitle,0x28);
   ColText = CalcFadeVal(0x787878,this->fTextFade);
   /* MATCH (w37-a2): physical block order flip (W36 lever #1 De Morgan swap)
      -- the oracle reaches the FullTextRGB body via a `beqz`-taken branch
@@ -345,12 +339,12 @@ void tCreditManager::DrawCurrCredit()
     r.y = fShowCred->titleY;
     r.w = fShowCred->titleWidth;
     r.h = 100;
-    text = TextSys_Word(fShowCred->titleTextID + 0x514);
-    FETextRender_WordWrapTextRGBJustify(text,r,ColTextTitle,fShowCred->titleJustify,0,false);
+    FETextRender_WordWrapTextRGBJustify(TextSys_Word(fShowCred->titleTextID + 0x514),
+        r,ColTextTitle,fShowCred->titleJustify,0,false);
   }
   else {
-    text = TextSys_Word(fShowCred->titleTextID + 0x514);
-    FETextRender_FullTextRGB(text,fShowCred->titleX,fShowCred->titleY,ColTextTitle,'\0',
+    FETextRender_FullTextRGB(TextSys_Word(fShowCred->titleTextID + 0x514),
+               fShowCred->titleX,fShowCred->titleY,ColTextTitle,'\0',
                fShowCred->titleJustify);
   }
   if (fShowCred->subTitleWidth != 0) {
@@ -358,13 +352,13 @@ void tCreditManager::DrawCurrCredit()
     r.y = fShowCred->subTitleY;
     r.w = fShowCred->subTitleWidth;
     r.h = 100;
-    text = TextSys_Word(fShowCred->subTitleTextID + 0x514);
-    y = y + FETextRender_WordWrapTextRGBJustify(text,r,ColTextSubTitle,fShowCred->subTitleJustify,0,false);
+    y = y + FETextRender_WordWrapTextRGBJustify(TextSys_Word(fShowCred->subTitleTextID + 0x514),
+        r,ColTextSubTitle,fShowCred->subTitleJustify,0,false);
   }
   else {
     y = y + 8;
-    text = TextSys_Word(fShowCred->subTitleTextID + 0x514);
-    FETextRender_FullTextRGB(text,fShowCred->subTitleX,fShowCred->subTitleY,ColTextSubTitle,'\0',
+    FETextRender_FullTextRGB(TextSys_Word(fShowCred->subTitleTextID + 0x514),
+               fShowCred->subTitleX,fShowCred->subTitleY,ColTextSubTitle,'\0',
                fShowCred->subTitleJustify);
   }
   if (fShowCred->textY != 0) {
@@ -374,10 +368,8 @@ void tCreditManager::DrawCurrCredit()
   width = fShowCred->subTitleWidth;
   if (width == 0) {
     FETextRender_SetFont(0);
-    text = TextSys_Word(fShowCred->subTitleTextID + 0x514);
-    pixelWidth = textpixels(text);
-    text = TextSys_Word(fShowCred->subTitleTextID + 0x514);
-    width = pixelWidth - strlen(text);
+    width = textpixels(TextSys_Word(fShowCred->subTitleTextID + 0x514)) -
+        strlen(TextSys_Word(fShowCred->subTitleTextID + 0x514));
   }
   if (x == 0) {
     if (fShowCred->subTitleJustify == 0) {
@@ -445,13 +437,11 @@ void tCreditManager::DrawCurrCredit()
       r.y = 0x55;
       r.w = 0x118;
       r.h = 100;
-      text = TextSys_Word(0x596);
-      FETextRender_WordWrapTextRGBJustify(text,r,ColText,0,0,false);
+      FETextRender_WordWrapTextRGBJustify(TextSys_Word(0x596),r,ColText,0,0,false);
     }
     else if (rollthedice) {
       for (int rtd = 0; rtd < 0x19; rtd++) {
-        text = TextSys_Word(rtd + 0x597);
-        FETextRender_FullTextRGB(text,x,y,ColText,'\0',fShowCred->textJustify);
+        FETextRender_FullTextRGB(TextSys_Word(rtd + 0x597),x,y,ColText,'\0',fShowCred->textJustify);
         y = y + 8;
       }
     }

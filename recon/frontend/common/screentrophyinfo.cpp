@@ -44,9 +44,9 @@ void tScreenTrophyInfo::GetShapeInfo(short &numPermShapes,short &numSwapShapes,
      copy web without extending its lifetime; retail v0/v1 ownership follows exactly (4 -> PASS,
      76/76).  A uint local instead inherits a0 and remains at 4. */
   tTourneyInfo *tourn;
-  /* SYM-CODEGEN-CARRIER: placement -- folding the default/validated value
-     into the banner lookup is measured FAIL27 with three missing instructions
-     (73/76); the short carrier preserves retail's sign-extended table index. */
+  /* SYM-CODEGEN-CARRIER: placement -- direct conditional lookup probes
+     remain FAIL27 at 73/76, including widened conditional values (P864).
+     This is an unresolved source-recovery item, not proof of a named local. */
   short placement;
   /* SYM-CODEGEN-CARRIER: idx -- staging the complete tournament index before
      pointer formation was measured 27 -> 17 diffs and restores retail's
@@ -94,31 +94,23 @@ void tScreenTrophyInfo::DrawBackground()
 {
   int FadePartI;
   int FadePartIITheRevenge;
+  RECT r;
   int col;
   int yyy;
-  RECT r;
   tDrawShapeExtended drawFlags;
   tDrawShapeExtended drawFlags2;
   int i;
   
-  {
-    /* SYM-CODEGEN-CARRIER: fade -- reusing `FadePartI` as the pre-clamp value
-       is count-exact FAIL 8 and assigns that temporary to `$s3`; retail keeps
-       the pre-clamp value in `$a0` and publishes FadePartI only after shifting. */
-    int fade = (int)this->fScreenFadeVal + -0x40;
-
-    FadePartIITheRevenge = (int)this->fScreenFadeVal << 1;
-    if (fade < 0) {
-      fade = 0;
-    }
-    FadePartI = fade << 1;
-  }
-  if (FadePartIITheRevenge < 0) {
-    FadePartIITheRevenge = 0;
-  }
-  if (0x80 < FadePartIITheRevenge) {
-    FadePartIITheRevenge = 0x80;
-  }
+  /* P864: publish SYM's FadePartI only after the lower-clamp and shift;
+     the unnamed pre-clamp value belongs to GCC, not a source local `fade`.
+     This expression retains PASS298 and the REG19/REG20 fade ownership. */
+  FadePartI = (0 < (int)this->fScreenFadeVal - 0x40 ?
+      (int)this->fScreenFadeVal - 0x40 : 0) << 1;
+  /* P864: the period GNU C++ min/max operators form one clamp expression,
+     matching SLD72 (80041178..80041190) and keeping the result in REG20.
+     Compiler support is explicit in gcc-2.8.1 cp/lex.c and cp/typeck.c.
+     This is a verified expression reconstruction, not recovered macro text. */
+  FadePartIITheRevenge = (((int)this->fScreenFadeVal << 1) >? 0) <? 0x80;
   /* SYM-CODEGEN-CARRIER: tournID -- reloading the tournament ID from `tourn`
      at each text call is FAIL 121 at 301/298 and expands/rotates the complete
      saved-register web; retail holds this signed byte once in `$s5`. */
@@ -153,15 +145,11 @@ void tScreenTrophyInfo::DrawBackground()
   yyy = 0xaf;
   FETextRender_FullTextRGB(TextSys_Word((signed char)tourn->fTournamentID + 0x341),0x1e,0x19,col,'\x03',3);
   if (strlen(TextSys_Word(tournID + 0x37a)) != 0) {
-    /* SYM-CODEGEN-CARRIER: word -- nesting this TextSys_Word call into the
-       renderer is count-exact FAIL 66 and rotates the retained text/colour/Y
-       registers; retail evaluates and holds the word before CalcFadeVal. */
-    char *word;
-
     FETextRender_MenuTextPositionedJustifyFade(FadePartI,0x3db,0x8c,0xaf,1,textState_Hilighted,textType_ScreenInfo);
-    word = TextSys_Word(tournID + 0x37a);
-    col = CalcFadeVal(0x505050,FadePartI);
-    FETextRender_FullTextRGB(word,0x91,0xaf,col,'\0',0);
+    /* P864: retail SLD94 is one call expression, including both nested
+       calls. No separate `word` declaration or later `col` assignment. */
+    FETextRender_FullTextRGB(TextSys_Word(tournID + 0x37a),0x91,0xaf,
+        CalcFadeVal(0x505050,FadePartI),'\0',0);
     yyy = 0xb7;
   }
   if (strlen(TextSys_Word(tournID + 0x3a0)) != 0) {

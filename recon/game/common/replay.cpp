@@ -424,25 +424,17 @@ void Replay_GetInput(int car)
     Input_gSim.flags = '\0';
   }
   hasCameras = numValidCams != 0;
-  {
-    /* SYM-CODEGEN-CARRIER: counter
-       This typed address carrier is anonymous in optimized retail debug
-       data.  Direct array indexing is count-exact at 280/280 but changes 30
-       address-materialization and scheduling instructions. */
-    int *counter = &Replay_ReplayCounter[car];
-    *counter = *counter + 1;
-  }
-  if (((hasCameras) && (Replay_ReplayCamera[car].cameraMode == 0x13)) &&
-      (simGlobal.gameStarted != 0)) {
-    Replay_ReplayChooseCamera(car,(int)(Cars_gHumanRaceCarList[car]->N).simRoadInfo.slice);
-  }
-  {
-    int *counter = &Replay_ReplayCounter[car];
-    if (*counter == 0x20) {
-      *counter = 0;
+  /* SYM has no counter pointer local.  Keeping the scaled index first in
+   * these direct lvalues retains retail's address setup without a carrier. */
+  *(int *)((car << 2) + (char *)Replay_ReplayCounter) += 1;
+  if (hasCameras) {
+    if ((Replay_ReplayCamera[car].cameraMode == 0x13) && (simGlobal.gameStarted != 0)) {
+      Replay_ReplayChooseCamera(car,(int)(Cars_gHumanRaceCarList[car]->N).simRoadInfo.slice);
     }
   }
-  return;
+  if (*(int *)((car << 2) + (char *)Replay_ReplayCounter) == 0x20) {
+    *(int *)((car << 2) + (char *)Replay_ReplayCounter) = 0;
+  }
 }
 
 /* ---- Replay_SaveReplay__Fv  [REPLAY.CPP:447-453] SLD-VERIFIED ---- */

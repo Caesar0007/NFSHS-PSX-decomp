@@ -1,7 +1,7 @@
 /* frontend/screens/screenusername.cpp  --  RECONSTRUCTED  (username-entry screen; C++ TU)
  *   6 MEMBER functions of class tScreenUserName (: tScreen via _base_tScreen + manual vtable).
  *   Member-fn decls live in nfs4_types.h (non-virtual, ABI-neutral). Bodies: Ghidra decompiler.
- *   NOTE: Ghidra lost several draw-call args (boxY, dse-args, sprintf dest) -- decl-only, honest.
+ *   P866: GetShapeInfo filename references checked against SYM and the raw oracle.
  */
 #include "screenusername.h"
 
@@ -43,8 +43,10 @@ void tScreenUserName::GetShapeInfo(short &numPermShapes,short &numSwapShapes,cha
   *swapFileName = (char *)0x0;
   numSwapShapes = 0;
   numPermShapes = 0x5c;
-  sprintf("","zUser%d",(uint)(byte)frontEnd.language);
-  *permFileName = "";
+  /* P866: both pointers are SYM UserPermFileName at 800529b8, not an empty
+     literal.  The normalized gate cannot distinguish those relocation targets. */
+  sprintf(UserPermFileName,"zUser%d",(uint)(byte)frontEnd.language);
+  *permFileName = UserPermFileName;
   return;
 }
 
@@ -95,6 +97,10 @@ DrawHorizontalLine_draw:
   return;
 }
 
+/* P866: the matching history below describes earlier forms.  The current
+   source no longer has textfadev; its direct GNU-min expression is PASS.
+   The alignment carrier, two remaining clamps, inferred accessor name, and
+   empty asm use marker remain explicit original-source recovery debt. */
 /* MATCH W61-A17 (93 -> 89 diffs, 391/394 insns): COMPLETE-THE-FUNNEL on all
    three fade clamps.  Retail funnels each clamp's arms through ONE register
    and stores ONCE (`sh a0,40(sp)`, `sh a3,48(sp)`, `sh a0,104(t0)`); ours
@@ -227,19 +233,13 @@ void tScreenUserName::DrawBackground()
   short col;
   char output[2];
   /* SYM-CODEGEN-CARRIER: fadeboxv
-     SYM-CODEGEN-CARRIER: gridposv
-     SYM-CODEGEN-CARRIER: textfadev -- optimized clamp-funnel values absent
-     from the retail local list.  The W72-A7 receipt above measures the direct
-     destination and alternate clamp forms; these funnels retain PASS 394/394.
-     W86-S4 RE-PRICED IN THE PASS BASIN (04Z): removing all three and assigning
-     the SYM destinations (fadebox / gridpos / this->fTextFade) directly in every
-     arm costs 106 diffs.  They stay, declared LAST so the ten real locals above
-     them are in the SYM's own `8c` order (i, k, x, y, gray, fade, fadebox,
-     gridpos, row, col, output -- the record sequence is declaration order, not a
-     class grouping; W86-S4 moved `output` from 7th to last and re-gated PASS). */
+     SYM-CODEGEN-CARRIER: gridposv -- unrecorded clamp values still under
+     source-recovery review.  P866 removes textfadev with period GNU min while
+     preserving PASS 394/394.  The eleven real outer locals above remain in
+     SYM order.  Earlier failed direct-store probes do not prove that these
+     remaining two carriers existed in the lost source. */
   short fadeboxv;
   short gridposv;
-  short textfadev;
 
   /* W85-S5 (device removed): this was `fade = *(volatile int *)&this->
      callingMenu->fScreenFade;`.  What the volatile bought is retail's FULL
@@ -290,13 +290,10 @@ DrawBgUser_gridposDone:
   if (fade < 0x80) {
     if (fade <= 0) goto DrawBgUser_textFadeZero;
   }
-  if (fade < 0x81) goto DrawBgUser_textFadeNormal;
-  textfadev = 0x80;
-  goto DrawBgUser_textFadeDone;
-DrawBgUser_textFadeNormal:
-  textfadev = fade;
-DrawBgUser_textFadeDone:
-  this->fTextFade = textfadev;
+  /* P866: GNU min supplies the shared normal/high value without textfadev;
+     keep the distinct zero store seen at 8004b290..8004b298.  PASS 394 and
+     exact debug twin; the original macro/expression spelling is still unknown. */
+  this->fTextFade = fade <? 0x80;
   goto DrawBgUser_textFadeSkip;
 DrawBgUser_textFadeZero:
   this->fTextFade = 0;

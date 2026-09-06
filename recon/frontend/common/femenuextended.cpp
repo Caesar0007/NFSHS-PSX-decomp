@@ -731,32 +731,17 @@ void tMenuNFS4::TransitionOn()
 bool tMenuNFS4::TransitionIsFinished()
 
 {
-  /* SYM ORDER (W86-S2): the 8c Def rows read i, result; the four non-SYM
-     carriers follow the SYM set. */
+  /* P863: SYM names only i ($s1) and result ($s0).  The single-statement
+     for-loop reproduces SLD 508 (test), 509 (call and backedge), and 511
+     (return).  The explicit vtable entry preserves retail dispatch under
+     the manual-vtable class model; exact original spelling is not proven. */
   short i;
   bool result;
-  tMenuItem *ptVar1;
-  int iVar2;
-  u_int uVar3;
-  int iVar4;
 
   result = 1;
-  i = 0;
-  /* SYM-CODEGEN-CARRIER: ptVar1
-   * SYM-CODEGEN-CARRIER: iVar2
-   * SYM-CODEGEN-CARRIER: uVar3
-   * SYM-CODEGEN-CARRIER: iVar4
-   * The natural member call devirtualizes under the reconstructed protected
-   * class declaration (FAIL 10 / 34); retail uses the 40-insn vtable call. */
-  ptVar1 = this->fItemList[0];
-  while (ptVar1 != (tMenuItem *)0x0) {
-    iVar4 = (int)this->fItemList[i];
-    iVar2 = *(int *)(iVar4 + 0x18);
-    uVar3 = (**(int (**)(...))(iVar2 + 0x4c))(iVar4 + *(short *)(iVar2 + 0x48));
-    result = (result & uVar3) != 0;
-    i = i + 1;
-    ptVar1 = this->fItemList[i];
-  }
+  for (i = 0; this->fItemList[i] != (tMenuItem *)0x0; i++)
+    result = (result & (*(*this->fItemList[i]->_vf)[9].pfn)
+      ((char *)this->fItemList[i] + (int)(*this->fItemList[i]->_vf)[9].delta)) != 0;
   return result;
 }
 

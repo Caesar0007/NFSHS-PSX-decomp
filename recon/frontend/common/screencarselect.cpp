@@ -2266,9 +2266,12 @@ void tScreenCarSelectTwoPlayer::SetDialog()
 
   if (FEApp->waitingForOtherPlayer[player] != 0) {
     player = FEApp->fPlayer;
+    /* P866: SYM WaitingString[50] at 80052c58 is the writable destination
+       and the displayed string. Empty literals previously passed the
+       relocation-normalized gate but referenced the wrong storage. */
     ((tDialogBackUpOnly *)this->CarDialog.SetPosition(
         0, (player == 0) ? -0x3c : 0x3c, (tPlayer)player))->string =
-      (sprintf("",TextSys_Word(0x2a8),PlayerName(1 - player)), "");
+      (sprintf(WaitingString,TextSys_Word(0x2a8),PlayerName(1 - player)), WaitingString);
     this->CarDialog.Display();
   }
   else {
@@ -2604,11 +2607,12 @@ switchD_8003f3b4_caseD_7:
   case CardLoadedFine:
     if ((FEApp->waitingForOtherPlayer[player] != 0) ||
         (PinkSlipsScreenState[1 - player] != CardLoadedFine)) {
-      sprintf("",TextSys_Word(0x2a8),PlayerName(1 - player));
+      /* P866: both references are the module's SYM WaitingString buffer. */
+      sprintf(WaitingString,TextSys_Word(0x2a8),PlayerName(1 - player));
       {
         /* SYM-CODEGEN-CARRIER: dlg -- preserves the inline receiver allocation. */
         tDialogBackUpOnly *dlg = &this->CarDialog;
-        dlg->SetString("")->tDialogBase::Display();
+        dlg->SetString(WaitingString)->tDialogBase::Display();
       }
       this->fStartCheckTick = 0;
       goto SetDlg_cardOkReturn;

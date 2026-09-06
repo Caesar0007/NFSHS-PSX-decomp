@@ -254,8 +254,8 @@ void tScreenMemcard::DrawVerticalLine(short x,short y,short gridpos,short dir)
 
 {
   /* SYM-CODEGEN-CARRIER: innerHeight -- collapsing HEIGHT/GOURAUD/EXTRA into
-     one expression is measured FAIL13 (46/45); the two-stage sum preserves
-     retail's arithmetic webs while final `height` itself folds exactly. */
+     one arithmetic tree is measured FAIL13 (46/45); the two-stage sum
+     preserves retail's arithmetic webs. Original local spelling is unresolved. */
   int innerHeight;
   /* SYM-CODEGEN-CARRIER: pos -- the short clamp carrier preserves retail's
      incoming-$a3 stores and delayed gridpos handoff (measured 26 -> 17). */
@@ -299,14 +299,19 @@ VL_clampHi:
   pos = 0x40;
 VL_clamped:
   gridpos = pos;
-  /* MATCH: keep the inner height sum in its own RTL web before adding EXTRA;
-     gcc emits the retail GOURAUD/HEIGHT/EXTRA load homes and final $v1->$v0 add. */
-  innerHeight = (ushort)GRIDMEMCARD_HEIGHT +
-                (ushort)GRIDMEMCARDGOURAUDBIT_Y * 2;
+  /* P866: sequence both geometry stages in one expression, matching retail
+     SLD 267 at 800468f0/f4/f8/fc, 80046908/0c and 80046918/1c/20.
+     The call and epilogue then share SLD 269. PASS 45 and exact debug twin;
+     this comma spelling is inferred, not recovered original source text.
+     Folding into the call with a widened inner sum was FAIL9 (46/45).
+     No-fence clamp probes: GNU min/max 23 (44/45), MIN/MAX macro 11 (46/45),
+     oracle-shaped ternary 7 (44/45); these were restored, not ruled out. */
+  innerHeight = (innerHeight = (ushort)GRIDMEMCARD_HEIGHT +
+                              (ushort)GRIDMEMCARDGOURAUDBIT_Y * 2,
+                 (ushort)EXTRAYATTOP + innerHeight);
   PSXDrawBrightEndLine(0x785a5a,(int)x,(int)y,2,
-             (short)((ushort)EXTRAYATTOP + innerHeight),
+             (short)innerHeight,
              (uint)(dir == 0),(int)gridpos * 2,0);
-  return;
 }
 
 /* ---- tScreenMemcard::DrawHorizontalLine  (screenmemcard.cpp:273) ---- */

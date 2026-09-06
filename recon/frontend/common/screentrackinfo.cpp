@@ -13,13 +13,14 @@ void tScreenTrackInfo::GetShapeInfo(short &numPermShapes,short &numSwapShapes,ch
   numSwapShapes = 10;
   GetTrackToRace(&tournamentManager,&this->fTrack);
   *permFileName = "zInfo";
-  /* SYM-CODEGEN-CARRIER: dayTimes2 -- collapsing both terms is measured FAIL 10
-     (40/40) and swaps the retail byte-load/arithmetic destinations. */
-  int dayTimes2 = (uint)(this->fTrack).fTimeOfDay * 2;
-  /* SYM-CODEGEN-CARRIER: weatherPlus -- paired with dayTimes2 in that receipt. */
-  int weatherPlus = (this->fTrack).fWeather + 0x61;
+  /* P866: SYM has no locals.  Widen the grouped day contribution to preserve
+     the retail evaluation order without dayTimes2/weatherPlus carriers.
+     Both input fields are UCHAR: the result is 97..862, and the final int
+     cast preserves sprintf's single-word argument.  PASS 40/40, exact -g
+     twin and one SLD-53 call expression; original spelling is not proven. */
   sprintf(gSwapFileName,"TR%02d%c",(int)(signed char)(this->fTrack).fTrackNumber,
-             dayTimes2 + weatherPlus);
+             (int)((long long)((int)(this->fTrack).fTimeOfDay * 2) +
+                   ((this->fTrack).fWeather + 0x61)));
   *swapFileName = gSwapFileName;
   return;
 }

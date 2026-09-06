@@ -1,0 +1,43 @@
+/* Diagnostic only: original public prototypes, exact typed address references. */
+#include "ai.before.h"
+
+void (*p875_before_0)(void) = &AI_StartUp__Fv;
+void (*p875_before_1)(void) = &AI_CleanUp__Fv;
+void (*p875_before_2)(void) = &AI_Main_OverallSetup__Fv;
+void (*p875_before_3)(Car_tObj *carObj) = &AI_CarAvoidance__FP8Car_tObj;
+void (*p875_before_4)(Car_tObj *carObj) = &AI_WorldAvoidance__FP8Car_tObj;
+void (*p875_before_5)(Car_tObj *carObj) = &AI_InitAIInfo__FP8Car_tObj;
+void (*p875_before_6)(Car_tObj *carObj) = &AI_GenericBeginCycle__FP8Car_tObj;
+void (*p875_before_7)(Car_tObj *carObj) = &AI_GenericCycle__FP8Car_tObj;
+void (*p875_before_8)(Car_tObj *carObj) = &AI_GenericEndCycle__FP8Car_tObj;
+void (*p875_before_9)(Car_tObj *carObj, int lane) = &AI_TargetLane__FP8Car_tObji;
+void (*p875_before_10)(void) = &AI_ClearLaneMerits__Fv;
+void (*p875_before_11)(Car_tObj *carObj) = &AI_DoReactions__FP8Car_tObj;
+void (*p875_before_12)(Car_tObj *carObj, Car_tObj *otherCarObj) = &AI_CheckForPlayerActions__FP8Car_tObjT0;
+void (*p875_before_13)(Car_tObj *carObj) = &AI_DoReactionsAndBehavior__FP8Car_tObj;
+void (*p875_before_14)(Car_tObj *carObj, Car_tObj *otherCarObj) = &AI_OpponentBlockPlayer__FP8Car_tObjT0;
+void (*p875_before_15)(Car_tObj *carObj) = &AI_CheckForBarriers__FP8Car_tObj;
+void (*p875_before_16)(Car_tObj *carObj) = &AI_SetupOncomingLaneDemerits__FP8Car_tObj;
+void (*p875_before_17)(Car_tObj *carObj) = &AI_HandleChangeInNumLanes__FP8Car_tObj;
+void (*p875_before_18)(Car_tObj *carObj) = &AI_HandleShouldersAndOffRoad__FP8Car_tObj;
+void (*p875_before_19)(Car_tObj *carObj) = &AI_CalculateLaneSpeeds__FP8Car_tObj;
+void (*p875_before_20)(Car_tObj *carObj) = &AI_CalcMeritsBasedOnSpeed__FP8Car_tObj;
+void (*p875_before_21)(Car_tObj *carObj) = &AI_CheckForClearLanes__FP8Car_tObj;
+void (*p875_before_22)(Car_tObj *carObj) = &AI_CalcBestLineMerits__FP8Car_tObj;
+void (*p875_before_23)(Car_tObj *carObj, Group *groupSimObjs) = &AI_AddCollidableObjects__FP8Car_tObjP5Group;
+void (*p875_before_24)(Car_tObj *carObj) = &AI_AvoidObjects__FP8Car_tObj;
+void (*p875_before_25)(Car_tObj *carObj) = &AI_AvoidSpikeBelt__FP8Car_tObj;
+void (*p875_before_26)(Car_tObj *carObj, int importance, int leftLatPosition, int rightLatPosition, int slice) = &AI_SubmitObstacle__FP8Car_tObjiiii;
+void (*p875_before_27)(Car_tObj *carObj) = &AI_HandleTrafficHonking__FP8Car_tObj;
+void (*p875_before_28)(Car_tObj *carObj) = &AI_CheckForCarsOnSide__FP8Car_tObj;
+void (*p875_before_29)(Car_tObj *carObj) = &AI_ProcessObservationsAndChooseLane__FP8Car_tObj;
+void (*p875_before_30)(Car_tObj *carObj) = &AI_ChooseBestLane__FP8Car_tObj;
+int (*p875_before_31)(Car_tObj *carObj) = &AI_CheckPreferredLateralPosition__FP8Car_tObj;
+int (*p875_before_32)(Car_tObj *carObj, Car_tObj *carInWay) = &AI_TryToShareLanes__FP8Car_tObjT0;
+void (*p875_before_33)(Car_tObj *carObj) = &AI_CalculateDesiredLatPosition__FP8Car_tObj;
+void (*p875_before_34)(Car_tObj *carObj) = &AI_CalculateAdjustedDesiredSpeed__FP8Car_tObj;
+int (*p875_before_35)(Car_tObj *carObj, int delay) = &AI_IsMellowZone__FP8Car_tObji;
+void (*p875_before_36)(Car_tObj *carObj) = &AI_KeepCarsInLane__FP8Car_tObj;
+void (*p875_before_37)(Car_tObj *carObj) = &AI_PushFinishedCarsToSide__FP8Car_tObj;
+void (*p875_before_38)(Car_tObj *carObj) = &AI_MaybeChangeLaneSlack__FP8Car_tObj;
+void (*p875_before_39)(Car_tObj *carObj) = &AI_ChooseNewLaneSlack__FP8Car_tObj;

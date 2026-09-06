@@ -9,13 +9,13 @@
      0x800514b8 gLargestUnused (ULONG) -> +4 RunDemoVideo's function-static
      currentVideo (= splat D_800514BC) -> 0x800514c0 FEApp (PTR).
    (0x800514b4 gShowroomLights is NOT ours -- SYM puts it in fe3dmenu.obj.) */
-extern u_long            gLargestUnused[];
+extern u_long            gLargestUnused;
 
 /* global instances / data */
 extern tFEApplication   *FEApp;
 extern tfrontEnd         frontEnd;
 extern tCarManager       carManager;
-extern tGlobalMenuDefs  *menuDefs[];
+extern tGlobalMenuDefs  *menuDefs;
 extern tScreenUserName  *screenUserName;
 extern GameSetup_tData   GameSetup_gData;
 extern Car_tStats         Cars_gNewCarStatsList[];   /* was stale scalar int; owner cars.cpp

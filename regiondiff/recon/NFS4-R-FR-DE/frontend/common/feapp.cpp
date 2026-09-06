@@ -15,7 +15,7 @@ typedef struct tPsyQPrimTag {
 
 /* ---- FEApp.obj-OWNED globals -- DEFINED here (self-contained; .bss zero; types match the
    feapp_externs.h decls all FE TUs consume). FEApp = the global FE application pointer. ---- */
-u_long          gLargestUnused[1];   /* @0x800514b8; SYM-CARRIER: gLargestUnused -- ULONG[1] forces retail value-load addressing */
+u_long          gLargestUnused;   /* @0x800514b8 base VA; SYM 4b4f25: scalar ULONG */
 tFEApplication *FEApp;            /* @0x800514c0  global FE application pointer */
 extern int Draw_gDoVSync_arr[] asm("Draw_gDoVSync");
 
@@ -287,7 +287,7 @@ void tFEApplication::Redraw()
   if ((gPadinfo.buf[0].nopad != '\0') || (gPadinfo.buf[4].nopad != '\0')) {
     /* SYM-CODEGEN-CARRIER: globalMenuDefs -- a shared menuDefs load is needed
        for the retail register/address schedule in this block. */
-    tGlobalMenuDefs *globalMenuDefs = menuDefs[0];
+    tGlobalMenuDefs *globalMenuDefs = menuDefs;
     (globalMenuDefs->itemMainTwoPlayerRace).fFlags
          = (globalMenuDefs->itemMainTwoPlayerRace).fFlags | 1;
     tMenuCommand emptycommand;
@@ -299,11 +299,11 @@ void tFEApplication::Redraw()
     }
   }
   else {
-    (menuDefs[0]->itemMainTwoPlayerRace).fFlags
-         = (menuDefs[0]->itemMainTwoPlayerRace).fFlags & 0xfffffffe;
+    (menuDefs->itemMainTwoPlayerRace).fFlags
+         = (menuDefs->itemMainTwoPlayerRace).fFlags & 0xfffffffe;
   }
   if (gPadinfo.buf[0].nopad != '\0') {
-    tGlobalMenuDefs *globalMenuDefs = menuDefs[0];
+    tGlobalMenuDefs *globalMenuDefs = menuDefs;
     (globalMenuDefs->itemMainOnePlayerRace).fFlags
          = (globalMenuDefs->itemMainOnePlayerRace).fFlags | 1;
     tMenuCommand emptycommand;
@@ -314,8 +314,8 @@ void tFEApplication::Redraw()
     }
   }
   else {
-    (menuDefs[0]->itemMainOnePlayerRace).fFlags
-         = (menuDefs[0]->itemMainOnePlayerRace).fFlags & 0xfffffffe;
+    (menuDefs->itemMainOnePlayerRace).fFlags
+         = (menuDefs->itemMainOnePlayerRace).fFlags & 0xfffffffe;
   }
   {
   daprim = (DR_AREA *)Render_gPacketPtr;
@@ -792,7 +792,7 @@ void tFEApplication::RunDemoVideo()
   static int currentVideo;
   char buffer [40];
 
-  if ((tMenuNFS4 *)this->fCurrentMenu[0] == &menuDefs[0]->menuMain) {
+  if ((tMenuNFS4 *)this->fCurrentMenu[0] == &menuDefs->menuMain) {
     AudioMus_StopSong(0x78);
     FeAudio_systemtask(0);
     (*(*this->fCurrentMenu[0]->_vf)[5].pfn)
@@ -814,9 +814,9 @@ void tFEApplication::RunDemoVideo()
     PSXFront_FreeDrawMemory();
     FeTools_deinit();
     FreeHelpShapeCluts();
-    gLargestUnused[0] = largestunused();
+    gLargestUnused = largestunused();
     play_movie((u_char)(currentVideo + 1));
-    gLargestUnused[0] = largestunused();
+    gLargestUnused = largestunused();
     PSXFront_AllocateDrawMemory();
     FeTools_init();
     tScreen::DisplayLoadingText();
@@ -836,7 +836,7 @@ void tFEApplication::RunDemoVideo()
       tMenu *menu = this->fCurrentMenu[0];
       __vtbl_ptr_type (*vtbl)[11] = menu->_vf;
 
-      gLargestUnused[0] = largest;
+      gLargestUnused = largest;
       (*(*vtbl)[2].pfn)((char *)menu + (*vtbl)[2].delta);
     }
     (*(*this->fCurrentScreen[0]->_vf)[6].pfn)
@@ -1029,7 +1029,7 @@ MainLoop_subMenuDetect:
           }
         }
         this->fCurrentScreen[(u_char)this->fPlayer] = this->fTransitionToScreen[(u_char)this->fPlayer];
-        gLargestUnused[0] = largestunused();
+        gLargestUnused = largestunused();
         (*(*this->fCurrentScreen[(u_char)this->fPlayer]->_vf)[6].pfn)
                   ((char *)this->fCurrentScreen[(u_char)this->fPlayer] +
                    (*this->fCurrentScreen[(u_char)this->fPlayer]->_vf)[6].delta);
@@ -1451,9 +1451,9 @@ tAppCommand tFEApplication::RunPostGame()
       }
     }
     if (this->needName[0] != 0) {
-      tUserNameMenuItem *item = &menuDefs[0]->menuItemUserName1;
+      tUserNameMenuItem *item = &menuDefs->menuItemUserName1;
       tScreenUserName *screen = screenUserName;
-      tOptionsMenu *m = &menuDefs[0]->menuPostGamePlayer1Name;
+      tOptionsMenu *m = &menuDefs->menuPostGamePlayer1Name;
       item->fData = frontEnd.playerNameList[0];
       item->fPlayer = 0;
       item->fMaxStringLength = 7;
@@ -1463,9 +1463,9 @@ tAppCommand tFEApplication::RunPostGame()
       return this->MainLoop((tMenu *)m);
     }
     if (this->needName[1] != 0) {
-      tUserNameMenuItem *item = &menuDefs[0]->menuItemUserName2;
+      tUserNameMenuItem *item = &menuDefs->menuItemUserName2;
       tScreenUserName *screen = screenUserName;
-      tOptionsMenu *m = &menuDefs[0]->menuPostGamePlayer2Name;
+      tOptionsMenu *m = &menuDefs->menuPostGamePlayer2Name;
       item->fPlayer = 1;
       item->fData = frontEnd.playerNameList[4];
       item->fMaxStringLength = 7;
@@ -1486,7 +1486,7 @@ tAppCommand tFEApplication::RunPostGame()
 tAppCommand tFEApplication::RunFrontEnd()
 
 {
-  return this->MainLoop((tMenu*)&menuDefs[0]->menuMain);
+  return this->MainLoop((tMenu*)&menuDefs->menuMain);
 }
 
 /* end of feapp.cpp */

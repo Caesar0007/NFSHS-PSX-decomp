@@ -1,6 +1,6 @@
 /* game/common/audioeng.cpp -- RECONSTRUCTED from Ghidra 12.0.4 decompile + PsyQ SYM v3.
- *   bworld.obj (GAME\COMMON\bworld.cpp) = 20 fns: BWorld road geometry build/render
- *   (chunk visibility, build lists, spike belt, glare effects, render contexts). Self-contained.
+ *   audioeng.obj (GAME\COMMON\AUDIOENG.CPP): 9 engine-audio functions.
+ *   SYM-owned AudioEng_g state and the engine playback/update routines.
  *   Verified vs disasm-v2.txt. NOT original source; SYM-faithful, recompilable C++.
  */
 #include "audioeng_types.h"
@@ -24,37 +24,16 @@ void AudioEng_CleanUp(void);
 
 
 /* ---- AudioEng_Set__Fiiiiiiii  [@0x8007b5a8] ---- */
-/* MATCH: PASS 159/159.  The carType arms require their explicit retail layout:
- * shifted pitch first, normal pitch out-of-line.  Zero-insn arm/use fences keep
- * reorg from speculating the normal add into the branch slot; the post-dop
- * statement fence keeps gas>>6 on its SLD statement. */
+/* P872: PASS159 with only SYM's parameters and locals g/a/s, no asm fences.
+ * Native SLD224/226 support separate dop assignments in the two carType arms.
+ * Keeping each complete call/store in its arm lets GCC merge their common tail
+ * and retain the original argument homes. A shared temporary/call instead
+ * required five argument aliases and two pitch carriers; all are removed. */
 void AudioEng_Set(int player,int vol,int esp,int gas,int cam,int dop,int azi,int dir)
 {
   AudioEng_t *g;
   AudioEng_tAdjustments *a;
   AudioEng_tState *s;
-  /* MATCH: snapshot the consumed parameters in retail source order.  GCC then
-     emits the exact s7/s5/a1/s6/s3/s4 prologue handout and load sequence.
-     SYM-CODEGEN-CARRIER: volume -- optimized SYM retains the `vol` parameter
-       home under its original name; direct use changes the allocator handout.
-     SYM-CODEGEN-CARRIER: camera -- corresponding `cam` argument-home carrier.
-     SYM-CODEGEN-CARRIER: doppler -- corresponding `dop` argument-home carrier.
-     SYM-CODEGEN-CARRIER: azimuth -- corresponding `azi` argument-home carrier.
-     SYM-CODEGEN-CARRIER: gasLevel -- corresponding `gas` argument-home carrier.
-     SYM-CODEGEN-CARRIER: direction -- corresponding `dir` argument-home
-       carrier; direct `dir` use is count-exact but swaps $s4/$s6 (8 diffs). */
-  const int volume = vol;
-  const int camera = cam;
-  const int doppler = dop;
-  const int azimuth = azi;
-  const int gasLevel = gas;
-  const int direction = dir;
-  /* SYM-CODEGEN-CARRIER: adjustedEsp -- the merged branch result must remain
-     distinct; mutating the SYM `esp` parameter gives 27 diffs at 162/159.
-     SYM-CODEGEN-CARRIER: shiftedEsp -- the shifted arm value must be born
-     separately before 0xc000; a single temporary leaves 6-7 diffs. */
-  int adjustedEsp;
-  int shiftedEsp;
 
   if ((u_int)player < 2) {
     g = AudioEng_g[player];
@@ -66,54 +45,47 @@ void AudioEng_Set(int player,int vol,int esp,int gas,int cam,int dop,int azi,int
                      ? (u_short)((int)((u_int)a->timbreScale * esp) >> 0xe)
                      : 0x1ff;
         if (Cars_gList[player]->carInfo->carType == 0x1c) {
-          shiftedEsp = esp >> 2;
-          /* MATCH: issue the shift before the independent 0xc000 materialization. */
-          __asm__("" : : "r"(shiftedEsp));
-          adjustedEsp = 0xc000;
-          adjustedEsp += shiftedEsp;
+          s->dop = (u_short)((int)((u_int)g->adjust.pitchScale *
+              fixedmult((esp >> 2) + 0xc000,dop)) >> 10);
         }
         else {
-          /* MATCH: arm-head barrier keeps the normal add out of the branch slot. */
-          adjustedEsp = esp + 0x3333;
+          s->dop = (u_short)((int)((u_int)g->adjust.pitchScale *
+              fixedmult(esp + 0x3333,dop)) >> 10);
         }
-        s->dop = (u_short)((int)((u_int)g->adjust.pitchScale *
-            fixedmult(adjustedEsp,doppler)) >> 10);
-        /* MATCH: SLD boundary; prevents gas>>6 from crossing the dop store. */
-        __asm__("" : : "i"(0));
-        if (gasLevel + (gasLevel >> 5) + (gasLevel >> 6) < 0x81) {
-          s->gas = gasLevel + (gasLevel >> 5) + (gasLevel >> 6);
+        if (gas + (gas >> 5) + (gas >> 6) < 0x81) {
+          s->gas = gas + (gas >> 5) + (gas >> 6);
         }
         else {
           s->gas = 0x80;
         }
-        if (camera == 0) {
+        if (cam == 0) {
           s->exh = a->inCarExhaust;
           if (GameSetup_gData.commMode == 1) {
             s->sep = 0;
-            s->azi = (u_short)azimuth;
+            s->azi = (u_short)azi;
           }
           else {
             s->azi = 0;
             s->sep = 0x3fff;
           }
-          s->vol = ((int)(volume * (u_int)a->inCarBoost) >> 6) < 0x800
-                       ? (u_short)((int)(volume * (u_int)a->inCarBoost) >> 6)
+          s->vol = ((int)(vol * (u_int)a->inCarBoost) >> 6) < 0x800
+                       ? (u_short)((int)(vol * (u_int)a->inCarBoost) >> 6)
                        : 0x7ff;
         }
         else {
           s->exh = a->outCarExhaust;
-          if (direction < 0) {
-            s->exh += ((int)(direction * (u_int)a->fwdEngBoost *
+          if (dir < 0) {
+            s->exh += ((int)(dir * (u_int)a->fwdEngBoost *
                              (u_int)s->exh) >> 7) / 0x10000;
           }
           else {
-            s->exh += ((int)(direction * (u_int)a->rwdExhBoost *
+            s->exh += ((int)(dir * (u_int)a->rwdExhBoost *
                              (0x80 - (u_int)s->exh)) >> 7) / 0x10000;
           }
-          s->azi = (u_short)azimuth;
+          s->azi = (u_short)azi;
           s->sep = 0;
-          s->vol = ((int)(volume * (u_int)a->outCarBoost) >> 6) < 0x800
-                       ? (u_short)((int)(volume * (u_int)a->outCarBoost) >> 6)
+          s->vol = ((int)(vol * (u_int)a->outCarBoost) >> 6) < 0x800
+                       ? (u_short)((int)(vol * (u_int)a->outCarBoost) >> 6)
                        : 0x7ff;
         }
         g->setpos = g->setpos + 1U & 0xf;
@@ -124,13 +96,14 @@ void AudioEng_Set(int player,int vol,int esp,int gas,int cam,int dop,int azi,int
 }
 
 /* ---- AudioEng_Update__Fv  [@0x8007b824] ---- */
+/* P873: native SLD381/383 and 418/420 each hold one complete volume clamp.
+ * GNU max/min expressions keep the signed-byte value promoted to int through
+ * the +/-2 adjustment, then store at each arm's tail. This removes the extra
+ * rampedVolume local while preserving the retail signed reload for SNDvol;
+ * PASS366. Existing loop-head allocation operands below are unchanged. */
 void AudioEng_Update(void)
 {
   int player;
-  /* SYM-CODEGEN-CARRIER: rampedVolume -- replacing the left-hand ramp with
-     direct field expressions grows 366 to 373 instructions and leaves 17 diffs;
-     this value is the required signed-byte working copy for both voices. */
-  int rampedVolume;
   
   player = 0;
   do {
@@ -251,32 +224,12 @@ void AudioEng_Update(void)
           else {
             if ((g->sep == 0) || ((signed char)g->chan[n].patchnum < 64) ||
                 (g->right[n].handle != -1)) {
-              rampedVolume = (signed char)g->left[n].vol;
-              if (rampedVolume != g->vol[n]) {
-                /* MATCH (W85-S2, device removal): retail STORES the ramped byte and
-                   then RE-LOADS it sign-extended for the call argument
-                   (`sb v1,476(s0) / lb a1,476(s0) / jal`), where a single trailing
-                   store lets gcc forward the value and sign-extend in registers
-                   (`sll/sra`, 10 diffs @366 -- count-exact both ways).  This used to
-                   be forced with `*(volatile char *)` / `*(volatile int *)` views.
-                   The volatiles are DELETED: gcc-2.8's cse works per BASIC BLOCK, so
-                   putting the store at the TAIL OF EACH CLAMP ARM (it cross-jumps back
-                   to retail's single `sb`) leaves the call in a LATER block, where the
-                   store-forwarding equivalence is no longer available and the `lb`
-                   reload is emitted.  Same lever as the arm-duplication ref-step. */
-                if (g->vol[n] < rampedVolume) {
-                  rampedVolume -= 2;
-                  if (rampedVolume < g->vol[n]) {
-                    rampedVolume = g->vol[n];
-                  }
-                  g->left[n].vol = rampedVolume;
+              if ((signed char)g->left[n].vol != g->vol[n]) {
+                if (g->vol[n] < (signed char)g->left[n].vol) {
+                  g->left[n].vol = ((signed char)g->left[n].vol - 2) >? g->vol[n];
                 }
                 else {
-                  rampedVolume += 2;
-                  if (g->vol[n] < rampedVolume) {
-                    rampedVolume = g->vol[n];
-                  }
-                  g->left[n].vol = rampedVolume;
+                  g->left[n].vol = ((signed char)g->left[n].vol + 2) <? g->vol[n];
                 }
                 SNDvol(g->left[n].handle,
                        (signed char)g->left[n].vol);
@@ -302,23 +255,12 @@ void AudioEng_Update(void)
                 }
               }
               else {
-                rampedVolume = (signed char)g->right[n].vol;
-                if (rampedVolume != g->vol[n]) {
-                  /* MATCH (W85-S2): same store-at-the-tail-of-each-arm shape as the
-                     left voice above -- retires this voice's two `volatile` views. */
-                  if (g->vol[n] < rampedVolume) {
-                    rampedVolume -= 2;
-                    if (rampedVolume < g->vol[n]) {
-                      rampedVolume = g->vol[n];
-                    }
-                    g->right[n].vol = rampedVolume;
+                if ((signed char)g->right[n].vol != g->vol[n]) {
+                  if (g->vol[n] < (signed char)g->right[n].vol) {
+                    g->right[n].vol = ((signed char)g->right[n].vol - 2) >? g->vol[n];
                   }
                   else {
-                    rampedVolume += 2;
-                    if (g->vol[n] < rampedVolume) {
-                      rampedVolume = g->vol[n];
-                    }
-                    g->right[n].vol = rampedVolume;
+                    g->right[n].vol = ((signed char)g->right[n].vol + 2) <? g->vol[n];
                   }
                   SNDvol(g->right[n].handle,
                          (signed char)g->right[n].vol);

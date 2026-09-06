@@ -1,0 +1,20 @@
+#include "C:/Temp/nfs4-decomp/recon/game/psx/night.h"
+int (*p875_probe_0)(CVECTOR colorMatch,int * bestIndex) = &Night_FindClosestColor;
+void (*p875_probe_1)(int colorIndex,long colorH,int bright,u_char * colorval) = &Night_CreateNightTableElement;
+void (*p875_probe_2)(int colorIndex,long colorH,int bright,u_char (* tbl)[256][16]) = &Night_CreateNightTable;
+void (*p875_probe_3)(void) = &Night_GenerateNextLightningEvent;
+void (*p875_probe_4)(int player) = &Night_PauseLightningEffect;
+void (*p875_probe_5)(DRender_tView * Vi) = &Night_DoLightningEffect;
+void (*p875_probe_6)(GameSetup_tCarData * carinfo) = &Night_SetCopColor;
+void (*p875_probe_7)(int player) = &Night_InitPlayerHeadLightColor;
+void (*p875_probe_8)(int player,int colorIndex,int bright) = &Night_SetPlayerHeadLightColor;
+void (*p875_probe_9)(void) = &Night_InitCopLightColors;
+void (*p875_probe_10)(int colorIndex,int brighten) = &Night_SetCopLightColors;
+void (*p875_probe_11)(void) = &Night_InitWeatherTables;
+void (*p875_probe_12)(int colorIndex) = &Night_SetWeatherColors;
+void (*p875_probe_13)(void) = &Night_GenerateAllLightTables;
+void (*p875_probe_14)(void) = &Night_InitNightDriving;
+void (*p875_probe_15)(void) = &Night_KillNightDriving;
+void (*p875_probe_16)(void) = &Night_RestartNightDriving;
+void (*p875_probe_17)(DRender_tView * Vi) = &Night_SetEnviroment;
+void (*p875_probe_18)(VECTOR * v,CVECTOR * color) = &Night_AdditiveNightCalc;

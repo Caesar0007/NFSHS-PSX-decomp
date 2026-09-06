@@ -3,15 +3,13 @@
 #define _GAME_COMMON_AITRIGER_H_
 #include "../../nfs4_types.h"
 
-void Init__24AITrigger_TriggerManagerPc(AITrigger_TriggerManager *self, char *rawTriggers);   /* :21 */
-int InsertTrigger__24AITrigger_TriggerManagerP9trigger_tb(AITrigger_TriggerManager *self, trigger_t *trigger, BOOL fromFile);   /* :73 */
-void * GetNextTrigger__24AITrigger_TriggerManageri(AITrigger_TriggerManager *self, int car);   /* :128 */
-void * GetPrevTrigger__24AITrigger_TriggerManageri(AITrigger_TriggerManager *self, int car);   /* :138 */
-int CheckForTriggerAtSlice__24AITrigger_TriggerManagerii(AITrigger_TriggerManager *self, int car, int slice);   /* :149 */
-void * GetTrigger__24AITrigger_TriggerManageriPi(AITrigger_TriggerManager *self, int trigger, int *used);   /* :192 */
-int CheckForClosestTriggerOfType__24AITrigger_TriggerManageri11triggerTypei(AITrigger_TriggerManager *self, int slice, int type, int direction);   /* :206 */
-void DescribeTrigger__24AITrigger_TriggerManagerP9trigger_t(AITrigger_TriggerManager *self, trigger_t *trigger);   /* :278 */
-int AITrigger_Compare__FPCvT0(void *op1, void *op2);   /* :289 */
-void Sort__24AITrigger_TriggerManager(AITrigger_TriggerManager *self);   /* :298 */
+/* P875: verified source-level free names/signatures; the C++ compiler supplies
+   native GCC-v2 linkage names. File-local STAT helpers stay in their .cpp. */
+/* P875: class methods/constructors are already exposed by the included type
+   surface; redundant encoded non-member declarations were removed after
+   native-symbol and canonical-member probes. Remaining ABI-spelled destructor
+   or static-member declarations are retained for separate linkage review. */
+
+int AITrigger_Compare(const void *op1, const void *op2);   /* :289 */
 
 #endif /* _GAME_COMMON_AITRIGER_H_ */

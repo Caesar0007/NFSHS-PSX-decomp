@@ -3,8 +3,11 @@
 #define _GAME_COMMON_HUDPMX_H_
 #include "../../nfs4_types.h"
 
-void HudPmx_LoadShape__FPcP13HudPmx_tShape(char *n, HudPmx_tShape *s);   /* :24 */
-void HudPmx_InitTextures__Fv(void);   /* :40 */
-void HudPmx_Kill__Fv(void);   /* :209 */
+/* P875: native signatures and defining exports verified by typed-reference
+ * probes. Source names let the compiler emit the original C++ linkage. */
+
+/* HudPmx_LoadShape is native STAT (2326e1); private to hudpmx.cpp. */
+void HudPmx_InitTextures(void);   /* :40 */
+void HudPmx_Kill(void);   /* :209 */
 
 #endif /* _GAME_COMMON_HUDPMX_H_ */

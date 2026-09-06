@@ -1,0 +1,519 @@
+{
+  "round": "P875",
+  "header": "recon/game/psx/sfx.h",
+  "source_authority": "C:/Temp/nfs4-clean/nfs4-f-v3.txt",
+  "scope": "Free-function public prototype rows from P874 inventory only; not an all-record or all-project source restoration claim.",
+  "counts": {
+    "inventory_candidates": 7,
+    "corrected_public": 7,
+    "removed_file_static": 0,
+    "before_native_references": 0,
+    "after_native_references": 7,
+    "return_type_corrections": 0,
+    "header_compile_failures": 0,
+    "unresolved_header_candidates": 0,
+    "preexisting_compiler_warning_count": 1
+  },
+  "before_actual_header_compile": {
+    "header": "recon/game/psx/sfx.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\sfx_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\sfx_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\sfx_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\sfx_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\sfx_before.s"
+      ]
+    ],
+    "header_sha256": "904af2406e95b4f4166bf4ad4bd3942ae85cdb3512b1565b8c1c4178272940f6",
+    "references": {
+      "0": "Sfx_Transform__FP8coorddefP7SVECTORT0__FP8coorddefP7SVECTORT0",
+      "1": "Sfx_BuildSmokeFacet__FP17Souffle_tISouffleP10sfxsouffleP12Draw_tPixMap__FP17Souffle_tISouffleP10sfxsouffleP12Draw_tPixMap",
+      "2": "Sfx_ThickenXZ__FP7SVECTORP8coorddefN21__FP7SVECTORP8coorddefN21",
+      "3": "Sfx_BuildFastDisolveFacet__FP17Souffle_tISouffleP10sfxsouffleP12Draw_tPixMapT2__FP17Souffle_tISouffleP10sfxsouffleP12Draw_tPixMapT2",
+      "4": "Sfx_AdditivePrim__FP12Draw_tPixMapP7SVECTORiiP10Sfx_tCache__FP12Draw_tPixMapP7SVECTORiiP10Sfx_tCache",
+      "5": "Sfx_BuildSouffleFacet__FP13DRender_tViewP17Souffle_tISouffle__FP13DRender_tViewP17Souffle_tISouffle",
+      "6": "Sfx_Add__FP17Souffle_tISouffle__FP17Souffle_tISouffle"
+    },
+    "ok": true,
+    "assembly_sha256": "2abcf183f73e1df4c8227641c42dc36977456553696858b162c7ac692a7855a5",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".rodata",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\sfx.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "Sfx_Transform__FP8coorddefP7SVECTORT0",
+      "Sfx_BuildSmokeFacet__FP17Souffle_tISouffleP10sfxsouffleP12Draw_tPixMap",
+      "Sfx_ThickenXZ__FP7SVECTORP8coorddefN21",
+      "Sfx_BuildFastDisolveFacet__FP17Souffle_tISouffleP10sfxsouffleP12Draw_tPixMapT2",
+      "Sfx_AdditivePrim__FP12Draw_tPixMapP7SVECTORiiP10Sfx_tCache",
+      "Sfx_BuildSouffleFacet__FP13DRender_tViewP17Souffle_tISouffle",
+      "Sfx_Add__FP17Souffle_tISouffle"
+    ]
+  },
+  "before_frozen_replay": {
+    "header": "recon/game/psx/sfx.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\sfx_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\sfx_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\sfx_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\sfx_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\sfx_before.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\sfx_before.cpp:2:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "5c437e07405b942bb82cfc3e93a5e1a4605920dd6e43ea9a4dedb77af9835051",
+    "input_mode": "frozen-original-prototype-surface",
+    "references": {
+      "0": "Sfx_Transform__FP8coorddefP7SVECTORT0__FP8coorddefP7SVECTORT0",
+      "1": "Sfx_BuildSmokeFacet__FP17Souffle_tISouffleP10sfxsouffleP12Draw_tPixMap__FP17Souffle_tISouffleP10sfxsouffleP12Draw_tPixMap",
+      "2": "Sfx_ThickenXZ__FP7SVECTORP8coorddefN21__FP7SVECTORP8coorddefN21",
+      "3": "Sfx_BuildFastDisolveFacet__FP17Souffle_tISouffleP10sfxsouffleP12Draw_tPixMapT2__FP17Souffle_tISouffleP10sfxsouffleP12Draw_tPixMapT2",
+      "4": "Sfx_AdditivePrim__FP12Draw_tPixMapP7SVECTORiiP10Sfx_tCache__FP12Draw_tPixMapP7SVECTORiiP10Sfx_tCache",
+      "5": "Sfx_BuildSouffleFacet__FP13DRender_tViewP17Souffle_tISouffle__FP13DRender_tViewP17Souffle_tISouffle",
+      "6": "Sfx_Add__FP17Souffle_tISouffle__FP17Souffle_tISouffle"
+    },
+    "ok": true,
+    "assembly_sha256": "2abcf183f73e1df4c8227641c42dc36977456553696858b162c7ac692a7855a5"
+  },
+  "after_actual_header_compile": {
+    "header": "recon/game/psx/sfx.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\sfx_after.cpp",
+    "stage": "after",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\sfx_after.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\sfx_after.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\sfx_after.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\sfx_after.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:/Temp/nfs4-decomp/recon/game/psx/sfx.h:4,\n                 from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\sfx_after.cpp:1:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "12fb7ad43d8902ba330eb87da8aeec43dff2aa387d749725156ad75feca284fe",
+    "input_mode": "live-public-header",
+    "header_sha256": "cca01804c2682872f984f866a83a5371ef711132685299598518e2c0fb06a07e",
+    "references": {
+      "0": "Sfx_Transform__FP8coorddefP7SVECTORT0",
+      "1": "Sfx_BuildSmokeFacet__FP17Souffle_tISouffleP10sfxsouffleP12Draw_tPixMap",
+      "2": "Sfx_ThickenXZ__FP7SVECTORP8coorddefN21",
+      "3": "Sfx_BuildFastDisolveFacet__FP17Souffle_tISouffleP10sfxsouffleP12Draw_tPixMapT2",
+      "4": "Sfx_AdditivePrim__FP12Draw_tPixMapP7SVECTORiiP10Sfx_tCache",
+      "5": "Sfx_BuildSouffleFacet__FP13DRender_tViewP17Souffle_tISouffle",
+      "6": "Sfx_Add__FP17Souffle_tISouffle"
+    },
+    "ok": true,
+    "assembly_sha256": "214f8d1ea12734e842e6e9b1040a81cf4426c49ea1e2feaee1650de0466d95e4",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".rodata",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\sfx.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "Sfx_Transform__FP8coorddefP7SVECTORT0",
+      "Sfx_BuildSmokeFacet__FP17Souffle_tISouffleP10sfxsouffleP12Draw_tPixMap",
+      "Sfx_ThickenXZ__FP7SVECTORP8coorddefN21",
+      "Sfx_BuildFastDisolveFacet__FP17Souffle_tISouffleP10sfxsouffleP12Draw_tPixMapT2",
+      "Sfx_AdditivePrim__FP12Draw_tPixMapP7SVECTORiiP10Sfx_tCache",
+      "Sfx_BuildSouffleFacet__FP13DRender_tViewP17Souffle_tISouffle",
+      "Sfx_Add__FP17Souffle_tISouffle"
+    ]
+  },
+  "owning_tu_gate": {
+    "source": "recon/game/psx/sfx.cpp",
+    "command": [
+      "C:\\Python314\\python.exe",
+      "tools/tugate.py",
+      "recon/game/psx/sfx.cpp"
+    ],
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/psx/sfx.cpp: 7/7 PASS\n",
+    "stderr": "",
+    "object_sha256": "8c34762d61ae9e6e0526890dc329069872ccebf4a44ea52663470724a32a6b5e",
+    "actual_function_symbols": [
+      "Sfx_Transform__FP8coorddefP7SVECTORT0",
+      "Sfx_BuildSmokeFacet__FP17Souffle_tISouffleP10sfxsouffleP12Draw_tPixMap",
+      "Sfx_ThickenXZ__FP7SVECTORP8coorddefN21",
+      "Sfx_BuildFastDisolveFacet__FP17Souffle_tISouffleP10sfxsouffleP12Draw_tPixMapT2",
+      "Sfx_AdditivePrim__FP12Draw_tPixMapP7SVECTORiiP10Sfx_tCache",
+      "Sfx_BuildSouffleFacet__FP13DRender_tViewP17Souffle_tISouffle",
+      "Sfx_Add__FP17Souffle_tISouffle"
+    ],
+    "local_function_symbols": []
+  },
+  "consumer_census": {
+    "files_scanned": 1677,
+    "literal_users": [],
+    "dynamic_includes": []
+  },
+  "unresolved": [],
+  "prototype_receipts": [
+    {
+      "header": "recon/game/psx/sfx.h",
+      "line": 6,
+      "encoded": "Sfx_Transform__FP8coorddefP7SVECTORT0",
+      "name": "Sfx_Transform",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Sfx_Transform__FP8coorddefP7SVECTORT0(coorddef *worldpt, SVECTOR *campt, coorddef *t);   /* :40 */",
+      "header_return": "void",
+      "header_signature": "(coorddef *worldpt, SVECTOR *campt, coorddef *t)",
+      "native": [
+        {
+          "record": "45b502",
+          "va": "800dd050",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Sfx_Transform",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\sfx.cpp",
+          "line": 10,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(coorddef * worldpt,SVECTOR * campt,coorddef * t)",
+          "end": 35,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(coorddef * worldpt,SVECTOR * campt,coorddef * t)",
+      "final_prototype": "void Sfx_Transform(coorddef * worldpt,SVECTOR * campt,coorddef * t);   /* SYM 45b502 @0x800dd050 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Sfx_Transform__FP8coorddefP7SVECTORT0__FP8coorddefP7SVECTORT0",
+      "after_emitted_reference": "Sfx_Transform__FP8coorddefP7SVECTORT0",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/sfx.h",
+      "line": 7,
+      "encoded": "Sfx_BuildSmokeFacet__FP17Souffle_tISouffleP10sfxsouffleP12Draw_tPixMap",
+      "name": "Sfx_BuildSmokeFacet",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Sfx_BuildSmokeFacet__FP17Souffle_tISouffleP10sfxsouffleP12Draw_tPixMap(Souffle_tISouffle *is, sfxsouffle *dSouffle, Draw_tPixMap *cpixmap);   /* :106 */",
+      "header_return": "void",
+      "header_signature": "(Souffle_tISouffle *is, sfxsouffle *dSouffle, Draw_tPixMap *cpixmap)",
+      "native": [
+        {
+          "record": "45b535",
+          "va": "800dd1a4",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Sfx_BuildSmokeFacet",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\sfx.cpp",
+          "line": 41,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(Souffle_tISouffle * is,sfxsouffle * dSouffle,Draw_tPixMap * cpixmap)",
+          "end": 71,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(Souffle_tISouffle * is,sfxsouffle * dSouffle,Draw_tPixMap * cpixmap)",
+      "final_prototype": "void Sfx_BuildSmokeFacet(Souffle_tISouffle * is,sfxsouffle * dSouffle,Draw_tPixMap * cpixmap);   /* SYM 45b535 @0x800dd1a4 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Sfx_BuildSmokeFacet__FP17Souffle_tISouffleP10sfxsouffleP12Draw_tPixMap__FP17Souffle_tISouffleP10sfxsouffleP12Draw_tPixMap",
+      "after_emitted_reference": "Sfx_BuildSmokeFacet__FP17Souffle_tISouffleP10sfxsouffleP12Draw_tPixMap",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/sfx.h",
+      "line": 8,
+      "encoded": "Sfx_ThickenXZ__FP7SVECTORP8coorddefN21",
+      "name": "Sfx_ThickenXZ",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Sfx_ThickenXZ__FP7SVECTORP8coorddefN21(SVECTOR *d, coorddef *pt1, coorddef *pt2, coorddef *cp);   /* :163 */",
+      "header_return": "void",
+      "header_signature": "(SVECTOR *d, coorddef *pt1, coorddef *pt2, coorddef *cp)",
+      "native": [
+        {
+          "record": "45b589",
+          "va": "800dd370",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Sfx_ThickenXZ",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\sfx.cpp",
+          "line": 74,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(SVECTOR * d,coorddef * pt1,coorddef * pt2,coorddef * cp)",
+          "end": 97,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(SVECTOR * d,coorddef * pt1,coorddef * pt2,coorddef * cp)",
+      "final_prototype": "void Sfx_ThickenXZ(SVECTOR * d,coorddef * pt1,coorddef * pt2,coorddef * cp);   /* SYM 45b589 @0x800dd370 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Sfx_ThickenXZ__FP7SVECTORP8coorddefN21__FP7SVECTORP8coorddefN21",
+      "after_emitted_reference": "Sfx_ThickenXZ__FP7SVECTORP8coorddefN21",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/sfx.h",
+      "line": 9,
+      "encoded": "Sfx_BuildFastDisolveFacet__FP17Souffle_tISouffleP10sfxsouffleP12Draw_tPixMapT2",
+      "name": "Sfx_BuildFastDisolveFacet",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Sfx_BuildFastDisolveFacet__FP17Souffle_tISouffleP10sfxsouffleP12Draw_tPixMapT2(Souffle_tISouffle *is, sfxsouffle *dSouffle, Draw_tPixMap *t, Draw_tPixMap *c);   /* :290 */",
+      "header_return": "void",
+      "header_signature": "(Souffle_tISouffle *is, sfxsouffle *dSouffle, Draw_tPixMap *t, Draw_tPixMap *c)",
+      "native": [
+        {
+          "record": "45b5bd",
+          "va": "800dd528",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Sfx_BuildFastDisolveFacet",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\sfx.cpp",
+          "line": 100,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(Souffle_tISouffle * is,sfxsouffle * dSouffle,Draw_tPixMap * t,Draw_tPixMap * c)",
+          "end": 112,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(Souffle_tISouffle * is,sfxsouffle * dSouffle,Draw_tPixMap * t,Draw_tPixMap * c)",
+      "final_prototype": "void Sfx_BuildFastDisolveFacet(Souffle_tISouffle * is,sfxsouffle * dSouffle,Draw_tPixMap * t,Draw_tPixMap * c);   /* SYM 45b5bd @0x800dd528 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Sfx_BuildFastDisolveFacet__FP17Souffle_tISouffleP10sfxsouffleP12Draw_tPixMapT2__FP17Souffle_tISouffleP10sfxsouffleP12Draw_tPixMapT2",
+      "after_emitted_reference": "Sfx_BuildFastDisolveFacet__FP17Souffle_tISouffleP10sfxsouffleP12Draw_tPixMapT2",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/sfx.h",
+      "line": 10,
+      "encoded": "Sfx_AdditivePrim__FP12Draw_tPixMapP7SVECTORiiP10Sfx_tCache",
+      "name": "Sfx_AdditivePrim",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Sfx_AdditivePrim__FP12Draw_tPixMapP7SVECTORiiP10Sfx_tCache(Draw_tPixMap *pmx, SVECTOR *pt, int mode, int offset, Sfx_tCache *sd);   /* :306 */",
+      "header_return": "void",
+      "header_signature": "(Draw_tPixMap *pmx, SVECTOR *pt, int mode, int offset, Sfx_tCache *sd)",
+      "native": [
+        {
+          "record": "45b619",
+          "va": "800dd598",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Sfx_AdditivePrim",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\sfx.cpp",
+          "line": 177,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(Draw_tPixMap * pmx,SVECTOR * pt,int mode,int offset,Sfx_tCache * sd)",
+          "end": 349,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(Draw_tPixMap * pmx,SVECTOR * pt,int mode,int offset,Sfx_tCache * sd)",
+      "final_prototype": "void Sfx_AdditivePrim(Draw_tPixMap * pmx,SVECTOR * pt,int mode,int offset,Sfx_tCache * sd);   /* SYM 45b619 @0x800dd598 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Sfx_AdditivePrim__FP12Draw_tPixMapP7SVECTORiiP10Sfx_tCache__FP12Draw_tPixMapP7SVECTORiiP10Sfx_tCache",
+      "after_emitted_reference": "Sfx_AdditivePrim__FP12Draw_tPixMapP7SVECTORiiP10Sfx_tCache",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/sfx.h",
+      "line": 11,
+      "encoded": "Sfx_BuildSouffleFacet__FP13DRender_tViewP17Souffle_tISouffle",
+      "name": "Sfx_BuildSouffleFacet",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Sfx_BuildSouffleFacet__FP13DRender_tViewP17Souffle_tISouffle(DRender_tView *Vi, Souffle_tISouffle *is);   /* :367 */",
+      "header_return": "void",
+      "header_signature": "(DRender_tView *Vi, Souffle_tISouffle *is)",
+      "native": [
+        {
+          "record": "45b661",
+          "va": "800dd790",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Sfx_BuildSouffleFacet",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\sfx.cpp",
+          "line": 840,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(DRender_tView * Vi,Souffle_tISouffle * is)",
+          "end": 1144,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(DRender_tView * Vi,Souffle_tISouffle * is)",
+      "final_prototype": "void Sfx_BuildSouffleFacet(DRender_tView * Vi,Souffle_tISouffle * is);   /* SYM 45b661 @0x800dd790 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Sfx_BuildSouffleFacet__FP13DRender_tViewP17Souffle_tISouffle__FP13DRender_tViewP17Souffle_tISouffle",
+      "after_emitted_reference": "Sfx_BuildSouffleFacet__FP13DRender_tViewP17Souffle_tISouffle",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/sfx.h",
+      "line": 12,
+      "encoded": "Sfx_Add__FP17Souffle_tISouffle",
+      "name": "Sfx_Add",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Sfx_Add__FP17Souffle_tISouffle(Souffle_tISouffle *is);   /* :534 */",
+      "header_return": "void",
+      "header_signature": "(Souffle_tISouffle *is)",
+      "native": [
+        {
+          "record": "45b6ab",
+          "va": "800de638",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Sfx_Add",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\sfx.cpp",
+          "line": 1147,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(Souffle_tISouffle * is)",
+          "end": 1179,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(Souffle_tISouffle * is)",
+      "final_prototype": "void Sfx_Add(Souffle_tISouffle * is);   /* SYM 45b6ab @0x800de638 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Sfx_Add__FP17Souffle_tISouffle__FP17Souffle_tISouffle",
+      "after_emitted_reference": "Sfx_Add__FP17Souffle_tISouffle",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    }
+  ]
+}

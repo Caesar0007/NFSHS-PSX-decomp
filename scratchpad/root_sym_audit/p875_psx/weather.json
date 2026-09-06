@@ -1,0 +1,1433 @@
+{
+  "round": "P875",
+  "header": "recon/game/psx/weather.h",
+  "source_authority": "C:/Temp/nfs4-clean/nfs4-f-v3.txt",
+  "scope": "Free-function public prototype rows from P874 inventory only; not an all-record or all-project source restoration claim.",
+  "counts": {
+    "inventory_candidates": 25,
+    "corrected_public": 25,
+    "removed_file_static": 0,
+    "before_native_references": 0,
+    "after_native_references": 25,
+    "return_type_corrections": 0,
+    "header_compile_failures": 0,
+    "unresolved_header_candidates": 0,
+    "preexisting_compiler_warning_count": 1
+  },
+  "before_actual_header_compile": {
+    "header": "recon/game/psx/weather.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\weather_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\weather_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\weather_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\weather_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\weather_before.s"
+      ]
+    ],
+    "header_sha256": "9ff58fa62a52d16dd3b4ffd2a4f39a4247df1b635006beaf2039f3e964b531c0",
+    "references": {
+      "0": "Weather_GetNumParticles__Fi__Fi",
+      "1": "Weather_SetMatrix__FP10matrixtdef__FP10matrixtdef",
+      "2": "Weather_SetIdentMatrix__Fv__Fv",
+      "3": "Weather_InitSnow__Fv__Fv",
+      "4": "Weather_InitRain__Fv__Fv",
+      "5": "Weather_InitSplats__Fv__Fv",
+      "6": "Weather_GetNewState__Fv__Fv",
+      "7": "Weather_ChangeDensityState__Fv__Fv",
+      "8": "Weather_ChangeIntensityState__Fv__Fv",
+      "9": "Weather_ChangeDensityBasedOnTime__Fv__Fv",
+      "10": "Weather_ChangeIntensityBasedOnTime__Fv__Fv",
+      "11": "Weather_InitStateControls__Fv__Fv",
+      "12": "Weather_Restart__Fv__Fv",
+      "13": "Weather_Init__Fv__Fv",
+      "14": "Weather_DeInit__Fv__Fv",
+      "15": "Weather_TransformVertex__FP10matrixtdefiP7SVECTOR__FP10matrixtdefiP7SVECTOR",
+      "16": "Weather_CheckAndResetParticles__FP7SVECTOR__FP7SVECTOR",
+      "17": "Weather_QuickReOrthogonalize__FP10matrixtdefT0__FP10matrixtdefT0",
+      "18": "Weather_ProcessParticles__FP13DRender_tViewiP7SVECTORPc__FP13DRender_tViewiP7SVECTORPc",
+      "19": "Weather_CreateSnow__FP7SVECTOR__FP7SVECTOR",
+      "20": "Weather_CreateRain__FP7SVECTORP7DVECTORPc__FP7SVECTORP7DVECTORPc",
+      "21": "Weather_CreateSplat__FP18Weather_tSplatInfo__FP18Weather_tSplatInfo",
+      "22": "Weather_DoSplats__FiP18Weather_tSplatInfo__FiP18Weather_tSplatInfo",
+      "23": "Weather_DoWeather__FP13DRender_tView__FP13DRender_tView",
+      "24": "Weather_BuildWeather__FP13DRender_tView__FP13DRender_tView"
+    },
+    "ok": true,
+    "assembly_sha256": "41c74668e2cdf7bcd0daa04a156b10f68e30abeef6efd6ac3a4c75dca3e227d4",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".rodata",
+      ".sdata",
+      ".sbss",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\weather.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "Weather_GetNumParticles__Fi",
+      "Weather_SetMatrix__FP10matrixtdef",
+      "Weather_SetIdentMatrix__Fv",
+      "Weather_InitSnow__Fv",
+      "Weather_InitRain__Fv",
+      "Weather_InitSplats__Fv",
+      "Weather_GetNewState__Fv",
+      "Weather_ChangeDensityState__Fv",
+      "Weather_ChangeIntensityState__Fv",
+      "Weather_ChangeDensityBasedOnTime__Fv",
+      "Weather_ChangeIntensityBasedOnTime__Fv",
+      "Weather_InitStateControls__Fv",
+      "Weather_Restart__Fv",
+      "Weather_Init__Fv",
+      "Weather_DeInit__Fv",
+      "Weather_TransformVertex__FP10matrixtdefiP7SVECTOR",
+      "Weather_CheckAndResetParticles__FP7SVECTOR",
+      "Weather_QuickReOrthogonalize__FP10matrixtdefT0",
+      "Weather_ProcessParticles__FP13DRender_tViewiP7SVECTORPc",
+      "Weather_CreateSnow__FP7SVECTOR",
+      "Weather_CreateRain__FP7SVECTORP7DVECTORPc",
+      "Weather_CreateSplat__FP18Weather_tSplatInfo",
+      "Weather_DoSplats__FiP18Weather_tSplatInfo",
+      "Weather_DoWeather__FP13DRender_tView",
+      "Weather_BuildWeather__FP13DRender_tView",
+      "Weather_gWasDrawn",
+      "Weather_gPos",
+      "Weather_gSplatInfo",
+      "Weather_gPrevPos",
+      "Weather_gTrackSpec",
+      "Weather_gType",
+      "Weather_gDensityGoalState",
+      "Weather_gIntensityGoalState",
+      "Weather_gDensityChangeFactor",
+      "Weather_gIntensityChangeFactor",
+      "Weather_gDensityTimerGoal",
+      "Weather_gIntensityTimerGoal",
+      "Weather_gSnowTrack",
+      "Weather_gTrackIntensityLimit",
+      "gCurrentNumSplats",
+      "Weather_gLastProcessTime",
+      "Weather_gSplatInfoServer",
+      "Weather_gPServer",
+      "Weather_gPrevPServer",
+      "Weather_gDrawnServer",
+      "timechange",
+      "prevLookBehind.52",
+      "prevCameraMode.53"
+    ]
+  },
+  "before_frozen_replay": {
+    "header": "recon/game/psx/weather.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\weather_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\weather_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\weather_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\weather_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\weather_before.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\weather_before.cpp:2:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "ae5d92f072e4110d9e8bd34ed2fff0f206eab58814e9de985fb5b52aa47e31db",
+    "input_mode": "frozen-original-prototype-surface",
+    "references": {
+      "0": "Weather_GetNumParticles__Fi__Fi",
+      "1": "Weather_SetMatrix__FP10matrixtdef__FP10matrixtdef",
+      "2": "Weather_SetIdentMatrix__Fv__Fv",
+      "3": "Weather_InitSnow__Fv__Fv",
+      "4": "Weather_InitRain__Fv__Fv",
+      "5": "Weather_InitSplats__Fv__Fv",
+      "6": "Weather_GetNewState__Fv__Fv",
+      "7": "Weather_ChangeDensityState__Fv__Fv",
+      "8": "Weather_ChangeIntensityState__Fv__Fv",
+      "9": "Weather_ChangeDensityBasedOnTime__Fv__Fv",
+      "10": "Weather_ChangeIntensityBasedOnTime__Fv__Fv",
+      "11": "Weather_InitStateControls__Fv__Fv",
+      "12": "Weather_Restart__Fv__Fv",
+      "13": "Weather_Init__Fv__Fv",
+      "14": "Weather_DeInit__Fv__Fv",
+      "15": "Weather_TransformVertex__FP10matrixtdefiP7SVECTOR__FP10matrixtdefiP7SVECTOR",
+      "16": "Weather_CheckAndResetParticles__FP7SVECTOR__FP7SVECTOR",
+      "17": "Weather_QuickReOrthogonalize__FP10matrixtdefT0__FP10matrixtdefT0",
+      "18": "Weather_ProcessParticles__FP13DRender_tViewiP7SVECTORPc__FP13DRender_tViewiP7SVECTORPc",
+      "19": "Weather_CreateSnow__FP7SVECTOR__FP7SVECTOR",
+      "20": "Weather_CreateRain__FP7SVECTORP7DVECTORPc__FP7SVECTORP7DVECTORPc",
+      "21": "Weather_CreateSplat__FP18Weather_tSplatInfo__FP18Weather_tSplatInfo",
+      "22": "Weather_DoSplats__FiP18Weather_tSplatInfo__FiP18Weather_tSplatInfo",
+      "23": "Weather_DoWeather__FP13DRender_tView__FP13DRender_tView",
+      "24": "Weather_BuildWeather__FP13DRender_tView__FP13DRender_tView"
+    },
+    "ok": true,
+    "assembly_sha256": "41c74668e2cdf7bcd0daa04a156b10f68e30abeef6efd6ac3a4c75dca3e227d4"
+  },
+  "after_actual_header_compile": {
+    "header": "recon/game/psx/weather.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\weather_after.cpp",
+    "stage": "after",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\weather_after.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\weather_after.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\weather_after.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\weather_after.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:/Temp/nfs4-decomp/recon/game/psx/weather.h:4,\n                 from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\weather_after.cpp:1:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "bb725f75fc69d07621b6c958d07ffc0edfdd1a68749e6eb3ce27e36ae434cb85",
+    "input_mode": "live-public-header",
+    "header_sha256": "d74e079374f529717694006146e33f9437492696dd2a64f8cb47e67be9756c27",
+    "references": {
+      "0": "Weather_GetNumParticles__Fi",
+      "1": "Weather_SetMatrix__FP10matrixtdef",
+      "2": "Weather_SetIdentMatrix__Fv",
+      "3": "Weather_InitSnow__Fv",
+      "4": "Weather_InitRain__Fv",
+      "5": "Weather_InitSplats__Fv",
+      "6": "Weather_GetNewState__Fv",
+      "7": "Weather_ChangeDensityState__Fv",
+      "8": "Weather_ChangeIntensityState__Fv",
+      "9": "Weather_ChangeDensityBasedOnTime__Fv",
+      "10": "Weather_ChangeIntensityBasedOnTime__Fv",
+      "11": "Weather_InitStateControls__Fv",
+      "12": "Weather_Restart__Fv",
+      "13": "Weather_Init__Fv",
+      "14": "Weather_DeInit__Fv",
+      "15": "Weather_TransformVertex__FP10matrixtdefiP7SVECTOR",
+      "16": "Weather_CheckAndResetParticles__FP7SVECTOR",
+      "17": "Weather_QuickReOrthogonalize__FP10matrixtdefT0",
+      "18": "Weather_ProcessParticles__FP13DRender_tViewiP7SVECTORPc",
+      "19": "Weather_CreateSnow__FP7SVECTOR",
+      "20": "Weather_CreateRain__FP7SVECTORP7DVECTORPc",
+      "21": "Weather_CreateSplat__FP18Weather_tSplatInfo",
+      "22": "Weather_DoSplats__FiP18Weather_tSplatInfo",
+      "23": "Weather_DoWeather__FP13DRender_tView",
+      "24": "Weather_BuildWeather__FP13DRender_tView"
+    },
+    "ok": true,
+    "assembly_sha256": "9a78f34e1e6d8e55a623784d17f777e70b9922baa7dc2f9b6d243fae4960fe86",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".rodata",
+      ".sdata",
+      ".sbss",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\weather.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "Weather_GetNumParticles__Fi",
+      "Weather_SetMatrix__FP10matrixtdef",
+      "Weather_SetIdentMatrix__Fv",
+      "Weather_InitSnow__Fv",
+      "Weather_InitRain__Fv",
+      "Weather_InitSplats__Fv",
+      "Weather_GetNewState__Fv",
+      "Weather_ChangeDensityState__Fv",
+      "Weather_ChangeIntensityState__Fv",
+      "Weather_ChangeDensityBasedOnTime__Fv",
+      "Weather_ChangeIntensityBasedOnTime__Fv",
+      "Weather_InitStateControls__Fv",
+      "Weather_Restart__Fv",
+      "Weather_Init__Fv",
+      "Weather_DeInit__Fv",
+      "Weather_TransformVertex__FP10matrixtdefiP7SVECTOR",
+      "Weather_CheckAndResetParticles__FP7SVECTOR",
+      "Weather_QuickReOrthogonalize__FP10matrixtdefT0",
+      "Weather_ProcessParticles__FP13DRender_tViewiP7SVECTORPc",
+      "Weather_CreateSnow__FP7SVECTOR",
+      "Weather_CreateRain__FP7SVECTORP7DVECTORPc",
+      "Weather_CreateSplat__FP18Weather_tSplatInfo",
+      "Weather_DoSplats__FiP18Weather_tSplatInfo",
+      "Weather_DoWeather__FP13DRender_tView",
+      "Weather_BuildWeather__FP13DRender_tView",
+      "Weather_gWasDrawn",
+      "Weather_gPos",
+      "Weather_gSplatInfo",
+      "Weather_gPrevPos",
+      "Weather_gTrackSpec",
+      "Weather_gType",
+      "Weather_gDensityGoalState",
+      "Weather_gIntensityGoalState",
+      "Weather_gDensityChangeFactor",
+      "Weather_gIntensityChangeFactor",
+      "Weather_gDensityTimerGoal",
+      "Weather_gIntensityTimerGoal",
+      "Weather_gSnowTrack",
+      "Weather_gTrackIntensityLimit",
+      "gCurrentNumSplats",
+      "Weather_gLastProcessTime",
+      "Weather_gSplatInfoServer",
+      "Weather_gPServer",
+      "Weather_gPrevPServer",
+      "Weather_gDrawnServer",
+      "timechange",
+      "prevLookBehind.52",
+      "prevCameraMode.53"
+    ]
+  },
+  "owning_tu_gate": {
+    "source": "recon/game/psx/weather.cpp",
+    "command": [
+      "C:\\Python314\\python.exe",
+      "tools/tugate.py",
+      "recon/game/psx/weather.cpp"
+    ],
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/psx/weather.cpp: 24/25 PASS\n     12  Weather_Init__Fv\n",
+    "stderr": "",
+    "object_sha256": "78f0b518517825844d6f223a38e474785fd095cd0f479e67d54767544b82f61e",
+    "actual_function_symbols": [
+      "Weather_GetNumParticles__Fi",
+      "Weather_SetMatrix__FP10matrixtdef",
+      "Weather_SetIdentMatrix__Fv",
+      "Weather_InitSnow__Fv",
+      "Weather_InitRain__Fv",
+      "Weather_InitSplats__Fv",
+      "Weather_GetNewState__Fv",
+      "Weather_ChangeDensityState__Fv",
+      "Weather_ChangeIntensityState__Fv",
+      "Weather_ChangeDensityBasedOnTime__Fv",
+      "Weather_ChangeIntensityBasedOnTime__Fv",
+      "Weather_InitStateControls__Fv",
+      "Weather_Restart__Fv",
+      "Weather_Init__Fv",
+      "Weather_DeInit__Fv",
+      "Weather_TransformVertex__FP10matrixtdefiP7SVECTOR",
+      "Weather_CheckAndResetParticles__FP7SVECTOR",
+      "Weather_QuickReOrthogonalize__FP10matrixtdefT0",
+      "Weather_ProcessParticles__FP13DRender_tViewiP7SVECTORPc",
+      "Weather_CreateSnow__FP7SVECTOR",
+      "Weather_CreateRain__FP7SVECTORP7DVECTORPc",
+      "Weather_CreateSplat__FP18Weather_tSplatInfo",
+      "Weather_DoSplats__FiP18Weather_tSplatInfo",
+      "Weather_DoWeather__FP13DRender_tView",
+      "Weather_BuildWeather__FP13DRender_tView"
+    ],
+    "local_function_symbols": []
+  },
+  "consumer_census": {
+    "files_scanned": 1677,
+    "literal_users": [],
+    "dynamic_includes": []
+  },
+  "unresolved": [],
+  "prototype_receipts": [
+    {
+      "header": "recon/game/psx/weather.h",
+      "line": 6,
+      "encoded": "Weather_GetNumParticles__Fi",
+      "name": "Weather_GetNumParticles",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "int Weather_GetNumParticles__Fi(int player);   /* :107 */",
+      "header_return": "int",
+      "header_signature": "(int player)",
+      "native": [
+        {
+          "record": "486ee5",
+          "va": "800e1dc0",
+          "linkage": "EXT",
+          "return_type": "int"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Weather_GetNumParticles",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\weather.cpp",
+          "line": 61,
+          "typeref": "typename:int",
+          "kind": "function",
+          "signature": "(int player)",
+          "end": 65,
+          "return_type": "int",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "int",
+      "final_signature": "(int player)",
+      "final_prototype": "int Weather_GetNumParticles(int player);   /* SYM 486ee5 @0x800e1dc0 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Weather_GetNumParticles__Fi__Fi",
+      "after_emitted_reference": "Weather_GetNumParticles__Fi",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/weather.h",
+      "line": 7,
+      "encoded": "Weather_SetMatrix__FP10matrixtdef",
+      "name": "Weather_SetMatrix",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Weather_SetMatrix__FP10matrixtdef(matrixtdef *m);   /* :112 */",
+      "header_return": "void",
+      "header_signature": "(matrixtdef *m)",
+      "native": [
+        {
+          "record": "486f0e",
+          "va": "800e1dd0",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Weather_SetMatrix",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\weather.cpp",
+          "line": 73,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(matrixtdef * m)",
+          "end": 127,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(matrixtdef * m)",
+      "final_prototype": "void Weather_SetMatrix(matrixtdef * m);   /* SYM 486f0e @0x800e1dd0 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Weather_SetMatrix__FP10matrixtdef__FP10matrixtdef",
+      "after_emitted_reference": "Weather_SetMatrix__FP10matrixtdef",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/weather.h",
+      "line": 8,
+      "encoded": "Weather_SetIdentMatrix__Fv",
+      "name": "Weather_SetIdentMatrix",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Weather_SetIdentMatrix__Fv(void);   /* :127 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "486f3d",
+          "va": "800e1e94",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Weather_SetIdentMatrix",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\weather.cpp",
+          "line": 130,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 148,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Weather_SetIdentMatrix(void);   /* SYM 486f3d @0x800e1e94 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Weather_SetIdentMatrix__Fv__Fv",
+      "after_emitted_reference": "Weather_SetIdentMatrix__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/weather.h",
+      "line": 9,
+      "encoded": "Weather_InitSnow__Fv",
+      "name": "Weather_InitSnow",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Weather_InitSnow__Fv(void);   /* :150 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "486f65",
+          "va": "800e1f18",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Weather_InitSnow",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\weather.cpp",
+          "line": 151,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 167,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Weather_InitSnow(void);   /* SYM 486f65 @0x800e1f18 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Weather_InitSnow__Fv__Fv",
+      "after_emitted_reference": "Weather_InitSnow__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/weather.h",
+      "line": 10,
+      "encoded": "Weather_InitRain__Fv",
+      "name": "Weather_InitRain",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Weather_InitRain__Fv(void);   /* :166 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "486f87",
+          "va": "800e1f78",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Weather_InitRain",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\weather.cpp",
+          "line": 170,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 186,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Weather_InitRain(void);   /* SYM 486f87 @0x800e1f78 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Weather_InitRain__Fv__Fv",
+      "after_emitted_reference": "Weather_InitRain__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/weather.h",
+      "line": 11,
+      "encoded": "Weather_InitSplats__Fv",
+      "name": "Weather_InitSplats",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Weather_InitSplats__Fv(void);   /* :182 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "486fa9",
+          "va": "800e1fd8",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Weather_InitSplats",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\weather.cpp",
+          "line": 201,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 228,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Weather_InitSplats(void);   /* SYM 486fa9 @0x800e1fd8 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Weather_InitSplats__Fv__Fv",
+      "after_emitted_reference": "Weather_InitSplats__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/weather.h",
+      "line": 12,
+      "encoded": "Weather_GetNewState__Fv",
+      "name": "Weather_GetNewState",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "int Weather_GetNewState__Fv(void);   /* :238 */",
+      "header_return": "int",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "486fcd",
+          "va": "800e20ec",
+          "linkage": "EXT",
+          "return_type": "int"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Weather_GetNewState",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\weather.cpp",
+          "line": 231,
+          "typeref": "typename:int",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 244,
+          "return_type": "int",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "int",
+      "final_signature": "(void)",
+      "final_prototype": "int Weather_GetNewState(void);   /* SYM 486fcd @0x800e20ec */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Weather_GetNewState__Fv__Fv",
+      "after_emitted_reference": "Weather_GetNewState__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/weather.h",
+      "line": 13,
+      "encoded": "Weather_ChangeDensityState__Fv",
+      "name": "Weather_ChangeDensityState",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Weather_ChangeDensityState__Fv(void);   /* :253 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "486ff2",
+          "va": "800e212c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Weather_ChangeDensityState",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\weather.cpp",
+          "line": 251,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 269,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Weather_ChangeDensityState(void);   /* SYM 486ff2 @0x800e212c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Weather_ChangeDensityState__Fv__Fv",
+      "after_emitted_reference": "Weather_ChangeDensityState__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/weather.h",
+      "line": 14,
+      "encoded": "Weather_ChangeIntensityState__Fv",
+      "name": "Weather_ChangeIntensityState",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Weather_ChangeIntensityState__Fv(void);   /* :273 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "48701e",
+          "va": "800e21a0",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Weather_ChangeIntensityState",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\weather.cpp",
+          "line": 274,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 292,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Weather_ChangeIntensityState(void);   /* SYM 48701e @0x800e21a0 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Weather_ChangeIntensityState__Fv__Fv",
+      "after_emitted_reference": "Weather_ChangeIntensityState__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/weather.h",
+      "line": 15,
+      "encoded": "Weather_ChangeDensityBasedOnTime__Fv",
+      "name": "Weather_ChangeDensityBasedOnTime",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Weather_ChangeDensityBasedOnTime__Fv(void);   /* :296 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "48704c",
+          "va": "800e2218",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Weather_ChangeDensityBasedOnTime",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\weather.cpp",
+          "line": 295,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 325,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Weather_ChangeDensityBasedOnTime(void);   /* SYM 48704c @0x800e2218 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Weather_ChangeDensityBasedOnTime__Fv__Fv",
+      "after_emitted_reference": "Weather_ChangeDensityBasedOnTime__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/weather.h",
+      "line": 16,
+      "encoded": "Weather_ChangeIntensityBasedOnTime__Fv",
+      "name": "Weather_ChangeIntensityBasedOnTime",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Weather_ChangeIntensityBasedOnTime__Fv(void);   /* :323 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "48707e",
+          "va": "800e22f0",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Weather_ChangeIntensityBasedOnTime",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\weather.cpp",
+          "line": 356,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 397,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Weather_ChangeIntensityBasedOnTime(void);   /* SYM 48707e @0x800e22f0 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Weather_ChangeIntensityBasedOnTime__Fv__Fv",
+      "after_emitted_reference": "Weather_ChangeIntensityBasedOnTime__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/weather.h",
+      "line": 17,
+      "encoded": "Weather_InitStateControls__Fv",
+      "name": "Weather_InitStateControls",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Weather_InitStateControls__Fv(void);   /* :355 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "4870b2",
+          "va": "800e23e8",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Weather_InitStateControls",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\weather.cpp",
+          "line": 400,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 430,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Weather_InitStateControls(void);   /* SYM 4870b2 @0x800e23e8 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Weather_InitStateControls__Fv__Fv",
+      "after_emitted_reference": "Weather_InitStateControls__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/weather.h",
+      "line": 18,
+      "encoded": "Weather_Restart__Fv",
+      "name": "Weather_Restart",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Weather_Restart__Fv(void);   /* :391 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "4870dd",
+          "va": "800e24b4",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Weather_Restart",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\weather.cpp",
+          "line": 440,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 458,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Weather_Restart(void);   /* SYM 4870dd @0x800e24b4 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Weather_Restart__Fv__Fv",
+      "after_emitted_reference": "Weather_Restart__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/weather.h",
+      "line": 19,
+      "encoded": "Weather_Init__Fv",
+      "name": "Weather_Init",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Weather_Init__Fv(void);   /* :414 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "4870fe",
+          "va": "800e2530",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Weather_Init",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\weather.cpp",
+          "line": 475,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 601,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Weather_Init(void);   /* SYM 4870fe @0x800e2530 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Weather_Init__Fv__Fv",
+      "after_emitted_reference": "Weather_Init__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/weather.h",
+      "line": 20,
+      "encoded": "Weather_DeInit__Fv",
+      "name": "Weather_DeInit",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Weather_DeInit__Fv(void);   /* :501 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "48711c",
+          "va": "800e287c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Weather_DeInit",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\weather.cpp",
+          "line": 604,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 626,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Weather_DeInit(void);   /* SYM 48711c @0x800e287c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Weather_DeInit__Fv__Fv",
+      "after_emitted_reference": "Weather_DeInit__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/weather.h",
+      "line": 21,
+      "encoded": "Weather_TransformVertex__FP10matrixtdefiP7SVECTOR",
+      "name": "Weather_TransformVertex",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Weather_TransformVertex__FP10matrixtdefiP7SVECTOR(matrixtdef *m, int n, SVECTOR *s);   /* :581 */",
+      "header_return": "void",
+      "header_signature": "(matrixtdef *m, int n, SVECTOR *s)",
+      "native": [
+        {
+          "record": "48713c",
+          "va": "800e2910",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Weather_TransformVertex",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\weather.cpp",
+          "line": 647,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(matrixtdef * m,int n,SVECTOR * s)",
+          "end": 686,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(matrixtdef * m,int n,SVECTOR * s)",
+      "final_prototype": "void Weather_TransformVertex(matrixtdef * m,int n,SVECTOR * s);   /* SYM 48713c @0x800e2910 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Weather_TransformVertex__FP10matrixtdefiP7SVECTOR__FP10matrixtdefiP7SVECTOR",
+      "after_emitted_reference": "Weather_TransformVertex__FP10matrixtdefiP7SVECTOR",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/weather.h",
+      "line": 22,
+      "encoded": "Weather_CheckAndResetParticles__FP7SVECTOR",
+      "name": "Weather_CheckAndResetParticles",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "short Weather_CheckAndResetParticles__FP7SVECTOR(SVECTOR *pt);   /* :623 */",
+      "header_return": "short",
+      "header_signature": "(SVECTOR *pt)",
+      "native": [
+        {
+          "record": "48717b",
+          "va": "800e29d4",
+          "linkage": "EXT",
+          "return_type": "short"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Weather_CheckAndResetParticles",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\weather.cpp",
+          "line": 702,
+          "typeref": "typename:short",
+          "kind": "function",
+          "signature": "(SVECTOR * pt)",
+          "end": 772,
+          "return_type": "short",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "short",
+      "final_signature": "(SVECTOR * pt)",
+      "final_prototype": "short Weather_CheckAndResetParticles(SVECTOR * pt);   /* SYM 48717b @0x800e29d4 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Weather_CheckAndResetParticles__FP7SVECTOR__FP7SVECTOR",
+      "after_emitted_reference": "Weather_CheckAndResetParticles__FP7SVECTOR",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/weather.h",
+      "line": 23,
+      "encoded": "Weather_QuickReOrthogonalize__FP10matrixtdefT0",
+      "name": "Weather_QuickReOrthogonalize",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Weather_QuickReOrthogonalize__FP10matrixtdefT0(matrixtdef *rot, matrixtdef *rotNew);   /* :673 */",
+      "header_return": "void",
+      "header_signature": "(matrixtdef *rot, matrixtdef *rotNew)",
+      "native": [
+        {
+          "record": "4871b3",
+          "va": "800e2d50",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Weather_QuickReOrthogonalize",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\weather.cpp",
+          "line": 784,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(matrixtdef * rot,matrixtdef * rotNew)",
+          "end": 819,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(matrixtdef * rot,matrixtdef * rotNew)",
+      "final_prototype": "void Weather_QuickReOrthogonalize(matrixtdef * rot,matrixtdef * rotNew);   /* SYM 4871b3 @0x800e2d50 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Weather_QuickReOrthogonalize__FP10matrixtdefT0__FP10matrixtdefT0",
+      "after_emitted_reference": "Weather_QuickReOrthogonalize__FP10matrixtdefT0",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/weather.h",
+      "line": 24,
+      "encoded": "Weather_ProcessParticles__FP13DRender_tViewiP7SVECTORPc",
+      "name": "Weather_ProcessParticles",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Weather_ProcessParticles__FP13DRender_tViewiP7SVECTORPc(DRender_tView *Vi, int num, SVECTOR *wpt, char *wd);   /* :704 */",
+      "header_return": "void",
+      "header_signature": "(DRender_tView *Vi, int num, SVECTOR *wpt, char *wd)",
+      "native": [
+        {
+          "record": "4871ef",
+          "va": "800e2fd0",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Weather_ProcessParticles",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\weather.cpp",
+          "line": 847,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(DRender_tView * Vi,int num,SVECTOR * wpt,char * wd)",
+          "end": 952,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(DRender_tView * Vi,int num,SVECTOR * wpt,char * wd)",
+      "final_prototype": "void Weather_ProcessParticles(DRender_tView * Vi,int num,SVECTOR * wpt,char * wd);   /* SYM 4871ef @0x800e2fd0 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Weather_ProcessParticles__FP13DRender_tViewiP7SVECTORPc__FP13DRender_tViewiP7SVECTORPc",
+      "after_emitted_reference": "Weather_ProcessParticles__FP13DRender_tViewiP7SVECTORPc",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/weather.h",
+      "line": 25,
+      "encoded": "Weather_CreateSnow__FP7SVECTOR",
+      "name": "Weather_CreateSnow",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Weather_CreateSnow__FP7SVECTOR(SVECTOR *pt);   /* :923 */",
+      "header_return": "void",
+      "header_signature": "(SVECTOR *pt)",
+      "native": [
+        {
+          "record": "487234",
+          "va": "800e33bc",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Weather_CreateSnow",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\weather.cpp",
+          "line": 961,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(SVECTOR * pt)",
+          "end": 1034,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(SVECTOR * pt)",
+      "final_prototype": "void Weather_CreateSnow(SVECTOR * pt);   /* SYM 487234 @0x800e33bc */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Weather_CreateSnow__FP7SVECTOR__FP7SVECTOR",
+      "after_emitted_reference": "Weather_CreateSnow__FP7SVECTOR",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/weather.h",
+      "line": 26,
+      "encoded": "Weather_CreateRain__FP7SVECTORP7DVECTORPc",
+      "name": "Weather_CreateRain",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Weather_CreateRain__FP7SVECTORP7DVECTORPc(SVECTOR *pt0, DVECTOR *pt1, char *wd);   /* :967 */",
+      "header_return": "void",
+      "header_signature": "(SVECTOR *pt0, DVECTOR *pt1, char *wd)",
+      "native": [
+        {
+          "record": "487260",
+          "va": "800e356c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Weather_CreateRain",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\weather.cpp",
+          "line": 1068,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(SVECTOR * pt0,DVECTOR * pt1,char * wd)",
+          "end": 1143,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(SVECTOR * pt0,DVECTOR * pt1,char * wd)",
+      "final_prototype": "void Weather_CreateRain(SVECTOR * pt0,DVECTOR * pt1,char * wd);   /* SYM 487260 @0x800e356c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Weather_CreateRain__FP7SVECTORP7DVECTORPc__FP7SVECTORP7DVECTORPc",
+      "after_emitted_reference": "Weather_CreateRain__FP7SVECTORP7DVECTORPc",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/weather.h",
+      "line": 27,
+      "encoded": "Weather_CreateSplat__FP18Weather_tSplatInfo",
+      "name": "Weather_CreateSplat",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Weather_CreateSplat__FP18Weather_tSplatInfo(Weather_tSplatInfo *splat);   /* :1009 */",
+      "header_return": "void",
+      "header_signature": "(Weather_tSplatInfo *splat)",
+      "native": [
+        {
+          "record": "487297",
+          "va": "800e3730",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Weather_CreateSplat",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\weather.cpp",
+          "line": 1156,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(Weather_tSplatInfo * splat)",
+          "end": 1245,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(Weather_tSplatInfo * splat)",
+      "final_prototype": "void Weather_CreateSplat(Weather_tSplatInfo * splat);   /* SYM 487297 @0x800e3730 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Weather_CreateSplat__FP18Weather_tSplatInfo__FP18Weather_tSplatInfo",
+      "after_emitted_reference": "Weather_CreateSplat__FP18Weather_tSplatInfo",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/weather.h",
+      "line": 28,
+      "encoded": "Weather_DoSplats__FiP18Weather_tSplatInfo",
+      "name": "Weather_DoSplats",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Weather_DoSplats__FiP18Weather_tSplatInfo(int num, Weather_tSplatInfo *splats);   /* :1039 */",
+      "header_return": "void",
+      "header_signature": "(int num, Weather_tSplatInfo *splats)",
+      "native": [
+        {
+          "record": "4872d0",
+          "va": "800e3858",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Weather_DoSplats",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\weather.cpp",
+          "line": 1385,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int num,Weather_tSplatInfo * splats)",
+          "end": 1428,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int num,Weather_tSplatInfo * splats)",
+      "final_prototype": "void Weather_DoSplats(int num,Weather_tSplatInfo * splats);   /* SYM 4872d0 @0x800e3858 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Weather_DoSplats__FiP18Weather_tSplatInfo__FiP18Weather_tSplatInfo",
+      "after_emitted_reference": "Weather_DoSplats__FiP18Weather_tSplatInfo",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/weather.h",
+      "line": 29,
+      "encoded": "Weather_DoWeather__FP13DRender_tView",
+      "name": "Weather_DoWeather",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Weather_DoWeather__FP13DRender_tView(DRender_tView *Vi);   /* :1069 */",
+      "header_return": "void",
+      "header_signature": "(DRender_tView *Vi)",
+      "native": [
+        {
+          "record": "487307",
+          "va": "800e3a1c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Weather_DoWeather",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\weather.cpp",
+          "line": 1482,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(DRender_tView * Vi)",
+          "end": 1821,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(DRender_tView * Vi)",
+      "final_prototype": "void Weather_DoWeather(DRender_tView * Vi);   /* SYM 487307 @0x800e3a1c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Weather_DoWeather__FP13DRender_tView__FP13DRender_tView",
+      "after_emitted_reference": "Weather_DoWeather__FP13DRender_tView",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/weather.h",
+      "line": 30,
+      "encoded": "Weather_BuildWeather__FP13DRender_tView",
+      "name": "Weather_BuildWeather",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Weather_BuildWeather__FP13DRender_tView(DRender_tView *Vi);   /* :1159 */",
+      "header_return": "void",
+      "header_signature": "(DRender_tView *Vi)",
+      "native": [
+        {
+          "record": "487339",
+          "va": "800e3d30",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Weather_BuildWeather",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\weather.cpp",
+          "line": 1824,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(DRender_tView * Vi)",
+          "end": 1832,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(DRender_tView * Vi)",
+      "final_prototype": "void Weather_BuildWeather(DRender_tView * Vi);   /* SYM 487339 @0x800e3d30 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Weather_BuildWeather__FP13DRender_tView__FP13DRender_tView",
+      "after_emitted_reference": "Weather_BuildWeather__FP13DRender_tView",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    }
+  ]
+}

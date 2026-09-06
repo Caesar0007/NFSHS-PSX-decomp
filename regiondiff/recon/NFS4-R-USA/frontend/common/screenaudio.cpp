@@ -9,7 +9,7 @@ tScreenAudio *screenAudio;   /* global instance pointer owned by this TU (SYM EX
 void tScreenAudio::PlaySound()
 
 {
-  if (((menuDefs[0]->itemSlidingPlayList).fActive != 0) &&
+  if (((menuDefs->itemSlidingPlayList).fActive != 0) &&
      (this->fPrevSelectedSong != this->fSelectedSong)) {
     AudioMus_StopSong(10);
     AudioMus_PlaySong(this->songlist->song[this->fSelectedSong].filename);
@@ -44,8 +44,8 @@ void tScreenAudio::PlaySound()
      FAIL 7 at 229/232; the nameless ternary is FAIL 3 at 229/232.  Retain as
      an explicit unresolved source-shape carrier, not a claimed retail local. */
   int validItem = 0;
-  if ((short)(menuDefs[0]->menuAudio).fCurrentItem > 0) {
-    validItem = (short)(menuDefs[0]->menuAudio).fCurrentItem < 6;
+  if ((short)(menuDefs->menuAudio).fCurrentItem > 0) {
+    validItem = (short)(menuDefs->menuAudio).fCurrentItem < 6;
   }
   if (validItem != 0) {
     int sndover;
@@ -53,7 +53,7 @@ void tScreenAudio::PlaySound()
     int RepresentativeSound;
 
     sndover = 1;
-    switch ((short)(menuDefs[0]->menuAudio).fCurrentItem) {
+    switch ((short)(menuDefs->menuAudio).fCurrentItem) {
     case 1:
       vol = (uint)(byte)frontEnd.sfxVolume;
       RepresentativeSound = 0x1f;
@@ -140,7 +140,7 @@ void tScreenAudio::DrawForeground()
      69/68.  Omitting the identity fence is count-exact FAIL 2. */
   int fadeCalc;
 
-  fadeCalc = (menuDefs[0]->menuAudio).fScreenFade >> 1;
+  fadeCalc = (menuDefs->menuAudio).fScreenFade >> 1;
   if ((short)fadeCalc < 0x80) {
     if ((short)fadeCalc <= 0) goto DrawFgAudio_fadeZero;
   }
@@ -197,7 +197,7 @@ void tScreenAudio::DrawBackground()
   int fadeValue;
   
   this->PlaySound();
-  optionsMenu = &menuDefs[0]->menuAudio;
+  optionsMenu = &menuDefs->menuAudio;
   fade = (short)(optionsMenu->fScreenFade >> 1);
   if (0x80 < fade) {
     fade = 0x80;
@@ -205,19 +205,19 @@ void tScreenAudio::DrawBackground()
   percent = -1;
   switch((short)optionsMenu->fCurrentItem) {
   case 0:
-    percent = Percentage(&menuDefs[0]->itemMusicVolume);
+    percent = Percentage(&menuDefs->itemMusicVolume);
     break;
   case 1:
-    percent = Percentage(&menuDefs[0]->itemSoundEffectsVolume);
+    percent = Percentage(&menuDefs->itemSoundEffectsVolume);
     break;
   case 2:
-    percent = Percentage(&menuDefs[0]->itemEngineVolume);
+    percent = Percentage(&menuDefs->itemEngineVolume);
     break;
   case 3:
-    percent = Percentage(&menuDefs[0]->itemSpeechVolume);
+    percent = Percentage(&menuDefs->itemSpeechVolume);
     break;
   case 4:
-    percent = Percentage(&menuDefs[0]->itemAmbientVolume);
+    percent = Percentage(&menuDefs->itemAmbientVolume);
     break;
   default:
     goto DrawBg_noSlider;
@@ -236,7 +236,7 @@ DrawBg_noSlider:
     char sBuildOutput [255];
 
     if ((percent == -1) ||
-       (!::TransitionIsFinished(&menuDefs[0]->menuAudio))) {
+       (!::TransitionIsFinished(&menuDefs->menuAudio))) {
       perfade = perfade + 4;
     }
     else {
@@ -315,7 +315,7 @@ void tScreenAudio::Initialize()
   /* SYM-CODEGEN-CARRIER: audioMode -- paired load-delay carrier in that receipt. */
   char audioMode;
 
-  menus = menuDefs[0];
+  menus = menuDefs;
   this->fPrevSelectedSong = -1;
   SetMenu((tMenuItemSlidingMenu *)&menus->itemSlidingPlayList,true,
              (tInsideBoxMenu*)&menus->menuPlayListMenu);

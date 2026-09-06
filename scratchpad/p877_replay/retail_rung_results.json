@@ -1,0 +1,114 @@
+[
+  {
+    "source": "baseline",
+    "option": "cc1pl281",
+    "extra_flags": [],
+    "returncode": 0,
+    "stdout": "  Replay_Compress__FPc: PASS (49 insns)\n  Replay_Decompress__FPc: PASS (36 insns)\n  Replay_InitReplay__Fv: PASS (105 insns)\n  Replay_ResetReplay__Fv: PASS (86 insns)\n  Replay_StoringReplay__Fv: PASS (8 insns)\n  Replay_StoringControllerData__FG15tControllerData: PASS (243 insns)\n  Replay_RetreivingControllerData__Fv: PASS (231 insns)\n  Replay_SaveInput__Fi: PASS (197 insns)\n  Replay_GetInput__Fi: PASS (280 insns)\n  Replay_SaveReplay__Fv: PASS (35 insns)\n  Replay_LoadReplay__Fv: PASS (2 insns)\n  Replay_DoReplay__FP8Car_tObj: PASS (17 insns)\n  Replay_GetInterfaceKey__Fv: PASS (292 insns)\n  Replay_LoadCameraFile__Fv: PASS (219 insns)\n  Replay_ReplayChooseCamera__Fii: PASS (170 insns)\n  Replay_ReplayFindClosestCamera__Fii: PASS (282 insns)\n",
+    "stderr": "",
+    "object_sha256": "df5555f16d252addc703e7610bd689cb99cd9780f939f906ff80fcf68985aacb",
+    "branches": [],
+    "functions": 16,
+    "passed": 16
+  },
+  {
+    "source": "canonical",
+    "option": "cc1pl281",
+    "extra_flags": [],
+    "returncode": 1,
+    "stdout": "  Replay_Compress__FPc: PASS (49 insns)\n  Replay_Decompress__FPc: PASS (36 insns)\n  Replay_InitReplay__Fv: PASS (105 insns)\n  Replay_ResetReplay__Fv: FAIL 1 diffs (ours 87 / oracle 86)\n      -addiu v0,v0,4\n  Replay_StoringReplay__Fv: PASS (8 insns)\n  Replay_StoringControllerData__FG15tControllerData: PASS (243 insns)\n  Replay_RetreivingControllerData__Fv: PASS (231 insns)\n  Replay_SaveInput__Fi: PASS (197 insns)\n  Replay_GetInput__Fi: PASS (280 insns)\n  Replay_SaveReplay__Fv: PASS (35 insns)\n  Replay_LoadReplay__Fv: PASS (2 insns)\n  Replay_DoReplay__FP8Car_tObj: PASS (17 insns)\n  Replay_GetInterfaceKey__Fv: PASS (292 insns)\n  Replay_LoadCameraFile__Fv: PASS (219 insns)\n  Replay_ReplayChooseCamera__Fii: PASS (170 insns)\n  Replay_ReplayFindClosestCamera__Fii: PASS (282 insns)\n",
+    "stderr": "",
+    "object_sha256": "fe4cddc5189ca64c95e8e72338a6c431799830c1401f039c32d6c25d13ad0209",
+    "branches": [
+      {
+        "function": "Replay_ResetReplay__Fv",
+        "ours": [
+          [
+            7,
+            14
+          ],
+          [
+            15,
+            -2
+          ],
+          [
+            19,
+            50
+          ],
+          [
+            22,
+            47
+          ],
+          [
+            45,
+            15
+          ],
+          [
+            49,
+            4
+          ],
+          [
+            51,
+            7
+          ],
+          [
+            58,
+            3
+          ],
+          [
+            66,
+            -23
+          ],
+          [
+            74,
+            -2
+          ]
+        ],
+        "oracle": [
+          [
+            7,
+            14
+          ],
+          [
+            15,
+            -2
+          ],
+          [
+            19,
+            50
+          ],
+          [
+            22,
+            47
+          ],
+          [
+            45,
+            15
+          ],
+          [
+            49,
+            4
+          ],
+          [
+            51,
+            7
+          ],
+          [
+            58,
+            3
+          ],
+          [
+            66,
+            -23
+          ],
+          [
+            73,
+            -2
+          ]
+        ]
+      }
+    ],
+    "functions": 16,
+    "passed": 15
+  }
+]

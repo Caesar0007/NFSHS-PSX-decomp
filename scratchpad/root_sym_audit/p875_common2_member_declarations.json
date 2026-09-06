@@ -1,0 +1,1348 @@
+[
+  {
+    "unit": "anim",
+    "symbol": "__10AnimScripti",
+    "raw_symbol": "__10AnimScripti",
+    "class": "AnimScript",
+    "kind": "ctor",
+    "name": "AnimScript",
+    "line": "void * __10AnimScripti(AnimScript *self, int num);   /* :460 */",
+    "native": {
+      "record": "17474d",
+      "va": "80074360",
+      "type": "PTR STRUCT size 20 dims 0 tag AnimScript"
+    },
+    "definition": [
+      "AnimScript::AnimScript(int num)"
+    ],
+    "parameter_records": [
+      "1753b7: $00000011 96 Def2 class REGPARM type PTR STRUCT size 20 dims 0 tag AnimScript name this",
+      "1753d6: $00000010 94 Def class REGPARM type INT size 0 name num"
+    ]
+  },
+  {
+    "unit": "anim",
+    "symbol": "__10AnimScriptii",
+    "raw_symbol": "__10AnimScriptii",
+    "class": "AnimScript",
+    "kind": "ctor",
+    "name": "AnimScript",
+    "line": "void * __10AnimScriptii(AnimScript *self, int num, int numParts);   /* :472 */",
+    "native": {
+      "record": "174777",
+      "va": "800743cc",
+      "type": "PTR STRUCT size 20 dims 0 tag AnimScript"
+    },
+    "definition": [
+      "AnimScript::AnimScript(int num,int numParts)"
+    ],
+    "parameter_records": [
+      "175449: $00000011 96 Def2 class REGPARM type PTR STRUCT size 20 dims 0 tag AnimScript name this",
+      "175468: $00000012 94 Def class REGPARM type INT size 0 name num",
+      "175479: $00000010 94 Def class REGPARM type INT size 0 name numParts"
+    ]
+  },
+  {
+    "unit": "anim",
+    "symbol": "__10AnimScriptP5Groupiii",
+    "raw_symbol": "__10AnimScriptP5Groupiii",
+    "class": "AnimScript",
+    "kind": "ctor",
+    "name": "AnimScript",
+    "line": "void * __10AnimScriptP5Groupiii(AnimScript *self, Group *instanceGroup, int type, int boomIndex, int numParts);   /* :485 */",
+    "native": {
+      "record": "1747a2",
+      "va": "80074468",
+      "type": "PTR STRUCT size 20 dims 0 tag AnimScript"
+    },
+    "definition": [
+      "AnimScript::AnimScript(Group *instanceGroup,int type,int boomIndex,int numParts)"
+    ],
+    "parameter_records": [
+      "17551a: $00000012 96 Def2 class REGPARM type PTR STRUCT size 20 dims 0 tag AnimScript name this",
+      "175539: $00000005 96 Def2 class REGPARM type PTR STRUCT size 4 dims 0 tag Group name instanceGroup",
+      "17555c: $00000013 94 Def class REGPARM type INT size 0 name type",
+      "17556e: $00000014 94 Def class REGPARM type INT size 0 name boomIndex",
+      "175585: $00000010 94 Def class ARG type INT size 0 name numParts"
+    ]
+  },
+  {
+    "unit": "anim",
+    "symbol": "SetAnimAttrib__10AnimScripti",
+    "raw_symbol": "SetAnimAttrib__10AnimScripti",
+    "class": "AnimScript",
+    "kind": "method",
+    "name": "SetAnimAttrib",
+    "line": "void SetAnimAttrib__10AnimScripti(AnimScript *self, int flags);   /* :513 */",
+    "native": {
+      "record": "1747d5",
+      "va": "80074534",
+      "type": "VOID size 0"
+    },
+    "definition": [
+      "void AnimScript::SetAnimAttrib(int flags)"
+    ],
+    "parameter_records": [
+      "175673: $00000004 96 Def2 class REGPARM type PTR STRUCT size 20 dims 0 tag AnimScript name this",
+      "175692: $00000005 94 Def class REGPARM type INT size 0 name flags"
+    ]
+  },
+  {
+    "unit": "anim",
+    "symbol": "GetAnimFrameInfo__10AnimScriptPiT1",
+    "raw_symbol": "GetAnimFrameInfo__10AnimScriptPiT1",
+    "class": "AnimScript",
+    "kind": "method",
+    "name": "GetAnimFrameInfo",
+    "line": "void GetAnimFrameInfo__10AnimScriptPiT1(AnimScript *self, int *frame, int *numFrames);   /* :523 */",
+    "native": {
+      "record": "1747ff",
+      "va": "8007453c",
+      "type": "VOID size 0"
+    },
+    "definition": [
+      "void AnimScript::GetAnimFrameInfo(int *frame,int *numFrames)"
+    ],
+    "parameter_records": [
+      "175719: $00000004 96 Def2 class REGPARM type PTR STRUCT size 20 dims 0 tag AnimScript name this",
+      "175738: $00000008 94 Def class REGPARM type PTR INT size 0 name frame",
+      "17574b: $00000006 94 Def class REGPARM type PTR INT size 0 name numFrames"
+    ]
+  },
+  {
+    "unit": "anim",
+    "symbol": "GetTimedAnimPosRot__10AnimScriptP8coorddefP10matrixtdef",
+    "raw_symbol": "GetTimedAnimPosRot__10AnimScriptP8coorddefP10matrixtdef",
+    "class": "AnimScript",
+    "kind": "method",
+    "name": "GetTimedAnimPosRot",
+    "line": "int GetTimedAnimPosRot__10AnimScriptP8coorddefP10matrixtdef(AnimScript *self, coorddef *pt, matrixtdef *mat);   /* :553 */",
+    "native": {
+      "record": "17482f",
+      "va": "800745f8",
+      "type": "INT size 0"
+    },
+    "definition": [
+      "int AnimScript::GetTimedAnimPosRot(coorddef *pt,matrixtdef *mat)"
+    ],
+    "parameter_records": [
+      "17583c: $00000004 96 Def2 class REGPARM type PTR STRUCT size 20 dims 0 tag AnimScript name this",
+      "17585b: $00000002 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name pt",
+      "175876: $00000007 96 Def2 class REGPARM type PTR STRUCT size 36 dims 0 tag matrixtdef name mat"
+    ]
+  },
+  {
+    "unit": "anim",
+    "symbol": "GetTimedAnimPosRot__10AnimScriptiP8coorddefP10matrixtdef",
+    "raw_symbol": "GetTimedAnimPosRot__10AnimScriptiP8coorddefP10matrixtdef",
+    "class": "AnimScript",
+    "kind": "method",
+    "name": "GetTimedAnimPosRot",
+    "line": "int GetTimedAnimPosRot__10AnimScriptiP8coorddefP10matrixtdef(AnimScript *self, int index, coorddef *pt, matrixtdef *mat);   /* :564 */",
+    "native": {
+      "record": "174874",
+      "va": "80074624",
+      "type": "INT size 0"
+    },
+    "definition": [
+      "int AnimScript::GetTimedAnimPosRot(int index,coorddef *pt,matrixtdef *mat)"
+    ],
+    "parameter_records": [
+      "17591e: $00000011 96 Def2 class REGPARM type PTR STRUCT size 20 dims 0 tag AnimScript name this",
+      "17593d: $00000012 94 Def class REGPARM type INT size 0 name index",
+      "175950: $00000013 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name pt",
+      "17596b: $00000010 96 Def2 class REGPARM type PTR STRUCT size 36 dims 0 tag matrixtdef name mat"
+    ]
+  },
+  {
+    "unit": "anim",
+    "symbol": "GetStatus__10AnimScript",
+    "raw_symbol": "GetStatus__10AnimScript",
+    "class": "AnimScript",
+    "kind": "method",
+    "name": "GetStatus",
+    "line": "int GetStatus__10AnimScript(AnimScript *self);   /* :599 */",
+    "native": {
+      "record": "1748ba",
+      "va": "8007471c",
+      "type": "INT size 0"
+    },
+    "definition": [
+      "int AnimScript::GetStatus()"
+    ],
+    "parameter_records": [
+      "175a27: $00000004 96 Def2 class REGPARM type PTR STRUCT size 20 dims 0 tag AnimScript name this"
+    ]
+  },
+  {
+    "unit": "mpause",
+    "symbol": "__14tPauseMenuDefs",
+    "raw_symbol": "__14tPauseMenuDefs",
+    "class": "tPauseMenuDefs",
+    "kind": "ctor",
+    "name": "tPauseMenuDefs",
+    "line": "void * __14tPauseMenuDefs(tPauseMenuDefs *self);   /* :172 */",
+    "native": {
+      "record": "2a0a1e",
+      "va": "8009ded4",
+      "type": "PTR STRUCT size 856 dims 0 tag tPauseMenuDefs"
+    },
+    "definition": [
+      "tPauseMenuDefs::tPauseMenuDefs()"
+    ],
+    "parameter_records": [
+      "2a0bd5: $00000010 96 Def2 class REGPARM type PTR STRUCT size 856 dims 0 tag tPauseMenuDefs name this"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "__14tPListIteratorPsPi",
+    "raw_symbol": "__14tPListIteratorPsPi",
+    "class": "tPListIterator",
+    "kind": "ctor",
+    "name": "tPListIterator",
+    "line": "void * __14tPListIteratorPsPi(tPListIterator *self, short *selection, int *valPtr);   /* :123 */",
+    "native": {
+      "record": "2ec8d9",
+      "va": "800a6ff0",
+      "type": "PTR STRUCT size 12 dims 0 tag tPListIterator"
+    },
+    "definition": [
+      "tPListIterator::tPListIterator(short *selection,int *valPtr)"
+    ],
+    "parameter_records": [
+      "2ed7b7: $00000002 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag tPListIterator name this",
+      "2ed7da: $00000005 94 Def class REGPARM type PTR SHORT size 0 name selection",
+      "2ed7f1: $00000006 94 Def class REGPARM type PTR INT size 0 name valPtr"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "___14tPListIterator",
+    "raw_symbol": "_._14tPListIterator",
+    "class": "tPListIterator",
+    "kind": "dtor",
+    "name": "~tPListIterator",
+    "line": "void ___14tPListIterator(tPListIterator *self, int __in_chrg);   /* :129 */",
+    "native": {
+      "record": "2ec90e",
+      "va": "800a700c",
+      "type": "VOID size 0"
+    },
+    "definition": [
+      "tPListIterator::~tPListIterator()"
+    ],
+    "parameter_records": [
+      "2ed86f: $00000004 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag tPListIterator name this",
+      "2ed892: $00000005 94 Def class REGPARM type INT size 0 name __in_chrg"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "Value__14tPListIterator7tPlayer",
+    "raw_symbol": "Value__14tPListIterator7tPlayer",
+    "class": "tPListIterator",
+    "kind": "method",
+    "name": "Value",
+    "line": "char Value__14tPListIterator7tPlayer(tPListIterator *self, int arg1);   /* :134 */",
+    "native": {
+      "record": "2ec92f",
+      "va": "800a7040",
+      "type": "CHAR size 0"
+    },
+    "definition": [
+      "char tPListIterator::Value(tPlayer arg1)"
+    ],
+    "parameter_records": [
+      "2ed91f: $00000004 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag tPListIterator name this"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "TextValue__14tPListIterator7tPlayer",
+    "raw_symbol": "TextValue__14tPListIterator7tPlayer",
+    "class": "tPListIterator",
+    "kind": "method",
+    "name": "TextValue",
+    "line": "short TextValue__14tPListIterator7tPlayer(tPListIterator *self, int arg1);   /* :139 */",
+    "native": {
+      "record": "2ec95c",
+      "va": "800a7054",
+      "type": "SHORT size 0"
+    },
+    "definition": [
+      "short tPListIterator::TextValue(tPlayer arg1)"
+    ],
+    "parameter_records": [
+      "2ed9bc: $00000010 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag tPListIterator name this"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "Increment__14tPListIterator7tPlayer",
+    "raw_symbol": "Increment__14tPListIterator7tPlayer",
+    "class": "tPListIterator",
+    "kind": "method",
+    "name": "Increment",
+    "line": "void Increment__14tPListIterator7tPlayer(tPListIterator *self, int arg1);   /* :144 */",
+    "native": {
+      "record": "2ec98d",
+      "va": "800a70a4",
+      "type": "VOID size 0"
+    },
+    "definition": [
+      "void tPListIterator::Increment(tPlayer arg1)"
+    ],
+    "parameter_records": [
+      "2eda59: $00000004 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag tPListIterator name this"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "Decrement__14tPListIterator7tPlayer",
+    "raw_symbol": "Decrement__14tPListIterator7tPlayer",
+    "class": "tPListIterator",
+    "kind": "method",
+    "name": "Decrement",
+    "line": "void Decrement__14tPListIterator7tPlayer(tPListIterator *self, int arg1);   /* :154 */",
+    "native": {
+      "record": "2ec9be",
+      "va": "800a7110",
+      "type": "VOID size 0"
+    },
+    "definition": [
+      "void tPListIterator::Decrement(tPlayer arg1)"
+    ],
+    "parameter_records": [
+      "2edaf6: $00000004 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag tPListIterator name this"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "__21tPListIteratorIndexedPsPiPc",
+    "raw_symbol": "__21tPListIteratorIndexedPsPiPc",
+    "class": "tPListIteratorIndexed",
+    "kind": "ctor",
+    "name": "tPListIteratorIndexed",
+    "line": "void * __21tPListIteratorIndexedPsPiPc(tPListIteratorIndexed *self, short *selection, int *valPtr, char *index);   /* :197 */",
+    "native": {
+      "record": "2ec9ef",
+      "va": "800a71b0",
+      "type": "PTR STRUCT size 16 dims 0 tag tPListIteratorIndexed"
+    },
+    "definition": [
+      "tPListIteratorIndexed::tPListIteratorIndexed(short *selection,int *valPtr,char *index)"
+    ],
+    "parameter_records": [
+      "2edb8f: $00000010 96 Def2 class REGPARM type PTR STRUCT size 16 dims 0 tag tPListIteratorIndexed name this",
+      "2edbb9: $00000005 94 Def class REGPARM type PTR SHORT size 0 name selection",
+      "2edbd0: $00000006 94 Def class REGPARM type PTR INT size 0 name valPtr",
+      "2edbe4: $00000011 94 Def class REGPARM type PTR CHAR size 0 name index"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "___21tPListIteratorIndexed",
+    "raw_symbol": "_._21tPListIteratorIndexed",
+    "class": "tPListIteratorIndexed",
+    "kind": "dtor",
+    "name": "~tPListIteratorIndexed",
+    "line": "void ___21tPListIteratorIndexed(tPListIteratorIndexed *self, int __in_chrg);   /* :203 */",
+    "native": {
+      "record": "2eca34",
+      "va": "800a71f4",
+      "type": "VOID size 0"
+    },
+    "definition": [
+      "tPListIteratorIndexed::~tPListIteratorIndexed()"
+    ],
+    "parameter_records": [
+      "2edc68: $00000004 96 Def2 class REGPARM type PTR STRUCT size 16 dims 0 tag tPListIteratorIndexed name this",
+      "2edc92: $00000005 94 Def class REGPARM type INT size 0 name __in_chrg"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "Value__21tPListIteratorIndexed7tPlayer",
+    "raw_symbol": "Value__21tPListIteratorIndexed7tPlayer",
+    "class": "tPListIteratorIndexed",
+    "kind": "method",
+    "name": "Value",
+    "line": "char Value__21tPListIteratorIndexed7tPlayer(tPListIteratorIndexed *self, int arg1);   /* :207 */",
+    "native": {
+      "record": "2eca5c",
+      "va": "800a721c",
+      "type": "CHAR size 0"
+    },
+    "definition": [
+      "char tPListIteratorIndexed::Value(tPlayer arg1)"
+    ],
+    "parameter_records": [
+      "2edd26: $00000004 96 Def2 class REGPARM type PTR STRUCT size 16 dims 0 tag tPListIteratorIndexed name this"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "TextValue__21tPListIteratorIndexed7tPlayer",
+    "raw_symbol": "TextValue__21tPListIteratorIndexed7tPlayer",
+    "class": "tPListIteratorIndexed",
+    "kind": "method",
+    "name": "TextValue",
+    "line": "short TextValue__21tPListIteratorIndexed7tPlayer(tPListIteratorIndexed *self, int arg1);   /* :212 */",
+    "native": {
+      "record": "2eca90",
+      "va": "800a7240",
+      "type": "SHORT size 0"
+    },
+    "definition": [
+      "short tPListIteratorIndexed::TextValue(tPlayer arg1)"
+    ],
+    "parameter_records": [
+      "2eddd1: $00000010 96 Def2 class REGPARM type PTR STRUCT size 16 dims 0 tag tPListIteratorIndexed name this"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "Increment__21tPListIteratorIndexed7tPlayer",
+    "raw_symbol": "Increment__21tPListIteratorIndexed7tPlayer",
+    "class": "tPListIteratorIndexed",
+    "kind": "method",
+    "name": "Increment",
+    "line": "void Increment__21tPListIteratorIndexed7tPlayer(tPListIteratorIndexed *self, int arg1);   /* :219 */",
+    "native": {
+      "record": "2ecac8",
+      "va": "800a7290",
+      "type": "VOID size 0"
+    },
+    "definition": [
+      "void tPListIteratorIndexed::Increment(tPlayer arg1)"
+    ],
+    "parameter_records": [
+      "2ede7c: $00000004 96 Def2 class REGPARM type PTR STRUCT size 16 dims 0 tag tPListIteratorIndexed name this"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "Decrement__21tPListIteratorIndexed7tPlayer",
+    "raw_symbol": "Decrement__21tPListIteratorIndexed7tPlayer",
+    "class": "tPListIteratorIndexed",
+    "kind": "method",
+    "name": "Decrement",
+    "line": "void Decrement__21tPListIteratorIndexed7tPlayer(tPListIteratorIndexed *self, int arg1);   /* :229 */",
+    "native": {
+      "record": "2ecb00",
+      "va": "800a731c",
+      "type": "VOID size 0"
+    },
+    "definition": [
+      "void tPListIteratorIndexed::Decrement(tPlayer arg1)"
+    ],
+    "parameter_records": [
+      "2edf27: $00000004 96 Def2 class REGPARM type PTR STRUCT size 16 dims 0 tag tPListIteratorIndexed name this"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "__10tPMenuItemUi",
+    "raw_symbol": "__10tPMenuItemUi",
+    "class": "tPMenuItem",
+    "kind": "ctor",
+    "name": "tPMenuItem",
+    "line": "void * __10tPMenuItemUi(tPMenuItem *self, unsigned int textDescription);   /* :246 */",
+    "native": {
+      "record": "2ecb38",
+      "va": "800a73e8",
+      "type": "PTR STRUCT size 12 dims 0 tag tPMenuItem"
+    },
+    "definition": [
+      "tPMenuItem::tPMenuItem(u_int textDescription)"
+    ],
+    "parameter_records": [
+      "2edfb8: $00000002 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag tPMenuItem name this",
+      "2edfd7: $00000005 94 Def class REGPARM type UINT size 0 name textDescription"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "___10tPMenuItem",
+    "raw_symbol": "_._10tPMenuItem",
+    "class": "tPMenuItem",
+    "kind": "dtor",
+    "name": "~tPMenuItem",
+    "line": "void ___10tPMenuItem(tPMenuItem *self, int __in_chrg);   /* :252 */",
+    "native": {
+      "record": "2ecb63",
+      "va": "800a7404",
+      "type": "VOID size 0"
+    },
+    "definition": [
+      "tPMenuItem::~tPMenuItem()"
+    ],
+    "parameter_records": [
+      "2ee05a: $00000004 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag tPMenuItem name this",
+      "2ee079: $00000005 94 Def class REGPARM type INT size 0 name __in_chrg"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "NextMenu__10tPMenuItem",
+    "raw_symbol": "NextMenu__10tPMenuItem",
+    "class": "tPMenuItem",
+    "kind": "method",
+    "name": "NextMenu",
+    "line": "void * NextMenu__10tPMenuItem(tPMenuItem *self);   /* :256 */",
+    "native": {
+      "record": "2ecb80",
+      "va": "800a7438",
+      "type": "PTR STRUCT size 84 dims 0 tag tPMenu"
+    },
+    "definition": [
+      "tPMenu * tPMenuItem::NextMenu()"
+    ],
+    "parameter_records": [
+      "2ee0fd: $00000004 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag tPMenuItem name this"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "Debounce__10tPMenuItem",
+    "raw_symbol": "Debounce__10tPMenuItem",
+    "class": "tPMenuItem",
+    "kind": "method",
+    "name": "Debounce",
+    "line": "bool Debounce__10tPMenuItem(tPMenuItem *self);   /* :261 */",
+    "native": {
+      "record": "2ecbad",
+      "va": "800a7440",
+      "type": "BOOL size 0"
+    },
+    "definition": [
+      "bool tPMenuItem::Debounce()"
+    ],
+    "parameter_records": [
+      "2ee189: $00000004 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag tPMenuItem name this"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "ProcessInput__10tPMenuItemR13tInputKeyTypeR13tPMenuCommand",
+    "raw_symbol": "ProcessInput__10tPMenuItemR13tInputKeyTypeR13tPMenuCommand",
+    "class": "tPMenuItem",
+    "kind": "method",
+    "name": "ProcessInput",
+    "line": "void ProcessInput__10tPMenuItemR13tInputKeyTypeR13tPMenuCommand(tPMenuItem *self, int *key_input, tPMenuCommand *menu_cmd);   /* :266 */",
+    "native": {
+      "record": "2ecbd1",
+      "va": "800a7448",
+      "type": "VOID size 0"
+    },
+    "definition": [
+      "void tPMenuItem::ProcessInput(tInputKeyType &keyval,tPMenuCommand &command)"
+    ],
+    "parameter_records": [
+      "2ee239: $00000004 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag tPMenuItem name this"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "__28tPMenuItemNonInteractiveTextUi",
+    "raw_symbol": "__28tPMenuItemNonInteractiveTextUi",
+    "class": "tPMenuItemNonInteractiveText",
+    "kind": "ctor",
+    "name": "tPMenuItemNonInteractiveText",
+    "line": "void * __28tPMenuItemNonInteractiveTextUi(tPMenuItemNonInteractiveText *self, unsigned int textDescription);   /* :273 */",
+    "native": {
+      "record": "2ecc19",
+      "va": "800a7450",
+      "type": "PTR STRUCT size 12 dims 0 tag tPMenuItemNonInteractiveText"
+    },
+    "definition": [
+      "tPMenuItemNonInteractiveText::tPMenuItemNonInteractiveText(u_int textDescription)"
+    ],
+    "parameter_records": [
+      "2ee2d1: $00000010 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag tPMenuItemNonInteractiveText name this",
+      "2ee302: $00000005 94 Def class REGPARM type UINT size 0 name textDescription"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "___28tPMenuItemNonInteractiveText",
+    "raw_symbol": "_._28tPMenuItemNonInteractiveText",
+    "class": "tPMenuItemNonInteractiveText",
+    "kind": "dtor",
+    "name": "~tPMenuItemNonInteractiveText",
+    "line": "void ___28tPMenuItemNonInteractiveText(tPMenuItemNonInteractiveText *self, int __in_chrg);   /* :278 */",
+    "native": {
+      "record": "2ecc68",
+      "va": "800a7484",
+      "type": "VOID size 0"
+    },
+    "definition": [
+      "tPMenuItemNonInteractiveText::~tPMenuItemNonInteractiveText()"
+    ],
+    "parameter_records": [
+      "2ee397: $00000004 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag tPMenuItemNonInteractiveText name this",
+      "2ee3c8: $00000005 94 Def class REGPARM type INT size 0 name __in_chrg"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "Draw__28tPMenuItemNonInteractiveTextb",
+    "raw_symbol": "Draw__28tPMenuItemNonInteractiveTextb",
+    "class": "tPMenuItemNonInteractiveText",
+    "kind": "method",
+    "name": "Draw",
+    "line": "void Draw__28tPMenuItemNonInteractiveTextb(tPMenuItemNonInteractiveText *self, BOOL selected);   /* :283 */",
+    "native": {
+      "record": "2ecc97",
+      "va": "800a74ac",
+      "type": "VOID size 0"
+    },
+    "definition": [
+      "void tPMenuItemNonInteractiveText::Draw(bool selected)"
+    ],
+    "parameter_records": [
+      "2ee45b: $00000004 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag tPMenuItemNonInteractiveText name this"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "IsNavigable__28tPMenuItemNonInteractiveText",
+    "raw_symbol": "IsNavigable__28tPMenuItemNonInteractiveText",
+    "class": "tPMenuItemNonInteractiveText",
+    "kind": "method",
+    "name": "IsNavigable",
+    "line": "bool IsNavigable__28tPMenuItemNonInteractiveText(tPMenuItemNonInteractiveText *self);   /* :288 */",
+    "native": {
+      "record": "2ed478",
+      "va": "800a86a0",
+      "type": "BOOL size 0"
+    },
+    "definition": [
+      "bool tPMenuItemNonInteractiveText::IsNavigable()"
+    ],
+    "parameter_records": [
+      "2f05a0: $00000004 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag tPMenuItemNonInteractiveText name this"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "__21tPMenuItemInteractiveUi",
+    "raw_symbol": "__21tPMenuItemInteractiveUi",
+    "class": "tPMenuItemInteractive",
+    "kind": "ctor",
+    "name": "tPMenuItemInteractive",
+    "line": "void * __21tPMenuItemInteractiveUi(tPMenuItemInteractive *self, unsigned int textDescription);   /* :297 */",
+    "native": {
+      "record": "2eccca",
+      "va": "800a74d4",
+      "type": "PTR STRUCT size 12 dims 0 tag tPMenuItemInteractive"
+    },
+    "definition": [
+      "tPMenuItemInteractive::tPMenuItemInteractive(u_int textDescription)"
+    ],
+    "parameter_records": [
+      "2ee4fe: $00000010 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag tPMenuItemInteractive name this",
+      "2ee528: $00000005 94 Def class REGPARM type UINT size 0 name textDescription"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "___21tPMenuItemInteractive",
+    "raw_symbol": "_._21tPMenuItemInteractive",
+    "class": "tPMenuItemInteractive",
+    "kind": "dtor",
+    "name": "~tPMenuItemInteractive",
+    "line": "void ___21tPMenuItemInteractive(tPMenuItemInteractive *self, int __in_chrg);   /* :302 */",
+    "native": {
+      "record": "2ecd0b",
+      "va": "800a7508",
+      "type": "VOID size 0"
+    },
+    "definition": [
+      "tPMenuItemInteractive::~tPMenuItemInteractive()"
+    ],
+    "parameter_records": [
+      "2ee5b6: $00000004 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag tPMenuItemInteractive name this",
+      "2ee5e0: $00000005 94 Def class REGPARM type INT size 0 name __in_chrg"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "IsNavigable__21tPMenuItemInteractive",
+    "raw_symbol": "IsNavigable__21tPMenuItemInteractive",
+    "class": "tPMenuItemInteractive",
+    "kind": "method",
+    "name": "IsNavigable",
+    "line": "bool IsNavigable__21tPMenuItemInteractive(tPMenuItemInteractive *self);   /* :306 */",
+    "native": {
+      "record": "2ed446",
+      "va": "800a8698",
+      "type": "BOOL size 0"
+    },
+    "definition": [
+      "bool tPMenuItemInteractive::IsNavigable()"
+    ],
+    "parameter_records": [
+      "2f04f4: $00000004 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag tPMenuItemInteractive name this"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "Draw__21tPMenuItemInteractiveb",
+    "raw_symbol": "Draw__21tPMenuItemInteractiveb",
+    "class": "tPMenuItemInteractive",
+    "kind": "method",
+    "name": "Draw",
+    "line": "void Draw__21tPMenuItemInteractiveb(tPMenuItemInteractive *self, BOOL selected);   /* :311 */",
+    "native": {
+      "record": "2ecd33",
+      "va": "800a7530",
+      "type": "VOID size 0"
+    },
+    "definition": [
+      "void tPMenuItemInteractive::Draw(bool selected)"
+    ],
+    "parameter_records": [
+      "2ee66c: $00000004 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag tPMenuItemInteractive name this",
+      "2ee696: $00000005 94 Def class REGPARM type BOOL size 0 name selected"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "__25tPMenuItemLeftRightChoiceUiP14tPListIterator",
+    "raw_symbol": "__25tPMenuItemLeftRightChoiceUiP14tPListIterator",
+    "class": "tPMenuItemLeftRightChoice",
+    "kind": "ctor",
+    "name": "tPMenuItemLeftRightChoice",
+    "line": "void * __25tPMenuItemLeftRightChoiceUiP14tPListIterator(tPMenuItemLeftRightChoice *self, unsigned int textDescription, tPListIterator *dataPtr);   /* :319 */",
+    "native": {
+      "record": "2ecd5f",
+      "va": "800a7558",
+      "type": "PTR STRUCT size 16 dims 0 tag tPMenuItemLeftRightChoice"
+    },
+    "definition": [
+      "tPMenuItemLeftRightChoice::tPMenuItemLeftRightChoice(u_int textDescription,tPListIterator *dataPtr)"
+    ],
+    "parameter_records": [
+      "2ee776: $00000010 96 Def2 class REGPARM type PTR STRUCT size 16 dims 0 tag tPMenuItemLeftRightChoice name this",
+      "2ee7a4: $00000005 94 Def class REGPARM type UINT size 0 name textDescription",
+      "2ee7c1: $00000011 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag tPListIterator name dataPtr"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "___25tPMenuItemLeftRightChoice",
+    "raw_symbol": "_._25tPMenuItemLeftRightChoice",
+    "class": "tPMenuItemLeftRightChoice",
+    "kind": "dtor",
+    "name": "~tPMenuItemLeftRightChoice",
+    "line": "void ___25tPMenuItemLeftRightChoice(tPMenuItemLeftRightChoice *self, int __in_chrg);   /* :325 */",
+    "native": {
+      "record": "2ecdb9",
+      "va": "800a759c",
+      "type": "VOID size 0"
+    },
+    "definition": [
+      "tPMenuItemLeftRightChoice::~tPMenuItemLeftRightChoice()"
+    ],
+    "parameter_records": [
+      "2ee85c: $00000004 96 Def2 class REGPARM type PTR STRUCT size 16 dims 0 tag tPMenuItemLeftRightChoice name this",
+      "2ee88a: $00000005 94 Def class REGPARM type INT size 0 name __in_chrg"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "ProcessInput__25tPMenuItemLeftRightChoiceR13tInputKeyTypeR13tPMenuCommand",
+    "raw_symbol": "ProcessInput__25tPMenuItemLeftRightChoiceR13tInputKeyTypeR13tPMenuCommand",
+    "class": "tPMenuItemLeftRightChoice",
+    "kind": "method",
+    "name": "ProcessInput",
+    "line": "void ProcessInput__25tPMenuItemLeftRightChoiceR13tInputKeyTypeR13tPMenuCommand(tPMenuItemLeftRightChoice *self, int *keyval, tPMenuCommand *menu_cmd);   /* :329 */",
+    "native": {
+      "record": "2ecde5",
+      "va": "800a75c4",
+      "type": "VOID size 0"
+    },
+    "definition": [
+      "void tPMenuItemLeftRightChoice::ProcessInput(tInputKeyType &keyval,tPMenuCommand &command)"
+    ],
+    "parameter_records": [
+      "2ee941: $00000004 96 Def2 class REGPARM type PTR STRUCT size 16 dims 0 tag tPMenuItemLeftRightChoice name this",
+      "2ee96f: $00000010 96 Def2 class REGPARM type PTR ENUM size 4 dims 0 tag tInputKeyType name keyval"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "Draw__25tPMenuItemLeftRightChoiceb",
+    "raw_symbol": "Draw__25tPMenuItemLeftRightChoiceb",
+    "class": "tPMenuItemLeftRightChoice",
+    "kind": "method",
+    "name": "Draw",
+    "line": "void Draw__25tPMenuItemLeftRightChoiceb(tPMenuItemLeftRightChoice *self, BOOL selected);   /* :346 */",
+    "native": {
+      "record": "2ece3c",
+      "va": "800a7650",
+      "type": "VOID size 0"
+    },
+    "definition": [
+      "void tPMenuItemLeftRightChoice::Draw(bool selected)"
+    ],
+    "parameter_records": [
+      "2eea0c: $00000011 96 Def2 class REGPARM type PTR STRUCT size 16 dims 0 tag tPMenuItemLeftRightChoice name this",
+      "2eea3a: $00000012 94 Def class REGPARM type BOOL size 0 name selected"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "__25tPMenuItemLeftRightSliderUiPic",
+    "raw_symbol": "__25tPMenuItemLeftRightSliderUiPic",
+    "class": "tPMenuItemLeftRightSlider",
+    "kind": "ctor",
+    "name": "tPMenuItemLeftRightSlider",
+    "line": "void * __25tPMenuItemLeftRightSliderUiPic(tPMenuItemLeftRightSlider *self, unsigned int textDescription, int *dataPtr, char maxVal);   /* :441 */",
+    "native": {
+      "record": "2ece6c",
+      "va": "800a7828",
+      "type": "PTR STRUCT size 20 dims 0 tag tPMenuItemLeftRightSlider"
+    },
+    "definition": [
+      "tPMenuItemLeftRightSlider::tPMenuItemLeftRightSlider(u_int textDescription,int *dataPtr,char maxVal)"
+    ],
+    "parameter_records": [
+      "2eeb9f: $00000010 96 Def2 class REGPARM type PTR STRUCT size 20 dims 0 tag tPMenuItemLeftRightSlider name this",
+      "2eebcd: $00000005 94 Def class REGPARM type UINT size 0 name textDescription",
+      "2eebea: $00000011 94 Def class REGPARM type PTR INT size 0 name dataPtr",
+      "2eebff: $00000007 94 Def class REGPARM type CHAR size 0 name maxVal"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "___25tPMenuItemLeftRightSlider",
+    "raw_symbol": "_._25tPMenuItemLeftRightSlider",
+    "class": "tPMenuItemLeftRightSlider",
+    "kind": "dtor",
+    "name": "~tPMenuItemLeftRightSlider",
+    "line": "void ___25tPMenuItemLeftRightSlider(tPMenuItemLeftRightSlider *self, int __in_chrg);   /* :449 */",
+    "native": {
+      "record": "2eceb8",
+      "va": "800a787c",
+      "type": "VOID size 0"
+    },
+    "definition": [
+      "tPMenuItemLeftRightSlider::~tPMenuItemLeftRightSlider()"
+    ],
+    "parameter_records": [
+      "2eec88: $00000004 96 Def2 class REGPARM type PTR STRUCT size 20 dims 0 tag tPMenuItemLeftRightSlider name this",
+      "2eecb6: $00000005 94 Def class REGPARM type INT size 0 name __in_chrg"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "Debounce__25tPMenuItemLeftRightSlider",
+    "raw_symbol": "Debounce__25tPMenuItemLeftRightSlider",
+    "class": "tPMenuItemLeftRightSlider",
+    "kind": "method",
+    "name": "Debounce",
+    "line": "bool Debounce__25tPMenuItemLeftRightSlider(tPMenuItemLeftRightSlider *self);   /* :453 */",
+    "native": {
+      "record": "2ecee4",
+      "va": "800a78a4",
+      "type": "BOOL size 0"
+    },
+    "definition": [
+      "bool tPMenuItemLeftRightSlider::Debounce()"
+    ],
+    "parameter_records": [
+      "2eed49: $00000004 96 Def2 class REGPARM type PTR STRUCT size 20 dims 0 tag tPMenuItemLeftRightSlider name this"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "ProcessInput__25tPMenuItemLeftRightSliderR13tInputKeyTypeR13tPMenuCommand",
+    "raw_symbol": "ProcessInput__25tPMenuItemLeftRightSliderR13tInputKeyTypeR13tPMenuCommand",
+    "class": "tPMenuItemLeftRightSlider",
+    "kind": "method",
+    "name": "ProcessInput",
+    "line": "void ProcessInput__25tPMenuItemLeftRightSliderR13tInputKeyTypeR13tPMenuCommand(tPMenuItemLeftRightSlider *self, int *keyval, tPMenuCommand *menu_command);   /* :458 */",
+    "native": {
+      "record": "2ecf17",
+      "va": "800a78ac",
+      "type": "VOID size 0"
+    },
+    "definition": [
+      "void tPMenuItemLeftRightSlider::ProcessInput(tInputKeyType &keyval,tPMenuCommand &command)"
+    ],
+    "parameter_records": [
+      "2eee17: $00000004 96 Def2 class REGPARM type PTR STRUCT size 20 dims 0 tag tPMenuItemLeftRightSlider name this",
+      "2eee45: $00000005 96 Def2 class REGPARM type PTR ENUM size 4 dims 0 tag tInputKeyType name keyval"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "Draw__25tPMenuItemLeftRightSliderb",
+    "raw_symbol": "Draw__25tPMenuItemLeftRightSliderb",
+    "class": "tPMenuItemLeftRightSlider",
+    "kind": "method",
+    "name": "Draw",
+    "line": "void Draw__25tPMenuItemLeftRightSliderb(tPMenuItemLeftRightSlider *self, BOOL selected);   /* :498 */",
+    "native": {
+      "record": "2ecf6e",
+      "va": "800a79c8",
+      "type": "VOID size 0"
+    },
+    "definition": [
+      "void tPMenuItemLeftRightSlider::Draw(bool selected)"
+    ],
+    "parameter_records": [
+      "2eeef5: $00000000 96 Def2 class ARG type PTR STRUCT size 20 dims 0 tag tPMenuItemLeftRightSlider name this",
+      "2eef23: $00000004 94 Def class ARG type BOOL size 0 name selected"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "__32tPMenuItemLeftRightSliderIndexedUiPicPc",
+    "raw_symbol": "__32tPMenuItemLeftRightSliderIndexedUiPicPc",
+    "class": "tPMenuItemLeftRightSliderIndexed",
+    "kind": "ctor",
+    "name": "tPMenuItemLeftRightSliderIndexed",
+    "line": "void * __32tPMenuItemLeftRightSliderIndexedUiPicPc(tPMenuItemLeftRightSliderIndexed *self, unsigned int textDescription, int *dataPtr, char maxVal, char *index);   /* :541 */",
+    "native": {
+      "record": "2ecf9e",
+      "va": "800a7c6c",
+      "type": "PTR STRUCT size 24 dims 0 tag tPMenuItemLeftRightSliderIndexed"
+    },
+    "definition": [
+      "tPMenuItemLeftRightSliderIndexed::tPMenuItemLeftRightSliderIndexed(u_int textDescription,int *dataPtr,char maxVal, char *index)"
+    ],
+    "parameter_records": [
+      "2ef0b3: $00000010 96 Def2 class REGPARM type PTR STRUCT size 24 dims 0 tag tPMenuItemLeftRightSliderIndexed name this",
+      "2ef0e8: $00000005 94 Def class REGPARM type UINT size 0 name textDescription",
+      "2ef105: $00000006 94 Def class REGPARM type PTR INT size 0 name dataPtr",
+      "2ef11a: $00000007 94 Def class REGPARM type CHAR size 0 name maxVal",
+      "2ef12e: $00000010 94 Def class ARG type PTR CHAR size 0 name index"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "___32tPMenuItemLeftRightSliderIndexed",
+    "raw_symbol": "_._32tPMenuItemLeftRightSliderIndexed",
+    "class": "tPMenuItemLeftRightSliderIndexed",
+    "kind": "dtor",
+    "name": "~tPMenuItemLeftRightSliderIndexed",
+    "line": "void ___32tPMenuItemLeftRightSliderIndexed(tPMenuItemLeftRightSliderIndexed *self, int __in_chrg);   /* :547 */",
+    "native": {
+      "record": "2ecffa",
+      "va": "800a7cb4",
+      "type": "VOID size 0"
+    },
+    "definition": [
+      "tPMenuItemLeftRightSliderIndexed::~tPMenuItemLeftRightSliderIndexed()"
+    ],
+    "parameter_records": [
+      "2ef1d0: $00000004 96 Def2 class REGPARM type PTR STRUCT size 24 dims 0 tag tPMenuItemLeftRightSliderIndexed name this",
+      "2ef205: $00000005 94 Def class REGPARM type INT size 0 name __in_chrg"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "ProcessInput__32tPMenuItemLeftRightSliderIndexedR13tInputKeyTypeR13tPMenuCommand",
+    "raw_symbol": "ProcessInput__32tPMenuItemLeftRightSliderIndexedR13tInputKeyTypeR13tPMenuCommand",
+    "class": "tPMenuItemLeftRightSliderIndexed",
+    "kind": "method",
+    "name": "ProcessInput",
+    "line": "void ProcessInput__32tPMenuItemLeftRightSliderIndexedR13tInputKeyTypeR13tPMenuCommand(tPMenuItemLeftRightSliderIndexed *self, int *keyval, tPMenuCommand *command);   /* :553 */",
+    "native": {
+      "record": "2ed02d",
+      "va": "800a7cdc",
+      "type": "VOID size 0"
+    },
+    "definition": [
+      "void tPMenuItemLeftRightSliderIndexed::ProcessInput(tInputKeyType &keyval,tPMenuCommand &command)"
+    ],
+    "parameter_records": [
+      "2ef2c3: $00000010 96 Def2 class REGPARM type PTR STRUCT size 24 dims 0 tag tPMenuItemLeftRightSliderIndexed name this",
+      "2ef2f8: $00000005 96 Def2 class REGPARM type PTR ENUM size 4 dims 0 tag tInputKeyType name keyval",
+      "2ef31c: $00000006 96 Def2 class REGPARM type PTR STRUCT size 8 dims 0 tag tPMenuCommand name command"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "Draw__32tPMenuItemLeftRightSliderIndexedb",
+    "raw_symbol": "Draw__32tPMenuItemLeftRightSliderIndexedb",
+    "class": "tPMenuItemLeftRightSliderIndexed",
+    "kind": "method",
+    "name": "Draw",
+    "line": "void Draw__32tPMenuItemLeftRightSliderIndexedb(tPMenuItemLeftRightSliderIndexed *self, BOOL selected);   /* :561 */",
+    "native": {
+      "record": "2ed08b",
+      "va": "800a7d28",
+      "type": "VOID size 0"
+    },
+    "definition": [
+      "void tPMenuItemLeftRightSliderIndexed::Draw(bool selected)"
+    ],
+    "parameter_records": [
+      "2ef3d6: $00000010 96 Def2 class REGPARM type PTR STRUCT size 24 dims 0 tag tPMenuItemLeftRightSliderIndexed name this",
+      "2ef40b: $00000005 94 Def class REGPARM type BOOL size 0 name selected"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "__24tPMenuItemGoToMenuButtonUiP6tPMenuPFR13tPMenuCommand_v",
+    "raw_symbol": "__24tPMenuItemGoToMenuButtonUiP6tPMenuPFR13tPMenuCommand_v",
+    "class": "tPMenuItemGoToMenuButton",
+    "kind": "ctor",
+    "name": "tPMenuItemGoToMenuButton",
+    "line": "void * __24tPMenuItemGoToMenuButtonUiP6tPMenuPFR13tPMenuCommand_v(tPMenuItemGoToMenuButton *self, unsigned int textDescription, tPMenu *newMenu, void *OnButtonPress);   /* :573 */",
+    "native": {
+      "record": "2ed0c2",
+      "va": "800a7d74",
+      "type": "PTR STRUCT size 20 dims 0 tag tPMenuItemGoToMenuButton"
+    },
+    "definition": [
+      "tPMenuItemGoToMenuButton::tPMenuItemGoToMenuButton(u_int textDescription,tPMenu *newMenu, void (*OnButtonPress)(tPMenuCommand&))"
+    ],
+    "parameter_records": [
+      "2ef4c7: $00000010 96 Def2 class REGPARM type PTR STRUCT size 20 dims 0 tag tPMenuItemGoToMenuButton name this",
+      "2ef4f4: $00000005 94 Def class REGPARM type UINT size 0 name textDescription",
+      "2ef511: $00000011 96 Def2 class REGPARM type PTR STRUCT size 84 dims 0 tag tPMenu name newMenu",
+      "2ef52f: $00000012 94 Def class REGPARM type PTR FCN VOID size 0 name OnButtonPress"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "___24tPMenuItemGoToMenuButton",
+    "raw_symbol": "_._24tPMenuItemGoToMenuButton",
+    "class": "tPMenuItemGoToMenuButton",
+    "kind": "dtor",
+    "name": "~tPMenuItemGoToMenuButton",
+    "line": "void ___24tPMenuItemGoToMenuButton(tPMenuItemGoToMenuButton *self, int __in_chrg);   /* :580 */",
+    "native": {
+      "record": "2ed125",
+      "va": "800a7dc8",
+      "type": "VOID size 0"
+    },
+    "definition": [
+      "tPMenuItemGoToMenuButton::~tPMenuItemGoToMenuButton()"
+    ],
+    "parameter_records": [
+      "2ef5be: $00000004 96 Def2 class REGPARM type PTR STRUCT size 20 dims 0 tag tPMenuItemGoToMenuButton name this",
+      "2ef5eb: $00000005 94 Def class REGPARM type INT size 0 name __in_chrg"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "NextMenu__24tPMenuItemGoToMenuButton",
+    "raw_symbol": "NextMenu__24tPMenuItemGoToMenuButton",
+    "class": "tPMenuItemGoToMenuButton",
+    "kind": "method",
+    "name": "NextMenu",
+    "line": "void * NextMenu__24tPMenuItemGoToMenuButton(tPMenuItemGoToMenuButton *self);   /* :584 */",
+    "native": {
+      "record": "2ed150",
+      "va": "800a7df0",
+      "type": "PTR STRUCT size 84 dims 0 tag tPMenu"
+    },
+    "definition": [
+      "tPMenu * tPMenuItemGoToMenuButton::NextMenu()"
+    ],
+    "parameter_records": [
+      "2ef67d: $00000004 96 Def2 class REGPARM type PTR STRUCT size 20 dims 0 tag tPMenuItemGoToMenuButton name this"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "ProcessInput__24tPMenuItemGoToMenuButtonR13tInputKeyTypeR13tPMenuCommand",
+    "raw_symbol": "ProcessInput__24tPMenuItemGoToMenuButtonR13tInputKeyTypeR13tPMenuCommand",
+    "class": "tPMenuItemGoToMenuButton",
+    "kind": "method",
+    "name": "ProcessInput",
+    "line": "void ProcessInput__24tPMenuItemGoToMenuButtonR13tInputKeyTypeR13tPMenuCommand(tPMenuItemGoToMenuButton *self, int *keyval, tPMenuCommand *command);   /* :589 */",
+    "native": {
+      "record": "2ed18b",
+      "va": "800a7dfc",
+      "type": "VOID size 0"
+    },
+    "definition": [
+      "void tPMenuItemGoToMenuButton::ProcessInput(tInputKeyType &keyval,tPMenuCommand &command)"
+    ],
+    "parameter_records": [
+      "2ef749: $00000010 96 Def2 class REGPARM type PTR STRUCT size 20 dims 0 tag tPMenuItemGoToMenuButton name this",
+      "2ef776: $00000012 96 Def2 class REGPARM type PTR ENUM size 4 dims 0 tag tInputKeyType name keyval",
+      "2ef79a: $00000011 96 Def2 class REGPARM type PTR STRUCT size 8 dims 0 tag tPMenuCommand name command"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "__23tPMenuItemCommandButtonUi17tPMenuCommandType",
+    "raw_symbol": "__23tPMenuItemCommandButtonUi17tPMenuCommandType",
+    "class": "tPMenuItemCommandButton",
+    "kind": "ctor",
+    "name": "tPMenuItemCommandButton",
+    "line": "void * __23tPMenuItemCommandButtonUi17tPMenuCommandType(tPMenuItemCommandButton *self, unsigned int textDescription, int command);   /* :613 */",
+    "native": {
+      "record": "2ed1e1",
+      "va": "800a7eb0",
+      "type": "PTR STRUCT size 16 dims 0 tag tPMenuItemCommandButton"
+    },
+    "definition": [
+      "tPMenuItemCommandButton::tPMenuItemCommandButton(u_int textDescription,tPMenuCommandType command)"
+    ],
+    "parameter_records": [
+      "2ef846: $00000010 96 Def2 class REGPARM type PTR STRUCT size 16 dims 0 tag tPMenuItemCommandButton name this",
+      "2ef872: $00000005 94 Def class REGPARM type UINT size 0 name textDescription",
+      "2ef88f: $00000011 96 Def2 class REGPARM type ENUM size 4 dims 0 tag tPMenuCommandType name command"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "___23tPMenuItemCommandButton",
+    "raw_symbol": "_._23tPMenuItemCommandButton",
+    "class": "tPMenuItemCommandButton",
+    "kind": "dtor",
+    "name": "~tPMenuItemCommandButton",
+    "line": "void ___23tPMenuItemCommandButton(tPMenuItemCommandButton *self, int __in_chrg);   /* :619 */",
+    "native": {
+      "record": "2ed239",
+      "va": "800a7ef4",
+      "type": "VOID size 0"
+    },
+    "definition": [
+      "tPMenuItemCommandButton::~tPMenuItemCommandButton()"
+    ],
+    "parameter_records": [
+      "2ef92b: $00000004 96 Def2 class REGPARM type PTR STRUCT size 16 dims 0 tag tPMenuItemCommandButton name this",
+      "2ef957: $00000005 94 Def class REGPARM type INT size 0 name __in_chrg"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "ProcessInput__23tPMenuItemCommandButtonR13tInputKeyTypeR13tPMenuCommand",
+    "raw_symbol": "ProcessInput__23tPMenuItemCommandButtonR13tInputKeyTypeR13tPMenuCommand",
+    "class": "tPMenuItemCommandButton",
+    "kind": "method",
+    "name": "ProcessInput",
+    "line": "void ProcessInput__23tPMenuItemCommandButtonR13tInputKeyTypeR13tPMenuCommand(tPMenuItemCommandButton *self, int *keyval, tPMenuCommand *command);   /* :623 */",
+    "native": {
+      "record": "2ed263",
+      "va": "800a7f1c",
+      "type": "VOID size 0"
+    },
+    "definition": [
+      "void tPMenuItemCommandButton::ProcessInput(tInputKeyType &keyval,tPMenuCommand &command)"
+    ],
+    "parameter_records": [
+      "2efa0c: $00000010 96 Def2 class REGPARM type PTR STRUCT size 16 dims 0 tag tPMenuItemCommandButton name this",
+      "2efa38: $00000011 96 Def2 class REGPARM type PTR ENUM size 4 dims 0 tag tInputKeyType name keyval",
+      "2efa5c: $00000012 96 Def2 class REGPARM type PTR STRUCT size 8 dims 0 tag tPMenuCommand name command"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "tPMenuConstructor__6tPMenuP10tPMenuItemPv",
+    "raw_symbol": "tPMenuConstructor__6tPMenuP10tPMenuItemPv",
+    "class": "tPMenu",
+    "kind": "method",
+    "name": "tPMenuConstructor",
+    "line": "void tPMenuConstructor__6tPMenuP10tPMenuItemPv(tPMenu *self, tPMenuItem *firstItem, void *ap);   /* :640 */",
+    "native": {
+      "record": "2ed2b8",
+      "va": "800a7f7c",
+      "type": "VOID size 0"
+    },
+    "definition": [
+      "void tPMenu::tPMenuConstructor(tPMenuItem *firstItem,void *ap)"
+    ],
+    "parameter_records": [
+      "2efb01: $00000004 96 Def2 class REGPARM type PTR STRUCT size 84 dims 0 tag tPMenu name this",
+      "2efb1c: $00000005 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag tPMenuItem name firstItem",
+      "2efb40: $00000006 94 Def class REGPARM type PTR VOID size 0 name ap"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "__6tPMenuP10tPMenuIteme",
+    "raw_symbol": "__6tPMenuP10tPMenuIteme",
+    "class": "tPMenu",
+    "kind": "ctor",
+    "name": "tPMenu",
+    "line": "void * __6tPMenuP10tPMenuIteme(tPMenu *self, tPMenuItem *firstItem);   /* :669 */",
+    "native": {
+      "record": "2ed2ef",
+      "va": "800a7fc8",
+      "type": "PTR STRUCT size 84 dims 0 tag tPMenu"
+    },
+    "definition": [
+      "tPMenu::tPMenu(tPMenuItem *firstItem, ...)"
+    ],
+    "parameter_records": [
+      "2efbda: $00000010 96 Def2 class REGPARM type PTR STRUCT size 84 dims 0 tag tPMenu name this",
+      "2efbf5: $00000004 96 Def2 class ARG type PTR STRUCT size 12 dims 0 tag tPMenuItem name firstItem"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "___6tPMenu",
+    "raw_symbol": "_._6tPMenu",
+    "class": "tPMenu",
+    "kind": "dtor",
+    "name": "~tPMenu",
+    "line": "void ___6tPMenu(tPMenu *self, int __in_chrg);   /* :679 */",
+    "native": {
+      "record": "2ed31d",
+      "va": "800a8014",
+      "type": "VOID size 0"
+    },
+    "definition": [
+      "tPMenu::~tPMenu()"
+    ],
+    "parameter_records": [
+      "2efc7a: $00000004 96 Def2 class REGPARM type PTR STRUCT size 84 dims 0 tag tPMenu name this",
+      "2efc95: $00000005 94 Def class REGPARM type INT size 0 name __in_chrg"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "Initialize__6tPMenu",
+    "raw_symbol": "Initialize__6tPMenu",
+    "class": "tPMenu",
+    "kind": "method",
+    "name": "Initialize",
+    "line": "void Initialize__6tPMenu(tPMenu *self);   /* :683 */",
+    "native": {
+      "record": "2ed335",
+      "va": "800a8048",
+      "type": "VOID size 0"
+    },
+    "definition": [
+      "void tPMenu::Initialize()"
+    ],
+    "parameter_records": [
+      "2efd16: $00000011 96 Def2 class REGPARM type PTR STRUCT size 84 dims 0 tag tPMenu name this"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "Debounce__6tPMenu",
+    "raw_symbol": "Debounce__6tPMenu",
+    "class": "tPMenu",
+    "kind": "method",
+    "name": "Debounce",
+    "line": "bool Debounce__6tPMenu(tPMenu *self);   /* :698 */",
+    "native": {
+      "record": "2ed356",
+      "va": "800a8148",
+      "type": "BOOL size 0"
+    },
+    "definition": [
+      "bool tPMenu::Debounce()"
+    ],
+    "parameter_records": [
+      "2efe24: $00000004 96 Def2 class REGPARM type PTR STRUCT size 84 dims 0 tag tPMenu name this"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "CheckForDisabled__6tPMenu",
+    "raw_symbol": "CheckForDisabled__6tPMenu",
+    "class": "tPMenu",
+    "kind": "method",
+    "name": "CheckForDisabled",
+    "line": "void CheckForDisabled__6tPMenu(tPMenu *self);   /* :703 */",
+    "native": {
+      "record": "2ed375",
+      "va": "800a8194",
+      "type": "VOID size 0"
+    },
+    "definition": [
+      "void tPMenu::CheckForDisabled()"
+    ],
+    "parameter_records": [
+      "2efeaf: $00000010 96 Def2 class REGPARM type PTR STRUCT size 84 dims 0 tag tPMenu name this"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "ProcessInput__6tPMenuR13tInputKeyTypeR13tPMenuCommand",
+    "raw_symbol": "ProcessInput__6tPMenuR13tInputKeyTypeR13tPMenuCommand",
+    "class": "tPMenu",
+    "kind": "method",
+    "name": "ProcessInput",
+    "line": "void ProcessInput__6tPMenuR13tInputKeyTypeR13tPMenuCommand(tPMenu *self, int *keyval, tPMenuCommand *command);   /* :718 */",
+    "native": {
+      "record": "2ed39c",
+      "va": "800a829c",
+      "type": "VOID size 0"
+    },
+    "definition": [
+      "void tPMenu::ProcessInput(tInputKeyType &keyval,tPMenuCommand &command)"
+    ],
+    "parameter_records": [
+      "2effab: $00000010 96 Def2 class REGPARM type PTR STRUCT size 84 dims 0 tag tPMenu name this",
+      "2effc6: $00000012 96 Def2 class REGPARM type PTR ENUM size 4 dims 0 tag tInputKeyType name keyval",
+      "2effea: $00000011 96 Def2 class REGPARM type PTR STRUCT size 8 dims 0 tag tPMenuCommand name command"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "Draw__6tPMenu",
+    "raw_symbol": "Draw__6tPMenu",
+    "class": "tPMenu",
+    "kind": "method",
+    "name": "Draw",
+    "line": "void Draw__6tPMenu(tPMenu *self);   /* :783 */",
+    "native": {
+      "record": "2ed3df",
+      "va": "800a8510",
+      "type": "VOID size 0"
+    },
+    "definition": [
+      "void tPMenu::Draw()"
+    ],
+    "parameter_records": [
+      "2f011d: $00000011 96 Def2 class REGPARM type PTR STRUCT size 84 dims 0 tag tPMenu name this"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "NumEnabledItems__6tPMenu",
+    "raw_symbol": "NumEnabledItems__6tPMenu",
+    "class": "tPMenu",
+    "kind": "method",
+    "name": "NumEnabledItems",
+    "line": "int NumEnabledItems__6tPMenu(tPMenu *self);   /* :805 */",
+    "native": {
+      "record": "2ed3fa",
+      "va": "800a8600",
+      "type": "INT size 0"
+    },
+    "definition": [
+      "int tPMenu::NumEnabledItems()"
+    ],
+    "parameter_records": [
+      "2f0213: $00000004 96 Def2 class REGPARM type PTR STRUCT size 84 dims 0 tag tPMenu name this"
+    ]
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "ItemEnabledNum__6tPMenui",
+    "raw_symbol": "ItemEnabledNum__6tPMenui",
+    "class": "tPMenu",
+    "kind": "method",
+    "name": "ItemEnabledNum",
+    "line": "int ItemEnabledNum__6tPMenui(tPMenu *self, int num);   /* :818 */",
+    "native": {
+      "record": "2ed420",
+      "va": "800a8650",
+      "type": "INT size 0"
+    },
+    "definition": [
+      "int tPMenu::ItemEnabledNum(int num)"
+    ],
+    "parameter_records": [
+      "2f03b4: $00000004 96 Def2 class REGPARM type PTR STRUCT size 84 dims 0 tag tPMenu name this",
+      "2f03cf: $00000006 94 Def class REGPARM type INT size 0 name num"
+    ]
+  }
+]

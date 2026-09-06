@@ -1,0 +1,1523 @@
+{
+  "round": "P875",
+  "header": "recon/game/psx/flare.h",
+  "source_authority": "C:/Temp/nfs4-clean/nfs4-f-v3.txt",
+  "scope": "Free-function public prototype rows from P874 inventory only; not an all-record or all-project source restoration claim.",
+  "counts": {
+    "inventory_candidates": 27,
+    "corrected_public": 27,
+    "removed_file_static": 0,
+    "before_native_references": 0,
+    "after_native_references": 27,
+    "return_type_corrections": 0,
+    "header_compile_failures": 0,
+    "unresolved_header_candidates": 0,
+    "preexisting_compiler_warning_count": 1
+  },
+  "before_actual_header_compile": {
+    "header": "recon/game/psx/flare.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\flare_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\flare_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\flare_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\flare_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\flare_before.s"
+      ]
+    ],
+    "header_sha256": "09739e9ed501b00f7d4379dc860d07b3b01e53e08cb8ae3e33727e049ed40ac6",
+    "references": {
+      "0": "Flare_Tri__FPlN20i__FPlN20i",
+      "1": "Flare_SetMatrix__FP10matrixtdef__FP10matrixtdef",
+      "2": "Flare_IdentMatrix__FP6MATRIX__FP6MATRIX",
+      "3": "Flare_OctFlare__FPli__FPli",
+      "4": "Flare_OctFlareSpikes__FPli__FPli",
+      "5": "Flare_Spikes__FPli__FPli",
+      "6": "Flare_HexFlare__FPli__FPli",
+      "7": "Flare_ReflectHexFlare__FPli__FPli",
+      "8": "Flare_QuadFlare__FPli__FPli",
+      "9": "Flare_CarShapedHalo__FiP7COORD16N21siP15Draw_FlareCache__FiP7COORD16N21iiP15Draw_FlareCache",
+      "10": "Flare_Halo2__FP13DRender_tViewiiP8coorddefT3P15Draw_FlareCache__FP13DRender_tViewiiP8coorddefT3P15Draw_FlareCache",
+      "11": "Flare_Halo__FP13DRender_tViewiiP8coorddefP15Draw_FlareCache__FP13DRender_tViewiiP8coorddefP15Draw_FlareCache",
+      "12": "Flare_2DSpike__FPlT0i__FPlT0i",
+      "13": "Flare_2DHalo__Fiiiii__Fiiiii",
+      "14": "Flare_PreCalcHexLightBeam__FPli__FPli",
+      "15": "Flare_Quad__FPlP7CVECTORi__FPlP7CVECTORi",
+      "16": "Flare_QuadNotTransparent__FPlP7CVECTORi__FPlP7CVECTORi",
+      "17": "Flare_QuadRing__FPlP7CVECTORi__FPlP7CVECTORi",
+      "18": "Flare_TextureQuad__FPlP7CVECTORci__FPlP7CVECTORci",
+      "19": "Flare_SingleColorTex__FP7DVECTORP7CVECTORiici__FP7DVECTORP7CVECTORiiii",
+      "20": "Flare_SingleColorHex__FP7DVECTORP7CVECTORiii__FP7DVECTORP7CVECTORiii",
+      "21": "Flare_SingleColorOct__FP7DVECTORP7CVECTORiii__FP7DVECTORP7CVECTORiii",
+      "22": "Flare_SingleColorOctRing__FP7DVECTORP7CVECTORiii__FP7DVECTORP7CVECTORiii",
+      "23": "Flare_InitLensFlare__Fv__Fv",
+      "24": "Flare_LensFlare__FP7DVECTORP15Draw_FlareCache__FP7DVECTORP15Draw_FlareCache",
+      "25": "Flare_Sun__FP7SVECTORP15Draw_FlareCache__FP7SVECTORP15Draw_FlareCache",
+      "26": "Flare_Moon__FP7SVECTORP15Draw_FlareCache__FP7SVECTORP15Draw_FlareCache"
+    },
+    "ok": true,
+    "assembly_sha256": "82a45c59442c308280d1a010a8805ea7b0c132e7984af5057054ec2c5f13c4ba",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".sdata",
+      ".rodata",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\flare.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "gfSpikePt0",
+      "gfSpikePt1",
+      "gfSpikePt2",
+      "gfOctPt1",
+      "gfOctPt2",
+      "gfHexPt1",
+      "gfHexPt2",
+      "Flare_gSpikes",
+      "Flare_gOct",
+      "Flare_gSmallOct",
+      "Flare_gHex",
+      "Flare_gReflectHex",
+      "Flare_gQuad",
+      "Flare_gType",
+      "gOv",
+      "Flare_gLensOct",
+      "Flare_SunFlarePieces",
+      "gfrgb",
+      "gfrgb2",
+      "gscale",
+      "Flare_Tri__FPlN20i",
+      "Flare_SetMatrix__FP10matrixtdef",
+      "Flare_IdentMatrix__FP6MATRIX",
+      "Flare_OctFlare__FPli",
+      "Flare_OctFlareSpikes__FPli",
+      "Flare_Spikes__FPli",
+      "Flare_HexFlare__FPli",
+      "Flare_ReflectHexFlare__FPli",
+      "Flare_QuadFlare__FPli",
+      "Flare_CarShapedHalo__FiP7COORD16N21siP15Draw_FlareCache",
+      "Flare_Halo2__FP13DRender_tViewiiP8coorddefT3P15Draw_FlareCache",
+      "Flare_Halo__FP13DRender_tViewiiP8coorddefP15Draw_FlareCache",
+      "Flare_2DSpike__FPlT0i",
+      "Flare_2DHalo__Fiiiii",
+      "Flare_PreCalcHexLightBeam__FPli",
+      "Flare_Quad__FPlP7CVECTORi",
+      "Flare_QuadNotTransparent__FPlP7CVECTORi",
+      "Flare_QuadRing__FPlP7CVECTORi",
+      "Flare_TextureQuad__FPlP7CVECTORci",
+      "Flare_SingleColorTex__FP7DVECTORP7CVECTORiici",
+      "Flare_SingleColorHex__FP7DVECTORP7CVECTORiii",
+      "Flare_SingleColorOct__FP7DVECTORP7CVECTORiii",
+      "Flare_SingleColorOctRing__FP7DVECTORP7CVECTORiii",
+      "Flare_InitLensFlare__Fv",
+      "Flare_LensFlare__FP7DVECTORP15Draw_FlareCache",
+      "Flare_Sun__FP7SVECTORP15Draw_FlareCache",
+      "Flare_Moon__FP7SVECTORP15Draw_FlareCache",
+      "gFlare_LensFlare"
+    ]
+  },
+  "before_frozen_replay": {
+    "header": "recon/game/psx/flare.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\flare_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\flare_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\flare_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\flare_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\flare_before.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\flare_before.cpp:2:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "03df871693ee88c97685bbee572874b0e36850451b78541e959b652b390bd0a2",
+    "input_mode": "frozen-original-prototype-surface",
+    "references": {
+      "0": "Flare_Tri__FPlN20i__FPlN20i",
+      "1": "Flare_SetMatrix__FP10matrixtdef__FP10matrixtdef",
+      "2": "Flare_IdentMatrix__FP6MATRIX__FP6MATRIX",
+      "3": "Flare_OctFlare__FPli__FPli",
+      "4": "Flare_OctFlareSpikes__FPli__FPli",
+      "5": "Flare_Spikes__FPli__FPli",
+      "6": "Flare_HexFlare__FPli__FPli",
+      "7": "Flare_ReflectHexFlare__FPli__FPli",
+      "8": "Flare_QuadFlare__FPli__FPli",
+      "9": "Flare_CarShapedHalo__FiP7COORD16N21siP15Draw_FlareCache__FiP7COORD16N21iiP15Draw_FlareCache",
+      "10": "Flare_Halo2__FP13DRender_tViewiiP8coorddefT3P15Draw_FlareCache__FP13DRender_tViewiiP8coorddefT3P15Draw_FlareCache",
+      "11": "Flare_Halo__FP13DRender_tViewiiP8coorddefP15Draw_FlareCache__FP13DRender_tViewiiP8coorddefP15Draw_FlareCache",
+      "12": "Flare_2DSpike__FPlT0i__FPlT0i",
+      "13": "Flare_2DHalo__Fiiiii__Fiiiii",
+      "14": "Flare_PreCalcHexLightBeam__FPli__FPli",
+      "15": "Flare_Quad__FPlP7CVECTORi__FPlP7CVECTORi",
+      "16": "Flare_QuadNotTransparent__FPlP7CVECTORi__FPlP7CVECTORi",
+      "17": "Flare_QuadRing__FPlP7CVECTORi__FPlP7CVECTORi",
+      "18": "Flare_TextureQuad__FPlP7CVECTORci__FPlP7CVECTORci",
+      "19": "Flare_SingleColorTex__FP7DVECTORP7CVECTORiici__FP7DVECTORP7CVECTORiiii",
+      "20": "Flare_SingleColorHex__FP7DVECTORP7CVECTORiii__FP7DVECTORP7CVECTORiii",
+      "21": "Flare_SingleColorOct__FP7DVECTORP7CVECTORiii__FP7DVECTORP7CVECTORiii",
+      "22": "Flare_SingleColorOctRing__FP7DVECTORP7CVECTORiii__FP7DVECTORP7CVECTORiii",
+      "23": "Flare_InitLensFlare__Fv__Fv",
+      "24": "Flare_LensFlare__FP7DVECTORP15Draw_FlareCache__FP7DVECTORP15Draw_FlareCache",
+      "25": "Flare_Sun__FP7SVECTORP15Draw_FlareCache__FP7SVECTORP15Draw_FlareCache",
+      "26": "Flare_Moon__FP7SVECTORP15Draw_FlareCache__FP7SVECTORP15Draw_FlareCache"
+    },
+    "ok": true,
+    "assembly_sha256": "82a45c59442c308280d1a010a8805ea7b0c132e7984af5057054ec2c5f13c4ba"
+  },
+  "after_actual_header_compile": {
+    "header": "recon/game/psx/flare.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\flare_after.cpp",
+    "stage": "after",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\flare_after.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\flare_after.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\flare_after.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\flare_after.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:/Temp/nfs4-decomp/recon/game/psx/flare.h:4,\n                 from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\flare_after.cpp:1:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "42105cb412804d617cc1e72aa27632a665c1d81cd41a589a79651d2134ec594b",
+    "input_mode": "live-public-header",
+    "header_sha256": "cb8e5e3af771298c18e6d2bbdef70809619887903fbf3359fffad839a14ee3e6",
+    "references": {
+      "0": "Flare_Tri__FPlN20i",
+      "1": "Flare_SetMatrix__FP10matrixtdef",
+      "2": "Flare_IdentMatrix__FP6MATRIX",
+      "3": "Flare_OctFlare__FPli",
+      "4": "Flare_OctFlareSpikes__FPli",
+      "5": "Flare_Spikes__FPli",
+      "6": "Flare_HexFlare__FPli",
+      "7": "Flare_ReflectHexFlare__FPli",
+      "8": "Flare_QuadFlare__FPli",
+      "9": "Flare_CarShapedHalo__FiP7COORD16N21siP15Draw_FlareCache",
+      "10": "Flare_Halo2__FP13DRender_tViewiiP8coorddefT3P15Draw_FlareCache",
+      "11": "Flare_Halo__FP13DRender_tViewiiP8coorddefP15Draw_FlareCache",
+      "12": "Flare_2DSpike__FPlT0i",
+      "13": "Flare_2DHalo__Fiiiii",
+      "14": "Flare_PreCalcHexLightBeam__FPli",
+      "15": "Flare_Quad__FPlP7CVECTORi",
+      "16": "Flare_QuadNotTransparent__FPlP7CVECTORi",
+      "17": "Flare_QuadRing__FPlP7CVECTORi",
+      "18": "Flare_TextureQuad__FPlP7CVECTORci",
+      "19": "Flare_SingleColorTex__FP7DVECTORP7CVECTORiici",
+      "20": "Flare_SingleColorHex__FP7DVECTORP7CVECTORiii",
+      "21": "Flare_SingleColorOct__FP7DVECTORP7CVECTORiii",
+      "22": "Flare_SingleColorOctRing__FP7DVECTORP7CVECTORiii",
+      "23": "Flare_InitLensFlare__Fv",
+      "24": "Flare_LensFlare__FP7DVECTORP15Draw_FlareCache",
+      "25": "Flare_Sun__FP7SVECTORP15Draw_FlareCache",
+      "26": "Flare_Moon__FP7SVECTORP15Draw_FlareCache"
+    },
+    "ok": true,
+    "assembly_sha256": "31cbb4b2af6462a591db9722ce86f50cca69e52e62cf3e514c8da22d27e11aa4",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".sdata",
+      ".rodata",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\flare.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "gfSpikePt0",
+      "gfSpikePt1",
+      "gfSpikePt2",
+      "gfOctPt1",
+      "gfOctPt2",
+      "gfHexPt1",
+      "gfHexPt2",
+      "Flare_gSpikes",
+      "Flare_gOct",
+      "Flare_gSmallOct",
+      "Flare_gHex",
+      "Flare_gReflectHex",
+      "Flare_gQuad",
+      "Flare_gType",
+      "gOv",
+      "Flare_gLensOct",
+      "Flare_SunFlarePieces",
+      "gfrgb",
+      "gfrgb2",
+      "gscale",
+      "Flare_Tri__FPlN20i",
+      "Flare_SetMatrix__FP10matrixtdef",
+      "Flare_IdentMatrix__FP6MATRIX",
+      "Flare_OctFlare__FPli",
+      "Flare_OctFlareSpikes__FPli",
+      "Flare_Spikes__FPli",
+      "Flare_HexFlare__FPli",
+      "Flare_ReflectHexFlare__FPli",
+      "Flare_QuadFlare__FPli",
+      "Flare_CarShapedHalo__FiP7COORD16N21siP15Draw_FlareCache",
+      "Flare_Halo2__FP13DRender_tViewiiP8coorddefT3P15Draw_FlareCache",
+      "Flare_Halo__FP13DRender_tViewiiP8coorddefP15Draw_FlareCache",
+      "Flare_2DSpike__FPlT0i",
+      "Flare_2DHalo__Fiiiii",
+      "Flare_PreCalcHexLightBeam__FPli",
+      "Flare_Quad__FPlP7CVECTORi",
+      "Flare_QuadNotTransparent__FPlP7CVECTORi",
+      "Flare_QuadRing__FPlP7CVECTORi",
+      "Flare_TextureQuad__FPlP7CVECTORci",
+      "Flare_SingleColorTex__FP7DVECTORP7CVECTORiici",
+      "Flare_SingleColorHex__FP7DVECTORP7CVECTORiii",
+      "Flare_SingleColorOct__FP7DVECTORP7CVECTORiii",
+      "Flare_SingleColorOctRing__FP7DVECTORP7CVECTORiii",
+      "Flare_InitLensFlare__Fv",
+      "Flare_LensFlare__FP7DVECTORP15Draw_FlareCache",
+      "Flare_Sun__FP7SVECTORP15Draw_FlareCache",
+      "Flare_Moon__FP7SVECTORP15Draw_FlareCache",
+      "gFlare_LensFlare"
+    ]
+  },
+  "owning_tu_gate": {
+    "source": "recon/game/psx/flare.cpp",
+    "command": [
+      "C:\\Python314\\python.exe",
+      "tools/tugate.py",
+      "recon/game/psx/flare.cpp"
+    ],
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/psx/flare.cpp: 27/27 PASS\n",
+    "stderr": "",
+    "object_sha256": "1ad9f604c6f8f6f8b0c8a3c562853b7a57990685db03d40dc28087d68b77ccae",
+    "actual_function_symbols": [
+      "Flare_Tri__FPlN20i",
+      "Flare_SetMatrix__FP10matrixtdef",
+      "Flare_IdentMatrix__FP6MATRIX",
+      "Flare_OctFlare__FPli",
+      "Flare_OctFlareSpikes__FPli",
+      "Flare_Spikes__FPli",
+      "Flare_HexFlare__FPli",
+      "Flare_ReflectHexFlare__FPli",
+      "Flare_QuadFlare__FPli",
+      "Flare_CarShapedHalo__FiP7COORD16N21siP15Draw_FlareCache",
+      "Flare_Halo2__FP13DRender_tViewiiP8coorddefT3P15Draw_FlareCache",
+      "Flare_Halo__FP13DRender_tViewiiP8coorddefP15Draw_FlareCache",
+      "Flare_2DSpike__FPlT0i",
+      "Flare_2DHalo__Fiiiii",
+      "Flare_PreCalcHexLightBeam__FPli",
+      "Flare_Quad__FPlP7CVECTORi",
+      "Flare_QuadNotTransparent__FPlP7CVECTORi",
+      "Flare_QuadRing__FPlP7CVECTORi",
+      "Flare_TextureQuad__FPlP7CVECTORci",
+      "Flare_SingleColorTex__FP7DVECTORP7CVECTORiici",
+      "Flare_SingleColorHex__FP7DVECTORP7CVECTORiii",
+      "Flare_SingleColorOct__FP7DVECTORP7CVECTORiii",
+      "Flare_SingleColorOctRing__FP7DVECTORP7CVECTORiii",
+      "Flare_InitLensFlare__Fv",
+      "Flare_LensFlare__FP7DVECTORP15Draw_FlareCache",
+      "Flare_Sun__FP7SVECTORP15Draw_FlareCache",
+      "Flare_Moon__FP7SVECTORP15Draw_FlareCache"
+    ],
+    "local_function_symbols": []
+  },
+  "consumer_census": {
+    "files_scanned": 1677,
+    "literal_users": [],
+    "dynamic_includes": []
+  },
+  "unresolved": [],
+  "prototype_receipts": [
+    {
+      "header": "recon/game/psx/flare.h",
+      "line": 6,
+      "encoded": "Flare_Tri__FPlN20i",
+      "name": "Flare_Tri",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Flare_Tri__FPlN20i(long *cp, long *p1, long *p2, int otz);   /* :75 */",
+      "header_return": "void",
+      "header_signature": "(long *cp, long *p1, long *p2, int otz)",
+      "native": [
+        {
+          "record": "402840",
+          "va": "800cbcb0",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Flare_Tri",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\flare.cpp",
+          "line": 131,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(long * cp,long * p1,long * p2,int otz)",
+          "end": 151,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(long * cp,long * p1,long * p2,int otz)",
+      "final_prototype": "void Flare_Tri(long * cp,long * p1,long * p2,int otz);   /* SYM 402840 @0x800cbcb0 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Flare_Tri__FPlN20i__FPlN20i",
+      "after_emitted_reference": "Flare_Tri__FPlN20i",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/flare.h",
+      "line": 7,
+      "encoded": "Flare_SetMatrix__FP10matrixtdef",
+      "name": "Flare_SetMatrix",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Flare_SetMatrix__FP10matrixtdef(matrixtdef *m);   /* :184 */",
+      "header_return": "void",
+      "header_signature": "(matrixtdef *m)",
+      "native": [
+        {
+          "record": "402860",
+          "va": "800cbd4c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Flare_SetMatrix",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\flare.cpp",
+          "line": 154,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(matrixtdef * m)",
+          "end": 178,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(matrixtdef * m)",
+      "final_prototype": "void Flare_SetMatrix(matrixtdef * m);   /* SYM 402860 @0x800cbd4c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Flare_SetMatrix__FP10matrixtdef__FP10matrixtdef",
+      "after_emitted_reference": "Flare_SetMatrix__FP10matrixtdef",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/flare.h",
+      "line": 8,
+      "encoded": "Flare_IdentMatrix__FP6MATRIX",
+      "name": "Flare_IdentMatrix",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Flare_IdentMatrix__FP6MATRIX(MATRIX *mtx);   /* :196 */",
+      "header_return": "void",
+      "header_signature": "(MATRIX *mtx)",
+      "native": [
+        {
+          "record": "40288d",
+          "va": "800cbdf8",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Flare_IdentMatrix",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\flare.cpp",
+          "line": 181,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(MATRIX * mtx)",
+          "end": 190,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(MATRIX * mtx)",
+      "final_prototype": "void Flare_IdentMatrix(MATRIX * mtx);   /* SYM 40288d @0x800cbdf8 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Flare_IdentMatrix__FP6MATRIX__FP6MATRIX",
+      "after_emitted_reference": "Flare_IdentMatrix__FP6MATRIX",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/flare.h",
+      "line": 9,
+      "encoded": "Flare_OctFlare__FPli",
+      "name": "Flare_OctFlare",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Flare_OctFlare__FPli(long *center, int otz);   /* :208 */",
+      "header_return": "void",
+      "header_signature": "(long *center, int otz)",
+      "native": [
+        {
+          "record": "4028b7",
+          "va": "800cbe14",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Flare_OctFlare",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\flare.cpp",
+          "line": 193,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(long * center,int otz)",
+          "end": 247,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(long * center,int otz)",
+      "final_prototype": "void Flare_OctFlare(long * center,int otz);   /* SYM 4028b7 @0x800cbe14 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Flare_OctFlare__FPli__FPli",
+      "after_emitted_reference": "Flare_OctFlare__FPli",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/flare.h",
+      "line": 10,
+      "encoded": "Flare_OctFlareSpikes__FPli",
+      "name": "Flare_OctFlareSpikes",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Flare_OctFlareSpikes__FPli(long *center, int otz);   /* :247 */",
+      "header_return": "void",
+      "header_signature": "(long *center, int otz)",
+      "native": [
+        {
+          "record": "4028d9",
+          "va": "800cc034",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Flare_OctFlareSpikes",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\flare.cpp",
+          "line": 250,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(long * center,int otz)",
+          "end": 392,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(long * center,int otz)",
+      "final_prototype": "void Flare_OctFlareSpikes(long * center,int otz);   /* SYM 4028d9 @0x800cc034 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Flare_OctFlareSpikes__FPli__FPli",
+      "after_emitted_reference": "Flare_OctFlareSpikes__FPli",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/flare.h",
+      "line": 11,
+      "encoded": "Flare_Spikes__FPli",
+      "name": "Flare_Spikes",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Flare_Spikes__FPli(long *center, int otz);   /* :323 */",
+      "header_return": "void",
+      "header_signature": "(long *center, int otz)",
+      "native": [
+        {
+          "record": "402901",
+          "va": "800cc3b8",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Flare_Spikes",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\flare.cpp",
+          "line": 395,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(long * center,int otz)",
+          "end": 464,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(long * center,int otz)",
+      "final_prototype": "void Flare_Spikes(long * center,int otz);   /* SYM 402901 @0x800cc3b8 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Flare_Spikes__FPli__FPli",
+      "after_emitted_reference": "Flare_Spikes__FPli",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/flare.h",
+      "line": 12,
+      "encoded": "Flare_HexFlare__FPli",
+      "name": "Flare_HexFlare",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Flare_HexFlare__FPli(long *center, int otz);   /* :370 */",
+      "header_return": "void",
+      "header_signature": "(long *center, int otz)",
+      "native": [
+        {
+          "record": "402921",
+          "va": "800cc694",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Flare_HexFlare",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\flare.cpp",
+          "line": 500,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(long * center,int otz)",
+          "end": 550,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(long * center,int otz)",
+      "final_prototype": "void Flare_HexFlare(long * center,int otz);   /* SYM 402921 @0x800cc694 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Flare_HexFlare__FPli__FPli",
+      "after_emitted_reference": "Flare_HexFlare__FPli",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/flare.h",
+      "line": 13,
+      "encoded": "Flare_ReflectHexFlare__FPli",
+      "name": "Flare_ReflectHexFlare",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Flare_ReflectHexFlare__FPli(long *center, int otz);   /* :407 */",
+      "header_return": "void",
+      "header_signature": "(long *center, int otz)",
+      "native": [
+        {
+          "record": "402943",
+          "va": "800cc868",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Flare_ReflectHexFlare",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\flare.cpp",
+          "line": 553,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(long * center,int otz)",
+          "end": 603,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(long * center,int otz)",
+      "final_prototype": "void Flare_ReflectHexFlare(long * center,int otz);   /* SYM 402943 @0x800cc868 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Flare_ReflectHexFlare__FPli__FPli",
+      "after_emitted_reference": "Flare_ReflectHexFlare__FPli",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/flare.h",
+      "line": 14,
+      "encoded": "Flare_QuadFlare__FPli",
+      "name": "Flare_QuadFlare",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Flare_QuadFlare__FPli(long *center, int otz);   /* :443 */",
+      "header_return": "void",
+      "header_signature": "(long *center, int otz)",
+      "native": [
+        {
+          "record": "40296c",
+          "va": "800cca3c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Flare_QuadFlare",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\flare.cpp",
+          "line": 606,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(long * center,int otz)",
+          "end": 629,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(long * center,int otz)",
+      "final_prototype": "void Flare_QuadFlare(long * center,int otz);   /* SYM 40296c @0x800cca3c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Flare_QuadFlare__FPli__FPli",
+      "after_emitted_reference": "Flare_QuadFlare__FPli",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/flare.h",
+      "line": 15,
+      "encoded": "Flare_CarShapedHalo__FiP7COORD16N21siP15Draw_FlareCache",
+      "name": "Flare_CarShapedHalo",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Flare_CarShapedHalo__FiP7COORD16N21siP15Draw_FlareCache(int type, COORD16 *ptCenter, COORD16 *pt1, COORD16 *pt2, int flag, int otz, Draw_FlareCache *sd);   /* :591 */",
+      "header_return": "void",
+      "header_signature": "(int type, COORD16 *ptCenter, COORD16 *pt1, COORD16 *pt2, int flag, int otz, Draw_FlareCache *sd)",
+      "native": [
+        {
+          "record": "40298f",
+          "va": "800ccb58",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Flare_CarShapedHalo",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\flare.cpp",
+          "line": 640,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int type,COORD16 * ptCenter,COORD16 * pt1,COORD16 * pt2,short flag,int otz,Draw_FlareCache * sd)",
+          "end": 878,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int type,COORD16 * ptCenter,COORD16 * pt1,COORD16 * pt2,short flag,int otz,Draw_FlareCache * sd)",
+      "final_prototype": "void Flare_CarShapedHalo(int type,COORD16 * ptCenter,COORD16 * pt1,COORD16 * pt2,short flag,int otz,Draw_FlareCache * sd);   /* SYM 40298f @0x800ccb58 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Flare_CarShapedHalo__FiP7COORD16N21siP15Draw_FlareCache__FiP7COORD16N21iiP15Draw_FlareCache",
+      "after_emitted_reference": "Flare_CarShapedHalo__FiP7COORD16N21siP15Draw_FlareCache",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/flare.h",
+      "line": 16,
+      "encoded": "Flare_Halo2__FP13DRender_tViewiiP8coorddefT3P15Draw_FlareCache",
+      "name": "Flare_Halo2",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Flare_Halo2__FP13DRender_tViewiiP8coorddefT3P15Draw_FlareCache(DRender_tView *Vi, int scale, int type, coorddef *fpt, coorddef *fpt2, Draw_FlareCache *arg5);   /* :845 */",
+      "header_return": "void",
+      "header_signature": "(DRender_tView *Vi, int scale, int type, coorddef *fpt, coorddef *fpt2, Draw_FlareCache *arg5)",
+      "native": [
+        {
+          "record": "4029d4",
+          "va": "800cd530",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Flare_Halo2",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\flare.cpp",
+          "line": 890,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(DRender_tView * Vi,int scale,int type,coorddef * fpt,coorddef * fpt2,Draw_FlareCache *)",
+          "end": 1136,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(DRender_tView * Vi,int scale,int type,coorddef * fpt,coorddef * fpt2,Draw_FlareCache *)",
+      "final_prototype": "void Flare_Halo2(DRender_tView * Vi,int scale,int type,coorddef * fpt,coorddef * fpt2,Draw_FlareCache *);   /* SYM 4029d4 @0x800cd530 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Flare_Halo2__FP13DRender_tViewiiP8coorddefT3P15Draw_FlareCache__FP13DRender_tViewiiP8coorddefT3P15Draw_FlareCache",
+      "after_emitted_reference": "Flare_Halo2__FP13DRender_tViewiiP8coorddefT3P15Draw_FlareCache",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/flare.h",
+      "line": 17,
+      "encoded": "Flare_Halo__FP13DRender_tViewiiP8coorddefP15Draw_FlareCache",
+      "name": "Flare_Halo",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Flare_Halo__FP13DRender_tViewiiP8coorddefP15Draw_FlareCache(DRender_tView *Vi, int scale, int type, coorddef *fpt, Draw_FlareCache *sd);   /* :1097 */",
+      "header_return": "void",
+      "header_signature": "(DRender_tView *Vi, int scale, int type, coorddef *fpt, Draw_FlareCache *sd)",
+      "native": [
+        {
+          "record": "402a20",
+          "va": "800cde9c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Flare_Halo",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\flare.cpp",
+          "line": 1139,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(DRender_tView * Vi,int scale,int type,coorddef * fpt,Draw_FlareCache * sd)",
+          "end": 1144,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(DRender_tView * Vi,int scale,int type,coorddef * fpt,Draw_FlareCache * sd)",
+      "final_prototype": "void Flare_Halo(DRender_tView * Vi,int scale,int type,coorddef * fpt,Draw_FlareCache * sd);   /* SYM 402a20 @0x800cde9c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Flare_Halo__FP13DRender_tViewiiP8coorddefP15Draw_FlareCache__FP13DRender_tViewiiP8coorddefP15Draw_FlareCache",
+      "after_emitted_reference": "Flare_Halo__FP13DRender_tViewiiP8coorddefP15Draw_FlareCache",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/flare.h",
+      "line": 18,
+      "encoded": "Flare_2DSpike__FPlT0i",
+      "name": "Flare_2DSpike",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Flare_2DSpike__FPlT0i(long *center, long *end, int otz);   /* :1105 */",
+      "header_return": "void",
+      "header_signature": "(long *center, long *end, int otz)",
+      "native": [
+        {
+          "record": "402a69",
+          "va": "800cdec4",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Flare_2DSpike",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\flare.cpp",
+          "line": 1170,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(long * center,long * end,int otz)",
+          "end": 1193,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(long * center,long * end,int otz)",
+      "final_prototype": "void Flare_2DSpike(long * center,long * end,int otz);   /* SYM 402a69 @0x800cdec4 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Flare_2DSpike__FPlT0i__FPlT0i",
+      "after_emitted_reference": "Flare_2DSpike__FPlT0i",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/flare.h",
+      "line": 19,
+      "encoded": "Flare_2DHalo__Fiiiii",
+      "name": "Flare_2DHalo",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Flare_2DHalo__Fiiiii(int x, int y, int scalex, int scaley, int type);   /* :1125 */",
+      "header_return": "void",
+      "header_signature": "(int x, int y, int scalex, int scaley, int type)",
+      "native": [
+        {
+          "record": "402a8c",
+          "va": "800cdf70",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Flare_2DHalo",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\flare.cpp",
+          "line": 1196,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int x,int y,int scalex,int scaley,int type)",
+          "end": 1449,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int x,int y,int scalex,int scaley,int type)",
+      "final_prototype": "void Flare_2DHalo(int x,int y,int scalex,int scaley,int type);   /* SYM 402a8c @0x800cdf70 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Flare_2DHalo__Fiiiii__Fiiiii",
+      "after_emitted_reference": "Flare_2DHalo__Fiiiii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/flare.h",
+      "line": 20,
+      "encoded": "Flare_PreCalcHexLightBeam__FPli",
+      "name": "Flare_PreCalcHexLightBeam",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Flare_PreCalcHexLightBeam__FPli(long *center, int otz);   /* :1229 */",
+      "header_return": "void",
+      "header_signature": "(long *center, int otz)",
+      "native": [
+        {
+          "record": "402aae",
+          "va": "800ce34c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Flare_PreCalcHexLightBeam",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\flare.cpp",
+          "line": 1452,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(long * center,int otz)",
+          "end": 1505,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(long * center,int otz)",
+      "final_prototype": "void Flare_PreCalcHexLightBeam(long * center,int otz);   /* SYM 402aae @0x800ce34c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Flare_PreCalcHexLightBeam__FPli__FPli",
+      "after_emitted_reference": "Flare_PreCalcHexLightBeam__FPli",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/flare.h",
+      "line": 21,
+      "encoded": "Flare_Quad__FPlP7CVECTORi",
+      "name": "Flare_Quad",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Flare_Quad__FPlP7CVECTORi(long *pt, CVECTOR *color, int otz);   /* :1305 */",
+      "header_return": "void",
+      "header_signature": "(long *pt, CVECTOR *color, int otz)",
+      "native": [
+        {
+          "record": "402adb",
+          "va": "800ce420",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Flare_Quad",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\flare.cpp",
+          "line": 1508,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(long * pt,CVECTOR * color,int otz)",
+          "end": 1530,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(long * pt,CVECTOR * color,int otz)",
+      "final_prototype": "void Flare_Quad(long * pt,CVECTOR * color,int otz);   /* SYM 402adb @0x800ce420 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Flare_Quad__FPlP7CVECTORi__FPlP7CVECTORi",
+      "after_emitted_reference": "Flare_Quad__FPlP7CVECTORi",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/flare.h",
+      "line": 22,
+      "encoded": "Flare_QuadNotTransparent__FPlP7CVECTORi",
+      "name": "Flare_QuadNotTransparent",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Flare_QuadNotTransparent__FPlP7CVECTORi(long *pt, CVECTOR *color, int otz);   /* :1319 */",
+      "header_return": "void",
+      "header_signature": "(long *pt, CVECTOR *color, int otz)",
+      "native": [
+        {
+          "record": "402b02",
+          "va": "800ce4c4",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Flare_QuadNotTransparent",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\flare.cpp",
+          "line": 1533,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(long * pt,CVECTOR * color,int otz)",
+          "end": 1555,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(long * pt,CVECTOR * color,int otz)",
+      "final_prototype": "void Flare_QuadNotTransparent(long * pt,CVECTOR * color,int otz);   /* SYM 402b02 @0x800ce4c4 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Flare_QuadNotTransparent__FPlP7CVECTORi__FPlP7CVECTORi",
+      "after_emitted_reference": "Flare_QuadNotTransparent__FPlP7CVECTORi",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/flare.h",
+      "line": 23,
+      "encoded": "Flare_QuadRing__FPlP7CVECTORi",
+      "name": "Flare_QuadRing",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Flare_QuadRing__FPlP7CVECTORi(long *pt, CVECTOR *color, int otz);   /* :1335 */",
+      "header_return": "void",
+      "header_signature": "(long *pt, CVECTOR *color, int otz)",
+      "native": [
+        {
+          "record": "402b37",
+          "va": "800ce568",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Flare_QuadRing",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\flare.cpp",
+          "line": 1558,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(long * pt,CVECTOR * color,int otz)",
+          "end": 1583,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(long * pt,CVECTOR * color,int otz)",
+      "final_prototype": "void Flare_QuadRing(long * pt,CVECTOR * color,int otz);   /* SYM 402b37 @0x800ce568 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Flare_QuadRing__FPlP7CVECTORi__FPlP7CVECTORi",
+      "after_emitted_reference": "Flare_QuadRing__FPlP7CVECTORi",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/flare.h",
+      "line": 24,
+      "encoded": "Flare_TextureQuad__FPlP7CVECTORci",
+      "name": "Flare_TextureQuad",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Flare_TextureQuad__FPlP7CVECTORci(long *pt, CVECTOR *color, char type, int otz);   /* :1368 */",
+      "header_return": "void",
+      "header_signature": "(long *pt, CVECTOR *color, char type, int otz)",
+      "native": [
+        {
+          "record": "402b62",
+          "va": "800ce61c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Flare_TextureQuad",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\flare.cpp",
+          "line": 1586,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(long * pt,CVECTOR * color,char type,int otz)",
+          "end": 1623,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(long * pt,CVECTOR * color,char type,int otz)",
+      "final_prototype": "void Flare_TextureQuad(long * pt,CVECTOR * color,char type,int otz);   /* SYM 402b62 @0x800ce61c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Flare_TextureQuad__FPlP7CVECTORci__FPlP7CVECTORci",
+      "after_emitted_reference": "Flare_TextureQuad__FPlP7CVECTORci",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/flare.h",
+      "line": 25,
+      "encoded": "Flare_SingleColorTex__FP7DVECTORP7CVECTORiici",
+      "name": "Flare_SingleColorTex",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Flare_SingleColorTex__FP7DVECTORP7CVECTORiici(DVECTOR *xy, CVECTOR *color, int width, int height, int type, int otz);   /* :1386 */",
+      "header_return": "void",
+      "header_signature": "(DVECTOR *xy, CVECTOR *color, int width, int height, int type, int otz)",
+      "native": [
+        {
+          "record": "402b91",
+          "va": "800ce6f8",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Flare_SingleColorTex",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\flare.cpp",
+          "line": 1626,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(DVECTOR * xy,CVECTOR * color,int width,int height,char type,int otz)",
+          "end": 1641,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(DVECTOR * xy,CVECTOR * color,int width,int height,char type,int otz)",
+      "final_prototype": "void Flare_SingleColorTex(DVECTOR * xy,CVECTOR * color,int width,int height,char type,int otz);   /* SYM 402b91 @0x800ce6f8 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Flare_SingleColorTex__FP7DVECTORP7CVECTORiici__FP7DVECTORP7CVECTORiiii",
+      "after_emitted_reference": "Flare_SingleColorTex__FP7DVECTORP7CVECTORiici",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/flare.h",
+      "line": 26,
+      "encoded": "Flare_SingleColorHex__FP7DVECTORP7CVECTORiii",
+      "name": "Flare_SingleColorHex",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Flare_SingleColorHex__FP7DVECTORP7CVECTORiii(DVECTOR *xy, CVECTOR *color, int width, int height, int otz);   /* :1405 */",
+      "header_return": "void",
+      "header_signature": "(DVECTOR *xy, CVECTOR *color, int width, int height, int otz)",
+      "native": [
+        {
+          "record": "402bcc",
+          "va": "800ce79c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Flare_SingleColorHex",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\flare.cpp",
+          "line": 1644,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(DVECTOR * xy,CVECTOR * color,int width,int height,int otz)",
+          "end": 1666,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(DVECTOR * xy,CVECTOR * color,int width,int height,int otz)",
+      "final_prototype": "void Flare_SingleColorHex(DVECTOR * xy,CVECTOR * color,int width,int height,int otz);   /* SYM 402bcc @0x800ce79c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Flare_SingleColorHex__FP7DVECTORP7CVECTORiii__FP7DVECTORP7CVECTORiii",
+      "after_emitted_reference": "Flare_SingleColorHex__FP7DVECTORP7CVECTORiii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/flare.h",
+      "line": 27,
+      "encoded": "Flare_SingleColorOct__FP7DVECTORP7CVECTORiii",
+      "name": "Flare_SingleColorOct",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Flare_SingleColorOct__FP7DVECTORP7CVECTORiii(DVECTOR *xy, CVECTOR *color, int width, int height, int otz);   /* :1443 */",
+      "header_return": "void",
+      "header_signature": "(DVECTOR *xy, CVECTOR *color, int width, int height, int otz)",
+      "native": [
+        {
+          "record": "402c06",
+          "va": "800ce8b0",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Flare_SingleColorOct",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\flare.cpp",
+          "line": 1669,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(DVECTOR * xy,CVECTOR * color,int width,int height,int otz)",
+          "end": 1688,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(DVECTOR * xy,CVECTOR * color,int width,int height,int otz)",
+      "final_prototype": "void Flare_SingleColorOct(DVECTOR * xy,CVECTOR * color,int width,int height,int otz);   /* SYM 402c06 @0x800ce8b0 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Flare_SingleColorOct__FP7DVECTORP7CVECTORiii__FP7DVECTORP7CVECTORiii",
+      "after_emitted_reference": "Flare_SingleColorOct__FP7DVECTORP7CVECTORiii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/flare.h",
+      "line": 28,
+      "encoded": "Flare_SingleColorOctRing__FP7DVECTORP7CVECTORiii",
+      "name": "Flare_SingleColorOctRing",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Flare_SingleColorOctRing__FP7DVECTORP7CVECTORiii(DVECTOR *xy, CVECTOR *color, int width, int height, int otz);   /* :1460 */",
+      "header_return": "void",
+      "header_signature": "(DVECTOR *xy, CVECTOR *color, int width, int height, int otz)",
+      "native": [
+        {
+          "record": "402c40",
+          "va": "800ce988",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Flare_SingleColorOctRing",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\flare.cpp",
+          "line": 1691,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(DVECTOR * xy,CVECTOR * color,int width,int height,int otz)",
+          "end": 1724,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(DVECTOR * xy,CVECTOR * color,int width,int height,int otz)",
+      "final_prototype": "void Flare_SingleColorOctRing(DVECTOR * xy,CVECTOR * color,int width,int height,int otz);   /* SYM 402c40 @0x800ce988 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Flare_SingleColorOctRing__FP7DVECTORP7CVECTORiii__FP7DVECTORP7CVECTORiii",
+      "after_emitted_reference": "Flare_SingleColorOctRing__FP7DVECTORP7CVECTORiii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/flare.h",
+      "line": 29,
+      "encoded": "Flare_InitLensFlare__Fv",
+      "name": "Flare_InitLensFlare",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Flare_InitLensFlare__Fv(void);   /* :1568 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "402c7e",
+          "va": "800ceb44",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Flare_InitLensFlare",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\flare.cpp",
+          "line": 1727,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 1735,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Flare_InitLensFlare(void);   /* SYM 402c7e @0x800ceb44 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Flare_InitLensFlare__Fv__Fv",
+      "after_emitted_reference": "Flare_InitLensFlare__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/flare.h",
+      "line": 30,
+      "encoded": "Flare_LensFlare__FP7DVECTORP15Draw_FlareCache",
+      "name": "Flare_LensFlare",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Flare_LensFlare__FP7DVECTORP15Draw_FlareCache(DVECTOR *screenPos, Draw_FlareCache *sd);   /* :1578 */",
+      "header_return": "void",
+      "header_signature": "(DVECTOR *screenPos, Draw_FlareCache *sd)",
+      "native": [
+        {
+          "record": "402ca3",
+          "va": "800ceb6c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Flare_LensFlare",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\flare.cpp",
+          "line": 1754,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(DVECTOR * screenPos,Draw_FlareCache * sd)",
+          "end": 2156,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(DVECTOR * screenPos,Draw_FlareCache * sd)",
+      "final_prototype": "void Flare_LensFlare(DVECTOR * screenPos,Draw_FlareCache * sd);   /* SYM 402ca3 @0x800ceb6c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Flare_LensFlare__FP7DVECTORP15Draw_FlareCache__FP7DVECTORP15Draw_FlareCache",
+      "after_emitted_reference": "Flare_LensFlare__FP7DVECTORP15Draw_FlareCache",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/flare.h",
+      "line": 31,
+      "encoded": "Flare_Sun__FP7SVECTORP15Draw_FlareCache",
+      "name": "Flare_Sun",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Flare_Sun__FP7SVECTORP15Draw_FlareCache(SVECTOR *worldPos, Draw_FlareCache *sd);   /* :1742 */",
+      "header_return": "void",
+      "header_signature": "(SVECTOR *worldPos, Draw_FlareCache *sd)",
+      "native": [
+        {
+          "record": "402cde",
+          "va": "800cf1d0",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Flare_Sun",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\flare.cpp",
+          "line": 2195,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(SVECTOR * worldPos,Draw_FlareCache * sd)",
+          "end": 2288,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(SVECTOR * worldPos,Draw_FlareCache * sd)",
+      "final_prototype": "void Flare_Sun(SVECTOR * worldPos,Draw_FlareCache * sd);   /* SYM 402cde @0x800cf1d0 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Flare_Sun__FP7SVECTORP15Draw_FlareCache__FP7SVECTORP15Draw_FlareCache",
+      "after_emitted_reference": "Flare_Sun__FP7SVECTORP15Draw_FlareCache",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/flare.h",
+      "line": 32,
+      "encoded": "Flare_Moon__FP7SVECTORP15Draw_FlareCache",
+      "name": "Flare_Moon",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Flare_Moon__FP7SVECTORP15Draw_FlareCache(SVECTOR *worldPos, Draw_FlareCache *sd);   /* :1822 */",
+      "header_return": "void",
+      "header_signature": "(SVECTOR *worldPos, Draw_FlareCache *sd)",
+      "native": [
+        {
+          "record": "402d13",
+          "va": "800cf4bc",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Flare_Moon",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\flare.cpp",
+          "line": 2291,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(SVECTOR * worldPos,Draw_FlareCache * sd)",
+          "end": 2313,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(SVECTOR * worldPos,Draw_FlareCache * sd)",
+      "final_prototype": "void Flare_Moon(SVECTOR * worldPos,Draw_FlareCache * sd);   /* SYM 402d13 @0x800cf4bc */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Flare_Moon__FP7SVECTORP15Draw_FlareCache__FP7SVECTORP15Draw_FlareCache",
+      "after_emitted_reference": "Flare_Moon__FP7SVECTORP15Draw_FlareCache",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    }
+  ]
+}

@@ -1,0 +1,471 @@
+{
+  "round": "P875",
+  "date": "2026-09-06",
+  "scope": "recon/game/psx public free-function headers from P874 inventory",
+  "headers": 25,
+  "inventory_candidates": 386,
+  "corrected_native_public_prototypes": 384,
+  "removed_native_file_static_prototypes": 2,
+  "native_return_type_corrections": 9,
+  "native_references_before": 0,
+  "native_references_after": 384,
+  "header_compile_errors": 0,
+  "unresolved_header_candidates": 0,
+  "paired_source_current_gate": {
+    "pass": 384,
+    "total": 386,
+    "misses": [
+      {
+        "function": "Night_CreateNightTableElement__FiliPUc",
+        "diff": 56
+      },
+      {
+        "function": "Weather_Init__Fv",
+        "diff": 12
+      }
+    ]
+  },
+  "consumer_census": {
+    "files_scanned": 1677,
+    "literal_users": {
+      "audio.h": [],
+      "cario.h": [],
+      "device.h": [],
+      "draw.h": [],
+      "drawc.h": [],
+      "draww.h": [],
+      "fe3dmenu.h": [],
+      "flare.h": [],
+      "font.h": [],
+      "force.h": [],
+      "hrzsku.h": [],
+      "hud.h": [],
+      "loading.h": [],
+      "night.h": [],
+      "overlays.h": [],
+      "platform.h": [],
+      "psxcontroller.h": [],
+      "rpause.h": [],
+      "sfx.h": [],
+      "skidmark.h": [],
+      "texture.h": [],
+      "textureprocess.h": [],
+      "trackspec.h": [],
+      "trsproj.h": [],
+      "weather.h": []
+    },
+    "dynamic_includes": []
+  },
+  "combined_header_compile": {
+    "success": true,
+    "warning": "Pre-existing nfs4_types.h CurrentPlayer char-to-tPlayer conversion"
+  },
+  "per_header": [
+    {
+      "header": "recon/game/psx/audio.h",
+      "counts": {
+        "inventory_candidates": 6,
+        "corrected_public": 6,
+        "removed_file_static": 0,
+        "before_native_references": 0,
+        "after_native_references": 6,
+        "return_type_corrections": 0,
+        "header_compile_failures": 0,
+        "unresolved_header_candidates": 0,
+        "preexisting_compiler_warning_count": 1
+      },
+      "json": "audio.json",
+      "markdown": "audio.md"
+    },
+    {
+      "header": "recon/game/psx/cario.h",
+      "counts": {
+        "inventory_candidates": 11,
+        "corrected_public": 11,
+        "removed_file_static": 0,
+        "before_native_references": 0,
+        "after_native_references": 11,
+        "return_type_corrections": 0,
+        "header_compile_failures": 0,
+        "unresolved_header_candidates": 0,
+        "preexisting_compiler_warning_count": 1
+      },
+      "json": "cario.json",
+      "markdown": "cario.md"
+    },
+    {
+      "header": "recon/game/psx/device.h",
+      "counts": {
+        "inventory_candidates": 10,
+        "corrected_public": 10,
+        "removed_file_static": 0,
+        "before_native_references": 0,
+        "after_native_references": 10,
+        "return_type_corrections": 1,
+        "header_compile_failures": 0,
+        "unresolved_header_candidates": 0,
+        "preexisting_compiler_warning_count": 1
+      },
+      "json": "device.json",
+      "markdown": "device.md"
+    },
+    {
+      "header": "recon/game/psx/draw.h",
+      "counts": {
+        "inventory_candidates": 25,
+        "corrected_public": 25,
+        "removed_file_static": 0,
+        "before_native_references": 0,
+        "after_native_references": 25,
+        "return_type_corrections": 1,
+        "header_compile_failures": 0,
+        "unresolved_header_candidates": 0,
+        "preexisting_compiler_warning_count": 1
+      },
+      "json": "draw.json",
+      "markdown": "draw.md"
+    },
+    {
+      "header": "recon/game/psx/drawc.h",
+      "counts": {
+        "inventory_candidates": 20,
+        "corrected_public": 20,
+        "removed_file_static": 0,
+        "before_native_references": 0,
+        "after_native_references": 20,
+        "return_type_corrections": 0,
+        "header_compile_failures": 0,
+        "unresolved_header_candidates": 0,
+        "preexisting_compiler_warning_count": 1
+      },
+      "json": "drawc.json",
+      "markdown": "drawc.md"
+    },
+    {
+      "header": "recon/game/psx/draww.h",
+      "counts": {
+        "inventory_candidates": 35,
+        "corrected_public": 35,
+        "removed_file_static": 0,
+        "before_native_references": 0,
+        "after_native_references": 35,
+        "return_type_corrections": 1,
+        "header_compile_failures": 0,
+        "unresolved_header_candidates": 0,
+        "preexisting_compiler_warning_count": 1
+      },
+      "json": "draww.json",
+      "markdown": "draww.md"
+    },
+    {
+      "header": "recon/game/psx/fe3dmenu.h",
+      "counts": {
+        "inventory_candidates": 3,
+        "corrected_public": 3,
+        "removed_file_static": 0,
+        "before_native_references": 0,
+        "after_native_references": 3,
+        "return_type_corrections": 0,
+        "header_compile_failures": 0,
+        "unresolved_header_candidates": 0,
+        "preexisting_compiler_warning_count": 1
+      },
+      "json": "fe3dmenu.json",
+      "markdown": "fe3dmenu.md"
+    },
+    {
+      "header": "recon/game/psx/flare.h",
+      "counts": {
+        "inventory_candidates": 27,
+        "corrected_public": 27,
+        "removed_file_static": 0,
+        "before_native_references": 0,
+        "after_native_references": 27,
+        "return_type_corrections": 0,
+        "header_compile_failures": 0,
+        "unresolved_header_candidates": 0,
+        "preexisting_compiler_warning_count": 1
+      },
+      "json": "flare.json",
+      "markdown": "flare.md"
+    },
+    {
+      "header": "recon/game/psx/font.h",
+      "counts": {
+        "inventory_candidates": 15,
+        "corrected_public": 14,
+        "removed_file_static": 1,
+        "before_native_references": 0,
+        "after_native_references": 14,
+        "return_type_corrections": 1,
+        "header_compile_failures": 0,
+        "unresolved_header_candidates": 0,
+        "preexisting_compiler_warning_count": 1
+      },
+      "json": "font.json",
+      "markdown": "font.md"
+    },
+    {
+      "header": "recon/game/psx/force.h",
+      "counts": {
+        "inventory_candidates": 9,
+        "corrected_public": 9,
+        "removed_file_static": 0,
+        "before_native_references": 0,
+        "after_native_references": 9,
+        "return_type_corrections": 0,
+        "header_compile_failures": 0,
+        "unresolved_header_candidates": 0,
+        "preexisting_compiler_warning_count": 1
+      },
+      "json": "force.json",
+      "markdown": "force.md"
+    },
+    {
+      "header": "recon/game/psx/hrzsku.h",
+      "counts": {
+        "inventory_candidates": 22,
+        "corrected_public": 22,
+        "removed_file_static": 0,
+        "before_native_references": 0,
+        "after_native_references": 22,
+        "return_type_corrections": 0,
+        "header_compile_failures": 0,
+        "unresolved_header_candidates": 0,
+        "preexisting_compiler_warning_count": 1
+      },
+      "json": "hrzsku.json",
+      "markdown": "hrzsku.md"
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "counts": {
+        "inventory_candidates": 62,
+        "corrected_public": 61,
+        "removed_file_static": 1,
+        "before_native_references": 0,
+        "after_native_references": 61,
+        "return_type_corrections": 1,
+        "header_compile_failures": 0,
+        "unresolved_header_candidates": 0,
+        "preexisting_compiler_warning_count": 1
+      },
+      "json": "hud.json",
+      "markdown": "hud.md"
+    },
+    {
+      "header": "recon/game/psx/loading.h",
+      "counts": {
+        "inventory_candidates": 3,
+        "corrected_public": 3,
+        "removed_file_static": 0,
+        "before_native_references": 0,
+        "after_native_references": 3,
+        "return_type_corrections": 0,
+        "header_compile_failures": 0,
+        "unresolved_header_candidates": 0,
+        "preexisting_compiler_warning_count": 1
+      },
+      "json": "loading.json",
+      "markdown": "loading.md"
+    },
+    {
+      "header": "recon/game/psx/night.h",
+      "counts": {
+        "inventory_candidates": 19,
+        "corrected_public": 19,
+        "removed_file_static": 0,
+        "before_native_references": 0,
+        "after_native_references": 19,
+        "return_type_corrections": 0,
+        "header_compile_failures": 0,
+        "unresolved_header_candidates": 0,
+        "preexisting_compiler_warning_count": 1
+      },
+      "json": "night.json",
+      "markdown": "night.md"
+    },
+    {
+      "header": "recon/game/psx/overlays.h",
+      "counts": {
+        "inventory_candidates": 5,
+        "corrected_public": 5,
+        "removed_file_static": 0,
+        "before_native_references": 0,
+        "after_native_references": 5,
+        "return_type_corrections": 0,
+        "header_compile_failures": 0,
+        "unresolved_header_candidates": 0,
+        "preexisting_compiler_warning_count": 1
+      },
+      "json": "overlays.json",
+      "markdown": "overlays.md"
+    },
+    {
+      "header": "recon/game/psx/platform.h",
+      "counts": {
+        "inventory_candidates": 8,
+        "corrected_public": 8,
+        "removed_file_static": 0,
+        "before_native_references": 0,
+        "after_native_references": 8,
+        "return_type_corrections": 0,
+        "header_compile_failures": 0,
+        "unresolved_header_candidates": 0,
+        "preexisting_compiler_warning_count": 1
+      },
+      "json": "platform.json",
+      "markdown": "platform.md"
+    },
+    {
+      "header": "recon/game/psx/psxcontroller.h",
+      "counts": {
+        "inventory_candidates": 4,
+        "corrected_public": 4,
+        "removed_file_static": 0,
+        "before_native_references": 0,
+        "after_native_references": 4,
+        "return_type_corrections": 0,
+        "header_compile_failures": 0,
+        "unresolved_header_candidates": 0,
+        "preexisting_compiler_warning_count": 1
+      },
+      "json": "psxcontroller.json",
+      "markdown": "psxcontroller.md"
+    },
+    {
+      "header": "recon/game/psx/rpause.h",
+      "counts": {
+        "inventory_candidates": 3,
+        "corrected_public": 3,
+        "removed_file_static": 0,
+        "before_native_references": 0,
+        "after_native_references": 3,
+        "return_type_corrections": 0,
+        "header_compile_failures": 0,
+        "unresolved_header_candidates": 0,
+        "preexisting_compiler_warning_count": 1
+      },
+      "json": "rpause.json",
+      "markdown": "rpause.md"
+    },
+    {
+      "header": "recon/game/psx/sfx.h",
+      "counts": {
+        "inventory_candidates": 7,
+        "corrected_public": 7,
+        "removed_file_static": 0,
+        "before_native_references": 0,
+        "after_native_references": 7,
+        "return_type_corrections": 0,
+        "header_compile_failures": 0,
+        "unresolved_header_candidates": 0,
+        "preexisting_compiler_warning_count": 1
+      },
+      "json": "sfx.json",
+      "markdown": "sfx.md"
+    },
+    {
+      "header": "recon/game/psx/skidmark.h",
+      "counts": {
+        "inventory_candidates": 11,
+        "corrected_public": 11,
+        "removed_file_static": 0,
+        "before_native_references": 0,
+        "after_native_references": 11,
+        "return_type_corrections": 1,
+        "header_compile_failures": 0,
+        "unresolved_header_candidates": 0,
+        "preexisting_compiler_warning_count": 1
+      },
+      "json": "skidmark.json",
+      "markdown": "skidmark.md"
+    },
+    {
+      "header": "recon/game/psx/texture.h",
+      "counts": {
+        "inventory_candidates": 24,
+        "corrected_public": 24,
+        "removed_file_static": 0,
+        "before_native_references": 0,
+        "after_native_references": 24,
+        "return_type_corrections": 0,
+        "header_compile_failures": 0,
+        "unresolved_header_candidates": 0,
+        "preexisting_compiler_warning_count": 1
+      },
+      "json": "texture.json",
+      "markdown": "texture.md"
+    },
+    {
+      "header": "recon/game/psx/textureprocess.h",
+      "counts": {
+        "inventory_candidates": 16,
+        "corrected_public": 16,
+        "removed_file_static": 0,
+        "before_native_references": 0,
+        "after_native_references": 16,
+        "return_type_corrections": 3,
+        "header_compile_failures": 0,
+        "unresolved_header_candidates": 0,
+        "preexisting_compiler_warning_count": 1
+      },
+      "json": "textureprocess.json",
+      "markdown": "textureprocess.md"
+    },
+    {
+      "header": "recon/game/psx/trackspec.h",
+      "counts": {
+        "inventory_candidates": 5,
+        "corrected_public": 5,
+        "removed_file_static": 0,
+        "before_native_references": 0,
+        "after_native_references": 5,
+        "return_type_corrections": 0,
+        "header_compile_failures": 0,
+        "unresolved_header_candidates": 0,
+        "preexisting_compiler_warning_count": 1
+      },
+      "json": "trackspec.json",
+      "markdown": "trackspec.md"
+    },
+    {
+      "header": "recon/game/psx/trsproj.h",
+      "counts": {
+        "inventory_candidates": 11,
+        "corrected_public": 11,
+        "removed_file_static": 0,
+        "before_native_references": 0,
+        "after_native_references": 11,
+        "return_type_corrections": 0,
+        "header_compile_failures": 0,
+        "unresolved_header_candidates": 0,
+        "preexisting_compiler_warning_count": 1
+      },
+      "json": "trsproj.json",
+      "markdown": "trsproj.md"
+    },
+    {
+      "header": "recon/game/psx/weather.h",
+      "counts": {
+        "inventory_candidates": 25,
+        "corrected_public": 25,
+        "removed_file_static": 0,
+        "before_native_references": 0,
+        "after_native_references": 25,
+        "return_type_corrections": 0,
+        "header_compile_failures": 0,
+        "unresolved_header_candidates": 0,
+        "preexisting_compiler_warning_count": 1
+      },
+      "json": "weather.json",
+      "markdown": "weather.md"
+    }
+  ],
+  "limitations": [
+    "This covers the bounded free-function public-header queue, not all project SYM records or every member/multiline ABI declaration.",
+    "Public headers have no real include consumers in the scanned source trees, so these header edits do not change executing function bodies.",
+    "Existing matching misses in night.cpp/weather.cpp were not modified.",
+    "Unknown source parameter names remain unnamed where the matched implementation already omits them; no semantic names were invented."
+  ]
+}

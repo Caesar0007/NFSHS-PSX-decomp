@@ -1,0 +1,581 @@
+{
+  "round": "P875",
+  "header": "recon/game/psx/platform.h",
+  "source_authority": "C:/Temp/nfs4-clean/nfs4-f-v3.txt",
+  "scope": "Free-function public prototype rows from P874 inventory only; not an all-record or all-project source restoration claim.",
+  "counts": {
+    "inventory_candidates": 8,
+    "corrected_public": 8,
+    "removed_file_static": 0,
+    "before_native_references": 0,
+    "after_native_references": 8,
+    "return_type_corrections": 0,
+    "header_compile_failures": 0,
+    "unresolved_header_candidates": 0,
+    "preexisting_compiler_warning_count": 1
+  },
+  "before_actual_header_compile": {
+    "header": "recon/game/psx/platform.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\platform_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\platform_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\platform_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\platform_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\platform_before.s"
+      ]
+    ],
+    "header_sha256": "e5b9d7dba2b926fae06a276c7af11d2c9d42c79755776f03731e9d506cf2e236",
+    "references": {
+      "0": "Platform_InitMemory__Fv__Fv",
+      "1": "Platform_ReserveMemory__FiPc__FiPc",
+      "2": "Platform_TempReserveMemory__FiPc__FiPc",
+      "3": "Platform_SysStartUp__Fv__Fv",
+      "4": "Platform_DebuggerPollHost__Fv__Fv",
+      "5": "nfs2eacinit__Fv__Fv",
+      "6": "Platform_ResetDCTBuffer__Fv__Fv",
+      "7": "Platform_GetDCTBuffer__FiPc__FiPc"
+    },
+    "ok": true,
+    "assembly_sha256": "aa311dd34bfcce14d97318b64d6d895e2c8868df5b4e164c7c7df56600476edb",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".sdata",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\platform.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "gSysStartUp",
+      "Platform_InitMemory__Fv",
+      "Platform_ReserveMemory__FiPc",
+      "Platform_TempReserveMemory__FiPc",
+      "Platform_SysStartUp__Fv",
+      "disablecard",
+      "gDctXtraMem",
+      "gLowMemory",
+      "gHighMemory",
+      "gCurrentMemory",
+      "gTotalMemory",
+      "Platform_DebuggerPollHost__Fv",
+      "nfs2eacinit__Fv",
+      "Platform_ResetDCTBuffer__Fv",
+      "Platform_GetDCTBuffer__FiPc"
+    ]
+  },
+  "before_frozen_replay": {
+    "header": "recon/game/psx/platform.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\platform_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\platform_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\platform_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\platform_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\platform_before.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\platform_before.cpp:2:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "e48257275efd3ce371d2375e4f84b7b432d88b34dc05beb27462a41ad179e1fb",
+    "input_mode": "frozen-original-prototype-surface",
+    "references": {
+      "0": "Platform_InitMemory__Fv__Fv",
+      "1": "Platform_ReserveMemory__FiPc__FiPc",
+      "2": "Platform_TempReserveMemory__FiPc__FiPc",
+      "3": "Platform_SysStartUp__Fv__Fv",
+      "4": "Platform_DebuggerPollHost__Fv__Fv",
+      "5": "nfs2eacinit__Fv__Fv",
+      "6": "Platform_ResetDCTBuffer__Fv__Fv",
+      "7": "Platform_GetDCTBuffer__FiPc__FiPc"
+    },
+    "ok": true,
+    "assembly_sha256": "aa311dd34bfcce14d97318b64d6d895e2c8868df5b4e164c7c7df56600476edb"
+  },
+  "after_actual_header_compile": {
+    "header": "recon/game/psx/platform.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\platform_after.cpp",
+    "stage": "after",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\platform_after.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\platform_after.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\platform_after.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\platform_after.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:/Temp/nfs4-decomp/recon/game/psx/platform.h:4,\n                 from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\platform_after.cpp:1:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "e1c200d0fff53b8420c1677a9d218b81a7ea5fb22ff678ec24c79002905ceb80",
+    "input_mode": "live-public-header",
+    "header_sha256": "0f7bee2d20411fa268b63dc41418f3a6143a909abcc5ce11798415cef942dd39",
+    "references": {
+      "0": "Platform_InitMemory__Fv",
+      "1": "Platform_ReserveMemory__FiPc",
+      "2": "Platform_TempReserveMemory__FiPc",
+      "3": "Platform_SysStartUp__Fv",
+      "4": "Platform_DebuggerPollHost__Fv",
+      "5": "nfs2eacinit__Fv",
+      "6": "Platform_ResetDCTBuffer__Fv",
+      "7": "Platform_GetDCTBuffer__FiPc"
+    },
+    "ok": true,
+    "assembly_sha256": "25ddca8597f0a596995accd753612ab3e5711b30312971c391e07efaa218cafd",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".sdata",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\platform.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "gSysStartUp",
+      "Platform_InitMemory__Fv",
+      "Platform_ReserveMemory__FiPc",
+      "Platform_TempReserveMemory__FiPc",
+      "Platform_SysStartUp__Fv",
+      "disablecard",
+      "gDctXtraMem",
+      "gLowMemory",
+      "gHighMemory",
+      "gCurrentMemory",
+      "gTotalMemory",
+      "Platform_DebuggerPollHost__Fv",
+      "nfs2eacinit__Fv",
+      "Platform_ResetDCTBuffer__Fv",
+      "Platform_GetDCTBuffer__FiPc"
+    ]
+  },
+  "owning_tu_gate": {
+    "source": "recon/game/psx/platform.cpp",
+    "command": [
+      "C:\\Python314\\python.exe",
+      "tools/tugate.py",
+      "recon/game/psx/platform.cpp"
+    ],
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/psx/platform.cpp: 8/8 PASS\n",
+    "stderr": "",
+    "object_sha256": "1e51eba075c693b3fcc554b127deb02f5bee8d39c954e4cd3a96b3420da2445d",
+    "actual_function_symbols": [
+      "Platform_InitMemory__Fv",
+      "Platform_ReserveMemory__FiPc",
+      "Platform_TempReserveMemory__FiPc",
+      "Platform_SysStartUp__Fv",
+      "Platform_DebuggerPollHost__Fv",
+      "nfs2eacinit__Fv",
+      "Platform_ResetDCTBuffer__Fv",
+      "Platform_GetDCTBuffer__FiPc"
+    ],
+    "local_function_symbols": []
+  },
+  "consumer_census": {
+    "files_scanned": 1677,
+    "literal_users": [],
+    "dynamic_includes": []
+  },
+  "unresolved": [],
+  "prototype_receipts": [
+    {
+      "header": "recon/game/psx/platform.h",
+      "line": 6,
+      "encoded": "Platform_InitMemory__Fv",
+      "name": "Platform_InitMemory",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Platform_InitMemory__Fv(void);   /* :125 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "447bc1",
+          "va": "800dc2b8",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Platform_InitMemory",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\platform.cpp",
+          "line": 35,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 50,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Platform_InitMemory(void);   /* SYM 447bc1 @0x800dc2b8 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Platform_InitMemory__Fv__Fv",
+      "after_emitted_reference": "Platform_InitMemory__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/platform.h",
+      "line": 7,
+      "encoded": "Platform_ReserveMemory__FiPc",
+      "name": "Platform_ReserveMemory",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "char * Platform_ReserveMemory__FiPc(int size, char *string);   /* :139 */",
+      "header_return": "char *",
+      "header_signature": "(int size, char *string)",
+      "native": [
+        {
+          "record": "447be6",
+          "va": "800dc2e8",
+          "linkage": "EXT",
+          "return_type": "char*"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Platform_ReserveMemory",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\platform.cpp",
+          "line": 78,
+          "typeref": "typename:char *",
+          "kind": "function",
+          "signature": "(int size,char * string)",
+          "end": 93,
+          "return_type": "char *",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "char *",
+      "final_signature": "(int size,char * string)",
+      "final_prototype": "char * Platform_ReserveMemory(int size,char * string);   /* SYM 447be6 @0x800dc2e8 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Platform_ReserveMemory__FiPc__FiPc",
+      "after_emitted_reference": "Platform_ReserveMemory__FiPc",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/platform.h",
+      "line": 8,
+      "encoded": "Platform_TempReserveMemory__FiPc",
+      "name": "Platform_TempReserveMemory",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "char * Platform_TempReserveMemory__FiPc(int size, char *string);   /* :161 */",
+      "header_return": "char *",
+      "header_signature": "(int size, char *string)",
+      "native": [
+        {
+          "record": "447c10",
+          "va": "800dc334",
+          "linkage": "EXT",
+          "return_type": "char*"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Platform_TempReserveMemory",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\platform.cpp",
+          "line": 113,
+          "typeref": "typename:char *",
+          "kind": "function",
+          "signature": "(int size,char * string)",
+          "end": 122,
+          "return_type": "char *",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "char *",
+      "final_signature": "(int size,char * string)",
+      "final_prototype": "char * Platform_TempReserveMemory(int size,char * string);   /* SYM 447c10 @0x800dc334 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Platform_TempReserveMemory__FiPc__FiPc",
+      "after_emitted_reference": "Platform_TempReserveMemory__FiPc",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/platform.h",
+      "line": 9,
+      "encoded": "Platform_SysStartUp__Fv",
+      "name": "Platform_SysStartUp",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Platform_SysStartUp__Fv(void);   /* :207 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "447c3e",
+          "va": "800dc378",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Platform_SysStartUp",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\platform.cpp",
+          "line": 125,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 145,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Platform_SysStartUp(void);   /* SYM 447c3e @0x800dc378 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Platform_SysStartUp__Fv__Fv",
+      "after_emitted_reference": "Platform_SysStartUp__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/platform.h",
+      "line": 10,
+      "encoded": "Platform_DebuggerPollHost__Fv",
+      "name": "Platform_DebuggerPollHost",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Platform_DebuggerPollHost__Fv(void);   /* :326 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "447c63",
+          "va": "800dc450",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Platform_DebuggerPollHost",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\platform.cpp",
+          "line": 157,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 161,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Platform_DebuggerPollHost(void);   /* SYM 447c63 @0x800dc450 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Platform_DebuggerPollHost__Fv__Fv",
+      "after_emitted_reference": "Platform_DebuggerPollHost__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/platform.h",
+      "line": 11,
+      "encoded": "nfs2eacinit__Fv",
+      "name": "nfs2eacinit",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void nfs2eacinit__Fv(void);   /* :369 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "447c8e",
+          "va": "800dc458",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "nfs2eacinit",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\platform.cpp",
+          "line": 164,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 173,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void nfs2eacinit(void);   /* SYM 447c8e @0x800dc458 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "nfs2eacinit__Fv__Fv",
+      "after_emitted_reference": "nfs2eacinit__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/platform.h",
+      "line": 12,
+      "encoded": "Platform_ResetDCTBuffer__Fv",
+      "name": "Platform_ResetDCTBuffer",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Platform_ResetDCTBuffer__Fv(void);   /* :439 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "447cab",
+          "va": "800dc4a0",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Platform_ResetDCTBuffer",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\platform.cpp",
+          "line": 176,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 181,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Platform_ResetDCTBuffer(void);   /* SYM 447cab @0x800dc4a0 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Platform_ResetDCTBuffer__Fv__Fv",
+      "after_emitted_reference": "Platform_ResetDCTBuffer__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/platform.h",
+      "line": 13,
+      "encoded": "Platform_GetDCTBuffer__FiPc",
+      "name": "Platform_GetDCTBuffer",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "char * Platform_GetDCTBuffer__FiPc(int size, char *string);   /* :444 */",
+      "header_return": "char *",
+      "header_signature": "(int size, char *string)",
+      "native": [
+        {
+          "record": "447cd4",
+          "va": "800dc4b4",
+          "linkage": "EXT",
+          "return_type": "char*"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Platform_GetDCTBuffer",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\platform.cpp",
+          "line": 184,
+          "typeref": "typename:char *",
+          "kind": "function",
+          "signature": "(int size,char * string)",
+          "end": 192,
+          "return_type": "char *",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "char *",
+      "final_signature": "(int size,char * string)",
+      "final_prototype": "char * Platform_GetDCTBuffer(int size,char * string);   /* SYM 447cd4 @0x800dc4b4 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Platform_GetDCTBuffer__FiPc__FiPc",
+      "after_emitted_reference": "Platform_GetDCTBuffer__FiPc",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    }
+  ]
+}

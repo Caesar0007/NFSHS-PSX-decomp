@@ -1,0 +1,35 @@
+/* P875 follow-up typed API references; compile-only, never a game input. */
+#include "p875_common2_original_cars.h"
+void (*p875_common2_cars_0)(Car_tObj *carObj, int arcade) = &Cars_DoGravityEffectsOnAcc__FP8Car_tObji;
+void (*p875_common2_cars_1)(Car_tObj *carObj, int *rpm, int *gear, int *speed) = &Cars_GetDashData__FP8Car_tObjPiN21;
+void (*p875_common2_cars_2)(Car_tObj *carObj) = &Cars_QDUpdateVelGlue__FP8Car_tObj;
+void (*p875_common2_cars_3)(Car_tObj *carObj, int *redline, int *topspeed) = &Cars_InitDashData__FP8Car_tObjPiT1;
+void (*p875_common2_cars_4)(Car_tObj *carObj, int type, int chan, int s1, int s2, int force, int pan) = &Cars_SetAudioCalls__FP8Car_tObjiiiiii;
+void (*p875_common2_cars_5)(void) = &Cars_ResetCarCounters__Fv;
+void (*p875_common2_cars_6)(Car_tObj *carObj) = &Cars_InitStats__FP8Car_tObj;
+void (*p875_common2_cars_7)(Car_tObj *carObj) = &Cars_InitializeCarTablesFlagsAndCounters__FP8Car_tObj;
+void (*p875_common2_cars_8)(Car_tObj *carObj) = &Cars_ResetVariablesAfterACollision__FP8Car_tObj;
+void (*p875_common2_cars_9)(Car_tObj *carObj, int forceReset, int forceParkAtSide) = &Cars_ResetCollidedCars__FP8Car_tObjii;
+void (*p875_common2_cars_10)(Car_tObj *carObj) = &Cars_SetCarUpForHiRezSim__FP8Car_tObj;
+void (*p875_common2_cars_11)(Car_tObj *carObj) = &Cars_DoExtraCarCollisionProcessing__FP8Car_tObj;
+void (*p875_common2_cars_12)(Car_tObj *carObj, int wheel, coorddef *skidpt, int roadSurface, int surfaceType, int drawSkid) = &Cars_AddCarSfx__FP8Car_tObjiP8coorddefiii;
+void (*p875_common2_cars_13)(Car_tObj *carObj) = &Car_TireSkiddingStuff__FP8Car_tObj;
+void (*p875_common2_cars_14)(Car_tObj *carObj) = &Cars_FindTotalSlice__FP8Car_tObj;
+void (*p875_common2_cars_15)(Car_tObj *carObj) = &Car_DoSkiddingStuff__FP8Car_tObj;
+void (*p875_common2_cars_16)(Car_tObj *carObj) = &Car_DoPostCollisionStuff__FP8Car_tObj;
+void (*p875_common2_cars_17)(Car_tObj *carObj, int *slice, coorddef *offset) = &Cars_CalculateStartingGridOffset__FP8Car_tObjPiP8coorddef;
+void (*p875_common2_cars_18)(Car_tObj *carObj, int index) = &Cars_IniCarObjects__FP8Car_tObji;
+void (*p875_common2_cars_19)(Car_tObj *carObj, int index) = &Cars_InitCar__FP8Car_tObji;
+void (*p875_common2_cars_20)(Car_tObj *carObj) = &Cars_DeInitCar__FP8Car_tObj;
+void (*p875_common2_cars_21)(void) = &Cars_Restart__Fv;
+void (*p875_common2_cars_22)(char *mem, int size) = &Cars_Initialize__FPci;
+void (*p875_common2_cars_23)(void) = &Cars_StartUp__Fv;
+void (*p875_common2_cars_24)(void) = &Cars_CleanUp__Fv;
+void (*p875_common2_cars_25)(Car_tObj *carObj) = &Cars_FindCurrentLap__FP8Car_tObj;
+int (*p875_common2_cars_26)(Car_tObj *carObj) = &Cars_CalculateRoadSpan__FP8Car_tObj;
+int (*p875_common2_cars_27)(Car_tObj *carObj) = &Cars_CalculateRoadPosition__FP8Car_tObj;
+int (*p875_common2_cars_28)(Car_tObj *carObj) = &Cars_CalcVelDownRoad__FP8Car_tObj;
+void (*p875_common2_cars_29)(void) = &Cars_Randomize__Fv;
+void (*p875_common2_cars_30)(void) = &Cars_ManageBureaucracy__Fv;
+void (*p875_common2_cars_31)(void) = &Cars_CheckForAccidentScenes__Fv;
+void (*p875_common2_cars_32)(void) = &Cars_SortCars__Fv;

@@ -1,0 +1,29 @@
+/* P875 follow-up typed API references; compile-only, never a game input. */
+#include "p875_common2_original_copspeak.h"
+void (*p875_common2_copspeak_0)(void) = &CopSpeak_RadioStaticInit__Fv;
+void (*p875_common2_copspeak_1)(int noise) = &CopSpeak_RadioStaticActive__Fi;
+void (*p875_common2_copspeak_2)(void) = &CopSpeak_RadioStaticSquelch__Fv;
+void (*p875_common2_copspeak_3)(CopSpeak_tRequest *r) = &CopSpeak_InitRequest__FP17CopSpeak_tRequest;
+void (*p875_common2_copspeak_4)(Car_tObj *car, int playerIndex) = &CopSpeak_SilenceCop__FP8Car_tObji;
+void (*p875_common2_copspeak_5)(CopSpeak_tRequest *r) = &CopSpeak_Alloc__FP17CopSpeak_tRequest;
+void (*p875_common2_copspeak_6)(CopSpeak_tRequest *r) = &CopSpeak_Free__FP17CopSpeak_tRequest;
+void (*p875_common2_copspeak_7)(void) = &CopSpeak_ReadyNextRequest__Fv;
+void (*p875_common2_copspeak_8)(void) = &CopSpeak_Cancel__Fv;
+void (*p875_common2_copspeak_9)(void) = &CopSpeak_Stop__Fv;
+void (*p875_common2_copspeak_10)(void) = &CopSpeak_CleanUp__Fv;
+void (*p875_common2_copspeak_11)(void) = &CopSpeak_InitVars__Fv;
+void (*p875_common2_copspeak_12)(int filehandle, long offset, long size, Car_tObj *car, char *name) = &CopSpeak_DirectRequest__FillP8Car_tObjPc;
+void (*p875_common2_copspeak_13)(int patch, Car_tObj *car) = &CopSpeak_GenericBankRequest__FiP8Car_tObj;
+void (*p875_common2_copspeak_14)(void) = &CopSpeak_StartUp__Fv;
+int (*p875_common2_copspeak_15)(int type, int timbre) = &CopSpeak_GetEnginePatch__Fii;
+int (*p875_common2_copspeak_16)(CopSpeak_tRequest *r, int handle) = &CopSpeak_Play__FP17CopSpeak_tRequesti;
+void (*p875_common2_copspeak_17)(void) = &CopSpeak_Skip__Fv;
+int (*p875_common2_copspeak_18)(CopSpeak_tRequest *r) = &CopSpeak_Request__FP17CopSpeak_tRequest;
+int (*p875_common2_copspeak_19)(CopSpeak_tRequest *r) = &CopSpeak_BankVolume__FP17CopSpeak_tRequest;
+void (*p875_common2_copspeak_20)(void) = &CopSpeak_LoadNextRequest__Fv;
+void (*p875_common2_copspeak_21)(void) = &CopSpeak_PlayNextRequest__Fv;
+void (*p875_common2_copspeak_22)(void) = &CopSpeak_Flush__Fv;
+void (*p875_common2_copspeak_23)(void) = &CopSpeak_Server__Fv;
+int (*p875_common2_copspeak_24)(void) = &CopSpeak_SfxQueued__Fv;
+void (*p875_common2_copspeak_25)(void) = &CopSpeak_ShowQueue__Fv;
+void (*p875_common2_copspeak_26)(void) = &CopSpeak_Debug__Fv;

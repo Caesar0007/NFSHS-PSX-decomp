@@ -1,0 +1,129 @@
+{
+  "functions": 16,
+  "raw_words": 2252,
+  "native_records": [
+    {
+      "function": "Replay_Compress__FPc",
+      "native_record": "329963: $800b3c4c 94 Def class EXT type FCN PTR CHAR size 0 name Replay_Compress__FPc",
+      "raw_words": 49
+    },
+    {
+      "function": "Replay_Decompress__FPc",
+      "native_record": "329985: $800b3d10 94 Def class EXT type FCN PTR CHAR size 0 name Replay_Decompress__FPc",
+      "raw_words": 36
+    },
+    {
+      "function": "Replay_InitReplay__Fv",
+      "native_record": "3299a9: $800b3da0 94 Def class EXT type FCN VOID size 0 name Replay_InitReplay__Fv",
+      "raw_words": 105
+    },
+    {
+      "function": "Replay_ResetReplay__Fv",
+      "native_record": "3299cc: $800b3f44 94 Def class EXT type FCN VOID size 0 name Replay_ResetReplay__Fv",
+      "raw_words": 86
+    },
+    {
+      "function": "Replay_StoringReplay__Fv",
+      "native_record": "3299f0: $800b409c 94 Def class EXT type FCN VOID size 0 name Replay_StoringReplay__Fv",
+      "raw_words": 8
+    },
+    {
+      "function": "Replay_StoringControllerData__FG15tControllerData",
+      "native_record": "329a16: $800b40bc 94 Def class EXT type FCN VOID size 0 name Replay_StoringControllerData__FG15tControllerData",
+      "raw_words": 243
+    },
+    {
+      "function": "Replay_RetreivingControllerData__Fv",
+      "native_record": "329a55: $800b4488 96 Def2 class EXT type FCN STRUCT size 128 dims 0 tag tControllerData name Replay_RetreivingControllerData__Fv",
+      "raw_words": 231
+    },
+    {
+      "function": "Replay_SaveInput__Fi",
+      "native_record": "329a98: $800b4824 94 Def class EXT type FCN VOID size 0 name Replay_SaveInput__Fi",
+      "raw_words": 197
+    },
+    {
+      "function": "Replay_GetInput__Fi",
+      "native_record": "329aba: $800b4b38 94 Def class EXT type FCN VOID size 0 name Replay_GetInput__Fi",
+      "raw_words": 280
+    },
+    {
+      "function": "Replay_SaveReplay__Fv",
+      "native_record": "329adb: $800b4f98 94 Def class EXT type FCN VOID size 0 name Replay_SaveReplay__Fv",
+      "raw_words": 35
+    },
+    {
+      "function": "Replay_LoadReplay__Fv",
+      "native_record": "329afe: $800b5024 94 Def class EXT type FCN VOID size 0 name Replay_LoadReplay__Fv",
+      "raw_words": 2
+    },
+    {
+      "function": "Replay_DoReplay__FP8Car_tObj",
+      "native_record": "329b21: $800b502c 94 Def class EXT type FCN VOID size 0 name Replay_DoReplay__FP8Car_tObj",
+      "raw_words": 17
+    },
+    {
+      "function": "Replay_GetInterfaceKey__Fv",
+      "native_record": "329b4b: $800b5070 94 Def class EXT type FCN VOID size 0 name Replay_GetInterfaceKey__Fv",
+      "raw_words": 292
+    },
+    {
+      "function": "Replay_LoadCameraFile__Fv",
+      "native_record": "329b73: $800b5500 94 Def class EXT type FCN VOID size 0 name Replay_LoadCameraFile__Fv",
+      "raw_words": 219
+    },
+    {
+      "function": "Replay_ReplayChooseCamera__Fii",
+      "native_record": "329b9a: $800b586c 94 Def class EXT type FCN VOID size 0 name Replay_ReplayChooseCamera__Fii",
+      "raw_words": 170
+    },
+    {
+      "function": "Replay_ReplayFindClosestCamera__Fii",
+      "native_record": "329bc6: $800b5b14 94 Def class EXT type FCN VOID size 0 name Replay_ReplayFindClosestCamera__Fii",
+      "raw_words": 282
+    }
+  ],
+  "checks": [
+    {
+      "command": [
+        "tools/tugate.py",
+        "recon/game/common/replay.cpp"
+      ],
+      "stdout": "  __none__: NO ORACLE\nrecon/game/common/replay.cpp: 16/16 PASS\n",
+      "stderr": "",
+      "returncode": 0
+    },
+    {
+      "command": [
+        "tools/brdist.py",
+        "recon/game/common/replay.cpp"
+      ],
+      "stdout": "# 16 fns checked, 0 with branch-offset/count divergence\n",
+      "stderr": "",
+      "returncode": 0
+    },
+    {
+      "command": [
+        "tools/diffsrc.py",
+        "recon/game/common/replay.cpp",
+        "Replay_StoringControllerData__FG15tControllerData"
+      ],
+      "stdout": "Replay_StoringControllerData__FG15tControllerData: 0 diff insns across 0 blocks (ours 243 / oracle 243; -g twin EXACT)\n\nSOURCE-STATEMENT HOTSPOTS (our diff insns per line):\n",
+      "stderr": "",
+      "returncode": 0
+    },
+    {
+      "command": [
+        "tools/diffsrc.py",
+        "recon/game/common/replay.cpp",
+        "Replay_ResetReplay__Fv"
+      ],
+      "stdout": "Replay_ResetReplay__Fv: 0 diff insns across 0 blocks (ours 86 / oracle 86; -g twin EXACT)\n\nSOURCE-STATEMENT HOTSPOTS (our diff insns per line):\n",
+      "stderr": "",
+      "returncode": 0
+    }
+  ],
+  "source_sha256": "d0badae5e7e84e1c45ec81cd475fa09c90d51f2274cedb315ad0461b0312737f",
+  "final_object_sha256": "ef13e273eff6b799c58a324040fc37b3cce9c3940f74c5bd66d516db072fbf39",
+  "equals_old_normal_mixed_object": true
+}

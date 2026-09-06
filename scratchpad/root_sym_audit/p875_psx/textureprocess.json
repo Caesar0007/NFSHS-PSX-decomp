@@ -1,0 +1,967 @@
+{
+  "round": "P875",
+  "header": "recon/game/psx/textureprocess.h",
+  "source_authority": "C:/Temp/nfs4-clean/nfs4-f-v3.txt",
+  "scope": "Free-function public prototype rows from P874 inventory only; not an all-record or all-project source restoration claim.",
+  "counts": {
+    "inventory_candidates": 16,
+    "corrected_public": 16,
+    "removed_file_static": 0,
+    "before_native_references": 0,
+    "after_native_references": 16,
+    "return_type_corrections": 3,
+    "header_compile_failures": 0,
+    "unresolved_header_candidates": 0,
+    "preexisting_compiler_warning_count": 1
+  },
+  "before_actual_header_compile": {
+    "header": "recon/game/psx/textureprocess.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\textureprocess_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\textureprocess_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\textureprocess_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\textureprocess_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\textureprocess_before.s"
+      ]
+    ],
+    "header_sha256": "f418d5460eac69789a8ed98de6c0d0785997b3da82f34edd565c323182658298",
+    "references": {
+      "0": "TextureProcess_TransColorCheck__FPci__FPci",
+      "1": "TextureProcess_ColorClut__FiiPciii__FiiPciii",
+      "2": "TextureProcess_DepthColorCluts__FPci__FPci",
+      "3": "Fog_CheckRange__FiP6FogKey__FiP6FogKey",
+      "4": "Fog_FindKey__FiP6FogKey__FiP6FogKey",
+      "5": "Fog_AllocKey__Fv__Fv",
+      "6": "Fog_AddKey__Fii__Fii",
+      "7": "Fog_Update__Fi__Fi",
+      "8": "Fog_MakeTrackPathName__FPc__FPc",
+      "9": "Fog_ReadFogKeys__Fv__Fv",
+      "10": "Fog_InitFogTriggers__Fv__Fv",
+      "11": "Fog_DeInitFogTriggers__Fv__Fv",
+      "12": "TextureProcess_Init__Fv__Fv",
+      "13": "CV_ProcessWorldColors_FINAL__FiP7CVECTORs__FiP7CVECTORs",
+      "14": "CV_ColorTracks__Fiii__Fiii",
+      "15": "CV_InitColorVertices__Fv__Fv"
+    },
+    "ok": true,
+    "assembly_sha256": "86a3df932ed7cc773f3361e8dacaac5ea0cba8331d0b5045af962807dd69f3a5",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".rodata",
+      ".sdata",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\textureprocess.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "TextureProcess_TransColorCheck__FPci",
+      "TextureProcess_ColorClut__FiiPciii",
+      "TextureProcess_DepthColorCluts__FPci",
+      "Fog_CheckRange__FiP6FogKey",
+      "Fog_FindKey__FiP6FogKey",
+      "Fog_AllocKey__Fv",
+      "Fog_AddKey__Fii",
+      "Fog_Update__Fi",
+      "Fog_MakeTrackPathName__FPc",
+      "Fog_ReadFogKeys__Fv",
+      "Fog_InitFogTriggers__Fv",
+      "Fog_DeInitFogTriggers__Fv",
+      "TextureProcess_Init__Fv",
+      "CV_ProcessWorldColors_FINAL__FiP7CVECTORs",
+      "CV_ColorTracks__Fiii",
+      "CV_InitColorVertices__Fv",
+      "gZDepth",
+      "TP_gZPaletteSystem",
+      "Fog_gNumKeys",
+      "Fog_gCurrentKey",
+      "Fog_gHeadKey",
+      "fogslicePos",
+      "fogstrspc.22"
+    ]
+  },
+  "before_frozen_replay": {
+    "header": "recon/game/psx/textureprocess.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\textureprocess_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\textureprocess_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\textureprocess_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\textureprocess_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\textureprocess_before.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\textureprocess_before.cpp:2:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "25d29d8d2fcec97b421765fd3304c6a1f2b6019c204d9ac75106b2dbe54178ad",
+    "input_mode": "frozen-original-prototype-surface",
+    "references": {
+      "0": "TextureProcess_TransColorCheck__FPci__FPci",
+      "1": "TextureProcess_ColorClut__FiiPciii__FiiPciii",
+      "2": "TextureProcess_DepthColorCluts__FPci__FPci",
+      "3": "Fog_CheckRange__FiP6FogKey__FiP6FogKey",
+      "4": "Fog_FindKey__FiP6FogKey__FiP6FogKey",
+      "5": "Fog_AllocKey__Fv__Fv",
+      "6": "Fog_AddKey__Fii__Fii",
+      "7": "Fog_Update__Fi__Fi",
+      "8": "Fog_MakeTrackPathName__FPc__FPc",
+      "9": "Fog_ReadFogKeys__Fv__Fv",
+      "10": "Fog_InitFogTriggers__Fv__Fv",
+      "11": "Fog_DeInitFogTriggers__Fv__Fv",
+      "12": "TextureProcess_Init__Fv__Fv",
+      "13": "CV_ProcessWorldColors_FINAL__FiP7CVECTORs__FiP7CVECTORs",
+      "14": "CV_ColorTracks__Fiii__Fiii",
+      "15": "CV_InitColorVertices__Fv__Fv"
+    },
+    "ok": true,
+    "assembly_sha256": "86a3df932ed7cc773f3361e8dacaac5ea0cba8331d0b5045af962807dd69f3a5"
+  },
+  "after_actual_header_compile": {
+    "header": "recon/game/psx/textureprocess.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\textureprocess_after.cpp",
+    "stage": "after",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\textureprocess_after.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\textureprocess_after.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\textureprocess_after.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\textureprocess_after.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:/Temp/nfs4-decomp/recon/game/psx/textureprocess.h:4,\n                 from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\textureprocess_after.cpp:1:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "afb7182aea60a758e2058efb7e4fb41bb83596baa2f2cd9406cf1300aa49d6c1",
+    "input_mode": "live-public-header",
+    "header_sha256": "aa80dab952043f5442baf15d9c5fc51e74941911c0e2fc0d7f984e4ab460734f",
+    "references": {
+      "0": "TextureProcess_TransColorCheck__FPci",
+      "1": "TextureProcess_ColorClut__FiiPciii",
+      "2": "TextureProcess_DepthColorCluts__FPci",
+      "3": "Fog_CheckRange__FiP6FogKey",
+      "4": "Fog_FindKey__FiP6FogKey",
+      "5": "Fog_AllocKey__Fv",
+      "6": "Fog_AddKey__Fii",
+      "7": "Fog_Update__Fi",
+      "8": "Fog_MakeTrackPathName__FPc",
+      "9": "Fog_ReadFogKeys__Fv",
+      "10": "Fog_InitFogTriggers__Fv",
+      "11": "Fog_DeInitFogTriggers__Fv",
+      "12": "TextureProcess_Init__Fv",
+      "13": "CV_ProcessWorldColors_FINAL__FiP7CVECTORs",
+      "14": "CV_ColorTracks__Fiii",
+      "15": "CV_InitColorVertices__Fv"
+    },
+    "ok": true,
+    "assembly_sha256": "5dac345c31da7ccde3c7971894ce2d33b42008ea244a8ec1892c5d4610ae70b0",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".rodata",
+      ".sdata",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\textureprocess.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "TextureProcess_TransColorCheck__FPci",
+      "TextureProcess_ColorClut__FiiPciii",
+      "TextureProcess_DepthColorCluts__FPci",
+      "Fog_CheckRange__FiP6FogKey",
+      "Fog_FindKey__FiP6FogKey",
+      "Fog_AllocKey__Fv",
+      "Fog_AddKey__Fii",
+      "Fog_Update__Fi",
+      "Fog_MakeTrackPathName__FPc",
+      "Fog_ReadFogKeys__Fv",
+      "Fog_InitFogTriggers__Fv",
+      "Fog_DeInitFogTriggers__Fv",
+      "TextureProcess_Init__Fv",
+      "CV_ProcessWorldColors_FINAL__FiP7CVECTORs",
+      "CV_ColorTracks__Fiii",
+      "CV_InitColorVertices__Fv",
+      "gZDepth",
+      "TP_gZPaletteSystem",
+      "Fog_gNumKeys",
+      "Fog_gCurrentKey",
+      "Fog_gHeadKey",
+      "fogslicePos",
+      "fogstrspc.22"
+    ]
+  },
+  "owning_tu_gate": {
+    "source": "recon/game/psx/textureprocess.cpp",
+    "command": [
+      "C:\\Python314\\python.exe",
+      "tools/tugate.py",
+      "recon/game/psx/textureprocess.cpp"
+    ],
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/psx/textureprocess.cpp: 16/16 PASS\n",
+    "stderr": "",
+    "object_sha256": "0996bdfc40178693f4529a8f3ab5ac207cd5548cfea2211c888a43b5b24054f3",
+    "actual_function_symbols": [
+      "TextureProcess_TransColorCheck__FPci",
+      "TextureProcess_ColorClut__FiiPciii",
+      "TextureProcess_DepthColorCluts__FPci",
+      "Fog_CheckRange__FiP6FogKey",
+      "Fog_FindKey__FiP6FogKey",
+      "Fog_AllocKey__Fv",
+      "Fog_AddKey__Fii",
+      "Fog_Update__Fi",
+      "Fog_MakeTrackPathName__FPc",
+      "Fog_ReadFogKeys__Fv",
+      "Fog_InitFogTriggers__Fv",
+      "Fog_DeInitFogTriggers__Fv",
+      "TextureProcess_Init__Fv",
+      "CV_ProcessWorldColors_FINAL__FiP7CVECTORs",
+      "CV_ColorTracks__Fiii",
+      "CV_InitColorVertices__Fv"
+    ],
+    "local_function_symbols": []
+  },
+  "consumer_census": {
+    "files_scanned": 1677,
+    "literal_users": [],
+    "dynamic_includes": []
+  },
+  "unresolved": [],
+  "prototype_receipts": [
+    {
+      "header": "recon/game/psx/textureprocess.h",
+      "line": 6,
+      "encoded": "TextureProcess_TransColorCheck__FPci",
+      "name": "TextureProcess_TransColorCheck",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "int TextureProcess_TransColorCheck__FPci(char *data, int numentry);   /* :47 */",
+      "header_return": "int",
+      "header_signature": "(char *data, int numentry)",
+      "native": [
+        {
+          "record": "475dcf",
+          "va": "800e0884",
+          "linkage": "EXT",
+          "return_type": "int"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "TextureProcess_TransColorCheck",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\textureprocess.cpp",
+          "line": 18,
+          "typeref": "typename:int",
+          "kind": "function",
+          "signature": "(char * data,int numentry)",
+          "end": 31,
+          "return_type": "int",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "int",
+      "final_signature": "(char * data,int numentry)",
+      "final_prototype": "int TextureProcess_TransColorCheck(char * data,int numentry);   /* SYM 475dcf @0x800e0884 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "TextureProcess_TransColorCheck__FPci__FPci",
+      "after_emitted_reference": "TextureProcess_TransColorCheck__FPci",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/textureprocess.h",
+      "line": 7,
+      "encoded": "TextureProcess_ColorClut__FiiPciii",
+      "name": "TextureProcess_ColorClut",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void TextureProcess_ColorClut__FiiPciii(int level, int maxlevel, char *data, int numentry, int cx, int cy);   /* :356 */",
+      "header_return": "void",
+      "header_signature": "(int level, int maxlevel, char *data, int numentry, int cx, int cy)",
+      "native": [
+        {
+          "record": "475e01",
+          "va": "800e08b8",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "TextureProcess_ColorClut",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\textureprocess.cpp",
+          "line": 34,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int level,int maxlevel,char * data,int numentry,int cx,int cy)",
+          "end": 106,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int level,int maxlevel,char * data,int numentry,int cx,int cy)",
+      "final_prototype": "void TextureProcess_ColorClut(int level,int maxlevel,char * data,int numentry,int cx,int cy);   /* SYM 475e01 @0x800e08b8 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "TextureProcess_ColorClut__FiiPciii__FiiPciii",
+      "after_emitted_reference": "TextureProcess_ColorClut__FiiPciii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/textureprocess.h",
+      "line": 8,
+      "encoded": "TextureProcess_DepthColorCluts__FPci",
+      "name": "TextureProcess_DepthColorCluts",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "int TextureProcess_DepthColorCluts__FPci(char *data, int numentry);   /* :422 */",
+      "header_return": "int",
+      "header_signature": "(char *data, int numentry)",
+      "native": [
+        {
+          "record": "475e31",
+          "va": "800e0ac0",
+          "linkage": "EXT",
+          "return_type": "int"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "TextureProcess_DepthColorCluts",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\textureprocess.cpp",
+          "line": 109,
+          "typeref": "typename:int",
+          "kind": "function",
+          "signature": "(char * data,int numentry)",
+          "end": 125,
+          "return_type": "int",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "int",
+      "final_signature": "(char * data,int numentry)",
+      "final_prototype": "int TextureProcess_DepthColorCluts(char * data,int numentry);   /* SYM 475e31 @0x800e0ac0 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "TextureProcess_DepthColorCluts__FPci__FPci",
+      "after_emitted_reference": "TextureProcess_DepthColorCluts__FPci",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/textureprocess.h",
+      "line": 9,
+      "encoded": "Fog_CheckRange__FiP6FogKey",
+      "name": "Fog_CheckRange",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void * Fog_CheckRange__FiP6FogKey(int currentslice, FogKey *fkey);   /* :639 */",
+      "header_return": "void *",
+      "header_signature": "(int currentslice, FogKey *fkey)",
+      "native": [
+        {
+          "record": "475e63",
+          "va": "800e0b98",
+          "linkage": "EXT",
+          "return_type": "FogKey*"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Fog_CheckRange",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\textureprocess.cpp",
+          "line": 128,
+          "typeref": "typename:FogKey *",
+          "kind": "function",
+          "signature": "(int currentslice,FogKey * fkey)",
+          "end": 152,
+          "return_type": "FogKey *",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "FogKey *",
+      "final_signature": "(int currentslice,FogKey * fkey)",
+      "final_prototype": "FogKey * Fog_CheckRange(int currentslice,FogKey * fkey);   /* SYM 475e63 @0x800e0b98 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Fog_CheckRange__FiP6FogKey__FiP6FogKey",
+      "after_emitted_reference": "Fog_CheckRange__FiP6FogKey",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/textureprocess.h",
+      "line": 10,
+      "encoded": "Fog_FindKey__FiP6FogKey",
+      "name": "Fog_FindKey",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void * Fog_FindKey__FiP6FogKey(int currentslice, FogKey *fkey);   /* :665 */",
+      "header_return": "void *",
+      "header_signature": "(int currentslice, FogKey *fkey)",
+      "native": [
+        {
+          "record": "475e94",
+          "va": "800e0bec",
+          "linkage": "EXT",
+          "return_type": "FogKey*"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Fog_FindKey",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\textureprocess.cpp",
+          "line": 155,
+          "typeref": "typename:FogKey *",
+          "kind": "function",
+          "signature": "(int currentslice,FogKey * fkey)",
+          "end": 174,
+          "return_type": "FogKey *",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "FogKey *",
+      "final_signature": "(int currentslice,FogKey * fkey)",
+      "final_prototype": "FogKey * Fog_FindKey(int currentslice,FogKey * fkey);   /* SYM 475e94 @0x800e0bec */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Fog_FindKey__FiP6FogKey__FiP6FogKey",
+      "after_emitted_reference": "Fog_FindKey__FiP6FogKey",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/textureprocess.h",
+      "line": 11,
+      "encoded": "Fog_AllocKey__Fv",
+      "name": "Fog_AllocKey",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void * Fog_AllocKey__Fv(void);   /* :716 */",
+      "header_return": "void *",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "475ec2",
+          "va": "800e0c80",
+          "linkage": "EXT",
+          "return_type": "FogKey*"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Fog_AllocKey",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\textureprocess.cpp",
+          "line": 177,
+          "typeref": "typename:FogKey *",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 201,
+          "return_type": "FogKey *",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "FogKey *",
+      "final_signature": "(void)",
+      "final_prototype": "FogKey * Fog_AllocKey(void);   /* SYM 475ec2 @0x800e0c80 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Fog_AllocKey__Fv__Fv",
+      "after_emitted_reference": "Fog_AllocKey__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/textureprocess.h",
+      "line": 12,
+      "encoded": "Fog_AddKey__Fii",
+      "name": "Fog_AddKey",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Fog_AddKey__Fii(int slice, int distance);   /* :733 */",
+      "header_return": "void",
+      "header_signature": "(int slice, int distance)",
+      "native": [
+        {
+          "record": "475ee9",
+          "va": "800e0ccc",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Fog_AddKey",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\textureprocess.cpp",
+          "line": 204,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int slice,int distance)",
+          "end": 237,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int slice,int distance)",
+      "final_prototype": "void Fog_AddKey(int slice,int distance);   /* SYM 475ee9 @0x800e0ccc */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Fog_AddKey__Fii__Fii",
+      "after_emitted_reference": "Fog_AddKey__Fii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/textureprocess.h",
+      "line": 13,
+      "encoded": "Fog_Update__Fi",
+      "name": "Fog_Update",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Fog_Update__Fi(int player);   /* :840 */",
+      "header_return": "void",
+      "header_signature": "(int player)",
+      "native": [
+        {
+          "record": "475f06",
+          "va": "800e0d80",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Fog_Update",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\textureprocess.cpp",
+          "line": 243,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int player)",
+          "end": 292,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int player)",
+      "final_prototype": "void Fog_Update(int player);   /* SYM 475f06 @0x800e0d80 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Fog_Update__Fi__Fi",
+      "after_emitted_reference": "Fog_Update__Fi",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/textureprocess.h",
+      "line": 14,
+      "encoded": "Fog_MakeTrackPathName__FPc",
+      "name": "Fog_MakeTrackPathName",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "char * Fog_MakeTrackPathName__FPc(char *ext);   /* :1015 */",
+      "header_return": "char *",
+      "header_signature": "(char *ext)",
+      "native": [
+        {
+          "record": "475f22",
+          "va": "800e0ec4",
+          "linkage": "EXT",
+          "return_type": "char*"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Fog_MakeTrackPathName",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\textureprocess.cpp",
+          "line": 295,
+          "typeref": "typename:char *",
+          "kind": "function",
+          "signature": "(char * ext)",
+          "end": 302,
+          "return_type": "char *",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "char *",
+      "final_signature": "(char * ext)",
+      "final_prototype": "char * Fog_MakeTrackPathName(char * ext);   /* SYM 475f22 @0x800e0ec4 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Fog_MakeTrackPathName__FPc__FPc",
+      "after_emitted_reference": "Fog_MakeTrackPathName__FPc",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/textureprocess.h",
+      "line": 15,
+      "encoded": "Fog_ReadFogKeys__Fv",
+      "name": "Fog_ReadFogKeys",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "int Fog_ReadFogKeys__Fv(void);   /* :1026 */",
+      "header_return": "int",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "475f4a",
+          "va": "800e0f14",
+          "linkage": "EXT",
+          "return_type": "int"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Fog_ReadFogKeys",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\textureprocess.cpp",
+          "line": 305,
+          "typeref": "typename:int",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 362,
+          "return_type": "int",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "int",
+      "final_signature": "(void)",
+      "final_prototype": "int Fog_ReadFogKeys(void);   /* SYM 475f4a @0x800e0f14 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Fog_ReadFogKeys__Fv__Fv",
+      "after_emitted_reference": "Fog_ReadFogKeys__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/textureprocess.h",
+      "line": 16,
+      "encoded": "Fog_InitFogTriggers__Fv",
+      "name": "Fog_InitFogTriggers",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Fog_InitFogTriggers__Fv(void);   /* :1082 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "475f6b",
+          "va": "800e102c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Fog_InitFogTriggers",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\textureprocess.cpp",
+          "line": 365,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 474,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Fog_InitFogTriggers(void);   /* SYM 475f6b @0x800e102c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Fog_InitFogTriggers__Fv__Fv",
+      "after_emitted_reference": "Fog_InitFogTriggers__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/textureprocess.h",
+      "line": 17,
+      "encoded": "Fog_DeInitFogTriggers__Fv",
+      "name": "Fog_DeInitFogTriggers",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Fog_DeInitFogTriggers__Fv(void);   /* :1123 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "475f90",
+          "va": "800e1110",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Fog_DeInitFogTriggers",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\textureprocess.cpp",
+          "line": 477,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 482,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Fog_DeInitFogTriggers(void);   /* SYM 475f90 @0x800e1110 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Fog_DeInitFogTriggers__Fv__Fv",
+      "after_emitted_reference": "Fog_DeInitFogTriggers__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/textureprocess.h",
+      "line": 18,
+      "encoded": "TextureProcess_Init__Fv",
+      "name": "TextureProcess_Init",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void TextureProcess_Init__Fv(void);   /* :1135 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "475fb7",
+          "va": "800e1134",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "TextureProcess_Init",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\textureprocess.cpp",
+          "line": 485,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 491,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void TextureProcess_Init(void);   /* SYM 475fb7 @0x800e1134 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "TextureProcess_Init__Fv__Fv",
+      "after_emitted_reference": "TextureProcess_Init__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/textureprocess.h",
+      "line": 19,
+      "encoded": "CV_ProcessWorldColors_FINAL__FiP7CVECTORs",
+      "name": "CV_ProcessWorldColors_FINAL",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void CV_ProcessWorldColors_FINAL__FiP7CVECTORs(int constrast, CVECTOR *color, short brightness);   /* :1156 */",
+      "header_return": "void",
+      "header_signature": "(int constrast, CVECTOR *color, short brightness)",
+      "native": [
+        {
+          "record": "475fdc",
+          "va": "800e1148",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "CV_ProcessWorldColors_FINAL",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\textureprocess.cpp",
+          "line": 494,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int constrast,CVECTOR * color,short brightness)",
+          "end": 536,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int constrast,CVECTOR * color,short brightness)",
+      "final_prototype": "void CV_ProcessWorldColors_FINAL(int constrast,CVECTOR * color,short brightness);   /* SYM 475fdc @0x800e1148 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "CV_ProcessWorldColors_FINAL__FiP7CVECTORs__FiP7CVECTORs",
+      "after_emitted_reference": "CV_ProcessWorldColors_FINAL__FiP7CVECTORs",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/textureprocess.h",
+      "line": 20,
+      "encoded": "CV_ColorTracks__Fiii",
+      "name": "CV_ColorTracks",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void CV_ColorTracks__Fiii(int track, int weather, int night);   /* :1183 */",
+      "header_return": "void",
+      "header_signature": "(int track, int weather, int night)",
+      "native": [
+        {
+          "record": "476013",
+          "va": "800e1308",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "CV_ColorTracks",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\textureprocess.cpp",
+          "line": 539,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int track,int weather,int night)",
+          "end": 694,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int track,int weather,int night)",
+      "final_prototype": "void CV_ColorTracks(int track,int weather,int night);   /* SYM 476013 @0x800e1308 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "CV_ColorTracks__Fiii__Fiii",
+      "after_emitted_reference": "CV_ColorTracks__Fiii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/textureprocess.h",
+      "line": 21,
+      "encoded": "CV_InitColorVertices__Fv",
+      "name": "CV_InitColorVertices",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void CV_InitColorVertices__Fv(void);   /* :1539 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "476035",
+          "va": "800e1510",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "CV_InitColorVertices",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\textureprocess.cpp",
+          "line": 697,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 702,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void CV_InitColorVertices(void);   /* SYM 476035 @0x800e1510 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "CV_InitColorVertices__Fv__Fv",
+      "after_emitted_reference": "CV_InitColorVertices__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    }
+  ]
+}

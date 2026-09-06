@@ -1,0 +1,2321 @@
+[
+  {
+    "unit": "audioclc",
+    "symbol": "AudioClc_SndError__Fi",
+    "name": "AudioClc_SndError",
+    "old_return": "void",
+    "old_args": "int shandle",
+    "definition": [
+      "void AudioClc_SndError(int shandle)"
+    ],
+    "native": {
+      "record": "1806e7",
+      "va": "80074730",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [
+      "180ac1: $00000004 94 Def class REGPARM type INT size 0 name shandle"
+    ],
+    "line": "void AudioClc_SndError__Fi(int shandle);   /* :113 */",
+    "corrected": "void AudioClc_SndError(int shandle);"
+  },
+  {
+    "unit": "audioclc",
+    "symbol": "AudioClc_SetHorn__FP8Car_tObji",
+    "name": "AudioClc_SetHorn",
+    "old_return": "void",
+    "old_args": "Car_tObj *car, int state",
+    "definition": [
+      "void AudioClc_SetHorn(Car_tObj *car,int state)"
+    ],
+    "native": {
+      "record": "18070a",
+      "va": "80074738",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [
+      "180b4a: $00000004 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name car",
+      "180b66: $00000005 94 Def class REGPARM type INT size 0 name state"
+    ],
+    "line": "void AudioClc_SetHorn__FP8Car_tObji(Car_tObj *car, int state);   /* :214 */",
+    "corrected": "void AudioClc_SetHorn(Car_tObj *car,int state);"
+  },
+  {
+    "unit": "audioclc",
+    "symbol": "AudioClc_HonkHorn__FP8Car_tObjiii",
+    "name": "AudioClc_HonkHorn",
+    "old_return": "void",
+    "old_args": "Car_tObj *car, int numBeeps, int ticksOn, int ticksOff",
+    "definition": [
+      "void AudioClc_HonkHorn(Car_tObj *car,int numBeeps,int ticksOn,int ticksOff)"
+    ],
+    "native": {
+      "record": "180736",
+      "va": "800747a8",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [
+      "180c21: $00000004 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name car",
+      "180c3d: $00000005 94 Def class REGPARM type INT size 0 name numBeeps",
+      "180c53: $00000006 94 Def class REGPARM type INT size 0 name ticksOn",
+      "180c68: $00000007 94 Def class REGPARM type INT size 0 name ticksOff"
+    ],
+    "line": "void AudioClc_HonkHorn__FP8Car_tObjiii(Car_tObj *car, int numBeeps, int ticksOn, int ticksOff);   /* :251 */",
+    "corrected": "void AudioClc_HonkHorn(Car_tObj *car,int numBeeps,int ticksOn,int ticksOff);"
+  },
+  {
+    "unit": "audioclc",
+    "symbol": "AudioClc_InitSource__FP16AudioClc_tSourceP8Car_tObj",
+    "name": "AudioClc_InitSource",
+    "old_return": "void",
+    "old_args": "AudioClc_tSource *s, Car_tObj *car",
+    "definition": [
+      "void AudioClc_InitSource(AudioClc_tSource *s,Car_tObj *car)"
+    ],
+    "native": {
+      "record": "180765",
+      "va": "80074808",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [
+      "180d38: $00000004 96 Def2 class REGPARM type PTR STRUCT size 56 dims 0 tag AudioClc_tSource name s",
+      "180d5a: $00000005 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name car"
+    ],
+    "line": "void AudioClc_InitSource__FP16AudioClc_tSourceP8Car_tObj(AudioClc_tSource *s, Car_tObj *car);   /* :279 */",
+    "corrected": "void AudioClc_InitSource(AudioClc_tSource *s,Car_tObj *car);"
+  },
+  {
+    "unit": "audioclc",
+    "symbol": "AudioClc_StartUp__Fv",
+    "name": "AudioClc_StartUp",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void AudioClc_StartUp(void)"
+    ],
+    "native": {
+      "record": "1807a6",
+      "va": "80074838",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [],
+    "line": "void AudioClc_StartUp__Fv(void);   /* :297 */",
+    "corrected": "void AudioClc_StartUp(void);"
+  },
+  {
+    "unit": "audioclc",
+    "symbol": "AudioClc_CalcDopplerShiftRatio__FP8coorddefT0",
+    "name": "AudioClc_CalcDopplerShiftRatio",
+    "old_return": "int",
+    "old_args": "coorddef *objectPos, coorddef *objectVel",
+    "definition": [
+      "int AudioClc_CalcDopplerShiftRatio(coorddef *objectPos,coorddef *objectVel)"
+    ],
+    "native": {
+      "record": "1807c8",
+      "va": "80074994",
+      "type": "INT size 0"
+    },
+    "parameter_records": [
+      "180eb6: $00000004 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name objectPos",
+      "180ed8: $00000011 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name objectVel"
+    ],
+    "line": "int AudioClc_CalcDopplerShiftRatio__FP8coorddefT0(coorddef *objectPos, coorddef *objectVel);   /* :346 */",
+    "corrected": "int AudioClc_CalcDopplerShiftRatio(coorddef *objectPos,coorddef *objectVel);"
+  },
+  {
+    "unit": "audioclc",
+    "symbol": "AudioClc_CalcDistance__FP17DRender_tCalcViewP8coorddef",
+    "name": "AudioClc_CalcDistance",
+    "old_return": "int",
+    "old_args": "DRender_tCalcView *view, coorddef *object",
+    "definition": [
+      "int AudioClc_CalcDistance(DRender_tCalcView *view,coorddef *object)"
+    ],
+    "native": {
+      "record": "180803",
+      "va": "80074b60",
+      "type": "INT size 0"
+    },
+    "parameter_records": [
+      "18100e: $00000004 96 Def2 class REGPARM type PTR STRUCT size 132 dims 0 tag DRender_tCalcView name view",
+      "181034: $00000005 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name object"
+    ],
+    "line": "int AudioClc_CalcDistance__FP17DRender_tCalcViewP8coorddef(DRender_tCalcView *view, coorddef *object);   /* :373 */",
+    "corrected": "int AudioClc_CalcDistance(DRender_tCalcView *view,coorddef *object);"
+  },
+  {
+    "unit": "audioclc",
+    "symbol": "AudioClc_CalcAzimuth__FP17DRender_tCalcViewP8coorddef",
+    "name": "AudioClc_CalcAzimuth",
+    "old_return": "int",
+    "old_args": "DRender_tCalcView *view, coorddef *object",
+    "definition": [
+      "int AudioClc_CalcAzimuth(DRender_tCalcView *view,coorddef *object)"
+    ],
+    "native": {
+      "record": "180847",
+      "va": "80074be8",
+      "type": "INT size 0"
+    },
+    "parameter_records": [
+      "181134: $00000004 96 Def2 class REGPARM type PTR STRUCT size 132 dims 0 tag DRender_tCalcView name view",
+      "18115a: $00000005 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name object"
+    ],
+    "line": "int AudioClc_CalcAzimuth__FP17DRender_tCalcViewP8coorddef(DRender_tCalcView *view, coorddef *object);   /* :393 */",
+    "corrected": "int AudioClc_CalcAzimuth(DRender_tCalcView *view,coorddef *object);"
+  },
+  {
+    "unit": "audioclc",
+    "symbol": "AudioClc_CalcCarDirection__FP17DRender_tCalcViewP8Car_tObj",
+    "name": "AudioClc_CalcCarDirection",
+    "old_return": "int",
+    "old_args": "DRender_tCalcView *view, Car_tObj *car",
+    "definition": [
+      "int AudioClc_CalcCarDirection(DRender_tCalcView *view,Car_tObj *car)"
+    ],
+    "native": {
+      "record": "18088a",
+      "va": "80074d50",
+      "type": "INT size 0"
+    },
+    "parameter_records": [
+      "181244: $00000004 96 Def2 class REGPARM type PTR STRUCT size 132 dims 0 tag DRender_tCalcView name view",
+      "18126a: $00000007 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name car"
+    ],
+    "line": "int AudioClc_CalcCarDirection__FP17DRender_tCalcViewP8Car_tObj(DRender_tCalcView *view, Car_tObj *car);   /* :414 */",
+    "corrected": "int AudioClc_CalcCarDirection(DRender_tCalcView *view,Car_tObj *car);"
+  },
+  {
+    "unit": "audioclc",
+    "symbol": "AudioClc_CalcTrackAzimuth__FP17DRender_tCalcViewP8Car_tObj",
+    "name": "AudioClc_CalcTrackAzimuth",
+    "old_return": "int",
+    "old_args": "DRender_tCalcView *view, Car_tObj *car",
+    "definition": [
+      "int AudioClc_CalcTrackAzimuth(DRender_tCalcView *view,Car_tObj *car)"
+    ],
+    "native": {
+      "record": "1808d2",
+      "va": "80074e24",
+      "type": "INT size 0"
+    },
+    "parameter_records": [
+      "181333: $00000009 96 Def2 class REGPARM type PTR STRUCT size 132 dims 0 tag DRender_tCalcView name view",
+      "181359: $00000005 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name car"
+    ],
+    "line": "int AudioClc_CalcTrackAzimuth__FP17DRender_tCalcViewP8Car_tObj(DRender_tCalcView *view, Car_tObj *car);   /* :430 */",
+    "corrected": "int AudioClc_CalcTrackAzimuth(DRender_tCalcView *view,Car_tObj *car);"
+  },
+  {
+    "unit": "audioclc",
+    "symbol": "AudioClc_SoundOpponentHorn__Fiiii",
+    "name": "AudioClc_SoundOpponentHorn",
+    "old_return": "void",
+    "old_args": "int closestIndex, int azimuth, int dop, int dsquare",
+    "definition": [
+      "void AudioClc_SoundOpponentHorn(int closestIndex,int azimuth,int dop,int dsquare)"
+    ],
+    "native": {
+      "record": "18091a",
+      "va": "80074f5c",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [
+      "18140a: $00000008 94 Def class REGPARM type INT size 0 name closestIndex",
+      "181424: $00000009 94 Def class REGPARM type INT size 0 name azimuth",
+      "181439: $0000000a 94 Def class REGPARM type INT size 0 name dop",
+      "18144a: $00000007 94 Def class REGPARM type INT size 0 name dsquare"
+    ],
+    "line": "void AudioClc_SoundOpponentHorn__Fiiii(int closestIndex, int azimuth, int dop, int dsquare);   /* :450 */",
+    "corrected": "void AudioClc_SoundOpponentHorn(int closestIndex,int azimuth,int dop,int dsquare);"
+  },
+  {
+    "unit": "audioclc",
+    "symbol": "AudioClc_SilenceOpponentHorn__Fi",
+    "name": "AudioClc_SilenceOpponentHorn",
+    "old_return": "void",
+    "old_args": "int closestIndex",
+    "definition": [
+      "void AudioClc_SilenceOpponentHorn(int closestIndex)"
+    ],
+    "native": {
+      "record": "180949",
+      "va": "80075008",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [
+      "18155c: $00000004 94 Def class REGPARM type INT size 0 name closestIndex"
+    ],
+    "line": "void AudioClc_SilenceOpponentHorn__Fi(int closestIndex);   /* :523 */",
+    "corrected": "void AudioClc_SilenceOpponentHorn(int closestIndex);"
+  },
+  {
+    "unit": "audioclc",
+    "symbol": "AudioClc_SoundCloseCar__Fii",
+    "name": "AudioClc_SoundCloseCar",
+    "old_return": "void",
+    "old_args": "int playerIndex, int closestIndex",
+    "definition": [
+      "void AudioClc_SoundCloseCar(int playerIndex,int closestIndex)"
+    ],
+    "native": {
+      "record": "180977",
+      "va": "80075028",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [
+      "1815e7: $00000000 94 Def class ARG type INT size 0 name playerIndex",
+      "181600: $00000017 94 Def class REGPARM type INT size 0 name closestIndex"
+    ],
+    "line": "void AudioClc_SoundCloseCar__Fii(int playerIndex, int closestIndex);   /* :531 */",
+    "corrected": "void AudioClc_SoundCloseCar(int playerIndex,int closestIndex);"
+  },
+  {
+    "unit": "audioclc",
+    "symbol": "AudioClc_SoundPlayersCar__Fi",
+    "name": "AudioClc_SoundPlayersCar",
+    "old_return": "void",
+    "old_args": "int playerIndex",
+    "definition": [
+      "void AudioClc_SoundPlayersCar(int playerIndex)"
+    ],
+    "native": {
+      "record": "1809a0",
+      "va": "80075508",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [
+      "1817bb: $00000000 94 Def class ARG type INT size 0 name playerIndex"
+    ],
+    "line": "void AudioClc_SoundPlayersCar__Fi(int playerIndex);   /* :680 */",
+    "corrected": "void AudioClc_SoundPlayersCar(int playerIndex);"
+  },
+  {
+    "unit": "audioclc",
+    "symbol": "AudioClc_ResetClosest__FiP8Car_tObji",
+    "name": "AudioClc_ResetClosest",
+    "old_return": "void",
+    "old_args": "int closestIndex, Car_tObj *car, int playerIndex",
+    "definition": [
+      "void AudioClc_ResetClosest(int closestIndex,Car_tObj *car,int playerIndex)"
+    ],
+    "native": {
+      "record": "1809ca",
+      "va": "80075c3c",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [
+      "181a10: $00000010 94 Def class REGPARM type INT size 0 name closestIndex",
+      "181a2a: $00000011 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name car",
+      "181a46: $00000006 94 Def class REGPARM type INT size 0 name playerIndex"
+    ],
+    "line": "void AudioClc_ResetClosest__FiP8Car_tObji(int closestIndex, Car_tObj *car, int playerIndex);   /* :882 */",
+    "corrected": "void AudioClc_ResetClosest(int closestIndex,Car_tObj *car,int playerIndex);"
+  },
+  {
+    "unit": "audioclc",
+    "symbol": "AudioClc_GetClosestCars__Fiii",
+    "name": "AudioClc_GetClosestCars",
+    "old_return": "void",
+    "old_args": "int playerIndex, int closestIndex, int numclosest",
+    "definition": [
+      "void AudioClc_GetClosestCars(int playerIndex,int closestIndex,int numclosest)"
+    ],
+    "native": {
+      "record": "1809fc",
+      "va": "80075d04",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [
+      "181ad2: $00000017 94 Def class REGPARM type INT size 0 name playerIndex",
+      "181aeb: $00000004 94 Def class ARG type INT size 0 name closestIndex",
+      "181b05: $00000015 94 Def class REGPARM type INT size 0 name numclosest"
+    ],
+    "line": "void AudioClc_GetClosestCars__Fiii(int playerIndex, int closestIndex, int numclosest);   /* :921 */",
+    "corrected": "void AudioClc_GetClosestCars(int playerIndex,int closestIndex,int numclosest);"
+  },
+  {
+    "unit": "audioclc",
+    "symbol": "AudioClc_SoundSpeech__Fv",
+    "name": "AudioClc_SoundSpeech",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void AudioClc_SoundSpeech(void)"
+    ],
+    "native": {
+      "record": "180a27",
+      "va": "80076130",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [],
+    "line": "void AudioClc_SoundSpeech__Fv(void);   /* :1038 */",
+    "corrected": "void AudioClc_SoundSpeech(void);"
+  },
+  {
+    "unit": "audioclc",
+    "symbol": "AudioClc_SoundCars__Fv",
+    "name": "AudioClc_SoundCars",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void AudioClc_SoundCars(void)"
+    ],
+    "native": {
+      "record": "180a4d",
+      "va": "80076160",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [],
+    "line": "void AudioClc_SoundCars__Fv(void);   /* :1052 */",
+    "corrected": "void AudioClc_SoundCars(void);"
+  },
+  {
+    "unit": "audiocmn",
+    "symbol": "AudioCmn_MusicLevel__Fi",
+    "name": "AudioCmn_MusicLevel",
+    "old_return": "int",
+    "old_args": "int level",
+    "definition": [
+      "int AudioCmn_MusicLevel(int level)"
+    ],
+    "native": {
+      "record": "190d2c",
+      "va": "80076420",
+      "type": "INT size 0"
+    },
+    "parameter_records": [
+      "1914dc: $00000004 94 Def class REGPARM type INT size 0 name level"
+    ],
+    "line": "int AudioCmn_MusicLevel__Fi(int level);   /* :278 */",
+    "corrected": "int AudioCmn_MusicLevel(int level);"
+  },
+  {
+    "unit": "audiocmn",
+    "symbol": "AudioCmn_GetTrackRecordLapTime__Fv",
+    "name": "AudioCmn_GetTrackRecordLapTime",
+    "old_return": "int",
+    "old_args": "void",
+    "definition": [
+      "int AudioCmn_GetTrackRecordLapTime(void)"
+    ],
+    "native": {
+      "record": "190d51",
+      "va": "80076480",
+      "type": "INT size 0"
+    },
+    "parameter_records": [],
+    "line": "int AudioCmn_GetTrackRecordLapTime__Fv(void);   /* :283 */",
+    "corrected": "int AudioCmn_GetTrackRecordLapTime(void);"
+  },
+  {
+    "unit": "audiocmn",
+    "symbol": "AudioCmn_InitThunder__Fv",
+    "name": "AudioCmn_InitThunder",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void AudioCmn_InitThunder(void)"
+    ],
+    "native": {
+      "record": "190d81",
+      "va": "80076490",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [],
+    "line": "void AudioCmn_InitThunder__Fv(void);   /* :303 */",
+    "corrected": "void AudioCmn_InitThunder(void);"
+  },
+  {
+    "unit": "audiocmn",
+    "symbol": "AudioCmn_PlayThunder__Fii",
+    "name": "AudioCmn_PlayThunder",
+    "old_return": "void",
+    "old_args": "int intensity, int azimuth",
+    "definition": [
+      "void AudioCmn_PlayThunder(int intensity,int azimuth)"
+    ],
+    "native": {
+      "record": "190da7",
+      "va": "800764a4",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [
+      "191644: $00000004 94 Def class REGPARM type INT size 0 name intensity",
+      "19165b: $00000005 94 Def class REGPARM type INT size 0 name azimuth"
+    ],
+    "line": "void AudioCmn_PlayThunder__Fii(int intensity, int azimuth);   /* :310 */",
+    "corrected": "void AudioCmn_PlayThunder(int intensity,int azimuth);"
+  },
+  {
+    "unit": "audiocmn",
+    "symbol": "AudioCmn_UpdateThunder__Fv",
+    "name": "AudioCmn_UpdateThunder",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void AudioCmn_UpdateThunder(void)"
+    ],
+    "native": {
+      "record": "190dce",
+      "va": "800764d0",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [],
+    "line": "void AudioCmn_UpdateThunder__Fv(void);   /* :320 */",
+    "corrected": "void AudioCmn_UpdateThunder(void);"
+  },
+  {
+    "unit": "audiocmn",
+    "symbol": "AudioCmn_InitAsyncSfx__Fv",
+    "name": "AudioCmn_InitAsyncSfx",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void AudioCmn_InitAsyncSfx(void)"
+    ],
+    "native": {
+      "record": "190df6",
+      "va": "8007657c",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [],
+    "line": "void AudioCmn_InitAsyncSfx__Fv(void);   /* :454 */",
+    "corrected": "void AudioCmn_InitAsyncSfx(void);"
+  },
+  {
+    "unit": "audiocmn",
+    "symbol": "AudioCmn_RemoveAsyncSfx__Fi",
+    "name": "AudioCmn_RemoveAsyncSfx",
+    "old_return": "void",
+    "old_args": "int slot",
+    "definition": [
+      "void AudioCmn_RemoveAsyncSfx(int slot)"
+    ],
+    "native": {
+      "record": "190e1d",
+      "va": "800765b4",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [
+      "1917f3: $00000004 94 Def class REGPARM type INT size 0 name slot"
+    ],
+    "line": "void AudioCmn_RemoveAsyncSfx__Fi(int slot);   /* :467 */",
+    "corrected": "void AudioCmn_RemoveAsyncSfx(int slot);"
+  },
+  {
+    "unit": "audiocmn",
+    "symbol": "AudioCmn_DeInitAsyncSfx__Fv",
+    "name": "AudioCmn_DeInitAsyncSfx",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void AudioCmn_DeInitAsyncSfx(void)"
+    ],
+    "native": {
+      "record": "190e46",
+      "va": "8007663c",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [],
+    "line": "void AudioCmn_DeInitAsyncSfx__Fv(void);   /* :493 */",
+    "corrected": "void AudioCmn_DeInitAsyncSfx(void);"
+  },
+  {
+    "unit": "audiocmn",
+    "symbol": "AudioCmn_RemoveOldestAsyncSfx__Fi",
+    "name": "AudioCmn_RemoveOldestAsyncSfx",
+    "old_return": "int",
+    "old_args": "int bank",
+    "definition": [
+      "int AudioCmn_RemoveOldestAsyncSfx(int bank)"
+    ],
+    "native": {
+      "record": "190e6f",
+      "va": "80076674",
+      "type": "INT size 0"
+    },
+    "parameter_records": [
+      "191936: $00000004 94 Def class REGPARM type INT size 0 name bank"
+    ],
+    "line": "int AudioCmn_RemoveOldestAsyncSfx__Fi(int bank);   /* :501 */",
+    "corrected": "int AudioCmn_RemoveOldestAsyncSfx(int bank);"
+  },
+  {
+    "unit": "audiocmn",
+    "symbol": "AudioCmn_LoadAsyncSfx__FiiPvi",
+    "name": "AudioCmn_LoadAsyncSfx",
+    "old_return": "void",
+    "old_args": "int bank, int patch, void *pbank, int size",
+    "definition": [
+      "void AudioCmn_LoadAsyncSfx(int bank,int patch,void *pbank,int size)"
+    ],
+    "native": {
+      "record": "190e9e",
+      "va": "8007675c",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [
+      "191a6c: $00000012 94 Def class REGPARM type INT size 0 name bank",
+      "191a7e: $00000016 94 Def class REGPARM type INT size 0 name patch",
+      "191a91: $00000017 94 Def class REGPARM type PTR VOID size 0 name pbank",
+      "191aa4: $00000013 94 Def class REGPARM type INT size 0 name size"
+    ],
+    "line": "void AudioCmn_LoadAsyncSfx__FiiPvi(int bank, int patch, void *pbank, int size);   /* :534 */",
+    "corrected": "void AudioCmn_LoadAsyncSfx(int bank,int patch,void *pbank,int size);"
+  },
+  {
+    "unit": "audiocmn",
+    "symbol": "AudioCmn_GetAsyncSfx__Fiib",
+    "name": "AudioCmn_GetAsyncSfx",
+    "old_return": "int",
+    "old_args": "int bank, int patch, BOOL checkonly",
+    "definition": [
+      "int AudioCmn_GetAsyncSfx(int bank,int patch,bool checkonly)"
+    ],
+    "native": {
+      "record": "190ec9",
+      "va": "80076900",
+      "type": "INT size 0"
+    },
+    "parameter_records": [
+      "191b4b: $00000011 94 Def class REGPARM type INT size 0 name bank",
+      "191b5d: $00000012 94 Def class REGPARM type INT size 0 name patch",
+      "191b70: $00000013 94 Def class REGPARM type BOOL size 0 name checkonly"
+    ],
+    "line": "int AudioCmn_GetAsyncSfx__Fiib(int bank, int patch, BOOL checkonly);   /* :620 */",
+    "corrected": "int AudioCmn_GetAsyncSfx(int bank,int patch,bool checkonly);"
+  },
+  {
+    "unit": "audiocmn",
+    "symbol": "AudioCmn_Init__Fv",
+    "name": "AudioCmn_Init",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void AudioCmn_Init(void)"
+    ],
+    "native": {
+      "record": "190ef1",
+      "va": "80076a74",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [],
+    "line": "void AudioCmn_Init__Fv(void);   /* :678 */",
+    "corrected": "void AudioCmn_Init(void);"
+  },
+  {
+    "unit": "audiocmn",
+    "symbol": "AudioCmn_Reset__Fv",
+    "name": "AudioCmn_Reset",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void AudioCmn_Reset(void)"
+    ],
+    "native": {
+      "record": "190f10",
+      "va": "80076bec",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [],
+    "line": "void AudioCmn_Reset__Fv(void);   /* :749 */",
+    "corrected": "void AudioCmn_Reset(void);"
+  },
+  {
+    "unit": "audiocmn",
+    "symbol": "AudioCmn_DeInit__Fv",
+    "name": "AudioCmn_DeInit",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void AudioCmn_DeInit(void)"
+    ],
+    "native": {
+      "record": "190f30",
+      "va": "80076f44",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [],
+    "line": "void AudioCmn_DeInit__Fv(void);   /* :911 */",
+    "corrected": "void AudioCmn_DeInit(void);"
+  },
+  {
+    "unit": "audiocmn",
+    "symbol": "AudioCmn_SetLevels__Fv",
+    "name": "AudioCmn_SetLevels",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void AudioCmn_SetLevels(void)"
+    ],
+    "native": {
+      "record": "190f51",
+      "va": "8007701c",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [],
+    "line": "void AudioCmn_SetLevels__Fv(void);   /* :942 */",
+    "corrected": "void AudioCmn_SetLevels(void);"
+  },
+  {
+    "unit": "audiocmn",
+    "symbol": "AudioCmn_GetTimePhrase__Fi",
+    "name": "AudioCmn_GetTimePhrase",
+    "old_return": "int",
+    "old_args": "int time",
+    "definition": [
+      "int AudioCmn_GetTimePhrase(int time)"
+    ],
+    "native": {
+      "record": "190f75",
+      "va": "8007706c",
+      "type": "INT size 0"
+    },
+    "parameter_records": [
+      "192024: $00000004 94 Def class REGPARM type INT size 0 name time"
+    ],
+    "line": "int AudioCmn_GetTimePhrase__Fi(int time);   /* :955 */",
+    "corrected": "int AudioCmn_GetTimePhrase(int time);"
+  },
+  {
+    "unit": "audiocmn",
+    "symbol": "AudioCmn_CheckState__FP8Car_tObj",
+    "name": "AudioCmn_CheckState",
+    "old_return": "void",
+    "old_args": "Car_tObj *car",
+    "definition": [
+      "void AudioCmn_CheckState(Car_tObj *car)"
+    ],
+    "native": {
+      "record": "190f9d",
+      "va": "800770bc",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [
+      "1920f5: $00000012 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name car"
+    ],
+    "line": "void AudioCmn_CheckState__FP8Car_tObj(Car_tObj *car);   /* :994 */",
+    "corrected": "void AudioCmn_CheckState(Car_tObj *car);"
+  },
+  {
+    "unit": "audiocmn",
+    "symbol": "AudioCmn_LoadFESamples__Fv",
+    "name": "AudioCmn_LoadFESamples",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void AudioCmn_LoadFESamples(void)"
+    ],
+    "native": {
+      "record": "190fcb",
+      "va": "80077738",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [],
+    "line": "void AudioCmn_LoadFESamples__Fv(void);   /* :1201 */",
+    "corrected": "void AudioCmn_LoadFESamples(void);"
+  },
+  {
+    "unit": "audiocmn",
+    "symbol": "AudioCmn_LoadGameSamples__Fv",
+    "name": "AudioCmn_LoadGameSamples",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void AudioCmn_LoadGameSamples(void)"
+    ],
+    "native": {
+      "record": "190ff3",
+      "va": "8007777c",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [],
+    "line": "void AudioCmn_LoadGameSamples__Fv(void);   /* :1214 */",
+    "corrected": "void AudioCmn_LoadGameSamples(void);"
+  },
+  {
+    "unit": "audiocmn",
+    "symbol": "AudioCmn_InitChannelArray__Fv",
+    "name": "AudioCmn_InitChannelArray",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void AudioCmn_InitChannelArray(void)"
+    ],
+    "native": {
+      "record": "19101d",
+      "va": "800778b0",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [],
+    "line": "void AudioCmn_InitChannelArray__Fv(void);   /* :1244 */",
+    "corrected": "void AudioCmn_InitChannelArray(void);"
+  },
+  {
+    "unit": "audiocmn",
+    "symbol": "scaleFrequency__Fiii",
+    "name": "scaleFrequency",
+    "old_return": "int",
+    "old_args": "int sndPlayer, int iSFXnum, int tweakedForce",
+    "definition": [
+      "int scaleFrequency(int sndPlayer,int iSFXnum,int tweakedForce)"
+    ],
+    "native": {
+      "record": "191048",
+      "va": "800778e8",
+      "type": "INT size 0"
+    },
+    "parameter_records": [
+      "1924e5: $00000004 94 Def class REGPARM type INT size 0 name sndPlayer",
+      "1924fc: $00000005 94 Def class REGPARM type INT size 0 name iSFXnum",
+      "192511: $00000006 94 Def class REGPARM type INT size 0 name tweakedForce"
+    ],
+    "line": "int scaleFrequency__Fiii(int sndPlayer, int iSFXnum, int tweakedForce);   /* :1259 */",
+    "corrected": "int scaleFrequency(int sndPlayer,int iSFXnum,int tweakedForce);"
+  },
+  {
+    "unit": "audiocmn",
+    "symbol": "ChooseImpactSample__Fi6s_typeT1",
+    "name": "ChooseImpactSample",
+    "old_return": "int",
+    "old_args": "int force, int surface1, int surface2",
+    "definition": [
+      "int ChooseImpactSample(int force,s_type surface1,s_type surface2)"
+    ],
+    "native": {
+      "record": "19106a",
+      "va": "800779b4",
+      "type": "INT size 0"
+    },
+    "parameter_records": [
+      "1925b8: $00000004 94 Def class REGPARM type INT size 0 name force",
+      "1925cb: $00000010 96 Def2 class REGPARM type ENUM size 4 dims 0 tag s_type name surface1",
+      "1925ea: $00000006 96 Def2 class REGPARM type ENUM size 4 dims 0 tag s_type name surface2"
+    ],
+    "line": "int ChooseImpactSample__Fi6s_typeT1(int force, int surface1, int surface2);   /* :1296 */",
+    "corrected": "int ChooseImpactSample(int force,s_type surface1,s_type surface2);"
+  },
+  {
+    "unit": "audiocmn",
+    "symbol": "ChooseLoopedSample__F6s_typeT0",
+    "name": "ChooseLoopedSample",
+    "old_return": "int",
+    "old_args": "int surface1, int surface2",
+    "definition": [
+      "int ChooseLoopedSample(s_type surface1,s_type surface2)"
+    ],
+    "native": {
+      "record": "191097",
+      "va": "80077c94",
+      "type": "INT size 0"
+    },
+    "parameter_records": [
+      "1926b0: $00000004 96 Def2 class REGPARM type ENUM size 4 dims 0 tag s_type name surface1",
+      "1926cf: $00000005 96 Def2 class REGPARM type ENUM size 4 dims 0 tag s_type name surface2"
+    ],
+    "line": "int ChooseLoopedSample__F6s_typeT0(int surface1, int surface2);   /* :1428 */",
+    "corrected": "int ChooseLoopedSample(s_type surface1,s_type surface2);"
+  },
+  {
+    "unit": "audiocmn",
+    "symbol": "AudioCmn_SFX__Fi6s_typeT1iii",
+    "name": "AudioCmn_SFX",
+    "old_return": "void",
+    "old_args": "int sndPlayer, int surface1, int surface2, int tweakedForce, int Distsq, int azimuth",
+    "definition": [
+      "void AudioCmn_SFX(int sndPlayer,s_type surface1,s_type surface2,int tweakedForce,int Distsq, int azimuth)"
+    ],
+    "native": {
+      "record": "1910c3",
+      "va": "80077d50",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [
+      "192774: $00000015 94 Def class REGPARM type INT size 0 name sndPlayer",
+      "19278b: $00000005 96 Def2 class REGPARM type ENUM size 4 dims 0 tag s_type name surface1",
+      "1927aa: $00000006 96 Def2 class REGPARM type ENUM size 4 dims 0 tag s_type name surface2",
+      "1927c9: $00000010 94 Def class REGPARM type INT size 0 name tweakedForce",
+      "1927e3: $00000010 94 Def class ARG type INT size 0 name Distsq",
+      "1927f7: $00000014 94 Def class ARG type INT size 0 name azimuth"
+    ],
+    "line": "void AudioCmn_SFX__Fi6s_typeT1iii(int sndPlayer, int surface1, int surface2, int tweakedForce, int Distsq, int azimuth);   /* :1458 */",
+    "corrected": "void AudioCmn_SFX(int sndPlayer,s_type surface1,s_type surface2,int tweakedForce,int Distsq, int azimuth);"
+  },
+  {
+    "unit": "audiocmn",
+    "symbol": "freeVoiceChannel__Fi",
+    "name": "freeVoiceChannel",
+    "old_return": "void",
+    "old_args": "int sndPlayer",
+    "definition": [
+      "void freeVoiceChannel(int sndPlayer)"
+    ],
+    "native": {
+      "record": "1910ed",
+      "va": "800780d0",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [
+      "1929da: $00000004 94 Def class REGPARM type INT size 0 name sndPlayer"
+    ],
+    "line": "void freeVoiceChannel__Fi(int sndPlayer);   /* :1580 */",
+    "corrected": "void freeVoiceChannel(int sndPlayer);"
+  },
+  {
+    "unit": "audiocmn",
+    "symbol": "AudioCmn_PlayDoppleredSound__Fiiiiii",
+    "name": "AudioCmn_PlayDoppleredSound",
+    "old_return": "int",
+    "old_args": "int bhandle, int patchNum, int azimuth, int vol, int bend, int doppler",
+    "definition": [
+      "int AudioCmn_PlayDoppleredSound(int bhandle,int patchNum,int azimuth,int vol,int bend,int doppler)"
+    ],
+    "native": {
+      "record": "19110f",
+      "va": "80078140",
+      "type": "INT size 0"
+    },
+    "parameter_records": [
+      "192a6b: $00000011 94 Def class REGPARM type INT size 0 name bhandle",
+      "192a80: $00000012 94 Def class REGPARM type INT size 0 name patchNum",
+      "192a96: $00000013 94 Def class REGPARM type INT size 0 name azimuth",
+      "192aab: $00000010 94 Def class REGPARM type INT size 0 name vol",
+      "192abc: $00000010 94 Def class ARG type INT size 0 name bend",
+      "192ace: $00000014 94 Def class ARG type INT size 0 name doppler"
+    ],
+    "line": "int AudioCmn_PlayDoppleredSound__Fiiiiii(int bhandle, int patchNum, int azimuth, int vol, int bend, int doppler);   /* :1615 */",
+    "corrected": "int AudioCmn_PlayDoppleredSound(int bhandle,int patchNum,int azimuth,int vol,int bend,int doppler);"
+  },
+  {
+    "unit": "audiocmn",
+    "symbol": "AudioCmn_PlaySound__Fiiiii",
+    "name": "AudioCmn_PlaySound",
+    "old_return": "int",
+    "old_args": "int bhandle, int patchNum, int azimuth, int vol, int bend",
+    "definition": [
+      "int AudioCmn_PlaySound(int bhandle,int patchNum,int azimuth,int vol,int bend)"
+    ],
+    "native": {
+      "record": "191141",
+      "va": "800783a0",
+      "type": "INT size 0"
+    },
+    "parameter_records": [
+      "192be9: $00000004 94 Def class REGPARM type INT size 0 name bhandle",
+      "192bfe: $00000005 94 Def class REGPARM type INT size 0 name patchNum",
+      "192c14: $00000006 94 Def class REGPARM type INT size 0 name azimuth",
+      "192c29: $00000007 94 Def class REGPARM type INT size 0 name vol",
+      "192c3a: $00000010 94 Def class ARG type INT size 0 name bend"
+    ],
+    "line": "int AudioCmn_PlaySound__Fiiiii(int bhandle, int patchNum, int azimuth, int vol, int bend);   /* :1716 */",
+    "corrected": "int AudioCmn_PlaySound(int bhandle,int patchNum,int azimuth,int vol,int bend);"
+  },
+  {
+    "unit": "audiocmn",
+    "symbol": "AudioCmn_PlaySFX__Fiiiiii",
+    "name": "AudioCmn_PlaySFX",
+    "old_return": "int",
+    "old_args": "int sndPlayer, int iSFXnum, int iFreqIn, int iDopplerIn, int iAmpIn, int azimuth",
+    "definition": [
+      "int AudioCmn_PlaySFX(int sndPlayer,int iSFXnum,int iFreqIn,int iDopplerIn,int iAmpIn,int azimuth)"
+    ],
+    "native": {
+      "record": "191169",
+      "va": "800783cc",
+      "type": "INT size 0"
+    },
+    "parameter_records": [
+      "192ccd: $00000014 94 Def class REGPARM type INT size 0 name sndPlayer",
+      "192ce4: $00000013 94 Def class REGPARM type INT size 0 name iSFXnum",
+      "192cf9: $00000006 94 Def class REGPARM type INT size 0 name iFreqIn",
+      "192d0e: $0000001e 94 Def class REGPARM type INT size 0 name iDopplerIn",
+      "192d26: $00000010 94 Def class ARG type INT size 0 name iAmpIn",
+      "192d3a: $00000014 94 Def class ARG type INT size 0 name azimuth"
+    ],
+    "line": "int AudioCmn_PlaySFX__Fiiiiii(int sndPlayer, int iSFXnum, int iFreqIn, int iDopplerIn, int iAmpIn, int azimuth);   /* :1731 */",
+    "corrected": "int AudioCmn_PlaySFX(int sndPlayer,int iSFXnum,int iFreqIn,int iDopplerIn,int iAmpIn,int azimuth);"
+  },
+  {
+    "unit": "audiocmn",
+    "symbol": "AudioCmn_SoundCar__FP8Car_tObjiiiiiii",
+    "name": "AudioCmn_SoundCar",
+    "old_return": "void",
+    "old_args": "Car_tObj *car, int dst, int iFreqIn, int doppler, int azimuth, int trackazim, int relvel, int cardir",
+    "definition": [
+      "void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth,int trackazim,int relvel, int cardir)"
+    ],
+    "native": {
+      "record": "191190",
+      "va": "800788bc",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [
+      "192e79: $00000014 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name car",
+      "192e95: $0000001e 94 Def class REGPARM type INT size 0 name dst",
+      "192ea6: $00000012 94 Def class REGPARM type INT size 0 name iFreqIn",
+      "192ebb: $0000000c 94 Def class ARG type INT size 0 name doppler",
+      "192ed0: $00000010 94 Def class ARG type INT size 0 name azimuth",
+      "192ee5: $00000014 94 Def class ARG type INT size 0 name trackazim",
+      "192efc: $00000018 94 Def class ARG type INT size 0 name relvel",
+      "192f10: $0000001c 94 Def class ARG type INT size 0 name cardir"
+    ],
+    "line": "void AudioCmn_SoundCar__FP8Car_tObjiiiiiii(Car_tObj *car, int dst, int iFreqIn, int doppler, int azimuth, int trackazim, int relvel, int cardir);   /* :1908 */",
+    "corrected": "void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth,int trackazim,int relvel, int cardir);"
+  },
+  {
+    "unit": "audiocmn",
+    "symbol": "AudioCmn_TrafficSFX__Fiiiiiiii",
+    "name": "AudioCmn_TrafficSFX",
+    "old_return": "void",
+    "old_args": "int iChan, int iSFXnum, int freq, int doppler, int dst, int azimuth, int relvel, int dir",
+    "definition": [
+      "void AudioCmn_TrafficSFX(int iChan,int iSFXnum,int freq,int doppler,int dst,int azimuth,int relvel,int dir)"
+    ],
+    "native": {
+      "record": "1911c3",
+      "va": "80079104",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [
+      "193175: $00000015 94 Def class REGPARM type INT size 0 name iChan",
+      "193188: $0000001e 94 Def class REGPARM type INT size 0 name iSFXnum",
+      "19319d: $00000008 94 Def class ARG type INT size 0 name freq",
+      "1931af: $0000000c 94 Def class ARG type INT size 0 name doppler",
+      "1931c4: $00000010 94 Def class ARG type INT size 0 name dst",
+      "1931d5: $00000014 94 Def class ARG type INT size 0 name azimuth",
+      "1931ea: $00000018 94 Def class ARG type INT size 0 name relvel",
+      "1931fe: $0000001c 94 Def class ARG type INT size 0 name dir"
+    ],
+    "line": "void AudioCmn_TrafficSFX__Fiiiiiiii(int iChan, int iSFXnum, int freq, int doppler, int dst, int azimuth, int relvel, int dir);   /* :2193 */",
+    "corrected": "void AudioCmn_TrafficSFX(int iChan,int iSFXnum,int freq,int doppler,int dst,int azimuth,int relvel,int dir);"
+  },
+  {
+    "unit": "audiocmn",
+    "symbol": "AudioCmn_TrafficSkidSFX__Fi6s_typeT1iii",
+    "name": "AudioCmn_TrafficSkidSFX",
+    "old_return": "void",
+    "old_args": "int sndPlayer, int surface1, int surface2, int force, int Distsq, int azimuth",
+    "definition": [
+      "void AudioCmn_TrafficSkidSFX(int sndPlayer,s_type surface1,s_type surface2,int force,int Distsq,int azimuth)"
+    ],
+    "native": {
+      "record": "1911ef",
+      "va": "80079390",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [
+      "193316: $00000009 94 Def class REGPARM type INT size 0 name sndPlayer",
+      "19332d: $00000005 96 Def2 class REGPARM type ENUM size 4 dims 0 tag s_type name surface1",
+      "19334c: $00000006 96 Def2 class REGPARM type ENUM size 4 dims 0 tag s_type name surface2",
+      "19336b: $00000007 94 Def class REGPARM type INT size 0 name force",
+      "19337e: $00000010 94 Def class ARG type INT size 0 name Distsq",
+      "193392: $00000014 94 Def class ARG type INT size 0 name azimuth"
+    ],
+    "line": "void AudioCmn_TrafficSkidSFX__Fi6s_typeT1iii(int sndPlayer, int surface1, int surface2, int force, int Distsq, int azimuth);   /* :2244 */",
+    "corrected": "void AudioCmn_TrafficSkidSFX(int sndPlayer,s_type surface1,s_type surface2,int force,int Distsq,int azimuth);"
+  },
+  {
+    "unit": "audiocmn",
+    "symbol": "AudioCmn_PlayerHornOn__Fiiiii",
+    "name": "AudioCmn_PlayerHornOn",
+    "old_return": "void",
+    "old_args": "int carIndex, int Distsq, int iFreqIn, int azimuth, int doppler",
+    "definition": [
+      "void AudioCmn_PlayerHornOn(int carIndex,int Distsq,int iFreqIn,int azimuth,int doppler)"
+    ],
+    "native": {
+      "record": "191224",
+      "va": "80079444",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [
+      "193457: $00000008 94 Def class REGPARM type INT size 0 name carIndex",
+      "19346d: $00000005 94 Def class REGPARM type INT size 0 name Distsq",
+      "193481: $00000014 94 Def class REGPARM type INT size 0 name iFreqIn",
+      "193496: $00000013 94 Def class REGPARM type INT size 0 name azimuth",
+      "1934ab: $00000010 94 Def class ARG type INT size 0 name doppler"
+    ],
+    "line": "void AudioCmn_PlayerHornOn__Fiiiii(int carIndex, int Distsq, int iFreqIn, int azimuth, int doppler);   /* :2275 */",
+    "corrected": "void AudioCmn_PlayerHornOn(int carIndex,int Distsq,int iFreqIn,int azimuth,int doppler);"
+  },
+  {
+    "unit": "audiocmn",
+    "symbol": "AudioCmn_PlayerHornOff__Fi",
+    "name": "AudioCmn_PlayerHornOff",
+    "old_return": "int",
+    "old_args": "int carIndex",
+    "definition": [
+      "int AudioCmn_PlayerHornOff(int carIndex)"
+    ],
+    "native": {
+      "record": "19124f",
+      "va": "80079548",
+      "type": "INT size 0"
+    },
+    "parameter_records": [
+      "193569: $00000004 94 Def class REGPARM type INT size 0 name carIndex"
+    ],
+    "line": "int AudioCmn_PlayerHornOff__Fi(int carIndex);   /* :2305 */",
+    "corrected": "int AudioCmn_PlayerHornOff(int carIndex);"
+  },
+  {
+    "unit": "audiocmn",
+    "symbol": "AudioCmn_PlayFESFX__Fi",
+    "name": "AudioCmn_PlayFESFX",
+    "old_return": "void",
+    "old_args": "int SFXnum",
+    "definition": [
+      "void AudioCmn_PlayFESFX(int SFXnum)"
+    ],
+    "native": {
+      "record": "191277",
+      "va": "80079604",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [
+      "1935ff: $00000004 94 Def class REGPARM type INT size 0 name SFXnum"
+    ],
+    "line": "void AudioCmn_PlayFESFX__Fi(int SFXnum);   /* :2327 */",
+    "corrected": "void AudioCmn_PlayFESFX(int SFXnum);"
+  },
+  {
+    "unit": "audiocmn",
+    "symbol": "AudioCmn_PlayFESFXVol__Fii",
+    "name": "AudioCmn_PlayFESFXVol",
+    "old_return": "void",
+    "old_args": "int SFXnum, int vol",
+    "definition": [
+      "void AudioCmn_PlayFESFXVol(int SFXnum,int vol)"
+    ],
+    "native": {
+      "record": "19129b",
+      "va": "80079624",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [
+      "193683: $00000011 94 Def class REGPARM type INT size 0 name SFXnum",
+      "193697: $00000010 94 Def class REGPARM type INT size 0 name vol"
+    ],
+    "line": "void AudioCmn_PlayFESFXVol__Fii(int SFXnum, int vol);   /* :2332 */",
+    "corrected": "void AudioCmn_PlayFESFXVol(int SFXnum,int vol);"
+  },
+  {
+    "unit": "audiocmn",
+    "symbol": "AudioCmn_PlayWrongWaySFX__Fv",
+    "name": "AudioCmn_PlayWrongWaySFX",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void AudioCmn_PlayWrongWaySFX(void)"
+    ],
+    "native": {
+      "record": "1912c3",
+      "va": "800796ac",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [],
+    "line": "void AudioCmn_PlayWrongWaySFX__Fv(void);   /* :2370 */",
+    "corrected": "void AudioCmn_PlayWrongWaySFX(void);"
+  },
+  {
+    "unit": "audiocmn",
+    "symbol": "AudioCmn_PlayPauseSound__Fi",
+    "name": "AudioCmn_PlayPauseSound",
+    "old_return": "void",
+    "old_args": "int patch",
+    "definition": [
+      "void AudioCmn_PlayPauseSound(int patch)"
+    ],
+    "native": {
+      "record": "1912ed",
+      "va": "800796e4",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [
+      "1937af: $00000004 94 Def class REGPARM type INT size 0 name patch"
+    ],
+    "line": "void AudioCmn_PlayPauseSound__Fi(int patch);   /* :2375 */",
+    "corrected": "void AudioCmn_PlayPauseSound(int patch);"
+  },
+  {
+    "unit": "audiocmn",
+    "symbol": "quickSirenOn__Fi",
+    "name": "quickSirenOn",
+    "old_return": "void",
+    "old_args": "int sirennum",
+    "definition": [
+      "void quickSirenOn(int sirennum)"
+    ],
+    "native": {
+      "record": "191316",
+      "va": "8007971c",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [
+      "193828: $00000010 94 Def class REGPARM type INT size 0 name sirennum"
+    ],
+    "line": "void quickSirenOn__Fi(int sirennum);   /* :2412 */",
+    "corrected": "void quickSirenOn(int sirennum);"
+  },
+  {
+    "unit": "audiocmn",
+    "symbol": "SuperCopSirenOn__Fi",
+    "name": "SuperCopSirenOn",
+    "old_return": "void",
+    "old_args": "int sirennum",
+    "definition": [
+      "void SuperCopSirenOn(int sirennum)"
+    ],
+    "native": {
+      "record": "191334",
+      "va": "80079790",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [
+      "1938ba: $00000010 94 Def class REGPARM type INT size 0 name sirennum"
+    ],
+    "line": "void SuperCopSirenOn__Fi(int sirennum);   /* :2418 */",
+    "corrected": "void SuperCopSirenOn(int sirennum);"
+  },
+  {
+    "unit": "audiocmn",
+    "symbol": "SirenOn__Fii",
+    "name": "SirenOn",
+    "old_return": "void",
+    "old_args": "int sirennum, int supercop",
+    "definition": [
+      "void SirenOn(int sirennum,int supercop)"
+    ],
+    "native": {
+      "record": "191355",
+      "va": "800797f8",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [
+      "193932: $00000004 94 Def class REGPARM type INT size 0 name sirennum",
+      "193948: $00000005 94 Def class REGPARM type INT size 0 name supercop"
+    ],
+    "line": "void SirenOn__Fii(int sirennum, int supercop);   /* :2423 */",
+    "corrected": "void SirenOn(int sirennum,int supercop);"
+  },
+  {
+    "unit": "audiocmn",
+    "symbol": "SirenOff__Fi",
+    "name": "SirenOff",
+    "old_return": "void",
+    "old_args": "int sirennum",
+    "definition": [
+      "void SirenOff(int sirennum)"
+    ],
+    "native": {
+      "record": "19136f",
+      "va": "800798a0",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [
+      "1939c0: $00000004 94 Def class REGPARM type INT size 0 name sirennum"
+    ],
+    "line": "void SirenOff__Fi(int sirennum);   /* :2442 */",
+    "corrected": "void SirenOff(int sirennum);"
+  },
+  {
+    "unit": "audiocmn",
+    "symbol": "UpdateSiren__Fiiiii",
+    "name": "UpdateSiren",
+    "old_return": "void",
+    "old_args": "int sirennum, int amp, int dop, int azimuth, int supercop",
+    "definition": [
+      "void UpdateSiren(int sirennum,int amp,int dop,int azimuth,int supercop)"
+    ],
+    "native": {
+      "record": "191389",
+      "va": "8007995c",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [
+      "193a3f: $00000011 94 Def class REGPARM type INT size 0 name sirennum",
+      "193a55: $00000012 94 Def class REGPARM type INT size 0 name amp",
+      "193a66: $00000015 94 Def class REGPARM type INT size 0 name dop",
+      "193a77: $00000014 94 Def class REGPARM type INT size 0 name azimuth",
+      "193a8c: $00000010 94 Def class ARG type INT size 0 name supercop"
+    ],
+    "line": "void UpdateSiren__Fiiiii(int sirennum, int amp, int dop, int azimuth, int supercop);   /* :2454 */",
+    "corrected": "void UpdateSiren(int sirennum,int amp,int dop,int azimuth,int supercop);"
+  },
+  {
+    "unit": "audiocmn",
+    "symbol": "AudioCmn_Pause__Fv",
+    "name": "AudioCmn_Pause",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void AudioCmn_Pause(void)"
+    ],
+    "native": {
+      "record": "1913aa",
+      "va": "80079b60",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [],
+    "line": "void AudioCmn_Pause__Fv(void);   /* :2511 */",
+    "corrected": "void AudioCmn_Pause(void);"
+  },
+  {
+    "unit": "audiocmn",
+    "symbol": "AudioCmn_UnPause__Fv",
+    "name": "AudioCmn_UnPause",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void AudioCmn_UnPause(void)"
+    ],
+    "native": {
+      "record": "1913ca",
+      "va": "80079c18",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [],
+    "line": "void AudioCmn_UnPause__Fv(void);   /* :2533 */",
+    "corrected": "void AudioCmn_UnPause(void);"
+  },
+  {
+    "unit": "audiocmn",
+    "symbol": "AudioCmn_UnPauseAndQuit__Fv",
+    "name": "AudioCmn_UnPauseAndQuit",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void AudioCmn_UnPauseAndQuit(void)"
+    ],
+    "native": {
+      "record": "1913ec",
+      "va": "80079ca4",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [],
+    "line": "void AudioCmn_UnPauseAndQuit__Fv(void);   /* :2546 */",
+    "corrected": "void AudioCmn_UnPauseAndQuit(void);"
+  },
+  {
+    "unit": "audiocmn",
+    "symbol": "AudioCmn_UnPauseAndRestart__Fv",
+    "name": "AudioCmn_UnPauseAndRestart",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void AudioCmn_UnPauseAndRestart(void)"
+    ],
+    "native": {
+      "record": "191415",
+      "va": "80079d8c",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [],
+    "line": "void AudioCmn_UnPauseAndRestart__Fv(void);   /* :2577 */",
+    "corrected": "void AudioCmn_UnPauseAndRestart(void);"
+  },
+  {
+    "unit": "audiocmn",
+    "symbol": "AudioCmn_InitReverb__Fv",
+    "name": "AudioCmn_InitReverb",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void AudioCmn_InitReverb(void)"
+    ],
+    "native": {
+      "record": "191441",
+      "va": "80079e88",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [],
+    "line": "void AudioCmn_InitReverb__Fv(void);   /* :2612 */",
+    "corrected": "void AudioCmn_InitReverb(void);"
+  },
+  {
+    "unit": "audiocmn",
+    "symbol": "AudioCmn_ReverbOff__Fv",
+    "name": "AudioCmn_ReverbOff",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void AudioCmn_ReverbOff(void)"
+    ],
+    "native": {
+      "record": "191466",
+      "va": "80079ecc",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [],
+    "line": "void AudioCmn_ReverbOff__Fv(void);   /* :2631 */",
+    "corrected": "void AudioCmn_ReverbOff(void);"
+  },
+  {
+    "unit": "audiomus",
+    "symbol": "AudioMus_RefreshStatus__Fv",
+    "name": "AudioMus_RefreshStatus",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void AudioMus_RefreshStatus(void)"
+    ],
+    "native": {
+      "record": "19ea11",
+      "va": "80079ef4",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [],
+    "line": "void AudioMus_RefreshStatus__Fv(void);   /* :83 */",
+    "corrected": "void AudioMus_RefreshStatus(void);"
+  },
+  {
+    "unit": "audiomus",
+    "symbol": "AudioMus_Threshold__Fv",
+    "name": "AudioMus_Threshold",
+    "old_return": "int",
+    "old_args": "void",
+    "definition": [
+      "int AudioMus_Threshold(void)"
+    ],
+    "native": {
+      "record": "19ea39",
+      "va": "80079f58",
+      "type": "INT size 0"
+    },
+    "parameter_records": [],
+    "line": "int AudioMus_Threshold__Fv(void);   /* :146 */",
+    "corrected": "int AudioMus_Threshold(void);"
+  },
+  {
+    "unit": "audiomus",
+    "symbol": "AudioMus_Buffered__Fv",
+    "name": "AudioMus_Buffered",
+    "old_return": "int",
+    "old_args": "void",
+    "definition": [
+      "int AudioMus_Buffered(void)"
+    ],
+    "native": {
+      "record": "19ea5d",
+      "va": "80079fdc",
+      "type": "INT size 0"
+    },
+    "parameter_records": [],
+    "line": "int AudioMus_Buffered__Fv(void);   /* :167 */",
+    "corrected": "int AudioMus_Buffered(void);"
+  },
+  {
+    "unit": "audiomus",
+    "symbol": "AudioMus_GetCurrentSong__Fv",
+    "name": "AudioMus_GetCurrentSong",
+    "old_return": "void *",
+    "old_args": "void",
+    "definition": [
+      "AudioMus_tCurrentSong * AudioMus_GetCurrentSong(void)"
+    ],
+    "native": {
+      "record": "19ea80",
+      "va": "8007a028",
+      "type": "PTR STRUCT size 76 dims 0 tag AudioMus_tCurrentSong"
+    },
+    "parameter_records": [],
+    "line": "void * AudioMus_GetCurrentSong__Fv(void);   /* :196 */",
+    "corrected": "AudioMus_tCurrentSong * AudioMus_GetCurrentSong(void);"
+  },
+  {
+    "unit": "audiomus",
+    "symbol": "AudioMus_SwitchSong__Fv",
+    "name": "AudioMus_SwitchSong",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void AudioMus_SwitchSong(void)"
+    ],
+    "native": {
+      "record": "19eac1",
+      "va": "8007a0e4",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [],
+    "line": "void AudioMus_SwitchSong__Fv(void);   /* :242 */",
+    "corrected": "void AudioMus_SwitchSong(void);"
+  },
+  {
+    "unit": "audiomus",
+    "symbol": "AudioMus_Fail__Fi",
+    "name": "AudioMus_Fail",
+    "old_return": "void",
+    "old_args": "int errorcode",
+    "definition": [
+      "void AudioMus_Fail(int errorcode)"
+    ],
+    "native": {
+      "record": "19eae6",
+      "va": "8007a1dc",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [
+      "19f0d5: $00000004 94 Def class REGPARM type INT size 0 name errorcode"
+    ],
+    "line": "void AudioMus_Fail__Fi(int errorcode);   /* :285 */",
+    "corrected": "void AudioMus_Fail(int errorcode);"
+  },
+  {
+    "unit": "audiomus",
+    "symbol": "AudioMus_QueueRequestedSong__Fv",
+    "name": "AudioMus_QueueRequestedSong",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void AudioMus_QueueRequestedSong(void)"
+    ],
+    "native": {
+      "record": "19eb05",
+      "va": "8007a258",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [],
+    "line": "void AudioMus_QueueRequestedSong__Fv(void);   /* :316 */",
+    "corrected": "void AudioMus_QueueRequestedSong(void);"
+  },
+  {
+    "unit": "audiomus",
+    "symbol": "AudioMus_SetEntry__FP19AudioMus_tSongEntry",
+    "name": "AudioMus_SetEntry",
+    "old_return": "void",
+    "old_args": "AudioMus_tSongEntry *info",
+    "definition": [
+      "void AudioMus_SetEntry(AudioMus_tSongEntry *info)"
+    ],
+    "native": {
+      "record": "19eb32",
+      "va": "8007a308",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [
+      "19f21d: $00000004 96 Def2 class REGPARM type PTR STRUCT size 64 dims 0 tag AudioMus_tSongEntry name info"
+    ],
+    "line": "void AudioMus_SetEntry__FP19AudioMus_tSongEntry(AudioMus_tSongEntry *info);   /* :345 */",
+    "corrected": "void AudioMus_SetEntry(AudioMus_tSongEntry *info);"
+  },
+  {
+    "unit": "audiomus",
+    "symbol": "AudioMus_SetCurrentSongInfo__Fv",
+    "name": "AudioMus_SetCurrentSongInfo",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void AudioMus_SetCurrentSongInfo(void)"
+    ],
+    "native": {
+      "record": "19eb6a",
+      "va": "8007a390",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [],
+    "line": "void AudioMus_SetCurrentSongInfo__Fv(void);   /* :379 */",
+    "corrected": "void AudioMus_SetCurrentSongInfo(void);"
+  },
+  {
+    "unit": "audiomus",
+    "symbol": "AudioMus_Server__Fii",
+    "name": "AudioMus_Server",
+    "old_return": "int",
+    "old_args": "int mode, int ticks",
+    "definition": [
+      "int AudioMus_Server(int mode,int ticks)"
+    ],
+    "native": {
+      "record": "19eb97",
+      "va": "8007a3d0",
+      "type": "INT size 0"
+    },
+    "parameter_records": [
+      "19f39a: $00000004 94 Def class REGPARM type INT size 0 name mode",
+      "19f3ac: $00000005 94 Def class REGPARM type INT size 0 name ticks"
+    ],
+    "line": "int AudioMus_Server__Fii(int mode, int ticks);   /* :407 */",
+    "corrected": "int AudioMus_Server(int mode,int ticks);"
+  },
+  {
+    "unit": "audiomus",
+    "symbol": "AudioMus_GetSongList__FPci",
+    "name": "AudioMus_GetSongList",
+    "old_return": "void *",
+    "old_args": "char *pattern, int memtype",
+    "definition": [
+      "AudioMus_tSongList * AudioMus_GetSongList(char *pattern,int memtype)"
+    ],
+    "native": {
+      "record": "19ebb9",
+      "va": "8007a880",
+      "type": "PTR STRUCT size 8 dims 0 tag AudioMus_tSongList"
+    },
+    "parameter_records": [
+      "19f42f: $00000015 94 Def class REGPARM type PTR CHAR size 0 name pattern",
+      "19f444: $00000012 94 Def class REGPARM type INT size 0 name memtype"
+    ],
+    "line": "void * AudioMus_GetSongList__FPci(char *pattern, int memtype);   /* :548 */",
+    "corrected": "AudioMus_tSongList * AudioMus_GetSongList(char *pattern,int memtype);"
+  },
+  {
+    "unit": "audiomus",
+    "symbol": "AudioMus_InitGlobals__Fv",
+    "name": "AudioMus_InitGlobals",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void AudioMus_InitGlobals(void)"
+    ],
+    "native": {
+      "record": "19ebf6",
+      "va": "8007aa54",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [],
+    "line": "void AudioMus_InitGlobals__Fv(void);   /* :599 */",
+    "corrected": "void AudioMus_InitGlobals(void);"
+  },
+  {
+    "unit": "audiomus",
+    "symbol": "AudioMus_InitDriverGlobals__Fv",
+    "name": "AudioMus_InitDriverGlobals",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void AudioMus_InitDriverGlobals(void)"
+    ],
+    "native": {
+      "record": "19ec1c",
+      "va": "8007aa78",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [],
+    "line": "void AudioMus_InitDriverGlobals__Fv(void);   /* :611 */",
+    "corrected": "void AudioMus_InitDriverGlobals(void);"
+  },
+  {
+    "unit": "audiomus",
+    "symbol": "AudioMus_DriverStartUp__Fii",
+    "name": "AudioMus_DriverStartUp",
+    "old_return": "void",
+    "old_args": "int buffersize, int spusize",
+    "definition": [
+      "void AudioMus_DriverStartUp(int buffersize,int spusize)"
+    ],
+    "native": {
+      "record": "19ec48",
+      "va": "8007aad4",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [
+      "19f6d9: $00000012 94 Def class REGPARM type INT size 0 name buffersize",
+      "19f6f1: $00000010 94 Def class REGPARM type INT size 0 name spusize"
+    ],
+    "line": "void AudioMus_DriverStartUp__Fii(int buffersize, int spusize);   /* :642 */",
+    "corrected": "void AudioMus_DriverStartUp(int buffersize,int spusize);"
+  },
+  {
+    "unit": "audiomus",
+    "symbol": "AudioMus_SysStartUp__FiiPc",
+    "name": "AudioMus_SysStartUp",
+    "old_return": "void",
+    "old_args": "int buffersize, int spusize, char *songs",
+    "definition": [
+      "void AudioMus_SysStartUp(int buffersize,int spusize,char *songs)"
+    ],
+    "native": {
+      "record": "19ec71",
+      "va": "8007ac18",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [
+      "19f84b: $00000010 94 Def class REGPARM type INT size 0 name buffersize",
+      "19f863: $00000011 94 Def class REGPARM type INT size 0 name spusize",
+      "19f878: $00000012 94 Def class REGPARM type PTR CHAR size 0 name songs"
+    ],
+    "line": "void AudioMus_SysStartUp__FiiPc(int buffersize, int spusize, char *songs);   /* :701 */",
+    "corrected": "void AudioMus_SysStartUp(int buffersize,int spusize,char *songs);"
+  },
+  {
+    "unit": "audiomus",
+    "symbol": "AudioMus_DriverCleanUp__Fv",
+    "name": "AudioMus_DriverCleanUp",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void AudioMus_DriverCleanUp(void)"
+    ],
+    "native": {
+      "record": "19ec99",
+      "va": "8007ad10",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [],
+    "line": "void AudioMus_DriverCleanUp__Fv(void);   /* :757 */",
+    "corrected": "void AudioMus_DriverCleanUp(void);"
+  },
+  {
+    "unit": "audiomus",
+    "symbol": "AudioMus_SysCleanUp__Fv",
+    "name": "AudioMus_SysCleanUp",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void AudioMus_SysCleanUp(void)"
+    ],
+    "native": {
+      "record": "19ecc1",
+      "va": "8007ad8c",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [],
+    "line": "void AudioMus_SysCleanUp__Fv(void);   /* :777 */",
+    "corrected": "void AudioMus_SysCleanUp(void);"
+  },
+  {
+    "unit": "audiomus",
+    "symbol": "AudioMus_StopSong__Fi",
+    "name": "AudioMus_StopSong",
+    "old_return": "void",
+    "old_args": "int fadeticks",
+    "definition": [
+      "void AudioMus_StopSong(int fadeticks)"
+    ],
+    "native": {
+      "record": "19ece6",
+      "va": "8007ae04",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [
+      "19f9d3: $00000010 94 Def class REGPARM type INT size 0 name fadeticks"
+    ],
+    "line": "void AudioMus_StopSong__Fi(int fadeticks);   /* :796 */",
+    "corrected": "void AudioMus_StopSong(int fadeticks);"
+  },
+  {
+    "unit": "audiomus",
+    "symbol": "AudioMus_BuildPlayList__FiPi",
+    "name": "AudioMus_BuildPlayList",
+    "old_return": "void",
+    "old_args": "int numplaylistsongs, int *playlist",
+    "definition": [
+      "void AudioMus_BuildPlayList(int numplaylistsongs,int *playlist)"
+    ],
+    "native": {
+      "record": "19ed09",
+      "va": "8007aed8",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [
+      "19fa5c: $00000004 94 Def class REGPARM type INT size 0 name numplaylistsongs",
+      "19fa7a: $00000005 94 Def class REGPARM type PTR INT size 0 name playlist"
+    ],
+    "line": "void AudioMus_BuildPlayList__FiPi(int numplaylistsongs, int *playlist);   /* :836 */",
+    "corrected": "void AudioMus_BuildPlayList(int numplaylistsongs,int *playlist);"
+  },
+  {
+    "unit": "audiomus",
+    "symbol": "AudioMus_BuildPattern__FPc",
+    "name": "AudioMus_BuildPattern",
+    "old_return": "void",
+    "old_args": "char *pattern",
+    "definition": [
+      "void AudioMus_BuildPattern(char *pattern)"
+    ],
+    "native": {
+      "record": "19ed33",
+      "va": "8007af60",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [
+      "19fb45: $00000011 94 Def class REGPARM type PTR CHAR size 0 name pattern"
+    ],
+    "line": "void AudioMus_BuildPattern__FPc(char *pattern);   /* :856 */",
+    "corrected": "void AudioMus_BuildPattern(char *pattern);"
+  },
+  {
+    "unit": "audiomus",
+    "symbol": "AudioMus_PlaySong__FPc",
+    "name": "AudioMus_PlaySong",
+    "old_return": "int",
+    "old_args": "char *pattern",
+    "definition": [
+      "int AudioMus_PlaySong(char *pattern)"
+    ],
+    "native": {
+      "record": "19ed5b",
+      "va": "8007b030",
+      "type": "INT size 0"
+    },
+    "parameter_records": [
+      "19fc0b: $00000013 94 Def class REGPARM type PTR CHAR size 0 name pattern"
+    ],
+    "line": "int AudioMus_PlaySong__FPc(char *pattern);   /* :875 */",
+    "corrected": "int AudioMus_PlaySong(char *pattern);"
+  },
+  {
+    "unit": "audiomus",
+    "symbol": "AudioMus_Volume__Fi",
+    "name": "AudioMus_Volume",
+    "old_return": "void",
+    "old_args": "int volume",
+    "definition": [
+      "void AudioMus_Volume(int volume)"
+    ],
+    "native": {
+      "record": "19ed7f",
+      "va": "8007b2b0",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [
+      "19fd48: $00000011 94 Def class REGPARM type INT size 0 name volume"
+    ],
+    "line": "void AudioMus_Volume__Fi(int volume);   /* :961 */",
+    "corrected": "void AudioMus_Volume(int volume);"
+  },
+  {
+    "unit": "audiomus",
+    "symbol": "AudioMus_AutoVolume__Fii",
+    "name": "AudioMus_AutoVolume",
+    "old_return": "void",
+    "old_args": "int fadeticks, int volume",
+    "definition": [
+      "void AudioMus_AutoVolume(int fadeticks,int volume)"
+    ],
+    "native": {
+      "record": "19eda0",
+      "va": "8007b46c",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [
+      "19fe85: $00000011 94 Def class REGPARM type INT size 0 name fadeticks",
+      "19fe9c: $00000010 94 Def class REGPARM type INT size 0 name volume"
+    ],
+    "line": "void AudioMus_AutoVolume__Fii(int fadeticks, int volume);   /* :1009 */",
+    "corrected": "void AudioMus_AutoVolume(int fadeticks,int volume);"
+  },
+  {
+    "unit": "audiotrk",
+    "symbol": "AudioTrk_Reset__Fv",
+    "name": "AudioTrk_Reset",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void AudioTrk_Reset(void)"
+    ],
+    "native": {
+      "record": "1be84f",
+      "va": "8007c614",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [],
+    "line": "void AudioTrk_Reset__Fv(void);   /* :59 */",
+    "corrected": "void AudioTrk_Reset(void);"
+  },
+  {
+    "unit": "audiotrk",
+    "symbol": "AudioTrk_StartUp__Fv",
+    "name": "AudioTrk_StartUp",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void AudioTrk_StartUp(void)"
+    ],
+    "native": {
+      "record": "1be86f",
+      "va": "8007c6f4",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [],
+    "line": "void AudioTrk_StartUp__Fv(void);   /* :88 */",
+    "corrected": "void AudioTrk_StartUp(void);"
+  },
+  {
+    "unit": "audiotrk",
+    "symbol": "AudioTrk_AddCustomObject__FP9AudioElemiP8coorddefiP8Car_tObji",
+    "name": "AudioTrk_AddCustomObject",
+    "old_return": "void",
+    "old_args": "AudioElem *se, int tck, coorddef *vel, int fade, Car_tObj *car, int trkazi",
+    "definition": [
+      "void AudioTrk_AddCustomObject(AudioElem *se,int tck,coorddef *vel,int fade,Car_tObj *car,int trkazi)"
+    ],
+    "native": {
+      "record": "1be891",
+      "va": "8007c750",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [
+      "1beb8c: $00000014 96 Def2 class REGPARM type PTR STRUCT size 24 dims 0 tag AudioElem name se",
+      "1beba8: $00000010 94 Def class REGPARM type INT size 0 name tck",
+      "1bebb9: $00000008 96 Def2 class ARG type PTR STRUCT size 12 dims 0 tag coorddef name vel",
+      "1bebd5: $0000000c 94 Def class ARG type INT size 0 name fade",
+      "1bebe7: $00000010 96 Def2 class ARG type PTR STRUCT size 2268 dims 0 tag Car_tObj name car",
+      "1bec03: $00000014 94 Def class ARG type INT size 0 name trkazi"
+    ],
+    "line": "void AudioTrk_AddCustomObject__FP9AudioElemiP8coorddefiP8Car_tObji(AudioElem *se, int tck, coorddef *vel, int fade, Car_tObj *car, int trkazi);   /* :135 */",
+    "corrected": "void AudioTrk_AddCustomObject(AudioElem *se,int tck,coorddef *vel,int fade,Car_tObj *car,int trkazi);"
+  },
+  {
+    "unit": "audiotrk",
+    "symbol": "AudioTrk_SoundTrack__FP8Car_tObji",
+    "name": "AudioTrk_SoundTrack",
+    "old_return": "void",
+    "old_args": "Car_tObj *car, int trkazi",
+    "definition": [
+      "void AudioTrk_SoundTrack(Car_tObj *car,int trkazi)"
+    ],
+    "native": {
+      "record": "1be8dc",
+      "va": "8007cdc4",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [
+      "1bf051: $00000000 96 Def2 class ARG type PTR STRUCT size 2268 dims 0 tag Car_tObj name car",
+      "1bf06d: $00000004 94 Def class ARG type INT size 0 name trkazi"
+    ],
+    "line": "void AudioTrk_SoundTrack__FP8Car_tObji(Car_tObj *car, int trkazi);   /* :310 */",
+    "corrected": "void AudioTrk_SoundTrack(Car_tObj *car,int trkazi);"
+  },
+  {
+    "unit": "audiotrk",
+    "symbol": "AudioTrk_PreLoad__Fv",
+    "name": "AudioTrk_PreLoad",
+    "old_return": "int",
+    "old_args": "void",
+    "definition": [
+      "int AudioTrk_PreLoad(void)"
+    ],
+    "native": {
+      "record": "1be90b",
+      "va": "8007d35c",
+      "type": "INT size 0"
+    },
+    "parameter_records": [],
+    "line": "int AudioTrk_PreLoad__Fv(void);   /* :478 */",
+    "corrected": "int AudioTrk_PreLoad(void);"
+  },
+  {
+    "unit": "audiotrk",
+    "symbol": "AudioTrk_CleanUp__Fv",
+    "name": "AudioTrk_CleanUp",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void AudioTrk_CleanUp(void)"
+    ],
+    "native": {
+      "record": "1be92d",
+      "va": "8007d52c",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [],
+    "line": "void AudioTrk_CleanUp__Fv(void);   /* :534 */",
+    "corrected": "void AudioTrk_CleanUp(void);"
+  },
+  {
+    "unit": "clock",
+    "symbol": "Clock_MasterInterruptHandler__Fv",
+    "name": "Clock_MasterInterruptHandler",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void Clock_MasterInterruptHandler(void)"
+    ],
+    "native": {
+      "record": "2106c4",
+      "va": "8008b938",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [],
+    "line": "void Clock_MasterInterruptHandler__Fv(void);   /* :115 */",
+    "corrected": "void Clock_MasterInterruptHandler(void);"
+  },
+  {
+    "unit": "clock",
+    "symbol": "Clock_SystemStartUp__Fv",
+    "name": "Clock_SystemStartUp",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void Clock_SystemStartUp(void)"
+    ],
+    "native": {
+      "record": "2106f2",
+      "va": "8008b9e4",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [],
+    "line": "void Clock_SystemStartUp__Fv(void);   /* :157 */",
+    "corrected": "void Clock_SystemStartUp(void);"
+  },
+  {
+    "unit": "clock",
+    "symbol": "Clock_SystemCleanUp__Fv",
+    "name": "Clock_SystemCleanUp",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void Clock_SystemCleanUp(void)"
+    ],
+    "native": {
+      "record": "210717",
+      "va": "8008ba40",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [],
+    "line": "void Clock_SystemCleanUp__Fv(void);   /* :182 */",
+    "corrected": "void Clock_SystemCleanUp(void);"
+  },
+  {
+    "unit": "fastrand",
+    "symbol": "FastRandom_CleanUp__Fv",
+    "name": "FastRandom_CleanUp",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void FastRandom_CleanUp(void)"
+    ],
+    "native": {
+      "record": "27513a",
+      "va": "8009b3c8",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [],
+    "line": "void FastRandom_CleanUp__Fv(void);   /* :13 */",
+    "corrected": "void FastRandom_CleanUp(void);"
+  },
+  {
+    "unit": "fastrand",
+    "symbol": "FastRandom_StartUp__FUi",
+    "name": "FastRandom_StartUp",
+    "old_return": "void",
+    "old_args": "unsigned int seeder",
+    "definition": [
+      "void FastRandom_StartUp(unsigned int seeder)"
+    ],
+    "native": {
+      "record": "27515e",
+      "va": "8009b3d0",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [
+      "275241: $00000004 94 Def class REGPARM type UINT size 0 name seeder"
+    ],
+    "line": "void FastRandom_StartUp__FUi(unsigned int seeder);   /* :18 */",
+    "corrected": "void FastRandom_StartUp(unsigned int seeder);"
+  },
+  {
+    "unit": "mathnfs",
+    "symbol": "Math_DistXZ__FP8coorddefT0",
+    "name": "Math_DistXZ",
+    "old_return": "int",
+    "old_args": "coorddef *a, coorddef *b",
+    "definition": [
+      "int Math_DistXZ(coorddef *a,coorddef *b)"
+    ],
+    "native": {
+      "record": "295868",
+      "va": "8009d3e4",
+      "type": "INT size 0"
+    },
+    "parameter_records": [
+      "295a7f: $00000004 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name a",
+      "295a99: $00000005 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name b"
+    ],
+    "line": "int Math_DistXZ__FP8coorddefT0(coorddef *a, coorddef *b);   /* :26 */",
+    "corrected": "int Math_DistXZ(coorddef *a,coorddef *b);"
+  },
+  {
+    "unit": "mathnfs",
+    "symbol": "Math_Dist3D__FP8coorddefT0",
+    "name": "Math_Dist3D",
+    "old_return": "int",
+    "old_args": "coorddef *a, coorddef *b",
+    "definition": [
+      "int Math_Dist3D(coorddef *a,coorddef *b)"
+    ],
+    "native": {
+      "record": "295890",
+      "va": "8009d438",
+      "type": "INT size 0"
+    },
+    "parameter_records": [
+      "295b92: $00000004 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name a",
+      "295bac: $00000005 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name b"
+    ],
+    "line": "int Math_Dist3D__FP8coorddefT0(coorddef *a, coorddef *b);   /* :42 */",
+    "corrected": "int Math_Dist3D(coorddef *a,coorddef *b);"
+  },
+  {
+    "unit": "mathnfs",
+    "symbol": "Math_BetterDist__Fii",
+    "name": "Math_BetterDist",
+    "old_return": "int",
+    "old_args": "int a, int b",
+    "definition": [
+      "int Math_BetterDist(int a,int b)"
+    ],
+    "native": {
+      "record": "2958b8",
+      "va": "8009d4c8",
+      "type": "INT size 0"
+    },
+    "parameter_records": [
+      "295c81: $00000004 94 Def class REGPARM type INT size 0 name a",
+      "295c90: $00000005 94 Def class REGPARM type INT size 0 name b"
+    ],
+    "line": "int Math_BetterDist__Fii(int a, int b);   /* :57 */",
+    "corrected": "int Math_BetterDist(int a,int b);"
+  },
+  {
+    "unit": "mathnfs",
+    "symbol": "Math_ResolveRotatedVector__FiiiPiT3",
+    "name": "Math_ResolveRotatedVector",
+    "old_return": "void",
+    "old_args": "int x, int y, int angle, int *newx, int *newy",
+    "definition": [
+      "void Math_ResolveRotatedVector(int x,int y,int angle,int *newx,int *newy)"
+    ],
+    "native": {
+      "record": "2958da",
+      "va": "8009d628",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [
+      "295d35: $00000013 94 Def class REGPARM type INT size 0 name x",
+      "295d44: $00000014 94 Def class REGPARM type INT size 0 name y",
+      "295d53: $00000006 94 Def class REGPARM type INT size 0 name angle",
+      "295d66: $00000015 94 Def class REGPARM type PTR INT size 0 name newx",
+      "295d78: $00000010 94 Def class ARG type PTR INT size 0 name newy"
+    ],
+    "line": "void Math_ResolveRotatedVector__FiiiPiT3(int x, int y, int angle, int *newx, int *newy);   /* :96 */",
+    "corrected": "void Math_ResolveRotatedVector(int x,int y,int angle,int *newx,int *newy);"
+  },
+  {
+    "unit": "mathnfs",
+    "symbol": "Math_VectorLength__FP8coorddef",
+    "name": "Math_VectorLength",
+    "old_return": "int",
+    "old_args": "coorddef *v",
+    "definition": [
+      "int Math_VectorLength(coorddef *v)"
+    ],
+    "native": {
+      "record": "29590b",
+      "va": "8009d6ec",
+      "type": "INT size 0"
+    },
+    "parameter_records": [
+      "295e3e: $00000004 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name v"
+    ],
+    "line": "int Math_VectorLength__FP8coorddef(coorddef *v);   /* :132 */",
+    "corrected": "int Math_VectorLength(coorddef *v);"
+  },
+  {
+    "unit": "mathnfs",
+    "symbol": "Math_VectorLength2__FP8coorddef",
+    "name": "Math_VectorLength2",
+    "old_return": "int",
+    "old_args": "coorddef *v",
+    "definition": [
+      "int Math_VectorLength2(coorddef *v)"
+    ],
+    "native": {
+      "record": "295937",
+      "va": "8009d888",
+      "type": "INT size 0"
+    },
+    "parameter_records": [
+      "295f8d: $00000004 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name v"
+    ],
+    "line": "int Math_VectorLength2__FP8coorddef(coorddef *v);   /* :207 */",
+    "corrected": "int Math_VectorLength2(coorddef *v);"
+  },
+  {
+    "unit": "mathnfs",
+    "symbol": "Math_NormalizeVector__FP8coorddef",
+    "name": "Math_NormalizeVector",
+    "old_return": "void",
+    "old_args": "coorddef *v",
+    "definition": [
+      "void Math_NormalizeVector(coorddef *v)"
+    ],
+    "native": {
+      "record": "295964",
+      "va": "8009da1c",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [
+      "2960df: $00000015 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name v"
+    ],
+    "line": "void Math_NormalizeVector__FP8coorddef(coorddef *v);   /* :298 */",
+    "corrected": "void Math_NormalizeVector(coorddef *v);"
+  },
+  {
+    "unit": "mathnfs",
+    "symbol": "Math_NormalizeShortVector__FP8coorddef",
+    "name": "Math_NormalizeShortVector",
+    "old_return": "void",
+    "old_args": "coorddef *v",
+    "definition": [
+      "void Math_NormalizeShortVector(coorddef *v)"
+    ],
+    "native": {
+      "record": "295993",
+      "va": "8009dbd4",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [
+      "296221: $00000012 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name v"
+    ],
+    "line": "void Math_NormalizeShortVector__FP8coorddef(coorddef *v);   /* :371 */",
+    "corrected": "void Math_NormalizeShortVector(coorddef *v);"
+  },
+  {
+    "unit": "mathnfs",
+    "symbol": "Math_QDNormalizeVector__FP8coorddef",
+    "name": "Math_QDNormalizeVector",
+    "old_return": "void",
+    "old_args": "coorddef *v",
+    "definition": [
+      "void Math_QDNormalizeVector(coorddef *v)"
+    ],
+    "native": {
+      "record": "2959c7",
+      "va": "8009dc80",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [
+      "2962dc: $00000010 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name v"
+    ],
+    "line": "void Math_QDNormalizeVector__FP8coorddef(coorddef *v);   /* :396 */",
+    "corrected": "void Math_QDNormalizeVector(coorddef *v);"
+  },
+  {
+    "unit": "mathnfs",
+    "symbol": "Math_fasttransmult__FP10matrixtdefN20",
+    "name": "Math_fasttransmult",
+    "old_return": "void",
+    "old_args": "matrixtdef *m1, matrixtdef *m2, matrixtdef *mr",
+    "definition": [
+      "void Math_fasttransmult(matrixtdef *m1,matrixtdef *m2,matrixtdef *mr)"
+    ],
+    "native": {
+      "record": "2959f8",
+      "va": "8009dd8c",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [
+      "2963b6: $00000012 96 Def2 class REGPARM type PTR STRUCT size 36 dims 0 tag matrixtdef name m1",
+      "2963d3: $00000005 96 Def2 class REGPARM type PTR STRUCT size 36 dims 0 tag matrixtdef name m2",
+      "2963f0: $00000011 96 Def2 class REGPARM type PTR STRUCT size 36 dims 0 tag matrixtdef name mr"
+    ],
+    "line": "void Math_fasttransmult__FP10matrixtdefN20(matrixtdef *m1, matrixtdef *m2, matrixtdef *mr);   /* :533 */",
+    "corrected": "void Math_fasttransmult(matrixtdef *m1,matrixtdef *m2,matrixtdef *mr);"
+  },
+  {
+    "unit": "paths",
+    "symbol": "Paths_StartUp__Fv",
+    "name": "Paths_StartUp",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void Paths_StartUp(void)"
+    ],
+    "native": {
+      "record": "2ddff5",
+      "va": "800a6e14",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [],
+    "line": "void Paths_StartUp__Fv(void);   /* :47 */",
+    "corrected": "void Paths_StartUp(void);"
+  },
+  {
+    "unit": "udff",
+    "symbol": "Udff_Opena__FPcT0i",
+    "name": "Udff_Opena",
+    "old_return": "void *",
+    "old_args": "char *name, char *mem, int abortFlag",
+    "definition": [
+      "Udff_tInfo * Udff_Opena(char *name,char *mem,int abortFlag)"
+    ],
+    "native": {
+      "record": "37c50f",
+      "va": "800bba08",
+      "type": "PTR STRUCT size 12 dims 0 tag Udff_tInfo"
+    },
+    "parameter_records": [
+      "37c605: $00000012 94 Def class REGPARM type PTR CHAR size 0 name name",
+      "37c617: $00000011 94 Def class REGPARM type PTR CHAR size 0 name mem",
+      "37c628: $00000006 94 Def class REGPARM type INT size 0 name abortFlag"
+    ],
+    "line": "void * Udff_Opena__FPcT0i(char *name, char *mem, int abortFlag);   /* :21 */",
+    "corrected": "Udff_tInfo * Udff_Opena(char *name,char *mem,int abortFlag);"
+  },
+  {
+    "unit": "udff",
+    "symbol": "Udff_Close__FP10Udff_tInfo",
+    "name": "Udff_Close",
+    "old_return": "void",
+    "old_args": "Udff_tInfo *handle",
+    "definition": [
+      "void Udff_Close(Udff_tInfo *handle)"
+    ],
+    "native": {
+      "record": "37c53c",
+      "va": "800bbad0",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [
+      "37c6cf: $00000010 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag Udff_tInfo name handle"
+    ],
+    "line": "void Udff_Close__FP10Udff_tInfo(Udff_tInfo *handle);   /* :84 */",
+    "corrected": "void Udff_Close(Udff_tInfo *handle);"
+  },
+  {
+    "unit": "udff",
+    "symbol": "Udff_GetInt__FP10Udff_tInfo",
+    "name": "Udff_GetInt",
+    "old_return": "int",
+    "old_args": "Udff_tInfo *handle",
+    "definition": [
+      "int Udff_GetInt(Udff_tInfo *handle)"
+    ],
+    "native": {
+      "record": "37c564",
+      "va": "800bbb24",
+      "type": "INT size 0"
+    },
+    "parameter_records": [
+      "37c75d: $00000004 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag Udff_tInfo name handle"
+    ],
+    "line": "int Udff_GetInt__FP10Udff_tInfo(Udff_tInfo *handle);   /* :105 */",
+    "corrected": "int Udff_GetInt(Udff_tInfo *handle);"
+  },
+  {
+    "unit": "udff",
+    "symbol": "Udff_GetBuffer__FP10Udff_tInfoPci",
+    "name": "Udff_GetBuffer",
+    "old_return": "void",
+    "old_args": "Udff_tInfo *handle, char *mem, int size",
+    "definition": [
+      "void Udff_GetBuffer(Udff_tInfo *handle,char *mem,int size)"
+    ],
+    "native": {
+      "record": "37c58d",
+      "va": "800bbb3c",
+      "type": "VOID size 0"
+    },
+    "parameter_records": [
+      "37c804: $00000010 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag Udff_tInfo name handle",
+      "37c825: $00000005 94 Def class REGPARM type PTR CHAR size 0 name mem",
+      "37c836: $00000011 94 Def class REGPARM type INT size 0 name size"
+    ],
+    "line": "void Udff_GetBuffer__FP10Udff_tInfoPci(Udff_tInfo *handle, char *mem, int size);   /* :203 */",
+    "corrected": "void Udff_GetBuffer(Udff_tInfo *handle,char *mem,int size);"
+  }
+]

@@ -1,0 +1,35 @@
+/* P875 follow-up typed API references; compile-only, never a game input. */
+#include "C:/Temp/nfs4-decomp/recon/game/common/cars.h"
+void (*p875_common2_cars_0)(Car_tObj *carObj,int arcade) = &Cars_DoGravityEffectsOnAcc;
+void (*p875_common2_cars_1)(Car_tObj *carObj,int *rpm,int *gear,int *speed) = &Cars_GetDashData;
+void (*p875_common2_cars_2)(Car_tObj *carObj) = &Cars_QDUpdateVelGlue;
+void (*p875_common2_cars_3)(Car_tObj *carObj,int *redline,int *topspeed) = &Cars_InitDashData;
+void (*p875_common2_cars_4)(Car_tObj *carObj,int type,int chan,int s1,int s2,int force,int pan) = &Cars_SetAudioCalls;
+void (*p875_common2_cars_5)(void) = &Cars_ResetCarCounters;
+void (*p875_common2_cars_6)(Car_tObj *carObj) = &Cars_InitStats;
+void (*p875_common2_cars_7)(Car_tObj *carObj) = &Cars_InitializeCarTablesFlagsAndCounters;
+void (*p875_common2_cars_8)(Car_tObj *carObj) = &Cars_ResetVariablesAfterACollision;
+void (*p875_common2_cars_9)(Car_tObj *carObj,int forceReset,int forceParkAtSide) = &Cars_ResetCollidedCars;
+void (*p875_common2_cars_10)(Car_tObj *carObj) = &Cars_SetCarUpForHiRezSim;
+void (*p875_common2_cars_11)(Car_tObj *carObj) = &Cars_DoExtraCarCollisionProcessing;
+void (*p875_common2_cars_12)(Car_tObj *carObj,int wheel,coorddef *skidpt,int roadSurface,int surfaceType, int drawSkid) = &Cars_AddCarSfx;
+void (*p875_common2_cars_13)(Car_tObj *carObj) = &Car_TireSkiddingStuff;
+void (*p875_common2_cars_14)(Car_tObj *carObj) = &Cars_FindTotalSlice;
+void (*p875_common2_cars_15)(Car_tObj *carObj) = &Car_DoSkiddingStuff;
+void (*p875_common2_cars_16)(Car_tObj *carObj) = &Car_DoPostCollisionStuff;
+void (*p875_common2_cars_17)(Car_tObj *carObj,int *slice,coorddef *offset) = &Cars_CalculateStartingGridOffset;
+void (*p875_common2_cars_18)(Car_tObj *carObj,int index) = &Cars_IniCarObjects;
+void (*p875_common2_cars_19)(Car_tObj *carObj,int index) = &Cars_InitCar;
+void (*p875_common2_cars_20)(Car_tObj *carObj) = &Cars_DeInitCar;
+void (*p875_common2_cars_21)(void) = &Cars_Restart;
+void (*p875_common2_cars_22)(char *mem,int size) = &Cars_Initialize;
+void (*p875_common2_cars_23)(void) = &Cars_StartUp;
+void (*p875_common2_cars_24)(void) = &Cars_CleanUp;
+void (*p875_common2_cars_25)(Car_tObj *carObj) = &Cars_FindCurrentLap;
+int (*p875_common2_cars_26)(Car_tObj *carObj) = &Cars_CalculateRoadSpan;
+int (*p875_common2_cars_27)(Car_tObj *carObj) = &Cars_CalculateRoadPosition;
+int (*p875_common2_cars_28)(Car_tObj *carObj) = &Cars_CalcVelDownRoad;
+void (*p875_common2_cars_29)(void) = &Cars_Randomize;
+void (*p875_common2_cars_30)(void) = &Cars_ManageBureaucracy;
+void (*p875_common2_cars_31)(void) = &Cars_CheckForAccidentScenes;
+void (*p875_common2_cars_32)(void) = &Cars_SortCars;

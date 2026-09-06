@@ -23,7 +23,7 @@ void timedwait(...);
 extern int          ticks[];
 extern tfrontEnd    frontEnd;
 extern tFEApplication *FEApp[];
-extern tGlobalMenuDefs *menuDefs[];
+extern tGlobalMenuDefs *menuDefs;
 extern char        *Paths_Paths[];
 extern tCarManager  carManager;
 extern tTournamentManager tournamentManager;
@@ -40,10 +40,10 @@ extern tTrackManager trackManager;
    (gFE_Cheats/CarLineup/picked keep their front.cpp definition order, which is
    already retail's.) */
 extern char         gFE_Cheats[];
-extern int          gPSXMemCardFull[];
+extern int          gPSXMemCardFull;
 extern int          colourChosen[8];
-extern tAllScreens *gAllScreens[];
-extern bool         memCardReadOK[];
+extern tAllScreens *gAllScreens;
+extern bool         memCardReadOK;
 
 /* ===== auto-generated stubs ===== */
 /* W58-A1 (08A phantom fix): the entry points below were free `Type f(...)` decls,
@@ -124,17 +124,17 @@ extern char gCalculateVictory;   /* was stale int (4B); owner nfs3.cpp defines i
                                      tightly before gPlayerEnteredNameAlready[2] -- a wrong 4B `sw`
                                      here would clobber 3 adjacent bytes incl. that neighbor global */
 extern int gFEBigHandle[];
-extern u_long gLargestUnused[];
+extern u_long gLargestUnused;  /* SYM 4b4f25: scalar ULONG owned by FEApp.obj */
 extern int gMasterAmbientLevel[];
 extern int gMasterEngineLevel[];
 extern int gMasterFENarrationLevel[];
 extern int gMasterMusicLevel[];
 extern int gMasterSFXLevel[];
-extern int gPSXMemCardFull[];
+extern int gPSXMemCardFull;
 extern tPadModuleState gPadinfo;
 extern int gUseFrontend;
 extern int mappings[3][13][3];
-extern bool memCardReadOK[];
+extern bool memCardReadOK;
 extern tMissionManager missionManager;   /* W58-A1: real type -- ..__15tMissionManager */
 extern tCarModels regularCopModels[7][5];
 extern tScreenAudio *screenAudio;

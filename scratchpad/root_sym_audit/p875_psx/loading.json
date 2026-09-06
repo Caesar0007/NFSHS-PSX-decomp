@@ -1,0 +1,333 @@
+{
+  "round": "P875",
+  "header": "recon/game/psx/loading.h",
+  "source_authority": "C:/Temp/nfs4-clean/nfs4-f-v3.txt",
+  "scope": "Free-function public prototype rows from P874 inventory only; not an all-record or all-project source restoration claim.",
+  "counts": {
+    "inventory_candidates": 3,
+    "corrected_public": 3,
+    "removed_file_static": 0,
+    "before_native_references": 0,
+    "after_native_references": 3,
+    "return_type_corrections": 0,
+    "header_compile_failures": 0,
+    "unresolved_header_candidates": 0,
+    "preexisting_compiler_warning_count": 1
+  },
+  "before_actual_header_compile": {
+    "header": "recon/game/psx/loading.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\loading_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\loading_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\loading_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\loading_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\loading_before.s"
+      ]
+    ],
+    "header_sha256": "a919d67cf13d6e0c5136be47b28ad971017fe32c0b001a3caba2cc9466fd4380",
+    "references": {
+      "0": "Loading_DrawLoadingScreen__Fv__Fv",
+      "1": "Loading_UpdateLoadingScreen__Fi__Fi",
+      "2": "Loading_GetInitialMemory__Fv__Fv"
+    },
+    "ok": true,
+    "assembly_sha256": "b255fcec7a0a77c5c8cd7c9416fa06b00a06888477e5adff997aecbaa5e6a019",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".sdata",
+      ".rodata",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\loading.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "smallShapeFile",
+      "Loading_DrawLoadingScreen__Fv",
+      "Loading_UpdateLoadingScreen__Fi",
+      "Loading_GetInitialMemory__Fv",
+      "totalAvailMem"
+    ]
+  },
+  "before_frozen_replay": {
+    "header": "recon/game/psx/loading.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\loading_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\loading_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\loading_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\loading_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\loading_before.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\loading_before.cpp:2:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "ca40a4c2a81782a8bf3f3d397657351aae57285b8bd19b0fced33e4475e711f9",
+    "input_mode": "frozen-original-prototype-surface",
+    "references": {
+      "0": "Loading_DrawLoadingScreen__Fv__Fv",
+      "1": "Loading_UpdateLoadingScreen__Fi__Fi",
+      "2": "Loading_GetInitialMemory__Fv__Fv"
+    },
+    "ok": true,
+    "assembly_sha256": "b255fcec7a0a77c5c8cd7c9416fa06b00a06888477e5adff997aecbaa5e6a019"
+  },
+  "after_actual_header_compile": {
+    "header": "recon/game/psx/loading.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\loading_after.cpp",
+    "stage": "after",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\loading_after.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\loading_after.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\loading_after.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\loading_after.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:/Temp/nfs4-decomp/recon/game/psx/loading.h:4,\n                 from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\loading_after.cpp:1:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "459f2890b0424b6cc801df4fff20d808eb6b5e743a7e9c55bd1e06255968ef62",
+    "input_mode": "live-public-header",
+    "header_sha256": "22add8af644edd05e61316e823edf177b05b787a3dd3b7fe894d6cacdff662d5",
+    "references": {
+      "0": "Loading_DrawLoadingScreen__Fv",
+      "1": "Loading_UpdateLoadingScreen__Fi",
+      "2": "Loading_GetInitialMemory__Fv"
+    },
+    "ok": true,
+    "assembly_sha256": "d73b6bc9dbc90fe564d23a60a51572a23fd621a2074525c4813cd56af74afe40",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".sdata",
+      ".rodata",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\loading.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "smallShapeFile",
+      "Loading_DrawLoadingScreen__Fv",
+      "Loading_UpdateLoadingScreen__Fi",
+      "Loading_GetInitialMemory__Fv",
+      "totalAvailMem"
+    ]
+  },
+  "owning_tu_gate": {
+    "source": "recon/game/psx/loading.cpp",
+    "command": [
+      "C:\\Python314\\python.exe",
+      "tools/tugate.py",
+      "recon/game/psx/loading.cpp"
+    ],
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/psx/loading.cpp: 3/3 PASS\n",
+    "stderr": "",
+    "object_sha256": "a6580018d80e3989f79aaffc9bb63d4a68a430e66fb2fc431e5744a6ff0f94ee",
+    "actual_function_symbols": [
+      "Loading_DrawLoadingScreen__Fv",
+      "Loading_UpdateLoadingScreen__Fi",
+      "Loading_GetInitialMemory__Fv"
+    ],
+    "local_function_symbols": []
+  },
+  "consumer_census": {
+    "files_scanned": 1677,
+    "literal_users": [],
+    "dynamic_includes": []
+  },
+  "unresolved": [],
+  "prototype_receipts": [
+    {
+      "header": "recon/game/psx/loading.h",
+      "line": 6,
+      "encoded": "Loading_DrawLoadingScreen__Fv",
+      "name": "Loading_DrawLoadingScreen",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Loading_DrawLoadingScreen__Fv(void);   /* :15 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "4312e4",
+          "va": "800db0b8",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Loading_DrawLoadingScreen",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\loading.cpp",
+          "line": 20,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 44,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Loading_DrawLoadingScreen(void);   /* SYM 4312e4 @0x800db0b8 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Loading_DrawLoadingScreen__Fv__Fv",
+      "after_emitted_reference": "Loading_DrawLoadingScreen__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/loading.h",
+      "line": 7,
+      "encoded": "Loading_UpdateLoadingScreen__Fi",
+      "name": "Loading_UpdateLoadingScreen",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Loading_UpdateLoadingScreen__Fi(int checkpoint);   /* :60 */",
+      "header_return": "void",
+      "header_signature": "(int checkpoint)",
+      "native": [
+        {
+          "record": "43130f",
+          "va": "800db200",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Loading_UpdateLoadingScreen",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\loading.cpp",
+          "line": 59,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int checkpoint)",
+          "end": 87,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int checkpoint)",
+      "final_prototype": "void Loading_UpdateLoadingScreen(int checkpoint);   /* SYM 43130f @0x800db200 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Loading_UpdateLoadingScreen__Fi__Fi",
+      "after_emitted_reference": "Loading_UpdateLoadingScreen__Fi",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/loading.h",
+      "line": 8,
+      "encoded": "Loading_GetInitialMemory__Fv",
+      "name": "Loading_GetInitialMemory",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Loading_GetInitialMemory__Fv(void);   /* :105 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "43133c",
+          "va": "800db2f8",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Loading_GetInitialMemory",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\loading.cpp",
+          "line": 90,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 96,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Loading_GetInitialMemory(void);   /* SYM 43133c @0x800db2f8 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Loading_GetInitialMemory__Fv__Fv",
+      "after_emitted_reference": "Loading_GetInitialMemory__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    }
+  ]
+}

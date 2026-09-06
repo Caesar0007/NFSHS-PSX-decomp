@@ -1,0 +1,1171 @@
+{
+  "round": "P875",
+  "header": "recon/game/psx/night.h",
+  "source_authority": "C:/Temp/nfs4-clean/nfs4-f-v3.txt",
+  "scope": "Free-function public prototype rows from P874 inventory only; not an all-record or all-project source restoration claim.",
+  "counts": {
+    "inventory_candidates": 19,
+    "corrected_public": 19,
+    "removed_file_static": 0,
+    "before_native_references": 0,
+    "after_native_references": 19,
+    "return_type_corrections": 0,
+    "header_compile_failures": 0,
+    "unresolved_header_candidates": 0,
+    "preexisting_compiler_warning_count": 1
+  },
+  "before_actual_header_compile": {
+    "header": "recon/game/psx/night.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\night_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\night_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\night_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\night_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\night_before.s"
+      ]
+    ],
+    "header_sha256": "8f23710535c3f17be86923f65afdb7b7b96e913ecb24bf37595e78c6325e41e6",
+    "references": {
+      "0": "Night_FindClosestColor__FG7CVECTORPi__FG7CVECTORPi",
+      "1": "Night_CreateNightTableElement__FiliPUc__FiliPUc",
+      "2": "Night_CreateNightTable__FiliPA256_A16_Uc__FiliPA16_PUc",
+      "3": "Night_GenerateNextLightningEvent__Fv__Fv",
+      "4": "Night_PauseLightningEffect__Fi__Fi",
+      "5": "Night_DoLightningEffect__FP13DRender_tView__FP13DRender_tView",
+      "6": "Night_SetCopColor__FP18GameSetup_tCarData__FP18GameSetup_tCarData",
+      "7": "Night_InitPlayerHeadLightColor__Fi__Fi",
+      "8": "Night_SetPlayerHeadLightColor__Fiii__Fiii",
+      "9": "Night_InitCopLightColors__Fv__Fv",
+      "10": "Night_SetCopLightColors__Fii__Fii",
+      "11": "Night_InitWeatherTables__Fv__Fv",
+      "12": "Night_SetWeatherColors__Fi__Fi",
+      "13": "Night_GenerateAllLightTables__Fv__Fv",
+      "14": "Night_InitNightDriving__Fv__Fv",
+      "15": "Night_KillNightDriving__Fv__Fv",
+      "16": "Night_RestartNightDriving__Fv__Fv",
+      "17": "Night_SetEnviroment__FP13DRender_tView__FP13DRender_tView",
+      "18": "Night_AdditiveNightCalc__FP6VECTORP7CVECTOR__FP6VECTORP7CVECTOR"
+    },
+    "ok": true,
+    "assembly_sha256": "4a6539a7ed3734d85dec3b45527a49c0f51f02f363c91144cece835f2e5a7177",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".sdata",
+      ".rodata",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\night.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "Night_gDrawLightning",
+      "Night_gCopCarTypeColorIdx",
+      "Night_gCopCountryLightTbl",
+      "Night_gPlayerLightingTable",
+      "Night_gCopLightingTableRed",
+      "Night_gCopLightingTableBlue",
+      "Night_gWeatherLightingTable",
+      "CopCarTypeLights",
+      "Night_FindClosestColor__FG7CVECTORPi",
+      "Night_CreateNightTableElement__FiliPUc",
+      "Night_CreateNightTable__FiliPA256_A16_Uc",
+      "Night_GenerateNextLightningEvent__Fv",
+      "Night_PauseLightningEffect__Fi",
+      "lightningInit.16",
+      "Night_DoLightningEffect__FP13DRender_tView",
+      "Night_SetCopColor__FP18GameSetup_tCarData",
+      "Night_InitPlayerHeadLightColor__Fi",
+      "Night_SetPlayerHeadLightColor__Fiii",
+      "Night_InitCopLightColors__Fv",
+      "Night_SetCopLightColors__Fii",
+      "Night_InitWeatherTables__Fv",
+      "Night_SetWeatherColors__Fi",
+      "colorCreationTable.33",
+      "Night_GenerateAllLightTables__Fv",
+      "Night_InitNightDriving__Fv",
+      "Night_KillNightDriving__Fv",
+      "Night_RestartNightDriving__Fv",
+      "Night_SetEnviroment__FP13DRender_tView",
+      "Night_AdditiveNightCalc__FP6VECTORP7CVECTOR",
+      "Night_gLightningPauseAreas",
+      "Night_gAdditiveHeadlightColor",
+      "gNight_renderNight",
+      "Night_gXDist",
+      "Night_gZNear",
+      "Night_gZDist",
+      "Night_gXDistShift",
+      "Night_gZDistShift",
+      "Night_gNightTbl",
+      "Night_gLightningType",
+      "Night_gCurrentNightColor",
+      "Night_gCopColor",
+      "Night_gNightAmbientColor",
+      "Night_gColor",
+      "Night_gTotalLights",
+      "Night_gLightning",
+      "Night_gNextLightning",
+      "Night_gEndNextLightning",
+      "Night_gNextFlicker",
+      "Night_gFlashAzimuth",
+      "Night_gShowForks",
+      "Night_gFlashIntensity",
+      "Night_gPlayerHeadLightColor",
+      "Night_gWeatherColor",
+      "gNightInitCache",
+      "gTableCache",
+      "nightfile"
+    ]
+  },
+  "before_frozen_replay": {
+    "header": "recon/game/psx/night.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\night_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\night_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\night_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\night_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\night_before.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\night_before.cpp:2:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "1b79e376661544f4b86b75bc080e5beb40ed5097f1cc11bbb060ddeee724f956",
+    "input_mode": "frozen-original-prototype-surface",
+    "references": {
+      "0": "Night_FindClosestColor__FG7CVECTORPi__FG7CVECTORPi",
+      "1": "Night_CreateNightTableElement__FiliPUc__FiliPUc",
+      "2": "Night_CreateNightTable__FiliPA256_A16_Uc__FiliPA16_PUc",
+      "3": "Night_GenerateNextLightningEvent__Fv__Fv",
+      "4": "Night_PauseLightningEffect__Fi__Fi",
+      "5": "Night_DoLightningEffect__FP13DRender_tView__FP13DRender_tView",
+      "6": "Night_SetCopColor__FP18GameSetup_tCarData__FP18GameSetup_tCarData",
+      "7": "Night_InitPlayerHeadLightColor__Fi__Fi",
+      "8": "Night_SetPlayerHeadLightColor__Fiii__Fiii",
+      "9": "Night_InitCopLightColors__Fv__Fv",
+      "10": "Night_SetCopLightColors__Fii__Fii",
+      "11": "Night_InitWeatherTables__Fv__Fv",
+      "12": "Night_SetWeatherColors__Fi__Fi",
+      "13": "Night_GenerateAllLightTables__Fv__Fv",
+      "14": "Night_InitNightDriving__Fv__Fv",
+      "15": "Night_KillNightDriving__Fv__Fv",
+      "16": "Night_RestartNightDriving__Fv__Fv",
+      "17": "Night_SetEnviroment__FP13DRender_tView__FP13DRender_tView",
+      "18": "Night_AdditiveNightCalc__FP6VECTORP7CVECTOR__FP6VECTORP7CVECTOR"
+    },
+    "ok": true,
+    "assembly_sha256": "4a6539a7ed3734d85dec3b45527a49c0f51f02f363c91144cece835f2e5a7177"
+  },
+  "after_actual_header_compile": {
+    "header": "recon/game/psx/night.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\night_after.cpp",
+    "stage": "after",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\night_after.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\night_after.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\night_after.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\night_after.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:/Temp/nfs4-decomp/recon/game/psx/night.h:4,\n                 from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\night_after.cpp:1:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "c68d5804b5aeec859b1d6e89d23f5e0f55d11171db34af49ece7e44d253b3468",
+    "input_mode": "live-public-header",
+    "header_sha256": "2ef7d0f6230231b782aa0809be0b3e7d0b9bf6e3eb4b21e28a22610aa97c9de1",
+    "references": {
+      "0": "Night_FindClosestColor__FG7CVECTORPi",
+      "1": "Night_CreateNightTableElement__FiliPUc",
+      "2": "Night_CreateNightTable__FiliPA256_A16_Uc",
+      "3": "Night_GenerateNextLightningEvent__Fv",
+      "4": "Night_PauseLightningEffect__Fi",
+      "5": "Night_DoLightningEffect__FP13DRender_tView",
+      "6": "Night_SetCopColor__FP18GameSetup_tCarData",
+      "7": "Night_InitPlayerHeadLightColor__Fi",
+      "8": "Night_SetPlayerHeadLightColor__Fiii",
+      "9": "Night_InitCopLightColors__Fv",
+      "10": "Night_SetCopLightColors__Fii",
+      "11": "Night_InitWeatherTables__Fv",
+      "12": "Night_SetWeatherColors__Fi",
+      "13": "Night_GenerateAllLightTables__Fv",
+      "14": "Night_InitNightDriving__Fv",
+      "15": "Night_KillNightDriving__Fv",
+      "16": "Night_RestartNightDriving__Fv",
+      "17": "Night_SetEnviroment__FP13DRender_tView",
+      "18": "Night_AdditiveNightCalc__FP6VECTORP7CVECTOR"
+    },
+    "ok": true,
+    "assembly_sha256": "d780c6edfca4628379c3f948c9218b7dd0024a5952c3dfb3d83501099950ada1",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".sdata",
+      ".rodata",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\night.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "Night_gDrawLightning",
+      "Night_gCopCarTypeColorIdx",
+      "Night_gCopCountryLightTbl",
+      "Night_gPlayerLightingTable",
+      "Night_gCopLightingTableRed",
+      "Night_gCopLightingTableBlue",
+      "Night_gWeatherLightingTable",
+      "CopCarTypeLights",
+      "Night_FindClosestColor__FG7CVECTORPi",
+      "Night_CreateNightTableElement__FiliPUc",
+      "Night_CreateNightTable__FiliPA256_A16_Uc",
+      "Night_GenerateNextLightningEvent__Fv",
+      "Night_PauseLightningEffect__Fi",
+      "lightningInit.16",
+      "Night_DoLightningEffect__FP13DRender_tView",
+      "Night_SetCopColor__FP18GameSetup_tCarData",
+      "Night_InitPlayerHeadLightColor__Fi",
+      "Night_SetPlayerHeadLightColor__Fiii",
+      "Night_InitCopLightColors__Fv",
+      "Night_SetCopLightColors__Fii",
+      "Night_InitWeatherTables__Fv",
+      "Night_SetWeatherColors__Fi",
+      "colorCreationTable.33",
+      "Night_GenerateAllLightTables__Fv",
+      "Night_InitNightDriving__Fv",
+      "Night_KillNightDriving__Fv",
+      "Night_RestartNightDriving__Fv",
+      "Night_SetEnviroment__FP13DRender_tView",
+      "Night_AdditiveNightCalc__FP6VECTORP7CVECTOR",
+      "Night_gLightningPauseAreas",
+      "Night_gAdditiveHeadlightColor",
+      "gNight_renderNight",
+      "Night_gXDist",
+      "Night_gZNear",
+      "Night_gZDist",
+      "Night_gXDistShift",
+      "Night_gZDistShift",
+      "Night_gNightTbl",
+      "Night_gLightningType",
+      "Night_gCurrentNightColor",
+      "Night_gCopColor",
+      "Night_gNightAmbientColor",
+      "Night_gColor",
+      "Night_gTotalLights",
+      "Night_gLightning",
+      "Night_gNextLightning",
+      "Night_gEndNextLightning",
+      "Night_gNextFlicker",
+      "Night_gFlashAzimuth",
+      "Night_gShowForks",
+      "Night_gFlashIntensity",
+      "Night_gPlayerHeadLightColor",
+      "Night_gWeatherColor",
+      "gNightInitCache",
+      "gTableCache",
+      "nightfile"
+    ]
+  },
+  "owning_tu_gate": {
+    "source": "recon/game/psx/night.cpp",
+    "command": [
+      "C:\\Python314\\python.exe",
+      "tools/tugate.py",
+      "recon/game/psx/night.cpp"
+    ],
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/psx/night.cpp: 18/19 PASS\n     56  Night_CreateNightTableElement__FiliPUc\n",
+    "stderr": "",
+    "object_sha256": "729320821e6dbc8a382452a0827fe0f9a7d3986f32b6406bc1d6c55f22981dda",
+    "actual_function_symbols": [
+      "Night_FindClosestColor__FG7CVECTORPi",
+      "Night_CreateNightTableElement__FiliPUc",
+      "Night_CreateNightTable__FiliPA256_A16_Uc",
+      "Night_GenerateNextLightningEvent__Fv",
+      "Night_PauseLightningEffect__Fi",
+      "Night_DoLightningEffect__FP13DRender_tView",
+      "Night_SetCopColor__FP18GameSetup_tCarData",
+      "Night_InitPlayerHeadLightColor__Fi",
+      "Night_SetPlayerHeadLightColor__Fiii",
+      "Night_InitCopLightColors__Fv",
+      "Night_SetCopLightColors__Fii",
+      "Night_InitWeatherTables__Fv",
+      "Night_SetWeatherColors__Fi",
+      "Night_GenerateAllLightTables__Fv",
+      "Night_InitNightDriving__Fv",
+      "Night_KillNightDriving__Fv",
+      "Night_RestartNightDriving__Fv",
+      "Night_SetEnviroment__FP13DRender_tView",
+      "Night_AdditiveNightCalc__FP6VECTORP7CVECTOR"
+    ],
+    "local_function_symbols": []
+  },
+  "consumer_census": {
+    "files_scanned": 1677,
+    "literal_users": [],
+    "dynamic_includes": []
+  },
+  "unresolved": [],
+  "prototype_receipts": [
+    {
+      "header": "recon/game/psx/night.h",
+      "line": 6,
+      "encoded": "Night_FindClosestColor__FG7CVECTORPi",
+      "name": "Night_FindClosestColor",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "int Night_FindClosestColor__FG7CVECTORPi(CVECTOR colorMatch, int *bestIndex);   /* :134 */",
+      "header_return": "int",
+      "header_signature": "(CVECTOR colorMatch, int *bestIndex)",
+      "native": [
+        {
+          "record": "43b827",
+          "va": "800db318",
+          "linkage": "EXT",
+          "return_type": "int"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Night_FindClosestColor",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\night.cpp",
+          "line": 84,
+          "typeref": "typename:int",
+          "kind": "function",
+          "signature": "(CVECTOR colorMatch,int * bestIndex)",
+          "end": 135,
+          "return_type": "int",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "int",
+      "final_signature": "(CVECTOR colorMatch,int * bestIndex)",
+      "final_prototype": "int Night_FindClosestColor(CVECTOR colorMatch,int * bestIndex);   /* SYM 43b827 @0x800db318 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Night_FindClosestColor__FG7CVECTORPi__FG7CVECTORPi",
+      "after_emitted_reference": "Night_FindClosestColor__FG7CVECTORPi",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/night.h",
+      "line": 7,
+      "encoded": "Night_CreateNightTableElement__FiliPUc",
+      "name": "Night_CreateNightTableElement",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Night_CreateNightTableElement__FiliPUc(int colorIndex, long colorH, int bright, u_char *colorval);   /* :181 */",
+      "header_return": "void",
+      "header_signature": "(int colorIndex, long colorH, int bright, u_char *colorval)",
+      "native": [
+        {
+          "record": "43b859",
+          "va": "800db3e0",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Night_CreateNightTableElement",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\night.cpp",
+          "line": 231,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int colorIndex,long colorH,int bright,u_char * colorval)",
+          "end": 667,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int colorIndex,long colorH,int bright,u_char * colorval)",
+      "final_prototype": "void Night_CreateNightTableElement(int colorIndex,long colorH,int bright,u_char * colorval);   /* SYM 43b859 @0x800db3e0 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Night_CreateNightTableElement__FiliPUc__FiliPUc",
+      "after_emitted_reference": "Night_CreateNightTableElement__FiliPUc",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/night.h",
+      "line": 8,
+      "encoded": "Night_CreateNightTable__FiliPA256_A16_Uc",
+      "name": "Night_CreateNightTable",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Night_CreateNightTable__FiliPA256_A16_Uc(int colorIndex, long colorH, int bright, u_char *tbl[256][16]);   /* :236 */",
+      "header_return": "void",
+      "header_signature": "(int colorIndex, long colorH, int bright, u_char *tbl[256][16])",
+      "native": [
+        {
+          "record": "43b88d",
+          "va": "800db5a4",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Night_CreateNightTable",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\night.cpp",
+          "line": 670,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int colorIndex,long colorH,int bright,u_char (* tbl)[256][16])",
+          "end": 675,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int colorIndex,long colorH,int bright,u_char (* tbl)[256][16])",
+      "final_prototype": "void Night_CreateNightTable(int colorIndex,long colorH,int bright,u_char (* tbl)[256][16]);   /* SYM 43b88d @0x800db5a4 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Night_CreateNightTable__FiliPA256_A16_Uc__FiliPA16_PUc",
+      "after_emitted_reference": "Night_CreateNightTable__FiliPA256_A16_Uc",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/night.h",
+      "line": 9,
+      "encoded": "Night_GenerateNextLightningEvent__Fv",
+      "name": "Night_GenerateNextLightningEvent",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Night_GenerateNextLightningEvent__Fv(void);   /* :347 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "43b8c3",
+          "va": "800db5cc",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Night_GenerateNextLightningEvent",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\night.cpp",
+          "line": 678,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 693,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Night_GenerateNextLightningEvent(void);   /* SYM 43b8c3 @0x800db5cc */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Night_GenerateNextLightningEvent__Fv__Fv",
+      "after_emitted_reference": "Night_GenerateNextLightningEvent__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/night.h",
+      "line": 10,
+      "encoded": "Night_PauseLightningEffect__Fi",
+      "name": "Night_PauseLightningEffect",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Night_PauseLightningEffect__Fi(int player);   /* :381 */",
+      "header_return": "void",
+      "header_signature": "(int player)",
+      "native": [
+        {
+          "record": "43b8f5",
+          "va": "800db640",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Night_PauseLightningEffect",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\night.cpp",
+          "line": 696,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int player)",
+          "end": 721,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int player)",
+      "final_prototype": "void Night_PauseLightningEffect(int player);   /* SYM 43b8f5 @0x800db640 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Night_PauseLightningEffect__Fi__Fi",
+      "after_emitted_reference": "Night_PauseLightningEffect__Fi",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/night.h",
+      "line": 11,
+      "encoded": "Night_DoLightningEffect__FP13DRender_tView",
+      "name": "Night_DoLightningEffect",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Night_DoLightningEffect__FP13DRender_tView(DRender_tView *Vi);   /* :423 */",
+      "header_return": "void",
+      "header_signature": "(DRender_tView *Vi)",
+      "native": [
+        {
+          "record": "43b921",
+          "va": "800db6c4",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Night_DoLightningEffect",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\night.cpp",
+          "line": 724,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(DRender_tView * Vi)",
+          "end": 764,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(DRender_tView * Vi)",
+      "final_prototype": "void Night_DoLightningEffect(DRender_tView * Vi);   /* SYM 43b921 @0x800db6c4 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Night_DoLightningEffect__FP13DRender_tView__FP13DRender_tView",
+      "after_emitted_reference": "Night_DoLightningEffect__FP13DRender_tView",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/night.h",
+      "line": 12,
+      "encoded": "Night_SetCopColor__FP18GameSetup_tCarData",
+      "name": "Night_SetCopColor",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Night_SetCopColor__FP18GameSetup_tCarData(GameSetup_tCarData *carinfo);   /* :473 */",
+      "header_return": "void",
+      "header_signature": "(GameSetup_tCarData *carinfo)",
+      "native": [
+        {
+          "record": "43b959",
+          "va": "800db848",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Night_SetCopColor",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\night.cpp",
+          "line": 796,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(GameSetup_tCarData * carinfo)",
+          "end": 842,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(GameSetup_tCarData * carinfo)",
+      "final_prototype": "void Night_SetCopColor(GameSetup_tCarData * carinfo);   /* SYM 43b959 @0x800db848 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Night_SetCopColor__FP18GameSetup_tCarData__FP18GameSetup_tCarData",
+      "after_emitted_reference": "Night_SetCopColor__FP18GameSetup_tCarData",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/night.h",
+      "line": 13,
+      "encoded": "Night_InitPlayerHeadLightColor__Fi",
+      "name": "Night_InitPlayerHeadLightColor",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Night_InitPlayerHeadLightColor__Fi(int player);   /* :488 */",
+      "header_return": "void",
+      "header_signature": "(int player)",
+      "native": [
+        {
+          "record": "43b990",
+          "va": "800db8dc",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Night_InitPlayerHeadLightColor",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\night.cpp",
+          "line": 845,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int player)",
+          "end": 854,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int player)",
+      "final_prototype": "void Night_InitPlayerHeadLightColor(int player);   /* SYM 43b990 @0x800db8dc */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Night_InitPlayerHeadLightColor__Fi__Fi",
+      "after_emitted_reference": "Night_InitPlayerHeadLightColor__Fi",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/night.h",
+      "line": 14,
+      "encoded": "Night_SetPlayerHeadLightColor__Fiii",
+      "name": "Night_SetPlayerHeadLightColor",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Night_SetPlayerHeadLightColor__Fiii(int player, int colorIndex, int bright);   /* :501 */",
+      "header_return": "void",
+      "header_signature": "(int player, int colorIndex, int bright)",
+      "native": [
+        {
+          "record": "43b9c0",
+          "va": "800db938",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Night_SetPlayerHeadLightColor",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\night.cpp",
+          "line": 866,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int player,int colorIndex,int bright)",
+          "end": 871,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int player,int colorIndex,int bright)",
+      "final_prototype": "void Night_SetPlayerHeadLightColor(int player,int colorIndex,int bright);   /* SYM 43b9c0 @0x800db938 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Night_SetPlayerHeadLightColor__Fiii__Fiii",
+      "after_emitted_reference": "Night_SetPlayerHeadLightColor__Fiii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/night.h",
+      "line": 15,
+      "encoded": "Night_InitCopLightColors__Fv",
+      "name": "Night_InitCopLightColors",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Night_InitCopLightColors__Fv(void);   /* :507 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "43b9f1",
+          "va": "800db974",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Night_InitCopLightColors",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\night.cpp",
+          "line": 874,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 884,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Night_InitCopLightColors(void);   /* SYM 43b9f1 @0x800db974 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Night_InitCopLightColors__Fv__Fv",
+      "after_emitted_reference": "Night_InitCopLightColors__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/night.h",
+      "line": 16,
+      "encoded": "Night_SetCopLightColors__Fii",
+      "name": "Night_SetCopLightColors",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Night_SetCopLightColors__Fii(int colorIndex, int brighten);   /* :519 */",
+      "header_return": "void",
+      "header_signature": "(int colorIndex, int brighten)",
+      "native": [
+        {
+          "record": "43ba1b",
+          "va": "800db9d0",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Night_SetCopLightColors",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\night.cpp",
+          "line": 887,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int colorIndex,int brighten)",
+          "end": 896,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int colorIndex,int brighten)",
+      "final_prototype": "void Night_SetCopLightColors(int colorIndex,int brighten);   /* SYM 43ba1b @0x800db9d0 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Night_SetCopLightColors__Fii__Fii",
+      "after_emitted_reference": "Night_SetCopLightColors__Fii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/night.h",
+      "line": 17,
+      "encoded": "Night_InitWeatherTables__Fv",
+      "name": "Night_InitWeatherTables",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Night_InitWeatherTables__Fv(void);   /* :532 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "43ba45",
+          "va": "800dba50",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Night_InitWeatherTables",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\night.cpp",
+          "line": 926,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 942,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Night_InitWeatherTables(void);   /* SYM 43ba45 @0x800dba50 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Night_InitWeatherTables__Fv__Fv",
+      "after_emitted_reference": "Night_InitWeatherTables__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/night.h",
+      "line": 18,
+      "encoded": "Night_SetWeatherColors__Fi",
+      "name": "Night_SetWeatherColors",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Night_SetWeatherColors__Fi(int colorIndex);   /* :544 */",
+      "header_return": "void",
+      "header_signature": "(int colorIndex)",
+      "native": [
+        {
+          "record": "43ba6e",
+          "va": "800dbad4",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Night_SetWeatherColors",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\night.cpp",
+          "line": 954,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int colorIndex)",
+          "end": 966,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int colorIndex)",
+      "final_prototype": "void Night_SetWeatherColors(int colorIndex);   /* SYM 43ba6e @0x800dbad4 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Night_SetWeatherColors__Fi__Fi",
+      "after_emitted_reference": "Night_SetWeatherColors__Fi",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/night.h",
+      "line": 19,
+      "encoded": "Night_GenerateAllLightTables__Fv",
+      "name": "Night_GenerateAllLightTables",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Night_GenerateAllLightTables__Fv(void);   /* :556 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "43ba96",
+          "va": "800dbb50",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Night_GenerateAllLightTables",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\night.cpp",
+          "line": 969,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 1057,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Night_GenerateAllLightTables(void);   /* SYM 43ba96 @0x800dbb50 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Night_GenerateAllLightTables__Fv__Fv",
+      "after_emitted_reference": "Night_GenerateAllLightTables__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/night.h",
+      "line": 20,
+      "encoded": "Night_InitNightDriving__Fv",
+      "name": "Night_InitNightDriving",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Night_InitNightDriving__Fv(void);   /* :631 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "43bac4",
+          "va": "800dbde4",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Night_InitNightDriving",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\night.cpp",
+          "line": 1060,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 1114,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Night_InitNightDriving(void);   /* SYM 43bac4 @0x800dbde4 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Night_InitNightDriving__Fv__Fv",
+      "after_emitted_reference": "Night_InitNightDriving__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/night.h",
+      "line": 21,
+      "encoded": "Night_KillNightDriving__Fv",
+      "name": "Night_KillNightDriving",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Night_KillNightDriving__Fv(void);   /* :687 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "43baec",
+          "va": "800dbf80",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Night_KillNightDriving",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\night.cpp",
+          "line": 1123,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 1151,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Night_KillNightDriving(void);   /* SYM 43baec @0x800dbf80 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Night_KillNightDriving__Fv__Fv",
+      "after_emitted_reference": "Night_KillNightDriving__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/night.h",
+      "line": 22,
+      "encoded": "Night_RestartNightDriving__Fv",
+      "name": "Night_RestartNightDriving",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Night_RestartNightDriving__Fv(void);   /* :723 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "43bb14",
+          "va": "800dc020",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Night_RestartNightDriving",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\night.cpp",
+          "line": 1154,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 1165,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Night_RestartNightDriving(void);   /* SYM 43bb14 @0x800dc020 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Night_RestartNightDriving__Fv__Fv",
+      "after_emitted_reference": "Night_RestartNightDriving__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/night.h",
+      "line": 23,
+      "encoded": "Night_SetEnviroment__FP13DRender_tView",
+      "name": "Night_SetEnviroment",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Night_SetEnviroment__FP13DRender_tView(DRender_tView *Vi);   /* :736 */",
+      "header_return": "void",
+      "header_signature": "(DRender_tView *Vi)",
+      "native": [
+        {
+          "record": "43bb3f",
+          "va": "800dc0a8",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Night_SetEnviroment",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\night.cpp",
+          "line": 1377,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(DRender_tView * Vi)",
+          "end": 1427,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(DRender_tView * Vi)",
+      "final_prototype": "void Night_SetEnviroment(DRender_tView * Vi);   /* SYM 43bb3f @0x800dc0a8 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Night_SetEnviroment__FP13DRender_tView__FP13DRender_tView",
+      "after_emitted_reference": "Night_SetEnviroment__FP13DRender_tView",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/night.h",
+      "line": 24,
+      "encoded": "Night_AdditiveNightCalc__FP6VECTORP7CVECTOR",
+      "name": "Night_AdditiveNightCalc",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Night_AdditiveNightCalc__FP6VECTORP7CVECTOR(VECTOR *v, CVECTOR *color);   /* :811 */",
+      "header_return": "void",
+      "header_signature": "(VECTOR *v, CVECTOR *color)",
+      "native": [
+        {
+          "record": "43bb73",
+          "va": "800dc1b8",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Night_AdditiveNightCalc",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\night.cpp",
+          "line": 1557,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(VECTOR * v,CVECTOR * color)",
+          "end": 1634,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(VECTOR * v,CVECTOR * color)",
+      "final_prototype": "void Night_AdditiveNightCalc(VECTOR * v,CVECTOR * color);   /* SYM 43bb73 @0x800dc1b8 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Night_AdditiveNightCalc__FP6VECTORP7CVECTOR__FP6VECTORP7CVECTOR",
+      "after_emitted_reference": "Night_AdditiveNightCalc__FP6VECTORP7CVECTOR",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    }
+  ]
+}

@@ -3,6 +3,9 @@
 #define _GAME_COMMON_PATHS_H_
 #include "../../nfs4_types.h"
 
-void Paths_StartUp__Fv(void);   /* :47 */
+/* P875: source names/signatures checked against native EXT records and
+ * defining exports; compile-only typed references verify the C++ linkage. */
+
+void Paths_StartUp(void);   /* :47 */
 
 #endif /* _GAME_COMMON_PATHS_H_ */

@@ -1,0 +1,477 @@
+{
+  "round": "P875",
+  "header": "recon/game/psx/audio.h",
+  "source_authority": "C:/Temp/nfs4-clean/nfs4-f-v3.txt",
+  "scope": "Free-function public prototype rows from P874 inventory only; not an all-record or all-project source restoration claim.",
+  "counts": {
+    "inventory_candidates": 6,
+    "corrected_public": 6,
+    "removed_file_static": 0,
+    "before_native_references": 0,
+    "after_native_references": 6,
+    "return_type_corrections": 0,
+    "header_compile_failures": 0,
+    "unresolved_header_candidates": 0,
+    "preexisting_compiler_warning_count": 1
+  },
+  "before_actual_header_compile": {
+    "header": "recon/game/psx/audio.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\audio_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\audio_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\audio_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\audio_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\audio_before.s"
+      ]
+    ],
+    "header_sha256": "dc55c7c8afe2aaa65468f4896e893e55beba78be5911f1efefc087d0dcac90e1",
+    "references": {
+      "0": "Audio_InitDriver__Fii__Fii",
+      "1": "Audio_DeInitDriver__Fv__Fv",
+      "2": "Audio_CleanUp__Fv__Fv",
+      "3": "Audio_FECleanUp__Fv__Fv",
+      "4": "AudioCmn_AddBank__FPciT0i__FPciT0i",
+      "5": "AudioCmn_LoadBank__FPci__FPci"
+    },
+    "ok": true,
+    "assembly_sha256": "efaff9537e19f1b269491c61da9c771b4e7aa8466cd57a88d1d84f7db603f03c",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".rodata",
+      ".sdata",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\audio.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "Audio_InitDriver__Fii",
+      "Audio_DeInitDriver__Fv",
+      "Audio_CleanUp__Fv",
+      "Audio_FECleanUp__Fv",
+      "AudioCmn_AddBank__FPciT0i",
+      "AudioCmn_LoadBank__FPci",
+      "Audio_direct3davail",
+      "Audio_gHeap"
+    ]
+  },
+  "before_frozen_replay": {
+    "header": "recon/game/psx/audio.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\audio_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\audio_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\audio_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\audio_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\audio_before.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\audio_before.cpp:2:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "d77960834509901b346fac0a8bccd73ed2c93bfa8909c6759729b111966f64ed",
+    "input_mode": "frozen-original-prototype-surface",
+    "references": {
+      "0": "Audio_InitDriver__Fii__Fii",
+      "1": "Audio_DeInitDriver__Fv__Fv",
+      "2": "Audio_CleanUp__Fv__Fv",
+      "3": "Audio_FECleanUp__Fv__Fv",
+      "4": "AudioCmn_AddBank__FPciT0i__FPciT0i",
+      "5": "AudioCmn_LoadBank__FPci__FPci"
+    },
+    "ok": true,
+    "assembly_sha256": "efaff9537e19f1b269491c61da9c771b4e7aa8466cd57a88d1d84f7db603f03c"
+  },
+  "after_actual_header_compile": {
+    "header": "recon/game/psx/audio.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\audio_after.cpp",
+    "stage": "after",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\audio_after.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\audio_after.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\audio_after.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\audio_after.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:/Temp/nfs4-decomp/recon/game/psx/audio.h:4,\n                 from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\audio_after.cpp:1:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "c3d485d55126be7aec1dd813191ace2e2c7f5f38b7fdbf6bcfa7d0c361a832a8",
+    "input_mode": "live-public-header",
+    "header_sha256": "f6a9398fdf4e1dfdff788603fcbaab58ec2da859ee6a27bcb691e259fdf9462a",
+    "references": {
+      "0": "Audio_InitDriver__Fii",
+      "1": "Audio_DeInitDriver__Fv",
+      "2": "Audio_CleanUp__Fv",
+      "3": "Audio_FECleanUp__Fv",
+      "4": "AudioCmn_AddBank__FPciT0i",
+      "5": "AudioCmn_LoadBank__FPci"
+    },
+    "ok": true,
+    "assembly_sha256": "0875a28182d54362646587427115db536a7130f498284b35068353508bf73ad4",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".rodata",
+      ".sdata",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\audio.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "Audio_InitDriver__Fii",
+      "Audio_DeInitDriver__Fv",
+      "Audio_CleanUp__Fv",
+      "Audio_FECleanUp__Fv",
+      "AudioCmn_AddBank__FPciT0i",
+      "AudioCmn_LoadBank__FPci",
+      "Audio_direct3davail",
+      "Audio_gHeap"
+    ]
+  },
+  "owning_tu_gate": {
+    "source": "recon/game/psx/audio.cpp",
+    "command": [
+      "C:\\Python314\\python.exe",
+      "tools/tugate.py",
+      "recon/game/psx/audio.cpp"
+    ],
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/psx/audio.cpp: 6/6 PASS\n",
+    "stderr": "",
+    "object_sha256": "0c195bdda15e163aeccb978e9b47e6c457ff821cfdfb9a2f9d9ef82349e8c74f",
+    "actual_function_symbols": [
+      "Audio_InitDriver__Fii",
+      "Audio_DeInitDriver__Fv",
+      "Audio_CleanUp__Fv",
+      "Audio_FECleanUp__Fv",
+      "AudioCmn_AddBank__FPciT0i",
+      "AudioCmn_LoadBank__FPci"
+    ],
+    "local_function_symbols": []
+  },
+  "consumer_census": {
+    "files_scanned": 1677,
+    "literal_users": [],
+    "dynamic_includes": []
+  },
+  "unresolved": [],
+  "prototype_receipts": [
+    {
+      "header": "recon/game/psx/audio.h",
+      "line": 6,
+      "encoded": "Audio_InitDriver__Fii",
+      "name": "Audio_InitDriver",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Audio_InitDriver__Fii(int buffersize, int spusize);   /* :58 */",
+      "header_return": "void",
+      "header_signature": "(int buffersize, int spusize)",
+      "native": [
+        {
+          "record": "392096",
+          "va": "800bbb84",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Audio_InitDriver",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\audio.cpp",
+          "line": 24,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int buffersize,int spusize)",
+          "end": 50,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int buffersize,int spusize)",
+      "final_prototype": "void Audio_InitDriver(int buffersize,int spusize);   /* SYM 392096 @0x800bbb84 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Audio_InitDriver__Fii__Fii",
+      "after_emitted_reference": "Audio_InitDriver__Fii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/audio.h",
+      "line": 7,
+      "encoded": "Audio_DeInitDriver__Fv",
+      "name": "Audio_DeInitDriver",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Audio_DeInitDriver__Fv(void);   /* :84 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "3920b9",
+          "va": "800bbc64",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Audio_DeInitDriver",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\audio.cpp",
+          "line": 53,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 63,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Audio_DeInitDriver(void);   /* SYM 3920b9 @0x800bbc64 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Audio_DeInitDriver__Fv__Fv",
+      "after_emitted_reference": "Audio_DeInitDriver__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/audio.h",
+      "line": 8,
+      "encoded": "Audio_CleanUp__Fv",
+      "name": "Audio_CleanUp",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Audio_CleanUp__Fv(void);   /* :133 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "3920dd",
+          "va": "800bbcc0",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Audio_CleanUp",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\audio.cpp",
+          "line": 66,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 80,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Audio_CleanUp(void);   /* SYM 3920dd @0x800bbcc0 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Audio_CleanUp__Fv__Fv",
+      "after_emitted_reference": "Audio_CleanUp__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/audio.h",
+      "line": 9,
+      "encoded": "Audio_FECleanUp__Fv",
+      "name": "Audio_FECleanUp",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Audio_FECleanUp__Fv(void);   /* :151 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "3920fc",
+          "va": "800bbd1c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Audio_FECleanUp",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\audio.cpp",
+          "line": 83,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 92,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Audio_FECleanUp(void);   /* SYM 3920fc @0x800bbd1c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Audio_FECleanUp__Fv__Fv",
+      "after_emitted_reference": "Audio_FECleanUp__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/audio.h",
+      "line": 10,
+      "encoded": "AudioCmn_AddBank__FPciT0i",
+      "name": "AudioCmn_AddBank",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "int AudioCmn_AddBank__FPciT0i(char *filename, int size, char *pdata, int BankNum);   /* :167 */",
+      "header_return": "int",
+      "header_signature": "(char *filename, int size, char *pdata, int BankNum)",
+      "native": [
+        {
+          "record": "39211d",
+          "va": "800bbd64",
+          "linkage": "EXT",
+          "return_type": "int"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "AudioCmn_AddBank",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\audio.cpp",
+          "line": 95,
+          "typeref": "typename:int",
+          "kind": "function",
+          "signature": "(char * filename,int size,char * pdata,int BankNum)",
+          "end": 132,
+          "return_type": "int",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "int",
+      "final_signature": "(char * filename,int size,char * pdata,int BankNum)",
+      "final_prototype": "int AudioCmn_AddBank(char * filename,int size,char * pdata,int BankNum);   /* SYM 39211d @0x800bbd64 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "AudioCmn_AddBank__FPciT0i__FPciT0i",
+      "after_emitted_reference": "AudioCmn_AddBank__FPciT0i",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/audio.h",
+      "line": 11,
+      "encoded": "AudioCmn_LoadBank__FPci",
+      "name": "AudioCmn_LoadBank",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "int AudioCmn_LoadBank__FPci(char *filename, int BankNum);   /* :217 */",
+      "header_return": "int",
+      "header_signature": "(char *filename, int BankNum)",
+      "native": [
+        {
+          "record": "392144",
+          "va": "800bbe8c",
+          "linkage": "EXT",
+          "return_type": "int"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "AudioCmn_LoadBank",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\audio.cpp",
+          "line": 138,
+          "typeref": "typename:int",
+          "kind": "function",
+          "signature": "(char * filename,int BankNum)",
+          "end": 151,
+          "return_type": "int",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "int",
+      "final_signature": "(char * filename,int BankNum)",
+      "final_prototype": "int AudioCmn_LoadBank(char * filename,int BankNum);   /* SYM 392144 @0x800bbe8c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "AudioCmn_LoadBank__FPci__FPci",
+      "after_emitted_reference": "AudioCmn_LoadBank__FPci",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    }
+  ]
+}

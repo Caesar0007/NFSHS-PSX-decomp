@@ -1,0 +1,373 @@
+{
+  "round": "P875",
+  "header": "recon/game/psx/psxcontroller.h",
+  "source_authority": "C:/Temp/nfs4-clean/nfs4-f-v3.txt",
+  "scope": "Free-function public prototype rows from P874 inventory only; not an all-record or all-project source restoration claim.",
+  "counts": {
+    "inventory_candidates": 4,
+    "corrected_public": 4,
+    "removed_file_static": 0,
+    "before_native_references": 0,
+    "after_native_references": 4,
+    "return_type_corrections": 0,
+    "header_compile_failures": 0,
+    "unresolved_header_candidates": 0,
+    "preexisting_compiler_warning_count": 1
+  },
+  "before_actual_header_compile": {
+    "header": "recon/game/psx/psxcontroller.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\psxcontroller_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\psxcontroller_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\psxcontroller_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\psxcontroller_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\psxcontroller_before.s"
+      ]
+    ],
+    "header_sha256": "f1ec8b191a82d5bd10ed6d0ef82830ab09c71f3559759f0d63fe84768fcaba20",
+    "references": {
+      "0": "InGame_ResetPSXController__Fii__Fii",
+      "1": "InGame_GetPSXPadValue__Fii__Fii",
+      "2": "InGame_GetDevice__Fi__Fi",
+      "3": "InGame_SetRamp__Fv__Fv"
+    },
+    "ok": true,
+    "assembly_sha256": "4cc8e377ab624d5038cd2aaaa336194d5761a2ead2cb921e51ac16dadc06f732",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\psxcontroller.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "InGame_ResetPSXController__Fii",
+      "InGame_GetPSXPadValue__Fii",
+      "InGame_GetDevice__Fi",
+      "InGame_SetRamp__Fv"
+    ]
+  },
+  "before_frozen_replay": {
+    "header": "recon/game/psx/psxcontroller.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\psxcontroller_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\psxcontroller_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\psxcontroller_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\psxcontroller_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\psxcontroller_before.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\psxcontroller_before.cpp:2:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "971fff4cf4c552ce1ac485a870389fcbbc4269661a9a292a938ef271d0173575",
+    "input_mode": "frozen-original-prototype-surface",
+    "references": {
+      "0": "InGame_ResetPSXController__Fii__Fii",
+      "1": "InGame_GetPSXPadValue__Fii__Fii",
+      "2": "InGame_GetDevice__Fi__Fi",
+      "3": "InGame_SetRamp__Fv__Fv"
+    },
+    "ok": true,
+    "assembly_sha256": "4cc8e377ab624d5038cd2aaaa336194d5761a2ead2cb921e51ac16dadc06f732"
+  },
+  "after_actual_header_compile": {
+    "header": "recon/game/psx/psxcontroller.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\psxcontroller_after.cpp",
+    "stage": "after",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\psxcontroller_after.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\psxcontroller_after.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\psxcontroller_after.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\psxcontroller_after.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:/Temp/nfs4-decomp/recon/game/psx/psxcontroller.h:4,\n                 from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\psxcontroller_after.cpp:1:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "73d2f598f43bcf765520fcf3a8489440a4f0a9493762fd46f2fa854f48a5079f",
+    "input_mode": "live-public-header",
+    "header_sha256": "07b7517b8bb5d974d6c1ec697aabe21b5757ffb76095bc4cf8caa78dc601db62",
+    "references": {
+      "0": "InGame_ResetPSXController__Fii",
+      "1": "InGame_GetPSXPadValue__Fii",
+      "2": "InGame_GetDevice__Fi",
+      "3": "InGame_SetRamp__Fv"
+    },
+    "ok": true,
+    "assembly_sha256": "34e105c20c178d6670cac023d94ad8b7f1289396a371450050cf1239fd514c18",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\psxcontroller.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "InGame_ResetPSXController__Fii",
+      "InGame_GetPSXPadValue__Fii",
+      "InGame_GetDevice__Fi",
+      "InGame_SetRamp__Fv"
+    ]
+  },
+  "owning_tu_gate": {
+    "source": "recon/game/psx/psxcontroller.cpp",
+    "command": [
+      "C:\\Python314\\python.exe",
+      "tools/tugate.py",
+      "recon/game/psx/psxcontroller.cpp"
+    ],
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/psx/psxcontroller.cpp: 4/4 PASS\n",
+    "stderr": "",
+    "object_sha256": "9a8fbf8423ec861d8a2e2b7c2328d904d3259a70d8352781b8a5bdc0a0f57dd1",
+    "actual_function_symbols": [
+      "InGame_ResetPSXController__Fii",
+      "InGame_GetPSXPadValue__Fii",
+      "InGame_GetDevice__Fi",
+      "InGame_SetRamp__Fv"
+    ],
+    "local_function_symbols": []
+  },
+  "consumer_census": {
+    "files_scanned": 1677,
+    "literal_users": [],
+    "dynamic_includes": []
+  },
+  "unresolved": [],
+  "prototype_receipts": [
+    {
+      "header": "recon/game/psx/psxcontroller.h",
+      "line": 6,
+      "encoded": "InGame_ResetPSXController__Fii",
+      "name": "InGame_ResetPSXController",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void InGame_ResetPSXController__Fii(int player, int config);   /* :97 */",
+      "header_return": "void",
+      "header_signature": "(int player, int config)",
+      "native": [
+        {
+          "record": "4547ea",
+          "va": "800dc4cc",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "InGame_ResetPSXController",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\psxcontroller.cpp",
+          "line": 94,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int player,int config)",
+          "end": 257,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int player,int config)",
+      "final_prototype": "void InGame_ResetPSXController(int player,int config);   /* SYM 4547ea @0x800dc4cc */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "InGame_ResetPSXController__Fii__Fii",
+      "after_emitted_reference": "InGame_ResetPSXController__Fii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/psxcontroller.h",
+      "line": 7,
+      "encoded": "InGame_GetPSXPadValue__Fii",
+      "name": "InGame_GetPSXPadValue",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "int InGame_GetPSXPadValue__Fii(int value, int player);   /* :197 */",
+      "header_return": "int",
+      "header_signature": "(int value, int player)",
+      "native": [
+        {
+          "record": "454816",
+          "va": "800dc990",
+          "linkage": "EXT",
+          "return_type": "int"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "InGame_GetPSXPadValue",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\psxcontroller.cpp",
+          "line": 266,
+          "typeref": "typename:int",
+          "kind": "function",
+          "signature": "(int value,int player)",
+          "end": 393,
+          "return_type": "int",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "int",
+      "final_signature": "(int value,int player)",
+      "final_prototype": "int InGame_GetPSXPadValue(int value,int player);   /* SYM 454816 @0x800dc990 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "InGame_GetPSXPadValue__Fii__Fii",
+      "after_emitted_reference": "InGame_GetPSXPadValue__Fii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/psxcontroller.h",
+      "line": 8,
+      "encoded": "InGame_GetDevice__Fi",
+      "name": "InGame_GetDevice",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "int InGame_GetDevice__Fi(int control);   /* :338 */",
+      "header_return": "int",
+      "header_signature": "(int control)",
+      "native": [
+        {
+          "record": "45483e",
+          "va": "800dcd34",
+          "linkage": "EXT",
+          "return_type": "int"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "InGame_GetDevice",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\psxcontroller.cpp",
+          "line": 399,
+          "typeref": "typename:int",
+          "kind": "function",
+          "signature": "(int control)",
+          "end": 403,
+          "return_type": "int",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "int",
+      "final_signature": "(int control)",
+      "final_prototype": "int InGame_GetDevice(int control);   /* SYM 45483e @0x800dcd34 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "InGame_GetDevice__Fi__Fi",
+      "after_emitted_reference": "InGame_GetDevice__Fi",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/psxcontroller.h",
+      "line": 9,
+      "encoded": "InGame_SetRamp__Fv",
+      "name": "InGame_SetRamp",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void InGame_SetRamp__Fv(void);   /* :349 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "454860",
+          "va": "800dcd3c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "InGame_SetRamp",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\psxcontroller.cpp",
+          "line": 606,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 688,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void InGame_SetRamp(void);   /* SYM 454860 @0x800dcd3c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "InGame_SetRamp__Fv__Fv",
+      "after_emitted_reference": "InGame_SetRamp__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    }
+  ]
+}

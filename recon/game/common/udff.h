@@ -3,9 +3,12 @@
 #define _GAME_COMMON_UDFF_H_
 #include "../../nfs4_types.h"
 
-void * Udff_Opena__FPcT0i(char *name, char *mem, int abortFlag);   /* :21 */
-void Udff_Close__FP10Udff_tInfo(Udff_tInfo *handle);   /* :84 */
-int Udff_GetInt__FP10Udff_tInfo(Udff_tInfo *handle);   /* :105 */
-void Udff_GetBuffer__FP10Udff_tInfoPci(Udff_tInfo *handle, char *mem, int size);   /* :203 */
+/* P875: source names/signatures checked against native EXT records and
+ * defining exports; compile-only typed references verify the C++ linkage. */
+
+Udff_tInfo * Udff_Opena(char *name, char *mem, int abortFlag);   /* :21 */
+void Udff_Close(Udff_tInfo *handle);   /* :84 */
+int Udff_GetInt(Udff_tInfo *handle);   /* :105 */
+void Udff_GetBuffer(Udff_tInfo *handle, char *mem, int size);   /* :203 */
 
 #endif /* _GAME_COMMON_UDFF_H_ */

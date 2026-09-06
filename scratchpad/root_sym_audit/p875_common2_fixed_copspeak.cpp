@@ -1,0 +1,29 @@
+/* P875 follow-up typed API references; compile-only, never a game input. */
+#include "C:/Temp/nfs4-decomp/recon/game/common/copspeak.h"
+void (*p875_common2_copspeak_0)(void) = &CopSpeak_RadioStaticInit;
+void (*p875_common2_copspeak_1)(int noise) = &CopSpeak_RadioStaticActive;
+void (*p875_common2_copspeak_2)(void) = &CopSpeak_RadioStaticSquelch;
+void (*p875_common2_copspeak_3)(CopSpeak_tRequest *r) = &CopSpeak_InitRequest;
+void (*p875_common2_copspeak_4)(Car_tObj *car,int playerIndex) = &CopSpeak_SilenceCop;
+void (*p875_common2_copspeak_5)(CopSpeak_tRequest *r) = &CopSpeak_Alloc;
+void (*p875_common2_copspeak_6)(CopSpeak_tRequest *r) = &CopSpeak_Free;
+void (*p875_common2_copspeak_7)(void) = &CopSpeak_ReadyNextRequest;
+void (*p875_common2_copspeak_8)(void) = &CopSpeak_Cancel;
+void (*p875_common2_copspeak_9)(void) = &CopSpeak_Stop;
+void (*p875_common2_copspeak_10)(void) = &CopSpeak_CleanUp;
+void (*p875_common2_copspeak_11)(void) = &CopSpeak_InitVars;
+void (*p875_common2_copspeak_12)(int filehandle,long offset,long size,Car_tObj *car,char *name) = &CopSpeak_DirectRequest;
+void (*p875_common2_copspeak_13)(int patch,Car_tObj *car) = &CopSpeak_GenericBankRequest;
+void (*p875_common2_copspeak_14)(void) = &CopSpeak_StartUp;
+int (*p875_common2_copspeak_15)(int type,int timbre) = &CopSpeak_GetEnginePatch;
+int (*p875_common2_copspeak_16)(CopSpeak_tRequest *r,int handle) = &CopSpeak_Play;
+void (*p875_common2_copspeak_17)(void) = &CopSpeak_Skip;
+int (*p875_common2_copspeak_18)(CopSpeak_tRequest *r) = &CopSpeak_Request;
+int (*p875_common2_copspeak_19)(CopSpeak_tRequest *r) = &CopSpeak_BankVolume;
+void (*p875_common2_copspeak_20)(void) = &CopSpeak_LoadNextRequest;
+void (*p875_common2_copspeak_21)(void) = &CopSpeak_PlayNextRequest;
+void (*p875_common2_copspeak_22)(void) = &CopSpeak_Flush;
+void (*p875_common2_copspeak_23)(void) = &CopSpeak_Server;
+int (*p875_common2_copspeak_24)(void) = &CopSpeak_SfxQueued;
+void (*p875_common2_copspeak_25)(void) = &CopSpeak_ShowQueue;
+void (*p875_common2_copspeak_26)(void) = &CopSpeak_Debug;

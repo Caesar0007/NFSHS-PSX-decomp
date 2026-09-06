@@ -1,0 +1,1061 @@
+{
+  "round": "P878 AudioClc whole-TU jump-threading identity",
+  "source": "recon/game/common/audioclc.cpp",
+  "target": "AudioClc_SoundPlayersCar__Fi",
+  "retail_va": "80075508",
+  "production_changes_by_agent": false,
+  "source_flags_actual": {
+    "g_value": "4",
+    "per_tu_flags": {},
+    "compiler": "C:/Temp/psq43/COMPILER/CC1PLPSX.EXE",
+    "note": "Current tools use global G_VALUE4 and no audioclc-specific overrides. No G8 override is present; existing G4 was preserved."
+  },
+  "result": "Single whole-TU -fno-thread-jumps, with existing2.8.0 compiler and -G4, matches all18 functions and branch distances. Its same-source-path ELF is byte-identical to the old normal per-function-splice object.",
+  "inference": "This is an empirically compatible object-wide compiler-input identity. It does not prove the exact lost retail command line. Both2.8.0 and2.8.1 match with the flag; retain current2.8.0 to avoid an unnecessary compiler change.",
+  "same_source_object_identity": {
+    "paths": [
+      "build\\p878\\mixed\\recon\\game\\common\\audioclc.cpp.o",
+      "build\\p878\\280nt\\recon\\game\\common\\audioclc.cpp.o"
+    ],
+    "sizes": [
+      14896,
+      14896
+    ],
+    "sha256": [
+      "b8d20ef0cff1416894e8fe988c4fae015651e6cc496ef0024bcf44748266da89",
+      "b8d20ef0cff1416894e8fe988c4fae015651e6cc496ef0024bcf44748266da89"
+    ],
+    "identical": true,
+    "differing_offsets": []
+  },
+  "raw_oracle_check": {
+    "image": "rom/nfs4-f.exe",
+    "functions": 18,
+    "words": 1852,
+    "mismatches": 0
+  },
+  "native_sym": {
+    "record": "181764",
+    "frame": 80,
+    "mask": "c0ff0000",
+    "playerIndex": "ARG INT at0",
+    "channel": "REG s0 INT",
+    "c": "REG s3 INT",
+    "scope": "c/channel block80075994..80075abc",
+    "mismatch_site": "80075a1c negative-channel edge must enter80075a4c re-test. Default threading skips to80075a54 and blocks filling bgez's slot with li v0,1."
+  },
+  "matrix": [
+    {
+      "candidate": "C:\\Temp\\nfs4-decomp\\scratchpad\\p878_audioclc\\baseline.cpp",
+      "mode": "280",
+      "compiler": "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+      "object": "C:\\Temp\\nfs4-decomp\\build\\p878\\280\\scratchpad\\p878_audioclc\\baseline.cpp.o",
+      "tu_flags": {},
+      "global_G": "4",
+      "compiler_commands": [
+        [
+          "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+          "-quiet",
+          "-O2",
+          "-G4",
+          "C:\\Temp\\nfs4-decomp\\build\\p878\\280\\scratchpad\\p878_audioclc\\baseline.cpp.i",
+          "-o",
+          "C:\\Temp\\nfs4-decomp\\build\\p878\\280\\scratchpad\\p878_audioclc\\baseline.cpp.s"
+        ]
+      ],
+      "source_sha256": "6b6555b8a01c512fcbfdde9f260712ef8a9bd313d1a5ccb44951100bc023fd5d",
+      "pass": 17,
+      "total": 18,
+      "rows": [
+        {
+          "name": "AudioClc_CalcAzimuth__FP17DRender_tCalcViewP8coorddef",
+          "diffs": 0,
+          "ours": 90,
+          "retail": 90,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_CalcCarDirection__FP17DRender_tCalcViewP8Car_tObj",
+          "diffs": 0,
+          "ours": 53,
+          "retail": 53,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_CalcDistance__FP17DRender_tCalcViewP8coorddef",
+          "diffs": 0,
+          "ours": 34,
+          "retail": 34,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_CalcDopplerShiftRatio__FP8coorddefT0",
+          "diffs": 0,
+          "ours": 115,
+          "retail": 115,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_CalcTrackAzimuth__FP17DRender_tCalcViewP8Car_tObj",
+          "diffs": 0,
+          "ours": 78,
+          "retail": 78,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_GetClosestCars__Fiii",
+          "diffs": 0,
+          "ours": 267,
+          "retail": 267,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_HonkHorn__FP8Car_tObjiii",
+          "diffs": 0,
+          "ours": 24,
+          "retail": 24,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_InitSource__FP16AudioClc_tSourceP8Car_tObj",
+          "diffs": 0,
+          "ours": 12,
+          "retail": 12,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_ResetClosest__FiP8Car_tObji",
+          "diffs": 0,
+          "ours": 50,
+          "retail": 50,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_SetHorn__FP8Car_tObji",
+          "diffs": 0,
+          "ours": 28,
+          "retail": 28,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_SilenceOpponentHorn__Fi",
+          "diffs": 0,
+          "ours": 8,
+          "retail": 8,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_SndError__Fi",
+          "diffs": 0,
+          "ours": 2,
+          "retail": 2,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_SoundCars__Fv",
+          "diffs": 0,
+          "ours": 176,
+          "retail": 176,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_SoundCloseCar__Fii",
+          "diffs": 0,
+          "ours": 312,
+          "retail": 312,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_SoundOpponentHorn__Fiiii",
+          "diffs": 0,
+          "ours": 43,
+          "retail": 43,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_SoundPlayersCar__Fi",
+          "diffs": 4,
+          "ours": 461,
+          "retail": 461,
+          "branch_differences": [
+            [
+              51,
+              14,
+              12
+            ]
+          ],
+          "first_differences": [
+            "-nop",
+            "+li v0,1",
+            "-li v0,1",
+            "+nop"
+          ]
+        },
+        {
+          "name": "AudioClc_SoundSpeech__Fv",
+          "diffs": 0,
+          "ours": 12,
+          "retail": 12,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_StartUp__Fv",
+          "diffs": 0,
+          "ours": 87,
+          "retail": 87,
+          "branch_differences": [],
+          "first_differences": []
+        }
+      ]
+    },
+    {
+      "candidate": "C:\\Temp\\nfs4-decomp\\scratchpad\\p878_audioclc\\baseline.cpp",
+      "mode": "281",
+      "compiler": "C:\\Temp\\psq44\\pssn\\bin\\CC1PLPSX.EXE",
+      "object": "C:\\Temp\\nfs4-decomp\\build\\p878\\281\\scratchpad\\p878_audioclc\\baseline.cpp.o",
+      "source_sha256": "6b6555b8a01c512fcbfdde9f260712ef8a9bd313d1a5ccb44951100bc023fd5d",
+      "pass": 17,
+      "total": 18,
+      "rows": [
+        {
+          "name": "AudioClc_CalcAzimuth__FP17DRender_tCalcViewP8coorddef",
+          "diffs": 0,
+          "ours": 90,
+          "retail": 90,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_CalcCarDirection__FP17DRender_tCalcViewP8Car_tObj",
+          "diffs": 0,
+          "ours": 53,
+          "retail": 53,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_CalcDistance__FP17DRender_tCalcViewP8coorddef",
+          "diffs": 0,
+          "ours": 34,
+          "retail": 34,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_CalcDopplerShiftRatio__FP8coorddefT0",
+          "diffs": 0,
+          "ours": 115,
+          "retail": 115,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_CalcTrackAzimuth__FP17DRender_tCalcViewP8Car_tObj",
+          "diffs": 0,
+          "ours": 78,
+          "retail": 78,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_GetClosestCars__Fiii",
+          "diffs": 0,
+          "ours": 267,
+          "retail": 267,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_HonkHorn__FP8Car_tObjiii",
+          "diffs": 0,
+          "ours": 24,
+          "retail": 24,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_InitSource__FP16AudioClc_tSourceP8Car_tObj",
+          "diffs": 0,
+          "ours": 12,
+          "retail": 12,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_ResetClosest__FiP8Car_tObji",
+          "diffs": 0,
+          "ours": 50,
+          "retail": 50,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_SetHorn__FP8Car_tObji",
+          "diffs": 0,
+          "ours": 28,
+          "retail": 28,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_SilenceOpponentHorn__Fi",
+          "diffs": 0,
+          "ours": 8,
+          "retail": 8,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_SndError__Fi",
+          "diffs": 0,
+          "ours": 2,
+          "retail": 2,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_SoundCars__Fv",
+          "diffs": 0,
+          "ours": 176,
+          "retail": 176,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_SoundCloseCar__Fii",
+          "diffs": 0,
+          "ours": 312,
+          "retail": 312,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_SoundOpponentHorn__Fiiii",
+          "diffs": 0,
+          "ours": 43,
+          "retail": 43,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_SoundPlayersCar__Fi",
+          "diffs": 4,
+          "ours": 461,
+          "retail": 461,
+          "branch_differences": [
+            [
+              51,
+              14,
+              12
+            ]
+          ],
+          "first_differences": [
+            "-nop",
+            "+li v0,1",
+            "-li v0,1",
+            "+nop"
+          ]
+        },
+        {
+          "name": "AudioClc_SoundSpeech__Fv",
+          "diffs": 0,
+          "ours": 12,
+          "retail": 12,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_StartUp__Fv",
+          "diffs": 0,
+          "ours": 87,
+          "retail": 87,
+          "branch_differences": [],
+          "first_differences": []
+        }
+      ]
+    },
+    {
+      "candidate": "C:\\Temp\\nfs4-decomp\\scratchpad\\p878_audioclc\\baseline.cpp",
+      "mode": "280nt",
+      "compiler": "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+      "object": "C:\\Temp\\nfs4-decomp\\build\\p878\\280nt\\scratchpad\\p878_audioclc\\baseline.cpp.o",
+      "source_sha256": "6b6555b8a01c512fcbfdde9f260712ef8a9bd313d1a5ccb44951100bc023fd5d",
+      "pass": 18,
+      "total": 18,
+      "rows": [
+        {
+          "name": "AudioClc_CalcAzimuth__FP17DRender_tCalcViewP8coorddef",
+          "diffs": 0,
+          "ours": 90,
+          "retail": 90,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_CalcCarDirection__FP17DRender_tCalcViewP8Car_tObj",
+          "diffs": 0,
+          "ours": 53,
+          "retail": 53,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_CalcDistance__FP17DRender_tCalcViewP8coorddef",
+          "diffs": 0,
+          "ours": 34,
+          "retail": 34,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_CalcDopplerShiftRatio__FP8coorddefT0",
+          "diffs": 0,
+          "ours": 115,
+          "retail": 115,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_CalcTrackAzimuth__FP17DRender_tCalcViewP8Car_tObj",
+          "diffs": 0,
+          "ours": 78,
+          "retail": 78,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_GetClosestCars__Fiii",
+          "diffs": 0,
+          "ours": 267,
+          "retail": 267,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_HonkHorn__FP8Car_tObjiii",
+          "diffs": 0,
+          "ours": 24,
+          "retail": 24,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_InitSource__FP16AudioClc_tSourceP8Car_tObj",
+          "diffs": 0,
+          "ours": 12,
+          "retail": 12,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_ResetClosest__FiP8Car_tObji",
+          "diffs": 0,
+          "ours": 50,
+          "retail": 50,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_SetHorn__FP8Car_tObji",
+          "diffs": 0,
+          "ours": 28,
+          "retail": 28,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_SilenceOpponentHorn__Fi",
+          "diffs": 0,
+          "ours": 8,
+          "retail": 8,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_SndError__Fi",
+          "diffs": 0,
+          "ours": 2,
+          "retail": 2,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_SoundCars__Fv",
+          "diffs": 0,
+          "ours": 176,
+          "retail": 176,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_SoundCloseCar__Fii",
+          "diffs": 0,
+          "ours": 312,
+          "retail": 312,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_SoundOpponentHorn__Fiiii",
+          "diffs": 0,
+          "ours": 43,
+          "retail": 43,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_SoundPlayersCar__Fi",
+          "diffs": 0,
+          "ours": 461,
+          "retail": 461,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_SoundSpeech__Fv",
+          "diffs": 0,
+          "ours": 12,
+          "retail": 12,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_StartUp__Fv",
+          "diffs": 0,
+          "ours": 87,
+          "retail": 87,
+          "branch_differences": [],
+          "first_differences": []
+        }
+      ]
+    },
+    {
+      "candidate": "C:\\Temp\\nfs4-decomp\\scratchpad\\p878_audioclc\\baseline.cpp",
+      "mode": "281nt",
+      "compiler": "C:\\Temp\\psq44\\pssn\\bin\\CC1PLPSX.EXE",
+      "object": "C:\\Temp\\nfs4-decomp\\build\\p878\\281nt\\scratchpad\\p878_audioclc\\baseline.cpp.o",
+      "source_sha256": "6b6555b8a01c512fcbfdde9f260712ef8a9bd313d1a5ccb44951100bc023fd5d",
+      "pass": 18,
+      "total": 18,
+      "rows": [
+        {
+          "name": "AudioClc_CalcAzimuth__FP17DRender_tCalcViewP8coorddef",
+          "diffs": 0,
+          "ours": 90,
+          "retail": 90,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_CalcCarDirection__FP17DRender_tCalcViewP8Car_tObj",
+          "diffs": 0,
+          "ours": 53,
+          "retail": 53,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_CalcDistance__FP17DRender_tCalcViewP8coorddef",
+          "diffs": 0,
+          "ours": 34,
+          "retail": 34,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_CalcDopplerShiftRatio__FP8coorddefT0",
+          "diffs": 0,
+          "ours": 115,
+          "retail": 115,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_CalcTrackAzimuth__FP17DRender_tCalcViewP8Car_tObj",
+          "diffs": 0,
+          "ours": 78,
+          "retail": 78,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_GetClosestCars__Fiii",
+          "diffs": 0,
+          "ours": 267,
+          "retail": 267,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_HonkHorn__FP8Car_tObjiii",
+          "diffs": 0,
+          "ours": 24,
+          "retail": 24,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_InitSource__FP16AudioClc_tSourceP8Car_tObj",
+          "diffs": 0,
+          "ours": 12,
+          "retail": 12,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_ResetClosest__FiP8Car_tObji",
+          "diffs": 0,
+          "ours": 50,
+          "retail": 50,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_SetHorn__FP8Car_tObji",
+          "diffs": 0,
+          "ours": 28,
+          "retail": 28,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_SilenceOpponentHorn__Fi",
+          "diffs": 0,
+          "ours": 8,
+          "retail": 8,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_SndError__Fi",
+          "diffs": 0,
+          "ours": 2,
+          "retail": 2,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_SoundCars__Fv",
+          "diffs": 0,
+          "ours": 176,
+          "retail": 176,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_SoundCloseCar__Fii",
+          "diffs": 0,
+          "ours": 312,
+          "retail": 312,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_SoundOpponentHorn__Fiiii",
+          "diffs": 0,
+          "ours": 43,
+          "retail": 43,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_SoundPlayersCar__Fi",
+          "diffs": 0,
+          "ours": 461,
+          "retail": 461,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_SoundSpeech__Fv",
+          "diffs": 0,
+          "ours": 12,
+          "retail": 12,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_StartUp__Fv",
+          "diffs": 0,
+          "ours": 87,
+          "retail": 87,
+          "branch_differences": [],
+          "first_differences": []
+        }
+      ]
+    }
+  ],
+  "same_source_live_compilations": {
+    "mixed": {
+      "candidate": "C:\\Temp\\nfs4-decomp\\recon\\game\\common\\audioclc.cpp",
+      "mode": "mixed",
+      "compiler": "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+      "object": "C:\\Temp\\nfs4-decomp\\build\\p878\\mixed\\recon\\game\\common\\audioclc.cpp.o",
+      "tu_flags": {},
+      "global_G": "4",
+      "compiler_commands": [
+        [
+          "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+          "-quiet",
+          "-O2",
+          "-G4",
+          "C:\\Temp\\nfs4-decomp\\build\\p878\\mixed\\recon\\game\\common\\audioclc.cpp.i",
+          "-o",
+          "C:\\Temp\\nfs4-decomp\\build\\p878\\mixed\\recon\\game\\common\\audioclc.cpp.s"
+        ],
+        [
+          "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+          "-quiet",
+          "-O2",
+          "-G4",
+          "-fno-thread-jumps",
+          "C:\\Temp\\nfs4-decomp\\build\\p878\\mixed\\recon\\game\\common\\audioclc.cpp.i",
+          "-o",
+          "C:\\Temp\\nfs4-decomp\\build\\p878\\mixed\\recon\\game\\common\\audioclc.cpp.nthr.s"
+        ]
+      ],
+      "source_sha256": "6ed2468e85daf92ec0a4d182fcb8f29dcc3d1fa4f182ee553f04a2aec0d7c939",
+      "pass": 18,
+      "total": 18,
+      "rows": [
+        {
+          "name": "AudioClc_CalcAzimuth__FP17DRender_tCalcViewP8coorddef",
+          "diffs": 0,
+          "ours": 90,
+          "retail": 90,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_CalcCarDirection__FP17DRender_tCalcViewP8Car_tObj",
+          "diffs": 0,
+          "ours": 53,
+          "retail": 53,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_CalcDistance__FP17DRender_tCalcViewP8coorddef",
+          "diffs": 0,
+          "ours": 34,
+          "retail": 34,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_CalcDopplerShiftRatio__FP8coorddefT0",
+          "diffs": 0,
+          "ours": 115,
+          "retail": 115,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_CalcTrackAzimuth__FP17DRender_tCalcViewP8Car_tObj",
+          "diffs": 0,
+          "ours": 78,
+          "retail": 78,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_GetClosestCars__Fiii",
+          "diffs": 0,
+          "ours": 267,
+          "retail": 267,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_HonkHorn__FP8Car_tObjiii",
+          "diffs": 0,
+          "ours": 24,
+          "retail": 24,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_InitSource__FP16AudioClc_tSourceP8Car_tObj",
+          "diffs": 0,
+          "ours": 12,
+          "retail": 12,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_ResetClosest__FiP8Car_tObji",
+          "diffs": 0,
+          "ours": 50,
+          "retail": 50,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_SetHorn__FP8Car_tObji",
+          "diffs": 0,
+          "ours": 28,
+          "retail": 28,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_SilenceOpponentHorn__Fi",
+          "diffs": 0,
+          "ours": 8,
+          "retail": 8,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_SndError__Fi",
+          "diffs": 0,
+          "ours": 2,
+          "retail": 2,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_SoundCars__Fv",
+          "diffs": 0,
+          "ours": 176,
+          "retail": 176,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_SoundCloseCar__Fii",
+          "diffs": 0,
+          "ours": 312,
+          "retail": 312,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_SoundOpponentHorn__Fiiii",
+          "diffs": 0,
+          "ours": 43,
+          "retail": 43,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_SoundPlayersCar__Fi",
+          "diffs": 0,
+          "ours": 461,
+          "retail": 461,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_SoundSpeech__Fv",
+          "diffs": 0,
+          "ours": 12,
+          "retail": 12,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_StartUp__Fv",
+          "diffs": 0,
+          "ours": 87,
+          "retail": 87,
+          "branch_differences": [],
+          "first_differences": []
+        }
+      ]
+    },
+    "280nt": {
+      "candidate": "C:\\Temp\\nfs4-decomp\\recon\\game\\common\\audioclc.cpp",
+      "mode": "280nt",
+      "compiler": "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+      "object": "C:\\Temp\\nfs4-decomp\\build\\p878\\280nt\\recon\\game\\common\\audioclc.cpp.o",
+      "tu_flags": {},
+      "global_G": "4",
+      "compiler_commands": [
+        [
+          "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+          "-fno-thread-jumps",
+          "-quiet",
+          "-O2",
+          "-G4",
+          "C:\\Temp\\nfs4-decomp\\build\\p878\\280nt\\recon\\game\\common\\audioclc.cpp.i",
+          "-o",
+          "C:\\Temp\\nfs4-decomp\\build\\p878\\280nt\\recon\\game\\common\\audioclc.cpp.s"
+        ]
+      ],
+      "source_sha256": "6ed2468e85daf92ec0a4d182fcb8f29dcc3d1fa4f182ee553f04a2aec0d7c939",
+      "pass": 18,
+      "total": 18,
+      "rows": [
+        {
+          "name": "AudioClc_CalcAzimuth__FP17DRender_tCalcViewP8coorddef",
+          "diffs": 0,
+          "ours": 90,
+          "retail": 90,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_CalcCarDirection__FP17DRender_tCalcViewP8Car_tObj",
+          "diffs": 0,
+          "ours": 53,
+          "retail": 53,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_CalcDistance__FP17DRender_tCalcViewP8coorddef",
+          "diffs": 0,
+          "ours": 34,
+          "retail": 34,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_CalcDopplerShiftRatio__FP8coorddefT0",
+          "diffs": 0,
+          "ours": 115,
+          "retail": 115,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_CalcTrackAzimuth__FP17DRender_tCalcViewP8Car_tObj",
+          "diffs": 0,
+          "ours": 78,
+          "retail": 78,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_GetClosestCars__Fiii",
+          "diffs": 0,
+          "ours": 267,
+          "retail": 267,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_HonkHorn__FP8Car_tObjiii",
+          "diffs": 0,
+          "ours": 24,
+          "retail": 24,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_InitSource__FP16AudioClc_tSourceP8Car_tObj",
+          "diffs": 0,
+          "ours": 12,
+          "retail": 12,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_ResetClosest__FiP8Car_tObji",
+          "diffs": 0,
+          "ours": 50,
+          "retail": 50,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_SetHorn__FP8Car_tObji",
+          "diffs": 0,
+          "ours": 28,
+          "retail": 28,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_SilenceOpponentHorn__Fi",
+          "diffs": 0,
+          "ours": 8,
+          "retail": 8,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_SndError__Fi",
+          "diffs": 0,
+          "ours": 2,
+          "retail": 2,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_SoundCars__Fv",
+          "diffs": 0,
+          "ours": 176,
+          "retail": 176,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_SoundCloseCar__Fii",
+          "diffs": 0,
+          "ours": 312,
+          "retail": 312,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_SoundOpponentHorn__Fiiii",
+          "diffs": 0,
+          "ours": 43,
+          "retail": 43,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_SoundPlayersCar__Fi",
+          "diffs": 0,
+          "ours": 461,
+          "retail": 461,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_SoundSpeech__Fv",
+          "diffs": 0,
+          "ours": 12,
+          "retail": 12,
+          "branch_differences": [],
+          "first_differences": []
+        },
+        {
+          "name": "AudioClc_StartUp__Fv",
+          "diffs": 0,
+          "ours": 87,
+          "retail": 87,
+          "branch_differences": [],
+          "first_differences": []
+        }
+      ]
+    }
+  },
+  "recommended_parent_actions": [
+    "Add a documented whole-TU no_thread_jumps compiler-input option for audioclc.cpp, preserving G4 and current2.8.0 compiler.",
+    "Mirror the whole-TU flag in the diffsrc debug compiler options.",
+    "Remove audioclc from PER_FN_NO_THREAD_JUMPS, retiring the function-output splice.",
+    "Update the stale target source comment that currently claims an observable zero-byte else boundary; no such source boundary remains.",
+    "Re-run source-only target/full-TU/branch/debug-twin gates, then parent-wide regression/link checks."
+  ],
+  "safety": "No reconstructed code, shared headers or production tools were edited. All changes are isolated diagnostics. No new asm, volatile, invented reconstruction names, commits or pushes."
+}

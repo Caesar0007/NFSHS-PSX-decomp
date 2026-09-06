@@ -1,0 +1,920 @@
+{
+  "round": "P875",
+  "header": "recon/game/psx/font.h",
+  "source_authority": "C:/Temp/nfs4-clean/nfs4-f-v3.txt",
+  "scope": "Free-function public prototype rows from P874 inventory only; not an all-record or all-project source restoration claim.",
+  "counts": {
+    "inventory_candidates": 15,
+    "corrected_public": 14,
+    "removed_file_static": 1,
+    "before_native_references": 0,
+    "after_native_references": 14,
+    "return_type_corrections": 1,
+    "header_compile_failures": 0,
+    "unresolved_header_candidates": 0,
+    "preexisting_compiler_warning_count": 1
+  },
+  "before_actual_header_compile": {
+    "header": "recon/game/psx/font.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\font_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\font_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\font_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\font_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\font_before.s"
+      ]
+    ],
+    "header_sha256": "55ded46e361f90393b5ae44784470dc225a1f7e121f146a9a49ec1ccd1799583",
+    "references": {
+      "0": "Font_TextColor__Fi__Fi",
+      "1": "Font_TextTint__Fi__Fi",
+      "2": "Font_SetABR__Fi__Fi",
+      "3": "Font_Blit__FiiPviiP12charactertbli__FiiPviiP12charactertbl",
+      "4": "Font_ComputeColors__Fiiic__Fiiic",
+      "5": "Font_textbsearch__FiPcUlUl__FiPcUlUl",
+      "6": "Font_Getcharacter__Fi__Fi",
+      "7": "Font_SetBlitter__FPFiiPviiP12charactertbli_v__FPv",
+      "8": "Font_ReSetBlitter__Fv__Fv",
+      "9": "Font_SwitchFont__FPc__FPc",
+      "10": "Font_DeInit__Fv__Fv",
+      "11": "Font_ExitFromGame__Fv__Fv",
+      "12": "Font_LoadFont__FPciic__FPciic",
+      "13": "Font_TextXY__FPcii__FPcii",
+      "14": "Font_GetUVWH__FcPiN41__FcPiN41"
+    },
+    "ok": true,
+    "assembly_sha256": "5aaf5d3fa83df1049d548e5a23d83b146b78a4ab2752f4568f9727016f93c0f8",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".sdata",
+      ".sbss",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\font.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "font_clutx",
+      "font_cluty",
+      "font_tint",
+      "Font_TextColor__Fi",
+      "Font_TextTint__Fi",
+      "Font_SetABR__Fi",
+      "Font_Blit__FiiPviiP12charactertbli",
+      "Font_ComputeColors__Fiiic",
+      "Font_Getcharacter__Fi",
+      "Font_SetBlitter__FPFiiPviiP12charactertbli_v",
+      "Font_ReSetBlitter__Fv",
+      "Font_SwitchFont__FPc",
+      "Font_DeInit__Fv",
+      "Font_ExitFromGame__Fv",
+      "Font_LoadFont__FPciic",
+      "Font_TextXY__FPcii",
+      "Font_GetUVWH__FcPiN41",
+      "font_abr",
+      "gFontClut",
+      "gFontSpaceWidth",
+      "font_currentTPage",
+      "Font_textbsearch__FiPcUlUl",
+      "gCurrentBlitter"
+    ]
+  },
+  "before_frozen_replay": {
+    "header": "recon/game/psx/font.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\font_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\font_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\font_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\font_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\font_before.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\font_before.cpp:2:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "d9903948c6dd8c4529fa2633ca5a66cb4e3ebadf98a911a35a7990fa99928653",
+    "input_mode": "frozen-original-prototype-surface",
+    "references": {
+      "0": "Font_TextColor__Fi__Fi",
+      "1": "Font_TextTint__Fi__Fi",
+      "2": "Font_SetABR__Fi__Fi",
+      "3": "Font_Blit__FiiPviiP12charactertbli__FiiPviiP12charactertbl",
+      "4": "Font_ComputeColors__Fiiic__Fiiic",
+      "5": "Font_textbsearch__FiPcUlUl__FiPcUlUl",
+      "6": "Font_Getcharacter__Fi__Fi",
+      "7": "Font_SetBlitter__FPFiiPviiP12charactertbli_v__FPv",
+      "8": "Font_ReSetBlitter__Fv__Fv",
+      "9": "Font_SwitchFont__FPc__FPc",
+      "10": "Font_DeInit__Fv__Fv",
+      "11": "Font_ExitFromGame__Fv__Fv",
+      "12": "Font_LoadFont__FPciic__FPciic",
+      "13": "Font_TextXY__FPcii__FPcii",
+      "14": "Font_GetUVWH__FcPiN41__FcPiN41"
+    },
+    "ok": true,
+    "assembly_sha256": "5aaf5d3fa83df1049d548e5a23d83b146b78a4ab2752f4568f9727016f93c0f8"
+  },
+  "after_actual_header_compile": {
+    "header": "recon/game/psx/font.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\font_after.cpp",
+    "stage": "after",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\font_after.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\font_after.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\font_after.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\font_after.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:/Temp/nfs4-decomp/recon/game/psx/font.h:4,\n                 from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\font_after.cpp:1:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "869da2e6dedfb445062612b13733678963d33108f4b5521b2a6111bae23d5707",
+    "input_mode": "live-public-header",
+    "header_sha256": "f4aefa3c16def2b939fce67cf685acd6ad9e64037daaee9eebcb823a9975f912",
+    "references": {
+      "0": "Font_TextColor__Fi",
+      "1": "Font_TextTint__Fi",
+      "2": "Font_SetABR__Fi",
+      "3": "Font_Blit__FiiPviiP12charactertbli",
+      "4": "Font_ComputeColors__Fiiic",
+      "5": "Font_Getcharacter__Fi",
+      "6": "Font_SetBlitter__FPFiiPviiP12charactertbli_v",
+      "7": "Font_ReSetBlitter__Fv",
+      "8": "Font_SwitchFont__FPc",
+      "9": "Font_DeInit__Fv",
+      "10": "Font_ExitFromGame__Fv",
+      "11": "Font_LoadFont__FPciic",
+      "12": "Font_TextXY__FPcii",
+      "13": "Font_GetUVWH__FcPiN41"
+    },
+    "ok": true,
+    "assembly_sha256": "4d8b4a4dab036164f24b5184da357531ffd50b84d51a9383d9983c29927780e8",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".sdata",
+      ".sbss",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\font.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "font_clutx",
+      "font_cluty",
+      "font_tint",
+      "Font_TextColor__Fi",
+      "Font_TextTint__Fi",
+      "Font_SetABR__Fi",
+      "Font_Blit__FiiPviiP12charactertbli",
+      "Font_ComputeColors__Fiiic",
+      "Font_Getcharacter__Fi",
+      "Font_SetBlitter__FPFiiPviiP12charactertbli_v",
+      "Font_ReSetBlitter__Fv",
+      "Font_SwitchFont__FPc",
+      "Font_DeInit__Fv",
+      "Font_ExitFromGame__Fv",
+      "Font_LoadFont__FPciic",
+      "Font_TextXY__FPcii",
+      "Font_GetUVWH__FcPiN41",
+      "font_abr",
+      "gFontClut",
+      "gFontSpaceWidth",
+      "font_currentTPage",
+      "Font_textbsearch__FiPcUlUl",
+      "gCurrentBlitter"
+    ]
+  },
+  "owning_tu_gate": {
+    "source": "recon/game/psx/font.cpp",
+    "command": [
+      "C:\\Python314\\python.exe",
+      "tools/tugate.py",
+      "recon/game/psx/font.cpp"
+    ],
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/psx/font.cpp: 15/15 PASS\n",
+    "stderr": "",
+    "object_sha256": "35b2ef12dab83fcd588cbc4b499460334b639a558329525f05e6ce8bea202bad",
+    "actual_function_symbols": [
+      "Font_TextColor__Fi",
+      "Font_TextTint__Fi",
+      "Font_SetABR__Fi",
+      "Font_Blit__FiiPviiP12charactertbli",
+      "Font_ComputeColors__Fiiic",
+      "Font_Getcharacter__Fi",
+      "Font_SetBlitter__FPFiiPviiP12charactertbli_v",
+      "Font_ReSetBlitter__Fv",
+      "Font_SwitchFont__FPc",
+      "Font_DeInit__Fv",
+      "Font_ExitFromGame__Fv",
+      "Font_LoadFont__FPciic",
+      "Font_TextXY__FPcii",
+      "Font_GetUVWH__FcPiN41",
+      "Font_textbsearch__FiPcUlUl"
+    ],
+    "local_function_symbols": [
+      "Font_textbsearch__FiPcUlUl"
+    ]
+  },
+  "consumer_census": {
+    "files_scanned": 1677,
+    "literal_users": [],
+    "dynamic_includes": []
+  },
+  "unresolved": [],
+  "prototype_receipts": [
+    {
+      "header": "recon/game/psx/font.h",
+      "line": 6,
+      "encoded": "Font_TextColor__Fi",
+      "name": "Font_TextColor",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Font_TextColor__Fi(int color);   /* :83 */",
+      "header_return": "void",
+      "header_signature": "(int color)",
+      "native": [
+        {
+          "record": "3f4d88",
+          "va": "800cb20c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Font_TextColor",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\font.cpp",
+          "line": 53,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int color)",
+          "end": 59,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int color)",
+      "final_prototype": "void Font_TextColor(int color);   /* SYM 3f4d88 @0x800cb20c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Font_TextColor__Fi__Fi",
+      "after_emitted_reference": "Font_TextColor__Fi",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/font.h",
+      "line": 7,
+      "encoded": "Font_TextTint__Fi",
+      "name": "Font_TextTint",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Font_TextTint__Fi(int rgb);   /* :89 */",
+      "header_return": "void",
+      "header_signature": "(int rgb)",
+      "native": [
+        {
+          "record": "3f4da8",
+          "va": "800cb244",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Font_TextTint",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\font.cpp",
+          "line": 62,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int rgb)",
+          "end": 67,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int rgb)",
+      "final_prototype": "void Font_TextTint(int rgb);   /* SYM 3f4da8 @0x800cb244 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Font_TextTint__Fi__Fi",
+      "after_emitted_reference": "Font_TextTint__Fi",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/font.h",
+      "line": 8,
+      "encoded": "Font_SetABR__Fi",
+      "name": "Font_SetABR",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Font_SetABR__Fi(int abr);   /* :96 */",
+      "header_return": "void",
+      "header_signature": "(int abr)",
+      "native": [
+        {
+          "record": "3f4dc7",
+          "va": "800cb264",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Font_SetABR",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\font.cpp",
+          "line": 70,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int abr)",
+          "end": 82,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int abr)",
+      "final_prototype": "void Font_SetABR(int abr);   /* SYM 3f4dc7 @0x800cb264 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Font_SetABR__Fi__Fi",
+      "after_emitted_reference": "Font_SetABR__Fi",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/font.h",
+      "line": 9,
+      "encoded": "Font_Blit__FiiPviiP12charactertbli",
+      "name": "Font_Blit",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Font_Blit__FiiPviiP12charactertbli(int x, int y, void *src, int u, int v, charactertbl *ch);   /* :128 */",
+      "header_return": "void",
+      "header_signature": "(int x, int y, void *src, int u, int v, charactertbl *ch)",
+      "native": [
+        {
+          "record": "3f4de4",
+          "va": "800cb2ac",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Font_Blit",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\font.cpp",
+          "line": 115,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int x,int y,void * src,int u,int v,charactertbl * ch,int tpage)",
+          "end": 138,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int x,int y,void * src,int u,int v,charactertbl * ch,int tpage)",
+      "final_prototype": "void Font_Blit(int x,int y,void * src,int u,int v,charactertbl * ch,int tpage);   /* SYM 3f4de4 @0x800cb2ac */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Font_Blit__FiiPviiP12charactertbli__FiiPviiP12charactertbl",
+      "after_emitted_reference": "Font_Blit__FiiPviiP12charactertbli",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/font.h",
+      "line": 10,
+      "encoded": "Font_ComputeColors__Fiiic",
+      "name": "Font_ComputeColors",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Font_ComputeColors__Fiiic(int colour, int forecolour, int backcolour, char in_game);   /* :168 */",
+      "header_return": "void",
+      "header_signature": "(int colour, int forecolour, int backcolour, char in_game)",
+      "native": [
+        {
+          "record": "3f4e14",
+          "va": "800cb388",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Font_ComputeColors",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\font.cpp",
+          "line": 160,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int colour,int forecolour,int backcolour,char in_game)",
+          "end": 239,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int colour,int forecolour,int backcolour,char in_game)",
+      "final_prototype": "void Font_ComputeColors(int colour,int forecolour,int backcolour,char in_game);   /* SYM 3f4e14 @0x800cb388 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Font_ComputeColors__Fiiic__Fiiic",
+      "after_emitted_reference": "Font_ComputeColors__Fiiic",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/font.h",
+      "line": 11,
+      "encoded": "Font_textbsearch__FiPcUlUl",
+      "name": "Font_textbsearch",
+      "inventory_class": "REVIEW",
+      "include_hits": 0,
+      "original": "void * Font_textbsearch__FiPcUlUl(int key, char *base, u_long nmemb, u_long size);   /* :262 */",
+      "header_return": "void *",
+      "header_signature": "(int key, char *base, u_long nmemb, u_long size)",
+      "native": [
+        {
+          "record": "3f4e3b",
+          "va": "800cb6a0",
+          "linkage": "STAT",
+          "return_type": "charactertbl*"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Font_textbsearch",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\font.cpp",
+          "file": true,
+          "line": 246,
+          "typeref": "typename:charactertbl *",
+          "kind": "function",
+          "signature": "(int key,char * base,u_long nmemb,u_long size)",
+          "end": 265,
+          "return_type": "charactertbl *",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": true,
+      "status": "REMOVED_NATIVE_FILE_STATIC",
+      "before_emitted_reference": "Font_textbsearch__FiPcUlUl__FiPcUlUl",
+      "after_emitted_reference": null,
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": true
+    },
+    {
+      "header": "recon/game/psx/font.h",
+      "line": 12,
+      "encoded": "Font_Getcharacter__Fi",
+      "name": "Font_Getcharacter",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void * Font_Getcharacter__Fi(int targetindex);   /* :286 */",
+      "header_return": "void *",
+      "header_signature": "(int targetindex)",
+      "native": [
+        {
+          "record": "3f4e72",
+          "va": "800cb740",
+          "linkage": "EXT",
+          "return_type": "charactertbl*"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Font_Getcharacter",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\font.cpp",
+          "line": 267,
+          "typeref": "typename:charactertbl *",
+          "kind": "function",
+          "signature": "(int targetindex)",
+          "end": 281,
+          "return_type": "charactertbl *",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "charactertbl *",
+      "final_signature": "(int targetindex)",
+      "final_prototype": "charactertbl * Font_Getcharacter(int targetindex);   /* SYM 3f4e72 @0x800cb740 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Font_Getcharacter__Fi__Fi",
+      "after_emitted_reference": "Font_Getcharacter__Fi",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/font.h",
+      "line": 13,
+      "encoded": "Font_SetBlitter__FPFiiPviiP12charactertbli_v",
+      "name": "Font_SetBlitter",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Font_SetBlitter__FPFiiPviiP12charactertbli_v(void *blitter);   /* :305 */",
+      "header_return": "void",
+      "header_signature": "(void *blitter)",
+      "native": [
+        {
+          "record": "3f4ea4",
+          "va": "800cb7cc",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Font_SetBlitter",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\font.cpp",
+          "line": 284,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(fontblit blitter)",
+          "end": 289,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void (*blitter)(int, int, void *, int, int, charactertbl *, int))",
+      "final_prototype": "void Font_SetBlitter(void (*blitter)(int, int, void *, int, int, charactertbl *, int));   /* SYM 3f4ea4 @0x800cb7cc */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Font_SetBlitter__FPFiiPviiP12charactertbli_v__FPv",
+      "after_emitted_reference": "Font_SetBlitter__FPFiiPviiP12charactertbli_v",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/font.h",
+      "line": 14,
+      "encoded": "Font_ReSetBlitter__Fv",
+      "name": "Font_ReSetBlitter",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Font_ReSetBlitter__Fv(void);   /* :311 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "3f4ede",
+          "va": "800cb7d8",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Font_ReSetBlitter",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\font.cpp",
+          "line": 292,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 297,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Font_ReSetBlitter(void);   /* SYM 3f4ede @0x800cb7d8 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Font_ReSetBlitter__Fv__Fv",
+      "after_emitted_reference": "Font_ReSetBlitter__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/font.h",
+      "line": 15,
+      "encoded": "Font_SwitchFont__FPc",
+      "name": "Font_SwitchFont",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Font_SwitchFont__FPc(char *f1);   /* :317 */",
+      "header_return": "void",
+      "header_signature": "(char *f1)",
+      "native": [
+        {
+          "record": "3f4f01",
+          "va": "800cb7ec",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Font_SwitchFont",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\font.cpp",
+          "line": 330,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(char * f1)",
+          "end": 366,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(char * f1)",
+      "final_prototype": "void Font_SwitchFont(char * f1);   /* SYM 3f4f01 @0x800cb7ec */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Font_SwitchFont__FPc__FPc",
+      "after_emitted_reference": "Font_SwitchFont__FPc",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/font.h",
+      "line": 16,
+      "encoded": "Font_DeInit__Fv",
+      "name": "Font_DeInit",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Font_DeInit__Fv(void);   /* :333 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "3f4f23",
+          "va": "800cb858",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Font_DeInit",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\font.cpp",
+          "line": 369,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 378,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Font_DeInit(void);   /* SYM 3f4f23 @0x800cb858 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Font_DeInit__Fv__Fv",
+      "after_emitted_reference": "Font_DeInit__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/font.h",
+      "line": 17,
+      "encoded": "Font_ExitFromGame__Fv",
+      "name": "Font_ExitFromGame",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Font_ExitFromGame__Fv(void);   /* :342 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "3f4f40",
+          "va": "800cb8a8",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Font_ExitFromGame",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\font.cpp",
+          "line": 381,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 387,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Font_ExitFromGame(void);   /* SYM 3f4f40 @0x800cb8a8 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Font_ExitFromGame__Fv__Fv",
+      "after_emitted_reference": "Font_ExitFromGame__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/font.h",
+      "line": 18,
+      "encoded": "Font_LoadFont__FPciic",
+      "name": "Font_LoadFont",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "int Font_LoadFont__FPciic(char *f1, int x, int y, char in_game);   /* :348 */",
+      "header_return": "int",
+      "header_signature": "(char *f1, int x, int y, char in_game)",
+      "native": [
+        {
+          "record": "3f4f63",
+          "va": "800cb8bc",
+          "linkage": "EXT",
+          "return_type": "int"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Font_LoadFont",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\font.cpp",
+          "line": 395,
+          "typeref": "typename:int",
+          "kind": "function",
+          "signature": "(char * f1,int x,int y,char in_game)",
+          "end": 431,
+          "return_type": "int",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "int",
+      "final_signature": "(char * f1,int x,int y,char in_game)",
+      "final_prototype": "int Font_LoadFont(char * f1,int x,int y,char in_game);   /* SYM 3f4f63 @0x800cb8bc */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Font_LoadFont__FPciic__FPciic",
+      "after_emitted_reference": "Font_LoadFont__FPciic",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/font.h",
+      "line": 19,
+      "encoded": "Font_TextXY__FPcii",
+      "name": "Font_TextXY",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Font_TextXY__FPcii(char *string, int x, int y);   /* :414 */",
+      "header_return": "void",
+      "header_signature": "(char *string, int x, int y)",
+      "native": [
+        {
+          "record": "3f4f86",
+          "va": "800cba90",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Font_TextXY",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\font.cpp",
+          "line": 455,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(char * string,int x,int y)",
+          "end": 511,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(char * string,int x,int y)",
+      "final_prototype": "void Font_TextXY(char * string,int x,int y);   /* SYM 3f4f86 @0x800cba90 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Font_TextXY__FPcii__FPcii",
+      "after_emitted_reference": "Font_TextXY__FPcii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/font.h",
+      "line": 20,
+      "encoded": "Font_GetUVWH__FcPiN41",
+      "name": "Font_GetUVWH",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Font_GetUVWH__FcPiN41(char code, int *u, int *v, int *w, int *h, int *yoff);   /* :541 */",
+      "header_return": "void",
+      "header_signature": "(char code, int *u, int *v, int *w, int *h, int *yoff)",
+      "native": [
+        {
+          "record": "3f4fa6",
+          "va": "800cbbe8",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Font_GetUVWH",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\font.cpp",
+          "line": 516,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(char code,int * u,int * v,int * w,int * h,int * yoff)",
+          "end": 529,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(char code,int * u,int * v,int * w,int * h,int * yoff)",
+      "final_prototype": "void Font_GetUVWH(char code,int * u,int * v,int * w,int * h,int * yoff);   /* SYM 3f4fa6 @0x800cbbe8 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Font_GetUVWH__FcPiN41__FcPiN41",
+      "after_emitted_reference": "Font_GetUVWH__FcPiN41",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    }
+  ]
+}

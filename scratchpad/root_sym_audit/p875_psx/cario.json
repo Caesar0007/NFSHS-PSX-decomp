@@ -1,0 +1,725 @@
+{
+  "round": "P875",
+  "header": "recon/game/psx/cario.h",
+  "source_authority": "C:/Temp/nfs4-clean/nfs4-f-v3.txt",
+  "scope": "Free-function public prototype rows from P874 inventory only; not an all-record or all-project source restoration claim.",
+  "counts": {
+    "inventory_candidates": 11,
+    "corrected_public": 11,
+    "removed_file_static": 0,
+    "before_native_references": 0,
+    "after_native_references": 11,
+    "return_type_corrections": 0,
+    "header_compile_failures": 0,
+    "unresolved_header_candidates": 0,
+    "preexisting_compiler_warning_count": 1
+  },
+  "before_actual_header_compile": {
+    "header": "recon/game/psx/cario.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\cario_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\cario_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\cario_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\cario_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\cario_before.s"
+      ]
+    ],
+    "header_sha256": "0b6470f4127a15a49e368262acf4859f44a34632a5ebab69b10588c0b0ada966",
+    "references": {
+      "0": "CarIO_StartUp__Fv__Fv",
+      "1": "CarIO_CleanUp__Fv__Fv",
+      "2": "CarIO_ReStart__Fv__Fv",
+      "3": "CarIO_CopyFromShape__FPsT0iiii__FPsT0iiii",
+      "4": "CarIO_CopyToShape__FPsT0i__FPsT0i",
+      "5": "CarIO_CreateLicense__FPcii__FPcii",
+      "6": "CarIO_CleanUpLicense__Fi__Fi",
+      "7": "CarIO_LicenseCheck__FiPiT1P8Car_tObji__FiPiT1P8Car_tObji",
+      "8": "CarIO_ReadInCarTextureData__FPcP8Car_tObjii__FPcP8Car_tObjii",
+      "9": "CarIO_UpdateCarTextureData__FPcP8Car_tObji__FPcP8Car_tObji",
+      "10": "CarIO_ReleaseCarCluts__FP8Car_tObj__FP8Car_tObj"
+    },
+    "ok": true,
+    "assembly_sha256": "2499dea703c3a098f4750de196c55dd1232383ce6a1c68caf7f780d42aacea4c",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".sdata",
+      ".rodata",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\cario.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "CarIO_carPixMap",
+      "CarIO_StartUp__Fv",
+      "CarIO_CleanUp__Fv",
+      "CarIO_ReStart__Fv",
+      "CarIO_CopyFromShape__FPsT0iiii",
+      "CarIO_CopyToShape__FPsT0i",
+      "CarIO_CreateLicense__FPcii",
+      "CarIO_CleanUpLicense__Fi",
+      "CarIO_LicenseCheck__FiPiT1P8Car_tObji",
+      "CarIO_ReadInCarTextureData__FPcP8Car_tObjii",
+      "CarIO_UpdateCarTextureData__FPcP8Car_tObji",
+      "CarIO_ReleaseCarCluts__FP8Car_tObj",
+      "CarIO_carPixMapCount",
+      "CarIO_carVRamCount",
+      "CarIO_licenseSFX_Count",
+      "CarIO_Plate1",
+      "CarIO_Plate2"
+    ]
+  },
+  "before_frozen_replay": {
+    "header": "recon/game/psx/cario.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\cario_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\cario_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\cario_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\cario_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\cario_before.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\cario_before.cpp:2:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "ec64ce40dcf733907c626b868070d01a1479b2917e854984fbfa912f8fe09e08",
+    "input_mode": "frozen-original-prototype-surface",
+    "references": {
+      "0": "CarIO_StartUp__Fv__Fv",
+      "1": "CarIO_CleanUp__Fv__Fv",
+      "2": "CarIO_ReStart__Fv__Fv",
+      "3": "CarIO_CopyFromShape__FPsT0iiii__FPsT0iiii",
+      "4": "CarIO_CopyToShape__FPsT0i__FPsT0i",
+      "5": "CarIO_CreateLicense__FPcii__FPcii",
+      "6": "CarIO_CleanUpLicense__Fi__Fi",
+      "7": "CarIO_LicenseCheck__FiPiT1P8Car_tObji__FiPiT1P8Car_tObji",
+      "8": "CarIO_ReadInCarTextureData__FPcP8Car_tObjii__FPcP8Car_tObjii",
+      "9": "CarIO_UpdateCarTextureData__FPcP8Car_tObji__FPcP8Car_tObji",
+      "10": "CarIO_ReleaseCarCluts__FP8Car_tObj__FP8Car_tObj"
+    },
+    "ok": true,
+    "assembly_sha256": "2499dea703c3a098f4750de196c55dd1232383ce6a1c68caf7f780d42aacea4c"
+  },
+  "after_actual_header_compile": {
+    "header": "recon/game/psx/cario.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\cario_after.cpp",
+    "stage": "after",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\cario_after.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\cario_after.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\cario_after.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\cario_after.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:/Temp/nfs4-decomp/recon/game/psx/cario.h:4,\n                 from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\cario_after.cpp:1:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "75d73be9cf1eb8043af1ad88e6ed106e89b4ddf73fd4a88f14d7492ad464aa41",
+    "input_mode": "live-public-header",
+    "header_sha256": "f318dea14baad1e32f333c7785bde30b2ef8bf1aa5cc6cdf592998dbe70d2361",
+    "references": {
+      "0": "CarIO_StartUp__Fv",
+      "1": "CarIO_CleanUp__Fv",
+      "2": "CarIO_ReStart__Fv",
+      "3": "CarIO_CopyFromShape__FPsT0iiii",
+      "4": "CarIO_CopyToShape__FPsT0i",
+      "5": "CarIO_CreateLicense__FPcii",
+      "6": "CarIO_CleanUpLicense__Fi",
+      "7": "CarIO_LicenseCheck__FiPiT1P8Car_tObji",
+      "8": "CarIO_ReadInCarTextureData__FPcP8Car_tObjii",
+      "9": "CarIO_UpdateCarTextureData__FPcP8Car_tObji",
+      "10": "CarIO_ReleaseCarCluts__FP8Car_tObj"
+    },
+    "ok": true,
+    "assembly_sha256": "65a8de43bca0ce9355193a0bab1e4b454cb19db56f75d3a9f5a38c6761c01fd0",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".sdata",
+      ".rodata",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\cario.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "CarIO_carPixMap",
+      "CarIO_StartUp__Fv",
+      "CarIO_CleanUp__Fv",
+      "CarIO_ReStart__Fv",
+      "CarIO_CopyFromShape__FPsT0iiii",
+      "CarIO_CopyToShape__FPsT0i",
+      "CarIO_CreateLicense__FPcii",
+      "CarIO_CleanUpLicense__Fi",
+      "CarIO_LicenseCheck__FiPiT1P8Car_tObji",
+      "CarIO_ReadInCarTextureData__FPcP8Car_tObjii",
+      "CarIO_UpdateCarTextureData__FPcP8Car_tObji",
+      "CarIO_ReleaseCarCluts__FP8Car_tObj",
+      "CarIO_carPixMapCount",
+      "CarIO_carVRamCount",
+      "CarIO_licenseSFX_Count",
+      "CarIO_Plate1",
+      "CarIO_Plate2"
+    ]
+  },
+  "owning_tu_gate": {
+    "source": "recon/game/psx/cario.cpp",
+    "command": [
+      "C:\\Python314\\python.exe",
+      "tools/tugate.py",
+      "recon/game/psx/cario.cpp"
+    ],
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/psx/cario.cpp: 11/11 PASS\n",
+    "stderr": "",
+    "object_sha256": "5295fdfdc2ce1135b100494c0bfedfc8b1dc3f50e788bca9b4941265a78027ed",
+    "actual_function_symbols": [
+      "CarIO_StartUp__Fv",
+      "CarIO_CleanUp__Fv",
+      "CarIO_ReStart__Fv",
+      "CarIO_CopyFromShape__FPsT0iiii",
+      "CarIO_CopyToShape__FPsT0i",
+      "CarIO_CreateLicense__FPcii",
+      "CarIO_CleanUpLicense__Fi",
+      "CarIO_LicenseCheck__FiPiT1P8Car_tObji",
+      "CarIO_ReadInCarTextureData__FPcP8Car_tObjii",
+      "CarIO_UpdateCarTextureData__FPcP8Car_tObji",
+      "CarIO_ReleaseCarCluts__FP8Car_tObj"
+    ],
+    "local_function_symbols": []
+  },
+  "consumer_census": {
+    "files_scanned": 1677,
+    "literal_users": [],
+    "dynamic_includes": []
+  },
+  "unresolved": [],
+  "prototype_receipts": [
+    {
+      "header": "recon/game/psx/cario.h",
+      "line": 6,
+      "encoded": "CarIO_StartUp__Fv",
+      "name": "CarIO_StartUp",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void CarIO_StartUp__Fv(void);   /* :208 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "39b732",
+          "va": "800bbf10",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "CarIO_StartUp",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\cario.cpp",
+          "line": 39,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 60,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void CarIO_StartUp(void);   /* SYM 39b732 @0x800bbf10 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "CarIO_StartUp__Fv__Fv",
+      "after_emitted_reference": "CarIO_StartUp__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/cario.h",
+      "line": 7,
+      "encoded": "CarIO_CleanUp__Fv",
+      "name": "CarIO_CleanUp",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void CarIO_CleanUp__Fv(void);   /* :233 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "39b751",
+          "va": "800bbf7c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "CarIO_CleanUp",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\cario.cpp",
+          "line": 63,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 71,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void CarIO_CleanUp(void);   /* SYM 39b751 @0x800bbf7c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "CarIO_CleanUp__Fv__Fv",
+      "after_emitted_reference": "CarIO_CleanUp__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/cario.h",
+      "line": 8,
+      "encoded": "CarIO_ReStart__Fv",
+      "name": "CarIO_ReStart",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void CarIO_ReStart__Fv(void);   /* :244 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "39b770",
+          "va": "800bbfa4",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "CarIO_ReStart",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\cario.cpp",
+          "line": 76,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 91,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void CarIO_ReStart(void);   /* SYM 39b770 @0x800bbfa4 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "CarIO_ReStart__Fv__Fv",
+      "after_emitted_reference": "CarIO_ReStart__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/cario.h",
+      "line": 9,
+      "encoded": "CarIO_CopyFromShape__FPsT0iiii",
+      "name": "CarIO_CopyFromShape",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void CarIO_CopyFromShape__FPsT0iiii(short *source, short *dest, int w, int h, int x, int y);   /* :258 */",
+      "header_return": "void",
+      "header_signature": "(short *source, short *dest, int w, int h, int x, int y)",
+      "native": [
+        {
+          "record": "39b78f",
+          "va": "800bbff0",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "CarIO_CopyFromShape",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\cario.cpp",
+          "line": 107,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(short * source,short * dest,int w,int h,int x,int y)",
+          "end": 241,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(short * source,short * dest,int w,int h,int x,int y)",
+      "final_prototype": "void CarIO_CopyFromShape(short * source,short * dest,int w,int h,int x,int y);   /* SYM 39b78f @0x800bbff0 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "CarIO_CopyFromShape__FPsT0iiii__FPsT0iiii",
+      "after_emitted_reference": "CarIO_CopyFromShape__FPsT0iiii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/cario.h",
+      "line": 10,
+      "encoded": "CarIO_CopyToShape__FPsT0i",
+      "name": "CarIO_CopyToShape",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void CarIO_CopyToShape__FPsT0i(short *source, short *dest, int mirror);   /* :347 */",
+      "header_return": "void",
+      "header_signature": "(short *source, short *dest, int mirror)",
+      "native": [
+        {
+          "record": "39b7bb",
+          "va": "800bc1b4",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "CarIO_CopyToShape",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\cario.cpp",
+          "line": 244,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(short * source,short * dest,int mirror)",
+          "end": 392,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(short * source,short * dest,int mirror)",
+      "final_prototype": "void CarIO_CopyToShape(short * source,short * dest,int mirror);   /* SYM 39b7bb @0x800bc1b4 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "CarIO_CopyToShape__FPsT0i__FPsT0i",
+      "after_emitted_reference": "CarIO_CopyToShape__FPsT0i",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/cario.h",
+      "line": 11,
+      "encoded": "CarIO_CreateLicense__FPcii",
+      "name": "CarIO_CreateLicense",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void CarIO_CreateLicense__FPcii(char *text, int carType, int player);   /* :379 */",
+      "header_return": "void",
+      "header_signature": "(char *text, int carType, int player)",
+      "native": [
+        {
+          "record": "39b7e2",
+          "va": "800bc25c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "CarIO_CreateLicense",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\cario.cpp",
+          "line": 625,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(char * text,int carType,int player)",
+          "end": 788,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(char * text,int carType,int player)",
+      "final_prototype": "void CarIO_CreateLicense(char * text,int carType,int player);   /* SYM 39b7e2 @0x800bc25c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "CarIO_CreateLicense__FPcii__FPcii",
+      "after_emitted_reference": "CarIO_CreateLicense__FPcii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/cario.h",
+      "line": 12,
+      "encoded": "CarIO_CleanUpLicense__Fi",
+      "name": "CarIO_CleanUpLicense",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void CarIO_CleanUpLicense__Fi(int player);   /* :486 */",
+      "header_return": "void",
+      "header_signature": "(int player)",
+      "native": [
+        {
+          "record": "39b80a",
+          "va": "800bc5f0",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "CarIO_CleanUpLicense",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\cario.cpp",
+          "line": 795,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int player)",
+          "end": 814,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int player)",
+      "final_prototype": "void CarIO_CleanUpLicense(int player);   /* SYM 39b80a @0x800bc5f0 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "CarIO_CleanUpLicense__Fi__Fi",
+      "after_emitted_reference": "CarIO_CleanUpLicense__Fi",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/cario.h",
+      "line": 13,
+      "encoded": "CarIO_LicenseCheck__FiPiT1P8Car_tObji",
+      "name": "CarIO_LicenseCheck",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void CarIO_LicenseCheck__FiPiT1P8Car_tObji(int reload, int *license_vx, int *license_vy, Car_tObj *carObj, int plate);   /* :497 */",
+      "header_return": "void",
+      "header_signature": "(int reload, int *license_vx, int *license_vy, Car_tObj *carObj, int plate)",
+      "native": [
+        {
+          "record": "39b830",
+          "va": "800bc668",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "CarIO_LicenseCheck",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\cario.cpp",
+          "line": 817,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int reload,int * license_vx,int * license_vy,Car_tObj * carObj,int plate)",
+          "end": 840,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int reload,int * license_vx,int * license_vy,Car_tObj * carObj,int plate)",
+      "final_prototype": "void CarIO_LicenseCheck(int reload,int * license_vx,int * license_vy,Car_tObj * carObj,int plate);   /* SYM 39b830 @0x800bc668 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "CarIO_LicenseCheck__FiPiT1P8Car_tObji__FiPiT1P8Car_tObji",
+      "after_emitted_reference": "CarIO_LicenseCheck__FiPiT1P8Car_tObji",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/cario.h",
+      "line": 14,
+      "encoded": "CarIO_ReadInCarTextureData__FPcP8Car_tObjii",
+      "name": "CarIO_ReadInCarTextureData",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void CarIO_ReadInCarTextureData__FPcP8Car_tObjii(char *shpfile, Car_tObj *carObj, int reload, int player);   /* :515 */",
+      "header_return": "void",
+      "header_signature": "(char *shpfile, Car_tObj *carObj, int reload, int player)",
+      "native": [
+        {
+          "record": "39b863",
+          "va": "800bc704",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "CarIO_ReadInCarTextureData",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\cario.cpp",
+          "line": 927,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(char * shpfile,Car_tObj * carObj,int reload,int player)",
+          "end": 1407,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(char * shpfile,Car_tObj * carObj,int reload,int player)",
+      "final_prototype": "void CarIO_ReadInCarTextureData(char * shpfile,Car_tObj * carObj,int reload,int player);   /* SYM 39b863 @0x800bc704 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "CarIO_ReadInCarTextureData__FPcP8Car_tObjii__FPcP8Car_tObjii",
+      "after_emitted_reference": "CarIO_ReadInCarTextureData__FPcP8Car_tObjii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/cario.h",
+      "line": 15,
+      "encoded": "CarIO_UpdateCarTextureData__FPcP8Car_tObji",
+      "name": "CarIO_UpdateCarTextureData",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void CarIO_UpdateCarTextureData__FPcP8Car_tObji(char *shpfile, Car_tObj *carObj, int player);   /* :718 */",
+      "header_return": "void",
+      "header_signature": "(char *shpfile, Car_tObj *carObj, int player)",
+      "native": [
+        {
+          "record": "39b89c",
+          "va": "800bceb0",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "CarIO_UpdateCarTextureData",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\cario.cpp",
+          "line": 1410,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(char * shpfile,Car_tObj * carObj,int player)",
+          "end": 1600,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(char * shpfile,Car_tObj * carObj,int player)",
+      "final_prototype": "void CarIO_UpdateCarTextureData(char * shpfile,Car_tObj * carObj,int player);   /* SYM 39b89c @0x800bceb0 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "CarIO_UpdateCarTextureData__FPcP8Car_tObji__FPcP8Car_tObji",
+      "after_emitted_reference": "CarIO_UpdateCarTextureData__FPcP8Car_tObji",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/cario.h",
+      "line": 16,
+      "encoded": "CarIO_ReleaseCarCluts__FP8Car_tObj",
+      "name": "CarIO_ReleaseCarCluts",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void CarIO_ReleaseCarCluts__FP8Car_tObj(Car_tObj *carObj);   /* :856 */",
+      "header_return": "void",
+      "header_signature": "(Car_tObj *carObj)",
+      "native": [
+        {
+          "record": "39b8d4",
+          "va": "800bd358",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "CarIO_ReleaseCarCluts",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\cario.cpp",
+          "line": 1603,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(Car_tObj * carObj)",
+          "end": 1624,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(Car_tObj * carObj)",
+      "final_prototype": "void CarIO_ReleaseCarCluts(Car_tObj * carObj);   /* SYM 39b8d4 @0x800bd358 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "CarIO_ReleaseCarCluts__FP8Car_tObj__FP8Car_tObj",
+      "after_emitted_reference": "CarIO_ReleaseCarCluts__FP8Car_tObj",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    }
+  ]
+}

@@ -480,38 +480,13 @@ void Weather_Init(void)
   int i;
   SVECTOR *sv;
   
-  /* w49-a10 NAMED ANGLE (12 diffs, count-EXACT 211/211, all in insns 1-14): the residual
-   * is ONE address-materialization decision.  Retail keeps %hi(TrackSpec_gSpec.weatherspec)
-   * in $a0 and uses it TWICE -- `addiu $v0,$a0,%lo(..)` for the pointer store AND
-   * `lw $v1,%lo(..)($a0)` for the .type read -- so $v0 is free for the `li $v0,1` that
-   * retail schedules into the beqz delay slot.  Ours CSEs the whole lo_sum: the .type
-   * load reuses the computed POINTER (`lw $v1,0($v0)`, no reloc), which pins $v0 and
-   * pushes the `li` after the load.  cse.c's find_best_addr replaces a (lo_sum high sym)
-   * MEM address with a register holding the same value when ADDRESS_COST says the plain
-   * reg is cheaper -- retail's cse did not have that register available at the load.
-   * FALSIFIED here: `__asm__("" : "=r"(ts) : "0"(ts))` opacity fence on the pointer
-   * (86 -- it breaks the CSE but also kills the shared high, giving a fresh 2-insn `la`);
-   * reading the guard through `Weather_gType` instead of re-reading .type (12, no change);
-   * a block-scope `int i;` at the top of the if-body per the SYM (12, no change).
-   * 🏆 w50-a10 SOLVED -- IT IS A PER-FN FLAG IDENTITY, NOT A SOURCE SHAPE: compiling THIS
-   * FUNCTION with `-fforce-addr` reproduces retail EXACTLY (12 -> PASS, 211/211).  Measured
-   * on the real CC1PLPSX: `-fforce-addr` emits `lui $4,%hi(spec)` into its OWN pseudo (not
-   * the self-temp `lui $2 ... addiu $2,$2` we get), so the `.type` load keeps a SECOND
-   * lo_sum off that shared high (`lw $3,%lo(spec)($4)`) instead of cse's find_best_addr
-   * folding it onto the already-computed pointer -- and $2 is then free for the `li 1` that
-   * reorg puts in the beqz delay slot.  The guard load's separate-temp (`lui $2; lw $3,..($2)`)
-   * comes along for free.  Whole-TU `-fforce-addr` is NOT the identity (22->21 PASS: it
-   * REGRESSES Weather_ProcessParticles PASS->22 and Weather_QuickReOrthogonalize PASS->57,
-   * DoWeather 36->42), so the wiring must be PER-FN: add a `PER_FN_FORCE_ADDR` table + the
-   * tuple `(PER_FN_FORCE_ADDR, "-fforce-addr", "faddr")` to build.py's `_apply_fn_splice`
-   * loop (same 3-line precedent as PER_FN_NO_DELAYED_BRANCH / PER_FN_NO_THREAD_JUMPS).
-   * GATE-CONFIRMED through that splice lane: whole weather.cpp 22 -> 23 PASS, zero
-   * regressions.  Source-level falsifications at the 12 base (all re-run this wave): a
-   * `volatile int` cast on the .type read (15 @212), reading it as `Weather_gTrackSpec->type`
-   * (15 @212), a volatile cast on the `GameSetup_gData.Weather` guard (12, neutral).
-   * Diagnostic sweep that isolated the flag: -fno-cse-follow-jumps / -fno-gcse /
-   * -fno-cse-skip-blocks all leave the fold in place; -mno-split-addresses changes the whole
-   * address form (la + 1-insn guard load), only -fforce-addr lands retail's shape. */
+  /* P878: use the initialized SYM CWeatherSpec pointer consistently for all
+     type reads. This emits retail's shared HI base and second LO type load
+     without the former per-function -fforce-addr intervention: PASS211 with
+     an exact debug twin, whole weather.cpp 25/25 and branch distances exact.
+     The complete source-only object equals the old mixed-flag object.
+     Whole-TU -fforce-addr still regresses three neighbors; no flag is needed
+     for this ordinary pointer-access source shape. */
   /* MATCH (2026-09-04, strict source-only): canonical `camera_info` member
    * copies let CSE retain one Camera_gInfo base with +8/+48 MEM offsets.  The
    * earlier raw-offset spelling needed an invented cameraWords cursor to get
@@ -519,11 +494,11 @@ void Weather_Init(void)
    * remains PASS 211/211. */
   Weather_gTrackSpec = &TrackSpec_gSpec.weatherspec;
   if (GameSetup_gData.Weather != 0) {
-    Weather_gType = TrackSpec_gSpec.weatherspec.type;
-    if (TrackSpec_gSpec.weatherspec.type == 1) {
+    Weather_gType = Weather_gTrackSpec->type;
+    if (Weather_gTrackSpec->type == 1) {
       Weather_InitRain();
     }
-    else if (TrackSpec_gSpec.weatherspec.type == 0) {
+    else if (Weather_gTrackSpec->type == 0) {
       Weather_InitSnow();
     }
     if (Weather_gSplatInfo == (Weather_tSplatInfo *)0x0) {

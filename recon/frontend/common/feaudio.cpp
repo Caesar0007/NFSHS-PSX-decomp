@@ -16,7 +16,7 @@ int FEAudio_StartLoadPatch(SPEECHINFO *info)
   int offset;
   
   asyncidle();
-  FeAudio_LocateBigfile(speechfileHeader[0],info->name,&offset,&length);
+  FeAudio_LocateBigfile(speechfileHeader,info->name,&offset,&length);
   if ((offset == 0) || (length == 0)) {
     return 0;
   }
@@ -326,7 +326,10 @@ LUMPYHEAD * FeAudio_InitViv(char *fname)
  * retail .rodata sequence: "lumpyhead", the six language prefixes, "000",
  * then "%s%s.viv". */
 SPEECHINFO   ginfo;                     /* @0x800514e8 */
-LUMPYHEAD   *speechfileHeader[1];       /* @0x8005150c; SYM-CARRIER: speechfileHeader */
+/* P869: native SYM 4bfac2 is PTR LUMPYHEAD, not an array. The established
+   frontend -G0 lane preserves the separate HI scratch and four-byte .data
+   cell with this scalar declaration; the former []/[1] carrier is obsolete. */
+LUMPYHEAD   *speechfileHeader;          /* @0x8005150c; SYM PTR LUMPYHEAD */
 char         currentSpeechViv[40];      /* @0x80051510 */
 int          commentaryActualLevel;     /* @0x80051538 */
 int          gStopCommentaryNow = 0;    /* @0x800514c8 */
@@ -359,7 +362,7 @@ void FeAudio_InitCommentary(int language,int)
      Paths_Paths high-half load is free to schedule early. */
   sprintf(currentSpeechViv,"%s%s.viv",Paths_Paths[0x26],
           *(char * *)&allLanguages[language]);  /* H11: dest was "" (oracle 0x800160EC $a0=$s0=&currentSpeechViv @0x80051510) */
-  speechfileHeader[0] = FeAudio_InitViv(currentSpeechViv);  /* H11: arg was "" (oracle 0x8001615C $a0=$s0) */
+  speechfileHeader = FeAudio_InitViv(currentSpeechViv);  /* H11: arg was "" (oracle 0x8001615C $a0=$s0) */
   return;
 }
 
@@ -370,9 +373,9 @@ void FeAudio_InitCommentary(int language,int)
 void FeAudio_DeInitCommentary(void)
 
 {
-  if (speechfileHeader[0] != (LUMPYHEAD *)0x0) {
-    purgememadr(speechfileHeader[0]);
-    speechfileHeader[0] = (LUMPYHEAD *)0x0;
+  if (speechfileHeader != (LUMPYHEAD *)0x0) {
+    purgememadr(speechfileHeader);
+    speechfileHeader = (LUMPYHEAD *)0x0;
   }
   return;
 }

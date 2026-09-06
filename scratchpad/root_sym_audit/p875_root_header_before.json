@@ -1,0 +1,261 @@
+[
+  {
+    "compile": true,
+    "references": [
+      "GameSetup_StartUp__FPi__FPi",
+      "GameSetup_CleanUp__Fv__Fv"
+    ],
+    "header": "recon/game/common/gmesetup.h",
+    "mode": "before",
+    "count": 2,
+    "expected": []
+  },
+  {
+    "compile": true,
+    "references": [
+      "Input_StartUp__Fv__Fv",
+      "Input_WingCommandMode__Fi__Fi",
+      "Input_Update__Fv__Fv",
+      "Input_Store__Fv__Fv",
+      "Input_Fetch__Fi__Fi",
+      "Input_Gear__Fci__Fci",
+      "Input_Interface__FUli__FUli",
+      "Input_MainExitKey__Fv__Fv"
+    ],
+    "header": "recon/game/common/input.h",
+    "mode": "before",
+    "count": 8,
+    "expected": []
+  },
+  {
+    "compile": true,
+    "references": [
+      "Newton_AddDamageZone__FP13BO_tNewtonObjiii__FP13BO_tNewtonObjiii",
+      "Newton_FindClosestQuad__FP13BO_tNewtonObj__FP13BO_tNewtonObj",
+      "Newton_CalculateSliceYaw__Fi__Fi",
+      "Newton_UpdateRoadGeometry__FP13BO_tNewtonObj__FP13BO_tNewtonObj",
+      "Newton_FindGroundElevationGeneral__FP8coorddefN20__FP8coorddefN20",
+      "Newton_FindGroundElevationRough__FP8coorddefN20__FP8coorddefN20",
+      "Newton_FindGroundElevationAndNormal__FP13BO_tNewtonObjP8coorddef__FP13BO_tNewtonObjP8coorddef",
+      "Newton_LimitCarsToDrivableDist__FP13BO_tNewtonObj__FP13BO_tNewtonObj",
+      "Newton_CalcPerpenHeightOfLowestPointFromGround__FP13BO_tNewtonObjP8coorddefT1__FP13BO_tNewtonObjP8coorddefT1",
+      "Newton_CalcPerpenHeightOfCenterPointFromGround__FP13BO_tNewtonObjP8coorddefT1__FP13BO_tNewtonObjP8coorddefT1",
+      "Newton_CalcDistToClosestPlayerCar__FP13BO_tNewtonObj__FP13BO_tNewtonObj",
+      "Newton_UpdateRoadInfo__FP13BO_tNewtonObj__FP13BO_tNewtonObj",
+      "Newton_CopyRoadMatrixToOrientMat__FP13BO_tNewtonObji__FP13BO_tNewtonObji",
+      "Newton_CopyRoadMatrixToShadowMat__FP13BO_tNewtonObji__FP13BO_tNewtonObji",
+      "Newton_SetInitialSlicePositionOrientationEtc__FP13BO_tNewtonObjiP8coorddefi__FP13BO_tNewtonObjiP8coorddefi",
+      "Newton_TestForUndrivableSurfaces__FP13BO_tNewtonObj__FP13BO_tNewtonObj",
+      "Newton_CalculateRoadPositionFromSliceAndPosition__FiP8coorddefP10matrixtdef__FiP8coorddefP10matrixtdef",
+      "Newton_CalculateRoadPosition__FP13BO_tNewtonObj__FP13BO_tNewtonObj"
+    ],
+    "header": "recon/game/common/newton.h",
+    "mode": "before",
+    "count": 18,
+    "expected": []
+  },
+  {
+    "compile": false,
+    "error": "In file included from C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h:5,\n                 from C:/Temp/nfs4-decomp/recon/game/common/color_types.h:5,\n                 from C:/Temp/nfs4-decomp/recon/game/common/aih_hierarchy_types.h:5,\n                 from C:/Temp/nfs4-decomp/recon/game/common/sim_types.h:6,\n                 from C:/Temp/nfs4-decomp/recon/game/common/object_types.h:6,\n                 from C:\\\\Temp\\\\nfs4-decomp\\\\build\\\\scratch\\\\p875_root\\\\before\\\\object\\\\header.h:4,\n                 from C:\\\\Temp\\\\nfs4-decomp\\\\build\\\\scratch\\\\p875_root\\\\before\\\\object\\\\probe.cpp:1:\nC:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h:60: warning: anonymous class type not used to declare any objects\nIn file included from C:\\\\Temp\\\\nfs4-decomp\\\\build\\\\scratch\\\\p875_root\\\\before\\\\object\\\\probe.cpp:1:\nC:\\\\Temp\\\\nfs4-decomp\\\\build\\\\scratch\\\\p875_root\\\\before\\\\object\\\\header.h:32: `Draw__23ObjectFinishedMultiAnimP13DRender_tViewP11Draw_DCachei(ObjectFinishedMultiAnim *, DRender_tView *, Draw_DCache *, int)' redeclared as non-member function (compiler error)\nC:\\\\Temp\\\\nfs4-decomp\\\\build\\\\scratch\\\\p875_root\\\\before\\\\object\\\\header.h:32: new declaration `int Draw__23ObjectFinishedMultiAnimP13DRender_tViewP11Draw_DCachei(struct ObjectFinishedMultiAnim *, struct DRender_tView *, struct Draw_DCache *, int)'\nC:/Temp/nfs4-decomp/recon/game/common/object_types.h:95: ambiguates old declaration `int ObjectFinishedMultiAnim::Draw(struct DRender_tView *, struct Draw_DCache *, int)'\nC:\\\\Temp\\\\nfs4-decomp\\\\build\\\\scratch\\\\p875_root\\\\before\\\\object\\\\header.h:33: `__15ObjectMultiAnimP8coorddefP7AnimDefP19Trk_CollideBoomInstP13Trk_ObjectDefP13Trk_SimObjectP23ObjectFinishedMultiAnim(ObjectMultiAnim *, coorddef *, AnimDef *, Trk_CollideBoomInst *, Trk_ObjectDef *, Trk_SimObject *, ObjectFinishedMultiAnim *)' redeclared as non-member function (compiler error)\nC:\\\\Temp\\\\nfs4-decomp\\\\build\\\\scratch\\\\p875_root\\\\before\\\\object\\\\header.h:33: new declaration `void * __15ObjectMultiAnimP8coorddefP7AnimDefP19Trk_CollideBoomInstP13Trk_ObjectDefP13Trk_SimObjectP23ObjectFinishedMultiAnim(struct ObjectMultiAnim *, struct coorddef *, struct AnimDef *, struct Trk_CollideBoomInst *, struct Trk_ObjectDef *, struct Trk_SimObject *, struct ObjectFinishedMultiAnim *)'\nC:/Temp/nfs4-decomp/recon/game/common/object_types.h:120: ambiguates old declaration `ObjectMultiAnim::ObjectMultiAnim(struct coorddef *, struct AnimDef *, struct Trk_CollideBoomInst *, struct Trk_ObjectDef *, struct Trk_SimObject *, struct ObjectFinishedMultiAnim *)'\nC:\\\\Temp\\\\nfs4-decomp\\\\build\\\\scratch\\\\p875_root\\\\before\\\\object\\\\header.h:34: `Draw__15ObjectMultiAnimP13DRender_tViewP11Draw_DCachei(ObjectMultiAnim *, DRender_tView *, Draw_DCache *, int)' redeclared as non-member function (compiler error)\nC:\\\\Temp\\\\nfs4-decomp\\\\build\\\\scratch\\\\p875_root\\\\before\\\\object\\\\header.h:34: new declaration `int Draw__15ObjectMultiAnimP13DRender_tViewP11Draw_DCachei(struct ObjectMultiAnim *, struct DRender_tView *, struct Draw_DCache *, int)'\nC:/Temp/nfs4-decomp/recon/game/common/object_types.h:121: ambiguates old declaration `int ObjectMultiAnim::Draw(struct DRender_tView *, struct Draw_DCache *, int)'\nC:\\\\Temp\\\\nfs4-decomp\\\\build\\\\scratch\\\\p875_root\\\\before\\\\object\\\\header.h:35: `Draw__22ObjectFinishedSignAnimP13DRender_tViewP11Draw_DCachei(ObjectFinishedSignAnim *, DRender_tView *, Draw_DCache *, int)' redeclared as non-member function (compiler error)\nC:\\\\Temp\\\\nfs4-decomp\\\\build\\\\scratch\\\\p875_root\\\\before\\\\object\\\\header.h:35: new declaration `int Draw__22ObjectFinishedSignAnimP13DRender_tViewP11Draw_DCachei(struct ObjectFinishedSignAnim *, struct DRender_tView *, struct Draw_DCache *, int)'\nC:/Temp/nfs4-decomp/recon/game/common/object_types.h:107: ambiguates old declaration `int ObjectFinishedSignAnim::Draw(struct DRender_tView *, struct Draw_DCache *, int)'\nC:\\\\Temp\\\\nfs4-decomp\\\\build\\\\scratch\\\\p875_root\\\\before\\\\object\\\\header.h:36: `__14ObjectSignAnimP8coorddefiP7AnimDefP19Trk_CollideBoomInstP13Trk_ObjectDefP13Trk_SimObjectT1P22ObjectFinishedSignAnim(ObjectSignAnim *, coorddef *, int, AnimDef *, Trk_CollideBoomInst *, Trk_ObjectDef *, Trk_SimObject *, coorddef *, ObjectFinishedSignAnim *)' redeclared as non-member function (compiler error)\nC:\\\\Temp\\\\nfs4-decomp\\\\build\\\\scratch\\\\p875_root\\\\before\\\\object\\\\header.h:36: new declaration `void * __14ObjectSignAnimP8coorddefiP7AnimDefP19Trk_CollideBoomInstP13Trk_ObjectDefP13Trk_SimObjectT1P22ObjectFinishedSignAnim(struct ObjectSignAnim *, struct coorddef *, int, struct AnimDef *, struct Trk_CollideBoomInst *, struct Trk_ObjectDef *, struct Trk_SimObject *, struct coorddef *, struct ObjectFinishedSignAnim *)'\nC:/Temp/nfs4-decomp/recon/game/common/object_types.h:135: ambiguates old declaration `ObjectSignAnim::ObjectSignAnim(struct coorddef *, int, struct AnimDef *, struct Trk_CollideBoomInst *, struct Trk_ObjectDef *, struct Trk_SimObject *, struct coorddef *, struct ObjectFinishedSignAnim *)'\nC:\\\\Temp\\\\nfs4-decomp\\\\build\\\\scratch\\\\p875_root\\\\before\\\\object\\\\header.h:37: `Draw__14ObjectSignAnimP13DRender_tViewP11Draw_DCachei(ObjectSignAnim *, DRender_tView *, Draw_DCache *, int)' redeclared as non-member function (compiler error)\nC:\\\\Temp\\\\nfs4-decomp\\\\build\\\\scratch\\\\p875_root\\\\before\\\\object\\\\header.h:37: new declaration `int Draw__14ObjectSignAnimP13DRender_tViewP11Draw_DCachei(struct ObjectSignAnim *, struct DRender_tView *, struct Draw_DCache *, int)'\nC:/Temp/nfs4-decomp/recon/game/common/object_types.h:136: ambiguates old declaration `int ObjectSignAnim::Draw(struct DRender_tView *, struct Draw_DCache *, int)'\n",
+    "header": "recon/game/common/object.h",
+    "mode": "before",
+    "count": 26,
+    "expected": []
+  },
+  {
+    "compile": true,
+    "references": [
+      "Physics_InitCarSpecs__FP8Car_tObjP10Udff_tInfo__FP8Car_tObjP10Udff_tInfo",
+      "Physics_CalculateDerivedCarSpecs__FP8Car_tObj__FP8Car_tObj",
+      "Physics_CheckGamedata__Fv__Fv",
+      "Physics_AttenuateVelocity__FP8Car_tObjiP10matrixtdef__FP8Car_tObjiP10matrixtdef",
+      "Physics_SetCurrentWallType__Fi__Fi",
+      "Physics_GetTorque__FP8Car_tObji__FP8Car_tObji",
+      "Physics_CorrectPostCollisionYaw__FP8Car_tObjiG8coorddef__FP8Car_tObjiG8coorddef",
+      "Physics_DoBarrierCheck__FP8Car_tObj__FP8Car_tObj",
+      "Physics_AutoShift__FP8Car_tObj__FP8Car_tObj",
+      "Physics_RampCarControlValues__FP8Car_tObj__FP8Car_tObj",
+      "Physics_FixEngineRpm__FP8Car_tObj__FP8Car_tObj",
+      "Physics_ResetCar__FP8Car_tObj__FP8Car_tObj",
+      "Physics_StopCar__FP8Car_tObj__FP8Car_tObj",
+      "Physics_TestForBarrierCollision__FP8Car_tObj__FP8Car_tObj",
+      "Physics_CalculateRoadGripModifiers__FP8Car_tObj__FP8Car_tObj",
+      "Physics_CalculateCarAcceleration__FP8Car_tObj__FP8Car_tObj",
+      "Physics_CalcWheelLockAcc__FP8Car_tObjP23Physics_tWheelAccStruct__FP8Car_tObjP23Physics_tWheelAccStruct",
+      "Physics_CalcTractionCircleAcc__FP8Car_tObjP23Physics_tWheelAccStruct__FP8Car_tObjP23Physics_tWheelAccStruct",
+      "Physics_CalculateTireForces__FP8Car_tObjP23Physics_tWheelAccStruct__FP8Car_tObjP23Physics_tWheelAccStruct",
+      "Physics_CalculateRSControlDesiredPosition__FP8Car_tObjii__FP8Car_tObjii",
+      "Physics_Real__FP8Car_tObj__FP8Car_tObj",
+      "Physics_SimCar__FP8Car_tObj__FP8Car_tObj"
+    ],
+    "header": "recon/game/common/physics.h",
+    "mode": "before",
+    "count": 22,
+    "expected": []
+  },
+  {
+    "compile": true,
+    "references": [
+      "Quatern_VecInterpolate__FP8coorddefT0iT0__FP8coorddefT0iT0",
+      "Quatern_Interpolate__FP5tQuatT0P8coorddefT2iT0T2__FP5tQuatT0P8coorddefT2iT0T2",
+      "Quatern_QuatToMat__FP5tQuatP10matrixtdef__FP5tQuatP10matrixtdef",
+      "Quatern_MatToQuat__FP10matrixtdefP5tQuat__FP10matrixtdefP5tQuat"
+    ],
+    "header": "recon/game/common/quatern.h",
+    "mode": "before",
+    "count": 4,
+    "expected": []
+  },
+  {
+    "compile": true,
+    "references": [
+      "Replay_Compress__FPc__FPc",
+      "Replay_Decompress__FPc__FPc",
+      "Replay_InitReplay__Fv__Fv",
+      "Replay_ResetReplay__Fv__Fv",
+      "Replay_StoringReplay__Fv__Fv",
+      "Replay_StoringControllerData__FG15tControllerData__FG15tControllerData",
+      "Replay_RetreivingControllerData__Fv__Fv",
+      "Replay_SaveInput__Fi__Fi",
+      "Replay_GetInput__Fi__Fi",
+      "Replay_SaveReplay__Fv__Fv",
+      "Replay_LoadReplay__Fv__Fv",
+      "Replay_DoReplay__FP8Car_tObj__FP8Car_tObj",
+      "Replay_GetInterfaceKey__Fv__Fv",
+      "Replay_LoadCameraFile__Fv__Fv",
+      "Replay_ReplayChooseCamera__Fii__Fii",
+      "Replay_ReplayFindClosestCamera__Fii__Fii"
+    ],
+    "header": "recon/game/common/replay.h",
+    "mode": "before",
+    "count": 16,
+    "expected": []
+  },
+  {
+    "compile": true,
+    "references": [
+      "Scene_Init__Fi__Fi",
+      "Scene_DeInit__Fv__Fv",
+      "Scene_PurgeScene__Fv__Fv",
+      "Scene_BuildCustomSceneList__Fv__Fv",
+      "Scene_LoadSceneFile__Fi__Fi",
+      "GetPlaneY__FPC8coorddefN20__FP8coorddefN20"
+    ],
+    "header": "recon/game/common/scene.h",
+    "mode": "before",
+    "count": 6,
+    "expected": []
+  },
+  {
+    "compile": true,
+    "references": [
+      "Sched_ExecuteCheck__FiiiiPiN24i__FiiiiPiN24i",
+      "Sched_CreateNewSchedule__FPci__FPci",
+      "Sched_CleanUpSchedule__FP15Sched_tSchedule__FP15Sched_tSchedule",
+      "Sched_AddFunction__FP15Sched_tSchedulePFPv_vPvi__FP15Sched_tSchedulePvT1i",
+      "Sched_DeleteFunction__FP15Sched_tSchedulePFPv_vPv__FP15Sched_tSchedulePvT1",
+      "Sched_Execute__FP15Sched_tSchedule__FP15Sched_tSchedule"
+    ],
+    "header": "recon/game/common/schedule.h",
+    "mode": "before",
+    "count": 6,
+    "expected": []
+  },
+  {
+    "compile": true,
+    "references": [
+      "Sim_StartUp__Fv__Fv",
+      "Sim_Restart__Fv__Fv",
+      "Sim_CleanUp__Fv__Fv",
+      "Sim_FadeInSFX__Fv__Fv",
+      "Sim_ProcessSimSchedules__Fv__Fv",
+      "Sim_ProcessPause__Fv__Fv",
+      "Sim_CheckForPause__Fi__Fi",
+      "Sim_MainGameLoop__Fv__Fv"
+    ],
+    "header": "recon/game/common/sim.h",
+    "mode": "before",
+    "count": 8,
+    "expected": []
+  },
+  {
+    "compile": true,
+    "references": [
+      "SimQueue_StartUp__Fv__Fv",
+      "SimQueue_Reset__Fv__Fv",
+      "SimQueue_CleanUp__Fv__Fv",
+      "SimQueue_Put__FiP14Input_tResults__FiP14Input_tResults",
+      "SimQueue_SetCurrentInput__Fi__Fi",
+      "SimQueue_GetCurrentInput__FiP14Input_tResults__FiP14Input_tResults",
+      "SimQueue_SetLag__Fv__Fv",
+      "SimQueue_IsBlocking__Fi__Fi"
+    ],
+    "header": "recon/game/common/simqueue.h",
+    "mode": "before",
+    "count": 8,
+    "expected": []
+  },
+  {
+    "compile": true,
+    "references": [
+      "GetGustWind__FP17Souffle_tISouffle__FP17Souffle_tISouffle",
+      "GetAngleWind__FP17Souffle_tISouffle__FP17Souffle_tISouffle",
+      "MoveAngleWind__FP17Souffle_tISouffle__FP17Souffle_tISouffle",
+      "Souffle_Add__FP8coorddefiT0iii__FP8coorddefiT0iii",
+      "Souffle_DoSouffle__Fv__Fv",
+      "Souffle_CircleClip__FP8coorddefT0i__FP8coorddefT0i",
+      "Souffle_InsertFacet__FP13DRender_tView__FP13DRender_tView",
+      "Souffle_InitTrackSouffle__Fv__Fv",
+      "Souffle_RestartTrackSouffle__Fv__Fv",
+      "Souffle_KillTrackSouffle__Fv__Fv"
+    ],
+    "header": "recon/game/common/souffle.h",
+    "mode": "before",
+    "count": 10,
+    "expected": []
+  },
+  {
+    "compile": true,
+    "references": [
+      "Stats_DoPlayerGlue__Fv__Fv",
+      "Stats_ClearPosition__Fv__Fv",
+      "Stats_GetPosition__FP8Car_tObj__FP8Car_tObj",
+      "Stats_GetNumOpponents__Fv__Fv",
+      "Stats_TrackStats__FP8Car_tObj__FP8Car_tObj",
+      "Stats_ExtrapolateOpponentTimes__Fi__Fi",
+      "Stats_TrackEndGame__Fv__Fv"
+    ],
+    "header": "recon/game/common/stats.h",
+    "mode": "before",
+    "count": 7,
+    "expected": []
+  },
+  {
+    "compile": false,
+    "error": "In file included from C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h:5,\n                 from C:/Temp/nfs4-decomp/recon/game/common/chunk_types.h:5,\n                 from C:/Temp/nfs4-decomp/recon/game/common/track_types.h:6,\n                 from C:\\\\Temp\\\\nfs4-decomp\\\\build\\\\scratch\\\\p875_root\\\\before\\\\track\\\\header.h:4,\n                 from C:\\\\Temp\\\\nfs4-decomp\\\\build\\\\scratch\\\\p875_root\\\\before\\\\track\\\\probe.cpp:1:\nC:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h:60: warning: anonymous class type not used to declare any objects\nIn file included from C:\\\\Temp\\\\nfs4-decomp\\\\build\\\\scratch\\\\p875_root\\\\before\\\\track\\\\probe.cpp:1:\nC:\\\\Temp\\\\nfs4-decomp\\\\build\\\\scratch\\\\p875_root\\\\before\\\\track\\\\header.h:31: `Save__11SaveSurfaceP14Trk_NewSimQuad(SaveSurface *, Trk_NewSimQuad *)' redeclared as non-member function (compiler error)\nC:\\\\Temp\\\\nfs4-decomp\\\\build\\\\scratch\\\\p875_root\\\\before\\\\track\\\\header.h:31: new declaration `void Save__11SaveSurfaceP14Trk_NewSimQuad(struct SaveSurface *, struct Trk_NewSimQuad *)'\nC:/Temp/nfs4-decomp/recon/game/common/track_types.h:70: ambiguates old declaration `void SaveSurface::Save(struct Trk_NewSimQuad *)'\nC:\\\\Temp\\\\nfs4-decomp\\\\build\\\\scratch\\\\p875_root\\\\before\\\\track\\\\header.h:32: `__11SaveSurfacei(SaveSurface *, int)' redeclared as non-member function (compiler error)\nC:\\\\Temp\\\\nfs4-decomp\\\\build\\\\scratch\\\\p875_root\\\\before\\\\track\\\\header.h:32: new declaration `void * __11SaveSurfacei(struct SaveSurface *, int)'\nC:/Temp/nfs4-decomp/recon/game/common/track_types.h:68: ambiguates old declaration `SaveSurface::SaveSurface(int)'\nC:\\\\Temp\\\\nfs4-decomp\\\\build\\\\scratch\\\\p875_root\\\\before\\\\track\\\\header.h:34: `RestoreAll__11SaveSurface(SaveSurface *)' redeclared as non-member function (compiler error)\nC:\\\\Temp\\\\nfs4-decomp\\\\build\\\\scratch\\\\p875_root\\\\before\\\\track\\\\header.h:34: new declaration `void RestoreAll__11SaveSurface(struct SaveSurface *)'\nC:/Temp/nfs4-decomp/recon/game/common/track_types.h:71: ambiguates old declaration `void SaveSurface::RestoreAll()'\n",
+    "header": "recon/game/common/track.h",
+    "mode": "before",
+    "count": 25,
+    "expected": []
+  },
+  {
+    "compile": true,
+    "references": [
+      "TrgSfx_AddEnviroEffect__FiiP8coorddefT2__FiiP8coorddefT2",
+      "TrgSfx_AddCarSfx__FiP8coorddefiT1__FiP8coorddefiT1",
+      "TrgSfx_AddCarWheelSfx__FiiP8coorddefiT2i__FiiP8coorddefiT2i",
+      "TrgSfx_AddCarExtraCheck__Fii__Fii",
+      "TrgSfx_AddCarExtraSfx__FiiP8coorddefiT2iii__FiiP8coorddefiT2iii",
+      "TrgSfx_AddCarSplash__FiiP8coorddefiT2ii__FiiP8coorddefiT2ii",
+      "TrgSfx_CrashCar__FP8coorddef__FP8coorddef",
+      "TrgSfx_AddSkidmark__FiiP8coorddefiiP8Car_tObji__FiiP8coorddefiiP8Car_tObji",
+      "TrgSfx_InitTrgSfx__Fv__Fv",
+      "TrgSfx_RestartTrgSfx__Fv__Fv",
+      "TrgSfx_KillTrgSfx__Fv__Fv"
+    ],
+    "header": "recon/game/common/trgsfx.h",
+    "mode": "before",
+    "count": 11,
+    "expected": []
+  }
+]

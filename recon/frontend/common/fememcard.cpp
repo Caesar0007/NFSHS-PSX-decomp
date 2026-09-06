@@ -20,10 +20,9 @@
    (The "defined elsewhere / nm-confirmed" note above was STALE: an nm sweep over all 508 recon
    objects this run shows NOTHING defines CURRENTPLAYER / nomessage / MEMCARD_INITIALIZED --
    they were still sitting in the blob.  Migrated here W66-A5.)
-   CURRENTPLAYER keeps the unsized-array + [0] access form (fememcard_externs.h): the int-value
-   load into an ARG reg then uses the oracle's SEPARATE v0 scratch (lui v0; lw a0,(v0)) rather
-   than dest-as-temp (lui a0; lw a0,(a0)); §3.15-CORRECTION. */
-int          CURRENTPLAYER[1] = { 0 };   /* @0x80051a68; SYM-CARRIER: CURRENTPLAYER */
+   P871: CURRENTPLAYER is native SYM EXT INT (5e4a59), not an array.  Keep
+   its explicit zero initializer and four-byte position in this data run. */
+int          CURRENTPLAYER = 0;   /* @0x80051a68; native SYM EXT INT */
 char         productCode[11] = { 83, 76, 85, 83, 45, 48, 48, 56, 50, 54, 0 };   /* @0x80051a6c */
 bool         nomessage = false;   /* @0x80051a78  SYM BOOL (4 B) */
 bool         CURRENTLYUSINGMEMCARD = false;   /* @0x80051a7c  SYM BOOL */
@@ -224,7 +223,7 @@ static int Confirm(int Text,int yesText)
        lw s0,0(s1) + addiu s0,s0,568 in the jal delay slot); the Display arg is a FRESH
        FEApp re-deref (selective/partial caching -- oracle recomputes it). */
     tDialogMessageString *messageDialog = &FEApp[0]->MemCardDialog;
-    char *messageText = TextSys_Word(CURRENTPLAYER[0] + 0x32b);
+    char *messageText = TextSys_Word(CURRENTPLAYER + 0x32b);
     /* MATCH: form Display's fresh `this` before storing messageText. Besides matching retail's
        load-before-store schedule, this keeps the FEApp address in $s1 for the wait loop. */
     tDialogBase *displayDialog = (tDialogBase *)&FEApp[0]->MemCardDialog;
@@ -267,7 +266,7 @@ static int Confirm(int Text,int yesText)
 static int OverwriteConfirm(void)
 
 {
-  return Confirm(CURRENTPLAYER[0] + 0x323,0x28f);
+  return Confirm(CURRENTPLAYER + 0x323,0x28f);
 }
 
 
@@ -287,7 +286,7 @@ static int OverwriteAlwaysYes(void)
 static int FormatConfirm(void)
 
 {
-  return Confirm(CURRENTPLAYER[0] + 0x327,0x290);
+  return Confirm(CURRENTPLAYER + 0x327,0x290);
 }
 
 
@@ -446,7 +445,7 @@ bool SaveGame(short player)
   tMemCardData memCardData;
   char memorycardbuffer [256];
 
-  CURRENTPLAYER[0] = player;
+  CURRENTPLAYER = player;
   CURRENTLYUSINGMEMCARD_arr[0] = 1;
   {
     int i;
@@ -642,7 +641,7 @@ short LoadGame(short player,bool PinkSlips,bool WithDialogs)
   cardNum = player * 4 | 1;
   /* WarningDialog is declared here (oracle jal __7tScreen after the two global stores);
      the header-inline constructor above emits the three-stage retail init chain. */
-  CURRENTPLAYER[0] = player;
+  CURRENTPLAYER = player;
   CURRENTLYUSINGMEMCARD_arr[0] = 1;
   tDialogNoInputMessage WarningDialog;
   MCRDFILE_def memCardFile;
@@ -837,7 +836,7 @@ SavePinkSlipsCars(short player,short withoutCarInGarageNumber)
   int event;
 
   MakeWayForMemoryCard();
-  CURRENTPLAYER[0] = player;
+  CURRENTPLAYER = player;
   char shapeFileName [64];
   short cardNum;
   MCRDFILE_def memCardFile;

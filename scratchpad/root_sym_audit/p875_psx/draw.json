@@ -1,0 +1,1403 @@
+{
+  "round": "P875",
+  "header": "recon/game/psx/draw.h",
+  "source_authority": "C:/Temp/nfs4-clean/nfs4-f-v3.txt",
+  "scope": "Free-function public prototype rows from P874 inventory only; not an all-record or all-project source restoration claim.",
+  "counts": {
+    "inventory_candidates": 25,
+    "corrected_public": 25,
+    "removed_file_static": 0,
+    "before_native_references": 0,
+    "after_native_references": 25,
+    "return_type_corrections": 1,
+    "header_compile_failures": 0,
+    "unresolved_header_candidates": 0,
+    "preexisting_compiler_warning_count": 1
+  },
+  "before_actual_header_compile": {
+    "header": "recon/game/psx/draw.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\draw_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\draw_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\draw_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\draw_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\draw_before.s"
+      ]
+    ],
+    "header_sha256": "fb3d872d7c2e6ea4a661fc1ce0247101f33438135382ad599f807a7438b5bb7d",
+    "references": {
+      "0": "Draw_SetView__Fiiiiiiiii__Fiiiiiiiii",
+      "1": "Draw_InitViews__Fv__Fv",
+      "2": "Draw_InitViewOT__Fv__Fv",
+      "3": "Draw_InitViewOTInGame__Fv__Fv",
+      "4": "Draw_DeInitViews__Fv__Fv",
+      "5": "Draw_DeInitViewsInGame__Fv__Fv",
+      "6": "Draw_GetDRAWENV__Fii__Fii",
+      "7": "Draw_SetViewMemBudget__Fii__Fii",
+      "8": "Draw_SetViewColor__Fiiii__Fiiii",
+      "9": "AllocatePrimitivesBuffer__Fv__Fv",
+      "10": "ClearPrimitivesBuffer__Fv__Fv",
+      "11": "ClearPlatformPrimitivesBuffer__Fv__Fv",
+      "12": "Draw_StartRenderingView__Fi__Fi",
+      "13": "Draw_StopRenderingView__Fi__Fi",
+      "14": "Draw_CheckFirstFrameRender__Fv__Fv",
+      "15": "Draw_StartFrameRender__Fv__Fv",
+      "16": "Draw_SetDrawSyncCallback__FPFv_v__FPv",
+      "17": "Draw_StopFrameRender__Fv__Fv",
+      "18": "Draw_DrawDirectScreen__FP8shapetblii__FP8shapetblii",
+      "19": "Draw_DirectSetEnvironment__Fiiiiiiiiii__Fiiiiiiiiii",
+      "20": "Draw_SetEnvironment__Fiiiiiiii__Fiiiiiiii",
+      "21": "Draw_InitRenderEngine__Fiiiiii__Fiiiiii",
+      "22": "Draw_RestartRenderEngine__Fv__Fv",
+      "23": "Draw_DeInitRenderEngine__Fv__Fv",
+      "24": "Draw_InitLibRender__Fv__Fv"
+    },
+    "ok": true,
+    "assembly_sha256": "b40fa811a2afde156ad66a87db7a0c7af4d2913eea3b5a0454c615103e29249a",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".sdata",
+      ".sbss",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\draw.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "Draw_SetView__Fiiiiiiiii",
+      "Draw_InitViews__Fv",
+      "Draw_InitViewOT__Fv",
+      "Draw_InitViewOTInGame__Fv",
+      "Draw_DeInitViews__Fv",
+      "Draw_DeInitViewsInGame__Fv",
+      "Draw_GetDRAWENV__Fii",
+      "Draw_SetViewMemBudget__Fii",
+      "Draw_SetViewColor__Fiiii",
+      "AllocatePrimitivesBuffer__Fv",
+      "ClearPrimitivesBuffer__Fv",
+      "ClearPlatformPrimitivesBuffer__Fv",
+      "Draw_StartRenderingView__Fi",
+      "Draw_StopRenderingView__Fi",
+      "Draw_CheckFirstFrameRender__Fv",
+      "Draw_StartFrameRender__Fv",
+      "Draw_SetDrawSyncCallback__FPFv_v",
+      "Draw_StopFrameRender__Fv",
+      "Draw_DrawDirectScreen__FP8shapetblii",
+      "Draw_DirectSetEnvironment__Fiiiiiiiiii",
+      "Draw_SetEnvironment__Fiiiiiiii",
+      "Draw_InitRenderEngine__Fiiiiii",
+      "Draw_RestartRenderEngine__Fv",
+      "Draw_DeInitRenderEngine__Fv",
+      "Draw_InitLibRender__Fv",
+      "Draw_gDoVSync",
+      "Draw_gMidGroundOtz",
+      "Draw_gViewOtSize",
+      "gFlip",
+      "Draw_gMaxPrim",
+      "Draw_gNumView",
+      "gLoop",
+      "gTotalMem",
+      "Draw_gSyncCallback"
+    ]
+  },
+  "before_frozen_replay": {
+    "header": "recon/game/psx/draw.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\draw_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\draw_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\draw_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\draw_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\draw_before.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\draw_before.cpp:2:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "8aa781b104aabc5ca93d4193d6e148d807f94b1ff245e8a1181918cd3e40c07d",
+    "input_mode": "frozen-original-prototype-surface",
+    "references": {
+      "0": "Draw_SetView__Fiiiiiiiii__Fiiiiiiiii",
+      "1": "Draw_InitViews__Fv__Fv",
+      "2": "Draw_InitViewOT__Fv__Fv",
+      "3": "Draw_InitViewOTInGame__Fv__Fv",
+      "4": "Draw_DeInitViews__Fv__Fv",
+      "5": "Draw_DeInitViewsInGame__Fv__Fv",
+      "6": "Draw_GetDRAWENV__Fii__Fii",
+      "7": "Draw_SetViewMemBudget__Fii__Fii",
+      "8": "Draw_SetViewColor__Fiiii__Fiiii",
+      "9": "AllocatePrimitivesBuffer__Fv__Fv",
+      "10": "ClearPrimitivesBuffer__Fv__Fv",
+      "11": "ClearPlatformPrimitivesBuffer__Fv__Fv",
+      "12": "Draw_StartRenderingView__Fi__Fi",
+      "13": "Draw_StopRenderingView__Fi__Fi",
+      "14": "Draw_CheckFirstFrameRender__Fv__Fv",
+      "15": "Draw_StartFrameRender__Fv__Fv",
+      "16": "Draw_SetDrawSyncCallback__FPFv_v__FPv",
+      "17": "Draw_StopFrameRender__Fv__Fv",
+      "18": "Draw_DrawDirectScreen__FP8shapetblii__FP8shapetblii",
+      "19": "Draw_DirectSetEnvironment__Fiiiiiiiiii__Fiiiiiiiiii",
+      "20": "Draw_SetEnvironment__Fiiiiiiii__Fiiiiiiii",
+      "21": "Draw_InitRenderEngine__Fiiiiii__Fiiiiii",
+      "22": "Draw_RestartRenderEngine__Fv__Fv",
+      "23": "Draw_DeInitRenderEngine__Fv__Fv",
+      "24": "Draw_InitLibRender__Fv__Fv"
+    },
+    "ok": true,
+    "assembly_sha256": "b40fa811a2afde156ad66a87db7a0c7af4d2913eea3b5a0454c615103e29249a"
+  },
+  "after_actual_header_compile": {
+    "header": "recon/game/psx/draw.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\draw_after.cpp",
+    "stage": "after",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\draw_after.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\draw_after.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\draw_after.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\draw_after.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:/Temp/nfs4-decomp/recon/game/psx/draw.h:4,\n                 from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\draw_after.cpp:1:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "4e2747008bc4c673135cc09439cff57a76ae9b6bfe4e831613c4938cec395813",
+    "input_mode": "live-public-header",
+    "header_sha256": "dc801cd310da4dff29866a54b97938b734a2d9421250eb8313aecb52db66d566",
+    "references": {
+      "0": "Draw_SetView__Fiiiiiiiii",
+      "1": "Draw_InitViews__Fv",
+      "2": "Draw_InitViewOT__Fv",
+      "3": "Draw_InitViewOTInGame__Fv",
+      "4": "Draw_DeInitViews__Fv",
+      "5": "Draw_DeInitViewsInGame__Fv",
+      "6": "Draw_GetDRAWENV__Fii",
+      "7": "Draw_SetViewMemBudget__Fii",
+      "8": "Draw_SetViewColor__Fiiii",
+      "9": "AllocatePrimitivesBuffer__Fv",
+      "10": "ClearPrimitivesBuffer__Fv",
+      "11": "ClearPlatformPrimitivesBuffer__Fv",
+      "12": "Draw_StartRenderingView__Fi",
+      "13": "Draw_StopRenderingView__Fi",
+      "14": "Draw_CheckFirstFrameRender__Fv",
+      "15": "Draw_StartFrameRender__Fv",
+      "16": "Draw_SetDrawSyncCallback__FPFv_v",
+      "17": "Draw_StopFrameRender__Fv",
+      "18": "Draw_DrawDirectScreen__FP8shapetblii",
+      "19": "Draw_DirectSetEnvironment__Fiiiiiiiiii",
+      "20": "Draw_SetEnvironment__Fiiiiiiii",
+      "21": "Draw_InitRenderEngine__Fiiiiii",
+      "22": "Draw_RestartRenderEngine__Fv",
+      "23": "Draw_DeInitRenderEngine__Fv",
+      "24": "Draw_InitLibRender__Fv"
+    },
+    "ok": true,
+    "assembly_sha256": "50bda94545e424e6e1dd0a5b69535bb0663aedb9252123a604e3c10e2877330f",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".sdata",
+      ".sbss",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\draw.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "Draw_SetView__Fiiiiiiiii",
+      "Draw_InitViews__Fv",
+      "Draw_InitViewOT__Fv",
+      "Draw_InitViewOTInGame__Fv",
+      "Draw_DeInitViews__Fv",
+      "Draw_DeInitViewsInGame__Fv",
+      "Draw_GetDRAWENV__Fii",
+      "Draw_SetViewMemBudget__Fii",
+      "Draw_SetViewColor__Fiiii",
+      "AllocatePrimitivesBuffer__Fv",
+      "ClearPrimitivesBuffer__Fv",
+      "ClearPlatformPrimitivesBuffer__Fv",
+      "Draw_StartRenderingView__Fi",
+      "Draw_StopRenderingView__Fi",
+      "Draw_CheckFirstFrameRender__Fv",
+      "Draw_StartFrameRender__Fv",
+      "Draw_SetDrawSyncCallback__FPFv_v",
+      "Draw_StopFrameRender__Fv",
+      "Draw_DrawDirectScreen__FP8shapetblii",
+      "Draw_DirectSetEnvironment__Fiiiiiiiiii",
+      "Draw_SetEnvironment__Fiiiiiiii",
+      "Draw_InitRenderEngine__Fiiiiii",
+      "Draw_RestartRenderEngine__Fv",
+      "Draw_DeInitRenderEngine__Fv",
+      "Draw_InitLibRender__Fv",
+      "Draw_gDoVSync",
+      "Draw_gMidGroundOtz",
+      "Draw_gViewOtSize",
+      "gFlip",
+      "Draw_gMaxPrim",
+      "Draw_gNumView",
+      "gLoop",
+      "gTotalMem",
+      "Draw_gSyncCallback"
+    ]
+  },
+  "owning_tu_gate": {
+    "source": "recon/game/psx/draw.cpp",
+    "command": [
+      "C:\\Python314\\python.exe",
+      "tools/tugate.py",
+      "recon/game/psx/draw.cpp"
+    ],
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/psx/draw.cpp: 25/25 PASS\n",
+    "stderr": "",
+    "object_sha256": "34748011177cefc2cc4605db52fe8fae82d756b84ccbf18666e05339a8dbed26",
+    "actual_function_symbols": [
+      "Draw_SetView__Fiiiiiiiii",
+      "Draw_InitViews__Fv",
+      "Draw_InitViewOT__Fv",
+      "Draw_InitViewOTInGame__Fv",
+      "Draw_DeInitViews__Fv",
+      "Draw_DeInitViewsInGame__Fv",
+      "Draw_GetDRAWENV__Fii",
+      "Draw_SetViewMemBudget__Fii",
+      "Draw_SetViewColor__Fiiii",
+      "AllocatePrimitivesBuffer__Fv",
+      "ClearPrimitivesBuffer__Fv",
+      "ClearPlatformPrimitivesBuffer__Fv",
+      "Draw_StartRenderingView__Fi",
+      "Draw_StopRenderingView__Fi",
+      "Draw_CheckFirstFrameRender__Fv",
+      "Draw_StartFrameRender__Fv",
+      "Draw_SetDrawSyncCallback__FPFv_v",
+      "Draw_StopFrameRender__Fv",
+      "Draw_DrawDirectScreen__FP8shapetblii",
+      "Draw_DirectSetEnvironment__Fiiiiiiiiii",
+      "Draw_SetEnvironment__Fiiiiiiii",
+      "Draw_InitRenderEngine__Fiiiiii",
+      "Draw_RestartRenderEngine__Fv",
+      "Draw_DeInitRenderEngine__Fv",
+      "Draw_InitLibRender__Fv"
+    ],
+    "local_function_symbols": []
+  },
+  "consumer_census": {
+    "files_scanned": 1677,
+    "literal_users": [],
+    "dynamic_includes": []
+  },
+  "unresolved": [],
+  "prototype_receipts": [
+    {
+      "header": "recon/game/psx/draw.h",
+      "line": 6,
+      "encoded": "Draw_SetView__Fiiiiiiiii",
+      "name": "Draw_SetView",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "int Draw_SetView__Fiiiiiiiii(int x0, int y0, int x1, int y1, int w, int h, int dtd, int isbg, int otsize);   /* :72 */",
+      "header_return": "int",
+      "header_signature": "(int x0, int y0, int x1, int y1, int w, int h, int dtd, int isbg, int otsize)",
+      "native": [
+        {
+          "record": "3adde5",
+          "va": "800bdac0",
+          "linkage": "EXT",
+          "return_type": "int"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Draw_SetView",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draw.cpp",
+          "line": 57,
+          "typeref": "typename:int",
+          "kind": "function",
+          "signature": "(int x0,int y0,int x1,int y1,int w,int h,int dtd,int isbg,int otsize)",
+          "end": 89,
+          "return_type": "int",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "int",
+      "final_signature": "(int x0,int y0,int x1,int y1,int w,int h,int dtd,int isbg,int otsize)",
+      "final_prototype": "int Draw_SetView(int x0,int y0,int x1,int y1,int w,int h,int dtd,int isbg,int otsize);   /* SYM 3adde5 @0x800bdac0 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Draw_SetView__Fiiiiiiiii__Fiiiiiiiii",
+      "after_emitted_reference": "Draw_SetView__Fiiiiiiiii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draw.h",
+      "line": 7,
+      "encoded": "Draw_InitViews__Fv",
+      "name": "Draw_InitViews",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Draw_InitViews__Fv(void);   /* :113 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "3ade0b",
+          "va": "800bdbd4",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Draw_InitViews",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draw.cpp",
+          "line": 92,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 97,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Draw_InitViews(void);   /* SYM 3ade0b @0x800bdbd4 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Draw_InitViews__Fv__Fv",
+      "after_emitted_reference": "Draw_InitViews__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draw.h",
+      "line": 8,
+      "encoded": "Draw_InitViewOT__Fv",
+      "name": "Draw_InitViewOT",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Draw_InitViewOT__Fv(void);   /* :127 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "3ade2b",
+          "va": "800bdbe0",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Draw_InitViewOT",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draw.cpp",
+          "line": 100,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 126,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Draw_InitViewOT(void);   /* SYM 3ade2b @0x800bdbe0 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Draw_InitViewOT__Fv__Fv",
+      "after_emitted_reference": "Draw_InitViewOT__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draw.h",
+      "line": 9,
+      "encoded": "Draw_InitViewOTInGame__Fv",
+      "name": "Draw_InitViewOTInGame",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Draw_InitViewOTInGame__Fv(void);   /* :138 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "3ade4c",
+          "va": "800bdc64",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Draw_InitViewOTInGame",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draw.cpp",
+          "line": 129,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 151,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Draw_InitViewOTInGame(void);   /* SYM 3ade4c @0x800bdc64 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Draw_InitViewOTInGame__Fv__Fv",
+      "after_emitted_reference": "Draw_InitViewOTInGame__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draw.h",
+      "line": 10,
+      "encoded": "Draw_DeInitViews__Fv",
+      "name": "Draw_DeInitViews",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Draw_DeInitViews__Fv(void);   /* :157 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "3ade73",
+          "va": "800bdce0",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Draw_DeInitViews",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draw.cpp",
+          "line": 154,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 185,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Draw_DeInitViews(void);   /* SYM 3ade73 @0x800bdce0 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Draw_DeInitViews__Fv__Fv",
+      "after_emitted_reference": "Draw_DeInitViews__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draw.h",
+      "line": 11,
+      "encoded": "Draw_DeInitViewsInGame__Fv",
+      "name": "Draw_DeInitViewsInGame",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Draw_DeInitViewsInGame__Fv(void);   /* :172 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "3ade95",
+          "va": "800bdd68",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Draw_DeInitViewsInGame",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draw.cpp",
+          "line": 188,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 223,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Draw_DeInitViewsInGame(void);   /* SYM 3ade95 @0x800bdd68 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Draw_DeInitViewsInGame__Fv__Fv",
+      "after_emitted_reference": "Draw_DeInitViewsInGame__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draw.h",
+      "line": 12,
+      "encoded": "Draw_GetDRAWENV__Fii",
+      "name": "Draw_GetDRAWENV",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void * Draw_GetDRAWENV__Fii(int viewid, int page);   /* :187 */",
+      "header_return": "void *",
+      "header_signature": "(int viewid, int page)",
+      "native": [
+        {
+          "record": "3adebd",
+          "va": "800bdd9c",
+          "linkage": "EXT",
+          "return_type": "DRAWENV*"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Draw_GetDRAWENV",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draw.cpp",
+          "line": 226,
+          "typeref": "typename:DRAWENV *",
+          "kind": "function",
+          "signature": "(int viewid,int page)",
+          "end": 230,
+          "return_type": "DRAWENV *",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "DRAWENV *",
+      "final_signature": "(int viewid,int page)",
+      "final_prototype": "DRAWENV * Draw_GetDRAWENV(int viewid,int page);   /* SYM 3adebd @0x800bdd9c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Draw_GetDRAWENV__Fii__Fii",
+      "after_emitted_reference": "Draw_GetDRAWENV__Fii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draw.h",
+      "line": 13,
+      "encoded": "Draw_SetViewMemBudget__Fii",
+      "name": "Draw_SetViewMemBudget",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Draw_SetViewMemBudget__Fii(int viewid, int totalmem);   /* :197 */",
+      "header_return": "void",
+      "header_signature": "(int viewid, int totalmem)",
+      "native": [
+        {
+          "record": "3adee9",
+          "va": "800bddd8",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Draw_SetViewMemBudget",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draw.cpp",
+          "line": 233,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int viewid,int totalmem)",
+          "end": 238,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int viewid,int totalmem)",
+      "final_prototype": "void Draw_SetViewMemBudget(int viewid,int totalmem);   /* SYM 3adee9 @0x800bddd8 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Draw_SetViewMemBudget__Fii__Fii",
+      "after_emitted_reference": "Draw_SetViewMemBudget__Fii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draw.h",
+      "line": 14,
+      "encoded": "Draw_SetViewColor__Fiiii",
+      "name": "Draw_SetViewColor",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Draw_SetViewColor__Fiiii(int viewid, int r, int g, int b);   /* :213 */",
+      "header_return": "void",
+      "header_signature": "(int viewid, int r, int g, int b)",
+      "native": [
+        {
+          "record": "3adf11",
+          "va": "800bde00",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Draw_SetViewColor",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draw.cpp",
+          "line": 241,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int viewid,int r,int g,int b)",
+          "end": 258,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int viewid,int r,int g,int b)",
+      "final_prototype": "void Draw_SetViewColor(int viewid,int r,int g,int b);   /* SYM 3adf11 @0x800bde00 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Draw_SetViewColor__Fiiii__Fiiii",
+      "after_emitted_reference": "Draw_SetViewColor__Fiiii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draw.h",
+      "line": 15,
+      "encoded": "AllocatePrimitivesBuffer__Fv",
+      "name": "AllocatePrimitivesBuffer",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void AllocatePrimitivesBuffer__Fv(void);   /* :237 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "3adf37",
+          "va": "800bde60",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "AllocatePrimitivesBuffer",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draw.cpp",
+          "line": 261,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 311,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void AllocatePrimitivesBuffer(void);   /* SYM 3adf37 @0x800bde60 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "AllocatePrimitivesBuffer__Fv__Fv",
+      "after_emitted_reference": "AllocatePrimitivesBuffer__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draw.h",
+      "line": 16,
+      "encoded": "ClearPrimitivesBuffer__Fv",
+      "name": "ClearPrimitivesBuffer",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void ClearPrimitivesBuffer__Fv(void);   /* :312 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "3adf61",
+          "va": "800bdf9c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "ClearPrimitivesBuffer",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draw.cpp",
+          "line": 314,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 328,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void ClearPrimitivesBuffer(void);   /* SYM 3adf61 @0x800bdf9c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "ClearPrimitivesBuffer__Fv__Fv",
+      "after_emitted_reference": "ClearPrimitivesBuffer__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draw.h",
+      "line": 17,
+      "encoded": "ClearPlatformPrimitivesBuffer__Fv",
+      "name": "ClearPlatformPrimitivesBuffer",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void ClearPlatformPrimitivesBuffer__Fv(void);   /* :325 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "3adf88",
+          "va": "800be004",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "ClearPlatformPrimitivesBuffer",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draw.cpp",
+          "line": 331,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 344,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void ClearPlatformPrimitivesBuffer(void);   /* SYM 3adf88 @0x800be004 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "ClearPlatformPrimitivesBuffer__Fv__Fv",
+      "after_emitted_reference": "ClearPlatformPrimitivesBuffer__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draw.h",
+      "line": 18,
+      "encoded": "Draw_StartRenderingView__Fi",
+      "name": "Draw_StartRenderingView",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Draw_StartRenderingView__Fi(int viewid);   /* :352 */",
+      "header_return": "void",
+      "header_signature": "(int viewid)",
+      "native": [
+        {
+          "record": "3adfb7",
+          "va": "800be060",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Draw_StartRenderingView",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draw.cpp",
+          "line": 347,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int viewid)",
+          "end": 402,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int viewid)",
+      "final_prototype": "void Draw_StartRenderingView(int viewid);   /* SYM 3adfb7 @0x800be060 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Draw_StartRenderingView__Fi__Fi",
+      "after_emitted_reference": "Draw_StartRenderingView__Fi",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draw.h",
+      "line": 19,
+      "encoded": "Draw_StopRenderingView__Fi",
+      "name": "Draw_StopRenderingView",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Draw_StopRenderingView__Fi(int viewid);   /* :387 */",
+      "header_return": "void",
+      "header_signature": "(int viewid)",
+      "native": [
+        {
+          "record": "3adfe0",
+          "va": "800be118",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Draw_StopRenderingView",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draw.cpp",
+          "line": 405,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int viewid)",
+          "end": 470,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int viewid)",
+      "final_prototype": "void Draw_StopRenderingView(int viewid);   /* SYM 3adfe0 @0x800be118 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Draw_StopRenderingView__Fi__Fi",
+      "after_emitted_reference": "Draw_StopRenderingView__Fi",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draw.h",
+      "line": 20,
+      "encoded": "Draw_CheckFirstFrameRender__Fv",
+      "name": "Draw_CheckFirstFrameRender",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Draw_CheckFirstFrameRender__Fv(void);   /* :409 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "3ae008",
+          "va": "800be230",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Draw_CheckFirstFrameRender",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draw.cpp",
+          "line": 473,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 483,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Draw_CheckFirstFrameRender(void);   /* SYM 3ae008 @0x800be230 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Draw_CheckFirstFrameRender__Fv__Fv",
+      "after_emitted_reference": "Draw_CheckFirstFrameRender__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draw.h",
+      "line": 21,
+      "encoded": "Draw_StartFrameRender__Fv",
+      "name": "Draw_StartFrameRender",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Draw_StartFrameRender__Fv(void);   /* :432 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "3ae034",
+          "va": "800be2c0",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Draw_StartFrameRender",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draw.cpp",
+          "line": 486,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 539,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Draw_StartFrameRender(void);   /* SYM 3ae034 @0x800be2c0 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Draw_StartFrameRender__Fv__Fv",
+      "after_emitted_reference": "Draw_StartFrameRender__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draw.h",
+      "line": 22,
+      "encoded": "Draw_SetDrawSyncCallback__FPFv_v",
+      "name": "Draw_SetDrawSyncCallback",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Draw_SetDrawSyncCallback__FPFv_v(void *p);   /* :448 */",
+      "header_return": "void",
+      "header_signature": "(void *p)",
+      "native": [
+        {
+          "record": "3ae05b",
+          "va": "800be360",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Draw_SetDrawSyncCallback",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draw.cpp",
+          "line": 542,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void (* p)(void))",
+          "end": 548,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void (* p)(void))",
+      "final_prototype": "void Draw_SetDrawSyncCallback(void (* p)(void));   /* SYM 3ae05b @0x800be360 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Draw_SetDrawSyncCallback__FPFv_v__FPv",
+      "after_emitted_reference": "Draw_SetDrawSyncCallback__FPFv_v",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draw.h",
+      "line": 23,
+      "encoded": "Draw_StopFrameRender__Fv",
+      "name": "Draw_StopFrameRender",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Draw_StopFrameRender__Fv(void);   /* :463 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "3ae089",
+          "va": "800be36c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Draw_StopFrameRender",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draw.cpp",
+          "line": 551,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 591,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Draw_StopFrameRender(void);   /* SYM 3ae089 @0x800be36c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Draw_StopFrameRender__Fv__Fv",
+      "after_emitted_reference": "Draw_StopFrameRender__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draw.h",
+      "line": 24,
+      "encoded": "Draw_DrawDirectScreen__FP8shapetblii",
+      "name": "Draw_DrawDirectScreen",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Draw_DrawDirectScreen__FP8shapetblii(shapetbl *tile, int x, int y);   /* :493 */",
+      "header_return": "void",
+      "header_signature": "(shapetbl *tile, int x, int y)",
+      "native": [
+        {
+          "record": "3ae0af",
+          "va": "800be450",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Draw_DrawDirectScreen",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draw.cpp",
+          "line": 594,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(shapetbl * tile,int x,int y)",
+          "end": 600,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(shapetbl * tile,int x,int y)",
+      "final_prototype": "void Draw_DrawDirectScreen(shapetbl * tile,int x,int y);   /* SYM 3ae0af @0x800be450 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Draw_DrawDirectScreen__FP8shapetblii__FP8shapetblii",
+      "after_emitted_reference": "Draw_DrawDirectScreen__FP8shapetblii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draw.h",
+      "line": 25,
+      "encoded": "Draw_DirectSetEnvironment__Fiiiiiiiiii",
+      "name": "Draw_DirectSetEnvironment",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Draw_DirectSetEnvironment__Fiiiiiiiiii(int x, int y, int w, int h, int edraw, int edisplay, int erase, int r, int g, int b);   /* :513 */",
+      "header_return": "void",
+      "header_signature": "(int x, int y, int w, int h, int edraw, int edisplay, int erase, int r, int g, int b)",
+      "native": [
+        {
+          "record": "3ae0e1",
+          "va": "800be478",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Draw_DirectSetEnvironment",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draw.cpp",
+          "line": 603,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int x,int y,int w,int h,int edraw,int edisplay,int erase,int r,int g,int b)",
+          "end": 644,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int x,int y,int w,int h,int edraw,int edisplay,int erase,int r,int g,int b)",
+      "final_prototype": "void Draw_DirectSetEnvironment(int x,int y,int w,int h,int edraw,int edisplay,int erase,int r,int g,int b);   /* SYM 3ae0e1 @0x800be478 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Draw_DirectSetEnvironment__Fiiiiiiiiii__Fiiiiiiiiii",
+      "after_emitted_reference": "Draw_DirectSetEnvironment__Fiiiiiiiiii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draw.h",
+      "line": 26,
+      "encoded": "Draw_SetEnvironment__Fiiiiiiii",
+      "name": "Draw_SetEnvironment",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Draw_SetEnvironment__Fiiiiiiii(int w, int h, int edraw, int edisplay, int erase, int r, int g, int b);   /* :551 */",
+      "header_return": "void",
+      "header_signature": "(int w, int h, int edraw, int edisplay, int erase, int r, int g, int b)",
+      "native": [
+        {
+          "record": "3ae115",
+          "va": "800be57c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Draw_SetEnvironment",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draw.cpp",
+          "line": 647,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int w,int h,int edraw,int edisplay,int erase,int r,int g,int b)",
+          "end": 653,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int w,int h,int edraw,int edisplay,int erase,int r,int g,int b)",
+      "final_prototype": "void Draw_SetEnvironment(int w,int h,int edraw,int edisplay,int erase,int r,int g,int b);   /* SYM 3ae115 @0x800be57c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Draw_SetEnvironment__Fiiiiiiii__Fiiiiiiii",
+      "after_emitted_reference": "Draw_SetEnvironment__Fiiiiiiii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draw.h",
+      "line": 27,
+      "encoded": "Draw_InitRenderEngine__Fiiiiii",
+      "name": "Draw_InitRenderEngine",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Draw_InitRenderEngine__Fiiiiii(int x0, int y0, int x1, int y1, int w, int h);   /* :577 */",
+      "header_return": "void",
+      "header_signature": "(int x0, int y0, int x1, int y1, int w, int h)",
+      "native": [
+        {
+          "record": "3ae141",
+          "va": "800be5d8",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Draw_InitRenderEngine",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draw.cpp",
+          "line": 656,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int x0,int y0,int x1,int y1,int w,int h)",
+          "end": 667,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int x0,int y0,int x1,int y1,int w,int h)",
+      "final_prototype": "void Draw_InitRenderEngine(int x0,int y0,int x1,int y1,int w,int h);   /* SYM 3ae141 @0x800be5d8 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Draw_InitRenderEngine__Fiiiiii__Fiiiiii",
+      "after_emitted_reference": "Draw_InitRenderEngine__Fiiiiii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draw.h",
+      "line": 28,
+      "encoded": "Draw_RestartRenderEngine__Fv",
+      "name": "Draw_RestartRenderEngine",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Draw_RestartRenderEngine__Fv(void);   /* :596 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "3ae16d",
+          "va": "800be67c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Draw_RestartRenderEngine",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draw.cpp",
+          "line": 670,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 674,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Draw_RestartRenderEngine(void);   /* SYM 3ae16d @0x800be67c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Draw_RestartRenderEngine__Fv__Fv",
+      "after_emitted_reference": "Draw_RestartRenderEngine__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draw.h",
+      "line": 29,
+      "encoded": "Draw_DeInitRenderEngine__Fv",
+      "name": "Draw_DeInitRenderEngine",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Draw_DeInitRenderEngine__Fv(void);   /* :600 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "3ae197",
+          "va": "800be684",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Draw_DeInitRenderEngine",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draw.cpp",
+          "line": 677,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 683,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Draw_DeInitRenderEngine(void);   /* SYM 3ae197 @0x800be684 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Draw_DeInitRenderEngine__Fv__Fv",
+      "after_emitted_reference": "Draw_DeInitRenderEngine__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draw.h",
+      "line": 30,
+      "encoded": "Draw_InitLibRender__Fv",
+      "name": "Draw_InitLibRender",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Draw_InitLibRender__Fv(void);   /* :609 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "3ae1c0",
+          "va": "800be6a8",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Draw_InitLibRender",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draw.cpp",
+          "line": 686,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 692,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Draw_InitLibRender(void);   /* SYM 3ae1c0 @0x800be6a8 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Draw_InitLibRender__Fv__Fv",
+      "after_emitted_reference": "Draw_InitLibRender__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    }
+  ]
+}

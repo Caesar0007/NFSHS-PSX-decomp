@@ -703,27 +703,27 @@ void tScreenMemcard::SetEnablings()
     /* MATCH (SLD 538/539/540): the oracle's `beq` puts the CLEAR arm inline and
        the SET arm out of line -- i.e. the test is `!= -1`, not `== -1`. */
     if (this->theNFS4icon != -1) {
-      (menuDefs[0]->itemLoadGame).fFlags =
-           (menuDefs[0]->itemLoadGame).fFlags & 0xfffffffe;
+      (menuDefs->itemLoadGame).fFlags =
+           (menuDefs->itemLoadGame).fFlags & 0xfffffffe;
     }
     else {
-      (menuDefs[0]->itemLoadGame).fFlags =
-           (menuDefs[0]->itemLoadGame).fFlags | 1;
+      (menuDefs->itemLoadGame).fFlags =
+           (menuDefs->itemLoadGame).fFlags | 1;
     }
     if ((((this->pCI->status == 0) || (this->pCI->status == -2)) ||
         ((this->pCI->status == -3 && (this->theNFS4icon != -1)))) &&
        (this->player == 0)) {
-      (menuDefs[0]->itemSaveGame).fFlags =
-           (menuDefs[0]->itemSaveGame).fFlags & 0xfffffffe;
+      (menuDefs->itemSaveGame).fFlags =
+           (menuDefs->itemSaveGame).fFlags & 0xfffffffe;
     }
     else {
-      (menuDefs[0]->itemSaveGame).fFlags =
-           (menuDefs[0]->itemSaveGame).fFlags | 1;
+      (menuDefs->itemSaveGame).fFlags =
+           (menuDefs->itemSaveGame).fFlags | 1;
     }
   }
   if (FECheat_IsTheUserACryBabyCheater() != 0) {
-    (menuDefs[0]->itemSaveGame).fFlags =
-         (menuDefs[0]->itemSaveGame).fFlags | 1;
+    (menuDefs->itemSaveGame).fFlags =
+         (menuDefs->itemSaveGame).fFlags | 1;
   }
   return;
 }
@@ -1005,7 +1005,7 @@ void tScreenMemcard::Initialize()
     /* SYM-CODEGEN-CARRIER: menus -- repeated direct menuDefs[0] addressing is
        FAIL 38 at 110/106 instructions; the shared pointer preserves retail's
        single load and the paired flags-update web. */
-    tGlobalMenuDefs *menus = menuDefs[0];
+    tGlobalMenuDefs *menus = menuDefs;
     (menus->itemLoadGame).fTextDescription = msgId;
     (menus->itemSaveGame).fFlags |= 1;
     (menus->itemLoadGame).fFlags |= 1;
@@ -1041,7 +1041,7 @@ void tScreenMemcard::Cleanup()
   this->ReleaseIcons();
   DeInit_Memcard();
   iconTable = fMemIcon;
-  menus = menuDefs[0];
+  menus = menuDefs;
   (menus->itemSaveGame).fFlags =
        (menus->itemSaveGame).fFlags & 0xfffffffe;
   (menus->itemLoadGame).fFlags =

@@ -1,0 +1,429 @@
+{
+  "round": "P875",
+  "header": "recon/game/psx/overlays.h",
+  "source_authority": "C:/Temp/nfs4-clean/nfs4-f-v3.txt",
+  "scope": "Free-function public prototype rows from P874 inventory only; not an all-record or all-project source restoration claim.",
+  "counts": {
+    "inventory_candidates": 5,
+    "corrected_public": 5,
+    "removed_file_static": 0,
+    "before_native_references": 0,
+    "after_native_references": 5,
+    "return_type_corrections": 0,
+    "header_compile_failures": 0,
+    "unresolved_header_candidates": 0,
+    "preexisting_compiler_warning_count": 1
+  },
+  "before_actual_header_compile": {
+    "header": "recon/game/psx/overlays.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\overlays_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\overlays_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\overlays_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\overlays_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\overlays_before.s"
+      ]
+    ],
+    "header_sha256": "87ed50094c04b4a138c659639cbdad60b4fb33d9bed5b208df95d4656a435c60",
+    "references": {
+      "0": "OptionsBarThing__Fiiii__Fiiii",
+      "1": "RaceSummary__Fv__Fv",
+      "2": "RaceStatistics__Fv__Fv",
+      "3": "Hud_BTCStats__Fsb__Fsi",
+      "4": "Hud_RenderStatsView__Fv__Fv"
+    },
+    "ok": true,
+    "assembly_sha256": "297c635c672583f5a5c778f2cb677da394c3c56a1ad5fcc2d21e49c0e89bbffc",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".sdata",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\overlays.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "OptionsBarThing__Fiiii",
+      "RaceSummary__Fv",
+      "RaceStatistics__Fv",
+      "Hud_BTCStats__Fsb",
+      "Hud_RenderStatsView__Fv",
+      "StatsTimer",
+      "D_8013D99C",
+      "Hud_NextPerp"
+    ]
+  },
+  "before_frozen_replay": {
+    "header": "recon/game/psx/overlays.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\overlays_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\overlays_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\overlays_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\overlays_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\overlays_before.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\overlays_before.cpp:2:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "659959b82802c8360e8ca25ad80bf0a3f56dc850e3651bcba19ac9586b179b4f",
+    "input_mode": "frozen-original-prototype-surface",
+    "references": {
+      "0": "OptionsBarThing__Fiiii__Fiiii",
+      "1": "RaceSummary__Fv__Fv",
+      "2": "RaceStatistics__Fv__Fv",
+      "3": "Hud_BTCStats__Fsb__Fsi",
+      "4": "Hud_RenderStatsView__Fv__Fv"
+    },
+    "ok": true,
+    "assembly_sha256": "297c635c672583f5a5c778f2cb677da394c3c56a1ad5fcc2d21e49c0e89bbffc"
+  },
+  "after_actual_header_compile": {
+    "header": "recon/game/psx/overlays.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\overlays_after.cpp",
+    "stage": "after",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\overlays_after.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\overlays_after.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\overlays_after.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\overlays_after.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:/Temp/nfs4-decomp/recon/game/psx/overlays.h:4,\n                 from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\overlays_after.cpp:1:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "bd548a3ccd2fe28b5225606d1e4b02c163a2ccbdb2571dac2b00d0467d685153",
+    "input_mode": "live-public-header",
+    "header_sha256": "5c8dfe4c13c388504bf7b6050241401e3607749e8e8bc775e08351c26b47fe28",
+    "references": {
+      "0": "OptionsBarThing__Fiiii",
+      "1": "RaceSummary__Fv",
+      "2": "RaceStatistics__Fv",
+      "3": "Hud_BTCStats__Fsb",
+      "4": "Hud_RenderStatsView__Fv"
+    },
+    "ok": true,
+    "assembly_sha256": "48369029a975291b3c6bd859ba416f631a0d7f322ac9698331b1f551e3e6080a",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".sdata",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\overlays.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "OptionsBarThing__Fiiii",
+      "RaceSummary__Fv",
+      "RaceStatistics__Fv",
+      "Hud_BTCStats__Fsb",
+      "Hud_RenderStatsView__Fv",
+      "StatsTimer",
+      "D_8013D99C",
+      "Hud_NextPerp"
+    ]
+  },
+  "owning_tu_gate": {
+    "source": "recon/game/psx/overlays.cpp",
+    "command": [
+      "C:\\Python314\\python.exe",
+      "tools/tugate.py",
+      "recon/game/psx/overlays.cpp"
+    ],
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/psx/overlays.cpp: 5/5 PASS\n",
+    "stderr": "",
+    "object_sha256": "4dcba3e98629372f260d84cd0eb076475b215f50e0dbf1e9f6766e426f993bc5",
+    "actual_function_symbols": [
+      "OptionsBarThing__Fiiii",
+      "RaceSummary__Fv",
+      "RaceStatistics__Fv",
+      "Hud_BTCStats__Fsb",
+      "Hud_RenderStatsView__Fv"
+    ],
+    "local_function_symbols": []
+  },
+  "consumer_census": {
+    "files_scanned": 1677,
+    "literal_users": [],
+    "dynamic_includes": []
+  },
+  "unresolved": [],
+  "prototype_receipts": [
+    {
+      "header": "recon/game/psx/overlays.h",
+      "line": 6,
+      "encoded": "OptionsBarThing__Fiiii",
+      "name": "OptionsBarThing",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void OptionsBarThing__Fiiii(int x, int y, int w, int h);   /* :39 */",
+      "header_return": "void",
+      "header_signature": "(int x, int y, int w, int h)",
+      "native": [
+        {
+          "record": "42de4c",
+          "va": "800d9968",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "OptionsBarThing",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\overlays.cpp",
+          "line": 26,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int x,int y,int w,int h)",
+          "end": 36,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int x,int y,int w,int h)",
+      "final_prototype": "void OptionsBarThing(int x,int y,int w,int h);   /* SYM 42de4c @0x800d9968 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "OptionsBarThing__Fiiii__Fiiii",
+      "after_emitted_reference": "OptionsBarThing__Fiiii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/overlays.h",
+      "line": 7,
+      "encoded": "RaceSummary__Fv",
+      "name": "RaceSummary",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void RaceSummary__Fv(void);   /* :53 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "42de70",
+          "va": "800d9a48",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "RaceSummary",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\overlays.cpp",
+          "line": 106,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 240,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void RaceSummary(void);   /* SYM 42de70 @0x800d9a48 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "RaceSummary__Fv__Fv",
+      "after_emitted_reference": "RaceSummary__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/overlays.h",
+      "line": 8,
+      "encoded": "RaceStatistics__Fv",
+      "name": "RaceStatistics",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void RaceStatistics__Fv(void);   /* :165 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "42de8d",
+          "va": "800d9fbc",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "RaceStatistics",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\overlays.cpp",
+          "line": 467,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 815,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void RaceStatistics(void);   /* SYM 42de8d @0x800d9fbc */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "RaceStatistics__Fv__Fv",
+      "after_emitted_reference": "RaceStatistics__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/overlays.h",
+      "line": 9,
+      "encoded": "Hud_BTCStats__Fsb",
+      "name": "Hud_BTCStats",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_BTCStats__Fsb(short player, BOOL postgame);   /* :326 */",
+      "header_return": "void",
+      "header_signature": "(short player, BOOL postgame)",
+      "native": [
+        {
+          "record": "42dead",
+          "va": "800da728",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_BTCStats",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\overlays.cpp",
+          "line": 1081,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(short player,bool postgame)",
+          "end": 1285,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(short player,bool postgame)",
+      "final_prototype": "void Hud_BTCStats(short player,bool postgame);   /* SYM 42dead @0x800da728 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_BTCStats__Fsb__Fsi",
+      "after_emitted_reference": "Hud_BTCStats__Fsb",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/overlays.h",
+      "line": 10,
+      "encoded": "Hud_RenderStatsView__Fv",
+      "name": "Hud_RenderStatsView",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_RenderStatsView__Fv(void);   /* :450 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "42decc",
+          "va": "800dae8c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_RenderStatsView",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\overlays.cpp",
+          "line": 1323,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 1401,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Hud_RenderStatsView(void);   /* SYM 42decc @0x800dae8c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_RenderStatsView__Fv__Fv",
+      "after_emitted_reference": "Hud_RenderStatsView__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    }
+  ]
+}

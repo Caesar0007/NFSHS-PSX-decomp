@@ -1,0 +1,66 @@
+[
+  {
+    "name": "int_pointer",
+    "output": "  Weather_Init__Fv: FAIL 12 diffs (ours 211 / oracle 211)\r\n      -lui v0,0\r\n      -lui v1,0\r\n      -lw v1,0(v1)\r\n      -addiu v0,v0,0\r\n      +lui a0,0\r\n      +lui v0,0\r\n      +lw v1,0(v0)\r\n      +addiu v0,a0,0\r\n      -nop\r\n      -lw v1,0(v0)\r\n      +lw v1,0(a0)\r\n      +nop\r\n"
+  },
+  {
+    "name": "uint_pointer",
+    "output": "  Weather_Init__Fv: FAIL 12 diffs (ours 211 / oracle 211)\r\n      -lui v0,0\r\n      -lui v1,0\r\n      -lw v1,0(v1)\r\n      -addiu v0,v0,0\r\n      +lui a0,0\r\n      +lui v0,0\r\n      +lw v1,0(v0)\r\n      +addiu v0,a0,0\r\n      -nop\r\n      -lw v1,0(v0)\r\n      +lw v1,0(a0)\r\n      +nop\r\n"
+  },
+  {
+    "name": "longlong_pointer",
+    "output": "  Weather_Init__Fv: FAIL 12 diffs (ours 211 / oracle 211)\r\n      -lui v0,0\r\n      -lui v1,0\r\n      -lw v1,0(v1)\r\n      -addiu v0,v0,0\r\n      +lui a0,0\r\n      +lui v0,0\r\n      +lw v1,0(v0)\r\n      +addiu v0,a0,0\r\n      -nop\r\n      -lw v1,0(v0)\r\n      +lw v1,0(a0)\r\n      +nop\r\n"
+  },
+  {
+    "name": "ulonglong_pointer",
+    "output": "  Weather_Init__Fv: FAIL 12 diffs (ours 211 / oracle 211)\r\n      -lui v0,0\r\n      -lui v1,0\r\n      -lw v1,0(v1)\r\n      -addiu v0,v0,0\r\n      +lui a0,0\r\n      +lui v0,0\r\n      +lw v1,0(v0)\r\n      +addiu v0,a0,0\r\n      -nop\r\n      -lw v1,0(v0)\r\n      +lw v1,0(a0)\r\n      +nop\r\n"
+  },
+  {
+    "name": "first_member_pointer",
+    "output": "  Weather_Init__Fv: FAIL 12 diffs (ours 211 / oracle 211)\r\n      -lui v0,0\r\n      -lui v1,0\r\n      -lw v1,0(v1)\r\n      -addiu v0,v0,0\r\n      +lui a0,0\r\n      +lui v0,0\r\n      +lw v1,0(v0)\r\n      +addiu v0,a0,0\r\n      -nop\r\n      -lw v1,0(v0)\r\n      +lw v1,0(a0)\r\n      +nop\r\n"
+  },
+  {
+    "name": "byte_pointer",
+    "output": "  Weather_Init__Fv: FAIL 12 diffs (ours 211 / oracle 211)\r\n      -lui v0,0\r\n      -lui v1,0\r\n      -lw v1,0(v1)\r\n      -addiu v0,v0,0\r\n      +lui a0,0\r\n      +lui v0,0\r\n      +lw v1,0(v0)\r\n      +addiu v0,a0,0\r\n      -nop\r\n      -lw v1,0(v0)\r\n      +lw v1,0(a0)\r\n      +nop\r\n"
+  },
+  {
+    "name": "array_addr",
+    "output": "  Weather_Init__Fv: FAIL 12 diffs (ours 211 / oracle 211)\r\n      -lui v0,0\r\n      -lui v1,0\r\n      -lw v1,0(v1)\r\n      -addiu v0,v0,0\r\n      +lui a0,0\r\n      +lui v0,0\r\n      +lw v1,0(v0)\r\n      +addiu v0,a0,0\r\n      -nop\r\n      -lw v1,0(v0)\r\n      +lw v1,0(a0)\r\n      +nop\r\n"
+  },
+  {
+    "name": "pointer_lvalue",
+    "output": "  Weather_Init__Fv: FAIL 12 diffs (ours 211 / oracle 211)\r\n      -lui v0,0\r\n      -lui v1,0\r\n      -lw v1,0(v1)\r\n      -addiu v0,v0,0\r\n      +lui a0,0\r\n      +lui v0,0\r\n      +lw v1,0(v0)\r\n      +addiu v0,a0,0\r\n      -nop\r\n      -lw v1,0(v0)\r\n      +lw v1,0(a0)\r\n      +nop\r\n"
+  },
+  {
+    "name": "guard_yoda",
+    "output": "  Weather_Init__Fv: FAIL 12 diffs (ours 211 / oracle 211)\r\n      -lui v0,0\r\n      -lui v1,0\r\n      -lw v1,0(v1)\r\n      -addiu v0,v0,0\r\n      +lui a0,0\r\n      +lui v0,0\r\n      +lw v1,0(v0)\r\n      +addiu v0,a0,0\r\n      -nop\r\n      -lw v1,0(v0)\r\n      +lw v1,0(a0)\r\n      +nop\r\n"
+  },
+  {
+    "name": "guard_truth",
+    "output": "  Weather_Init__Fv: FAIL 12 diffs (ours 211 / oracle 211)\r\n      -lui v0,0\r\n      -lui v1,0\r\n      -lw v1,0(v1)\r\n      -addiu v0,v0,0\r\n      +lui a0,0\r\n      +lui v0,0\r\n      +lw v1,0(v0)\r\n      +addiu v0,a0,0\r\n      -nop\r\n      -lw v1,0(v0)\r\n      +lw v1,0(a0)\r\n      +nop\r\n"
+  },
+  {
+    "name": "guard_early_return",
+    "output": "  Weather_Init__Fv: FAIL 12 diffs (ours 211 / oracle 211)\r\n      -lui v0,0\r\n      -lui v1,0\r\n      -lw v1,0(v1)\r\n      -addiu v0,v0,0\r\n      +lui a0,0\r\n      +lui v0,0\r\n      +lw v1,0(v0)\r\n      +addiu v0,a0,0\r\n      -nop\r\n      -lw v1,0(v0)\r\n      +lw v1,0(a0)\r\n      +nop\r\n"
+  },
+  {
+    "name": "type_global_reads",
+    "output": "  Weather_Init__Fv: FAIL 12 diffs (ours 211 / oracle 211)\r\n      -lui v0,0\r\n      -lui v1,0\r\n      -lw v1,0(v1)\r\n      -addiu v0,v0,0\r\n      +lui a0,0\r\n      +lui v0,0\r\n      +lw v1,0(v0)\r\n      +addiu v0,a0,0\r\n      -nop\r\n      -lw v1,0(v0)\r\n      +lw v1,0(a0)\r\n      +nop\r\n"
+  },
+  {
+    "name": "type_pointer_reads",
+    "output": "  Weather_Init__Fv: PASS (211 insns)\r\n"
+  },
+  {
+    "name": "type_field_addr",
+    "output": "  Weather_Init__Fv: PASS (211 insns)\r\n"
+  },
+  {
+    "name": "type_assignment_test",
+    "output": "  Weather_Init__Fv: FAIL 12 diffs (ours 211 / oracle 211)\r\n      -lui v0,0\r\n      -lui v1,0\r\n      -lw v1,0(v1)\r\n      -addiu v0,v0,0\r\n      +lui a0,0\r\n      +lui v0,0\r\n      +lw v1,0(v0)\r\n      +addiu v0,a0,0\r\n      -nop\r\n      -lw v1,0(v0)\r\n      +lw v1,0(a0)\r\n      +nop\r\n"
+  },
+  {
+    "name": "type_switch",
+    "output": "  Weather_Init__Fv: FAIL 16 diffs (ours 211 / oracle 211)\r\n      -lui v0,0\r\n      -lui v1,0\r\n      -lw v1,0(v1)\r\n      -addiu v0,v0,0\r\n      +lui a0,0\r\n      +lui v0,0\r\n      +lw v1,0(v0)\r\n      +addiu v0,a0,0\r\n      -nop\r\n      -lw v1,0(v0)\r\n      +li v0,1\r\n      +lw v1,0(a0)\r\n"
+  }
+]

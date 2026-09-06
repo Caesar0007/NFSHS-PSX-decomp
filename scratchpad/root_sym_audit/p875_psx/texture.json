@@ -1,0 +1,1367 @@
+{
+  "round": "P875",
+  "header": "recon/game/psx/texture.h",
+  "source_authority": "C:/Temp/nfs4-clean/nfs4-f-v3.txt",
+  "scope": "Free-function public prototype rows from P874 inventory only; not an all-record or all-project source restoration claim.",
+  "counts": {
+    "inventory_candidates": 24,
+    "corrected_public": 24,
+    "removed_file_static": 0,
+    "before_native_references": 0,
+    "after_native_references": 24,
+    "return_type_corrections": 0,
+    "header_compile_failures": 0,
+    "unresolved_header_candidates": 0,
+    "preexisting_compiler_warning_count": 1
+  },
+  "before_actual_header_compile": {
+    "header": "recon/game/psx/texture.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\texture_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\texture_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\texture_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\texture_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\texture_before.s"
+      ]
+    ],
+    "header_sha256": "cc452eeb1dc4314e48c6b52a1bcaef9dceebfee6a5a1eb7d2af4ff6326f299f3",
+    "references": {
+      "0": "Texture_InitPaletteSharing__Fv__Fv",
+      "1": "Texture_DeInitPaletteSharing__Fv__Fv",
+      "2": "Texture_ResetPaletteSharing__Fv__Fv",
+      "3": "Texture_CheckForSharedPalette__FiPcP12Draw_tPixMapi__FiPcP12Draw_tPixMapi",
+      "4": "Texture_AddSharedPalette__FPcP12Draw_tPixMapi__FPcP12Draw_tPixMapi",
+      "5": "Texture_InitClut__Fv__Fv",
+      "6": "Texture_GetClutId__FiPiT1__FiPiT1",
+      "7": "Texture_MenuReleaseClutId__Fs__Fs",
+      "8": "Texture_ColorCarPalette__FPcT0i__FPcT0i",
+      "9": "Texture_CopyPalette__FPciii__FPciii",
+      "10": "Texture_ProcessPaletteCopy__FP15Texture_pal8bitii__FP15Texture_pal8bitii",
+      "11": "Texture_LoadImage__FP4RECTPUl__FP4RECTPUl",
+      "12": "Texture_Vramf__FP8shapetbliiii__FP8shapetbliiii",
+      "13": "Texture_Vramcf__FP8shapetbliiii__FP8shapetbliiii",
+      "14": "Texture_GetTranslucencyMode__FP8shapetbl__FP8shapetbl",
+      "15": "Texture_LoadPmx__FPcT0iiiiiP12Draw_tPixMap__FPcT0iiiiiP12Draw_tPixMap",
+      "16": "Texture_CloneUVPmx__FP12Draw_tPixMapiT0__FP12Draw_tPixMapiT0",
+      "17": "Texture_InitTrackTexture__Fv__Fv",
+      "18": "Texture_InitMenuClut__Fv__Fv",
+      "19": "Texture_InitMenuTexture__Fv__Fv",
+      "20": "Texture_CleanupMenuTexture__Fv__Fv",
+      "21": "Texture_LoadMenuTexture__Fv__Fv",
+      "22": "Texture_KillTrackTexture__Fv__Fv",
+      "23": "Texture_KillMenuTexture__Fv__Fv"
+    },
+    "ok": true,
+    "assembly_sha256": "33a49802f784f945cedb02bb69614d325e222c26f8f4df7ece922dc2313e9b58",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".rodata",
+      ".sdata",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\texture.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "Texture_InitPaletteSharing__Fv",
+      "Texture_DeInitPaletteSharing__Fv",
+      "Texture_ResetPaletteSharing__Fv",
+      "Texture_CheckForSharedPalette__FiPcP12Draw_tPixMapi",
+      "Texture_AddSharedPalette__FPcP12Draw_tPixMapi",
+      "Texture_InitClut__Fv",
+      "Texture_GetClutId__FiPiT1",
+      "Texture_MenuReleaseClutId__Fs",
+      "Texture_ColorCarPalette__FPcT0i",
+      "Texture_CopyPalette__FPciii",
+      "Texture_ProcessPaletteCopy__FP15Texture_pal8bitii",
+      "Texture_LoadImage__FP4RECTPUl",
+      "Texture_Vramf__FP8shapetbliiii",
+      "Texture_Vramcf__FP8shapetbliiii",
+      "Texture_GetTranslucencyMode__FP8shapetbl",
+      "Texture_LoadPmx__FPcT0iiiiiP12Draw_tPixMap",
+      "Texture_CloneUVPmx__FP12Draw_tPixMapiT0",
+      "Texture_InitTrackTexture__Fv",
+      "Texture_InitMenuClut__Fv",
+      "Texture_InitMenuTexture__Fv",
+      "Texture_CleanupMenuTexture__Fv",
+      "Texture_LoadMenuTexture__Fv",
+      "Texture_KillTrackTexture__Fv",
+      "Texture_KillMenuTexture__Fv",
+      "gMenuPixmap",
+      "gMenuPixmapAlloc",
+      "Texture_CarColor",
+      "Texture_palCopy",
+      "Texture_palNum",
+      "Texture_gNum4bitPal",
+      "Texture_gNum8bitPal",
+      "Texture_gP4bitPmx",
+      "Texture_gP8bitPmx",
+      "Texture_gPalette4bit",
+      "Texture_gPalette8bit",
+      "gFreePal4",
+      "gNbFreePal4",
+      "gFreePal8",
+      "gNbFreePal8"
+    ]
+  },
+  "before_frozen_replay": {
+    "header": "recon/game/psx/texture.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\texture_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\texture_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\texture_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\texture_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\texture_before.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\texture_before.cpp:2:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "9122b296958d48b4f8787a4d94e3da3f3682dfe8067a06917efdce50432f8c16",
+    "input_mode": "frozen-original-prototype-surface",
+    "references": {
+      "0": "Texture_InitPaletteSharing__Fv__Fv",
+      "1": "Texture_DeInitPaletteSharing__Fv__Fv",
+      "2": "Texture_ResetPaletteSharing__Fv__Fv",
+      "3": "Texture_CheckForSharedPalette__FiPcP12Draw_tPixMapi__FiPcP12Draw_tPixMapi",
+      "4": "Texture_AddSharedPalette__FPcP12Draw_tPixMapi__FPcP12Draw_tPixMapi",
+      "5": "Texture_InitClut__Fv__Fv",
+      "6": "Texture_GetClutId__FiPiT1__FiPiT1",
+      "7": "Texture_MenuReleaseClutId__Fs__Fs",
+      "8": "Texture_ColorCarPalette__FPcT0i__FPcT0i",
+      "9": "Texture_CopyPalette__FPciii__FPciii",
+      "10": "Texture_ProcessPaletteCopy__FP15Texture_pal8bitii__FP15Texture_pal8bitii",
+      "11": "Texture_LoadImage__FP4RECTPUl__FP4RECTPUl",
+      "12": "Texture_Vramf__FP8shapetbliiii__FP8shapetbliiii",
+      "13": "Texture_Vramcf__FP8shapetbliiii__FP8shapetbliiii",
+      "14": "Texture_GetTranslucencyMode__FP8shapetbl__FP8shapetbl",
+      "15": "Texture_LoadPmx__FPcT0iiiiiP12Draw_tPixMap__FPcT0iiiiiP12Draw_tPixMap",
+      "16": "Texture_CloneUVPmx__FP12Draw_tPixMapiT0__FP12Draw_tPixMapiT0",
+      "17": "Texture_InitTrackTexture__Fv__Fv",
+      "18": "Texture_InitMenuClut__Fv__Fv",
+      "19": "Texture_InitMenuTexture__Fv__Fv",
+      "20": "Texture_CleanupMenuTexture__Fv__Fv",
+      "21": "Texture_LoadMenuTexture__Fv__Fv",
+      "22": "Texture_KillTrackTexture__Fv__Fv",
+      "23": "Texture_KillMenuTexture__Fv__Fv"
+    },
+    "ok": true,
+    "assembly_sha256": "33a49802f784f945cedb02bb69614d325e222c26f8f4df7ece922dc2313e9b58"
+  },
+  "after_actual_header_compile": {
+    "header": "recon/game/psx/texture.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\texture_after.cpp",
+    "stage": "after",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\texture_after.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\texture_after.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\texture_after.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\texture_after.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:/Temp/nfs4-decomp/recon/game/psx/texture.h:4,\n                 from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\texture_after.cpp:1:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "30c37118678ba135a5376382f11cd6d840a9b4621bb0ddcd2131abf330d97b56",
+    "input_mode": "live-public-header",
+    "header_sha256": "5fbc85f41c428eff5d5a36f48a666e163af961112103afc16d577f4564028386",
+    "references": {
+      "0": "Texture_InitPaletteSharing__Fv",
+      "1": "Texture_DeInitPaletteSharing__Fv",
+      "2": "Texture_ResetPaletteSharing__Fv",
+      "3": "Texture_CheckForSharedPalette__FiPcP12Draw_tPixMapi",
+      "4": "Texture_AddSharedPalette__FPcP12Draw_tPixMapi",
+      "5": "Texture_InitClut__Fv",
+      "6": "Texture_GetClutId__FiPiT1",
+      "7": "Texture_MenuReleaseClutId__Fs",
+      "8": "Texture_ColorCarPalette__FPcT0i",
+      "9": "Texture_CopyPalette__FPciii",
+      "10": "Texture_ProcessPaletteCopy__FP15Texture_pal8bitii",
+      "11": "Texture_LoadImage__FP4RECTPUl",
+      "12": "Texture_Vramf__FP8shapetbliiii",
+      "13": "Texture_Vramcf__FP8shapetbliiii",
+      "14": "Texture_GetTranslucencyMode__FP8shapetbl",
+      "15": "Texture_LoadPmx__FPcT0iiiiiP12Draw_tPixMap",
+      "16": "Texture_CloneUVPmx__FP12Draw_tPixMapiT0",
+      "17": "Texture_InitTrackTexture__Fv",
+      "18": "Texture_InitMenuClut__Fv",
+      "19": "Texture_InitMenuTexture__Fv",
+      "20": "Texture_CleanupMenuTexture__Fv",
+      "21": "Texture_LoadMenuTexture__Fv",
+      "22": "Texture_KillTrackTexture__Fv",
+      "23": "Texture_KillMenuTexture__Fv"
+    },
+    "ok": true,
+    "assembly_sha256": "101c619a6d4a0435574dd0b5fdef8472bd02108f80c57b0a5f464fa6a64562cc",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".rodata",
+      ".sdata",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\texture.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "Texture_InitPaletteSharing__Fv",
+      "Texture_DeInitPaletteSharing__Fv",
+      "Texture_ResetPaletteSharing__Fv",
+      "Texture_CheckForSharedPalette__FiPcP12Draw_tPixMapi",
+      "Texture_AddSharedPalette__FPcP12Draw_tPixMapi",
+      "Texture_InitClut__Fv",
+      "Texture_GetClutId__FiPiT1",
+      "Texture_MenuReleaseClutId__Fs",
+      "Texture_ColorCarPalette__FPcT0i",
+      "Texture_CopyPalette__FPciii",
+      "Texture_ProcessPaletteCopy__FP15Texture_pal8bitii",
+      "Texture_LoadImage__FP4RECTPUl",
+      "Texture_Vramf__FP8shapetbliiii",
+      "Texture_Vramcf__FP8shapetbliiii",
+      "Texture_GetTranslucencyMode__FP8shapetbl",
+      "Texture_LoadPmx__FPcT0iiiiiP12Draw_tPixMap",
+      "Texture_CloneUVPmx__FP12Draw_tPixMapiT0",
+      "Texture_InitTrackTexture__Fv",
+      "Texture_InitMenuClut__Fv",
+      "Texture_InitMenuTexture__Fv",
+      "Texture_CleanupMenuTexture__Fv",
+      "Texture_LoadMenuTexture__Fv",
+      "Texture_KillTrackTexture__Fv",
+      "Texture_KillMenuTexture__Fv",
+      "gMenuPixmap",
+      "gMenuPixmapAlloc",
+      "Texture_CarColor",
+      "Texture_palCopy",
+      "Texture_palNum",
+      "Texture_gNum4bitPal",
+      "Texture_gNum8bitPal",
+      "Texture_gP4bitPmx",
+      "Texture_gP8bitPmx",
+      "Texture_gPalette4bit",
+      "Texture_gPalette8bit",
+      "gFreePal4",
+      "gNbFreePal4",
+      "gFreePal8",
+      "gNbFreePal8"
+    ]
+  },
+  "owning_tu_gate": {
+    "source": "recon/game/psx/texture.cpp",
+    "command": [
+      "C:\\Python314\\python.exe",
+      "tools/tugate.py",
+      "recon/game/psx/texture.cpp"
+    ],
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/psx/texture.cpp: 24/24 PASS\n",
+    "stderr": "",
+    "object_sha256": "7175acae7673f2f33062a2d53fe055cb1a1a6829dcfb52f8b15d7df6b1347581",
+    "actual_function_symbols": [
+      "Texture_InitPaletteSharing__Fv",
+      "Texture_DeInitPaletteSharing__Fv",
+      "Texture_ResetPaletteSharing__Fv",
+      "Texture_CheckForSharedPalette__FiPcP12Draw_tPixMapi",
+      "Texture_AddSharedPalette__FPcP12Draw_tPixMapi",
+      "Texture_InitClut__Fv",
+      "Texture_GetClutId__FiPiT1",
+      "Texture_MenuReleaseClutId__Fs",
+      "Texture_ColorCarPalette__FPcT0i",
+      "Texture_CopyPalette__FPciii",
+      "Texture_ProcessPaletteCopy__FP15Texture_pal8bitii",
+      "Texture_LoadImage__FP4RECTPUl",
+      "Texture_Vramf__FP8shapetbliiii",
+      "Texture_Vramcf__FP8shapetbliiii",
+      "Texture_GetTranslucencyMode__FP8shapetbl",
+      "Texture_LoadPmx__FPcT0iiiiiP12Draw_tPixMap",
+      "Texture_CloneUVPmx__FP12Draw_tPixMapiT0",
+      "Texture_InitTrackTexture__Fv",
+      "Texture_InitMenuClut__Fv",
+      "Texture_InitMenuTexture__Fv",
+      "Texture_CleanupMenuTexture__Fv",
+      "Texture_LoadMenuTexture__Fv",
+      "Texture_KillTrackTexture__Fv",
+      "Texture_KillMenuTexture__Fv"
+    ],
+    "local_function_symbols": []
+  },
+  "consumer_census": {
+    "files_scanned": 1677,
+    "literal_users": [],
+    "dynamic_includes": []
+  },
+  "unresolved": [],
+  "prototype_receipts": [
+    {
+      "header": "recon/game/psx/texture.h",
+      "line": 6,
+      "encoded": "Texture_InitPaletteSharing__Fv",
+      "name": "Texture_InitPaletteSharing",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Texture_InitPaletteSharing__Fv(void);   /* :64 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "46ae2c",
+          "va": "800df5b4",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Texture_InitPaletteSharing",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\texture.cpp",
+          "line": 27,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 37,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Texture_InitPaletteSharing(void);   /* SYM 46ae2c @0x800df5b4 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Texture_InitPaletteSharing__Fv__Fv",
+      "after_emitted_reference": "Texture_InitPaletteSharing__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/texture.h",
+      "line": 7,
+      "encoded": "Texture_DeInitPaletteSharing__Fv",
+      "name": "Texture_DeInitPaletteSharing",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Texture_DeInitPaletteSharing__Fv(void);   /* :74 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "46ae58",
+          "va": "800df630",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Texture_DeInitPaletteSharing",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\texture.cpp",
+          "line": 40,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 48,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Texture_DeInitPaletteSharing(void);   /* SYM 46ae58 @0x800df630 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Texture_DeInitPaletteSharing__Fv__Fv",
+      "after_emitted_reference": "Texture_DeInitPaletteSharing__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/texture.h",
+      "line": 8,
+      "encoded": "Texture_ResetPaletteSharing__Fv",
+      "name": "Texture_ResetPaletteSharing",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Texture_ResetPaletteSharing__Fv(void);   /* :84 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "46ae86",
+          "va": "800df678",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Texture_ResetPaletteSharing",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\texture.cpp",
+          "line": 51,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 57,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Texture_ResetPaletteSharing(void);   /* SYM 46ae86 @0x800df678 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Texture_ResetPaletteSharing__Fv__Fv",
+      "after_emitted_reference": "Texture_ResetPaletteSharing__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/texture.h",
+      "line": 9,
+      "encoded": "Texture_CheckForSharedPalette__FiPcP12Draw_tPixMapi",
+      "name": "Texture_CheckForSharedPalette",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "int Texture_CheckForSharedPalette__FiPcP12Draw_tPixMapi(int test, char *data, Draw_tPixMap *pmx, int bpp);   /* :90 */",
+      "header_return": "int",
+      "header_signature": "(int test, char *data, Draw_tPixMap *pmx, int bpp)",
+      "native": [
+        {
+          "record": "46aeb3",
+          "va": "800df688",
+          "linkage": "EXT",
+          "return_type": "int"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Texture_CheckForSharedPalette",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\texture.cpp",
+          "line": 60,
+          "typeref": "typename:int",
+          "kind": "function",
+          "signature": "(int test,char * data,Draw_tPixMap * pmx,int bpp)",
+          "end": 129,
+          "return_type": "int",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "int",
+      "final_signature": "(int test,char * data,Draw_tPixMap * pmx,int bpp)",
+      "final_prototype": "int Texture_CheckForSharedPalette(int test,char * data,Draw_tPixMap * pmx,int bpp);   /* SYM 46aeb3 @0x800df688 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Texture_CheckForSharedPalette__FiPcP12Draw_tPixMapi__FiPcP12Draw_tPixMapi",
+      "after_emitted_reference": "Texture_CheckForSharedPalette__FiPcP12Draw_tPixMapi",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/texture.h",
+      "line": 10,
+      "encoded": "Texture_AddSharedPalette__FPcP12Draw_tPixMapi",
+      "name": "Texture_AddSharedPalette",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Texture_AddSharedPalette__FPcP12Draw_tPixMapi(char *ptr_to_data, Draw_tPixMap *ptr_to_pmx, int bpp);   /* :143 */",
+      "header_return": "void",
+      "header_signature": "(char *ptr_to_data, Draw_tPixMap *ptr_to_pmx, int bpp)",
+      "native": [
+        {
+          "record": "46aef4",
+          "va": "800df7bc",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Texture_AddSharedPalette",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\texture.cpp",
+          "line": 132,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(char * ptr_to_data,Draw_tPixMap * ptr_to_pmx,int bpp)",
+          "end": 150,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(char * ptr_to_data,Draw_tPixMap * ptr_to_pmx,int bpp)",
+      "final_prototype": "void Texture_AddSharedPalette(char * ptr_to_data,Draw_tPixMap * ptr_to_pmx,int bpp);   /* SYM 46aef4 @0x800df7bc */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Texture_AddSharedPalette__FPcP12Draw_tPixMapi__FPcP12Draw_tPixMapi",
+      "after_emitted_reference": "Texture_AddSharedPalette__FPcP12Draw_tPixMapi",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/texture.h",
+      "line": 11,
+      "encoded": "Texture_InitClut__Fv",
+      "name": "Texture_InitClut",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Texture_InitClut__Fv(void);   /* :182 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "46af2f",
+          "va": "800df834",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Texture_InitClut",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\texture.cpp",
+          "line": 153,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 200,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Texture_InitClut(void);   /* SYM 46af2f @0x800df834 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Texture_InitClut__Fv__Fv",
+      "after_emitted_reference": "Texture_InitClut__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/texture.h",
+      "line": 12,
+      "encoded": "Texture_GetClutId__FiPiT1",
+      "name": "Texture_GetClutId",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Texture_GetClutId__FiPiT1(int bpp, int *xclut, int *yclut);   /* :221 */",
+      "header_return": "void",
+      "header_signature": "(int bpp, int *xclut, int *yclut)",
+      "native": [
+        {
+          "record": "46af51",
+          "va": "800df938",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Texture_GetClutId",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\texture.cpp",
+          "line": 203,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int bpp,int * xclut,int * yclut)",
+          "end": 227,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int bpp,int * xclut,int * yclut)",
+      "final_prototype": "void Texture_GetClutId(int bpp,int * xclut,int * yclut);   /* SYM 46af51 @0x800df938 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Texture_GetClutId__FiPiT1__FiPiT1",
+      "after_emitted_reference": "Texture_GetClutId__FiPiT1",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/texture.h",
+      "line": 13,
+      "encoded": "Texture_MenuReleaseClutId__Fs",
+      "name": "Texture_MenuReleaseClutId",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Texture_MenuReleaseClutId__Fs(short id);   /* :304 */",
+      "header_return": "void",
+      "header_signature": "(short id)",
+      "native": [
+        {
+          "record": "46af78",
+          "va": "800df9a4",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Texture_MenuReleaseClutId",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\texture.cpp",
+          "line": 230,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(short id)",
+          "end": 242,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(short id)",
+      "final_prototype": "void Texture_MenuReleaseClutId(short id);   /* SYM 46af78 @0x800df9a4 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Texture_MenuReleaseClutId__Fs__Fs",
+      "after_emitted_reference": "Texture_MenuReleaseClutId__Fs",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/texture.h",
+      "line": 14,
+      "encoded": "Texture_ColorCarPalette__FPcT0i",
+      "name": "Texture_ColorCarPalette",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Texture_ColorCarPalette__FPcT0i(char *from, char *to, int numentry);   /* :327 */",
+      "header_return": "void",
+      "header_signature": "(char *from, char *to, int numentry)",
+      "native": [
+        {
+          "record": "46afa3",
+          "va": "800dfa04",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Texture_ColorCarPalette",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\texture.cpp",
+          "line": 245,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(char * from,char * to,int numentry)",
+          "end": 259,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(char * from,char * to,int numentry)",
+      "final_prototype": "void Texture_ColorCarPalette(char * from,char * to,int numentry);   /* SYM 46afa3 @0x800dfa04 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Texture_ColorCarPalette__FPcT0i__FPcT0i",
+      "after_emitted_reference": "Texture_ColorCarPalette__FPcT0i",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/texture.h",
+      "line": 15,
+      "encoded": "Texture_CopyPalette__FPciii",
+      "name": "Texture_CopyPalette",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Texture_CopyPalette__FPciii(char *data, int width, int x, int y);   /* :339 */",
+      "header_return": "void",
+      "header_signature": "(char *data, int width, int x, int y)",
+      "native": [
+        {
+          "record": "46afd0",
+          "va": "800dfa3c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Texture_CopyPalette",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\texture.cpp",
+          "line": 266,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(char * data,int width,int x,int y)",
+          "end": 290,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(char * data,int width,int x,int y)",
+      "final_prototype": "void Texture_CopyPalette(char * data,int width,int x,int y);   /* SYM 46afd0 @0x800dfa3c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Texture_CopyPalette__FPciii__FPciii",
+      "after_emitted_reference": "Texture_CopyPalette__FPciii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/texture.h",
+      "line": 16,
+      "encoded": "Texture_ProcessPaletteCopy__FP15Texture_pal8bitii",
+      "name": "Texture_ProcessPaletteCopy",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Texture_ProcessPaletteCopy__FP15Texture_pal8bitii(Texture_pal8bit *palCopy, int palStart, int palNum);   /* :356 */",
+      "header_return": "void",
+      "header_signature": "(Texture_pal8bit *palCopy, int palStart, int palNum)",
+      "native": [
+        {
+          "record": "46aff9",
+          "va": "800dfa9c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Texture_ProcessPaletteCopy",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\texture.cpp",
+          "line": 293,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(Texture_pal8bit * palCopy,int palStart,int palNum)",
+          "end": 321,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(Texture_pal8bit * palCopy,int palStart,int palNum)",
+      "final_prototype": "void Texture_ProcessPaletteCopy(Texture_pal8bit * palCopy,int palStart,int palNum);   /* SYM 46aff9 @0x800dfa9c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Texture_ProcessPaletteCopy__FP15Texture_pal8bitii__FP15Texture_pal8bitii",
+      "after_emitted_reference": "Texture_ProcessPaletteCopy__FP15Texture_pal8bitii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/texture.h",
+      "line": 17,
+      "encoded": "Texture_LoadImage__FP4RECTPUl",
+      "name": "Texture_LoadImage",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Texture_LoadImage__FP4RECTPUl(RECT *imgrect, u_long *p);   /* :393 */",
+      "header_return": "void",
+      "header_signature": "(RECT *imgrect, u_long *p)",
+      "native": [
+        {
+          "record": "46b038",
+          "va": "800dfb48",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Texture_LoadImage",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\texture.cpp",
+          "line": 324,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(RECT * imgrect,u_long * p)",
+          "end": 332,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(RECT * imgrect,u_long * p)",
+      "final_prototype": "void Texture_LoadImage(RECT * imgrect,u_long * p);   /* SYM 46b038 @0x800dfb48 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Texture_LoadImage__FP4RECTPUl__FP4RECTPUl",
+      "after_emitted_reference": "Texture_LoadImage__FP4RECTPUl",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/texture.h",
+      "line": 18,
+      "encoded": "Texture_Vramf__FP8shapetbliiii",
+      "name": "Texture_Vramf",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Texture_Vramf__FP8shapetbliiii(shapetbl *shp, int x, int y, int clutx, int cluty);   /* :406 */",
+      "header_return": "void",
+      "header_signature": "(shapetbl *shp, int x, int y, int clutx, int cluty)",
+      "native": [
+        {
+          "record": "46b063",
+          "va": "800dfb8c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Texture_Vramf",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\texture.cpp",
+          "line": 335,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(shapetbl * shp,int x,int y,int clutx,int cluty)",
+          "end": 427,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(shapetbl * shp,int x,int y,int clutx,int cluty)",
+      "final_prototype": "void Texture_Vramf(shapetbl * shp,int x,int y,int clutx,int cluty);   /* SYM 46b063 @0x800dfb8c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Texture_Vramf__FP8shapetbliiii__FP8shapetbliiii",
+      "after_emitted_reference": "Texture_Vramf__FP8shapetbliiii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/texture.h",
+      "line": 19,
+      "encoded": "Texture_Vramcf__FP8shapetbliiii",
+      "name": "Texture_Vramcf",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Texture_Vramcf__FP8shapetbliiii(shapetbl *shp, int x, int y, int clutx, int cluty);   /* :468 */",
+      "header_return": "void",
+      "header_signature": "(shapetbl *shp, int x, int y, int clutx, int cluty)",
+      "native": [
+        {
+          "record": "46b08f",
+          "va": "800dfd38",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Texture_Vramcf",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\texture.cpp",
+          "line": 430,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(shapetbl * shp,int x,int y,int clutx,int cluty)",
+          "end": 477,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(shapetbl * shp,int x,int y,int clutx,int cluty)",
+      "final_prototype": "void Texture_Vramcf(shapetbl * shp,int x,int y,int clutx,int cluty);   /* SYM 46b08f @0x800dfd38 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Texture_Vramcf__FP8shapetbliiii__FP8shapetbliiii",
+      "after_emitted_reference": "Texture_Vramcf__FP8shapetbliiii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/texture.h",
+      "line": 20,
+      "encoded": "Texture_GetTranslucencyMode__FP8shapetbl",
+      "name": "Texture_GetTranslucencyMode",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "int Texture_GetTranslucencyMode__FP8shapetbl(shapetbl *shp);   /* :514 */",
+      "header_return": "int",
+      "header_signature": "(shapetbl *shp)",
+      "native": [
+        {
+          "record": "46b0bc",
+          "va": "800dfea0",
+          "linkage": "EXT",
+          "return_type": "int"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Texture_GetTranslucencyMode",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\texture.cpp",
+          "line": 480,
+          "typeref": "typename:int",
+          "kind": "function",
+          "signature": "(shapetbl * shp)",
+          "end": 517,
+          "return_type": "int",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "int",
+      "final_signature": "(shapetbl * shp)",
+      "final_prototype": "int Texture_GetTranslucencyMode(shapetbl * shp);   /* SYM 46b0bc @0x800dfea0 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Texture_GetTranslucencyMode__FP8shapetbl__FP8shapetbl",
+      "after_emitted_reference": "Texture_GetTranslucencyMode__FP8shapetbl",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/texture.h",
+      "line": 21,
+      "encoded": "Texture_LoadPmx__FPcT0iiiiiP12Draw_tPixMap",
+      "name": "Texture_LoadPmx",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Texture_LoadPmx__FPcT0iiiiiP12Draw_tPixMap(char *f, char *n, int ctrl, int rx, int ry, int cx, int cy, Draw_tPixMap *pmx);   /* :538 */",
+      "header_return": "void",
+      "header_signature": "(char *f, char *n, int ctrl, int rx, int ry, int cx, int cy, Draw_tPixMap *pmx)",
+      "native": [
+        {
+          "record": "46b0f2",
+          "va": "800dff18",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Texture_LoadPmx",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\texture.cpp",
+          "line": 520,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(char * f,char * n,int ctrl,int rx,int ry,int cx,int cy,Draw_tPixMap * pmx)",
+          "end": 677,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(char * f,char * n,int ctrl,int rx,int ry,int cx,int cy,Draw_tPixMap * pmx)",
+      "final_prototype": "void Texture_LoadPmx(char * f,char * n,int ctrl,int rx,int ry,int cx,int cy,Draw_tPixMap * pmx);   /* SYM 46b0f2 @0x800dff18 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Texture_LoadPmx__FPcT0iiiiiP12Draw_tPixMap__FPcT0iiiiiP12Draw_tPixMap",
+      "after_emitted_reference": "Texture_LoadPmx__FPcT0iiiiiP12Draw_tPixMap",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/texture.h",
+      "line": 22,
+      "encoded": "Texture_CloneUVPmx__FP12Draw_tPixMapiT0",
+      "name": "Texture_CloneUVPmx",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Texture_CloneUVPmx__FP12Draw_tPixMapiT0(Draw_tPixMap *pmx, int mode, Draw_tPixMap *rpmx);   /* :672 */",
+      "header_return": "void",
+      "header_signature": "(Draw_tPixMap *pmx, int mode, Draw_tPixMap *rpmx)",
+      "native": [
+        {
+          "record": "46b12a",
+          "va": "800e0358",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Texture_CloneUVPmx",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\texture.cpp",
+          "line": 680,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(Draw_tPixMap * pmx,int mode,Draw_tPixMap * rpmx)",
+          "end": 719,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(Draw_tPixMap * pmx,int mode,Draw_tPixMap * rpmx)",
+      "final_prototype": "void Texture_CloneUVPmx(Draw_tPixMap * pmx,int mode,Draw_tPixMap * rpmx);   /* SYM 46b12a @0x800e0358 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Texture_CloneUVPmx__FP12Draw_tPixMapiT0__FP12Draw_tPixMapiT0",
+      "after_emitted_reference": "Texture_CloneUVPmx__FP12Draw_tPixMapiT0",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/texture.h",
+      "line": 23,
+      "encoded": "Texture_InitTrackTexture__Fv",
+      "name": "Texture_InitTrackTexture",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Texture_InitTrackTexture__Fv(void);   /* :726 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "46b15f",
+          "va": "800e04b8",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Texture_InitTrackTexture",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\texture.cpp",
+          "line": 722,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 731,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Texture_InitTrackTexture(void);   /* SYM 46b15f @0x800e04b8 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Texture_InitTrackTexture__Fv__Fv",
+      "after_emitted_reference": "Texture_InitTrackTexture__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/texture.h",
+      "line": 24,
+      "encoded": "Texture_InitMenuClut__Fv",
+      "name": "Texture_InitMenuClut",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Texture_InitMenuClut__Fv(void);   /* :743 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "46b189",
+          "va": "800e0510",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Texture_InitMenuClut",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\texture.cpp",
+          "line": 734,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 787,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Texture_InitMenuClut(void);   /* SYM 46b189 @0x800e0510 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Texture_InitMenuClut__Fv__Fv",
+      "after_emitted_reference": "Texture_InitMenuClut__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/texture.h",
+      "line": 25,
+      "encoded": "Texture_InitMenuTexture__Fv",
+      "name": "Texture_InitMenuTexture",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Texture_InitMenuTexture__Fv(void);   /* :792 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "46b1af",
+          "va": "800e0610",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Texture_InitMenuTexture",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\texture.cpp",
+          "line": 790,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 801,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Texture_InitMenuTexture(void);   /* SYM 46b1af @0x800e0610 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Texture_InitMenuTexture__Fv__Fv",
+      "after_emitted_reference": "Texture_InitMenuTexture__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/texture.h",
+      "line": 26,
+      "encoded": "Texture_CleanupMenuTexture__Fv",
+      "name": "Texture_CleanupMenuTexture",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Texture_CleanupMenuTexture__Fv(void);   /* :799 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "46b1d8",
+          "va": "800e0638",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Texture_CleanupMenuTexture",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\texture.cpp",
+          "line": 804,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 818,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Texture_CleanupMenuTexture(void);   /* SYM 46b1d8 @0x800e0638 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Texture_CleanupMenuTexture__Fv__Fv",
+      "after_emitted_reference": "Texture_CleanupMenuTexture__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/texture.h",
+      "line": 27,
+      "encoded": "Texture_LoadMenuTexture__Fv",
+      "name": "Texture_LoadMenuTexture",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Texture_LoadMenuTexture__Fv(void);   /* :811 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "46b204",
+          "va": "800e0698",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Texture_LoadMenuTexture",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\texture.cpp",
+          "line": 821,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 847,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Texture_LoadMenuTexture(void);   /* SYM 46b204 @0x800e0698 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Texture_LoadMenuTexture__Fv__Fv",
+      "after_emitted_reference": "Texture_LoadMenuTexture__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/texture.h",
+      "line": 28,
+      "encoded": "Texture_KillTrackTexture__Fv",
+      "name": "Texture_KillTrackTexture",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Texture_KillTrackTexture__Fv(void);   /* :847 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "46b22d",
+          "va": "800e084c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Texture_KillTrackTexture",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\texture.cpp",
+          "line": 850,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 854,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Texture_KillTrackTexture(void);   /* SYM 46b22d @0x800e084c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Texture_KillTrackTexture__Fv__Fv",
+      "after_emitted_reference": "Texture_KillTrackTexture__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/texture.h",
+      "line": 29,
+      "encoded": "Texture_KillMenuTexture__Fv",
+      "name": "Texture_KillMenuTexture",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Texture_KillMenuTexture__Fv(void);   /* :855 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "46b257",
+          "va": "800e0854",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Texture_KillMenuTexture",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\texture.cpp",
+          "line": 857,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 863,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Texture_KillMenuTexture(void);   /* SYM 46b257 @0x800e0854 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Texture_KillMenuTexture__Fv__Fv",
+      "after_emitted_reference": "Texture_KillMenuTexture__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    }
+  ]
+}

@@ -12,8 +12,8 @@
    assembler macro, which GNU-as expands per-access (self-temp / $at). */
 extern tFEApplication *A_FEApp[] __asm__("FEApp");
 #define FEApp A_FEApp[0]
-extern tGlobalMenuDefs *A_menuDefs[] __asm__("menuDefs");
-#define menuDefs A_menuDefs[0]
+/* P872: menuDefs uses its native scalar declaration; the -G0 lane makes
+   its former array alias unnecessary. Other global views stay unchanged. */
 extern int A_ticks[] __asm__("ticks");
 #define ticks A_ticks[0]
 

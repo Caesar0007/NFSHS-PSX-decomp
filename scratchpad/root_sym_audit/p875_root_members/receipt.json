@@ -1,0 +1,275 @@
+{
+  "round": "P875 root member proof",
+  "expected_reference_count": 9,
+  "production_changes": false,
+  "groups": [
+    {
+      "header": "recon/game/common/object.h",
+      "types_header": "recon/game/common/object_types.h",
+      "header_sha256": "922d674d13ec6beaacca9e0cf76bd87da5183c0001ea76b08a1d8ed3107adc49",
+      "types_header_sha256": "39053becd24fd78cd347f054ad870dccf93d8183bc73941d42d57dbb8cbf9477",
+      "probe": "scratchpad/root_sym_audit/p875_root_members/object_members.cpp",
+      "compile_receipts": [
+        {
+          "command": [
+            "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+            "-x",
+            "c",
+            "-D__cplusplus=1",
+            "-nostdinc",
+            "-undef",
+            "-Dmips",
+            "-D__mips__",
+            "-D__psx__",
+            "-IC:\\Temp\\nfs4-decomp\\recon",
+            "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_root_members\\object_members.cpp",
+            "-o",
+            "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_root_members\\object_members.i"
+          ],
+          "returncode": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "command": [
+            "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+            "-quiet",
+            "-O2",
+            "-G4",
+            "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_root_members\\object_members.i",
+            "-o",
+            "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_root_members\\object_members.s"
+          ],
+          "returncode": 0,
+          "stdout": "",
+          "stderr": "In file included from C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h:5,\n                 from C:/Temp/nfs4-decomp/recon/game/common/color_types.h:5,\n                 from C:/Temp/nfs4-decomp/recon/game/common/aih_hierarchy_types.h:5,\n                 from C:/Temp/nfs4-decomp/recon/game/common/sim_types.h:6,\n                 from C:/Temp/nfs4-decomp/recon/game/common/object_types.h:6,\n                 from C:/Temp/nfs4-decomp/recon/game/common/object.h:4,\n                 from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_root_members\\\\object_members.cpp:3:\nC:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h:60: warning: anonymous class type not used to declare any objects\n"
+        }
+      ],
+      "emitted_references": [
+        "Draw__23ObjectFinishedMultiAnimP13DRender_tViewP11Draw_DCachei",
+        "Draw__15ObjectMultiAnimP13DRender_tViewP11Draw_DCachei",
+        "Draw__22ObjectFinishedSignAnimP13DRender_tViewP11Draw_DCachei",
+        "Draw__14ObjectSignAnimP13DRender_tViewP11Draw_DCachei",
+        "__15ObjectMultiAnimP8coorddefP7AnimDefP19Trk_CollideBoomInstP13Trk_ObjectDefP13Trk_SimObjectP23ObjectFinishedMultiAnim",
+        "__14ObjectSignAnimP8coorddefiP7AnimDefP19Trk_CollideBoomInstP13Trk_ObjectDefP13Trk_SimObjectT1P22ObjectFinishedSignAnim"
+      ],
+      "expected_count": 6,
+      "unexpected_references": [],
+      "object_sha256": "cfd36f8d55d2c2a74be65947a1a2341b0ebeac445ecbe622153933b2760fe646",
+      "matches_root_unchanged_object_receipt": true,
+      "assembly_sha256": "2be0588f719ac309f338e0b7e2bbe0884e8e0cc7b40a10315152c3c79a7e17a5",
+      "entries": [
+        {
+          "native_symbol": "Draw__23ObjectFinishedMultiAnimP13DRender_tViewP11Draw_DCachei",
+          "source_member": "ObjectFinishedMultiAnim::Draw",
+          "native": {
+            "record": "2d90e0",
+            "va": "800a61f8",
+            "storage": "EXT",
+            "return_type": "INT",
+            "raw": "2d90e0: $800a61f8 94 Def class EXT type FCN INT size 0 name Draw__23ObjectFinishedMultiAnimP13DRender_tViewP11Draw_DCachei"
+          },
+          "removed_false_free_declaration": [
+            "int Draw__23ObjectFinishedMultiAnimP13DRender_tViewP11Draw_DCachei(ObjectFinishedMultiAnim *self, DRender_tView *Vi, Draw_DCache *sd, int offset);   /* :1160 */"
+          ],
+          "false_declaration_absent_now": true,
+          "emitted_reference": true,
+          "actual_export": "00001714 g     F .text\t00000008 Draw__23ObjectFinishedMultiAnimP13DRender_tViewP11Draw_DCachei"
+        },
+        {
+          "native_symbol": "__15ObjectMultiAnimP8coorddefP7AnimDefP19Trk_CollideBoomInstP13Trk_ObjectDefP13Trk_SimObjectP23ObjectFinishedMultiAnim",
+          "source_member": "ObjectMultiAnim::ObjectMultiAnim",
+          "native": {
+            "record": "2d912c",
+            "va": "800a6200",
+            "storage": "EXT",
+            "return_type": "PTR STRUCT",
+            "raw": "2d912c: $800a6200 96 Def2 class EXT type FCN PTR STRUCT size 48 dims 0 tag ObjectMultiAnim name __15ObjectMultiAnimP8coorddefP7AnimDefP19Trk_CollideBoomInstP13Trk_ObjectDefP13Trk_SimObjectP23ObjectFinishedMultiAnim"
+          },
+          "removed_false_free_declaration": [
+            "void * __15ObjectMultiAnimP8coorddefP7AnimDefP19Trk_CollideBoomInstP13Trk_ObjectDefP13Trk_SimObjectP23ObjectFinishedMultiAnim(ObjectMultiAnim *self, coorddef *impactVel, AnimDef *def, Trk_CollideBoomInst *objCollideInstance, Trk_ObjectDef *objDef, Trk_SimObject *simObj, ObjectFinishedMultiAnim *finishedAnim);   /* :1165 */"
+          ],
+          "false_declaration_absent_now": true,
+          "emitted_reference": true,
+          "actual_export": "0000171c g     F .text\t000000f8 __15ObjectMultiAnimP8coorddefP7AnimDefP19Trk_CollideBoomInstP13Trk_ObjectDefP13Trk_SimObjectP23ObjectFinishedMultiAnim"
+        },
+        {
+          "native_symbol": "Draw__15ObjectMultiAnimP13DRender_tViewP11Draw_DCachei",
+          "source_member": "ObjectMultiAnim::Draw",
+          "native": {
+            "record": "2d91c2",
+            "va": "800a62f8",
+            "storage": "EXT",
+            "return_type": "INT",
+            "raw": "2d91c2: $800a62f8 94 Def class EXT type FCN INT size 0 name Draw__15ObjectMultiAnimP13DRender_tViewP11Draw_DCachei"
+          },
+          "removed_false_free_declaration": [
+            "int Draw__15ObjectMultiAnimP13DRender_tViewP11Draw_DCachei(ObjectMultiAnim *self, DRender_tView *Vi, Draw_DCache *sd, int offset);   /* :1188 */"
+          ],
+          "false_declaration_absent_now": true,
+          "emitted_reference": true,
+          "actual_export": "00001814 g     F .text\t00000424 Draw__15ObjectMultiAnimP13DRender_tViewP11Draw_DCachei"
+        },
+        {
+          "native_symbol": "Draw__22ObjectFinishedSignAnimP13DRender_tViewP11Draw_DCachei",
+          "source_member": "ObjectFinishedSignAnim::Draw",
+          "native": {
+            "record": "2d9206",
+            "va": "800a671c",
+            "storage": "EXT",
+            "return_type": "INT",
+            "raw": "2d9206: $800a671c 94 Def class EXT type FCN INT size 0 name Draw__22ObjectFinishedSignAnimP13DRender_tViewP11Draw_DCachei"
+          },
+          "removed_false_free_declaration": [
+            "int Draw__22ObjectFinishedSignAnimP13DRender_tViewP11Draw_DCachei(ObjectFinishedSignAnim *self, DRender_tView *Vi, Draw_DCache *sd, int offset);   /* :1302 */"
+          ],
+          "false_declaration_absent_now": true,
+          "emitted_reference": true,
+          "actual_export": "00001c38 g     F .text\t00000048 Draw__22ObjectFinishedSignAnimP13DRender_tViewP11Draw_DCachei"
+        },
+        {
+          "native_symbol": "__14ObjectSignAnimP8coorddefiP7AnimDefP19Trk_CollideBoomInstP13Trk_ObjectDefP13Trk_SimObjectT1P22ObjectFinishedSignAnim",
+          "source_member": "ObjectSignAnim::ObjectSignAnim",
+          "native": {
+            "record": "2d9251",
+            "va": "800a6764",
+            "storage": "EXT",
+            "return_type": "PTR STRUCT",
+            "raw": "2d9251: $800a6764 96 Def2 class EXT type FCN PTR STRUCT size 48 dims 0 tag ObjectSignAnim name __14ObjectSignAnimP8coorddefiP7AnimDefP19Trk_CollideBoomInstP13Trk_ObjectDefP13Trk_SimObjectT1P22ObjectFinishedSignAnim"
+          },
+          "removed_false_free_declaration": [
+            "void * __14ObjectSignAnimP8coorddefiP7AnimDefP19Trk_CollideBoomInstP13Trk_ObjectDefP13Trk_SimObjectT1P22ObjectFinishedSignAnim(ObjectSignAnim *self, coorddef *impactVel, int impactAngle, AnimDef *def, Trk_CollideBoomInst *objCollideInstance, Trk_ObjectDef *objDef, Trk_SimObject *simObj, coorddef *roadNormal, ObjectFinishedSignAnim *finishedAnim);   /* :1308 */"
+          ],
+          "false_declaration_absent_now": true,
+          "emitted_reference": true,
+          "actual_export": "00001c80 g     F .text\t000002d4 __14ObjectSignAnimP8coorddefiP7AnimDefP19Trk_CollideBoomInstP13Trk_ObjectDefP13Trk_SimObjectT1P22ObjectFinishedSignAnim"
+        },
+        {
+          "native_symbol": "Draw__14ObjectSignAnimP13DRender_tViewP11Draw_DCachei",
+          "source_member": "ObjectSignAnim::Draw",
+          "native": {
+            "record": "2d92e7",
+            "va": "800a6a38",
+            "storage": "EXT",
+            "return_type": "INT",
+            "raw": "2d92e7: $800a6a38 94 Def class EXT type FCN INT size 0 name Draw__14ObjectSignAnimP13DRender_tViewP11Draw_DCachei"
+          },
+          "removed_false_free_declaration": [
+            "int Draw__14ObjectSignAnimP13DRender_tViewP11Draw_DCachei(ObjectSignAnim *self, DRender_tView *Vi, Draw_DCache *sd, int offset);   /* :1360 */"
+          ],
+          "false_declaration_absent_now": true,
+          "emitted_reference": true,
+          "actual_export": "00001f54 g     F .text\t000001d8 Draw__14ObjectSignAnimP13DRender_tViewP11Draw_DCachei"
+        }
+      ]
+    },
+    {
+      "header": "recon/game/common/track.h",
+      "types_header": "recon/game/common/track_types.h",
+      "header_sha256": "66c39ca8bac5bb15ab3c6baa39d1e6c4f50af0ab729ff4b0ddbc59e1b17bab41",
+      "types_header_sha256": "8ee878c80854bfde9f62479c92ee80793ceb9fa80f5d699ce9d17cec52d59749",
+      "probe": "scratchpad/root_sym_audit/p875_root_members/track_members.cpp",
+      "compile_receipts": [
+        {
+          "command": [
+            "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+            "-x",
+            "c",
+            "-D__cplusplus=1",
+            "-nostdinc",
+            "-undef",
+            "-Dmips",
+            "-D__mips__",
+            "-D__psx__",
+            "-IC:\\Temp\\nfs4-decomp\\recon",
+            "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_root_members\\track_members.cpp",
+            "-o",
+            "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_root_members\\track_members.i"
+          ],
+          "returncode": 0,
+          "stdout": "",
+          "stderr": ""
+        },
+        {
+          "command": [
+            "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+            "-quiet",
+            "-O2",
+            "-G4",
+            "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_root_members\\track_members.i",
+            "-o",
+            "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_root_members\\track_members.s"
+          ],
+          "returncode": 0,
+          "stdout": "",
+          "stderr": "In file included from C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h:5,\n                 from C:/Temp/nfs4-decomp/recon/game/common/chunk_types.h:5,\n                 from C:/Temp/nfs4-decomp/recon/game/common/track_types.h:6,\n                 from C:/Temp/nfs4-decomp/recon/game/common/track.h:4,\n                 from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_root_members\\\\track_members.cpp:2:\nC:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h:60: warning: anonymous class type not used to declare any objects\n"
+        }
+      ],
+      "emitted_references": [
+        "Save__11SaveSurfaceP14Trk_NewSimQuad",
+        "RestoreAll__11SaveSurface",
+        "__11SaveSurfacei"
+      ],
+      "expected_count": 3,
+      "unexpected_references": [],
+      "object_sha256": "e17f48e6d7fad3b8d2244bc3c17a34b6150a89da41b0ebaaafe20962fbf75945",
+      "matches_root_unchanged_object_receipt": true,
+      "assembly_sha256": "d01064088e571f237a24059582aaf0015150d950aa1b85742a78eac0234cbfa9",
+      "entries": [
+        {
+          "native_symbol": "Save__11SaveSurfaceP14Trk_NewSimQuad",
+          "source_member": "SaveSurface::Save",
+          "native": {
+            "record": "36d7a9",
+            "va": "800baf0c",
+            "storage": "EXT",
+            "return_type": "VOID",
+            "raw": "36d7a9: $800baf0c 94 Def class EXT type FCN VOID size 0 name Save__11SaveSurfaceP14Trk_NewSimQuad"
+          },
+          "removed_false_free_declaration": [
+            "void Save__11SaveSurfaceP14Trk_NewSimQuad(SaveSurface *self, Trk_NewSimQuad *simQuad);   /* :1831 */"
+          ],
+          "false_declaration_absent_now": true,
+          "emitted_reference": true,
+          "actual_export": "00001c14 g     F .text\t00000064 Save__11SaveSurfaceP14Trk_NewSimQuad"
+        },
+        {
+          "native_symbol": "__11SaveSurfacei",
+          "source_member": "SaveSurface::SaveSurface",
+          "native": {
+            "record": "36d7db",
+            "va": "800baf70",
+            "storage": "EXT",
+            "return_type": "PTR STRUCT",
+            "raw": "36d7db: $800baf70 96 Def2 class EXT type FCN PTR STRUCT size 8 dims 0 tag SaveSurface name __11SaveSurfacei"
+          },
+          "removed_false_free_declaration": [
+            "void * __11SaveSurfacei(SaveSurface *self, int numEntries);   /* :1855 */"
+          ],
+          "false_declaration_absent_now": true,
+          "emitted_reference": true,
+          "actual_export": "00001c78 g     F .text\t00000044 __11SaveSurfacei"
+        },
+        {
+          "native_symbol": "RestoreAll__11SaveSurface",
+          "source_member": "SaveSurface::RestoreAll",
+          "native": {
+            "record": "36d825",
+            "va": "800baffc",
+            "storage": "EXT",
+            "return_type": "VOID",
+            "raw": "36d825: $800baffc 94 Def class EXT type FCN VOID size 0 name RestoreAll__11SaveSurface"
+          },
+          "removed_false_free_declaration": [
+            "void RestoreAll__11SaveSurface(SaveSurface *self);   /* :1871 */"
+          ],
+          "false_declaration_absent_now": true,
+          "emitted_reference": true,
+          "actual_export": "00001d04 g     F .text\t0000006c RestoreAll__11SaveSurface"
+        }
+      ]
+    }
+  ],
+  "verified_reference_count": 9,
+  "pass": true
+}

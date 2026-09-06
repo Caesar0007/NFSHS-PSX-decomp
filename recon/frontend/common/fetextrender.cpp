@@ -35,13 +35,13 @@ void FETextRender_SetFont(int size)
     currentSize = (short)size;
     switch (currentSize) {
     case 0:
-      Font_SwitchFont(font12[0]);
+      Font_SwitchFont(font12);
       break;
     case 3:
-      Font_SwitchFont(fontTitle[0]);
+      Font_SwitchFont(fontTitle);
       break;
     default:
-      Font_SwitchFont(font18[0]);
+      Font_SwitchFont(font18);
       break;
     }
   }

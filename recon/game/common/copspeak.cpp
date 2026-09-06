@@ -803,22 +803,21 @@ void CopSpeak_LoadNextRequest(void)
 }
 
 /* ---- CopSpeak_PlayNextRequest__Fv  [COPSPEAK.CPP:1191-1238] SLD-VERIFIED ---- */
+/* P877: one value chain through the already recovered `next` replaces the
+ * unrecorded iVar3 queue index.  The conditional expression preserves retail's
+ * separate input/output registers; in-place if/else was FAIL 8 (71/71), while
+ * the ternary is PASS 71/71 with an exact debug twin. */
 void CopSpeak_PlayNextRequest(void)
 
 {
-  /* SYM-CODEGEN-CARRIER: iVar3 -- indexing and advancing directly from
-   * CopSpeak_gQueuePlay keeps 71 instructions but changes six oracle
-   * allocation/scheduling instructions. */
-  int iVar3;
+  CopSpeak_tRequest *r;
   int handle;
   /* ORIGINAL-NAME-RECOVERED: next -- the same retail COPSPEAK.CPP object
    * records `next` for the wraparound queue-output quantity in
    * CopSpeak_DirectRequest, CopSpeak_GenericBankRequest, and CopSpeak_Request. */
   int next;
-  CopSpeak_tRequest *r;
 
-  iVar3 = CopSpeak_gQueuePlay;
-  r = &CopSpeak_gQueue[iVar3];
+  r = &CopSpeak_gQueue[next = CopSpeak_gQueuePlay];
   if (*(signed char *)&r->bank >= 0) {
     if (r->sfx == '\0') {
       if (CopSpeak_gSpchHandle != -1) {
@@ -838,13 +837,9 @@ void CopSpeak_PlayNextRequest(void)
       }
     }
     CopSpeak_InitRequest(r);
-    iVar3 = CopSpeak_gQueuePlay;
+    next = CopSpeak_gQueuePlay;
   }
-  next = 0;
-  if (iVar3 < 0x3f) {
-    next = iVar3 + 1;
-  }
-  CopSpeak_gQueuePlay = next;
+  CopSpeak_gQueuePlay = next = next < 0x3f ? next + 1 : 0;
   return;
 }
 
@@ -852,12 +847,11 @@ void CopSpeak_PlayNextRequest(void)
 void CopSpeak_Flush(void)
 
 {
-  int i;
   /* SYM-CODEGEN-CARRIER: request -- retaining the queue-entry base pointer
      preserves the retail signed-byte store while SYM records only i. */
   CopSpeak_tRequest *request;
 
-  for (i = CopSpeak_gQueuePlay; i != CopSpeak_gQueueHead;
+  for (int i = CopSpeak_gQueuePlay; i != CopSpeak_gQueueHead;
        i = i < 0x3f ? i + 1 : 0) {
     request = &CopSpeak_gQueue[i];
     *(signed char *)&request->bank = -1;

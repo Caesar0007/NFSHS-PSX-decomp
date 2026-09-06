@@ -3,13 +3,15 @@
 #define _GAME_COMMON_SIMQUEUE_H_
 #include "../../nfs4_types.h"
 
-void SimQueue_StartUp__Fv(void);   /* :93 */
-void SimQueue_Reset__Fv(void);   /* :115 */
-void SimQueue_CleanUp__Fv(void);   /* :169 */
-int SimQueue_Put__FiP14Input_tResults(int pIndex, Input_tResults *val);   /* :201 */
-void SimQueue_SetCurrentInput__Fi(int time);   /* :271 */
-void SimQueue_GetCurrentInput__FiP14Input_tResults(int pIndex, Input_tResults *out);   /* :295 */
-void SimQueue_SetLag__Fv(void);   /* :326 */
-int SimQueue_IsBlocking__Fi(int pIndex);   /* :382 */
+/* P875: native source names/signatures; C++ supplies linkage mangling.
+ * File-private functions stay in the implementation; class members remain
+ * exposed by the included types without duplicate free declarations. */
+
+void SimQueue_StartUp(void);   /* :93 */
+void SimQueue_Reset(void);   /* :115 */
+void SimQueue_CleanUp(void);   /* :169 */
+int SimQueue_Put(int pIndex,Input_tResults *val);   /* :201 */
+void SimQueue_SetCurrentInput(int time);   /* :271 */
+void SimQueue_GetCurrentInput(int pIndex,Input_tResults *out);   /* :295 */
 
 #endif /* _GAME_COMMON_SIMQUEUE_H_ */

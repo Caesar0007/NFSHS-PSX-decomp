@@ -1,0 +1,136 @@
+{
+  "round": "P878",
+  "function": "CopSpeak_Flush__Fv",
+  "source": "recon/game/common/copspeak.cpp",
+  "retained_change": "Move native int i from function scope into the for initializer; retain the unresolved request pointer.",
+  "carrier_removed": false,
+  "baseline_instructions": 20,
+  "final_instructions": 20,
+  "gate": "PASS",
+  "debug_code_twin": "EXACT",
+  "whole_tu": {
+    "pass": 27,
+    "total": 27,
+    "branch_divergences": 0
+  },
+  "raw_oracle": {
+    "words": 20,
+    "mismatches": 0
+  },
+  "production_object_sha256_before": "70fc97ebe71e9feeb970a4af6af67f16969a2171d4a82bfc1a35834376f9807e",
+  "production_object_sha256_after": "70fc97ebe71e9feeb970a4af6af67f16969a2171d4a82bfc1a35834376f9807e",
+  "outside_flush_source_unchanged_since_p877": true,
+  "native": {
+    "function_record": "26bc7b",
+    "outer_block": "26bcc8",
+    "for_block": "26bcd1",
+    "i_record": "26bcda",
+    "i_type": "INT",
+    "i_register": 3,
+    "for_scope_start": "0x8009a944",
+    "for_scope_end": "0x8009a98c",
+    "frame": 0,
+    "mask": 0
+  },
+  "before_debug": {
+    "i": {
+      "home": 3,
+      "type": "INT",
+      "storage": "REG",
+      "scope": "function"
+    },
+    "request": {
+      "home": 2,
+      "type": "PTR CopSpeak_tRequest, size32",
+      "storage": "REG",
+      "scope": "function"
+    }
+  },
+  "after_debug": {
+    "i": {
+      "home": 3,
+      "type": "INT",
+      "storage": "REG",
+      "scope": "for"
+    },
+    "request": {
+      "home": 2,
+      "type": "PTR CopSpeak_tRequest, size32",
+      "storage": "REG",
+      "scope": "function"
+    }
+  },
+  "failed_probes": [
+    {
+      "shape": "Direct signed-pointer view of CopSpeak_gQueue[i].bank",
+      "diffs": 2,
+      "ours": 20,
+      "oracle": 20,
+      "reason": "Hoists bank-adjusted base and emits sb0 instead of retail sb30"
+    },
+    {
+      "shape": "CopSpeak_gQueue+i pointer member expression",
+      "diffs": 2,
+      "ours": 20,
+      "oracle": 20,
+      "reason": "Same bank-base hoist"
+    },
+    {
+      "shape": "Widened integer cast of indexed object address",
+      "diffs": 2,
+      "ours": 20,
+      "oracle": 20,
+      "reason": "Same bank-base hoist"
+    },
+    {
+      "shape": "Index-first sizeof-based integer object address",
+      "diffs": 2,
+      "ours": 20,
+      "oracle": 20,
+      "reason": "Same bank-base hoist"
+    },
+    {
+      "shape": "Plain typed bank = -1 assignment",
+      "diffs": 2,
+      "ours": 20,
+      "oracle": 20,
+      "reason": "Correct sb30, but li255 replaces retail li-1"
+    },
+    {
+      "shape": "Signed-char reference view of bank",
+      "diffs": 2,
+      "ours": 20,
+      "oracle": 20,
+      "reason": "Same bank-base hoist"
+    },
+    {
+      "shape": "Signed-byte row view with sizeof request and actual bank offset",
+      "diffs": 2,
+      "ours": 20,
+      "oracle": 20,
+      "reason": "Same bank-base hoist"
+    },
+    {
+      "shape": "Typed bank -= bank + 1",
+      "diffs": 2,
+      "ours": 20,
+      "oracle": 20,
+      "reason": "Folds to li255 rather than li-1"
+    },
+    {
+      "shape": "GNU scalar signed-char lvalue cast",
+      "diffs": 2,
+      "ours": 20,
+      "oracle": 20,
+      "reason": "Still li255"
+    }
+  ],
+  "all_failed_probes_restored": true,
+  "remaining_limits": [
+    "request REG2 is still an unrecorded source-only pointer carrier; no elimination claimed.",
+    "Full native-only local coverage and full SLD expression grouping remain incomplete.",
+    "The native field is a one-byte bank; current shared definition is plain char. Signedness/context needs separate authoritative review before any shared type edit."
+  ],
+  "production_headers_or_tools_changed": false,
+  "new_names_asm_volatile_added": false
+}

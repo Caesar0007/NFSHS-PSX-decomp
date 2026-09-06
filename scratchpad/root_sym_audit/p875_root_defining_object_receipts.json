@@ -1,0 +1,152 @@
+[
+  {
+    "source": "recon/game/common/physics.cpp",
+    "before_sha256": "836cd9af8b7a2d9f86b81638847410516a6720c08eae7e3076f1ecf430821f56",
+    "after_sha256": "836cd9af8b7a2d9f86b81638847410516a6720c08eae7e3076f1ecf430821f56",
+    "identical": true,
+    "gate": "  __none__: NO ORACLE\nrecon/game/common/physics.cpp: 22/22 PASS\n",
+    "branches": "# 22 fns checked, 0 with branch-offset/count divergence\n",
+    "missing_exports": [],
+    "unconfirmed_private": []
+  },
+  {
+    "source": "recon/game/common/newton.cpp",
+    "before_sha256": "61abefc9804de5c20f18e41a2f7bd4a96f9372cdcc00464a524ffceb0097d952",
+    "after_sha256": "61abefc9804de5c20f18e41a2f7bd4a96f9372cdcc00464a524ffceb0097d952",
+    "identical": true,
+    "gate": "  __none__: NO ORACLE\nrecon/game/common/newton.cpp: 32/32 PASS\n",
+    "branches": "# 32 fns checked, 0 with branch-offset/count divergence\n",
+    "missing_exports": [],
+    "unconfirmed_private": []
+  },
+  {
+    "source": "recon/game/common/replay.cpp",
+    "before_sha256": "526b0b18dfe23420a526d33d889e9e0656aae0c4cc569dfdffd0e09d5a4c55a5",
+    "after_sha256": "526b0b18dfe23420a526d33d889e9e0656aae0c4cc569dfdffd0e09d5a4c55a5",
+    "identical": true,
+    "gate": "  __none__: NO ORACLE\nrecon/game/common/replay.cpp: 15/16 PASS\n    188  Replay_StoringControllerData__FG15tControllerData\n",
+    "branches": "Replay_StoringControllerData__FG15tControllerData            1 offset diffs [(1, 219, 223)]\n# 16 fns checked, 1 with branch-offset/count divergence\n",
+    "missing_exports": [],
+    "unconfirmed_private": []
+  },
+  {
+    "source": "recon/game/common/object.cpp",
+    "before_sha256": "cfd36f8d55d2c2a74be65947a1a2341b0ebeac445ecbe622153933b2760fe646",
+    "after_sha256": "cfd36f8d55d2c2a74be65947a1a2341b0ebeac445ecbe622153933b2760fe646",
+    "identical": true,
+    "gate": "  __none__: NO ORACLE\nrecon/game/common/object.cpp: 37/37 PASS\n",
+    "branches": "# 37 fns checked, 0 with branch-offset/count divergence\n",
+    "missing_exports": [],
+    "unconfirmed_private": []
+  },
+  {
+    "source": "recon/game/common/input.cpp",
+    "before_sha256": "5c81453a7be102403c348d901f2417abed9b5c36a450f3435098f035dec40013",
+    "after_sha256": "5c81453a7be102403c348d901f2417abed9b5c36a450f3435098f035dec40013",
+    "identical": true,
+    "gate": "  __none__: NO ORACLE\nrecon/game/common/input.cpp: 8/8 PASS\n",
+    "branches": "# 8 fns checked, 0 with branch-offset/count divergence\n",
+    "missing_exports": [],
+    "unconfirmed_private": []
+  },
+  {
+    "source": "recon/game/common/gmesetup.cpp",
+    "before_sha256": "16255480938d1c5a0825a162e36433ce693a599eab3f0b6eb8fa82e167d50007",
+    "after_sha256": "16255480938d1c5a0825a162e36433ce693a599eab3f0b6eb8fa82e167d50007",
+    "identical": true,
+    "gate": "  __none__: NO ORACLE\nrecon/game/common/gmesetup.cpp: 2/2 PASS\n",
+    "branches": "# 2 fns checked, 0 with branch-offset/count divergence\n",
+    "missing_exports": [],
+    "unconfirmed_private": []
+  },
+  {
+    "source": "recon/game/common/stats.cpp",
+    "before_sha256": "bb4cf9b33549f6c03ef4c4dff7d762173f2dddc2883a5a1bcb470e8df7969f62",
+    "after_sha256": "bb4cf9b33549f6c03ef4c4dff7d762173f2dddc2883a5a1bcb470e8df7969f62",
+    "identical": true,
+    "gate": "  __none__: NO ORACLE\nrecon/game/common/stats.cpp: 7/7 PASS\n",
+    "branches": "# 7 fns checked, 0 with branch-offset/count divergence\n",
+    "missing_exports": [],
+    "unconfirmed_private": []
+  },
+  {
+    "source": "recon/game/common/schedule.cpp",
+    "before_sha256": "80198291d022e33e4c9e883d52b33b0d3e328b2be23ee005c7c606bcdb60afc6",
+    "after_sha256": "80198291d022e33e4c9e883d52b33b0d3e328b2be23ee005c7c606bcdb60afc6",
+    "identical": true,
+    "gate": "  __none__: NO ORACLE\nrecon/game/common/schedule.cpp: 6/6 PASS\n",
+    "branches": "# 6 fns checked, 0 with branch-offset/count divergence\n",
+    "missing_exports": [],
+    "unconfirmed_private": []
+  },
+  {
+    "source": "recon/game/common/sim.cpp",
+    "before_sha256": "d42f37b5eb7c8a3e6bb72cfd6da48c6d2290e21ccadc2137fc9e28720dd04d79",
+    "after_sha256": "d42f37b5eb7c8a3e6bb72cfd6da48c6d2290e21ccadc2137fc9e28720dd04d79",
+    "identical": true,
+    "gate": "  __none__: NO ORACLE\nrecon/game/common/sim.cpp: 8/8 PASS\n",
+    "branches": "# 8 fns checked, 0 with branch-offset/count divergence\n",
+    "missing_exports": [],
+    "unconfirmed_private": []
+  },
+  {
+    "source": "recon/game/common/simqueue.cpp",
+    "before_sha256": "cd63f849f197c420d0331cd52d59a46d51fd937c1a892b3e4f673f736914ddf2",
+    "after_sha256": "cd63f849f197c420d0331cd52d59a46d51fd937c1a892b3e4f673f736914ddf2",
+    "identical": true,
+    "gate": "  __none__: NO ORACLE\nrecon/game/common/simqueue.cpp: 8/8 PASS\n",
+    "branches": "# 8 fns checked, 0 with branch-offset/count divergence\n",
+    "missing_exports": [],
+    "unconfirmed_private": []
+  },
+  {
+    "source": "recon/game/common/quatern.cpp",
+    "before_sha256": "e37055a28baab3f53ec32862fb819a4eb43d2668978758f3e16ee1a64c8bf11e",
+    "after_sha256": "e37055a28baab3f53ec32862fb819a4eb43d2668978758f3e16ee1a64c8bf11e",
+    "identical": true,
+    "gate": "  __none__: NO ORACLE\nrecon/game/common/quatern.cpp: 4/4 PASS\n",
+    "branches": "# 4 fns checked, 0 with branch-offset/count divergence\n",
+    "missing_exports": [],
+    "unconfirmed_private": []
+  },
+  {
+    "source": "recon/game/common/scene.cpp",
+    "before_sha256": "be83e3c4a48cee9dbeb8f7a8af267f7176e0096e5fcea8cd8e97169e3cd6a843",
+    "after_sha256": "be83e3c4a48cee9dbeb8f7a8af267f7176e0096e5fcea8cd8e97169e3cd6a843",
+    "identical": true,
+    "gate": "  __none__: NO ORACLE\nrecon/game/common/scene.cpp: 6/6 PASS\n",
+    "branches": "# 6 fns checked, 0 with branch-offset/count divergence\n",
+    "missing_exports": [],
+    "unconfirmed_private": []
+  },
+  {
+    "source": "recon/game/common/souffle.cpp",
+    "before_sha256": "03c9a92e95b2a993f6d7497d91923aa1f5ad45786b084f7831c60630fd9d73ca",
+    "after_sha256": "03c9a92e95b2a993f6d7497d91923aa1f5ad45786b084f7831c60630fd9d73ca",
+    "identical": true,
+    "gate": "  __none__: NO ORACLE\nrecon/game/common/souffle.cpp: 10/10 PASS\n",
+    "branches": "# 10 fns checked, 0 with branch-offset/count divergence\n",
+    "missing_exports": [],
+    "unconfirmed_private": []
+  },
+  {
+    "source": "recon/game/common/track.cpp",
+    "before_sha256": "e17f48e6d7fad3b8d2244bc3c17a34b6150a89da41b0ebaaafe20962fbf75945",
+    "after_sha256": "e17f48e6d7fad3b8d2244bc3c17a34b6150a89da41b0ebaaafe20962fbf75945",
+    "identical": true,
+    "gate": "  __none__: NO ORACLE\nrecon/game/common/track.cpp: 29/29 PASS\n",
+    "branches": "# 29 fns checked, 0 with branch-offset/count divergence\n",
+    "missing_exports": [],
+    "unconfirmed_private": []
+  },
+  {
+    "source": "recon/game/common/trgsfx.cpp",
+    "before_sha256": "1f1f287358ed23b1b7b2bd1291deec9c10938abf48f43fabb929debeb63d1c11",
+    "after_sha256": "1f1f287358ed23b1b7b2bd1291deec9c10938abf48f43fabb929debeb63d1c11",
+    "identical": true,
+    "gate": "  __none__: NO ORACLE\nrecon/game/common/trgsfx.cpp: 11/11 PASS\n",
+    "branches": "# 11 fns checked, 0 with branch-offset/count divergence\n",
+    "missing_exports": [],
+    "unconfirmed_private": []
+  }
+]

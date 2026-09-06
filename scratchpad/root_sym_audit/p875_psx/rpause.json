@@ -1,0 +1,325 @@
+{
+  "round": "P875",
+  "header": "recon/game/psx/rpause.h",
+  "source_authority": "C:/Temp/nfs4-clean/nfs4-f-v3.txt",
+  "scope": "Free-function public prototype rows from P874 inventory only; not an all-record or all-project source restoration claim.",
+  "counts": {
+    "inventory_candidates": 3,
+    "corrected_public": 3,
+    "removed_file_static": 0,
+    "before_native_references": 0,
+    "after_native_references": 3,
+    "return_type_corrections": 0,
+    "header_compile_failures": 0,
+    "unresolved_header_candidates": 0,
+    "preexisting_compiler_warning_count": 1
+  },
+  "before_actual_header_compile": {
+    "header": "recon/game/psx/rpause.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\rpause_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\rpause_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\rpause_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\rpause_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\rpause_before.s"
+      ]
+    ],
+    "header_sha256": "c099d28aa7fed4f6cb84b922d2f27585152c16c74fe764a2a89a78db82231c7e",
+    "references": {
+      "0": "RPause_CopyBackToFrontBuffer__Fv__Fv",
+      "1": "RPause_StartPauseMenu__Fv__Fv",
+      "2": "RPause_StopPauseMenu__Fv__Fv"
+    },
+    "ok": true,
+    "assembly_sha256": "74c20e25a5db11ed355329b14aa1ed92ff78cc62c696578b8c57ef9a71f1582d",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\rpause.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "RPause_CopyBackToFrontBuffer__Fv",
+      "RPause_StartPauseMenu__Fv",
+      "RPause_StopPauseMenu__Fv"
+    ]
+  },
+  "before_frozen_replay": {
+    "header": "recon/game/psx/rpause.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\rpause_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\rpause_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\rpause_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\rpause_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\rpause_before.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\rpause_before.cpp:2:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "2472b1be3ab221a12027e14e700e7334953bb2b7c2778ec0827717e2ab989533",
+    "input_mode": "frozen-original-prototype-surface",
+    "references": {
+      "0": "RPause_CopyBackToFrontBuffer__Fv__Fv",
+      "1": "RPause_StartPauseMenu__Fv__Fv",
+      "2": "RPause_StopPauseMenu__Fv__Fv"
+    },
+    "ok": true,
+    "assembly_sha256": "74c20e25a5db11ed355329b14aa1ed92ff78cc62c696578b8c57ef9a71f1582d"
+  },
+  "after_actual_header_compile": {
+    "header": "recon/game/psx/rpause.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\rpause_after.cpp",
+    "stage": "after",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\rpause_after.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\rpause_after.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\rpause_after.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\rpause_after.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:/Temp/nfs4-decomp/recon/game/psx/rpause.h:4,\n                 from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\rpause_after.cpp:1:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "37c408ede56d8c5d86be14cb120da35a7a5b7faeda2e110603f8e8364c646907",
+    "input_mode": "live-public-header",
+    "header_sha256": "b3120220882de79b9c2487aca674e9811652c0f11611658bca4820494fb96926",
+    "references": {
+      "0": "RPause_CopyBackToFrontBuffer__Fv",
+      "1": "RPause_StartPauseMenu__Fv",
+      "2": "RPause_StopPauseMenu__Fv"
+    },
+    "ok": true,
+    "assembly_sha256": "216c63fd74594e12017d7d59d79e4877386b055b58a925a653beeed8b7a53c49",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\rpause.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "RPause_CopyBackToFrontBuffer__Fv",
+      "RPause_StartPauseMenu__Fv",
+      "RPause_StopPauseMenu__Fv"
+    ]
+  },
+  "owning_tu_gate": {
+    "source": "recon/game/psx/rpause.cpp",
+    "command": [
+      "C:\\Python314\\python.exe",
+      "tools/tugate.py",
+      "recon/game/psx/rpause.cpp"
+    ],
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/psx/rpause.cpp: 3/3 PASS\n",
+    "stderr": "",
+    "object_sha256": "6f463d4606bf9f88942eb573d9f152806a8360f3835e5bf2b7b7b8cae32d8d33",
+    "actual_function_symbols": [
+      "RPause_CopyBackToFrontBuffer__Fv",
+      "RPause_StartPauseMenu__Fv",
+      "RPause_StopPauseMenu__Fv"
+    ],
+    "local_function_symbols": []
+  },
+  "consumer_census": {
+    "files_scanned": 1677,
+    "literal_users": [],
+    "dynamic_includes": []
+  },
+  "unresolved": [],
+  "prototype_receipts": [
+    {
+      "header": "recon/game/psx/rpause.h",
+      "line": 6,
+      "encoded": "RPause_CopyBackToFrontBuffer__Fv",
+      "name": "RPause_CopyBackToFrontBuffer",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void RPause_CopyBackToFrontBuffer__Fv(void);   /* :25 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "4570f8",
+          "va": "800dcec4",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "RPause_CopyBackToFrontBuffer",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\rpause.cpp",
+          "line": 10,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 25,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void RPause_CopyBackToFrontBuffer(void);   /* SYM 4570f8 @0x800dcec4 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "RPause_CopyBackToFrontBuffer__Fv__Fv",
+      "after_emitted_reference": "RPause_CopyBackToFrontBuffer__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/rpause.h",
+      "line": 7,
+      "encoded": "RPause_StartPauseMenu__Fv",
+      "name": "RPause_StartPauseMenu",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void RPause_StartPauseMenu__Fv(void);   /* :46 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "457126",
+          "va": "800dcf84",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "RPause_StartPauseMenu",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\rpause.cpp",
+          "line": 28,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 33,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void RPause_StartPauseMenu(void);   /* SYM 457126 @0x800dcf84 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "RPause_StartPauseMenu__Fv__Fv",
+      "after_emitted_reference": "RPause_StartPauseMenu__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/rpause.h",
+      "line": 8,
+      "encoded": "RPause_StopPauseMenu__Fv",
+      "name": "RPause_StopPauseMenu",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void RPause_StopPauseMenu__Fv(void);   /* :52 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "45714d",
+          "va": "800dcfa4",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "RPause_StopPauseMenu",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\rpause.cpp",
+          "line": 36,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 49,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void RPause_StopPauseMenu(void);   /* SYM 45714d @0x800dcfa4 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "RPause_StopPauseMenu__Fv__Fv",
+      "after_emitted_reference": "RPause_StopPauseMenu__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    }
+  ]
+}

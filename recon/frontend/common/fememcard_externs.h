@@ -23,8 +23,7 @@ extern tScreenMemcard *screenMemcard;
 extern tRecordBuffer Stats_gTrackRecords[187];
 extern int          gMasterSFXLevel;
 /* FEMemCard.obj data globals */
-extern int          CURRENTPLAYER[];          /* @0x80051A68 -- unsized-array form: int-value loads
-                                                 into an arg reg use the oracle's separate v0 scratch */
+extern int          CURRENTPLAYER;            /* @0x80051A68; SYM 5e4a59: EXT INT */
 extern char         productCode[11];          /* @0x80051A6C */
 extern bool         nomessage;                /* @0x80051A78  SYM BOOL */
 /* TRUE TYPE = 4-byte BOOL (was `char`; W62-A17 decl-divergence fix).  Evidence:

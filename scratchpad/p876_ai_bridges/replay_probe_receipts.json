@@ -1,0 +1,67 @@
+{
+  "round": "P876",
+  "function": "Replay_ResetReplay__Fv",
+  "baseline": "PASS 86",
+  "nativeRecord": "329ee2: REG INT i $16",
+  "sourceReference": "C:/Temp/nfs2-clean/pc-beta/match/replay/Replay_ResetReplay.c",
+  "probes": [
+    {
+      "name": "canonical_ascending",
+      "body": "for (i = 0; i < 2; i++) Replay_ReplayCounter[i] = 0;",
+      "output": "FAIL 1 diffs (ours 87 / oracle 86): extra addiu v0,v0,4"
+    },
+    {
+      "name": "descending_for",
+      "body": "  for (i = 1; i >= 0; i--)\n    Replay_ReplayCounter[i] = 0;",
+      "output": "  Replay_ResetReplay__Fv: FAIL 1 diffs (ours 87 / oracle 86)\r\n      -addiu v0,v0,4\r\n"
+    },
+    {
+      "name": "postdecrement_while",
+      "body": "  i = 2;\n  while (i--)\n    Replay_ReplayCounter[i] = 0;",
+      "output": "  Replay_ResetReplay__Fv: FAIL 4 diffs (ours 88 / oracle 86)\r\n      -li v1,-1\r\n      -addiu v0,v0,4\r\n      -bne s0,v1,T\r\n      +bgez s0,T\r\n"
+    },
+    {
+      "name": "predecrement_for",
+      "body": "  for (i = 2; --i >= 0;)\n    Replay_ReplayCounter[i] = 0;",
+      "output": "  Replay_ResetReplay__Fv: FAIL 1 diffs (ours 87 / oracle 86)\r\n      -addiu v0,v0,4\r\n"
+    },
+    {
+      "name": "ascending_pointer_expression",
+      "body": "  for (i = 0; i < 2; i++)\n    *(Replay_ReplayCounter + i) = 0;",
+      "output": "  Replay_ResetReplay__Fv: FAIL 1 diffs (ours 87 / oracle 86)\r\n      -addiu v0,v0,4\r\n"
+    },
+    {
+      "name": "ascending_index_first",
+      "body": "  for (i = 0; i < 2; i++)\n    *(i + Replay_ReplayCounter) = 0;",
+      "output": "  Replay_ResetReplay__Fv: FAIL 1 diffs (ours 87 / oracle 86)\r\n      -addiu v0,v0,4\r\n"
+    },
+    {
+      "name": "postincrement_body_for",
+      "body": "  for (i = 0; i < 2;)\n    Replay_ReplayCounter[i++] = 0;",
+      "output": "  Replay_ResetReplay__Fv: FAIL 1 diffs (ours 87 / oracle 86)\r\n      -addiu v0,v0,4\r\n"
+    },
+    {
+      "name": "postdecrement_body_do",
+      "body": "  i = 1;\n  do {\n    Replay_ReplayCounter[i--] = 0;\n  } while (i >= 0);",
+      "output": "  Replay_ResetReplay__Fv: FAIL 1 diffs (ours 87 / oracle 86)\r\n      -addiu v0,v0,4\r\n"
+    },
+    {
+      "name": "postincrement_body_do",
+      "body": "  i = 0;\n  do {\n    Replay_ReplayCounter[i++] = 0;\n  } while (i < 2);",
+      "output": "  Replay_ResetReplay__Fv: FAIL 1 diffs (ours 87 / oracle 86)\r\n      -addiu v0,v0,4\r\n"
+    },
+    {
+      "name": "one_based_ascending",
+      "body": "  for (i = 1; i <= 2; i++)\n    Replay_ReplayCounter[i - 1] = 0;",
+      "output": "  Replay_ResetReplay__Fv: FAIL 11 diffs (ours 89 / oracle 86)\r\n      -addiu a0,v0,0\r\n      -addu v1,zero,zero\r\n      -addu v0,v1,a0\r\n      +addiu v0,v0,0\r\n      -addiu s0,s0,1\r\n      -slti v0,s0,3\r\n      -bnez v0,T\r\n      -addiu v1,v1,4\r\n      +addiu s0,s0,-1\r\n      +bgez s0,T\r\n      +addiu v0,v0,-4\r\n"
+    },
+    {
+      "name": "one_based_descending",
+      "body": "  for (i = 2; i > 0; i--)\n    Replay_ReplayCounter[i - 1] = 0;",
+      "output": "  Replay_ResetReplay__Fv: FAIL 16 diffs (ours 88 / oracle 86)\r\n      -li s0,2\r\n      +li s0,1\r\n      -li s0,2\r\n      +li s0,1\r\n      -li s0,2\r\n      +li s0,1\r\n      -addiu a0,v0,0\r\n      -addiu v1,s0,-1\r\n      -sll v0,v1,2\r\n      -addu v0,v0,a0\r\n      -addu s0,v1,zero\r\n      -bgtz s0,T\r\n"
+    }
+  ],
+  "retainedBodyChange": false,
+  "restoration": "Current source content independently compared to the pre-probe snapshot (newline-normalized); identical.",
+  "nextAngle": "Trace emit_iv_add_mult / expand_mult_add and address splitting for the +4 initializer. A finite loop-shape sweep does not prove the pointer existed in original source."
+}

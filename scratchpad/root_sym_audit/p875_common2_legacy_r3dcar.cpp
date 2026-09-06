@@ -1,0 +1,29 @@
+/* P875 follow-up typed API references; compile-only, never a game input. */
+#include "p875_common2_original_r3dcar.h"
+void (*p875_common2_r3dcar_0)(Car_tObj *carObj, int newColorIndex) = &R3DCar_ChangeTrafficColor__FP8Car_tObji;
+void (*p875_common2_r3dcar_1)(void) = &R3DCar_StartUp__Fv;
+void (*p875_common2_r3dcar_2)(void) = &R3DCar_PostStartUp__Fv;
+void (*p875_common2_r3dcar_3)(void) = &R3DCar_Restart__Fv;
+void (*p875_common2_r3dcar_4)(void) = &R3DCar_CleanUp__Fv;
+void * (*p875_common2_r3dcar_5)(char *filename, Car_tObj *carObj) = &R3DCar_ReadInCarData__FPcP8Car_tObj;
+void (*p875_common2_r3dcar_6)(void) = &R3DCcar_ReadeMapData__Fv;
+void (*p875_common2_r3dcar_7)(void) = &R3DCcar_ReadTrackShadow__Fv;
+void (*p875_common2_r3dcar_8)(Car_tObj *carObj, Transformer_zScene *scene, int carType) = &R3DCar_CalcCarDimensions__FP8Car_tObjP18Transformer_zScenei;
+void (*p875_common2_r3dcar_9)(Car_tObj *carObj) = &R3DCar_DeInstantiate3DCar__FP8Car_tObj;
+void (*p875_common2_r3dcar_10)(Car_tObj *carObj) = &R3DCar_DeInstantiate3DCarMenu__FP8Car_tObj;
+void (*p875_common2_r3dcar_11)(char *infilename, char *filename, char *suffix) = &R3DCar_GetFileName__FPcN20;
+char * (*p875_common2_r3dcar_12)(char *name) = &R3DCar_LoadFileAdr__FPc;
+void (*p875_common2_r3dcar_13)(char *filename, int carType, int country) = &R3DCar_GetCarName__FPcii;
+void (*p875_common2_r3dcar_14)(Car_tObj *carObj, int index) = &R3DCar_Instantiate3DCar__FP8Car_tObji;
+int (*p875_common2_r3dcar_15)(Car_tObj *carObj, DRender_tView *Vi) = &R3DCar_Visibilty__FP8Car_tObjP13DRender_tView;
+void (*p875_common2_r3dcar_16)(Car_tObj *carObj, int tail) = &R3DCar_TurnHeadLightOn__FP8Car_tObji;
+void (*p875_common2_r3dcar_17)(Car_tObj *carObj, int head) = &R3DCar_TurnHeadLightOff__FP8Car_tObji;
+void (*p875_common2_r3dcar_18)(int *from, int *to) = &R3DCar_MATRIX3DT_Copy__FPiT0;
+void (*p875_common2_r3dcar_19)(Car_tObj *carObj, DRender_tView *Vi) = &R3DCar_InsertCarFacet__FP8Car_tObjP13DRender_tView;
+void (*p875_common2_r3dcar_20)(Car_tObj *carObj, char *bigfile, int reload, int player) = &R3DCar_ReadInCarTextureMenu__FP8Car_tObjPcii;
+void (*p875_common2_r3dcar_21)(Car_tObj *carObj, DRender_tView *Vi) = &R3DCar_InsertCarFacetMenu__FP8Car_tObjP13DRender_tView;
+void (*p875_common2_r3dcar_22)(Car_tObj *carObj) = &R3DCar_InsertCarFacetII__FP8Car_tObj;
+void (*p875_common2_r3dcar_23)(Car_tObj *carObj, int light) = &R3DCar_InsertCarFacetMenuII__FP8Car_tObji;
+void (*p875_common2_r3dcar_24)(DRender_tView *Vi) = &R3DCar_Showroom__FP13DRender_tView;
+void (*p875_common2_r3dcar_25)(Car_tObj *carObj, DRender_tView *Vi) = &R3DCar_InsertCarFacetZ__FP8Car_tObjP13DRender_tView;
+void (*p875_common2_r3dcar_26)(DRender_tView *Vi) = &R3DCar_InsertAllListFacet__FP13DRender_tView;

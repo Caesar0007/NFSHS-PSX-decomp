@@ -1,0 +1,3290 @@
+{
+  "round": "P875",
+  "header": "recon/game/psx/hud.h",
+  "source_authority": "C:/Temp/nfs4-clean/nfs4-f-v3.txt",
+  "scope": "Free-function public prototype rows from P874 inventory only; not an all-record or all-project source restoration claim.",
+  "counts": {
+    "inventory_candidates": 62,
+    "corrected_public": 61,
+    "removed_file_static": 1,
+    "before_native_references": 0,
+    "after_native_references": 61,
+    "return_type_corrections": 1,
+    "header_compile_failures": 0,
+    "unresolved_header_candidates": 0,
+    "preexisting_compiler_warning_count": 1
+  },
+  "before_actual_header_compile": {
+    "header": "recon/game/psx/hud.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\hud_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\hud_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\hud_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\hud_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\hud_before.s"
+      ]
+    ],
+    "header_sha256": "2c10d16ba205d61eba116f3ec8e063c580a96a248abe116db73ded3a65438177",
+    "references": {
+      "0": "Hud_CreateHudViews__Fv__Fv",
+      "1": "Hud_GoTpage__Fi__Fi",
+      "2": "Hud_DebugInfo__Fv__Fv",
+      "3": "Hud_DebugCrap__Fv__Fv",
+      "4": "Hud_BuildSprite__FP4SPRTiiiUli__FP4SPRTiiiUli",
+      "5": "Hud_BuildSprite2__FP4SPRTiii__FP4SPRTiii",
+      "6": "Hud_FBuildSprite__FiiiUli__FiiiUli",
+      "7": "Hud_BuildSpriteFromFont__FP4SPRTcii__FP4SPRTcii",
+      "8": "Hud_BuildF3__FP7POLY_F3P13HudPmx_tShapeiiUl__FP7POLY_F3P13HudPmx_tShapeiiUl",
+      "9": "Hud_BuildGT4__FP8POLY_GT4P13HudPmx_tShapeiiUl__FP8POLY_GT4P13HudPmx_tShapeiiUl",
+      "10": "Hud_BuildFT4__FP8POLY_FT4P13HudPmx_tShapeiiUli__FP8POLY_FT4P13HudPmx_tShapeiiUli",
+      "11": "Hud_BuildMirrorFT4__FP8POLY_FT4P13HudPmx_tShapeiiUli__FP8POLY_FT4P13HudPmx_tShapeiiUli",
+      "12": "Hud_BuildMapMirrorFT4__FP8POLY_FT4P13HudPmx_tShapeiiUli__FP8POLY_FT4P13HudPmx_tShapeiiUli",
+      "13": "Hud_BuildF4__FP7POLY_F4iiiiiUl__FP7POLY_F4iiiiiUl",
+      "14": "Hud_BuildG4__FP7POLY_G4iiiiiUlUlUlUl__FP7POLY_G4iiiiiUlUlUlUl",
+      "15": "Hud_BuildF4o__FP7POLY_F4iiiiiUlScSc__FP7POLY_F4iiiiiUlii",
+      "16": "Hud_FBuildGT4__FP13HudPmx_tShapeiiUl__FP13HudPmx_tShapeiiUl",
+      "17": "Hud_FBuildFT4__FP13HudPmx_tShapeiiUl__FP13HudPmx_tShapeiiUl",
+      "18": "Hud_FBuildF4__FiiiiiUlcc__FiiiiiUlii",
+      "19": "uppercase__FPc__FPc",
+      "20": "Hud_Kill__Fv__Fv",
+      "21": "Hud_Init0__Fv__Fv",
+      "22": "Hud_InitMapFrame__Fii__Fii",
+      "23": "Hud_BuildTimeSprites__FP4SPRTPcii__FP4SPRTPcii",
+      "24": "Hud_Init__Fv__Fv",
+      "25": "Hud_InitTables__Fv__Fv",
+      "26": "Hud_BuildETimeString__FP4SPRTi__FP4SPRTi",
+      "27": "Hud_BuildDistanceString__FP4SPRTi__FP4SPRTi",
+      "28": "Hud_BuildTimeString__FP4SPRTi__FP4SPRTi",
+      "29": "Hud_BuildTach__Fi__Fi",
+      "30": "Hud_BuildString__FPciiiib__FPciiiii",
+      "31": "Hud_BuildNumbers0__Fi__Fi",
+      "32": "Hud_BuildNumbers__Fi__Fi",
+      "33": "Hud_InitMap__Fv__Fv",
+      "34": "Hud_BuildMapMarkers__Fi__Fi",
+      "35": "Hud_WingmanFlash__Fii__Fii",
+      "36": "Hud_BuildWingmanInterface__Fi__Fi",
+      "37": "Hud_InitCdPlayer__Fv__Fv",
+      "38": "Hud_BuildCdPlayer__Fii__Fi",
+      "39": "Hud_BuildRadar__Fi__Fi",
+      "40": "Hud_BuildReplay__Fv__Fv",
+      "41": "Hud_NextPlayer__Fi__Fi",
+      "42": "Hud_NextPlayerNameOrCarOrTime__Fi__Fi",
+      "43": "Hud_RenderMapView__Fv__Fv",
+      "44": "Hud_BlackThinBox__Fiiii__Fiiii",
+      "45": "Hud_Draw321Num__Fiiiiii__Fiiii",
+      "46": "Hud_Render321Go__Fv__Fv",
+      "47": "BigBTCTime__Fi__Fi",
+      "48": "Hud_RenderHudView__Fv__Fv",
+      "49": "Hud_RenderTacView__Fv__Fv",
+      "50": "Hud_ParseTime__FiPc__FiPc",
+      "51": "Hud_RenderPauseBox__Fiiii__Fiiii",
+      "52": "Hud_Render__Fv__Fv",
+      "53": "Hud_PositionMap__Fv__Fv",
+      "54": "Hud_BTC_Update__FPcib__FPcii",
+      "55": "Hud_BustedOverlayOn__FiPcbs__FiPcis",
+      "56": "Hud_BustedOverlayOff__Fv__Fv",
+      "57": "Hud_Reset__Fv__Fv",
+      "58": "Hud_BTC_QuitOut__Fv__Fv",
+      "59": "Hud_BTC_BonusTime__Fl__Fl",
+      "60": "Hud_Perp_OverlayOn__Fii__Fii",
+      "61": "Hud_Perp_OverlayOff__Fi__Fi"
+    },
+    "ok": true,
+    "assembly_sha256": "7d7df8c9b084a9777eddc61cfcfe42f305b6efc3e4010711e84a76ac811a242a",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".sdata",
+      ".rodata",
+      ".sbss",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\hud.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "Hud_gElementPositions",
+      "day_needle",
+      "night_needle",
+      "Hud_Character",
+      "fMapScaleX",
+      "fMapScaleY",
+      "fMapOffX",
+      "fMapOffY",
+      "fMapRotate",
+      "HudminChar",
+      "HudsecChar",
+      "BTC_playedsoundalready",
+      "Hud_gWingmanInterface",
+      "Hud_gWingmanFlashIcon",
+      "Hud_gWingmanFlashTicks",
+      "Hud_gDebugInfo",
+      "Hud_CreateHudViews__Fv",
+      "Hud_GoTpage__Fi",
+      "Hud_DebugInfo__Fv",
+      "Hud_DebugCrap__Fv",
+      "Hud_BuildSprite__FP4SPRTiiiUli",
+      "Hud_BuildSprite2__FP4SPRTiii",
+      "Hud_FBuildSprite__FiiiUli",
+      "Hud_BuildSpriteFromFont__FP4SPRTcii",
+      "Hud_BuildF3__FP7POLY_F3P13HudPmx_tShapeiiUl",
+      "Hud_BuildGT4__FP8POLY_GT4P13HudPmx_tShapeiiUl",
+      "Hud_BuildFT4__FP8POLY_FT4P13HudPmx_tShapeiiUli",
+      "Hud_BuildMirrorFT4__FP8POLY_FT4P13HudPmx_tShapeiiUli",
+      "Hud_BuildMapMirrorFT4__FP8POLY_FT4P13HudPmx_tShapeiiUli",
+      "Hud_BuildF4__FP7POLY_F4iiiiiUl",
+      "Hud_BuildG4__FP7POLY_G4iiiiiUlUlUlUl",
+      "Hud_BuildF4o__FP7POLY_F4iiiiiUlScSc",
+      "Hud_FBuildGT4__FP13HudPmx_tShapeiiUl",
+      "Hud_FBuildFT4__FP13HudPmx_tShapeiiUl",
+      "Hud_FBuildF4__FiiiiiUlcc",
+      "Hud_Kill__Fv",
+      "Hud_Init0__Fv",
+      "Hud_InitMapFrame__Fii",
+      "Hud_BuildTimeSprites__FP4SPRTPcii",
+      "Hud_Init__Fv",
+      "Hud_InitTables__Fv",
+      "Hud_BuildETimeString__FP4SPRTi",
+      "Hud_BuildDistanceString__FP4SPRTi",
+      "Hud_BuildTimeString__FP4SPRTi",
+      "Hud_BuildTach__Fi",
+      "Hud_BuildString__FPciiiib",
+      "Hud_BuildNumbers0__Fi",
+      "Hud_BuildNumbers__Fi",
+      "Hud_InitMap__Fv",
+      "Hud_BuildMapMarkers__Fi",
+      "Hud_WingmanFlash__Fii",
+      "Hud_BuildWingmanInterface__Fi",
+      "Hud_InitCdPlayer__Fv",
+      "keepup.82",
+      "Hud_BuildCdPlayer__Fii",
+      "Hud_BuildRadar__Fi",
+      "Hud_BuildReplay__Fv",
+      "Hud_NextPlayer__Fi",
+      "Hud_NextPlayerNameOrCarOrTime__Fi",
+      "Hud_RenderMapView__Fv",
+      "Hud_BlackThinBox__Fiiii",
+      "Hud_Draw321Num__Fiiiiii",
+      "oldCountdown.101",
+      "Hud_Render321Go__Fv",
+      "lastsec.105",
+      "lastsectick.106",
+      "BigBTCTime__Fi",
+      "Hud_RenderHudView__Fv",
+      "Hud_RenderTacView__Fv",
+      "Hud_ParseTime__FiPc",
+      "Hud_RenderPauseBox__Fiiii",
+      "Hud_Render__Fv",
+      "Hud_PositionMap__Fv",
+      "Hud_BTC_Update__FPcib",
+      "Hud_BustedOverlayOn__FiPcbs",
+      "Hud_BustedOverlayOff__Fv",
+      "Hud_Reset__Fv",
+      "Hud_BTC_QuitOut__Fv",
+      "Hud_BTC_BonusTime__Fl",
+      "Hud_Perp_OverlayOn__Fii",
+      "Hud_Perp_OverlayOff__Fi",
+      "Hud_gMarkerColor",
+      "Hud_gCopMarkerColor",
+      "HudBustedOverlay",
+      "Hud_gCdActive",
+      "Hud_ActivateCDPlayer",
+      "BTC_Countdown",
+      "FinalBTC_Countdown",
+      "Hud_BeTheCop",
+      "Hud_kTurnSongOffNext",
+      "HudBustedOverlayPlayer",
+      "mapMarkerMCos",
+      "mapMarkerMSin",
+      "Hud_gHudView",
+      "Hud_gMapView",
+      "Hud_gTacView",
+      "Hud_gStatsView",
+      "HudMapOffsetY",
+      "gMapRotate",
+      "gMapScaleX",
+      "gMapScaleY",
+      "gMapOffX",
+      "gMapOffY",
+      "Hud_gCdLastTick",
+      "Hud_gCdScrollTitle",
+      "currentSpriteColor",
+      "currentSpriteTransparent",
+      "uppercase__FPc",
+      "gSprite0",
+      "gSprite1",
+      "gHudF4",
+      "gHudFT4",
+      "g1Player",
+      "gTPage0",
+      "gTPage1",
+      "gHudG4",
+      "HudSplitTimeDiff1",
+      "HudSplitTimeDiff2",
+      "PerpOverlayMessage",
+      "PerpOverlayOn",
+      "BTC_BonusTime",
+      "BTC_UserHasControl",
+      "Hud_gShowedCDPlayer",
+      "countdownTick.102",
+      "BTC_BonusTimeTick",
+      "BTC_CurrentPerpName"
+    ]
+  },
+  "before_frozen_replay": {
+    "header": "recon/game/psx/hud.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\hud_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\hud_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\hud_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\hud_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\hud_before.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\hud_before.cpp:2:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "3c5338a704138ebbdf2d5be3d6d284f2f3f73f9c0a4b29a3e29ede2e0f927587",
+    "input_mode": "frozen-original-prototype-surface",
+    "references": {
+      "0": "Hud_CreateHudViews__Fv__Fv",
+      "1": "Hud_GoTpage__Fi__Fi",
+      "2": "Hud_DebugInfo__Fv__Fv",
+      "3": "Hud_DebugCrap__Fv__Fv",
+      "4": "Hud_BuildSprite__FP4SPRTiiiUli__FP4SPRTiiiUli",
+      "5": "Hud_BuildSprite2__FP4SPRTiii__FP4SPRTiii",
+      "6": "Hud_FBuildSprite__FiiiUli__FiiiUli",
+      "7": "Hud_BuildSpriteFromFont__FP4SPRTcii__FP4SPRTcii",
+      "8": "Hud_BuildF3__FP7POLY_F3P13HudPmx_tShapeiiUl__FP7POLY_F3P13HudPmx_tShapeiiUl",
+      "9": "Hud_BuildGT4__FP8POLY_GT4P13HudPmx_tShapeiiUl__FP8POLY_GT4P13HudPmx_tShapeiiUl",
+      "10": "Hud_BuildFT4__FP8POLY_FT4P13HudPmx_tShapeiiUli__FP8POLY_FT4P13HudPmx_tShapeiiUli",
+      "11": "Hud_BuildMirrorFT4__FP8POLY_FT4P13HudPmx_tShapeiiUli__FP8POLY_FT4P13HudPmx_tShapeiiUli",
+      "12": "Hud_BuildMapMirrorFT4__FP8POLY_FT4P13HudPmx_tShapeiiUli__FP8POLY_FT4P13HudPmx_tShapeiiUli",
+      "13": "Hud_BuildF4__FP7POLY_F4iiiiiUl__FP7POLY_F4iiiiiUl",
+      "14": "Hud_BuildG4__FP7POLY_G4iiiiiUlUlUlUl__FP7POLY_G4iiiiiUlUlUlUl",
+      "15": "Hud_BuildF4o__FP7POLY_F4iiiiiUlScSc__FP7POLY_F4iiiiiUlii",
+      "16": "Hud_FBuildGT4__FP13HudPmx_tShapeiiUl__FP13HudPmx_tShapeiiUl",
+      "17": "Hud_FBuildFT4__FP13HudPmx_tShapeiiUl__FP13HudPmx_tShapeiiUl",
+      "18": "Hud_FBuildF4__FiiiiiUlcc__FiiiiiUlii",
+      "19": "uppercase__FPc__FPc",
+      "20": "Hud_Kill__Fv__Fv",
+      "21": "Hud_Init0__Fv__Fv",
+      "22": "Hud_InitMapFrame__Fii__Fii",
+      "23": "Hud_BuildTimeSprites__FP4SPRTPcii__FP4SPRTPcii",
+      "24": "Hud_Init__Fv__Fv",
+      "25": "Hud_InitTables__Fv__Fv",
+      "26": "Hud_BuildETimeString__FP4SPRTi__FP4SPRTi",
+      "27": "Hud_BuildDistanceString__FP4SPRTi__FP4SPRTi",
+      "28": "Hud_BuildTimeString__FP4SPRTi__FP4SPRTi",
+      "29": "Hud_BuildTach__Fi__Fi",
+      "30": "Hud_BuildString__FPciiiib__FPciiiii",
+      "31": "Hud_BuildNumbers0__Fi__Fi",
+      "32": "Hud_BuildNumbers__Fi__Fi",
+      "33": "Hud_InitMap__Fv__Fv",
+      "34": "Hud_BuildMapMarkers__Fi__Fi",
+      "35": "Hud_WingmanFlash__Fii__Fii",
+      "36": "Hud_BuildWingmanInterface__Fi__Fi",
+      "37": "Hud_InitCdPlayer__Fv__Fv",
+      "38": "Hud_BuildCdPlayer__Fii__Fi",
+      "39": "Hud_BuildRadar__Fi__Fi",
+      "40": "Hud_BuildReplay__Fv__Fv",
+      "41": "Hud_NextPlayer__Fi__Fi",
+      "42": "Hud_NextPlayerNameOrCarOrTime__Fi__Fi",
+      "43": "Hud_RenderMapView__Fv__Fv",
+      "44": "Hud_BlackThinBox__Fiiii__Fiiii",
+      "45": "Hud_Draw321Num__Fiiiiii__Fiiii",
+      "46": "Hud_Render321Go__Fv__Fv",
+      "47": "BigBTCTime__Fi__Fi",
+      "48": "Hud_RenderHudView__Fv__Fv",
+      "49": "Hud_RenderTacView__Fv__Fv",
+      "50": "Hud_ParseTime__FiPc__FiPc",
+      "51": "Hud_RenderPauseBox__Fiiii__Fiiii",
+      "52": "Hud_Render__Fv__Fv",
+      "53": "Hud_PositionMap__Fv__Fv",
+      "54": "Hud_BTC_Update__FPcib__FPcii",
+      "55": "Hud_BustedOverlayOn__FiPcbs__FiPcis",
+      "56": "Hud_BustedOverlayOff__Fv__Fv",
+      "57": "Hud_Reset__Fv__Fv",
+      "58": "Hud_BTC_QuitOut__Fv__Fv",
+      "59": "Hud_BTC_BonusTime__Fl__Fl",
+      "60": "Hud_Perp_OverlayOn__Fii__Fii",
+      "61": "Hud_Perp_OverlayOff__Fi__Fi"
+    },
+    "ok": true,
+    "assembly_sha256": "7d7df8c9b084a9777eddc61cfcfe42f305b6efc3e4010711e84a76ac811a242a"
+  },
+  "after_actual_header_compile": {
+    "header": "recon/game/psx/hud.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\hud_after.cpp",
+    "stage": "after",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\hud_after.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\hud_after.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\hud_after.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\hud_after.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:/Temp/nfs4-decomp/recon/game/psx/hud.h:4,\n                 from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\hud_after.cpp:1:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "f0988d340501be4bad43ccc67c35c226f6b24c1022280824b61aad9136ec0490",
+    "input_mode": "live-public-header",
+    "header_sha256": "67ee8347a52b340eed447ca3bc58048d4a21c71dd73bb1b77dd5e5f40b49b011",
+    "references": {
+      "0": "Hud_CreateHudViews__Fv",
+      "1": "Hud_GoTpage__Fi",
+      "2": "Hud_DebugInfo__Fv",
+      "3": "Hud_DebugCrap__Fv",
+      "4": "Hud_BuildSprite__FP4SPRTiiiUli",
+      "5": "Hud_BuildSprite2__FP4SPRTiii",
+      "6": "Hud_FBuildSprite__FiiiUli",
+      "7": "Hud_BuildSpriteFromFont__FP4SPRTcii",
+      "8": "Hud_BuildF3__FP7POLY_F3P13HudPmx_tShapeiiUl",
+      "9": "Hud_BuildGT4__FP8POLY_GT4P13HudPmx_tShapeiiUl",
+      "10": "Hud_BuildFT4__FP8POLY_FT4P13HudPmx_tShapeiiUli",
+      "11": "Hud_BuildMirrorFT4__FP8POLY_FT4P13HudPmx_tShapeiiUli",
+      "12": "Hud_BuildMapMirrorFT4__FP8POLY_FT4P13HudPmx_tShapeiiUli",
+      "13": "Hud_BuildF4__FP7POLY_F4iiiiiUl",
+      "14": "Hud_BuildG4__FP7POLY_G4iiiiiUlUlUlUl",
+      "15": "Hud_BuildF4o__FP7POLY_F4iiiiiUlScSc",
+      "16": "Hud_FBuildGT4__FP13HudPmx_tShapeiiUl",
+      "17": "Hud_FBuildFT4__FP13HudPmx_tShapeiiUl",
+      "18": "Hud_FBuildF4__FiiiiiUlcc",
+      "19": "Hud_Kill__Fv",
+      "20": "Hud_Init0__Fv",
+      "21": "Hud_InitMapFrame__Fii",
+      "22": "Hud_BuildTimeSprites__FP4SPRTPcii",
+      "23": "Hud_Init__Fv",
+      "24": "Hud_InitTables__Fv",
+      "25": "Hud_BuildETimeString__FP4SPRTi",
+      "26": "Hud_BuildDistanceString__FP4SPRTi",
+      "27": "Hud_BuildTimeString__FP4SPRTi",
+      "28": "Hud_BuildTach__Fi",
+      "29": "Hud_BuildString__FPciiiib",
+      "30": "Hud_BuildNumbers0__Fi",
+      "31": "Hud_BuildNumbers__Fi",
+      "32": "Hud_InitMap__Fv",
+      "33": "Hud_BuildMapMarkers__Fi",
+      "34": "Hud_WingmanFlash__Fii",
+      "35": "Hud_BuildWingmanInterface__Fi",
+      "36": "Hud_InitCdPlayer__Fv",
+      "37": "Hud_BuildCdPlayer__Fii",
+      "38": "Hud_BuildRadar__Fi",
+      "39": "Hud_BuildReplay__Fv",
+      "40": "Hud_NextPlayer__Fi",
+      "41": "Hud_NextPlayerNameOrCarOrTime__Fi",
+      "42": "Hud_RenderMapView__Fv",
+      "43": "Hud_BlackThinBox__Fiiii",
+      "44": "Hud_Draw321Num__Fiiiiii",
+      "45": "Hud_Render321Go__Fv",
+      "46": "BigBTCTime__Fi",
+      "47": "Hud_RenderHudView__Fv",
+      "48": "Hud_RenderTacView__Fv",
+      "49": "Hud_ParseTime__FiPc",
+      "50": "Hud_RenderPauseBox__Fiiii",
+      "51": "Hud_Render__Fv",
+      "52": "Hud_PositionMap__Fv",
+      "53": "Hud_BTC_Update__FPcib",
+      "54": "Hud_BustedOverlayOn__FiPcbs",
+      "55": "Hud_BustedOverlayOff__Fv",
+      "56": "Hud_Reset__Fv",
+      "57": "Hud_BTC_QuitOut__Fv",
+      "58": "Hud_BTC_BonusTime__Fl",
+      "59": "Hud_Perp_OverlayOn__Fii",
+      "60": "Hud_Perp_OverlayOff__Fi"
+    },
+    "ok": true,
+    "assembly_sha256": "eafa57cb50c93ef6e615cacb2154c76bd6ec8f709ed7fb4b10f03a1870b4db6d",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".sdata",
+      ".rodata",
+      ".sbss",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\hud.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "Hud_gElementPositions",
+      "day_needle",
+      "night_needle",
+      "Hud_Character",
+      "fMapScaleX",
+      "fMapScaleY",
+      "fMapOffX",
+      "fMapOffY",
+      "fMapRotate",
+      "HudminChar",
+      "HudsecChar",
+      "BTC_playedsoundalready",
+      "Hud_gWingmanInterface",
+      "Hud_gWingmanFlashIcon",
+      "Hud_gWingmanFlashTicks",
+      "Hud_gDebugInfo",
+      "Hud_CreateHudViews__Fv",
+      "Hud_GoTpage__Fi",
+      "Hud_DebugInfo__Fv",
+      "Hud_DebugCrap__Fv",
+      "Hud_BuildSprite__FP4SPRTiiiUli",
+      "Hud_BuildSprite2__FP4SPRTiii",
+      "Hud_FBuildSprite__FiiiUli",
+      "Hud_BuildSpriteFromFont__FP4SPRTcii",
+      "Hud_BuildF3__FP7POLY_F3P13HudPmx_tShapeiiUl",
+      "Hud_BuildGT4__FP8POLY_GT4P13HudPmx_tShapeiiUl",
+      "Hud_BuildFT4__FP8POLY_FT4P13HudPmx_tShapeiiUli",
+      "Hud_BuildMirrorFT4__FP8POLY_FT4P13HudPmx_tShapeiiUli",
+      "Hud_BuildMapMirrorFT4__FP8POLY_FT4P13HudPmx_tShapeiiUli",
+      "Hud_BuildF4__FP7POLY_F4iiiiiUl",
+      "Hud_BuildG4__FP7POLY_G4iiiiiUlUlUlUl",
+      "Hud_BuildF4o__FP7POLY_F4iiiiiUlScSc",
+      "Hud_FBuildGT4__FP13HudPmx_tShapeiiUl",
+      "Hud_FBuildFT4__FP13HudPmx_tShapeiiUl",
+      "Hud_FBuildF4__FiiiiiUlcc",
+      "Hud_Kill__Fv",
+      "Hud_Init0__Fv",
+      "Hud_InitMapFrame__Fii",
+      "Hud_BuildTimeSprites__FP4SPRTPcii",
+      "Hud_Init__Fv",
+      "Hud_InitTables__Fv",
+      "Hud_BuildETimeString__FP4SPRTi",
+      "Hud_BuildDistanceString__FP4SPRTi",
+      "Hud_BuildTimeString__FP4SPRTi",
+      "Hud_BuildTach__Fi",
+      "Hud_BuildString__FPciiiib",
+      "Hud_BuildNumbers0__Fi",
+      "Hud_BuildNumbers__Fi",
+      "Hud_InitMap__Fv",
+      "Hud_BuildMapMarkers__Fi",
+      "Hud_WingmanFlash__Fii",
+      "Hud_BuildWingmanInterface__Fi",
+      "Hud_InitCdPlayer__Fv",
+      "keepup.82",
+      "Hud_BuildCdPlayer__Fii",
+      "Hud_BuildRadar__Fi",
+      "Hud_BuildReplay__Fv",
+      "Hud_NextPlayer__Fi",
+      "Hud_NextPlayerNameOrCarOrTime__Fi",
+      "Hud_RenderMapView__Fv",
+      "Hud_BlackThinBox__Fiiii",
+      "Hud_Draw321Num__Fiiiiii",
+      "oldCountdown.101",
+      "Hud_Render321Go__Fv",
+      "lastsec.105",
+      "lastsectick.106",
+      "BigBTCTime__Fi",
+      "Hud_RenderHudView__Fv",
+      "Hud_RenderTacView__Fv",
+      "Hud_ParseTime__FiPc",
+      "Hud_RenderPauseBox__Fiiii",
+      "Hud_Render__Fv",
+      "Hud_PositionMap__Fv",
+      "Hud_BTC_Update__FPcib",
+      "Hud_BustedOverlayOn__FiPcbs",
+      "Hud_BustedOverlayOff__Fv",
+      "Hud_Reset__Fv",
+      "Hud_BTC_QuitOut__Fv",
+      "Hud_BTC_BonusTime__Fl",
+      "Hud_Perp_OverlayOn__Fii",
+      "Hud_Perp_OverlayOff__Fi",
+      "Hud_gMarkerColor",
+      "Hud_gCopMarkerColor",
+      "HudBustedOverlay",
+      "Hud_gCdActive",
+      "Hud_ActivateCDPlayer",
+      "BTC_Countdown",
+      "FinalBTC_Countdown",
+      "Hud_BeTheCop",
+      "Hud_kTurnSongOffNext",
+      "HudBustedOverlayPlayer",
+      "mapMarkerMCos",
+      "mapMarkerMSin",
+      "Hud_gHudView",
+      "Hud_gMapView",
+      "Hud_gTacView",
+      "Hud_gStatsView",
+      "HudMapOffsetY",
+      "gMapRotate",
+      "gMapScaleX",
+      "gMapScaleY",
+      "gMapOffX",
+      "gMapOffY",
+      "Hud_gCdLastTick",
+      "Hud_gCdScrollTitle",
+      "currentSpriteColor",
+      "currentSpriteTransparent",
+      "uppercase__FPc",
+      "gSprite0",
+      "gSprite1",
+      "gHudF4",
+      "gHudFT4",
+      "g1Player",
+      "gTPage0",
+      "gTPage1",
+      "gHudG4",
+      "HudSplitTimeDiff1",
+      "HudSplitTimeDiff2",
+      "PerpOverlayMessage",
+      "PerpOverlayOn",
+      "BTC_BonusTime",
+      "BTC_UserHasControl",
+      "Hud_gShowedCDPlayer",
+      "countdownTick.102",
+      "BTC_BonusTimeTick",
+      "BTC_CurrentPerpName"
+    ]
+  },
+  "owning_tu_gate": {
+    "source": "recon/game/psx/hud.cpp",
+    "command": [
+      "C:\\Python314\\python.exe",
+      "tools/tugate.py",
+      "recon/game/psx/hud.cpp"
+    ],
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/psx/hud.cpp: 62/62 PASS\n",
+    "stderr": "",
+    "object_sha256": "946c782f3b33362379f0703ec9cdb45e5112a3cb0d6c429208069ddc884e08f5",
+    "actual_function_symbols": [
+      "Hud_CreateHudViews__Fv",
+      "Hud_GoTpage__Fi",
+      "Hud_DebugInfo__Fv",
+      "Hud_DebugCrap__Fv",
+      "Hud_BuildSprite__FP4SPRTiiiUli",
+      "Hud_BuildSprite2__FP4SPRTiii",
+      "Hud_FBuildSprite__FiiiUli",
+      "Hud_BuildSpriteFromFont__FP4SPRTcii",
+      "Hud_BuildF3__FP7POLY_F3P13HudPmx_tShapeiiUl",
+      "Hud_BuildGT4__FP8POLY_GT4P13HudPmx_tShapeiiUl",
+      "Hud_BuildFT4__FP8POLY_FT4P13HudPmx_tShapeiiUli",
+      "Hud_BuildMirrorFT4__FP8POLY_FT4P13HudPmx_tShapeiiUli",
+      "Hud_BuildMapMirrorFT4__FP8POLY_FT4P13HudPmx_tShapeiiUli",
+      "Hud_BuildF4__FP7POLY_F4iiiiiUl",
+      "Hud_BuildG4__FP7POLY_G4iiiiiUlUlUlUl",
+      "Hud_BuildF4o__FP7POLY_F4iiiiiUlScSc",
+      "Hud_FBuildGT4__FP13HudPmx_tShapeiiUl",
+      "Hud_FBuildFT4__FP13HudPmx_tShapeiiUl",
+      "Hud_FBuildF4__FiiiiiUlcc",
+      "Hud_Kill__Fv",
+      "Hud_Init0__Fv",
+      "Hud_InitMapFrame__Fii",
+      "Hud_BuildTimeSprites__FP4SPRTPcii",
+      "Hud_Init__Fv",
+      "Hud_InitTables__Fv",
+      "Hud_BuildETimeString__FP4SPRTi",
+      "Hud_BuildDistanceString__FP4SPRTi",
+      "Hud_BuildTimeString__FP4SPRTi",
+      "Hud_BuildTach__Fi",
+      "Hud_BuildString__FPciiiib",
+      "Hud_BuildNumbers0__Fi",
+      "Hud_BuildNumbers__Fi",
+      "Hud_InitMap__Fv",
+      "Hud_BuildMapMarkers__Fi",
+      "Hud_WingmanFlash__Fii",
+      "Hud_BuildWingmanInterface__Fi",
+      "Hud_InitCdPlayer__Fv",
+      "Hud_BuildCdPlayer__Fii",
+      "Hud_BuildRadar__Fi",
+      "Hud_BuildReplay__Fv",
+      "Hud_NextPlayer__Fi",
+      "Hud_NextPlayerNameOrCarOrTime__Fi",
+      "Hud_RenderMapView__Fv",
+      "Hud_BlackThinBox__Fiiii",
+      "Hud_Draw321Num__Fiiiiii",
+      "Hud_Render321Go__Fv",
+      "BigBTCTime__Fi",
+      "Hud_RenderHudView__Fv",
+      "Hud_RenderTacView__Fv",
+      "Hud_ParseTime__FiPc",
+      "Hud_RenderPauseBox__Fiiii",
+      "Hud_Render__Fv",
+      "Hud_PositionMap__Fv",
+      "Hud_BTC_Update__FPcib",
+      "Hud_BustedOverlayOn__FiPcbs",
+      "Hud_BustedOverlayOff__Fv",
+      "Hud_Reset__Fv",
+      "Hud_BTC_QuitOut__Fv",
+      "Hud_BTC_BonusTime__Fl",
+      "Hud_Perp_OverlayOn__Fii",
+      "Hud_Perp_OverlayOff__Fi",
+      "uppercase__FPc"
+    ],
+    "local_function_symbols": [
+      "uppercase__FPc"
+    ]
+  },
+  "consumer_census": {
+    "files_scanned": 1677,
+    "literal_users": [],
+    "dynamic_includes": []
+  },
+  "unresolved": [],
+  "prototype_receipts": [
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 6,
+      "encoded": "Hud_CreateHudViews__Fv",
+      "name": "Hud_CreateHudViews",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_CreateHudViews__Fv(void);   /* :273 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "41fff1",
+          "va": "800d1a80",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_CreateHudViews",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 277,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 307,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Hud_CreateHudViews(void);   /* SYM 41fff1 @0x800d1a80 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_CreateHudViews__Fv__Fv",
+      "after_emitted_reference": "Hud_CreateHudViews__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 7,
+      "encoded": "Hud_GoTpage__Fi",
+      "name": "Hud_GoTpage",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_GoTpage__Fi(int page);   /* :380 */",
+      "header_return": "void",
+      "header_signature": "(int page)",
+      "native": [
+        {
+          "record": "420015",
+          "va": "800d1d6c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_GoTpage",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 310,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int page)",
+          "end": 321,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int page)",
+      "final_prototype": "void Hud_GoTpage(int page);   /* SYM 420015 @0x800d1d6c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_GoTpage__Fi__Fi",
+      "after_emitted_reference": "Hud_GoTpage__Fi",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 8,
+      "encoded": "Hud_DebugInfo__Fv",
+      "name": "Hud_DebugInfo",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_DebugInfo__Fv(void);   /* :479 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "420032",
+          "va": "800d1dfc",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_DebugInfo",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 324,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 338,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Hud_DebugInfo(void);   /* SYM 420032 @0x800d1dfc */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_DebugInfo__Fv__Fv",
+      "after_emitted_reference": "Hud_DebugInfo__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 9,
+      "encoded": "Hud_DebugCrap__Fv",
+      "name": "Hud_DebugCrap",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_DebugCrap__Fv(void);   /* :536 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "420051",
+          "va": "800d1f90",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_DebugCrap",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 341,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 345,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Hud_DebugCrap(void);   /* SYM 420051 @0x800d1f90 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_DebugCrap__Fv__Fv",
+      "after_emitted_reference": "Hud_DebugCrap__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 10,
+      "encoded": "Hud_BuildSprite__FP4SPRTiiiUli",
+      "name": "Hud_BuildSprite",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_BuildSprite__FP4SPRTiiiUli(SPRT *sprt, int shapeIdx, int x, int y, u_long color, int trans);   /* :556 */",
+      "header_return": "void",
+      "header_signature": "(SPRT *sprt, int shapeIdx, int x, int y, u_long color, int trans)",
+      "native": [
+        {
+          "record": "420070",
+          "va": "800d1f98",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_BuildSprite",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 349,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(SPRT * sprt,int shapeIdx,int x,int y,u_long color,int trans)",
+          "end": 362,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(SPRT * sprt,int shapeIdx,int x,int y,u_long color,int trans)",
+      "final_prototype": "void Hud_BuildSprite(SPRT * sprt,int shapeIdx,int x,int y,u_long color,int trans);   /* SYM 420070 @0x800d1f98 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_BuildSprite__FP4SPRTiiiUli__FP4SPRTiiiUli",
+      "after_emitted_reference": "Hud_BuildSprite__FP4SPRTiiiUli",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 11,
+      "encoded": "Hud_BuildSprite2__FP4SPRTiii",
+      "name": "Hud_BuildSprite2",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_BuildSprite2__FP4SPRTiii(SPRT *sprt, int shapeIdx, int x, int y);   /* :573 */",
+      "header_return": "void",
+      "header_signature": "(SPRT *sprt, int shapeIdx, int x, int y)",
+      "native": [
+        {
+          "record": "42009c",
+          "va": "800d2044",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_BuildSprite2",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 365,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(SPRT * sprt,int shapeIdx,int x,int y)",
+          "end": 370,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(SPRT * sprt,int shapeIdx,int x,int y)",
+      "final_prototype": "void Hud_BuildSprite2(SPRT * sprt,int shapeIdx,int x,int y);   /* SYM 42009c @0x800d2044 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_BuildSprite2__FP4SPRTiii__FP4SPRTiii",
+      "after_emitted_reference": "Hud_BuildSprite2__FP4SPRTiii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 12,
+      "encoded": "Hud_FBuildSprite__FiiiUli",
+      "name": "Hud_FBuildSprite",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_FBuildSprite__FiiiUli(int shapeIdx, int x, int y, u_long color, int trans);   /* :579 */",
+      "header_return": "void",
+      "header_signature": "(int shapeIdx, int x, int y, u_long color, int trans)",
+      "native": [
+        {
+          "record": "4200c6",
+          "va": "800d2070",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_FBuildSprite",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 380,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int shapeIdx,int x,int y,u_long color,int trans)",
+          "end": 393,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int shapeIdx,int x,int y,u_long color,int trans)",
+      "final_prototype": "void Hud_FBuildSprite(int shapeIdx,int x,int y,u_long color,int trans);   /* SYM 4200c6 @0x800d2070 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_FBuildSprite__FiiiUli__FiiiUli",
+      "after_emitted_reference": "Hud_FBuildSprite__FiiiUli",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 13,
+      "encoded": "Hud_BuildSpriteFromFont__FP4SPRTcii",
+      "name": "Hud_BuildSpriteFromFont",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_BuildSpriteFromFont__FP4SPRTcii(SPRT *sprt, char ch, int x, int y);   /* :586 */",
+      "header_return": "void",
+      "header_signature": "(SPRT *sprt, char ch, int x, int y)",
+      "native": [
+        {
+          "record": "4200ed",
+          "va": "800d2104",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_BuildSpriteFromFont",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 396,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(SPRT * sprt,char ch,int x,int y)",
+          "end": 415,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(SPRT * sprt,char ch,int x,int y)",
+      "final_prototype": "void Hud_BuildSpriteFromFont(SPRT * sprt,char ch,int x,int y);   /* SYM 4200ed @0x800d2104 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_BuildSpriteFromFont__FP4SPRTcii__FP4SPRTcii",
+      "after_emitted_reference": "Hud_BuildSpriteFromFont__FP4SPRTcii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 14,
+      "encoded": "Hud_BuildF3__FP7POLY_F3P13HudPmx_tShapeiiUl",
+      "name": "Hud_BuildF3",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_BuildF3__FP7POLY_F3P13HudPmx_tShapeiiUl(POLY_F3 *prim, HudPmx_tShape *shape, int x, int y, u_long color);   /* :620 */",
+      "header_return": "void",
+      "header_signature": "(POLY_F3 *prim, HudPmx_tShape *shape, int x, int y, u_long color)",
+      "native": [
+        {
+          "record": "42011e",
+          "va": "800d21c4",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_BuildF3",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 418,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(POLY_F3 * prim,HudPmx_tShape * shape,int x,int y,u_long color)",
+          "end": 427,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(POLY_F3 * prim,HudPmx_tShape * shape,int x,int y,u_long color)",
+      "final_prototype": "void Hud_BuildF3(POLY_F3 * prim,HudPmx_tShape * shape,int x,int y,u_long color);   /* SYM 42011e @0x800d21c4 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_BuildF3__FP7POLY_F3P13HudPmx_tShapeiiUl__FP7POLY_F3P13HudPmx_tShapeiiUl",
+      "after_emitted_reference": "Hud_BuildF3__FP7POLY_F3P13HudPmx_tShapeiiUl",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 15,
+      "encoded": "Hud_BuildGT4__FP8POLY_GT4P13HudPmx_tShapeiiUl",
+      "name": "Hud_BuildGT4",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_BuildGT4__FP8POLY_GT4P13HudPmx_tShapeiiUl(POLY_GT4 *prim, HudPmx_tShape *shape, int x, int y, u_long color);   /* :629 */",
+      "header_return": "void",
+      "header_signature": "(POLY_GT4 *prim, HudPmx_tShape *shape, int x, int y, u_long color)",
+      "native": [
+        {
+          "record": "420157",
+          "va": "800d2288",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_BuildGT4",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 430,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(POLY_GT4 * prim,HudPmx_tShape * shape,int x,int y,u_long color)",
+          "end": 447,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(POLY_GT4 * prim,HudPmx_tShape * shape,int x,int y,u_long color)",
+      "final_prototype": "void Hud_BuildGT4(POLY_GT4 * prim,HudPmx_tShape * shape,int x,int y,u_long color);   /* SYM 420157 @0x800d2288 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_BuildGT4__FP8POLY_GT4P13HudPmx_tShapeiiUl__FP8POLY_GT4P13HudPmx_tShapeiiUl",
+      "after_emitted_reference": "Hud_BuildGT4__FP8POLY_GT4P13HudPmx_tShapeiiUl",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 16,
+      "encoded": "Hud_BuildFT4__FP8POLY_FT4P13HudPmx_tShapeiiUli",
+      "name": "Hud_BuildFT4",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_BuildFT4__FP8POLY_FT4P13HudPmx_tShapeiiUli(POLY_FT4 *prim, HudPmx_tShape *shape, int x, int y, u_long color, int trans);   /* :647 */",
+      "header_return": "void",
+      "header_signature": "(POLY_FT4 *prim, HudPmx_tShape *shape, int x, int y, u_long color, int trans)",
+      "native": [
+        {
+          "record": "420192",
+          "va": "800d2334",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_BuildFT4",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 450,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(POLY_FT4 * prim,HudPmx_tShape * shape,int x,int y,u_long color,int trans)",
+          "end": 465,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(POLY_FT4 * prim,HudPmx_tShape * shape,int x,int y,u_long color,int trans)",
+      "final_prototype": "void Hud_BuildFT4(POLY_FT4 * prim,HudPmx_tShape * shape,int x,int y,u_long color,int trans);   /* SYM 420192 @0x800d2334 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_BuildFT4__FP8POLY_FT4P13HudPmx_tShapeiiUli__FP8POLY_FT4P13HudPmx_tShapeiiUli",
+      "after_emitted_reference": "Hud_BuildFT4__FP8POLY_FT4P13HudPmx_tShapeiiUli",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 17,
+      "encoded": "Hud_BuildMirrorFT4__FP8POLY_FT4P13HudPmx_tShapeiiUli",
+      "name": "Hud_BuildMirrorFT4",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_BuildMirrorFT4__FP8POLY_FT4P13HudPmx_tShapeiiUli(POLY_FT4 *prim, HudPmx_tShape *shape, int x, int y, u_long color, int trans);   /* :662 */",
+      "header_return": "void",
+      "header_signature": "(POLY_FT4 *prim, HudPmx_tShape *shape, int x, int y, u_long color, int trans)",
+      "native": [
+        {
+          "record": "4201ce",
+          "va": "800d2424",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_BuildMirrorFT4",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 468,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(POLY_FT4 * prim,HudPmx_tShape * shape,int x,int y,u_long color,int trans)",
+          "end": 485,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(POLY_FT4 * prim,HudPmx_tShape * shape,int x,int y,u_long color,int trans)",
+      "final_prototype": "void Hud_BuildMirrorFT4(POLY_FT4 * prim,HudPmx_tShape * shape,int x,int y,u_long color,int trans);   /* SYM 4201ce @0x800d2424 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_BuildMirrorFT4__FP8POLY_FT4P13HudPmx_tShapeiiUli__FP8POLY_FT4P13HudPmx_tShapeiiUli",
+      "after_emitted_reference": "Hud_BuildMirrorFT4__FP8POLY_FT4P13HudPmx_tShapeiiUli",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 18,
+      "encoded": "Hud_BuildMapMirrorFT4__FP8POLY_FT4P13HudPmx_tShapeiiUli",
+      "name": "Hud_BuildMapMirrorFT4",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_BuildMapMirrorFT4__FP8POLY_FT4P13HudPmx_tShapeiiUli(POLY_FT4 *prim, HudPmx_tShape *shape, int x, int y, u_long color, int trans);   /* :682 */",
+      "header_return": "void",
+      "header_signature": "(POLY_FT4 *prim, HudPmx_tShape *shape, int x, int y, u_long color, int trans)",
+      "native": [
+        {
+          "record": "420210",
+          "va": "800d2528",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_BuildMapMirrorFT4",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 488,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(POLY_FT4 * prim,HudPmx_tShape * shape,int x,int y,u_long color,int trans)",
+          "end": 507,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(POLY_FT4 * prim,HudPmx_tShape * shape,int x,int y,u_long color,int trans)",
+      "final_prototype": "void Hud_BuildMapMirrorFT4(POLY_FT4 * prim,HudPmx_tShape * shape,int x,int y,u_long color,int trans);   /* SYM 420210 @0x800d2528 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_BuildMapMirrorFT4__FP8POLY_FT4P13HudPmx_tShapeiiUli__FP8POLY_FT4P13HudPmx_tShapeiiUli",
+      "after_emitted_reference": "Hud_BuildMapMirrorFT4__FP8POLY_FT4P13HudPmx_tShapeiiUli",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 19,
+      "encoded": "Hud_BuildF4__FP7POLY_F4iiiiiUl",
+      "name": "Hud_BuildF4",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_BuildF4__FP7POLY_F4iiiiiUl(POLY_F4 *prim, int trans, int x, int y, int w, int h, u_long color);   /* :712 */",
+      "header_return": "void",
+      "header_signature": "(POLY_F4 *prim, int trans, int x, int y, int w, int h, u_long color)",
+      "native": [
+        {
+          "record": "420255",
+          "va": "800d2634",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_BuildF4",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 510,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(POLY_F4 * prim,int trans,int x,int y,int w,int h,u_long color)",
+          "end": 521,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(POLY_F4 * prim,int trans,int x,int y,int w,int h,u_long color)",
+      "final_prototype": "void Hud_BuildF4(POLY_F4 * prim,int trans,int x,int y,int w,int h,u_long color);   /* SYM 420255 @0x800d2634 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_BuildF4__FP7POLY_F4iiiiiUl__FP7POLY_F4iiiiiUl",
+      "after_emitted_reference": "Hud_BuildF4__FP7POLY_F4iiiiiUl",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 20,
+      "encoded": "Hud_BuildG4__FP7POLY_G4iiiiiUlUlUlUl",
+      "name": "Hud_BuildG4",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_BuildG4__FP7POLY_G4iiiiiUlUlUlUl(POLY_G4 *prim, int trans, int x, int y, int w, int h, u_long col1, u_long col2, u_long col3, u_long col4);   /* :728 */",
+      "header_return": "void",
+      "header_signature": "(POLY_G4 *prim, int trans, int x, int y, int w, int h, u_long col1, u_long col2, u_long col3, u_long col4)",
+      "native": [
+        {
+          "record": "420281",
+          "va": "800d26d8",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_BuildG4",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 524,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(POLY_G4 * prim,int trans,int x,int y,int w,int h,u_long col1,u_long col2,u_long col3,u_long col4)",
+          "end": 539,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(POLY_G4 * prim,int trans,int x,int y,int w,int h,u_long col1,u_long col2,u_long col3,u_long col4)",
+      "final_prototype": "void Hud_BuildG4(POLY_G4 * prim,int trans,int x,int y,int w,int h,u_long col1,u_long col2,u_long col3,u_long col4);   /* SYM 420281 @0x800d26d8 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_BuildG4__FP7POLY_G4iiiiiUlUlUlUl__FP7POLY_G4iiiiiUlUlUlUl",
+      "after_emitted_reference": "Hud_BuildG4__FP7POLY_G4iiiiiUlUlUlUl",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 21,
+      "encoded": "Hud_BuildF4o__FP7POLY_F4iiiiiUlScSc",
+      "name": "Hud_BuildF4o",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_BuildF4o__FP7POLY_F4iiiiiUlScSc(POLY_F4 *prim, int trans, int x, int y, int w, int h, u_long color, int x0off, int x1off);   /* :747 */",
+      "header_return": "void",
+      "header_signature": "(POLY_F4 *prim, int trans, int x, int y, int w, int h, u_long color, int x0off, int x1off)",
+      "native": [
+        {
+          "record": "4202b3",
+          "va": "800d2794",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_BuildF4o",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 542,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(POLY_F4 * prim,int trans,int x,int y,int w,int h,u_long color,signed char x0off,signed char x1off)",
+          "end": 553,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(POLY_F4 * prim,int trans,int x,int y,int w,int h,u_long color,signed char x0off,signed char x1off)",
+      "final_prototype": "void Hud_BuildF4o(POLY_F4 * prim,int trans,int x,int y,int w,int h,u_long color,signed char x0off,signed char x1off);   /* SYM 4202b3 @0x800d2794 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_BuildF4o__FP7POLY_F4iiiiiUlScSc__FP7POLY_F4iiiiiUlii",
+      "after_emitted_reference": "Hud_BuildF4o__FP7POLY_F4iiiiiUlScSc",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 22,
+      "encoded": "Hud_FBuildGT4__FP13HudPmx_tShapeiiUl",
+      "name": "Hud_FBuildGT4",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_FBuildGT4__FP13HudPmx_tShapeiiUl(HudPmx_tShape *shape, int x, int y, u_long col1);   /* :762 */",
+      "header_return": "void",
+      "header_signature": "(HudPmx_tShape *shape, int x, int y, u_long col1)",
+      "native": [
+        {
+          "record": "4202e4",
+          "va": "800d2868",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_FBuildGT4",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 557,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(HudPmx_tShape * shape,int x,int y,u_long col1)",
+          "end": 566,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(HudPmx_tShape * shape,int x,int y,u_long col1)",
+      "final_prototype": "void Hud_FBuildGT4(HudPmx_tShape * shape,int x,int y,u_long col1);   /* SYM 4202e4 @0x800d2868 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_FBuildGT4__FP13HudPmx_tShapeiiUl__FP13HudPmx_tShapeiiUl",
+      "after_emitted_reference": "Hud_FBuildGT4__FP13HudPmx_tShapeiiUl",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 23,
+      "encoded": "Hud_FBuildFT4__FP13HudPmx_tShapeiiUl",
+      "name": "Hud_FBuildFT4",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_FBuildFT4__FP13HudPmx_tShapeiiUl(HudPmx_tShape *shape, int x, int y, u_long col1);   /* :768 */",
+      "header_return": "void",
+      "header_signature": "(HudPmx_tShape *shape, int x, int y, u_long col1)",
+      "native": [
+        {
+          "record": "420316",
+          "va": "800d28f4",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_FBuildFT4",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 569,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(HudPmx_tShape * shape,int x,int y,u_long col1)",
+          "end": 578,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(HudPmx_tShape * shape,int x,int y,u_long col1)",
+      "final_prototype": "void Hud_FBuildFT4(HudPmx_tShape * shape,int x,int y,u_long col1);   /* SYM 420316 @0x800d28f4 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_FBuildFT4__FP13HudPmx_tShapeiiUl__FP13HudPmx_tShapeiiUl",
+      "after_emitted_reference": "Hud_FBuildFT4__FP13HudPmx_tShapeiiUl",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 24,
+      "encoded": "Hud_FBuildF4__FiiiiiUlcc",
+      "name": "Hud_FBuildF4",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_FBuildF4__FiiiiiUlcc(int transparent, int x, int y, int w, int h, u_long col1, int x0off, int x1off);   /* :776 */",
+      "header_return": "void",
+      "header_signature": "(int transparent, int x, int y, int w, int h, u_long col1, int x0off, int x1off)",
+      "native": [
+        {
+          "record": "420348",
+          "va": "800d2984",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_FBuildF4",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 605,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int transparent,int x,int y,int w,int h,u_long col1,char x0off,char x1off)",
+          "end": 616,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int transparent,int x,int y,int w,int h,u_long col1,char x0off,char x1off)",
+      "final_prototype": "void Hud_FBuildF4(int transparent,int x,int y,int w,int h,u_long col1,char x0off,char x1off);   /* SYM 420348 @0x800d2984 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_FBuildF4__FiiiiiUlcc__FiiiiiUlii",
+      "after_emitted_reference": "Hud_FBuildF4__FiiiiiUlcc",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 25,
+      "encoded": "uppercase__FPc",
+      "name": "uppercase",
+      "inventory_class": "REVIEW",
+      "include_hits": 0,
+      "original": "void uppercase__FPc(char *string);   /* :790 */",
+      "header_return": "void",
+      "header_signature": "(char *string)",
+      "native": [
+        {
+          "record": "42036e",
+          "va": "800d2a44",
+          "linkage": "STAT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "uppercase",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "file": true,
+          "line": 619,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(char * string)",
+          "end": 636,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": true,
+      "status": "REMOVED_NATIVE_FILE_STATIC",
+      "before_emitted_reference": "uppercase__FPc__FPc",
+      "after_emitted_reference": null,
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": true
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 26,
+      "encoded": "Hud_Kill__Fv",
+      "name": "Hud_Kill",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_Kill__Fv(void);   /* :800 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "42038a",
+          "va": "800d2aa4",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_Kill",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 640,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 653,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Hud_Kill(void);   /* SYM 42038a @0x800d2aa4 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_Kill__Fv__Fv",
+      "after_emitted_reference": "Hud_Kill__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 27,
+      "encoded": "Hud_Init0__Fv",
+      "name": "Hud_Init0",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_Init0__Fv(void);   /* :813 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "4203a4",
+          "va": "800d2af4",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_Init0",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 656,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 664,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Hud_Init0(void);   /* SYM 4203a4 @0x800d2af4 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_Init0__Fv__Fv",
+      "after_emitted_reference": "Hud_Init0__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 28,
+      "encoded": "Hud_InitMapFrame__Fii",
+      "name": "Hud_InitMapFrame",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_InitMapFrame__Fii(int i, int mode);   /* :827 */",
+      "header_return": "void",
+      "header_signature": "(int i, int mode)",
+      "native": [
+        {
+          "record": "4203bf",
+          "va": "800d2b4c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_InitMapFrame",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 667,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int i,int mode)",
+          "end": 737,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int i,int mode)",
+      "final_prototype": "void Hud_InitMapFrame(int i,int mode);   /* SYM 4203bf @0x800d2b4c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_InitMapFrame__Fii__Fii",
+      "after_emitted_reference": "Hud_InitMapFrame__Fii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 29,
+      "encoded": "Hud_BuildTimeSprites__FP4SPRTPcii",
+      "name": "Hud_BuildTimeSprites",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_BuildTimeSprites__FP4SPRTPcii(SPRT *sprt, char *str, int x, int y);   /* :883 */",
+      "header_return": "void",
+      "header_signature": "(SPRT *sprt, char *str, int x, int y)",
+      "native": [
+        {
+          "record": "4203e2",
+          "va": "800d2ef8",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_BuildTimeSprites",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 851,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(SPRT * sprt,char * str,int x,int y)",
+          "end": 905,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(SPRT * sprt,char * str,int x,int y)",
+      "final_prototype": "void Hud_BuildTimeSprites(SPRT * sprt,char * str,int x,int y);   /* SYM 4203e2 @0x800d2ef8 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_BuildTimeSprites__FP4SPRTPcii__FP4SPRTPcii",
+      "after_emitted_reference": "Hud_BuildTimeSprites__FP4SPRTPcii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 30,
+      "encoded": "Hud_Init__Fv",
+      "name": "Hud_Init",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_Init__Fv(void);   /* :930 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "420411",
+          "va": "800d302c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_Init",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 959,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 1227,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Hud_Init(void);   /* SYM 420411 @0x800d302c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_Init__Fv__Fv",
+      "after_emitted_reference": "Hud_Init__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 31,
+      "encoded": "Hud_InitTables__Fv",
+      "name": "Hud_InitTables",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_InitTables__Fv(void);   /* :1227 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "42042b",
+          "va": "800d39ec",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_InitTables",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 1233,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 1244,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Hud_InitTables(void);   /* SYM 42042b @0x800d39ec */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_InitTables__Fv__Fv",
+      "after_emitted_reference": "Hud_InitTables__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 32,
+      "encoded": "Hud_BuildETimeString__FP4SPRTi",
+      "name": "Hud_BuildETimeString",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_BuildETimeString__FP4SPRTi(SPRT *sprt, int time);   /* :1232 */",
+      "header_return": "void",
+      "header_signature": "(SPRT *sprt, int time)",
+      "native": [
+        {
+          "record": "42044b",
+          "va": "800d3a18",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_BuildETimeString",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 1247,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(SPRT * sprt,int time)",
+          "end": 1411,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(SPRT * sprt,int time)",
+      "final_prototype": "void Hud_BuildETimeString(SPRT * sprt,int time);   /* SYM 42044b @0x800d3a18 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_BuildETimeString__FP4SPRTi__FP4SPRTi",
+      "after_emitted_reference": "Hud_BuildETimeString__FP4SPRTi",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 33,
+      "encoded": "Hud_BuildDistanceString__FP4SPRTi",
+      "name": "Hud_BuildDistanceString",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "BOOL Hud_BuildDistanceString__FP4SPRTi(SPRT *sprt, int player);   /* :1253 */",
+      "header_return": "BOOL",
+      "header_signature": "(SPRT *sprt, int player)",
+      "native": [
+        {
+          "record": "420477",
+          "va": "800d3ba4",
+          "linkage": "EXT",
+          "return_type": "bool"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_BuildDistanceString",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 1414,
+          "typeref": "typename:bool",
+          "kind": "function",
+          "signature": "(SPRT * sprt,int player)",
+          "end": 1436,
+          "return_type": "bool",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "bool",
+      "final_signature": "(SPRT * sprt,int player)",
+      "final_prototype": "bool Hud_BuildDistanceString(SPRT * sprt,int player);   /* SYM 420477 @0x800d3ba4 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_BuildDistanceString__FP4SPRTi__FP4SPRTi",
+      "after_emitted_reference": "Hud_BuildDistanceString__FP4SPRTi",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 34,
+      "encoded": "Hud_BuildTimeString__FP4SPRTi",
+      "name": "Hud_BuildTimeString",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_BuildTimeString__FP4SPRTi(SPRT *sprt, int time);   /* :1273 */",
+      "header_return": "void",
+      "header_signature": "(SPRT *sprt, int time)",
+      "native": [
+        {
+          "record": "4204a6",
+          "va": "800d3d44",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_BuildTimeString",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 1439,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(SPRT * sprt,int time)",
+          "end": 1464,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(SPRT * sprt,int time)",
+      "final_prototype": "void Hud_BuildTimeString(SPRT * sprt,int time);   /* SYM 4204a6 @0x800d3d44 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_BuildTimeString__FP4SPRTi__FP4SPRTi",
+      "after_emitted_reference": "Hud_BuildTimeString__FP4SPRTi",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 35,
+      "encoded": "Hud_BuildTach__Fi",
+      "name": "Hud_BuildTach",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_BuildTach__Fi(int player);   /* :1376 */",
+      "header_return": "void",
+      "header_signature": "(int player)",
+      "native": [
+        {
+          "record": "4204d1",
+          "va": "800d3e94",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_BuildTach",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 1666,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int player)",
+          "end": 1875,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int player)",
+      "final_prototype": "void Hud_BuildTach(int player);   /* SYM 4204d1 @0x800d3e94 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_BuildTach__Fi__Fi",
+      "after_emitted_reference": "Hud_BuildTach__Fi",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 36,
+      "encoded": "Hud_BuildString__FPciiiib",
+      "name": "Hud_BuildString",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "int Hud_BuildString__FPciiiib(char *str, int x, int y, int color, int player, BOOL justwidth);   /* :1450 */",
+      "header_return": "int",
+      "header_signature": "(char *str, int x, int y, int color, int player, BOOL justwidth)",
+      "native": [
+        {
+          "record": "4204f0",
+          "va": "800d42c8",
+          "linkage": "EXT",
+          "return_type": "int"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_BuildString",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 1917,
+          "typeref": "typename:int",
+          "kind": "function",
+          "signature": "(char * str,int x,int y,int color,int player,bool justwidth)",
+          "end": 2118,
+          "return_type": "int",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "int",
+      "final_signature": "(char * str,int x,int y,int color,int player,bool justwidth)",
+      "final_prototype": "int Hud_BuildString(char * str,int x,int y,int color,int player,bool justwidth);   /* SYM 4204f0 @0x800d42c8 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_BuildString__FPciiiib__FPciiiii",
+      "after_emitted_reference": "Hud_BuildString__FPciiiib",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 37,
+      "encoded": "Hud_BuildNumbers0__Fi",
+      "name": "Hud_BuildNumbers0",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_BuildNumbers0__Fi(int player);   /* :1551 */",
+      "header_return": "void",
+      "header_signature": "(int player)",
+      "native": [
+        {
+          "record": "420517",
+          "va": "800d4624",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_BuildNumbers0",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 2239,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int player)",
+          "end": 2506,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int player)",
+      "final_prototype": "void Hud_BuildNumbers0(int player);   /* SYM 420517 @0x800d4624 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_BuildNumbers0__Fi__Fi",
+      "after_emitted_reference": "Hud_BuildNumbers0__Fi",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 38,
+      "encoded": "Hud_BuildNumbers__Fi",
+      "name": "Hud_BuildNumbers",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_BuildNumbers__Fi(int player);   /* :1721 */",
+      "header_return": "void",
+      "header_signature": "(int player)",
+      "native": [
+        {
+          "record": "42053a",
+          "va": "800d4e70",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_BuildNumbers",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 2833,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int player)",
+          "end": 3085,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int player)",
+      "final_prototype": "void Hud_BuildNumbers(int player);   /* SYM 42053a @0x800d4e70 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_BuildNumbers__Fi__Fi",
+      "after_emitted_reference": "Hud_BuildNumbers__Fi",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 39,
+      "encoded": "Hud_InitMap__Fv",
+      "name": "Hud_InitMap",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_InitMap__Fv(void);   /* :1917 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "42055c",
+          "va": "800d5a48",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_InitMap",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 3094,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 3117,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Hud_InitMap(void);   /* SYM 42055c @0x800d5a48 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_InitMap__Fv__Fv",
+      "after_emitted_reference": "Hud_InitMap__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 40,
+      "encoded": "Hud_BuildMapMarkers__Fi",
+      "name": "Hud_BuildMapMarkers",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_BuildMapMarkers__Fi(int player);   /* :2019 */",
+      "header_return": "void",
+      "header_signature": "(int player)",
+      "native": [
+        {
+          "record": "420579",
+          "va": "800d5ae8",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_BuildMapMarkers",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 3324,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int player)",
+          "end": 3496,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int player)",
+      "final_prototype": "void Hud_BuildMapMarkers(int player);   /* SYM 420579 @0x800d5ae8 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_BuildMapMarkers__Fi__Fi",
+      "after_emitted_reference": "Hud_BuildMapMarkers__Fi",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 41,
+      "encoded": "Hud_WingmanFlash__Fii",
+      "name": "Hud_WingmanFlash",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_WingmanFlash__Fii(int player, int index);   /* :2148 */",
+      "header_return": "void",
+      "header_signature": "(int player, int index)",
+      "native": [
+        {
+          "record": "42059e",
+          "va": "800d5fb8",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_WingmanFlash",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 3508,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int player,int index)",
+          "end": 3521,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int player,int index)",
+      "final_prototype": "void Hud_WingmanFlash(int player,int index);   /* SYM 42059e @0x800d5fb8 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_WingmanFlash__Fii__Fii",
+      "after_emitted_reference": "Hud_WingmanFlash__Fii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 42,
+      "encoded": "Hud_BuildWingmanInterface__Fi",
+      "name": "Hud_BuildWingmanInterface",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_BuildWingmanInterface__Fi(int player);   /* :2162 */",
+      "header_return": "void",
+      "header_signature": "(int player)",
+      "native": [
+        {
+          "record": "4205c1",
+          "va": "800d606c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_BuildWingmanInterface",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 3620,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int player)",
+          "end": 3719,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int player)",
+      "final_prototype": "void Hud_BuildWingmanInterface(int player);   /* SYM 4205c1 @0x800d606c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_BuildWingmanInterface__Fi__Fi",
+      "after_emitted_reference": "Hud_BuildWingmanInterface__Fi",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 43,
+      "encoded": "Hud_InitCdPlayer__Fv",
+      "name": "Hud_InitCdPlayer",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_InitCdPlayer__Fv(void);   /* :2215 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "4205ec",
+          "va": "800d63b8",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_InitCdPlayer",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 3722,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 3730,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Hud_InitCdPlayer(void);   /* SYM 4205ec @0x800d63b8 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_InitCdPlayer__Fv__Fv",
+      "after_emitted_reference": "Hud_InitCdPlayer__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 44,
+      "encoded": "Hud_BuildCdPlayer__Fii",
+      "name": "Hud_BuildCdPlayer",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_BuildCdPlayer__Fii(int type);   /* :2225 */",
+      "header_return": "void",
+      "header_signature": "(int type)",
+      "native": [
+        {
+          "record": "42060e",
+          "va": "800d63dc",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_BuildCdPlayer",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 3933,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int type,int)",
+          "end": 4295,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int type,int)",
+      "final_prototype": "void Hud_BuildCdPlayer(int type,int);   /* SYM 42060e @0x800d63dc */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_BuildCdPlayer__Fii__Fi",
+      "after_emitted_reference": "Hud_BuildCdPlayer__Fii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 45,
+      "encoded": "Hud_BuildRadar__Fi",
+      "name": "Hud_BuildRadar",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "int Hud_BuildRadar__Fi(int player);   /* :2497 */",
+      "header_return": "int",
+      "header_signature": "(int player)",
+      "native": [
+        {
+          "record": "420632",
+          "va": "800d6b48",
+          "linkage": "EXT",
+          "return_type": "int"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_BuildRadar",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 4345,
+          "typeref": "typename:int",
+          "kind": "function",
+          "signature": "(int player)",
+          "end": 4488,
+          "return_type": "int",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "int",
+      "final_signature": "(int player)",
+      "final_prototype": "int Hud_BuildRadar(int player);   /* SYM 420632 @0x800d6b48 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_BuildRadar__Fi__Fi",
+      "after_emitted_reference": "Hud_BuildRadar__Fi",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 46,
+      "encoded": "Hud_BuildReplay__Fv",
+      "name": "Hud_BuildReplay",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_BuildReplay__Fv(void);   /* :2752 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "420652",
+          "va": "800d7250",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_BuildReplay",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 4561,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 4661,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Hud_BuildReplay(void);   /* SYM 420652 @0x800d7250 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_BuildReplay__Fv__Fv",
+      "after_emitted_reference": "Hud_BuildReplay__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 47,
+      "encoded": "Hud_NextPlayer__Fi",
+      "name": "Hud_NextPlayer",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "int Hud_NextPlayer__Fi(int player);   /* :2862 */",
+      "header_return": "int",
+      "header_signature": "(int player)",
+      "native": [
+        {
+          "record": "420673",
+          "va": "800d754c",
+          "linkage": "EXT",
+          "return_type": "int"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_NextPlayer",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 4703,
+          "typeref": "typename:int",
+          "kind": "function",
+          "signature": "(int player)",
+          "end": 4762,
+          "return_type": "int",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "int",
+      "final_signature": "(int player)",
+      "final_prototype": "int Hud_NextPlayer(int player);   /* SYM 420673 @0x800d754c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_NextPlayer__Fi__Fi",
+      "after_emitted_reference": "Hud_NextPlayer__Fi",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 48,
+      "encoded": "Hud_NextPlayerNameOrCarOrTime__Fi",
+      "name": "Hud_NextPlayerNameOrCarOrTime",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "char * Hud_NextPlayerNameOrCarOrTime__Fi(int player);   /* :2895 */",
+      "header_return": "char *",
+      "header_signature": "(int player)",
+      "native": [
+        {
+          "record": "420693",
+          "va": "800d76b0",
+          "linkage": "EXT",
+          "return_type": "char*"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_NextPlayerNameOrCarOrTime",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 4792,
+          "typeref": "typename:char *",
+          "kind": "function",
+          "signature": "(int player)",
+          "end": 4839,
+          "return_type": "char *",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "char *",
+      "final_signature": "(int player)",
+      "final_prototype": "char * Hud_NextPlayerNameOrCarOrTime(int player);   /* SYM 420693 @0x800d76b0 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_NextPlayerNameOrCarOrTime__Fi__Fi",
+      "after_emitted_reference": "Hud_NextPlayerNameOrCarOrTime__Fi",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 49,
+      "encoded": "Hud_RenderMapView__Fv",
+      "name": "Hud_RenderMapView",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_RenderMapView__Fv(void);   /* :2935 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "4206c2",
+          "va": "800d7838",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_RenderMapView",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 4859,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 4937,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Hud_RenderMapView(void);   /* SYM 4206c2 @0x800d7838 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_RenderMapView__Fv__Fv",
+      "after_emitted_reference": "Hud_RenderMapView__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 50,
+      "encoded": "Hud_BlackThinBox__Fiiii",
+      "name": "Hud_BlackThinBox",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_BlackThinBox__Fiiii(int x, int y, int w, int h);   /* :3082 */",
+      "header_return": "void",
+      "header_signature": "(int x, int y, int w, int h)",
+      "native": [
+        {
+          "record": "4206e5",
+          "va": "800d7abc",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_BlackThinBox",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 4945,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int x,int y,int w,int h)",
+          "end": 4969,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int x,int y,int w,int h)",
+      "final_prototype": "void Hud_BlackThinBox(int x,int y,int w,int h);   /* SYM 4206e5 @0x800d7abc */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_BlackThinBox__Fiiii__Fiiii",
+      "after_emitted_reference": "Hud_BlackThinBox__Fiiii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 51,
+      "encoded": "Hud_Draw321Num__Fiiiiii",
+      "name": "Hud_Draw321Num",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_Draw321Num__Fiiiiii(int x, int y, int num, int flare_intensity);   /* :3155 */",
+      "header_return": "void",
+      "header_signature": "(int x, int y, int num, int flare_intensity)",
+      "native": [
+        {
+          "record": "42070a",
+          "va": "800d7ca8",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_Draw321Num",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 4972,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int x,int y,int num,int flare_intensity,int,int)",
+          "end": 5183,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int x,int y,int num,int flare_intensity,int,int)",
+      "final_prototype": "void Hud_Draw321Num(int x,int y,int num,int flare_intensity,int,int);   /* SYM 42070a @0x800d7ca8 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_Draw321Num__Fiiiiii__Fiiii",
+      "after_emitted_reference": "Hud_Draw321Num__Fiiiiii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 52,
+      "encoded": "Hud_Render321Go__Fv",
+      "name": "Hud_Render321Go",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_Render321Go__Fv(void);   /* :3261 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "42072f",
+          "va": "800d7e64",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_Render321Go",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 5186,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 5229,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Hud_Render321Go(void);   /* SYM 42072f @0x800d7e64 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_Render321Go__Fv__Fv",
+      "after_emitted_reference": "Hud_Render321Go__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 53,
+      "encoded": "BigBTCTime__Fi",
+      "name": "BigBTCTime",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void BigBTCTime__Fi(int secs);   /* :3345 */",
+      "header_return": "void",
+      "header_signature": "(int secs)",
+      "native": [
+        {
+          "record": "420750",
+          "va": "800d7fb0",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "BigBTCTime",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 5251,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int secs)",
+          "end": 5330,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int secs)",
+      "final_prototype": "void BigBTCTime(int secs);   /* SYM 420750 @0x800d7fb0 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "BigBTCTime__Fi__Fi",
+      "after_emitted_reference": "BigBTCTime__Fi",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 54,
+      "encoded": "Hud_RenderHudView__Fv",
+      "name": "Hud_RenderHudView",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_RenderHudView__Fv(void);   /* :3426 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "42076c",
+          "va": "800d82d0",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_RenderHudView",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 5387,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 5648,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Hud_RenderHudView(void);   /* SYM 42076c @0x800d82d0 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_RenderHudView__Fv__Fv",
+      "after_emitted_reference": "Hud_RenderHudView__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 55,
+      "encoded": "Hud_RenderTacView__Fv",
+      "name": "Hud_RenderTacView",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_RenderTacView__Fv(void);   /* :3744 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "42078f",
+          "va": "800d8c48",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_RenderTacView",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 5938,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 5977,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Hud_RenderTacView(void);   /* SYM 42078f @0x800d8c48 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_RenderTacView__Fv__Fv",
+      "after_emitted_reference": "Hud_RenderTacView__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 56,
+      "encoded": "Hud_ParseTime__FiPc",
+      "name": "Hud_ParseTime",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_ParseTime__FiPc(int nTime, char *sLapTime);   /* :3770 */",
+      "header_return": "void",
+      "header_signature": "(int nTime, char *sLapTime)",
+      "native": [
+        {
+          "record": "4207b2",
+          "va": "800d8d64",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_ParseTime",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 5986,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int nTime,char * sLapTime)",
+          "end": 6022,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int nTime,char * sLapTime)",
+      "final_prototype": "void Hud_ParseTime(int nTime,char * sLapTime);   /* SYM 4207b2 @0x800d8d64 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_ParseTime__FiPc__FiPc",
+      "after_emitted_reference": "Hud_ParseTime__FiPc",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 57,
+      "encoded": "Hud_RenderPauseBox__Fiiii",
+      "name": "Hud_RenderPauseBox",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_RenderPauseBox__Fiiii(int x, int y, int w, int h);   /* :3812 */",
+      "header_return": "void",
+      "header_signature": "(int x, int y, int w, int h)",
+      "native": [
+        {
+          "record": "4207d3",
+          "va": "800d8ed0",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_RenderPauseBox",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 6025,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int x,int y,int w,int h)",
+          "end": 6041,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int x,int y,int w,int h)",
+      "final_prototype": "void Hud_RenderPauseBox(int x,int y,int w,int h);   /* SYM 4207d3 @0x800d8ed0 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_RenderPauseBox__Fiiii__Fiiii",
+      "after_emitted_reference": "Hud_RenderPauseBox__Fiiii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 58,
+      "encoded": "Hud_Render__Fv",
+      "name": "Hud_Render",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_Render__Fv(void);   /* :3846 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "4207fa",
+          "va": "800d9058",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_Render",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 6044,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 6192,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Hud_Render(void);   /* SYM 4207fa @0x800d9058 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_Render__Fv__Fv",
+      "after_emitted_reference": "Hud_Render__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 59,
+      "encoded": "Hud_PositionMap__Fv",
+      "name": "Hud_PositionMap",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_PositionMap__Fv(void);   /* :3980 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "420816",
+          "va": "800d94c0",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_PositionMap",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 6195,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 6207,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Hud_PositionMap(void);   /* SYM 420816 @0x800d94c0 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_PositionMap__Fv__Fv",
+      "after_emitted_reference": "Hud_PositionMap__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 60,
+      "encoded": "Hud_BTC_Update__FPcib",
+      "name": "Hud_BTC_Update",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_BTC_Update__FPcib(char *perpname, int timeleft, BOOL userHasControl);   /* :3998 */",
+      "header_return": "void",
+      "header_signature": "(char *perpname, int timeleft, BOOL userHasControl)",
+      "native": [
+        {
+          "record": "420837",
+          "va": "800d95c8",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_BTC_Update",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 6210,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(char * perpname,int timeleft,bool userHasControl)",
+          "end": 6220,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(char * perpname,int timeleft,bool userHasControl)",
+      "final_prototype": "void Hud_BTC_Update(char * perpname,int timeleft,bool userHasControl);   /* SYM 420837 @0x800d95c8 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_BTC_Update__FPcib__FPcii",
+      "after_emitted_reference": "Hud_BTC_Update__FPcib",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 61,
+      "encoded": "Hud_BustedOverlayOn__FiPcbs",
+      "name": "Hud_BustedOverlayOn",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_BustedOverlayOn__FiPcbs(int time, char *name, BOOL caught, short player);   /* :4009 */",
+      "header_return": "void",
+      "header_signature": "(int time, char *name, BOOL caught, short player)",
+      "native": [
+        {
+          "record": "42085a",
+          "va": "800d962c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_BustedOverlayOn",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 6223,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int time,char * name,bool caught,short player)",
+          "end": 6290,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int time,char * name,bool caught,short player)",
+      "final_prototype": "void Hud_BustedOverlayOn(int time,char * name,bool caught,short player);   /* SYM 42085a @0x800d962c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_BustedOverlayOn__FiPcbs__FiPcis",
+      "after_emitted_reference": "Hud_BustedOverlayOn__FiPcbs",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 62,
+      "encoded": "Hud_BustedOverlayOff__Fv",
+      "name": "Hud_BustedOverlayOff",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_BustedOverlayOff__Fv(void);   /* :4051 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "420883",
+          "va": "800d97e4",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_BustedOverlayOff",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 6293,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 6298,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Hud_BustedOverlayOff(void);   /* SYM 420883 @0x800d97e4 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_BustedOverlayOff__Fv__Fv",
+      "after_emitted_reference": "Hud_BustedOverlayOff__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 63,
+      "encoded": "Hud_Reset__Fv",
+      "name": "Hud_Reset",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_Reset__Fv(void);   /* :4056 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "4208a9",
+          "va": "800d97f0",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_Reset",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 6301,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 6320,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Hud_Reset(void);   /* SYM 4208a9 @0x800d97f0 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_Reset__Fv__Fv",
+      "after_emitted_reference": "Hud_Reset__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 64,
+      "encoded": "Hud_BTC_QuitOut__Fv",
+      "name": "Hud_BTC_QuitOut",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_BTC_QuitOut__Fv(void);   /* :4074 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "4208c4",
+          "va": "800d9848",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_BTC_QuitOut",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 6326,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 6342,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Hud_BTC_QuitOut(void);   /* SYM 4208c4 @0x800d9848 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_BTC_QuitOut__Fv__Fv",
+      "after_emitted_reference": "Hud_BTC_QuitOut__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 65,
+      "encoded": "Hud_BTC_BonusTime__Fl",
+      "name": "Hud_BTC_BonusTime",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_BTC_BonusTime__Fl(long extratime);   /* :4091 */",
+      "header_return": "void",
+      "header_signature": "(long extratime)",
+      "native": [
+        {
+          "record": "4208e5",
+          "va": "800d990c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_BTC_BonusTime",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 6345,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(long extratime)",
+          "end": 6351,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(long extratime)",
+      "final_prototype": "void Hud_BTC_BonusTime(long extratime);   /* SYM 4208e5 @0x800d990c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_BTC_BonusTime__Fl__Fl",
+      "after_emitted_reference": "Hud_BTC_BonusTime__Fl",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 66,
+      "encoded": "Hud_Perp_OverlayOn__Fii",
+      "name": "Hud_Perp_OverlayOn",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_Perp_OverlayOn__Fii(int player, int level);   /* :4100 */",
+      "header_return": "void",
+      "header_signature": "(int player, int level)",
+      "native": [
+        {
+          "record": "420908",
+          "va": "800d9924",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_Perp_OverlayOn",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 6354,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int player,int level)",
+          "end": 6360,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int player,int level)",
+      "final_prototype": "void Hud_Perp_OverlayOn(int player,int level);   /* SYM 420908 @0x800d9924 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_Perp_OverlayOn__Fii__Fii",
+      "after_emitted_reference": "Hud_Perp_OverlayOn__Fii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "line": 67,
+      "encoded": "Hud_Perp_OverlayOff__Fi",
+      "name": "Hud_Perp_OverlayOff",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hud_Perp_OverlayOff__Fi(int player);   /* :4106 */",
+      "header_return": "void",
+      "header_signature": "(int player)",
+      "native": [
+        {
+          "record": "42092d",
+          "va": "800d9950",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hud_Perp_OverlayOff",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp",
+          "line": 6366,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int player)",
+          "end": 6371,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int player)",
+      "final_prototype": "void Hud_Perp_OverlayOff(int player);   /* SYM 42092d @0x800d9950 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hud_Perp_OverlayOff__Fi__Fi",
+      "after_emitted_reference": "Hud_Perp_OverlayOff__Fi",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    }
+  ]
+}

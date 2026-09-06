@@ -1,0 +1,1511 @@
+{
+  "round": "P875",
+  "headers": 79,
+  "owners": 79,
+  "passed": 1301,
+  "total": 1301,
+  "accepted_rebuild_identical": 78,
+  "rows": [
+    {
+      "header": "recon/game/common/ai.h",
+      "source": "recon/game/common/ai.cpp",
+      "accepted_object_sha256": "e720de2b3f03579db90da0865ad7521565067803ee0d7a918590fe12eabe2e4d",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/ai.cpp: 40/40 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 40 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 40,
+      "total": 40,
+      "rebuilt_object_sha256": "e720de2b3f03579db90da0865ad7521565067803ee0d7a918590fe12eabe2e4d",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/aicop.h",
+      "source": "recon/game/common/aicop.cpp",
+      "accepted_object_sha256": "9666efa7174b0b1e07bdb30e09c33335d1e1ef12ba692fad6cee4affe4204a5c",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/aicop.cpp: 4/4 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 4 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 4,
+      "total": 4,
+      "rebuilt_object_sha256": "9666efa7174b0b1e07bdb30e09c33335d1e1ef12ba692fad6cee4affe4204a5c",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/aih_basiccop.h",
+      "source": "recon/game/common/aih_basiccop.cpp",
+      "accepted_object_sha256": "d17fd677b79b4f389d6e810bfd4cdee9d8c69323fa43ae4c757ddd24eb7e877d",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/aih_basiccop.cpp: 9/9 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 9 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 9,
+      "total": 9,
+      "rebuilt_object_sha256": "d17fd677b79b4f389d6e810bfd4cdee9d8c69323fa43ae4c757ddd24eb7e877d",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/aihigh.h",
+      "source": "recon/game/common/aihigh.cpp",
+      "accepted_object_sha256": "679c605542f71c2f23aa8abdab15693d44b702f3a117bdcafb0437f529763894",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/aihigh.cpp: 14/14 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 14 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 14,
+      "total": 14,
+      "rebuilt_object_sha256": "679c605542f71c2f23aa8abdab15693d44b702f3a117bdcafb0437f529763894",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/aiinit.h",
+      "source": "recon/game/common/aiinit.cpp",
+      "accepted_object_sha256": "0d63d1b4934a00b72ec34512c2e114e4f4e3d254dd6969a14b9707b2e4430871",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/aiinit.cpp: 17/17 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 17 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 17,
+      "total": 17,
+      "rebuilt_object_sha256": "0d63d1b4934a00b72ec34512c2e114e4f4e3d254dd6969a14b9707b2e4430871",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/ailife.h",
+      "source": "recon/game/common/ailife.cpp",
+      "accepted_object_sha256": "1eb1bc32d0912187db5489e6a24f3db788d82e603bd9aec153d4f61c2a8ad7a7",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/ailife.cpp: 20/20 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 20 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 20,
+      "total": 20,
+      "rebuilt_object_sha256": "1eb1bc32d0912187db5489e6a24f3db788d82e603bd9aec153d4f61c2a8ad7a7",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/aiphysic.h",
+      "source": "recon/game/common/aiphysic.cpp",
+      "accepted_object_sha256": "f0e2531e355fee1f87a628bd7ad44e5f14c4bb17362df7fa6a787c071b25f2dd",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/aiphysic.cpp: 42/42 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 42 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 42,
+      "total": 42,
+      "rebuilt_object_sha256": "f0e2531e355fee1f87a628bd7ad44e5f14c4bb17362df7fa6a787c071b25f2dd",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/aiscript.h",
+      "source": "recon/game/common/aiscript.cpp",
+      "accepted_object_sha256": "f54fe5f0f900ac604f8658334e4a43e840dfb3b0886bb3816887b4552a3f18a6",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/aiscript.cpp: 8/8 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 8 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 8,
+      "total": 8,
+      "rebuilt_object_sha256": "f54fe5f0f900ac604f8658334e4a43e840dfb3b0886bb3816887b4552a3f18a6",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/aispeeds.h",
+      "source": "recon/game/common/aispeeds.cpp",
+      "accepted_object_sha256": "b2544918c36f06007e0053a8bf904b2cd22b605adc772dff61921e8968f65783",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/aispeeds.cpp: 29/29 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 29 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 29,
+      "total": 29,
+      "rebuilt_object_sha256": "b2544918c36f06007e0053a8bf904b2cd22b605adc772dff61921e8968f65783",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/aistate.h",
+      "source": "recon/game/common/aistate.cpp",
+      "accepted_object_sha256": "bb9661a33fb059d35c28e388a84cce18b6b7ff4741c43a5d770095f46dbbd207",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/aistate.cpp: 52/52 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 52 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 52,
+      "total": 52,
+      "rebuilt_object_sha256": "bb9661a33fb059d35c28e388a84cce18b6b7ff4741c43a5d770095f46dbbd207",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/aitriger.h",
+      "source": "recon/game/common/aitriger.cpp",
+      "accepted_object_sha256": "b80fadd1ee41e751ce04d370c3c8bf14f91fe86727ccc3a743f012dfca2ad1fd",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/aitriger.cpp: 10/10 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 10 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 10,
+      "total": 10,
+      "rebuilt_object_sha256": "b80fadd1ee41e751ce04d370c3c8bf14f91fe86727ccc3a743f012dfca2ad1fd",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/aitune.h",
+      "source": "recon/game/common/aitune.cpp",
+      "accepted_object_sha256": "6aec37e5a7378d0e4dac9c7e461946d294fb48b0e9936704cdf1904a4386fc9f",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/aitune.cpp: 7/7 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 7 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 7,
+      "total": 7,
+      "rebuilt_object_sha256": "6aec37e5a7378d0e4dac9c7e461946d294fb48b0e9936704cdf1904a4386fc9f",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/aiworld.h",
+      "source": "recon/game/common/aiworld.cpp",
+      "accepted_object_sha256": "1e5c668d30aae8c454d712444df2302f80b260325a049a5283cae656ddab73c3",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/aiworld.cpp: 22/22 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 22 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 22,
+      "total": 22,
+      "rebuilt_object_sha256": "a6a9b6c58170fef79f5ba2bded119d90b1807e9c5e2c55ec19a2faed7706bd5a",
+      "accepted_rebuild_identical": false
+    },
+    {
+      "header": "recon/game/common/anim.h",
+      "source": "recon/game/common/anim.cpp",
+      "accepted_object_sha256": "68caaa92eb015f572c4200e9e1ee635e3994b0591d0bce1c566d4c0d293fbb42",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/anim.cpp: 18/18 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 18 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 18,
+      "total": 18,
+      "rebuilt_object_sha256": "68caaa92eb015f572c4200e9e1ee635e3994b0591d0bce1c566d4c0d293fbb42",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/audedit.h",
+      "source": "recon/game/common/audedit.cpp",
+      "accepted_object_sha256": "dfbdbcfeb4e45f6902bd605f9a125c06d281ac9ccb4614a418b5558230ef54d2",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/audedit.cpp: 2/2 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 2 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 2,
+      "total": 2,
+      "rebuilt_object_sha256": "dfbdbcfeb4e45f6902bd605f9a125c06d281ac9ccb4614a418b5558230ef54d2",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/audioclc.h",
+      "source": "recon/game/common/audioclc.cpp",
+      "accepted_object_sha256": "b8d20ef0cff1416894e8fe988c4fae015651e6cc496ef0024bcf44748266da89",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/audioclc.cpp: 18/18 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 18 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 18,
+      "total": 18,
+      "rebuilt_object_sha256": "b8d20ef0cff1416894e8fe988c4fae015651e6cc496ef0024bcf44748266da89",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/audiocmn.h",
+      "source": "recon/game/common/audiocmn.cpp",
+      "accepted_object_sha256": "71ddb86db9e91f16ed317d1fc7f327931b6deed22543f03c5aa7a9f86f12b993",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/audiocmn.cpp: 48/48 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 48 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 48,
+      "total": 48,
+      "rebuilt_object_sha256": "71ddb86db9e91f16ed317d1fc7f327931b6deed22543f03c5aa7a9f86f12b993",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/audiomus.h",
+      "source": "recon/game/common/audiomus.cpp",
+      "accepted_object_sha256": "f6e556413410b4b0d3879ed8ae420b67df328f82cdf1e37add8e3ae6eee4a87b",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/audiomus.cpp: 23/23 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 23 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 23,
+      "total": 23,
+      "rebuilt_object_sha256": "f6e556413410b4b0d3879ed8ae420b67df328f82cdf1e37add8e3ae6eee4a87b",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/audiotrk.h",
+      "source": "recon/game/common/audiotrk.cpp",
+      "accepted_object_sha256": "ec24cfdfb6b9c0f0d32a9815a36aabd16c7dbd1983f3287d74e56c3de3dff784",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/audiotrk.cpp: 6/6 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "AudioTrk_AddCustomObject__FP9AudioElemiP8coorddefiP8Car_tObji 1 offset diffs [(48, 14, 13)]\n# 6 fns checked, 1 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 6,
+      "total": 6,
+      "rebuilt_object_sha256": "ec24cfdfb6b9c0f0d32a9815a36aabd16c7dbd1983f3287d74e56c3de3dff784",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/bworld.h",
+      "source": "recon/game/common/bworld.cpp",
+      "accepted_object_sha256": "c3a0b5c04421d3854304c9961d5e6d4f398e3d5d4729f7ea0c886af4bff30435",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/bworld.cpp: 21/21 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 21 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 21,
+      "total": 21,
+      "rebuilt_object_sha256": "c3a0b5c04421d3854304c9961d5e6d4f398e3d5d4729f7ea0c886af4bff30435",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/bworldsm.h",
+      "source": "recon/game/common/bworldSm.cpp",
+      "accepted_object_sha256": "f6260bf3fb68f723e334eb93f07f1c1dfe0d9cc2c7e60dd706cfd5d550f25b2b",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/bworldSm.cpp: 28/28 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 28 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 28,
+      "total": 28,
+      "rebuilt_object_sha256": "f6260bf3fb68f723e334eb93f07f1c1dfe0d9cc2c7e60dd706cfd5d550f25b2b",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/camera.h",
+      "source": "recon/game/common/camera.cpp",
+      "accepted_object_sha256": "d5719a2e607ed9c04c328928a6563c4665f468cb71cb96318fd76bf534f168f6",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/camera.cpp: 38/38 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 38 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 38,
+      "total": 38,
+      "rebuilt_object_sha256": "d5719a2e607ed9c04c328928a6563c4665f468cb71cb96318fd76bf534f168f6",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/cars.h",
+      "source": "recon/game/common/cars.cpp",
+      "accepted_object_sha256": "c198fb69f6ffaf9fd2243b89d96ea95d81fbb758658d92ba41bdd378e9191598",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/cars.cpp: 33/33 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 33 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 33,
+      "total": 33,
+      "rebuilt_object_sha256": "c198fb69f6ffaf9fd2243b89d96ea95d81fbb758658d92ba41bdd378e9191598",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/chunk.h",
+      "source": "recon/game/common/chunk.cpp",
+      "accepted_object_sha256": "8aa1d225c7f9d1ec5dd25c8ab16b7cfa67c214efa0dafe5277f01795ca20efbe",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/chunk.cpp: 4/4 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 4 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 4,
+      "total": 4,
+      "rebuilt_object_sha256": "8aa1d225c7f9d1ec5dd25c8ab16b7cfa67c214efa0dafe5277f01795ca20efbe",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/clock.h",
+      "source": "recon/game/common/clock.cpp",
+      "accepted_object_sha256": "ea9ddec938de4caad254890411e192227fbd8ac491cbc5b7b7200e0cdc5241d5",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/clock.cpp: 3/3 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 3 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 3,
+      "total": 3,
+      "rebuilt_object_sha256": "ea9ddec938de4caad254890411e192227fbd8ac491cbc5b7b7200e0cdc5241d5",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/copspeak.h",
+      "source": "recon/game/common/copspeak.cpp",
+      "accepted_object_sha256": "70fc97ebe71e9feeb970a4af6af67f16969a2171d4a82bfc1a35834376f9807e",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/copspeak.cpp: 27/27 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 27 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 27,
+      "total": 27,
+      "rebuilt_object_sha256": "70fc97ebe71e9feeb970a4af6af67f16969a2171d4a82bfc1a35834376f9807e",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/dashhud.h",
+      "source": "recon/game/common/dashhud.cpp",
+      "accepted_object_sha256": "b586015a33fcc582624f2884f8ea3dd12be015cddaca2e16fe1a7183fc2453d7",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/dashhud.cpp: 6/6 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 6 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 6,
+      "total": 6,
+      "rebuilt_object_sha256": "b586015a33fcc582624f2884f8ea3dd12be015cddaca2e16fe1a7183fc2453d7",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/fastrand.h",
+      "source": "recon/game/common/fastrand.cpp",
+      "accepted_object_sha256": "c2fe1bff91cf27f0388b75f068a1fb8883c8d4aecc3dcfd53d91ce55ae8a0193",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/fastrand.cpp: 2/2 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 2 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 2,
+      "total": 2,
+      "rebuilt_object_sha256": "c2fe1bff91cf27f0388b75f068a1fb8883c8d4aecc3dcfd53d91ce55ae8a0193",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/genericpmx.h",
+      "source": "recon/game/common/genericpmx.cpp",
+      "accepted_object_sha256": "7c4f41b27d16aa6ebdec0644208a2e5f3a05a51c763426e09dbc452e537a6b08",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/genericpmx.cpp: 1/1 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 1 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 1,
+      "total": 1,
+      "rebuilt_object_sha256": "7c4f41b27d16aa6ebdec0644208a2e5f3a05a51c763426e09dbc452e537a6b08",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/gmesetup.h",
+      "source": "recon/game/common/gmesetup.cpp",
+      "accepted_object_sha256": "16255480938d1c5a0825a162e36433ce693a599eab3f0b6eb8fa82e167d50007",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/gmesetup.cpp: 2/2 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 2 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 2,
+      "total": 2,
+      "rebuilt_object_sha256": "16255480938d1c5a0825a162e36433ce693a599eab3f0b6eb8fa82e167d50007",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/hudpmx.h",
+      "source": "recon/game/common/hudpmx.cpp",
+      "accepted_object_sha256": "1999a066a551d2dc24c5f2a455806914ca26c37a62cd8974a822b936aef3ade9",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/hudpmx.cpp: 3/3 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 3 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 3,
+      "total": 3,
+      "rebuilt_object_sha256": "1999a066a551d2dc24c5f2a455806914ca26c37a62cd8974a822b936aef3ade9",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/input.h",
+      "source": "recon/game/common/input.cpp",
+      "accepted_object_sha256": "5c81453a7be102403c348d901f2417abed9b5c36a450f3435098f035dec40013",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/input.cpp: 8/8 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 8 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 8,
+      "total": 8,
+      "rebuilt_object_sha256": "5c81453a7be102403c348d901f2417abed9b5c36a450f3435098f035dec40013",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/mathnfs.h",
+      "source": "recon/game/common/mathnfs.cpp",
+      "accepted_object_sha256": "b160ba0c6ac18bba5b6ef7a6edc34a89386128e1c487c321838fe92cd07f3852",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/mathnfs.cpp: 10/10 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 10 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 10,
+      "total": 10,
+      "rebuilt_object_sha256": "b160ba0c6ac18bba5b6ef7a6edc34a89386128e1c487c321838fe92cd07f3852",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/mpause.h",
+      "source": "recon/game/common/mpause.cpp",
+      "accepted_object_sha256": "17fbf429095d9b37a94e3ae084123ed77b618480f41abd89a2296ffd2205dcb1",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/mpause.cpp: 10/10 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 10 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 10,
+      "total": 10,
+      "rebuilt_object_sha256": "17fbf429095d9b37a94e3ae084123ed77b618480f41abd89a2296ffd2205dcb1",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/newton.h",
+      "source": "recon/game/common/newton.cpp",
+      "accepted_object_sha256": "61abefc9804de5c20f18e41a2f7bd4a96f9372cdcc00464a524ffceb0097d952",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/newton.cpp: 32/32 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 32 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 32,
+      "total": 32,
+      "rebuilt_object_sha256": "61abefc9804de5c20f18e41a2f7bd4a96f9372cdcc00464a524ffceb0097d952",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/nfs3.h",
+      "source": "recon/game/common/nfs3.cpp",
+      "accepted_object_sha256": "ed3390faba0dff90ca5a780e763100ec856d40415478a6f74a1272bf5c5c27e1",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/nfs3.cpp: 11/11 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 11 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 11,
+      "total": 11,
+      "rebuilt_object_sha256": "ed3390faba0dff90ca5a780e763100ec856d40415478a6f74a1272bf5c5c27e1",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/object.h",
+      "source": "recon/game/common/object.cpp",
+      "accepted_object_sha256": "cfd36f8d55d2c2a74be65947a1a2341b0ebeac445ecbe622153933b2760fe646",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/object.cpp: 37/37 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 37 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 37,
+      "total": 37,
+      "rebuilt_object_sha256": "cfd36f8d55d2c2a74be65947a1a2341b0ebeac445ecbe622153933b2760fe646",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/paths.h",
+      "source": "recon/game/common/paths.cpp",
+      "accepted_object_sha256": "45db320acdcbb14a05f8decb855519769d66693e30f41f3c9de3a16fadd443ad",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/paths.cpp: 1/1 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 1 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 1,
+      "total": 1,
+      "rebuilt_object_sha256": "45db320acdcbb14a05f8decb855519769d66693e30f41f3c9de3a16fadd443ad",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/pausemenu.h",
+      "source": "recon/game/common/pausemenu.cpp",
+      "accepted_object_sha256": "a00281d5768ce5d4b0a6aff6d14096f32626acfcae0b63e5d3bc8a966314a6bf",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/pausemenu.cpp: 60/60 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 60 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 60,
+      "total": 60,
+      "rebuilt_object_sha256": "a00281d5768ce5d4b0a6aff6d14096f32626acfcae0b63e5d3bc8a966314a6bf",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/physics.h",
+      "source": "recon/game/common/physics.cpp",
+      "accepted_object_sha256": "836cd9af8b7a2d9f86b81638847410516a6720c08eae7e3076f1ecf430821f56",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/physics.cpp: 22/22 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 22 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 22,
+      "total": 22,
+      "rebuilt_object_sha256": "836cd9af8b7a2d9f86b81638847410516a6720c08eae7e3076f1ecf430821f56",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/quatern.h",
+      "source": "recon/game/common/quatern.cpp",
+      "accepted_object_sha256": "e37055a28baab3f53ec32862fb819a4eb43d2668978758f3e16ee1a64c8bf11e",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/quatern.cpp: 4/4 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 4 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 4,
+      "total": 4,
+      "rebuilt_object_sha256": "e37055a28baab3f53ec32862fb819a4eb43d2668978758f3e16ee1a64c8bf11e",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/r3dcar.h",
+      "source": "recon/game/common/r3dcar.cpp",
+      "accepted_object_sha256": "1d23d35f5b1f7ab7e0fc385db93dd69e8fdc4675cdb0aa9e7bb566e45205517a",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/r3dcar.cpp: 27/27 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 27 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 27,
+      "total": 27,
+      "rebuilt_object_sha256": "1d23d35f5b1f7ab7e0fc385db93dd69e8fdc4675cdb0aa9e7bb566e45205517a",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/render.h",
+      "source": "recon/game/common/render.cpp",
+      "accepted_object_sha256": "c19627d83c71e56bc79b3eca762ba4cfa3d3da527e63b3c55fafd462cb8668a8",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/render.cpp: 23/23 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 23 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 23,
+      "total": 23,
+      "rebuilt_object_sha256": "c19627d83c71e56bc79b3eca762ba4cfa3d3da527e63b3c55fafd462cb8668a8",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/replay.h",
+      "source": "recon/game/common/replay.cpp",
+      "accepted_object_sha256": "ef13e273eff6b799c58a324040fc37b3cce9c3940f74c5bd66d516db072fbf39",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/replay.cpp: 16/16 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 16 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 16,
+      "total": 16,
+      "rebuilt_object_sha256": "ef13e273eff6b799c58a324040fc37b3cce9c3940f74c5bd66d516db072fbf39",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/scene.h",
+      "source": "recon/game/common/scene.cpp",
+      "accepted_object_sha256": "be83e3c4a48cee9dbeb8f7a8af267f7176e0096e5fcea8cd8e97169e3cd6a843",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/scene.cpp: 6/6 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 6 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 6,
+      "total": 6,
+      "rebuilt_object_sha256": "be83e3c4a48cee9dbeb8f7a8af267f7176e0096e5fcea8cd8e97169e3cd6a843",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/schedule.h",
+      "source": "recon/game/common/schedule.cpp",
+      "accepted_object_sha256": "80198291d022e33e4c9e883d52b33b0d3e328b2be23ee005c7c606bcdb60afc6",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/schedule.cpp: 6/6 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 6 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 6,
+      "total": 6,
+      "rebuilt_object_sha256": "80198291d022e33e4c9e883d52b33b0d3e328b2be23ee005c7c606bcdb60afc6",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/sim.h",
+      "source": "recon/game/common/sim.cpp",
+      "accepted_object_sha256": "d42f37b5eb7c8a3e6bb72cfd6da48c6d2290e21ccadc2137fc9e28720dd04d79",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/sim.cpp: 8/8 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 8 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 8,
+      "total": 8,
+      "rebuilt_object_sha256": "d42f37b5eb7c8a3e6bb72cfd6da48c6d2290e21ccadc2137fc9e28720dd04d79",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/simqueue.h",
+      "source": "recon/game/common/simqueue.cpp",
+      "accepted_object_sha256": "cd63f849f197c420d0331cd52d59a46d51fd937c1a892b3e4f673f736914ddf2",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/simqueue.cpp: 8/8 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 8 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 8,
+      "total": 8,
+      "rebuilt_object_sha256": "cd63f849f197c420d0331cd52d59a46d51fd937c1a892b3e4f673f736914ddf2",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/souffle.h",
+      "source": "recon/game/common/souffle.cpp",
+      "accepted_object_sha256": "03c9a92e95b2a993f6d7497d91923aa1f5ad45786b084f7831c60630fd9d73ca",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/souffle.cpp: 10/10 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 10 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 10,
+      "total": 10,
+      "rebuilt_object_sha256": "03c9a92e95b2a993f6d7497d91923aa1f5ad45786b084f7831c60630fd9d73ca",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/stats.h",
+      "source": "recon/game/common/stats.cpp",
+      "accepted_object_sha256": "bb4cf9b33549f6c03ef4c4dff7d762173f2dddc2883a5a1bcb470e8df7969f62",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/stats.cpp: 7/7 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 7 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 7,
+      "total": 7,
+      "rebuilt_object_sha256": "bb4cf9b33549f6c03ef4c4dff7d762173f2dddc2883a5a1bcb470e8df7969f62",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/textsys.h",
+      "source": "recon/game/common/textsys.cpp",
+      "accepted_object_sha256": "3015870caf1dc0c672fe1ccd787ce4df264fc8b0efe009a1a2f0aae8710f45f5",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/textsys.cpp: 8/8 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 8 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 8,
+      "total": 8,
+      "rebuilt_object_sha256": "3015870caf1dc0c672fe1ccd787ce4df264fc8b0efe009a1a2f0aae8710f45f5",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/track.h",
+      "source": "recon/game/common/track.cpp",
+      "accepted_object_sha256": "e17f48e6d7fad3b8d2244bc3c17a34b6150a89da41b0ebaaafe20962fbf75945",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/track.cpp: 29/29 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 29 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 29,
+      "total": 29,
+      "rebuilt_object_sha256": "e17f48e6d7fad3b8d2244bc3c17a34b6150a89da41b0ebaaafe20962fbf75945",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/trgsfx.h",
+      "source": "recon/game/common/trgsfx.cpp",
+      "accepted_object_sha256": "1f1f287358ed23b1b7b2bd1291deec9c10938abf48f43fabb929debeb63d1c11",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/trgsfx.cpp: 11/11 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 11 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 11,
+      "total": 11,
+      "rebuilt_object_sha256": "1f1f287358ed23b1b7b2bd1291deec9c10938abf48f43fabb929debeb63d1c11",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/common/udff.h",
+      "source": "recon/game/common/udff.cpp",
+      "accepted_object_sha256": "444c6719d9fe59776fa66a3ee70d9f2e7ce22ffea51d39d525b0f368fbcb049c",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/udff.cpp: 4/4 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 4 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 4,
+      "total": 4,
+      "rebuilt_object_sha256": "444c6719d9fe59776fa66a3ee70d9f2e7ce22ffea51d39d525b0f368fbcb049c",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/psx/audio.h",
+      "source": "recon/game/psx/audio.cpp",
+      "accepted_object_sha256": "0c195bdda15e163aeccb978e9b47e6c457ff821cfdfb9a2f9d9ef82349e8c74f",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/psx/audio.cpp: 6/6 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 6 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 6,
+      "total": 6,
+      "rebuilt_object_sha256": "0c195bdda15e163aeccb978e9b47e6c457ff821cfdfb9a2f9d9ef82349e8c74f",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/psx/cario.h",
+      "source": "recon/game/psx/cario.cpp",
+      "accepted_object_sha256": "5295fdfdc2ce1135b100494c0bfedfc8b1dc3f50e788bca9b4941265a78027ed",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/psx/cario.cpp: 11/11 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 11 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 11,
+      "total": 11,
+      "rebuilt_object_sha256": "5295fdfdc2ce1135b100494c0bfedfc8b1dc3f50e788bca9b4941265a78027ed",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/psx/device.h",
+      "source": "recon/game/psx/device.cpp",
+      "accepted_object_sha256": "f2d691f32ce1c376839ccb11df897d489abdeab08f8c4f8baa1c778512930bf7",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/psx/device.cpp: 10/10 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 10 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 10,
+      "total": 10,
+      "rebuilt_object_sha256": "f2d691f32ce1c376839ccb11df897d489abdeab08f8c4f8baa1c778512930bf7",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/psx/draw.h",
+      "source": "recon/game/psx/draw.cpp",
+      "accepted_object_sha256": "34748011177cefc2cc4605db52fe8fae82d756b84ccbf18666e05339a8dbed26",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/psx/draw.cpp: 25/25 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 25 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 25,
+      "total": 25,
+      "rebuilt_object_sha256": "34748011177cefc2cc4605db52fe8fae82d756b84ccbf18666e05339a8dbed26",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/psx/drawc.h",
+      "source": "recon/game/psx/drawc.cpp",
+      "accepted_object_sha256": "87de87e8726e06a1bbc3a5964b99162089c2da525fca9c27857c3ebfa073965f",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/psx/drawc.cpp: 20/20 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 20 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 20,
+      "total": 20,
+      "rebuilt_object_sha256": "87de87e8726e06a1bbc3a5964b99162089c2da525fca9c27857c3ebfa073965f",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/psx/draww.h",
+      "source": "recon/game/psx/draww.cpp",
+      "accepted_object_sha256": "2ad40d57ca6c33891f3297d9ca61f42468c6495f012c3d1b9511ebd399beaa94",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/psx/draww.cpp: 35/35 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 35 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 35,
+      "total": 35,
+      "rebuilt_object_sha256": "2ad40d57ca6c33891f3297d9ca61f42468c6495f012c3d1b9511ebd399beaa94",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/psx/fe3dmenu.h",
+      "source": "recon/game/psx/fe3dmenu.cpp",
+      "accepted_object_sha256": "d3caa110798b31b72a10b07107dd5684b03d8fae047ee3cb31e75469cf804b2a",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/psx/fe3dmenu.cpp: 3/3 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 3 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 3,
+      "total": 3,
+      "rebuilt_object_sha256": "d3caa110798b31b72a10b07107dd5684b03d8fae047ee3cb31e75469cf804b2a",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/psx/flare.h",
+      "source": "recon/game/psx/flare.cpp",
+      "accepted_object_sha256": "1ad9f604c6f8f6f8b0c8a3c562853b7a57990685db03d40dc28087d68b77ccae",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/psx/flare.cpp: 27/27 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 27 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 27,
+      "total": 27,
+      "rebuilt_object_sha256": "1ad9f604c6f8f6f8b0c8a3c562853b7a57990685db03d40dc28087d68b77ccae",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/psx/font.h",
+      "source": "recon/game/psx/font.cpp",
+      "accepted_object_sha256": "35b2ef12dab83fcd588cbc4b499460334b639a558329525f05e6ce8bea202bad",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/psx/font.cpp: 15/15 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 15 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 15,
+      "total": 15,
+      "rebuilt_object_sha256": "35b2ef12dab83fcd588cbc4b499460334b639a558329525f05e6ce8bea202bad",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/psx/force.h",
+      "source": "recon/game/psx/force.cpp",
+      "accepted_object_sha256": "74a20bd95a2670ccf1e6ec7504d01c9c3b4a1f85f70c05fc24aca6fe7c76f87a",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/psx/force.cpp: 9/9 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 9 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 9,
+      "total": 9,
+      "rebuilt_object_sha256": "74a20bd95a2670ccf1e6ec7504d01c9c3b4a1f85f70c05fc24aca6fe7c76f87a",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/psx/hrzsku.h",
+      "source": "recon/game/psx/hrzsku.cpp",
+      "accepted_object_sha256": "dd530c8dc536cae3fa4c296fc0eaaf1d16dd3bc86b7bab71a1cb9f7820624a30",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/psx/hrzsku.cpp: 22/22 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 22 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 22,
+      "total": 22,
+      "rebuilt_object_sha256": "dd530c8dc536cae3fa4c296fc0eaaf1d16dd3bc86b7bab71a1cb9f7820624a30",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/psx/hud.h",
+      "source": "recon/game/psx/hud.cpp",
+      "accepted_object_sha256": "946c782f3b33362379f0703ec9cdb45e5112a3cb0d6c429208069ddc884e08f5",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/psx/hud.cpp: 62/62 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 62 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 62,
+      "total": 62,
+      "rebuilt_object_sha256": "946c782f3b33362379f0703ec9cdb45e5112a3cb0d6c429208069ddc884e08f5",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/psx/loading.h",
+      "source": "recon/game/psx/loading.cpp",
+      "accepted_object_sha256": "a6580018d80e3989f79aaffc9bb63d4a68a430e66fb2fc431e5744a6ff0f94ee",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/psx/loading.cpp: 3/3 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 3 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 3,
+      "total": 3,
+      "rebuilt_object_sha256": "a6580018d80e3989f79aaffc9bb63d4a68a430e66fb2fc431e5744a6ff0f94ee",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/psx/night.h",
+      "source": "recon/game/psx/night.cpp",
+      "accepted_object_sha256": "b818c9cff41a8dfb429466fc1dd62719ef38541900ddc888cc77618651071dab",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/psx/night.cpp: 19/19 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 19 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 19,
+      "total": 19,
+      "rebuilt_object_sha256": "b818c9cff41a8dfb429466fc1dd62719ef38541900ddc888cc77618651071dab",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/psx/overlays.h",
+      "source": "recon/game/psx/overlays.cpp",
+      "accepted_object_sha256": "4dcba3e98629372f260d84cd0eb076475b215f50e0dbf1e9f6766e426f993bc5",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/psx/overlays.cpp: 5/5 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 5 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 5,
+      "total": 5,
+      "rebuilt_object_sha256": "4dcba3e98629372f260d84cd0eb076475b215f50e0dbf1e9f6766e426f993bc5",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/psx/platform.h",
+      "source": "recon/game/psx/platform.cpp",
+      "accepted_object_sha256": "1e51eba075c693b3fcc554b127deb02f5bee8d39c954e4cd3a96b3420da2445d",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/psx/platform.cpp: 8/8 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 8 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 8,
+      "total": 8,
+      "rebuilt_object_sha256": "1e51eba075c693b3fcc554b127deb02f5bee8d39c954e4cd3a96b3420da2445d",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/psx/psxcontroller.h",
+      "source": "recon/game/psx/psxcontroller.cpp",
+      "accepted_object_sha256": "9a8fbf8423ec861d8a2e2b7c2328d904d3259a70d8352781b8a5bdc0a0f57dd1",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/psx/psxcontroller.cpp: 4/4 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 4 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 4,
+      "total": 4,
+      "rebuilt_object_sha256": "9a8fbf8423ec861d8a2e2b7c2328d904d3259a70d8352781b8a5bdc0a0f57dd1",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/psx/rpause.h",
+      "source": "recon/game/psx/rpause.cpp",
+      "accepted_object_sha256": "6f463d4606bf9f88942eb573d9f152806a8360f3835e5bf2b7b7b8cae32d8d33",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/psx/rpause.cpp: 3/3 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 3 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 3,
+      "total": 3,
+      "rebuilt_object_sha256": "6f463d4606bf9f88942eb573d9f152806a8360f3835e5bf2b7b7b8cae32d8d33",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/psx/sfx.h",
+      "source": "recon/game/psx/sfx.cpp",
+      "accepted_object_sha256": "8c34762d61ae9e6e0526890dc329069872ccebf4a44ea52663470724a32a6b5e",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/psx/sfx.cpp: 7/7 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 7 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 7,
+      "total": 7,
+      "rebuilt_object_sha256": "8c34762d61ae9e6e0526890dc329069872ccebf4a44ea52663470724a32a6b5e",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/psx/skidmark.h",
+      "source": "recon/game/psx/skidmark.cpp",
+      "accepted_object_sha256": "37148edfa772a2da4d0cdcc9a0ebeee585182c00d5e723945990f8f0764ea02a",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/psx/skidmark.cpp: 11/11 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 11 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 11,
+      "total": 11,
+      "rebuilt_object_sha256": "37148edfa772a2da4d0cdcc9a0ebeee585182c00d5e723945990f8f0764ea02a",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/psx/texture.h",
+      "source": "recon/game/psx/texture.cpp",
+      "accepted_object_sha256": "7175acae7673f2f33062a2d53fe055cb1a1a6829dcfb52f8b15d7df6b1347581",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/psx/texture.cpp: 24/24 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 24 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 24,
+      "total": 24,
+      "rebuilt_object_sha256": "7175acae7673f2f33062a2d53fe055cb1a1a6829dcfb52f8b15d7df6b1347581",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/psx/textureprocess.h",
+      "source": "recon/game/psx/textureprocess.cpp",
+      "accepted_object_sha256": "0996bdfc40178693f4529a8f3ab5ac207cd5548cfea2211c888a43b5b24054f3",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/psx/textureprocess.cpp: 16/16 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 16 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 16,
+      "total": 16,
+      "rebuilt_object_sha256": "0996bdfc40178693f4529a8f3ab5ac207cd5548cfea2211c888a43b5b24054f3",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/psx/trackspec.h",
+      "source": "recon/game/psx/trackspec.cpp",
+      "accepted_object_sha256": "90c8ab50f127fa2f4bd3c4def26ec52aa0d1e15e387d1462cb2cdc3064e2e066",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/psx/trackspec.cpp: 5/5 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 5 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 5,
+      "total": 5,
+      "rebuilt_object_sha256": "90c8ab50f127fa2f4bd3c4def26ec52aa0d1e15e387d1462cb2cdc3064e2e066",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/psx/trsproj.h",
+      "source": "recon/game/psx/trsproj.cpp",
+      "accepted_object_sha256": "d5cf0c5b47a94349cface08e1ba5a4d330f92679265215c7dfb5af9454b57afe",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/psx/trsproj.cpp: 11/11 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 11 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 11,
+      "total": 11,
+      "rebuilt_object_sha256": "d5cf0c5b47a94349cface08e1ba5a4d330f92679265215c7dfb5af9454b57afe",
+      "accepted_rebuild_identical": true
+    },
+    {
+      "header": "recon/game/psx/weather.h",
+      "source": "recon/game/psx/weather.cpp",
+      "accepted_object_sha256": "0ddbacb299921c55bccc8e4514a775ab4a2623d42e3e8791a4749c681eb67f0e",
+      "gate": {
+        "returncode": 0,
+        "stdout": "  __none__: NO ORACLE\nrecon/game/psx/weather.cpp: 25/25 PASS\n",
+        "stderr": ""
+      },
+      "branches": {
+        "returncode": 0,
+        "stdout": "# 25 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      },
+      "pass": 25,
+      "total": 25,
+      "rebuilt_object_sha256": "0ddbacb299921c55bccc8e4514a775ab4a2623d42e3e8791a4749c681eb67f0e",
+      "accepted_rebuild_identical": true
+    }
+  ]
+}

@@ -421,11 +421,8 @@ void tScreenTrackSelect::DrawVideoWall()
 
 
 /* ---- tScreenTrackSelect::ProcessInput ---- */
-/* MATCH: unsized-array asm-label view of menuDefs -- makes the %hi an RTL
-   pseudo so cc1 CSEs ONE `lui $v0,%hi(menuDefs)` across the flag blocks and
-   loads through a SEPARATE scratch (oracle `lui $v0; lw $v1,%lo(..)($v0)`)
-   instead of the self-temp `lui $v1; lw $v1,0($v1)`. */
-extern tGlobalMenuDefs *menuDefsA[] asm("menuDefs");
+/* P872: native scalar menuDefs replaces the old menuDefsA array alias.
+   The frontend -G0 lane preserves its separate-temp loads directly. */
 extern tFEApplication *FEAppA[] asm("FEApp");
 
 void tScreenTrackSelect::ProcessInput(tPlayer player,tInputKeyType &keyval,
@@ -458,33 +455,33 @@ void tScreenTrackSelect::ProcessInput(tPlayer player,tInputKeyType &keyval,
     GetTrack(&trackManager,(ushort)(byte)frontEnd.track[(byte)frontEnd.pinkSlipsTrackIndex],
                &trackInfo);
 
-    ptVar1 = menuDefsA[0];
+    ptVar1 = menuDefs;
     (ptVar1->itemTraffic).fFlags &= 0xfffffffe;
     if ((frontEnd.gameMode != '\x01') && (frontEnd.oppNumber == '\x02')) {
       (ptVar1->itemTraffic).fFlags |= 1;
     }
     if (2 < trackInfo.fTrackDifficulty) {
-      (menuDefsA[0]->itemTraffic).fFlags =
-           (menuDefsA[0]->itemTraffic).fFlags | 1;
+      (menuDefs->itemTraffic).fFlags =
+           (menuDefs->itemTraffic).fFlags | 1;
     }
     if (trackInfo.fIsEgg != '\0') {
-      (menuDefsA[0]->itemTraffic).fFlags =
-           (menuDefsA[0]->itemTraffic).fFlags | 1;
+      (menuDefs->itemTraffic).fFlags =
+           (menuDefs->itemTraffic).fFlags | 1;
     }
     if (frontEnd.gameMode == '\x01') {
       if (frontEnd.raceType != RaceType_HotPursuit) goto ProcInpLocSpch_setFlags;
-      (menuDefsA[0]->itemTraffic).fFlags =
-           (menuDefsA[0]->itemTraffic).fFlags | 1;
+      (menuDefs->itemTraffic).fFlags =
+           (menuDefs->itemTraffic).fFlags | 1;
     }
     if ((frontEnd.raceType == RaceType_HotPursuit) && Front_EnableLocalSpeech())
     {
-      (menuDefsA[0]->itemLocalSpeech).fFlags =
-           (menuDefsA[0]->itemLocalSpeech).fFlags & 0xfffffffe;
+      (menuDefs->itemLocalSpeech).fFlags =
+           (menuDefs->itemLocalSpeech).fFlags & 0xfffffffe;
       return;
     }
 ProcInpLocSpch_setFlags:
-    (menuDefsA[0]->itemLocalSpeech).fFlags =
-         (menuDefsA[0]->itemLocalSpeech).fFlags | 1;
+    (menuDefs->itemLocalSpeech).fFlags =
+         (menuDefs->itemLocalSpeech).fFlags | 1;
     return;
   }
   if (keyval == kInput_KeyType_Triangle) {

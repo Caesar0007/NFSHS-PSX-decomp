@@ -120,12 +120,12 @@ int FEInput_GetDebounceKey(int key,int controller)
 
       if ((((key == 0x10) || (key == 0x80)) || (key == 0x20)) || (key == 0x40)) {
         if (nextTick == 0) {
-          nextTick = tick + FeTools_gScrollTicksOut[0] + 10;
+          nextTick = tick + FeTools_gScrollTicksOut + 10;
         }
         if (tick < nextTick) {
           return 0;
         }
-        nextTick = tick + FeTools_gScrollTicksOut[0];
+        nextTick = tick + FeTools_gScrollTicksOut;
         return 1;
       }
       return 0;

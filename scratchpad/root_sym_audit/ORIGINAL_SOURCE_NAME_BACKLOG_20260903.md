@@ -24,8 +24,8 @@ source-shape recovery, including intermediate higher-diff experiments.
 
 | Owner/function | Retained unresolved identifier | What is proved | Missing evidence / closure condition |
 |---|---|---|---|
-| `recon/game/common/replay.cpp` — `Replay_ResetReplay__Fv` | `piVar2` (decompiler placeholder, not an accepted semantic replacement; invented `counterCursor` was rejected and reverted) | A distinct decrementing pointer is required: direct array indexing produces 87 rather than 86 instructions and one oracle mismatch; retained form is PASS 86/86. | Retail SYM names only `i`; recover the pointer's original source spelling from canonical/source-bearing evidence. |
-| `recon/game/common/copspeak.cpp` — `CopSpeak_PlayNextRequest__Fv` | `iVar3` (decompiler placeholder, not an accepted semantic replacement; invented `queueIndex` was rejected and reverted) | A distinct cached queue index is required: direct global indexing/advancement produces six oracle diffs; retained form is PASS 71/71. | SYM names only `r` and `handle`; recover the cached index's original spelling. |
+| `recon/game/common/replay.cpp` — `Replay_ResetReplay__Fv` | `piVar2` (decompiler placeholder; invented `counterCursor` was rejected and reverted) | The retained pointer form is PASS86. Tested indexed loops emit87/86 with a late +4 address adjustment under both retail compilers; finite failed tests do not prove that a separate source pointer existed. | Retail SYM names only `i`; recover a matching carrier-free source/inline form, or direct evidence of an original pointer object and its spelling. P877 isolates the GCC late-GIV/address-bias question. |
+| `recon/game/common/copspeak.cpp` — `CopSpeak_PlayNextRequest__Fv` | `next` (existing same-object recovery, not a surviving target-local record); remaining SLD grouping | P877 eliminates the rejected `iVar3` through the existing `next` value chain at PASS71, with unchanged whole-object bytes. Native `r`/`handle` homes remain exact. No invented `queueIndex` was reinstated. | Target SYM records only `r` and `handle`; establish the target-specific `next` lifetime/home and finish the remaining source groups at retail1221/1222/1237. Full SYM/SLD exactness is not claimed. |
 | `recon/game/common/aihigh.cpp` — `AIHigh_Execute__Fv` | `bVar1` (decompiler placeholder, not an accepted semantic replacement; invented `executeHighLevelAI` was rejected and reverted) | A distinct decision object is required: direct short-circuit reconstruction produces 61 rather than 66 instructions and 33 oracle diffs; retained form is PASS 66/66. | SYM names only `carLoop` and `carObj`; recover the decision object's original spelling. |
 | `recon/game/common/nfs3.cpp` — `NFS3_CheckForFileOperations__Fv` | `e` (temporary placeholder, not an accepted source spelling) | The former guard-only `g` declaration was eliminated: repeating `gFileMgr.handlearray` is CSE'd to the exact retail guard value. A distinct loop bound remains required for PASS 21/21; direct loop comparison changes allocation. | Retail NFS4 SYM retains only `p`; this PSX-only function has no NFS2 PC counterpart, and the checked reference trees retain no source name for the bound. Recover it from canonical/source-bearing evidence or eliminate it with a byte-exact loop form. |
 | `recon/game/common/mpause.cpp` — `MPause_Logic__Fv` | `oldItem`, `newItem` (descriptive reconstruction placeholders, not accepted original spellings) | Retail code and SLD require distinct immutable before/after `fCurrentItem` snapshots across `VirtualProcessInput`. Declaring them as block-local `const int` objects produces the exact 199-instruction body and GCC 2.8.0 emits no debug definition for either, matching retail's local/block topology. | Retail SYM retains only `command`, `keyVal`, `debounce`, nested `start`, and nested `finish`. CPE/MAP, every split decompiler, NFS2/NFS3, NFS4 PC/mobile, and region references recover no spelling. Recover both names from source-bearing evidence or eliminate them with an exact ordinary expression shape. |
@@ -2821,3 +2821,971 @@ pausing this work is not completion of the larger goal.
   Existing unrelated edits and untracked archives are excluded and
   preserved. The exact commit/push result is reported separately after
   Git confirms it. All bounded agents have stopped; pause after push.
+
+## P869: ordinary source shapes and scalar declaration restored (2026-09-06)
+
+Resumed on user request after the P861-P868 checkpoint was committed and
+pushed to main as fe5df950. The active goal remains original-source/SYM/SLD
+restoration. The later user rule forbids invented semantic names even though
+the older stored goal text still mentions them; no such names are introduced.
+
+### SetScreen: the old matching recipe is no longer necessary
+
+- `feapp.cpp`, SetScreen__14tFEApplicationsP7tScreen at 80013f24:
+  **PASS20 -> PASS20**, exact debug twin. Restored nested if/store/if
+  source with ordinary fCurrentScreen[i]/fTransitionToScreen[i] accesses.
+  Removed currentScreen and all integer-address/long-long/shift casts,
+  the embedded comma-expression store, and Yoda comparison. No replacement
+  local or helper. Native SYM has only this/i/screen, REGPARM4/5/6;
+  SHORT i and pointer-array members [2] at +0x0c/+0x1c are retained.
+- A mixed intermediate form (old widened first test, typed later accesses)
+  was FAIL17 at 23/20. Completing the consistent typed-array source reaches
+  PASS20. This is a measured example of a temporary degradation leading to
+  a better source reconstruction, not a reason to retain the old casts.
+- Parent inspected all instruction line mappings: retail454 now groups
+  scale/load/first comparison;457 groups transition store/null checks;
+  458 contains the TransitionOff call. Its relocation resolves to80026804.
+  The common epilogue still has a separate closing-brace source tag while
+  retail attributes it to458. Full SLD exactness is therefore NOT claimed.
+  DisplayHelp remains unchanged and PASS9.
+
+### Car-select source statements and local set
+
+- CalcSplinePosition__16tScreenCarSelectiiiiUlRiN46 at8003b820:
+  **PASS176 -> PASS176**, exact debug twin. Removed _i by expressing each
+  conversion as `(Result2[n] >> 1) / 0x10000`; ordinary signed division
+  regenerates the negative-input correction. Native records6462ef-646561
+  specify only T/G/i/Result1/Result2. Their declaration order, types, slots,
+  registers, parameters, frame168 and mask80ff0000 remain exact.
+- Parent checked instruction attribution: screenX conversion belongs to
+  SLD611, screenY to612, camRot to625. Each complete calculation/store is
+  now one source statement. Existing unrelated statement attribution,
+  including the shared epilogue, is not claimed fully restored.
+- UpdateVideoWall__16tScreenCarSelectR8tCarInfo at8003bba4:
+  **PASS52 -> PASS52**, exact debug twin. Removed country by assigning
+  fPreviousCountry before clearing fTVsInitialized. Retail SLD657 is the
+  country load;658 is reset;659 includes the scheduled country store in
+  the SetBrightness call delay slot. The earlier failing direct-assignment
+  probe had used the wrong source order. Native records6466bd-646787
+  contain no caller local. No replacement identifier was invented.
+
+### speechfileHeader: scalar PTR, not a one-element array
+
+- Native SYM4bfac2 at8005150c explicitly records EXT PTR STRUCT LUMPYHEAD.
+  Replaced the array[1] definition and unsized-array extern with a scalar
+  `LUMPYHEAD *speechfileHeader`, removing five [0] accesses. Its four-byte
+  storage does not become16 bytes: the debug size16 describes the pointee.
+- Only feaudio.cpp includes the owning feaudio.h/feaudio_externs.h chain.
+  The existing frontend/common -G0 identity already handles non-gp
+  addressing, making this historical array workaround unnecessary. No
+  section attribute, compiler setting, symbol alias, or tooling change.
+- Fresh original and scalar builds have byte-identical complete objects,
+  SHA256 `1dfee36a2678e8c3c7cd69a923343e29cd758fec5d5ebb6dff2068b7a357a2a3`;
+  parent independently rebuilt and confirmed the final hash. Code, data,
+  rodata, relocations and storage order are unchanged. Debug .def now has
+  true scalar pointer type0x18, tagLUMPYHEAD, scl2. Cell offset0x44 is
+  followed by currentSpeechViv at0x48 and commentaryActualLevel at0x70.
+- StartLoadPatch41, InitCommentary40 and DeInitCommentary14 each retain
+  PASS and exact debug twins. P867 corrected buffers and literals remain.
+
+### Restored probes and gates
+
+- Root RemoveFromPinkSlipsList lastSlotOffset-elimination probes: widened
+  full address FAIL2 at82/82; natural slot31 field address FAIL2 at82/82;
+  widening playerNum multiplication FAIL44 at88/82. A complete ordinary
+  typed-array body without any of its seven carriers gave FAIL39 at81/82.
+  All probes were restored with apply_patch; fecars.cpp has no retained
+  content change. Final owning TU46/46 PASS, zero branch divergences;
+  SellCar96 and RemoveFromPinkSlipsList82 remain PASS. These measurements
+  do not establish impossibility; original expression/statement recovery
+  remains open.
+- Parent fresh changed-TU gates: Feapp16/16, Screencarselect59/59,
+  Feaudio10/10: **85/85 PASS**, zero branch-offset/count divergences.
+  All six directly affected function debug twins are exact. Thirteen
+  distinct oracles corroborate **900 raw executable words**, no mismatch.
+- Strict report `frontend_common_strict_p869_20260906.md`: source-only
+  carriers **489 -> 486**; measured global array carriers **13 -> 12**.
+  Unchanged: declaration-clean781, missing names0, extra locals46,
+  type findings9, storage findings9, mapping-review3. Globals190 records,
+  171 source definitions,19 blob-backed; missing/extra/type/storage0.
+  These are audit coverage metrics, not full source-restoration proof.
+- Relink GREEN:757 objects,964 pre-existing blob duplicates,0 real
+  duplicates, hidden phantoms or relocation-referenced unresolved names.
+  Vtable audit PASS1029 files; source-only policy PASS; diff-check clean.
+- Retained scope: feapp.cpp, screencarselect.cpp, feaudio.cpp and its
+  private extern header. No new asm/volatile, invented names, production
+  tooling edits, or postcompile rewriting. Unrelated edits are preserved.
+  This resumed round has not been committed or pushed.
+
+## P870: second obsolete array carrier removed (2026-09-06)
+
+### gLargestUnused restored across its consumers
+
+- Native SYM record `4b4f25` proves EXT ULONG at800514b8, owned by
+  FEApp.obj. Restored the scalar `u_long gLargestUnused` definition,
+  scalar externs, and all six direct uses in feapp.cpp and front.cpp.
+  Also corrected the unused `int` extern in bworld_externs.h to
+  `unsigned long`; bworld.cpp itself was not edited. Header include
+  inventory confines the affected build scope to these three TUs.
+- No section attribute or compiler change was needed: the established
+  frontend/common -G0 identity makes the historical array workaround
+  unnecessary. Generated .def now correctly has scalar ULONG type0x0f.
+- All three entire non-debug objects are byte-identical to their
+  respective pre-P870 baselines, with final hashes independently
+  corroborated by the parent:
+
+  ```text
+  feapp  aed59b1d17dd6befe6112862e1d2233441c9a484a071c86f50132db2e17ca65a
+  front  aa730506c2578190bce89be3559cef70c4494582b1af0d37a37497f5a4c8c5fb
+  bworld c3a0b5c04421d3854304c9961d5e6d4f398e3d5d4729f7ea0c886af4bff30435
+  ```
+
+- Feapp16/16, Front43/43, Bworld21/21 remain PASS with zero branch
+  divergences. RunDemoVideo164, MainLoop1123 and Front_Menu173 retain
+  exact debug twins; parent corroborated all1,460 oracle words against
+  the raw executable. Six stores still reference gLargestUnused+0 at
+  the correct VA; four-byte zero storage and relocations are unchanged.
+- This fixes declaration shape, NOT all FEApp data layout: gLargestUnused
+  remains at object .data+0, FEApp at .data+4, and function-static
+  currentVideo is still .bss+0 rather than between them as in the native
+  address sequence. That pre-existing original-section/order question
+  remains open. P869 SetScreen and every other prior edit are preserved.
+
+### Coordinated scalar recovery queued, not partially applied
+
+`FeTools_gScrollTicksOut` is native SYM579b67, EXT INT at800517d0,
+initialized to30. An array[1] is still present. A complete scalar fix
+requires five TUs and their shared extern header:
+
+- Base fetools.cpp: `[1] = {30}` definition becomes scalar `= 30`.
+- Base feinput.cpp: remove its two `[0]` accesses.
+- Base feinput_externs.h: unsized-array extern becomes scalar.
+- NFS4-R-JPN regional fetools.cpp: scalar definition.
+- NFS4-R-JPN regional feinput.cpp: remove two `[0]` accesses.
+- NFS4-R-USA regional fetools.cpp: scalar definition.
+
+The regional JPN feinput TU includes the base header and carries pre-existing
+user/other-agent edits. Changing only the base header would break it; leaving
+regional array definitions would preserve declaration drift. No source or
+header in this candidate's dependency set was edited. Baseline base Fetools6/6
+and Feinput4/4 PASS, with zero branch divergence. This is a coordinated edit
+queue, not proof of an unavoidable matching carrier. Resolve the regional
+changes together after inspecting and preserving that existing work.
+
+### Consolidated P869-P870 verification
+
+- Five distinct affected TUs: **149/149 PASS**, zero branch divergences.
+  The separately restored fecars probe is46/46 PASS. Nine directly affected
+  functions have exact debug twins. Sixteen distinct oracles have **2,360
+  raw executable words** corroborated, with no mismatch.
+- Final frontend report `frontend_common_strict_p870_20260906.md`:
+  source-only carriers **489 -> 486** across these two rounds; global array
+  carriers **13 -> 11**. Declaration-clean781, missing0, extra46, type9,
+  storage9 and mapping-review3 remain unchanged. Global record coverage,
+  type and storage findings remain unchanged and clean. The counts do not
+  establish full SYM/source/SLD exactness; the goal is still incomplete.
+- Final relink GREEN (757 objects,964 known blob duplicates,0 real
+  duplicates/hidden phantoms/relocation-referenced unresolved names),
+  vtable indexing PASS1029 files, source-only policy PASS.
+- Added P870 scope: feapp_externs.h, front.cpp, front_externs.h,
+  bworld_externs.h, plus the already-edited feapp.cpp. No new asm/volatile,
+  invented source names, production tooling edits or postcompile rewrite.
+  Existing unrelated changes and regional files were preserved.
+  P869-P870 remain uncommitted and unpushed; this resume request did not
+  ask for a new commit. The latest committed checkpoint is fe5df950.
+
+## P871: coordinated scalar restoration and original vol parameter (2026-09-06)
+
+The previous goal turn was verified progress. This round followed the complete
+declaration/consumer graph, including regional variants, rather than declaring
+the base-only audit sufficient. Existing unrelated edits remain preserved.
+
+### Nine more native scalar globals restored
+
+| Native record | Global | Restored type / initial value |
+| --- | --- | --- |
+| 579b67 | FeTools_gScrollTicksOut | int = 30 |
+| 579b0f | font12 | char pointer, zero |
+| 579b23 | font18 | char pointer, zero |
+| 579b37 | fontTitle | char pointer, zero |
+| 579b4e | currentSize | short, zero |
+| 5e4a59 | CURRENTPLAYER | int = 0 |
+| 5984a8 | gPSXMemCardFull | int, zero |
+| 5984e6 | gAllScreens | tAllScreens pointer, zero |
+| 59850d | memCardReadOK | bool, zero (four-byte target storage) |
+
+- Parent read all nine native records directly. None is an ARY record.
+  Pointee debug sizes are not scalar pointer storage sizes; gAllScreens
+  occupies four bytes, not the 15,320-byte tAllScreens pointee size.
+- FeTools' five definitions, externs and uses were corrected coherently
+  across base fetools/feinput/fetextrender, JPN fetools/feinput and USA
+  fetools, plus three owning extern headers. No partial shared-header
+  change was left to break a regional consumer. JPN feinput received only
+  the two relevant [0] removals; its existing source was otherwise preserved.
+- CURRENTPLAYER was corrected in base plus USA/JPN/AU fememcard and its
+  owning extern header. Six uses per owner now access the scalar. Base and
+  regional fedialog consumers, and USA femenudefs, already used the correct
+  scalar declaration; they were checked but not edited.
+- Front's three globals were corrected in base/USA front.cpp and their
+  shared front_externs.h. Existing scalar declarations in other headers
+  needed no changes. Genuine native arrays (gFE_Cheats[5], colourChosen[8],
+  CarLineup[9], picked[11], and the [7][5] cop-model tables) were preserved.
+- No section attributes, new aliases, identifiers, asm, volatile, compiler
+  flags or production tools were introduced. The established frontend -G0
+  lane produces the same addressing with the native scalar declarations.
+
+### Object identity and data receipts
+
+Every affected base object in the scalar-only work is byte-identical to its
+own fresh pre-change baseline. Parent rebuilt all affected base TUs and
+independently corroborated these final SHA-256 values:
+
+```text
+fetools      1d535232d8873d24d4c2b4711591edc976272e6d3c8b89c66145d2a4478d9f57
+feinput      82466870af7c89b215e35aac5d4335a7ec237f82008bd5d2f75f55ffc8553a52
+fetextrender fc573287922a2dc9949dd2cc97b5d714612ba489c1ea87a6a07c9e3fb0a62260
+fememcard    e395c1f80d78658688679ae01ce07663e319d09e2e1816d0515625fe5e5d81d8
+fedialog    c6c396dcd266d5d211506f03e71c8ee09ae2cc0f01282b4ef0bcbf9897156983
+front       aa730506c2578190bce89be3559cef70c4494582b1af0d37a37497f5a4c8c5fb
+```
+
+- This proves unchanged code, data, relocation and symbol payloads for
+  those builds, not completeness of the entire game's linked layout.
+  Native debug entries now correctly distinguish PTR CHAR (0x12), SHORT
+  (0x3), INT (0x4), PTR STRUCT and BOOL instead of artificial arrays.
+- The FeTools 18-byte run at800517d0 (INT30, three zero pointers, SHORT0)
+  and FEMemCard 56-byte run at80051a68 match retail. Storage/definition order
+  remained unchanged. FeTools Init58/Deinit20, GetDebounce69, SetFont29 and
+  Front ConstructAll100/DeleteAll25/InitialCheck19/SecondaryCheck50 retain
+  exact debug twins. These affected base oracles comprise 370 raw words.
+- Regional scalar-only comparisons preserve every code/data/relocation
+  section and every decoded non-file symbol. Their literal ELF file hashes
+  can differ because verify_region embeds PID-specific temporary filenames;
+  this metadata difference is excluded explicitly, not silently treated as
+  whole-file identity. All pre-existing regional code mismatches remain.
+
+### P870 regional omission found and repaired
+
+The P870 base-only consumer search missed two USA front.cpp uses and all
+six regional feapp.cpp copies. They still used gLargestUnused[1]/[0] after
+the shared declaration became scalar, causing regional compile failures.
+The earlier 149/149 base gate did NOT cover that error.
+
+- Corrected the two USA Front_Menu accesses and only five lines in each
+  regional feapp.cpp (scalar definition plus four uses). All six regional
+  variants now agree with the shared scalar header.
+- Established original-array regional baselines with the original single
+  extern declaration, then restored the scalar declaration before final
+  validation. These checks were serialized while other frontend builds
+  were stopped; no temporary array declaration remains.
+- Regional feapp objects preserve all sections, relocations and decoded
+  symbols apart from temporary source filenames. All24 manifest-selected
+  regional checks pass; 11,433 raw oracle words corroborated.
+- Front_Menu has no standalone regional oracle file. Its repaired USA
+  form compiles; the mapped 173-word raw comparison agrees outside marked
+  relocation fields. This is not misreported as a dedicated REGION-PASS.
+- Parent's final search of both recon and regiondiff/recon finds no live
+  array definition/use for any of the eleven restored scalar globals from
+  P869-P871. Old scratchpad snapshots were intentionally left unchanged.
+
+### AudioEng_Set: restore use and register home of vol
+
+- Native AudioEng_Set__Fiiiiiiii at8007b5a8 records vol as REGPARM s7,
+  with only g/a/s as ordinary function locals. The previous reconstruction
+  instead recorded vol in a1 and an invented volume alias in s7.
+- Removed volume and use vol directly at all four input/output boost
+  accesses. **PASS159 -> PASS159**, exact debug twin; owning TU9/9 PASS,
+  zero branch divergences, 159/159 raw oracle words corroborated.
+- Generated .def vol now has val23/scl17/type0x4, matching native SYM.
+  The s7 argument copy now belongs to the function prologue (retail SLD205)
+  instead of the deleted alias-initialization statement. The other existing
+  parameter aliases and their SLD attribution remain unresolved; this is
+  not a claim that the whole function is source/SLD-exact.
+- Measured probes, all restored except volume removal: deleting all six
+  parameter aliases gives FAIL12 at159/159; const-qualified or register
+  parameter spellings remain FAIL12. Keeping only volume/doppler gives
+  FAIL22. Individual removals give camera22, doppler12, azimuth14,
+  gasLevel18, direction8, all count-exact159/159. These receipts reject
+  those particular forms, not all future original-source recovery paths.
+- AIPerson_LoadPersonalityData was inspected only, remains PASS209 with
+  its existing unresolved copCollisionFirmness carrier; no source change.
+
+### Final scope-correct verification and remaining queue
+
+- Parent refreshed all11 distinct base TUs affected across P869-P871:
+  **235/235 PASS**, zero branch-offset/count divergences. Relink GREEN:
+  757 objects,964 known blob duplicates,0 real duplicates, hidden phantoms
+  or relocation-referenced unresolved names. Vtable indexing PASS1029
+  files; source-only policy PASS; diff-check clean.
+- Parent also ran the manifest's candidate/region/function combinations
+  for all affected regional units: **141/159 REGION-PASS**. The18 remaining
+  checks are pre-existing mismatches of unchanged object payloads, now
+  explicitly visible rather than hidden by narrow per-representative gates:
+  AU fememcard Init_Memcard against JPN (2 diffs); JPN FEInput_GetNoDebounceKey
+  (4); USA fememcard LoadGame against six regions (2 or4); SaveGame against
+  AU/FR-DE/UK-ES-IT/UK-SW (2); SavePinkSlipsCars against six regions (20).
+  No current scalar rewrite caused these byte differences. The regional
+  candidate/group mapping and those source bodies remain a review queue;
+  full regional matching is not claimed.
+- `frontend_common_strict_p871_20260906.md`: local carriers remain486;
+  global array carriers **11 -> 2** (gMenu_SubMenuPlayer and menuDefs).
+  Declaration-clean781, missing0, extra46, type9, storage9 and mapping3
+  remain unchanged. Global declaration coverage/type/storage remain clean.
+- `game_common_strict_p871_20260906.md`: local carriers **492 -> 491**;
+  declaration-clean1228, missing0, extra6, type28, storage28, mapping0.
+  All547 owned data records have source definitions;115/115 SYM vtables
+  mapped. These audit figures still include unresolved carriers/ABI cases
+  and are not an original-source or complete SLD proof.
+- P869-P871 changes are uncommitted and unpushed. The full goal remains
+  active and incomplete; no completion criterion was narrowed to this
+  round's successful scalar and parameter restorations.
+
+## P872: native source shapes replace alias/inflator recipes (2026-09-06)
+
+The prior goal turn was verified progress. This round removes more real
+source discrepancies; it does not treat declining audit counts as completion.
+
+### Last two owned frontend array carriers restored
+
+- Native563d74 records gMenu_SubMenuPlayer as ENUM tPlayer, four bytes at
+  800517c0, initialized to ffffffff. Native5ba0c1 records menuDefs as PTR
+  tGlobalMenuDefs, four bytes at80051a58. The pointee is15,128 bytes, not
+  the pointer cell. Both definitions and their complete live declaration/use
+  graphs now use scalars, across base and regional source copies.
+- Scope covered16 base TUs,35 regional copies and18 private extern headers.
+  The menuDefsA aliases in base/USA/AU screentracks and A_menuDefs aliases in
+  base/USA screenpinkslips were removed: five asm-alias declarations and two
+  alias macros, with ordinary menuDefs references replacing them.
+- An important mixed-declaration interaction surfaced: after scalarizing
+  menuDefs, GoToDealer and GoToSeller initially failed14 at26/26. Merely
+  removing old inflators did not fix them. Native64b0d0 also identifies
+  screenCarSelect as a scalar pointer, while its shared extern is still an
+  array view. Reading that scalar with
+  `(*(tScreenCarSelect **)&screenCarSelect)->SetState(...)` resolves the
+  interaction without another named carrier or new asm.
+- Both MenuExtended_GoToDealer and MenuExtended_GoToSeller now have the
+  original five statements: command type, next menu, SetState, Decrement,
+  Increment. Each has only native command REGPARM a2 and zero locals,
+  frame24/mask80010000/offset-4. **PASS26/exact-g** each; all26 instruction
+  SLD tags match by a single constant source-line offset, including prologue
+  and epilogue. Removed ten source carriers and four absorption inflators.
+- The complete screenCarSelect extern graph is still a genuine next task;
+  the scalar-equivalent read is not presented as completion of that graph.
+  Native-source restoration must not stop at the owned-global audit's zero.
+- Evidence artifact `p872_frontend_scalar_receipts_20260906.json` records
+  all51 pre/post object comparisons, exact candidate/region/function gates,
+  scope, native records, failures and final receipts. Parent parsed it and
+  independently re-gated all16 base TUs: **459/459 PASS**, branch divergence0.
+  All16 raw base object hashes, and all51 code/data/relocation and decoded
+  non-file symbol payloads, match their pre-change baselines.
+- Selected regional matrix: **433/439 PASS**. The six unchanged misses are
+  DrawForeground__14tScreenMemcard, two diffs in each region. This is a
+  different check set from P871's159 checks, not evidence that its18 misses
+  were fixed. Non-selected stale regional bodies retain their prior misses.
+
+### AudioEng_Set: only native parameters and locals, no asm
+
+- Restored the complete dop call/store in EACH carType arm. GCC naturally
+  tail-merges the common operations, reproducing the original code without
+  the merged adjustedEsp result variable. This also restores the actual
+  parameter homes instead of forcing copies into differently named locals.
+- Removed camera, doppler, azimuth, gasLevel, direction, adjustedEsp and
+  shiftedEsp, plus BOTH empty asm statements. P871's vol correction remains.
+  The function now contains only original parameters and locals g/a/s.
+- Native1b37ad-1b38c8 homes are reproduced: vol23, gas19, cam21, dop5,
+  azi22, dir20; stack ARG records16/20/24/28 remain present alongside their
+  register copies. g/a/s are17/18/16, frame56/mask80ff0000/offset-8.
+- Parent verified **PASS159/exact-g**, TU9/9 PASS, branch divergence0 and
+  the complete unchanged object hash
+  `a31bfb39592b9d323c16a6ebbaacc3513cbc8337b626a5561d99015c76d17b56`.
+  Raw159/159 oracle words match retail. SLD205 source groups6->1 (proper
+  prologue), SLD224 and226 each2->1; no unrelated retail groups were merged.
+- All31 nonempty subsets of the previous five argument-alias removals failed
+  before restoring the branch-level statement shape. The best diagnostic
+  basins were azimuth-only4 and four-alias-removal6 diffs, both count-exact.
+  This disproves the interpretation of those earlier per-alias failures as
+  evidence that the original source needed the extra names or fences.
+- Corrected the unrelated stale file-header description that called this
+  bworld.obj: the TU is audioeng.obj and contains nine engine-audio functions.
+
+### Collision loop: native locals, scope and actual crash field
+
+- Collide_CheckForCollisionBetween at80091374 now uses p/normal at function
+  scope and count in the native nested block. Removed normalPtr and
+  speedThresh by restoring
+  `while (Collide_TestObjectVertices(...) && count > 0)`, a separate count
+  decrement and shared final return. The matched NFS2 PC beta function in
+  `C:\Temp\nfs2-clean\pc-beta\match\collide` independently supports that
+  loop shape; NFS4-specific collision and damage behavior was preserved.
+- Native21e074-21e193 and emitted debug entries agree: o0/o1=s1/s2,
+  p AUTO-56,size12, normal AUTO-40,size12, nested count INT/s0,
+  frame72/mask801f0000/offset-4. **PASS88/exact-g**, TU14/14 PASS and
+  zero branch divergences, including after the parent's field correction.
+- Parent traced both damage guards to raw offset0x3ec. Native Car_tObj MOS
+  records identify this as crash (e.g.02acf1), not a collision member of a
+  second BO_tNewtonObj. Replaced the two misleading
+  `o[1].collision.lastCollision` accesses with `((Car_tObj *)o)->crash`.
+  No offset/value changed; the field identity now reflects the actual car.
+- Full instruction-to-SLD grouping is preserved, including loop1389 and
+  damage checks1402/1407. Four callee identities map to native VAs90144,
+  8e5d4, aa7b0 and9ef2c. Raw88/88 words match retail.
+- Restored probes: direct removal in while(true)96 diffs at86/88,
+  normalPtr-only89 at89/88, threshold-only19 at85/88, postdecrement-condition
+  rewrite104 at94/88. Source shape, not an alleged allocator floor, resolved
+  the recorded object budget.
+
+### AIPerson: literal/array identity and public source names
+
+- Startup's five format arguments now use the actual strings from raw
+  80055354/64/74/84/94: `%sprsonal.bin`, `%sscripts.bin`, `%sbtcglue.bin`,
+  `%shhglue.bin`, `%sglue.bin`. The unusual prsonal spelling is retail,
+  not corrected by guesswork. Removed their five synthetic D_ externs.
+- Both former D_80116470 reads now use Paths_Paths[2], and the duplicate
+  address-only extern is removed. Parent inspected actual LO16 addends:
+  the last two path reads carry +8; literal addends are0/16/32/48/64.
+  All **75 emitted .rodata bytes** match retail80055354..8005539e, including
+  the inter-string alignment bytes. Trailing bytes/full linked layout are
+  not included in that claim.
+- SetPersonality now accesses GameSetup_gPersonalityNames[personalityIndex]
+  directly instead of pointer arithmetic from row0. Native2874e4 proves
+  CHAR[15][8],120 bytes; its private extern now records both dimensions.
+  Startup **PASS105/exact-g**, SetPersonality **PASS50/exact-g**; TU8/8
+  PASS and branch divergence0. Split m2c/raw call arguments corroborate them.
+- The currently unconsumed public aiperson.h still declared all eight API
+  names with embedded GCC-v2 mangling. Corrected those prototypes to the
+  same ordinary source names as the implementations; the C++ compiler
+  supplies the mangling. Legacy cc1plus syntax-only header check PASS.
+  Production include inventory had no users of that stale public header.
+- Remaining AIPerson source-model debt is explicit: its private header
+  still models GameSetup_gData as int[19], and AIPERSON_PERSONALITY_AT
+  reaches the real car-row Personality value through the unrelated
+  Car_tObj::angularVel_ch.x offset. Correct field/global reconstruction
+  requires reconciling the GameSetup type/owner graph, not hiding it under
+  another invented identifier. This round did not claim that model exact.
+  Other stale public headers with mangled source prototypes also need
+  inventory; definition-only declaration audits do not cover them.
+
+### P872 consolidated gates and remaining state
+
+- Parent fresh checks: frontend459/459 plus game31/31 = **490/490 PASS**
+  across19 TUs checked this round, all branch gates clean. These are scoped
+  regression counts, not the whole-project matching board.
+- Parent independently checked402 raw words for the four game targets;
+  frontend receipt corroborates103 additional base words. The AIPerson
+  literal/reference checks are separate from normalized instruction PASS.
+- Final reports: frontend source-only carriers **486 -> 476**, owned global
+  array carriers **2 -> 0**; game carriers **491 -> 482**. Existing clean
+  coverage and review counts otherwise remain unchanged (frontend781
+  declaration-clean,46 extra,9 type/9 storage/3 mapping; game1228 clean,
+  6 extra,28 type/28 storage/0 mapping). Zero global-array-carrier count
+  does NOT cover remaining wrong extern views, all aliases, or source names.
+- Relink GREEN:757 objects,964 known blob duplicates,0 real duplicates,
+  hidden phantoms or relocation-referenced unresolved names. Vtable indexing
+  PASS1029 files; source-only policy PASS; diff-check clean. No new asm,
+  volatile, invented source names, production tool change or postcompile
+  rewrite. Existing unrelated edits and historical snapshots are preserved.
+- All P869-P872 work remains uncommitted/unpushed. The full source/SYM/SLD
+  goal remains active and incomplete; the next coordinated declaration
+  task includes screenCarSelect, alongside the remaining local/type/scope
+  and correct-field recovery work.
+
+## P873: scalar extern closure, native fields, and explicit type visibility (2026-09-06)
+
+The prior goal turn was verified progress. This round follows the discrepancies
+left outside the owned-global audit, while keeping genuine visibility questions
+explicit rather than forcing a misleading green result.
+
+### screenCarSelect: complete declaration/use graph corrected
+
+- Native64b0d0 proves a scalar PTR tScreenCarSelect at8005203c, one four-byte
+  cell with a928-byte pointee. The owning definition and most externs were
+  already correct; femenudefs_externs.h was the remaining array declaration.
+- Corrected that extern and every corresponding use in all seven base/regional
+  femenudefs.cpp copies. Dealer/Seller now use ordinary
+  `screenCarSelect->SetState`, removing the P872 scalar-punning expressions.
+  Both remain **PASS26/exact-g** with their exact native SLD partitions.
+- The old GoToGarage ternary became FAIL8 at42/42 after the declaration fix.
+  Native SLD1228/1229/1230 distinguishes the condition, then and else; restoring
+  explicit if/else assignments gives **PASS42**, including all regional copies.
+  Its existing garageIterator inline-scope carrier is not claimed recovered.
+- Parent re-gated Femenudefs66/66, Screencarselect59/59 and Front43/43:
+  **168/168 PASS**, branch divergence0. All12 graph objects preserve code,
+  data, relocation payloads and decoded symbols. All254 selected regional
+  checks pass. True same-named embedded members in tAllScreens were untouched.
+- Full receipt: `p873_screen_car_select_scalar_receipts_20260906.json`,
+  including12 object comparisons,23 regional groups and94 base/48,658 regional
+  raw words corroborated. Historical array spellings in comments remain receipts,
+  not live declarations or uses.
+
+### AudioEng_Update: remove rampedVolume
+
+- Removed the unrecorded rampedVolume local. Each decreasing volume assignment
+  uses `((signed char)current - 2) >? target`; each increasing assignment uses
+  `((signed char)current + 2) <? target`, in its original left/right voice arm.
+  Working-value-first GNU max/min preserves signed promotion and retail reloads.
+  No replacement name or invented macro was introduced.
+- **PASS366/exact-g**, AudioEng_Set **PASS159/exact-g** preserved; TU9/9
+  PASS, branch divergence0,366/366 raw oracle words exact. The complete object
+  remains byte-identical to P872:
+  `a31bfb39592b9d323c16a6ebbaacc3513cbc8337b626a5561d99015c76d17b56`.
+- SLD source grouping improves at378/381/383 and415/418/420 (the complete
+  clamp belongs to one original statement); no new cross-retail-line merges.
+  Ternary expansions grew to376/378 instructions, and reversed GNU operand
+  order gave56 diffs; those probes were restored. Existing loop-head asm is
+  unchanged and remains an original-source recovery issue.
+
+### Collide_DoObjectObjectCollision: original parameter and car flags
+
+- Removed object1 and its preceding obsolete empty asm together. Alias removal
+  alone was FAIL5 at992/991; removing the compensating fence as well restores
+  **PASS991/exact-g**. Native o1 now emits REGPARM30 rather than parm5 plus an
+  invented REG30 local. No other parameter/local was renamed.
+- Replaced six fictitious `o[1].simRoadInfo.quadPts[1].y` accesses with the
+  actual `((Car_tObj *)o)->carFlags` field. Native2169a8 is INT at+0x260 and
+  the raw loads agree. The P872 crash-field corrections remain intact.
+- Each Rt0/Rt1 subtraction triple is now one comma expression matching the
+  single retail SLD563/564 statement. No unavailable original macro name was
+  invented. The fp argument copy now belongs to the proper SLD554 prologue.
+- Parent verified target991, whole TU14/14, branch divergence0 and991/991 raw
+  words. Removing the remaining post-impulse fence gave FAIL3 at990/991; it was
+  restored and explicitly documented. Full asm-free restoration is still open.
+
+### AIPerson: correct canonical GameSetup model, with a visible audit discrepancy
+
+- Native2874b5 defines GameSetup_gData as a2600-byte GameSetup_tData structure.
+  Replaced the false int[19] extern with that canonical type, using the exact
+  body recorded at27dcf0..27e1c7. Parent compared every emitted member/type/
+  offset/dimension and total size against the gmesetup owner's canonical type
+  record: exact semantic equality.
+- Replaced AIPERSON_RACE_TYPE/WEATHER/PERSONALITY_AT macros with actual fields:
+  raceType at0, Weather at0x48, carInfo[carLoop].Personality. carInfo begins at
+  0x3d4, has nine180-byte rows, and Personality is at row+0x50; combined0x424
+  exactly matches the raw load with0xb4 stride. Aiperson's own record108e21
+  independently names Personality. The previous use of the unrelated
+  Car_tObj::angularVel_ch.x member was a false identity, not original typing.
+- Four additional raw+0x260 accesses in LoadGlue/Startup now use the real
+  Cars_gHumanRaceCarList[index]->carFlags member. P872 literals, path-table
+  identity, name-array dimensions and public API corrections are preserved.
+- Affected LoadGrid19, LoadPersonalityData209, LoadGlue67 and Startup105
+  retain PASS and exact debug twins. Entire TU8/8 and branch gates remain
+  clean. Parent rebuilt the fresh P872 baseline and the corrected form:
+  their complete non-debug objects are identical, SHA256
+  `983f08f87ad79f45b2255cbd8ffe1b45b83535a28f5222bd510af2a31af0ed4d`.
+- **The per-aiperson type-visibility question is NOT solved.** Its retained
+  native block106235..10f834 contains the nested GameSetup records but not the
+  outer GameSetup_tData body. The fresh before graph is OK,73/73 named types,
+  2/2 anonymous,157/192 typedef records (duplicate-count deficits pre-existing).
+  The corrected graph still matches those73 native types but adds the owner-
+  proven GameSetup_tData tag and implicit typedef: the tool correctly reports
+  DIFF. No exemption, filter or tooling change was added to hide that result.
+- Reports `type_graph_aiperson_p873_before_20260906.tsv` and
+  `type_graph_aiperson_p873_final_20260906.tsv` preserve the distinction. A
+  separate independent read-only review confirmed that restoring the actual
+  global/field identities is the more faithful model; absence of the outer
+  tag in this object's debug graph does not prove why the original compiler
+  omitted it. Original header/accessor/debug visibility must still be
+  investigated. Do not claim per-TU SYM exactness from code PASS, and do not
+  restore false types solely to turn the audit green.
+
+### P873 final gates and remaining scope
+
+- Parent's six-TU regression set: frontend168 plus game31 = **199/199 PASS**,
+  zero branch divergences. Its six game-target raw checks corroborate1,757
+  words. Regional254/254 is this round's screenCarSelect matrix, not a claim
+  that P871/P872's differently scoped regional misses were fixed.
+- Frontend strict declaration metrics remain476 local carriers and0 owned
+  global array carriers; game local carriers **482 -> 480**. Other declaration
+  review counts remain unchanged. These reports do not subsume the explicit
+  additional GameSetup per-owner type-visibility DIFF above.
+- Relink GREEN:757 objects,964 existing blob duplicates,0 real duplicates,
+  hidden phantoms or relocation-referenced unresolved names. Vtable indexing
+  PASS1029 files; source-only policy PASS; diff-check clean. No invented names,
+  new asm/volatile, build-tool changes or postcompile rewrite. One old asm
+  fence was removed; remaining fences have not been excused as original source.
+- P869-P873 changes remain uncommitted/unpushed. The full source/SYM/SLD goal
+  remains active and incomplete, including true external declarations,
+  field identities, source-local budgets, remaining asm and original scopes.
+
+## P874: callback/local scopes and verified public-prototype repair (2026-09-06)
+
+The previous goal turn was verified progress. This round also examines public
+declarations that definition-only audits and the current build never exercised.
+
+### Four menu callback carriers removed with full SLD alignment
+
+- Removed menuDefsBase from MenuExtended_GoToUpgrades (8002c960),
+  GoToShowroom (8002d278), GoToDealerShowroom (8002d2b8), and
+  TransitionFromPostGameToMainMenu (8002c494).
+- The first three now use ordinary type/nextMenu/SetState statements;
+  the final callback assigns nextMenu before type, matching SLD296/297.
+  Native records contain only command REGPARM a0 (PTR tMenuCommand,size8),
+  no caller locals. The corrected scalar global declarations make the old
+  direct-use failure receipts obsolete for these functions.
+- Parent verified **PASS16/16/16/7**, all exact debug twins. All55 retained
+  instructions match native SLD grouping by one constant source-line offset
+  per function, including prologues/delay slots/epilogues. No line directives.
+- Owning TU66/66 PASS, zero branch divergences, and complete object hash
+  unchanged: `e5f8a1f116f2e9aeecfbf0d2d96c5e4e6a6164caea5ef588aec3690449580fd0`.
+  The direct YesNoDialog-object probe in AskTheUserToSaveTheGame remained
+  FAIL6 at30/30 (sp-based stores instead of the retained s0 receiver) and
+  was fully restored. No original inline receiver spelling was invented.
+- Detailed receipt: `p874_femenudefs_callbacks_receipts_20260906.md`.
+
+### Collide_ClearCollisionRegistry: correct declaration scopes
+
+- Native21e256/21e25f places i in the first for scope;21e277/21e280 places
+  slice in its nested body. Replaced the flattened function-scope declarations
+  with `for (int i=...)` and a distinct nested body containing slice.
+- Generated block boundaries now follow retail: loop test8009151c, slice
+  block80091530..80091664, i scope end80091690. An extra enclosing-brace
+  probe produced surplus entry blocks and was replaced, not retained.
+- Parent verified **PASS128/exact-g**, TU14/14 PASS and branch divergence0;
+  raw128/128 words corroborated. Corrected the stale TU comment count13->14.
+- The later n carrier remains. Direct-bound/native-scope for probes gave
+  FAIL10 at132/128; postincrement-condition for11 at131; do/postincrement4
+  at128; do/prefix7 at129. All were restored. No carrier-count credit is
+  claimed for the scope restoration; the original empty-loop form is open.
+
+### AudioEng_StartUp: bounded probes restored
+
+- Investigated its two chanbase locals using46 source-shape/scope variants,
+  separately and together. Best first-base removal was FAIL11 at375/376:
+  the compiler folded the g+284 base into the inner index instead of hoisting
+  g->chan. Second-only removal91 at375; both100 at374. These identify the
+  specific invariant/strength-reduction question, not an impossibility.
+- Every probe restored; final **PASS376/exact-g**, TU9/9 and branch0,
+  raw376/376 words exact. Complete object remains
+  `a31bfb39592b9d323c16a6ebbaacc3513cbc8337b626a5561d99015c76d17b56`.
+  P872/P873 Set/Update and all previous improvements are preserved.
+
+### Twenty-three public prototypes now name the actual source functions
+
+- audioeng.h and collide.h still spelled nine/fourteen C++ prototypes with
+  encoded GCC-v2 suffixes. Their implementations use ordinary source names.
+  Parent verified each native EXT FCN record, source definition and return
+  type before removing the suffixes. Argument types/order/names were unchanged.
+- No literal production include of either stale public header was found in
+  recon or regiondiff/recon. Thus the existing object/relink gates had not
+  tested these API declarations; an unused bad declaration is still a source
+  restoration problem.
+- Independent legacy-compiler probes took addresses of all23 functions.
+  Isolated copies of the original headers produced **23/23 double-mangled
+  references absent from the native symbol map**, for example
+  `AudioEng_CleanUp__Fv__Fv`. Corrected headers produce **23/23 exact native
+  symbols**, including complete pointer/reference/type encodings. The probes
+  use the real cc1plus and do not execute or link any test code into the game.
+- Only source declaration spelling and explanatory comments changed. These
+  are verified public API corrections, not renames of native binary symbols
+  or assembler oracles. Existing C-linkage bridges must be treated separately.
+
+### Systematic public-header remaining-work inventory
+
+- New read-only `p874_public_header_inventory.py` creates
+  `public_header_prototype_queue_p874_20260906.md`. It finds1130 candidates
+  across79 headers with paired C++ sources:1060 have a native EXT linkage
+  record and a same-name implementation candidate;59 require C-linkage
+  review;11 have weaker/ambiguous evidence.
+- These are candidates for verification and repair, NOT final exceptions
+  or a claim that every row is wrong. The scan does not establish complete
+  signatures, namespace/member scope, export visibility, overloads, macro
+  expansion or transitive includes. It deliberately omits multi-line and
+  member/operator forms, which still need review. Literal include counts
+  are search hints, not a dependency proof.
+- The next systematic pass must compile typed references, reconcile native
+  return/parameter records and actual definitions, and preserve genuine ABI
+  bridges. Do not blindly strip mangling or leave evidence-backed candidates
+  indefinitely as documentation. Aiperson's8 earlier corrections and these
+  23 completed prototypes are excluded from the remaining queue.
+
+### P874 final validation and outstanding work
+
+- Parent regression set: **89/89 PASS** across Femenudefs66, AudioEng9,
+  Collide14; branch gates all0. Relink GREEN:757 objects,964 pre-existing
+  blob duplicates,0 real duplicates/hidden phantoms/relocation-referenced
+  unresolved names. Vtable indexing PASS1029 files; source-only policy and
+  diff-check PASS. No new asm, volatile, invented names or postcompile rewrite.
+- Frontend source-only carriers **476 -> 472**; game remains480. Other
+  declaration review metrics are unchanged. Scope corrections and public
+  prototype recovery are real progress outside those carrier counts.
+- P873's canonical GameSetup model and its explicit additional per-aiperson
+  type-visibility DIFF remain unchanged and unresolved. Remaining asm,
+  unknown original inline/macro forms, wrong extern views and public-header
+  declarations are still part of the full goal; no completion claim is made.
+- P869-P874 retained work remains uncommitted/unpushed. Unrelated edits,
+  regional bodies and historical scratch snapshots were preserved.
+
+## P875: public-header source names and native API contracts restored (2026-09-06)
+
+### The recorded 1,130-row queue is resolved, not exempted
+
+Reviewed every P874 candidate against native function records, actual definitions,
+compiler-generated linkage and defining-object visibility. Across 79 public
+headers, **1,119 EXT prototypes now use original source names/signatures** and
+**11 native STAT declarations were removed from public interfaces**. Their
+file-private implementations remain unchanged. No native binary symbol, oracle
+label or implementation was renamed by this pass.
+
+| Disjoint batch | Headers | Corrected EXT | Removed STAT | Other false non-member declarations removed | Paired function gates |
+| --- | ---: | ---: | ---: | ---: | --- |
+| AI | 13 | 197 | 4 | 49 | 274/274 PASS |
+| Audio/math/path common | 9 | 115 | 0 | 0 | 114/115 PASS |
+| Remaining common | 17 | 249 | 2 | 64 | 320/320 PASS |
+| Root common | 15 | 174 | 3 | 9 | 205/206 PASS |
+| PSX | 25 | 384 | 2 | 0 | 384/386 PASS |
+| Total | 79 | 1119 | 11 | 122 | 1297/1301 PASS |
+
+The 122 separately removed declarations were erroneous non-member forms of
+existing constructors/destructors/methods. The real class APIs remain in their
+included types. Typed member pointers and ordinary constructor/destructor calls
+emit all 122 expected native references; the corresponding real exports exist.
+Legitimate explicit-C ABI bridges were distinguished and preserved, not stripped
+by a blanket name rule. No new semantic identifier was invented.
+
+### Name correctness alone was insufficient
+
+Typed reference probes exposed additional argument, callback and return drift.
+For example, Replay_RetreivingControllerData returns a 128-byte tControllerData
+aggregate, not void; return type is not encoded in the free-function linkage
+name, so an nm-only comparison would have missed it. Other repairs restore native
+Car_tObj/coorddef/animation/schedule/scene pointers, enum and bool parameters,
+const/reference qualification, variadic Debug, and actual callback/array arity.
+Font_Blit's seventh int and Font_SetBlitter's seven-argument callback are restored.
+Each batch retains per-record evidence; source spelling follows SYM, including
+original misspellings, rather than inventing prettier names.
+
+All 79 final whole headers compile. The before state had 69 compiling headers
+and 10 genuine whole-header failures: four AI headers, object/track, and
+anim/mpause/pausemenu/bworldsm. Failed original headers are not counted as
+successful old-symbol probes. AI's separate collision-filtered diagnostics are
+explicitly identified as such. Every corrected public reference (1119/1119)
+emits the exact expected native symbol and targets a GLOBAL defining symbol;
+all 11 excluded private functions retain LOCAL visibility.
+
+### Parent validation and honest residuals
+
+- A fresh parent source-only run over all 79 owners confirms **1297/1301 PASS**.
+  Four existing misses remain unchanged: AudioClc_SoundPlayersCar (4 differences),
+  Replay_StoringControllerData (188), Night_CreateNightTableElement (56), and
+  Weather_Init (12). These are scoped totals, not a whole-project board update.
+- Branch checks retain exactly three existing residual functions:
+  AudioClc_SoundPlayersCar (instruction51,14 vs12),
+  AudioTrk_AddCustomObject__FP9AudioElemiP8coorddefiP8Car_tObji
+  (instruction48,14 vs13), and Replay_StoringControllerData
+  (instruction1,219 vs223). No new branch mismatch was found.
+- The 41 root/common defining objects have fresh pre-header-edit/post-edit
+  whole-object hash identity receipts. AI/PSX additionally have fresh owner
+  gates and actual-export checks; their implementation/include graphs were
+  unchanged. Searches found no production consumers of these formerly malformed
+  public headers. A zero literal include count alone is not proof of arbitrary
+  historical or macro-driven include structure.
+- The parent accepted-object/rebuild check initially found78/79 exact whole
+  hashes. The diagnostic had invoked AIWORLD.cpp with filesystem-uppercase
+  spelling instead of the established aiworld.cpp spelling embedded in the
+  object. Recompiling the unchanged source with that established spelling
+  restored the exact accepted SHA256
+  a6a9b6c58170fef79f5ba2bded119d90b1807e9c5e2c55ec19a2faed7706bd5a.
+  The diagnostic preserves the initial result and uses the established spelling
+  for its separate final recheck; no compiler output is normalized or rewritten.
+  Final recheck completed successfully: **79/79 whole accepted objects reproduce
+  exactly**, still1297/1301 PASS. Full output and hashes are retained in
+  p875_public_header_final_recheck_20260906.json.
+- Relink remains GREEN:757 objects,964 pre-existing blob duplicates,0 real
+  duplicates,0 hidden phantoms,0 relocation-referenced unresolved symbols.
+  Vtable indexing PASS1029 files; source-only policy and normal diff-check PASS.
+  No CPP/private-header/production-tool/asm/volatile edit belongs to this round.
+
+### Evidence and the remaining source-restoration work
+
+- New snapshot: public_header_prototype_queue_p875_20260906.md reports **0
+  candidates** using the same deliberately limited scan as P874. Historical
+  public_header_prototype_queue_p874_20260906.md is preserved. The diagnostic
+  inventory gained an output/phase parameter solely to avoid overwriting it.
+- Parent validator: p875_public_header_final_validation.py and its initial
+  p875_public_header_final_validation_20260906.json plus final recheck report.
+  These compare the accepted working objects, not old Git HEAD.
+- Root receipt: p875_root_public_header_receipts_20260906.md, frozen original
+  p875_root_header_snapshots.json, native plan, object hashes and independent
+  p875_root_independent_review_20260906.md. Independent 9-member proof lives in
+  p875_root_members/README.md and receipt.json. Review corrected a mistaken
+  intermediate manual sum235/236 to the actual205/206 and fixed historical-mode
+  probes to read frozen originals instead of the now-repaired headers.
+- Other batch receipts: p875_common_public_header_receipts_20260906.md,
+  p875_common2_public_header_receipts_20260906.md, p875_psx/README.md plus per-header
+  JSON/MD, and ../p875_ai_headers/README.md plus receipts.json.
+- Zero inventory rows does NOT prove all headers or source are restored.
+  Multiline/member/operator forms, ABI bridges, historical include/macro layout,
+  and existing local/SLD carriers remain in scope. Specifically,27 ABI-spelled
+  declarations in aihigh.h/aistate.h, pre-existing Newton linkage labels,
+  the nonblocking ObjectAnim bridge, and the shared monolithic fontblit typedef
+  still need their own evidence-backed disposition.
+- P873's extra per-aiperson GameSetup type-visibility DIFF remains explicit and
+  unresolved. Frontend/game source-only carrier counts remain472/480; this
+  header pass does not pretend to reduce those definition-only counts.
+- P869-P875 retained changes remain uncommitted/unpushed. No broad staging,
+  reset, source-body rewrite or unrelated cleanup was performed. The main
+  original-source/SYM/SLD goal remains active and incomplete.
+
+## P876: real AI destructor/static-member interfaces (2026-09-06)
+
+The27 ABI-spelled public declarations remaining from P875 are now resolved:
+26 false destructor free-function prototypes and one encoded static-member
+prototype are removed from aihigh.h/aistate.h. Ordinary C++ class APIs take
+their place; no native binary name or implementation was renamed.
+
+This required restoring19 missing native destructor declarations in the shared
+nfs4_types.h class surface, not merely deleting the bad public prototypes.
+Without those declarations, canonical destructor expressions used implicit
+destructors/ancestor calls and exposed only7 distinct destructor exports.
+With them, all26 destructor calls plus AIState_Purgatory::StartUp emit the exact
+27 native references, each backed by native EXT/STAT records and actual global
+function exports. All26 target-compiler class sizes are unchanged.
+
+The static-member case is a separate compiler-lookup defect: the old encoded
+StartUp prototype emitted a correct link name but made the ordinary qualified
+class expression fail. Removing the duplicate restores the existing class
+declaration; an nm-only test would not have caught it. The26 old destructor
+prototypes instead emitted nonexistent double-mangled names. Frozen old-header
+and old-class-shape fixtures reproduce both failure modes.
+
+The shared-header edit is commented and backed up byte-for-byte in
+../p876_ai_bridges/nfs4_types.before.h. A real preprocessor dependency census of
+all184 recon C++ sources found36 consumers and0 errors. All36 freshly built
+consumer objects remain entirely byte-identical. They are data/no-covered-code
+TUs (0/0 gates), not36 newly matched functions. Both strict source-only full
+build lanes passed, with no skipped TUs. Fresh aihigh14/14 and aistate52/52
+function gates PASS with0 branch differences. Relink/vtable/source-only/diff
+checks remain green; no new asm, volatile or post-compiler rewrite was added.
+
+The source-only Replay_ResetReplay pointer investigation tested11 ordinary
+loop forms and restored them all. Its final body remains PASS86, and the entire
+replay object reproduces the prior hash. The whole TU remains15/16 with only
+the pre-existing188-difference StoringControllerData residual. The new named
+angle is GCC's late induction-address initialization/address splitting, not an
+assertion that the pointer must have existed in original source. No semantic
+identifier was invented and no carrier-removal credit is claimed.
+
+Detailed receipts, native record identities, original/candidate/final probes,
+36 before/after object hashes and replay experiments are in
+../p876_ai_bridges/README.md and api_receipts.json. Fresh strict declaration
+reports remain game1228 clean/480 carriers and frontend781 clean/472 carriers;
+public API restoration is outside those definition-only counts. Existing
+ABI-body/vague-linkage ownership findings, GameSetup visibility discrepancy,
+other public declarations, local names and SLD statement ownership remain open.
+No overall SYM/source-exactness claim, commit or push is made.
+
+## P877: whole-TU C++ identity and CopSpeak source reduction (2026-09-06)
+
+### Retire the two C++ function-compiler splices
+
+Both former users of PER_FN_CC1PLUS_VER_SPLICE are now compiled once per TU
+with the hash-verified retail PsyQ2.8.1 SN C++ compiler. Replay retainsG4;
+Night retains its independently provenG8. The C++ function-splice table is
+empty; its compatibility helper remains for existing diagnostic callers.
+
+Source-only Replay improves15/16 to16/16 PASS and Night18/19 to19/19 PASS.
+StoringControllerData's188 differences and CreateNightTableElement's56
+differences disappear without any source-body rewrite or output splice.
+Both entire new production objects equal the freshly compiled old normal
+mixed-compiler objects exactly, including all data, relocations and metadata:
+
+- Replay: ef13e273eff6b799c58a324040fc37b3cce9c3940f74c5bd66d516db072fbf39.
+- Night: b818c9cff41a8dfb429466fc1dd62719ef38541900ddc888cc77618651071dab.
+
+This is35/35 source-only PASS and removal of two compiler-output splices,
+not an increase to a normal board which already counted those two as PASS.
+Branches are0 for both TUs; both changed compiler cases have exact-g twins
+(243 and113 instructions). All35 native function identities and3252 raw
+oracle words were verified against rom/nfs4-f.exe. Existing source references
+are preserved by whole-object identity; unrelated alias/type debt is not closed.
+
+tools/build.py now selects a cc1plus_ver before code generation through
+cpp_compiler(src); tools/diffsrc.py uses the same selector for debug twins.
+Other182 C++ source selections and all unrelated per-TU flags are unchanged.
+Tests cover missing-compiler failure, the existing hash-matching CI zip slot,
+and one actual compiler call per selected TU. Commented tool edits have backups
+in ../p877_replay. Both strict source-only full-build lanes passed without
+skipped TUs. No instruction normalization or verifier acceptance rule changed.
+
+### CopSpeak_PlayNextRequest: remove iVar3, keep qualifications visible
+
+The initial queue index and wrapped output now form one chain through the
+already recovered same-object `next`. The first capture/index is one expression;
+the final conditional result and global store are one assignment chain. An
+in-place if/else variant measured8 differences and was reverted; the conditional
+expression preserves PASS71. The target's native rREG16 and handleREG5
+declarations/homes remain exact and their declaration order is restored.
+
+The full CopSpeak TU remains27/27 PASS with0 branch differences. Its entire
+real-path object is unchanged from the independently recorded P875 baseline:
+70fc97ebe71e9feeb970a4af6af67f16969a2171d4a82bfc1a35834376f9807e.
+All71 oracle words were checked against the raw image. No newly invented
+name, asm, volatile, shared header or build intervention belongs to this edit.
+
+The target SYM still does not record next. Its existing debug record changes
+REG3 toREG4 as the lifetime extends over the value chain; that home is not
+claimed as native truth. Initial SLD1192 groups improve2 to1, and tail1237
+groups4 to2, but remaining1221/1222/1237 grouping is still open. An exact-g
+code twin is not proof of native-only locals or full SLD exactness. The first
+open-item table above now reflects this rather than calling iVar3 required.
+
+### Rejected replay pointer alternatives and remaining work
+
+Replay_ResetReplay's piVar2 remains unchanged. Default indexed source still
+has one late +4 instruction under both retail compilers. Four pre-anchors
+converge to the same residual; four byte/integer-address forms regress to10
+differences, and the plain array-address cast is neutral. No such source was
+retained. Whole-TU no-split, force-addr and disabled post-loop CSE configurations
+lose existing matches and were rejected. GCC loop/expmed/expr source identifies
+late GIV construction through a nonconstant RTL_EXPR as the next tracing
+question, not proof that a source pointer existed or an impossible compiler floor.
+
+Game/common source-only carriers decrease480 to479; other declaration-review
+counts remain explicit. The full goal still includes target-specific recovered
+names, extra locals, inline/ABI ownership, data views and SLD statement/scope
+restoration. Detailed evidence: ../p877_replay/README.md, ../p877_night/
+WHOLE_TU_RECEIPT_20260906.md and ../p877_copspeak/README.md, with frozen probes
+and JSON receipts. No commit or push; the full goal remains active.
+
+## P878: source shapes, scopes and final flag-splice retirement (2026-09-06)
+
+- Weather_Init now consistently uses the genuine initialized
+  Weather_gTrackSpec->type pointer for all three type reads. No local or
+  alias was added. Normal and source-only Weather25/25 PASS, branch0,
+  Init211/exact-g; the full new object equals the old mixed-flag result.
+  The obsolete PER_FN_FORCE_ADDR entry is removed and its table is empty.
+- Whole-TU AudioClc -fno-thread-jumps at the existing2.8.0/G4 identity gives
+  18/18 PASS, branch0 and SoundPlayersCar461/exact-g. The complete object
+  is byte-identical to the old two-compile per-function-splice result. Its
+  PER_FN_NO_THREAD_JUMPS entry is retired; debug twins use the same TU flag.
+  Old sibling-regression receipts no longer described the restored source.
+  This is a consistent object-wide configuration, not a claim that a lost
+  original command line has been uniquely recovered.
+- MenuExtended_GoToTournTrackInfo and GoToSpecialEventTrackInfo each lose
+  their menus alias. The repaired scalar menuDefs interface now permits
+  ordinary final command stores at PASS90/91 with exact code twins. The
+  whole Femenudefs TU remains66/66/branch0 and its complete object is unchanged.
+  Existing manager/frontEnd/selectedTourney webs and fences are not hidden.
+- CopSpeak_Flush moves native int i/REG3 into its recorded loop scope
+  (26bcc8/26bcd1/26bcda), preserving PASS20 and the full27/27 object. Its
+  request pointer still needs restoration; nine failed removal probes were
+  reverted. The remaining diagnostic distinction is plain-char li255 versus
+  signed access li-1 with different object/member-base anchoring, not a floor.
+
+The final P875-cohort sweep reaches1301/1301 normalized PASS across79 owners.
+One inherited AudioTrk_AddCustomObject branch-distance discrepancy remains
+explicit. Both strict full-build lanes pass; targeted new branch checks are0.
+The AIWORLD object hash variation is exactly7 source-filename-case bytes in
+.strtab; same-input recompilation reproduces the full accepted hash, with no
+code/data/relocation difference. No instruction rewrite was used to clear it.
+
+Frontend source-only carriers decrease472 to470; game remains479. Other
+declaration-review findings, original inline/parameter ownership and the main
+SYM/SLD restoration goal remain open. In the two tournament callbacks,
+the nested native amount record also warrants ownership/scope review rather
+than treating name presence alone as caller-local proof.
+
+Detailed receipts and protected-tool backups: ../p878_checkpoint/README.md,
+../p878_weather/P878_WEATHER_RECEIPT_20260906.md, ../p878_audioclc/README.md,
+and ../p878_copspeak/README.md. The user authorized commit and push of the
+verified P869-P878 checkpoint to origin/main, excluding unrelated edits and
+generated build files. Git publication is performed only after final checks.

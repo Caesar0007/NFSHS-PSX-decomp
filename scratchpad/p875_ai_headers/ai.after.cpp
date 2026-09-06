@@ -1,0 +1,42 @@
+/* Diagnostic: complete corrected public header, exact typed address references. */
+#include "C:/Temp/nfs4-decomp/recon/game/common/ai.h"
+
+void (*p875_after_0)(void) = &AI_StartUp;
+void (*p875_after_1)(void) = &AI_CleanUp;
+void (*p875_after_2)(void) = &AI_Main_OverallSetup;
+void (*p875_after_3)(Car_tObj *carObj) = &AI_CarAvoidance;
+void (*p875_after_4)(Car_tObj *carObj) = &AI_WorldAvoidance;
+void (*p875_after_5)(Car_tObj *carObj) = &AI_InitAIInfo;
+void (*p875_after_6)(Car_tObj *carObj) = &AI_GenericBeginCycle;
+void (*p875_after_7)(Car_tObj *carObj) = &AI_GenericCycle;
+void (*p875_after_8)(Car_tObj *carObj) = &AI_GenericEndCycle;
+void (*p875_after_9)(Car_tObj *carObj, int lane) = &AI_TargetLane;
+void (*p875_after_10)(void) = &AI_ClearLaneMerits;
+void (*p875_after_11)(Car_tObj *carObj) = &AI_DoReactions;
+void (*p875_after_12)(Car_tObj *carObj, Car_tObj *otherCarObj) = &AI_CheckForPlayerActions;
+void (*p875_after_13)(Car_tObj *carObj) = &AI_DoReactionsAndBehavior;
+void (*p875_after_14)(Car_tObj *carObj, Car_tObj *otherCarObj) = &AI_OpponentBlockPlayer;
+void (*p875_after_15)(Car_tObj *carObj) = &AI_CheckForBarriers;
+void (*p875_after_16)(Car_tObj *carObj) = &AI_SetupOncomingLaneDemerits;
+void (*p875_after_17)(Car_tObj *carObj) = &AI_HandleChangeInNumLanes;
+void (*p875_after_18)(Car_tObj *carObj) = &AI_HandleShouldersAndOffRoad;
+void (*p875_after_19)(Car_tObj *carObj) = &AI_CalculateLaneSpeeds;
+void (*p875_after_20)(Car_tObj *carObj) = &AI_CalcMeritsBasedOnSpeed;
+void (*p875_after_21)(Car_tObj *carObj) = &AI_CheckForClearLanes;
+void (*p875_after_22)(Car_tObj *carObj) = &AI_CalcBestLineMerits;
+void (*p875_after_23)(Car_tObj *carObj) = &AI_AvoidObjects;
+void (*p875_after_24)(Car_tObj *carObj) = &AI_AvoidSpikeBelt;
+void (*p875_after_25)(Car_tObj *carObj, int importance, int leftLatPosition, int rightLatPosition, int slice) = &AI_SubmitObstacle;
+void (*p875_after_26)(Car_tObj *carObj) = &AI_HandleTrafficHonking;
+void (*p875_after_27)(Car_tObj *carObj) = &AI_CheckForCarsOnSide;
+void (*p875_after_28)(Car_tObj *carObj) = &AI_ProcessObservationsAndChooseLane;
+void (*p875_after_29)(Car_tObj *carObj) = &AI_ChooseBestLane;
+int (*p875_after_30)(Car_tObj *carObj) = &AI_CheckPreferredLateralPosition;
+int (*p875_after_31)(Car_tObj *carObj, Car_tObj *carInWay) = &AI_TryToShareLanes;
+void (*p875_after_32)(Car_tObj *carObj) = &AI_CalculateDesiredLatPosition;
+void (*p875_after_33)(Car_tObj *carObj) = &AI_CalculateAdjustedDesiredSpeed;
+int (*p875_after_34)(Car_tObj *carObj, int delay) = &AI_IsMellowZone;
+void (*p875_after_35)(Car_tObj *carObj) = &AI_KeepCarsInLane;
+void (*p875_after_36)(Car_tObj *carObj) = &AI_PushFinishedCarsToSide;
+void (*p875_after_37)(Car_tObj *carObj) = &AI_MaybeChangeLaneSlack;
+void (*p875_after_38)(Car_tObj *carObj) = &AI_ChooseNewLaneSlack;

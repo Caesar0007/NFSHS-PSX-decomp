@@ -3,11 +3,14 @@
 #define _GAME_COMMON_DASHHUD_H_
 #include "../../nfs4_types.h"
 
-void DashHUD_InitHUD__Fv(void);   /* :38 */
-void DashHUD_KillHUD__Fv(void);   /* :101 */
-void DashHUD_ResetHUD__Fv(void);   /* :106 */
-void DashHUD_ToggleHud__Fi(int player);   /* :125 */
-void DashHUD_CheckWrongWay__Fi(int player);   /* :151 */
-void DashHUD_HUDCalc__Fi(int player);   /* :171 */
+/* P875: native signatures and defining exports verified by typed-reference
+ * probes. Source names let the compiler emit the original C++ linkage. */
+
+void DashHUD_InitHUD(void);   /* :38 */
+void DashHUD_KillHUD(void);   /* :101 */
+void DashHUD_ResetHUD(void);   /* :106 */
+void DashHUD_ToggleHud(int player);   /* :125 */
+void DashHUD_CheckWrongWay(int player);   /* :151 */
+void DashHUD_HUDCalc(int player);   /* :171 */
 
 #endif /* _GAME_COMMON_DASHHUD_H_ */

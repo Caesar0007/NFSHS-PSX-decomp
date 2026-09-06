@@ -1,0 +1,1279 @@
+{
+  "round": "P875",
+  "header": "recon/game/psx/hrzsku.h",
+  "source_authority": "C:/Temp/nfs4-clean/nfs4-f-v3.txt",
+  "scope": "Free-function public prototype rows from P874 inventory only; not an all-record or all-project source restoration claim.",
+  "counts": {
+    "inventory_candidates": 22,
+    "corrected_public": 22,
+    "removed_file_static": 0,
+    "before_native_references": 0,
+    "after_native_references": 22,
+    "return_type_corrections": 0,
+    "header_compile_failures": 0,
+    "unresolved_header_candidates": 0,
+    "preexisting_compiler_warning_count": 1
+  },
+  "before_actual_header_compile": {
+    "header": "recon/game/psx/hrzsku.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\hrzsku_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\hrzsku_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\hrzsku_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\hrzsku_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\hrzsku_before.s"
+      ]
+    ],
+    "header_sha256": "8ced3953f7bc3f764901057e617a9aa194d7c5c244efcefeaf7c27f3a4eee7f2",
+    "references": {
+      "0": "Horizon_InterpolateLineSCoords__FP7DVECTORN20Piii__FP7DVECTORN20Piii",
+      "1": "Sky_InitStars__Fv__Fv",
+      "2": "Sky_KillStars__Fv__Fv",
+      "3": "Hrz_InitSkyColor__Fv__Fv",
+      "4": "Hrz_InitSky__Fv__Fv",
+      "5": "Hrz_Init2DRing__Fv__Fv",
+      "6": "Hrz_GetHorizonPixMap__FP12Draw_tPixMap__FP12Draw_tPixMap",
+      "7": "Hrz_InitHorizon__Fv__Fv",
+      "8": "Hrz_KillHorizon__Fv__Fv",
+      "9": "Hrz_LightningAddFork__FScScSc__FScScSc",
+      "10": "Hrz_CalculateLightning__Fv__Fv",
+      "11": "Hrz_TextureQuad__FP7DVECTORccP11Draw_DCache__FP7DVECTORccP11Draw_DCache",
+      "12": "Hrz_SetLightingPosInSky__FP13DRender_tView__FP13DRender_tView",
+      "13": "Hrz_BuildForkLightning__FP11Draw_DCache__FP11Draw_DCache",
+      "14": "Hrz_LightningFlicker__Fi__Fi",
+      "15": "HrzSetPsxMatrix__FP10matrixtdef__FP10matrixtdef",
+      "16": "HrzSetPsxTranslation__FP8coorddef__FP8coorddef",
+      "17": "Hrz_RotProj16__FiP7SVECTORPiP7DVECTOR__FiP7SVECTORPiP7DVECTOR",
+      "18": "Hrz_SetDitheringPrim__Fii__Fii",
+      "19": "Hrz_BuildSky__Fv__Fv",
+      "20": "Sky_RenderStars__FP13Draw_SkyCachei__FP13Draw_SkyCachei",
+      "21": "Hrz_BuildHorizon__FP13DRender_tView__FP13DRender_tView"
+    },
+    "ok": true,
+    "assembly_sha256": "ba458a58a6c38ba03c5c5c0ab0d7f0835a8fa0ea75c26ea2dda79e5cc74c3502",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".sdata",
+      ".rodata",
+      ".sbss",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\hrzsku.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "Horizon_InterpolateLineSCoords__FP7DVECTORN20Piii",
+      "Sky_InitStars__Fv",
+      "Sky_KillStars__Fv",
+      "Hrz_InitSkyColor__Fv",
+      "Hrz_InitSky__Fv",
+      "Hrz_Init2DRing__Fv",
+      "Hrz_GetHorizonPixMap__FP12Draw_tPixMap",
+      "Hrz_InitHorizon__Fv",
+      "Hrz_KillHorizon__Fv",
+      "Hrz_LightningAddFork__FScScSc",
+      "Hrz_CalculateLightning__Fv",
+      "Hrz_TextureQuad__FP7DVECTORccP11Draw_DCache",
+      "Hrz_SetLightingPosInSky__FP13DRender_tView",
+      "Hrz_BuildForkLightning__FP11Draw_DCache",
+      "Hrz_LightningFlicker__Fi",
+      "HrzSetPsxMatrix__FP10matrixtdef",
+      "HrzSetPsxTranslation__FP8coorddef",
+      "Hrz_RotProj16__FiP7SVECTORPiP7DVECTOR",
+      "Hrz_SetDitheringPrim__Fii",
+      "Hrz_BuildSky__Fv",
+      "Sky_RenderStars__FP13Draw_SkyCachei",
+      "Hrz_BuildHorizon__FP13DRender_tView",
+      "gHorizonPixmap",
+      "gHorizonExtraSkyPixmaps",
+      "gSkyMesh",
+      "gSkyColor",
+      "gSkyPixmapIndex",
+      "gpPmx",
+      "gHrzRingColor",
+      "gfxPmxHeightPercentage",
+      "gHrz_Lightning",
+      "Hrz_gTrackSpec",
+      "Sky_gTrackSpec",
+      "gRngCoordTop",
+      "Hrz_gLightningPosInSky",
+      "starPosInSky",
+      "starColors",
+      "sunPosInSky",
+      "moonPosInSky",
+      "Hrz_gSaveCol"
+    ]
+  },
+  "before_frozen_replay": {
+    "header": "recon/game/psx/hrzsku.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\hrzsku_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\hrzsku_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\hrzsku_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\hrzsku_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\hrzsku_before.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\hrzsku_before.cpp:2:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "a219e47f450b754ec89dd63811e4146780570f7f7125f9fb5d6bc5036eefa523",
+    "input_mode": "frozen-original-prototype-surface",
+    "references": {
+      "0": "Horizon_InterpolateLineSCoords__FP7DVECTORN20Piii__FP7DVECTORN20Piii",
+      "1": "Sky_InitStars__Fv__Fv",
+      "2": "Sky_KillStars__Fv__Fv",
+      "3": "Hrz_InitSkyColor__Fv__Fv",
+      "4": "Hrz_InitSky__Fv__Fv",
+      "5": "Hrz_Init2DRing__Fv__Fv",
+      "6": "Hrz_GetHorizonPixMap__FP12Draw_tPixMap__FP12Draw_tPixMap",
+      "7": "Hrz_InitHorizon__Fv__Fv",
+      "8": "Hrz_KillHorizon__Fv__Fv",
+      "9": "Hrz_LightningAddFork__FScScSc__FScScSc",
+      "10": "Hrz_CalculateLightning__Fv__Fv",
+      "11": "Hrz_TextureQuad__FP7DVECTORccP11Draw_DCache__FP7DVECTORccP11Draw_DCache",
+      "12": "Hrz_SetLightingPosInSky__FP13DRender_tView__FP13DRender_tView",
+      "13": "Hrz_BuildForkLightning__FP11Draw_DCache__FP11Draw_DCache",
+      "14": "Hrz_LightningFlicker__Fi__Fi",
+      "15": "HrzSetPsxMatrix__FP10matrixtdef__FP10matrixtdef",
+      "16": "HrzSetPsxTranslation__FP8coorddef__FP8coorddef",
+      "17": "Hrz_RotProj16__FiP7SVECTORPiP7DVECTOR__FiP7SVECTORPiP7DVECTOR",
+      "18": "Hrz_SetDitheringPrim__Fii__Fii",
+      "19": "Hrz_BuildSky__Fv__Fv",
+      "20": "Sky_RenderStars__FP13Draw_SkyCachei__FP13Draw_SkyCachei",
+      "21": "Hrz_BuildHorizon__FP13DRender_tView__FP13DRender_tView"
+    },
+    "ok": true,
+    "assembly_sha256": "ba458a58a6c38ba03c5c5c0ab0d7f0835a8fa0ea75c26ea2dda79e5cc74c3502"
+  },
+  "after_actual_header_compile": {
+    "header": "recon/game/psx/hrzsku.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\hrzsku_after.cpp",
+    "stage": "after",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\hrzsku_after.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\hrzsku_after.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\hrzsku_after.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\hrzsku_after.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:/Temp/nfs4-decomp/recon/game/psx/hrzsku.h:4,\n                 from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\hrzsku_after.cpp:1:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "6b04f3da1fe77691c9333f0731f66f1fae8f3823b276c7736345948727fadf44",
+    "input_mode": "live-public-header",
+    "header_sha256": "12cce33626b7aa86b747e366ded151e1ea732a50d310ebfab0456e107884d7d4",
+    "references": {
+      "0": "Horizon_InterpolateLineSCoords__FP7DVECTORN20Piii",
+      "1": "Sky_InitStars__Fv",
+      "2": "Sky_KillStars__Fv",
+      "3": "Hrz_InitSkyColor__Fv",
+      "4": "Hrz_InitSky__Fv",
+      "5": "Hrz_Init2DRing__Fv",
+      "6": "Hrz_GetHorizonPixMap__FP12Draw_tPixMap",
+      "7": "Hrz_InitHorizon__Fv",
+      "8": "Hrz_KillHorizon__Fv",
+      "9": "Hrz_LightningAddFork__FScScSc",
+      "10": "Hrz_CalculateLightning__Fv",
+      "11": "Hrz_TextureQuad__FP7DVECTORccP11Draw_DCache",
+      "12": "Hrz_SetLightingPosInSky__FP13DRender_tView",
+      "13": "Hrz_BuildForkLightning__FP11Draw_DCache",
+      "14": "Hrz_LightningFlicker__Fi",
+      "15": "HrzSetPsxMatrix__FP10matrixtdef",
+      "16": "HrzSetPsxTranslation__FP8coorddef",
+      "17": "Hrz_RotProj16__FiP7SVECTORPiP7DVECTOR",
+      "18": "Hrz_SetDitheringPrim__Fii",
+      "19": "Hrz_BuildSky__Fv",
+      "20": "Sky_RenderStars__FP13Draw_SkyCachei",
+      "21": "Hrz_BuildHorizon__FP13DRender_tView"
+    },
+    "ok": true,
+    "assembly_sha256": "a3d9475c555a159c714d7e001aeb254d128b78acd1149c66abdf6f7dc921f117",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".sdata",
+      ".rodata",
+      ".sbss",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\hrzsku.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "Horizon_InterpolateLineSCoords__FP7DVECTORN20Piii",
+      "Sky_InitStars__Fv",
+      "Sky_KillStars__Fv",
+      "Hrz_InitSkyColor__Fv",
+      "Hrz_InitSky__Fv",
+      "Hrz_Init2DRing__Fv",
+      "Hrz_GetHorizonPixMap__FP12Draw_tPixMap",
+      "Hrz_InitHorizon__Fv",
+      "Hrz_KillHorizon__Fv",
+      "Hrz_LightningAddFork__FScScSc",
+      "Hrz_CalculateLightning__Fv",
+      "Hrz_TextureQuad__FP7DVECTORccP11Draw_DCache",
+      "Hrz_SetLightingPosInSky__FP13DRender_tView",
+      "Hrz_BuildForkLightning__FP11Draw_DCache",
+      "Hrz_LightningFlicker__Fi",
+      "HrzSetPsxMatrix__FP10matrixtdef",
+      "HrzSetPsxTranslation__FP8coorddef",
+      "Hrz_RotProj16__FiP7SVECTORPiP7DVECTOR",
+      "Hrz_SetDitheringPrim__Fii",
+      "Hrz_BuildSky__Fv",
+      "Sky_RenderStars__FP13Draw_SkyCachei",
+      "Hrz_BuildHorizon__FP13DRender_tView",
+      "gHorizonPixmap",
+      "gHorizonExtraSkyPixmaps",
+      "gSkyMesh",
+      "gSkyColor",
+      "gSkyPixmapIndex",
+      "gpPmx",
+      "gHrzRingColor",
+      "gfxPmxHeightPercentage",
+      "gHrz_Lightning",
+      "Hrz_gTrackSpec",
+      "Sky_gTrackSpec",
+      "gRngCoordTop",
+      "Hrz_gLightningPosInSky",
+      "starPosInSky",
+      "starColors",
+      "sunPosInSky",
+      "moonPosInSky",
+      "Hrz_gSaveCol"
+    ]
+  },
+  "owning_tu_gate": {
+    "source": "recon/game/psx/hrzsku.cpp",
+    "command": [
+      "C:\\Python314\\python.exe",
+      "tools/tugate.py",
+      "recon/game/psx/hrzsku.cpp"
+    ],
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/psx/hrzsku.cpp: 22/22 PASS\n",
+    "stderr": "",
+    "object_sha256": "dd530c8dc536cae3fa4c296fc0eaaf1d16dd3bc86b7bab71a1cb9f7820624a30",
+    "actual_function_symbols": [
+      "Horizon_InterpolateLineSCoords__FP7DVECTORN20Piii",
+      "Sky_InitStars__Fv",
+      "Sky_KillStars__Fv",
+      "Hrz_InitSkyColor__Fv",
+      "Hrz_InitSky__Fv",
+      "Hrz_Init2DRing__Fv",
+      "Hrz_GetHorizonPixMap__FP12Draw_tPixMap",
+      "Hrz_InitHorizon__Fv",
+      "Hrz_KillHorizon__Fv",
+      "Hrz_LightningAddFork__FScScSc",
+      "Hrz_CalculateLightning__Fv",
+      "Hrz_TextureQuad__FP7DVECTORccP11Draw_DCache",
+      "Hrz_SetLightingPosInSky__FP13DRender_tView",
+      "Hrz_BuildForkLightning__FP11Draw_DCache",
+      "Hrz_LightningFlicker__Fi",
+      "HrzSetPsxMatrix__FP10matrixtdef",
+      "HrzSetPsxTranslation__FP8coorddef",
+      "Hrz_RotProj16__FiP7SVECTORPiP7DVECTOR",
+      "Hrz_SetDitheringPrim__Fii",
+      "Hrz_BuildSky__Fv",
+      "Sky_RenderStars__FP13Draw_SkyCachei",
+      "Hrz_BuildHorizon__FP13DRender_tView"
+    ],
+    "local_function_symbols": []
+  },
+  "consumer_census": {
+    "files_scanned": 1677,
+    "literal_users": [],
+    "dynamic_includes": []
+  },
+  "unresolved": [],
+  "prototype_receipts": [
+    {
+      "header": "recon/game/psx/hrzsku.h",
+      "line": 6,
+      "encoded": "Horizon_InterpolateLineSCoords__FP7DVECTORN20Piii",
+      "name": "Horizon_InterpolateLineSCoords",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Horizon_InterpolateLineSCoords__FP7DVECTORN20Piii(DVECTOR *sc, DVECTOR *s0, DVECTOR *s1, int *percentage, int n, int bPercentageArray);   /* :128 */",
+      "header_return": "void",
+      "header_signature": "(DVECTOR *sc, DVECTOR *s0, DVECTOR *s1, int *percentage, int n, int bPercentageArray)",
+      "native": [
+        {
+          "record": "40d7e5",
+          "va": "800cf574",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Horizon_InterpolateLineSCoords",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hrzsku.cpp",
+          "line": 94,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(DVECTOR * sc,DVECTOR * s0,DVECTOR * s1,int * percentage,int n,int bPercentageArray)",
+          "end": 157,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(DVECTOR * sc,DVECTOR * s0,DVECTOR * s1,int * percentage,int n,int bPercentageArray)",
+      "final_prototype": "void Horizon_InterpolateLineSCoords(DVECTOR * sc,DVECTOR * s0,DVECTOR * s1,int * percentage,int n,int bPercentageArray);   /* SYM 40d7e5 @0x800cf574 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Horizon_InterpolateLineSCoords__FP7DVECTORN20Piii__FP7DVECTORN20Piii",
+      "after_emitted_reference": "Horizon_InterpolateLineSCoords__FP7DVECTORN20Piii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hrzsku.h",
+      "line": 7,
+      "encoded": "Sky_InitStars__Fv",
+      "name": "Sky_InitStars",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Sky_InitStars__Fv(void);   /* :185 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "40d824",
+          "va": "800cf6b4",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Sky_InitStars",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hrzsku.cpp",
+          "line": 185,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 222,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Sky_InitStars(void);   /* SYM 40d824 @0x800cf6b4 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Sky_InitStars__Fv__Fv",
+      "after_emitted_reference": "Sky_InitStars__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hrzsku.h",
+      "line": 8,
+      "encoded": "Sky_KillStars__Fv",
+      "name": "Sky_KillStars",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Sky_KillStars__Fv(void);   /* :216 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "40d843",
+          "va": "800cf89c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Sky_KillStars",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hrzsku.cpp",
+          "line": 225,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 237,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Sky_KillStars(void);   /* SYM 40d843 @0x800cf89c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Sky_KillStars__Fv__Fv",
+      "after_emitted_reference": "Sky_KillStars__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hrzsku.h",
+      "line": 9,
+      "encoded": "Hrz_InitSkyColor__Fv",
+      "name": "Hrz_InitSkyColor",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hrz_InitSkyColor__Fv(void);   /* :227 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "40d862",
+          "va": "800cf8e0",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hrz_InitSkyColor",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hrzsku.cpp",
+          "line": 255,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 288,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Hrz_InitSkyColor(void);   /* SYM 40d862 @0x800cf8e0 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hrz_InitSkyColor__Fv__Fv",
+      "after_emitted_reference": "Hrz_InitSkyColor__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hrzsku.h",
+      "line": 10,
+      "encoded": "Hrz_InitSky__Fv",
+      "name": "Hrz_InitSky",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hrz_InitSky__Fv(void);   /* :257 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "40d884",
+          "va": "800cfa3c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hrz_InitSky",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hrzsku.cpp",
+          "line": 338,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 437,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Hrz_InitSky(void);   /* SYM 40d884 @0x800cfa3c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hrz_InitSky__Fv__Fv",
+      "after_emitted_reference": "Hrz_InitSky__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hrzsku.h",
+      "line": 11,
+      "encoded": "Hrz_Init2DRing__Fv",
+      "name": "Hrz_Init2DRing",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hrz_Init2DRing__Fv(void);   /* :337 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "40d8a1",
+          "va": "800cfd80",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hrz_Init2DRing",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hrzsku.cpp",
+          "line": 452,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 525,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Hrz_Init2DRing(void);   /* SYM 40d8a1 @0x800cfd80 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hrz_Init2DRing__Fv__Fv",
+      "after_emitted_reference": "Hrz_Init2DRing__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hrzsku.h",
+      "line": 12,
+      "encoded": "Hrz_GetHorizonPixMap__FP12Draw_tPixMap",
+      "name": "Hrz_GetHorizonPixMap",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hrz_GetHorizonPixMap__FP12Draw_tPixMap(Draw_tPixMap *p);   /* :419 */",
+      "header_return": "void",
+      "header_signature": "(Draw_tPixMap *p)",
+      "native": [
+        {
+          "record": "40d8c1",
+          "va": "800d0064",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hrz_GetHorizonPixMap",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hrzsku.cpp",
+          "line": 528,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(Draw_tPixMap * p)",
+          "end": 545,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(Draw_tPixMap * p)",
+      "final_prototype": "void Hrz_GetHorizonPixMap(Draw_tPixMap * p);   /* SYM 40d8c1 @0x800d0064 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hrz_GetHorizonPixMap__FP12Draw_tPixMap__FP12Draw_tPixMap",
+      "after_emitted_reference": "Hrz_GetHorizonPixMap__FP12Draw_tPixMap",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hrzsku.h",
+      "line": 13,
+      "encoded": "Hrz_InitHorizon__Fv",
+      "name": "Hrz_InitHorizon",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hrz_InitHorizon__Fv(void);   /* :432 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "40d8f5",
+          "va": "800d0118",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hrz_InitHorizon",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hrzsku.cpp",
+          "line": 548,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 559,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Hrz_InitHorizon(void);   /* SYM 40d8f5 @0x800d0118 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hrz_InitHorizon__Fv__Fv",
+      "after_emitted_reference": "Hrz_InitHorizon__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hrzsku.h",
+      "line": 14,
+      "encoded": "Hrz_KillHorizon__Fv",
+      "name": "Hrz_KillHorizon",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hrz_KillHorizon__Fv(void);   /* :447 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "40d916",
+          "va": "800d0184",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hrz_KillHorizon",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hrzsku.cpp",
+          "line": 562,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 568,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Hrz_KillHorizon(void);   /* SYM 40d916 @0x800d0184 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hrz_KillHorizon__Fv__Fv",
+      "after_emitted_reference": "Hrz_KillHorizon__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hrzsku.h",
+      "line": 15,
+      "encoded": "Hrz_LightningAddFork__FScScSc",
+      "name": "Hrz_LightningAddFork",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hrz_LightningAddFork__FScScSc(signed char direction, signed char column, signed char row);   /* :783 */",
+      "header_return": "void",
+      "header_signature": "(signed char direction, signed char column, signed char row)",
+      "native": [
+        {
+          "record": "40d937",
+          "va": "800d01b0",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hrz_LightningAddFork",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hrzsku.cpp",
+          "line": 581,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(signed char direction,signed char column,signed char row)",
+          "end": 624,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(signed char direction,signed char column,signed char row)",
+      "final_prototype": "void Hrz_LightningAddFork(signed char direction,signed char column,signed char row);   /* SYM 40d937 @0x800d01b0 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hrz_LightningAddFork__FScScSc__FScScSc",
+      "after_emitted_reference": "Hrz_LightningAddFork__FScScSc",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hrzsku.h",
+      "line": 16,
+      "encoded": "Hrz_CalculateLightning__Fv",
+      "name": "Hrz_CalculateLightning",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hrz_CalculateLightning__Fv(void);   /* :826 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "40d962",
+          "va": "800d03c8",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hrz_CalculateLightning",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hrzsku.cpp",
+          "line": 627,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 634,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Hrz_CalculateLightning(void);   /* SYM 40d962 @0x800d03c8 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hrz_CalculateLightning__Fv__Fv",
+      "after_emitted_reference": "Hrz_CalculateLightning__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hrzsku.h",
+      "line": 17,
+      "encoded": "Hrz_TextureQuad__FP7DVECTORccP11Draw_DCache",
+      "name": "Hrz_TextureQuad",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hrz_TextureQuad__FP7DVECTORccP11Draw_DCache(DVECTOR *pt, char type, char bright, Draw_DCache *sd);   /* :833 */",
+      "header_return": "void",
+      "header_signature": "(DVECTOR *pt, char type, char bright, Draw_DCache *sd)",
+      "native": [
+        {
+          "record": "40d98a",
+          "va": "800d0404",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hrz_TextureQuad",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hrzsku.cpp",
+          "line": 660,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(DVECTOR * pt,char type,char bright,Draw_DCache * sd)",
+          "end": 708,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(DVECTOR * pt,char type,char bright,Draw_DCache * sd)",
+      "final_prototype": "void Hrz_TextureQuad(DVECTOR * pt,char type,char bright,Draw_DCache * sd);   /* SYM 40d98a @0x800d0404 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hrz_TextureQuad__FP7DVECTORccP11Draw_DCache__FP7DVECTORccP11Draw_DCache",
+      "after_emitted_reference": "Hrz_TextureQuad__FP7DVECTORccP11Draw_DCache",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hrzsku.h",
+      "line": 18,
+      "encoded": "Hrz_SetLightingPosInSky__FP13DRender_tView",
+      "name": "Hrz_SetLightingPosInSky",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hrz_SetLightingPosInSky__FP13DRender_tView(DRender_tView *Vi);   /* :862 */",
+      "header_return": "void",
+      "header_signature": "(DRender_tView *Vi)",
+      "native": [
+        {
+          "record": "40d9c3",
+          "va": "800d0534",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hrz_SetLightingPosInSky",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hrzsku.cpp",
+          "line": 722,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(DRender_tView * Vi)",
+          "end": 734,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(DRender_tView * Vi)",
+      "final_prototype": "void Hrz_SetLightingPosInSky(DRender_tView * Vi);   /* SYM 40d9c3 @0x800d0534 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hrz_SetLightingPosInSky__FP13DRender_tView__FP13DRender_tView",
+      "after_emitted_reference": "Hrz_SetLightingPosInSky__FP13DRender_tView",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hrzsku.h",
+      "line": 19,
+      "encoded": "Hrz_BuildForkLightning__FP11Draw_DCache",
+      "name": "Hrz_BuildForkLightning",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hrz_BuildForkLightning__FP11Draw_DCache(Draw_DCache *sd);   /* :872 */",
+      "header_return": "void",
+      "header_signature": "(Draw_DCache *sd)",
+      "native": [
+        {
+          "record": "40d9fb",
+          "va": "800d0644",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hrz_BuildForkLightning",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hrzsku.cpp",
+          "line": 741,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(Draw_DCache * sd)",
+          "end": 766,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(Draw_DCache * sd)",
+      "final_prototype": "void Hrz_BuildForkLightning(Draw_DCache * sd);   /* SYM 40d9fb @0x800d0644 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hrz_BuildForkLightning__FP11Draw_DCache__FP11Draw_DCache",
+      "after_emitted_reference": "Hrz_BuildForkLightning__FP11Draw_DCache",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hrzsku.h",
+      "line": 20,
+      "encoded": "Hrz_LightningFlicker__Fi",
+      "name": "Hrz_LightningFlicker",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hrz_LightningFlicker__Fi(int on);   /* :901 */",
+      "header_return": "void",
+      "header_signature": "(int on)",
+      "native": [
+        {
+          "record": "40da30",
+          "va": "800d0760",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hrz_LightningFlicker",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hrzsku.cpp",
+          "line": 771,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int on)",
+          "end": 804,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int on)",
+      "final_prototype": "void Hrz_LightningFlicker(int on);   /* SYM 40da30 @0x800d0760 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hrz_LightningFlicker__Fi__Fi",
+      "after_emitted_reference": "Hrz_LightningFlicker__Fi",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hrzsku.h",
+      "line": 21,
+      "encoded": "HrzSetPsxMatrix__FP10matrixtdef",
+      "name": "HrzSetPsxMatrix",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void HrzSetPsxMatrix__FP10matrixtdef(matrixtdef *m);   /* :982 */",
+      "header_return": "void",
+      "header_signature": "(matrixtdef *m)",
+      "native": [
+        {
+          "record": "40da56",
+          "va": "800d083c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "HrzSetPsxMatrix",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hrzsku.cpp",
+          "line": 1173,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(matrixtdef * m)",
+          "end": 1263,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(matrixtdef * m)",
+      "final_prototype": "void HrzSetPsxMatrix(matrixtdef * m);   /* SYM 40da56 @0x800d083c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "HrzSetPsxMatrix__FP10matrixtdef__FP10matrixtdef",
+      "after_emitted_reference": "HrzSetPsxMatrix__FP10matrixtdef",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hrzsku.h",
+      "line": 22,
+      "encoded": "HrzSetPsxTranslation__FP8coorddef",
+      "name": "HrzSetPsxTranslation",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void HrzSetPsxTranslation__FP8coorddef(coorddef *t);   /* :1021 */",
+      "header_return": "void",
+      "header_signature": "(coorddef *t)",
+      "native": [
+        {
+          "record": "40da83",
+          "va": "800d091c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "HrzSetPsxTranslation",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hrzsku.cpp",
+          "line": 1266,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(coorddef * t)",
+          "end": 1274,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(coorddef * t)",
+      "final_prototype": "void HrzSetPsxTranslation(coorddef * t);   /* SYM 40da83 @0x800d091c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "HrzSetPsxTranslation__FP8coorddef__FP8coorddef",
+      "after_emitted_reference": "HrzSetPsxTranslation__FP8coorddef",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hrzsku.h",
+      "line": 23,
+      "encoded": "Hrz_RotProj16__FiP7SVECTORPiP7DVECTOR",
+      "name": "Hrz_RotProj16",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hrz_RotProj16__FiP7SVECTORPiP7DVECTOR(int n, SVECTOR *s, int *z, DVECTOR *p);   /* :1032 */",
+      "header_return": "void",
+      "header_signature": "(int n, SVECTOR *s, int *z, DVECTOR *p)",
+      "native": [
+        {
+          "record": "40dab2",
+          "va": "800d096c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hrz_RotProj16",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hrzsku.cpp",
+          "line": 1277,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int n,SVECTOR * s,int * z,DVECTOR * p)",
+          "end": 1288,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int n,SVECTOR * s,int * z,DVECTOR * p)",
+      "final_prototype": "void Hrz_RotProj16(int n,SVECTOR * s,int * z,DVECTOR * p);   /* SYM 40dab2 @0x800d096c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hrz_RotProj16__FiP7SVECTORPiP7DVECTOR__FiP7SVECTORPiP7DVECTOR",
+      "after_emitted_reference": "Hrz_RotProj16__FiP7SVECTORPiP7DVECTOR",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hrzsku.h",
+      "line": 24,
+      "encoded": "Hrz_SetDitheringPrim__Fii",
+      "name": "Hrz_SetDitheringPrim",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hrz_SetDitheringPrim__Fii(int dither, int otz);   /* :1050 */",
+      "header_return": "void",
+      "header_signature": "(int dither, int otz)",
+      "native": [
+        {
+          "record": "40dae5",
+          "va": "800d09b0",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hrz_SetDitheringPrim",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hrzsku.cpp",
+          "line": 1291,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int dither,int otz)",
+          "end": 1306,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int dither,int otz)",
+      "final_prototype": "void Hrz_SetDitheringPrim(int dither,int otz);   /* SYM 40dae5 @0x800d09b0 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hrz_SetDitheringPrim__Fii__Fii",
+      "after_emitted_reference": "Hrz_SetDitheringPrim__Fii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hrzsku.h",
+      "line": 25,
+      "encoded": "Hrz_BuildSky__Fv",
+      "name": "Hrz_BuildSky",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hrz_BuildSky__Fv(void);   /* :1060 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "40db0c",
+          "va": "800d0a38",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hrz_BuildSky",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hrzsku.cpp",
+          "line": 1354,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 1835,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Hrz_BuildSky(void);   /* SYM 40db0c @0x800d0a38 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hrz_BuildSky__Fv__Fv",
+      "after_emitted_reference": "Hrz_BuildSky__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hrzsku.h",
+      "line": 26,
+      "encoded": "Sky_RenderStars__FP13Draw_SkyCachei",
+      "name": "Sky_RenderStars",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Sky_RenderStars__FP13Draw_SkyCachei(Draw_SkyCache *sd, int otz);   /* :1284 */",
+      "header_return": "void",
+      "header_signature": "(Draw_SkyCache *sd, int otz)",
+      "native": [
+        {
+          "record": "40db2a",
+          "va": "800d1160",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Sky_RenderStars",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hrzsku.cpp",
+          "line": 1851,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(Draw_SkyCache * sd,int otz)",
+          "end": 1908,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(Draw_SkyCache * sd,int otz)",
+      "final_prototype": "void Sky_RenderStars(Draw_SkyCache * sd,int otz);   /* SYM 40db2a @0x800d1160 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Sky_RenderStars__FP13Draw_SkyCachei__FP13Draw_SkyCachei",
+      "after_emitted_reference": "Sky_RenderStars__FP13Draw_SkyCachei",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/hrzsku.h",
+      "line": 27,
+      "encoded": "Hrz_BuildHorizon__FP13DRender_tView",
+      "name": "Hrz_BuildHorizon",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Hrz_BuildHorizon__FP13DRender_tView(DRender_tView *Vi);   /* :1338 */",
+      "header_return": "void",
+      "header_signature": "(DRender_tView *Vi)",
+      "native": [
+        {
+          "record": "40db5b",
+          "va": "800d131c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Hrz_BuildHorizon",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hrzsku.cpp",
+          "line": 2344,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(DRender_tView * Vi)",
+          "end": 2731,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(DRender_tView * Vi)",
+      "final_prototype": "void Hrz_BuildHorizon(DRender_tView * Vi);   /* SYM 40db5b @0x800d131c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Hrz_BuildHorizon__FP13DRender_tView__FP13DRender_tView",
+      "after_emitted_reference": "Hrz_BuildHorizon__FP13DRender_tView",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    }
+  ]
+}

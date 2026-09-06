@@ -1,0 +1,629 @@
+{
+  "round": "P875",
+  "header": "recon/game/psx/force.h",
+  "source_authority": "C:/Temp/nfs4-clean/nfs4-f-v3.txt",
+  "scope": "Free-function public prototype rows from P874 inventory only; not an all-record or all-project source restoration claim.",
+  "counts": {
+    "inventory_candidates": 9,
+    "corrected_public": 9,
+    "removed_file_static": 0,
+    "before_native_references": 0,
+    "after_native_references": 9,
+    "return_type_corrections": 0,
+    "header_compile_failures": 0,
+    "unresolved_header_candidates": 0,
+    "preexisting_compiler_warning_count": 1
+  },
+  "before_actual_header_compile": {
+    "header": "recon/game/psx/force.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\force_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\force_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\force_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\force_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\force_before.s"
+      ]
+    ],
+    "header_sha256": "ebc68b0bbec30bd5aca28559fe4bc39e714aee134a94376c487c55523cd1b671",
+    "references": {
+      "0": "Force_Vbl__Fv__Fv",
+      "1": "Force_Update__FP8Car_tObj__FP8Car_tObj",
+      "2": "Force_StartUp__Fv__Fv",
+      "3": "Force_Disable__Fv__Fv",
+      "4": "Force_IsForceOn__FP8Car_tObj__FP8Car_tObj",
+      "5": "Force_Pause__Fv__Fv",
+      "6": "Force_UnPause__Fv__Fv",
+      "7": "Force_HitSign__FP8Car_tObj__FP8Car_tObj",
+      "8": "Force_HitWall__Fi__Fi"
+    },
+    "ok": true,
+    "assembly_sha256": "df2d9821cf3d8c4554842357b4215a7f4152e68dd40d6f756cc68ab852b10e7a",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".sdata",
+      ".rodata",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\force.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "Force_rand_256",
+      "Force_gActAlign",
+      "Force_gOffAlign",
+      "Force_Vbl__Fv",
+      "Force_Update__FP8Car_tObj",
+      "Force_StartUp__Fv",
+      "Force_Disable__Fv",
+      "Force_IsForceOn__FP8Car_tObj",
+      "Force_Pause__Fv",
+      "Force_UnPause__Fv",
+      "Force_HitSign__FP8Car_tObj",
+      "Force_HitWall__Fi",
+      "Force_g",
+      "Force_gTick",
+      "Force_gVblHandle"
+    ]
+  },
+  "before_frozen_replay": {
+    "header": "recon/game/psx/force.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\force_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\force_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\force_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\force_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\force_before.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\force_before.cpp:2:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "b0331037b51d04252aba7ab72f00c40f4f47f01cf497b7edebbc2e67a45264a2",
+    "input_mode": "frozen-original-prototype-surface",
+    "references": {
+      "0": "Force_Vbl__Fv__Fv",
+      "1": "Force_Update__FP8Car_tObj__FP8Car_tObj",
+      "2": "Force_StartUp__Fv__Fv",
+      "3": "Force_Disable__Fv__Fv",
+      "4": "Force_IsForceOn__FP8Car_tObj__FP8Car_tObj",
+      "5": "Force_Pause__Fv__Fv",
+      "6": "Force_UnPause__Fv__Fv",
+      "7": "Force_HitSign__FP8Car_tObj__FP8Car_tObj",
+      "8": "Force_HitWall__Fi__Fi"
+    },
+    "ok": true,
+    "assembly_sha256": "df2d9821cf3d8c4554842357b4215a7f4152e68dd40d6f756cc68ab852b10e7a"
+  },
+  "after_actual_header_compile": {
+    "header": "recon/game/psx/force.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\force_after.cpp",
+    "stage": "after",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\force_after.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\force_after.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\force_after.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\force_after.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:/Temp/nfs4-decomp/recon/game/psx/force.h:4,\n                 from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\force_after.cpp:1:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "80c2ab2937b8af1c634dbd052df17fd83d66192d617943ae2a4e35289f6899d6",
+    "input_mode": "live-public-header",
+    "header_sha256": "6532caa3bdbbae58e7b78e678fac1587cf50a9c184a354cc0e3f95fa02970e92",
+    "references": {
+      "0": "Force_Vbl__Fv",
+      "1": "Force_Update__FP8Car_tObj",
+      "2": "Force_StartUp__Fv",
+      "3": "Force_Disable__Fv",
+      "4": "Force_IsForceOn__FP8Car_tObj",
+      "5": "Force_Pause__Fv",
+      "6": "Force_UnPause__Fv",
+      "7": "Force_HitSign__FP8Car_tObj",
+      "8": "Force_HitWall__Fi"
+    },
+    "ok": true,
+    "assembly_sha256": "badf564bc5f74eea06ffc80f8c6bb6abf203c352267f5dc5d6d86016809df84e",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".sdata",
+      ".rodata",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\force.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "Force_rand_256",
+      "Force_gActAlign",
+      "Force_gOffAlign",
+      "Force_Vbl__Fv",
+      "Force_Update__FP8Car_tObj",
+      "Force_StartUp__Fv",
+      "Force_Disable__Fv",
+      "Force_IsForceOn__FP8Car_tObj",
+      "Force_Pause__Fv",
+      "Force_UnPause__Fv",
+      "Force_HitSign__FP8Car_tObj",
+      "Force_HitWall__Fi",
+      "Force_g",
+      "Force_gTick",
+      "Force_gVblHandle"
+    ]
+  },
+  "owning_tu_gate": {
+    "source": "recon/game/psx/force.cpp",
+    "command": [
+      "C:\\Python314\\python.exe",
+      "tools/tugate.py",
+      "recon/game/psx/force.cpp"
+    ],
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/psx/force.cpp: 9/9 PASS\n",
+    "stderr": "",
+    "object_sha256": "74a20bd95a2670ccf1e6ec7504d01c9c3b4a1f85f70c05fc24aca6fe7c76f87a",
+    "actual_function_symbols": [
+      "Force_Vbl__Fv",
+      "Force_Update__FP8Car_tObj",
+      "Force_StartUp__Fv",
+      "Force_Disable__Fv",
+      "Force_IsForceOn__FP8Car_tObj",
+      "Force_Pause__Fv",
+      "Force_UnPause__Fv",
+      "Force_HitSign__FP8Car_tObj",
+      "Force_HitWall__Fi"
+    ],
+    "local_function_symbols": []
+  },
+  "consumer_census": {
+    "files_scanned": 1677,
+    "literal_users": [],
+    "dynamic_includes": []
+  },
+  "unresolved": [],
+  "prototype_receipts": [
+    {
+      "header": "recon/game/psx/force.h",
+      "line": 6,
+      "encoded": "Force_Vbl__Fv",
+      "name": "Force_Vbl",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Force_Vbl__Fv(void);   /* :61 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "3f1520",
+          "va": "800ca998",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Force_Vbl",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\force.cpp",
+          "line": 70,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 122,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Force_Vbl(void);   /* SYM 3f1520 @0x800ca998 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Force_Vbl__Fv__Fv",
+      "after_emitted_reference": "Force_Vbl__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/force.h",
+      "line": 7,
+      "encoded": "Force_Update__FP8Car_tObj",
+      "name": "Force_Update",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Force_Update__FP8Car_tObj(Car_tObj *car);   /* :105 */",
+      "header_return": "void",
+      "header_signature": "(Car_tObj *car)",
+      "native": [
+        {
+          "record": "3f153b",
+          "va": "800cabc0",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Force_Update",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\force.cpp",
+          "line": 194,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(Car_tObj * car)",
+          "end": 336,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(Car_tObj * car)",
+      "final_prototype": "void Force_Update(Car_tObj * car);   /* SYM 3f153b @0x800cabc0 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Force_Update__FP8Car_tObj__FP8Car_tObj",
+      "after_emitted_reference": "Force_Update__FP8Car_tObj",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/force.h",
+      "line": 8,
+      "encoded": "Force_StartUp__Fv",
+      "name": "Force_StartUp",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Force_StartUp__Fv(void);   /* :230 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "3f1562",
+          "va": "800cb018",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Force_StartUp",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\force.cpp",
+          "line": 339,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 362,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Force_StartUp(void);   /* SYM 3f1562 @0x800cb018 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Force_StartUp__Fv__Fv",
+      "after_emitted_reference": "Force_StartUp__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/force.h",
+      "line": 9,
+      "encoded": "Force_Disable__Fv",
+      "name": "Force_Disable",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Force_Disable__Fv(void);   /* :250 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "3f1581",
+          "va": "800cb0e4",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Force_Disable",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\force.cpp",
+          "line": 375,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 392,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Force_Disable(void);   /* SYM 3f1581 @0x800cb0e4 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Force_Disable__Fv__Fv",
+      "after_emitted_reference": "Force_Disable__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/force.h",
+      "line": 10,
+      "encoded": "Force_IsForceOn__FP8Car_tObj",
+      "name": "Force_IsForceOn",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "int Force_IsForceOn__FP8Car_tObj(Car_tObj *car);   /* :264 */",
+      "header_return": "int",
+      "header_signature": "(Car_tObj *car)",
+      "native": [
+        {
+          "record": "3f15a0",
+          "va": "800cb158",
+          "linkage": "EXT",
+          "return_type": "int"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Force_IsForceOn",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\force.cpp",
+          "line": 415,
+          "typeref": "typename:int",
+          "kind": "function",
+          "signature": "(Car_tObj * car)",
+          "end": 428,
+          "return_type": "int",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "int",
+      "final_signature": "(Car_tObj * car)",
+      "final_prototype": "int Force_IsForceOn(Car_tObj * car);   /* SYM 3f15a0 @0x800cb158 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Force_IsForceOn__FP8Car_tObj__FP8Car_tObj",
+      "after_emitted_reference": "Force_IsForceOn__FP8Car_tObj",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/force.h",
+      "line": 11,
+      "encoded": "Force_Pause__Fv",
+      "name": "Force_Pause",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Force_Pause__Fv(void);   /* :279 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "3f15ca",
+          "va": "800cb1b4",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Force_Pause",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\force.cpp",
+          "line": 431,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 446,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Force_Pause(void);   /* SYM 3f15ca @0x800cb1b4 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Force_Pause__Fv__Fv",
+      "after_emitted_reference": "Force_Pause__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/force.h",
+      "line": 12,
+      "encoded": "Force_UnPause__Fv",
+      "name": "Force_UnPause",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Force_UnPause__Fv(void);   /* :291 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "3f15e7",
+          "va": "800cb1f4",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Force_UnPause",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\force.cpp",
+          "line": 449,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 453,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Force_UnPause(void);   /* SYM 3f15e7 @0x800cb1f4 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Force_UnPause__Fv__Fv",
+      "after_emitted_reference": "Force_UnPause__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/force.h",
+      "line": 13,
+      "encoded": "Force_HitSign__FP8Car_tObj",
+      "name": "Force_HitSign",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Force_HitSign__FP8Car_tObj(Car_tObj *car);   /* :298 */",
+      "header_return": "void",
+      "header_signature": "(Car_tObj *car)",
+      "native": [
+        {
+          "record": "3f1606",
+          "va": "800cb1fc",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Force_HitSign",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\force.cpp",
+          "line": 456,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(Car_tObj * car)",
+          "end": 460,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(Car_tObj * car)",
+      "final_prototype": "void Force_HitSign(Car_tObj * car);   /* SYM 3f1606 @0x800cb1fc */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Force_HitSign__FP8Car_tObj__FP8Car_tObj",
+      "after_emitted_reference": "Force_HitSign__FP8Car_tObj",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/force.h",
+      "line": 14,
+      "encoded": "Force_HitWall__Fi",
+      "name": "Force_HitWall",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Force_HitWall__Fi(int impulse);   /* :301 */",
+      "header_return": "void",
+      "header_signature": "(int impulse)",
+      "native": [
+        {
+          "record": "3f162e",
+          "va": "800cb204",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Force_HitWall",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\force.cpp",
+          "line": 463,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int impulse)",
+          "end": 467,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int impulse)",
+      "final_prototype": "void Force_HitWall(int impulse);   /* SYM 3f162e @0x800cb204 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Force_HitWall__Fi__Fi",
+      "after_emitted_reference": "Force_HitWall__Fi",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    }
+  ]
+}

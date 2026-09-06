@@ -1,0 +1,326 @@
+[
+  {
+    "source": "recon/frontend/common/fecolor.cpp",
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/frontend/common/fecolor.cpp: 0/0 PASS\n",
+    "stderr": "",
+    "sha256": "01ed5e5670e5557e5e756aaeee5dc01655192adf7a70c7aaf0d4c1161fc0cebb",
+    "passed": 0,
+    "total": 0
+  },
+  {
+    "source": "recon/frontend/common/records.cpp",
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/frontend/common/records.cpp: 0/0 PASS\n",
+    "stderr": "",
+    "sha256": "b5f7204d35e58fed73ded1bcf308e4e26ac015569feecee4073faaffb89bfe0d",
+    "passed": 0,
+    "total": 0
+  },
+  {
+    "source": "recon/frontend/common/screencameras.cpp",
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/frontend/common/screencameras.cpp: 0/0 PASS\n",
+    "stderr": "",
+    "sha256": "e5d6207665ffe0b7e1ce2ed9e1ccf10fbbd84f7f02aa2681fb26ef567dac9083",
+    "passed": 0,
+    "total": 0
+  },
+  {
+    "source": "recon/frontend/common/screendemo.cpp",
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/frontend/common/screendemo.cpp: 0/0 PASS\n",
+    "stderr": "",
+    "sha256": "88cb5b33e15538d152e8279de4bec4dea081821df25fe2d50bf474f0177a44c0",
+    "passed": 0,
+    "total": 0
+  },
+  {
+    "source": "recon/frontend/common/screengrid.cpp",
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/frontend/common/screengrid.cpp: 0/0 PASS\n",
+    "stderr": "",
+    "sha256": "c667fcbf60664cc9be1b590f4455cc8ee1f01fc284487b7921fc8545e0b3f915",
+    "passed": 0,
+    "total": 0
+  },
+  {
+    "source": "recon/frontend/common/screenoptions.cpp",
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/frontend/common/screenoptions.cpp: 0/0 PASS\n",
+    "stderr": "",
+    "sha256": "01b40c8a5b36e2539972adea167ee4e7008041bca07f801d436c9f608e5cf755",
+    "passed": 0,
+    "total": 0
+  },
+  {
+    "source": "recon/frontend/psx/cache.cpp",
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/frontend/psx/cache.cpp: 0/0 PASS\n",
+    "stderr": "",
+    "sha256": "558b44bc566949e4ee12a54e1baaf5a6adca32e74e39df3daeab2042c63d1e77",
+    "passed": 0,
+    "total": 0
+  },
+  {
+    "source": "recon/frontend/psx/endcode.cpp",
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/frontend/psx/endcode.cpp: 0/0 PASS\n",
+    "stderr": "",
+    "sha256": "2d846ced323fe623debf0a39d929a6fb3377644c5923ade7168a5ea2e605bb1b",
+    "passed": 0,
+    "total": 0
+  },
+  {
+    "source": "recon/frontend/psx/mdecstat.cpp",
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/frontend/psx/mdecstat.cpp: 0/0 PASS\n",
+    "stderr": "",
+    "sha256": "bae30f372f33be302569737537dd9509926f38fa8334cde9c39dd1b5974e9659",
+    "passed": 0,
+    "total": 0
+  },
+  {
+    "source": "recon/frontend/psx/memdsp.cpp",
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/frontend/psx/memdsp.cpp: 0/0 PASS\n",
+    "stderr": "",
+    "sha256": "420d5a3f6b1a18308fc05880f4d69b3c88d0fad39bcd90493918466050d937c9",
+    "passed": 0,
+    "total": 0
+  },
+  {
+    "source": "recon/frontend/psx/readpix.cpp",
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/frontend/psx/readpix.cpp: 0/0 PASS\n",
+    "stderr": "",
+    "sha256": "78663804569800935704daa1c59e1dd0ba2e639561a0c15a39da7d1131242e82",
+    "passed": 0,
+    "total": 0
+  },
+  {
+    "source": "recon/frontend/psx/vsprintf.cpp",
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/frontend/psx/vsprintf.cpp: 0/0 PASS\n",
+    "stderr": "",
+    "sha256": "841648adb6f213019d9846d7e7c6c24fba8acae49228a05708a1ef280d376f8e",
+    "passed": 0,
+    "total": 0
+  },
+  {
+    "source": "recon/game/common/aidebug.cpp",
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/common/aidebug.cpp: 0/0 PASS\n",
+    "stderr": "",
+    "sha256": "4105253e2114dbed0385fd1510cf586311d674ef37901ead44895ece8044b514",
+    "passed": 0,
+    "total": 0
+  },
+  {
+    "source": "recon/game/common/aispeech.cpp",
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/common/aispeech.cpp: 0/0 PASS\n",
+    "stderr": "",
+    "sha256": "e570f5b04581f73cc9291c35b41f25f679a3c1608b716716aca417e53220d6d2",
+    "passed": 0,
+    "total": 0
+  },
+  {
+    "source": "recon/game/common/async.cpp",
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/common/async.cpp: 0/0 PASS\n",
+    "stderr": "",
+    "sha256": "6e36f5eef41167a685fb32df9c280bb75d3c517ba6f56444e8cda33292f439da",
+    "passed": 0,
+    "total": 0
+  },
+  {
+    "source": "recon/game/common/chunkvis.cpp",
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/common/chunkvis.cpp: 0/0 PASS\n",
+    "stderr": "",
+    "sha256": "08ae7d986280dfc44ad537cf6bff1e09345cceed84fb9387edf2c37962e505ac",
+    "passed": 0,
+    "total": 0
+  },
+  {
+    "source": "recon/game/common/debugvar.cpp",
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/common/debugvar.cpp: 0/0 PASS\n",
+    "stderr": "",
+    "sha256": "cf24bd264495a56732be89410b9b32c11e0496be8586ad80a87a6432e694c14f",
+    "passed": 0,
+    "total": 0
+  },
+  {
+    "source": "recon/game/common/fei.cpp",
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/common/fei.cpp: 0/0 PASS\n",
+    "stderr": "",
+    "sha256": "79b03b7b940b1b4f0a763e4279ac1f5d7a434ea82de483a0fc58274e2fb3f21f",
+    "passed": 0,
+    "total": 0
+  },
+  {
+    "source": "recon/game/common/smack.cpp",
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/common/smack.cpp: 0/0 PASS\n",
+    "stderr": "",
+    "sha256": "048e5428c4bfb57746d8caf34cd6c5d4a7ab04cbb16f23cecbde1bcbea1bcbaa",
+    "passed": 0,
+    "total": 0
+  },
+  {
+    "source": "recon/game/common/vtables_aidatarecord.cpp",
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/common/vtables_aidatarecord.cpp: 0/0 PASS\n",
+    "stderr": "",
+    "sha256": "261f6e41a505c00b3353c98125b28fc877812d377e9129fd4c8feafb86e8eb98",
+    "passed": 0,
+    "total": 0
+  },
+  {
+    "source": "recon/game/common/vtables_aihigh.cpp",
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/common/vtables_aihigh.cpp: 0/0 PASS\n",
+    "stderr": "",
+    "sha256": "26bc67dacb9ca4d2a000fef194a6305263f0975b4fd7be490d5e3e3313994af4",
+    "passed": 0,
+    "total": 0
+  },
+  {
+    "source": "recon/game/common/vtables_aistate.cpp",
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/common/vtables_aistate.cpp: 0/0 PASS\n",
+    "stderr": "",
+    "sha256": "eded89c2ef3a14ad8f51f8aee488c79a595423ccac63f74bde382ae67b1d4c1b",
+    "passed": 0,
+    "total": 0
+  },
+  {
+    "source": "recon/game/common/vtables_object.cpp",
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/common/vtables_object.cpp: 0/0 PASS\n",
+    "stderr": "",
+    "sha256": "afa4aed3e5adff330447524c9c4197a96d1a6dd718a81501f29051397a832a0d",
+    "passed": 0,
+    "total": 0
+  },
+  {
+    "source": "recon/game/common/vtables_tdialog.cpp",
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/common/vtables_tdialog.cpp: 0/0 PASS\n",
+    "stderr": "",
+    "sha256": "3e9860ae3f04eeb8da01f53c29ce89f8261f716fd2294c01d4ef5e29bc0c2244",
+    "passed": 0,
+    "total": 0
+  },
+  {
+    "source": "recon/game/common/vtables_tlist.cpp",
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/common/vtables_tlist.cpp: 0/0 PASS\n",
+    "stderr": "",
+    "sha256": "592ea053a0ad60dae4aaff4ea89eaf11de003086150a38b264351fd11f564b48",
+    "passed": 0,
+    "total": 0
+  },
+  {
+    "source": "recon/game/common/vtables_tmenu.cpp",
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/common/vtables_tmenu.cpp: 0/0 PASS\n",
+    "stderr": "",
+    "sha256": "8c38485229e636dfc8d3d1eccd49d7a37fbf0c13c55c529cf501a950fff3d478",
+    "passed": 0,
+    "total": 0
+  },
+  {
+    "source": "recon/game/common/vtables_tpausemenu.cpp",
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/common/vtables_tpausemenu.cpp: 0/0 PASS\n",
+    "stderr": "",
+    "sha256": "24148fd97c9c3f1044cef2b39889cc61f0f8cc72fb0b031b3260450c00aebe70",
+    "passed": 0,
+    "total": 0
+  },
+  {
+    "source": "recon/game/common/vtables_tscreen.cpp",
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/common/vtables_tscreen.cpp: 0/0 PASS\n",
+    "stderr": "",
+    "sha256": "33e147c15bfc091a9065fc319170e4d68966bbba77475797f58de980d097d6ae",
+    "passed": 0,
+    "total": 0
+  },
+  {
+    "source": "recon/game/common/vtables_tscreen2.cpp",
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/common/vtables_tscreen2.cpp: 0/0 PASS\n",
+    "stderr": "",
+    "sha256": "aab0d829ed7f2ed15bb73dedecffe75b40d075b4d68a47b3f402870a48637910",
+    "passed": 0,
+    "total": 0
+  },
+  {
+    "source": "recon/game/psx/ddvfont.cpp",
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/psx/ddvfont.cpp: 0/0 PASS\n",
+    "stderr": "",
+    "sha256": "10ac159953b865aaf078676fb5a35f701be8325985c5b6190343c628c66f21ce",
+    "passed": 0,
+    "total": 0
+  },
+  {
+    "source": "recon/game/psx/debug.cpp",
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/psx/debug.cpp: 0/0 PASS\n",
+    "stderr": "",
+    "sha256": "83feac6fea007b34357e74fe91461cc386a1a48e6734196872c4105ef29b3a60",
+    "passed": 0,
+    "total": 0
+  },
+  {
+    "source": "recon/game/psx/draw2.cpp",
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/psx/draw2.cpp: 0/0 PASS\n",
+    "stderr": "",
+    "sha256": "f464748f58525b9e57d30632961a7eedcc337d9b3a91c91c6070ca5338d766c6",
+    "passed": 0,
+    "total": 0
+  },
+  {
+    "source": "recon/game/psx/drawdbg.cpp",
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/psx/drawdbg.cpp: 0/0 PASS\n",
+    "stderr": "",
+    "sha256": "6fa423db5665c423fedc039d485a944fc5116685753b2e7f47725c458c5af201",
+    "passed": 0,
+    "total": 0
+  },
+  {
+    "source": "recon/game/psx/filedbg.cpp",
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/psx/filedbg.cpp: 0/0 PASS\n",
+    "stderr": "",
+    "sha256": "2bceb4c4a5157921059d50aa90ab242c9cf61141660c0ffcb09b301b780e6b47",
+    "passed": 0,
+    "total": 0
+  },
+  {
+    "source": "recon/game/psx/nfs2mem.cpp",
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/psx/nfs2mem.cpp: 0/0 PASS\n",
+    "stderr": "",
+    "sha256": "d0f119f08de65c922c5335286a369014dcc18a342ffa9a3fdf653d606d471af6",
+    "passed": 0,
+    "total": 0
+  },
+  {
+    "source": "recon/game/psx/profile.cpp",
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/psx/profile.cpp: 0/0 PASS\n",
+    "stderr": "",
+    "sha256": "a40e06e18f427fd3ec9ba8d4295eb4ee382dace7358816d6edd87db77556f8a3",
+    "passed": 0,
+    "total": 0
+  }
+]

@@ -3,7 +3,10 @@
 #define _GAME_COMMON_FASTRAND_H_
 #include "../../nfs4_types.h"
 
-void FastRandom_CleanUp__Fv(void);   /* :13 */
-void FastRandom_StartUp__FUi(unsigned int seeder);   /* :18 */
+/* P875: source names/signatures checked against native EXT records and
+ * defining exports; compile-only typed references verify the C++ linkage. */
+
+void FastRandom_CleanUp(void);   /* :13 */
+void FastRandom_StartUp(unsigned int seeder);   /* :18 */
 
 #endif /* _GAME_COMMON_FASTRAND_H_ */

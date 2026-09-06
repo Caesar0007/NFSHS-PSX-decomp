@@ -2,16 +2,17 @@
 #ifndef _GAME_PSX_DEVICE_H_
 #define _GAME_PSX_DEVICE_H_
 #include "../../nfs4_types.h"
+/* P875: source identifiers and signatures checked against native SYM/linkage. */
 
-int Device_VerifyType__Fi(int port);   /* :51 */
-int Device_Fail__Fi(int port);   /* :72 */
-void Device_Update__Fv(void);   /* :109 */
-void Device_StartUp__Fv(void);   /* :169 */
-void Device_SetHardCodedKeys__Fv(void);   /* :195 */
-int Device_PSXPad__FUl(u_long param);   /* :244 */
-BOOL Device_ReadPad__FiUl(int port, u_long param);   /* :261 */
-int Device_PSXPadMulti__FUl(u_long param);   /* :306 */
-int Device_Analog__FUl(u_long param);   /* :352 */
-int Device_Null__FUl(u_long param);   /* :393 */
+int Device_VerifyType(int port);   /* SYM 3a9947 @0x800bd3c0 */
+int Device_Fail(int port);   /* SYM 3a996a @0x800bd468 */
+void Device_Update(void);   /* SYM 3a9987 @0x800bd4d8 */
+void Device_StartUp(void);   /* SYM 3a99a6 @0x800bd5b8 */
+void Device_SetHardCodedKeys(void);   /* SYM 3a99c6 @0x800bd5e0 */
+int Device_PSXPad(u_long param);   /* SYM 3a99ef @0x800bd644 */
+bool Device_ReadPad(int port,u_long param);   /* SYM 3a9a0f @0x800bd6ac */
+int Device_PSXPadMulti(u_long param);   /* SYM 3a9a31 @0x800bd8dc */
+int Device_Analog(u_long param);   /* SYM 3a9a56 @0x800bd9b8 */
+int Device_Null(u_long param);   /* SYM 3a9a76 @0x800bdab8 */
 
 #endif /* _GAME_PSX_DEVICE_H_ */

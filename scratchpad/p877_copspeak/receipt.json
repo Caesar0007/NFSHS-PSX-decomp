@@ -1,0 +1,1639 @@
+{
+  "function": "CopSpeak_PlayNextRequest__Fv",
+  "native_locals": [
+    "26bc32: $00000010 96 Def2 class REG type PTR STRUCT size 32 dims 0 tag CopSpeak_tRequest name r",
+    "26bc55: $00000005 94 Def class REG type INT size 0 name handle"
+  ],
+  "before_defs": [
+    ".frame\t$sp,24,$31\t\t# vars= 0, regs= 2/0, args= 16, extra= 0",
+    ".mask\t0x80010000,-4",
+    ".begin\t$Lb96\t1",
+    ".def\tiVar3;\t.val\t4;\t.scl\t4;\t.type\t0x4;\t.endef",
+    ".def\thandle;\t.val\t5;\t.scl\t4;\t.type\t0x4;\t.endef",
+    ".def\tnext;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef",
+    ".def\tr;\t.val\t16;\t.scl\t4;\t.tag\tCopSpeak_tRequest;\t.size\t32;\t.type\t0x18;\t.endef",
+    ".bend\t$Le97\t41"
+  ],
+  "after_defs": [
+    ".frame\t$sp,24,$31\t\t# vars= 0, regs= 2/0, args= 16, extra= 0",
+    ".mask\t0x80010000,-4",
+    ".begin\t$Lb96\t1",
+    ".def\tr;\t.val\t16;\t.scl\t4;\t.tag\tCopSpeak_tRequest;\t.size\t32;\t.type\t0x18;\t.endef",
+    ".def\thandle;\t.val\t5;\t.scl\t4;\t.type\t0x4;\t.endef",
+    ".def\tnext;\t.val\t4;\t.scl\t4;\t.type\t0x4;\t.endef",
+    ".bend\t$Le97\t32"
+  ],
+  "next_qualification": "The target SYM contains no next record. P842 recovered the spelling for the same queue-wrap output role in sibling functions of COPSPEAK.CPP. Its emitted home changes REG3 to REG4 in the single value chain; this is not a native-target home proof.",
+  "object_snapshots": {
+    "before": {
+      "file": "C:\\Temp\\nfs4-decomp\\scratchpad\\p877_copspeak\\before_whole.o",
+      "sha256": "56663d2187675e85484b4689ee4050df9aa81ba7551ce8ab8eab8d9555ce0258",
+      "semantic_sha256": "ba22a87d4759acbc01f3c7a05dda900fefcf466fb82d960fbcdd542eb8aab15c",
+      "CURRENTPLAYER": [],
+      "sections": [
+        [
+          ".text",
+          1,
+          6,
+          0,
+          6880,
+          4,
+          "1853eca3773f21f6a248270ebbbe55c4b4aabbcc0d3c4524b63a0cf49632e912"
+        ],
+        [
+          ".data",
+          1,
+          3,
+          0,
+          2188,
+          4,
+          "3fcad821a9664c6e8cb45d7c8c8975f5364891cfac2623e34882bef4352675c0"
+        ],
+        [
+          ".bss",
+          8,
+          3,
+          0,
+          16,
+          1,
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        ],
+        [
+          ".reginfo",
+          1879048198,
+          0,
+          0,
+          24,
+          4,
+          "324fa72031ceba3c7f33fb42bedacd135cc399fa886efb015cd7c650b09a3eaf"
+        ],
+        [
+          ".MIPS.abiflags",
+          1879048234,
+          2,
+          0,
+          24,
+          8,
+          "9e70292a32ba11ef2132089aab266b191f38da634e80b1c34087db93153bd643"
+        ],
+        [
+          ".pdr",
+          1,
+          0,
+          0,
+          864,
+          4,
+          "237bfeaf7b1cf806cd40bf076f67614612997b03317ab02e295b28aa882f03f2"
+        ],
+        [
+          ".sdata",
+          1,
+          268435459,
+          0,
+          126,
+          4,
+          "9916e2deea22d489a0ca65a78ff2ed67c7beb13ff564c1b52beea4cbe70767f1"
+        ],
+        [
+          ".rodata",
+          1,
+          2,
+          0,
+          174,
+          4,
+          "7eb41799be7d2813d7aa8b13024a6a97c126a334f38d7dee6ad88d06e57b2972"
+        ],
+        [
+          ".gnu.attributes",
+          1879048181,
+          0,
+          0,
+          16,
+          1,
+          "216973f3f0fc143f32165e8cd6114664ee49b39e03ccb13ea3a576fbe3a5f43b"
+        ]
+      ]
+    },
+    "after": {
+      "file": "C:\\Temp\\nfs4-decomp\\build\\recon\\game\\common\\copspeak.cpp.o",
+      "sha256": "70fc97ebe71e9feeb970a4af6af67f16969a2171d4a82bfc1a35834376f9807e",
+      "semantic_sha256": "ba22a87d4759acbc01f3c7a05dda900fefcf466fb82d960fbcdd542eb8aab15c",
+      "CURRENTPLAYER": [],
+      "sections": [
+        [
+          ".text",
+          1,
+          6,
+          0,
+          6880,
+          4,
+          "1853eca3773f21f6a248270ebbbe55c4b4aabbcc0d3c4524b63a0cf49632e912"
+        ],
+        [
+          ".data",
+          1,
+          3,
+          0,
+          2188,
+          4,
+          "3fcad821a9664c6e8cb45d7c8c8975f5364891cfac2623e34882bef4352675c0"
+        ],
+        [
+          ".bss",
+          8,
+          3,
+          0,
+          16,
+          1,
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        ],
+        [
+          ".reginfo",
+          1879048198,
+          0,
+          0,
+          24,
+          4,
+          "324fa72031ceba3c7f33fb42bedacd135cc399fa886efb015cd7c650b09a3eaf"
+        ],
+        [
+          ".MIPS.abiflags",
+          1879048234,
+          2,
+          0,
+          24,
+          8,
+          "9e70292a32ba11ef2132089aab266b191f38da634e80b1c34087db93153bd643"
+        ],
+        [
+          ".pdr",
+          1,
+          0,
+          0,
+          864,
+          4,
+          "237bfeaf7b1cf806cd40bf076f67614612997b03317ab02e295b28aa882f03f2"
+        ],
+        [
+          ".sdata",
+          1,
+          268435459,
+          0,
+          126,
+          4,
+          "9916e2deea22d489a0ca65a78ff2ed67c7beb13ff564c1b52beea4cbe70767f1"
+        ],
+        [
+          ".rodata",
+          1,
+          2,
+          0,
+          174,
+          4,
+          "7eb41799be7d2813d7aa8b13024a6a97c126a334f38d7dee6ad88d06e57b2972"
+        ],
+        [
+          ".gnu.attributes",
+          1879048181,
+          0,
+          0,
+          16,
+          1,
+          "216973f3f0fc143f32165e8cd6114664ee49b39e03ccb13ea3a576fbe3a5f43b"
+        ]
+      ]
+    },
+    "before_debug": {
+      "file": "C:\\Temp\\nfs4-decomp\\scratchpad\\p877_copspeak\\before_whole.g.o",
+      "sha256": "34a40d77ca492c4210450b9540eede76f15e3d185fc3f951ec195851fbbb833b",
+      "semantic_sha256": "303fcf3232d84f8d5810f630e143385d530aa863230732332372c81f0b5438ea",
+      "CURRENTPLAYER": [],
+      "sections": [
+        [
+          ".text",
+          1,
+          6,
+          0,
+          6880,
+          4,
+          "1853eca3773f21f6a248270ebbbe55c4b4aabbcc0d3c4524b63a0cf49632e912"
+        ],
+        [
+          ".data",
+          1,
+          3,
+          0,
+          2188,
+          4,
+          "3fcad821a9664c6e8cb45d7c8c8975f5364891cfac2623e34882bef4352675c0"
+        ],
+        [
+          ".bss",
+          8,
+          3,
+          0,
+          16,
+          1,
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        ],
+        [
+          ".reginfo",
+          1879048198,
+          0,
+          0,
+          24,
+          4,
+          "324fa72031ceba3c7f33fb42bedacd135cc399fa886efb015cd7c650b09a3eaf"
+        ],
+        [
+          ".MIPS.abiflags",
+          1879048234,
+          2,
+          0,
+          24,
+          8,
+          "9e70292a32ba11ef2132089aab266b191f38da634e80b1c34087db93153bd643"
+        ],
+        [
+          ".pdr",
+          1,
+          0,
+          0,
+          864,
+          4,
+          "237bfeaf7b1cf806cd40bf076f67614612997b03317ab02e295b28aa882f03f2"
+        ],
+        [
+          ".sdata",
+          1,
+          268435459,
+          0,
+          126,
+          4,
+          "9916e2deea22d489a0ca65a78ff2ed67c7beb13ff564c1b52beea4cbe70767f1"
+        ],
+        [
+          ".rodata",
+          1,
+          2,
+          0,
+          174,
+          4,
+          "7eb41799be7d2813d7aa8b13024a6a97c126a334f38d7dee6ad88d06e57b2972"
+        ],
+        [
+          ".debug_line",
+          1879048222,
+          0,
+          0,
+          1422,
+          1,
+          "076cd465bb405c3b76b4b3d714fc09eb31c9ab97024f8f3e25dcb9c789224c9c"
+        ],
+        [
+          ".debug_info",
+          1879048222,
+          0,
+          0,
+          472,
+          1,
+          "c5aef78e06991db8a8aec87f67a40ae6548afc4a0f6282ccecc6db916a87a7f8"
+        ],
+        [
+          ".debug_abbrev",
+          1879048222,
+          0,
+          0,
+          40,
+          1,
+          "aae1f8fc66a883a73c8598c4f91eab0cfaf7d6ebfaf07f551d16f8987aacb8e4"
+        ],
+        [
+          ".debug_aranges",
+          1879048222,
+          0,
+          0,
+          32,
+          8,
+          "914cd6efea260c41a38d77f7e91ce3722b463b312bd3fb47287d782cc2d459d0"
+        ],
+        [
+          ".debug_str",
+          1879048222,
+          48,
+          0,
+          864,
+          1,
+          "24eadc71539ed5452b8871cb7c02a0fb0722608b3f3ee247c58e7e7bbb7075af"
+        ],
+        [
+          ".gnu.attributes",
+          1879048181,
+          0,
+          0,
+          16,
+          1,
+          "216973f3f0fc143f32165e8cd6114664ee49b39e03ccb13ea3a576fbe3a5f43b"
+        ]
+      ]
+    },
+    "after_debug": {
+      "file": "C:\\Temp\\nfs4-decomp\\build\\diffsrc\\recon\\game\\common\\copspeak.cpp.g.o",
+      "sha256": "9bcee1ea2a23377b554f795e7e5d05be4a40dbeb75e23e813170eed68e4f19c5",
+      "semantic_sha256": "a58a079e032b3a3b07f00513f7a990723db95d3ca35b98da272085f7b400b25d",
+      "CURRENTPLAYER": [],
+      "sections": [
+        [
+          ".text",
+          1,
+          6,
+          0,
+          6880,
+          4,
+          "1853eca3773f21f6a248270ebbbe55c4b4aabbcc0d3c4524b63a0cf49632e912"
+        ],
+        [
+          ".data",
+          1,
+          3,
+          0,
+          2188,
+          4,
+          "3fcad821a9664c6e8cb45d7c8c8975f5364891cfac2623e34882bef4352675c0"
+        ],
+        [
+          ".bss",
+          8,
+          3,
+          0,
+          16,
+          1,
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        ],
+        [
+          ".reginfo",
+          1879048198,
+          0,
+          0,
+          24,
+          4,
+          "324fa72031ceba3c7f33fb42bedacd135cc399fa886efb015cd7c650b09a3eaf"
+        ],
+        [
+          ".MIPS.abiflags",
+          1879048234,
+          2,
+          0,
+          24,
+          8,
+          "9e70292a32ba11ef2132089aab266b191f38da634e80b1c34087db93153bd643"
+        ],
+        [
+          ".pdr",
+          1,
+          0,
+          0,
+          864,
+          4,
+          "237bfeaf7b1cf806cd40bf076f67614612997b03317ab02e295b28aa882f03f2"
+        ],
+        [
+          ".sdata",
+          1,
+          268435459,
+          0,
+          126,
+          4,
+          "9916e2deea22d489a0ca65a78ff2ed67c7beb13ff564c1b52beea4cbe70767f1"
+        ],
+        [
+          ".rodata",
+          1,
+          2,
+          0,
+          174,
+          4,
+          "7eb41799be7d2813d7aa8b13024a6a97c126a334f38d7dee6ad88d06e57b2972"
+        ],
+        [
+          ".debug_line",
+          1879048222,
+          0,
+          0,
+          1328,
+          1,
+          "810fef664aebfadeca68670010523536de23db15766b6df39d89549e245e1443"
+        ],
+        [
+          ".debug_info",
+          1879048222,
+          0,
+          0,
+          472,
+          1,
+          "671c12650a1912a4b958fbd6dd9e6d217ffa2cda83994cf7dbc82125373f9c11"
+        ],
+        [
+          ".debug_abbrev",
+          1879048222,
+          0,
+          0,
+          40,
+          1,
+          "aae1f8fc66a883a73c8598c4f91eab0cfaf7d6ebfaf07f551d16f8987aacb8e4"
+        ],
+        [
+          ".debug_aranges",
+          1879048222,
+          0,
+          0,
+          32,
+          8,
+          "914cd6efea260c41a38d77f7e91ce3722b463b312bd3fb47287d782cc2d459d0"
+        ],
+        [
+          ".debug_str",
+          1879048222,
+          48,
+          0,
+          879,
+          1,
+          "2c36bc5b59e7df2e392995d82fe616a6829312d3985d6260998f35dda1fb2816"
+        ],
+        [
+          ".gnu.attributes",
+          1879048181,
+          0,
+          0,
+          16,
+          1,
+          "216973f3f0fc143f32165e8cd6114664ee49b39e03ccb13ea3a576fbe3a5f43b"
+        ]
+      ]
+    }
+  },
+  "code_data_symbol_relocation_identity": true,
+  "whole_object_hash_equal": false,
+  "full_object_hash_difference": "The frozen baseline is compiled under a different scratch filename; STT_FILE/string-table/container metadata differs. No object is rewritten. The section/symbol/resolved-relocation fingerprint excludes only filename records and raw string-table/index ordering.",
+  "debug_text_twin_equal": {
+    "before": true,
+    "after": true
+  },
+  "raw_oracle_words": 71,
+  "raw_oracle_failures": [],
+  "retail_sld_source_groups": {
+    "1191": {
+      "before_source_lines": [
+        808
+      ],
+      "after_source_lines": [
+        812
+      ]
+    },
+    "1192": {
+      "before_source_lines": [
+        820,
+        821
+      ],
+      "after_source_lines": [
+        820
+      ]
+    },
+    "1194": {
+      "before_source_lines": [
+        822
+      ],
+      "after_source_lines": [
+        821
+      ]
+    },
+    "1201": {
+      "before_source_lines": [
+        823
+      ],
+      "after_source_lines": [
+        822
+      ]
+    },
+    "1210": {
+      "before_source_lines": [
+        824
+      ],
+      "after_source_lines": [
+        823
+      ]
+    },
+    "1213": {
+      "before_source_lines": [
+        827
+      ],
+      "after_source_lines": [
+        826
+      ]
+    },
+    "1221": {
+      "before_source_lines": [
+        828,
+        829
+      ],
+      "after_source_lines": [
+        827,
+        828
+      ]
+    },
+    "1222": {
+      "before_source_lines": [
+        830,
+        831
+      ],
+      "after_source_lines": [
+        829,
+        830
+      ]
+    },
+    "1224": {
+      "before_source_lines": [
+        834
+      ],
+      "after_source_lines": [
+        833
+      ]
+    },
+    "1226": {
+      "before_source_lines": [
+        836
+      ],
+      "after_source_lines": [
+        835
+      ]
+    },
+    "1227": {
+      "before_source_lines": [
+        837
+      ],
+      "after_source_lines": [
+        836
+      ]
+    },
+    "1236": {
+      "before_source_lines": [
+        840
+      ],
+      "after_source_lines": [
+        839
+      ]
+    },
+    "1237": {
+      "before_source_lines": [
+        841,
+        844,
+        845,
+        847
+      ],
+      "after_source_lines": [
+        840,
+        842
+      ]
+    },
+    "1238": {
+      "before_source_lines": [
+        849
+      ],
+      "after_source_lines": [
+        844
+      ]
+    }
+  },
+  "before_instruction_lines": [
+    {
+      "va": 2148116520,
+      "source_line": 808,
+      "word": "27bdffe8",
+      "instruction": "addiu\tsp,sp,-24",
+      "retail_sld": 1191
+    },
+    {
+      "va": 2148116524,
+      "source_line": 821,
+      "word": "3c030000",
+      "instruction": "lui\tv1,0x0",
+      "retail_sld": 1192
+    },
+    {
+      "va": 2148116528,
+      "source_line": 820,
+      "word": "8f840000",
+      "instruction": "lw\ta0,0(gp)",
+      "retail_sld": 1192
+    },
+    {
+      "va": 2148116532,
+      "source_line": 821,
+      "word": "24630000",
+      "instruction": "addiu\tv1,v1,0",
+      "retail_sld": 1192
+    },
+    {
+      "va": 2148116536,
+      "source_line": 808,
+      "word": "afbf0014",
+      "instruction": "sw\tra,20(sp)",
+      "retail_sld": 1191
+    },
+    {
+      "va": 2148116540,
+      "source_line": 808,
+      "word": "afb00010",
+      "instruction": "sw\ts0,16(sp)",
+      "retail_sld": 1191
+    },
+    {
+      "va": 2148116544,
+      "source_line": 821,
+      "word": "00041140",
+      "instruction": "sll\tv0,a0,0x5",
+      "retail_sld": 1192
+    },
+    {
+      "va": 2148116548,
+      "source_line": 821,
+      "word": "00438021",
+      "instruction": "addu\ts0,v0,v1",
+      "retail_sld": 1192
+    },
+    {
+      "va": 2148116552,
+      "source_line": 822,
+      "word": "8202001e",
+      "instruction": "lb\tv0,30(s0)",
+      "retail_sld": 1194
+    },
+    {
+      "va": 2148116556,
+      "source_line": 822,
+      "word": "00000000",
+      "instruction": "nop",
+      "retail_sld": 1194
+    },
+    {
+      "va": 2148116560,
+      "source_line": 822,
+      "word": "04400034",
+      "instruction": "bltz\tv0,1548 <LM526+0x4>",
+      "retail_sld": 1194
+    },
+    {
+      "va": 2148116564,
+      "source_line": 822,
+      "word": "2882003f",
+      "instruction": "slti\tv0,a0,63",
+      "retail_sld": 1194
+    },
+    {
+      "va": 2148116568,
+      "source_line": 823,
+      "word": "9202001d",
+      "instruction": "lbu\tv0,29(s0)",
+      "retail_sld": 1201
+    },
+    {
+      "va": 2148116572,
+      "source_line": 823,
+      "word": "00000000",
+      "instruction": "nop",
+      "retail_sld": 1201
+    },
+    {
+      "va": 2148116576,
+      "source_line": 823,
+      "word": "1440002b",
+      "instruction": "bnez\tv0,1534 <LM524>",
+      "retail_sld": 1201
+    },
+    {
+      "va": 2148116580,
+      "source_line": 823,
+      "word": "2402ffff",
+      "instruction": "li\tv0,-1",
+      "retail_sld": 1201
+    },
+    {
+      "va": 2148116584,
+      "source_line": 824,
+      "word": "8f830000",
+      "instruction": "lw\tv1,0(gp)",
+      "retail_sld": 1210
+    },
+    {
+      "va": 2148116588,
+      "source_line": 824,
+      "word": "00000000",
+      "instruction": "nop",
+      "retail_sld": 1210
+    },
+    {
+      "va": 2148116592,
+      "source_line": 824,
+      "word": "14620030",
+      "instruction": "bne\tv1,v0,1558 <LM529>",
+      "retail_sld": 1210
+    },
+    {
+      "va": 2148116596,
+      "source_line": 824,
+      "word": "3c020000",
+      "instruction": "lui\tv0,0x0",
+      "retail_sld": 1210
+    },
+    {
+      "va": 2148116600,
+      "source_line": 827,
+      "word": "244a0000",
+      "instruction": "addiu\tt2,v0,0",
+      "retail_sld": 1213
+    },
+    {
+      "va": 2148116604,
+      "source_line": 827,
+      "word": "8e070000",
+      "instruction": "lw\ta3,0(s0)",
+      "retail_sld": 1213
+    },
+    {
+      "va": 2148116608,
+      "source_line": 827,
+      "word": "8e080004",
+      "instruction": "lw\tt0,4(s0)",
+      "retail_sld": 1213
+    },
+    {
+      "va": 2148116612,
+      "source_line": 827,
+      "word": "8e090008",
+      "instruction": "lw\tt1,8(s0)",
+      "retail_sld": 1213
+    },
+    {
+      "va": 2148116616,
+      "source_line": 827,
+      "word": "ad470000",
+      "instruction": "sw\ta3,0(t2)",
+      "retail_sld": 1213
+    },
+    {
+      "va": 2148116620,
+      "source_line": 827,
+      "word": "ad480004",
+      "instruction": "sw\tt0,4(t2)",
+      "retail_sld": 1213
+    },
+    {
+      "va": 2148116624,
+      "source_line": 827,
+      "word": "ad490008",
+      "instruction": "sw\tt1,8(t2)",
+      "retail_sld": 1213
+    },
+    {
+      "va": 2148116628,
+      "source_line": 827,
+      "word": "8e07000c",
+      "instruction": "lw\ta3,12(s0)",
+      "retail_sld": 1213
+    },
+    {
+      "va": 2148116632,
+      "source_line": 827,
+      "word": "8e080010",
+      "instruction": "lw\tt0,16(s0)",
+      "retail_sld": 1213
+    },
+    {
+      "va": 2148116636,
+      "source_line": 827,
+      "word": "8e090014",
+      "instruction": "lw\tt1,20(s0)",
+      "retail_sld": 1213
+    },
+    {
+      "va": 2148116640,
+      "source_line": 827,
+      "word": "ad47000c",
+      "instruction": "sw\ta3,12(t2)",
+      "retail_sld": 1213
+    },
+    {
+      "va": 2148116644,
+      "source_line": 827,
+      "word": "ad480010",
+      "instruction": "sw\tt0,16(t2)",
+      "retail_sld": 1213
+    },
+    {
+      "va": 2148116648,
+      "source_line": 827,
+      "word": "ad490014",
+      "instruction": "sw\tt1,20(t2)",
+      "retail_sld": 1213
+    },
+    {
+      "va": 2148116652,
+      "source_line": 827,
+      "word": "8e070018",
+      "instruction": "lw\ta3,24(s0)",
+      "retail_sld": 1213
+    },
+    {
+      "va": 2148116656,
+      "source_line": 827,
+      "word": "8e08001c",
+      "instruction": "lw\tt0,28(s0)",
+      "retail_sld": 1213
+    },
+    {
+      "va": 2148116660,
+      "source_line": 827,
+      "word": "ad470018",
+      "instruction": "sw\ta3,24(t2)",
+      "retail_sld": 1213
+    },
+    {
+      "va": 2148116664,
+      "source_line": 827,
+      "word": "ad48001c",
+      "instruction": "sw\tt0,28(t2)",
+      "retail_sld": 1213
+    },
+    {
+      "va": 2148116668,
+      "source_line": 828,
+      "word": "8e050018",
+      "instruction": "lw\ta1,24(s0)",
+      "retail_sld": 1221
+    },
+    {
+      "va": 2148116672,
+      "source_line": 828,
+      "word": "00000000",
+      "instruction": "nop",
+      "retail_sld": 1221
+    },
+    {
+      "va": 2148116676,
+      "source_line": 829,
+      "word": "14a30005",
+      "instruction": "bne\ta1,v1,1500 <LM521>",
+      "retail_sld": 1221
+    },
+    {
+      "va": 2148116680,
+      "source_line": 829,
+      "word": "24060001",
+      "instruction": "li\ta2,1",
+      "retail_sld": 1221
+    },
+    {
+      "va": 2148116684,
+      "source_line": 830,
+      "word": "8e050008",
+      "instruction": "lw\ta1,8(s0)",
+      "retail_sld": 1222
+    },
+    {
+      "va": 2148116688,
+      "source_line": 831,
+      "word": "8204001e",
+      "instruction": "lb\ta0,30(s0)",
+      "retail_sld": 1222
+    },
+    {
+      "va": 2148116692,
+      "source_line": 831,
+      "word": "08000541",
+      "instruction": "j\t1504 <LM521+0x4>",
+      "retail_sld": 1222
+    },
+    {
+      "va": 2148116696,
+      "source_line": 831,
+      "word": "24a54000",
+      "instruction": "addiu\ta1,a1,16384",
+      "retail_sld": 1222
+    },
+    {
+      "va": 2148116700,
+      "source_line": 834,
+      "word": "8204001e",
+      "instruction": "lb\ta0,30(s0)",
+      "retail_sld": 1224
+    },
+    {
+      "va": 2148116704,
+      "source_line": 834,
+      "word": "0c000000",
+      "instruction": "jal\t0 <CopSpeak_RadioStaticInit__Fv>",
+      "retail_sld": 1224
+    },
+    {
+      "va": 2148116708,
+      "source_line": 834,
+      "word": "00000000",
+      "instruction": "nop",
+      "retail_sld": 1224
+    },
+    {
+      "va": 2148116712,
+      "source_line": 834,
+      "word": "00402821",
+      "instruction": "move\ta1,v0",
+      "retail_sld": 1224
+    },
+    {
+      "va": 2148116716,
+      "source_line": 836,
+      "word": "04a10005",
+      "instruction": "bgez\ta1,1528 <LM523>",
+      "retail_sld": 1226
+    },
+    {
+      "va": 2148116720,
+      "source_line": 836,
+      "word": "24020003",
+      "instruction": "li\tv0,3",
+      "retail_sld": 1226
+    },
+    {
+      "va": 2148116724,
+      "source_line": 836,
+      "word": "8203001e",
+      "instruction": "lb\tv1,30(s0)",
+      "retail_sld": 1226
+    },
+    {
+      "va": 2148116728,
+      "source_line": 836,
+      "word": "00000000",
+      "instruction": "nop",
+      "retail_sld": 1226
+    },
+    {
+      "va": 2148116732,
+      "source_line": 836,
+      "word": "14620004",
+      "instruction": "bne\tv1,v0,1534 <LM524>",
+      "retail_sld": 1226
+    },
+    {
+      "va": 2148116736,
+      "source_line": 836,
+      "word": "00000000",
+      "instruction": "nop",
+      "retail_sld": 1226
+    },
+    {
+      "va": 2148116740,
+      "source_line": 837,
+      "word": "0c000000",
+      "instruction": "jal\t0 <CopSpeak_RadioStaticInit__Fv>",
+      "retail_sld": 1227
+    },
+    {
+      "va": 2148116744,
+      "source_line": 837,
+      "word": "02002021",
+      "instruction": "move\ta0,s0",
+      "retail_sld": 1227
+    },
+    {
+      "va": 2148116748,
+      "source_line": 837,
+      "word": "af820000",
+      "instruction": "sw\tv0,0(gp)",
+      "retail_sld": 1227
+    },
+    {
+      "va": 2148116752,
+      "source_line": 840,
+      "word": "0c000000",
+      "instruction": "jal\t0 <CopSpeak_RadioStaticInit__Fv>",
+      "retail_sld": 1236
+    },
+    {
+      "va": 2148116756,
+      "source_line": 840,
+      "word": "02002021",
+      "instruction": "move\ta0,s0",
+      "retail_sld": 1236
+    },
+    {
+      "va": 2148116760,
+      "source_line": 841,
+      "word": "8f840000",
+      "instruction": "lw\ta0,0(gp)",
+      "retail_sld": 1237
+    },
+    {
+      "va": 2148116764,
+      "source_line": 841,
+      "word": "00000000",
+      "instruction": "nop",
+      "retail_sld": 1237
+    },
+    {
+      "va": 2148116768,
+      "source_line": 844,
+      "word": "2882003f",
+      "instruction": "slti\tv0,a0,63",
+      "retail_sld": 1237
+    },
+    {
+      "va": 2148116772,
+      "source_line": 844,
+      "word": "10400002",
+      "instruction": "beqz\tv0,1554 <LM528>",
+      "retail_sld": 1237
+    },
+    {
+      "va": 2148116776,
+      "source_line": 844,
+      "word": "00001821",
+      "instruction": "move\tv1,zero",
+      "retail_sld": 1237
+    },
+    {
+      "va": 2148116780,
+      "source_line": 845,
+      "word": "24830001",
+      "instruction": "addiu\tv1,a0,1",
+      "retail_sld": 1237
+    },
+    {
+      "va": 2148116784,
+      "source_line": 847,
+      "word": "af830000",
+      "instruction": "sw\tv1,0(gp)",
+      "retail_sld": 1237
+    },
+    {
+      "va": 2148116788,
+      "source_line": 849,
+      "word": "8fbf0014",
+      "instruction": "lw\tra,20(sp)",
+      "retail_sld": 1238
+    },
+    {
+      "va": 2148116792,
+      "source_line": 849,
+      "word": "8fb00010",
+      "instruction": "lw\ts0,16(sp)",
+      "retail_sld": 1238
+    },
+    {
+      "va": 2148116796,
+      "source_line": 849,
+      "word": "03e00008",
+      "instruction": "jr\tra",
+      "retail_sld": 1238
+    },
+    {
+      "va": 2148116800,
+      "source_line": 849,
+      "word": "27bd0018",
+      "instruction": "addiu\tsp,sp,24",
+      "retail_sld": 1238
+    }
+  ],
+  "after_instruction_lines": [
+    {
+      "va": 2148116520,
+      "source_line": 812,
+      "word": "27bdffe8",
+      "instruction": "addiu\tsp,sp,-24",
+      "retail_sld": 1191
+    },
+    {
+      "va": 2148116524,
+      "source_line": 820,
+      "word": "3c030000",
+      "instruction": "lui\tv1,0x0",
+      "retail_sld": 1192
+    },
+    {
+      "va": 2148116528,
+      "source_line": 820,
+      "word": "8f840000",
+      "instruction": "lw\ta0,0(gp)",
+      "retail_sld": 1192
+    },
+    {
+      "va": 2148116532,
+      "source_line": 820,
+      "word": "24630000",
+      "instruction": "addiu\tv1,v1,0",
+      "retail_sld": 1192
+    },
+    {
+      "va": 2148116536,
+      "source_line": 812,
+      "word": "afbf0014",
+      "instruction": "sw\tra,20(sp)",
+      "retail_sld": 1191
+    },
+    {
+      "va": 2148116540,
+      "source_line": 812,
+      "word": "afb00010",
+      "instruction": "sw\ts0,16(sp)",
+      "retail_sld": 1191
+    },
+    {
+      "va": 2148116544,
+      "source_line": 820,
+      "word": "00041140",
+      "instruction": "sll\tv0,a0,0x5",
+      "retail_sld": 1192
+    },
+    {
+      "va": 2148116548,
+      "source_line": 820,
+      "word": "00438021",
+      "instruction": "addu\ts0,v0,v1",
+      "retail_sld": 1192
+    },
+    {
+      "va": 2148116552,
+      "source_line": 821,
+      "word": "8202001e",
+      "instruction": "lb\tv0,30(s0)",
+      "retail_sld": 1194
+    },
+    {
+      "va": 2148116556,
+      "source_line": 821,
+      "word": "00000000",
+      "instruction": "nop",
+      "retail_sld": 1194
+    },
+    {
+      "va": 2148116560,
+      "source_line": 821,
+      "word": "04400034",
+      "instruction": "bltz\tv0,1548 <LM524+0x4>",
+      "retail_sld": 1194
+    },
+    {
+      "va": 2148116564,
+      "source_line": 821,
+      "word": "2882003f",
+      "instruction": "slti\tv0,a0,63",
+      "retail_sld": 1194
+    },
+    {
+      "va": 2148116568,
+      "source_line": 822,
+      "word": "9202001d",
+      "instruction": "lbu\tv0,29(s0)",
+      "retail_sld": 1201
+    },
+    {
+      "va": 2148116572,
+      "source_line": 822,
+      "word": "00000000",
+      "instruction": "nop",
+      "retail_sld": 1201
+    },
+    {
+      "va": 2148116576,
+      "source_line": 822,
+      "word": "1440002b",
+      "instruction": "bnez\tv0,1534 <LM522>",
+      "retail_sld": 1201
+    },
+    {
+      "va": 2148116580,
+      "source_line": 822,
+      "word": "2402ffff",
+      "instruction": "li\tv0,-1",
+      "retail_sld": 1201
+    },
+    {
+      "va": 2148116584,
+      "source_line": 823,
+      "word": "8f830000",
+      "instruction": "lw\tv1,0(gp)",
+      "retail_sld": 1210
+    },
+    {
+      "va": 2148116588,
+      "source_line": 823,
+      "word": "00000000",
+      "instruction": "nop",
+      "retail_sld": 1210
+    },
+    {
+      "va": 2148116592,
+      "source_line": 823,
+      "word": "14620030",
+      "instruction": "bne\tv1,v0,1558 <LM525>",
+      "retail_sld": 1210
+    },
+    {
+      "va": 2148116596,
+      "source_line": 823,
+      "word": "3c020000",
+      "instruction": "lui\tv0,0x0",
+      "retail_sld": 1210
+    },
+    {
+      "va": 2148116600,
+      "source_line": 826,
+      "word": "244a0000",
+      "instruction": "addiu\tt2,v0,0",
+      "retail_sld": 1213
+    },
+    {
+      "va": 2148116604,
+      "source_line": 826,
+      "word": "8e070000",
+      "instruction": "lw\ta3,0(s0)",
+      "retail_sld": 1213
+    },
+    {
+      "va": 2148116608,
+      "source_line": 826,
+      "word": "8e080004",
+      "instruction": "lw\tt0,4(s0)",
+      "retail_sld": 1213
+    },
+    {
+      "va": 2148116612,
+      "source_line": 826,
+      "word": "8e090008",
+      "instruction": "lw\tt1,8(s0)",
+      "retail_sld": 1213
+    },
+    {
+      "va": 2148116616,
+      "source_line": 826,
+      "word": "ad470000",
+      "instruction": "sw\ta3,0(t2)",
+      "retail_sld": 1213
+    },
+    {
+      "va": 2148116620,
+      "source_line": 826,
+      "word": "ad480004",
+      "instruction": "sw\tt0,4(t2)",
+      "retail_sld": 1213
+    },
+    {
+      "va": 2148116624,
+      "source_line": 826,
+      "word": "ad490008",
+      "instruction": "sw\tt1,8(t2)",
+      "retail_sld": 1213
+    },
+    {
+      "va": 2148116628,
+      "source_line": 826,
+      "word": "8e07000c",
+      "instruction": "lw\ta3,12(s0)",
+      "retail_sld": 1213
+    },
+    {
+      "va": 2148116632,
+      "source_line": 826,
+      "word": "8e080010",
+      "instruction": "lw\tt0,16(s0)",
+      "retail_sld": 1213
+    },
+    {
+      "va": 2148116636,
+      "source_line": 826,
+      "word": "8e090014",
+      "instruction": "lw\tt1,20(s0)",
+      "retail_sld": 1213
+    },
+    {
+      "va": 2148116640,
+      "source_line": 826,
+      "word": "ad47000c",
+      "instruction": "sw\ta3,12(t2)",
+      "retail_sld": 1213
+    },
+    {
+      "va": 2148116644,
+      "source_line": 826,
+      "word": "ad480010",
+      "instruction": "sw\tt0,16(t2)",
+      "retail_sld": 1213
+    },
+    {
+      "va": 2148116648,
+      "source_line": 826,
+      "word": "ad490014",
+      "instruction": "sw\tt1,20(t2)",
+      "retail_sld": 1213
+    },
+    {
+      "va": 2148116652,
+      "source_line": 826,
+      "word": "8e070018",
+      "instruction": "lw\ta3,24(s0)",
+      "retail_sld": 1213
+    },
+    {
+      "va": 2148116656,
+      "source_line": 826,
+      "word": "8e08001c",
+      "instruction": "lw\tt0,28(s0)",
+      "retail_sld": 1213
+    },
+    {
+      "va": 2148116660,
+      "source_line": 826,
+      "word": "ad470018",
+      "instruction": "sw\ta3,24(t2)",
+      "retail_sld": 1213
+    },
+    {
+      "va": 2148116664,
+      "source_line": 826,
+      "word": "ad48001c",
+      "instruction": "sw\tt0,28(t2)",
+      "retail_sld": 1213
+    },
+    {
+      "va": 2148116668,
+      "source_line": 827,
+      "word": "8e050018",
+      "instruction": "lw\ta1,24(s0)",
+      "retail_sld": 1221
+    },
+    {
+      "va": 2148116672,
+      "source_line": 827,
+      "word": "00000000",
+      "instruction": "nop",
+      "retail_sld": 1221
+    },
+    {
+      "va": 2148116676,
+      "source_line": 828,
+      "word": "14a30005",
+      "instruction": "bne\ta1,v1,1500 <LM519>",
+      "retail_sld": 1221
+    },
+    {
+      "va": 2148116680,
+      "source_line": 828,
+      "word": "24060001",
+      "instruction": "li\ta2,1",
+      "retail_sld": 1221
+    },
+    {
+      "va": 2148116684,
+      "source_line": 829,
+      "word": "8e050008",
+      "instruction": "lw\ta1,8(s0)",
+      "retail_sld": 1222
+    },
+    {
+      "va": 2148116688,
+      "source_line": 830,
+      "word": "8204001e",
+      "instruction": "lb\ta0,30(s0)",
+      "retail_sld": 1222
+    },
+    {
+      "va": 2148116692,
+      "source_line": 830,
+      "word": "08000541",
+      "instruction": "j\t1504 <LM519+0x4>",
+      "retail_sld": 1222
+    },
+    {
+      "va": 2148116696,
+      "source_line": 830,
+      "word": "24a54000",
+      "instruction": "addiu\ta1,a1,16384",
+      "retail_sld": 1222
+    },
+    {
+      "va": 2148116700,
+      "source_line": 833,
+      "word": "8204001e",
+      "instruction": "lb\ta0,30(s0)",
+      "retail_sld": 1224
+    },
+    {
+      "va": 2148116704,
+      "source_line": 833,
+      "word": "0c000000",
+      "instruction": "jal\t0 <CopSpeak_RadioStaticInit__Fv>",
+      "retail_sld": 1224
+    },
+    {
+      "va": 2148116708,
+      "source_line": 833,
+      "word": "00000000",
+      "instruction": "nop",
+      "retail_sld": 1224
+    },
+    {
+      "va": 2148116712,
+      "source_line": 833,
+      "word": "00402821",
+      "instruction": "move\ta1,v0",
+      "retail_sld": 1224
+    },
+    {
+      "va": 2148116716,
+      "source_line": 835,
+      "word": "04a10005",
+      "instruction": "bgez\ta1,1528 <LM521>",
+      "retail_sld": 1226
+    },
+    {
+      "va": 2148116720,
+      "source_line": 835,
+      "word": "24020003",
+      "instruction": "li\tv0,3",
+      "retail_sld": 1226
+    },
+    {
+      "va": 2148116724,
+      "source_line": 835,
+      "word": "8203001e",
+      "instruction": "lb\tv1,30(s0)",
+      "retail_sld": 1226
+    },
+    {
+      "va": 2148116728,
+      "source_line": 835,
+      "word": "00000000",
+      "instruction": "nop",
+      "retail_sld": 1226
+    },
+    {
+      "va": 2148116732,
+      "source_line": 835,
+      "word": "14620004",
+      "instruction": "bne\tv1,v0,1534 <LM522>",
+      "retail_sld": 1226
+    },
+    {
+      "va": 2148116736,
+      "source_line": 835,
+      "word": "00000000",
+      "instruction": "nop",
+      "retail_sld": 1226
+    },
+    {
+      "va": 2148116740,
+      "source_line": 836,
+      "word": "0c000000",
+      "instruction": "jal\t0 <CopSpeak_RadioStaticInit__Fv>",
+      "retail_sld": 1227
+    },
+    {
+      "va": 2148116744,
+      "source_line": 836,
+      "word": "02002021",
+      "instruction": "move\ta0,s0",
+      "retail_sld": 1227
+    },
+    {
+      "va": 2148116748,
+      "source_line": 836,
+      "word": "af820000",
+      "instruction": "sw\tv0,0(gp)",
+      "retail_sld": 1227
+    },
+    {
+      "va": 2148116752,
+      "source_line": 839,
+      "word": "0c000000",
+      "instruction": "jal\t0 <CopSpeak_RadioStaticInit__Fv>",
+      "retail_sld": 1236
+    },
+    {
+      "va": 2148116756,
+      "source_line": 839,
+      "word": "02002021",
+      "instruction": "move\ta0,s0",
+      "retail_sld": 1236
+    },
+    {
+      "va": 2148116760,
+      "source_line": 840,
+      "word": "8f840000",
+      "instruction": "lw\ta0,0(gp)",
+      "retail_sld": 1237
+    },
+    {
+      "va": 2148116764,
+      "source_line": 840,
+      "word": "00000000",
+      "instruction": "nop",
+      "retail_sld": 1237
+    },
+    {
+      "va": 2148116768,
+      "source_line": 842,
+      "word": "2882003f",
+      "instruction": "slti\tv0,a0,63",
+      "retail_sld": 1237
+    },
+    {
+      "va": 2148116772,
+      "source_line": 842,
+      "word": "10400002",
+      "instruction": "beqz\tv0,1554 <LM524+0x10>",
+      "retail_sld": 1237
+    },
+    {
+      "va": 2148116776,
+      "source_line": 842,
+      "word": "00001821",
+      "instruction": "move\tv1,zero",
+      "retail_sld": 1237
+    },
+    {
+      "va": 2148116780,
+      "source_line": 842,
+      "word": "24830001",
+      "instruction": "addiu\tv1,a0,1",
+      "retail_sld": 1237
+    },
+    {
+      "va": 2148116784,
+      "source_line": 842,
+      "word": "af830000",
+      "instruction": "sw\tv1,0(gp)",
+      "retail_sld": 1237
+    },
+    {
+      "va": 2148116788,
+      "source_line": 844,
+      "word": "8fbf0014",
+      "instruction": "lw\tra,20(sp)",
+      "retail_sld": 1238
+    },
+    {
+      "va": 2148116792,
+      "source_line": 844,
+      "word": "8fb00010",
+      "instruction": "lw\ts0,16(sp)",
+      "retail_sld": 1238
+    },
+    {
+      "va": 2148116796,
+      "source_line": 844,
+      "word": "03e00008",
+      "instruction": "jr\tra",
+      "retail_sld": 1238
+    },
+    {
+      "va": 2148116800,
+      "source_line": 844,
+      "word": "27bd0018",
+      "instruction": "addiu\tsp,sp,24",
+      "retail_sld": 1238
+    }
+  ],
+  "full_target_sym_sld_exact": false,
+  "falsified_probe": {
+    "shape": "single next chain with in-place if/else at the wrap",
+    "diffs": 8,
+    "ours_insns": 71,
+    "oracle_insns": 71
+  },
+  "retained_probe": {
+    "shape": "single next chain with ternary; compound initial queue expression and chained final store",
+    "diffs": 0,
+    "ours_insns": 71,
+    "oracle_insns": 71
+  },
+  "prior_production_object_receipt": {
+    "path": "scratchpad\\root_sym_audit\\p875_common2_public_header_receipts_20260906.md",
+    "sha256": "70fc97ebe71e9feeb970a4af6af67f16969a2171d4a82bfc1a35834376f9807e"
+  },
+  "production_full_object_identical": true,
+  "whole_tu_gate": {
+    "before": "27/27 PASS",
+    "after": "27/27 PASS",
+    "branch_offset_divergences": 0,
+    "functions_checked": 27
+  },
+  "compiler": "PsyQ CC1PLPSX GCC2.8.0, -O2 -G8; ordinary existing CopSpeak lane; no production build-tool edits by this subtask",
+  "raw_reference_targets": {
+    "CopSpeak_gQueuePlay": "0x8013d0cc",
+    "CopSpeak_gSpchHandle": "0x8013d0d0",
+    "CopSpeak_gCurrent": "0x80111f04",
+    "CopSpeak_gQueue": "0x80111f24",
+    "AudioCmn_GetAsyncSfx__Fiib": "0x80076900",
+    "CopSpeak_Play__FP17CopSpeak_tRequesti": "0x8009a304",
+    "CopSpeak_InitRequest__FP17CopSpeak_tRequest": "0x800995f0"
+  }
+}

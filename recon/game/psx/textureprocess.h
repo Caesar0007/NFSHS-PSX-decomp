@@ -2,22 +2,23 @@
 #ifndef _GAME_PSX_TEXTUREPROCESS_H_
 #define _GAME_PSX_TEXTUREPROCESS_H_
 #include "../../nfs4_types.h"
+/* P875: source identifiers and signatures checked against native SYM/linkage. */
 
-int TextureProcess_TransColorCheck__FPci(char *data, int numentry);   /* :47 */
-void TextureProcess_ColorClut__FiiPciii(int level, int maxlevel, char *data, int numentry, int cx, int cy);   /* :356 */
-int TextureProcess_DepthColorCluts__FPci(char *data, int numentry);   /* :422 */
-void * Fog_CheckRange__FiP6FogKey(int currentslice, FogKey *fkey);   /* :639 */
-void * Fog_FindKey__FiP6FogKey(int currentslice, FogKey *fkey);   /* :665 */
-void * Fog_AllocKey__Fv(void);   /* :716 */
-void Fog_AddKey__Fii(int slice, int distance);   /* :733 */
-void Fog_Update__Fi(int player);   /* :840 */
-char * Fog_MakeTrackPathName__FPc(char *ext);   /* :1015 */
-int Fog_ReadFogKeys__Fv(void);   /* :1026 */
-void Fog_InitFogTriggers__Fv(void);   /* :1082 */
-void Fog_DeInitFogTriggers__Fv(void);   /* :1123 */
-void TextureProcess_Init__Fv(void);   /* :1135 */
-void CV_ProcessWorldColors_FINAL__FiP7CVECTORs(int constrast, CVECTOR *color, short brightness);   /* :1156 */
-void CV_ColorTracks__Fiii(int track, int weather, int night);   /* :1183 */
-void CV_InitColorVertices__Fv(void);   /* :1539 */
+int TextureProcess_TransColorCheck(char * data,int numentry);   /* SYM 475dcf @0x800e0884 */
+void TextureProcess_ColorClut(int level,int maxlevel,char * data,int numentry,int cx,int cy);   /* SYM 475e01 @0x800e08b8 */
+int TextureProcess_DepthColorCluts(char * data,int numentry);   /* SYM 475e31 @0x800e0ac0 */
+FogKey * Fog_CheckRange(int currentslice,FogKey * fkey);   /* SYM 475e63 @0x800e0b98 */
+FogKey * Fog_FindKey(int currentslice,FogKey * fkey);   /* SYM 475e94 @0x800e0bec */
+FogKey * Fog_AllocKey(void);   /* SYM 475ec2 @0x800e0c80 */
+void Fog_AddKey(int slice,int distance);   /* SYM 475ee9 @0x800e0ccc */
+void Fog_Update(int player);   /* SYM 475f06 @0x800e0d80 */
+char * Fog_MakeTrackPathName(char * ext);   /* SYM 475f22 @0x800e0ec4 */
+int Fog_ReadFogKeys(void);   /* SYM 475f4a @0x800e0f14 */
+void Fog_InitFogTriggers(void);   /* SYM 475f6b @0x800e102c */
+void Fog_DeInitFogTriggers(void);   /* SYM 475f90 @0x800e1110 */
+void TextureProcess_Init(void);   /* SYM 475fb7 @0x800e1134 */
+void CV_ProcessWorldColors_FINAL(int constrast,CVECTOR * color,short brightness);   /* SYM 475fdc @0x800e1148 */
+void CV_ColorTracks(int track,int weather,int night);   /* SYM 476013 @0x800e1308 */
+void CV_InitColorVertices(void);   /* SYM 476035 @0x800e1510 */
 
 #endif /* _GAME_PSX_TEXTUREPROCESS_H_ */

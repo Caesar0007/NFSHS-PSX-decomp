@@ -1,0 +1,1491 @@
+{
+  "passed": 25,
+  "functions": 25,
+  "returncode": 0,
+  "stdout": "  Weather_GetNumParticles__Fi: PASS (4 insns)\n  Weather_SetMatrix__FP10matrixtdef: PASS (49 insns)\n  Weather_SetIdentMatrix__Fv: PASS (33 insns)\n  Weather_InitSnow__Fv: PASS (24 insns)\n  Weather_InitRain__Fv: PASS (24 insns)\n  Weather_InitSplats__Fv: PASS (69 insns)\n  Weather_GetNewState__Fv: PASS (16 insns)\n  Weather_ChangeDensityState__Fv: PASS (29 insns)\n  Weather_ChangeIntensityState__Fv: PASS (30 insns)\n  Weather_ChangeDensityBasedOnTime__Fv: PASS (54 insns)\n  Weather_ChangeIntensityBasedOnTime__Fv: PASS (62 insns)\n  Weather_InitStateControls__Fv: PASS (51 insns)\n  Weather_Restart__Fv: PASS (31 insns)\n  Weather_Init__Fv: PASS (211 insns)\n  Weather_DeInit__Fv: PASS (37 insns)\n  Weather_TransformVertex__FP10matrixtdefiP7SVECTOR: PASS (49 insns)\n  Weather_CheckAndResetParticles__FP7SVECTOR: PASS (223 insns)\n  Weather_QuickReOrthogonalize__FP10matrixtdefT0: PASS (160 insns)\n  Weather_ProcessParticles__FP13DRender_tViewiP7SVECTORPc: PASS (251 insns)\n  Weather_CreateSnow__FP7SVECTOR: PASS (108 insns)\n  Weather_CreateRain__FP7SVECTORP7DVECTORPc: PASS (113 insns)\n  Weather_CreateSplat__FP18Weather_tSplatInfo: PASS (74 insns)\n  Weather_DoSplats__FiP18Weather_tSplatInfo: PASS (113 insns)\n  Weather_DoWeather__FP13DRender_tView: PASS (197 insns)\n  Weather_BuildWeather__FP13DRender_tView: PASS (23 insns)\n",
+  "stderr": "",
+  "branches": [],
+  "object_sha256": "d2faf83be4d96c6a207b497065aef23a8bf4a6ad8ca2ec547d289ebe5c3901a6",
+  "equals_old_normal_mixed": true,
+  "debug_exact": true,
+  "debug_stdout": "Weather_Init__Fv: 0 diff insns across 0 blocks (ours 211 / oracle 211; -g twin EXACT)\n\nSOURCE-STATEMENT HOTSPOTS (our diff insns per line):\n",
+  "sld": [
+    {
+      "index": 0,
+      "va": 2148410672,
+      "retail_line": 414,
+      "source_line": 477,
+      "source": "{"
+    },
+    {
+      "index": 1,
+      "va": 2148410676,
+      "retail_line": 415,
+      "source_line": 520,
+      "source": "Weather_gTrackSpec = &TrackSpec_gSpec.weatherspec;"
+    },
+    {
+      "index": 2,
+      "va": 2148410680,
+      "retail_line": 418,
+      "source_line": 521,
+      "source": "if (GameSetup_gData.Weather != 0) {"
+    },
+    {
+      "index": 3,
+      "va": 2148410684,
+      "retail_line": 418,
+      "source_line": 521,
+      "source": "if (GameSetup_gData.Weather != 0) {"
+    },
+    {
+      "index": 4,
+      "va": 2148410688,
+      "retail_line": 415,
+      "source_line": 520,
+      "source": "Weather_gTrackSpec = &TrackSpec_gSpec.weatherspec;"
+    },
+    {
+      "index": 5,
+      "va": 2148410692,
+      "retail_line": 414,
+      "source_line": 477,
+      "source": "{"
+    },
+    {
+      "index": 6,
+      "va": 2148410696,
+      "retail_line": 414,
+      "source_line": 477,
+      "source": "{"
+    },
+    {
+      "index": 7,
+      "va": 2148410700,
+      "retail_line": 414,
+      "source_line": 477,
+      "source": "{"
+    },
+    {
+      "index": 8,
+      "va": 2148410704,
+      "retail_line": 414,
+      "source_line": 477,
+      "source": "{"
+    },
+    {
+      "index": 9,
+      "va": 2148410708,
+      "retail_line": 414,
+      "source_line": 477,
+      "source": "{"
+    },
+    {
+      "index": 10,
+      "va": 2148410712,
+      "retail_line": 415,
+      "source_line": 520,
+      "source": "Weather_gTrackSpec = &TrackSpec_gSpec.weatherspec;"
+    },
+    {
+      "index": 11,
+      "va": 2148410716,
+      "retail_line": 418,
+      "source_line": 521,
+      "source": "if (GameSetup_gData.Weather != 0) {"
+    },
+    {
+      "index": 12,
+      "va": 2148410720,
+      "retail_line": 418,
+      "source_line": 521,
+      "source": "if (GameSetup_gData.Weather != 0) {"
+    },
+    {
+      "index": 13,
+      "va": 2148410724,
+      "retail_line": 425,
+      "source_line": 522,
+      "source": "Weather_gType = Weather_gTrackSpec->type;"
+    },
+    {
+      "index": 14,
+      "va": 2148410728,
+      "retail_line": 425,
+      "source_line": 522,
+      "source": "Weather_gType = Weather_gTrackSpec->type;"
+    },
+    {
+      "index": 15,
+      "va": 2148410732,
+      "retail_line": 425,
+      "source_line": 522,
+      "source": "Weather_gType = Weather_gTrackSpec->type;"
+    },
+    {
+      "index": 16,
+      "va": 2148410736,
+      "retail_line": 426,
+      "source_line": 523,
+      "source": "if (Weather_gTrackSpec->type == 1) {"
+    },
+    {
+      "index": 17,
+      "va": 2148410740,
+      "retail_line": 426,
+      "source_line": 523,
+      "source": "if (Weather_gTrackSpec->type == 1) {"
+    },
+    {
+      "index": 18,
+      "va": 2148410744,
+      "retail_line": 427,
+      "source_line": 524,
+      "source": "Weather_InitRain();"
+    },
+    {
+      "index": 19,
+      "va": 2148410748,
+      "retail_line": 427,
+      "source_line": 524,
+      "source": "Weather_InitRain();"
+    },
+    {
+      "index": 20,
+      "va": 2148410752,
+      "retail_line": 427,
+      "source_line": 524,
+      "source": "Weather_InitRain();"
+    },
+    {
+      "index": 21,
+      "va": 2148410756,
+      "retail_line": 427,
+      "source_line": 524,
+      "source": "Weather_InitRain();"
+    },
+    {
+      "index": 22,
+      "va": 2148410760,
+      "retail_line": 428,
+      "source_line": 526,
+      "source": "else if (Weather_gTrackSpec->type == 0) {"
+    },
+    {
+      "index": 23,
+      "va": 2148410764,
+      "retail_line": 428,
+      "source_line": 526,
+      "source": "else if (Weather_gTrackSpec->type == 0) {"
+    },
+    {
+      "index": 24,
+      "va": 2148410768,
+      "retail_line": 429,
+      "source_line": 527,
+      "source": "Weather_InitSnow();"
+    },
+    {
+      "index": 25,
+      "va": 2148410772,
+      "retail_line": 429,
+      "source_line": 527,
+      "source": "Weather_InitSnow();"
+    },
+    {
+      "index": 26,
+      "va": 2148410776,
+      "retail_line": 439,
+      "source_line": 529,
+      "source": "if (Weather_gSplatInfo == (Weather_tSplatInfo *)0x0) {"
+    },
+    {
+      "index": 27,
+      "va": 2148410780,
+      "retail_line": 439,
+      "source_line": 529,
+      "source": "if (Weather_gSplatInfo == (Weather_tSplatInfo *)0x0) {"
+    },
+    {
+      "index": 28,
+      "va": 2148410784,
+      "retail_line": 439,
+      "source_line": 529,
+      "source": "if (Weather_gSplatInfo == (Weather_tSplatInfo *)0x0) {"
+    },
+    {
+      "index": 29,
+      "va": 2148410788,
+      "retail_line": 439,
+      "source_line": 529,
+      "source": "if (Weather_gSplatInfo == (Weather_tSplatInfo *)0x0) {"
+    },
+    {
+      "index": 30,
+      "va": 2148410792,
+      "retail_line": 440,
+      "source_line": 530,
+      "source": "Weather_gSplatInfo = reservememadr(\"raindrop\",0xa8,0);"
+    },
+    {
+      "index": 31,
+      "va": 2148410796,
+      "retail_line": 440,
+      "source_line": 530,
+      "source": "Weather_gSplatInfo = reservememadr(\"raindrop\",0xa8,0);"
+    },
+    {
+      "index": 32,
+      "va": 2148410800,
+      "retail_line": 440,
+      "source_line": 530,
+      "source": "Weather_gSplatInfo = reservememadr(\"raindrop\",0xa8,0);"
+    },
+    {
+      "index": 33,
+      "va": 2148410804,
+      "retail_line": 440,
+      "source_line": 530,
+      "source": "Weather_gSplatInfo = reservememadr(\"raindrop\",0xa8,0);"
+    },
+    {
+      "index": 34,
+      "va": 2148410808,
+      "retail_line": 440,
+      "source_line": 530,
+      "source": "Weather_gSplatInfo = reservememadr(\"raindrop\",0xa8,0);"
+    },
+    {
+      "index": 35,
+      "va": 2148410812,
+      "retail_line": 441,
+      "source_line": 532,
+      "source": "if (Weather_gPos == (SVECTOR *)0x0) {"
+    },
+    {
+      "index": 36,
+      "va": 2148410816,
+      "retail_line": 441,
+      "source_line": 532,
+      "source": "if (Weather_gPos == (SVECTOR *)0x0) {"
+    },
+    {
+      "index": 37,
+      "va": 2148410820,
+      "retail_line": 441,
+      "source_line": 532,
+      "source": "if (Weather_gPos == (SVECTOR *)0x0) {"
+    },
+    {
+      "index": 38,
+      "va": 2148410824,
+      "retail_line": 441,
+      "source_line": 532,
+      "source": "if (Weather_gPos == (SVECTOR *)0x0) {"
+    },
+    {
+      "index": 39,
+      "va": 2148410828,
+      "retail_line": 442,
+      "source_line": 533,
+      "source": "Weather_gPos = reservememadr(\"weather1\",0x4c0,0);"
+    },
+    {
+      "index": 40,
+      "va": 2148410832,
+      "retail_line": 442,
+      "source_line": 533,
+      "source": "Weather_gPos = reservememadr(\"weather1\",0x4c0,0);"
+    },
+    {
+      "index": 41,
+      "va": 2148410836,
+      "retail_line": 442,
+      "source_line": 533,
+      "source": "Weather_gPos = reservememadr(\"weather1\",0x4c0,0);"
+    },
+    {
+      "index": 42,
+      "va": 2148410840,
+      "retail_line": 442,
+      "source_line": 533,
+      "source": "Weather_gPos = reservememadr(\"weather1\",0x4c0,0);"
+    },
+    {
+      "index": 43,
+      "va": 2148410844,
+      "retail_line": 442,
+      "source_line": 533,
+      "source": "Weather_gPos = reservememadr(\"weather1\",0x4c0,0);"
+    },
+    {
+      "index": 44,
+      "va": 2148410848,
+      "retail_line": 443,
+      "source_line": 535,
+      "source": "if (Weather_gPrevPos == (DVECTOR *)0x0) {"
+    },
+    {
+      "index": 45,
+      "va": 2148410852,
+      "retail_line": 443,
+      "source_line": 535,
+      "source": "if (Weather_gPrevPos == (DVECTOR *)0x0) {"
+    },
+    {
+      "index": 46,
+      "va": 2148410856,
+      "retail_line": 443,
+      "source_line": 535,
+      "source": "if (Weather_gPrevPos == (DVECTOR *)0x0) {"
+    },
+    {
+      "index": 47,
+      "va": 2148410860,
+      "retail_line": 443,
+      "source_line": 535,
+      "source": "if (Weather_gPrevPos == (DVECTOR *)0x0) {"
+    },
+    {
+      "index": 48,
+      "va": 2148410864,
+      "retail_line": 444,
+      "source_line": 536,
+      "source": "Weather_gPrevPos = reservememadr(\"weather2\",0x260,0);"
+    },
+    {
+      "index": 49,
+      "va": 2148410868,
+      "retail_line": 444,
+      "source_line": 536,
+      "source": "Weather_gPrevPos = reservememadr(\"weather2\",0x260,0);"
+    },
+    {
+      "index": 50,
+      "va": 2148410872,
+      "retail_line": 444,
+      "source_line": 536,
+      "source": "Weather_gPrevPos = reservememadr(\"weather2\",0x260,0);"
+    },
+    {
+      "index": 51,
+      "va": 2148410876,
+      "retail_line": 444,
+      "source_line": 536,
+      "source": "Weather_gPrevPos = reservememadr(\"weather2\",0x260,0);"
+    },
+    {
+      "index": 52,
+      "va": 2148410880,
+      "retail_line": 444,
+      "source_line": 536,
+      "source": "Weather_gPrevPos = reservememadr(\"weather2\",0x260,0);"
+    },
+    {
+      "index": 53,
+      "va": 2148410884,
+      "retail_line": 445,
+      "source_line": 538,
+      "source": "if (Weather_gWasDrawn == (char *)0x0) {"
+    },
+    {
+      "index": 54,
+      "va": 2148410888,
+      "retail_line": 445,
+      "source_line": 538,
+      "source": "if (Weather_gWasDrawn == (char *)0x0) {"
+    },
+    {
+      "index": 55,
+      "va": 2148410892,
+      "retail_line": 445,
+      "source_line": 538,
+      "source": "if (Weather_gWasDrawn == (char *)0x0) {"
+    },
+    {
+      "index": 56,
+      "va": 2148410896,
+      "retail_line": 445,
+      "source_line": 538,
+      "source": "if (Weather_gWasDrawn == (char *)0x0) {"
+    },
+    {
+      "index": 57,
+      "va": 2148410900,
+      "retail_line": 446,
+      "source_line": 539,
+      "source": "Weather_gWasDrawn = reservememadr(\"weather3\",0x98,0);"
+    },
+    {
+      "index": 58,
+      "va": 2148410904,
+      "retail_line": 446,
+      "source_line": 539,
+      "source": "Weather_gWasDrawn = reservememadr(\"weather3\",0x98,0);"
+    },
+    {
+      "index": 59,
+      "va": 2148410908,
+      "retail_line": 446,
+      "source_line": 539,
+      "source": "Weather_gWasDrawn = reservememadr(\"weather3\",0x98,0);"
+    },
+    {
+      "index": 60,
+      "va": 2148410912,
+      "retail_line": 446,
+      "source_line": 539,
+      "source": "Weather_gWasDrawn = reservememadr(\"weather3\",0x98,0);"
+    },
+    {
+      "index": 61,
+      "va": 2148410916,
+      "retail_line": 446,
+      "source_line": 539,
+      "source": "Weather_gWasDrawn = reservememadr(\"weather3\",0x98,0);"
+    },
+    {
+      "index": 62,
+      "va": 2148410920,
+      "retail_line": 446,
+      "source_line": 539,
+      "source": "Weather_gWasDrawn = reservememadr(\"weather3\",0x98,0);"
+    },
+    {
+      "index": 63,
+      "va": 2148410924,
+      "retail_line": 461,
+      "source_line": 541,
+      "source": "WEATHER_GLASTPROCESSTIME1 = simGlobal.gameTicks;"
+    },
+    {
+      "index": 64,
+      "va": 2148410928,
+      "retail_line": 461,
+      "source_line": 541,
+      "source": "WEATHER_GLASTPROCESSTIME1 = simGlobal.gameTicks;"
+    },
+    {
+      "index": 65,
+      "va": 2148410932,
+      "retail_line": 456,
+      "source_line": 543,
+      "source": "Weather_gPServer[0] = Weather_gPos;"
+    },
+    {
+      "index": 66,
+      "va": 2148410936,
+      "retail_line": 457,
+      "source_line": 544,
+      "source": "Weather_gPrevPServer[0] = Weather_gPrevPos;"
+    },
+    {
+      "index": 67,
+      "va": 2148410940,
+      "retail_line": 458,
+      "source_line": 545,
+      "source": "Weather_gDrawnServer[0] = Weather_gWasDrawn;"
+    },
+    {
+      "index": 68,
+      "va": 2148410944,
+      "retail_line": 459,
+      "source_line": 546,
+      "source": "Weather_gSplatInfoServer[0] = Weather_gSplatInfo;"
+    },
+    {
+      "index": 69,
+      "va": 2148410948,
+      "retail_line": 461,
+      "source_line": 541,
+      "source": "WEATHER_GLASTPROCESSTIME1 = simGlobal.gameTicks;"
+    },
+    {
+      "index": 70,
+      "va": 2148410952,
+      "retail_line": 461,
+      "source_line": 542,
+      "source": "WEATHER_GLASTPROCESSTIME0 = simGlobal.gameTicks;"
+    },
+    {
+      "index": 71,
+      "va": 2148410956,
+      "retail_line": 463,
+      "source_line": 547,
+      "source": "if (GameSetup_gData.commMode == 1) {"
+    },
+    {
+      "index": 72,
+      "va": 2148410960,
+      "retail_line": 463,
+      "source_line": 547,
+      "source": "if (GameSetup_gData.commMode == 1) {"
+    },
+    {
+      "index": 73,
+      "va": 2148410964,
+      "retail_line": 463,
+      "source_line": 547,
+      "source": "if (GameSetup_gData.commMode == 1) {"
+    },
+    {
+      "index": 74,
+      "va": 2148410968,
+      "retail_line": 456,
+      "source_line": 543,
+      "source": "Weather_gPServer[0] = Weather_gPos;"
+    },
+    {
+      "index": 75,
+      "va": 2148410972,
+      "retail_line": 457,
+      "source_line": 544,
+      "source": "Weather_gPrevPServer[0] = Weather_gPrevPos;"
+    },
+    {
+      "index": 76,
+      "va": 2148410976,
+      "retail_line": 458,
+      "source_line": 545,
+      "source": "Weather_gDrawnServer[0] = Weather_gWasDrawn;"
+    },
+    {
+      "index": 77,
+      "va": 2148410980,
+      "retail_line": 459,
+      "source_line": 546,
+      "source": "Weather_gSplatInfoServer[0] = Weather_gSplatInfo;"
+    },
+    {
+      "index": 78,
+      "va": 2148410984,
+      "retail_line": 463,
+      "source_line": 547,
+      "source": "if (GameSetup_gData.commMode == 1) {"
+    },
+    {
+      "index": 79,
+      "va": 2148410988,
+      "retail_line": 463,
+      "source_line": 547,
+      "source": "if (GameSetup_gData.commMode == 1) {"
+    },
+    {
+      "index": 80,
+      "va": 2148410992,
+      "retail_line": 465,
+      "source_line": 548,
+      "source": "Weather_gPServer[1] = Weather_gPos + 0x4c;"
+    },
+    {
+      "index": 81,
+      "va": 2148410996,
+      "retail_line": 465,
+      "source_line": 548,
+      "source": "Weather_gPServer[1] = Weather_gPos + 0x4c;"
+    },
+    {
+      "index": 82,
+      "va": 2148411000,
+      "retail_line": 466,
+      "source_line": 549,
+      "source": "Weather_gPrevPServer[1] = Weather_gPrevPos + 0x4c;"
+    },
+    {
+      "index": 83,
+      "va": 2148411004,
+      "retail_line": 466,
+      "source_line": 549,
+      "source": "Weather_gPrevPServer[1] = Weather_gPrevPos + 0x4c;"
+    },
+    {
+      "index": 84,
+      "va": 2148411008,
+      "retail_line": 467,
+      "source_line": 550,
+      "source": "Weather_gDrawnServer[1] = Weather_gWasDrawn + 0x4c;"
+    },
+    {
+      "index": 85,
+      "va": 2148411012,
+      "retail_line": 467,
+      "source_line": 550,
+      "source": "Weather_gDrawnServer[1] = Weather_gWasDrawn + 0x4c;"
+    },
+    {
+      "index": 86,
+      "va": 2148411016,
+      "retail_line": 469,
+      "source_line": 551,
+      "source": "Weather_gSys.num[0] = 0x4c;"
+    },
+    {
+      "index": 87,
+      "va": 2148411020,
+      "retail_line": 469,
+      "source_line": 551,
+      "source": "Weather_gSys.num[0] = 0x4c;"
+    },
+    {
+      "index": 88,
+      "va": 2148411024,
+      "retail_line": 469,
+      "source_line": 551,
+      "source": "Weather_gSys.num[0] = 0x4c;"
+    },
+    {
+      "index": 89,
+      "va": 2148411028,
+      "retail_line": 469,
+      "source_line": 551,
+      "source": "Weather_gSys.num[0] = 0x4c;"
+    },
+    {
+      "index": 90,
+      "va": 2148411032,
+      "retail_line": 470,
+      "source_line": 552,
+      "source": "Weather_gSys.num[1] = 0x4c;"
+    },
+    {
+      "index": 91,
+      "va": 2148411036,
+      "retail_line": 471,
+      "source_line": 553,
+      "source": "Weather_gSplatInfoServer[1] = Weather_gSplatInfo + 9;"
+    },
+    {
+      "index": 92,
+      "va": 2148411040,
+      "retail_line": 471,
+      "source_line": 553,
+      "source": "Weather_gSplatInfoServer[1] = Weather_gSplatInfo + 9;"
+    },
+    {
+      "index": 93,
+      "va": 2148411044,
+      "retail_line": 475,
+      "source_line": 569,
+      "source": "firstCamMatDest = prevCamMat;"
+    },
+    {
+      "index": 94,
+      "va": 2148411048,
+      "retail_line": 475,
+      "source_line": 569,
+      "source": "firstCamMatDest = prevCamMat;"
+    },
+    {
+      "index": 95,
+      "va": 2148411052,
+      "retail_line": 475,
+      "source_line": 570,
+      "source": "secondCamMatDest = prevCamMat;"
+    },
+    {
+      "index": 96,
+      "va": 2148411056,
+      "retail_line": 475,
+      "source_line": 575,
+      "source": "firstCamMatDest[0] = Camera_gInfo[0].rotation;"
+    },
+    {
+      "index": 97,
+      "va": 2148411060,
+      "retail_line": 474,
+      "source_line": 573,
+      "source": "prevCamPos[1] = Camera_gInfo[0].position;"
+    },
+    {
+      "index": 98,
+      "va": 2148411064,
+      "retail_line": 474,
+      "source_line": 573,
+      "source": "prevCamPos[1] = Camera_gInfo[0].position;"
+    },
+    {
+      "index": 99,
+      "va": 2148411068,
+      "retail_line": 475,
+      "source_line": 575,
+      "source": "firstCamMatDest[0] = Camera_gInfo[0].rotation;"
+    },
+    {
+      "index": 100,
+      "va": 2148411072,
+      "retail_line": 475,
+      "source_line": 575,
+      "source": "firstCamMatDest[0] = Camera_gInfo[0].rotation;"
+    },
+    {
+      "index": 101,
+      "va": 2148411076,
+      "retail_line": 474,
+      "source_line": 573,
+      "source": "prevCamPos[1] = Camera_gInfo[0].position;"
+    },
+    {
+      "index": 102,
+      "va": 2148411080,
+      "retail_line": 474,
+      "source_line": 573,
+      "source": "prevCamPos[1] = Camera_gInfo[0].position;"
+    },
+    {
+      "index": 103,
+      "va": 2148411084,
+      "retail_line": 474,
+      "source_line": 573,
+      "source": "prevCamPos[1] = Camera_gInfo[0].position;"
+    },
+    {
+      "index": 104,
+      "va": 2148411088,
+      "retail_line": 474,
+      "source_line": 573,
+      "source": "prevCamPos[1] = Camera_gInfo[0].position;"
+    },
+    {
+      "index": 105,
+      "va": 2148411092,
+      "retail_line": 474,
+      "source_line": 573,
+      "source": "prevCamPos[1] = Camera_gInfo[0].position;"
+    },
+    {
+      "index": 106,
+      "va": 2148411096,
+      "retail_line": 474,
+      "source_line": 573,
+      "source": "prevCamPos[1] = Camera_gInfo[0].position;"
+    },
+    {
+      "index": 107,
+      "va": 2148411100,
+      "retail_line": 474,
+      "source_line": 573,
+      "source": "prevCamPos[1] = Camera_gInfo[0].position;"
+    },
+    {
+      "index": 108,
+      "va": 2148411104,
+      "retail_line": 474,
+      "source_line": 573,
+      "source": "prevCamPos[1] = Camera_gInfo[0].position;"
+    },
+    {
+      "index": 109,
+      "va": 2148411108,
+      "retail_line": 474,
+      "source_line": 574,
+      "source": "prevCamPos[0] = prevCamPos[1];"
+    },
+    {
+      "index": 110,
+      "va": 2148411112,
+      "retail_line": 474,
+      "source_line": 574,
+      "source": "prevCamPos[0] = prevCamPos[1];"
+    },
+    {
+      "index": 111,
+      "va": 2148411116,
+      "retail_line": 474,
+      "source_line": 574,
+      "source": "prevCamPos[0] = prevCamPos[1];"
+    },
+    {
+      "index": 112,
+      "va": 2148411120,
+      "retail_line": 474,
+      "source_line": 574,
+      "source": "prevCamPos[0] = prevCamPos[1];"
+    },
+    {
+      "index": 113,
+      "va": 2148411124,
+      "retail_line": 474,
+      "source_line": 574,
+      "source": "prevCamPos[0] = prevCamPos[1];"
+    },
+    {
+      "index": 114,
+      "va": 2148411128,
+      "retail_line": 474,
+      "source_line": 574,
+      "source": "prevCamPos[0] = prevCamPos[1];"
+    },
+    {
+      "index": 115,
+      "va": 2148411132,
+      "retail_line": 474,
+      "source_line": 574,
+      "source": "prevCamPos[0] = prevCamPos[1];"
+    },
+    {
+      "index": 116,
+      "va": 2148411136,
+      "retail_line": 475,
+      "source_line": 575,
+      "source": "firstCamMatDest[0] = Camera_gInfo[0].rotation;"
+    },
+    {
+      "index": 117,
+      "va": 2148411140,
+      "retail_line": 475,
+      "source_line": 575,
+      "source": "firstCamMatDest[0] = Camera_gInfo[0].rotation;"
+    },
+    {
+      "index": 118,
+      "va": 2148411144,
+      "retail_line": 475,
+      "source_line": 575,
+      "source": "firstCamMatDest[0] = Camera_gInfo[0].rotation;"
+    },
+    {
+      "index": 119,
+      "va": 2148411148,
+      "retail_line": 475,
+      "source_line": 575,
+      "source": "firstCamMatDest[0] = Camera_gInfo[0].rotation;"
+    },
+    {
+      "index": 120,
+      "va": 2148411152,
+      "retail_line": 475,
+      "source_line": 575,
+      "source": "firstCamMatDest[0] = Camera_gInfo[0].rotation;"
+    },
+    {
+      "index": 121,
+      "va": 2148411156,
+      "retail_line": 475,
+      "source_line": 575,
+      "source": "firstCamMatDest[0] = Camera_gInfo[0].rotation;"
+    },
+    {
+      "index": 122,
+      "va": 2148411160,
+      "retail_line": 475,
+      "source_line": 575,
+      "source": "firstCamMatDest[0] = Camera_gInfo[0].rotation;"
+    },
+    {
+      "index": 123,
+      "va": 2148411164,
+      "retail_line": 475,
+      "source_line": 575,
+      "source": "firstCamMatDest[0] = Camera_gInfo[0].rotation;"
+    },
+    {
+      "index": 124,
+      "va": 2148411168,
+      "retail_line": 475,
+      "source_line": 575,
+      "source": "firstCamMatDest[0] = Camera_gInfo[0].rotation;"
+    },
+    {
+      "index": 125,
+      "va": 2148411172,
+      "retail_line": 475,
+      "source_line": 575,
+      "source": "firstCamMatDest[0] = Camera_gInfo[0].rotation;"
+    },
+    {
+      "index": 126,
+      "va": 2148411176,
+      "retail_line": 475,
+      "source_line": 575,
+      "source": "firstCamMatDest[0] = Camera_gInfo[0].rotation;"
+    },
+    {
+      "index": 127,
+      "va": 2148411180,
+      "retail_line": 475,
+      "source_line": 575,
+      "source": "firstCamMatDest[0] = Camera_gInfo[0].rotation;"
+    },
+    {
+      "index": 128,
+      "va": 2148411184,
+      "retail_line": 475,
+      "source_line": 575,
+      "source": "firstCamMatDest[0] = Camera_gInfo[0].rotation;"
+    },
+    {
+      "index": 129,
+      "va": 2148411188,
+      "retail_line": 475,
+      "source_line": 575,
+      "source": "firstCamMatDest[0] = Camera_gInfo[0].rotation;"
+    },
+    {
+      "index": 130,
+      "va": 2148411192,
+      "retail_line": 475,
+      "source_line": 576,
+      "source": "secondCamMatDest[1] = firstCamMatDest[0];"
+    },
+    {
+      "index": 131,
+      "va": 2148411196,
+      "retail_line": 475,
+      "source_line": 576,
+      "source": "secondCamMatDest[1] = firstCamMatDest[0];"
+    },
+    {
+      "index": 132,
+      "va": 2148411200,
+      "retail_line": 475,
+      "source_line": 576,
+      "source": "secondCamMatDest[1] = firstCamMatDest[0];"
+    },
+    {
+      "index": 133,
+      "va": 2148411204,
+      "retail_line": 475,
+      "source_line": 576,
+      "source": "secondCamMatDest[1] = firstCamMatDest[0];"
+    },
+    {
+      "index": 134,
+      "va": 2148411208,
+      "retail_line": 475,
+      "source_line": 576,
+      "source": "secondCamMatDest[1] = firstCamMatDest[0];"
+    },
+    {
+      "index": 135,
+      "va": 2148411212,
+      "retail_line": 475,
+      "source_line": 576,
+      "source": "secondCamMatDest[1] = firstCamMatDest[0];"
+    },
+    {
+      "index": 136,
+      "va": 2148411216,
+      "retail_line": 475,
+      "source_line": 576,
+      "source": "secondCamMatDest[1] = firstCamMatDest[0];"
+    },
+    {
+      "index": 137,
+      "va": 2148411220,
+      "retail_line": 475,
+      "source_line": 576,
+      "source": "secondCamMatDest[1] = firstCamMatDest[0];"
+    },
+    {
+      "index": 138,
+      "va": 2148411224,
+      "retail_line": 475,
+      "source_line": 576,
+      "source": "secondCamMatDest[1] = firstCamMatDest[0];"
+    },
+    {
+      "index": 139,
+      "va": 2148411228,
+      "retail_line": 475,
+      "source_line": 576,
+      "source": "secondCamMatDest[1] = firstCamMatDest[0];"
+    },
+    {
+      "index": 140,
+      "va": 2148411232,
+      "retail_line": 475,
+      "source_line": 576,
+      "source": "secondCamMatDest[1] = firstCamMatDest[0];"
+    },
+    {
+      "index": 141,
+      "va": 2148411236,
+      "retail_line": 475,
+      "source_line": 576,
+      "source": "secondCamMatDest[1] = firstCamMatDest[0];"
+    },
+    {
+      "index": 142,
+      "va": 2148411240,
+      "retail_line": 475,
+      "source_line": 576,
+      "source": "secondCamMatDest[1] = firstCamMatDest[0];"
+    },
+    {
+      "index": 143,
+      "va": 2148411244,
+      "retail_line": 475,
+      "source_line": 576,
+      "source": "secondCamMatDest[1] = firstCamMatDest[0];"
+    },
+    {
+      "index": 144,
+      "va": 2148411248,
+      "retail_line": 482,
+      "source_line": 578,
+      "source": "i = 0x97;"
+    },
+    {
+      "index": 145,
+      "va": 2148411252,
+      "retail_line": 482,
+      "source_line": 579,
+      "source": "do {"
+    },
+    {
+      "index": 146,
+      "va": 2148411256,
+      "retail_line": 481,
+      "source_line": 577,
+      "source": "sv = Weather_gPos;"
+    },
+    {
+      "index": 147,
+      "va": 2148411260,
+      "retail_line": 482,
+      "source_line": 579,
+      "source": "do {"
+    },
+    {
+      "index": 148,
+      "va": 2148411264,
+      "retail_line": 475,
+      "source_line": 576,
+      "source": "secondCamMatDest[1] = firstCamMatDest[0];"
+    },
+    {
+      "index": 149,
+      "va": 2148411268,
+      "retail_line": 475,
+      "source_line": 576,
+      "source": "secondCamMatDest[1] = firstCamMatDest[0];"
+    },
+    {
+      "index": 150,
+      "va": 2148411272,
+      "retail_line": 475,
+      "source_line": 576,
+      "source": "secondCamMatDest[1] = firstCamMatDest[0];"
+    },
+    {
+      "index": 151,
+      "va": 2148411276,
+      "retail_line": 482,
+      "source_line": 579,
+      "source": "do {"
+    },
+    {
+      "index": 152,
+      "va": 2148411280,
+      "retail_line": 484,
+      "source_line": 583,
+      "source": "sv->vx = (short)((u_int)random() % (u_int)(int)Weather_gSys.width) * 2 - Weather_gSys.widt"
+    },
+    {
+      "index": 153,
+      "va": 2148411284,
+      "retail_line": 484,
+      "source_line": 583,
+      "source": "sv->vx = (short)((u_int)random() % (u_int)(int)Weather_gSys.width) * 2 - Weather_gSys.widt"
+    },
+    {
+      "index": 154,
+      "va": 2148411288,
+      "retail_line": 484,
+      "source_line": 583,
+      "source": "sv->vx = (short)((u_int)random() % (u_int)(int)Weather_gSys.width) * 2 - Weather_gSys.widt"
+    },
+    {
+      "index": 155,
+      "va": 2148411292,
+      "retail_line": 484,
+      "source_line": 583,
+      "source": "sv->vx = (short)((u_int)random() % (u_int)(int)Weather_gSys.width) * 2 - Weather_gSys.widt"
+    },
+    {
+      "index": 156,
+      "va": 2148411296,
+      "retail_line": 484,
+      "source_line": 583,
+      "source": "sv->vx = (short)((u_int)random() % (u_int)(int)Weather_gSys.width) * 2 - Weather_gSys.widt"
+    },
+    {
+      "index": 157,
+      "va": 2148411300,
+      "retail_line": 484,
+      "source_line": 583,
+      "source": "sv->vx = (short)((u_int)random() % (u_int)(int)Weather_gSys.width) * 2 - Weather_gSys.widt"
+    },
+    {
+      "index": 158,
+      "va": 2148411304,
+      "retail_line": 484,
+      "source_line": 583,
+      "source": "sv->vx = (short)((u_int)random() % (u_int)(int)Weather_gSys.width) * 2 - Weather_gSys.widt"
+    },
+    {
+      "index": 159,
+      "va": 2148411308,
+      "retail_line": 484,
+      "source_line": 583,
+      "source": "sv->vx = (short)((u_int)random() % (u_int)(int)Weather_gSys.width) * 2 - Weather_gSys.widt"
+    },
+    {
+      "index": 160,
+      "va": 2148411312,
+      "retail_line": 484,
+      "source_line": 583,
+      "source": "sv->vx = (short)((u_int)random() % (u_int)(int)Weather_gSys.width) * 2 - Weather_gSys.widt"
+    },
+    {
+      "index": 161,
+      "va": 2148411316,
+      "retail_line": 484,
+      "source_line": 583,
+      "source": "sv->vx = (short)((u_int)random() % (u_int)(int)Weather_gSys.width) * 2 - Weather_gSys.widt"
+    },
+    {
+      "index": 162,
+      "va": 2148411320,
+      "retail_line": 484,
+      "source_line": 583,
+      "source": "sv->vx = (short)((u_int)random() % (u_int)(int)Weather_gSys.width) * 2 - Weather_gSys.widt"
+    },
+    {
+      "index": 163,
+      "va": 2148411324,
+      "retail_line": 484,
+      "source_line": 583,
+      "source": "sv->vx = (short)((u_int)random() % (u_int)(int)Weather_gSys.width) * 2 - Weather_gSys.widt"
+    },
+    {
+      "index": 164,
+      "va": 2148411328,
+      "retail_line": 485,
+      "source_line": 586,
+      "source": "sv->vy = Weather_gSys.bottom + (short)((u_int)random() % (u_int)(int)Weather_gSys.height);"
+    },
+    {
+      "index": 165,
+      "va": 2148411332,
+      "retail_line": 485,
+      "source_line": 586,
+      "source": "sv->vy = Weather_gSys.bottom + (short)((u_int)random() % (u_int)(int)Weather_gSys.height);"
+    },
+    {
+      "index": 166,
+      "va": 2148411336,
+      "retail_line": 485,
+      "source_line": 586,
+      "source": "sv->vy = Weather_gSys.bottom + (short)((u_int)random() % (u_int)(int)Weather_gSys.height);"
+    },
+    {
+      "index": 167,
+      "va": 2148411340,
+      "retail_line": 485,
+      "source_line": 586,
+      "source": "sv->vy = Weather_gSys.bottom + (short)((u_int)random() % (u_int)(int)Weather_gSys.height);"
+    },
+    {
+      "index": 168,
+      "va": 2148411344,
+      "retail_line": 485,
+      "source_line": 586,
+      "source": "sv->vy = Weather_gSys.bottom + (short)((u_int)random() % (u_int)(int)Weather_gSys.height);"
+    },
+    {
+      "index": 169,
+      "va": 2148411348,
+      "retail_line": 485,
+      "source_line": 586,
+      "source": "sv->vy = Weather_gSys.bottom + (short)((u_int)random() % (u_int)(int)Weather_gSys.height);"
+    },
+    {
+      "index": 170,
+      "va": 2148411352,
+      "retail_line": 485,
+      "source_line": 586,
+      "source": "sv->vy = Weather_gSys.bottom + (short)((u_int)random() % (u_int)(int)Weather_gSys.height);"
+    },
+    {
+      "index": 171,
+      "va": 2148411356,
+      "retail_line": 485,
+      "source_line": 586,
+      "source": "sv->vy = Weather_gSys.bottom + (short)((u_int)random() % (u_int)(int)Weather_gSys.height);"
+    },
+    {
+      "index": 172,
+      "va": 2148411360,
+      "retail_line": 485,
+      "source_line": 586,
+      "source": "sv->vy = Weather_gSys.bottom + (short)((u_int)random() % (u_int)(int)Weather_gSys.height);"
+    },
+    {
+      "index": 173,
+      "va": 2148411364,
+      "retail_line": 485,
+      "source_line": 586,
+      "source": "sv->vy = Weather_gSys.bottom + (short)((u_int)random() % (u_int)(int)Weather_gSys.height);"
+    },
+    {
+      "index": 174,
+      "va": 2148411368,
+      "retail_line": 485,
+      "source_line": 586,
+      "source": "sv->vy = Weather_gSys.bottom + (short)((u_int)random() % (u_int)(int)Weather_gSys.height);"
+    },
+    {
+      "index": 175,
+      "va": 2148411372,
+      "retail_line": 485,
+      "source_line": 586,
+      "source": "sv->vy = Weather_gSys.bottom + (short)((u_int)random() % (u_int)(int)Weather_gSys.height);"
+    },
+    {
+      "index": 176,
+      "va": 2148411376,
+      "retail_line": 486,
+      "source_line": 589,
+      "source": "sv->vz = Weather_gSys.znear + (short)((u_int)random() % (u_int)(int)Weather_gSys.length);"
+    },
+    {
+      "index": 177,
+      "va": 2148411380,
+      "retail_line": 486,
+      "source_line": 589,
+      "source": "sv->vz = Weather_gSys.znear + (short)((u_int)random() % (u_int)(int)Weather_gSys.length);"
+    },
+    {
+      "index": 178,
+      "va": 2148411384,
+      "retail_line": 486,
+      "source_line": 589,
+      "source": "sv->vz = Weather_gSys.znear + (short)((u_int)random() % (u_int)(int)Weather_gSys.length);"
+    },
+    {
+      "index": 179,
+      "va": 2148411388,
+      "retail_line": 486,
+      "source_line": 589,
+      "source": "sv->vz = Weather_gSys.znear + (short)((u_int)random() % (u_int)(int)Weather_gSys.length);"
+    },
+    {
+      "index": 180,
+      "va": 2148411392,
+      "retail_line": 486,
+      "source_line": 589,
+      "source": "sv->vz = Weather_gSys.znear + (short)((u_int)random() % (u_int)(int)Weather_gSys.length);"
+    },
+    {
+      "index": 181,
+      "va": 2148411396,
+      "retail_line": 486,
+      "source_line": 589,
+      "source": "sv->vz = Weather_gSys.znear + (short)((u_int)random() % (u_int)(int)Weather_gSys.length);"
+    },
+    {
+      "index": 182,
+      "va": 2148411400,
+      "retail_line": 486,
+      "source_line": 589,
+      "source": "sv->vz = Weather_gSys.znear + (short)((u_int)random() % (u_int)(int)Weather_gSys.length);"
+    },
+    {
+      "index": 183,
+      "va": 2148411404,
+      "retail_line": 486,
+      "source_line": 589,
+      "source": "sv->vz = Weather_gSys.znear + (short)((u_int)random() % (u_int)(int)Weather_gSys.length);"
+    },
+    {
+      "index": 184,
+      "va": 2148411408,
+      "retail_line": 486,
+      "source_line": 589,
+      "source": "sv->vz = Weather_gSys.znear + (short)((u_int)random() % (u_int)(int)Weather_gSys.length);"
+    },
+    {
+      "index": 185,
+      "va": 2148411412,
+      "retail_line": 486,
+      "source_line": 589,
+      "source": "sv->vz = Weather_gSys.znear + (short)((u_int)random() % (u_int)(int)Weather_gSys.length);"
+    },
+    {
+      "index": 186,
+      "va": 2148411416,
+      "retail_line": 487,
+      "source_line": 590,
+      "source": "sv = sv + 1;"
+    },
+    {
+      "index": 187,
+      "va": 2148411420,
+      "retail_line": 486,
+      "source_line": 589,
+      "source": "sv->vz = Weather_gSys.znear + (short)((u_int)random() % (u_int)(int)Weather_gSys.length);"
+    },
+    {
+      "index": 188,
+      "va": 2148411424,
+      "retail_line": 486,
+      "source_line": 589,
+      "source": "sv->vz = Weather_gSys.znear + (short)((u_int)random() % (u_int)(int)Weather_gSys.length);"
+    },
+    {
+      "index": 189,
+      "va": 2148411428,
+      "retail_line": 487,
+      "source_line": 591,
+      "source": "} while (i != -1);"
+    },
+    {
+      "index": 190,
+      "va": 2148411432,
+      "retail_line": 487,
+      "source_line": 591,
+      "source": "} while (i != -1);"
+    },
+    {
+      "index": 191,
+      "va": 2148411436,
+      "retail_line": 487,
+      "source_line": 591,
+      "source": "} while (i != -1);"
+    },
+    {
+      "index": 192,
+      "va": 2148411440,
+      "retail_line": 492,
+      "source_line": 592,
+      "source": "i = 0;"
+    },
+    {
+      "index": 193,
+      "va": 2148411444,
+      "retail_line": 493,
+      "source_line": 594,
+      "source": "Weather_gWasDrawn[i] = '\\0';"
+    },
+    {
+      "index": 194,
+      "va": 2148411448,
+      "retail_line": 493,
+      "source_line": 594,
+      "source": "Weather_gWasDrawn[i] = '\\0';"
+    },
+    {
+      "index": 195,
+      "va": 2148411452,
+      "retail_line": 493,
+      "source_line": 594,
+      "source": "Weather_gWasDrawn[i] = '\\0';"
+    },
+    {
+      "index": 196,
+      "va": 2148411456,
+      "retail_line": 493,
+      "source_line": 595,
+      "source": "i = i + 1;"
+    },
+    {
+      "index": 197,
+      "va": 2148411460,
+      "retail_line": 493,
+      "source_line": 594,
+      "source": "Weather_gWasDrawn[i] = '\\0';"
+    },
+    {
+      "index": 198,
+      "va": 2148411464,
+      "retail_line": 493,
+      "source_line": 596,
+      "source": "} while (i < 0x98);"
+    },
+    {
+      "index": 199,
+      "va": 2148411468,
+      "retail_line": 493,
+      "source_line": 596,
+      "source": "} while (i < 0x98);"
+    },
+    {
+      "index": 200,
+      "va": 2148411472,
+      "retail_line": 493,
+      "source_line": 596,
+      "source": "} while (i < 0x98);"
+    },
+    {
+      "index": 201,
+      "va": 2148411476,
+      "retail_line": 495,
+      "source_line": 597,
+      "source": "gCurrentNumSplats = 0;"
+    },
+    {
+      "index": 202,
+      "va": 2148411480,
+      "retail_line": 496,
+      "source_line": 598,
+      "source": "Weather_InitSplats();"
+    },
+    {
+      "index": 203,
+      "va": 2148411484,
+      "retail_line": 496,
+      "source_line": 598,
+      "source": "Weather_InitSplats();"
+    },
+    {
+      "index": 204,
+      "va": 2148411488,
+      "retail_line": 496,
+      "source_line": 601,
+      "source": "}"
+    },
+    {
+      "index": 205,
+      "va": 2148411492,
+      "retail_line": 496,
+      "source_line": 601,
+      "source": "}"
+    },
+    {
+      "index": 206,
+      "va": 2148411496,
+      "retail_line": 496,
+      "source_line": 601,
+      "source": "}"
+    },
+    {
+      "index": 207,
+      "va": 2148411500,
+      "retail_line": 496,
+      "source_line": 601,
+      "source": "}"
+    },
+    {
+      "index": 208,
+      "va": 2148411504,
+      "retail_line": 496,
+      "source_line": 601,
+      "source": "}"
+    },
+    {
+      "index": 209,
+      "va": 2148411508,
+      "retail_line": 496,
+      "source_line": 601,
+      "source": "}"
+    },
+    {
+      "index": 210,
+      "va": 2148411512,
+      "retail_line": 496,
+      "source_line": 601,
+      "source": "}"
+    }
+  ]
+}

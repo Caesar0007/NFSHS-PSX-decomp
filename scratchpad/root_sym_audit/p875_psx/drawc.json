@@ -1,0 +1,1159 @@
+{
+  "round": "P875",
+  "header": "recon/game/psx/drawc.h",
+  "source_authority": "C:/Temp/nfs4-clean/nfs4-f-v3.txt",
+  "scope": "Free-function public prototype rows from P874 inventory only; not an all-record or all-project source restoration claim.",
+  "counts": {
+    "inventory_candidates": 20,
+    "corrected_public": 20,
+    "removed_file_static": 0,
+    "before_native_references": 0,
+    "after_native_references": 20,
+    "return_type_corrections": 0,
+    "header_compile_failures": 0,
+    "unresolved_header_candidates": 0,
+    "preexisting_compiler_warning_count": 1
+  },
+  "before_actual_header_compile": {
+    "header": "recon/game/psx/drawc.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\drawc_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\drawc_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\drawc_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\drawc_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\drawc_before.s"
+      ]
+    ],
+    "header_sha256": "a53dd4f87c2045523b9cfbb8cb1c8d2ce6754dc0c938e22b5e4553bbaf4ccad5",
+    "references": {
+      "0": "ChangeTPage__FPUsi__FPUsi",
+      "1": "DrawC_SetEnviroment__Fv__Fv",
+      "2": "DrawC_ReadLightingData__Fv__Fv",
+      "3": "DrawC_ReadeMapData__Fv__Fv",
+      "4": "DrawC_BuildRenderingData__Fv__Fv",
+      "5": "DrawC_KillRenderingData__Fv__Fv",
+      "6": "DrawC_NightHeadlight__FP8Car_tObj__FP8Car_tObj",
+      "7": "DrawC_MenuColorData__FiP8Car_tObji__FiP8Car_tObji",
+      "8": "DrawC_PrimStart__FP12Draw_tVertexP8Car_tObjiP13Draw_CarCache__FP12Draw_tVertexP8Car_tObjiP13Draw_CarCache",
+      "9": "DrawC_PrimStop__FP8Car_tObjP13Draw_CarCache__FP8Car_tObjP13Draw_CarCache",
+      "10": "DrawC_Prim__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache",
+      "11": "DrawC_DividePrim__FP7COORD16N20PUsN23P12Draw_tPixMapP13Draw_CarCache__FP7COORD16N20PUsN23P12Draw_tPixMapP13Draw_CarCache",
+      "12": "DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache",
+      "13": "DrawC_PrimMenu__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache",
+      "14": "DrawC_PrimHalo__FP10matrixtdefP8coorddefP16Transformer_zObjiiiP13Draw_CarCache__FP10matrixtdefP8coorddefP16Transformer_zObjiiiP13Draw_CarCache",
+      "15": "DrawC_ShadowPrim__FP12Draw_tVertexP13Draw_CarCache__FP12Draw_tVertexP13Draw_CarCache",
+      "16": "DrawC_DivideShadowPrim__FP7COORD16N30PUsN34P12Draw_tPixMapP13Draw_CarCache__FP7COORD16N30PUsN34P12Draw_tPixMapP13Draw_CarCache",
+      "17": "DrawC_ShadowPrimClip__FP12Draw_tVertexP13Draw_CarCache__FP12Draw_tVertexP13Draw_CarCache",
+      "18": "DrawC_SpotPrims__FP10matrixtdefP8coorddefP13Draw_CarCache__FP10matrixtdefP8coorddefP13Draw_CarCache",
+      "19": "DrawC_ShowroomPrims__FP10matrixtdefP8coorddefP13Draw_CarCache__FP10matrixtdefP8coorddefP13Draw_CarCache"
+    },
+    "ok": true,
+    "assembly_sha256": "1da4bdc71540ad72bbb697272fd7f4f3d7ee4dbf28149ba840bb1e38f71447c9",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".rodata",
+      ".sdata",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\drawc.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "ChangeTPage__FPUsi",
+      "DrawC_SetEnviroment__Fv",
+      "DrawC_ReadLightingData__Fv",
+      "DrawC_ReadeMapData__Fv",
+      "DrawC_BuildRenderingData__Fv",
+      "DrawC_KillRenderingData__Fv",
+      "DrawC_NightHeadlight__FP8Car_tObj",
+      "DrawC_MenuColorData__FiP8Car_tObji",
+      "DrawC_PrimStart__FP12Draw_tVertexP8Car_tObjiP13Draw_CarCache",
+      "DrawC_PrimStop__FP8Car_tObjP13Draw_CarCache",
+      "DrawC_Prim__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache",
+      "DrawC_DividePrim__FP7COORD16N20PUsN23P12Draw_tPixMapP13Draw_CarCache",
+      "DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache",
+      "DrawC_PrimMenu__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache",
+      "DrawC_PrimHalo__FP10matrixtdefP8coorddefP16Transformer_zObjiiiP13Draw_CarCache",
+      "DrawC_ShadowPrim__FP12Draw_tVertexP13Draw_CarCache",
+      "DrawC_DivideShadowPrim__FP7COORD16N30PUsN34P12Draw_tPixMapP13Draw_CarCache",
+      "DrawC_ShadowPrimClip__FP12Draw_tVertexP13Draw_CarCache",
+      "DrawC_SpotPrims__FP10matrixtdefP8coorddefP13Draw_CarCache",
+      "DrawC_ShowroomPrims__FP10matrixtdefP8coorddefP13Draw_CarCache",
+      "DrawC_gEnvMap",
+      "DrawC_gEnvMapMax",
+      "DrawC_gMenuLightsDirection",
+      "DrawC_gReflectOffset",
+      "DrawC_gShadow",
+      "DrawC_gShadowMax",
+      "DrawC_gWetRoad"
+    ]
+  },
+  "before_frozen_replay": {
+    "header": "recon/game/psx/drawc.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\drawc_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\drawc_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\drawc_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\drawc_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\drawc_before.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\drawc_before.cpp:2:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "27dcd56eb8db051be8b1041d4961f5524130b06b4b87261ec81d3bf30e293d33",
+    "input_mode": "frozen-original-prototype-surface",
+    "references": {
+      "0": "ChangeTPage__FPUsi__FPUsi",
+      "1": "DrawC_SetEnviroment__Fv__Fv",
+      "2": "DrawC_ReadLightingData__Fv__Fv",
+      "3": "DrawC_ReadeMapData__Fv__Fv",
+      "4": "DrawC_BuildRenderingData__Fv__Fv",
+      "5": "DrawC_KillRenderingData__Fv__Fv",
+      "6": "DrawC_NightHeadlight__FP8Car_tObj__FP8Car_tObj",
+      "7": "DrawC_MenuColorData__FiP8Car_tObji__FiP8Car_tObji",
+      "8": "DrawC_PrimStart__FP12Draw_tVertexP8Car_tObjiP13Draw_CarCache__FP12Draw_tVertexP8Car_tObjiP13Draw_CarCache",
+      "9": "DrawC_PrimStop__FP8Car_tObjP13Draw_CarCache__FP8Car_tObjP13Draw_CarCache",
+      "10": "DrawC_Prim__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache",
+      "11": "DrawC_DividePrim__FP7COORD16N20PUsN23P12Draw_tPixMapP13Draw_CarCache__FP7COORD16N20PUsN23P12Draw_tPixMapP13Draw_CarCache",
+      "12": "DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache",
+      "13": "DrawC_PrimMenu__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache",
+      "14": "DrawC_PrimHalo__FP10matrixtdefP8coorddefP16Transformer_zObjiiiP13Draw_CarCache__FP10matrixtdefP8coorddefP16Transformer_zObjiiiP13Draw_CarCache",
+      "15": "DrawC_ShadowPrim__FP12Draw_tVertexP13Draw_CarCache__FP12Draw_tVertexP13Draw_CarCache",
+      "16": "DrawC_DivideShadowPrim__FP7COORD16N30PUsN34P12Draw_tPixMapP13Draw_CarCache__FP7COORD16N30PUsN34P12Draw_tPixMapP13Draw_CarCache",
+      "17": "DrawC_ShadowPrimClip__FP12Draw_tVertexP13Draw_CarCache__FP12Draw_tVertexP13Draw_CarCache",
+      "18": "DrawC_SpotPrims__FP10matrixtdefP8coorddefP13Draw_CarCache__FP10matrixtdefP8coorddefP13Draw_CarCache",
+      "19": "DrawC_ShowroomPrims__FP10matrixtdefP8coorddefP13Draw_CarCache__FP10matrixtdefP8coorddefP13Draw_CarCache"
+    },
+    "ok": true,
+    "assembly_sha256": "1da4bdc71540ad72bbb697272fd7f4f3d7ee4dbf28149ba840bb1e38f71447c9"
+  },
+  "after_actual_header_compile": {
+    "header": "recon/game/psx/drawc.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\drawc_after.cpp",
+    "stage": "after",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\drawc_after.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\drawc_after.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\drawc_after.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\drawc_after.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:/Temp/nfs4-decomp/recon/game/psx/drawc.h:4,\n                 from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\drawc_after.cpp:1:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "5437c1742ec10fccbf6ff4027985a525ef1a7518f514d6ad7f492bf96f775a01",
+    "input_mode": "live-public-header",
+    "header_sha256": "85a259d2c562f9e99fd260f603768819384009cb6bf6a6b137070bff920a3aac",
+    "references": {
+      "0": "ChangeTPage__FPUsi",
+      "1": "DrawC_SetEnviroment__Fv",
+      "2": "DrawC_ReadLightingData__Fv",
+      "3": "DrawC_ReadeMapData__Fv",
+      "4": "DrawC_BuildRenderingData__Fv",
+      "5": "DrawC_KillRenderingData__Fv",
+      "6": "DrawC_NightHeadlight__FP8Car_tObj",
+      "7": "DrawC_MenuColorData__FiP8Car_tObji",
+      "8": "DrawC_PrimStart__FP12Draw_tVertexP8Car_tObjiP13Draw_CarCache",
+      "9": "DrawC_PrimStop__FP8Car_tObjP13Draw_CarCache",
+      "10": "DrawC_Prim__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache",
+      "11": "DrawC_DividePrim__FP7COORD16N20PUsN23P12Draw_tPixMapP13Draw_CarCache",
+      "12": "DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache",
+      "13": "DrawC_PrimMenu__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache",
+      "14": "DrawC_PrimHalo__FP10matrixtdefP8coorddefP16Transformer_zObjiiiP13Draw_CarCache",
+      "15": "DrawC_ShadowPrim__FP12Draw_tVertexP13Draw_CarCache",
+      "16": "DrawC_DivideShadowPrim__FP7COORD16N30PUsN34P12Draw_tPixMapP13Draw_CarCache",
+      "17": "DrawC_ShadowPrimClip__FP12Draw_tVertexP13Draw_CarCache",
+      "18": "DrawC_SpotPrims__FP10matrixtdefP8coorddefP13Draw_CarCache",
+      "19": "DrawC_ShowroomPrims__FP10matrixtdefP8coorddefP13Draw_CarCache"
+    },
+    "ok": true,
+    "assembly_sha256": "8d3ba589e2a78292270c098ee1db45a499ba5d4c7d832f04cbf3a25be0ab5a54",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".rodata",
+      ".sdata",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\drawc.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "ChangeTPage__FPUsi",
+      "DrawC_SetEnviroment__Fv",
+      "DrawC_ReadLightingData__Fv",
+      "DrawC_ReadeMapData__Fv",
+      "DrawC_BuildRenderingData__Fv",
+      "DrawC_KillRenderingData__Fv",
+      "DrawC_NightHeadlight__FP8Car_tObj",
+      "DrawC_MenuColorData__FiP8Car_tObji",
+      "DrawC_PrimStart__FP12Draw_tVertexP8Car_tObjiP13Draw_CarCache",
+      "DrawC_PrimStop__FP8Car_tObjP13Draw_CarCache",
+      "DrawC_Prim__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache",
+      "DrawC_DividePrim__FP7COORD16N20PUsN23P12Draw_tPixMapP13Draw_CarCache",
+      "DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache",
+      "DrawC_PrimMenu__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache",
+      "DrawC_PrimHalo__FP10matrixtdefP8coorddefP16Transformer_zObjiiiP13Draw_CarCache",
+      "DrawC_ShadowPrim__FP12Draw_tVertexP13Draw_CarCache",
+      "DrawC_DivideShadowPrim__FP7COORD16N30PUsN34P12Draw_tPixMapP13Draw_CarCache",
+      "DrawC_ShadowPrimClip__FP12Draw_tVertexP13Draw_CarCache",
+      "DrawC_SpotPrims__FP10matrixtdefP8coorddefP13Draw_CarCache",
+      "DrawC_ShowroomPrims__FP10matrixtdefP8coorddefP13Draw_CarCache",
+      "DrawC_gEnvMap",
+      "DrawC_gEnvMapMax",
+      "DrawC_gMenuLightsDirection",
+      "DrawC_gReflectOffset",
+      "DrawC_gShadow",
+      "DrawC_gShadowMax",
+      "DrawC_gWetRoad"
+    ]
+  },
+  "owning_tu_gate": {
+    "source": "recon/game/psx/drawc.cpp",
+    "command": [
+      "C:\\Python314\\python.exe",
+      "tools/tugate.py",
+      "recon/game/psx/drawc.cpp"
+    ],
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/psx/drawc.cpp: 20/20 PASS\n",
+    "stderr": "",
+    "object_sha256": "87de87e8726e06a1bbc3a5964b99162089c2da525fca9c27857c3ebfa073965f",
+    "actual_function_symbols": [
+      "ChangeTPage__FPUsi",
+      "DrawC_SetEnviroment__Fv",
+      "DrawC_ReadLightingData__Fv",
+      "DrawC_ReadeMapData__Fv",
+      "DrawC_BuildRenderingData__Fv",
+      "DrawC_KillRenderingData__Fv",
+      "DrawC_NightHeadlight__FP8Car_tObj",
+      "DrawC_MenuColorData__FiP8Car_tObji",
+      "DrawC_PrimStart__FP12Draw_tVertexP8Car_tObjiP13Draw_CarCache",
+      "DrawC_PrimStop__FP8Car_tObjP13Draw_CarCache",
+      "DrawC_Prim__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache",
+      "DrawC_DividePrim__FP7COORD16N20PUsN23P12Draw_tPixMapP13Draw_CarCache",
+      "DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache",
+      "DrawC_PrimMenu__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache",
+      "DrawC_PrimHalo__FP10matrixtdefP8coorddefP16Transformer_zObjiiiP13Draw_CarCache",
+      "DrawC_ShadowPrim__FP12Draw_tVertexP13Draw_CarCache",
+      "DrawC_DivideShadowPrim__FP7COORD16N30PUsN34P12Draw_tPixMapP13Draw_CarCache",
+      "DrawC_ShadowPrimClip__FP12Draw_tVertexP13Draw_CarCache",
+      "DrawC_SpotPrims__FP10matrixtdefP8coorddefP13Draw_CarCache",
+      "DrawC_ShowroomPrims__FP10matrixtdefP8coorddefP13Draw_CarCache"
+    ],
+    "local_function_symbols": []
+  },
+  "consumer_census": {
+    "files_scanned": 1677,
+    "literal_users": [],
+    "dynamic_includes": []
+  },
+  "unresolved": [],
+  "prototype_receipts": [
+    {
+      "header": "recon/game/psx/drawc.h",
+      "line": 6,
+      "encoded": "ChangeTPage__FPUsi",
+      "name": "ChangeTPage",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void ChangeTPage__FPUsi(u_short *tpage, int nabr);   /* :112 */",
+      "header_return": "void",
+      "header_signature": "(u_short *tpage, int nabr)",
+      "native": [
+        {
+          "record": "3c0dd1",
+          "va": "800be6d0",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "ChangeTPage",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\drawc.cpp",
+          "line": 159,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(u_short * tpage,int nabr)",
+          "end": 164,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(u_short * tpage,int nabr)",
+      "final_prototype": "void ChangeTPage(u_short * tpage,int nabr);   /* SYM 3c0dd1 @0x800be6d0 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "ChangeTPage__FPUsi__FPUsi",
+      "after_emitted_reference": "ChangeTPage__FPUsi",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/drawc.h",
+      "line": 7,
+      "encoded": "DrawC_SetEnviroment__Fv",
+      "name": "DrawC_SetEnviroment",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void DrawC_SetEnviroment__Fv(void);   /* :119 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "3c0df1",
+          "va": "800be6e8",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "DrawC_SetEnviroment",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\drawc.cpp",
+          "line": 167,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 171,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void DrawC_SetEnviroment(void);   /* SYM 3c0df1 @0x800be6e8 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "DrawC_SetEnviroment__Fv__Fv",
+      "after_emitted_reference": "DrawC_SetEnviroment__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/drawc.h",
+      "line": 8,
+      "encoded": "DrawC_ReadLightingData__Fv",
+      "name": "DrawC_ReadLightingData",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void DrawC_ReadLightingData__Fv(void);   /* :123 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "3c0e16",
+          "va": "800be6f0",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "DrawC_ReadLightingData",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\drawc.cpp",
+          "line": 174,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 214,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void DrawC_ReadLightingData(void);   /* SYM 3c0e16 @0x800be6f0 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "DrawC_ReadLightingData__Fv__Fv",
+      "after_emitted_reference": "DrawC_ReadLightingData__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/drawc.h",
+      "line": 9,
+      "encoded": "DrawC_ReadeMapData__Fv",
+      "name": "DrawC_ReadeMapData",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void DrawC_ReadeMapData__Fv(void);   /* :181 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "3c0e3e",
+          "va": "800be8f8",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "DrawC_ReadeMapData",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\drawc.cpp",
+          "line": 217,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 222,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void DrawC_ReadeMapData(void);   /* SYM 3c0e3e @0x800be8f8 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "DrawC_ReadeMapData__Fv__Fv",
+      "after_emitted_reference": "DrawC_ReadeMapData__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/drawc.h",
+      "line": 10,
+      "encoded": "DrawC_BuildRenderingData__Fv",
+      "name": "DrawC_BuildRenderingData",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void DrawC_BuildRenderingData__Fv(void);   /* :190 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "3c0e62",
+          "va": "800be918",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "DrawC_BuildRenderingData",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\drawc.cpp",
+          "line": 225,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 232,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void DrawC_BuildRenderingData(void);   /* SYM 3c0e62 @0x800be918 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "DrawC_BuildRenderingData__Fv__Fv",
+      "after_emitted_reference": "DrawC_BuildRenderingData__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/drawc.h",
+      "line": 11,
+      "encoded": "DrawC_KillRenderingData__Fv",
+      "name": "DrawC_KillRenderingData",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void DrawC_KillRenderingData__Fv(void);   /* :208 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "3c0e8c",
+          "va": "800be948",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "DrawC_KillRenderingData",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\drawc.cpp",
+          "line": 235,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 241,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void DrawC_KillRenderingData(void);   /* SYM 3c0e8c @0x800be948 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "DrawC_KillRenderingData__Fv__Fv",
+      "after_emitted_reference": "DrawC_KillRenderingData__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/drawc.h",
+      "line": 12,
+      "encoded": "DrawC_NightHeadlight__FP8Car_tObj",
+      "name": "DrawC_NightHeadlight",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void DrawC_NightHeadlight__FP8Car_tObj(Car_tObj *carObj);   /* :214 */",
+      "header_return": "void",
+      "header_signature": "(Car_tObj *carObj)",
+      "native": [
+        {
+          "record": "3c0eb5",
+          "va": "800be978",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "DrawC_NightHeadlight",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\drawc.cpp",
+          "line": 244,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(Car_tObj * carObj)",
+          "end": 530,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(Car_tObj * carObj)",
+      "final_prototype": "void DrawC_NightHeadlight(Car_tObj * carObj);   /* SYM 3c0eb5 @0x800be978 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "DrawC_NightHeadlight__FP8Car_tObj__FP8Car_tObj",
+      "after_emitted_reference": "DrawC_NightHeadlight__FP8Car_tObj",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/drawc.h",
+      "line": 13,
+      "encoded": "DrawC_MenuColorData__FiP8Car_tObji",
+      "name": "DrawC_MenuColorData",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void DrawC_MenuColorData__FiP8Car_tObji(int color, Car_tObj *carObj, int player);   /* :388 */",
+      "header_return": "void",
+      "header_signature": "(int color, Car_tObj *carObj, int player)",
+      "native": [
+        {
+          "record": "3c0ee4",
+          "va": "800beb24",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "DrawC_MenuColorData",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\drawc.cpp",
+          "line": 533,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int color,Car_tObj * carObj,int player)",
+          "end": 593,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int color,Car_tObj * carObj,int player)",
+      "final_prototype": "void DrawC_MenuColorData(int color,Car_tObj * carObj,int player);   /* SYM 3c0ee4 @0x800beb24 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "DrawC_MenuColorData__FiP8Car_tObji__FiP8Car_tObji",
+      "after_emitted_reference": "DrawC_MenuColorData__FiP8Car_tObji",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/drawc.h",
+      "line": 14,
+      "encoded": "DrawC_PrimStart__FP12Draw_tVertexP8Car_tObjiP13Draw_CarCache",
+      "name": "DrawC_PrimStart",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "int DrawC_PrimStart__FP12Draw_tVertexP8Car_tObjiP13Draw_CarCache(Draw_tVertex *center, Car_tObj *carObj, int lightAvg, Draw_CarCache *sd);   /* :1148 */",
+      "header_return": "int",
+      "header_signature": "(Draw_tVertex *center, Car_tObj *carObj, int lightAvg, Draw_CarCache *sd)",
+      "native": [
+        {
+          "record": "3c0f14",
+          "va": "800bed44",
+          "linkage": "EXT",
+          "return_type": "int"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "DrawC_PrimStart",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\drawc.cpp",
+          "line": 651,
+          "typeref": "typename:int",
+          "kind": "function",
+          "signature": "(Draw_tVertex * center,Car_tObj * carObj,int lightAvg,Draw_CarCache * sd)",
+          "end": 1311,
+          "return_type": "int",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "int",
+      "final_signature": "(Draw_tVertex * center,Car_tObj * carObj,int lightAvg,Draw_CarCache * sd)",
+      "final_prototype": "int DrawC_PrimStart(Draw_tVertex * center,Car_tObj * carObj,int lightAvg,Draw_CarCache * sd);   /* SYM 3c0f14 @0x800bed44 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "DrawC_PrimStart__FP12Draw_tVertexP8Car_tObjiP13Draw_CarCache__FP12Draw_tVertexP8Car_tObjiP13Draw_CarCache",
+      "after_emitted_reference": "DrawC_PrimStart__FP12Draw_tVertexP8Car_tObjiP13Draw_CarCache",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/drawc.h",
+      "line": 15,
+      "encoded": "DrawC_PrimStop__FP8Car_tObjP13Draw_CarCache",
+      "name": "DrawC_PrimStop",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void DrawC_PrimStop__FP8Car_tObjP13Draw_CarCache(Car_tObj *carObj, Draw_CarCache *sd);   /* :1535 */",
+      "header_return": "void",
+      "header_signature": "(Car_tObj *carObj, Draw_CarCache *sd)",
+      "native": [
+        {
+          "record": "3c0f5e",
+          "va": "800bfc84",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "DrawC_PrimStop",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\drawc.cpp",
+          "line": 1314,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(Car_tObj * carObj,Draw_CarCache * sd)",
+          "end": 1342,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(Car_tObj * carObj,Draw_CarCache * sd)",
+      "final_prototype": "void DrawC_PrimStop(Car_tObj * carObj,Draw_CarCache * sd);   /* SYM 3c0f5e @0x800bfc84 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "DrawC_PrimStop__FP8Car_tObjP13Draw_CarCache__FP8Car_tObjP13Draw_CarCache",
+      "after_emitted_reference": "DrawC_PrimStop__FP8Car_tObjP13Draw_CarCache",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/drawc.h",
+      "line": 16,
+      "encoded": "DrawC_Prim__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache",
+      "name": "DrawC_Prim",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void DrawC_Prim__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache(matrixtdef *m, coorddef *t, Transformer_zObj *obj, Transformer_zOverlay *overlay, int envmap, Draw_CarCache *sd);   /* :1772 */",
+      "header_return": "void",
+      "header_signature": "(matrixtdef *m, coorddef *t, Transformer_zObj *obj, Transformer_zOverlay *overlay, int envmap, Draw_CarCache *sd)",
+      "native": [
+        {
+          "record": "3c0f97",
+          "va": "800bfd44",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "DrawC_Prim",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\drawc.cpp",
+          "line": 1616,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(matrixtdef * m,coorddef * t,Transformer_zObj * obj,Transformer_zOverlay * overlay,int envmap,Draw_CarCache * sd)",
+          "end": 2793,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(matrixtdef * m,coorddef * t,Transformer_zObj * obj,Transformer_zOverlay * overlay,int envmap,Draw_CarCache * sd)",
+      "final_prototype": "void DrawC_Prim(matrixtdef * m,coorddef * t,Transformer_zObj * obj,Transformer_zOverlay * overlay,int envmap,Draw_CarCache * sd);   /* SYM 3c0f97 @0x800bfd44 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "DrawC_Prim__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache",
+      "after_emitted_reference": "DrawC_Prim__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/drawc.h",
+      "line": 17,
+      "encoded": "DrawC_DividePrim__FP7COORD16N20PUsN23P12Draw_tPixMapP13Draw_CarCache",
+      "name": "DrawC_DividePrim",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void DrawC_DividePrim__FP7COORD16N20PUsN23P12Draw_tPixMapP13Draw_CarCache(COORD16 *vt0, COORD16 *vt1, COORD16 *vt2, u_short *u0, u_short *u1, u_short *u2, Draw_tPixMap *pmx, Draw_CarCache *sd);   /* :2554 */",
+      "header_return": "void",
+      "header_signature": "(COORD16 *vt0, COORD16 *vt1, COORD16 *vt2, u_short *u0, u_short *u1, u_short *u2, Draw_tPixMap *pmx, Draw_CarCache *sd)",
+      "native": [
+        {
+          "record": "3c1004",
+          "va": "800c12f8",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "DrawC_DividePrim",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\drawc.cpp",
+          "line": 2796,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(COORD16 * vt0,COORD16 * vt1,COORD16 * vt2,u_short * u0,u_short * u1,u_short * u2,Draw_tPixMap * pmx,Draw_CarCache * sd)",
+          "end": 2870,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(COORD16 * vt0,COORD16 * vt1,COORD16 * vt2,u_short * u0,u_short * u1,u_short * u2,Draw_tPixMap * pmx,Draw_CarCache * sd)",
+      "final_prototype": "void DrawC_DividePrim(COORD16 * vt0,COORD16 * vt1,COORD16 * vt2,u_short * u0,u_short * u1,u_short * u2,Draw_tPixMap * pmx,Draw_CarCache * sd);   /* SYM 3c1004 @0x800c12f8 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "DrawC_DividePrim__FP7COORD16N20PUsN23P12Draw_tPixMapP13Draw_CarCache__FP7COORD16N20PUsN23P12Draw_tPixMapP13Draw_CarCache",
+      "after_emitted_reference": "DrawC_DividePrim__FP7COORD16N20PUsN23P12Draw_tPixMapP13Draw_CarCache",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/drawc.h",
+      "line": 18,
+      "encoded": "DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache",
+      "name": "DrawC_PrimClip",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache(matrixtdef *m, coorddef *t, Transformer_zObj *obj, Transformer_zOverlay *overlay, int envmap, Draw_CarCache *sd);   /* :2647 */",
+      "header_return": "void",
+      "header_signature": "(matrixtdef *m, coorddef *t, Transformer_zObj *obj, Transformer_zOverlay *overlay, int envmap, Draw_CarCache *sd)",
+      "native": [
+        {
+          "record": "3c1056",
+          "va": "800c155c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "DrawC_PrimClip",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\drawc.cpp",
+          "line": 3172,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(matrixtdef * m,coorddef * t,Transformer_zObj * obj,Transformer_zOverlay * overlay,int envmap,Draw_CarCache * sd)",
+          "end": 4328,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(matrixtdef * m,coorddef * t,Transformer_zObj * obj,Transformer_zOverlay * overlay,int envmap,Draw_CarCache * sd)",
+      "final_prototype": "void DrawC_PrimClip(matrixtdef * m,coorddef * t,Transformer_zObj * obj,Transformer_zOverlay * overlay,int envmap,Draw_CarCache * sd);   /* SYM 3c1056 @0x800c155c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache",
+      "after_emitted_reference": "DrawC_PrimClip__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/drawc.h",
+      "line": 19,
+      "encoded": "DrawC_PrimMenu__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache",
+      "name": "DrawC_PrimMenu",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void DrawC_PrimMenu__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache(matrixtdef *m, coorddef *t, Transformer_zObj *obj, Transformer_zOverlay *overlay, int envmap, Draw_CarCache *sd);   /* :3551 */",
+      "header_return": "void",
+      "header_signature": "(matrixtdef *m, coorddef *t, Transformer_zObj *obj, Transformer_zOverlay *overlay, int envmap, Draw_CarCache *sd)",
+      "native": [
+        {
+          "record": "3c10c7",
+          "va": "800c32b0",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "DrawC_PrimMenu",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\drawc.cpp",
+          "line": 4331,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(matrixtdef * m,coorddef * t,Transformer_zObj * obj,Transformer_zOverlay * overlay,int envmap,Draw_CarCache * sd)",
+          "end": 4811,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(matrixtdef * m,coorddef * t,Transformer_zObj * obj,Transformer_zOverlay * overlay,int envmap,Draw_CarCache * sd)",
+      "final_prototype": "void DrawC_PrimMenu(matrixtdef * m,coorddef * t,Transformer_zObj * obj,Transformer_zOverlay * overlay,int envmap,Draw_CarCache * sd);   /* SYM 3c10c7 @0x800c32b0 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "DrawC_PrimMenu__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache",
+      "after_emitted_reference": "DrawC_PrimMenu__FP10matrixtdefP8coorddefP16Transformer_zObjP20Transformer_zOverlayiP13Draw_CarCache",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/drawc.h",
+      "line": 20,
+      "encoded": "DrawC_PrimHalo__FP10matrixtdefP8coorddefP16Transformer_zObjiiiP13Draw_CarCache",
+      "name": "DrawC_PrimHalo",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void DrawC_PrimHalo__FP10matrixtdefP8coorddefP16Transformer_zObjiiiP13Draw_CarCache(matrixtdef *m, coorddef *t, Transformer_zObj *obj, int type, int index, int reflect, Draw_CarCache *sd);   /* :3881 */",
+      "header_return": "void",
+      "header_signature": "(matrixtdef *m, coorddef *t, Transformer_zObj *obj, int type, int index, int reflect, Draw_CarCache *sd)",
+      "native": [
+        {
+          "record": "3c1138",
+          "va": "800c3a30",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "DrawC_PrimHalo",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\drawc.cpp",
+          "line": 4814,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(matrixtdef * m,coorddef * t,Transformer_zObj * obj,int type,int index,int reflect,Draw_CarCache * sd)",
+          "end": 5117,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(matrixtdef * m,coorddef * t,Transformer_zObj * obj,int type,int index,int reflect,Draw_CarCache * sd)",
+      "final_prototype": "void DrawC_PrimHalo(matrixtdef * m,coorddef * t,Transformer_zObj * obj,int type,int index,int reflect,Draw_CarCache * sd);   /* SYM 3c1138 @0x800c3a30 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "DrawC_PrimHalo__FP10matrixtdefP8coorddefP16Transformer_zObjiiiP13Draw_CarCache__FP10matrixtdefP8coorddefP16Transformer_zObjiiiP13Draw_CarCache",
+      "after_emitted_reference": "DrawC_PrimHalo__FP10matrixtdefP8coorddefP16Transformer_zObjiiiP13Draw_CarCache",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/drawc.h",
+      "line": 21,
+      "encoded": "DrawC_ShadowPrim__FP12Draw_tVertexP13Draw_CarCache",
+      "name": "DrawC_ShadowPrim",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void DrawC_ShadowPrim__FP12Draw_tVertexP13Draw_CarCache(Draw_tVertex *shadowVT, Draw_CarCache *sd);   /* :3997 */",
+      "header_return": "void",
+      "header_signature": "(Draw_tVertex *shadowVT, Draw_CarCache *sd)",
+      "native": [
+        {
+          "record": "3c1194",
+          "va": "800c3ed8",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "DrawC_ShadowPrim",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\drawc.cpp",
+          "line": 5120,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(Draw_tVertex * shadowVT,Draw_CarCache * sd)",
+          "end": 5187,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(Draw_tVertex * shadowVT,Draw_CarCache * sd)",
+      "final_prototype": "void DrawC_ShadowPrim(Draw_tVertex * shadowVT,Draw_CarCache * sd);   /* SYM 3c1194 @0x800c3ed8 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "DrawC_ShadowPrim__FP12Draw_tVertexP13Draw_CarCache__FP12Draw_tVertexP13Draw_CarCache",
+      "after_emitted_reference": "DrawC_ShadowPrim__FP12Draw_tVertexP13Draw_CarCache",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/drawc.h",
+      "line": 22,
+      "encoded": "DrawC_DivideShadowPrim__FP7COORD16N30PUsN34P12Draw_tPixMapP13Draw_CarCache",
+      "name": "DrawC_DivideShadowPrim",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void DrawC_DivideShadowPrim__FP7COORD16N30PUsN34P12Draw_tPixMapP13Draw_CarCache(COORD16 *vt0, COORD16 *vt1, COORD16 *vt2, COORD16 *vt3, u_short *u0, u_short *u1, u_short *u2, u_short *u3, Draw_tPixMap *pmx, Draw_CarCache *sd);   /* :4056 */",
+      "header_return": "void",
+      "header_signature": "(COORD16 *vt0, COORD16 *vt1, COORD16 *vt2, COORD16 *vt3, u_short *u0, u_short *u1, u_short *u2, u_short *u3, Draw_tPixMap *pmx, Draw_CarCache *sd)",
+      "native": [
+        {
+          "record": "3c11d4",
+          "va": "800c40dc",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "DrawC_DivideShadowPrim",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\drawc.cpp",
+          "line": 5190,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(COORD16 * vt0,COORD16 * vt1,COORD16 * vt2,COORD16 * vt3,u_short * u0,u_short * u1,u_short * u2,u_short * u3,Draw_tPixMap * pmx,Draw_CarCache * sd)",
+          "end": 5278,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(COORD16 * vt0,COORD16 * vt1,COORD16 * vt2,COORD16 * vt3,u_short * u0,u_short * u1,u_short * u2,u_short * u3,Draw_tPixMap * pmx,Draw_CarCache * sd)",
+      "final_prototype": "void DrawC_DivideShadowPrim(COORD16 * vt0,COORD16 * vt1,COORD16 * vt2,COORD16 * vt3,u_short * u0,u_short * u1,u_short * u2,u_short * u3,Draw_tPixMap * pmx,Draw_CarCache * sd);   /* SYM 3c11d4 @0x800c40dc */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "DrawC_DivideShadowPrim__FP7COORD16N30PUsN34P12Draw_tPixMapP13Draw_CarCache__FP7COORD16N30PUsN34P12Draw_tPixMapP13Draw_CarCache",
+      "after_emitted_reference": "DrawC_DivideShadowPrim__FP7COORD16N30PUsN34P12Draw_tPixMapP13Draw_CarCache",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/drawc.h",
+      "line": 23,
+      "encoded": "DrawC_ShadowPrimClip__FP12Draw_tVertexP13Draw_CarCache",
+      "name": "DrawC_ShadowPrimClip",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void DrawC_ShadowPrimClip__FP12Draw_tVertexP13Draw_CarCache(Draw_tVertex *shadowVT, Draw_CarCache *sd);   /* :4117 */",
+      "header_return": "void",
+      "header_signature": "(Draw_tVertex *shadowVT, Draw_CarCache *sd)",
+      "native": [
+        {
+          "record": "3c122c",
+          "va": "800c42c4",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "DrawC_ShadowPrimClip",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\drawc.cpp",
+          "line": 5281,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(Draw_tVertex * shadowVT,Draw_CarCache * sd)",
+          "end": 5401,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(Draw_tVertex * shadowVT,Draw_CarCache * sd)",
+      "final_prototype": "void DrawC_ShadowPrimClip(Draw_tVertex * shadowVT,Draw_CarCache * sd);   /* SYM 3c122c @0x800c42c4 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "DrawC_ShadowPrimClip__FP12Draw_tVertexP13Draw_CarCache__FP12Draw_tVertexP13Draw_CarCache",
+      "after_emitted_reference": "DrawC_ShadowPrimClip__FP12Draw_tVertexP13Draw_CarCache",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/drawc.h",
+      "line": 24,
+      "encoded": "DrawC_SpotPrims__FP10matrixtdefP8coorddefP13Draw_CarCache",
+      "name": "DrawC_SpotPrims",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void DrawC_SpotPrims__FP10matrixtdefP8coorddefP13Draw_CarCache(matrixtdef *m, coorddef *t, Draw_CarCache *sd);   /* :4189 */",
+      "header_return": "void",
+      "header_signature": "(matrixtdef *m, coorddef *t, Draw_CarCache *sd)",
+      "native": [
+        {
+          "record": "3c1270",
+          "va": "800c4800",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "DrawC_SpotPrims",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\drawc.cpp",
+          "line": 5404,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(matrixtdef * m,coorddef * t,Draw_CarCache * sd)",
+          "end": 5531,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(matrixtdef * m,coorddef * t,Draw_CarCache * sd)",
+      "final_prototype": "void DrawC_SpotPrims(matrixtdef * m,coorddef * t,Draw_CarCache * sd);   /* SYM 3c1270 @0x800c4800 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "DrawC_SpotPrims__FP10matrixtdefP8coorddefP13Draw_CarCache__FP10matrixtdefP8coorddefP13Draw_CarCache",
+      "after_emitted_reference": "DrawC_SpotPrims__FP10matrixtdefP8coorddefP13Draw_CarCache",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/drawc.h",
+      "line": 25,
+      "encoded": "DrawC_ShowroomPrims__FP10matrixtdefP8coorddefP13Draw_CarCache",
+      "name": "DrawC_ShowroomPrims",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void DrawC_ShowroomPrims__FP10matrixtdefP8coorddefP13Draw_CarCache(matrixtdef *m, coorddef *t, Draw_CarCache *sd);   /* :4260 */",
+      "header_return": "void",
+      "header_signature": "(matrixtdef *m, coorddef *t, Draw_CarCache *sd)",
+      "native": [
+        {
+          "record": "3c12b7",
+          "va": "800c4b84",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "DrawC_ShowroomPrims",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\drawc.cpp",
+          "line": 5534,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(matrixtdef * m,coorddef * t,Draw_CarCache * sd)",
+          "end": 5778,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(matrixtdef * m,coorddef * t,Draw_CarCache * sd)",
+      "final_prototype": "void DrawC_ShowroomPrims(matrixtdef * m,coorddef * t,Draw_CarCache * sd);   /* SYM 3c12b7 @0x800c4b84 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "DrawC_ShowroomPrims__FP10matrixtdefP8coorddefP13Draw_CarCache__FP10matrixtdefP8coorddefP13Draw_CarCache",
+      "after_emitted_reference": "DrawC_ShowroomPrims__FP10matrixtdefP8coorddefP13Draw_CarCache",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    }
+  ]
+}

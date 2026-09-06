@@ -1,0 +1,713 @@
+{
+  "round": "P875",
+  "header": "recon/game/psx/trsproj.h",
+  "source_authority": "C:/Temp/nfs4-clean/nfs4-f-v3.txt",
+  "scope": "Free-function public prototype rows from P874 inventory only; not an all-record or all-project source restoration claim.",
+  "counts": {
+    "inventory_candidates": 11,
+    "corrected_public": 11,
+    "removed_file_static": 0,
+    "before_native_references": 0,
+    "after_native_references": 11,
+    "return_type_corrections": 0,
+    "header_compile_failures": 0,
+    "unresolved_header_candidates": 0,
+    "preexisting_compiler_warning_count": 1
+  },
+  "before_actual_header_compile": {
+    "header": "recon/game/psx/trsproj.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\trsproj_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\trsproj_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\trsproj_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\trsproj_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\trsproj_before.s"
+      ]
+    ],
+    "header_sha256": "0e9d497085c166d43f1a9f29ab76d7aac6a329fe8fe9a6c9221963153e91f448",
+    "references": {
+      "0": "TrsProj_SetTransPrecision__Fi__Fi",
+      "1": "TrsProj_ResetTransPrecision__Fv__Fv",
+      "2": "TrsProj_SetProjection__Fiiii__Fiiii",
+      "3": "TrsProj_SetMenuProjection__Fiiii__Fiiii",
+      "4": "TrsProj_SetViewTrsProjEnviro__FP13DRender_tView__FP13DRender_tView",
+      "5": "TrsProj_SetPsxMatrix__FP10matrixtdefP8coorddef__FP10matrixtdefP8coorddef",
+      "6": "TrsProj_SetPsxTrans__FP8coorddef__FP8coorddef",
+      "7": "TrsProj_SetPsxTransZero__Fv__Fv",
+      "8": "TrsProj_TransPt__FP8coorddefT0__FP8coorddefT0",
+      "9": "TrsProj_TransPtN16__FP10RelCoord16P8coorddefi__FP10RelCoord16P8coorddefi",
+      "10": "TrsProj_TransformProjectVertex__FP10matrixtdefP8coorddefiT1P12Draw_tVertex__FP10matrixtdefP8coorddefiT1P12Draw_tVertex"
+    },
+    "ok": true,
+    "assembly_sha256": "049a2bf4f26298167e92745ad9a678d96ae2b841c40d8e61be92b423d5aa15b5",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".sdata",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\trsproj.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "TrsProj_precision",
+      "TrsProj_SetTransPrecision__Fi",
+      "TrsProj_ResetTransPrecision__Fv",
+      "TrsProj_SetProjection__Fiiii",
+      "TrsProj_SetMenuProjection__Fiiii",
+      "TrsProj_SetViewTrsProjEnviro__FP13DRender_tView",
+      "TrsProj_SetPsxMatrix__FP10matrixtdefP8coorddef",
+      "TrsProj_SetPsxTrans__FP8coorddef",
+      "TrsProj_SetPsxTransZero__Fv",
+      "TrsProj_TransPt__FP8coorddefT0",
+      "TrsProj_TransPtN16__FP10RelCoord16P8coorddefi",
+      "TrsProj_TransformProjectVertex__FP10matrixtdefP8coorddefiT1P12Draw_tVertex"
+    ]
+  },
+  "before_frozen_replay": {
+    "header": "recon/game/psx/trsproj.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\trsproj_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\trsproj_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\trsproj_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\trsproj_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\trsproj_before.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\trsproj_before.cpp:2:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "038a3eb98a3f9571c012593a9d2c2eba1a00a2f1f9371329d9b46f665e8c681f",
+    "input_mode": "frozen-original-prototype-surface",
+    "references": {
+      "0": "TrsProj_SetTransPrecision__Fi__Fi",
+      "1": "TrsProj_ResetTransPrecision__Fv__Fv",
+      "2": "TrsProj_SetProjection__Fiiii__Fiiii",
+      "3": "TrsProj_SetMenuProjection__Fiiii__Fiiii",
+      "4": "TrsProj_SetViewTrsProjEnviro__FP13DRender_tView__FP13DRender_tView",
+      "5": "TrsProj_SetPsxMatrix__FP10matrixtdefP8coorddef__FP10matrixtdefP8coorddef",
+      "6": "TrsProj_SetPsxTrans__FP8coorddef__FP8coorddef",
+      "7": "TrsProj_SetPsxTransZero__Fv__Fv",
+      "8": "TrsProj_TransPt__FP8coorddefT0__FP8coorddefT0",
+      "9": "TrsProj_TransPtN16__FP10RelCoord16P8coorddefi__FP10RelCoord16P8coorddefi",
+      "10": "TrsProj_TransformProjectVertex__FP10matrixtdefP8coorddefiT1P12Draw_tVertex__FP10matrixtdefP8coorddefiT1P12Draw_tVertex"
+    },
+    "ok": true,
+    "assembly_sha256": "049a2bf4f26298167e92745ad9a678d96ae2b841c40d8e61be92b423d5aa15b5"
+  },
+  "after_actual_header_compile": {
+    "header": "recon/game/psx/trsproj.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\trsproj_after.cpp",
+    "stage": "after",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\trsproj_after.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\trsproj_after.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\trsproj_after.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\trsproj_after.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:/Temp/nfs4-decomp/recon/game/psx/trsproj.h:4,\n                 from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\trsproj_after.cpp:1:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "f7b393c509c3e8e8fd12d11049ddcf04712fcbf1652ca017c10e3e0822b581c5",
+    "input_mode": "live-public-header",
+    "header_sha256": "915349fd1e2913cffa7d500265395eda28e3c474a9750a38670da7ee955cedb5",
+    "references": {
+      "0": "TrsProj_SetTransPrecision__Fi",
+      "1": "TrsProj_ResetTransPrecision__Fv",
+      "2": "TrsProj_SetProjection__Fiiii",
+      "3": "TrsProj_SetMenuProjection__Fiiii",
+      "4": "TrsProj_SetViewTrsProjEnviro__FP13DRender_tView",
+      "5": "TrsProj_SetPsxMatrix__FP10matrixtdefP8coorddef",
+      "6": "TrsProj_SetPsxTrans__FP8coorddef",
+      "7": "TrsProj_SetPsxTransZero__Fv",
+      "8": "TrsProj_TransPt__FP8coorddefT0",
+      "9": "TrsProj_TransPtN16__FP10RelCoord16P8coorddefi",
+      "10": "TrsProj_TransformProjectVertex__FP10matrixtdefP8coorddefiT1P12Draw_tVertex"
+    },
+    "ok": true,
+    "assembly_sha256": "b8a56d088e821b09651162b110bdbced6a83eda3ececf40862b2cfcf932b3638",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".sdata",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\trsproj.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "TrsProj_precision",
+      "TrsProj_SetTransPrecision__Fi",
+      "TrsProj_ResetTransPrecision__Fv",
+      "TrsProj_SetProjection__Fiiii",
+      "TrsProj_SetMenuProjection__Fiiii",
+      "TrsProj_SetViewTrsProjEnviro__FP13DRender_tView",
+      "TrsProj_SetPsxMatrix__FP10matrixtdefP8coorddef",
+      "TrsProj_SetPsxTrans__FP8coorddef",
+      "TrsProj_SetPsxTransZero__Fv",
+      "TrsProj_TransPt__FP8coorddefT0",
+      "TrsProj_TransPtN16__FP10RelCoord16P8coorddefi",
+      "TrsProj_TransformProjectVertex__FP10matrixtdefP8coorddefiT1P12Draw_tVertex"
+    ]
+  },
+  "owning_tu_gate": {
+    "source": "recon/game/psx/trsproj.cpp",
+    "command": [
+      "C:\\Python314\\python.exe",
+      "tools/tugate.py",
+      "recon/game/psx/trsproj.cpp"
+    ],
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/psx/trsproj.cpp: 11/11 PASS\n",
+    "stderr": "",
+    "object_sha256": "d5cf0c5b47a94349cface08e1ba5a4d330f92679265215c7dfb5af9454b57afe",
+    "actual_function_symbols": [
+      "TrsProj_SetTransPrecision__Fi",
+      "TrsProj_ResetTransPrecision__Fv",
+      "TrsProj_SetProjection__Fiiii",
+      "TrsProj_SetMenuProjection__Fiiii",
+      "TrsProj_SetViewTrsProjEnviro__FP13DRender_tView",
+      "TrsProj_SetPsxMatrix__FP10matrixtdefP8coorddef",
+      "TrsProj_SetPsxTrans__FP8coorddef",
+      "TrsProj_SetPsxTransZero__Fv",
+      "TrsProj_TransPt__FP8coorddefT0",
+      "TrsProj_TransPtN16__FP10RelCoord16P8coorddefi",
+      "TrsProj_TransformProjectVertex__FP10matrixtdefP8coorddefiT1P12Draw_tVertex"
+    ],
+    "local_function_symbols": []
+  },
+  "consumer_census": {
+    "files_scanned": 1677,
+    "literal_users": [],
+    "dynamic_includes": []
+  },
+  "unresolved": [],
+  "prototype_receipts": [
+    {
+      "header": "recon/game/psx/trsproj.h",
+      "line": 6,
+      "encoded": "TrsProj_SetTransPrecision__Fi",
+      "name": "TrsProj_SetTransPrecision",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void TrsProj_SetTransPrecision__Fi(int val);   /* :29 */",
+      "header_return": "void",
+      "header_signature": "(int val)",
+      "native": [
+        {
+          "record": "47f303",
+          "va": "800e192c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "TrsProj_SetTransPrecision",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\trsproj.cpp",
+          "line": 18,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int val)",
+          "end": 23,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int val)",
+      "final_prototype": "void TrsProj_SetTransPrecision(int val);   /* SYM 47f303 @0x800e192c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "TrsProj_SetTransPrecision__Fi__Fi",
+      "after_emitted_reference": "TrsProj_SetTransPrecision__Fi",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/trsproj.h",
+      "line": 7,
+      "encoded": "TrsProj_ResetTransPrecision__Fv",
+      "name": "TrsProj_ResetTransPrecision",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void TrsProj_ResetTransPrecision__Fv(void);   /* :41 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "47f32e",
+          "va": "800e1938",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "TrsProj_ResetTransPrecision",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\trsproj.cpp",
+          "line": 26,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 31,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void TrsProj_ResetTransPrecision(void);   /* SYM 47f32e @0x800e1938 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "TrsProj_ResetTransPrecision__Fv__Fv",
+      "after_emitted_reference": "TrsProj_ResetTransPrecision__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/trsproj.h",
+      "line": 8,
+      "encoded": "TrsProj_SetProjection__Fiiii",
+      "name": "TrsProj_SetProjection",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void TrsProj_SetProjection__Fiiii(int cx, int cy, int w, int h);   /* :52 */",
+      "header_return": "void",
+      "header_signature": "(int cx, int cy, int w, int h)",
+      "native": [
+        {
+          "record": "47f35b",
+          "va": "800e1948",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "TrsProj_SetProjection",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\trsproj.cpp",
+          "line": 34,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int cx,int cy,int w,int h)",
+          "end": 41,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int cx,int cy,int w,int h)",
+      "final_prototype": "void TrsProj_SetProjection(int cx,int cy,int w,int h);   /* SYM 47f35b @0x800e1948 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "TrsProj_SetProjection__Fiiii__Fiiii",
+      "after_emitted_reference": "TrsProj_SetProjection__Fiiii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/trsproj.h",
+      "line": 9,
+      "encoded": "TrsProj_SetMenuProjection__Fiiii",
+      "name": "TrsProj_SetMenuProjection",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void TrsProj_SetMenuProjection__Fiiii(int cx, int cy, int w, int h);   /* :67 */",
+      "header_return": "void",
+      "header_signature": "(int cx, int cy, int w, int h)",
+      "native": [
+        {
+          "record": "47f385",
+          "va": "800e19c8",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "TrsProj_SetMenuProjection",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\trsproj.cpp",
+          "line": 44,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int cx,int cy,int w,int h)",
+          "end": 48,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int cx,int cy,int w,int h)",
+      "final_prototype": "void TrsProj_SetMenuProjection(int cx,int cy,int w,int h);   /* SYM 47f385 @0x800e19c8 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "TrsProj_SetMenuProjection__Fiiii__Fiiii",
+      "after_emitted_reference": "TrsProj_SetMenuProjection__Fiiii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/trsproj.h",
+      "line": 10,
+      "encoded": "TrsProj_SetViewTrsProjEnviro__FP13DRender_tView",
+      "name": "TrsProj_SetViewTrsProjEnviro",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void TrsProj_SetViewTrsProjEnviro__FP13DRender_tView(DRender_tView *Vi);   /* :76 */",
+      "header_return": "void",
+      "header_signature": "(DRender_tView *Vi)",
+      "native": [
+        {
+          "record": "47f3b3",
+          "va": "800e1a08",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "TrsProj_SetViewTrsProjEnviro",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\trsproj.cpp",
+          "line": 51,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(DRender_tView * Vi)",
+          "end": 61,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(DRender_tView * Vi)",
+      "final_prototype": "void TrsProj_SetViewTrsProjEnviro(DRender_tView * Vi);   /* SYM 47f3b3 @0x800e1a08 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "TrsProj_SetViewTrsProjEnviro__FP13DRender_tView__FP13DRender_tView",
+      "after_emitted_reference": "TrsProj_SetViewTrsProjEnviro__FP13DRender_tView",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/trsproj.h",
+      "line": 11,
+      "encoded": "TrsProj_SetPsxMatrix__FP10matrixtdefP8coorddef",
+      "name": "TrsProj_SetPsxMatrix",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void TrsProj_SetPsxMatrix__FP10matrixtdefP8coorddef(matrixtdef *m, coorddef *t);   /* :137 */",
+      "header_return": "void",
+      "header_signature": "(matrixtdef *m, coorddef *t)",
+      "native": [
+        {
+          "record": "47f3f0",
+          "va": "800e1a5c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "TrsProj_SetPsxMatrix",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\trsproj.cpp",
+          "line": 74,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(matrixtdef * m,coorddef * t)",
+          "end": 94,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(matrixtdef * m,coorddef * t)",
+      "final_prototype": "void TrsProj_SetPsxMatrix(matrixtdef * m,coorddef * t);   /* SYM 47f3f0 @0x800e1a5c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "TrsProj_SetPsxMatrix__FP10matrixtdefP8coorddef__FP10matrixtdefP8coorddef",
+      "after_emitted_reference": "TrsProj_SetPsxMatrix__FP10matrixtdefP8coorddef",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/trsproj.h",
+      "line": 12,
+      "encoded": "TrsProj_SetPsxTrans__FP8coorddef",
+      "name": "TrsProj_SetPsxTrans",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void TrsProj_SetPsxTrans__FP8coorddef(coorddef *t);   /* :157 */",
+      "header_return": "void",
+      "header_signature": "(coorddef *t)",
+      "native": [
+        {
+          "record": "47f42c",
+          "va": "800e1b4c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "TrsProj_SetPsxTrans",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\trsproj.cpp",
+          "line": 99,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(coorddef * t)",
+          "end": 107,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(coorddef * t)",
+      "final_prototype": "void TrsProj_SetPsxTrans(coorddef * t);   /* SYM 47f42c @0x800e1b4c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "TrsProj_SetPsxTrans__FP8coorddef__FP8coorddef",
+      "after_emitted_reference": "TrsProj_SetPsxTrans__FP8coorddef",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/trsproj.h",
+      "line": 13,
+      "encoded": "TrsProj_SetPsxTransZero__Fv",
+      "name": "TrsProj_SetPsxTransZero",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void TrsProj_SetPsxTransZero__Fv(void);   /* :168 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "47f45a",
+          "va": "800e1b9c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "TrsProj_SetPsxTransZero",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\trsproj.cpp",
+          "line": 110,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 118,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void TrsProj_SetPsxTransZero(void);   /* SYM 47f45a @0x800e1b9c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "TrsProj_SetPsxTransZero__Fv__Fv",
+      "after_emitted_reference": "TrsProj_SetPsxTransZero__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/trsproj.h",
+      "line": 14,
+      "encoded": "TrsProj_TransPt__FP8coorddefT0",
+      "name": "TrsProj_TransPt",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void TrsProj_TransPt__FP8coorddefT0(coorddef *s, coorddef *d);   /* :177 */",
+      "header_return": "void",
+      "header_signature": "(coorddef *s, coorddef *d)",
+      "native": [
+        {
+          "record": "47f483",
+          "va": "800e1bcc",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "TrsProj_TransPt",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\trsproj.cpp",
+          "line": 121,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(coorddef * s,coorddef * d)",
+          "end": 135,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(coorddef * s,coorddef * d)",
+      "final_prototype": "void TrsProj_TransPt(coorddef * s,coorddef * d);   /* SYM 47f483 @0x800e1bcc */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "TrsProj_TransPt__FP8coorddefT0__FP8coorddefT0",
+      "after_emitted_reference": "TrsProj_TransPt__FP8coorddefT0",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/trsproj.h",
+      "line": 15,
+      "encoded": "TrsProj_TransPtN16__FP10RelCoord16P8coorddefi",
+      "name": "TrsProj_TransPtN16",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void TrsProj_TransPtN16__FP10RelCoord16P8coorddefi(RelCoord16 *s, coorddef *d, int n);   /* :224 */",
+      "header_return": "void",
+      "header_signature": "(RelCoord16 *s, coorddef *d, int n)",
+      "native": [
+        {
+          "record": "47f4af",
+          "va": "800e1c58",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "TrsProj_TransPtN16",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\trsproj.cpp",
+          "line": 138,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(RelCoord16 * s,coorddef * d,int n)",
+          "end": 156,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(RelCoord16 * s,coorddef * d,int n)",
+      "final_prototype": "void TrsProj_TransPtN16(RelCoord16 * s,coorddef * d,int n);   /* SYM 47f4af @0x800e1c58 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "TrsProj_TransPtN16__FP10RelCoord16P8coorddefi__FP10RelCoord16P8coorddefi",
+      "after_emitted_reference": "TrsProj_TransPtN16__FP10RelCoord16P8coorddefi",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/trsproj.h",
+      "line": 16,
+      "encoded": "TrsProj_TransformProjectVertex__FP10matrixtdefP8coorddefiT1P12Draw_tVertex",
+      "name": "TrsProj_TransformProjectVertex",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void TrsProj_TransformProjectVertex__FP10matrixtdefP8coorddefiT1P12Draw_tVertex(matrixtdef *m, coorddef *t, int n, coorddef *s, Draw_tVertex *v);   /* :250 */",
+      "header_return": "void",
+      "header_signature": "(matrixtdef *m, coorddef *t, int n, coorddef *s, Draw_tVertex *v)",
+      "native": [
+        {
+          "record": "47f4ea",
+          "va": "800e1ce0",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "TrsProj_TransformProjectVertex",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\trsproj.cpp",
+          "line": 167,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(matrixtdef * m,coorddef * t,int n,coorddef * s,Draw_tVertex * v)",
+          "end": 181,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(matrixtdef * m,coorddef * t,int n,coorddef * s,Draw_tVertex * v)",
+      "final_prototype": "void TrsProj_TransformProjectVertex(matrixtdef * m,coorddef * t,int n,coorddef * s,Draw_tVertex * v);   /* SYM 47f4ea @0x800e1ce0 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "TrsProj_TransformProjectVertex__FP10matrixtdefP8coorddefiT1P12Draw_tVertex__FP10matrixtdefP8coorddefiT1P12Draw_tVertex",
+      "after_emitted_reference": "TrsProj_TransformProjectVertex__FP10matrixtdefP8coorddefiT1P12Draw_tVertex",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    }
+  ]
+}

@@ -1,0 +1,1891 @@
+{
+  "round": "P875",
+  "header": "recon/game/psx/draww.h",
+  "source_authority": "C:/Temp/nfs4-clean/nfs4-f-v3.txt",
+  "scope": "Free-function public prototype rows from P874 inventory only; not an all-record or all-project source restoration claim.",
+  "counts": {
+    "inventory_candidates": 35,
+    "corrected_public": 35,
+    "removed_file_static": 0,
+    "before_native_references": 0,
+    "after_native_references": 35,
+    "return_type_corrections": 1,
+    "header_compile_failures": 0,
+    "unresolved_header_candidates": 0,
+    "preexisting_compiler_warning_count": 1
+  },
+  "before_actual_header_compile": {
+    "header": "recon/game/psx/draww.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\draww_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\draww_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\draww_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\draww_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\draww_before.s"
+      ]
+    ],
+    "header_sha256": "85782d298306e8d40551287acc7b7a9b6dc692d9f66ad51829bdb4a2a17b614c",
+    "references": {
+      "0": "DrawW_AddSubdividPrimGT4__FP8POLY_GT4P12Draw_SVertexN31P25Draw_tGiveShelbyMoreCache__FP8POLY_GT4P12Draw_SVertexN31P25Draw_tGiveShelbyMoreCache",
+      "1": "DrawW_AddSubdividPrimGT3__FP8POLY_GT3P12Draw_SVertexN21P25Draw_tGiveShelbyMoreCache__FP8POLY_GT3P12Draw_SVertexN21P25Draw_tGiveShelbyMoreCache",
+      "2": "DrawW_DivVertice__FP12Draw_SVertexN20__FP12Draw_SVertexN20",
+      "3": "DrawW_CalcSubdivision__FP25Draw_tGiveShelbyMoreCacheP12Draw_SVertexN31__FP25Draw_tGiveShelbyMoreCacheP12Draw_SVertexN31",
+      "4": "DrawW_SubdividFacet__FP25Draw_tGiveShelbyMoreCacheiP12Draw_SVertexN32ss__FP25Draw_tGiveShelbyMoreCacheiP12Draw_SVertexN32ii",
+      "5": "DrawW_LoadPrecVECTOR__FP12Draw_SVertexP6VECTOR__FP12Draw_SVertexP6VECTOR",
+      "6": "DrawW_SetUpSubdividFacet__FiP25Draw_tGiveShelbyMoreCache__FiP25Draw_tGiveShelbyMoreCache",
+      "7": "Night_NightCopCalc__FP6VECTORPs__FP6VECTORPs",
+      "8": "Night_NightCalc__FP6VECTORPsP25Draw_tGiveShelbyMoreCache__FP6VECTORPsP25Draw_tGiveShelbyMoreCache",
+      "9": "DrawW_NightColorCalc__FP25Draw_tGiveShelbyMoreCacheP8POLY_GT4P8CCOORD16N32__FP25Draw_tGiveShelbyMoreCacheP8POLY_GT4P8CCOORD16N32",
+      "10": "DrawW_DrawQuad__FP25Draw_tGiveShelbyMoreCacheP8Trk_Quad__FP25Draw_tGiveShelbyMoreCacheP8Trk_Quad",
+      "11": "DrawW_kCtrlWorld_High__FP25Draw_tGiveShelbyMoreCache__FP25Draw_tGiveShelbyMoreCache",
+      "12": "DrawW_StripDraw_High__FP25Draw_tGiveShelbyMoreCache__FP25Draw_tGiveShelbyMoreCache",
+      "13": "DrawW_DoTrough__FP13DRender_tViewP11tBuildEntry__FP13DRender_tViewP11tBuildEntry",
+      "14": "DrawW_WorldSetUpMatrix__FP10matrixtdefP6MATRIX__FP10matrixtdefP6MATRIX",
+      "15": "DrawW_WorldSetUpTranslation__FP8coorddefP6MATRIX__FP8coorddefP6MATRIX",
+      "16": "DrawW_ResetAnimationTimer__Fv__Fv",
+      "17": "DrawW_GetAnimationTime__FP15Trk_AnimateInst__FP15Trk_AnimateInst",
+      "18": "DrawW_SetAnimationTime__FP15Trk_AnimateInstPii__FP15Trk_AnimateInstPii",
+      "19": "DrawW_DoObjectAnimations__Fv__Fv",
+      "20": "DrawW_BuildObjectFacets__FP13DRender_tViewP15ChunkObjectInfo__FP13DRender_tViewP15ChunkObjectInfo",
+      "21": "DrawW_BuildCustomObjectFacets__FP13DRender_tViewP11Draw_DCacheP13Trk_SimObjectP5Groupi__FP13DRender_tViewP11Draw_DCacheP13Trk_SimObjectP5Groupi",
+      "22": "DrawObjectTransform__FP13DRender_tViewP11Draw_DCacheP10matrixtdefP13Trk_ObjectDefP8coorddefis__FP13DRender_tViewP11Draw_DCacheP10matrixtdefP13Trk_ObjectDefP8coorddefii",
+      "23": "DrawObjectSimple__FP13DRender_tViewP11Draw_DCacheP13Trk_ObjectDefP8coorddefi__FP13DRender_tViewP11Draw_DCacheP13Trk_ObjectDefP8coorddefi",
+      "24": "DrawW_BuildChunkObjectFacets__FP13DRender_tViewP15ChunkObjectInfo__FP13DRender_tViewP15ChunkObjectInfo",
+      "25": "ObjectClipped__FP13DRender_tViewiP8coorddefP25Draw_tGiveShelbyMoreCache__FP13DRender_tViewiP8coorddefP25Draw_tGiveShelbyMoreCache",
+      "26": "DrawW_DoObjects__FP13DRender_tViewP11tBuildEntry__FP13DRender_tViewP11tBuildEntry",
+      "27": "Draw_CircleClip__FP8coorddefT0i__FP8coorddefT0i",
+      "28": "Draw_kCtrlSkidmark__FP18Draw_tCtrlSkidmark__FP18Draw_tCtrlSkidmark",
+      "29": "DrawW_SetUpSubdividFacet_Line__FP25Draw_tGiveShelbyMoreCache__FP25Draw_tGiveShelbyMoreCache",
+      "30": "DrawW_OnyxLinePrim__FP8CCOORD16P8Trk_LineiP25Draw_tGiveShelbyMoreCache__FP8CCOORD16P8Trk_LineiP25Draw_tGiveShelbyMoreCache",
+      "31": "DrawW_BuildChunkCenterLineFacets__FP5ChunkP5GroupP25Draw_tGiveShelbyMoreCacheP7COORD16__FP5ChunkP5GroupP25Draw_tGiveShelbyMoreCacheP7COORD16",
+      "32": "DrawW_DoLines__FP13DRender_tViewP11tBuildEntryP11Draw_DCache__FP13DRender_tViewP11tBuildEntryP11Draw_DCache",
+      "33": "DrawW_BuildSpikeBelt__FP13DRender_tViewiP11Draw_DCache__FP13DRender_tViewiP11Draw_DCache",
+      "34": "DepthCue_Init__Fv__Fv"
+    },
+    "ok": true,
+    "assembly_sha256": "6b3fef4d6d049ebd97f13c8516e7443e6bacb2b9cca5914dd178ddd02b9ce7d9",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".sdata",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\draww.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "gIdentTemplate",
+      "trk0",
+      "trk4",
+      "goffsets",
+      "DrawW_AddSubdividPrimGT4__FP8POLY_GT4P12Draw_SVertexN31P25Draw_tGiveShelbyMoreCache",
+      "DrawW_AddSubdividPrimGT3__FP8POLY_GT3P12Draw_SVertexN21P25Draw_tGiveShelbyMoreCache",
+      "DrawW_DivVertice__FP12Draw_SVertexN20",
+      "DrawW_CalcSubdivision__FP25Draw_tGiveShelbyMoreCacheP12Draw_SVertexN31",
+      "DrawW_SubdividFacet__FP25Draw_tGiveShelbyMoreCacheiP12Draw_SVertexN32ss",
+      "DrawW_LoadPrecVECTOR__FP12Draw_SVertexP6VECTOR",
+      "DrawW_SetUpSubdividFacet__FiP25Draw_tGiveShelbyMoreCache",
+      "Night_NightCopCalc__FP6VECTORPs",
+      "Night_NightCalc__FP6VECTORPsP25Draw_tGiveShelbyMoreCache",
+      "DrawW_NightColorCalc__FP25Draw_tGiveShelbyMoreCacheP8POLY_GT4P8CCOORD16N32",
+      "DrawW_DrawQuad__FP25Draw_tGiveShelbyMoreCacheP8Trk_Quad",
+      "DrawW_kCtrlWorld_High__FP25Draw_tGiveShelbyMoreCache",
+      "DrawW_StripDraw_High__FP25Draw_tGiveShelbyMoreCache",
+      "DrawW_DoTrough__FP13DRender_tViewP11tBuildEntry",
+      "DrawW_WorldSetUpMatrix__FP10matrixtdefP6MATRIX",
+      "DrawW_WorldSetUpTranslation__FP8coorddefP6MATRIX",
+      "DrawW_ResetAnimationTimer__Fv",
+      "DrawW_GetAnimationTime__FP15Trk_AnimateInst",
+      "DrawW_SetAnimationTime__FP15Trk_AnimateInstPii",
+      "DrawW_DoObjectAnimations__Fv",
+      "DrawW_BuildObjectFacets__FP13DRender_tViewP15ChunkObjectInfo",
+      "offsets.48",
+      "DrawW_BuildCustomObjectFacets__FP13DRender_tViewP11Draw_DCacheP13Trk_SimObjectP5Groupi",
+      "DrawObjectTransform__FP13DRender_tViewP11Draw_DCacheP10matrixtdefP13Trk_ObjectDefP8coorddefis",
+      "DrawObjectSimple__FP13DRender_tViewP11Draw_DCacheP13Trk_ObjectDefP8coorddefi",
+      "DrawW_BuildChunkObjectFacets__FP13DRender_tViewP15ChunkObjectInfo",
+      "ObjectClipped__FP13DRender_tViewiP8coorddefP25Draw_tGiveShelbyMoreCache",
+      "DrawW_DoObjects__FP13DRender_tViewP11tBuildEntry",
+      "Draw_CircleClip__FP8coorddefT0i",
+      "Draw_kCtrlSkidmark__FP18Draw_tCtrlSkidmark",
+      "DrawW_SetUpSubdividFacet_Line__FP25Draw_tGiveShelbyMoreCache",
+      "DrawW_OnyxLinePrim__FP8CCOORD16P8Trk_LineiP25Draw_tGiveShelbyMoreCache",
+      "DrawW_BuildChunkCenterLineFacets__FP5ChunkP5GroupP25Draw_tGiveShelbyMoreCacheP7COORD16",
+      "DrawW_DoLines__FP13DRender_tViewP11tBuildEntryP11Draw_DCache",
+      "DrawW_BuildSpikeBelt__FP13DRender_tViewiP11Draw_DCache",
+      "DepthCue_Init__Fv",
+      "gDiv",
+      "animation_timer",
+      "gChunkObjInfo",
+      "gVertex3d",
+      "stackSpeedUpEnbabledFlag",
+      "gWSavePtr",
+      "gSD_gt4counter",
+      "gSD_gt3counter",
+      "gVi"
+    ]
+  },
+  "before_frozen_replay": {
+    "header": "recon/game/psx/draww.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\draww_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\draww_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\draww_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\draww_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\draww_before.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\draww_before.cpp:2:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "22ef4151c0b0fb4438fc1ece2d83a5e5002c373e368063cbece3476af7acfa0c",
+    "input_mode": "frozen-original-prototype-surface",
+    "references": {
+      "0": "DrawW_AddSubdividPrimGT4__FP8POLY_GT4P12Draw_SVertexN31P25Draw_tGiveShelbyMoreCache__FP8POLY_GT4P12Draw_SVertexN31P25Draw_tGiveShelbyMoreCache",
+      "1": "DrawW_AddSubdividPrimGT3__FP8POLY_GT3P12Draw_SVertexN21P25Draw_tGiveShelbyMoreCache__FP8POLY_GT3P12Draw_SVertexN21P25Draw_tGiveShelbyMoreCache",
+      "2": "DrawW_DivVertice__FP12Draw_SVertexN20__FP12Draw_SVertexN20",
+      "3": "DrawW_CalcSubdivision__FP25Draw_tGiveShelbyMoreCacheP12Draw_SVertexN31__FP25Draw_tGiveShelbyMoreCacheP12Draw_SVertexN31",
+      "4": "DrawW_SubdividFacet__FP25Draw_tGiveShelbyMoreCacheiP12Draw_SVertexN32ss__FP25Draw_tGiveShelbyMoreCacheiP12Draw_SVertexN32ii",
+      "5": "DrawW_LoadPrecVECTOR__FP12Draw_SVertexP6VECTOR__FP12Draw_SVertexP6VECTOR",
+      "6": "DrawW_SetUpSubdividFacet__FiP25Draw_tGiveShelbyMoreCache__FiP25Draw_tGiveShelbyMoreCache",
+      "7": "Night_NightCopCalc__FP6VECTORPs__FP6VECTORPs",
+      "8": "Night_NightCalc__FP6VECTORPsP25Draw_tGiveShelbyMoreCache__FP6VECTORPsP25Draw_tGiveShelbyMoreCache",
+      "9": "DrawW_NightColorCalc__FP25Draw_tGiveShelbyMoreCacheP8POLY_GT4P8CCOORD16N32__FP25Draw_tGiveShelbyMoreCacheP8POLY_GT4P8CCOORD16N32",
+      "10": "DrawW_DrawQuad__FP25Draw_tGiveShelbyMoreCacheP8Trk_Quad__FP25Draw_tGiveShelbyMoreCacheP8Trk_Quad",
+      "11": "DrawW_kCtrlWorld_High__FP25Draw_tGiveShelbyMoreCache__FP25Draw_tGiveShelbyMoreCache",
+      "12": "DrawW_StripDraw_High__FP25Draw_tGiveShelbyMoreCache__FP25Draw_tGiveShelbyMoreCache",
+      "13": "DrawW_DoTrough__FP13DRender_tViewP11tBuildEntry__FP13DRender_tViewP11tBuildEntry",
+      "14": "DrawW_WorldSetUpMatrix__FP10matrixtdefP6MATRIX__FP10matrixtdefP6MATRIX",
+      "15": "DrawW_WorldSetUpTranslation__FP8coorddefP6MATRIX__FP8coorddefP6MATRIX",
+      "16": "DrawW_ResetAnimationTimer__Fv__Fv",
+      "17": "DrawW_GetAnimationTime__FP15Trk_AnimateInst__FP15Trk_AnimateInst",
+      "18": "DrawW_SetAnimationTime__FP15Trk_AnimateInstPii__FP15Trk_AnimateInstPii",
+      "19": "DrawW_DoObjectAnimations__Fv__Fv",
+      "20": "DrawW_BuildObjectFacets__FP13DRender_tViewP15ChunkObjectInfo__FP13DRender_tViewP15ChunkObjectInfo",
+      "21": "DrawW_BuildCustomObjectFacets__FP13DRender_tViewP11Draw_DCacheP13Trk_SimObjectP5Groupi__FP13DRender_tViewP11Draw_DCacheP13Trk_SimObjectP5Groupi",
+      "22": "DrawObjectTransform__FP13DRender_tViewP11Draw_DCacheP10matrixtdefP13Trk_ObjectDefP8coorddefis__FP13DRender_tViewP11Draw_DCacheP10matrixtdefP13Trk_ObjectDefP8coorddefii",
+      "23": "DrawObjectSimple__FP13DRender_tViewP11Draw_DCacheP13Trk_ObjectDefP8coorddefi__FP13DRender_tViewP11Draw_DCacheP13Trk_ObjectDefP8coorddefi",
+      "24": "DrawW_BuildChunkObjectFacets__FP13DRender_tViewP15ChunkObjectInfo__FP13DRender_tViewP15ChunkObjectInfo",
+      "25": "ObjectClipped__FP13DRender_tViewiP8coorddefP25Draw_tGiveShelbyMoreCache__FP13DRender_tViewiP8coorddefP25Draw_tGiveShelbyMoreCache",
+      "26": "DrawW_DoObjects__FP13DRender_tViewP11tBuildEntry__FP13DRender_tViewP11tBuildEntry",
+      "27": "Draw_CircleClip__FP8coorddefT0i__FP8coorddefT0i",
+      "28": "Draw_kCtrlSkidmark__FP18Draw_tCtrlSkidmark__FP18Draw_tCtrlSkidmark",
+      "29": "DrawW_SetUpSubdividFacet_Line__FP25Draw_tGiveShelbyMoreCache__FP25Draw_tGiveShelbyMoreCache",
+      "30": "DrawW_OnyxLinePrim__FP8CCOORD16P8Trk_LineiP25Draw_tGiveShelbyMoreCache__FP8CCOORD16P8Trk_LineiP25Draw_tGiveShelbyMoreCache",
+      "31": "DrawW_BuildChunkCenterLineFacets__FP5ChunkP5GroupP25Draw_tGiveShelbyMoreCacheP7COORD16__FP5ChunkP5GroupP25Draw_tGiveShelbyMoreCacheP7COORD16",
+      "32": "DrawW_DoLines__FP13DRender_tViewP11tBuildEntryP11Draw_DCache__FP13DRender_tViewP11tBuildEntryP11Draw_DCache",
+      "33": "DrawW_BuildSpikeBelt__FP13DRender_tViewiP11Draw_DCache__FP13DRender_tViewiP11Draw_DCache",
+      "34": "DepthCue_Init__Fv__Fv"
+    },
+    "ok": true,
+    "assembly_sha256": "6b3fef4d6d049ebd97f13c8516e7443e6bacb2b9cca5914dd178ddd02b9ce7d9"
+  },
+  "after_actual_header_compile": {
+    "header": "recon/game/psx/draww.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\draww_after.cpp",
+    "stage": "after",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\draww_after.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\draww_after.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\draww_after.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\draww_after.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:/Temp/nfs4-decomp/recon/game/psx/draww.h:4,\n                 from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\draww_after.cpp:1:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "e643922eac2ef74a6156ec17a875ff68243dd51e4d6d85a368c552422467437b",
+    "input_mode": "live-public-header",
+    "header_sha256": "157e86fd6266df92bb44adb10da5c248062f9280d7ecfdbfa580f2aae3298e38",
+    "references": {
+      "0": "DrawW_AddSubdividPrimGT4__FP8POLY_GT4P12Draw_SVertexN31P25Draw_tGiveShelbyMoreCache",
+      "1": "DrawW_AddSubdividPrimGT3__FP8POLY_GT3P12Draw_SVertexN21P25Draw_tGiveShelbyMoreCache",
+      "2": "DrawW_DivVertice__FP12Draw_SVertexN20",
+      "3": "DrawW_CalcSubdivision__FP25Draw_tGiveShelbyMoreCacheP12Draw_SVertexN31",
+      "4": "DrawW_SubdividFacet__FP25Draw_tGiveShelbyMoreCacheiP12Draw_SVertexN32ss",
+      "5": "DrawW_LoadPrecVECTOR__FP12Draw_SVertexP6VECTOR",
+      "6": "DrawW_SetUpSubdividFacet__FiP25Draw_tGiveShelbyMoreCache",
+      "7": "Night_NightCopCalc__FP6VECTORPs",
+      "8": "Night_NightCalc__FP6VECTORPsP25Draw_tGiveShelbyMoreCache",
+      "9": "DrawW_NightColorCalc__FP25Draw_tGiveShelbyMoreCacheP8POLY_GT4P8CCOORD16N32",
+      "10": "DrawW_DrawQuad__FP25Draw_tGiveShelbyMoreCacheP8Trk_Quad",
+      "11": "DrawW_kCtrlWorld_High__FP25Draw_tGiveShelbyMoreCache",
+      "12": "DrawW_StripDraw_High__FP25Draw_tGiveShelbyMoreCache",
+      "13": "DrawW_DoTrough__FP13DRender_tViewP11tBuildEntry",
+      "14": "DrawW_WorldSetUpMatrix__FP10matrixtdefP6MATRIX",
+      "15": "DrawW_WorldSetUpTranslation__FP8coorddefP6MATRIX",
+      "16": "DrawW_ResetAnimationTimer__Fv",
+      "17": "DrawW_GetAnimationTime__FP15Trk_AnimateInst",
+      "18": "DrawW_SetAnimationTime__FP15Trk_AnimateInstPii",
+      "19": "DrawW_DoObjectAnimations__Fv",
+      "20": "DrawW_BuildObjectFacets__FP13DRender_tViewP15ChunkObjectInfo",
+      "21": "DrawW_BuildCustomObjectFacets__FP13DRender_tViewP11Draw_DCacheP13Trk_SimObjectP5Groupi",
+      "22": "DrawObjectTransform__FP13DRender_tViewP11Draw_DCacheP10matrixtdefP13Trk_ObjectDefP8coorddefis",
+      "23": "DrawObjectSimple__FP13DRender_tViewP11Draw_DCacheP13Trk_ObjectDefP8coorddefi",
+      "24": "DrawW_BuildChunkObjectFacets__FP13DRender_tViewP15ChunkObjectInfo",
+      "25": "ObjectClipped__FP13DRender_tViewiP8coorddefP25Draw_tGiveShelbyMoreCache",
+      "26": "DrawW_DoObjects__FP13DRender_tViewP11tBuildEntry",
+      "27": "Draw_CircleClip__FP8coorddefT0i",
+      "28": "Draw_kCtrlSkidmark__FP18Draw_tCtrlSkidmark",
+      "29": "DrawW_SetUpSubdividFacet_Line__FP25Draw_tGiveShelbyMoreCache",
+      "30": "DrawW_OnyxLinePrim__FP8CCOORD16P8Trk_LineiP25Draw_tGiveShelbyMoreCache",
+      "31": "DrawW_BuildChunkCenterLineFacets__FP5ChunkP5GroupP25Draw_tGiveShelbyMoreCacheP7COORD16",
+      "32": "DrawW_DoLines__FP13DRender_tViewP11tBuildEntryP11Draw_DCache",
+      "33": "DrawW_BuildSpikeBelt__FP13DRender_tViewiP11Draw_DCache",
+      "34": "DepthCue_Init__Fv"
+    },
+    "ok": true,
+    "assembly_sha256": "604a93910fb5d9bfd5135d42fd75f725295d3217254eba5f0bb44ebb1e80ac13",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".sdata",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\draww.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "gIdentTemplate",
+      "trk0",
+      "trk4",
+      "goffsets",
+      "DrawW_AddSubdividPrimGT4__FP8POLY_GT4P12Draw_SVertexN31P25Draw_tGiveShelbyMoreCache",
+      "DrawW_AddSubdividPrimGT3__FP8POLY_GT3P12Draw_SVertexN21P25Draw_tGiveShelbyMoreCache",
+      "DrawW_DivVertice__FP12Draw_SVertexN20",
+      "DrawW_CalcSubdivision__FP25Draw_tGiveShelbyMoreCacheP12Draw_SVertexN31",
+      "DrawW_SubdividFacet__FP25Draw_tGiveShelbyMoreCacheiP12Draw_SVertexN32ss",
+      "DrawW_LoadPrecVECTOR__FP12Draw_SVertexP6VECTOR",
+      "DrawW_SetUpSubdividFacet__FiP25Draw_tGiveShelbyMoreCache",
+      "Night_NightCopCalc__FP6VECTORPs",
+      "Night_NightCalc__FP6VECTORPsP25Draw_tGiveShelbyMoreCache",
+      "DrawW_NightColorCalc__FP25Draw_tGiveShelbyMoreCacheP8POLY_GT4P8CCOORD16N32",
+      "DrawW_DrawQuad__FP25Draw_tGiveShelbyMoreCacheP8Trk_Quad",
+      "DrawW_kCtrlWorld_High__FP25Draw_tGiveShelbyMoreCache",
+      "DrawW_StripDraw_High__FP25Draw_tGiveShelbyMoreCache",
+      "DrawW_DoTrough__FP13DRender_tViewP11tBuildEntry",
+      "DrawW_WorldSetUpMatrix__FP10matrixtdefP6MATRIX",
+      "DrawW_WorldSetUpTranslation__FP8coorddefP6MATRIX",
+      "DrawW_ResetAnimationTimer__Fv",
+      "DrawW_GetAnimationTime__FP15Trk_AnimateInst",
+      "DrawW_SetAnimationTime__FP15Trk_AnimateInstPii",
+      "DrawW_DoObjectAnimations__Fv",
+      "DrawW_BuildObjectFacets__FP13DRender_tViewP15ChunkObjectInfo",
+      "offsets.48",
+      "DrawW_BuildCustomObjectFacets__FP13DRender_tViewP11Draw_DCacheP13Trk_SimObjectP5Groupi",
+      "DrawObjectTransform__FP13DRender_tViewP11Draw_DCacheP10matrixtdefP13Trk_ObjectDefP8coorddefis",
+      "DrawObjectSimple__FP13DRender_tViewP11Draw_DCacheP13Trk_ObjectDefP8coorddefi",
+      "DrawW_BuildChunkObjectFacets__FP13DRender_tViewP15ChunkObjectInfo",
+      "ObjectClipped__FP13DRender_tViewiP8coorddefP25Draw_tGiveShelbyMoreCache",
+      "DrawW_DoObjects__FP13DRender_tViewP11tBuildEntry",
+      "Draw_CircleClip__FP8coorddefT0i",
+      "Draw_kCtrlSkidmark__FP18Draw_tCtrlSkidmark",
+      "DrawW_SetUpSubdividFacet_Line__FP25Draw_tGiveShelbyMoreCache",
+      "DrawW_OnyxLinePrim__FP8CCOORD16P8Trk_LineiP25Draw_tGiveShelbyMoreCache",
+      "DrawW_BuildChunkCenterLineFacets__FP5ChunkP5GroupP25Draw_tGiveShelbyMoreCacheP7COORD16",
+      "DrawW_DoLines__FP13DRender_tViewP11tBuildEntryP11Draw_DCache",
+      "DrawW_BuildSpikeBelt__FP13DRender_tViewiP11Draw_DCache",
+      "DepthCue_Init__Fv",
+      "gDiv",
+      "animation_timer",
+      "gChunkObjInfo",
+      "gVertex3d",
+      "stackSpeedUpEnbabledFlag",
+      "gWSavePtr",
+      "gSD_gt4counter",
+      "gSD_gt3counter",
+      "gVi"
+    ]
+  },
+  "owning_tu_gate": {
+    "source": "recon/game/psx/draww.cpp",
+    "command": [
+      "C:\\Python314\\python.exe",
+      "tools/tugate.py",
+      "recon/game/psx/draww.cpp"
+    ],
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/psx/draww.cpp: 35/35 PASS\n",
+    "stderr": "",
+    "object_sha256": "2ad40d57ca6c33891f3297d9ca61f42468c6495f012c3d1b9511ebd399beaa94",
+    "actual_function_symbols": [
+      "DrawW_AddSubdividPrimGT4__FP8POLY_GT4P12Draw_SVertexN31P25Draw_tGiveShelbyMoreCache",
+      "DrawW_AddSubdividPrimGT3__FP8POLY_GT3P12Draw_SVertexN21P25Draw_tGiveShelbyMoreCache",
+      "DrawW_DivVertice__FP12Draw_SVertexN20",
+      "DrawW_CalcSubdivision__FP25Draw_tGiveShelbyMoreCacheP12Draw_SVertexN31",
+      "DrawW_SubdividFacet__FP25Draw_tGiveShelbyMoreCacheiP12Draw_SVertexN32ss",
+      "DrawW_LoadPrecVECTOR__FP12Draw_SVertexP6VECTOR",
+      "DrawW_SetUpSubdividFacet__FiP25Draw_tGiveShelbyMoreCache",
+      "Night_NightCopCalc__FP6VECTORPs",
+      "Night_NightCalc__FP6VECTORPsP25Draw_tGiveShelbyMoreCache",
+      "DrawW_NightColorCalc__FP25Draw_tGiveShelbyMoreCacheP8POLY_GT4P8CCOORD16N32",
+      "DrawW_DrawQuad__FP25Draw_tGiveShelbyMoreCacheP8Trk_Quad",
+      "DrawW_kCtrlWorld_High__FP25Draw_tGiveShelbyMoreCache",
+      "DrawW_StripDraw_High__FP25Draw_tGiveShelbyMoreCache",
+      "DrawW_DoTrough__FP13DRender_tViewP11tBuildEntry",
+      "DrawW_WorldSetUpMatrix__FP10matrixtdefP6MATRIX",
+      "DrawW_WorldSetUpTranslation__FP8coorddefP6MATRIX",
+      "DrawW_ResetAnimationTimer__Fv",
+      "DrawW_GetAnimationTime__FP15Trk_AnimateInst",
+      "DrawW_SetAnimationTime__FP15Trk_AnimateInstPii",
+      "DrawW_DoObjectAnimations__Fv",
+      "DrawW_BuildObjectFacets__FP13DRender_tViewP15ChunkObjectInfo",
+      "DrawW_BuildCustomObjectFacets__FP13DRender_tViewP11Draw_DCacheP13Trk_SimObjectP5Groupi",
+      "DrawObjectTransform__FP13DRender_tViewP11Draw_DCacheP10matrixtdefP13Trk_ObjectDefP8coorddefis",
+      "DrawObjectSimple__FP13DRender_tViewP11Draw_DCacheP13Trk_ObjectDefP8coorddefi",
+      "DrawW_BuildChunkObjectFacets__FP13DRender_tViewP15ChunkObjectInfo",
+      "ObjectClipped__FP13DRender_tViewiP8coorddefP25Draw_tGiveShelbyMoreCache",
+      "DrawW_DoObjects__FP13DRender_tViewP11tBuildEntry",
+      "Draw_CircleClip__FP8coorddefT0i",
+      "Draw_kCtrlSkidmark__FP18Draw_tCtrlSkidmark",
+      "DrawW_SetUpSubdividFacet_Line__FP25Draw_tGiveShelbyMoreCache",
+      "DrawW_OnyxLinePrim__FP8CCOORD16P8Trk_LineiP25Draw_tGiveShelbyMoreCache",
+      "DrawW_BuildChunkCenterLineFacets__FP5ChunkP5GroupP25Draw_tGiveShelbyMoreCacheP7COORD16",
+      "DrawW_DoLines__FP13DRender_tViewP11tBuildEntryP11Draw_DCache",
+      "DrawW_BuildSpikeBelt__FP13DRender_tViewiP11Draw_DCache",
+      "DepthCue_Init__Fv"
+    ],
+    "local_function_symbols": []
+  },
+  "consumer_census": {
+    "files_scanned": 1677,
+    "literal_users": [],
+    "dynamic_includes": []
+  },
+  "unresolved": [],
+  "prototype_receipts": [
+    {
+      "header": "recon/game/psx/draww.h",
+      "line": 6,
+      "encoded": "DrawW_AddSubdividPrimGT4__FP8POLY_GT4P12Draw_SVertexN31P25Draw_tGiveShelbyMoreCache",
+      "name": "DrawW_AddSubdividPrimGT4",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void DrawW_AddSubdividPrimGT4__FP8POLY_GT4P12Draw_SVertexN31P25Draw_tGiveShelbyMoreCache(POLY_GT4 *prim, Draw_SVertex *v0, Draw_SVertex *v1, Draw_SVertex *v2, Draw_SVertex *v3, Draw_tGiveShelbyMoreCache *sd);   /* :235 */",
+      "header_return": "void",
+      "header_signature": "(POLY_GT4 *prim, Draw_SVertex *v0, Draw_SVertex *v1, Draw_SVertex *v2, Draw_SVertex *v3, Draw_tGiveShelbyMoreCache *sd)",
+      "native": [
+        {
+          "record": "3e0aa2",
+          "va": "800c5028",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "DrawW_AddSubdividPrimGT4",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draww.cpp",
+          "line": 345,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(POLY_GT4 * prim,Draw_SVertex * v0,Draw_SVertex * v1,Draw_SVertex * v2,Draw_SVertex * v3,Draw_tGiveShelbyMoreCache * sd)",
+          "end": 372,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(POLY_GT4 * prim,Draw_SVertex * v0,Draw_SVertex * v1,Draw_SVertex * v2,Draw_SVertex * v3,Draw_tGiveShelbyMoreCache * sd)",
+      "final_prototype": "void DrawW_AddSubdividPrimGT4(POLY_GT4 * prim,Draw_SVertex * v0,Draw_SVertex * v1,Draw_SVertex * v2,Draw_SVertex * v3,Draw_tGiveShelbyMoreCache * sd);   /* SYM 3e0aa2 @0x800c5028 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "DrawW_AddSubdividPrimGT4__FP8POLY_GT4P12Draw_SVertexN31P25Draw_tGiveShelbyMoreCache__FP8POLY_GT4P12Draw_SVertexN31P25Draw_tGiveShelbyMoreCache",
+      "after_emitted_reference": "DrawW_AddSubdividPrimGT4__FP8POLY_GT4P12Draw_SVertexN31P25Draw_tGiveShelbyMoreCache",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draww.h",
+      "line": 7,
+      "encoded": "DrawW_AddSubdividPrimGT3__FP8POLY_GT3P12Draw_SVertexN21P25Draw_tGiveShelbyMoreCache",
+      "name": "DrawW_AddSubdividPrimGT3",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void DrawW_AddSubdividPrimGT3__FP8POLY_GT3P12Draw_SVertexN21P25Draw_tGiveShelbyMoreCache(POLY_GT3 *prim, Draw_SVertex *v0, Draw_SVertex *v1, Draw_SVertex *v2, Draw_tGiveShelbyMoreCache *sd);   /* :316 */",
+      "header_return": "void",
+      "header_signature": "(POLY_GT3 *prim, Draw_SVertex *v0, Draw_SVertex *v1, Draw_SVertex *v2, Draw_tGiveShelbyMoreCache *sd)",
+      "native": [
+        {
+          "record": "3e0b03",
+          "va": "800c50b4",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "DrawW_AddSubdividPrimGT3",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draww.cpp",
+          "line": 375,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(POLY_GT3 * prim,Draw_SVertex * v0,Draw_SVertex * v1,Draw_SVertex * v2,Draw_tGiveShelbyMoreCache * sd)",
+          "end": 401,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(POLY_GT3 * prim,Draw_SVertex * v0,Draw_SVertex * v1,Draw_SVertex * v2,Draw_tGiveShelbyMoreCache * sd)",
+      "final_prototype": "void DrawW_AddSubdividPrimGT3(POLY_GT3 * prim,Draw_SVertex * v0,Draw_SVertex * v1,Draw_SVertex * v2,Draw_tGiveShelbyMoreCache * sd);   /* SYM 3e0b03 @0x800c50b4 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "DrawW_AddSubdividPrimGT3__FP8POLY_GT3P12Draw_SVertexN21P25Draw_tGiveShelbyMoreCache__FP8POLY_GT3P12Draw_SVertexN21P25Draw_tGiveShelbyMoreCache",
+      "after_emitted_reference": "DrawW_AddSubdividPrimGT3__FP8POLY_GT3P12Draw_SVertexN21P25Draw_tGiveShelbyMoreCache",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draww.h",
+      "line": 8,
+      "encoded": "DrawW_DivVertice__FP12Draw_SVertexN20",
+      "name": "DrawW_DivVertice",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void DrawW_DivVertice__FP12Draw_SVertexN20(Draw_SVertex *v0, Draw_SVertex *v1, Draw_SVertex *v2);   /* :387 */",
+      "header_return": "void",
+      "header_signature": "(Draw_SVertex *v0, Draw_SVertex *v1, Draw_SVertex *v2)",
+      "native": [
+        {
+          "record": "3e0b64",
+          "va": "800c5124",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "DrawW_DivVertice",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draww.cpp",
+          "line": 404,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(Draw_SVertex * v0,Draw_SVertex * v1,Draw_SVertex * v2)",
+          "end": 416,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(Draw_SVertex * v0,Draw_SVertex * v1,Draw_SVertex * v2)",
+      "final_prototype": "void DrawW_DivVertice(Draw_SVertex * v0,Draw_SVertex * v1,Draw_SVertex * v2);   /* SYM 3e0b64 @0x800c5124 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "DrawW_DivVertice__FP12Draw_SVertexN20__FP12Draw_SVertexN20",
+      "after_emitted_reference": "DrawW_DivVertice__FP12Draw_SVertexN20",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draww.h",
+      "line": 9,
+      "encoded": "DrawW_CalcSubdivision__FP25Draw_tGiveShelbyMoreCacheP12Draw_SVertexN31",
+      "name": "DrawW_CalcSubdivision",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "int DrawW_CalcSubdivision__FP25Draw_tGiveShelbyMoreCacheP12Draw_SVertexN31(Draw_tGiveShelbyMoreCache *sd, Draw_SVertex *v0, Draw_SVertex *v1, Draw_SVertex *v2, Draw_SVertex *v3);   /* :402 */",
+      "header_return": "int",
+      "header_signature": "(Draw_tGiveShelbyMoreCache *sd, Draw_SVertex *v0, Draw_SVertex *v1, Draw_SVertex *v2, Draw_SVertex *v3)",
+      "native": [
+        {
+          "record": "3e0b97",
+          "va": "800c51fc",
+          "linkage": "EXT",
+          "return_type": "int"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "DrawW_CalcSubdivision",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draww.cpp",
+          "line": 419,
+          "typeref": "typename:int",
+          "kind": "function",
+          "signature": "(Draw_tGiveShelbyMoreCache * sd,Draw_SVertex * v0,Draw_SVertex * v1,Draw_SVertex * v2,Draw_SVertex * v3)",
+          "end": 468,
+          "return_type": "int",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "int",
+      "final_signature": "(Draw_tGiveShelbyMoreCache * sd,Draw_SVertex * v0,Draw_SVertex * v1,Draw_SVertex * v2,Draw_SVertex * v3)",
+      "final_prototype": "int DrawW_CalcSubdivision(Draw_tGiveShelbyMoreCache * sd,Draw_SVertex * v0,Draw_SVertex * v1,Draw_SVertex * v2,Draw_SVertex * v3);   /* SYM 3e0b97 @0x800c51fc */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "DrawW_CalcSubdivision__FP25Draw_tGiveShelbyMoreCacheP12Draw_SVertexN31__FP25Draw_tGiveShelbyMoreCacheP12Draw_SVertexN31",
+      "after_emitted_reference": "DrawW_CalcSubdivision__FP25Draw_tGiveShelbyMoreCacheP12Draw_SVertexN31",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draww.h",
+      "line": 10,
+      "encoded": "DrawW_SubdividFacet__FP25Draw_tGiveShelbyMoreCacheiP12Draw_SVertexN32ss",
+      "name": "DrawW_SubdividFacet",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void DrawW_SubdividFacet__FP25Draw_tGiveShelbyMoreCacheiP12Draw_SVertexN32ss(Draw_tGiveShelbyMoreCache *sd, int l, Draw_SVertex *v0, Draw_SVertex *v1, Draw_SVertex *v2, Draw_SVertex *v3, int n, int subDivide);   /* :425 */",
+      "header_return": "void",
+      "header_signature": "(Draw_tGiveShelbyMoreCache *sd, int l, Draw_SVertex *v0, Draw_SVertex *v1, Draw_SVertex *v2, Draw_SVertex *v3, int n, int subDivide)",
+      "native": [
+        {
+          "record": "3e0beb",
+          "va": "800c5284",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "DrawW_SubdividFacet",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draww.cpp",
+          "line": 516,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(Draw_tGiveShelbyMoreCache * sd,int l,Draw_SVertex * v0,Draw_SVertex * v1,Draw_SVertex * v2,Draw_SVertex * v3,short n,short subDivide)",
+          "end": 1041,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(Draw_tGiveShelbyMoreCache * sd,int l,Draw_SVertex * v0,Draw_SVertex * v1,Draw_SVertex * v2,Draw_SVertex * v3,short n,short subDivide)",
+      "final_prototype": "void DrawW_SubdividFacet(Draw_tGiveShelbyMoreCache * sd,int l,Draw_SVertex * v0,Draw_SVertex * v1,Draw_SVertex * v2,Draw_SVertex * v3,short n,short subDivide);   /* SYM 3e0beb @0x800c5284 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "DrawW_SubdividFacet__FP25Draw_tGiveShelbyMoreCacheiP12Draw_SVertexN32ss__FP25Draw_tGiveShelbyMoreCacheiP12Draw_SVertexN32ii",
+      "after_emitted_reference": "DrawW_SubdividFacet__FP25Draw_tGiveShelbyMoreCacheiP12Draw_SVertexN32ss",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draww.h",
+      "line": 11,
+      "encoded": "DrawW_LoadPrecVECTOR__FP12Draw_SVertexP6VECTOR",
+      "name": "DrawW_LoadPrecVECTOR",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void DrawW_LoadPrecVECTOR__FP12Draw_SVertexP6VECTOR(Draw_SVertex *v, VECTOR *dv);   /* :593 */",
+      "header_return": "void",
+      "header_signature": "(Draw_SVertex *v, VECTOR *dv)",
+      "native": [
+        {
+          "record": "3e0c40",
+          "va": "800c5bb4",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "DrawW_LoadPrecVECTOR",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draww.cpp",
+          "line": 1044,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(Draw_SVertex * v,VECTOR * dv)",
+          "end": 1070,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(Draw_SVertex * v,VECTOR * dv)",
+      "final_prototype": "void DrawW_LoadPrecVECTOR(Draw_SVertex * v,VECTOR * dv);   /* SYM 3e0c40 @0x800c5bb4 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "DrawW_LoadPrecVECTOR__FP12Draw_SVertexP6VECTOR__FP12Draw_SVertexP6VECTOR",
+      "after_emitted_reference": "DrawW_LoadPrecVECTOR__FP12Draw_SVertexP6VECTOR",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draww.h",
+      "line": 12,
+      "encoded": "DrawW_SetUpSubdividFacet__FiP25Draw_tGiveShelbyMoreCache",
+      "name": "DrawW_SetUpSubdividFacet",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void DrawW_SetUpSubdividFacet__FiP25Draw_tGiveShelbyMoreCache(int face, Draw_tGiveShelbyMoreCache *sd);   /* :612 */",
+      "header_return": "void",
+      "header_signature": "(int face, Draw_tGiveShelbyMoreCache *sd)",
+      "native": [
+        {
+          "record": "3e0c7c",
+          "va": "800c5be0",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "DrawW_SetUpSubdividFacet",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draww.cpp",
+          "line": 1073,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int face,Draw_tGiveShelbyMoreCache * sd)",
+          "end": 1210,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int face,Draw_tGiveShelbyMoreCache * sd)",
+      "final_prototype": "void DrawW_SetUpSubdividFacet(int face,Draw_tGiveShelbyMoreCache * sd);   /* SYM 3e0c7c @0x800c5be0 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "DrawW_SetUpSubdividFacet__FiP25Draw_tGiveShelbyMoreCache__FiP25Draw_tGiveShelbyMoreCache",
+      "after_emitted_reference": "DrawW_SetUpSubdividFacet__FiP25Draw_tGiveShelbyMoreCache",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draww.h",
+      "line": 13,
+      "encoded": "Night_NightCopCalc__FP6VECTORPs",
+      "name": "Night_NightCopCalc",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Night_NightCopCalc__FP6VECTORPs(VECTOR *v, short *idx);   /* :711 */",
+      "header_return": "void",
+      "header_signature": "(VECTOR *v, short *idx)",
+      "native": [
+        {
+          "record": "3e0cc2",
+          "va": "800c5f18",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Night_NightCopCalc",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draww.cpp",
+          "line": 1213,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(VECTOR * v,short * idx)",
+          "end": 1265,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(VECTOR * v,short * idx)",
+      "final_prototype": "void Night_NightCopCalc(VECTOR * v,short * idx);   /* SYM 3e0cc2 @0x800c5f18 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Night_NightCopCalc__FP6VECTORPs__FP6VECTORPs",
+      "after_emitted_reference": "Night_NightCopCalc__FP6VECTORPs",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draww.h",
+      "line": 14,
+      "encoded": "Night_NightCalc__FP6VECTORPsP25Draw_tGiveShelbyMoreCache",
+      "name": "Night_NightCalc",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Night_NightCalc__FP6VECTORPsP25Draw_tGiveShelbyMoreCache(VECTOR *v, short *idx, Draw_tGiveShelbyMoreCache *sd);   /* :750 */",
+      "header_return": "void",
+      "header_signature": "(VECTOR *v, short *idx, Draw_tGiveShelbyMoreCache *sd)",
+      "native": [
+        {
+          "record": "3e0cef",
+          "va": "800c5fb8",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Night_NightCalc",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draww.cpp",
+          "line": 1268,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(VECTOR * v,short * idx,Draw_tGiveShelbyMoreCache * sd)",
+          "end": 1352,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(VECTOR * v,short * idx,Draw_tGiveShelbyMoreCache * sd)",
+      "final_prototype": "void Night_NightCalc(VECTOR * v,short * idx,Draw_tGiveShelbyMoreCache * sd);   /* SYM 3e0cef @0x800c5fb8 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Night_NightCalc__FP6VECTORPsP25Draw_tGiveShelbyMoreCache__FP6VECTORPsP25Draw_tGiveShelbyMoreCache",
+      "after_emitted_reference": "Night_NightCalc__FP6VECTORPsP25Draw_tGiveShelbyMoreCache",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draww.h",
+      "line": 15,
+      "encoded": "DrawW_NightColorCalc__FP25Draw_tGiveShelbyMoreCacheP8POLY_GT4P8CCOORD16N32",
+      "name": "DrawW_NightColorCalc",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void DrawW_NightColorCalc__FP25Draw_tGiveShelbyMoreCacheP8POLY_GT4P8CCOORD16N32(Draw_tGiveShelbyMoreCache *sd, POLY_GT4 *prim, CCOORD16 *vt0, CCOORD16 *vt1, CCOORD16 *vt2, CCOORD16 *vt3);   /* :802 */",
+      "header_return": "void",
+      "header_signature": "(Draw_tGiveShelbyMoreCache *sd, POLY_GT4 *prim, CCOORD16 *vt0, CCOORD16 *vt1, CCOORD16 *vt2, CCOORD16 *vt3)",
+      "native": [
+        {
+          "record": "3e0d35",
+          "va": "800c609c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "DrawW_NightColorCalc",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draww.cpp",
+          "line": 1355,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(Draw_tGiveShelbyMoreCache * sd,POLY_GT4 * prim,CCOORD16 * vt0,CCOORD16 * vt1,CCOORD16 * vt2,CCOORD16 * vt3)",
+          "end": 1476,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(Draw_tGiveShelbyMoreCache * sd,POLY_GT4 * prim,CCOORD16 * vt0,CCOORD16 * vt1,CCOORD16 * vt2,CCOORD16 * vt3)",
+      "final_prototype": "void DrawW_NightColorCalc(Draw_tGiveShelbyMoreCache * sd,POLY_GT4 * prim,CCOORD16 * vt0,CCOORD16 * vt1,CCOORD16 * vt2,CCOORD16 * vt3);   /* SYM 3e0d35 @0x800c609c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "DrawW_NightColorCalc__FP25Draw_tGiveShelbyMoreCacheP8POLY_GT4P8CCOORD16N32__FP25Draw_tGiveShelbyMoreCacheP8POLY_GT4P8CCOORD16N32",
+      "after_emitted_reference": "DrawW_NightColorCalc__FP25Draw_tGiveShelbyMoreCacheP8POLY_GT4P8CCOORD16N32",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draww.h",
+      "line": 16,
+      "encoded": "DrawW_DrawQuad__FP25Draw_tGiveShelbyMoreCacheP8Trk_Quad",
+      "name": "DrawW_DrawQuad",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void DrawW_DrawQuad__FP25Draw_tGiveShelbyMoreCacheP8Trk_Quad(Draw_tGiveShelbyMoreCache *sd, Trk_Quad *inQuad);   /* :930 */",
+      "header_return": "void",
+      "header_signature": "(Draw_tGiveShelbyMoreCache *sd, Trk_Quad *inQuad)",
+      "native": [
+        {
+          "record": "3e0d8d",
+          "va": "800c64f8",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "DrawW_DrawQuad",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draww.cpp",
+          "line": 1493,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(Draw_tGiveShelbyMoreCache * sd,Trk_Quad * inQuad)",
+          "end": 2240,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(Draw_tGiveShelbyMoreCache * sd,Trk_Quad * inQuad)",
+      "final_prototype": "void DrawW_DrawQuad(Draw_tGiveShelbyMoreCache * sd,Trk_Quad * inQuad);   /* SYM 3e0d8d @0x800c64f8 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "DrawW_DrawQuad__FP25Draw_tGiveShelbyMoreCacheP8Trk_Quad__FP25Draw_tGiveShelbyMoreCacheP8Trk_Quad",
+      "after_emitted_reference": "DrawW_DrawQuad__FP25Draw_tGiveShelbyMoreCacheP8Trk_Quad",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draww.h",
+      "line": 17,
+      "encoded": "DrawW_kCtrlWorld_High__FP25Draw_tGiveShelbyMoreCache",
+      "name": "DrawW_kCtrlWorld_High",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void DrawW_kCtrlWorld_High__FP25Draw_tGiveShelbyMoreCache(Draw_tGiveShelbyMoreCache *sd);   /* :1302 */",
+      "header_return": "void",
+      "header_signature": "(Draw_tGiveShelbyMoreCache *sd)",
+      "native": [
+        {
+          "record": "3e0dd2",
+          "va": "800c6e38",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "DrawW_kCtrlWorld_High",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draww.cpp",
+          "line": 2243,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(Draw_tGiveShelbyMoreCache * sd)",
+          "end": 2282,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(Draw_tGiveShelbyMoreCache * sd)",
+      "final_prototype": "void DrawW_kCtrlWorld_High(Draw_tGiveShelbyMoreCache * sd);   /* SYM 3e0dd2 @0x800c6e38 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "DrawW_kCtrlWorld_High__FP25Draw_tGiveShelbyMoreCache__FP25Draw_tGiveShelbyMoreCache",
+      "after_emitted_reference": "DrawW_kCtrlWorld_High__FP25Draw_tGiveShelbyMoreCache",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draww.h",
+      "line": 18,
+      "encoded": "DrawW_StripDraw_High__FP25Draw_tGiveShelbyMoreCache",
+      "name": "DrawW_StripDraw_High",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void DrawW_StripDraw_High__FP25Draw_tGiveShelbyMoreCache(Draw_tGiveShelbyMoreCache *sd);   /* :1331 */",
+      "header_return": "void",
+      "header_signature": "(Draw_tGiveShelbyMoreCache *sd)",
+      "native": [
+        {
+          "record": "3e0e14",
+          "va": "800c6eb8",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "DrawW_StripDraw_High",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draww.cpp",
+          "line": 2285,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(Draw_tGiveShelbyMoreCache * sd)",
+          "end": 2348,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(Draw_tGiveShelbyMoreCache * sd)",
+      "final_prototype": "void DrawW_StripDraw_High(Draw_tGiveShelbyMoreCache * sd);   /* SYM 3e0e14 @0x800c6eb8 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "DrawW_StripDraw_High__FP25Draw_tGiveShelbyMoreCache__FP25Draw_tGiveShelbyMoreCache",
+      "after_emitted_reference": "DrawW_StripDraw_High__FP25Draw_tGiveShelbyMoreCache",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draww.h",
+      "line": 19,
+      "encoded": "DrawW_DoTrough__FP13DRender_tViewP11tBuildEntry",
+      "name": "DrawW_DoTrough",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void DrawW_DoTrough__FP13DRender_tViewP11tBuildEntry(DRender_tView *Vi, tBuildEntry *buildList);   /* :1390 */",
+      "header_return": "void",
+      "header_signature": "(DRender_tView *Vi, tBuildEntry *buildList)",
+      "native": [
+        {
+          "record": "3e0e55",
+          "va": "800c6fa0",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "DrawW_DoTrough",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draww.cpp",
+          "line": 2351,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(DRender_tView * Vi,tBuildEntry * buildList)",
+          "end": 2921,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(DRender_tView * Vi,tBuildEntry * buildList)",
+      "final_prototype": "void DrawW_DoTrough(DRender_tView * Vi,tBuildEntry * buildList);   /* SYM 3e0e55 @0x800c6fa0 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "DrawW_DoTrough__FP13DRender_tViewP11tBuildEntry__FP13DRender_tViewP11tBuildEntry",
+      "after_emitted_reference": "DrawW_DoTrough__FP13DRender_tViewP11tBuildEntry",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draww.h",
+      "line": 20,
+      "encoded": "DrawW_WorldSetUpMatrix__FP10matrixtdefP6MATRIX",
+      "name": "DrawW_WorldSetUpMatrix",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void DrawW_WorldSetUpMatrix__FP10matrixtdefP6MATRIX(matrixtdef *m, MATRIX *mat);   /* :1663 */",
+      "header_return": "void",
+      "header_signature": "(matrixtdef *m, MATRIX *mat)",
+      "native": [
+        {
+          "record": "3e0e92",
+          "va": "800c753c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "DrawW_WorldSetUpMatrix",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draww.cpp",
+          "line": 2924,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(matrixtdef * m,MATRIX * mat)",
+          "end": 2971,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(matrixtdef * m,MATRIX * mat)",
+      "final_prototype": "void DrawW_WorldSetUpMatrix(matrixtdef * m,MATRIX * mat);   /* SYM 3e0e92 @0x800c753c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "DrawW_WorldSetUpMatrix__FP10matrixtdefP6MATRIX__FP10matrixtdefP6MATRIX",
+      "after_emitted_reference": "DrawW_WorldSetUpMatrix__FP10matrixtdefP6MATRIX",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draww.h",
+      "line": 21,
+      "encoded": "DrawW_WorldSetUpTranslation__FP8coorddefP6MATRIX",
+      "name": "DrawW_WorldSetUpTranslation",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void DrawW_WorldSetUpTranslation__FP8coorddefP6MATRIX(coorddef *t, MATRIX *mat);   /* :1674 */",
+      "header_return": "void",
+      "header_signature": "(coorddef *t, MATRIX *mat)",
+      "native": [
+        {
+          "record": "3e0ece",
+          "va": "800c75d8",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "DrawW_WorldSetUpTranslation",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draww.cpp",
+          "line": 2974,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(coorddef * t,MATRIX * mat)",
+          "end": 2989,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(coorddef * t,MATRIX * mat)",
+      "final_prototype": "void DrawW_WorldSetUpTranslation(coorddef * t,MATRIX * mat);   /* SYM 3e0ece @0x800c75d8 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "DrawW_WorldSetUpTranslation__FP8coorddefP6MATRIX__FP8coorddefP6MATRIX",
+      "after_emitted_reference": "DrawW_WorldSetUpTranslation__FP8coorddefP6MATRIX",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draww.h",
+      "line": 22,
+      "encoded": "DrawW_ResetAnimationTimer__Fv",
+      "name": "DrawW_ResetAnimationTimer",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void DrawW_ResetAnimationTimer__Fv(void);   /* :1698 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "3e0f0c",
+          "va": "800c761c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "DrawW_ResetAnimationTimer",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draww.cpp",
+          "line": 2992,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 3003,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void DrawW_ResetAnimationTimer(void);   /* SYM 3e0f0c @0x800c761c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "DrawW_ResetAnimationTimer__Fv__Fv",
+      "after_emitted_reference": "DrawW_ResetAnimationTimer__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draww.h",
+      "line": 23,
+      "encoded": "DrawW_GetAnimationTime__FP15Trk_AnimateInst",
+      "name": "DrawW_GetAnimationTime",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "int DrawW_GetAnimationTime__FP15Trk_AnimateInst(Trk_AnimateInst *animInst);   /* :1704 */",
+      "header_return": "int",
+      "header_signature": "(Trk_AnimateInst *animInst)",
+      "native": [
+        {
+          "record": "3e0f37",
+          "va": "800c7644",
+          "linkage": "EXT",
+          "return_type": "int"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "DrawW_GetAnimationTime",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draww.cpp",
+          "line": 3006,
+          "typeref": "typename:int",
+          "kind": "function",
+          "signature": "(Trk_AnimateInst * animInst)",
+          "end": 3059,
+          "return_type": "int",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "int",
+      "final_signature": "(Trk_AnimateInst * animInst)",
+      "final_prototype": "int DrawW_GetAnimationTime(Trk_AnimateInst * animInst);   /* SYM 3e0f37 @0x800c7644 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "DrawW_GetAnimationTime__FP15Trk_AnimateInst__FP15Trk_AnimateInst",
+      "after_emitted_reference": "DrawW_GetAnimationTime__FP15Trk_AnimateInst",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draww.h",
+      "line": 24,
+      "encoded": "DrawW_SetAnimationTime__FP15Trk_AnimateInstPii",
+      "name": "DrawW_SetAnimationTime",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void DrawW_SetAnimationTime__FP15Trk_AnimateInstPii(Trk_AnimateInst *animInst, int *table, int time);   /* :1721 */",
+      "header_return": "void",
+      "header_signature": "(Trk_AnimateInst *animInst, int *table, int time)",
+      "native": [
+        {
+          "record": "3e0f70",
+          "va": "800c76c8",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "DrawW_SetAnimationTime",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draww.cpp",
+          "line": 3062,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(Trk_AnimateInst * animInst,int * table,int time)",
+          "end": 3116,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(Trk_AnimateInst * animInst,int * table,int time)",
+      "final_prototype": "void DrawW_SetAnimationTime(Trk_AnimateInst * animInst,int * table,int time);   /* SYM 3e0f70 @0x800c76c8 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "DrawW_SetAnimationTime__FP15Trk_AnimateInstPii__FP15Trk_AnimateInstPii",
+      "after_emitted_reference": "DrawW_SetAnimationTime__FP15Trk_AnimateInstPii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draww.h",
+      "line": 25,
+      "encoded": "DrawW_DoObjectAnimations__Fv",
+      "name": "DrawW_DoObjectAnimations",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void DrawW_DoObjectAnimations__Fv(void);   /* :1784 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "3e0fac",
+          "va": "800c7808",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "DrawW_DoObjectAnimations",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draww.cpp",
+          "line": 3119,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 3146,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void DrawW_DoObjectAnimations(void);   /* SYM 3e0fac @0x800c7808 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "DrawW_DoObjectAnimations__Fv__Fv",
+      "after_emitted_reference": "DrawW_DoObjectAnimations__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draww.h",
+      "line": 26,
+      "encoded": "DrawW_BuildObjectFacets__FP13DRender_tViewP15ChunkObjectInfo",
+      "name": "DrawW_BuildObjectFacets",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "int DrawW_BuildObjectFacets__FP13DRender_tViewP15ChunkObjectInfo(DRender_tView *Vi, ChunkObjectInfo *gObjInfo);   /* :1909 */",
+      "header_return": "int",
+      "header_signature": "(DRender_tView *Vi, ChunkObjectInfo *gObjInfo)",
+      "native": [
+        {
+          "record": "3e0fd6",
+          "va": "800c78a8",
+          "linkage": "EXT",
+          "return_type": "int"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "DrawW_BuildObjectFacets",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draww.cpp",
+          "line": 3149,
+          "typeref": "typename:int",
+          "kind": "function",
+          "signature": "(DRender_tView * Vi,ChunkObjectInfo * gObjInfo)",
+          "end": 3608,
+          "return_type": "int",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "int",
+      "final_signature": "(DRender_tView * Vi,ChunkObjectInfo * gObjInfo)",
+      "final_prototype": "int DrawW_BuildObjectFacets(DRender_tView * Vi,ChunkObjectInfo * gObjInfo);   /* SYM 3e0fd6 @0x800c78a8 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "DrawW_BuildObjectFacets__FP13DRender_tViewP15ChunkObjectInfo__FP13DRender_tViewP15ChunkObjectInfo",
+      "after_emitted_reference": "DrawW_BuildObjectFacets__FP13DRender_tViewP15ChunkObjectInfo",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draww.h",
+      "line": 27,
+      "encoded": "DrawW_BuildCustomObjectFacets__FP13DRender_tViewP11Draw_DCacheP13Trk_SimObjectP5Groupi",
+      "name": "DrawW_BuildCustomObjectFacets",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "int DrawW_BuildCustomObjectFacets__FP13DRender_tViewP11Draw_DCacheP13Trk_SimObjectP5Groupi(DRender_tView *Vi, Draw_DCache *sd, Trk_SimObject *simObjs, Group *group, int zClipSq);   /* :2054 */",
+      "header_return": "int",
+      "header_signature": "(DRender_tView *Vi, Draw_DCache *sd, Trk_SimObject *simObjs, Group *group, int zClipSq)",
+      "native": [
+        {
+          "record": "3e1020",
+          "va": "800c7b9c",
+          "linkage": "EXT",
+          "return_type": "int"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "DrawW_BuildCustomObjectFacets",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draww.cpp",
+          "line": 3611,
+          "typeref": "typename:int",
+          "kind": "function",
+          "signature": "(DRender_tView * Vi,Draw_DCache * sd,Trk_SimObject * simObjs,Group * group,int zClipSq)",
+          "end": 4150,
+          "return_type": "int",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "int",
+      "final_signature": "(DRender_tView * Vi,Draw_DCache * sd,Trk_SimObject * simObjs,Group * group,int zClipSq)",
+      "final_prototype": "int DrawW_BuildCustomObjectFacets(DRender_tView * Vi,Draw_DCache * sd,Trk_SimObject * simObjs,Group * group,int zClipSq);   /* SYM 3e1020 @0x800c7b9c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "DrawW_BuildCustomObjectFacets__FP13DRender_tViewP11Draw_DCacheP13Trk_SimObjectP5Groupi__FP13DRender_tViewP11Draw_DCacheP13Trk_SimObjectP5Groupi",
+      "after_emitted_reference": "DrawW_BuildCustomObjectFacets__FP13DRender_tViewP11Draw_DCacheP13Trk_SimObjectP5Groupi",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draww.h",
+      "line": 28,
+      "encoded": "DrawObjectTransform__FP13DRender_tViewP11Draw_DCacheP10matrixtdefP13Trk_ObjectDefP8coorddefis",
+      "name": "DrawObjectTransform",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "int DrawObjectTransform__FP13DRender_tViewP11Draw_DCacheP10matrixtdefP13Trk_ObjectDefP8coorddefis(DRender_tView *Vi, Draw_DCache *sd, matrixtdef *matrix, Trk_ObjectDef *objDef, coorddef *pCp, int offset, int light);   /* :2156 */",
+      "header_return": "int",
+      "header_signature": "(DRender_tView *Vi, Draw_DCache *sd, matrixtdef *matrix, Trk_ObjectDef *objDef, coorddef *pCp, int offset, int light)",
+      "native": [
+        {
+          "record": "3e1084",
+          "va": "800c7ebc",
+          "linkage": "EXT",
+          "return_type": "int"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "DrawObjectTransform",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draww.cpp",
+          "line": 4153,
+          "typeref": "typename:int",
+          "kind": "function",
+          "signature": "(DRender_tView * Vi,Draw_DCache * sd,matrixtdef * matrix,Trk_ObjectDef * objDef,coorddef * pCp,int offset,short light)",
+          "end": 4286,
+          "return_type": "int",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "int",
+      "final_signature": "(DRender_tView * Vi,Draw_DCache * sd,matrixtdef * matrix,Trk_ObjectDef * objDef,coorddef * pCp,int offset,short light)",
+      "final_prototype": "int DrawObjectTransform(DRender_tView * Vi,Draw_DCache * sd,matrixtdef * matrix,Trk_ObjectDef * objDef,coorddef * pCp,int offset,short light);   /* SYM 3e1084 @0x800c7ebc */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "DrawObjectTransform__FP13DRender_tViewP11Draw_DCacheP10matrixtdefP13Trk_ObjectDefP8coorddefis__FP13DRender_tViewP11Draw_DCacheP10matrixtdefP13Trk_ObjectDefP8coorddefii",
+      "after_emitted_reference": "DrawObjectTransform__FP13DRender_tViewP11Draw_DCacheP10matrixtdefP13Trk_ObjectDefP8coorddefis",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draww.h",
+      "line": 29,
+      "encoded": "DrawObjectSimple__FP13DRender_tViewP11Draw_DCacheP13Trk_ObjectDefP8coorddefi",
+      "name": "DrawObjectSimple",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "int DrawObjectSimple__FP13DRender_tViewP11Draw_DCacheP13Trk_ObjectDefP8coorddefi(DRender_tView *Vi, Draw_DCache *sd, Trk_ObjectDef *objDef, coorddef *pCp, int offset);   /* :2261 */",
+      "header_return": "int",
+      "header_signature": "(DRender_tView *Vi, Draw_DCache *sd, Trk_ObjectDef *objDef, coorddef *pCp, int offset)",
+      "native": [
+        {
+          "record": "3e10ef",
+          "va": "800c8214",
+          "linkage": "EXT",
+          "return_type": "int"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "DrawObjectSimple",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draww.cpp",
+          "line": 4289,
+          "typeref": "typename:int",
+          "kind": "function",
+          "signature": "(DRender_tView * Vi,Draw_DCache * sd,Trk_ObjectDef * objDef,coorddef * pCp,int offsetArg)",
+          "end": 4450,
+          "return_type": "int",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "int",
+      "final_signature": "(DRender_tView * Vi,Draw_DCache * sd,Trk_ObjectDef * objDef,coorddef * pCp,int offset)",
+      "final_prototype": "int DrawObjectSimple(DRender_tView * Vi,Draw_DCache * sd,Trk_ObjectDef * objDef,coorddef * pCp,int offset);   /* SYM 3e10ef @0x800c8214 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "DrawObjectSimple__FP13DRender_tViewP11Draw_DCacheP13Trk_ObjectDefP8coorddefi__FP13DRender_tViewP11Draw_DCacheP13Trk_ObjectDefP8coorddefi",
+      "after_emitted_reference": "DrawObjectSimple__FP13DRender_tViewP11Draw_DCacheP13Trk_ObjectDefP8coorddefi",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draww.h",
+      "line": 30,
+      "encoded": "DrawW_BuildChunkObjectFacets__FP13DRender_tViewP15ChunkObjectInfo",
+      "name": "DrawW_BuildChunkObjectFacets",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "int DrawW_BuildChunkObjectFacets__FP13DRender_tViewP15ChunkObjectInfo(DRender_tView *Vi, ChunkObjectInfo *gObjInfo);   /* :2346 */",
+      "header_return": "int",
+      "header_signature": "(DRender_tView *Vi, ChunkObjectInfo *gObjInfo)",
+      "native": [
+        {
+          "record": "3e1149",
+          "va": "800c8508",
+          "linkage": "EXT",
+          "return_type": "int"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "DrawW_BuildChunkObjectFacets",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draww.cpp",
+          "line": 4457,
+          "typeref": "typename:int",
+          "kind": "function",
+          "signature": "(DRender_tView * Vi,ChunkObjectInfo * gObjInfo)",
+          "end": 4890,
+          "return_type": "int",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "int",
+      "final_signature": "(DRender_tView * Vi,ChunkObjectInfo * gObjInfo)",
+      "final_prototype": "int DrawW_BuildChunkObjectFacets(DRender_tView * Vi,ChunkObjectInfo * gObjInfo);   /* SYM 3e1149 @0x800c8508 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "DrawW_BuildChunkObjectFacets__FP13DRender_tViewP15ChunkObjectInfo__FP13DRender_tViewP15ChunkObjectInfo",
+      "after_emitted_reference": "DrawW_BuildChunkObjectFacets__FP13DRender_tViewP15ChunkObjectInfo",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draww.h",
+      "line": 31,
+      "encoded": "ObjectClipped__FP13DRender_tViewiP8coorddefP25Draw_tGiveShelbyMoreCache",
+      "name": "ObjectClipped",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "BOOL ObjectClipped__FP13DRender_tViewiP8coorddefP25Draw_tGiveShelbyMoreCache(DRender_tView *Vi, int ind, coorddef *pCp, Draw_tGiveShelbyMoreCache *sd);   /* :2660 */",
+      "header_return": "BOOL",
+      "header_signature": "(DRender_tView *Vi, int ind, coorddef *pCp, Draw_tGiveShelbyMoreCache *sd)",
+      "native": [
+        {
+          "record": "3e1198",
+          "va": "800c8bd0",
+          "linkage": "EXT",
+          "return_type": "bool"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "ObjectClipped",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draww.cpp",
+          "line": 4893,
+          "typeref": "typename:bool",
+          "kind": "function",
+          "signature": "(DRender_tView * Vi,int ind,coorddef * pCp,Draw_tGiveShelbyMoreCache * sd)",
+          "end": 4965,
+          "return_type": "bool",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "bool",
+      "final_signature": "(DRender_tView * Vi,int ind,coorddef * pCp,Draw_tGiveShelbyMoreCache * sd)",
+      "final_prototype": "bool ObjectClipped(DRender_tView * Vi,int ind,coorddef * pCp,Draw_tGiveShelbyMoreCache * sd);   /* SYM 3e1198 @0x800c8bd0 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "ObjectClipped__FP13DRender_tViewiP8coorddefP25Draw_tGiveShelbyMoreCache__FP13DRender_tViewiP8coorddefP25Draw_tGiveShelbyMoreCache",
+      "after_emitted_reference": "ObjectClipped__FP13DRender_tViewiP8coorddefP25Draw_tGiveShelbyMoreCache",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draww.h",
+      "line": 32,
+      "encoded": "DrawW_DoObjects__FP13DRender_tViewP11tBuildEntry",
+      "name": "DrawW_DoObjects",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void DrawW_DoObjects__FP13DRender_tViewP11tBuildEntry(DRender_tView *Vi, tBuildEntry *buildList);   /* :2717 */",
+      "header_return": "void",
+      "header_signature": "(DRender_tView *Vi, tBuildEntry *buildList)",
+      "native": [
+        {
+          "record": "3e11ed",
+          "va": "800c8cc4",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "DrawW_DoObjects",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draww.cpp",
+          "line": 4979,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(DRender_tView * Vi,tBuildEntry * buildList)",
+          "end": 5273,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(DRender_tView * Vi,tBuildEntry * buildList)",
+      "final_prototype": "void DrawW_DoObjects(DRender_tView * Vi,tBuildEntry * buildList);   /* SYM 3e11ed @0x800c8cc4 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "DrawW_DoObjects__FP13DRender_tViewP11tBuildEntry__FP13DRender_tViewP11tBuildEntry",
+      "after_emitted_reference": "DrawW_DoObjects__FP13DRender_tViewP11tBuildEntry",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draww.h",
+      "line": 33,
+      "encoded": "Draw_CircleClip__FP8coorddefT0i",
+      "name": "Draw_CircleClip",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "int Draw_CircleClip__FP8coorddefT0i(coorddef *pt1, coorddef *pt2, int r);   /* :2888 */",
+      "header_return": "int",
+      "header_signature": "(coorddef *pt1, coorddef *pt2, int r)",
+      "native": [
+        {
+          "record": "3e122b",
+          "va": "800c903c",
+          "linkage": "EXT",
+          "return_type": "int"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Draw_CircleClip",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draww.cpp",
+          "line": 5276,
+          "typeref": "typename:int",
+          "kind": "function",
+          "signature": "(coorddef * pt1,coorddef * pt2,int r)",
+          "end": 5298,
+          "return_type": "int",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "int",
+      "final_signature": "(coorddef * pt1,coorddef * pt2,int r)",
+      "final_prototype": "int Draw_CircleClip(coorddef * pt1,coorddef * pt2,int r);   /* SYM 3e122b @0x800c903c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Draw_CircleClip__FP8coorddefT0i__FP8coorddefT0i",
+      "after_emitted_reference": "Draw_CircleClip__FP8coorddefT0i",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draww.h",
+      "line": 34,
+      "encoded": "Draw_kCtrlSkidmark__FP18Draw_tCtrlSkidmark",
+      "name": "Draw_kCtrlSkidmark",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Draw_kCtrlSkidmark__FP18Draw_tCtrlSkidmark(Draw_tCtrlSkidmark *fskid);   /* :2900 */",
+      "header_return": "void",
+      "header_signature": "(Draw_tCtrlSkidmark *fskid)",
+      "native": [
+        {
+          "record": "3e1258",
+          "va": "800c909c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Draw_kCtrlSkidmark",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draww.cpp",
+          "line": 5312,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(Draw_tCtrlSkidmark * fskid)",
+          "end": 6135,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(Draw_tCtrlSkidmark * fskid)",
+      "final_prototype": "void Draw_kCtrlSkidmark(Draw_tCtrlSkidmark * fskid);   /* SYM 3e1258 @0x800c909c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Draw_kCtrlSkidmark__FP18Draw_tCtrlSkidmark__FP18Draw_tCtrlSkidmark",
+      "after_emitted_reference": "Draw_kCtrlSkidmark__FP18Draw_tCtrlSkidmark",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draww.h",
+      "line": 35,
+      "encoded": "DrawW_SetUpSubdividFacet_Line__FP25Draw_tGiveShelbyMoreCache",
+      "name": "DrawW_SetUpSubdividFacet_Line",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void DrawW_SetUpSubdividFacet_Line__FP25Draw_tGiveShelbyMoreCache(Draw_tGiveShelbyMoreCache *sd);   /* :3049 */",
+      "header_return": "void",
+      "header_signature": "(Draw_tGiveShelbyMoreCache *sd)",
+      "native": [
+        {
+          "record": "3e1290",
+          "va": "800c9620",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "DrawW_SetUpSubdividFacet_Line",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draww.cpp",
+          "line": 6138,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(Draw_tGiveShelbyMoreCache * sd)",
+          "end": 6249,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(Draw_tGiveShelbyMoreCache * sd)",
+      "final_prototype": "void DrawW_SetUpSubdividFacet_Line(Draw_tGiveShelbyMoreCache * sd);   /* SYM 3e1290 @0x800c9620 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "DrawW_SetUpSubdividFacet_Line__FP25Draw_tGiveShelbyMoreCache__FP25Draw_tGiveShelbyMoreCache",
+      "after_emitted_reference": "DrawW_SetUpSubdividFacet_Line__FP25Draw_tGiveShelbyMoreCache",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draww.h",
+      "line": 36,
+      "encoded": "DrawW_OnyxLinePrim__FP8CCOORD16P8Trk_LineiP25Draw_tGiveShelbyMoreCache",
+      "name": "DrawW_OnyxLinePrim",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void DrawW_OnyxLinePrim__FP8CCOORD16P8Trk_LineiP25Draw_tGiveShelbyMoreCache(CCOORD16 *geomVertices, Trk_Line *lineQuad, int count, Draw_tGiveShelbyMoreCache *sd);   /* :3108 */",
+      "header_return": "void",
+      "header_signature": "(CCOORD16 *geomVertices, Trk_Line *lineQuad, int count, Draw_tGiveShelbyMoreCache *sd)",
+      "native": [
+        {
+          "record": "3e12da",
+          "va": "800c98b8",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "DrawW_OnyxLinePrim",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draww.cpp",
+          "line": 6286,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(CCOORD16 * geomVertices,Trk_Line * lineQuad,int count,Draw_tGiveShelbyMoreCache * sd)",
+          "end": 6651,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(CCOORD16 * geomVertices,Trk_Line * lineQuad,int count,Draw_tGiveShelbyMoreCache * sd)",
+      "final_prototype": "void DrawW_OnyxLinePrim(CCOORD16 * geomVertices,Trk_Line * lineQuad,int count,Draw_tGiveShelbyMoreCache * sd);   /* SYM 3e12da @0x800c98b8 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "DrawW_OnyxLinePrim__FP8CCOORD16P8Trk_LineiP25Draw_tGiveShelbyMoreCache__FP8CCOORD16P8Trk_LineiP25Draw_tGiveShelbyMoreCache",
+      "after_emitted_reference": "DrawW_OnyxLinePrim__FP8CCOORD16P8Trk_LineiP25Draw_tGiveShelbyMoreCache",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draww.h",
+      "line": 37,
+      "encoded": "DrawW_BuildChunkCenterLineFacets__FP5ChunkP5GroupP25Draw_tGiveShelbyMoreCacheP7COORD16",
+      "name": "DrawW_BuildChunkCenterLineFacets",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void DrawW_BuildChunkCenterLineFacets__FP5ChunkP5GroupP25Draw_tGiveShelbyMoreCacheP7COORD16(Chunk *chunkDat, Group *group, Draw_tGiveShelbyMoreCache *sd, COORD16 *trans);   /* :3344 */",
+      "header_return": "void",
+      "header_signature": "(Chunk *chunkDat, Group *group, Draw_tGiveShelbyMoreCache *sd, COORD16 *trans)",
+      "native": [
+        {
+          "record": "3e132e",
+          "va": "800ca0a4",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "DrawW_BuildChunkCenterLineFacets",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draww.cpp",
+          "line": 6654,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(Chunk * chunkDat,Group * group,Draw_tGiveShelbyMoreCache * sd,COORD16 * trans)",
+          "end": 6755,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(Chunk * chunkDat,Group * group,Draw_tGiveShelbyMoreCache * sd,COORD16 * trans)",
+      "final_prototype": "void DrawW_BuildChunkCenterLineFacets(Chunk * chunkDat,Group * group,Draw_tGiveShelbyMoreCache * sd,COORD16 * trans);   /* SYM 3e132e @0x800ca0a4 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "DrawW_BuildChunkCenterLineFacets__FP5ChunkP5GroupP25Draw_tGiveShelbyMoreCacheP7COORD16__FP5ChunkP5GroupP25Draw_tGiveShelbyMoreCacheP7COORD16",
+      "after_emitted_reference": "DrawW_BuildChunkCenterLineFacets__FP5ChunkP5GroupP25Draw_tGiveShelbyMoreCacheP7COORD16",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draww.h",
+      "line": 38,
+      "encoded": "DrawW_DoLines__FP13DRender_tViewP11tBuildEntryP11Draw_DCache",
+      "name": "DrawW_DoLines",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void DrawW_DoLines__FP13DRender_tViewP11tBuildEntryP11Draw_DCache(DRender_tView *Vi, tBuildEntry *buildList, Draw_DCache *sd);   /* :3396 */",
+      "header_return": "void",
+      "header_signature": "(DRender_tView *Vi, tBuildEntry *buildList, Draw_DCache *sd)",
+      "native": [
+        {
+          "record": "3e1392",
+          "va": "800ca204",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "DrawW_DoLines",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draww.cpp",
+          "line": 6758,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(DRender_tView * Vi,tBuildEntry * buildList,Draw_DCache * sd)",
+          "end": 6944,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(DRender_tView * Vi,tBuildEntry * buildList,Draw_DCache * sd)",
+      "final_prototype": "void DrawW_DoLines(DRender_tView * Vi,tBuildEntry * buildList,Draw_DCache * sd);   /* SYM 3e1392 @0x800ca204 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "DrawW_DoLines__FP13DRender_tViewP11tBuildEntryP11Draw_DCache__FP13DRender_tViewP11tBuildEntryP11Draw_DCache",
+      "after_emitted_reference": "DrawW_DoLines__FP13DRender_tViewP11tBuildEntryP11Draw_DCache",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draww.h",
+      "line": 39,
+      "encoded": "DrawW_BuildSpikeBelt__FP13DRender_tViewiP11Draw_DCache",
+      "name": "DrawW_BuildSpikeBelt",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void DrawW_BuildSpikeBelt__FP13DRender_tViewiP11Draw_DCache(DRender_tView *Vi, int scale, Draw_DCache *sd);   /* :3692 */",
+      "header_return": "void",
+      "header_signature": "(DRender_tView *Vi, int scale, Draw_DCache *sd)",
+      "native": [
+        {
+          "record": "3e13dc",
+          "va": "800ca520",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "DrawW_BuildSpikeBelt",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draww.cpp",
+          "line": 6947,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(DRender_tView * Vi,int scale,Draw_DCache * sd)",
+          "end": 7324,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(DRender_tView * Vi,int scale,Draw_DCache * sd)",
+      "final_prototype": "void DrawW_BuildSpikeBelt(DRender_tView * Vi,int scale,Draw_DCache * sd);   /* SYM 3e13dc @0x800ca520 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "DrawW_BuildSpikeBelt__FP13DRender_tViewiP11Draw_DCache__FP13DRender_tViewiP11Draw_DCache",
+      "after_emitted_reference": "DrawW_BuildSpikeBelt__FP13DRender_tViewiP11Draw_DCache",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/draww.h",
+      "line": 40,
+      "encoded": "DepthCue_Init__Fv",
+      "name": "DepthCue_Init",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void DepthCue_Init__Fv(void);   /* :3830 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "3e1420",
+          "va": "800ca950",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "DepthCue_Init",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draww.cpp",
+          "line": 7327,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 7334,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void DepthCue_Init(void);   /* SYM 3e1420 @0x800ca950 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "DepthCue_Init__Fv__Fv",
+      "after_emitted_reference": "DepthCue_Init__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    }
+  ]
+}

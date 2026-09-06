@@ -1,0 +1,26 @@
+#include "C:/Temp/nfs4-decomp/recon/game/psx/draw.h"
+int (*p875_probe_0)(int x0,int y0,int x1,int y1,int w,int h,int dtd,int isbg,int otsize) = &Draw_SetView;
+void (*p875_probe_1)(void) = &Draw_InitViews;
+void (*p875_probe_2)(void) = &Draw_InitViewOT;
+void (*p875_probe_3)(void) = &Draw_InitViewOTInGame;
+void (*p875_probe_4)(void) = &Draw_DeInitViews;
+void (*p875_probe_5)(void) = &Draw_DeInitViewsInGame;
+DRAWENV * (*p875_probe_6)(int viewid,int page) = &Draw_GetDRAWENV;
+void (*p875_probe_7)(int viewid,int totalmem) = &Draw_SetViewMemBudget;
+void (*p875_probe_8)(int viewid,int r,int g,int b) = &Draw_SetViewColor;
+void (*p875_probe_9)(void) = &AllocatePrimitivesBuffer;
+void (*p875_probe_10)(void) = &ClearPrimitivesBuffer;
+void (*p875_probe_11)(void) = &ClearPlatformPrimitivesBuffer;
+void (*p875_probe_12)(int viewid) = &Draw_StartRenderingView;
+void (*p875_probe_13)(int viewid) = &Draw_StopRenderingView;
+void (*p875_probe_14)(void) = &Draw_CheckFirstFrameRender;
+void (*p875_probe_15)(void) = &Draw_StartFrameRender;
+void (*p875_probe_16)(void (* p)(void)) = &Draw_SetDrawSyncCallback;
+void (*p875_probe_17)(void) = &Draw_StopFrameRender;
+void (*p875_probe_18)(shapetbl * tile,int x,int y) = &Draw_DrawDirectScreen;
+void (*p875_probe_19)(int x,int y,int w,int h,int edraw,int edisplay,int erase,int r,int g,int b) = &Draw_DirectSetEnvironment;
+void (*p875_probe_20)(int w,int h,int edraw,int edisplay,int erase,int r,int g,int b) = &Draw_SetEnvironment;
+void (*p875_probe_21)(int x0,int y0,int x1,int y1,int w,int h) = &Draw_InitRenderEngine;
+void (*p875_probe_22)(void) = &Draw_RestartRenderEngine;
+void (*p875_probe_23)(void) = &Draw_DeInitRenderEngine;
+void (*p875_probe_24)(void) = &Draw_InitLibRender;

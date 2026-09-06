@@ -50,6 +50,7 @@ if not o:
 def _per_tu_cc1_adds(tu_flags):
     return [flag for key, flag in (
         ("no_delayed_branch", "-fno-delayed-branch"),
+        ("no_thread_jumps", "-fno-thread-jumps"),
         ("no_split_addresses", "-mno-split-addresses"),
         ("no_schedule_insns", "-fno-schedule-insns"),
         ("no_schedule_insns2", "-fno-schedule-insns2"),
@@ -117,7 +118,9 @@ def compile_debug_twin(src: Path) -> Path:
         flags += ["-g"] + _per_tu_cc1_adds(tu_flags)
         maspsx_inc = ["-I", ROOT / "include", "-I", ROOT]
     else:
-        cc1 = bld.CC1PL
+        # P877: honor whole-TU retail C++ identity, exactly like compile_cpp.
+        # Otherwise a valid 2.8.1 gate is falsely compared with a 2.8.0 twin.
+        cc1 = bld.cpp_compiler(src)
         flags = ["-quiet", "-O2", "-g", f"-G{tu_g}"] + _per_tu_cc1_adds(tu_flags)
         maspsx_inc = ["-I", bld.RECON]
     r = bld.run([cc1, *flags, i_file, "-o", s_file])

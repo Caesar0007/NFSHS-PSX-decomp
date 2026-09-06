@@ -1,0 +1,4997 @@
+[
+  {
+    "header": "recon/game/common/physics.h",
+    "old": "void Physics_InitCarSpecs__FP8Car_tObjP10Udff_tInfo(Car_tObj *carObj, Udff_tInfo *handle);   /* :243 */",
+    "name": "Physics_InitCarSpecs",
+    "symbol": "Physics_InitCarSpecs__FP8Car_tObjP10Udff_tInfo",
+    "native": [
+      {
+        "record": "2fb864",
+        "address": "800a86c8",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "Car_tObj *carObj,Udff_tInfo *handle",
+        "signature": "void Physics_InitCarSpecs(Car_tObj *carObj,Udff_tInfo *handle)"
+      }
+    ],
+    "parameter_records": [
+      "2fbd99: $00000012 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj",
+      "2fbdb8: $00000011 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag Udff_tInfo name handle"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/physics.h",
+    "old": "void Physics_CalculateDerivedCarSpecs__FP8Car_tObj(Car_tObj *carObj);   /* :287 */",
+    "name": "Physics_CalculateDerivedCarSpecs",
+    "symbol": "Physics_CalculateDerivedCarSpecs__FP8Car_tObj",
+    "native": [
+      {
+        "record": "2fb8a0",
+        "address": "800a8964",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "Car_tObj *carObj",
+        "signature": "void Physics_CalculateDerivedCarSpecs(Car_tObj *carObj)"
+      }
+    ],
+    "parameter_records": [
+      "2fbe6a: $00000011 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/physics.h",
+    "old": "void Physics_CheckGamedata__Fv(void);   /* :414 */",
+    "name": "Physics_CheckGamedata",
+    "symbol": "Physics_CheckGamedata__Fv",
+    "native": [
+      {
+        "record": "2fb8db",
+        "address": "800a8e74",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "void",
+        "signature": "void Physics_CheckGamedata(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/physics.h",
+    "old": "int Physics_AttenuateVelocity__FP8Car_tObjiP10matrixtdef(Car_tObj *carObj, int force, matrixtdef *roadMat);   /* :591 */",
+    "name": "Physics_AttenuateVelocity",
+    "symbol": "Physics_AttenuateVelocity__FP8Car_tObjiP10matrixtdef",
+    "native": [
+      {
+        "record": "2fb902",
+        "address": "800a8e7c",
+        "storage": "EXT",
+        "return": "INT",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "int",
+        "parameters": "Car_tObj *carObj,int force,matrixtdef *roadMat",
+        "signature": "int Physics_AttenuateVelocity(Car_tObj *carObj,int force,matrixtdef *roadMat)"
+      }
+    ],
+    "parameter_records": [
+      "2fbfb7: $00000012 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj",
+      "2fbfd6: $00000005 94 Def class REGPARM type INT size 0 name force",
+      "2fbfe9: $00000004 96 Def2 class REGPARM type PTR STRUCT size 36 dims 0 tag matrixtdef name roadMat"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/physics.h",
+    "old": "void Physics_SetCurrentWallType__Fi(int wallType);   /* :665 */",
+    "name": "Physics_SetCurrentWallType",
+    "symbol": "Physics_SetCurrentWallType__Fi",
+    "native": [
+      {
+        "record": "2fb944",
+        "address": "800a92d8",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "int wallType",
+        "signature": "void Physics_SetCurrentWallType(int wallType)"
+      }
+    ],
+    "parameter_records": [
+      "2fc0e9: $00000004 94 Def class REGPARM type INT size 0 name wallType"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/physics.h",
+    "old": "int Physics_GetTorque__FP8Car_tObji(Car_tObj *carObj, int index);   /* :672 */",
+    "name": "Physics_GetTorque",
+    "symbol": "Physics_GetTorque__FP8Car_tObji",
+    "native": [
+      {
+        "record": "2fb970",
+        "address": "800a92e4",
+        "storage": "EXT",
+        "return": "INT",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "int",
+        "parameters": "Car_tObj *carObj,int index",
+        "signature": "int Physics_GetTorque(Car_tObj *carObj,int index)"
+      }
+    ],
+    "parameter_records": [
+      "2fc173: $00000004 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj",
+      "2fc192: $00000005 94 Def class REGPARM type INT size 0 name index"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/physics.h",
+    "old": "void Physics_CorrectPostCollisionYaw__FP8Car_tObjiG8coorddef(Car_tObj *carObj, int impactVel, coorddef barrierVec);   /* :680 */",
+    "name": "Physics_CorrectPostCollisionYaw",
+    "symbol": "Physics_CorrectPostCollisionYaw__FP8Car_tObjiG8coorddef",
+    "native": [
+      {
+        "record": "2fb99d",
+        "address": "800a9320",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "Car_tObj *carObj,int impactVel,coorddef barrierVec",
+        "signature": "void Physics_CorrectPostCollisionYaw(Car_tObj *carObj,int impactVel,coorddef barrierVec)"
+      }
+    ],
+    "parameter_records": [
+      "2fc231: $00000012 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj",
+      "2fc250: $00000005 94 Def class REGPARM type INT size 0 name impactVel",
+      "2fc267: $00000008 96 Def2 class ARG type STRUCT size 12 dims 0 tag coorddef name barrierVec"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/physics.h",
+    "old": "int Physics_DoBarrierCheck__FP8Car_tObj(Car_tObj *carObj);   /* :761 */",
+    "name": "Physics_DoBarrierCheck",
+    "symbol": "Physics_DoBarrierCheck__FP8Car_tObj",
+    "native": [
+      {
+        "record": "2fb9e2",
+        "address": "800a94b8",
+        "storage": "EXT",
+        "return": "INT",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "int",
+        "parameters": "Car_tObj *carObj",
+        "signature": "int Physics_DoBarrierCheck(Car_tObj *carObj)"
+      }
+    ],
+    "parameter_records": [
+      "2fc33c: $00000011 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/physics.h",
+    "old": "void Physics_AutoShift__FP8Car_tObj(Car_tObj *carObj);   /* :938 */",
+    "name": "Physics_AutoShift",
+    "symbol": "Physics_AutoShift__FP8Car_tObj",
+    "native": [
+      {
+        "record": "2fba13",
+        "address": "800a9a50",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "Car_tObj *carObj",
+        "signature": "void Physics_AutoShift(Car_tObj *carObj)"
+      }
+    ],
+    "parameter_records": [
+      "2fc5db: $00000010 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/physics.h",
+    "old": "void Physics_RampCarControlValues__FP8Car_tObj(Car_tObj *carObj);   /* :1044 */",
+    "name": "Physics_RampCarControlValues",
+    "symbol": "Physics_RampCarControlValues__FP8Car_tObj",
+    "native": [
+      {
+        "record": "2fba3f",
+        "address": "800a9d0c",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "Car_tObj *carObj",
+        "signature": "void Physics_RampCarControlValues(Car_tObj *carObj)"
+      }
+    ],
+    "parameter_records": [
+      "2fc746: $00000011 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/physics.h",
+    "old": "void Physics_FixEngineRpm__FP8Car_tObj(Car_tObj *carObj);   /* :1287 */",
+    "name": "Physics_FixEngineRpm",
+    "symbol": "Physics_FixEngineRpm__FP8Car_tObj",
+    "native": [
+      {
+        "record": "2fba76",
+        "address": "800aa4e4",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "Car_tObj *carObj",
+        "signature": "void Physics_FixEngineRpm(Car_tObj *carObj)"
+      }
+    ],
+    "parameter_records": [
+      "2fc8b1: $00000004 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/physics.h",
+    "old": "void Physics_ResetCar__FP8Car_tObj(Car_tObj *carObj);   /* :1313 */",
+    "name": "Physics_ResetCar",
+    "symbol": "Physics_ResetCar__FP8Car_tObj",
+    "native": [
+      {
+        "record": "2fbaa5",
+        "address": "800aa63c",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "Car_tObj *carObj",
+        "signature": "void Physics_ResetCar(Car_tObj *carObj)"
+      }
+    ],
+    "parameter_records": [
+      "2fc942: $00000004 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/physics.h",
+    "old": "void Physics_StopCar__FP8Car_tObj(Car_tObj *carObj);   /* :1364 */",
+    "name": "Physics_StopCar",
+    "symbol": "Physics_StopCar__FP8Car_tObj",
+    "native": [
+      {
+        "record": "2fbad0",
+        "address": "800aa6d8",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "Car_tObj *carObj",
+        "signature": "void Physics_StopCar(Car_tObj *carObj)"
+      }
+    ],
+    "parameter_records": [
+      "2fc9f3: $00000004 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/physics.h",
+    "old": "void Physics_TestForBarrierCollision__FP8Car_tObj(Car_tObj *carObj);   /* :1377 */",
+    "name": "Physics_TestForBarrierCollision",
+    "symbol": "Physics_TestForBarrierCollision__FP8Car_tObj",
+    "native": [
+      {
+        "record": "2fbafa",
+        "address": "800aa7b0",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "Car_tObj *carObj",
+        "signature": "void Physics_TestForBarrierCollision(Car_tObj *carObj)"
+      }
+    ],
+    "parameter_records": [
+      "2fca93: $00000010 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/physics.h",
+    "old": "void Physics_CalculateRoadGripModifiers__FP8Car_tObj(Car_tObj *carObj);   /* :1394 */",
+    "name": "Physics_CalculateRoadGripModifiers",
+    "symbol": "Physics_CalculateRoadGripModifiers__FP8Car_tObj",
+    "native": [
+      {
+        "record": "2fbb34",
+        "address": "800aa808",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "Car_tObj *carObj",
+        "signature": "void Physics_CalculateRoadGripModifiers(Car_tObj *carObj)"
+      }
+    ],
+    "parameter_records": [
+      "2fcb47: $00000010 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/physics.h",
+    "old": "int Physics_CalculateCarAcceleration__FP8Car_tObj(Car_tObj *carObj);   /* :1447 */",
+    "name": "Physics_CalculateCarAcceleration",
+    "symbol": "Physics_CalculateCarAcceleration__FP8Car_tObj",
+    "native": [
+      {
+        "record": "2fbb71",
+        "address": "800aa984",
+        "storage": "EXT",
+        "return": "INT",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "int",
+        "parameters": "Car_tObj *carObj",
+        "signature": "int Physics_CalculateCarAcceleration(Car_tObj *carObj)"
+      }
+    ],
+    "parameter_records": [
+      "2fcce9: $00000011 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/physics.h",
+    "old": "void Physics_CalcWheelLockAcc__FP8Car_tObjP23Physics_tWheelAccStruct(Car_tObj *carObj, Physics_tWheelAccStruct *wheel);   /* :1680 */",
+    "name": "Physics_CalcWheelLockAcc",
+    "symbol": "Physics_CalcWheelLockAcc__FP8Car_tObjP23Physics_tWheelAccStruct",
+    "native": [
+      {
+        "record": "2fbbac",
+        "address": "800ab49c",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "Car_tObj *carObj,Physics_tWheelAccStruct *wheel",
+        "signature": "void Physics_CalcWheelLockAcc(Car_tObj *carObj,Physics_tWheelAccStruct *wheel)"
+      }
+    ],
+    "parameter_records": [
+      "2fcf75: $00000008 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj",
+      "2fcf94: $00000010 96 Def2 class REGPARM type PTR STRUCT size 48 dims 0 tag Physics_tWheelAccStruct name wheel"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/physics.h",
+    "old": "void Physics_CalcTractionCircleAcc__FP8Car_tObjP23Physics_tWheelAccStruct(Car_tObj *carObj, Physics_tWheelAccStruct *wheel);   /* :1731 */",
+    "name": "Physics_CalcTractionCircleAcc",
+    "symbol": "Physics_CalcTractionCircleAcc__FP8Car_tObjP23Physics_tWheelAccStruct",
+    "native": [
+      {
+        "record": "2fbbf9",
+        "address": "800ab698",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "Car_tObj *carObj,Physics_tWheelAccStruct *wheel",
+        "signature": "void Physics_CalcTractionCircleAcc(Car_tObj *carObj,Physics_tWheelAccStruct *wheel)"
+      }
+    ],
+    "parameter_records": [
+      "2fd0b0: $00000013 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj",
+      "2fd0cf: $00000010 96 Def2 class REGPARM type PTR STRUCT size 48 dims 0 tag Physics_tWheelAccStruct name wheel"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/physics.h",
+    "old": "void Physics_CalculateTireForces__FP8Car_tObjP23Physics_tWheelAccStruct(Car_tObj *carObj, Physics_tWheelAccStruct *wheel);   /* :1815 */",
+    "name": "Physics_CalculateTireForces",
+    "symbol": "Physics_CalculateTireForces__FP8Car_tObjP23Physics_tWheelAccStruct",
+    "native": [
+      {
+        "record": "2fbc4b",
+        "address": "800aba3c",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "Car_tObj *carObj,Physics_tWheelAccStruct *wheel",
+        "signature": "void Physics_CalculateTireForces(Car_tObj *carObj,Physics_tWheelAccStruct *wheel)"
+      }
+    ],
+    "parameter_records": [
+      "2fd205: $00000012 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj",
+      "2fd224: $00000011 96 Def2 class REGPARM type PTR STRUCT size 48 dims 0 tag Physics_tWheelAccStruct name wheel"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/physics.h",
+    "old": "int Physics_CalculateRSControlDesiredPosition__FP8Car_tObjii(Car_tObj *carObj, int sliceAhead, int lookAhead);   /* :1982 */",
+    "name": "Physics_CalculateRSControlDesiredPosition",
+    "symbol": "Physics_CalculateRSControlDesiredPosition__FP8Car_tObjii",
+    "native": [
+      {
+        "record": "2fbc9b",
+        "address": "800abfa4",
+        "storage": "EXT",
+        "return": "INT",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "int",
+        "parameters": "Car_tObj *carObj,int sliceAhead,int lookAhead",
+        "signature": "int Physics_CalculateRSControlDesiredPosition(Car_tObj *carObj,int sliceAhead,int lookAhead)"
+      }
+    ],
+    "parameter_records": [
+      "2fd33d: $00000011 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj",
+      "2fd35c: $00000014 94 Def class REGPARM type INT size 0 name sliceAhead",
+      "2fd374: $00000013 94 Def class REGPARM type INT size 0 name lookAhead"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/physics.h",
+    "old": "void Physics_Real__FP8Car_tObj(Car_tObj *carObj);   /* :2048 */",
+    "name": "Physics_Real",
+    "symbol": "Physics_Real__FP8Car_tObj",
+    "native": [
+      {
+        "record": "2fbce1",
+        "address": "800ac164",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "Car_tObj *carObj",
+        "signature": "void Physics_Real(Car_tObj *carObj)"
+      }
+    ],
+    "parameter_records": [
+      "2fd4b6: $00000015 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/physics.h",
+    "old": "void Physics_SimCar__FP8Car_tObj(Car_tObj *carObj);   /* :2507 */",
+    "name": "Physics_SimCar",
+    "symbol": "Physics_SimCar__FP8Car_tObj",
+    "native": [
+      {
+        "record": "2fbd08",
+        "address": "800ad544",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "Car_tObj *carObj",
+        "signature": "void Physics_SimCar(Car_tObj *carObj)"
+      }
+    ],
+    "parameter_records": [
+      "2fda62: $00000004 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/newton.h",
+    "old": "void Newton_AddDamageZone__FP13BO_tNewtonObjiii(BO_tNewtonObj *newtonObj, int impulse, int zone, int type);   /* :50 */",
+    "name": "Newton_AddDamageZone",
+    "symbol": "Newton_AddDamageZone__FP13BO_tNewtonObjiii",
+    "native": [
+      {
+        "record": "2af367",
+        "address": "8009ef2c",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "BO_tNewtonObj *newtonObj,int impulse,int zone,int type",
+        "signature": "void Newton_AddDamageZone(BO_tNewtonObj *newtonObj,int impulse,int zone,int type)"
+      }
+    ],
+    "parameter_records": [
+      "2afc06: $00000012 96 Def2 class REGPARM type PTR STRUCT size 576 dims 0 tag BO_tNewtonObj name newtonObj",
+      "2afc2d: $00000010 94 Def class REGPARM type INT size 0 name impulse",
+      "2afc42: $00000017 94 Def class REGPARM type INT size 0 name zone",
+      "2afc54: $00000011 94 Def class REGPARM type INT size 0 name type"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/newton.h",
+    "old": "void Newton_FindClosestQuad__FP13BO_tNewtonObj(BO_tNewtonObj *n);   /* :221 */",
+    "name": "Newton_FindClosestQuad",
+    "symbol": "Newton_FindClosestQuad__FP13BO_tNewtonObj",
+    "native": [
+      {
+        "record": "2af39f",
+        "address": "8009f704",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "BO_tNewtonObj *n",
+        "signature": "void Newton_FindClosestQuad(BO_tNewtonObj *n)"
+      }
+    ],
+    "parameter_records": [
+      "2aff09: $00000005 96 Def2 class REGPARM type PTR STRUCT size 576 dims 0 tag BO_tNewtonObj name n"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/newton.h",
+    "old": "int Newton_CalculateSliceYaw__Fi(int slice);   /* :235 */",
+    "name": "Newton_CalculateSliceYaw",
+    "symbol": "Newton_CalculateSliceYaw__Fi",
+    "native": [
+      {
+        "record": "2af3d6",
+        "address": "8009f730",
+        "storage": "EXT",
+        "return": "INT",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "int",
+        "parameters": "int slice",
+        "signature": "int Newton_CalculateSliceYaw(int slice)"
+      }
+    ],
+    "parameter_records": [
+      "2aff98: $00000004 94 Def class REGPARM type INT size 0 name slice"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/newton.h",
+    "old": "void Newton_UpdateRoadGeometry__FP13BO_tNewtonObj(BO_tNewtonObj *n);   /* :248 */",
+    "name": "Newton_UpdateRoadGeometry",
+    "symbol": "Newton_UpdateRoadGeometry__FP13BO_tNewtonObj",
+    "native": [
+      {
+        "record": "2af400",
+        "address": "8009f7a0",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "BO_tNewtonObj *n",
+        "signature": "void Newton_UpdateRoadGeometry(BO_tNewtonObj *n)"
+      }
+    ],
+    "parameter_records": [
+      "2b007a: $00000016 96 Def2 class REGPARM type PTR STRUCT size 576 dims 0 tag BO_tNewtonObj name n"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/newton.h",
+    "old": "int Newton_FindGroundElevationGeneral__FP8coorddefN20(coorddef *point, coorddef *normal, coorddef *pointOnQuad);   /* :445 */",
+    "name": "Newton_FindGroundElevationGeneral",
+    "symbol": "Newton_FindGroundElevationGeneral__FP8coorddefN20",
+    "native": [
+      {
+        "record": "2af43a",
+        "address": "8009fb30",
+        "storage": "EXT",
+        "return": "INT",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "int",
+        "parameters": "coorddef *point,coorddef *normal,coorddef *pointOnQuad",
+        "signature": "int Newton_FindGroundElevationGeneral(coorddef *point,coorddef *normal,coorddef *pointOnQuad)"
+      }
+    ],
+    "parameter_records": [
+      "2b0325: $00000008 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name point",
+      "2b0343: $00000005 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name normal",
+      "2b0362: $00000010 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name pointOnQuad"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/newton.h",
+    "old": "int Newton_FindGroundElevationRough__FP8coorddefN20(coorddef *point, coorddef *normal, coorddef *pointOnQuad);   /* :475 */",
+    "name": "Newton_FindGroundElevationRough",
+    "symbol": "Newton_FindGroundElevationRough__FP8coorddefN20",
+    "native": [
+      {
+        "record": "2af479",
+        "address": "8009fc8c",
+        "storage": "EXT",
+        "return": "INT",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "int",
+        "parameters": "coorddef *point,coorddef *normal,coorddef *pointOnQuad",
+        "signature": "int Newton_FindGroundElevationRough(coorddef *point,coorddef *normal,coorddef *pointOnQuad)"
+      }
+    ],
+    "parameter_records": [
+      "2b0454: $00000004 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name point",
+      "2b0472: $00000005 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name normal",
+      "2b0491: $00000011 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name pointOnQuad"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/newton.h",
+    "old": "int Newton_FindGroundElevationAndNormal__FP13BO_tNewtonObjP8coorddef(BO_tNewtonObj *newtonObj, coorddef *normal);   /* :610 */",
+    "name": "Newton_FindGroundElevationAndNormal",
+    "symbol": "Newton_FindGroundElevationAndNormal__FP13BO_tNewtonObjP8coorddef",
+    "native": [
+      {
+        "record": "2af508",
+        "address": "8009ff80",
+        "storage": "EXT",
+        "return": "INT",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "int",
+        "parameters": "BO_tNewtonObj *newtonObj,coorddef *normal",
+        "signature": "int Newton_FindGroundElevationAndNormal(BO_tNewtonObj *newtonObj,coorddef *normal)"
+      }
+    ],
+    "parameter_records": [
+      "2b07ca: $00000014 96 Def2 class REGPARM type PTR STRUCT size 576 dims 0 tag BO_tNewtonObj name newtonObj",
+      "2b07f1: $0000001e 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name normal"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/newton.h",
+    "old": "void Newton_LimitCarsToDrivableDist__FP13BO_tNewtonObj(BO_tNewtonObj *newtonObj);   /* :1062 */",
+    "name": "Newton_LimitCarsToDrivableDist",
+    "symbol": "Newton_LimitCarsToDrivableDist__FP13BO_tNewtonObj",
+    "native": [
+      {
+        "record": "2af556",
+        "address": "800a0da4",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "BO_tNewtonObj *newtonObj",
+        "signature": "void Newton_LimitCarsToDrivableDist(BO_tNewtonObj *newtonObj)"
+      }
+    ],
+    "parameter_records": [
+      "2b1131: $00000010 96 Def2 class REGPARM type PTR STRUCT size 576 dims 0 tag BO_tNewtonObj name newtonObj"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/newton.h",
+    "old": "int Newton_CalcPerpenHeightOfLowestPointFromGround__FP13BO_tNewtonObjP8coorddefT1(BO_tNewtonObj *newtonObj, coorddef *normal, coorddef *samplePoint);   /* :1079 */",
+    "name": "Newton_CalcPerpenHeightOfLowestPointFromGround",
+    "symbol": "Newton_CalcPerpenHeightOfLowestPointFromGround__FP13BO_tNewtonObjP8coorddefT1",
+    "native": [
+      {
+        "record": "2af595",
+        "address": "800a0de8",
+        "storage": "EXT",
+        "return": "INT",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "int",
+        "parameters": "BO_tNewtonObj *newtonObj,coorddef *normal,coorddef *samplePoint",
+        "signature": "int Newton_CalcPerpenHeightOfLowestPointFromGround(BO_tNewtonObj *newtonObj,coorddef *normal,coorddef *samplePoint)"
+      }
+    ],
+    "parameter_records": [
+      "2b11f9: $00000004 96 Def2 class REGPARM type PTR STRUCT size 576 dims 0 tag BO_tNewtonObj name newtonObj",
+      "2b1220: $00000005 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name normal",
+      "2b123f: $00000006 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name samplePoint"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/newton.h",
+    "old": "int Newton_CalcPerpenHeightOfCenterPointFromGround__FP13BO_tNewtonObjP8coorddefT1(BO_tNewtonObj *newtonObj, coorddef *normal, coorddef *samplePoint);   /* :1110 */",
+    "name": "Newton_CalcPerpenHeightOfCenterPointFromGround",
+    "symbol": "Newton_CalcPerpenHeightOfCenterPointFromGround__FP13BO_tNewtonObjP8coorddefT1",
+    "native": [
+      {
+        "record": "2af5f0",
+        "address": "800a116c",
+        "storage": "EXT",
+        "return": "INT",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "int",
+        "parameters": "BO_tNewtonObj *newtonObj,coorddef *normal,coorddef *samplePoint",
+        "signature": "int Newton_CalcPerpenHeightOfCenterPointFromGround(BO_tNewtonObj *newtonObj,coorddef *normal,coorddef *samplePoint)"
+      }
+    ],
+    "parameter_records": [
+      "2b1399: $00000012 96 Def2 class REGPARM type PTR STRUCT size 576 dims 0 tag BO_tNewtonObj name newtonObj",
+      "2b13c0: $00000011 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name normal",
+      "2b13df: $00000006 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name samplePoint"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/newton.h",
+    "old": "void Newton_CalcDistToClosestPlayerCar__FP13BO_tNewtonObj(BO_tNewtonObj *n);   /* :1123 */",
+    "name": "Newton_CalcDistToClosestPlayerCar",
+    "symbol": "Newton_CalcDistToClosestPlayerCar__FP13BO_tNewtonObj",
+    "native": [
+      {
+        "record": "2af64b",
+        "address": "800a1248",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "BO_tNewtonObj *n",
+        "signature": "void Newton_CalcDistToClosestPlayerCar(BO_tNewtonObj *n)"
+      }
+    ],
+    "parameter_records": [
+      "2b14c8: $00000010 96 Def2 class REGPARM type PTR STRUCT size 576 dims 0 tag BO_tNewtonObj name n"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/newton.h",
+    "old": "void Newton_UpdateRoadInfo__FP13BO_tNewtonObj(BO_tNewtonObj *n);   /* :1227 */",
+    "name": "Newton_UpdateRoadInfo",
+    "symbol": "Newton_UpdateRoadInfo__FP13BO_tNewtonObj",
+    "native": [
+      {
+        "record": "2af68d",
+        "address": "800a1568",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "BO_tNewtonObj *n",
+        "signature": "void Newton_UpdateRoadInfo(BO_tNewtonObj *n)"
+      }
+    ],
+    "parameter_records": [
+      "2b1642: $00000010 96 Def2 class REGPARM type PTR STRUCT size 576 dims 0 tag BO_tNewtonObj name n"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/newton.h",
+    "old": "void Newton_CopyRoadMatrixToOrientMat__FP13BO_tNewtonObji(BO_tNewtonObj *n, int backwards);   /* :1264 */",
+    "name": "Newton_CopyRoadMatrixToOrientMat",
+    "symbol": "Newton_CopyRoadMatrixToOrientMat__FP13BO_tNewtonObji",
+    "native": [
+      {
+        "record": "2af6c3",
+        "address": "800a15f4",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "BO_tNewtonObj *n,int backwards",
+        "signature": "void Newton_CopyRoadMatrixToOrientMat(BO_tNewtonObj *n,int backwards)"
+      }
+    ],
+    "parameter_records": [
+      "2b16e9: $00000004 96 Def2 class REGPARM type PTR STRUCT size 576 dims 0 tag BO_tNewtonObj name n",
+      "2b1708: $00000005 94 Def class REGPARM type INT size 0 name backwards"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/newton.h",
+    "old": "void Newton_CopyRoadMatrixToShadowMat__FP13BO_tNewtonObji(BO_tNewtonObj *n, int backwards);   /* :1285 */",
+    "name": "Newton_CopyRoadMatrixToShadowMat",
+    "symbol": "Newton_CopyRoadMatrixToShadowMat__FP13BO_tNewtonObji",
+    "native": [
+      {
+        "record": "2af705",
+        "address": "800a16c8",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "BO_tNewtonObj *n,int backwards",
+        "signature": "void Newton_CopyRoadMatrixToShadowMat(BO_tNewtonObj *n,int backwards)"
+      }
+    ],
+    "parameter_records": [
+      "2b1808: $00000004 96 Def2 class REGPARM type PTR STRUCT size 576 dims 0 tag BO_tNewtonObj name n",
+      "2b1827: $00000005 94 Def class REGPARM type INT size 0 name backwards"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/newton.h",
+    "old": "void Newton_SetInitialSlicePositionOrientationEtc__FP13BO_tNewtonObjiP8coorddefi(BO_tNewtonObj *n, int slice, coorddef *offset, int direction);   /* :1307 */",
+    "name": "Newton_SetInitialSlicePositionOrientationEtc",
+    "symbol": "Newton_SetInitialSlicePositionOrientationEtc__FP13BO_tNewtonObjiP8coorddefi",
+    "native": [
+      {
+        "record": "2af747",
+        "address": "800a179c",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "BO_tNewtonObj *n,int slice,coorddef *offset,int direction",
+        "signature": "void Newton_SetInitialSlicePositionOrientationEtc(BO_tNewtonObj *n,int slice,coorddef *offset,int direction)"
+      }
+    ],
+    "parameter_records": [
+      "2b193f: $00000014 96 Def2 class REGPARM type PTR STRUCT size 576 dims 0 tag BO_tNewtonObj name n",
+      "2b195e: $00000016 94 Def class REGPARM type INT size 0 name slice",
+      "2b1971: $00000012 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name offset",
+      "2b1990: $00000007 94 Def class REGPARM type INT size 0 name direction"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/newton.h",
+    "old": "void Newton_TestForUndrivableSurfaces__FP13BO_tNewtonObj(BO_tNewtonObj *newtonObj);   /* :2161 */",
+    "name": "Newton_TestForUndrivableSurfaces",
+    "symbol": "Newton_TestForUndrivableSurfaces__FP13BO_tNewtonObj",
+    "native": [
+      {
+        "record": "2afa54",
+        "address": "800a2e84",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "BO_tNewtonObj *newtonObj",
+        "signature": "void Newton_TestForUndrivableSurfaces(BO_tNewtonObj *newtonObj)"
+      }
+    ],
+    "parameter_records": [
+      "2b2af6: $00000011 96 Def2 class REGPARM type PTR STRUCT size 576 dims 0 tag BO_tNewtonObj name newtonObj"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/newton.h",
+    "old": "int Newton_CalculateRoadPositionFromSliceAndPosition__FiP8coorddefP10matrixtdef(int slice, coorddef *position, matrixtdef *matrix);   /* :2736 */",
+    "name": "Newton_CalculateRoadPositionFromSliceAndPosition",
+    "symbol": "Newton_CalculateRoadPositionFromSliceAndPosition__FiP8coorddefP10matrixtdef",
+    "native": [
+      {
+        "record": "2afb0d",
+        "address": "800a3b60",
+        "storage": "EXT",
+        "return": "INT",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "int",
+        "parameters": "int slice,coorddef *position,matrixtdef *matrix",
+        "signature": "int Newton_CalculateRoadPositionFromSliceAndPosition(int slice,coorddef *position,matrixtdef *matrix)"
+      }
+    ],
+    "parameter_records": [
+      "2b32f6: $00000004 94 Def class REGPARM type INT size 0 name slice",
+      "2b3309: $00000005 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name position",
+      "2b332a: $00000006 96 Def2 class REGPARM type PTR STRUCT size 36 dims 0 tag matrixtdef name matrix"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/newton.h",
+    "old": "int Newton_CalculateRoadPosition__FP13BO_tNewtonObj(BO_tNewtonObj *newtonObj);   /* :2762 */",
+    "name": "Newton_CalculateRoadPosition",
+    "symbol": "Newton_CalculateRoadPosition__FP13BO_tNewtonObj",
+    "native": [
+      {
+        "record": "2afb66",
+        "address": "800a3c54",
+        "storage": "EXT",
+        "return": "INT",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "int",
+        "parameters": "BO_tNewtonObj *newtonObj",
+        "signature": "int Newton_CalculateRoadPosition(BO_tNewtonObj *newtonObj)"
+      }
+    ],
+    "parameter_records": [
+      "2b3415: $00000008 96 Def2 class REGPARM type PTR STRUCT size 576 dims 0 tag BO_tNewtonObj name newtonObj"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/replay.h",
+    "old": "char * Replay_Compress__FPc(char *uncompressed_data);   /* :72 */",
+    "name": "Replay_Compress",
+    "symbol": "Replay_Compress__FPc",
+    "native": [
+      {
+        "record": "329963",
+        "address": "800b3c4c",
+        "storage": "EXT",
+        "return": "PTR CHAR",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "char *",
+        "parameters": "char *uncompressed_data",
+        "signature": "char * Replay_Compress(char *uncompressed_data)"
+      }
+    ],
+    "parameter_records": [
+      "329c44: $00000004 94 Def class REGPARM type PTR CHAR size 0 name uncompressed_data"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/replay.h",
+    "old": "char * Replay_Decompress__FPc(char *compressed_data);   /* :127 */",
+    "name": "Replay_Decompress",
+    "symbol": "Replay_Decompress__FPc",
+    "native": [
+      {
+        "record": "329985",
+        "address": "800b3d10",
+        "storage": "EXT",
+        "return": "PTR CHAR",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "char *",
+        "parameters": "char *compressed_data",
+        "signature": "char * Replay_Decompress(char *compressed_data)"
+      }
+    ],
+    "parameter_records": [
+      "329d30: $00000004 94 Def class REGPARM type PTR CHAR size 0 name compressed_data"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/replay.h",
+    "old": "void Replay_InitReplay__Fv(void);   /* :169 */",
+    "name": "Replay_InitReplay",
+    "symbol": "Replay_InitReplay__Fv",
+    "native": [
+      {
+        "record": "3299a9",
+        "address": "800b3da0",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "void",
+        "signature": "void Replay_InitReplay(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/replay.h",
+    "old": "void Replay_ResetReplay__Fv(void);   /* :202 */",
+    "name": "Replay_ResetReplay",
+    "symbol": "Replay_ResetReplay__Fv",
+    "native": [
+      {
+        "record": "3299cc",
+        "address": "800b3f44",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "void",
+        "signature": "void Replay_ResetReplay(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/replay.h",
+    "old": "void Replay_StoringReplay__Fv(void);   /* :270 */",
+    "name": "Replay_StoringReplay",
+    "symbol": "Replay_StoringReplay__Fv",
+    "native": [
+      {
+        "record": "3299f0",
+        "address": "800b409c",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "void",
+        "signature": "void Replay_StoringReplay(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/replay.h",
+    "old": "void Replay_StoringControllerData__FG15tControllerData(tControllerData controllerdata);   /* :283 */",
+    "name": "Replay_StoringControllerData",
+    "symbol": "Replay_StoringControllerData__FG15tControllerData",
+    "native": [
+      {
+        "record": "329a16",
+        "address": "800b40bc",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "tControllerData controllerdata",
+        "signature": "void Replay_StoringControllerData(tControllerData controllerdata)"
+      }
+    ],
+    "parameter_records": [
+      "329fd9: $00000000 96 Def2 class ARG type STRUCT size 128 dims 0 tag tControllerData name controllerdata"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/replay.h",
+    "old": "void Replay_RetreivingControllerData__Fv(void);   /* :314 */",
+    "name": "Replay_RetreivingControllerData",
+    "symbol": "Replay_RetreivingControllerData__Fv",
+    "native": [
+      {
+        "record": "329a55",
+        "address": "800b4488",
+        "storage": "EXT",
+        "return": "STRUCT",
+        "size": "128",
+        "tag": "tControllerData"
+      }
+    ],
+    "definitions": [
+      {
+        "return": "tControllerData",
+        "parameters": "void",
+        "signature": "tControllerData Replay_RetreivingControllerData(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/replay.h",
+    "old": "void Replay_SaveInput__Fi(int car);   /* :342 */",
+    "name": "Replay_SaveInput",
+    "symbol": "Replay_SaveInput__Fi",
+    "native": [
+      {
+        "record": "329a98",
+        "address": "800b4824",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "int car",
+        "signature": "void Replay_SaveInput(int car)"
+      }
+    ],
+    "parameter_records": [
+      "32a152: $00000010 94 Def class REGPARM type INT size 0 name car"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/replay.h",
+    "old": "void Replay_GetInput__Fi(int car);   /* :371 */",
+    "name": "Replay_GetInput",
+    "symbol": "Replay_GetInput__Fi",
+    "native": [
+      {
+        "record": "329aba",
+        "address": "800b4b38",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "int car",
+        "signature": "void Replay_GetInput(int car)"
+      }
+    ],
+    "parameter_records": [
+      "32a1ca: $00000011 94 Def class REGPARM type INT size 0 name car"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/replay.h",
+    "old": "void Replay_SaveReplay__Fv(void);   /* :447 */",
+    "name": "Replay_SaveReplay",
+    "symbol": "Replay_SaveReplay__Fv",
+    "native": [
+      {
+        "record": "329adb",
+        "address": "800b4f98",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "void",
+        "signature": "void Replay_SaveReplay(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/replay.h",
+    "old": "void Replay_LoadReplay__Fv(void);   /* :469 */",
+    "name": "Replay_LoadReplay",
+    "symbol": "Replay_LoadReplay__Fv",
+    "native": [
+      {
+        "record": "329afe",
+        "address": "800b5024",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "void",
+        "signature": "void Replay_LoadReplay(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/replay.h",
+    "old": "void Replay_DoReplay__FP8Car_tObj(Car_tObj *carObj);   /* :498 */",
+    "name": "Replay_DoReplay",
+    "symbol": "Replay_DoReplay__FP8Car_tObj",
+    "native": [
+      {
+        "record": "329b21",
+        "address": "800b502c",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "Car_tObj *carObj",
+        "signature": "void Replay_DoReplay(Car_tObj *carObj)"
+      }
+    ],
+    "parameter_records": [
+      "32a31d: $00000004 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/replay.h",
+    "old": "void Replay_GetInterfaceKey__Fv(void);   /* :516 */",
+    "name": "Replay_GetInterfaceKey",
+    "symbol": "Replay_GetInterfaceKey__Fv",
+    "native": [
+      {
+        "record": "329b4b",
+        "address": "800b5070",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "void",
+        "signature": "void Replay_GetInterfaceKey(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/replay.h",
+    "old": "void Replay_LoadCameraFile__Fv(void);   /* :665 */",
+    "name": "Replay_LoadCameraFile",
+    "symbol": "Replay_LoadCameraFile__Fv",
+    "native": [
+      {
+        "record": "329b73",
+        "address": "800b5500",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "void",
+        "signature": "void Replay_LoadCameraFile(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/replay.h",
+    "old": "void Replay_ReplayChooseCamera__Fii(int player, int slice);   /* :797 */",
+    "name": "Replay_ReplayChooseCamera",
+    "symbol": "Replay_ReplayChooseCamera__Fii",
+    "native": [
+      {
+        "record": "329b9a",
+        "address": "800b586c",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "int player,int slice",
+        "signature": "void Replay_ReplayChooseCamera(int player,int slice)"
+      }
+    ],
+    "parameter_records": [
+      "32a653: $0000000a 94 Def class REGPARM type INT size 0 name player",
+      "32a667: $00000005 94 Def class REGPARM type INT size 0 name slice"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/replay.h",
+    "old": "void Replay_ReplayFindClosestCamera__Fii(int player, int slice);   /* :841 */",
+    "name": "Replay_ReplayFindClosestCamera",
+    "symbol": "Replay_ReplayFindClosestCamera__Fii",
+    "native": [
+      {
+        "record": "329bc6",
+        "address": "800b5b14",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "int player,int slice",
+        "signature": "void Replay_ReplayFindClosestCamera(int player,int slice)"
+      }
+    ],
+    "parameter_records": [
+      "32a762: $00000018 94 Def class REGPARM type INT size 0 name player",
+      "32a776: $00000005 94 Def class REGPARM type INT size 0 name slice"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/object.h",
+    "old": "int CalcObjYawAngle__FP8CCOORD16(CCOORD16 *pts);   /* :69 */",
+    "name": "CalcObjYawAngle",
+    "symbol": "CalcObjYawAngle__FP8CCOORD16",
+    "native": [
+      {
+        "record": "2d8b22",
+        "address": "800a4ae4",
+        "storage": "EXT",
+        "return": "INT",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "int",
+        "parameters": "CCOORD16 *pts",
+        "signature": "int CalcObjYawAngle(CCOORD16 *pts)"
+      }
+    ],
+    "parameter_records": [
+      "2d9432: $00000004 96 Def2 class REGPARM type PTR STRUCT size 8 dims 0 tag CCOORD16 name pts"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/object.h",
+    "old": "void CalcObjExtentPoints__FP8coorddefP8CCOORD16T0P5tQuat(coorddef *cp, CCOORD16 *pts, coorddef *resultPts, tQuat *quat);   /* :78 */",
+    "name": "CalcObjExtentPoints",
+    "symbol": "CalcObjExtentPoints__FP8coorddefP8CCOORD16T0P5tQuat",
+    "native": [
+      {
+        "record": "2d8b4c",
+        "address": "800a4b1c",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "coorddef *cp,CCOORD16 *pts,coorddef *resultPts,tQuat *quat",
+        "signature": "void CalcObjExtentPoints(coorddef *cp,CCOORD16 *pts,coorddef *resultPts,tQuat *quat)"
+      }
+    ],
+    "parameter_records": [
+      "2d94d5: $00000004 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name cp",
+      "2d94f0: $00000005 96 Def2 class REGPARM type PTR STRUCT size 8 dims 0 tag CCOORD16 name pts",
+      "2d950c: $00000010 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name resultPts",
+      "2d952e: $00000007 96 Def2 class REGPARM type PTR STRUCT size 8 dims 0 tag tQuat name quat"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/object.h",
+    "old": "void BuildObjCollisionMatrix__FiiiP10matrixtdef(int weight, int objAngle, int impactAngle, matrixtdef *mat);   /* :121 */",
+    "name": "BuildObjCollisionMatrix",
+    "symbol": "BuildObjCollisionMatrix__FiiiP10matrixtdef",
+    "native": [
+      {
+        "record": "2d8b8d",
+        "address": "800a4be8",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "int weight,int objAngle,int impactAngle,matrixtdef *mat",
+        "signature": "void BuildObjCollisionMatrix(int weight,int objAngle,int impactAngle,matrixtdef *mat)"
+      }
+    ],
+    "parameter_records": [
+      "2d9641: $00000010 94 Def class REGPARM type INT size 0 name weight",
+      "2d9655: $00000011 94 Def class REGPARM type INT size 0 name objAngle",
+      "2d966b: $00000012 94 Def class REGPARM type INT size 0 name impactAngle",
+      "2d9684: $00000013 96 Def2 class REGPARM type PTR STRUCT size 36 dims 0 tag matrixtdef name mat"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/object.h",
+    "old": "void * FindObjInstanceFromSerialNum__FP5Groupi(Group *group, int index);   /* :144 */",
+    "name": "FindObjInstanceFromSerialNum",
+    "symbol": "FindObjInstanceFromSerialNum__FP5Groupi",
+    "native": [
+      {
+        "record": "2d8bc5",
+        "address": "800a4c8c",
+        "storage": "EXT",
+        "return": "PTR STRUCT",
+        "size": "20",
+        "tag": "Trk_SimpleInst"
+      }
+    ],
+    "definitions": [
+      {
+        "return": "Trk_SimpleInst *",
+        "parameters": "Group *group,int index",
+        "signature": "Trk_SimpleInst * FindObjInstanceFromSerialNum(Group *group,int index)"
+      }
+    ],
+    "parameter_records": [
+      "2d9788: $00000004 96 Def2 class REGPARM type PTR STRUCT size 4 dims 0 tag Group name group",
+      "2d97a3: $00000005 94 Def class REGPARM type INT size 0 name index"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/object.h",
+    "old": "void Object_InitCollisionCheckLoop__FP12BWorldSm_PosP18Object_tSimObjListPi(BWorldSm_Pos *slicePos, Object_tSimObjList *objList, int *numObj);   /* :190 */",
+    "name": "Object_InitCollisionCheckLoop",
+    "symbol": "Object_InitCollisionCheckLoop__FP12BWorldSm_PosP18Object_tSimObjListPi",
+    "native": [
+      {
+        "record": "2d8c0b",
+        "address": "800a4cfc",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "BWorldSm_Pos *slicePos,Object_tSimObjList *objList,int *numObj",
+        "signature": "void Object_InitCollisionCheckLoop(BWorldSm_Pos *slicePos,Object_tSimObjList *objList,int *numObj)"
+      }
+    ],
+    "parameter_records": [
+      "2d99b2: $00000007 96 Def2 class REGPARM type PTR STRUCT size 132 dims 0 tag BWorldSm_Pos name slicePos",
+      "2d99d7: $00000005 96 Def2 class REGPARM type PTR STRUCT size 16 dims 0 tag Object_tSimObjList name objList",
+      "2d9a01: $00000010 94 Def class REGPARM type PTR INT size 0 name numObj"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/object.h",
+    "old": "void * GetSimObj__FiP18Object_tSimObjListPi(int objIndex, Object_tSimObjList *objList, int *chunk);   /* :256 */",
+    "name": "GetSimObj",
+    "symbol": "GetSimObj__FiP18Object_tSimObjListPi",
+    "native": [
+      {
+        "record": "2d8c5f",
+        "address": "800a4f14",
+        "storage": "EXT",
+        "return": "PTR STRUCT",
+        "size": "20",
+        "tag": "Trk_SimObject"
+      }
+    ],
+    "definitions": [
+      {
+        "return": "Trk_SimObject *",
+        "parameters": "int objIndex,Object_tSimObjList *objList,int *chunk",
+        "signature": "Trk_SimObject * GetSimObj(int objIndex,Object_tSimObjList *objList,int *chunk)"
+      }
+    ],
+    "parameter_records": [
+      "2d9bb9: $00000004 94 Def class REGPARM type INT size 0 name objIndex",
+      "2d9bcf: $00000005 96 Def2 class REGPARM type PTR STRUCT size 16 dims 0 tag Object_tSimObjList name objList",
+      "2d9bf9: $00000006 94 Def class REGPARM type PTR INT size 0 name chunk"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/object.h",
+    "old": "int Object_GetRadiusCollisionData__FP18Object_tSimObjListiP8coorddefPi(Object_tSimObjList *objList, int objIndex, coorddef *pos, int *radius);   /* :304 */",
+    "name": "Object_GetRadiusCollisionData",
+    "symbol": "Object_GetRadiusCollisionData__FP18Object_tSimObjListiP8coorddefPi",
+    "native": [
+      {
+        "record": "2d8ca1",
+        "address": "800a4fe8",
+        "storage": "EXT",
+        "return": "INT",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "int",
+        "parameters": "Object_tSimObjList *objList,int objIndex,coorddef *pos,int *radius",
+        "signature": "int Object_GetRadiusCollisionData(Object_tSimObjList *objList,int objIndex,coorddef *pos,int *radius)"
+      }
+    ],
+    "parameter_records": [
+      "2d9d95: $00000002 96 Def2 class REGPARM type PTR STRUCT size 16 dims 0 tag Object_tSimObjList name objList",
+      "2d9dbf: $00000005 94 Def class REGPARM type INT size 0 name objIndex",
+      "2d9dd5: $00000012 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name pos",
+      "2d9df1: $00000011 94 Def class REGPARM type PTR INT size 0 name radius"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/object.h",
+    "old": "void Object_GetPointsCollisionData__FP18Object_tSimObjListiPiP8coorddef(Object_tSimObjList *objList, int objIndex, int *numPoints, coorddef *resultPoints);   /* :336 */",
+    "name": "Object_GetPointsCollisionData",
+    "symbol": "Object_GetPointsCollisionData__FP18Object_tSimObjListiPiP8coorddef",
+    "native": [
+      {
+        "record": "2d8cf1",
+        "address": "800a50f4",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "Object_tSimObjList *objList,int objIndex,int *numPoints,coorddef *resultPoints",
+        "signature": "void Object_GetPointsCollisionData(Object_tSimObjList *objList,int objIndex,int *numPoints,coorddef *resultPoints)"
+      }
+    ],
+    "parameter_records": [
+      "2d9f4a: $00000002 96 Def2 class REGPARM type PTR STRUCT size 16 dims 0 tag Object_tSimObjList name objList",
+      "2d9f74: $00000005 94 Def class REGPARM type INT size 0 name objIndex",
+      "2d9f8a: $00000011 94 Def class REGPARM type PTR INT size 0 name numPoints",
+      "2d9fa1: $00000012 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name resultPoints"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/object.h",
+    "old": "void Object_InitStatus__Fv(void);   /* :398 */",
+    "name": "Object_InitStatus",
+    "symbol": "Object_InitStatus__Fv",
+    "native": [
+      {
+        "record": "2d8d41",
+        "address": "800a5230",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "void",
+        "signature": "void Object_InitStatus(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/object.h",
+    "old": "void Object_KillStatus__Fv(void);   /* :408 */",
+    "name": "Object_KillStatus",
+    "symbol": "Object_KillStatus__Fv",
+    "native": [
+      {
+        "record": "2d8d64",
+        "address": "800a5258",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "void",
+        "signature": "void Object_KillStatus(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/object.h",
+    "old": "void * Object_GetAnim__FP13Trk_SimObject(Trk_SimObject *simObj);   /* :427 */",
+    "name": "Object_GetAnim",
+    "symbol": "Object_GetAnim__FP13Trk_SimObject",
+    "native": [
+      {
+        "record": "2d8d87",
+        "address": "800a52c4",
+        "storage": "EXT",
+        "return": "PTR STRUCT",
+        "size": "4",
+        "tag": "ObjectAnim"
+      }
+    ],
+    "definitions": [
+      {
+        "return": "ObjectAnim *",
+        "parameters": "Trk_SimObject *simObj",
+        "signature": "ObjectAnim * Object_GetAnim(Trk_SimObject *simObj)"
+      }
+    ],
+    "parameter_records": [
+      "2da21c: $00000004 96 Def2 class REGPARM type PTR STRUCT size 20 dims 0 tag Trk_SimObject name simObj"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/object.h",
+    "old": "int Object_CheckCollisionResults__FP18Object_tSimObjListiP13BO_tNewtonObj(Object_tSimObjList *objList, int objIndex, BO_tNewtonObj *N);   /* :455 */",
+    "name": "Object_CheckCollisionResults",
+    "symbol": "Object_CheckCollisionResults__FP18Object_tSimObjListiP13BO_tNewtonObj",
+    "native": [
+      {
+        "record": "2d8dc3",
+        "address": "800a52f0",
+        "storage": "EXT",
+        "return": "INT",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "int",
+        "parameters": "Object_tSimObjList *objList,int objIndex,BO_tNewtonObj *N",
+        "signature": "int Object_CheckCollisionResults(Object_tSimObjList *objList,int objIndex,BO_tNewtonObj *N)"
+      }
+    ],
+    "parameter_records": [
+      "2da2d9: $00000002 96 Def2 class REGPARM type PTR STRUCT size 16 dims 0 tag Object_tSimObjList name objList",
+      "2da303: $00000005 94 Def class REGPARM type INT size 0 name objIndex",
+      "2da319: $00000016 96 Def2 class REGPARM type PTR STRUCT size 576 dims 0 tag BO_tNewtonObj name N"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/object.h",
+    "old": "void Object_InitCustomObjects__Fv(void);   /* :581 */",
+    "name": "Object_InitCustomObjects",
+    "symbol": "Object_InitCustomObjects__Fv",
+    "native": [
+      {
+        "record": "2d8e16",
+        "address": "800a5588",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "void",
+        "signature": "void Object_InitCustomObjects(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/object.h",
+    "old": "void Object_DeInitCustomObjects__Fv(void);   /* :600 */",
+    "name": "Object_DeInitCustomObjects",
+    "symbol": "Object_DeInitCustomObjects__Fv",
+    "native": [
+      {
+        "record": "2d8e40",
+        "address": "800a560c",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "void",
+        "signature": "void Object_DeInitCustomObjects(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/object.h",
+    "old": "void Object_ClearCustomObjects__Fv(void);   /* :616 */",
+    "name": "Object_ClearCustomObjects",
+    "symbol": "Object_ClearCustomObjects__Fv",
+    "native": [
+      {
+        "record": "2d8e6c",
+        "address": "800a566c",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "void",
+        "signature": "void Object_ClearCustomObjects(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/object.h",
+    "old": "void SetCautionSurface__FP8coorddefP12BWorldSm_Pos(coorddef *pt, BWorldSm_Pos *slicePos);   /* :648 */",
+    "name": "SetCautionSurface",
+    "symbol": "SetCautionSurface__FP8coorddefP12BWorldSm_Pos",
+    "native": [
+      {
+        "record": "2d8e97",
+        "address": "800a573c",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "coorddef *pt,BWorldSm_Pos *slicePos",
+        "signature": "void SetCautionSurface(coorddef *pt,BWorldSm_Pos *slicePos)"
+      }
+    ],
+    "parameter_records": [
+      "2da7c0: $00000004 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name pt",
+      "2da7db: $00000010 96 Def2 class REGPARM type PTR STRUCT size 132 dims 0 tag BWorldSm_Pos name slicePos"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/object.h",
+    "old": "int Object_AddCustomSimObject__FP9SceneElemii(SceneElem *objectData, int serialNum, int instIndex);   /* :668 */",
+    "name": "Object_AddCustomSimObject",
+    "symbol": "Object_AddCustomSimObject__FP9SceneElemii",
+    "native": [
+      {
+        "record": "2d8ed2",
+        "address": "800a57b0",
+        "storage": "EXT",
+        "return": "INT",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "int",
+        "parameters": "SceneElem *objectData,int serialNum,int instIndex",
+        "signature": "int Object_AddCustomSimObject(SceneElem *objectData,int serialNum,int instIndex)"
+      }
+    ],
+    "parameter_records": [
+      "2da87d: $00000014 96 Def2 class REGPARM type PTR STRUCT size 92 dims 0 tag SceneElem name objectData",
+      "2da8a1: $00000015 94 Def class REGPARM type INT size 0 name serialNum",
+      "2da8b8: $00000016 94 Def class REGPARM type INT size 0 name instIndex"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/object.h",
+    "old": "int Object_GetObjDefID__Fi(int index);   /* :785 */",
+    "name": "Object_GetObjDefID",
+    "symbol": "Object_GetObjDefID__Fi",
+    "native": [
+      {
+        "record": "2d8f09",
+        "address": "800a5958",
+        "storage": "EXT",
+        "return": "INT",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "int",
+        "parameters": "int index",
+        "signature": "int Object_GetObjDefID(int index)"
+      }
+    ],
+    "parameter_records": [
+      "2da9ff: $00000004 94 Def class REGPARM type INT size 0 name index"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/object.h",
+    "old": "int Object_FindDefWithThisID__Fi(int ID);   /* :794 */",
+    "name": "Object_FindDefWithThisID",
+    "symbol": "Object_FindDefWithThisID__Fi",
+    "native": [
+      {
+        "record": "2d8f2d",
+        "address": "800a59ac",
+        "storage": "EXT",
+        "return": "INT",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "int",
+        "parameters": "int ID",
+        "signature": "int Object_FindDefWithThisID(int ID)"
+      }
+    ],
+    "parameter_records": [
+      "2daa82: $00000004 94 Def class REGPARM type INT size 0 name ID"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/object.h",
+    "old": "void Object_AddCustomObject__FP9SceneElemi(SceneElem *objectData, int setupSimDataFlag);   /* :808 */",
+    "name": "Object_AddCustomObject",
+    "symbol": "Object_AddCustomObject__FP9SceneElemi",
+    "native": [
+      {
+        "record": "2d8f57",
+        "address": "800a5a04",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "SceneElem *objectData,int setupSimDataFlag",
+        "signature": "void Object_AddCustomObject(SceneElem *objectData,int setupSimDataFlag)"
+      }
+    ],
+    "parameter_records": [
+      "2dab7c: $00000011 96 Def2 class REGPARM type PTR STRUCT size 92 dims 0 tag SceneElem name objectData",
+      "2daba0: $00000012 94 Def class REGPARM type INT size 0 name setupSimDataFlag"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/object.h",
+    "old": "void GetObjMaxDimensions__FPP13Trk_ObjectDefP14Trk_SimpleInstP8coorddef(Trk_ObjectDef **pObjDefs, Trk_SimpleInst *objInstance, coorddef *dimensions);   /* :1011 */",
+    "name": "GetObjMaxDimensions",
+    "symbol": "GetObjMaxDimensions__FPP13Trk_ObjectDefP14Trk_SimpleInstP8coorddef",
+    "native": [
+      {
+        "record": "2d8f8a",
+        "address": "800a5d58",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "Trk_ObjectDef **pObjDefs,Trk_SimpleInst *objInstance,coorddef *dimensions",
+        "signature": "void GetObjMaxDimensions(Trk_ObjectDef **pObjDefs,Trk_SimpleInst *objInstance,coorddef *dimensions)"
+      }
+    ],
+    "parameter_records": [
+      "2daeec: $00000004 96 Def2 class REGPARM type PTR PTR STRUCT size 4 dims 0 tag Trk_ObjectDef name pObjDefs",
+      "2daf12: $00000005 96 Def2 class REGPARM type PTR STRUCT size 20 dims 0 tag Trk_SimpleInst name objInstance",
+      "2daf3c: $00000011 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name dimensions"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/object.h",
+    "old": "void Object_InitIMassObjectInfo__Fv(void);   /* :1055 */",
+    "name": "Object_InitIMassObjectInfo",
+    "symbol": "Object_InitIMassObjectInfo__Fv",
+    "native": [
+      {
+        "record": "2d8fda",
+        "address": "800a5ed0",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "void",
+        "signature": "void Object_InitIMassObjectInfo(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/object.h",
+    "old": "void Object_DeInitIMassObjectInfo__Fv(void);   /* :1093 */",
+    "name": "Object_DeInitIMassObjectInfo",
+    "symbol": "Object_DeInitIMassObjectInfo__Fv",
+    "native": [
+      {
+        "record": "2d9006",
+        "address": "800a5fdc",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "void",
+        "signature": "void Object_DeInitIMassObjectInfo(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/object.h",
+    "old": "int Object_GetNumIMassObjects__Fv(void);   /* :1101 */",
+    "name": "Object_GetNumIMassObjects",
+    "symbol": "Object_GetNumIMassObjects__Fv",
+    "native": [
+      {
+        "record": "2d9034",
+        "address": "800a6004",
+        "storage": "EXT",
+        "return": "INT",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "int",
+        "parameters": "void",
+        "signature": "int Object_GetNumIMassObjects(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/object.h",
+    "old": "void Object_GetIMassObjectDimensions__FiP8coorddef(int objIndex, coorddef *dimensions);   /* :1108 */",
+    "name": "Object_GetIMassObjectDimensions",
+    "symbol": "Object_GetIMassObjectDimensions__FiP8coorddef",
+    "native": [
+      {
+        "record": "2d905f",
+        "address": "800a6010",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "int objIndex,coorddef *dimensions",
+        "signature": "void Object_GetIMassObjectDimensions(int objIndex,coorddef *dimensions)"
+      }
+    ],
+    "parameter_records": [
+      "2db22d: $00000004 94 Def class REGPARM type INT size 0 name objIndex",
+      "2db243: $00000005 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name dimensions"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/object.h",
+    "old": "void Object_GetIMassObjectMotion__FiP8coorddefP10matrixtdefT1(int objIndex, coorddef *cpoint, matrixtdef *orientMat, coorddef *velocity);   /* :1117 */",
+    "name": "Object_GetIMassObjectMotion",
+    "symbol": "Object_GetIMassObjectMotion__FiP8coorddefP10matrixtdefT1",
+    "native": [
+      {
+        "record": "2d909a",
+        "address": "800a603c",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "int objIndex,coorddef *cpoint,matrixtdef *orientMat,coorddef *velocity",
+        "signature": "void Object_GetIMassObjectMotion(int objIndex,coorddef *cpoint,matrixtdef *orientMat,coorddef *velocity)"
+      }
+    ],
+    "parameter_records": [
+      "2db2f2: $00000014 94 Def class REGPARM type INT size 0 name objIndex",
+      "2db308: $00000013 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name cpoint",
+      "2db327: $00000011 96 Def2 class REGPARM type PTR STRUCT size 36 dims 0 tag matrixtdef name orientMat",
+      "2db34b: $00000012 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name velocity"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/input.h",
+    "old": "int * Input_StartUp__Fv(void);   /* :55 */",
+    "name": "Input_StartUp",
+    "symbol": "Input_StartUp__Fv",
+    "native": [
+      {
+        "record": "292c6e",
+        "address": "8009c344",
+        "storage": "EXT",
+        "return": "PTR INT",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "int *",
+        "parameters": "void",
+        "signature": "int * Input_StartUp(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/input.h",
+    "old": "int Input_WingCommandMode__Fi(int player);   /* :84 */",
+    "name": "Input_WingCommandMode",
+    "symbol": "Input_WingCommandMode__Fi",
+    "native": [
+      {
+        "record": "292c8d",
+        "address": "8009c408",
+        "storage": "EXT",
+        "return": "INT",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "int",
+        "parameters": "int player",
+        "signature": "int Input_WingCommandMode(int player)"
+      }
+    ],
+    "parameter_records": [
+      "292e87: $00000004 94 Def class REGPARM type INT size 0 name player"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/input.h",
+    "old": "void Input_Update__Fv(void);   /* :104 */",
+    "name": "Input_Update",
+    "symbol": "Input_Update__Fv",
+    "native": [
+      {
+        "record": "292cb4",
+        "address": "8009c478",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "void",
+        "signature": "void Input_Update(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/input.h",
+    "old": "void Input_Store__Fv(void);   /* :436 */",
+    "name": "Input_Store",
+    "symbol": "Input_Store__Fv",
+    "native": [
+      {
+        "record": "292cd2",
+        "address": "8009d208",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "void",
+        "signature": "void Input_Store(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/input.h",
+    "old": "void Input_Fetch__Fi(int humanIndex);   /* :456 */",
+    "name": "Input_Fetch",
+    "symbol": "Input_Fetch__Fi",
+    "native": [
+      {
+        "record": "292cef",
+        "address": "8009d294",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "int humanIndex",
+        "signature": "void Input_Fetch(int humanIndex)"
+      }
+    ],
+    "parameter_records": [
+      "293303: $00000004 94 Def class REGPARM type INT size 0 name humanIndex"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/input.h",
+    "old": "char Input_Gear__Fci(char currentGear, int numGears);   /* :466 */",
+    "name": "Input_Gear",
+    "symbol": "Input_Gear__Fci",
+    "native": [
+      {
+        "record": "292d0c",
+        "address": "8009d2bc",
+        "storage": "EXT",
+        "return": "CHAR",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "char",
+        "parameters": "char currentGear,int numGears",
+        "signature": "char Input_Gear(char currentGear,int numGears)"
+      }
+    ],
+    "parameter_records": [
+      "29337d: $00000006 94 Def class REGPARM type CHAR size 0 name currentGear",
+      "293396: $00000005 94 Def class REGPARM type INT size 0 name numGears"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/input.h",
+    "old": "int Input_Interface__FUli(u_long key, int debounce);   /* :488 */",
+    "name": "Input_Interface",
+    "symbol": "Input_Interface__FUli",
+    "native": [
+      {
+        "record": "292d29",
+        "address": "8009d318",
+        "storage": "EXT",
+        "return": "INT",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "int",
+        "parameters": "u_long key,int debounce",
+        "signature": "int Input_Interface(u_long key,int debounce)"
+      }
+    ],
+    "parameter_records": [
+      "293414: $00000006 94 Def class REGPARM type ULONG size 0 name key",
+      "293425: $00000005 94 Def class REGPARM type INT size 0 name debounce"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/input.h",
+    "old": "int Input_MainExitKey__Fv(void);   /* :543 */",
+    "name": "Input_MainExitKey",
+    "symbol": "Input_MainExitKey__Fv",
+    "native": [
+      {
+        "record": "292d4c",
+        "address": "8009d3bc",
+        "storage": "EXT",
+        "return": "INT",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "int",
+        "parameters": "void",
+        "signature": "int Input_MainExitKey(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/gmesetup.h",
+    "old": "void GameSetup_StartUp__FPi(int *FrontEndDataStream);   /* :155 */",
+    "name": "GameSetup_StartUp",
+    "symbol": "GameSetup_StartUp__FPi",
+    "native": [
+      {
+        "record": "287320",
+        "address": "8009bd9c",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "int *FrontEndDataStream",
+        "signature": "void GameSetup_StartUp(int *FrontEndDataStream)"
+      }
+    ],
+    "parameter_records": [
+      "2873b8: $00000012 94 Def class REGPARM type PTR INT size 0 name FrontEndDataStream"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/gmesetup.h",
+    "old": "void GameSetup_CleanUp__Fv(void);   /* :369 */",
+    "name": "GameSetup_CleanUp",
+    "symbol": "GameSetup_CleanUp__Fv",
+    "native": [
+      {
+        "record": "287344",
+        "address": "8009c120",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "void",
+        "signature": "void GameSetup_CleanUp(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/stats.h",
+    "old": "void Stats_DoPlayerGlue__Fv(void);   /* :52 */",
+    "name": "Stats_DoPlayerGlue",
+    "symbol": "Stats_DoPlayerGlue__Fv",
+    "native": [
+      {
+        "record": "361ded",
+        "address": "800b7f58",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "void",
+        "signature": "void Stats_DoPlayerGlue(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/stats.h",
+    "old": "void Stats_ClearPosition__Fv(void);   /* :112 */",
+    "name": "Stats_ClearPosition",
+    "symbol": "Stats_ClearPosition__Fv",
+    "native": [
+      {
+        "record": "361e11",
+        "address": "800b8114",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "void",
+        "signature": "void Stats_ClearPosition(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/stats.h",
+    "old": "int Stats_GetPosition__FP8Car_tObj(Car_tObj *carObj);   /* :126 */",
+    "name": "Stats_GetPosition",
+    "symbol": "Stats_GetPosition__FP8Car_tObj",
+    "native": [
+      {
+        "record": "361e36",
+        "address": "800b8154",
+        "storage": "EXT",
+        "return": "INT",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "int",
+        "parameters": "Car_tObj *carObj",
+        "signature": "int Stats_GetPosition(Car_tObj *carObj)"
+      }
+    ],
+    "parameter_records": [
+      "36208c: $00000004 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/stats.h",
+    "old": "int Stats_GetNumOpponents__Fv(void);   /* :145 */",
+    "name": "Stats_GetNumOpponents",
+    "symbol": "Stats_GetNumOpponents__Fv",
+    "native": [
+      {
+        "record": "361e62",
+        "address": "800b81a8",
+        "storage": "EXT",
+        "return": "INT",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "int",
+        "parameters": "void",
+        "signature": "int Stats_GetNumOpponents(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/stats.h",
+    "old": "void Stats_TrackStats__FP8Car_tObj(Car_tObj *carObj);   /* :161 */",
+    "name": "Stats_TrackStats",
+    "symbol": "Stats_TrackStats__FP8Car_tObj",
+    "native": [
+      {
+        "record": "361e89",
+        "address": "800b81fc",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "Car_tObj *carObj",
+        "signature": "void Stats_TrackStats(Car_tObj *carObj)"
+      }
+    ],
+    "parameter_records": [
+      "3621f8: $00000010 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/stats.h",
+    "old": "void Stats_ExtrapolateOpponentTimes__Fi(int type);   /* :278 */",
+    "name": "Stats_ExtrapolateOpponentTimes",
+    "symbol": "Stats_ExtrapolateOpponentTimes__Fi",
+    "native": [
+      {
+        "record": "361eb4",
+        "address": "800b8604",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "int type",
+        "signature": "void Stats_ExtrapolateOpponentTimes(int type)"
+      }
+    ],
+    "parameter_records": [
+      "362427: $00000016 94 Def class REGPARM type INT size 0 name type"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/stats.h",
+    "old": "void Stats_TrackEndGame__Fv(void);   /* :470 */",
+    "name": "Stats_TrackEndGame",
+    "symbol": "Stats_TrackEndGame__Fv",
+    "native": [
+      {
+        "record": "361ee4",
+        "address": "800b8db8",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "void",
+        "signature": "void Stats_TrackEndGame(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/schedule.h",
+    "old": "int Sched_ExecuteCheck__FiiiiPiN24i(int staggered, int module, int distance, int carId, int *time, int *elapsedTime, int *iTime, int forceNoSimOptz);   /* :55 */",
+    "name": "Sched_ExecuteCheck",
+    "symbol": "Sched_ExecuteCheck__FiiiiPiN24i",
+    "native": [
+      {
+        "record": "3367c4",
+        "address": "800b61bc",
+        "storage": "EXT",
+        "return": "INT",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "int",
+        "parameters": "int staggered,int module,int distance,int carId,int *time,int *elapsedTime,int *iTime\n              ,int forceNoSimOptz",
+        "signature": "int Sched_ExecuteCheck(int staggered,int module,int distance,int carId,int *time,int *elapsedTime,int *iTime ,int forceNoSimOptz)"
+      }
+    ],
+    "parameter_records": [
+      "33696c: $0000000c 94 Def class REGPARM type INT size 0 name staggered",
+      "336983: $00000005 94 Def class REGPARM type INT size 0 name module",
+      "336997: $00000006 94 Def class REGPARM type INT size 0 name distance",
+      "3369ad: $00000007 94 Def class REGPARM type INT size 0 name carId",
+      "3369c0: $00000010 94 Def class ARG type PTR INT size 0 name time",
+      "3369d2: $00000014 94 Def class ARG type PTR INT size 0 name elapsedTime",
+      "3369eb: $00000018 94 Def class ARG type PTR INT size 0 name iTime",
+      "3369fe: $0000001c 94 Def class ARG type INT size 0 name forceNoSimOptz"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/schedule.h",
+    "old": "void * Sched_CreateNewSchedule__FPci(char *scheduleName, int maxFunctions);   /* :89 */",
+    "name": "Sched_CreateNewSchedule",
+    "symbol": "Sched_CreateNewSchedule__FPci",
+    "native": [
+      {
+        "record": "3367f1",
+        "address": "800b62f0",
+        "storage": "EXT",
+        "return": "PTR STRUCT",
+        "size": "24",
+        "tag": "Sched_tSchedule"
+      }
+    ],
+    "definitions": [
+      {
+        "return": "Sched_tSchedule *",
+        "parameters": "char *scheduleName,int maxFunctions",
+        "signature": "Sched_tSchedule * Sched_CreateNewSchedule(char *scheduleName,int maxFunctions)"
+      }
+    ],
+    "parameter_records": [
+      "336b4b: $00000004 94 Def class REGPARM type PTR CHAR size 0 name scheduleName",
+      "336b65: $00000010 94 Def class REGPARM type INT size 0 name maxFunctions"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/schedule.h",
+    "old": "void Sched_CleanUpSchedule__FP15Sched_tSchedule(Sched_tSchedule *schedule);   /* :113 */",
+    "name": "Sched_CleanUpSchedule",
+    "symbol": "Sched_CleanUpSchedule__FP15Sched_tSchedule",
+    "native": [
+      {
+        "record": "33682e",
+        "address": "800b6360",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "Sched_tSchedule *schedule",
+        "signature": "void Sched_CleanUpSchedule(Sched_tSchedule *schedule)"
+      }
+    ],
+    "parameter_records": [
+      "336c39: $00000004 96 Def2 class REGPARM type PTR STRUCT size 24 dims 0 tag Sched_tSchedule name schedule"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/schedule.h",
+    "old": "void Sched_AddFunction__FP15Sched_tSchedulePFPv_vPvi(Sched_tSchedule *schedule, void *function, void *var1, int priority);   /* :123 */",
+    "name": "Sched_AddFunction",
+    "symbol": "Sched_AddFunction__FP15Sched_tSchedulePFPv_vPvi",
+    "native": [
+      {
+        "record": "336866",
+        "address": "800b6380",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "Sched_tSchedule *schedule,Sched_tFunctionPt function,void *var1,int priority",
+        "signature": "void Sched_AddFunction(Sched_tSchedule *schedule,Sched_tFunctionPt function,void *var1,int priority)"
+      }
+    ],
+    "parameter_records": [
+      "336ce6: $00000004 96 Def2 class REGPARM type PTR STRUCT size 24 dims 0 tag Sched_tSchedule name schedule",
+      "336d0e: $00000005 94 Def class REGPARM type PTR FCN VOID size 0 name function",
+      "336d24: $00000006 94 Def class REGPARM type PTR VOID size 0 name var1",
+      "336d36: $00000007 94 Def class REGPARM type INT size 0 name priority"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/schedule.h",
+    "old": "void Sched_DeleteFunction__FP15Sched_tSchedulePFPv_vPv(Sched_tSchedule *schedule, void *function, void *var1);   /* :160 */",
+    "name": "Sched_DeleteFunction",
+    "symbol": "Sched_DeleteFunction__FP15Sched_tSchedulePFPv_vPv",
+    "native": [
+      {
+        "record": "3368a3",
+        "address": "800b6434",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "Sched_tSchedule *schedule,Sched_tFunctionPt function,void *var1",
+        "signature": "void Sched_DeleteFunction(Sched_tSchedule *schedule,Sched_tFunctionPt function,void *var1)"
+      }
+    ],
+    "parameter_records": [
+      "336e00: $00000004 96 Def2 class REGPARM type PTR STRUCT size 24 dims 0 tag Sched_tSchedule name schedule",
+      "336e28: $00000005 94 Def class REGPARM type PTR FCN VOID size 0 name function",
+      "336e3e: $00000006 94 Def class REGPARM type PTR VOID size 0 name var1"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/schedule.h",
+    "old": "void Sched_Execute__FP15Sched_tSchedule(Sched_tSchedule *schedule);   /* :195 */",
+    "name": "Sched_Execute",
+    "symbol": "Sched_Execute__FP15Sched_tSchedule",
+    "native": [
+      {
+        "record": "3368e2",
+        "address": "800b6500",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "Sched_tSchedule *schedule",
+        "signature": "void Sched_Execute(Sched_tSchedule *schedule)"
+      }
+    ],
+    "parameter_records": [
+      "336ee6: $00000012 96 Def2 class REGPARM type PTR STRUCT size 24 dims 0 tag Sched_tSchedule name schedule"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/sim.h",
+    "old": "void Sim_StartUp__Fv(void);   /* :186 */",
+    "name": "Sim_StartUp",
+    "symbol": "Sim_StartUp__Fv",
+    "native": [
+      {
+        "record": "344c47",
+        "address": "800b6574",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "void",
+        "signature": "void Sim_StartUp(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/sim.h",
+    "old": "void Sim_Restart__Fv(void);   /* :231 */",
+    "name": "Sim_Restart",
+    "symbol": "Sim_Restart__Fv",
+    "native": [
+      {
+        "record": "344c64",
+        "address": "800b6688",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "void",
+        "signature": "void Sim_Restart(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/sim.h",
+    "old": "void Sim_CleanUp__Fv(void);   /* :264 */",
+    "name": "Sim_CleanUp",
+    "symbol": "Sim_CleanUp__Fv",
+    "native": [
+      {
+        "record": "344c81",
+        "address": "800b6754",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "void",
+        "signature": "void Sim_CleanUp(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/sim.h",
+    "old": "void Sim_FadeInSFX__Fv(void);   /* :290 */",
+    "name": "Sim_FadeInSFX",
+    "symbol": "Sim_FadeInSFX__Fv",
+    "native": [
+      {
+        "record": "344c9e",
+        "address": "800b67f8",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "void",
+        "signature": "void Sim_FadeInSFX(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/sim.h",
+    "old": "void Sim_ProcessSimSchedules__Fv(void);   /* :312 */",
+    "name": "Sim_ProcessSimSchedules",
+    "symbol": "Sim_ProcessSimSchedules__Fv",
+    "native": [
+      {
+        "record": "344cbd",
+        "address": "800b6878",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "void",
+        "signature": "void Sim_ProcessSimSchedules(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/sim.h",
+    "old": "void Sim_ProcessPause__Fv(void);   /* :467 */",
+    "name": "Sim_ProcessPause",
+    "symbol": "Sim_ProcessPause__Fv",
+    "native": [
+      {
+        "record": "344ce6",
+        "address": "800b6b9c",
+        "storage": "STAT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "static void",
+        "parameters": "void",
+        "signature": "static void Sim_ProcessPause(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/sim.h",
+    "old": "void Sim_CheckForPause__Fi(int checkInput);   /* :536 */",
+    "name": "Sim_CheckForPause",
+    "symbol": "Sim_CheckForPause__Fi",
+    "native": [
+      {
+        "record": "344d08",
+        "address": "800b6ca0",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "int checkInput",
+        "signature": "void Sim_CheckForPause(int checkInput)"
+      }
+    ],
+    "parameter_records": [
+      "345063: $00000004 94 Def class REGPARM type INT size 0 name checkInput"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/sim.h",
+    "old": "void Sim_MainGameLoop__Fv(void);   /* :554 */",
+    "name": "Sim_MainGameLoop",
+    "symbol": "Sim_MainGameLoop__Fv",
+    "native": [
+      {
+        "record": "344d2b",
+        "address": "800b6d4c",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "void",
+        "signature": "void Sim_MainGameLoop(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/simqueue.h",
+    "old": "void SimQueue_StartUp__Fv(void);   /* :93 */",
+    "name": "SimQueue_StartUp",
+    "symbol": "SimQueue_StartUp__Fv",
+    "native": [
+      {
+        "record": "34f272",
+        "address": "800b72ec",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "void",
+        "signature": "void SimQueue_StartUp(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/simqueue.h",
+    "old": "void SimQueue_Reset__Fv(void);   /* :115 */",
+    "name": "SimQueue_Reset",
+    "symbol": "SimQueue_Reset__Fv",
+    "native": [
+      {
+        "record": "34f294",
+        "address": "800b7318",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "void",
+        "signature": "void SimQueue_Reset(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/simqueue.h",
+    "old": "void SimQueue_CleanUp__Fv(void);   /* :169 */",
+    "name": "SimQueue_CleanUp",
+    "symbol": "SimQueue_CleanUp__Fv",
+    "native": [
+      {
+        "record": "34f2b4",
+        "address": "800b73b8",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "void",
+        "signature": "void SimQueue_CleanUp(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/simqueue.h",
+    "old": "int SimQueue_Put__FiP14Input_tResults(int pIndex, Input_tResults *val);   /* :201 */",
+    "name": "SimQueue_Put",
+    "symbol": "SimQueue_Put__FiP14Input_tResults",
+    "native": [
+      {
+        "record": "34f2d6",
+        "address": "800b73cc",
+        "storage": "EXT",
+        "return": "INT",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "int",
+        "parameters": "int pIndex,Input_tResults *val",
+        "signature": "int SimQueue_Put(int pIndex,Input_tResults *val)"
+      }
+    ],
+    "parameter_records": [
+      "34f566: $00000012 94 Def class REGPARM type INT size 0 name pIndex",
+      "34f57a: $00000014 96 Def2 class REGPARM type PTR STRUCT size 4 dims 0 tag Input_tResults name val"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/simqueue.h",
+    "old": "void SimQueue_SetCurrentInput__Fi(int time);   /* :271 */",
+    "name": "SimQueue_SetCurrentInput",
+    "symbol": "SimQueue_SetCurrentInput__Fi",
+    "native": [
+      {
+        "record": "34f305",
+        "address": "800b74e4",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "int time",
+        "signature": "void SimQueue_SetCurrentInput(int time)"
+      }
+    ],
+    "parameter_records": [
+      "34f620: $00000004 94 Def class REGPARM type INT size 0 name time"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/simqueue.h",
+    "old": "void SimQueue_GetCurrentInput__FiP14Input_tResults(int pIndex, Input_tResults *out);   /* :295 */",
+    "name": "SimQueue_GetCurrentInput",
+    "symbol": "SimQueue_GetCurrentInput__FiP14Input_tResults",
+    "native": [
+      {
+        "record": "34f32f",
+        "address": "800b75a4",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "int pIndex,Input_tResults *out",
+        "signature": "void SimQueue_GetCurrentInput(int pIndex,Input_tResults *out)"
+      }
+    ],
+    "parameter_records": [
+      "34f6d8: $00000004 94 Def class REGPARM type INT size 0 name pIndex",
+      "34f6ec: $00000005 96 Def2 class REGPARM type PTR STRUCT size 4 dims 0 tag Input_tResults name out"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/simqueue.h",
+    "old": "void SimQueue_SetLag__Fv(void);   /* :326 */",
+    "name": "SimQueue_SetLag",
+    "symbol": "SimQueue_SetLag__Fv",
+    "native": [
+      {
+        "record": "34f36a",
+        "address": "800b75cc",
+        "storage": "STAT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "static void",
+        "parameters": "void",
+        "signature": "static void SimQueue_SetLag(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/simqueue.h",
+    "old": "int SimQueue_IsBlocking__Fi(int pIndex);   /* :382 */",
+    "name": "SimQueue_IsBlocking",
+    "symbol": "SimQueue_IsBlocking__Fi",
+    "native": [
+      {
+        "record": "34f38b",
+        "address": "800b75f8",
+        "storage": "STAT",
+        "return": "INT",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "static int",
+        "parameters": "int pIndex",
+        "signature": "static int SimQueue_IsBlocking(int pIndex)"
+      }
+    ],
+    "parameter_records": [
+      "34f7e4: $00000004 94 Def class REGPARM type INT size 0 name pIndex"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/quatern.h",
+    "old": "void Quatern_VecInterpolate__FP8coorddefT0iT0(coorddef *cp0, coorddef *cp1, int weight, coorddef *cp);   /* :59 */",
+    "name": "Quatern_VecInterpolate",
+    "symbol": "Quatern_VecInterpolate__FP8coorddefT0iT0",
+    "native": [
+      {
+        "record": "2ffb91",
+        "address": "800ad5c8",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "coorddef *cp0,coorddef *cp1,int weight,coorddef *cp",
+        "signature": "void Quatern_VecInterpolate(coorddef *cp0,coorddef *cp1,int weight,coorddef *cp)"
+      }
+    ],
+    "parameter_records": [
+      "2ffcd3: $00000010 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name cp0",
+      "2ffcef: $00000011 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name cp1",
+      "2ffd0b: $00000012 94 Def class REGPARM type INT size 0 name weight",
+      "2ffd1f: $00000013 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name cp"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/quatern.h",
+    "old": "void Quatern_Interpolate__FP5tQuatT0P8coorddefT2iT0T2(tQuat *q0, tQuat *q1, coorddef *cp0, coorddef *cp1, int weight, tQuat *q, coorddef *cp);   /* :67 */",
+    "name": "Quatern_Interpolate",
+    "symbol": "Quatern_Interpolate__FP5tQuatT0P8coorddefT2iT0T2",
+    "native": [
+      {
+        "record": "2ffbc7",
+        "address": "800ad678",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "tQuat *q0,tQuat *q1,coorddef *cp0,coorddef *cp1,int weight,tQuat *q,coorddef *cp",
+        "signature": "void Quatern_Interpolate(tQuat *q0,tQuat *q1,coorddef *cp0,coorddef *cp1,int weight,tQuat *q,coorddef *cp)"
+      }
+    ],
+    "parameter_records": [
+      "2ffdbf: $00000010 96 Def2 class REGPARM type PTR STRUCT size 8 dims 0 tag tQuat name q0",
+      "2ffdd7: $00000012 96 Def2 class REGPARM type PTR STRUCT size 8 dims 0 tag tQuat name q1",
+      "2ffdef: $00000015 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name cp0",
+      "2ffe0b: $00000016 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name cp1",
+      "2ffe27: $00000010 94 Def class ARG type INT size 0 name weight",
+      "2ffe3b: $00000014 96 Def2 class ARG type PTR STRUCT size 8 dims 0 tag tQuat name q",
+      "2ffe52: $00000018 96 Def2 class ARG type PTR STRUCT size 12 dims 0 tag coorddef name cp"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/quatern.h",
+    "old": "void Quatern_QuatToMat__FP5tQuatP10matrixtdef(tQuat *q, matrixtdef *matrix);   /* :158 */",
+    "name": "Quatern_QuatToMat",
+    "symbol": "Quatern_QuatToMat__FP5tQuatP10matrixtdef",
+    "native": [
+      {
+        "record": "2ffc05",
+        "address": "800ad780",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "tQuat *q,matrixtdef *matrix",
+        "signature": "void Quatern_QuatToMat(tQuat *q,matrixtdef *matrix)"
+      }
+    ],
+    "parameter_records": [
+      "2fff30: $00000004 96 Def2 class REGPARM type PTR STRUCT size 8 dims 0 tag tQuat name q",
+      "2fff47: $00000005 96 Def2 class REGPARM type PTR STRUCT size 36 dims 0 tag matrixtdef name matrix"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/quatern.h",
+    "old": "void Quatern_MatToQuat__FP10matrixtdefP5tQuat(matrixtdef *matrix, tQuat *q);   /* :206 */",
+    "name": "Quatern_MatToQuat",
+    "symbol": "Quatern_MatToQuat__FP10matrixtdefP5tQuat",
+    "native": [
+      {
+        "record": "2ffc3b",
+        "address": "800ad890",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "matrixtdef *matrix,tQuat *q",
+        "signature": "void Quatern_MatToQuat(matrixtdef *matrix,tQuat *q)"
+      }
+    ],
+    "parameter_records": [
+      "3000b3: $00000011 96 Def2 class REGPARM type PTR STRUCT size 36 dims 0 tag matrixtdef name matrix",
+      "3000d4: $00000012 96 Def2 class REGPARM type PTR STRUCT size 8 dims 0 tag tQuat name q"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/scene.h",
+    "old": "void Scene_Init__Fi(int numObjDefs);   /* :1013 */",
+    "name": "Scene_Init",
+    "symbol": "Scene_Init__Fi",
+    "native": [
+      {
+        "record": "333a75",
+        "address": "800b5f7c",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "int numObjDefs",
+        "signature": "void Scene_Init(int numObjDefs)"
+      }
+    ],
+    "parameter_records": [
+      "333b90: $00000004 94 Def class REGPARM type INT size 0 name numObjDefs"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/scene.h",
+    "old": "void Scene_DeInit__Fv(void);   /* :1029 */",
+    "name": "Scene_DeInit",
+    "symbol": "Scene_DeInit__Fv",
+    "native": [
+      {
+        "record": "333a91",
+        "address": "800b5f90",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "void",
+        "signature": "void Scene_DeInit(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/scene.h",
+    "old": "void Scene_PurgeScene__Fv(void);   /* :1040 */",
+    "name": "Scene_PurgeScene",
+    "symbol": "Scene_PurgeScene__Fv",
+    "native": [
+      {
+        "record": "333aaf",
+        "address": "800b5fb0",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "void",
+        "signature": "void Scene_PurgeScene(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/scene.h",
+    "old": "int Scene_BuildCustomSceneList__Fv(void);   /* :1059 */",
+    "name": "Scene_BuildCustomSceneList",
+    "symbol": "Scene_BuildCustomSceneList__Fv",
+    "native": [
+      {
+        "record": "333ad1",
+        "address": "800b5fe4",
+        "storage": "EXT",
+        "return": "INT",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "int",
+        "parameters": "void",
+        "signature": "int Scene_BuildCustomSceneList(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/scene.h",
+    "old": "void Scene_LoadSceneFile__Fi(int sceneFileIndex);   /* :1111 */",
+    "name": "Scene_LoadSceneFile",
+    "symbol": "Scene_LoadSceneFile__Fi",
+    "native": [
+      {
+        "record": "333afd",
+        "address": "800b6084",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "int sceneFileIndex",
+        "signature": "void Scene_LoadSceneFile(int sceneFileIndex)"
+      }
+    ],
+    "parameter_records": [
+      "333de5: $00000010 94 Def class REGPARM type INT size 0 name sceneFileIndex"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/scene.h",
+    "old": "int GetPlaneY__FPC8coorddefN20(coorddef *norm, coorddef *pointOnPlane, coorddef *testPoint);   /* :1142 */",
+    "name": "GetPlaneY",
+    "symbol": "GetPlaneY__FPC8coorddefN20",
+    "native": [
+      {
+        "record": "333b22",
+        "address": "800b6114",
+        "storage": "EXT",
+        "return": "INT",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "int",
+        "parameters": "const coorddef *norm,const coorddef *pointOnPlane,const coorddef *testPoint",
+        "signature": "int GetPlaneY(const coorddef *norm,const coorddef *pointOnPlane,const coorddef *testPoint)"
+      }
+    ],
+    "parameter_records": [
+      "333e9d: $00000012 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name norm",
+      "333eba: $00000010 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name pointOnPlane",
+      "333edf: $00000013 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name testPoint"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/souffle.h",
+    "old": "void GetGustWind__FP17Souffle_tISouffle(Souffle_tISouffle *is);   /* :44 */",
+    "name": "GetGustWind",
+    "symbol": "GetGustWind__FP17Souffle_tISouffle",
+    "native": [
+      {
+        "record": "358693",
+        "address": "800b764c",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "Souffle_tISouffle *is",
+        "signature": "void GetGustWind(Souffle_tISouffle *is)"
+      }
+    ],
+    "parameter_records": [
+      "3588ca: $00000010 96 Def2 class REGPARM type PTR STRUCT size 68 dims 0 tag Souffle_tISouffle name is"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/souffle.h",
+    "old": "void GetAngleWind__FP17Souffle_tISouffle(Souffle_tISouffle *is);   /* :53 */",
+    "name": "GetAngleWind",
+    "symbol": "GetAngleWind__FP17Souffle_tISouffle",
+    "native": [
+      {
+        "record": "3586c3",
+        "address": "800b7694",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "Souffle_tISouffle *is",
+        "signature": "void GetAngleWind(Souffle_tISouffle *is)"
+      }
+    ],
+    "parameter_records": [
+      "358966: $00000010 96 Def2 class REGPARM type PTR STRUCT size 68 dims 0 tag Souffle_tISouffle name is"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/souffle.h",
+    "old": "void MoveAngleWind__FP17Souffle_tISouffle(Souffle_tISouffle *is);   /* :61 */",
+    "name": "MoveAngleWind",
+    "symbol": "MoveAngleWind__FP17Souffle_tISouffle",
+    "native": [
+      {
+        "record": "3586f4",
+        "address": "800b76cc",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "Souffle_tISouffle *is",
+        "signature": "void MoveAngleWind(Souffle_tISouffle *is)"
+      }
+    ],
+    "parameter_records": [
+      "358a03: $00000004 96 Def2 class REGPARM type PTR STRUCT size 68 dims 0 tag Souffle_tISouffle name is"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/souffle.h",
+    "old": "void * Souffle_Add__FP8coorddefiT0iii(coorddef *soufflept, int type, coorddef *vec, int velVX, int ground, int colour);   /* :76 */",
+    "name": "Souffle_Add",
+    "symbol": "Souffle_Add__FP8coorddefiT0iii",
+    "native": [
+      {
+        "record": "358726",
+        "address": "800b770c",
+        "storage": "EXT",
+        "return": "PTR STRUCT",
+        "size": "68",
+        "tag": "Souffle_tISouffle"
+      }
+    ],
+    "definitions": [
+      {
+        "return": "Souffle_tISouffle *",
+        "parameters": "coorddef *soufflept,int type,coorddef *vec,int velVX,int ground,int colour",
+        "signature": "Souffle_tISouffle * Souffle_Add(coorddef *soufflept,int type,coorddef *vec,int velVX,int ground,int colour)"
+      }
+    ],
+    "parameter_records": [
+      "358a9a: $00000004 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name soufflept",
+      "358abc: $00000005 94 Def class REGPARM type INT size 0 name type",
+      "358ace: $00000006 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name vec",
+      "358aea: $00000007 94 Def class REGPARM type INT size 0 name velVX",
+      "358afd: $00000010 94 Def class ARG type INT size 0 name ground",
+      "358b11: $00000014 94 Def class ARG type INT size 0 name colour"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/souffle.h",
+    "old": "void Souffle_DoSouffle__Fv(void);   /* :176 */",
+    "name": "Souffle_DoSouffle",
+    "symbol": "Souffle_DoSouffle__Fv",
+    "native": [
+      {
+        "record": "358766",
+        "address": "800b78ec",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "void",
+        "signature": "void Souffle_DoSouffle(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/souffle.h",
+    "old": "int Souffle_CircleClip__FP8coorddefT0i(coorddef *pt1, coorddef *pt2, int r);   /* :308 */",
+    "name": "Souffle_CircleClip",
+    "symbol": "Souffle_CircleClip__FP8coorddefT0i",
+    "native": [
+      {
+        "record": "358789",
+        "address": "800b7d88",
+        "storage": "EXT",
+        "return": "INT",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "int",
+        "parameters": "coorddef *pt1,coorddef *pt2,int r",
+        "signature": "int Souffle_CircleClip(coorddef *pt1,coorddef *pt2,int r)"
+      }
+    ],
+    "parameter_records": [
+      "358e59: $00000004 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name pt1",
+      "358e75: $00000005 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name pt2",
+      "358e91: $00000006 94 Def class REGPARM type INT size 0 name r"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/souffle.h",
+    "old": "void Souffle_InsertFacet__FP13DRender_tView(DRender_tView *Vi);   /* :320 */",
+    "name": "Souffle_InsertFacet",
+    "symbol": "Souffle_InsertFacet__FP13DRender_tView",
+    "native": [
+      {
+        "record": "3587b9",
+        "address": "800b7de8",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "DRender_tView *Vi",
+        "signature": "void Souffle_InsertFacet(DRender_tView *Vi)"
+      }
+    ],
+    "parameter_records": [
+      "358f5f: $00000015 96 Def2 class REGPARM type PTR STRUCT size 140 dims 0 tag DRender_tView name Vi"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/souffle.h",
+    "old": "void Souffle_InitTrackSouffle__Fv(void);   /* :359 */",
+    "name": "Souffle_InitTrackSouffle",
+    "symbol": "Souffle_InitTrackSouffle__Fv",
+    "native": [
+      {
+        "record": "3587ed",
+        "address": "800b7ed4",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "void",
+        "signature": "void Souffle_InitTrackSouffle(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/souffle.h",
+    "old": "void Souffle_RestartTrackSouffle__Fv(void);   /* :373 */",
+    "name": "Souffle_RestartTrackSouffle",
+    "symbol": "Souffle_RestartTrackSouffle__Fv",
+    "native": [
+      {
+        "record": "358817",
+        "address": "800b7f14",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "void",
+        "signature": "void Souffle_RestartTrackSouffle(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/souffle.h",
+    "old": "void Souffle_KillTrackSouffle__Fv(void);   /* :386 */",
+    "name": "Souffle_KillTrackSouffle",
+    "symbol": "Souffle_KillTrackSouffle__Fv",
+    "native": [
+      {
+        "record": "358844",
+        "address": "800b7f30",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "void",
+        "signature": "void Souffle_KillTrackSouffle(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/track.h",
+    "old": "void Track_SetTrackNumber__Fi(int tracknum);   /* :95 */",
+    "name": "Track_SetTrackNumber",
+    "symbol": "Track_SetTrackNumber__Fi",
+    "native": [
+      {
+        "record": "36d2f0",
+        "address": "800b92f8",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "int tracknum",
+        "signature": "void Track_SetTrackNumber(int tracknum)"
+      }
+    ],
+    "parameter_records": [
+      "36d89c: $00000004 94 Def class REGPARM type INT size 0 name tracknum"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/track.h",
+    "old": "char * Track_MakeTrackPathName__FPc(char *ext);   /* :103 */",
+    "name": "Track_MakeTrackPathName",
+    "symbol": "Track_MakeTrackPathName__FPc",
+    "native": [
+      {
+        "record": "36d316",
+        "address": "800b9308",
+        "storage": "EXT",
+        "return": "PTR CHAR",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "char *",
+        "parameters": "char *ext",
+        "signature": "char * Track_MakeTrackPathName(char *ext)"
+      }
+    ],
+    "parameter_records": [
+      "36d921: $00000004 94 Def class REGPARM type PTR CHAR size 0 name ext"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/track.h",
+    "old": "char * Track_MakeTrackDataPathName__FPc(char *ext);   /* :114 */",
+    "name": "Track_MakeTrackDataPathName",
+    "symbol": "Track_MakeTrackDataPathName__FPc",
+    "native": [
+      {
+        "record": "36d340",
+        "address": "800b9350",
+        "storage": "EXT",
+        "return": "PTR CHAR",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "char *",
+        "parameters": "char *ext",
+        "signature": "char * Track_MakeTrackDataPathName(char *ext)"
+      }
+    ],
+    "parameter_records": [
+      "36d9c0: $00000004 94 Def class REGPARM type PTR CHAR size 0 name ext"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/track.h",
+    "old": "void AllocArtResource__FP18Track_tArtresourcei(Track_tArtresource *artRes, int numPmx);   /* :142 */",
+    "name": "AllocArtResource",
+    "symbol": "AllocArtResource__FP18Track_tArtresourcei",
+    "native": [
+      {
+        "record": "36d36e",
+        "address": "800b9398",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "Track_tArtresource *artRes,int numPmx",
+        "signature": "void AllocArtResource(Track_tArtresource *artRes,int numPmx)"
+      }
+    ],
+    "parameter_records": [
+      "36da68: $00000010 96 Def2 class REGPARM type PTR STRUCT size 24 dims 0 tag Track_tArtresource name artRes",
+      "36da91: $00000005 94 Def class REGPARM type INT size 0 name numPmx"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/track.h",
+    "old": "void InitArtResources__Fv(void);   /* :155 */",
+    "name": "InitArtResources",
+    "symbol": "InitArtResources__Fv",
+    "native": [
+      {
+        "record": "36d3a5",
+        "address": "800b93d8",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "void",
+        "signature": "void InitArtResources(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/track.h",
+    "old": "void DeInitArtResources__Fv(void);   /* :176 */",
+    "name": "DeInitArtResources",
+    "symbol": "DeInitArtResources__Fv",
+    "native": [
+      {
+        "record": "36d3c7",
+        "address": "800b9408",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "void",
+        "signature": "void DeInitArtResources(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/track.h",
+    "old": "void LoadShapesAndMakePmx__FPcP12Draw_tPixMapiii(char *shapefile, Draw_tPixMap *pmxList, int loadFlags, int x, int y);   /* :225 */",
+    "name": "LoadShapesAndMakePmx",
+    "symbol": "LoadShapesAndMakePmx__FPcP12Draw_tPixMapiii",
+    "native": [
+      {
+        "record": "36d3eb",
+        "address": "800b942c",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "char *shapefile,Draw_tPixMap *pmxList,int loadFlags,int x,int y",
+        "signature": "void LoadShapesAndMakePmx(char *shapefile,Draw_tPixMap *pmxList,int loadFlags,int x,int y)"
+      }
+    ],
+    "parameter_records": [
+      "36dbf3: $00000016 94 Def class REGPARM type PTR CHAR size 0 name shapefile",
+      "36dc0a: $00000005 96 Def2 class REGPARM type PTR STRUCT size 16 dims 0 tag Draw_tPixMap name pmxList",
+      "36dc2e: $00000008 94 Def class ARG type INT size 0 name loadFlags",
+      "36dc45: $0000001e 94 Def class REGPARM type INT size 0 name x",
+      "36dc54: $00000010 94 Def class ARG type INT size 0 name y"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/track.h",
+    "old": "void LoadShapesAndMakePmx_EnvMap__FPcP12Draw_tPixMapii(char *shapefile, Draw_tPixMap *pmxList, int x, int y);   /* :375 */",
+    "name": "LoadShapesAndMakePmx_EnvMap",
+    "symbol": "LoadShapesAndMakePmx_EnvMap__FPcP12Draw_tPixMapii",
+    "native": [
+      {
+        "record": "36d424",
+        "address": "800b9778",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "char *shapefile,Draw_tPixMap *pmxList,int x,int y",
+        "signature": "void LoadShapesAndMakePmx_EnvMap(char *shapefile,Draw_tPixMap *pmxList,int x,int y)"
+      }
+    ],
+    "parameter_records": [
+      "36df62: $00000013 94 Def class REGPARM type PTR CHAR size 0 name shapefile",
+      "36df79: $00000005 96 Def2 class REGPARM type PTR STRUCT size 16 dims 0 tag Draw_tPixMap name pmxList",
+      "36df9d: $00000016 94 Def class REGPARM type INT size 0 name x",
+      "36dfac: $00000015 94 Def class REGPARM type INT size 0 name y"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/track.h",
+    "old": "void TexturesLoadInitial__Fv(void);   /* :405 */",
+    "name": "TexturesLoadInitial",
+    "symbol": "TexturesLoadInitial__Fv",
+    "native": [
+      {
+        "record": "36d463",
+        "address": "800b9830",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "void",
+        "signature": "void TexturesLoadInitial(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/track.h",
+    "old": "void Track_AnimateTextures__Fv(void);   /* :491 */",
+    "name": "Track_AnimateTextures",
+    "symbol": "Track_AnimateTextures__Fv",
+    "native": [
+      {
+        "record": "36d488",
+        "address": "800b99dc",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "void",
+        "signature": "void Track_AnimateTextures(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/track.h",
+    "old": "int Track_GetProperMultiPalShapeIndex__Fii(int shapeindex, int paletteindex);   /* :525 */",
+    "name": "Track_GetProperMultiPalShapeIndex",
+    "symbol": "Track_GetProperMultiPalShapeIndex__Fii",
+    "native": [
+      {
+        "record": "36d4af",
+        "address": "800b9b74",
+        "storage": "EXT",
+        "return": "INT",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "int",
+        "parameters": "int shapeindex,int paletteindex",
+        "signature": "int Track_GetProperMultiPalShapeIndex(int shapeindex,int paletteindex)"
+      }
+    ],
+    "parameter_records": [
+      "36e2c0: $00000004 94 Def class REGPARM type INT size 0 name shapeindex",
+      "36e2d8: $00000005 94 Def class REGPARM type INT size 0 name paletteindex"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/track.h",
+    "old": "void Track_ProcessFlipAndUVFlags__FiP12Draw_tPixMapT1(int uvFlag, Draw_tPixMap *inputPmx, Draw_tPixMap *outputPmx);   /* :538 */",
+    "name": "Track_ProcessFlipAndUVFlags",
+    "symbol": "Track_ProcessFlipAndUVFlags__FiP12Draw_tPixMapT1",
+    "native": [
+      {
+        "record": "36d4e3",
+        "address": "800b9bc4",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "int uvFlag,Draw_tPixMap *inputPmx,Draw_tPixMap *outputPmx",
+        "signature": "void Track_ProcessFlipAndUVFlags(int uvFlag,Draw_tPixMap *inputPmx,Draw_tPixMap *outputPmx)"
+      }
+    ],
+    "parameter_records": [
+      "36e396: $00000012 94 Def class REGPARM type INT size 0 name uvFlag",
+      "36e3aa: $00000005 96 Def2 class REGPARM type PTR STRUCT size 16 dims 0 tag Draw_tPixMap name inputPmx",
+      "36e3cf: $00000013 96 Def2 class REGPARM type PTR STRUCT size 16 dims 0 tag Draw_tPixMap name outputPmx"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/track.h",
+    "old": "void Track_AssociateSingleMaterial__FP12Trk_MaterialP15Track_tMaterialP18Track_tArtresource(Trk_Material *inputMat, Track_tMaterial *outputMat, Track_tArtresource *art);   /* :577 */",
+    "name": "Track_AssociateSingleMaterial",
+    "symbol": "Track_AssociateSingleMaterial__FP12Trk_MaterialP15Track_tMaterialP18Track_tArtresource",
+    "native": [
+      {
+        "record": "36d521",
+        "address": "800b9d2c",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "Trk_Material *inputMat,Track_tMaterial *outputMat,Track_tArtresource *art",
+        "signature": "void Track_AssociateSingleMaterial(Trk_Material *inputMat,Track_tMaterial *outputMat,Track_tArtresource *art)"
+      }
+    ],
+    "parameter_records": [
+      "36e4e2: $00000011 96 Def2 class REGPARM type PTR STRUCT size 10 dims 0 tag Trk_Material name inputMat",
+      "36e507: $00000013 96 Def2 class REGPARM type PTR STRUCT size 4 dims 0 tag Track_tMaterial name outputMat",
+      "36e530: $00000012 96 Def2 class REGPARM type PTR STRUCT size 24 dims 0 tag Track_tArtresource name art"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/track.h",
+    "old": "void Track_LinkMaterials__FP15SerializedGroupiP15Track_tMaterial(SerializedGroup *group, int length, Track_tMaterial *matList);   /* :688 */",
+    "name": "Track_LinkMaterials",
+    "symbol": "Track_LinkMaterials__FP15SerializedGroupiP15Track_tMaterial",
+    "native": [
+      {
+        "record": "36d585",
+        "address": "800b9e98",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "SerializedGroup *group,int length,Track_tMaterial *matList",
+        "signature": "void Track_LinkMaterials(SerializedGroup *group,int length,Track_tMaterial *matList)"
+      }
+    ],
+    "parameter_records": [
+      "36e6ad: $00000004 96 Def2 class REGPARM type PTR STRUCT size 16 dims 0 tag SerializedGroup name group",
+      "36e6d2: $00000005 94 Def class REGPARM type INT size 0 name length",
+      "36e6e6: $00000011 96 Def2 class REGPARM type PTR STRUCT size 4 dims 0 tag Track_tMaterial name matList"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/track.h",
+    "old": "void ReduceObjectPrecision__FP5GroupT0i(Group *instGroup, Group *defGroup, int bits);   /* :963 */",
+    "name": "ReduceObjectPrecision",
+    "symbol": "ReduceObjectPrecision__FP5GroupT0i",
+    "native": [
+      {
+        "record": "36d5ce",
+        "address": "800ba25c",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "Group *instGroup,Group *defGroup,int bits",
+        "signature": "void ReduceObjectPrecision(Group *instGroup,Group *defGroup,int bits)"
+      }
+    ],
+    "parameter_records": [
+      "36ea20: $00000004 96 Def2 class REGPARM type PTR STRUCT size 4 dims 0 tag Group name instGroup",
+      "36ea3f: $00000005 96 Def2 class REGPARM type PTR STRUCT size 4 dims 0 tag Group name defGroup",
+      "36ea5d: $00000006 94 Def class REGPARM type INT size 0 name bits"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/track.h",
+    "old": "void InvalidatePersistentCollideBoomObjects__FP5GroupT0(Group *instGroup, Group *defGroup);   /* :1012 */",
+    "name": "InvalidatePersistentCollideBoomObjects",
+    "symbol": "InvalidatePersistentCollideBoomObjects__FP5GroupT0",
+    "native": [
+      {
+        "record": "36d5fe",
+        "address": "800ba2fc",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "Group *instGroup,Group *defGroup",
+        "signature": "void InvalidatePersistentCollideBoomObjects(Group *instGroup,Group *defGroup)"
+      }
+    ],
+    "parameter_records": [
+      "36ec15: $00000004 96 Def2 class REGPARM type PTR STRUCT size 4 dims 0 tag Group name instGroup",
+      "36ec34: $00000005 96 Def2 class REGPARM type PTR STRUCT size 4 dims 0 tag Group name defGroup"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/track.h",
+    "old": "void CalcObjectBoundingSphere__FP5GroupT0(Group *defGroup, Group *boundingSphereGroup);   /* :1064 */",
+    "name": "CalcObjectBoundingSphere",
+    "symbol": "CalcObjectBoundingSphere__FP5GroupT0",
+    "native": [
+      {
+        "record": "36d63e",
+        "address": "800ba368",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "Group *defGroup,Group *boundingSphereGroup",
+        "signature": "void CalcObjectBoundingSphere(Group *defGroup,Group *boundingSphereGroup)"
+      }
+    ],
+    "parameter_records": [
+      "36ed3d: $00000004 96 Def2 class REGPARM type PTR STRUCT size 4 dims 0 tag Group name defGroup",
+      "36ed5b: $00000013 96 Def2 class REGPARM type PTR STRUCT size 4 dims 0 tag Group name boundingSphereGroup"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/track.h",
+    "old": "void CalcObjDefPtrs__Fv(void);   /* :1179 */",
+    "name": "CalcObjDefPtrs",
+    "symbol": "CalcObjDefPtrs__Fv",
+    "native": [
+      {
+        "record": "36d670",
+        "address": "800ba5c8",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "void",
+        "signature": "void CalcObjDefPtrs(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/track.h",
+    "old": "void Track_InitPersistentData__FP15SerializedGroup(SerializedGroup *perGroup);   /* :1212 */",
+    "name": "Track_InitPersistentData",
+    "symbol": "Track_InitPersistentData__FP15SerializedGroup",
+    "native": [
+      {
+        "record": "36d690",
+        "address": "800ba62c",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "SerializedGroup *perGroup",
+        "signature": "void Track_InitPersistentData(SerializedGroup *perGroup)"
+      }
+    ],
+    "parameter_records": [
+      "36f120: $00000012 96 Def2 class REGPARM type PTR STRUCT size 16 dims 0 tag SerializedGroup name perGroup"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/track.h",
+    "old": "void Track_Init__FPc(char *tempName);   /* :1312 */",
+    "name": "Track_Init",
+    "symbol": "Track_Init__FPc",
+    "native": [
+      {
+        "record": "36d6cb",
+        "address": "800ba808",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "char *tempName",
+        "signature": "void Track_Init(char *tempName)"
+      }
+    ],
+    "parameter_records": [
+      "36f3ad: $00000010 94 Def class REGPARM type PTR CHAR size 0 name tempName"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/track.h",
+    "old": "void Track_DeInit__Fv(void);   /* :1492 */",
+    "name": "Track_DeInit",
+    "symbol": "Track_DeInit__Fv",
+    "native": [
+      {
+        "record": "36d6e8",
+        "address": "800bac74",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "void",
+        "signature": "void Track_DeInit(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/track.h",
+    "old": "void Track_AnimateTrackLighting__Fv(void);   /* :1537 */",
+    "name": "Track_AnimateTrackLighting",
+    "symbol": "Track_AnimateTrackLighting__Fv",
+    "native": [
+      {
+        "record": "36d706",
+        "address": "800bad48",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "void",
+        "signature": "void Track_AnimateTrackLighting(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/track.h",
+    "old": "char * KillFile_OpenRead__Fv(void);   /* :1720 */",
+    "name": "KillFile_OpenRead",
+    "symbol": "KillFile_OpenRead__Fv",
+    "native": [
+      {
+        "record": "36d732",
+        "address": "800bad50",
+        "storage": "EXT",
+        "return": "PTR CHAR",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "char *",
+        "parameters": "void",
+        "signature": "char * KillFile_OpenRead(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/track.h",
+    "old": "void KillFile_ReadEntry__FPciRiT2(char *filePtr, int entryInd, int *chunkInd, int *objectInd);   /* :1732 */",
+    "name": "KillFile_ReadEntry",
+    "symbol": "KillFile_ReadEntry__FPciRiT2",
+    "native": [
+      {
+        "record": "36d755",
+        "address": "800bad94",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "char *filePtr,int entryInd,int &chunkInd,int &objectInd",
+        "signature": "void KillFile_ReadEntry(char *filePtr,int entryInd,int &chunkInd,int &objectInd)"
+      }
+    ],
+    "parameter_records": [
+      "36f8bc: $00000004 94 Def class REGPARM type PTR CHAR size 0 name filePtr",
+      "36f8d1: $00000005 94 Def class REGPARM type INT size 0 name entryInd",
+      "36f8e7: $00000006 94 Def class REGPARM type PTR INT size 0 name chunkInd",
+      "36f8fd: $00000007 94 Def class REGPARM type PTR INT size 0 name objectInd"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/track.h",
+    "old": "void Track_LoadObjectKillData__Fv(void);   /* :1742 */",
+    "name": "Track_LoadObjectKillData",
+    "symbol": "Track_LoadObjectKillData__Fv",
+    "native": [
+      {
+        "record": "36d77f",
+        "address": "800badb4",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "void",
+        "signature": "void Track_LoadObjectKillData(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/trgsfx.h",
+    "old": "void TrgSfx_AddEnviroEffect__FiiP8coorddefT2(int obj, int type, coorddef *emitterpt, coorddef *vec);   /* :45 */",
+    "name": "TrgSfx_AddEnviroEffect",
+    "symbol": "TrgSfx_AddEnviroEffect__FiiP8coorddefT2",
+    "native": [
+      {
+        "record": "379a1d",
+        "address": "800bb068",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "int obj,int type,coorddef *emitterpt,coorddef *vec",
+        "signature": "void TrgSfx_AddEnviroEffect(int obj,int type,coorddef *emitterpt,coorddef *vec)"
+      }
+    ],
+    "parameter_records": [
+      "379c80: $00000004 94 Def class REGPARM type INT size 0 name obj",
+      "379c91: $00000005 94 Def class REGPARM type INT size 0 name type",
+      "379ca3: $00000006 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name emitterpt",
+      "379cc5: $00000007 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name vec"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/trgsfx.h",
+    "old": "void TrgSfx_AddCarSfx__FiP8coorddefiT1(int car, coorddef *skidpt, int type, coorddef *vec);   /* :64 */",
+    "name": "TrgSfx_AddCarSfx",
+    "symbol": "TrgSfx_AddCarSfx__FiP8coorddefiT1",
+    "native": [
+      {
+        "record": "379a52",
+        "address": "800bb0d0",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "int car,coorddef *skidpt,int type,coorddef *vec",
+        "signature": "void TrgSfx_AddCarSfx(int car,coorddef *skidpt,int type,coorddef *vec)"
+      }
+    ],
+    "parameter_records": [
+      "379d56: $00000004 94 Def class REGPARM type INT size 0 name car",
+      "379d67: $00000005 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name skidpt",
+      "379d86: $00000006 94 Def class REGPARM type INT size 0 name type",
+      "379d98: $00000007 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name vec"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/trgsfx.h",
+    "old": "void TrgSfx_AddCarWheelSfx__FiiP8coorddefiT2i(int car, int wheel, coorddef *skidpt, int type, coorddef *vec, int delay);   /* :77 */",
+    "name": "TrgSfx_AddCarWheelSfx",
+    "symbol": "TrgSfx_AddCarWheelSfx__FiiP8coorddefiT2i",
+    "native": [
+      {
+        "record": "379a81",
+        "address": "800bb13c",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "int car,int wheel,coorddef *skidpt,int type,coorddef *vec,int delay",
+        "signature": "void TrgSfx_AddCarWheelSfx(int car,int wheel,coorddef *skidpt,int type,coorddef *vec,int delay)"
+      }
+    ],
+    "parameter_records": [
+      "379e30: $00000004 94 Def class REGPARM type INT size 0 name car",
+      "379e41: $00000005 94 Def class REGPARM type INT size 0 name wheel",
+      "379e54: $00000006 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name skidpt",
+      "379e73: $00000007 94 Def class REGPARM type INT size 0 name type",
+      "379e85: $00000010 96 Def2 class ARG type PTR STRUCT size 12 dims 0 tag coorddef name vec",
+      "379ea1: $00000014 94 Def class ARG type INT size 0 name delay"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/trgsfx.h",
+    "old": "bool TrgSfx_AddCarExtraCheck__Fii(int car, int wheel);   /* :93 */",
+    "name": "TrgSfx_AddCarExtraCheck",
+    "symbol": "TrgSfx_AddCarExtraCheck__Fii",
+    "native": [
+      {
+        "record": "379ab7",
+        "address": "800bb1ec",
+        "storage": "EXT",
+        "return": "BOOL",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "bool",
+        "parameters": "int car,int wheel",
+        "signature": "bool TrgSfx_AddCarExtraCheck(int car,int wheel)"
+      }
+    ],
+    "parameter_records": [
+      "379f93: $00000004 94 Def class REGPARM type INT size 0 name car",
+      "379fa4: $00000005 94 Def class REGPARM type INT size 0 name wheel"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/trgsfx.h",
+    "old": "void TrgSfx_AddCarExtraSfx__FiiP8coorddefiT2iii(int car, int wheel, coorddef *skidpt, int type, coorddef *vec, int velY, int ground, int colour);   /* :101 */",
+    "name": "TrgSfx_AddCarExtraSfx",
+    "symbol": "TrgSfx_AddCarExtraSfx__FiiP8coorddefiT2iii",
+    "native": [
+      {
+        "record": "379ae1",
+        "address": "800bb228",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "int car,int wheel,coorddef *skidpt,int type,coorddef *vec,int velY,int ground,\n               int colour",
+        "signature": "void TrgSfx_AddCarExtraSfx(int car,int wheel,coorddef *skidpt,int type,coorddef *vec,int velY,int ground, int colour)"
+      }
+    ],
+    "parameter_records": [
+      "37a035: $00000004 94 Def class REGPARM type INT size 0 name car",
+      "37a046: $00000005 94 Def class REGPARM type INT size 0 name wheel",
+      "37a059: $00000006 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name skidpt",
+      "37a078: $00000007 94 Def class REGPARM type INT size 0 name type",
+      "37a08a: $00000010 96 Def2 class ARG type PTR STRUCT size 12 dims 0 tag coorddef name vec",
+      "37a0a6: $00000014 94 Def class ARG type INT size 0 name velY",
+      "37a0b8: $00000018 94 Def class ARG type INT size 0 name ground",
+      "37a0cc: $0000001c 94 Def class ARG type INT size 0 name colour"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/trgsfx.h",
+    "old": "void TrgSfx_AddCarSplash__FiiP8coorddefiT2ii(int car, int wheel, coorddef *skidpt, int type, coorddef *vec, int delay, int velXZ);   /* :122 */",
+    "name": "TrgSfx_AddCarSplash",
+    "symbol": "TrgSfx_AddCarSplash__FiiP8coorddefiT2ii",
+    "native": [
+      {
+        "record": "379b19",
+        "address": "800bb2bc",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "int car,int wheel,coorddef *skidpt,int type,coorddef *vec,int delay,int velXZ",
+        "signature": "void TrgSfx_AddCarSplash(int car,int wheel,coorddef *skidpt,int type,coorddef *vec,int delay,int velXZ)"
+      }
+    ],
+    "parameter_records": [
+      "37a1df: $00000004 94 Def class REGPARM type INT size 0 name car",
+      "37a1f0: $00000005 94 Def class REGPARM type INT size 0 name wheel",
+      "37a203: $00000006 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name skidpt",
+      "37a222: $00000007 94 Def class REGPARM type INT size 0 name type",
+      "37a234: $00000010 96 Def2 class ARG type PTR STRUCT size 12 dims 0 tag coorddef name vec",
+      "37a250: $00000014 94 Def class ARG type INT size 0 name delay",
+      "37a263: $00000018 94 Def class ARG type INT size 0 name velXZ"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/trgsfx.h",
+    "old": "void TrgSfx_CrashCar__FP8coorddef(coorddef *location);   /* :146 */",
+    "name": "TrgSfx_CrashCar",
+    "symbol": "TrgSfx_CrashCar__FP8coorddef",
+    "native": [
+      {
+        "record": "379b4e",
+        "address": "800bb370",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "coorddef *location",
+        "signature": "void TrgSfx_CrashCar(coorddef *location)"
+      }
+    ],
+    "parameter_records": [
+      "37a355: $00000010 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name location"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/trgsfx.h",
+    "old": "void TrgSfx_AddSkidmark__FiiP8coorddefiiP8Car_tObji(int car, int wheel, coorddef *skidpt, int end, int intensity, Car_tObj *carObj, int type);   /* :179 */",
+    "name": "TrgSfx_AddSkidmark",
+    "symbol": "TrgSfx_AddSkidmark__FiiP8coorddefiiP8Car_tObji",
+    "native": [
+      {
+        "record": "379b78",
+        "address": "800bb41c",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "int car,int wheel,coorddef *skidpt,int end,int intensity,Car_tObj *carObj,int type",
+        "signature": "void TrgSfx_AddSkidmark(int car,int wheel,coorddef *skidpt,int end,int intensity,Car_tObj *carObj,int type)"
+      }
+    ],
+    "parameter_records": [
+      "37a41c: $00000010 94 Def class REGPARM type INT size 0 name car",
+      "37a42d: $00000011 94 Def class REGPARM type INT size 0 name wheel",
+      "37a440: $0000000a 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name skidpt",
+      "37a45f: $00000009 94 Def class REGPARM type INT size 0 name end",
+      "37a470: $00000010 94 Def class ARG type INT size 0 name intensity",
+      "37a487: $00000014 96 Def2 class ARG type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj",
+      "37a4a6: $00000018 94 Def class ARG type INT size 0 name type"
+    ],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/trgsfx.h",
+    "old": "void TrgSfx_InitTrgSfx__Fv(void);   /* :286 */",
+    "name": "TrgSfx_InitTrgSfx",
+    "symbol": "TrgSfx_InitTrgSfx__Fv",
+    "native": [
+      {
+        "record": "379bb4",
+        "address": "800bb900",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "void",
+        "signature": "void TrgSfx_InitTrgSfx(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/trgsfx.h",
+    "old": "void TrgSfx_RestartTrgSfx__Fv(void);   /* :316 */",
+    "name": "TrgSfx_RestartTrgSfx",
+    "symbol": "TrgSfx_RestartTrgSfx__Fv",
+    "native": [
+      {
+        "record": "379bd7",
+        "address": "800bb9d8",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "void",
+        "signature": "void TrgSfx_RestartTrgSfx(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  },
+  {
+    "header": "recon/game/common/trgsfx.h",
+    "old": "void TrgSfx_KillTrgSfx__Fv(void);   /* :322 */",
+    "name": "TrgSfx_KillTrgSfx",
+    "symbol": "TrgSfx_KillTrgSfx__Fv",
+    "native": [
+      {
+        "record": "379bfd",
+        "address": "800bba00",
+        "storage": "EXT",
+        "return": "VOID",
+        "size": "0",
+        "tag": null
+      }
+    ],
+    "definitions": [
+      {
+        "return": "void",
+        "parameters": "void",
+        "signature": "void TrgSfx_KillTrgSfx(void)"
+      }
+    ],
+    "parameter_records": [],
+    "parameter_names_match": true,
+    "return_matches_native": true
+  }
+]

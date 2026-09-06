@@ -1,0 +1,30 @@
+/* P875 follow-up typed API references; compile-only, never a game input. */
+#include "p875_common2_original_bworldsm.h"
+int (*p875_common2_bworldsm_0)(Group *simGroup) = &BWorldSm_Init__FP5Group;
+void (*p875_common2_bworldsm_1)(void) = &BWorldSm_Restart__Fv;
+void (*p875_common2_bworldsm_2)(void) = &BWorldSm_DeInit__Fv;
+void (*p875_common2_bworldsm_3)(coorddef *pt, BWorldSm_Pos *slicePos) = &FindAbsClosestSliceCrude__FP8coorddefP12BWorldSm_Pos;
+int (*p875_common2_bworldsm_4)(coorddef *pt, BWorldSm_Pos *slicePos) = &BWorldSm_FindClosestSlice__FP8coorddefP12BWorldSm_Pos;
+void (*p875_common2_bworldsm_5)(coorddef *pt, BWorldSm_Pos *slicePos) = &RawFindClosestSlice__FP8coorddefP12BWorldSm_Pos;
+void (*p875_common2_bworldsm_6)(int slice, BWorldSm_Pos *slicePos) = &BWorldSm_SetSlice__FiP12BWorldSm_Pos;
+void (*p875_common2_bworldsm_7)(BWorldSm_Pos *slicePos, coorddef *cp) = &GetStmQuadPts__FP12BWorldSm_PosP8coorddef;
+void (*p875_common2_bworldsm_8)(BWorldSm_Pos *slicePos) = &SetStrip__FP12BWorldSm_Pos;
+void (*p875_common2_bworldsm_9)(BWorldSm_Pos *slicePos, CCOORD16 *vertices) = &GetFirstStmQuadPts__FP12BWorldSm_PosP8CCOORD16;
+void (*p875_common2_bworldsm_10)(BWorldSm_Pos *slicePos) = &BWorld_SetSimSlice__FP12BWorldSm_Pos;
+void (*p875_common2_bworldsm_11)(BWorldSm_Pos *slicePos) = &BworldSm_UpdateSimQuad__FP12BWorldSm_Pos;
+int (*p875_common2_bworldsm_12)(BWorldSm_Pos *slicePos) = &BworldSm_IsSimQuadValid__FP12BWorldSm_Pos;
+int (*p875_common2_bworldsm_13)(coorddef *pt, BWorldSm_Pos *slicePos) = &RawFindClosestQuad__FP8coorddefP12BWorldSm_Pos;
+int (*p875_common2_bworldsm_14)(coorddef *pt, BWorldSm_Pos *slicePos) = &FindClosestQuad__FP8coorddefP12BWorldSm_Pos;
+int (*p875_common2_bworldsm_15)(coorddef *pt, BWorldSm_Pos *slicePos, int hiRezFlag) = &BWorldSm_FindClosestQuadRez__FP8coorddefP12BWorldSm_Posi;
+int (*p875_common2_bworldsm_16)(coorddef *pt, BWorldSm_Pos *slicePos, int maxIterations) = &BWorldSm_FindClosestQuadMaxIterations__FP8coorddefP12BWorldSm_Posi;
+int (*p875_common2_bworldsm_17)(coorddef *p1, coorddef *p2, coorddef *p3) = &PointDirection__FP8coorddefN20;
+int (*p875_common2_bworldsm_18)(coorddef *pt, BWorldSm_Pos *slicePos1, BWorldSm_Pos *slicePos2, int *heightDiff) = &BWorldSm_FindEdgeOff__FP8coorddefP12BWorldSm_PosT1Pi;
+int (*p875_common2_bworldsm_19)(BWorldSm_Pos *slicePos) = &BWorldSm_QuadLight__FP12BWorldSm_Pos;
+bool (*p875_common2_bworldsm_20)(BWorldSm_Pos *slicePos) = &BWorldSm_TunnelFlagSm__FP12BWorldSm_Pos;
+void (*p875_common2_bworldsm_21)(BWorldSm_Pos *slicePos) = &NormalCache_AddEntry__FP12BWorldSm_Pos;
+BOOL (*p875_common2_bworldsm_22)(BWorldSm_Pos *slicePos) = &NormalCache_FindEntry__FP12BWorldSm_Pos;
+void (*p875_common2_bworldsm_23)(void) = &NormalCache_Init__Fv;
+void (*p875_common2_bworldsm_24)(BWorldSm_Pos *slicePos) = &Check_Rot__FP12BWorldSm_Pos;
+void * (*p875_common2_bworldsm_25)(BWorldSm_Pos *slicePos) = &BWorldSm_UNormal__FP12BWorldSm_Pos;
+void * (*p875_common2_bworldsm_26)(BWorldSm_Pos *slicePos) = &BWorldSm_UForward__FP12BWorldSm_Pos;
+int (*p875_common2_bworldsm_27)(coorddef *pt, BWorldSm_Pos *slicePos, int hiRezFlag) = &BWorldSm_FindClosestTriangleRez__FP8coorddefP12BWorldSm_Posi;

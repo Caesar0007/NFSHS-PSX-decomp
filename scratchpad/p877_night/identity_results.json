@@ -1,0 +1,61 @@
+{
+  "retail_281_compiler": "C:\\Temp\\psq44\\pssn\\bin\\CC1PLPSX.EXE",
+  "retail_281_sha256": "70319c94de27924f5720af361afd2aa7e6de051a7718e0c1a7f07b57fa92109c",
+  "production_source_sha256": "0e08a8b007ef9b4498f71e8589ef1f2a0c12340b6ea795a4059119d6055d242e",
+  "existing_production_object_sha256": "b818c9cff41a8dfb429466fc1dd62719ef38541900ddc888cc77618651071dab",
+  "results": [
+    {
+      "mode": "normal_mixed",
+      "compiler": "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+      "compiler_sha256": "61781c2f67b8486281720fdabb1fd7b549cce7f92918cb7b505db1fce54742b7",
+      "tu_flags": {
+        "g_value": "8"
+      },
+      "source_only": false,
+      "returncode": 0,
+      "stdout": "  Night_FindClosestColor__FG7CVECTORPi: PASS (50 insns)\n  Night_CreateNightTableElement__FiliPUc: PASS (113 insns)\n  Night_CreateNightTable__FiliPA256_A16_Uc: PASS (10 insns)\n  Night_GenerateNextLightningEvent__Fv: PASS (29 insns)\n  Night_PauseLightningEffect__Fi: PASS (33 insns)\n  Night_DoLightningEffect__FP13DRender_tView: PASS (97 insns)\n  Night_SetCopColor__FP18GameSetup_tCarData: PASS (37 insns)\n  Night_InitPlayerHeadLightColor__Fi: PASS (23 insns)\n  Night_SetPlayerHeadLightColor__Fiii: PASS (15 insns)\n  Night_InitCopLightColors__Fv: PASS (23 insns)\n  Night_SetCopLightColors__Fii: PASS (32 insns)\n  Night_InitWeatherTables__Fv: PASS (33 insns)\n  Night_SetWeatherColors__Fi: PASS (31 insns)\n  Night_GenerateAllLightTables__Fv: PASS (165 insns)\n  Night_InitNightDriving__Fv: PASS (103 insns)\n  Night_KillNightDriving__Fv: PASS (40 insns)\n  Night_RestartNightDriving__Fv: PASS (34 insns)\n  Night_SetEnviroment__FP13DRender_tView: PASS (68 insns)\n  Night_AdditiveNightCalc__FP6VECTORP7CVECTOR: PASS (64 insns)\n",
+      "stderr": "",
+      "passed": 19,
+      "functions": 19,
+      "object_sha256": "b5edf90d202d47e7d4a55ff72258c65f5b53476c0f39bc852e34c9c804d068f9",
+      "missing_exports": [],
+      "branches": []
+    },
+    {
+      "mode": "strict_280",
+      "compiler": "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+      "compiler_sha256": "61781c2f67b8486281720fdabb1fd7b549cce7f92918cb7b505db1fce54742b7",
+      "tu_flags": {
+        "g_value": "8"
+      },
+      "source_only": true,
+      "returncode": 1,
+      "stdout": "  Night_FindClosestColor__FG7CVECTORPi: PASS (50 insns)\n  Night_CreateNightTableElement__FiliPUc: FAIL 56 diffs (ours 113 / oracle 113)\n      +sw s1,36(sp)\n      +addu s1,a3,zero\n      -addu a1,v0,a2\n      -mult v1,a1\n      +addu a3,v0,a2\n      +mult v1,a3\n      -sw s1,36(sp)\n      -addu s1,a3,zero\n      -lbu a3,1(v0)\n      +lbu a1,1(v0)\n      -mult t0,a1\n      +mult t0,a3\n  Night_CreateNightTable__FiliPA256_A16_Uc: PASS (10 insns)\n  Night_GenerateNextLightningEvent__Fv: PASS (29 insns)\n  Night_PauseLightningEffect__Fi: PASS (33 insns)\n  Night_DoLightningEffect__FP13DRender_tView: PASS (97 insns)\n  Night_SetCopColor__FP18GameSetup_tCarData: PASS (37 insns)\n  Night_InitPlayerHeadLightColor__Fi: PASS (23 insns)\n  Night_SetPlayerHeadLightColor__Fiii: PASS (15 insns)\n  Night_InitCopLightColors__Fv: PASS (23 insns)\n  Night_SetCopLightColors__Fii: PASS (32 insns)\n  Night_InitWeatherTables__Fv: PASS (33 insns)\n  Night_SetWeatherColors__Fi: PASS (31 insns)\n  Night_GenerateAllLightTables__Fv: PASS (165 insns)\n  Night_InitNightDriving__Fv: PASS (103 insns)\n  Night_KillNightDriving__Fv: PASS (40 insns)\n  Night_RestartNightDriving__Fv: PASS (34 insns)\n  Night_SetEnviroment__FP13DRender_tView: PASS (68 insns)\n  Night_AdditiveNightCalc__FP6VECTORP7CVECTOR: PASS (64 insns)\n",
+      "stderr": "",
+      "passed": 18,
+      "functions": 19,
+      "object_sha256": "cf2c9e59b55986529b80968a4318f125323aa85801399d58f12085111d35ee59",
+      "missing_exports": [],
+      "branches": []
+    },
+    {
+      "mode": "strict_whole_281",
+      "compiler": "C:\\Temp\\psq44\\pssn\\bin\\CC1PLPSX.EXE",
+      "compiler_sha256": "70319c94de27924f5720af361afd2aa7e6de051a7718e0c1a7f07b57fa92109c",
+      "tu_flags": {
+        "g_value": "8",
+        "cc1plus_ver": "2.8.1-sn"
+      },
+      "source_only": true,
+      "returncode": 0,
+      "stdout": "  Night_FindClosestColor__FG7CVECTORPi: PASS (50 insns)\n  Night_CreateNightTableElement__FiliPUc: PASS (113 insns)\n  Night_CreateNightTable__FiliPA256_A16_Uc: PASS (10 insns)\n  Night_GenerateNextLightningEvent__Fv: PASS (29 insns)\n  Night_PauseLightningEffect__Fi: PASS (33 insns)\n  Night_DoLightningEffect__FP13DRender_tView: PASS (97 insns)\n  Night_SetCopColor__FP18GameSetup_tCarData: PASS (37 insns)\n  Night_InitPlayerHeadLightColor__Fi: PASS (23 insns)\n  Night_SetPlayerHeadLightColor__Fiii: PASS (15 insns)\n  Night_InitCopLightColors__Fv: PASS (23 insns)\n  Night_SetCopLightColors__Fii: PASS (32 insns)\n  Night_InitWeatherTables__Fv: PASS (33 insns)\n  Night_SetWeatherColors__Fi: PASS (31 insns)\n  Night_GenerateAllLightTables__Fv: PASS (165 insns)\n  Night_InitNightDriving__Fv: PASS (103 insns)\n  Night_KillNightDriving__Fv: PASS (40 insns)\n  Night_RestartNightDriving__Fv: PASS (34 insns)\n  Night_SetEnviroment__FP13DRender_tView: PASS (68 insns)\n  Night_AdditiveNightCalc__FP6VECTORP7CVECTOR: PASS (64 insns)\n",
+      "stderr": "",
+      "passed": 19,
+      "functions": 19,
+      "object_sha256": "b5edf90d202d47e7d4a55ff72258c65f5b53476c0f39bc852e34c9c804d068f9",
+      "missing_exports": [],
+      "branches": []
+    }
+  ],
+  "whole_281_equals_normal_mixed": true
+}

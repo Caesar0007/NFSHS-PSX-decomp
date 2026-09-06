@@ -33,7 +33,7 @@ extern tMemIcon *fMemIcon;
 extern int  kRGBVals[28];
 extern char textDefinitions[14][6];
 extern tFEApplication *FEApp;
-extern tGlobalMenuDefs *menuDefs[];   /* unsized-array shape -> separate-temp arg-load (3.12#5) */
+extern tGlobalMenuDefs *menuDefs;   /* SYM 5ba0c1: one pointer, not an array */
 extern __vtbl_ptr_type tScreenMemcard_vtable[];   /* @0x80012228 manual vtable */
 
 /* called game/FE/MCRD/PsyQ functions (Ghidra-dumped signatures) */

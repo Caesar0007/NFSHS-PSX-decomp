@@ -19,7 +19,7 @@ extern __vtbl_ptr_type tMenu_vtable[];
 
 /* ===== globals ===== */
 extern tFEApplication *FEApp;
-extern tPlayer        gMenu_SubMenuPlayer[];   /* unsized array (§3.12 #5): forces separate-$v0 scratch on value-load (oracle lui/lw, not gp-rel) */
+extern tPlayer        gMenu_SubMenuPlayer;   /* SYM 563d74: scalar ENUM tPlayer */
 
 /* ===== text / audio / app ===== */
 int   TextSys_Word(int id);

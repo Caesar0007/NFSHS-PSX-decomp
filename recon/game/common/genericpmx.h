@@ -3,6 +3,9 @@
 #define _GAME_COMMON_GENERICPMX_H_
 #include "../../nfs4_types.h"
 
-void GenericPMX_LoadTexture__Fv(void);   /* :54 */
+/* P875: native signatures and defining exports verified by typed-reference
+ * probes. Source names let the compiler emit the original C++ linkage. */
+
+void GenericPMX_LoadTexture(void);   /* :54 */
 
 #endif /* _GAME_COMMON_GENERICPMX_H_ */

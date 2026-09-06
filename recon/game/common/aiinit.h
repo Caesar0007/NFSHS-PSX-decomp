@@ -3,22 +3,25 @@
 #define _GAME_COMMON_AIINIT_H_
 #include "../../nfs4_types.h"
 
-void AIInit_StartUp1__Fv(void);   /* :38 */
-void AIInit_StartUp2__Fv(void);   /* :56 */
-void AIInit_Reset1__Fv(void);   /* :87 */
-void AIInit_Reset2__Fv(void);   /* :93 */
-void AIInit_CleanUp1__Fv(void);   /* :130 */
-void AIInit_CleanUp2__Fv(void);   /* :138 */
-void AI_TrafficStartUp__Fv(void);   /* :170 */
-void AI_TrafficCleanUp__Fv(void);   /* :195 */
-void AIInit_LoadConfigs__Fv(void);   /* :225 */
-void AIInit_LoadPhysicsConfig__FP10Udff_tInfo(Udff_tInfo *handle);   /* :257 */
-void AIInit_ClearAICar__FP8Car_tObj(Car_tObj *carObj);   /* :304 */
-void AIInit_RestartAICar__FP8Car_tObj(Car_tObj *carObj);   /* :326 */
-void AIInit_InitAICar__FP8Car_tObjP10Udff_tInfo(Car_tObj *carObj, Udff_tInfo *handle);   /* :399 */
-void AIInit_DeInitAICar__FP8Car_tObj(Car_tObj *carObj);   /* :466 */
-void AIInit_InitAICar2__FP8Car_tObj(Car_tObj *carObj);   /* :480 */
-void AIInit_DeInitAICar2__FP8Car_tObj(Car_tObj *carObj);   /* :498 */
-int AIInit_IsNonStandardCarFile__Fi(int index);   /* :517 */
+/* P875: verified source-level free names/signatures; the C++ compiler supplies
+   native GCC-v2 linkage names. File-local STAT helpers stay in their .cpp. */
+
+void AIInit_StartUp1(void);   /* :38 */
+void AIInit_StartUp2(void);   /* :56 */
+void AIInit_Reset1(void);   /* :87 */
+void AIInit_Reset2(void);   /* :93 */
+void AIInit_CleanUp1(void);   /* :130 */
+void AIInit_CleanUp2(void);   /* :138 */
+void AI_TrafficStartUp(void);   /* :170 */
+void AI_TrafficCleanUp(void);   /* :195 */
+void AIInit_LoadConfigs(void);   /* :225 */
+void AIInit_LoadPhysicsConfig(Udff_tInfo *handle);   /* :257 */
+void AIInit_ClearAICar(Car_tObj *carObj);   /* :304 */
+void AIInit_RestartAICar(Car_tObj *carObj);   /* :326 */
+void AIInit_InitAICar(Car_tObj *carObj, Udff_tInfo *handle);   /* :399 */
+void AIInit_DeInitAICar(Car_tObj *carObj);   /* :466 */
+void AIInit_InitAICar2(Car_tObj *carObj);   /* :480 */
+void AIInit_DeInitAICar2(Car_tObj *carObj);   /* :498 */
+int AIInit_IsNonStandardCarFile(int index);   /* :517 */
 
 #endif /* _GAME_COMMON_AIINIT_H_ */

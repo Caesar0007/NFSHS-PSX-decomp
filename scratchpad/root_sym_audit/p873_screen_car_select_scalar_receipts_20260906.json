@@ -1,0 +1,2077 @@
+{
+  "round": "P873",
+  "date": "2026-09-06",
+  "scope": "Complete native scalar screenCarSelect declaration/use graph in live base and regional sources; preserve previous P869-P872 work.",
+  "native": {
+    "record": "64b0d0",
+    "address": "8005203c",
+    "name": "screenCarSelect",
+    "type": "PTR tScreenCarSelect",
+    "storage_bytes": 4,
+    "pointee_size": 928,
+    "retail_initial_word": "00000000"
+  },
+  "source_changes": {
+    "paths": [
+      "regiondiff/recon/NFS4-R-USA/frontend/common/femenudefs.cpp",
+      "regiondiff/recon/NFS4-R-FR-DE/frontend/common/femenudefs.cpp",
+      "regiondiff/recon/NFS4-R-UK-SW/frontend/common/femenudefs.cpp",
+      "regiondiff/recon/NFS4-R-UK-ES-IT/frontend/common/femenudefs.cpp",
+      "regiondiff/recon/NFS4-R-AU/frontend/common/femenudefs.cpp",
+      "regiondiff/recon/NFS4-R-JPN/frontend/common/femenudefs.cpp",
+      "recon/frontend/common/femenudefs_externs.h",
+      "recon/frontend/common/femenudefs.cpp"
+    ],
+    "summary": "Corrected the single wrong extern in femenudefs_externs.h and array uses throughout all seven femenudefs.cpp copies. Removed both P872 scalar-punning loads from GoToDealer/GoToSeller: calls now use ordinary screenCarSelect->SetState.",
+    "necessary_source_shape": "After scalar correction, GoToGarage's old ternary was8diff42/42. Explicit if/else assignments, supported by native SLD1228/1229/1230, restore PASS42. Applied to all seven copies to preserve every object payload, not only manifest-selected functions.",
+    "untouched": "Owner definition/own extern and Front's extern already scalar. Same-named embedded tAllScreens members in front_types.h/nfs4_types.h are genuine objects, not this global, and were untouched.",
+    "remaining": "GoToGarage's existing garageIterator source carrier still stands for an unrecovered original inline-this scope; full original-source restoration is not claimed for that function."
+  },
+  "verification": {
+    "base_tus": 3,
+    "base_pass": 168,
+    "base_total": 168,
+    "base_branch_divergences": 0,
+    "object_graph_tus": 12,
+    "all_payloads_relocations_and_symbols_identical": true,
+    "all_base_whole_object_sha256_identical": true,
+    "selected_regional_groups": 23,
+    "selected_regional_checks": 254,
+    "selected_regional_pass": 254,
+    "exact_debug_twins": {
+      "MenuExtended_GoToDealer": 26,
+      "MenuExtended_GoToSeller": 26,
+      "MenuExtended_GoToGarage": 42,
+      "SetState": 161
+    },
+    "dealer_seller_sld": "All26 per-instruction source tags equal retail tags plus one constant offset in each function, including prologue and epilogue. Parameters/no-local list match native SYM; ordinary receivers retained.",
+    "native_global_debug": "Owning screencarselect.cpp .def: scl2, tag tScreenCarSelect, size928, type0x18; no array dimension. Definition retains one4-byte cell.",
+    "raw_base_words": 94,
+    "raw_base_mismatches": 0,
+    "raw_regional": {
+      "words": 48658,
+      "mismatches": []
+    },
+    "live_lexical_scan": "No screenCarSelect array declarations/uses or P872 scalar-punning code remain in recon, regiondiff/recon, or src.",
+    "legacy_diagnostics": "Older non-selected functions in regional copies retain their pre-existing diagnostic misses exactly; selected regional matrix is254/254 PASS.",
+    "fingerprint_method": "Every ELF section payload/metadata except raw .strtab/.symtab compared, including relocation sections. Decoded symbol records compared with only STT_FILE temporary source path masked. No objects or emitted instructions rewritten."
+  },
+  "objects": [
+    {
+      "path": "recon/frontend/common/femenudefs.cpp",
+      "baseline_object": "build\\recon\\frontend\\common\\femenudefs.cpp.o",
+      "final_object": "build\\recon\\frontend\\common\\femenudefs.cpp.o",
+      "baseline_sha256": "e5f8a1f116f2e9aeecfbf0d2d96c5e4e6a6164caea5ef588aec3690449580fd0",
+      "final_sha256": "e5f8a1f116f2e9aeecfbf0d2d96c5e4e6a6164caea5ef588aec3690449580fd0",
+      "payload_identical": true,
+      "symbols_identical": true,
+      "diagnostics_identical": true,
+      "payload_hashes": {
+        ".text": {
+          "meta": [
+            1,
+            6,
+            0,
+            24904,
+            4,
+            0
+          ],
+          "sha": "1f98130cf063d83f7ed47721f05b3a3b4300a80bcc3ee3e1f738ab47cd49482c"
+        },
+        ".rel.text": {
+          "meta": [
+            9,
+            64,
+            0,
+            13336,
+            4,
+            8
+          ],
+          "sha": "6a366affccc7be1e819e303232b02465e8914dd12c817f02c78f15c7c3f10f49"
+        },
+        ".data": {
+          "meta": [
+            1,
+            3,
+            0,
+            236,
+            4,
+            0
+          ],
+          "sha": "0d505aad4ee9ec47b360d6eaabf2884cd890be497b1ed03b5d127f3927c67597"
+        },
+        ".bss": {
+          "meta": [
+            8,
+            3,
+            0,
+            0,
+            1,
+            0
+          ],
+          "sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        ".reginfo": {
+          "meta": [
+            1879048198,
+            0,
+            0,
+            24,
+            4,
+            1
+          ],
+          "sha": "65a4e83bcbc06635e4c911d8acbb14e7ea7a3b5680d48f7141da09e62dc5de9e"
+        },
+        ".MIPS.abiflags": {
+          "meta": [
+            1879048234,
+            2,
+            0,
+            24,
+            8,
+            24
+          ],
+          "sha": "9e70292a32ba11ef2132089aab266b191f38da634e80b1c34087db93153bd643"
+        },
+        ".pdr": {
+          "meta": [
+            1,
+            0,
+            0,
+            2112,
+            4,
+            0
+          ],
+          "sha": "fcc36b6d1d0fc40481849806b9cefd1c253a61d4914f86800c473f4fb1bd2538"
+        },
+        ".rel.pdr": {
+          "meta": [
+            9,
+            64,
+            0,
+            528,
+            4,
+            8
+          ],
+          "sha": "80cefa401e6cd2d233fde1aa34d4ea848bf1fd9ed2b5d10d7dacb69dd2d6d734"
+        },
+        ".gnu.attributes": {
+          "meta": [
+            1879048181,
+            0,
+            0,
+            16,
+            1,
+            0
+          ],
+          "sha": "216973f3f0fc143f32165e8cd6114664ee49b39e03ccb13ea3a576fbe3a5f43b"
+        },
+        ".shstrtab": {
+          "meta": [
+            3,
+            0,
+            0,
+            97,
+            1,
+            0
+          ],
+          "sha": "40cc976b25d2ee57945d28ab5e8e1f9134e3a28f26df3b1091a08bfdfae96f74"
+        }
+      },
+      "decoded_symbols_sha256": "2c5673f954b88a7a6ec58f8650547b4e718601978d3d29eb8701b18a43c41ffc",
+      "branch": "# 66 fns checked, 0 with branch-offset/count divergence"
+    },
+    {
+      "path": "recon/frontend/common/front.cpp",
+      "baseline_object": "build\\recon\\frontend\\common\\front.cpp.o",
+      "final_object": "build\\recon\\frontend\\common\\front.cpp.o",
+      "baseline_sha256": "aa730506c2578190bce89be3559cef70c4494582b1af0d37a37497f5a4c8c5fb",
+      "final_sha256": "aa730506c2578190bce89be3559cef70c4494582b1af0d37a37497f5a4c8c5fb",
+      "payload_identical": true,
+      "symbols_identical": true,
+      "diagnostics_identical": true,
+      "payload_hashes": {
+        ".text": {
+          "meta": [
+            1,
+            6,
+            0,
+            21124,
+            4,
+            0
+          ],
+          "sha": "3392ff6be1a080aef2f91e2e34178c0cda050ed26bc848e28dbf336f06941257"
+        },
+        ".rel.text": {
+          "meta": [
+            9,
+            64,
+            0,
+            6192,
+            4,
+            8
+          ],
+          "sha": "1028fcc3187f5949298d26b0553e2b6fadac8196327294c6204f8d2083838263"
+        },
+        ".data": {
+          "meta": [
+            1,
+            3,
+            0,
+            387,
+            4,
+            0
+          ],
+          "sha": "84112f36532b9749117257235fb8df37caf5aeef975150db7b04f5a2e477dc3b"
+        },
+        ".bss": {
+          "meta": [
+            8,
+            3,
+            0,
+            0,
+            1,
+            0
+          ],
+          "sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        ".reginfo": {
+          "meta": [
+            1879048198,
+            0,
+            0,
+            24,
+            4,
+            1
+          ],
+          "sha": "5b4ae358ee60bf7cbe7b7f01ff3dca32767fae506c7cea8bd6404d5ab1be80d7"
+        },
+        ".MIPS.abiflags": {
+          "meta": [
+            1879048234,
+            2,
+            0,
+            24,
+            8,
+            24
+          ],
+          "sha": "9e70292a32ba11ef2132089aab266b191f38da634e80b1c34087db93153bd643"
+        },
+        ".pdr": {
+          "meta": [
+            1,
+            0,
+            0,
+            1376,
+            4,
+            0
+          ],
+          "sha": "29d59eda3bc22b8f4bc3b747b9eba897f0dbc31983f86ba54641a454f302da6d"
+        },
+        ".rel.pdr": {
+          "meta": [
+            9,
+            64,
+            0,
+            344,
+            4,
+            8
+          ],
+          "sha": "5f882aa5aa5c57da193acf857f743c12e7b0f129c5d00360edfa267d94bfa123"
+        },
+        ".rodata": {
+          "meta": [
+            1,
+            2,
+            0,
+            33,
+            4,
+            0
+          ],
+          "sha": "623f9683be8fdd63a66d7ed1d50e2bec932472138db8c09aa4d03ee62e42b339"
+        },
+        ".gnu.attributes": {
+          "meta": [
+            1879048181,
+            0,
+            0,
+            16,
+            1,
+            0
+          ],
+          "sha": "216973f3f0fc143f32165e8cd6114664ee49b39e03ccb13ea3a576fbe3a5f43b"
+        },
+        ".shstrtab": {
+          "meta": [
+            3,
+            0,
+            0,
+            105,
+            1,
+            0
+          ],
+          "sha": "7e70b60aa63d8a83cccff2ad2d1c5e1cca06facb0dfa3db68644ab2cbb485c13"
+        }
+      },
+      "decoded_symbols_sha256": "019013bee1ff23cc361aa84a081bb80a0cd517a545248e9371200ec96aa01e11",
+      "branch": "# 43 fns checked, 0 with branch-offset/count divergence"
+    },
+    {
+      "path": "recon/frontend/common/screencarselect.cpp",
+      "baseline_object": "build\\recon\\frontend\\common\\screencarselect.cpp.o",
+      "final_object": "build\\recon\\frontend\\common\\screencarselect.cpp.o",
+      "baseline_sha256": "e8782a01ca163f8120f308cf1083457bb21a84b7caaf0cd291a4ce7141987dd3",
+      "final_sha256": "e8782a01ca163f8120f308cf1083457bb21a84b7caaf0cd291a4ce7141987dd3",
+      "payload_identical": true,
+      "symbols_identical": true,
+      "diagnostics_identical": true,
+      "payload_hashes": {
+        ".text": {
+          "meta": [
+            1,
+            6,
+            0,
+            20104,
+            4,
+            0
+          ],
+          "sha": "1e52c62ef23d13acff55cdc17422bfefe671a53a8fc99b166d872d761193b9ca"
+        },
+        ".rel.text": {
+          "meta": [
+            9,
+            64,
+            0,
+            6312,
+            4,
+            8
+          ],
+          "sha": "951b3142ce79ec33aa43ae4e14781afdc526e7699651d16ddd63888785d22b94"
+        },
+        ".data": {
+          "meta": [
+            1,
+            3,
+            0,
+            476,
+            4,
+            0
+          ],
+          "sha": "6a4057150ff8e9afb483507f60e2df6b289a7f34927111b9a323608c9fcfd3c1"
+        },
+        ".bss": {
+          "meta": [
+            8,
+            3,
+            0,
+            106,
+            1,
+            0
+          ],
+          "sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        ".reginfo": {
+          "meta": [
+            1879048198,
+            0,
+            0,
+            24,
+            4,
+            1
+          ],
+          "sha": "baefce7b01f1f49a8e0b385e072b7a720181e36f439fc5be25f8aef9b0833ac9"
+        },
+        ".MIPS.abiflags": {
+          "meta": [
+            1879048234,
+            2,
+            0,
+            24,
+            8,
+            24
+          ],
+          "sha": "9e70292a32ba11ef2132089aab266b191f38da634e80b1c34087db93153bd643"
+        },
+        ".pdr": {
+          "meta": [
+            1,
+            0,
+            0,
+            1824,
+            4,
+            0
+          ],
+          "sha": "2a1457a9120f493492dfc9bfe4e41b8370bea2dba724fd85c4dce280d336d21c"
+        },
+        ".rel.pdr": {
+          "meta": [
+            9,
+            64,
+            0,
+            456,
+            4,
+            8
+          ],
+          "sha": "090f831cdc08bf21ffe1ae9197fe55ec0f549efbe668b34402090edcd52f8be8"
+        },
+        ".rodata": {
+          "meta": [
+            1,
+            2,
+            0,
+            172,
+            8,
+            0
+          ],
+          "sha": "551002cf4bb0cd4b54aaf9435179385e16291cde066175e4ccd82da1d8ec6467"
+        },
+        ".rel.rodata": {
+          "meta": [
+            9,
+            64,
+            0,
+            192,
+            4,
+            8
+          ],
+          "sha": "69643c93e8fcfe6b3b425a383baeb75eef323f5f851d121cca48fc4da6de97b7"
+        },
+        ".gnu.attributes": {
+          "meta": [
+            1879048181,
+            0,
+            0,
+            16,
+            1,
+            0
+          ],
+          "sha": "216973f3f0fc143f32165e8cd6114664ee49b39e03ccb13ea3a576fbe3a5f43b"
+        },
+        ".shstrtab": {
+          "meta": [
+            3,
+            0,
+            0,
+            109,
+            1,
+            0
+          ],
+          "sha": "3b25e6cfbfc21dba0c75e833381a479f187d6bd7d12b36126ef39a3899b4fd9e"
+        }
+      },
+      "decoded_symbols_sha256": "c64da2a09310669fbeebd0676ce8b3fad3d1641d3d7224e69124d44022723ad3",
+      "branch": "# 59 fns checked, 0 with branch-offset/count divergence"
+    },
+    {
+      "path": "regiondiff/recon/NFS4-R-AU/frontend/common/femenudefs.cpp",
+      "baseline_object": "build\\recon\\frontend\\common\\femenudefs__region_gate_21812.cpp.o",
+      "final_object": "build\\recon\\frontend\\common\\femenudefs__region_gate_34468.cpp.o",
+      "baseline_sha256": "ba3e470c0bbe9a6eed815b6e657f7c2e15efd584d8c2651b4303fafe7b73c847",
+      "final_sha256": "5467e5cd577034ed0cf64c83d88e5873f528881ab5dd5784b86944c8cdc5fb24",
+      "payload_identical": true,
+      "symbols_identical": true,
+      "diagnostics_identical": true,
+      "payload_hashes": {
+        ".text": {
+          "meta": [
+            1,
+            6,
+            0,
+            24904,
+            4,
+            0
+          ],
+          "sha": "1f98130cf063d83f7ed47721f05b3a3b4300a80bcc3ee3e1f738ab47cd49482c"
+        },
+        ".rel.text": {
+          "meta": [
+            9,
+            64,
+            0,
+            13336,
+            4,
+            8
+          ],
+          "sha": "6a366affccc7be1e819e303232b02465e8914dd12c817f02c78f15c7c3f10f49"
+        },
+        ".data": {
+          "meta": [
+            1,
+            3,
+            0,
+            236,
+            4,
+            0
+          ],
+          "sha": "8449754ab114f01add1317e442ab11a5077dfe551bc935f35de35300f6834315"
+        },
+        ".bss": {
+          "meta": [
+            8,
+            3,
+            0,
+            0,
+            1,
+            0
+          ],
+          "sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        ".reginfo": {
+          "meta": [
+            1879048198,
+            0,
+            0,
+            24,
+            4,
+            1
+          ],
+          "sha": "65a4e83bcbc06635e4c911d8acbb14e7ea7a3b5680d48f7141da09e62dc5de9e"
+        },
+        ".MIPS.abiflags": {
+          "meta": [
+            1879048234,
+            2,
+            0,
+            24,
+            8,
+            24
+          ],
+          "sha": "9e70292a32ba11ef2132089aab266b191f38da634e80b1c34087db93153bd643"
+        },
+        ".pdr": {
+          "meta": [
+            1,
+            0,
+            0,
+            2112,
+            4,
+            0
+          ],
+          "sha": "fcc36b6d1d0fc40481849806b9cefd1c253a61d4914f86800c473f4fb1bd2538"
+        },
+        ".rel.pdr": {
+          "meta": [
+            9,
+            64,
+            0,
+            528,
+            4,
+            8
+          ],
+          "sha": "80cefa401e6cd2d233fde1aa34d4ea848bf1fd9ed2b5d10d7dacb69dd2d6d734"
+        },
+        ".gnu.attributes": {
+          "meta": [
+            1879048181,
+            0,
+            0,
+            16,
+            1,
+            0
+          ],
+          "sha": "216973f3f0fc143f32165e8cd6114664ee49b39e03ccb13ea3a576fbe3a5f43b"
+        },
+        ".shstrtab": {
+          "meta": [
+            3,
+            0,
+            0,
+            97,
+            1,
+            0
+          ],
+          "sha": "40cc976b25d2ee57945d28ab5e8e1f9134e3a28f26df3b1091a08bfdfae96f74"
+        }
+      },
+      "decoded_symbols_sha256": "2c5673f954b88a7a6ec58f8650547b4e718601978d3d29eb8701b18a43c41ffc",
+      "branch": null
+    },
+    {
+      "path": "regiondiff/recon/NFS4-R-AU/frontend/common/screencarselect.cpp",
+      "baseline_object": "build\\recon\\frontend\\common\\screencarselect__region_gate_17076.cpp.o",
+      "final_object": "build\\recon\\frontend\\common\\screencarselect__region_gate_15568.cpp.o",
+      "baseline_sha256": "1e5902574635a1fd9b23d4ef70a2a4b19643a64b46e389d8a0b52edbdab70364",
+      "final_sha256": "879eb86319350b706bce6d69f810a21921416e60c1b204fbb99b83a1b361ef74",
+      "payload_identical": true,
+      "symbols_identical": true,
+      "diagnostics_identical": true,
+      "payload_hashes": {
+        ".text": {
+          "meta": [
+            1,
+            6,
+            0,
+            20176,
+            4,
+            0
+          ],
+          "sha": "b21625f43bb527cc66782d39c8cf95176da6824c8ccf6962a97615b46ea4f7cc"
+        },
+        ".rel.text": {
+          "meta": [
+            9,
+            64,
+            0,
+            6344,
+            4,
+            8
+          ],
+          "sha": "d262ae6e738540436394982ed8f7a3497d2534f692dd66831099b9367eba00a8"
+        },
+        ".data": {
+          "meta": [
+            1,
+            3,
+            0,
+            476,
+            4,
+            0
+          ],
+          "sha": "6a4057150ff8e9afb483507f60e2df6b289a7f34927111b9a323608c9fcfd3c1"
+        },
+        ".bss": {
+          "meta": [
+            8,
+            3,
+            0,
+            106,
+            1,
+            0
+          ],
+          "sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        ".reginfo": {
+          "meta": [
+            1879048198,
+            0,
+            0,
+            24,
+            4,
+            1
+          ],
+          "sha": "baefce7b01f1f49a8e0b385e072b7a720181e36f439fc5be25f8aef9b0833ac9"
+        },
+        ".MIPS.abiflags": {
+          "meta": [
+            1879048234,
+            2,
+            0,
+            24,
+            8,
+            24
+          ],
+          "sha": "9e70292a32ba11ef2132089aab266b191f38da634e80b1c34087db93153bd643"
+        },
+        ".pdr": {
+          "meta": [
+            1,
+            0,
+            0,
+            1824,
+            4,
+            0
+          ],
+          "sha": "a4f11434f8e08f08132c9fca25b820251699e9ab22307994bb399c0dba625bca"
+        },
+        ".rel.pdr": {
+          "meta": [
+            9,
+            64,
+            0,
+            456,
+            4,
+            8
+          ],
+          "sha": "33d22196a95ab426da9cad7807e0f6c0ed15a7270f70d86dad03cd8a3fefb1d3"
+        },
+        ".rodata": {
+          "meta": [
+            1,
+            2,
+            0,
+            180,
+            8,
+            0
+          ],
+          "sha": "82cb1cd4077ed67c71002aca9de6c9fb941af24e265a2c72fdb7f1161d973daf"
+        },
+        ".rel.rodata": {
+          "meta": [
+            9,
+            64,
+            0,
+            192,
+            4,
+            8
+          ],
+          "sha": "1c60004b1bd49b8b65b89ee8cb18411a693f923ef419d97d4628a458dabe3ee5"
+        },
+        ".gnu.attributes": {
+          "meta": [
+            1879048181,
+            0,
+            0,
+            16,
+            1,
+            0
+          ],
+          "sha": "216973f3f0fc143f32165e8cd6114664ee49b39e03ccb13ea3a576fbe3a5f43b"
+        },
+        ".shstrtab": {
+          "meta": [
+            3,
+            0,
+            0,
+            109,
+            1,
+            0
+          ],
+          "sha": "3b25e6cfbfc21dba0c75e833381a479f187d6bd7d12b36126ef39a3899b4fd9e"
+        }
+      },
+      "decoded_symbols_sha256": "3aeaff66003904d4933a918e95f23270a2f1f427daa4b0d212005116970d2117",
+      "branch": null
+    },
+    {
+      "path": "regiondiff/recon/NFS4-R-FR-DE/frontend/common/femenudefs.cpp",
+      "baseline_object": "build\\recon\\frontend\\common\\femenudefs__region_gate_18416.cpp.o",
+      "final_object": "build\\recon\\frontend\\common\\femenudefs__region_gate_15124.cpp.o",
+      "baseline_sha256": "6a98c16248656da97dd2d7b315426a86ee3905ba967351456fab37d894883b0a",
+      "final_sha256": "6693d1c0d33618e41b63f4ebfdd9d93662cc863541f455f268600d226ca2ffaf",
+      "payload_identical": true,
+      "symbols_identical": true,
+      "diagnostics_identical": true,
+      "payload_hashes": {
+        ".text": {
+          "meta": [
+            1,
+            6,
+            0,
+            24904,
+            4,
+            0
+          ],
+          "sha": "1f98130cf063d83f7ed47721f05b3a3b4300a80bcc3ee3e1f738ab47cd49482c"
+        },
+        ".rel.text": {
+          "meta": [
+            9,
+            64,
+            0,
+            13336,
+            4,
+            8
+          ],
+          "sha": "6a366affccc7be1e819e303232b02465e8914dd12c817f02c78f15c7c3f10f49"
+        },
+        ".data": {
+          "meta": [
+            1,
+            3,
+            0,
+            236,
+            4,
+            0
+          ],
+          "sha": "8449754ab114f01add1317e442ab11a5077dfe551bc935f35de35300f6834315"
+        },
+        ".bss": {
+          "meta": [
+            8,
+            3,
+            0,
+            0,
+            1,
+            0
+          ],
+          "sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        ".reginfo": {
+          "meta": [
+            1879048198,
+            0,
+            0,
+            24,
+            4,
+            1
+          ],
+          "sha": "65a4e83bcbc06635e4c911d8acbb14e7ea7a3b5680d48f7141da09e62dc5de9e"
+        },
+        ".MIPS.abiflags": {
+          "meta": [
+            1879048234,
+            2,
+            0,
+            24,
+            8,
+            24
+          ],
+          "sha": "9e70292a32ba11ef2132089aab266b191f38da634e80b1c34087db93153bd643"
+        },
+        ".pdr": {
+          "meta": [
+            1,
+            0,
+            0,
+            2112,
+            4,
+            0
+          ],
+          "sha": "fcc36b6d1d0fc40481849806b9cefd1c253a61d4914f86800c473f4fb1bd2538"
+        },
+        ".rel.pdr": {
+          "meta": [
+            9,
+            64,
+            0,
+            528,
+            4,
+            8
+          ],
+          "sha": "80cefa401e6cd2d233fde1aa34d4ea848bf1fd9ed2b5d10d7dacb69dd2d6d734"
+        },
+        ".gnu.attributes": {
+          "meta": [
+            1879048181,
+            0,
+            0,
+            16,
+            1,
+            0
+          ],
+          "sha": "216973f3f0fc143f32165e8cd6114664ee49b39e03ccb13ea3a576fbe3a5f43b"
+        },
+        ".shstrtab": {
+          "meta": [
+            3,
+            0,
+            0,
+            97,
+            1,
+            0
+          ],
+          "sha": "40cc976b25d2ee57945d28ab5e8e1f9134e3a28f26df3b1091a08bfdfae96f74"
+        }
+      },
+      "decoded_symbols_sha256": "2c5673f954b88a7a6ec58f8650547b4e718601978d3d29eb8701b18a43c41ffc",
+      "branch": null
+    },
+    {
+      "path": "regiondiff/recon/NFS4-R-JPN/frontend/common/femenudefs.cpp",
+      "baseline_object": "build\\recon\\frontend\\common\\femenudefs__region_gate_7344.cpp.o",
+      "final_object": "build\\recon\\frontend\\common\\femenudefs__region_gate_32220.cpp.o",
+      "baseline_sha256": "082f1c3f3940c279a1090b777836b9601c470b25a6c36ea95ad1dd8004a209e1",
+      "final_sha256": "3505da3c96d88230ddc33f9cfea94b71a5e9e2e25d3ad9e9d6679a1582fdd65b",
+      "payload_identical": true,
+      "symbols_identical": true,
+      "diagnostics_identical": true,
+      "payload_hashes": {
+        ".text": {
+          "meta": [
+            1,
+            6,
+            0,
+            24864,
+            4,
+            0
+          ],
+          "sha": "22a2970e8f23f3914cc38fb9d11d68ba3ac20565d3c512b4d7ca7d66d255d7e9"
+        },
+        ".rel.text": {
+          "meta": [
+            9,
+            64,
+            0,
+            13336,
+            4,
+            8
+          ],
+          "sha": "36267bbf66798481e24aaa393b0b954ab462552058530f3a3e0955906a23c316"
+        },
+        ".data": {
+          "meta": [
+            1,
+            3,
+            0,
+            236,
+            4,
+            0
+          ],
+          "sha": "8449754ab114f01add1317e442ab11a5077dfe551bc935f35de35300f6834315"
+        },
+        ".bss": {
+          "meta": [
+            8,
+            3,
+            0,
+            0,
+            1,
+            0
+          ],
+          "sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        ".reginfo": {
+          "meta": [
+            1879048198,
+            0,
+            0,
+            24,
+            4,
+            1
+          ],
+          "sha": "65a4e83bcbc06635e4c911d8acbb14e7ea7a3b5680d48f7141da09e62dc5de9e"
+        },
+        ".MIPS.abiflags": {
+          "meta": [
+            1879048234,
+            2,
+            0,
+            24,
+            8,
+            24
+          ],
+          "sha": "9e70292a32ba11ef2132089aab266b191f38da634e80b1c34087db93153bd643"
+        },
+        ".pdr": {
+          "meta": [
+            1,
+            0,
+            0,
+            2112,
+            4,
+            0
+          ],
+          "sha": "e36ba83b3f415b43cd807686e3b185049b32af041275fd652a9da7f5746c35a9"
+        },
+        ".rel.pdr": {
+          "meta": [
+            9,
+            64,
+            0,
+            528,
+            4,
+            8
+          ],
+          "sha": "80cefa401e6cd2d233fde1aa34d4ea848bf1fd9ed2b5d10d7dacb69dd2d6d734"
+        },
+        ".gnu.attributes": {
+          "meta": [
+            1879048181,
+            0,
+            0,
+            16,
+            1,
+            0
+          ],
+          "sha": "216973f3f0fc143f32165e8cd6114664ee49b39e03ccb13ea3a576fbe3a5f43b"
+        },
+        ".shstrtab": {
+          "meta": [
+            3,
+            0,
+            0,
+            97,
+            1,
+            0
+          ],
+          "sha": "40cc976b25d2ee57945d28ab5e8e1f9134e3a28f26df3b1091a08bfdfae96f74"
+        }
+      },
+      "decoded_symbols_sha256": "c6c8bbbc21e83422378f7b775b198811f37b0dafeadadcf8e635a0896e8e3d0d",
+      "branch": null
+    },
+    {
+      "path": "regiondiff/recon/NFS4-R-UK-ES-IT/frontend/common/femenudefs.cpp",
+      "baseline_object": "build\\recon\\frontend\\common\\femenudefs__region_gate_5080.cpp.o",
+      "final_object": "build\\recon\\frontend\\common\\femenudefs__region_gate_18788.cpp.o",
+      "baseline_sha256": "03129ecf9ccfdc47a440833e45cddee22d29484441dac6100ff12edb3917a8cb",
+      "final_sha256": "218d6d3fd66a4b29859776e842664c210a9f7e3e9244e894d47da597cc8d32ad",
+      "payload_identical": true,
+      "symbols_identical": true,
+      "diagnostics_identical": true,
+      "payload_hashes": {
+        ".text": {
+          "meta": [
+            1,
+            6,
+            0,
+            24904,
+            4,
+            0
+          ],
+          "sha": "1f98130cf063d83f7ed47721f05b3a3b4300a80bcc3ee3e1f738ab47cd49482c"
+        },
+        ".rel.text": {
+          "meta": [
+            9,
+            64,
+            0,
+            13336,
+            4,
+            8
+          ],
+          "sha": "6a366affccc7be1e819e303232b02465e8914dd12c817f02c78f15c7c3f10f49"
+        },
+        ".data": {
+          "meta": [
+            1,
+            3,
+            0,
+            236,
+            4,
+            0
+          ],
+          "sha": "8449754ab114f01add1317e442ab11a5077dfe551bc935f35de35300f6834315"
+        },
+        ".bss": {
+          "meta": [
+            8,
+            3,
+            0,
+            0,
+            1,
+            0
+          ],
+          "sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        ".reginfo": {
+          "meta": [
+            1879048198,
+            0,
+            0,
+            24,
+            4,
+            1
+          ],
+          "sha": "65a4e83bcbc06635e4c911d8acbb14e7ea7a3b5680d48f7141da09e62dc5de9e"
+        },
+        ".MIPS.abiflags": {
+          "meta": [
+            1879048234,
+            2,
+            0,
+            24,
+            8,
+            24
+          ],
+          "sha": "9e70292a32ba11ef2132089aab266b191f38da634e80b1c34087db93153bd643"
+        },
+        ".pdr": {
+          "meta": [
+            1,
+            0,
+            0,
+            2112,
+            4,
+            0
+          ],
+          "sha": "fcc36b6d1d0fc40481849806b9cefd1c253a61d4914f86800c473f4fb1bd2538"
+        },
+        ".rel.pdr": {
+          "meta": [
+            9,
+            64,
+            0,
+            528,
+            4,
+            8
+          ],
+          "sha": "80cefa401e6cd2d233fde1aa34d4ea848bf1fd9ed2b5d10d7dacb69dd2d6d734"
+        },
+        ".gnu.attributes": {
+          "meta": [
+            1879048181,
+            0,
+            0,
+            16,
+            1,
+            0
+          ],
+          "sha": "216973f3f0fc143f32165e8cd6114664ee49b39e03ccb13ea3a576fbe3a5f43b"
+        },
+        ".shstrtab": {
+          "meta": [
+            3,
+            0,
+            0,
+            97,
+            1,
+            0
+          ],
+          "sha": "40cc976b25d2ee57945d28ab5e8e1f9134e3a28f26df3b1091a08bfdfae96f74"
+        }
+      },
+      "decoded_symbols_sha256": "2c5673f954b88a7a6ec58f8650547b4e718601978d3d29eb8701b18a43c41ffc",
+      "branch": null
+    },
+    {
+      "path": "regiondiff/recon/NFS4-R-UK-SW/frontend/common/femenudefs.cpp",
+      "baseline_object": "build\\recon\\frontend\\common\\femenudefs__region_gate_34044.cpp.o",
+      "final_object": "build\\recon\\frontend\\common\\femenudefs__region_gate_18540.cpp.o",
+      "baseline_sha256": "15c67101ddf0471c7333726d5fe363a847085174fa38bbdac563534b0bb9e4a7",
+      "final_sha256": "ae93914d76eefdf4ea280ab491114b2f8ba660ab44cccc0d558aea81ebcc7da2",
+      "payload_identical": true,
+      "symbols_identical": true,
+      "diagnostics_identical": true,
+      "payload_hashes": {
+        ".text": {
+          "meta": [
+            1,
+            6,
+            0,
+            24904,
+            4,
+            0
+          ],
+          "sha": "1f98130cf063d83f7ed47721f05b3a3b4300a80bcc3ee3e1f738ab47cd49482c"
+        },
+        ".rel.text": {
+          "meta": [
+            9,
+            64,
+            0,
+            13336,
+            4,
+            8
+          ],
+          "sha": "6a366affccc7be1e819e303232b02465e8914dd12c817f02c78f15c7c3f10f49"
+        },
+        ".data": {
+          "meta": [
+            1,
+            3,
+            0,
+            236,
+            4,
+            0
+          ],
+          "sha": "8449754ab114f01add1317e442ab11a5077dfe551bc935f35de35300f6834315"
+        },
+        ".bss": {
+          "meta": [
+            8,
+            3,
+            0,
+            0,
+            1,
+            0
+          ],
+          "sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        ".reginfo": {
+          "meta": [
+            1879048198,
+            0,
+            0,
+            24,
+            4,
+            1
+          ],
+          "sha": "65a4e83bcbc06635e4c911d8acbb14e7ea7a3b5680d48f7141da09e62dc5de9e"
+        },
+        ".MIPS.abiflags": {
+          "meta": [
+            1879048234,
+            2,
+            0,
+            24,
+            8,
+            24
+          ],
+          "sha": "9e70292a32ba11ef2132089aab266b191f38da634e80b1c34087db93153bd643"
+        },
+        ".pdr": {
+          "meta": [
+            1,
+            0,
+            0,
+            2112,
+            4,
+            0
+          ],
+          "sha": "fcc36b6d1d0fc40481849806b9cefd1c253a61d4914f86800c473f4fb1bd2538"
+        },
+        ".rel.pdr": {
+          "meta": [
+            9,
+            64,
+            0,
+            528,
+            4,
+            8
+          ],
+          "sha": "80cefa401e6cd2d233fde1aa34d4ea848bf1fd9ed2b5d10d7dacb69dd2d6d734"
+        },
+        ".gnu.attributes": {
+          "meta": [
+            1879048181,
+            0,
+            0,
+            16,
+            1,
+            0
+          ],
+          "sha": "216973f3f0fc143f32165e8cd6114664ee49b39e03ccb13ea3a576fbe3a5f43b"
+        },
+        ".shstrtab": {
+          "meta": [
+            3,
+            0,
+            0,
+            97,
+            1,
+            0
+          ],
+          "sha": "40cc976b25d2ee57945d28ab5e8e1f9134e3a28f26df3b1091a08bfdfae96f74"
+        }
+      },
+      "decoded_symbols_sha256": "2c5673f954b88a7a6ec58f8650547b4e718601978d3d29eb8701b18a43c41ffc",
+      "branch": null
+    },
+    {
+      "path": "regiondiff/recon/NFS4-R-USA/frontend/common/femenudefs.cpp",
+      "baseline_object": "build\\recon\\frontend\\common\\femenudefs__region_gate_30968.cpp.o",
+      "final_object": "build\\recon\\frontend\\common\\femenudefs__region_gate_14388.cpp.o",
+      "baseline_sha256": "3b49765ad13fc76c7aa14ff6139ca7fe456d6b96bae15e0f0318eadff5dcb18a",
+      "final_sha256": "829a30996940d79dbef70d246c809a90264cb12907971e388764295afa7bc21e",
+      "payload_identical": true,
+      "symbols_identical": true,
+      "diagnostics_identical": true,
+      "payload_hashes": {
+        ".text": {
+          "meta": [
+            1,
+            6,
+            0,
+            25108,
+            4,
+            0
+          ],
+          "sha": "9ee323248c7f6983650b330f29b1b893fb0e0f0ff2791dfce8db41bd1457dbb0"
+        },
+        ".rel.text": {
+          "meta": [
+            9,
+            64,
+            0,
+            13496,
+            4,
+            8
+          ],
+          "sha": "86624ad9081d338b97b85f54781dcb2176897990d5a1bacca9b388ad4ba4a3e6"
+        },
+        ".data": {
+          "meta": [
+            1,
+            3,
+            0,
+            236,
+            4,
+            0
+          ],
+          "sha": "8449754ab114f01add1317e442ab11a5077dfe551bc935f35de35300f6834315"
+        },
+        ".bss": {
+          "meta": [
+            8,
+            3,
+            0,
+            0,
+            1,
+            0
+          ],
+          "sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        ".reginfo": {
+          "meta": [
+            1879048198,
+            0,
+            0,
+            24,
+            4,
+            1
+          ],
+          "sha": "65a4e83bcbc06635e4c911d8acbb14e7ea7a3b5680d48f7141da09e62dc5de9e"
+        },
+        ".MIPS.abiflags": {
+          "meta": [
+            1879048234,
+            2,
+            0,
+            24,
+            8,
+            24
+          ],
+          "sha": "9e70292a32ba11ef2132089aab266b191f38da634e80b1c34087db93153bd643"
+        },
+        ".pdr": {
+          "meta": [
+            1,
+            0,
+            0,
+            2112,
+            4,
+            0
+          ],
+          "sha": "099fb53200cae3de42c18a65fe34542f07f57c1ce6143fd0256edd277701484d"
+        },
+        ".rel.pdr": {
+          "meta": [
+            9,
+            64,
+            0,
+            528,
+            4,
+            8
+          ],
+          "sha": "1c6b66952b7277d457cb351a77846707eb82d1ec860dff06aad83fca802ea2f1"
+        },
+        ".gnu.attributes": {
+          "meta": [
+            1879048181,
+            0,
+            0,
+            16,
+            1,
+            0
+          ],
+          "sha": "216973f3f0fc143f32165e8cd6114664ee49b39e03ccb13ea3a576fbe3a5f43b"
+        },
+        ".shstrtab": {
+          "meta": [
+            3,
+            0,
+            0,
+            97,
+            1,
+            0
+          ],
+          "sha": "40cc976b25d2ee57945d28ab5e8e1f9134e3a28f26df3b1091a08bfdfae96f74"
+        }
+      },
+      "decoded_symbols_sha256": "d5a97470c53681056b0607b81719cf655a774c63c3f85516a932ce76e0613bc5",
+      "branch": null
+    },
+    {
+      "path": "regiondiff/recon/NFS4-R-USA/frontend/common/front.cpp",
+      "baseline_object": "build\\recon\\frontend\\common\\front__region_gate_24816.cpp.o",
+      "final_object": "build\\recon\\frontend\\common\\front__region_gate_30868.cpp.o",
+      "baseline_sha256": "40e440ee3ab5fbe71d907e604a35e797a6f7832c6066d511fc73051fc28a4938",
+      "final_sha256": "b182e5307a50f1bc0417dfa6143863ace1a21d700dee1e180a22d16c97c23e7e",
+      "payload_identical": true,
+      "symbols_identical": true,
+      "diagnostics_identical": true,
+      "payload_hashes": {
+        ".text": {
+          "meta": [
+            1,
+            6,
+            0,
+            21220,
+            4,
+            0
+          ],
+          "sha": "13a4ac08fa6379dbc8b716d9cbb2cbf5fecb23432897f3d35c00a284fa466fef"
+        },
+        ".rel.text": {
+          "meta": [
+            9,
+            64,
+            0,
+            6296,
+            4,
+            8
+          ],
+          "sha": "74a281fa0a815bdb082578415e3b783ddda2b21e34bf846c1b1a7c5fbf23e320"
+        },
+        ".data": {
+          "meta": [
+            1,
+            3,
+            0,
+            387,
+            4,
+            0
+          ],
+          "sha": "84112f36532b9749117257235fb8df37caf5aeef975150db7b04f5a2e477dc3b"
+        },
+        ".bss": {
+          "meta": [
+            8,
+            3,
+            0,
+            0,
+            1,
+            0
+          ],
+          "sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        ".reginfo": {
+          "meta": [
+            1879048198,
+            0,
+            0,
+            24,
+            4,
+            1
+          ],
+          "sha": "5b4ae358ee60bf7cbe7b7f01ff3dca32767fae506c7cea8bd6404d5ab1be80d7"
+        },
+        ".MIPS.abiflags": {
+          "meta": [
+            1879048234,
+            2,
+            0,
+            24,
+            8,
+            24
+          ],
+          "sha": "9e70292a32ba11ef2132089aab266b191f38da634e80b1c34087db93153bd643"
+        },
+        ".pdr": {
+          "meta": [
+            1,
+            0,
+            0,
+            1376,
+            4,
+            0
+          ],
+          "sha": "66a9ce9ebcccc60f62d5319b3ec22acac03115ea659b001e7c648038b56875c6"
+        },
+        ".rel.pdr": {
+          "meta": [
+            9,
+            64,
+            0,
+            344,
+            4,
+            8
+          ],
+          "sha": "4ab579e49722bbcefd8f605613459fa50d1b405940b1a21dd72c5d855bc063aa"
+        },
+        ".rodata": {
+          "meta": [
+            1,
+            2,
+            0,
+            33,
+            4,
+            0
+          ],
+          "sha": "623f9683be8fdd63a66d7ed1d50e2bec932472138db8c09aa4d03ee62e42b339"
+        },
+        ".gnu.attributes": {
+          "meta": [
+            1879048181,
+            0,
+            0,
+            16,
+            1,
+            0
+          ],
+          "sha": "216973f3f0fc143f32165e8cd6114664ee49b39e03ccb13ea3a576fbe3a5f43b"
+        },
+        ".shstrtab": {
+          "meta": [
+            3,
+            0,
+            0,
+            105,
+            1,
+            0
+          ],
+          "sha": "7e70b60aa63d8a83cccff2ad2d1c5e1cca06facb0dfa3db68644ab2cbb485c13"
+        }
+      },
+      "decoded_symbols_sha256": "23d7f165dfb2bafdd5dffc485837908e85181648760ccf7777365b24c30130dd",
+      "branch": null
+    },
+    {
+      "path": "regiondiff/recon/NFS4-R-USA/frontend/common/screencarselect.cpp",
+      "baseline_object": "build\\recon\\frontend\\common\\screencarselect__region_gate_25060.cpp.o",
+      "final_object": "build\\recon\\frontend\\common\\screencarselect__region_gate_800.cpp.o",
+      "baseline_sha256": "29b3b6d89127565371c3b27092ad7d937ffceeabdf5b9b2b40840557cd69fdcc",
+      "final_sha256": "146bf70b4fd559b4081b4f379adf2a497c620d1e4cb839c880ab02c36b8f26fb",
+      "payload_identical": true,
+      "symbols_identical": true,
+      "diagnostics_identical": true,
+      "payload_hashes": {
+        ".text": {
+          "meta": [
+            1,
+            6,
+            0,
+            20420,
+            4,
+            0
+          ],
+          "sha": "9fb46bf796e2f6dfb785c193ee3bea6345b0e80686b2a589eda316f3092b4478"
+        },
+        ".rel.text": {
+          "meta": [
+            9,
+            64,
+            0,
+            6368,
+            4,
+            8
+          ],
+          "sha": "e260fac2d8a7e66532bbfc03682d831a18c8bffd17c0e1ee9c13bf0553a52a4b"
+        },
+        ".data": {
+          "meta": [
+            1,
+            3,
+            0,
+            476,
+            4,
+            0
+          ],
+          "sha": "6a4057150ff8e9afb483507f60e2df6b289a7f34927111b9a323608c9fcfd3c1"
+        },
+        ".bss": {
+          "meta": [
+            8,
+            3,
+            0,
+            106,
+            1,
+            0
+          ],
+          "sha": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        ".reginfo": {
+          "meta": [
+            1879048198,
+            0,
+            0,
+            24,
+            4,
+            1
+          ],
+          "sha": "baefce7b01f1f49a8e0b385e072b7a720181e36f439fc5be25f8aef9b0833ac9"
+        },
+        ".MIPS.abiflags": {
+          "meta": [
+            1879048234,
+            2,
+            0,
+            24,
+            8,
+            24
+          ],
+          "sha": "9e70292a32ba11ef2132089aab266b191f38da634e80b1c34087db93153bd643"
+        },
+        ".pdr": {
+          "meta": [
+            1,
+            0,
+            0,
+            1824,
+            4,
+            0
+          ],
+          "sha": "647e6705585dc523546a2a64a1887d01a771865d38282a0224158360ff7e883f"
+        },
+        ".rel.pdr": {
+          "meta": [
+            9,
+            64,
+            0,
+            456,
+            4,
+            8
+          ],
+          "sha": "33d22196a95ab426da9cad7807e0f6c0ed15a7270f70d86dad03cd8a3fefb1d3"
+        },
+        ".rodata": {
+          "meta": [
+            1,
+            2,
+            0,
+            187,
+            8,
+            0
+          ],
+          "sha": "c708afb7b809cac67129a4ba3b4681ea6953f67b912804fdc61f4c1ae375c7e3"
+        },
+        ".rel.rodata": {
+          "meta": [
+            9,
+            64,
+            0,
+            192,
+            4,
+            8
+          ],
+          "sha": "1c60004b1bd49b8b65b89ee8cb18411a693f923ef419d97d4628a458dabe3ee5"
+        },
+        ".gnu.attributes": {
+          "meta": [
+            1879048181,
+            0,
+            0,
+            16,
+            1,
+            0
+          ],
+          "sha": "216973f3f0fc143f32165e8cd6114664ee49b39e03ccb13ea3a576fbe3a5f43b"
+        },
+        ".shstrtab": {
+          "meta": [
+            3,
+            0,
+            0,
+            109,
+            1,
+            0
+          ],
+          "sha": "3b25e6cfbfc21dba0c75e833381a479f187d6bd7d12b36126ef39a3899b4fd9e"
+        }
+      },
+      "decoded_symbols_sha256": "f537bed9f7a27f56fe113c85d4d25f6e9316da6dba2a0ba6d6bccaa38e844c74",
+      "branch": null
+    }
+  ],
+  "regional_checks": [
+    {
+      "path": "regiondiff/recon/NFS4-R-USA/frontend/common/screencarselect.cpp",
+      "region": "AU",
+      "count": 13,
+      "exit_code": 0,
+      "results": [
+        "DoMemCardStuff__25tScreenPinkSlipsCarSelect: REGION-PASS (193 insns) [NFS4-R-AU]",
+        "DrawForeground__16tScreenCarSelect: REGION-PASS (566 insns) [NFS4-R-AU]",
+        "DrawVideoWall__25tScreenCarSelectTwoPlayers: REGION-PASS (104 insns) [NFS4-R-AU]",
+        "GetShapeInfo__25tScreenCarSelectTwoPlayerRsT1PPcT3: REGION-PASS (58 insns) [NFS4-R-AU]",
+        "GetShapeInfo__25tScreenPinkSlipsCarSelectRsT1PPcT3: REGION-PASS (30 insns) [NFS4-R-AU]",
+        "Initialize__25tScreenCarSelectTwoPlayer: REGION-PASS (32 insns) [NFS4-R-AU]",
+        "Initialize__25tScreenPinkSlipsCarSelect: REGION-PASS (28 insns) [NFS4-R-AU]",
+        "ProcessInput__16tScreenCarSelect7tPlayerR13tInputKeyTypeR12tMenuCommand: REGION-PASS (111 insns) [NFS4-R-AU]",
+        "ProcessInput__25tScreenPinkSlipsCarSelect7tPlayerR13tInputKeyTypeR12tMenuCommand: REGION-PASS (58 insns) [NFS4-R-AU]",
+        "DrawBackground__25tScreenCarSelectTwoPlayer: REGION-PASS (342 insns) [NFS4-R-AU]",
+        "DrawOverlay__16tScreenCarSelectP8tOverlay: REGION-PASS (551 insns) [NFS4-R-AU]",
+        "InitializeVideoWall__16tScreenCarSelect: REGION-PASS (46 insns) [NFS4-R-AU]",
+        "InitializeVideoWall__20tScreenCarSelectDuel: REGION-PASS (71 insns) [NFS4-R-AU]"
+      ]
+    },
+    {
+      "path": "regiondiff/recon/NFS4-R-USA/frontend/common/screencarselect.cpp",
+      "region": "FR-DE",
+      "count": 13,
+      "exit_code": 0,
+      "results": [
+        "DoMemCardStuff__25tScreenPinkSlipsCarSelect: REGION-PASS (193 insns) [NFS4-R-FR-DE]",
+        "DrawForeground__16tScreenCarSelect: REGION-PASS (566 insns) [NFS4-R-FR-DE]",
+        "DrawVideoWall__25tScreenCarSelectTwoPlayers: REGION-PASS (104 insns) [NFS4-R-FR-DE]",
+        "GetShapeInfo__25tScreenCarSelectTwoPlayerRsT1PPcT3: REGION-PASS (58 insns) [NFS4-R-FR-DE]",
+        "GetShapeInfo__25tScreenPinkSlipsCarSelectRsT1PPcT3: REGION-PASS (30 insns) [NFS4-R-FR-DE]",
+        "Initialize__25tScreenCarSelectTwoPlayer: REGION-PASS (32 insns) [NFS4-R-FR-DE]",
+        "Initialize__25tScreenPinkSlipsCarSelect: REGION-PASS (28 insns) [NFS4-R-FR-DE]",
+        "ProcessInput__16tScreenCarSelect7tPlayerR13tInputKeyTypeR12tMenuCommand: REGION-PASS (111 insns) [NFS4-R-FR-DE]",
+        "ProcessInput__25tScreenPinkSlipsCarSelect7tPlayerR13tInputKeyTypeR12tMenuCommand: REGION-PASS (58 insns) [NFS4-R-FR-DE]",
+        "DrawBackground__25tScreenCarSelectTwoPlayer: REGION-PASS (342 insns) [NFS4-R-FR-DE]",
+        "DrawOverlay__16tScreenCarSelectP8tOverlay: REGION-PASS (551 insns) [NFS4-R-FR-DE]",
+        "InitializeVideoWall__16tScreenCarSelect: REGION-PASS (46 insns) [NFS4-R-FR-DE]",
+        "InitializeVideoWall__20tScreenCarSelectDuel: REGION-PASS (71 insns) [NFS4-R-FR-DE]"
+      ]
+    },
+    {
+      "path": "regiondiff/recon/NFS4-R-USA/frontend/common/screencarselect.cpp",
+      "region": "JPN",
+      "count": 16,
+      "exit_code": 0,
+      "results": [
+        "DoMemCardStuff__25tScreenPinkSlipsCarSelect: REGION-PASS (193 insns) [NFS4-R-JPN]",
+        "DrawCar__FR8tCarInfossffcbUl7tPlayer: REGION-PASS (125 insns) [NFS4-R-JPN]",
+        "DrawForeground__16tScreenCarSelect: REGION-PASS (566 insns) [NFS4-R-JPN]",
+        "DrawVideoWall__25tScreenCarSelectTwoPlayers: REGION-PASS (104 insns) [NFS4-R-JPN]",
+        "GetShapeInfo__25tScreenCarSelectTwoPlayerRsT1PPcT3: REGION-PASS (58 insns) [NFS4-R-JPN]",
+        "GetShapeInfo__25tScreenPinkSlipsCarSelectRsT1PPcT3: REGION-PASS (30 insns) [NFS4-R-JPN]",
+        "Initialize__25tScreenCarSelectTwoPlayer: REGION-PASS (32 insns) [NFS4-R-JPN]",
+        "Initialize__25tScreenPinkSlipsCarSelect: REGION-PASS (28 insns) [NFS4-R-JPN]",
+        "ProcessInput__16tScreenCarSelect7tPlayerR13tInputKeyTypeR12tMenuCommand: REGION-PASS (111 insns) [NFS4-R-JPN]",
+        "ProcessInput__25tScreenPinkSlipsCarSelect7tPlayerR13tInputKeyTypeR12tMenuCommand: REGION-PASS (58 insns) [NFS4-R-JPN]",
+        "DrawBackground__25tScreenCarSelectTwoPlayer: REGION-PASS (342 insns) [NFS4-R-JPN]",
+        "DrawOverlay__16tScreenCarSelectP8tOverlay: REGION-PASS (551 insns) [NFS4-R-JPN]",
+        "InitializeVideoWall__16tScreenCarSelect: REGION-PASS (46 insns) [NFS4-R-JPN]",
+        "InitializeVideoWall__20tScreenCarSelectDuel: REGION-PASS (71 insns) [NFS4-R-JPN]",
+        "SetDialog__25tScreenCarSelectTwoPlayer: REGION-PASS (48 insns) [NFS4-R-JPN]",
+        "SetDialog__25tScreenPinkSlipsCarSelect: REGION-PASS (164 insns) [NFS4-R-JPN]"
+      ]
+    },
+    {
+      "path": "regiondiff/recon/NFS4-R-USA/frontend/common/screencarselect.cpp",
+      "region": "UK-ES-IT",
+      "count": 13,
+      "exit_code": 0,
+      "results": [
+        "DoMemCardStuff__25tScreenPinkSlipsCarSelect: REGION-PASS (193 insns) [NFS4-R-UK-ES-IT]",
+        "DrawForeground__16tScreenCarSelect: REGION-PASS (566 insns) [NFS4-R-UK-ES-IT]",
+        "DrawVideoWall__25tScreenCarSelectTwoPlayers: REGION-PASS (104 insns) [NFS4-R-UK-ES-IT]",
+        "GetShapeInfo__25tScreenCarSelectTwoPlayerRsT1PPcT3: REGION-PASS (58 insns) [NFS4-R-UK-ES-IT]",
+        "GetShapeInfo__25tScreenPinkSlipsCarSelectRsT1PPcT3: REGION-PASS (30 insns) [NFS4-R-UK-ES-IT]",
+        "Initialize__25tScreenCarSelectTwoPlayer: REGION-PASS (32 insns) [NFS4-R-UK-ES-IT]",
+        "Initialize__25tScreenPinkSlipsCarSelect: REGION-PASS (28 insns) [NFS4-R-UK-ES-IT]",
+        "ProcessInput__16tScreenCarSelect7tPlayerR13tInputKeyTypeR12tMenuCommand: REGION-PASS (111 insns) [NFS4-R-UK-ES-IT]",
+        "ProcessInput__25tScreenPinkSlipsCarSelect7tPlayerR13tInputKeyTypeR12tMenuCommand: REGION-PASS (58 insns) [NFS4-R-UK-ES-IT]",
+        "DrawBackground__25tScreenCarSelectTwoPlayer: REGION-PASS (342 insns) [NFS4-R-UK-ES-IT]",
+        "DrawOverlay__16tScreenCarSelectP8tOverlay: REGION-PASS (551 insns) [NFS4-R-UK-ES-IT]",
+        "InitializeVideoWall__16tScreenCarSelect: REGION-PASS (46 insns) [NFS4-R-UK-ES-IT]",
+        "InitializeVideoWall__20tScreenCarSelectDuel: REGION-PASS (71 insns) [NFS4-R-UK-ES-IT]"
+      ]
+    },
+    {
+      "path": "regiondiff/recon/NFS4-R-USA/frontend/common/screencarselect.cpp",
+      "region": "UK-SW",
+      "count": 13,
+      "exit_code": 0,
+      "results": [
+        "DoMemCardStuff__25tScreenPinkSlipsCarSelect: REGION-PASS (193 insns) [NFS4-R-UK-SW]",
+        "DrawForeground__16tScreenCarSelect: REGION-PASS (566 insns) [NFS4-R-UK-SW]",
+        "DrawVideoWall__25tScreenCarSelectTwoPlayers: REGION-PASS (104 insns) [NFS4-R-UK-SW]",
+        "GetShapeInfo__25tScreenCarSelectTwoPlayerRsT1PPcT3: REGION-PASS (58 insns) [NFS4-R-UK-SW]",
+        "GetShapeInfo__25tScreenPinkSlipsCarSelectRsT1PPcT3: REGION-PASS (30 insns) [NFS4-R-UK-SW]",
+        "Initialize__25tScreenCarSelectTwoPlayer: REGION-PASS (32 insns) [NFS4-R-UK-SW]",
+        "Initialize__25tScreenPinkSlipsCarSelect: REGION-PASS (28 insns) [NFS4-R-UK-SW]",
+        "ProcessInput__16tScreenCarSelect7tPlayerR13tInputKeyTypeR12tMenuCommand: REGION-PASS (111 insns) [NFS4-R-UK-SW]",
+        "ProcessInput__25tScreenPinkSlipsCarSelect7tPlayerR13tInputKeyTypeR12tMenuCommand: REGION-PASS (58 insns) [NFS4-R-UK-SW]",
+        "DrawBackground__25tScreenCarSelectTwoPlayer: REGION-PASS (342 insns) [NFS4-R-UK-SW]",
+        "DrawOverlay__16tScreenCarSelectP8tOverlay: REGION-PASS (551 insns) [NFS4-R-UK-SW]",
+        "InitializeVideoWall__16tScreenCarSelect: REGION-PASS (46 insns) [NFS4-R-UK-SW]",
+        "InitializeVideoWall__20tScreenCarSelectDuel: REGION-PASS (71 insns) [NFS4-R-UK-SW]"
+      ]
+    },
+    {
+      "path": "regiondiff/recon/NFS4-R-USA/frontend/common/screencarselect.cpp",
+      "region": "USA",
+      "count": 16,
+      "exit_code": 0,
+      "results": [
+        "DoMemCardStuff__25tScreenPinkSlipsCarSelect: REGION-PASS (193 insns) [NFS4-R-USA]",
+        "DrawCar__FR8tCarInfossffcbUl7tPlayer: REGION-PASS (125 insns) [NFS4-R-USA]",
+        "DrawForeground__16tScreenCarSelect: REGION-PASS (566 insns) [NFS4-R-USA]",
+        "DrawVideoWall__25tScreenCarSelectTwoPlayers: REGION-PASS (104 insns) [NFS4-R-USA]",
+        "GetShapeInfo__25tScreenCarSelectTwoPlayerRsT1PPcT3: REGION-PASS (58 insns) [NFS4-R-USA]",
+        "GetShapeInfo__25tScreenPinkSlipsCarSelectRsT1PPcT3: REGION-PASS (30 insns) [NFS4-R-USA]",
+        "Initialize__25tScreenCarSelectTwoPlayer: REGION-PASS (32 insns) [NFS4-R-USA]",
+        "Initialize__25tScreenPinkSlipsCarSelect: REGION-PASS (28 insns) [NFS4-R-USA]",
+        "ProcessInput__16tScreenCarSelect7tPlayerR13tInputKeyTypeR12tMenuCommand: REGION-PASS (111 insns) [NFS4-R-USA]",
+        "ProcessInput__25tScreenPinkSlipsCarSelect7tPlayerR13tInputKeyTypeR12tMenuCommand: REGION-PASS (58 insns) [NFS4-R-USA]",
+        "DrawBackground__25tScreenCarSelectTwoPlayer: REGION-PASS (342 insns) [NFS4-R-USA]",
+        "DrawOverlay__16tScreenCarSelectP8tOverlay: REGION-PASS (551 insns) [NFS4-R-USA]",
+        "InitializeVideoWall__16tScreenCarSelect: REGION-PASS (46 insns) [NFS4-R-USA]",
+        "InitializeVideoWall__20tScreenCarSelectDuel: REGION-PASS (71 insns) [NFS4-R-USA]",
+        "SetDialog__25tScreenCarSelectTwoPlayer: REGION-PASS (48 insns) [NFS4-R-USA]",
+        "SetDialog__25tScreenPinkSlipsCarSelect: REGION-PASS (164 insns) [NFS4-R-USA]"
+      ]
+    },
+    {
+      "path": "regiondiff/recon/NFS4-R-AU/frontend/common/screencarselect.cpp",
+      "region": "AU",
+      "count": 3,
+      "exit_code": 0,
+      "results": [
+        "DrawCar__FR8tCarInfossffcbUl7tPlayer: REGION-PASS (125 insns) [NFS4-R-AU]",
+        "SetDialog__25tScreenCarSelectTwoPlayer: REGION-PASS (48 insns) [NFS4-R-AU]",
+        "SetDialog__25tScreenPinkSlipsCarSelect: REGION-PASS (164 insns) [NFS4-R-AU]"
+      ]
+    },
+    {
+      "path": "regiondiff/recon/NFS4-R-AU/frontend/common/screencarselect.cpp",
+      "region": "FR-DE",
+      "count": 3,
+      "exit_code": 0,
+      "results": [
+        "DrawCar__FR8tCarInfossffcbUl7tPlayer: REGION-PASS (125 insns) [NFS4-R-FR-DE]",
+        "SetDialog__25tScreenCarSelectTwoPlayer: REGION-PASS (48 insns) [NFS4-R-FR-DE]",
+        "SetDialog__25tScreenPinkSlipsCarSelect: REGION-PASS (164 insns) [NFS4-R-FR-DE]"
+      ]
+    },
+    {
+      "path": "regiondiff/recon/NFS4-R-AU/frontend/common/screencarselect.cpp",
+      "region": "UK-ES-IT",
+      "count": 3,
+      "exit_code": 0,
+      "results": [
+        "DrawCar__FR8tCarInfossffcbUl7tPlayer: REGION-PASS (125 insns) [NFS4-R-UK-ES-IT]",
+        "SetDialog__25tScreenCarSelectTwoPlayer: REGION-PASS (48 insns) [NFS4-R-UK-ES-IT]",
+        "SetDialog__25tScreenPinkSlipsCarSelect: REGION-PASS (164 insns) [NFS4-R-UK-ES-IT]"
+      ]
+    },
+    {
+      "path": "regiondiff/recon/NFS4-R-AU/frontend/common/screencarselect.cpp",
+      "region": "UK-SW",
+      "count": 3,
+      "exit_code": 0,
+      "results": [
+        "DrawCar__FR8tCarInfossffcbUl7tPlayer: REGION-PASS (125 insns) [NFS4-R-UK-SW]",
+        "SetDialog__25tScreenCarSelectTwoPlayer: REGION-PASS (48 insns) [NFS4-R-UK-SW]",
+        "SetDialog__25tScreenPinkSlipsCarSelect: REGION-PASS (164 insns) [NFS4-R-UK-SW]"
+      ]
+    },
+    {
+      "path": "regiondiff/recon/NFS4-R-USA/frontend/common/front.cpp",
+      "region": "AU",
+      "count": 8,
+      "exit_code": 0,
+      "results": [
+        "Front_AppendOpponentData__FPiR9tFEStream: REGION-PASS (205 insns) [NFS4-R-AU]",
+        "Front_GetInGameVars__Fv: REGION-PASS (63 insns) [NFS4-R-AU]",
+        "Front_InitMissions__FR9tFEStream: REGION-PASS (85 insns) [NFS4-R-AU]",
+        "Front_InitTrack__FR9tFEStream: REGION-PASS (117 insns) [NFS4-R-AU]",
+        "Front_SecondaryMemCardCheck__Fv: REGION-PASS (53 insns) [NFS4-R-AU]",
+        "Front_InitOpponentCars__FR9tFEStream: REGION-PASS (357 insns) [NFS4-R-AU]",
+        "PlayerNameMixedCase__Fi: REGION-PASS (27 insns) [NFS4-R-AU]",
+        "PlayerName__Fi: REGION-PASS (35 insns) [NFS4-R-AU]"
+      ]
+    },
+    {
+      "path": "regiondiff/recon/NFS4-R-USA/frontend/common/front.cpp",
+      "region": "FR-DE",
+      "count": 8,
+      "exit_code": 0,
+      "results": [
+        "Front_AppendOpponentData__FPiR9tFEStream: REGION-PASS (205 insns) [NFS4-R-FR-DE]",
+        "Front_GetInGameVars__Fv: REGION-PASS (63 insns) [NFS4-R-FR-DE]",
+        "Front_InitMissions__FR9tFEStream: REGION-PASS (85 insns) [NFS4-R-FR-DE]",
+        "Front_InitTrack__FR9tFEStream: REGION-PASS (117 insns) [NFS4-R-FR-DE]",
+        "Front_SecondaryMemCardCheck__Fv: REGION-PASS (53 insns) [NFS4-R-FR-DE]",
+        "Front_InitOpponentCars__FR9tFEStream: REGION-PASS (357 insns) [NFS4-R-FR-DE]",
+        "PlayerNameMixedCase__Fi: REGION-PASS (27 insns) [NFS4-R-FR-DE]",
+        "PlayerName__Fi: REGION-PASS (35 insns) [NFS4-R-FR-DE]"
+      ]
+    },
+    {
+      "path": "regiondiff/recon/NFS4-R-USA/frontend/common/front.cpp",
+      "region": "JPN",
+      "count": 9,
+      "exit_code": 0,
+      "results": [
+        "Front_AppendOpponentData__FPiR9tFEStream: REGION-PASS (205 insns) [NFS4-R-JPN]",
+        "Front_GetInGameVars__Fv: REGION-PASS (63 insns) [NFS4-R-JPN]",
+        "Front_InitMissions__FR9tFEStream: REGION-PASS (85 insns) [NFS4-R-JPN]",
+        "Front_InitTrack__FR9tFEStream: REGION-PASS (117 insns) [NFS4-R-JPN]",
+        "Front_InitialMemCardCheck__Fv: REGION-PASS (25 insns) [NFS4-R-JPN]",
+        "Front_SecondaryMemCardCheck__Fv: REGION-PASS (53 insns) [NFS4-R-JPN]",
+        "Front_InitOpponentCars__FR9tFEStream: REGION-PASS (357 insns) [NFS4-R-JPN]",
+        "PlayerNameMixedCase__Fi: REGION-PASS (27 insns) [NFS4-R-JPN]",
+        "PlayerName__Fi: REGION-PASS (35 insns) [NFS4-R-JPN]"
+      ]
+    },
+    {
+      "path": "regiondiff/recon/NFS4-R-USA/frontend/common/front.cpp",
+      "region": "UK-ES-IT",
+      "count": 8,
+      "exit_code": 0,
+      "results": [
+        "Front_AppendOpponentData__FPiR9tFEStream: REGION-PASS (205 insns) [NFS4-R-UK-ES-IT]",
+        "Front_GetInGameVars__Fv: REGION-PASS (63 insns) [NFS4-R-UK-ES-IT]",
+        "Front_InitMissions__FR9tFEStream: REGION-PASS (85 insns) [NFS4-R-UK-ES-IT]",
+        "Front_InitTrack__FR9tFEStream: REGION-PASS (117 insns) [NFS4-R-UK-ES-IT]",
+        "Front_SecondaryMemCardCheck__Fv: REGION-PASS (53 insns) [NFS4-R-UK-ES-IT]",
+        "Front_InitOpponentCars__FR9tFEStream: REGION-PASS (357 insns) [NFS4-R-UK-ES-IT]",
+        "PlayerNameMixedCase__Fi: REGION-PASS (27 insns) [NFS4-R-UK-ES-IT]",
+        "PlayerName__Fi: REGION-PASS (35 insns) [NFS4-R-UK-ES-IT]"
+      ]
+    },
+    {
+      "path": "regiondiff/recon/NFS4-R-USA/frontend/common/front.cpp",
+      "region": "UK-SW",
+      "count": 8,
+      "exit_code": 0,
+      "results": [
+        "Front_AppendOpponentData__FPiR9tFEStream: REGION-PASS (205 insns) [NFS4-R-UK-SW]",
+        "Front_GetInGameVars__Fv: REGION-PASS (63 insns) [NFS4-R-UK-SW]",
+        "Front_InitMissions__FR9tFEStream: REGION-PASS (85 insns) [NFS4-R-UK-SW]",
+        "Front_InitTrack__FR9tFEStream: REGION-PASS (117 insns) [NFS4-R-UK-SW]",
+        "Front_SecondaryMemCardCheck__Fv: REGION-PASS (53 insns) [NFS4-R-UK-SW]",
+        "Front_InitOpponentCars__FR9tFEStream: REGION-PASS (357 insns) [NFS4-R-UK-SW]",
+        "PlayerNameMixedCase__Fi: REGION-PASS (27 insns) [NFS4-R-UK-SW]",
+        "PlayerName__Fi: REGION-PASS (35 insns) [NFS4-R-UK-SW]"
+      ]
+    },
+    {
+      "path": "regiondiff/recon/NFS4-R-USA/frontend/common/front.cpp",
+      "region": "USA",
+      "count": 9,
+      "exit_code": 0,
+      "results": [
+        "Front_AppendOpponentData__FPiR9tFEStream: REGION-PASS (205 insns) [NFS4-R-USA]",
+        "Front_GetInGameVars__Fv: REGION-PASS (63 insns) [NFS4-R-USA]",
+        "Front_InitMissions__FR9tFEStream: REGION-PASS (85 insns) [NFS4-R-USA]",
+        "Front_InitTrack__FR9tFEStream: REGION-PASS (117 insns) [NFS4-R-USA]",
+        "Front_InitialMemCardCheck__Fv: REGION-PASS (25 insns) [NFS4-R-USA]",
+        "Front_SecondaryMemCardCheck__Fv: REGION-PASS (53 insns) [NFS4-R-USA]",
+        "Front_InitOpponentCars__FR9tFEStream: REGION-PASS (357 insns) [NFS4-R-USA]",
+        "PlayerNameMixedCase__Fi: REGION-PASS (27 insns) [NFS4-R-USA]",
+        "PlayerName__Fi: REGION-PASS (35 insns) [NFS4-R-USA]"
+      ]
+    },
+    {
+      "path": "regiondiff/recon/NFS4-R-USA/frontend/common/femenudefs.cpp",
+      "region": "AU",
+      "count": 18,
+      "exit_code": 0,
+      "results": [
+        "MenuExtended_AwardPinkSlipsCar__FR12tMenuCommand: REGION-PASS (173 insns) [NFS4-R-AU]",
+        "MenuExtended_LoadGame__FR12tMenuCommand: REGION-PASS (54 insns) [NFS4-R-AU]",
+        "__15tGlobalMenuDefs: REGION-PASS (3207 insns) [NFS4-R-AU]",
+        "AskTheUserToSaveTheGame__Fv: REGION-PASS (30 insns) [NFS4-R-AU]",
+        "GenericMenuLoadGame__Fi: REGION-PASS (37 insns) [NFS4-R-AU]",
+        "GenericMenuSaveGame__Fi: REGION-PASS (71 insns) [NFS4-R-AU]",
+        "MenuExtended_BuyCar__FR12tMenuCommand: REGION-PASS (85 insns) [NFS4-R-AU]",
+        "MenuExtended_ExitPinkSlipsEarly__FR12tMenuCommand: REGION-PASS (76 insns) [NFS4-R-AU]",
+        "MenuExtended_ExitTourney__FR12tMenuCommand: REGION-PASS (36 insns) [NFS4-R-AU]",
+        "MenuExtended_GoTo2PlayerRace__FR12tMenuCommand: REGION-PASS (83 insns) [NFS4-R-AU]",
+        "MenuExtended_GoToCarSelect__FR12tMenuCommand: REGION-PASS (229 insns) [NFS4-R-AU]",
+        "MenuExtended_GoToRace__FR12tMenuCommand: REGION-PASS (87 insns) [NFS4-R-AU]",
+        "MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand: REGION-PASS (91 insns) [NFS4-R-AU]",
+        "MenuExtended_GoToTournTrackInfo__FR12tMenuCommand: REGION-PASS (90 insns) [NFS4-R-AU]",
+        "MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand: REGION-PASS (69 insns) [NFS4-R-AU]",
+        "MenuExtended_PurchaseUpgrade__Fi: REGION-PASS (80 insns) [NFS4-R-AU]",
+        "MenuExtended_SellCar__FR12tMenuCommand: REGION-PASS (86 insns) [NFS4-R-AU]",
+        "PinkSlipsPreSave__Fv: REGION-PASS (50 insns) [NFS4-R-AU]"
+      ]
+    },
+    {
+      "path": "regiondiff/recon/NFS4-R-USA/frontend/common/femenudefs.cpp",
+      "region": "FR-DE",
+      "count": 18,
+      "exit_code": 0,
+      "results": [
+        "MenuExtended_AwardPinkSlipsCar__FR12tMenuCommand: REGION-PASS (173 insns) [NFS4-R-FR-DE]",
+        "MenuExtended_LoadGame__FR12tMenuCommand: REGION-PASS (54 insns) [NFS4-R-FR-DE]",
+        "__15tGlobalMenuDefs: REGION-PASS (3207 insns) [NFS4-R-FR-DE]",
+        "AskTheUserToSaveTheGame__Fv: REGION-PASS (30 insns) [NFS4-R-FR-DE]",
+        "GenericMenuLoadGame__Fi: REGION-PASS (37 insns) [NFS4-R-FR-DE]",
+        "GenericMenuSaveGame__Fi: REGION-PASS (71 insns) [NFS4-R-FR-DE]",
+        "MenuExtended_BuyCar__FR12tMenuCommand: REGION-PASS (85 insns) [NFS4-R-FR-DE]",
+        "MenuExtended_ExitPinkSlipsEarly__FR12tMenuCommand: REGION-PASS (76 insns) [NFS4-R-FR-DE]",
+        "MenuExtended_ExitTourney__FR12tMenuCommand: REGION-PASS (36 insns) [NFS4-R-FR-DE]",
+        "MenuExtended_GoTo2PlayerRace__FR12tMenuCommand: REGION-PASS (83 insns) [NFS4-R-FR-DE]",
+        "MenuExtended_GoToCarSelect__FR12tMenuCommand: REGION-PASS (229 insns) [NFS4-R-FR-DE]",
+        "MenuExtended_GoToRace__FR12tMenuCommand: REGION-PASS (87 insns) [NFS4-R-FR-DE]",
+        "MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand: REGION-PASS (91 insns) [NFS4-R-FR-DE]",
+        "MenuExtended_GoToTournTrackInfo__FR12tMenuCommand: REGION-PASS (90 insns) [NFS4-R-FR-DE]",
+        "MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand: REGION-PASS (69 insns) [NFS4-R-FR-DE]",
+        "MenuExtended_PurchaseUpgrade__Fi: REGION-PASS (80 insns) [NFS4-R-FR-DE]",
+        "MenuExtended_SellCar__FR12tMenuCommand: REGION-PASS (86 insns) [NFS4-R-FR-DE]",
+        "PinkSlipsPreSave__Fv: REGION-PASS (50 insns) [NFS4-R-FR-DE]"
+      ]
+    },
+    {
+      "path": "regiondiff/recon/NFS4-R-USA/frontend/common/femenudefs.cpp",
+      "region": "JPN",
+      "count": 17,
+      "exit_code": 0,
+      "results": [
+        "MenuExtended_AwardPinkSlipsCar__FR12tMenuCommand: REGION-PASS (173 insns) [NFS4-R-JPN]",
+        "MenuExtended_LoadGame__FR12tMenuCommand: REGION-PASS (54 insns) [NFS4-R-JPN]",
+        "AskTheUserToSaveTheGame__Fv: REGION-PASS (30 insns) [NFS4-R-JPN]",
+        "GenericMenuLoadGame__Fi: REGION-PASS (37 insns) [NFS4-R-JPN]",
+        "GenericMenuSaveGame__Fi: REGION-PASS (71 insns) [NFS4-R-JPN]",
+        "MenuExtended_BuyCar__FR12tMenuCommand: REGION-PASS (85 insns) [NFS4-R-JPN]",
+        "MenuExtended_ExitPinkSlipsEarly__FR12tMenuCommand: REGION-PASS (76 insns) [NFS4-R-JPN]",
+        "MenuExtended_ExitTourney__FR12tMenuCommand: REGION-PASS (36 insns) [NFS4-R-JPN]",
+        "MenuExtended_GoTo2PlayerRace__FR12tMenuCommand: REGION-PASS (83 insns) [NFS4-R-JPN]",
+        "MenuExtended_GoToCarSelect__FR12tMenuCommand: REGION-PASS (229 insns) [NFS4-R-JPN]",
+        "MenuExtended_GoToRace__FR12tMenuCommand: REGION-PASS (87 insns) [NFS4-R-JPN]",
+        "MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand: REGION-PASS (91 insns) [NFS4-R-JPN]",
+        "MenuExtended_GoToTournTrackInfo__FR12tMenuCommand: REGION-PASS (90 insns) [NFS4-R-JPN]",
+        "MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand: REGION-PASS (69 insns) [NFS4-R-JPN]",
+        "MenuExtended_PurchaseUpgrade__Fi: REGION-PASS (80 insns) [NFS4-R-JPN]",
+        "MenuExtended_SellCar__FR12tMenuCommand: REGION-PASS (86 insns) [NFS4-R-JPN]",
+        "PinkSlipsPreSave__Fv: REGION-PASS (50 insns) [NFS4-R-JPN]"
+      ]
+    },
+    {
+      "path": "regiondiff/recon/NFS4-R-USA/frontend/common/femenudefs.cpp",
+      "region": "UK-ES-IT",
+      "count": 18,
+      "exit_code": 0,
+      "results": [
+        "MenuExtended_AwardPinkSlipsCar__FR12tMenuCommand: REGION-PASS (173 insns) [NFS4-R-UK-ES-IT]",
+        "MenuExtended_LoadGame__FR12tMenuCommand: REGION-PASS (54 insns) [NFS4-R-UK-ES-IT]",
+        "__15tGlobalMenuDefs: REGION-PASS (3207 insns) [NFS4-R-UK-ES-IT]",
+        "AskTheUserToSaveTheGame__Fv: REGION-PASS (30 insns) [NFS4-R-UK-ES-IT]",
+        "GenericMenuLoadGame__Fi: REGION-PASS (37 insns) [NFS4-R-UK-ES-IT]",
+        "GenericMenuSaveGame__Fi: REGION-PASS (71 insns) [NFS4-R-UK-ES-IT]",
+        "MenuExtended_BuyCar__FR12tMenuCommand: REGION-PASS (85 insns) [NFS4-R-UK-ES-IT]",
+        "MenuExtended_ExitPinkSlipsEarly__FR12tMenuCommand: REGION-PASS (76 insns) [NFS4-R-UK-ES-IT]",
+        "MenuExtended_ExitTourney__FR12tMenuCommand: REGION-PASS (36 insns) [NFS4-R-UK-ES-IT]",
+        "MenuExtended_GoTo2PlayerRace__FR12tMenuCommand: REGION-PASS (83 insns) [NFS4-R-UK-ES-IT]",
+        "MenuExtended_GoToCarSelect__FR12tMenuCommand: REGION-PASS (229 insns) [NFS4-R-UK-ES-IT]",
+        "MenuExtended_GoToRace__FR12tMenuCommand: REGION-PASS (87 insns) [NFS4-R-UK-ES-IT]",
+        "MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand: REGION-PASS (91 insns) [NFS4-R-UK-ES-IT]",
+        "MenuExtended_GoToTournTrackInfo__FR12tMenuCommand: REGION-PASS (90 insns) [NFS4-R-UK-ES-IT]",
+        "MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand: REGION-PASS (69 insns) [NFS4-R-UK-ES-IT]",
+        "MenuExtended_PurchaseUpgrade__Fi: REGION-PASS (80 insns) [NFS4-R-UK-ES-IT]",
+        "MenuExtended_SellCar__FR12tMenuCommand: REGION-PASS (86 insns) [NFS4-R-UK-ES-IT]",
+        "PinkSlipsPreSave__Fv: REGION-PASS (50 insns) [NFS4-R-UK-ES-IT]"
+      ]
+    },
+    {
+      "path": "regiondiff/recon/NFS4-R-USA/frontend/common/femenudefs.cpp",
+      "region": "UK-SW",
+      "count": 18,
+      "exit_code": 0,
+      "results": [
+        "MenuExtended_AwardPinkSlipsCar__FR12tMenuCommand: REGION-PASS (173 insns) [NFS4-R-UK-SW]",
+        "MenuExtended_LoadGame__FR12tMenuCommand: REGION-PASS (54 insns) [NFS4-R-UK-SW]",
+        "__15tGlobalMenuDefs: REGION-PASS (3207 insns) [NFS4-R-UK-SW]",
+        "AskTheUserToSaveTheGame__Fv: REGION-PASS (30 insns) [NFS4-R-UK-SW]",
+        "GenericMenuLoadGame__Fi: REGION-PASS (37 insns) [NFS4-R-UK-SW]",
+        "GenericMenuSaveGame__Fi: REGION-PASS (71 insns) [NFS4-R-UK-SW]",
+        "MenuExtended_BuyCar__FR12tMenuCommand: REGION-PASS (85 insns) [NFS4-R-UK-SW]",
+        "MenuExtended_ExitPinkSlipsEarly__FR12tMenuCommand: REGION-PASS (76 insns) [NFS4-R-UK-SW]",
+        "MenuExtended_ExitTourney__FR12tMenuCommand: REGION-PASS (36 insns) [NFS4-R-UK-SW]",
+        "MenuExtended_GoTo2PlayerRace__FR12tMenuCommand: REGION-PASS (83 insns) [NFS4-R-UK-SW]",
+        "MenuExtended_GoToCarSelect__FR12tMenuCommand: REGION-PASS (229 insns) [NFS4-R-UK-SW]",
+        "MenuExtended_GoToRace__FR12tMenuCommand: REGION-PASS (87 insns) [NFS4-R-UK-SW]",
+        "MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand: REGION-PASS (91 insns) [NFS4-R-UK-SW]",
+        "MenuExtended_GoToTournTrackInfo__FR12tMenuCommand: REGION-PASS (90 insns) [NFS4-R-UK-SW]",
+        "MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand: REGION-PASS (69 insns) [NFS4-R-UK-SW]",
+        "MenuExtended_PurchaseUpgrade__Fi: REGION-PASS (80 insns) [NFS4-R-UK-SW]",
+        "MenuExtended_SellCar__FR12tMenuCommand: REGION-PASS (86 insns) [NFS4-R-UK-SW]",
+        "PinkSlipsPreSave__Fv: REGION-PASS (50 insns) [NFS4-R-UK-SW]"
+      ]
+    },
+    {
+      "path": "regiondiff/recon/NFS4-R-USA/frontend/common/femenudefs.cpp",
+      "region": "USA",
+      "count": 18,
+      "exit_code": 0,
+      "results": [
+        "MenuExtended_AwardPinkSlipsCar__FR12tMenuCommand: REGION-PASS (173 insns) [NFS4-R-USA]",
+        "MenuExtended_LoadGame__FR12tMenuCommand: REGION-PASS (54 insns) [NFS4-R-USA]",
+        "__15tGlobalMenuDefs: REGION-PASS (3207 insns) [NFS4-R-USA]",
+        "AskTheUserToSaveTheGame__Fv: REGION-PASS (30 insns) [NFS4-R-USA]",
+        "GenericMenuLoadGame__Fi: REGION-PASS (37 insns) [NFS4-R-USA]",
+        "GenericMenuSaveGame__Fi: REGION-PASS (71 insns) [NFS4-R-USA]",
+        "MenuExtended_BuyCar__FR12tMenuCommand: REGION-PASS (85 insns) [NFS4-R-USA]",
+        "MenuExtended_ExitPinkSlipsEarly__FR12tMenuCommand: REGION-PASS (76 insns) [NFS4-R-USA]",
+        "MenuExtended_ExitTourney__FR12tMenuCommand: REGION-PASS (36 insns) [NFS4-R-USA]",
+        "MenuExtended_GoTo2PlayerRace__FR12tMenuCommand: REGION-PASS (83 insns) [NFS4-R-USA]",
+        "MenuExtended_GoToCarSelect__FR12tMenuCommand: REGION-PASS (229 insns) [NFS4-R-USA]",
+        "MenuExtended_GoToRace__FR12tMenuCommand: REGION-PASS (87 insns) [NFS4-R-USA]",
+        "MenuExtended_GoToSpecialEventTrackInfo__FR12tMenuCommand: REGION-PASS (91 insns) [NFS4-R-USA]",
+        "MenuExtended_GoToTournTrackInfo__FR12tMenuCommand: REGION-PASS (90 insns) [NFS4-R-USA]",
+        "MenuExtended_GoToTwoPlayerSingleRace__FR12tMenuCommand: REGION-PASS (69 insns) [NFS4-R-USA]",
+        "MenuExtended_PurchaseUpgrade__Fi: REGION-PASS (80 insns) [NFS4-R-USA]",
+        "MenuExtended_SellCar__FR12tMenuCommand: REGION-PASS (86 insns) [NFS4-R-USA]",
+        "PinkSlipsPreSave__Fv: REGION-PASS (50 insns) [NFS4-R-USA]"
+      ]
+    },
+    {
+      "path": "regiondiff/recon/NFS4-R-JPN/frontend/common/femenudefs.cpp",
+      "region": "JPN",
+      "count": 1,
+      "exit_code": 0,
+      "results": [
+        "__15tGlobalMenuDefs: REGION-PASS (3197 insns) [NFS4-R-JPN]"
+      ]
+    }
+  ]
+}

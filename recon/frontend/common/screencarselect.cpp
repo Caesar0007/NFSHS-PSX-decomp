@@ -525,19 +525,22 @@ compute:
 
 
 /* ---- tScreenCarSelect::CalcSplinePosition  [SCREENCARSELECT.CPP:583-625] ---- */
+/* SYM/PASS P869: the signed / 0x10000 conversions below regenerate the
+   compiler's negative-input correction without an unrecorded `_i` local.
+   Each conversion is one retail statement (SLD 611, 612 and 625); assigning
+   the shift/correction through the output references instead was the earlier
+   FAIL 107 (185/176) probe.  This ordinary division form is PASS 176/176,
+   exact -g twin, with the native T/G/i/Result1/Result2 declarations intact. */
 void tScreenCarSelect::CalcSplinePosition(int knot1,int knot2,int knot3,int knot4,u_long elapsed,
                int &camY,int &camZ,int &screenX,int &screenY,int &camRot)
 
 {
-  /* SYM-CODEGEN-CARRIER: _i -- writing through the output references directly
-     is measured FAIL 107 (185/176); this scalar preserves retail allocation. */
   /* [SYM] 8c decl order: T, G, i, Result1, Result2 */
   int T [4];
   int G [4] [4];
   short i;
   int Result1 [4];
   int Result2 [4];
-  int _i;
   
   T[2] = fixeddiv(elapsed << 0x10,0x2580000);
   T[1] = fixedmult(T[2],T[2]);
@@ -555,27 +558,15 @@ void tScreenCarSelect::CalcSplinePosition(int knot1,int knot2,int knot3,int knot
   TransformVector(Result1,G,Result2);
   camY = Result2[0] >> 1;
   camZ = Result2[1] >> 1;
-  _i = Result2[2] >> 1;
-  if (_i < 0) {
-    _i = _i + 0xffff;
-  }
-  screenX = _i >> 0x10;
-  _i = Result2[3] >> 1;
-  if (_i < 0) {
-    _i = _i + 0xffff;
-  }
-  screenY = _i >> 0x10;
+  screenX = (Result2[2] >> 1) / 0x10000;
+  screenY = (Result2[3] >> 1) / 0x10000;
   G[0][0] = gKnots[knot1][4] + gRotateOffset[0];
   G[1][0] = gKnots[knot2][4] + gRotateOffset[1];
   G[2][0] = gKnots[knot3][4] + gRotateOffset[2];
   G[3][0] = gKnots[knot4][4] + gRotateOffset[3];
   TransformVector(T,gCatmullRom,Result1);
   TransformVector(Result1,G,Result2);
-  _i = Result2[0] >> 1;
-  if (_i < 0) {
-    _i = _i + 0xffff;
-  }
-  camRot = _i >> 0x10;
+  camRot = (Result2[0] >> 1) / 0x10000;
   return;
 }
 
@@ -613,13 +604,14 @@ void tScreenCarSelect::GetShapeInfo(short &numPermShapes,short &numSwapShapes,ch
 
 
 /* ---- tScreenCarSelect::UpdateVideoWall  [SCREENCARSELECT.CPP:648-660] ---- */
+/* SYM/PASS P869: retail has no caller local.  Its SLD assigns fPreviousCountry
+   on line 657 BEFORE fTVsInitialized on line 658; the scheduler moves the
+   country store into SetBrightness's delay slot.  Restoring that source
+   order removes the former `country` carrier and stays PASS 52/52 (exact -g).
+   Direct assignment after the reset was the earlier FAIL 2 (52/52) probe. */
 void tScreenCarSelect::UpdateVideoWall(tCarInfo &carInfo)
 
 {
-  /* SYM-CODEGEN-CARRIER: country -- direct fCountry storage is measured FAIL 2
-     (52/52) because its relocation/reference identity differs from retail. */
-  u_int country;
-
   if ((((ushort)carInfo.fCarIndex != this->fPreviousCar) ||
       ((int)(signed char)carInfo.fCarID != (int)this->fPreviousCarID)) ||
      ((carInfo.fCarClass == '\a' && (this->fPreviousCountry != (ushort)carInfo.fCountry)))) {
@@ -628,9 +620,8 @@ void tScreenCarSelect::UpdateVideoWall(tCarInfo &carInfo)
     }
     this->fPreviousCar = (ushort)carInfo.fCarIndex;
     this->fPreviousCarID = (short)(signed char)carInfo.fCarID;
-    country = carInfo.fCountry;
+    this->fPreviousCountry = (ushort)carInfo.fCountry;
     this->fTVsInitialized = 0;
-    this->fPreviousCountry = (ushort)country;
     this->SetBrightness(0,0);
     TurnOff(this->fVideoWall);
   }

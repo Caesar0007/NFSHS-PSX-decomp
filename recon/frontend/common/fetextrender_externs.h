@@ -3,7 +3,7 @@
 #define _FE_SCREENS_FETEXTRENDER_EXTERNS_H_
 #include "fetextrender_types.h"
 extern short  currentSize;
-extern char  *font12[], *font18[], *fontTitle[];   /* unsized array (§3.15): separate-$v0 scratch */
+extern char  *font12, *font18, *fontTitle;   /* SYM PTR CHAR */
 extern tFEApplication *FEApp;
 extern int    kRGBVals[];                 /* FEColor.obj */
 int   CalcFadeVal(int color, int fade);   /* fefades.obj */

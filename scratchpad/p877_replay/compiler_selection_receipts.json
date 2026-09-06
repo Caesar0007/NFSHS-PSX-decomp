@@ -1,0 +1,48 @@
+{
+  "cpp_sources_checked": 184,
+  "selected": [
+    "recon/game/common/replay.cpp",
+    "recon/game/psx/night.cpp"
+  ],
+  "default_compilers_unchanged": 182,
+  "cpp_function_splices": 0,
+  "retail_compiler_sha256": "70319c94de27924f5720af361afd2aa7e6de051a7718e0c1a7f07b57fa92109c",
+  "ci_kit_sha256": "70319c94de27924f5720af361afd2aa7e6de051a7718e0c1a7f07b57fa92109c",
+  "missing_compiler_error": "[cc1pl] recon\\game\\common\\replay.cpp: required retail C++ compiler '2.8.1-sn' is unavailable; configure its CC1PLUS_RUNGS path",
+  "objects": [
+    {
+      "source": "recon/game/common/replay.cpp",
+      "compiler_calls": [
+        [
+          "C:\\Temp\\psq44\\pssn\\bin\\CC1PLPSX.EXE",
+          "-quiet",
+          "-O2",
+          "-G4",
+          "C:\\Temp\\nfs4-decomp\\build\\recon\\game\\common\\replay.cpp.i",
+          "-o",
+          "C:\\Temp\\nfs4-decomp\\build\\recon\\game\\common\\replay.cpp.s"
+        ]
+      ],
+      "old_mixed_sha256": "ef13e273eff6b799c58a324040fc37b3cce9c3940f74c5bd66d516db072fbf39",
+      "whole_tu_sha256": "ef13e273eff6b799c58a324040fc37b3cce9c3940f74c5bd66d516db072fbf39",
+      "identical": true
+    },
+    {
+      "source": "recon/game/psx/night.cpp",
+      "compiler_calls": [
+        [
+          "C:\\Temp\\psq44\\pssn\\bin\\CC1PLPSX.EXE",
+          "-quiet",
+          "-O2",
+          "-G8",
+          "C:\\Temp\\nfs4-decomp\\build\\recon\\game\\psx\\night.cpp.i",
+          "-o",
+          "C:\\Temp\\nfs4-decomp\\build\\recon\\game\\psx\\night.cpp.s"
+        ]
+      ],
+      "old_mixed_sha256": "b818c9cff41a8dfb429466fc1dd62719ef38541900ddc888cc77618651071dab",
+      "whole_tu_sha256": "b818c9cff41a8dfb429466fc1dd62719ef38541900ddc888cc77618651071dab",
+      "identical": true
+    }
+  ]
+}

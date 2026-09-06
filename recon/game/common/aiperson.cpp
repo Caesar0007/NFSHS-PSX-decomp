@@ -55,16 +55,18 @@ void AIPerson_LoadGridAndSetPersonalityIndexes(void)
 
   for (carLoop = 0; carLoop < Cars_gNumCars; carLoop++) {
     Cars_gList[carLoop]->personalityIndex =
-        AIPERSON_PERSONALITY_AT(carLoop);
+        GameSetup_gData.carInfo[carLoop].Personality;
   }
   return;
 }
 
 /* ---- AIPerson_SetPersonality__FP8Car_tObji  [@0x80068a34] ---- */
+/* P872: native SYM 2874e4 is CHAR[15][8]. Select the original name row
+ * directly instead of expressing the same address through row zero. PASS50. */
 void AIPerson_SetPersonality(Car_tObj *carObj,int personalityIndex)
 {
   if ((carObj->carFlags & 4U) == 0) {
-    strcpy(carObj->carInfo->driver,GameSetup_gPersonalityNames[0] + personalityIndex * 8);
+    strcpy(carObj->carInfo->driver,GameSetup_gPersonalityNames[personalityIndex]);
   }
   personalityIndex = personalityIndex % 5;
   carObj->personalityIndex = personalityIndex;
@@ -140,8 +142,8 @@ void AIPerson_LoadPersonalityData(Udff_tInfo *handle)
     AIPerson_PersonalityData[perLoop].attackActivationHits = AIPerson_attackActivationHits[roadRage];
     AIPerson_PersonalityData[perLoop].attackTime = AIPerson_attackTimes[roadRage];
     AIPerson_PersonalityData[perLoop].fishtailAngle = AIPerson_fishtailAngles[fishtailControl];
-    AIPerson_PersonalityData[perLoop].minimumBetweenWipeoutTicks = AIPerson_minimumWipeOutTicks[wipeOutFreq + AIPERSON_WEATHER];
-    AIPerson_PersonalityData[perLoop].randomBetweenWipeoutTicks = AIPerson_randomWipeOutTicks[wipeOutFreq + AIPERSON_WEATHER];
+    AIPerson_PersonalityData[perLoop].minimumBetweenWipeoutTicks = AIPerson_minimumWipeOutTicks[wipeOutFreq + GameSetup_gData.Weather];
+    AIPerson_PersonalityData[perLoop].randomBetweenWipeoutTicks = AIPerson_randomWipeOutTicks[wipeOutFreq + GameSetup_gData.Weather];
     AIPerson_PersonalityData[perLoop].gripLossProbPerSecond = AIPerson_gripLossProbPerSecond[corneringAbility];
     AIPerson_PersonalityData[perLoop].gripLossMinFactor = AIPerson_gripLossMinFactor[corneringAbility];
     AIPerson_PersonalityData[perLoop].gripLossRecoveryPerTick = AIPerson_gripLossRecoveryPerTick[corneringAbility];
@@ -183,9 +185,9 @@ void AIPerson_LoadGlue(Udff_tInfo *handle)
   Udff_GetInt(handle);
   Udff_GetBuffer(handle,(char *)AIPerson_glueTable,0x54);
   if ((Cars_gNumCopCars != 0) &&
-     (((AIPERSON_RACE_TYPE != RaceType_HotPursuit && (AIPERSON_RACE_TYPE != RaceType_Id5)) ||
-      ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) == 0 &&
-       ((Cars_gNumHumanRaceCars != 2 || (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) == 0)))))))) {
+     (((GameSetup_gData.raceType != RaceType_HotPursuit && (GameSetup_gData.raceType != RaceType_Id5)) ||
+      (((Cars_gHumanRaceCarList[0]->carFlags & 0x200) == 0 &&
+       ((Cars_gNumHumanRaceCars != 2 || ((Cars_gHumanRaceCarList[1]->carFlags & 0x200) == 0)))))))) {
     for (glueLoop = 0; glueLoop < 0x15; glueLoop++) {
       if (0x10000 < AIPerson_glueTable[glueLoop]) {
         AIPerson_glueTable[glueLoop] =
@@ -201,30 +203,34 @@ void AIPerson_LoadGlue(Udff_tInfo *handle)
 }
 
 /* ---- AIPerson_Startup__Fv  [@0x8006908c] ---- */
+/* P872: five retail format literals replace synthetic address-only externs;
+ * all 75 emitted rodata bytes match 80055354..8005539e. Both former
+ * D_80116470 reads are Paths_Paths[2], not independent source globals.
+ * PASS105/exact-g; raw relocation targets and string bytes checked separately. */
 void AIPerson_Startup(void)
 {
   Udff_tInfo *handle;
   char filename[110];
 
   AIPerson_LoadGridAndSetPersonalityIndexes();
-  sprintf(filename,D_80055354,Paths_Paths[2]);
+  sprintf(filename,"%sprsonal.bin",Paths_Paths[2]);
   handle = Udff_Opena(filename,(char *)0x0,1);
   AIPerson_LoadPersonalityData(handle);
   Udff_Close(handle);
-  sprintf(filename,D_80055364,Paths_Paths[2]);
+  sprintf(filename,"%sscripts.bin",Paths_Paths[2]);
   handle = Udff_Opena(filename,(char *)0x0,1);
   AIPerson_LoadScriptData(handle);
   Udff_Close(handle);
-  if (((AIPERSON_RACE_TYPE == RaceType_HotPursuit) || (AIPERSON_RACE_TYPE == RaceType_Id5)) &&
-     ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 ||
-      ((Cars_gNumHumanRaceCars == 2 && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) {
-    sprintf(filename,D_80055374,Paths_Paths[2]);
+  if (((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) &&
+     (((Cars_gHumanRaceCarList[0]->carFlags & 0x200) != 0 ||
+      ((Cars_gNumHumanRaceCars == 2 && ((Cars_gHumanRaceCarList[1]->carFlags & 0x200) != 0)))))) {
+    sprintf(filename,"%sbtcglue.bin",Paths_Paths[2]);
   }
-  else if (((u_int)AIPERSON_RACE_TYPE < RaceType_Tournament) && (Cars_gNumAIRaceCars == 1)) {
-    sprintf(filename,D_80055384,D_80116470[0]);
+  else if (((u_int)GameSetup_gData.raceType < RaceType_Tournament) && (Cars_gNumAIRaceCars == 1)) {
+    sprintf(filename,"%shhglue.bin",Paths_Paths[2]);
   }
   else {
-    sprintf(filename,D_80055394,D_80116470[0]);
+    sprintf(filename,"%sglue.bin",Paths_Paths[2]);
   }
   handle = Udff_Opena(filename,(char *)0x0,1);
   AIPerson_LoadGlue(handle);

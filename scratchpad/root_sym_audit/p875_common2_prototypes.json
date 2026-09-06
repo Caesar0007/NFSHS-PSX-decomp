@@ -1,0 +1,5730 @@
+[
+  {
+    "unit": "anim",
+    "symbol": "Anim_Restart__Fv",
+    "name": "Anim_Restart",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void Anim_Restart(void)"
+    ],
+    "native": {
+      "record": "17456d",
+      "va": "80073a94",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void Anim_Restart__Fv(void);   /* :83 */",
+    "action": "correct",
+    "corrected": "void Anim_Restart(void);",
+    "source_path": "recon/game/common/anim.cpp"
+  },
+  {
+    "unit": "anim",
+    "symbol": "Anim_InitSystem__FPc",
+    "name": "Anim_InitSystem",
+    "old_return": "int",
+    "old_args": "char *trackName",
+    "definition": [
+      "int Anim_InitSystem(char *trackName)"
+    ],
+    "native": {
+      "record": "17458b",
+      "va": "80073b1c",
+      "type": "INT size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1749f8: $00000013 94 Def class REGPARM type PTR CHAR size 0 name trackName"
+    ],
+    "line": "int Anim_InitSystem__FPc(char *trackName);   /* :107 */",
+    "action": "correct",
+    "corrected": "int Anim_InitSystem(char *trackName);",
+    "source_path": "recon/game/common/anim.cpp"
+  },
+  {
+    "unit": "anim",
+    "symbol": "Anim_DeInitSystem__Fv",
+    "name": "Anim_DeInitSystem",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void Anim_DeInitSystem(void)"
+    ],
+    "native": {
+      "record": "1745ad",
+      "va": "80073cb0",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void Anim_DeInitSystem__Fv(void);   /* :211 */",
+    "action": "correct",
+    "corrected": "void Anim_DeInitSystem(void);",
+    "source_path": "recon/game/common/anim.cpp"
+  },
+  {
+    "unit": "anim",
+    "symbol": "Anim_Handle__Fi",
+    "name": "Anim_Handle",
+    "old_return": "int",
+    "old_args": "int num",
+    "definition": [
+      "int Anim_Handle(int num)"
+    ],
+    "native": {
+      "record": "1745d0",
+      "va": "80073ce8",
+      "type": "INT size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "174bd0: $00000012 94 Def class REGPARM type INT size 0 name num"
+    ],
+    "line": "int Anim_Handle__Fi(int num);   /* :231 */",
+    "action": "correct",
+    "corrected": "int Anim_Handle(int num);",
+    "source_path": "recon/game/common/anim.cpp"
+  },
+  {
+    "unit": "anim",
+    "symbol": "Anim_FreeHandle__Fi",
+    "name": "Anim_FreeHandle",
+    "old_return": "int",
+    "old_args": "int handle",
+    "definition": [
+      "int Anim_FreeHandle(int handle)"
+    ],
+    "native": {
+      "record": "1745ed",
+      "va": "80073d6c",
+      "type": "INT size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "174c5a: $00000011 94 Def class REGPARM type INT size 0 name handle"
+    ],
+    "line": "int Anim_FreeHandle__Fi(int handle);   /* :244 */",
+    "action": "correct",
+    "corrected": "int Anim_FreeHandle(int handle);",
+    "source_path": "recon/game/common/anim.cpp"
+  },
+  {
+    "unit": "anim",
+    "symbol": "Anim_GetAnim__Fi",
+    "name": "Anim_GetAnim",
+    "old_return": "void *",
+    "old_args": "int handle",
+    "definition": [
+      "AnimScript * Anim_GetAnim(int handle)"
+    ],
+    "native": {
+      "record": "17460e",
+      "va": "80073dec",
+      "type": "PTR STRUCT size 20 dims 0 tag AnimScript",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "174cf4: $00000004 94 Def class REGPARM type INT size 0 name handle"
+    ],
+    "line": "void * Anim_GetAnim__Fi(int handle);   /* :251 */",
+    "action": "correct",
+    "corrected": "AnimScript * Anim_GetAnim(int handle);",
+    "source_path": "recon/game/common/anim.cpp"
+  },
+  {
+    "unit": "anim",
+    "symbol": "Anim_GetLastRotPos__FP15Trk_AnimateInstP8coorddefP10matrixtdef",
+    "name": "Anim_GetLastRotPos",
+    "old_return": "void",
+    "old_args": "Trk_AnimateInst *animInst, coorddef *pt, matrixtdef *mat",
+    "definition": [
+      "void Anim_GetLastRotPos(Trk_AnimateInst *animInst,coorddef *pt,matrixtdef *mat)"
+    ],
+    "native": {
+      "record": "174639",
+      "va": "80073e08",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "174d98: $00000004 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag Trk_AnimateInst name animInst",
+      "174dc0: $00000005 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name pt",
+      "174ddb: $00000006 96 Def2 class REGPARM type PTR STRUCT size 36 dims 0 tag matrixtdef name mat"
+    ],
+    "line": "void Anim_GetLastRotPos__FP15Trk_AnimateInstP8coorddefP10matrixtdef(Trk_AnimateInst *animInst, coorddef *pt, matrixtdef *mat);   /* :261 */",
+    "action": "correct",
+    "corrected": "void Anim_GetLastRotPos(Trk_AnimateInst *animInst,coorddef *pt,matrixtdef *mat);",
+    "source_path": "recon/game/common/anim.cpp"
+  },
+  {
+    "unit": "anim",
+    "symbol": "Anim_GetLastAnimPosRot__FiiP8coorddefP10matrixtdef",
+    "name": "Anim_GetLastAnimPosRot",
+    "old_return": "int",
+    "old_args": "int animNum, int flags, coorddef *pt, matrixtdef *mat",
+    "definition": [
+      "int Anim_GetLastAnimPosRot(int animNum,int flags,coorddef *pt,matrixtdef *mat)"
+    ],
+    "native": {
+      "record": "174685",
+      "va": "80073e80",
+      "type": "INT size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "174ecf: $00000004 94 Def class REGPARM type INT size 0 name animNum",
+      "174ee4: $00000010 94 Def class REGPARM type INT size 0 name flags",
+      "174ef7: $00000006 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name pt",
+      "174f12: $00000011 96 Def2 class REGPARM type PTR STRUCT size 36 dims 0 tag matrixtdef name mat"
+    ],
+    "line": "int Anim_GetLastAnimPosRot__FiiP8coorddefP10matrixtdef(int animNum, int flags, coorddef *pt, matrixtdef *mat);   /* :284 */",
+    "action": "correct",
+    "corrected": "int Anim_GetLastAnimPosRot(int animNum,int flags,coorddef *pt,matrixtdef *mat);",
+    "source_path": "recon/game/common/anim.cpp"
+  },
+  {
+    "unit": "anim",
+    "symbol": "Anim_GetRotPos__FP15Trk_AnimateInstiiP8coorddefP10matrixtdef",
+    "name": "Anim_GetRotPos",
+    "old_return": "int",
+    "old_args": "Trk_AnimateInst *animInst, int flags, int ticks, coorddef *pt, matrixtdef *mat",
+    "definition": [
+      "int Anim_GetRotPos(Trk_AnimateInst *animInst,int flags,int ticks,coorddef *pt,matrixtdef *mat)"
+    ],
+    "native": {
+      "record": "1746c5",
+      "va": "80073f18",
+      "type": "INT size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "174ff3: $00000004 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag Trk_AnimateInst name animInst",
+      "17501b: $00000005 94 Def class REGPARM type INT size 0 name flags",
+      "17502e: $00000009 94 Def class REGPARM type INT size 0 name ticks",
+      "175041: $0000000a 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name pt",
+      "17505c: $00000010 96 Def2 class ARG type PTR STRUCT size 36 dims 0 tag matrixtdef name mat"
+    ],
+    "line": "int Anim_GetRotPos__FP15Trk_AnimateInstiiP8coorddefP10matrixtdef(Trk_AnimateInst *animInst, int flags, int ticks, coorddef *pt, matrixtdef *mat);   /* :304 */",
+    "action": "correct",
+    "corrected": "int Anim_GetRotPos(Trk_AnimateInst *animInst,int flags,int ticks,coorddef *pt,matrixtdef *mat);",
+    "source_path": "recon/game/common/anim.cpp"
+  },
+  {
+    "unit": "anim",
+    "symbol": "Anim_GetPos__FP15Trk_AnimateInstiiP8coorddefPiT4",
+    "name": "Anim_GetPos",
+    "old_return": "int",
+    "old_args": "Trk_AnimateInst *animInst, int flags, int ticks, coorddef *pt, int *animTicks, int *animLength",
+    "definition": [
+      "int Anim_GetPos(Trk_AnimateInst *animInst,int flags,int ticks,coorddef *pt,int *animTicks, int *animLength)"
+    ],
+    "native": {
+      "record": "17470f",
+      "va": "8007412c",
+      "type": "INT size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1751e9: $00000012 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag Trk_AnimateInst name animInst",
+      "175211: $00000005 94 Def class REGPARM type INT size 0 name flags",
+      "175224: $00000011 94 Def class REGPARM type INT size 0 name ticks",
+      "175237: $00000007 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name pt",
+      "175252: $00000010 94 Def class ARG type PTR INT size 0 name animTicks",
+      "175269: $00000014 94 Def class ARG type PTR INT size 0 name animLength"
+    ],
+    "line": "int Anim_GetPos__FP15Trk_AnimateInstiiP8coorddefPiT4(Trk_AnimateInst *animInst, int flags, int ticks, coorddef *pt, int *animTicks, int *animLength);   /* :368 */",
+    "action": "correct",
+    "corrected": "int Anim_GetPos(Trk_AnimateInst *animInst,int flags,int ticks,coorddef *pt,int *animTicks, int *animLength);",
+    "source_path": "recon/game/common/anim.cpp"
+  },
+  {
+    "unit": "audedit",
+    "symbol": "AudList_PurgeAudio__Fv",
+    "name": "AudList_PurgeAudio",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void AudList_PurgeAudio(void)"
+    ],
+    "native": {
+      "record": "1a8d85",
+      "va": "8007b52c",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void AudList_PurgeAudio__Fv(void);   /* :1142 */",
+    "action": "correct",
+    "corrected": "void AudList_PurgeAudio(void);",
+    "source_path": "recon/game/common/audedit.cpp"
+  },
+  {
+    "unit": "audedit",
+    "symbol": "AudList_LoadAudioFile__Fi",
+    "name": "AudList_LoadAudioFile",
+    "old_return": "void",
+    "old_args": "int AudioFileIndex",
+    "definition": [
+      "void AudList_LoadAudioFile(int AudioFileIndex)"
+    ],
+    "native": {
+      "record": "1a8da9",
+      "va": "8007b554",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1a8e8e: $00000010 94 Def class REGPARM type INT size 0 name AudioFileIndex"
+    ],
+    "line": "void AudList_LoadAudioFile__Fi(int AudioFileIndex);   /* :1148 */",
+    "action": "correct",
+    "corrected": "void AudList_LoadAudioFile(int AudioFileIndex);",
+    "source_path": "recon/game/common/audedit.cpp"
+  },
+  {
+    "unit": "bworld",
+    "symbol": "xzsquaredist32__FP8coorddefT0",
+    "name": "xzsquaredist32",
+    "old_return": "int",
+    "old_args": "coorddef *c1, coorddef *c2",
+    "definition": [
+      "int xzsquaredist32(coorddef *c1,coorddef *c2)"
+    ],
+    "native": {
+      "record": "1cb7cc",
+      "va": "8007d5c4",
+      "type": "INT size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1cbb95: $00000004 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name c1",
+      "1cbbb0: $00000005 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name c2"
+    ],
+    "line": "int xzsquaredist32__FP8coorddefT0(coorddef *c1, coorddef *c2);   /* :127 */",
+    "action": "correct",
+    "corrected": "int xzsquaredist32(coorddef *c1,coorddef *c2);",
+    "source_path": "recon/game/common/bworld.cpp"
+  },
+  {
+    "unit": "bworld",
+    "symbol": "UpdateContext__FP13DRender_tViewi",
+    "name": "UpdateContext",
+    "old_return": "void",
+    "old_args": "DRender_tView *Vi, int contextHandle",
+    "definition": [
+      "void UpdateContext(DRender_tView *Vi,int contextHandle)"
+    ],
+    "native": {
+      "record": "1cb7f7",
+      "va": "8007d608",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1cbc40: $00000011 96 Def2 class REGPARM type PTR STRUCT size 140 dims 0 tag DRender_tView name Vi",
+      "1cbc60: $00000010 94 Def class REGPARM type INT size 0 name contextHandle"
+    ],
+    "line": "void UpdateContext__FP13DRender_tViewi(DRender_tView *Vi, int contextHandle);   /* :140 */",
+    "action": "correct",
+    "corrected": "void UpdateContext(DRender_tView *Vi,int contextHandle);",
+    "source_path": "recon/game/common/bworld.cpp"
+  },
+  {
+    "unit": "bworld",
+    "symbol": "BWorld_BuildGlareEffects__FP13DRender_tViewP11Draw_DCacheP5Group",
+    "name": "BWorld_BuildGlareEffects",
+    "old_return": "void",
+    "old_args": "DRender_tView *Vi, Draw_DCache *sd, Group *group",
+    "definition": [
+      "void BWorld_BuildGlareEffects(DRender_tView *Vi,Draw_DCache *sd,Group *group)"
+    ],
+    "native": {
+      "record": "1cb826",
+      "va": "8007d6c0",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1cbd33: $00000014 96 Def2 class REGPARM type PTR STRUCT size 140 dims 0 tag DRender_tView name Vi",
+      "1cbd53: $00000015 96 Def2 class REGPARM type PTR STRUCT size 220 dims 0 tag Draw_DCache name sd",
+      "1cbd71: $00000006 96 Def2 class REGPARM type PTR STRUCT size 4 dims 0 tag Group name group"
+    ],
+    "line": "void BWorld_BuildGlareEffects__FP13DRender_tViewP11Draw_DCacheP5Group(DRender_tView *Vi, Draw_DCache *sd, Group *group);   /* :228 */",
+    "action": "correct",
+    "corrected": "void BWorld_BuildGlareEffects(DRender_tView *Vi,Draw_DCache *sd,Group *group);",
+    "source_path": "recon/game/common/bworld.cpp"
+  },
+  {
+    "unit": "bworld",
+    "symbol": "BWorld_InitSpikeBelt__Fv",
+    "name": "BWorld_InitSpikeBelt",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void BWorld_InitSpikeBelt(void)"
+    ],
+    "native": {
+      "record": "1cb874",
+      "va": "8007d818",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void BWorld_InitSpikeBelt__Fv(void);   /* :324 */",
+    "action": "correct",
+    "corrected": "void BWorld_InitSpikeBelt(void);",
+    "source_path": "recon/game/common/bworld.cpp"
+  },
+  {
+    "unit": "bworld",
+    "symbol": "BWorld_SetSpikeBelt__Fiii",
+    "name": "BWorld_SetSpikeBelt",
+    "old_return": "void",
+    "old_args": "int slice, int x, int width",
+    "definition": [
+      "void BWorld_SetSpikeBelt(int slice,int x,int width)"
+    ],
+    "native": {
+      "record": "1cb89a",
+      "va": "8007d8c4",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1cc0d1: $00000004 94 Def class REGPARM type INT size 0 name slice",
+      "1cc0e4: $00000005 94 Def class REGPARM type INT size 0 name x",
+      "1cc0f3: $00000006 94 Def class REGPARM type INT size 0 name width"
+    ],
+    "line": "void BWorld_SetSpikeBelt__Fiii(int slice, int x, int width);   /* :352 */",
+    "action": "correct",
+    "corrected": "void BWorld_SetSpikeBelt(int slice,int x,int width);",
+    "source_path": "recon/game/common/bworld.cpp"
+  },
+  {
+    "unit": "bworld",
+    "symbol": "BWorld_GetSpikeBelt__FPiN20",
+    "name": "BWorld_GetSpikeBelt",
+    "old_return": "int",
+    "old_args": "int *slice, int *x, int *width",
+    "definition": [
+      "int BWorld_GetSpikeBelt(int *slice,int *x,int *width)"
+    ],
+    "native": {
+      "record": "1cb8c1",
+      "va": "8007d8f8",
+      "type": "INT size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1cc175: $00000004 94 Def class REGPARM type PTR INT size 0 name slice",
+      "1cc188: $00000005 94 Def class REGPARM type PTR INT size 0 name x",
+      "1cc197: $00000006 94 Def class REGPARM type PTR INT size 0 name width"
+    ],
+    "line": "int BWorld_GetSpikeBelt__FPiN20(int *slice, int *x, int *width);   /* :363 */",
+    "action": "correct",
+    "corrected": "int BWorld_GetSpikeBelt(int *slice,int *x,int *width);",
+    "source_path": "recon/game/common/bworld.cpp"
+  },
+  {
+    "unit": "bworld",
+    "symbol": "SetupBuildMatrices__FP13DRender_tViewP11Draw_DCache",
+    "name": "SetupBuildMatrices",
+    "old_return": "void",
+    "old_args": "DRender_tView *Vi, Draw_DCache *sd",
+    "definition": [
+      "void SetupBuildMatrices(DRender_tView *Vi,Draw_DCache *sd)"
+    ],
+    "native": {
+      "record": "1cb8ea",
+      "va": "8007d940",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1cc231: $00000011 96 Def2 class REGPARM type PTR STRUCT size 140 dims 0 tag DRender_tView name Vi",
+      "1cc251: $00000012 96 Def2 class REGPARM type PTR STRUCT size 220 dims 0 tag Draw_DCache name sd"
+    ],
+    "line": "void SetupBuildMatrices__FP13DRender_tViewP11Draw_DCache(DRender_tView *Vi, Draw_DCache *sd);   /* :393 */",
+    "action": "correct",
+    "corrected": "void SetupBuildMatrices(DRender_tView *Vi,Draw_DCache *sd);",
+    "source_path": "recon/game/common/bworld.cpp"
+  },
+  {
+    "unit": "bworld",
+    "symbol": "BWorld_CheckChunkVisible__FP12BWorldSm_PosT0",
+    "name": "BWorld_CheckChunkVisible",
+    "old_return": "int",
+    "old_args": "BWorldSm_Pos *slicePosSource, BWorldSm_Pos *slicePosTest",
+    "definition": [
+      "int BWorld_CheckChunkVisible(BWorldSm_Pos *slicePosSource,BWorldSm_Pos *slicePosTest)"
+    ],
+    "native": {
+      "record": "1cb92b",
+      "va": "8007dc14",
+      "type": "INT size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1cc550: $00000004 96 Def2 class REGPARM type PTR STRUCT size 132 dims 0 tag BWorldSm_Pos name slicePosSource",
+      "1cc57b: $00000005 96 Def2 class REGPARM type PTR STRUCT size 132 dims 0 tag BWorldSm_Pos name slicePosTest"
+    ],
+    "line": "int BWorld_CheckChunkVisible__FP12BWorldSm_PosT0(BWorldSm_Pos *slicePosSource, BWorldSm_Pos *slicePosTest);   /* :590 */",
+    "action": "correct",
+    "corrected": "int BWorld_CheckChunkVisible(BWorldSm_Pos *slicePosSource,BWorldSm_Pos *slicePosTest);",
+    "source_path": "recon/game/common/bworld.cpp"
+  },
+  {
+    "unit": "bworld",
+    "symbol": "GetRezIndex__Fi",
+    "name": "GetRezIndex",
+    "old_return": "int",
+    "old_args": "int dist",
+    "definition": [
+      "int GetRezIndex(int dist)"
+    ],
+    "native": {
+      "record": "1cb965",
+      "va": "8007dd54",
+      "type": "INT size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1cc6b2: $00000004 94 Def class REGPARM type INT size 0 name dist"
+    ],
+    "line": "int GetRezIndex__Fi(int dist);   /* :657 */",
+    "action": "correct",
+    "corrected": "int GetRezIndex(int dist);",
+    "source_path": "recon/game/common/bworld.cpp"
+  },
+  {
+    "unit": "bworld",
+    "symbol": "SetupChunkBuildList__FP13DRender_tView",
+    "name": "SetupChunkBuildList",
+    "old_return": "int",
+    "old_args": "DRender_tView *Vi",
+    "definition": [
+      "int SetupChunkBuildList(DRender_tView *Vi)"
+    ],
+    "native": {
+      "record": "1cb982",
+      "va": "8007dd74",
+      "type": "INT size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1cc73e: $00000016 96 Def2 class REGPARM type PTR STRUCT size 140 dims 0 tag DRender_tView name Vi"
+    ],
+    "line": "int SetupChunkBuildList__FP13DRender_tView(DRender_tView *Vi);   /* :676 */",
+    "action": "correct",
+    "corrected": "int SetupChunkBuildList(DRender_tView *Vi);",
+    "source_path": "recon/game/common/bworld.cpp"
+  },
+  {
+    "unit": "bworld",
+    "symbol": "BWorld_IsSliceInBuildList__Fi",
+    "name": "BWorld_IsSliceInBuildList",
+    "old_return": "bool",
+    "old_args": "int slice",
+    "definition": [
+      "bool BWorld_IsSliceInBuildList(int slice)"
+    ],
+    "native": {
+      "record": "1cb9b6",
+      "va": "8007e0a0",
+      "type": "BOOL size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1cc904: $00000004 94 Def class REGPARM type INT size 0 name slice"
+    ],
+    "line": "bool BWorld_IsSliceInBuildList__Fi(int slice);   /* :847 */",
+    "action": "correct",
+    "corrected": "bool BWorld_IsSliceInBuildList(int slice);",
+    "source_path": "recon/game/common/bworld.cpp"
+  },
+  {
+    "unit": "bworld",
+    "symbol": "BWorld_OnyxBuildFacets__FP13DRender_tView",
+    "name": "BWorld_OnyxBuildFacets",
+    "old_return": "void",
+    "old_args": "DRender_tView *Vi",
+    "definition": [
+      "void BWorld_OnyxBuildFacets(DRender_tView *Vi)"
+    ],
+    "native": {
+      "record": "1cb9e1",
+      "va": "8007e0f4",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1cc9c9: $00000013 96 Def2 class REGPARM type PTR STRUCT size 140 dims 0 tag DRender_tView name Vi"
+    ],
+    "line": "void BWorld_OnyxBuildFacets__FP13DRender_tView(DRender_tView *Vi);   /* :906 */",
+    "action": "correct",
+    "corrected": "void BWorld_OnyxBuildFacets(DRender_tView *Vi);",
+    "source_path": "recon/game/common/bworld.cpp"
+  },
+  {
+    "unit": "bworld",
+    "symbol": "BWAllocMem__Fl",
+    "name": "BWAllocMem",
+    "old_return": "char *",
+    "old_args": "long size",
+    "definition": [
+      "char * BWAllocMem(long size)"
+    ],
+    "native": {
+      "record": "1cba18",
+      "va": "8007e3f8",
+      "type": "PTR CHAR size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1ccbba: $00000004 94 Def class REGPARM type LONG size 0 name size"
+    ],
+    "line": "char * BWAllocMem__Fl(long size);   /* :1107 */",
+    "action": "correct",
+    "corrected": "char * BWAllocMem(long size);",
+    "source_path": "recon/game/common/bworld.cpp"
+  },
+  {
+    "unit": "bworld",
+    "symbol": "BWorld_InitContexts__Fv",
+    "name": "BWorld_InitContexts",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void BWorld_InitContexts(void)"
+    ],
+    "native": {
+      "record": "1cba34",
+      "va": "8007e428",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void BWorld_InitContexts__Fv(void);   /* :1146 */",
+    "action": "correct",
+    "corrected": "void BWorld_InitContexts(void);",
+    "source_path": "recon/game/common/bworld.cpp"
+  },
+  {
+    "unit": "bworld",
+    "symbol": "BWorld_DeInitContexts__Fv",
+    "name": "BWorld_DeInitContexts",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void BWorld_DeInitContexts(void)"
+    ],
+    "native": {
+      "record": "1cba59",
+      "va": "8007e460",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void BWorld_DeInitContexts__Fv(void);   /* :1165 */",
+    "action": "correct",
+    "corrected": "void BWorld_DeInitContexts(void);",
+    "source_path": "recon/game/common/bworld.cpp"
+  },
+  {
+    "unit": "bworld",
+    "symbol": "SetContext__Fi",
+    "name": "SetContext",
+    "old_return": "void",
+    "old_args": "int contextHandle",
+    "definition": [
+      "void SetContext(int contextHandle)"
+    ],
+    "native": {
+      "record": "1cba80",
+      "va": "8007e480",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1ccd2b: $00000004 94 Def class REGPARM type INT size 0 name contextHandle"
+    ],
+    "line": "void SetContext__Fi(int contextHandle);   /* :1178 */",
+    "action": "correct",
+    "corrected": "void SetContext(int contextHandle);",
+    "source_path": "recon/game/common/bworld.cpp"
+  },
+  {
+    "unit": "bworld",
+    "symbol": "BWorld_OpenContext__Fii",
+    "name": "BWorld_OpenContext",
+    "old_return": "int",
+    "old_args": "int contextType, int client",
+    "definition": [
+      "int BWorld_OpenContext(int contextType,int client)"
+    ],
+    "native": {
+      "record": "1cba9c",
+      "va": "8007e4ac",
+      "type": "INT size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1ccdb1: $00000006 94 Def class REGPARM type INT size 0 name contextType",
+      "1ccdca: $00000005 94 Def class REGPARM type INT size 0 name client"
+    ],
+    "line": "int BWorld_OpenContext__Fii(int contextType, int client);   /* :1189 */",
+    "action": "correct",
+    "corrected": "int BWorld_OpenContext(int contextType,int client);",
+    "source_path": "recon/game/common/bworld.cpp"
+  },
+  {
+    "unit": "bworld",
+    "symbol": "BWorld_Restart__Fv",
+    "name": "BWorld_Restart",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void BWorld_Restart(void)"
+    ],
+    "native": {
+      "record": "1cbac1",
+      "va": "8007e564",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void BWorld_Restart__Fv(void);   /* :1232 */",
+    "action": "correct",
+    "corrected": "void BWorld_Restart(void);",
+    "source_path": "recon/game/common/bworld.cpp"
+  },
+  {
+    "unit": "bworld",
+    "symbol": "BWorld_StartLoop__Fv",
+    "name": "BWorld_StartLoop",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void BWorld_StartLoop(void)"
+    ],
+    "native": {
+      "record": "1cbae1",
+      "va": "8007e5c0",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void BWorld_StartLoop__Fv(void);   /* :1261 */",
+    "action": "correct",
+    "corrected": "void BWorld_StartLoop(void);",
+    "source_path": "recon/game/common/bworld.cpp"
+  },
+  {
+    "unit": "bworld",
+    "symbol": "BWorld_Init__Fv",
+    "name": "BWorld_Init",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void BWorld_Init(void)"
+    ],
+    "native": {
+      "record": "1cbb03",
+      "va": "8007e5c8",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void BWorld_Init__Fv(void);   /* :1280 */",
+    "action": "correct",
+    "corrected": "void BWorld_Init(void);",
+    "source_path": "recon/game/common/bworld.cpp"
+  },
+  {
+    "unit": "bworld",
+    "symbol": "BWorld_DeInit__Fv",
+    "name": "BWorld_DeInit",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void BWorld_DeInit(void)"
+    ],
+    "native": {
+      "record": "1cbb20",
+      "va": "8007e8b4",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void BWorld_DeInit__Fv(void);   /* :1389 */",
+    "action": "correct",
+    "corrected": "void BWorld_DeInit(void);",
+    "source_path": "recon/game/common/bworld.cpp"
+  },
+  {
+    "unit": "bworldsm",
+    "symbol": "BWorldSm_Init__FP5Group",
+    "name": "BWorldSm_Init",
+    "old_return": "int",
+    "old_args": "Group *simGroup",
+    "definition": [
+      "int BWorldSm_Init(Group *simGroup)"
+    ],
+    "native": {
+      "record": "1d6ff2",
+      "va": "8007e910",
+      "type": "INT size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1d762f: $00000004 96 Def2 class REGPARM type PTR STRUCT size 4 dims 0 tag Group name simGroup"
+    ],
+    "line": "int BWorldSm_Init__FP5Group(Group *simGroup);   /* :84 */",
+    "action": "correct",
+    "corrected": "int BWorldSm_Init(Group *simGroup);",
+    "source_path": "recon/game/common/bworldSm.cpp"
+  },
+  {
+    "unit": "bworldsm",
+    "symbol": "BWorldSm_Restart__Fv",
+    "name": "BWorldSm_Restart",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void BWorldSm_Restart(void)"
+    ],
+    "native": {
+      "record": "1d7017",
+      "va": "8007e948",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void BWorldSm_Restart__Fv(void);   /* :101 */",
+    "action": "correct",
+    "corrected": "void BWorldSm_Restart(void);",
+    "source_path": "recon/game/common/bworldSm.cpp"
+  },
+  {
+    "unit": "bworldsm",
+    "symbol": "BWorldSm_DeInit__Fv",
+    "name": "BWorldSm_DeInit",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void BWorldSm_DeInit(void)"
+    ],
+    "native": {
+      "record": "1d7039",
+      "va": "8007e968",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void BWorldSm_DeInit__Fv(void);   /* :113 */",
+    "action": "correct",
+    "corrected": "void BWorldSm_DeInit(void);",
+    "source_path": "recon/game/common/bworldSm.cpp"
+  },
+  {
+    "unit": "bworldsm",
+    "symbol": "FindAbsClosestSliceCrude__FP8coorddefP12BWorldSm_Pos",
+    "name": "FindAbsClosestSliceCrude",
+    "old_return": "void",
+    "old_args": "coorddef *pt, BWorldSm_Pos *slicePos",
+    "definition": [
+      "void FindAbsClosestSliceCrude(coorddef *pt,BWorldSm_Pos *slicePos)"
+    ],
+    "native": {
+      "record": "1d705a",
+      "va": "8007e970",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1d77e8: $00000014 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name pt",
+      "1d7803: $00000015 96 Def2 class REGPARM type PTR STRUCT size 132 dims 0 tag BWorldSm_Pos name slicePos"
+    ],
+    "line": "void FindAbsClosestSliceCrude__FP8coorddefP12BWorldSm_Pos(coorddef *pt, BWorldSm_Pos *slicePos);   /* :123 */",
+    "action": "correct",
+    "corrected": "void FindAbsClosestSliceCrude(coorddef *pt,BWorldSm_Pos *slicePos);",
+    "source_path": "recon/game/common/bworldSm.cpp"
+  },
+  {
+    "unit": "bworldsm",
+    "symbol": "BWorldSm_FindClosestSlice__FP8coorddefP12BWorldSm_Pos",
+    "name": "BWorldSm_FindClosestSlice",
+    "old_return": "int",
+    "old_args": "coorddef *pt, BWorldSm_Pos *slicePos",
+    "definition": [
+      "int BWorldSm_FindClosestSlice(coorddef *pt,BWorldSm_Pos *slicePos)"
+    ],
+    "native": {
+      "record": "1d709c",
+      "va": "8007ea14",
+      "type": "INT size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1d7916: $00000011 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name pt",
+      "1d7931: $00000010 96 Def2 class REGPARM type PTR STRUCT size 132 dims 0 tag BWorldSm_Pos name slicePos"
+    ],
+    "line": "int BWorldSm_FindClosestSlice__FP8coorddefP12BWorldSm_Pos(coorddef *pt, BWorldSm_Pos *slicePos);   /* :152 */",
+    "action": "correct",
+    "corrected": "int BWorldSm_FindClosestSlice(coorddef *pt,BWorldSm_Pos *slicePos);",
+    "source_path": "recon/game/common/bworldSm.cpp"
+  },
+  {
+    "unit": "bworldsm",
+    "symbol": "RawFindClosestSlice__FP8coorddefP12BWorldSm_Pos",
+    "name": "RawFindClosestSlice",
+    "old_return": "void",
+    "old_args": "coorddef *pt, BWorldSm_Pos *slicePos",
+    "definition": [
+      "void RawFindClosestSlice(coorddef *pt,BWorldSm_Pos *slicePos)"
+    ],
+    "native": {
+      "record": "1d70df",
+      "va": "8007eab0",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1d79f3: $0000000b 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name pt",
+      "1d7a0e: $00000005 96 Def2 class REGPARM type PTR STRUCT size 132 dims 0 tag BWorldSm_Pos name slicePos"
+    ],
+    "line": "void RawFindClosestSlice__FP8coorddefP12BWorldSm_Pos(coorddef *pt, BWorldSm_Pos *slicePos);   /* :179 */",
+    "action": "correct",
+    "corrected": "void RawFindClosestSlice(coorddef *pt,BWorldSm_Pos *slicePos);",
+    "source_path": "recon/game/common/bworldSm.cpp"
+  },
+  {
+    "unit": "bworldsm",
+    "symbol": "BWorldSm_SetSlice__FiP12BWorldSm_Pos",
+    "name": "BWorldSm_SetSlice",
+    "old_return": "void",
+    "old_args": "int slice, BWorldSm_Pos *slicePos",
+    "definition": [
+      "void BWorldSm_SetSlice(int slice,BWorldSm_Pos *slicePos)"
+    ],
+    "native": {
+      "record": "1d711c",
+      "va": "8007ed64",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1d7b4e: $00000004 94 Def class REGPARM type INT size 0 name slice",
+      "1d7b61: $00000005 96 Def2 class REGPARM type PTR STRUCT size 132 dims 0 tag BWorldSm_Pos name slicePos"
+    ],
+    "line": "void BWorldSm_SetSlice__FiP12BWorldSm_Pos(int slice, BWorldSm_Pos *slicePos);   /* :261 */",
+    "action": "correct",
+    "corrected": "void BWorldSm_SetSlice(int slice,BWorldSm_Pos *slicePos);",
+    "source_path": "recon/game/common/bworldSm.cpp"
+  },
+  {
+    "unit": "bworldsm",
+    "symbol": "GetStmQuadPts__FP12BWorldSm_PosP8coorddef",
+    "name": "GetStmQuadPts",
+    "old_return": "void",
+    "old_args": "BWorldSm_Pos *slicePos, coorddef *cp",
+    "definition": [
+      "void GetStmQuadPts(BWorldSm_Pos *slicePos,coorddef *cp)"
+    ],
+    "native": {
+      "record": "1d714e",
+      "va": "8007edb8",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1d7c05: $00000004 96 Def2 class REGPARM type PTR STRUCT size 132 dims 0 tag BWorldSm_Pos name slicePos",
+      "1d7c2a: $00000005 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name cp"
+    ],
+    "line": "void GetStmQuadPts__FP12BWorldSm_PosP8coorddef(BWorldSm_Pos *slicePos, coorddef *cp);   /* :323 */",
+    "action": "correct",
+    "corrected": "void GetStmQuadPts(BWorldSm_Pos *slicePos,coorddef *cp);",
+    "source_path": "recon/game/common/bworldSm.cpp"
+  },
+  {
+    "unit": "bworldsm",
+    "symbol": "SetStrip__FP12BWorldSm_Pos",
+    "name": "SetStrip",
+    "old_return": "void",
+    "old_args": "BWorldSm_Pos *slicePos",
+    "definition": [
+      "void SetStrip(BWorldSm_Pos *slicePos)"
+    ],
+    "native": {
+      "record": "1d7185",
+      "va": "8007eee0",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1d7db7: $00000004 96 Def2 class REGPARM type PTR STRUCT size 132 dims 0 tag BWorldSm_Pos name slicePos"
+    ],
+    "line": "void SetStrip__FP12BWorldSm_Pos(BWorldSm_Pos *slicePos);   /* :379 */",
+    "action": "correct",
+    "corrected": "void SetStrip(BWorldSm_Pos *slicePos);",
+    "source_path": "recon/game/common/bworldSm.cpp"
+  },
+  {
+    "unit": "bworldsm",
+    "symbol": "GetFirstStmQuadPts__FP12BWorldSm_PosP8CCOORD16",
+    "name": "GetFirstStmQuadPts",
+    "old_return": "void",
+    "old_args": "BWorldSm_Pos *slicePos, CCOORD16 *vertices",
+    "definition": [
+      "void GetFirstStmQuadPts(BWorldSm_Pos *slicePos,CCOORD16 *vertices)"
+    ],
+    "native": {
+      "record": "1d71ad",
+      "va": "8007ef98",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1d7eda: $00000010 96 Def2 class REGPARM type PTR STRUCT size 132 dims 0 tag BWorldSm_Pos name slicePos",
+      "1d7eff: $00000011 96 Def2 class REGPARM type PTR STRUCT size 8 dims 0 tag CCOORD16 name vertices"
+    ],
+    "line": "void GetFirstStmQuadPts__FP12BWorldSm_PosP8CCOORD16(BWorldSm_Pos *slicePos, CCOORD16 *vertices);   /* :415 */",
+    "action": "correct",
+    "corrected": "void GetFirstStmQuadPts(BWorldSm_Pos *slicePos,CCOORD16 *vertices);",
+    "source_path": "recon/game/common/bworldSm.cpp"
+  },
+  {
+    "unit": "bworldsm",
+    "symbol": "BWorld_SetSimSlice__FP12BWorldSm_Pos",
+    "name": "BWorld_SetSimSlice",
+    "old_return": "void",
+    "old_args": "BWorldSm_Pos *slicePos",
+    "definition": [
+      "void BWorld_SetSimSlice(BWorldSm_Pos *slicePos)"
+    ],
+    "native": {
+      "record": "1d71e9",
+      "va": "8007f034",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1d801f: $00000004 96 Def2 class REGPARM type PTR STRUCT size 132 dims 0 tag BWorldSm_Pos name slicePos"
+    ],
+    "line": "void BWorld_SetSimSlice__FP12BWorldSm_Pos(BWorldSm_Pos *slicePos);   /* :470 */",
+    "action": "correct",
+    "corrected": "void BWorld_SetSimSlice(BWorldSm_Pos *slicePos);",
+    "source_path": "recon/game/common/bworldSm.cpp"
+  },
+  {
+    "unit": "bworldsm",
+    "symbol": "BworldSm_UpdateSimQuad__FP12BWorldSm_Pos",
+    "name": "BworldSm_UpdateSimQuad",
+    "old_return": "void",
+    "old_args": "BWorldSm_Pos *slicePos",
+    "definition": [
+      "void BworldSm_UpdateSimQuad(BWorldSm_Pos *slicePos)"
+    ],
+    "native": {
+      "record": "1d721b",
+      "va": "8007f094",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1d8106: $00000004 96 Def2 class REGPARM type PTR STRUCT size 132 dims 0 tag BWorldSm_Pos name slicePos"
+    ],
+    "line": "void BworldSm_UpdateSimQuad__FP12BWorldSm_Pos(BWorldSm_Pos *slicePos);   /* :495 */",
+    "action": "correct",
+    "corrected": "void BworldSm_UpdateSimQuad(BWorldSm_Pos *slicePos);",
+    "source_path": "recon/game/common/bworldSm.cpp"
+  },
+  {
+    "unit": "bworldsm",
+    "symbol": "BworldSm_IsSimQuadValid__FP12BWorldSm_Pos",
+    "name": "BworldSm_IsSimQuadValid",
+    "old_return": "int",
+    "old_args": "BWorldSm_Pos *slicePos",
+    "definition": [
+      "int BworldSm_IsSimQuadValid(BWorldSm_Pos *slicePos)"
+    ],
+    "native": {
+      "record": "1d7251",
+      "va": "8007f11c",
+      "type": "INT size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1d820f: $00000004 96 Def2 class REGPARM type PTR STRUCT size 132 dims 0 tag BWorldSm_Pos name slicePos"
+    ],
+    "line": "int BworldSm_IsSimQuadValid__FP12BWorldSm_Pos(BWorldSm_Pos *slicePos);   /* :516 */",
+    "action": "correct",
+    "corrected": "int BworldSm_IsSimQuadValid(BWorldSm_Pos *slicePos);",
+    "source_path": "recon/game/common/bworldSm.cpp"
+  },
+  {
+    "unit": "bworldsm",
+    "symbol": "RawFindClosestQuad__FP8coorddefP12BWorldSm_Pos",
+    "name": "RawFindClosestQuad",
+    "old_return": "int",
+    "old_args": "coorddef *pt, BWorldSm_Pos *slicePos",
+    "definition": [
+      "int RawFindClosestQuad(coorddef *pt,BWorldSm_Pos *slicePos)"
+    ],
+    "native": {
+      "record": "1d7288",
+      "va": "8007f14c",
+      "type": "INT size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1d82b8: $0000001e 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name pt",
+      "1d82d3: $00000010 96 Def2 class REGPARM type PTR STRUCT size 132 dims 0 tag BWorldSm_Pos name slicePos"
+    ],
+    "line": "int RawFindClosestQuad__FP8coorddefP12BWorldSm_Pos(coorddef *pt, BWorldSm_Pos *slicePos);   /* :537 */",
+    "action": "correct",
+    "corrected": "int RawFindClosestQuad(coorddef *pt,BWorldSm_Pos *slicePos);",
+    "source_path": "recon/game/common/bworldSm.cpp"
+  },
+  {
+    "unit": "bworldsm",
+    "symbol": "FindClosestQuad__FP8coorddefP12BWorldSm_Pos",
+    "name": "FindClosestQuad",
+    "old_return": "int",
+    "old_args": "coorddef *pt, BWorldSm_Pos *slicePos",
+    "definition": [
+      "int FindClosestQuad(coorddef *pt,BWorldSm_Pos *slicePos)"
+    ],
+    "native": {
+      "record": "1d72c4",
+      "va": "8007f8f8",
+      "type": "INT size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1d854f: $00000012 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name pt",
+      "1d856a: $00000010 96 Def2 class REGPARM type PTR STRUCT size 132 dims 0 tag BWorldSm_Pos name slicePos"
+    ],
+    "line": "int FindClosestQuad__FP8coorddefP12BWorldSm_Pos(coorddef *pt, BWorldSm_Pos *slicePos);   /* :1058 */",
+    "action": "correct",
+    "corrected": "int FindClosestQuad(coorddef *pt,BWorldSm_Pos *slicePos);",
+    "source_path": "recon/game/common/bworldSm.cpp"
+  },
+  {
+    "unit": "bworldsm",
+    "symbol": "BWorldSm_FindClosestQuadRez__FP8coorddefP12BWorldSm_Posi",
+    "name": "BWorldSm_FindClosestQuadRez",
+    "old_return": "int",
+    "old_args": "coorddef *pt, BWorldSm_Pos *slicePos, int hiRezFlag",
+    "definition": [
+      "int BWorldSm_FindClosestQuadRez(coorddef *pt,BWorldSm_Pos *slicePos,int hiRezFlag)"
+    ],
+    "native": {
+      "record": "1d72fd",
+      "va": "8007fac4",
+      "type": "INT size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1d86bb: $00000012 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name pt",
+      "1d86d6: $00000011 96 Def2 class REGPARM type PTR STRUCT size 132 dims 0 tag BWorldSm_Pos name slicePos",
+      "1d86fb: $00000006 94 Def class REGPARM type INT size 0 name hiRezFlag"
+    ],
+    "line": "int BWorldSm_FindClosestQuadRez__FP8coorddefP12BWorldSm_Posi(coorddef *pt, BWorldSm_Pos *slicePos, int hiRezFlag);   /* :1139 */",
+    "action": "correct",
+    "corrected": "int BWorldSm_FindClosestQuadRez(coorddef *pt,BWorldSm_Pos *slicePos,int hiRezFlag);",
+    "source_path": "recon/game/common/bworldSm.cpp"
+  },
+  {
+    "unit": "bworldsm",
+    "symbol": "BWorldSm_FindClosestQuadMaxIterations__FP8coorddefP12BWorldSm_Posi",
+    "name": "BWorldSm_FindClosestQuadMaxIterations",
+    "old_return": "int",
+    "old_args": "coorddef *pt, BWorldSm_Pos *slicePos, int maxIterations",
+    "definition": [
+      "int BWorldSm_FindClosestQuadMaxIterations(coorddef *pt,BWorldSm_Pos *slicePos,int maxIterations)"
+    ],
+    "native": {
+      "record": "1d7343",
+      "va": "8007fc90",
+      "type": "INT size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1d87e0: $00000004 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name pt",
+      "1d87fb: $00000005 96 Def2 class REGPARM type PTR STRUCT size 132 dims 0 tag BWorldSm_Pos name slicePos",
+      "1d8820: $00000006 94 Def class REGPARM type INT size 0 name maxIterations"
+    ],
+    "line": "int BWorldSm_FindClosestQuadMaxIterations__FP8coorddefP12BWorldSm_Posi(coorddef *pt, BWorldSm_Pos *slicePos, int maxIterations);   /* :1199 */",
+    "action": "correct",
+    "corrected": "int BWorldSm_FindClosestQuadMaxIterations(coorddef *pt,BWorldSm_Pos *slicePos,int maxIterations);",
+    "source_path": "recon/game/common/bworldSm.cpp"
+  },
+  {
+    "unit": "bworldsm",
+    "symbol": "PointDirection__FP8coorddefN20",
+    "name": "PointDirection",
+    "old_return": "int",
+    "old_args": "coorddef *p1, coorddef *p2, coorddef *p3",
+    "definition": [
+      "int PointDirection(coorddef *p1,coorddef *p2,coorddef *p3)"
+    ],
+    "native": {
+      "record": "1d7393",
+      "va": "8007fcb0",
+      "type": "INT size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1d88af: $00000012 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name p1",
+      "1d88ca: $00000010 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name p2",
+      "1d88e5: $00000011 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name p3"
+    ],
+    "line": "int PointDirection__FP8coorddefN20(coorddef *p1, coorddef *p2, coorddef *p3);   /* :1212 */",
+    "action": "correct",
+    "corrected": "int PointDirection(coorddef *p1,coorddef *p2,coorddef *p3);",
+    "source_path": "recon/game/common/bworldSm.cpp"
+  },
+  {
+    "unit": "bworldsm",
+    "symbol": "BWorldSm_FindEdgeOff__FP8coorddefP12BWorldSm_PosT1Pi",
+    "name": "BWorldSm_FindEdgeOff",
+    "old_return": "int",
+    "old_args": "coorddef *pt, BWorldSm_Pos *slicePos1, BWorldSm_Pos *slicePos2, int *heightDiff",
+    "definition": [
+      "int BWorldSm_FindEdgeOff(coorddef *pt,BWorldSm_Pos *slicePos1,BWorldSm_Pos *slicePos2,int *heightDiff)"
+    ],
+    "native": {
+      "record": "1d73bf",
+      "va": "8007fd28",
+      "type": "INT size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1d898a: $00000015 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name pt",
+      "1d89a5: $00000013 96 Def2 class REGPARM type PTR STRUCT size 132 dims 0 tag BWorldSm_Pos name slicePos1",
+      "1d89cb: $00000017 96 Def2 class REGPARM type PTR STRUCT size 132 dims 0 tag BWorldSm_Pos name slicePos2",
+      "1d89f1: $0000001e 94 Def class REGPARM type PTR INT size 0 name heightDiff"
+    ],
+    "line": "int BWorldSm_FindEdgeOff__FP8coorddefP12BWorldSm_PosT1Pi(coorddef *pt, BWorldSm_Pos *slicePos1, BWorldSm_Pos *slicePos2, int *heightDiff);   /* :1217 */",
+    "action": "correct",
+    "corrected": "int BWorldSm_FindEdgeOff(coorddef *pt,BWorldSm_Pos *slicePos1,BWorldSm_Pos *slicePos2,int *heightDiff);",
+    "source_path": "recon/game/common/bworldSm.cpp"
+  },
+  {
+    "unit": "bworldsm",
+    "symbol": "BWorldSm_QuadLight__FP12BWorldSm_Pos",
+    "name": "BWorldSm_QuadLight",
+    "old_return": "int",
+    "old_args": "BWorldSm_Pos *slicePos",
+    "definition": [
+      "int BWorldSm_QuadLight(BWorldSm_Pos *slicePos)"
+    ],
+    "native": {
+      "record": "1d7401",
+      "va": "8007fe44",
+      "type": "INT size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1d8ad1: $00000004 96 Def2 class REGPARM type PTR STRUCT size 132 dims 0 tag BWorldSm_Pos name slicePos"
+    ],
+    "line": "int BWorldSm_QuadLight__FP12BWorldSm_Pos(BWorldSm_Pos *slicePos);   /* :1261 */",
+    "action": "correct",
+    "corrected": "int BWorldSm_QuadLight(BWorldSm_Pos *slicePos);",
+    "source_path": "recon/game/common/bworldSm.cpp"
+  },
+  {
+    "unit": "bworldsm",
+    "symbol": "BWorldSm_TunnelFlagSm__FP12BWorldSm_Pos",
+    "name": "BWorldSm_TunnelFlagSm",
+    "old_return": "bool",
+    "old_args": "BWorldSm_Pos *slicePos",
+    "definition": [
+      "bool BWorldSm_TunnelFlagSm(BWorldSm_Pos *slicePos)"
+    ],
+    "native": {
+      "record": "1d7433",
+      "va": "8007ffd4",
+      "type": "BOOL size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1d8cbe: $00000004 96 Def2 class REGPARM type PTR STRUCT size 132 dims 0 tag BWorldSm_Pos name slicePos"
+    ],
+    "line": "bool BWorldSm_TunnelFlagSm__FP12BWorldSm_Pos(BWorldSm_Pos *slicePos);   /* :1301 */",
+    "action": "correct",
+    "corrected": "bool BWorldSm_TunnelFlagSm(BWorldSm_Pos *slicePos);",
+    "source_path": "recon/game/common/bworldSm.cpp"
+  },
+  {
+    "unit": "bworldsm",
+    "symbol": "NormalCache_AddEntry__FP12BWorldSm_Pos",
+    "name": "NormalCache_AddEntry",
+    "old_return": "void",
+    "old_args": "BWorldSm_Pos *slicePos",
+    "definition": [
+      "void NormalCache_AddEntry(BWorldSm_Pos *slicePos)"
+    ],
+    "native": {
+      "record": "1d7468",
+      "va": "8008002c",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1d8d71: $00000008 96 Def2 class REGPARM type PTR STRUCT size 132 dims 0 tag BWorldSm_Pos name slicePos"
+    ],
+    "line": "void NormalCache_AddEntry__FP12BWorldSm_Pos(BWorldSm_Pos *slicePos);   /* :1341 */",
+    "action": "correct",
+    "corrected": "void NormalCache_AddEntry(BWorldSm_Pos *slicePos);",
+    "source_path": "recon/game/common/bworldSm.cpp"
+  },
+  {
+    "unit": "bworldsm",
+    "symbol": "NormalCache_FindEntry__FP12BWorldSm_Pos",
+    "name": "NormalCache_FindEntry",
+    "old_return": "BOOL",
+    "old_args": "BWorldSm_Pos *slicePos",
+    "definition": [
+      "bool NormalCache_FindEntry(BWorldSm_Pos *slicePos)"
+    ],
+    "native": {
+      "record": "1d749c",
+      "va": "800800e8",
+      "type": "BOOL size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1d8e87: $00000004 96 Def2 class REGPARM type PTR STRUCT size 132 dims 0 tag BWorldSm_Pos name slicePos"
+    ],
+    "line": "BOOL NormalCache_FindEntry__FP12BWorldSm_Pos(BWorldSm_Pos *slicePos);   /* :1372 */",
+    "action": "correct",
+    "corrected": "bool NormalCache_FindEntry(BWorldSm_Pos *slicePos);",
+    "source_path": "recon/game/common/bworldSm.cpp"
+  },
+  {
+    "unit": "bworldsm",
+    "symbol": "NormalCache_Init__Fv",
+    "name": "NormalCache_Init",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void NormalCache_Init(void)"
+    ],
+    "native": {
+      "record": "1d74d1",
+      "va": "800801ac",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void NormalCache_Init__Fv(void);   /* :1411 */",
+    "action": "correct",
+    "corrected": "void NormalCache_Init(void);",
+    "source_path": "recon/game/common/bworldSm.cpp"
+  },
+  {
+    "unit": "bworldsm",
+    "symbol": "Check_Rot__FP12BWorldSm_Pos",
+    "name": "Check_Rot",
+    "old_return": "void",
+    "old_args": "BWorldSm_Pos *slicePos",
+    "definition": [
+      "void Check_Rot(BWorldSm_Pos *slicePos)"
+    ],
+    "native": {
+      "record": "1d74f3",
+      "va": "800801e8",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1d9000: $00000010 96 Def2 class REGPARM type PTR STRUCT size 132 dims 0 tag BWorldSm_Pos name slicePos"
+    ],
+    "line": "void Check_Rot__FP12BWorldSm_Pos(BWorldSm_Pos *slicePos);   /* :1427 */",
+    "action": "correct",
+    "corrected": "void Check_Rot(BWorldSm_Pos *slicePos);",
+    "source_path": "recon/game/common/bworldSm.cpp"
+  },
+  {
+    "unit": "bworldsm",
+    "symbol": "BWorldSm_UNormal__FP12BWorldSm_Pos",
+    "name": "BWorldSm_UNormal",
+    "old_return": "void *",
+    "old_args": "BWorldSm_Pos *slicePos",
+    "definition": [
+      "coorddef * BWorldSm_UNormal(BWorldSm_Pos *slicePos)"
+    ],
+    "native": {
+      "record": "1d751c",
+      "va": "80080520",
+      "type": "PTR STRUCT size 12 dims 0 tag coorddef",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1d9170: $00000010 96 Def2 class REGPARM type PTR STRUCT size 132 dims 0 tag BWorldSm_Pos name slicePos"
+    ],
+    "line": "void * BWorldSm_UNormal__FP12BWorldSm_Pos(BWorldSm_Pos *slicePos);   /* :1499 */",
+    "action": "correct",
+    "corrected": "coorddef * BWorldSm_UNormal(BWorldSm_Pos *slicePos);",
+    "source_path": "recon/game/common/bworldSm.cpp"
+  },
+  {
+    "unit": "bworldsm",
+    "symbol": "BWorldSm_UForward__FP12BWorldSm_Pos",
+    "name": "BWorldSm_UForward",
+    "old_return": "void *",
+    "old_args": "BWorldSm_Pos *slicePos",
+    "definition": [
+      "coorddef * BWorldSm_UForward(BWorldSm_Pos *slicePos)"
+    ],
+    "native": {
+      "record": "1d7557",
+      "va": "80080548",
+      "type": "PTR STRUCT size 12 dims 0 tag coorddef",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1d920e: $00000010 96 Def2 class REGPARM type PTR STRUCT size 132 dims 0 tag BWorldSm_Pos name slicePos"
+    ],
+    "line": "void * BWorldSm_UForward__FP12BWorldSm_Pos(BWorldSm_Pos *slicePos);   /* :1506 */",
+    "action": "correct",
+    "corrected": "coorddef * BWorldSm_UForward(BWorldSm_Pos *slicePos);",
+    "source_path": "recon/game/common/bworldSm.cpp"
+  },
+  {
+    "unit": "bworldsm",
+    "symbol": "BWorldSm_FindClosestTriangleRez__FP8coorddefP12BWorldSm_Posi",
+    "name": "BWorldSm_FindClosestTriangleRez",
+    "old_return": "int",
+    "old_args": "coorddef *pt, BWorldSm_Pos *slicePos, int hiRezFlag",
+    "definition": [
+      "int BWorldSm_FindClosestTriangleRez(coorddef *pt,BWorldSm_Pos *slicePos,int hiRezFlag)"
+    ],
+    "native": {
+      "record": "1d7593",
+      "va": "80080570",
+      "type": "INT size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1d92c5: $00000010 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name pt",
+      "1d92e0: $00000011 96 Def2 class REGPARM type PTR STRUCT size 132 dims 0 tag BWorldSm_Pos name slicePos",
+      "1d9305: $00000006 94 Def class REGPARM type INT size 0 name hiRezFlag"
+    ],
+    "line": "int BWorldSm_FindClosestTriangleRez__FP8coorddefP12BWorldSm_Posi(coorddef *pt, BWorldSm_Pos *slicePos, int hiRezFlag);   /* :1517 */",
+    "action": "correct",
+    "corrected": "int BWorldSm_FindClosestTriangleRez(coorddef *pt,BWorldSm_Pos *slicePos,int hiRezFlag);",
+    "source_path": "recon/game/common/bworldSm.cpp"
+  },
+  {
+    "unit": "camera",
+    "symbol": "EulerToMat__FP10matrixtdefiii",
+    "name": "EulerToMat",
+    "old_return": "void",
+    "old_args": "matrixtdef *m, int ax, int ay, int az",
+    "definition": [
+      "void EulerToMat(matrixtdef *m,int ax,int ay,int az)"
+    ],
+    "native": {
+      "record": "1e6a7e",
+      "va": "8008060c",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1e7109: $00000011 96 Def2 class REGPARM type PTR STRUCT size 36 dims 0 tag matrixtdef name m",
+      "1e7125: $00000005 94 Def class REGPARM type INT size 0 name ax",
+      "1e7135: $00000010 94 Def class REGPARM type INT size 0 name ay",
+      "1e7145: $00000013 94 Def class REGPARM type INT size 0 name az"
+    ],
+    "line": "void EulerToMat__FP10matrixtdefiii(matrixtdef *m, int ax, int ay, int az);   /* :482 */",
+    "action": "correct",
+    "corrected": "void EulerToMat(matrixtdef *m,int ax,int ay,int az);",
+    "source_path": "recon/game/common/camera.cpp"
+  },
+  {
+    "unit": "camera",
+    "symbol": "Camera_SetCamera__FP13DRender_tView",
+    "name": "Camera_SetCamera",
+    "old_return": "void",
+    "old_args": "DRender_tView *cview",
+    "definition": [
+      "void Camera_SetCamera(DRender_tView *cview)"
+    ],
+    "native": {
+      "record": "1e6aa9",
+      "va": "80080704",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1e7240: $00000010 96 Def2 class REGPARM type PTR STRUCT size 140 dims 0 tag DRender_tView name cview"
+    ],
+    "line": "void Camera_SetCamera__FP13DRender_tView(DRender_tView *cview);   /* :613 */",
+    "action": "correct",
+    "corrected": "void Camera_SetCamera(DRender_tView *cview);",
+    "source_path": "recon/game/common/camera.cpp"
+  },
+  {
+    "unit": "camera",
+    "symbol": "Camera_LookBack__FP10matrixtdefT0",
+    "name": "Camera_LookBack",
+    "old_return": "void",
+    "old_args": "matrixtdef *src, matrixtdef *tgt",
+    "definition": [
+      "void Camera_LookBack(matrixtdef *src,matrixtdef *tgt)"
+    ],
+    "native": {
+      "record": "1e6ada",
+      "va": "8008073c",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1e72d8: $00000004 96 Def2 class REGPARM type PTR STRUCT size 36 dims 0 tag matrixtdef name src",
+      "1e72f6: $00000005 96 Def2 class REGPARM type PTR STRUCT size 36 dims 0 tag matrixtdef name tgt"
+    ],
+    "line": "void Camera_LookBack__FP10matrixtdefT0(matrixtdef *src, matrixtdef *tgt);   /* :662 */",
+    "action": "correct",
+    "corrected": "void Camera_LookBack(matrixtdef *src,matrixtdef *tgt);",
+    "source_path": "recon/game/common/camera.cpp"
+  },
+  {
+    "unit": "camera",
+    "symbol": "Camera_TunnelLimit__FiPi",
+    "name": "Camera_TunnelLimit",
+    "old_return": "void",
+    "old_args": "int player, int *armheight",
+    "definition": [
+      "void Camera_TunnelLimit(int player,int *armheight)"
+    ],
+    "native": {
+      "record": "1e6b09",
+      "va": "800807c4",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1e7380: $00000012 94 Def class REGPARM type INT size 0 name player",
+      "1e7394: $00000014 94 Def class REGPARM type PTR INT size 0 name armheight"
+    ],
+    "line": "void Camera_TunnelLimit__FiPi(int player, int *armheight);   /* :684 */",
+    "action": "correct",
+    "corrected": "void Camera_TunnelLimit(int player,int *armheight);",
+    "source_path": "recon/game/common/camera.cpp"
+  },
+  {
+    "unit": "camera",
+    "symbol": "Camera_UpdateCollisionCam__Fi",
+    "name": "Camera_UpdateCollisionCam",
+    "old_return": "void",
+    "old_args": "int player",
+    "definition": [
+      "void Camera_UpdateCollisionCam(int player)"
+    ],
+    "native": {
+      "record": "1e6b2f",
+      "va": "8008090c",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1e74fd: $00000011 94 Def class REGPARM type INT size 0 name player"
+    ],
+    "line": "void Camera_UpdateCollisionCam__Fi(int player);   /* :727 */",
+    "action": "correct",
+    "corrected": "void Camera_UpdateCollisionCam(int player);",
+    "source_path": "recon/game/common/camera.cpp"
+  },
+  {
+    "unit": "camera",
+    "symbol": "Camera_UpdateSimpleCam__Fi",
+    "name": "Camera_UpdateSimpleCam",
+    "old_return": "void",
+    "old_args": "int player",
+    "definition": [
+      "void Camera_UpdateSimpleCam(int player)"
+    ],
+    "native": {
+      "record": "1e6b5a",
+      "va": "80080ac8",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1e75d9: $00000013 94 Def class REGPARM type INT size 0 name player"
+    ],
+    "line": "void Camera_UpdateSimpleCam__Fi(int player);   /* :791 */",
+    "action": "correct",
+    "corrected": "void Camera_UpdateSimpleCam(int player);",
+    "source_path": "recon/game/common/camera.cpp"
+  },
+  {
+    "unit": "camera",
+    "symbol": "Camera_UpdateBumperCam__Fi",
+    "name": "Camera_UpdateBumperCam",
+    "old_return": "void",
+    "old_args": "int player",
+    "definition": [
+      "void Camera_UpdateBumperCam(int player)"
+    ],
+    "native": {
+      "record": "1e6b82",
+      "va": "80080bac",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1e7696: $00000004 94 Def class REGPARM type INT size 0 name player"
+    ],
+    "line": "void Camera_UpdateBumperCam__Fi(int player);   /* :808 */",
+    "action": "correct",
+    "corrected": "void Camera_UpdateBumperCam(int player);",
+    "source_path": "recon/game/common/camera.cpp"
+  },
+  {
+    "unit": "camera",
+    "symbol": "Camera_UpdateTailCam__Fii",
+    "name": "Camera_UpdateTailCam",
+    "old_return": "void",
+    "old_args": "int player, int behavior",
+    "definition": [
+      "void Camera_UpdateTailCam(int player,int behavior)"
+    ],
+    "native": {
+      "record": "1e6baa",
+      "va": "80080d84",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1e776d: $00000013 94 Def class REGPARM type INT size 0 name player",
+      "1e7781: $00000011 94 Def class REGPARM type INT size 0 name behavior"
+    ],
+    "line": "void Camera_UpdateTailCam__Fii(int player, int behavior);   /* :844 */",
+    "action": "correct",
+    "corrected": "void Camera_UpdateTailCam(int player,int behavior);",
+    "source_path": "recon/game/common/camera.cpp"
+  },
+  {
+    "unit": "camera",
+    "symbol": "Camera_UpdateHeliCam__Fii",
+    "name": "Camera_UpdateHeliCam",
+    "old_return": "void",
+    "old_args": "int player, int behavior",
+    "definition": [
+      "void Camera_UpdateHeliCam(int player,int behavior)"
+    ],
+    "native": {
+      "record": "1e6bd1",
+      "va": "800813cc",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1e793e: $00000013 94 Def class REGPARM type INT size 0 name player",
+      "1e7952: $00000014 94 Def class REGPARM type INT size 0 name behavior"
+    ],
+    "line": "void Camera_UpdateHeliCam__Fii(int player, int behavior);   /* :950 */",
+    "action": "correct",
+    "corrected": "void Camera_UpdateHeliCam(int player,int behavior);",
+    "source_path": "recon/game/common/camera.cpp"
+  },
+  {
+    "unit": "camera",
+    "symbol": "Camera_UpdateCircleCam__Fi",
+    "name": "Camera_UpdateCircleCam",
+    "old_return": "void",
+    "old_args": "int player",
+    "definition": [
+      "void Camera_UpdateCircleCam(int player)"
+    ],
+    "native": {
+      "record": "1e6bf8",
+      "va": "80081ab8",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1e7b26: $00000012 94 Def class REGPARM type INT size 0 name player"
+    ],
+    "line": "void Camera_UpdateCircleCam__Fi(int player);   /* :1069 */",
+    "action": "correct",
+    "corrected": "void Camera_UpdateCircleCam(int player);",
+    "source_path": "recon/game/common/camera.cpp"
+  },
+  {
+    "unit": "camera",
+    "symbol": "SetCameraZoom__Fii",
+    "name": "SetCameraZoom",
+    "old_return": "void",
+    "old_args": "int player, int targetDist",
+    "definition": [
+      "void SetCameraZoom(int player,int targetDist)"
+    ],
+    "native": {
+      "record": "1e6c20",
+      "va": "80081d38",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1e7c71: $00000004 94 Def class REGPARM type INT size 0 name player",
+      "1e7c85: $00000005 94 Def class REGPARM type INT size 0 name targetDist"
+    ],
+    "line": "void SetCameraZoom__Fii(int player, int targetDist);   /* :1116 */",
+    "action": "correct",
+    "corrected": "void SetCameraZoom(int player,int targetDist);",
+    "source_path": "recon/game/common/camera.cpp"
+  },
+  {
+    "unit": "camera",
+    "symbol": "Camera_UpdateTVCam__Fi",
+    "name": "Camera_UpdateTVCam",
+    "old_return": "void",
+    "old_args": "int player",
+    "definition": [
+      "void Camera_UpdateTVCam(int player)"
+    ],
+    "native": {
+      "record": "1e6c40",
+      "va": "80081e48",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1e7d07: $00000013 94 Def class REGPARM type INT size 0 name player"
+    ],
+    "line": "void Camera_UpdateTVCam__Fi(int player);   /* :1136 */",
+    "action": "correct",
+    "corrected": "void Camera_UpdateTVCam(int player);",
+    "source_path": "recon/game/common/camera.cpp"
+  },
+  {
+    "unit": "camera",
+    "symbol": "Camera_UpdateAnimCam__Fi",
+    "name": "Camera_UpdateAnimCam",
+    "old_return": "void",
+    "old_args": "int player",
+    "definition": [
+      "void Camera_UpdateAnimCam(int player)"
+    ],
+    "native": {
+      "record": "1e6c64",
+      "va": "80081f94",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1e7de7: $00000011 94 Def class REGPARM type INT size 0 name player"
+    ],
+    "line": "void Camera_UpdateAnimCam__Fi(int player);   /* :1203 */",
+    "action": "correct",
+    "corrected": "void Camera_UpdateAnimCam(int player);",
+    "source_path": "recon/game/common/camera.cpp"
+  },
+  {
+    "unit": "camera",
+    "symbol": "Camera_UpdateFinishCam__Fi",
+    "name": "Camera_UpdateFinishCam",
+    "old_return": "void",
+    "old_args": "int player",
+    "definition": [
+      "void Camera_UpdateFinishCam(int player)"
+    ],
+    "native": {
+      "record": "1e6c8a",
+      "va": "80082254",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1e7eca: $00000004 94 Def class REGPARM type INT size 0 name player"
+    ],
+    "line": "void Camera_UpdateFinishCam__Fi(int player);   /* :1283 */",
+    "action": "correct",
+    "corrected": "void Camera_UpdateFinishCam(int player);",
+    "source_path": "recon/game/common/camera.cpp"
+  },
+  {
+    "unit": "camera",
+    "symbol": "Camera_UpdateBlimpCam__Fi",
+    "name": "Camera_UpdateBlimpCam",
+    "old_return": "void",
+    "old_args": "int player",
+    "definition": [
+      "void Camera_UpdateBlimpCam(int player)"
+    ],
+    "native": {
+      "record": "1e6cb2",
+      "va": "8008237c",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1e7fb0: $00000004 94 Def class REGPARM type INT size 0 name player"
+    ],
+    "line": "void Camera_UpdateBlimpCam__Fi(int player);   /* :1350 */",
+    "action": "correct",
+    "corrected": "void Camera_UpdateBlimpCam(int player);",
+    "source_path": "recon/game/common/camera.cpp"
+  },
+  {
+    "unit": "camera",
+    "symbol": "Camera_SetSplineCam__Fi",
+    "name": "Camera_SetSplineCam",
+    "old_return": "void",
+    "old_args": "int player",
+    "definition": [
+      "void Camera_SetSplineCam(int player)"
+    ],
+    "native": {
+      "record": "1e6cd9",
+      "va": "800824c0",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1e806a: $00000015 94 Def class REGPARM type INT size 0 name player"
+    ],
+    "line": "void Camera_SetSplineCam__Fi(int player);   /* :1395 */",
+    "action": "correct",
+    "corrected": "void Camera_SetSplineCam(int player);",
+    "source_path": "recon/game/common/camera.cpp"
+  },
+  {
+    "unit": "camera",
+    "symbol": "Camera_UpdateSplineCam__Fi",
+    "name": "Camera_UpdateSplineCam",
+    "old_return": "void",
+    "old_args": "int player",
+    "definition": [
+      "void Camera_UpdateSplineCam(int player)"
+    ],
+    "native": {
+      "record": "1e6cfe",
+      "va": "800826c0",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1e815c: $00000015 94 Def class REGPARM type INT size 0 name player"
+    ],
+    "line": "void Camera_UpdateSplineCam__Fi(int player);   /* :1444 */",
+    "action": "correct",
+    "corrected": "void Camera_UpdateSplineCam(int player);",
+    "source_path": "recon/game/common/camera.cpp"
+  },
+  {
+    "unit": "camera",
+    "symbol": "Camera_IslandProfile__FUs",
+    "name": "Camera_IslandProfile",
+    "old_return": "int",
+    "old_args": "u_short before",
+    "definition": [
+      "int Camera_IslandProfile(u_short before)"
+    ],
+    "native": {
+      "record": "1e6d26",
+      "va": "80082c3c",
+      "type": "INT size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1e832b: $00000003 94 Def class REGPARM type USHORT size 0 name before"
+    ],
+    "line": "int Camera_IslandProfile__FUs(u_short before);   /* :1553 */",
+    "action": "correct",
+    "corrected": "int Camera_IslandProfile(u_short before);",
+    "source_path": "recon/game/common/camera.cpp"
+  },
+  {
+    "unit": "camera",
+    "symbol": "Camera_UpdatePulloverCam__Fi",
+    "name": "Camera_UpdatePulloverCam",
+    "old_return": "void",
+    "old_args": "int player",
+    "definition": [
+      "void Camera_UpdatePulloverCam(int player)"
+    ],
+    "native": {
+      "record": "1e6d4d",
+      "va": "80082c94",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1e83d4: $00000012 94 Def class REGPARM type INT size 0 name player"
+    ],
+    "line": "void Camera_UpdatePulloverCam__Fi(int player);   /* :1579 */",
+    "action": "correct",
+    "corrected": "void Camera_UpdatePulloverCam(int player);",
+    "source_path": "recon/game/common/camera.cpp"
+  },
+  {
+    "unit": "camera",
+    "symbol": "Camera_UpdateCopCam1__Fi",
+    "name": "Camera_UpdateCopCam1",
+    "old_return": "void",
+    "old_args": "int player",
+    "definition": [
+      "void Camera_UpdateCopCam1(int player)"
+    ],
+    "native": {
+      "record": "1e6d77",
+      "va": "80083010",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1e8505: $00000004 94 Def class REGPARM type INT size 0 name player"
+    ],
+    "line": "void Camera_UpdateCopCam1__Fi(int player);   /* :1708 */",
+    "action": "correct",
+    "corrected": "void Camera_UpdateCopCam1(int player);",
+    "source_path": "recon/game/common/camera.cpp"
+  },
+  {
+    "unit": "camera",
+    "symbol": "Camera_UpdateCopCam2__Fi",
+    "name": "Camera_UpdateCopCam2",
+    "old_return": "void",
+    "old_args": "int player",
+    "definition": [
+      "void Camera_UpdateCopCam2(int player)"
+    ],
+    "native": {
+      "record": "1e6d9d",
+      "va": "800831a8",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1e85a1: $00000004 94 Def class REGPARM type INT size 0 name player"
+    ],
+    "line": "void Camera_UpdateCopCam2__Fi(int player);   /* :1727 */",
+    "action": "correct",
+    "corrected": "void Camera_UpdateCopCam2(int player);",
+    "source_path": "recon/game/common/camera.cpp"
+  },
+  {
+    "unit": "camera",
+    "symbol": "Camera_UpdateBTCopCam__Fi",
+    "name": "Camera_UpdateBTCopCam",
+    "old_return": "void",
+    "old_args": "int player",
+    "definition": [
+      "void Camera_UpdateBTCopCam(int player)"
+    ],
+    "native": {
+      "record": "1e6dc3",
+      "va": "800832b0",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1e8641: $00000010 94 Def class REGPARM type INT size 0 name player"
+    ],
+    "line": "void Camera_UpdateBTCopCam__Fi(int player);   /* :1741 */",
+    "action": "correct",
+    "corrected": "void Camera_UpdateBTCopCam(int player);",
+    "source_path": "recon/game/common/camera.cpp"
+  },
+  {
+    "unit": "camera",
+    "symbol": "Camera_Update__Fv",
+    "name": "Camera_Update",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void Camera_Update(void)"
+    ],
+    "native": {
+      "record": "1e6dea",
+      "va": "800833d8",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void Camera_Update__Fv(void);   /* :1777 */",
+    "action": "correct",
+    "corrected": "void Camera_Update(void);",
+    "source_path": "recon/game/common/camera.cpp"
+  },
+  {
+    "unit": "camera",
+    "symbol": "Camera_Init__Fv",
+    "name": "Camera_Init",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void Camera_Init(void)"
+    ],
+    "native": {
+      "record": "1e6e09",
+      "va": "80083858",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void Camera_Init__Fv(void);   /* :1912 */",
+    "action": "correct",
+    "corrected": "void Camera_Init(void);",
+    "source_path": "recon/game/common/camera.cpp"
+  },
+  {
+    "unit": "camera",
+    "symbol": "Camera_Kill__Fv",
+    "name": "Camera_Kill",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void Camera_Kill(void)"
+    ],
+    "native": {
+      "record": "1e6e26",
+      "va": "80083bec",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void Camera_Kill__Fv(void);   /* :2001 */",
+    "action": "correct",
+    "corrected": "void Camera_Kill(void);",
+    "source_path": "recon/game/common/camera.cpp"
+  },
+  {
+    "unit": "camera",
+    "symbol": "Camera_PitchAndRoll__Fi",
+    "name": "Camera_PitchAndRoll",
+    "old_return": "void",
+    "old_args": "int player",
+    "definition": [
+      "void Camera_PitchAndRoll(int player)"
+    ],
+    "native": {
+      "record": "1e6e43",
+      "va": "80083c74",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1e89bd: $00000004 94 Def class REGPARM type INT size 0 name player"
+    ],
+    "line": "void Camera_PitchAndRoll__Fi(int player);   /* :2013 */",
+    "action": "correct",
+    "corrected": "void Camera_PitchAndRoll(int player);",
+    "source_path": "recon/game/common/camera.cpp"
+  },
+  {
+    "unit": "camera",
+    "symbol": "Camera_TooSteep__FiP12BWorldSm_Pos",
+    "name": "Camera_TooSteep",
+    "old_return": "int",
+    "old_args": "int player, BWorldSm_Pos *slicePos",
+    "definition": [
+      "int Camera_TooSteep(int player,BWorldSm_Pos *slicePos)"
+    ],
+    "native": {
+      "record": "1e6e68",
+      "va": "80083d28",
+      "type": "INT size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1e8ad0: $00000004 94 Def class REGPARM type INT size 0 name player",
+      "1e8ae4: $00000005 96 Def2 class REGPARM type PTR STRUCT size 132 dims 0 tag BWorldSm_Pos name slicePos"
+    ],
+    "line": "int Camera_TooSteep__FiP12BWorldSm_Pos(int player, BWorldSm_Pos *slicePos);   /* :2039 */",
+    "action": "correct",
+    "corrected": "int Camera_TooSteep(int player,BWorldSm_Pos *slicePos);",
+    "source_path": "recon/game/common/camera.cpp"
+  },
+  {
+    "unit": "camera",
+    "symbol": "Camera_CheckWallCollisions__FiP8coorddef",
+    "name": "Camera_CheckWallCollisions",
+    "old_return": "void",
+    "old_args": "int player, coorddef *pos",
+    "definition": [
+      "void Camera_CheckWallCollisions(int player,coorddef *pos)"
+    ],
+    "native": {
+      "record": "1e6e98",
+      "va": "80083e98",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1e8c3a: $00000013 94 Def class REGPARM type INT size 0 name player",
+      "1e8c4e: $00000014 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name pos"
+    ],
+    "line": "void Camera_CheckWallCollisions__FiP8coorddef(int player, coorddef *pos);   /* :2073 */",
+    "action": "correct",
+    "corrected": "void Camera_CheckWallCollisions(int player,coorddef *pos);",
+    "source_path": "recon/game/common/camera.cpp"
+  },
+  {
+    "unit": "camera",
+    "symbol": "Camera_SetAboveGround__FiP8coorddef",
+    "name": "Camera_SetAboveGround",
+    "old_return": "void",
+    "old_args": "int player, coorddef *pos",
+    "definition": [
+      "void Camera_SetAboveGround(int player,coorddef *pos)"
+    ],
+    "native": {
+      "record": "1e6ece",
+      "va": "8008480c",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1e8e6d: $00000004 94 Def class REGPARM type INT size 0 name player",
+      "1e8e81: $00000011 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name pos"
+    ],
+    "line": "void Camera_SetAboveGround__FiP8coorddef(int player, coorddef *pos);   /* :2219 */",
+    "action": "correct",
+    "corrected": "void Camera_SetAboveGround(int player,coorddef *pos);",
+    "source_path": "recon/game/common/camera.cpp"
+  },
+  {
+    "unit": "camera",
+    "symbol": "Camera_AcquireTarget__FiP8coorddefT1P10matrixtdefi",
+    "name": "Camera_AcquireTarget",
+    "old_return": "void",
+    "old_args": "int player, coorddef *point, coorddef *pos, matrixtdef *rot, int hirez",
+    "definition": [
+      "void Camera_AcquireTarget(int player,coorddef *point,coorddef *pos,matrixtdef *rot,int hirez)"
+    ],
+    "native": {
+      "record": "1e6eff",
+      "va": "80084898",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1e8f82: $00000004 94 Def class REGPARM type INT size 0 name player",
+      "1e8f96: $00000005 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name point",
+      "1e8fb4: $00000006 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name pos",
+      "1e8fd0: $00000007 96 Def2 class REGPARM type PTR STRUCT size 36 dims 0 tag matrixtdef name rot",
+      "1e8fee: $00000010 94 Def class ARG type INT size 0 name hirez"
+    ],
+    "line": "void Camera_AcquireTarget__FiP8coorddefT1P10matrixtdefi(int player, coorddef *point, coorddef *pos, matrixtdef *rot, int hirez);   /* :2239 */",
+    "action": "correct",
+    "corrected": "void Camera_AcquireTarget(int player,coorddef *point,coorddef *pos,matrixtdef *rot,int hirez);",
+    "source_path": "recon/game/common/camera.cpp"
+  },
+  {
+    "unit": "camera",
+    "symbol": "Camera_OpponentLookBehind__FiP8coorddefi",
+    "name": "Camera_OpponentLookBehind",
+    "old_return": "void",
+    "old_args": "int player, coorddef *pos, int reset",
+    "definition": [
+      "void Camera_OpponentLookBehind(int player,coorddef *pos,int reset)"
+    ],
+    "native": {
+      "record": "1e6f3f",
+      "va": "80084c34",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1e9114: $0000001e 94 Def class REGPARM type INT size 0 name player",
+      "1e9128: $00000017 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name pos",
+      "1e9144: $00000006 94 Def class REGPARM type INT size 0 name reset"
+    ],
+    "line": "void Camera_OpponentLookBehind__FiP8coorddefi(int player, coorddef *pos, int reset);   /* :2290 */",
+    "action": "correct",
+    "corrected": "void Camera_OpponentLookBehind(int player,coorddef *pos,int reset);",
+    "source_path": "recon/game/common/camera.cpp"
+  },
+  {
+    "unit": "camera",
+    "symbol": "Camera_GetViewInfo__FiP17DRender_tCalcViewi",
+    "name": "Camera_GetViewInfo",
+    "old_return": "void",
+    "old_args": "int cviewP, DRender_tCalcView *cview, int viewID",
+    "definition": [
+      "void Camera_GetViewInfo(int cviewP,DRender_tCalcView *cview,int viewID)"
+    ],
+    "native": {
+      "record": "1e6f75",
+      "va": "80085008",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1e9292: $00000011 94 Def class REGPARM type INT size 0 name cviewP",
+      "1e92a6: $00000013 96 Def2 class REGPARM type PTR STRUCT size 132 dims 0 tag DRender_tCalcView name cview",
+      "1e92cd: $00000006 94 Def class REGPARM type INT size 0 name viewID"
+    ],
+    "line": "void Camera_GetViewInfo__FiP17DRender_tCalcViewi(int cviewP, DRender_tCalcView *cview, int viewID);   /* :2356 */",
+    "action": "correct",
+    "corrected": "void Camera_GetViewInfo(int cviewP,DRender_tCalcView *cview,int viewID);",
+    "source_path": "recon/game/common/camera.cpp"
+  },
+  {
+    "unit": "camera",
+    "symbol": "Camera_GetAudioViewInfo__FiP17DRender_tCalcViewPP8coorddef",
+    "name": "Camera_GetAudioViewInfo",
+    "old_return": "void",
+    "old_args": "int cviewP, DRender_tCalcView *cview, coorddef **cvel",
+    "definition": [
+      "void Camera_GetAudioViewInfo(int cviewP,DRender_tCalcView *cview,coorddef **cvel)"
+    ],
+    "native": {
+      "record": "1e6fae",
+      "va": "8008533c",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1e9436: $00000010 94 Def class REGPARM type INT size 0 name cviewP",
+      "1e944a: $00000007 96 Def2 class REGPARM type PTR STRUCT size 132 dims 0 tag DRender_tCalcView name cview",
+      "1e9471: $00000011 96 Def2 class REGPARM type PTR PTR STRUCT size 12 dims 0 tag coorddef name cvel"
+    ],
+    "line": "void Camera_GetAudioViewInfo__FiP17DRender_tCalcViewPP8coorddef(int cviewP, DRender_tCalcView *cview, coorddef **cvel);   /* :2482 */",
+    "action": "correct",
+    "corrected": "void Camera_GetAudioViewInfo(int cviewP,DRender_tCalcView *cview,coorddef **cvel);",
+    "source_path": "recon/game/common/camera.cpp"
+  },
+  {
+    "unit": "camera",
+    "symbol": "Camera_GetMode__Fi",
+    "name": "Camera_GetMode",
+    "old_return": "int",
+    "old_args": "int cviewP",
+    "definition": [
+      "int Camera_GetMode(int cviewP)"
+    ],
+    "native": {
+      "record": "1e6ff6",
+      "va": "80085568",
+      "type": "INT size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1e94f4: $00000004 94 Def class REGPARM type INT size 0 name cviewP"
+    ],
+    "line": "int Camera_GetMode__Fi(int cviewP);   /* :2547 */",
+    "action": "correct",
+    "corrected": "int Camera_GetMode(int cviewP);",
+    "source_path": "recon/game/common/camera.cpp"
+  },
+  {
+    "unit": "camera",
+    "symbol": "Camera_SetMode__Fii",
+    "name": "Camera_SetMode",
+    "old_return": "void",
+    "old_args": "int cviewP, int mode",
+    "definition": [
+      "void Camera_SetMode(int cviewP,int mode)"
+    ],
+    "native": {
+      "record": "1e7016",
+      "va": "80085608",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1e956f: $00000011 94 Def class REGPARM type INT size 0 name cviewP",
+      "1e9583: $00000012 94 Def class REGPARM type INT size 0 name mode"
+    ],
+    "line": "void Camera_SetMode__Fii(int cviewP, int mode);   /* :2566 */",
+    "action": "correct",
+    "corrected": "void Camera_SetMode(int cviewP,int mode);",
+    "source_path": "recon/game/common/camera.cpp"
+  },
+  {
+    "unit": "camera",
+    "symbol": "Camera_NextMode__Fi",
+    "name": "Camera_NextMode",
+    "old_return": "void",
+    "old_args": "int cviewP",
+    "definition": [
+      "void Camera_NextMode(int cviewP)"
+    ],
+    "native": {
+      "record": "1e7037",
+      "va": "8008581c",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1e9633: $00000011 94 Def class REGPARM type INT size 0 name cviewP"
+    ],
+    "line": "void Camera_NextMode__Fi(int cviewP);   /* :2622 */",
+    "action": "correct",
+    "corrected": "void Camera_NextMode(int cviewP);",
+    "source_path": "recon/game/common/camera.cpp"
+  },
+  {
+    "unit": "camera",
+    "symbol": "Camera_ReplayUpdate__FiP15Camera_tCamSlot",
+    "name": "Camera_ReplayUpdate",
+    "old_return": "void",
+    "old_args": "int cviewP, Camera_tCamSlot *ptr",
+    "definition": [
+      "void Camera_ReplayUpdate(int cviewP,Camera_tCamSlot *ptr)"
+    ],
+    "native": {
+      "record": "1e7058",
+      "va": "80085bd0",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1e96fb: $00000004 94 Def class REGPARM type INT size 0 name cviewP",
+      "1e970f: $00000011 96 Def2 class REGPARM type PTR STRUCT size 32 dims 0 tag Camera_tCamSlot name ptr"
+    ],
+    "line": "void Camera_ReplayUpdate__FiP15Camera_tCamSlot(int cviewP, Camera_tCamSlot *ptr);   /* :2690 */",
+    "action": "correct",
+    "corrected": "void Camera_ReplayUpdate(int cviewP,Camera_tCamSlot *ptr);",
+    "source_path": "recon/game/common/camera.cpp"
+  },
+  {
+    "unit": "camera",
+    "symbol": "Camera_ResetRelPos__Fi",
+    "name": "Camera_ResetRelPos",
+    "old_return": "void",
+    "old_args": "int bitMask",
+    "definition": [
+      "void Camera_ResetRelPos(int bitMask)"
+    ],
+    "native": {
+      "record": "1e708f",
+      "va": "80085cd4",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1e979c: $00000005 94 Def class REGPARM type INT size 0 name bitMask"
+    ],
+    "line": "void Camera_ResetRelPos__Fi(int bitMask);   /* :2713 */",
+    "action": "correct",
+    "corrected": "void Camera_ResetRelPos(int bitMask);",
+    "source_path": "recon/game/common/camera.cpp"
+  },
+  {
+    "unit": "cars",
+    "symbol": "Cars_DoGravityEffectsOnAcc__FP8Car_tObji",
+    "name": "Cars_DoGravityEffectsOnAcc",
+    "old_return": "void",
+    "old_args": "Car_tObj *carObj, int arcade",
+    "definition": [
+      "void Cars_DoGravityEffectsOnAcc(Car_tObj *carObj,int arcade)"
+    ],
+    "native": {
+      "record": "1fbae3",
+      "va": "80085d84",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1fc13d: $00000010 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj",
+      "1fc15c: $00000005 94 Def class REGPARM type INT size 0 name arcade"
+    ],
+    "line": "void Cars_DoGravityEffectsOnAcc__FP8Car_tObji(Car_tObj *carObj, int arcade);   /* :374 */",
+    "action": "correct",
+    "corrected": "void Cars_DoGravityEffectsOnAcc(Car_tObj *carObj,int arcade);",
+    "source_path": "recon/game/common/cars.cpp"
+  },
+  {
+    "unit": "cars",
+    "symbol": "Cars_GetDashData__FP8Car_tObjPiN21",
+    "name": "Cars_GetDashData",
+    "old_return": "void",
+    "old_args": "Car_tObj *carObj, int *rpm, int *gear, int *speed",
+    "definition": [
+      "void Cars_GetDashData(Car_tObj *carObj,int *rpm,int *gear,int *speed)"
+    ],
+    "native": {
+      "record": "1fbb19",
+      "va": "80085ec4",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1fc207: $00000004 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj",
+      "1fc226: $00000005 94 Def class REGPARM type PTR INT size 0 name rpm",
+      "1fc237: $00000006 94 Def class REGPARM type PTR INT size 0 name gear",
+      "1fc249: $00000007 94 Def class REGPARM type PTR INT size 0 name speed"
+    ],
+    "line": "void Cars_GetDashData__FP8Car_tObjPiN21(Car_tObj *carObj, int *rpm, int *gear, int *speed);   /* :422 */",
+    "action": "correct",
+    "corrected": "void Cars_GetDashData(Car_tObj *carObj,int *rpm,int *gear,int *speed);",
+    "source_path": "recon/game/common/cars.cpp"
+  },
+  {
+    "unit": "cars",
+    "symbol": "Cars_QDUpdateVelGlue__FP8Car_tObj",
+    "name": "Cars_QDUpdateVelGlue",
+    "old_return": "void",
+    "old_args": "Car_tObj *carObj",
+    "definition": [
+      "void Cars_QDUpdateVelGlue(Car_tObj *carObj)"
+    ],
+    "native": {
+      "record": "1fbb49",
+      "va": "80085ee8",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1fc2cf: $00000004 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj"
+    ],
+    "line": "void Cars_QDUpdateVelGlue__FP8Car_tObj(Car_tObj *carObj);   /* :430 */",
+    "action": "correct",
+    "corrected": "void Cars_QDUpdateVelGlue(Car_tObj *carObj);",
+    "source_path": "recon/game/common/cars.cpp"
+  },
+  {
+    "unit": "cars",
+    "symbol": "Cars_InitDashData__FP8Car_tObjPiT1",
+    "name": "Cars_InitDashData",
+    "old_return": "void",
+    "old_args": "Car_tObj *carObj, int *redline, int *topspeed",
+    "definition": [
+      "void Cars_InitDashData(Car_tObj *carObj,int *redline,int *topspeed)"
+    ],
+    "native": {
+      "record": "1fbb78",
+      "va": "80085f64",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1fc374: $00000004 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj",
+      "1fc393: $00000005 94 Def class REGPARM type PTR INT size 0 name redline",
+      "1fc3a8: $00000006 94 Def class REGPARM type PTR INT size 0 name topspeed"
+    ],
+    "line": "void Cars_InitDashData__FP8Car_tObjPiT1(Car_tObj *carObj, int *redline, int *topspeed);   /* :473 */",
+    "action": "correct",
+    "corrected": "void Cars_InitDashData(Car_tObj *carObj,int *redline,int *topspeed);",
+    "source_path": "recon/game/common/cars.cpp"
+  },
+  {
+    "unit": "cars",
+    "symbol": "Cars_SetAudioCalls__FP8Car_tObjiiiiii",
+    "name": "Cars_SetAudioCalls",
+    "old_return": "void",
+    "old_args": "Car_tObj *carObj, int type, int chan, int s1, int s2, int force, int pan",
+    "definition": [
+      "void Cars_SetAudioCalls(Car_tObj *carObj,int type,int chan,int s1,int s2,int force,int pan)"
+    ],
+    "native": {
+      "record": "1fbba8",
+      "va": "80085f8c",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1fc435: $00000004 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj",
+      "1fc454: $00000005 94 Def class REGPARM type INT size 0 name type",
+      "1fc466: $00000006 94 Def class REGPARM type INT size 0 name chan",
+      "1fc478: $00000007 94 Def class REGPARM type INT size 0 name s1",
+      "1fc488: $00000010 94 Def class ARG type INT size 0 name s2",
+      "1fc498: $00000014 94 Def class ARG type INT size 0 name force",
+      "1fc4ab: $00000018 94 Def class ARG type INT size 0 name pan"
+    ],
+    "line": "void Cars_SetAudioCalls__FP8Car_tObjiiiiii(Car_tObj *carObj, int type, int chan, int s1, int s2, int force, int pan);   /* :479 */",
+    "action": "correct",
+    "corrected": "void Cars_SetAudioCalls(Car_tObj *carObj,int type,int chan,int s1,int s2,int force,int pan);",
+    "source_path": "recon/game/common/cars.cpp"
+  },
+  {
+    "unit": "cars",
+    "symbol": "Cars_ResetCarCounters__Fv",
+    "name": "Cars_ResetCarCounters",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void Cars_ResetCarCounters(void)"
+    ],
+    "native": {
+      "record": "1fbbdb",
+      "va": "80086054",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void Cars_ResetCarCounters__Fv(void);   /* :492 */",
+    "action": "correct",
+    "corrected": "void Cars_ResetCarCounters(void);",
+    "source_path": "recon/game/common/cars.cpp"
+  },
+  {
+    "unit": "cars",
+    "symbol": "Cars_InitStats__FP8Car_tObj",
+    "name": "Cars_InitStats",
+    "old_return": "void",
+    "old_args": "Car_tObj *carObj",
+    "definition": [
+      "void Cars_InitStats(Car_tObj *carObj)"
+    ],
+    "native": {
+      "record": "1fbc02",
+      "va": "8008607c",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1fc5c8: $00000004 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj"
+    ],
+    "line": "void Cars_InitStats__FP8Car_tObj(Car_tObj *carObj);   /* :505 */",
+    "action": "correct",
+    "corrected": "void Cars_InitStats(Car_tObj *carObj);",
+    "source_path": "recon/game/common/cars.cpp"
+  },
+  {
+    "unit": "cars",
+    "symbol": "Cars_InitializeCarTablesFlagsAndCounters__FP8Car_tObj",
+    "name": "Cars_InitializeCarTablesFlagsAndCounters",
+    "old_return": "void",
+    "old_args": "Car_tObj *carObj",
+    "definition": [
+      "void Cars_InitializeCarTablesFlagsAndCounters(Car_tObj *carObj)"
+    ],
+    "native": {
+      "record": "1fbc2b",
+      "va": "800860e4",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1fc6a3: $00000011 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj"
+    ],
+    "line": "void Cars_InitializeCarTablesFlagsAndCounters__FP8Car_tObj(Car_tObj *carObj);   /* :538 */",
+    "action": "correct",
+    "corrected": "void Cars_InitializeCarTablesFlagsAndCounters(Car_tObj *carObj);",
+    "source_path": "recon/game/common/cars.cpp"
+  },
+  {
+    "unit": "cars",
+    "symbol": "Cars_ResetVariablesAfterACollision__FP8Car_tObj",
+    "name": "Cars_ResetVariablesAfterACollision",
+    "old_return": "void",
+    "old_args": "Car_tObj *carObj",
+    "definition": [
+      "void Cars_ResetVariablesAfterACollision(Car_tObj *carObj)"
+    ],
+    "native": {
+      "record": "1fbc6e",
+      "va": "800865fc",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1fc796: $00000004 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj"
+    ],
+    "line": "void Cars_ResetVariablesAfterACollision__FP8Car_tObj(Car_tObj *carObj);   /* :678 */",
+    "action": "correct",
+    "corrected": "void Cars_ResetVariablesAfterACollision(Car_tObj *carObj);",
+    "source_path": "recon/game/common/cars.cpp"
+  },
+  {
+    "unit": "cars",
+    "symbol": "Cars_ResetCollidedCars__FP8Car_tObjii",
+    "name": "Cars_ResetCollidedCars",
+    "old_return": "void",
+    "old_args": "Car_tObj *carObj, int forceReset, int forceParkAtSide",
+    "definition": [
+      "void Cars_ResetCollidedCars(Car_tObj *carObj,int forceReset,int forceParkAtSide)"
+    ],
+    "native": {
+      "record": "1fbcab",
+      "va": "80086664",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1fc82c: $00000012 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj",
+      "1fc84b: $00000011 94 Def class REGPARM type INT size 0 name forceReset",
+      "1fc863: $00000006 94 Def class REGPARM type INT size 0 name forceParkAtSide"
+    ],
+    "line": "void Cars_ResetCollidedCars__FP8Car_tObjii(Car_tObj *carObj, int forceReset, int forceParkAtSide);   /* :713 */",
+    "action": "correct",
+    "corrected": "void Cars_ResetCollidedCars(Car_tObj *carObj,int forceReset,int forceParkAtSide);",
+    "source_path": "recon/game/common/cars.cpp"
+  },
+  {
+    "unit": "cars",
+    "symbol": "Cars_SetCarUpForHiRezSim__FP8Car_tObj",
+    "name": "Cars_SetCarUpForHiRezSim",
+    "old_return": "void",
+    "old_args": "Car_tObj *carObj",
+    "definition": [
+      "void Cars_SetCarUpForHiRezSim(Car_tObj *carObj)"
+    ],
+    "native": {
+      "record": "1fbcde",
+      "va": "80086ac4",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1fc9b4: $00000010 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj"
+    ],
+    "line": "void Cars_SetCarUpForHiRezSim__FP8Car_tObj(Car_tObj *carObj);   /* :837 */",
+    "action": "correct",
+    "corrected": "void Cars_SetCarUpForHiRezSim(Car_tObj *carObj);",
+    "source_path": "recon/game/common/cars.cpp"
+  },
+  {
+    "unit": "cars",
+    "symbol": "Cars_DoExtraCarCollisionProcessing__FP8Car_tObj",
+    "name": "Cars_DoExtraCarCollisionProcessing",
+    "old_return": "void",
+    "old_args": "Car_tObj *carObj",
+    "definition": [
+      "void Cars_DoExtraCarCollisionProcessing(Car_tObj *carObj)"
+    ],
+    "native": {
+      "record": "1fbd11",
+      "va": "80086b38",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1fca54: $00000011 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj"
+    ],
+    "line": "void Cars_DoExtraCarCollisionProcessing__FP8Car_tObj(Car_tObj *carObj);   /* :856 */",
+    "action": "correct",
+    "corrected": "void Cars_DoExtraCarCollisionProcessing(Car_tObj *carObj);",
+    "source_path": "recon/game/common/cars.cpp"
+  },
+  {
+    "unit": "cars",
+    "symbol": "Cars_AddCarSfx__FP8Car_tObjiP8coorddefiii",
+    "name": "Cars_AddCarSfx",
+    "old_return": "void",
+    "old_args": "Car_tObj *carObj, int wheel, coorddef *skidpt, int roadSurface, int surfaceType, int drawSkid",
+    "definition": [
+      "void Cars_AddCarSfx(Car_tObj *carObj,int wheel,coorddef *skidpt,int roadSurface,int surfaceType, int drawSkid)"
+    ],
+    "native": {
+      "record": "1fbd4e",
+      "va": "8008748c",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1fcdf1: $00000010 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj",
+      "1fce10: $00000011 94 Def class REGPARM type INT size 0 name wheel",
+      "1fce23: $00000013 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name skidpt",
+      "1fce42: $00000007 94 Def class REGPARM type INT size 0 name roadSurface",
+      "1fce5b: $00000010 94 Def class ARG type INT size 0 name surfaceType",
+      "1fce74: $00000014 94 Def class ARG type INT size 0 name drawSkid"
+    ],
+    "line": "void Cars_AddCarSfx__FP8Car_tObjiP8coorddefiii(Car_tObj *carObj, int wheel, coorddef *skidpt, int roadSurface, int surfaceType, int drawSkid);   /* :1159 */",
+    "action": "correct",
+    "corrected": "void Cars_AddCarSfx(Car_tObj *carObj,int wheel,coorddef *skidpt,int roadSurface,int surfaceType, int drawSkid);",
+    "source_path": "recon/game/common/cars.cpp"
+  },
+  {
+    "unit": "cars",
+    "symbol": "Car_TireSkiddingStuff__FP8Car_tObj",
+    "name": "Car_TireSkiddingStuff",
+    "old_return": "void",
+    "old_args": "Car_tObj *carObj",
+    "definition": [
+      "void Car_TireSkiddingStuff(Car_tObj *carObj)"
+    ],
+    "native": {
+      "record": "1fbd85",
+      "va": "800878cc",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1fd095: $00000010 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj"
+    ],
+    "line": "void Car_TireSkiddingStuff__FP8Car_tObj(Car_tObj *carObj);   /* :1259 */",
+    "action": "correct",
+    "corrected": "void Car_TireSkiddingStuff(Car_tObj *carObj);",
+    "source_path": "recon/game/common/cars.cpp"
+  },
+  {
+    "unit": "cars",
+    "symbol": "Cars_FindTotalSlice__FP8Car_tObj",
+    "name": "Cars_FindTotalSlice",
+    "old_return": "void",
+    "old_args": "Car_tObj *carObj",
+    "definition": [
+      "void Cars_FindTotalSlice(Car_tObj *carObj)"
+    ],
+    "native": {
+      "record": "1fbdb5",
+      "va": "80089760",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1fd8b5: $00000004 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj"
+    ],
+    "line": "void Cars_FindTotalSlice__FP8Car_tObj(Car_tObj *carObj);   /* :1552 */",
+    "action": "correct",
+    "corrected": "void Cars_FindTotalSlice(Car_tObj *carObj);",
+    "source_path": "recon/game/common/cars.cpp"
+  },
+  {
+    "unit": "cars",
+    "symbol": "Car_DoSkiddingStuff__FP8Car_tObj",
+    "name": "Car_DoSkiddingStuff",
+    "old_return": "void",
+    "old_args": "Car_tObj *carObj",
+    "definition": [
+      "void Car_DoSkiddingStuff(Car_tObj *carObj)"
+    ],
+    "native": {
+      "record": "1fbde3",
+      "va": "800897cc",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1fd981: $00000010 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj"
+    ],
+    "line": "void Car_DoSkiddingStuff__FP8Car_tObj(Car_tObj *carObj);   /* :1575 */",
+    "action": "correct",
+    "corrected": "void Car_DoSkiddingStuff(Car_tObj *carObj);",
+    "source_path": "recon/game/common/cars.cpp"
+  },
+  {
+    "unit": "cars",
+    "symbol": "Car_DoPostCollisionStuff__FP8Car_tObj",
+    "name": "Car_DoPostCollisionStuff",
+    "old_return": "void",
+    "old_args": "Car_tObj *carObj",
+    "definition": [
+      "void Car_DoPostCollisionStuff(Car_tObj *carObj)"
+    ],
+    "native": {
+      "record": "1fbe11",
+      "va": "800898dc",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1fda68: $00000010 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj"
+    ],
+    "line": "void Car_DoPostCollisionStuff__FP8Car_tObj(Car_tObj *carObj);   /* :1653 */",
+    "action": "correct",
+    "corrected": "void Car_DoPostCollisionStuff(Car_tObj *carObj);",
+    "source_path": "recon/game/common/cars.cpp"
+  },
+  {
+    "unit": "cars",
+    "symbol": "Cars_CalculateStartingGridOffset__FP8Car_tObjPiP8coorddef",
+    "name": "Cars_CalculateStartingGridOffset",
+    "old_return": "void",
+    "old_args": "Car_tObj *carObj, int *slice, coorddef *offset",
+    "definition": [
+      "void Cars_CalculateStartingGridOffset(Car_tObj *carObj,int *slice,coorddef *offset)"
+    ],
+    "native": {
+      "record": "1fbe44",
+      "va": "80089b44",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1fdb4b: $00000004 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj",
+      "1fdb6a: $00000011 94 Def class REGPARM type PTR INT size 0 name slice",
+      "1fdb7d: $00000012 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag coorddef name offset"
+    ],
+    "line": "void Cars_CalculateStartingGridOffset__FP8Car_tObjPiP8coorddef(Car_tObj *carObj, int *slice, coorddef *offset);   /* :1741 */",
+    "action": "correct",
+    "corrected": "void Cars_CalculateStartingGridOffset(Car_tObj *carObj,int *slice,coorddef *offset);",
+    "source_path": "recon/game/common/cars.cpp"
+  },
+  {
+    "unit": "cars",
+    "symbol": "Cars_IniCarObjects__FP8Car_tObji",
+    "name": "Cars_IniCarObjects",
+    "old_return": "void",
+    "old_args": "Car_tObj *carObj, int index",
+    "definition": [
+      "void Cars_IniCarObjects(Car_tObj *carObj,int index)"
+    ],
+    "native": {
+      "record": "1fbe8b",
+      "va": "80089d88",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1fdca8: $00000010 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj",
+      "1fdcc7: $00000011 94 Def class REGPARM type INT size 0 name index"
+    ],
+    "line": "void Cars_IniCarObjects__FP8Car_tObji(Car_tObj *carObj, int index);   /* :1794 */",
+    "action": "correct",
+    "corrected": "void Cars_IniCarObjects(Car_tObj *carObj,int index);",
+    "source_path": "recon/game/common/cars.cpp"
+  },
+  {
+    "unit": "cars",
+    "symbol": "Cars_InitCar__FP8Car_tObji",
+    "name": "Cars_InitCar",
+    "old_return": "void",
+    "old_args": "Car_tObj *carObj, int index",
+    "definition": [
+      "void Cars_InitCar(Car_tObj *carObj,int index)"
+    ],
+    "native": {
+      "record": "1fbeb9",
+      "va": "8008a174",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1fddd7: $00000011 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj",
+      "1fddf6: $00000015 94 Def class REGPARM type INT size 0 name index"
+    ],
+    "line": "void Cars_InitCar__FP8Car_tObji(Car_tObj *carObj, int index);   /* :2031 */",
+    "action": "correct",
+    "corrected": "void Cars_InitCar(Car_tObj *carObj,int index);",
+    "source_path": "recon/game/common/cars.cpp"
+  },
+  {
+    "unit": "cars",
+    "symbol": "Cars_DeInitCar__FP8Car_tObj",
+    "name": "Cars_DeInitCar",
+    "old_return": "void",
+    "old_args": "Car_tObj *carObj",
+    "definition": [
+      "void Cars_DeInitCar(Car_tObj *carObj)"
+    ],
+    "native": {
+      "record": "1fbee1",
+      "va": "8008a484",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1fdf32: $00000010 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj"
+    ],
+    "line": "void Cars_DeInitCar__FP8Car_tObj(Car_tObj *carObj);   /* :2232 */",
+    "action": "correct",
+    "corrected": "void Cars_DeInitCar(Car_tObj *carObj);",
+    "source_path": "recon/game/common/cars.cpp"
+  },
+  {
+    "unit": "cars",
+    "symbol": "Cars_Restart__Fv",
+    "name": "Cars_Restart",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void Cars_Restart(void)"
+    ],
+    "native": {
+      "record": "1fbf0a",
+      "va": "8008a4cc",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void Cars_Restart__Fv(void);   /* :2246 */",
+    "action": "correct",
+    "corrected": "void Cars_Restart(void);",
+    "source_path": "recon/game/common/cars.cpp"
+  },
+  {
+    "unit": "cars",
+    "symbol": "Cars_Initialize__FPci",
+    "name": "Cars_Initialize",
+    "old_return": "void",
+    "old_args": "char *mem, int size",
+    "definition": [
+      "void Cars_Initialize(char *mem,int size)"
+    ],
+    "native": {
+      "record": "1fbf28",
+      "va": "8008a5b4",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1fe04d: $00000004 94 Def class REGPARM type PTR CHAR size 0 name mem",
+      "1fe05e: $00000005 94 Def class REGPARM type INT size 0 name size"
+    ],
+    "line": "void Cars_Initialize__FPci(char *mem, int size);   /* :2351 */",
+    "action": "correct",
+    "corrected": "void Cars_Initialize(char *mem,int size);",
+    "source_path": "recon/game/common/cars.cpp"
+  },
+  {
+    "unit": "cars",
+    "symbol": "Cars_StartUp__Fv",
+    "name": "Cars_StartUp",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void Cars_StartUp(void)"
+    ],
+    "native": {
+      "record": "1fbf4b",
+      "va": "8008a5d8",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void Cars_StartUp__Fv(void);   /* :2363 */",
+    "action": "correct",
+    "corrected": "void Cars_StartUp(void);",
+    "source_path": "recon/game/common/cars.cpp"
+  },
+  {
+    "unit": "cars",
+    "symbol": "Cars_CleanUp__Fv",
+    "name": "Cars_CleanUp",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void Cars_CleanUp(void)"
+    ],
+    "native": {
+      "record": "1fbf69",
+      "va": "8008aa40",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void Cars_CleanUp__Fv(void);   /* :2514 */",
+    "action": "correct",
+    "corrected": "void Cars_CleanUp(void);",
+    "source_path": "recon/game/common/cars.cpp"
+  },
+  {
+    "unit": "cars",
+    "symbol": "Cars_FindCurrentLap__FP8Car_tObj",
+    "name": "Cars_FindCurrentLap",
+    "old_return": "void",
+    "old_args": "Car_tObj *carObj",
+    "definition": [
+      "void Cars_FindCurrentLap(Car_tObj *carObj)"
+    ],
+    "native": {
+      "record": "1fbf87",
+      "va": "8008abc8",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1fe48d: $00000004 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj"
+    ],
+    "line": "void Cars_FindCurrentLap__FP8Car_tObj(Car_tObj *carObj);   /* :2590 */",
+    "action": "correct",
+    "corrected": "void Cars_FindCurrentLap(Car_tObj *carObj);",
+    "source_path": "recon/game/common/cars.cpp"
+  },
+  {
+    "unit": "cars",
+    "symbol": "Cars_CalculateRoadSpan__FP8Car_tObj",
+    "name": "Cars_CalculateRoadSpan",
+    "old_return": "int",
+    "old_args": "Car_tObj *carObj",
+    "definition": [
+      "int Cars_CalculateRoadSpan(Car_tObj *carObj)"
+    ],
+    "native": {
+      "record": "1fbfb5",
+      "va": "8008ac80",
+      "type": "INT size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1fe538: $00000004 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj"
+    ],
+    "line": "int Cars_CalculateRoadSpan__FP8Car_tObj(Car_tObj *carObj);   /* :2624 */",
+    "action": "correct",
+    "corrected": "int Cars_CalculateRoadSpan(Car_tObj *carObj);",
+    "source_path": "recon/game/common/cars.cpp"
+  },
+  {
+    "unit": "cars",
+    "symbol": "Cars_CalculateRoadPosition__FP8Car_tObj",
+    "name": "Cars_CalculateRoadPosition",
+    "old_return": "int",
+    "old_args": "Car_tObj *carObj",
+    "definition": [
+      "int Cars_CalculateRoadPosition(Car_tObj *carObj)"
+    ],
+    "native": {
+      "record": "1fbfe6",
+      "va": "8008aec8",
+      "type": "INT size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1fe5f8: $00000004 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj"
+    ],
+    "line": "int Cars_CalculateRoadPosition__FP8Car_tObj(Car_tObj *carObj);   /* :2682 */",
+    "action": "correct",
+    "corrected": "int Cars_CalculateRoadPosition(Car_tObj *carObj);",
+    "source_path": "recon/game/common/cars.cpp"
+  },
+  {
+    "unit": "cars",
+    "symbol": "Cars_CalcVelDownRoad__FP8Car_tObj",
+    "name": "Cars_CalcVelDownRoad",
+    "old_return": "int",
+    "old_args": "Car_tObj *carObj",
+    "definition": [
+      "int Cars_CalcVelDownRoad(Car_tObj *carObj)"
+    ],
+    "native": {
+      "record": "1fc01b",
+      "va": "8008aee8",
+      "type": "INT size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "1fe68a: $00000004 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj"
+    ],
+    "line": "int Cars_CalcVelDownRoad__FP8Car_tObj(Car_tObj *carObj);   /* :2687 */",
+    "action": "correct",
+    "corrected": "int Cars_CalcVelDownRoad(Car_tObj *carObj);",
+    "source_path": "recon/game/common/cars.cpp"
+  },
+  {
+    "unit": "cars",
+    "symbol": "Cars_Randomize__Fv",
+    "name": "Cars_Randomize",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void Cars_Randomize(void)"
+    ],
+    "native": {
+      "record": "1fc04a",
+      "va": "8008af84",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void Cars_Randomize__Fv(void);   /* :2698 */",
+    "action": "correct",
+    "corrected": "void Cars_Randomize(void);",
+    "source_path": "recon/game/common/cars.cpp"
+  },
+  {
+    "unit": "cars",
+    "symbol": "Cars_ManageBureaucracy__Fv",
+    "name": "Cars_ManageBureaucracy",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void Cars_ManageBureaucracy(void)"
+    ],
+    "native": {
+      "record": "1fc06a",
+      "va": "8008affc",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void Cars_ManageBureaucracy__Fv(void);   /* :2712 */",
+    "action": "correct",
+    "corrected": "void Cars_ManageBureaucracy(void);",
+    "source_path": "recon/game/common/cars.cpp"
+  },
+  {
+    "unit": "cars",
+    "symbol": "Cars_CheckForAccidentScenes__Fv",
+    "name": "Cars_CheckForAccidentScenes",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void Cars_CheckForAccidentScenes(void)"
+    ],
+    "native": {
+      "record": "1fc092",
+      "va": "8008b1c4",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void Cars_CheckForAccidentScenes__Fv(void);   /* :2776 */",
+    "action": "correct",
+    "corrected": "void Cars_CheckForAccidentScenes(void);",
+    "source_path": "recon/game/common/cars.cpp"
+  },
+  {
+    "unit": "cars",
+    "symbol": "Cars_SortCars__Fv",
+    "name": "Cars_SortCars",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void Cars_SortCars(void)"
+    ],
+    "native": {
+      "record": "1fc0bf",
+      "va": "8008b28c",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void Cars_SortCars__Fv(void);   /* :2815 */",
+    "action": "correct",
+    "corrected": "void Cars_SortCars(void);",
+    "source_path": "recon/game/common/cars.cpp"
+  },
+  {
+    "unit": "chunk",
+    "symbol": "Chunk_UpdateSys__FP13DRender_tView",
+    "name": "Chunk_UpdateSys",
+    "old_return": "void",
+    "old_args": "DRender_tView *Vi",
+    "definition": [
+      "void Chunk_UpdateSys(DRender_tView *Vi)"
+    ],
+    "native": {
+      "record": "20579b",
+      "va": "8008b920",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "205ee0: $00000004 96 Def2 class REGPARM type PTR STRUCT size 140 dims 0 tag DRender_tView name Vi"
+    ],
+    "line": "void Chunk_UpdateSys__FP13DRender_tView(DRender_tView *Vi);   /* :274 */",
+    "action": "correct",
+    "corrected": "void Chunk_UpdateSys(DRender_tView *Vi);",
+    "source_path": "recon/game/common/chunk.cpp"
+  },
+  {
+    "unit": "chunk",
+    "symbol": "Chunk_Init__Fv",
+    "name": "Chunk_Init",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void Chunk_Init(void)"
+    ],
+    "native": {
+      "record": "2057cb",
+      "va": "8008b928",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void Chunk_Init__Fv(void);   /* :291 */",
+    "action": "correct",
+    "corrected": "void Chunk_Init(void);",
+    "source_path": "recon/game/common/chunk.cpp"
+  },
+  {
+    "unit": "chunk",
+    "symbol": "Chunk_DeInit__Fv",
+    "name": "Chunk_DeInit",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void Chunk_DeInit(void)"
+    ],
+    "native": {
+      "record": "2057e7",
+      "va": "8008b930",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void Chunk_DeInit__Fv(void);   /* :310 */",
+    "action": "correct",
+    "corrected": "void Chunk_DeInit(void);",
+    "source_path": "recon/game/common/chunk.cpp"
+  },
+  {
+    "unit": "copspeak",
+    "symbol": "CopSpeak_RadioStaticInit__Fv",
+    "name": "CopSpeak_RadioStaticInit",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void CopSpeak_RadioStaticInit(void)"
+    ],
+    "native": {
+      "record": "26a5c3",
+      "va": "800993dc",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void CopSpeak_RadioStaticInit__Fv(void);   /* :198 */",
+    "action": "correct",
+    "corrected": "void CopSpeak_RadioStaticInit(void);",
+    "source_path": "recon/game/common/copspeak.cpp"
+  },
+  {
+    "unit": "copspeak",
+    "symbol": "CopSpeak_RadioStaticActive__Fi",
+    "name": "CopSpeak_RadioStaticActive",
+    "old_return": "void",
+    "old_args": "int noise",
+    "definition": [
+      "void CopSpeak_RadioStaticActive(int noise)"
+    ],
+    "native": {
+      "record": "26a5ed",
+      "va": "80099418",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "26ab24: $00000004 94 Def class REGPARM type INT size 0 name noise"
+    ],
+    "line": "void CopSpeak_RadioStaticActive__Fi(int noise);   /* :210 */",
+    "action": "correct",
+    "corrected": "void CopSpeak_RadioStaticActive(int noise);",
+    "source_path": "recon/game/common/copspeak.cpp"
+  },
+  {
+    "unit": "copspeak",
+    "symbol": "CopSpeak_RadioStaticSquelch__Fv",
+    "name": "CopSpeak_RadioStaticSquelch",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void CopSpeak_RadioStaticSquelch(void)"
+    ],
+    "native": {
+      "record": "26a619",
+      "va": "80099588",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void CopSpeak_RadioStaticSquelch__Fv(void);   /* :259 */",
+    "action": "correct",
+    "corrected": "void CopSpeak_RadioStaticSquelch(void);",
+    "source_path": "recon/game/common/copspeak.cpp"
+  },
+  {
+    "unit": "copspeak",
+    "symbol": "CopSpeak_InitRequest__FP17CopSpeak_tRequest",
+    "name": "CopSpeak_InitRequest",
+    "old_return": "void",
+    "old_args": "CopSpeak_tRequest *r",
+    "definition": [
+      "void CopSpeak_InitRequest(CopSpeak_tRequest *r)"
+    ],
+    "native": {
+      "record": "26a646",
+      "va": "800995f0",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "26ad1a: $00000004 96 Def2 class REGPARM type PTR STRUCT size 32 dims 0 tag CopSpeak_tRequest name r"
+    ],
+    "line": "void CopSpeak_InitRequest__FP17CopSpeak_tRequest(CopSpeak_tRequest *r);   /* :276 */",
+    "action": "correct",
+    "corrected": "void CopSpeak_InitRequest(CopSpeak_tRequest *r);",
+    "source_path": "recon/game/common/copspeak.cpp"
+  },
+  {
+    "unit": "copspeak",
+    "symbol": "CopSpeak_SilenceCop__FP8Car_tObji",
+    "name": "CopSpeak_SilenceCop",
+    "old_return": "void",
+    "old_args": "Car_tObj *car, int playerIndex",
+    "definition": [
+      "void CopSpeak_SilenceCop(Car_tObj *car,int playerIndex)"
+    ],
+    "native": {
+      "record": "26a67f",
+      "va": "80099620",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "26adb4: $00000004 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name car",
+      "26add0: $00000005 94 Def class REGPARM type INT size 0 name playerIndex"
+    ],
+    "line": "void CopSpeak_SilenceCop__FP8Car_tObji(Car_tObj *car, int playerIndex);   /* :295 */",
+    "action": "correct",
+    "corrected": "void CopSpeak_SilenceCop(Car_tObj *car,int playerIndex);",
+    "source_path": "recon/game/common/copspeak.cpp"
+  },
+  {
+    "unit": "copspeak",
+    "symbol": "CopSpeak_Alloc__FP17CopSpeak_tRequest",
+    "name": "CopSpeak_Alloc",
+    "old_return": "void",
+    "old_args": "CopSpeak_tRequest *r",
+    "definition": [
+      "void CopSpeak_Alloc(CopSpeak_tRequest *r)"
+    ],
+    "native": {
+      "record": "26a6ae",
+      "va": "80099684",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "26ae64: $00000004 96 Def2 class REGPARM type PTR STRUCT size 32 dims 0 tag CopSpeak_tRequest name r"
+    ],
+    "line": "void CopSpeak_Alloc__FP17CopSpeak_tRequest(CopSpeak_tRequest *r);   /* :312 */",
+    "action": "correct",
+    "corrected": "void CopSpeak_Alloc(CopSpeak_tRequest *r);",
+    "source_path": "recon/game/common/copspeak.cpp"
+  },
+  {
+    "unit": "copspeak",
+    "symbol": "CopSpeak_Free__FP17CopSpeak_tRequest",
+    "name": "CopSpeak_Free",
+    "old_return": "void",
+    "old_args": "CopSpeak_tRequest *r",
+    "definition": [
+      "void CopSpeak_Free(CopSpeak_tRequest *r)"
+    ],
+    "native": {
+      "record": "26a6e1",
+      "va": "8009971c",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "26af01: $00000004 96 Def2 class REGPARM type PTR STRUCT size 32 dims 0 tag CopSpeak_tRequest name r"
+    ],
+    "line": "void CopSpeak_Free__FP17CopSpeak_tRequest(CopSpeak_tRequest *r);   /* :344 */",
+    "action": "correct",
+    "corrected": "void CopSpeak_Free(CopSpeak_tRequest *r);",
+    "source_path": "recon/game/common/copspeak.cpp"
+  },
+  {
+    "unit": "copspeak",
+    "symbol": "CopSpeak_ReadyNextRequest__Fv",
+    "name": "CopSpeak_ReadyNextRequest",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void CopSpeak_ReadyNextRequest(void)"
+    ],
+    "native": {
+      "record": "26a713",
+      "va": "800997ac",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void CopSpeak_ReadyNextRequest__Fv(void);   /* :367 */",
+    "action": "correct",
+    "corrected": "void CopSpeak_ReadyNextRequest(void);",
+    "source_path": "recon/game/common/copspeak.cpp"
+  },
+  {
+    "unit": "copspeak",
+    "symbol": "CopSpeak_Cancel__Fv",
+    "name": "CopSpeak_Cancel",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void CopSpeak_Cancel(void)"
+    ],
+    "native": {
+      "record": "26a73e",
+      "va": "80099a1c",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void CopSpeak_Cancel__Fv(void);   /* :539 */",
+    "action": "correct",
+    "corrected": "void CopSpeak_Cancel(void);",
+    "source_path": "recon/game/common/copspeak.cpp"
+  },
+  {
+    "unit": "copspeak",
+    "symbol": "CopSpeak_Stop__Fv",
+    "name": "CopSpeak_Stop",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void CopSpeak_Stop(void)"
+    ],
+    "native": {
+      "record": "26a75f",
+      "va": "80099abc",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void CopSpeak_Stop__Fv(void);   /* :582 */",
+    "action": "correct",
+    "corrected": "void CopSpeak_Stop(void);",
+    "source_path": "recon/game/common/copspeak.cpp"
+  },
+  {
+    "unit": "copspeak",
+    "symbol": "CopSpeak_CleanUp__Fv",
+    "name": "CopSpeak_CleanUp",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void CopSpeak_CleanUp(void)"
+    ],
+    "native": {
+      "record": "26a77e",
+      "va": "80099adc",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void CopSpeak_CleanUp__Fv(void);   /* :592 */",
+    "action": "correct",
+    "corrected": "void CopSpeak_CleanUp(void);",
+    "source_path": "recon/game/common/copspeak.cpp"
+  },
+  {
+    "unit": "copspeak",
+    "symbol": "CopSpeak_InitVars__Fv",
+    "name": "CopSpeak_InitVars",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void CopSpeak_InitVars(void)"
+    ],
+    "native": {
+      "record": "26a7a0",
+      "va": "80099b70",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void CopSpeak_InitVars__Fv(void);   /* :628 */",
+    "action": "correct",
+    "corrected": "void CopSpeak_InitVars(void);",
+    "source_path": "recon/game/common/copspeak.cpp"
+  },
+  {
+    "unit": "copspeak",
+    "symbol": "CopSpeak_DirectRequest__FillP8Car_tObjPc",
+    "name": "CopSpeak_DirectRequest",
+    "old_return": "void",
+    "old_args": "int filehandle, long offset, long size, Car_tObj *car, char *name",
+    "definition": [
+      "void CopSpeak_DirectRequest(int filehandle,long offset,long size,Car_tObj *car,char *name)"
+    ],
+    "native": {
+      "record": "26a7c3",
+      "va": "80099bec",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "26b2b3: $00000012 94 Def class REGPARM type INT size 0 name filehandle",
+      "26b2cb: $00000013 94 Def class REGPARM type LONG size 0 name offset",
+      "26b2df: $00000014 94 Def class REGPARM type LONG size 0 name size",
+      "26b2f1: $00000015 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name car",
+      "26b30d: $00000010 94 Def class ARG type PTR CHAR size 0 name name"
+    ],
+    "line": "void CopSpeak_DirectRequest__FillP8Car_tObjPc(int filehandle, long offset, long size, Car_tObj *car, char *name);   /* :656 */",
+    "action": "correct",
+    "corrected": "void CopSpeak_DirectRequest(int filehandle,long offset,long size,Car_tObj *car,char *name);",
+    "source_path": "recon/game/common/copspeak.cpp"
+  },
+  {
+    "unit": "copspeak",
+    "symbol": "CopSpeak_GenericBankRequest__FiP8Car_tObj",
+    "name": "CopSpeak_GenericBankRequest",
+    "old_return": "void",
+    "old_args": "int patch, Car_tObj *car",
+    "definition": [
+      "void CopSpeak_GenericBankRequest(int patch,Car_tObj *car)"
+    ],
+    "native": {
+      "record": "26a7f9",
+      "va": "80099c98",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "26b3d3: $00000012 94 Def class REGPARM type INT size 0 name patch",
+      "26b3e6: $00000013 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name car"
+    ],
+    "line": "void CopSpeak_GenericBankRequest__FiP8Car_tObj(int patch, Car_tObj *car);   /* :682 */",
+    "action": "correct",
+    "corrected": "void CopSpeak_GenericBankRequest(int patch,Car_tObj *car);",
+    "source_path": "recon/game/common/copspeak.cpp"
+  },
+  {
+    "unit": "copspeak",
+    "symbol": "CopSpeak_StartUp__Fv",
+    "name": "CopSpeak_StartUp",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void CopSpeak_StartUp(void)"
+    ],
+    "native": {
+      "record": "26a830",
+      "va": "80099d3c",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void CopSpeak_StartUp__Fv(void);   /* :709 */",
+    "action": "correct",
+    "corrected": "void CopSpeak_StartUp(void);",
+    "source_path": "recon/game/common/copspeak.cpp"
+  },
+  {
+    "unit": "copspeak",
+    "symbol": "CopSpeak_GetEnginePatch__Fii",
+    "name": "CopSpeak_GetEnginePatch",
+    "old_return": "int",
+    "old_args": "int type, int timbre",
+    "definition": [
+      "int CopSpeak_GetEnginePatch(int type,int timbre)"
+    ],
+    "native": {
+      "record": "26a852",
+      "va": "8009a2cc",
+      "type": "INT size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "26b79e: $00000004 94 Def class REGPARM type INT size 0 name type",
+      "26b7b0: $00000005 94 Def class REGPARM type INT size 0 name timbre"
+    ],
+    "line": "int CopSpeak_GetEnginePatch__Fii(int type, int timbre);   /* :885 */",
+    "action": "correct",
+    "corrected": "int CopSpeak_GetEnginePatch(int type,int timbre);",
+    "source_path": "recon/game/common/copspeak.cpp"
+  },
+  {
+    "unit": "copspeak",
+    "symbol": "CopSpeak_Play__FP17CopSpeak_tRequesti",
+    "name": "CopSpeak_Play",
+    "old_return": "int",
+    "old_args": "CopSpeak_tRequest *r, int handle",
+    "definition": [
+      "int CopSpeak_Play(CopSpeak_tRequest *r,int handle)"
+    ],
+    "native": {
+      "record": "26a87c",
+      "va": "8009a304",
+      "type": "INT size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "26b852: $00000010 96 Def2 class REGPARM type PTR STRUCT size 32 dims 0 tag CopSpeak_tRequest name r",
+      "26b875: $00000011 94 Def class REGPARM type INT size 0 name handle"
+    ],
+    "line": "int CopSpeak_Play__FP17CopSpeak_tRequesti(CopSpeak_tRequest *r, int handle);   /* :920 */",
+    "action": "correct",
+    "corrected": "int CopSpeak_Play(CopSpeak_tRequest *r,int handle);",
+    "source_path": "recon/game/common/copspeak.cpp"
+  },
+  {
+    "unit": "copspeak",
+    "symbol": "CopSpeak_Skip__Fv",
+    "name": "CopSpeak_Skip",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void CopSpeak_Skip(void)"
+    ],
+    "native": {
+      "record": "26a8af",
+      "va": "8009a45c",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void CopSpeak_Skip__Fv(void);   /* :1028 */",
+    "action": "correct",
+    "corrected": "void CopSpeak_Skip(void);",
+    "source_path": "recon/game/common/copspeak.cpp"
+  },
+  {
+    "unit": "copspeak",
+    "symbol": "CopSpeak_Request__FP17CopSpeak_tRequest",
+    "name": "CopSpeak_Request",
+    "old_return": "int",
+    "old_args": "CopSpeak_tRequest *r",
+    "definition": [
+      "int CopSpeak_Request(CopSpeak_tRequest *r)"
+    ],
+    "native": {
+      "record": "26a8ce",
+      "va": "8009a4c8",
+      "type": "INT size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "26b9ed: $00000004 96 Def2 class REGPARM type PTR STRUCT size 32 dims 0 tag CopSpeak_tRequest name r"
+    ],
+    "line": "int CopSpeak_Request__FP17CopSpeak_tRequest(CopSpeak_tRequest *r);   /* :1051 */",
+    "action": "correct",
+    "corrected": "int CopSpeak_Request(CopSpeak_tRequest *r);",
+    "source_path": "recon/game/common/copspeak.cpp"
+  },
+  {
+    "unit": "copspeak",
+    "symbol": "CopSpeak_BankVolume__FP17CopSpeak_tRequest",
+    "name": "CopSpeak_BankVolume",
+    "old_return": "int",
+    "old_args": "CopSpeak_tRequest *r",
+    "definition": [
+      "int CopSpeak_BankVolume(CopSpeak_tRequest *r)"
+    ],
+    "native": {
+      "record": "26a903",
+      "va": "8009a604",
+      "type": "INT size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "26bac5: $00000004 96 Def2 class REGPARM type PTR STRUCT size 32 dims 0 tag CopSpeak_tRequest name r"
+    ],
+    "line": "int CopSpeak_BankVolume__FP17CopSpeak_tRequest(CopSpeak_tRequest *r);   /* :1095 */",
+    "action": "correct",
+    "corrected": "int CopSpeak_BankVolume(CopSpeak_tRequest *r);",
+    "source_path": "recon/game/common/copspeak.cpp"
+  },
+  {
+    "unit": "copspeak",
+    "symbol": "CopSpeak_LoadNextRequest__Fv",
+    "name": "CopSpeak_LoadNextRequest",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void CopSpeak_LoadNextRequest(void)"
+    ],
+    "native": {
+      "record": "26a93b",
+      "va": "8009a634",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void CopSpeak_LoadNextRequest__Fv(void);   /* :1115 */",
+    "action": "correct",
+    "corrected": "void CopSpeak_LoadNextRequest(void);",
+    "source_path": "recon/game/common/copspeak.cpp"
+  },
+  {
+    "unit": "copspeak",
+    "symbol": "CopSpeak_PlayNextRequest__Fv",
+    "name": "CopSpeak_PlayNextRequest",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void CopSpeak_PlayNextRequest(void)"
+    ],
+    "native": {
+      "record": "26a965",
+      "va": "8009a828",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void CopSpeak_PlayNextRequest__Fv(void);   /* :1191 */",
+    "action": "correct",
+    "corrected": "void CopSpeak_PlayNextRequest(void);",
+    "source_path": "recon/game/common/copspeak.cpp"
+  },
+  {
+    "unit": "copspeak",
+    "symbol": "CopSpeak_Flush__Fv",
+    "name": "CopSpeak_Flush",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void CopSpeak_Flush(void)"
+    ],
+    "native": {
+      "record": "26a98f",
+      "va": "8009a944",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void CopSpeak_Flush__Fv(void);   /* :1257 */",
+    "action": "correct",
+    "corrected": "void CopSpeak_Flush(void);",
+    "source_path": "recon/game/common/copspeak.cpp"
+  },
+  {
+    "unit": "copspeak",
+    "symbol": "CopSpeak_Server__Fv",
+    "name": "CopSpeak_Server",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void CopSpeak_Server(void)"
+    ],
+    "native": {
+      "record": "26a9af",
+      "va": "8009a994",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void CopSpeak_Server__Fv(void);   /* :1271 */",
+    "action": "correct",
+    "corrected": "void CopSpeak_Server(void);",
+    "source_path": "recon/game/common/copspeak.cpp"
+  },
+  {
+    "unit": "copspeak",
+    "symbol": "CopSpeak_SfxQueued__Fv",
+    "name": "CopSpeak_SfxQueued",
+    "old_return": "int",
+    "old_args": "void",
+    "definition": [
+      "int CopSpeak_SfxQueued(void)"
+    ],
+    "native": {
+      "record": "26a9d0",
+      "va": "8009ac60",
+      "type": "INT size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "int CopSpeak_SfxQueued__Fv(void);   /* :1359 */",
+    "action": "correct",
+    "corrected": "int CopSpeak_SfxQueued(void);",
+    "source_path": "recon/game/common/copspeak.cpp"
+  },
+  {
+    "unit": "copspeak",
+    "symbol": "CopSpeak_ShowQueue__Fv",
+    "name": "CopSpeak_ShowQueue",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void CopSpeak_ShowQueue(void)"
+    ],
+    "native": {
+      "record": "26a9f4",
+      "va": "8009accc",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void CopSpeak_ShowQueue__Fv(void);   /* :1377 */",
+    "action": "correct",
+    "corrected": "void CopSpeak_ShowQueue(void);",
+    "source_path": "recon/game/common/copspeak.cpp"
+  },
+  {
+    "unit": "copspeak",
+    "symbol": "CopSpeak_Debug__Fv",
+    "name": "CopSpeak_Debug",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void CopSpeak_Debug(void)"
+    ],
+    "native": {
+      "record": "26aa18",
+      "va": "8009ae9c",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void CopSpeak_Debug__Fv(void);   /* :1509 */",
+    "action": "correct",
+    "corrected": "void CopSpeak_Debug(void);",
+    "source_path": "recon/game/common/copspeak.cpp"
+  },
+  {
+    "unit": "dashhud",
+    "symbol": "DashHUD_InitHUD__Fv",
+    "name": "DashHUD_InitHUD",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void DashHUD_InitHUD(void)"
+    ],
+    "native": {
+      "record": "274c0d",
+      "va": "8009aebc",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void DashHUD_InitHUD__Fv(void);   /* :38 */",
+    "action": "correct",
+    "corrected": "void DashHUD_InitHUD(void);",
+    "source_path": "recon/game/common/dashhud.cpp"
+  },
+  {
+    "unit": "dashhud",
+    "symbol": "DashHUD_KillHUD__Fv",
+    "name": "DashHUD_KillHUD",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void DashHUD_KillHUD(void)"
+    ],
+    "native": {
+      "record": "274c2e",
+      "va": "8009aff0",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void DashHUD_KillHUD__Fv(void);   /* :101 */",
+    "action": "correct",
+    "corrected": "void DashHUD_KillHUD(void);",
+    "source_path": "recon/game/common/dashhud.cpp"
+  },
+  {
+    "unit": "dashhud",
+    "symbol": "DashHUD_ResetHUD__Fv",
+    "name": "DashHUD_ResetHUD",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void DashHUD_ResetHUD(void)"
+    ],
+    "native": {
+      "record": "274c4f",
+      "va": "8009b010",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void DashHUD_ResetHUD__Fv(void);   /* :106 */",
+    "action": "correct",
+    "corrected": "void DashHUD_ResetHUD(void);",
+    "source_path": "recon/game/common/dashhud.cpp"
+  },
+  {
+    "unit": "dashhud",
+    "symbol": "DashHUD_ToggleHud__Fi",
+    "name": "DashHUD_ToggleHud",
+    "old_return": "void",
+    "old_args": "int player",
+    "definition": [
+      "void DashHUD_ToggleHud(int player)"
+    ],
+    "native": {
+      "record": "274c71",
+      "va": "8009b074",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "274e73: $00000004 94 Def class REGPARM type INT size 0 name player"
+    ],
+    "line": "void DashHUD_ToggleHud__Fi(int player);   /* :125 */",
+    "action": "correct",
+    "corrected": "void DashHUD_ToggleHud(int player);",
+    "source_path": "recon/game/common/dashhud.cpp"
+  },
+  {
+    "unit": "dashhud",
+    "symbol": "DashHUD_CheckWrongWay__Fi",
+    "name": "DashHUD_CheckWrongWay",
+    "old_return": "void",
+    "old_args": "int player",
+    "definition": [
+      "void DashHUD_CheckWrongWay(int player)"
+    ],
+    "native": {
+      "record": "274c94",
+      "va": "8009b098",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "274ef5: $00000004 94 Def class REGPARM type INT size 0 name player"
+    ],
+    "line": "void DashHUD_CheckWrongWay__Fi(int player);   /* :151 */",
+    "action": "correct",
+    "corrected": "void DashHUD_CheckWrongWay(int player);",
+    "source_path": "recon/game/common/dashhud.cpp"
+  },
+  {
+    "unit": "dashhud",
+    "symbol": "DashHUD_HUDCalc__Fi",
+    "name": "DashHUD_HUDCalc",
+    "old_return": "void",
+    "old_args": "int player",
+    "definition": [
+      "void DashHUD_HUDCalc(int player)"
+    ],
+    "native": {
+      "record": "274cbb",
+      "va": "8009b108",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "274fa3: $00000004 94 Def class REGPARM type INT size 0 name player"
+    ],
+    "line": "void DashHUD_HUDCalc__Fi(int player);   /* :171 */",
+    "action": "correct",
+    "corrected": "void DashHUD_HUDCalc(int player);",
+    "source_path": "recon/game/common/dashhud.cpp"
+  },
+  {
+    "unit": "genericpmx",
+    "symbol": "GenericPMX_LoadTexture__Fv",
+    "name": "GenericPMX_LoadTexture",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void GenericPMX_LoadTexture(void)"
+    ],
+    "native": {
+      "record": "27b589",
+      "va": "8009b458",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void GenericPMX_LoadTexture__Fv(void);   /* :54 */",
+    "action": "correct",
+    "corrected": "void GenericPMX_LoadTexture(void);",
+    "source_path": "recon/game/common/genericpmx.cpp"
+  },
+  {
+    "unit": "hudpmx",
+    "symbol": "HudPmx_LoadShape__FPcP13HudPmx_tShape",
+    "name": "HudPmx_LoadShape",
+    "old_return": "void",
+    "old_args": "char *n, HudPmx_tShape *s",
+    "definition": [
+      "static void HudPmx_LoadShape(char *n,HudPmx_tShape *s)"
+    ],
+    "native": {
+      "record": "2326e1",
+      "va": "80092464",
+      "type": "VOID size 0",
+      "storage": "STAT"
+    },
+    "parameter_records": [
+      "2327b4: $00000011 94 Def class REGPARM type PTR CHAR size 0 name n",
+      "2327c3: $00000010 96 Def2 class REGPARM type PTR STRUCT size 20 dims 0 tag HudPmx_tShape name s"
+    ],
+    "line": "void HudPmx_LoadShape__FPcP13HudPmx_tShape(char *n, HudPmx_tShape *s);   /* :24 */",
+    "action": "remove_private",
+    "corrected": "void HudPmx_LoadShape(char *n,HudPmx_tShape *s);",
+    "source_path": "recon/game/common/hudpmx.cpp"
+  },
+  {
+    "unit": "hudpmx",
+    "symbol": "HudPmx_InitTextures__Fv",
+    "name": "HudPmx_InitTextures",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void HudPmx_InitTextures(void)"
+    ],
+    "native": {
+      "record": "232714",
+      "va": "800924dc",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void HudPmx_InitTextures__Fv(void);   /* :40 */",
+    "action": "correct",
+    "corrected": "void HudPmx_InitTextures(void);",
+    "source_path": "recon/game/common/hudpmx.cpp"
+  },
+  {
+    "unit": "hudpmx",
+    "symbol": "HudPmx_Kill__Fv",
+    "name": "HudPmx_Kill",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void HudPmx_Kill(void)"
+    ],
+    "native": {
+      "record": "232739",
+      "va": "80092f30",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void HudPmx_Kill__Fv(void);   /* :209 */",
+    "action": "correct",
+    "corrected": "void HudPmx_Kill(void);",
+    "source_path": "recon/game/common/hudpmx.cpp"
+  },
+  {
+    "unit": "mpause",
+    "symbol": "MPause_MusicLogic__Fc",
+    "name": "MPause_MusicLogic",
+    "old_return": "void",
+    "old_args": "char active",
+    "definition": [
+      "void MPause_MusicLogic(char active)"
+    ],
+    "native": {
+      "record": "2a0a70",
+      "va": "8009e3e8",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "2a0d02: $00000012 94 Def class REGPARM type CHAR size 0 name active"
+    ],
+    "line": "void MPause_MusicLogic__Fc(char active);   /* :290 */",
+    "action": "correct",
+    "corrected": "void MPause_MusicLogic(char active);",
+    "source_path": "recon/game/common/mpause.cpp"
+  },
+  {
+    "unit": "mpause",
+    "symbol": "MPause_ControllerLogic__Fv",
+    "name": "MPause_ControllerLogic",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void MPause_ControllerLogic(void)"
+    ],
+    "native": {
+      "record": "2a0a93",
+      "va": "8009e6a0",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void MPause_ControllerLogic__Fv(void);   /* :376 */",
+    "action": "correct",
+    "corrected": "void MPause_ControllerLogic(void);",
+    "source_path": "recon/game/common/mpause.cpp"
+  },
+  {
+    "unit": "mpause",
+    "symbol": "MPause_Logic__Fv",
+    "name": "MPause_Logic",
+    "old_return": "int",
+    "old_args": "void",
+    "definition": [
+      "int MPause_Logic(void)"
+    ],
+    "native": {
+      "record": "2a0abb",
+      "va": "8009e784",
+      "type": "INT size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "int MPause_Logic__Fv(void);   /* :390 */",
+    "action": "correct",
+    "corrected": "int MPause_Logic(void);",
+    "source_path": "recon/game/common/mpause.cpp"
+  },
+  {
+    "unit": "mpause",
+    "symbol": "MPause_Render__Fv",
+    "name": "MPause_Render",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void MPause_Render(void)"
+    ],
+    "native": {
+      "record": "2a0ad9",
+      "va": "8009eaa0",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void MPause_Render__Fv(void);   /* :490 */",
+    "action": "correct",
+    "corrected": "void MPause_Render(void);",
+    "source_path": "recon/game/common/mpause.cpp"
+  },
+  {
+    "unit": "mpause",
+    "symbol": "MPause_InitMPause__Fv",
+    "name": "MPause_InitMPause",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void MPause_InitMPause(void)"
+    ],
+    "native": {
+      "record": "2a0af8",
+      "va": "8009ec48",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void MPause_InitMPause__Fv(void);   /* :540 */",
+    "action": "correct",
+    "corrected": "void MPause_InitMPause(void);",
+    "source_path": "recon/game/common/mpause.cpp"
+  },
+  {
+    "unit": "mpause",
+    "symbol": "MPause_StartPauseMenu__Fv",
+    "name": "MPause_StartPauseMenu",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void MPause_StartPauseMenu(void)"
+    ],
+    "native": {
+      "record": "2a0b1b",
+      "va": "8009ec80",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void MPause_StartPauseMenu__Fv(void);   /* :548 */",
+    "action": "correct",
+    "corrected": "void MPause_StartPauseMenu(void);",
+    "source_path": "recon/game/common/mpause.cpp"
+  },
+  {
+    "unit": "mpause",
+    "symbol": "MPause_EndPauseMenu__Fv",
+    "name": "MPause_EndPauseMenu",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void MPause_EndPauseMenu(void)"
+    ],
+    "native": {
+      "record": "2a0b42",
+      "va": "8009eeb0",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void MPause_EndPauseMenu__Fv(void);   /* :598 */",
+    "action": "correct",
+    "corrected": "void MPause_EndPauseMenu(void);",
+    "source_path": "recon/game/common/mpause.cpp"
+  },
+  {
+    "unit": "mpause",
+    "symbol": "MPause_KillMPause__Fv",
+    "name": "MPause_KillMPause",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void MPause_KillMPause(void)"
+    ],
+    "native": {
+      "record": "2a0b67",
+      "va": "8009eeec",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void MPause_KillMPause__Fv(void);   /* :605 */",
+    "action": "correct",
+    "corrected": "void MPause_KillMPause(void);",
+    "source_path": "recon/game/common/mpause.cpp"
+  },
+  {
+    "unit": "nfs3",
+    "symbol": "Nfs2_SystemNLibStartUp__Fv",
+    "name": "Nfs2_SystemNLibStartUp",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void Nfs2_SystemNLibStartUp(void)"
+    ],
+    "native": {
+      "record": "2c6923",
+      "va": "800a3dec",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void Nfs2_SystemNLibStartUp__Fv(void);   /* :118 */",
+    "action": "correct",
+    "corrected": "void Nfs2_SystemNLibStartUp(void);",
+    "source_path": "recon/game/common/nfs3.cpp"
+  },
+  {
+    "unit": "nfs3",
+    "symbol": "Nfs2_BefuddleCode__Fv",
+    "name": "Nfs2_BefuddleCode",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void Nfs2_BefuddleCode(void)"
+    ],
+    "native": {
+      "record": "2c694b",
+      "va": "800a3e50",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void Nfs2_BefuddleCode__Fv(void);   /* :178 */",
+    "action": "correct",
+    "corrected": "void Nfs2_BefuddleCode(void);",
+    "source_path": "recon/game/common/nfs3.cpp"
+  },
+  {
+    "unit": "nfs3",
+    "symbol": "Nfs2_ResetGame__Fv",
+    "name": "Nfs2_ResetGame",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void Nfs2_ResetGame(void)"
+    ],
+    "native": {
+      "record": "2c696e",
+      "va": "800a3ea8",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void Nfs2_ResetGame__Fv(void);   /* :186 */",
+    "action": "correct",
+    "corrected": "void Nfs2_ResetGame(void);",
+    "source_path": "recon/game/common/nfs3.cpp"
+  },
+  {
+    "unit": "nfs3",
+    "symbol": "NFS4_LoadPerps__Fv",
+    "name": "NFS4_LoadPerps",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "static void NFS4_LoadPerps(void)"
+    ],
+    "native": {
+      "record": "2c698e",
+      "va": "800a3f08",
+      "type": "VOID size 0",
+      "storage": "STAT"
+    },
+    "parameter_records": [],
+    "line": "void NFS4_LoadPerps__Fv(void);   /* :247 */",
+    "action": "remove_private",
+    "corrected": "void NFS4_LoadPerps(void);",
+    "source_path": "recon/game/common/nfs3.cpp"
+  },
+  {
+    "unit": "nfs3",
+    "symbol": "Nfs2_GameModuleStartUp__FPi",
+    "name": "Nfs2_GameModuleStartUp",
+    "old_return": "void",
+    "old_args": "int *FrontEndDataStream",
+    "definition": [
+      "void Nfs2_GameModuleStartUp(int *FrontEndDataStream)"
+    ],
+    "native": {
+      "record": "2c69ae",
+      "va": "800a41a8",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "2c6e22: $00000010 94 Def class REGPARM type PTR INT size 0 name FrontEndDataStream"
+    ],
+    "line": "void Nfs2_GameModuleStartUp__FPi(int *FrontEndDataStream);   /* :357 */",
+    "action": "correct",
+    "corrected": "void Nfs2_GameModuleStartUp(int *FrontEndDataStream);",
+    "source_path": "recon/game/common/nfs3.cpp"
+  },
+  {
+    "unit": "nfs3",
+    "symbol": "Nfs2_CleanUpGameModule__Fv",
+    "name": "Nfs2_CleanUpGameModule",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void Nfs2_CleanUpGameModule(void)"
+    ],
+    "native": {
+      "record": "2c69d7",
+      "va": "800a4354",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void Nfs2_CleanUpGameModule__Fv(void);   /* :464 */",
+    "action": "correct",
+    "corrected": "void Nfs2_CleanUpGameModule(void);",
+    "source_path": "recon/game/common/nfs3.cpp"
+  },
+  {
+    "unit": "nfs3",
+    "symbol": "LoadFrontendOverlay__Fv",
+    "name": "LoadFrontendOverlay",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void LoadFrontendOverlay(void)"
+    ],
+    "native": {
+      "record": "2c69ff",
+      "va": "800a44f8",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void LoadFrontendOverlay__Fv(void);   /* :560 */",
+    "action": "correct",
+    "corrected": "void LoadFrontendOverlay(void);",
+    "source_path": "recon/game/common/nfs3.cpp"
+  },
+  {
+    "unit": "nfs3",
+    "symbol": "LoadOverlay__Fv",
+    "name": "LoadOverlay",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void LoadOverlay(void)"
+    ],
+    "native": {
+      "record": "2c6a24",
+      "va": "800a454c",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void LoadOverlay__Fv(void);   /* :589 */",
+    "action": "correct",
+    "corrected": "void LoadOverlay(void);",
+    "source_path": "recon/game/common/nfs3.cpp"
+  },
+  {
+    "unit": "nfs3",
+    "symbol": "NFS4_LoadingIcon__Fv",
+    "name": "NFS4_LoadingIcon",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void NFS4_LoadingIcon(void)"
+    ],
+    "native": {
+      "record": "2c6a41",
+      "va": "800a45b8",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void NFS4_LoadingIcon__Fv(void);   /* :626 */",
+    "action": "correct",
+    "corrected": "void NFS4_LoadingIcon(void);",
+    "source_path": "recon/game/common/nfs3.cpp"
+  },
+  {
+    "unit": "nfs3",
+    "symbol": "NFS3_CheckForFileOperations__Fv",
+    "name": "NFS3_CheckForFileOperations",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void NFS3_CheckForFileOperations(void)"
+    ],
+    "native": {
+      "record": "2c6a63",
+      "va": "800a46dc",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void NFS3_CheckForFileOperations__Fv(void);   /* :686 */",
+    "action": "correct",
+    "corrected": "void NFS3_CheckForFileOperations(void);",
+    "source_path": "recon/game/common/nfs3.cpp"
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "PauseMenu_FullText__FPcsss",
+    "name": "PauseMenu_FullText",
+    "old_return": "void",
+    "old_args": "char *sMenuText, short x, short flags, short color",
+    "definition": [
+      "void PauseMenu_FullText(char *sMenuText,short x,short flags,short color)"
+    ],
+    "native": {
+      "record": "2ec859",
+      "va": "800a6e60",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "2ed552: $00000004 94 Def class REGPARM type PTR CHAR size 0 name sMenuText",
+      "2ed569: $00000010 94 Def class REGPARM type SHORT size 0 name x",
+      "2ed578: $00000006 94 Def class REGPARM type SHORT size 0 name flags",
+      "2ed58b: $00000012 94 Def class REGPARM type SHORT size 0 name color"
+    ],
+    "line": "void PauseMenu_FullText__FPcsss(char *sMenuText, short x, short flags, short color);   /* :60 */",
+    "action": "correct",
+    "corrected": "void PauseMenu_FullText(char *sMenuText,short x,short flags,short color);",
+    "source_path": "recon/game/common/pausemenu.cpp"
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "PauseMenu_MenuTextPositioned__Fssss",
+    "name": "PauseMenu_MenuTextPositioned",
+    "old_return": "void",
+    "old_args": "short index, short selected, short disabled, short x",
+    "definition": [
+      "void PauseMenu_MenuTextPositioned(short index,short selected,short disabled,short x)"
+    ],
+    "native": {
+      "record": "2ec881",
+      "va": "800a6f14",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "2ed629: $00000004 94 Def class REGPARM type SHORT size 0 name index",
+      "2ed63c: $00000005 94 Def class REGPARM type SHORT size 0 name selected",
+      "2ed652: $00000006 94 Def class REGPARM type SHORT size 0 name disabled",
+      "2ed668: $00000007 94 Def class REGPARM type SHORT size 0 name x"
+    ],
+    "line": "void PauseMenu_MenuTextPositioned__Fssss(short index, short selected, short disabled, short x);   /* :87 */",
+    "action": "correct",
+    "corrected": "void PauseMenu_MenuTextPositioned(short index,short selected,short disabled,short x);",
+    "source_path": "recon/game/common/pausemenu.cpp"
+  },
+  {
+    "unit": "pausemenu",
+    "symbol": "PauseMenu_MenuText__FsbT1",
+    "name": "PauseMenu_MenuText",
+    "old_return": "void",
+    "old_args": "short index, BOOL selected, BOOL disabled",
+    "definition": [
+      "void PauseMenu_MenuText(short index,bool selected,bool disabled)"
+    ],
+    "native": {
+      "record": "2ec8b2",
+      "va": "800a6f8c",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "2ed70b: $00000004 94 Def class REGPARM type SHORT size 0 name index",
+      "2ed71e: $00000011 94 Def class REGPARM type BOOL size 0 name selected",
+      "2ed734: $00000012 94 Def class REGPARM type BOOL size 0 name disabled"
+    ],
+    "line": "void PauseMenu_MenuText__FsbT1(short index, BOOL selected, BOOL disabled);   /* :103 */",
+    "action": "correct",
+    "corrected": "void PauseMenu_MenuText(short index,bool selected,bool disabled);",
+    "source_path": "recon/game/common/pausemenu.cpp"
+  },
+  {
+    "unit": "r3dcar",
+    "symbol": "R3DCar_ChangeTrafficColor__FP8Car_tObji",
+    "name": "R3DCar_ChangeTrafficColor",
+    "old_return": "void",
+    "old_args": "Car_tObj *carObj, int newColorIndex",
+    "definition": [
+      "void R3DCar_ChangeTrafficColor(Car_tObj *carObj,int newColorIndex)"
+    ],
+    "native": {
+      "record": "3104d6",
+      "va": "800adc2c",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "310a7b: $00000010 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj",
+      "310a9a: $00000011 94 Def class REGPARM type INT size 0 name newColorIndex"
+    ],
+    "line": "void R3DCar_ChangeTrafficColor__FP8Car_tObji(Car_tObj *carObj, int newColorIndex);   /* :386 */",
+    "action": "correct",
+    "corrected": "void R3DCar_ChangeTrafficColor(Car_tObj *carObj,int newColorIndex);",
+    "source_path": "recon/game/common/r3dcar.cpp"
+  },
+  {
+    "unit": "r3dcar",
+    "symbol": "R3DCar_StartUp__Fv",
+    "name": "R3DCar_StartUp",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void R3DCar_StartUp(void)"
+    ],
+    "native": {
+      "record": "31050b",
+      "va": "800add14",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void R3DCar_StartUp__Fv(void);   /* :424 */",
+    "action": "correct",
+    "corrected": "void R3DCar_StartUp(void);",
+    "source_path": "recon/game/common/r3dcar.cpp"
+  },
+  {
+    "unit": "r3dcar",
+    "symbol": "R3DCar_PostStartUp__Fv",
+    "name": "R3DCar_PostStartUp",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void R3DCar_PostStartUp(void)"
+    ],
+    "native": {
+      "record": "31052b",
+      "va": "800adde4",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void R3DCar_PostStartUp__Fv(void);   /* :466 */",
+    "action": "correct",
+    "corrected": "void R3DCar_PostStartUp(void);",
+    "source_path": "recon/game/common/r3dcar.cpp"
+  },
+  {
+    "unit": "r3dcar",
+    "symbol": "R3DCar_Restart__Fv",
+    "name": "R3DCar_Restart",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void R3DCar_Restart(void)"
+    ],
+    "native": {
+      "record": "31054f",
+      "va": "800adec8",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void R3DCar_Restart__Fv(void);   /* :495 */",
+    "action": "correct",
+    "corrected": "void R3DCar_Restart(void);",
+    "source_path": "recon/game/common/r3dcar.cpp"
+  },
+  {
+    "unit": "r3dcar",
+    "symbol": "R3DCar_CleanUp__Fv",
+    "name": "R3DCar_CleanUp",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void R3DCar_CleanUp(void)"
+    ],
+    "native": {
+      "record": "31056f",
+      "va": "800adf40",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void R3DCar_CleanUp__Fv(void);   /* :518 */",
+    "action": "correct",
+    "corrected": "void R3DCar_CleanUp(void);",
+    "source_path": "recon/game/common/r3dcar.cpp"
+  },
+  {
+    "unit": "r3dcar",
+    "symbol": "R3DCar_ReadInCarData__FPcP8Car_tObj",
+    "name": "R3DCar_ReadInCarData",
+    "old_return": "void *",
+    "old_args": "char *filename, Car_tObj *carObj",
+    "definition": [
+      "Transformer_zScene * R3DCar_ReadInCarData(char *filename,Car_tObj *carObj)"
+    ],
+    "native": {
+      "record": "31058f",
+      "va": "800ae0a8",
+      "type": "PTR STRUCT size 588 dims 0 tag Transformer_zScene",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "310d8a: $00000002 94 Def class REGPARM type PTR CHAR size 0 name filename",
+      "310da0: $00000011 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj"
+    ],
+    "line": "void * R3DCar_ReadInCarData__FPcP8Car_tObj(char *filename, Car_tObj *carObj);   /* :580 */",
+    "action": "correct",
+    "corrected": "Transformer_zScene * R3DCar_ReadInCarData(char *filename,Car_tObj *carObj);",
+    "source_path": "recon/game/common/r3dcar.cpp"
+  },
+  {
+    "unit": "r3dcar",
+    "symbol": "R3DCcar_ReadeMapData__Fv",
+    "name": "R3DCcar_ReadeMapData",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void R3DCcar_ReadeMapData(void)"
+    ],
+    "native": {
+      "record": "3105d5",
+      "va": "800ae5b0",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void R3DCcar_ReadeMapData__Fv(void);   /* :886 */",
+    "action": "correct",
+    "corrected": "void R3DCcar_ReadeMapData(void);",
+    "source_path": "recon/game/common/r3dcar.cpp"
+  },
+  {
+    "unit": "r3dcar",
+    "symbol": "R3DCcar_ReadTrackShadow__Fv",
+    "name": "R3DCcar_ReadTrackShadow",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void R3DCcar_ReadTrackShadow(void)"
+    ],
+    "native": {
+      "record": "3105fb",
+      "va": "800ae668",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void R3DCcar_ReadTrackShadow__Fv(void);   /* :917 */",
+    "action": "correct",
+    "corrected": "void R3DCcar_ReadTrackShadow(void);",
+    "source_path": "recon/game/common/r3dcar.cpp"
+  },
+  {
+    "unit": "r3dcar",
+    "symbol": "R3DCar_CalcCarDimensions__FP8Car_tObjP18Transformer_zScenei",
+    "name": "R3DCar_CalcCarDimensions",
+    "old_return": "void",
+    "old_args": "Car_tObj *carObj, Transformer_zScene *scene, int carType",
+    "definition": [
+      "void R3DCar_CalcCarDimensions(Car_tObj *carObj,Transformer_zScene *scene,int carType)"
+    ],
+    "native": {
+      "record": "310624",
+      "va": "800ae750",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "31120a: $00000010 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj",
+      "311229: $00000005 96 Def2 class REGPARM type PTR STRUCT size 588 dims 0 tag Transformer_zScene name scene",
+      "311251: $00000006 94 Def class REGPARM type INT size 0 name carType"
+    ],
+    "line": "void R3DCar_CalcCarDimensions__FP8Car_tObjP18Transformer_zScenei(Car_tObj *carObj, Transformer_zScene *scene, int carType);   /* :958 */",
+    "action": "correct",
+    "corrected": "void R3DCar_CalcCarDimensions(Car_tObj *carObj,Transformer_zScene *scene,int carType);",
+    "source_path": "recon/game/common/r3dcar.cpp"
+  },
+  {
+    "unit": "r3dcar",
+    "symbol": "R3DCar_DeInstantiate3DCar__FP8Car_tObj",
+    "name": "R3DCar_DeInstantiate3DCar",
+    "old_return": "void",
+    "old_args": "Car_tObj *carObj",
+    "definition": [
+      "void R3DCar_DeInstantiate3DCar(Car_tObj *carObj)"
+    ],
+    "native": {
+      "record": "31066d",
+      "va": "800aec78",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "311400: $00000010 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj"
+    ],
+    "line": "void R3DCar_DeInstantiate3DCar__FP8Car_tObj(Car_tObj *carObj);   /* :1046 */",
+    "action": "correct",
+    "corrected": "void R3DCar_DeInstantiate3DCar(Car_tObj *carObj);",
+    "source_path": "recon/game/common/r3dcar.cpp"
+  },
+  {
+    "unit": "r3dcar",
+    "symbol": "R3DCar_DeInstantiate3DCarMenu__FP8Car_tObj",
+    "name": "R3DCar_DeInstantiate3DCarMenu",
+    "old_return": "void",
+    "old_args": "Car_tObj *carObj",
+    "definition": [
+      "void R3DCar_DeInstantiate3DCarMenu(Car_tObj *carObj)"
+    ],
+    "native": {
+      "record": "3106a1",
+      "va": "800aecb4",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "31149d: $00000011 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj"
+    ],
+    "line": "void R3DCar_DeInstantiate3DCarMenu__FP8Car_tObj(Car_tObj *carObj);   /* :1054 */",
+    "action": "correct",
+    "corrected": "void R3DCar_DeInstantiate3DCarMenu(Car_tObj *carObj);",
+    "source_path": "recon/game/common/r3dcar.cpp"
+  },
+  {
+    "unit": "r3dcar",
+    "symbol": "R3DCar_GetFileName__FPcN20",
+    "name": "R3DCar_GetFileName",
+    "old_return": "void",
+    "old_args": "char *infilename, char *filename, char *suffix",
+    "definition": [
+      "void R3DCar_GetFileName(char *infilename,char *filename,char *suffix)"
+    ],
+    "native": {
+      "record": "3106d9",
+      "va": "800aedf4",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "3115f4: $00000011 94 Def class REGPARM type PTR CHAR size 0 name infilename",
+      "31160c: $00000005 94 Def class REGPARM type PTR CHAR size 0 name filename",
+      "311622: $00000010 94 Def class REGPARM type PTR CHAR size 0 name suffix"
+    ],
+    "line": "void R3DCar_GetFileName__FPcN20(char *infilename, char *filename, char *suffix);   /* :1118 */",
+    "action": "correct",
+    "corrected": "void R3DCar_GetFileName(char *infilename,char *filename,char *suffix);",
+    "source_path": "recon/game/common/r3dcar.cpp"
+  },
+  {
+    "unit": "r3dcar",
+    "symbol": "R3DCar_LoadFileAdr__FPc",
+    "name": "R3DCar_LoadFileAdr",
+    "old_return": "char *",
+    "old_args": "char *name",
+    "definition": [
+      "char * R3DCar_LoadFileAdr(char *name)"
+    ],
+    "native": {
+      "record": "310701",
+      "va": "800aee50",
+      "type": "PTR CHAR size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "3116be: $00000010 94 Def class REGPARM type PTR CHAR size 0 name name"
+    ],
+    "line": "char * R3DCar_LoadFileAdr__FPc(char *name);   /* :1133 */",
+    "action": "correct",
+    "corrected": "char * R3DCar_LoadFileAdr(char *name);",
+    "source_path": "recon/game/common/r3dcar.cpp"
+  },
+  {
+    "unit": "r3dcar",
+    "symbol": "R3DCar_GetCarName__FPcii",
+    "name": "R3DCar_GetCarName",
+    "old_return": "void",
+    "old_args": "char *filename, int carType, int country",
+    "definition": [
+      "void R3DCar_GetCarName(char *filename,int carType,int country)"
+    ],
+    "native": {
+      "record": "310726",
+      "va": "800aee98",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "31174d: $00000011 94 Def class REGPARM type PTR CHAR size 0 name filename",
+      "311763: $00000005 94 Def class REGPARM type INT size 0 name carType",
+      "311778: $00000012 94 Def class REGPARM type INT size 0 name country"
+    ],
+    "line": "void R3DCar_GetCarName__FPcii(char *filename, int carType, int country);   /* :1145 */",
+    "action": "correct",
+    "corrected": "void R3DCar_GetCarName(char *filename,int carType,int country);",
+    "source_path": "recon/game/common/r3dcar.cpp"
+  },
+  {
+    "unit": "r3dcar",
+    "symbol": "R3DCar_Instantiate3DCar__FP8Car_tObji",
+    "name": "R3DCar_Instantiate3DCar",
+    "old_return": "void",
+    "old_args": "Car_tObj *carObj, int index",
+    "definition": [
+      "void R3DCar_Instantiate3DCar(Car_tObj *carObj,int index)"
+    ],
+    "native": {
+      "record": "31074c",
+      "va": "800aef2c",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "31183d: $00000014 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj",
+      "31185c: $00000005 94 Def class REGPARM type INT size 0 name index"
+    ],
+    "line": "void R3DCar_Instantiate3DCar__FP8Car_tObji(Car_tObj *carObj, int index);   /* :1159 */",
+    "action": "correct",
+    "corrected": "void R3DCar_Instantiate3DCar(Car_tObj *carObj,int index);",
+    "source_path": "recon/game/common/r3dcar.cpp"
+  },
+  {
+    "unit": "r3dcar",
+    "symbol": "R3DCar_Visibilty__FP8Car_tObjP13DRender_tView",
+    "name": "R3DCar_Visibilty",
+    "old_return": "int",
+    "old_args": "Car_tObj *carObj, DRender_tView *Vi",
+    "definition": [
+      "int R3DCar_Visibilty(Car_tObj *carObj,DRender_tView *Vi)"
+    ],
+    "native": {
+      "record": "31077f",
+      "va": "800af74c",
+      "type": "INT size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "311b33: $00000011 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj",
+      "311b52: $00000013 96 Def2 class REGPARM type PTR STRUCT size 140 dims 0 tag DRender_tView name Vi"
+    ],
+    "line": "int R3DCar_Visibilty__FP8Car_tObjP13DRender_tView(Car_tObj *carObj, DRender_tView *Vi);   /* :1405 */",
+    "action": "correct",
+    "corrected": "int R3DCar_Visibilty(Car_tObj *carObj,DRender_tView *Vi);",
+    "source_path": "recon/game/common/r3dcar.cpp"
+  },
+  {
+    "unit": "r3dcar",
+    "symbol": "R3DCar_TurnHeadLightOn__FP8Car_tObji",
+    "name": "R3DCar_TurnHeadLightOn",
+    "old_return": "void",
+    "old_args": "Car_tObj *carObj, int tail",
+    "definition": [
+      "void R3DCar_TurnHeadLightOn(Car_tObj *carObj,int tail)"
+    ],
+    "native": {
+      "record": "3107ba",
+      "va": "800afaf4",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "311cdd: $00000004 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj",
+      "311cfc: $00000005 94 Def class REGPARM type INT size 0 name tail"
+    ],
+    "line": "void R3DCar_TurnHeadLightOn__FP8Car_tObji(Car_tObj *carObj, int tail);   /* :1516 */",
+    "action": "correct",
+    "corrected": "void R3DCar_TurnHeadLightOn(Car_tObj *carObj,int tail);",
+    "source_path": "recon/game/common/r3dcar.cpp"
+  },
+  {
+    "unit": "r3dcar",
+    "symbol": "R3DCar_TurnHeadLightOff__FP8Car_tObji",
+    "name": "R3DCar_TurnHeadLightOff",
+    "old_return": "void",
+    "old_args": "Car_tObj *carObj, int head",
+    "definition": [
+      "void R3DCar_TurnHeadLightOff(Car_tObj *carObj,int head)"
+    ],
+    "native": {
+      "record": "3107ec",
+      "va": "800afb54",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "311d87: $00000004 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj",
+      "311da6: $00000005 94 Def class REGPARM type INT size 0 name head"
+    ],
+    "line": "void R3DCar_TurnHeadLightOff__FP8Car_tObji(Car_tObj *carObj, int head);   /* :1525 */",
+    "action": "correct",
+    "corrected": "void R3DCar_TurnHeadLightOff(Car_tObj *carObj,int head);",
+    "source_path": "recon/game/common/r3dcar.cpp"
+  },
+  {
+    "unit": "r3dcar",
+    "symbol": "R3DCar_MATRIX3DT_Copy__FPiT0",
+    "name": "R3DCar_MATRIX3DT_Copy",
+    "old_return": "void",
+    "old_args": "int *from, int *to",
+    "definition": [
+      "void R3DCar_MATRIX3DT_Copy(int *from,int *to)"
+    ],
+    "native": {
+      "record": "31081f",
+      "va": "800afba8",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "311e28: $00000004 94 Def class REGPARM type PTR INT size 0 name from",
+      "311e3a: $00000005 94 Def class REGPARM type PTR INT size 0 name to"
+    ],
+    "line": "void R3DCar_MATRIX3DT_Copy__FPiT0(int *from, int *to);   /* :1538 */",
+    "action": "correct",
+    "corrected": "void R3DCar_MATRIX3DT_Copy(int *from,int *to);",
+    "source_path": "recon/game/common/r3dcar.cpp"
+  },
+  {
+    "unit": "r3dcar",
+    "symbol": "R3DCar_InsertCarFacet__FP8Car_tObjP13DRender_tView",
+    "name": "R3DCar_InsertCarFacet",
+    "old_return": "void",
+    "old_args": "Car_tObj *carObj, DRender_tView *Vi",
+    "definition": [
+      "void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi)"
+    ],
+    "native": {
+      "record": "310849",
+      "va": "800afbd0",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "311edf: $00000015 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj",
+      "311efe: $00000004 96 Def2 class ARG type PTR STRUCT size 140 dims 0 tag DRender_tView name Vi"
+    ],
+    "line": "void R3DCar_InsertCarFacet__FP8Car_tObjP13DRender_tView(Car_tObj *carObj, DRender_tView *Vi);   /* :1546 */",
+    "action": "correct",
+    "corrected": "void R3DCar_InsertCarFacet(Car_tObj *carObj,DRender_tView *Vi);",
+    "source_path": "recon/game/common/r3dcar.cpp"
+  },
+  {
+    "unit": "r3dcar",
+    "symbol": "R3DCar_ReadInCarTextureMenu__FP8Car_tObjPcii",
+    "name": "R3DCar_ReadInCarTextureMenu",
+    "old_return": "void",
+    "old_args": "Car_tObj *carObj, char *bigfile, int reload, int player",
+    "definition": [
+      "void R3DCar_ReadInCarTextureMenu(Car_tObj *carObj,char *bigfile,int reload,int player)"
+    ],
+    "native": {
+      "record": "310889",
+      "va": "800b0db0",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "31276f: $00000014 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj",
+      "31278e: $00000017 94 Def class REGPARM type PTR CHAR size 0 name bigfile",
+      "3127a3: $00000015 94 Def class REGPARM type INT size 0 name reload",
+      "3127b7: $00000016 94 Def class REGPARM type INT size 0 name player"
+    ],
+    "line": "void R3DCar_ReadInCarTextureMenu__FP8Car_tObjPcii(Car_tObj *carObj, char *bigfile, int reload, int player);   /* :2185 */",
+    "action": "correct",
+    "corrected": "void R3DCar_ReadInCarTextureMenu(Car_tObj *carObj,char *bigfile,int reload,int player);",
+    "source_path": "recon/game/common/r3dcar.cpp"
+  },
+  {
+    "unit": "r3dcar",
+    "symbol": "R3DCar_InsertCarFacetMenu__FP8Car_tObjP13DRender_tView",
+    "name": "R3DCar_InsertCarFacetMenu",
+    "old_return": "void",
+    "old_args": "Car_tObj *carObj, DRender_tView *Vi",
+    "definition": [
+      "void R3DCar_InsertCarFacetMenu(Car_tObj *carObj,DRender_tView *Vi)"
+    ],
+    "native": {
+      "record": "3108c3",
+      "va": "800b10fc",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "312954: $00000011 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj",
+      "312973: $00000017 96 Def2 class REGPARM type PTR STRUCT size 140 dims 0 tag DRender_tView name Vi"
+    ],
+    "line": "void R3DCar_InsertCarFacetMenu__FP8Car_tObjP13DRender_tView(Car_tObj *carObj, DRender_tView *Vi);   /* :2351 */",
+    "action": "correct",
+    "corrected": "void R3DCar_InsertCarFacetMenu(Car_tObj *carObj,DRender_tView *Vi);",
+    "source_path": "recon/game/common/r3dcar.cpp"
+  },
+  {
+    "unit": "r3dcar",
+    "symbol": "R3DCar_InsertCarFacetII__FP8Car_tObj",
+    "name": "R3DCar_InsertCarFacetII",
+    "old_return": "void",
+    "old_args": "Car_tObj *carObj",
+    "definition": [
+      "void R3DCar_InsertCarFacetII(Car_tObj *carObj)"
+    ],
+    "native": {
+      "record": "310907",
+      "va": "800b2174",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "313099: $00000013 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj"
+    ],
+    "line": "void R3DCar_InsertCarFacetII__FP8Car_tObj(Car_tObj *carObj);   /* :3091 */",
+    "action": "correct",
+    "corrected": "void R3DCar_InsertCarFacetII(Car_tObj *carObj);",
+    "source_path": "recon/game/common/r3dcar.cpp"
+  },
+  {
+    "unit": "r3dcar",
+    "symbol": "R3DCar_InsertCarFacetMenuII__FP8Car_tObji",
+    "name": "R3DCar_InsertCarFacetMenuII",
+    "old_return": "void",
+    "old_args": "Car_tObj *carObj, int light",
+    "definition": [
+      "void R3DCar_InsertCarFacetMenuII(Car_tObj *carObj,int light)"
+    ],
+    "native": {
+      "record": "310939",
+      "va": "800b2760",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "313419: $0000001e 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj",
+      "313438: $00000005 94 Def class REGPARM type INT size 0 name light"
+    ],
+    "line": "void R3DCar_InsertCarFacetMenuII__FP8Car_tObji(Car_tObj *carObj, int light);   /* :3273 */",
+    "action": "correct",
+    "corrected": "void R3DCar_InsertCarFacetMenuII(Car_tObj *carObj,int light);",
+    "source_path": "recon/game/common/r3dcar.cpp"
+  },
+  {
+    "unit": "r3dcar",
+    "symbol": "R3DCar_Showroom__FP13DRender_tView",
+    "name": "R3DCar_Showroom",
+    "old_return": "void",
+    "old_args": "DRender_tView *Vi",
+    "definition": [
+      "void R3DCar_Showroom(DRender_tView *Vi)"
+    ],
+    "native": {
+      "record": "310970",
+      "va": "800b2b88",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "31371a: $00000010 96 Def2 class REGPARM type PTR STRUCT size 140 dims 0 tag DRender_tView name Vi"
+    ],
+    "line": "void R3DCar_Showroom__FP13DRender_tView(DRender_tView *Vi);   /* :3399 */",
+    "action": "correct",
+    "corrected": "void R3DCar_Showroom(DRender_tView *Vi);",
+    "source_path": "recon/game/common/r3dcar.cpp"
+  },
+  {
+    "unit": "r3dcar",
+    "symbol": "R3DCar_InsertCarFacetZ__FP8Car_tObjP13DRender_tView",
+    "name": "R3DCar_InsertCarFacetZ",
+    "old_return": "void",
+    "old_args": "Car_tObj *carObj, DRender_tView *Vi",
+    "definition": [
+      "void R3DCar_InsertCarFacetZ(Car_tObj *carObj,DRender_tView *Vi)"
+    ],
+    "native": {
+      "record": "3109a0",
+      "va": "800b2bd8",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "3137c1: $00000004 96 Def2 class REGPARM type PTR STRUCT size 2268 dims 0 tag Car_tObj name carObj",
+      "3137e0: $00000005 96 Def2 class REGPARM type PTR STRUCT size 140 dims 0 tag DRender_tView name Vi"
+    ],
+    "line": "void R3DCar_InsertCarFacetZ__FP8Car_tObjP13DRender_tView(Car_tObj *carObj, DRender_tView *Vi);   /* :3411 */",
+    "action": "correct",
+    "corrected": "void R3DCar_InsertCarFacetZ(Car_tObj *carObj,DRender_tView *Vi);",
+    "source_path": "recon/game/common/r3dcar.cpp"
+  },
+  {
+    "unit": "r3dcar",
+    "symbol": "R3DCar_InsertAllListFacet__FP13DRender_tView",
+    "name": "R3DCar_InsertAllListFacet",
+    "old_return": "void",
+    "old_args": "DRender_tView *Vi",
+    "definition": [
+      "void R3DCar_InsertAllListFacet(DRender_tView *Vi)"
+    ],
+    "native": {
+      "record": "3109e1",
+      "va": "800b2bf8",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "313880: $00000000 96 Def2 class ARG type PTR STRUCT size 140 dims 0 tag DRender_tView name Vi"
+    ],
+    "line": "void R3DCar_InsertAllListFacet__FP13DRender_tView(DRender_tView *Vi);   /* :3416 */",
+    "action": "correct",
+    "corrected": "void R3DCar_InsertAllListFacet(DRender_tView *Vi);",
+    "source_path": "recon/game/common/r3dcar.cpp"
+  },
+  {
+    "unit": "render",
+    "symbol": "Render_CreatePlayerViews__Fv",
+    "name": "Render_CreatePlayerViews",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void Render_CreatePlayerViews(void)"
+    ],
+    "native": {
+      "record": "31e8fe",
+      "va": "800b30ac",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void Render_CreatePlayerViews__Fv(void);   /* :92 */",
+    "action": "correct",
+    "corrected": "void Render_CreatePlayerViews(void);",
+    "source_path": "recon/game/common/render.cpp"
+  },
+  {
+    "unit": "render",
+    "symbol": "Render_CreatePauseMenuViews__Fv",
+    "name": "Render_CreatePauseMenuViews",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void Render_CreatePauseMenuViews(void)"
+    ],
+    "native": {
+      "record": "31e928",
+      "va": "800b3198",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void Render_CreatePauseMenuViews__Fv(void);   /* :140 */",
+    "action": "correct",
+    "corrected": "void Render_CreatePauseMenuViews(void);",
+    "source_path": "recon/game/common/render.cpp"
+  },
+  {
+    "unit": "render",
+    "symbol": "Render_CreateViews__Fv",
+    "name": "Render_CreateViews",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void Render_CreateViews(void)"
+    ],
+    "native": {
+      "record": "31e955",
+      "va": "800b31e4",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void Render_CreateViews__Fv(void);   /* :151 */",
+    "action": "correct",
+    "corrected": "void Render_CreateViews(void);",
+    "source_path": "recon/game/common/render.cpp"
+  },
+  {
+    "unit": "render",
+    "symbol": "Render_StartRenderingWorldView__Fi",
+    "name": "Render_StartRenderingWorldView",
+    "old_return": "void",
+    "old_args": "int viewid",
+    "definition": [
+      "void Render_StartRenderingWorldView(int viewid)"
+    ],
+    "native": {
+      "record": "31e979",
+      "va": "800b321c",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "31ee46: $00000011 94 Def class REGPARM type INT size 0 name viewid"
+    ],
+    "line": "void Render_StartRenderingWorldView__Fi(int viewid);   /* :169 */",
+    "action": "correct",
+    "corrected": "void Render_StartRenderingWorldView(int viewid);",
+    "source_path": "recon/game/common/render.cpp"
+  },
+  {
+    "unit": "render",
+    "symbol": "Render_StopRenderingWorldView__Fi",
+    "name": "Render_StopRenderingWorldView",
+    "old_return": "void",
+    "old_args": "int viewid",
+    "definition": [
+      "void Render_StopRenderingWorldView(int viewid)"
+    ],
+    "native": {
+      "record": "31e9a9",
+      "va": "800b3298",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "31eecf: $00000004 94 Def class REGPARM type INT size 0 name viewid"
+    ],
+    "line": "void Render_StopRenderingWorldView__Fi(int viewid);   /* :215 */",
+    "action": "correct",
+    "corrected": "void Render_StopRenderingWorldView(int viewid);",
+    "source_path": "recon/game/common/render.cpp"
+  },
+  {
+    "unit": "render",
+    "symbol": "Render_RenderWorld__FP13DRender_tView",
+    "name": "Render_RenderWorld",
+    "old_return": "void",
+    "old_args": "DRender_tView *Vi",
+    "definition": [
+      "void Render_RenderWorld(DRender_tView *Vi)"
+    ],
+    "native": {
+      "record": "31e9d8",
+      "va": "800b32b8",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "31ef5c: $00000010 96 Def2 class REGPARM type PTR STRUCT size 140 dims 0 tag DRender_tView name Vi"
+    ],
+    "line": "void Render_RenderWorld__FP13DRender_tView(DRender_tView *Vi);   /* :223 */",
+    "action": "correct",
+    "corrected": "void Render_RenderWorld(DRender_tView *Vi);",
+    "source_path": "recon/game/common/render.cpp"
+  },
+  {
+    "unit": "render",
+    "symbol": "Render_RenderPlayerView__Fii",
+    "name": "Render_RenderPlayerView",
+    "old_return": "void",
+    "old_args": "int ViewID, int Player",
+    "definition": [
+      "void Render_RenderPlayerView(int ViewID,int Player)"
+    ],
+    "native": {
+      "record": "31ea0b",
+      "va": "800b335c",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "31f000: $00000011 94 Def class REGPARM type INT size 0 name ViewID",
+      "31f014: $00000005 94 Def class REGPARM type INT size 0 name Player"
+    ],
+    "line": "void Render_RenderPlayerView__Fii(int ViewID, int Player);   /* :270 */",
+    "action": "correct",
+    "corrected": "void Render_RenderPlayerView(int ViewID,int Player);",
+    "source_path": "recon/game/common/render.cpp"
+  },
+  {
+    "unit": "render",
+    "symbol": "Render_RenderDebugView__Fv",
+    "name": "Render_RenderDebugView",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void Render_RenderDebugView(void)"
+    ],
+    "native": {
+      "record": "31ea35",
+      "va": "800b33a8",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void Render_RenderDebugView__Fv(void);   /* :332 */",
+    "action": "correct",
+    "corrected": "void Render_RenderDebugView(void);",
+    "source_path": "recon/game/common/render.cpp"
+  },
+  {
+    "unit": "render",
+    "symbol": "Render_StartFrameRender__Fv",
+    "name": "Render_StartFrameRender",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void Render_StartFrameRender(void)"
+    ],
+    "native": {
+      "record": "31ea5d",
+      "va": "800b33b0",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void Render_StartFrameRender__Fv(void);   /* :359 */",
+    "action": "correct",
+    "corrected": "void Render_StartFrameRender(void);",
+    "source_path": "recon/game/common/render.cpp"
+  },
+  {
+    "unit": "render",
+    "symbol": "Render_StopFrameRender__Fv",
+    "name": "Render_StopFrameRender",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void Render_StopFrameRender(void)"
+    ],
+    "native": {
+      "record": "31ea86",
+      "va": "800b33f0",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void Render_StopFrameRender__Fv(void);   /* :375 */",
+    "action": "correct",
+    "corrected": "void Render_StopFrameRender(void);",
+    "source_path": "recon/game/common/render.cpp"
+  },
+  {
+    "unit": "render",
+    "symbol": "Render_InitPauseMenu__Fv",
+    "name": "Render_InitPauseMenu",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void Render_InitPauseMenu(void)"
+    ],
+    "native": {
+      "record": "31eaae",
+      "va": "800b3410",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void Render_InitPauseMenu__Fv(void);   /* :387 */",
+    "action": "correct",
+    "corrected": "void Render_InitPauseMenu(void);",
+    "source_path": "recon/game/common/render.cpp"
+  },
+  {
+    "unit": "render",
+    "symbol": "Render_RenderPauseMenuView__Fv",
+    "name": "Render_RenderPauseMenuView",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void Render_RenderPauseMenuView(void)"
+    ],
+    "native": {
+      "record": "31ead4",
+      "va": "800b3430",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void Render_RenderPauseMenuView__Fv(void);   /* :393 */",
+    "action": "correct",
+    "corrected": "void Render_RenderPauseMenuView(void);",
+    "source_path": "recon/game/common/render.cpp"
+  },
+  {
+    "unit": "render",
+    "symbol": "Render_KillPauseMenu__Fv",
+    "name": "Render_KillPauseMenu",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void Render_KillPauseMenu(void)"
+    ],
+    "native": {
+      "record": "31eb00",
+      "va": "800b3488",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void Render_KillPauseMenu__Fv(void);   /* :411 */",
+    "action": "correct",
+    "corrected": "void Render_KillPauseMenu(void);",
+    "source_path": "recon/game/common/render.cpp"
+  },
+  {
+    "unit": "render",
+    "symbol": "Render_Render__Fi",
+    "name": "Render_Render",
+    "old_return": "void",
+    "old_args": "int pause",
+    "definition": [
+      "void Render_Render(int pause)"
+    ],
+    "native": {
+      "record": "31eb26",
+      "va": "800b34a8",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "31f336: $00000004 94 Def class REGPARM type INT size 0 name pause"
+    ],
+    "line": "void Render_Render__Fi(int pause);   /* :417 */",
+    "action": "correct",
+    "corrected": "void Render_Render(int pause);",
+    "source_path": "recon/game/common/render.cpp"
+  },
+  {
+    "unit": "render",
+    "symbol": "FlareThing__Fv",
+    "name": "FlareThing",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void FlareThing(void)"
+    ],
+    "native": {
+      "record": "31eb45",
+      "va": "800b35e8",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void FlareThing__Fv(void);   /* :535 */",
+    "action": "correct",
+    "corrected": "void FlareThing(void);",
+    "source_path": "recon/game/common/render.cpp"
+  },
+  {
+    "unit": "render",
+    "symbol": "Render_InitTrackRender__Fv",
+    "name": "Render_InitTrackRender",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void Render_InitTrackRender(void)"
+    ],
+    "native": {
+      "record": "31eb61",
+      "va": "800b36f4",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void Render_InitTrackRender__Fv(void);   /* :563 */",
+    "action": "correct",
+    "corrected": "void Render_InitTrackRender(void);",
+    "source_path": "recon/game/common/render.cpp"
+  },
+  {
+    "unit": "render",
+    "symbol": "Render_RestartTrackRender__Fv",
+    "name": "Render_RestartTrackRender",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void Render_RestartTrackRender(void)"
+    ],
+    "native": {
+      "record": "31eb89",
+      "va": "800b37ac",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void Render_RestartTrackRender__Fv(void);   /* :600 */",
+    "action": "correct",
+    "corrected": "void Render_RestartTrackRender(void);",
+    "source_path": "recon/game/common/render.cpp"
+  },
+  {
+    "unit": "render",
+    "symbol": "Render_InitTrackRenderPostSim__Fv",
+    "name": "Render_InitTrackRenderPostSim",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void Render_InitTrackRenderPostSim(void)"
+    ],
+    "native": {
+      "record": "31ebb4",
+      "va": "800b37f4",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void Render_InitTrackRenderPostSim__Fv(void);   /* :612 */",
+    "action": "correct",
+    "corrected": "void Render_InitTrackRenderPostSim(void);",
+    "source_path": "recon/game/common/render.cpp"
+  },
+  {
+    "unit": "render",
+    "symbol": "Render_KillTrackRender__Fv",
+    "name": "Render_KillTrackRender",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void Render_KillTrackRender(void)"
+    ],
+    "native": {
+      "record": "31ebe3",
+      "va": "800b3820",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void Render_KillTrackRender__Fv(void);   /* :624 */",
+    "action": "correct",
+    "corrected": "void Render_KillTrackRender(void);",
+    "source_path": "recon/game/common/render.cpp"
+  },
+  {
+    "unit": "render",
+    "symbol": "Render_InitLibRender__Fv",
+    "name": "Render_InitLibRender",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void Render_InitLibRender(void)"
+    ],
+    "native": {
+      "record": "31ec0b",
+      "va": "800b3888",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void Render_InitLibRender__Fv(void);   /* :640 */",
+    "action": "correct",
+    "corrected": "void Render_InitLibRender(void);",
+    "source_path": "recon/game/common/render.cpp"
+  },
+  {
+    "unit": "render",
+    "symbol": "StampImage__Fii",
+    "name": "StampImage",
+    "old_return": "void",
+    "old_args": "int xo, int depth",
+    "definition": [
+      "void StampImage(int xo,int depth)"
+    ],
+    "native": {
+      "record": "31ec31",
+      "va": "800b38a8",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "31f6c0: $00000004 94 Def class REGPARM type INT size 0 name xo",
+      "31f6d0: $00000005 94 Def class REGPARM type INT size 0 name depth"
+    ],
+    "line": "void StampImage__Fii(int xo, int depth);   /* :711 */",
+    "action": "correct",
+    "corrected": "void StampImage(int xo,int depth);",
+    "source_path": "recon/game/common/render.cpp"
+  },
+  {
+    "unit": "render",
+    "symbol": "Render_InitBlurMode__Fv",
+    "name": "Render_InitBlurMode",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void Render_InitBlurMode(void)"
+    ],
+    "native": {
+      "record": "31ec4e",
+      "va": "800b3a04",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void Render_InitBlurMode__Fv(void);   /* :773 */",
+    "action": "correct",
+    "corrected": "void Render_InitBlurMode(void);",
+    "source_path": "recon/game/common/render.cpp"
+  },
+  {
+    "unit": "render",
+    "symbol": "Render_InsertDepthOfField__Fv",
+    "name": "Render_InsertDepthOfField",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void Render_InsertDepthOfField(void)"
+    ],
+    "native": {
+      "record": "31ec73",
+      "va": "800b3a6c",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void Render_InsertDepthOfField__Fv(void);   /* :790 */",
+    "action": "correct",
+    "corrected": "void Render_InsertDepthOfField(void);",
+    "source_path": "recon/game/common/render.cpp"
+  },
+  {
+    "unit": "textsys",
+    "symbol": "TextSys_LoadWordsGeneric__FiPc",
+    "name": "TextSys_LoadWordsGeneric",
+    "old_return": "void",
+    "old_args": "int language, char *path",
+    "definition": [
+      "void TextSys_LoadWordsGeneric(int language,char *path)"
+    ],
+    "native": {
+      "record": "3642b7",
+      "va": "800b9158",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "364426: $00000010 94 Def class REGPARM type INT size 0 name language",
+      "36443c: $00000011 94 Def class REGPARM type PTR CHAR size 0 name path"
+    ],
+    "line": "void TextSys_LoadWordsGeneric__FiPc(int language, char *path);   /* :41 */",
+    "action": "correct",
+    "corrected": "void TextSys_LoadWordsGeneric(int language,char *path);",
+    "source_path": "recon/game/common/textsys.cpp"
+  },
+  {
+    "unit": "textsys",
+    "symbol": "TextSys_LoadInGame__Fi",
+    "name": "TextSys_LoadInGame",
+    "old_return": "void",
+    "old_args": "int language",
+    "definition": [
+      "void TextSys_LoadInGame(int language)"
+    ],
+    "native": {
+      "record": "3642e3",
+      "va": "800b91dc",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "3644d4: $00000010 94 Def class REGPARM type INT size 0 name language"
+    ],
+    "line": "void TextSys_LoadInGame__Fi(int language);   /* :55 */",
+    "action": "correct",
+    "corrected": "void TextSys_LoadInGame(int language);",
+    "source_path": "recon/game/common/textsys.cpp"
+  },
+  {
+    "unit": "textsys",
+    "symbol": "TextSys_LoadWords__Fi",
+    "name": "TextSys_LoadWords",
+    "old_return": "void",
+    "old_args": "int language",
+    "definition": [
+      "void TextSys_LoadWords(int language)"
+    ],
+    "native": {
+      "record": "364307",
+      "va": "800b9228",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "364571: $00000004 94 Def class REGPARM type INT size 0 name language"
+    ],
+    "line": "void TextSys_LoadWords__Fi(int language);   /* :62 */",
+    "action": "correct",
+    "corrected": "void TextSys_LoadWords(int language);",
+    "source_path": "recon/game/common/textsys.cpp"
+  },
+  {
+    "unit": "textsys",
+    "symbol": "TextSys_Word__Fi",
+    "name": "TextSys_Word",
+    "old_return": "char *",
+    "old_args": "int wordnum",
+    "definition": [
+      "char * TextSys_Word(int wordnum)"
+    ],
+    "native": {
+      "record": "36432a",
+      "va": "800b9250",
+      "type": "PTR CHAR size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "3645ec: $00000004 94 Def class REGPARM type INT size 0 name wordnum"
+    ],
+    "line": "char * TextSys_Word__Fi(int wordnum);   /* :69 */",
+    "action": "correct",
+    "corrected": "char * TextSys_Word(int wordnum);",
+    "source_path": "recon/game/common/textsys.cpp"
+  },
+  {
+    "unit": "textsys",
+    "symbol": "TextSys_WordFlags__Fi",
+    "name": "TextSys_WordFlags",
+    "old_return": "int",
+    "old_args": "int wordnum",
+    "definition": [
+      "int TextSys_WordFlags(int wordnum)"
+    ],
+    "native": {
+      "record": "364348",
+      "va": "800b9270",
+      "type": "INT size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "36466b: $00000004 94 Def class REGPARM type INT size 0 name wordnum"
+    ],
+    "line": "int TextSys_WordFlags__Fi(int wordnum);   /* :120 */",
+    "action": "correct",
+    "corrected": "int TextSys_WordFlags(int wordnum);",
+    "source_path": "recon/game/common/textsys.cpp"
+  },
+  {
+    "unit": "textsys",
+    "symbol": "TextSys_WordX__Fi",
+    "name": "TextSys_WordX",
+    "old_return": "int",
+    "old_args": "int wordnum",
+    "definition": [
+      "int TextSys_WordX(int wordnum)"
+    ],
+    "native": {
+      "record": "36436b",
+      "va": "800b9290",
+      "type": "INT size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "3646e6: $00000004 94 Def class REGPARM type INT size 0 name wordnum"
+    ],
+    "line": "int TextSys_WordX__Fi(int wordnum);   /* :132 */",
+    "action": "correct",
+    "corrected": "int TextSys_WordX(int wordnum);",
+    "source_path": "recon/game/common/textsys.cpp"
+  },
+  {
+    "unit": "textsys",
+    "symbol": "TextSys_WordY__Fi",
+    "name": "TextSys_WordY",
+    "old_return": "int",
+    "old_args": "int wordnum",
+    "definition": [
+      "int TextSys_WordY(int wordnum)"
+    ],
+    "native": {
+      "record": "36438a",
+      "va": "800b92b0",
+      "type": "INT size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [
+      "364761: $00000004 94 Def class REGPARM type INT size 0 name wordnum"
+    ],
+    "line": "int TextSys_WordY__Fi(int wordnum);   /* :147 */",
+    "action": "correct",
+    "corrected": "int TextSys_WordY(int wordnum);",
+    "source_path": "recon/game/common/textsys.cpp"
+  },
+  {
+    "unit": "textsys",
+    "symbol": "TextSys_UnloadWords__Fv",
+    "name": "TextSys_UnloadWords",
+    "old_return": "void",
+    "old_args": "void",
+    "definition": [
+      "void TextSys_UnloadWords(void)"
+    ],
+    "native": {
+      "record": "3643a9",
+      "va": "800b92d0",
+      "type": "VOID size 0",
+      "storage": "EXT"
+    },
+    "parameter_records": [],
+    "line": "void TextSys_UnloadWords__Fv(void);   /* :162 */",
+    "action": "correct",
+    "corrected": "void TextSys_UnloadWords(void);",
+    "source_path": "recon/game/common/textsys.cpp"
+  }
+]

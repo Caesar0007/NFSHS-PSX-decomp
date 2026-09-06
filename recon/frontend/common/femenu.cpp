@@ -7,8 +7,9 @@
 #include "femenu.h"
 
 /* ---- FEMenu.obj-OWNED globals -- DEFINED here (self-contained; .data=real EXE bytes) ---- */
-/* SYM-CARRIER: gMenu_SubMenuPlayer -- measured unsized-array spelling preserves retail addressing. */
-tPlayer      gMenu_SubMenuPlayer[] = { (tPlayer)-1 };   /* @0x800517c0 -- unsized-array form (§3.12 #5) */
+/* P872: native SYM 563d74 is scalar ENUM tPlayer (4 B). Frontend -G0
+   preserves retail addressing without the old unsized-array carrier. */
+tPlayer      gMenu_SubMenuPlayer = (tPlayer)-1;   /* @0x800517c0 */
 
 
 /* ---- tListIterator::ctor  [FEMENU.CPP:61-64] SLD-VERIFIED ---- */
@@ -677,7 +678,7 @@ void tMenuItemLeftRightChoice::Draw(bool selected)
   FETextRender_MenuTextPositioned(
              (*(*this->fData->_vf)[3].pfn)
                     ((char *)this->fData + (int)(*this->fData->_vf)[3].delta,
-                     gMenu_SubMenuPlayer[0]),
+                     gMenu_SubMenuPlayer),
              (short)((u_int)((x + 0xb4) * 0x10000) >> 0x10),(short)y,
              (tMenuTextState)(selected != 0),
              textType_Options);

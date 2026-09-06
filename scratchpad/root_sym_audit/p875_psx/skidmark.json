@@ -1,0 +1,721 @@
+{
+  "round": "P875",
+  "header": "recon/game/psx/skidmark.h",
+  "source_authority": "C:/Temp/nfs4-clean/nfs4-f-v3.txt",
+  "scope": "Free-function public prototype rows from P874 inventory only; not an all-record or all-project source restoration claim.",
+  "counts": {
+    "inventory_candidates": 11,
+    "corrected_public": 11,
+    "removed_file_static": 0,
+    "before_native_references": 0,
+    "after_native_references": 11,
+    "return_type_corrections": 1,
+    "header_compile_failures": 0,
+    "unresolved_header_candidates": 0,
+    "preexisting_compiler_warning_count": 1
+  },
+  "before_actual_header_compile": {
+    "header": "recon/game/psx/skidmark.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\skidmark_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\skidmark_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\skidmark_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\skidmark_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\skidmark_before.s"
+      ]
+    ],
+    "header_sha256": "b5890248434f849bc9870e3c9adb8cd503d683994c055ae2eba21b51227e3012",
+    "references": {
+      "0": "CalcStartSegment__FP16Skidmark_SegmentT0P8coorddefN22i__FP16Skidmark_SegmentT0P8coorddefN22i",
+      "1": "CalcOneSegment__FP16Skidmark_SegmentP8coorddefN21i__FP16Skidmark_SegmentP8coorddefN21i",
+      "2": "Skidmark_CheckChunk__FP8coorddefii__FP8coorddefii",
+      "3": "Skidmark_Add__FP5tSkidP8coorddefP7CVECTORiii__FP5tSkidP8coorddefP7CVECTORiii",
+      "4": "Skidmark_AddStretch__FPP16Skidmark_SegmentPiP5tSkidP8coorddefP7CVECTORiii__FPP16Skidmark_SegmentPiP5tSkidP8coorddefP7CVECTORiii",
+      "5": "Skidmark_Stretch__FP16Skidmark_SegmentiP5tSkidP8coorddefP7CVECTORii__FP16Skidmark_SegmentiP5tSkidP8coorddefP7CVECTORii",
+      "6": "Skidmark_EndStretch__FP16Skidmark_SegmentiP5tSkidP8coorddefP7CVECTORii__FP16Skidmark_SegmentiP5tSkidP8coorddefP7CVECTORii",
+      "7": "Skidmark_OnyxBuildFacets__FP13DRender_tView__FP13DRender_tView",
+      "8": "Skidmark_InitSkidmark__Fv__Fv",
+      "9": "Skidmark_RestartSkidmark__Fv__Fv",
+      "10": "Skidmark_KillSkidmark__Fv__Fv"
+    },
+    "ok": true,
+    "assembly_sha256": "aa502e2846f8238e47d188cbc47e477dbf08793826b47cd0c6de96a34d13af1c",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".rodata",
+      ".sdata",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\skidmark.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "CalcStartSegment__FP16Skidmark_SegmentT0P8coorddefN22i",
+      "CalcOneSegment__FP16Skidmark_SegmentP8coorddefN21i",
+      "Skidmark_CheckChunk__FP8coorddefii",
+      "Skidmark_Add__FP5tSkidP8coorddefP7CVECTORiii",
+      "Skidmark_AddStretch__FPP16Skidmark_SegmentPiP5tSkidP8coorddefP7CVECTORiii",
+      "Skidmark_Stretch__FP16Skidmark_SegmentiP5tSkidP8coorddefP7CVECTORii",
+      "Skidmark_EndStretch__FP16Skidmark_SegmentiP5tSkidP8coorddefP7CVECTORii",
+      "Skidmark_OnyxBuildFacets__FP13DRender_tView",
+      "Skidmark_InitSkidmark__Fv",
+      "Skidmark_RestartSkidmark__Fv",
+      "Skidmark_KillSkidmark__Fv",
+      "gSm",
+      "gCountSm",
+      "gUseSm",
+      "gMaxSChunk"
+    ]
+  },
+  "before_frozen_replay": {
+    "header": "recon/game/psx/skidmark.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\skidmark_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\skidmark_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\skidmark_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\skidmark_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\skidmark_before.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\skidmark_before.cpp:2:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "84d78e53174a22930586b5e6e1ac2ce143688d728fcba0dd2d00498940347414",
+    "input_mode": "frozen-original-prototype-surface",
+    "references": {
+      "0": "CalcStartSegment__FP16Skidmark_SegmentT0P8coorddefN22i__FP16Skidmark_SegmentT0P8coorddefN22i",
+      "1": "CalcOneSegment__FP16Skidmark_SegmentP8coorddefN21i__FP16Skidmark_SegmentP8coorddefN21i",
+      "2": "Skidmark_CheckChunk__FP8coorddefii__FP8coorddefii",
+      "3": "Skidmark_Add__FP5tSkidP8coorddefP7CVECTORiii__FP5tSkidP8coorddefP7CVECTORiii",
+      "4": "Skidmark_AddStretch__FPP16Skidmark_SegmentPiP5tSkidP8coorddefP7CVECTORiii__FPP16Skidmark_SegmentPiP5tSkidP8coorddefP7CVECTORiii",
+      "5": "Skidmark_Stretch__FP16Skidmark_SegmentiP5tSkidP8coorddefP7CVECTORii__FP16Skidmark_SegmentiP5tSkidP8coorddefP7CVECTORii",
+      "6": "Skidmark_EndStretch__FP16Skidmark_SegmentiP5tSkidP8coorddefP7CVECTORii__FP16Skidmark_SegmentiP5tSkidP8coorddefP7CVECTORii",
+      "7": "Skidmark_OnyxBuildFacets__FP13DRender_tView__FP13DRender_tView",
+      "8": "Skidmark_InitSkidmark__Fv__Fv",
+      "9": "Skidmark_RestartSkidmark__Fv__Fv",
+      "10": "Skidmark_KillSkidmark__Fv__Fv"
+    },
+    "ok": true,
+    "assembly_sha256": "aa502e2846f8238e47d188cbc47e477dbf08793826b47cd0c6de96a34d13af1c"
+  },
+  "after_actual_header_compile": {
+    "header": "recon/game/psx/skidmark.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\skidmark_after.cpp",
+    "stage": "after",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\skidmark_after.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\skidmark_after.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\skidmark_after.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\skidmark_after.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:/Temp/nfs4-decomp/recon/game/psx/skidmark.h:4,\n                 from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\skidmark_after.cpp:1:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "20db4e0a630913f77ed3a2b59d938a6d3661ca91fca0bd5473629ef75634a1b7",
+    "input_mode": "live-public-header",
+    "header_sha256": "7ce03888f8b4d5cf132f0985bdbd693cada5c7382e71c4e6e79d7fb10fb25d7a",
+    "references": {
+      "0": "CalcStartSegment__FP16Skidmark_SegmentT0P8coorddefN22i",
+      "1": "CalcOneSegment__FP16Skidmark_SegmentP8coorddefN21i",
+      "2": "Skidmark_CheckChunk__FP8coorddefii",
+      "3": "Skidmark_Add__FP5tSkidP8coorddefP7CVECTORiii",
+      "4": "Skidmark_AddStretch__FPP16Skidmark_SegmentPiP5tSkidP8coorddefP7CVECTORiii",
+      "5": "Skidmark_Stretch__FP16Skidmark_SegmentiP5tSkidP8coorddefP7CVECTORii",
+      "6": "Skidmark_EndStretch__FP16Skidmark_SegmentiP5tSkidP8coorddefP7CVECTORii",
+      "7": "Skidmark_OnyxBuildFacets__FP13DRender_tView",
+      "8": "Skidmark_InitSkidmark__Fv",
+      "9": "Skidmark_RestartSkidmark__Fv",
+      "10": "Skidmark_KillSkidmark__Fv"
+    },
+    "ok": true,
+    "assembly_sha256": "a3f31bda6ec425c7d5ccd9e4337566f721312184ce41ed8d47a398354c955afe",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".rodata",
+      ".sdata",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\skidmark.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "CalcStartSegment__FP16Skidmark_SegmentT0P8coorddefN22i",
+      "CalcOneSegment__FP16Skidmark_SegmentP8coorddefN21i",
+      "Skidmark_CheckChunk__FP8coorddefii",
+      "Skidmark_Add__FP5tSkidP8coorddefP7CVECTORiii",
+      "Skidmark_AddStretch__FPP16Skidmark_SegmentPiP5tSkidP8coorddefP7CVECTORiii",
+      "Skidmark_Stretch__FP16Skidmark_SegmentiP5tSkidP8coorddefP7CVECTORii",
+      "Skidmark_EndStretch__FP16Skidmark_SegmentiP5tSkidP8coorddefP7CVECTORii",
+      "Skidmark_OnyxBuildFacets__FP13DRender_tView",
+      "Skidmark_InitSkidmark__Fv",
+      "Skidmark_RestartSkidmark__Fv",
+      "Skidmark_KillSkidmark__Fv",
+      "gSm",
+      "gCountSm",
+      "gUseSm",
+      "gMaxSChunk"
+    ]
+  },
+  "owning_tu_gate": {
+    "source": "recon/game/psx/skidmark.cpp",
+    "command": [
+      "C:\\Python314\\python.exe",
+      "tools/tugate.py",
+      "recon/game/psx/skidmark.cpp"
+    ],
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/psx/skidmark.cpp: 11/11 PASS\n",
+    "stderr": "",
+    "object_sha256": "37148edfa772a2da4d0cdcc9a0ebeee585182c00d5e723945990f8f0764ea02a",
+    "actual_function_symbols": [
+      "CalcStartSegment__FP16Skidmark_SegmentT0P8coorddefN22i",
+      "CalcOneSegment__FP16Skidmark_SegmentP8coorddefN21i",
+      "Skidmark_CheckChunk__FP8coorddefii",
+      "Skidmark_Add__FP5tSkidP8coorddefP7CVECTORiii",
+      "Skidmark_AddStretch__FPP16Skidmark_SegmentPiP5tSkidP8coorddefP7CVECTORiii",
+      "Skidmark_Stretch__FP16Skidmark_SegmentiP5tSkidP8coorddefP7CVECTORii",
+      "Skidmark_EndStretch__FP16Skidmark_SegmentiP5tSkidP8coorddefP7CVECTORii",
+      "Skidmark_OnyxBuildFacets__FP13DRender_tView",
+      "Skidmark_InitSkidmark__Fv",
+      "Skidmark_RestartSkidmark__Fv",
+      "Skidmark_KillSkidmark__Fv"
+    ],
+    "local_function_symbols": []
+  },
+  "consumer_census": {
+    "files_scanned": 1677,
+    "literal_users": [],
+    "dynamic_includes": []
+  },
+  "unresolved": [],
+  "prototype_receipts": [
+    {
+      "header": "recon/game/psx/skidmark.h",
+      "line": 6,
+      "encoded": "CalcStartSegment__FP16Skidmark_SegmentT0P8coorddefN22i",
+      "name": "CalcStartSegment",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void CalcStartSegment__FP16Skidmark_SegmentT0P8coorddefN22i(Skidmark_Segment *r1, Skidmark_Segment *r2, coorddef *cp, coorddef *pt1, coorddef *pt2, int tireWidth);   /* :48 */",
+      "header_return": "void",
+      "header_signature": "(Skidmark_Segment *r1, Skidmark_Segment *r2, coorddef *cp, coorddef *pt1, coorddef *pt2, int tireWidth)",
+      "native": [
+        {
+          "record": "465f70",
+          "va": "800de6f4",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "CalcStartSegment",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\skidmark.cpp",
+          "line": 22,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(Skidmark_Segment * r1,Skidmark_Segment * r2,coorddef * cp,coorddef * pt1,coorddef * pt2,int tireWidth)",
+          "end": 46,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(Skidmark_Segment * r1,Skidmark_Segment * r2,coorddef * cp,coorddef * pt1,coorddef * pt2,int tireWidth)",
+      "final_prototype": "void CalcStartSegment(Skidmark_Segment * r1,Skidmark_Segment * r2,coorddef * cp,coorddef * pt1,coorddef * pt2,int tireWidth);   /* SYM 465f70 @0x800de6f4 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "CalcStartSegment__FP16Skidmark_SegmentT0P8coorddefN22i__FP16Skidmark_SegmentT0P8coorddefN22i",
+      "after_emitted_reference": "CalcStartSegment__FP16Skidmark_SegmentT0P8coorddefN22i",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/skidmark.h",
+      "line": 7,
+      "encoded": "CalcOneSegment__FP16Skidmark_SegmentP8coorddefN21i",
+      "name": "CalcOneSegment",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void CalcOneSegment__FP16Skidmark_SegmentP8coorddefN21i(Skidmark_Segment *r1, coorddef *cp, coorddef *pt1, coorddef *pt2, int tireWidth);   /* :81 */",
+      "header_return": "void",
+      "header_signature": "(Skidmark_Segment *r1, coorddef *cp, coorddef *pt1, coorddef *pt2, int tireWidth)",
+      "native": [
+        {
+          "record": "465fb4",
+          "va": "800de8c4",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "CalcOneSegment",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\skidmark.cpp",
+          "line": 49,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(Skidmark_Segment * r1,coorddef * cp,coorddef * pt1,coorddef * pt2,int tireWidth)",
+          "end": 66,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(Skidmark_Segment * r1,coorddef * cp,coorddef * pt1,coorddef * pt2,int tireWidth)",
+      "final_prototype": "void CalcOneSegment(Skidmark_Segment * r1,coorddef * cp,coorddef * pt1,coorddef * pt2,int tireWidth);   /* SYM 465fb4 @0x800de8c4 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "CalcOneSegment__FP16Skidmark_SegmentP8coorddefN21i__FP16Skidmark_SegmentP8coorddefN21i",
+      "after_emitted_reference": "CalcOneSegment__FP16Skidmark_SegmentP8coorddefN21i",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/skidmark.h",
+      "line": 8,
+      "encoded": "Skidmark_CheckChunk__FP8coorddefii",
+      "name": "Skidmark_CheckChunk",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void * Skidmark_CheckChunk__FP8coorddefii(coorddef *skidpt, int newsegs, int slice);   /* :115 */",
+      "header_return": "void *",
+      "header_signature": "(coorddef *skidpt, int newsegs, int slice)",
+      "native": [
+        {
+          "record": "465ff4",
+          "va": "800de9ec",
+          "linkage": "EXT",
+          "return_type": "Skidmark_Chunk*"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Skidmark_CheckChunk",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\skidmark.cpp",
+          "line": 70,
+          "typeref": "typename:Skidmark_Chunk *",
+          "kind": "function",
+          "signature": "(coorddef * skidpt,int newsegs,int slice)",
+          "end": 129,
+          "return_type": "Skidmark_Chunk *",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "Skidmark_Chunk *",
+      "final_signature": "(coorddef * skidpt,int newsegs,int slice)",
+      "final_prototype": "Skidmark_Chunk * Skidmark_CheckChunk(coorddef * skidpt,int newsegs,int slice);   /* SYM 465ff4 @0x800de9ec */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Skidmark_CheckChunk__FP8coorddefii__FP8coorddefii",
+      "after_emitted_reference": "Skidmark_CheckChunk__FP8coorddefii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/skidmark.h",
+      "line": 9,
+      "encoded": "Skidmark_Add__FP5tSkidP8coorddefP7CVECTORiii",
+      "name": "Skidmark_Add",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Skidmark_Add__FP5tSkidP8coorddefP7CVECTORiii(tSkid *prevskid, coorddef *skidpt, CVECTOR *color, int tireWidth, int type, int slice);   /* :159 */",
+      "header_return": "void",
+      "header_signature": "(tSkid *prevskid, coorddef *skidpt, CVECTOR *color, int tireWidth, int type, int slice)",
+      "native": [
+        {
+          "record": "466035",
+          "va": "800deb98",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Skidmark_Add",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\skidmark.cpp",
+          "line": 155,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(tSkid * prevskid,coorddef * skidpt,CVECTOR * color,int tireWidth,int type,int slice)",
+          "end": 207,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(tSkid * prevskid,coorddef * skidpt,CVECTOR * color,int tireWidth,int type,int slice)",
+      "final_prototype": "void Skidmark_Add(tSkid * prevskid,coorddef * skidpt,CVECTOR * color,int tireWidth,int type,int slice);   /* SYM 466035 @0x800deb98 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Skidmark_Add__FP5tSkidP8coorddefP7CVECTORiii__FP5tSkidP8coorddefP7CVECTORiii",
+      "after_emitted_reference": "Skidmark_Add__FP5tSkidP8coorddefP7CVECTORiii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/skidmark.h",
+      "line": 10,
+      "encoded": "Skidmark_AddStretch__FPP16Skidmark_SegmentPiP5tSkidP8coorddefP7CVECTORiii",
+      "name": "Skidmark_AddStretch",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Skidmark_AddStretch__FPP16Skidmark_SegmentPiP5tSkidP8coorddefP7CVECTORiii(Skidmark_Segment **save, int *savechunk, tSkid *prevskid, coorddef *skidpt, CVECTOR *color, int tireWidth, int type, int slice);   /* :264 */",
+      "header_return": "void",
+      "header_signature": "(Skidmark_Segment **save, int *savechunk, tSkid *prevskid, coorddef *skidpt, CVECTOR *color, int tireWidth, int type, int slice)",
+      "native": [
+        {
+          "record": "46606f",
+          "va": "800def6c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Skidmark_AddStretch",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\skidmark.cpp",
+          "line": 220,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(Skidmark_Segment ** save,int * savechunk,tSkid * prevskid,coorddef * skidpt,CVECTOR * color,int tireWidth,int type,int slice)",
+          "end": 262,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(Skidmark_Segment ** save,int * savechunk,tSkid * prevskid,coorddef * skidpt,CVECTOR * color,int tireWidth,int type,int slice)",
+      "final_prototype": "void Skidmark_AddStretch(Skidmark_Segment ** save,int * savechunk,tSkid * prevskid,coorddef * skidpt,CVECTOR * color,int tireWidth,int type,int slice);   /* SYM 46606f @0x800def6c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Skidmark_AddStretch__FPP16Skidmark_SegmentPiP5tSkidP8coorddefP7CVECTORiii__FPP16Skidmark_SegmentPiP5tSkidP8coorddefP7CVECTORiii",
+      "after_emitted_reference": "Skidmark_AddStretch__FPP16Skidmark_SegmentPiP5tSkidP8coorddefP7CVECTORiii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/skidmark.h",
+      "line": 11,
+      "encoded": "Skidmark_Stretch__FP16Skidmark_SegmentiP5tSkidP8coorddefP7CVECTORii",
+      "name": "Skidmark_Stretch",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Skidmark_Stretch__FP16Skidmark_SegmentiP5tSkidP8coorddefP7CVECTORii(Skidmark_Segment *save, int savechunk, tSkid *prevskid, coorddef *skidpt, CVECTOR *color, int tireWidth, int type);   /* :336 */",
+      "header_return": "void",
+      "header_signature": "(Skidmark_Segment *save, int savechunk, tSkid *prevskid, coorddef *skidpt, CVECTOR *color, int tireWidth, int type)",
+      "native": [
+        {
+          "record": "4660c6",
+          "va": "800df308",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Skidmark_Stretch",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\skidmark.cpp",
+          "line": 265,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(Skidmark_Segment * save,int savechunk,tSkid * prevskid,coorddef * skidpt,CVECTOR * color,int tireWidth,int type)",
+          "end": 273,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(Skidmark_Segment * save,int savechunk,tSkid * prevskid,coorddef * skidpt,CVECTOR * color,int tireWidth,int type)",
+      "final_prototype": "void Skidmark_Stretch(Skidmark_Segment * save,int savechunk,tSkid * prevskid,coorddef * skidpt,CVECTOR * color,int tireWidth,int type);   /* SYM 4660c6 @0x800df308 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Skidmark_Stretch__FP16Skidmark_SegmentiP5tSkidP8coorddefP7CVECTORii__FP16Skidmark_SegmentiP5tSkidP8coorddefP7CVECTORii",
+      "after_emitted_reference": "Skidmark_Stretch__FP16Skidmark_SegmentiP5tSkidP8coorddefP7CVECTORii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/skidmark.h",
+      "line": 12,
+      "encoded": "Skidmark_EndStretch__FP16Skidmark_SegmentiP5tSkidP8coorddefP7CVECTORii",
+      "name": "Skidmark_EndStretch",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Skidmark_EndStretch__FP16Skidmark_SegmentiP5tSkidP8coorddefP7CVECTORii(Skidmark_Segment *save, int savechunk, tSkid *prevskid, coorddef *skidpt, CVECTOR *color, int tireWidth, int type);   /* :350 */",
+      "header_return": "void",
+      "header_signature": "(Skidmark_Segment *save, int savechunk, tSkid *prevskid, coorddef *skidpt, CVECTOR *color, int tireWidth, int type)",
+      "native": [
+        {
+          "record": "466117",
+          "va": "800df388",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Skidmark_EndStretch",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\skidmark.cpp",
+          "line": 276,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(Skidmark_Segment * save,int savechunk,tSkid * prevskid,coorddef * skidpt,CVECTOR * color,int tireWidth,int type)",
+          "end": 289,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(Skidmark_Segment * save,int savechunk,tSkid * prevskid,coorddef * skidpt,CVECTOR * color,int tireWidth,int type)",
+      "final_prototype": "void Skidmark_EndStretch(Skidmark_Segment * save,int savechunk,tSkid * prevskid,coorddef * skidpt,CVECTOR * color,int tireWidth,int type);   /* SYM 466117 @0x800df388 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Skidmark_EndStretch__FP16Skidmark_SegmentiP5tSkidP8coorddefP7CVECTORii__FP16Skidmark_SegmentiP5tSkidP8coorddefP7CVECTORii",
+      "after_emitted_reference": "Skidmark_EndStretch__FP16Skidmark_SegmentiP5tSkidP8coorddefP7CVECTORii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/skidmark.h",
+      "line": 13,
+      "encoded": "Skidmark_OnyxBuildFacets__FP13DRender_tView",
+      "name": "Skidmark_OnyxBuildFacets",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Skidmark_OnyxBuildFacets__FP13DRender_tView(DRender_tView *Vi);   /* :365 */",
+      "header_return": "void",
+      "header_signature": "(DRender_tView *Vi)",
+      "native": [
+        {
+          "record": "46616b",
+          "va": "800df464",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Skidmark_OnyxBuildFacets",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\skidmark.cpp",
+          "line": 292,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(DRender_tView * Vi)",
+          "end": 330,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(DRender_tView * Vi)",
+      "final_prototype": "void Skidmark_OnyxBuildFacets(DRender_tView * Vi);   /* SYM 46616b @0x800df464 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Skidmark_OnyxBuildFacets__FP13DRender_tView__FP13DRender_tView",
+      "after_emitted_reference": "Skidmark_OnyxBuildFacets__FP13DRender_tView",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/skidmark.h",
+      "line": 14,
+      "encoded": "Skidmark_InitSkidmark__Fv",
+      "name": "Skidmark_InitSkidmark",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Skidmark_InitSkidmark__Fv(void);   /* :419 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "4661a4",
+          "va": "800df504",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Skidmark_InitSkidmark",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\skidmark.cpp",
+          "line": 333,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 345,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Skidmark_InitSkidmark(void);   /* SYM 4661a4 @0x800df504 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Skidmark_InitSkidmark__Fv__Fv",
+      "after_emitted_reference": "Skidmark_InitSkidmark__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/skidmark.h",
+      "line": 15,
+      "encoded": "Skidmark_RestartSkidmark__Fv",
+      "name": "Skidmark_RestartSkidmark",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Skidmark_RestartSkidmark__Fv(void);   /* :433 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "4661cb",
+          "va": "800df578",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Skidmark_RestartSkidmark",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\skidmark.cpp",
+          "line": 348,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 355,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Skidmark_RestartSkidmark(void);   /* SYM 4661cb @0x800df578 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Skidmark_RestartSkidmark__Fv__Fv",
+      "after_emitted_reference": "Skidmark_RestartSkidmark__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/skidmark.h",
+      "line": 16,
+      "encoded": "Skidmark_KillSkidmark__Fv",
+      "name": "Skidmark_KillSkidmark",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Skidmark_KillSkidmark__Fv(void);   /* :441 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "4661f5",
+          "va": "800df58c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Skidmark_KillSkidmark",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\skidmark.cpp",
+          "line": 358,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 367,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Skidmark_KillSkidmark(void);   /* SYM 4661f5 @0x800df58c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Skidmark_KillSkidmark__Fv__Fv",
+      "after_emitted_reference": "Skidmark_KillSkidmark__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    }
+  ]
+}

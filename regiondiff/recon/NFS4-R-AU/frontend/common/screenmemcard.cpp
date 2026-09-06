@@ -75,7 +75,7 @@ void tScreenMemcard::Initialize()
   }
   {
     int i = 0;
-    tGlobalMenuDefs *menus = menuDefs[0];
+    tGlobalMenuDefs *menus = menuDefs;
     (menus->itemLoadGame).fTextDescription = msgId;
     (menus->itemSaveGame).fFlags |= 1;
     (menus->itemLoadGame).fFlags |= 1;

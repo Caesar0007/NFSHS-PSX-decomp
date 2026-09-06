@@ -1,0 +1,29 @@
+/* P875 follow-up typed API references; compile-only, never a game input. */
+#include "C:/Temp/nfs4-decomp/recon/game/common/r3dcar.h"
+void (*p875_common2_r3dcar_0)(Car_tObj *carObj,int newColorIndex) = &R3DCar_ChangeTrafficColor;
+void (*p875_common2_r3dcar_1)(void) = &R3DCar_StartUp;
+void (*p875_common2_r3dcar_2)(void) = &R3DCar_PostStartUp;
+void (*p875_common2_r3dcar_3)(void) = &R3DCar_Restart;
+void (*p875_common2_r3dcar_4)(void) = &R3DCar_CleanUp;
+Transformer_zScene * (*p875_common2_r3dcar_5)(char *filename,Car_tObj *carObj) = &R3DCar_ReadInCarData;
+void (*p875_common2_r3dcar_6)(void) = &R3DCcar_ReadeMapData;
+void (*p875_common2_r3dcar_7)(void) = &R3DCcar_ReadTrackShadow;
+void (*p875_common2_r3dcar_8)(Car_tObj *carObj,Transformer_zScene *scene,int carType) = &R3DCar_CalcCarDimensions;
+void (*p875_common2_r3dcar_9)(Car_tObj *carObj) = &R3DCar_DeInstantiate3DCar;
+void (*p875_common2_r3dcar_10)(Car_tObj *carObj) = &R3DCar_DeInstantiate3DCarMenu;
+void (*p875_common2_r3dcar_11)(char *infilename,char *filename,char *suffix) = &R3DCar_GetFileName;
+char * (*p875_common2_r3dcar_12)(char *name) = &R3DCar_LoadFileAdr;
+void (*p875_common2_r3dcar_13)(char *filename,int carType,int country) = &R3DCar_GetCarName;
+void (*p875_common2_r3dcar_14)(Car_tObj *carObj,int index) = &R3DCar_Instantiate3DCar;
+int (*p875_common2_r3dcar_15)(Car_tObj *carObj,DRender_tView *Vi) = &R3DCar_Visibilty;
+void (*p875_common2_r3dcar_16)(Car_tObj *carObj,int tail) = &R3DCar_TurnHeadLightOn;
+void (*p875_common2_r3dcar_17)(Car_tObj *carObj,int head) = &R3DCar_TurnHeadLightOff;
+void (*p875_common2_r3dcar_18)(int *from,int *to) = &R3DCar_MATRIX3DT_Copy;
+void (*p875_common2_r3dcar_19)(Car_tObj *carObj,DRender_tView *Vi) = &R3DCar_InsertCarFacet;
+void (*p875_common2_r3dcar_20)(Car_tObj *carObj,char *bigfile,int reload,int player) = &R3DCar_ReadInCarTextureMenu;
+void (*p875_common2_r3dcar_21)(Car_tObj *carObj,DRender_tView *Vi) = &R3DCar_InsertCarFacetMenu;
+void (*p875_common2_r3dcar_22)(Car_tObj *carObj) = &R3DCar_InsertCarFacetII;
+void (*p875_common2_r3dcar_23)(Car_tObj *carObj,int light) = &R3DCar_InsertCarFacetMenuII;
+void (*p875_common2_r3dcar_24)(DRender_tView *Vi) = &R3DCar_Showroom;
+void (*p875_common2_r3dcar_25)(Car_tObj *carObj,DRender_tView *Vi) = &R3DCar_InsertCarFacetZ;
+void (*p875_common2_r3dcar_26)(DRender_tView *Vi) = &R3DCar_InsertAllListFacet;

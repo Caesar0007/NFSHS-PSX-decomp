@@ -1,0 +1,147 @@
+{
+  "production_source_sha256": "22affee0fd7003ba548c5596eab8d8cead253f52f7e82d4c8a4fa27ee28bad25",
+  "results": [
+    {
+      "mode": "normal_mixed",
+      "compiler": "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+      "compiler_sha256": "61781c2f67b8486281720fdabb1fd7b549cce7f92918cb7b505db1fce54742b7",
+      "g_value": 8,
+      "force_addr": false,
+      "source_only": false,
+      "passed": 25,
+      "functions": 25,
+      "returncode": 0,
+      "stdout": "  Weather_GetNumParticles__Fi: PASS (4 insns)\n  Weather_SetMatrix__FP10matrixtdef: PASS (49 insns)\n  Weather_SetIdentMatrix__Fv: PASS (33 insns)\n  Weather_InitSnow__Fv: PASS (24 insns)\n  Weather_InitRain__Fv: PASS (24 insns)\n  Weather_InitSplats__Fv: PASS (69 insns)\n  Weather_GetNewState__Fv: PASS (16 insns)\n  Weather_ChangeDensityState__Fv: PASS (29 insns)\n  Weather_ChangeIntensityState__Fv: PASS (30 insns)\n  Weather_ChangeDensityBasedOnTime__Fv: PASS (54 insns)\n  Weather_ChangeIntensityBasedOnTime__Fv: PASS (62 insns)\n  Weather_InitStateControls__Fv: PASS (51 insns)\n  Weather_Restart__Fv: PASS (31 insns)\n  Weather_Init__Fv: PASS (211 insns)\n  Weather_DeInit__Fv: PASS (37 insns)\n  Weather_TransformVertex__FP10matrixtdefiP7SVECTOR: PASS (49 insns)\n  Weather_CheckAndResetParticles__FP7SVECTOR: PASS (223 insns)\n  Weather_QuickReOrthogonalize__FP10matrixtdefT0: PASS (160 insns)\n  Weather_ProcessParticles__FP13DRender_tViewiP7SVECTORPc: PASS (251 insns)\n  Weather_CreateSnow__FP7SVECTOR: PASS (108 insns)\n  Weather_CreateRain__FP7SVECTORP7DVECTORPc: PASS (113 insns)\n  Weather_CreateSplat__FP18Weather_tSplatInfo: PASS (74 insns)\n  Weather_DoSplats__FiP18Weather_tSplatInfo: PASS (113 insns)\n  Weather_DoWeather__FP13DRender_tView: PASS (197 insns)\n  Weather_BuildWeather__FP13DRender_tView: PASS (23 insns)\n",
+      "stderr": "",
+      "object_sha256": "d2faf83be4d96c6a207b497065aef23a8bf4a6ad8ca2ec547d289ebe5c3901a6",
+      "branches": []
+    },
+    {
+      "mode": "strict_280",
+      "compiler": "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+      "compiler_sha256": "61781c2f67b8486281720fdabb1fd7b549cce7f92918cb7b505db1fce54742b7",
+      "g_value": 8,
+      "force_addr": false,
+      "source_only": true,
+      "passed": 24,
+      "functions": 25,
+      "returncode": 1,
+      "stdout": "  Weather_GetNumParticles__Fi: PASS (4 insns)\n  Weather_SetMatrix__FP10matrixtdef: PASS (49 insns)\n  Weather_SetIdentMatrix__Fv: PASS (33 insns)\n  Weather_InitSnow__Fv: PASS (24 insns)\n  Weather_InitRain__Fv: PASS (24 insns)\n  Weather_InitSplats__Fv: PASS (69 insns)\n  Weather_GetNewState__Fv: PASS (16 insns)\n  Weather_ChangeDensityState__Fv: PASS (29 insns)\n  Weather_ChangeIntensityState__Fv: PASS (30 insns)\n  Weather_ChangeDensityBasedOnTime__Fv: PASS (54 insns)\n  Weather_ChangeIntensityBasedOnTime__Fv: PASS (62 insns)\n  Weather_InitStateControls__Fv: PASS (51 insns)\n  Weather_Restart__Fv: PASS (31 insns)\n  Weather_Init__Fv: FAIL 12 diffs (ours 211 / oracle 211)\n      -lui v0,0\n      -lui v1,0\n      -lw v1,0(v1)\n      -addiu v0,v0,0\n      +lui a0,0\n      +lui v0,0\n      +lw v1,0(v0)\n      +addiu v0,a0,0\n      -nop\n      -lw v1,0(v0)\n      +lw v1,0(a0)\n      +nop\n  Weather_DeInit__Fv: PASS (37 insns)\n  Weather_TransformVertex__FP10matrixtdefiP7SVECTOR: PASS (49 insns)\n  Weather_CheckAndResetParticles__FP7SVECTOR: PASS (223 insns)\n  Weather_QuickReOrthogonalize__FP10matrixtdefT0: PASS (160 insns)\n  Weather_ProcessParticles__FP13DRender_tViewiP7SVECTORPc: PASS (251 insns)\n  Weather_CreateSnow__FP7SVECTOR: PASS (108 insns)\n  Weather_CreateRain__FP7SVECTORP7DVECTORPc: PASS (113 insns)\n  Weather_CreateSplat__FP18Weather_tSplatInfo: PASS (74 insns)\n  Weather_DoSplats__FiP18Weather_tSplatInfo: PASS (113 insns)\n  Weather_DoWeather__FP13DRender_tView: PASS (197 insns)\n  Weather_BuildWeather__FP13DRender_tView: PASS (23 insns)\n",
+      "stderr": "",
+      "object_sha256": "863bbd8dcaa62bd8629743d82a08f374d64187ed8f6b4495c29ea871e7a73e3c",
+      "branches": []
+    },
+    {
+      "mode": "strict_280_force",
+      "compiler": "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+      "compiler_sha256": "61781c2f67b8486281720fdabb1fd7b549cce7f92918cb7b505db1fce54742b7",
+      "g_value": 8,
+      "force_addr": true,
+      "source_only": true,
+      "passed": 22,
+      "functions": 25,
+      "returncode": 1,
+      "stdout": "  Weather_GetNumParticles__Fi: PASS (4 insns)\n  Weather_SetMatrix__FP10matrixtdef: PASS (49 insns)\n  Weather_SetIdentMatrix__Fv: PASS (33 insns)\n  Weather_InitSnow__Fv: PASS (24 insns)\n  Weather_InitRain__Fv: PASS (24 insns)\n  Weather_InitSplats__Fv: PASS (69 insns)\n  Weather_GetNewState__Fv: PASS (16 insns)\n  Weather_ChangeDensityState__Fv: PASS (29 insns)\n  Weather_ChangeIntensityState__Fv: PASS (30 insns)\n  Weather_ChangeDensityBasedOnTime__Fv: PASS (54 insns)\n  Weather_ChangeIntensityBasedOnTime__Fv: PASS (62 insns)\n  Weather_InitStateControls__Fv: PASS (51 insns)\n  Weather_Restart__Fv: PASS (31 insns)\n  Weather_Init__Fv: PASS (211 insns)\n  Weather_DeInit__Fv: PASS (37 insns)\n  Weather_TransformVertex__FP10matrixtdefiP7SVECTOR: PASS (49 insns)\n  Weather_CheckAndResetParticles__FP7SVECTOR: PASS (223 insns)\n  Weather_QuickReOrthogonalize__FP10matrixtdefT0: FAIL 57 diffs (ours 157 / oracle 160)\n      -addiu sp,sp,-64\n      -sw s2,40(sp)\n      -addu s2,a0,zero\n      +addiu sp,sp,-72\n      +sw s5,52(sp)\n      +addu s5,a0,zero\n      +sw s7,60(sp)\n      +addiu s7,s5,12\n      +sw s2,40(sp)\n      +sw ra,64(sp)\n      -sw ra,60(sp)\n      -sw s5,52(sp)\n  Weather_ProcessParticles__FP13DRender_tViewiP7SVECTORPc: FAIL 22 diffs (ours 251 / oracle 251)\n      -addiu a0,v0,0\n      -sll v0,v1,1\n      -addu v0,v0,v1\n      -sll v0,v0,2\n      -addu v0,v0,a0\n      +addiu a1,v0,0\n      +sll v0,v1,1\n      +addu v0,v0,v1\n      +sll v0,v0,2\n      +addu v0,v0,a1\n      -nop\n      +addiu a0,s3,8\n  Weather_CreateSnow__FP7SVECTOR: PASS (108 insns)\n  Weather_CreateRain__FP7SVECTORP7DVECTORPc: PASS (113 insns)\n  Weather_CreateSplat__FP18Weather_tSplatInfo: PASS (74 insns)\n  Weather_DoSplats__FiP18Weather_tSplatInfo: PASS (113 insns)\n  Weather_DoWeather__FP13DRender_tView: FAIL 4 diffs (ours 197 / oracle 197)\n      +sll s1,s2,2\n      -sll s1,s2,2\n      +sll s0,s2,2\n      -sll s0,s2,2\n  Weather_BuildWeather__FP13DRender_tView: PASS (23 insns)\n",
+      "stderr": "",
+      "object_sha256": "c6d01d31f8fbcfd6a31ca1a2cc5a1b60a2ad3258562e7759ae0dc8d2fc4f440c",
+      "branches": [
+        {
+          "function": "Weather_QuickReOrthogonalize__FP10matrixtdefT0",
+          "ours": [
+            [
+              43,
+              17
+            ],
+            [
+              58,
+              17
+            ],
+            [
+              77,
+              8
+            ]
+          ],
+          "oracle": [
+            [
+              45,
+              17
+            ],
+            [
+              60,
+              17
+            ],
+            [
+              79,
+              8
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "strict_281",
+      "compiler": "C:\\Temp\\psq44\\pssn\\bin\\CC1PLPSX.EXE",
+      "compiler_sha256": "70319c94de27924f5720af361afd2aa7e6de051a7718e0c1a7f07b57fa92109c",
+      "g_value": 8,
+      "force_addr": false,
+      "source_only": true,
+      "passed": 24,
+      "functions": 25,
+      "returncode": 1,
+      "stdout": "  Weather_GetNumParticles__Fi: PASS (4 insns)\n  Weather_SetMatrix__FP10matrixtdef: PASS (49 insns)\n  Weather_SetIdentMatrix__Fv: PASS (33 insns)\n  Weather_InitSnow__Fv: PASS (24 insns)\n  Weather_InitRain__Fv: PASS (24 insns)\n  Weather_InitSplats__Fv: PASS (69 insns)\n  Weather_GetNewState__Fv: PASS (16 insns)\n  Weather_ChangeDensityState__Fv: PASS (29 insns)\n  Weather_ChangeIntensityState__Fv: PASS (30 insns)\n  Weather_ChangeDensityBasedOnTime__Fv: PASS (54 insns)\n  Weather_ChangeIntensityBasedOnTime__Fv: PASS (62 insns)\n  Weather_InitStateControls__Fv: PASS (51 insns)\n  Weather_Restart__Fv: PASS (31 insns)\n  Weather_Init__Fv: FAIL 12 diffs (ours 211 / oracle 211)\n      -lui v0,0\n      -lui v1,0\n      -lw v1,0(v1)\n      -addiu v0,v0,0\n      +lui a0,0\n      +lui v0,0\n      +lw v1,0(v0)\n      +addiu v0,a0,0\n      -nop\n      -lw v1,0(v0)\n      +lw v1,0(a0)\n      +nop\n  Weather_DeInit__Fv: PASS (37 insns)\n  Weather_TransformVertex__FP10matrixtdefiP7SVECTOR: PASS (49 insns)\n  Weather_CheckAndResetParticles__FP7SVECTOR: PASS (223 insns)\n  Weather_QuickReOrthogonalize__FP10matrixtdefT0: PASS (160 insns)\n  Weather_ProcessParticles__FP13DRender_tViewiP7SVECTORPc: PASS (251 insns)\n  Weather_CreateSnow__FP7SVECTOR: PASS (108 insns)\n  Weather_CreateRain__FP7SVECTORP7DVECTORPc: PASS (113 insns)\n  Weather_CreateSplat__FP18Weather_tSplatInfo: PASS (74 insns)\n  Weather_DoSplats__FiP18Weather_tSplatInfo: PASS (113 insns)\n  Weather_DoWeather__FP13DRender_tView: PASS (197 insns)\n  Weather_BuildWeather__FP13DRender_tView: PASS (23 insns)\n",
+      "stderr": "",
+      "object_sha256": "863bbd8dcaa62bd8629743d82a08f374d64187ed8f6b4495c29ea871e7a73e3c",
+      "branches": []
+    },
+    {
+      "mode": "strict_281_force",
+      "compiler": "C:\\Temp\\psq44\\pssn\\bin\\CC1PLPSX.EXE",
+      "compiler_sha256": "70319c94de27924f5720af361afd2aa7e6de051a7718e0c1a7f07b57fa92109c",
+      "g_value": 8,
+      "force_addr": true,
+      "source_only": true,
+      "passed": 22,
+      "functions": 25,
+      "returncode": 1,
+      "stdout": "  Weather_GetNumParticles__Fi: PASS (4 insns)\n  Weather_SetMatrix__FP10matrixtdef: PASS (49 insns)\n  Weather_SetIdentMatrix__Fv: PASS (33 insns)\n  Weather_InitSnow__Fv: PASS (24 insns)\n  Weather_InitRain__Fv: PASS (24 insns)\n  Weather_InitSplats__Fv: PASS (69 insns)\n  Weather_GetNewState__Fv: PASS (16 insns)\n  Weather_ChangeDensityState__Fv: PASS (29 insns)\n  Weather_ChangeIntensityState__Fv: PASS (30 insns)\n  Weather_ChangeDensityBasedOnTime__Fv: PASS (54 insns)\n  Weather_ChangeIntensityBasedOnTime__Fv: PASS (62 insns)\n  Weather_InitStateControls__Fv: PASS (51 insns)\n  Weather_Restart__Fv: PASS (31 insns)\n  Weather_Init__Fv: PASS (211 insns)\n  Weather_DeInit__Fv: PASS (37 insns)\n  Weather_TransformVertex__FP10matrixtdefiP7SVECTOR: PASS (49 insns)\n  Weather_CheckAndResetParticles__FP7SVECTOR: PASS (223 insns)\n  Weather_QuickReOrthogonalize__FP10matrixtdefT0: FAIL 57 diffs (ours 157 / oracle 160)\n      -addiu sp,sp,-64\n      -sw s2,40(sp)\n      -addu s2,a0,zero\n      +addiu sp,sp,-72\n      +sw s5,52(sp)\n      +addu s5,a0,zero\n      +sw s7,60(sp)\n      +addiu s7,s5,12\n      +sw s2,40(sp)\n      +sw ra,64(sp)\n      -sw ra,60(sp)\n      -sw s5,52(sp)\n  Weather_ProcessParticles__FP13DRender_tViewiP7SVECTORPc: FAIL 22 diffs (ours 251 / oracle 251)\n      -addiu a0,v0,0\n      -sll v0,v1,1\n      -addu v0,v0,v1\n      -sll v0,v0,2\n      -addu v0,v0,a0\n      +addiu a1,v0,0\n      +sll v0,v1,1\n      +addu v0,v0,v1\n      +sll v0,v0,2\n      +addu v0,v0,a1\n      -nop\n      +addiu a0,s3,8\n  Weather_CreateSnow__FP7SVECTOR: PASS (108 insns)\n  Weather_CreateRain__FP7SVECTORP7DVECTORPc: PASS (113 insns)\n  Weather_CreateSplat__FP18Weather_tSplatInfo: PASS (74 insns)\n  Weather_DoSplats__FiP18Weather_tSplatInfo: PASS (113 insns)\n  Weather_DoWeather__FP13DRender_tView: FAIL 4 diffs (ours 197 / oracle 197)\n      +sll s1,s2,2\n      -sll s1,s2,2\n      +sll s0,s2,2\n      -sll s0,s2,2\n  Weather_BuildWeather__FP13DRender_tView: PASS (23 insns)\n",
+      "stderr": "",
+      "object_sha256": "c6d01d31f8fbcfd6a31ca1a2cc5a1b60a2ad3258562e7759ae0dc8d2fc4f440c",
+      "branches": [
+        {
+          "function": "Weather_QuickReOrthogonalize__FP10matrixtdefT0",
+          "ours": [
+            [
+              43,
+              17
+            ],
+            [
+              58,
+              17
+            ],
+            [
+              77,
+              8
+            ]
+          ],
+          "oracle": [
+            [
+              45,
+              17
+            ],
+            [
+              60,
+              17
+            ],
+            [
+              79,
+              8
+            ]
+          ]
+        }
+      ]
+    }
+  ],
+  "identical_to_normal": [
+    "normal_mixed"
+  ]
+}

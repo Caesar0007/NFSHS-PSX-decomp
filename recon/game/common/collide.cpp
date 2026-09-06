@@ -1,5 +1,5 @@
 /* game/common/collide.cpp -- RECONSTRUCTED (NFS4 collision detection; BO_tNewtonObj vs world/objects).
- *   13 fns: vertex/center-vertex direction checks, plane test, object-object + accurate point-radius
+ *   14 fns: vertex/center-vertex direction checks, plane test, object-object + accurate point-radius
  *   collision, registry. SYM-v3 locals applied; owns 16 globals (registry/ranges/basis-dot scratch).
  *   NOT original source; self-contained, recompilable. Ghidra LAB_<addr> goto-labels = deferred-#148 cosmetic.
  */
@@ -583,7 +583,7 @@ LAB_DAMAGE_ZONE:
 /* ---- Collide_DoObjectObjectCollision__FP13BO_tNewtonObjT0P8coorddefT2  [@0x8008e5d4] ---- */
 int Collide_DoObjectObjectCollision(BO_tNewtonObj *o0,BO_tNewtonObj *o1,coorddef *p,coorddef *normal)
 {
-  /* RULE-8 rewrite from SYM 8c block @0x8008e5d4 (fsize=184 mask=$c0ff0000 = ra+s2..s7) + m2c
+  /* RULE-8 rewrite from SYM 8c block @0x8008e5d4 (fsize=184 mask=$c0ff0000 = ra+fp+s0..s7) + m2c
      pregen + raw oracle, blocks in oracle VA order.  Note SYM: o0/normal are class ARG (stack-
      spilled params, §3.15), o1/p are REGPARM (kept live).  SYM fn-scope names applied verbatim:
        impulse,impulseWST,impulseV,R0CrossN,R1CrossN,Rt0,Rt1,numerator,deltaV,damageVector
@@ -607,25 +607,17 @@ int Collide_DoObjectObjectCollision(BO_tNewtonObj *o0,BO_tNewtonObj *o1,coorddef
   int numerator;
   coorddef deltaV;
   coorddef damageVector;
-  /* MATCH: zero-insn PARM-SPILL PIN.  It must sit BEFORE the first source
-     statement (i.e. ahead of the object1 initializer): assign_parms' arg
-     stores are emitted ahead of it, so `sw a3,196(sp)` (normal's ARG home)
-     stays in the prologue group instead of being sunk 27 insns by sched2,
-     and the un-coalesced parm copy `addu t0,a3,zero` reappears.  One
-     statement LATER it also pins `addu fp,a1,zero`, which retail schedules
-     into a load-delay slot (5 diffs).  2nd operand => 203 diffs (05C). */
-  __asm__("" : : "i"(0));
-  /* SYM-CODEGEN-CARRIER: object1 -- this alias is the measured source-level
-     spelling that keeps retail's long-lived `o1` allocation in $fp. */
-  BO_tNewtonObj *object1 = o1;
-#define o1 object1
+  /* P873: native o1 is REGPARM $fp, not a second source object.  Removing
+     object1 alone was FAIL 5 (992/991); removing its obsolete preceding
+     empty-asm fence as well restores PASS 991/991 and the native o1 record. */
 
-
-  Rt0.x = p->x - (o0->position).x;
-  Rt0.y = p->y - (o0->position).y;
+  /* SLD 563 and 564 each cover one vector subtraction.  Keep each expansion
+     as one expression without inventing an unavailable macro identifier. */
+  Rt0.x = p->x - (o0->position).x,
+  Rt0.y = p->y - (o0->position).y,
   Rt0.z = p->z - (o0->position).z;
-  Rt1.x = p->x - (o1->position).x;
-  Rt1.y = p->y - (o1->position).y;
+  Rt1.x = p->x - (o1->position).x,
+  Rt1.y = p->y - (o1->position).y,
   Rt1.z = p->z - (o1->position).z;
   R0CrossN.x = fixedmult(Rt0.y,normal->z) - fixedmult(Rt0.z,normal->y);
   R0CrossN.y = fixedmult(Rt0.z,normal->x) - fixedmult(Rt0.x,normal->z);
@@ -650,22 +642,27 @@ int Collide_DoObjectObjectCollision(BO_tNewtonObj *o0,BO_tNewtonObj *o1,coorddef
   if (impulse < 0) {
     return 0;
   }
-  if (((o0[1].simRoadInfo.quadPts[1].y & 4) != 0) && ((o0->collision).collided == 0)) {
+  /* P873: native Car_tObj::carFlags is INT at +0x260 (SYM 2169a8).
+     All six flag reads below use that car field, not a coincident-offset
+     member of a fictitious second BO_tNewtonObj. */
+  if (((((Car_tObj *)o0)->carFlags & 4) != 0) && ((o0->collision).collided == 0)) {
     (o0->collision).collided = 2;
   }
-  if (((o1[1].simRoadInfo.quadPts[1].y & 4) != 0) && ((o1->collision).collided == 0)) {
+  if (((((Car_tObj *)o1)->carFlags & 4) != 0) && ((o1->collision).collided == 0)) {
     (o1->collision).collided = 2;
   }
   impulse = fixedmult(
-      ((o0[1].simRoadInfo.quadPts[1].y & 4) != 0) &&
-              ((o1[1].simRoadInfo.quadPts[1].y & 4) != 0)
+      ((((Car_tObj *)o0)->carFlags & 4) != 0) &&
+              ((((Car_tObj *)o1)->carFlags & 4) != 0)
           ? 0x4000
           : 0x3333,
       impulse);
   /* MATCH: zero-insn USE FENCE (sched-issue-position fixpoint).  Without it the
      `addu s6,v0,zero` that lands the scaled impulse sinks into the load-delay
      slot of the following `lw t0,196(sp)`; retail issues it straight after the
-     jal's delay slot and nops the load shadow. */
+     jal's delay slot and nops the load shadow.  Re-tested after P873's
+     parameter restoration: removing this remaining fence is FAIL 3
+     (990/991), so it remains an unresolved source-order reconstruction. */
   __asm__("" : : "i"(0));
   impulseV.x = fixedmult(impulse,normal->x);
   impulseV.y = fixedmult(impulse,normal->y);
@@ -805,7 +802,7 @@ o1_zdisp:
   deltaV.x = fixedmult(Rt0.y,impulseV.z) - fixedmult(Rt0.z,impulseV.y);
   deltaV.y = fixedmult(Rt0.z,impulseV.x) - fixedmult(Rt0.x,impulseV.z);
   deltaV.z = fixedmult(Rt0.x,impulseV.y) - fixedmult(Rt0.y,impulseV.x);
-  if (((o0[1].simRoadInfo.quadPts[1].y & 4) != 0) && (impulse <= 0x3FFFFF)) {
+  if (((((Car_tObj *)o0)->carFlags & 4) != 0) && (impulse <= 0x3FFFFF)) {
     deltaV.x = fixedmult((o0->moInertiaInv * 3) / 4,deltaV.x);
     deltaV.y = fixedmult((o0->moInertiaInv * 3) / 4,deltaV.y);
     deltaV.z = fixedmult((o0->moInertiaInv * 3) / 4,deltaV.z);
@@ -820,7 +817,7 @@ o1_zdisp:
   deltaV.x = fixedmult(Rt1.y,impulseV.z) - fixedmult(Rt1.z,impulseV.y);
   deltaV.y = fixedmult(Rt1.z,impulseV.x) - fixedmult(Rt1.x,impulseV.z);
   deltaV.z = fixedmult(Rt1.x,impulseV.y) - fixedmult(Rt1.y,impulseV.x);
-  if (((o1[1].simRoadInfo.quadPts[1].y & 4) != 0) && (impulse <= 0x3FFFFF)) {
+  if (((((Car_tObj *)o1)->carFlags & 4) != 0) && (impulse <= 0x3FFFFF)) {
     deltaV.x = fixedmult((o1->moInertiaInv * 3) / 4,deltaV.x);
     deltaV.y = fixedmult((o1->moInertiaInv * 3) / 4,deltaV.y);
     deltaV.z = fixedmult((o1->moInertiaInv * 3) / 4,deltaV.z);
@@ -837,7 +834,6 @@ o1_zdisp:
   (o0->collision).collisionPoint.x = (o1->collision).collisionPoint.x = ((o0->position).x + (o1->position).x) / 2;
   (o0->collision).collisionPoint.y = (o1->collision).collisionPoint.y = ((o0->position).y + (o1->position).y) / 2;
   (o0->collision).collisionPoint.z = (o1->collision).collisionPoint.z = ((o0->position).z + (o1->position).z) / 2;
-#undef o1
   return 1;
 }
 
@@ -1606,95 +1602,51 @@ int Collide_TestObjectVertices(BO_tNewtonObj *o0,BO_tNewtonObj *o1,coorddef *p,c
 }
 
 /* ---- Collide_CheckForCollisionBetween__FP13BO_tNewtonObjT0  [@0x80091374] ---- */
+/* SYM/PASS P872: native records 21e074-21e193 own only p, normal and the
+   nested count block.  The real while condition (SLD 1389), separate count
+   decrement and shared final return let gcc hoist &normal and 0xf0000 itself;
+   the former normalPtr/speedThresh source carriers are not needed.  The same
+   loop shape occurs in the matched NFS2 PC beta Collide_CheckForCollisionBetween.
+   PASS 88/88, exact -g, with retail SLD statement groups and branch distances.
+   The damage guards read native Car_tObj::crash at +0x3ec, not a field of
+   a fictitious second BO_tNewtonObj; the explicit car views preserve PASS88.
+   Measured alternatives: direct removal in while(true) FAIL 96 (86/88),
+   normalPtr-only removal FAIL 89 (89/88), speedThresh-only removal FAIL 19
+   (85/88), and a count-- condition/shared-break rewrite FAIL 104 (94/88). */
 int Collide_CheckForCollisionBetween(BO_tNewtonObj *o0,BO_tNewtonObj *o1)
-
-
-
 {
-  /* SYM-CODEGEN-CARRIER: normalPtr -- SYM omits this optimized pointer and
-     cannot prove its source spelling; retaining a named `&normal` quantity is
-     required for retail's saved normal-address register allocation. */
-  coorddef *normalPtr;
-
-  /* SYM-CODEGEN-CARRIER: speedThresh -- SYM omits this optimized constant and
-     cannot prove its spelling; a named loop-spanning threshold preserves the
-     retail saved constant and frame. */
-  int speedThresh;
-
-  int count;
-
   coorddef p;
-
   coorddef normal;
 
-
-
   (o0->collision).impulse = 0;
-
   (o1->collision).impulse = 0;
-
   if (Collide_TestObjectVertices(o0,o1,&p,&normal) == 0) {
-
     return 0;
-
   }
-
-  Collide_DoObjectObjectCollision(o0,o1,&p,&normal);
-
-  count = 8;
-
-  Physics_TestForBarrierCollision((Car_tObj *)o0);
-
-  Physics_TestForBarrierCollision((Car_tObj *)o1);
-
-  normalPtr = &normal;
-
-  speedThresh = 0xf0000;
-
-  while( true ) {
-
-    if (Collide_TestObjectVertices(o0,o1,&p,normalPtr) == 0) {
-
-      return 1;
-
-    }
-
-    if (count <= 0) {
-
-      return 1;
-
-    }
-
-    count = count - 1;
-
-    if (Collide_DoObjectObjectCollision(o0,o1,&p,normalPtr) == 0) {
-
-      return 1;
-
-    }
-
+  {
+    int count;
+    Collide_DoObjectObjectCollision(o0,o1,&p,&normal);
+    count = 8;
     Physics_TestForBarrierCollision((Car_tObj *)o0);
-
     Physics_TestForBarrierCollision((Car_tObj *)o1);
-
-    if (count == 0) {
-
-      if ((o0[1].collision.lastCollision != 0) && (speedThresh < o0->speedXZ)) {
-
-        Newton_AddDamageZone(o0,0x640000,8,2);
-
+    while (Collide_TestObjectVertices(o0,o1,&p,&normal) && count > 0) {
+      count = count - 1;
+      if (Collide_DoObjectObjectCollision(o0,o1,&p,&normal) == 0) {
+        return 1;
       }
-
-      if ((o1[1].collision.lastCollision != 0) && (speedThresh < o1->speedXZ)) {
-
-        Newton_AddDamageZone(o1,0x640000,8,2);
-
+      Physics_TestForBarrierCollision((Car_tObj *)o0);
+      Physics_TestForBarrierCollision((Car_tObj *)o1);
+      if (count == 0) {
+        if ((((Car_tObj *)o0)->crash != 0) && (0xf0000 < o0->speedXZ)) {
+          Newton_AddDamageZone(o0,0x640000,8,2);
+        }
+        if ((((Car_tObj *)o1)->crash != 0) && (0xf0000 < o1->speedXZ)) {
+          Newton_AddDamageZone(o1,0x640000,8,2);
+        }
       }
-
     }
-
+    return 1;
   }
-
 }
 
 /* ---- Collide_ClearCollisionRegistry__Fv  [@0x800914d4] ---- */
@@ -1703,41 +1655,50 @@ void Collide_ClearCollisionRegistry(void)
   int carLoop;
   coorddef relVec;
   coorddef rightVec;
-  int i;
-  int slice;
 
   /* MATCH: SYM rule-8 - locals are exactly {carLoop REG, relVec AUTO, rightVec AUTO, i REG,
      slice REG}; plain InfiniteMassNewton[i].field indexing lets gcc strength-reduce the
      walking s-reg givs itself (no hand pointer locals). relVec/rightVec are REAL stack
      structs (oracle spills all six words to 0x10-0x28(sp)). NOTE: all three relVec
      components subtract center[0] - faithful to retail (looks like an original bug). */
+  /* P874: native 21e256/21e25f puts i in the for scope, while 21e277/21e280
+     puts slice in its nested body block.  Those scopes end at 80091690 and
+     80091664 respectively; neither variable belongs at function scope.
+     The extra body braces preserve the distinct loop-test/body debug blocks. */
   Collide_gNumRegistered = 0;
-  for (i = 0; i < Object_GetNumIMassObjects(); i = i + 1) {
-    Object_GetIMassObjectMotion(i,&InfiniteMassNewton[i].position,&InfiniteMassNewton[i].orientMat,
-                                 &InfiniteMassNewton[i].linearVel);
-    InfiniteMassNewton[i].angularVel.x = 0;
-    InfiniteMassNewton[i].angularVel.y = 0;
-    InfiniteMassNewton[i].angularVel.z = 0;
-    Collide_gRegistry[i] = &InfiniteMassNewton[i];
-    Collide_gNumRegistered = Collide_gNumRegistered + 1;
-    BWorldSm_FindClosestSlice(&InfiniteMassNewton[i].position,&InfiniteMassNewton[i].simRoadInfo);
-    slice = InfiniteMassNewton[i].simRoadInfo.slice;
-    relVec.x = InfiniteMassNewton[i].position.x - COLLIDE_SLICE_CENTER0(slice);
-    relVec.y = InfiniteMassNewton[i].position.y - COLLIDE_SLICE_CENTER0(slice);
-    relVec.z = InfiniteMassNewton[i].position.z - COLLIDE_SLICE_CENTER0(slice);
-    rightVec.x = COLLIDE_SLICE_RIGHT(slice,0) * 0x200;
-    rightVec.y = COLLIDE_SLICE_RIGHT(slice,1) * 0x200;
-    rightVec.z = COLLIDE_SLICE_RIGHT(slice,2) * 0x200;
-    InfiniteMassNewton[i].xRelRoadCenter =
-        (relVec.x / 256) * (rightVec.x / 256) + (relVec.y / 256) * (rightVec.y / 256) +
-        (relVec.z / 256) * (rightVec.z / 256);
+  for (int i = 0; i < Object_GetNumIMassObjects(); i = i + 1) {
+    {
+      int slice;
+      Object_GetIMassObjectMotion(i,&InfiniteMassNewton[i].position,&InfiniteMassNewton[i].orientMat,
+                                   &InfiniteMassNewton[i].linearVel);
+      InfiniteMassNewton[i].angularVel.x = 0;
+      InfiniteMassNewton[i].angularVel.y = 0;
+      InfiniteMassNewton[i].angularVel.z = 0;
+      Collide_gRegistry[i] = &InfiniteMassNewton[i];
+      Collide_gNumRegistered = Collide_gNumRegistered + 1;
+      BWorldSm_FindClosestSlice(&InfiniteMassNewton[i].position,&InfiniteMassNewton[i].simRoadInfo);
+      slice = InfiniteMassNewton[i].simRoadInfo.slice;
+      relVec.x = InfiniteMassNewton[i].position.x - COLLIDE_SLICE_CENTER0(slice);
+      relVec.y = InfiniteMassNewton[i].position.y - COLLIDE_SLICE_CENTER0(slice);
+      relVec.z = InfiniteMassNewton[i].position.z - COLLIDE_SLICE_CENTER0(slice);
+      rightVec.x = COLLIDE_SLICE_RIGHT(slice,0) * 0x200;
+      rightVec.y = COLLIDE_SLICE_RIGHT(slice,1) * 0x200;
+      rightVec.z = COLLIDE_SLICE_RIGHT(slice,2) * 0x200;
+      InfiniteMassNewton[i].xRelRoadCenter =
+          (relVec.x / 256) * (rightVec.x / 256) + (relVec.y / 256) * (rightVec.y / 256) +
+          (relVec.z / 256) * (rightVec.z / 256);
+    }
   }
   carLoop = 0;
   {
     /* SYM-CODEGEN-CARRIER: n -- the optimized retail bound has no surviving
        debug record. A direct global bound is count-exact but has six register
-       diffs; structured while/do/for spellings add 1-4 instructions. Keeping
-       this eliminated source snapshot reproduces the exact $a0 bound web. */
+       diffs; keeping this source snapshot reproduces the exact $a0 bound web.
+       P874 re-tested after restoring the i/slice scopes: ordinary for and
+       exit-in-the-middle for FAIL 10 (132/128), postincrement-condition for
+       FAIL 11 (131/128), do/postincrement FAIL 4 (128/128), and do/prefix
+       FAIL 7 (129/128).  The count-exact do form retains an unwanted old-value
+       copy; the original empty-loop source still needs recovery. */
     int n = Cars_gNumCars;
 carloop_top:
     if (carLoop < n) {

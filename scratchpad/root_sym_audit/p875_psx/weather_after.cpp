@@ -1,0 +1,26 @@
+#include "C:/Temp/nfs4-decomp/recon/game/psx/weather.h"
+int (*p875_probe_0)(int player) = &Weather_GetNumParticles;
+void (*p875_probe_1)(matrixtdef * m) = &Weather_SetMatrix;
+void (*p875_probe_2)(void) = &Weather_SetIdentMatrix;
+void (*p875_probe_3)(void) = &Weather_InitSnow;
+void (*p875_probe_4)(void) = &Weather_InitRain;
+void (*p875_probe_5)(void) = &Weather_InitSplats;
+int (*p875_probe_6)(void) = &Weather_GetNewState;
+void (*p875_probe_7)(void) = &Weather_ChangeDensityState;
+void (*p875_probe_8)(void) = &Weather_ChangeIntensityState;
+void (*p875_probe_9)(void) = &Weather_ChangeDensityBasedOnTime;
+void (*p875_probe_10)(void) = &Weather_ChangeIntensityBasedOnTime;
+void (*p875_probe_11)(void) = &Weather_InitStateControls;
+void (*p875_probe_12)(void) = &Weather_Restart;
+void (*p875_probe_13)(void) = &Weather_Init;
+void (*p875_probe_14)(void) = &Weather_DeInit;
+void (*p875_probe_15)(matrixtdef * m,int n,SVECTOR * s) = &Weather_TransformVertex;
+short (*p875_probe_16)(SVECTOR * pt) = &Weather_CheckAndResetParticles;
+void (*p875_probe_17)(matrixtdef * rot,matrixtdef * rotNew) = &Weather_QuickReOrthogonalize;
+void (*p875_probe_18)(DRender_tView * Vi,int num,SVECTOR * wpt,char * wd) = &Weather_ProcessParticles;
+void (*p875_probe_19)(SVECTOR * pt) = &Weather_CreateSnow;
+void (*p875_probe_20)(SVECTOR * pt0,DVECTOR * pt1,char * wd) = &Weather_CreateRain;
+void (*p875_probe_21)(Weather_tSplatInfo * splat) = &Weather_CreateSplat;
+void (*p875_probe_22)(int num,Weather_tSplatInfo * splats) = &Weather_DoSplats;
+void (*p875_probe_23)(DRender_tView * Vi) = &Weather_DoWeather;
+void (*p875_probe_24)(DRender_tView * Vi) = &Weather_BuildWeather;

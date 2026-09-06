@@ -27,7 +27,8 @@ extern int                 Cars_gNumCopCars;
 extern int                 Object_customSliceNum;    /* 0x8013d2d4 */
 extern int                 generic128HzClock, stackSpeedUpEnbabledFlag;
 extern int               Replay_ReplayMode;          /* replay.obj */
-extern int               screenheight, ticks, gFlip, gLargestUnused, Draw_gPlayer1View, Draw_gDoVSync, currentVideo;
+extern int               screenheight, ticks, gFlip, Draw_gPlayer1View, Draw_gDoVSync, currentVideo;
+extern unsigned long     gLargestUnused;  /* SYM 4b4f25: scalar ULONG, FEApp.obj */
 extern int            Chunk_numLight;            /* 0x8013d4ec */
 extern int            Draw_gPlayer1View, Draw_gPlayer2View;
 extern int            gNumSlices;

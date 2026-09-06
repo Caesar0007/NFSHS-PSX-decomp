@@ -8,14 +8,11 @@
 extern "C" void func_800EA6BC(void);
 
 /* ---- Fetools.obj-OWNED globals -- DEFINED here (self-contained; .bss zero / real bytes).
-   font12/font18/fontTitle = FE font pointers (set in FeTools_init); currentSize[0] = current font
+   font12/font18/fontTitle = FE font pointers (set in FeTools_init); currentSize = current font
    size (SYM short -- fetextrender uses it). FeTools_gScrollTicksOut=30 defined below. ---- */
-/* MATCH: font ptrs live in regular .data (defined in asm/data/front_data.data.s), reached
- * absolutely (%hi/%lo) in every oracle, and a global VALUE loaded into an ARG reg uses a SEPARATE
- * $v0 scratch (`lui v0; lw a0,(v0)`), not self-temp (`lui a0; lw a0,(a0)`). The unsized ARRAY shape
- * `[]` + `[0]` access (§3.15) forces gcc to materialize the base in a separate reg before the load
- * (a scalar folds the addr into the dest). Declared extern here (front_data.data.s owns the defn);
- * currentSize[0] stays a scalar but pinned to .data (it's stored, addressed absolutely). */
+/* P871: native SYM 579b0f..579b67 records three PTR CHAR globals, one SHORT
+ * and one INT, not arrays. The established frontend -G0 lane preserves the
+ * retail absolute accesses and separate HI scratch with these scalar types. */
 /* THIS IS Fetools.obj's WHOLE retail .data RUN, IN RETAIL ORDER -- DO NOT RE-SORT.
    SYM Fetools.obj block (W66-A5 symown.py): 0x800517d0 FeTools_gScrollTicksOut ->
    d4 font12 -> d8 font18 -> dc fontTitle -> e0 currentSize (SHORT).  gScrollTicksOut
@@ -23,14 +20,12 @@ extern "C" void func_800EA6BC(void);
    the four zero cells follow it as TENTATIVE definitions in FIRST-DECLARATION order
    (17B EXTERN-ORDER LAW) -- which is exactly these four lines.  Migrated here W66-A5:
    nothing in the 508 recon objects defined the first four, they were still in the blob.
-   All keep the unsized-array `[]` + `[0]` access shape (§3.15): a global VALUE loaded
-   into an ARG reg then uses the oracle's SEPARATE $v0 scratch (`lui v0; lw a0,(v0)`)
-   rather than dest-as-temp (`lui a0; lw a0,(a0)`), which a scalar would fold. */
-int   FeTools_gScrollTicksOut[1] = { 30 };   /* @0x800517d0; SYM-CARRIER: FeTools_gScrollTicksOut */
-char *font12[1];                             /* @0x800517d4; SYM-CARRIER: font12 */
-char *font18[1];                             /* @0x800517d8; SYM-CARRIER: font18 */
-char *fontTitle[1];                          /* @0x800517dc; SYM-CARRIER: fontTitle */
-short currentSize[1];                        /* @0x800517e0; SYM-CARRIER: currentSize */
+   Scalar declarations preserve this data order and the same storage extents. */
+int   FeTools_gScrollTicksOut = 30;   /* @0x800517d0; SYM INT */
+char *font12;                        /* @0x800517d4; SYM PTR CHAR */
+char *font18;                        /* @0x800517d8; SYM PTR CHAR */
+char *fontTitle;                     /* @0x800517dc; SYM PTR CHAR */
+short currentSize;                   /* @0x800517e0; SYM SHORT */
 
 
 /* ---- s_upper  [FETOOLS.CPP:90-95] SLD-VERIFIED ---- */
@@ -130,21 +125,21 @@ void FeTools_init(void)
   
   Font_ExitFromGame();
   sprintf(filename,"%stiny.pfn",Paths_Paths[0x21]);
-  font12[0] = (char *)loadfileadrz(filename,(void *)0x0);
+  font12 = (char *)loadfileadrz(filename,(void *)0x0);
   /* REGIONAL (JPN): tiny.pfn glyph count 0x181 -> 0x100 (audit_lo16 insn 16;
      oracle 80026850 `li a2,256`) -- the JPN font banks carry a different
      character range than the western build. */
-  Font_LoadFont(font12[0],0x3c0,0x100,'\0');
+  Font_LoadFont(font12,0x3c0,0x100,'\0');
   sprintf(filename,"%ssmall.pfn",Paths_Paths[0x21]);
-  font18[0] = (char *)loadfileadrz(filename,(void *)0x0);
-  Font_LoadFont(font18[0],0x380,0x100,'\0');
+  font18 = (char *)loadfileadrz(filename,(void *)0x0);
+  Font_LoadFont(font18,0x380,0x100,'\0');
   sprintf(filename,"%stitle.pfn",Paths_Paths[0x21]);
-  fontTitle[0] = (char *)loadfileadrz(filename,(void *)0x0);
+  fontTitle = (char *)loadfileadrz(filename,(void *)0x0);
   /* REGIONAL (JPN): title.pfn glyph count 0x100 -> 0x160 (audit_lo16 insn 46;
      oracle 800268C8 `li a2,352`).  Distinct `li` per call in the oracle (three
      separate a2 loads) -- no CSE sharing here, so the per-site patch is safe. */
-  Font_LoadFont(fontTitle[0],0x3c0,0x160,'\0');
-  currentSize[0] = 3;
+  Font_LoadFont(fontTitle,0x3c0,0x160,'\0');
+  currentSize = 3;
   return;
 }
 
@@ -155,9 +150,9 @@ void FeTools_init(void)
 void FeTools_deinit(void)
 
 {
-  purgememadr(font18[0]);
-  purgememadr(fontTitle[0]);
-  purgememadr(font12[0]);
+  purgememadr(font18);
+  purgememadr(fontTitle);
+  purgememadr(font12);
   Font_DeInit();
   return;
 }

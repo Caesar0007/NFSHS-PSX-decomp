@@ -1,0 +1,21 @@
+#include "C:/Temp/nfs4-decomp/recon/game/psx/drawc.h"
+void (*p875_probe_0)(u_short * tpage,int nabr) = &ChangeTPage;
+void (*p875_probe_1)(void) = &DrawC_SetEnviroment;
+void (*p875_probe_2)(void) = &DrawC_ReadLightingData;
+void (*p875_probe_3)(void) = &DrawC_ReadeMapData;
+void (*p875_probe_4)(void) = &DrawC_BuildRenderingData;
+void (*p875_probe_5)(void) = &DrawC_KillRenderingData;
+void (*p875_probe_6)(Car_tObj * carObj) = &DrawC_NightHeadlight;
+void (*p875_probe_7)(int color,Car_tObj * carObj,int player) = &DrawC_MenuColorData;
+int (*p875_probe_8)(Draw_tVertex * center,Car_tObj * carObj,int lightAvg,Draw_CarCache * sd) = &DrawC_PrimStart;
+void (*p875_probe_9)(Car_tObj * carObj,Draw_CarCache * sd) = &DrawC_PrimStop;
+void (*p875_probe_10)(matrixtdef * m,coorddef * t,Transformer_zObj * obj,Transformer_zOverlay * overlay,int envmap,Draw_CarCache * sd) = &DrawC_Prim;
+void (*p875_probe_11)(COORD16 * vt0,COORD16 * vt1,COORD16 * vt2,u_short * u0,u_short * u1,u_short * u2,Draw_tPixMap * pmx,Draw_CarCache * sd) = &DrawC_DividePrim;
+void (*p875_probe_12)(matrixtdef * m,coorddef * t,Transformer_zObj * obj,Transformer_zOverlay * overlay,int envmap,Draw_CarCache * sd) = &DrawC_PrimClip;
+void (*p875_probe_13)(matrixtdef * m,coorddef * t,Transformer_zObj * obj,Transformer_zOverlay * overlay,int envmap,Draw_CarCache * sd) = &DrawC_PrimMenu;
+void (*p875_probe_14)(matrixtdef * m,coorddef * t,Transformer_zObj * obj,int type,int index,int reflect,Draw_CarCache * sd) = &DrawC_PrimHalo;
+void (*p875_probe_15)(Draw_tVertex * shadowVT,Draw_CarCache * sd) = &DrawC_ShadowPrim;
+void (*p875_probe_16)(COORD16 * vt0,COORD16 * vt1,COORD16 * vt2,COORD16 * vt3,u_short * u0,u_short * u1,u_short * u2,u_short * u3,Draw_tPixMap * pmx,Draw_CarCache * sd) = &DrawC_DivideShadowPrim;
+void (*p875_probe_17)(Draw_tVertex * shadowVT,Draw_CarCache * sd) = &DrawC_ShadowPrimClip;
+void (*p875_probe_18)(matrixtdef * m,coorddef * t,Draw_CarCache * sd) = &DrawC_SpotPrims;
+void (*p875_probe_19)(matrixtdef * m,coorddef * t,Draw_CarCache * sd) = &DrawC_ShowroomPrims;

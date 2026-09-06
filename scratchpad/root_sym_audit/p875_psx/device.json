@@ -1,0 +1,679 @@
+{
+  "round": "P875",
+  "header": "recon/game/psx/device.h",
+  "source_authority": "C:/Temp/nfs4-clean/nfs4-f-v3.txt",
+  "scope": "Free-function public prototype rows from P874 inventory only; not an all-record or all-project source restoration claim.",
+  "counts": {
+    "inventory_candidates": 10,
+    "corrected_public": 10,
+    "removed_file_static": 0,
+    "before_native_references": 0,
+    "after_native_references": 10,
+    "return_type_corrections": 1,
+    "header_compile_failures": 0,
+    "unresolved_header_candidates": 0,
+    "preexisting_compiler_warning_count": 1
+  },
+  "before_actual_header_compile": {
+    "header": "recon/game/psx/device.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\device_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\device_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\device_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\device_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\device_before.s"
+      ]
+    ],
+    "header_sha256": "cac926f98ff8079c8934c8dee9d5c9e60af0eee04f9c57c5b4771b2146dc9bab",
+    "references": {
+      "0": "Device_VerifyType__Fi__Fi",
+      "1": "Device_Fail__Fi__Fi",
+      "2": "Device_Update__Fv__Fv",
+      "3": "Device_StartUp__Fv__Fv",
+      "4": "Device_SetHardCodedKeys__Fv__Fv",
+      "5": "Device_PSXPad__FUl__FUl",
+      "6": "Device_ReadPad__FiUl__FiUl",
+      "7": "Device_PSXPadMulti__FUl__FUl",
+      "8": "Device_Analog__FUl__FUl",
+      "9": "Device_Null__FUl__FUl"
+    },
+    "ok": true,
+    "assembly_sha256": "fbaf9fbd0490ac1d9a47ec2e18fe2ad44e18286696ea9b254e03cf7fcf05b72f",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".sdata",
+      ".sbss",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\device.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "Device_VerifyType__Fi",
+      "Device_Fail__Fi",
+      "Device_Update__Fv",
+      "Device_StartUp__Fv",
+      "Device_SetHardCodedKeys__Fv",
+      "Device_PSXPad__FUl",
+      "Device_ReadPad__FiUl",
+      "Device_PSXPadMulti__FUl",
+      "Device_Analog__FUl",
+      "Device_Null__FUl",
+      "Device_gForcePause",
+      "Device_gPausePort",
+      "Device_gPaused",
+      "Device_gToggleTime",
+      "Device_gPrev",
+      "Device_gPausePortIndex",
+      "failtime.8"
+    ]
+  },
+  "before_frozen_replay": {
+    "header": "recon/game/psx/device.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\device_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\device_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\device_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\device_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\device_before.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\device_before.cpp:2:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "a38011835c740f8bf26a7c61e0fb52bcaf83eedbf10a96c8ef6b4688eee7571f",
+    "input_mode": "frozen-original-prototype-surface",
+    "references": {
+      "0": "Device_VerifyType__Fi__Fi",
+      "1": "Device_Fail__Fi__Fi",
+      "2": "Device_Update__Fv__Fv",
+      "3": "Device_StartUp__Fv__Fv",
+      "4": "Device_SetHardCodedKeys__Fv__Fv",
+      "5": "Device_PSXPad__FUl__FUl",
+      "6": "Device_ReadPad__FiUl__FiUl",
+      "7": "Device_PSXPadMulti__FUl__FUl",
+      "8": "Device_Analog__FUl__FUl",
+      "9": "Device_Null__FUl__FUl"
+    },
+    "ok": true,
+    "assembly_sha256": "fbaf9fbd0490ac1d9a47ec2e18fe2ad44e18286696ea9b254e03cf7fcf05b72f"
+  },
+  "after_actual_header_compile": {
+    "header": "recon/game/psx/device.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\device_after.cpp",
+    "stage": "after",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\device_after.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\device_after.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\device_after.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\device_after.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:/Temp/nfs4-decomp/recon/game/psx/device.h:4,\n                 from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\device_after.cpp:1:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "969b1615b49c11c5a51845aac34a6518f0939afa13a31b7347c522a45866eb43",
+    "input_mode": "live-public-header",
+    "header_sha256": "73cb2f7572e5abc17bff4ab492749af1ece8d23b03bd84e66cdb294448167381",
+    "references": {
+      "0": "Device_VerifyType__Fi",
+      "1": "Device_Fail__Fi",
+      "2": "Device_Update__Fv",
+      "3": "Device_StartUp__Fv",
+      "4": "Device_SetHardCodedKeys__Fv",
+      "5": "Device_PSXPad__FUl",
+      "6": "Device_ReadPad__FiUl",
+      "7": "Device_PSXPadMulti__FUl",
+      "8": "Device_Analog__FUl",
+      "9": "Device_Null__FUl"
+    },
+    "ok": true,
+    "assembly_sha256": "cc0483170f53529de549725a43a30d1de4aabe9171ff7ef74fea8127b3df1680",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".sdata",
+      ".sbss",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\device.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "Device_VerifyType__Fi",
+      "Device_Fail__Fi",
+      "Device_Update__Fv",
+      "Device_StartUp__Fv",
+      "Device_SetHardCodedKeys__Fv",
+      "Device_PSXPad__FUl",
+      "Device_ReadPad__FiUl",
+      "Device_PSXPadMulti__FUl",
+      "Device_Analog__FUl",
+      "Device_Null__FUl",
+      "Device_gForcePause",
+      "Device_gPausePort",
+      "Device_gPaused",
+      "Device_gToggleTime",
+      "Device_gPrev",
+      "Device_gPausePortIndex",
+      "failtime.8"
+    ]
+  },
+  "owning_tu_gate": {
+    "source": "recon/game/psx/device.cpp",
+    "command": [
+      "C:\\Python314\\python.exe",
+      "tools/tugate.py",
+      "recon/game/psx/device.cpp"
+    ],
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/psx/device.cpp: 10/10 PASS\n",
+    "stderr": "",
+    "object_sha256": "f2d691f32ce1c376839ccb11df897d489abdeab08f8c4f8baa1c778512930bf7",
+    "actual_function_symbols": [
+      "Device_VerifyType__Fi",
+      "Device_Fail__Fi",
+      "Device_Update__Fv",
+      "Device_StartUp__Fv",
+      "Device_SetHardCodedKeys__Fv",
+      "Device_PSXPad__FUl",
+      "Device_ReadPad__FiUl",
+      "Device_PSXPadMulti__FUl",
+      "Device_Analog__FUl",
+      "Device_Null__FUl"
+    ],
+    "local_function_symbols": []
+  },
+  "consumer_census": {
+    "files_scanned": 1677,
+    "literal_users": [],
+    "dynamic_includes": []
+  },
+  "unresolved": [],
+  "prototype_receipts": [
+    {
+      "header": "recon/game/psx/device.h",
+      "line": 6,
+      "encoded": "Device_VerifyType__Fi",
+      "name": "Device_VerifyType",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "int Device_VerifyType__Fi(int port);   /* :51 */",
+      "header_return": "int",
+      "header_signature": "(int port)",
+      "native": [
+        {
+          "record": "3a9947",
+          "va": "800bd3c0",
+          "linkage": "EXT",
+          "return_type": "int"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Device_VerifyType",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\device.cpp",
+          "line": 77,
+          "typeref": "typename:int",
+          "kind": "function",
+          "signature": "(int port)",
+          "end": 92,
+          "return_type": "int",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "int",
+      "final_signature": "(int port)",
+      "final_prototype": "int Device_VerifyType(int port);   /* SYM 3a9947 @0x800bd3c0 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Device_VerifyType__Fi__Fi",
+      "after_emitted_reference": "Device_VerifyType__Fi",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/device.h",
+      "line": 7,
+      "encoded": "Device_Fail__Fi",
+      "name": "Device_Fail",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "int Device_Fail__Fi(int port);   /* :72 */",
+      "header_return": "int",
+      "header_signature": "(int port)",
+      "native": [
+        {
+          "record": "3a996a",
+          "va": "800bd468",
+          "linkage": "EXT",
+          "return_type": "int"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Device_Fail",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\device.cpp",
+          "line": 98,
+          "typeref": "typename:int",
+          "kind": "function",
+          "signature": "(int port)",
+          "end": 115,
+          "return_type": "int",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "int",
+      "final_signature": "(int port)",
+      "final_prototype": "int Device_Fail(int port);   /* SYM 3a996a @0x800bd468 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Device_Fail__Fi__Fi",
+      "after_emitted_reference": "Device_Fail__Fi",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/device.h",
+      "line": 8,
+      "encoded": "Device_Update__Fv",
+      "name": "Device_Update",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Device_Update__Fv(void);   /* :109 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "3a9987",
+          "va": "800bd4d8",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Device_Update",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\device.cpp",
+          "line": 125,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 161,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Device_Update(void);   /* SYM 3a9987 @0x800bd4d8 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Device_Update__Fv__Fv",
+      "after_emitted_reference": "Device_Update__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/device.h",
+      "line": 9,
+      "encoded": "Device_StartUp__Fv",
+      "name": "Device_StartUp",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Device_StartUp__Fv(void);   /* :169 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "3a99a6",
+          "va": "800bd5b8",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Device_StartUp",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\device.cpp",
+          "line": 164,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 175,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Device_StartUp(void);   /* SYM 3a99a6 @0x800bd5b8 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Device_StartUp__Fv__Fv",
+      "after_emitted_reference": "Device_StartUp__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/device.h",
+      "line": 10,
+      "encoded": "Device_SetHardCodedKeys__Fv",
+      "name": "Device_SetHardCodedKeys",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Device_SetHardCodedKeys__Fv(void);   /* :195 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "3a99c6",
+          "va": "800bd5e0",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Device_SetHardCodedKeys",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\device.cpp",
+          "line": 178,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 192,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Device_SetHardCodedKeys(void);   /* SYM 3a99c6 @0x800bd5e0 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Device_SetHardCodedKeys__Fv__Fv",
+      "after_emitted_reference": "Device_SetHardCodedKeys__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/device.h",
+      "line": 11,
+      "encoded": "Device_PSXPad__FUl",
+      "name": "Device_PSXPad",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "int Device_PSXPad__FUl(u_long param);   /* :244 */",
+      "header_return": "int",
+      "header_signature": "(u_long param)",
+      "native": [
+        {
+          "record": "3a99ef",
+          "va": "800bd644",
+          "linkage": "EXT",
+          "return_type": "int"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Device_PSXPad",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\device.cpp",
+          "line": 197,
+          "typeref": "typename:int",
+          "kind": "function",
+          "signature": "(u_long param)",
+          "end": 208,
+          "return_type": "int",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "int",
+      "final_signature": "(u_long param)",
+      "final_prototype": "int Device_PSXPad(u_long param);   /* SYM 3a99ef @0x800bd644 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Device_PSXPad__FUl__FUl",
+      "after_emitted_reference": "Device_PSXPad__FUl",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/device.h",
+      "line": 12,
+      "encoded": "Device_ReadPad__FiUl",
+      "name": "Device_ReadPad",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "BOOL Device_ReadPad__FiUl(int port, u_long param);   /* :261 */",
+      "header_return": "BOOL",
+      "header_signature": "(int port, u_long param)",
+      "native": [
+        {
+          "record": "3a9a0f",
+          "va": "800bd6ac",
+          "linkage": "EXT",
+          "return_type": "bool"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Device_ReadPad",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\device.cpp",
+          "line": 223,
+          "typeref": "typename:bool",
+          "kind": "function",
+          "signature": "(int port,u_long param)",
+          "end": 273,
+          "return_type": "bool",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "bool",
+      "final_signature": "(int port,u_long param)",
+      "final_prototype": "bool Device_ReadPad(int port,u_long param);   /* SYM 3a9a0f @0x800bd6ac */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Device_ReadPad__FiUl__FiUl",
+      "after_emitted_reference": "Device_ReadPad__FiUl",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/device.h",
+      "line": 13,
+      "encoded": "Device_PSXPadMulti__FUl",
+      "name": "Device_PSXPadMulti",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "int Device_PSXPadMulti__FUl(u_long param);   /* :306 */",
+      "header_return": "int",
+      "header_signature": "(u_long param)",
+      "native": [
+        {
+          "record": "3a9a31",
+          "va": "800bd8dc",
+          "linkage": "EXT",
+          "return_type": "int"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Device_PSXPadMulti",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\device.cpp",
+          "line": 298,
+          "typeref": "typename:int",
+          "kind": "function",
+          "signature": "(u_long param)",
+          "end": 325,
+          "return_type": "int",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "int",
+      "final_signature": "(u_long param)",
+      "final_prototype": "int Device_PSXPadMulti(u_long param);   /* SYM 3a9a31 @0x800bd8dc */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Device_PSXPadMulti__FUl__FUl",
+      "after_emitted_reference": "Device_PSXPadMulti__FUl",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/device.h",
+      "line": 14,
+      "encoded": "Device_Analog__FUl",
+      "name": "Device_Analog",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "int Device_Analog__FUl(u_long param);   /* :352 */",
+      "header_return": "int",
+      "header_signature": "(u_long param)",
+      "native": [
+        {
+          "record": "3a9a56",
+          "va": "800bd9b8",
+          "linkage": "EXT",
+          "return_type": "int"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Device_Analog",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\device.cpp",
+          "line": 356,
+          "typeref": "typename:int",
+          "kind": "function",
+          "signature": "(u_long param)",
+          "end": 396,
+          "return_type": "int",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "int",
+      "final_signature": "(u_long param)",
+      "final_prototype": "int Device_Analog(u_long param);   /* SYM 3a9a56 @0x800bd9b8 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Device_Analog__FUl__FUl",
+      "after_emitted_reference": "Device_Analog__FUl",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/device.h",
+      "line": 15,
+      "encoded": "Device_Null__FUl",
+      "name": "Device_Null",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "int Device_Null__FUl(u_long param);   /* :393 */",
+      "header_return": "int",
+      "header_signature": "(u_long param)",
+      "native": [
+        {
+          "record": "3a9a76",
+          "va": "800bdab8",
+          "linkage": "EXT",
+          "return_type": "int"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Device_Null",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\device.cpp",
+          "line": 399,
+          "typeref": "typename:int",
+          "kind": "function",
+          "signature": "(u_long param)",
+          "end": 403,
+          "return_type": "int",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "int",
+      "final_signature": "(u_long param)",
+      "final_prototype": "int Device_Null(u_long param);   /* SYM 3a9a76 @0x800bdab8 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Device_Null__FUl__FUl",
+      "after_emitted_reference": "Device_Null__FUl",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    }
+  ]
+}

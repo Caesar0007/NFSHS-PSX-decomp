@@ -1,0 +1,45 @@
+/* Diagnostic: complete corrected public header, exact typed address references. */
+#include "C:/Temp/nfs4-decomp/recon/game/common/aiphysic.h"
+
+void (*p875_after_0)(Car_tObj *carObj, int velScale, int rotScale) = &AIPhysic_StopCar;
+void (*p875_after_1)(Car_tObj *carObj) = &AIPhysic_RevEngine;
+void (*p875_after_2)(Car_tObj *carObj) = &AIPhysic_HandleShifting;
+Gear_t (*p875_after_3)(Car_tObj *carObj) = &AIPhysic_CalculateGear;
+int (*p875_after_4)(Car_tObj *carObj, Gear_t gear) = &AIPhysic_GearInvSpeedRange;
+int (*p875_after_5)(Car_tObj *carObj, Gear_t gear) = &AIPhysic_GearTopSpeed;
+int (*p875_after_6)(Car_tObj *carObj, Gear_t gear) = &AIPhysic_GearBottomSpeed;
+int (*p875_after_7)(Car_tObj *carObj, int speed) = &AIPhysic_CalcAcceleration;
+int (*p875_after_8)(Car_tObj *carObj, int acc) = &AIPhysic_ModifyAccelerationAccordingToScript;
+int (*p875_after_9)(Car_tObj *carObj) = &AIPhysic_CalcDeceleration;
+void (*p875_after_10)(Car_tObj *carObj) = &AIPhysic_CheckDesiredDirection;
+void (*p875_after_11)(Car_tObj *carObj) = &AIPhysic_HandleSignalling;
+void (*p875_after_12)(Car_tObj *carObj) = &AIPhysic_HandleWipeoutTimer;
+void (*p875_after_13)(Car_tObj *carObj) = &AIPhysic_Main;
+void (*p875_after_14)(Car_tObj *carObj) = &AIPhysic_CheckForBadPosition;
+int (*p875_after_15)(Car_tObj *carObj) = &AIPhysics_UseCoolPhysics;
+void (*p875_after_16)(Car_tObj *carObj) = &AIPhysic_SimplePhysics;
+void (*p875_after_17)(Car_tObj *carObj) = &AIPhysic_SimplePhysics_LongVel;
+void (*p875_after_18)(Car_tObj *carObj) = &AIPhysic_SimplePhysics_LatVel;
+void (*p875_after_19)(Car_tObj *carObj) = &AIPhysic_CoolPhysics;
+void (*p875_after_20)(Car_tObj *carObj) = &AIPhysic_HandleDirection;
+void (*p875_after_21)(Car_tObj *carObj) = &AIPhysic_Preperation;
+int (*p875_after_22)(coorddef *pos, int slice) = &AIPhysic_CalculateRoadPosition;
+void (*p875_after_23)(Car_tObj *carObj) = &AIPhysic_GetDesiredVector;
+void (*p875_after_24)(Car_tObj *carObj) = &AIPhysic_TargetedGetDesiredVector;
+int (*p875_after_25)(Car_tObj *carObj) = &AIPhysic_CheckIfOutOfControl;
+void (*p875_after_26)(Car_tObj *carObj) = &AIPhysic_OutOfControlPhysics;
+int (*p875_after_27)(Car_tObj *carObj) = &AIPhysic_GetRearEndDamageFactor;
+void (*p875_after_28)(Car_tObj *carObj) = &AIPhysic_InControlPhysics;
+void (*p875_after_29)(Car_tObj *carObj) = &AIPhysic_FinishUp;
+void (*p875_after_30)(Car_tObj *carObj, eRampType rampType) = &AIPhysic_CalculateRampedDesiredLatPos;
+int (*p875_after_31)(Car_tObj *carObj) = &AIPhysic_HitWallCheck;
+void (*p875_after_32)(Car_tObj *carObj) = &AIPhysic_ProcessBarrierCollision;
+void (*p875_after_33)(Car_tObj *carObj) = &AIPhysic_ProcessCollision;
+void (*p875_after_34)(Car_tObj *carObj, int time) = &AIPhysic_ChangeDirection;
+void (*p875_after_35)(Car_tObj *carObj) = &AIPhysic_CheckForGripReduction;
+void (*p875_after_36)(void) = &AIPhysic_StartUp;
+void (*p875_after_37)(void) = &AIPhysic_CleanUp;
+void (*p875_after_38)(void) = &AIPhysic_Reset;
+void (*p875_after_39)(Car_tObj *carObj) = &AIPhysic_ResetCar;
+void (*p875_after_40)(Car_tObj *carObj) = &AIPhysic_InitCar;
+void (*p875_after_41)(Car_tObj *carObj) = &AIPhysic_DeInitCar;

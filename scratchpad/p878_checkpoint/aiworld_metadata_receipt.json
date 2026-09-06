@@ -1,0 +1,10 @@
+{
+  "functions": "22/22 PASS",
+  "differences": 7,
+  "only_section": ".strtab",
+  "program_and_relocation_bytes_identical": true,
+  "lowercase_sha256": "a6a9b6c58170fef79f5ba2bded119d90b1807e9c5e2c55ec19a2faed7706bd5a",
+  "uppercase_sha256": "1e5c668d30aae8c454d712444df2302f80b260325a049a5283cae656ddab73c3",
+  "exact_accepted_hash_restored_by_same_input": true,
+  "gate": "  __none__: NO ORACLE\nrecon/game/common/AIWORLD.cpp: 22/22 PASS\n"
+}

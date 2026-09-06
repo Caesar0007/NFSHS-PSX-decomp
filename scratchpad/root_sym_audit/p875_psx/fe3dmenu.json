@@ -1,0 +1,325 @@
+{
+  "round": "P875",
+  "header": "recon/game/psx/fe3dmenu.h",
+  "source_authority": "C:/Temp/nfs4-clean/nfs4-f-v3.txt",
+  "scope": "Free-function public prototype rows from P874 inventory only; not an all-record or all-project source restoration claim.",
+  "counts": {
+    "inventory_candidates": 3,
+    "corrected_public": 3,
+    "removed_file_static": 0,
+    "before_native_references": 0,
+    "after_native_references": 3,
+    "return_type_corrections": 0,
+    "header_compile_failures": 0,
+    "unresolved_header_candidates": 0,
+    "preexisting_compiler_warning_count": 1
+  },
+  "before_actual_header_compile": {
+    "header": "recon/game/psx/fe3dmenu.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\fe3dmenu_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\fe3dmenu_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\fe3dmenu_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\fe3dmenu_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\fe3dmenu_before.s"
+      ]
+    ],
+    "header_sha256": "239e57f63cd4b6e7457c3cc059fd3a3c0e084b5d4e8a02207a90c4f049de56b7",
+    "references": {
+      "0": "Fe3D_InitShowroom__Fv__Fv",
+      "1": "CameraLookAt__FP10matrixtdefP8coorddef__FP10matrixtdefP8coorddef",
+      "2": "Draw_MenuRenderingView__FP8Car_tObjP13DRender_tViewiiiUliffii__FP8Car_tObjP13DRender_tViewiiiUliffii"
+    },
+    "ok": true,
+    "assembly_sha256": "ed3d60d175421f26cef36f72e75bbe893991edc0aa108e823dd4596d0d24abc2",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\fe3dmenu.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "Fe3D_InitShowroom__Fv",
+      "CameraLookAt__FP10matrixtdefP8coorddef",
+      "Draw_MenuRenderingView__FP8Car_tObjP13DRender_tViewiiiUliffii"
+    ]
+  },
+  "before_frozen_replay": {
+    "header": "recon/game/psx/fe3dmenu.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\fe3dmenu_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\fe3dmenu_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\fe3dmenu_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\fe3dmenu_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\fe3dmenu_before.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\fe3dmenu_before.cpp:2:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "343fe840259bafaa21915587c53f411fa0b6cda2650c9d24960b525c692bc82a",
+    "input_mode": "frozen-original-prototype-surface",
+    "references": {
+      "0": "Fe3D_InitShowroom__Fv__Fv",
+      "1": "CameraLookAt__FP10matrixtdefP8coorddef__FP10matrixtdefP8coorddef",
+      "2": "Draw_MenuRenderingView__FP8Car_tObjP13DRender_tViewiiiUliffii__FP8Car_tObjP13DRender_tViewiiiUliffii"
+    },
+    "ok": true,
+    "assembly_sha256": "ed3d60d175421f26cef36f72e75bbe893991edc0aa108e823dd4596d0d24abc2"
+  },
+  "after_actual_header_compile": {
+    "header": "recon/game/psx/fe3dmenu.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\fe3dmenu_after.cpp",
+    "stage": "after",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\fe3dmenu_after.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\fe3dmenu_after.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\fe3dmenu_after.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\fe3dmenu_after.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:/Temp/nfs4-decomp/recon/game/psx/fe3dmenu.h:4,\n                 from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\fe3dmenu_after.cpp:1:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "d7b2c624f100d730d81161389c5171b4817355c7de6797e2bb09a647023505a2",
+    "input_mode": "live-public-header",
+    "header_sha256": "728ad4c2e300970b637160fa3f1c080d6c241f8240ba843b7e5fab6ed34897f6",
+    "references": {
+      "0": "Fe3D_InitShowroom__Fv",
+      "1": "CameraLookAt__FP10matrixtdefP8coorddef",
+      "2": "Draw_MenuRenderingView__FP8Car_tObjP13DRender_tViewiiiUliffii"
+    },
+    "ok": true,
+    "assembly_sha256": "e20ea12d38496a8263bf3e8300ca21908c56e4e38d322e5ac534ff56a8b9e4dc",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\fe3dmenu.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "Fe3D_InitShowroom__Fv",
+      "CameraLookAt__FP10matrixtdefP8coorddef",
+      "Draw_MenuRenderingView__FP8Car_tObjP13DRender_tViewiiiUliffii"
+    ]
+  },
+  "owning_tu_gate": {
+    "source": "recon/game/psx/fe3dmenu.cpp",
+    "command": [
+      "C:\\Python314\\python.exe",
+      "tools/tugate.py",
+      "recon/game/psx/fe3dmenu.cpp"
+    ],
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/psx/fe3dmenu.cpp: 3/3 PASS\n",
+    "stderr": "",
+    "object_sha256": "d3caa110798b31b72a10b07107dd5684b03d8fae047ee3cb31e75469cf804b2a",
+    "actual_function_symbols": [
+      "Fe3D_InitShowroom__Fv",
+      "CameraLookAt__FP10matrixtdefP8coorddef",
+      "Draw_MenuRenderingView__FP8Car_tObjP13DRender_tViewiiiUliffii"
+    ],
+    "local_function_symbols": []
+  },
+  "consumer_census": {
+    "files_scanned": 1677,
+    "literal_users": [],
+    "dynamic_includes": []
+  },
+  "unresolved": [],
+  "prototype_receipts": [
+    {
+      "header": "recon/game/psx/fe3dmenu.h",
+      "line": 6,
+      "encoded": "Fe3D_InitShowroom__Fv",
+      "name": "Fe3D_InitShowroom",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Fe3D_InitShowroom__Fv(void);   /* :76 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "49e715",
+          "va": "80012938",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Fe3D_InitShowroom",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\fe3dmenu.cpp",
+          "line": 21,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 65,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void Fe3D_InitShowroom(void);   /* SYM 49e715 @0x80012938 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Fe3D_InitShowroom__Fv__Fv",
+      "after_emitted_reference": "Fe3D_InitShowroom__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/fe3dmenu.h",
+      "line": 7,
+      "encoded": "CameraLookAt__FP10matrixtdefP8coorddef",
+      "name": "CameraLookAt",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void CameraLookAt__FP10matrixtdefP8coorddef(matrixtdef *mat, coorddef *camPoint);   /* :120 */",
+      "header_return": "void",
+      "header_signature": "(matrixtdef *mat, coorddef *camPoint)",
+      "native": [
+        {
+          "record": "49e738",
+          "va": "80012ae4",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "CameraLookAt",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\fe3dmenu.cpp",
+          "line": 71,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(matrixtdef * mat,coorddef * camPoint)",
+          "end": 95,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(matrixtdef * mat,coorddef * camPoint)",
+      "final_prototype": "void CameraLookAt(matrixtdef * mat,coorddef * camPoint);   /* SYM 49e738 @0x80012ae4 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "CameraLookAt__FP10matrixtdefP8coorddef__FP10matrixtdefP8coorddef",
+      "after_emitted_reference": "CameraLookAt__FP10matrixtdefP8coorddef",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/fe3dmenu.h",
+      "line": 8,
+      "encoded": "Draw_MenuRenderingView__FP8Car_tObjP13DRender_tViewiiiUliffii",
+      "name": "Draw_MenuRenderingView",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void Draw_MenuRenderingView__FP8Car_tObjP13DRender_tViewiiiUliffii(Car_tObj *carObj, DRender_tView *Vi, int posX, int posY, int player, u_long rotation, int camRot, float camY, float camZ, int light, int reflection);   /* :150 */",
+      "header_return": "void",
+      "header_signature": "(Car_tObj *carObj, DRender_tView *Vi, int posX, int posY, int player, u_long rotation, int camRot, float camY, float camZ, int light, int reflection)",
+      "native": [
+        {
+          "record": "49e76c",
+          "va": "80012bf8",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "Draw_MenuRenderingView",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\fe3dmenu.cpp",
+          "line": 101,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(Car_tObj * carObj,DRender_tView * Vi,int posX,int posY,int player,u_long rotation,int camRot,float camY,float camZ,int light,int reflection)",
+          "end": 205,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(Car_tObj * carObj,DRender_tView * Vi,int posX,int posY,int player,u_long rotation,int camRot,float camY,float camZ,int light,int reflection)",
+      "final_prototype": "void Draw_MenuRenderingView(Car_tObj * carObj,DRender_tView * Vi,int posX,int posY,int player,u_long rotation,int camRot,float camY,float camZ,int light,int reflection);   /* SYM 49e76c @0x80012bf8 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "Draw_MenuRenderingView__FP8Car_tObjP13DRender_tViewiiiUliffii__FP8Car_tObjP13DRender_tViewiiiUliffii",
+      "after_emitted_reference": "Draw_MenuRenderingView__FP8Car_tObjP13DRender_tViewiiiUliffii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    }
+  ]
+}

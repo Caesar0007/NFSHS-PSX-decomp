@@ -1,0 +1,23 @@
+#include "C:/Temp/nfs4-decomp/recon/game/psx/hrzsku.h"
+void (*p875_probe_0)(DVECTOR * sc,DVECTOR * s0,DVECTOR * s1,int * percentage,int n,int bPercentageArray) = &Horizon_InterpolateLineSCoords;
+void (*p875_probe_1)(void) = &Sky_InitStars;
+void (*p875_probe_2)(void) = &Sky_KillStars;
+void (*p875_probe_3)(void) = &Hrz_InitSkyColor;
+void (*p875_probe_4)(void) = &Hrz_InitSky;
+void (*p875_probe_5)(void) = &Hrz_Init2DRing;
+void (*p875_probe_6)(Draw_tPixMap * p) = &Hrz_GetHorizonPixMap;
+void (*p875_probe_7)(void) = &Hrz_InitHorizon;
+void (*p875_probe_8)(void) = &Hrz_KillHorizon;
+void (*p875_probe_9)(signed char direction,signed char column,signed char row) = &Hrz_LightningAddFork;
+void (*p875_probe_10)(void) = &Hrz_CalculateLightning;
+void (*p875_probe_11)(DVECTOR * pt,char type,char bright,Draw_DCache * sd) = &Hrz_TextureQuad;
+void (*p875_probe_12)(DRender_tView * Vi) = &Hrz_SetLightingPosInSky;
+void (*p875_probe_13)(Draw_DCache * sd) = &Hrz_BuildForkLightning;
+void (*p875_probe_14)(int on) = &Hrz_LightningFlicker;
+void (*p875_probe_15)(matrixtdef * m) = &HrzSetPsxMatrix;
+void (*p875_probe_16)(coorddef * t) = &HrzSetPsxTranslation;
+void (*p875_probe_17)(int n,SVECTOR * s,int * z,DVECTOR * p) = &Hrz_RotProj16;
+void (*p875_probe_18)(int dither,int otz) = &Hrz_SetDitheringPrim;
+void (*p875_probe_19)(void) = &Hrz_BuildSky;
+void (*p875_probe_20)(Draw_SkyCache * sd,int otz) = &Sky_RenderStars;
+void (*p875_probe_21)(DRender_tView * Vi) = &Hrz_BuildHorizon;

@@ -1,0 +1,431 @@
+{
+  "round": "P875",
+  "header": "recon/game/psx/trackspec.h",
+  "source_authority": "C:/Temp/nfs4-clean/nfs4-f-v3.txt",
+  "scope": "Free-function public prototype rows from P874 inventory only; not an all-record or all-project source restoration claim.",
+  "counts": {
+    "inventory_candidates": 5,
+    "corrected_public": 5,
+    "removed_file_static": 0,
+    "before_native_references": 0,
+    "after_native_references": 5,
+    "return_type_corrections": 0,
+    "header_compile_failures": 0,
+    "unresolved_header_candidates": 0,
+    "preexisting_compiler_warning_count": 1
+  },
+  "before_actual_header_compile": {
+    "header": "recon/game/psx/trackspec.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\trackspec_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\trackspec_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\trackspec_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\trackspec_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\trackspec_before.s"
+      ]
+    ],
+    "header_sha256": "0dbb3bcca8d0c5a593a43001b4bd0b6fab5828fab53db7f18144541bb96e7694",
+    "references": {
+      "0": "TrackSpec_SetDefault__FP10CTrackSpec__FP10CTrackSpec",
+      "1": "TrackSpec_SetUp__Fv__Fv",
+      "2": "read__FPPcPvi__FPPcPvi",
+      "3": "TrackSpec_Read__Fi__Fi",
+      "4": "TrackSpec_Load__Fii__Fii"
+    },
+    "ok": true,
+    "assembly_sha256": "e5adf051085b92757849b933a1d92dab0175fb72a6ff164b6018470ab559a87a",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".rodata",
+      ".sdata",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\trackspec.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "TrackSpec_SetDefault__FP10CTrackSpec",
+      "TrackSpec_SetUp__Fv",
+      "read__FPPcPvi",
+      "TrackSpec_Read__Fi",
+      "TrackSpec_Load__Fii",
+      "TrackSpec_gPrevSpec",
+      "TrackSpec_gCurrentSpec",
+      "TrackSpec_gMaxSpec"
+    ]
+  },
+  "before_frozen_replay": {
+    "header": "recon/game/psx/trackspec.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\trackspec_before.cpp",
+    "stage": "before",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\trackspec_before.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\trackspec_before.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\trackspec_before.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\trackspec_before.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\trackspec_before.cpp:2:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "74f7f1eed6c9177f0165c87d0d01669b5eb5ebef4468e2a6361dadcfc2fcb587",
+    "input_mode": "frozen-original-prototype-surface",
+    "references": {
+      "0": "TrackSpec_SetDefault__FP10CTrackSpec__FP10CTrackSpec",
+      "1": "TrackSpec_SetUp__Fv__Fv",
+      "2": "read__FPPcPvi__FPPcPvi",
+      "3": "TrackSpec_Read__Fi__Fi",
+      "4": "TrackSpec_Load__Fii__Fii"
+    },
+    "ok": true,
+    "assembly_sha256": "e5adf051085b92757849b933a1d92dab0175fb72a6ff164b6018470ab559a87a"
+  },
+  "after_actual_header_compile": {
+    "header": "recon/game/psx/trackspec.h",
+    "probe": "scratchpad\\root_sym_audit\\p875_psx\\trackspec_after.cpp",
+    "stage": "after",
+    "commands": [
+      [
+        "C:\\Tools\\mips-ps1\\mips\\bin\\mipsel-none-elf-cpp.exe",
+        "-x",
+        "c",
+        "-D__cplusplus=1",
+        "-nostdinc",
+        "-undef",
+        "-Dmips",
+        "-D__mips__",
+        "-D__psx__",
+        "-IC:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\trackspec_after.cpp",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\trackspec_after.i"
+      ],
+      [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G4",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\trackspec_after.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\p875_psx\\trackspec_after.s"
+      ]
+    ],
+    "diagnostics": [
+      "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:/Temp/nfs4-decomp/recon/game/psx/trackspec.h:4,\n                 from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\root_sym_audit\\\\p875_psx\\\\trackspec_after.cpp:1:\nC:/Temp/nfs4-decomp/recon/nfs4_types.h:4770: warning: conversion from `char' to `enum tPlayer'\n"
+    ],
+    "probe_sha256": "356c0c2258aee1392e8c0c293f96a96fda88930896ebbdd751a6b8c1cc0951b4",
+    "input_mode": "live-public-header",
+    "header_sha256": "54967df3aecf09e13e3d5949c6d713496e64b9af3ca3a364f88c7693b3d2e754",
+    "references": {
+      "0": "TrackSpec_SetDefault__FP10CTrackSpec",
+      "1": "TrackSpec_SetUp__Fv",
+      "2": "read__FPPcPvi",
+      "3": "TrackSpec_Read__Fi",
+      "4": "TrackSpec_Load__Fii"
+    },
+    "ok": true,
+    "assembly_sha256": "025a64cfa62caa85c6f32fb031a6cf062f198b52c0eb047a8340544f76339697",
+    "actual_symbols": [
+      ".text",
+      ".data",
+      ".bss",
+      ".rodata",
+      ".sdata",
+      ".reginfo",
+      ".MIPS.abiflags",
+      ".pdr",
+      ".gnu.attributes",
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\psx\\\\trackspec.cpp",
+      "gcc2_compiled.",
+      "__gnu_compiled_cplusplus",
+      "TrackSpec_SetDefault__FP10CTrackSpec",
+      "TrackSpec_SetUp__Fv",
+      "read__FPPcPvi",
+      "TrackSpec_Read__Fi",
+      "TrackSpec_Load__Fii",
+      "TrackSpec_gPrevSpec",
+      "TrackSpec_gCurrentSpec",
+      "TrackSpec_gMaxSpec"
+    ]
+  },
+  "owning_tu_gate": {
+    "source": "recon/game/psx/trackspec.cpp",
+    "command": [
+      "C:\\Python314\\python.exe",
+      "tools/tugate.py",
+      "recon/game/psx/trackspec.cpp"
+    ],
+    "returncode": 0,
+    "stdout": "  __none__: NO ORACLE\nrecon/game/psx/trackspec.cpp: 5/5 PASS\n",
+    "stderr": "",
+    "object_sha256": "90c8ab50f127fa2f4bd3c4def26ec52aa0d1e15e387d1462cb2cdc3064e2e066",
+    "actual_function_symbols": [
+      "TrackSpec_SetDefault__FP10CTrackSpec",
+      "TrackSpec_SetUp__Fv",
+      "read__FPPcPvi",
+      "TrackSpec_Read__Fi",
+      "TrackSpec_Load__Fii"
+    ],
+    "local_function_symbols": []
+  },
+  "consumer_census": {
+    "files_scanned": 1677,
+    "literal_users": [],
+    "dynamic_includes": []
+  },
+  "unresolved": [],
+  "prototype_receipts": [
+    {
+      "header": "recon/game/psx/trackspec.h",
+      "line": 6,
+      "encoded": "TrackSpec_SetDefault__FP10CTrackSpec",
+      "name": "TrackSpec_SetDefault",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void TrackSpec_SetDefault__FP10CTrackSpec(CTrackSpec *spec);   /* :44 */",
+      "header_return": "void",
+      "header_signature": "(CTrackSpec *spec)",
+      "native": [
+        {
+          "record": "47a55f",
+          "va": "800e1544",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "TrackSpec_SetDefault",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\trackspec.cpp",
+          "line": 255,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(CTrackSpec * spec)",
+          "end": 352,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(CTrackSpec * spec)",
+      "final_prototype": "void TrackSpec_SetDefault(CTrackSpec * spec);   /* SYM 47a55f @0x800e1544 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "TrackSpec_SetDefault__FP10CTrackSpec__FP10CTrackSpec",
+      "after_emitted_reference": "TrackSpec_SetDefault__FP10CTrackSpec",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/trackspec.h",
+      "line": 7,
+      "encoded": "TrackSpec_SetUp__Fv",
+      "name": "TrackSpec_SetUp",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void TrackSpec_SetUp__Fv(void);   /* :119 */",
+      "header_return": "void",
+      "header_signature": "(void)",
+      "native": [
+        {
+          "record": "47a591",
+          "va": "800e177c",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "TrackSpec_SetUp",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\trackspec.cpp",
+          "line": 355,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(void)",
+          "end": 361,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(void)",
+      "final_prototype": "void TrackSpec_SetUp(void);   /* SYM 47a591 @0x800e177c */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "TrackSpec_SetUp__Fv__Fv",
+      "after_emitted_reference": "TrackSpec_SetUp__Fv",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/trackspec.h",
+      "line": 8,
+      "encoded": "read__FPPcPvi",
+      "name": "read",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void read__FPPcPvi(char **handle, void *buf, int bytes);   /* :127 */",
+      "header_return": "void",
+      "header_signature": "(char **handle, void *buf, int bytes)",
+      "native": [
+        {
+          "record": "47a5b2",
+          "va": "800e17a0",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "read",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\trackspec.cpp",
+          "line": 364,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(char ** handle,void * buf,int bytes)",
+          "end": 384,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(char ** handle,void * buf,int bytes)",
+      "final_prototype": "void read(char ** handle,void * buf,int bytes);   /* SYM 47a5b2 @0x800e17a0 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "read__FPPcPvi__FPPcPvi",
+      "after_emitted_reference": "read__FPPcPvi",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/trackspec.h",
+      "line": 9,
+      "encoded": "TrackSpec_Read__Fi",
+      "name": "TrackSpec_Read",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void TrackSpec_Read__Fi(int spec_num);   /* :145 */",
+      "header_return": "void",
+      "header_signature": "(int spec_num)",
+      "native": [
+        {
+          "record": "47a5cd",
+          "va": "800e17d0",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "TrackSpec_Read",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\trackspec.cpp",
+          "line": 418,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int spec_num)",
+          "end": 463,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int spec_num)",
+      "final_prototype": "void TrackSpec_Read(int spec_num);   /* SYM 47a5cd @0x800e17d0 */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "TrackSpec_Read__Fi__Fi",
+      "after_emitted_reference": "TrackSpec_Read__Fi",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    },
+    {
+      "header": "recon/game/psx/trackspec.h",
+      "line": 10,
+      "encoded": "TrackSpec_Load__Fii",
+      "name": "TrackSpec_Load",
+      "inventory_class": "NATIVE EXT + PAIRED DEFINITION",
+      "include_hits": 0,
+      "original": "void TrackSpec_Load__Fii(int weather, int night);   /* :205 */",
+      "header_return": "void",
+      "header_signature": "(int weather, int night)",
+      "native": [
+        {
+          "record": "47a5ed",
+          "va": "800e18cc",
+          "linkage": "EXT",
+          "return_type": "void"
+        }
+      ],
+      "definitions": [
+        {
+          "name": "TrackSpec_Load",
+          "path": "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\trackspec.cpp",
+          "line": 466,
+          "typeref": "typename:void",
+          "kind": "function",
+          "signature": "(int weather,int night)",
+          "end": 473,
+          "return_type": "void",
+          "return_matches_native": true
+        }
+      ],
+      "extern_c_header": false,
+      "removed_private": false,
+      "final_return": "void",
+      "final_signature": "(int weather,int night)",
+      "final_prototype": "void TrackSpec_Load(int weather,int night);   /* SYM 47a5ed @0x800e18cc */",
+      "status": "CORRECTED_NATIVE_PUBLIC",
+      "before_emitted_reference": "TrackSpec_Load__Fii__Fii",
+      "after_emitted_reference": "TrackSpec_Load__Fii",
+      "actual_owner_function_symbol": true,
+      "actual_owner_local_function": false
+    }
+  ]
+}

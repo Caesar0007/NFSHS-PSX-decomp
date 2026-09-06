@@ -1,0 +1,757 @@
+{
+  "round": "P876",
+  "expected_native_references": 27,
+  "actual_native_references": 27,
+  "prior_missing_destructor_declarations": 19,
+  "layout_sizes_unchanged": true,
+  "sizes": [
+    {
+      "class_name": "AIHigh_Base",
+      "before": 24,
+      "after": 24
+    },
+    {
+      "class_name": "AIHigh_None",
+      "before": 24,
+      "after": 24
+    },
+    {
+      "class_name": "AIHigh_BasicPerp",
+      "before": 124,
+      "after": 124
+    },
+    {
+      "class_name": "AIHigh_Player",
+      "before": 176,
+      "after": 176
+    },
+    {
+      "class_name": "AIHigh_Human",
+      "before": 176,
+      "after": 176
+    },
+    {
+      "class_name": "AIHigh_Opponent",
+      "before": 192,
+      "after": 192
+    },
+    {
+      "class_name": "AIHigh_BTC_Perp",
+      "before": 136,
+      "after": 136
+    },
+    {
+      "class_name": "AIHigh_BTC_HumanPerp",
+      "before": 136,
+      "after": 136
+    },
+    {
+      "class_name": "AIHigh_BasicCop",
+      "before": 88,
+      "after": 88
+    },
+    {
+      "class_name": "AIHigh_Cop",
+      "before": 108,
+      "after": 108
+    },
+    {
+      "class_name": "AIHigh_BTC_Cop",
+      "before": 100,
+      "after": 100
+    },
+    {
+      "class_name": "AIHigh_BTC_HumanCop",
+      "before": 140,
+      "after": 140
+    },
+    {
+      "class_name": "AIHigh_BTC_Wingman",
+      "before": 124,
+      "after": 124
+    },
+    {
+      "class_name": "AIHigh_Traffic",
+      "before": 36,
+      "after": 36
+    },
+    {
+      "class_name": "AIState_Chase",
+      "before": 148,
+      "after": 148
+    },
+    {
+      "class_name": "AIState_Offroad",
+      "before": 104,
+      "after": 104
+    },
+    {
+      "class_name": "AIState_Purgatory",
+      "before": 8,
+      "after": 8
+    },
+    {
+      "class_name": "AIState_Donuts",
+      "before": 16,
+      "after": 16
+    },
+    {
+      "class_name": "AIState_Base",
+      "before": 8,
+      "after": 8
+    },
+    {
+      "class_name": "AIState_None",
+      "before": 8,
+      "after": 8
+    },
+    {
+      "class_name": "AIState_Normal",
+      "before": 8,
+      "after": 8
+    },
+    {
+      "class_name": "AIState_Idle",
+      "before": 16,
+      "after": 16
+    },
+    {
+      "class_name": "AIState_NonActive",
+      "before": 8,
+      "after": 8
+    },
+    {
+      "class_name": "AIState_RovingTraffic",
+      "before": 24,
+      "after": 24
+    },
+    {
+      "class_name": "AIState_GotoSlice",
+      "before": 16,
+      "after": 16
+    },
+    {
+      "class_name": "AIState_Cruise",
+      "before": 20,
+      "after": 20
+    }
+  ],
+  "native_export_records": [
+    {
+      "native_name": "_._11AIHigh_Base",
+      "project_export": "___11AIHigh_Base",
+      "native_records": [
+        "0497c3: $8005b3c4 94 Def class EXT type FCN VOID size 0 name _._11AIHigh_Base"
+      ],
+      "current_definitions": [
+        {
+          "source": "recon/game/common/aihigh.cpp",
+          "symbol_row": "00000630 g     F .text\t00000074 ___11AIHigh_Base",
+          "object_sha256": "679c605542f71c2f23aa8abdab15693d44b702f3a117bdcafb0437f529763894"
+        }
+      ]
+    },
+    {
+      "native_name": "_._11AIHigh_None",
+      "project_export": "___11AIHigh_None",
+      "native_records": [
+        "04982b: $8005b468 94 Def class STAT type FCN VOID size 0 name _._11AIHigh_None"
+      ],
+      "current_definitions": [
+        {
+          "source": "recon/game/common/aihigh.cpp",
+          "symbol_row": "000006d4 g     F .text\t00000020 ___11AIHigh_None",
+          "object_sha256": "679c605542f71c2f23aa8abdab15693d44b702f3a117bdcafb0437f529763894"
+        }
+      ]
+    },
+    {
+      "native_name": "_._16AIHigh_BasicPerp",
+      "project_export": "___16AIHigh_BasicPerp",
+      "native_records": [
+        "0593a1: $8005c13c 94 Def class EXT type FCN VOID size 0 name _._16AIHigh_BasicPerp"
+      ],
+      "current_definitions": [
+        {
+          "source": "recon/game/common/aih_basicperp.cpp",
+          "symbol_row": "00000c3c g     F .text\t00000028 ___16AIHigh_BasicPerp",
+          "object_sha256": "ac90ae72e08de46f40bd205a9ed9abc41efd412846ad5fd2e923949a17108f63"
+        }
+      ]
+    },
+    {
+      "native_name": "_._13AIHigh_Player",
+      "project_export": "___13AIHigh_Player",
+      "native_records": [
+        "0a63f1: $80063248 94 Def class STAT type FCN VOID size 0 name _._13AIHigh_Player"
+      ],
+      "current_definitions": [
+        {
+          "source": "recon/game/common/aih_play.cpp",
+          "symbol_row": "00001e48 g     F .text\t00000028 ___13AIHigh_Player",
+          "object_sha256": "4f9f42d45f2beee06be0e0e48389f45098a8cfc131e232d0ad2122fe4cf9fd70"
+        }
+      ]
+    },
+    {
+      "native_name": "_._12AIHigh_Human",
+      "project_export": "___12AIHigh_Human",
+      "native_records": [
+        "0b570e: $800632e0 94 Def class EXT type FCN VOID size 0 name _._12AIHigh_Human"
+      ],
+      "current_definitions": [
+        {
+          "source": "recon/game/common/aih_hum.cpp",
+          "symbol_row": "00000070 g     F .text\t00000028 ___12AIHigh_Human",
+          "object_sha256": "ab08440cdd3b401f2fcf2954d5003decf542645165ab0607f4c29afb11d14410"
+        }
+      ]
+    },
+    {
+      "native_name": "_._15AIHigh_Opponent",
+      "project_export": "___15AIHigh_Opponent",
+      "native_records": [
+        "0c2d10: $80063bd8 94 Def class EXT type FCN VOID size 0 name _._15AIHigh_Opponent"
+      ],
+      "current_definitions": [
+        {
+          "source": "recon/game/common/aih_opp.cpp",
+          "symbol_row": "000008d0 g     F .text\t00000028 ___15AIHigh_Opponent",
+          "object_sha256": "e08c460bb8ee5deae328d36a514637f0b48b13651b90388eaddb5569cc38a02e"
+        }
+      ]
+    },
+    {
+      "native_name": "_._15AIHigh_BTC_Perp",
+      "project_export": "___15AIHigh_BTC_Perp",
+      "native_records": [
+        "0497e1: $8005b438 94 Def class STAT type FCN VOID size 0 name _._15AIHigh_BTC_Perp",
+        "093cc3: $80061348 94 Def class STAT type FCN VOID size 0 name _._15AIHigh_BTC_Perp"
+      ],
+      "current_definitions": [
+        {
+          "source": "recon/game/common/aihigh.cpp",
+          "symbol_row": "000006a4 g     F .text\t00000028 ___15AIHigh_BTC_Perp",
+          "object_sha256": "679c605542f71c2f23aa8abdab15693d44b702f3a117bdcafb0437f529763894"
+        }
+      ]
+    },
+    {
+      "native_name": "_._20AIHigh_BTC_HumanPerp",
+      "project_export": "___20AIHigh_BTC_HumanPerp",
+      "native_records": [
+        "093c9c: $80061320 94 Def class EXT type FCN VOID size 0 name _._20AIHigh_BTC_HumanPerp"
+      ],
+      "current_definitions": [
+        {
+          "source": "recon/game/common/aih_btcperp.cpp",
+          "symbol_row": "00001c6c g     F .text\t00000028 ___20AIHigh_BTC_HumanPerp",
+          "object_sha256": "60f0c0b25ae3e6bd98b294c0be4cdf894672d9eb1a96ed3cedae40667c8dec36"
+        }
+      ]
+    },
+    {
+      "native_name": "_._15AIHigh_BasicCop",
+      "project_export": "___15AIHigh_BasicCop",
+      "native_records": [
+        "06a09e: $8005cb4c 94 Def class STAT type FCN VOID size 0 name _._15AIHigh_BasicCop"
+      ],
+      "current_definitions": [
+        {
+          "source": "recon/game/common/aih_basiccop.cpp",
+          "symbol_row": "000009e8 g     F .text\t00000020 ___15AIHigh_BasicCop",
+          "object_sha256": "d17fd677b79b4f389d6e810bfd4cdee9d8c69323fa43ae4c757ddd24eb7e877d"
+        }
+      ]
+    },
+    {
+      "native_name": "_._10AIHigh_Cop",
+      "project_export": "___10AIHigh_Cop",
+      "native_records": [
+        "0d41fc: $80065c6c 94 Def class EXT type FCN VOID size 0 name _._10AIHigh_Cop"
+      ],
+      "current_definitions": [
+        {
+          "source": "recon/game/common/aih_cop.cpp",
+          "symbol_row": "0000206c g     F .text\t00000020 ___10AIHigh_Cop",
+          "object_sha256": "877a38ce0705475bc482017c5e7e0da5e03ac79b08357d1d6540752d8bede623"
+        }
+      ]
+    },
+    {
+      "native_name": "_._14AIHigh_BTC_Cop",
+      "project_export": "___14AIHigh_BTC_Cop",
+      "native_records": [
+        "07e72a: $8005f604 94 Def class EXT type FCN VOID size 0 name _._14AIHigh_BTC_Cop"
+      ],
+      "current_definitions": [
+        {
+          "source": "recon/game/common/aih_btccop.cpp",
+          "symbol_row": "00002a98 g     F .text\t00000020 ___14AIHigh_BTC_Cop",
+          "object_sha256": "e51dbdfd2c1227c8195ea59e0516c0cdb13d8cd2062212164fdbc04ad4a08a1c"
+        }
+      ]
+    },
+    {
+      "native_name": "_._19AIHigh_BTC_HumanCop",
+      "project_export": "___19AIHigh_BTC_HumanCop",
+      "native_records": [
+        "07e704: $8005f5e4 94 Def class EXT type FCN VOID size 0 name _._19AIHigh_BTC_HumanCop"
+      ],
+      "current_definitions": [
+        {
+          "source": "recon/game/common/aih_btccop.cpp",
+          "symbol_row": "00002a78 g     F .text\t00000020 ___19AIHigh_BTC_HumanCop",
+          "object_sha256": "e51dbdfd2c1227c8195ea59e0516c0cdb13d8cd2062212164fdbc04ad4a08a1c"
+        }
+      ]
+    },
+    {
+      "native_name": "_._18AIHigh_BTC_Wingman",
+      "project_export": "___18AIHigh_BTC_Wingman",
+      "native_records": [
+        "07e6df: $8005f5c4 94 Def class EXT type FCN VOID size 0 name _._18AIHigh_BTC_Wingman"
+      ],
+      "current_definitions": [
+        {
+          "source": "recon/game/common/aih_btccop.cpp",
+          "symbol_row": "00002a58 g     F .text\t00000020 ___18AIHigh_BTC_Wingman",
+          "object_sha256": "e51dbdfd2c1227c8195ea59e0516c0cdb13d8cd2062212164fdbc04ad4a08a1c"
+        }
+      ]
+    },
+    {
+      "native_name": "_._14AIHigh_Traffic",
+      "project_export": "___14AIHigh_Traffic",
+      "native_records": [
+        "0e4476: $8006698c 94 Def class EXT type FCN VOID size 0 name _._14AIHigh_Traffic"
+      ],
+      "current_definitions": [
+        {
+          "source": "recon/game/common/aih_traf.cpp",
+          "symbol_row": "00000d00 g     F .text\t00000020 ___14AIHigh_Traffic",
+          "object_sha256": "fe936bce1071f5ad693fbedc4e9b1c9edbc44494bbb2bd224c960ce5e46904f8"
+        }
+      ]
+    },
+    {
+      "native_name": "_._13AIState_Chase",
+      "project_export": "___13AIState_Chase",
+      "native_records": [
+        "14618e: $8006fd04 94 Def class EXT type FCN VOID size 0 name _._13AIState_Chase"
+      ],
+      "current_definitions": [
+        {
+          "source": "recon/game/common/aistate.cpp",
+          "symbol_row": "00000360 g     F .text\t00000088 ___13AIState_Chase",
+          "object_sha256": "bb9661a33fb059d35c28e388a84cce18b6b7ff4741c43a5d770095f46dbbd207"
+        }
+      ]
+    },
+    {
+      "native_name": "_._15AIState_Offroad",
+      "project_export": "___15AIState_Offroad",
+      "native_records": [
+        "1463fe: $800710ac 94 Def class EXT type FCN VOID size 0 name _._15AIState_Offroad"
+      ],
+      "current_definitions": [
+        {
+          "source": "recon/game/common/aistate.cpp",
+          "symbol_row": "00001708 g     F .text\t00000074 ___15AIState_Offroad",
+          "object_sha256": "bb9661a33fb059d35c28e388a84cce18b6b7ff4741c43a5d770095f46dbbd207"
+        }
+      ]
+    },
+    {
+      "native_name": "_._17AIState_Purgatory",
+      "project_export": "___17AIState_Purgatory",
+      "native_records": [
+        "14651c: $8007163c 94 Def class EXT type FCN VOID size 0 name _._17AIState_Purgatory"
+      ],
+      "current_definitions": [
+        {
+          "source": "recon/game/common/aistate.cpp",
+          "symbol_row": "00001c98 g     F .text\t00000120 ___17AIState_Purgatory",
+          "object_sha256": "bb9661a33fb059d35c28e388a84cce18b6b7ff4741c43a5d770095f46dbbd207"
+        }
+      ]
+    },
+    {
+      "native_name": "_._14AIState_Donuts",
+      "project_export": "___14AIState_Donuts",
+      "native_records": [
+        "146693: $80071e0c 94 Def class EXT type FCN VOID size 0 name _._14AIState_Donuts"
+      ],
+      "current_definitions": [
+        {
+          "source": "recon/game/common/aistate.cpp",
+          "symbol_row": "00002468 g     F .text\t00000064 ___14AIState_Donuts",
+          "object_sha256": "bb9661a33fb059d35c28e388a84cce18b6b7ff4741c43a5d770095f46dbbd207"
+        }
+      ]
+    },
+    {
+      "native_name": "_._12AIState_Base",
+      "project_export": "___12AIState_Base",
+      "native_records": [
+        "0498b9: $8005b4cc 94 Def class STAT type FCN VOID size 0 name _._12AIState_Base",
+        "07e7c5: $8005f680 94 Def class STAT type FCN VOID size 0 name _._12AIState_Base",
+        "093d5f: $800613cc 94 Def class STAT type FCN VOID size 0 name _._12AIState_Base",
+        "14694b: $80072838 94 Def class STAT type FCN VOID size 0 name _._12AIState_Base"
+      ],
+      "current_definitions": [
+        {
+          "source": "recon/game/common/aihigh.cpp",
+          "symbol_row": "00000738 g     F .text\t00000034 ___12AIState_Base",
+          "object_sha256": "679c605542f71c2f23aa8abdab15693d44b702f3a117bdcafb0437f529763894"
+        }
+      ]
+    },
+    {
+      "native_name": "_._12AIState_None",
+      "project_export": "___12AIState_None",
+      "native_records": [
+        "04986e: $8005b490 94 Def class STAT type FCN VOID size 0 name _._12AIState_None"
+      ],
+      "current_definitions": [
+        {
+          "source": "recon/game/common/aihigh.cpp",
+          "symbol_row": "000006fc g     F .text\t00000034 ___12AIState_None",
+          "object_sha256": "679c605542f71c2f23aa8abdab15693d44b702f3a117bdcafb0437f529763894"
+        }
+      ]
+    },
+    {
+      "native_name": "_._14AIState_Normal",
+      "project_export": "___14AIState_Normal",
+      "native_records": [
+        "1468fe: $800727fc 94 Def class EXT type FCN VOID size 0 name _._14AIState_Normal"
+      ],
+      "current_definitions": [
+        {
+          "source": "recon/game/common/aistate.cpp",
+          "symbol_row": "00002e58 g     F .text\t00000034 ___14AIState_Normal",
+          "object_sha256": "bb9661a33fb059d35c28e388a84cce18b6b7ff4741c43a5d770095f46dbbd207"
+        }
+      ]
+    },
+    {
+      "native_name": "_._12AIState_Idle",
+      "project_export": "___12AIState_Idle",
+      "native_records": [
+        "1468df: $800727a4 94 Def class EXT type FCN VOID size 0 name _._12AIState_Idle"
+      ],
+      "current_definitions": [
+        {
+          "source": "recon/game/common/aistate.cpp",
+          "symbol_row": "00002e00 g     F .text\t00000058 ___12AIState_Idle",
+          "object_sha256": "bb9661a33fb059d35c28e388a84cce18b6b7ff4741c43a5d770095f46dbbd207"
+        }
+      ]
+    },
+    {
+      "native_name": "_._17AIState_NonActive",
+      "project_export": "___17AIState_NonActive",
+      "native_records": [
+        "07e775: $8005f62c 94 Def class STAT type FCN VOID size 0 name _._17AIState_NonActive",
+        "093d0f: $80061378 94 Def class STAT type FCN VOID size 0 name _._17AIState_NonActive",
+        "1468bb: $80072758 94 Def class STAT type FCN VOID size 0 name _._17AIState_NonActive"
+      ],
+      "current_definitions": [
+        {
+          "source": "recon/game/common/aih_btccop.cpp",
+          "symbol_row": "00002ac0 g     F .text\t0000004c ___17AIState_NonActive",
+          "object_sha256": "e51dbdfd2c1227c8195ea59e0516c0cdb13d8cd2062212164fdbc04ad4a08a1c"
+        }
+      ]
+    },
+    {
+      "native_name": "_._21AIState_RovingTraffic",
+      "project_export": "___21AIState_RovingTraffic",
+      "native_records": [
+        "146869: $800726dc 94 Def class EXT type FCN VOID size 0 name _._21AIState_RovingTraffic"
+      ],
+      "current_definitions": [
+        {
+          "source": "recon/game/common/aistate.cpp",
+          "symbol_row": "00002d38 g     F .text\t00000074 ___21AIState_RovingTraffic",
+          "object_sha256": "bb9661a33fb059d35c28e388a84cce18b6b7ff4741c43a5d770095f46dbbd207"
+        }
+      ]
+    },
+    {
+      "native_name": "_._17AIState_GotoSlice",
+      "project_export": "___17AIState_GotoSlice",
+      "native_records": [
+        "146810: $80072690 94 Def class EXT type FCN VOID size 0 name _._17AIState_GotoSlice"
+      ],
+      "current_definitions": [
+        {
+          "source": "recon/game/common/aistate.cpp",
+          "symbol_row": "00002cec g     F .text\t00000034 ___17AIState_GotoSlice",
+          "object_sha256": "bb9661a33fb059d35c28e388a84cce18b6b7ff4741c43a5d770095f46dbbd207"
+        }
+      ]
+    },
+    {
+      "native_name": "_._14AIState_Cruise",
+      "project_export": "___14AIState_Cruise",
+      "native_records": [
+        "1467ef: $8007265c 94 Def class EXT type FCN VOID size 0 name _._14AIState_Cruise"
+      ],
+      "current_definitions": [
+        {
+          "source": "recon/game/common/aistate.cpp",
+          "symbol_row": "00002cb8 g     F .text\t00000034 ___14AIState_Cruise",
+          "object_sha256": "bb9661a33fb059d35c28e388a84cce18b6b7ff4741c43a5d770095f46dbbd207"
+        }
+      ]
+    },
+    {
+      "native_name": "StartUp__17AIState_Purgatory",
+      "project_export": "StartUp__17AIState_Purgatory",
+      "native_records": [
+        "14659b: $80071840 94 Def class EXT type FCN VOID size 0 name StartUp__17AIState_Purgatory"
+      ],
+      "current_definitions": [
+        {
+          "source": "recon/game/common/aistate.cpp",
+          "symbol_row": "00001e9c g     F .text\t0000000c StartUp__17AIState_Purgatory",
+          "object_sha256": "bb9661a33fb059d35c28e388a84cce18b6b7ff4741c43a5d770095f46dbbd207"
+        }
+      ]
+    }
+  ],
+  "probes": {
+    "legacy.cpp": {
+      "source": "C:\\Temp\\nfs4-decomp\\scratchpad\\p876_ai_bridges\\legacy.cpp",
+      "ok": true,
+      "object": "C:\\Temp\\nfs4-decomp\\build\\scratchpad\\p876_ai_bridges\\legacy.o",
+      "object_sha256": "49bb82d2de691c90e634d1deca2e5092280d6b14102e2a84a9fcbc2e681b6faa",
+      "undefined": [
+        "StartUp__17AIState_Purgatory",
+        "___10AIHigh_Cop__FP10AIHigh_Copi",
+        "___11AIHigh_Base__FP11AIHigh_Basei",
+        "___11AIHigh_None__FP11AIHigh_Nonei",
+        "___12AIHigh_Human__FP12AIHigh_Humani",
+        "___12AIState_Base__FP12AIState_Basei",
+        "___12AIState_Idle__FP12AIState_Idlei",
+        "___12AIState_None__FP12AIState_Nonei",
+        "___13AIHigh_Player__FP13AIHigh_Playeri",
+        "___13AIState_Chase__FP13AIState_Chasei",
+        "___14AIHigh_BTC_Cop__FP14AIHigh_BTC_Copi",
+        "___14AIHigh_Traffic__FP14AIHigh_Traffici",
+        "___14AIState_Cruise__FP14AIState_Cruisei",
+        "___14AIState_Donuts__FP14AIState_Donutsi",
+        "___14AIState_Normal__FP14AIState_Normali",
+        "___15AIHigh_BTC_Perp__FP15AIHigh_BTC_Perpi",
+        "___15AIHigh_BasicCop__FP15AIHigh_BasicCopi",
+        "___15AIHigh_Opponent__FP15AIHigh_Opponenti",
+        "___15AIState_Offroad__FP15AIState_Offroadi",
+        "___16AIHigh_BasicPerp__FP16AIHigh_BasicPerpi",
+        "___17AIState_GotoSlice__FP17AIState_GotoSlicei",
+        "___17AIState_NonActive__FP17AIState_NonActivei",
+        "___17AIState_Purgatory__FP17AIState_Purgatoryi",
+        "___18AIHigh_BTC_Wingman__FP18AIHigh_BTC_Wingmani",
+        "___19AIHigh_BTC_HumanCop__FP19AIHigh_BTC_HumanCopi",
+        "___20AIHigh_BTC_HumanPerp__FP20AIHigh_BTC_HumanPerpi",
+        "___21AIState_RovingTraffic__FP21AIState_RovingTraffici"
+      ],
+      "references": [
+        "StartUp__17AIState_Purgatory",
+        "___10AIHigh_Cop__FP10AIHigh_Copi",
+        "___11AIHigh_Base__FP11AIHigh_Basei",
+        "___11AIHigh_None__FP11AIHigh_Nonei",
+        "___12AIHigh_Human__FP12AIHigh_Humani",
+        "___12AIState_Base__FP12AIState_Basei",
+        "___12AIState_Idle__FP12AIState_Idlei",
+        "___12AIState_None__FP12AIState_Nonei",
+        "___13AIHigh_Player__FP13AIHigh_Playeri",
+        "___13AIState_Chase__FP13AIState_Chasei",
+        "___14AIHigh_BTC_Cop__FP14AIHigh_BTC_Copi",
+        "___14AIHigh_Traffic__FP14AIHigh_Traffici",
+        "___14AIState_Cruise__FP14AIState_Cruisei",
+        "___14AIState_Donuts__FP14AIState_Donutsi",
+        "___14AIState_Normal__FP14AIState_Normali",
+        "___15AIHigh_BTC_Perp__FP15AIHigh_BTC_Perpi",
+        "___15AIHigh_BasicCop__FP15AIHigh_BasicCopi",
+        "___15AIHigh_Opponent__FP15AIHigh_Opponenti",
+        "___15AIState_Offroad__FP15AIState_Offroadi",
+        "___16AIHigh_BasicPerp__FP16AIHigh_BasicPerpi",
+        "___17AIState_GotoSlice__FP17AIState_GotoSlicei",
+        "___17AIState_NonActive__FP17AIState_NonActivei",
+        "___17AIState_Purgatory__FP17AIState_Purgatoryi",
+        "___18AIHigh_BTC_Wingman__FP18AIHigh_BTC_Wingmani",
+        "___19AIHigh_BTC_HumanCop__FP19AIHigh_BTC_HumanCopi",
+        "___20AIHigh_BTC_HumanPerp__FP20AIHigh_BTC_HumanPerpi",
+        "___21AIState_RovingTraffic__FP21AIState_RovingTraffici"
+      ],
+      "warnings": [
+        "C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\p876_ai_bridges\\\\nfs4_types.before.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':",
+        "In file included from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\p876_ai_bridges\\\\aihigh.legacy.h:4,",
+        "                 from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\p876_ai_bridges\\\\legacy.cpp:2:",
+        "C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\p876_ai_bridges\\\\nfs4_types.before.h:4770: warning: conversion from `char' to `enum tPlayer'"
+      ],
+      "returncode": 0
+    },
+    "canonical_before.cpp": {
+      "source": "C:\\Temp\\nfs4-decomp\\scratchpad\\p876_ai_bridges\\canonical_before.cpp",
+      "ok": false,
+      "stage": "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+      "diagnostics": "C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\p876_ai_bridges\\\\nfs4_types.before.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':\nIn file included from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\p876_ai_bridges\\\\aihigh.legacy.h:4,\n                 from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\p876_ai_bridges\\\\canonical_before.cpp:2:\nC:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\p876_ai_bridges\\\\nfs4_types.before.h:4770: warning: conversion from `char' to `enum tPlayer'\nC:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\p876_ai_bridges\\\\canonical_before.cpp: At top level:\nC:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\p876_ai_bridges\\\\canonical_before.cpp:22: `StartUp' is not a member of type `AIState_Purgatory'\n",
+      "returncode": 1
+    },
+    "old_shape.cpp": {
+      "source": "C:\\Temp\\nfs4-decomp\\scratchpad\\p876_ai_bridges\\old_shape.cpp",
+      "ok": true,
+      "object": "C:\\Temp\\nfs4-decomp\\build\\scratchpad\\p876_ai_bridges\\old_shape.o",
+      "object_sha256": "2908da09e3c2a9e5dd2ce28e469910b0b9cfb84f8bcc7f1a0f99ba1e25b10950",
+      "undefined": [
+        "StartUp__17AIState_Purgatory",
+        "_._11AIHigh_Base",
+        "_._11AIHigh_None",
+        "_._12AIHigh_Human",
+        "_._12AIState_Base",
+        "_._18AIHigh_BTC_Wingman",
+        "_._19AIHigh_BTC_HumanCop",
+        "_._20AIHigh_BTC_HumanPerp"
+      ],
+      "references": [
+        "StartUp__17AIState_Purgatory",
+        "p876_inplace_0__FP11AIHigh_Base",
+        "p876_inplace_10__FP14AIHigh_BTC_Cop",
+        "p876_inplace_11__FP19AIHigh_BTC_HumanCop",
+        "p876_inplace_12__FP18AIHigh_BTC_Wingman",
+        "p876_inplace_13__FP14AIHigh_Traffic",
+        "p876_inplace_14__FP13AIState_Chase",
+        "p876_inplace_15__FP15AIState_Offroad",
+        "p876_inplace_16__FP17AIState_Purgatory",
+        "p876_inplace_18__FP14AIState_Donuts",
+        "p876_inplace_19__FP12AIState_Base",
+        "p876_inplace_1__FP11AIHigh_None",
+        "p876_inplace_20__FP12AIState_None",
+        "p876_inplace_21__FP14AIState_Normal",
+        "p876_inplace_22__FP12AIState_Idle",
+        "p876_inplace_23__FP17AIState_NonActive",
+        "p876_inplace_24__FP21AIState_RovingTraffic",
+        "p876_inplace_25__FP17AIState_GotoSlice",
+        "p876_inplace_26__FP14AIState_Cruise",
+        "p876_inplace_2__FP16AIHigh_BasicPerp",
+        "p876_inplace_3__FP13AIHigh_Player",
+        "p876_inplace_4__FP12AIHigh_Human",
+        "p876_inplace_5__FP15AIHigh_Opponent",
+        "p876_inplace_6__FP15AIHigh_BTC_Perp",
+        "p876_inplace_7__FP20AIHigh_BTC_HumanPerp",
+        "p876_inplace_8__FP15AIHigh_BasicCop",
+        "p876_inplace_9__FP10AIHigh_Cop"
+      ],
+      "warnings": [
+        "C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\p876_ai_bridges\\\\nfs4_types.before.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':",
+        "In file included from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\p876_ai_bridges\\\\aihigh.old_shape.h:4,",
+        "                 from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\p876_ai_bridges\\\\old_shape.cpp:2:",
+        "C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\p876_ai_bridges\\\\nfs4_types.before.h:4770: warning: conversion from `char' to `enum tPlayer'"
+      ],
+      "returncode": 0
+    },
+    "canonical.cpp": {
+      "source": "C:\\Temp\\nfs4-decomp\\scratchpad\\p876_ai_bridges\\canonical.cpp",
+      "ok": true,
+      "object": "C:\\Temp\\nfs4-decomp\\build\\scratchpad\\p876_ai_bridges\\canonical.o",
+      "object_sha256": "68aef0cc3ef93b69a1ef906156565d633f9dbe180fc3a23ec68cd8958c8f932d",
+      "undefined": [
+        "StartUp__17AIState_Purgatory",
+        "_._10AIHigh_Cop",
+        "_._11AIHigh_Base",
+        "_._11AIHigh_None",
+        "_._12AIHigh_Human",
+        "_._12AIState_Base",
+        "_._12AIState_Idle",
+        "_._12AIState_None",
+        "_._13AIHigh_Player",
+        "_._13AIState_Chase",
+        "_._14AIHigh_BTC_Cop",
+        "_._14AIHigh_Traffic",
+        "_._14AIState_Cruise",
+        "_._14AIState_Donuts",
+        "_._14AIState_Normal",
+        "_._15AIHigh_BTC_Perp",
+        "_._15AIHigh_BasicCop",
+        "_._15AIHigh_Opponent",
+        "_._15AIState_Offroad",
+        "_._16AIHigh_BasicPerp",
+        "_._17AIState_GotoSlice",
+        "_._17AIState_NonActive",
+        "_._17AIState_Purgatory",
+        "_._18AIHigh_BTC_Wingman",
+        "_._19AIHigh_BTC_HumanCop",
+        "_._20AIHigh_BTC_HumanPerp",
+        "_._21AIState_RovingTraffic"
+      ],
+      "references": [
+        "StartUp__17AIState_Purgatory",
+        "p876_inplace_0__FP11AIHigh_Base",
+        "p876_inplace_10__FP14AIHigh_BTC_Cop",
+        "p876_inplace_11__FP19AIHigh_BTC_HumanCop",
+        "p876_inplace_12__FP18AIHigh_BTC_Wingman",
+        "p876_inplace_13__FP14AIHigh_Traffic",
+        "p876_inplace_14__FP13AIState_Chase",
+        "p876_inplace_15__FP15AIState_Offroad",
+        "p876_inplace_16__FP17AIState_Purgatory",
+        "p876_inplace_18__FP14AIState_Donuts",
+        "p876_inplace_19__FP12AIState_Base",
+        "p876_inplace_1__FP11AIHigh_None",
+        "p876_inplace_20__FP12AIState_None",
+        "p876_inplace_21__FP14AIState_Normal",
+        "p876_inplace_22__FP12AIState_Idle",
+        "p876_inplace_23__FP17AIState_NonActive",
+        "p876_inplace_24__FP21AIState_RovingTraffic",
+        "p876_inplace_25__FP17AIState_GotoSlice",
+        "p876_inplace_26__FP14AIState_Cruise",
+        "p876_inplace_2__FP16AIHigh_BasicPerp",
+        "p876_inplace_3__FP13AIHigh_Player",
+        "p876_inplace_4__FP12AIHigh_Human",
+        "p876_inplace_5__FP15AIHigh_Opponent",
+        "p876_inplace_6__FP15AIHigh_BTC_Perp",
+        "p876_inplace_7__FP20AIHigh_BTC_HumanPerp",
+        "p876_inplace_8__FP15AIHigh_BasicCop",
+        "p876_inplace_9__FP10AIHigh_Cop"
+      ],
+      "warnings": [
+        "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':",
+        "In file included from C:/Temp/nfs4-decomp/recon/game/common/aihigh.h:4,",
+        "                 from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\p876_ai_bridges\\\\canonical.cpp:2:",
+        "C:/Temp/nfs4-decomp/recon/nfs4_types.h:4778: warning: conversion from `char' to `enum tPlayer'"
+      ],
+      "returncode": 0
+    },
+    "sizes_before.cpp": {
+      "source": "C:\\Temp\\nfs4-decomp\\scratchpad\\p876_ai_bridges\\sizes_before.cpp",
+      "ok": true,
+      "object": "C:\\Temp\\nfs4-decomp\\build\\scratchpad\\p876_ai_bridges\\sizes_before.o",
+      "object_sha256": "d33a2efa88c2c388dbb5d9c2f7a8409dfcdd859fe06805d85f4806082d1899d4",
+      "undefined": [],
+      "references": [],
+      "warnings": [
+        "C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\p876_ai_bridges\\\\nfs4_types.before.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':",
+        "In file included from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\p876_ai_bridges\\\\sizes_before.cpp:1:",
+        "C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\p876_ai_bridges\\\\nfs4_types.before.h:4770: warning: conversion from `char' to `enum tPlayer'"
+      ],
+      "returncode": 0
+    },
+    "sizes_after.cpp": {
+      "source": "C:\\Temp\\nfs4-decomp\\scratchpad\\p876_ai_bridges\\sizes_after.cpp",
+      "ok": true,
+      "object": "C:\\Temp\\nfs4-decomp\\build\\scratchpad\\p876_ai_bridges\\sizes_after.o",
+      "object_sha256": "e192821756ea3195f76a3228e59a648df98756cd00cc5da366ccc82160653be0",
+      "undefined": [],
+      "references": [],
+      "warnings": [
+        "C:/Temp/nfs4-decomp/recon/nfs4_types.h: In method `enum tPlayer tFEApplication::CurrentPlayer()':",
+        "In file included from C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\p876_ai_bridges\\\\sizes_after.cpp:1:",
+        "C:/Temp/nfs4-decomp/recon/nfs4_types.h:4778: warning: conversion from `char' to `enum tPlayer'"
+      ],
+      "returncode": 0
+    }
+  },
+  "backup_sha256": "a3f163760a881f4a5050bb2e350238f5975f47ea9baa0db58eca6a8c35424d97"
+}

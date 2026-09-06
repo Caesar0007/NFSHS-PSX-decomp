@@ -1,0 +1,1295 @@
+{
+  "sources": 184,
+  "consumers": 36,
+  "failures": 0,
+  "rows": [
+    {
+      "source": "recon/frontend/common/feapp.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "feapp.o: C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\feapp.cpp \\\n C:/Temp/nfs4-decomp/recon/lib/nfs4_new.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\feapp.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\feapp_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_input_enums.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screenmemcard_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screendisplay_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_core_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\felines_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_tournament_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_track_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\feapp_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/common/feaudio.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "feaudio.o: C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\feaudio.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\feaudio.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\feaudio_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_core_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\felines_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\feaudio_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/common/fecars.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "fecars.o: C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fecars.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fecars.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fecars_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_core_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\felines_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_player_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_tournament_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_track_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fecars_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/common/fecheats.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "fecheats.o: C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fecheats.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fecheats.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fecheats_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_input_enums.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_tournament_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_track_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_core_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\felines_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fecheats_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/common/fecntl.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "fecntl.o: C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fecntl.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fecntl.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fecntl_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_core_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\felines_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/common/fecolor.cpp",
+      "returncode": 0,
+      "consumer": true,
+      "dependencies": "fecolor.o: C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fecolor.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fecolor.h \\\n C:/Temp/nfs4-decomp/recon/nfs4_types.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/common/fecredits.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "fecredits.o: C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fecredits.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fecredits.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fecredits_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_core_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\felines_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fecredits_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/common/fedialog.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "fedialog.o: C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fedialog.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fedialog.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fedialog_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_input_enums.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_player_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screenmemcard_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screendisplay_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_core_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\felines_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_tournament_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_track_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fedialog_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/common/fefades.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "fefades.o: C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fefades.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fefades.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fefades_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fefades_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/common/feinput.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "feinput.o: C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\feinput.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\feinput.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\feinput_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_core_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\felines_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_input_enums.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_player_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\feinput_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/common/felines.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "felines.o: C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\felines.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\felines.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\felines_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\felines_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/common/fememcard.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "fememcard.o: C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fememcard.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fememcard.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fememcard_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fecheats_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_input_enums.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_tournament_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_track_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_core_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\felines_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fememcard_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/common/femenu.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "femenu.o: C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\femenu.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\femenu.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\femenu_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_input_enums.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_player_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_core_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\felines_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\femenu_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/common/femenudefs.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "femenudefs.o: C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\femenudefs.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\femenudefs.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\femenudefs_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screencongrats_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screencarselect_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fedialog_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_input_enums.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screenmemcard_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screendisplay_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_core_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\felines_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_tournament_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_track_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\femenudefs_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/common/femenuextended.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "femenuextended.o: \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\femenuextended.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\femenuextended.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\femenuextended_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_player_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_input_enums.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_core_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\felines_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h \\\n C:/Temp/nfs4-decomp/recon/game/psx/psyq_prim_macros.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\femenuextended_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/common/femenuoptions.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "femenuoptions.o: \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\femenuoptions.cpp \\\n C:/Temp/nfs4-decomp/recon/lib/nfs4_new.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\femenuoptions.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\femenuoptions_externs.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\femenuoptions_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screencontroller_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_player_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_input_enums.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screenmemcard_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screendisplay_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_core_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\felines_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_tournament_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_track_types.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/common/femission.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "femission.o: C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\femission.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\femission.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\femission_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_core_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\felines_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\femission_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/common/fescreen.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "fescreen.o: C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fescreen.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fescreen.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fescreen_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_core_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\felines_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_input_enums.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_player_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fescreen_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/common/fetextrender.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "fetextrender.o: \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fetextrender.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fetextrender.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fetextrender_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_core_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\felines_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_input_enums.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fetextrender_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/common/fetools.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "fetools.o: C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fetools.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fetools.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fetools_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fecntl_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_core_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\felines_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fetools_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/common/fetourn.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "fetourn.o: C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fetourn.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fetourn.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fetourn_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_core_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\felines_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_tournament_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_track_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fetourn_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/common/fetracks.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "fetracks.o: C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fetracks.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fetracks.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fetracks_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_track_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_core_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\felines_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_player_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fetracks_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/common/fetv.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "fetv.o: C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fetv.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fetv.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fetv_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fetv_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/common/fevideowall.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "fevideowall.o: C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fevideowall.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fevideowall.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fevideowall_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fevideowall_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/common/front.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "front.o: C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\front.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\front.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\front_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\femenudefs_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screencongrats_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screencarselect_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fedialog_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_input_enums.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screenmemcard_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screendisplay_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_core_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\felines_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_tournament_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_track_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\front_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/common/records.cpp",
+      "returncode": 0,
+      "consumer": true,
+      "dependencies": "records.o: C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\records.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\records.h \\\n C:/Temp/nfs4-decomp/recon/nfs4_types.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/common/screenaudio.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "screenaudio.o: C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screenaudio.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screenaudio.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screenaudio_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screentrackinfo_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_core_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\felines_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_tournament_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_track_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screenaudio_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/common/screencameras.cpp",
+      "returncode": 0,
+      "consumer": true,
+      "dependencies": "screencameras.o: \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screencameras.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screencameras.h \\\n C:/Temp/nfs4-decomp/recon/nfs4_types.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/common/screencarselect.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "screencarselect.o: \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screencarselect.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screencarselect.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screencarselect_externs.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screencarselect_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fedialog_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_input_enums.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_player_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screenmemcard_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screendisplay_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_core_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\felines_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_tournament_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_track_types.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/common/screencongrats.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "screencongrats.o: \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screencongrats.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screencongrats.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screencongrats_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screencarselect_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fedialog_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_input_enums.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_player_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screenmemcard_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screendisplay_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_core_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\felines_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_tournament_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_track_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screencongrats_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/common/screencontroller.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "screencontroller.o: \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screencontroller.cpp \\\n C:/Temp/nfs4-decomp/recon/lib/nfs4_new.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screencontroller.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screencontroller_externs.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screencontroller_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_input_enums.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screenmemcard_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screendisplay_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_core_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\felines_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_tournament_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_track_types.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/common/screendemo.cpp",
+      "returncode": 0,
+      "consumer": true,
+      "dependencies": "screendemo.o: C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screendemo.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screendemo.h \\\n C:/Temp/nfs4-decomp/recon/nfs4_types.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/common/screendisplay.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "screendisplay.o: \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screendisplay.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screendisplay.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screendisplay_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_core_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\felines_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_tournament_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_track_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screendisplay_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/common/screengrid.cpp",
+      "returncode": 0,
+      "consumer": true,
+      "dependencies": "screengrid.o: C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screengrid.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screengrid.h \\\n C:/Temp/nfs4-decomp/recon/nfs4_types.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/common/screenmain.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "screenmain.o: C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screenmain.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screenmain.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screenmain_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_input_enums.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screendisplay_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_core_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\felines_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_tournament_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_track_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screenmain_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/common/screenmemcard.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "screenmemcard.o: \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screenmemcard.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screenmemcard.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screenmemcard_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screendisplay_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_core_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\felines_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_tournament_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_track_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_input_enums.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screenmemcard_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/common/screenoptions.cpp",
+      "returncode": 0,
+      "consumer": true,
+      "dependencies": "screenoptions.o: \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screenoptions.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screenoptions.h \\\n C:/Temp/nfs4-decomp/recon/nfs4_types.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/common/screenpinkslips.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "screenpinkslips.o: \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screenpinkslips.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screenpinkslips.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screenpinkslips_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screentournselect_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screenmemcard_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screendisplay_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_core_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\felines_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_tournament_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_track_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_input_enums.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screenpinkslips_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/common/screenpost.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "screenpost.o: C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screenpost.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screenpost.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screenpost_externs.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screenpost_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screentournselect_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_player_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screenmemcard_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screendisplay_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_core_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\felines_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_tournament_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_track_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_input_enums.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/common/screentournselect.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "screentournselect.o: \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screentournselect.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screentournselect.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screentournselect_externs.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screentournselect_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screenmemcard_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screendisplay_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_core_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\felines_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_tournament_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_track_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_input_enums.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/common/screentrackinfo.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "screentrackinfo.o: \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screentrackinfo.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screentrackinfo.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screentrackinfo_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_input_enums.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_player_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_core_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\felines_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_tournament_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_track_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screentrackinfo_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/common/screentrackrecords.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "screentrackrecords.o: \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screentrackrecords.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screentrackrecords_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screenmemcard_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screendisplay_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_core_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\felines_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_tournament_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_track_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screentrackrecords_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/common/screentracks.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "screentracks.o: \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screentracks.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screentracks.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screentracks_externs.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screentracks_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screenpinkslips_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screentournselect_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screenmemcard_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screendisplay_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_core_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\felines_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_tournament_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_track_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_input_enums.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/common/screentrophyinfo.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "screentrophyinfo.o: \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screentrophyinfo.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screentrophyinfo.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screentrophyinfo_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_tournament_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_track_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_core_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\felines_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screentrophyinfo_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/common/screentrophyroom.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "screentrophyroom.o: \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screentrophyroom.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screentrophyroom.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screentrophyroom_externs.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screentrophyroom_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_input_enums.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_player_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screenmemcard_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screendisplay_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_core_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\felines_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_tournament_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_track_types.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/common/screenusername.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "screenusername.o: \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screenusername.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screenusername.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screenusername_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screendisplay_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_core_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\felines_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_tournament_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_track_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\screenusername_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/common/statchk.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "statchk.o: C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\statchk.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\statchk.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\statchk_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fecntl_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_core_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\felines_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\statchk_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/common/stattool.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "stattool.o: C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\stattool.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\stattool.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\stattool_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\statchk_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fecntl_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\fe_core_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\felines_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\common\\stattool_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/psx/cache.cpp",
+      "returncode": 0,
+      "consumer": true,
+      "dependencies": "cache.o: C:\\Temp\\nfs4-decomp\\recon\\frontend\\psx\\cache.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\psx\\cache.h \\\n C:/Temp/nfs4-decomp/recon/nfs4_types.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/psx/drawshp.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "drawshp.o: C:\\Temp\\nfs4-decomp\\recon\\frontend\\psx\\drawshp.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\psx\\drawshp.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\psx\\drawshp_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\psx\\drawshp_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/psx/endcode.cpp",
+      "returncode": 0,
+      "consumer": true,
+      "dependencies": "endcode.o: C:\\Temp\\nfs4-decomp\\recon\\frontend\\psx\\endcode.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\psx\\endcode.h \\\n C:/Temp/nfs4-decomp/recon/nfs4_types.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/psx/fetexture.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "fetexture.o: C:\\Temp\\nfs4-decomp\\recon\\frontend\\psx\\fetexture.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\psx\\fetexture.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\psx\\fetexture_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\psx\\ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\psx\\fetexture_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/psx/mdec.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "mdec.o: C:\\Temp\\nfs4-decomp\\recon\\frontend\\psx\\mdec.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\psx\\mdec.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\psx\\mdec_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\psx\\ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\psx\\mdec_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/psx/mdecstat.cpp",
+      "returncode": 0,
+      "consumer": true,
+      "dependencies": "mdecstat.o: C:\\Temp\\nfs4-decomp\\recon\\frontend\\psx\\mdecstat.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\psx\\mdecstat.h \\\n C:/Temp/nfs4-decomp/recon/nfs4_types.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/psx/memdsp.cpp",
+      "returncode": 0,
+      "consumer": true,
+      "dependencies": "memdsp.o: C:\\Temp\\nfs4-decomp\\recon\\frontend\\psx\\memdsp.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\psx\\memdsp.h \\\n C:/Temp/nfs4-decomp/recon/nfs4_types.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/psx/mmeffect.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "mmeffect.o: C:\\Temp\\nfs4-decomp\\recon\\frontend\\psx\\mmeffect.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\psx\\mmeffect.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\psx\\mmeffect_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\psx\\mmeffect_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/psx/movie.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "movie.o: C:\\Temp\\nfs4-decomp\\recon\\frontend\\psx\\movie.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\psx\\movie.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\psx\\movie_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\psx\\movie_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/psx/psxfront.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "psxfront.o: C:\\Temp\\nfs4-decomp\\recon\\frontend\\psx\\psxfront.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\psx\\psxfront.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\psx\\psxfront_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/common/fetools_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/common/fecntl_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/common/fe_core_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/common/felines_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\psx\\psxfront_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/psx/readpix.cpp",
+      "returncode": 0,
+      "consumer": true,
+      "dependencies": "readpix.o: C:\\Temp\\nfs4-decomp\\recon\\frontend\\psx\\readpix.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\psx\\readpix.h \\\n C:/Temp/nfs4-decomp/recon/nfs4_types.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/psx/video.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "video.o: C:\\Temp\\nfs4-decomp\\recon\\frontend\\psx\\video.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\psx\\video.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\psx\\video_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\psx\\ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\psx\\video_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/frontend/psx/vsprintf.cpp",
+      "returncode": 0,
+      "consumer": true,
+      "dependencies": "vsprintf.o: C:\\Temp\\nfs4-decomp\\recon\\frontend\\psx\\vsprintf.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\frontend\\psx\\vsprintf.h \\\n C:/Temp/nfs4-decomp/recon/nfs4_types.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/ai.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "ai.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\ai.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\ai_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\ai_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/aicop.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "aicop.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aicop.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aicop_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aicop_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/aidatarecord.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "aidatarecord.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aidatarecord.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aidatarecord_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aidatarecord_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/aidebug.cpp",
+      "returncode": 0,
+      "consumer": true,
+      "dependencies": "aidebug.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aidebug.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aidebug.h \\\n C:/Temp/nfs4-decomp/recon/nfs4_types.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/aidelaycar.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "aidelaycar.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aidelaycar.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aidelaycar_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aidelaycar_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/aih_basiccop.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "aih_basiccop.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aih_basiccop.cpp \\\n C:/Temp/nfs4-decomp/recon/lib/nfs4_new.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aih_basiccop_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aih_hierarchy_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aih_basiccop_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/aih_basicperp.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "aih_basicperp.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aih_basicperp.cpp \\\n C:/Temp/nfs4-decomp/recon/lib/nfs4_new.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aih_basicperp_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aih_hierarchy_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aih_basicperp_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/aih_btccop.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "aih_btccop.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aih_btccop.cpp \\\n C:/Temp/nfs4-decomp/recon/lib/nfs4_new.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aih_btccop_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\newton_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aih_btccop_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/aih_btcperp.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "aih_btcperp.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aih_btcperp.cpp \\\n C:/Temp/nfs4-decomp/recon/lib/nfs4_new.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aih_btcperp_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aih_hierarchy_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aih_btcperp_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/aih_cop.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "aih_cop.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aih_cop.cpp \\\n C:/Temp/nfs4-decomp/recon/lib/nfs4_new.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aih_cop_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aih_hierarchy_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aih_cop_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/aih_hum.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "aih_hum.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aih_hum.cpp \\\n C:/Temp/nfs4-decomp/recon/lib/nfs4_new.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aih_hum_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aih_hierarchy_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aih_hum_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/aih_opp.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "aih_opp.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aih_opp.cpp \\\n C:/Temp/nfs4-decomp/recon/lib/nfs4_new.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aih_opp_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aih_hierarchy_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aih_opp_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/aih_play.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "aih_play.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aih_play.cpp \\\n C:/Temp/nfs4-decomp/recon/lib/nfs4_new.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aih_play_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aih_hierarchy_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aih_play_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/aih_traf.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "aih_traf.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aih_traf.cpp \\\n C:/Temp/nfs4-decomp/recon/lib/nfs4_new.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aih_traf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aih_hierarchy_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aih_traf_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/aihigh.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "aihigh.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aihigh.cpp \\\n C:/Temp/nfs4-decomp/recon/lib/nfs4_new.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aihigh_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aih_hierarchy_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aihigh_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/aiinit.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "aiinit.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiinit.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiinit_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiinit_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/ailife.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "ailife.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\ailife.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\ailife_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\ailife_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/aiperson.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "aiperson.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiperson.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiperson_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiperson_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/aiphysic.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "aiphysic.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiphysic.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiphysic_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiphysic_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/aiscript.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "aiscript.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/aispeech.cpp",
+      "returncode": 0,
+      "consumer": true,
+      "dependencies": "aispeech.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aispeech.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aispeech.h \\\n C:/Temp/nfs4-decomp/recon/nfs4_types.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/aispeeds.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "aispeeds.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aispeeds.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aispeeds_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aispeeds_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/aistate.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "aistate.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aistate.cpp \\\n C:/Temp/nfs4-decomp/recon/lib/nfs4_new.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aistate_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aistate_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/aitriger.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "aitriger.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aitriger.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aitriger_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aitriger_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/aitune.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "aitune.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aitune.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aitune_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\AITUNE_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/AIWORLD.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "AIWORLD.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\AIWORLD.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiworld_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\AIWORLD_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/anim.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "anim.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\anim.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\anim_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\schedule_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\anim_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/async.cpp",
+      "returncode": 0,
+      "consumer": true,
+      "dependencies": "async.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\async.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\async.h \\\n C:/Temp/nfs4-decomp/recon/nfs4_types.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/audedit.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "audedit.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\audedit.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\audedit_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\audedit_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/audioclc.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "audioclc.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\audioclc.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\audioclc_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\audioclc_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/audiocmn.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "audiocmn.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\audiocmn.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\audiocmn_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\audioclc_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\audiocmn_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/audioeng.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "audioeng.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\audioeng.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\audioeng_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\audioeng_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/audiomus.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "audiomus.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\audiomus.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\audiomus_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\audiomus_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/audiotrk.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "audiotrk.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\audiotrk.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\audiotrk_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\audiotrk_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/bworld.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "bworld.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\bworld.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\bworld_types.h \\\n C:/Temp/nfs4-decomp/recon/game/psx/draww_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\bworld_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/bworldSm.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "bworldSm.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\bworldSm.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\bworldSm_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\bworldSm_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/camera.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "camera.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\camera.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\camera_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\camera_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/cars.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "cars.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\cars.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\cars_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\copspeak_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\audiocmn_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\audioclc_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\cars_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/chunk.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "chunk.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\chunk.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\chunk_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\group_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\simplemem_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\chunk_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/chunkvis.cpp",
+      "returncode": 0,
+      "consumer": true,
+      "dependencies": "chunkvis.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\chunkvis.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\chunkvis.h \\\n C:/Temp/nfs4-decomp/recon/nfs4_types.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/clock.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "clock.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\clock.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\clock_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\clock_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/collide.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "collide.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\collide.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\collide_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\collide_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/color.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "color.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/control.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "control.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\control.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\control.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\control_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\control_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/copspeak.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "copspeak.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\copspeak.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\copspeak_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\audiocmn_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\audioclc_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\copspeak_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/dashhud.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "dashhud.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\dashhud.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\dashhud_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\dashhud_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/debugvar.cpp",
+      "returncode": 0,
+      "consumer": true,
+      "dependencies": "debugvar.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\debugvar.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\debugvar.h \\\n C:/Temp/nfs4-decomp/recon/nfs4_types.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/fastrand.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "fastrand.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\fastrand.cpp\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/fei.cpp",
+      "returncode": 0,
+      "consumer": true,
+      "dependencies": "fei.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\fei.cpp \\\n C:/Temp/nfs4-decomp/recon/nfs4_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\fei_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/genericpmx.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "genericpmx.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\genericpmx.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\genericpmx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\genericpmx_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/gmesetup.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "gmesetup.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gmesetup.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gmesetup_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gmesetup_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/group.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "group.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\group.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\group_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\simplemem_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\group_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/hudpmx.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "hudpmx.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\hudpmx.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\hudpmx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\textsys_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\hudpmx_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/input.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "input.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\input.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\input_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\input_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/mathnfs.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "mathnfs.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\mathnfs.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\mathnfs_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\mathnfs_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/minfront.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "minfront.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\minfront.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\minfront.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\minfront_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\minfront_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/mpause.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "mpause.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\mpause.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\mpause_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:/Temp/nfs4-decomp/recon/lib/nfs4_new.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\mpause_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/new.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "new.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\new.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/newton.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "newton.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\newton.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\newton_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\newton_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/nfs3.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "nfs3.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\nfs3.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\nfs3_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\copspeak_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\audiocmn_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\audioclc_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\nfs3_externs.h \\\n C:/Temp/nfs4-decomp/recon/lib/nfile.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/object.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "object.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\object.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\object_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\sim_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aih_hierarchy_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\object_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/paths.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "paths.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\paths.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/pausemenu.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "pausemenu.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\pausemenu.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\pausemenu_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\mpause_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\pausemenu_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/physics.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "physics.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\physics.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\physics_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\physics_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/quatern.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "quatern.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\quatern.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\quatern_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\mathnfs_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\quatern_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/r3dcar.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "r3dcar.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\r3dcar.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\r3dcar_types.h \\\n C:/Temp/nfs4-decomp/recon/game/psx/drawc_types.h \\\n C:/Temp/nfs4-decomp/recon/game/psx/psxcontroller_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gmesetup_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\r3dcar_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/render.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "render.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\render.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\render_types.h \\\n C:/Temp/nfs4-decomp/recon/game/psx/night_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\render_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/replay.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "replay.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\replay.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\replay_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\replay_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/scene.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "scene.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\scene.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\scene_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\scene_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/schedule.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "schedule.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\schedule.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\schedule_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\schedule_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/sim.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "sim.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\sim.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\sim_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aih_hierarchy_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\sim_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/simplemem.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "simplemem.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\simplemem.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\simplemem_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\simplemem_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/simqueue.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "simqueue.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\simqueue.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\simqueue_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\simqueue_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/smack.cpp",
+      "returncode": 0,
+      "consumer": true,
+      "dependencies": "smack.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\smack.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\smack.h \\\n C:/Temp/nfs4-decomp/recon/nfs4_types.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/souffle.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "souffle.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\souffle.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\souffle_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\souffle_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/speech.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "speech.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\speech.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\speech_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\audioclc_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\speech_externs.h \\\n C:\\Temp\\nfs4-decomp\\recon/eaclib/psx/spchpsxz/spch_externs.h \\\n C:\\Temp\\nfs4-decomp\\recon/eaclib/psx/spchpsxz/spch_types.h \\\n C:\\Temp\\nfs4-decomp\\recon/eaclib/psx/spchpsxz/spchbank.h \\\n C:\\Temp\\nfs4-decomp\\recon/eaclib/psx/spchpsxz/spchdata.h \\\n C:\\Temp\\nfs4-decomp\\recon/eaclib/psx/spchpsxz/spchevnt.h \\\n C:\\Temp\\nfs4-decomp\\recon/eaclib/psx/spchpsxz/spchinit.h \\\n C:\\Temp\\nfs4-decomp\\recon/eaclib/psx/spchpsxz/spchpick.h \\\n C:\\Temp\\nfs4-decomp\\recon/eaclib/psx/spchpsxz/spchrand.h \\\n C:\\Temp\\nfs4-decomp\\recon/eaclib/psx/spchpsxz/spchrslv.h \\\n C:\\Temp\\nfs4-decomp\\recon/eaclib/psx/spchpsxz/spchrule.h \\\n C:\\Temp\\nfs4-decomp\\recon/eaclib/psx/spchpsxz/spchsamp.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/stats.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "stats.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\stats.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\stats_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\stats_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/textsys.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "textsys.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\textsys.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\textsys_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\textsys_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/track.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "track.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\track.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\track_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\chunk_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\group_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\simplemem_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\track_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/trgsfx.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "trgsfx.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\trgsfx.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\trgsfx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\trgsfx_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/udff.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "udff.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\udff.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\udff_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\udff_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/vtables_aidatarecord.cpp",
+      "returncode": 0,
+      "consumer": true,
+      "dependencies": "vtables_aidatarecord.o: \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\vtables_aidatarecord.cpp \\\n C:/Temp/nfs4-decomp/recon/nfs4_types.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/vtables_aihigh.cpp",
+      "returncode": 0,
+      "consumer": true,
+      "dependencies": "vtables_aihigh.o: \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\vtables_aihigh.cpp \\\n C:/Temp/nfs4-decomp/recon/nfs4_types.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/vtables_aistate.cpp",
+      "returncode": 0,
+      "consumer": true,
+      "dependencies": "vtables_aistate.o: \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\vtables_aistate.cpp \\\n C:/Temp/nfs4-decomp/recon/nfs4_types.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/vtables_object.cpp",
+      "returncode": 0,
+      "consumer": true,
+      "dependencies": "vtables_object.o: \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\vtables_object.cpp \\\n C:/Temp/nfs4-decomp/recon/nfs4_types.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/vtables_tdialog.cpp",
+      "returncode": 0,
+      "consumer": true,
+      "dependencies": "vtables_tdialog.o: \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\vtables_tdialog.cpp \\\n C:/Temp/nfs4-decomp/recon/nfs4_types.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/vtables_tlist.cpp",
+      "returncode": 0,
+      "consumer": true,
+      "dependencies": "vtables_tlist.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\vtables_tlist.cpp \\\n C:/Temp/nfs4-decomp/recon/nfs4_types.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/vtables_tmenu.cpp",
+      "returncode": 0,
+      "consumer": true,
+      "dependencies": "vtables_tmenu.o: C:\\Temp\\nfs4-decomp\\recon\\game\\common\\vtables_tmenu.cpp \\\n C:/Temp/nfs4-decomp/recon/nfs4_types.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/vtables_tpausemenu.cpp",
+      "returncode": 0,
+      "consumer": true,
+      "dependencies": "vtables_tpausemenu.o: \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\vtables_tpausemenu.cpp \\\n C:/Temp/nfs4-decomp/recon/nfs4_types.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/vtables_tscreen.cpp",
+      "returncode": 0,
+      "consumer": true,
+      "dependencies": "vtables_tscreen.o: \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\vtables_tscreen.cpp \\\n C:/Temp/nfs4-decomp/recon/nfs4_types.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/common/vtables_tscreen2.cpp",
+      "returncode": 0,
+      "consumer": true,
+      "dependencies": "vtables_tscreen2.o: \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\common\\vtables_tscreen2.cpp \\\n C:/Temp/nfs4-decomp/recon/nfs4_types.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/psx/audio.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "audio.o: C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\audio.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\audio_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\audio_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/psx/cario.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "cario.o: C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\cario.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\cario_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\cario_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/psx/ddvfont.cpp",
+      "returncode": 0,
+      "consumer": true,
+      "dependencies": "ddvfont.o: C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\ddvfont.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\ddvfont.h \\\n C:/Temp/nfs4-decomp/recon/nfs4_types.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/psx/debug.cpp",
+      "returncode": 0,
+      "consumer": true,
+      "dependencies": "debug.o: C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\debug.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\debug.h \\\n C:/Temp/nfs4-decomp/recon/nfs4_types.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/psx/device.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "device.o: C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\device.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\device_externs.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\device_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gmesetup_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/psx/draw.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "draw.o: C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draw.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draw_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draw_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/psx/draw2.cpp",
+      "returncode": 0,
+      "consumer": true,
+      "dependencies": "draw2.o: C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draw2.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draw2.h \\\n C:/Temp/nfs4-decomp/recon/nfs4_types.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/psx/drawc.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "drawc.o: C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\drawc.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\drawc_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\psxcontroller_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gmesetup_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h \\\n C:/Temp/nfs4-decomp/recon/lib/psx_gte.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\psyq_prim_macros.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\drawc_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/psx/drawdbg.cpp",
+      "returncode": 0,
+      "consumer": true,
+      "dependencies": "drawdbg.o: C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\drawdbg.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\drawdbg.h \\\n C:/Temp/nfs4-decomp/recon/nfs4_types.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/psx/draww.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "draww.o: C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draww.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draww_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\draww_externs.h \\\n C:/Temp/nfs4-decomp/recon/lib/psx_gte.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\psyq_prim_macros.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/psx/fe3dmenu.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "fe3dmenu.o: C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\fe3dmenu.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\fe3dmenu_externs.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\fe3dmenu_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/psx/filedbg.cpp",
+      "returncode": 0,
+      "consumer": true,
+      "dependencies": "filedbg.o: C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\filedbg.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\filedbg.h \\\n C:/Temp/nfs4-decomp/recon/nfs4_types.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/psx/flare.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "flare.o: C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\flare.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\flare_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\flare_externs.h \\\n C:/Temp/nfs4-decomp/recon/lib/psx_gte.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\psyq_prim_macros.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/psx/font.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "font.o: C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\font.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\font_obj_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\font_externs.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\psyq_prim_macros.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/psx/force.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "force.o: C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\force.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\force_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\force_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/psx/hrzsku.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "hrzsku.o: C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hrzsku.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hrzsku_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hrzsku_externs.h \\\n C:/Temp/nfs4-decomp/recon/lib/psx_gte.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\psyq_prim_macros.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/psx/hud.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "hud.o: C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\psxcontroller_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gmesetup_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\psyq_prim_macros.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/psx/loading.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "loading.o: C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\loading.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\loading_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\loading_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/psx/nfs2mem.cpp",
+      "returncode": 0,
+      "consumer": true,
+      "dependencies": "nfs2mem.o: C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\nfs2mem.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\nfs2mem.h \\\n C:/Temp/nfs4-decomp/recon/nfs4_types.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/psx/night.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "night.o: C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\night.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\night_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\night_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/psx/overlays.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "overlays.o: C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\overlays.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\overlays_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\overlays_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/psx/platform.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "platform.o: C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\platform.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\platform_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\platform_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/psx/profile.cpp",
+      "returncode": 0,
+      "consumer": true,
+      "dependencies": "profile.o: C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\profile.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\profile.h \\\n C:/Temp/nfs4-decomp/recon/nfs4_types.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/psx/psxcontroller.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "psxcontroller.o: C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\psxcontroller.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\psxcontroller_externs.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\psxcontroller_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gmesetup_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/psx/rpause.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "rpause.o: C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\rpause.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\rpause_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\rpause_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/psx/sfx.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "sfx.o: C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\sfx.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\sfx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\sfx_externs.h \\\n C:/Temp/nfs4-decomp/recon/lib/psx_gte.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/psx/skidmark.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "skidmark.o: C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\skidmark.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\skidmark_externs.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\skidmark_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/psx/texture.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "texture.o: C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\texture.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\texture_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\texture_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/psx/textureprocess.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "textureprocess.o: C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\textureprocess.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\textureprocess_externs.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\textureprocess_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/color_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/psx/trackspec.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "trackspec.o: C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\trackspec.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\trackspec_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\trackspec_externs.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/psx/trsproj.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "trsproj.o: C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\trsproj.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\trsproj_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\trsproj_externs.h \\\n C:/Temp/nfs4-decomp/recon/lib/psx_gte.h\n",
+      "errors": ""
+    },
+    {
+      "source": "recon/game/psx/weather.cpp",
+      "returncode": 0,
+      "consumer": false,
+      "dependencies": "weather.o: C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\weather.cpp \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\weather_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h \\\n C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h \\\n C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h \\\n C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\weather_externs.h \\\n C:/Temp/nfs4-decomp/recon/lib/psx_gte.h\n",
+      "errors": ""
+    }
+  ]
+}

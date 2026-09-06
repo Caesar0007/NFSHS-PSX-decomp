@@ -20,12 +20,12 @@ int          ComingIntoTheFrontEndTheVeryFirstTime = 0;   /* @0x800517ec */
 static tCarModels regularCopModels[7][5] = { 24, 24, 24, 23, 22, 24, 24, 24, 23, 22, 24, 24, 24, 24, 22, 24, 24, 24, 24, 25, 26, 26, 26, 24, 25, 26, 26, 26, 24, 25, 27, 27, 27, 27, 27 };   /* @0x800517f0; SYM STAT */
 static tCarModels superCopModels[7][5] = { 26, 26, 26, 24, 25, 26, 26, 26, 24, 25, 26, 26, 26, 24, 25, 26, 26, 26, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27 };   /* @0x8005187c; SYM STAT */
 char         gFE_Cheats[5];   /* @0x80051908  (bss(zero)) */
-int          gPSXMemCardFull[1];   /* @0x80051910; SYM-CARRIER: gPSXMemCardFull */
+int          gPSXMemCardFull;   /* @0x80051910; SYM 5984a8: INT */
 int          colourChosen[8];   /* @0x80051914  (bss(zero)) */
-tAllScreens  *gAllScreens[1];   /* @0x80051934; SYM-CARRIER: gAllScreens -- PTR STRUCT, 4 B.
-                                   The [0] form emitted NOTHING and let the dead
-                                   _usePlayerUpgrades occupy retail's 4 bytes. */
-bool         memCardReadOK[1];   /* @0x80051938; SYM-CARRIER: memCardReadOK -- SYM BOOL[1] */
+/* P871: native SYM 5984e6/59850d are scalar PTR STRUCT and BOOL, not arrays.
+   Frontend -G0 preserves addressing and storage with these original types. */
+tAllScreens  *gAllScreens;   /* @0x80051934; one pointer, 4 B */
+bool         memCardReadOK;   /* @0x80051938; SYM BOOL */
 tCarInLineup CarLineup[9];   /* @0x8005193c  (bss(zero)) */
 char         picked[11];   /* @0x80051960  (bss(zero)) */
 
@@ -157,46 +157,46 @@ inline tScreenTournamentCongrats::tScreenTournamentCongrats()
 /* ---- Front_ConstructAll  [FRONT.CPP:231-266] ---- */
 
 /* Decoded Phase 83: Front_ConstructAll() - one-shot allocate all menu screens (400 B). Sets up
-   gAllScreens[0] layout: screenMain, screenCarSelect, screenCarSelectDuel, screenCarSelectTwoPlayer,
+   gAllScreens layout: screenMain, screenCarSelect, screenCarSelectDuel, screenCarSelectTwoPlayer,
    screenPinkSlips*, screenTrackRecords, screenTrackInfo, screenTrackSelect, screenTournSelect,
    screenTournamentStandings/Trophy, screenTrophyRoom/Info, screenControllerConfig, screenDisplay,
-   screenAudio, screenMemcard. These are all the front-end screens linked by gAllScreens[0].
+   screenAudio, screenMemcard. These are all the front-end screens linked by gAllScreens.
    
    [ghidra-meta] section: front.text */
 
 void Front_ConstructAll(void)
 
 {
-  gAllScreens[0] = new tAllScreens;
+  gAllScreens = new tAllScreens;
   /* MATCH: retail publishes screenMain before the remaining sub-screen pointers. */
-  screenMain = &gAllScreens[0]->screenMain;
-  screenCarSelect = &gAllScreens[0]->screenCarSelect;
-  screenCarSelectDuel = &gAllScreens[0]->screenCarSelectDuel;
-  screenCarSelectTwoPlayer = &gAllScreens[0]->screenCarSelectTwoPlayer;
-  screenCarSelectPlayerTwo = &gAllScreens[0]->screenCarSelectPlayerTwo;
-  screenPinkSlipsCarSelectTwoPlayer = &gAllScreens[0]->screenPinkSlipsCarSelectTwoPlayer;
-  screenPinkSlipsCarSelectPlayerTwo = &gAllScreens[0]->screenPinkSlipsCarSelectPlayerTwo;
-  screenTrackRecords = &gAllScreens[0]->screenTrackRecords;
-  screenTrackInfo = &gAllScreens[0]->screenTrackInfo;
-  screenTrackSelect = &gAllScreens[0]->screenTrackSelect;
-  screenTournSelect = &gAllScreens[0]->screenTournSelect;
-  screenTournamentStandings = &gAllScreens[0]->screenTournamentStandings;
-  screenTournamentTrophy = &gAllScreens[0]->screenTournamentTrophy;
-  screenTrophyRoom = &gAllScreens[0]->screenTrophyRoom;
-  screenTrophyInfo = &gAllScreens[0]->screenTrophyInfo;
-  screenControllerConfig = &gAllScreens[0]->screenControllerConfig;
-  screenDisplay = &gAllScreens[0]->screenDisplay;
-  screenAudio = &gAllScreens[0]->screenAudio;
-  screenMemcard = &gAllScreens[0]->screenMemcard;
-  screenUserName = &gAllScreens[0]->screenUserName;
-  screenPinkSlipCongrats = &gAllScreens[0]->screenPinkSlipCongrats;
-  screenPinkSlipStandings = &gAllScreens[0]->screenPinkSlipStandings;
-  screenTournamentStandings3item = &gAllScreens[0]->screenTournamentStandings3item;
-  screenPinkSlips = &gAllScreens[0]->screenPinkSlips;
-  screenBeTheCopCongrats = &gAllScreens[0]->screenBeTheCopCongrats;
-  screenTournamentCongrats = &gAllScreens[0]->screenTournamentCongrats;
+  screenMain = &gAllScreens->screenMain;
+  screenCarSelect = &gAllScreens->screenCarSelect;
+  screenCarSelectDuel = &gAllScreens->screenCarSelectDuel;
+  screenCarSelectTwoPlayer = &gAllScreens->screenCarSelectTwoPlayer;
+  screenCarSelectPlayerTwo = &gAllScreens->screenCarSelectPlayerTwo;
+  screenPinkSlipsCarSelectTwoPlayer = &gAllScreens->screenPinkSlipsCarSelectTwoPlayer;
+  screenPinkSlipsCarSelectPlayerTwo = &gAllScreens->screenPinkSlipsCarSelectPlayerTwo;
+  screenTrackRecords = &gAllScreens->screenTrackRecords;
+  screenTrackInfo = &gAllScreens->screenTrackInfo;
+  screenTrackSelect = &gAllScreens->screenTrackSelect;
+  screenTournSelect = &gAllScreens->screenTournSelect;
+  screenTournamentStandings = &gAllScreens->screenTournamentStandings;
+  screenTournamentTrophy = &gAllScreens->screenTournamentTrophy;
+  screenTrophyRoom = &gAllScreens->screenTrophyRoom;
+  screenTrophyInfo = &gAllScreens->screenTrophyInfo;
+  screenControllerConfig = &gAllScreens->screenControllerConfig;
+  screenDisplay = &gAllScreens->screenDisplay;
+  screenAudio = &gAllScreens->screenAudio;
+  screenMemcard = &gAllScreens->screenMemcard;
+  screenUserName = &gAllScreens->screenUserName;
+  screenPinkSlipCongrats = &gAllScreens->screenPinkSlipCongrats;
+  screenPinkSlipStandings = &gAllScreens->screenPinkSlipStandings;
+  screenTournamentStandings3item = &gAllScreens->screenTournamentStandings3item;
+  screenPinkSlips = &gAllScreens->screenPinkSlips;
+  screenBeTheCopCongrats = &gAllScreens->screenBeTheCopCongrats;
+  screenTournamentCongrats = &gAllScreens->screenTournamentCongrats;
   FEApp[0] = new tFEApplication;
-  menuDefs[0] = new tGlobalMenuDefs;
+  menuDefs = new tGlobalMenuDefs;
   return;
 }
 
@@ -212,14 +212,14 @@ void Front_ConstructAll(void)
 void Front_DeleteAll(void)
 
 {
-  if (gAllScreens[0] != (tAllScreens *)0x0) {
-    delete gAllScreens[0];
+  if (gAllScreens != (tAllScreens *)0x0) {
+    delete gAllScreens;
   }
   if (FEApp[0] != (tFEApplication *)0x0) {
     delete FEApp[0];
   }
-  if (menuDefs[0] != (tGlobalMenuDefs *)0x0) {
-    delete menuDefs[0];
+  if (menuDefs != (tGlobalMenuDefs *)0x0) {
+    delete menuDefs;
   }
   return;
 }
@@ -999,8 +999,8 @@ void Front_InitialMemCardCheck(void)
 
 {
   MEMCARDFRONTENDISINITTED_words[0] = 0;
-  gPSXMemCardFull[0] = 0;
-  memCardReadOK[0] = 0;
+  gPSXMemCardFull = 0;
+  memCardReadOK = 0;
   Stattool_GetAllDefaultRecords((tRecordBuffer *)&Stats_gTrackRecords,false);
   InitFrontEndStructure();
   frontEnd.language = '\0';
@@ -1043,14 +1043,14 @@ void Front_SecondaryMemCardCheck(void)
 
     if (!(j < 2)) break;
     i = 0;
-    if (memCardReadOK[0] == 0) {
+    if (memCardReadOK == 0) {
       do {
-        memCardReadOK[0] = LoadGame((short)j,false,0) == 0;
+        memCardReadOK = LoadGame((short)j,false,0) == 0;
         i = i + 1;
         if (2 < i) break;
-      } while (memCardReadOK[0] == 0);
+      } while (memCardReadOK == 0);
     }
-    memCardReadOK[0] = 0;
+    memCardReadOK = 0;
     j = j + 1;
   }
   DeInit_Memcard();
@@ -1134,7 +1134,7 @@ int Front_Menu(tFront_ProcessingType role)
   result = kApp_Command_StartRace;
   _7tScreen_fSuppressLoadingText = 1;
   one = 1;
-  gLargestUnused[0] = largestunused();
+  gLargestUnused = largestunused();
   FeAudio_InitCommentary((uint)(byte)frontEnd.language,0);
   InitializeSpinningCars();
   Front_ConstructAll();
@@ -1191,7 +1191,7 @@ int Front_Menu(tFront_ProcessingType role)
   gFEBigHandle[0] = 0;
   frontEnd.recordlaptime =
        Stattool_ReturnRecordLapTime((ushort)(byte)frontEnd.track[0]);
-  gLargestUnused[0] = largestunused();
+  gLargestUnused = largestunused();
   return result;
 }
 

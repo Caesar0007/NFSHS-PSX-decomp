@@ -2023,6 +2023,10 @@ struct AICop_PerpChaseInfo {   /* 36 bytes */
     int                totalEngagementPercent_, blockadeDone_, engagementPercentIncreasePerTick_, copFreeTicks_;   /* +0x14 */
 };
 
+/* P876: source-facing AI classes expose their native recorded destructors.
+ * These are declarations, not new definitions or virtual members. Owning TUs
+ * retain their existing definitions and any necessary ABI bridge machinery.
+ * The public header probes verify the exact native destructor references. */
 struct AIState_Base {   /* 8 bytes */
     Car_tObj           *carObj_;   /* +0x0 */
     __vtbl_ptr_type      (*_vf)[4];   /* +0x4 */
@@ -2035,18 +2039,14 @@ struct AIState_Base {   /* 8 bytes */
 
 struct AIState_None : public AIState_Base {   /* 8 bytes */
     AIState_None() {}
-    /* ~AIState_None(): reconstructed as extern "C" ___12AIState_None(AIState_None*,int) free fn -- see AIState_Normal comment. */
+    ~AIState_None();
     void Execute();
 };
 
 struct AIState_Normal : public AIState_Base {   /* 8 bytes */
     AIState_Normal() {}
     AIState_Normal(Car_tObj *carObj);
-    /* ~AIState_Normal(): reconstructed as extern "C" ___14AIState_Normal(AIState_Normal*,int)
-       free fn (SaveSurface/ObjectFinishedSignAnim pattern) -- the oracle is a REAL per-class
-       deleting dtor (__in_chrg + andi&1 + __builtin_delete), not a base-forward; a real C++
-       member dtor for this non-polymorphic single-inheritance shape always compiles to gcc's
-       default simple base-forward (proven empirically), so the ABI-shape is hand-written. */
+    ~AIState_Normal();
     void Execute();
 };
 
@@ -2058,7 +2058,7 @@ struct AIState_NonActive : public AIState_Base {   /* 8 bytes */
     AIState_NonActive(Car_tObj *carObj) : AIState_Base(carObj) {
         _vf = (__vtbl_ptr_type (*)[4])((char *)AIState_NonActive_vtable + 8);
     }
-    /* ~AIState_NonActive(): see AIState_Normal comment -- extern "C" ___17AIState_NonActive free fn. */
+    ~AIState_NonActive();
     void Execute();
 };
 
@@ -2106,6 +2106,7 @@ struct AIHigh_BasicPerp : public AIHigh_Base {   /* 124 bytes */
     int CheckChaserPosition(int a, int b);
     AIHigh_BasicPerp() {}
     AIHigh_BasicPerp(Car_tObj *carObj);
+    ~AIHigh_BasicPerp();
     void CheckForCrimes();
     int CheckIfCaught();
     void RemoveCloseCops();
@@ -2117,6 +2118,7 @@ struct AIHigh_Player : public AIHigh_BasicPerp {   /* 176 bytes */
     AICop_PerpChaseInfo perpChaseInfo_;   /* +0x8C */
     AIHigh_Player() {}
     AIHigh_Player(Car_tObj *carObj);
+    ~AIHigh_Player();
     void HandleCops();
     int CheckIfABlockadeCanBeSetup();
     void SetupBlockade();
@@ -2131,6 +2133,7 @@ struct AIHigh_BTC_Perp : public AIHigh_BasicPerp {   /* 136 bytes */
     int                caught_, hudActivated_;   /* +0x7C */
     AIHigh_BTC_HumanCop *originalActivationCop_;   /* +0x84 */
     AIHigh_BTC_Perp() {}
+    ~AIHigh_BTC_Perp();
     void ReleaseCops();
     void HandleCops();
     int IsFalseArrest();
@@ -2158,6 +2161,7 @@ struct AIHigh_BasicCop : public AIHigh_Base {   /* 88 bytes */
     AIHigh_tDriveAwayMode driveAway_;   /* +0x54 */
     AIHigh_BasicCop() {}
     AIHigh_BasicCop(Car_tObj *carObj, int idx);
+    ~AIHigh_BasicCop();
     void CheckSpikeBelt();
     void SetupBlockadeElements(blockade_t *blockade);
     void HandleBlockadeSpeech();
@@ -2170,6 +2174,7 @@ struct AIHigh_BTC_Cop : public AIHigh_BasicCop {   /* 100 bytes */
     tFreezeMode        freezeMode_;   /* +0x60 */
     AIHigh_BTC_Cop() {}
     AIHigh_BTC_Cop(Car_tObj *carObj, int copIndex);
+    ~AIHigh_BTC_Cop();
     void AssignToPlayer(AIHigh_BTC_Perp *target);
     int GetCheckChasePosition(coorddef *pos);
     int CheckForNewTarget();
@@ -2211,6 +2216,7 @@ struct AIHigh_Cop : public AIHigh_BasicCop {   /* 108 bytes */
     int                forcePurgatory_, chaseIndex_, requestSpikeBeltAtSlice_, aggressionLevel_;   /* +0x5C */
     AIHigh_Cop() {}
     AIHigh_Cop(Car_tObj *carObj, int idx);
+    ~AIHigh_Cop();
     void SetTuningLevers();
     void HighExecute();
     int CheckForNeedyPlayers();
@@ -2402,7 +2408,7 @@ struct AIState_Chase : public AIState_Base {   /* 148 bytes */
     int                longTargetRegion_, latTargetRegion_, targetDir_, carDir_, longMetersBetween_, latMetersBetween_, murderMode_, murderEndTime_, inTargetRegion_, nitrousTicks_, nitrousMinForeDistance_, nitrousMinAftDistance_, aggressionLevel_, slowDownEndTime_, barrierTicks32_;   /* +0x58 */
     AIState_Chase() {}
     AIState_Chase(Car_tObj *carObj, Car_tObj *target, coorddef *pt, int a, int b, int c, int d, int e);
-    /* ~AIState_Chase(): see AIState_Normal comment -- extern "C" ___13AIState_Chase free fn. */
+    ~AIState_Chase();
     void SetTarget(Car_tObj *target, coorddef *pt);
     void SetMurderMode(int a, int b);
     void SetUp();
@@ -2421,7 +2427,7 @@ struct AIState_GotoSlice : public AIState_Normal {   /* 16 bytes */
     int                targetSlice_, stopWhenArrivedAtSlice_;   /* +0x8 */
     AIState_GotoSlice() {}
     AIState_GotoSlice(Car_tObj *carObj, int a, int b);
-    /* ~AIState_GotoSlice(): see AIState_Normal comment -- extern "C" ___17AIState_GotoSlice free fn. */
+    ~AIState_GotoSlice();
     void Execute();
     int InTargetSliceRange(int a);
 };
@@ -2445,6 +2451,7 @@ struct AIHigh_Traffic : public AIHigh_Base {   /* 36 bytes */
     SceneElem          *accidentData_;   /* +0x20 */
     AIHigh_Traffic() {}
     AIHigh_Traffic(Car_tObj *carObj);
+    ~AIHigh_Traffic();
     Car_tObj *CheckForCops(int *p);
     AIHigh_Cop *CopCheck(int *p);
     void HighExecute();
@@ -2534,6 +2541,7 @@ struct AIHigh_Opponent : public AIHigh_Player {   /* 192 bytes */
     int                hitCount_, attackTicksLeft_;   /* +0xB8 */
     AIHigh_Opponent() {}
     AIHigh_Opponent(Car_tObj *carObj);
+    ~AIHigh_Opponent();
     void CheckForWipeOut();
     int DoRearEnder();
     void HighExecute();
@@ -2543,7 +2551,7 @@ struct AIHigh_Opponent : public AIHigh_Player {   /* 192 bytes */
 struct AIState_Idle : public AIState_Base {   /* 16 bytes */
     int                roadPosition_, idleInPlaceFlag_;   /* +0x8 */
     AIState_Idle() {}
-    /* ~AIState_Idle(): see AIState_Normal comment -- extern "C" ___12AIState_Idle free fn. */
+    ~AIState_Idle();
     void Execute();
     void SetIdlePosition(int pos);
 };
@@ -2611,7 +2619,7 @@ struct AIState_Offroad : public AIState_Base {   /* 104 bytes */
     int                longMetersBetween_, letGo_, maxSpeedMPS_, releaseTime_;   /* +0x58 */
     AIState_Offroad() {}
     AIState_Offroad(Car_tObj *carObj, int a, coorddef *pt, matrixtdef *mat, int b, int c, int d);
-    /* ~AIState_Offroad(): see AIState_Normal comment -- extern "C" ___15AIState_Offroad free fn. */
+    ~AIState_Offroad();
     void UnleashIfInRange(Car_tObj *carObj);
     void Execute();
 };
@@ -2619,7 +2627,7 @@ struct AIState_Offroad : public AIState_Base {   /* 104 bytes */
 struct AIState_Purgatory : public AIState_NonActive {   /* 8 bytes */
     AIState_Purgatory() {}
     AIState_Purgatory(Car_tObj *carObj);
-    /* ~AIState_Purgatory(): see AIState_Normal comment -- extern "C" ___17AIState_Purgatory free fn. */
+    ~AIState_Purgatory();
     int TestForRelease();
     void Execute();
     static void StartUp();
@@ -2631,7 +2639,7 @@ struct AIState_RovingTraffic : public AIState_Base {   /* 24 bytes */
     long               waitTick_;   /* +0x14 */
     AIState_RovingTraffic() {}
     AIState_RovingTraffic(Car_tObj *carObj, trigger_t *trig);
-    /* ~AIState_RovingTraffic(): see AIState_Normal comment -- extern "C" ___21AIState_RovingTraffic free fn. */
+    ~AIState_RovingTraffic();
     void CheckIfCarIsNearbyAndStop(Car_tObj *carObj, int &status);
     void Execute();
     int TestForRelease();
@@ -2641,7 +2649,7 @@ struct AIState_Donuts : public AIState_Base {   /* 16 bytes */
     int                donutLookForward_;   /* +0x8 */
     donutMode_t        donutMode_;   /* +0xC */
     AIState_Donuts() {}
-    /* ~AIState_Donuts(): see AIState_Normal comment -- extern "C" ___14AIState_Donuts free fn. */
+    ~AIState_Donuts();
     void Execute();
 };
 
@@ -2650,7 +2658,7 @@ struct AIState_Cruise : public AIState_Normal {   /* 20 bytes */
     int                cruiseSpeed_, cruiseFactor_;   /* +0xC */
     AIState_Cruise() {}
     AIState_Cruise(Car_tObj *carObj, cruiseMode_t mode, int a);
-    /* ~AIState_Cruise(): see AIState_Normal comment -- extern "C" ___14AIState_Cruise free fn. */
+    ~AIState_Cruise();
     void Execute();
 };
 

@@ -1,0 +1,45 @@
+/* Diagnostic only: original public prototypes, exact typed address references. */
+#include "aiphysic.before.h"
+
+void (*p875_before_0)(Car_tObj *carObj, int velScale, int rotScale) = &AIPhysic_StopCar__FP8Car_tObjii;
+void (*p875_before_1)(Car_tObj *carObj) = &AIPhysic_RevEngine__FP8Car_tObj;
+void (*p875_before_2)(Car_tObj *carObj) = &AIPhysic_HandleShifting__FP8Car_tObj;
+Gear_t (*p875_before_3)(Car_tObj *carObj) = &AIPhysic_CalculateGear__FP8Car_tObj;
+int (*p875_before_4)(Car_tObj *carObj, int gear) = &AIPhysic_GearInvSpeedRange__FP8Car_tObj6Gear_t;
+int (*p875_before_5)(Car_tObj *carObj, int gear) = &AIPhysic_GearTopSpeed__FP8Car_tObj6Gear_t;
+int (*p875_before_6)(Car_tObj *carObj, int gear) = &AIPhysic_GearBottomSpeed__FP8Car_tObj6Gear_t;
+int (*p875_before_7)(Car_tObj *carObj, int speed) = &AIPhysic_CalcAcceleration__FP8Car_tObji;
+int (*p875_before_8)(Car_tObj *carObj, int acc) = &AIPhysic_ModifyAccelerationAccordingToScript__FP8Car_tObji;
+int (*p875_before_9)(Car_tObj *carObj) = &AIPhysic_CalcDeceleration__FP8Car_tObj;
+void (*p875_before_10)(Car_tObj *carObj) = &AIPhysic_CheckDesiredDirection__FP8Car_tObj;
+void (*p875_before_11)(Car_tObj *carObj) = &AIPhysic_HandleSignalling__FP8Car_tObj;
+void (*p875_before_12)(Car_tObj *carObj) = &AIPhysic_HandleWipeoutTimer__FP8Car_tObj;
+void (*p875_before_13)(Car_tObj *carObj) = &AIPhysic_Main__FP8Car_tObj;
+void (*p875_before_14)(Car_tObj *carObj) = &AIPhysic_CheckForBadPosition__FP8Car_tObj;
+int (*p875_before_15)(Car_tObj *carObj) = &AIPhysics_UseCoolPhysics__FP8Car_tObj;
+void (*p875_before_16)(Car_tObj *carObj) = &AIPhysic_SimplePhysics__FP8Car_tObj;
+void (*p875_before_17)(Car_tObj *carObj) = &AIPhysic_SimplePhysics_LongVel__FP8Car_tObj;
+void (*p875_before_18)(Car_tObj *carObj) = &AIPhysic_SimplePhysics_LatVel__FP8Car_tObj;
+void (*p875_before_19)(Car_tObj *carObj) = &AIPhysic_CoolPhysics__FP8Car_tObj;
+void (*p875_before_20)(Car_tObj *carObj) = &AIPhysic_HandleDirection__FP8Car_tObj;
+void (*p875_before_21)(Car_tObj *carObj) = &AIPhysic_Preperation__FP8Car_tObj;
+int (*p875_before_22)(coorddef *pos, int slice) = &AIPhysic_CalculateRoadPosition__FP8coorddefi;
+void (*p875_before_23)(Car_tObj *carObj) = &AIPhysic_GetDesiredVector__FP8Car_tObj;
+void (*p875_before_24)(Car_tObj *carObj) = &AIPhysic_TargetedGetDesiredVector__FP8Car_tObj;
+int (*p875_before_25)(Car_tObj *carObj) = &AIPhysic_CheckIfOutOfControl__FP8Car_tObj;
+void (*p875_before_26)(Car_tObj *carObj) = &AIPhysic_OutOfControlPhysics__FP8Car_tObj;
+int (*p875_before_27)(Car_tObj *carObj) = &AIPhysic_GetRearEndDamageFactor__FP8Car_tObj;
+void (*p875_before_28)(Car_tObj *carObj) = &AIPhysic_InControlPhysics__FP8Car_tObj;
+void (*p875_before_29)(Car_tObj *carObj) = &AIPhysic_FinishUp__FP8Car_tObj;
+void (*p875_before_30)(Car_tObj *carObj, int rampType) = &AIPhysic_CalculateRampedDesiredLatPos__FP8Car_tObj9eRampType;
+int (*p875_before_31)(Car_tObj *carObj) = &AIPhysic_HitWallCheck__FP8Car_tObj;
+void (*p875_before_32)(Car_tObj *carObj) = &AIPhysic_ProcessBarrierCollision__FP8Car_tObj;
+void (*p875_before_33)(Car_tObj *carObj) = &AIPhysic_ProcessCollision__FP8Car_tObj;
+void (*p875_before_34)(Car_tObj *carObj, int time) = &AIPhysic_ChangeDirection__FP8Car_tObji;
+void (*p875_before_35)(Car_tObj *carObj) = &AIPhysic_CheckForGripReduction__FP8Car_tObj;
+void (*p875_before_36)(void) = &AIPhysic_StartUp__Fv;
+void (*p875_before_37)(void) = &AIPhysic_CleanUp__Fv;
+void (*p875_before_38)(void) = &AIPhysic_Reset__Fv;
+void (*p875_before_39)(Car_tObj *carObj) = &AIPhysic_ResetCar__FP8Car_tObj;
+void (*p875_before_40)(Car_tObj *carObj) = &AIPhysic_InitCar__FP8Car_tObj;
+void (*p875_before_41)(Car_tObj *carObj) = &AIPhysic_DeInitCar__FP8Car_tObj;

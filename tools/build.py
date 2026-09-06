@@ -291,11 +291,28 @@ JTBL_AT_FUSION = os.environ.get("NFS4_JTBL_AT_FUSION") == "1"
 #   "force_addr"          -> pass -fforce-addr to cc1 for a C object.  This
 #                           is a compiler-input identity, not an assembly
 #                           rewrite; adopt only after a whole-TU gate.
+#   "cc1plus_ver"         -> select one available retail C++ compiler for
+#                           the entire TU, including its debug twin. Fail if
+#                           unavailable; never silently fall back or splice.
+#   "no_thread_jumps"     -> disable jump threading for a whole C++ TU.
+#                           This is an input option, not a branch rewrite;
+#                           require full-TU instruction/branch/byte receipts.
 #
 # The 7 TUs below own the retail binary's 7 ASPSX-$at-macro jtbl sites
 # (w23-a11 investigation plus later per-site corrections); the other 26 jtbl TUs are deliberately absent
 # here (their explicit 5-insn form already matches and must stay untouched).
 PER_TU_FLAGS = {
+    # P877: the hash-pinned retail 2.8.1 SN compiler reproduces all16 replay
+    # functions and their branch distances in one ordinary compilation. It
+    # removes the P852 StoringControllerData-only compiler splice below and
+    # restores source-only PASS243 for the canonical four-copy source body.
+    # Evidence/backup: scratchpad/p877_replay (whole-TU source/identity matrix).
+    "recon/game/common/replay.cpp": {"cc1plus_ver": "2.8.1-sn"},
+    # P878: all18 current AudioClc functions and branch distances match with
+    # one normal2.8.0 -G4 -fno-thread-jumps compile. Its complete object equals
+    # the former mixed-flag object. Older sibling-regression probes no longer
+    # describe the restored source; see scratchpad/p878_audioclc.
+    "recon/game/common/audioclc.cpp": {"no_thread_jumps": True},
     # ---- SPCHPSXZ.LIB: the WHOLE library was built at -G0 (one makefile, one
     # flag set -- per-file -G variance inside one EA lib would be implausible).
     # EVIDENCE (2026-08-31): (a) all 78 spchpsxz oracles carry ZERO %gp_rel
@@ -515,7 +532,10 @@ PER_TU_FLAGS = {
     # Receipts (whole TU re-gated, 19 fns): Night_InitPlayerHeadLightColor 10 -> PASS,
     # Night_SetPlayerHeadLightColor 10 -> PASS (both previously certified "GENUINE FLOOR"),
     # Night_GenerateAllLightTables 118 -> 114, all other 16 fns unchanged.
-    "recon/game/psx/night.cpp":             {"g_value": "8"},
+    # P877: one retail2.8.1 C++ compile preserves all19 functions and the
+    # complete old mixed-compiler object. Retain the independently provenG8.
+    # No function-output splice is needed; see scratchpad/p877_night.
+    "recon/game/psx/night.cpp":             {"g_value": "8", "cc1plus_ver": "2.8.1-sn"},
     # audiocmn.cpp does NOT want jtbl_at_fusion: SoundCar's retail switch uses
     # the explicit five-instruction table-base form. Removing the stale override
     # takes detailed SoundCar 176 -> 169 (526 -> 527 instructions) while the
@@ -945,37 +965,15 @@ def per_fn_no_delayed_branch(src: Path) -> set:
     return PER_FN_NO_DELAYED_BRANCH.get(src.relative_to(ROOT).as_posix(), set())
 
 
-# Per-FUNCTION -fno-thread-jumps splice (same dual-compile mechanism as
-# PER_FN_NO_DELAYED_BRANCH above; same key/label conventions).  Motivation
-# (2026-08-08, AudioClc_SoundPlayersCar 4->0): gcc's thread_jumps pass
-# redirects a cond-branch whose outcome decides a target block's cond-branch
-# (here: cond-1's `channel<0` fail edge threaded PAST the else-if chain's
-# `bgez channel` re-test, landing a CODE_LABEL between the bgez and the
-# commMode li/lw pair).  That label blocks the delay-slot fill, forcing
-# `bgez; nop; lw; li` where retail (unthreaded) emits `bgez; li(slot); lw;
-# nop` -- retail's compile did not thread this edge, so the flag reproduces
-# the retail shape byte-exactly for the affected function.  Whole-TU probe
-# receipts (real CC1PLPSX, label-normalized diff): flag touches 4 fns --
-# SoundPlayersCar (target), ResetClosest (PASS at stake), GetClosestCars,
-# SoundCars -- which is exactly why this is per-FUNCTION, not a TU flag.
-PER_FN_NO_THREAD_JUMPS = {
-    "recon/game/common/audioclc.cpp": {
-        "AudioClc_SoundPlayersCar__Fi",
-        # tried + reverted (2026-08-08, same probe session):
-        #   AudioClc_GetClosestCars__Fiii  FAIL 17 -> 20 (REGRESSED, count
-        #     266->263 further from oracle 267 -- retail's copy WAS threaded)
-        #   AudioClc_SoundCars__Fv         FAIL 2 -> 2 (no-op: its residual
-        #     is not a thread artifact)
-    },
-}
+# P878: the former AudioClc customer is now a verified whole-TU input option
+# in PER_TU_FLAGS. Keep the empty compatibility table for diagnostic callers;
+# no function-output splice remains in this category.
+PER_FN_NO_THREAD_JUMPS = {}
 
 
-# Per-FUNCTION -fforce-addr splice (same dual-compile mechanism).  w50-a10:
-# Weather_Init is a flag identity -- -fforce-addr keeps the %hi in its own
-# pseudo so the .type load stays a second lo_sum off the shared high instead
-# of cse find_best_addr folding it onto the computed pointer, freeing $v0 for
-# the li-1 in the beqz slot.  Whole-TU -fforce-addr is NOT the identity
-# (breaks ProcessParticles/QuickReOrthogonalize) -- per-fn only.
+# P878: Weather_Init now uses its initialized Weather_gTrackSpec pointer
+# consistently and matches without -fforce-addr. Do not infer a flag identity
+# from its former mixed source views. The whole-TU flag still regresses peers.
 # The former AudioCmn_Init-only -G8 splice is obsolete: audiocmn.obj is now
 # proven as a whole-TU -G8 identity above, under the strict source-only gate.
 PER_FN_G8 = {}
@@ -987,14 +985,9 @@ PER_FN_NO_SPLIT_ADDRESSES = {
     "recon/syslib/psx/libcd/cdread.c": {"CdRead"},
 }
 
-PER_FN_FORCE_ADDR = {
-    "recon/game/psx/weather.cpp": {
-        "Weather_Init__Fv",   # FAIL 12 (211/211) -> PASS, byte-exact
-    },
-    # (spchevnt's SPCH_AddEvent entry RETIRED 2026-09-04: the indexed-addressing
-    # rewrite seals it source-only, 82/82 -- the giv preheader inits supply the
-    # missing address copies the w53-a11 splice used to force.)
-}
+# Both former customers are source-restored: SPCH_AddEvent's indexed form
+# (2026-09-04) and Weather_Init's consistent pointer view (P878).
+PER_FN_FORCE_ADDR = {}
 
 
 _ENT_RE_TMPL = r'^\t\.ent\t{name}\b[^\n]*\n'
@@ -1402,25 +1395,10 @@ CC1PLUS_RUNGS = {
                  Path(r"C:/Temp/psq45/BIN/CC1PLPSX.EXE"),
                  Path(CC1).parent / "CC1PLPSX44.EXE"],
 }
-# {rel_posix: {rung: {mangled fn names}}}
-PER_FN_CC1PLUS_VER_SPLICE = {
-    # W76-A13 (spec A13_c4.spec, PASS 113/113 x2 in the fixed splice gate;
-    # landed by orchestrator with the retail psq44 binary after the user's
-    # retail-only ruling): the fn's 2.8.0 residual is the orphan (use reg)
-    # note class -- unfixable from source on 2.8.0 by construction.
-    "recon/game/psx/night.cpp": {"2.8.1-sn": {"Night_CreateNightTableElement__FiliPUc"}},
-    # P852 (2026-09-04): retail SLD and the symbol-bearing matched NFS2 source
-    # both describe four ordinary memcpy/Replay_Compress stanzas with only the
-    # AUTO packeddata[33].  Retail Sony GCC 2.8.1 SN32 naturally emits the four
-    # returned-pointer moves present in the oracle (243/243); 2.8.0 omits one
-    # move per stanza and required false locals plus empty asm fences.  The
-    # clean body and the complete 16-function replay TU were independently
-    # gated on the hash-pinned retail rung.  Pre-change tool state is preserved
-    # by the pushed db0984cb checkpoint.
-    "recon/game/common/replay.cpp": {
-        "2.8.1-sn": {"Replay_StoringControllerData__FG15tControllerData"},
-    },
-}
+# P877: both former users (replay.cpp and night.cpp) are proven whole-TU
+# retail2.8.1 identities in PER_TU_FLAGS. Keep this empty compatibility surface
+# for existing diagnostic callers; no C++ function-output splice remains active.
+PER_FN_CC1PLUS_VER_SPLICE = {}
 
 
 def _resolve_cc1plus_rung(rung: str):
@@ -1428,6 +1406,22 @@ def _resolve_cc1plus_rung(rung: str):
         if c.is_file():
             return c
     return None
+
+
+def cpp_compiler(src: Path) -> Path:
+    """Select the TU's actual C++ compiler before any code is generated.
+
+    Shared by normal builds and SLD debug twins. An explicitly selected retail
+    identity is required, rather than replaced with a nonmatching fallback.
+    """
+    rung = per_tu_flags(src).get("cc1plus_ver")
+    if rung is None:
+        return CC1PL
+    compiler = _resolve_cc1plus_rung(rung)
+    if compiler is None:
+        sys.exit(f"[cc1pl] {src.relative_to(ROOT)}: required retail C++ compiler "
+                 f"{rung!r} is unavailable; configure its CC1PLUS_RUNGS path")
+    return compiler
 
 
 def _apply_cc1plus_ver_splice(rel_posix: str, s_file: Path, i_file: Path,
@@ -1900,6 +1894,7 @@ def compile_cpp(src: Path) -> Path:
     nfs4_types.h uses its self-contained (PsyQ-free) type defs."""
     rel = src.relative_to(ROOT)
     tu_flags = per_tu_flags(src)
+    cc1pl = cpp_compiler(src)
     tu_g_value = str(tu_flags.get("g_value", G_VALUE))
     obj = OUT / (str(rel) + ".o")
     obj.parent.mkdir(parents=True, exist_ok=True)
@@ -1917,6 +1912,8 @@ def compile_cpp(src: Path) -> Path:
     cc1pl_flags = ["-quiet", "-O2", f"-G{tu_g_value}"]
     if tu_flags.get("no_delayed_branch"):
         cc1pl_flags.append("-fno-delayed-branch")
+    if tu_flags.get("no_thread_jumps"):
+        cc1pl_flags.append("-fno-thread-jumps")
     # w38-a9/a10 finding: these four keys were wired in compile_c only, so any
     # past per-TU flag experiment on a C++ TU silently measured a no-op.
     # Mirrors the compile_c block above; CC1PLPSX accepts all four (verified
@@ -1931,12 +1928,12 @@ def compile_cpp(src: Path) -> Path:
         cc1pl_flags.append("-fno-strength-reduce")
     if tu_flags.get("no_builtin"):
         cc1pl_flags.append("-fno-builtin")
-    r = run([CC1PL, *cc1pl_flags, i_file, "-o", s_file])
+    r = run([cc1pl, *cc1pl_flags, i_file, "-o", s_file])
     if r.returncode:
         sys.exit(f"[cc1pl] {rel}\n{r.stdout}{r.stderr}")
 
     _apply_cc1plus_ver_splice(rel.as_posix(), s_file, i_file, cc1pl_flags)
-    _apply_fn_splice(rel.as_posix(), s_file, i_file, CC1PL, cc1pl_flags)
+    _apply_fn_splice(rel.as_posix(), s_file, i_file, cc1pl, cc1pl_flags)
 
     maspsx_cmd = [PY, MASPSX, f"--aspsx-version={ASPSX_VERSION}", "--expand-div",
                   "--run-assembler", f"--gnu-as-path={AS}",

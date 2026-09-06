@@ -1,0 +1,25 @@
+#include "C:/Temp/nfs4-decomp/recon/game/psx/texture.h"
+void (*p875_probe_0)(void) = &Texture_InitPaletteSharing;
+void (*p875_probe_1)(void) = &Texture_DeInitPaletteSharing;
+void (*p875_probe_2)(void) = &Texture_ResetPaletteSharing;
+int (*p875_probe_3)(int test,char * data,Draw_tPixMap * pmx,int bpp) = &Texture_CheckForSharedPalette;
+void (*p875_probe_4)(char * ptr_to_data,Draw_tPixMap * ptr_to_pmx,int bpp) = &Texture_AddSharedPalette;
+void (*p875_probe_5)(void) = &Texture_InitClut;
+void (*p875_probe_6)(int bpp,int * xclut,int * yclut) = &Texture_GetClutId;
+void (*p875_probe_7)(short id) = &Texture_MenuReleaseClutId;
+void (*p875_probe_8)(char * from,char * to,int numentry) = &Texture_ColorCarPalette;
+void (*p875_probe_9)(char * data,int width,int x,int y) = &Texture_CopyPalette;
+void (*p875_probe_10)(Texture_pal8bit * palCopy,int palStart,int palNum) = &Texture_ProcessPaletteCopy;
+void (*p875_probe_11)(RECT * imgrect,u_long * p) = &Texture_LoadImage;
+void (*p875_probe_12)(shapetbl * shp,int x,int y,int clutx,int cluty) = &Texture_Vramf;
+void (*p875_probe_13)(shapetbl * shp,int x,int y,int clutx,int cluty) = &Texture_Vramcf;
+int (*p875_probe_14)(shapetbl * shp) = &Texture_GetTranslucencyMode;
+void (*p875_probe_15)(char * f,char * n,int ctrl,int rx,int ry,int cx,int cy,Draw_tPixMap * pmx) = &Texture_LoadPmx;
+void (*p875_probe_16)(Draw_tPixMap * pmx,int mode,Draw_tPixMap * rpmx) = &Texture_CloneUVPmx;
+void (*p875_probe_17)(void) = &Texture_InitTrackTexture;
+void (*p875_probe_18)(void) = &Texture_InitMenuClut;
+void (*p875_probe_19)(void) = &Texture_InitMenuTexture;
+void (*p875_probe_20)(void) = &Texture_CleanupMenuTexture;
+void (*p875_probe_21)(void) = &Texture_LoadMenuTexture;
+void (*p875_probe_22)(void) = &Texture_KillTrackTexture;
+void (*p875_probe_23)(void) = &Texture_KillMenuTexture;

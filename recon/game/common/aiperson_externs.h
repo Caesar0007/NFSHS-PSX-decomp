@@ -9,16 +9,8 @@ extern "C" char *strcpy(char *destination, const char *source);
 /* arrays (technique #1: indexed globals so gcc computes a separate base reg) */
 extern Car_tObj         *Cars_gList[];
 extern Car_tObj         *Cars_gHumanRaceCarList[];
-extern int GameSetup_gData[19];
-#define AIPERSON_RACE_TYPE GameSetup_gData[0]
-#define AIPERSON_WEATHER GameSetup_gData[18]
-/* Retail walks the GameSetup car rows at 180 bytes and loads Personality at
- * aggregate offset 1060.  GameSetup_tData is intentionally absent from this
- * owner's SYM graph; angularVel_ch.x is an existing graph-visible 1060-byte
- * member displacement and therefore preserves that exact zero-insn access. */
-#define AIPERSON_PERSONALITY_AT(index) \
-    (((Car_tObj *)((char *)GameSetup_gData + (index) * 180))->angularVel_ch.x)
-extern char              GameSetup_gPersonalityNames[][8];
+extern GameSetup_tData GameSetup_gData; /* SYM 2874b5: STRUCT, 2600 bytes */
+extern char              GameSetup_gPersonalityNames[15][8]; /* SYM 2874e4: 120 bytes */
 
 extern int               Cars_gNumCars;
 extern int               Cars_gNumCopCars;
@@ -32,14 +24,8 @@ extern void        Udff_GetBuffer(Udff_tInfo *handle, char *mem, int size);
 
 extern void AIScript_Assign(AIScript_t *aiscriptt, AIScript_tReactionDetails (*arg2)[7]);
 
-/* shared rodata (tech #4): path table + sprintf format strings */
+/* Native path table; the Startup format strings are ordinary retail literals. */
 extern char *Paths_Paths[];  /* @0x80116468; [2] = path prefix at +8 */
-extern char *D_80116470[];   /* @0x80116470 (Paths_Paths+8); [0] = same path prefix */
-extern char  D_80055354[];   /* "%sprsonal.bin" */
-extern char  D_80055364[];   /* "%sscripts.bin" */
-extern char  D_80055374[];   /* "%sbtcglue.bin" */
-extern char  D_80055384[];   /* "%shhglue.bin"  */
-extern char  D_80055394[];   /* "%sglue.bin"    */
 
 /* ---- aiperson.obj-owned globals (defined in aiperson.cpp, per SYM) ---- */
 extern int          AIPerson_blockMaxDistance[4];        /* @0x8010d5cc */

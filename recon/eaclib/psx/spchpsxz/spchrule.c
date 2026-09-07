@@ -53,13 +53,13 @@ static int VoxSentence_GetNumPhrases(VoxSentence *sentence)   /* @0x8010B100 */
 {
     return (int)((unsigned int)sentence->flags >> 2);
 }
-static int iSPCH_GetOffset8(int base, int tableBase, int index)   /* @0x8010B10C */
+static void *iSPCH_GetOffset8(void *base, unsigned char *table, int index)   /* @0x8010B10C */
 {
-    return base + ((int)*(unsigned char *)(tableBase + index) << 2);
+    return (char *)base + ((int)table[index] << 2);
 }
-static int iSPCH_GetOffset16(int base, int tableBase, int index)  /* @0x8010B124 */
+static void *iSPCH_GetOffset16(void *base, unsigned short *table, int index)  /* @0x8010B124 */
 {
-    return base + ((int)*(unsigned short *)(tableBase + index * 2) << 2);
+    return (char *)base + ((int)table[index] << 2);
 }
 
 /* iSPCH_GetRuleDataAddr @0x8010B140 : address of an EVENT's rule-data block (right after its sentence-offset table).
@@ -92,7 +92,7 @@ int iSPCH_SentenceUsesParm(VoxSentence *sentence, unsigned int paramIdx)
         VoxPhrase *phrase;
         int j;
 
-        phrase = (VoxPhrase *)iSPCH_GetOffset8((int)sentence, (int)sentence->phraseOffs, phraseIdx);
+        phrase = iSPCH_GetOffset8(sentence, sentence->phraseOffs, phraseIdx);
         if ((phrase->modeParam & 0xf) == paramIdx) {
             found = true;
             break;
@@ -220,12 +220,12 @@ void iSPCH_RuleSet(VoxEvent *event, int sentenceIdx, int *values)
      * *keep = rd[0];`) -- addressable so the store stays, non-volatile so cse's memory table is
      * only alias-invalidated rather than flushed. */
     if (gSentenceRuleSet != 0) {
-        int offSent;
+        VoxSentence *offSent;
         int            numRules = event->numRules;
         int            i        = 0;
         VoxRule       *rd;
         VoxRule       *rdRaw    = iSPCH_GetRuleDataAddr(event);
-        offSent = iSPCH_GetOffset16((int)event, (int)event->sentenceOffs, sentenceIdx);
+        offSent = iSPCH_GetOffset16(event, event->sentenceOffs, sentenceIdx);
         rd = rdRaw;
         if (i < numRules) {
             do {

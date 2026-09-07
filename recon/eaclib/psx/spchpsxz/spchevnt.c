@@ -125,9 +125,9 @@ unsigned int VoxEvent_GetKeepTillExpiresFlag(VoxEvent *e)
     return (unsigned int)e->flags >> 2 & 1;
 }
 
-static int iSPCH_GetOffset16(int base, int tableBase, int index)  /* @0x800E6EA8 */
+static void *iSPCH_GetOffset16(void *base, unsigned short *table, int index)  /* @0x800E6EA8 */
 {
-    return base + ((int)*(unsigned short *)(tableBase + index * 2) << 2);
+    return (char *)base + ((int)table[index] << 2);
 }
 
 /* iSPCH_SearchEventDat @0x800E6EC4 : address of the entry in blob `dat` whose id == eventID, or 0. */
@@ -137,7 +137,7 @@ VoxEvent *iSPCH_SearchEventDat(VoxEventDat *dat, unsigned int eventID)
     int table;
 
     for (table = 0; table < (int)count; table++) {
-        VoxEvent *p = (VoxEvent *)iSPCH_GetOffset16((int)dat, (int)dat->eventOffs, table);
+        VoxEvent *p = iSPCH_GetOffset16(dat, dat->eventOffs, table);
 
         if (p->id == eventID)
             return p;

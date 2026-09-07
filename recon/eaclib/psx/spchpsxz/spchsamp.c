@@ -17,15 +17,15 @@
 
 /* iSPCH_InitSample @0x8010B5AC : reset a VoxSample descriptor to "empty" (length 0, start -1, no filter,
  *   filter bytes 0xff). */
-void iSPCH_InitSample(int *out)
+void iSPCH_InitSample(VoxSample *out)
 {
-    out[0] = 0;
-    out[1] = -1;
-    out[2] = 0;
-    *((unsigned char *)out + 0xc) = 0xff;
-    *((unsigned char *)out + 0xd) = 0xff;
-    *((unsigned char *)out + 0xe) = 0xff;
-    *((unsigned char *)out + 0xf) = 0xff;
+    out->length    = 0;
+    out->startOff  = -1;
+    out->filterCnt = 0;
+    out->cycle[0] = 0xff;
+    out->cycle[1] = 0xff;
+    out->cycle[2] = 0xff;
+    out->cycle[3] = 0xff;
 }
 
 /* iSPCH_UnPackSample @0x8010B5D4 : decode sample `sampleIdx` of `bank` into `out`.  Reads the entry's filter
@@ -36,7 +36,7 @@ void iSPCH_InitSample(int *out)
  *   (1 insn short) and colored startOff into a fresh temp instead of reusing dead `entry`/$a2.
  *   The InitSample 1-arg fix (above) removed sampleIdx's phantom 7th ref, restoring the oracle's
  *   result->s1 / done->s2 / sampleIdx->s3 allocation order. */
-int iSPCH_UnPackSample(VoxBank *bank, int sampleIdx, int *out)
+int iSPCH_UnPackSample(VoxBank *bank, int sampleIdx, VoxSample *out)
 {
     int result = 0;
     int done = 0;
@@ -50,10 +50,10 @@ int iSPCH_UnPackSample(VoxBank *bank, int sampleIdx, int *out)
         int i;
 
         entry += sampleIdx * stride;
-        out[2] = filterCnt;
+        out->filterCnt = filterCnt;
         
         for(i = 0; i < filterCnt; i++) {
-            *((unsigned char *)out + i + 0xc) = entry[i + 2];
+            out->cycle[i] = entry[i + 2];
         }
 
         if (*entry & 0x80) {
@@ -68,7 +68,7 @@ int iSPCH_UnPackSample(VoxBank *bank, int sampleIdx, int *out)
             int startOff = (entry[0] << 8) + entry[1];
             startOff <<= 8;
 
-            out[1] = startOff;
+            out->startOff = startOff;
             while (!done) {
                 if (bank->numSamples <= nextIndex) {
                     done = 1;
@@ -82,7 +82,7 @@ int iSPCH_UnPackSample(VoxBank *bank, int sampleIdx, int *out)
                     endOff <<= 8;
                 }
             }
-            *out = endOff - startOff;
+            out->length = endOff - startOff;
         }
         result = 1;
     }

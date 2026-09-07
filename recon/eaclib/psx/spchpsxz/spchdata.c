@@ -41,13 +41,13 @@ int VoxEvent_GetFilterLengthFlag(VoxEvent *event)
 }
 
 /* iSPCH_GetOffset8 @0x80100748 : follow an 8-bit offset table -- base + (table[index] << 2). */
-int iSPCH_GetOffset8(int base, int tableBase, int index)
+void *iSPCH_GetOffset8(void *base, unsigned char *table, int index)
 {
-    return base + ((int)*(unsigned char *)(tableBase + index) << 2);
+    return (char *)base + ((int)table[index] << 2);
 }
 
 /* iSPCH_GetOffset16 @0x80100760 : follow a 16-bit offset table -- base + (table[index] << 2). */
-int iSPCH_GetOffset16(int base, int tableBase, int index)
+void *iSPCH_GetOffset16(void *base, unsigned short *table, int index)
 {
-    return base + ((int)*(unsigned short *)(tableBase + index * 2) << 2);
+    return (char *)base + ((int)table[index] << 2);
 }

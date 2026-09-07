@@ -159,7 +159,7 @@ __asm__("\t.globl\tgSentenceChoice\n\t.globl\tDAT_80148448\n\t.globl\tispch_gPic
  * emits `addu $v1,$s6,$zero` (the 6-diff residual, plus the $v1-vs-$v0 coloring that
  * followed from it).  RULE: when the SAME insn appears in the preheader and in the
  * back-branch delay slot, it is one loop-top statement, not two. */
-int iSPCH_MatchSample(int bankIdx, int sample, VoxPhrase *phraseTemplate, int paramTable)
+int iSPCH_MatchSample(int bankIdx, VoxSample *sample, VoxPhrase *phraseTemplate, int paramTable)
 {
     /* w31-a4 NOTE (kept at baseline per strict-drop seal law; findings for a future wave):
      * a GOTO-loop body (label `loop:` + `if (i<count) goto loop;` instead of do-while) reaches
@@ -244,9 +244,8 @@ valid_count:
          * freechan EBB-boundary lever does not reach it (the use is an addu, not a compare,
          * and the branch distance is too short for cse's path limit). */
         do {
-            int p = sample + i;
             unsigned int bit;
-            unsigned int cycleByte = *(unsigned char *)(p + 0xc);
+            unsigned int cycleByte = sample->cycle[i];
             result = 0;
             if (0x1f < cycleByte)
                 goto done;
@@ -329,6 +328,7 @@ char *iSPCH_GetBankBits(VoxBank *bank)
 }
 
 /* iSPCH_ClearCycleBit @0x801009B8 : clear cycle bit `cycle` in `bank`'s bits array; returns the byte ptr. */
+#if 0
 unsigned char *iSPCH_ClearCycleBit(VoxBank *bank, int cycle)
 {
     int            r = cycle;
@@ -346,34 +346,50 @@ unsigned char *iSPCH_ClearCycleBit(VoxBank *bank, int cycle)
     *p = (unsigned char)(*p & mask);
     return p;
 }
+#endif
+unsigned char *iSPCH_ClearCycleBit(VoxBank *bank, int cycle)
+{
+    int r;
+    int off;
+    unsigned char mask;
+    char *bits;
+    unsigned char *p;
+
+    r = cycle / 8;
+    off = r + 1;
+    mask = ~(1 << (cycle % 8));
+    bits = iSPCH_GetBankBits(bank);
+    p = &bits[off];
+    p[0] &= mask;
+    return p;
+}
 
 /* iSPCH_CheckBankBit @0x80100A1C : test cycle bit `cycle` in `bank`'s bits array. */
 unsigned int iSPCH_CheckBankBit(VoxBank *bank, int cycle)
 {
     int byteIdx = cycle / 8;   /* MATCH: plain signed /8 -> gcc's bgez/+7/sra COPY form (cycle stays $a1) */
-    int bit = 1 << (cycle - (byteIdx * 8));
+    char bit = 1 << (cycle % 8);
     char *bits = iSPCH_GetBankBits(bank);
     return bits[byteIdx] & bit;
 }
 
 /* iSPCH_CheckTemplateSample @0x80100A70 : whether choice's template sample bit is set for this bank. */
-unsigned int iSPCH_CheckTemplateSample(int choice, VoxBank *bank, int base)
+unsigned int iSPCH_CheckTemplateSample(short *choice, VoxBank *bank, int base)
 {
     unsigned int result = 0;
-    if ((int)bank->subBankCount > (int)*(short *)(choice + 2))
-        result = iSPCH_CheckBankBit(bank, base + bank->numSamples *
-                                                   (int)*(short *)(choice + 2));
+    if (bank->subBankCount > choice[1])
+        result = iSPCH_CheckBankBit(bank, base + bank->numSamples * choice[1]);
     return result;
 }
 
 /* iSPCH_SampleExists @0x80100AC0 : whether sample `bank` of `choice` is present (template + cycle checks). */
-unsigned int iSPCH_SampleExists(int choice, VoxBank *bank, int sampleIdx)
+unsigned int iSPCH_SampleExists(short *choice, VoxBank *bank, int sampleIdx)
 {
     unsigned int result = 1;
-    if ((int)bank->numSamples < sampleIdx) {
+    if (bank->numSamples < sampleIdx) {
         result = 0;
     } else {
-        if (*(short *)(choice + 2) != -1)
+        if (choice[1] != -1)
             result = iSPCH_CheckTemplateSample(choice, bank, sampleIdx);
         if ((bank->flags & 0xf0) != 0)
             result = iSPCH_CheckBankBit(bank, sampleIdx + 8);
@@ -389,30 +405,35 @@ unsigned int iSPCH_SampleExists(int choice, VoxBank *bank, int sampleIdx)
  * a frame pointer + the incoming home slots, 22 diffs / 72 insns.) */
 int iSPCH_ChooseSamples(short *choice, int maxToPick, VoxPhrase *phraseTemplate, int unused)
 {
-    int           sampleIdx = 0;
-    int           bankIdx   = *choice;
-    VoxBank      *bank      = gVoxBanks[bankIdx];
-    unsigned int  nSamples  = bank->numSamples;
-    int           pickPos   = (int)choice[3];
-    int           chosen    = 0;
-    int           tmp[4];
-    if (nSamples != 0) {
-        do {
-            int r;
-            r = iSPCH_UnPackSample(bank, sampleIdx, tmp);
-            if (r != 0 &&
-                iSPCH_MatchSample(bankIdx, (int)tmp, phraseTemplate, unused) != 0) {
-                if (iSPCH_SampleExists((int)choice, bank, (int)sampleIdx) != 0) {
-                    PICK(pickPos) = (unsigned char)sampleIdx;
-                    chosen  = chosen + 1;
-                    pickPos = pickPos + 1;
-                    if (maxToPick <= chosen)
-                        return chosen;
-                }
+    int       bankIdx;
+    VoxBank  *bank;
+    int       nSamples;
+    int       pickPos;
+    int       chosen;
+    int       sampleIdx;
+
+    bankIdx  = choice[0];
+    bank     = gVoxBanks[bankIdx];
+    nSamples = bank->numSamples;
+    pickPos  = choice[3];
+    chosen   = 0;
+
+    for(sampleIdx = 0; sampleIdx < nSamples; sampleIdx++) {
+        VoxSample tmp;
+
+        if (iSPCH_UnPackSample(bank, sampleIdx, &tmp) &&
+            iSPCH_MatchSample(bankIdx, &tmp, phraseTemplate, unused)) {
+            if (iSPCH_SampleExists(choice, bank, (int)sampleIdx)) {
+                ispch_gPickSamples[pickPos] = sampleIdx;
+                pickPos++;
+                
+                chosen++;
+                if (chosen >= maxToPick)
+                    break;
             }
-            sampleIdx = sampleIdx + 1;
-        } while (sampleIdx < (int)nSamples);
+        }
     }
+
     return chosen;
 }
 
@@ -421,7 +442,7 @@ int iSPCH_SampleLength(short *choice)
 {
     VoxBank *bank;
     int r;
-    int tmp[4];
+    VoxSample tmp;
     /* MATCH (w33-a9, 14 -> 0): the pick address must be accumulated INTO the INDEX
      * variable, not into the base pointer.  The oracle loads choice[4] into $a1 and
      * adds the pick-pool base to it in place (`lh a1,8(a0); addu a1,a1,v0; lbu
@@ -436,9 +457,9 @@ int iSPCH_SampleLength(short *choice)
     int            pick     = choice[4];
     pick = (int)(pickBase + pick);
     bank = gVoxBanks[*choice];
-    r = iSPCH_UnPackSample(bank, (unsigned int)*(unsigned char *)pick, tmp);
+    r = iSPCH_UnPackSample(bank, (unsigned int)*(unsigned char *)pick, &tmp);
     if (r != 0)
-        len = tmp[0];
+        len = tmp.length;
     return len;
 }
 
@@ -452,25 +473,34 @@ int iSPCH_ConvertTime(int samples)
     return t;
 }
 
-/* iSPCH_SentenceLength @0x80100D20 : total time of all phrases' current picks for `sentence`. */
+/* iSPCH_SentenceLength @0x80100D20 : total time of all phrases' current picks for `sentence`.
+ * MATCH (2026-09-07): the EXPLICIT loop guard is what separates the two counters.  A plain
+ * `for`/`while` leaves `total` and `i` tied at 7 refs / 13 live, so the s1/s2 pair falls to the
+ * allocno-number tie-break and lands the wrong way round (8 or 12 diffs, count exact).  The
+ * reason the tie exists: local-alloc's update_equiv_regs SINKS `total = 0` down to its first
+ * use in the preheader, next to `i = 0`, equalising the live ranges (visible as the insn moving
+ * between the .loop and .lreg dumps).  With the guard, `i` is born inside the guarded block
+ * (7 refs / 10 = 1.40) while `total` keeps its pre-call birth (6 / 16 = 0.75), so `i` wins $s1
+ * and `total` takes $s2 on PRIORITY -- and `i = 0` becomes retail's `addu $s1,$s2,$zero` copy of
+ * total's zero.  Guarded `for`/`while` are 2 diffs at 31 insns (they emit the test twice). */
 int iSPCH_SentenceLength(VoxSentence *sentence)
 {
     int total = 0;
     int n = VoxSentence_GetNumPhrases(sentence);
-    int i = 0;
-    if (0 < n) {
-        short *choice = ispch_gChoice;
+
+    if (n > 0) {
+        int i = 0;
         do {
-            total = total + iSPCH_SampleLength(choice);
-            i = i + 1;
-            choice = choice + 6;
+            total += iSPCH_SampleLength(&ispch_gChoice[i * 6]);
+            i++;
         } while (i < n);
     }
+
     return iSPCH_ConvertTime(total);
 }
 
 /* iSPCH_OrderSentences @0x80100D94 : produce a weighted-random play order of `event`'s phrases into outOrder. */
-void iSPCH_OrderSentences(int event, int outOrder)
+void iSPCH_OrderSentences(VoxEvent *event, int outOrder)
 {
     /* MATCH + CORRECTNESS (w31-a4): (1) VOID -- the oracle epilogue never sets $v0 and the sole
      * caller (ChooseSentence) ignores it; the old `unsigned char *last` return chain was invented
@@ -513,14 +543,14 @@ void iSPCH_OrderSentences(int event, int outOrder)
      * original shared ONE function-scope variable with another loop -- check the sibling
      * loops before filing a local-alloc rotation. */
     unsigned char  weights[104];
-    unsigned int   n = (unsigned int)*(unsigned char *)(event + 6);
+    unsigned int   n = event->numSentences;
     int            total = 0;
     int            j = 0;
     int            i;
     unsigned char *p;   /* MATCH: ONE function-scope cursor shared with phase 3 -- see below */
     if (n != 0) {
         do {
-            p = (unsigned char *)iSPCH_GetOffset16(event, event + 0xc, j);
+            p = iSPCH_GetOffset16(event, event->sentenceOffs, j);
             weights[j] = *p;
             j = j + 1;
             total = total + (int)(unsigned int)*p;
@@ -558,7 +588,7 @@ void iSPCH_OrderSentences(int event, int outOrder)
     j = 0;
     if (n != 0) {
         do {
-            p = (unsigned char *)iSPCH_GetOffset16(event, event + 0xc, j);
+            p = iSPCH_GetOffset16(event, event->sentenceOffs, j);
             if (*p == '\0') {
                 *(char *)(outOrder + i) = (char)j;
                 i = i + 1;
@@ -631,7 +661,7 @@ choose:
                 int    r;
                 VoxPhrase *phraseTemplate;
                 outChoice[3] = (short)picked;
-                phraseTemplate = (VoxPhrase *)iSPCH_GetOffset8((int)sentence, (int)sentence->phraseOffs, table);
+                phraseTemplate = iSPCH_GetOffset8(sentence, sentence->phraseOffs, table);
                 if (iSPCH_GetPhraseBank(phraseTemplate, paramTable, outChoice) == 0) {
                     /* MATCH (w34-a9, 7 -> 1 diff): the compare constant is carried by a
                      * loop-body local `mark` that is SET TWICE in the loop (-2 for the test,
@@ -941,18 +971,18 @@ void iSPCH_ConstantRuleSet(VoxEvent *event, VoxSentence *sentence)
                 int rid;
                 int j;
                 int ruleEntry;
-                ruleEntry = iSPCH_GetOffset8((int)sentence, (int)sentence->phraseOffs, table);
+                VoxPhrase *phrase;
+                phrase = iSPCH_GetOffset8(sentence, sentence->phraseOffs, table);
                 j = 0;
                 do {
-                    unsigned int ruleType =
-                        (unsigned int)(*(unsigned char *)(ruleEntry + j + 4) >> 4);
+                    int ruleType = phrase->nibbles[j] >> 4;
                     if (ruleType != 0xf) {
                         int tmp[4];
                         int r;
                         int callRid;
                         unsigned int one;
                         unsigned char *cycle;
-                        rid = iSPCH_GetRuleID(event, (int)ruleType);
+                        rid = iSPCH_GetRuleID(event, ruleType);
    /* MATCH: was int[3] (too small -- oracle's frame reserves the
                                        * full 16 bytes and reads byte [0xc+j], i.e. tmp[3]'s bytes,
                                        * the same "cycle byte array" field iSPCH_MatchSample reads at
@@ -1070,15 +1100,14 @@ void iSPCH_ConstantRuleSet(VoxEvent *event, VoxSentence *sentence)
                             do {
                                 callee = *setRule;
                             } while (0);
-                            callee(
-                                eventIdArg, callRid, bit, one);
+                            callee( eventIdArg, callRid, bit, one);
                         }
                         one = 0;
                     }
-                    j = j + 1;
+                    j++;
                 } while (j < 4);
-                table = table + 1;
-                choice = choice + 6;
+                table++;
+                choice += 6;
             } while (table < n);
         }
     }
@@ -1095,23 +1124,23 @@ int iSPCH_MakeSampleRequests(VoxSentence *sentence, int paramTable)
             short        *choice = CHOICE(i);
             VoxBank      *bank = gVoxBanks[*choice];
             unsigned int  idx  = (unsigned int)PICK(choice[4]);
-            int           tmp[4];
+            VoxSample     tmp;
             /* MATCH: the ClearCycleBit call is gated on BOTH bank[2]&0xf0 AND the separate global
              * gClearCycle != 0 -- the earlier recon only had the bank-flags half of the gate. */
             if ((bank->flags & 0xf0) != 0 && gClearCycle != 0)
                 iSPCH_ClearCycleBit(bank, idx);
-            if (iSPCH_UnPackSample(bank, idx, tmp) != 0) {
+            if (iSPCH_UnPackSample(bank, idx, &tmp) != 0) {
                 /* MATCH: stride computed UNCONDITIONALLY before the -1 test (oracle lhu+sll precede
                  * the beq; the mult starts in the branch delay slot) and choice[1] read ONCE into a
                  * named local -- the old double choice[1] read made loop.c fabricate a second
                  * &choice[1] giv (addiu s3,s2,2 anchor, +2 insns). */
-                int spuAddr = tmp[1];
+                int spuAddr = tmp.startOff;
                 int sub     = (int)choice[1];
                 int stride  = (int)bank->dataSize256 << 8;
                 if (sub != -1)
                     spuAddr = spuAddr + sub * stride;
-                samples = samples + tmp[0];
-                gSampleRequest((int)*choice, spuAddr, tmp[0], paramTable);
+                samples = samples + tmp.length;
+                gSampleRequest((int)*choice, spuAddr, tmp.length, paramTable);
                 /* MATCH (w32-a9, 23 -> 3 diffs): the -dL "savings-1 lone lui not desirable"
                  * verdict was a CONSEQUENCE of the then-current gp-relative SCALAR form, not a
                  * cost-model identity.  The unsized-array device (catalog SSE / SSE#5) made cc1
@@ -1207,7 +1236,7 @@ int iSPCH_ChooseSentence(unsigned int *eventArgs)
     unsigned char local_order[104];
     char          local_30 = 0;
     int           idx = 0;
-    int           event = iSPCH_FindEvent(*eventArgs);
+    VoxEvent     *event = iSPCH_FindEvent(*eventArgs);
     int           result = 0;
     if (event != 0) {
         if (iSPCH_RepeatEvent((unsigned short *)event) != 0) {
@@ -1240,10 +1269,10 @@ int iSPCH_ChooseSentence(unsigned int *eventArgs)
                  * gate above -- the oracle never saves it (bare `andi v0,v0,0xff; beqz`).
                  * The old recon reused useLen for both, which both mis-typed the argument
                  * and pinned useLen into a callee-saved reg for the whole function. */
-                ruleBits = iSPCH_GetRuleSettings((VoxEvent *)event, (int *)eventArgs, &local_30);
+                ruleBits = iSPCH_GetRuleSettings(event, (int *)eventArgs, &local_30);
                 iSPCH_OrderSentences(event, (int)local_order);
                 {
-                    unsigned int n = (unsigned int)*(unsigned char *)(event + 6);
+                    unsigned int n = event->numSentences;
                     result = -1;
                     if (0 < (int)n) {
                         result = 0;
@@ -1275,13 +1304,13 @@ int iSPCH_ChooseSentence(unsigned int *eventArgs)
                                 goto out;
                             if ((int)n <= table)
                                 goto out;
-                            sentence = iSPCH_GetOffset16(event, event + 0xc, (int)table);
+                            sentence = iSPCH_GetOffset16(event, event->sentenceOffs, (int)table);
                             r = iSPCH_SentenceGetChoices(sentence, (int)eventArgs, ruleBits,
                                                          (unsigned int)(unsigned char)local_30, (int)filterMode);
                             if (0 < r) {
                                 result = iSPCH_SentenceMakeChoice(sentence, (int)filterMode);
                                 if (result != 0)
-                                    iSPCH_SaveChosenSentence((VoxEvent *)event, sentence, (int)table, (int *)eventArgs);
+                                    iSPCH_SaveChosenSentence(event, sentence, (int)table, (int *)eventArgs);
                             }
                             idx = idx + 1;
                         } while (result == 0);

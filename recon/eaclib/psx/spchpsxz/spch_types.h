@@ -42,6 +42,16 @@ typedef struct {
     unsigned char typeParam;      /* +0x1 type << 4 | paramIdx */
 } VoxRule;
 
+/* VoxSample: an unpacked sample descriptor (iSPCH_UnPackSample's out, 16 bytes on the caller's stack).
+ * length/startOff are in bytes of the bank's sample data; cycle[] holds one filter byte per
+ * phrase filter (filterCnt of them, the rest 0xff after iSPCH_InitSample). */
+typedef struct {
+    int            length;        /* +0x0 end - start (SampleLength / MakeSampleRequests) */
+    int            startOff;      /* +0x4 start offset << 8 (MakeSampleRequests spuAddr), -1 = none */
+    int            filterCnt;     /* +0x8 bank->flags & 0xf */
+    unsigned char  cycle[4];      /* +0xc per-filter cycle byte (MatchSample / ConstantRuleSet) */
+} VoxSample;
+
 /* VoxRuleDecoded: a VoxRule unpacked into three words.  Retail keeps these three on the stack in
  * every rule reader (GetRuleID stores all three and reads only .id) -- gcc 2.8 does not scalarise
  * aggregate locals, so a decoded struct is the source shape that reproduces those stores. */

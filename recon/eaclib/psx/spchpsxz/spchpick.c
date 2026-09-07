@@ -325,25 +325,6 @@ char *iSPCH_GetBankBits(VoxBank *bank)
 }
 
 /* iSPCH_ClearCycleBit @0x801009B8 : clear cycle bit `cycle` in `bank`'s bits array; returns the byte ptr. */
-#if 0
-unsigned char *iSPCH_ClearCycleBit(VoxBank *bank, int cycle)
-{
-    int            r = cycle;
-    int            off;
-    unsigned int   mask;
-    char *bits;
-    unsigned char *p;
-    if (cycle < 0)
-        r = cycle + 7;
-    r = r >> 3;
-    off = r + 1;
-    mask = ~(1 << (cycle - (r << 3)));
-    bits = iSPCH_GetBankBits(bank);
-    p = bits + off;
-    *p = (unsigned char)(*p & mask);
-    return p;
-}
-#endif
 unsigned char *iSPCH_ClearCycleBit(VoxBank *bank, int cycle)
 {
     int r;
@@ -437,25 +418,16 @@ int iSPCH_ChooseSamples(VoxChoice *choice, int maxToPick, VoxPhrase *phraseTempl
 /* iSPCH_SampleLength @0x80100C5C : sample-data length (in samples) of the current pick of `choice`. */
 int iSPCH_SampleLength(VoxChoice *choice)
 {
+    int len;
+    int sampleIdx;
     VoxBank *bank;
-    int r;
     VoxSample tmp;
-    /* MATCH (w33-a9, 14 -> 0): the pick address must be accumulated INTO the INDEX
-     * variable, not into the base pointer.  The oracle loads choice->pick into $a1 and
-     * adds the pick-pool base to it in place (`lh a1,8(a0); addu a1,a1,v0; lbu
-     * a1,0(a1)`), so the index's register is the addu DESTINATION and ends up being
-     * the 2nd call argument; writing `pickBase = pickBase + choice->pick` makes the
-     * BASE the mutated variable, which colors the la into the lbu/arg register and
-     * pushes gVoxBanks' load into $a0 (separate-temp `lui a1; lw a0,0(a1)` instead of
-     * retail's self-temp `lui v1; lw v1,0(v1)`).  Catalog lever #14 (in-place
-     * dead-pointer store) read the other way round: mutate the INDEX, not the base. */
-    int            len      = 0;
-    unsigned char *pickBase = ispch_gPickSamples;
-    int            pick     = choice->pick;
-    pick = (int)(pickBase + pick);
+
+    len = 0;
+    sampleIdx = ispch_gPickSamples[choice->pick];
     bank = gVoxBanks[choice->bankId];
-    r = iSPCH_UnPackSample(bank, (unsigned int)*(unsigned char *)pick, &tmp);
-    if (r != 0)
+
+    if (iSPCH_UnPackSample(bank, sampleIdx, &tmp))
         len = tmp.length;
     return len;
 }
@@ -950,6 +922,7 @@ int iSPCH_SentenceMakeChoice(VoxSentence *sentence, int mode)
     }
     return ok;
 }
+
 /* iSPCH_ConstantRuleSet @0x801013BC : fire gSentenceRuleSet for each phrase's constant (type != 0xf) rules.
  * ARITY (w32-a10 prototype audit, R3): TWO args, not three.  The sole call site (iSPCH_PlayChosen
  * @0x801016F4) sets a0/a1 only and leaves a bare `nop` in the jal delay slot; the callee never reads an
@@ -1158,7 +1131,7 @@ int iSPCH_MakeSampleRequests(VoxSentence *sentence, int paramTable)
 /* iSPCH_ClearChosen @0x80101650 : mark "nothing chosen". */
 void iSPCH_ClearChosen(void)
 {
-    DAT_80148448 = 0;
+    gSentenceChoice.chosen = 0;
 }
 
 /* iSPCH_SaveChosenSentence @0x8010165C : record the winning event, its chosen sentence + index, and the 12 eventArgs.  Returns 1. */
@@ -1166,46 +1139,38 @@ int iSPCH_SaveChosenSentence(VoxEvent *event, VoxSentence *sentence, int sentenc
 {
     /* gSentenceChoice[0..2] = DAT_8014843C/40/44 (one contiguous block); [4..15] = the 12 eventArgs.
      * The original reaches all three head fields + the loop off a single shared base. */
-    int  i = 0;
-    int *p;
-    gSentenceChoice[0] = (int)event;    /* DAT_8014843C (via %hi reg) */
-    gSentenceChoice[1] = (int)sentence; /* DAT_80148440 */
-    gSentenceChoice[2] = sentenceIdx;   /* DAT_80148444 */
-    p = gSentenceChoice;
-    do {
-        p[4] = *eventArgs;
-        eventArgs = eventArgs + 1;
-        i = i + 1;
-        p = p + 1;
-    } while (i < 0xc);
-    DAT_80148448 = 1;
+    int i;
+
+    gSentenceChoice.event = event;    /* DAT_8014843C (via %hi reg) */
+    gSentenceChoice.sentence = sentence; /* DAT_80148440 */
+    gSentenceChoice.sentenceIdx = sentenceIdx;   /* DAT_80148444 */
+
+    for(i = 0; i < 12; i++) {
+        gSentenceChoice.eventArgs[i] = eventArgs[i];
+    }
+
+    gSentenceChoice.chosen = 1;
     return 1;
 }
 
 /* iSPCH_OneChosen @0x801016A4 : the "one chosen" flag. */
 int iSPCH_OneChosen(void)
 {
-    return DAT_80148448;
+    return gSentenceChoice.chosen;
 }
 
 /* iSPCH_PlayChosen @0x801016B4 : apply rules and issue the sample requests for the chosen sentence. */
 void iSPCH_PlayChosen(void)
 {
-    if (iSPCH_OneChosen() != 0) {
-        /* MATCH: gSentenceChoice[1/2/4] read relative to the base gcc already materializes for
-         * gSentenceChoice[0] -- NOT via the aliasing DAT_80148440/44/4c symbols (their own %hi/%lo
-         * would re-materialize the same address twice).  eventId = gSentenceChoice[4] is loaded
-         * ONCE here (oracle: `lw s2,0x10(s1)` right before the RuleSet call) and kept alive in a
-         * persistent register across both rule-set calls, reused for MakeSampleRequests' 2nd arg
-         * and both compares below -- the earlier recon re-indexed gSentenceChoice[4] fresh at each
-         * use.  Also: iSPCH_ConstantRuleSet's call site sets up NO 3rd argument at all (oracle has
-         * a bare `nop` in the jal's delay slot, a2 untouched) -- `val` is genuinely dead in the
-         * callee (already `(void)val`) AND the caller never materializes it; cast the call through
-         * a 2-arg fn-ptr type so the compiler doesn't force an a2 setup here (§D dropped-arg lever). */
-        int eventId = gSentenceChoice[4];
-        iSPCH_RuleSet((VoxEvent *)gSentenceChoice[0], gSentenceChoice[2], &gSentenceChoice[4]);
-        iSPCH_ConstantRuleSet((VoxEvent *)gSentenceChoice[0], (VoxSentence *)gSentenceChoice[1]);
-        iSPCH_MakeSampleRequests((VoxSentence *)gSentenceChoice[1], eventId);
+    if (iSPCH_OneChosen()) {
+        int eventId;
+
+        eventId = gSentenceChoice.eventArgs[0];
+
+        iSPCH_RuleSet(gSentenceChoice.event, gSentenceChoice.sentenceIdx, gSentenceChoice.eventArgs);
+        iSPCH_ConstantRuleSet(gSentenceChoice.event, gSentenceChoice.sentence);
+        iSPCH_MakeSampleRequests(gSentenceChoice.sentence, eventId);
+
         {
             int *inGame = gVoxInGame;
             int newRepeatCount;   /* MATCH: gVoxInGame[1] == gRepeatCount; a SHARED store after the

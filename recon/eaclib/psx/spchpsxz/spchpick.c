@@ -69,9 +69,6 @@
 #include "spchrule.h"
 #include "spchevnt.h"
 
-#define CHOICE(n)  (ispch_gChoice + (n) * 6)
-#define PICK(i)    (ispch_gPickSamples[i])
-
 /* W65-A6 DATA-MAT run @0x8014843C -- file-scope asm .bss definition.  ⚠️ STILL LOAD-BEARING
  * (re-measured 2026-09-04): it is the ONLY spelling that gives BOTH the right section and the
  * retail ORDER of the run.  Plain C tentative definitions land in .bss correctly but maspsx
@@ -272,15 +269,15 @@ done:
 
 /* iSPCH_GetPhraseBank @0x80100880 : resolve a phrase template's bank choice (fixed / by-param / sub-bank)
  *   into outChoice[0..1].  Returns 0 on success, nonzero (sign of ~choice) on failure. */
-unsigned int iSPCH_GetPhraseBank(VoxPhrase *phraseTemplate, int paramTable, short *outChoice)
+unsigned int iSPCH_GetPhraseBank(VoxPhrase *phraseTemplate, int paramTable, VoxChoice *outChoice)
 {
     unsigned short wanted = phraseTemplate->bankId;
     unsigned int   flags  = phraseTemplate->modeParam;
     unsigned int   mode   = flags >> 4;
     unsigned int   param  = flags & 0xf;
     int            choice;
-    outChoice[1] = -1;
-    *outChoice   = -1;
+    outChoice->subBank = -1;
+    outChoice->bankId   = -1;
     if (mode == 1)
         goto byParam;
     if (mode == 0)
@@ -290,7 +287,7 @@ unsigned int iSPCH_GetPhraseBank(VoxPhrase *phraseTemplate, int paramTable, shor
     goto done;
 byFind:   /* MATCH: byFind block laid out FIRST (oracle .L8DC precedes byParam .L8EC) */
     choice = iSPCH_FindBank(wanted);
-    *outChoice = (short)choice;
+    outChoice->bankId = (short)choice;
     goto done;
 byParam:
     choice = *(int *)(param * 4 + paramTable);
@@ -299,7 +296,7 @@ byParam:
         if ((unsigned int)**(unsigned short **)(choice * 4 + voxBase) != (unsigned int)wanted)
             choice = -1;
     }
-    *outChoice = (short)choice;
+    outChoice->bankId = (short)choice;
     goto done;
 bySub:
     {
@@ -307,14 +304,14 @@ bySub:
         choice = iSPCH_FindBank(wanted);
         pv = (int *)(param * 4 + paramTable);
         if (iSPCH_TestSubBankBounds(choice, *pv))   /* MATCH: success = fall-through, -1 arm out-of-line */
-            outChoice[1] = (short)*pv;
+            outChoice->subBank = (short)*pv;
         else
             choice = -1;
-        *outChoice = (short)choice;
+        outChoice->bankId = (short)choice;
     }
 done:
     /* mode > 2: outChoice stays -1 */
-    return (unsigned int)~(int)*outChoice >> 0x1f;
+    return (unsigned int)~(int)outChoice->bankId >> 0x1f;
 }
 
 /* iSPCH_GetBankBits @0x80100994 : address of a bank's cycle-bits array (after its sample table).
@@ -374,22 +371,22 @@ unsigned int iSPCH_CheckBankBit(VoxBank *bank, int cycle)
 }
 
 /* iSPCH_CheckTemplateSample @0x80100A70 : whether choice's template sample bit is set for this bank. */
-unsigned int iSPCH_CheckTemplateSample(short *choice, VoxBank *bank, int base)
+unsigned int iSPCH_CheckTemplateSample(VoxChoice *choice, VoxBank *bank, int base)
 {
     unsigned int result = 0;
-    if (bank->subBankCount > choice[1])
-        result = iSPCH_CheckBankBit(bank, base + bank->numSamples * choice[1]);
+    if (bank->subBankCount > choice->subBank)
+        result = iSPCH_CheckBankBit(bank, base + bank->numSamples * choice->subBank);
     return result;
 }
 
 /* iSPCH_SampleExists @0x80100AC0 : whether sample `bank` of `choice` is present (template + cycle checks). */
-unsigned int iSPCH_SampleExists(short *choice, VoxBank *bank, int sampleIdx)
+unsigned int iSPCH_SampleExists(VoxChoice *choice, VoxBank *bank, int sampleIdx)
 {
     unsigned int result = 1;
     if (bank->numSamples < sampleIdx) {
         result = 0;
     } else {
-        if (choice[1] != -1)
+        if (choice->subBank != -1)
             result = iSPCH_CheckTemplateSample(choice, bank, sampleIdx);
         if ((bank->flags & 0xf0) != 0)
             result = iSPCH_CheckBankBit(bank, sampleIdx + 8);
@@ -403,7 +400,7 @@ unsigned int iSPCH_SampleExists(short *choice, VoxBank *bank, int sampleIdx)
  * parameters.  The qualifier was INERT here -- dropping it holds PASS 68/68 exactly.  (An
  * addressable spelling `int *p = &phraseTemplate;` in the loop body is NOT equivalent: it costs
  * a frame pointer + the incoming home slots, 22 diffs / 72 insns.) */
-int iSPCH_ChooseSamples(short *choice, int maxToPick, VoxPhrase *phraseTemplate, int unused)
+int iSPCH_ChooseSamples(VoxChoice *choice, int maxToPick, VoxPhrase *phraseTemplate, int unused)
 {
     int       bankIdx;
     VoxBank  *bank;
@@ -412,10 +409,10 @@ int iSPCH_ChooseSamples(short *choice, int maxToPick, VoxPhrase *phraseTemplate,
     int       chosen;
     int       sampleIdx;
 
-    bankIdx  = choice[0];
+    bankIdx  = choice->bankId;
     bank     = gVoxBanks[bankIdx];
     nSamples = bank->numSamples;
-    pickPos  = choice[3];
+    pickPos  = choice->firstPick;
     chosen   = 0;
 
     for(sampleIdx = 0; sampleIdx < nSamples; sampleIdx++) {
@@ -438,25 +435,25 @@ int iSPCH_ChooseSamples(short *choice, int maxToPick, VoxPhrase *phraseTemplate,
 }
 
 /* iSPCH_SampleLength @0x80100C5C : sample-data length (in samples) of the current pick of `choice`. */
-int iSPCH_SampleLength(short *choice)
+int iSPCH_SampleLength(VoxChoice *choice)
 {
     VoxBank *bank;
     int r;
     VoxSample tmp;
     /* MATCH (w33-a9, 14 -> 0): the pick address must be accumulated INTO the INDEX
-     * variable, not into the base pointer.  The oracle loads choice[4] into $a1 and
+     * variable, not into the base pointer.  The oracle loads choice->pick into $a1 and
      * adds the pick-pool base to it in place (`lh a1,8(a0); addu a1,a1,v0; lbu
      * a1,0(a1)`), so the index's register is the addu DESTINATION and ends up being
-     * the 2nd call argument; writing `pickBase = pickBase + choice[4]` makes the
+     * the 2nd call argument; writing `pickBase = pickBase + choice->pick` makes the
      * BASE the mutated variable, which colors the la into the lbu/arg register and
      * pushes gVoxBanks' load into $a0 (separate-temp `lui a1; lw a0,0(a1)` instead of
      * retail's self-temp `lui v1; lw v1,0(v1)`).  Catalog lever #14 (in-place
      * dead-pointer store) read the other way round: mutate the INDEX, not the base. */
     int            len      = 0;
     unsigned char *pickBase = ispch_gPickSamples;
-    int            pick     = choice[4];
+    int            pick     = choice->pick;
     pick = (int)(pickBase + pick);
-    bank = gVoxBanks[*choice];
+    bank = gVoxBanks[choice->bankId];
     r = iSPCH_UnPackSample(bank, (unsigned int)*(unsigned char *)pick, &tmp);
     if (r != 0)
         len = tmp.length;
@@ -491,7 +488,7 @@ int iSPCH_SentenceLength(VoxSentence *sentence)
     if (n > 0) {
         int i = 0;
         do {
-            total += iSPCH_SampleLength(&ispch_gChoice[i * 6]);
+            total += iSPCH_SampleLength(&ispch_gChoice[i]);
             i++;
         } while (i < n);
     }
@@ -638,7 +635,7 @@ int iSPCH_SentenceGetChoices(VoxSentence *sentence, int paramTable, unsigned int
     /* MATCH (w31-a4, 54->?): single result funnel (`fail:` block laid between the rule checks and
      * the loop, exactly the oracle's .L80101008) instead of separate return 0/-1 statements; the
      * -1 path stores THE RESULT VAR (`*outChoice = result`, oracle sh s4); outChoice recomputed
-     * from `table` per iteration (CHOICE(table)) so loop.c reduces every access onto ONE +0-based
+     * from `table` per iteration (&ispch_gChoice[table]) so loop.c reduces every access onto ONE +0-based
      * walker (pointer-walk form fabricated an &outChoice[2] anchor giv, +2 insns); result/picked
      * initialized before the GetNumPhrases call. */
     int result = 1;
@@ -657,10 +654,10 @@ choose:
         table = 0;
         if (0 < n) {
             do {
-                short *outChoice = CHOICE(table);
+                VoxChoice *outChoice = &ispch_gChoice[table];
                 int    r;
                 VoxPhrase *phraseTemplate;
-                outChoice[3] = (short)picked;
+                outChoice->firstPick = (short)picked;
                 phraseTemplate = iSPCH_GetOffset8(sentence, sentence->phraseOffs, table);
                 if (iSPCH_GetPhraseBank(phraseTemplate, paramTable, outChoice) == 0) {
                     /* MATCH (w34-a9, 7 -> 1 diff): the compare constant is carried by a
@@ -714,10 +711,10 @@ choose:
                      * early-out arm. */
                     int mark = -2;
                     result = 0;
-                    if (*outChoice == (short)mark) {
+                    if (outChoice->bankId == (short)mark) {
                         mark = -1;
                         result = mark;
-                        *outChoice = (short)result;
+                        outChoice->bankId = (short)result;
                     }
                     goto out;
                 }
@@ -725,7 +722,7 @@ choose:
                 picked = picked + r;
                 if (r == 0)
                     goto fail;
-                outChoice[2] = (short)r;
+                outChoice->numChosen = (short)r;
                 table = table + 1;
             } while (table < n);
         }
@@ -741,11 +738,11 @@ void iSPCH_RandomizeSentencePicks(VoxSentence *sentence)
     int i = 0;
     if (0 < n) {
         do {
-            short *choice = ispch_gChoice + i * 6;
+            VoxChoice *choice = &ispch_gChoice[i];
             int   k = 0;
-            int   cnt  = (int)(((unsigned int)(unsigned short)choice[2]) << 0x10) >> 0x10;
+            int   cnt  = (int)(((unsigned int)(unsigned short)choice->numChosen) << 0x10) >> 0x10;
             int   half = cnt / 2;
-            unsigned char *pickBase = ispch_gPickSamples + choice[3];
+            unsigned char *pickBase = ispch_gPickSamples + choice->firstPick;
             if (0 < half) {
                 int halfCount = half;
                 do {
@@ -771,7 +768,7 @@ void iSPCH_RandomizeSentencePicks(VoxSentence *sentence)
  *       The retail oracle keeps the plain record pointer with bare +4/+6/+8 displacements and a
  *       -12 decrement => the retail loop never went through loop.c strength-reduction, i.e. it was
  *       written label+goto (no LOOP notes).  Reverse of the catalog's while-over-goto preference.
- *   (2) limit built from NAMED temps `count = choice[2]; pbase = choice[3]; limit = pbase + count;`
+ *   (2) limit built from NAMED temps `count = choice->numChosen; pbase = choice->firstPick; limit = pbase + count;`
  *       (loads in decl order +4,+6; addu operands [3]+[2] with dst = count's reg -- a single
  *       expression in either order gives the wrong load order or wrong addu operand order).
  *   (3) `exhausted = loopDone;` (not = 1) reproduces `addu s0,a2,zero` reusing the li 1.
@@ -841,14 +838,14 @@ int iSPCH_IterateChoice(VoxSentence *sentence)
      *    recorded (the +6 of the limit re-read) and reduces it: `addiu $v1,$v1,6` anchor with
      *    displacements -2/0/2 -- 45 insns vs retail's 44 with bare 4/6/8.  Combined benefit is
      *    10 against a "not worth while" bar of lifetime*62*benefit < 24, so it is ALWAYS
-     *    reduced; the indexed form `CHOICE(n)[k]` cannot combine at all (express_from wants a
+     *    reduced; the indexed form `ispch_gChoice[n].f` cannot combine at all (express_from wants a
      *    CONST_INT add_val, ours carries the symbol) and yields three separate pointers (52).
      *    Retail's walk therefore never went through loop.c: its source had no loop notes.
      * 2. The wrapper below is a DEVICE, kept only because the device-free floor is 4 diffs.
-     *    Device-free floor = `choice = CHOICE(n);` -> 44/44, every register right, only the
+     *    Device-free floor = `choice = &ispch_gChoice[n];` -> 44/44, every register right, only the
      *    `la` POSITION differs (retail: lui/addiu before the n*12 sll chain; ours: after).
      *    Mechanism: sched1 is a backward list scheduler; single-set ("birthing") insns get
-     *    LAUNCH priority, ties fall to LUID = emission order, and `CHOICE(n)` emits the la
+     *    LAUNCH priority, ties fall to LUID = emission order, and `&ispch_gChoice[n]` emits the la
      *    AFTER the chain (expand_binop forces the symbol into a reg after op0).  A named base
      *    emits it first, but then local-alloc's QTY_CMP_PRI = floor_log2(refs)*refs/life gives
      *    the base {high,lo_sum} 4 refs over 11 half-insns (0.73) against the tied mult chain
@@ -858,34 +855,34 @@ int iSPCH_IterateChoice(VoxSentence *sentence)
      *    loses; depth 2 -> 10 refs, PASS).  No hard-reg suggestion path exists (the preheader
      *    holds only $v0, the call's return).  Chains accumulated through `choice` itself lose
      *    the launch bonus (multi-set) and drop the la between the two halves.
-     *    Falsified this pass (all 44/44 unless noted): anonymous CHOICE/&sym[n*6]/byte-cast/
+     *    Falsified this pass (all 44/44 unless noted): anonymous &ispch_gChoice[n]/&sym[n*6]/byte-cast/
      *    int-cast/named-offset (4), named int / short-pointer / const base (12), choice=sym;choice+=n*6
      *    (10), chain-into-choice with anon/named base (4-6), n3=n*3 split (4-6), limit as
      *    scratch (6), depth-1 wrapper (12), for(;;){la;break;} (4), and 8 real-loop forms
      *    (19..58 diffs at 45..53 insns). */
     int chBase;
-    short *choice;
+    VoxChoice *choice;
     do { do { chBase = (int)ispch_gChoice; } while (0); } while (0);
-    choice = (short *)(n * 12 + chBase);
-    count = choice[2];
-    pbase = choice[3];
+    choice = (VoxChoice *)chBase + n;
+    count = choice->numChosen;
+    pbase = choice->firstPick;
     limit = pbase + count;
     loopDone = exhausted;
 top:
-    cur = (unsigned short)choice[4] + 1;
-    choice[4] = cur;
+    cur = (unsigned short)choice->pick + 1;
+    choice->pick = cur;
     if ((short)cur < limit) {
         loopDone = 1;
     } else {
-        choice[4] = choice[3];
+        choice->pick = choice->firstPick;
         n = n - 1;
-        choice = choice - 6;
+        choice--;
         if (n < 0) {
             loopDone  = 1;
             exhausted = loopDone;
         }
-        count = choice[2];
-        pbase = choice[3];
+        count = choice->numChosen;
+        pbase = choice->firstPick;
         limit = pbase + count;
     }
     if (!loopDone) goto top;
@@ -901,8 +898,8 @@ int iSPCH_ChooseShortSentence(VoxSentence *sentence)
     int found = 0;
     if (0 < n) {
         do {
-            short *choice = ispch_gChoice + i * 6;
-            choice[4] = choice[3];
+            VoxChoice *choice = &ispch_gChoice[i];
+            choice->pick = choice->firstPick;
             i = i + 1;
         } while (i < n);
     }
@@ -921,7 +918,7 @@ int iSPCH_ChooseShortSentence(VoxSentence *sentence)
 }
 
 /* iSPCH_SentenceMakeChoice @0x80101310 : finalise the per-phrase pick (random or short-fit).
- * ✅ SEALED DEVICE-FREE (2026-09-04): plain `for` over CHOICE(i), no goto loop and no
+ * ✅ SEALED DEVICE-FREE (2026-09-04): plain `for` over &ispch_gChoice[i], no goto loop and no
  * do{}while(0) ref dial -- both are retired.  They existed together because the older
  * WALKER spelling (`sentence` reused as a byte cursor, bumped by 0xc) made loop.c strength-
  * reduce the three in-loop accesses onto one giv anchor (+1 insn, displacements rebased to
@@ -930,7 +927,7 @@ int iSPCH_ChooseShortSentence(VoxSentence *sentence)
  * the record from the counter each iteration removes the biv entirely, so there is nothing to
  * reduce and nothing to re-weight: 43/43 byte-exact.  (Measured this pass: this form PASS;
  * typed walker + goto + dial also PASS but keeps both devices; a `for` over a walking pointer
- * without them is 9 diffs @44/43 -- the anchor is back.  An earlier note filed CHOICE(i) as
+ * without them is 9 diffs @44/43 -- the anchor is back.  An earlier note filed the indexed form as
  * "does not work, 36 diffs" -- that verdict was basin-relative and is now superseded.) */
 int iSPCH_SentenceMakeChoice(VoxSentence *sentence, int mode)
 {
@@ -944,10 +941,10 @@ int iSPCH_SentenceMakeChoice(VoxSentence *sentence, int mode)
         if (ok < n) {
             ok = 1;
             for (i = 0; i < n; i++) {
-                short *choice = CHOICE(i);
-                int r = iSPCH_Rand(choice[2]);
+                VoxChoice *choice = &ispch_gChoice[i];
+                int r = iSPCH_Rand(choice->numChosen);
 
-                choice[4] = choice[3] + (short)r;
+                choice->pick = choice->firstPick + (short)r;
             }
         }
     }
@@ -966,7 +963,7 @@ void iSPCH_ConstantRuleSet(VoxEvent *event, VoxSentence *sentence)
         int table = 0;
         if (0 < n) {
             unsigned char *pickBase = ispch_gPickSamples;
-            short *choice = ispch_gChoice;
+            VoxChoice *choice = ispch_gChoice;
             do {
                 int rid;
                 int j;
@@ -987,9 +984,9 @@ void iSPCH_ConstantRuleSet(VoxEvent *event, VoxSentence *sentence)
                                        * full 16 bytes and reads byte [0xc+j], i.e. tmp[3]'s bytes,
                                        * the same "cycle byte array" field iSPCH_MatchSample reads at
                                        * sample+i+0xc). */
-                        r = iSPCH_UnPackSample(gVoxBanks[*choice],
+                        r = iSPCH_UnPackSample(gVoxBanks[choice->bankId],
                                                    (unsigned int)*(unsigned char *)
-                                                       ((int)choice[4] + (int)pickBase), tmp);
+                                                       ((int)choice->pick + (int)pickBase), tmp);
                         callRid = rid;
                         rid = 0;
                         /* residual 10 (83/83, exact insn parity): register-pair coloring wall.
@@ -1107,7 +1104,7 @@ void iSPCH_ConstantRuleSet(VoxEvent *event, VoxSentence *sentence)
                     j++;
                 } while (j < 4);
                 table++;
-                choice += 6;
+                choice++;
             } while (table < n);
         }
     }
@@ -1121,9 +1118,9 @@ int iSPCH_MakeSampleRequests(VoxSentence *sentence, int paramTable)
     int i = 0;
     if (0 < n) {
         do {
-            short        *choice = CHOICE(i);
-            VoxBank      *bank = gVoxBanks[*choice];
-            unsigned int  idx  = (unsigned int)PICK(choice[4]);
+            VoxChoice    *choice = &ispch_gChoice[i];
+            VoxBank      *bank = gVoxBanks[choice->bankId];
+            unsigned int  idx  = ispch_gPickSamples[choice->pick];
             VoxSample     tmp;
             /* MATCH: the ClearCycleBit call is gated on BOTH bank[2]&0xf0 AND the separate global
              * gClearCycle != 0 -- the earlier recon only had the bank-flags half of the gate. */
@@ -1131,16 +1128,16 @@ int iSPCH_MakeSampleRequests(VoxSentence *sentence, int paramTable)
                 iSPCH_ClearCycleBit(bank, idx);
             if (iSPCH_UnPackSample(bank, idx, &tmp) != 0) {
                 /* MATCH: stride computed UNCONDITIONALLY before the -1 test (oracle lhu+sll precede
-                 * the beq; the mult starts in the branch delay slot) and choice[1] read ONCE into a
-                 * named local -- the old double choice[1] read made loop.c fabricate a second
-                 * &choice[1] giv (addiu s3,s2,2 anchor, +2 insns). */
+                 * the beq; the mult starts in the branch delay slot) and choice->subBank read ONCE into a
+                 * named local -- the old double subBank read made loop.c fabricate a second
+                 * &choice->subBank giv (addiu s3,s2,2 anchor, +2 insns). */
                 int spuAddr = tmp.startOff;
-                int sub     = (int)choice[1];
+                int sub     = (int)choice->subBank;
                 int stride  = (int)bank->dataSize256 << 8;
                 if (sub != -1)
                     spuAddr = spuAddr + sub * stride;
                 samples = samples + tmp.length;
-                gSampleRequest((int)*choice, spuAddr, tmp.length, paramTable);
+                gSampleRequest((int)choice->bankId, spuAddr, tmp.length, paramTable);
                 /* MATCH (w32-a9, 23 -> 3 diffs): the -dL "savings-1 lone lui not desirable"
                  * verdict was a CONSEQUENCE of the then-current gp-relative SCALAR form, not a
                  * cost-model identity.  The unsized-array device (catalog SSE / SSE#5) made cc1

@@ -121,4 +121,15 @@ typedef struct {
     unsigned short eventOffs[1];   /* +0xc word offsets (<<2 from the blob base) to the VoxEvent records */
 } VoxEventDat;
 
+/* VoxChoice: one phrase's pick record; ispch_gChoice[12] (144 bytes) is the working buffer that
+ * iSPCH_SentenceGetChoices fills and the play path reads.  Field map by access census. */
+typedef struct {
+    short bankId;      /* +0x0 gVoxBanks index; -1 / -2 are the "unresolved" sentinels */
+    short subBank;     /* +0x2 sub-bank index, -1 = none */
+    short numChosen;   /* +0x4 samples picked for this phrase */
+    short firstPick;   /* +0x6 index of this phrase's first entry in ispch_gPickSamples */
+    short pick;        /* +0x8 currently selected entry (firstPick .. firstPick+numChosen-1) */
+    short _unkA;       /* +0xa (no read sites found) */
+} VoxChoice;
+
 #endif

@@ -1,0 +1,41 @@
+{
+  "objects_reproduced": 518,
+  "changed_objects": [],
+  "checked_base_functions": 446,
+  "named_reference_words_exact": 438,
+  "newly_repaired_named_reference_words": 437,
+  "native_vars_fog_bindings": 46,
+  "previous_table_reference_words_preserved": 50,
+  "gp": {
+    "live_sources": 518,
+    "missing_objects": [],
+    "gp_objects": 78,
+    "gp_relocations": 2381,
+    "relocation_type_counts": {
+      "5": 9272,
+      "6": 9505,
+      "2": 5829,
+      "4": 15782,
+      "7": 2381
+    },
+    "gp_input_values": {
+      "0": 78
+    },
+    "gp": "0x8013c54c",
+    "resolved": 2381,
+    "unresolved": 0,
+    "out_of_range": 0,
+    "expected_known": 2381,
+    "wrong_target": 1433,
+    "in_range_wrong_target": 1433,
+    "in_range_encoding_mismatch": 0,
+    "encoding_checked": 2381,
+    "native_raw_conflicts": 4,
+    "output_elf_sha256": "63749e78da80fa025d36131a8d6070b23d3c80291ba88387e14978d6140498e9",
+    "output_map_sha256": "28ea53ab86a6e4171ce582c4e16cb519a4ebd9b5bcbcc37ab268b92f97a28f9f",
+    "expected_unknown": 0,
+    "fixed_native_targets": 263,
+    "regressed_native_targets": 0
+  },
+  "goal_complete": false
+}

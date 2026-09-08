@@ -48,7 +48,7 @@ void MenuExtended_SetOnePlayer(tMenuCommand &command)
   }
   else {
     frontEnd.gameMode = '\0';
-    screenMain[0]->SwapBackground(-1);
+    screenMain->SwapBackground(-1);
   }
   return;
 }
@@ -72,7 +72,7 @@ void MenuExtended_SetTwoPlayer(tMenuCommand &command)
   else {
     frontEnd.gameMode = '\x01';
     frontEnd.oppNumber = '\0';
-    screenMain[0]->SwapBackground(-1);
+    screenMain->SwapBackground(-1);
   }
   return;
 }
@@ -126,7 +126,7 @@ void MenuExtended_SetSingleRace(tMenuCommand &)
   frontEnd.carListType = '\x01';
   frontEnd.pinkSlipsTrackIndex = '\0';
   frontEnd.raceType = RaceType_SingleRace;
-  screenMain[0]->SwapBackground(-1);
+  screenMain->SwapBackground(-1);
   return;
 }
 
@@ -153,7 +153,7 @@ void MenuExtended_SetTournament(tMenuCommand &)
   frontEnd.pinkSlipsTrackIndex = '\0';
   frontEnd.tier = '\0';
   frontEnd.raceType = RaceType_Tournament;
-  screenMain[0]->SwapBackground(-1);
+  screenMain->SwapBackground(-1);
   return;
 }
 
@@ -180,7 +180,7 @@ void MenuExtended_SetSpecialEvent(tMenuCommand &)
   frontEnd.tier = '\x01';
   frontEnd.pinkSlipsTrackIndex = '\0';
   frontEnd.raceType = RaceType_Tournament;
-  screenMain[0]->SwapBackground(-1);
+  screenMain->SwapBackground(-1);
   return;
 }
 
@@ -328,7 +328,7 @@ void MenuExtended_SetDuelRace(tMenuCommand &)
   frontEnd.pinkSlipsTrackIndex = '\0';
   frontEnd.raceType = '\0';
   frontEnd.oppNumber = '\x01';
-  screenMain[0]->SwapBackground(-1);
+  screenMain->SwapBackground(-1);
   return;
 }
 
@@ -354,7 +354,7 @@ void MenuExtended_SetFullGrid(tMenuCommand &)
   frontEnd.pinkSlipsTrackIndex = '\0';
   frontEnd.raceType = '\0';
   frontEnd.oppNumber = '\x02';
-  screenMain[0]->SwapBackground(-1);
+  screenMain->SwapBackground(-1);
   return;
 }
 
@@ -2161,7 +2161,7 @@ void MenuExtended_SetPinkSlips(tMenuCommand &)
 {
   short i;
 
-  screenMain[0]->SwapBackground(-1);
+  screenMain->SwapBackground(-1);
   frontEnd.raceType = '\x06';
   frontEnd.gameMode = '\x01';
   frontEnd.oppNumber = '\0';
@@ -3113,28 +3113,28 @@ tGlobalMenuDefs::tGlobalMenuDefs()
  , itemMainTwoPlayerRace(0x5d, (tMenu*)&menuTwoPlayer, (void (*)(tMenuCommand&))MenuExtended_SetTwoPlayer, 0x28, 10)   /* +0x2C tMenuItemGoToMenuNFS4Button */
  , itemMainTrophyRoom(0x5f, (tMenu*)&menuTrophyRoomSelect, 0, 0x32, 10)   /* +0x58 tMenuItemGoToMenuNFS4Button */
  , itemMainOptions(0x5e, (tMenu*)&menuOptions, 0, 0x3c, 10)   /* +0x84 tMenuItemGoToMenuNFS4Button */
- , menuMain(0x1014, (tScreen *)screenMain[0], (tMenu *)0x0, (tMenu *)0x0, 0, 0xb5, (tMenuItem *)this, &itemMainTwoPlayerRace, &itemMainOptions, &itemMainTrophyRoom, 0)   /* +0xB0 tMenuNFS4 */
+ , menuMain(0x1014, (tScreen *)screenMain, (tMenu *)0x0, (tMenu *)0x0, 0, 0xb5, (tMenuItem *)this, &itemMainTwoPlayerRace, &itemMainOptions, &itemMainTrophyRoom, 0)   /* +0xB0 tMenuNFS4 */
  , itemTournTrophyRoom(100, (tMenu *)&menuTrophyRoom, (void (*)(tMenuCommand&))MenuExtended_GoToTournTrophyRoom, 0x32, 10)   /* +0x12C tMenuItemGoToMenuNFS4Button */
  , itemSETrophyRoom(0x6a, (tMenu *)&menuTrophyRoom, (void (*)(tMenuCommand&))MenuExtended_GoToSETrophyRoom, 0x32, 10)   /* +0x158 tMenuItemGoToMenuNFS4Button */
- , menuTrophyRoomSelect(0x1014, (tScreen *)screenMain[0], (tMenu *)0x0, (tMenu *)0x0, 0, 0x60, (tMenuItem *)&itemTournTrophyRoom, &itemSETrophyRoom, 0)   /* +0x184 tMenuNFS4 */
+ , menuTrophyRoomSelect(0x1014, (tScreen *)screenMain, (tMenu *)0x0, (tMenu *)0x0, 0, 0x60, (tMenuItem *)&itemTournTrophyRoom, &itemSETrophyRoom, 0)   /* +0x184 tMenuNFS4 */
  , menuTrophyInfo(0x4010, (tScreen *)screenTrophyInfo, (tMenu *)0x0, (tMenu *)0x0, 0, -1)   /* +0x200 tMenuBlank */
  , itemSkillBeginner(0xa2, (tMenu*)&menuSingleTrackSelect, (void (*)(tMenuCommand&))MenuExtended_SetBeginner, 0x8c, 10)   /* +0x27C tMenuItemGoToMenuNFS4Button */
  , itemSkillIntermediate(0xa3, (tMenu*)&menuSingleTrackSelect, (void (*)(tMenuCommand&))MenuExtended_SetIntermediate, 0x96, 10)   /* +0x2A8 tMenuItemGoToMenuNFS4Button */
  , itemSkillExpert(0xa4, (tMenu*)&menuSingleTrackSelect, (void (*)(tMenuCommand&))MenuExtended_SetExpert, 0xa0, 10)   /* +0x2D4 tMenuItemGoToMenuNFS4Button */
- , menuSkillLevel(0x1004, (tScreen *)screenMain[0], (tMenu *)0x0, (tMenu *)0x0, 0, 0xb8, (tMenuItem *)&itemSkillBeginner, &itemSkillIntermediate, &itemSkillExpert, 0)   /* +0x300 tMenuNFS4 */
+ , menuSkillLevel(0x1004, (tScreen *)screenMain, (tMenu *)0x0, (tMenu *)0x0, 0, 0xb8, (tMenuItem *)&itemSkillBeginner, &itemSkillIntermediate, &itemSkillExpert, 0)   /* +0x300 tMenuNFS4 */
  , itemOnePlayerTestDrive(0x61, (tMenu*)&menuTestDriveTrackSelect, (void (*)(tMenuCommand&))MenuExtended_SetTestDrive, 0xf0, 10)   /* +0x37C tMenuItemGoToMenuNFS4Button */
  , itemOnePlayerSingleRace(0x73, (tMenu*)&menuSingleRace, (void (*)(tMenuCommand&))MenuExtended_SetSingleRace, 0x46, 10)   /* +0x3A8 tMenuItemGoToMenuNFS4Button */
  , itemOnePlayerPursuit(0x72, (tMenu*)&menuHotPursuit, (void (*)(tMenuCommand&))MenuExtended_SetHotPursuit, 0x50, 10)   /* +0x3D4 tMenuItemGoToMenuNFS4Button */
  , itemOnePlayerTournament(100, (tMenu*)&menuTournament, (void (*)(tMenuCommand&))MenuExtended_SetTournament, 0x5a, 10)   /* +0x400 tMenuItemGoToMenuNFS4Button */
  , itemOnePlayerSpecialEvents(0x6a, (tMenu*)&menuSpecialEvent, (void (*)(tMenuCommand&))MenuExtended_SetSpecialEvent, 100, 10)   /* +0x42C tMenuItemGoToMenuNFS4Button */
- , menuOnePlayer(0x1004, (tScreen *)screenMain[0], (tMenu *)0x0, (tMenu *)0x0, 0, 0xb6, (tMenuItem *)&itemOnePlayerTestDrive, &itemOnePlayerSingleRace, &itemOnePlayerPursuit, &itemOnePlayerTournament, &itemOnePlayerSpecialEvents, 0)   /* +0x458 tMenuNFS4 */
+ , menuOnePlayer(0x1004, (tScreen *)screenMain, (tMenu *)0x0, (tMenu *)0x0, 0, 0xb6, (tMenuItem *)&itemOnePlayerTestDrive, &itemOnePlayerSingleRace, &itemOnePlayerPursuit, &itemOnePlayerTournament, &itemOnePlayerSpecialEvents, 0)   /* +0x458 tMenuNFS4 */
  , itemSingleRaceSolo(0x6d, (tMenu*)&menuSingleTrackSelect, (void (*)(tMenuCommand&))MenuExtended_SetSoloRace, 0x6e, 10)   /* +0x4D4 tMenuItemGoToMenuNFS4Button */
  , itemSingleRaceDuel(0x6e, (tMenu*)&menuSkillLevel, (void (*)(tMenuCommand&))MenuExtended_SetDuelRace, 0x78, 10)   /* +0x500 tMenuItemGoToMenuNFS4Button */
  , itemSingleRaceFullGrid(0x70, (tMenu*)&menuSkillLevel, (void (*)(tMenuCommand&))MenuExtended_SetFullGrid, 0x82, 10)   /* +0x52C tMenuItemGoToMenuNFS4Button */
- , menuSingleRace(0x1004, (tScreen *)screenMain[0], (tMenu *)0x0, (tMenu *)0x0, 0, 0xb7, (tMenuItem *)&itemSingleRaceSolo, &itemSingleRaceDuel, &itemSingleRaceFullGrid, 0)   /* +0x558 tMenuNFS4 */
+ , menuSingleRace(0x1004, (tScreen *)screenMain, (tMenu *)0x0, (tMenu *)0x0, 0, 0xb7, (tMenuItem *)&itemSingleRaceSolo, &itemSingleRaceDuel, &itemSingleRaceFullGrid, 0)   /* +0x558 tMenuNFS4 */
  , itemHotPursuitSolo(0x6d, (tMenu*)&menuSkillLevel, (void (*)(tMenuCommand&))MenuExtended_SetHPSoloRace, 0x6e, 10)   /* +0x5D4 tMenuItemGoToMenuNFS4Button */
  , itemHotPursuitDuel(0x6e, (tMenu*)&menuSkillLevel, (void (*)(tMenuCommand&))MenuExtended_SetHPDuelRace, 0x78, 10)   /* +0x600 tMenuItemGoToMenuNFS4Button */
- , menuHotPursuit(0x1004, (tScreen *)screenMain[0], (tMenu *)0x0, (tMenu *)0x0, 0, 0xb7, (tMenuItem *)&itemHotPursuitSolo, &itemHotPursuitDuel, 0)   /* +0x62C tMenuNFS4 */
+ , menuHotPursuit(0x1004, (tScreen *)screenMain, (tMenu *)0x0, (tMenu *)0x0, 0, 0xb7, (tMenuItem *)&itemHotPursuitSolo, &itemHotPursuitDuel, 0)   /* +0x62C tMenuNFS4 */
  , iteratorTournament(&frontEnd.tournament, &tournamentManager)   /* +0x6A8 tListIteratorTournament */
  , itemTournamentContinue(0x5b, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_GoToTournTrackInfo, 0x22, 10)   /* +0x6BC tMenuItemGoToMenuNFS4Button */
  , itemTournamentSelect(0x95, (tListIterator *)&iteratorTournament, 0x2c, 10)   /* +0x6E8 tMenuItemNFS4LeftRightChoice */
@@ -3156,11 +3156,11 @@ tGlobalMenuDefs::tGlobalMenuDefs()
       slot 40 to +0x8F4 = itemTwoPlayerPinkSlips.  W84's "the source is identical"
       finding missed this: a jal-sequence / member-offset / constant audit cannot
       see a dropped stack argument. */
- , menuTwoPlayer(0x1004, (tScreen *)screenMain[0], (tMenu *)0x0, (tMenu *)0x0, 0, 0xb6, (tMenuItem *)&itemTwoPlayerTestDrive, &itemTwoPlayerDuel, &itemTwoPlayerHotPursuit, 0)   /* +0x920 tMenuNFS4 */
+ , menuTwoPlayer(0x1004, (tScreen *)screenMain, (tMenu *)0x0, (tMenu *)0x0, 0, 0xb6, (tMenuItem *)&itemTwoPlayerTestDrive, &itemTwoPlayerDuel, &itemTwoPlayerHotPursuit, 0)   /* +0x920 tMenuNFS4 */
  , itemBestOfOne(0xc1, (tMenu*)&menuSingleTrackSelect, (void (*)(tMenuCommand&))MenuExtended_GoToBestOfOne, 0xaa, 10)   /* +0x99C tMenuItemGoToMenuNFS4Button */
  , itemBestOfThree(0xc2, (tMenu*)&menuPinkSlipsBestOfThree, (void (*)(tMenuCommand&))MenuExtended_GoToBestOfThree, 0xaa, 10)   /* +0x9C8 tMenuItemGoToMenuNFS4Button */
  , itemBestOfFive(0xc3, (tMenu*)&menuPinkSlipsBestOfFive, (void (*)(tMenuCommand&))MenuExtended_GoToBestOfFive, 0xaa, 10)   /* +0x9F4 tMenuItemGoToMenuNFS4Button */
- , menuPinkSlipSelect(0x1000, (tScreen *)screenMain[0], (tMenu *)0x0, (tMenu *)0x0, 0, 0xb7, (tMenuItem *)&itemBestOfOne, &itemBestOfThree, &itemBestOfFive, 0)   /* +0xA20 tMenuNFS4 */
+ , menuPinkSlipSelect(0x1000, (tScreen *)screenMain, (tMenu *)0x0, (tMenu *)0x0, 0, 0xb7, (tMenuItem *)&itemBestOfOne, &itemBestOfThree, &itemBestOfFive, 0)   /* +0xA20 tMenuNFS4 */
  , itemPinkSlipsContinue(0x5b, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_GoToCarSelect, 0x24, 10)   /* +0xA9C tMenuItemGoToMenuNFS4Button */
  , itemTrack1(0xc4, (tListIterator *)&iteratorTrack, 0x2e, 10)   /* +0xAC8 tMenuItemNFS4LeftRightChoice */
  , itemTrack2(0xc5, (tListIterator *)&iteratorTrack, 0x2e, 10)   /* +0xAF0 tMenuItemNFS4LeftRightChoice */
@@ -3360,7 +3360,7 @@ tGlobalMenuDefs::tGlobalMenuDefs()
  , itemOptionsMemoryCard(0x1ca, (tMenu*)&menuMemory, 0, 0xd2, 10)   /* +0x246C tMenuItemGoToMenuNFS4Button */
  , itemOptionsUsername(0x1cb, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_EnterUserName, 0xdc, 10)   /* +0x2498 tMenuItemGoToMenuNFS4Button */
  , itemOptionsCredits(0x1cd, (tMenu *)&menuCredits, 0, 0xe6, 10)   /* +0x24C4 tMenuItemGoToMenuNFS4Button */
- , menuOptions(0x1014, (tScreen *)screenMain[0], (tMenu *)0x0, (tMenu *)0x0, 0, 0x5e, (tMenuItem *)&itemOptionsAudio, &itemOptionsDisplay, &itemOptionsControllers, &itemOptionsMemoryCard, &itemOptionsUsername, &itemOptionsCredits, 0)   /* +0x24F0 tMenuNFS4 */
+ , menuOptions(0x1014, (tScreen *)screenMain, (tMenu *)0x0, (tMenu *)0x0, 0, 0x5e, (tMenuItem *)&itemOptionsAudio, &itemOptionsDisplay, &itemOptionsControllers, &itemOptionsMemoryCard, &itemOptionsUsername, &itemOptionsCredits, 0)   /* +0x24F0 tMenuNFS4 */
  , iteratorMusicVolume('\0', '\x7f', &frontEnd.musicVolume)   /* +0x256C tListIteratorRange */
  , iteratorSoundEffectsVolume('\0', '\x7f', &frontEnd.sfxVolume)   /* +0x257C */
  , iteratorEngineVolume('\0', '\x7f', &frontEnd.engineVolume)   /* +0x258C */
@@ -3479,7 +3479,7 @@ tGlobalMenuDefs::tGlobalMenuDefs()
  , menuPinkSlipCongrats(0x8000, (tScreen *)screenPinkSlipCongrats, (tMenu *)0x0, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_AwardPinkSlipsCar, -1)   /* +0x387C tMenuBlank */
  , menuBeTheCopCongrats(0x8000, (tScreen *)screenBeTheCopCongrats, (tMenu *)0x0, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_TransitionFromPostGameToMainMenuAndSaveGame, -1)   /* +0x38F8 tMenuBlank */
  , menuTierCompleteCongrats(0x8000, (tScreen *)screenTournamentCongrats, (tMenu *)0x0, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_TransitionFromPostGameToMainMenuAndSaveGame, -1)   /* +0x3974 tMenuBlank */
- , menuCredits(0x1010, (tScreen *)screenMain[0], (tMenu *)0x0, (tMenu *)0x0, 0, -1)   /* +0x39F0 tMenuBlank */
+ , menuCredits(0x1010, (tScreen *)screenMain, (tMenu *)0x0, (tMenu *)0x0, 0, -1)   /* +0x39F0 tMenuBlank */
  , itemMemContinue(0x28b, (tMenu *)0x0, (void (*)(tMenuCommand&))MenuExtended_TransitionFromPostGameToMainMenu)   /* +0x3A6C tMemoryCardMenuItem */
  , menuPostGameSave(0x1040, (tScreen *)screenMemcard, (tMenu *)0x0, (tMenu *)0x0, 0, -1, 0x2e, 10, (tMenuItem *)&itemMemContinue, &itemSaveGame, 0)   /* +0x3A98 tOptionsMenu */
  {

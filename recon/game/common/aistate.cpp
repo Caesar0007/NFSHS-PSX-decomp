@@ -10,8 +10,6 @@
 #include "aistate_types.h"
 #include "aistate_externs.h"
 
-#define AISTATE_SLICE_BYTE(slice, offset) \
-    (*(u_char *)(AIState_BWorldSmSlices + (slice) * 0x20 + (offset)))
 
 /* ---- aistate.obj-owned globals (.bss zero) ---- */
 static int   AIState_Purgatory_numTrafficCarsInPurgatory;   /* @0x8013dd7c  (bss(zero); SYM STAT) */
@@ -1146,14 +1144,14 @@ LAB_80070704:
       {
         /* SYM-CODEGEN-CARRIER: limit -- direct in-place MAX/MIN clamps lose
            one instruction and produce 43 and seven diffs respectively. */
-        int limit = -(((u_int)AISTATE_SLICE_BYTE((this->carObj_)->N.simRoadInfo.slice,0x1e) << 0xf) * (u_int)(AISTATE_SLICE_BYTE((this->carObj_)->N.simRoadInfo.slice,0x1d) >> 4));
+        int limit = -(((u_int)BWorldSm_slices[(this->carObj_)->N.simRoadInfo.slice].avgPavedWidthLf << 0xf) * (u_int)(BWorldSm_slices[(this->carObj_)->N.simRoadInfo.slice].laneCount >> 4));
         if (limit < targetLanePosition) {
           limit = targetLanePosition;
         }
         targetLanePosition = limit;
       }
       {
-        int limit = ((u_int)AISTATE_SLICE_BYTE((this->carObj_)->N.simRoadInfo.slice,0x1f) << 0xf) * (u_int)(AISTATE_SLICE_BYTE((this->carObj_)->N.simRoadInfo.slice,0x1d) & 0xf);
+        int limit = ((u_int)BWorldSm_slices[(this->carObj_)->N.simRoadInfo.slice].avgPavedWidthRt << 0xf) * (u_int)(BWorldSm_slices[(this->carObj_)->N.simRoadInfo.slice].laneCount & 0xf);
         if (targetLanePosition < limit) {
           limit = targetLanePosition;
         }
@@ -1404,13 +1402,13 @@ void AIState_Chase::CheckForBarriersAndTargetAroundThem()
 
   targetLane = this->targetCar_->laneIndex;
 
-  if (myLane < 6 - (AISTATE_SLICE_BYTE(mySlice,0x1d) >> 4)) return;
+  if (myLane < 6 - (BWorldSm_slices[mySlice].laneCount >> 4)) return;
 
-  if ((AISTATE_SLICE_BYTE(mySlice,0x1d) & 0xf) + 7 < myLane) return;
+  if ((BWorldSm_slices[mySlice].laneCount & 0xf) + 7 < myLane) return;
 
-  if (targetLane < 6 - (AISTATE_SLICE_BYTE(targetSlice,0x1d) >> 4)) return;
+  if (targetLane < 6 - (BWorldSm_slices[targetSlice].laneCount >> 4)) return;
 
-  if ((AISTATE_SLICE_BYTE(targetSlice,0x1d) & 0xf) + 7 < targetLane) return;
+  if ((BWorldSm_slices[targetSlice].laneCount & 0xf) + 7 < targetLane) return;
 
   barrierBesideTarget = AIWorld_CheckForBarrierBetweenLanes(targetSlice,targetLane,myLane);
 
@@ -1567,9 +1565,9 @@ int AIState_Chase::FindBarrierEndSlice()
       if (hereBarrier == 0) {
 
         if ((leftBarrier != 0) &&
-            (6 - (AISTATE_SLICE_BYTE(sliceCheck,0x1d) >> 4) <= currentBarrierLane - 1) &&
+            (6 - (BWorldSm_slices[sliceCheck].laneCount >> 4) <= currentBarrierLane - 1) &&
             (currentBarrierLane - 1 <=
-             (AISTATE_SLICE_BYTE(sliceCheck,0x1d) & 0xf) + 7)) {
+             (BWorldSm_slices[sliceCheck].laneCount & 0xf) + 7)) {
 
           currentBarrierLane--;
 
@@ -1577,8 +1575,8 @@ int AIState_Chase::FindBarrierEndSlice()
 
         else if ((rightBarrier == 0) ||
                  (currentBarrierLane + 1 <
-                  6 - (AISTATE_SLICE_BYTE(sliceCheck,0x1d) >> 4)) ||
-                 ((AISTATE_SLICE_BYTE(sliceCheck,0x1d) & 0xf) + 7 <
+                  6 - (BWorldSm_slices[sliceCheck].laneCount >> 4)) ||
+                 ((BWorldSm_slices[sliceCheck].laneCount & 0xf) + 7 <
                   currentBarrierLane + 1)) {
 
           forwardBarrierEndSlice = sliceCheck;
@@ -1637,9 +1635,9 @@ int AIState_Chase::FindBarrierEndSlice()
       if (hereBarrier == 0) {
 
         if ((leftBarrier != 0) &&
-            (6 - (AISTATE_SLICE_BYTE(sliceCheck,0x1d) >> 4) <= currentBarrierLane - 1) &&
+            (6 - (BWorldSm_slices[sliceCheck].laneCount >> 4) <= currentBarrierLane - 1) &&
             (currentBarrierLane - 1 <=
-             (AISTATE_SLICE_BYTE(sliceCheck,0x1d) & 0xf) + 7)) {
+             (BWorldSm_slices[sliceCheck].laneCount & 0xf) + 7)) {
 
           currentBarrierLane--;
 
@@ -1647,8 +1645,8 @@ int AIState_Chase::FindBarrierEndSlice()
 
         else if ((rightBarrier == 0) ||
                  (currentBarrierLane + 1 <
-                  6 - (AISTATE_SLICE_BYTE(sliceCheck,0x1d) >> 4)) ||
-                 ((AISTATE_SLICE_BYTE(sliceCheck,0x1d) & 0xf) + 7 <
+                  6 - (BWorldSm_slices[sliceCheck].laneCount >> 4)) ||
+                 ((BWorldSm_slices[sliceCheck].laneCount & 0xf) + 7 <
                   currentBarrierLane + 1)) {
 
           backwardsBarrierEndSlice = sliceCheck;
@@ -1748,7 +1746,7 @@ AIState_Offroad::AIState_Offroad(Car_tObj *carObj,int startSlice,coorddef *posit
 
   this->targetSlice_ = endSlice;
 
-  this->targetPosition_ = *(coorddef *)((char *)AIState_BWorldSmSlices + endSlice * 0x20);
+  this->targetPosition_ = *(coorddef *)BWorldSm_slices[endSlice].center;
 
   this->carObj_->carFlags = this->carObj_->carFlags | 0x800;
 
@@ -2324,7 +2322,7 @@ void AIState_RovingTraffic::Execute()
   (this->carObj_)->desiredSpeed = this->path_[this->pathIndex_].targetSpeed * 0x7247;
 
   /* W57-A11: SLD line 1183 = one struct assignment (movstrsi t0/t1/t2). */
-  centerBack = *(coorddef *)(AIState_BWorldSmSlices + this->carObj_->N.simRoadInfo.slice * 0x20);
+  centerBack = *(coorddef *)BWorldSm_slices[this->carObj_->N.simRoadInfo.slice].center;
 
   carRelativeForLatPos.x = this->carObj_->targetPos.x - centerBack.x;
 
@@ -2535,7 +2533,7 @@ void AIState_Donuts::Execute()
 
     }
 
-    targetPos = *(coorddef *)((forwardSlice << 5) + (int)AIState_BWorldSmSlices);
+    targetPos = *(coorddef *)BWorldSm_slices[forwardSlice].center;
 
     dCarToCenter = __builtin_abs(this->carObj_->roadPosition);
 
@@ -2601,8 +2599,8 @@ void AIState_Donuts::Execute()
     if (this->carObj_->roadPosition < 0) {
 
       if (this->carObj_->roadPosition - 0x20000 <
-          -((AISTATE_SLICE_BYTE(slice,0x1e) << 15) *
-            (AISTATE_SLICE_BYTE(slice,0x1d) >> 4))) goto LAB_800722e8;
+          -((BWorldSm_slices[slice].avgPavedWidthLf << 15) *
+            (BWorldSm_slices[slice].laneCount >> 4))) goto LAB_800722e8;
 
       goto LAB_800722ec;
 
@@ -2610,8 +2608,8 @@ void AIState_Donuts::Execute()
 
     else {
 
-      if (!((AISTATE_SLICE_BYTE(slice,0x1f) << 15) *
-            (AISTATE_SLICE_BYTE(slice,0x1d) & 0xf) <
+      if (!((BWorldSm_slices[slice].avgPavedWidthRt << 15) *
+            (BWorldSm_slices[slice].laneCount & 0xf) <
             this->carObj_->roadPosition + 0x20000)) goto LAB_800722ec;
 
     }

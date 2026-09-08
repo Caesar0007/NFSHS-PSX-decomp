@@ -8,6 +8,7 @@ the corresponding raw object; missing or stale source objects fail closed.
 """
 from pathlib import Path
 import hashlib
+import re
 import struct
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -83,6 +84,113 @@ SOURCE_DATA_OWNERS = (
         'oracle_source': 'asm/data/front_data_o00.data.s',
         'record': 'SYM52293b CHAR[14][6] textDefinitions +84 BOOL gSemiTransText (522963)',
     },
+    # P884: these typed table sections were already selected at native slots,
+    # but a raw definition in r18 won their public symbol bindings at orphan
+    # addresses. Separate oracle-only leaves retire exactly those duplicates.
+    # Native SYM/MAP anchors and every initialized byte are independently
+    # checked; no new table source, instruction patch or padding is introduced.
+    # Backups and actual consumer-reference receipts: scratchpad/p884_tables.
+    {
+        'source': 'recon/eaclib/psx/eacpsxz/asintbl.c', 'section': '.data',
+        'address': 0x80137260, 'size': 512,
+        'payload_sha256': 'fff107aee0cc92ff9a79d1acb10342cae29db4449b41bdfc1a4a082e9d541e0c',
+        'oracle_source': 'asm/data/data_asintbl_legacy.data.s',
+        'placement': 'fragment', 'record': 'SYM016511 asintbl; archive member780f13/780f47; native MAP80137260',
+    },
+    {
+        'source': 'recon/eaclib/psx/eacpsxz/sintbl.c', 'section': '.data',
+        'address': 0x80137464, 'size': 1028,
+        'payload_sha256': 'c3b03a2581960f9b22f2f29fb52f30bf36eb87c3896c8e4f62c708b3c247f880',
+        'oracle_source': 'asm/data/data_sintbl_legacy.data.s',
+        'placement': 'fragment', 'record': 'SYM01651e sintbl; archive member780f7b/780fae; native MAP80137464',
+    },
+    {
+        'source': 'recon/eaclib/psx/eacpsxz/fatantbl.c', 'section': '.data',
+        'address': 0x80137868, 'size': 1028,
+        'payload_sha256': 'a3ab1c0b30ea38a25c2d7f7c7b13969a0e3448547b839c92b1ae5789c3942b64',
+        'oracle_source': 'asm/data/data_fatantbl_legacy.data.s',
+        'placement': 'fragment', 'record': 'SYM01652a fatantbl; archive member7810bd/7810f2; native MAP80137868',
+    },
+    {
+        'source': 'recon/syslib/psx/libgte/CSTBL.c', 'section': '.data',
+        'address': 0x80137D20, 'size': 16384,
+        'payload_sha256': 'b40c47b014ca8650c539760fd4c519cabce6f091628566ca0dd22318bb2c5b7a',
+        'oracle_source': 'asm/data/data_cstbl_legacy.data.s',
+        'placement': 'fragment', 'record': 'SYM016713 rcossin_tbl; native MAP80137D20; PsyQ CSTBL data owner',
+    },
+    # P885: three more complete typed .data owners already occupy native
+    # fragment slots. Retire only their isolated raw copies, preserving the
+    # oracle lane, all seven public cell addresses and atantbl's three zeros.
+    # Full source/raw/native payload and reference receipts: scratchpad/p885_owners.
+    # Current tool/ELF/map backups are retained in its root_backups directory.
+    {
+        'source': 'recon/syslib/psx/libpress/TABLE.c', 'section': '.data',
+        'address': 0x80123838, 'size': 69632,
+        'payload_sha256': '49dc16eab652c0bb30a23a7652cccfd1423777e2e08e71e028904bd8e020841b',
+        'oracle_source': 'asm/data/data_libpress_table_legacy.data.s',
+        'placement': 'fragment', 'record': 'SYM016333..01635c four DVLC exports; TABLE.obj77a62c; native MAP80123838',
+    },
+    {
+        'source': 'recon/syslib/psx/libsn/SNDEF.c', 'section': '.data',
+        'address': 0x80136CD0, 'size': 8,
+        'payload_sha256': 'aebf8fac801b6e902c89e83e809e3879ab4dbc5345df3482515205865aa79bb8',
+        'oracle_source': 'asm/data/data_sndef_legacy.data.s',
+        'placement': 'fragment', 'record': 'SNDEF.obj77fc26; native MAP _stacksize80136CD0/_ramsize80136CD4',
+    },
+    {
+        'source': 'recon/eaclib/psx/eacpsxz/atantbl.c', 'section': '.data',
+        'address': 0x80136CE8, 'size': 257, 'oracle_size': 260,
+        'payload_sha256': '03ab75ced39a3c62580ab3e24c4e54867b63bbdd1135da55cdf6bd678f74f221',
+        'oracle_source': 'asm/data/data_atantbl_legacy.data.s',
+        'placement': 'fragment', 'record': 'atantbl.obj780289; native MAP80136CE8; 257 payload bytes plus3 alignment zeros',
+    },
+    # P886: TextureProcess's complete G8 run begins40 bytes before gZDepth.
+    # Correct source literals restore the native string order; r21/o34 now
+    # divide at the real TU start instead of counting those strings twice.
+    # This also restores the following vars/native small-data addresses.
+    # Source/tool/link backups and raw-reference proofs: scratchpad/p886_vars.
+    {
+        'source': 'recon/game/psx/textureprocess.cpp', 'section': '.sdata',
+        'address': 0x8013DB4C, 'size': 68,
+        'payload_sha256': 'bd5723cf969087815cbd950661ce680a0d843b81553c5a67ef6b0eac4bfecd1e',
+        'oracle_source': 'asm/data/sdata_8013C54C_o34.sdata.s',
+        'placement': 'fragment', 'record': 'SYM477004..4770b4 globals at+40; raw Fog_ReadFogKeys literal addresses8013DB4C/54/5C/64',
+    },
+    {
+        'source': 'recon/eaclib/psx/eacpsxz/vars.c', 'section': '.sdata',
+        'address': 0x8013DC64, 'size': 160,
+        'payload_sha256': '2ee7b7ed73b946c772a7495b6ad5423aad6fcdc5aecbaeb6c5628478c7f62789',
+        'oracle_source': 'asm/data/sdata_vars_legacy.sdata.s',
+        'placement': 'fragment', 'record': 'SYM77a358 vars.obj; forty native name/address cells019083 onward, corroborated by NFS2 INT records',
+    },
+    # P887: G0 restores drawshp's actual scalar declaration/address schedule
+    # and its native4-byte initialized data. The old r08 copy is src-only;
+    # its following alignment word remains outside this variable. The front
+    # fragment is inactive, so select this owner at an explicit native VA.
+    # Backups/proofs: scratchpad/p887_checkpoint and scratchpad/p887_knocolor.
+    {
+        'source': 'recon/frontend/psx/drawshp.cpp', 'section': '.data',
+        'address': 0x800529D0, 'size': 4,
+        'payload_sha256': '91b1f236f5972384b2b07ecfc8da0a2b669b458c6a98170c34d36bc5f4e3a12e',
+        'oracle_source': 'asm/data/front_data_knocolor_legacy.data.s',
+        'record': 'SYM745326 EXT INT kNoColor at800529D0; raw four bytes80808000',
+    },
+    # P896: restore native CHAR firstTime=1 and its three following AI INTs
+    # as one16-byte source run. Both old raw pieces are oracle-only. This is
+    # source ownership/placement, not a compiled-instruction rewrite.
+    # Backups and exact GP/global/raw proof: scratchpad/p896_checkpoint/backups
+    # and scratchpad/p896_ai_storage (full_owner stage).
+    {
+        'source': 'recon/game/common/ai.cpp', 'section': '.sdata',
+        'address': 0x8013C54C, 'size': 16,
+        'payload_sha256': '4cbbd8ca5215b8d161aec181a74b694f4e24b001d5b081dc0030ed797a8973e0',
+        'oracle_sources': ('asm/data/sdata_8013C54C_r00.sdata.s',
+                           'asm/data/sdata_8013C54C_o00.sdata.s'),
+        'placement': 'fragment',
+        'record': 'SYM032c02 STAT CHAR firstTime; raw/CPE8013C54C=1; native AI_time/elapsedTime/iTime+4/+8/+12',
+        'symbols': (('firstTime',0,1,0,'uid'), ('AI_time',4,4,1,'exact'),
+                    ('AI_elapsedTime',8,4,1,'exact'), ('AI_iTime',12,4,1,'exact')),
+    },
 )
 
 
@@ -91,8 +199,16 @@ def object_path(source, object_root=None):
 
 
 def oracle_only_objects(object_root=None):
-    return {object_path(row['oracle_source'], object_root).resolve()
-            for row in SOURCE_DATA_OWNERS}
+    # P896: one complete source owner may replace several explicitly named
+    # raw pieces. Preserve every old single-source row; never use a wildcard.
+    result = set()
+    for row in SOURCE_DATA_OWNERS:
+        sources = row.get('oracle_sources')
+        if sources is None:
+            sources = (row['oracle_source'],)
+        assert sources and len(sources) == len(set(sources)), row
+        result.update(object_path(source, object_root).resolve() for source in sources)
+    return result
 
 
 def validate_source_data_owners(object_root=None):
@@ -108,6 +224,9 @@ def validate_source_data_owners(object_root=None):
         sh = headers[names_index]
         names = data[sh[4]:sh[4]+sh[5]]
         labels = [names[h[0]:].split(b'\0')[0].decode() for h in headers]
+        # P896 negative controls: do not silently select the first of two
+        # same-named sections and ignore another storage contribution.
+        assert len(labels) == len(set(labels)), (obj, 'duplicate section names')
         index = labels.index(row['section'])
         section = headers[index]
         payload = data[section[4]:section[4]+section[5]]
@@ -121,7 +240,7 @@ def validate_source_data_owners(object_root=None):
         assert section[1] == 1 and all(h[5] == 0 for h in headers
                                      if h[1] in (4,9) and h[7] == index), (
             obj, 'unexpected data relocation in exact raw owner')
-        if 'global' not in row:
+        if 'global' not in row and 'symbols' not in row:
             continue
         symtab = headers[labels.index('.symtab')]
         strings_header = headers[symtab[6]]
@@ -134,7 +253,23 @@ def validate_source_data_owners(object_root=None):
         # eight-byte payload plus offsets bound both cells. Size4 is accepted
         # too when an assembler preserves object-size metadata. Source/-g
         # declaration checks establish INT separately, not this layout check.
-        assert any(n == row['global'] and v == 0 and s in (0,4) and info>>4 == 1 and own == index
-                   for n,v,s,info,own in syms), (obj, 'missing native global at data+0')
-        assert sum(n.startswith(row['static']+'.') and v == 4 and s in (0,4) and info>>4 == 0 and own == index
-                   for n,v,s,info,own in syms) == 1, (obj, 'missing unique function-local static at data+4')
+        if 'global' in row:
+            assert any(n == row['global'] and v == 0 and s in (0,4) and info>>4 == 1 and own == index
+                       for n,v,s,info,own in syms), (obj, 'missing native global at data+0')
+            assert sum(n.startswith(row['static']+'.') and v == 4 and s in (0,4) and info>>4 == 0 and own == index
+                       for n,v,s,info,own in syms) == 1, (obj, 'missing unique function-local static at data+4')
+        if 'symbols' in row:
+            # Check every storage symbol, including duplicate local names.
+            # A numeric UID is compiler metadata, not the source identity.
+            # This allowance is restricted to explicit LOCAL data contracts.
+            assert section[2]&7 == 3, (obj, 'mutable owner must be allocated/writable/non-executable')
+            storage = [s for s in syms if s[4] == index and s[3]&15 != 3]
+            assert all(s[3]&15 in (0,1) for s in storage), (obj, 'non-data symbol in exact data owner')
+            assert len(storage) == len(row['symbols']), (obj, 'unexpected owner storage symbols')
+            for name,value,size,bind,mode in row['symbols']:
+                assert mode in ('exact','uid') and (mode != 'uid' or bind == 0)
+                matched = [s for s in storage if
+                           (s[0] == name if mode == 'exact' else
+                            re.fullmatch(re.escape(name)+r'\.\d+',s[0])) and
+                           s[1] == value and s[2] in (0,size) and s[3]>>4 == bind]
+                assert len(matched) == 1, (obj,name,'missing exact source offset/size/binding')

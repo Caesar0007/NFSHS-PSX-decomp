@@ -22,7 +22,18 @@ extern bool BWorldSm_TunnelFlagSm(BWorldSm_Pos *pos);
 extern void *BWorldSm_UNormal(BWorldSm_Pos *pos);
 extern void *BWorldSm_UForward(BWorldSm_Pos *pos);
 extern int   BWorld_CheckChunkVisible(BWorldSm_Pos *a, BWorldSm_Pos *b);
-extern char *Newton_BWorldSmSlices asm("BWorldSm_slices");
+/* Owner-derived bworldSm type: SYM1cec71..1cedc3, 32 bytes. Newton's
+ * surviving type stream does not preserve this foreign body; original header
+ * visibility remains a source-recovery question, not a sealed per-TU claim.
+ * This private external contract is not exported by newton_types.h. */
+struct Trk_NewSlice {
+    int center[3];
+    char normal[3], forward[3], right[3];
+    u_char acousticType;
+    short pavedProfile, leftDrive, rightDrive;
+    u_char chunkIndex, laneCount, avgPavedWidthLf, avgPavedWidthRt;
+};
+extern Trk_NewSlice *BWorldSm_slices; /* SYM1d937e */
 extern int            gNumSlices;
 
 /* ---- Collide ---- */

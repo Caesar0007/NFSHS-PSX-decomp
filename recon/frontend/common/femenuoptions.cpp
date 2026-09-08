@@ -16,21 +16,21 @@ typedef struct tPsyQPrimTag {
 } tPsyQPrimTag;
 
 
-/* permuter-found register-materialization lever (score-0, iter 289): routing the
- * ticks[0] read through an inline pointer-arg helper (vs a direct array index)
- * changes how gcc schedules the two live copies of `ticks` needed by the signed
- * %128 idiom below -- verified byte-exact via verify_asm, not just permuter score. */
+/* P891 retained carrier: inline_fn/arg0 are not recovered native source names.
+ * With scalar ticks, base direct remainder and declaration-init probes both
+ * fail 5 diffs (21/22); split load/remainder fails 15. The helper retains PASS.
+ * Its original inline/read source shape remains a documented recovery task. */
 static inline int inline_fn(int *arg0)
 {
   return arg0[0];
 }
 
-/* ---- CalcPulsateYellow  [FEMENUOPTIONS.CPP:77-82] SLD-VERIFIED ---- */
+/* ---- CalcPulsateYellow  [FEMENUOPTIONS.CPP:77-82] SYM/SLD-REVIEWED; emitted partitions open (P891 SLD_RECEIPT.md) ---- */
 void CalcPulsateYellow(void)
 {
   int pulsateval;
 
-  pulsateval = inline_fn(ticks) % 0x80;
+  pulsateval = inline_fn(&ticks) % 0x80;
   if (0x40 < pulsateval) {
     pulsateval = 0x80 - pulsateval;
   }
@@ -558,7 +558,7 @@ feo_done:
 
 
 
-/* ---- tOptionsMenu::Draw  [FEMENUOPTIONS.CPP:426-456] SLD-VERIFIED ---- */
+/* ---- tOptionsMenu::Draw  [FEMENUOPTIONS.CPP:426-456] SYM/SLD-REVIEWED; emitted partitions open (P891 SLD_RECEIPT.md) ---- */
 
 void tOptionsMenu::Draw()
 
@@ -603,7 +603,7 @@ void tOptionsMenu::Draw()
   }
   if ((-1 < this->fFirstFrame) && (0 < this->fNumFrames)) {
     drawFlags.tint[0] = 0xcec844;
-    DrawShapeExtended(this->fFirstFrame + ((int)(ticks[0] >> 4) % this->fNumFrames),0x410,0x10,0x10,0,0,&drawFlags);
+    DrawShapeExtended(this->fFirstFrame + ((int)(ticks >> 4) % this->fNumFrames),0x410,0x10,0x10,0,0,&drawFlags);
   }
   /* MATCH: `short i` + `fItemList[i]` (per-use sll16/sra14 remat). */
   for (i = 0; this->fItemList[i] != (tMenuItem *)0x0; i++) {

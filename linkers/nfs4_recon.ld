@@ -734,6 +734,8 @@ SECTIONS
     ASSERT(SIZEOF(.source_data_0) == 8, "source data owner size mismatch")
     .source_data_7 0x800515b8 : SUBALIGN(4) { build/recon/frontend/common/fetextrender.cpp.o(.data); }
     ASSERT(SIZEOF(.source_data_7) == 88, "source data owner size mismatch")
+    .source_data_17 0x800529d0 : SUBALIGN(4) { build/recon/frontend/psx/drawshp.cpp.o(.data); }
+    ASSERT(SIZEOF(.source_data_17) == 4, "source data owner size mismatch")
 
     .data 0x8010ccd4 : SUBALIGN(4)
     {
@@ -908,8 +910,8 @@ SECTIONS
 
     .sdata 0x8013c54c : SUBALIGN(4)
     {
-        build/asm/data/sdata_8013C54C_r00.sdata.s.o(.sdata);
-        build/recon/game/common/ai.cpp.o(.sdata);   /* 0x8013c550..0x8013c55c  was sdata_8013C54C_o00.sdata.s */
+        __sdata_org = .;
+        build/recon/game/common/ai.cpp.o(.sdata);   /* 0x8013c54c..0x8013c55c; r00 firstTime+o00 AI globals */
         build/recon/game/common/aihigh.cpp.o(.sdata);   /* 0x8013c55c..0x8013c560  was sdata_8013C54C_o01.sdata.s */
         build/recon/game/common/aih_btccop.cpp.o(.sdata);   /* 0x8013c560..0x8013c568  was sdata_8013C54C_o02.sdata.s */
         build/asm/data/sdata_8013C54C_r01.sdata.s.o(.sdata);
@@ -971,7 +973,7 @@ SECTIONS
         build/asm/data/sdata_8013C54C_r20.sdata.s.o(.sdata);
         build/recon/game/psx/texture.cpp.o(.sdata);   /* 0x8013db08..0x8013db3c  was sdata_8013C54C_o33.sdata.s */
         build/asm/data/sdata_8013C54C_r21.sdata.s.o(.sdata);
-        build/recon/game/psx/textureprocess.cpp.o(.sdata);   /* 0x8013db74..0x8013db90  was sdata_8013C54C_o34.sdata.s */
+        build/recon/game/psx/textureprocess.cpp.o(.sdata);   /* 0x8013db4c..0x8013db90; o34 is oracle-only */
         build/recon/game/psx/trackspec.cpp.o(.sdata);   /* 0x8013db90..0x8013db9c  was sdata_8013C54C_o35.sdata.s */
         build/recon/game/psx/trsproj.cpp.o(.sdata);   /* 0x8013db9c..0x8013dba0  was sdata_8013C54C_o36.sdata.s */
         build/asm/data/sdata_8013C54C_r22.sdata.s.o(.sdata);
@@ -986,7 +988,6 @@ SECTIONS
         build/recon/eaclib/psx/eacpsxz/memstd.c.o(.sdata);
         build/recon/eaclib/psx/sndpsxz/sdpacket.c.o(.sdata);
         build/recon/eaclib/psx/sndpsxz/snddata.c.o(.sdata);
-        build/recon/frontend/psx/drawshp.cpp.o(.sdata);
         build/recon/frontend/psx/memcard.c.o(.sdata);
         build/recon/game/common/aih_cop.cpp.o(.sdata);
         build/recon/game/common/aih_play.cpp.o(.sdata);
@@ -1045,6 +1046,16 @@ SECTIONS
     }
 
     .rodata_rest : SUBALIGN(4) { *(.rodata); *(.rodata.*); }
+    __unplaced_zero_cursor = .;
+    .cd_stream_a 0x80144874 (NOLOAD) : SUBALIGN(4) { build/recon/syslib/psx/libcd/C_005.c.o(.bss.st_80144874); }
+    ASSERT(SIZEOF(.cd_stream_a) == 8, "native zero owner size mismatch")
+    .iso9660_bss 0x8014487c (NOLOAD) : SUBALIGN(4) { build/recon/syslib/psx/libcd/iso9660.c.o(.bss); }
+    ASSERT(SIZEOF(.iso9660_bss) == 9216, "native zero owner size mismatch")
+    .cd_stream_b 0x80146c7c (NOLOAD) : SUBALIGN(4) { build/recon/syslib/psx/libcd/CDROM.c.o(.bss.st_80146C7C); }
+    ASSERT(SIZEOF(.cd_stream_b) == 72, "native zero owner size mismatch")
+    .ai_spos 0x8013dee0 (NOLOAD) : SUBALIGN(4) { build/recon/game/common/ai.cpp.o(.bss); }
+    ASSERT(SIZEOF(.ai_spos) == 132, "native zero owner size mismatch")
+    . = __unplaced_zero_cursor;
     .sbss  : SUBALIGN(4) { *(.sbss); }
     .bss   : SUBALIGN(4) { *(.bss); *(.bss.*); *(COMMON); }
     .data_rest : SUBALIGN(4) { *(.data); *(.sdata); *(.text); }

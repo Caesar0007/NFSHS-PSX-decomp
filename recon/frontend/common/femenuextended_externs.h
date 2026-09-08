@@ -5,7 +5,7 @@
 extern tFEApplication *FEApp;
 extern tfrontEnd frontEnd;
 extern tPadModuleState gPadinfo;
-extern int ticks[];
+extern int ticks;
 extern tGlobalMenuDefs *menuDefs;
 /* class vtables (FEMenuExtended.obj-defined subclasses) */
 extern __vtbl_ptr_type tMenuItemGoToMenuNFS4Button_vtable[], tMenuItemNFS4LeftRightChoice_vtable[],

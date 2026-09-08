@@ -31,47 +31,5 @@ dlabel TP_gColorMode
     /* 12E348 8013DB48 00000000 */ .word 0x00000000
 enddlabel TP_gColorMode
 
-.align 2
-nonmatching D_8013DB4C
-
-dlabel D_8013DB4C
-    /* 12E34C 8013DB4C */ .asciz "S.fog"
-    /* 532E666F67000000 */
-.align 2
-enddlabel D_8013DB4C
-
-.align 2
-nonmatching D_8013DB54
-
-dlabel D_8013DB54
-    /* 12E354 8013DB54 */ .asciz "N.fog"
-    /* 4E2E666F67000000 */
-.align 2
-enddlabel D_8013DB54
-
-.align 2
-nonmatching D_8013DB5C
-
-dlabel D_8013DB5C
-    /* 12E35C 8013DB5C */ .asciz "W.fog"
-    /* 572E666F67000000 */
-.align 2
-enddlabel D_8013DB5C
-
-.align 2
-nonmatching D_8013DB64
-
-dlabel D_8013DB64
-    /* 12E364 8013DB64 */ .asciz ".fog"
-    /* 2E666F6700000000 */
-.align 2
-enddlabel D_8013DB64
-
-.align 2
-nonmatching D_8013DB6C
-
-dlabel D_8013DB6C
-    /* 12E36C 8013DB6C */ .asciz "fog pos"
-    /* 666F6720706F7300 */
-.align 2
-enddlabel D_8013DB6C
+/* P886: TextureProcess's40-byte literal prefix now leads o34's complete
+ * oracle .sdata run. These four preceding globals remain independent. */

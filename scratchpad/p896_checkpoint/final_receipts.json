@@ -1,0 +1,35 @@
+{
+  "passed": true,
+  "protected_functions": 737,
+  "protected_TUs": 33,
+  "source_hash_drift": 0,
+  "source_objects": 518,
+  "literal_unchanged_objects": 517,
+  "all_normal_instruction_bytes_preserved": true,
+  "native_AI_local_and_inline_records": 11,
+  "native_AI_lexical_blocks": 7,
+  "AI_SLD_before": {
+    "merges": 36,
+    "splits": 92
+  },
+  "AI_SLD_after": {
+    "merges": 30,
+    "splits": 0
+  },
+  "actual_linked_AI_function_words_exact": 127,
+  "native_static_reference_words_exact": 8,
+  "Newton_raw_reference_words_exact": 108,
+  "GP_sites": 2381,
+  "GP_native_unknown": 3,
+  "GP_confirmed_wrong_before": 1430,
+  "GP_confirmed_wrong_after": 1428,
+  "previously_correct_GP_preserved": 948,
+  "previously_correct_native_globals_preserved": 3779,
+  "owner_negative_controls_passed": 50,
+  "old_owner_compatibility_passed": 21,
+  "linked_ELF_sha256": "52800553415581618c04766bca85e3d943de8343f60b78c62ff7c62af9e32ae0",
+  "known_layout_overlap_pairs_before": 130,
+  "known_layout_overlap_pairs_after": 133,
+  "final_native_image_exact": false,
+  "goal_complete": false
+}

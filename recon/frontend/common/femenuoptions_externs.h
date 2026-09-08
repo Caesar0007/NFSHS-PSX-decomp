@@ -10,7 +10,7 @@ extern "C" int SetDrawArea(DR_AREA *, RECT *);
 extern tFEApplication *FEApp;
 extern tfrontEnd frontEnd;
 extern tPadModuleState gPadinfo;
-extern int ticks[];   /* unsized array (§3.12 #5): oracle lui/lw separate-scratch (matches femenuextended/fescreen) */
+extern int ticks;   /* @0x8013dcac; scalar owned by vars.c */
 extern int PulsateYellow;
 extern short MENUUSERNAME_STARTY;   /* @0x800529b2 ScreenUserName.obj-owned (cross-TU) */
 extern char *Paths_Paths[];

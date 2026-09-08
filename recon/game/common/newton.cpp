@@ -8,10 +8,6 @@
 
 #define MAX(a,b) (((a) > (b)) ? (a) : (b))
 
-#define NEWTON_SLICE_INT(slice, offset) \
-    (*(int *)(Newton_BWorldSmSlices + (slice) * 0x20 + (offset)))
-#define NEWTON_SLICE_CHAR(slice, offset) \
-    (*(signed char *)(Newton_BWorldSmSlices + (slice) * 0x20 + (offset)))
 
 /* ---- newton.obj-owned BSS. SYM records the five named tables/road records as EXT;
  * the two coorddef out-parameter scratch objects are function-local statics below. ---- */
@@ -317,10 +313,10 @@ int Newton_CalculateSliceYaw(int slice)
 
   s = slice + 1 >= gNumSlices ?
       slice + 1 - gNumSlices : slice + 1;
-  x1 = NEWTON_SLICE_INT(slice,0);
-  z1 = NEWTON_SLICE_INT(slice,8);
-  x2 = NEWTON_SLICE_INT(s,0);
-  z2 = NEWTON_SLICE_INT(s,8);
+  x1 = BWorldSm_slices[slice].center[0];
+  z1 = BWorldSm_slices[slice].center[2];
+  x2 = BWorldSm_slices[s].center[0];
+  z2 = BWorldSm_slices[s].center[2];
   x1 = x2 - x1;
   z1 = z2 - z1;
   return intatan(x1,z1);
@@ -350,7 +346,7 @@ void Newton_UpdateRoadGeometry(BO_tNewtonObj *n)
           temp = n->simRoadInfo.quadPts[i];
         }
         else {
-          temp = *(coorddef *)(Newton_BWorldSmSlices + n->simRoadInfo.slice * 0x20);
+          temp = *(coorddef *)BWorldSm_slices[n->simRoadInfo.slice].center;
         }
         n->roadCenterPoint.x += temp.x;
         n->roadCenterPoint.y += temp.y;
@@ -365,7 +361,7 @@ void Newton_UpdateRoadGeometry(BO_tNewtonObj *n)
         n->roadCenterPoint = n->simRoadInfo.quadPts[0];
       }
       else {
-        n->roadCenterPoint = *(coorddef *)(Newton_BWorldSmSlices + slice * 0x20);
+        n->roadCenterPoint = *(coorddef *)BWorldSm_slices[slice].center;
       }
     }
 
@@ -402,21 +398,21 @@ void Newton_UpdateRoadGeometry(BO_tNewtonObj *n)
       int r2;
       int r3;
 
-      r1 = (int)NEWTON_SLICE_CHAR(slice,0x12) << 9;
-      r2 = (int)NEWTON_SLICE_CHAR(slice,0x13) << 9;
-      r3 = (int)NEWTON_SLICE_CHAR(slice,0x14) << 9;
+      r1 = (int)((signed char)BWorldSm_slices[slice].right[0]) << 9;
+      r2 = (int)((signed char)BWorldSm_slices[slice].right[1]) << 9;
+      r3 = (int)((signed char)BWorldSm_slices[slice].right[2]) << 9;
       n->roadMatrix.m[0] = r1;
       n->roadMatrix.m[1] = r2;
       n->roadMatrix.m[2] = r3;
-      r1 = (int)NEWTON_SLICE_CHAR(slice,0x0c) << 9;
-      r2 = (int)NEWTON_SLICE_CHAR(slice,0x0d) << 9;
-      r3 = (int)NEWTON_SLICE_CHAR(slice,0x0e) << 9;
+      r1 = (int)((signed char)BWorldSm_slices[slice].normal[0]) << 9;
+      r2 = (int)((signed char)BWorldSm_slices[slice].normal[1]) << 9;
+      r3 = (int)((signed char)BWorldSm_slices[slice].normal[2]) << 9;
       n->roadMatrix.m[3] = r1;
       n->roadMatrix.m[4] = r2;
       n->roadMatrix.m[5] = r3;
-      r1 = (int)NEWTON_SLICE_CHAR(slice,0x0f) << 9;
-      r2 = (int)NEWTON_SLICE_CHAR(slice,0x10) << 9;
-      r3 = (int)NEWTON_SLICE_CHAR(slice,0x11) << 9;
+      r1 = (int)((signed char)BWorldSm_slices[slice].forward[0]) << 9;
+      r2 = (int)((signed char)BWorldSm_slices[slice].forward[1]) << 9;
+      r3 = (int)((signed char)BWorldSm_slices[slice].forward[2]) << 9;
       n->roadMatrix.m[6] = r1;
       n->roadMatrix.m[7] = r2;
       n->roadMatrix.m[8] = r3;
@@ -430,10 +426,10 @@ void Newton_UpdateRoadGeometry(BO_tNewtonObj *n)
 
       s = slice + 1 >= gNumSlices ?
           slice + 1 - gNumSlices : slice + 1;
-      x1 = NEWTON_SLICE_INT(slice,0);
-      z1 = NEWTON_SLICE_INT(slice,8);
-      x2 = NEWTON_SLICE_INT(s,0);
-      z2 = NEWTON_SLICE_INT(s,8);
+      x1 = BWorldSm_slices[slice].center[0];
+      z1 = BWorldSm_slices[slice].center[2];
+      x2 = BWorldSm_slices[s].center[0];
+      z2 = BWorldSm_slices[s].center[2];
       x1 = x2 - x1;
       z1 = z2 - z1;
       n->roadYaw = intatan(x1,z1);
@@ -724,7 +720,7 @@ int Newton_FindGroundElevationAndNormal(BO_tNewtonObj *newtonObj,coorddef *norma
         roadCenterPoint = testSimRoadInfo.quadPts[0];
       }
       else {
-        roadCenterPoint = *(coorddef *)(Newton_BWorldSmSlices + testSimRoadInfo.slice * 0x20);
+        roadCenterPoint = *(coorddef *)BWorldSm_slices[testSimRoadInfo.slice].center;
       }
       if ((u_int)(roadSurfaceType - 2) < 2) {
         wheelHeight[i].y =
@@ -1329,15 +1325,15 @@ void Newton_SetInitialSlicePositionOrientationEtc(BO_tNewtonObj *n,int slice,coo
   backwards = direction != 1;
   BWorldSm_SetSlice(slice,&n->simRoadInfo);
   n->totalSlice = (u_short)slice;
-  n->roadMatrix.m[0] = NEWTON_SLICE_CHAR(slice,0x12) << 9;
-  n->roadMatrix.m[1] = NEWTON_SLICE_CHAR(slice,0x13) << 9;
-  n->roadMatrix.m[2] = NEWTON_SLICE_CHAR(slice,0x14) << 9;
-  n->roadMatrix.m[3] = NEWTON_SLICE_CHAR(slice,0x0c) << 9;
-  n->roadMatrix.m[4] = NEWTON_SLICE_CHAR(slice,0x0d) << 9;
-  n->roadMatrix.m[5] = NEWTON_SLICE_CHAR(slice,0x0e) << 9;
-  n->roadMatrix.m[6] = NEWTON_SLICE_CHAR(slice,0x0f) << 9;
-  n->roadMatrix.m[7] = NEWTON_SLICE_CHAR(slice,0x10) << 9;
-  n->roadMatrix.m[8] = NEWTON_SLICE_CHAR(slice,0x11) << 9;
+  n->roadMatrix.m[0] = ((signed char)BWorldSm_slices[slice].right[0]) << 9;
+  n->roadMatrix.m[1] = ((signed char)BWorldSm_slices[slice].right[1]) << 9;
+  n->roadMatrix.m[2] = ((signed char)BWorldSm_slices[slice].right[2]) << 9;
+  n->roadMatrix.m[3] = ((signed char)BWorldSm_slices[slice].normal[0]) << 9;
+  n->roadMatrix.m[4] = ((signed char)BWorldSm_slices[slice].normal[1]) << 9;
+  n->roadMatrix.m[5] = ((signed char)BWorldSm_slices[slice].normal[2]) << 9;
+  n->roadMatrix.m[6] = ((signed char)BWorldSm_slices[slice].forward[0]) << 9;
+  n->roadMatrix.m[7] = ((signed char)BWorldSm_slices[slice].forward[1]) << 9;
+  n->roadMatrix.m[8] = ((signed char)BWorldSm_slices[slice].forward[2]) << 9;
   Math_NormalizeShortVector((coorddef *)&n->roadMatrix);
   Math_NormalizeShortVector((coorddef *)(n->roadMatrix.m + 3));
   Math_NormalizeShortVector((coorddef *)(n->roadMatrix.m + 6));
@@ -1355,9 +1351,9 @@ void Newton_SetInitialSlicePositionOrientationEtc(BO_tNewtonObj *n,int slice,coo
               fixedmult(offset->y,transposeMat.m[7]) +
               fixedmult(offset->z,transposeMat.m[8]);
 
-  n->position.x = rOffset.x + NEWTON_SLICE_INT(slice,0);
-  n->position.y = rOffset.y + NEWTON_SLICE_INT(slice,4);
-  n->position.z = rOffset.z + NEWTON_SLICE_INT(slice,8);
+  n->position.x = rOffset.x + BWorldSm_slices[slice].center[0];
+  n->position.y = rOffset.y + BWorldSm_slices[slice].center[1];
+  n->position.z = rOffset.z + BWorldSm_slices[slice].center[2];
   if (((Car_tObj *)n)->carFlags & 4) {
     n->simOptz = 0;
   } else {
@@ -1369,7 +1365,7 @@ void Newton_SetInitialSlicePositionOrientationEtc(BO_tNewtonObj *n,int slice,coo
   Newton_CopyRoadMatrixToOrientMat(n,backwards);
   Newton_CopyRoadMatrixToShadowMat(n,backwards);
   if (n->simOptz == 2) {
-    n->groundElevation = NEWTON_SLICE_INT(slice,4);
+    n->groundElevation = BWorldSm_slices[slice].center[1];
   } else if (n->simOptz == 1) {
     int i;
     int quadCenterY = 0;
@@ -1380,7 +1376,7 @@ void Newton_SetInitialSlicePositionOrientationEtc(BO_tNewtonObj *n,int slice,coo
       if (n->simRoadInfo.simQuad != (Trk_NewSimQuad *)0) {
         temp = n->simRoadInfo.quadPts[i];
       } else {
-        temp = *(coorddef *)(Newton_BWorldSmSlices + n->simRoadInfo.slice * 0x20);
+        temp = *(coorddef *)BWorldSm_slices[n->simRoadInfo.slice].center;
       }
       quadCenterY += temp.y;
     }
@@ -2777,7 +2773,7 @@ NewtonTestUndrv_loop1:
                     temp = *quadPt;
                   }
                   else {
-                    temp = *(coorddef *)(Newton_BWorldSmSlices + testSimRoadInfo.slice * 0x20);   /* w57-a9: struct-copy (load3/store3 block), NOT field-by-field */
+                    temp = *(coorddef *)BWorldSm_slices[testSimRoadInfo.slice].center;   /* w57-a9: struct-copy (load3/store3 block), NOT field-by-field */
                   }
                   undrivableCenter.x = undrivableCenter.x + temp.x;
                   undrivableCenter.y = undrivableCenter.y + temp.y;
@@ -2816,7 +2812,7 @@ NewtonTestUndrv_loop2:
                   temp = *quadPt;
                 }
                 else {
-                  temp = *(coorddef *)(Newton_BWorldSmSlices + testSimRoadInfo.slice * 0x20);   /* w57-a9: struct-copy (load3/store3 block), NOT field-by-field */
+                  temp = *(coorddef *)BWorldSm_slices[testSimRoadInfo.slice].center;   /* w57-a9: struct-copy (load3/store3 block), NOT field-by-field */
                 }
                 undrivableCenter.x = undrivableCenter.x + temp.x;
                 undrivableCenter.y = undrivableCenter.y + temp.y;
@@ -3041,7 +3037,7 @@ int Newton_CalculateRoadPositionFromSliceAndPosition(int slice,coorddef *positio
   coorddef centerBack;
   coorddef carRelative;
 
-  centerBack = *(coorddef *)(Newton_BWorldSmSlices + slice * 0x20);
+  centerBack = *(coorddef *)BWorldSm_slices[slice].center;
   carRelative.x = position->x - centerBack.x;
   carRelative.y = position->y - centerBack.y;
   carRelative.z = position->z - centerBack.z;
@@ -3059,7 +3055,7 @@ int Newton_CalculateRoadPosition(BO_tNewtonObj *newtonObj)
   coorddef carPos;
 
   centerBack =
-      *(coorddef *)(Newton_BWorldSmSlices + newtonObj->simRoadInfo.slice * 0x20);
+      *(coorddef *)BWorldSm_slices[newtonObj->simRoadInfo.slice].center;
   carPos = newtonObj->position;
   carRelative.x = carPos.x - centerBack.x;
   carRelative.y = carPos.y - centerBack.y;

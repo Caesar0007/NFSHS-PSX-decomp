@@ -335,13 +335,13 @@ lookahead_done:;
      * leaving gNumSlices in a1 and the shifted wrap offset in v0. */
     /* SYM-CODEGEN-CARRIER: slices.  This named base is the priced quantity that
        remains in retail $a2 across both road samples. */
-    char *slices = (char *)Camera_BWorldSmSlices;
+    char *slices = (char *)BWorldSm_slices;
     /* SYM-CODEGEN-CARRIER: offset.  Reusing dead SYM slice yields 403/402 and
        loses retail's explicit v0-to-v1 offset copy (three detailed diffs). */
     int offset;
     /* SYM-CODEGEN-CARRIER: first.  Six zero-insn references are the measured
        allocator dial that seats the first road sample in retail $a0. */
-    int first = *(int *)((slice << 5) + (int)slices + 4);
+    int first = ((Trk_NewSlice *)slices)[slice].center[1];
     __asm__("" : : "r"(first), "r"(first), "r"(first), "r"(first), "r"(first),
                       "r"(first));
     if (lookahead < 1) {
@@ -356,7 +356,7 @@ lookahead_done:;
        is count-exact but moves its addu, leaving two schedule diffs. */
     char *second = slices + offset;
     __asm__("" : "+r"(second));
-    first -= *(int *)(second + 4);
+    first -= ((Trk_NewSlice *)second)->center[1];
     vertigo = first / 3;
   }
   switch (behavior) {
@@ -705,18 +705,18 @@ void Camera_UpdateHeliCam(int player,int behavior)
        sample as a pointer quantity separate from `slice`; reusing the SYM
        `slice` local for that index emits 445/443 instructions and 112 diffs. */
     char *second;
-    fallback = *(int *)((slice << 5) + (int)Camera_BWorldSmSlices + 4);
+    fallback = BWorldSm_slices[slice].center[1];
     if (lookahead < 1) {
       slice = slice - lookahead;
-      second = (char *)Camera_BWorldSmSlices +
+      second = (char *)BWorldSm_slices +
           ((slice < gNumSlices ? slice : slice - gNumSlices) << 5);
     }
     else {
       slice = slice - lookahead;
-      second = (char *)Camera_BWorldSmSlices +
+      second = (char *)BWorldSm_slices +
           ((slice < 0 ? slice + gNumSlices : slice) << 5);
     }
-    fallback -= *(int *)(second + 4);
+    fallback -= ((Trk_NewSlice *)second)->center[1];
     fallback = fallback / 2;
     switch (behavior) {
     case 0:
@@ -1046,7 +1046,7 @@ void Camera_SetSplineCam(int player)
   anchor = (Car_tObj *)Camera_gInfo[player].anchor;
   numSlice = (0xf * (0x10000 - camSpeedTable[(u_char)Camera_gInfo[player].splineMode])) >> 0x10;
   numSlice = MIN(numSlice + 1,8);
-  if (CAMERA_REPLAY_DEFAULT(player) == 0) {
+  if (Replay_ReplayCamera[player].defaultCamera == 0) {
     int direction;
 
     direction = fixedmult(((coorddef *)&Camera_gInfo[player].rotation.m[6])->x,
@@ -1074,7 +1074,7 @@ void Camera_SetSplineCam(int player)
               : anchor->N.simRoadInfo.slice + numSlice;
     }
     Camera_gInfo[player].position =
-         *CAMERA_SLICE_CENTER(Camera_gInfo[player].slicePos.slice);
+         *((coorddef *)BWorldSm_slices[Camera_gInfo[player].slicePos.slice].center);
     BWorldSm_FindClosestQuadRez(&Camera_gInfo[player].position,&Camera_gInfo[player].slicePos,1);
   }
   return;
@@ -1267,7 +1267,7 @@ void Camera_UpdateSplineCam(int player)
       change = 1;
     }
 
-    if ((change != 0) && (CAMERA_REPLAY_DEFAULT(player) == 0)) {
+    if ((change != 0) && (Replay_ReplayCamera[player].defaultCamera == 0)) {
       int direction;
 
       {
@@ -1329,7 +1329,7 @@ void Camera_UpdateSplineCam(int player)
         Camera_gInfo[player].slicePos.slice = newSlice;
       }
       Camera_gInfo[player].position =
-          *CAMERA_SLICE_CENTER(Camera_gInfo[player].slicePos.slice);
+          *((coorddef *)BWorldSm_slices[Camera_gInfo[player].slicePos.slice].center);
       BWorldSm_FindClosestQuadRez(&Camera_gInfo[player].position,
                                   &Camera_gInfo[player].slicePos,1);
     } else {
@@ -1350,10 +1350,10 @@ void Camera_UpdateSplineCam(int player)
          `nextSlice` cursor while preserving retail's global-load/copy order.
          Moving nextSliceIdx above the splineVel read remains 16 diffs at 347
          instructions; reading splineVel through a named cursor is 13 at 348. */
-      splineVel = *CAMERA_SLICE_CENTER(Camera_gInfo[player].slicePos.slice);
+      splineVel = *((coorddef *)BWorldSm_slices[Camera_gInfo[player].slicePos.slice].center);
       nextSliceIdx = Camera_gInfo[player].slicePos.slice + 1;
       nextVel = *(coorddef *)(nextSliceIdx < gNumSlices ?
-          Camera_BWorldSmSlices + nextSliceIdx : Camera_BWorldSmSlices);
+          BWorldSm_slices + nextSliceIdx : BWorldSm_slices);
       splineVel.x = nextVel.x - splineVel.x;
       splineVel.y = nextVel.y - splineVel.y;
       splineVel.z = nextVel.z - splineVel.z;
@@ -1436,18 +1436,18 @@ void Camera_UpdatePulloverCam(int player)
       return;
     }
     /* MATCH: full slice expression REMATERIALIZED per access (no cached slice ptr) */
-    sCenter = *CAMERA_SLICE_CENTER(Camera_gInfo[player].anchor->simRoadInfo.slice);
-    sForward.x = CAMERA_SLICE_FORWARD(Camera_gInfo[player].anchor->simRoadInfo.slice,0) << 9;
-    sForward.y = CAMERA_SLICE_FORWARD(Camera_gInfo[player].anchor->simRoadInfo.slice,1) << 9;
-    sForward.z = CAMERA_SLICE_FORWARD(Camera_gInfo[player].anchor->simRoadInfo.slice,2) << 9;
+    sCenter = *((coorddef *)BWorldSm_slices[Camera_gInfo[player].anchor->simRoadInfo.slice].center);
+    sForward.x = ((signed char)BWorldSm_slices[Camera_gInfo[player].anchor->simRoadInfo.slice].forward[0]) << 9;
+    sForward.y = ((signed char)BWorldSm_slices[Camera_gInfo[player].anchor->simRoadInfo.slice].forward[1]) << 9;
+    sForward.z = ((signed char)BWorldSm_slices[Camera_gInfo[player].anchor->simRoadInfo.slice].forward[2]) << 9;
     sccVec.x = Camera_gInfo[player].anchor->position.x - sCenter.x;
     sccVec.y = Camera_gInfo[player].anchor->position.y - sCenter.y;
     sccVec.z = Camera_gInfo[player].anchor->position.z - sCenter.z;
-    sRight.x = CAMERA_SLICE_RIGHT(Camera_gInfo[player].anchor->simRoadInfo.slice,0) << 0xb;
-    sRight.y = CAMERA_SLICE_RIGHT(Camera_gInfo[player].anchor->simRoadInfo.slice,1) << 0xb;
-    sRight.z = CAMERA_SLICE_RIGHT(Camera_gInfo[player].anchor->simRoadInfo.slice,2) << 0xb;
+    sRight.x = ((signed char)BWorldSm_slices[Camera_gInfo[player].anchor->simRoadInfo.slice].right[0]) << 0xb;
+    sRight.y = ((signed char)BWorldSm_slices[Camera_gInfo[player].anchor->simRoadInfo.slice].right[1]) << 0xb;
+    sRight.z = ((signed char)BWorldSm_slices[Camera_gInfo[player].anchor->simRoadInfo.slice].right[2]) << 0xb;
     side = fixedmult(sccVec.z,sForward.x) - fixedmult(sccVec.x,sForward.z);
-    ySign = Camera_IslandProfile(CAMERA_SLICE_PAVED_PROFILE(Camera_gInfo[player].anchor->simRoadInfo.slice));
+    ySign = Camera_IslandProfile(BWorldSm_slices[Camera_gInfo[player].anchor->simRoadInfo.slice].pavedProfile);
     /* w62-a11 PRODUCTION-LANE FIX (psyqproof REAL 1 -> 0).  The shipped form
        `if (iVar3 < 0) { ySign = ySign != 1; }` put BOTH the xori and the 0/1
        renormalising `sltu v0,zero,v0` inside the guard, so our `bgez $s0`
@@ -1670,7 +1670,7 @@ LAB_80083584:
         Camera_gInfo[player].anchor = &Cars_gHumanRaceCarList[player]->N;
         Camera_gInfo[player].target = &Cars_gHumanRaceCarList[player]->N;
         if ((1 < Replay_ReplayMode) &&
-            (CAMERA_REPLAY_MODE(player) == 0x13)) {
+            (Replay_ReplayCamera[player].cameraMode == 0x13)) {
           Replay_ReplayFindClosestCamera(player,(int)(Camera_gInfo[player].anchor->simRoadInfo).slice);
         }
       }
@@ -1987,7 +1987,7 @@ void Camera_CheckWallCollisions(int player,coorddef *pos)
       quadUnderCamera = slicePos.quadPts[0];
     }
     else {
-      quadUnderCamera = *CAMERA_SLICE_CENTER(slicePos.slice);
+      quadUnderCamera = *((coorddef *)BWorldSm_slices[slicePos.slice].center);
     }
     if (slicePos.simQuad != (Trk_NewSimQuad *)0x0) {
       if (((slicePos.simQuad)->surface & 0xf) == 0) break;
@@ -2019,7 +2019,7 @@ void Camera_CheckWallCollisions(int player,coorddef *pos)
       quadUnderCamera = slicePos.quadPts[0];
     }
     else {
-      quadUnderCamera = *CAMERA_SLICE_CENTER(slicePos.slice);
+      quadUnderCamera = *((coorddef *)BWorldSm_slices[slicePos.slice].center);
     }
     if (slicePos.simQuad != (Trk_NewSimQuad *)0x0) {
       if (((slicePos.simQuad)->surface & 0xf) == 0) break;
@@ -2051,7 +2051,7 @@ void Camera_CheckWallCollisions(int player,coorddef *pos)
       quadUnderCamera = slicePos.quadPts[0];
     }
     else {
-      quadUnderCamera = *CAMERA_SLICE_CENTER(slicePos.slice);
+      quadUnderCamera = *((coorddef *)BWorldSm_slices[slicePos.slice].center);
     }
     if (((slicePos.simQuad != (Trk_NewSimQuad *)0x0) &&
          (((slicePos.simQuad)->surface & 0xf) == 0)) ||
@@ -2079,7 +2079,7 @@ void Camera_CheckWallCollisions(int player,coorddef *pos)
       quadUnderCamera = slicePos.quadPts[0];
     }
     else {
-      quadUnderCamera = *CAMERA_SLICE_CENTER(slicePos.slice);
+      quadUnderCamera = *((coorddef *)BWorldSm_slices[slicePos.slice].center);
     }
     if (((slicePos.simQuad != (Trk_NewSimQuad *)0x0) &&
          (((slicePos.simQuad)->surface & 0xf) == 0)) ||

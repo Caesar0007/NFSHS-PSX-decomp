@@ -1,0 +1,40 @@
+{
+  "objects_compared": 518,
+  "objects_changed": [],
+  "base_function_passes": 421,
+  "newly_correct_table_reference_words": 16,
+  "newly_correct_public_bindings": 7,
+  "prior_table_reference_words_preserved": 34,
+  "gp": {
+    "live_sources": 518,
+    "missing_objects": [],
+    "gp_objects": 78,
+    "gp_relocations": 2381,
+    "relocation_type_counts": {
+      "5": 9272,
+      "6": 9505,
+      "2": 5829,
+      "4": 15782,
+      "7": 2381
+    },
+    "gp_input_values": {
+      "0": 78
+    },
+    "gp": "0x8013c54c",
+    "resolved": 2381,
+    "unresolved": 0,
+    "out_of_range": 0,
+    "expected_known": 2381,
+    "wrong_target": 1462,
+    "in_range_wrong_target": 1462,
+    "in_range_encoding_mismatch": 0,
+    "encoding_checked": 2381,
+    "native_raw_conflicts": 4,
+    "output_elf_sha256": "b9d79d4805f97857106d0e0eba51b7279ce99cccc070e2a6356c0c630c38725c",
+    "output_map_sha256": "7564d37110c646c43662f0b0cb399696d01e408453e96ef91f710bb282db15e5",
+    "expected_unknown": 0,
+    "fixed_native_targets": 234,
+    "regressed_native_targets": 0
+  },
+  "goal_complete": false
+}

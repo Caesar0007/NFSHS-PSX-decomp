@@ -158,11 +158,9 @@ static int Confirm(int Text,int yesText)
      exact oracle allocation requires a separate source value:
      SYM-CODEGEN-CARRIER: dialog
      SYM-CODEGEN-CARRIER: dialogVtable
-     SYM-CODEGEN-CARRIER: feApp
      SYM-CODEGEN-CARRIER: noInputDialog
      SYM-CODEGEN-CARRIER: messageDialog
-     SYM-CODEGEN-CARRIER: messageText
-     SYM-CODEGEN-CARRIER: displayDialog */
+     SYM-CODEGEN-CARRIER: messageText */
   bool putbackon;         /* SYM: REG BOOL $s3 */
   int ret;                /* SYM: REG INT $s2 (reuses Text's reg) */
 
@@ -177,12 +175,11 @@ static int Confirm(int Text,int yesText)
      its point of declaration (C++), so the real source declares it here, not at fn-top. */
   tDialogYesNoMem MyDialog;
   tDialogYesNoMem *dialog = &MyDialog;
-  /* MATCH: GCC 2.8.1 must create the vtable-address pseudo first, then load FEApp[0]
-     before the stack _vf store. Splitting both values reproduces retail's interleaved
-     `lui v0; lui s1; lw v1; addiu v0; sw v0` schedule. */
+  /* P885: native Confirm records no separate feApp local. Direct scalar
+     receiver access preserves the retail load before the stack _vf store;
+     the remaining vtable carrier keeps its interleaved address schedule. */
   __vtbl_ptr_type (*dialogVtable)[10] =
       (__vtbl_ptr_type (*)[10])tDialogYesNoMem_vtable;
-  tFEApplication *feApp = FEApp[0];
   /* [2026-07-11 RESTORE] the manual _vf poke was WRONGLY dropped in the wave-5 consolidation:
      this hierarchy uses MANUAL _vf dispatch (not real C++ virtuals), so the implicit
      tDialogYesNoMem ctor does NOT set the derived vtable -- gcc's synthesized ctor only calls
@@ -194,7 +191,7 @@ static int Confirm(int Text,int yesText)
      in $a0 here) -- oracle computes base+720 ONCE (addiu a0,v1,720), tests currentlyOn via
      112(a0), and reuses a0 for Hide; a direct member test loads 832(base) then recomputes. */
   {
-    tDialogNoInputMessage *noInputDialog = &feApp->NoInputMemCardDialog;
+    tDialogNoInputMessage *noInputDialog = &FEApp->NoInputMemCardDialog;
     if (noInputDialog->currentlyOn != 0) {
       /* SYM-INLINE-THIS: Hide */
       ((tDialogBase *)noInputDialog)->Hide();
@@ -223,23 +220,22 @@ static int Confirm(int Text,int yesText)
        callee-saved reg (SYM: inlined tDialogMessageString-`this` block, $s0; oracle
        lw s0,0(s1) + addiu s0,s0,568 in the jal delay slot); the Display arg is a FRESH
        FEApp re-deref (selective/partial caching -- oracle recomputes it). */
-    tDialogMessageString *messageDialog = &FEApp[0]->MemCardDialog;
+    tDialogMessageString *messageDialog = &FEApp->MemCardDialog;
     char *messageText = TextSys_Word(CURRENTPLAYER + 0x32c);
-    /* MATCH: form Display's fresh `this` before storing messageText. Besides matching retail's
-       load-before-store schedule, this keeps the FEApp address in $s1 for the wait loop. */
-    tDialogBase *displayDialog = (tDialogBase *)&FEApp[0]->MemCardDialog;
+    /* P885: direct scalar receiver access retains the retail FEApp reload
+       before the SetString store and the address held across the wait loop. */
     /* SYM-INLINE-THIS: SetString */
     messageDialog->SetString(messageText);
-    Display(displayDialog);
+    Display((tDialogBase *)&FEApp->MemCardDialog);
     /* MATCH: exit-in-the-middle wait loop (top-test + j back); the ==1 exit is written `^ 1`
        so it emits the oracle's xori;beqz -- an `== 1` compare makes gcc hoist li 1 into a
        call-surviving saved reg (loop-invariant) and beq against it. */
     while (true) {
-      if (((FEApp[0]->MemCardDialog).fFullyOpen ^ 1) == 0) break;
-      Redraw(FEApp[0]);
+      if (((FEApp->MemCardDialog).fFullyOpen ^ 1) == 0) break;
+      Redraw(FEApp);
     }
     ret = 0;
-    Redraw(FEApp[0]);
+    Redraw(FEApp);
     nomessage_arr[0] = 1;   /* per-arm inline store; gcc cross-jumps it into the ret==0 arm's tail */
   }
   else if (ret == 0) {
@@ -248,13 +244,13 @@ static int Confirm(int Text,int yesText)
     nomessage_arr[0] = 1;
   }
   else if (putbackon) {
-    Display((tDialogBase *)&FEApp[0]->NoInputMemCardDialog);
+    Display((tDialogBase *)&FEApp->NoInputMemCardDialog);
     while (true) {
-      if (((FEApp[0]->NoInputMemCardDialog).fFullyOpen ^ 1) == 0) break;   /* xori;beqz, see above */
-      Redraw(FEApp[0]);
+      if (((FEApp->NoInputMemCardDialog).fFullyOpen ^ 1) == 0) break;   /* xori;beqz, see above */
+      Redraw(FEApp);
     }
   }
-  Redraw(FEApp[0]);
+  Redraw(FEApp);
   MakeWayForMemoryCard();
   /* [phantom-dtor drop] MyDialog is function-scoped (single return path below); implicit dtor
      auto-fires here, matching oracle's ___7tScreen call right before the epilogue. */
@@ -308,7 +304,7 @@ static void LoadingProc(void)
 static void LoadingRedrawProc(void)
 
 {
-  Redraw(FEApp[0]);
+  Redraw(FEApp);
   return;
 }
 
@@ -319,7 +315,7 @@ static void LoadingRedrawProc(void)
 static void SavingProc(void)
 
 {
-  Redraw(FEApp[0]);
+  Redraw(FEApp);
   return;
 }
 
@@ -386,7 +382,7 @@ void DeInit_Memcard(void)
   /* Keep the word-shaped codegen carrier TU-local; the shared declaration now
      records the honest C++ bool type. */
   if (MEMCARDFRONTENDISINITTED_word != 0) {
-    UpdateMusic(FEApp[0]);
+    UpdateMusic(FEApp);
   }
   return;
 }
@@ -482,12 +478,12 @@ bool SaveGame(short player)
   Display((tDialogBase *)wd);
   while (true) {
     if ((WarningDialog.fFullyOpen ^ 1) == 0) break;   /* xori;beqz -- see Confirm */
-    Redraw(FEApp[0]);
+    Redraw(FEApp);
   }
   finished = false;
   returnvalue = finished;   /* oracle: addu s6,s3,zero -- the false is a COPY of finished */
   returnmessage = 0x28b;
-  Redraw(FEApp[0]);
+  Redraw(FEApp);
   cardNum = player * 4 + 1;
   nomessage_arr[0] = 0;
   MakeWayForMemoryCard();
@@ -558,28 +554,28 @@ bool SaveGame(short player)
   purgememadr(shapeFile);
   BringThatBeatBack();
   if (nomessage_arr[0] == 0) {
-    Hide((tDialogBase *)&FEApp[0]->NoInputMemCardDialog);
+    Hide((tDialogBase *)&FEApp->NoInputMemCardDialog);
     /* SYM-CODEGEN-CARRIER: dlgmsg -- held across TextSys_Word as the nested
        inline receiver in s0. */
-    tDialogMessageString *dlgmsg = &FEApp[0]->MemCardDialog;
+    tDialogMessageString *dlgmsg = &FEApp->MemCardDialog;
     /* SYM-CODEGEN-CARRIER: message -- preserves the call result while the
        independent Display receiver is formed. */
     char *message = TextSys_Word(returnmessage + player);
     /* SYM-CODEGEN-CARRIER: displayDialog -- forming this before the inline
        store gives retail's load/store order. */
-    tDialogBase *displayDialog = (tDialogBase *)&FEApp[0]->MemCardDialog;
+    tDialogBase *displayDialog = (tDialogBase *)&FEApp->MemCardDialog;
     /* SYM-INLINE-THIS: SetString */
     dlgmsg->SetString(message);
     Display(displayDialog);
     while (true) {
-      if (((FEApp[0]->MemCardDialog).fFullyOpen ^ 1) == 0) break;
-      Redraw(FEApp[0]);
+      if (((FEApp->MemCardDialog).fFullyOpen ^ 1) == 0) break;
+      Redraw(FEApp);
     }
-    Redraw(FEApp[0]);
+    Redraw(FEApp);
   }
   screenMemcard->fGetNewIcons = 1;
   Hide((tDialogBase *)&WarningDialog);
-  Redraw(FEApp[0]);
+  Redraw(FEApp);
   CURRENTLYUSINGMEMCARD_arr[0] = 0;
   /* [phantom-dtor drop] implicit ___7tScreen(&WarningDialog,2) at scope exit */
   return returnvalue;
@@ -641,9 +637,9 @@ short LoadGame(short player,bool PinkSlips,bool WithDialogs)
     Display((tDialogBase *)&WarningDialog);
     while (true) {
       if ((WarningDialog.fFullyOpen ^ 1) == 0) break;   /* xori;beqz -- see Confirm */
-      Redraw(FEApp[0]);
+      Redraw(FEApp);
     }
-    Redraw(FEApp[0]);
+    Redraw(FEApp);
   }
   nomessage_arr[0] = 0;
   finished = false;
@@ -708,17 +704,17 @@ short LoadGame(short player,bool PinkSlips,bool WithDialogs)
         result = 1;
         if (WithDialogs != 0) {
           if (nomessage_arr[0] == 0) {
-            Hide((tDialogBase *)&FEApp[0]->NoInputMemCardDialog);
-            Hide((tDialogBase *)&FEApp[0]->MemCardDialog);
+            Hide((tDialogBase *)&FEApp->NoInputMemCardDialog);
+            Hide((tDialogBase *)&FEApp->MemCardDialog);
             /* SYM-CODEGEN-CARRIER: dlgmsg -- retail computes and holds the
                inlined receiver across TextSys_Word in s0. */
-            tDialogMessageString *dlgmsg = &FEApp[0]->MemCardDialog;
+            tDialogMessageString *dlgmsg = &FEApp->MemCardDialog;
             /* SYM-CODEGEN-CARRIER: dialogText -- preserves the call result
                while the independent Display receiver is formed. */
             char *dialogText = TextSys_Word(player + 0x329);
             /* SYM-CODEGEN-CARRIER: dialogBase -- forming this before the
                inline store gives retail's load/store order. */
-            tDialogBase *dialogBase = (tDialogBase *)&FEApp[0]->MemCardDialog;
+            tDialogBase *dialogBase = (tDialogBase *)&FEApp->MemCardDialog;
             /* SYM-INLINE-THIS: SetString */
             dlgmsg->SetString(dialogText);
             Display(dialogBase);
@@ -736,7 +732,7 @@ short LoadGame(short player,bool PinkSlips,bool WithDialogs)
     case 0x17:
       {
         CARDINFO_def *pCI = MCRD_getcard(player * 4 + 1);
-        Hide((tDialogBase *)&FEApp[0]->NoInputMemCardDialog);
+        Hide((tDialogBase *)&FEApp->NoInputMemCardDialog);
         if (pCI->status == -2) {
           returnmessage = 0x29f;
           result = 2;
@@ -763,20 +759,20 @@ finish_card_event:
   } while ((returnmessage != 0x28d) && (count < 3));
   if (WithDialogs != 0) {
     if (nomessage_arr[0] == 0) {
-      Hide((tDialogBase *)&FEApp[0]->NoInputMemCardDialog);
-      Hide((tDialogBase *)&FEApp[0]->MemCardDialog);
+      Hide((tDialogBase *)&FEApp->NoInputMemCardDialog);
+      Hide((tDialogBase *)&FEApp->MemCardDialog);
       /* The three measured carriers above repeat at this second expansion. */
-      tDialogMessageString *dlgmsg = &FEApp[0]->MemCardDialog;
+      tDialogMessageString *dlgmsg = &FEApp->MemCardDialog;
       char *dialogText = TextSys_Word(returnmessage + player);
-      tDialogBase *dialogBase = (tDialogBase *)&FEApp[0]->MemCardDialog;
+      tDialogBase *dialogBase = (tDialogBase *)&FEApp->MemCardDialog;
       /* SYM-INLINE-THIS: SetString */
       dlgmsg->SetString(dialogText);
       Display(dialogBase);
       while (true) {
-        if (((FEApp[0]->MemCardDialog).fFullyOpen ^ 1) == 0) break;
-        Redraw(FEApp[0]);
+        if (((FEApp->MemCardDialog).fFullyOpen ^ 1) == 0) break;
+        Redraw(FEApp);
       }
-      Redraw(FEApp[0]);
+      Redraw(FEApp);
     }
   }
   Front_ResetPSXController((int)player,(uint)(byte)frontEnd.controlConfig[player]);
@@ -790,7 +786,7 @@ finish_card_event:
     Hide((tDialogBase *)&WarningDialog);
   }
   if (WithDialogs != 0) {
-    Redraw(FEApp[0]);
+    Redraw(FEApp);
   }
   CURRENTLYUSINGMEMCARD_arr[0] = 0;
   /* [phantom-dtor drop] WarningDialog is function-scoped (single return path); implicit
@@ -903,7 +899,7 @@ SavePinkSlipsCars(short player,short withoutCarInGarageNumber)
           case 0xb:
           case 0xd:
           case 0x17:
-            Hide((tDialogBase *)&FEApp[0]->NoInputMemCardDialog);
+            Hide((tDialogBase *)&FEApp->NoInputMemCardDialog);
             {
               /* SYM-CODEGEN-CARRIER: pCVar7 -- each switch arm must retain the
                  single MCRD_getcard result across multiple status tests. */
@@ -1008,14 +1004,14 @@ SavePinkSlipsCarsWithErrorDialogs(short player,short WillLoseCar,short withoutCa
   retry = 0;
   RetryCancelDialog.SetChoices(0x291, 0x292, 1, player);
   do {
-    Display((tDialogBase *)&FEApp[0]->NoInputMemCardDialog);
+    Display((tDialogBase *)&FEApp->NoInputMemCardDialog);
     while (true) {
-      if (((FEApp[0]->NoInputMemCardDialog).fFullyOpen ^ 1) == 0) break;   /* xori;beqz */
-      Redraw(FEApp[0]);
+      if (((FEApp->NoInputMemCardDialog).fFullyOpen ^ 1) == 0) break;   /* xori;beqz */
+      Redraw(FEApp);
     }
     int count;
     count = 0;
-    Redraw(FEApp[0]);
+    Redraw(FEApp);
     /* [block-scope fix] WarningDialog constructed/destructed FRESH every retry iteration --
        oracle's jal __7tScreen sits at the loop top (per-iteration ctor) and the matching
        ___7tScreen dtor fires exactly once, right after the error-dialog block below, BEFORE
@@ -1032,9 +1028,9 @@ SavePinkSlipsCarsWithErrorDialogs(short player,short WillLoseCar,short withoutCa
       Display((tDialogBase *)&WarningDialog);
       while (true) {
         if ((WarningDialog.fFullyOpen ^ 1) == 0) break;   /* xori;beqz */
-        Redraw(FEApp[0]);
+        Redraw(FEApp);
       }
-      Redraw(FEApp[0]);
+      Redraw(FEApp);
       do {
         err = SavePinkSlipsCars(player,withoutCarInGarageNumber);
         if (err != PinkSlipsNoError) {
@@ -1043,9 +1039,9 @@ SavePinkSlipsCarsWithErrorDialogs(short player,short WillLoseCar,short withoutCa
         count = count + 1;
       } while ((err != PinkSlipsNoError) && (count < 3));
       Hide((tDialogBase *)&WarningDialog);
-      Redraw(FEApp[0]);
+      Redraw(FEApp);
       if (err != PinkSlipsNoError) {
-        Hide((tDialogBase *)&FEApp[0]->NoInputMemCardDialog);
+        Hide((tDialogBase *)&FEApp->NoInputMemCardDialog);
         sprintf(string,TextSys_Word(textSysMemCardFail_Index[err] + player));
         if (WillLoseCar != 0) {
           sprintf(string2,TextSys_Word(WillLoseCar == 2 ? 0x299 : 0x298),

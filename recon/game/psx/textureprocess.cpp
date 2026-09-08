@@ -305,33 +305,27 @@ char * Fog_MakeTrackPathName(char *ext)
 int Fog_ReadFogKeys(void)
 
 {
-  char *strspc;
-  int i;
   int *readmem;
+  char *strspc;
   int numkeys;
 
-  /* 🔴 CORRECTNESS (raw oracle @0x800E0F18): the three selector tests were
-   * INVERTED in the previous reconstruction (`bnez` where the oracle has
-   * `beqz`), which also made the third arm provably DEAD (it required
-   * Weather!=0 && Weather==0).  The oracle picks:
-   *   Time!=0 && Weather!=0 -> literal 1   Time!=0 -> literal 2
-   *   Weather!=0            -> literal 3   else    -> literal 4
-   * (offsets 0x54=Time, 0x48=Weather; the four literals sit 8 bytes apart at
-   * D_8013DB4C/54/5C/64, i.e. in source order).  The literal TEXTS keep their
-   * previous order -- verify_asm normalizes the %hi/%lo so the oracle cannot
-   * arbitrate which name belongs to which slot; only the CONDITIONS are proven. */
+  /* P886: raw instructions at800E0F18..800E0FA0 select the four native
+   * strings at8013DB4C/54/5C/64: S.fog, N.fog, W.fog, .fog. The normalized
+   * instruction gate cannot identify a wrong literal, but raw binary bytes
+   * and the independent Redec body settle each branch's actual filename.
+   * Keep the existing condition/statement order and ordinary string literals. */
   if (GameSetup_gData[21] != 0) {
     if (GameSetup_gData[18] != 0) {
-      strspc = Fog_MakeTrackPathName("N.fog");
+      strspc = Fog_MakeTrackPathName("S.fog");
       goto haveext;
     }
   }
   if (GameSetup_gData[21] != 0) {
-    strspc = Fog_MakeTrackPathName("W.fog");
+    strspc = Fog_MakeTrackPathName("N.fog");
     goto haveext;
   }
   if (GameSetup_gData[18] != 0) {
-    strspc = Fog_MakeTrackPathName("S.fog");
+    strspc = Fog_MakeTrackPathName("W.fog");
     goto haveext;
   }
   strspc = Fog_MakeTrackPathName(".fog");
@@ -344,18 +338,23 @@ haveext:
   if (0x1f < (u_int)numkeys) {
     return 0;
   }
-  i = 0;
-  /* MATCH: exit-in-the-middle (top test + unconditional `j` back edge, the
-   * `slt` recomputed in the back-edge delay slot) -- a plain `while (i<numkeys)`
-   * rotates into a zero-trip `blez` guard + bottom test. */
-  while (1) {
-    if (!(i < (int)numkeys)) break;
-    /* MATCH: INDEX form off readmem -- loop.c strength-reduces it to the
-     * oracle's unbiased walker (`addu s0,s2,zero` + `lw 4(s0)/lw 8(s0)`);
-     * an explicit `p = readmem; p += 2` walker makes gcc pre-bias the base by
-     * +8 and use -4/0 displacements. */
-    Fog_AddKey(readmem[i * 2 + 1],readmem[i * 2 + 2]);
-    i = i + 1;
+  /* P886: native476a7c..476aa6 bounds i's loop-local scope, ending before
+     purgememadr; i remains the actual INT/REG17 counter, not a new carrier. */
+  {
+    int i;
+    i = 0;
+    /* MATCH: exit-in-the-middle (top test + unconditional `j` back edge, the
+     * `slt` recomputed in the back-edge delay slot) -- a plain `while (i<numkeys)`
+     * rotates into a zero-trip `blez` guard + bottom test. */
+    while (1) {
+      if (!(i < (int)numkeys)) break;
+      /* MATCH: INDEX form off readmem -- loop.c strength-reduces it to the
+       * oracle's unbiased walker (`addu s0,s2,zero` + `lw 4(s0)/lw 8(s0)`);
+       * an explicit `p = readmem; p += 2` walker makes gcc pre-bias the base by
+       * +8 and use -4/0 displacements. */
+      Fog_AddKey(readmem[i * 2 + 1],readmem[i * 2 + 2]);
+      i = i + 1;
+    }
   }
   purgememadr(readmem);
   return 1;

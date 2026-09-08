@@ -14,7 +14,7 @@ extern tCarManager  carManager;
 extern tTournamentManager tournamentManager;
 extern tTrackManager trackManager;
 /* screen pointer globals */
-extern tScreenMain     *screenMain[];
+extern tScreenMain     *screenMain;  /* P885: native605a62 scalar PTR, four-byte cell */
 extern tScreenCarSelect *screenCarSelect;  /* SYM 64b0d0: scalar PTR, 4 B */
 extern tScreenUserName *screenUserName;
 extern tAllScreens     *gAllScreens;

@@ -4,7 +4,7 @@
 #include "fetv_types.h"
 extern "C" int rand();
 extern "C" unsigned short GetClut(int x, int y);
-extern tTexture_ShapeInfo *gHelpShapes[];
+extern tTexture_ShapeInfo *gHelpShapes; /* P886: native768122 scalar pointer. */
 void  FeDraw_SetABRMode(int abr);
 void  PSXDrawTransSquare(int color, int x, int y, int w, int h, short abe);
 void  DrawShapeExtended(int, int, int, int, int, int, tDrawShapeExtended*);

@@ -1,4 +1,5 @@
-/* audiotrk.obj's exact source-visible delta over the shared color graph. */
+/* AudioTrk private type projection over the shared color graph; original
+ * foreign-header visibility is not established by the surviving type stream. */
 #ifndef NFS4_GAME_COMMON_AUDIOTRK_TYPES_H
 #define NFS4_GAME_COMMON_AUDIOTRK_TYPES_H
 

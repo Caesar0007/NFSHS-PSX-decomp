@@ -285,14 +285,14 @@ void DrawShape_NFS4Rectangle(RECT &position)
   tTexture_ShapeInfo *bottomright;
   tDrawShapeExtended drawFlags;
 
+  topleft = gHelpShapes + 0x2a;
+  topright = gHelpShapes + 0x2b;
+  bottomleft = gHelpShapes + 0x2c;
+  bottomright = gHelpShapes + 0x2d;
   drawFlags.tint[0] = 0x7b2908;
   drawFlags.tint[1] = 0x150800;
   drawFlags.tint[2] = 0x291000;
   drawFlags.tint[3] = 0x4a1900;
-  topleft = gHelpShapes_v[0] + 0x2a;
-  topright = gHelpShapes_v[0] + 0x2b;
-  bottomleft = gHelpShapes_v[0] + 0x2c;
-  bottomright = gHelpShapes_v[0] + 0x2d;
   DrawShapeExtended(0x2a,9,position.x,position.y,0,0,&drawFlags);
   DrawShapeExtended(0x2b,9,(int)position.x + (int)position.w - (int)topright->width,
                     position.y,0,0,&drawFlags);

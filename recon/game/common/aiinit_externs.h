@@ -18,7 +18,7 @@ extern Car_tObj *Cars_gList[];
 extern Car_tObj *Cars_gHumanRaceCarList[];
 extern Car_tObj *Cars_gAIRaceCarList[];
 extern GameSetup_tData GameSetup_gData;
-extern Car_tObj *AIInit_leaderBoardCars[] asm("leaderBoard");
+extern AISpeeds_tLeaderBoard leaderBoard;
 extern AI_tInfo AI_Info;
 extern AIPhysic_Config_t AIPhysicConfig;
 extern accelscale_t AITune_accelerationScale[22];

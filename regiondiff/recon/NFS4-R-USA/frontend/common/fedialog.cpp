@@ -8,7 +8,6 @@
 /* ---- FEDialog.obj-OWNED globals -- DEFINED here (self-contained; .bss zero; SYM-typed) ---- */
 static tDialogBase *DialogVisibilityList[8];   /* @0x80052b38  (bss(zero)); SYM STAT */
 
-extern tTexture_ShapeInfo *gHelpShapesA[] asm("gHelpShapes");
 
 /* Draw's 8c record has no `buttonY` local.  Retail nevertheless shares this
    expression across the two controller-button calls; this inline boundary
@@ -31,12 +30,12 @@ static inline void DialogHelpAnimateOpen(tDialogHelp *dialog)
   dialog->width = dialog->width + 0x14;
   dialog->height = dialog->height + 10;
   if ((u_int)(currentTicks - dialog->startTicks) < 0x32) {
-    int openHeight = gHelpShapesA[0][0x2a].height;
+    int openHeight = gHelpShapes[0x2a].height;
 
     dialog->width =
-         gHelpShapesA[0][0x2a].width * 2 +
+         gHelpShapes[0x2a].width * 2 +
          (short)((u_int)(((int)dialog->width -
-                          (short)(gHelpShapesA[0][0x2a].width * 2)) *
+                          (short)(gHelpShapes[0x2a].width * 2)) *
                          (currentTicks - dialog->startTicks)) / 0x32);
     dialog->height =
          openHeight * 2 +
@@ -489,7 +488,7 @@ void tDialogHelp::CalculateDimensions()
   else {
     this->height = this->numItems * 0xf;
   }
-  DialogHelpPositionAndClamp(this,&gHelpShapesA[0][3]);
+  DialogHelpPositionAndClamp(this,&gHelpShapes[3]);
   DialogHelpAnimateOpen(this);
   this->top = 0x14;
   this->left = 0x1f9 - this->width;

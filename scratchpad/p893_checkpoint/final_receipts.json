@@ -1,0 +1,12 @@
+{
+  "passed": true,
+  "source_objects": 518,
+  "literally_identical_to_P892": 518,
+  "protected_functions": 665,
+  "protected_TUs": 31,
+  "source_receipt_drift": 0,
+  "linked_ELF_byte_identical_to_P892": true,
+  "linked_ELF_sha256": "bf66bf489f36b0c7236bbcff855ed2480f36f1fe4a889c20b22bb3e033e0592e",
+  "user_file_sha256": "d433425b806fc8abd1fa60c9f72a09f4c022bfd64a7fecf4df496931169e9546",
+  "goal_complete": false
+}

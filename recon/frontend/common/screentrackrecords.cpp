@@ -88,9 +88,6 @@ void tScreenTrackRecords::DrawOneRecord(int index,bool newrecord,int y)
 }
 
 /* ---- tScreenTrackRecords::DrawRecords  (screentrackrec.cpp:161) ---- */
-/* MATCH: unsized-array asm-label view -- the oracle loads NewBestLap through a
-   SEPARATE %hi scratch (`lui $v1; lw $a2,%lo(..)($v1)`), not the self-temp form. */
-extern bool NewBestLapA[] asm("NewBestLap");
 
 void tScreenTrackRecords::DrawRecords(short maxitem)
 
@@ -140,7 +137,7 @@ void tScreenTrackRecords::DrawRecords(short maxitem)
     this->DrawOneRecord(k + nLapIndicator,NewRecords[k],TextSys_WordY(k + 599));
   }
   if (8 < maxitem) {
-    this->DrawOneRecord(0,NewBestLapA[0],TextSys_WordY(0x260));
+    this->DrawOneRecord(0,NewBestLap,TextSys_WordY(0x260));
   }
   return;
 }
@@ -195,12 +192,12 @@ void tScreenTrackRecords::DrawBackground()
   sprintf(string,"%s %s",TextSys_Word((short)Front_GetTrackRaced() + 0xd5),string2);
   FETextRender_FullTextRGB(string,0x104,(short)TextSys_WordY(0x255),ColTextBright,0,2);
   PSXDrawSquare(0,0x104 - (textpixels(string) >> 1),TextSys_WordY(0x255),textpixels(string),9);
-  shape = &gCurrentShapes[0][0x26];
+  shape = &gCurrentShapes[0x26];
   /* P865: widening the bounded half-width expression preserves retail's
      addiu -2 before the centerx subtraction, without a non-SYM half local.
      This is a verified source shape, not proof of the original cast spelling. */
   lbx = (long long)(((short)shape->width >> 1) - 2) - shape->centerx;
-  tt = ticks[0] % (short)shape->width;
+  tt = ticks % (short)shape->width;
   if (((short)shape->width / 2) < tt) {
     tt = (short)shape->width - tt;
   }
@@ -230,7 +227,7 @@ void tScreenTrackRecords::DrawBackground()
   if (8 < maxitem) {
     PSXDrawSquare(Col,TextSys_WordX(0x24c) - 6,TextSys_WordY(0x260) - 1,2,8);
   }
-  ::DrawBackgroundImage((tScreen *)this,0xb,0x1b,gCurrentShapes[0],0);
+  ::DrawBackgroundImage((tScreen *)this,0xb,0x1b,gCurrentShapes,0);
   return;
 }
 

@@ -10,10 +10,12 @@ int sprintf(char *, const char *, ...);
 }
 
 extern tfrontEnd   frontEnd;
-extern int  ticks[];
+/* P892: vars.obj scalar at NFS4 019199/8013DCAC; NFS2 13bb6c records INT. */
+extern int  ticks;
 extern int  kRGBVals[28];
 extern char textDefinitions[14][6];
-extern tTexture_ShapeInfo *gCurrentShapes[];
+/* P885: SYM56d925 is one PTR cell; retain the real shape-element index. */
+extern tTexture_ShapeInfo *gCurrentShapes;
 /* W62-A17 decl-divergence receipt -- `bool` HERE IS CORRECT, do not "fix" it to int.
    LAW (measured this wave): on the cc1plus C++ lane sizeof(bool) == 4, so bool and
    int are the same STORAGE; the oracle confirms 4-byte objects (front_data.data.s

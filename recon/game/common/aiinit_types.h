@@ -1,4 +1,4 @@
-/* aiinit.obj's exact source-visible delta over the shared color graph. */
+/* aiinit.obj reconstruction types over the shared color graph. */
 #ifndef NFS4_GAME_COMMON_AIINIT_TYPES_H
 #define NFS4_GAME_COMMON_AIINIT_TYPES_H
 
@@ -81,6 +81,13 @@ struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t {
       asm("__30AIDataRecord_CurveSpeedTable_tPc26AIDataRecord_WhichRecord_t");
     ~AIDataRecord_CurveSpeedTable_t();
     void Upgrade(int i);
+};
+
+/* P892: the shared data owner's native type (SYM130b95..130c49,
+   EXT1371f7), needed for the real leaderBoard fields. This foreign type
+   projection is not claimed present in aiinit.obj's surviving type list. */
+struct AISpeeds_tLeaderBoard {
+    Car_tObj *leadRacer, *leadHumanRacer, *leadAIRacer, *lastAIRacer;
 };
 
 struct AIPhysic_BrakeInfo { u_char brakeTable_[128]; int deceleration_; };

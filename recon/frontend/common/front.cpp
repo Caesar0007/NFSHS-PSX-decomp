@@ -190,7 +190,7 @@ void Front_ConstructAll(void)
   screenPinkSlips = &gAllScreens->screenPinkSlips;
   screenBeTheCopCongrats = &gAllScreens->screenBeTheCopCongrats;
   screenTournamentCongrats = &gAllScreens->screenTournamentCongrats;
-  FEApp[0] = new tFEApplication;
+  FEApp = new tFEApplication;
   menuDefs = new tGlobalMenuDefs;
   return;
 }
@@ -210,8 +210,8 @@ void Front_DeleteAll(void)
   if (gAllScreens != (tAllScreens *)0x0) {
     delete gAllScreens;
   }
-  if (FEApp[0] != (tFEApplication *)0x0) {
-    delete FEApp[0];
+  if (FEApp != (tFEApplication *)0x0) {
+    delete FEApp;
   }
   if (menuDefs != (tGlobalMenuDefs *)0x0) {
     delete menuDefs;
@@ -792,14 +792,14 @@ void SetPads(void)
     if (frontEnd.AnalogOn[j] != 0) {
       LookingFor = 7;
     }
-    starttick = ticks[0];
+    starttick = ticks;
     /* SYM-CODEGEN-CARRIER: waiting -- the explicit false/conditional update
      * preserves retail's boolean normalization and constant/register handout;
      * a direct short-circuit loop is FAIL 21 / 78 versus PASS 79. */
     bool waiting;
     do {
       waiting = false;
-      if (ticks[0] - starttick < 0x80) {
+      if (ticks - starttick < 0x80) {
         waiting = PadGetState(pad) != 6;
       }
     } while (waiting);
@@ -1151,7 +1151,7 @@ int Front_Menu(tFront_ProcessingType role)
       tMenuCommand tempCommand;
 
       MenuExtended_TransitionFromPostGameToMainMenu(tempCommand);
-      result = FEApp[0]->RunFrontEnd();
+      result = FEApp->RunFrontEnd();
     }
     break;
   case kFront_QuitToPostGame:
@@ -1173,7 +1173,7 @@ int Front_Menu(tFront_ProcessingType role)
         frontEnd.pinkSlipsWins[1] = frontEnd.pinkSlipsWins[1] + '\x01';
       }
     }
-    result = FEApp[0]->RunPostGame();
+    result = FEApp->RunPostGame();
     break;
   }
   Front_DeleteAll();
@@ -2697,8 +2697,8 @@ track_value_ready:
    is one of the locally supported languages.
 
    [Locals 2026-08-16] Retail SYM restores the BOOL result in $s1 and the
-   stack-local trackInfo. The optimized-away language expression identity is
-   receipted beside its declaration below. Detailed gate: PASS 35/35;
+   stack-local trackInfo. The unsupported language local remains in active
+   source review beside its declaration below. Detailed gate: PASS 35/35;
    Front_BuildStream remains PASS 1000/1000. */
 
 bool Front_EnableLocalSpeech(void)
@@ -2706,10 +2706,10 @@ bool Front_EnableLocalSpeech(void)
 {
   bool result;
   tTrackInformation trackInfo;
-  /* SYM-CODEGEN-CARRIER: lang -- absent from retail's surviving debug rows,
-     but required for the separate signed bltz/slti range test.  Repeating
+  /* SOURCE-RECOVERY-OPEN: lang -- absent from retail's surviving debug rows.
+     This form retains the separate signed bltz/slti range test. Repeating
      trackInfo.fLanguage directly is FAIL 4 at 33/35 instructions: gcc folds
-     the two signed tests into one sltiu. */
+     the two signed tests into one sltiu. That does not prove an original local. */
   int lang;
 
   result = false;
@@ -2751,9 +2751,9 @@ int * Front_BuildStream(int *stream)
   int config;
   int gameLang;
   int trackLang;
-  /* SYM-CODEGEN-CARRIER: randomSeed -- direct assignment to stream[0x31]
+  /* SOURCE-RECOVERY-OPEN: randomSeed -- direct assignment to stream[0x31]
      is FAIL 5 at 1001/1000: it keeps the value in $a0 and removes retail's
-     load-delay nop.  The captured value restores `lh v0` plus that delay. */
+     load-delay nop. The capture matches, but no original local is proven. */
   int randomSeed;
 
   Front_InitStream(streamData);
@@ -2766,12 +2766,12 @@ int * Front_BuildStream(int *stream)
   Front_InitPerps(streamData);
   Front_InitTraffic(streamData);
   {
-    /* MATCH (W85-S3): retail loads the whole word (`lw`) and sign-extends with
-       sll/sra.  Reading `ticks[0]` straight into the (short) cast lets combine
-       narrow it to an `lhu` (2 diffs); an `int` temp blocks the narrowing in pure
-       C, replacing the `*(volatile int *)ticks` cast this line used to carry.
-       Falsified: plain ticks[0] 2, `*ticks` 2, `& 0xFFFF` 2, explicit <<16>>16 10. */
-    int t = ticks[0];
+    /* P890: ticks is now the actual scalar. Direct/nested and split
+       assignment forms still narrow retail's lw to lhu (2 diffs at
+       1000/1000), including with the corrected seedrandom(int) prototype.
+       This pre-existing non-SYM temporary remains an open source-recovery
+       item, not proof that a distinct source variable originally existed. */
+    int t = ticks;
     seedrandom(frontEnd.randomSeed = (short)t);
   }
   for (colourLoop = 7; 0 <= colourLoop; colourLoop--) {

@@ -95,12 +95,10 @@ extern int R3DCar_InMenu[];
 extern u_long font_tint;
 extern tfrontEnd frontEnd;
 extern PSXFront_DRenderCodegenView gCView asm("gCView");
-/* UNSIZED array (methodology 3.12 #5 / 3.15-CORRECTION): the oracle loads this global's VALUE
- * through a SEPARATE %hi scratch (`lui $v0,%hi; lw $v1,%lo($v0)`).  A scalar decl folds the
- * address into the dest (self-temp `lui $v1; lw $v1,0($v1)`).  fescreen_externs.h already
- * declares it this way (`gCurrentShapes[0] = ...`), so this is the true EA shape, not a hack.
- * -- w43-a3 (DrawShapeExtended/ScaleShapeExtended twins, 4->0 each) */
-extern tTexture_ShapeInfo *gCurrentShapes[];
+/* P885: native SYM56d925 is PTR STRUCT/dims0, matching FEScreen's scalar
+ * owner. The old unsized-array workaround was not the original storage shape;
+ * preserve the actual shape-array indexing through this one pointer cell. */
+extern tTexture_ShapeInfo *gCurrentShapes;
 extern PSXFront_DFlipCodegenView gEnviro[2] asm("gEnviro");
 extern int gFlip[];
 extern u_short gFontClut;

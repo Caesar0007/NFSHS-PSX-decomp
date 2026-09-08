@@ -634,6 +634,8 @@ SECTIONS
         build/asm/data/front_data_r07.data.s.o(.data);
         build/asm/data/front_data_o09.data.s.o(.data);
         build/asm/data/front_data_r08.data.s.o(.data);
+        build/asm/data/front_data_knocolor_legacy.data.s.o(.data);
+        build/asm/data/front_data_r08_after_knocolor.data.s.o(.data);
         build/asm/data/front_bss.data.s.o(.data);
         /* W65-A5: rdata_80010000 is now 33 pieces (the .L localize
          * cut).  Every piece's .data is EMPTY, but a zero-size input section still
@@ -804,24 +806,24 @@ SECTIONS
         build/asm/data/data_8010CCD4_r16.data.s.o(.data);
         build/asm/data/data_8010CCD4_o29.data.s.o(.data);
         build/asm/data/data_8010CCD4_r17.data.s.o(.data);
-        build/asm/data/data_8010CCD4_r17.data.s.o(.data.table_blob);
+        build/asm/data/data_libpress_table_legacy.data.s.o(.data);   /* P885: unchanged oracle tables */
         build/asm/data/data_8010CCD4_r17.data.s.o(.data.r17_post_table);
         build/asm/data/data_8010CCD4_r17.data.s.o(.data.iso9660_blob);
         build/asm/data/data_8010CCD4_r17.data.s.o(.data.r17_post_iso9660);
-        build/asm/data/data_8010CCD4_r17.data.s.o(.data.sndef_blob);
+        build/asm/data/data_sndef_legacy.data.s.o(.data);   /* P885: unchanged oracle data */
         build/asm/data/data_8010CCD4_r17.data.s.o(.data.r17_post_sndef);
-        build/asm/data/data_8010CCD4_r17.data.s.o(.data.atantbl_blob);
+        build/asm/data/data_atantbl_legacy.data.s.o(.data);   /* P885: unchanged oracle data */
         build/asm/data/data_8010CCD4_r17.data.s.o(.data.r17_post_atantbl);
         build/asm/data/data_8010CCD4_o30.data.s.o(.data);
         build/asm/data/data_8010CCD4_r18.data.s.o(.data);
         build/asm/data/data_ctype_legacy.data.s.o(.data);   /* P883: 129-byte oracle table; existing gap stays below */
         build/asm/data/data_8010CCD4_r18.data.s.o(.data.r18_gap_after_ctype);
-        build/asm/data/data_8010CCD4_r18.data.s.o(.data.asintbl_blob);
+        build/asm/data/data_asintbl_legacy.data.s.o(.data);   /* P884: unchanged oracle table */
         build/asm/data/data_8010CCD4_r18.data.s.o(.data.r18_gap_after_asintbl);
-        build/asm/data/data_8010CCD4_r18.data.s.o(.data.sintbl_blob);
-        build/asm/data/data_8010CCD4_r18.data.s.o(.data.fatantbl_blob);
+        build/asm/data/data_sintbl_legacy.data.s.o(.data);   /* P884: unchanged oracle table */
+        build/asm/data/data_fatantbl_legacy.data.s.o(.data);   /* P884: unchanged oracle table */
         build/asm/data/data_8010CCD4_r18.data.s.o(.data.r18_post_tables);
-        build/asm/data/data_8010CCD4_r18.data.s.o(.data.cstbl_blob);
+        build/asm/data/data_cstbl_legacy.data.s.o(.data);   /* P884: unchanged oracle table */
         build/asm/data/data_8010CCD4_r18.data.s.o(.data.r18_post_cstbl);
         build/asm/data/data_8010CCD4_o31.data.s.o(.data);
         build/asm/data/data_8010CCD4_r19.data.s.o(.data);
@@ -916,7 +918,7 @@ SECTIONS
         build/asm/data/sdata_8013C54C_o35.sdata.s.o(.sdata);
         build/asm/data/sdata_8013C54C_o36.sdata.s.o(.sdata);
         build/asm/data/sdata_8013C54C_r22.sdata.s.o(.sdata);
-        build/asm/data/sdata_8013C54C_r22.sdata.s.o(.sdata.vars_blob);
+        build/asm/data/sdata_vars_legacy.sdata.s.o(.sdata);
         build/asm/data/sdata_8013C54C_r22.sdata.s.o(.sdata.r22_post_vars);
         build/asm/data/sdata_8013C54C_o37.sdata.s.o(.sdata);
         build/asm/data/sdata_8013C54C_r23.sdata.s.o(.sdata);

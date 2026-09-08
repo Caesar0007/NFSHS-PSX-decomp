@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "protected_functions": 705,
+  "protected_TUs": 32,
+  "branch_divergence": 0,
+  "whole_objects_identical_to_P894": 518,
+  "linked_ELF_byte_identical_to_P894": true,
+  "linked_ELF_sha256": "bf66bf489f36b0c7236bbcff855ed2480f36f1fe4a889c20b22bb3e033e0592e",
+  "source_receipt_drift": 0,
+  "full_build_receipt": "scratchpad/p894_checkpoint/validation_commands.json",
+  "validation_scope": "Fresh whole-TU source/branch gates, exact all-object identity, relink; no redundant whole-tree rebuild after CPP-only edits.",
+  "goal_complete": false
+}

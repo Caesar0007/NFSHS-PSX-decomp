@@ -17,12 +17,12 @@ int largestunused(...);
 int purgememadr(...);
 int rand(...);
 void resizememadr(...);
-void seedrandom(...);
+void seedrandom(int);
 void timedwait(...);
 }
-extern int          ticks[];
+extern int          ticks;
 extern tfrontEnd    frontEnd;
-extern tFEApplication *FEApp[];
+extern tFEApplication *FEApp;   /* P885: native SYM4b4f01 is one PTR STRUCT. */
 extern tGlobalMenuDefs *menuDefs;
 extern char        *Paths_Paths[];
 extern tCarManager  carManager;

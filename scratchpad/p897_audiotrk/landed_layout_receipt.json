@@ -1,0 +1,11 @@
+{
+  "passed": true,
+  "assertions": 13,
+  "source": "scratchpad/p897_audiotrk/layout_landed.cpp",
+  "object": "scratchpad/p897_audiotrk/landed_layout_objects/scratchpad/p897_audiotrk/layout_landed.cpp.o",
+  "sha256": "aeea9c8148003910745720775bb848b36cf13f615f85419fec5ee9f8de34a912",
+  "actual_header_hashes": {
+    "audiotrk_types.h": "ed39572dcf81d4b5407b7879ce5267235e9100f674d6d268b4b5f415fa639f5d",
+    "audiotrk_externs.h": "fc9af759b780c254165d32b50d59d9a234c7a5da596af1f1ef1c121b70a4d558"
+  }
+}

@@ -20,8 +20,17 @@ extern DRender_tCalcView AudioClc_gRenderView;
 extern GameSetup_tData GameSetup_gData;
 extern Sim_tSimGlobalVar simGlobal;
 extern Trk_AnimateInst * Anim_gInstanceFromIndex[8];
-extern char *AudioTrk_BWorldSmSlices asm("BWorldSm_slices");
-extern int   AudioCmn_GetAsyncSfx(int a, int b, bool c);
+/* Owner-derived bworldSm type, SYM1cec71..1cedc3. The original foreign
+ * header visibility is not established by AudioTrk's surviving type stream. */
+struct Trk_NewSlice {
+    int center[3];
+    char normal[3], forward[3], right[3];
+    u_char acousticType;
+    short pavedProfile, leftDrive, rightDrive;
+    u_char chunkIndex, laneCount, avgPavedWidthLf, avgPavedWidthRt;
+};
+extern Trk_NewSlice *BWorldSm_slices; /* SYM1d937e */
+extern int   AudioCmn_GetAsyncSfx(int bank, int patch, bool checkonly); /* SYM191b4b..191b70 */
 extern int   DrawW_GetAnimationTime(Trk_AnimateInst *animInst);
 extern int  Anim_GetPos(Trk_AnimateInst *animInst, int flags, int ticks, coorddef *pt, int *animTicks, int *animLength);
 extern int CopSpeak_gNumTrackSfx;

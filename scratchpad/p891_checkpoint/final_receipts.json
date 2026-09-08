@@ -1,0 +1,14 @@
+{
+  "reproduced_source_objects": 518,
+  "changed_objects": [],
+  "protected_base_functions": 537,
+  "protected_base_TUs": 26,
+  "source_receipt_drift": 0,
+  "goal_complete": false,
+  "retained_families": [
+    "ScreenTracks scalar ticks/native brightness fields",
+    "FeMenuOptions scalar ticks"
+  ],
+  "rejected_fedialog_fully_restored": true,
+  "w85_user_file_sha256": "d433425b806fc8abd1fa60c9f72a09f4c022bfd64a7fecf4df496931169e9546"
+}

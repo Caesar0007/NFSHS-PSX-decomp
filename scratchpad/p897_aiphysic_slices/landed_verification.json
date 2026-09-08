@@ -1,0 +1,656 @@
+{
+  "passed": true,
+  "stage": "landed",
+  "functions": [
+    {
+      "function": "AIPhysic_StopCar__FP8Car_tObjii",
+      "instructions": 49,
+      "line_partitions_unchanged": true,
+      "local_parameter_storage_records_unchanged": true,
+      "lexical_markers_and_instruction_placement_unchanged": true,
+      "relative_block_line_numbers_unchanged": true,
+      "relative_block_lines_before": null,
+      "relative_block_lines_after": null
+    },
+    {
+      "function": "AIPhysic_RevEngine__FP8Car_tObj",
+      "instructions": 52,
+      "line_partitions_unchanged": true,
+      "local_parameter_storage_records_unchanged": true,
+      "lexical_markers_and_instruction_placement_unchanged": true,
+      "relative_block_line_numbers_unchanged": true,
+      "relative_block_lines_before": null,
+      "relative_block_lines_after": null
+    },
+    {
+      "function": "AIPhysic_HandleShifting__FP8Car_tObj",
+      "instructions": 90,
+      "line_partitions_unchanged": true,
+      "local_parameter_storage_records_unchanged": true,
+      "lexical_markers_and_instruction_placement_unchanged": true,
+      "relative_block_line_numbers_unchanged": true,
+      "relative_block_lines_before": null,
+      "relative_block_lines_after": null
+    },
+    {
+      "function": "AIPhysic_CalculateGear__FP8Car_tObj",
+      "instructions": 65,
+      "line_partitions_unchanged": true,
+      "local_parameter_storage_records_unchanged": true,
+      "lexical_markers_and_instruction_placement_unchanged": true,
+      "relative_block_line_numbers_unchanged": true,
+      "relative_block_lines_before": null,
+      "relative_block_lines_after": null
+    },
+    {
+      "function": "AIPhysic_GearInvSpeedRange__FP8Car_tObj6Gear_t",
+      "instructions": 10,
+      "line_partitions_unchanged": true,
+      "local_parameter_storage_records_unchanged": true,
+      "lexical_markers_and_instruction_placement_unchanged": true,
+      "relative_block_line_numbers_unchanged": true,
+      "relative_block_lines_before": null,
+      "relative_block_lines_after": null
+    },
+    {
+      "function": "AIPhysic_GearTopSpeed__FP8Car_tObj6Gear_t",
+      "instructions": 10,
+      "line_partitions_unchanged": true,
+      "local_parameter_storage_records_unchanged": true,
+      "lexical_markers_and_instruction_placement_unchanged": true,
+      "relative_block_line_numbers_unchanged": true,
+      "relative_block_lines_before": null,
+      "relative_block_lines_after": null
+    },
+    {
+      "function": "AIPhysic_GearBottomSpeed__FP8Car_tObj6Gear_t",
+      "instructions": 10,
+      "line_partitions_unchanged": true,
+      "local_parameter_storage_records_unchanged": true,
+      "lexical_markers_and_instruction_placement_unchanged": true,
+      "relative_block_line_numbers_unchanged": true,
+      "relative_block_lines_before": null,
+      "relative_block_lines_after": null
+    },
+    {
+      "function": "AIPhysic_CalcAcceleration__FP8Car_tObji",
+      "instructions": 184,
+      "line_partitions_unchanged": true,
+      "local_parameter_storage_records_unchanged": true,
+      "lexical_markers_and_instruction_placement_unchanged": true,
+      "relative_block_line_numbers_unchanged": true,
+      "relative_block_lines_before": null,
+      "relative_block_lines_after": null
+    },
+    {
+      "function": "AIPhysic_ModifyAccelerationAccordingToScript__FP8Car_tObji",
+      "instructions": 22,
+      "line_partitions_unchanged": true,
+      "local_parameter_storage_records_unchanged": true,
+      "lexical_markers_and_instruction_placement_unchanged": true,
+      "relative_block_line_numbers_unchanged": true,
+      "relative_block_lines_before": null,
+      "relative_block_lines_after": null
+    },
+    {
+      "function": "AIPhysic_CalcDeceleration__FP8Car_tObj",
+      "instructions": 19,
+      "line_partitions_unchanged": true,
+      "local_parameter_storage_records_unchanged": true,
+      "lexical_markers_and_instruction_placement_unchanged": true,
+      "relative_block_line_numbers_unchanged": true,
+      "relative_block_lines_before": null,
+      "relative_block_lines_after": null
+    },
+    {
+      "function": "AIPhysic_CheckDesiredDirection__FP8Car_tObj",
+      "instructions": 18,
+      "line_partitions_unchanged": true,
+      "local_parameter_storage_records_unchanged": true,
+      "lexical_markers_and_instruction_placement_unchanged": true,
+      "relative_block_line_numbers_unchanged": true,
+      "relative_block_lines_before": null,
+      "relative_block_lines_after": null
+    },
+    {
+      "function": "AIPhysic_HandleSignalling__FP8Car_tObj",
+      "instructions": 29,
+      "line_partitions_unchanged": true,
+      "local_parameter_storage_records_unchanged": true,
+      "lexical_markers_and_instruction_placement_unchanged": true,
+      "relative_block_line_numbers_unchanged": true,
+      "relative_block_lines_before": null,
+      "relative_block_lines_after": null
+    },
+    {
+      "function": "AIPhysic_HandleWipeoutTimer__FP8Car_tObj",
+      "instructions": 37,
+      "line_partitions_unchanged": true,
+      "local_parameter_storage_records_unchanged": true,
+      "lexical_markers_and_instruction_placement_unchanged": true,
+      "relative_block_line_numbers_unchanged": true,
+      "relative_block_lines_before": null,
+      "relative_block_lines_after": null
+    },
+    {
+      "function": "AIPhysic_Main__FP8Car_tObj",
+      "instructions": 164,
+      "line_partitions_unchanged": true,
+      "local_parameter_storage_records_unchanged": true,
+      "lexical_markers_and_instruction_placement_unchanged": true,
+      "relative_block_line_numbers_unchanged": true,
+      "relative_block_lines_before": null,
+      "relative_block_lines_after": null
+    },
+    {
+      "function": "AIPhysic_CheckForBadPosition__FP8Car_tObj",
+      "instructions": 54,
+      "line_partitions_unchanged": true,
+      "local_parameter_storage_records_unchanged": true,
+      "lexical_markers_and_instruction_placement_unchanged": true,
+      "relative_block_line_numbers_unchanged": false,
+      "relative_block_lines_before": [
+        [
+          "begin",
+          "1"
+        ],
+        [
+          "bend",
+          "18"
+        ]
+      ],
+      "relative_block_lines_after": [
+        [
+          "begin",
+          "1"
+        ],
+        [
+          "bend",
+          "16"
+        ]
+      ]
+    },
+    {
+      "function": "AIPhysics_UseCoolPhysics__FP8Car_tObj",
+      "instructions": 17,
+      "line_partitions_unchanged": true,
+      "local_parameter_storage_records_unchanged": true,
+      "lexical_markers_and_instruction_placement_unchanged": true,
+      "relative_block_line_numbers_unchanged": true,
+      "relative_block_lines_before": null,
+      "relative_block_lines_after": null
+    },
+    {
+      "function": "AIPhysic_SimplePhysics__FP8Car_tObj",
+      "instructions": 219,
+      "line_partitions_unchanged": true,
+      "local_parameter_storage_records_unchanged": true,
+      "lexical_markers_and_instruction_placement_unchanged": true,
+      "relative_block_line_numbers_unchanged": true,
+      "relative_block_lines_before": null,
+      "relative_block_lines_after": null
+    },
+    {
+      "function": "AIPhysic_SimplePhysics_LongVel__FP8Car_tObj",
+      "instructions": 214,
+      "line_partitions_unchanged": true,
+      "local_parameter_storage_records_unchanged": true,
+      "lexical_markers_and_instruction_placement_unchanged": true,
+      "relative_block_line_numbers_unchanged": true,
+      "relative_block_lines_before": null,
+      "relative_block_lines_after": null
+    },
+    {
+      "function": "AIPhysic_SimplePhysics_LatVel__FP8Car_tObj",
+      "instructions": 73,
+      "line_partitions_unchanged": true,
+      "local_parameter_storage_records_unchanged": true,
+      "lexical_markers_and_instruction_placement_unchanged": true,
+      "relative_block_line_numbers_unchanged": true,
+      "relative_block_lines_before": null,
+      "relative_block_lines_after": null
+    },
+    {
+      "function": "AIPhysic_CoolPhysics__FP8Car_tObj",
+      "instructions": 45,
+      "line_partitions_unchanged": true,
+      "local_parameter_storage_records_unchanged": true,
+      "lexical_markers_and_instruction_placement_unchanged": true,
+      "relative_block_line_numbers_unchanged": true,
+      "relative_block_lines_before": null,
+      "relative_block_lines_after": null
+    },
+    {
+      "function": "AIPhysic_HandleDirection__FP8Car_tObj",
+      "instructions": 58,
+      "line_partitions_unchanged": true,
+      "local_parameter_storage_records_unchanged": true,
+      "lexical_markers_and_instruction_placement_unchanged": true,
+      "relative_block_line_numbers_unchanged": true,
+      "relative_block_lines_before": null,
+      "relative_block_lines_after": null
+    },
+    {
+      "function": "AIPhysic_Preperation__FP8Car_tObj",
+      "instructions": 154,
+      "line_partitions_unchanged": true,
+      "local_parameter_storage_records_unchanged": true,
+      "lexical_markers_and_instruction_placement_unchanged": true,
+      "relative_block_line_numbers_unchanged": true,
+      "relative_block_lines_before": null,
+      "relative_block_lines_after": null
+    },
+    {
+      "function": "AIPhysic_CalculateRoadPosition__FP8coorddefi",
+      "instructions": 72,
+      "line_partitions_unchanged": true,
+      "local_parameter_storage_records_unchanged": true,
+      "lexical_markers_and_instruction_placement_unchanged": true,
+      "relative_block_line_numbers_unchanged": true,
+      "relative_block_lines_before": null,
+      "relative_block_lines_after": null
+    },
+    {
+      "function": "AIPhysic_GetDesiredVector__FP8Car_tObj",
+      "instructions": 378,
+      "line_partitions_unchanged": true,
+      "local_parameter_storage_records_unchanged": true,
+      "lexical_markers_and_instruction_placement_unchanged": true,
+      "relative_block_line_numbers_unchanged": false,
+      "relative_block_lines_before": [
+        [
+          "begin",
+          "1"
+        ],
+        [
+          "bend",
+          "118"
+        ]
+      ],
+      "relative_block_lines_after": [
+        [
+          "begin",
+          "1"
+        ],
+        [
+          "bend",
+          "110"
+        ]
+      ]
+    },
+    {
+      "function": "AIPhysic_TargetedGetDesiredVector__FP8Car_tObj",
+      "instructions": 15,
+      "line_partitions_unchanged": true,
+      "local_parameter_storage_records_unchanged": true,
+      "lexical_markers_and_instruction_placement_unchanged": true,
+      "relative_block_line_numbers_unchanged": true,
+      "relative_block_lines_before": null,
+      "relative_block_lines_after": null
+    },
+    {
+      "function": "AIPhysic_CheckIfOutOfControl__FP8Car_tObj",
+      "instructions": 104,
+      "line_partitions_unchanged": true,
+      "local_parameter_storage_records_unchanged": true,
+      "lexical_markers_and_instruction_placement_unchanged": true,
+      "relative_block_line_numbers_unchanged": false,
+      "relative_block_lines_before": [
+        [
+          "begin",
+          "1"
+        ],
+        [
+          "bend",
+          "51"
+        ]
+      ],
+      "relative_block_lines_after": [
+        [
+          "begin",
+          "1"
+        ],
+        [
+          "bend",
+          "47"
+        ]
+      ]
+    },
+    {
+      "function": "AIPhysic_OutOfControlPhysics__FP8Car_tObj",
+      "instructions": 412,
+      "line_partitions_unchanged": true,
+      "local_parameter_storage_records_unchanged": true,
+      "lexical_markers_and_instruction_placement_unchanged": true,
+      "relative_block_line_numbers_unchanged": true,
+      "relative_block_lines_before": null,
+      "relative_block_lines_after": null
+    },
+    {
+      "function": "AIPhysic_GetRearEndDamageFactor__FP8Car_tObj",
+      "instructions": 22,
+      "line_partitions_unchanged": true,
+      "local_parameter_storage_records_unchanged": true,
+      "lexical_markers_and_instruction_placement_unchanged": true,
+      "relative_block_line_numbers_unchanged": true,
+      "relative_block_lines_before": null,
+      "relative_block_lines_after": null
+    },
+    {
+      "function": "AIPhysic_InControlPhysics__FP8Car_tObj",
+      "instructions": 557,
+      "line_partitions_unchanged": true,
+      "local_parameter_storage_records_unchanged": true,
+      "lexical_markers_and_instruction_placement_unchanged": true,
+      "relative_block_line_numbers_unchanged": true,
+      "relative_block_lines_before": null,
+      "relative_block_lines_after": null
+    },
+    {
+      "function": "AIPhysic_FinishUp__FP8Car_tObj",
+      "instructions": 251,
+      "line_partitions_unchanged": true,
+      "local_parameter_storage_records_unchanged": true,
+      "lexical_markers_and_instruction_placement_unchanged": true,
+      "relative_block_line_numbers_unchanged": true,
+      "relative_block_lines_before": null,
+      "relative_block_lines_after": null
+    },
+    {
+      "function": "AIPhysic_CalculateRampedDesiredLatPos__FP8Car_tObj9eRampType",
+      "instructions": 66,
+      "line_partitions_unchanged": true,
+      "local_parameter_storage_records_unchanged": true,
+      "lexical_markers_and_instruction_placement_unchanged": true,
+      "relative_block_line_numbers_unchanged": true,
+      "relative_block_lines_before": null,
+      "relative_block_lines_after": null
+    },
+    {
+      "function": "AIPhysic_HitWallCheck__FP8Car_tObj",
+      "instructions": 44,
+      "line_partitions_unchanged": true,
+      "local_parameter_storage_records_unchanged": true,
+      "lexical_markers_and_instruction_placement_unchanged": true,
+      "relative_block_line_numbers_unchanged": false,
+      "relative_block_lines_before": [
+        [
+          "begin",
+          "1"
+        ],
+        [
+          "bend",
+          "16"
+        ]
+      ],
+      "relative_block_lines_after": [
+        [
+          "begin",
+          "1"
+        ],
+        [
+          "bend",
+          "14"
+        ]
+      ]
+    },
+    {
+      "function": "AIPhysic_ProcessBarrierCollision__FP8Car_tObj",
+      "instructions": 21,
+      "line_partitions_unchanged": true,
+      "local_parameter_storage_records_unchanged": true,
+      "lexical_markers_and_instruction_placement_unchanged": true,
+      "relative_block_line_numbers_unchanged": true,
+      "relative_block_lines_before": null,
+      "relative_block_lines_after": null
+    },
+    {
+      "function": "AIPhysic_ProcessCollision__FP8Car_tObj",
+      "instructions": 31,
+      "line_partitions_unchanged": true,
+      "local_parameter_storage_records_unchanged": true,
+      "lexical_markers_and_instruction_placement_unchanged": true,
+      "relative_block_line_numbers_unchanged": true,
+      "relative_block_lines_before": null,
+      "relative_block_lines_after": null
+    },
+    {
+      "function": "AIPhysic_ChangeDirection__FP8Car_tObji",
+      "instructions": 46,
+      "line_partitions_unchanged": true,
+      "local_parameter_storage_records_unchanged": true,
+      "lexical_markers_and_instruction_placement_unchanged": true,
+      "relative_block_line_numbers_unchanged": true,
+      "relative_block_lines_before": null,
+      "relative_block_lines_after": null
+    },
+    {
+      "function": "AIPhysic_CheckForGripReduction__FP8Car_tObj",
+      "instructions": 101,
+      "line_partitions_unchanged": true,
+      "local_parameter_storage_records_unchanged": true,
+      "lexical_markers_and_instruction_placement_unchanged": true,
+      "relative_block_line_numbers_unchanged": true,
+      "relative_block_lines_before": null,
+      "relative_block_lines_after": null
+    },
+    {
+      "function": "AIPhysic_StartUp__Fv",
+      "instructions": 2,
+      "line_partitions_unchanged": true,
+      "local_parameter_storage_records_unchanged": true,
+      "lexical_markers_and_instruction_placement_unchanged": true,
+      "relative_block_line_numbers_unchanged": true,
+      "relative_block_lines_before": null,
+      "relative_block_lines_after": null
+    },
+    {
+      "function": "AIPhysic_CleanUp__Fv",
+      "instructions": 2,
+      "line_partitions_unchanged": true,
+      "local_parameter_storage_records_unchanged": true,
+      "lexical_markers_and_instruction_placement_unchanged": true,
+      "relative_block_line_numbers_unchanged": true,
+      "relative_block_lines_before": null,
+      "relative_block_lines_after": null
+    },
+    {
+      "function": "AIPhysic_Reset__Fv",
+      "instructions": 2,
+      "line_partitions_unchanged": true,
+      "local_parameter_storage_records_unchanged": true,
+      "lexical_markers_and_instruction_placement_unchanged": true,
+      "relative_block_line_numbers_unchanged": true,
+      "relative_block_lines_before": null,
+      "relative_block_lines_after": null
+    },
+    {
+      "function": "AIPhysic_ResetCar__FP8Car_tObj",
+      "instructions": 3,
+      "line_partitions_unchanged": true,
+      "local_parameter_storage_records_unchanged": true,
+      "lexical_markers_and_instruction_placement_unchanged": true,
+      "relative_block_line_numbers_unchanged": true,
+      "relative_block_lines_before": null,
+      "relative_block_lines_after": null
+    },
+    {
+      "function": "AIPhysic_InitCar__FP8Car_tObj",
+      "instructions": 93,
+      "line_partitions_unchanged": true,
+      "local_parameter_storage_records_unchanged": true,
+      "lexical_markers_and_instruction_placement_unchanged": true,
+      "relative_block_line_numbers_unchanged": true,
+      "relative_block_lines_before": null,
+      "relative_block_lines_after": null
+    },
+    {
+      "function": "AIPhysic_DeInitCar__FP8Car_tObj",
+      "instructions": 20,
+      "line_partitions_unchanged": true,
+      "local_parameter_storage_records_unchanged": true,
+      "lexical_markers_and_instruction_placement_unchanged": true,
+      "relative_block_line_numbers_unchanged": true,
+      "relative_block_lines_before": null,
+      "relative_block_lines_after": null
+    }
+  ],
+  "normal_object_byte_identical": false,
+  "before_sha256": "ab7993f9f43778fb711f5f38ce67462d82f2e3ada7b56743f6b5524e169917d0",
+  "after_sha256": "f0e2531e355fee1f87a628bd7ad44e5f14c4bb17362df7fa6a787c071b25f2dd",
+  "raw_slice_reference_words": 18,
+  "raw_references": [
+    {
+      "function": "AIPhysic_CheckForBadPosition__FP8Car_tObj",
+      "va": "0x80069e74",
+      "target": "0x8013c7c0",
+      "kind": 5,
+      "word": "0x3c038014"
+    },
+    {
+      "function": "AIPhysic_CheckForBadPosition__FP8Car_tObj",
+      "va": "0x80069e78",
+      "target": "0x8013c7c0",
+      "kind": 6,
+      "word": "0x8c63c7c0"
+    },
+    {
+      "function": "AIPhysic_CalculateRoadPosition__FP8coorddefi",
+      "va": "0x8006ab20",
+      "target": "0x8013c7c0",
+      "kind": 5,
+      "word": "0x3c028014"
+    },
+    {
+      "function": "AIPhysic_CalculateRoadPosition__FP8coorddefi",
+      "va": "0x8006ab24",
+      "target": "0x8013c7c0",
+      "kind": 6,
+      "word": "0x8c42c7c0"
+    },
+    {
+      "function": "AIPhysic_CalculateRoadPosition__FP8coorddefi",
+      "va": "0x8006ab78",
+      "target": "0x8013c7c0",
+      "kind": 5,
+      "word": "0x3c048014"
+    },
+    {
+      "function": "AIPhysic_CalculateRoadPosition__FP8coorddefi",
+      "va": "0x8006ab7c",
+      "target": "0x8013c7c0",
+      "kind": 6,
+      "word": "0x8c84c7c0"
+    },
+    {
+      "function": "AIPhysic_GetDesiredVector__FP8Car_tObj",
+      "va": "0x8006adb4",
+      "target": "0x8013c7c0",
+      "kind": 5,
+      "word": "0x3c048014"
+    },
+    {
+      "function": "AIPhysic_GetDesiredVector__FP8Car_tObj",
+      "va": "0x8006adb8",
+      "target": "0x8013c7c0",
+      "kind": 6,
+      "word": "0x8c84c7c0"
+    },
+    {
+      "function": "AIPhysic_GetDesiredVector__FP8Car_tObj",
+      "va": "0x8006af84",
+      "target": "0x8013c7c0",
+      "kind": 5,
+      "word": "0x3c038014"
+    },
+    {
+      "function": "AIPhysic_GetDesiredVector__FP8Car_tObj",
+      "va": "0x8006af88",
+      "target": "0x8013c7c0",
+      "kind": 6,
+      "word": "0x8c63c7c0"
+    },
+    {
+      "function": "AIPhysic_GetDesiredVector__FP8Car_tObj",
+      "va": "0x8006afb0",
+      "target": "0x8013c7c0",
+      "kind": 5,
+      "word": "0x3c038014"
+    },
+    {
+      "function": "AIPhysic_GetDesiredVector__FP8Car_tObj",
+      "va": "0x8006afb4",
+      "target": "0x8013c7c0",
+      "kind": 6,
+      "word": "0x8c63c7c0"
+    },
+    {
+      "function": "AIPhysic_GetDesiredVector__FP8Car_tObj",
+      "va": "0x8006b080",
+      "target": "0x8013c7c0",
+      "kind": 5,
+      "word": "0x3c048014"
+    },
+    {
+      "function": "AIPhysic_GetDesiredVector__FP8Car_tObj",
+      "va": "0x8006b084",
+      "target": "0x8013c7c0",
+      "kind": 6,
+      "word": "0x8c84c7c0"
+    },
+    {
+      "function": "AIPhysic_CheckIfOutOfControl__FP8Car_tObj",
+      "va": "0x8006b324",
+      "target": "0x8013c7c0",
+      "kind": 5,
+      "word": "0x3c038014"
+    },
+    {
+      "function": "AIPhysic_CheckIfOutOfControl__FP8Car_tObj",
+      "va": "0x8006b328",
+      "target": "0x8013c7c0",
+      "kind": 6,
+      "word": "0x8c63c7c0"
+    },
+    {
+      "function": "AIPhysic_HitWallCheck__FP8Car_tObj",
+      "va": "0x8006c874",
+      "target": "0x8013c7c0",
+      "kind": 5,
+      "word": "0x3c038014"
+    },
+    {
+      "function": "AIPhysic_HitWallCheck__FP8Car_tObj",
+      "va": "0x8006c878",
+      "target": "0x8013c7c0",
+      "kind": 6,
+      "word": "0x8c63c7c0"
+    }
+  ],
+  "actual_input_hashes": {
+    "aiphysic.cpp": "d64dc195b42d474e9b4237d93ff1e43561b89cf3d0ecf273b478ee59089e9651",
+    "aiphysic_externs.h": "144413b50bb6767f18586a9b5c67273d89930700095575ea4678a7e542a9b35b",
+    "aiphysic_types.h": "f4406abe2176a7bbed32b230af7194f19686c2d89aacb85272e45186fbff59cf"
+  },
+  "STT_FILE_comparison": {
+    "before_STT_FILE": [
+      "C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\p897_aiphysic_slices\\\\inputs\\\\base\\\\aiphysic.cpp",
+      0,
+      0,
+      4,
+      0,
+      65521
+    ],
+    "actual_STT_FILE": [
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\common\\\\aiphysic.cpp",
+      0,
+      0,
+      4,
+      0,
+      65521
+    ],
+    "every_other_ordered_symbol_entity_unchanged": true,
+    "every_payload_schema_and_ordered_relocation_unchanged": true
+  },
+  "full_original_source_visibility_and_physical_line_spacing_sealed": false
+}

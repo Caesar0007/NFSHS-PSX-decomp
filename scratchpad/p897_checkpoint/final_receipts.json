@@ -1,0 +1,40 @@
+{
+  "passed": true,
+  "protected_functions": 831,
+  "protected_TUs": 35,
+  "all_518_normal_objects_identical": true,
+  "linked_ELF_sha256": "52800553415581618c04766bca85e3d943de8343f60b78c62ff7c62af9e32ae0",
+  "linked_map_identical": true,
+  "AIPhysic_raw_references": 18,
+  "AIState_raw_references": 90,
+  "AudioTrk_raw_pointer_references": 2,
+  "AudioTrk_PreLoad_raw_words": 116,
+  "AudioTrk_native_named_scope_owners": 5,
+  "strict": {
+    "game_common": {
+      "declaration_clean": 1227,
+      "extra": 7,
+      "missing": 0,
+      "carriers": 478,
+      "original_name_recoveries": 32,
+      "type_findings": 28,
+      "storage_findings": 28,
+      "mapping_review": 0
+    },
+    "frontend_common": {
+      "declaration_clean": 780,
+      "extra": 48,
+      "missing": 0,
+      "carriers": 438,
+      "original_name_recoveries": 0,
+      "type_findings": 9,
+      "storage_findings": 9,
+      "mapping_review": 3
+    }
+  },
+  "original_name_claim_reopened": "AudioTrk_Reset se",
+  "all_previously_verified_native_data_bindings_preserved": true,
+  "native_final_image_exact": false,
+  "whole_source_SLD_exact": false,
+  "goal_complete": false
+}

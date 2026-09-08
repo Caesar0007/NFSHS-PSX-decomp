@@ -796,7 +796,7 @@ void tMenuNFS4::Draw()
   iVar3 = this->fItemList[this->fCurrentItem]->fNumFrames;
   if ((-1 < iVar4) && (0 < iVar3)) {
     drawFlags.tint[0] = 0xcec844;
-    DrawShapeExtended(iVar4 + ((int)(*(int *)&ticks[0] >> 4) % iVar3),0x410,0x10,
+    DrawShapeExtended(iVar4 + ((int)(ticks >> 4) % iVar3),0x410,0x10,
                       FEApp->fPlayer != 0 ? 0x79 : 0x10,0,0,&drawFlags);
   }
   for (i = 0; this->fItemList[i] != (tMenuItem *)0x0; i++) {
@@ -1071,7 +1071,7 @@ void tMenuOptions::Draw()
   (*(*this->_vf)[7].pfn)((int)this + (*this->_vf)[7].delta);
   h = numItems * 0x12;
   if (this->fInMenuTransition != 0) {
-    deltaTicks = ticks[0] - this->fMenuEnterTicks;
+    deltaTicks = ticks - this->fMenuEnterTicks;
     if (0x20 < deltaTicks) {
       deltaTicks = 0x20;
       this->fInMenuTransition = 0;
@@ -1135,39 +1135,25 @@ void tMenuOptions::Draw()
 
 
 
-/* ---- tMenuOptions::TransitionOff  [FEMENUEXTENDED.CPP:855-859] SLD-VERIFIED ---- */
+/* ---- tMenuOptions::TransitionOff [FEMENUEXTENDED.CPP:855-859] P889: native locals/order restored; emitted SLD attribution remains under review. ---- */
 
 void tMenuOptions::TransitionOff()
 
 {
-  int iVar1;
-
   *(signed char *)&this->fTransitionDirection = -1;
-  /* SYM-CODEGEN-CARRIER: iVar1
-   * Retail SLD line 856 loads ticks before the line-857 transition store,
-   * then line 858 consumes that value.  Direct field assignment reloads
-   * ticks later and adds a scheduling nop (FAIL 7 / 16 versus PASS 15). */
-  iVar1 = ticks[0];
   this->fInMenuTransition = 1;
-  this->fMenuEnterTicks = iVar1;
+  this->fMenuEnterTicks = ticks;
   AudioCmn_PlayFESFX(0x12);
   return;
 }
 
 
 
-/* ---- tMenuOptions::TransitionOn  [FEMENUEXTENDED.CPP:863-874] SLD-VERIFIED ---- */
+/* ---- tMenuOptions::TransitionOn [FEMENUEXTENDED.CPP:863-874] P889: ticks carrier removed; iterator/source-scope recovery remains open. ---- */
 
 void tMenuOptions::TransitionOn()
 
 {
-  /* SYM-CODEGEN-CARRIER: enterTicks
-   * The SYM block has no named local here, but retail holds ticks in $v1
-   * across the fInMenuTransition store and writes fMenuEnterTicks in the
-   * AudioCmn_PlayFESFX call delay slot.  A direct ticks assignment is the
-   * same length but measures FAIL 10 because it moves the call-argument load
-   * ahead of the ticks load and changes the resulting schedule. */
-  int enterTicks;
   /* SYM-CODEGEN-CARRIER: itemCursor
    * Retail keeps this in $s1 and a separate address cursor in $s0, starting
    * at this and advancing four bytes per fItemList slot.  The debug stream
@@ -1188,9 +1174,8 @@ TransitionOn_nextItem:
   goto TransitionOn_nextItem;
 TransitionOn_itemsDone:
   this->fTransitionDirection = '\x01';
-  enterTicks = ticks[0];
   this->fInMenuTransition = 1;
-  this->fMenuEnterTicks = enterTicks;
+  this->fMenuEnterTicks = ticks;
   AudioCmn_PlayFESFX(0xf);
   return;
 }
@@ -1202,7 +1187,7 @@ TransitionOn_itemsDone:
 bool tMenuOptions::TransitionIsFinished()
 
 {
-  this->fInMenuTransition = (u_int)(ticks[0] - this->fMenuEnterTicks < 0x20);
+  this->fInMenuTransition = (u_int)(ticks - this->fMenuEnterTicks < 0x20);
   return !this->fInMenuTransition;
 }
 

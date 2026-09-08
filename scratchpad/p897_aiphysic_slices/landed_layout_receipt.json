@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "stage": "landed",
+  "assertions": 27,
+  "compiler": "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+  "flags": {},
+  "object": "scratchpad/p897_aiphysic_slices/landed_layout_objects/scratchpad/p897_aiphysic_slices/landed_layout.cpp.o",
+  "sha256": "4b361c66c63ed26dc2a5a3b5fbdb12769dd87c906e1cd442b515222d99b7edfa",
+  "actual_header_hashes": {
+    "aiphysic_types.h": "f4406abe2176a7bbed32b230af7194f19686c2d89aacb85272e45186fbff59cf",
+    "aiphysic_externs.h": "144413b50bb6767f18586a9b5c67273d89930700095575ea4678a7e542a9b35b"
+  }
+}

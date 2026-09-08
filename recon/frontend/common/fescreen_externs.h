@@ -28,7 +28,7 @@ struct FEScreen_DrawViewCodegenView {
 #define textType_ScreenInfo 4
 
 /* ===== globals ===== */
-extern int            ticks[];
+extern int            ticks;                       /* @0x8013dcac; scalar owned by vars.c */
 extern char          *Paths_Paths[];
 extern int            Draw_gPlayer1View;             /* @0x8013d3cc */
 extern Draw_tView     Draw_gView[];                  /* @0x8011ec54 */

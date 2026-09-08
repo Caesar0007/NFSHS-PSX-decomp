@@ -1,0 +1,667 @@
+[
+  {
+    "source": "recon/frontend/common/screentracks.cpp",
+    "pass_count": 10,
+    "branches": 0,
+    "object_sha256": "b270cdb189e632b0d12a2676cab06bc9176c96c3ad3bd44afa5467d980f47d50",
+    "source_sha256": "ce787d62dadd7453a75b0ec5b6b0f40670580a15a50eed1c36f1858468e71506",
+    "checks": [
+      {
+        "tool": "tugate.py",
+        "stdout": "  __none__: NO ORACLE\nrecon/frontend/common/screentracks.cpp: 10/10 PASS\n",
+        "stderr": ""
+      },
+      {
+        "tool": "brdist.py",
+        "stdout": "# 10 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      }
+    ]
+  },
+  {
+    "source": "recon/frontend/common/femenuextended.cpp",
+    "pass_count": 57,
+    "branches": 0,
+    "object_sha256": "a0343048155788e7ac0f70e4598d981a456410c083477a75e585334885a0dd90",
+    "source_sha256": "bd052caaf8543f2bf581b75963d416332d1435d032054fcbf4ab18665eef6a68",
+    "checks": [
+      {
+        "tool": "tugate.py",
+        "stdout": "  __none__: NO ORACLE\nrecon/frontend/common/femenuextended.cpp: 57/57 PASS\n",
+        "stderr": ""
+      },
+      {
+        "tool": "brdist.py",
+        "stdout": "# 57 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      }
+    ]
+  },
+  {
+    "source": "recon/frontend/common/fevideowall.cpp",
+    "pass_count": 12,
+    "branches": 0,
+    "object_sha256": "28d96fc253c528bb53c138abe80ef8f9f5b99983f146c4250c37ac6bc6dad262",
+    "source_sha256": "2b8ec8c3b584c807057bea4d6e827d374d37731c69803a04982949d04f0230e7",
+    "checks": [
+      {
+        "tool": "tugate.py",
+        "stdout": "  __none__: NO ORACLE\nrecon/frontend/common/fevideowall.cpp: 12/12 PASS\n",
+        "stderr": ""
+      },
+      {
+        "tool": "brdist.py",
+        "stdout": "# 12 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      }
+    ]
+  },
+  {
+    "source": "recon/frontend/psx/drawshp.cpp",
+    "pass_count": 4,
+    "branches": 0,
+    "object_sha256": "9685826d06a5d9e9d2612f3daea217a416187180a2a100240bcd341472c4053b",
+    "source_sha256": "933633371cfc14712f17cc4980a309050d18c6e684e68ce7243a60c236efd3ac",
+    "checks": [
+      {
+        "tool": "tugate.py",
+        "stdout": "  __none__: NO ORACLE\nrecon/frontend/psx/drawshp.cpp: 4/4 PASS\n",
+        "stderr": ""
+      },
+      {
+        "tool": "brdist.py",
+        "stdout": "# 4 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      }
+    ]
+  },
+  {
+    "source": "recon/syslib/psx/libcd/iso9660.c",
+    "pass_count": 6,
+    "branches": 0,
+    "object_sha256": "d45df5c8b49f53c1c06121e76d8c6b2d21aa5cd88d8ed44a0b5c02174fa9b57c",
+    "source_sha256": "a33205ac8eb871df66b42f86abfd5dfe11c020bd9a1108e76865f10669c5cd96",
+    "checks": [
+      {
+        "tool": "tugate.py",
+        "stdout": "  __none__: NO ORACLE\nrecon/syslib/psx/libcd/iso9660.c: 6/6 PASS\n",
+        "stderr": ""
+      },
+      {
+        "tool": "brdist.py",
+        "stdout": "# 6 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      }
+    ]
+  },
+  {
+    "source": "recon/syslib/psx/libcd/C_005.c",
+    "pass_count": 1,
+    "branches": 0,
+    "object_sha256": "0dffeb188e23032b36d86d7dc9e98da30cbcd245b74ea4492d861dfb4fb8f17d",
+    "source_sha256": "4dea3177d0797b194b7a7402ef3021a80c5e33212c88f0e177f14c8d3d371581",
+    "checks": [
+      {
+        "tool": "tugate.py",
+        "stdout": "  __none__: NO ORACLE\nrecon/syslib/psx/libcd/C_005.c: 1/1 PASS\n",
+        "stderr": ""
+      },
+      {
+        "tool": "brdist.py",
+        "stdout": "# 1 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      }
+    ]
+  },
+  {
+    "source": "recon/syslib/psx/libcd/CDROM.c",
+    "pass_count": 1,
+    "branches": 0,
+    "object_sha256": "0b8e570324a0c31cf7df376f02c76ed1cb127538d63402ff2a5c6b9d9ee6f8c0",
+    "source_sha256": "b2831d4aba9c2f71e8744481de79cb0f26b5f1ea0550208d6b74c8edc1ab3aa7",
+    "checks": [
+      {
+        "tool": "tugate.py",
+        "stdout": "  __none__: NO ORACLE\nrecon/syslib/psx/libcd/CDROM.c: 1/1 PASS\n",
+        "stderr": ""
+      },
+      {
+        "tool": "brdist.py",
+        "stdout": "# 1 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      }
+    ]
+  },
+  {
+    "source": "recon/frontend/common/feinput.cpp",
+    "pass_count": 4,
+    "branches": 0,
+    "object_sha256": "82466870af7c89b215e35aac5d4335a7ec237f82008bd5d2f75f55ffc8553a52",
+    "source_sha256": "4063ae6363a89d40e5b9337f8e67e2b1d8c9637d7fc303b4a84f9d34aeb8832d",
+    "checks": [
+      {
+        "tool": "tugate.py",
+        "stdout": "  __none__: NO ORACLE\nrecon/frontend/common/feinput.cpp: 4/4 PASS\n",
+        "stderr": ""
+      },
+      {
+        "tool": "brdist.py",
+        "stdout": "# 4 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      }
+    ]
+  },
+  {
+    "source": "recon/frontend/common/fetv.cpp",
+    "pass_count": 5,
+    "branches": 0,
+    "object_sha256": "a52eade9552c4631e1dcb15b0f2e022dcc92ccd61549f30859c4c1c369651b17",
+    "source_sha256": "2ebb20a6d9ee93a944fb326284ef5759b9e14c1248ed39a447eb16a301b4983b",
+    "checks": [
+      {
+        "tool": "tugate.py",
+        "stdout": "  __none__: NO ORACLE\nrecon/frontend/common/fetv.cpp: 5/5 PASS\n",
+        "stderr": ""
+      },
+      {
+        "tool": "brdist.py",
+        "stdout": "# 5 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      }
+    ]
+  },
+  {
+    "source": "recon/game/psx/textureprocess.cpp",
+    "pass_count": 16,
+    "branches": 0,
+    "object_sha256": "26967228ab73444a251c58a28d6a06150be3eebc3dc07567eb25b14a7b0d45d5",
+    "source_sha256": "74796a56e6a0184dea010ffecec832aeb0cfd354b88a79cb3596be56e1b22c25",
+    "checks": [
+      {
+        "tool": "tugate.py",
+        "stdout": "  __none__: NO ORACLE\nrecon/game/psx/textureprocess.cpp: 16/16 PASS\n",
+        "stderr": ""
+      },
+      {
+        "tool": "brdist.py",
+        "stdout": "# 16 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      }
+    ]
+  },
+  {
+    "source": "recon/frontend/common/fememcard.cpp",
+    "pass_count": 18,
+    "branches": 0,
+    "object_sha256": "e395c1f80d78658688679ae01ce07663e319d09e2e1816d0515625fe5e5d81d8",
+    "source_sha256": "60f23ff33d4ba0e245409f8a19bcea892de583b23280d4f49510840a6e47ca29",
+    "checks": [
+      {
+        "tool": "tugate.py",
+        "stdout": "  __none__: NO ORACLE\nrecon/frontend/common/fememcard.cpp: 18/18 PASS\n",
+        "stderr": ""
+      },
+      {
+        "tool": "brdist.py",
+        "stdout": "# 18 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      }
+    ]
+  },
+  {
+    "source": "recon/frontend/common/screenpost.cpp",
+    "pass_count": 13,
+    "branches": 0,
+    "object_sha256": "d588aa0947788dab40233b278d302cf4ed9df74af519b9d48c5f84ea7a372d42",
+    "source_sha256": "f95c44288583994069cfc9ee9206c5293890747469c27ecc49b6ea0162afdc91",
+    "checks": [
+      {
+        "tool": "tugate.py",
+        "stdout": "  __none__: NO ORACLE\nrecon/frontend/common/screenpost.cpp: 13/13 PASS\n",
+        "stderr": ""
+      },
+      {
+        "tool": "brdist.py",
+        "stdout": "# 13 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      }
+    ]
+  },
+  {
+    "source": "recon/frontend/common/screentrackrecords.cpp",
+    "pass_count": 7,
+    "branches": 0,
+    "object_sha256": "1ee67ba7159988264454f702110dd7c811b2635f7283b86d3cd32ff0abae38cc",
+    "source_sha256": "8828c86c402086f09a36448315038a029a74ede82027cffe6f332bc4b17c7c5c",
+    "checks": [
+      {
+        "tool": "tugate.py",
+        "stdout": "  __none__: NO ORACLE\nrecon/frontend/common/screentrackrecords.cpp: 7/7 PASS\n",
+        "stderr": ""
+      },
+      {
+        "tool": "brdist.py",
+        "stdout": "# 7 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      }
+    ]
+  },
+  {
+    "source": "recon/frontend/psx/psxfront.cpp",
+    "pass_count": 25,
+    "branches": 0,
+    "object_sha256": "2cc46fd306022109098b7e97050dc444e9c9ebbb30867d6d3df42972efe083e7",
+    "source_sha256": "a4b1fb8b519f973fd5bc5c065c734da9683015c8e7dba7fce1ea3954ffa2e957",
+    "checks": [
+      {
+        "tool": "tugate.py",
+        "stdout": "  __none__: NO ORACLE\nrecon/frontend/psx/psxfront.cpp: 25/25 PASS\n",
+        "stderr": ""
+      },
+      {
+        "tool": "brdist.py",
+        "stdout": "# 25 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      }
+    ]
+  },
+  {
+    "source": "recon/frontend/common/feapp.cpp",
+    "pass_count": 16,
+    "branches": 0,
+    "object_sha256": "aed59b1d17dd6befe6112862e1d2233441c9a484a071c86f50132db2e17ca65a",
+    "source_sha256": "21f487991fa410523e1f552a8c4f2a6f6b4f84074ad61f59dffd47f7f0b8b004",
+    "checks": [
+      {
+        "tool": "tugate.py",
+        "stdout": "  __none__: NO ORACLE\nrecon/frontend/common/feapp.cpp: 16/16 PASS\n",
+        "stderr": ""
+      },
+      {
+        "tool": "brdist.py",
+        "stdout": "# 16 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      }
+    ]
+  },
+  {
+    "source": "recon/frontend/common/fecheats.cpp",
+    "pass_count": 10,
+    "branches": 0,
+    "object_sha256": "247787507f828f0aff103d87ccf932e9458066ddf39f2f2b1dbfe69c67e6bc41",
+    "source_sha256": "8a7aca42f34b9d0870b0679e65c5fe110b586fde24e7f4178b02529ab8544e14",
+    "checks": [
+      {
+        "tool": "tugate.py",
+        "stdout": "  __none__: NO ORACLE\nrecon/frontend/common/fecheats.cpp: 10/10 PASS\n",
+        "stderr": ""
+      },
+      {
+        "tool": "brdist.py",
+        "stdout": "# 10 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      }
+    ]
+  },
+  {
+    "source": "recon/frontend/common/fecredits.cpp",
+    "pass_count": 7,
+    "branches": 0,
+    "object_sha256": "7aa4311fd102fe201acee98f8a5ee60c319cd1800aee714ae0e984f93e838571",
+    "source_sha256": "532b4daa4961a45da373f90f7c0c0b44e347d00e87280a8d28cbb4cc6ee89920",
+    "checks": [
+      {
+        "tool": "tugate.py",
+        "stdout": "  __none__: NO ORACLE\nrecon/frontend/common/fecredits.cpp: 7/7 PASS\n",
+        "stderr": ""
+      },
+      {
+        "tool": "brdist.py",
+        "stdout": "# 7 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      }
+    ]
+  },
+  {
+    "source": "recon/frontend/common/fedialog.cpp",
+    "pass_count": 32,
+    "branches": 0,
+    "object_sha256": "c6c396dcd266d5d211506f03e71c8ee09ae2cc0f01282b4ef0bcbf9897156983",
+    "source_sha256": "9c7d40d27db3f3675d9fca2034f8eff866e55ded2fdfcfbb2f823f14b2dd7844",
+    "checks": [
+      {
+        "tool": "tugate.py",
+        "stdout": "  __none__: NO ORACLE\nrecon/frontend/common/fedialog.cpp: 32/32 PASS\n",
+        "stderr": ""
+      },
+      {
+        "tool": "brdist.py",
+        "stdout": "# 32 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      }
+    ]
+  },
+  {
+    "source": "recon/frontend/common/femenudefs.cpp",
+    "pass_count": 66,
+    "branches": 0,
+    "object_sha256": "e5f8a1f116f2e9aeecfbf0d2d96c5e4e6a6164caea5ef588aec3690449580fd0",
+    "source_sha256": "c8c295680a2c7d4b0c0e64ee9293a07533566e2a9070748126b67e394b64e7b1",
+    "checks": [
+      {
+        "tool": "tugate.py",
+        "stdout": "  __none__: NO ORACLE\nrecon/frontend/common/femenudefs.cpp: 66/66 PASS\n",
+        "stderr": ""
+      },
+      {
+        "tool": "brdist.py",
+        "stdout": "# 66 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      }
+    ]
+  },
+  {
+    "source": "recon/frontend/common/femenuoptions.cpp",
+    "pass_count": 92,
+    "branches": 0,
+    "object_sha256": "1eb642e6b40eb40eeb8c6e198d711f468fc51731a1997c822c5ed1ecd3a2cbf6",
+    "source_sha256": "b3797ff10d36f328804d4cf83fa96df42d30c98c8990c30b67c652e77636b309",
+    "checks": [
+      {
+        "tool": "tugate.py",
+        "stdout": "  __none__: NO ORACLE\nrecon/frontend/common/femenuoptions.cpp: 92/92 PASS\n",
+        "stderr": ""
+      },
+      {
+        "tool": "brdist.py",
+        "stdout": "# 92 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      }
+    ]
+  },
+  {
+    "source": "recon/frontend/common/fescreen.cpp",
+    "pass_count": 27,
+    "branches": 0,
+    "object_sha256": "7228f949f9999f27c5fd1395036b6cf88d71fd1307c21e8fffd279728e59f0c0",
+    "source_sha256": "ca836a50c97e8697c5fc9895c4b85e7f7d1a1a977d4efc38e19a16bdea33b037",
+    "checks": [
+      {
+        "tool": "tugate.py",
+        "stdout": "  __none__: NO ORACLE\nrecon/frontend/common/fescreen.cpp: 27/27 PASS\n",
+        "stderr": ""
+      },
+      {
+        "tool": "brdist.py",
+        "stdout": "# 27 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      }
+    ]
+  },
+  {
+    "source": "recon/frontend/common/fetextrender.cpp",
+    "pass_count": 17,
+    "branches": 0,
+    "object_sha256": "fc573287922a2dc9949dd2cc97b5d714612ba489c1ea87a6a07c9e3fb0a62260",
+    "source_sha256": "ccc91f63cefe326518bf460cb3bb2c1f3121499850fa5ec8747bd10d0a4a23e0",
+    "checks": [
+      {
+        "tool": "tugate.py",
+        "stdout": "  __none__: NO ORACLE\nrecon/frontend/common/fetextrender.cpp: 17/17 PASS\n",
+        "stderr": ""
+      },
+      {
+        "tool": "brdist.py",
+        "stdout": "# 17 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      }
+    ]
+  },
+  {
+    "source": "recon/frontend/common/front.cpp",
+    "pass_count": 43,
+    "branches": 0,
+    "object_sha256": "aa730506c2578190bce89be3559cef70c4494582b1af0d37a37497f5a4c8c5fb",
+    "source_sha256": "0a789e6d4648d0efc7d49645b8b7d76b4a9c6ff7ca942f4e400d524ef9fc20fc",
+    "checks": [
+      {
+        "tool": "tugate.py",
+        "stdout": "  __none__: NO ORACLE\nrecon/frontend/common/front.cpp: 43/43 PASS\n",
+        "stderr": ""
+      },
+      {
+        "tool": "brdist.py",
+        "stdout": "# 43 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      }
+    ]
+  },
+  {
+    "source": "recon/frontend/common/screenmemcard.cpp",
+    "pass_count": 15,
+    "branches": 0,
+    "object_sha256": "fa86b7250da7ac05498145ad09161ae01fb10664eb1c91838aec57401b666c25",
+    "source_sha256": "edab887dbd697b3de2541756883efbade6f04b8474b5448216a2f245a1bb176e",
+    "checks": [
+      {
+        "tool": "tugate.py",
+        "stdout": "  __none__: NO ORACLE\nrecon/frontend/common/screenmemcard.cpp: 15/15 PASS\n",
+        "stderr": ""
+      },
+      {
+        "tool": "brdist.py",
+        "stdout": "# 15 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      }
+    ]
+  },
+  {
+    "source": "recon/game/common/audiotrk.cpp",
+    "pass_count": 6,
+    "branches": 0,
+    "object_sha256": "d57d2dcfda69e37d673af8256b7b2823778956967d09a72db500a3d0e6036bb2",
+    "source_sha256": "1aa06bfb79b4131b4b403ba3fda933528068d8308dc1e30ffe0c259616ae63ab",
+    "checks": [
+      {
+        "tool": "tugate.py",
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/audiotrk.cpp: 6/6 PASS\n",
+        "stderr": ""
+      },
+      {
+        "tool": "brdist.py",
+        "stdout": "# 6 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      }
+    ]
+  },
+  {
+    "source": "recon/game/common/copspeak.cpp",
+    "pass_count": 27,
+    "branches": 0,
+    "object_sha256": "70fc97ebe71e9feeb970a4af6af67f16969a2171d4a82bfc1a35834376f9807e",
+    "source_sha256": "25857bb648a18e7121ae09fdc5b5a8f40b51ee5787044ebe35ad3bdd1f46130a",
+    "checks": [
+      {
+        "tool": "tugate.py",
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/copspeak.cpp: 27/27 PASS\n",
+        "stderr": ""
+      },
+      {
+        "tool": "brdist.py",
+        "stdout": "# 27 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      }
+    ]
+  },
+  {
+    "source": "recon/game/common/aiinit.cpp",
+    "pass_count": 17,
+    "branches": 0,
+    "object_sha256": "f85bc2d28cda7e2b4a9bc8805cd71007e5ab604e0ab261343576ff1d8b0a1b78",
+    "source_sha256": "14d8cefba417b1c09287e2891fdc7f9a38fab2685294b4925dca8e2b66987d8d",
+    "checks": [
+      {
+        "tool": "tugate.py",
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/aiinit.cpp: 17/17 PASS\n",
+        "stderr": ""
+      },
+      {
+        "tool": "brdist.py",
+        "stdout": "# 17 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      }
+    ]
+  },
+  {
+    "source": "recon/game/common/aispeeds.cpp",
+    "pass_count": 29,
+    "branches": 0,
+    "object_sha256": "b2544918c36f06007e0053a8bf904b2cd22b605adc772dff61921e8968f65783",
+    "source_sha256": "88ea2c38150dae78443e13f6c3b7f1fba178ded0b02a802d47ad4967ca1c2730",
+    "checks": [
+      {
+        "tool": "tugate.py",
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/aispeeds.cpp: 29/29 PASS\n",
+        "stderr": ""
+      },
+      {
+        "tool": "brdist.py",
+        "stdout": "# 29 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      }
+    ]
+  },
+  {
+    "source": "recon/frontend/common/screencongrats.cpp",
+    "pass_count": 28,
+    "branches": 0,
+    "object_sha256": "ff967aa34d2ae254d5711561a750c52e8ea64949c84a559c23ba71c9e1bf2318",
+    "source_sha256": "8dac94f509181d0853af79469513a14e4c11843c34d34d80cea79f4ab4c3f0b5",
+    "checks": [
+      {
+        "tool": "tugate.py",
+        "stdout": "  __none__: NO ORACLE\nrecon/frontend/common/screencongrats.cpp: 28/28 PASS\n",
+        "stderr": ""
+      },
+      {
+        "tool": "brdist.py",
+        "stdout": "# 28 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      }
+    ]
+  },
+  {
+    "source": "recon/game/common/camera.cpp",
+    "pass_count": 38,
+    "branches": 0,
+    "object_sha256": "d725a8123294b656897ac4b92297b5848166f10554ad920780a4028793d0e0db",
+    "source_sha256": "62044541801331c5b3d7e2497febc09b5d46f8a8a4c07404f4e86269a9a01344",
+    "checks": [
+      {
+        "tool": "tugate.py",
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/camera.cpp: 38/38 PASS\n",
+        "stderr": ""
+      },
+      {
+        "tool": "brdist.py",
+        "stdout": "# 38 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      }
+    ]
+  },
+  {
+    "source": "recon/game/common/replay.cpp",
+    "pass_count": 16,
+    "branches": 0,
+    "object_sha256": "ef13e273eff6b799c58a324040fc37b3cce9c3940f74c5bd66d516db072fbf39",
+    "source_sha256": "d0badae5e7e84e1c45ec81cd475fa09c90d51f2274cedb315ad0461b0312737f",
+    "checks": [
+      {
+        "tool": "tugate.py",
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/replay.cpp: 16/16 PASS\n",
+        "stderr": ""
+      },
+      {
+        "tool": "brdist.py",
+        "stdout": "# 16 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      }
+    ]
+  },
+  {
+    "source": "recon/game/common/ai.cpp",
+    "pass_count": 40,
+    "branches": 0,
+    "object_sha256": "fc4c0ccb670846f42b8a01047c0b8b5f5d66b5bdb07f7df56ba94a0836432084",
+    "source_sha256": "dcaf17173fe5ef2ddd229b67dd958359524aa735f183ef482a4d97f973a14c97",
+    "checks": [
+      {
+        "tool": "tugate.py",
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/ai.cpp: 40/40 PASS\n",
+        "stderr": ""
+      },
+      {
+        "tool": "brdist.py",
+        "stdout": "# 40 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      }
+    ]
+  },
+  {
+    "source": "recon/game/common/newton.cpp",
+    "pass_count": 32,
+    "branches": 0,
+    "object_sha256": "61abefc9804de5c20f18e41a2f7bd4a96f9372cdcc00464a524ffceb0097d952",
+    "source_sha256": "18344e2606c654884b1dba9c7ce9b4791c6aafbe55bb843d2f37d1092e5527f2",
+    "checks": [
+      {
+        "tool": "tugate.py",
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/newton.cpp: 32/32 PASS\n",
+        "stderr": ""
+      },
+      {
+        "tool": "brdist.py",
+        "stdout": "# 32 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      }
+    ]
+  },
+  {
+    "source": "recon/game/common/aiphysic.cpp",
+    "pass_count": 42,
+    "branches": 0,
+    "object_sha256": "f0e2531e355fee1f87a628bd7ad44e5f14c4bb17362df7fa6a787c071b25f2dd",
+    "source_sha256": "d64dc195b42d474e9b4237d93ff1e43561b89cf3d0ecf273b478ee59089e9651",
+    "checks": [
+      {
+        "tool": "tugate.py",
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/aiphysic.cpp: 42/42 PASS\n",
+        "stderr": ""
+      },
+      {
+        "tool": "brdist.py",
+        "stdout": "# 42 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      }
+    ]
+  },
+  {
+    "source": "recon/game/common/aistate.cpp",
+    "pass_count": 52,
+    "branches": 0,
+    "object_sha256": "bb9661a33fb059d35c28e388a84cce18b6b7ff4741c43a5d770095f46dbbd207",
+    "source_sha256": "e96787f5c8739b40f023e21d1e0744b99f27cc51039e5bcb1e37684ddcb1b61b",
+    "checks": [
+      {
+        "tool": "tugate.py",
+        "stdout": "  __none__: NO ORACLE\nrecon/game/common/aistate.cpp: 52/52 PASS\n",
+        "stderr": ""
+      },
+      {
+        "tool": "brdist.py",
+        "stdout": "# 52 fns checked, 0 with branch-offset/count divergence\n",
+        "stderr": ""
+      }
+    ]
+  }
+]

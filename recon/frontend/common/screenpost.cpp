@@ -3,23 +3,8 @@
  */
 #include "screenpost.h"
 
-/* The Initialize SLD puts the complete max/max/divide expansion on source line
- * 118 and records only tInfo.  Keep its two evaluation carriers macro-private;
- * the original macro spelling is not recoverable. */
-#define SCREENPOST_SET_COUNT_SPEED(self,tInfo) {          \
-  int max_money;                                         \
-  int max_damage;                                        \
-  max_money = (self)->moneyBonus;                        \
-  (self)->fStartCountdownNOW = 0;                        \
-  if (max_money < (tInfo).fMoney) {                      \
-    max_money = (tInfo).fMoney;                          \
-  }                                                      \
-  max_damage = (self)->moneyDamage;                      \
-  if (max_damage < max_money) {                          \
-    max_damage = max_money;                              \
-  }                                                      \
-  (self)->fCountSpeed = max_damage / 0x18;               \
-}
+/* P893: native SLD113 is the flag store and SLD115 is max/max/divide.
+ * SYM records only tInfo; the original maximum-operator spelling is unknown. */
 
 
 /* ---- (free)::DrawMoney  [SCREENPOST.CPP:47-75] ---- */
@@ -96,12 +81,13 @@ void tScreenTournamentStandings::Initialize()
     if (((this->moneyBonus == 0) && (this->moneyDamage == 0)) && (this->moneyAwarded == 0)) {
       this->fCountedDown = 1;
     }
-    SCREENPOST_SET_COUNT_SPEED(this,tInfo);
+    this->fStartCountdownNOW = 0;
+    this->fCountSpeed = (this->moneyDamage >? (this->moneyBonus >? tInfo.fMoney)) / 0x18;
   }
   else {
     this->moneyFinal = tournamentManager.fMoney - tInfo.fTournMoney;
   }
-  this->starttick = ticks[0];
+  this->starttick = ticks;
   return;
 }
 
@@ -199,7 +185,7 @@ void tScreenTournamentStandings::ProcessInput(tPlayer,tInputKeyType &keyval,
    this in s4/s5/s6/s7.  Together these authoritative changes cut 95 -> 56.
    RESIDUAL: (a) the textType constant 11 lands in t1 for retail and v0/v1 for
    us at five call sites (local-alloc numeric scan); (b) an s4/s5 rotation around
-   the ticks[0] address and late constant one; (c) one duplicate manager-base
+   the ticks address and late constant one; (c) one duplicate manager-base
    copy in the prologue.  FALSIFIED at 56: named definition pointer is neutral;
    an input-priced textType local is 57/558; plain money literals are 217/548.
    ==== W71-A18 (2026-08-21): 56 -> 35 (562/561).  THE `one` LOCAL IS RETIRED. ====
@@ -416,12 +402,12 @@ void tScreenTournamentStandings::DrawBackground()
   PSXDrawSquare(0,TextSys_WordX(0x2f6) - (wwwww >> 1),TextSys_WordY(0x2fc) - 1,wwwww,9);
   /* Start the packet-table lifetime without joining it to the definition
      carrier above. */
-  shape = (shape = gCurrentShapes[0], &shape[0x27]);
+  shape = (shape = gCurrentShapes, &shape[0x27]);
   /* SLD 250 is one lbx expression.  Widen the grouped width adjustment to
      keep its evaluation order without halfWidth; signed-short width/centerx
      bound the final int result to -49153..49149.  Exact -g twin and PASS. */
   lbx = (long long)(((short)shape->width >> 1) - 2) - shape->centerx;
-  tt = ticks[0] % (short)shape->width;
+  tt = ticks % (short)shape->width;
   if (((short)shape->width / 2) < tt) {
     tt = (short)shape->width - tt;
   }
@@ -433,7 +419,7 @@ void tScreenTournamentStandings::DrawBackground()
                        300,1,3,fadeline,0x1e);
   colf = CalcFadeVal(kRGBVals[(byte)textDefinitions[0xb][5]],fade);
   colb = CalcFadeVal(0x232323,fade);
-  if ((1000 < ticks[0] - this->starttick) || (this->fStartCountdownNOW != 0)) {
+  if ((1000 < ticks - this->starttick) || (this->fStartCountdownNOW != 0)) {
     if ((0 < this->moneyAwarded) || ((0 < this->moneyDamage || (0 < this->moneyBonus)))) {
       AudioCmn_PlayFESFX(0x15);
     }
@@ -468,7 +454,7 @@ void tScreenTournamentStandings::DrawBackground()
                            type,textState_Hilighted,1);
   DrawMoney(TextSys_WordX(0x2fb),TextSys_WordY(0x315),9,
             ((this->moneyFinal - this->moneyAwarded) + this->moneyDamage) - this->moneyBonus,colf,colb);
-  ::DrawBackgroundImage((tScreen *)this,10,0x1d,gCurrentShapes[0],0);
+  ::DrawBackgroundImage((tScreen *)this,10,0x1d,gCurrentShapes,0);
   return;
 }
 
@@ -544,12 +530,12 @@ void tScreenPinkSlipStandings::DrawBackground()
   wwwww = textpixels(TextSys_Word(0x2c1));
   PSXDrawSquare(0,TextSys_WordX(0x2f6) - (wwwww >> 1),
                TextSys_WordY(0x2fc) - 1,wwwww,9);
-  shape = &gCurrentShapes[0][0x27];
+  shape = &gCurrentShapes[0x27];
   /* P867: SLD 390 is the same single lbx expression as SLD 250 above.
      No halfWidth local in SYM; widening preserves the grouping and PASS
      without changing the bounded signed result or claiming original syntax. */
   lbx = (long long)((shape->width >> 1) - 2) - shape->centerx;
-  tt = ticks[0] % (short)shape->width;
+  tt = ticks % (short)shape->width;
   if ((shape->width / 2) < tt) {
     tt = shape->width - tt;
   }
@@ -561,7 +547,7 @@ void tScreenPinkSlipStandings::DrawBackground()
              (int)this->fScreenFadeVal,1,(tDrawShapeExtended *)0x0);
   DrawShapeExtended(0x27,0x400,0,-1,
              (int)this->fScreenFadeVal,0,&drawflags);
-  ::DrawBackgroundImage((tScreen *)this,10,0x1d,gCurrentShapes[0],0);
+  ::DrawBackgroundImage((tScreen *)this,10,0x1d,gCurrentShapes,0);
   return;
 }
 

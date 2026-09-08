@@ -353,6 +353,13 @@ PER_TU_FLAGS = {
     # -G0 = 24/25 PASS, 3 diffs, with no PASS regression.  Font becomes exact
     # 82/82; the remaining 3 belong to pre-existing DrawGouraudShape.
     "recon/frontend/psx/psxfront.cpp":     {"g_value": "0"},
+    # P887: native scalar gHelpShapes and corner-before-tint SLD order give
+    # all4 drawshp functions exact under whole-TU G0, with unchanged .text.
+    # The sole4-byte kNoColor also returns to native frontend .data at
+    # 800529D0; G4 incorrectly emits .sdata. No per-function/output rewrite.
+    # Backups and full code/data/regional proof: scratchpad/p887_checkpoint
+    # and scratchpad/p887_ghelp_alias.
+    "recon/frontend/psx/drawshp.cpp":      {"g_value": "0"},
     # w59-a13 (orchestrator-wired): memmove FAIL 2 -> PASS 27/27 with NO source
     # change on the 2.7.2-970404 rung (full ladder: 970404 PASS, 2.8.x 2, 2.6.x 22,
     # 2.9x 25).  Same rung as the libmath vendor cluster -- libc.lib looks Sony-prebuilt.

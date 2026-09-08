@@ -4,9 +4,12 @@
 #include "fememcard_types.h"
 
 /* ===== globals ===== */
-extern int          ticks;
+/* P884: relocate the existing volatile polling qualification to the genuine
+   scalar word. The SYM ticks record is untyped and does not establish CV; this preserves
+   the existing IRQ polling semantics, not a proved original keyword choice. */
+extern volatile int ticks;
 extern tfrontEnd    frontEnd;
-extern tFEApplication *FEApp[];
+extern tFEApplication *FEApp;   /* P885: native SYM4b4f01 is one PTR STRUCT. */
 extern char        *Paths_Paths[];
 extern tTrackManager  trackManager;
 extern tCarManager    carManager;

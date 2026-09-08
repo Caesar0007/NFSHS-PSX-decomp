@@ -283,7 +283,7 @@ void DrawTV(tTVConfig &tv)
 {
   POLY_FT4 *texture;
   POLY_GT4 *reflection;
-  tTexture_ShapeInfo *noise = &gHelpShapes[0][(rand() & 3) + 0x22];
+  tTexture_ShapeInfo *noise = &gHelpShapes[(rand() & 3) + 0x22];
   short videoX;
   short videoY;
   short videoWidth;

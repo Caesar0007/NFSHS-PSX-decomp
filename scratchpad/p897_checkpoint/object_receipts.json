@@ -1,0 +1,9 @@
+{
+  "passed": true,
+  "objects": 518,
+  "literal_unchanged": 518,
+  "linked_ELF_sha256": "52800553415581618c04766bca85e3d943de8343f60b78c62ff7c62af9e32ae0",
+  "linked_map_identical": true,
+  "owner_tools_identical": true,
+  "prior_native_GP_and_global_checks_inherited": true
+}

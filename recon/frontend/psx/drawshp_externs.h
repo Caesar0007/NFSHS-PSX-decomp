@@ -7,10 +7,7 @@
 extern "C" int GetTPage(...);
 extern "C" void SetDrawMode(...);
 
-extern tTexture_ShapeInfo *gHelpShapes_v[] asm("gHelpShapes");   /* unsized array VIEW: forces the
- * separate-scratch  lui vN,%hi; lw dest,%lo(vN)  address materialization the oracle uses
- * (a scalar extern compiles to the single unschedulable `lw dest,sym` macro = self-temp) */
-extern tTexture_ShapeInfo *gHelpShapes;   /* shape table (PSXFront) */
+extern tTexture_ShapeInfo *gHelpShapes;   /* P887: native768122 scalar pointer at0x80052a64. */
 
 extern "C" {  /* PsyQ libgpu */
 }

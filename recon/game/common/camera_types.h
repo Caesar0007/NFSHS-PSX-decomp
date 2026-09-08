@@ -1,4 +1,4 @@
-/* camera.obj's exact source-visible delta over the shared color graph. */
+/* Camera private type projection; owner-derived foreign bodies are noted below. */
 #ifndef NFS4_GAME_COMMON_CAMERA_TYPES_H
 #define NFS4_GAME_COMMON_CAMERA_TYPES_H
 
@@ -6,6 +6,17 @@
 
 #define RaceType_HotPursuit 1
 #define RaceType_Id5 5
+
+/* Owner-derived bworldSm type: SYM1cec71..1cedc3,32 bytes. Camera's
+ * surviving type stream does not preserve this foreign body; its original
+ * header visibility remains a source-recovery question, not a sealed claim. */
+struct Trk_NewSlice {
+    int center[3];
+    char normal[3], forward[3], right[3];
+    u_char acousticType;
+    short pavedProfile, leftDrive, rightDrive;
+    u_char chunkIndex, laneCount, avgPavedWidthLf, avgPavedWidthRt;
+};
 
 /* Canonical gmesetup.obj aggregate used by this translation unit. */
 struct GameSetup_tData {
@@ -39,6 +50,12 @@ struct Sim_tSimSystemVar {
 struct tReplayInterface {
     int pause, speed, end, camera, selection, depressed, changeCamera;
     int statsScreen;
+};
+
+/* Owner-derived replay type (SYM326706..32678F); camera.obj's own type
+ * stream does not retain this foreign body. This is not a caller-graph seal. */
+struct tReplayCameraModes {
+    int defaultCamera, timeCounter, cameraMode, cutToNextCamera;
 };
 
 typedef enum forceFocus_t {

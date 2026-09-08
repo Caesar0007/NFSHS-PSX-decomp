@@ -1,0 +1,10 @@
+{
+  "reproduced_source_objects": 518,
+  "changed_objects": [],
+  "protected_base_functions": 527,
+  "protected_base_TUs": 25,
+  "goal_complete": false,
+  "source_shape_improvement": "Unsupported FEScreen parameter names removed without losing ABI arity; Front scalar ticks/seedrandom interface restored.",
+  "prior_native_reference_proofs_preserved_by_identical_objects_and_link_inputs": true,
+  "w85_user_file_sha256": "d433425b806fc8abd1fa60c9f72a09f4c022bfd64a7fecf4df496931169e9546"
+}

@@ -1,0 +1,356 @@
+{
+  "incoming_preserves_all_compilable_object_semantics": true,
+  "stage": "actual",
+  "pinned_upstream": "7728c5ea6ca9cc21e8aff19b18292da04fcce03c",
+  "compilable_TUs": 10,
+  "attempted_TUs": 11,
+  "detailed_passes_before": 180,
+  "detailed_passes_after": 180,
+  "reports": [
+    {
+      "source": "recon/eaclib/psx/spchpsxz/spchbank.c",
+      "manifest_passes": 8,
+      "symbol_entities_and_order_unchanged_except_STT_FILE": true,
+      "all_data_storage_and_section_schemas_identical": true,
+      "before_sha256": "6692572396cca556a113f791d4c592665e2a2b6704cc7ae871c73b72477fe220",
+      "after_sha256": "848875514d2e6e6d527fc5363f9230e10b9eecfb3cb3a91270128fc2c677b0c0",
+      "actual_to_accepted_after": {
+        "all_payloads_and_ordered_relocations_equal": true,
+        "all_ordered_symbol_entities_equal_except_exact_input_STT_FILE": true,
+        "accepted_after_sha256": "9403041be45a6b3e066fd4ab72f728d26ca9440c67ff6997d57594d726d65bf0",
+        "actual_sha256": "848875514d2e6e6d527fc5363f9230e10b9eecfb3cb3a91270128fc2c677b0c0"
+      },
+      "all_code_bytes_and_ordered_relocations_identical": true
+    },
+    {
+      "source": "recon/eaclib/psx/spchpsxz/spchdata.c",
+      "manifest_passes": 6,
+      "symbol_entities_and_order_unchanged_except_STT_FILE": true,
+      "all_data_storage_and_section_schemas_identical": true,
+      "before_sha256": "c2d522653def8037e9f0bd7034dcbb454191b3d48ec8e22d2519e37b2681f288",
+      "after_sha256": "7cd6bb0287da170538f3f7bc341cf83505db81138c30afb9cdbfb45a27b1e85d",
+      "actual_to_accepted_after": {
+        "all_payloads_and_ordered_relocations_equal": true,
+        "all_ordered_symbol_entities_equal_except_exact_input_STT_FILE": true,
+        "accepted_after_sha256": "8fbc6c70eecb43f46805621400993a128a4110a82293e3c3eb5cb3a17e9f1f77",
+        "actual_sha256": "7cd6bb0287da170538f3f7bc341cf83505db81138c30afb9cdbfb45a27b1e85d"
+      },
+      "all_code_bytes_and_ordered_relocations_identical": true
+    },
+    {
+      "source": "recon/eaclib/psx/spchpsxz/spchevnt.c",
+      "manifest_passes": 14,
+      "symbol_entities_and_order_unchanged_except_STT_FILE": true,
+      "all_data_storage_and_section_schemas_identical": true,
+      "before_sha256": "56bbc1dee91318f6d17d0a4f8efb7e33ece3c5b510a4d5bcb4a3994676205da5",
+      "after_sha256": "7ed864848009394b9b2ac187de5e4013693addb0a00116af204785a814943a43",
+      "actual_to_accepted_after": {
+        "all_payloads_and_ordered_relocations_equal": true,
+        "all_ordered_symbol_entities_equal_except_exact_input_STT_FILE": true,
+        "accepted_after_sha256": "f41dfb882cac1d1fb94325f46a061da3509222ff96a1cd4d7fc91f206061cb65",
+        "actual_sha256": "7ed864848009394b9b2ac187de5e4013693addb0a00116af204785a814943a43"
+      },
+      "all_code_bytes_and_ordered_relocations_identical": true
+    },
+    {
+      "source": "recon/eaclib/psx/spchpsxz/spchinit.c",
+      "manifest_passes": 7,
+      "symbol_entities_and_order_unchanged_except_STT_FILE": true,
+      "all_data_storage_and_section_schemas_identical": true,
+      "before_sha256": "6abd600e7564ca888f156c2356d53ca2a2c21120b91790315db065c4e54ac762",
+      "after_sha256": "d378c8641572a5a9aeec4153f840f6b03ec403b6615beee2d6996dcae2bb4a4c",
+      "actual_to_accepted_after": {
+        "all_payloads_and_ordered_relocations_equal": true,
+        "all_ordered_symbol_entities_equal_except_exact_input_STT_FILE": true,
+        "accepted_after_sha256": "dc342e829c0b9af26cccaacc257859c37db61005233311ba538a07f4292464b6",
+        "actual_sha256": "d378c8641572a5a9aeec4153f840f6b03ec403b6615beee2d6996dcae2bb4a4c"
+      },
+      "all_code_bytes_and_ordered_relocations_identical": true
+    },
+    {
+      "source": "recon/eaclib/psx/spchpsxz/spchpick.c",
+      "manifest_passes": 27,
+      "symbol_entities_and_order_unchanged_except_STT_FILE": true,
+      "all_data_storage_and_section_schemas_identical": true,
+      "before_sha256": "896b9f0bb215bb2425f1792f593ad8f3a9c7da3e02fb8681df5200cc4aa0f776",
+      "after_sha256": "558af928e716193e38b80184a771cf651d7f6c653a13663e3d21291986222841",
+      "actual_to_accepted_after": {
+        "all_payloads_and_ordered_relocations_equal": true,
+        "all_ordered_symbol_entities_equal_except_exact_input_STT_FILE": true,
+        "accepted_after_sha256": "297bc49b062e6d909741967c2abb3f6855cb37362f867d6963b9d42ef719e052",
+        "actual_sha256": "558af928e716193e38b80184a771cf651d7f6c653a13663e3d21291986222841"
+      },
+      "text_changes_are_three_LO16_addends_only": true,
+      "exact_interior_alias_relocations": 6,
+      "effective_BSS_target_offset": 12,
+      "all_text_equal_after_resolving_exact_six_relocations": true,
+      "HI16_carry_control_bases": [
+        "0x8014843c",
+        "0x10007ff0",
+        "0x10007ff8",
+        "0x10008000",
+        "0x1000fff8"
+      ],
+      "BSS_bytes": 312,
+      "storage": {
+        "gSentenceChoice": [
+          "gSentenceChoice",
+          0,
+          0,
+          16,
+          0,
+          ".bss"
+        ],
+        "DAT_80148448": [
+          "DAT_80148448",
+          12,
+          0,
+          16,
+          0,
+          ".bss"
+        ],
+        "ispch_gPickSamples": [
+          "ispch_gPickSamples",
+          64,
+          0,
+          16,
+          0,
+          ".bss"
+        ],
+        "gChooseShort": [
+          "gChooseShort",
+          164,
+          0,
+          16,
+          0,
+          ".bss"
+        ],
+        "ispch_gChoice": [
+          "ispch_gChoice",
+          168,
+          0,
+          16,
+          0,
+          ".bss"
+        ]
+      }
+    },
+    {
+      "source": "recon/eaclib/psx/spchpsxz/spchrand.c",
+      "manifest_passes": 4,
+      "symbol_entities_and_order_unchanged_except_STT_FILE": true,
+      "all_data_storage_and_section_schemas_identical": true,
+      "before_sha256": "707666b9f95ad9cb0eab289e31c3c59ac71039fa80635f0b7b8c4922cfef0d9f",
+      "after_sha256": "6189d1224bd56a2be2cdbad7ff5b0755903e07c8f497bd992fddd031bcf9d945",
+      "actual_to_accepted_after": {
+        "all_payloads_and_ordered_relocations_equal": true,
+        "all_ordered_symbol_entities_equal_except_exact_input_STT_FILE": true,
+        "accepted_after_sha256": "c5f15ca668142326a7fe33564bfa930df90ef340c89030f01844823b2c03b175",
+        "actual_sha256": "6189d1224bd56a2be2cdbad7ff5b0755903e07c8f497bd992fddd031bcf9d945"
+      },
+      "all_code_bytes_and_ordered_relocations_identical": true
+    },
+    {
+      "source": "recon/eaclib/psx/spchpsxz/spchrslv.c",
+      "manifest_passes": 1,
+      "symbol_entities_and_order_unchanged_except_STT_FILE": true,
+      "all_data_storage_and_section_schemas_identical": true,
+      "before_sha256": "fe67d66ac974a04c0eeeb736d9467c21c5f20a06d49e11768bf58b31b1741c6c",
+      "after_sha256": "21e42b20d169b36d9acd1814fcc2cb7fc53fbdd4f09383ff04efadcb87856269",
+      "actual_to_accepted_after": {
+        "all_payloads_and_ordered_relocations_equal": true,
+        "all_ordered_symbol_entities_equal_except_exact_input_STT_FILE": true,
+        "accepted_after_sha256": "32556a2732fc6e591d648048947fc853dd44ed9b0fe325c4aa6106937c57a940",
+        "actual_sha256": "21e42b20d169b36d9acd1814fcc2cb7fc53fbdd4f09383ff04efadcb87856269"
+      },
+      "all_code_bytes_and_ordered_relocations_identical": true
+    },
+    {
+      "source": "recon/eaclib/psx/spchpsxz/spchrule.c",
+      "manifest_passes": 9,
+      "symbol_entities_and_order_unchanged_except_STT_FILE": true,
+      "all_data_storage_and_section_schemas_identical": true,
+      "before_sha256": "7fecf071b9c2766b41dc007a04904a635b3c628f0b916b45724b93a7d26f707c",
+      "after_sha256": "c707e46d00fc53791182ca691b96bfa3ffdb6bd43a1bcd5f2394fb500ad9552e",
+      "actual_to_accepted_after": {
+        "all_payloads_and_ordered_relocations_equal": true,
+        "all_ordered_symbol_entities_equal_except_exact_input_STT_FILE": true,
+        "accepted_after_sha256": "4e6f35a2307b6756d613c938f9c9c9facb2df9218b672f80cab4b27b9746f4d9",
+        "actual_sha256": "c707e46d00fc53791182ca691b96bfa3ffdb6bd43a1bcd5f2394fb500ad9552e"
+      },
+      "all_code_bytes_and_ordered_relocations_identical": true
+    },
+    {
+      "source": "recon/eaclib/psx/spchpsxz/spchsamp.c",
+      "manifest_passes": 2,
+      "symbol_entities_and_order_unchanged_except_STT_FILE": true,
+      "all_data_storage_and_section_schemas_identical": true,
+      "before_sha256": "171661e587166290e5ca38eede7a4098a794912d79bb6ffaa4efa19d803b0227",
+      "after_sha256": "cec83eba10d4d4b1fe7cbe2ae255bc7053a06898127a3dedcda51b2acc7ed10a",
+      "actual_to_accepted_after": {
+        "all_payloads_and_ordered_relocations_equal": true,
+        "all_ordered_symbol_entities_equal_except_exact_input_STT_FILE": true,
+        "accepted_after_sha256": "6cc96c3afd7f8a2db266260db4f694ec56884453cdf86b42fa369a6689c55e7d",
+        "actual_sha256": "cec83eba10d4d4b1fe7cbe2ae255bc7053a06898127a3dedcda51b2acc7ed10a"
+      },
+      "all_code_bytes_and_ordered_relocations_identical": true
+    },
+    {
+      "source": "recon/game/common/speech.cpp",
+      "manifest_passes": 102,
+      "symbol_entities_and_order_unchanged_except_STT_FILE": true,
+      "all_data_storage_and_section_schemas_identical": true,
+      "before_sha256": "08f92d1412659ebee476f7ec09e020fe88cf0b52996781942334dbe4acd1cbc3",
+      "after_sha256": "63678a28d714621a79b7067b62a1216aabe093c11a12cdfa654329f945271724",
+      "actual_to_accepted_after": {
+        "all_payloads_and_ordered_relocations_equal": true,
+        "all_ordered_symbol_entities_equal_except_exact_input_STT_FILE": true,
+        "accepted_after_sha256": "c436f2e461481d75f259e6d5a4fde6083ea0e3e1e10a4002b708e69303a619d1",
+        "actual_sha256": "63678a28d714621a79b7067b62a1216aabe093c11a12cdfa654329f945271724"
+      },
+      "all_code_bytes_and_ordered_relocations_identical": true
+    }
+  ],
+  "preexisting_compile_failures": [
+    {
+      "source": "regiondiff/recon/NFS4-R-USA/game/common/speech.cpp",
+      "compile_failure_preexisting_and_exactly_preserved": true,
+      "diagnostics_sha256": "2690ce222cb6cf7afc6850e6e1b3fd6c65d70660ed0f428a6f32dfa6cb617225",
+      "fatal_lines": [
+        "C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\p897_upstream_spch\\\\inputs\\\\before\\\\regiondiff\\\\recon\\\\NFS4-R-USA\\\\game\\\\common\\\\speech.cpp:714: passing `char *' as argument 1 of `SPCH_ResolveData(VoxEventDat *)'",
+        "C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\p897_upstream_spch\\\\inputs\\\\before\\\\regiondiff\\\\recon\\\\NFS4-R-USA\\\\game\\\\common\\\\speech.cpp:804: passing `char *' as argument 1 of `SPCH_AddBank(VoxBank *)'"
+      ]
+    }
+  ],
+  "preexisting_branch_backlog": [
+    {
+      "source": "recon/game/common/speech.cpp",
+      "source_symbol": "SubmitRequest__6Speechlll",
+      "oracle_symbol": "SubmitRequest__6Speechlll",
+      "instructions": 61,
+      "oracle_instructions": 61,
+      "diff_lines": 0,
+      "branch_count": 8,
+      "oracle_branch_count": 8,
+      "branch_offset_diffs": [
+        [
+          6,
+          -2,
+          8
+        ]
+      ]
+    }
+  ],
+  "raw_changed_reference_receipts": [
+    {
+      "side": "before",
+      "function": "iSPCH_ClearChosen",
+      "va": "0x80101650",
+      "relocation_type": 5,
+      "symbol": "DAT_80148448",
+      "effective_storage_offset": 12,
+      "raw_word": "0x3c028015"
+    },
+    {
+      "side": "before",
+      "function": "iSPCH_ClearChosen",
+      "va": "0x80101658",
+      "relocation_type": 6,
+      "symbol": "DAT_80148448",
+      "effective_storage_offset": 12,
+      "raw_word": "0xac408448"
+    },
+    {
+      "side": "before",
+      "function": "iSPCH_SaveChosenSentence",
+      "va": "0x80101694",
+      "relocation_type": 5,
+      "symbol": "DAT_80148448",
+      "effective_storage_offset": 12,
+      "raw_word": "0x3c038015"
+    },
+    {
+      "side": "before",
+      "function": "iSPCH_SaveChosenSentence",
+      "va": "0x801016a0",
+      "relocation_type": 6,
+      "symbol": "DAT_80148448",
+      "effective_storage_offset": 12,
+      "raw_word": "0xac628448"
+    },
+    {
+      "side": "before",
+      "function": "iSPCH_OneChosen",
+      "va": "0x801016a4",
+      "relocation_type": 5,
+      "symbol": "DAT_80148448",
+      "effective_storage_offset": 12,
+      "raw_word": "0x3c028015"
+    },
+    {
+      "side": "before",
+      "function": "iSPCH_OneChosen",
+      "va": "0x801016a8",
+      "relocation_type": 6,
+      "symbol": "DAT_80148448",
+      "effective_storage_offset": 12,
+      "raw_word": "0x8c428448"
+    },
+    {
+      "side": "after",
+      "function": "iSPCH_ClearChosen",
+      "va": "0x80101650",
+      "relocation_type": 5,
+      "symbol": "gSentenceChoice",
+      "effective_storage_offset": 12,
+      "raw_word": "0x3c028015"
+    },
+    {
+      "side": "after",
+      "function": "iSPCH_ClearChosen",
+      "va": "0x80101658",
+      "relocation_type": 6,
+      "symbol": "gSentenceChoice",
+      "effective_storage_offset": 12,
+      "raw_word": "0xac408448"
+    },
+    {
+      "side": "after",
+      "function": "iSPCH_SaveChosenSentence",
+      "va": "0x80101694",
+      "relocation_type": 5,
+      "symbol": "gSentenceChoice",
+      "effective_storage_offset": 12,
+      "raw_word": "0x3c038015"
+    },
+    {
+      "side": "after",
+      "function": "iSPCH_SaveChosenSentence",
+      "va": "0x801016a0",
+      "relocation_type": 6,
+      "symbol": "gSentenceChoice",
+      "effective_storage_offset": 12,
+      "raw_word": "0xac628448"
+    },
+    {
+      "side": "after",
+      "function": "iSPCH_OneChosen",
+      "va": "0x801016a4",
+      "relocation_type": 5,
+      "symbol": "gSentenceChoice",
+      "effective_storage_offset": 12,
+      "raw_word": "0x3c028015"
+    },
+    {
+      "side": "after",
+      "function": "iSPCH_OneChosen",
+      "va": "0x801016a8",
+      "relocation_type": 6,
+      "symbol": "gSentenceChoice",
+      "effective_storage_offset": 12,
+      "raw_word": "0x8c428448"
+    }
+  ],
+  "full_graph_green": false,
+  "new_instruction_or_storage_regressions": 0
+}

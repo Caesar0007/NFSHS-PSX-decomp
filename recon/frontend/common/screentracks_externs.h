@@ -13,7 +13,8 @@ int purgememadr(void *);
 
 /* --- globals --- */
 extern tfrontEnd          frontEnd;
-extern int                ticks[];   /* unsized array (§3.12 #5): oracle lui/lw separate-scratch (matches femenuextended/fescreen) */
+/* P891: scalar vars.obj cell (NFS4 019199 @8013DCAC); NFS2 13bb6c records INT. */
+extern int                ticks;
 extern tTrackManager      trackManager;
 extern tGlobalMenuDefs   *menuDefs;
 extern tFEApplication    *FEApp;

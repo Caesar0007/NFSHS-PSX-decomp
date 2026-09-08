@@ -1,8 +1,6 @@
-/* game/common/audiotrk.cpp -- RECONSTRUCTED from Ghidra 12.0.4 decompile + PsyQ SYM v3.
- *   bworld.obj (GAME\COMMON\bworld.cpp) = 20 fns: BWorld road geometry build/render
- *   (chunk visibility, build lists, spike belt, glare effects, render contexts). Self-contained.
- *   Verified vs disasm-v2.txt. NOT original source; SYM-faithful, recompilable C++.
- */
+/* game/common/audiotrk.cpp -- reconstructed ambient track audio, six functions.
+ * Native SYM/oracle evidence guides restoration; unresolved source identities
+ * and scope/statement questions are not implied complete by code matching. */
 #include "audiotrk_types.h"
 #include "audiotrk_externs.h"
 
@@ -39,13 +37,12 @@ void AudioTrk_Reset(void)
   }
   {
     int i;
-    /* ORIGINAL-NAME-RECOVERED: se -- Reset's retail SYM lists only `i`, but
-       the exact 24-byte strength-reduced walk requires a distinct AudioElem
-       induction object.  `se` is the owning TU's exact SYM name for this same
-       AudioElem * role in AudioTrk_SoundTrack and AudioTrk_PreLoad.  Keeping
-       it scoped to the second list loop, with nextDelay before chan as SLD
-       lines 78/79 require, emits retail's chan-biased cursor and removes
-       pCVar2/puVar3/neg1. */
+    /* SOURCE-RECOVERY-OPEN: se is a semantic name borrowed from the sibling
+       SoundTrack/PreLoad roles, not recovered from Reset's own source records.
+       Its native SYM lists only the two i locals. This exact pointer walk is
+       verified code, but a distinct original source pointer/name is unproved.
+       P897's direct index trial is58/56 with32diffs; no carrier exemption or
+       original-name claim is justified by that failed source form. */
     AudioElem *se;
 
     if ((gGameAudioList != (CAudioList *)0x0) &&
@@ -244,7 +241,7 @@ AudioTrk_channel_found:
           }
           if (((int)(car->N).simRoadInfo.slice != c->slice) ||
              ((int)((u_int)(u_char)se->fadeIn << 0x10) < dst)) {
-            AudioCmn_GetAsyncSfx(0,(int)c->patch,(void *)0x0)
+            AudioCmn_GetAsyncSfx(0,(int)c->patch,false)
             ;
             return;
           }
@@ -462,7 +459,9 @@ void AudioTrk_SoundTrack(Car_tObj *car,int trkazi)
   }
 }
 
-/* ---- AudioTrk_PreLoad__Fv  [@0x8007d35c] ---- */
+/* ---- AudioTrk_PreLoad__Fv  [@0x8007d35c] ----
+ * P897: native se/i/x/z/d ownership is restored. CAudioList's original
+ * inline-accessor identity (SYM1bf4f2 this) remains a source-recovery gap. */
 int AudioTrk_PreLoad(void)
 {
   int vx;
@@ -476,43 +475,40 @@ int AudioTrk_PreLoad(void)
     return 1;
   }
 
-  vx = *(int *)AudioTrk_BWorldSmSlices;
-  vz = *(int *)(AudioTrk_BWorldSmSlices + 8);
+  vx = BWorldSm_slices[0].center[0];
+  vz = BWorldSm_slices[0].center[2];
   loaded = false;
   tick = gettick() + 0x280;
   numelems = gGameAudioList->numElements_;
   while (!loaded && gettick() < tick &&
          0x8000 < SNDmemlargestunused(&check)) {
+    AudioElem *se;
+
     loaded = true;
-    {
-      AudioElem *se;
-      int i;
+    se = (AudioElem *)(gGameAudioList + 1);
+    for (int i = 0; i < numelems; se++,i++) {
+      int x;
+      int z;
+      int d;
 
-      se = (AudioElem *)(gGameAudioList + 1);
-      for (i = 0; i < numelems; se++,i++) {
-        int x;
-        int z;
-        int d;
-
-        x = se->cp.x - vx;
-        if (x <= 0) {
-          x = vx - se->cp.x;
-        }
-        z = se->cp.z - vz;
-        if (z <= 0) {
-          z = vz - se->cp.z;
-        }
-        if (z < x) {
-          d = x + (z >> 2);
-        }
-        else {
-          d = z + (x >> 2);
-        }
-        if ((d < (se->range + 100) * 0x10000) &&
-            ((int)(u_char)se->patchID < CopSpeak_gNumTrackSfx) &&
-            (AudioCmn_GetAsyncSfx(0,(u_int)(u_char)se->patchID,(void *)0x0) == -1)) {
-          loaded = false;
-        }
+      x = se->cp.x - vx;
+      if (x <= 0) {
+        x = vx - se->cp.x;
+      }
+      z = se->cp.z - vz;
+      if (z <= 0) {
+        z = vz - se->cp.z;
+      }
+      if (z < x) {
+        d = x + (z >> 2);
+      }
+      else {
+        d = z + (x >> 2);
+      }
+      if ((d < (se->range + 100) * 0x10000) &&
+          ((int)(u_char)se->patchID < CopSpeak_gNumTrackSfx) &&
+          (AudioCmn_GetAsyncSfx(0,(u_int)(u_char)se->patchID,false) == -1)) {
+        loaded = false;
       }
     }
     CopSpeak_Server();

@@ -4242,3 +4242,726 @@ checkpoint_source_receipts.json and full_validation_receipts.json.
 Historical baseline-object comparisons are labelled as such; no old binary
 cache, generated build output or unrelated scratch work is part of the
 published source checkpoint. The full original-source/SYM/SLD goal is active.
+
+## P884 / 2026-09-07: fix table bindings and retire scalar array views
+
+Baseline is published main acbe34775f4e. This round is uncommitted; no renewed
+publication request has been inferred from the active goal continuation.
+
+### Four real native table bindings restored
+
+asintbl, sintbl, fatantbl and rcossin_tbl source sections were already at their
+native data slots but public symbols still bound to raw orphan copies. Four
+raw-only leaves now preserve the src/oracle bytes and labels, while validated
+source ownership excludes them from recon. The native public bindings are
+80137260,80137464,80137868,80137D20. All18952 initialized table bytes are exact;
+the enclosing20496-byte baseline/src/recon window preserves every gap and55
+raw labels (54 shared recon labels). D_8013745F stays oracle-only; no recon
+reference requires inventing it as a new source global.
+
+All34 table relocation words across six consumer TUs were wrong before the
+change and are now raw-exact, with unchanged input objects. Whole function
+non-relocation-bit identity proves instruction alignment. Two SDK oracles add
+only1/2 trailing zero alignment words after verified jr-ra/delay slots; that
+padding is explicitly bounded and reported. No output rewriting was used.
+The P883 asintbl public-binding issue is resolved, not merely reclassified.
+
+### Original-source scalar shapes
+
+screenmemcard.cpp loses19 asm-linked array views (17 native INT layout values,
+ticks and the BOOL state flag), their macros and the unrecorded extraY local.
+The real fMemIcon pointer-to-array dimensions and source global definition
+order remain. tickPtr and other still-unresolved locals remain visible.
+All15 functions, branch checks, debug twins,1744 raw oracle words and76 data
+bytes pass; the entire14096-byte object is unchanged.
+
+fememcard.cpp loses six array views plus MEMCARDFRONTENDISINITTED_word. The
+genuine tRecordBuffer[187] array is preserved; flags use native scalar BOOLs.
+Its existing volatile polling qualification moves to the actual scalar ticks
+declaration in its scoped header. Simply dropping the qualification removes
+real polling (Init80/87 and DeInit34/40) and was rejected. Moving it preserves
+the entire original object,18/18 PASS, branches0, both debug twins and48 raw
+affected references. This adds no volatile cast/helper or new volatile behavior.
+The NFS4 ticks name record is untyped; existing owner storage/access width and
+the NFS2 INT record corroborate int, but original CV/macro spelling is not
+uniquely recovered. That limitation stays explicit, not called SYM proof.
+
+The changed header has four actual consumers among698 checked sources. Base
+and all three regional files preserve their code/data/symbol/relocation output
+and local/SLD statement grouping. Region status remains AU2/9,JPN1/9,USA7/9;
+all17 pre-existing regional misses are unchanged, not advertised as fixed.
+No region CPP bodies were changed. Header backup and comments are retained.
+
+### Broad regression and remaining work
+
+All three full builds complete without failed/skipped TUs. All518 source
+objects reproduce byte-for-byte. The previous358 checked functions plus18
+fememcard functions give376/376 base PASSes with branches0. The twelve native
+data owners, raw table words/windows, both-lane standing relink, vtable/source
+policy and CI-style objdiff report checks pass. Known blob duplicates fall
+909->905; REAL duplicates, phantoms and referenced unresolveds stay zero.
+
+The complete2381-site GP audit retains zero overflows/unresolveds/encoding
+discrepancies and zero regressed native targets. It still has1462 wrong-but-
+in-range targets; the separate34 restored table relocations are HI16/LO16,
+not falsely credited as GP improvements. The full diagnostic still has119
+allocated overlap pairs,28348 appended main-data bytes and the sbss warning.
+
+Fresh frontend strict audit:781 declaration-clean functions,0 missing names,
+46 extra locals,9 type findings,9 storage findings,3 mapping-review functions
+and450 source-only carriers (451 before this round). Removing25 external
+array aliases is separate from those local-carrier counts. The one-family
+lexical inventory now has62 sites across28 files; some are genuine arrays,
+and plain false-array declarations without asm labels remain a separate
+audit family. No broader source-completeness claim follows from these counts.
+
+Receipts: ../p884_tables/README.md, final_receipts.json,
+full_validation_receipts.json, final_consumer_receipts.json,
+production_receipt.json and frontend_strict.md; source/native/debug evidence
+is in ../p884_screenmemcard and ../p884_fememcard. Existing user scratch edits
+and historical checkpoint receipts are preserved. The full goal remains active.
+
+## P885 / 2026-09-07: plain extern-pointer graphs and three native data owners
+
+P884 remains intact and uncommitted. No new commit/push authority is inferred.
+
+Three native scalar pointer contracts are restored through their complete
+source/header graphs, beyond the older audit's explicit asm-label syntax:
+FEApp4b4f01 at800514C0 (6TUs/191falseouterindices), screenMain605a62 at80051E58
+(7/126), gCurrentShapes56d925 at800517CC (10/22). Their PTR STRUCT size fields
+describe pointees, not pointer-cell sizes or arrays. All339 false outer[0]
+accesses are removed while real member/shape arrays and constructor order
+are preserved. Native scalar owner definitions already existed.
+
+Confirm's feApp/displayDialog source-only receivers are removed in base and
+three regional copies (8instances). Native5e2ee4 does not name them. Only
+feApp had an emitted debug-local record, so two source removals are not
+misrepresented as two debug removals. Remaining local types/homes and inline
+receiver roles are unchanged; there are zero new merged native SLD-line pairs
+across both61-function base FEApp consumers. No new identifiers, helpers, asm,
+volatile, pins, flags or postcompile instruction rewrites are introduced.
+
+All23 consumer TUs retain byte-identical base objects and full regional object
+or code/data/symbol/relocation fingerprints. All baseline gate outputs remain
+identical. Regional totals:51 selectedPASSes,112existingmisses,3NOT IN OBJECT
+over166selected cases/17regionalTUs. The old PAL body/text-ID/constructor misses
+and UK-SW minimal psxfront copy's absent bodies remain open, not hidden.
+
+Raw source-reference proof covers66 FEApp words,15 gCurrentShapes words and
+252 screenMain pointer-target fields. Four old PAL constructors retain24
+register/opcode word mismatches even though those target fields agree. The
+base menu constructor's debug-only3205/3207 divergence is reproduced from
+the pre-change context; normal66/66 and all seven whole objects remain exact.
+Other affected callbacks/shape methods have exact debug twins. Reference
+arithmetic to native global cells is distinguished from whole-link placement.
+
+Three more typed native data sections receive exclusive recon ownership:
+TABLE69632bytes at80123838, SNDEF8bytes at80136CD0, atantbl257bytes at80136CE8
+plus3alignment zeros. Their raw leaves remain in src. All79312 bytes of the
+strict baseline/src/recon window,76raw labels and5existing external bindings
+agree. Seven public symbols now bind to their native source cells;16actual
+linked relocation words across seven consumers change wrong->raw-exact. All
+consumer objects remain unchanged; P884's34raw words/fourbindings stay correct.
+
+Final verification: three complete builds without skipped/failed TUs; all518
+live source objects reproduced byte-for-byte;421/421 protected base functions
+with branches0; all15 native data owners, raw windows/refs, both standing link
+lanes, vtable/source-policy and CI-style objdiff report generation pass.
+Known blob duplicates905->898; REAL duplicates, phantoms and referenced
+unresolveds stayzero. The2381-site GP audit remains in-range/resolved/encoding-
+correct with zero native-target regressions;1462 wrong-but-in-range targets
+are still open. New table fixes are HI16/LO16, not extra GP improvements.
+
+The diagnostic link still permits overlaps. Removing the large raw TABLE
+copy causes remaining unregistered legacy sections to repack: pair count
+119->125, pairwise intersecting bytes110375->72019. This is not a unique
+corruption-byte count or a final executable PASS. Exact pair additions/removal
+are in ../p885_checkpoint/overlap_delta.json. Main data overrun, remaining
+raw/source duplicates, vars/new/simqueue/replay/ISO9660 ownership, and the
+sbss warning remain restoration work.
+
+Fresh frontend/common audit remains781 declaration-clean,0missing names,
+46extra locals,9type/9storage findings and3mapping reviews; codegen carriers
+fall450->448. Frontend/psx has85declaration-clean mapped functions but54source-
+only carriers and18blob-backed globals. Neither report certifies all extern
+interfaces, optimized-away source or statement/scope fidelity. The plain
+gHelpShapes and other scalar-pointer/ticks graphs remain explicit next angles.
+
+Consolidated evidence: ../p885_checkpoint/README.md, final_receipts.json,
+full_validation_receipts.json and both strict audit reports. Graph-specific
+backups/native/SLD/reference receipts are in ../p885_feapp_scalar,
+../p885_screenmain, ../p885_gcurr and ../p885_owners. Historical P883/P884
+receipts and the user's unrelated scratch edits are preserved. Goal active.
+
+## P886 / 2026-09-07: real fog-file repair, vars ownership and source scopes
+
+The round remains uncommitted with prior P884/P885 work preserved.
+
+gHelpShapes native768122 is restored as a single pointer across nine
+declarations/13actualTUs, removing52 falseouterindices and five lexical slot
+carriers. Native noise52dbb6 remains because it is a real PTR/REG17 local.
+All base46/46/functions/branches, complete objects,16raw reference words and
+native SLD merge checks pass; regional13selectedPASSes/23oldmisses are unchanged.
+The separate regional fedialog gHelpShapesA and drawshp gHelpShapes_v asm
+aliases are outside this corrected plain-declaration graph and remain open.
+
+FEInput base/JPN now read the actual scalar ticks into the existing native
+tick local once. All objects, scoped debug declarations and statement order
+remain; base4/4 and four raw ticks-reference words pass. The JPN old four-diff
+and unrelated GetNoDebounceKey branch discrepancies remain unchanged. No
+volatile or polling semantic change was introduced here.
+
+Root found a genuine source bug in Fog_ReadFogKeys: old N/W/S literals occupied
+the native S/N/W branch slots, invisible to normalized verify_asm. Raw bytes,
+delay-slot instruction stepping and Redec establish the exact four-condition
+filename truth table. Correcting the three ordinary literal characters makes
+the complete source .sdata native. The only7800-byte object deltas are those
+three bytes at .sdata+0/+8/+16; .text,148relocations, symbols and all other
+sections are unchanged. WholeTU16/16/branches0 and the70-instruction -g twin pass.
+
+The same function's i declaration is restored to its native INT/REG17 loop
+scope. Generated enclosing bounds exactly equal native476a7c..476aa6,
+800E0FD8..800E1004, ending before purgememadr. Outer readmem/strspc/numkeys order
+is restored too. That final order adjustment was separately re-gated and has
+the identical complete object, so the completed full-build/link outputs remain
+valid. This is named-scope restoration, not a claim that every empty nested
+block or original source-line spelling is recovered.
+
+TextureProcess's real G8 .sdata begins40bytes before gZDepth. The old link
+selected all68bytes at8013DB74 after also retaining its40raw string bytes;
+this displaced the whole following tail. Rawr21/o34 ownership now divides
+at8013DB4C, source68bytes match native, and the84-byte strict baseline/src/recon
+window preserves all raw labels. No string-label source variables were invented.
+
+With that upstream defect fixed, vars.c's40native globals fit8013DC64..DD04.
+The raw160-byte copy is a separate oracle-only file. All392 surrounding bytes,
+90labels and shapeext's pointer are preserved. All46vars/fog public bindings
+are now native;438named relocation words across38consumers are raw-exact,
+437newly corrected. GP audit independently repairs29more native targets,
+1462->1433 wrong-but-in-range, with zero correct-target regressions. These
+counts overlap; the46bindings,438words and29GP targets are not additive gains.
+
+Final regression completes all three full builds without skipped/failed TUs,
+518reproducible final source objects,446/446 protected basefunctions/branches0,
+seventeen native data owners, raw code/data windows, prior50table reference
+words, standing relink, vtable/source policy and CI-style report generation.
+Known raw/source duplicates898->852; REAL duplicates/phantoms/referenced
+unresolveds stayzero. All2381 GP relocations fit and encode correctly, but1433
+wrong native targets remain. The diagnostic still has124overlap pairs,
+28348appended main-data bytes and the sbss warning; no final-image PASS is claimed.
+
+Fresh frontend/psx has85declaration-clean functions yet53source-only carriers
+and18blob-backed globals. Game/psx has392/395declaration-clean functions,
+three extra names and394codegen carriers. Exact typed/source names, scopes,
+macro reconstruction and data ownership remain substantial active work.
+
+Next real data-binding defect: ISO9660's9216-byte BSS is at8013F624 rather than
+native8014487C, with42text references. Its16-byte initialized data already
+binds correctly; raw-copy retirement alone would not solve this. New heap,
+SimQueue and Replay raw windows were also inspected: their current typed
+bindings are native, so proposed transfers remove duplication, not active
+code-reference errors. Some zero-storage sections are PROGBITS and others
+NOBITS; do not feed the latter blindly into a payload-hash validator.
+
+Receipts: ../p886_checkpoint/README.md, final_receipts.json,
+full_validation_receipts.json and strict audits; ../p886_vars/window_receipts.json,
+scope_receipts.json, production_receipt.json and before/final consumer ledgers;
+../p886_owners/VARS_TRANSFER.md and READ_ONLY_FINDINGS.md; source graphs in
+../p886_ghelp and ../p886_feinput. Existing scratch/user edits and earlier
+checkpoints remain preserved. No new publication was authorized. Goal active.
+
+## P887 / 2026-09-07: native BSS ownership and remaining frontend aliases
+
+Completed regression: 470/470 protected functions in 24 base TUs, branches0,
+all three full builds without skips/failures, and 518 reproduced source objects.
+Eighteen initialized source owners now include the actual kNoColor cell;
+the full 392-byte surrounding raw window and 31 label addresses are preserved.
+
+Three native NOBITS output windows reserve 9296 bytes: C_005 at80144874 (8),
+ISO9660 at8014487C (9216), and CDROM at80146C7C (72). Twenty public globals and
+three private arrays have the verified native offsets. All311 ISO/stream
+reference words match retail,156 newly corrected; no known native bindings
+regressed. Canonical SDK4.0 supplies private ISO names/offsets while SDK4.3
+supplies the target extent; their code versions are not claimed identical.
+Stsector_offset is short2 plus alignment2, not a four-byte source object.
+
+FEVideoWall loses its false ticks array, ticksA aliases, ReadVideoWallTicks
+helper and two tickCounter locals. All12 functions and483 raw text words are
+exact. Four relocations now name ticks and24 bytes of obsolete symbol metadata
+disappear; whole-object identity to the earlier baseline is not claimed.
+Regional fedialog and drawshp gHelpShapes aliases are removed. Native corner
+statement order plus drawshp's whole-TU G0 identity preserves all four functions;
+its kNoColor payload moves from sdata to data, so this object also changes.
+
+All438 prior vars words remain exact plus exactly four newly visible canonical
+ticks words (442 total), and all50 prior table words remain exact. GP remains
+2381 resolved/in-range/encoding-correct sites,1433 wrong native targets and zero
+regressed correct targets. The diagnostic link still has130 overlap pairs,
+28348 appended main-data bytes and the sbss warning. The new BSS windows still
+intersect unretired replay-legacy/data_rest sections: not a final-image PASS.
+Standing relink has851 known blob duplicates, zero REAL duplicates, phantoms
+or referenced unresolveds. No whole-project source/SLD completion is claimed.
+
+Detailed receipts and the two corrected assertion-fixture errors are documented
+in ../p887_checkpoint/README.md. Strict frontend/common still has781 declaration-
+clean functions,46 extra locals,9type/9storage findings,3mapping reviews and446
+source-only carriers. This report does not validate every source scope or extern.
+
+## P888-P889 / 2026-09-07: storage compatibility and further ticks cleanup
+
+CDROM's storage asm contains data directives, not executable instructions.
+Scratch typed definitions with nocommon/section(.bss) preserve native storage
+and code, but require GNU as to reject an incorrect @progbits request. They
+are not promoted to production or advertised as original Sony declarations.
+Actual GCC2.7.2 binary/source evidence identifies the compatibility cause;
+ordinary COMMON's native PsyQ allocation order is the next finite experiment.
+See ../p888_cdrom_c, ../p888_c005_c and ../p889_cdrom_storage/README.md.
+
+FEScreen and Femenuextended now use scalar ticks in all six actual base/AU/USA
+consumer TUs. Twenty-one false outer-array accesses and twelve source-local
+instances are removed, including four base carriers. There are no replacement
+invented names. Base27/27 and57/57 functions and branches remain PASS; all six
+selected regional manifest tests remain PASS. Whole normal objects or complete
+code/data/symbol/relocation fingerprints are unchanged. All42 ticks reference
+words across those six consumers match their own retail images.
+
+SLD is not declared solved by those code matches. FEScreen's native zero-local
+methods now have no invented local, but emitted line partitions still split
+the native fade/ticks line. Femenuextended TransitionOff's direct ticks expression
+spans native856/858 in the debug map; TransitionOn still has the separate
+itemCursor/source-scope recovery question. These are active technical review
+items, not generic carrier exemptions or claims that evidence is unknowable.
+The affected source headers no longer unconditionally claim SLD-VERIFIED.
+Per-family receipts: ../p889_ticks and ../p889_femenuextended/README.md.
+Coordinated full-build/relink/strict results are in ../p889_checkpoint.
+The full goal remains incomplete and active; no new publication is performed.
+
+P889 final coordinated validation completed: all three full builds have no
+skipped/failed TUs,518/518 source objects reproduce P887 exactly, and527/527
+functions across25protected baseTUs pass with branches0. The diagnostic ELF
+itself is byte-identical to P887, preserving both earlier reference fixes and
+earlier overlap/GP debt. Vtable/source policy and standing relink counts pass
+unchanged. Fresh frontend/common carriers446->442;781declaration-clean,
+46extra names,9type/9storage findings and3mapping reviews are unchanged.
+See ../p889_checkpoint/README.md and link_identity.json. The goal is not complete.
+
+## P890 / 2026-09-07: unnamed ABI parameters and closer transition SLD
+
+Six unsupported arg2 definition spellings and four unverified prototype names
+are removed from FEScreen's base/AU/USA graph and owning/shared headers. The
+tMenu* parameter remains in the exact native signature; no ABI argument is
+lost. Actual Ctags/native-symbol checks retain both explicit parameter types.
+The original unused name remains unknown, not claimed originally absent.
+
+The same transitions now chain the two related fade-field initializations,
+retaining field-write and flag/ticks order. Eight finite trials show the natural
+chain preserves all code while the reverse chain fails. Native SLD split pairs
+Off5->4 and On12->8 (17->12 total), merges0. The ticks/fade group and native
+nested blocks are still open source-recovery issues, not a fully SLD-exact seal.
+All three whole objects remain unchanged; raw51words and12ticks refs are exact.
+
+Front's base/USA private header now has scalar ticks and seedrandom(int).
+All43base functions/branches and9selectedUSA cases remain PASS, with unchanged
+complete object fingerprints and12raw reference words. Direct seed assignments
+still narrow lw to lhu (2diffs at1000/1000), so the failed removal is reverted.
+The existing t local and USA volatile read remain open, without new names.
+
+lang/randomSeed in both Front copies are moved out of generic carrier exemptions
+and explicitly back into source review: their measured codegen choices do not
+prove distinct original source objects. No audit parser or suppression is added.
+Fresh frontend/common therefore reports780clean,48extra,438carriers,0missing,
+9type/9storage findings and3mapping reviews. The clean781->780/extra46->48 change
+exposes existing debt; it is not a byte-matching regression. Of carrier442->438,
+two are removed base parameter spellings and two are reclassified existing locals.
+
+Final full validation completes the three initial build lanes plus a fresh
+all-source rebuild after the fade-chain landing. All518objects reproduceP887;
+527/527 protected functions across25TUs and branches pass. All25source receipt
+hashes equal final worktree files. Diagnostic linked ELF remains byte-identical;
+standing relink/vtable/source policy and CI-style report generation pass. Earlier
+851blob duplicates,1433wrongGP targets and overlaps are not claimed solved.
+
+Actual PsyQ native C/assembler/linker controls now support ordinary CDROM COMMON
+declarations but expose separate allocation-order and assembler-schedule questions.
+Neither canonical nor candidate standalone COMMON order matches retail under the
+tested contexts; their equality is distinct from retail equality. Canonical
+objects also contain anonymous16-byte MMIO data missing from current source
+objects. Its repeated payload is not a unique VA proof. Native named
+pfuncCdReadyCallback is absent from source declarations; type and ownership
+must be traced before adding a declaration. These are active next investigations,
+not unproved claims that original information is irrecoverable.
+
+Receipts: ../p890_checkpoint/README.md, ../p890_fescreen_params,
+../p890_transition_shape, ../p890_front and ../p890_cdrom_native.
+No publication is performed; user edits are preserved. Full goal remains active.
+
+## P891 / 2026-09-07: brightness statement recovery and clock interfaces
+
+ScreenTracks base/AU/USA and its private header now use scalar ticks at18reads.
+SetBrightness now has the three native field assignments in order, removing
+the unsupported inline call/extra generated receiver/current/start records.
+Native this/SHORT bright remain. SLD distance9->5, from2splits/7merges to4/1,
+with no new merge. Remaining ticks attribution and nested scopes stay open.
+All three whole objects are unchanged; base10/10/branches0 and39ticks references
+plus36complete SetBrightness words are exact. AUInitialize's prior2diffs remain.
+
+FeMenuOptions's three consumers use a scalar clock at three direct reads and
+&ticks at three pointer-helper calls. All three whole normal objects and the
+complete85,108-byte debug object are unchanged. All151 instruction/source maps,
+8,487 pair classifications and parameter/local/block records match the baseline.
+Base92/92/branches0 and453raw affected words pass. AU's four prior2/4/4/2 misses
+remain unchanged; the helper's original names and existing SLD gaps stay open.
+
+No startTicks/inline_fn removal is claimed: byte-exact direct startTicks removal
+created six new SLD merges; field staging added a store. The helper's direct
+forms lost the retail copy. Failed variants are retained only as diagnostics.
+
+Fedialog scalar conversion remains9diffs in one function despite31/32 base
+matches. All five source/header files were restored byte-for-byte, including
+their original line endings; full base/regional gates are restored. Actual
+CC1PLPSX tracing attributes the residual to one MEM_IN_STRUCT flag and two
+lost scheduler anti-dependencies, not an unexplained allocator tie. The effect
+does not uniquely identify an original array or macro; native NFS4 ticks is
+untyped, with scalar width/type corroboration rather than a native typed row.
+The alias-sensitive access/source-boundary question is active, not declared
+irrecoverable and not worked around with invented names or output changes.
+
+Final three-build validation reproduces all518objects and passes537/537
+protected functions/branches in26baseTUs. Source receipt drift0; diagnostic
+ELF is byte-identical to P887; vtable/source policy, standing relink policy
+and CI-style report generation pass. Existing851blob duplicates/1433wrongGP
+targets/overlaps are unchanged. Strict frontend/common remains780clean,
+48extra,438carriers,0missing,9type/9storage findings and3mapping reviews.
+
+Receipts: ../p891_checkpoint/README.md, ../p891_screentracks,
+../p891_femenuoptions (including before/after SLD supplement),
+../p891_fedialog and ../p891_fedialog_compiler. No publication is performed;
+the user scratch file and earlier work are preserved. Goal remains active.
+
+## P892 / 2026-09-08: native fields, inline removal and coherent Camera regions
+
+ScreenPost/TrackRecords base and USA now use scalar ticks through both private
+headers. Ten false array reads disappear; native tt locals remain. All four
+whole objects and all eight affected debug local/line partitions are unchanged;
+base20/20, USA3/3 each,104 base branch entries and18 raw timer words pass.
+
+ScreenCongrats base/USA/JPN initialize the native fields directly, reading the
+entry tick first. The unsupported nonvirtual PrepareInitialize helper is gone
+from the private and shared class definitions. Initializer SLD merges24->0 and
+splits33->32, with no new bad pairs; its147 words and90 full-TU timer references
+are raw-exact. The remaining32 splits and native empty-block identity stay open.
+Scalar ticks/spinTicks-removal experiments lost reloads and were fully reverted;
+their original access/qualification still needs recovery, without fake arrays,
+volatile or new helpers. Base28/28, USA6/6 and JPN's six prior misses are preserved.
+
+AIInit now uses native leaderBoard and its four actual pointer fields rather
+than the invented array/asm alias. Native type130b95..130c49/global1371f7 support
+the contract; the existing AISpeeds owner is unchanged. AIInit17/17/AISpeeds29/29,
+all17 methods' debug maps/locals and all65 Reset2 raw words remain exact.
+
+Camera base plus six regions now use native Replay_ReplayCamera fields, removing
+the invented linedef alias and accessor macros. The six regions also recover
+current GameSetup/simVar/simGlobal/Replay field interfaces, fixing their stale
+header build incompatibility. Coherent historical-header baselines exist only
+in scratch. The actual regional production files now compile with current
+headers, preserving all code/storage/relocation semantics and regional constants.
+No old header or compiler output was restored into production.
+
+The six regional NextMode bodies lose unsupported setupBase/setupOffset locals.
+Their line partitions improve by164 split pairs per region relative to base SYM,
+with no new bad pairs; independent regional SLD is not claimed. All38 functions
+per Camera TU were compared, not only the replay accessors. Base38/38 and Replay
+owner16/16 pass, as do13 target-layout assertions and42 raw replay-reference
+words. AU's three regional targets pass; FR-DE/UK-ES-IT/UK-SW prior3/2/2diffs
+remain. JPN/USA have no Camera CHANGED oracle and are not called regional PASS.
+
+AIInit/Camera's native foreign types are explicit owner-derived projections.
+Their presence in each consumer's original header/type stream remains unproved.
+Recover that provenance instead of treating the correct layout as full SYM seal.
+
+All three coordinated full builds pass without skips/failures. The expanded
+protected set is665/665 functions across31 base TUs, branches0/source drift0.
+Of518 rebuilt objects,515 are literally identical; ScreenCongrats, AIInit and
+Camera differ only in documented compiler metadata. All code/data/storage,
+symbol bindings and ordered relocation semantics remain exact to the frozen
+baseline. ScreenCongrats's only UID change is local carRotate.44->carRotate.42;
+AIInit/Camera change symbol ordering and corresponding relocation indices.
+The diagnostic linked ELF therefore has a new hash, but no code/data/layout,
+header, LOAD segment or global-binding change. The local carRotate anchor is
+preserved at8013EFF0; that is not asserted to be its native retail placement.
+
+The scratch metadata verifier was independently hardened against false accepts:
+unknown/RELA metadata, duplicate sections/local symbols, executable UID renames,
+comment-only name authorization and entry/LOAD-header changes now fail closed.
+All14 self-tests pass (11 unsafe cases rejected,3 valid cases accepted), and
+the full518-object/link audit has no unapproved UID change. No production
+matching threshold was weakened and no post-compile rewrite was introduced.
+
+Strict frontend/common remains780clean,48extra,438carriers,0missing,
+9type/9storage findings and3mapping reviews. Game/common reports1228clean,
+6extra,478carriers,0missing,28type/28storage findings and0mapping reviews.
+These counts do not seal existing source-only annotations, scope/line gaps or
+global/header provenance. Earlier851 blob duplicates,1433 wrong GP targets and
+link overlap/overrun debt remain unchanged. CI-style report generation and
+git diff --check pass. The user scratch hash and prior work remain preserved.
+
+Receipts: ../p892_checkpoint/README.md, ../p892_post_records,
+../p892_screencongrats, ../p892_leaderboard and ../p892_replay_camera.
+No commit/push is performed in this round. Full source/SYM/SLD goal stays active.
+
+## P893 / 2026-09-08: Camera's native road-slice access graph
+
+The invented Camera_BWorldSmSlices pointer-to-byte-row alias and four
+CAMERA_SLICE_* macros are removed. Seven Camera sources now express105 prior
+macro calls and39 direct alias uses through native BWorldSm_slices and
+Trk_NewSlice fields; raw center-height accesses use center[1]. SYM1cec71..1cedc3
+defines all32 bytes, and1d937e establishes the actual pointer owner at8013C7C0.
+The real bworldsm owner is unchanged. No new helper, asm, qualifier, flag or
+invented source name is introduced. AU's existing nextSlice receives the true
+pointer type, but that does not establish its unsupported local name/presence.
+
+All seven actual production objects are literally identical to P892. All266
+function instances retain line partitions;168 own-image raw pointer-reference
+words and18 target layout assertions pass. Existing native-relative SLD gaps,
+Camera carriers/fences and original foreign-header visibility remain open.
+The private header no longer inaccurately claims an exact source-visible graph.
+
+The fresh three-build checkpoint passes665/665 protected functions across31TUs,
+branches0/source drift0. All518 normal objects and the diagnostic linked ELF
+are literally unchanged from P892. Strict frontend/common remains780clean,
+48extra,438carriers; game/common1228clean,6extra,478carriers. Missing names0 in
+both; prior type/storage/mapping review queues remain. Relink/vtable/source
+policy and CI-style report generation pass. User edits are preserved.
+
+Parallel next proposals are explicitly outside that full-build snapshot:
+AI can remove its slice alias/macros using an already present native type,
+and ScreenPost's max locals can be tested against its native one-local body.
+Their per-family receipts distinguish isolated candidates from production.
+
+Replay's true StatsTimer[2] consumer was re-probed under the current2.8.1-SN
+identity: direct native array gives14/16 with8diffs each in ResetReplay and
+GetInterfaceKey at unchanged instruction counts. Whole-TU G8 gives12/16 and
+branch regressions. No production change. Raw Replay stores are absolute
+lui-at/sw pairs, not the gp-relative stores claimed by an existing comment.
+Compiler-source ENCODE_SECTION_INFO evidence explains declaration-size-sensitive
+symbolic-address treatment; the original array/header/object contract remains
+to be recovered, not replaced by invented cells, qualifiers or output rewrites.
+
+Receipts: ../p893_checkpoint/README.md, ../p893_camera_slices,
+../p893_replay_stats, ../p893_slice_alias_audit and ../p893_post_locals.
+No commit/push performed. Whole original-source/SYM/SLD goal remains active.
+
+## P894 / 2026-09-08: AI native fields and ScreenPost macro-local removal
+
+AI's synthetic BWorldSm slice alias and two offset macros are gone. Ten
+accesses now use the existing native Trk_NewSlice type/fields; no type header
+or local was changed. Actual40/40 code/branch gates, all40 full debug scope/
+local contracts and line partitions, and36 raw pointer references pass.
+Existing AddCollidableObjects/PushFinishedCarsToSide native-scope issues remain
+open separately from this field graph. Other remaining slice alias inventory
+is in ../p893_slice_alias_audit, including Newton/AIPhysic/AIState/AudioTrk.
+
+ScreenPost base/USA Initialize loses the invented count-speed macro and both
+max_money/max_damage locals. Native this/tInfo are the only resulting debug
+locals. Separate flag and nested maximum expression preserve all code while
+reducing native SLD merges29->8, splits29 unchanged, with no new bad pairs.
+The original maximum-operator tokens are not recovered; no replacement name
+was invented. Native empty-block topology remains unresolved, not suppressed.
+The old comment's line118 attribution is corrected to flag113/max115.
+
+Actual base13/13 with67 clean branch checks, USA3/3 manifest gates and198 raw
+initializer words (16 reloc words included) pass. All26 function-instance
+local/SLD comparisons pass their stated before/after tests; USA native counts
+are explicitly base-SYM projections. Both actual production whole objects
+are literally unchanged. Debug label assertions prove zero label rewriting.
+
+Full three-build validation passes705/705 protected functions across32TUs,
+branches0/source drift0. Of518 objects,517 are literally identical; AI alone
+has symbol/string ordering and corresponding relocation-index changes. Its
+code/data/storage/full symbol multiset/ordered relocations are unchanged with
+no UID rename. The diagnostic linked ELF is literally identical to P893.
+Relink/vtable/source policy, strict audits and CI-style report generation pass.
+
+Strict totals remain frontend780clean/48extra/438carriers and
+game1228clean/6extra/478carriers,0missing in both. The macro-private max names
+were not included in these ordinary body-local counters; their removal is
+verified by actual source and compiler debug records, not an inflated audit
+delta. Existing851 blob duplicates,1433 wrong GP targets and layout debts
+remain. User edits are preserved. No publication is performed; goal active.
+
+Receipts: ../p894_checkpoint/README.md, ../p894_screenpost,
+../p893_slice_alias_audit/landed_verification.json. Further AI scope and
+NewBestLap candidates are still separately staged proposals at this snapshot.
+
+## P895 / 2026-09-08: exact AI instruction groups and native lexical ownership
+
+AI_PushFinishedCarsToSide now uses one combined short-circuit guard with its
+two actual INT locals inside the body. Native three block spans/depths match:
+roots8005A724 atdepth0/1; locals8005A7C0..8005A8B0 atdepth2. The synthetic
+PUSH label/gotos are removed. Separate call-result then abs assignments to
+the same native absDistancePastFinish preserve its $6 home and totalSortIndex's
+$3 home without introducing a carrier.
+
+Native SLD pair differences485splits/9merges ->0/0. First the combined guard
+closed485splits, then native1997call/1998abs separation closed the last9merges.
+The complete actual AI object is unchanged;40/40 functions/branches and all39
+neighbor debug contracts remain exact. Full target raw103/103 words (412B),
+including22 relocated words, matches retail. The first guard-only production
+proof and rejected five-scope intermediate probes remain preserved.
+
+This is not literal-text or physical-line recovery: the expanded conditional
+still gives block-relative6..30 versus native4..28. The three block address
+spans/depths and instruction-line equivalence are exact, while original
+formatting/macro tokens/whole-file line positions remain open. No #line spoofing,
+new asm, qualifiers, flags or helpers were used. No broad full-SYM claim follows.
+
+TrackRecords base/USA now use the genuine scalar BOOL NewBestLap directly,
+removing both invented NewBestLapA[] asm views. Native71dba4 proves scalar
+shape; true NewRecords[8] and all native locals/types/region ids remain.
+Actual7/7 base,37 clean branches,3/3 USA,all14 local/line partitions and240 raw
+DrawRecords words pass. The fourNewBestLap refs are exact for each image.
+Existing3merge/144split DrawRecords pairs remain unchanged, not sealed.
+
+Fresh705/705 protected functions across32 base TUs pass, branches0/source drift0.
+All518 source objects and diagnostic linked ELF are literally identical to
+P894. P894's three full build lanes are preserved; P895's CPP-only changes
+are verified by fresh complete-TU compilation plus exhaustive object hashes,
+not falsely described as another full-tree rebuild. Relink/vtable/source
+policy, strict audits and CI-style report generation pass.
+
+Strict totals remain frontend780clean/48extra/438carriers and
+game1228clean/6extra/478carriers, with0missing in both. Native scope/source
+fidelity improves despite unchanged declaration counters. All previous
+link/data/header and source-carrier queues remain active; no unknown name is
+renamed merely for readability. User edits preserved; no commit/push performed.
+
+Receipts: ../p895_checkpoint/README.md, ../p895_ai_abs_split actual landed
+scope/raw receipts, ../p894_ai_single_guard and ../p895_newbestlap.
+The full original-source/SYM/SLD goal remains active and incomplete.
+
+## P896 / 2026-09-09: AI initialized state/native scopes and Newton fields
+
+AI_AddCollidableObjects now restores static CHAR firstTime=1 at nativeGP0,
+8013C54C, and real132-byte BWorldSm_Pos spos at8013DEE0. The previous source
+zero flag read the wrong SBSS cell; its raw/CPE initializer and compact spos
+record were not fully applied despite declaration-clean audits. All eight
+static-reference words and the complete127-word actual linked function now
+match retail. No unlinked-relocation normalization substitutes for this proof.
+
+The source restores Group::GetData's implicit receiver, for-local objectIndex,
+loop-local pt and five inner locals. All11 native local/inline type/home/storage
+records and all7 lexical address spans/depths match. SLD36merge/92split pairs
+improve to30/0, with no new bad pairs. Vector subtraction and load/scale radius
+are grouped without an invented macro name; a code-exact multiplied initializer
+that lost native radius debug visibility was rejected. The remaining call-result
+versus range-test source boundary and original token/physical-line recovery stay
+open; no extra variable is invented to hide the gap.
+
+AI source owns a native16-byte initialized run and132-byte NOBITS region.
+Only raw r00(4B)/o00(12B) inputs are excluded from reconstruction; oracle files
+are retained. __sdata_org is the linker-owned boundary. Registry checks support
+explicit multi-piece ownership, exact offsets/bindings and unique numeric UID
+stems, with comments/backups.50/50 negative/positive controls pass after closing
+ten initial fail-open cases;21old owners stay compatible. No instruction or
+debug-label rewriting was introduced. GAS-L diagnostic reassembly retains only
+pre-existing compiler labels and proves instruction/data bytes unchanged.
+
+Newton base/USA recovers97 native field accesses, including USA's three stale
+aggregate interfaces. Trk_NewSlice's owner-derived projection stays in the
+Newton-only extern boundary; shared private newton_types and AIH-BTCCop remain
+untouched.32/32base and USA492target pass;64debug/local/scope/source contracts,
+108own-image raw references and30actual-header layout assertions pass. USA's
+simGlobal mapping was an interior gameTicks cell, corrected before relocation.
+Original external type/header visibility and other source scopes remain open.
+
+All3full build lanes and737/737 protected functions across33baseTUs pass,
+branches0/source drift0. Of518 normal objects,517 are byte-identical; AI's
+only changes are native initialized storage and expected section/symbol
+contracts. All normal instruction bytes are unchanged. Actual GP audit has
+2381resolved/encoded sites,0overflows:2378native-known,3unknown; confirmed
+wrong targets1430->1428. All948 previously correctGP rows and3779native globals
+are preserved. Recon blob duplicates851->848, REAL/phantom/referenced-unresolved0.
+
+Native spos placement still overlaps three oversized existing output sections:
+overlap pairs130->133. Catchallpacking/orphandata move; none of the previously
+correct native bindings regress, but wrong/unknown moved bindings and all
+inherited overlap/SBSS/data-overrun debt remain. No fully valid final-image or
+whole-project source/SYM claim is made. Strict declaration counters remain
+frontend780/48/438 and game1228/6/478,0missing in both; they are not scope or
+initialized-state proofs.
+
+ScreenPost DrawBackground trials were rejected and frozen. Direct text-type
+literals first diverge only after the loop; cached-count and nested j/source
+identity need further work. Existing names are not relabeled as solved. See
+../p896_post_draw. Full goal remains active; no commit/push performed.
+
+Receipts: ../p896_checkpoint/README.md and final_receipts.json,
+../p896_ai_statements, ../p896_newton_slices, ../p896_production_storage,
+../p896_ai_storage and ../p896_owner_validator_tests. User edits preserved.
+
+## P897 / 2026-09-09: native AI slice interfaces and AudioTrk scope ownership
+
+AIPhysic, AIState (base/USA), and AudioTrk now use the native BWorldSm_slices
+pointer and Trk_NewSlice fields instead of three invented asm aliases and
+byte-offset views. The 32-byte type is supported by owner records
+1cec71..1cedc3 and global 1d937e; its original visibility in each consumer's
+foreign headers remains unproved. These are private extern-boundary projections,
+not newly claimed native type-stream records in those consumers.
+
+Actual AIPhysic 42/42 and AIState 52/52 base functions preserve all branches
+and existing local/source/debug contracts. AIState USA repairs eleven stale
+SimGlobal/GameSetup accesses that no longer compiled with current headers.
+Its two available regional oracles PASS; all 52 USA bodies, data, symbols and
+ordered relocations preserve the coherent historical-header baseline. The
+regional simGlobal map anchors gameTicks at +4, so the actual base is derived
+before relocation. All 18 AIPhysic and 90 AIState raw reference words are exact.
+Existing synthetic carriers, fences and unresolved source scopes are not sealed.
+
+AudioTrk retains 6/6 PASS with the five PreLoad local owners corrected:
+se at 8007D3D8..8007D4DC/depth1, i at 8007D410..8007D4DC/depth2,
+x/z/d at 8007D424..8007D4CC/depth3. Native checkonly is BOOL, so two calls now
+pass false rather than a null void pointer; the prototype's bank/patch/checkonly
+names agree with 191b4b..191b70. All 116 raw PreLoad words and both slice
+reference words match. Existing instruction-line partitions remain unchanged.
+
+Correction to P842's old name claim: AudioTrk_Reset's se was borrowed from
+neighboring functions, not recovered from Reset's own SYM1be94f..1bea5c, which
+lists only two i locals. Same-role sibling usage and pointer-induction assembly
+do not prove an original local/name. Keep the current code/name visible as
+SOURCE-RECOVERY-OPEN, without a generic carrier or original-name exemption.
+A fresh direct-index trial was 58/56 with 32 differences and was rejected;
+that is a failed form, not proof that the pointer is required or original.
+
+PreLoad still lacks the CAudioList implicit this record 1bf4f2 and two
+zero-width inline blocks at 8007D410. The original accessor identity has not
+been established; do not invent GetData/GetElements to fill the debug gap.
+AIPhysic_GetDesiredVector still owns checkSide at function scope rather than
+native 11cd8f's depth3 block, 8006B104..8006B164. The next bounded angle is
+to narrow the existing declaration, preserving its separate assignment, and
+check the parent block beginning at the fCPoint copy (8006AF80). No change to
+that scope has been made in P897.
+
+Actual-source, raw-word, layout and scope receipts are in
+../p897_aiphysic_slices, ../p897_aistate_slices and ../p897_audiotrk.
+The combined build/publication results are recorded in ../p897_checkpoint.
+Full original-source/SYM/SLD restoration and final native image layout remain
+open. CDROM.c's existing file-scope assembly reserves BSS only (no executable
+instructions); it remains a storage-source restoration item, not ordinary C.
+
+Completed local P897 regression: all three full builds and 831/831 protected
+functions across 35 base TUs PASS, with zero branch divergence. All 518 normal
+objects, the linked ELF and map are literally unchanged from P896. Vtable,
+source-policy, relink and CI-style report checks pass. Strict game/common now
+reports 1227 clean / 7 extra / 478 carriers / 32 original-name recoveries;
+the one reopened se claim explains the count change. Frontend/common remains
+780 / 48 / 438. Both have zero missing mapped SYM names. Goal remains active.
+
+Publication integration preserves upstream c652c79a/373adb47/7728c5ea.
+All 182 incoming oracle-known symbols (180 scaffold entries plus two static
+copies) retain PASS. Ten of eleven closure TUs compile; USA Speech's existing
+SPCH_ResolveData/AddBank pointer-type errors remain unchanged. Base
+SubmitRequest__6Speechlll's existing branch distance -2 versus +8 also remains
+open. These are not claimed new regressions or counted as green. Incoming
+behavior-derived Vox record names/layouts are not automatically exact native
+name recoveries. The real regenerated linked ELF and map remain byte-identical
+to the frozen P897 checkpoint after the six chosen-field relocation retargets.

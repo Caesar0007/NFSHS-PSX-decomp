@@ -14,7 +14,18 @@ void AIPhysic_InControlPhysics(Car_tObj *car);
 void AIPhysic_FinishUp(Car_tObj *car);
 void Cars_ResetCollidedCars(Car_tObj *car, int a, int b);
 extern GameSetup_tData GameSetup_gData;
-extern char *AIPhysic_BWorldSmSlices asm("BWorldSm_slices");
+/* Owner-derived bworldSm type: SYM1cec71..1cedc3, 32 bytes. AIPhysic's
+ * surviving type stream does not preserve this foreign body; original header
+ * visibility remains unproved. This is a private external field contract,
+ * not an exported addition to aiphysic_types.h. */
+struct Trk_NewSlice {
+    int center[3];
+    char normal[3], forward[3], right[3];
+    u_char acousticType;
+    short pavedProfile, leftDrive, rightDrive;
+    u_char chunkIndex, laneCount, avgPavedWidthLf, avgPavedWidthRt;
+};
+extern Trk_NewSlice *BWorldSm_slices; /* SYM1d937e */
 /* W65-A8 ORDER IS LOAD-BEARING: a TU-owned tentative definition is emitted in
  * the order its identifier is FIRST DECLARED (here, not at the .cpp def).
  * This is aiphysic.obj's whole .sdata run 0x8013c594..0x8013c59c, in retail

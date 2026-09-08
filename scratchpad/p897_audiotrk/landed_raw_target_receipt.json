@@ -1,0 +1,174 @@
+{
+  "passed": true,
+  "stage": "landed",
+  "function": "AudioTrk_PreLoad__Fv",
+  "raw_words_exact": 116,
+  "bytes_exact": 464,
+  "resolved_relocation_words": 23,
+  "unmodified_instruction_words": 93,
+  "retail_sha256": "51e6b41c1a663ec04f8aa9169b352244833a6ba1095c0900e54c6aa6d45e36f2",
+  "relocations": [
+    {
+      "instruction": 0,
+      "relocation_type": 5,
+      "symbol": "gGameAudioList",
+      "target": "0x8013C730",
+      "resolved_word": "0x3C028014"
+    },
+    {
+      "instruction": 1,
+      "relocation_type": 6,
+      "symbol": "gGameAudioList",
+      "target": "0x8013C730",
+      "resolved_word": "0x8C42C730"
+    },
+    {
+      "instruction": 13,
+      "relocation_type": 5,
+      "symbol": "gMasterAmbientLevel",
+      "target": "0x8013C660",
+      "resolved_word": "0x3C028014"
+    },
+    {
+      "instruction": 14,
+      "relocation_type": 6,
+      "symbol": "gMasterAmbientLevel",
+      "target": "0x8013C660",
+      "resolved_word": "0x8C42C660"
+    },
+    {
+      "instruction": 18,
+      "relocation_type": 4,
+      "symbol": ".text",
+      "target": "0x8007D500",
+      "resolved_word": "0x0801F540"
+    },
+    {
+      "instruction": 20,
+      "relocation_type": 5,
+      "symbol": "BWorldSm_slices",
+      "target": "0x8013C7C0",
+      "resolved_word": "0x3C028014"
+    },
+    {
+      "instruction": 21,
+      "relocation_type": 6,
+      "symbol": "BWorldSm_slices",
+      "target": "0x8013C7C0",
+      "resolved_word": "0x8C42C7C0"
+    },
+    {
+      "instruction": 25,
+      "relocation_type": 4,
+      "symbol": "gettick",
+      "target": "0x800E8220",
+      "resolved_word": "0x0C03A088"
+    },
+    {
+      "instruction": 27,
+      "relocation_type": 5,
+      "symbol": "gGameAudioList",
+      "target": "0x8013C730",
+      "resolved_word": "0x3C038014"
+    },
+    {
+      "instruction": 28,
+      "relocation_type": 6,
+      "symbol": "gGameAudioList",
+      "target": "0x8013C730",
+      "resolved_word": "0x8C63C730"
+    },
+    {
+      "instruction": 34,
+      "relocation_type": 4,
+      "symbol": "gettick",
+      "target": "0x800E8220",
+      "resolved_word": "0x0C03A088"
+    },
+    {
+      "instruction": 39,
+      "relocation_type": 4,
+      "symbol": "SNDmemlargestunused",
+      "target": "0x800E7CEC",
+      "resolved_word": "0x0C039F3B"
+    },
+    {
+      "instruction": 45,
+      "relocation_type": 5,
+      "symbol": "gGameAudioList",
+      "target": "0x8013C730",
+      "resolved_word": "0x3C028014"
+    },
+    {
+      "instruction": 46,
+      "relocation_type": 6,
+      "symbol": "gGameAudioList",
+      "target": "0x8013C730",
+      "resolved_word": "0x8C42C730"
+    },
+    {
+      "instruction": 68,
+      "relocation_type": 4,
+      "symbol": ".text",
+      "target": "0x8007D47C",
+      "resolved_word": "0x0801F51F"
+    },
+    {
+      "instruction": 80,
+      "relocation_type": 5,
+      "symbol": "CopSpeak_gNumTrackSfx",
+      "target": "0x8013D0D4",
+      "resolved_word": "0x3C028014"
+    },
+    {
+      "instruction": 81,
+      "relocation_type": 6,
+      "symbol": "CopSpeak_gNumTrackSfx",
+      "target": "0x8013D0D4",
+      "resolved_word": "0x8C42D0D4"
+    },
+    {
+      "instruction": 86,
+      "relocation_type": 4,
+      "symbol": "AudioCmn_GetAsyncSfx__Fiib",
+      "target": "0x80076900",
+      "resolved_word": "0x0C01DA40"
+    },
+    {
+      "instruction": 94,
+      "relocation_type": 4,
+      "symbol": ".text",
+      "target": "0x8007D424",
+      "resolved_word": "0x0801F509"
+    },
+    {
+      "instruction": 96,
+      "relocation_type": 4,
+      "symbol": "CopSpeak_Server__Fv",
+      "target": "0x8009A994",
+      "resolved_word": "0x0C026A65"
+    },
+    {
+      "instruction": 98,
+      "relocation_type": 4,
+      "symbol": "systemtask",
+      "target": "0x800E6C04",
+      "resolved_word": "0x0C039B01"
+    },
+    {
+      "instruction": 100,
+      "relocation_type": 4,
+      "symbol": ".text",
+      "target": "0x8007D3DC",
+      "resolved_word": "0x0801F4F7"
+    },
+    {
+      "instruction": 102,
+      "relocation_type": 4,
+      "symbol": "gettick",
+      "target": "0x800E8220",
+      "resolved_word": "0x0C03A088"
+    }
+  ],
+  "object_unchanged": true
+}

@@ -217,7 +217,7 @@ void Front_ConstructAll(void)
   screenPinkSlips = &gAllScreens->screenPinkSlips;
   screenBeTheCopCongrats = &gAllScreens->screenBeTheCopCongrats;
   screenTournamentCongrats = &gAllScreens->screenTournamentCongrats;
-  FEApp[0] = new tFEApplication;
+  FEApp = new tFEApplication;
   menuDefs = new tGlobalMenuDefs;
   return;
 }
@@ -237,8 +237,8 @@ void Front_DeleteAll(void)
   if (gAllScreens != (tAllScreens *)0x0) {
     delete gAllScreens;
   }
-  if (FEApp[0] != (tFEApplication *)0x0) {
-    delete FEApp[0];
+  if (FEApp != (tFEApplication *)0x0) {
+    delete FEApp;
   }
   if (menuDefs != (tGlobalMenuDefs *)0x0) {
     delete menuDefs;
@@ -779,14 +779,14 @@ void SetPads(void)
     if (frontEnd.AnalogOn[j] != 0) {
       LookingFor = 7;
     }
-    starttick = ticks[0];
+    starttick = ticks;
     /* SYM-CODEGEN-CARRIER: waiting -- the explicit false/conditional update
      * preserves retail's boolean normalization and constant/register handout;
      * a direct short-circuit loop is FAIL 21 / 78 versus PASS 79. */
     bool waiting;
     do {
       waiting = false;
-      if (ticks[0] - starttick < 0x80) {
+      if (ticks - starttick < 0x80) {
         waiting = PadGetState(pad) != 6;
       }
     } while (waiting);
@@ -1134,7 +1134,7 @@ int Front_Menu(tFront_ProcessingType role)
   case kFront_QuitToGameSetup:
     if (gUseFrontend != 0) {
       MenuExtended_TransitionFromPostGameToMainMenu(tempCommand);
-      result = FEApp[0]->RunFrontEnd();
+      result = FEApp->RunFrontEnd();
     }
     break;
   case kFront_QuitToPostGame:
@@ -1156,7 +1156,7 @@ int Front_Menu(tFront_ProcessingType role)
         frontEnd.pinkSlipsWins[1] = frontEnd.pinkSlipsWins[1] + '\x01';
       }
     }
-    result = FEApp[0]->RunPostGame();
+    result = FEApp->RunPostGame();
     break;
   }
   Front_DeleteAll();
@@ -2663,8 +2663,8 @@ track_value_ready:
    is one of the locally supported languages.
 
    [Locals 2026-08-16] Retail SYM restores the BOOL result in $s1 and the
-   stack-local trackInfo. The optimized-away language expression identity is
-   receipted beside its declaration below. Detailed gate: PASS 35/35;
+   stack-local trackInfo. The unsupported language local remains in active
+   source review beside its declaration below. Detailed gate: PASS 35/35;
    Front_BuildStream remains PASS 1000/1000. */
 
 bool Front_EnableLocalSpeech(void)
@@ -2672,10 +2672,10 @@ bool Front_EnableLocalSpeech(void)
 {
   bool result;
   tTrackInformation trackInfo;
-  /* SYM-CODEGEN-CARRIER: lang -- absent from retail's surviving debug rows,
-     but required for the separate signed bltz/slti range test.  Repeating
+  /* SOURCE-RECOVERY-OPEN: lang -- absent from retail's surviving debug rows.
+     This form retains the separate signed bltz/slti range test. Repeating
      trackInfo.fLanguage directly is FAIL 4 at 33/35 instructions: gcc folds
-     the two signed tests into one sltiu. */
+     the two signed tests into one sltiu. That does not prove an original local. */
   int lang;
 
   result = false;
@@ -2707,9 +2707,9 @@ int * Front_BuildStream(int *stream)
 {
   int colourLoop;
   int j, type;
-  /* SYM-CODEGEN-CARRIER: randomSeed -- direct assignment to stream[0x31]
+  /* SOURCE-RECOVERY-OPEN: randomSeed -- direct assignment to stream[0x31]
      is FAIL 5 at 1001/1000: it keeps the value in $a0 and removes retail's
-     load-delay nop.  The captured value restores `lh v0` plus that delay. */
+     load-delay nop. The capture matches, but no original local is proven. */
   int randomSeed;
   int numplaylistsongs;
   int *d;
@@ -2727,7 +2727,7 @@ int * Front_BuildStream(int *stream)
   Front_InitCopCars(streamData);
   Front_InitPerps(streamData);
   Front_InitTraffic(streamData);
-  seedrandom(frontEnd.randomSeed = (short)*(volatile int *)ticks);
+  seedrandom(frontEnd.randomSeed = (short)*(volatile int *)&ticks);
   for (colourLoop = 7; 0 <= colourLoop; colourLoop--) {
     colourChosen[colourLoop] = 0;
   }

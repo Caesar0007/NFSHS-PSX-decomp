@@ -7,10 +7,12 @@ extern tfrontEnd frontEnd;
 extern tTournamentManager tournamentManager;
 extern tTrackManager trackManager;
 extern tGlobalMenuDefs *menuDefs;
-extern int ticks[];
+/* P892: vars.obj scalar at NFS4 019199/8013DCAC; NFS2 13bb6c records INT. */
+extern int ticks;
 extern int kRGBVals[28];
 extern char textDefinitions[14][6];
-extern tTexture_ShapeInfo *gCurrentShapes[];
+/* P885: SYM56d925 is one PTR cell; the pointed-to shapes are the array. */
+extern tTexture_ShapeInfo *gCurrentShapes;
 
 extern __nfs4_vtbl_ptr_t tScreenTournamentStandings_vtable[10];
 extern __nfs4_vtbl_ptr_t tScreenTournamentStandings3item_vtable[10];

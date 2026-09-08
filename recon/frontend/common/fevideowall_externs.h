@@ -3,7 +3,7 @@
 #define _FE_FEVIDEOWALL_EXTERNS_H_
 #include "fevideowall_types.h"
 
-extern int ticks[];
+extern int ticks; /* @0x8013dcac; scalar owned by vars.c */
 
 /* TV tiles (FETv) */
 void  InitTV(tTVConfig*, tTexture_ShapeInfo*, short) asm("InitTV__FR9tTVConfigP18tTexture_ShapeInfos");

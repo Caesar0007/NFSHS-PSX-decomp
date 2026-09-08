@@ -532,10 +532,8 @@ void AIPhysic_CheckForBadPosition(Car_tObj *carObj)
         badSpeed = 1;
     if (carObj->roadPosition <
             (int)0xFFDD0000 -
-                (*(short *)(((int)carObj->N.simRoadInfo.slice << 5) +
-                            (int)AIPhysic_BWorldSmSlices + 0x18) << 8) ||
-        (*(short *)(((int)carObj->N.simRoadInfo.slice << 5) +
-                    (int)AIPhysic_BWorldSmSlices + 0x1a) << 8) +
+                (BWorldSm_slices[carObj->N.simRoadInfo.slice].leftDrive << 8) ||
+        (BWorldSm_slices[carObj->N.simRoadInfo.slice].rightDrive << 8) +
                 0x230000 < carObj->roadPosition)
         badRoadPos = 1;
     if (badSpeed || badRoadPos)
@@ -871,13 +869,13 @@ int AIPhysic_CalculateRoadPosition(coorddef *pos, int slice)
     coorddef centerBack;
     coorddef carRelative;
     coorddef right;
-    centerBack = *(coorddef *)(AIPhysic_BWorldSmSlices + slice * 0x20);
+    centerBack = *(coorddef *)BWorldSm_slices[slice].center;
     carRelative.x = pos->x - centerBack.x;
     carRelative.y = pos->y - centerBack.y;
     carRelative.z = pos->z - centerBack.z;
-    right.x = *(signed char *)(AIPhysic_BWorldSmSlices + slice * 0x20 + 0x12) << 9;
-    right.y = *(signed char *)(AIPhysic_BWorldSmSlices + slice * 0x20 + 0x13) << 9;
-    right.z = *(signed char *)(AIPhysic_BWorldSmSlices + slice * 0x20 + 0x14) << 9;
+    right.x = (signed char)BWorldSm_slices[slice].right[0] << 9;
+    right.y = (signed char)BWorldSm_slices[slice].right[1] << 9;
+    right.z = (signed char)BWorldSm_slices[slice].right[2] << 9;
     return (right.x / 256) * (carRelative.x / 256) +
            (right.y / 256) * (carRelative.y / 256) +
            (right.z / 256) * (carRelative.z / 256);
@@ -925,14 +923,10 @@ void AIPhysic_GetDesiredVector(Car_tObj *carObj)
           : thisSlice + dirCorrectedSliceLookAhead);
   futureBend = __builtin_abs(AIWorld_CalcRoadBend(carObj,dirCorrectedSliceLookAhead));
   roadWidth =
-      (u_int)(*(u_char *)(carObj->lookAheadSlice * 0x20 +
-                          (int)AIPhysic_BWorldSmSlices + 0x1e) << 15) *
-          (u_int)(*(u_char *)(carObj->lookAheadSlice * 0x20 +
-                              (int)AIPhysic_BWorldSmSlices + 0x1d) >> 4) +
-      (u_int)(*(u_char *)(carObj->lookAheadSlice * 0x20 +
-                          (int)AIPhysic_BWorldSmSlices + 0x1f) << 15) *
-          (*(u_char *)(carObj->lookAheadSlice * 0x20 +
-                       (int)AIPhysic_BWorldSmSlices + 0x1d) & 0xf);
+      (u_int)(BWorldSm_slices[carObj->lookAheadSlice].avgPavedWidthLf << 15) *
+          (u_int)(BWorldSm_slices[carObj->lookAheadSlice].laneCount >> 4) +
+      (u_int)(BWorldSm_slices[carObj->lookAheadSlice].avgPavedWidthRt << 15) *
+          (BWorldSm_slices[carObj->lookAheadSlice].laneCount & 0xf);
   if (roadWidth < 0x120000) {
     if (0xf333 < futureBend) {
       sliceLookAhead = sliceLookAhead * 0xca3d / 0x10000;
@@ -956,10 +950,10 @@ void AIPhysic_GetDesiredVector(Car_tObj *carObj)
         : ((thisSlice + dirCorrectedSliceLookAhead < 0)
             ? (thisSlice + dirCorrectedSliceLookAhead) + gNumSlices
             : thisSlice + dirCorrectedSliceLookAhead);
-    fCPoint = *(coorddef *)(carObj->lookAheadSlice * 0x20 + (int)AIPhysic_BWorldSmSlices);
-    right.x = (int)*(signed char *)(carObj->lookAheadSlice * 0x20 + (int)AIPhysic_BWorldSmSlices + 0x12) << 9;
-    right.y = (int)*(signed char *)(carObj->lookAheadSlice * 0x20 + (int)AIPhysic_BWorldSmSlices + 0x13) << 9;
-    right.z = (int)*(signed char *)(carObj->lookAheadSlice * 0x20 + (int)AIPhysic_BWorldSmSlices + 0x14) << 9;
+    fCPoint = *(coorddef *)BWorldSm_slices[carObj->lookAheadSlice].center;
+    right.x = (int)(signed char)BWorldSm_slices[carObj->lookAheadSlice].right[0] << 9;
+    right.y = (int)(signed char)BWorldSm_slices[carObj->lookAheadSlice].right[1] << 9;
+    right.z = (int)(signed char)BWorldSm_slices[carObj->lookAheadSlice].right[2] << 9;
     fPoint.x = fixedmult(carObj->rampDesiredLatPos,right.x);
     fPoint.y = fixedmult(carObj->rampDesiredLatPos,right.y);
     fPoint.z = fixedmult(carObj->rampDesiredLatPos,right.z);
@@ -968,16 +962,12 @@ void AIPhysic_GetDesiredVector(Car_tObj *carObj)
     fPoint.z = fPoint.z + fCPoint.z;
     futureRoadPosition = AIPhysic_CalculateRoadPosition(&fPoint,thisSlice);
     {
-      if ((((int)((u_int)(*(u_char *)(thisSlice * 0x20 +
-                                      (int)AIPhysic_BWorldSmSlices + 0x1f) << 15) *
-                   (*(u_char *)(thisSlice * 0x20 +
-                                (int)AIPhysic_BWorldSmSlices + 0x1d) & 0xf)) < futureRoadPosition)
+      if ((((int)((u_int)(BWorldSm_slices[thisSlice].avgPavedWidthRt << 15) *
+                   (BWorldSm_slices[thisSlice].laneCount & 0xf)) < futureRoadPosition)
           && (carObj->roadPosition < futureRoadPosition)) ||
          ((futureRoadPosition <
-           (int)-((u_int)(*(u_char *)(thisSlice * 0x20 +
-                                      (int)AIPhysic_BWorldSmSlices + 0x1e) << 15) *
-                  (u_int)(*(u_char *)(thisSlice * 0x20 +
-                                      (int)AIPhysic_BWorldSmSlices + 0x1d) >> 4))) &&
+           (int)-((u_int)(BWorldSm_slices[thisSlice].avgPavedWidthLf << 15) *
+                  (u_int)(BWorldSm_slices[thisSlice].laneCount >> 4))) &&
           (futureRoadPosition < carObj->roadPosition))) {
         checkSide = 1;
         if (futureRoadPosition < carObj->roadPosition) {
@@ -1039,16 +1029,12 @@ int AIPhysic_CheckIfOutOfControl(Car_tObj *carObj)
       goto ret1;
     }
     if (carObj->roadPosition <
-        (int)-((u_int)(*(u_char *)((carObj->N).simRoadInfo.slice * 0x20 +
-                                   (int)AIPhysic_BWorldSmSlices + 0x1e) << 15) *
-               (u_int)(*(u_char *)((carObj->N).simRoadInfo.slice * 0x20 +
-                                   (int)AIPhysic_BWorldSmSlices + 0x1d) >> 4))) {
+        (int)-((u_int)(BWorldSm_slices[(carObj->N).simRoadInfo.slice].avgPavedWidthLf << 15) *
+               (u_int)(BWorldSm_slices[(carObj->N).simRoadInfo.slice].laneCount >> 4))) {
       goto ret1;
     }
-    if ((int)((u_int)(*(u_char *)((carObj->N).simRoadInfo.slice * 0x20 +
-                                  (int)AIPhysic_BWorldSmSlices + 0x1f) << 15) *
-              (u_int)(*(u_char *)((carObj->N).simRoadInfo.slice * 0x20 +
-                                  (int)AIPhysic_BWorldSmSlices + 0x1d) & 0xf)) <
+    if ((int)((u_int)(BWorldSm_slices[(carObj->N).simRoadInfo.slice].avgPavedWidthRt << 15) *
+              (u_int)(BWorldSm_slices[(carObj->N).simRoadInfo.slice].laneCount & 0xf)) <
         carObj->roadPosition) {
       goto ret1;
     }
@@ -1815,10 +1801,8 @@ void AIPhysic_CalculateRampedDesiredLatPos(Car_tObj *carObj,eRampType rampType)
 int AIPhysic_HitWallCheck(Car_tObj *carObj)
 {
     int onRoad;
-    onRoad = (carObj->laneIndex >= 7 - (*(u_char *)((*(short *)((char *)carObj + 8) << 5) +
-                 (int)AIPhysic_BWorldSmSlices + 0x1d) >> 4)) &&
-             ((int)(*(u_char *)((*(short *)((char *)carObj + 8) << 5) +
-                 (int)AIPhysic_BWorldSmSlices + 0x1d) & 0xF) + 6 >= carObj->laneIndex);
+    onRoad = (carObj->laneIndex >= 7 - (BWorldSm_slices[carObj->N.simRoadInfo.slice].laneCount >> 4)) &&
+             ((int)(BWorldSm_slices[carObj->N.simRoadInfo.slice].laneCount & 0xF) + 6 >= carObj->laneIndex);
     if (onRoad) return 0;
     if (carObj->driveDirection == -1) {
         carObj->timeOffRoad += AIPhysic_elapsedTime;

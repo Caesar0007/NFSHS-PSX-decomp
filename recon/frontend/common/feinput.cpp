@@ -153,7 +153,7 @@ int FEInput_GetDebounceKey(int key,int controller)
      case with the tick block falling through. */
   if (FEInput_GetNoDebounceKey(key,controller) != 0) {
     if ((debounce[controller] & key) != 0) {
-      int tick = ticks[0];
+      int tick = ticks;
 
       if ((((key == 0x10) || (key == 0x80)) || (key == 0x20)) || (key == 0x40)) {
         if (nextTick == 0) {

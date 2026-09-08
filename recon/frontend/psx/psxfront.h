@@ -26,7 +26,7 @@ void PSXDrawTransSquare(int col,int x,int y,int w,int h,short opacity);
 void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int);
 
 /* ---- PSXFront.obj EXT data globals ---- */
-extern tTexture_ShapeInfo *gHelpShapes[]; /* 0x80052a64 (unsized array: base-reg materialization for delay-slot store, not $at macro) */
+extern tTexture_ShapeInfo *gHelpShapes; /* P886: native768122 PTR STRUCT, one pointer at0x80052a64. */
 extern Car_tObj           *gCarObj[2];      /* 0x80052a68 */
 extern char                titleScreenDisplayed[];  /* 0x80052a70 */
 extern short               gFadeBrightness;       /* 0x80052a50 */

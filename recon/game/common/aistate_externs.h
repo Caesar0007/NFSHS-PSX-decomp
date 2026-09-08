@@ -29,7 +29,18 @@ extern Car_tObj      *Cars_gSortedList[];
 extern GameSetup_tData GameSetup_gData;
 extern Sim_tSimGlobalVar simGlobal;
 extern int                 AI_elapsedTime;     /* ai.cpp    @0x8013C554 */
-extern char *AIState_BWorldSmSlices asm("BWorldSm_slices");
+/* Owner-derived bworldSm contract, SYM1cec71..1cedc3 and1d937e.
+ * AIState's surviving type stream does not preserve this foreign body;
+ * original header visibility remains a source-recovery question.
+ * Keep this projection at the private external boundary, not the shared graph. */
+struct Trk_NewSlice {
+    int center[3];
+    char normal[3], forward[3], right[3];
+    u_char acousticType;
+    short pavedProfile, leftDrive, rightDrive;
+    u_char chunkIndex, laneCount, avgPavedWidthLf, avgPavedWidthRt;
+};
+extern Trk_NewSlice *BWorldSm_slices;
 extern int                 Cars_gNumTrafficCars;
 extern int            Cars_gNumCars;
 extern int            gNumSlices;

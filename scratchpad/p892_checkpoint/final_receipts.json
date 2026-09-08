@@ -1,0 +1,12 @@
+{
+  "source_objects": 518,
+  "code_data_storage_relocation_identity": true,
+  "byte_identical_objects": 515,
+  "metadata_only_changes": 3,
+  "protected_base_functions": 665,
+  "protected_base_TUs": 31,
+  "source_receipt_drift": 0,
+  "linked_global_bindings_unchanged": true,
+  "goal_complete": false,
+  "w85_user_file_sha256": "d433425b806fc8abd1fa60c9f72a09f4c022bfd64a7fecf4df496931169e9546"
+}

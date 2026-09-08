@@ -80,13 +80,6 @@ struct tScreenCongrats : public tScreen {
     void DrawBackground();
     void DrawForeground();
     void CalculatePrizes();
-    inline void PrepareInitialize(int tick) {
-        fSpeechToPlay = 0;
-        starttick = -1;
-        framenum = -1;
-        InExtraSpin = 0;
-        fEnterTick = tick;
-    }
     void Initialize();
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
 };

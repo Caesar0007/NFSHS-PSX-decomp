@@ -3748,8 +3748,8 @@ struct tScreen {   /* 100 bytes */
     void FreeShapes(tShapeInformation &data);
     void UploadShapes(tShapeInformation &data, short x, short y, short numShapes, short index);
     void PreLoad();
-    void TransitionOff(tScreen_TransitionType type, tMenu *menu);  /* SYM: FCN VOID */
-    void TransitionOn(tScreen_TransitionType type, tMenu *menu);   /* SYM: FCN VOID */
+    void TransitionOff(tScreen_TransitionType type, tMenu *);  /* SYM: FCN VOID; unused name unknown. */
+    void TransitionOn(tScreen_TransitionType type, tMenu *);   /* SYM: FCN VOID; unused name unknown. */
     void UpdateTransition();
     bool TransitionIsFinished();  /* SYM: FCN bool (four-byte int) */
     void ProcessInput(tPlayer fromPlayer, tInputKeyType &keyval, tMenuCommand &command);
@@ -5876,16 +5876,6 @@ struct tScreenCongrats : public tScreen {   /* 388 bytes */
     void DrawBackground();
     void DrawForeground();
     void CalculatePrizes();
-    /* SYM/SLD: Initialize opens repeated nested entry blocks without a caller
-       tick local.  Passing the tick into this semantic inline member performs
-       its load before the ordered state stores, as in retail. */
-    inline void PrepareInitialize(int tick) {
-        fSpeechToPlay = 0;
-        starttick = -1;
-        framenum = -1;
-        InExtraSpin = 0;
-        fEnterTick = tick;
-    }
     void Initialize();
     void ProcessInput(tPlayer player, tInputKeyType &key, tMenuCommand &cmd);
 };

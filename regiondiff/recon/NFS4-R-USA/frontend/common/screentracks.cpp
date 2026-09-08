@@ -53,7 +53,10 @@ void tScreenTrackSelect::DrawBackground()
   state = (VIDEOSTATE)VIDEO_state(this->hVideo);
   if (state == VIDEOSTATE_SPOOLING) {
     RECT r;
-    /* SYM-CODEGEN-CARRIER: startTicks -- direct field assignment is FAIL 3
+    /* SYM-CODEGEN-CARRIER: startTicks -- P891 base scalar direct store is
+       PASS299 but merges native SLD129/132 (six pairs); field staging
+       remains FAIL1 at 300/299. Original source is still unresolved.
+       With the former array interface, direct field assignment is FAIL 3
        at 300/299 and moves the tick load after the brightness store. */
     int startTicks;
 
@@ -63,7 +66,7 @@ void tScreenTrackSelect::DrawBackground()
     r.h = 0x100;
     ClearImage(&r,'\0','\0','\0');
     DrawSync(0);
-    startTicks = ticks[0];
+    startTicks = ticks;
     this->fBrightness = 0;
     this->fStartTicks = startTicks - 0x14;
   }
@@ -76,7 +79,7 @@ void tScreenTrackSelect::DrawBackground()
     }
   }
   else if (((this->fTicksSet != 0) || (this->fDestBrightness < this->fBrightness)) &&
-          ((uint)(ticks[0] - this->fVideoTicks) >= 0x101U)) {
+          ((uint)(ticks - this->fVideoTicks) >= 0x101U)) {
     if (this->fDestBrightness >= this->fBrightness) {
       this->SetBrightness(trackInfo.fAvailable != '\0' ? 0x80 : 0x20);
     }
@@ -308,7 +311,7 @@ void tScreenTrackSelect::Initialize()
   this->fTVsInitialized = 0;
   TurnOn(&this->fVideoWall);
   /* MATCH: retail computes the dependent tick value before publishing fTicksSet. */
-  this->fVideoTicks = ticks[0] - 0x100;
+  this->fVideoTicks = ticks - 0x100;
   this->fTicksSet = 1;
   this->fMovieTrack = (short)(signed char)trackInfo.fTrackID;
   return;
@@ -334,7 +337,9 @@ void tScreenTrackSelect::SetBrightness(short bright)
 
 {
   if (bright != this->fDestBrightness) {
-    this->SetBrightnessTransition(bright,this->fBrightness,ticks[0]);
+    this->fStartBrightness = this->fBrightness;
+    this->fDestBrightness = bright;
+    this->fStartTicks = ticks;
   }
   return;
 }
@@ -345,14 +350,14 @@ void tScreenTrackSelect::SetBrightness(short bright)
    MATCH: 60/60.  SLD lines 277-286 reveal a three-way chain in source order:
    finished, nonnegative interpolation, negative clamp.  Keeping the interpolation
    as signed division by 128 lets gcc emit its own rounding sequence.  The named
-   `elapsed = ticks[0]` assignment inside the fTicksSet guard also gives retail's
+   `elapsed = ticks` assignment inside the fTicksSet guard also gives retail's
    delay-slot address setup and carries the tick value across the flag store. */
 void tScreenTrackSelect::UpdateBrightness(tTrackInformation &trackInfo)
 
 {
   long elapsed;
   
-  elapsed = ticks[0] - this->fStartTicks;
+  elapsed = ticks - this->fStartTicks;
   if ((int)this->fDestBrightness != (int)this->fBrightness) {
     if (elapsed >= 0x80) {
       this->fBrightness = this->fDestBrightness;
@@ -368,7 +373,7 @@ void tScreenTrackSelect::UpdateBrightness(tTrackInformation &trackInfo)
   if ((this->fBrightness == 0) && (this->fDestBrightness == 0)) {
     VIDEO_abortplayback(this->hVideo);
     if (this->fTicksSet == 0) {
-      elapsed = ticks[0];
+      elapsed = ticks;
       this->fTicksSet = 1;
       this->fVideoTicks = elapsed;
       this->fMovieTrack = (short)(signed char)trackInfo.fTrackID;

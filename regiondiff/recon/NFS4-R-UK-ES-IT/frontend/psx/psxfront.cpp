@@ -416,9 +416,9 @@ void PSXExitFrontend(void)
   CleanupSpinningCars();
   deltimer(PAD_update);
   Audio_DeInitDriver();
-  if (gHelpShapes[0] != (tTexture_ShapeInfo *)0x0) {
-    purgememadr(gHelpShapes[0]);
-    gHelpShapes[0] = (tTexture_ShapeInfo *)0x0;
+  if (gHelpShapes != (tTexture_ShapeInfo *)0x0) {
+    purgememadr(gHelpShapes);
+    gHelpShapes = (tTexture_ShapeInfo *)0x0;
   }
   ComingIntoTheFrontEndTheVeryFirstTime[0] = 0;
   return;
@@ -430,11 +430,8 @@ void PSXExitFrontend(void)
 void PSX_AllocShapes(void)
 
 {
-  tTexture_ShapeInfo **slot /* SYM-CODEGEN-CARRIER: slot -- direct global indexing is
-                                measured FAIL 11 (16/17) */ = gHelpShapes;   /* &gHelpShapes[0] computed BEFORE the call -> held in a
-                                                callee-saved reg (s0) across reservememadr, like the oracle */
-  *slot = (tTexture_ShapeInfo *)reservememadr("gHelpShapes",0x760,0);
-  blockclear(*slot,0x760);
+  gHelpShapes = (tTexture_ShapeInfo *)reservememadr("gHelpShapes",0x760,0);
+  blockclear(gHelpShapes,0x760);
   return;
 }
 
@@ -1148,10 +1145,10 @@ void DrawShapeExtended(int index,int flags,int x,int y,int fade,int abr,tDrawSha
                  is measured FAIL 32 at the same 65-instruction count */
 
   if ((flags & 8) != 0) {
-    tShp = gHelpShapes[0] + index;
+    tShp = gHelpShapes + index;
   }
   else {
-    tShp = gCurrentShapes[0] + index;
+    tShp = gCurrentShapes + index;
   }
   bright = 0x80 - fade;
   if ((flags & 0x200) != 0) {
@@ -1311,10 +1308,10 @@ void ScaleShapeExtended(int index,int flags,int x,int y,int fade,int abr,tDrawSh
                  is measured FAIL 32 at the same 75-instruction count */
 
   if ((flags & 8) != 0) {
-    tShp = gHelpShapes[0] + index;
+    tShp = gHelpShapes + index;
   }
   else {
-    tShp = gCurrentShapes[0] + index;
+    tShp = gCurrentShapes + index;
   }
   bright = 0x80 - fade;
   if ((flags & 0x200) != 0) {
@@ -1345,7 +1342,7 @@ void LoadAllHelpShapes(void)
   if (permFile != (char *)0x0) {
     i = 0;
     do {
-      FETexture_LoadPmx(permFile,i,gHelpShapes[0] + i);
+      FETexture_LoadPmx(permFile,i,gHelpShapes + i);
       i = i + 1;
     } while (i < 0x3b);
     purgememadr(permFile);

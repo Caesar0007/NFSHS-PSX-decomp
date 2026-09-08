@@ -126,9 +126,9 @@ void Camera_TunnelLimit(int player,int *armheight)
     coorddef underCam = Camera_gInfo[player].position;
     int roadheight =
         Newton_FindGroundElevationGeneral(&underCam,&quadnormal,slicePos->quadPts);
-    int track = Camera_GameSetupWords[15];
-    if (0xf < Camera_GameSetupWords[15]) {
-      track = Camera_GameSetupWords[15] + -7;
+    int track = GameSetup_gData.track;
+    if (0xf < GameSetup_gData.track) {
+      track = GameSetup_gData.track + -7;
     }
     int maxheight =
         (gTunnelCamHeight[track] - Camera_gInfo[player].anchor->position.y) +
@@ -147,7 +147,7 @@ void Camera_UpdateCollisionCam(int player)
   coorddef newarm;   /* SYM: AUTO */
   coorddef oldarm;   /* SYM: AUTO */
 
-  if (((Camera_SimVarWords[4] == 0) || (Camera_ReplayInterfaceWords[6] != 0)) &&
+  if (((simVar.quickPauseSim == 0) || (Replay_ReplayInterface.changeCamera != 0)) &&
      (InBetween == 0)) {
     if (Camera_gInfo[player].direction != 0) {
       arm.z = -arm.z;   /* MATCH: negate, not a 0xA0000 re-store */
@@ -269,7 +269,7 @@ void Camera_UpdateTailCam(int player,int behavior)
     /* MATCH: reverseTrack read ONCE before the if (single lw, shared by both arms) */
     /* SYM-CODEGEN-CARRIER: rev.  Per-arm reverseTrack reads were measured at
        76 diffs and lose retail's single shared load. */
-    int rev = Camera_GameSetupWords[12];
+    int rev = GameSetup_gData.reverseTrack;
     if (0 < anchor->wrongway) {
       /* SYM-CODEGEN-CARRIER: flip.  Direct `if (rev ^ 1)` emits xori/bnez
          instead of retail's compare-to-one form (18 diffs at 402/402). */
@@ -286,7 +286,7 @@ void Camera_UpdateTailCam(int player,int behavior)
     lookahead = -3;
 lookahead_done:;
   }
-  if ((Camera_SimVarWords[4] != 0) && (Camera_ReplayInterfaceWords[6] == 0)) {
+  if ((simVar.quickPauseSim != 0) && (Replay_ReplayInterface.changeCamera == 0)) {
     return;
   }
   if (InBetween != 0) {
@@ -349,13 +349,13 @@ lookahead_done:;
      * leaving gNumSlices in a1 and the shifted wrap offset in v0. */
     /* SYM-CODEGEN-CARRIER: slices.  This named base is the priced quantity that
        remains in retail $a2 across both road samples. */
-    char *slices = (char *)Camera_BWorldSmSlices;
+    char *slices = (char *)BWorldSm_slices;
     /* SYM-CODEGEN-CARRIER: offset.  Reusing dead SYM slice yields 403/402 and
        loses retail's explicit v0-to-v1 offset copy (three detailed diffs). */
     int offset;
     /* SYM-CODEGEN-CARRIER: first.  Six zero-insn references are the measured
        allocator dial that seats the first road sample in retail $a0. */
-    int first = *(int *)((slice << 5) + (int)slices + 4);
+    int first = ((Trk_NewSlice *)slices)[slice].center[1];
     __asm__("" : : "r"(first), "r"(first), "r"(first), "r"(first), "r"(first),
                       "r"(first));
     if (lookahead < 1) {
@@ -370,7 +370,7 @@ lookahead_done:;
        is count-exact but moves its addu, leaving two schedule diffs. */
     char *second = slices + offset;
     __asm__("" : "+r"(second));
-    first -= *(int *)(second + 4);
+    first -= ((Trk_NewSlice *)second)->center[1];
     vertigo = first / 3;
   }
   switch (behavior) {
@@ -607,7 +607,7 @@ void Camera_UpdateHeliCam(int player,int behavior)
     /* SYM-CODEGEN-CARRIER: rev -- optimized SYM has no local row, but one
        shared reverseTrack load must dominate both arms.  Spelling the global
        directly in both tests emits 448/443 instructions and 19 diffs. */
-    int rev = Camera_GameSetupWords[12];
+    int rev = GameSetup_gData.reverseTrack;
     if (0 < anchor->wrongway) {
       lookahead = 3;
       if ((rev ^ 1) == 0) {
@@ -636,7 +636,7 @@ void Camera_UpdateHeliCam(int player,int behavior)
       __asm__("" : : "i"(0));
     }
   }
-  if ((Camera_SimVarWords[4] != 0) && (Camera_ReplayInterfaceWords[6] == 0)) {
+  if ((simVar.quickPauseSim != 0) && (Replay_ReplayInterface.changeCamera == 0)) {
     return;
   }
   if (InBetween != 0) {
@@ -725,18 +725,18 @@ void Camera_UpdateHeliCam(int player,int behavior)
        sample as a pointer quantity separate from `slice`; reusing the SYM
        `slice` local for that index emits 445/443 instructions and 112 diffs. */
     char *second;
-    fallback = *(int *)((slice << 5) + (int)Camera_BWorldSmSlices + 4);
+    fallback = BWorldSm_slices[slice].center[1];
     if (lookahead < 1) {
       slice = slice - lookahead;
-      second = (char *)Camera_BWorldSmSlices +
+      second = (char *)BWorldSm_slices +
           ((slice < gNumSlices ? slice : slice - gNumSlices) << 5);
     }
     else {
       slice = slice - lookahead;
-      second = (char *)Camera_BWorldSmSlices +
+      second = (char *)BWorldSm_slices +
           ((slice < 0 ? slice + gNumSlices : slice) << 5);
     }
-    fallback -= *(int *)(second + 4);
+    fallback -= ((Trk_NewSlice *)second)->center[1];
     fallback = fallback / 2;
     switch (behavior) {
     case 0:
@@ -823,8 +823,8 @@ void Camera_UpdateCircleCam(int player)
   int cos;
   int circle_height[3] = { 0x10000, 0x20000, 0x30000 };
 
-  if ((((Camera_SimVarWords[4] == 0) || (Camera_ReplayInterfaceWords[6] != 0)) &&
-      (InBetween == 0)) && (Camera_SimVarWords[2] == 0)) {
+  if ((((simVar.quickPauseSim == 0) || (Replay_ReplayInterface.changeCamera != 0)) &&
+      (InBetween == 0)) && (simVar.pauseSim == 0)) {
     intsincos((int)++Camera_gInfo[player].circleAngle,&sin,&cos);
     src.x = fixedmult(0x48000,cos);
     src.z = fixedmult(0x60000,sin);
@@ -956,7 +956,7 @@ void Camera_UpdateAnimCam(int player)
     cVar1 = (signed char)Camera_gInfo[player].animNum;
     Camera_gInfo[player].animNum = cVar1 - 1;
     Camera_gInfo[player].animHandle = (char)Anim_Handle(
-        (u_int)(u_char)gAnimCams[Camera_GameSetupWords[15]][cVar1]);
+        (u_int)(u_char)gAnimCams[GameSetup_gData.track][cVar1]);
   }
   if (Camera_AnimGetTimedAnimPosRot(
           Anim_GetAnim((int)(signed char)Camera_gInfo[player].animHandle),
@@ -967,7 +967,7 @@ void Camera_UpdateAnimCam(int player)
       cVar4 = (signed char)Camera_gInfo[player].animNum;
       Camera_gInfo[player].animNum--;
       Camera_gInfo[player].animHandle = (char)Anim_Handle(
-          (u_int)(u_char)gAnimCams[Camera_GameSetupWords[15]][cVar4]);
+          (u_int)(u_char)gAnimCams[GameSetup_gData.track][cVar4]);
       Camera_AnimGetTimedAnimPosRot(
           Anim_GetAnim((int)(signed char)Camera_gInfo[player].animHandle),
           &animPos,&animRot);
@@ -982,14 +982,14 @@ void Camera_UpdateAnimCam(int player)
         Camera_gInfo[player].splineMode = '\x03';
         return;
       }
-      Camera_SetMode(player,CAMERA_SETUP_CAMERA(player,0));
+      Camera_SetMode(player,GameSetup_gData.carInfo[player].Camera[0]);
       return;
     }
   }
   /* BUGFIX (H-class): Ghidra rendered gAnimMode[track] as the string "\x02" (mis-render trap);
    * also dropped the Ghidra-ism & 0x1f shift-count mask */
   /* MATCH: direct-copy arm FIRST in VA order (beqz jumps to the transform arm) */
-  if ((gAnimMode[Camera_GameSetupWords[15]] >> (signed char)Camera_gInfo[player].animNum & 1U) != 0) {
+  if ((gAnimMode[GameSetup_gData.track] >> (signed char)Camera_gInfo[player].animNum & 1U) != 0) {
     Camera_gInfo[player].position = animPos;   /* struct copies -> grouped/movstrsi */
     Camera_gInfo[player].rotation = animRot;
   }
@@ -1078,7 +1078,7 @@ void Camera_SetSplineCam(int player)
     sliceStep = numSlice + 1;
   }
   numSlice = sliceStep;
-  if (CAMERA_REPLAY_DEFAULT(player) == 0) {
+  if (Replay_ReplayCamera[player].defaultCamera == 0) {
     /* SYM-CODEGEN-CARRIER: cameraDirection -- retail uses an int-stride base
        for rotation.m[6..8]; direct field indexing loses two instructions and
        changes 48 oracle positions. */
@@ -1111,7 +1111,7 @@ void Camera_SetSplineCam(int player)
       Camera_gInfo[player].slicePos.slice = slice;
     }
     Camera_gInfo[player].position =
-         *CAMERA_SLICE_CENTER(Camera_gInfo[player].slicePos.slice);
+         *((coorddef *)BWorldSm_slices[Camera_gInfo[player].slicePos.slice].center);
     BWorldSm_FindClosestQuadRez(&Camera_gInfo[player].position,&Camera_gInfo[player].slicePos,1);
   }
   return;
@@ -1260,8 +1260,8 @@ void Camera_UpdateSplineCam(int player)
   int change;
   anchor = (Car_tObj *)Camera_gInfo[player].anchor;
   change = 0;
-  if (((Camera_SimVarWords[4] == 0) ||
-       (Camera_ReplayInterfaceWords[6] != 0)) && (InBetween == 0)) {
+  if (((simVar.quickPauseSim == 0) ||
+       (Replay_ReplayInterface.changeCamera != 0)) && (InBetween == 0)) {
     int sliceDist;
     int numSlice;
 
@@ -1304,7 +1304,7 @@ void Camera_UpdateSplineCam(int player)
       change = 1;
     }
 
-    if ((change != 0) && (CAMERA_REPLAY_DEFAULT(player) == 0)) {
+    if ((change != 0) && (Replay_ReplayCamera[player].defaultCamera == 0)) {
       int direction;
 
       {
@@ -1366,7 +1366,7 @@ void Camera_UpdateSplineCam(int player)
         Camera_gInfo[player].slicePos.slice = newSlice;
       }
       Camera_gInfo[player].position =
-          *CAMERA_SLICE_CENTER(Camera_gInfo[player].slicePos.slice);
+          *((coorddef *)BWorldSm_slices[Camera_gInfo[player].slicePos.slice].center);
       BWorldSm_FindClosestQuadRez(&Camera_gInfo[player].position,
                                   &Camera_gInfo[player].slicePos,1);
     } else {
@@ -1387,10 +1387,10 @@ void Camera_UpdateSplineCam(int player)
          `nextSlice` cursor while preserving retail's global-load/copy order.
          Moving nextSliceIdx above the splineVel read remains 16 diffs at 347
          instructions; reading splineVel through a named cursor is 13 at 348. */
-      splineVel = *CAMERA_SLICE_CENTER(Camera_gInfo[player].slicePos.slice);
+      splineVel = *((coorddef *)BWorldSm_slices[Camera_gInfo[player].slicePos.slice].center);
       nextSliceIdx = Camera_gInfo[player].slicePos.slice + 1;
       nextVel = *(coorddef *)(nextSliceIdx < gNumSlices ?
-          Camera_BWorldSmSlices + nextSliceIdx : Camera_BWorldSmSlices);
+          BWorldSm_slices + nextSliceIdx : BWorldSm_slices);
       splineVel.x = nextVel.x - splineVel.x;
       splineVel.y = nextVel.y - splineVel.y;
       splineVel.z = nextVel.z - splineVel.z;
@@ -1398,7 +1398,7 @@ void Camera_UpdateSplineCam(int player)
       relativeVel = fixedmult(anchor->N.linearVel.x,splineVel.x) +
                     fixedmult(anchor->N.linearVel.y,splineVel.y) +
                     fixedmult(anchor->N.linearVel.z,splineVel.z);
-      if ((Camera_GameSetupWords[14] & 4U) != 0) {
+      if ((GameSetup_gData.sgge & 4U) != 0) {
         relativeVel = fixedmult(relativeVel,0xcccc);
       }
       relativeVel = fixedmult(relativeVel,
@@ -1459,7 +1459,7 @@ void Camera_UpdatePulloverCam(int player)
      the profile call preserves retail's live range and 223-instruction body. */
   int side;
 
-  if (((Camera_SimVarWords[4] == 0) || (Camera_ReplayInterfaceWords[6] != 0)) &&
+  if (((simVar.quickPauseSim == 0) || (Replay_ReplayInterface.changeCamera != 0)) &&
      (InBetween == 0)) {
     /* SYM-CODEGEN-CARRIER: gameTicks -- the separate snapshot keeps retail's
        SimGlobal address materialization in v0 instead of a0. */
@@ -1467,24 +1467,24 @@ void Camera_UpdatePulloverCam(int player)
 
     SetGeomScreen(0xbe);
     /* MATCH: separate tick/index values keep Camera_gInfo[player] itself in s1. */
-    gameTicks = Camera_SimGlobalWords[1];
+    gameTicks = simGlobal.gameTicks;
     if (gameTicks < Camera_gInfo[player].POInhibitor) {
       Camera_UpdateCopCam2(player);
       return;
     }
     /* MATCH: full slice expression REMATERIALIZED per access (no cached slice ptr) */
-    sCenter = *CAMERA_SLICE_CENTER(Camera_gInfo[player].anchor->simRoadInfo.slice);
-    sForward.x = CAMERA_SLICE_FORWARD(Camera_gInfo[player].anchor->simRoadInfo.slice,0) << 9;
-    sForward.y = CAMERA_SLICE_FORWARD(Camera_gInfo[player].anchor->simRoadInfo.slice,1) << 9;
-    sForward.z = CAMERA_SLICE_FORWARD(Camera_gInfo[player].anchor->simRoadInfo.slice,2) << 9;
+    sCenter = *((coorddef *)BWorldSm_slices[Camera_gInfo[player].anchor->simRoadInfo.slice].center);
+    sForward.x = ((signed char)BWorldSm_slices[Camera_gInfo[player].anchor->simRoadInfo.slice].forward[0]) << 9;
+    sForward.y = ((signed char)BWorldSm_slices[Camera_gInfo[player].anchor->simRoadInfo.slice].forward[1]) << 9;
+    sForward.z = ((signed char)BWorldSm_slices[Camera_gInfo[player].anchor->simRoadInfo.slice].forward[2]) << 9;
     sccVec.x = Camera_gInfo[player].anchor->position.x - sCenter.x;
     sccVec.y = Camera_gInfo[player].anchor->position.y - sCenter.y;
     sccVec.z = Camera_gInfo[player].anchor->position.z - sCenter.z;
-    sRight.x = CAMERA_SLICE_RIGHT(Camera_gInfo[player].anchor->simRoadInfo.slice,0) << 0xb;
-    sRight.y = CAMERA_SLICE_RIGHT(Camera_gInfo[player].anchor->simRoadInfo.slice,1) << 0xb;
-    sRight.z = CAMERA_SLICE_RIGHT(Camera_gInfo[player].anchor->simRoadInfo.slice,2) << 0xb;
+    sRight.x = ((signed char)BWorldSm_slices[Camera_gInfo[player].anchor->simRoadInfo.slice].right[0]) << 0xb;
+    sRight.y = ((signed char)BWorldSm_slices[Camera_gInfo[player].anchor->simRoadInfo.slice].right[1]) << 0xb;
+    sRight.z = ((signed char)BWorldSm_slices[Camera_gInfo[player].anchor->simRoadInfo.slice].right[2]) << 0xb;
     side = fixedmult(sccVec.z,sForward.x) - fixedmult(sccVec.x,sForward.z);
-    ySign = Camera_IslandProfile(CAMERA_SLICE_PAVED_PROFILE(Camera_gInfo[player].anchor->simRoadInfo.slice));
+    ySign = Camera_IslandProfile(BWorldSm_slices[Camera_gInfo[player].anchor->simRoadInfo.slice].pavedProfile);
     /* w62-a11 PRODUCTION-LANE FIX (psyqproof REAL 1 -> 0).  The shipped form
        `if (iVar3 < 0) { ySign = ySign != 1; }` put BOTH the xori and the 0/1
        renormalising `sltu v0,zero,v0` inside the guard, so our `bgez $s0`
@@ -1585,7 +1585,7 @@ void Camera_UpdateBTCopCam(int player)
     break;
   }
   Camera_gGeomScreen = 0xbe;
-  Camera_gInfo[player].POInhibitor = Camera_SimGlobalWords[1] + 0x140;
+  Camera_gInfo[player].POInhibitor = simGlobal.gameTicks + 0x140;
   /* MATCH: real bitfield assignments; checkcollisions=0 LAST (m2c: (x&~2&~4|0x38)&~0x40) */
   Camera_gInfo[player].pitch = 0;
   Camera_gInfo[player].jostling = 0;
@@ -1707,7 +1707,7 @@ LAB_80083584:
         Camera_gInfo[player].anchor = &Cars_gHumanRaceCarList[player]->N;
         Camera_gInfo[player].target = &Cars_gHumanRaceCarList[player]->N;
         if ((1 < Replay_ReplayMode) &&
-            (CAMERA_REPLAY_MODE(player) == 0x13)) {
+            (Replay_ReplayCamera[player].cameraMode == 0x13)) {
           Replay_ReplayFindClosestCamera(player,(int)(Camera_gInfo[player].anchor->simRoadInfo).slice);
         }
       }
@@ -1865,12 +1865,12 @@ void Camera_Init(void)
   int i;
   int type;
   
-  splitScreen = Camera_GameSetupWords[3] == 1;
+  splitScreen = GameSetup_gData.commMode == 1;
   memset((u_char *)&slicePos,'\0',sizeof(slicePos));
   for (i = 0; i <= splitScreen; i++) {
     localCar = i;
     if (splitScreen == 0) {
-      localCar = Camera_GameSetupWords[7];
+      localCar = GameSetup_gData.localCar;
     }
     Camera_gInfo[i].anchor = &Cars_gHumanRaceCarList[localCar]->N;
     Camera_gInfo[i].target = &Cars_gHumanRaceCarList[localCar]->N;
@@ -1898,8 +1898,8 @@ void Camera_Init(void)
     Camera_gInfo[i].inCar = 0;
     Camera_gInfo[i].circleCounter = 0;
     Camera_gInfo[i].circleAngle = 0;
-    Camera_gInfo[i].animNum = gAnimCams[Camera_GameSetupWords[15]][0];
-    if (((Camera_GameSetupWords[0] == RaceType_HotPursuit) || (Camera_GameSetupWords[0] == RaceType_Id5)) &&
+    Camera_gInfo[i].animNum = gAnimCams[GameSetup_gData.track][0];
+    if (((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) &&
        ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 ||
         ((Cars_gNumHumanRaceCars == 2 && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) {
       Camera_gInfo[i].animNum = '\x01';
@@ -1914,8 +1914,8 @@ void Camera_Init(void)
   Camera_ResetRelPos(3);
   type = *(*(int **)((char *)Cars_gHumanRaceCarList[0] + 0x288));
   Camera_gGeomScreen = 0xbe;
-  if (((type < 0x1c) && ((Camera_GameSetupWords[14] & 0x100U) != 0)) && (splitScreen == 0)) {
-    CAMERA_SETUP_CAMERA(0,0) = 1;
+  if (((type < 0x1c) && ((GameSetup_gData.sgge & 0x100U) != 0)) && (splitScreen == 0)) {
+    GameSetup_gData.carInfo[0].Camera[0] = 1;
     Camera_gFlags[1].arm = gDriverCam[type];
                     
                     
@@ -1930,7 +1930,7 @@ void Camera_Kill(void)
   int i;            /* SYM: REG i INT */
   int splitScreen;  /* SYM: REG splitScreen INT */
 
-  splitScreen = Camera_GameSetupWords[3] == 1;
+  splitScreen = GameSetup_gData.commMode == 1;
   /* MATCH: index form (SYM has NO pointer local) — gcc strength-reduces to the s0+=0x110 walk
    * keeping animHandle's 0x7D displacement; a hand pointer-walk folds base+125 into the biv */
   for (i = 0; i <= splitScreen; i = i + 1) {
@@ -2024,7 +2024,7 @@ void Camera_CheckWallCollisions(int player,coorddef *pos)
       quadUnderCamera = slicePos.quadPts[0];
     }
     else {
-      quadUnderCamera = *CAMERA_SLICE_CENTER(slicePos.slice);
+      quadUnderCamera = *((coorddef *)BWorldSm_slices[slicePos.slice].center);
     }
     if (slicePos.simQuad != (Trk_NewSimQuad *)0x0) {
       if (((slicePos.simQuad)->surface & 0xf) == 0) break;
@@ -2056,7 +2056,7 @@ void Camera_CheckWallCollisions(int player,coorddef *pos)
       quadUnderCamera = slicePos.quadPts[0];
     }
     else {
-      quadUnderCamera = *CAMERA_SLICE_CENTER(slicePos.slice);
+      quadUnderCamera = *((coorddef *)BWorldSm_slices[slicePos.slice].center);
     }
     if (slicePos.simQuad != (Trk_NewSimQuad *)0x0) {
       if (((slicePos.simQuad)->surface & 0xf) == 0) break;
@@ -2088,7 +2088,7 @@ void Camera_CheckWallCollisions(int player,coorddef *pos)
       quadUnderCamera = slicePos.quadPts[0];
     }
     else {
-      quadUnderCamera = *CAMERA_SLICE_CENTER(slicePos.slice);
+      quadUnderCamera = *((coorddef *)BWorldSm_slices[slicePos.slice].center);
     }
     if (((slicePos.simQuad != (Trk_NewSimQuad *)0x0) &&
          (((slicePos.simQuad)->surface & 0xf) == 0)) ||
@@ -2116,7 +2116,7 @@ void Camera_CheckWallCollisions(int player,coorddef *pos)
       quadUnderCamera = slicePos.quadPts[0];
     }
     else {
-      quadUnderCamera = *CAMERA_SLICE_CENTER(slicePos.slice);
+      quadUnderCamera = *((coorddef *)BWorldSm_slices[slicePos.slice].center);
     }
     if (((slicePos.simQuad != (Trk_NewSimQuad *)0x0) &&
          (((slicePos.simQuad)->surface & 0xf) == 0)) ||
@@ -2368,7 +2368,7 @@ void Camera_GetViewInfo(int cviewP,DRender_tCalcView *cview,int viewID)
     }
   }
   cview->mrotation = Camera_gInfo[cviewP].rotation;
-  if (Camera_GameSetupWords[11] != 0) {
+  if (GameSetup_gData.mirrorTrack != 0) {
     int t1 = cview->mrotation.m[0];
     int t2 = cview->mrotation.m[1];
     int t3 = cview->mrotation.m[2];
@@ -2486,7 +2486,7 @@ void Camera_SetMode(int cviewP,int mode)
     }
     Camera_gInfo[cviewP].mode = (short)mode;
     if (0x13 < (short)mode) {
-      Camera_gInfo[cviewP].mode = (short)CAMERA_SETUP_CAMERA(cviewP,0);
+      Camera_gInfo[cviewP].mode = (short)GameSetup_gData.carInfo[cviewP].Camera[0];
     }
     if (Camera_gInfo[cviewP].mode == 0xb) {
       Camera_SetSplineCam(cviewP);
@@ -2535,35 +2535,21 @@ void Camera_NextMode(int cviewP)
            *(short *)(splitBase +
                      (((int)Camera_gInfo[cviewP].camNum % 3) * 0x10000 >> 0xe));
     }
-    else if (((Camera_GameSetupWords[0] == RaceType_HotPursuit) || (Camera_GameSetupWords[0] == RaceType_Id5)) &&
+    else if (((GameSetup_gData.raceType == RaceType_HotPursuit) || (GameSetup_gData.raceType == RaceType_Id5)) &&
             ((((*(int *)((char *)Cars_gHumanRaceCarList[0] + 0x260)) & 0x200) != 0 ||
              ((Cars_gNumHumanRaceCars == 2 && (((*(int *)((char *)Cars_gHumanRaceCarList[1] + 0x260)) & 0x200) != 0)))))) {
       Camera_gInfo[cviewP].camNum = Camera_gInfo[cviewP].camNum + 1;
       Camera_gInfo[cviewP].mode =
-          (short)CAMERA_SETUP_CAMERA(
-              cviewP,(u_short)Camera_gInfo[cviewP].camNum & 3);
+          (short)GameSetup_gData.carInfo[cviewP].Camera[(u_short)Camera_gInfo[cviewP].camNum & 3];
     }
     else {
-      /* SYM-CODEGEN-CARRIER: setupBase -- direct Camera_GameSetupWords use
-         keeps 237 instructions but changes base allocation at six positions. */
-      int *setupBase;
-      /* SYM-CODEGEN-CARRIER: setupOffset -- folding the two offset terms into
-         the final address keeps 237 instructions but changes four positions. */
-      int setupOffset;
-
       Camera_gInfo[cviewP].camNum = Camera_gInfo[cviewP].camNum + 1;
-      /* MATCH: comma-stage the GameSetup base with the signed %3 byte offset,
-         then extend that offset in place.  This gives GCC the retail latency
-         schedule: the base pair sits between mult and its sign correction. */
-      setupOffset =
-          (setupBase = Camera_GameSetupWords,
-           ((int)Camera_gInfo[cviewP].camNum % 3) << 2);
-      setupOffset += cviewP * 180;
       Camera_gInfo[cviewP].mode =
-           ((Car_tObj *)((char *)setupBase + setupOffset))->slide;
+          (short)GameSetup_gData.carInfo[cviewP].Camera[
+              (int)Camera_gInfo[cviewP].camNum % 3];
     }
     if (0x13 < Camera_gInfo[cviewP].mode) {
-      Camera_gInfo[cviewP].mode = (short)CAMERA_SETUP_CAMERA(cviewP,0);
+      Camera_gInfo[cviewP].mode = (short)GameSetup_gData.carInfo[cviewP].Camera[0];
     }
     if (Camera_gInfo[cviewP].mode == 0xb) {
       Camera_SetSplineCam(cviewP);

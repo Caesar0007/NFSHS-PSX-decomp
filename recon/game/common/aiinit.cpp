@@ -99,10 +99,10 @@ void AIInit_Reset2(void)
       AIScript_Startup(&Cars_gList[carLoop]->script);
     }
   }
-  AIInit_leaderBoardCars[1] = Cars_gHumanRaceCarList[0];
-  AIInit_leaderBoardCars[0] = Cars_gHumanRaceCarList[0];
-  AIInit_leaderBoardCars[3] = Cars_gAIRaceCarList[0];
-  AIInit_leaderBoardCars[2] = Cars_gAIRaceCarList[0];
+  leaderBoard.leadHumanRacer = Cars_gHumanRaceCarList[0];
+  leaderBoard.leadRacer = Cars_gHumanRaceCarList[0];
+  leaderBoard.lastAIRacer = Cars_gAIRaceCarList[0];
+  leaderBoard.leadAIRacer = Cars_gAIRaceCarList[0];
   AIPhysic_Reset();
   AI_Info.blockingCars[2] = 0;
   AI_Info.blockingCars[1] = 0;

@@ -16,7 +16,7 @@ struct FEInput_PadCodegenView {
 };
 extern FEInput_PadCodegenView gPadinfo;
 extern tfrontEnd        frontEnd;
-extern int              ticks[];                       /* MATCH: unsized -> separate-temp base load (%3.12 #5) */
+extern int              ticks;                         /* @0x8013dcac; scalar owned by vars.c */
 extern int              FeTools_gScrollTicksOut;        /* @0x800517d0; SYM INT */
 extern tPSXToFEMapping  getKeyMappings[];               /* @0x8005173c */
 

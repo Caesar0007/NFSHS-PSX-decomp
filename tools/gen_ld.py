@@ -46,6 +46,7 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 from source_data_owners import SOURCE_DATA_OWNERS, oracle_only_objects, validate_source_data_owners
+from source_zero_owners import SOURCE_ZERO_OWNERS, validate_source_zero_owners
 
 ROOT = Path(__file__).resolve().parents[1]      # tools/ -> repo root (16F!)
 LD = r"C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe"
@@ -371,6 +372,9 @@ def main():
     # payload and global/local offsets before removing the raw duplicate.
     # Protected-tool backups: scratchpad/p881_lasttick/backups.
     validate_source_data_owners(ROOT / "build")
+    # P887: NOBITS reservations have no initialized payload to hash. Validate
+    # their own source extent/symbol contract before native BSS placement.
+    validate_source_zero_owners(ROOT / "build")
 
     fragment_sections = set()
     for L in sdata_lines + data_lines:
@@ -483,6 +487,10 @@ def main():
     A("")
     A(f"    .sdata {SDATA_START:#x} : SUBALIGN(4)")
     A("    {")
+    # P896: the first byte is now source-owned firstTime, not a raw object
+    # masquerading as the section boundary. Preserve the native linker marker.
+    # Backup: scratchpad/p896_checkpoint/backups/gen_ld.py.
+    A("        __sdata_org = .;")
     L.extend(sdata_lines)
     L.extend(extra_sdata)
     A("    }")
@@ -528,6 +536,18 @@ def main():
     A("    }")
     A("")
     A("    .rodata_rest : SUBALIGN(4) { *(.rodata); *(.rodata.*); }")
+    # P887: place the complete native stream/ISO/stream BSS sequence before
+    # the generic catch-all can consume it. Restore the unplaced cursor;
+    # do not add an invented padding reservation at the old wrong ISO site.
+    # Remaining catch-all packing is explicit layout debt, regression-audited.
+    # Exact backups/primary proofs: scratchpad/p887_iso and source_zero_owners.
+    A("    __unplaced_zero_cursor = .;")
+    for owner in SOURCE_ZERO_OWNERS:
+        obj = "build/" + owner["source"] + ".o"
+        out, section = owner["output"], owner["section"]
+        A(f"    {out} {owner['address']:#x} (NOLOAD) : SUBALIGN(4) {{ {obj}({section}); }}")
+        A(f"    ASSERT(SIZEOF({out}) == {owner['size']}, \"native zero owner size mismatch\")")
+    A("    . = __unplaced_zero_cursor;")
     A("    .sbss  : SUBALIGN(4) { *(.sbss); }")
     A("    .bss   : SUBALIGN(4) { *(.bss); *(.bss.*); *(COMMON); }")
     A("    .data_rest : SUBALIGN(4) { *(.data); *(.sdata); *(.text); }")

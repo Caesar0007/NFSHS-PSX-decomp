@@ -3,64 +3,9 @@
  */
 #include "screenmemcard.h"
 
-/* MATCH (w35-a10): unsized-array asm-label views -- these globals are reached
-   ABSOLUTELY by every oracle (%hi/%lo as an RTL pseudo, CSE-able and
-   delay-slot schedulable); a plain extern leaves cc1plus emitting the lw/sw
-   assembler macro, which GNU-as expands per-access (self-temp / $at). */
-extern int A_ticks[] __asm__("ticks");
-#define ticks A_ticks[0]
-extern int A_CURRENTLYUSINGMEMCARD[] __asm__("CURRENTLYUSINGMEMCARD");
-#define CURRENTLYUSINGMEMCARD A_CURRENTLYUSINGMEMCARD[0]
-
-/* MATCH (w35-a10): UNSIZED-ARRAY ASM-LABEL VIEW of the 17 layout ints.
-   They are STRONG DATA symbols in asm/data/front_data.data.s (0x800528D8..)
-   and every oracle reaches them with an absolute %hi/%lo pair whose `lui` is
-   SCHEDULED away from its load/store (two luis hoisted above two lhus in
-   DrawHorizontalLine) -- impossible for an atomic assembler macro, so retail's
-   cc1 materialised %hi as its own RTL pseudo.  A bare `int X;` here is a
-   tentative def (<=G4 small-common -> .sbss -> %gp_rel, which 0 oracles use
-   AND which would mis-relocate against the real .data symbol); a plain
-   `extern int X;` leaves cc1plus emitting the `sw $2,X` assembler macro
-   (GNU-as $at form).  The unsized-array-with-asm-label view is the catalog
-   wave-13 lever (fememcard DeInit) that turns %hi back into a pseudo. */
-extern int A_GRIDMEMCARD_STARTX[] __asm__("GRIDMEMCARD_STARTX");
-extern int A_GRIDMEMCARD_STARTY[] __asm__("GRIDMEMCARD_STARTY");
-extern int A_MEMCARD_DELTAX[] __asm__("MEMCARD_DELTAX");
-extern int A_MEMCARD_DELTAY[] __asm__("MEMCARD_DELTAY");
-extern int A_EXTRAYATTOP[] __asm__("EXTRAYATTOP");
-extern int A_GRIDMEMCARDGOURAUDBIT_X[] __asm__("GRIDMEMCARDGOURAUDBIT_X");
-extern int A_GRIDMEMCARDGOURAUDBIT_Y[] __asm__("GRIDMEMCARDGOURAUDBIT_Y");
-extern int A_GRIDMEMCARD_WIDTH[] __asm__("GRIDMEMCARD_WIDTH");
-extern int A_GRIDMEMCARD_HEIGHT[] __asm__("GRIDMEMCARD_HEIGHT");
-extern int A_MEMCARDICONOFFX[] __asm__("MEMCARDICONOFFX");
-extern int A_MEMCARDICONOFFY[] __asm__("MEMCARDICONOFFY");
-extern int A_kMemCardMessageX[] __asm__("kMemCardMessageX");
-extern int A_kMemCardMessageY[] __asm__("kMemCardMessageY");
-extern int A_kMemCardMessage1X[] __asm__("kMemCardMessage1X");
-extern int A_kMemCardMessage1Y[] __asm__("kMemCardMessage1Y");
-extern int A_kMemCardMessageH[] __asm__("kMemCardMessageH");
-extern int A_kMemCardMessageH1[] __asm__("kMemCardMessageH1");
-
-#define GRIDMEMCARD_STARTX A_GRIDMEMCARD_STARTX[0]
-#define GRIDMEMCARD_STARTY A_GRIDMEMCARD_STARTY[0]
-#define MEMCARD_DELTAX A_MEMCARD_DELTAX[0]
-#define MEMCARD_DELTAY A_MEMCARD_DELTAY[0]
-#define EXTRAYATTOP A_EXTRAYATTOP[0]
-#define GRIDMEMCARDGOURAUDBIT_X A_GRIDMEMCARDGOURAUDBIT_X[0]
-#define GRIDMEMCARDGOURAUDBIT_Y A_GRIDMEMCARDGOURAUDBIT_Y[0]
-#define GRIDMEMCARD_WIDTH A_GRIDMEMCARD_WIDTH[0]
-#define GRIDMEMCARD_HEIGHT A_GRIDMEMCARD_HEIGHT[0]
-#define MEMCARDICONOFFX A_MEMCARDICONOFFX[0]
-#define MEMCARDICONOFFY A_MEMCARDICONOFFY[0]
-#define kMemCardMessageX A_kMemCardMessageX[0]
-#define kMemCardMessageY A_kMemCardMessageY[0]
-#define kMemCardMessage1X A_kMemCardMessage1X[0]
-#define kMemCardMessage1Y A_kMemCardMessage1Y[0]
-#define kMemCardMessageH A_kMemCardMessageH[0]
-#define kMemCardMessageH1 A_kMemCardMessageH1[0]
-
-/* fMemIcon: strong DATA symbol @0x80052938 (front_data.data.s) -> absolute addressing.
-   Declared extern (NOT a TU-owned tentative def, which would be small-common -> gp-rel). */
+/* P884: use native scalar declarations for the grid/message INTs, the
+   CURRENTLYUSINGMEMCARD BOOL and ticks. The layout globals and fMemIcon pointer
+   remain defined below; fMemIcon keeps its native pointer-to-array dimensions. */
 
 /* ---- tScreenMemcard::GetShapeInfo  (screenmemcard.cpp:65) ---- */
 void tScreenMemcard::GetShapeInfo(short &numPermShapes,short &numSwapShapes,char **permFileName,
@@ -405,7 +350,7 @@ void tScreenMemcard::PlaceIcons(register int i,int fadeval)
     int numIcons;
     /* SYM-CODEGEN-CARRIER: tickPtr -- direct `ticks` is count-exact FAIL 2,
        placing its address high half one instruction after retail. */
-    int *tickPtr = A_ticks;
+    int *tickPtr = &ticks;
     /* SYM-CODEGEN-CARRIER: savedY -- direct reuse of `yy` is count-exact
        FAIL 2, moving the tick-address high half after retail's $a3->$s0 copy. */
     short savedY = yy;
@@ -780,9 +725,6 @@ void tScreenMemcard::DrawBackground()
   /* SYM-CODEGEN-CARRIER: gouraudY -- direct constant use is FAIL 16 at
      412/410 and rematerializes/reorders the vertical geometry loads. */
   ushort gouraudY;
-  /* SYM-CODEGEN-CARRIER: extraY -- direct constant use is count-exact FAIL 20
-     and changes both vertical arithmetic and the global-load order. */
-  ushort extraY;
   /* SYM-CODEGEN-CARRIER: startX -- direct `GRIDMEMCARD_STARTX` use is
      count-exact FAIL 4 and changes the retail HI16 materialization order. */
   ushort startX;
@@ -848,12 +790,11 @@ void tScreenMemcard::DrawBackground()
   gouraudX = GRIDMEMCARDGOURAUDBIT_X;
   startY = GRIDMEMCARD_STARTY;
   gouraudY = GRIDMEMCARDGOURAUDBIT_Y;
-  extraY = EXTRAYATTOP;
   x = startX - gouraudX;
-  y = startY - gouraudY - (extraY + 4);
+  y = startY - gouraudY - ((ushort)EXTRAYATTOP + 4);
   w = GRIDMEMCARD_WIDTH + gouraudX * 2 + 2;
   h = (short)((ushort)GRIDMEMCARD_HEIGHT +
-              gouraudY * 2 + (extraY + 6)) / 2;
+              gouraudY * 2 + ((ushort)EXTRAYATTOP + 6)) / 2;
   SubtractiveBox(x,y,w,h,(i = 0,gray),gray,0,0);
   SubtractiveBox(x,y + h,w,h,0,0,gray,gray);
   PSXDrawSquare
@@ -1047,24 +988,6 @@ extern "C" void ___7tScreen(void *);
 extern "C" void ___14tScreenMemcard(void *thisp) { ___7tScreen(thisp); }
 
 /* end of screenmemcard.cpp */
-
-#undef GRIDMEMCARD_STARTX
-#undef GRIDMEMCARD_STARTY
-#undef MEMCARD_DELTAX
-#undef MEMCARD_DELTAY
-#undef EXTRAYATTOP
-#undef GRIDMEMCARDGOURAUDBIT_X
-#undef GRIDMEMCARDGOURAUDBIT_Y
-#undef GRIDMEMCARD_WIDTH
-#undef GRIDMEMCARD_HEIGHT
-#undef MEMCARDICONOFFX
-#undef MEMCARDICONOFFY
-#undef kMemCardMessageX
-#undef kMemCardMessageY
-#undef kMemCardMessage1X
-#undef kMemCardMessage1Y
-#undef kMemCardMessageH
-#undef kMemCardMessageH1
 
 tScreenMemcard *screenMemcard;              /* @0x800528f0 */
 int GRIDMEMCARD_STARTX;                      /* @0x800528f4 */

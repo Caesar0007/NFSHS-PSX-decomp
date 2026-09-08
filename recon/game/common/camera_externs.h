@@ -14,16 +14,12 @@ extern "C" CARDINFO_def *MCRD_getcard(int);
 extern Car_tObj         *Cars_gHumanRaceCarList[9];  /* cars.obj */
 extern Car_tObj *Cars_gList[];   /* real ARRAY @0x8010F9DC (asm/data), NOT ptr-to-ptr - la form */
 /* These externally-owned aggregate bodies are absent from camera.obj's retail
- * SYM graph.  Keep their exact symbols and source field offsets without
- * importing unrelated foreign type definitions into this translation unit. */
+ * SYM graph. Private owner-derived type projections preserve the native names
+ * and fields; their original header visibility is still a recovery question. */
 extern GameSetup_tData GameSetup_gData;
 extern Sim_tSimGlobalVar simGlobal;
 extern Sim_tSimSystemVar simVar;
-extern u_char (*Camera_BWorldSmSlices)[32] asm("BWorldSm_slices");
-#define CAMERA_SLICE_CENTER(slice) ((coorddef *)&Camera_BWorldSmSlices[(slice)][0])
-#define CAMERA_SLICE_FORWARD(slice, axis) ((signed char)Camera_BWorldSmSlices[(slice)][0x0f + (axis)])
-#define CAMERA_SLICE_RIGHT(slice, axis) ((signed char)Camera_BWorldSmSlices[(slice)][0x12 + (axis)])
-#define CAMERA_SLICE_PAVED_PROFILE(slice) (*(short *)&Camera_BWorldSmSlices[(slice)][0x16])
+extern Trk_NewSlice *BWorldSm_slices; /* SYM1d937e */
 extern int                numValidCams;              /* 0x8013d3f0 */
 extern int               Replay_ReplayMode;          /* replay.obj */
 extern int            Cars_gNumCars;
@@ -34,10 +30,8 @@ extern int   BWorldSm_FindClosestQuadRez(coorddef *c, BWorldSm_Pos *pos, int rez
 extern int InBetween;
 extern int Math_Dist3D(coorddef *a,coorddef *b);
 extern int Newton_FindGroundElevationGeneral(coorddef *point,coorddef *normal,coorddef *pointOnQuad);
-extern linedef Camera_ReplayCamera[] asm("Replay_ReplayCamera");
+extern tReplayCameraModes Replay_ReplayCamera[2]; /* SYM32A86B:32 bytes */
 extern tReplayInterface Replay_ReplayInterface;
-#define CAMERA_REPLAY_DEFAULT(player) Camera_ReplayCamera[(player)].start
-#define CAMERA_REPLAY_MODE(player) Camera_ReplayCamera[(player)].colour
 extern void  Math_fasttransmult(matrixtdef *a, matrixtdef *b, matrixtdef *out);
 extern bool BWorldSm_TunnelFlagSm(BWorldSm_Pos *pos);
 extern void *BWorldSm_UNormal(BWorldSm_Pos *pos);

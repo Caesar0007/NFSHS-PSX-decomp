@@ -5,12 +5,6 @@
  */
 #include "fevideowall.h"
 
-static inline int ReadVideoWallTicks(int *value)
-{
-  return value[0];
-}
-
-
 /* ---- tVideoWall::Initialize  [FEVIDEOWALL.CPP:59-88] ---- */
 void tVideoWall::Initialize
                (tTVConfig *tvs,tTexture_ShapeInfo *shapes,short firstTV,
@@ -33,7 +27,7 @@ void tVideoWall::Initialize
   this->fValid = 1;
   this->fIconShapes = (tTexture_ShapeInfo *)0x0;
   this->tvOrder = tvOrdering;
-  this->fTVTicks = ReadVideoWallTicks(ticks);
+  this->fTVTicks = ticks;
   this->fFlipAxis = flip_axis;
   if (0 < this->fNumTVs) {
     do {
@@ -144,7 +138,7 @@ void tVideoWall::UpdateTransition()
   short i;
   short j;
 
-  i = (ticks[0] - this->fTVTicks) >> 3;
+  i = (ticks - this->fTVTicks) >> 3;
 
   if (0 < this->fTransitionDirection) {
     if (this->fValid != 0) {
@@ -156,7 +150,7 @@ void tVideoWall::UpdateTransition()
       }
     }
     else {
-      this->fTVTicks = ticks[0];
+      this->fTVTicks = ticks;
     }
   }
   else {
@@ -209,7 +203,7 @@ void tVideoWall::Draw()
       if ((this->fIconShapes != (tTexture_ShapeInfo *)0x0) && (0 < this->fIconFrames)) {
         drawFlags.tint[0] = 0xbebe;
         drawFlags.custom_shapes = this->fIconShapes;
-        DrawShapeExtended(this->fIcon + (ticks[0] >> 4) % (int)this->fIconFrames,
+        DrawShapeExtended(this->fIcon + (ticks >> 4) % (int)this->fIconFrames,
                    0x611,this->fIconX,this->fIconY,
                    0x80 - this->fAvailableBright,1,&drawFlags);
       }
@@ -238,14 +232,9 @@ void tVideoWall::Draw()
 void tVideoWall::TurnOff()
 
 {
-  extern int ticksA[];
-
   if (this->fTransitionDirection != -1) {
-    int tickCounter; /* SYM-CODEGEN-CARRIER: tickCounter -- assigning ticksA[0]
-                        directly is measured FAIL 3 (10/9) and leaves a load nop. */
-    tickCounter = ticksA[0];
     this->fTransitionDirection = -1;
-    this->fTVTicks = tickCounter;
+    this->fTVTicks = ticks;
   }
   return;
 }
@@ -275,14 +264,9 @@ void tVideoWall::TurnOffInstant()
 void tVideoWall::TurnOn()
 
 {
-  extern int ticksA[];
-
   if (this->fTransitionDirection != 1) {
-    int tickCounter; /* SYM-CODEGEN-CARRIER: tickCounter -- direct field assignment
-                        is measured FAIL 3 (10/9); this split fills the load slot. */
-    tickCounter = ticksA[0];
     this->fTransitionDirection = 1;
-    this->fTVTicks = tickCounter;
+    this->fTVTicks = ticks;
   }
   return;
 }

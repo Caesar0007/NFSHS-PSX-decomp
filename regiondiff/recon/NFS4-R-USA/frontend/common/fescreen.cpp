@@ -607,43 +607,31 @@ void tScreen::PreLoad()
   return;
 }
 
-/* ---- tScreen::TransitionOff  [FESCREEN.CPP:621-625] SLD-VERIFIED ---- */
+/* ---- tScreen::TransitionOff  [FESCREEN.CPP:621-625] SYM/SLD-REVIEWED; emitted partitions open (P889 SLD_RECEIPT.md) ---- */
 
-void tScreen::TransitionOff(tScreen_TransitionType type,tMenu *arg2)
+void tScreen::TransitionOff(tScreen_TransitionType type,tMenu *)
 
 {
-  /* SYM-CODEGEN-CARRIER: arg2 -- the mangled signature proves this unused
-     menu argument even though optimized debug has no parameter row. */
-  /* SYM-CODEGEN-CARRIER: iVar1 -- direct ticks storage is measured FAIL 8
-     (8/8) and changes the retail load/store register schedule. */
-  int iVar1;
-
-  iVar1 = ticks[0];
-  this->fScreenFadeVal = 0;
-  this->fInternalScreenFadeVal = 0;
+  /* ABI type/arity retained; this unused parameter's original name is
+     unknown because optimized SYM has no corresponding named record. */
+  this->fInternalScreenFadeVal = this->fScreenFadeVal = 0;
   this->fTransitionOff = 1;
-  this->fTransitionTicks = iVar1;
+  this->fTransitionTicks = ticks;
   return;
 }
 
 
 
-/* ---- tScreen::TransitionOn  [FESCREEN.CPP:629-633] SLD-VERIFIED ---- */
+/* ---- tScreen::TransitionOn  [FESCREEN.CPP:629-633] SYM/SLD-REVIEWED; emitted partitions open (P889 SLD_RECEIPT.md) ---- */
 
-void tScreen::TransitionOn(tScreen_TransitionType type,tMenu *arg2)
+void tScreen::TransitionOn(tScreen_TransitionType type,tMenu *)
 
 {
-  /* SYM-CODEGEN-CARRIER: arg2 -- the mangled signature proves this unused
-     menu argument even though optimized debug has no parameter row. */
-  /* SYM-CODEGEN-CARRIER: iVar1 -- direct ticks storage is measured FAIL 6
-     (9/9) and changes the retail load/store register schedule. */
-  int iVar1;
-
-  this->fScreenFadeVal = 0x80;
-  iVar1 = ticks[0];
-  this->fInternalScreenFadeVal = 0x80;
+  /* ABI type/arity retained; this unused parameter's original name is
+     unknown because optimized SYM has no corresponding named record. */
+  this->fInternalScreenFadeVal = this->fScreenFadeVal = 0x80;
   this->fTransitionOff = 0;
-  this->fTransitionTicks = iVar1;
+  this->fTransitionTicks = ticks;
   return;
 }
 

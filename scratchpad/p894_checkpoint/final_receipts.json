@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "source_objects": 518,
+  "literally_identical_to_P893": 517,
+  "metadata_only_objects": 1,
+  "protected_functions": 705,
+  "protected_TUs": 32,
+  "source_receipt_drift": 0,
+  "linked_code_data_storage_symbols_preserved": true,
+  "linked_ELF_sha256": "bf66bf489f36b0c7236bbcff855ed2480f36f1fe4a889c20b22bb3e033e0592e",
+  "user_file_sha256": "d433425b806fc8abd1fa60c9f72a09f4c022bfd64a7fecf4df496931169e9546",
+  "goal_complete": false
+}

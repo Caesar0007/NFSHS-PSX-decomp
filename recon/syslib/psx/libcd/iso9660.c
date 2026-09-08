@@ -66,8 +66,9 @@ static int cd_read(int n_sectors, int sector_no, unsigned char *ptr);
 /* ---- ISO9660.OBJ .bss -------------------------------------------------------------------------- */
 /* The run is exactly accounted and independently confirmed: 0x8014487C is StFunc2+4 (libcd
  * stream.c's run A) and 1536 + 5632 + 2048 = 9216 lands precisely on StEmu_Addr @0x80146C7C
- * (stream.c's run B) -- i.e. these buffers are the whole gap between the two St* runs, which is
- * also why the SYM has no record for them (PSYLINK gave COMMONs no symbol entries).
+ * (stream.c's run B) -- these buffers are the whole gap between the two St* runs.
+ * No private table-name records remain in NFS4's SYM; the independent archive
+ * and raw-reference evidence below establish this private storage instead.
  *      file     @0x8014487C 1536 = sizeof(CdlFILE)*64
  *      dire     @0x80144E7C 5632 = sizeof(CdlDIR)*128
  *      load_buf @0x8014647C 2048 = one CD sector buffer
@@ -81,9 +82,11 @@ static int cd_read(int n_sectors, int sector_no, unsigned char *ptr);
  * Canonical PsyQ/SotN object evidence and the exactly tiled retail BSS/data
  * ranges below prove these private objects; no private declaration rows remain
  * in NFS4's SYM. */
-/* Canonical PsyQ 4.3 ISO9660.obj has exactly one XDEF (`CdSearchFile`) and a
- * 9216-byte section-relative BSS.  The byte-identical PsyQ 4.0/SotN copies
- * preserve these private names and types. */
+/* Canonical PsyQ4.3 ISO9660.obj has one XDEF (CdSearchFile) and9216 bytes
+ * of section-relative BSS, but no private local-name records. P887 directly
+ * decodes PsyQ4.0's local records for file/dire/load_buf at0/600/1C00 and
+ * verifies all21 retail address pairs. The two SDK versions are NOT claimed
+ * byte-identical. Proof: scratchpad/p887_iso/stream_and_names.json. */
 static CdlFILE file[64];                 /* @0x8014487C */
 static CdlDIR dire[128];                 /* @0x80144E7C */
 static unsigned char load_buf[0x800];    /* @0x8014647C */

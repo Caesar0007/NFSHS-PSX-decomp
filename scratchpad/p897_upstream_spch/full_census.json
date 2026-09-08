@@ -1,0 +1,5233 @@
+{
+  "rows": [
+    {
+      "stage": "before",
+      "source": "recon/eaclib/psx/spchpsxz/spchbank.c",
+      "known": 8,
+      "passes": 8,
+      "results": [
+        {
+          "symbol": "SPCH_AddBank",
+          "diff_lines": 0,
+          "instructions": 33,
+          "oracle_instructions": 33
+        },
+        {
+          "symbol": "iSPCH_BankMemAlloc",
+          "diff_lines": 0,
+          "instructions": 33,
+          "oracle_instructions": 33
+        },
+        {
+          "symbol": "iSPCH_DisposeBanks",
+          "diff_lines": 0,
+          "instructions": 16,
+          "oracle_instructions": 16
+        },
+        {
+          "symbol": "iSPCH_FindBank",
+          "diff_lines": 0,
+          "instructions": 27,
+          "oracle_instructions": 27
+        },
+        {
+          "symbol": "iSPCH_GetFreeBank",
+          "diff_lines": 0,
+          "instructions": 22,
+          "oracle_instructions": 22
+        },
+        {
+          "symbol": "iSPCH_InitBanks",
+          "diff_lines": 0,
+          "instructions": 5,
+          "oracle_instructions": 5
+        },
+        {
+          "symbol": "iSPCH_SetCycleBits",
+          "diff_lines": 0,
+          "instructions": 86,
+          "oracle_instructions": 86
+        },
+        {
+          "symbol": "iSPCH_TestSubBankBounds",
+          "diff_lines": 0,
+          "instructions": 19,
+          "oracle_instructions": 19
+        }
+      ],
+      "omissions": [
+        {
+          "symbol": "LM1",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM2",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM3",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM4",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM5",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM6",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM7",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM8",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "__gnu_compiled_c",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gcc2_compiled.",
+          "reason": "no oracle"
+        }
+      ],
+      "manifest_count": 8
+    },
+    {
+      "stage": "before",
+      "source": "recon/eaclib/psx/spchpsxz/spchdata.c",
+      "known": 6,
+      "passes": 6,
+      "results": [
+        {
+          "symbol": "VoxEvent_GetFilterLengthFlag",
+          "diff_lines": 0,
+          "instructions": 3,
+          "oracle_instructions": 3
+        },
+        {
+          "symbol": "VoxSentence_GetNumPhrases",
+          "diff_lines": 0,
+          "instructions": 3,
+          "oracle_instructions": 3
+        },
+        {
+          "symbol": "VoxSentence_GetShortRule",
+          "diff_lines": 0,
+          "instructions": 3,
+          "oracle_instructions": 3
+        },
+        {
+          "symbol": "iSPCH_GetMatchValue",
+          "diff_lines": 0,
+          "instructions": 5,
+          "oracle_instructions": 5
+        },
+        {
+          "symbol": "iSPCH_GetOffset16",
+          "diff_lines": 0,
+          "instructions": 7,
+          "oracle_instructions": 7
+        },
+        {
+          "symbol": "iSPCH_GetOffset8",
+          "diff_lines": 0,
+          "instructions": 6,
+          "oracle_instructions": 6
+        }
+      ],
+      "omissions": [
+        {
+          "symbol": "LM1",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM2",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM3",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM4",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM5",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM6",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "__gnu_compiled_c",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gcc2_compiled.",
+          "reason": "no oracle"
+        }
+      ],
+      "manifest_count": 6
+    },
+    {
+      "stage": "before",
+      "source": "recon/eaclib/psx/spchpsxz/spchevnt.c",
+      "known": 16,
+      "passes": 16,
+      "results": [
+        {
+          "symbol": "GetFilterLength",
+          "diff_lines": 0,
+          "instructions": 6,
+          "oracle_instructions": 6
+        },
+        {
+          "symbol": "GetFilterPriority",
+          "diff_lines": 0,
+          "instructions": 6,
+          "oracle_instructions": 6
+        },
+        {
+          "symbol": "SPCH_AddEvent",
+          "diff_lines": 0,
+          "instructions": 82,
+          "oracle_instructions": 82
+        },
+        {
+          "symbol": "SPCH_ChooseSpeech",
+          "diff_lines": 0,
+          "instructions": 73,
+          "oracle_instructions": 73
+        },
+        {
+          "symbol": "SPCH_ClearEventQueue",
+          "diff_lines": 0,
+          "instructions": 18,
+          "oracle_instructions": 18
+        },
+        {
+          "symbol": "SPCH_PlaySpeech",
+          "diff_lines": 0,
+          "instructions": 16,
+          "oracle_instructions": 16
+        },
+        {
+          "symbol": "VoxEvent_GetFilterLengthFlag",
+          "diff_lines": 0,
+          "instructions": 3,
+          "oracle_instructions": 3
+        },
+        {
+          "symbol": "VoxEvent_GetKeepTillExpiresFlag",
+          "diff_lines": 0,
+          "instructions": 5,
+          "oracle_instructions": 5
+        },
+        {
+          "symbol": "iSPCH_ChooseEvent",
+          "diff_lines": 0,
+          "instructions": 120,
+          "oracle_instructions": 120
+        },
+        {
+          "symbol": "iSPCH_ClearOldEvents",
+          "diff_lines": 0,
+          "instructions": 71,
+          "oracle_instructions": 71
+        },
+        {
+          "symbol": "iSPCH_FindEvent",
+          "diff_lines": 0,
+          "instructions": 28,
+          "oracle_instructions": 28
+        },
+        {
+          "symbol": "iSPCH_FindEventSlot",
+          "diff_lines": 0,
+          "instructions": 76,
+          "oracle_instructions": 76
+        },
+        {
+          "symbol": "iSPCH_GetOffset16",
+          "diff_lines": 0,
+          "instructions": 7,
+          "oracle_instructions": 7
+        },
+        {
+          "symbol": "iSPCH_InitEventDat",
+          "diff_lines": 0,
+          "instructions": 10,
+          "oracle_instructions": 10
+        },
+        {
+          "symbol": "iSPCH_InitEventQueue",
+          "diff_lines": 0,
+          "instructions": 29,
+          "oracle_instructions": 29
+        },
+        {
+          "symbol": "iSPCH_SearchEventDat",
+          "diff_lines": 0,
+          "instructions": 34,
+          "oracle_instructions": 34
+        }
+      ],
+      "omissions": [
+        {
+          "symbol": "DAT_80148064",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM1",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM10",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM11",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM12",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM13",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM14",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM15",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM16",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM2",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM3",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM4",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM5",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM6",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM7",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM8",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM9",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "__gnu_compiled_c",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gEventDats",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gPreLoadTicks",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gRepeatCount",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gVoxEvents",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gVoxInGame",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gcc2_compiled.",
+          "reason": "no oracle"
+        }
+      ],
+      "manifest_count": 14
+    },
+    {
+      "stage": "before",
+      "source": "recon/eaclib/psx/spchpsxz/spchinit.c",
+      "known": 7,
+      "passes": 7,
+      "results": [
+        {
+          "symbol": "SPCH_Deinit",
+          "diff_lines": 0,
+          "instructions": 21,
+          "oracle_instructions": 21
+        },
+        {
+          "symbol": "SPCH_GetSampleDataRate",
+          "diff_lines": 0,
+          "instructions": 33,
+          "oracle_instructions": 33
+        },
+        {
+          "symbol": "SPCH_Init",
+          "diff_lines": 0,
+          "instructions": 39,
+          "oracle_instructions": 39
+        },
+        {
+          "symbol": "SPCH_InitBankMem",
+          "diff_lines": 0,
+          "instructions": 22,
+          "oracle_instructions": 22
+        },
+        {
+          "symbol": "iSPCH_InitInGame",
+          "diff_lines": 0,
+          "instructions": 6,
+          "oracle_instructions": 6
+        },
+        {
+          "symbol": "iSPCH_MemAlloc",
+          "diff_lines": 0,
+          "instructions": 12,
+          "oracle_instructions": 12
+        },
+        {
+          "symbol": "iSPCH_MemFree",
+          "diff_lines": 0,
+          "instructions": 11,
+          "oracle_instructions": 11
+        }
+      ],
+      "omissions": [
+        {
+          "symbol": "LM1",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM2",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM3",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM4",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM5",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM6",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM7",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "__gnu_compiled_c",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gDataRate",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gFilterSetting",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gGameNum",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gLastSubTick",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gLastTick",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gcc2_compiled.",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "spchInitBoundary_.14",
+          "reason": "no oracle"
+        }
+      ],
+      "manifest_count": 7
+    },
+    {
+      "stage": "before",
+      "source": "recon/eaclib/psx/spchpsxz/spchpick.c",
+      "known": 27,
+      "passes": 27,
+      "results": [
+        {
+          "symbol": "SPCH_SetPreLoadTicks",
+          "diff_lines": 0,
+          "instructions": 3,
+          "oracle_instructions": 3
+        },
+        {
+          "symbol": "iSPCH_CheckBankBit",
+          "diff_lines": 0,
+          "instructions": 21,
+          "oracle_instructions": 21
+        },
+        {
+          "symbol": "iSPCH_CheckTemplateSample",
+          "diff_lines": 0,
+          "instructions": 20,
+          "oracle_instructions": 20
+        },
+        {
+          "symbol": "iSPCH_ChooseSamples",
+          "diff_lines": 0,
+          "instructions": 68,
+          "oracle_instructions": 68
+        },
+        {
+          "symbol": "iSPCH_ChooseSentence",
+          "diff_lines": 0,
+          "instructions": 104,
+          "oracle_instructions": 104
+        },
+        {
+          "symbol": "iSPCH_ChooseShortSentence",
+          "diff_lines": 0,
+          "instructions": 45,
+          "oracle_instructions": 45
+        },
+        {
+          "symbol": "iSPCH_ClearChosen",
+          "diff_lines": 0,
+          "instructions": 3,
+          "oracle_instructions": 3
+        },
+        {
+          "symbol": "iSPCH_ClearCycleBit",
+          "diff_lines": 0,
+          "instructions": 25,
+          "oracle_instructions": 25
+        },
+        {
+          "symbol": "iSPCH_ConstantRuleSet",
+          "diff_lines": 0,
+          "instructions": 83,
+          "oracle_instructions": 83
+        },
+        {
+          "symbol": "iSPCH_ConvertTime",
+          "diff_lines": 0,
+          "instructions": 23,
+          "oracle_instructions": 23
+        },
+        {
+          "symbol": "iSPCH_GetBankBits",
+          "diff_lines": 0,
+          "instructions": 9,
+          "oracle_instructions": 9
+        },
+        {
+          "symbol": "iSPCH_GetPhraseBank",
+          "diff_lines": 0,
+          "instructions": 69,
+          "oracle_instructions": 69
+        },
+        {
+          "symbol": "iSPCH_IterateChoice",
+          "diff_lines": 0,
+          "instructions": 44,
+          "oracle_instructions": 44
+        },
+        {
+          "symbol": "iSPCH_MakeSampleRequests",
+          "diff_lines": 0,
+          "instructions": 82,
+          "oracle_instructions": 82
+        },
+        {
+          "symbol": "iSPCH_MatchSample",
+          "diff_lines": 0,
+          "instructions": 65,
+          "oracle_instructions": 65
+        },
+        {
+          "symbol": "iSPCH_OneChosen",
+          "diff_lines": 0,
+          "instructions": 4,
+          "oracle_instructions": 4
+        },
+        {
+          "symbol": "iSPCH_OrderSentences",
+          "diff_lines": 0,
+          "instructions": 83,
+          "oracle_instructions": 83
+        },
+        {
+          "symbol": "iSPCH_PlayChosen",
+          "diff_lines": 0,
+          "instructions": 40,
+          "oracle_instructions": 40
+        },
+        {
+          "symbol": "iSPCH_RandomizeSentencePicks",
+          "diff_lines": 0,
+          "instructions": 56,
+          "oracle_instructions": 56
+        },
+        {
+          "symbol": "iSPCH_RepeatEvent",
+          "diff_lines": 0,
+          "instructions": 17,
+          "oracle_instructions": 17
+        },
+        {
+          "symbol": "iSPCH_SampleExists",
+          "diff_lines": 0,
+          "instructions": 35,
+          "oracle_instructions": 35
+        },
+        {
+          "symbol": "iSPCH_SampleLength",
+          "diff_lines": 0,
+          "instructions": 26,
+          "oracle_instructions": 26
+        },
+        {
+          "symbol": "iSPCH_SaveChosenSentence",
+          "diff_lines": 0,
+          "instructions": 18,
+          "oracle_instructions": 18
+        },
+        {
+          "symbol": "iSPCH_SentenceGetChoices",
+          "diff_lines": 0,
+          "instructions": 80,
+          "oracle_instructions": 80
+        },
+        {
+          "symbol": "iSPCH_SentenceLength",
+          "diff_lines": 0,
+          "instructions": 29,
+          "oracle_instructions": 29
+        },
+        {
+          "symbol": "iSPCH_SentenceMakeChoice",
+          "diff_lines": 0,
+          "instructions": 43,
+          "oracle_instructions": 43
+        },
+        {
+          "symbol": "iSPCH_ShortRuleStatus",
+          "diff_lines": 0,
+          "instructions": 26,
+          "oracle_instructions": 26
+        }
+      ],
+      "omissions": [
+        {
+          "symbol": "DAT_80148448",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM1",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM10",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM11",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM12",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM13",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM14",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM15",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM16",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM17",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM18",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM19",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM2",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM20",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM21",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM22",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM23",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM24",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM25",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM26",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM27",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM3",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM4",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM5",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM6",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM7",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM8",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM9",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "__gnu_compiled_c",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gChooseShort",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gSentenceChoice",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gcc2_compiled.",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "ispch_gChoice",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "ispch_gPickSamples",
+          "reason": "no oracle"
+        }
+      ],
+      "manifest_count": 27
+    },
+    {
+      "stage": "before",
+      "source": "recon/eaclib/psx/spchpsxz/spchrand.c",
+      "known": 4,
+      "passes": 4,
+      "results": [
+        {
+          "symbol": "iSPCH_BindData",
+          "diff_lines": 0,
+          "instructions": 20,
+          "oracle_instructions": 20
+        },
+        {
+          "symbol": "iSPCH_EACrandom",
+          "diff_lines": 0,
+          "instructions": 64,
+          "oracle_instructions": 64
+        },
+        {
+          "symbol": "iSPCH_EACseedrandom",
+          "diff_lines": 0,
+          "instructions": 27,
+          "oracle_instructions": 27
+        },
+        {
+          "symbol": "iSPCH_Rand",
+          "diff_lines": 0,
+          "instructions": 21,
+          "oracle_instructions": 21
+        }
+      ],
+      "omissions": [
+        {
+          "symbol": "LM1",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM2",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM3",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM4",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "__gnu_compiled_c",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gcc2_compiled.",
+          "reason": "no oracle"
+        }
+      ],
+      "manifest_count": 4
+    },
+    {
+      "stage": "before",
+      "source": "recon/eaclib/psx/spchpsxz/spchrslv.c",
+      "known": 1,
+      "passes": 1,
+      "results": [
+        {
+          "symbol": "SPCH_ResolveData",
+          "diff_lines": 0,
+          "instructions": 8,
+          "oracle_instructions": 8
+        }
+      ],
+      "omissions": [
+        {
+          "symbol": "LM1",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "__gnu_compiled_c",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gcc2_compiled.",
+          "reason": "no oracle"
+        }
+      ],
+      "manifest_count": 1
+    },
+    {
+      "stage": "before",
+      "source": "recon/eaclib/psx/spchpsxz/spchrule.c",
+      "known": 9,
+      "passes": 9,
+      "results": [
+        {
+          "symbol": "VoxSentence_GetNumPhrases",
+          "diff_lines": 0,
+          "instructions": 3,
+          "oracle_instructions": 3
+        },
+        {
+          "symbol": "iSPCH_CheckSentenceRules",
+          "diff_lines": 0,
+          "instructions": 8,
+          "oracle_instructions": 8
+        },
+        {
+          "symbol": "iSPCH_GetOffset16",
+          "diff_lines": 0,
+          "instructions": 7,
+          "oracle_instructions": 7
+        },
+        {
+          "symbol": "iSPCH_GetOffset8",
+          "diff_lines": 0,
+          "instructions": 6,
+          "oracle_instructions": 6
+        },
+        {
+          "symbol": "iSPCH_GetRuleDataAddr",
+          "diff_lines": 0,
+          "instructions": 6,
+          "oracle_instructions": 6
+        },
+        {
+          "symbol": "iSPCH_GetRuleID",
+          "diff_lines": 0,
+          "instructions": 29,
+          "oracle_instructions": 29
+        },
+        {
+          "symbol": "iSPCH_GetRuleSettings",
+          "diff_lines": 0,
+          "instructions": 112,
+          "oracle_instructions": 112
+        },
+        {
+          "symbol": "iSPCH_RuleSet",
+          "diff_lines": 0,
+          "instructions": 78,
+          "oracle_instructions": 78
+        },
+        {
+          "symbol": "iSPCH_SentenceUsesParm",
+          "diff_lines": 0,
+          "instructions": 50,
+          "oracle_instructions": 50
+        }
+      ],
+      "omissions": [
+        {
+          "symbol": "LM1",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM2",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM3",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM4",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM5",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM6",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM7",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM8",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM9",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "__gnu_compiled_c",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gcc2_compiled.",
+          "reason": "no oracle"
+        }
+      ],
+      "manifest_count": 9
+    },
+    {
+      "stage": "before",
+      "source": "recon/eaclib/psx/spchpsxz/spchsamp.c",
+      "known": 2,
+      "passes": 2,
+      "results": [
+        {
+          "symbol": "iSPCH_InitSample",
+          "diff_lines": 0,
+          "instructions": 10,
+          "oracle_instructions": 10
+        },
+        {
+          "symbol": "iSPCH_UnPackSample",
+          "diff_lines": 0,
+          "instructions": 98,
+          "oracle_instructions": 98
+        }
+      ],
+      "omissions": [
+        {
+          "symbol": "LM1",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM2",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "__gnu_compiled_c",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gcc2_compiled.",
+          "reason": "no oracle"
+        }
+      ],
+      "manifest_count": 2
+    },
+    {
+      "stage": "before",
+      "source": "recon/game/common/speech.cpp",
+      "known": 102,
+      "passes": 102,
+      "results": [
+        {
+          "symbol": "Accident__Q26Speech13MobileSpeakeri",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "Accident__Q26Speech15DispatchSpeakeri",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "Accident__Q26Speech7Speakeri",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "Activate__Q26Speech13MobileSpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 59,
+          "oracle_instructions": 59
+        },
+        {
+          "symbol": "Activate__Q26Speech15DispatchSpeakeri",
+          "diff_lines": 0,
+          "instructions": 39,
+          "oracle_instructions": 39
+        },
+        {
+          "symbol": "AddPerp__Q26Speech15DispatchSpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 12,
+          "oracle_instructions": 12
+        },
+        {
+          "symbol": "Backup__Q26Speech13MobileSpeaker",
+          "diff_lines": 0,
+          "instructions": 62,
+          "oracle_instructions": 62
+        },
+        {
+          "symbol": "Backup__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "BankPatch__6SpeechlP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 15,
+          "oracle_instructions": 15
+        },
+        {
+          "symbol": "Bullhorn__Q26Speech13MobileSpeaker",
+          "diff_lines": 0,
+          "instructions": 13,
+          "oracle_instructions": 13
+        },
+        {
+          "symbol": "Bullhorn__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "CalcMph__Q26Speech7SpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 18,
+          "oracle_instructions": 18
+        },
+        {
+          "symbol": "CalculateBankSize__6SpeechPcPQ26Speech11CarBankNamePlT3",
+          "diff_lines": 0,
+          "instructions": 133,
+          "oracle_instructions": 133
+        },
+        {
+          "symbol": "CallSign__Q26Speech13MobileSpeaker",
+          "diff_lines": 0,
+          "instructions": 3,
+          "oracle_instructions": 3
+        },
+        {
+          "symbol": "CallSign__Q26Speech15DispatchSpeaker",
+          "diff_lines": 0,
+          "instructions": 3,
+          "oracle_instructions": 3
+        },
+        {
+          "symbol": "CallSign__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "CarObj__Q26Speech13MobileSpeaker",
+          "diff_lines": 0,
+          "instructions": 3,
+          "oracle_instructions": 3
+        },
+        {
+          "symbol": "CarObj__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "Catch__Q26Speech13MobileSpeakeri",
+          "diff_lines": 0,
+          "instructions": 175,
+          "oracle_instructions": 175
+        },
+        {
+          "symbol": "Catch__Q26Speech7Speakeri",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "CheckCallSignBank__6SpeechPQ26Speech12CallSignBankPci",
+          "diff_lines": 0,
+          "instructions": 78,
+          "oracle_instructions": 78
+        },
+        {
+          "symbol": "CheckCarBank__6SpeechPQ26Speech7CarBankPciPQ26Speech11CarBankName",
+          "diff_lines": 0,
+          "instructions": 45,
+          "oracle_instructions": 45
+        },
+        {
+          "symbol": "CheckLocationBank__6SpeechPQ26Speech12LocationBankPci",
+          "diff_lines": 0,
+          "instructions": 65,
+          "oracle_instructions": 65
+        },
+        {
+          "symbol": "CheckMultiBank__6SpeechPciPQ26Speech11CarBankName",
+          "diff_lines": 0,
+          "instructions": 104,
+          "oracle_instructions": 104
+        },
+        {
+          "symbol": "Check__Q26Speech7CarBankPciPQ26Speech11CarBankName",
+          "diff_lines": 0,
+          "instructions": 66,
+          "oracle_instructions": 66
+        },
+        {
+          "symbol": "ClearPerp__Q26Speech15DispatchSpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 12,
+          "oracle_instructions": 12
+        },
+        {
+          "symbol": "ClearPerp__Q26Speech7SpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "CountLocations__6Speech",
+          "diff_lines": 0,
+          "instructions": 28,
+          "oracle_instructions": 28
+        },
+        {
+          "symbol": "Deny__Q26Speech15DispatchSpeaker",
+          "diff_lines": 0,
+          "instructions": 61,
+          "oracle_instructions": 61
+        },
+        {
+          "symbol": "Deny__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "Dispatch__6Speech",
+          "diff_lines": 0,
+          "instructions": 14,
+          "oracle_instructions": 14
+        },
+        {
+          "symbol": "DistToPerp__Q26Speech13MobileSpeaker",
+          "diff_lines": 0,
+          "instructions": 121,
+          "oracle_instructions": 121
+        },
+        {
+          "symbol": "DistToPerp__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "Distance__Q26Speech12LocationBanki",
+          "diff_lines": 0,
+          "instructions": 37,
+          "oracle_instructions": 37
+        },
+        {
+          "symbol": "Engage__Q26Speech13MobileSpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 467,
+          "oracle_instructions": 467
+        },
+        {
+          "symbol": "Engage__Q26Speech7SpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "FindClosestLocationTo__6SpeechPQ26Speech12LocationBanki",
+          "diff_lines": 0,
+          "instructions": 54,
+          "oracle_instructions": 54
+        },
+        {
+          "symbol": "FindClosestLocationTo__Q26Speech13MobileSpeakeri",
+          "diff_lines": 0,
+          "instructions": 10,
+          "oracle_instructions": 10
+        },
+        {
+          "symbol": "FindClosestLocationTo__Q26Speech15DispatchSpeakeri",
+          "diff_lines": 0,
+          "instructions": 10,
+          "oracle_instructions": 10
+        },
+        {
+          "symbol": "FindClosestLocationTo__Q26Speech7Speakeri",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "FindLocation__Q26Speech7SpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 190,
+          "oracle_instructions": 190
+        },
+        {
+          "symbol": "FindMobile__6SpeechP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 41,
+          "oracle_instructions": 41
+        },
+        {
+          "symbol": "GetCarBank__Q26Speech13MobileSpeakeri",
+          "diff_lines": 0,
+          "instructions": 6,
+          "oracle_instructions": 6
+        },
+        {
+          "symbol": "GetCarBank__Q26Speech15DispatchSpeakeri",
+          "diff_lines": 0,
+          "instructions": 7,
+          "oracle_instructions": 7
+        },
+        {
+          "symbol": "GetCarBank__Q26Speech7Speakeri",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "GetVoice__6SpeechP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 10,
+          "oracle_instructions": 10
+        },
+        {
+          "symbol": "Grant__Q26Speech15DispatchSpeaker",
+          "diff_lines": 0,
+          "instructions": 25,
+          "oracle_instructions": 25
+        },
+        {
+          "symbol": "Grant__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "IsSuper__Q26Speech13MobileSpeaker",
+          "diff_lines": 0,
+          "instructions": 7,
+          "oracle_instructions": 7
+        },
+        {
+          "symbol": "IsSuper__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "KnownPerp__Q26Speech15DispatchSpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 12,
+          "oracle_instructions": 12
+        },
+        {
+          "symbol": "KnownPerp__Q26Speech7SpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "LoadBankHeaders__6SpeechPcPQ26Speech11CarBankNamell",
+          "diff_lines": 0,
+          "instructions": 270,
+          "oracle_instructions": 270
+        },
+        {
+          "symbol": "Lose__Q26Speech13MobileSpeaker",
+          "diff_lines": 0,
+          "instructions": 213,
+          "oracle_instructions": 213
+        },
+        {
+          "symbol": "Lose__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "Mobile__6SpeechP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 18,
+          "oracle_instructions": 18
+        },
+        {
+          "symbol": "Perp__Q26Speech13MobileSpeaker",
+          "diff_lines": 0,
+          "instructions": 3,
+          "oracle_instructions": 3
+        },
+        {
+          "symbol": "Perp__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "PickVoice__6SpeechP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 39,
+          "oracle_instructions": 39
+        },
+        {
+          "symbol": "Promote__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 27,
+          "oracle_instructions": 27
+        },
+        {
+          "symbol": "PurgeStatusSub__Q26Speech15DispatchSpeaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "PurgeStatusSub__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "Purge__Q26Speech13MobileSpeaker",
+          "diff_lines": 0,
+          "instructions": 149,
+          "oracle_instructions": 149
+        },
+        {
+          "symbol": "Purge__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "ReActivate__Q26Speech13MobileSpeaker",
+          "diff_lines": 0,
+          "instructions": 43,
+          "oracle_instructions": 43
+        },
+        {
+          "symbol": "ReActivate__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "Ready__Q26Speech15DispatchSpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 43,
+          "oracle_instructions": 43
+        },
+        {
+          "symbol": "Ready__Q26Speech7SpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "ReportBlockade__Q26Speech13MobileSpeaker",
+          "diff_lines": 0,
+          "instructions": 63,
+          "oracle_instructions": 63
+        },
+        {
+          "symbol": "ReportBlockade__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "Report__Q26Speech13MobileSpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 59,
+          "oracle_instructions": 59
+        },
+        {
+          "symbol": "Report__Q26Speech15DispatchSpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 104,
+          "oracle_instructions": 104
+        },
+        {
+          "symbol": "Report__Q26Speech7SpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "Reset__6Speech",
+          "diff_lines": 0,
+          "instructions": 103,
+          "oracle_instructions": 103
+        },
+        {
+          "symbol": "RoadBlock__Q26Speech13MobileSpeaker",
+          "diff_lines": 0,
+          "instructions": 69,
+          "oracle_instructions": 69
+        },
+        {
+          "symbol": "RoadBlock__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "Roger__Q26Speech13MobileSpeaker",
+          "diff_lines": 0,
+          "instructions": 94,
+          "oracle_instructions": 94
+        },
+        {
+          "symbol": "Roger__Q26Speech15DispatchSpeaker",
+          "diff_lines": 0,
+          "instructions": 157,
+          "oracle_instructions": 157
+        },
+        {
+          "symbol": "Roger__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "SetCar__Q26Speech11CarBankNamei",
+          "diff_lines": 0,
+          "instructions": 50,
+          "oracle_instructions": 50
+        },
+        {
+          "symbol": "SetCar__Q26Speech7SpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 72,
+          "oracle_instructions": 72
+        },
+        {
+          "symbol": "SetDelayedStatus__6SpeechPQ26Speech7Speakeri",
+          "diff_lines": 0,
+          "instructions": 8,
+          "oracle_instructions": 8
+        },
+        {
+          "symbol": "SetSpeed__Q26Speech13MobileSpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 75,
+          "oracle_instructions": 75
+        },
+        {
+          "symbol": "Speech_AllocateRAM__FlPc",
+          "diff_lines": 0,
+          "instructions": 11,
+          "oracle_instructions": 11
+        },
+        {
+          "symbol": "Speech_HandleRequest__Fllll",
+          "diff_lines": 0,
+          "instructions": 8,
+          "oracle_instructions": 8
+        },
+        {
+          "symbol": "Speech_PurgeRAM__FPc",
+          "diff_lines": 0,
+          "instructions": 8,
+          "oracle_instructions": 8
+        },
+        {
+          "symbol": "Speech_Server__Fv",
+          "diff_lines": 0,
+          "instructions": 15,
+          "oracle_instructions": 15
+        },
+        {
+          "symbol": "SpikeBelt__Q26Speech13MobileSpeaker",
+          "diff_lines": 0,
+          "instructions": 69,
+          "oracle_instructions": 69
+        },
+        {
+          "symbol": "SpikeBelt__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "StatusCount__Q26Speech15DispatchSpeaker",
+          "diff_lines": 0,
+          "instructions": 3,
+          "oracle_instructions": 3
+        },
+        {
+          "symbol": "StatusCount__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "StatusReply__Q26Speech15DispatchSpeaker",
+          "diff_lines": 0,
+          "instructions": 269,
+          "oracle_instructions": 269
+        },
+        {
+          "symbol": "StatusSub__Q26Speech15DispatchSpeaker",
+          "diff_lines": 0,
+          "instructions": 3,
+          "oracle_instructions": 3
+        },
+        {
+          "symbol": "StatusSub__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "Status__Q26Speech13MobileSpeaker",
+          "diff_lines": 0,
+          "instructions": 358,
+          "oracle_instructions": 358
+        },
+        {
+          "symbol": "Status__Q26Speech15DispatchSpeaker",
+          "diff_lines": 0,
+          "instructions": 366,
+          "oracle_instructions": 366
+        },
+        {
+          "symbol": "Status__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "SubmitRequest__6Speechlll",
+          "diff_lines": 0,
+          "instructions": 61,
+          "oracle_instructions": 61
+        },
+        {
+          "symbol": "Unit__Q26Speech13MobileSpeaker",
+          "diff_lines": 0,
+          "instructions": 3,
+          "oracle_instructions": 3
+        },
+        {
+          "symbol": "Unit__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "__6Speech",
+          "diff_lines": 0,
+          "instructions": 232,
+          "oracle_instructions": 232
+        },
+        {
+          "symbol": "___6Speech",
+          "diff_lines": 0,
+          "instructions": 45,
+          "oracle_instructions": 45
+        }
+      ],
+      "omissions": [
+        {
+          "symbol": "D_80055BD0",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "Speech_gCallSignDescription",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "Speech_gCarDescription",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "Speech_gCopAttr",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "Speech_gLocationDescription",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "Speech_gLocationDescription00",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "Speech_gLocationDescription02",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "Speech_gLocationDescription03",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "Speech_gLocationDescription04",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "Speech_gLocationDescription05",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "Speech_gLocationDescription06",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "Speech_gLocationDescription07",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "_6Speech_fgSpeech",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "_6Speech_fgUndefined",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "__gnu_compiled_cplusplus",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "_vt_Q26Speech13MobileSpeaker",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "_vt_Q26Speech15DispatchSpeaker",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "_vt_Q26Speech7Speaker",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gcc2_compiled.",
+          "reason": "no oracle"
+        }
+      ],
+      "manifest_count": 102
+    },
+    {
+      "stage": "before",
+      "source": "regiondiff/recon/NFS4-R-USA/game/common/speech.cpp",
+      "preexisting_compile_failure": true
+    },
+    {
+      "stage": "after",
+      "source": "recon/eaclib/psx/spchpsxz/spchbank.c",
+      "known": 8,
+      "passes": 8,
+      "results": [
+        {
+          "symbol": "SPCH_AddBank",
+          "diff_lines": 0,
+          "instructions": 33,
+          "oracle_instructions": 33
+        },
+        {
+          "symbol": "iSPCH_BankMemAlloc",
+          "diff_lines": 0,
+          "instructions": 33,
+          "oracle_instructions": 33
+        },
+        {
+          "symbol": "iSPCH_DisposeBanks",
+          "diff_lines": 0,
+          "instructions": 16,
+          "oracle_instructions": 16
+        },
+        {
+          "symbol": "iSPCH_FindBank",
+          "diff_lines": 0,
+          "instructions": 27,
+          "oracle_instructions": 27
+        },
+        {
+          "symbol": "iSPCH_GetFreeBank",
+          "diff_lines": 0,
+          "instructions": 22,
+          "oracle_instructions": 22
+        },
+        {
+          "symbol": "iSPCH_InitBanks",
+          "diff_lines": 0,
+          "instructions": 5,
+          "oracle_instructions": 5
+        },
+        {
+          "symbol": "iSPCH_SetCycleBits",
+          "diff_lines": 0,
+          "instructions": 86,
+          "oracle_instructions": 86
+        },
+        {
+          "symbol": "iSPCH_TestSubBankBounds",
+          "diff_lines": 0,
+          "instructions": 19,
+          "oracle_instructions": 19
+        }
+      ],
+      "omissions": [
+        {
+          "symbol": "LM1",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM2",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM3",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM4",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM5",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM6",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM7",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM8",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "__gnu_compiled_c",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gcc2_compiled.",
+          "reason": "no oracle"
+        }
+      ],
+      "manifest_count": 8
+    },
+    {
+      "stage": "after",
+      "source": "recon/eaclib/psx/spchpsxz/spchdata.c",
+      "known": 6,
+      "passes": 6,
+      "results": [
+        {
+          "symbol": "VoxEvent_GetFilterLengthFlag",
+          "diff_lines": 0,
+          "instructions": 3,
+          "oracle_instructions": 3
+        },
+        {
+          "symbol": "VoxSentence_GetNumPhrases",
+          "diff_lines": 0,
+          "instructions": 3,
+          "oracle_instructions": 3
+        },
+        {
+          "symbol": "VoxSentence_GetShortRule",
+          "diff_lines": 0,
+          "instructions": 3,
+          "oracle_instructions": 3
+        },
+        {
+          "symbol": "iSPCH_GetMatchValue",
+          "diff_lines": 0,
+          "instructions": 5,
+          "oracle_instructions": 5
+        },
+        {
+          "symbol": "iSPCH_GetOffset16",
+          "diff_lines": 0,
+          "instructions": 7,
+          "oracle_instructions": 7
+        },
+        {
+          "symbol": "iSPCH_GetOffset8",
+          "diff_lines": 0,
+          "instructions": 6,
+          "oracle_instructions": 6
+        }
+      ],
+      "omissions": [
+        {
+          "symbol": "LM1",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM2",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM3",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM4",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM5",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM6",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "__gnu_compiled_c",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gcc2_compiled.",
+          "reason": "no oracle"
+        }
+      ],
+      "manifest_count": 6
+    },
+    {
+      "stage": "after",
+      "source": "recon/eaclib/psx/spchpsxz/spchevnt.c",
+      "known": 16,
+      "passes": 16,
+      "results": [
+        {
+          "symbol": "GetFilterLength",
+          "diff_lines": 0,
+          "instructions": 6,
+          "oracle_instructions": 6
+        },
+        {
+          "symbol": "GetFilterPriority",
+          "diff_lines": 0,
+          "instructions": 6,
+          "oracle_instructions": 6
+        },
+        {
+          "symbol": "SPCH_AddEvent",
+          "diff_lines": 0,
+          "instructions": 82,
+          "oracle_instructions": 82
+        },
+        {
+          "symbol": "SPCH_ChooseSpeech",
+          "diff_lines": 0,
+          "instructions": 73,
+          "oracle_instructions": 73
+        },
+        {
+          "symbol": "SPCH_ClearEventQueue",
+          "diff_lines": 0,
+          "instructions": 18,
+          "oracle_instructions": 18
+        },
+        {
+          "symbol": "SPCH_PlaySpeech",
+          "diff_lines": 0,
+          "instructions": 16,
+          "oracle_instructions": 16
+        },
+        {
+          "symbol": "VoxEvent_GetFilterLengthFlag",
+          "diff_lines": 0,
+          "instructions": 3,
+          "oracle_instructions": 3
+        },
+        {
+          "symbol": "VoxEvent_GetKeepTillExpiresFlag",
+          "diff_lines": 0,
+          "instructions": 5,
+          "oracle_instructions": 5
+        },
+        {
+          "symbol": "iSPCH_ChooseEvent",
+          "diff_lines": 0,
+          "instructions": 120,
+          "oracle_instructions": 120
+        },
+        {
+          "symbol": "iSPCH_ClearOldEvents",
+          "diff_lines": 0,
+          "instructions": 71,
+          "oracle_instructions": 71
+        },
+        {
+          "symbol": "iSPCH_FindEvent",
+          "diff_lines": 0,
+          "instructions": 28,
+          "oracle_instructions": 28
+        },
+        {
+          "symbol": "iSPCH_FindEventSlot",
+          "diff_lines": 0,
+          "instructions": 76,
+          "oracle_instructions": 76
+        },
+        {
+          "symbol": "iSPCH_GetOffset16",
+          "diff_lines": 0,
+          "instructions": 7,
+          "oracle_instructions": 7
+        },
+        {
+          "symbol": "iSPCH_InitEventDat",
+          "diff_lines": 0,
+          "instructions": 10,
+          "oracle_instructions": 10
+        },
+        {
+          "symbol": "iSPCH_InitEventQueue",
+          "diff_lines": 0,
+          "instructions": 29,
+          "oracle_instructions": 29
+        },
+        {
+          "symbol": "iSPCH_SearchEventDat",
+          "diff_lines": 0,
+          "instructions": 34,
+          "oracle_instructions": 34
+        }
+      ],
+      "omissions": [
+        {
+          "symbol": "DAT_80148064",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM1",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM10",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM11",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM12",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM13",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM14",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM15",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM16",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM2",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM3",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM4",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM5",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM6",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM7",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM8",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM9",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "__gnu_compiled_c",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gEventDats",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gPreLoadTicks",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gRepeatCount",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gVoxEvents",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gVoxInGame",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gcc2_compiled.",
+          "reason": "no oracle"
+        }
+      ],
+      "manifest_count": 14
+    },
+    {
+      "stage": "after",
+      "source": "recon/eaclib/psx/spchpsxz/spchinit.c",
+      "known": 7,
+      "passes": 7,
+      "results": [
+        {
+          "symbol": "SPCH_Deinit",
+          "diff_lines": 0,
+          "instructions": 21,
+          "oracle_instructions": 21
+        },
+        {
+          "symbol": "SPCH_GetSampleDataRate",
+          "diff_lines": 0,
+          "instructions": 33,
+          "oracle_instructions": 33
+        },
+        {
+          "symbol": "SPCH_Init",
+          "diff_lines": 0,
+          "instructions": 39,
+          "oracle_instructions": 39
+        },
+        {
+          "symbol": "SPCH_InitBankMem",
+          "diff_lines": 0,
+          "instructions": 22,
+          "oracle_instructions": 22
+        },
+        {
+          "symbol": "iSPCH_InitInGame",
+          "diff_lines": 0,
+          "instructions": 6,
+          "oracle_instructions": 6
+        },
+        {
+          "symbol": "iSPCH_MemAlloc",
+          "diff_lines": 0,
+          "instructions": 12,
+          "oracle_instructions": 12
+        },
+        {
+          "symbol": "iSPCH_MemFree",
+          "diff_lines": 0,
+          "instructions": 11,
+          "oracle_instructions": 11
+        }
+      ],
+      "omissions": [
+        {
+          "symbol": "LM1",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM2",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM3",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM4",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM5",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM6",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM7",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "__gnu_compiled_c",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gDataRate",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gFilterSetting",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gGameNum",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gLastSubTick",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gLastTick",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gcc2_compiled.",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "spchInitBoundary_.14",
+          "reason": "no oracle"
+        }
+      ],
+      "manifest_count": 7
+    },
+    {
+      "stage": "after",
+      "source": "recon/eaclib/psx/spchpsxz/spchpick.c",
+      "known": 27,
+      "passes": 27,
+      "results": [
+        {
+          "symbol": "SPCH_SetPreLoadTicks",
+          "diff_lines": 0,
+          "instructions": 3,
+          "oracle_instructions": 3
+        },
+        {
+          "symbol": "iSPCH_CheckBankBit",
+          "diff_lines": 0,
+          "instructions": 21,
+          "oracle_instructions": 21
+        },
+        {
+          "symbol": "iSPCH_CheckTemplateSample",
+          "diff_lines": 0,
+          "instructions": 20,
+          "oracle_instructions": 20
+        },
+        {
+          "symbol": "iSPCH_ChooseSamples",
+          "diff_lines": 0,
+          "instructions": 68,
+          "oracle_instructions": 68
+        },
+        {
+          "symbol": "iSPCH_ChooseSentence",
+          "diff_lines": 0,
+          "instructions": 104,
+          "oracle_instructions": 104
+        },
+        {
+          "symbol": "iSPCH_ChooseShortSentence",
+          "diff_lines": 0,
+          "instructions": 45,
+          "oracle_instructions": 45
+        },
+        {
+          "symbol": "iSPCH_ClearChosen",
+          "diff_lines": 0,
+          "instructions": 3,
+          "oracle_instructions": 3
+        },
+        {
+          "symbol": "iSPCH_ClearCycleBit",
+          "diff_lines": 0,
+          "instructions": 25,
+          "oracle_instructions": 25
+        },
+        {
+          "symbol": "iSPCH_ConstantRuleSet",
+          "diff_lines": 0,
+          "instructions": 83,
+          "oracle_instructions": 83
+        },
+        {
+          "symbol": "iSPCH_ConvertTime",
+          "diff_lines": 0,
+          "instructions": 23,
+          "oracle_instructions": 23
+        },
+        {
+          "symbol": "iSPCH_GetBankBits",
+          "diff_lines": 0,
+          "instructions": 9,
+          "oracle_instructions": 9
+        },
+        {
+          "symbol": "iSPCH_GetPhraseBank",
+          "diff_lines": 0,
+          "instructions": 69,
+          "oracle_instructions": 69
+        },
+        {
+          "symbol": "iSPCH_IterateChoice",
+          "diff_lines": 0,
+          "instructions": 44,
+          "oracle_instructions": 44
+        },
+        {
+          "symbol": "iSPCH_MakeSampleRequests",
+          "diff_lines": 0,
+          "instructions": 82,
+          "oracle_instructions": 82
+        },
+        {
+          "symbol": "iSPCH_MatchSample",
+          "diff_lines": 0,
+          "instructions": 65,
+          "oracle_instructions": 65
+        },
+        {
+          "symbol": "iSPCH_OneChosen",
+          "diff_lines": 0,
+          "instructions": 4,
+          "oracle_instructions": 4
+        },
+        {
+          "symbol": "iSPCH_OrderSentences",
+          "diff_lines": 0,
+          "instructions": 83,
+          "oracle_instructions": 83
+        },
+        {
+          "symbol": "iSPCH_PlayChosen",
+          "diff_lines": 0,
+          "instructions": 40,
+          "oracle_instructions": 40
+        },
+        {
+          "symbol": "iSPCH_RandomizeSentencePicks",
+          "diff_lines": 0,
+          "instructions": 56,
+          "oracle_instructions": 56
+        },
+        {
+          "symbol": "iSPCH_RepeatEvent",
+          "diff_lines": 0,
+          "instructions": 17,
+          "oracle_instructions": 17
+        },
+        {
+          "symbol": "iSPCH_SampleExists",
+          "diff_lines": 0,
+          "instructions": 35,
+          "oracle_instructions": 35
+        },
+        {
+          "symbol": "iSPCH_SampleLength",
+          "diff_lines": 0,
+          "instructions": 26,
+          "oracle_instructions": 26
+        },
+        {
+          "symbol": "iSPCH_SaveChosenSentence",
+          "diff_lines": 0,
+          "instructions": 18,
+          "oracle_instructions": 18
+        },
+        {
+          "symbol": "iSPCH_SentenceGetChoices",
+          "diff_lines": 0,
+          "instructions": 80,
+          "oracle_instructions": 80
+        },
+        {
+          "symbol": "iSPCH_SentenceLength",
+          "diff_lines": 0,
+          "instructions": 29,
+          "oracle_instructions": 29
+        },
+        {
+          "symbol": "iSPCH_SentenceMakeChoice",
+          "diff_lines": 0,
+          "instructions": 43,
+          "oracle_instructions": 43
+        },
+        {
+          "symbol": "iSPCH_ShortRuleStatus",
+          "diff_lines": 0,
+          "instructions": 26,
+          "oracle_instructions": 26
+        }
+      ],
+      "omissions": [
+        {
+          "symbol": "DAT_80148448",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM1",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM10",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM11",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM12",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM13",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM14",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM15",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM16",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM17",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM18",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM19",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM2",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM20",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM21",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM22",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM23",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM24",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM25",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM26",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM27",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM3",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM4",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM5",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM6",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM7",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM8",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM9",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "__gnu_compiled_c",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gChooseShort",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gSentenceChoice",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gcc2_compiled.",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "ispch_gChoice",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "ispch_gPickSamples",
+          "reason": "no oracle"
+        }
+      ],
+      "manifest_count": 27
+    },
+    {
+      "stage": "after",
+      "source": "recon/eaclib/psx/spchpsxz/spchrand.c",
+      "known": 4,
+      "passes": 4,
+      "results": [
+        {
+          "symbol": "iSPCH_BindData",
+          "diff_lines": 0,
+          "instructions": 20,
+          "oracle_instructions": 20
+        },
+        {
+          "symbol": "iSPCH_EACrandom",
+          "diff_lines": 0,
+          "instructions": 64,
+          "oracle_instructions": 64
+        },
+        {
+          "symbol": "iSPCH_EACseedrandom",
+          "diff_lines": 0,
+          "instructions": 27,
+          "oracle_instructions": 27
+        },
+        {
+          "symbol": "iSPCH_Rand",
+          "diff_lines": 0,
+          "instructions": 21,
+          "oracle_instructions": 21
+        }
+      ],
+      "omissions": [
+        {
+          "symbol": "LM1",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM2",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM3",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM4",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "__gnu_compiled_c",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gcc2_compiled.",
+          "reason": "no oracle"
+        }
+      ],
+      "manifest_count": 4
+    },
+    {
+      "stage": "after",
+      "source": "recon/eaclib/psx/spchpsxz/spchrslv.c",
+      "known": 1,
+      "passes": 1,
+      "results": [
+        {
+          "symbol": "SPCH_ResolveData",
+          "diff_lines": 0,
+          "instructions": 8,
+          "oracle_instructions": 8
+        }
+      ],
+      "omissions": [
+        {
+          "symbol": "LM1",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "__gnu_compiled_c",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gcc2_compiled.",
+          "reason": "no oracle"
+        }
+      ],
+      "manifest_count": 1
+    },
+    {
+      "stage": "after",
+      "source": "recon/eaclib/psx/spchpsxz/spchrule.c",
+      "known": 9,
+      "passes": 9,
+      "results": [
+        {
+          "symbol": "VoxSentence_GetNumPhrases",
+          "diff_lines": 0,
+          "instructions": 3,
+          "oracle_instructions": 3
+        },
+        {
+          "symbol": "iSPCH_CheckSentenceRules",
+          "diff_lines": 0,
+          "instructions": 8,
+          "oracle_instructions": 8
+        },
+        {
+          "symbol": "iSPCH_GetOffset16",
+          "diff_lines": 0,
+          "instructions": 7,
+          "oracle_instructions": 7
+        },
+        {
+          "symbol": "iSPCH_GetOffset8",
+          "diff_lines": 0,
+          "instructions": 6,
+          "oracle_instructions": 6
+        },
+        {
+          "symbol": "iSPCH_GetRuleDataAddr",
+          "diff_lines": 0,
+          "instructions": 6,
+          "oracle_instructions": 6
+        },
+        {
+          "symbol": "iSPCH_GetRuleID",
+          "diff_lines": 0,
+          "instructions": 29,
+          "oracle_instructions": 29
+        },
+        {
+          "symbol": "iSPCH_GetRuleSettings",
+          "diff_lines": 0,
+          "instructions": 112,
+          "oracle_instructions": 112
+        },
+        {
+          "symbol": "iSPCH_RuleSet",
+          "diff_lines": 0,
+          "instructions": 78,
+          "oracle_instructions": 78
+        },
+        {
+          "symbol": "iSPCH_SentenceUsesParm",
+          "diff_lines": 0,
+          "instructions": 50,
+          "oracle_instructions": 50
+        }
+      ],
+      "omissions": [
+        {
+          "symbol": "LM1",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM2",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM3",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM4",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM5",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM6",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM7",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM8",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM9",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "__gnu_compiled_c",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gcc2_compiled.",
+          "reason": "no oracle"
+        }
+      ],
+      "manifest_count": 9
+    },
+    {
+      "stage": "after",
+      "source": "recon/eaclib/psx/spchpsxz/spchsamp.c",
+      "known": 2,
+      "passes": 2,
+      "results": [
+        {
+          "symbol": "iSPCH_InitSample",
+          "diff_lines": 0,
+          "instructions": 10,
+          "oracle_instructions": 10
+        },
+        {
+          "symbol": "iSPCH_UnPackSample",
+          "diff_lines": 0,
+          "instructions": 98,
+          "oracle_instructions": 98
+        }
+      ],
+      "omissions": [
+        {
+          "symbol": "LM1",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM2",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "__gnu_compiled_c",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gcc2_compiled.",
+          "reason": "no oracle"
+        }
+      ],
+      "manifest_count": 2
+    },
+    {
+      "stage": "after",
+      "source": "recon/game/common/speech.cpp",
+      "known": 102,
+      "passes": 102,
+      "results": [
+        {
+          "symbol": "Accident__Q26Speech13MobileSpeakeri",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "Accident__Q26Speech15DispatchSpeakeri",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "Accident__Q26Speech7Speakeri",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "Activate__Q26Speech13MobileSpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 59,
+          "oracle_instructions": 59
+        },
+        {
+          "symbol": "Activate__Q26Speech15DispatchSpeakeri",
+          "diff_lines": 0,
+          "instructions": 39,
+          "oracle_instructions": 39
+        },
+        {
+          "symbol": "AddPerp__Q26Speech15DispatchSpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 12,
+          "oracle_instructions": 12
+        },
+        {
+          "symbol": "Backup__Q26Speech13MobileSpeaker",
+          "diff_lines": 0,
+          "instructions": 62,
+          "oracle_instructions": 62
+        },
+        {
+          "symbol": "Backup__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "BankPatch__6SpeechlP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 15,
+          "oracle_instructions": 15
+        },
+        {
+          "symbol": "Bullhorn__Q26Speech13MobileSpeaker",
+          "diff_lines": 0,
+          "instructions": 13,
+          "oracle_instructions": 13
+        },
+        {
+          "symbol": "Bullhorn__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "CalcMph__Q26Speech7SpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 18,
+          "oracle_instructions": 18
+        },
+        {
+          "symbol": "CalculateBankSize__6SpeechPcPQ26Speech11CarBankNamePlT3",
+          "diff_lines": 0,
+          "instructions": 133,
+          "oracle_instructions": 133
+        },
+        {
+          "symbol": "CallSign__Q26Speech13MobileSpeaker",
+          "diff_lines": 0,
+          "instructions": 3,
+          "oracle_instructions": 3
+        },
+        {
+          "symbol": "CallSign__Q26Speech15DispatchSpeaker",
+          "diff_lines": 0,
+          "instructions": 3,
+          "oracle_instructions": 3
+        },
+        {
+          "symbol": "CallSign__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "CarObj__Q26Speech13MobileSpeaker",
+          "diff_lines": 0,
+          "instructions": 3,
+          "oracle_instructions": 3
+        },
+        {
+          "symbol": "CarObj__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "Catch__Q26Speech13MobileSpeakeri",
+          "diff_lines": 0,
+          "instructions": 175,
+          "oracle_instructions": 175
+        },
+        {
+          "symbol": "Catch__Q26Speech7Speakeri",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "CheckCallSignBank__6SpeechPQ26Speech12CallSignBankPci",
+          "diff_lines": 0,
+          "instructions": 78,
+          "oracle_instructions": 78
+        },
+        {
+          "symbol": "CheckCarBank__6SpeechPQ26Speech7CarBankPciPQ26Speech11CarBankName",
+          "diff_lines": 0,
+          "instructions": 45,
+          "oracle_instructions": 45
+        },
+        {
+          "symbol": "CheckLocationBank__6SpeechPQ26Speech12LocationBankPci",
+          "diff_lines": 0,
+          "instructions": 65,
+          "oracle_instructions": 65
+        },
+        {
+          "symbol": "CheckMultiBank__6SpeechPciPQ26Speech11CarBankName",
+          "diff_lines": 0,
+          "instructions": 104,
+          "oracle_instructions": 104
+        },
+        {
+          "symbol": "Check__Q26Speech7CarBankPciPQ26Speech11CarBankName",
+          "diff_lines": 0,
+          "instructions": 66,
+          "oracle_instructions": 66
+        },
+        {
+          "symbol": "ClearPerp__Q26Speech15DispatchSpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 12,
+          "oracle_instructions": 12
+        },
+        {
+          "symbol": "ClearPerp__Q26Speech7SpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "CountLocations__6Speech",
+          "diff_lines": 0,
+          "instructions": 28,
+          "oracle_instructions": 28
+        },
+        {
+          "symbol": "Deny__Q26Speech15DispatchSpeaker",
+          "diff_lines": 0,
+          "instructions": 61,
+          "oracle_instructions": 61
+        },
+        {
+          "symbol": "Deny__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "Dispatch__6Speech",
+          "diff_lines": 0,
+          "instructions": 14,
+          "oracle_instructions": 14
+        },
+        {
+          "symbol": "DistToPerp__Q26Speech13MobileSpeaker",
+          "diff_lines": 0,
+          "instructions": 121,
+          "oracle_instructions": 121
+        },
+        {
+          "symbol": "DistToPerp__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "Distance__Q26Speech12LocationBanki",
+          "diff_lines": 0,
+          "instructions": 37,
+          "oracle_instructions": 37
+        },
+        {
+          "symbol": "Engage__Q26Speech13MobileSpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 467,
+          "oracle_instructions": 467
+        },
+        {
+          "symbol": "Engage__Q26Speech7SpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "FindClosestLocationTo__6SpeechPQ26Speech12LocationBanki",
+          "diff_lines": 0,
+          "instructions": 54,
+          "oracle_instructions": 54
+        },
+        {
+          "symbol": "FindClosestLocationTo__Q26Speech13MobileSpeakeri",
+          "diff_lines": 0,
+          "instructions": 10,
+          "oracle_instructions": 10
+        },
+        {
+          "symbol": "FindClosestLocationTo__Q26Speech15DispatchSpeakeri",
+          "diff_lines": 0,
+          "instructions": 10,
+          "oracle_instructions": 10
+        },
+        {
+          "symbol": "FindClosestLocationTo__Q26Speech7Speakeri",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "FindLocation__Q26Speech7SpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 190,
+          "oracle_instructions": 190
+        },
+        {
+          "symbol": "FindMobile__6SpeechP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 41,
+          "oracle_instructions": 41
+        },
+        {
+          "symbol": "GetCarBank__Q26Speech13MobileSpeakeri",
+          "diff_lines": 0,
+          "instructions": 6,
+          "oracle_instructions": 6
+        },
+        {
+          "symbol": "GetCarBank__Q26Speech15DispatchSpeakeri",
+          "diff_lines": 0,
+          "instructions": 7,
+          "oracle_instructions": 7
+        },
+        {
+          "symbol": "GetCarBank__Q26Speech7Speakeri",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "GetVoice__6SpeechP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 10,
+          "oracle_instructions": 10
+        },
+        {
+          "symbol": "Grant__Q26Speech15DispatchSpeaker",
+          "diff_lines": 0,
+          "instructions": 25,
+          "oracle_instructions": 25
+        },
+        {
+          "symbol": "Grant__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "IsSuper__Q26Speech13MobileSpeaker",
+          "diff_lines": 0,
+          "instructions": 7,
+          "oracle_instructions": 7
+        },
+        {
+          "symbol": "IsSuper__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "KnownPerp__Q26Speech15DispatchSpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 12,
+          "oracle_instructions": 12
+        },
+        {
+          "symbol": "KnownPerp__Q26Speech7SpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "LoadBankHeaders__6SpeechPcPQ26Speech11CarBankNamell",
+          "diff_lines": 0,
+          "instructions": 270,
+          "oracle_instructions": 270
+        },
+        {
+          "symbol": "Lose__Q26Speech13MobileSpeaker",
+          "diff_lines": 0,
+          "instructions": 213,
+          "oracle_instructions": 213
+        },
+        {
+          "symbol": "Lose__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "Mobile__6SpeechP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 18,
+          "oracle_instructions": 18
+        },
+        {
+          "symbol": "Perp__Q26Speech13MobileSpeaker",
+          "diff_lines": 0,
+          "instructions": 3,
+          "oracle_instructions": 3
+        },
+        {
+          "symbol": "Perp__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "PickVoice__6SpeechP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 39,
+          "oracle_instructions": 39
+        },
+        {
+          "symbol": "Promote__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 27,
+          "oracle_instructions": 27
+        },
+        {
+          "symbol": "PurgeStatusSub__Q26Speech15DispatchSpeaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "PurgeStatusSub__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "Purge__Q26Speech13MobileSpeaker",
+          "diff_lines": 0,
+          "instructions": 149,
+          "oracle_instructions": 149
+        },
+        {
+          "symbol": "Purge__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "ReActivate__Q26Speech13MobileSpeaker",
+          "diff_lines": 0,
+          "instructions": 43,
+          "oracle_instructions": 43
+        },
+        {
+          "symbol": "ReActivate__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "Ready__Q26Speech15DispatchSpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 43,
+          "oracle_instructions": 43
+        },
+        {
+          "symbol": "Ready__Q26Speech7SpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "ReportBlockade__Q26Speech13MobileSpeaker",
+          "diff_lines": 0,
+          "instructions": 63,
+          "oracle_instructions": 63
+        },
+        {
+          "symbol": "ReportBlockade__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "Report__Q26Speech13MobileSpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 59,
+          "oracle_instructions": 59
+        },
+        {
+          "symbol": "Report__Q26Speech15DispatchSpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 104,
+          "oracle_instructions": 104
+        },
+        {
+          "symbol": "Report__Q26Speech7SpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "Reset__6Speech",
+          "diff_lines": 0,
+          "instructions": 103,
+          "oracle_instructions": 103
+        },
+        {
+          "symbol": "RoadBlock__Q26Speech13MobileSpeaker",
+          "diff_lines": 0,
+          "instructions": 69,
+          "oracle_instructions": 69
+        },
+        {
+          "symbol": "RoadBlock__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "Roger__Q26Speech13MobileSpeaker",
+          "diff_lines": 0,
+          "instructions": 94,
+          "oracle_instructions": 94
+        },
+        {
+          "symbol": "Roger__Q26Speech15DispatchSpeaker",
+          "diff_lines": 0,
+          "instructions": 157,
+          "oracle_instructions": 157
+        },
+        {
+          "symbol": "Roger__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "SetCar__Q26Speech11CarBankNamei",
+          "diff_lines": 0,
+          "instructions": 50,
+          "oracle_instructions": 50
+        },
+        {
+          "symbol": "SetCar__Q26Speech7SpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 72,
+          "oracle_instructions": 72
+        },
+        {
+          "symbol": "SetDelayedStatus__6SpeechPQ26Speech7Speakeri",
+          "diff_lines": 0,
+          "instructions": 8,
+          "oracle_instructions": 8
+        },
+        {
+          "symbol": "SetSpeed__Q26Speech13MobileSpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 75,
+          "oracle_instructions": 75
+        },
+        {
+          "symbol": "Speech_AllocateRAM__FlPc",
+          "diff_lines": 0,
+          "instructions": 11,
+          "oracle_instructions": 11
+        },
+        {
+          "symbol": "Speech_HandleRequest__Fllll",
+          "diff_lines": 0,
+          "instructions": 8,
+          "oracle_instructions": 8
+        },
+        {
+          "symbol": "Speech_PurgeRAM__FPc",
+          "diff_lines": 0,
+          "instructions": 8,
+          "oracle_instructions": 8
+        },
+        {
+          "symbol": "Speech_Server__Fv",
+          "diff_lines": 0,
+          "instructions": 15,
+          "oracle_instructions": 15
+        },
+        {
+          "symbol": "SpikeBelt__Q26Speech13MobileSpeaker",
+          "diff_lines": 0,
+          "instructions": 69,
+          "oracle_instructions": 69
+        },
+        {
+          "symbol": "SpikeBelt__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "StatusCount__Q26Speech15DispatchSpeaker",
+          "diff_lines": 0,
+          "instructions": 3,
+          "oracle_instructions": 3
+        },
+        {
+          "symbol": "StatusCount__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "StatusReply__Q26Speech15DispatchSpeaker",
+          "diff_lines": 0,
+          "instructions": 269,
+          "oracle_instructions": 269
+        },
+        {
+          "symbol": "StatusSub__Q26Speech15DispatchSpeaker",
+          "diff_lines": 0,
+          "instructions": 3,
+          "oracle_instructions": 3
+        },
+        {
+          "symbol": "StatusSub__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "Status__Q26Speech13MobileSpeaker",
+          "diff_lines": 0,
+          "instructions": 358,
+          "oracle_instructions": 358
+        },
+        {
+          "symbol": "Status__Q26Speech15DispatchSpeaker",
+          "diff_lines": 0,
+          "instructions": 366,
+          "oracle_instructions": 366
+        },
+        {
+          "symbol": "Status__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "SubmitRequest__6Speechlll",
+          "diff_lines": 0,
+          "instructions": 61,
+          "oracle_instructions": 61
+        },
+        {
+          "symbol": "Unit__Q26Speech13MobileSpeaker",
+          "diff_lines": 0,
+          "instructions": 3,
+          "oracle_instructions": 3
+        },
+        {
+          "symbol": "Unit__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "__6Speech",
+          "diff_lines": 0,
+          "instructions": 232,
+          "oracle_instructions": 232
+        },
+        {
+          "symbol": "___6Speech",
+          "diff_lines": 0,
+          "instructions": 45,
+          "oracle_instructions": 45
+        }
+      ],
+      "omissions": [
+        {
+          "symbol": "D_80055BD0",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "Speech_gCallSignDescription",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "Speech_gCarDescription",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "Speech_gCopAttr",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "Speech_gLocationDescription",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "Speech_gLocationDescription00",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "Speech_gLocationDescription02",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "Speech_gLocationDescription03",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "Speech_gLocationDescription04",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "Speech_gLocationDescription05",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "Speech_gLocationDescription06",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "Speech_gLocationDescription07",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "_6Speech_fgSpeech",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "_6Speech_fgUndefined",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "__gnu_compiled_cplusplus",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "_vt_Q26Speech13MobileSpeaker",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "_vt_Q26Speech15DispatchSpeaker",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "_vt_Q26Speech7Speaker",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gcc2_compiled.",
+          "reason": "no oracle"
+        }
+      ],
+      "manifest_count": 102
+    },
+    {
+      "stage": "after",
+      "source": "regiondiff/recon/NFS4-R-USA/game/common/speech.cpp",
+      "preexisting_compile_failure": true
+    },
+    {
+      "stage": "actual",
+      "source": "recon/eaclib/psx/spchpsxz/spchbank.c",
+      "known": 8,
+      "passes": 8,
+      "results": [
+        {
+          "symbol": "SPCH_AddBank",
+          "diff_lines": 0,
+          "instructions": 33,
+          "oracle_instructions": 33
+        },
+        {
+          "symbol": "iSPCH_BankMemAlloc",
+          "diff_lines": 0,
+          "instructions": 33,
+          "oracle_instructions": 33
+        },
+        {
+          "symbol": "iSPCH_DisposeBanks",
+          "diff_lines": 0,
+          "instructions": 16,
+          "oracle_instructions": 16
+        },
+        {
+          "symbol": "iSPCH_FindBank",
+          "diff_lines": 0,
+          "instructions": 27,
+          "oracle_instructions": 27
+        },
+        {
+          "symbol": "iSPCH_GetFreeBank",
+          "diff_lines": 0,
+          "instructions": 22,
+          "oracle_instructions": 22
+        },
+        {
+          "symbol": "iSPCH_InitBanks",
+          "diff_lines": 0,
+          "instructions": 5,
+          "oracle_instructions": 5
+        },
+        {
+          "symbol": "iSPCH_SetCycleBits",
+          "diff_lines": 0,
+          "instructions": 86,
+          "oracle_instructions": 86
+        },
+        {
+          "symbol": "iSPCH_TestSubBankBounds",
+          "diff_lines": 0,
+          "instructions": 19,
+          "oracle_instructions": 19
+        }
+      ],
+      "omissions": [
+        {
+          "symbol": "LM1",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM2",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM3",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM4",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM5",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM6",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM7",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM8",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "__gnu_compiled_c",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gcc2_compiled.",
+          "reason": "no oracle"
+        }
+      ],
+      "manifest_count": 8
+    },
+    {
+      "stage": "actual",
+      "source": "recon/eaclib/psx/spchpsxz/spchdata.c",
+      "known": 6,
+      "passes": 6,
+      "results": [
+        {
+          "symbol": "VoxEvent_GetFilterLengthFlag",
+          "diff_lines": 0,
+          "instructions": 3,
+          "oracle_instructions": 3
+        },
+        {
+          "symbol": "VoxSentence_GetNumPhrases",
+          "diff_lines": 0,
+          "instructions": 3,
+          "oracle_instructions": 3
+        },
+        {
+          "symbol": "VoxSentence_GetShortRule",
+          "diff_lines": 0,
+          "instructions": 3,
+          "oracle_instructions": 3
+        },
+        {
+          "symbol": "iSPCH_GetMatchValue",
+          "diff_lines": 0,
+          "instructions": 5,
+          "oracle_instructions": 5
+        },
+        {
+          "symbol": "iSPCH_GetOffset16",
+          "diff_lines": 0,
+          "instructions": 7,
+          "oracle_instructions": 7
+        },
+        {
+          "symbol": "iSPCH_GetOffset8",
+          "diff_lines": 0,
+          "instructions": 6,
+          "oracle_instructions": 6
+        }
+      ],
+      "omissions": [
+        {
+          "symbol": "LM1",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM2",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM3",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM4",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM5",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM6",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "__gnu_compiled_c",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gcc2_compiled.",
+          "reason": "no oracle"
+        }
+      ],
+      "manifest_count": 6
+    },
+    {
+      "stage": "actual",
+      "source": "recon/eaclib/psx/spchpsxz/spchevnt.c",
+      "known": 16,
+      "passes": 16,
+      "results": [
+        {
+          "symbol": "GetFilterLength",
+          "diff_lines": 0,
+          "instructions": 6,
+          "oracle_instructions": 6
+        },
+        {
+          "symbol": "GetFilterPriority",
+          "diff_lines": 0,
+          "instructions": 6,
+          "oracle_instructions": 6
+        },
+        {
+          "symbol": "SPCH_AddEvent",
+          "diff_lines": 0,
+          "instructions": 82,
+          "oracle_instructions": 82
+        },
+        {
+          "symbol": "SPCH_ChooseSpeech",
+          "diff_lines": 0,
+          "instructions": 73,
+          "oracle_instructions": 73
+        },
+        {
+          "symbol": "SPCH_ClearEventQueue",
+          "diff_lines": 0,
+          "instructions": 18,
+          "oracle_instructions": 18
+        },
+        {
+          "symbol": "SPCH_PlaySpeech",
+          "diff_lines": 0,
+          "instructions": 16,
+          "oracle_instructions": 16
+        },
+        {
+          "symbol": "VoxEvent_GetFilterLengthFlag",
+          "diff_lines": 0,
+          "instructions": 3,
+          "oracle_instructions": 3
+        },
+        {
+          "symbol": "VoxEvent_GetKeepTillExpiresFlag",
+          "diff_lines": 0,
+          "instructions": 5,
+          "oracle_instructions": 5
+        },
+        {
+          "symbol": "iSPCH_ChooseEvent",
+          "diff_lines": 0,
+          "instructions": 120,
+          "oracle_instructions": 120
+        },
+        {
+          "symbol": "iSPCH_ClearOldEvents",
+          "diff_lines": 0,
+          "instructions": 71,
+          "oracle_instructions": 71
+        },
+        {
+          "symbol": "iSPCH_FindEvent",
+          "diff_lines": 0,
+          "instructions": 28,
+          "oracle_instructions": 28
+        },
+        {
+          "symbol": "iSPCH_FindEventSlot",
+          "diff_lines": 0,
+          "instructions": 76,
+          "oracle_instructions": 76
+        },
+        {
+          "symbol": "iSPCH_GetOffset16",
+          "diff_lines": 0,
+          "instructions": 7,
+          "oracle_instructions": 7
+        },
+        {
+          "symbol": "iSPCH_InitEventDat",
+          "diff_lines": 0,
+          "instructions": 10,
+          "oracle_instructions": 10
+        },
+        {
+          "symbol": "iSPCH_InitEventQueue",
+          "diff_lines": 0,
+          "instructions": 29,
+          "oracle_instructions": 29
+        },
+        {
+          "symbol": "iSPCH_SearchEventDat",
+          "diff_lines": 0,
+          "instructions": 34,
+          "oracle_instructions": 34
+        }
+      ],
+      "omissions": [
+        {
+          "symbol": "DAT_80148064",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM1",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM10",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM11",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM12",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM13",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM14",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM15",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM16",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM2",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM3",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM4",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM5",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM6",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM7",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM8",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM9",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "__gnu_compiled_c",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gEventDats",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gPreLoadTicks",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gRepeatCount",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gVoxEvents",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gVoxInGame",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gcc2_compiled.",
+          "reason": "no oracle"
+        }
+      ],
+      "manifest_count": 14
+    },
+    {
+      "stage": "actual",
+      "source": "recon/eaclib/psx/spchpsxz/spchinit.c",
+      "known": 7,
+      "passes": 7,
+      "results": [
+        {
+          "symbol": "SPCH_Deinit",
+          "diff_lines": 0,
+          "instructions": 21,
+          "oracle_instructions": 21
+        },
+        {
+          "symbol": "SPCH_GetSampleDataRate",
+          "diff_lines": 0,
+          "instructions": 33,
+          "oracle_instructions": 33
+        },
+        {
+          "symbol": "SPCH_Init",
+          "diff_lines": 0,
+          "instructions": 39,
+          "oracle_instructions": 39
+        },
+        {
+          "symbol": "SPCH_InitBankMem",
+          "diff_lines": 0,
+          "instructions": 22,
+          "oracle_instructions": 22
+        },
+        {
+          "symbol": "iSPCH_InitInGame",
+          "diff_lines": 0,
+          "instructions": 6,
+          "oracle_instructions": 6
+        },
+        {
+          "symbol": "iSPCH_MemAlloc",
+          "diff_lines": 0,
+          "instructions": 12,
+          "oracle_instructions": 12
+        },
+        {
+          "symbol": "iSPCH_MemFree",
+          "diff_lines": 0,
+          "instructions": 11,
+          "oracle_instructions": 11
+        }
+      ],
+      "omissions": [
+        {
+          "symbol": "LM1",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM2",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM3",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM4",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM5",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM6",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM7",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "__gnu_compiled_c",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gDataRate",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gFilterSetting",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gGameNum",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gLastSubTick",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gLastTick",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gcc2_compiled.",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "spchInitBoundary_.14",
+          "reason": "no oracle"
+        }
+      ],
+      "manifest_count": 7
+    },
+    {
+      "stage": "actual",
+      "source": "recon/eaclib/psx/spchpsxz/spchpick.c",
+      "known": 27,
+      "passes": 27,
+      "results": [
+        {
+          "symbol": "SPCH_SetPreLoadTicks",
+          "diff_lines": 0,
+          "instructions": 3,
+          "oracle_instructions": 3
+        },
+        {
+          "symbol": "iSPCH_CheckBankBit",
+          "diff_lines": 0,
+          "instructions": 21,
+          "oracle_instructions": 21
+        },
+        {
+          "symbol": "iSPCH_CheckTemplateSample",
+          "diff_lines": 0,
+          "instructions": 20,
+          "oracle_instructions": 20
+        },
+        {
+          "symbol": "iSPCH_ChooseSamples",
+          "diff_lines": 0,
+          "instructions": 68,
+          "oracle_instructions": 68
+        },
+        {
+          "symbol": "iSPCH_ChooseSentence",
+          "diff_lines": 0,
+          "instructions": 104,
+          "oracle_instructions": 104
+        },
+        {
+          "symbol": "iSPCH_ChooseShortSentence",
+          "diff_lines": 0,
+          "instructions": 45,
+          "oracle_instructions": 45
+        },
+        {
+          "symbol": "iSPCH_ClearChosen",
+          "diff_lines": 0,
+          "instructions": 3,
+          "oracle_instructions": 3
+        },
+        {
+          "symbol": "iSPCH_ClearCycleBit",
+          "diff_lines": 0,
+          "instructions": 25,
+          "oracle_instructions": 25
+        },
+        {
+          "symbol": "iSPCH_ConstantRuleSet",
+          "diff_lines": 0,
+          "instructions": 83,
+          "oracle_instructions": 83
+        },
+        {
+          "symbol": "iSPCH_ConvertTime",
+          "diff_lines": 0,
+          "instructions": 23,
+          "oracle_instructions": 23
+        },
+        {
+          "symbol": "iSPCH_GetBankBits",
+          "diff_lines": 0,
+          "instructions": 9,
+          "oracle_instructions": 9
+        },
+        {
+          "symbol": "iSPCH_GetPhraseBank",
+          "diff_lines": 0,
+          "instructions": 69,
+          "oracle_instructions": 69
+        },
+        {
+          "symbol": "iSPCH_IterateChoice",
+          "diff_lines": 0,
+          "instructions": 44,
+          "oracle_instructions": 44
+        },
+        {
+          "symbol": "iSPCH_MakeSampleRequests",
+          "diff_lines": 0,
+          "instructions": 82,
+          "oracle_instructions": 82
+        },
+        {
+          "symbol": "iSPCH_MatchSample",
+          "diff_lines": 0,
+          "instructions": 65,
+          "oracle_instructions": 65
+        },
+        {
+          "symbol": "iSPCH_OneChosen",
+          "diff_lines": 0,
+          "instructions": 4,
+          "oracle_instructions": 4
+        },
+        {
+          "symbol": "iSPCH_OrderSentences",
+          "diff_lines": 0,
+          "instructions": 83,
+          "oracle_instructions": 83
+        },
+        {
+          "symbol": "iSPCH_PlayChosen",
+          "diff_lines": 0,
+          "instructions": 40,
+          "oracle_instructions": 40
+        },
+        {
+          "symbol": "iSPCH_RandomizeSentencePicks",
+          "diff_lines": 0,
+          "instructions": 56,
+          "oracle_instructions": 56
+        },
+        {
+          "symbol": "iSPCH_RepeatEvent",
+          "diff_lines": 0,
+          "instructions": 17,
+          "oracle_instructions": 17
+        },
+        {
+          "symbol": "iSPCH_SampleExists",
+          "diff_lines": 0,
+          "instructions": 35,
+          "oracle_instructions": 35
+        },
+        {
+          "symbol": "iSPCH_SampleLength",
+          "diff_lines": 0,
+          "instructions": 26,
+          "oracle_instructions": 26
+        },
+        {
+          "symbol": "iSPCH_SaveChosenSentence",
+          "diff_lines": 0,
+          "instructions": 18,
+          "oracle_instructions": 18
+        },
+        {
+          "symbol": "iSPCH_SentenceGetChoices",
+          "diff_lines": 0,
+          "instructions": 80,
+          "oracle_instructions": 80
+        },
+        {
+          "symbol": "iSPCH_SentenceLength",
+          "diff_lines": 0,
+          "instructions": 29,
+          "oracle_instructions": 29
+        },
+        {
+          "symbol": "iSPCH_SentenceMakeChoice",
+          "diff_lines": 0,
+          "instructions": 43,
+          "oracle_instructions": 43
+        },
+        {
+          "symbol": "iSPCH_ShortRuleStatus",
+          "diff_lines": 0,
+          "instructions": 26,
+          "oracle_instructions": 26
+        }
+      ],
+      "omissions": [
+        {
+          "symbol": "DAT_80148448",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM1",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM10",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM11",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM12",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM13",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM14",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM15",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM16",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM17",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM18",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM19",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM2",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM20",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM21",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM22",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM23",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM24",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM25",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM26",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM27",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM3",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM4",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM5",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM6",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM7",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM8",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM9",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "__gnu_compiled_c",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gChooseShort",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gSentenceChoice",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gcc2_compiled.",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "ispch_gChoice",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "ispch_gPickSamples",
+          "reason": "no oracle"
+        }
+      ],
+      "manifest_count": 27
+    },
+    {
+      "stage": "actual",
+      "source": "recon/eaclib/psx/spchpsxz/spchrand.c",
+      "known": 4,
+      "passes": 4,
+      "results": [
+        {
+          "symbol": "iSPCH_BindData",
+          "diff_lines": 0,
+          "instructions": 20,
+          "oracle_instructions": 20
+        },
+        {
+          "symbol": "iSPCH_EACrandom",
+          "diff_lines": 0,
+          "instructions": 64,
+          "oracle_instructions": 64
+        },
+        {
+          "symbol": "iSPCH_EACseedrandom",
+          "diff_lines": 0,
+          "instructions": 27,
+          "oracle_instructions": 27
+        },
+        {
+          "symbol": "iSPCH_Rand",
+          "diff_lines": 0,
+          "instructions": 21,
+          "oracle_instructions": 21
+        }
+      ],
+      "omissions": [
+        {
+          "symbol": "LM1",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM2",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM3",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM4",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "__gnu_compiled_c",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gcc2_compiled.",
+          "reason": "no oracle"
+        }
+      ],
+      "manifest_count": 4
+    },
+    {
+      "stage": "actual",
+      "source": "recon/eaclib/psx/spchpsxz/spchrslv.c",
+      "known": 1,
+      "passes": 1,
+      "results": [
+        {
+          "symbol": "SPCH_ResolveData",
+          "diff_lines": 0,
+          "instructions": 8,
+          "oracle_instructions": 8
+        }
+      ],
+      "omissions": [
+        {
+          "symbol": "LM1",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "__gnu_compiled_c",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gcc2_compiled.",
+          "reason": "no oracle"
+        }
+      ],
+      "manifest_count": 1
+    },
+    {
+      "stage": "actual",
+      "source": "recon/eaclib/psx/spchpsxz/spchrule.c",
+      "known": 9,
+      "passes": 9,
+      "results": [
+        {
+          "symbol": "VoxSentence_GetNumPhrases",
+          "diff_lines": 0,
+          "instructions": 3,
+          "oracle_instructions": 3
+        },
+        {
+          "symbol": "iSPCH_CheckSentenceRules",
+          "diff_lines": 0,
+          "instructions": 8,
+          "oracle_instructions": 8
+        },
+        {
+          "symbol": "iSPCH_GetOffset16",
+          "diff_lines": 0,
+          "instructions": 7,
+          "oracle_instructions": 7
+        },
+        {
+          "symbol": "iSPCH_GetOffset8",
+          "diff_lines": 0,
+          "instructions": 6,
+          "oracle_instructions": 6
+        },
+        {
+          "symbol": "iSPCH_GetRuleDataAddr",
+          "diff_lines": 0,
+          "instructions": 6,
+          "oracle_instructions": 6
+        },
+        {
+          "symbol": "iSPCH_GetRuleID",
+          "diff_lines": 0,
+          "instructions": 29,
+          "oracle_instructions": 29
+        },
+        {
+          "symbol": "iSPCH_GetRuleSettings",
+          "diff_lines": 0,
+          "instructions": 112,
+          "oracle_instructions": 112
+        },
+        {
+          "symbol": "iSPCH_RuleSet",
+          "diff_lines": 0,
+          "instructions": 78,
+          "oracle_instructions": 78
+        },
+        {
+          "symbol": "iSPCH_SentenceUsesParm",
+          "diff_lines": 0,
+          "instructions": 50,
+          "oracle_instructions": 50
+        }
+      ],
+      "omissions": [
+        {
+          "symbol": "LM1",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM2",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM3",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM4",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM5",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM6",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM7",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM8",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM9",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "__gnu_compiled_c",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gcc2_compiled.",
+          "reason": "no oracle"
+        }
+      ],
+      "manifest_count": 9
+    },
+    {
+      "stage": "actual",
+      "source": "recon/eaclib/psx/spchpsxz/spchsamp.c",
+      "known": 2,
+      "passes": 2,
+      "results": [
+        {
+          "symbol": "iSPCH_InitSample",
+          "diff_lines": 0,
+          "instructions": 10,
+          "oracle_instructions": 10
+        },
+        {
+          "symbol": "iSPCH_UnPackSample",
+          "diff_lines": 0,
+          "instructions": 98,
+          "oracle_instructions": 98
+        }
+      ],
+      "omissions": [
+        {
+          "symbol": "LM1",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "LM2",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "__gnu_compiled_c",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gcc2_compiled.",
+          "reason": "no oracle"
+        }
+      ],
+      "manifest_count": 2
+    },
+    {
+      "stage": "actual",
+      "source": "recon/game/common/speech.cpp",
+      "known": 102,
+      "passes": 102,
+      "results": [
+        {
+          "symbol": "Accident__Q26Speech13MobileSpeakeri",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "Accident__Q26Speech15DispatchSpeakeri",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "Accident__Q26Speech7Speakeri",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "Activate__Q26Speech13MobileSpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 59,
+          "oracle_instructions": 59
+        },
+        {
+          "symbol": "Activate__Q26Speech15DispatchSpeakeri",
+          "diff_lines": 0,
+          "instructions": 39,
+          "oracle_instructions": 39
+        },
+        {
+          "symbol": "AddPerp__Q26Speech15DispatchSpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 12,
+          "oracle_instructions": 12
+        },
+        {
+          "symbol": "Backup__Q26Speech13MobileSpeaker",
+          "diff_lines": 0,
+          "instructions": 62,
+          "oracle_instructions": 62
+        },
+        {
+          "symbol": "Backup__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "BankPatch__6SpeechlP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 15,
+          "oracle_instructions": 15
+        },
+        {
+          "symbol": "Bullhorn__Q26Speech13MobileSpeaker",
+          "diff_lines": 0,
+          "instructions": 13,
+          "oracle_instructions": 13
+        },
+        {
+          "symbol": "Bullhorn__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "CalcMph__Q26Speech7SpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 18,
+          "oracle_instructions": 18
+        },
+        {
+          "symbol": "CalculateBankSize__6SpeechPcPQ26Speech11CarBankNamePlT3",
+          "diff_lines": 0,
+          "instructions": 133,
+          "oracle_instructions": 133
+        },
+        {
+          "symbol": "CallSign__Q26Speech13MobileSpeaker",
+          "diff_lines": 0,
+          "instructions": 3,
+          "oracle_instructions": 3
+        },
+        {
+          "symbol": "CallSign__Q26Speech15DispatchSpeaker",
+          "diff_lines": 0,
+          "instructions": 3,
+          "oracle_instructions": 3
+        },
+        {
+          "symbol": "CallSign__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "CarObj__Q26Speech13MobileSpeaker",
+          "diff_lines": 0,
+          "instructions": 3,
+          "oracle_instructions": 3
+        },
+        {
+          "symbol": "CarObj__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "Catch__Q26Speech13MobileSpeakeri",
+          "diff_lines": 0,
+          "instructions": 175,
+          "oracle_instructions": 175
+        },
+        {
+          "symbol": "Catch__Q26Speech7Speakeri",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "CheckCallSignBank__6SpeechPQ26Speech12CallSignBankPci",
+          "diff_lines": 0,
+          "instructions": 78,
+          "oracle_instructions": 78
+        },
+        {
+          "symbol": "CheckCarBank__6SpeechPQ26Speech7CarBankPciPQ26Speech11CarBankName",
+          "diff_lines": 0,
+          "instructions": 45,
+          "oracle_instructions": 45
+        },
+        {
+          "symbol": "CheckLocationBank__6SpeechPQ26Speech12LocationBankPci",
+          "diff_lines": 0,
+          "instructions": 65,
+          "oracle_instructions": 65
+        },
+        {
+          "symbol": "CheckMultiBank__6SpeechPciPQ26Speech11CarBankName",
+          "diff_lines": 0,
+          "instructions": 104,
+          "oracle_instructions": 104
+        },
+        {
+          "symbol": "Check__Q26Speech7CarBankPciPQ26Speech11CarBankName",
+          "diff_lines": 0,
+          "instructions": 66,
+          "oracle_instructions": 66
+        },
+        {
+          "symbol": "ClearPerp__Q26Speech15DispatchSpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 12,
+          "oracle_instructions": 12
+        },
+        {
+          "symbol": "ClearPerp__Q26Speech7SpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "CountLocations__6Speech",
+          "diff_lines": 0,
+          "instructions": 28,
+          "oracle_instructions": 28
+        },
+        {
+          "symbol": "Deny__Q26Speech15DispatchSpeaker",
+          "diff_lines": 0,
+          "instructions": 61,
+          "oracle_instructions": 61
+        },
+        {
+          "symbol": "Deny__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "Dispatch__6Speech",
+          "diff_lines": 0,
+          "instructions": 14,
+          "oracle_instructions": 14
+        },
+        {
+          "symbol": "DistToPerp__Q26Speech13MobileSpeaker",
+          "diff_lines": 0,
+          "instructions": 121,
+          "oracle_instructions": 121
+        },
+        {
+          "symbol": "DistToPerp__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "Distance__Q26Speech12LocationBanki",
+          "diff_lines": 0,
+          "instructions": 37,
+          "oracle_instructions": 37
+        },
+        {
+          "symbol": "Engage__Q26Speech13MobileSpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 467,
+          "oracle_instructions": 467
+        },
+        {
+          "symbol": "Engage__Q26Speech7SpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "FindClosestLocationTo__6SpeechPQ26Speech12LocationBanki",
+          "diff_lines": 0,
+          "instructions": 54,
+          "oracle_instructions": 54
+        },
+        {
+          "symbol": "FindClosestLocationTo__Q26Speech13MobileSpeakeri",
+          "diff_lines": 0,
+          "instructions": 10,
+          "oracle_instructions": 10
+        },
+        {
+          "symbol": "FindClosestLocationTo__Q26Speech15DispatchSpeakeri",
+          "diff_lines": 0,
+          "instructions": 10,
+          "oracle_instructions": 10
+        },
+        {
+          "symbol": "FindClosestLocationTo__Q26Speech7Speakeri",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "FindLocation__Q26Speech7SpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 190,
+          "oracle_instructions": 190
+        },
+        {
+          "symbol": "FindMobile__6SpeechP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 41,
+          "oracle_instructions": 41
+        },
+        {
+          "symbol": "GetCarBank__Q26Speech13MobileSpeakeri",
+          "diff_lines": 0,
+          "instructions": 6,
+          "oracle_instructions": 6
+        },
+        {
+          "symbol": "GetCarBank__Q26Speech15DispatchSpeakeri",
+          "diff_lines": 0,
+          "instructions": 7,
+          "oracle_instructions": 7
+        },
+        {
+          "symbol": "GetCarBank__Q26Speech7Speakeri",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "GetVoice__6SpeechP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 10,
+          "oracle_instructions": 10
+        },
+        {
+          "symbol": "Grant__Q26Speech15DispatchSpeaker",
+          "diff_lines": 0,
+          "instructions": 25,
+          "oracle_instructions": 25
+        },
+        {
+          "symbol": "Grant__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "IsSuper__Q26Speech13MobileSpeaker",
+          "diff_lines": 0,
+          "instructions": 7,
+          "oracle_instructions": 7
+        },
+        {
+          "symbol": "IsSuper__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "KnownPerp__Q26Speech15DispatchSpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 12,
+          "oracle_instructions": 12
+        },
+        {
+          "symbol": "KnownPerp__Q26Speech7SpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "LoadBankHeaders__6SpeechPcPQ26Speech11CarBankNamell",
+          "diff_lines": 0,
+          "instructions": 270,
+          "oracle_instructions": 270
+        },
+        {
+          "symbol": "Lose__Q26Speech13MobileSpeaker",
+          "diff_lines": 0,
+          "instructions": 213,
+          "oracle_instructions": 213
+        },
+        {
+          "symbol": "Lose__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "Mobile__6SpeechP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 18,
+          "oracle_instructions": 18
+        },
+        {
+          "symbol": "Perp__Q26Speech13MobileSpeaker",
+          "diff_lines": 0,
+          "instructions": 3,
+          "oracle_instructions": 3
+        },
+        {
+          "symbol": "Perp__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "PickVoice__6SpeechP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 39,
+          "oracle_instructions": 39
+        },
+        {
+          "symbol": "Promote__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 27,
+          "oracle_instructions": 27
+        },
+        {
+          "symbol": "PurgeStatusSub__Q26Speech15DispatchSpeaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "PurgeStatusSub__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "Purge__Q26Speech13MobileSpeaker",
+          "diff_lines": 0,
+          "instructions": 149,
+          "oracle_instructions": 149
+        },
+        {
+          "symbol": "Purge__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "ReActivate__Q26Speech13MobileSpeaker",
+          "diff_lines": 0,
+          "instructions": 43,
+          "oracle_instructions": 43
+        },
+        {
+          "symbol": "ReActivate__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "Ready__Q26Speech15DispatchSpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 43,
+          "oracle_instructions": 43
+        },
+        {
+          "symbol": "Ready__Q26Speech7SpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "ReportBlockade__Q26Speech13MobileSpeaker",
+          "diff_lines": 0,
+          "instructions": 63,
+          "oracle_instructions": 63
+        },
+        {
+          "symbol": "ReportBlockade__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "Report__Q26Speech13MobileSpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 59,
+          "oracle_instructions": 59
+        },
+        {
+          "symbol": "Report__Q26Speech15DispatchSpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 104,
+          "oracle_instructions": 104
+        },
+        {
+          "symbol": "Report__Q26Speech7SpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "Reset__6Speech",
+          "diff_lines": 0,
+          "instructions": 103,
+          "oracle_instructions": 103
+        },
+        {
+          "symbol": "RoadBlock__Q26Speech13MobileSpeaker",
+          "diff_lines": 0,
+          "instructions": 69,
+          "oracle_instructions": 69
+        },
+        {
+          "symbol": "RoadBlock__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "Roger__Q26Speech13MobileSpeaker",
+          "diff_lines": 0,
+          "instructions": 94,
+          "oracle_instructions": 94
+        },
+        {
+          "symbol": "Roger__Q26Speech15DispatchSpeaker",
+          "diff_lines": 0,
+          "instructions": 157,
+          "oracle_instructions": 157
+        },
+        {
+          "symbol": "Roger__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "SetCar__Q26Speech11CarBankNamei",
+          "diff_lines": 0,
+          "instructions": 50,
+          "oracle_instructions": 50
+        },
+        {
+          "symbol": "SetCar__Q26Speech7SpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 72,
+          "oracle_instructions": 72
+        },
+        {
+          "symbol": "SetDelayedStatus__6SpeechPQ26Speech7Speakeri",
+          "diff_lines": 0,
+          "instructions": 8,
+          "oracle_instructions": 8
+        },
+        {
+          "symbol": "SetSpeed__Q26Speech13MobileSpeakerP8Car_tObj",
+          "diff_lines": 0,
+          "instructions": 75,
+          "oracle_instructions": 75
+        },
+        {
+          "symbol": "Speech_AllocateRAM__FlPc",
+          "diff_lines": 0,
+          "instructions": 11,
+          "oracle_instructions": 11
+        },
+        {
+          "symbol": "Speech_HandleRequest__Fllll",
+          "diff_lines": 0,
+          "instructions": 8,
+          "oracle_instructions": 8
+        },
+        {
+          "symbol": "Speech_PurgeRAM__FPc",
+          "diff_lines": 0,
+          "instructions": 8,
+          "oracle_instructions": 8
+        },
+        {
+          "symbol": "Speech_Server__Fv",
+          "diff_lines": 0,
+          "instructions": 15,
+          "oracle_instructions": 15
+        },
+        {
+          "symbol": "SpikeBelt__Q26Speech13MobileSpeaker",
+          "diff_lines": 0,
+          "instructions": 69,
+          "oracle_instructions": 69
+        },
+        {
+          "symbol": "SpikeBelt__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "StatusCount__Q26Speech15DispatchSpeaker",
+          "diff_lines": 0,
+          "instructions": 3,
+          "oracle_instructions": 3
+        },
+        {
+          "symbol": "StatusCount__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "StatusReply__Q26Speech15DispatchSpeaker",
+          "diff_lines": 0,
+          "instructions": 269,
+          "oracle_instructions": 269
+        },
+        {
+          "symbol": "StatusSub__Q26Speech15DispatchSpeaker",
+          "diff_lines": 0,
+          "instructions": 3,
+          "oracle_instructions": 3
+        },
+        {
+          "symbol": "StatusSub__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "Status__Q26Speech13MobileSpeaker",
+          "diff_lines": 0,
+          "instructions": 358,
+          "oracle_instructions": 358
+        },
+        {
+          "symbol": "Status__Q26Speech15DispatchSpeaker",
+          "diff_lines": 0,
+          "instructions": 366,
+          "oracle_instructions": 366
+        },
+        {
+          "symbol": "Status__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "SubmitRequest__6Speechlll",
+          "diff_lines": 0,
+          "instructions": 61,
+          "oracle_instructions": 61
+        },
+        {
+          "symbol": "Unit__Q26Speech13MobileSpeaker",
+          "diff_lines": 0,
+          "instructions": 3,
+          "oracle_instructions": 3
+        },
+        {
+          "symbol": "Unit__Q26Speech7Speaker",
+          "diff_lines": 0,
+          "instructions": 2,
+          "oracle_instructions": 2
+        },
+        {
+          "symbol": "__6Speech",
+          "diff_lines": 0,
+          "instructions": 232,
+          "oracle_instructions": 232
+        },
+        {
+          "symbol": "___6Speech",
+          "diff_lines": 0,
+          "instructions": 45,
+          "oracle_instructions": 45
+        }
+      ],
+      "omissions": [
+        {
+          "symbol": "D_80055BD0",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "Speech_gCallSignDescription",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "Speech_gCarDescription",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "Speech_gCopAttr",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "Speech_gLocationDescription",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "Speech_gLocationDescription00",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "Speech_gLocationDescription02",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "Speech_gLocationDescription03",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "Speech_gLocationDescription04",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "Speech_gLocationDescription05",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "Speech_gLocationDescription06",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "Speech_gLocationDescription07",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "_6Speech_fgSpeech",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "_6Speech_fgUndefined",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "__gnu_compiled_cplusplus",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "_vt_Q26Speech13MobileSpeaker",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "_vt_Q26Speech15DispatchSpeaker",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "_vt_Q26Speech7Speaker",
+          "reason": "no oracle"
+        },
+        {
+          "symbol": "gcc2_compiled.",
+          "reason": "no oracle"
+        }
+      ],
+      "manifest_count": 102
+    },
+    {
+      "stage": "actual",
+      "source": "regiondiff/recon/NFS4-R-USA/game/common/speech.cpp",
+      "preexisting_compile_failure": true
+    }
+  ]
+}

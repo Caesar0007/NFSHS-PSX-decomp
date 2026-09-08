@@ -1,0 +1,177 @@
+{
+  "passed": 21,
+  "total": 21,
+  "owners": [
+    {
+      "source": "recon/frontend/common/fecredits.cpp",
+      "section": ".data",
+      "validator": "validate_source_data_owners",
+      "snapshot_bytes": 6772,
+      "snapshot_sha256": "7aa4311fd102fe201acee98f8a5ee60c319cd1800aee714ae0e984f93e838571",
+      "passed": true
+    },
+    {
+      "source": "recon/game/common/hudpmx.cpp",
+      "section": ".sdata",
+      "validator": "validate_source_data_owners",
+      "snapshot_bytes": 13444,
+      "snapshot_sha256": "1999a066a551d2dc24c5f2a455806914ca26c37a62cd8974a822b936aef3ade9",
+      "passed": true
+    },
+    {
+      "source": "recon/game/common/copspeak.cpp",
+      "section": ".sdata",
+      "validator": "validate_source_data_owners",
+      "snapshot_bytes": 18300,
+      "snapshot_sha256": "70fc97ebe71e9feeb970a4af6af67f16969a2171d4a82bfc1a35834376f9807e",
+      "passed": true
+    },
+    {
+      "source": "recon/game/common/nfs3.cpp",
+      "section": ".sdata",
+      "validator": "validate_source_data_owners",
+      "snapshot_bytes": 19312,
+      "snapshot_sha256": "ed3390faba0dff90ca5a780e763100ec856d40415478a6f74a1272bf5c5c27e1",
+      "passed": true
+    },
+    {
+      "source": "recon/game/common/r3dcar.cpp",
+      "section": ".sdata",
+      "validator": "validate_source_data_owners",
+      "snapshot_bytes": 40456,
+      "snapshot_sha256": "1d23d35f5b1f7ab7e0fc385db93dd69e8fdc4675cdb0aa9e7bb566e45205517a",
+      "passed": true
+    },
+    {
+      "source": "recon/game/common/sim.cpp",
+      "section": ".sdata",
+      "validator": "validate_source_data_owners",
+      "snapshot_bytes": 11092,
+      "snapshot_sha256": "d42f37b5eb7c8a3e6bb72cfd6da48c6d2290e21ccadc2137fc9e28720dd04d79",
+      "passed": true
+    },
+    {
+      "source": "recon/syslib/psx/libc/CTYPE0.c",
+      "section": ".data",
+      "validator": "validate_source_data_owners",
+      "snapshot_bytes": 1124,
+      "snapshot_sha256": "daedead9c8792627233dd7fd85dac3e1cfeb7d4d2e1f1759516445ff3852b467",
+      "passed": true
+    },
+    {
+      "source": "recon/frontend/common/fetextrender.cpp",
+      "section": ".data",
+      "validator": "validate_source_data_owners",
+      "snapshot_bytes": 8080,
+      "snapshot_sha256": "fc573287922a2dc9949dd2cc97b5d714612ba489c1ea87a6a07c9e3fb0a62260",
+      "passed": true
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/asintbl.c",
+      "section": ".data",
+      "validator": "validate_source_data_owners",
+      "snapshot_bytes": 1512,
+      "snapshot_sha256": "a42e623a5831b4ccadc19591bb9702d2a4251f98b94b8058755d86731fb8fd1f",
+      "passed": true
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/sintbl.c",
+      "section": ".data",
+      "validator": "validate_source_data_owners",
+      "snapshot_bytes": 2024,
+      "snapshot_sha256": "b55dc67e38acf738ac6681089c250fcb5bfcdbef761d0a88bce8af02bd775db7",
+      "passed": true
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/fatantbl.c",
+      "section": ".data",
+      "validator": "validate_source_data_owners",
+      "snapshot_bytes": 2028,
+      "snapshot_sha256": "e62d7c9c48dc684165cde99396959802c25ada2e1c82adcecef0e6f225e37659",
+      "passed": true
+    },
+    {
+      "source": "recon/syslib/psx/libgte/CSTBL.c",
+      "section": ".data",
+      "validator": "validate_source_data_owners",
+      "snapshot_bytes": 17384,
+      "snapshot_sha256": "d370d2dfbbd240f626bcbe38b6b3a1f6e293bb44b2af37f3648fad79e259f86a",
+      "passed": true
+    },
+    {
+      "source": "recon/syslib/psx/libpress/TABLE.c",
+      "section": ".data",
+      "validator": "validate_source_data_owners",
+      "snapshot_bytes": 70708,
+      "snapshot_sha256": "8909daa3125c828239bc082f3d4b3b2b37e3c2693fd441b3048da25779a25a83",
+      "passed": true
+    },
+    {
+      "source": "recon/syslib/psx/libsn/SNDEF.c",
+      "section": ".data",
+      "validator": "validate_source_data_owners",
+      "snapshot_bytes": 1032,
+      "snapshot_sha256": "3d86f390f4081cacd0cd6e1a652130ef93639a7f4abbcfc50e9a8c7a1b5d7863",
+      "passed": true
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/atantbl.c",
+      "section": ".data",
+      "validator": "validate_source_data_owners",
+      "snapshot_bytes": 1256,
+      "snapshot_sha256": "caf3f746ab2c528f9376b729dbbfc70f6cb44e0a01097dd5f41d5ad73b5ff6d4",
+      "passed": true
+    },
+    {
+      "source": "recon/game/psx/textureprocess.cpp",
+      "section": ".sdata",
+      "validator": "validate_source_data_owners",
+      "snapshot_bytes": 7800,
+      "snapshot_sha256": "26967228ab73444a251c58a28d6a06150be3eebc3dc07567eb25b14a7b0d45d5",
+      "passed": true
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/vars.c",
+      "section": ".sdata",
+      "validator": "validate_source_data_owners",
+      "snapshot_bytes": 2228,
+      "snapshot_sha256": "5c2c306766d65bba74144d151db5be47e2317cb56212c98e281bc3f3f73100eb",
+      "passed": true
+    },
+    {
+      "source": "recon/frontend/psx/drawshp.cpp",
+      "section": ".data",
+      "validator": "validate_source_data_owners",
+      "snapshot_bytes": 4212,
+      "snapshot_sha256": "9685826d06a5d9e9d2612f3daea217a416187180a2a100240bcd341472c4053b",
+      "passed": true
+    },
+    {
+      "source": "recon/syslib/psx/libcd/C_005.c",
+      "section": ".bss.st_80144874",
+      "validator": "validate_source_zero_owners",
+      "snapshot_bytes": 1720,
+      "snapshot_sha256": "0dffeb188e23032b36d86d7dc9e98da30cbcd245b74ea4492d861dfb4fb8f17d",
+      "passed": true
+    },
+    {
+      "source": "recon/syslib/psx/libcd/iso9660.c",
+      "section": ".bss",
+      "validator": "validate_source_zero_owners",
+      "snapshot_bytes": 6276,
+      "snapshot_sha256": "d45df5c8b49f53c1c06121e76d8c6b2d21aa5cd88d8ed44a0b5c02174fa9b57c",
+      "passed": true
+    },
+    {
+      "source": "recon/syslib/psx/libcd/CDROM.c",
+      "section": ".bss.st_80146C7C",
+      "validator": "validate_source_zero_owners",
+      "snapshot_bytes": 1820,
+      "snapshot_sha256": "0b8e570324a0c31cf7df376f02c76ed1cb127538d63402ff2a5c6b9d9ee6f8c0",
+      "passed": true
+    }
+  ],
+  "runtime_validation_on_in_memory_snapshots": true,
+  "production_build_or_object_write": false,
+  "note": "Normal outputs were only snapshot-read, not rebuilt or linked."
+}

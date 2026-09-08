@@ -1,0 +1,21 @@
+{
+  "passed": true,
+  "upstream": "7728c5ea6ca9cc21e8aff19b18292da04fcce03c",
+  "local_protected_PASS": 831,
+  "incoming_manifest_PASS_preserved": 180,
+  "incoming_full_oracle_known_PASS_preserved": 182,
+  "incoming_compilable_TUs": 10,
+  "incoming_attempted_TUs": 11,
+  "ordinary_objects": 518,
+  "ordinary_objects_identical": 517,
+  "only_changed_object": "recon/eaclib/psx/spchpsxz/spchpick.c.o",
+  "complete_linked_ELF_identical": true,
+  "complete_linked_map_identical": true,
+  "linked_ELF_sha256": "52800553415581618c04766bca85e3d943de8343f60b78c62ff7c62af9e32ae0",
+  "source_hash_drift": 0,
+  "preserved_existing_issues": [
+    "USA Speech compile failure",
+    "SubmitRequest__6Speechlll branch distance -2 versus 8"
+  ],
+  "goal_complete": false
+}

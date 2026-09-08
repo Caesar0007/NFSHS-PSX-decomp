@@ -399,7 +399,13 @@ void tScreenCongrats::Initialize()
      exact (PASS 49/49) but is rejected by audit_vtable_indexing.py four times. */
   __vtbl_ptr_type (*vtbl) [10];
 
-  this->PrepareInitialize(ticks[0]);
+  /* P892: capture the entry tick before state writes. Direct native fields
+     remove an unproved inline helper; exact bytes and improved SLD pairs. */
+  this->fEnterTick = ticks[0];
+  this->fSpeechToPlay = 0;
+  this->starttick = -1;
+  this->framenum = -1;
+  this->InExtraSpin = 0;
   SetLicensePlate();
   vtbl = this->_vf;
   (*vtbl[1][0].pfn)((char *)this + vtbl[1][0].delta);

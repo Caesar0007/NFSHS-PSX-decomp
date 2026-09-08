@@ -1,7 +1,9 @@
 /* libcd.lib(CDROM.obj): StSetRing and the main streaming state block. */
 #include "stream_internal.h"
 
-/* Complete contiguous retail BSS run @0x80146C7C..0x80146CC4. */
+/* Complete contiguous retail BSS run @0x80146C7C..0x80146CC4. P887:
+ * canonical4.3 XBSS gives Stsector_offset two bytes followed by alignment,
+ * agreeing with the existing short declaration; total run remains72 bytes. */
 __asm__("\t.globl\tStEmu_Addr\n\t.globl\tStCdIntrFlag\n"
         "\t.globl\tCChannel\n\t.globl\tStCHANNEL\n"
         "\t.globl\tStframe_no\n\t.globl\tStRgb24\n"
@@ -21,7 +23,7 @@ __asm__("\t.globl\tStEmu_Addr\n\t.globl\tStCdIntrFlag\n"
         "StEndFrame:\n\t.space\t4\n"
         "StSTART_FLAG:\n\t.space\t4\n"
         "StEmu_Idx:\n\t.space\t4\n"
-        "Stsector_offset:\n\t.space\t4\n"
+        "Stsector_offset:\n\t.space\t2\n\t.align\t2\n"
         "StFinalSector:\n\t.space\t4\n"
         "StRingBase:\n\t.space\t4\n"
         "StRingAddr:\n\t.space\t4\n"

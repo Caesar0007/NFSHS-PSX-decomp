@@ -72,8 +72,8 @@ struct tScreen {
     void UploadShapes(tShapeInformation &data, short x, short y,
                       short numShapes, short index);
     void PreLoad();
-    void TransitionOff(tScreen_TransitionType type, tMenu *menu);
-    void TransitionOn(tScreen_TransitionType type, tMenu *menu);
+    void TransitionOff(tScreen_TransitionType type, tMenu *); /* Original unused name unknown. */
+    void TransitionOn(tScreen_TransitionType type, tMenu *); /* Original unused name unknown. */
     void UpdateTransition();
     bool TransitionIsFinished();
     void ProcessInput(tPlayer fromPlayer, tInputKeyType &keyval,

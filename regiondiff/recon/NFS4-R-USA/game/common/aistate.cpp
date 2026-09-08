@@ -10,8 +10,6 @@
 #include "aistate_types.h"
 #include "aistate_externs.h"
 
-#define AISTATE_SLICE_BYTE(slice, offset) \
-    (*(u_char *)(AIState_BWorldSmSlices + (slice) * 0x20 + (offset)))
 
 /* ---- aistate.obj-owned globals (.bss zero) ---- */
 static int   AIState_Purgatory_numTrafficCarsInPurgatory;   /* @0x8013dd7c  (bss(zero); SYM STAT) */
@@ -571,7 +569,7 @@ void AIState_Chase::SetMurderMode(int murderMode,int murderTicks)
 
     this->murderMode_ = murderMode;
 
-    this->murderEndTime_ = AIState_SimGlobalWords[1] + murderTicks;
+    this->murderEndTime_ = simGlobal.gameTicks + murderTicks;
 
   }
 
@@ -651,7 +649,7 @@ void AIState_Chase::SetUp()
 
   (this->carObj_)->targetLatPos = 0;
 
-  if ((this->murderMode_ != 0) && (!(AIState_SimGlobalWords[1] < this->murderEndTime_))) {
+  if ((this->murderMode_ != 0) && (!(simGlobal.gameTicks < this->murderEndTime_))) {
 
     this->murderMode_ = 0;
 
@@ -721,7 +719,7 @@ void AIState_Chase::DoNitrous(int checkForHumans)
 
 
 
-  if ((0 < this->nitrousTicks_) && (AIState_SimGlobalWords[1] >= this->slowDownEndTime_)) {
+  if ((0 < this->nitrousTicks_) && (simGlobal.gameTicks >= this->slowDownEndTime_)) {
 
     (this->carObj_)->accNitrous = 0x30000;
 
@@ -855,7 +853,7 @@ LAB_80070244:
 
 LAB_800702a0:
 
-  if (AIState_SimGlobalWords[1] < this->slowDownEndTime_) {
+  if (simGlobal.gameTicks < this->slowDownEndTime_) {
 
     this->DoSlowNitrous();
 
@@ -884,7 +882,7 @@ void AIState_Chase::FarTargeting()
 
   this->inTargetRegion_ = 0;
 
-  if (AIState_SimGlobalWords[1] > this->noTurnAroundEndTime_) {
+  if (simGlobal.gameTicks > this->noTurnAroundEndTime_) {
 
     if (0 < this->longMetersBetween_) {
 
@@ -1203,7 +1201,7 @@ LAB_80070704:
        * (targettingStrength a3 instead of t0).  78 -> 59 on its own. */
       __asm__("" : : "i"(0));
 
-      slicePtr = ((this->carObj_)->N).simRoadInfo.slice * 0x20 + (int)AIState_BWorldSmSlices;
+      slicePtr = ((this->carObj_)->N).simRoadInfo.slice * sizeof(Trk_NewSlice) + (int)BWorldSm_slices;
 
       /* W62-A9 CLAMP FUNNEL (SYM 8c: retail declares ONLY targettingStrength ($8=t0)
        * and targetLanePosition ($4=a0) -- latOffset/slicePtr are Ghidra-invented, so
@@ -1213,14 +1211,14 @@ LAB_80070704:
        * with `* 0x8000` gcc reassociates it onto the other operand and swaps the
        * mult's operand registers.  59 -> 27 (funnel) -> 15 (shift form). */
       {
-        int limit = -(((u_int)*(u_char *)(slicePtr + 0x1e) << 0xf) * (u_int)(*(u_char *)(slicePtr + 0x1d) >> 4));
+        int limit = -(((u_int)((Trk_NewSlice *)slicePtr)->avgPavedWidthLf << 0xf) * (u_int)(((Trk_NewSlice *)slicePtr)->laneCount >> 4));
         if (limit < targetLanePosition) {
           limit = targetLanePosition;
         }
         targetLanePosition = limit;
       }
       {
-        int limit = ((u_int)*(u_char *)(slicePtr + 0x1f) << 0xf) * (u_int)(*(u_char *)(slicePtr + 0x1d) & 0xf);
+        int limit = ((u_int)((Trk_NewSlice *)slicePtr)->avgPavedWidthRt << 0xf) * (u_int)(((Trk_NewSlice *)slicePtr)->laneCount & 0xf);
         if (targetLanePosition < limit) {
           limit = targetLanePosition;
         }
@@ -1283,7 +1281,7 @@ void AIState_Chase::ApproachTargeting(int intercept)
 
   this->inTargetRegion_ = 0;
 
-  iVar5 = AIState_SimGlobalWords[1];
+  iVar5 = simGlobal.gameTicks;
 
   if (this->noTurnAroundEndTime_ < iVar5) {
 
@@ -1477,7 +1475,7 @@ void AIState_Chase::CheckForBarriersAndTargetAroundThem()
 
   myLane = pCVar3->laneIndex;
 
-  bVar1 = *(u_char *)(mySlice * 0x20 + (int)AIState_BWorldSmSlices + 0x1d);
+  bVar1 = BWorldSm_slices[mySlice].laneCount;
 
   targetSlice = (this->targetCar_->N).simRoadInfo.slice;
 
@@ -1487,7 +1485,7 @@ void AIState_Chase::CheckForBarriersAndTargetAroundThem()
 
   if ((bVar1 & 0xf) + 7 < myLane) return;
 
-  bVar2 = *(u_char *)(targetSlice * 0x20 + (int)AIState_BWorldSmSlices + 0x1d);
+  bVar2 = BWorldSm_slices[targetSlice].laneCount;
 
   if (targetLane < 6 - (bVar2 >> 4)) return;
 
@@ -1647,9 +1645,9 @@ int AIState_Chase::FindBarrierEndSlice()
       if (hereBarrier == 0) {
 
         if ((leftBarrier != 0) &&
-            (6 - (AISTATE_SLICE_BYTE(sliceCheck,0x1d) >> 4) <= currentBarrierLane - 1) &&
+            (6 - (BWorldSm_slices[sliceCheck].laneCount >> 4) <= currentBarrierLane - 1) &&
             (currentBarrierLane - 1 <=
-             (AISTATE_SLICE_BYTE(sliceCheck,0x1d) & 0xf) + 7)) {
+             (BWorldSm_slices[sliceCheck].laneCount & 0xf) + 7)) {
 
           currentBarrierLane--;
 
@@ -1657,8 +1655,8 @@ int AIState_Chase::FindBarrierEndSlice()
 
         else if ((rightBarrier == 0) ||
                  (currentBarrierLane + 1 <
-                  6 - (AISTATE_SLICE_BYTE(sliceCheck,0x1d) >> 4)) ||
-                 ((AISTATE_SLICE_BYTE(sliceCheck,0x1d) & 0xf) + 7 <
+                  6 - (BWorldSm_slices[sliceCheck].laneCount >> 4)) ||
+                 ((BWorldSm_slices[sliceCheck].laneCount & 0xf) + 7 <
                   currentBarrierLane + 1)) {
 
           forwardBarrierEndSlice = sliceCheck;
@@ -1717,9 +1715,9 @@ int AIState_Chase::FindBarrierEndSlice()
       if (hereBarrier == 0) {
 
         if ((leftBarrier != 0) &&
-            (6 - (AISTATE_SLICE_BYTE(sliceCheck,0x1d) >> 4) <= currentBarrierLane - 1) &&
+            (6 - (BWorldSm_slices[sliceCheck].laneCount >> 4) <= currentBarrierLane - 1) &&
             (currentBarrierLane - 1 <=
-             (AISTATE_SLICE_BYTE(sliceCheck,0x1d) & 0xf) + 7)) {
+             (BWorldSm_slices[sliceCheck].laneCount & 0xf) + 7)) {
 
           currentBarrierLane--;
 
@@ -1727,8 +1725,8 @@ int AIState_Chase::FindBarrierEndSlice()
 
         else if ((rightBarrier == 0) ||
                  (currentBarrierLane + 1 <
-                  6 - (AISTATE_SLICE_BYTE(sliceCheck,0x1d) >> 4)) ||
-                 ((AISTATE_SLICE_BYTE(sliceCheck,0x1d) & 0xf) + 7 <
+                  6 - (BWorldSm_slices[sliceCheck].laneCount >> 4)) ||
+                 ((BWorldSm_slices[sliceCheck].laneCount & 0xf) + 7 <
                   currentBarrierLane + 1)) {
 
           backwardsBarrierEndSlice = sliceCheck;
@@ -1866,7 +1864,7 @@ AIState_Offroad::AIState_Offroad(Car_tObj *carObj,int startSlice,coorddef *posit
 
   this->targetSlice_ = endSlice;
 
-  this->targetPosition_ = *(coorddef *)((char *)AIState_BWorldSmSlices + endSlice * 0x20);
+  this->targetPosition_ = *(coorddef *)BWorldSm_slices[endSlice].center;
 
   pCVar3 = this->carObj_;
 
@@ -2283,7 +2281,7 @@ int AIState_Purgatory::TestForRelease()
     trafficInWorld = Cars_gNumTrafficCars - AIState_Purgatory_numTrafficCarsInPurgatory;
 
     if (trafficInWorld <
-        AITune_MaxTraffic[AIState_GameSetupWords[3] == 1][AIState_GameSetupWords[6]]) {
+        AITune_MaxTraffic[GameSetup_gData.commMode == 1][GameSetup_gData.trafficDensity]) {
 
       return 1;
 
@@ -2322,7 +2320,7 @@ void AIState_Purgatory::Execute()
 
   pCVar1 = this->carObj_;
 
-  if (((pCVar1->carFlags & 0x20U) == 0) && (0x3bf < AIState_SimGlobalWords[1])) {
+  if (((pCVar1->carFlags & 0x20U) == 0) && (0x3bf < simGlobal.gameTicks)) {
 
     pCVar1->physicsModelTimer = pCVar1->physicsModelTimer - AI_elapsedTime;
 
@@ -2552,7 +2550,7 @@ void AIState_RovingTraffic::Execute()
   (this->carObj_)->desiredSpeed = this->path_[this->pathIndex_].targetSpeed * 0x7247;
 
   /* W57-A11: SLD line 1183 = one struct assignment (movstrsi t0/t1/t2). */
-  centerBack = *(coorddef *)(AIState_BWorldSmSlices + this->carObj_->N.simRoadInfo.slice * 0x20);
+  centerBack = *(coorddef *)BWorldSm_slices[this->carObj_->N.simRoadInfo.slice].center;
 
   carRelativeForLatPos.x = this->carObj_->targetPos.x - centerBack.x;
 
@@ -2588,11 +2586,11 @@ void AIState_RovingTraffic::Execute()
 
     if (this->waitTick_ == 0) {
 
-      this->waitTick_ = AIState_SimGlobalWords[1] + this->path_[this->pathIndex_].waitTime;
+      this->waitTick_ = simGlobal.gameTicks + this->path_[this->pathIndex_].waitTime;
 
     }
 
-    if (AIState_SimGlobalWords[1] < this->waitTick_) {
+    if (simGlobal.gameTicks < this->waitTick_) {
 
       (this->carObj_)->desiredSpeed = 0;
 
@@ -2798,7 +2796,7 @@ void AIState_Donuts::Execute()
     }
 
     {
-      coorddef &sliceCenter = *(coorddef *)((forwardSlice << 5) + (int)AIState_BWorldSmSlices);
+      coorddef &sliceCenter = *(coorddef *)((Trk_NewSlice *)((forwardSlice << 5) + (int)BWorldSm_slices))->center;
       targetPos = sliceCenter;
     }
 
@@ -2866,8 +2864,8 @@ void AIState_Donuts::Execute()
     if (this->carObj_->roadPosition < 0) {
 
       if (this->carObj_->roadPosition - 0x20000 <
-          -((AISTATE_SLICE_BYTE(slice,0x1e) << 15) *
-            (AISTATE_SLICE_BYTE(slice,0x1d) >> 4))) goto LAB_800722e8;
+          -((BWorldSm_slices[slice].avgPavedWidthLf << 15) *
+            (BWorldSm_slices[slice].laneCount >> 4))) goto LAB_800722e8;
 
       goto LAB_800722ec;
 
@@ -2875,8 +2873,8 @@ void AIState_Donuts::Execute()
 
     else {
 
-      if (!((AISTATE_SLICE_BYTE(slice,0x1f) << 15) *
-            (AISTATE_SLICE_BYTE(slice,0x1d) & 0xf) <
+      if (!((BWorldSm_slices[slice].avgPavedWidthRt << 15) *
+            (BWorldSm_slices[slice].laneCount & 0xf) <
             this->carObj_->roadPosition + 0x20000)) goto LAB_800722ec;
 
     }

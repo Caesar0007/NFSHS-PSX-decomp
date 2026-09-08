@@ -12,8 +12,9 @@
  */
 
 
-    build/asm/data/sdata_8013C54C_r00.sdata.s.o(.sdata);
-    build/recon/game/common/ai.cpp.o(.sdata);   /* 0x8013c550..0x8013c55c  was sdata_8013C54C_o00.sdata.s */
+    /* P896: native firstTime CHAR+padding and the three AI INTs share one
+     * source16-byte window; r00/o00 remain in the oracle lane only. */
+    build/recon/game/common/ai.cpp.o(.sdata);   /* 0x8013c54c..0x8013c55c; r00 firstTime+o00 AI globals */
     build/recon/game/common/aihigh.cpp.o(.sdata);   /* 0x8013c55c..0x8013c560  was sdata_8013C54C_o01.sdata.s */
     build/recon/game/common/aih_btccop.cpp.o(.sdata);   /* 0x8013c560..0x8013c568  was sdata_8013C54C_o02.sdata.s */
     build/asm/data/sdata_8013C54C_r01.sdata.s.o(.sdata);
@@ -83,7 +84,8 @@
     build/asm/data/sdata_8013C54C_r20.sdata.s.o(.sdata);
     build/recon/game/psx/texture.cpp.o(.sdata);   /* 0x8013db08..0x8013db3c  was sdata_8013C54C_o33.sdata.s */
     build/asm/data/sdata_8013C54C_r21.sdata.s.o(.sdata);
-    build/recon/game/psx/textureprocess.cpp.o(.sdata);   /* 0x8013db74..0x8013db90  was sdata_8013C54C_o34.sdata.s */
+    /* P886: full G8 run includes its40-byte literal prefix, not only globals. */
+    build/recon/game/psx/textureprocess.cpp.o(.sdata);   /* 0x8013db4c..0x8013db90; o34 is oracle-only */
     build/recon/game/psx/trackspec.cpp.o(.sdata);   /* 0x8013db90..0x8013db9c  was sdata_8013C54C_o35.sdata.s */
     build/recon/game/psx/trsproj.cpp.o(.sdata);   /* 0x8013db9c..0x8013dba0  was sdata_8013C54C_o36.sdata.s */
     build/asm/data/sdata_8013C54C_r22.sdata.s.o(.sdata);

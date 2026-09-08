@@ -1,0 +1,603 @@
+{
+  "target": "scratchpad\\p896_ai_statements\\landed\\objects\\recon\\game\\common\\ai.cpp.o",
+  "target_sha256": "fc4c0ccb670846f42b8a01047c0b8b5f5d66b5bdb07f7df56ba94a0836432084",
+  "tool_hashes": {
+    "source_data_owners.py": "2c7ae78eea1b5aa7a588db8c05d4bb8f2287897659fd41b9d353b2fcd807b4fe",
+    "source_zero_owners.py": "ba5558e16bfb7d358706ea96a56d78e4446b8ca818acebafc5d5fb1642a39ba0"
+  },
+  "tests": [
+    {
+      "name": "current_data",
+      "validator": "data",
+      "expected_accept": true,
+      "accepted": true,
+      "passed": true,
+      "exception": null,
+      "mutated_ELF_sha256": "fc4c0ccb670846f42b8a01047c0b8b5f5d66b5bdb07f7df56ba94a0836432084"
+    },
+    {
+      "name": "serializer_control_data",
+      "validator": "data",
+      "expected_accept": true,
+      "accepted": true,
+      "passed": true,
+      "exception": null,
+      "mutated_ELF_sha256": "20863e95e1149583a88053626ad7ce942ca2913e1f6f00dbdc0fcafecdcde1f4"
+    },
+    {
+      "name": "alternate_numeric_UID_data",
+      "validator": "data",
+      "expected_accept": true,
+      "accepted": true,
+      "passed": true,
+      "exception": null,
+      "mutated_ELF_sha256": "10d55141e859ee5dcb584be497f138adfff5108e47e7338d0258d89ecb757f8d"
+    },
+    {
+      "name": "current_zero",
+      "validator": "zero",
+      "expected_accept": true,
+      "accepted": true,
+      "passed": true,
+      "exception": null,
+      "mutated_ELF_sha256": "fc4c0ccb670846f42b8a01047c0b8b5f5d66b5bdb07f7df56ba94a0836432084"
+    },
+    {
+      "name": "serializer_control_zero",
+      "validator": "zero",
+      "expected_accept": true,
+      "accepted": true,
+      "passed": true,
+      "exception": null,
+      "mutated_ELF_sha256": "20863e95e1149583a88053626ad7ce942ca2913e1f6f00dbdc0fcafecdcde1f4"
+    },
+    {
+      "name": "alternate_numeric_UID_zero",
+      "validator": "zero",
+      "expected_accept": true,
+      "accepted": true,
+      "passed": true,
+      "exception": null,
+      "mutated_ELF_sha256": "10d55141e859ee5dcb584be497f138adfff5108e47e7338d0258d89ecb757f8d"
+    },
+    {
+      "name": "duplicate_firstTime",
+      "validator": "data",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "exception": {
+        "type": "AssertionError",
+        "message": "(<in-memory AI object>, 'unexpected owner storage symbols')"
+      },
+      "mutated_ELF_sha256": "87c3c097135b9e65ac9bbcbda1b9a6c5302410f6fb09949041a15d9aa50c97e6"
+    },
+    {
+      "name": "wrong_stem_firstTime",
+      "validator": "data",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "exception": {
+        "type": "AssertionError",
+        "message": "(<in-memory AI object>, 'firstTime', 'missing exact source offset/size/binding')"
+      },
+      "mutated_ELF_sha256": "ffce0b9d90b366dfe229c693dac153b71d1263e33bbceca2e5e3cc8a57e63d72"
+    },
+    {
+      "name": "nonnumeric_UID_firstTime",
+      "validator": "data",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "exception": {
+        "type": "AssertionError",
+        "message": "(<in-memory AI object>, 'firstTime', 'missing exact source offset/size/binding')"
+      },
+      "mutated_ELF_sha256": "d2bd3b91ef5346b823d908fcf4cf28cba7041bb1ab84c6215ece68eabc365a48"
+    },
+    {
+      "name": "global_instead_of_local_firstTime",
+      "validator": "data",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "exception": {
+        "type": "AssertionError",
+        "message": "(<in-memory AI object>, 'firstTime', 'missing exact source offset/size/binding')"
+      },
+      "mutated_ELF_sha256": "eafb23c6dc854a188c0664105616353bc45711fed6f2e3026f8b776cc87ba624"
+    },
+    {
+      "name": "weak_instead_of_local_firstTime",
+      "validator": "data",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "exception": {
+        "type": "AssertionError",
+        "message": "(<in-memory AI object>, 'firstTime', 'missing exact source offset/size/binding')"
+      },
+      "mutated_ELF_sha256": "e1504df4598420d23a07bf8bdbc14a12885f4a16b3cb356c028c8faa7651396b"
+    },
+    {
+      "name": "wrong_symbol_section_firstTime",
+      "validator": "data",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "exception": {
+        "type": "AssertionError",
+        "message": "(<in-memory AI object>, 'unexpected owner storage symbols')"
+      },
+      "mutated_ELF_sha256": "8728dc06f39b6c16b5976da3572ff425dd7e1b99a64727ab2fa2e91c613b3934"
+    },
+    {
+      "name": "wrong_offset_firstTime",
+      "validator": "data",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "exception": {
+        "type": "AssertionError",
+        "message": "(<in-memory AI object>, 'firstTime', 'missing exact source offset/size/binding')"
+      },
+      "mutated_ELF_sha256": "52cfac2dbeddf7ec0b87e3095cb96d184502680f824bedc6cbb41e36a677a960"
+    },
+    {
+      "name": "wrong_symbol_size_firstTime",
+      "validator": "data",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "exception": {
+        "type": "AssertionError",
+        "message": "(<in-memory AI object>, 'firstTime', 'missing exact source offset/size/binding')"
+      },
+      "mutated_ELF_sha256": "00ca05645f8109aeb2c0fc298349760b731d3736c7ebfb35a27098a81ffa7106"
+    },
+    {
+      "name": "function_instead_of_storage_firstTime",
+      "validator": "data",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "exception": {
+        "type": "AssertionError",
+        "message": "(<in-memory AI object>, 'non-data symbol in exact data owner')"
+      },
+      "mutated_ELF_sha256": "fb3511808af68c371f8520908717a6a87f279c6a83edf6cc14449f99f5a54627"
+    },
+    {
+      "name": "extra_NOTYPE_storage_firstTime",
+      "validator": "data",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "exception": {
+        "type": "AssertionError",
+        "message": "(<in-memory AI object>, 'unexpected owner storage symbols')"
+      },
+      "mutated_ELF_sha256": "cd67f1577c5b684f12aff1e3d1931d576ef511a8595f147f5c373f0955cda168"
+    },
+    {
+      "name": "extra_FUNCTION_in_owner_firstTime",
+      "validator": "data",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "exception": {
+        "type": "AssertionError",
+        "message": "(<in-memory AI object>, 'non-data symbol in exact data owner')"
+      },
+      "mutated_ELF_sha256": "45150e2200af81772679459d39cec76a71529f2d7ad181740abbe6dfd046446b"
+    },
+    {
+      "name": "extra_TLS_in_owner_firstTime",
+      "validator": "data",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "exception": {
+        "type": "AssertionError",
+        "message": "(<in-memory AI object>, 'non-data symbol in exact data owner')"
+      },
+      "mutated_ELF_sha256": "79bbeb2d66ddf2a344d6fea1f683fea2d39b0d43640ed598fde556b9ca5118b8"
+    },
+    {
+      "name": "owner_relocations_firstTime",
+      "validator": "data",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "exception": {
+        "type": "AssertionError",
+        "message": "(<in-memory AI object>, 'unexpected data relocation in exact raw owner')"
+      },
+      "mutated_ELF_sha256": "d79c75e455a09d8eb47b4c0b68c58caedd06c18b2d145146674a37317bdc97f6"
+    },
+    {
+      "name": "duplicate_section_.sdata",
+      "validator": "data",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "exception": {
+        "type": "AssertionError",
+        "message": "(<in-memory AI object>, 'duplicate section names')"
+      },
+      "mutated_ELF_sha256": "80654533d09c4bb645314a6bc5361832cc3984a65f8f1137d4d3efae55255699"
+    },
+    {
+      "name": "missing_ALLOC_.sdata",
+      "validator": "data",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "exception": {
+        "type": "AssertionError",
+        "message": "(<in-memory AI object>, 'mutable owner must be allocated/writable/non-executable')"
+      },
+      "mutated_ELF_sha256": "c0619d51f5d657a061034c503b166fbf09a955e28a12259682e3222724927b0f"
+    },
+    {
+      "name": "missing_WRITE_.sdata",
+      "validator": "data",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "exception": {
+        "type": "AssertionError",
+        "message": "(<in-memory AI object>, 'mutable owner must be allocated/writable/non-executable')"
+      },
+      "mutated_ELF_sha256": "cca6ae8be30d617a4a691e4374a867e749f4876a6fcd3051aa15e36d470d6cc2"
+    },
+    {
+      "name": "unexpected_EXEC_.sdata",
+      "validator": "data",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "exception": {
+        "type": "AssertionError",
+        "message": "(<in-memory AI object>, 'mutable owner must be allocated/writable/non-executable')"
+      },
+      "mutated_ELF_sha256": "0ffc9c23a49f4c674e1d1ef45ac3ab1a18d604a594984c797729034dcf8e6dd9"
+    },
+    {
+      "name": "duplicate_spos",
+      "validator": "zero",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "exception": {
+        "type": "AssertionError",
+        "message": "(<in-memory AI object>, 'spos', 'missing native source offset/binding')"
+      },
+      "mutated_ELF_sha256": "790530ee4702e15dbe7b9f7a8b92a526bdd83d2135189b9b2e4971d4557f3812"
+    },
+    {
+      "name": "wrong_stem_spos",
+      "validator": "zero",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "exception": {
+        "type": "AssertionError",
+        "message": "(<in-memory AI object>, 'spos', 'missing native source offset/binding')"
+      },
+      "mutated_ELF_sha256": "dc3c1ecc1d63e051d7123400a5b4587f042c79c3233457da543f277707183c68"
+    },
+    {
+      "name": "nonnumeric_UID_spos",
+      "validator": "zero",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "exception": {
+        "type": "AssertionError",
+        "message": "(<in-memory AI object>, 'spos', 'missing native source offset/binding')"
+      },
+      "mutated_ELF_sha256": "cc0dec996bf92d32796dcb7751ecb0e52bef78bb45fdca016ead1214aa712e1d"
+    },
+    {
+      "name": "global_instead_of_local_spos",
+      "validator": "zero",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "exception": {
+        "type": "AssertionError",
+        "message": "(<in-memory AI object>, 'spos', 'missing native source offset/binding')"
+      },
+      "mutated_ELF_sha256": "9660c39cd258fcb457b8ca6639cfdeb235c2145a86c3e8b96bbebfe708b3b913"
+    },
+    {
+      "name": "weak_instead_of_local_spos",
+      "validator": "zero",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "exception": {
+        "type": "AssertionError",
+        "message": "(<in-memory AI object>, 'spos', 'missing native source offset/binding')"
+      },
+      "mutated_ELF_sha256": "7367cc878cb38328d05d1111411e348ac007e4ddeeaaabc87582d1bed01c63f2"
+    },
+    {
+      "name": "wrong_symbol_section_spos",
+      "validator": "zero",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "exception": {
+        "type": "AssertionError",
+        "message": "(<in-memory AI object>, 'spos', 'missing native source offset/binding')"
+      },
+      "mutated_ELF_sha256": "8130e039fe110963b64651239f8a789f5a6ce417c93be92a44f231f54bc9c502"
+    },
+    {
+      "name": "wrong_offset_spos",
+      "validator": "zero",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "exception": {
+        "type": "AssertionError",
+        "message": "(<in-memory AI object>, 'spos', 'missing native source offset/binding')"
+      },
+      "mutated_ELF_sha256": "c983940a8c71993f011932c3080d5f538990c9bcf5a228b25be09104dbe73153"
+    },
+    {
+      "name": "wrong_symbol_size_spos",
+      "validator": "zero",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "exception": {
+        "type": "AssertionError",
+        "message": "(<in-memory AI object>, 'spos', 'missing native source offset/binding')"
+      },
+      "mutated_ELF_sha256": "e0313ae0809218d3ec8fb990dfaa4e552c852062baf9517e9e95e4a9a7ec7212"
+    },
+    {
+      "name": "function_instead_of_storage_spos",
+      "validator": "zero",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "exception": {
+        "type": "AssertionError",
+        "message": "(<in-memory AI object>, 'spos', 'missing native source offset/binding')"
+      },
+      "mutated_ELF_sha256": "0417d016ac9e5fb44462f073562b977eb3ee2d71bd1eb1ec40a40c521f96ec21"
+    },
+    {
+      "name": "extra_NOTYPE_storage_spos",
+      "validator": "zero",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "exception": {
+        "type": "AssertionError",
+        "message": "(<in-memory AI object>, 'unexpected additional zero-owner storage symbol')"
+      },
+      "mutated_ELF_sha256": "0edab10c3e122a76f07b6a6833286f3257d7a010a2cc376fce1608a25f98c158"
+    },
+    {
+      "name": "extra_FUNCTION_in_owner_spos",
+      "validator": "zero",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "exception": {
+        "type": "AssertionError",
+        "message": "(<in-memory AI object>, 'non-data symbol in exact zero owner')"
+      },
+      "mutated_ELF_sha256": "1d3e8956edd678d18ef98722c424dcc21fc93f52ef6065ca75180c4d690fe6fc"
+    },
+    {
+      "name": "extra_TLS_in_owner_spos",
+      "validator": "zero",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "exception": {
+        "type": "AssertionError",
+        "message": "(<in-memory AI object>, 'non-data symbol in exact zero owner')"
+      },
+      "mutated_ELF_sha256": "7313cedcd52147548704ce41139c472ed55c23e7eda3f3491c3b42bf4fc1c8d5"
+    },
+    {
+      "name": "owner_relocations_spos",
+      "validator": "zero",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "exception": {
+        "type": "AssertionError",
+        "message": "(<in-memory AI object>, 'unexpected BSS relocation')"
+      },
+      "mutated_ELF_sha256": "68aa32887145edc3463c056ec5f883d83f7015c168e0b293bb27942c064df4e7"
+    },
+    {
+      "name": "duplicate_section_.bss",
+      "validator": "zero",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "exception": {
+        "type": "AssertionError",
+        "message": "(<in-memory AI object>, 'duplicate section names')"
+      },
+      "mutated_ELF_sha256": "13aa6bf5b0768125048b4a0bb62cdf83433ebdb67dee96039f8805519059ca1a"
+    },
+    {
+      "name": "missing_ALLOC_.bss",
+      "validator": "zero",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "exception": {
+        "type": "AssertionError",
+        "message": "(<in-memory AI object>, 'BSS must be allocated/writable/non-executable')"
+      },
+      "mutated_ELF_sha256": "1269a86be2f042443c5c027ca667b46a7b7529c8d6e564a0e53465c4c3715a24"
+    },
+    {
+      "name": "missing_WRITE_.bss",
+      "validator": "zero",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "exception": {
+        "type": "AssertionError",
+        "message": "(<in-memory AI object>, 'BSS must be allocated/writable/non-executable')"
+      },
+      "mutated_ELF_sha256": "121f0501dfa7c6731a71629057a0d4cbd362636a4ea419f23531c12b84772429"
+    },
+    {
+      "name": "unexpected_EXEC_.bss",
+      "validator": "zero",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "exception": {
+        "type": "AssertionError",
+        "message": "(<in-memory AI object>, 'BSS must be allocated/writable/non-executable')"
+      },
+      "mutated_ELF_sha256": "4c837d20448b2bf36df276f1c885c2403784835dc1e3a817e1f4efbbe4e3d922"
+    },
+    {
+      "name": "wrong_first_byte",
+      "validator": "data",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "exception": {
+        "type": "AssertionError",
+        "message": "(<in-memory AI object>, 'source-owned data layout/payload is stale or not native', 'SYM032c02 STAT CHAR firstTime; raw/CPE8013C54C=1; native AI_time/elapsedTime/iTime+4/+8/+12')"
+      },
+      "mutated_ELF_sha256": "3835cf98568ef0e6cec5deb2b5bec463536e65d152ce27c00f63323afed1bc21"
+    },
+    {
+      "name": "wrong_alignment_padding_byte",
+      "validator": "data",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "exception": {
+        "type": "AssertionError",
+        "message": "(<in-memory AI object>, 'source-owned data layout/payload is stale or not native', 'SYM032c02 STAT CHAR firstTime; raw/CPE8013C54C=1; native AI_time/elapsedTime/iTime+4/+8/+12')"
+      },
+      "mutated_ELF_sha256": "4983d0539ffc6f3a2d1ae448d2e76584d002b5196c2f282c93f25d80c3b5479a"
+    },
+    {
+      "name": "truncated_sdata_extent",
+      "validator": "data",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "exception": {
+        "type": "AssertionError",
+        "message": "(<in-memory AI object>, 'source-owned data layout/payload is stale or not native', 'SYM032c02 STAT CHAR firstTime; raw/CPE8013C54C=1; native AI_time/elapsedTime/iTime+4/+8/+12')"
+      },
+      "mutated_ELF_sha256": "e7f3750fa701346d307cafb4cfcfd704ace3ab3071442bb5d93d84d36b0e4b05"
+    },
+    {
+      "name": "expanded_sdata_extent",
+      "validator": "data",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "exception": {
+        "type": "AssertionError",
+        "message": "(<in-memory AI object>, 'source-owned data layout/payload is stale or not native', 'SYM032c02 STAT CHAR firstTime; raw/CPE8013C54C=1; native AI_time/elapsedTime/iTime+4/+8/+12')"
+      },
+      "mutated_ELF_sha256": "8d29096d05e8c1a94576b4af0c9d6c780fe0c0947a05143071a2d57fe42560dc"
+    },
+    {
+      "name": "wrong_AI_time_name",
+      "validator": "data",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "exception": {
+        "type": "AssertionError",
+        "message": "(<in-memory AI object>, 'AI_time', 'missing exact source offset/size/binding')"
+      },
+      "mutated_ELF_sha256": "d2f47f3b12165f9aee88feb5c5381221fe80281247a0e1f255afbbb2af8027b0"
+    },
+    {
+      "name": "wrong_AI_time_bind",
+      "validator": "data",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "exception": {
+        "type": "AssertionError",
+        "message": "(<in-memory AI object>, 'AI_time', 'missing exact source offset/size/binding')"
+      },
+      "mutated_ELF_sha256": "86eb85a7c015ca99a0af42eae3f0aa5f3080da28f7256954ce0b7d64ab278e82"
+    },
+    {
+      "name": "wrong_AI_time_offset",
+      "validator": "data",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "exception": {
+        "type": "AssertionError",
+        "message": "(<in-memory AI object>, 'AI_time', 'missing exact source offset/size/binding')"
+      },
+      "mutated_ELF_sha256": "5ea143c8c3710f5e5da3bc7cc77a2956f8cd7ebd97a16f5d48c05d2858bb49dc"
+    },
+    {
+      "name": "wrong_AI_time_size",
+      "validator": "data",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "exception": {
+        "type": "AssertionError",
+        "message": "(<in-memory AI object>, 'AI_time', 'missing exact source offset/size/binding')"
+      },
+      "mutated_ELF_sha256": "d19f6453211daba7f15054ebd9bf2bda761ce6f884f883f9f10f397eec3f81ec"
+    },
+    {
+      "name": "wrong_BSS_extent",
+      "validator": "zero",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "exception": {
+        "type": "AssertionError",
+        "message": "(<in-memory AI object>, '.bss', 'expected exact NOBITS extent')"
+      },
+      "mutated_ELF_sha256": "6f5eb1a31075e09247ad791c4f46b750c25bcc4528a6cbe12db2fe6961e60333"
+    },
+    {
+      "name": "initialized_BSS",
+      "validator": "zero",
+      "expected_accept": false,
+      "accepted": false,
+      "passed": true,
+      "exception": {
+        "type": "AssertionError",
+        "message": "(<in-memory AI object>, '.bss', 'expected exact NOBITS extent')"
+      },
+      "mutated_ELF_sha256": "fbe0a281d5496a18ab9027d6b33e3c334b1b50ab796672a5ae1be818ff28a2dd"
+    }
+  ],
+  "passed": 50,
+  "total": 50,
+  "gaps": [],
+  "existing_data_rows_unchanged": 18,
+  "existing_zero_rows_unchanged": 3,
+  "previous_exclusions_preserved": 18,
+  "new_explicit_exclusions": 2,
+  "all_mutations_in_memory": true,
+  "production_files_modified": false,
+  "object_bytes_modified_on_disk": false,
+  "note": "Old-row runtime rebuild is root-owned; immutable metadata/code branches reviewed against backups while fullbuild runs."
+}

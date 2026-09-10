@@ -55,33 +55,33 @@
  *     c[3]  : packed VRAM xy = (c[3] & 0xf000f000) | x&0xfff | (y&0xfff)<<16
  *     c+4   : pixel / CLUT source data; CLUT entries are 3 bytes (R,G,B) at byte offsets 0x10,0x11,0x12
  */
-typedef unsigned long u_long;
-typedef struct { short x, y, w, h; } RECT;
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "vramfxya.h"
+#include "primate.h"
 
+// FIXME
 extern int   shapedepth(unsigned char *shape);   /* shpdepth */
 extern void  LoadImage(RECT *rect, u_long *data); /* PsyQ libgpu */
-extern int   drawpending;                         /* primate */
-
-extern unsigned int checkrect(int rectp);                         /* @0x800F6934 */
-extern int  vramimage(RECT *rect, u_long *data);                  /* @0x800F6960 */
-extern void vramfxya(unsigned int *c, int imgX, int imgY,
-                         int clutX, int clutY);                       /* @0x800F69A8 */
 
 /* checkrect @0x800F6934 : if the RECT is flagged (+4 bit0), set bit0 of the +6 word.  Returns the +4 flag. */
-extern unsigned int checkrect(int rectp)
+unsigned int checkrect(RECT *rect) 
 {
-    unsigned int flag = *(unsigned short *)(rectp + 4) & 1;
-    if (flag != 0) {
-        flag = *(unsigned short *)(rectp + 6) | 1;
-        *(short *)(rectp + 6) = (short)flag;
+    unsigned int flag = rect->w & 1;
+    if (flag) {
+        // INFO: unsigned short w, h in RECT?
+        // flag = rect->h | 1;
+        // rect->h = flag;
+        flag = (*(unsigned short *)&rect->h | 1);
+        *(unsigned short *)&rect->h = flag;     
     }
     return flag;
 }
 
 /* vramimage @0x800F6960 : pre-check the RECT, DMA `data` into VRAM, mark a draw as pending.  Returns 1. */
-extern int vramimage(RECT *rect, u_long *data)
+int vramimage(RECT *rect, u_long *data)
 {
-    checkrect((int)rect);
+    checkrect(rect);
     LoadImage(rect, data);
     drawpending = 1;
     return 1;
@@ -89,7 +89,7 @@ extern int vramimage(RECT *rect, u_long *data)
 
 /* vramfxya @0x800F69A8 : upload every chunk of shape `shapep` to VRAM.  Bitmap chunks (0x40..0x43) go to
  *   (imgX,imgY); CLUT chunks (0x22/0x23/0x24) go to (clutX,clutY). */
-extern void vramfxya(unsigned int *c, int imgX, int imgY, int clutX, int clutY)
+void vramfxya(unsigned int *c, int imgX, int imgY, int clutX, int clutY)
 {
     RECT rect;
     unsigned int clut22[128]; /* >>1 BGR scratch */

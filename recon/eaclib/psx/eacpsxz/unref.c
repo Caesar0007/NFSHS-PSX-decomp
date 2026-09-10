@@ -32,19 +32,18 @@
  * common declaration use the required one-instruction GP-relative form.  The
  * linker coalesces the shared five-word state with unbtree.obj's definitions.
  * The declaration order is the compact-SYM BSS order. */
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "unref.h"
+#include "getm.h"
+#include "textcrnt.h"
+#include "unhuff.h"
+
 signed char   *SQVclue;
 unsigned char *SQVleft;
 unsigned char *SQVright;
 unsigned char *SQVs;
 unsigned char *SQVd;
-
-extern unsigned int   geti(void *p, char nbits);               /* getm */
-extern void           puti(unsigned char *buf, unsigned int val, int n); /* textcrnt */
-extern unsigned char *refcpy(unsigned char *src, unsigned int count, int len); /* unhuff */
-extern void           memcpyl(char *dst, char *src, int len);  /* unhuff */
-
-extern int  unrefpack(unsigned char *comp, unsigned char *out, int reverse); /* @0x800F52B8 */
-extern void chase(unsigned int code);                                               /* @0x800F5530 */
 
 /* unrefpack @0x800F52B8 : decompress RefPack stream `comp` into `out` (only if `reverse` != 0, else size-query);
  *   returns the 24-bit uncompressed size.
@@ -222,7 +221,7 @@ extern void chase(unsigned int code);                                           
  * empty read-only fence prices the handout exactly: instrumented cc1/allocsim reports op p97
  * 48/91 -> s1, src p84 65/151 -> s2, out p85 55/111 -> s3, while the three arm copies p103/p117/
  * p130 each receive a0.  The fence has no hard-register names and emits zero instructions. */
-extern int unrefpack(unsigned char *comp, unsigned char *out_arg, int reverse_arg)
+int unrefpack(unsigned char *comp, unsigned char *out_arg, int reverse_arg)
 {
     int            reverse = reverse_arg;
     unsigned char *src = comp;
@@ -364,7 +363,7 @@ extern int unrefpack(unsigned char *comp, unsigned char *out_arg, int reverse_ar
  *   MATCH: VOID (unbtree.c's decl; the apparent $v0 result is incidental), descend =
  *   fall-through (`beqz -> leaf` out-of-line), clue read SIGNED (`lb` -- plain char is
  *   unsigned on this toolchain). */
-extern void chase(unsigned int code)
+void chase(unsigned int code)
 {
     unsigned int idx = code & 0xff;
     if (SQVclue[idx] != 0) {

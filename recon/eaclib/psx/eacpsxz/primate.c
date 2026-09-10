@@ -11,6 +11,11 @@
  *   waitdraw blocks (DrawSync) until any pending draw finishes.  settrans sets/queries the semi-
  *   transparency mode (>0 -> 3, ==0 -> 1, <0 -> query only), returning the mode bit (semitrans>>1).
  */
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "primate.h"
+
+// FIXME
 extern void *reservememadr(char *name, int size, int classid);  /* eacpsxz @0x800E533C (memstd) */
 extern int   purgememadr (void *p);                             /* eacpsxz @0x800E5540 (memstd) */
 extern void  ClearOTagR(unsigned long *ot, int n);              /* PsyQ libgpu */
@@ -39,7 +44,7 @@ extern int   DrawSync(int mode);                                /* PsyQ libgpu *
  int linkmodeflag;  /* @0x8013DD0C: owning-TU tentative def → .comm/.sbss → gp-rel */
  int semitrans;     /* @0x8013DD14: owning-TU tentative def → .comm/.sbss → gp-rel */
 
-extern void *initlinkmode(void *unused, int maxprimArg, int linkmode)   /* @0x800F05F4 */
+void *initlinkmode(void *unused, int maxprimArg, int linkmode)   /* @0x800F05F4 */
 {
     (void)unused;                                  /* 1st arg is unused by the asm */
     maxot   = 16;
@@ -72,7 +77,7 @@ extern void *initlinkmode(void *unused, int maxprimArg, int linkmode)   /* @0x80
     return otbuf;
 }
 
-extern void waitdraw(void)   /* @0x800F06E0 */
+void waitdraw(void)   /* @0x800F06E0 */
 {
     if (drawpending != 0) {
         DrawSync(0);
@@ -80,7 +85,7 @@ extern void waitdraw(void)   /* @0x800F06E0 */
     }
 }
 
-extern int settrans(int mode)   /* @0x800F070C */
+int settrans(int mode)   /* @0x800F070C */
 {
     /* oracle: bltz→skip; beqz→1; j(delay li 3)→3 */
     if (mode < 0) goto done;

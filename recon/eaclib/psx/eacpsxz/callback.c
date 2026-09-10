@@ -3,20 +3,21 @@
  *   2 fns @[0x800FE424 .. 0x800FE480].  A tiny mutex pool (32 entries) used to guard callback re-entry.
  *   Ghidra nfs4-f.exe.c (callback) + IDA sigs (allocmutex returns the slot ptr; void return dropped it).
  */
-extern short mutexbuf[];   /* short[32*2] : 32 mutex slots (4 bytes each, first word = taken flag) */
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "callback.h"
+
+short mutexbuf[32 * 2];   /* short[32*2] : 32 mutex slots (4 bytes each, first word = taken flag) */
 /* W65-A6 DATA-MAT: `mutexbuf` was extern-only tree-wide (4 reloc-referenced undefined sites);
  * callback.obj is its sole referencer.  Retail: .bss @0x801477E0, size 128 (= sndgs
  * @0x80147860 - 0x801477E0) -- exactly the short[32*2] the decl documents.  VA >
  * t_addr+t_size (0x8013E000) => pure zero-init BSS.  DEVICE = file-scope asm .bss definition,
  * keeping the UNSIZED `extern short mutexbuf[]` the loop's index form depends on.
  * Receipts: scratchpad/w65a6/RECEIPTS.md */
-__asm__("\t.globl\tmutexbuf\n\t.section\t.bss\n\t.align\t2\nmutexbuf:\n\t.space\t128\n\t.text");
-
-extern short *allocmutex(void);            /* @0x800FE424 */
-extern void   freemutex(void *mutex);      /* @0x800FE480 */
+//__asm__("\t.globl\tmutexbuf\n\t.section\t.bss\n\t.align\t2\nmutexbuf:\n\t.space\t128\n\t.text");
 
 /* allocmutex @0x800FE424 : claim the first free mutex slot (mark taken); returns its pointer. */
-extern short *allocmutex(void)
+short *allocmutex(void)
 {
     /* The retail fn returns NULL when all 32 slots are taken (i == 0x20) and recomputes the
      * result from the INDEX (mutexbuf + i*2, sll 2 + addu).
@@ -30,21 +31,20 @@ extern short *allocmutex(void)
      * of the loop (24).  The `extern short mutexbuf[]` UNSIZED-ARRAY decl supplies the
      * preheader's two-register address materialization (`lui v0` + `addiu a1,v0`); with a
      * sized/scalar decl gcc folds it into one register. */
-    int    i = 0;
-    while (i < 0x20) {
+    int i;
+    for(i = 0; i < 0x20; i++) {
         if (mutexbuf[i * 2] == 0) {
             mutexbuf[i * 2] = 1;
             break;
         }
-        i = i + 1;
     }
     if (i == 0x20)
         return 0;
-    return mutexbuf + i * 2;
+    return &mutexbuf[i * 2];
 }
 
 /* freemutex @0x800FE480 : release a mutex (clear its taken flag). */
-extern void freemutex(void *mutex)
+void freemutex(void *mutex)
 {
     *(int *)mutex = 0;
 }

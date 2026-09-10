@@ -12,6 +12,10 @@
  *   Raw nfs4-f.exe E5DB4..E5FC3 SHA-256:
  *   84a0c077a7492393c55e04790f17fa8b6ea1ea330f655ab3a5113e20a5f0f1c8.
  */
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "unbtree.h"
+#include "unref.h"
 
 /* unbtree.obj-owned cursors/table bases: tentative-defined here (mergeable .comm with unref.c's
  * SQVd/SQVclue/SQVleft/SQVright tentative defs; the linker folds them). Needed so THIS TU knows their
@@ -21,9 +25,6 @@ unsigned char *SQVleft;  /* @0x8013DECC: node left-child table base */
 unsigned char *SQVright; /* @0x8013DED0: node right-child table base */
 unsigned char *SQVs;     /* @0x8013DED4: source cursor */
 unsigned char *SQVd;     /* @0x8013DED8: destination cursor */
-extern void chase(unsigned int code);   /* unref.obj */
-
-extern int unbtree(unsigned char *src, unsigned char *dst);   /* @0x800F55B4 */
 
 /* unbtree @0x800F55B4 : decompress `src` into `dst`; returns the (24-bit) uncompressed size.  src==0 just
  *   (re)points the dst cursor and returns 0.
@@ -31,7 +32,7 @@ extern int unbtree(unsigned char *src, unsigned char *dst);   /* @0x800F55B4 */
  *   null-return relies on SQVs==src==0 already); the header peek indexes src[0]/src[1] directly (not a
  *   walking cursor) while every later byte read is a genuine "*p; p++; SQVs=p;" cursor step, so the
  *   compiler CSEs consecutive reads off the same live pointer instead of reloading the SQVs global. */
-extern int unbtree(unsigned char *src, unsigned char *dst)
+int unbtree(unsigned char *src, unsigned char *dst)
 {
     unsigned char clueTbl[256], leftTbl[256], rightTbl[256];
     int           size = 0;   /* $s1: 24-bit uncompressed size, init 0 for the null path; SINGLE exit

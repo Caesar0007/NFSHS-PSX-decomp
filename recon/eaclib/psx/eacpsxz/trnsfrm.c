@@ -7,13 +7,14 @@
  *   fixedmult (16.16).  The asm computes the 3 components into stack temps and writes them to `out`
  *   only at the end, so `out` may safely alias `vec` or `mat`.
  */
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "trnsfrm.h"
+
+// FIXME
 extern int fixedmult(int a, int b);                        /* eacpsxz @0x800E4328 (lbl_D4328) */
 
-typedef struct {
-    int x, y, z;
-} TransformResult;
-
-extern void transform(int *vec, int *mat, int *out)        /* @0x800EAED8 */
+void transform(int *vec, int *mat, int *out)        /* @0x800EAED8 */
 {
     TransformResult result;
     result.x = fixedmult(vec[0], mat[0]) + fixedmult(vec[1], mat[3]) + fixedmult(vec[2], mat[6]);

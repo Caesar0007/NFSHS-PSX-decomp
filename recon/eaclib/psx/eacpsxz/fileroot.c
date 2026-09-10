@@ -18,6 +18,10 @@
  *   GOTCHA (recurring): a `&lbl_XXXXX()` call decodes to 0x80010000 + 0xXXXXX -- MIND THE CARRY.
  *   lbl_EA65C = 0x80010000+0xEA65C = 0x800FA65C (CD_Close), NOT 0x800EA65C; lbl_F6BE4 = 0x80106BE4 (PCread).
  */
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "fileroot.h"
+
 /* ---- owning-TU defs for link-harness (extern-declared, never defined; BSS) ---- */
  char currentdirectory[64]; /* @0x80140414: fileroot.obj owning BSS definition */
 /* Retail bytes @0x8013DD2C..0x8013DD43 are literal/pointer/literal/pointer.
@@ -52,7 +56,7 @@ char *D_8013DD40 __attribute__((section(".sdata"))) = D_8013DD38;
  * 04Q-comparator caveat stands: expected/src branch words can be unresolved
  * PC16 placeholders (addend -1) -- check reloc presence before trusting them. */
 
-
+// FIXME
 /* ---- CD-ROM filesystem backend (fs 1) ---- */
 extern int CD_Close(int dev);                                 /* @0x800FA65C */
 extern int CD_Read(int dev, int dest, int offset, int len);   /* @0x800FA678 */
@@ -87,22 +91,10 @@ extern char *fsprefix2;     /* @0x8013DD40 -> "sim:"   (PC-host prefix, 4-char c
 extern char  currentdirectory[];  /* @0x80140414 cwd, prepended to relative PC paths     */
 
 /* ---- fileroot globals (data-materialization pass owns the addresses) ---- */
-extern int disablecd;            /* nonzero == CD backend disabled                    */
-extern int availablefilesystems; /* bitmask: 1 == CD present, 2 == PC host present     */
-extern int currentfilesystem;    /* the fs selected by initfileio/setdirectory         */
+extern int disablecd;            /* @0x8013DC58 nonzero == CD backend disabled          */
+extern int availablefilesystems; /* @0x8013DC60 bitmask: 1 == CD present, 2 == PC host  */
+extern int currentfilesystem;    /* @0x8013DC5C the fs selected by initfileio/setdirectory */
 
-/* the single-slot deferred PC-host read command (executed by readfile_systask).
- * @0x80140400 (.bss, 20B = 5 ints). The `extern` form below was only a DECLARATION
- * (a promise) -> the storage was never defined in any TU (surfaced by the link harness).
- * Defined here, its owning TU, since ReadCmd is a TU-local struct. Zero-init (BSS). */
-struct ReadCmd {
-    int pending;   /* +0x00 nonzero == a command is queued */
-    int handle;    /* +0x04 dev descriptor (fs byte already masked off) */
-    int dest;      /* +0x08 destination address */
-    int offset;    /* +0x0C file offset */
-    int len;       /* +0x10 byte count */
-};
-typedef struct ReadCmd ReadCmd;
 ReadCmd readcmd;   /* @0x80140400: fileroot.obj owning BSS definition */
 
 /* cop0 IRQ-disabled critical section guarding the readcmd slot (host no-op on x86).
@@ -124,7 +116,7 @@ ReadCmd readcmd;   /* @0x80140400: fileroot.obj owning BSS definition */
  *   bring up PC host I/O, register the deferred-read system task, and select the PC filesystem;
  *   otherwise (no dev link) fall back to the CD filesystem.
  *   VOID return: the oracle never sets $v0 at the epilogue (matches eaclib.h `void`). */
-extern void initfileio(void)
+void initfileio(void)
 {
     if (disablecd == 0)
         availablefilesystems |= 1;                  /* CD present */
@@ -141,7 +133,7 @@ extern void initfileio(void)
 /* setdirectory @0x800F3ACC : select the current filesystem from a "drive:" prefix and, for the PC host,
  *   remember the directory (prefix stripped) as the cwd, ensuring it ends in a backslash.  CD has no
  *   settable cwd, so a CD prefix only switches the current filesystem. */
-extern void setdirectory(char *dir)
+void setdirectory(char *dir)
 {
     int prefixlen = 0;
     if (strncmp(dir, fsprefix1, 6) == 0) {              /* CD prefix */
@@ -172,7 +164,7 @@ extern void setdirectory(char *dir)
  *   A leading "drive:" prefix selects the filesystem (fsprefix1 -> CD, fsprefix2 -> PC host); otherwise the
  *   current filesystem is used.  CD opens go through CD_Open; PC-host opens build a cwd-relative path and
  *   pick a PCopen/PCcreat mode from (flags & 7).  Returns 1 on success, 0 on failure. */
-extern int openfile(char *name, int flags, int *outp)
+int openfile(char *name, int flags, int *outp)
 {
     char  namebuf[0x40];
     int   fs;
@@ -235,7 +227,7 @@ extern int openfile(char *name, int flags, int *outp)
 }
 
 /* closefile @0x800F3E84 : close `handle` on its filesystem; returns the backend's result. */
-extern int closefile(int handle)
+int closefile(int handle)
 {
     int fs  = handle >> 0x18;
     int dev = handle & 0xFFFFFF;
@@ -247,7 +239,7 @@ extern int closefile(int handle)
 
 /* readfile @0x800F3EE0 : CD reads run now; PC-host reads are queued in `readcmd` for readfile_systask.
  *   Returns 1 if a PC read was queued (0 if the slot was busy), or the CD backend's result. */
-extern int readfile(int handle, int dest, int offset, int len)
+int readfile(int handle, int dest, int offset, int len)
 {
     int fs  = handle >> 0x18;
     int dev = handle & 0xFFFFFF;                    /* asm masks in the delay slot -> applies to all paths */
@@ -272,7 +264,7 @@ extern int readfile(int handle, int dest, int offset, int len)
 
 /* readfile_systask @0x800F3F80 : execute a queued PC-host read (PClseek + PCread) and complete the FILE op
  *   (success when the full length was read).  Registered as a periodic task by initfileio. */
-extern int readfile_systask(void)
+int readfile_systask(void)
 {
     int sr;
     FROOT_enterCS(sr);
@@ -288,7 +280,7 @@ extern int readfile_systask(void)
 }
 
 /* writefile @0x800F4020 : PC host only -- PClseek + PCwrite, then complete the FILE op. */
-extern int writefile(int handle, int buf, int offset, int len)
+int writefile(int handle, int buf, int offset, int len)
 {
     int fs  = handle >> 0x18;
     int dev = handle & 0xFFFFFF;
@@ -302,7 +294,7 @@ extern int writefile(int handle, int buf, int offset, int len)
 }
 
 /* getfilesize @0x800F409C : size of `handle` -- CD via CD_Getinfo, PC host via lseek-to-end. */
-extern int getfilesize(int handle)
+int getfilesize(int handle)
 {
     int fs   = handle >> 0x18;
     int dev  = handle & 0xFFFFFF;
@@ -316,7 +308,7 @@ extern int getfilesize(int handle)
  *   (if it is this handle's) and complete it.  Called by FILE_cancelop.
  *   VOID return: the oracle never sets $v0 at the epilogue (bare nop) -> the fn returns nothing
  *   (matches the nfile.cpp forward decl + eaclib.h, both `void`). */
-extern void stopreadfile(int handle)
+void stopreadfile(int handle)
 {
     int fs  = handle >> 0x18;
     int dev = handle & 0xFFFFFF;

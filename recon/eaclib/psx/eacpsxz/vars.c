@@ -6,6 +6,9 @@
  * member in the NFS2 PC beta symbols, where the corresponding objects are
  * class EXT / type INT.
  */
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "vars.h"
 
 int kanjiwidth = 0;        /* @0x8013DC64 */
 int grmode = 0;            /* @0x8013DC68 */

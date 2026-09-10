@@ -11,13 +11,16 @@
  *     Y:  [ c  0 -s ; 0  1  0 ; s  0  c ]
  *     Z:  [ c  s  0 ;-s  c  0 ; 0  0  1 ]
  */
-typedef struct matrixtdef { int m[9]; } matrixtdef;   /* local C-lane mirror of nfs4_types.h matrixtdef (pad.c precedent) */
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "xform.h"
 
+// FIXME
 extern void intsincos  (int angle, int *psin, int *pcos);   /* @0x800EADBC (integer angle) */
 extern void fixedsincos(int angle, int *psin, int *pcos);   /* @0x800F3670 (fixed angle)   */
 
 /* xformy @0x800E5AC4 : Y-axis rotation (integer angle). */
-extern void xformy(matrixtdef *out, int angle)
+void xformy(matrixtdef *out, int angle)
 {
     int s;
     int c;
@@ -32,7 +35,7 @@ extern void xformy(matrixtdef *out, int angle)
 }
 
 /* fixedxformx @0x800EABAC : X-axis rotation (fixed angle). */
-extern void fixedxformx(matrixtdef *out, int angle)
+void fixedxformx(matrixtdef *out, int angle)
 {
     int s;
     int c;
@@ -45,7 +48,7 @@ extern void fixedxformx(matrixtdef *out, int angle)
 }
 
 /* fixedxformy @0x800EAC10 : Y-axis rotation (fixed angle). */
-extern void fixedxformy(matrixtdef *out, int angle)
+void fixedxformy(matrixtdef *out, int angle)
 {
     int s;
     int c;
@@ -58,7 +61,7 @@ extern void fixedxformy(matrixtdef *out, int angle)
 }
 
 /* fixedxformz @0x800EAC74 : Z-axis rotation (fixed angle). */
-extern void fixedxformz(matrixtdef *out, int angle)
+void fixedxformz(matrixtdef *out, int angle)
 {
     int s;
     int c;

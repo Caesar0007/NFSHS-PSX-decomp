@@ -12,6 +12,9 @@
  *   maspsx: `divu`/`sltu` operands are comma-joined NO-space (position-parsed); the `$zero` divu dest
  *   passes through maspsx --expand-div as a raw divide (no break guard), same as fixddiv/rdiv.
  */
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "fixdinv.h"
 
 #if defined(__mips__)
 /* ASPSX-DIALECT (w64-a20): the asm below uses NUMERIC registers and no
@@ -59,7 +62,7 @@ __asm__(
     "\t.globl rinverse\n"
 );
 #else
-extern unsigned fixedinverse(int x)   /* @0x800ED3EC : host fallback (rounded reciprocal) */
+unsigned fixedinverse(int x)   /* @0x800ED3EC : host fallback (rounded reciprocal) */
 {
     int sign = x >> 31;                            /* 0 or -1 */
     unsigned ax = (unsigned)((x ^ sign) - sign);   /* |x| */
@@ -69,5 +72,4 @@ extern unsigned fixedinverse(int x)   /* @0x800ED3EC : host fallback (rounded re
         q += 1;
     return (unsigned)(((int)q ^ sign) - sign);     /* re-apply sign */
 }
-extern unsigned rinverse(int x) __attribute__((alias("fixedinverse")));
 #endif

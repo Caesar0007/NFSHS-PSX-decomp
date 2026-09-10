@@ -7,13 +7,14 @@
  *   if already present it returns; else it drops `fn` into the first empty slot).  deltimer(fn) clears
  *   the slot holding `fn`.  Both walk all 8 slots; neither returns a meaningful value.
  */
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "addtimer.h"
 
 /* owning-TU def (extern-declared, never defined; BSS) */
- int (*tmrsub[8])(void); /* @0x8012360C: retail SYM/MAP public timer callback table */
+int (*tmrsub[8])(void); /* @0x8012360C: retail SYM/MAP public timer callback table */
 
-extern int (*tmrsub[8])(void);
-
-extern void addtimer(int (*fn)(void))   /* @0x800EAFE8 */
+void addtimer(int (*fn)(void))   /* @0x800EAFE8 */
 {
     int i;
     for (i = 0; i < 8; i++)              /* already registered? -> done */
@@ -26,7 +27,7 @@ extern void addtimer(int (*fn)(void))   /* @0x800EAFE8 */
         }
 }
 
-extern void deltimer(int (*fn)(void))   /* @0x800EB048 */
+void deltimer(int (*fn)(void))   /* @0x800EB048 */
 {
     int i;
     for (i = 0; i < 8; i++)

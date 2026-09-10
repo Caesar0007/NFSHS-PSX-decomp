@@ -1,4 +1,7 @@
 /* eaclib/psx/eacpsxz/fatantbl.c -- data-only archive member proven by NFS4 SYM. */
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "fatantbl.h"
 
 int fatantbl[257] = { /* @0x80137868 */
     0,41,81,122,163,204,244,285,

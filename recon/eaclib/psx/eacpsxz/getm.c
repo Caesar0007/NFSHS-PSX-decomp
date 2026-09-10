@@ -11,6 +11,9 @@
  *   maspsx: load offsets DECIMAL; immediates DECIMAL; `.set noreorder`; the `or rd,zero,rs` reg-move
  *   is byte-identical to the oracle (verify_asm's or-move normalizer).
  */
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "getm.h"
 
 #if defined(__mips__)
 /* ASPSX-DIALECT (w64-a20): the asm below uses NUMERIC registers and no
@@ -70,7 +73,7 @@ __asm__(
     "\t.set reorder\n"
 );
 #else
-extern int getm(unsigned char *p, int n)   /* @0x800F3024 */
+int getm(unsigned char *p, int n)   /* @0x800F3024 */
 {
     if (n - 3 < 0) {
         if (-1 < n - 2)
@@ -83,7 +86,7 @@ extern int getm(unsigned char *p, int n)   /* @0x800F3024 */
     return (int)(((unsigned int)p[0] << 16) | ((unsigned int)p[1] << 8) | p[2]);
 }
 
-extern unsigned int geti(void *p, char nbits)   /* @0x800F308C */
+unsigned int geti(void *p, char nbits)   /* @0x800F308C */
 {
     unsigned char *b = (unsigned char *)p;
     unsigned int word = (unsigned int)b[0] | ((unsigned int)b[1] << 8) |

@@ -3,8 +3,11 @@
  *   probe: read the kernel region word @0x86 (0x375A -> 1, 0x275A -> 0, else -1).
  *   Ghidra nfs4-f.exe.c + disasm-v3 (the `in_zero` base is $zero, so the address is absolute 0x86).
  */
-extern int psxdevelopmentsystem(void);   /* @0x80106CF0 */
-extern int psxdevelopmentsystem(void)
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "devsys.h"
+
+int psxdevelopmentsystem(void)
 {
     unsigned int v = *(unsigned short *)0x86;   /* PSX kernel region marker @abs 0x86; lhu base=zero */
     if (v == 0x375a) return 1;

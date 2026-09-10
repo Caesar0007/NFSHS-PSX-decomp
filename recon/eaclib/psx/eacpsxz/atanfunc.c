@@ -12,14 +12,14 @@
  *   (Several assignments are MIPS branch delay slots that run on BOTH paths: v0=(|x|<|y|)@5B70,
  *    v0=0x80 for the ratio==1 / (0,0) case @5BB4, s0=larger @5B98.)
  */
-
-extern void make64(int *out, int y, unsigned int shift);   /* @0x800FE488 math64a.obj */
-extern int  divu64(int hi, int lo, unsigned int den);      /* @0x800FE4E0 math64a.obj */
-
-extern unsigned char atantbl[257];   /* data-only atantbl.obj @0x80136CE8 */
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "atanfunc.h"
+#include "atantbl.h"
+#include "math64a.h"
 
 /* intatan @0x800E5B38 : atan2(y,x) -> brads. */
-extern int intatan(int y, int x)
+int intatan(int y, int x)
 {
     int atanv;
     int v1 = y;                 /* $a0 */
@@ -35,7 +35,6 @@ extern int intatan(int y, int x)
         s1 += (s2 != 0) ? -0x100 : 0x100;   /* MATCH: beqz->+0x100 arm out-of-line */
         s2 = 1 - s2;
     }
-
 
     if (v1 == s0) {                         /* ratio 1.0 (incl. 0,0) -> 45deg */
         atanv = 0x80;

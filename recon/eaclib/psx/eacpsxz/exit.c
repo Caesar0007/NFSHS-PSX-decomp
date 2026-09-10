@@ -7,14 +7,16 @@
  *   addexit(fn) is idempotent: if `fn` is already registered it returns; otherwise it drops `fn`
  *   into the first empty (NULL) slot.  (Same registry shape as addtimer's 8-slot table.)
  */
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "exit.h"
 
 /* The raw addexit oracle proves the 32-entry BSS registry at 0x801349E8;
  * this stripped library member exposes no lexical data name in SYM/MAP.
  * SYM-GLOBAL-CARRIER: gExitFuncs */
- void (*gExitFuncs[32])(void); 
-extern void (*gExitFuncs[32])(void);   /* @0x801349E8 (data-mat pass owns) */
+void (*gExitFuncs[32])(void);   /* @0x801349E8 (data-mat pass owns) */
 
-extern void addexit(void (*fn)(void))  /* @0x800F1CF8 */
+void addexit(void (*fn)(void))  /* @0x800F1CF8 */
 {
     int i;
     for (i = 0; i < 32; i++)               /* already registered? -> done */

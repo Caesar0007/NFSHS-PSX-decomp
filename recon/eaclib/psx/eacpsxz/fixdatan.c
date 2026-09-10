@@ -7,13 +7,13 @@
  *   (The 8-way octant remap is taken directly from the oracle jump table @0x80056CB8 / blocks
  *    0x800ED610-0x800ED658, delay-slots resolved -- see the switch below.)
  */
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "fixdatan.h"
+#include "fatantbl.h"
+#include "math64a.h"
 
-extern int fatantbl[257];
-
-extern void make64(int *out, int y, unsigned int shift);   /* @0x800FE488 math64a.obj */
-extern int  divu64(int lo, int hi, unsigned int den);      /* @0x800FE4E0 math64a.obj; ABI $a0=lo,$a1=hi,$a2=den */
-
-extern int fixedatan(int x, int y)   /* @0x800ED528 */
+int fixedatan(int x, int y)   /* @0x800ED528 */
 {
     int a2;
     /* MATCH: keep the normalized coordinates in x/y and swap them in place.  Separate num/den

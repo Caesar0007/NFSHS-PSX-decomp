@@ -22,7 +22,10 @@
  * this session: const vs non-const -> intcos PASS (1) / intsin PASS (26) either way, byte-identical.
  * So `const` stays (it IS a read-only table, and it is what the host fallback wants); isincos.c's
  * "worth re-testing there" note is hereby answered NO.  No regression risk to intsin/intcos. */
-extern int sintbl[257];   /* @0x80137464 : quarter-sine table, 16.16 */
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "sinfunc.h"
+#include "sintbl.h"
 
 #if defined(__mips__)
 /* ASPSX-DIALECT (w64-a20): the asm below uses NUMERIC registers and no
@@ -84,7 +87,7 @@ __asm__(
        symbols from these (without them the unit reports 0% despite PASS). */
 );
 #else  /* host build -- quadrant-folded quarter-sine lookup */
-extern int intsin(int a)   /* @0x800F18E8 */
+int intsin(int a)   /* @0x800F18E8 */
 {
     int pos = a & 0xFF;
     if (a & 0x200) {                          /* quad 2/3 */
@@ -94,10 +97,8 @@ extern int intsin(int a)   /* @0x800F18E8 */
     if (a & 0x100) return sintbl[256 - pos];         /* quad 1 */
     return sintbl[pos];                              /* quad 0 */
 }
-extern int intcos(int a)   /* @0x800F18E4 : a += 90deg, fall into sin */
+int intcos(int a)   /* @0x800F18E4 : a += 90deg, fall into sin */
 {
     return intsin(a + 0x100);
 }
-extern int fastintcos(int a) __attribute__((alias("intcos")));
-extern int fastintsin(int a) __attribute__((alias("intsin")));
 #endif

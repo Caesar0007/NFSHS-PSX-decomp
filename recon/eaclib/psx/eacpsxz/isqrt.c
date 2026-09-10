@@ -19,19 +19,14 @@
  *   Raw nfs4-f.exe E3ACC..E3C8F SHA-256:
  *   7b06f575a01ba23f321d2e1bba53b3b6f3a9a40c57c100fb744f7bc59b0a9cab.
  */
-/* ONE u8[256] estimate ramp @0x8013BE10: isqrttbl[i] = round(16*sqrt(i+1)) (0x10..0xff, monotonic,
- * byte-exact from image; model verified 255/255 within +-2). The oracle brackets sqrt with TWO byte
- * loads off the SAME base: `lbu 0(base+i)` = isqrttbl[i] and `lbu -1(base+i)` = isqrttbl[i-1] (every
- * reachable index is >=1). The old recon mis-declared this as `u16 isqrttbl` (scaled the index by 2 —
- * out-of-bounds garbage reads) + a phantom never-defined scalar `DAT_8013be0f` (= base-1 view; the
- * 0x81 byte at 0x8013BE0F belongs to the PREVIOUS symbol). */
-extern unsigned char isqrttbl[];     /* @0x8013BE10 */
-
-extern unsigned int isqrt(unsigned int a);   /* @0x800F32CC */
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "isqrt.h"
+#include "isqrttbl.h"
 
 /* isqrt @0x800F32CC : floor(sqrt(a)).  lo/hi = bracketing estimates isqrttbl[i-1]/isqrttbl[i]
  * scaled by the operand magnitude; big half binary-searches, small half does one midpoint probe. */
-extern unsigned int isqrt(unsigned int a)
+unsigned int isqrt(unsigned int a)
 {
     unsigned int lo, hi, mid;
     if ((a & 0xffff0000) != 0) {

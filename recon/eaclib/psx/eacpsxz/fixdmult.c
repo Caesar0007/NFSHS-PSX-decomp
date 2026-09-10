@@ -15,6 +15,9 @@
  *   Semantics: v0 = ((HI+carry)<<16) | ((LO+0x8000)>>16) = (int)(((s64)a*(s64)b + 0x8000) >> 16).
  *   @0x800E4328, 44 bytes (11 insns).
  */
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "fixdmult.h"
 
 #if defined(__mips__)
 /* ASPSX-DIALECT (w64-a20): the asm below uses NUMERIC registers and no
@@ -49,9 +52,8 @@ __asm__(
     "\t.set reorder\n"
 );
 #else
-extern int fixedmult(int a, int b)   /* @0x800E4328 */
+int fixedmult(int a, int b)   /* @0x800E4328 */
 {
     return (int)(((long long)a * (long long)b + 0x8000) >> 16);
 }
-extern int rmult(int a, int b) __attribute__((alias("fixedmult")));
 #endif

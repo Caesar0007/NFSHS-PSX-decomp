@@ -1,4 +1,7 @@
 /* eaclib/psx/eacpsxz/sintbl.c -- data-only archive member proven by NFS4 SYM. */
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "sintbl.h"
 
 int sintbl[257] = { /* @0x80137464 */
     0,402,804,1206,1608,2010,2412,2814,

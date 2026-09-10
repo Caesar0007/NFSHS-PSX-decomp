@@ -12,6 +12,9 @@
  *   blockmove(src, dst, n): overlap-safe block copy.  Picks direction by `src < dst` (copy
  *   backward when dst is higher), then unrolls aligned/unaligned runs.  == memmove(dst,src,n).
  */
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "blkmov.h"
 
 #if defined(__mips__)
 /* ASPSX-DIALECT (w64-a20): the asm below uses NUMERIC registers and no
@@ -269,7 +272,7 @@ __asm__(
 #else
 /* Portable host fallback (non-MIPS builds): the observable behaviour is an n-byte memmove
    with the (src, dst, n) argument order. */
-extern void blockmove(void *src, void *dst, int n)
+void blockmove(void *src, void *dst, int n)
 {
     char *s = (char *)src;
     char *d = (char *)dst;

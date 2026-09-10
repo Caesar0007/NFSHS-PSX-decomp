@@ -12,6 +12,9 @@
  *   maspsx: all load/store displacements + immediates are DECIMAL (maspsx int()-parses base-10);
  *   `.set noat` for the explicit $at (slti); `.set noreorder` -> every delay slot is filled by hand.
  */
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "blkfill.h"
 
 #if defined(__mips__)
 /* ASPSX-DIALECT (w64-a20): the asm below uses NUMERIC registers and no
@@ -124,13 +127,13 @@ __asm__(
     "\t.set reorder\n"
 );
 #else  /* host build -- plain memset behavior */
-extern void blockfill(void *dst, int n, unsigned char val)   /* @0x800F17A4 */
+void blockfill(void *dst, int n, unsigned char val)   /* @0x800F17A4 */
 {
     unsigned char *d = (unsigned char *)dst;
     while (n-- > 0)
         *d++ = val;
 }
-extern void blockclear(void *dst, int n)   /* @0x800F17A0 */
+void blockclear(void *dst, int n)   /* @0x800F17A0 */
 {
     blockfill(dst, n, 0);
 }

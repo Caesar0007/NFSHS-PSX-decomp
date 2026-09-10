@@ -5,9 +5,14 @@
  *   intsincos base call):  *psin = s + (c>>2)*P >> 21 ,  *pcos = c - (s>>2)*P >> 21
  *   where (s,c) = intsincos(angle>>6) and P = the 6-bit fractional weight (angle & 0x3F).  16.16.
  */
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "fsincos.h"
+
+// FIXME
 extern void intsincos(int angle, int *psin, int *pcos);   /* isincos @0x800EADBC */
 
-extern void fixedsincos(int angle, int *psin, int *pcos)   /* @0x800F3670 */
+void fixedsincos(int angle, int *psin, int *pcos)   /* @0x800F3670 */
 {
     int s;
     int c;

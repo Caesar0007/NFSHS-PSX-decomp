@@ -32,20 +32,20 @@ fs4\EACLIB\PSX\EACPSXZ.LIB (xlsx col10)
  *   table lookup below.  The table @0x80137260 is owned by the separate SYM-proven asintbl.obj
  *   archive member.  intarccos(x) = 90deg - intarcsin(x).
  */
-
-/* arcsin lookup table is owned by the SYM-proven asintbl.obj archive member. */
-extern unsigned char asintbl[512];
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "asinfunc.h"
+#include "asintbl.h"
 
 /* ===================================================================== *
  *  intarcsin @0x800EACD8 : arcsine of a 16.16 sine value -> brads.        *
  * ===================================================================== */
-extern int intarcsin(int x)   /* @0x800EACD8 */
+int intarcsin(int x)   /* @0x800EACD8 */
 {
     int idx;
     int result;
     int sign = 0;
     if (x < 0) { x = -x; sign = 1; }            /* abs, remember sign  */
-
 
     /* MATCH: coarse region = the if-BODY (bnez -> out-of-line steep block); the round
      * select is a BRANCHED if/else (a ?: strength-reduces to the branchless
@@ -394,7 +394,7 @@ extern int intarcsin(int x)   /* @0x800EACD8 */
 /* ===================================================================== *
  *  intarccos @0x800EAD98 : arccos(x) = 90deg - arcsin(x).                 *
  * ===================================================================== */
-extern int intarccos(int x)   /* @0x800EAD98 */
+int intarccos(int x)   /* @0x800EAD98 */
 {
     return 0x100 - intarcsin(x);
 }

@@ -18,7 +18,9 @@
  *   Note: 0x801486E8/EC (draw origin) are read here as int (Ghidra `_DAT_` overlap view); movf.cpp reads the
  *   same addresses as ushort -- same symbol, dual-width access, reconciled at data-mat #75.
  */
-typedef struct { short x, y, w, h; } RECT;   /* {u, v, w, h} move source rect */
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "fastmovf.h"
 
 extern char *primptr;                                 /* primate : primitive write cursor */
 extern char * volatile nextprim;                      /* primate : OT link target (prev prim).
@@ -26,6 +28,8 @@ extern char * volatile nextprim;                      /* primate : OT link targe
                                 * nextprim TWICE (dead 2nd load = placeholder-call setup the EA
                                 * post-processor left) -- volatile keeps both reads as direct
                                 * lui/lw self-temp loads, matching the oracle. */
+
+// FIXME
 extern void  SetDrawMove(void *prim, RECT *src, int dx, int dy);   /* syslib P34 @0x8010C698 */
 
 extern int currentwindow[];  /* @0x801486E4 : GPU window block -- draw-origin X/Y @+4/+8,
@@ -33,11 +37,10 @@ extern int currentwindow[];  /* @0x801486E4 : GPU window block -- draw-origin X/
                               * ONE struct base (oracle hoists &currentwindow into $t2);
                               * the former six DAT_801486xx externs were its fields. */
 
-extern int fastmovfxya(int shape, int x, int y);   /* @0x80106084 */
 
 /* fastmovfxya @0x80106084 : clip + single-move blit of shape at (x,y).  Returns the OT head it linked behind
  *   (old nextprim), or the last clip delta if fully clipped away. */
-extern int fastmovfxya(int shape, int x, int y)
+int fastmovfxya(int shape, int x, int y)
 {
     int   w = *(short *)(shape + 4);
     unsigned int packed = *(unsigned int *)(shape + 0xc);

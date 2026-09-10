@@ -18,6 +18,9 @@
  *   the bare 2-op `mult $a0,$t3` is emitted as a raw `.word 0x008B0018` (maspsx routes bare mult
  *   through load-parse and would mishandle it / add spurious hazard nops).
  */
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "fixdsqrt.h"
 
 #if defined(__mips__)
 extern int D_8012356C;   /* @0x8012356C : base of the fixdsqrt scale/offset tables (data blob owns it) */
@@ -77,7 +80,7 @@ static const int kSqrtOffset[32] = {         /* @0x80123570 */
     622945,880977,1245890,1761954,2491779,3523908,4983558,7047816,
 };
 
-extern int fixedsqrt(int x)   /* @0x800EB0AC */
+int fixedsqrt(int x)   /* @0x800EB0AC */
 {
     if (x == 0)
         return 0;

@@ -10,6 +10,9 @@
  * `basecmp = numchars;` instead of `= 0` -- the READ extends numchars' live range, dropping
  * its gcc-2.8 allocno priority below the table base so it keeps $s1 with the clue read in
  * its original position, and the plain `for` leapfrog then rotates to the oracle shape. */
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "unhuff.h"
 
 #define GET16BITS() \
     bitsunshifted = qs[0] | (bitsunshifted << 8);\
@@ -469,13 +472,10 @@ nextloop:
  *   memcpyb @0x800F5234 -- byte-at-a-time copy
  *   refcpy  @0x800F5254 -- LZ back-reference copy (shared with unref's RefPack decoder)
  * ================================================================================================ */
+// FIXME
 extern unsigned int   geti(void *p, char nbits);                          /* getm */
 extern void           puti(unsigned char *buf, unsigned int val, int n);  /* textcrnt */
 extern void          *memset(void *s, int c, unsigned int n);             /* syslib C43 */
-
-char          *memcpyl(char *dst, char *src, int n);                          /* @0x800F51C0 */
-unsigned int   memcpyb(unsigned char *dst, unsigned char *src, int n);        /* @0x800F5234 */
-unsigned char *refcpy(unsigned char *dst, unsigned int dist, int len);        /* @0x800F5254 */
 
 /* memcpyl @0x800F51C0 : copy `n` bytes (rounded up to 4) word-at-a-time via geti/puti.  Returns dst+n.
  * The oracle advances src ($s2) PER ITERATION -- `addiu s2,s2,4` sits in the loop-back bgtz DELAY SLOT

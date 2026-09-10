@@ -7,14 +7,16 @@
  *   cos(a+d)=cos a - sin a * d).  d is the 6-bit fractional angle (x & 0x3F) run through a fixed
  *   integer polynomial P(f), and the correction is (deriv>>2) * P(f) >> 21.  Returns 16.16.
  */
-extern int fastintsin(int angle);   /* sinfunc @0x800F18E8 */
-extern int fastintcos(int angle);   /* sinfunc @0x800F18E4 */
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "fixdsin.h"
+#include "sinfunc.h"
 
 /* MATCH (both fns): the weight polynomial P(f) is INLINE (no helper call in the binary),
  * the coarse angle x>>6 is ONE shared local (s1, reused for both call args, then the
  * base result reuses its reg), and the products are plain 32-bit mult (no long long). */
 
-extern int fixedsin(int x)   /* @0x800ED424 */
+int fixedsin(int x)   /* @0x800ED424 */
 {
     int a = x >> 6;
     int base  = fastintsin(a);
@@ -31,7 +33,7 @@ extern int fixedsin(int x)   /* @0x800ED424 */
     return base + (((deriv >> 2) * p) >> 21);
 }
 
-extern int fixedcos(int x)   /* @0x800ED4A4 */
+int fixedcos(int x)   /* @0x800ED4A4 */
 {
     int a = x >> 6;
     int base  = fastintcos(a);

@@ -11,6 +11,9 @@
  *   fractional bits (shift/compare/subtract), then reapply sign = sign(a) ^ sign(b).  b==0 -> 0.
  *   @0x800E4404.  (maspsx: operands are comma-joined NO-space -- `sltu`/`divu` are position-parsed.)
  */
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "fixddiv.h"
 
 #if defined(__mips__)
 /* ASPSX-DIALECT (w64-a20): the asm below uses NUMERIC registers and no
@@ -104,7 +107,7 @@ __asm__(
     "\t.globl fixeddiv\n"
 );
 #else
-extern int fixeddiv(int a, int b)   /* @0x800E4404 : host fallback (16.16 signed divide) */
+int fixeddiv(int a, int b)   /* @0x800E4404 : host fallback (16.16 signed divide) */
 {
     unsigned ua, ub, rem, result, bit;
     int      neg;
@@ -121,5 +124,4 @@ extern int fixeddiv(int a, int b)   /* @0x800E4404 : host fallback (16.16 signed
     }
     return neg ? -(int)result : (int)result;
 }
-extern int rdiv(int a, int b) __attribute__((alias("fixeddiv")));
 #endif

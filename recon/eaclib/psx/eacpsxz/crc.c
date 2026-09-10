@@ -10,7 +10,11 @@
  *   init hi=0xFB lo=0xEA):  i = b ^ lo;  lo = A[i] ^ hi;  hi = B[i].  return lo | (hi << 8).
  *   maspsx: load offsets DECIMAL (256 == 0x100); immediates DECIMAL; `.set noreorder`.
  */
-extern const unsigned char D_80135C58[512];   /* @0x80135C58 : CRC-16 tables A[0..255] + B[256..511] (blob-owned) */
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "crc.h"
+
+extern const unsigned char D_80135C58[512];   /* @0x80135C58 : CRC-16 tables A[0..255] + B[256..511] (blob-owned: asm/data/data_8010CCD4_r17.data.s) */
 
 #if defined(__mips__)
 /* ASPSX-DIALECT (w64-a20): the asm below uses NUMERIC registers and no
@@ -83,7 +87,7 @@ __asm__(
     "\t.set reorder\n"
 );
 #else
-extern unsigned int crc16(unsigned char *buf, int len)   /* @0x800F614C */
+unsigned int crc16(unsigned char *buf, int len)   /* @0x800F614C */
 {
     unsigned int hi = 0xFB, lo = 0xEA;
     while (len-- > 0) {

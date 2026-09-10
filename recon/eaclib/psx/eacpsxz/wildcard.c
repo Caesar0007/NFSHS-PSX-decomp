@@ -18,11 +18,13 @@
  *       '~' -> NOT (negate the match of the rest of pat)
  *       else -> case-insensitive literal (libc tolower); success as soon as pat is exhausted.
  */
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "wildcard.h"
+
+// FIXME
 extern char *strrchr(const char *s, int c);   /* libc C31.obj, BIOS A0:0x1F */
 extern int   tolower(int c);                   /* libc C38.obj, BIOS A0:0x26 */
-
-extern char *strrstr (char *s, char *set);    /* @0x800E8940 */
-extern int   wildcard(char *text, char *pat); /* @0x800E89BC */
 
 /* strrstr @0x800E8940 : rightmost position in `s` of any char of `set` (0 if none).
  * Oracle: initial beqz-if-empty guard (s1=0 in delay slot) falls through into the do-while body;
@@ -31,7 +33,7 @@ extern int   wildcard(char *text, char *pat); /* @0x800E89BC */
  * `beqz`-to-exit + fall-through-into-body. Nesting the do-while inside `if (cond) { ... }` (no early
  * return) suppresses the rotation and matches byte-for-byte -- branch-polarity/early-return lever
  * (§3.12 #7 pairing) applied to a loop guard, not just a boolean select. */
-extern char *strrstr(char *s, char *set)
+char *strrstr(char *s, char *set)
 {
     char *best = 0;
     if (*set != 0) {
@@ -51,7 +53,7 @@ extern char *strrstr(char *s, char *set)
  * the '&' and '^' cases restore the saved char.  The '#' digit test uses the libc _ctype_ table. */
 extern char _ctype_[];                     /* canonical PsyQ CTYPE.H; CTYPE0.obj @0x801371D0 */
 
-extern int wildcard(char *text, char *pat)
+int wildcard(char *text, char *pat)
 {
     static const char kOps[] = "&|!~^";   /* @0x8013DC48 (wildcard.obj-local rodata) */
     char *op = strrstr(pat, (char *)kOps);

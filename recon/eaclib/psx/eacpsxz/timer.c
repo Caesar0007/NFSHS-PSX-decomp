@@ -10,6 +10,9 @@
  *     timedwait(n)     : busy-wait n ticks, pumping systemtask(0) each iteration until gettick()
  *                        reaches the target (target = gettick()+n).
  */
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "timer.h"
 
 /* ---- owning-TU defs for link-harness ----
  * STORAGE SHAPE matters (methodology lever #6 / its caveat):
@@ -25,20 +28,19 @@
  * (lever #13). resettick stores 0 then RE-READS ticks from memory into the value
  * it writes to tickval/tickset -- without `volatile` gcc constant-folds the reload
  * away (stores 0 directly). volatile restores the oracle's store->reload. */
-extern volatile int ticks;   /* @0x8013DCAC master tick counter (vars.obj owns; ABSOLUTE) */
- int tickset; /* @0x8013DC40: timer.obj-owned baseline tick */
- int tickval; /* @0x8013DC44: timer.obj-owned last-sampled tick */
+extern volatile  int ticks;   /* @0x8013DCAC master tick counter (vars.obj owns; ABSOLUTE) */
+int tickset; /* @0x8013DC40: timer.obj-owned baseline tick */
+int tickval; /* @0x8013DC44: timer.obj-owned last-sampled tick */
 
-extern int  tickval;
-extern int  tickset;
-extern int  systemtask(int);   /* @0x800E6C04 per-frame vsync/idle pump (lbl_D6C04)  */
+// FIXME
+int systemtask(int);   /* @0x800E6C04 per-frame vsync/idle pump (lbl_D6C04)  */
 
-extern int gettick(void)        /* @0x800E8220 */
+int gettick(void)        /* @0x800E8220 */
 {
     return ticks;
 }
 
-extern int elapsedticks(void)   /* @0x800E8230 */
+int elapsedticks(void)   /* @0x800E8230 */
 {
     int prev = tickval;
     int now  = gettick();
@@ -46,7 +48,7 @@ extern int elapsedticks(void)   /* @0x800E8230 */
     return now - prev;
 }
 
-extern void resettick(void)     /* @0x800E8260 */
+void resettick(void)     /* @0x800E8260 */
 {
     int t;
     ticks   = 0;
@@ -55,7 +57,7 @@ extern void resettick(void)     /* @0x800E8260 */
     tickset = t;
 }
 
-extern void timedwait(int n)    /* @0x800E8284 */
+void timedwait(int n)    /* @0x800E8284 */
 {
     int target = gettick() + n;
     while (gettick() - target < 0)

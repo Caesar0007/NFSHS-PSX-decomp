@@ -3,15 +3,14 @@
  *   rotation matrix about the X/Y/Z axis from an angle (via fixedsincos).  Ghidra nfs4-f.exe.c + IDA sigs.
  *   Matrix `out` = 9 ints (3x3, 1.16 fixed); returns the matrix's [0][0] element (per Ghidra).
  */
-extern void fixedsincos(unsigned int angle, int *s, int *c);   /* fsincos.obj */
-
-static int fixedxformx(int *out, int angle);   /* @0x800EABAC */
-static int fixedxformy(int *out, int angle);   /* @0x800EAC10 */
-static int fixedxformz(int *out, int angle);   /* @0x800EAC74 */
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "fxform.h"
+#include "fsincos.h"
 
 /* fixedxformx : rotation about X.  The cv/sv value aliases keep both fixedsincos
  * outputs live in the retail registers through the matrix stores. */
-static int fixedxformx(int *out, int angle)
+static int fixedxformx(int *out, int angle)   /* @0x800EABAC */
 {
     int s, c;
     int cv, sv;
@@ -24,7 +23,7 @@ static int fixedxformx(int *out, int angle)
 }
 
 /* fixedxformy : rotation about Y.  See fixedxformx for the value-alias rationale. */
-static int fixedxformy(int *out, int angle)
+static int fixedxformy(int *out, int angle)   /* @0x800EAC10 */
 {
     int s, c;
     int cv, sv;
@@ -37,7 +36,7 @@ static int fixedxformy(int *out, int angle)
 }
 
 /* fixedxformz : rotation about Z.  See fixedxformx for the value-alias rationale. */
-static int fixedxformz(int *out, int angle)
+static int fixedxformz(int *out, int angle)   /* @0x800EAC74 */
 {
     int s, c;
     int cv, sv;

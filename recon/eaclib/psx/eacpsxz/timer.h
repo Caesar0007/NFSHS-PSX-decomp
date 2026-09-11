@@ -2,8 +2,7 @@
 #define _TIMER_H_
 
 #include "eac_types.h"
-
-extern volatile int ticks;   /* @0x8013DCAC master tick counter (vars.obj owns; ABSOLUTE) */
+#include "vars.h"   /* vars.obj owns `ticks` (ABSOLUTE @0x8013DCAC) */
 
 extern int gettick(void);        /* @0x800E8220 */
 extern int elapsedticks(void);   /* @0x800E8230 */

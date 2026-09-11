@@ -8,6 +8,7 @@
 #include "../eaclib_types.h"
 #include "eac_types.h"
 #include "systask.h"
+#include "vars.h"   /* vars.obj owns `libticks` */
 
 /* Names are independently recovered from the matched NFS2 systask.obj source;
  * raw NFS4 gp-relative references prove their VAs, while this stripped NFS4
@@ -17,9 +18,8 @@
 /* ---- owning-TU defs for link-harness (extern-declared, never defined; BSS) ---- */
 int systemtasklock;      /* @0x8013DC38: matched NFS2 systask.obj name */
 int lastsystemtasktick;  /* @0x8013DC3C: matched NFS2 systask.obj name */
-extern volatile int libticks; /* free-running tick counter -- volatile: IRQ-updated (tmrint.c),
-                               * matches inittmr.c's declaration; the oracle re-reads it fresh
-                               * at each use inside systemtask() rather than caching one value */
+/* `libticks` comes from vars.h -- volatile there because it is IRQ-updated (tmrint.c);
+ * the oracle re-reads it fresh at each use inside systemtask() rather than caching one value. */
 extern int systemtasklock;      /* live/re-entrant task-list lock */
 extern int lastsystemtasktick;  /* last tick the task list ran */
 /* Compact SYM records `systemtasksubs` as systask.obj-private BSS at

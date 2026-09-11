@@ -27,14 +27,14 @@ extern int memclass[];    /* @0x8013E900; [1] = cached copy @0x8013E904
                              * (UNSIZED array shape: oracle shares ONE %hi -- lw %lo(memclass)(v1);
                              *  addiu v1,%lo; sw a0,4(v1)) */
 extern int tmrsub[];      /* int[8] : per-tick handler list (UNSIZED array shape, lever #5) */
-extern int ticks;             /* raw tick counter (vars.obj owns) */
-/* MATCH DEVICE (re-measured 2026-09-11): `volatile` is NOT needed on ticks -- dropping it holds
- * 4/4 -- but IS load-bearing on libticks: without it cse shares the `1` between the
- * g_currentthread store and the increment (`li v1,1` + `addu v0,v0,v1` where retail has two
- * independent `addiu v0,v0,1`), 16 diffs at the exact 43 insns.  Falsified without volatile:
- * a local one-carrier, an increment through a local, `++`, the flag store moved last, volatile on
- * g_currentthread, and libticks as an unsized array (15 diffs, one insn short). */
-extern volatile int libticks; /* library tick counter */
+/* `ticks` and `libticks` come from vars.h (via timer.h) -- vars.obj owns both.
+ * MATCH DEVICE (re-measured 2026-09-11): `volatile` on libticks is load-bearing HERE: without it
+ * cse shares the `1` between the g_currentthread store and the increment (`li v1,1` +
+ * `addu v0,v0,v1` where retail has two independent `addiu v0,v0,1`), 16 diffs at the exact 43
+ * insns.  Falsified without volatile: a local one-carrier, an increment through a local, `++`,
+ * the flag store moved last, volatile on g_currentthread, and libticks as an unsized array
+ * (15 diffs, one insn short).  `ticks` holds 4/4 here either way, but IS load-bearing in
+ * timer.c resettick (7 diffs without it), so vars.h carries volatile on both. */
 
 /* --- syslib (PsyQ libapi/libetc) --- */
 extern void EnterCriticalSection(void);

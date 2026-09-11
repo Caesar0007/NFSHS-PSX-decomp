@@ -21,8 +21,10 @@ extern int screenvisiblew;  /* @0x8013DC9C */
 extern int screenvisibleh;  /* @0x8013DCA0 */
 extern int zclipvalue;       /* @0x8013DCA4 */
 extern int zclipflag;         /* @0x8013DCA8 */
-extern int ticks;             /* @0x8013DCAC */
-extern int libticks;          /* @0x8013DCB0 */
+extern volatile int ticks;    /* @0x8013DCAC -- volatile: advanced by the Clock ISR;
+                                 load-bearing in timer.c resettick (lever #13) */
+extern volatile int libticks; /* @0x8013DCB0 -- volatile: IRQ-updated (tmrint);
+                                 load-bearing in inittmr.c and systask.c */
 extern int vblflag;           /* @0x8013DCB4 */
 extern int pageflipflag;      /* @0x8013DCB8 */
 extern int vblticks;          /* @0x8013DCBC */

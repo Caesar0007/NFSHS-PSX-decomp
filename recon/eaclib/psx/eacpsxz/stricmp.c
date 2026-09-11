@@ -2,7 +2,9 @@
  *   Source obj : nfs4\eaclib\psx\stricmp.obj ; archive C:\nfs4\EACLIB\PSX\EACPSXZ.LIB (xlsx col12 / SYM v3)
  *   1 fn @0x800FE520.  stricmp -- case-insensitive ASCII string compare.  Ghidra nfs4-f.exe.c + IDA sig.
  */
-extern int stricmp(unsigned char *a, unsigned char *b);   /* @0x800FE520 */
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "stricmp.h"
 
 /* stricmp @0x800FE520 : compare `a`/`b` case-insensitively; <0/0/>0 like the C library.
  * The `calo = ca - 0x20` hoist (explicit in-place subtract, not `(ca-0x20)-*b` inline) forces gcc to
@@ -13,7 +15,7 @@ extern int stricmp(unsigned char *a, unsigned char *b);   /* @0x800FE520 */
  * trick explicitly in C names the load as a subexpression and gcc CSE-reuses it across both arms
  * (1 lbu, the old 9-diff "floor").  (`ca` keeps the explicit trick form -- it tests a named local,
  * not a memory deref, and matches as-is.) */
-extern int stricmp(unsigned char *a, unsigned char *b)
+int stricmp(unsigned char *a, unsigned char *b)
 {
     int diff;
     for (;;) {

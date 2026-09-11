@@ -13,6 +13,8 @@
 #include "../eaclib_types.h"
 #include "eac_types.h"
 #include "unhuff.h"
+#include "getm.h"
+#include "textcrnt.h"
 
 #define GET16BITS() \
     bitsunshifted = qs[0] | (bitsunshifted << 8);\
@@ -348,7 +350,6 @@ nextloop:
                 {
                     unsigned char   code;
 
-
                     if (numbits!=96)
                     {
                         cmp = (unsigned int) (bits>>16);  /* 16 bit left justified compare */
@@ -362,7 +363,6 @@ nextloop:
                     }
                     else
                         numbits = cluelen;
-
 
                     cmp = bits >> (32-(numbits));
                     bits <<= (numbits);
@@ -426,7 +426,6 @@ nextloop:
 
             }
 
-
 /****************************************************************/
 /*  Undelta                                                     */
 /****************************************************************/
@@ -473,8 +472,6 @@ nextloop:
  *   refcpy  @0x800F5254 -- LZ back-reference copy (shared with unref's RefPack decoder)
  * ================================================================================================ */
 // FIXME
-extern unsigned int   geti(void *p, char nbits);                          /* getm */
-extern void           puti(unsigned char *buf, unsigned int val, int n);  /* textcrnt */
 extern void          *memset(void *s, int c, unsigned int n);             /* syslib C43 */
 
 /* memcpyl @0x800F51C0 : copy `n` bytes (rounded up to 4) word-at-a-time via geti/puti.  Returns dst+n.

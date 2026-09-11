@@ -2,8 +2,11 @@
  *   obj nfs4\eaclib\psx\shptype.obj ; EACPSXZ.LIB.  1 fn @0x800FC294.  shapetype -- map a shape-id to its
  *   pixel/format type code.  Ghidra nfs4-f.exe.c (shptype) + IDA sig.
  */
-extern int shapetype(int shapeId);   /* @0x800FC294 */
-extern int shapetype(int shapeId)
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "shptype.h"
+
+int shapetype(int shapeId)
 {
     int t = 0;
     switch (shapeId) {

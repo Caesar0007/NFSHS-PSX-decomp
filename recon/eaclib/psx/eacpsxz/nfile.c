@@ -25,6 +25,17 @@
  *   reserveop         def 40 | 2.6.0 79 | 2.6.3 79 | 2.7.2-970404 45 | 2.7.2 77 | 2.8.1 40 | 2.91.66  91 | 2.95.2  69
  *   NOTE: 2.8.1 REGRESSES this TU (FILE_operror PASS -> FAIL) -- do NOT wire nfile.c to 2.8.1.
  */
+
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "nfile.h"
+#include "fileroot.h"
+#include "memstd.h"
+#include "locatbig.h"
+#include "threads.h"
+#include "systask.h"
+#include "cdfs.h"
+#include "blkmov.h"
 /* eaclib/psx/eacpsxz/nfile.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** WIP ***
  *   Source obj : nfs4\eaclib\psx\nfile.obj ; archive C:\nfs4\EACLIB\PSX\EACPSXZ.LIB (xlsx col11)
  *   27 fns @[0x800EBBF4 .. 0x800ED334].  EA async file-operation layer (op queue + handle table).
@@ -74,7 +85,6 @@
  *   (0x30-byte FileOp slots) + handlearray (0x4C-byte FileHandle slots).  Slot alloc/free run inside
  *   a PSX interrupt-disabled critical section.
  */
-#include "../../../lib/nfile.h"
 
 /* iFILE critical section -- raw cop0 SR mask/restore (NOT a BIOS syscall).  The oracle inlines this
  * exact sequence (mfc0/and-mask/mtc0, three trailing nops for the mtc0-writeback hazard) at every
@@ -102,68 +112,15 @@ extern int  disablecd;                                         /* global: nonzer
 
 /* w60 unlock VA-order permute: forward prototypes for every section fn +
  * hoisted scattered extern decls (sections now sort by retail VA). */
-extern void stopreadfile(int dev);   /* @0x800F4100 abort an in-flight read on a device */
-extern FileOp *reserveop(void);
-extern void freeop(FileOp *op);
-extern FileHandle *reservehandle(void);
-extern void freehandle(FileHandle *h);
-extern void  purgememadr(void *p);                  /* eacpsxz @0x800E5540 : free a reservememadr block */
-extern int   typeofbigfile(void *hdr);              /* eacpsxz @0x800E5F1C : archive type from header  */
-extern int   sizeofbigfileheader(void *hdr);        /* eacpsxz @0x800E5F84 : full header byte size      */
-extern int   getblocksize(void *hdr);               /* eacpsxz @0x800E52D4 : bytes valid in the buffer  */
-extern void  blockmove(void *src, void *dst, int n);/* eacpsxz @0x800E62DC : memmove(dst,src,n)          */
-extern int   iscurrentthread(int);                  /* eacpsxz @0x800FE408 : (called for side-effect)   */
 extern int   strncmp(const char *, const char *, int); /* libc C24 @0x800EB1D0                          */
-extern void *reservememadr(char *name, int size, int classid);  /* eacpsxz @0x800E533C */
-extern int   FILE_initwithmem(int handlecount, int memsize, int opcount, void *membuf); /* below (todo) */
 extern int    strlen(const char *s);                       /* libc C27 */
 extern char  *strncpy(char *d, const char *s, int n);      /* libc */
-extern void   iFILE_perror(FileOp *op);                    /* @0x800ED0D4 (below); op passed in $a0 (delay slot), ignored */
-extern void   iFILE_ExecCommand(void *cmd);                /* @0x800ECB98 (below, todo) */
-extern int    systemtask(int);                             /* @0x800E6C04 vsync/idle pump */
-extern int  CD_Init(int handlecount, int memsize, void *iomem, void (*cb)(void)); /* @0x800FA394 */
-extern void initfileio(void);                                  /* @0x800F3A34 */
-extern int  iFILE_CommandCompleteCallback(int result);         /* @0x800ED020 (below) */
-extern int   openfile(char *name, int flags, void *handle);  /* @0x800F3BE0 */
-extern int   closefile(int dev);                             /* @0x800F3E84 */
-extern int   readfile(int dev, int dest, int offset, int len);/* @0x800F3EE0 (async; completes via CD cb) */
-extern int   writefile(int dev, int buf, int offset, int len);/* @0x800F4020 (async) */
-extern int   getfilesize(int dev);                          /* @0x800F409C */
-extern int   locatebigentryz(void *bighdr, char *entry, int flags, int *outOffset, int *outSize); /* @0x800E5FFC */
 extern char *strchr(const char *s, int c);                  /* @0x800F6214 */
 extern char *strcpy(char *d, const char *s);                /* @0x800E5B28 */
 extern int   strcmp(const char *a, const char *b);          /* @0x800E5D7C */
-extern void  freehandle(FileHandle *h);                     /* @0x800ED2F0 (above) */
-extern int FILE_init(int handlecount, int memsize, int opcount);
-extern int FILE_initwithmem(int handlecount, int memsize, int opcount, void *membuf);
-extern int FILE_overhead(int handlecount, int memsize, int opcount);
-extern int FILE_opstatus(unsigned int id);
-extern int FILE_operror(unsigned int id);
-extern void FILE_callbackop(unsigned int id, void (*callback)(unsigned int id, int status, int param));
-extern void FILE_priorityop(unsigned int id, int priority);
-extern void FILE_cancelop(unsigned int id);
-extern int FILE_waitop(unsigned int id);
-extern int FILE_completeop(unsigned int id);
-extern unsigned int FILE_open(char *name, unsigned int a1, unsigned int a2, unsigned int a3);
-extern unsigned int FILE_close(void *handle, unsigned int a1, unsigned int a2);
-extern unsigned int FILE_read(void *handle, unsigned int offset, unsigned int dest, int len, unsigned int a5, unsigned int a6);
-extern unsigned int FILE_size(void *handle, unsigned int a1, unsigned int a2);
-extern void iFILE_addbigreadcallback(unsigned int id, int status, int *node);
-extern void iFILE_addbigopencallback(unsigned int id, int status, int *node);
-extern unsigned int FILE_addbig(char *name, unsigned int a1, unsigned int datatype, unsigned int param);
-extern void iFILE_delbigclosecallback(unsigned int id, int a1, void *cmd);
-extern unsigned int FILE_delbig(int delHandle, unsigned int a2, unsigned int a3);
-extern int FILE_atomic(int (*fn)(int, int), int unused, int a3, int a4);
-extern void iFILE_ExecCommand(void *cmdp);
-extern int iFILE_CommandCompleteCallback(int result);
-extern void iFILE_perror(FileOp *op);
-extern FileOp *reserveop(void);
-extern void freeop(FileOp *op);
-extern FileHandle *reservehandle(void);
-extern void freehandle(FileHandle *h);
 
 /* FILE_init @0x800EBBF4 : bring the FILE system up, allocating its own pool ("File Sys"). */
-extern int FILE_init(int handlecount, int memsize, int opcount)
+int FILE_init(int handlecount, int memsize, int opcount)
 {
     void *buf;
     /* asm: beqz opcount -> body (the == 0 guard); the already-init return-0 is the FALL-THROUGH */
@@ -203,7 +160,7 @@ extern int FILE_init(int handlecount, int memsize, int opcount)
  *   because sched1 is not what sinks the saves, the second because it un-sinks BOTH). */
 /* FILE_initwithmem @0x800EBC78 : set the manager up over a caller-provided pool, then bring up the
  *   CD device + file-io backend.  Returns 0 if the system was already initialised, else 1. */
-extern int FILE_initwithmem(int handlecount, int memsize, int opcount, void *membuf)
+int FILE_initwithmem(int handlecount, int memsize, int opcount, void *membuf)
 {
     int size;
     if (handlecount == 0) handlecount = 0x18;     /* 24 */
@@ -229,7 +186,7 @@ extern int FILE_initwithmem(int handlecount, int memsize, int opcount, void *mem
     if (disablecd == 0) {                                          /* CD backend enabled */
         char *iomem = (char *)gFileMgr.handlearray + gFileMgr.handlecount * 0x4C;     /* io mem after handles */
         unsigned int r = CD_Init(gFileMgr.handlecount, memsize, iomem,
-                        (void (*)(void))iFILE_CommandCompleteCallback);  /* asm: sltiu (unsigned compare) */
+                        (void (*)(int))iFILE_CommandCompleteCallback);   /* asm: sltiu (unsigned compare) */
         disablecd = (r < 1) ? 1 : 0;                              /* disable CD if init failed */
     }
     initfileio();
@@ -238,13 +195,12 @@ already_init:
     return 0;
 }
 
-
 /* w60 unlock VA-order permute: the four pool helpers now live at the file TAIL
  * (their retail VAs are highest) -- forward decls for the callers above them. */
 
 /* ---- BIG-archive (.BIG) mount: FILE_addbig + its open/read completion callbacks ---- */
 /* FILE_overhead @0x800EBD74 : total RAM the FILE system needs for the given pool sizes (0 -> default). */
-extern int FILE_overhead(int handlecount, int memsize, int opcount)
+int FILE_overhead(int handlecount, int memsize, int opcount)
 {
     if (handlecount == 0) handlecount = 0x18;     /* 24 handles  */
     if (memsize == 0)     memsize     = 0x800;    /* 2 KB io mem */
@@ -255,7 +211,7 @@ extern int FILE_overhead(int handlecount, int memsize, int opcount)
 }
 
 /* FILE_opstatus @0x800EBDC4 : status of the op named by `id` (index=id>>24); -3 if id is 0 or stale. */
-extern int FILE_opstatus(unsigned int id)
+int FILE_opstatus(unsigned int id)
 {
     int frame[3];
     /* MATCH: positive-branch form (lever #7) -- the match test jumps FORWARD to the success
@@ -337,7 +293,7 @@ success:
  * needs a SECOND, INSTRUCTION-FREE reference to `id` -- none exists in C (a mask/compare/asm
  * operand all cost an insn or are scaffolding).  Falsified again w34: `int frame[4]`
  * (non-volatile pad) - identical 13. */
-extern int FILE_operror(unsigned int id)
+int FILE_operror(unsigned int id)
 {
     unsigned int raw;
     const void *key = (const void *)&FILE_operror;
@@ -433,7 +389,7 @@ extern int FILE_operror(unsigned int id)
  *       pseudo for the store) cannot survive to sched2: after reload both addresses share the
  *       hard base.  Retail's copy-at-insn-2 is not reproducible by any priority/tie model of
  *       our sched2 over this RTL; residual class = old-sched ready-list emission-order identity. */
-extern void FILE_callbackop(unsigned int id, void (*callback)(unsigned int id, int status, int param))
+void FILE_callbackop(unsigned int id, void (*callback)(unsigned int id, int status, int param))
 {
     unsigned int raw;
     const void *key = (const void *)&FILE_callbackop;
@@ -475,7 +431,7 @@ extern void FILE_callbackop(unsigned int id, void (*callback)(unsigned int id, i
  *   isn't the one currently being dispatched, hasn't started (status==0), and its priority changed.
  *   The pending queue is a singly-linked list (op->qnext, head at gFileMgr.queuehead) kept sorted by
  *   ascending priority; the op is unlinked then reinserted before the first higher-priority op. */
-extern void FILE_priorityop(unsigned int id, int priority)
+void FILE_priorityop(unsigned int id, int priority)
 {
     /* The otherwise-unused pad recovers the oracle's 16-byte frame.  The unlink scan and sorted-reinsert
      * node are distinct source variables, matching the oracle's separate v0/v1 live ranges; the reinsert
@@ -544,7 +500,7 @@ extern void FILE_priorityop(unsigned int id, int priority)
  *   - else if the op already completed (status==1): mark it cancelled (status=-1);
  *   - else (still queued): unlink it from the pending queue, decrement mgr.state, mark it cancelled
  *     (status=-1) and fire its completion callback with (id, param). */
-extern void FILE_cancelop(unsigned int id)
+void FILE_cancelop(unsigned int id)
 {
     /* MATCH work (59->47->42 diffs): the retail object reserves a dead 24-byte local
      * area, so this pad restores its 48-byte frame and saved-register offsets.
@@ -696,7 +652,7 @@ cleanup:
 /* FILE_waitop @0x800EC1BC : block until the op named by `id` completes; return its status.
  *   Pumps systemtask(0) while the op's status is 0.  Returns -3 if `id` is 0/stale, or if the slot
  *   gets recycled out from under us during the wait. */
-extern int FILE_waitop(unsigned int id)
+int FILE_waitop(unsigned int id)
 {
     /* MATCH (53->0 diffs, 61/61 instructions): the otherwise-unused 24-byte `frame`
      * restores the retail 72-byte frame.  Keeping the loop-only mask/wanted-id/manager/offset
@@ -797,7 +753,7 @@ valid:
  * jump2 removes the resulting self-compare/self-copy; no instructions survive from the device.
  * This gives retail's srl->$v1 and op->$a1 allocation, while initializing `result` before the
  * pointer chain keeps the $s0 save at entry and still lets sched2 sink only the $ra save. */
-extern int FILE_completeop(unsigned int id)
+int FILE_completeop(unsigned int id)
 {
     int frame[4];
     const unsigned int raw = id;
@@ -835,7 +791,7 @@ extern int FILE_completeop(unsigned int id)
 }
 
 /* FILE_open @0x800EC36C : open `name`; reserve an op (type 2) + a handle, copy the name, dispatch. */
-extern unsigned int FILE_open(char *name, unsigned int a1, unsigned int a2, unsigned int a3)
+unsigned int FILE_open(char *name, unsigned int a1, unsigned int a2, unsigned int a3)
 {
     FileOp *op = reserveop();
     void   *handle;
@@ -857,7 +813,7 @@ extern unsigned int FILE_open(char *name, unsigned int a1, unsigned int a2, unsi
 }
 
 /* FILE_close @0x800EC42C : close handle (type 3); errors if it is still a registered device. */
-extern unsigned int FILE_close(void *handle, unsigned int a1, unsigned int a2)
+unsigned int FILE_close(void *handle, unsigned int a1, unsigned int a2)
 {
     FileOp *op = reserveop();
     char   *node = (char *)gFileMgr.devicelist;          /* mgr+0x24 device list head */
@@ -878,7 +834,7 @@ extern unsigned int FILE_close(void *handle, unsigned int a1, unsigned int a2)
 }
 
 /* FILE_read @0x800EC4EC : read from `handle` (type 4); clamps the length to the handle's size. */
-extern unsigned int FILE_read(void *handle, unsigned int offset, unsigned int dest,
+unsigned int FILE_read(void *handle, unsigned int offset, unsigned int dest,
                                   int len, unsigned int a5, unsigned int a6)
 {
     FileOp *op = reserveop();
@@ -906,7 +862,7 @@ extern unsigned int FILE_read(void *handle, unsigned int offset, unsigned int de
 }
 
 /* FILE_size @0x800EC5D0 : query the size of `handle` (type 6). */
-extern unsigned int FILE_size(void *handle, unsigned int a1, unsigned int a2)
+unsigned int FILE_size(void *handle, unsigned int a1, unsigned int a2)
 {
     FileOp *op = reserveop();
     OPI(op, 0x14) = (int)a2;
@@ -928,7 +884,7 @@ extern unsigned int FILE_size(void *handle, unsigned int a1, unsigned int a2)
  *   read op, and if the header spans more than the block already read, grows the buffer and re-reads the
  *   remainder (re-arming itself).  When the whole header is loaded it links the node onto the device list
  *   and kicks the user's command op.  `id`=read op id, `status` unused, `node`=the BIG node (int[4]). */
-extern void iFILE_addbigreadcallback(unsigned int id, int status, int *node)
+void iFILE_addbigreadcallback(unsigned int id, int status, int *node)
 {
     /* MATCH: `branchbuf` starts as node and becomes the grown buffer only in the read-more
      * branch, producing the oracle's s0 branch value while node, manager, and priority occupy
@@ -978,7 +934,7 @@ extern void iFILE_addbigreadcallback(unsigned int id, int status, int *node)
 /* iFILE_addbigopencallback @0x800EC7A0 : completion of the archive FILE_open.  Harvests the handle and,
  *   on success, kicks off reading the first 0x800 header block (arming iFILE_addbigreadcallback); on
  *   failure marks the command op error 4 and runs it.  `status`==1 means open succeeded. */
-extern void iFILE_addbigopencallback(unsigned int id, int status, int *node)
+void iFILE_addbigopencallback(unsigned int id, int status, int *node)
 {
     /* MATCH: the separate success-path node copy prevents it being coalesced with the
      * failure-path node value, recovering the oracle's s1 -> s2 copy in the status-branch
@@ -1010,7 +966,7 @@ extern void iFILE_addbigopencallback(unsigned int id, int status, int *node)
  *   (passing the node as the open op's param) and arm iFILE_addbigopencallback to drive the header load.
  *   Returns op->id (used as an op id by FILE_addbigsync); the dup-hit path returns the op pointer (an asm
  *   quirk faithfully reproduced). */
-extern unsigned int FILE_addbig(char *name, unsigned int a1, unsigned int datatype, unsigned int param)
+unsigned int FILE_addbig(char *name, unsigned int a1, unsigned int datatype, unsigned int param)
 {
     int    *node = (int *)gFileMgr.devicelist;     /* device-list head */
     FileOp *op   = reserveop();
@@ -1043,7 +999,7 @@ extern unsigned int FILE_addbig(char *name, unsigned int a1, unsigned int dataty
 
 /* iFILE_delbigclosecallback @0x800EC980 : completion callback for the BIG-archive close op -- harvest
  *   the close op (FILE_completeop), then kick the next queued command (iFILE_ExecCommand). */
-extern void iFILE_delbigclosecallback(unsigned int id, int a1, void *cmd)
+void iFILE_delbigclosecallback(unsigned int id, int a1, void *cmd)
 {
     (void)a1;
     FILE_completeop(id);
@@ -1062,7 +1018,7 @@ extern void iFILE_delbigclosecallback(unsigned int id, int a1, void *cmd)
  * MATCH: initializing `prev` before the reserveop call deliberately overlaps its lifetime with
  * the saved third argument.  GCC then reuses that argument register for `prev` and, once the
  * gFileMgr base dies, recycles its register for `closeHandle`, matching the retail allocation. */
-extern unsigned int FILE_delbig(int delHandle, unsigned int a2, unsigned int a3)
+unsigned int FILE_delbig(int delHandle, unsigned int a2, unsigned int a3)
 {
     int    *prev = 0;                               /* s0 after the saved a3 value dies */
     int    *node = (int *)gFileMgr.devicelist;      /* s1 */
@@ -1129,7 +1085,7 @@ extern unsigned int FILE_delbig(int delHandle, unsigned int a2, unsigned int a3)
  *   saved and restored around the call -- a net no-op as written (the intermediate write is overwritten).
  *   The return value is fn's result, captured in ExecCommand's branch delay slot ($s0=$v0) before the
  *   call clobbers $v0; the 2nd arg is unused. */
-extern int FILE_atomic(int (*fn)(int, int), int unused, int a3, int a4)
+int FILE_atomic(int (*fn)(int, int), int unused, int a3, int a4)
 {
     int saved = gFileMgr.idmask;     /* mgr+0x08 */
     int result;
@@ -1217,7 +1173,7 @@ extern int FILE_atomic(int (*fn)(int, int), int unused, int a3, int a4)
  * confirmed by JimmyJohnsonsVRFB98/MEMORY.C and already emits the exact COP0 sequence above. */
 /* Raw nfs4-f.exe DD398..DD81F SHA-256:
  * f005d1d202c25693bdaa4a6af71d553309201f7f8db575ef547012c92aaecb52. */
-extern void iFILE_ExecCommand(void *cmdp)
+void iFILE_ExecCommand(void *cmdp)
 {
     FileOp *cmd = (FileOp *)cmdp;
     int sr;
@@ -1421,7 +1377,7 @@ int gFileOpSeq;
  *   Resolves the final status of the in-flight op (mgr.curop): a pending cancel -> -1 (cancelled), else
  *   result==0 -> -2 (device fail), result!=0 -> 1 (ok).  Clears mgr.curop, fires the op's completion callback
  *   (id, status, param) bracketed by mgr.cbpending, then dispatches the next command if nothing nested. */
-extern int iFILE_CommandCompleteCallback(int result)
+int iFILE_CommandCompleteCallback(int result)
 {
     FileOp *cmd = gFileMgr.curop;
     if (cmd == 0)
@@ -1447,10 +1403,9 @@ extern int iFILE_CommandCompleteCallback(int result)
     return;
 }
 
-
 /* iFILE_perror @0x800ED0D4 : debug error reporter, compiled out in the release build (a nullsub).
  *   Takes the failing op in $a0 (callers rematerialize it into the jal delay slot); ignored here. */
-extern void iFILE_perror(FileOp *op)
+void iFILE_perror(FileOp *op)
 {
     (void)op;
 }
@@ -1596,7 +1551,7 @@ extern void iFILE_perror(FileOp *op)
  * the loop-local assignments places the manager base first; the repeated mask
  * supplies the one weighted seqMask reference needed for the retail allocation.
  * No reconstructed asm or post-compiler rewriting is involved. */
-extern FileOp *reserveop(void)
+FileOp *reserveop(void)
 {
     int i, sr, off;
     FILE_CS_ENTER(sr);
@@ -1643,7 +1598,7 @@ extern FileOp *reserveop(void)
 }
 
 /* freeop @0x800ED1F8 : clear a 0x30-byte op slot (release it back to the pool). */
-extern void freeop(FileOp *op)
+void freeop(FileOp *op)
 {
     int sr;
     FILE_CS_ENTER(sr);
@@ -1728,7 +1683,7 @@ extern void freeop(FileOp *op)
  *     -fno-schedule-insns + -insns2   855 /  4        (-fno-regmove: not a 2.8.0 flag)
  *   No flag improves ANY of the five non-PASS fns; reservehandle is 3 under every inert flag and
  *   20-25 under the rest.  Do NOT re-run the flag ladder on this TU. */
-extern FileHandle *reservehandle(void)
+FileHandle *reservehandle(void)
 {
     int i, sr;
     FILE_CS_ENTER(sr);
@@ -1803,7 +1758,7 @@ extern FileHandle *reservehandle(void)
 }
 
 /* freehandle @0x800ED2F0 : clear a 0x4C-byte file handle (release it). */
-extern void freehandle(FileHandle *h)
+void freehandle(FileHandle *h)
 {
     int sr;
     FILE_CS_ENTER(sr);

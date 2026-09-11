@@ -4,12 +4,13 @@
  *   The paired SYM archive records identify textcode.obj immediately before the
  *   separate, data-only isqrttbl.obj member.
  */
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "textcode.h"
+
 extern unsigned short D_8013BD50[];     /* ASCII(0x20..0x7f) -> full-width SJIS */
 
-extern int decodeansi(unsigned char **cursor);   /* @0x801069AC */
-extern unsigned int remapshiftjiscode(unsigned int c);      /* @0x801069C4 */
-extern int decodeshiftjis(unsigned char **cursor);          /* @0x801069EC */
-extern int decodeansi(unsigned char **cursor)
+int decodeansi(unsigned char **cursor)
 {
     /* The oracle loads the byte with `lbu` straight into $v0 and returns it with NO
      * re-mask -- an `unsigned char c` local re-masks (`andi v0,255`) on the return
@@ -20,7 +21,7 @@ extern int decodeansi(unsigned char **cursor)
     return c;
 }
 
-extern unsigned int remapshiftjiscode(unsigned int c)
+unsigned int remapshiftjiscode(unsigned int c)
 {
     unsigned int i = c - 0x20;
     if (i < 0x60)
@@ -40,7 +41,7 @@ extern int decodeshiftjis2(unsigned char **cursor) __attribute__((alias("decodes
 extern int decodeshiftjis3(unsigned char **cursor) __attribute__((alias("decodeshiftjis")));
 #endif
 
-extern int decodeshiftjis(unsigned char **cursor)
+int decodeshiftjis(unsigned char **cursor)
 {
     unsigned char *p = *cursor;
     unsigned int b1 = *p;

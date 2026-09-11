@@ -13,6 +13,7 @@
 #include "../eaclib_types.h"
 #include "eac_types.h"
 #include "timer.h"
+#include "vars.h"
 
 /* ---- owning-TU defs for link-harness ----
  * STORAGE SHAPE matters (methodology lever #6 / its caveat):
@@ -28,7 +29,6 @@
  * (lever #13). resettick stores 0 then RE-READS ticks from memory into the value
  * it writes to tickval/tickset -- without `volatile` gcc constant-folds the reload
  * away (stores 0 directly). volatile restores the oracle's store->reload. */
-extern volatile  int ticks;   /* @0x8013DCAC master tick counter (vars.obj owns; ABSOLUTE) */
 int tickset; /* @0x8013DC40: timer.obj-owned baseline tick */
 int tickval; /* @0x8013DC44: timer.obj-owned last-sampled tick */
 

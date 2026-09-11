@@ -10,19 +10,21 @@
  *   it, then free the scratch.  loadpackadr is a thin forwarder to loadpackadrz.  C-linkage XDEFs.
  */
 
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "nloadpk.h"
+#include "nsync.h"
+#include "blkmov.h"
+#include "memstd.h"
+
 /* ---- helpers from sibling reconstructed objs ---- */
-extern int   loadfileadr  (char *name, int memclass);   /* nsync   @0x800E57E8 */
-extern int   unpacksize   (void *buf);                  /* unpack  -- 0 if not packed */
-extern int   unpackz      (void *src, void *dst);       /* unpack  -- nonzero = success */
-extern int   getblocksize (void *p);                    /* memstd  @0x800E52D4 */
-extern void *reservememadr(char *name, int size, int classid); /* memstd @0x800E533C */
-extern int   purgememadr  (void *p);                    /* memstd  @0x800E5540 */
-extern void  blockmove    (void *src, void *dst, int n);/* eacpsxz @0x800E62DC */
+extern int unpacksize(void *buf);                  /* unpack  -- 0 if not packed */
+extern int unpackz   (void *src, void *dst);       /* unpack  -- nonzero = success */
 
 /* ===================================================================== *
  *  loadpackadrz @0x800E5C64 : load + transparently unpack `name`.        *
  * ===================================================================== */
-extern void *loadpackadrz(char *name, int memclass)   /* @0x800E5C64 */
+void *loadpackadrz(char *name, int memclass)   /* @0x800E5C64 */
 {
     char *buf;
     /* MATCH (PASS, 46->0 diffs, 62/62 insns): a single result/accumulator (0-init BEFORE the
@@ -71,7 +73,7 @@ end:
 /* ===================================================================== *
  *  loadpackadr @0x800E5D5C : forwarder to loadpackadrz.                  *
  * ===================================================================== */
-extern void *loadpackadr(char *name, int memclass)   /* @0x800E5D5C */
+void *loadpackadr(char *name, int memclass)   /* @0x800E5D5C */
 {
     return loadpackadrz(name, memclass);
 }

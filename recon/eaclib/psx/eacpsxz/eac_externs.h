@@ -30,13 +30,42 @@
 #include "fsincos.h"
 #include "fxform.h"
 #include "getm.h"
+#include "inittmr.h"
+#include "isincos.h"
 #include "isqrt.h"
 #include "isqrttbl.h"
+#include "joystkn.h"
+#include "loadshp.h"
+#include "locatbig.h"
+#include "locatshp.h"
 #include "math64a.h"
+#include "matrix.h"
+#include "meminit.h"
+#include "memstd.h"
+#include "movf.h"
+#include "nasync.h"
+#include "nfile.h"
+#include "nloadpk.h"
+#include "nsync.h"
+#include "nullfunc.h"
 #include "primate.h"
+#include "random.h"
+#include "resize.h"
+#include "savegp.h"
+#include "shpclut.h"
+#include "shpdepth.h"
+#include "shpsubs.h"
+#include "shptype.h"
 #include "sinfunc.h"
 #include "sintbl.h"
+#include "stream.h"
+#include "stricmp.h"
+#include "syncfile.h"
+#include "systask.h"
+#include "textcode.h"
 #include "textcrnt.h"
+#include "textfor.h"
+#include "textset.h"
 #include "threads.h"
 #include "timer.h"
 #include "trnsfrm.h"
@@ -49,37 +78,5 @@
 #include "vramfxya.h"
 #include "wildcard.h"
 #include "xform.h"
-
-/* Modules whose owner header is not written yet -- add the include here as each lands:
- *   inittmr.h
- *   isincos.h
- *   joystkn.h
- *   loadshp.h
- *   locatbig.h
- *   locatshp.h
- *   matrix.h
- *   meminit.h
- *   memstd.h
- *   movf.h
- *   nasync.h
- *   nfile.h
- *   nloadpk.h
- *   nsync.h
- *   nullfunc.h
- *   random.h
- *   resize.h
- *   savegp.h
- *   shpclut.h
- *   shpdepth.h
- *   shpsubs.h
- *   shptype.h
- *   stream.h
- *   stricmp.h
- *   syncfile.h
- *   systask.h
- *   textcode.h
- *   textfor.h
- *   textset.h
- */
 
 #endif

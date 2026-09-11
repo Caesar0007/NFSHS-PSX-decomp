@@ -32,6 +32,16 @@
  *   it routes through the 272 recipe (no maspsx), which costs loadfileadratomic (PASS -> 28) and
  *   42 PASS across the cluster.  Until that key exists the 4-diff source below is kept as-is.
  */
+
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "nsync.h"
+#include "syncfile.h"
+#include "nfile.h"
+#include "blkmov.h"
+#include "memstd.h"
+#include "locatbig.h"
+#include "vars.h"
 /* eaclib/psx/eacpsxz/nsync.cpp -- RECONSTRUCTED from nfs4-f.exe. NOT original source.
  *   Source obj : nfs4\eaclib\psx\nsync.obj ; archive C:\nfs4\EACLIB\PSX\EACPSXZ.LIB (xlsx col10)
  *   10 fns @ [0x800E5608, 0x800E5AC4) -- EA "nsync" SYNCHRONOUS file-load layer.
@@ -46,45 +56,24 @@
  */
 
 /* the scratch record passed by-pointer through FILE_atomic to each *atomic worker */
-typedef struct LoadArgs {
-    char *name;      /* +0x00  source filename                                   */
-    int   dest;      /* +0x04  fixed destination (loadfileat* family)            */
-    int   memclass;  /* +0x08  allocator class id (loadfile* / bigfile family)   */
-    int   abortval;  /* +0x0C  abort flag snapshot (0 for the "z" variants)      */
-} LoadArgs;
 
 /* ---- FILE_*sync primitives + retry harness (libfile / sibling objs) ---- */
-extern int  FILE_opensync (char *name, int mode, int retry, int *handle);  /* @0x800EA8A8 */
-extern int  FILE_sizesync (int handle, int retry);                         /* @0x800EA9A4 */
-extern int  FILE_readsync (int handle, int offset, void *dest, int size, int retry); /* @0x800EA920 */
-extern int  FILE_closesync(int handle, int retry);                         /* @0x800EA950 */
-extern int  FILE_atomic   (void *fn, int idle, int retries, void *args);   /* @0x800ECB40 */
 extern int  asyncidle     (void);                                          /* @0x800F6114 */
 
 /* ---- memstd allocator (eaclib/psx/eacpsxz/memstd.cpp) ---- */
-extern void *reservememadr(char *name, int size, int classid);            /* @0x800E533C */
-extern int   purgememadr  (void *p);                                       /* @0x800E5540 */
 
 /* ---- big-file header helpers (next obj) ---- */
-extern int   typeofbigfile      (void *buf);     /* @0x800E5F1C */
-extern int   sizeofbigfileheader(void *buf);     /* @0x800E5F84 */
-extern void  blockmove          (void *src, void *dst, int n);  /* @0x800E62DC */
 
 /* ---- data globals (defined in the data-materialization pass) ---- */
-extern int abortflag;                                  /* @0x8013DCD4 */
 extern int (*loadfilecallback)(void *dest, char *name, int memclass);  /* @0x8013DD60 */
 
 /* forward decls of the intra-obj *atomic XDEFs (C-linkage) */
-extern int   filesizeatomic        (int retry, LoadArgs *a);
-extern void *loadfileadratomic      (int retry, LoadArgs *a);
-extern int   loadfileatadratomic    (int retry, LoadArgs *a);
-extern void *loadbigfileheaderatomic(int retry, LoadArgs *a);
 
 /* ===================================================================== *
  *  filesizeatomic @0x800E5608 : open `a->name`, query its size, close.   *
  *  Returns the byte size, or 0 if the open failed.                       *
  * ===================================================================== */
-extern int filesizeatomic(int retry, LoadArgs *a)   /* @0x800E5608 */
+int filesizeatomic(int retry, LoadArgs *a)   /* @0x800E5608 */
 {
     int handle;
     if (FILE_opensync(a->name, 1, retry, &handle) != 0) {
@@ -99,7 +88,7 @@ extern int filesizeatomic(int retry, LoadArgs *a)   /* @0x800E5608 */
 /* ===================================================================== *
  *  filesize @0x800E566C : public wrapper -> retry-driven filesizeatomic. *
  * ===================================================================== */
-extern int filesize(char *name)   /* @0x800E566C */
+int filesize(char *name)   /* @0x800E566C */
 {
     int idle;
     LoadArgs a;
@@ -152,7 +141,7 @@ extern int filesize(char *name)   /* @0x800E566C */
  * is likewise unavailable: this fn has no loop, so no reference can be loop-weighted.  => the
  * "needs >=8 refs of `a`, or size live >=16 insns" arithmetic is unchanged and both new w35 dials
  * are ruled out on MECHANISM, not by trial. */
-extern void *loadfileadratomic(int retry, LoadArgs *a)   /* @0x800E56B0 */
+void *loadfileadratomic(int retry, LoadArgs *a)   /* @0x800E56B0 */
 {
     int handle;
     /* positive-branch form (lever #7): success path = `bnez` target, open-fail
@@ -198,7 +187,7 @@ extern void *loadfileadratomic(int retry, LoadArgs *a)   /* @0x800E56B0 */
 /* ===================================================================== *
  *  loadfileadrz  @0x800E57A8 : wrapper, abort disabled (abortval = 0).   *
  * ===================================================================== */
-extern int loadfileadrz(char *name, int memclass)   /* @0x800E57A8 */
+int loadfileadrz(char *name, int memclass)   /* @0x800E57A8 */
 {
     int idle;
     LoadArgs a;
@@ -212,7 +201,7 @@ extern int loadfileadrz(char *name, int memclass)   /* @0x800E57A8 */
 /* ===================================================================== *
  *  loadfileadr   @0x800E57E8 : wrapper, abort via global abortflag.      *
  * ===================================================================== */
-extern int loadfileadr(char *name, int memclass)   /* @0x800E57E8 */
+int loadfileadr(char *name, int memclass)   /* @0x800E57E8 */
 {
     int idle;
     LoadArgs a;
@@ -228,7 +217,7 @@ extern int loadfileadr(char *name, int memclass)   /* @0x800E57E8 */
  *  caller-supplied fixed address `a->dest`, close.  Returns dest (0 on   *
  *  open failure).                                                        *
  * ===================================================================== */
-extern int loadfileatadratomic(int retry, LoadArgs *a)   /* @0x800E5830 */
+int loadfileatadratomic(int retry, LoadArgs *a)   /* @0x800E5830 */
 {
     int handle;
     /* MATCH: post-call accesses go through a SEPARATE local pointer `p` -- splits the
@@ -249,7 +238,7 @@ extern int loadfileatadratomic(int retry, LoadArgs *a)   /* @0x800E5830 */
 /* ===================================================================== *
  *  loadfileatadrz @0x800E58B0 : wrapper, abort disabled.                 *
  * ===================================================================== */
-extern int loadfileatadrz(char *name, int dest)   /* @0x800E58B0 */
+int loadfileatadrz(char *name, int dest)   /* @0x800E58B0 */
 {
     int idle;
     LoadArgs a;
@@ -263,7 +252,7 @@ extern int loadfileatadrz(char *name, int dest)   /* @0x800E58B0 */
 /* ===================================================================== *
  *  loadfileatadr @0x800E58F0 : wrapper, abort via global abortflag.      *
  * ===================================================================== */
-extern int loadfileatadr(char *name, int dest)   /* @0x800E58F0 */
+int loadfileatadr(char *name, int dest)   /* @0x800E58F0 */
 {
     int idle;
     LoadArgs a;
@@ -280,7 +269,7 @@ extern int loadfileatadr(char *name, int dest)   /* @0x800E58F0 */
  *  true header (sizeofbigfileheader) is larger, reallocates and reads    *
  *  the remainder.  Returns the header buffer (NULL on failure).          *
  * ===================================================================== */
-extern void *loadbigfileheaderatomic(int retry, LoadArgs *a)   /* @0x800E5938 */
+void *loadbigfileheaderatomic(int retry, LoadArgs *a)   /* @0x800E5938 */
 {
     int handle;
     void *buf;
@@ -423,7 +412,7 @@ closefail:
 /* ===================================================================== *
  *  loadbigfileheader @0x800E5A7C : wrapper, abort via global abortflag.  *
  * ===================================================================== */
-extern int loadbigfileheader(char *name, int memclass)   /* @0x800E5A7C */
+int loadbigfileheader(char *name, int memclass)   /* @0x800E5A7C */
 {
     int idle;
     LoadArgs a;

@@ -145,13 +145,15 @@
  *   +0xe clutid, then 4 vertices of {x16,y16,u8,v8} interleaved at +8/+0xc/+0x10.../+0x16 tpage.
  *   Shape header: +4 w(short), +6 h(short), +0xc packed uv/tpage (12b u <<0x14, 4b vpage <<4), +0x10 pixels.
  */
-typedef unsigned long u_long;
-typedef struct { short x, y, w, h; } RECT;
 
-extern int  shapedepth(unsigned char *shape);            /* shpdepth */
-extern int  shapetoclutid(unsigned int *shape);          /* shpclut */
-extern int  vramimage(RECT *rect, u_long *data);         /* vramfxya */
-extern int  fastmovfxya(int shape, int x, int y);        /* fastmovf (deferred-trio sibling) */
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "movf.h"
+#include "shpdepth.h"
+#include "shpclut.h"
+#include "vramfxya.h"
+#include "fastmovf.h"
+
 extern char *primptr;                                    /* primate : primitive write cursor */
 extern char *nextprim;                                   /* primate : OT link target (prev prim).
                                * W85-S7 (2026-09-02): this decl used to be `char * volatile` as a
@@ -181,10 +183,8 @@ __asm__("\t.globl\twindowbuf\n\t.globl\tcurrentwindow\n\t.section\t.bss\n\t.alig
 extern int   currentwindow[];  /* @0x801486E4 : GPU window block -- draw-origin X/Y @+4/+8 (u_short
                                 * reads here), clip @+0x18..0x24.  ONE struct base like fastmovf. */
 
-extern int movfxya(unsigned char *shape, int x, int y);  /* @0x800F0738 */
-
 /* movfxya @0x800F0738 : draw shape at (x,y).  $v0 incidental -- no explicit return (oracle). */
-extern int movfxya(unsigned char *shape, int x, int y)
+int movfxya(unsigned char *shape, int x, int y)
 {
     int depth = shapedepth(shape);
 

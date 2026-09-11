@@ -18,14 +18,21 @@
  *   Queue/slot edits run in a cop0 IRQ-disabled critical section (host no-op via lib/nasync.h).
  *   (-m32-only verified: req stride 0x2C + pointer-sized queue links diverge from the LLP64 host layout.)
  */
+
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "nasync.h"
+#include "nfile.h"
+#include "memstd.h"
+#include "systask.h"
+#include "callback.h"
+#include "syncfile.h"
 /* ASPSX-DIALECT (w64-a20): the asm below uses NUMERIC registers and no
  * `.set push/pop` -- ASPSX 2.77, the PRODUCTION assembler, rejects ABI
  * register NAMES and push/pop.  $0 zero $1 at $2-3 v0-v1 $4-7 a0-a3
  * $8-15 t0-t7 $16-23 s0-s7 $24-25 t8-t9 $28 gp $29 sp $30 fp $31 ra.
  * Gate-lane object is byte-identical (proven by hash); see
  * scratchpad/w64a20/RECEIPTS.md. */
-
-#include "../../../lib/nasync.h"
 
 /* Private nasync.obj state.  These exact compact-SYM names occupy
  * 0x8013DE90..0x8013DEBF; there are no Def/Def2 records because this archive
@@ -60,35 +67,15 @@ static void *mutex;                 /* @0x8013DEBC */
 #endif
 
 /* ---- nfile FILE_* API (eacpsxz) + memory/system helpers this loader drives ---- */
-extern unsigned int FILE_open(char *name, unsigned int a1, unsigned int a2, unsigned int a3); /* @0x800EC36C */
-extern unsigned int FILE_close(void *handle, unsigned int a1, unsigned int a2);               /* @0x800EC42C */
-extern unsigned int FILE_read(void *handle, unsigned int offset, unsigned int dest,
-                                  int len, unsigned int a5, unsigned int a6);                      /* @0x800EC4EC */
-extern unsigned int FILE_size(void *handle, unsigned int a1, unsigned int a2);                /* @0x800EC5D0 */
-extern int  FILE_completeop(unsigned int id);                                                 /* @0x800EC2B0 */
-extern void FILE_callbackop(unsigned int id, void (*cb)(int, int));                           /* @0x800EBE4C */
-extern void FILE_cancelop(unsigned int id);                                                   /* @0x800EC008 */
-extern int  FILE_opensync(char *name, int mode, int prio, int *outHandle);                    /* @0x800EA8A8 */
-extern int  FILE_closesync(int handle, int prio);                                             /* @0x800EA950 */
-extern void *reservememadr(char *name, int size, int classid);                                /* @0x800E533C */
-extern void  purgememadr(void *p);                                                            /* @0x800E5540 */
-extern int   addsystemtask(int (*fn)(void), int a1, int a2);                                  /* @0x800E6AF4 */
-extern void *allocmutex(void);                                                                /* @0x800FE424 */
 
 /* forward decls for the FILE completion callbacks (referenced by FILE_callbackop and each other) */
-extern int loadfileclosecallback(int id, int status, AsyncReq *req);
-extern void loadfilereadcallback(int id, int status, AsyncReq *req);
-extern int loadfilesizecallback (int id, int status, AsyncReq *req);
-extern int loadfileopencallback (int id, int status, AsyncReq *req);
-extern int loadsegreadcallback  (int id, int status, AsyncReq *req);
-extern int asyncsystemtask(void);
 
 #define RQ(r)  ((unsigned int)(AsyncReq *)(r))   /* req ptr as a FILE callback param (uint) */
 
 /* ---- request queue + slot primitives ---- */
 
 /* queueadd @0x800F0B1C : append `n` to FIFO `q` ({head,tail}). */
-extern void queueadd(AsyncQueue *q, AsyncReq *n)
+void queueadd(AsyncQueue *q, AsyncReq *n)
 {
     int sr;
     ASYNC_enterCS(sr);
@@ -99,7 +86,7 @@ extern void queueadd(AsyncQueue *q, AsyncReq *n)
     ASYNC_leaveCS(sr);
 }
 /* queuefetch @0x800F0B74 : pop the head of FIFO `q` (returns 0 if empty). */
-extern AsyncReq *queuefetch(AsyncQueue *q)
+AsyncReq *queuefetch(AsyncQueue *q)
 {
     /* MATCH (was a documented v0-vs-v1 "floor" -- cracked): oracle loads head into $v0 for the
      * test, defaults the return value $v1=0 in the beqz's OWN delay slot (dead-code-motion of
@@ -124,7 +111,7 @@ extern AsyncReq *queuefetch(AsyncQueue *q)
 }
 
 /* newrequestid @0x800F0BC0 : stamp `r` with a fresh id = (slot index) | rolling counter; return it. */
-extern int newrequestid(AsyncReq *r)
+int newrequestid(AsyncReq *r)
 {
     requestidcounter += 0x100;
     if (requestidcounter == 0)              /* never 0 */
@@ -157,7 +144,7 @@ static AsyncReq *locaterequest(int id)
 }
 
 /* cancelrequest @0x800F0C50 : if pending, mark cancelled, free its buffer, return the slot to freequeue. */
-extern void cancelrequest(AsyncReq *r)
+void cancelrequest(AsyncReq *r)
 {
     /* MATCH: keep the RAW status value cached (not pre-folded into a 0/1 bool) -- the oracle
      * loads r->status ONCE and re-compares it against the literal 1 TWICE (bne v1,a1 both
@@ -180,7 +167,7 @@ extern void cancelrequest(AsyncReq *r)
 }
 
 /* finishrequest @0x800F0CE8 : queue `r` for its user callback (only if it has one). */
-extern void finishrequest(AsyncReq *r)
+void finishrequest(AsyncReq *r)
 {
     int cb = r->callback;
     r->fileop = 0;                          /* unconditional (oracle: in the beqz delay slot) */
@@ -192,7 +179,7 @@ extern void finishrequest(AsyncReq *r)
 /* ---- the FILE completion callbacks (open -> size -> read* -> close -> finish) ---- */
 
 /* loadfileclosecallback @0x800F0D24 : harvest the close op, then finish or cancel the request. */
-extern int loadfileclosecallback(int id, int status, AsyncReq *req)
+int loadfileclosecallback(int id, int status, AsyncReq *req)
 {
     /* MATCH: a FRESH pointer pseudo (`req2`) is materialized unconditionally right after entry
      * (oracle: `addu s1,s0,zero` in the FILE_completeop jal's delay slot) and used ONLY by the
@@ -208,7 +195,7 @@ extern int loadfileclosecallback(int id, int status, AsyncReq *req)
 }
 
 /* loadfilereadcallback @0x800F0D80 : one chunk read; loop until EOF/cancel, then close. */
-extern void loadfilereadcallback(int id, int status, AsyncReq *req)
+void loadfilereadcallback(int id, int status, AsyncReq *req)
 {
     int n = FILE_completeop(req->fileop);       /* bytes read this chunk */
     unsigned int nextop;
@@ -233,7 +220,7 @@ extern void loadfilereadcallback(int id, int status, AsyncReq *req)
 }
 
 /* loadfilesizecallback @0x800F0E54 : got the size -> allocate the buffer and start reading. */
-extern int loadfilesizecallback(int id, int status, AsyncReq *req)
+int loadfilesizecallback(int id, int status, AsyncReq *req)
 {
     /* MATCH (21->0): a FRESH pointer pseudo (`req2`) is materialized unconditionally right after entry
      * (oracle: `addu s0,s1,zero` in the FILE_completeop jal's delay slot) and used ONLY by the
@@ -264,7 +251,7 @@ extern int loadfilesizecallback(int id, int status, AsyncReq *req)
 }
 
 /* loadfileopencallback @0x800F0F18 : open done -> read directly, size-then-read, or close on cancel. */
-extern int loadfileopencallback(int id, int status, AsyncReq *req)
+int loadfileopencallback(int id, int status, AsyncReq *req)
 {
     /* MATCH (31->0): req2 is the FILE_size-only callback parameter, while the incoming status is
      * genuinely unused (FILE_size receives priority 0x63).  Unconditional fileop stores plus
@@ -305,7 +292,7 @@ done:
 }
 
 /* loadsegreadcallback @0x800F1024 : segment read from asyncfilehandle, chunked with a clamped tail. */
-extern int loadsegreadcallback(int id, int status, AsyncReq *req)
+int loadsegreadcallback(int id, int status, AsyncReq *req)
 {
     /* MATCH: a FRESH pointer pseudo (`req2`) is materialized unconditionally right after entry
      * (oracle: `addu s1,s0,zero` in the FILE_completeop jal's delay slot), used ONLY by the
@@ -341,7 +328,7 @@ done:
 
 /* asyncsystemtask @0x800F1120 : drain callqueue -- fire each finished request's user callback (or clean
  *   up a cancelled one), then recycle the slot.  Registered as a periodic system task by initasync. */
-extern int asyncsystemtask(void)
+int asyncsystemtask(void)
 {
     AsyncReq *req = queuefetch(&callqueue);
     while (req != 0) {
@@ -361,7 +348,7 @@ extern int asyncsystemtask(void)
 
 /* initasync @0x800F11B0 : allocate the request pool (<=0x100 slots), build the free list, create the
  *   mutex, and register asyncsystemtask.  No-op if already initialised or numreq out of range. */
-extern int initasync(int numreq, int blocksize, int memclass)
+int initasync(int numreq, int blocksize, int memclass)
 {
     if (request == 0 && numreq < 0x101) {
         int size;                                          /* numreq*0x2C, then mutated in place (-0x2C) */
@@ -392,7 +379,7 @@ extern int initasync(int numreq, int blocksize, int memclass)
 
 /* asyncloadfilecallback @0x800F12B0 : begin an async load that allocates its own buffer (poll via
  *   getasyncreadadr, or `cb` fires on completion).  Returns the request id (0 if no free slot/open fail). */
-extern int asyncloadfilecallback(int name, int memclass, int cb)
+int asyncloadfilecallback(int name, int memclass, int cb)
 {
     AsyncReq *req = queuefetch(&freequeue);
     unsigned int op;
@@ -414,13 +401,13 @@ extern int asyncloadfilecallback(int name, int memclass, int cb)
 }
 
 /* asyncloadfile @0x800F1368 : as above, no completion callback (poll-only). */
-extern int asyncloadfile(int name, int memclass)
+int asyncloadfile(int name, int memclass)
 {
     return asyncloadfilecallback(name, memclass, 0);
 }
 
 /* asyncloadfileatcallback @0x800F1388 : async load into a caller-provided destination (no allocation). */
-extern int asyncloadfileatcallback(int name, int dest, int cb)
+int asyncloadfileatcallback(int name, int dest, int cb)
 {
     AsyncReq *req = queuefetch(&freequeue);
     unsigned int op;
@@ -442,13 +429,13 @@ extern int asyncloadfileatcallback(int name, int dest, int cb)
 }
 
 /* asyncloadfileat @0x800F143C : as above, poll-only. */
-extern int asyncloadfileat(int name, int dest)
+int asyncloadfileat(int name, int dest)
 {
     return asyncloadfileatcallback(name, dest, 0);
 }
 
 /* setasyncfile @0x800F145C : (re)open the persistent file used by segment loads; 0 closes it. */
-extern void setasyncfile(int name)
+void setasyncfile(int name)
 {
     if (asyncfilehandle != 0)
         FILE_closesync(asyncfilehandle, 0x64);
@@ -462,7 +449,7 @@ extern void setasyncfile(int name)
 
 /* asyncloadsegmentcallback @0x800F14BC : read a [offset, offset+size) range of the persistent async file
  *   into `dest`.  If no file is open the request finishes immediately. */
-extern int asyncloadsegmentcallback(int offset, int dest, int size, int cb)
+int asyncloadsegmentcallback(int offset, int dest, int size, int cb)
 {
     AsyncReq *req = queuefetch(&freequeue);
     unsigned int op;
@@ -497,14 +484,14 @@ extern int asyncloadsegmentcallback(int offset, int dest, int size, int cb)
 }
 
 /* asyncloadsegment @0x800F15B0 : as above, poll-only. */
-extern int asyncloadsegment(int offset, int dest, int size)
+int asyncloadsegment(int offset, int dest, int size)
 {
     return asyncloadsegmentcallback(offset, dest, size, 0);
 }
 
 /* cancelasyncload @0x800F15D0 : request cancellation of a load; cancels the FILE op and, if nothing is
  *   in flight and there is no callback pending, releases the request immediately. */
-extern int cancelasyncload(int id)
+int cancelasyncload(int id)
 {
     /* MATCH (oracle-verified, corrects an earlier "always return 0" wrong guess): only the
      * req==0 and status!=0 exits return a deliberate constant (0 -- already 0 for free, since
@@ -527,7 +514,7 @@ extern int cancelasyncload(int id)
 
 /* getasyncreadadr @0x800F1640 : the loaded buffer address, or 0 if not ready.  For a poll-only request
  *   (no callback) this also recycles the slot, so call it once the load is done. */
-extern int getasyncreadadr(int id)
+int getasyncreadadr(int id)
 {
     AsyncReq *req = locaterequest(id);
     int adr;
@@ -557,7 +544,7 @@ extern int getasyncreadadr(int id)
  *   confirmed by the oracle explicitly re-materializing `li v0,-2` / `addu v0,zero,zero` in each
  *   branch's delay slot (a "return the field" shape would leave the just-loaded v0 untouched, a
  *   bare nop, which is what an incorrect recon here compiles to). */
-extern int getasyncreadstatus(int id)
+int getasyncreadstatus(int id)
 {
     AsyncReq *req = locaterequest(id);
     int st;

@@ -20,19 +20,16 @@
  *   Header byte layout (== memstd): +0 magic(u16) +2 flags(u16, low nibble=class id, 0x4000=on-freelist)
  *                                   +4 usable-size/tail-offset(int) +8 physnext +C physprev.
  */
-struct MemBlock;
-struct MemClass;
 
-extern struct MemClass *memclass[16];                             /* @0x8013E900 */
-extern void  FREE_add   (struct MemClass *cls, struct MemBlock *node);   /* @0x800E4E70 */
-extern void  FREE_remove(struct MemClass *cls, struct MemBlock *node);   /* @0x800E4F04 */
-extern int   initmemblock(struct MemBlock *blk, char *name, int size, int tailextra,
-                              int flags, struct MemBlock *physprev, struct MemBlock *physnext);  /* @0x800E4F2C */
-extern int   MEM_tailsize(char *name, int id);             /* @0x800E5030 */
-extern char *getblockname(void *p);                        /* @0x800E52E0 */
-extern void  blockmove(void *src, void *dst, int n);       /* @0x800E62DC */
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "resize.h"
+#include "memstd.h"
+#include "blkmov.h"
 
-extern void *resizememadr(void *userptr, int newsize)      /* @0x800F1950 */
+extern MemClass *memclass[16];   /* @0x8013E900 (memstd.obj owns the table) */
+
+void *resizememadr(void *userptr, int newsize)      /* @0x800F1950 */
 {
     int avail;
     int size;

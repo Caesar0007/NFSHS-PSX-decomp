@@ -3,9 +3,9 @@
 
 #include "eac_types.h"
 
-extern int   CD_systaskfunc(void);                             /* @0x800F9AE8 */
-extern void  CD_timerfunc(void); /* @0x800F9C44 (cdfs read watchdog/poll, below)             */
-extern void  CdReadyHandler(unsigned char intr, unsigned char *result);  /* @0x800F9CA4 */
+extern int  CD_systaskfunc(void);                             /* @0x800F9AE8 */
+extern void CD_timerfunc(void); /* @0x800F9C44 (cdfs read watchdog/poll, below)             */
+extern void CdReadyHandler(unsigned char intr, unsigned char *result);  /* @0x800F9CA4 */
 
 /* ---- cdfs internal forward decls (mutually recursive CD machinery) ---- */
 extern unsigned char *readsectorB(void);                       /* @0x800FA154 */

@@ -12,15 +12,15 @@
  *     +0x0a u16 glyphCount   +0x0e u16 flags(&3==2 => Shift-JIS)   +0x10..0x13 i8 metrics(ascent/descent...)
  *     +0x14 i32 glyphTblOff  +0x1c i32 shapeOff   +0x20 encoded-data start (probed by geti)
  */
-typedef int (*DecodeFn)(unsigned char **cursor);
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "textset.h"
+#include "shpdepth.h"
+#include "getm.h"
+#include "textcode.h"
+#include "blkfill.h"
 
-extern unsigned int geti(void *p, char nbits);                 /* getm */
-extern int   shapedepth(unsigned char *shape);                 /* shpdepth */
-extern int   decodeansi(unsigned char **cursor);               /* textcode */
-extern int   decodeshiftjis(unsigned char **cursor);           /* isqrttbl (obj name misnomer) */
-extern int   decodeshiftjis2(unsigned char **cursor);          /* ALIAS-DEVICE TEST: same addr */
-extern int   decodeshiftjis3(unsigned char **cursor);          /* ALIAS-DEVICE TEST: same addr */
-extern void  blockclear(void *dst, int n);                     /* blkfill */
+// FIXME
 extern void  inittextdraw(void);                                /* textpsx (game) */
 
 /* --- current-font descriptor (flat struct @0x80135BA0; SHARED with textfor.c) ---
@@ -37,6 +37,7 @@ extern void  inittextdraw(void);                                /* textpsx (game
  * BARE base (offset 0) once, matching the oracle exactly (same lever textfor.c's
  * getcharacter() already uses: `unsigned char *cf = currentfont;`). */
 extern unsigned char currentfont[];
+
 #define CFI(base,off)       (*(int *)((base) + (off)))         /* 4-byte int field            */
 #define CFP(base,off)       (*(void **)((base) + (off)))       /* 4-byte pointer field         */
 #define CFFN(base,off)      (*(DecodeFn *)((base) + (off)))    /* 4-byte function-ptr field    */
@@ -48,9 +49,8 @@ extern unsigned char currentfont[];
  * both, with nothing restoring it before `jr ra`) -- a `DecodeFn`-returning reconstruction
  * forces gcc to needlessly park `decode` in a saved reg across those 2 calls (+frame, wrong
  * scheduling). Ghidra typed it non-void; this is the mirror-image of the §3.2 void-return bug. */
-extern void setfont(int fontId);   /* @0x800F2E94 */
 
-extern void setfont(int fontId)
+void setfont(int fontId)
 {
     unsigned char *cf;
     unsigned char *cf2;

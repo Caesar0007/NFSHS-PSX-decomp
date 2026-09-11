@@ -58,10 +58,10 @@
 #include "../eaclib_types.h"
 #include "eac_types.h"
 #include "vramfxya.h"
+#include "shpdepth.h"
 #include "primate.h"
 
 // FIXME
-extern int   shapedepth(unsigned char *shape);   /* shpdepth */
 extern void  LoadImage(RECT *rect, u_long *data); /* PsyQ libgpu */
 
 /* checkrect @0x800F6934 : if the RECT is flagged (+4 bit0), set bit0 of the +6 word.  Returns the +4 flag. */

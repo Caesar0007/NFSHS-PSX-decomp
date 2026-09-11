@@ -11,6 +11,9 @@
  *   maspsx: store offsets + immediates DECIMAL; trapping `addi`/`sub` pass through (valid MIPS, just
  *   never emitted by C) exactly like fixddiv/rdiv's `sub`.
  */
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "math64a.h"
 
 #if defined(__mips__)
 /* ASPSX-DIALECT (w64-a20): the asm below uses NUMERIC registers and no
@@ -75,7 +78,7 @@ __asm__(
     "\t.set reorder\n"
 );
 #else
-extern void make64(int *out, int y, unsigned int shift)   /* @0x800FE488 */
+void make64(int *out, int y, unsigned int shift)   /* @0x800FE488 */
 {
     if (0x1f < (int)shift) {
         out[0] = 0;
@@ -89,7 +92,7 @@ extern void make64(int *out, int y, unsigned int shift)   /* @0x800FE488 */
     }
 }
 
-extern int divu64(int hi, int lo, unsigned int den)   /* @0x800FE4E0 */
+int divu64(int hi, int lo, unsigned int den)   /* @0x800FE4E0 */
 {
     int q = 0;
     int i = 0x1f;

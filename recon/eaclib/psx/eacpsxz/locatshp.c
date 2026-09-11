@@ -8,8 +8,9 @@
  *   (the value at *namekey is the packed tag to find).  The directory is scanned from the LAST entry
  *   down to the first; the highest-index match wins.  Returns base + entry.dataoffset, or 0 if absent.
  */
-extern void *locateshape (void *shapefile, int *namekey);   /* @0x800EB110 */
-extern void *locateshapez(void *shapefile, int *namekey);   /* @0x800EB170 */
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "locatshp.h"
 
 /* MATCH: NO shared static helper exists in the binary -- the oracle carries a full
  * inline copy of the scan in EACH fn (24 insns each).  Loop shape: index-down scan
@@ -18,7 +19,7 @@ extern void *locateshapez(void *shapefile, int *namekey);   /* @0x800EB170 */
  * fills the bne slot with the i-- (the +1 on the match path is its compensation);
  * the tail re-derives entry i by index (sll/addu) and checks entry[0] too. */
 
-extern void *locateshape(void *shapefile, int *namekey)   /* @0x800EB110 */
+void *locateshape(void *shapefile, int *namekey)   /* @0x800EB110 */
 {
     char *sf  = (char *)shapefile;
     int  name = *namekey;
@@ -48,7 +49,7 @@ notfound:
     return 0;
 }
 
-extern void *locateshapez(void *shapefile, int *namekey)  /* @0x800EB170 (identical to locateshape) */
+void *locateshapez(void *shapefile, int *namekey)  /* @0x800EB170 (identical to locateshape) */
 {
     char *sf  = (char *)shapefile;
     int  name = *namekey;

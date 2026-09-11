@@ -34,12 +34,13 @@
  *   objs kept line info) -- so the const-table lever belongs here and only here.
  */
 
-extern int sintbl[257];   /* @0x80137464 : quarter-sine, 16.16.  NON-const ON PURPOSE -- see above:
-                           * `const` lets gcc's scheduler hoist these loads across the *psin store
-                           * and breaks the match.  Bytes live in sintbl.c/sintbl.obj. */
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "isincos.h"
+#include "sintbl.h"
 
 /* intsincos @0x800EADBC : write sin -> *psin, cos -> *pcos for a brads angle. */
-extern void intsincos(int angle, int *psin, int *pcos)
+void intsincos(int angle, int *psin, int *pcos)
 {
     int quad = (angle >> 8) & 3;
     int p = angle & 0xFF;

@@ -12,46 +12,44 @@
  *   orthonormalizer; meant to be called every frame on matrices that only drift slightly.
  *   HOST-VERIFIED (_test_matrix.cpp): trnsmult exact + alias-safe; reorthogonalize 3.3x cleanup, det->1.
  */
-extern int  fixedmult(int a, int b);                         /* eacpsxz @0x800E4328 */
-extern void transpose(int *src, int *dst);                  /* eacpsxz @0x800E4358 (trnspos) */
-extern void transmult(int *a, int *b, int *out);            /* eacpsxz @0x80105F40 (trnsmult.obj) C=A*B */
-#define multiplymatrix transmult                                /* reorthogonalize's matmul callee */
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "matrix.h"
+#include "fixdmult.h"
+#include "trnspos.h"
+#include "trnsmult.h"
+
 /* @0x801237EC (16.16 identity, shared rodata; byte-exact from NFS4.EXE). matrix.obj is the owner;
  * other TUs (e.g. trnsmult, reorthogonalize callers) reference it extern. */
-extern const int identitymatrix[9] = { 65536,0,0, 0,65536,0, 0,0,65536 };
+const int identitymatrix[9] = { 65536,0,0, 0,65536,0, 0,0,65536 };
 
-extern int *addmatrix(int *m1, int *m2, int *out)   /* @0x800F01FC */
+int *addmatrix(int *m1, int *m2, int *out)   /* @0x800F01FC */
 {
     int i;
     for (i = 0; i < 9; i++) out[i] = m1[i] + m2[i];
     return out;
 }
 
-extern int *submatrix(int *m1, int *m2, int *out)   /* @0x800F0234 */
+int *submatrix(int *m1, int *m2, int *out)   /* @0x800F0234 */
 {
     int i;
     for (i = 0; i < 9; i++) out[i] = m1[i] - m2[i];
     return out;
 }
 
-extern int *scalematrix(int *m, int scalar, int *out)   /* @0x800F026C */
+int *scalematrix(int *m, int scalar, int *out)   /* @0x800F026C */
 {
     int i;
     for (i = 0; i < 9; i++) out[i] = fixedmult(m[i], scalar);
     return out;
 }
 
-/* 36-byte matrix as a STRUCT: the oracle's 4-word/iter copy loops (+1-word tail, end-ptr
- * compare vs base+0x20) are gcc's movstrsi block-move expansion of STRUCT ASSIGNMENTS --
- * per-element copy loops do NOT emit this shape. */
-typedef struct { int m[9]; } mtx;
-
 /* The stripped NFS4 member omits this static name; the independently matched
  * NFS2 matrix.obj source recovers `coef`, and the retail bytes/VA prove its
  * four-word payload.  SYM-GLOBAL-CARRIER: coef */
 static const int coef[4] = { 16384, -8192, 6144, -5120 };   /* @0x80123810 (coef[0] unused) */
 
-extern int reorthogonalize(int *M)   /* @0x800F02E4 */
+int reorthogonalize(int *M)   /* @0x800F02E4 */
 {
     /* MATCH (197->0): FIVE stack buffers only, decl order = stack order (mtm@sp+0x10,
      * mt@0x38, A@0x60, S@0x88, acc@0xB0); tmp REUSES mt, tmp2 REUSES mtm, mcopy REUSES mt;
@@ -63,17 +61,17 @@ extern int reorthogonalize(int *M)   /* @0x800F02E4 */
     register int it, k;
     for (it = 0; it < 4; it++) {
         transpose(M, mt.m);                            /* mt  = M^T            */
-        multiplymatrix(mt.m, M, mtm.m);                /* mtm = M^T M          */
+        transmult(mt.m, M, mtm.m);                /* mtm = M^T M          */
         submatrix(mtm.m, (int *)identitymatrix, A.m);  /* A   = M^T M - I      */
         S = *(mtx *)identitymatrix;
         acc = *(mtx *)identitymatrix;
         for (k = 1; k < 4; k++) {
-            multiplymatrix(S.m, A.m, mt.m);            /* mt(tmp) = S * A      */
+            transmult(S.m, A.m, mt.m);            /* mt(tmp) = S * A      */
             S = mt;
             scalematrix(S.m, *(const int *)&coef[k], mtm.m); /* mtm(tmp2) = coef[k] * S^k */
             addmatrix(acc.m, mtm.m, acc.m);            /* acc += tmp2          */
         }
         mt = *(mtx *)M;                                /* mcopy reuses mt      */
-        multiplymatrix(mt.m, acc.m, M);                /* M = M * series       */
+        transmult(mt.m, acc.m, M);                /* M = M * series       */
     }
 }

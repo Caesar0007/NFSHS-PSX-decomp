@@ -4,37 +4,38 @@
  *   Ghidra nfs4-f.exe.c (inittmr) + disasm-v3 + IDA sigs.  Bare VAs symbolicated: addexit arg 0x800F4304 =
  *   &restoretimer; blockclear target 0x8012360C = &tmrsub; creatememclass template 0x8013DD48 = &DAT_8013dd48.
  */
- int timerflag;    /* @0x8013DD4C: owning-TU tentative def → .comm/.sbss → gp-rel */
- int timerevent;  /* @0x8013DEC4: owning-TU tentative def → .comm/.sbss → gp-rel */
- int reentryflag;  /* @0x8013DEC0: tmrint re-entry guard -- owning-TU tentative def → .comm/.sbss → gp-rel
+
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "inittmr.h"
+#include "exit.h"
+#include "blkfill.h"
+#include "savegp.h"
+#include "meminit.h"
+#include "threads.h"
+#include "memstd.h"
+#include "timer.h"
+int timerflag;    /* @0x8013DD4C: owning-TU tentative def → .comm/.sbss → gp-rel */
+int timerevent;  /* @0x8013DEC4: owning-TU tentative def → .comm/.sbss → gp-rel */
+int reentryflag;  /* @0x8013DEC0: tmrint re-entry guard -- owning-TU tentative def → .comm/.sbss → gp-rel
                     * (only inittimer.s oracle gp-rels it: `sw zero,%gp_rel(reentryflag)(gp)`) */
-extern int   timerhz;       /* tick rate */
+extern int timerhz;       /* tick rate */
 /* `memclass` is owned by memstd.obj as the retail 16-pointer table.  This TU
  * deliberately keeps an unsized integer view: it copies the first pointer
  * word to the second, and that declaration shape preserves the shared %hi. */
-extern int   memclass[];    /* @0x8013E900; [1] = cached copy @0x8013E904
+extern int memclass[];    /* @0x8013E900; [1] = cached copy @0x8013E904
                              * (UNSIZED array shape: oracle shares ONE %hi -- lw %lo(memclass)(v1);
                              *  addiu v1,%lo; sw a0,4(v1)) */
-extern unsigned int MEM_defaultevent(void);   /* meminit.obj default event handler */
-extern int   tmrsub[];      /* int[8] : per-tick handler list (UNSIZED array shape, lever #5) */
-extern volatile int ticks;    /* raw tick counter -- volatile (IRQ counter): keeps the oracle's
-                               * strict ticks++/g_currentthread=1/libticks++ order + the li-1 reuse
-                               * (non-volatile lets sched1 hoist the g_currentthread store and fuse
-                               * the two increments; MATCH lever, tmrint 16->0) */
-extern volatile int libticks; /* library tick counter -- volatile, same as ticks */
-extern int   g_currentthread;
+extern int tmrsub[];      /* int[8] : per-tick handler list (UNSIZED array shape, lever #5) */
+extern int ticks;             /* raw tick counter (vars.obj owns) */
+/* MATCH DEVICE (re-measured 2026-09-11): `volatile` is NOT needed on ticks -- dropping it holds
+ * 4/4 -- but IS load-bearing on libticks: without it cse shares the `1` between the
+ * g_currentthread store and the increment (`li v1,1` + `addu v0,v0,v1` where retail has two
+ * independent `addiu v0,v0,1`), 16 diffs at the exact 43 insns.  Falsified without volatile:
+ * a local one-carrier, an increment through a local, `++`, the flag store moved last, volatile on
+ * g_currentthread, and libticks as an unsized array (15 diffs, one insn short). */
+extern volatile int libticks; /* library tick counter */
 
-extern int  creatememclass(int id, char *name, char *membuf, int bufsize,
-                           int granularity, int alignment, int infosize,
-                           int lowguard, int reserved9, int highguard,
-                           int usemutex, int field3c);   /* memstd, TRUE 12-arg sig */
-extern void blockclear(int dst, int len);           /* blkfill */
-extern int  addexit(int fn);                        /* exit */
-extern void initgp(void);                           /* savegp */
-extern void savegp(void *buf);                      /* savegp */
-extern void restoregp(int gp);                      /* savegp */
-extern void resettick(void);                        /* timer */
-extern void trap(unsigned int code);
 /* --- syslib (PsyQ libapi/libetc) --- */
 extern void EnterCriticalSection(void);
 extern void ExitCriticalSection(void);
@@ -44,14 +45,9 @@ extern void DisableEvent(int ev);
 extern void SetRCnt(int spec, unsigned short target, int mode);
 extern void StartRCnt(int spec);
 
-extern int  initmemadr(int base, int size);   /* @0x800F4180 */
-extern int  inittimer(int hz);                /* @0x800F41F0 */
-extern void restoretimer(void);               /* @0x800F4304 */
-extern unsigned int tmrint(void);             /* @0x800F4328 */
-
 /* initmemadr @0x800F4180 : carve `base[size]` into the default memory class (id 0),
  * gran 8 / align 0x20 / no guards / MEM_defaultevent handler, and cache the class id. */
-extern int initmemadr(int base, int size)
+int initmemadr(int base, int size)
 {
     char *name = "RAM";                 /* compiler-owned writable literal @0x8013DD48 */
     int r = creatememclass(0, name, (char *)base, size,
@@ -61,13 +57,13 @@ extern int initmemadr(int base, int size)
 }
 
 /* inittimer @0x800F41F0 : install (once) the RCnt event + restore hook, then arm the counter for `hz` Hz. */
-extern int inittimer(int hz)
+int inittimer(int hz)
 {
     if (hz == 0)
         hz = 100;
     EnterCriticalSection();
     if (timerflag == 0) {
-        blockclear((int)tmrsub, 0x20);
+        blockclear(tmrsub, 0x20);
         timerevent = OpenEvent(0xf2000002, 2, 0x1000, (int *)tmrint);
         EnableEvent(timerevent);
         timerflag = 1;
@@ -80,18 +76,21 @@ extern int inittimer(int hz)
     StartRCnt(0xf2000002);
     ExitCriticalSection();
     resettick();
-    return addexit((int)restoretimer);
+    /* MATCH: addexit() returns nothing (its oracle never sets $v0 on the exit path), and the
+     * oracle tail-calls it -- inittimer's own result is whatever $v0 happens to hold.  Falling
+     * off the end reproduces that; an explicit `return 0;` adds the `li $v0,0` retail lacks. */
+    addexit(restoretimer);
 }
 
 /* restoretimer @0x800F4304 : disable the RCnt event (exit hook). */
-extern void restoretimer(void)
+void restoretimer(void)
 {
     DisableEvent(timerevent);
     timerflag = 0;
 }
 
 /* tmrint @0x800F4328 : the per-tick interrupt handler -- advance the tick counters and run tmrsub[0..7]. */
-extern unsigned int tmrint(void)
+unsigned int tmrint(void)
 {
     unsigned int gpbuf[2];
     int          i;
@@ -111,6 +110,6 @@ extern unsigned int tmrint(void)
         p = p + 1;
     } while (i < 8);
     g_currentthread = 0;
-    restoregp((int)gpbuf[0]);
+    restoregp(gpbuf[0]);
     return 0;
 }

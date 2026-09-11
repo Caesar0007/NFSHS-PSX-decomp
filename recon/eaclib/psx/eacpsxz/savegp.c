@@ -25,6 +25,10 @@
  *   `D_801234E8` in an asm/data blob; promoting this TU means defining g_bootGP here and de-duping the blob.)
  */
 
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "savegp.h"
+
 /* W66-A3 (link): the word IS in the image and the splat blob emits it as
  * `D_801234E8` (data_8010CCD4_r16.data.s) -- so the promotion follow-up above is
  * answered by ALIASING, not by defining a second copy here.  The `%hi/%lo`
@@ -72,8 +76,8 @@ __asm__(
 
 #else  /* host build -- empty stubs */
 
-extern void initgp(void) {}
-extern void savegp(unsigned int *out) { (void)out; }
-extern void restoregp(unsigned int gp) { (void)gp; }
+void initgp(void) {}
+void savegp(unsigned int *out) { (void)out; }
+void restoregp(unsigned int gp) { (void)gp; }
 
 #endif

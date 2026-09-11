@@ -8,9 +8,7 @@
 #include "../eaclib_types.h"
 #include "eac_types.h"
 #include "fsincos.h"
-
-// FIXME
-extern void intsincos(int angle, int *psin, int *pcos);   /* isincos @0x800EADBC */
+#include "isincos.h"
 
 void fixedsincos(int angle, int *psin, int *pcos)   /* @0x800F3670 */
 {

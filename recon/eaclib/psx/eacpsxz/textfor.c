@@ -3,16 +3,17 @@
  *   record by character code -- direct index then binary search.  Ghidra nfs4-f.exe.c + IDA sigs.
  *   (Ghidra showed the count as the global DAT_80135c14; it is the 3rd parameter.)
  */
-extern unsigned int geti(void *p, char nbits);   /* getm */
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "textfor.h"
+#include "getm.h"
+
 extern unsigned char currentfont[];   /* @0x80135BA0 active-font state blob (textcrnt):
                                        * +0x74 = glyph count, +0x84 = glyph-table base (0xb B/entry) */
 
-extern int          textbsearch(unsigned int key, int base, int count, int stride); /* @0x800F4470 */
-extern unsigned int getcharacter(unsigned int code);                                /* @0x800F4510 */
-
 /* textbsearch @0x800F4470 : binary-search `count` records (stride `stride`) for the one whose 2-byte key
  *   matches `key`; returns its address, or 0. */
-extern int textbsearch(unsigned int key, int base, int count, int stride)
+int textbsearch(unsigned int key, int base, int count, int stride)
 {
     /* MATCH: written as a natural top-tested `while` (NOT `for(;;){if(!cond)return;...}`) so
      * gcc ROTATES it: the count==0 test appears ONCE before the loop AND again (inverted) at
@@ -38,7 +39,7 @@ extern int textbsearch(unsigned int key, int base, int count, int stride)
 }
 
 /* getcharacter @0x800F4510 : glyph record for `code` -- try the direct slot (code-0x20), else binary-search. */
-extern unsigned int getcharacter(unsigned int code)
+unsigned int getcharacter(unsigned int code)
 {
     /* MATCH: the table base/count are CURRENTFONT fields -- &currentfont la'd once into a
      * callee-saved reg (s3) and both fields read off it (0x84 base before geti, 0x74 count

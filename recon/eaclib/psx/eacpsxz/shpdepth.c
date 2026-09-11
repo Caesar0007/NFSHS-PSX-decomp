@@ -6,6 +6,9 @@
  *   -- not the shape a C `switch` compiles to (the C recon FAILed 40). Transcribed VERBATIM; C fallback.
  *   maspsx: lbu offset DECIMAL; `.set noreorder`.
  */
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "shpdepth.h"
 
 #if defined(__mips__)
 /* ASPSX-DIALECT (w64-a20): the asm below uses NUMERIC registers and no
@@ -56,7 +59,7 @@ __asm__(
     "\t.set reorder\n"
 );
 #else
-extern int shapedepth(unsigned char *shape)   /* @0x800F43E4 */
+int shapedepth(unsigned char *shape)   /* @0x800F43E4 */
 {
     unsigned char t = *shape & 0x77;
     if (t == 0x41) return 8;

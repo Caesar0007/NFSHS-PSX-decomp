@@ -5,6 +5,10 @@
  *   DAT_8013e984/988/98c are systemtasksubs+1/+2/+3, folded into the one array here).
  */
 
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "systask.h"
+
 /* Names are independently recovered from the matched NFS2 systask.obj source;
  * raw NFS4 gp-relative references prove their VAs, while this stripped NFS4
  * member exposes no lexical data records.
@@ -31,10 +35,6 @@ typedef struct SYSTEM_TASK_SUB {
 
 static SYSTEM_TASK_SUB systemtasksubs[16];
 
-extern void         addsystemtask(int taskFn, int period, int delay);        /* @0x800E6AF4 */
-extern void         delsystemtask(int fn);                                   /* @0x800E6BA8 */
-extern unsigned int systemtask(int arg1);                                    /* @0x800E6C04 */
-
 /* addsystemtask @0x800E6AF4 : register a periodic task (or update its slot).  VOID (w32-a10 prototype
  *   audit): the tail `lw v0,gp; addiu v0,-1; sw v0,gp` is the re-entrancy counter's own decrement temp,
  *   NOT a return funnel -- the value would be the count as it was on ENTRY (useless), 0/6 call sites
@@ -43,7 +43,7 @@ extern unsigned int systemtask(int arg1);                                    /* 
  *   Slot pick: an exact fn match always wins its slot; otherwise the first free slot — but when called
  *   re-entrantly (count>0 at entry) the first `count` free slots are skipped (count is decremented per
  *   skipped free slot, a plain register copy — only the +1/-1 bracket touches the global). */
-extern void addsystemtask(int taskFn, int period, int delay)
+void addsystemtask(int taskFn, int period, int delay)
 {
     int  fn;
     int  found;
@@ -114,7 +114,7 @@ extern void addsystemtask(int taskFn, int period, int delay)
  *   (2) the array-to-`int *` base conversion is kept explicit.  It gives the
  *       oracle's separate-temp address materialization (`lui v0; addiu a2,v0`)
  *       while preserving the recovered `SYSTEM_TASK_SUB[16]` definition. */
-extern void delsystemtask(int fn)
+void delsystemtask(int fn)
 {
     int  i    = 0;
     int *base = systemtasksubs;
@@ -144,7 +144,7 @@ extern void delsystemtask(int fn)
  *      strength reduction and therefore could never avoid the hoist.
  *  (2) `libticks >= p->deadline` (global first), not `p->deadline <= libticks`: gcc evaluates
  *      left-to-right, and retail loads libticks BEFORE the 0x8(s0) deadline field. */
-extern unsigned int systemtask(int arg1)
+unsigned int systemtask(int arg1)
 {
     unsigned int result = 0;
     if (lastsystemtasktick != libticks) {

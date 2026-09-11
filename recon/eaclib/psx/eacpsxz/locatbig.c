@@ -14,17 +14,14 @@
  *   delay slot of the typeofbigfile call (so it captures the size return BEFORE typeofbigfile
  *   overwrites $v0); likewise the per-entry counter++ is the loop-back branch delay slot.
  */
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "locatbig.h"
+#include "getm.h"
+#include "stricmp.h"
 
-extern unsigned getm   (void *ptr, int nbytes);          /* @0x800F3024 big-endian reader   */
-extern int      stricmp(const char *a, const char *b);   /* @0x800FE520 0 == match           */
+// FIXME
 extern unsigned strlen (const char *s);                  /* eacpsxz @0x800E9F74              */
-
-/* intra-obj forward decls (C-linkage) */
-extern int   typeofbigfile      (void *buf);
-extern int   sizeofbigfileheader(void *buf);
-extern char *locatebigentryz    (void *buf, char *name, int index, int *offset, unsigned int *size);
-extern char *locatebigentry     (void *buf, char *name, int index, int *offset, unsigned int *size);
-extern int   locatebigoffset    (void *buf, char *name);
 
 /* The compact SYM places a private, unreferenced 4-byte `bighandle` directly
  * before public `biglen` (0x8013DE60/0x8013DE64).  It has no Def/Def2 record;
@@ -45,7 +42,7 @@ static char bigfilename[64];
 /* ===================================================================== *
  *  typeofbigfile @0x800E5F1C : 1 (0xC0FB), 2 ("BIGF"), or 0 (not a BIG). *
  * ===================================================================== */
-extern int typeofbigfile(void *buf)
+int typeofbigfile(void *buf)
 {
     /* MATCH: result-FUNNEL var (s0, init 0 in the prologue) set per branch, ONE return --
      * early returns emit a different tail; the else-getm's a0 rides the first bne's slot. */
@@ -60,7 +57,7 @@ extern int typeofbigfile(void *buf)
 /* ===================================================================== *
  *  sizeofbigfileheader @0x800E5F84 : total file size from the header.    *
  * ===================================================================== */
-extern int sizeofbigfileheader(void *buf)
+int sizeofbigfileheader(void *buf)
 {
     /* MATCH: result funnel + SWITCH dispatch (two forward beq's to out-of-line case
      * blocks, default j to the shared return; else-if inlines the bodies instead).
@@ -79,7 +76,7 @@ extern int sizeofbigfileheader(void *buf)
  *  size through `offset`/`size` (when non-NULL) and return a pointer to  *
  *  the entry's name; on a miss zero them and return NULL.                *
  * ===================================================================== */
-extern char *locatebigentryz(void *buf, char *name, int index, int *offset, unsigned int *size)
+char *locatebigentryz(void *buf, char *name, int index, int *offset, unsigned int *size)
 {
     /* MATCH: the oracle does NOT parameterize width/hdr/nameoff into a single loop -- it
      * emits TWO literal, fully-duplicated scan loops (one per type), dispatched by a
@@ -155,7 +152,7 @@ extern char *locatebigentryz(void *buf, char *name, int index, int *offset, unsi
 /* ===================================================================== *
  *  locatebigentry @0x800E61B8 : forwarder to locatebigentryz.           *
  * ===================================================================== */
-extern char *locatebigentry(void *buf, char *name, int index, int *offset, unsigned int *size)
+char *locatebigentry(void *buf, char *name, int index, int *offset, unsigned int *size)
 {
     return locatebigentryz(buf, name, index, offset, size);
 }
@@ -163,7 +160,7 @@ extern char *locatebigentry(void *buf, char *name, int index, int *offset, unsig
 /* ===================================================================== *
  *  locatebigoffset @0x800E61DC : data offset of `name`, or 0.            *
  * ===================================================================== */
-extern int locatebigoffset(void *buf, char *name)
+int locatebigoffset(void *buf, char *name)
 {
     int offset = 0;
     if (name != 0)
@@ -174,7 +171,7 @@ extern int locatebigoffset(void *buf, char *name)
 /* ===================================================================== *
  *  locatebig @0x800E6218 : pointer to the entry's data, or NULL.        *
  * ===================================================================== */
-extern char *locatebig(void *buf, char *name)
+char *locatebig(void *buf, char *name)
 {
     int off;
     /* MATCH: result-funnel var (s0=0 in the jal slot), conditional assign, one return. */
@@ -188,7 +185,7 @@ extern char *locatebig(void *buf, char *name)
 /* ===================================================================== *
  *  bigcount @0x800E6258 : number of entries in the directory.           *
  * ===================================================================== */
-extern int bigcount(void *buf)
+int bigcount(void *buf)
 {
     /* MATCH: same funnel + switch-dispatch shape as sizeofbigfileheader. */
     int r = 0;

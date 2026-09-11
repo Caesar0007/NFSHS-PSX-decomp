@@ -21,9 +21,13 @@
 #include "../eaclib_types.h"
 #include "eac_types.h"
 #include "fileroot.h"
+#include "systask.h"
+#include "cdfs.h"
+#include "devsys.h"
+#include "nfile.h"
 
 /* ---- owning-TU defs for link-harness (extern-declared, never defined; BSS) ---- */
- char currentdirectory[64]; /* @0x80140414: fileroot.obj owning BSS definition */
+char currentdirectory[64]; /* @0x80140414: fileroot.obj owning BSS definition */
 /* Retail bytes @0x8013DD2C..0x8013DD43 are literal/pointer/literal/pointer.
  * Natural `char *fsprefixN = "..."` declarations were tested: functions stay
  * 9/9 PASS, but GCC moves both literals into .rdata, disproving that source
@@ -58,10 +62,6 @@ char *D_8013DD40 __attribute__((section(".sdata"))) = D_8013DD38;
 
 // FIXME
 /* ---- CD-ROM filesystem backend (fs 1) ---- */
-extern int CD_Close(int dev);                                 /* @0x800FA65C */
-extern int CD_Read(int dev, int dest, int offset, int len);   /* @0x800FA678 */
-extern int CD_Stopread(int dev);                              /* @0x800FA904 */
-extern int CD_Getinfo(int dev, int a1, int *outSize);         /* @0x800FA920 */
 
 /* ---- PC host (dev link) filesystem backend (fs 2) ---- */
 extern int PCinit(void);                                      /* @0x80106CC4 */
@@ -69,15 +69,11 @@ extern int PCread(int fd, int buf, int len);                  /* @0x80106BE4 */
 extern int PClseek(int fd, int offset, int whence);           /* @0x80106D1C */
 extern int PCwrite(int fd, int buf, int len);                 /* @0x80106D50 */
 extern int PCclose(int fd);                                   /* @0x80106D40 */
-extern int psxdevelopmentsystem(void);                        /* @0x80106CF0 (dev link present?) */
 
-extern int CD_Open(char *name, int flags, int *outp);         /* @0x800FA554 */
 extern int PCopen(char *name, int mode, int a2);              /* @0x80106CA4 */
 extern int PCcreat(char *name, int a1);                       /* @0x80106CD0 */
 
 /* ---- system glue + string helpers ---- */
-extern void addsystemtask(int (*fn)(void), int a1, int a2);   /* @0x800E6AF4 */
-extern int  iFILE_CommandCompleteCallback(int result);        /* @0x800ED020 (nfile) */
 extern int  readfile_systask(void);                           /* below */
 extern char *strchr(const char *s, int c);                   /* @0x800F6214 */
 extern char *strncpy(char *d, const char *s, int n);          /* @0x800F6104 */

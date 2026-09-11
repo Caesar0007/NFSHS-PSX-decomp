@@ -25,7 +25,6 @@ int fixedatan(int x, int y)   /* @0x800ED528 */
     if (y < 0) { oct |= 2; y = -y; }      /* bit1: y negative */
     if (x < 0) { oct |= 4; x = -x; }      /* bit2: x negative */
 
-
     if (x == y) {
         a2 = 0x2000;                       /* 45 deg */
     } else {

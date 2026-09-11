@@ -11,15 +11,19 @@
  *   diffs under cc1plus PASSes verbatim under cc1 (verify_asm 47/47) -- the whole residual was
  *   C++-vs-C register-allocation coloring, zero source changes needed.  .c extension = compile_c
  *   routing in build.py/verify_asm.py. */
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "loadshp.h"
+#include "nloadpk.h"
+
+// FIXME
 extern char *strcpy(char *dst, const char *src);   /* syslib C25 */
 extern int   strlen(const char *s);                /* syslib C27 */
 extern char *strcat(char *dst, const char *src);   /* syslib C21 */
-extern int   loadpackadr(char *name, void *arg2);  /* nloadpk @0x800E5D5C */
+
 char *shapeext;   /* @0x8013DD20 default shape-file extension string ptr -- TENTATIVE DEF (SS 3.12 #6):
                    * loadshp OWNS it (only %gp_rel(shapeext) oracle = loadshapeadr.s) -> .comm -> the
                    * oracle's gp-relative `lw a1,0(gp)`; a plain extern emits absolute lui/lw (3 diffs). */
-
-int loadshapeadr(char *filename, void *arg2);      /* @0x800F1C3C */
 
 /* loadshapeadr @0x800F1C3C : load shape `filename` (default-extending it), returns loadpackadr's result. */
 int loadshapeadr(char *filename, void *arg2)

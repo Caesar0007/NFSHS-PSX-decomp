@@ -10,9 +10,7 @@
 #include "../eaclib_types.h"
 #include "eac_types.h"
 #include "trnsfrm.h"
-
-// FIXME
-extern int fixedmult(int a, int b);                        /* eacpsxz @0x800E4328 (lbl_D4328) */
+#include "fixdmult.h"
 
 void transform(int *vec, int *mat, int *out)        /* @0x800EAED8 */
 {

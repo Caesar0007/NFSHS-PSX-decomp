@@ -14,10 +14,10 @@
 #include "../eaclib_types.h"
 #include "eac_types.h"
 #include "xform.h"
+#include "isincos.h"
+#include "fsincos.h"
 
 // FIXME
-extern void intsincos  (int angle, int *psin, int *pcos);   /* @0x800EADBC (integer angle) */
-extern void fixedsincos(int angle, int *psin, int *pcos);   /* @0x800F3670 (fixed angle)   */
 
 /* xformy @0x800E5AC4 : Y-axis rotation (integer angle). */
 void xformy(matrixtdef *out, int angle)

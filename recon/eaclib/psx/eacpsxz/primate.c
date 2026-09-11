@@ -14,12 +14,11 @@
 #include "../eaclib_types.h"
 #include "eac_types.h"
 #include "primate.h"
+#include "memstd.h"
 
 // FIXME
-extern void *reservememadr(char *name, int size, int classid);  /* eacpsxz @0x800E533C (memstd) */
-extern int   purgememadr (void *p);                             /* eacpsxz @0x800E5540 (memstd) */
-extern void  ClearOTagR(unsigned long *ot, int n);              /* PsyQ libgpu */
-extern int   DrawSync(int mode);                                /* PsyQ libgpu */
+extern void ClearOTagR(unsigned long *ot, int n);              /* PsyQ libgpu */
+extern int  DrawSync(int mode);                                /* PsyQ libgpu */
 
 /* ---- shared GPU draw-list globals -- this TU OWNS every one of them (nothing else defines
  * them; the oracle reaches ALL of them via %gp_rel(sym) in initlinkmode, which is only possible

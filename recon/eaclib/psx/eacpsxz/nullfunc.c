@@ -14,6 +14,10 @@
  *       real globals at the same address that do NOT displace setclipwindow as objdump's disasm label.
  */
 
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "nullfunc.h"
+
 /* The 20 other co-equal XDEF names at 0x800F6114.
  *
  * ASPSX-DIALECT (w64-a20): these used to be GNU-as symbol ASSIGNMENTS
@@ -101,7 +105,7 @@ asyncidle:
 "
 );
 
-extern int setclipwindow(void)   /* @0x800F6114 : return 0 */
+int setclipwindow(void)   /* @0x800F6114 : return 0 */
 {
     return 0;
 }

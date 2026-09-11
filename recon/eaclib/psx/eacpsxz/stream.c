@@ -21,6 +21,19 @@
  *   STREAM_create        def 2 | 2.6.0 57 | 2.6.3 57 | 2.7.2-970404 10 | 2.7.2 36 | 2.8.1 2 | 2.91.66 143 | 2.95.2 203
  *   STREAM_cancelrequest def P | 2.6.0 57 | 2.6.3 57 | 2.7.2-970404 12 | 2.7.2 57 | 2.8.1 P | 2.91.66 138 | 2.95.2 115
  */
+
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "stream.h"
+#include "syncfile.h"
+#include "callback.h"
+#include "systask.h"
+#include "nfile.h"
+/* NOTE: FILE_callbackop() is void (its oracle never sets $v0), but retail TAIL-CALLS it and lets
+ * the callee's incidental $v0 become the caller's result -- see the w32-a2/w33-a2 receipts below.
+ * The three sites that need that value cast the function pointer locally rather than widening the
+ * owner declaration (catalog D). */
+#include "threads.h"
 /* eaclib/psx/eacpsxz/stream.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 32/32 ***
  *   Source obj : nfs4\eaclib\psx\stream.obj ; archive C:\nfs4\EACLIB\PSX\EACPSXZ.LIB (xlsx col11)
  *   32 fns @[0x800FC2F8 .. 0x800FDCE0].  EA STREAMING ring-buffer manager, layered directly on the
@@ -55,21 +68,8 @@
 static unsigned int requestidcounter; /* @0x8013DEDC */
 
 /* ---- nfile op-queue backend (the layer this is built on) ---- */
-extern unsigned int FILE_open (char *name, unsigned int mode, unsigned int prio, unsigned int udata); /*@0x800EC...*/
-extern unsigned int FILE_close(void *handle, unsigned int prio, unsigned int udata);
-extern unsigned int FILE_read (void *handle, unsigned int offset, unsigned int dest,
-                                   int len, unsigned int a5, unsigned int a6); /*@0x800EC4EC (asm sets a0..a3 only)*/
-extern int  FILE_completeop(unsigned int id);
-extern unsigned int FILE_callbackop(unsigned int id, void (*cb)(int, int)); /*@0x800EBE4C*/
-extern void FILE_priorityop(unsigned int id, int prio);               /*@0x800EBECC*/
-extern void FILE_closesync(int handle, int prio);                     /* syncfile.obj (asm: a0=handle, a1=0x64) */
 
 /* ---- other eaclib helpers ---- */
-extern int  allocmutex(void);                 /* callback.obj @0x800FE424 */
-extern void freemutex(int mutex);
-extern int  iscurrentthread(int t);           /* threads.obj */
-extern void yieldthread(int t);   /* @0x800FE41C: nullsub; arg 0 passed in $a0 (delay slot), ignored */
-extern void systemtask(int x);                /* systask.obj */
 extern int  strcmp (const char *a, const char *b);          /* syslib C23 */
 extern char*strcpy (char *d, const char *s);                /* syslib C25 */
 extern char*strncpy(char *d, const char *s, int n);         /* syslib C26 */
@@ -116,36 +116,17 @@ static inline void STREAM_leaveCS(int sr) { (void)sr; }
 #define MU(p,o) (*(unsigned int*)((p)+(o)))
 
 /* ---- internal forward decls (mutually recursive) ---- */
-extern int  validatehandle(int handle, int *outObj, int *outHandle);       /* @0x800FC2F8 */
-extern unsigned int inbetween(unsigned int a, unsigned int b, unsigned int c); /* @0x800FC334 */
-extern int  decbufferusage(int s, int amount);                             /* @0x800FC374 */
-extern int *getfreerequest(int s);                                         /* @0x800FC400 */
-extern int  queuerequest(int s, int req);                                  /* @0x800FC478 */
 static int  locaterequest(int s, unsigned int reqid);                         /* @0x800FC4E4; trusted
     compact SYM name. This is unrelated to nasync.c's file-static locaterequest @0x800F0BF4; duplicate
     static names in separate translation units are valid. Gate this body with locaterequest@800FC4E4
     so tools/verify_asm.py selects the address-disambiguated oracle file. */
-extern int  freerequest(int s, int req);                                   /* @0x800FC548 */
-extern unsigned int filterchunk(int s, int chunk);                         /* @0x800FC5E4 */
-extern int  parsechunks(int s);                                            /* @0x800FC634 */
-extern void opencallback(int a0, int a1, int s);                           /* @0x800FC810 */
-extern void closecallback(int a0, int a1, int s);                          /* @0x800FC850 */
-extern int  readcallback(int a0, int a1, int s);                           /* @0x800FC8A8 */
-extern int  startnextrequest(int s, unsigned int prio);                    /* @0x800FC9B4 */
-extern int  restartstream(int s, unsigned int prio);                       /* @0x800FCB44 */
-extern int  STREAM_get(int consumer);                                      /* @0x800FD9AC */
-extern void STREAM_release(int s, int consumer);                           /* @0x800FDAD0 */
-extern void STREAM_kill(int s);                                            /* @0x800FD808 */
-extern void STREAM_setgreedystate(int s, int state);                       /* @0x800FD2B4 */
-extern int  STREAM_overhead(int numReq, int numFilters, int numConsumers); /* @0x800FCDE0 */
-extern int  STREAM_cancelrequest(int s, int req);                          /* @0x800FD554 */
 
 /* ====================================================================================== */
 
 /* validatehandle @0x800FC2F8 : check a STREAM/consumer handle.  `handle[0]` points to the stream
  *   object; if that begins with 'STRM' it is valid.  Returns 0 and writes out[0]=streamobj, out[1]=handle
  *   (the asm stores to *a1 and *a2, with a2 == a1+4); returns 1 otherwise. */
-extern int validatehandle(int handle, int *outObj, int *outHandle)
+int validatehandle(int handle, int *outObj, int *outHandle)
 {
     /* Oracle keeps TWO separate `return 1` epilogues (handle==0 vs magic-mismatch)
      * -- do NOT let gcc tail-merge them.  `bnez a0` (handle!=0 -> check) with the
@@ -164,7 +145,7 @@ extern int validatehandle(int handle, int *outObj, int *outHandle)
 }
 
 /* inbetween @0x800FC334 : is offset `c` inside the (possibly wrapped) ring interval [a, b)? */
-extern unsigned int inbetween(unsigned int a, unsigned int b, unsigned int c)
+unsigned int inbetween(unsigned int a, unsigned int b, unsigned int c)
 {
     unsigned int ret;
     if (a <= b) {
@@ -190,7 +171,7 @@ extern unsigned int inbetween(unsigned int a, unsigned int b, unsigned int c)
  * MATCH (35/35): spell the oracle's three exits directly.  The old<level path returns the comparison,
  *   the new>=level path returns 1, and the active-read path intentionally falls through after
  *   FILE_priorityop so that call's value remains in v0. */
-extern int decbufferusage(int s, int amount)
+int decbufferusage(int s, int amount)
 {
     int sr, old, neu, lvl;
     sr = STREAM_enterCS();
@@ -212,7 +193,7 @@ extern int decbufferusage(int s, int amount)
 
 /* getfreerequest @0x800FC400 : pop a request slot off the freelist (+0x58), stamp it with a fresh id
  *   (the rolling requestidcounter in the high 24 bits), inside a critical section.  Returns 0 if none. */
-extern int *getfreerequest(int s)
+int *getfreerequest(int s)
 {
     int *req, *ret;
     int sr = STREAM_enterCS();
@@ -234,7 +215,7 @@ extern int *getfreerequest(int s)
 
 /* queuerequest @0x800FC478 : append a request to the active queue (head@0x4C / cur@0x50 / tail@0x54),
  *   inside a critical section.  Returns the previous tail (0 if the queue was empty). */
-extern int queuerequest(int s, int req)
+int queuerequest(int s, int req)
 {
     int ret, sr, tail;
     MI(req, 4) = 1;                            /* state = queued */
@@ -275,7 +256,7 @@ static int locaterequest(int s, unsigned int reqid)
 
 /* freerequest @0x800FC548 : unlink a request from the active queue and push it onto the freelist.
  *   Returns the new freelist tail. */
-extern int freerequest(int s, int req)
+int freerequest(int s, int req)
 {
     int ret;
     if (req == MI(s, 0x4c))                     /* head */
@@ -303,11 +284,7 @@ extern int freerequest(int s, int req)
 
 /* filterchunk @0x800FC5E4 : classify a chunk by its first word against the filter table; returns the
  *   matching filter's consumer value, or 0xFFFFFFFE ("skip") if none match. */
-typedef struct StreamFilter {
-    unsigned int mask;
-    unsigned int value;
-    unsigned int consumer;
-} StreamFilter;
+
 /* MATCH (disasm-v4 trace, 21->0 diffs): loading the tag before the empty-table test and copying
  * n to the loop-carried `count` recover the oracle's v1->a3 lifetime split.  The counter increment
  * follows the match check, so gcc places it in that branch's delay slot and retains the loop-head
@@ -322,7 +299,7 @@ typedef struct StreamFilter {
  * (methodology 3.12 #1): gcc strength-reduces it back to retail's single-base walk.
  * MEASURED: volatile+walk PASS 20 | plain ptr + walk FAIL 15 @21 | INDEX FORM (kept) PASS 20 |
  * goto-loop + walk PASS 20 | goto-loop + byte-offset MI() spelling PASS 20.  Zero devices. */
-extern unsigned int filterchunk(int s, int chunk)
+unsigned int filterchunk(int s, int chunk)
 {
     StreamFilter *f;
     unsigned int tag;
@@ -345,7 +322,7 @@ extern unsigned int filterchunk(int s, int chunk)
  *   is {tag, len}; the chunk is classified by filterchunk, tagged with its consumer in the high byte of
  *   word1, and accounted to that consumer.  Stops at a short/invalid header or the end-of-stream id.
  *   Returns 1 if the end-of-stream marker was reached, else 0. */
-extern int parsechunks(int s)
+int parsechunks(int s)
 {
     /* ORIGINAL-NAME-UNRESOLVED: `bvar1` and `uVar5` are retained
      * decompiler-style spellings.  NFS4 has no local debug records for this
@@ -424,7 +401,7 @@ malformed:
 
 /* opencallback @0x800FC810 : nfile open-op completion (stream object arrives in $a2 = udata).  Stash the
  *   opened file handle (+0x9C); if valid, kick the stream's fill engine. */
-extern void opencallback(int a0, int a1, int s)
+void opencallback(int a0, int a1, int s)
 {
     unsigned int h;
     (void)a0; (void)a1;
@@ -436,7 +413,7 @@ extern void opencallback(int a0, int a1, int s)
 
 /* closecallback @0x800FC850 : nfile close-op completion -> immediately open the next file (its name was
  *   already copied to +0x5C) and arm opencallback. */
-extern void closecallback(int a0, int a1, int s)
+void closecallback(int a0, int a1, int s)
 {
     unsigned int op;
     (void)a0; (void)a1;
@@ -462,7 +439,7 @@ extern void closecallback(int a0, int a1, int s)
  * it to `bvar1` first and then overwriting `bvar1` with the comparison reproduces retail exactly.
  * Side effect (and the reason the swap looked global): the extra two references raise bvar1's
  * allocno priority above reqcur's, so bvar1 takes $s1 and reqcur $s2 as in retail. */
-extern int readcallback(int a0, int a1, int s)
+int readcallback(int a0, int a1, int s)
 {
     /* ORIGINAL-NAME-UNRESOLVED: `bvar1`, `iVar2`, and `uVar3` are retained
      * placeholders.  The binary proves their value roles but NFS4 supplies no
@@ -564,7 +541,7 @@ restart:
  * LESSON (catalog-worthy): when a "merged variable" experiment gates worse, check that EVERY arm
  * assigns the merged variable explicitly before filing the allocno-priority verdict -- a partially
  * merged spelling leaves the old anonymous temp alive and measures the wrong thing. */
-extern int startnextrequest(int s, unsigned int prio)
+int startnextrequest(int s, unsigned int prio)
 {
     int  done;
     int  cur;
@@ -612,14 +589,14 @@ extern int startnextrequest(int s, unsigned int prio)
                     unsigned int op = FILE_open((char *)name, 1, prio, (unsigned int)s);
                     MU(s, 0xa4) = op;
                     if (op != 0)
-                        return (int)FILE_callbackop(op, (void (*)(int, int))opencallback);
+                        return (int)((unsigned int (*)(unsigned int, void (*)(int, int)))FILE_callbackop)(op, (void (*)(int, int))opencallback);
                     return;                      /* MATCH: valueless (see the void note above) */
                 }
                 {                                /* close the open file first */
                     unsigned int op = FILE_close((void *)MU(s, 0x9c), prio, (unsigned int)s);
                     MU(s, 0xa4) = op;
                     if (op != 0)
-                        return (int)FILE_callbackop(op, (void (*)(int, int))closecallback);
+                        return (int)((unsigned int (*)(unsigned int, void (*)(int, int)))FILE_callbackop)(op, (void (*)(int, int))closecallback);
                     return;                      /* MATCH: valueless (see the void note above) */
                 }
             }
@@ -703,7 +680,7 @@ extern int startnextrequest(int s, unsigned int prio)
  * registers are already retail's, only the two loads are transposed.  Falsified for it: swapping
  * the two initialisers' source order, and the Yoda compare `uVar5 < uVar3` (both byte-identical --
  * fillptr's longer dependency chain wins the ready list regardless of source order). */
-extern int restartstream(int s, unsigned int prio)
+int restartstream(int s, unsigned int prio)
 {
     int *p;
     int *q;
@@ -809,13 +786,13 @@ have_room:
                                     MI(s, 0xa8), prio, (unsigned int)s);
         MU(s, 0xa4) = op;
         if (op != 0)
-            op = FILE_callbackop(op, (void (*)(int, int))readcallback);
+            op = ((unsigned int (*)(unsigned int, void (*)(int, int)))FILE_callbackop)(op, (void (*)(int, int))readcallback);
         return op;
     }
 }
 
 /* STREAM_overhead @0x800FCDE0 : bytes of bookkeeping a stream of this shape needs (excluding the ring). */
-extern int STREAM_overhead(int numReq, int numFilters, int numConsumers)
+int STREAM_overhead(int numReq, int numFilters, int numConsumers)
 {
     /* MATCH: separate request/filter terms plus the empty one-shot boundary keep gcc from
      * reassociating +0xac into the request accumulator; the constant stays on the oracle's v1
@@ -889,7 +866,7 @@ extern int STREAM_overhead(int numReq, int numFilters, int numConsumers)
  * missing device is the same one named on nfile.c reservehandle and trnsmult.c: a zero-insn,
  * NON-BARRIER value-numbering breaker.  (The `volatile` here is a pre-existing matching device
  * from w34-a2, not introduced by this wave; every attempt to remove it is worse.) */
-extern int STREAM_create(int numReq, int numFilters, int numConsumers, int objbuf, int bufsize)
+int STREAM_create(int numReq, int numFilters, int numConsumers, int objbuf, int bufsize)
 {
     int over, base, i, off;
 
@@ -1036,7 +1013,7 @@ extern int STREAM_create(int numReq, int numFilters, int numConsumers, int objbu
 /* STREAM_setfilter @0x800FD054 : program filter slot `filterIdx` (1-based) with {mask, match, value}.
  *   `value` is the target consumer id (>0), or -1 (discard) / -2 (skip).  The last filter must be the
  *   catch-all (mask==0 && match==0).  Ignored unless the stream is idle (state 0). */
-extern void STREAM_setfilter(int consumer, int filterIdx, unsigned int mask, unsigned int match, int value)
+ void STREAM_setfilter(int consumer, int filterIdx, unsigned int mask, unsigned int match, int value)
 {
     int out[2];
     int nf, obj;
@@ -1067,7 +1044,7 @@ extern void STREAM_setfilter(int consumer, int filterIdx, unsigned int mask, uns
 
 /* STREAM_destroy @0x800FD144 : kill all requests, wait for the final op to drain, drop the magic, free
  *   the mutex, and close the sync file. */
-extern void STREAM_destroy(int s)
+void STREAM_destroy(int s)
 {
     int out[2];
     if (validatehandle(s, &out[0], &out[1]) != 0)
@@ -1076,7 +1053,9 @@ extern void STREAM_destroy(int s)
     while (MI(out[0], 0x28) == 1) {               /* wait until not actively reading */
         if (iscurrentthread(0) != 0)
             systemtask(0);
-        yieldthread(0);
+        /* MATCH: yieldthread() takes nothing (its oracle is `jr ra; nop`), but retail sets
+         * $a0 in the jal delay slot here -- a dead argument, cast at THIS call site only. */
+        ((void (*)(int))yieldthread)(0);
     }
     /* MATCH: invalidate before freeing.  The block-local object pointer dies at the call, so gcc
      * keeps it in v0 and schedules the zero store into freemutex's jal delay slot. */
@@ -1089,7 +1068,7 @@ extern void STREAM_destroy(int s)
 }
 
 /* STREAM_setpriority @0x800FD1F8 : set the stream's two priority words (+0x2C, +0x30). */
-extern void STREAM_setpriority(int s, int prioA, int prioB)
+void STREAM_setpriority(int s, int prioA, int prioB)
 {
     int out[2];
     int obj;
@@ -1102,7 +1081,7 @@ extern void STREAM_setpriority(int s, int prioA, int prioB)
 
 /* STREAM_setgreedylevel @0x800FD248 : set the greedy fill threshold (+0x34); if the buffer-usage-vs-level
  *   relation flips, update the greedy state. */
-extern void STREAM_setgreedylevel(int s, int lvl)
+void STREAM_setgreedylevel(int s, int lvl)
 {
     int out[2];
     int obj, oldlvl, usage, state;
@@ -1118,7 +1097,7 @@ extern void STREAM_setgreedylevel(int s, int lvl)
 
 /* STREAM_setgreedystate @0x800FD2B4 : set the greedy state (+0x38); when turning on while actively
  *   reading, bump the in-flight op back up to the stream's read priority. */
-extern void STREAM_setgreedystate(int s, int state)
+void STREAM_setgreedystate(int s, int state)
 {
     int out[2];
     int obj;
@@ -1136,7 +1115,7 @@ extern void STREAM_setgreedystate(int s, int state)
  * queue-call args are materialized before the request-field stores so the final store fills the jal
  * slot; and the reversed priority ternary keeps the validated object in a0 through the legacy
  * two-argument startnextrequest call. */
-extern unsigned int STREAM_queuefile(int s, char *name, int off, int len)
+unsigned int STREAM_queuefile(int s, char *name, int off, int len)
 {
     int out[2];
     int *req;
@@ -1173,7 +1152,7 @@ extern unsigned int STREAM_queuefile(int s, char *name, int off, int len)
 
 /* STREAM_queuemem @0x800FD428 : queue a read of `len` bytes from a memory image.  If `ptr` is null, the
  *   source is a chained block list walked to the `len`-th node.  Returns the request id. */
-extern unsigned int STREAM_queuemem(int s, int blocklist, void *ptr, int len)
+unsigned int STREAM_queuemem(int s, int blocklist, void *ptr, int len)
 {
     int out[2];
     int *req;
@@ -1268,7 +1247,7 @@ extern unsigned int STREAM_queuemem(int s, int blocklist, void *ptr, int len)
  *     slot.  With the store first, the store/load memory order pins it and the slot instead gets
  *     the inbetween() call's `addu a0,s7,zero`.  (-2 diffs)
  * RESIDUAL (2): the ring walk's back-edge polarity (documented at the loop). */
-extern int STREAM_cancelrequest(int s, int reqid)
+int STREAM_cancelrequest(int s, int reqid)
 {
     int out[2];
     int ret;
@@ -1466,7 +1445,7 @@ nextconsumer:
  *   (e) `qc = MI(out[0],0x50)` read into its own local BEFORE `sobj = out[0]`: that keeps the queuecur
  *       load's pseudo live across the `sobj` definition, so gcc emits the oracle's `addu a1,v0,zero`
  *       copy instead of loading straight into the loop-carried register (1 insn we were SHORT). */
-extern void STREAM_kill(int s)
+void STREAM_kill(int s)
 {
     int out[2];
     int *q;
@@ -1547,7 +1526,7 @@ extern void STREAM_kill(int s)
  *   second `return chunk` -- it is gcc's delayed-branch TARGET-STEAL of the shared return
  *   materialization; spelling an explicit early `return chunk;` instead flips the branch to
  *   `bgtz`+`j` (+2).  Keep the single trailing `return chunk;`. */
-extern int STREAM_get(int consumer)
+int STREAM_get(int consumer)
 {
     int out[2];
     int cons, chunk;
@@ -1601,7 +1580,7 @@ extern int STREAM_get(int consumer)
  *   documented dead-2nd-param call. (2) the `state==2` wasstall test was wrongly materialized as a 0/1
  *   C bool tested twice; the oracle caches the RAW state word and re-tests `state==2` against the SAME
  *   li-2 constant twice (never forms a boolean) -- same idiom as decbufferusage's greedy-state test. */
-extern void STREAM_release(int s, int chunk)
+void STREAM_release(int s, int chunk)
 {
     int out[2];
     if (validatehandle(s, &out[0], &out[1]) != 0)
@@ -1641,7 +1620,7 @@ extern void STREAM_release(int s, int chunk)
 
 /* STREAM_gettable @0x800FDBCC : return the stream's consumer-array base (+0x08 reqArray... actually the
  *   "table" pointer at +0x08). */
-extern int STREAM_gettable(int s)
+int STREAM_gettable(int s)
 {
     int out[2];
     if (validatehandle(s, &out[0], &out[1]) != 0)
@@ -1650,7 +1629,7 @@ extern int STREAM_gettable(int s)
 }
 
 /* STREAM_state @0x800FDC04 : return the stream state word (+0x28). */
-extern int STREAM_state(int s)
+int STREAM_state(int s)
 {
     int out[2];
     if (validatehandle(s, &out[0], &out[1]) != 0)
@@ -1659,7 +1638,7 @@ extern int STREAM_state(int s)
 }
 
 /* STREAM_isendofstream @0x800FDC3C : true iff the stream is idle (state 0) and the consumer has no data. */
-extern int STREAM_isendofstream(int s)
+int STREAM_isendofstream(int s)
 {
     int out[2];
     int ret;
@@ -1672,7 +1651,7 @@ extern int STREAM_isendofstream(int s)
 }
 
 /* STREAM_buffersize @0x800FDC98 : the ring buffer size (bufEnd - bufBase). */
-extern int STREAM_buffersize(int s)
+int STREAM_buffersize(int s)
 {
     int out[2];
     if (validatehandle(s, &out[0], &out[1]) != 0)
@@ -1681,7 +1660,7 @@ extern int STREAM_buffersize(int s)
 }
 
 /* STREAM_bufferusage @0x800FDCE0 : current bytes of buffered (filled) data (+0x3C). */
-extern int STREAM_bufferusage(int s)
+int STREAM_bufferusage(int s)
 {
     int out[2];
     if (validatehandle(s, &out[0], &out[1]) != 0)

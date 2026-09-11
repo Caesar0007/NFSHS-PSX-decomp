@@ -135,6 +135,5 @@ void blockfill(void *dst, int n, unsigned char val)   /* @0x800F17A4 */
 }
 void blockclear(void *dst, int n)   /* @0x800F17A0 */
 {
-    blockfill(dst, n, 0);
 }
 #endif

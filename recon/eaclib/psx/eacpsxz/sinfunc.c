@@ -99,6 +99,5 @@ int intsin(int a)   /* @0x800F18E8 */
 }
 int intcos(int a)   /* @0x800F18E4 : a += 90deg, fall into sin */
 {
-    return intsin(a + 0x100);
 }
 #endif

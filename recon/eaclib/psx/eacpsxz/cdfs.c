@@ -128,6 +128,12 @@
 #include "../eaclib_types.h"
 #include "eac_types.h"
 #include "cdfs.h"
+#include "savegp.h"
+#include "systask.h"
+#include "exit.h"
+#include "addtimer.h"
+#include "blkmov.h"
+#include "blkfill.h"
 
 /* ---- helpers ---- */
 // FIXME
@@ -150,11 +156,6 @@ extern int   g_currentthread[];  /* execution context id (UNSIZED array -- metho
                                   * assembler's `$at` macro form and a scalar load self-temps.)      */
 
 // FIXME
-extern void  addtimer(void *fn, void *arg);   /* @0x800EAFE8 (eaclib)                        */
-extern void  deltimer(void *fn);              /* @0x800EB048 (eaclib)                        */
-extern void  blockmove(void *src, void *dst, int n);  /* @0x800E62DC                          */
-extern int   savegp(void *ctx);               /* save $gp around a cross-module callback     */
-extern void  restoregp(int saved);
 
 /* ---- cdfs.obj-OWNED storage for the CD-filesystem state above.
  *   ROOT CAUSE FIX (inverse of methodology-§3.12 lever #6): the original is ONE 0x83C-byte
@@ -261,14 +262,9 @@ extern int  CdDiskReady(int mode);                                         /* sy
 extern int  CdGetDiskType(void);                                           /* syslib TYPE */
 extern void VSync(int mode);                                               /* @0x800F231C */
 
-extern void addsystemtask(void *fn, void *a, void *b); /* @ systask  */
-extern void delsystemtask(void *fn);                   /* @ systask  */
-extern void addexit(void *fn);                         /* @0x800F1CF8 (exit) */
-extern void blockclear(void *dst, int n);              /* @0x800F17A0 (blkfill) */
 extern int  strncmp(const char *a, const char *b, int n); /* @0x800EB1D0 (syslib C24) */
 extern void *memcpy(void *d, const void *s, int n);       /* @0x800EAAC4 (syslib C42) */
 extern void qsort(void *base, int n, int sz, int (*cmp)(const void *, const void *)); /* @0x800E5D8C */
-
 
 /* unaligned little-endian 32-bit load (the asm uses lwl/lwr; ISO9660 stores LE first).  MUST be
  * `inline` (a bare `static` at -O2 on this toolchain still emits an out-of-line call) -- the oracle
@@ -381,7 +377,7 @@ void CD_timerfunc(void)
         if (CD_timeout == 0) {
             addsystemtask((void *)CD_systaskfunc, 0, 0);
             CD_timeout = 0;
-            deltimer((void *)CD_timerfunc);
+            ((void (*)(void *))deltimer)((void *)CD_timerfunc);
         }
     }
 }
@@ -419,7 +415,7 @@ void CdReadyHandler(unsigned char intr, unsigned char *result)
     done = 0;
 
     if ((*result & 0x10) != 0) {          /* shell open / hard error -> hand off to the recovery task */
-        deltimer((void *)CD_timerfunc);
+        ((void (*)(void *))deltimer)((void *)CD_timerfunc);
         addsystemtask((void *)CD_systaskfunc, 0, 0);
         return;
     }
@@ -498,7 +494,7 @@ cdrh_doneTest:
             CD_info &= ~1;
             CD_timeout = 0;
             CD_lastSector = CD_cachedSector;
-            deltimer((void *)CD_timerfunc);
+            ((void (*)(void *))deltimer)((void *)CD_timerfunc);
             if (CD_completionCallback != 0) {
                 /* methodology-§3.12 lever #16 (hold-global-addr-across-call): the oracle parks
                  * &g_currentthread in a CALLEE-SAVED reg ($s0) across savegp/the callback/restoregp
@@ -830,7 +826,9 @@ int CD_Read(int dev, int dest, int offset, int len)
       ctx->curSector = startSector; } /* start sector + offset / 0x800 */
     CD_info |= 2;                                       /* read in progress */
     CD_timeout   = timerhz[0] * 6;
-    addtimer((void *)CD_timerfunc, (void *)dest);
+    /* MATCH: retail sets $a1 here although addtimer() takes one parameter -- a dead 2nd
+             * argument, cast at THIS call site only (catalog D) rather than widening the decl. */
+            ((void (*)(void *, void *))addtimer)((void *)CD_timerfunc, (void *)dest);
 
     if (CD_cachedSector == CD_curSector && (CD_info & 0x10) && g_currentthread[0] == 2) {
         { char *cache = (char *)CD_sectorCache;
@@ -856,7 +854,7 @@ int CD_Read(int dev, int dest, int offset, int len)
             int gpctx[2];
             CD_timeout = 0;
             CD_info &= ~2;
-            deltimer((void *)CD_timerfunc);
+            ((void (*)(void *))deltimer)((void *)CD_timerfunc);
             if (CD_completionCallback != 0) {
                 savegp(gpctx);
                 CD_completionCallback(1);

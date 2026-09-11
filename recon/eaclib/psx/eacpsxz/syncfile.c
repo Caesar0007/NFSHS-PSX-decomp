@@ -20,6 +20,11 @@
  * PER-FN LADDER NUMBERS (version-only axis; 'P' = PASS):
  *   synccallback   def 19 | 2.6.0 30 | 2.6.3 30 | 2.7.2-970404 25 | 2.7.2 29 | 2.8.1 19 | 2.91.66 37 | 2.95.2 20
  */
+
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "syncfile.h"
+#include "nfile.h"
 /* eaclib/psx/eacpsxz/syncfile.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 1/1 ***
  *   obj nfs4\eaclib\psx\syncfile.obj ; EACPSXZ.LIB (xlsx col12 / SYM v3 FILE record line 357483).
  *   8 fns @[0x800EA6CC .. 0x800EAAC4]: synchronous (blocking) wrappers over the asynchronous FILE_* API
@@ -39,35 +44,10 @@
  *   the asm passes 6).  IDA sigs recovered all dropped reg/stack args; `-0x7ff15934` = 0x800EA6CC =
  *   synccallback (the registered completion callback).  Plain C -> extern "C".
  */
-struct SyncCtrl;
-
-typedef struct SyncCtrl {
-    int      cbarg;   /* +0  user callback arg (passed as the io fn's 5th param) */
-    int      fd;      /* +4  file handle */
-    int      buf;     /* +8  destination pointer (advances by bytes-done) */
-    int      remain;  /* +12 bytes still to transfer */
-    int      done;    /* +16 bytes transferred so far (syncblockio's return), advances */
-    int      chunk;   /* +20 current chunk size (clamped to 0x2000) */
-    int      offset;  /* +24 source offset (finalized on the last/short chunk) */
-    int    (*iofn)(int fd, int buf, int offset, int chunk, int cbarg,
-                   struct SyncCtrl *ctrl); /* +28 async io fn (only stored for multi-chunk transfers) */
-    int      op;      /* +32 current async op handle */
-} SyncCtrl;
 
 /* --- async FILE_* API (nfile.obj) --- */
-extern unsigned int FILE_open  (char *name, int a2, int a3, int a4);
-extern unsigned int FILE_close (int fd, int a2, int a3);
-extern unsigned int FILE_size  (int fd, int a2, int a3);
-extern unsigned int FILE_addbig(char *name, int a2, int a3, int a4);
-extern unsigned int FILE_delbig(int a0, int a1, int a2);
-extern int          FILE_read(int fd, int buf, int offset, int chunk, int cbarg, SyncCtrl *ctrl); /* @0x800EC4EC */
-extern void         FILE_waitop    (unsigned int op);
-extern int          FILE_opstatus  (unsigned int op);
-extern unsigned int FILE_completeop(unsigned int op);
-extern void         FILE_callbackop(unsigned int op, void *cb);
 
-extern void synccallback(int op, int type, SyncCtrl *ctrl);                 /* @0x800EA6CC */
-extern int  syncblockio(int fd, int buf, int offset, int len, int cbarg,
+ int  syncblockio(int fd, int buf, int offset, int len, int cbarg,
                         int (*iofn)(int, int, int, int, int, struct SyncCtrl *)); /* @0x800EA7E8 */
 
 /* synccallback @0x800EA6CC : async completion -- on a successful chunk, advance the control block and, if more
@@ -188,7 +168,7 @@ extern int  syncblockio(int fd, int buf, int offset, int len, int cbarg,
  *   (19) or the `c->remain -= done` else-arm (19) -- both outside the advance chain, no effect;
  *   wrapping two accumulates (14 @73) or nesting the wrapper twice (14 @73) -- no extra depth
  *   gain, the flr2 step is already crossed by depth 1. */
-extern void synccallback(int op, int type, SyncCtrl *c)
+void synccallback(int op, int type, SyncCtrl *c)
 {
     SyncCtrl *t;
     unsigned int done;
@@ -241,7 +221,7 @@ extern void synccallback(int op, int type, SyncCtrl *c)
 }
 
 /* syncblockio @0x800EA7E8 : run a chunked blocking transfer of `len` bytes via `iofn`; returns bytes moved. */
-extern int syncblockio(int fd, int buf, int offset, int len, int cbarg,
+int syncblockio(int fd, int buf, int offset, int len, int cbarg,
                        int (*iofn)(int, int, int, int, int, struct SyncCtrl *))
 {
     SyncCtrl c;
@@ -288,7 +268,7 @@ extern int syncblockio(int fd, int buf, int offset, int len, int cbarg,
 }
 
 /* FILE_opensync @0x800EA8A8 : blocking open; *out = handle.  Returns 1 if the op succeeded. */
-extern int FILE_opensync(char *name, int a2, int a3, int *out)
+int FILE_opensync(char *name, int a2, int a3, int *out)
 {
     int          ok = 0;
     unsigned int op = FILE_open(name, a2, a3, 0);
@@ -303,7 +283,7 @@ extern int FILE_opensync(char *name, int a2, int a3, int *out)
 }
 
 /* FILE_readsync @0x800EA920 : blocking read (chunked via syncblockio + FILE_read). */
-extern void FILE_readsync(int fd, int buf, int offset, int len, int cbarg)
+void FILE_readsync(int fd, int buf, int offset, int len, int cbarg)
 {
     syncblockio(fd, buf, offset, len, cbarg, FILE_read);
 }
@@ -311,7 +291,7 @@ extern void FILE_readsync(int fd, int buf, int offset, int len, int cbarg)
 /* FILE_closesync @0x800EA950 : blocking close.
  * MATCH: SHARED-CONSTANT-RETURN (catalog §A) -- `result` is materialized ONCE as the literal 0,
  * doubling as the FILE_close third-arg AND (post-call) the return value; oracle keeps both in $s1. */
-extern int FILE_closesync(int fd, int a2)
+int FILE_closesync(int fd, int a2)
 {
     int result = 0;
     unsigned int op = FILE_close(fd, a2, result);
@@ -323,7 +303,7 @@ extern int FILE_closesync(int fd, int a2)
 }
 
 /* FILE_sizesync @0x800EA9A4 : blocking size query.  MATCH: same shared-constant-return shape. */
-extern int FILE_sizesync(int fd, int a2)
+int FILE_sizesync(int fd, int a2)
 {
     int result = 0;
     unsigned int op = FILE_size(fd, a2, result);
@@ -335,7 +315,7 @@ extern int FILE_sizesync(int fd, int a2)
 }
 
 /* FILE_addbigsync @0x800EA9F8 : blocking add-to-BIG; *out = handle.  Returns 1 if the op succeeded. */
-extern int FILE_addbigsync(char *name, int a2, int a3, int *out)
+int FILE_addbigsync(char *name, int a2, int a3, int *out)
 {
     int          ok = 0;
     unsigned int op = FILE_addbig(name, a2, a3, 0);
@@ -350,7 +330,7 @@ extern int FILE_addbigsync(char *name, int a2, int a3, int *out)
 }
 
 /* FILE_delbigsync @0x800EAA70 : blocking remove-from-BIG.  MATCH: same shared-constant-return shape. */
-extern int FILE_delbigsync(int a0, int a1)
+int FILE_delbigsync(int a0, int a1)
 {
     int result = 0;
     unsigned int op = FILE_delbig(a0, a1, result);

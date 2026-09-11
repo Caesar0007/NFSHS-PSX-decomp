@@ -2,13 +2,15 @@
  *   obj nfs4\eaclib\psx\shpclut.obj ; EACPSXZ.LIB.  2 fns @[0x800F6C3C .. 0x800F6C94].  Walk a shape's
  *   sub-chunk list to its CLUT chunk and resolve the GPU clut id.  Ghidra nfs4-f.exe.c (shpclut) + IDA sigs.
  */
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "shpclut.h"
+
+// FIXME
 extern short GetClut(int x, int y);   /* syslib P01 */
 
-extern int getshapeclut(int shape);             /* @0x800F6C3C */
-extern int shapetoclutid(unsigned int *shape);  /* @0x800F6C94 */
-
 /* getshapeclut : follow the chunk chain (tag low byte == '#'/0x23) to the CLUT chunk; 0 if none. */
-extern int getshapeclut(int shape)
+int getshapeclut(int shape)
 {
     /* MATCH: entry null-test + do-while (bottom bnez back-edge); tag tested with a BYTE
      * read (lbu -- LE low byte of the chunk word); the chain-step if/else funnels through
@@ -31,7 +33,7 @@ extern int getshapeclut(int shape)
 }
 
 /* shapetoclutid : like getshapeclut but returns the GPU clut id (GetClut of the chunk's packed x/y). */
-extern int shapetoclutid(unsigned int *shape)
+int shapetoclutid(unsigned int *shape)
 {
     /* MATCH: same entry-test + do-while walk as getshapeclut, but: tag = BYTE read
      * masked 0xF7 (lbu+andi); match RETURNS from inside the loop (GetClut tail);

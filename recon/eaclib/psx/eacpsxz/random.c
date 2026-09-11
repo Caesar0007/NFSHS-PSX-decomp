@@ -19,6 +19,9 @@
  *   etc. are position-parsed), double `.set noreorder` (tab form turns maspsx is_reorder OFF; space
  *   form passes to gnu-as), `.set noat` to allow the manual $at in seedrandom.
  */
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "random.h"
 
 #if defined(__mips__)
 /* the 6-word PRNG state, defined in the .data blob (original @0x8012349C); asm refs it as `seed`. */
@@ -128,7 +131,7 @@ static unsigned seed[6] = {                  /* @0x8012349C (== seedrandom(0)) *
     0xF22D0E56u, 0x883126E9u, 0xC624DD2Fu, 0x0702C49Cu, 0x9E353F7Du, 0x6FDF3B64u
 };
 
-extern int random(void)   /* @0x800E77A8 */
+int random(void)   /* @0x800E77A8 */
 {
     unsigned t0 = seed[0], t1 = seed[1], t2 = seed[2];
     unsigned t3 = seed[3], t4 = seed[4], t5 = seed[5];
@@ -156,7 +159,7 @@ extern int random(void)   /* @0x800E77A8 */
     return (int)t0;
 }
 
-extern void seedrandom(int s)   /* @0x800E7878 */
+void seedrandom(int s)   /* @0x800E7878 */
 {
     unsigned a = (unsigned)s;
     a += 0xF22D0E56u; seed[0] = a;

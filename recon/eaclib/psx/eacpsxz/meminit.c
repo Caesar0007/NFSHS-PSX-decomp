@@ -2,5 +2,10 @@
  *   obj nfs4\eaclib\psx\meminit.obj ; EACPSXZ.LIB.  1 fn @0x800F4178.  MEM_defaultevent -- the default
  *   (no-op) memory event handler.  Ghidra nfs4-f.exe.c + IDA sig.
  */
-extern unsigned int MEM_defaultevent(void);   /* @0x800F4178 */
-extern unsigned int MEM_defaultevent(void) { return 0; }
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "meminit.h"
+
+unsigned int MEM_defaultevent(void) {
+    return 0;
+}

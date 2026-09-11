@@ -13,6 +13,9 @@
  *     shapename(sf,i,dst)   = *(u32*)dst = (i<count) ? entry[i].name : 0   (unaligned swr/swl store)
  *   maspsx: load/store offsets DECIMAL; `sltu` comma-joined; `.set noat` for the explicit $at.
  */
+#include "../eaclib_types.h"
+#include "eac_types.h"
+#include "shpsubs.h"
 
 #if defined(__mips__)
 /* ASPSX-DIALECT (w64-a20): the asm below uses NUMERIC registers and no
@@ -68,12 +71,12 @@ __asm__(
     "\t.set reorder\n"
 );
 #else
-extern int shapecount(void *shapefile)   /* @0x800F0AAC */
+int shapecount(void *shapefile)   /* @0x800F0AAC */
 {
     return *(int *)((char *)shapefile + 8);
 }
 
-extern void *shapepointer(void *shapefile, unsigned int index)   /* @0x800F0AB8 */
+void *shapepointer(void *shapefile, unsigned int index)   /* @0x800F0AB8 */
 {
     char *sf = (char *)shapefile;
     if (index < (unsigned)*(int *)(sf + 8))
@@ -81,7 +84,7 @@ extern void *shapepointer(void *shapefile, unsigned int index)   /* @0x800F0AB8 
     return 0;
 }
 
-extern void shapename(void *shapefile, unsigned int index, void *dst)   /* @0x800F0AE0 */
+void shapename(void *shapefile, unsigned int index, void *dst)   /* @0x800F0AE0 */
 {
     char *sf = (char *)shapefile;
     int name = (index < (unsigned)*(int *)(sf + 8)) ? *(int *)(sf + index * 8 + 0x10) : 0;

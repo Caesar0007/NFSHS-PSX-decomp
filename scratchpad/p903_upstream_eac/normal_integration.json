@@ -1,0 +1,317 @@
+{
+  "passed": true,
+  "head": "df4e6e0a58934686ea3b424bcde666af5a306f92",
+  "actual_EAC_TUs_recompiled": 74,
+  "EAC_native_functions_PASS": 248,
+  "EAC_branches_unchanged": 1139,
+  "previous_protected_functions_PASS": 1093,
+  "combined_protected_instances": 1341,
+  "literal_normal_objects_preserved": 517,
+  "callback_only_symbol_table_order_changed": true,
+  "linked_ELF_literal_unchanged": true,
+  "linked_ELF_sha256": "52800553415581618c04766bca85e3d943de8343f60b78c62ff7c62af9e32ae0",
+  "linked_map_literal_unchanged": true,
+  "report_literal_unchanged": true,
+  "production_tools_unchanged": true,
+  "user_files_preserved": true,
+  "no_postcompile_rewrites": true,
+  "full_native_image_not_claimed": true,
+  "normal_objects": [
+    {
+      "source": "recon/eaclib/psx/eacpsxz/addtimer.c",
+      "object_sha256": "df670489e3c993d78dc1f78b347d4657fea4d88d9da53bc282d89afc520914c2"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/asinfunc.c",
+      "object_sha256": "04fd369e76c38f9bd05108abe7ee148eb689b83fce077a1727e0a46e6820cd2a"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/asintbl.c",
+      "object_sha256": "a42e623a5831b4ccadc19591bb9702d2a4251f98b94b8058755d86731fb8fd1f"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/atanfunc.c",
+      "object_sha256": "fd4c52f9b35755a0d2f9ef8349eb452094e3164e9a1ff1f6663c739694addc44"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/atantbl.c",
+      "object_sha256": "caf3f746ab2c528f9376b729dbbfc70f6cb44e0a01097dd5f41d5ad73b5ff6d4"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/blkfill.c",
+      "object_sha256": "4429012ff326cc62efb8dd540cd474a42197aeca8606f331b09e7eefb20d1731"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/blkmov.c",
+      "object_sha256": "630ee37d5c669e9c2236f5a43f34ca963f61730dc7d31b39a1b651f63c346112"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/callback.c",
+      "object_sha256": "9679edf6f735f251d947809784f6e9f9222d83424268bf2c2c34dbf79c0f7b67"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/cdfs.c",
+      "object_sha256": "23cf33393eacda08e5984043415d9eb3489a708097653e3a8662fe076fd692af"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/cluttype.c",
+      "object_sha256": "9430739f93b3272d8bad1f0b8bab986bd630d3316d20dd5d44ccf2e8fcd465b2"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/crc.c",
+      "object_sha256": "4ade04a132f3d2a166e10e9d2af564fbd4674320f2a9ba9fa0713f13ccaa4c0b"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/crossprd.c",
+      "object_sha256": "f7b0e81d5017871ade813c7ae5ac8aab9eedea1d9c7e72d03aff0e275808a172"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/devsys.c",
+      "object_sha256": "91c37fd58f980aad92c782b565279de57c5987e2a3c055a380437cc7e1b4dbd4"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/exit.c",
+      "object_sha256": "3adbc47a40d8d5ddf10ef93decabded11e06bfc4d23598b0795f30b4c4da677f"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/fastmovf.c",
+      "object_sha256": "2ede183ddd64da0f83d906d66a5d0059a7c3cc5602844ec0ee9d5adb1f030430"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/fatantbl.c",
+      "object_sha256": "e62d7c9c48dc684165cde99396959802c25ada2e1c82adcecef0e6f225e37659"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/fileroot.c",
+      "object_sha256": "90820b07b49ee2d7a9c7650268d5737cd7c5a3e429ff19029350aefd102c15c9"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/fixdatan.c",
+      "object_sha256": "43c4b83fa04936a5b48e588a581d51f9bd9940a910fe81d7786b2b131d494ddc"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/fixddiv.c",
+      "object_sha256": "b8df7eaf56574f86a4baba671535c9cda3c3adc1b47820b5101c89b95c25d50d"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/fixdinv.c",
+      "object_sha256": "0b2858afd7b98ebf9ffd5631df679e17d760b8c430631bc05e884c62fa03fccf"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/fixdmult.c",
+      "object_sha256": "19f883ae70d1766c79bc06fccc8d0ee8602b4abe043c7b150c4b33c390d1e4e8"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/fixdsin.c",
+      "object_sha256": "9c98a06a43a648a4e76a094896a9755b1572a8ae654dc0d4379fb98d8380a49f"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/fixdsqrt.c",
+      "object_sha256": "9f085fe133ddcad7a80db5f4989e84a370717320ffd1cc6bb87046e6368c36de"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/fsincos.c",
+      "object_sha256": "78b5f87763404a60a96edc86627c10e99ba8f3e1d3f02f8d4d39ddbb6975cc30"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/fxform.c",
+      "object_sha256": "054059be27d334c30fe128008b55f80331aac4709bf144958fcca3977fbc65f8"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/getm.c",
+      "object_sha256": "5f821ed1a21277c0390404ea2af30693d0a6cfa21b18ff2505c834a2c2d8842b"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/inittmr.c",
+      "object_sha256": "29c721d40646b18e65c0bb2e15a1a0bdff36361b32849661895d50767e403a26"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/isincos.c",
+      "object_sha256": "072a529cd485ab0f7859dc2ff97ccbcd7353e4f9ecaeb3d543c35119b62dcbb9"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/isqrt.c",
+      "object_sha256": "679bca9b26882834b2e0bad50b0f952fd5e02bd446594aca5b668563b4545fd0"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/isqrttbl.c",
+      "object_sha256": "e1891c7ddb9866c1822492651e3d16ca57310351b567f1fee9c0184e5cf76e26"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/joystkn.c",
+      "object_sha256": "394d07954502298fefcd9e305e0410930a0b2fe8b4556fb0493e52a264ce3102"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/loadshp.c",
+      "object_sha256": "6a67a5944b1184a295af66c1c3936f39a55faaadbe5ae8f3f9a79148d08f8af7"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/locatbig.c",
+      "object_sha256": "cfbc6db021a437ac0d83b99c22d2f099ce7905bbde8531fb561ca305b31605aa"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/locatshp.c",
+      "object_sha256": "b52060a8eb1439bc015ef722678774c542f60180cfff3d35db5f947804bcd907"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/math64a.c",
+      "object_sha256": "a25fb8547088d75e8a25fc758c305bba243d8ba2a0b961bf94c223df7168f455"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/matrix.c",
+      "object_sha256": "2a8e29ff8dc29f2c71d8d586968aa5a82ddfc39035c1a16e9243ea0098376e2d"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/meminit.c",
+      "object_sha256": "c438303f41e3081f70d7a83ebf85e65a681857f8483040e86c4084166ef2d24c"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/memstd.c",
+      "object_sha256": "a5beab136cd1e15ac2cf384dbfcd9cde9a0581a65528c8aec7b5e1f01c119aa5"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/movf.c",
+      "object_sha256": "0da88e595447aa80a3cae470132bc71f25164a1c4166c18a844d05bc724387db"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/nasync.c",
+      "object_sha256": "2c3b9a214f2f2fecf0b1f5435bf6d4064527dff78f88a23fa4bbeb559e01f920"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/nfile.c",
+      "object_sha256": "ea0a5effe987f8139a7371e8a23bd5b7a1832ee71aeb21fb420fa61be544c7ff"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/nloadpk.c",
+      "object_sha256": "421db6fa16c4c7dc598af8c0664ba3630d5d6261c99322de71f570fa11b1f746"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/nsync.c",
+      "object_sha256": "789a394847269be18843b780d22e2f86306cd1c4a5a18fee6786db92282cda59"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/nullfunc.c",
+      "object_sha256": "010bd2be2d442a2d4815df93f5d2f44762ea442b4e0a9f8a606adf1902c73ef2"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/primate.c",
+      "object_sha256": "6394d4a4e77810e8992e2cd35acd8fa124518c5aa70e23c12bba84e72e0286f6"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/random.c",
+      "object_sha256": "8499f738050f61ed125c62300d8ea30b99e8e9e62876fea323d5c9b965b5d933"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/resize.c",
+      "object_sha256": "fffc58c6e13c6b67dcececf435a85f0a4d712a72ded8278b2eaa485d342adba9"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/savegp.c",
+      "object_sha256": "43dde095cb611fe0246b5a3ccb8c645a309cf072bfa037926c1b9326e608be6c"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/shpclut.c",
+      "object_sha256": "ed9feedce1f7bbaef45e35ea42664a4f4f6e971274b496be04c1e8c1d30e4acf"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/shpdepth.c",
+      "object_sha256": "db1e14a8d41d2cd487775d47ba8cce5de085d08605f586ce591f1b38237744b2"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/shpsubs.c",
+      "object_sha256": "cf392fe406803dba3ca504892d6c783655bdb67e77517070e5d0382c12092dd1"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/shptype.c",
+      "object_sha256": "1631064b566009d7474d0ee6e445ca114b5b237a9200ea383843faaad5f4ff3e"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/sinfunc.c",
+      "object_sha256": "e3b15a256dcdd7c8cdf584dca06baf74e6e1a321dcb194f900a9f57df5b898b4"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/sintbl.c",
+      "object_sha256": "b55dc67e38acf738ac6681089c250fcb5bfcdbef761d0a88bce8af02bd775db7"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/stream.c",
+      "object_sha256": "9bbee3e0813235e85b865c3e778fd7bf4473fb6e4546100e1e524bd49af914be"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/stricmp.c",
+      "object_sha256": "47cc05ee3ab983ebcb8d5906e05005cf9909a6504dcaf951c19dbcd521e7a3d2"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/syncfile.c",
+      "object_sha256": "6073f524f7991a0ac1e943b0412d3f7c1f2c9dd23e34086c4645effe853308ef"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/systask.c",
+      "object_sha256": "e15aa9665dffc3ea17ac3febd6b8495224304b352ef62d14a2e30574aa33eed4"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/textcode.c",
+      "object_sha256": "e33ec66f095fe393268d132dfc4a44e428fb2edaf3807b5501672ccae46640bb"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/textcrnt.c",
+      "object_sha256": "7a9c4129aac55dd85a383d1fc1e0f91da7c8d6c7853db3a634b04ac938c477f8"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/textfor.c",
+      "object_sha256": "08abd9fe0810cc4d93402db9dfc5707a2607dc36dd390451d795dce4d3a96f54"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/textset.c",
+      "object_sha256": "abc2aae0fc34795e708cb2d7c2cecda0d8694a273ca4aad87257757a91a80262"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/threads.c",
+      "object_sha256": "20d4bfb9d0d28e1b0253f1b080baa8ebaecf0637ac1bb2c4a4f4de28940fb505"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/timer.c",
+      "object_sha256": "985adbc92c68a9bc1ea0220e06956865e885c414b138767b2425c2b057bb58a5"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/trnsfrm.c",
+      "object_sha256": "7b04590ce4df9b38190c07214021537e5bd81dec68c16f6e72ebb1e5d9339522"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/trnsmult.c",
+      "object_sha256": "4a0679cf5d27fe4bab0f794912da82a7a3d5394885fa4f9875784ad316a3da00"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/trnspos.c",
+      "object_sha256": "c1a1b3b62bfd96d72824966f5a4ad41dbe6c63bd9ec647fb0dd5d64b5dadaf8e"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/unbtree.c",
+      "object_sha256": "88c9b4c8daa0b6b72892b8c1b62c6c9390a4d22bd13ebdb440386879a21bb9ac"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/unhuff.c",
+      "object_sha256": "d37ffece2803ea6649286fc2fb82ea774139548b571043e3f78b14f3fe531dce"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/unref.c",
+      "object_sha256": "1ebc783906580fdd0afcc64cc5c9f5aadb7ef0ebc26a66dfff96900c3fa7237f"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/vars.c",
+      "object_sha256": "5c2c306766d65bba74144d151db5be47e2317cb56212c98e281bc3f3f73100eb"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/vramfxya.c",
+      "object_sha256": "ef33975504ee68a9c7bcd63550992f2f17e19e2ad2ab2a8b86c1828bd82249b0"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/wildcard.c",
+      "object_sha256": "738b7487726f8fdcde29b0197d4c1fd9111f89e479c63f4dde69c781182b7ac3"
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/xform.c",
+      "object_sha256": "319e9694e2f4e5be2e3bf9dc3e702b22addc20c3b9ba9a3db8f5f581f982afb7"
+    }
+  ]
+}

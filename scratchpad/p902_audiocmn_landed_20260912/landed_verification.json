@@ -1,0 +1,2134 @@
+{
+  "passed": true,
+  "actual_source_sha256": "ea914b6e9f5a712cf7f176385268e890fb9651f38396a062f4c5a3a4316cd629",
+  "actual_object_sha256": "71ddb86db9e91f16ed317d1fc7f327931b6deed22543f03c5aa7a9f86f12b993",
+  "gates": "48/48",
+  "branches": 513,
+  "normal_metadata_comparisons": [
+    {
+      "reference": "before",
+      "all_payload_metadata_relocations_identical_except_exact_FILE": true,
+      "before_FILE": [
+        "C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\p902_audiocmn_async\\\\inputs\\\\base\\\\audiocmn.cpp",
+        0,
+        0,
+        4,
+        0,
+        65521
+      ],
+      "actual_FILE": [
+        "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\common\\\\audiocmn.cpp",
+        0,
+        0,
+        4,
+        0,
+        65521
+      ]
+    },
+    {
+      "reference": "candidate",
+      "all_payload_metadata_relocations_identical_except_exact_FILE": true,
+      "before_FILE": [
+        "C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\p902_audiocmn_async\\\\inputs\\\\base\\\\audiocmn.cpp",
+        0,
+        0,
+        4,
+        0,
+        65521
+      ],
+      "actual_FILE": [
+        "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\common\\\\audiocmn.cpp",
+        0,
+        0,
+        4,
+        0,
+        65521
+      ]
+    }
+  ],
+  "all_48_candidate_debug_graphs_preserved": true,
+  "all_47_historical_neighbors_preserved": true,
+  "raw_words": 105,
+  "raw_reference_words": 23,
+  "functions": [
+    {
+      "function": "AudioCmn_MusicLevel__Fi",
+      "instructions": 24,
+      "native_SLD": [
+        0,
+        161
+      ],
+      "declarations": [
+        "\t.def\tlevel;\t.val\t4;\t.scl\t17;\t.type\t0x4;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147968032,
+          "depth": 0,
+          "declarations": [],
+          "end": 2147968120
+        }
+      ],
+      "source_partitions_and_debug_graph_exact_to_candidate": true
+    },
+    {
+      "function": "AudioCmn_GetTrackRecordLapTime__Fv",
+      "instructions": 4,
+      "native_SLD": [
+        3,
+        0
+      ],
+      "declarations": [],
+      "scopes": [
+        {
+          "start": 2147968128,
+          "depth": 0,
+          "declarations": [],
+          "end": 2147968128
+        }
+      ],
+      "source_partitions_and_debug_graph_exact_to_candidate": true
+    },
+    {
+      "function": "AudioCmn_InitThunder__Fv",
+      "instructions": 5,
+      "native_SLD": [
+        0,
+        2
+      ],
+      "declarations": [],
+      "scopes": [
+        {
+          "start": 2147968144,
+          "depth": 0,
+          "declarations": [],
+          "end": 2147968144
+        }
+      ],
+      "source_partitions_and_debug_graph_exact_to_candidate": true
+    },
+    {
+      "function": "AudioCmn_PlayThunder__Fii",
+      "instructions": 11,
+      "native_SLD": [
+        0,
+        4
+      ],
+      "declarations": [
+        "\t.def\tintensity;\t.val\t4;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tazimuth;\t.val\t5;\t.scl\t17;\t.type\t0x4;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147968164,
+          "depth": 0,
+          "declarations": [],
+          "end": 2147968200
+        }
+      ],
+      "source_partitions_and_debug_graph_exact_to_candidate": true
+    },
+    {
+      "function": "AudioCmn_UpdateThunder__Fv",
+      "instructions": 43,
+      "native_SLD": [
+        26,
+        20
+      ],
+      "declarations": [],
+      "scopes": [
+        {
+          "start": 2147968208,
+          "depth": 0,
+          "declarations": [],
+          "end": 2147968364
+        }
+      ],
+      "source_partitions_and_debug_graph_exact_to_candidate": true
+    },
+    {
+      "function": "AudioCmn_InitAsyncSfx__Fv",
+      "instructions": 14,
+      "native_SLD": [
+        0,
+        19
+      ],
+      "declarations": [
+        "\t.def\ti;\t.val\t4;\t.scl\t4;\t.type\t0x4;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147968380,
+          "depth": 0,
+          "declarations": [
+            ".def\ti;\t.val\t4;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147968428
+        }
+      ],
+      "source_partitions_and_debug_graph_exact_to_candidate": true
+    },
+    {
+      "function": "AudioCmn_RemoveAsyncSfx__Fi",
+      "instructions": 34,
+      "native_SLD": [
+        0,
+        10
+      ],
+      "declarations": [
+        "\t.def\tslot;\t.val\t4;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\ts;\t.val\t16;\t.scl\t4;\t.tag\tAudioCmn_tAsyncSfxSlot;\t.size\t24;\t.type\t0x18;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147968436,
+          "depth": 0,
+          "declarations": [
+            ".def\ts;\t.val\t16;\t.scl\t4;\t.tag\tAudioCmn_tAsyncSfxSlot;\t.size\t24;\t.type\t0x18;\t.endef"
+          ],
+          "end": 2147968552
+        }
+      ],
+      "source_partitions_and_debug_graph_exact_to_candidate": true
+    },
+    {
+      "function": "AudioCmn_DeInitAsyncSfx__Fv",
+      "instructions": 14,
+      "native_SLD": [
+        0,
+        35
+      ],
+      "declarations": [
+        "\t.def\ti;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147968572,
+          "depth": 0,
+          "declarations": [
+            ".def\ti;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147968612
+        }
+      ],
+      "source_partitions_and_debug_graph_exact_to_candidate": true
+    },
+    {
+      "function": "AudioCmn_RemoveOldestAsyncSfx__Fi",
+      "instructions": 58,
+      "native_SLD": [
+        0,
+        24
+      ],
+      "declarations": [
+        "\t.def\tbank;\t.val\t4;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\toldest;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tticks;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\ti;\t.val\t7;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\ti;\t.val\t5;\t.scl\t4;\t.type\t0x4;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147968628,
+          "depth": 0,
+          "declarations": [
+            ".def\toldest;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tticks;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147968840
+        },
+        {
+          "start": 2147968628,
+          "depth": 1,
+          "declarations": [
+            ".def\ti;\t.val\t7;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147968740
+        },
+        {
+          "start": 2147968740,
+          "depth": 1,
+          "declarations": [],
+          "end": 2147968824
+        },
+        {
+          "start": 2147968748,
+          "depth": 2,
+          "declarations": [
+            ".def\ti;\t.val\t5;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147968824
+        }
+      ],
+      "source_partitions_and_debug_graph_exact_to_candidate": true
+    },
+    {
+      "function": "AudioCmn_LoadAsyncSfx__FiiPvi",
+      "instructions": 105,
+      "native_SLD": [
+        0,
+        9
+      ],
+      "declarations": [
+        "\t.def\tbank;\t.val\t18;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tpatch;\t.val\t22;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tpbank;\t.val\t23;\t.scl\t17;\t.type\t0x11;\t.endef",
+        "\t.def\tsize;\t.val\t19;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tslot;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tcheck;\t.val\t-48;\t.scl\t1;\t.type\t0x4;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147968860,
+          "depth": 0,
+          "declarations": [
+            ".def\tslot;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tcheck;\t.val\t-48;\t.scl\t1;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147969236
+        },
+        {
+          "start": 2147968940,
+          "depth": 1,
+          "declarations": [],
+          "end": 2147969220
+        }
+      ],
+      "source_partitions_and_debug_graph_exact_to_candidate": true
+    },
+    {
+      "function": "AudioCmn_GetAsyncSfx__Fiib",
+      "instructions": 93,
+      "native_SLD": [
+        6,
+        25
+      ],
+      "declarations": [
+        "\t.def\tbank;\t.val\t17;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tpatch;\t.val\t18;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tcheckonly;\t.val\t19;\t.scl\t17;\t.type\t0x0;\t.endef",
+        "\t.def\tslot;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tr;\t.val\t-56;\t.scl\t1;\t.tag\tCopSpeak_tRequest;\t.size\t32;\t.type\t0x8;\t.endef",
+        "\t.def\ts;\t.val\t3;\t.scl\t4;\t.tag\tAudioCmn_tAsyncSfxSlot;\t.size\t24;\t.type\t0x18;\t.endef",
+        "\t.def\tFOUND;\t.val\t$L84;\t.scl\t6;\t.type\t0x0;\t.endef",
+        "\t.def\tDOREQ;\t.val\t$L95;\t.scl\t6;\t.type\t0x0;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147969280,
+          "depth": 0,
+          "declarations": [
+            ".def\tslot;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tr;\t.val\t-56;\t.scl\t1;\t.tag\tCopSpeak_tRequest;\t.size\t32;\t.type\t0x8;\t.endef",
+            ".def\ts;\t.val\t3;\t.scl\t4;\t.tag\tAudioCmn_tAsyncSfxSlot;\t.size\t24;\t.type\t0x18;\t.endef",
+            ".def\tFOUND;\t.val\t0x800769d4;\t.scl\t6;\t.type\t0x0;\t.endef",
+            ".def\tDOREQ;\t.val\t0x800769e8;\t.scl\t6;\t.type\t0x0;\t.endef"
+          ],
+          "end": 2147969624
+        }
+      ],
+      "source_partitions_and_debug_graph_exact_to_candidate": true
+    },
+    {
+      "function": "AudioCmn_Init__Fv",
+      "instructions": 94,
+      "native_SLD": [
+        0,
+        100
+      ],
+      "declarations": [
+        "\t.def\tj;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\ttemptrack;\t.val\t4;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tsetup;\t.val\t2;\t.scl\t4;\t.tag\tGameSetup_tData;\t.size\t2600;\t.type\t0x18;\t.endef",
+        "\t.def\tambient;\t.val\t12;\t.scl\t4;\t.type\t0x12;\t.endef",
+        "\t.def\tmystic;\t.val\t11;\t.scl\t4;\t.type\t0x12;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147969652,
+          "depth": 0,
+          "declarations": [
+            ".def\tj;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\ttemptrack;\t.val\t4;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147969924
+        },
+        {
+          "start": 2147969652,
+          "depth": 1,
+          "declarations": [],
+          "end": 2147969776
+        },
+        {
+          "start": 2147969668,
+          "depth": 2,
+          "declarations": [
+            ".def\tsetup;\t.val\t2;\t.scl\t4;\t.tag\tGameSetup_tData;\t.size\t2600;\t.type\t0x18;\t.endef"
+          ],
+          "end": 2147969776
+        },
+        {
+          "start": 2147969776,
+          "depth": 1,
+          "declarations": [
+            ".def\tambient;\t.val\t12;\t.scl\t4;\t.type\t0x12;\t.endef",
+            ".def\tmystic;\t.val\t11;\t.scl\t4;\t.type\t0x12;\t.endef"
+          ],
+          "end": 2147969924
+        }
+      ],
+      "source_partitions_and_debug_graph_exact_to_candidate": true
+    },
+    {
+      "function": "AudioCmn_Reset__Fv",
+      "instructions": 214,
+      "native_SLD": [
+        44,
+        137
+      ],
+      "declarations": [
+        "\t.def\ti;\t.val\t17;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tticks;\t.val\t22;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tgoodtogo;\t.val\t17;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tcheck;\t.val\t-40;\t.scl\t1;\t.type\t0x4;\t.endef",
+        "\t.def\ti;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\ti;\t.val\t18;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tpatch;\t.val\t2;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tticks;\t.val\t19;\t.scl\t4;\t.type\t0x4;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147970028,
+          "depth": 0,
+          "declarations": [
+            ".def\ti;\t.val\t17;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147970844
+        },
+        {
+          "start": 2147970180,
+          "depth": 1,
+          "declarations": [],
+          "end": 2147970540
+        },
+        {
+          "start": 2147970204,
+          "depth": 2,
+          "declarations": [
+            ".def\tticks;\t.val\t22;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tgoodtogo;\t.val\t17;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147970540
+        },
+        {
+          "start": 2147970228,
+          "depth": 3,
+          "declarations": [
+            ".def\tcheck;\t.val\t-40;\t.scl\t1;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147970540
+        },
+        {
+          "start": 2147970256,
+          "depth": 4,
+          "declarations": [],
+          "end": 2147970540
+        },
+        {
+          "start": 2147970296,
+          "depth": 5,
+          "declarations": [],
+          "end": 2147970540
+        },
+        {
+          "start": 2147970296,
+          "depth": 6,
+          "declarations": [],
+          "end": 2147970356
+        },
+        {
+          "start": 2147970312,
+          "depth": 7,
+          "declarations": [
+            ".def\ti;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147970356
+        },
+        {
+          "start": 2147970400,
+          "depth": 6,
+          "declarations": [
+            ".def\ti;\t.val\t18;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147970540
+        },
+        {
+          "start": 2147970404,
+          "depth": 7,
+          "declarations": [],
+          "end": 2147970528
+        },
+        {
+          "start": 2147970424,
+          "depth": 8,
+          "declarations": [],
+          "end": 2147970528
+        },
+        {
+          "start": 2147970440,
+          "depth": 9,
+          "declarations": [
+            ".def\tpatch;\t.val\t2;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147970528
+        },
+        {
+          "start": 2147970564,
+          "depth": 1,
+          "declarations": [
+            ".def\tticks;\t.val\t19;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147970844
+        }
+      ],
+      "source_partitions_and_debug_graph_exact_to_candidate": true
+    },
+    {
+      "function": "AudioCmn_DeInit__Fv",
+      "instructions": 54,
+      "native_SLD": [
+        0,
+        8
+      ],
+      "declarations": [
+        "\t.def\ti;\t.val\t17;\t.scl\t4;\t.type\t0x4;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147970884,
+          "depth": 0,
+          "declarations": [
+            ".def\ti;\t.val\t17;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147971068
+        }
+      ],
+      "source_partitions_and_debug_graph_exact_to_candidate": true
+    },
+    {
+      "function": "AudioCmn_SetLevels__Fv",
+      "instructions": 20,
+      "native_SLD": [
+        0,
+        22
+      ],
+      "declarations": [],
+      "scopes": [
+        {
+          "start": 2147971100,
+          "depth": 0,
+          "declarations": [],
+          "end": 2147971172
+        }
+      ],
+      "source_partitions_and_debug_graph_exact_to_candidate": true
+    },
+    {
+      "function": "AudioCmn_GetTimePhrase__Fi",
+      "instructions": 20,
+      "native_SLD": [
+        0,
+        67
+      ],
+      "declarations": [
+        "\t.def\ttime;\t.val\t4;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tcompareTimes;\t.val\tcompareTimes.38;\t.scl\t3;\t.dim\t25;\t.size\t25;\t.type\t0x32;\t.endef",
+        "\t.def\tseconds;\t.val\t4;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tindex;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147971180,
+          "depth": 0,
+          "declarations": [
+            ".def\tcompareTimes;\t.val\tcompareTimes.38;\t.scl\t3;\t.dim\t25;\t.size\t25;\t.type\t0x32;\t.endef",
+            ".def\tseconds;\t.val\t4;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tindex;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147971252
+        }
+      ],
+      "source_partitions_and_debug_graph_exact_to_candidate": true
+    },
+    {
+      "function": "AudioCmn_CheckState__FP8Car_tObj",
+      "instructions": 415,
+      "native_SLD": [
+        75,
+        367
+      ],
+      "declarations": [
+        "\t.def\tcar;\t.val\t18;\t.scl\t17;\t.tag\tCar_tObj;\t.size\t2268;\t.type\t0x18;\t.endef",
+        "\t.def\tcarnum;\t.val\t20;\t.scl\t4;\t.type\t0x2;\t.endef",
+        "\t.def\tcarspeed;\t.val\t4;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\topponents;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tposition;\t.val\t17;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tr;\t.val\t-56;\t.scl\t1;\t.tag\tCopSpeak_tRequest;\t.size\t32;\t.type\t0x8;\t.endef",
+        "\t.def\tsaidplayer;\t.val\t19;\t.scl\t4;\t.type\t0x0;\t.endef",
+        "\t.def\tLAB_800774e0;\t.val\t$L208;\t.scl\t6;\t.type\t0x0;\t.endef",
+        "\t.def\topponents;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tposition;\t.val\t5;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tphrase;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147971260,
+          "depth": 0,
+          "declarations": [
+            ".def\tcarnum;\t.val\t20;\t.scl\t4;\t.type\t0x2;\t.endef",
+            ".def\tcarspeed;\t.val\t4;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147972888
+        },
+        {
+          "start": 2147971444,
+          "depth": 1,
+          "declarations": [],
+          "end": 2147971948
+        },
+        {
+          "start": 2147971544,
+          "depth": 2,
+          "declarations": [],
+          "end": 2147971948
+        },
+        {
+          "start": 2147971712,
+          "depth": 3,
+          "declarations": [
+            ".def\topponents;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147971888
+        },
+        {
+          "start": 2147971712,
+          "depth": 4,
+          "declarations": [],
+          "end": 2147971888
+        },
+        {
+          "start": 2147971736,
+          "depth": 5,
+          "declarations": [
+            ".def\tposition;\t.val\t17;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147971888
+        },
+        {
+          "start": 2147972012,
+          "depth": 1,
+          "declarations": [
+            ".def\tr;\t.val\t-56;\t.scl\t1;\t.tag\tCopSpeak_tRequest;\t.size\t32;\t.type\t0x8;\t.endef",
+            ".def\tsaidplayer;\t.val\t19;\t.scl\t4;\t.type\t0x0;\t.endef",
+            ".def\tLAB_800774e0;\t.val\t0x800774e0;\t.scl\t6;\t.type\t0x0;\t.endef"
+          ],
+          "end": 2147972764
+        },
+        {
+          "start": 2147972320,
+          "depth": 2,
+          "declarations": [
+            ".def\topponents;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147972708
+        },
+        {
+          "start": 2147972320,
+          "depth": 3,
+          "declarations": [],
+          "end": 2147972708
+        },
+        {
+          "start": 2147972344,
+          "depth": 4,
+          "declarations": [
+            ".def\tposition;\t.val\t5;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147972708
+        },
+        {
+          "start": 2147972344,
+          "depth": 5,
+          "declarations": [],
+          "end": 2147972700
+        },
+        {
+          "start": 2147972384,
+          "depth": 6,
+          "declarations": [
+            ".def\tphrase;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147972560
+        }
+      ],
+      "source_partitions_and_debug_graph_exact_to_candidate": true
+    },
+    {
+      "function": "AudioCmn_LoadFESamples__Fv",
+      "instructions": 17,
+      "native_SLD": [
+        0,
+        12
+      ],
+      "declarations": [
+        "\t.def\tfilename;\t.val\t-112;\t.scl\t1;\t.dim\t100;\t.size\t100;\t.type\t0x32;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147972920,
+          "depth": 0,
+          "declarations": [
+            ".def\tfilename;\t.val\t-112;\t.scl\t1;\t.dim\t100;\t.size\t100;\t.type\t0x32;\t.endef"
+          ],
+          "end": 2147972920
+        }
+      ],
+      "source_partitions_and_debug_graph_exact_to_candidate": true
+    },
+    {
+      "function": "AudioCmn_LoadGameSamples__Fv",
+      "instructions": 77,
+      "native_SLD": [
+        0,
+        10
+      ],
+      "declarations": [
+        "\t.def\tfilename;\t.val\t-168;\t.scl\t1;\t.dim\t100;\t.size\t100;\t.type\t0x32;\t.endef",
+        "\t.def\tTrackGenBank;\t.val\t-64;\t.scl\t1;\t.dim\t11;\t.size\t44;\t.type\t0x72;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147972988,
+          "depth": 0,
+          "declarations": [
+            ".def\tfilename;\t.val\t-168;\t.scl\t1;\t.dim\t100;\t.size\t100;\t.type\t0x32;\t.endef",
+            ".def\tTrackGenBank;\t.val\t-64;\t.scl\t1;\t.dim\t11;\t.size\t44;\t.type\t0x72;\t.endef"
+          ],
+          "end": 2147973184
+        }
+      ],
+      "source_partitions_and_debug_graph_exact_to_candidate": true
+    },
+    {
+      "function": "AudioCmn_InitChannelArray__Fv",
+      "instructions": 14,
+      "native_SLD": [
+        0,
+        0
+      ],
+      "declarations": [
+        "\t.def\ti;\t.val\t4;\t.scl\t4;\t.type\t0x4;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147973296,
+          "depth": 0,
+          "declarations": [
+            ".def\ti;\t.val\t4;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147973336
+        }
+      ],
+      "source_partitions_and_debug_graph_exact_to_candidate": true
+    },
+    {
+      "function": "scaleFrequency__Fiii",
+      "instructions": 51,
+      "native_SLD": [
+        0,
+        0
+      ],
+      "declarations": [
+        "\t.def\tsndPlayer;\t.val\t4;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tiSFXnum;\t.val\t5;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\ttweakedForce;\t.val\t6;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tscaledFreq;\t.val\t5;\t.scl\t4;\t.type\t0x4;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147973352,
+          "depth": 0,
+          "declarations": [
+            ".def\tscaledFreq;\t.val\t5;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147973548
+        }
+      ],
+      "source_partitions_and_debug_graph_exact_to_candidate": true
+    },
+    {
+      "function": "ChooseImpactSample__Fi6s_typeT1",
+      "instructions": 184,
+      "native_SLD": [
+        0,
+        0
+      ],
+      "declarations": [
+        "\t.def\tforce;\t.val\t4;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tsurface1;\t.val\t16;\t.scl\t17;\t.tag\ts_type;\t.size\t4;\t.type\t0xa;\t.endef",
+        "\t.def\tsurface2;\t.val\t6;\t.scl\t17;\t.tag\ts_type;\t.size\t4;\t.type\t0xa;\t.endef",
+        "\t.def\tlastImpactSample;\t.val\tlastImpactSample.51;\t.scl\t3;\t.type\t0x4;\t.endef",
+        "\t.def\tiSFXnum;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147973556,
+          "depth": 0,
+          "declarations": [
+            ".def\tlastImpactSample;\t.val\tlastImpactSample.51;\t.scl\t3;\t.type\t0x4;\t.endef",
+            ".def\tiSFXnum;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147974272
+        }
+      ],
+      "source_partitions_and_debug_graph_exact_to_candidate": true
+    },
+    {
+      "function": "ChooseLoopedSample__F6s_typeT0",
+      "instructions": 47,
+      "native_SLD": [
+        0,
+        6
+      ],
+      "declarations": [
+        "\t.def\tsurface1;\t.val\t4;\t.scl\t17;\t.tag\ts_type;\t.size\t4;\t.type\t0xa;\t.endef",
+        "\t.def\tsurface2;\t.val\t5;\t.scl\t17;\t.tag\ts_type;\t.size\t4;\t.type\t0xa;\t.endef",
+        "\t.def\tSFXnum;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147974292,
+          "depth": 0,
+          "declarations": [
+            ".def\tSFXnum;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147974472
+        }
+      ],
+      "source_partitions_and_debug_graph_exact_to_candidate": true
+    },
+    {
+      "function": "AudioCmn_SFX__Fi6s_typeT1iii",
+      "instructions": 224,
+      "native_SLD": [
+        127,
+        47
+      ],
+      "declarations": [
+        "\t.def\tsndPlayer;\t.val\t21;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tsurface1;\t.val\t5;\t.scl\t17;\t.tag\ts_type;\t.size\t4;\t.type\t0xa;\t.endef",
+        "\t.def\tsurface2;\t.val\t6;\t.scl\t17;\t.tag\ts_type;\t.size\t4;\t.type\t0xa;\t.endef",
+        "\t.def\ttweakedForce;\t.val\t16;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tDistsq;\t.val\t16;\t.scl\t9;\t.type\t0x4;\t.endef",
+        "\t.def\tazimuth;\t.val\t20;\t.scl\t9;\t.type\t0x4;\t.endef",
+        "\t.def\tDistsq;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tazimuth;\t.val\t22;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tiSFXnumber;\t.val\t17;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tamplitude;\t.val\t19;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tfrequency;\t.val\t20;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\ttempAmp;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tc;\t.val\t16;\t.scl\t4;\t.tag\tCar_tObj;\t.size\t2268;\t.type\t0x18;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147974480,
+          "depth": 0,
+          "declarations": [
+            ".def\tiSFXnumber;\t.val\t17;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tamplitude;\t.val\t19;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tfrequency;\t.val\t20;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147975336
+        },
+        {
+          "start": 2147974600,
+          "depth": 1,
+          "declarations": [],
+          "end": 2147975308
+        },
+        {
+          "start": 2147974608,
+          "depth": 2,
+          "declarations": [
+            ".def\ttempAmp;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147974900
+        },
+        {
+          "start": 2147974900,
+          "depth": 2,
+          "declarations": [],
+          "end": 2147975308
+        },
+        {
+          "start": 2147974968,
+          "depth": 3,
+          "declarations": [],
+          "end": 2147975280
+        },
+        {
+          "start": 2147975016,
+          "depth": 4,
+          "declarations": [],
+          "end": 2147975280
+        },
+        {
+          "start": 2147975064,
+          "depth": 5,
+          "declarations": [],
+          "end": 2147975280
+        },
+        {
+          "start": 2147975088,
+          "depth": 6,
+          "declarations": [
+            ".def\tc;\t.val\t16;\t.scl\t4;\t.tag\tCar_tObj;\t.size\t2268;\t.type\t0x18;\t.endef"
+          ],
+          "end": 2147975200
+        }
+      ],
+      "source_partitions_and_debug_graph_exact_to_candidate": true
+    },
+    {
+      "function": "freeVoiceChannel__Fi",
+      "instructions": 28,
+      "native_SLD": [
+        0,
+        9
+      ],
+      "declarations": [
+        "\t.def\tsndPlayer;\t.val\t4;\t.scl\t17;\t.type\t0x4;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147975376,
+          "depth": 0,
+          "declarations": [],
+          "end": 2147975468
+        }
+      ],
+      "source_partitions_and_debug_graph_exact_to_candidate": true
+    },
+    {
+      "function": "AudioCmn_PlayDoppleredSound__Fiiiiii",
+      "instructions": 152,
+      "native_SLD": [
+        0,
+        40
+      ],
+      "declarations": [
+        "\t.def\tbhandle;\t.val\t17;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tpatchNum;\t.val\t18;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tazimuth;\t.val\t19;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tvol;\t.val\t16;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tbend;\t.val\t16;\t.scl\t9;\t.type\t0x4;\t.endef",
+        "\t.def\tdoppler;\t.val\t20;\t.scl\t9;\t.type\t0x4;\t.endef",
+        "\t.def\tbend;\t.val\t2;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tdoppler;\t.val\t2;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tplayopts;\t.val\t-48;\t.scl\t1;\t.tag\tSNDPLAYOPTS;\t.size\t20;\t.type\t0x8;\t.endef",
+        "\t.def\tshandle;\t.val\t2;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tbank;\t.val\t4;\t.scl\t4;\t.type\t0x4;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147975488,
+          "depth": 0,
+          "declarations": [
+            ".def\tplayopts;\t.val\t-48;\t.scl\t1;\t.tag\tSNDPLAYOPTS;\t.size\t20;\t.type\t0x8;\t.endef",
+            ".def\tshandle;\t.val\t2;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147976056
+        },
+        {
+          "start": 2147975968,
+          "depth": 1,
+          "declarations": [],
+          "end": 2147976032
+        },
+        {
+          "start": 2147975988,
+          "depth": 2,
+          "declarations": [
+            ".def\tbank;\t.val\t4;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147976032
+        }
+      ],
+      "source_partitions_and_debug_graph_exact_to_candidate": true
+    },
+    {
+      "function": "AudioCmn_PlaySound__Fiiiii",
+      "instructions": 11,
+      "native_SLD": [
+        0,
+        0
+      ],
+      "declarations": [
+        "\t.def\tbhandle;\t.val\t4;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tpatchNum;\t.val\t5;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tazimuth;\t.val\t6;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tvol;\t.val\t7;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tbend;\t.val\t16;\t.scl\t9;\t.type\t0x4;\t.endef",
+        "\t.def\tbend;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147976096,
+          "depth": 0,
+          "declarations": [],
+          "end": 2147976096
+        }
+      ],
+      "source_partitions_and_debug_graph_exact_to_candidate": true
+    },
+    {
+      "function": "AudioCmn_PlaySFX__Fiiiiii",
+      "instructions": 316,
+      "native_SLD": [
+        27,
+        342
+      ],
+      "declarations": [
+        "\t.def\tsndPlayer;\t.val\t20;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tiSFXnum;\t.val\t19;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tiFreqIn;\t.val\t6;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tiDopplerIn;\t.val\t30;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tiAmpIn;\t.val\t16;\t.scl\t9;\t.type\t0x4;\t.endef",
+        "\t.def\tazimuth;\t.val\t20;\t.scl\t9;\t.type\t0x4;\t.endef",
+        "\t.def\tazimuth;\t.val\t23;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tiPartial;\t.val\t4;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tiFreq;\t.val\t21;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tiAmp;\t.val\t17;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tPatchBank;\t.val\t18;\t.scl\t4;\t.type\t0x5;\t.endef",
+        "\t.def\tSFXCHK;\t.val\t$L465;\t.scl\t6;\t.type\t0x0;\t.endef",
+        "\t.def\tBNK3;\t.val\t$L471;\t.scl\t6;\t.type\t0x0;\t.endef",
+        "\t.def\tBNK5;\t.val\t$L457;\t.scl\t6;\t.type\t0x0;\t.endef",
+        "\t.def\tLOOKUP;\t.val\t$L469;\t.scl\t6;\t.type\t0x0;\t.endef",
+        "\t.def\tlookup;\t.val\t2;\t.scl\t4;\t.type\t0x1c;\t.endef",
+        "\t.def\tchbase;\t.val\t2;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tslot;\t.val\t16;\t.scl\t4;\t.tag\tChannels_t;\t.size\t8;\t.type\t0x18;\t.endef",
+        "\t.def\tnbase;\t.val\t2;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tr;\t.val\t2;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tRECHECK;\t.val\t$L482;\t.scl\t6;\t.type\t0x0;\t.endef",
+        "\t.def\tpbase;\t.val\t2;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tpch;\t.val\t4;\t.scl\t4;\t.tag\tChannels_t;\t.size\t8;\t.type\t0x18;\t.endef",
+        "\t.def\tpan;\t.val\t2;\t.scl\t4;\t.type\t0xe;\t.endef",
+        "\t.def\tbbase;\t.val\t2;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tSETM1;\t.val\t$L488;\t.scl\t6;\t.type\t0x0;\t.endef",
+        "\t.def\tLAB_8007887c;\t.val\t$L486;\t.scl\t6;\t.type\t0x0;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147976140,
+          "depth": 0,
+          "declarations": [
+            ".def\tiPartial;\t.val\t4;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tiFreq;\t.val\t21;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tiAmp;\t.val\t17;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tPatchBank;\t.val\t18;\t.scl\t4;\t.type\t0x5;\t.endef",
+            ".def\tSFXCHK;\t.val\t0x800784bc;\t.scl\t6;\t.type\t0x0;\t.endef",
+            ".def\tBNK3;\t.val\t0x800784f4;\t.scl\t6;\t.type\t0x0;\t.endef",
+            ".def\tBNK5;\t.val\t0x80078504;\t.scl\t6;\t.type\t0x0;\t.endef",
+            ".def\tLOOKUP;\t.val\t0x80078514;\t.scl\t6;\t.type\t0x0;\t.endef",
+            ".def\tLAB_8007887c;\t.val\t0x80078878;\t.scl\t6;\t.type\t0x0;\t.endef"
+          ],
+          "end": 2147977336
+        },
+        {
+          "start": 2147976468,
+          "depth": 1,
+          "declarations": [
+            ".def\tlookup;\t.val\t2;\t.scl\t4;\t.type\t0x1c;\t.endef"
+          ],
+          "end": 2147976516
+        },
+        {
+          "start": 2147976516,
+          "depth": 1,
+          "declarations": [],
+          "end": 2147977336
+        },
+        {
+          "start": 2147976592,
+          "depth": 2,
+          "declarations": [
+            ".def\tchbase;\t.val\t2;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tslot;\t.val\t16;\t.scl\t4;\t.tag\tChannels_t;\t.size\t8;\t.type\t0x18;\t.endef",
+            ".def\tRECHECK;\t.val\t0x80078690;\t.scl\t6;\t.type\t0x0;\t.endef",
+            ".def\tSETM1;\t.val\t0x80078874;\t.scl\t6;\t.type\t0x0;\t.endef"
+          ],
+          "end": 2147977336
+        },
+        {
+          "start": 2147976736,
+          "depth": 3,
+          "declarations": [
+            ".def\tnbase;\t.val\t2;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tr;\t.val\t2;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147976836
+        },
+        {
+          "start": 2147977152,
+          "depth": 3,
+          "declarations": [],
+          "end": 2147977284
+        },
+        {
+          "start": 2147977208,
+          "depth": 4,
+          "declarations": [],
+          "end": 2147977284
+        },
+        {
+          "start": 2147977208,
+          "depth": 5,
+          "declarations": [],
+          "end": 2147977284
+        },
+        {
+          "start": 2147977224,
+          "depth": 6,
+          "declarations": [
+            ".def\tpbase;\t.val\t2;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tpch;\t.val\t4;\t.scl\t4;\t.tag\tChannels_t;\t.size\t8;\t.type\t0x18;\t.endef",
+            ".def\tpan;\t.val\t2;\t.scl\t4;\t.type\t0xe;\t.endef"
+          ],
+          "end": 2147977284
+        },
+        {
+          "start": 2147977284,
+          "depth": 3,
+          "declarations": [
+            ".def\tbbase;\t.val\t2;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147977284
+        }
+      ],
+      "source_partitions_and_debug_graph_exact_to_candidate": true
+    },
+    {
+      "function": "AudioCmn_SoundCar__FP8Car_tObjiiiiiii",
+      "instructions": 530,
+      "native_SLD": [
+        37,
+        319
+      ],
+      "declarations": [
+        "\t.def\tcar;\t.val\t20;\t.scl\t17;\t.tag\tCar_tObj;\t.size\t2268;\t.type\t0x18;\t.endef",
+        "\t.def\tdst;\t.val\t30;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tiFreqIn;\t.val\t18;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tdoppler;\t.val\t12;\t.scl\t9;\t.type\t0x4;\t.endef",
+        "\t.def\tazimuth;\t.val\t16;\t.scl\t9;\t.type\t0x4;\t.endef",
+        "\t.def\ttrackazim;\t.val\t20;\t.scl\t9;\t.type\t0x4;\t.endef",
+        "\t.def\trelvel;\t.val\t24;\t.scl\t9;\t.type\t0x4;\t.endef",
+        "\t.def\tcardir;\t.val\t28;\t.scl\t9;\t.type\t0x4;\t.endef",
+        "\t.def\tcardir;\t.val\t2;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tCurCarGasLevel;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tfreq;\t.val\t22;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\troadSurface;\t.val\t21;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tcobbleMod;\t.val\t19;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tcobblestoneAmp;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tSPSC;\t.val\t23;\t.scl\t4;\t.type\t0x2;\t.endef",
+        "\t.def\tPlayerPan;\t.val\t18;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tcobbleCount;\t.val\tcobbleCount.66;\t.scl\t3;\t.type\t0x2;\t.endef",
+        "\t.def\tloadAmp;\t.val\t18;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tamplitude;\t.val\t6;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\troadNoiseAmp;\t.val\t17;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\twetNoiseAmp;\t.val\t19;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\troadNoiseFreq;\t.val\t-56;\t.scl\t1;\t.type\t0x4;\t.endef",
+        "\t.def\twetNoiseFreq;\t.val\t23;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tiAmpIn;\t.val\t-52;\t.scl\t1;\t.type\t0x4;\t.endef",
+        "\t.def\ttuntrig;\t.val\t-48;\t.scl\t1;\t.type\t0x4;\t.endef",
+        "\t.def\tcam;\t.val\t21;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\troadNoisePatch;\t.val\t5;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tscaledAmplitude;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tattenuation;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tdistanceScale;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tcurrentGas;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tpreviousGas;\t.val\t4;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\trampedGas;\t.val\t5;\t.scl\t4;\t.type\t0x14;\t.endef",
+        "\t.def\tgasDelta;\t.val\t2;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\troadProduct;\t.val\t2;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tSoundCar_getWetNoise;\t.val\t$L584;\t.scl\t6;\t.type\t0x0;\t.endef",
+        "\t.def\tSoundCar_haveWetNoise;\t.val\t$L585;\t.scl\t6;\t.type\t0x0;\t.endef",
+        "\t.def\tgas;\t.val\t7;\t.scl\t4;\t.type\t0x4;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147977404,
+          "depth": 0,
+          "declarations": [
+            ".def\tCurCarGasLevel;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tfreq;\t.val\t22;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\troadSurface;\t.val\t21;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tcobbleMod;\t.val\t19;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tcobblestoneAmp;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tSPSC;\t.val\t23;\t.scl\t4;\t.type\t0x2;\t.endef",
+            ".def\tPlayerPan;\t.val\t18;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tcobbleCount;\t.val\tcobbleCount.66;\t.scl\t3;\t.type\t0x2;\t.endef",
+            ".def\tloadAmp;\t.val\t18;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tamplitude;\t.val\t6;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\troadNoiseAmp;\t.val\t17;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\twetNoiseAmp;\t.val\t19;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\troadNoiseFreq;\t.val\t-56;\t.scl\t1;\t.type\t0x4;\t.endef",
+            ".def\twetNoiseFreq;\t.val\t23;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tiAmpIn;\t.val\t-52;\t.scl\t1;\t.type\t0x4;\t.endef",
+            ".def\ttuntrig;\t.val\t-48;\t.scl\t1;\t.type\t0x4;\t.endef",
+            ".def\tcam;\t.val\t21;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\troadNoisePatch;\t.val\t5;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tscaledAmplitude;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147979476
+        },
+        {
+          "start": 2147977404,
+          "depth": 1,
+          "declarations": [],
+          "end": 2147979476
+        },
+        {
+          "start": 2147977484,
+          "depth": 2,
+          "declarations": [
+            ".def\tattenuation;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tSoundCar_getWetNoise;\t.val\t0x80078ddc;\t.scl\t6;\t.type\t0x0;\t.endef",
+            ".def\tSoundCar_haveWetNoise;\t.val\t0x80078de8;\t.scl\t6;\t.type\t0x0;\t.endef"
+          ],
+          "end": 2147979476
+        },
+        {
+          "start": 2147978016,
+          "depth": 3,
+          "declarations": [],
+          "end": 2147978112
+        },
+        {
+          "start": 2147978032,
+          "depth": 4,
+          "declarations": [
+            ".def\tdistanceScale;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147978092
+        },
+        {
+          "start": 2147978464,
+          "depth": 3,
+          "declarations": [
+            ".def\tcurrentGas;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tpreviousGas;\t.val\t4;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\trampedGas;\t.val\t5;\t.scl\t4;\t.type\t0x14;\t.endef"
+          ],
+          "end": 2147978580
+        },
+        {
+          "start": 2147978464,
+          "depth": 4,
+          "declarations": [],
+          "end": 2147978580
+        },
+        {
+          "start": 2147978536,
+          "depth": 5,
+          "declarations": [],
+          "end": 2147978580
+        },
+        {
+          "start": 2147978536,
+          "depth": 6,
+          "declarations": [],
+          "end": 2147978580
+        },
+        {
+          "start": 2147978548,
+          "depth": 7,
+          "declarations": [
+            ".def\tgasDelta;\t.val\t2;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147978580
+        },
+        {
+          "start": 2147978624,
+          "depth": 3,
+          "declarations": [
+            ".def\troadProduct;\t.val\t2;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147978664
+        },
+        {
+          "start": 2147979332,
+          "depth": 3,
+          "declarations": [
+            ".def\tgas;\t.val\t7;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147979476
+        }
+      ],
+      "source_partitions_and_debug_graph_exact_to_candidate": true
+    },
+    {
+      "function": "AudioCmn_TrafficSFX__Fiiiiiiii",
+      "instructions": 163,
+      "native_SLD": [
+        49,
+        46
+      ],
+      "declarations": [
+        "\t.def\tiChan;\t.val\t21;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tiSFXnum;\t.val\t30;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tfreq;\t.val\t8;\t.scl\t9;\t.type\t0x4;\t.endef",
+        "\t.def\tdoppler;\t.val\t12;\t.scl\t9;\t.type\t0x4;\t.endef",
+        "\t.def\tdst;\t.val\t16;\t.scl\t9;\t.type\t0x4;\t.endef",
+        "\t.def\tazimuth;\t.val\t20;\t.scl\t9;\t.type\t0x4;\t.endef",
+        "\t.def\trelvel;\t.val\t24;\t.scl\t9;\t.type\t0x4;\t.endef",
+        "\t.def\tdir;\t.val\t28;\t.scl\t9;\t.type\t0x4;\t.endef",
+        "\t.def\tdst;\t.val\t6;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tazimuth;\t.val\t23;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\trelvel;\t.val\t22;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tdir;\t.val\t17;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tpitchmult;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tiAmpIn;\t.val\t20;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tplayer;\t.val\t4;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tfade;\t.val\t19;\t.scl\t4;\t.type\t0x1c;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147979524,
+          "depth": 0,
+          "declarations": [
+            ".def\tpitchmult;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tiAmpIn;\t.val\t20;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tplayer;\t.val\t4;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147980128
+        },
+        {
+          "start": 2147979716,
+          "depth": 1,
+          "declarations": [],
+          "end": 2147980128
+        },
+        {
+          "start": 2147979848,
+          "depth": 2,
+          "declarations": [
+            ".def\tfade;\t.val\t19;\t.scl\t4;\t.type\t0x1c;\t.endef"
+          ],
+          "end": 2147980128
+        }
+      ],
+      "source_partitions_and_debug_graph_exact_to_candidate": true
+    },
+    {
+      "function": "AudioCmn_TrafficSkidSFX__Fi6s_typeT1iii",
+      "instructions": 45,
+      "native_SLD": [
+        4,
+        0
+      ],
+      "declarations": [
+        "\t.def\tsndPlayer;\t.val\t9;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tsurface1;\t.val\t5;\t.scl\t17;\t.tag\ts_type;\t.size\t4;\t.type\t0xa;\t.endef",
+        "\t.def\tsurface2;\t.val\t6;\t.scl\t17;\t.tag\ts_type;\t.size\t4;\t.type\t0xa;\t.endef",
+        "\t.def\tforce;\t.val\t7;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tDistsq;\t.val\t16;\t.scl\t9;\t.type\t0x4;\t.endef",
+        "\t.def\tazimuth;\t.val\t20;\t.scl\t9;\t.type\t0x4;\t.endef",
+        "\t.def\tDistsq;\t.val\t8;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tazimuth;\t.val\t2;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tiAmpIn;\t.val\t2;\t.scl\t4;\t.type\t0x4;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147980176,
+          "depth": 0,
+          "declarations": [
+            ".def\tiAmpIn;\t.val\t2;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147980340
+        }
+      ],
+      "source_partitions_and_debug_graph_exact_to_candidate": true
+    },
+    {
+      "function": "AudioCmn_PlayerHornOn__Fiiiii",
+      "instructions": 65,
+      "native_SLD": [
+        0,
+        4
+      ],
+      "declarations": [
+        "\t.def\tcarIndex;\t.val\t8;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tDistsq;\t.val\t5;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tiFreqIn;\t.val\t20;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tazimuth;\t.val\t19;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tdoppler;\t.val\t16;\t.scl\t9;\t.type\t0x4;\t.endef",
+        "\t.def\tsfx;\t.val\t17;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tplayer;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tiAmpIn;\t.val\t18;\t.scl\t4;\t.type\t0x4;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147980356,
+          "depth": 0,
+          "declarations": [
+            ".def\tsfx;\t.val\t17;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tplayer;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tiAmpIn;\t.val\t18;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147980584
+        }
+      ],
+      "source_partitions_and_debug_graph_exact_to_candidate": true
+    },
+    {
+      "function": "AudioCmn_PlayerHornOff__Fi",
+      "instructions": 47,
+      "native_SLD": [
+        121,
+        10
+      ],
+      "declarations": [
+        "\t.def\tcarIndex;\t.val\t4;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tplayer;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tLAB_8007957c;\t.val\t$L661;\t.scl\t6;\t.type\t0x0;\t.endef",
+        "\t.def\tLAB_800795e8;\t.val\t$L664;\t.scl\t6;\t.type\t0x0;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147980616,
+          "depth": 0,
+          "declarations": [
+            ".def\tplayer;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tLAB_8007957c;\t.val\t0x8007957c;\t.scl\t6;\t.type\t0x0;\t.endef",
+            ".def\tLAB_800795e8;\t.val\t0x800795e8;\t.scl\t6;\t.type\t0x0;\t.endef"
+          ],
+          "end": 2147980788
+        }
+      ],
+      "source_partitions_and_debug_graph_exact_to_candidate": true
+    },
+    {
+      "function": "AudioCmn_PlayFESFX__Fi",
+      "instructions": 8,
+      "native_SLD": [
+        0,
+        8
+      ],
+      "declarations": [
+        "\t.def\tSFXnum;\t.val\t4;\t.scl\t17;\t.type\t0x4;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147980804,
+          "depth": 0,
+          "declarations": [],
+          "end": 2147980804
+        }
+      ],
+      "source_partitions_and_debug_graph_exact_to_candidate": true
+    },
+    {
+      "function": "AudioCmn_PlayFESFXVol__Fii",
+      "instructions": 34,
+      "native_SLD": [
+        0,
+        0
+      ],
+      "declarations": [
+        "\t.def\tSFXnum;\t.val\t17;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tvol;\t.val\t16;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tplayopts;\t.val\t-40;\t.scl\t1;\t.tag\tSNDPLAYOPTS;\t.size\t20;\t.type\t0x8;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147980836,
+          "depth": 0,
+          "declarations": [
+            ".def\tplayopts;\t.val\t-40;\t.scl\t1;\t.tag\tSNDPLAYOPTS;\t.size\t20;\t.type\t0x8;\t.endef"
+          ],
+          "end": 2147980836
+        }
+      ],
+      "source_partitions_and_debug_graph_exact_to_candidate": true
+    },
+    {
+      "function": "AudioCmn_PlayWrongWaySFX__Fv",
+      "instructions": 14,
+      "native_SLD": [
+        0,
+        32
+      ],
+      "declarations": [],
+      "scopes": [
+        {
+          "start": 2147980972,
+          "depth": 0,
+          "declarations": [],
+          "end": 2147980972
+        }
+      ],
+      "source_partitions_and_debug_graph_exact_to_candidate": true
+    },
+    {
+      "function": "AudioCmn_PlayPauseSound__Fi",
+      "instructions": 14,
+      "native_SLD": [
+        0,
+        27
+      ],
+      "declarations": [
+        "\t.def\tpatch;\t.val\t4;\t.scl\t17;\t.type\t0x4;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147981028,
+          "depth": 0,
+          "declarations": [],
+          "end": 2147981028
+        }
+      ],
+      "source_partitions_and_debug_graph_exact_to_candidate": true
+    },
+    {
+      "function": "quickSirenOn__Fi",
+      "instructions": 29,
+      "native_SLD": [
+        0,
+        75
+      ],
+      "declarations": [
+        "\t.def\tsirennum;\t.val\t16;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tpatch;\t.val\t5;\t.scl\t4;\t.type\t0x4;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147981084,
+          "depth": 0,
+          "declarations": [
+            ".def\tpatch;\t.val\t5;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147981116
+        }
+      ],
+      "source_partitions_and_debug_graph_exact_to_candidate": true
+    },
+    {
+      "function": "SuperCopSirenOn__Fi",
+      "instructions": 26,
+      "native_SLD": [
+        0,
+        72
+      ],
+      "declarations": [
+        "\t.def\tsirennum;\t.val\t16;\t.scl\t17;\t.type\t0x4;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147981200,
+          "depth": 0,
+          "declarations": [],
+          "end": 2147981200
+        }
+      ],
+      "source_partitions_and_debug_graph_exact_to_candidate": true
+    },
+    {
+      "function": "SirenOn__Fii",
+      "instructions": 42,
+      "native_SLD": [
+        0,
+        0
+      ],
+      "declarations": [
+        "\t.def\tsirennum;\t.val\t4;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tsupercop;\t.val\t5;\t.scl\t17;\t.type\t0x4;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147981304,
+          "depth": 0,
+          "declarations": [],
+          "end": 2147981456
+        }
+      ],
+      "source_partitions_and_debug_graph_exact_to_candidate": true
+    },
+    {
+      "function": "SirenOff__Fi",
+      "instructions": 47,
+      "native_SLD": [
+        0,
+        36
+      ],
+      "declarations": [
+        "\t.def\tsirennum;\t.val\t4;\t.scl\t17;\t.type\t0x4;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147981472,
+          "depth": 0,
+          "declarations": [],
+          "end": 2147981472
+        }
+      ],
+      "source_partitions_and_debug_graph_exact_to_candidate": true
+    },
+    {
+      "function": "UpdateSiren__Fiiiii",
+      "instructions": 129,
+      "native_SLD": [
+        0,
+        0
+      ],
+      "declarations": [
+        "\t.def\tsirennum;\t.val\t17;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tamp;\t.val\t18;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tdop;\t.val\t21;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tazimuth;\t.val\t20;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tsupercop;\t.val\t16;\t.scl\t9;\t.type\t0x4;\t.endef",
+        "\t.def\tsupercop;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tiFreq;\t.val\t6;\t.scl\t4;\t.type\t0x4;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147981660,
+          "depth": 0,
+          "declarations": [],
+          "end": 2147982140
+        },
+        {
+          "start": 2147981660,
+          "depth": 1,
+          "declarations": [],
+          "end": 2147982140
+        },
+        {
+          "start": 2147981736,
+          "depth": 2,
+          "declarations": [
+            ".def\tiFreq;\t.val\t6;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147982140
+        }
+      ],
+      "source_partitions_and_debug_graph_exact_to_candidate": true
+    },
+    {
+      "function": "AudioCmn_Pause__Fv",
+      "instructions": 46,
+      "native_SLD": [
+        0,
+        8
+      ],
+      "declarations": [
+        "\t.def\ti;\t.val\t17;\t.scl\t4;\t.type\t0x4;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147982176,
+          "depth": 0,
+          "declarations": [
+            ".def\ti;\t.val\t17;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147982296
+        }
+      ],
+      "source_partitions_and_debug_graph_exact_to_candidate": true
+    },
+    {
+      "function": "AudioCmn_UnPause__Fv",
+      "instructions": 35,
+      "native_SLD": [
+        34,
+        42
+      ],
+      "declarations": [
+        "\t.def\tlevel;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147982360,
+          "depth": 0,
+          "declarations": [],
+          "end": 2147982444
+        },
+        {
+          "start": 2147982360,
+          "depth": 1,
+          "declarations": [
+            ".def\tlevel;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147982444
+        },
+        {
+          "start": 2147982360,
+          "depth": 2,
+          "declarations": [],
+          "end": 2147982444
+        }
+      ],
+      "source_partitions_and_debug_graph_exact_to_candidate": true
+    },
+    {
+      "function": "AudioCmn_UnPauseAndQuit__Fv",
+      "instructions": 58,
+      "native_SLD": [
+        0,
+        18
+      ],
+      "declarations": [
+        "\t.def\ti;\t.val\t17;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\ti;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147982520,
+          "depth": 0,
+          "declarations": [
+            ".def\ti;\t.val\t17;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147982708
+        },
+        {
+          "start": 2147982680,
+          "depth": 1,
+          "declarations": [
+            ".def\ti;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147982708
+        }
+      ],
+      "source_partitions_and_debug_graph_exact_to_candidate": true
+    },
+    {
+      "function": "AudioCmn_UnPauseAndRestart__Fv",
+      "instructions": 63,
+      "native_SLD": [
+        0,
+        14
+      ],
+      "declarations": [
+        "\t.def\ti;\t.val\t17;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\ti;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147982732,
+          "depth": 0,
+          "declarations": [
+            ".def\ti;\t.val\t17;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147982932
+        },
+        {
+          "start": 2147982880,
+          "depth": 1,
+          "declarations": [
+            ".def\ti;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147982908
+        }
+      ],
+      "source_partitions_and_debug_graph_exact_to_candidate": true
+    },
+    {
+      "function": "AudioCmn_InitReverb__Fv",
+      "instructions": 17,
+      "native_SLD": [
+        0,
+        3
+      ],
+      "declarations": [],
+      "scopes": [
+        {
+          "start": 2147982984,
+          "depth": 0,
+          "declarations": [],
+          "end": 2147982984
+        }
+      ],
+      "source_partitions_and_debug_graph_exact_to_candidate": true
+    },
+    {
+      "function": "AudioCmn_ReverbOff__Fv",
+      "instructions": 10,
+      "native_SLD": [
+        0,
+        0
+      ],
+      "declarations": [],
+      "scopes": [
+        {
+          "start": 2147983052,
+          "depth": 0,
+          "declarations": [],
+          "end": 2147983052
+        }
+      ],
+      "source_partitions_and_debug_graph_exact_to_candidate": true
+    }
+  ],
+  "source_label_PC_receipts": [
+    {
+      "function": "AudioCmn_GetAsyncSfx__Fiib",
+      "declaration": "\t.def\tFOUND;\t.val\t$L84;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L84",
+      "VA": "0x800769d4"
+    },
+    {
+      "function": "AudioCmn_GetAsyncSfx__Fiib",
+      "declaration": "\t.def\tDOREQ;\t.val\t$L95;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L95",
+      "VA": "0x800769e8"
+    },
+    {
+      "function": "AudioCmn_GetAsyncSfx__Fiib",
+      "declaration": "\t.def\tFOUND;\t.val\t$L84;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L84",
+      "VA": "0x800769d4"
+    },
+    {
+      "function": "AudioCmn_GetAsyncSfx__Fiib",
+      "declaration": "\t.def\tDOREQ;\t.val\t$L95;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L95",
+      "VA": "0x800769e8"
+    },
+    {
+      "function": "AudioCmn_GetAsyncSfx__Fiib",
+      "declaration": ".def\tFOUND;\t.val\t$L84;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L84",
+      "VA": "0x800769d4"
+    },
+    {
+      "function": "AudioCmn_GetAsyncSfx__Fiib",
+      "declaration": ".def\tDOREQ;\t.val\t$L95;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L95",
+      "VA": "0x800769e8"
+    },
+    {
+      "function": "AudioCmn_GetAsyncSfx__Fiib",
+      "declaration": ".def\tFOUND;\t.val\t$L84;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L84",
+      "VA": "0x800769d4"
+    },
+    {
+      "function": "AudioCmn_GetAsyncSfx__Fiib",
+      "declaration": ".def\tDOREQ;\t.val\t$L95;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L95",
+      "VA": "0x800769e8"
+    },
+    {
+      "function": "AudioCmn_CheckState__FP8Car_tObj",
+      "declaration": "\t.def\tLAB_800774e0;\t.val\t$L208;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L208",
+      "VA": "0x800774e0"
+    },
+    {
+      "function": "AudioCmn_CheckState__FP8Car_tObj",
+      "declaration": "\t.def\tLAB_800774e0;\t.val\t$L208;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L208",
+      "VA": "0x800774e0"
+    },
+    {
+      "function": "AudioCmn_CheckState__FP8Car_tObj",
+      "declaration": ".def\tLAB_800774e0;\t.val\t$L208;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L208",
+      "VA": "0x800774e0"
+    },
+    {
+      "function": "AudioCmn_CheckState__FP8Car_tObj",
+      "declaration": ".def\tLAB_800774e0;\t.val\t$L208;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L208",
+      "VA": "0x800774e0"
+    },
+    {
+      "function": "AudioCmn_PlaySFX__Fiiiiii",
+      "declaration": "\t.def\tSFXCHK;\t.val\t$L465;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L465",
+      "VA": "0x800784bc"
+    },
+    {
+      "function": "AudioCmn_PlaySFX__Fiiiiii",
+      "declaration": "\t.def\tBNK3;\t.val\t$L471;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L471",
+      "VA": "0x800784f4"
+    },
+    {
+      "function": "AudioCmn_PlaySFX__Fiiiiii",
+      "declaration": "\t.def\tBNK5;\t.val\t$L457;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L457",
+      "VA": "0x80078504"
+    },
+    {
+      "function": "AudioCmn_PlaySFX__Fiiiiii",
+      "declaration": "\t.def\tLOOKUP;\t.val\t$L469;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L469",
+      "VA": "0x80078514"
+    },
+    {
+      "function": "AudioCmn_PlaySFX__Fiiiiii",
+      "declaration": "\t.def\tRECHECK;\t.val\t$L482;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L482",
+      "VA": "0x80078690"
+    },
+    {
+      "function": "AudioCmn_PlaySFX__Fiiiiii",
+      "declaration": "\t.def\tSETM1;\t.val\t$L488;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L488",
+      "VA": "0x80078874"
+    },
+    {
+      "function": "AudioCmn_PlaySFX__Fiiiiii",
+      "declaration": "\t.def\tLAB_8007887c;\t.val\t$L486;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L486",
+      "VA": "0x80078878"
+    },
+    {
+      "function": "AudioCmn_PlaySFX__Fiiiiii",
+      "declaration": "\t.def\tSFXCHK;\t.val\t$L465;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L465",
+      "VA": "0x800784bc"
+    },
+    {
+      "function": "AudioCmn_PlaySFX__Fiiiiii",
+      "declaration": "\t.def\tBNK3;\t.val\t$L471;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L471",
+      "VA": "0x800784f4"
+    },
+    {
+      "function": "AudioCmn_PlaySFX__Fiiiiii",
+      "declaration": "\t.def\tBNK5;\t.val\t$L457;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L457",
+      "VA": "0x80078504"
+    },
+    {
+      "function": "AudioCmn_PlaySFX__Fiiiiii",
+      "declaration": "\t.def\tLOOKUP;\t.val\t$L469;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L469",
+      "VA": "0x80078514"
+    },
+    {
+      "function": "AudioCmn_PlaySFX__Fiiiiii",
+      "declaration": "\t.def\tRECHECK;\t.val\t$L482;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L482",
+      "VA": "0x80078690"
+    },
+    {
+      "function": "AudioCmn_PlaySFX__Fiiiiii",
+      "declaration": "\t.def\tSETM1;\t.val\t$L488;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L488",
+      "VA": "0x80078874"
+    },
+    {
+      "function": "AudioCmn_PlaySFX__Fiiiiii",
+      "declaration": "\t.def\tLAB_8007887c;\t.val\t$L486;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L486",
+      "VA": "0x80078878"
+    },
+    {
+      "function": "AudioCmn_PlaySFX__Fiiiiii",
+      "declaration": ".def\tSFXCHK;\t.val\t$L465;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L465",
+      "VA": "0x800784bc"
+    },
+    {
+      "function": "AudioCmn_PlaySFX__Fiiiiii",
+      "declaration": ".def\tBNK3;\t.val\t$L471;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L471",
+      "VA": "0x800784f4"
+    },
+    {
+      "function": "AudioCmn_PlaySFX__Fiiiiii",
+      "declaration": ".def\tBNK5;\t.val\t$L457;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L457",
+      "VA": "0x80078504"
+    },
+    {
+      "function": "AudioCmn_PlaySFX__Fiiiiii",
+      "declaration": ".def\tLOOKUP;\t.val\t$L469;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L469",
+      "VA": "0x80078514"
+    },
+    {
+      "function": "AudioCmn_PlaySFX__Fiiiiii",
+      "declaration": ".def\tLAB_8007887c;\t.val\t$L486;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L486",
+      "VA": "0x80078878"
+    },
+    {
+      "function": "AudioCmn_PlaySFX__Fiiiiii",
+      "declaration": ".def\tRECHECK;\t.val\t$L482;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L482",
+      "VA": "0x80078690"
+    },
+    {
+      "function": "AudioCmn_PlaySFX__Fiiiiii",
+      "declaration": ".def\tSETM1;\t.val\t$L488;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L488",
+      "VA": "0x80078874"
+    },
+    {
+      "function": "AudioCmn_PlaySFX__Fiiiiii",
+      "declaration": ".def\tSFXCHK;\t.val\t$L465;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L465",
+      "VA": "0x800784bc"
+    },
+    {
+      "function": "AudioCmn_PlaySFX__Fiiiiii",
+      "declaration": ".def\tBNK3;\t.val\t$L471;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L471",
+      "VA": "0x800784f4"
+    },
+    {
+      "function": "AudioCmn_PlaySFX__Fiiiiii",
+      "declaration": ".def\tBNK5;\t.val\t$L457;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L457",
+      "VA": "0x80078504"
+    },
+    {
+      "function": "AudioCmn_PlaySFX__Fiiiiii",
+      "declaration": ".def\tLOOKUP;\t.val\t$L469;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L469",
+      "VA": "0x80078514"
+    },
+    {
+      "function": "AudioCmn_PlaySFX__Fiiiiii",
+      "declaration": ".def\tLAB_8007887c;\t.val\t$L486;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L486",
+      "VA": "0x80078878"
+    },
+    {
+      "function": "AudioCmn_PlaySFX__Fiiiiii",
+      "declaration": ".def\tRECHECK;\t.val\t$L482;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L482",
+      "VA": "0x80078690"
+    },
+    {
+      "function": "AudioCmn_PlaySFX__Fiiiiii",
+      "declaration": ".def\tSETM1;\t.val\t$L488;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L488",
+      "VA": "0x80078874"
+    },
+    {
+      "function": "AudioCmn_SoundCar__FP8Car_tObjiiiiiii",
+      "declaration": "\t.def\tSoundCar_getWetNoise;\t.val\t$L584;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L584",
+      "VA": "0x80078ddc"
+    },
+    {
+      "function": "AudioCmn_SoundCar__FP8Car_tObjiiiiiii",
+      "declaration": "\t.def\tSoundCar_haveWetNoise;\t.val\t$L585;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L585",
+      "VA": "0x80078de8"
+    },
+    {
+      "function": "AudioCmn_SoundCar__FP8Car_tObjiiiiiii",
+      "declaration": "\t.def\tSoundCar_getWetNoise;\t.val\t$L584;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L584",
+      "VA": "0x80078ddc"
+    },
+    {
+      "function": "AudioCmn_SoundCar__FP8Car_tObjiiiiiii",
+      "declaration": "\t.def\tSoundCar_haveWetNoise;\t.val\t$L585;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L585",
+      "VA": "0x80078de8"
+    },
+    {
+      "function": "AudioCmn_SoundCar__FP8Car_tObjiiiiiii",
+      "declaration": ".def\tSoundCar_getWetNoise;\t.val\t$L584;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L584",
+      "VA": "0x80078ddc"
+    },
+    {
+      "function": "AudioCmn_SoundCar__FP8Car_tObjiiiiiii",
+      "declaration": ".def\tSoundCar_haveWetNoise;\t.val\t$L585;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L585",
+      "VA": "0x80078de8"
+    },
+    {
+      "function": "AudioCmn_SoundCar__FP8Car_tObjiiiiiii",
+      "declaration": ".def\tSoundCar_getWetNoise;\t.val\t$L584;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L584",
+      "VA": "0x80078ddc"
+    },
+    {
+      "function": "AudioCmn_SoundCar__FP8Car_tObjiiiiiii",
+      "declaration": ".def\tSoundCar_haveWetNoise;\t.val\t$L585;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L585",
+      "VA": "0x80078de8"
+    },
+    {
+      "function": "AudioCmn_PlayerHornOff__Fi",
+      "declaration": "\t.def\tLAB_8007957c;\t.val\t$L661;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L661",
+      "VA": "0x8007957c"
+    },
+    {
+      "function": "AudioCmn_PlayerHornOff__Fi",
+      "declaration": "\t.def\tLAB_800795e8;\t.val\t$L664;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L664",
+      "VA": "0x800795e8"
+    },
+    {
+      "function": "AudioCmn_PlayerHornOff__Fi",
+      "declaration": "\t.def\tLAB_8007957c;\t.val\t$L661;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L661",
+      "VA": "0x8007957c"
+    },
+    {
+      "function": "AudioCmn_PlayerHornOff__Fi",
+      "declaration": "\t.def\tLAB_800795e8;\t.val\t$L664;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L664",
+      "VA": "0x800795e8"
+    },
+    {
+      "function": "AudioCmn_PlayerHornOff__Fi",
+      "declaration": ".def\tLAB_8007957c;\t.val\t$L661;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L661",
+      "VA": "0x8007957c"
+    },
+    {
+      "function": "AudioCmn_PlayerHornOff__Fi",
+      "declaration": ".def\tLAB_800795e8;\t.val\t$L664;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L664",
+      "VA": "0x800795e8"
+    },
+    {
+      "function": "AudioCmn_PlayerHornOff__Fi",
+      "declaration": ".def\tLAB_8007957c;\t.val\t$L661;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L661",
+      "VA": "0x8007957c"
+    },
+    {
+      "function": "AudioCmn_PlayerHornOff__Fi",
+      "declaration": ".def\tLAB_800795e8;\t.val\t$L664;\t.scl\t6;\t.type\t0x0;\t.endef",
+      "compiler_label": "$L664",
+      "VA": "0x800795e8"
+    }
+  ],
+  "actual_preprocessor_input_hashes": {
+    "C:\\Temp\\nfs4-decomp\\recon\\game\\common\\audiocmn.cpp": "ea914b6e9f5a712cf7f176385268e890fb9651f38396a062f4c5a3a4316cd629",
+    "C:\\Temp\\nfs4-decomp\\recon\\game\\common\\audiocmn_types.h": "b0590888a7ebdf504278d4a2fb86a8949ad91978680cfc30d0ae79364cccdcc2",
+    "C:\\Temp\\nfs4-decomp\\recon\\game\\common\\audioclc_types.h": "3f0ef7b8b1d3993373cf91afe0d0c8e54952d089de5b789c9579e22665369951",
+    "C:\\Temp\\nfs4-decomp\\recon\\game\\common\\color_types.h": "371cafcbe2f3d9042f2e6704d87c29a8de306c8a3b9aaee377bbd821a3216b5a",
+    "C:\\Temp\\nfs4-decomp\\recon\\game\\common\\draw_leaf_types.h": "4c6832b060ae1ded20f5b5d3c3a9ce68fbef362b1db56b92a78840874cb9aa49",
+    "C:\\Temp\\nfs4-decomp\\recon\\game\\common\\game_common_min_types.h": "15fba7178f58825ef79d6e13f0d3e55c5cf84be6274b819cdb38f19f914e453f",
+    "C:\\Temp\\nfs4-decomp\\recon\\frontend\\psx\\ea_psx_types.h": "5215d4108c65ddc8965465be1be2a8755846ada72ee57688b914c54d8a97ad73",
+    "C:\\Temp\\nfs4-decomp\\recon\\game\\common\\gamesetup_leaf_types.h": "8e81016ba8346919fd522f7032ee83a1730e69643668e223cece654d2cd9fd06",
+    "C:\\Temp\\nfs4-decomp\\recon\\game\\common\\aiscript_types.h": "8120a2345042e55ca56f2cd81f26ff1879ffd86f4586ebd5cab5c39e2adb843a",
+    "C:\\Temp\\nfs4-decomp\\recon\\game\\common\\audiocmn_externs.h": "dbf3359182ce0d2c15df91814b6da86431144f60e8ed4bdc04407a37c16ff545"
+  },
+  "remaining_alias": "s",
+  "remaining_extra_empty_scopes": 1,
+  "full_source_restored": false
+}

@@ -1,0 +1,86 @@
+{
+  "passed": true,
+  "date": "2026-09-12",
+  "pre_integration_HEAD": "b36aebd025c217956a40ed448d173111ff7f9e7c",
+  "protected_oracle_known_symbol_instances": 1093,
+  "protected_TUs": 48,
+  "normal_objects_literal_unchanged": 518,
+  "linked_ELF_sha256": "52800553415581618c04766bca85e3d943de8343f60b78c62ff7c62af9e32ae0",
+  "linked_map_unchanged": true,
+  "PlaySong_removed_carrier": "pick",
+  "PlaySong_SLD_before": [
+    0,
+    44
+  ],
+  "PlaySong_SLD_after": [
+    0,
+    0
+  ],
+  "PlaySong_native_scopes": 9,
+  "PlaySong_raw_words": 160,
+  "Traffic_removed_carrier": "fade",
+  "Traffic_SLD_before": [
+    49,
+    46
+  ],
+  "Traffic_SLD_after": [
+    0,
+    10
+  ],
+  "Traffic_native_scope": 1,
+  "Traffic_native_records": 15,
+  "Traffic_raw_words": 163,
+  "SoundCar_removed_carriers": [
+    "currentGas",
+    "previousGas",
+    "gasDelta",
+    "rampedGas"
+  ],
+  "SoundCar_removed_empty_asm_sites": 2,
+  "SoundCar_remaining_empty_asm_sites": 3,
+  "SoundCar_SLD_before": [
+    37,
+    319
+  ],
+  "SoundCar_SLD_after": [
+    37,
+    261
+  ],
+  "SoundCar_native_ordinary_owners": 18,
+  "SoundCar_native_static_owner": true,
+  "SoundCar_raw_words": 530,
+  "SoundCar_extra_scopes": 3,
+  "known_rodata_packing_debt": 4,
+  "strict": {
+    "game_common": {
+      "clean": 1227,
+      "extra": 7,
+      "carriers": 467,
+      "missing": 0,
+      "type": 28,
+      "storage": 28,
+      "mapping": 0
+    },
+    "frontend_common": {
+      "clean": 780,
+      "extra": 48,
+      "carriers": 438,
+      "missing": 0,
+      "type": 9,
+      "storage": 9,
+      "mapping": 3
+    }
+  },
+  "actual_Music_source_sha256": "db13b32a51dc8027ef28afbab0a4ab580c5730c4b33fd9f781b0e08dba74a137",
+  "actual_AudioCmn_source_sha256": "9b5e9dafeba7302ba7dd6744637dc31c188f24356e18e8ffb23cbede476c7539",
+  "no_new_branch_discrepancies": true,
+  "existing_Speech_branch_discrepancy_preserved": true,
+  "production_build_tools_unchanged": true,
+  "no_postcompile_instruction_or_debug_label_rewrites": true,
+  "unproven_dead_clamp_not_landed": true,
+  "full_source_SYM_SLD_and_image_exact": false,
+  "goal_complete": false,
+  "publication_authorized": true,
+  "committed_at_receipt": false,
+  "pushed_at_receipt": false
+}

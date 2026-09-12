@@ -1,0 +1,603 @@
+{
+  "before_head": "b36aebd025c217956a40ed448d173111ff7f9e7c",
+  "after_head": "df4e6e0a58934686ea3b424bcde666af5a306f92",
+  "TUs": 74,
+  "all_gates_and_branches_unchanged": true,
+  "literal_identical": 73,
+  "semantic_identical": 74,
+  "requires_explicit_owner_or_layout_review": [],
+  "reports": [
+    {
+      "source": "recon/eaclib/psx/eacpsxz/addtimer.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/asinfunc.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/asintbl.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/atanfunc.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/atantbl.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/blkfill.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/blkmov.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/callback.c",
+      "literal_object_identical": false,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/cdfs.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/cluttype.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/crc.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/crossprd.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/devsys.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/exit.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/fastmovf.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/fatantbl.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/fileroot.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/fixdatan.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/fixddiv.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/fixdinv.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/fixdmult.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/fixdsin.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/fixdsqrt.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/fsincos.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/fxform.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/getm.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/inittmr.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/isincos.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/isqrt.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/isqrttbl.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/joystkn.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/loadshp.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/locatbig.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/locatshp.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/math64a.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/matrix.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/meminit.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/memstd.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/movf.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/nasync.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/nfile.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/nloadpk.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/nsync.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/nullfunc.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/primate.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/random.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/resize.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/savegp.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/shpclut.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/shpdepth.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/shpsubs.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/shptype.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/sinfunc.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/sintbl.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/stream.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/stricmp.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/syncfile.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/systask.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/textcode.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/textcrnt.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/textfor.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/textset.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/threads.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/timer.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/trnsfrm.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/trnsmult.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/trnspos.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/unbtree.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/unhuff.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/unref.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/vars.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/vramfxya.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/wildcard.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    },
+    {
+      "source": "recon/eaclib/psx/eacpsxz/xform.c",
+      "literal_object_identical": true,
+      "semantic_object_identical": true,
+      "function_gates_identical": true,
+      "branch_diagnostics_identical": true,
+      "differences": {}
+    }
+  ]
+}

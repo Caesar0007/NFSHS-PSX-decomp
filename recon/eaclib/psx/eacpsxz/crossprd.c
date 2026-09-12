@@ -16,13 +16,11 @@ int *crossproduct(int *a, int *b, int *out)   /* @0x800EAAE4 */
      * final store is the RETURN-VALUE setup -- this fn RETURNS `out` (in $v0), it is
      * NOT void (void->non-void discriminator: a dead-base copy to $v0 at the epilogue
      * = the return value, §3.2). */
-    int tmp0, tmp1, tmp2;
-    tmp0 = fixedmult(a[1], b[2]);
-    out[0] = tmp0 - fixedmult(a[2], b[1]);
-    tmp1 = fixedmult(a[0], b[2]);
-    out[1] = fixedmult(a[2], b[0]) - tmp1;
-    tmp2 = fixedmult(a[0], b[1]);
-    out[2] = tmp2 - fixedmult(a[1], b[0]);
+    /* P903 integration: retain the existing source shape; header extraction
+     * does not establish three new temporary-variable names as original. */
+    out[0] = fixedmult(a[1], b[2]) - fixedmult(a[2], b[1]);
+    { int t = fixedmult(a[0], b[2]); out[1] = fixedmult(a[2], b[0]) - t; }
+    out[2] = fixedmult(a[0], b[1]) - fixedmult(a[1], b[0]);
     return out;
 }
 

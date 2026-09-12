@@ -1,0 +1,486 @@
+{
+  "passed": true,
+  "date": "2026-09-12",
+  "source_sha256": "db92197177b06499a823b8c2be5ed3041f714eee536790a0fb8574f47998c5e9",
+  "object_sha256": "f6e556413410b4b0d3879ed8ae420b67df328f82cdf1e37add8e3ae6eee4a87b",
+  "fresh_prebuilt_function_gates": 23,
+  "fresh_branch_checks": 206,
+  "target": {
+    "native_parameters": [
+      [
+        "mode",
+        4,
+        17,
+        "0x4"
+      ],
+      [
+        "ticks",
+        5,
+        17,
+        "0x4"
+      ]
+    ],
+    "frame": 40,
+    "mask": "800f0000",
+    "mask_offset": -8,
+    "native_root_span_and_depth_exact": true,
+    "ordinary_locals": 0,
+    "retained_label": "done",
+    "retained_label_PC": "0x8007A860",
+    "retained_label_non_native_debt": true,
+    "SLD_before": [
+      39,
+      170
+    ],
+    "SLD_after": [
+      39,
+      29
+    ],
+    "new_bad_pairs": 0
+  },
+  "all22_neighbor_contracts_rechecked": [
+    "AudioMus_RefreshStatus__Fv",
+    "AudioMus_Threshold__Fv",
+    "AudioMus_Buffered__Fv",
+    "AudioMus_GetCurrentSong__Fv",
+    "AudioMus_SwitchSong__Fv",
+    "AudioMus_Fail__Fi",
+    "AudioMus_QueueRequestedSong__Fv",
+    "AudioMus_SetEntry__FP19AudioMus_tSongEntry",
+    "AudioMus_SetCurrentSongInfo__Fv",
+    "AudioMus_GetSongList__FPci",
+    "AudioMus_InitGlobals__Fv",
+    "AudioMus_InitDriverGlobals__Fv",
+    "AudioMus_DriverStartUp__Fii",
+    "AudioMus_SysStartUp__FiiPc",
+    "AudioMus_DriverCleanUp__Fv",
+    "AudioMus_SysCleanUp__Fv",
+    "AudioMus_StopSong__Fi",
+    "AudioMus_BuildPlayList__FiPi",
+    "AudioMus_BuildPattern__FPc",
+    "AudioMus_PlaySong__FPc",
+    "AudioMus_Volume__Fi",
+    "AudioMus_AutoVolume__Fii"
+  ],
+  "raw_words_exact": 300,
+  "raw_reference_words": 56,
+  "raw_sha256": "654deb9aad3cb66fa0fc0b5c5d0833e5854bef14b8e35535a51a17253e9f7dde",
+  "raw_reference_receipts": [
+    {
+      "index": 0,
+      "kind": 7,
+      "symbol": "AudioMus_g",
+      "VA": "0x8013c720",
+      "word": "0x8f8301d4"
+    },
+    {
+      "index": 15,
+      "kind": 4,
+      "symbol": "CdDiskReady",
+      "VA": "0x800e8448",
+      "word": "0xc03a112"
+    },
+    {
+      "index": 20,
+      "kind": 7,
+      "symbol": "AudioMus_g",
+      "VA": "0x8013c720",
+      "word": "0x8f8401d4"
+    },
+    {
+      "index": 32,
+      "kind": 4,
+      "symbol": "AudioMus_Buffered__Fv",
+      "VA": "0x80079fdc",
+      "word": "0xc01e7f7"
+    },
+    {
+      "index": 34,
+      "kind": 7,
+      "symbol": "AudioMus_g",
+      "VA": "0x8013c720",
+      "word": "0x8f8301d4"
+    },
+    {
+      "index": 37,
+      "kind": 4,
+      "symbol": "SNDSTRM_autovol",
+      "VA": "0x800e9de8",
+      "word": "0xc03a77a"
+    },
+    {
+      "index": 39,
+      "kind": 4,
+      "symbol": ".text",
+      "VA": "0x8007a864",
+      "word": "0x801ea19"
+    },
+    {
+      "index": 41,
+      "kind": 7,
+      "symbol": "AudioMus_g",
+      "VA": "0x8013c720",
+      "word": "0x8f8201d4"
+    },
+    {
+      "index": 47,
+      "kind": 4,
+      "symbol": "CdDiskReady",
+      "VA": "0x800e8448",
+      "word": "0xc03a112"
+    },
+    {
+      "index": 53,
+      "kind": 7,
+      "symbol": "AudioMus_g",
+      "VA": "0x8013c720",
+      "word": "0x8f8401d4"
+    },
+    {
+      "index": 61,
+      "kind": 4,
+      "symbol": ".text",
+      "VA": "0x8007a6fc",
+      "word": "0x801e9bf"
+    },
+    {
+      "index": 63,
+      "kind": 4,
+      "symbol": "AudioMus_RefreshStatus__Fv",
+      "VA": "0x80079ef4",
+      "word": "0xc01e7bd"
+    },
+    {
+      "index": 65,
+      "kind": 4,
+      "symbol": "AudioMus_Threshold__Fv",
+      "VA": "0x80079f58",
+      "word": "0xc01e7d6"
+    },
+    {
+      "index": 69,
+      "kind": 7,
+      "symbol": "AudioMus_g",
+      "VA": "0x8013c720",
+      "word": "0x8f8201d4"
+    },
+    {
+      "index": 75,
+      "kind": 4,
+      "symbol": "AudioMus_Buffered__Fv",
+      "VA": "0x80079fdc",
+      "word": "0xc01e7f7"
+    },
+    {
+      "index": 80,
+      "kind": 4,
+      "symbol": "AudioMus_Fail__Fi",
+      "VA": "0x8007a1dc",
+      "word": "0xc01e877"
+    },
+    {
+      "index": 82,
+      "kind": 4,
+      "symbol": ".text",
+      "VA": "0x8007a5b4",
+      "word": "0x801e96d"
+    },
+    {
+      "index": 84,
+      "kind": 4,
+      "symbol": "AudioMus_Buffered__Fv",
+      "VA": "0x80079fdc",
+      "word": "0xc01e7f7"
+    },
+    {
+      "index": 89,
+      "kind": 7,
+      "symbol": "AudioMus_g",
+      "VA": "0x8013c720",
+      "word": "0x8f8301d4"
+    },
+    {
+      "index": 96,
+      "kind": 4,
+      "symbol": "SNDSTRM_setgreedystate",
+      "VA": "0x800e9d8c",
+      "word": "0xc03a763"
+    },
+    {
+      "index": 98,
+      "kind": 7,
+      "symbol": "AudioMus_g",
+      "VA": "0x8013c720",
+      "word": "0x8f8301d4"
+    },
+    {
+      "index": 100,
+      "kind": 4,
+      "symbol": ".text",
+      "VA": "0x8007a5b4",
+      "word": "0x801e96d"
+    },
+    {
+      "index": 102,
+      "kind": 4,
+      "symbol": "AudioMus_Buffered__Fv",
+      "VA": "0x80079fdc",
+      "word": "0xc01e7f7"
+    },
+    {
+      "index": 104,
+      "kind": 7,
+      "symbol": "AudioMus_g",
+      "VA": "0x8013c720",
+      "word": "0x8f8401d4"
+    },
+    {
+      "index": 116,
+      "kind": 4,
+      "symbol": "SNDSTRM_setgreedystate",
+      "VA": "0x800e9d8c",
+      "word": "0xc03a763"
+    },
+    {
+      "index": 118,
+      "kind": 7,
+      "symbol": "AudioMus_g",
+      "VA": "0x8013c720",
+      "word": "0x8f8201d4"
+    },
+    {
+      "index": 121,
+      "kind": 7,
+      "symbol": "AudioMus_g",
+      "VA": "0x8013c720",
+      "word": "0x8f8701d4"
+    },
+    {
+      "index": 133,
+      "kind": 4,
+      "symbol": "AudioMus_Fail__Fi",
+      "VA": "0x8007a1dc",
+      "word": "0xc01e877"
+    },
+    {
+      "index": 135,
+      "kind": 4,
+      "symbol": ".text",
+      "VA": "0x8007a864",
+      "word": "0x801ea19"
+    },
+    {
+      "index": 141,
+      "kind": 4,
+      "symbol": "AudioMus_Fail__Fi",
+      "VA": "0x8007a1dc",
+      "word": "0xc01e877"
+    },
+    {
+      "index": 143,
+      "kind": 4,
+      "symbol": ".text",
+      "VA": "0x8007a864",
+      "word": "0x801ea19"
+    },
+    {
+      "index": 161,
+      "kind": 4,
+      "symbol": ".text",
+      "VA": "0x8007a678",
+      "word": "0x801e99e"
+    },
+    {
+      "index": 163,
+      "kind": 4,
+      "symbol": "AudioMus_SetCurrentSongInfo__Fv",
+      "VA": "0x8007a390",
+      "word": "0xc01e8e4"
+    },
+    {
+      "index": 165,
+      "kind": 7,
+      "symbol": "AudioMus_g",
+      "VA": "0x8013c720",
+      "word": "0x8f8201d4"
+    },
+    {
+      "index": 170,
+      "kind": 4,
+      "symbol": "SNDSTRM_autovol",
+      "VA": "0x800e9de8",
+      "word": "0xc03a77a"
+    },
+    {
+      "index": 172,
+      "kind": 7,
+      "symbol": "AudioMus_g",
+      "VA": "0x8013c720",
+      "word": "0x8f8201d4"
+    },
+    {
+      "index": 173,
+      "kind": 4,
+      "symbol": ".text",
+      "VA": "0x8007a860",
+      "word": "0x801ea18"
+    },
+    {
+      "index": 180,
+      "kind": 4,
+      "symbol": "SNDSTRM_getvol",
+      "VA": "0x800e83ec",
+      "word": "0xc03a0fb"
+    },
+    {
+      "index": 184,
+      "kind": 7,
+      "symbol": "AudioMus_g",
+      "VA": "0x8013c720",
+      "word": "0x8f8201d4"
+    },
+    {
+      "index": 190,
+      "kind": 4,
+      "symbol": "SNDSTRM_purge",
+      "VA": "0x800e9c58",
+      "word": "0xc03a716"
+    },
+    {
+      "index": 192,
+      "kind": 7,
+      "symbol": "AudioMus_g",
+      "VA": "0x8013c720",
+      "word": "0x8f8401d4"
+    },
+    {
+      "index": 198,
+      "kind": 4,
+      "symbol": "AudioMus_QueueRequestedSong__Fv",
+      "VA": "0x8007a258",
+      "word": "0xc01e896"
+    },
+    {
+      "index": 200,
+      "kind": 7,
+      "symbol": "AudioMus_g",
+      "VA": "0x8013c720",
+      "word": "0x8f8201d4"
+    },
+    {
+      "index": 203,
+      "kind": 4,
+      "symbol": "gettick",
+      "VA": "0x800e8220",
+      "word": "0xc03a088"
+    },
+    {
+      "index": 205,
+      "kind": 7,
+      "symbol": "AudioMus_g",
+      "VA": "0x8013c720",
+      "word": "0x8f8301d4"
+    },
+    {
+      "index": 207,
+      "kind": 4,
+      "symbol": ".text",
+      "VA": "0x8007a860",
+      "word": "0x801ea18"
+    },
+    {
+      "index": 209,
+      "kind": 4,
+      "symbol": ".text",
+      "VA": "0x8007a860",
+      "word": "0x801ea18"
+    },
+    {
+      "index": 230,
+      "kind": 4,
+      "symbol": "GetRCnt",
+      "VA": "0x800e9f0c",
+      "word": "0xc03a7c3"
+    },
+    {
+      "index": 234,
+      "kind": 4,
+      "symbol": "GetRCnt",
+      "VA": "0x800e9f0c",
+      "word": "0xc03a7c3"
+    },
+    {
+      "index": 236,
+      "kind": 4,
+      "symbol": ".text",
+      "VA": "0x8007a794",
+      "word": "0x801e9e5"
+    },
+    {
+      "index": 238,
+      "kind": 4,
+      "symbol": "GetRCnt",
+      "VA": "0x800e9f0c",
+      "word": "0xc03a7c3"
+    },
+    {
+      "index": 265,
+      "kind": 4,
+      "symbol": ".text",
+      "VA": "0x8007a834",
+      "word": "0x801ea0d"
+    },
+    {
+      "index": 281,
+      "kind": 7,
+      "symbol": "AudioMus_g",
+      "VA": "0x8013c720",
+      "word": "0x8f8201d4"
+    },
+    {
+      "index": 284,
+      "kind": 4,
+      "symbol": "SNDSTRM_vol",
+      "VA": "0x800ea0d8",
+      "word": "0xc03a836"
+    },
+    {
+      "index": 286,
+      "kind": 4,
+      "symbol": "AudioMus_QueueRequestedSong__Fv",
+      "VA": "0x8007a258",
+      "word": "0xc01e896"
+    },
+    {
+      "index": 288,
+      "kind": 7,
+      "symbol": "AudioMus_g",
+      "VA": "0x8013c720",
+      "word": "0x8f8301d4"
+    }
+  ],
+  "removed_source_labels": [
+    "clear_switchsong",
+    "normal_server",
+    "switchsong_default",
+    "switchsong_zero",
+    "update_failby"
+  ],
+  "native_declarations_fully_exact": false,
+  "full_SYM_or_SLD_exact": false,
+  "actual_include_hashes": {
+    "C:/Temp/nfs4-decomp/recon/game/common/audiomus.cpp": "db92197177b06499a823b8c2be5ed3041f714eee536790a0fb8574f47998c5e9",
+    "C:/Temp/nfs4-decomp/recon/game/common/audiomus_types.h": "1e9c6e0dd85be55834700e0242d0900013343b73909dd21a50459796fc667a42",
+    "C:/Temp/nfs4-decomp/recon/game/common/color_types.h": "371cafcbe2f3d9042f2e6704d87c29a8de306c8a3b9aaee377bbd821a3216b5a",
+    "C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h": "4c6832b060ae1ded20f5b5d3c3a9ce68fbef362b1db56b92a78840874cb9aa49",
+    "C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h": "15fba7178f58825ef79d6e13f0d3e55c5cf84be6274b819cdb38f19f914e453f",
+    "C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h": "5215d4108c65ddc8965465be1be2a8755846ada72ee57688b914c54d8a97ad73",
+    "C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h": "8e81016ba8346919fd522f7032ee83a1730e69643668e223cece654d2cd9fd06",
+    "C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h": "8120a2345042e55ca56f2cd81f26ff1879ffd86f4586ebd5cab5c39e2adb843a",
+    "C:/Temp/nfs4-decomp/recon/game/common/audiomus_externs.h": "f3ee7a18d5ff40da56c9db88d01f6c90a5c3d6d962b596496133faece0a2682f"
+  },
+  "normal_identity_and_FILE_path_rechecked": true,
+  "source_controlflow_and_M2C_review_no_findings": true,
+  "no_runtime_emulator_claim": true,
+  "no_compilation_or_production_or_normal_output_or_root_receipt_writes": true
+}

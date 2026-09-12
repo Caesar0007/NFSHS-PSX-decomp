@@ -1,0 +1,56 @@
+{
+  "passed": true,
+  "date": "2026-09-12",
+  "changed_sources": [
+    "recon/game/common/aiphysic.cpp",
+    "recon/game/common/audiotrk.cpp"
+  ],
+  "protected_oracle_known_symbol_instances": 1013,
+  "protected_TUs": 45,
+  "normal_objects_literal_unchanged": 518,
+  "linked_ELF_sha256": "52800553415581618c04766bca85e3d943de8343f60b78c62ff7c62af9e32ae0",
+  "linked_map_unchanged": true,
+  "AIPhysic_native_scopes": 4,
+  "AIPhysic_native_homes": 14,
+  "AIPhysic_raw_words": 378,
+  "SoundTrack_removed_name": "curBack",
+  "SoundTrack_raw_words": 358,
+  "PreLoad_raw_words": 116,
+  "PreLoad_native_named_owners_preserved": 5,
+  "PreLoad_SLD_before": {
+    "merges": 178,
+    "splits": 43
+  },
+  "PreLoad_SLD_after": {
+    "merges": 2,
+    "splits": 5
+  },
+  "strict": {
+    "game_common": {
+      "declaration_clean": 1227,
+      "extra_names": 7,
+      "carriers": 477,
+      "missing_names": 0,
+      "type_findings": 28,
+      "storage_findings": 28,
+      "mapping_review": 0
+    },
+    "frontend_common": {
+      "declaration_clean": 780,
+      "extra_names": 48,
+      "carriers": 438,
+      "missing_names": 0,
+      "type_findings": 9,
+      "storage_findings": 9,
+      "mapping_review": 3
+    }
+  },
+  "no_new_branch_discrepancies": true,
+  "existing_Speech_branch_discrepancy_preserved": true,
+  "normal_build_tools_unchanged": true,
+  "no_postcompile_instruction_or_debug_label_rewrites": true,
+  "CI_style_report_sha256": "2f64da5ebcadf1b920d8668e8a02ffed87abf40a1621fd45bfa97b3805ab19c3",
+  "goal_complete": false,
+  "committed": false,
+  "pushed": false
+}

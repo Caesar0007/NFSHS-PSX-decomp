@@ -1,0 +1,14 @@
+{
+  "passed": true,
+  "protected_oracle_known_symbol_instances": 1036,
+  "TUs": 46,
+  "all518_objects_literal_unchanged": true,
+  "linked_ELF_sha256": "52800553415581618c04766bca85e3d943de8343f60b78c62ff7c62af9e32ae0",
+  "linked_map_unchanged": true,
+  "tools_unchanged": true,
+  "source_drift": 0,
+  "source_only_current_regression": true,
+  "full_three_build_lanes_inherited_from_P897": true,
+  "preserved_existing_Speech_branch_discrepancy": true,
+  "goal_complete": false
+}

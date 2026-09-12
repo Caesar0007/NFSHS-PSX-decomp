@@ -1,0 +1,83 @@
+{
+  "passed": true,
+  "date": "2026-09-12",
+  "baseline_source_sha256": "db92197177b06499a823b8c2be5ed3041f714eee536790a0fb8574f47998c5e9",
+  "candidate_source_sha256": "3e0c7376f6a75d66c8d0111c7d5da747782ef03fd7cd69fabb253e0db6b98742",
+  "normal_object_sha256": "99f591c31f7273ee3106d16e2da4076983abce640b0ace61d804b87805641d09",
+  "whole_object_literal_identical": true,
+  "functions_PASS": 23,
+  "branch_checks": 206,
+  "native_frame": 168,
+  "native_mask": "800f0000",
+  "native_mask_offset": -8,
+  "native_parameter_pattern_exact": true,
+  "native_title_and_newsong_types_homes_and_owners_exact": true,
+  "all9_native_blocks_exact": true,
+  "extra_local_pick_removed": true,
+  "no_other_local_or_source_label_added": true,
+  "SLD_before": [
+    0,
+    44
+  ],
+  "SLD_after": [
+    0,
+    0
+  ],
+  "new_bad_pairs": 0,
+  "raw_words_exact": 160,
+  "reference_words": 30,
+  "all22_neighbors_full_contracts_preserved": true,
+  "Server_39_29_no_ordinary_locals_preserved": true,
+  "Threshold_0_0_preserved": true,
+  "actual_include_closure": [
+    {
+      "path": "recon/frontend/psx/ea_psx_types.h",
+      "before_sha256": "5215d4108c65ddc8965465be1be2a8755846ada72ee57688b914c54d8a97ad73",
+      "candidate_sha256": "5215d4108c65ddc8965465be1be2a8755846ada72ee57688b914c54d8a97ad73"
+    },
+    {
+      "path": "recon/game/common/aiscript_types.h",
+      "before_sha256": "8120a2345042e55ca56f2cd81f26ff1879ffd86f4586ebd5cab5c39e2adb843a",
+      "candidate_sha256": "8120a2345042e55ca56f2cd81f26ff1879ffd86f4586ebd5cab5c39e2adb843a"
+    },
+    {
+      "path": "recon/game/common/audiomus.cpp",
+      "before_sha256": "db92197177b06499a823b8c2be5ed3041f714eee536790a0fb8574f47998c5e9",
+      "candidate_sha256": "3e0c7376f6a75d66c8d0111c7d5da747782ef03fd7cd69fabb253e0db6b98742"
+    },
+    {
+      "path": "recon/game/common/audiomus_externs.h",
+      "before_sha256": "f3ee7a18d5ff40da56c9db88d01f6c90a5c3d6d962b596496133faece0a2682f",
+      "candidate_sha256": "f3ee7a18d5ff40da56c9db88d01f6c90a5c3d6d962b596496133faece0a2682f"
+    },
+    {
+      "path": "recon/game/common/audiomus_types.h",
+      "before_sha256": "1e9c6e0dd85be55834700e0242d0900013343b73909dd21a50459796fc667a42",
+      "candidate_sha256": "1e9c6e0dd85be55834700e0242d0900013343b73909dd21a50459796fc667a42"
+    },
+    {
+      "path": "recon/game/common/color_types.h",
+      "before_sha256": "371cafcbe2f3d9042f2e6704d87c29a8de306c8a3b9aaee377bbd821a3216b5a",
+      "candidate_sha256": "371cafcbe2f3d9042f2e6704d87c29a8de306c8a3b9aaee377bbd821a3216b5a"
+    },
+    {
+      "path": "recon/game/common/draw_leaf_types.h",
+      "before_sha256": "4c6832b060ae1ded20f5b5d3c3a9ce68fbef362b1db56b92a78840874cb9aa49",
+      "candidate_sha256": "4c6832b060ae1ded20f5b5d3c3a9ce68fbef362b1db56b92a78840874cb9aa49"
+    },
+    {
+      "path": "recon/game/common/game_common_min_types.h",
+      "before_sha256": "15fba7178f58825ef79d6e13f0d3e55c5cf84be6274b819cdb38f19f914e453f",
+      "candidate_sha256": "15fba7178f58825ef79d6e13f0d3e55c5cf84be6274b819cdb38f19f914e453f"
+    },
+    {
+      "path": "recon/game/common/gamesetup_leaf_types.h",
+      "before_sha256": "8e81016ba8346919fd522f7032ee83a1730e69643668e223cece654d2cd9fd06",
+      "candidate_sha256": "8e81016ba8346919fd522f7032ee83a1730e69643668e223cece654d2cd9fd06"
+    }
+  ],
+  "source_patch_sha256": "b4ea4f8466541f538260c09c6f5fe74a7332ebdcdd2886c041841a0977ca5b85",
+  "no_GNU_expression_block_or_scalar_value_workaround_retained": true,
+  "original_tokens_and_physical_lines_unsealed": true,
+  "production_untouched": true
+}

@@ -56,4 +56,6 @@ int fixedmult(int a, int b)   /* @0x800E4328 */
 {
     return (int)(((long long)a * (long long)b + 0x8000) >> 16);
 }
+/* P903 integration: preserve the declared co-equal host entry. */
+extern int rmult(int a, int b) __attribute__((alias("fixedmult")));
 #endif

@@ -1,0 +1,93 @@
+{
+  "date": "2026-09-12",
+  "production_source_sha256": "188394fd5b6a6cbfce810d53fda5d2dd56c0b62a2852d618a036b164725defdc",
+  "inputs": [
+    {
+      "path": "recon/frontend/psx/ea_psx_types.h",
+      "sha256": "5215d4108c65ddc8965465be1be2a8755846ada72ee57688b914c54d8a97ad73"
+    },
+    {
+      "path": "recon/game/common/aiscript_types.h",
+      "sha256": "8120a2345042e55ca56f2cd81f26ff1879ffd86f4586ebd5cab5c39e2adb843a"
+    },
+    {
+      "path": "recon/game/common/audioeng.cpp",
+      "sha256": "188394fd5b6a6cbfce810d53fda5d2dd56c0b62a2852d618a036b164725defdc"
+    },
+    {
+      "path": "recon/game/common/audioeng_externs.h",
+      "sha256": "779becc38c09bae4b5a6df91fb71f6703a5cdd7c5738c82fa8e94527e0e0399c"
+    },
+    {
+      "path": "recon/game/common/audioeng_types.h",
+      "sha256": "474964e3ab7b2a538c236ca4d723f8a207f79bd171b329f82312b7ad1a89502d"
+    },
+    {
+      "path": "recon/game/common/color_types.h",
+      "sha256": "371cafcbe2f3d9042f2e6704d87c29a8de306c8a3b9aaee377bbd821a3216b5a"
+    },
+    {
+      "path": "recon/game/common/draw_leaf_types.h",
+      "sha256": "4c6832b060ae1ded20f5b5d3c3a9ce68fbef362b1db56b92a78840874cb9aa49"
+    },
+    {
+      "path": "recon/game/common/game_common_min_types.h",
+      "sha256": "15fba7178f58825ef79d6e13f0d3e55c5cf84be6274b819cdb38f19f914e453f"
+    },
+    {
+      "path": "recon/game/common/gamesetup_leaf_types.h",
+      "sha256": "8e81016ba8346919fd522f7032ee83a1730e69643668e223cece654d2cd9fd06"
+    }
+  ],
+  "baseline_and_probe_nine_functions_PASS": true,
+  "branch_checks": 128,
+  "whole_object_identical": true,
+  "normal_object_sha256": "dce87b4b649d4fb9808db2a3a85f611cf7b11dbdd9475f715db2ce212e4c802c",
+  "all_four_native_scopes_and_g_i_owners_already_exact": true,
+  "outer_player_has_no_emitted_debug_declaration_in_either_form": true,
+  "for_initializer_probe_identity_result": "neutral; no original-name evidence; not retained",
+  "native_SLD_before": [
+    1,
+    2
+  ],
+  "native_SLD_probe": [
+    1,
+    2
+  ],
+  "raw_words_exact": 56,
+  "reference_words": 7,
+  "nop_attribution": {
+    "index": 17,
+    "VA": "0x8007C578",
+    "native_line": 713,
+    "current_line": 581,
+    "compiler_line_marker": "LM349",
+    "compiler_loc_line": 582,
+    "marker_precedes_comment_nop": true,
+    "assembled_marker_VA": "0x8007c57c",
+    "native_record": "1b3589: $8007c578 82 Inc SLD linenum by byte 2 (to 713)",
+    "merge_pairs": [
+      [
+        16,
+        17
+      ]
+    ],
+    "split_pairs": [
+      [
+        17,
+        18
+      ],
+      [
+        17,
+        19
+      ]
+    ]
+  },
+  "staged_source_reverted_logically": true,
+  "staged_source_sha256": "4a0863253cc5fa49b6cc12dcc591b2e4be0a9a68489600a1ce6e545e5b598958",
+  "only_staged_line_endings_may_differ_from_backup": true,
+  "source_proposal": null,
+  "player_original_identity_unresolved": true,
+  "no_floor_claim": true,
+  "no_production_or_normal_output_writes": true
+}

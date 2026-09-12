@@ -99,5 +99,9 @@ int intsin(int a)   /* @0x800F18E8 */
 }
 int intcos(int a)   /* @0x800F18E4 : a += 90deg, fall into sin */
 {
+    /* P903: retain host behavior and the co-equal host alias definitions. */
+    return intsin(a + 0x100);
 }
+extern int fastintcos(int a) __attribute__((alias("intcos")));
+extern int fastintsin(int a) __attribute__((alias("intsin")));
 #endif

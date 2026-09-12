@@ -1,0 +1,209 @@
+{
+  "timestamp_utc": "2026-09-12T06:54:53.240306+00:00",
+  "compiler": "c:\\users\\vyacheslav\\appdata\\local\\microsoft\\winget\\packages\\brechtsanders.winlibs.posix.ucrt_microsoft.winget.source_8wekyb3d8bbwe\\mingw64\\bin\\gcc.EXE",
+  "compiler_sha256": "d3bf2bf4461f8ed0acdfdb768cfb1ffd26055d638fcb079e319b1f0567a55798",
+  "compiler_version": "gcc.EXE (MinGW-W64 x86_64-ucrt-posix-seh, built by Brecht Sanders, r7) 15.2.0\nCopyright (C) 2025 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n\n",
+  "target_machine": "x86_64-w64-mingw32",
+  "host_macro_sha256": "9011c941b9a495130adffba17db73f877059c892de314e0b009c84fce542ff7b",
+  "source_proofs": [
+    {
+      "name": "blkfill",
+      "baseline_git_sha256": "2b19e2fe87bba50cf80fc41942dfee8c08390db686f8bdf18c00b2adc69281db",
+      "staged_sha256": "2b19e2fe87bba50cf80fc41942dfee8c08390db686f8bdf18c00b2adc69281db",
+      "actual_sha256": "3286bc11ac8895583e24dd92495968b54d58343a044ee65e41f7cf42b5e022aa",
+      "mips_arm_tokens_identical": true,
+      "host_arm_tokens_identical_ignoring_comments_and_extern": true
+    },
+    {
+      "name": "sinfunc",
+      "baseline_git_sha256": "b02665c834804080f3d19f6d1aeb0b13c1f79f5c5c257c2aae01c60da3f284f5",
+      "staged_sha256": "b02665c834804080f3d19f6d1aeb0b13c1f79f5c5c257c2aae01c60da3f284f5",
+      "actual_sha256": "a594695347e7d6eb706cb0783eb0ae2a32fa321b475fc1aab2b415c6293dedae",
+      "mips_arm_tokens_identical": true,
+      "host_arm_tokens_identical_ignoring_comments_and_extern": true
+    },
+    {
+      "name": "fixddiv",
+      "baseline_git_sha256": "1766b4df9691a0994cdb62b51d014212d8747f2d8e6b24ff48920f10b96086a8",
+      "staged_sha256": "1766b4df9691a0994cdb62b51d014212d8747f2d8e6b24ff48920f10b96086a8",
+      "actual_sha256": "59f9660231115a79c458b23347335026e7d68b10ac160fe95706af7c8b6630d3",
+      "mips_arm_tokens_identical": true,
+      "host_arm_tokens_identical_ignoring_comments_and_extern": true
+    },
+    {
+      "name": "fixdinv",
+      "baseline_git_sha256": "2e003a8b0a12a4b9ef4a78a93e5e20ab17e1b3c60e932189a63b020db8726a82",
+      "staged_sha256": "2e003a8b0a12a4b9ef4a78a93e5e20ab17e1b3c60e932189a63b020db8726a82",
+      "actual_sha256": "8f08c1397cde48e55ce856b2ff703a8b12a165ad7007293eff3dabacbd646134",
+      "mips_arm_tokens_identical": true,
+      "host_arm_tokens_identical_ignoring_comments_and_extern": true
+    },
+    {
+      "name": "fixdmult",
+      "baseline_git_sha256": "140a7dd274d241ce831baa80d59a8c80fc80b86a5d8e802287946145f71c6918",
+      "staged_sha256": "140a7dd274d241ce831baa80d59a8c80fc80b86a5d8e802287946145f71c6918",
+      "actual_sha256": "fd2e31bc0aaeee335af2a023987139dee911876cd26fb1787247da827d0de792",
+      "mips_arm_tokens_identical": true,
+      "host_arm_tokens_identical_ignoring_comments_and_extern": true
+    },
+    {
+      "name": "sintbl",
+      "baseline_git_sha256": "d12f80eadd7d9f78a00ead59c40b72f5ca46e9585ea5183895f7818fd641268d",
+      "staged_sha256": "d12f80eadd7d9f78a00ead59c40b72f5ca46e9585ea5183895f7818fd641268d",
+      "actual_sha256": "c3e3a5ecc4075ecc8d1bfabae52cb59725110302ca0f2c7be26b9bf7274c3fc5",
+      "table_words": 257,
+      "table_raw_address": "80137464",
+      "table_payload_sha256": "c3b03a2581960f9b22f2f29fb52f30bf36eb87c3896c8e4f62c708b3c247f880",
+      "table_matches_raw": true
+    }
+  ],
+  "tests": [
+    {
+      "stage": "before",
+      "optimization": "-O0",
+      "command": [
+        "c:\\users\\vyacheslav\\appdata\\local\\microsoft\\winget\\packages\\brechtsanders.winlibs.posix.ucrt_microsoft.winget.source_8wekyb3d8bbwe\\mingw64\\bin\\gcc.EXE",
+        "-std=gnu99",
+        "-O0",
+        "-Wall",
+        "-Wextra",
+        "-Werror=return-type",
+        "-iquote",
+        "C:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\p903_upstream_eac\\host\\check_host.c",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\p903_upstream_eac\\host\\before\\blkfill.c",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\p903_upstream_eac\\host\\before\\sinfunc.c",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\p903_upstream_eac\\host\\before\\fixddiv.c",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\p903_upstream_eac\\host\\before\\fixdinv.c",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\p903_upstream_eac\\host\\before\\fixdmult.c",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\p903_upstream_eac\\host\\before\\sintbl.c",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\p903_upstream_eac\\host\\before_O0_iquote\\check_host.exe"
+      ],
+      "result": {
+        "checks": 1066499,
+        "block_cases": 14840,
+        "angle_cases": 262147,
+        "multiply_cases": 784,
+        "divide_cases": 723,
+        "inverse_cases": 26,
+        "alias_addresses": 5,
+        "status": "PASS"
+      },
+      "executable_sha256": "604b9301f5054126667563a04c4615409d94d46f805f040c3d4708bdbcc198a8",
+      "compile_stderr": ""
+    },
+    {
+      "stage": "before",
+      "optimization": "-O2",
+      "command": [
+        "c:\\users\\vyacheslav\\appdata\\local\\microsoft\\winget\\packages\\brechtsanders.winlibs.posix.ucrt_microsoft.winget.source_8wekyb3d8bbwe\\mingw64\\bin\\gcc.EXE",
+        "-std=gnu99",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror=return-type",
+        "-iquote",
+        "C:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\p903_upstream_eac\\host\\check_host.c",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\p903_upstream_eac\\host\\before\\blkfill.c",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\p903_upstream_eac\\host\\before\\sinfunc.c",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\p903_upstream_eac\\host\\before\\fixddiv.c",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\p903_upstream_eac\\host\\before\\fixdinv.c",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\p903_upstream_eac\\host\\before\\fixdmult.c",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\p903_upstream_eac\\host\\before\\sintbl.c",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\p903_upstream_eac\\host\\before_O2_iquote\\check_host.exe"
+      ],
+      "result": {
+        "checks": 1066499,
+        "block_cases": 14840,
+        "angle_cases": 262147,
+        "multiply_cases": 784,
+        "divide_cases": 723,
+        "inverse_cases": 26,
+        "alias_addresses": 5,
+        "status": "PASS"
+      },
+      "executable_sha256": "bb69f150884b6afc959113aa04b57ad38aa4b80fdeb3d83df143c731cfe74042",
+      "compile_stderr": ""
+    },
+    {
+      "stage": "actual",
+      "optimization": "-O0",
+      "command": [
+        "c:\\users\\vyacheslav\\appdata\\local\\microsoft\\winget\\packages\\brechtsanders.winlibs.posix.ucrt_microsoft.winget.source_8wekyb3d8bbwe\\mingw64\\bin\\gcc.EXE",
+        "-std=gnu99",
+        "-O0",
+        "-Wall",
+        "-Wextra",
+        "-Werror=return-type",
+        "-iquote",
+        "C:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\p903_upstream_eac\\host\\check_host.c",
+        "C:\\Temp\\nfs4-decomp\\recon\\eaclib\\psx\\eacpsxz\\blkfill.c",
+        "C:\\Temp\\nfs4-decomp\\recon\\eaclib\\psx\\eacpsxz\\sinfunc.c",
+        "C:\\Temp\\nfs4-decomp\\recon\\eaclib\\psx\\eacpsxz\\fixddiv.c",
+        "C:\\Temp\\nfs4-decomp\\recon\\eaclib\\psx\\eacpsxz\\fixdinv.c",
+        "C:\\Temp\\nfs4-decomp\\recon\\eaclib\\psx\\eacpsxz\\fixdmult.c",
+        "C:\\Temp\\nfs4-decomp\\recon\\eaclib\\psx\\eacpsxz\\sintbl.c",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\p903_upstream_eac\\host\\actual_O0_iquote\\check_host.exe"
+      ],
+      "result": {
+        "checks": 1066499,
+        "block_cases": 14840,
+        "angle_cases": 262147,
+        "multiply_cases": 784,
+        "divide_cases": 723,
+        "inverse_cases": 26,
+        "alias_addresses": 5,
+        "status": "PASS"
+      },
+      "executable_sha256": "4321f23ead8f3290e4f3699c2cbc5c02a9e07a12900c832a4f0f8ae63a31ad2a",
+      "compile_stderr": ""
+    },
+    {
+      "stage": "actual",
+      "optimization": "-O2",
+      "command": [
+        "c:\\users\\vyacheslav\\appdata\\local\\microsoft\\winget\\packages\\brechtsanders.winlibs.posix.ucrt_microsoft.winget.source_8wekyb3d8bbwe\\mingw64\\bin\\gcc.EXE",
+        "-std=gnu99",
+        "-O2",
+        "-Wall",
+        "-Wextra",
+        "-Werror=return-type",
+        "-iquote",
+        "C:\\Temp\\nfs4-decomp\\recon",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\p903_upstream_eac\\host\\check_host.c",
+        "C:\\Temp\\nfs4-decomp\\recon\\eaclib\\psx\\eacpsxz\\blkfill.c",
+        "C:\\Temp\\nfs4-decomp\\recon\\eaclib\\psx\\eacpsxz\\sinfunc.c",
+        "C:\\Temp\\nfs4-decomp\\recon\\eaclib\\psx\\eacpsxz\\fixddiv.c",
+        "C:\\Temp\\nfs4-decomp\\recon\\eaclib\\psx\\eacpsxz\\fixdinv.c",
+        "C:\\Temp\\nfs4-decomp\\recon\\eaclib\\psx\\eacpsxz\\fixdmult.c",
+        "C:\\Temp\\nfs4-decomp\\recon\\eaclib\\psx\\eacpsxz\\sintbl.c",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\p903_upstream_eac\\host\\actual_O2_iquote\\check_host.exe"
+      ],
+      "result": {
+        "checks": 1066499,
+        "block_cases": 14840,
+        "angle_cases": 262147,
+        "multiply_cases": 784,
+        "divide_cases": 723,
+        "inverse_cases": 26,
+        "alias_addresses": 5,
+        "status": "PASS"
+      },
+      "executable_sha256": "38e294122e16dfcca2287f55daff81278a665bd85ab902731bbc200aa8001850",
+      "compile_stderr": ""
+    }
+  ],
+  "qualification": [
+    "Host runtime/native Win64 only; no PSX recompilation or compiler-output rewriting.",
+    "INT_MIN is tested for fixedmult and safe-angle sine/cosine; pre-existing signed abs/negation overflow cases excluded for division/inverse.",
+    "fixedinverse(0) is outside the retained fallback domain (division by zero); no false zero-input PASS claim.",
+    "All checks compare restored old behavior; full original-source identity or cross-target portability is not claimed."
+  ],
+  "all_actual_input_hashes_still_equal": true
+}

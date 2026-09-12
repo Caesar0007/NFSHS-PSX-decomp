@@ -1,0 +1,713 @@
+{
+  "passed": true,
+  "date": "2026-09-12",
+  "actual_source_sha256": "db13b32a51dc8027ef28afbab0a4ab580c5730c4b33fd9f781b0e08dba74a137",
+  "accepted_candidate_sha256": "3e0c7376f6a75d66c8d0111c7d5da747782ef03fd7cd69fabb253e0db6b98742",
+  "line_ending_receipt": {
+    "candidate_bytes": 29549,
+    "actual_bytes": 29542,
+    "candidate_CRLF": 624,
+    "actual_CRLF": 617,
+    "candidate_LF": 822,
+    "actual_LF": 822,
+    "full_source_body_comments_and_preamble_exact_after_universal_newlines": true
+  },
+  "actual_normal_object_sha256": "f6e556413410b4b0d3879ed8ae420b67df328f82cdf1e37add8e3ae6eee4a87b",
+  "actual_object_literal_identical_to_P902": true,
+  "private_object_exact_except_checked_FILE": [
+    [
+      "C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\p903_audiomus_playsong\\\\inputs\\\\recon\\\\game\\\\common\\\\audiomus.cpp",
+      0,
+      0,
+      4,
+      0,
+      65521
+    ],
+    [
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\common\\\\audiomus.cpp",
+      0,
+      0,
+      4,
+      0,
+      65521
+    ]
+  ],
+  "functions_PASS": 23,
+  "branch_checks": 206,
+  "all23_accepted_source_debug_contracts_exact": true,
+  "PlaySong_9_native_scopes_and_3_declarations_exact": true,
+  "PlaySong_native_SLD": [
+    0,
+    0
+  ],
+  "raw_words_exact": 160,
+  "raw_reference_words": 30,
+  "pattern_literal_native_address": "0x8013C724",
+  "all22_neighbors_preserved": true,
+  "Server39_29_no_ordinary_locals_preserved": true,
+  "Threshold0_0_preserved": true,
+  "actual_production_include_closure": {
+    "C:/Temp/nfs4-decomp/recon/game/common/audiomus.cpp": "db13b32a51dc8027ef28afbab0a4ab580c5730c4b33fd9f781b0e08dba74a137",
+    "C:/Temp/nfs4-decomp/recon/game/common/audiomus_types.h": "1e9c6e0dd85be55834700e0242d0900013343b73909dd21a50459796fc667a42",
+    "C:/Temp/nfs4-decomp/recon/game/common/color_types.h": "371cafcbe2f3d9042f2e6704d87c29a8de306c8a3b9aaee377bbd821a3216b5a",
+    "C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h": "4c6832b060ae1ded20f5b5d3c3a9ce68fbef362b1db56b92a78840874cb9aa49",
+    "C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h": "15fba7178f58825ef79d6e13f0d3e55c5cf84be6274b819cdb38f19f914e453f",
+    "C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h": "5215d4108c65ddc8965465be1be2a8755846ada72ee57688b914c54d8a97ad73",
+    "C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h": "8e81016ba8346919fd522f7032ee83a1730e69643668e223cece654d2cd9fd06",
+    "C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h": "8120a2345042e55ca56f2cd81f26ff1879ffd86f4586ebd5cab5c39e2adb843a",
+    "C:/Temp/nfs4-decomp/recon/game/common/audiomus_externs.h": "f3ee7a18d5ff40da56c9db88d01f6c90a5c3d6d962b596496133faece0a2682f"
+  },
+  "no_staged_headers_used": true,
+  "functions": [
+    {
+      "function": "AudioMus_RefreshStatus__Fv",
+      "words": 25,
+      "definitions": [],
+      "scopes": [
+        {
+          "start": 2147983092,
+          "depth": 0,
+          "declarations": [],
+          "end": 2147983176
+        }
+      ],
+      "native_SLD": {
+        "merges": 0,
+        "splits": 4
+      },
+      "entire_accepted_source_debug_contract_identical": true
+    },
+    {
+      "function": "AudioMus_Threshold__Fv",
+      "words": 33,
+      "definitions": [],
+      "scopes": [
+        {
+          "start": 2147983192,
+          "depth": 0,
+          "declarations": [],
+          "end": 2147983316
+        }
+      ],
+      "native_SLD": {
+        "merges": 0,
+        "splits": 0
+      },
+      "entire_accepted_source_debug_contract_identical": true
+    },
+    {
+      "function": "AudioMus_Buffered__Fv",
+      "words": 19,
+      "definitions": [],
+      "scopes": [
+        {
+          "start": 2147983324,
+          "depth": 0,
+          "declarations": [],
+          "end": 2147983392
+        }
+      ],
+      "native_SLD": {
+        "merges": 0,
+        "splits": 0
+      },
+      "entire_accepted_source_debug_contract_identical": true
+    },
+    {
+      "function": "AudioMus_GetCurrentSong__Fv",
+      "words": 47,
+      "definitions": [
+        "\t.def\tcurr;\t.val\t4;\t.scl\t4;\t.tag\tAudioMus_tCurrentSong;\t.size\t76;\t.type\t0x18;\t.endef",
+        "\t.def\tinfo;\t.val\t4;\t.scl\t4;\t.tag\tAudioMus_tSongEntry;\t.size\t64;\t.type\t0x18;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147983400,
+          "depth": 0,
+          "declarations": [
+            ".def\tcurr;\t.val\t4;\t.scl\t4;\t.tag\tAudioMus_tCurrentSong;\t.size\t76;\t.type\t0x18;\t.endef",
+            ".def\tinfo;\t.val\t4;\t.scl\t4;\t.tag\tAudioMus_tSongEntry;\t.size\t64;\t.type\t0x18;\t.endef"
+          ],
+          "end": 2147983580
+        }
+      ],
+      "native_SLD": {
+        "merges": 0,
+        "splits": 7
+      },
+      "entire_accepted_source_debug_contract_identical": true
+    },
+    {
+      "function": "AudioMus_SwitchSong__Fv",
+      "words": 62,
+      "definitions": [
+        "\t.def\tinfo;\t.val\t2;\t.scl\t4;\t.tag\tAudioMus_tSongEntry;\t.size\t64;\t.type\t0x18;\t.endef",
+        "\t.def\tSONG_OFF;\t.val\t$L46;\t.scl\t6;\t.type\t0x0;\t.endef",
+        "\t.def\tSONG_ON;\t.val\t$L48;\t.scl\t6;\t.type\t0x0;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147983588,
+          "depth": 0,
+          "declarations": [
+            ".def\tinfo;\t.val\t2;\t.scl\t4;\t.tag\tAudioMus_tSongEntry;\t.size\t64;\t.type\t0x18;\t.endef",
+            ".def\tSONG_OFF;\t.val\t$L46;\t.scl\t6;\t.type\t0x0;\t.endef",
+            ".def\tSONG_ON;\t.val\t$L48;\t.scl\t6;\t.type\t0x0;\t.endef"
+          ],
+          "end": 2147983820
+        }
+      ],
+      "native_SLD": {
+        "merges": 0,
+        "splits": 24
+      },
+      "entire_accepted_source_debug_contract_identical": true
+    },
+    {
+      "function": "AudioMus_Fail__Fi",
+      "words": 31,
+      "definitions": [
+        "\t.def\terrorcode;\t.val\t4;\t.scl\t17;\t.type\t0x4;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147983836,
+          "depth": 0,
+          "declarations": [],
+          "end": 2147983912
+        }
+      ],
+      "native_SLD": {
+        "merges": 0,
+        "splits": 4
+      },
+      "entire_accepted_source_debug_contract_identical": true
+    },
+    {
+      "function": "AudioMus_QueueRequestedSong__Fv",
+      "words": 44,
+      "definitions": [
+        "\t.def\toffset;\t.val\t-16;\t.scl\t1;\t.type\t0x5;\t.endef",
+        "\t.def\tinfo;\t.val\t2;\t.scl\t4;\t.tag\tAudioMus_tSongEntry;\t.size\t64;\t.type\t0x18;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147983960,
+          "depth": 0,
+          "declarations": [
+            ".def\toffset;\t.val\t-16;\t.scl\t1;\t.type\t0x5;\t.endef",
+            ".def\tinfo;\t.val\t2;\t.scl\t4;\t.tag\tAudioMus_tSongEntry;\t.size\t64;\t.type\t0x18;\t.endef"
+          ],
+          "end": 2147984060
+        }
+      ],
+      "native_SLD": {
+        "merges": 11,
+        "splits": 8
+      },
+      "entire_accepted_source_debug_contract_identical": true
+    },
+    {
+      "function": "AudioMus_SetEntry__FP19AudioMus_tSongEntry",
+      "words": 34,
+      "definitions": [
+        "\t.def\tinfo;\t.val\t4;\t.scl\t17;\t.tag\tAudioMus_tSongEntry;\t.size\t64;\t.type\t0x18;\t.endef",
+        "\t.def\ttitlechar;\t.val\t5;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\thavefile;\t.val\t7;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tp;\t.val\t6;\t.scl\t4;\t.type\t0x12;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147984136,
+          "depth": 0,
+          "declarations": [
+            ".def\ttitlechar;\t.val\t5;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\thavefile;\t.val\t7;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tp;\t.val\t6;\t.scl\t4;\t.type\t0x12;\t.endef"
+          ],
+          "end": 2147984252
+        }
+      ],
+      "native_SLD": {
+        "merges": 0,
+        "splits": 6
+      },
+      "entire_accepted_source_debug_contract_identical": true
+    },
+    {
+      "function": "AudioMus_SetCurrentSongInfo__Fv",
+      "words": 16,
+      "definitions": [
+        "\t.def\tinfo;\t.val\t4;\t.scl\t4;\t.tag\tAudioMus_tSongEntry;\t.size\t64;\t.type\t0x18;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147984272,
+          "depth": 0,
+          "declarations": [
+            ".def\tinfo;\t.val\t4;\t.scl\t4;\t.tag\tAudioMus_tSongEntry;\t.size\t64;\t.type\t0x18;\t.endef"
+          ],
+          "end": 2147984272
+        }
+      ],
+      "native_SLD": {
+        "merges": 7,
+        "splits": 8
+      },
+      "entire_accepted_source_debug_contract_identical": true
+    },
+    {
+      "function": "AudioMus_Server__Fii",
+      "words": 300,
+      "definitions": [
+        "\t.def\tmode;\t.val\t4;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tticks;\t.val\t5;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tdone;\t.val\t$L72;\t.scl\t6;\t.type\t0x0;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147984336,
+          "depth": 0,
+          "declarations": [
+            ".def\tdone;\t.val\t$L72;\t.scl\t6;\t.type\t0x0;\t.endef"
+          ],
+          "end": 2147985508
+        }
+      ],
+      "native_SLD": {
+        "merges": 39,
+        "splits": 29
+      },
+      "entire_accepted_source_debug_contract_identical": true
+    },
+    {
+      "function": "AudioMus_GetSongList__FPci",
+      "words": 117,
+      "definitions": [
+        "\t.def\tpattern;\t.val\t21;\t.scl\t17;\t.type\t0x12;\t.endef",
+        "\t.def\tmemtype;\t.val\t18;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tlist;\t.val\t17;\t.scl\t4;\t.tag\tAudioMus_tSongList;\t.size\t8;\t.type\t0x18;\t.endef",
+        "\t.def\tsong;\t.val\t20;\t.scl\t4;\t.tag\tAudioMus_tSongEntry;\t.size\t64;\t.type\t0x18;\t.endef",
+        "\t.def\tnumsongs;\t.val\t17;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\ti;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\ti;\t.val\t18;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tsize;\t.val\t-40;\t.scl\t1;\t.type\t0x5;\t.endef",
+        "\t.def\tsongname;\t.val\t16;\t.scl\t4;\t.type\t0x12;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147985536,
+          "depth": 0,
+          "declarations": [
+            ".def\tlist;\t.val\t17;\t.scl\t4;\t.tag\tAudioMus_tSongList;\t.size\t8;\t.type\t0x18;\t.endef",
+            ".def\tsong;\t.val\t20;\t.scl\t4;\t.tag\tAudioMus_tSongEntry;\t.size\t64;\t.type\t0x18;\t.endef",
+            ".def\tnumsongs;\t.val\t17;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147985964
+        },
+        {
+          "start": 2147985536,
+          "depth": 1,
+          "declarations": [],
+          "end": 2147985964
+        },
+        {
+          "start": 2147985588,
+          "depth": 2,
+          "declarations": [],
+          "end": 2147985928
+        },
+        {
+          "start": 2147985588,
+          "depth": 3,
+          "declarations": [
+            ".def\ti;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147985684
+        },
+        {
+          "start": 2147985684,
+          "depth": 3,
+          "declarations": [
+            ".def\ti;\t.val\t18;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147985928
+        },
+        {
+          "start": 2147985684,
+          "depth": 4,
+          "declarations": [],
+          "end": 2147985928
+        },
+        {
+          "start": 2147985736,
+          "depth": 5,
+          "declarations": [
+            ".def\tsize;\t.val\t-40;\t.scl\t1;\t.type\t0x5;\t.endef",
+            ".def\tsongname;\t.val\t16;\t.scl\t4;\t.type\t0x12;\t.endef"
+          ],
+          "end": 2147985920
+        }
+      ],
+      "native_SLD": {
+        "merges": 0,
+        "splits": 49
+      },
+      "entire_accepted_source_debug_contract_identical": true
+    },
+    {
+      "function": "AudioMus_InitGlobals__Fv",
+      "words": 9,
+      "definitions": [],
+      "scopes": [
+        {
+          "start": 2147986004,
+          "depth": 0,
+          "declarations": [],
+          "end": 2147986004
+        }
+      ],
+      "native_SLD": {
+        "merges": 0,
+        "splits": 0
+      },
+      "entire_accepted_source_debug_contract_identical": true
+    },
+    {
+      "function": "AudioMus_InitDriverGlobals__Fv",
+      "words": 23,
+      "definitions": [
+        "\t.def\tinfo;\t.val\t3;\t.scl\t4;\t.tag\tAudioMus_tSongEntry;\t.size\t64;\t.type\t0x18;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147986040,
+          "depth": 0,
+          "declarations": [
+            ".def\tinfo;\t.val\t3;\t.scl\t4;\t.tag\tAudioMus_tSongEntry;\t.size\t64;\t.type\t0x18;\t.endef"
+          ],
+          "end": 2147986040
+        }
+      ],
+      "native_SLD": {
+        "merges": 2,
+        "splits": 3
+      },
+      "entire_accepted_source_debug_contract_identical": true
+    },
+    {
+      "function": "AudioMus_DriverStartUp__Fii",
+      "words": 81,
+      "definitions": [
+        "\t.def\tbuffersize;\t.val\t18;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tspusize;\t.val\t16;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tchunks;\t.val\t17;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tsize;\t.val\t18;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tsndlimits;\t.val\t-64;\t.scl\t1;\t.tag\tSNDLIMITS;\t.size\t20;\t.type\t0x8;\t.endef",
+        "\t.def\topts;\t.val\t-40;\t.scl\t1;\t.tag\tSNDPLAYOPTS;\t.size\t20;\t.type\t0x8;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147986132,
+          "depth": 0,
+          "declarations": [
+            ".def\tchunks;\t.val\t17;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tsize;\t.val\t18;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tsndlimits;\t.val\t-64;\t.scl\t1;\t.tag\tSNDLIMITS;\t.size\t20;\t.type\t0x8;\t.endef",
+            ".def\topts;\t.val\t-40;\t.scl\t1;\t.tag\tSNDPLAYOPTS;\t.size\t20;\t.type\t0x8;\t.endef"
+          ],
+          "end": 2147986432
+        }
+      ],
+      "native_SLD": {
+        "merges": 12,
+        "splits": 18
+      },
+      "entire_accepted_source_debug_contract_identical": true
+    },
+    {
+      "function": "AudioMus_SysStartUp__FiiPc",
+      "words": 62,
+      "definitions": [
+        "\t.def\tbuffersize;\t.val\t16;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tspusize;\t.val\t17;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tsongs;\t.val\t18;\t.scl\t17;\t.type\t0x12;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147986456,
+          "depth": 0,
+          "declarations": [],
+          "end": 2147986680
+        }
+      ],
+      "native_SLD": {
+        "merges": 45,
+        "splits": 0
+      },
+      "entire_accepted_source_debug_contract_identical": true
+    },
+    {
+      "function": "AudioMus_DriverCleanUp__Fv",
+      "words": 31,
+      "definitions": [],
+      "scopes": [
+        {
+          "start": 2147986704,
+          "depth": 0,
+          "declarations": [],
+          "end": 2147986812
+        }
+      ],
+      "native_SLD": {
+        "merges": 0,
+        "splits": 12
+      },
+      "entire_accepted_source_debug_contract_identical": true
+    },
+    {
+      "function": "AudioMus_SysCleanUp__Fv",
+      "words": 30,
+      "definitions": [],
+      "scopes": [
+        {
+          "start": 2147986828,
+          "depth": 0,
+          "declarations": [],
+          "end": 2147986932
+        }
+      ],
+      "native_SLD": {
+        "merges": 0,
+        "splits": 4
+      },
+      "entire_accepted_source_debug_contract_identical": true
+    },
+    {
+      "function": "AudioMus_StopSong__Fi",
+      "words": 53,
+      "definitions": [
+        "\t.def\tfadeticks;\t.val\t16;\t.scl\t17;\t.type\t0x4;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147986948,
+          "depth": 0,
+          "declarations": [],
+          "end": 2147987144
+        }
+      ],
+      "native_SLD": {
+        "merges": 16,
+        "splits": 12
+      },
+      "entire_accepted_source_debug_contract_identical": true
+    },
+    {
+      "function": "AudioMus_BuildPlayList__FiPi",
+      "words": 34,
+      "definitions": [
+        "\t.def\tnumplaylistsongs;\t.val\t4;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tplaylist;\t.val\t5;\t.scl\t17;\t.type\t0x14;\t.endef",
+        "\t.def\ti;\t.val\t7;\t.scl\t4;\t.type\t0x4;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147987160,
+          "depth": 0,
+          "declarations": [
+            ".def\ti;\t.val\t7;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147987288
+        }
+      ],
+      "native_SLD": {
+        "merges": 0,
+        "splits": 11
+      },
+      "entire_accepted_source_debug_contract_identical": true
+    },
+    {
+      "function": "AudioMus_BuildPattern__FPc",
+      "words": 52,
+      "definitions": [
+        "\t.def\tpattern;\t.val\t17;\t.scl\t17;\t.type\t0x12;\t.endef",
+        "\t.def\ti;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147987296,
+          "depth": 0,
+          "declarations": [
+            ".def\ti;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147987484
+        }
+      ],
+      "native_SLD": {
+        "merges": 0,
+        "splits": 72
+      },
+      "entire_accepted_source_debug_contract_identical": true
+    },
+    {
+      "function": "AudioMus_PlaySong__FPc",
+      "words": 160,
+      "definitions": [
+        "\t.def\tpattern;\t.val\t19;\t.scl\t17;\t.type\t0x12;\t.endef",
+        "\t.def\ttitle;\t.val\t-152;\t.scl\t1;\t.dim\t128;\t.size\t128;\t.type\t0x32;\t.endef",
+        "\t.def\tnewsong;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147987504,
+          "depth": 0,
+          "declarations": [],
+          "end": 2147988116
+        },
+        {
+          "start": 2147987504,
+          "depth": 1,
+          "declarations": [],
+          "end": 2147988116
+        },
+        {
+          "start": 2147987540,
+          "depth": 2,
+          "declarations": [],
+          "end": 2147988112
+        },
+        {
+          "start": 2147987540,
+          "depth": 3,
+          "declarations": [],
+          "end": 2147987624
+        },
+        {
+          "start": 2147987548,
+          "depth": 4,
+          "declarations": [],
+          "end": 2147987624
+        },
+        {
+          "start": 2147987548,
+          "depth": 5,
+          "declarations": [],
+          "end": 2147987624
+        },
+        {
+          "start": 2147987600,
+          "depth": 6,
+          "declarations": [
+            ".def\ttitle;\t.val\t-152;\t.scl\t1;\t.dim\t128;\t.size\t128;\t.type\t0x32;\t.endef"
+          ],
+          "end": 2147987624
+        },
+        {
+          "start": 2147987648,
+          "depth": 3,
+          "declarations": [],
+          "end": 2147988092
+        },
+        {
+          "start": 2147987664,
+          "depth": 4,
+          "declarations": [
+            ".def\tnewsong;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147988092
+        }
+      ],
+      "native_SLD": {
+        "merges": 0,
+        "splits": 0
+      },
+      "entire_accepted_source_debug_contract_identical": true
+    },
+    {
+      "function": "AudioMus_Volume__Fi",
+      "words": 111,
+      "definitions": [
+        "\t.def\tvolume;\t.val\t17;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tticksleft;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tcurvol;\t.val\t4;\t.scl\t4;\t.type\t0x4;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147988144,
+          "depth": 0,
+          "declarations": [],
+          "end": 2147988568
+        },
+        {
+          "start": 2147988144,
+          "depth": 1,
+          "declarations": [],
+          "end": 2147988568
+        },
+        {
+          "start": 2147988188,
+          "depth": 2,
+          "declarations": [
+            ".def\tticksleft;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147988568
+        },
+        {
+          "start": 2147988188,
+          "depth": 3,
+          "declarations": [],
+          "end": 2147988568
+        },
+        {
+          "start": 2147988216,
+          "depth": 4,
+          "declarations": [],
+          "end": 2147988568
+        },
+        {
+          "start": 2147988216,
+          "depth": 5,
+          "declarations": [],
+          "end": 2147988360
+        },
+        {
+          "start": 2147988248,
+          "depth": 6,
+          "declarations": [
+            ".def\tcurvol;\t.val\t4;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147988360
+        }
+      ],
+      "native_SLD": {
+        "merges": 87,
+        "splits": 5
+      },
+      "entire_accepted_source_debug_contract_identical": true
+    },
+    {
+      "function": "AudioMus_AutoVolume__Fii",
+      "words": 48,
+      "definitions": [
+        "\t.def\tfadeticks;\t.val\t17;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tvolume;\t.val\t16;\t.scl\t17;\t.type\t0x4;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147988588,
+          "depth": 0,
+          "declarations": [],
+          "end": 2147988760
+        }
+      ],
+      "native_SLD": {
+        "merges": 76,
+        "splits": 10
+      },
+      "entire_accepted_source_debug_contract_identical": true
+    }
+  ],
+  "original_tokens_and_physical_source_lines_unsealed": true,
+  "no_production_or_normal_output_writes": true
+}

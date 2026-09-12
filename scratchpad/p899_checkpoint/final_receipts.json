@@ -1,0 +1,76 @@
+{
+  "passed": true,
+  "date": "2026-09-12",
+  "normal_objects_literal_unchanged": 518,
+  "protected_oracle_known_symbol_instances": 1013,
+  "protected_TUs": 45,
+  "linked_ELF_sha256": "52800553415581618c04766bca85e3d943de8343f60b78c62ff7c62af9e32ae0",
+  "linked_map_unchanged": true,
+  "AI_SLD_before": {
+    "merges": 77,
+    "splits": 184
+  },
+  "AI_SLD_after": {
+    "merges": 7,
+    "splits": 0
+  },
+  "AI_native_scopes": 4,
+  "AI_native_homes": 14,
+  "AI_raw_words": 378,
+  "Reset_SLD_before": {
+    "merges": 20,
+    "splits": 60
+  },
+  "Reset_SLD_after": {
+    "merges": 0,
+    "splits": 0
+  },
+  "Reset_native_owners_exact": 2,
+  "Reset_native_nonempty_scopes_exact": 7,
+  "Reset_raw_words": 56,
+  "SoundTrack_SLD_before": {
+    "merges": 115,
+    "splits": 132
+  },
+  "SoundTrack_SLD_after": {
+    "merges": 22,
+    "splits": 76
+  },
+  "SoundTrack_native_local_owners_exact": 25,
+  "SoundTrack_native_emitted_scopes_exact": 19,
+  "SoundTrack_raw_words": 358,
+  "PreLoad_SLD_preserved": {
+    "merges": 2,
+    "splits": 5
+  },
+  "PreLoad_raw_words_preserved": 116,
+  "existing_source_label_PCs_preserved": 6,
+  "strict": {
+    "game_common": {
+      "clean": 1227,
+      "extra": 7,
+      "carriers": 477,
+      "missing": 0,
+      "type": 28,
+      "storage": 28,
+      "mapping": 0
+    },
+    "frontend_common": {
+      "clean": 780,
+      "extra": 48,
+      "carriers": 438,
+      "missing": 0,
+      "type": 9,
+      "storage": 9,
+      "mapping": 3
+    }
+  },
+  "no_new_branch_discrepancies": true,
+  "existing_Speech_branch_discrepancy_preserved": true,
+  "production_build_tools_unchanged": true,
+  "no_postcompile_instruction_or_debug_label_rewrites": true,
+  "full_source_and_SLD_exact": false,
+  "goal_complete": false,
+  "committed": false,
+  "pushed": false
+}

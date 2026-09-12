@@ -1,0 +1,31 @@
+{
+  "passed": true,
+  "function": "AudioTrk_AddCustomObject__FP9AudioElemiP8coorddefiP8Car_tObji",
+  "source_sha256": "64fb3714400fb17e88b549eb26870c44240c1196ea07a1485078c9db845f4377",
+  "object_sha256": "22c6d89c10e166d570e3869c51f36901b1b531f6463cc3f8a42833c3b4fffe9f",
+  "before_SLD": [
+    1,
+    174
+  ],
+  "after_SLD": [
+    0,
+    0
+  ],
+  "before_exact_local_owners": 6,
+  "after_exact_local_owners": 18,
+  "native_scope_records": 31,
+  "all_scope_spans_depths_declaration_order_and_types_exact": true,
+  "parameter_records_unchanged": true,
+  "source_labels_removed": 7,
+  "emitted_label_records_removed": 6,
+  "raw_words_exact": 413,
+  "raw_relocation_words_exact": 40,
+  "retail_sha256": "21d506c914a4bd4cffb8ebf96666e1c9a370e4352c1dba22b73dabc14ce1acf6",
+  "all6_functions_PASS": true,
+  "all159_branches_exact": true,
+  "whole_object_literal_identical": true,
+  "all_five_neighbors_preserved": true,
+  "no_new_names_helpers_qualifiers_asm_or_output_rewrites": true,
+  "original_token_spelling_uniquely_proven": false,
+  "goal_complete": false
+}

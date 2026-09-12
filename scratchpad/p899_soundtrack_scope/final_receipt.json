@@ -1,0 +1,66 @@
+{
+  "passed": true,
+  "production_source_sha256": "eee9c46e75fbcc679600c014015786feceff694dc3c09525af2b9d54b380873c",
+  "candidate_sha256": "d7009408e9ba6bf86d4113a119e271b2c0edb9f97b500ae94a726341a1ff1eb2",
+  "normal_object_sha256": "3661de77cca092475fa8d0aaaa64029838dcf298bb907e1dbc58a29fcb5e08e4",
+  "whole_object_byte_identical": true,
+  "native_named_local_owners_exact": 25,
+  "owner_mismatches_before": 25,
+  "owner_mismatches_after": 0,
+  "all19_emitted_blocks_exact_order_spans_depths_and_local_ownership": true,
+  "only_missing_native_blocks": [
+    {
+      "record": "1bf164",
+      "start": 2147995200,
+      "depth": 5,
+      "declarations": [],
+      "end": 2147995200
+    },
+    {
+      "record": "1bf16d",
+      "start": 2147995200,
+      "depth": 6,
+      "declarations": [],
+      "end": 2147995200
+    }
+  ],
+  "native_total_blocks": 21,
+  "SLD_before": {
+    "merges": 115,
+    "splits": 132
+  },
+  "SLD_after": {
+    "merges": 22,
+    "splits": 120
+  },
+  "removed_bad_pairs": {
+    "merges": 93,
+    "splits": 12
+  },
+  "new_bad_pairs": 0,
+  "six_functions_PASS": true,
+  "branches_exact": 159,
+  "raw_words_exact": 358,
+  "raw_relocation_words_exact": 26,
+  "native_nonanimated_edge": {
+    "VA": "0x8007d098",
+    "word": "0x10400097",
+    "target": "0x8007d2f8"
+  },
+  "preload_five_owners_and_SLD2_5_preserved": true,
+  "all_five_neighbors_preserved": true,
+  "full_source_or_SLD_exact": false,
+  "original_zero_width_inline_identity_unproved": true,
+  "original_curBack_replacement_cast_spelling_unproved": true,
+  "actual_input_hashes": {
+    "C:/Temp/nfs4-decomp/scratchpad/p899_soundtrack_scope/inputs/base/audiotrk.cpp": "d7009408e9ba6bf86d4113a119e271b2c0edb9f97b500ae94a726341a1ff1eb2",
+    "C:/Temp/nfs4-decomp/scratchpad/p899_soundtrack_scope/inputs/common/audiotrk_types.h": "ed39572dcf81d4b5407b7879ce5267235e9100f674d6d268b4b5f415fa639f5d",
+    "C:/Temp/nfs4-decomp/recon/game/common/color_types.h": "371cafcbe2f3d9042f2e6704d87c29a8de306c8a3b9aaee377bbd821a3216b5a",
+    "C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h": "4c6832b060ae1ded20f5b5d3c3a9ce68fbef362b1db56b92a78840874cb9aa49",
+    "C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h": "15fba7178f58825ef79d6e13f0d3e55c5cf84be6274b819cdb38f19f914e453f",
+    "C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h": "5215d4108c65ddc8965465be1be2a8755846ada72ee57688b914c54d8a97ad73",
+    "C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h": "8e81016ba8346919fd522f7032ee83a1730e69643668e223cece654d2cd9fd06",
+    "C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h": "8120a2345042e55ca56f2cd81f26ff1879ffd86f4586ebd5cab5c39e2adb843a",
+    "C:/Temp/nfs4-decomp/scratchpad/p899_soundtrack_scope/inputs/common/audiotrk_externs.h": "fc9af759b780c254165d32b50d59d9a234c7a5da596af1f1ef1c121b70a4d558"
+  }
+}

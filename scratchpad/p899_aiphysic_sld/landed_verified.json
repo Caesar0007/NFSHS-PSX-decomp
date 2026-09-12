@@ -1,0 +1,89 @@
+{
+  "passed": true,
+  "date": "2026-09-12",
+  "actual_source_sha256": "28e7cef69f9aa8dcb00a9cfa17b0e5180195c24863816d15ac040b91d0773aa4",
+  "retained_candidate_sha256": "f9ff11ba63d78e9c106111b3535bcc955fdd81f0f9db3008934aac829d6cec2d",
+  "line_endings": {
+    "candidate_bytes": 94920,
+    "actual_bytes": 94909,
+    "candidate_CRLF": 1740,
+    "actual_CRLF": 1729,
+    "candidate_LF": 1970,
+    "actual_LF": 1970,
+    "content_exact_after_line_ending_comparison": true
+  },
+  "actual_include_closure": [
+    {
+      "path": "recon/frontend/psx/ea_psx_types.h",
+      "actual_sha256": "5215d4108c65ddc8965465be1be2a8755846ada72ee57688b914c54d8a97ad73"
+    },
+    {
+      "path": "recon/game/common/aiphysic.cpp",
+      "actual_sha256": "28e7cef69f9aa8dcb00a9cfa17b0e5180195c24863816d15ac040b91d0773aa4"
+    },
+    {
+      "path": "recon/game/common/aiphysic_externs.h",
+      "actual_sha256": "144413b50bb6767f18586a9b5c67273d89930700095575ea4678a7e542a9b35b"
+    },
+    {
+      "path": "recon/game/common/aiphysic_types.h",
+      "actual_sha256": "f4406abe2176a7bbed32b230af7194f19686c2d89aacb85272e45186fbff59cf"
+    },
+    {
+      "path": "recon/game/common/aiscript_types.h",
+      "actual_sha256": "8120a2345042e55ca56f2cd81f26ff1879ffd86f4586ebd5cab5c39e2adb843a"
+    },
+    {
+      "path": "recon/game/common/color_types.h",
+      "actual_sha256": "371cafcbe2f3d9042f2e6704d87c29a8de306c8a3b9aaee377bbd821a3216b5a"
+    },
+    {
+      "path": "recon/game/common/draw_leaf_types.h",
+      "actual_sha256": "4c6832b060ae1ded20f5b5d3c3a9ce68fbef362b1db56b92a78840874cb9aa49"
+    },
+    {
+      "path": "recon/game/common/game_common_min_types.h",
+      "actual_sha256": "15fba7178f58825ef79d6e13f0d3e55c5cf84be6274b819cdb38f19f914e453f"
+    },
+    {
+      "path": "recon/game/common/gamesetup_leaf_types.h",
+      "actual_sha256": "8e81016ba8346919fd522f7032ee83a1730e69643668e223cece654d2cd9fd06"
+    }
+  ],
+  "normal_object_sha256": "f0e2531e355fee1f87a628bd7ad44e5f14c4bb17362df7fa6a787c071b25f2dd",
+  "STT_FILE_comparison": {
+    "candidate": [
+      "C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\p899_aiphysic_sld\\\\inputs\\\\recon\\\\game\\\\common\\\\aiphysic.cpp",
+      0,
+      0,
+      4,
+      0,
+      65521
+    ],
+    "actual": [
+      "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\common\\\\aiphysic.cpp",
+      0,
+      0,
+      4,
+      0,
+      65521
+    ],
+    "every_other_ordered_symbol_exact": true,
+    "all_payloads_headers_schemas_exact": true,
+    "all_ordered_relocations_exact": true
+  },
+  "functions_PASS": 42,
+  "branch_functions": 42,
+  "native_blocks": 4,
+  "native_homes": 14,
+  "unchanged_neighbors": 41,
+  "raw_words_exact": 378,
+  "native_SLD": {
+    "merges": 7,
+    "splits": 0
+  },
+  "new_SLD_pairs": 0,
+  "production_edits_by_this_validation": false,
+  "scope_probe_literal_object_gate_false_only_because_STT_FILE_differs": true,
+  "no_object_or_debug_label_rewriting": true
+}

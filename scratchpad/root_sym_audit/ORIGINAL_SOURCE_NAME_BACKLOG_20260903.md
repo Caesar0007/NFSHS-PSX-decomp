@@ -4965,3 +4965,295 @@ open. These are not claimed new regressions or counted as green. Incoming
 behavior-derived Vox record names/layouts are not automatically exact native
 name recoveries. The real regenerated linked ELF and map remain byte-identical
 to the frozen P897 checkpoint after the six chosen-field relocation retargets.
+
+## P898 / 2026-09-12: native scope repair and one carrier removed
+
+Applied only aiphysic.cpp and audiotrk.cpp. AIPhysic_GetDesiredVector now
+owns checkSide in native 11cd8f's 8006B104..8006B164 block at depth 3.
+Removing the redundant wrapper restores all four native ranges/depths and
+all 14 local/parameter homes, with 42/42 PASS and 378/378 raw words exact.
+Its separate SLD 77-merge/184-split work remains active, not sealed.
+
+AudioTrk_SoundTrack no longer declares curBack or exempts it as a generic
+source-only carrier. The old optimized-away claim was false: it emitted a
+REG v0 debug declaration absent from native SYM. Widening the grouped int
+subtraction preserves the exact bounded arithmetic and all 358 raw words
+without a new name. Original cast spelling is unproved. All 25 native local
+definitions are preserved; 29 emitted blocks become 23 versus 21 native.
+Remaining owner/topology differences are active reconstruction work.
+
+PreLoad's separate guards, grouped distances, nested tests, separate se++ and
+conditional return restore native statement partitions: 178 merges/43 splits
+->2/5, zero new bad pairs, 116/116 raw words exact. Five native local owners
+remain exact. The remaining pairs and missing inline this/two empty blocks
+belong to the list-access expression; its original accessor identity remains
+unproved. Do not invent a helper to claim that missing source recovered.
+
+Fresh 1013/1013 oracle-known symbol instances across 45 TUs preserve their
+code matches and complete prior branch diagnostics, including the existing
+Speech anomaly. All 518 normal objects, the regenerated ELF and map remain
+literally identical; relink/vtable/source-policy/report checks pass. No build
+tool, header, flag, asm/volatile device or postcompile rewrite was introduced.
+P897's full three-build lanes are inherited; this CPP-only round uses fresh
+complete-TU gates and exhaustive object/link equality, not a claimed rebuild
+of every TU again.
+
+Game/common source-only carriers fall 478->477. Other strict totals remain
+1227 clean /7 extra /28 type /28 storage /0 mapping review. Frontend remains
+780 clean /48 extra /438 carriers /9 type /9 storage /3 mapping review.
+Neither cluster has missing mapped SYM names; full source/SLD/data restoration
+is still incomplete. Receipts: ../p898_checkpoint and the dated P898 actual
+AIPhysic/audio validation directories. User edits and historical probes remain
+preserved. This checkpoint is local and uncommitted at this recorded state.
+
+## P899 / 2026-09-12: exact native owners and further SLD recovery
+
+AIPhysic_GetDesiredVector's native SLD conflicts improve 77 merges/184 splits
+->7/0. Existing native locals carry split call/result stages; related vector
+assignments become actual comma expressions and the max clamp a conditional
+expression. No new local/helper/macro name is invented. All 4 native scopes,
+14 homes, 41 neighbors and 378 raw words remain exact. Remaining seven pairs
+are argument shift/call boundaries; failed carrier staging is preserved, not
+treated as a floor. Original operator/macro tokens remain unproved.
+
+Reset now uses scoped for-loops with both original i owners exact, and omits
+its redundant void return: SLD20/60->0/0. All seven emitted nonempty blocks
+match native order/ranges/depths. Empty records1be9fc/1bea05 at8007C6A0 remain
+unrecovered. The existing se name remains SOURCE-RECOVERY-OPEN, not renamed
+or exempted. Fresh indexed-source failures and -da diagnostics identify the
+base-capture versus reloaded-list-value issue; compiler evidence is not proof
+of an original pointer variable/name or license to add false qualifiers.
+
+SoundTrack's 25 native local owners now all match; its 19 emitted blocks have
+the exact native projection, with only two empty CE40 records absent. Native
+SLD115/132->22/76, zero new pairs. Repeated post-call type tests remain intact.
+Only native single-line distance selections are grouped; velocity components
+retain their distinct native lines. All 358 raw words remain exact. PreLoad's
+P8982/5 and five native owners remain protected, with116 raw words exact.
+
+Actual-path independent validation and fresh1013/1013 symbol-instance gates
+across45TUs preserve all prior branch diagnostics. All518 normal objects and
+the linked ELF/map are identical to P898. Six existing source-label PCs are
+verified despite naturally renumbered compiler labels. No compiled instruction
+or debug label is rewritten; no production build flag/tool/header is changed.
+Vtable, relink, source-policy and CI-style report checks pass. Known Speech
+and final-image layout issues remain explicit, not counted green.
+
+Strict totals remain game1227/7/477 and frontend780/48/438 (clean/extra/carrier),
+with no missing mapped names. Native scope and statement restoration improved
+without manipulating those counters. Full goal remains active; this checkpoint
+is local and uncommitted. Receipts: ../p899_checkpoint and its referenced actual
+source/native/raw verification directories. No user edits were discarded.
+
+## P900 / 2026-09-12: AudioTrk native control flow and local values restored
+
+AudioTrk_AddCustomObject now has all 31 native block records reproduced in
+order, spans, depth, declaration placement, types/tags/sizes and register/stack
+homes. All 18 local owners are exact (previously 6). Seven invented control-flow
+labels are removed, including their six emitted SCL6 records. Structured guards,
+scoped for-loops and the native repeat/audio conditional replace the gotos;
+all 413 raw instructions, 40 reference words and branch targets are preserved.
+
+Native SLD conflicts fall from 1 merge/174 splits to 0/0. The final correction
+also restores a named local's source meaning: ambdist holds the unshifted
+distance difference on native line292; the >>2 belongs in each fixedmult
+argument on line293. The former premature shift produced identical code but
+the wrong source statement ownership. An independent trace rejected the initial
+NOP-attribution hypothesis for this site: 8007CCC0 is a real SRA instruction.
+
+StartUp and CleanUp now declare their existing i in scoped for initializers.
+Their eight native blocks and both local owners match exactly; native SLD0/3
+and0/9 become0/0. StartUp's single-statement loop and CleanUp's omitted redundant
+void return preserve every raw word (23+38). No original names were invented.
+
+SoundTrack retains all25 owners and its exact19-block projection while native
+SLD22/76 improves to22/16. The randtick and next conditional expressions restore
+their original single statement groups. Its two absent empty CE40 blocks, the
+original inline accessor identity and P898 widening-cast spelling remain open.
+Two remaining SLD discrepancies are specifically assembler attribution issues:
+CC1 already marks the anim test and final tck shift correctly, but current
+maspsx inserts the preceding hazard NOP before the retained line marker.
+These account for18 merges/3 splits; they remain in the reported22/16 totals,
+without an exemption, C workaround, or compiler-output rewrite. Other residual
+statement groups remain active source recovery, not a confirmed floor.
+
+Reset's existing unproved se name and two empty C6A0 blocks are still open.
+PreLoad still needs its original CAudioList accessor/implicit this and two
+empty D410 blocks, and retains native SLD2/5. Do not fabricate helper names or
+aliases to make those records appear covered. Matching source scopes and line
+partitions do not prove exact historical macro/operator token spelling.
+
+The source proposals preserve the full six-function audio object and all159
+branches byte-for-byte. Combined actual-path proof and campaign regression are
+recorded in ../p900_audio_landed_20260912 and ../p900_checkpoint. Detailed native
+and raw receipts are in ../p900_audio_addcustom, ../p900_audio_lifecycle and
+../p900_soundtrack_sld. All prior local checkpoints and user edits are retained.
+This is local uncommitted work; the full source/SYM/SLD/layout goal remains open.
+
+## P901 / 2026-09-12: one unproved local removed and SoundTrack groups restored
+
+AudioMus_Threshold no longer declares the unrecorded music pointer or its
+SYM-CODEGEN-CARRIER exemption. Four reconstruction-only goto labels are also
+removed. Separate natural early-return statements read AudioMus_g directly
+and reproduce the same33 raw words, backward return edges and native empty
+root scope19ee87..19ee90. Native SLD0/4 becomes0/0. The earlier failed direct
+substitution was not proof that the cached source pointer was required.
+All23 music functions and206 branches remain exact, with every neighboring
+local/type/scope/statement/debug graph unchanged. No replacement name is added.
+
+SoundTrack's native336 value selection now uses conditional assignment arms
+to the existing end local. GCC2.8.1 fold-const/expr source explains why bare
+MIN_EXPR forms invert the needed strict compare; the canonical compiler's
+actual object and branch checks confirm this ordinary-C++ form. It is one
+related value selection, not independent statements placed on one line.
+Original selection tokens are unproved. The final call uses the positive
+eligibility condition and se++ is restored to the body tail, leaving i++ in
+the for header. This preserves skip behavior while restoring native469/470
+as distinct statement groups. Native SLD22/16 improves to18/7; all25 owners,
+the19-block projection and all358 raw words remain exact.
+
+The remaining18 merged pairs and3 of the7 split pairs are the P900 traced
+assembler hazard-NOP attribution gaps. The other4 split pairs concern the
+list-data address and vx load on native329. None are hidden or exempted.
+P900's Reset/AddCustomObject/StartUp/CleanUp0/0 and PreLoad2/5 stay preserved.
+
+Bounded inline-source audit: all20 literal CAudioList occurrences in raw
+NFS4.SYM are accounted for by13 dump records (2STRTAG,2EOS,7TPDEF,1EXT,1REGthis).
+No named class-function/accessor record was found; MAP has no accessor name.
+PreLoad's only this record1bf4f2 is v0 at the zero-width D410 owner, associated
+with callerAUDIOTRK.CPP498, not a recovered header line. RawD410..D41C proves
+the data-pointer+16 expression; the count load occurs earlier on caller492.
+The checked PC walker instead uses a separate count and96-byte entries, so
+its layout does not establish a PSX accessor spelling. Do not invent one or
+pretend an unparsed native name was recovered. Reset's se and these inline
+identities remain explicitly open; other source recovery continues.
+
+Actual-source/native/raw receipts: ../p901_audiomus_threshold,
+../p901_audio_landed_20260912, ../p901_soundtrack_sld. The bounded class-name
+evidence is in ../p901_audio_inline_identity. Full regression and strict
+totals are recorded in ../p901_checkpoint. No codegen device, build-tool/header
+change, instruction/label rewrite, naming exemption or publication is added.
+The broader goal remains active; all unrelated user files remain preserved.
+
+## P902 / 2026-09-12: three Server carriers and artificial async control flow removed
+
+AudioMus_Server now contains no ordinary locals, consistent with native
+19f34b..19f3d1, which records only mode/ticks parameters and one root scope.
+Removed randomMusic, randomRange and switchMode without replacing their names.
+The first two removals must be paired: a direct left-associated random-song
+expression is byte-identical, although earlier isolated substitutions each
+failed. The positive default-state guard, supported by M2C/IDA and GCC CSE
+path analysis, lets the anonymous constant2 survive the queue call in native
+s0 without switchMode. A plain literal or switch replacement alone failed.
+
+Structured disk/default/zero-state guards and legitimate duplicate time-update
+source tails remove five reconstruction labels. Native SLD39/170 becomes39/29,
+with no new bad pairs. All300 raw words/56 references,23 functions,206 branches
+and22 neighboring source/debug contracts remain exact. The existing done
+label is still a non-native SCL6 declaration; the root's span/depth and native
+params are exact, but root declaration coverage and full SLD are NOT complete.
+A full no-goto form and direct early-return substitution were measured and
+rejected because they changed return-zero placement and shared-tail behavior.
+
+AudioCmn_LoadAsyncSfx removes both FAIL labels and its artificial do/while(0)
+wrapper. Natural failure cleanup preserves the two stores on every failing
+path; a complete success/header-allocation condition and loop-test increment
+restore native statement groups. SLD0/58 becomes0/9,105raw words/23references
+remain exact, and all48functions/513branches preserve PASS. Native slot/check
+owners remain exact. The source s alias and extra empty lexical block remain
+unproved. Its old claim of being required in s4 was incorrect: s0 is the slot
+GIV and s4 holds a diagnostic string high address. No new name or qualifier is
+used to hide this. Failed alias-free/for/success-else forms remain private.
+
+AudioEng_CleanUp was freshly checked,9/9PASS/128branches/56rawwords/7references.
+Its four native blocks and g/i owners were already exact. Moving player into
+the for initializer was fully neutral and reverted; it did not recover an
+original name. player has no emitted debug declaration in either form and
+remains a source-identity gap. Its entire SLD1/2 residual is NOP8007C578:
+native line713 includes it; CC1 already emits the next source marker before
+#nop, but the assembled marker lands atC57C. No marker or metric is altered.
+
+Actual-source and compiler receipts: ../p902_audiomus_server and its peer
+review; ../p902_audiocmn_async and the actual-path validation it references;
+../p902_audioeng_cleanup. Campaign checks and strict totals are recorded in
+../p902_checkpoint. No production header/tool/flag change, codegen device,
+postcompile rewrite or new source-identity exemption is introduced. The full
+source/SYM/SLD/link-layout goal remains active; no commit or push is performed.
+
+## P903 / 2026-09-12: six local carriers and two asm sites removed
+
+AudioMus_PlaySong removes pick through a paired natural source change: move
+newsong initialization after randomize=1, use the real availablesongs member
+as the pattern-arm divisor, replace the volume wrapper with an early return,
+and restore the outer null-global else. All9 native blocks and all3 declarations
+(pattern/title/newsong) are exact. Native SLD0/44 becomes0/0;160raw words and
+30references remain exact. The repeated GetRCnt calls are preserved. An earlier
+passing GNU-expression probe is diagnostic only; no GNU block or extra object
+is retained. The old fence/necessity comments were stale and are corrected.
+
+AudioCmn_TrafficSFX removes fade and its emitted REG19 pointer record, plus
+two unsupported scopes. The three locals and all15 ordered parameter/ARG-copy/
+local records now match native. Separate native engine-patch assignments use
+player before each call. Widened grouped index subtractions preserve the exact
+int indices and prevent reassociation through the array address; the cast
+tokens remain unproved. Native SLD49/46 becomes0/10, with no new pairs;
+163raw words/20references and all129 Xfade bytes are exact.
+
+AudioCmn_SoundCar removes currentGas, previousGas, gasDelta and rampedGas,
+together with their two empty-asm references. Direct array accesses, branch-local
+rising stores and a normal MIN falling step reproduce the gas ramp. Its early
+audio-off return restores gas at native depth1; all18 non-static local owners
+and the independently checked static cobbleCount owner are exact. Two wet-noise
+labels disappear. Emitted scopes12->5 and SLD37/319->37/261;530raw words and
+70references plus12switch targets remain exact. Three old asm sites and six
+unproved locals remain explicit debt, with three extra scopes still present.
+
+A successful SoundCar dead-clamp experiment is NOT applied. It proves that
+ordinary C plus late dead-conditional cleanup can retain the retail unused
+freq*doppler product, but neither the shift nor clamp bound127 is uniquely
+recoverable from those surviving words. The checked PC relatives only provide
+related idioms. Replacing the old fence with that guessed expression would
+hide, not recover, source intent. Keep the diagnostic as a new compiler angle;
+the existing fence remains openly unproved until stronger provenance appears.
+
+Newly explicit data qualification: SoundCar's12-word switch table matches raw
+targets when placed at8005573C, but its current rodata offset104 implies fragment
+base800556D4; the async loader's literal run needs800556D0. This existing4-byte
+whole-rodata packing discrepancy is not a source/code regression, and per-site
+raw verification must not be reported as proof of final linked layout. Static
+cobbleCount's byte/type/offset and46 owned small-data symbols independently
+agree with the native data base; CPE confirms its byte and separate padding.
+
+Per-function and actual-path receipts are under ../p903_audiomus_playsong,
+../p903_audiomus_landed_20260912, ../p903_audiocmn_traffic and
+../p903_audiocmn_soundcar; the combined AudioCmn validation and campaign checks
+are linked by ../p903_checkpoint. Existing source/header/tool/user files outside
+the selected bodies remain unchanged. The full goal is active and incomplete.
+
+### P903 publication integration of upstream EAC headers
+
+Preserved incoming2ee63940/3b616348/df4e6e0a before the approved checkpoint.
+The74-TU EAC closure has248/248 native functions and1139 branch checks, including
+three fxform functions absent from its old scaffold and six data-only owners
+that are not counted as functions. No quote/angle include consumers outside
+the cluster were found under actual include-search flags.
+
+Integration fixes preserve those headers while addressing measured regressions:
+place primate.h after the owner declarations to retain its existing local
+SBSS order and22 GP addends; give the ordinary-C mutexbuf its128-byte BSS and
+four-byte alignment (aligned alone on COMMON was ignored); restore two emptied
+host fallback bodies and five co-equal host aliases; retain crossproduct's
+previous expression shape rather than introduce three unproved temporary names.
+These do not claim primate's scattered native storage/duplicate-state debt or
+callback's native placement is solved.
+
+Final EAC checks preserve all74 object semantics, with73 objects literally
+identical; callback differs only in symbol-table order. After actual normal
+recompilation,517/518 project objects remain literal, and the linked ELF, map
+and objdiff report remain literally identical to the pre-integration checkpoint.
+Combined protected function instances total1341 (1093 plus248), without new
+branch regressions. The five restored host branches and aliases pass four
+baseline/actual O0/O2 runs of1066499 assertions each. Host input-domain limits
+are documented rather than ignored. See ../p903_upstream_eac and its host
+disposition. Publication is authorized; final commit/push state is recorded
+separately so the historical pre-publication receipts remain honest.

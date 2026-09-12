@@ -896,7 +896,6 @@ void AIPhysic_GetDesiredVector(Car_tObj *carObj)
   int numReductions;
   int goodVector;
   int thisSlice;
-  int checkSide;
 
   thisSlice = (int)(carObj->N).simRoadInfo.slice;
   numReductions = 0;
@@ -906,13 +905,13 @@ void AIPhysic_GetDesiredVector(Car_tObj *carObj)
     return;
   }
   speed = __builtin_abs(carObj->currentSpeed);
-  sliceLookAhead = (fixedmult(speed,0xb333) + 0x30000) / 0x60000;
+  sliceLookAhead = fixedmult(speed,0xb333);
+  sliceLookAhead = (sliceLookAhead + 0x30000) / 0x60000;
   if (((-1 < sliceLookAhead) && (sliceLookAhead < AIPhysicConfig.min_lookahead / 6)) && (-1 < speed)) {
     sliceLookAhead = AIPhysicConfig.min_lookahead / 6;
   }
-  if (AIPhysicConfig.max_lookahead / 6 < sliceLookAhead) {
-    sliceLookAhead = AIPhysicConfig.max_lookahead / 6;
-  }
+  sliceLookAhead = (AIPhysicConfig.max_lookahead / 6 < sliceLookAhead)
+      ? AIPhysicConfig.max_lookahead / 6 : sliceLookAhead;
   dirCorrectedSliceLookAhead = sliceLookAhead * carObj->driveDirection * carObj->direction;
   carObj->lookAheadSlice = (dirCorrectedSliceLookAhead >= 0)
       ? ((thisSlice + dirCorrectedSliceLookAhead >= gNumSlices)
@@ -921,7 +920,8 @@ void AIPhysic_GetDesiredVector(Car_tObj *carObj)
       : ((thisSlice + dirCorrectedSliceLookAhead < 0)
           ? (thisSlice + dirCorrectedSliceLookAhead) + gNumSlices
           : thisSlice + dirCorrectedSliceLookAhead);
-  futureBend = __builtin_abs(AIWorld_CalcRoadBend(carObj,dirCorrectedSliceLookAhead));
+  futureBend = AIWorld_CalcRoadBend(carObj,dirCorrectedSliceLookAhead);
+  futureBend = __builtin_abs(futureBend);
   roadWidth =
       (u_int)(BWorldSm_slices[carObj->lookAheadSlice].avgPavedWidthLf << 15) *
           (u_int)(BWorldSm_slices[carObj->lookAheadSlice].laneCount >> 4) +
@@ -954,14 +954,13 @@ void AIPhysic_GetDesiredVector(Car_tObj *carObj)
     right.x = (int)(signed char)BWorldSm_slices[carObj->lookAheadSlice].right[0] << 9;
     right.y = (int)(signed char)BWorldSm_slices[carObj->lookAheadSlice].right[1] << 9;
     right.z = (int)(signed char)BWorldSm_slices[carObj->lookAheadSlice].right[2] << 9;
-    fPoint.x = fixedmult(carObj->rampDesiredLatPos,right.x);
-    fPoint.y = fixedmult(carObj->rampDesiredLatPos,right.y);
+    fPoint.x = fixedmult(carObj->rampDesiredLatPos,right.x),
+    fPoint.y = fixedmult(carObj->rampDesiredLatPos,right.y),
     fPoint.z = fixedmult(carObj->rampDesiredLatPos,right.z);
-    fPoint.x = fPoint.x + fCPoint.x;
-    fPoint.y = fPoint.y + fCPoint.y;
+    fPoint.x = fPoint.x + fCPoint.x,
+    fPoint.y = fPoint.y + fCPoint.y,
     fPoint.z = fPoint.z + fCPoint.z;
     futureRoadPosition = AIPhysic_CalculateRoadPosition(&fPoint,thisSlice);
-    {
       if ((((int)((u_int)(BWorldSm_slices[thisSlice].avgPavedWidthRt << 15) *
                    (BWorldSm_slices[thisSlice].laneCount & 0xf)) < futureRoadPosition)
           && (carObj->roadPosition < futureRoadPosition)) ||
@@ -969,12 +968,17 @@ void AIPhysic_GetDesiredVector(Car_tObj *carObj)
            (int)-((u_int)(BWorldSm_slices[thisSlice].avgPavedWidthLf << 15) *
                   (u_int)(BWorldSm_slices[thisSlice].laneCount >> 4))) &&
           (futureRoadPosition < carObj->roadPosition))) {
+        int checkSide;
+
         checkSide = 1;
         if (futureRoadPosition < carObj->roadPosition) {
           checkSide = -1;
         }
-        if (AIWorld_IsDriveableLane(thisSlice,AIWorld_LaneIndex(thisSlice,carObj->roadPosition + checkSide * 0x80000)) != 0) {
-          goodVector = AIWorld_IsDriveableLane(thisSlice,AIWorld_LaneIndex(thisSlice,carObj->roadPosition + checkSide * 0x40000)) != 0;
+        goodVector = AIWorld_LaneIndex(thisSlice,carObj->roadPosition + checkSide * 0x80000);
+        if (AIWorld_IsDriveableLane(thisSlice,goodVector) != 0) {
+          goodVector = AIWorld_LaneIndex(thisSlice,carObj->roadPosition + checkSide * 0x40000);
+          goodVector = AIWorld_IsDriveableLane(thisSlice,goodVector);
+          goodVector = goodVector != 0;
         }
         else {
           goodVector = 0;
@@ -983,14 +987,13 @@ void AIPhysic_GetDesiredVector(Car_tObj *carObj)
       else {
         goodVector = 1;
       }
-    }
     numReductions = numReductions + 1;
     sliceLookAhead = sliceLookAhead * 0xcccc;
     sliceLookAhead = sliceLookAhead / 0x10000;
     sliceLookAhead = MAX(4,sliceLookAhead);
   } while ((numReductions < 5) && (goodVector == 0));
-  (carObj->desiredVector).x = fPoint.x - (carObj->N).position.x;
-  (carObj->desiredVector).y = fPoint.y - (carObj->N).position.y;
+  (carObj->desiredVector).x = fPoint.x - (carObj->N).position.x,
+  (carObj->desiredVector).y = fPoint.y - (carObj->N).position.y,
   (carObj->desiredVector).z = fPoint.z - (carObj->N).position.z;
   return;
 }

@@ -135,5 +135,7 @@ void blockfill(void *dst, int n, unsigned char val)   /* @0x800F17A4 */
 }
 void blockclear(void *dst, int n)   /* @0x800F17A0 */
 {
+    /* P903: retain the host fallback while extracting owner headers. */
+    blockfill(dst, n, 0);
 }
 #endif

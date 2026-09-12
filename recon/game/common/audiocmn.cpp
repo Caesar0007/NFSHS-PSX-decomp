@@ -337,10 +337,9 @@ void AudioCmn_LoadAsyncSfx(int bank,int patch,void *pbank,int size)
 
   slot = 0;
   do {
-    /* SYM-CODEGEN-CARRIER: s -- the loop-local slot base is absent from the
-     * retail debug local list but is required in $s4.  Direct array indexing
-     * expands 105 instructions to 108 and produces 83 authoritative diffs,
-     * changing the saved-register allocation and parameter-save order. */
+    /* SYM-CODEGEN-CARRIER: s remains unproved (native 191a14..191aed:
+       slot/check only). Retail's slot GIV is s0; s4 holds a string address.
+       P902 removes failure labels/do-while(0), not this source-only alias. */
     AudioCmn_tAsyncSfxSlot *s = &AudioCmn_gSfxSlot[slot];
     if ((patch == s->patch) && (bank == s->bank) && (s->handle == -1)) {
       if (size != 0) {
@@ -348,21 +347,19 @@ void AudioCmn_LoadAsyncSfx(int bank,int patch,void *pbank,int size)
           if (AudioCmn_RemoveOldestAsyncSfx(bank) == -1) {
             if (bank == 2) {
               puts("out of SPU ram on speech!\n");
-              s->handle = -1;
-              goto FAIL_PATCH;
             }
-            goto FAIL_HANDLE;
+            s->handle = -1;
+            s->patch = -1;
+            return;
           }
         }
         check = SNDbankadd(&s->handle,(int)pbank);
-        if (check == 7) {
-          s->header = (char *)reservememadr(D_8013C67C,SNDbankheadersize(s->handle),0x10);
-          if (s->header != 0) {
-            SNDbankheadercopy(s->header,(u_char *)s->handle);
-            s->patch = patch;
-            s->ticks = simGlobal.gameTicks;
-            return;
-          }
+        /* MATCH P902: native SLD 572 groups success and header allocation. */
+        if ((check == 7) && ((s->header = (char *)reservememadr(D_8013C67C,SNDbankheadersize(s->handle),0x10)) != 0)) {
+          SNDbankheadercopy(s->header,(u_char *)s->handle);
+          s->patch = patch;
+          s->ticks = simGlobal.gameTicks;
+          return;
         }
         if (bank == 2) {
           puts("SNDbankadd failed on speech!\n");
@@ -372,18 +369,11 @@ void AudioCmn_LoadAsyncSfx(int bank,int patch,void *pbank,int size)
           SNDbankremove(s->handle);
         }
       }
-      /* MATCH: the stripped wrapper adds two loop-weighted refs to the shared -1
-         sentinel, placing it in s1 and bank in s2 without emitting instructions. */
-      do {
-FAIL_HANDLE:
-        s->handle = -1;
-FAIL_PATCH:
-        s->patch = -1;
-      } while (0);
+      s->handle = -1;
+      s->patch = -1;
       return;
     }
-    slot++;
-  } while (slot < 32);
+  } while (++slot < 32);
 }
 
 /* ---- AudioCmn_GetAsyncSfx__Fiib  [@0x80076900] ---- */
@@ -1616,18 +1606,13 @@ LAB_8007887c:
 }
 
 /* ---- AudioCmn_SoundCar__FP8Car_tObjiiiiiii  [@0x800788bc] ---- */
-/* MATCH (2026-08-24): the IDA/SYM-guided local and expression rewrite gives
-   source-PASS 530/530 in the authoritative strict TU-wide -G8 build.
-   Comma-staging tunnelFlag with the load-amplitude shift, plus an input-only
-   tunnelFlag fence, fills the multiply latency window and removes its load-delay
-   nop.  A single staged PlayersRampedGasLevel pointer preserves the retail address
-   lifetime through the ramp update; direct indexing is exact at the later read and
-   store sites.  In the signed divide-by-eight block,
-   putting gasDelta's opacity use inside only the negative arm and spelling the
-   nonnegative assignment explicitly keeps gasDelta as the branch operand while
-   allowing gcc to fill `bgez`'s delay slot with `currentGas = gasDelta`.
-   The former carIndex and +2-ref staging workarounds are unnecessary in the
-   restored source and are intentionally absent in the sealed 48/48 TU lane. */
+/* MATCH P903: direct gas-ramp array expressions remove currentGas, previousGas,
+   gasDelta and rampedGas, together with their two empty-asm references. Rising
+   stores remain branch-local; the falling step is the existing MIN idiom.
+   The audio-off early return restores gas's native depth1 owner. Native scalar
+   homes, all530 words and every branch remain unchanged; SLD37/319 ->37/261.
+   Three older empty-asm sites and six unproved locals remain below. Their
+   existence is not proof of original source objects or a matching floor. */
 void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth,int trackazim,int relvel,
                int cardir)
 {
@@ -1649,9 +1634,9 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
      defining store models that boundary; the later read remains ordinary. */
   int iAmpIn;
   int tuntrig;
-  /* SYM-CODEGEN-CARRIER: tunnelFlag -- branching directly on SYM's `tuntrig`
-     grows 530 to 531 instructions, shifts all three frame slots, and leaves 23
-     authoritative diffs; this snapshot is the required stack-layout carrier. */
+  /* SYM-CODEGEN-CARRIER: tunnelFlag -- unproved source snapshot. Historical
+     direct-read trial:531/23diffs. P903's paired direct products reach530/4,
+     but no verified removal is retained; these failures prove no necessity. */
   int tunnelFlag;
   int cam;
   int roadNoisePatch;
@@ -1665,7 +1650,8 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
   int rpmRatio;
   
   AudioCmn_CheckState(car);
-  if (AudioCmn_kAudioOn) {
+  if (!AudioCmn_kAudioOn)
+    return;
   /* SYM-CODEGEN-CARRIER: attenuation -- direct signed `/ 0x10000` grows 530 to
      531 instructions with seven diffs; splitting the subsequent speed-noise phase
      into another local preserves count but changes ten register-allocation sites. */
@@ -1821,50 +1807,15 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
     cam = 2;
     roadNoiseAmp = roadNoiseAmp >> 1;
   }
-  {
-  /* SYM-CODEGEN-CARRIER: currentGas -- merging the adjusted difference back into
-     this byte snapshot removes retail's delay-slot copy and leaves eight diffs. */
-  int currentGas;
-  /* SYM-CODEGEN-CARRIER: previousGas -- repeated direct pointer reads grow 530 to
-     535 instructions and leave nine diffs because GCC must conservatively reload. */
-  int previousGas;
-  /* SYM-CODEGEN-CARRIER: rampedGas -- direct array expressions grow 530 to 545
-     instructions and leave 77 diffs; this scoped pointer preserves one address
-     across every conditional store. */
-  int *rampedGas;
-
-  rampedGas = PlayersRampedGasLevel + car->carIndex;
-  __asm__("" : : "r"(rampedGas));
-  currentGas = (u_char)(car->control).gasLevel;
-  previousGas = *rampedGas;
   amplitude = iAmpIn;
-  if (previousGas < currentGas) {
-    if (0 < (currentGas - previousGas) / 2) {
-      *rampedGas = previousGas + (currentGas - previousGas) / 2;
+  if (PlayersRampedGasLevel[car->carIndex] < (u_char)(car->control).gasLevel) {
+    if (((u_char)(car->control).gasLevel - PlayersRampedGasLevel[car->carIndex]) / 2 > 0) {
+      PlayersRampedGasLevel[car->carIndex] += ((u_char)(car->control).gasLevel - PlayersRampedGasLevel[car->carIndex]) / 2;
+    } else {
+      PlayersRampedGasLevel[car->carIndex] += 1;
     }
-    else {
-      *rampedGas = previousGas + 1;
-    }
-  }
-  else if (currentGas < previousGas) {
-    /* SYM-CODEGEN-CARRIER: gasDelta -- reusing currentGas for the subtraction
-       preserves count but loses the retail `bgez` delay-slot copy (eight diffs). */
-    int gasDelta = currentGas - previousGas;
-    if (gasDelta < 0) {
-      __asm__("" : "+r"(gasDelta));
-      currentGas = gasDelta + 7;
-    }
-    else {
-      currentGas = gasDelta;
-    }
-    currentGas >>= 3;
-    if (currentGas < 0) {
-      *rampedGas = previousGas + currentGas;
-    }
-    else {
-      *rampedGas = previousGas - 1;
-    }
-  }
+  } else if ((u_char)(car->control).gasLevel < PlayersRampedGasLevel[car->carIndex]) {
+    PlayersRampedGasLevel[car->carIndex] += MIN(((u_char)(car->control).gasLevel - PlayersRampedGasLevel[car->carIndex]) / 8,-1);
   }
   /* SYM: cobblestoneAmp is REG $s0 (shares the register with CurCarGasLevel, whose
      live range ends earlier) -- the re-read of the just-updated ramped gas level,
@@ -1894,12 +1845,11 @@ void AudioCmn_SoundCar(Car_tObj *car,int dst,int iFreqIn,int doppler,int azimuth
   __asm__("" : : "r"(roadProduct));
   roadNoiseAmp = roadProduct >> 7;
   }
-  if (tunnelFlag == 0) goto SoundCar_getWetNoise;
-  wetNoiseAmp = 0;
-  goto SoundCar_haveWetNoise;
-SoundCar_getWetNoise:
-  wetNoiseAmp = Weather_GetNumParticles(car->carIndex);
-SoundCar_haveWetNoise:
+  if (tunnelFlag != 0) {
+    wetNoiseAmp = 0;
+  } else {
+    wetNoiseAmp = Weather_GetNumParticles(car->carIndex);
+  }
   if (0x7f < wetNoiseAmp) {
     wetNoiseAmp = 0x7f;
   }
@@ -1967,28 +1917,18 @@ SoundCar_haveWetNoise:
     AudioEng_Set(car->carIndex,(gMasterEngineLevel * 0xe) * loadAmp >> 0xe,rpmRatio,gas,cam,
                doppler,azimuth,cardir);
   }
-  }
   return;
 }
 
 /* ---- AudioCmn_TrafficSFX__Fiiiiiiii  [@0x80079104] ---- */
 void AudioCmn_TrafficSFX(int iChan,int iSFXnum,int freq,int doppler,int dst,int azimuth,int relvel,int dir)
 {
-  /* SYM rule-8: locals = iAmpIn(s4), player(a0), pitchmult(s0) ONLY; dst/azimuth/relvel/dir
-     get REG copies (a2/s7/s6/s1), freq+doppler stay ARG (stack) and are reloaded per use.
-     The two direct symmetric crossfade expressions compile to retail's destructive
-     s2=dir>>12 / s1=dir>>10 chain; relvel is clamped in place and iAmpIn is reused.
-     MATCH (2026-08-14): PASS 163/163.  qtytrace priced the saved-register cycle: five
-     zero-instruction pitchmult references cross its local-allocation priority boundary;
-     direct crossfade indices reproduce retail's `(dir12+64)-dir10` chain; staging the
-      first patch result reused through the SYM-owned player local, the Xfade base,
-      and a between-call scheduling fence
-     gives the exact call/shift order.  No register pin or emitted asm instruction is used.
-     Earlier basins: 53 -> 51 (post-`>>10` pitch scale), 24 (priced pitch refs),
-     14 (destructive dir12 chain), 10/6/4/2 (statement/fence placement) -> PASS. */
-  int pitchmult;
+  /* MATCH P903: native 19311c..1932ab has only iAmpIn, player and
+     pitchmult in one scope. Both engine-patch lookups are separate native
+     statements (2226/2229), preceding the PlaySFX calls (2227/2230). */
   int iAmpIn;
   int player;
+  int pitchmult;
 
   player = 0;
   if (GameSetup_gData.commMode == 1) {
@@ -2010,27 +1950,27 @@ void AudioCmn_TrafficSFX(int iChan,int iSFXnum,int freq,int doppler,int dst,int 
     if (gaChannel[iChan + 8].Partial != -1) {
       freeVoiceChannel(iChan + 8);
     }
+    return;
   }
   else {
-    /* SYM-CODEGEN-CARRIER: fade -- the named Xfade base preserves retail's
-       placement of the destructive dir shift between the two call sequences. */
-    u_char *fade;
-
     pitchmult = fixedmult(freq + 0x3333,doppler) * 0x50 >> 10;
     /* BUG FIX (2026-07-11): real crossfade table Xfade[129], not a stale "" placeholder.
        BUG FIX (wave-13): 2nd index IS +0x40 biased -- oracle mutates s2=(dir>>12)-0x40 then
        s1-s2 = (dir>>10)-(dir>>12)+0x40 (the wave-6 note claiming "no +0x40" misread the raw;
        the two calls use the symmetric +-0x40 crossfade pair). */
+    /* MATCH P903: widening the grouped subtractions prevents reassociation
+       through the array address, removing the non-SYM fade pointer. Shifted
+       int operands fit the final int index; original cast tokens are unproved. */
     player = CopSpeak_GetEnginePatch(iSFXnum,0);
-    fade = Xfade;
     /* W85-S2: an INERT zero-insn fence was deleted here -- measured PASS
        alone and jointly with the other two, on the WHOLE-TU gate (48/48). */
     AudioCmn_PlaySFX(iChan + 4,player,0x40,pitchmult << 4,
-               iAmpIn * fade[((dir >> 0xc) + 0x40) - (dir >> 10)] >> 7,azimuth);
+               iAmpIn * Xfade[(int)((long long)((dir >> 0xc) + 0x40) - (dir >> 10))] >> 7,azimuth);
     /* W85-S2: an INERT zero-insn fence was deleted here -- measured PASS
        alone and jointly with the other two, on the WHOLE-TU gate (48/48). */
-    AudioCmn_PlaySFX(iChan + 8,CopSpeak_GetEnginePatch(iSFXnum,1),0x40,pitchmult << 4,
-               iAmpIn * fade[(dir >> 10) - ((dir >> 0xc) - 0x40)] >> 7,azimuth);
+    player = CopSpeak_GetEnginePatch(iSFXnum,1);
+    AudioCmn_PlaySFX(iChan + 8,player,0x40,pitchmult << 4,
+               iAmpIn * Xfade[(int)((long long)(dir >> 10) - ((dir >> 0xc) - 0x40))] >> 7,azimuth);
     if (0x280000 < relvel) {
       relvel = 0x280000;
     }

@@ -1,0 +1,67 @@
+{
+  "passed": true,
+  "date": "2026-09-12",
+  "protected_oracle_known_symbol_instances": 1036,
+  "protected_TUs": 46,
+  "normal_objects_literal_unchanged": 518,
+  "linked_ELF_sha256": "52800553415581618c04766bca85e3d943de8343f60b78c62ff7c62af9e32ae0",
+  "linked_map_unchanged": true,
+  "Music_Threshold_SLD_before": [
+    0,
+    4
+  ],
+  "Music_Threshold_SLD_after": [
+    0,
+    0
+  ],
+  "Music_Threshold_raw_words": 33,
+  "Music_Threshold_removed_unproved_locals": [
+    "music"
+  ],
+  "Music_Threshold_removed_source_labels": 4,
+  "Music_Threshold_native_empty_scope_exact": true,
+  "independent_signed_guard_cases": 8100,
+  "SoundTrack_SLD_before": [
+    22,
+    16
+  ],
+  "SoundTrack_SLD_after": [
+    18,
+    7
+  ],
+  "SoundTrack_native_local_owners": 25,
+  "SoundTrack_native_emitted_scopes": 19,
+  "all6_audio_raw_words_exact": 1004,
+  "all6_audio_raw_reference_words": 112,
+  "strict": {
+    "game_common": {
+      "clean": 1227,
+      "extra": 7,
+      "carriers": 476,
+      "missing": 0,
+      "type": 28,
+      "storage": 28,
+      "mapping": 0
+    },
+    "frontend_common": {
+      "clean": 780,
+      "extra": 48,
+      "carriers": 438,
+      "missing": 0,
+      "type": 9,
+      "storage": 9,
+      "mapping": 3
+    }
+  },
+  "actual_Music_source_sha256": "ece741259dcb13d2f7f320d8e3f0464d42397061121b16dd9d9bbabf07635607",
+  "actual_AudioTrk_source_sha256": "ad651673e6664118a0d6925bc581c20d8ae9bdbc3978d30022fb87f3580e690e",
+  "no_new_branch_discrepancies": true,
+  "existing_Speech_branch_discrepancy_preserved": true,
+  "production_build_tools_unchanged": true,
+  "no_postcompile_instruction_or_debug_label_rewrites": true,
+  "original_inline_identity_still_unproved": true,
+  "full_source_SYM_SLD_and_image_exact": false,
+  "goal_complete": false,
+  "committed": false,
+  "pushed": false
+}

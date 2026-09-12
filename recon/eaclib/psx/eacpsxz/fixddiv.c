@@ -124,4 +124,6 @@ int fixeddiv(int a, int b)   /* @0x800E4404 : host fallback (16.16 signed divide
     }
     return neg ? -(int)result : (int)result;
 }
+/* P903 integration: preserve the declared co-equal host entry. */
+extern int rdiv(int a, int b) __attribute__((alias("fixeddiv")));
 #endif

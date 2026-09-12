@@ -1,0 +1,1293 @@
+{
+  "code_and_branches_exact": true,
+  "functions": [
+    {
+      "function": "AudioTrk_Reset__Fv",
+      "before_SLD": {
+        "merges": 20,
+        "splits": 60
+      },
+      "after_SLD": {
+        "merges": 0,
+        "splits": 0
+      },
+      "new_merges": [],
+      "new_splits": [],
+      "before_scopes": [
+        {
+          "start": 2147993108,
+          "depth": 0,
+          "relative_line": 1,
+          "declarations": [],
+          "end": 2147993308,
+          "relative_end_line": 37
+        },
+        {
+          "start": 2147993108,
+          "depth": 1,
+          "relative_line": 1,
+          "declarations": [],
+          "end": 2147993228,
+          "relative_end_line": 14
+        },
+        {
+          "start": 2147993136,
+          "depth": 2,
+          "relative_line": 2,
+          "declarations": [
+            ".def\ti;\t.val\t17;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147993228,
+          "relative_end_line": 14
+        },
+        {
+          "start": 2147993228,
+          "depth": 1,
+          "relative_line": 16,
+          "declarations": [
+            ".def\ti;\t.val\t4;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147993308,
+          "relative_end_line": 34
+        }
+      ],
+      "after_scopes": [
+        {
+          "start": 2147993108,
+          "depth": 0,
+          "relative_line": 1,
+          "declarations": [],
+          "end": 2147993308,
+          "relative_end_line": 24
+        },
+        {
+          "start": 2147993108,
+          "depth": 1,
+          "relative_line": 1,
+          "declarations": [],
+          "end": 2147993228,
+          "relative_end_line": 10
+        },
+        {
+          "start": 2147993136,
+          "depth": 2,
+          "relative_line": 2,
+          "declarations": [],
+          "end": 2147993228,
+          "relative_end_line": 10
+        },
+        {
+          "start": 2147993136,
+          "depth": 3,
+          "relative_line": 3,
+          "declarations": [
+            ".def\ti;\t.val\t17;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147993228,
+          "relative_end_line": 10
+        },
+        {
+          "start": 2147993228,
+          "depth": 1,
+          "relative_line": 12,
+          "declarations": [],
+          "end": 2147993308,
+          "relative_end_line": 24
+        },
+        {
+          "start": 2147993248,
+          "depth": 2,
+          "relative_line": 12,
+          "declarations": [],
+          "end": 2147993308,
+          "relative_end_line": 24
+        },
+        {
+          "start": 2147993248,
+          "depth": 3,
+          "relative_line": 12,
+          "declarations": [
+            ".def\ti;\t.val\t4;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147993308,
+          "relative_end_line": 24
+        }
+      ]
+    },
+    {
+      "function": "AudioTrk_StartUp__Fv",
+      "before_SLD": {
+        "merges": 0,
+        "splits": 3
+      },
+      "after_SLD": {
+        "merges": 0,
+        "splits": 3
+      },
+      "new_merges": [],
+      "new_splits": [],
+      "before_scopes": [
+        {
+          "start": 2147993332,
+          "depth": 0,
+          "relative_line": 1,
+          "declarations": [
+            ".def\ti;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147993400,
+          "relative_end_line": 10
+        }
+      ],
+      "after_scopes": [
+        {
+          "start": 2147993332,
+          "depth": 0,
+          "relative_line": 1,
+          "declarations": [
+            ".def\ti;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147993400,
+          "relative_end_line": 10
+        }
+      ]
+    },
+    {
+      "function": "AudioTrk_AddCustomObject__FP9AudioElemiP8coorddefiP8Car_tObji",
+      "before_SLD": {
+        "merges": 1,
+        "splits": 174
+      },
+      "after_SLD": {
+        "merges": 1,
+        "splits": 174
+      },
+      "new_merges": [],
+      "new_splits": [],
+      "before_scopes": [
+        {
+          "start": 2147993424,
+          "depth": 0,
+          "relative_line": 1,
+          "declarations": [
+            ".def\tdst;\t.val\t23;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tc;\t.val\t18;\t.scl\t4;\t.tag\tAudioTrk_tAmbientChannel;\t.size\t16;\t.type\t0x18;\t.endef",
+            ".def\tn;\t.val\t22;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\ti;\t.val\t17;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tmaxind;\t.val\t21;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tmaxdst;\t.val\t19;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tchkdst;\t.val\t17;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147995028,
+          "relative_end_line": 241
+        },
+        {
+          "start": 2147993424,
+          "depth": 1,
+          "relative_line": 1,
+          "declarations": [],
+          "end": 2147995028,
+          "relative_end_line": 236
+        },
+        {
+          "start": 2147993492,
+          "depth": 2,
+          "relative_line": 10,
+          "declarations": [
+            ".def\tAudioTrk_cleanup;\t.val\t$L29;\t.scl\t6;\t.type\t0x0;\t.endef",
+            ".def\tAudioTrk_valid;\t.val\t$L31;\t.scl\t6;\t.type\t0x0;\t.endef"
+          ],
+          "end": 2147995028,
+          "relative_end_line": 236
+        },
+        {
+          "start": 2147993560,
+          "depth": 3,
+          "relative_line": 22,
+          "declarations": [
+            ".def\tc;\t.val\t16;\t.scl\t4;\t.tag\tAudioTrk_tAmbientChannel;\t.size\t16;\t.type\t0x18;\t.endef"
+          ],
+          "end": 2147993640,
+          "relative_end_line": 35
+        },
+        {
+          "start": 2147993640,
+          "depth": 3,
+          "relative_line": 39,
+          "declarations": [
+            ".def\trepeatnow;\t.val\t17;\t.scl\t4;\t.type\t0x0;\t.endef",
+            ".def\tAudioTrk_find_channel;\t.val\t$L35;\t.scl\t6;\t.type\t0x0;\t.endef",
+            ".def\tAudioTrk_channel_found;\t.val\t$L36;\t.scl\t6;\t.type\t0x0;\t.endef"
+          ],
+          "end": 2147995028,
+          "relative_end_line": 236
+        },
+        {
+          "start": 2147993840,
+          "depth": 4,
+          "relative_line": 79,
+          "declarations": [],
+          "end": 2147994080,
+          "relative_end_line": 117
+        },
+        {
+          "start": 2147993848,
+          "depth": 5,
+          "relative_line": 79,
+          "declarations": [],
+          "end": 2147994080,
+          "relative_end_line": 117
+        },
+        {
+          "start": 2147993848,
+          "depth": 6,
+          "relative_line": 80,
+          "declarations": [
+            ".def\ti;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147993956,
+          "relative_end_line": 101
+        },
+        {
+          "start": 2147994284,
+          "depth": 4,
+          "relative_line": 145,
+          "declarations": [],
+          "end": 2147995028,
+          "relative_end_line": 236
+        },
+        {
+          "start": 2147994300,
+          "depth": 5,
+          "relative_line": 145,
+          "declarations": [
+            ".def\tazimuth;\t.val\t21;\t.scl\t4;\t.type\t0xd;\t.endef",
+            ".def\tdop;\t.val\t19;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tvol;\t.val\t16;\t.scl\t4;\t.type\t0x2;\t.endef"
+          ],
+          "end": 2147995028,
+          "relative_end_line": 236
+        },
+        {
+          "start": 2147994300,
+          "depth": 6,
+          "relative_line": 150,
+          "declarations": [],
+          "end": 2147994512,
+          "relative_end_line": 169
+        },
+        {
+          "start": 2147994328,
+          "depth": 7,
+          "relative_line": 153,
+          "declarations": [],
+          "end": 2147994512,
+          "relative_end_line": 169
+        },
+        {
+          "start": 2147994360,
+          "depth": 8,
+          "relative_line": 158,
+          "declarations": [],
+          "end": 2147994444,
+          "relative_end_line": 163
+        },
+        {
+          "start": 2147994400,
+          "depth": 9,
+          "relative_line": 158,
+          "declarations": [
+            ".def\tslicePos;\t.val\t-176;\t.scl\t1;\t.tag\tBWorldSm_Pos;\t.size\t132;\t.type\t0x8;\t.endef"
+          ],
+          "end": 2147994444,
+          "relative_end_line": 163
+        },
+        {
+          "start": 2147994512,
+          "depth": 6,
+          "relative_line": 172,
+          "declarations": [],
+          "end": 2147994924,
+          "relative_end_line": 221
+        },
+        {
+          "start": 2147994536,
+          "depth": 7,
+          "relative_line": 172,
+          "declarations": [
+            ".def\tAudioTrk_near_volume;\t.val\t$L76;\t.scl\t6;\t.type\t0x0;\t.endef",
+            ".def\tAudioTrk_fade_volume;\t.val\t$L78;\t.scl\t6;\t.type\t0x0;\t.endef"
+          ],
+          "end": 2147994924,
+          "relative_end_line": 221
+        },
+        {
+          "start": 2147994640,
+          "depth": 8,
+          "relative_line": 195,
+          "declarations": [
+            ".def\trangesq;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147994772,
+          "relative_end_line": 204
+        },
+        {
+          "start": 2147994772,
+          "depth": 8,
+          "relative_line": 208,
+          "declarations": [],
+          "end": 2147994924,
+          "relative_end_line": 221
+        },
+        {
+          "start": 2147994772,
+          "depth": 9,
+          "relative_line": 209,
+          "declarations": [],
+          "end": 2147994924,
+          "relative_end_line": 221
+        },
+        {
+          "start": 2147994796,
+          "depth": 10,
+          "relative_line": 210,
+          "declarations": [
+            ".def\trange;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\trangesq;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tambdist;\t.val\t4;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147994924,
+          "relative_end_line": 221
+        }
+      ],
+      "after_scopes": [
+        {
+          "start": 2147993424,
+          "depth": 0,
+          "relative_line": 1,
+          "declarations": [
+            ".def\tdst;\t.val\t23;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tc;\t.val\t18;\t.scl\t4;\t.tag\tAudioTrk_tAmbientChannel;\t.size\t16;\t.type\t0x18;\t.endef",
+            ".def\tn;\t.val\t22;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\ti;\t.val\t17;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tmaxind;\t.val\t21;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tmaxdst;\t.val\t19;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tchkdst;\t.val\t17;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147995028,
+          "relative_end_line": 241
+        },
+        {
+          "start": 2147993424,
+          "depth": 1,
+          "relative_line": 1,
+          "declarations": [],
+          "end": 2147995028,
+          "relative_end_line": 236
+        },
+        {
+          "start": 2147993492,
+          "depth": 2,
+          "relative_line": 10,
+          "declarations": [
+            ".def\tAudioTrk_cleanup;\t.val\t$L31;\t.scl\t6;\t.type\t0x0;\t.endef",
+            ".def\tAudioTrk_valid;\t.val\t$L33;\t.scl\t6;\t.type\t0x0;\t.endef"
+          ],
+          "end": 2147995028,
+          "relative_end_line": 236
+        },
+        {
+          "start": 2147993560,
+          "depth": 3,
+          "relative_line": 22,
+          "declarations": [
+            ".def\tc;\t.val\t16;\t.scl\t4;\t.tag\tAudioTrk_tAmbientChannel;\t.size\t16;\t.type\t0x18;\t.endef"
+          ],
+          "end": 2147993640,
+          "relative_end_line": 35
+        },
+        {
+          "start": 2147993640,
+          "depth": 3,
+          "relative_line": 39,
+          "declarations": [
+            ".def\trepeatnow;\t.val\t17;\t.scl\t4;\t.type\t0x0;\t.endef",
+            ".def\tAudioTrk_find_channel;\t.val\t$L37;\t.scl\t6;\t.type\t0x0;\t.endef",
+            ".def\tAudioTrk_channel_found;\t.val\t$L38;\t.scl\t6;\t.type\t0x0;\t.endef"
+          ],
+          "end": 2147995028,
+          "relative_end_line": 236
+        },
+        {
+          "start": 2147993840,
+          "depth": 4,
+          "relative_line": 79,
+          "declarations": [],
+          "end": 2147994080,
+          "relative_end_line": 117
+        },
+        {
+          "start": 2147993848,
+          "depth": 5,
+          "relative_line": 79,
+          "declarations": [],
+          "end": 2147994080,
+          "relative_end_line": 117
+        },
+        {
+          "start": 2147993848,
+          "depth": 6,
+          "relative_line": 80,
+          "declarations": [
+            ".def\ti;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147993956,
+          "relative_end_line": 101
+        },
+        {
+          "start": 2147994284,
+          "depth": 4,
+          "relative_line": 145,
+          "declarations": [],
+          "end": 2147995028,
+          "relative_end_line": 236
+        },
+        {
+          "start": 2147994300,
+          "depth": 5,
+          "relative_line": 145,
+          "declarations": [
+            ".def\tazimuth;\t.val\t21;\t.scl\t4;\t.type\t0xd;\t.endef",
+            ".def\tdop;\t.val\t19;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tvol;\t.val\t16;\t.scl\t4;\t.type\t0x2;\t.endef"
+          ],
+          "end": 2147995028,
+          "relative_end_line": 236
+        },
+        {
+          "start": 2147994300,
+          "depth": 6,
+          "relative_line": 150,
+          "declarations": [],
+          "end": 2147994512,
+          "relative_end_line": 169
+        },
+        {
+          "start": 2147994328,
+          "depth": 7,
+          "relative_line": 153,
+          "declarations": [],
+          "end": 2147994512,
+          "relative_end_line": 169
+        },
+        {
+          "start": 2147994360,
+          "depth": 8,
+          "relative_line": 158,
+          "declarations": [],
+          "end": 2147994444,
+          "relative_end_line": 163
+        },
+        {
+          "start": 2147994400,
+          "depth": 9,
+          "relative_line": 158,
+          "declarations": [
+            ".def\tslicePos;\t.val\t-176;\t.scl\t1;\t.tag\tBWorldSm_Pos;\t.size\t132;\t.type\t0x8;\t.endef"
+          ],
+          "end": 2147994444,
+          "relative_end_line": 163
+        },
+        {
+          "start": 2147994512,
+          "depth": 6,
+          "relative_line": 172,
+          "declarations": [],
+          "end": 2147994924,
+          "relative_end_line": 221
+        },
+        {
+          "start": 2147994536,
+          "depth": 7,
+          "relative_line": 172,
+          "declarations": [
+            ".def\tAudioTrk_near_volume;\t.val\t$L78;\t.scl\t6;\t.type\t0x0;\t.endef",
+            ".def\tAudioTrk_fade_volume;\t.val\t$L80;\t.scl\t6;\t.type\t0x0;\t.endef"
+          ],
+          "end": 2147994924,
+          "relative_end_line": 221
+        },
+        {
+          "start": 2147994640,
+          "depth": 8,
+          "relative_line": 195,
+          "declarations": [
+            ".def\trangesq;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147994772,
+          "relative_end_line": 204
+        },
+        {
+          "start": 2147994772,
+          "depth": 8,
+          "relative_line": 208,
+          "declarations": [],
+          "end": 2147994924,
+          "relative_end_line": 221
+        },
+        {
+          "start": 2147994772,
+          "depth": 9,
+          "relative_line": 209,
+          "declarations": [],
+          "end": 2147994924,
+          "relative_end_line": 221
+        },
+        {
+          "start": 2147994796,
+          "depth": 10,
+          "relative_line": 210,
+          "declarations": [
+            ".def\trange;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\trangesq;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tambdist;\t.val\t4;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147994924,
+          "relative_end_line": 221
+        }
+      ]
+    },
+    {
+      "function": "AudioTrk_SoundTrack__FP8Car_tObji",
+      "before_SLD": {
+        "merges": 115,
+        "splits": 132
+      },
+      "after_SLD": {
+        "merges": 22,
+        "splits": 76
+      },
+      "new_merges": [],
+      "new_splits": [],
+      "before_scopes": [
+        {
+          "start": 2147995076,
+          "depth": 0,
+          "relative_line": 1,
+          "declarations": [],
+          "end": 2147996460,
+          "relative_end_line": 129
+        },
+        {
+          "start": 2147995076,
+          "depth": 1,
+          "relative_line": 1,
+          "declarations": [],
+          "end": 2147996460,
+          "relative_end_line": 129
+        },
+        {
+          "start": 2147995144,
+          "depth": 2,
+          "relative_line": 2,
+          "declarations": [],
+          "end": 2147996460,
+          "relative_end_line": 129
+        },
+        {
+          "start": 2147995144,
+          "depth": 3,
+          "relative_line": 3,
+          "declarations": [],
+          "end": 2147996460,
+          "relative_end_line": 129
+        },
+        {
+          "start": 2147995164,
+          "depth": 4,
+          "relative_line": 3,
+          "declarations": [],
+          "end": 2147996460,
+          "relative_end_line": 129
+        },
+        {
+          "start": 2147995164,
+          "depth": 5,
+          "relative_line": 4,
+          "declarations": [],
+          "end": 2147996460,
+          "relative_end_line": 129
+        },
+        {
+          "start": 2147995180,
+          "depth": 6,
+          "relative_line": 4,
+          "declarations": [],
+          "end": 2147996460,
+          "relative_end_line": 129
+        },
+        {
+          "start": 2147995180,
+          "depth": 7,
+          "relative_line": 5,
+          "declarations": [],
+          "end": 2147996460,
+          "relative_end_line": 129
+        },
+        {
+          "start": 2147995200,
+          "depth": 8,
+          "relative_line": 5,
+          "declarations": [
+            ".def\tse;\t.val\t21;\t.scl\t4;\t.tag\tAudioElem;\t.size\t24;\t.type\t0x18;\t.endef",
+            ".def\tnumelems;\t.val\t7;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tquater;\t.val\t6;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tgtck;\t.val\t-56;\t.scl\t1;\t.type\t0x4;\t.endef",
+            ".def\tvx;\t.val\t-52;\t.scl\t1;\t.type\t0x4;\t.endef",
+            ".def\tvz;\t.val\t-48;\t.scl\t1;\t.type\t0x4;\t.endef",
+            ".def\tv;\t.val\t-96;\t.scl\t1;\t.tag\tcoorddef;\t.size\t12;\t.type\t0x8;\t.endef",
+            ".def\tstart;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tend;\t.val\t30;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147996460,
+          "relative_end_line": 129
+        },
+        {
+          "start": 2147995312,
+          "depth": 9,
+          "relative_line": 22,
+          "declarations": [
+            ".def\ti;\t.val\t23;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147996460,
+          "relative_end_line": 129
+        },
+        {
+          "start": 2147995332,
+          "depth": 10,
+          "relative_line": 23,
+          "declarations": [
+            ".def\ttck;\t.val\t18;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tcur;\t.val\t-64;\t.scl\t1;\t.type\t0x4;\t.endef",
+            ".def\tmax;\t.val\t-60;\t.scl\t1;\t.type\t0x4;\t.endef",
+            ".def\tanim;\t.val\t20;\t.scl\t4;\t.tag\tTrk_AnimateInst;\t.size\t12;\t.type\t0x18;\t.endef",
+            ".def\tx;\t.val\t4;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tz;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\td;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147996444,
+          "relative_end_line": 127
+        },
+        {
+          "start": 2147995392,
+          "depth": 11,
+          "relative_line": 36,
+          "declarations": [],
+          "end": 2147995656,
+          "relative_end_line": 52
+        },
+        {
+          "start": 2147995524,
+          "depth": 12,
+          "relative_line": 45,
+          "declarations": [],
+          "end": 2147995656,
+          "relative_end_line": 52
+        },
+        {
+          "start": 2147995524,
+          "depth": 13,
+          "relative_line": 46,
+          "declarations": [],
+          "end": 2147995656,
+          "relative_end_line": 52
+        },
+        {
+          "start": 2147995580,
+          "depth": 14,
+          "relative_line": 47,
+          "declarations": [
+            ".def\trandtick;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147995656,
+          "relative_end_line": 52
+        },
+        {
+          "start": 2147995740,
+          "depth": 11,
+          "relative_line": 70,
+          "declarations": [],
+          "end": 2147996444,
+          "relative_end_line": 127
+        },
+        {
+          "start": 2147995784,
+          "depth": 12,
+          "relative_line": 70,
+          "declarations": [
+            ".def\tvel;\t.val\t22;\t.scl\t4;\t.tag\tcoorddef;\t.size\t12;\t.type\t0x18;\t.endef",
+            ".def\tfade;\t.val\t19;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147996444,
+          "relative_end_line": 127
+        },
+        {
+          "start": 2147995784,
+          "depth": 13,
+          "relative_line": 71,
+          "declarations": [],
+          "end": 2147996408,
+          "relative_end_line": 124
+        },
+        {
+          "start": 2147995808,
+          "depth": 14,
+          "relative_line": 74,
+          "declarations": [],
+          "end": 2147996408,
+          "relative_end_line": 124
+        },
+        {
+          "start": 2147995808,
+          "depth": 15,
+          "relative_line": 75,
+          "declarations": [],
+          "end": 2147996376,
+          "relative_end_line": 121
+        },
+        {
+          "start": 2147995816,
+          "depth": 16,
+          "relative_line": 75,
+          "declarations": [
+            ".def\tfadeIn;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tfadeOut;\t.val\t4;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147996376,
+          "relative_end_line": 121
+        },
+        {
+          "start": 2147995936,
+          "depth": 17,
+          "relative_line": 96,
+          "declarations": [],
+          "end": 2147996308,
+          "relative_end_line": 115
+        },
+        {
+          "start": 2147995944,
+          "depth": 18,
+          "relative_line": 96,
+          "declarations": [
+            ".def\tnextcp;\t.val\t-80;\t.scl\t1;\t.tag\tcoorddef;\t.size\t12;\t.type\t0x8;\t.endef",
+            ".def\tnext;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\ttime;\t.val\t6;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147996308,
+          "relative_end_line": 115
+        }
+      ],
+      "after_scopes": [
+        {
+          "start": 2147995076,
+          "depth": 0,
+          "relative_line": 1,
+          "declarations": [],
+          "end": 2147996460,
+          "relative_end_line": 119
+        },
+        {
+          "start": 2147995164,
+          "depth": 1,
+          "relative_line": 6,
+          "declarations": [],
+          "end": 2147996460,
+          "relative_end_line": 119
+        },
+        {
+          "start": 2147995180,
+          "depth": 2,
+          "relative_line": 7,
+          "declarations": [],
+          "end": 2147996460,
+          "relative_end_line": 119
+        },
+        {
+          "start": 2147995180,
+          "depth": 3,
+          "relative_line": 7,
+          "declarations": [],
+          "end": 2147996460,
+          "relative_end_line": 119
+        },
+        {
+          "start": 2147995200,
+          "depth": 4,
+          "relative_line": 7,
+          "declarations": [
+            ".def\tse;\t.val\t21;\t.scl\t4;\t.tag\tAudioElem;\t.size\t24;\t.type\t0x18;\t.endef",
+            ".def\tnumelems;\t.val\t7;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tquater;\t.val\t6;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tgtck;\t.val\t-56;\t.scl\t1;\t.type\t0x4;\t.endef",
+            ".def\tvx;\t.val\t-52;\t.scl\t1;\t.type\t0x4;\t.endef",
+            ".def\tvz;\t.val\t-48;\t.scl\t1;\t.type\t0x4;\t.endef",
+            ".def\tv;\t.val\t-96;\t.scl\t1;\t.tag\tcoorddef;\t.size\t12;\t.type\t0x8;\t.endef",
+            ".def\tstart;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tend;\t.val\t30;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147996460,
+          "relative_end_line": 119
+        },
+        {
+          "start": 2147995312,
+          "depth": 5,
+          "relative_line": 24,
+          "declarations": [
+            ".def\ti;\t.val\t23;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147996460,
+          "relative_end_line": 119
+        },
+        {
+          "start": 2147995332,
+          "depth": 6,
+          "relative_line": 25,
+          "declarations": [
+            ".def\ttck;\t.val\t18;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tcur;\t.val\t-64;\t.scl\t1;\t.type\t0x4;\t.endef",
+            ".def\tmax;\t.val\t-60;\t.scl\t1;\t.type\t0x4;\t.endef",
+            ".def\tanim;\t.val\t20;\t.scl\t4;\t.tag\tTrk_AnimateInst;\t.size\t12;\t.type\t0x18;\t.endef",
+            ".def\tx;\t.val\t4;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tz;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\td;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147996444,
+          "relative_end_line": 117
+        },
+        {
+          "start": 2147995392,
+          "depth": 7,
+          "relative_line": 38,
+          "declarations": [],
+          "end": 2147995656,
+          "relative_end_line": 54
+        },
+        {
+          "start": 2147995524,
+          "depth": 8,
+          "relative_line": 47,
+          "declarations": [],
+          "end": 2147995656,
+          "relative_end_line": 54
+        },
+        {
+          "start": 2147995524,
+          "depth": 9,
+          "relative_line": 48,
+          "declarations": [],
+          "end": 2147995656,
+          "relative_end_line": 54
+        },
+        {
+          "start": 2147995544,
+          "depth": 10,
+          "relative_line": 49,
+          "declarations": [],
+          "end": 2147995656,
+          "relative_end_line": 54
+        },
+        {
+          "start": 2147995544,
+          "depth": 11,
+          "relative_line": 49,
+          "declarations": [],
+          "end": 2147995656,
+          "relative_end_line": 54
+        },
+        {
+          "start": 2147995580,
+          "depth": 12,
+          "relative_line": 49,
+          "declarations": [
+            ".def\trandtick;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147995656,
+          "relative_end_line": 54
+        },
+        {
+          "start": 2147995740,
+          "depth": 7,
+          "relative_line": 62,
+          "declarations": [],
+          "end": 2147996444,
+          "relative_end_line": 117
+        },
+        {
+          "start": 2147995784,
+          "depth": 8,
+          "relative_line": 62,
+          "declarations": [
+            ".def\tvel;\t.val\t22;\t.scl\t4;\t.tag\tcoorddef;\t.size\t12;\t.type\t0x18;\t.endef",
+            ".def\tfade;\t.val\t19;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147996444,
+          "relative_end_line": 117
+        },
+        {
+          "start": 2147995784,
+          "depth": 9,
+          "relative_line": 63,
+          "declarations": [],
+          "end": 2147996376,
+          "relative_end_line": 112
+        },
+        {
+          "start": 2147995816,
+          "depth": 10,
+          "relative_line": 66,
+          "declarations": [
+            ".def\tfadeIn;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tfadeOut;\t.val\t4;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147996376,
+          "relative_end_line": 112
+        },
+        {
+          "start": 2147995936,
+          "depth": 11,
+          "relative_line": 87,
+          "declarations": [],
+          "end": 2147996308,
+          "relative_end_line": 106
+        },
+        {
+          "start": 2147995944,
+          "depth": 12,
+          "relative_line": 87,
+          "declarations": [
+            ".def\tnextcp;\t.val\t-80;\t.scl\t1;\t.tag\tcoorddef;\t.size\t12;\t.type\t0x8;\t.endef",
+            ".def\tnext;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\ttime;\t.val\t6;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147996308,
+          "relative_end_line": 106
+        }
+      ]
+    },
+    {
+      "function": "AudioTrk_PreLoad__Fv",
+      "before_SLD": {
+        "merges": 2,
+        "splits": 5
+      },
+      "after_SLD": {
+        "merges": 2,
+        "splits": 5
+      },
+      "new_merges": [],
+      "new_splits": [],
+      "before_scopes": [
+        {
+          "start": 2147996508,
+          "depth": 0,
+          "relative_line": 1,
+          "declarations": [
+            ".def\tvx;\t.val\t21;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tvz;\t.val\t20;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\ttick;\t.val\t23;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tloaded;\t.val\t19;\t.scl\t4;\t.type\t0x0;\t.endef",
+            ".def\tcheck;\t.val\t-48;\t.scl\t1;\t.type\t0x4;\t.endef",
+            ".def\tnumelems;\t.val\t22;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147996928,
+          "relative_end_line": 45
+        },
+        {
+          "start": 2147996632,
+          "depth": 1,
+          "relative_line": 19,
+          "declarations": [
+            ".def\tse;\t.val\t17;\t.scl\t4;\t.tag\tAudioElem;\t.size\t24;\t.type\t0x18;\t.endef"
+          ],
+          "end": 2147996892,
+          "relative_end_line": 39
+        },
+        {
+          "start": 2147996688,
+          "depth": 2,
+          "relative_line": 23,
+          "declarations": [
+            ".def\ti;\t.val\t18;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147996892,
+          "relative_end_line": 38
+        },
+        {
+          "start": 2147996708,
+          "depth": 3,
+          "relative_line": 25,
+          "declarations": [
+            ".def\tx;\t.val\t4;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tz;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\td;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147996876,
+          "relative_end_line": 37
+        }
+      ],
+      "after_scopes": [
+        {
+          "start": 2147996508,
+          "depth": 0,
+          "relative_line": 1,
+          "declarations": [
+            ".def\tvx;\t.val\t21;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tvz;\t.val\t20;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\ttick;\t.val\t23;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tloaded;\t.val\t19;\t.scl\t4;\t.type\t0x0;\t.endef",
+            ".def\tcheck;\t.val\t-48;\t.scl\t1;\t.type\t0x4;\t.endef",
+            ".def\tnumelems;\t.val\t22;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147996928,
+          "relative_end_line": 45
+        },
+        {
+          "start": 2147996632,
+          "depth": 1,
+          "relative_line": 19,
+          "declarations": [
+            ".def\tse;\t.val\t17;\t.scl\t4;\t.tag\tAudioElem;\t.size\t24;\t.type\t0x18;\t.endef"
+          ],
+          "end": 2147996892,
+          "relative_end_line": 39
+        },
+        {
+          "start": 2147996688,
+          "depth": 2,
+          "relative_line": 23,
+          "declarations": [
+            ".def\ti;\t.val\t18;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147996892,
+          "relative_end_line": 38
+        },
+        {
+          "start": 2147996708,
+          "depth": 3,
+          "relative_line": 25,
+          "declarations": [
+            ".def\tx;\t.val\t4;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tz;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\td;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147996876,
+          "relative_end_line": 37
+        }
+      ]
+    },
+    {
+      "function": "AudioTrk_CleanUp__Fv",
+      "before_SLD": {
+        "merges": 0,
+        "splits": 9
+      },
+      "after_SLD": {
+        "merges": 0,
+        "splits": 9
+      },
+      "new_merges": [],
+      "new_splits": [],
+      "before_scopes": [
+        {
+          "start": 2147996972,
+          "depth": 0,
+          "relative_line": 1,
+          "declarations": [
+            ".def\ti;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147997100,
+          "relative_end_line": 17
+        }
+      ],
+      "after_scopes": [
+        {
+          "start": 2147996972,
+          "depth": 0,
+          "relative_line": 1,
+          "declarations": [
+            ".def\ti;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147997100,
+          "relative_end_line": 17
+        }
+      ]
+    }
+  ],
+  "native_blocks": [
+    {
+      "record": "1be99c",
+      "start": 2147993108,
+      "depth": 0,
+      "declarations": [],
+      "end": 2147993308
+    },
+    {
+      "record": "1be9a5",
+      "start": 2147993108,
+      "depth": 1,
+      "declarations": [],
+      "end": 2147993228
+    },
+    {
+      "record": "1be9ae",
+      "start": 2147993136,
+      "depth": 2,
+      "declarations": [],
+      "end": 2147993228
+    },
+    {
+      "record": "1be9b7",
+      "start": 2147993136,
+      "depth": 3,
+      "declarations": [
+        {
+          "record": "1be9c0",
+          "name": "i",
+          "register": 17
+        }
+      ],
+      "end": 2147993228
+    },
+    {
+      "record": "1be9ea",
+      "start": 2147993228,
+      "depth": 1,
+      "declarations": [],
+      "end": 2147993308
+    },
+    {
+      "record": "1be9f3",
+      "start": 2147993248,
+      "depth": 2,
+      "declarations": [],
+      "end": 2147993308
+    },
+    {
+      "record": "1be9fc",
+      "start": 2147993248,
+      "depth": 3,
+      "declarations": [],
+      "end": 2147993248
+    },
+    {
+      "record": "1bea05",
+      "start": 2147993248,
+      "depth": 4,
+      "declarations": [],
+      "end": 2147993248
+    },
+    {
+      "record": "1bea20",
+      "start": 2147993248,
+      "depth": 3,
+      "declarations": [
+        {
+          "record": "1bea29",
+          "name": "i",
+          "register": 4
+        }
+      ],
+      "end": 2147993308
+    }
+  ],
+  "owners": [
+    {
+      "stage": "before",
+      "owners": [
+        {
+          "native_record": "1be9c0",
+          "register": 17,
+          "actual": [
+            2147993136,
+            2147993228,
+            2
+          ],
+          "native": [
+            2147993136,
+            2147993228,
+            3
+          ],
+          "exact": false
+        },
+        {
+          "native_record": "1bea29",
+          "register": 4,
+          "actual": [
+            2147993228,
+            2147993308,
+            1
+          ],
+          "native": [
+            2147993248,
+            2147993308,
+            3
+          ],
+          "exact": false
+        }
+      ]
+    },
+    {
+      "stage": "after",
+      "owners": [
+        {
+          "native_record": "1be9c0",
+          "register": 17,
+          "actual": [
+            2147993136,
+            2147993228,
+            3
+          ],
+          "native": [
+            2147993136,
+            2147993228,
+            3
+          ],
+          "exact": true
+        },
+        {
+          "native_record": "1bea29",
+          "register": 4,
+          "actual": [
+            2147993248,
+            2147993308,
+            3
+          ],
+          "native": [
+            2147993248,
+            2147993308,
+            3
+          ],
+          "exact": true
+        }
+      ]
+    }
+  ],
+  "no_new_SLD_pairs": true,
+  "original_source_exact": false,
+  "all_seven_emitted_scopes_native_exact": true,
+  "missing_two_native_empty_records": [
+    {
+      "record": "1be9fc",
+      "start": 2147993248,
+      "depth": 3,
+      "declarations": [],
+      "end": 2147993248
+    },
+    {
+      "record": "1bea05",
+      "start": 2147993248,
+      "depth": 4,
+      "declarations": [],
+      "end": 2147993248
+    }
+  ]
+}

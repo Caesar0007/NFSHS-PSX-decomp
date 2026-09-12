@@ -22,111 +22,80 @@ void AudioTrk_CleanUp(void);
 void AudioTrk_Reset(void)
 {
   if (AudioTrk_g != (AudioTrk_tGlobals *)0x0) {
-    int i;
-
-    i = 0;
-    do {
+    for (int i = 0; i < 0x10; i++) {
       if (AudioTrk_g->chan[i].handle != -1) {
         freeVoiceChannel(i + 0x37);
         AudioTrk_g->chan[i].handle = -1;
       }
       AudioTrk_g->chan[i].se = (AudioElem *)0x0;
       AudioTrk_g->chan[i].patch = -1;
-      i++;
-    } while (i < 0x10);
+    }
   }
-  {
-    int i;
+  if (gGameAudioList != (CAudioList *)0x0) {
     /* SOURCE-RECOVERY-OPEN: se is a semantic name borrowed from the sibling
        SoundTrack/PreLoad roles, not recovered from Reset's own source records.
        Its native SYM lists only the two i locals. This exact pointer walk is
        verified code, but a distinct original source pointer/name is unproved.
        P897's direct index trial is58/56 with32diffs; no carrier exemption or
        original-name claim is justified by that failed source form. */
-    AudioElem *se;
-
-    if ((gGameAudioList != (CAudioList *)0x0) &&
-        (i = 0, 0 < gGameAudioList->numElements_)) {
-      se = (AudioElem *)(gGameAudioList + 1);
-      do {
-        se->nextDelay = 0;
-        se->chan = -1;
-        se++;
-        i++;
-      } while (i < gGameAudioList->numElements_);
+    AudioElem *se = (AudioElem *)(gGameAudioList + 1);
+    for (int i = 0; i < gGameAudioList->numElements_; i++) {
+      se->nextDelay = 0;
+      se->chan = -1;
+      se++;
     }
   }
-  return;
 }
 
 /* ---- AudioTrk_StartUp__Fv  [@0x8007c6f4] ---- */
 void AudioTrk_StartUp(void)
 {
-  int i;
-
   if (AudioTrk_g == (AudioTrk_tGlobals *)0x0) {
     AudioTrk_g = reservememadr("trck globals",0x100,0);
-    for (i = 0; i < 16; i++) {
+    for (int i = 0; i < 16; i++)
       AudioTrk_g->chan[i].handle = -1;
-    }
   }
   AudioTrk_Reset();
 }
 
-/* ---- AudioTrk_AddCustomObject__FP9AudioElemiP8coorddefiP8Car_tObji  [@0x8007c750] ---- */
+/* ---- AudioTrk_AddCustomObject__FP9AudioElemiP8coorddefiP8Car_tObji  [@0x8007c750] ----
+ * P900: structured guards/loops recover all 31 native scopes and 18 local
+ * owners; SLD instruction partitions are exact. Seven reconstruction labels
+ * are removed. Initialize c after the rejection guard: moving it before
+ * the guard changes its delay slot (4 diffs); a comma guard adds an XOR.
+ * All 413 raw words and branch targets remain exact without codegen devices. */
 void AudioTrk_AddCustomObject(AudioElem *se,int tck,coorddef *vel,int fade,Car_tObj *car,int trkazi)
 {
   int dst;
-  AudioTrk_tAmbientChannel*c;
+  AudioTrk_tAmbientChannel *c;
   int n;
-  int i;
-  int maxind;
-  int maxdst;
-  int chkdst;
-  
-  if (AudioTrk_g != (AudioTrk_tGlobals *)0x0) {
-    dst = Math_Dist3D(&se->cp,&AudioClc_gRenderView.translation);
-    if ((se->range + 100) * 0x10000 <= dst) {
-      goto AudioTrk_cleanup;
-    }
-    c = (AudioTrk_tAmbientChannel *)0x0;
-    if (CopSpeak_gNumTrackSfx <= (int)(u_int)(u_char)se->patchID) {
-      goto AudioTrk_cleanup;
-    }
-    goto AudioTrk_valid;
-
-AudioTrk_cleanup:
-    {
+  if (AudioTrk_g == (AudioTrk_tGlobals *)0x0)
+    return;
+  dst = Math_Dist3D(&se->cp,&AudioClc_gRenderView.translation);
+  if (((se->range + 100) * 0x10000 <= dst) ||
+      (CopSpeak_gNumTrackSfx <= (int)(u_int)(u_char)se->patchID)) {
+    if (-1 < (signed char)se->chan) {
       AudioTrk_tAmbientChannel *c;
 
-      if (-1 < (signed char)se->chan) {
-        c = AudioTrk_g->chan + (signed char)se->chan;
-        if (c->handle != -1) {
-          freeVoiceChannel((signed char)se->chan + 0x37);
-          c->handle = -1;
-        }
-        c->se->chan = -1;
-        c->se = (AudioElem *)0x0;
-        c->patch = -1;
+      c = AudioTrk_g->chan + (signed char)se->chan;
+      if (c->handle != -1) {
+        freeVoiceChannel((signed char)se->chan + 0x37);
+        c->handle = -1;
       }
-      return;
+      c->se->chan = -1;
+      c->se = (AudioElem *)0x0;
+      c->patch = -1;
     }
-
-AudioTrk_valid:
-    {
-      n = -1;
-      if ((signed char)se->chan < 0) {
-        goto AudioTrk_find_channel;
-      }
-      n = (int)(signed char)se->chan;
-      c = AudioTrk_g->chan + n;
-      goto AudioTrk_channel_found;
-
-AudioTrk_find_channel:
-      if ((se->nextDelay != 0) && ((u_int)se->nextDelay != tck)) {
-        return;
-      }
-      for (i = 0; (c == (AudioTrk_tAmbientChannel *)0x0) && (i < 0x10); i++) {
+    return;
+  }
+  c = (AudioTrk_tAmbientChannel *)0x0;
+  n = -1;
+  if ((signed char)se->chan >= 0) {
+    n = (int)(signed char)se->chan;
+    c = AudioTrk_g->chan + n;
+  } else {
+    if ((se->nextDelay == 0) || ((u_int)se->nextDelay == tck)) {
+      for (int i = 0; (c == (AudioTrk_tAmbientChannel *)0x0) && (i < 0x10); i++) {
         if (AudioTrk_g->chan[i].se == (AudioElem *)0x0) {
           /* MATCH (W85-S2, device removal): retail stores `se` through the ORIGINAL
              `&chan[i]` address pseudo ($v1 -- the one the `se == 0` test built) while
@@ -151,87 +120,73 @@ AudioTrk_find_channel:
           c->se->chan = (char)n;
         }
       }
-
-AudioTrk_channel_found:
-        if (c == (AudioTrk_tAmbientChannel *)0x0) {
-          maxind = 0;
-          maxdst = 0;
-          {
-            int i;
-
-            i = 0;
-            while (true) {
-              if (c != (AudioTrk_tAmbientChannel *)0x0) {
-                break;
-              }
-              if (i >= 0x10) {
-                break;
-              }
-              chkdst = Math_Dist3D(&(AudioTrk_g->chan[i].se)->cp,
-                                   &AudioClc_gRenderView.translation);
-              if (c->handle != 0xffffffff) {
-                if ((SNDover(c->handle) != 0) && (maxdst < chkdst)) {
-                  maxind = i;
-                  maxdst = chkdst;
-                }
-              }
-              i++;
-            }
-        }
-        if (dst < maxdst) {
-          n = maxind;
-          c = AudioTrk_g->chan + maxind;
-          c->se = se;
-          c->slice = -1;
-          c->repeat =
-              (u_short)(u_char)se->minRepeat +
-              (se->randomRepeat != '\0'
-                   ? (u_short)((u_int)random() % ((u_char)se->randomRepeat + 1))
-                   : 0);
-          c->se->chan = (char)maxind;
-        }
-        if (c == (AudioTrk_tAmbientChannel *)0x0) {
-          return;
-        }
-      }
-      if (c->patch != (u_short)(u_char)se->patchID) {
-        if (c->handle != -1) {
-          freeVoiceChannel(n + 0x37);
-          c->handle = -1;
-        }
-        c->patch = (u_short)(u_char)se->patchID;
-      }
-      bool repeatnow;
-
-      repeatnow = false;
+    } else {
+      return;
+    }
+  }
+  if (c == (AudioTrk_tAmbientChannel *)0x0) {
+    int maxind = 0;
+    int maxdst = 0;
+    for (int i = 0; (c == (AudioTrk_tAmbientChannel *)0x0) && (i < 0x10); i++) {
+      int chkdst;
+      chkdst = Math_Dist3D(&(AudioTrk_g->chan[i].se)->cp,
+                           &AudioClc_gRenderView.translation);
       if ((c->handle != 0xffffffff) &&
-          (SNDover(c->handle) != 0)) {
-        if (c->repeat != 0) {
-          repeatnow = true;
-          c->handle = -1;
-          c->repeat = c->repeat + -1;
-        }
-        else if ((se->type != '\x01') || ((int)se->range << 0x10 < dst)) {
-          freeVoiceChannel(n + 0x37);
-          c->handle = -1;
-          c->patch = -1;
-          c->se->chan = -1;
-          c->se = (AudioElem *)0x0;
-        }
+          (SNDover(c->handle) != 0) && (maxdst < chkdst)) {
+        maxind = i;
+        maxdst = chkdst;
       }
-      if (c->se != (AudioElem *)0x0) {
-        u_short azimuth;
-        int dop;
-        char vol;
+    }
+    if (dst < maxdst) {
+      n = maxind;
+      c = AudioTrk_g->chan + maxind;
+      c->se = se;
+      c->slice = -1;
+      c->repeat =
+          (u_short)(u_char)se->minRepeat +
+          (se->randomRepeat != '\0'
+               ? (u_short)((u_int)random() % ((u_char)se->randomRepeat + 1))
+               : 0);
+      c->se->chan = (char)maxind;
+    }
+  }
+  if (c != (AudioTrk_tAmbientChannel *)0x0) {
+    bool repeatnow;
 
-        azimuth = 0;
-        dop = 0x10000;
-        vol = 0;
-        if ((se->type == '\x01') && (!repeatnow)) {
-          if ((c->handle != 0xffffffff) &&
-              (SNDover(c->handle) != 0)) {
-            return;
-          }
+    if (c->patch != (u_short)(u_char)se->patchID) {
+      if (c->handle != -1) {
+        freeVoiceChannel(n + 0x37);
+        c->handle = -1;
+      }
+      c->patch = (u_short)(u_char)se->patchID;
+    }
+    repeatnow = false;
+    if ((c->handle != 0xffffffff) &&
+        (SNDover(c->handle) != 0)) {
+      if (c->repeat != 0) {
+        repeatnow = true;
+        c->handle = -1;
+        c->repeat = c->repeat + -1;
+      }
+      else if ((se->type != '\x01') || ((int)se->range << 0x10 < dst)) {
+        freeVoiceChannel(n + 0x37);
+        c->handle = -1;
+        c->patch = -1;
+        c->se->chan = -1;
+        c->se = (AudioElem *)0x0;
+      }
+    }
+    if (c->se != (AudioElem *)0x0) {
+      u_short azimuth;
+      int dop;
+      char vol;
+
+      azimuth = 0;
+      dop = 0x10000;
+      vol = 0;
+      if ((se->type == '\x01') && (!repeatnow)) {
+        if ((c->handle == 0xffffffff) ||
+            (SNDover(c->handle) == 0)) {
           if ((dst < (int)((u_int)(u_char)se->fadeIn << 0x10)) && (c->slice == -1)) {
             BWorldSm_Pos slicePos;
 
@@ -239,79 +194,68 @@ AudioTrk_channel_found:
             BWorldSm_FindClosestSlice(&se->cp,&slicePos);
             c->slice = (int)slicePos.slice;
           }
-          if (((int)(car->N).simRoadInfo.slice != c->slice) ||
-             ((int)((u_int)(u_char)se->fadeIn << 0x10) < dst)) {
-            AudioCmn_GetAsyncSfx(0,(int)c->patch,false)
-            ;
-            return;
+        } else {
+          return;
+        }
+        if (((int)(car->N).simRoadInfo.slice != c->slice) ||
+            ((int)((u_int)(u_char)se->fadeIn << 0x10) < dst)) {
+          AudioCmn_GetAsyncSfx(0,(int)c->patch,false);
+          return;
+        }
+      }
+      if (dst < (int)se->range << 0x10) {
+        if (se->type == '\x03') {
+          /* W85-S2: an `'m'`-fence `__asm__("" : "+m"(se->type))` sat here claiming
+             to stop GCC reusing the known value 3 across the merge.  MEASURED
+             EXACTLY INERT (PASS 413/413 with and without it) -- DELETED. */
+          azimuth += trkazi;
+        }
+        else if (se->type != '\x02') {
+          azimuth = AudioClc_CalcAzimuth(&AudioClc_gRenderView,&se->cp);
+          dop = AudioClc_CalcDopplerShiftRatio(&se->cp,vel);
+        }
+        /* P879: keep the byte interval as two bounds. GCC otherwise gives
+           this reload the same SI-mode RTL as the earlier type test and
+           bypasses it on the type-3 edge. Both emit LBU, but only these
+           bounds retain the retail jump target (SLD 279, 8007CBF0). */
+        if ((((u_char)se->type >= 4) && ((u_char)se->type < 36)) ||
+            ((u_char)se->type == 1)) {
+          int rangesq = (int)se->range * (int)se->range;
+          vol = ((((((rangesq >> 4) * 0x10000 -
+                      fixedmult(dst >> 2,dst >> 2)) /
+                     rangesq) *
+                    /* MATCH: keep the 127 scale as its shift/subtract idiom so
+                       GCC does not reassociate 127 onto the distance quotient. */
+                    ((fade << 7) - fade)) /
+                  0x10000) >> 3);
+        } else {
+          vol = 0x7f;
+          if ((u_char)se->fadeIn * 0x10000 <= dst) {
+            int range = (int)se->range - (u_char)se->fadeIn;
+            int rangesq = range * range;
+            int ambdist = dst - (u_char)se->fadeIn * 0x10000;
+            /* SOURCE-SHAPE: retail SYM retains range/rangesq/ambdist but no
+               full-width level temporary.  Signed division supplies the
+               exact negative bias before the result narrows into vol.
+               P900: native SLD292 computes unshifted ambdist; the >>2
+               belongs to the fixedmult inputs on SLD293, not its initializer. */
+            vol = (((((rangesq >> 4) * 0x10000 -
+                       fixedmult(ambdist >> 2,ambdist >> 2)) /
+                      rangesq) *
+                     0x7f0) /
+                   0x10000);
           }
         }
-        if (dst < (int)se->range << 0x10) {
-          if (se->type == '\x03') {
-            /* W85-S2: an `'m'`-fence `__asm__("" : "+m"(se->type))` sat here claiming
-               to stop GCC reusing the known value 3 across the merge.  MEASURED
-               EXACTLY INERT (PASS 413/413 with and without it) -- DELETED. */
-            azimuth += trkazi;
-          }
-          else if (se->type != '\x02') {
-            azimuth = AudioClc_CalcAzimuth(&AudioClc_gRenderView,&se->cp);
-            dop = AudioClc_CalcDopplerShiftRatio(&se->cp,vel);
-          }
-          /* P879: keep the byte interval as two bounds. GCC otherwise gives
-             this reload the same SI-mode RTL as the earlier type test and
-             bypasses it on the type-3 edge. Both emit LBU, but only these
-             bounds retain the retail jump target (SLD 279, 8007CBF0). */
-          if (((u_char)se->type >= 4) && ((u_char)se->type < 36)) {
-            goto AudioTrk_near_volume;
-          }
-          if ((u_char)se->type != 1) {
-            goto AudioTrk_fade_volume;
-          }
-
-AudioTrk_near_volume:
-          {
-            int rangesq = (int)se->range * (int)se->range;
-            vol = ((((((rangesq >> 4) * 0x10000 -
-                        fixedmult(dst >> 2,dst >> 2)) /
-                       rangesq) *
-                      /* MATCH: keep the 127 scale as its shift/subtract idiom so
-                         GCC does not reassociate 127 onto the distance quotient. */
-                      ((fade << 7) - fade)) /
-                    0x10000) >> 3);
-            goto AudioTrk_volume_done;
-          }
-
-AudioTrk_fade_volume:
-          {
-            vol = 0x7f;
-            if ((u_char)se->fadeIn * 0x10000 <= dst) {
-              int range = (int)se->range - (u_char)se->fadeIn;
-              int rangesq = range * range;
-              int ambdist = (dst - (u_char)se->fadeIn * 0x10000) >> 2;
-              /* SOURCE-SHAPE: retail SYM retains range/rangesq/ambdist but no
-                 full-width level temporary.  Signed division supplies the
-                 exact negative bias before the result narrows into vol. */
-              vol = (((((rangesq >> 4) * 0x10000 -
-                         fixedmult(ambdist,ambdist)) /
-                        rangesq) *
-                       0x7f0) /
-                     0x10000);
-            }
-          }
-
-AudioTrk_volume_done:
-          ;
-        }
-        /* MATCH: retail materializes both minimum arms independently; the
-           usual single temporary or MIN/MAX spelling CSEs this select web. */
-        dop = (((dop > 0xa0000) ? 0xa0000 : dop) <= 0)
-                  ? 1
-                  : ((dop < 0xa0000) ? dop : 0xa0000);
-        if ((PAD_state(4) & 0x400) == 0) {
-          c->handle =
-              AudioCmn_PlaySFX(n + 0x37,(int)c->patch,0x40,dop,vol & 0xff,
-                               azimuth & 0xffff);
-        }
+      }
+      /* MATCH: retail materializes both minimum arms independently; the
+         usual single temporary or MIN/MAX spelling CSEs this select web. */
+      dop = (((dop > 0xa0000) ? 0xa0000 : dop) <= 0)
+                ? 1
+                : ((dop < 0xa0000) ? dop : 0xa0000);
+      if ((PAD_state(4) & 0x400) == 0) {
+        c->handle =
+            AudioCmn_PlaySFX(n + 0x37,(int)c->patch,0x40,dop,vol & 0xff,
+                             azimuth & 0xffff);
       }
     }
   }
@@ -321,147 +265,122 @@ AudioTrk_volume_done:
 /* ---- AudioTrk_SoundTrack__FP8Car_tObji  [@0x8007cdc4] ---- */
 void AudioTrk_SoundTrack(Car_tObj *car,int trkazi)
 {
-  if (GameSetup_gData.commMode != 1) {
-    if (gMasterAmbientLevel != 0) {
-      if (AudioTrk_g != 0) {
-        if (gGameAudioList != 0) {
-          AudioElem *se;
-          int numelems = gGameAudioList->numElements_;
-          int quater = (numelems >> 2) + 1;
-          int gtck = simGlobal.gameTicks >> 3;
-          int vx = AudioClc_gRenderView.translation.x;
-          se = (AudioElem *)(gGameAudioList + 1);
-          int vz = AudioClc_gRenderView.translation.z;
-          coorddef v;
-          int start = ((simGlobal.gameTicks >> 1) % 4) * quater;
-          /* MATCH: retail PRE-SETS the default (end = numelems, `addu fp,a3,zero`
-             at 8007CE94) and only overrides it on the `<=` arm -- the min ternary
-             emits the compare with the operands the other way round. */
-          int end = numelems;
-          if (start + quater <= numelems) {
-            end = start + quater;
+  if (GameSetup_gData.commMode == 1)
+    return;
+  if (gMasterAmbientLevel == 0)
+    return;
+  if (AudioTrk_g != 0)
+    if (gGameAudioList != 0) {
+      AudioElem *se;
+      int numelems = gGameAudioList->numElements_;
+      int quater = (numelems >> 2) + 1;
+      int gtck = simGlobal.gameTicks >> 3;
+      int vx = AudioClc_gRenderView.translation.x;
+      se = (AudioElem *)(gGameAudioList + 1);
+      int vz = AudioClc_gRenderView.translation.z;
+      coorddef v;
+      int start = ((simGlobal.gameTicks >> 1) % 4) * quater;
+      /* MATCH P901: conditional assignment arms keep the native one-statement
+         selection; a bare min expression reverses the retail compare polarity. */
+      int end;
+      (numelems < start + quater) ? (end = numelems) : (end = start + quater);
+      se += start;
+      for (int i = start; i < end; i++) {
+        int tck;
+        int cur;
+        int max;
+        Trk_AnimateInst *anim;
+        int x;
+        int z;
+        int d;
+
+        if ((se->chan != -1) && (AudioTrk_g->chan[se->chan].se != se)) {
+          se->chan = -1;
+        }
+
+        tck = gtck;
+        anim = 0;
+        if ((u_int)((u_char)se->type - 4) < 32) {
+          v.x = v.y = v.z = 0;
+          anim = Anim_gInstanceFromIndex[(u_char)se->type - 4];
+          if (anim != 0) {
+            tck = DrawW_GetAnimationTime(anim);
+            Anim_GetPos(anim,1,tck,&se->cp,&cur,&max);
           }
-          se += start;
-          for (int i = start; i < end; se++, i++) {
-            int tck;
-            int cur;
-            int max;
-            Trk_AnimateInst *anim;
-            int x;
-            int z;
-            int d;
-
-            if ((se->chan != -1) && (AudioTrk_g->chan[se->chan].se != se)) {
-              se->chan = -1;
+        } else {
+          if ((*(u_int *)&se->range & 0xffff0000) != 0)
+            if ((se->nextDelay < gtck) && (se->chan == -1)) {
+              int randtick = ((u_char)se->randomDelay > 1) ? (u_int)random() % (u_char)se->randomDelay : 0;
+              se->nextDelay = (u_char)se->minDelay + tck + randtick;
             }
+        }
 
-            tck = gtck;
-            anim = 0;
-            if ((u_int)((u_char)se->type - 4) < 32) {
-              v.x = v.y = v.z = 0;
-              anim = Anim_gInstanceFromIndex[(u_char)se->type - 4];
-              if (anim != 0) {
-                tck = DrawW_GetAnimationTime(anim);
-                Anim_GetPos(anim,1,tck,&se->cp,&cur,&max);
+        x = (se->cp.x - vx > 0) ? se->cp.x - vx : vx - se->cp.x;
+        z = (se->cp.z - vz > 0) ? se->cp.z - vz : vz - se->cp.z;
+        d = (z < x) ? x + (z >> 2) : z + (x >> 2);
+
+        if ((d < (se->range + 100) * 0x10000) || (se->chan >= 0)) {
+          coorddef *vel = 0;
+          int fade = 128;
+
+          if (((u_int)((u_char)se->type - 4) < 32) && (anim != 0)) {
+            se->nextDelay = (u_char)se->minDelay;
+            int fadeIn = (u_char)se->fadeIn << 3;
+            if (cur < fadeIn) {
+              fade = 0;
+            } else if (cur < fadeIn + 128) {
+              fade = cur - fadeIn;
+            }
+            int fadeOut = (u_char)se->randomDelay << 3;
+            if (fadeOut != 0) {
+              if (fadeOut + 128 < cur) {
+                fade = 0;
+              } else if (fadeOut < cur) {
+                /* MATCH P898: keep the grouped int subtraction without
+                   a non-SYM local. Direct form: FAIL20/358; widened: PASS358.
+                   This arm bounds the result to0..127. The original cast
+                   spelling remains unproved (raw8007D118/11C). */
+                fade = fadeOut - (long long)(cur - 128);
               }
-            } else {
-              if (((*(u_int *)&se->range & 0xffff0000) != 0) &&
-                  (se->nextDelay < gtck) && (se->chan == -1)) {
-                int randtick = 0;
-                if ((u_char)se->randomDelay > 1) {
-                  randtick = (u_int)random() % (u_char)se->randomDelay;
-                }
-                se->nextDelay = (u_char)se->minDelay + tck + randtick;
+            }
+
+            if (fade > 0) {
+              coorddef nextcp;
+              int next = (max - 1 <= tck + 32) ? max - 1 : tck + 32;
+              int time;
+
+              Anim_GetPos(anim,1,next,&nextcp,0,0);
+              time = next - tck;
+              if (time == 32) {
+                v.x = (nextcp.x - se->cp.x) * 2;
+                v.y = (nextcp.y - se->cp.y) * 2;
+                v.z = (nextcp.z - se->cp.z) * 2;
+                vel = &v;
+              } else if (time != 0) {
+                v.x = ((nextcp.x - se->cp.x) * 64) / time;
+                v.y = ((nextcp.y - se->cp.y) * 64) / time;
+                v.z = ((nextcp.z - se->cp.z) * 64) / time;
+                vel = &v;
               }
             }
-
-            x = se->cp.x - vx;
-            if (x <= 0) {
-              x = vx - se->cp.x;
+            if (max > 0) {
+              tck %= max;
             }
-            z = se->cp.z - vz;
-            if (z <= 0) {
-              z = vz - se->cp.z;
-            }
-            if (z < x) {
-              d = x + (z >> 2);
-            } else {
-              d = z + (x >> 2);
-            }
-
-            if ((d < (se->range + 100) * 0x10000) || (se->chan >= 0)) {
-              coorddef *vel = 0;
-              int fade = 128;
-
-              if ((u_int)((u_char)se->type - 4) < 32) {
-                if (anim != 0) {
-                  se->nextDelay = (u_char)se->minDelay;
-                  int fadeIn = (u_char)se->fadeIn << 3;
-                  if (cur < fadeIn) {
-                    fade = 0;
-                  } else if (cur < fadeIn + 128) {
-                    fade = cur - fadeIn;
-                  }
-                  int fadeOut = (u_char)se->randomDelay << 3;
-                  if (fadeOut != 0) {
-                    if (fadeOut + 128 < cur) {
-                      fade = 0;
-                    } else if (fadeOut < cur) {
-                      /* MATCH: a separate temp stops fold reassociating
-                         `fadeOut - (cur-128)` into `(fadeOut+128) - cur` (which reuses
-                         the guard's temp); oracle 8007D118/11C keep `cur-128` distinct. */
-                      /* SYM-CODEGEN-CARRIER: curBack -- this scoped expression
-                         carrier is optimized away, but keeping `cur - 128`
-                         distinct prevents GCC from reassociating the subtract
-                         into `(fadeOut + 128) - cur`, as measured above. */
-                      int curBack = cur - 128;
-                      fade = fadeOut - curBack;
-                    }
-                  }
-
-                  if (fade > 0) {
-                    coorddef nextcp;
-                    int next = max - 1;
-                    int time;
-
-                    if (next > tck + 32) {
-                      next = tck + 32;
-                    }
-                    Anim_GetPos(anim,1,next,&nextcp,0,0);
-                    time = next - tck;
-                    if (time == 32) {
-                      v.x = (nextcp.x - se->cp.x) * 2;
-                      v.y = (nextcp.y - se->cp.y) * 2;
-                      v.z = (nextcp.z - se->cp.z) * 2;
-                      vel = &v;
-                    } else if (time != 0) {
-                      v.x = ((nextcp.x - se->cp.x) * 64) / time;
-                      v.y = ((nextcp.y - se->cp.y) * 64) / time;
-                      v.z = ((nextcp.z - se->cp.z) * 64) / time;
-                      vel = &v;
-                    }
-                  }
-                  if (max > 0) {
-                    tck %= max;
-                  }
-                  tck >>= 3;
-                }
-                if (((u_int)((u_char)se->type - 4) < 32) && (anim == 0)) {
-                  continue;
-                }
-              }
-              AudioTrk_AddCustomObject(se,tck,vel,fade,car,trkazi);
-            }
+            tck >>= 3;
+          }
+          if (((u_int)((u_char)se->type - 4) >= 32) || (anim != 0)) {
+            AudioTrk_AddCustomObject(se,tck,vel,fade,car,trkazi);
           }
         }
+        se++;
       }
     }
-  }
 }
 
 /* ---- AudioTrk_PreLoad__Fv  [@0x8007d35c] ----
- * P897: native se/i/x/z/d ownership is restored. CAudioList's original
- * inline-accessor identity (SYM1bf4f2 this) remains a source-recovery gap. */
+ * P898: native statement groups restored without new helpers or locals.
+ * Native se/i/x/z/d ownership is retained; the original CAudioList inline
+ * accessor identity (SYM1bf4f2 this) remains a source-recovery gap. */
 int AudioTrk_PreLoad(void)
 {
   int vx;
@@ -471,9 +390,10 @@ int AudioTrk_PreLoad(void)
   int check;
   int numelems;
 
-  if ((gGameAudioList == (CAudioList *)0x0) || (gMasterAmbientLevel == 0)) {
+  if (gGameAudioList == (CAudioList *)0x0)
     return 1;
-  }
+  if (gMasterAmbientLevel == 0)
+    return 1;
 
   vx = BWorldSm_slices[0].center[0];
   vz = BWorldSm_slices[0].center[2];
@@ -486,54 +406,41 @@ int AudioTrk_PreLoad(void)
 
     loaded = true;
     se = (AudioElem *)(gGameAudioList + 1);
-    for (int i = 0; i < numelems; se++,i++) {
+    for (int i = 0; i < numelems; i++) {
       int x;
       int z;
       int d;
 
-      x = se->cp.x - vx;
-      if (x <= 0) {
-        x = vx - se->cp.x;
-      }
-      z = se->cp.z - vz;
-      if (z <= 0) {
-        z = vz - se->cp.z;
-      }
-      if (z < x) {
-        d = x + (z >> 2);
-      }
-      else {
-        d = z + (x >> 2);
-      }
-      if ((d < (se->range + 100) * 0x10000) &&
-          ((int)(u_char)se->patchID < CopSpeak_gNumTrackSfx) &&
-          (AudioCmn_GetAsyncSfx(0,(u_int)(u_char)se->patchID,false) == -1)) {
-        loaded = false;
-      }
+      x = (se->cp.x - vx > 0) ? se->cp.x - vx : vx - se->cp.x;
+      z = (se->cp.z - vz > 0) ? se->cp.z - vz : vz - se->cp.z;
+      d = (z < x) ? x + (z >> 2) : z + (x >> 2);
+      if (d < (se->range + 100) * 0x10000)
+        if ((int)(u_char)se->patchID < CopSpeak_gNumTrackSfx)
+          if (AudioCmn_GetAsyncSfx(0,(u_int)(u_char)se->patchID,false) == -1)
+            loaded = false;
+      se++;
     }
     CopSpeak_Server();
     systemtask(0);
   }
-  return gettick() < tick;
+  if (gettick() < tick)
+    return 1;
+  else
+    return 0;
 }
 
 /* ---- AudioTrk_CleanUp__Fv  [@0x8007d52c] ---- */
 void AudioTrk_CleanUp(void)
 {
-  int i;
-
   AudioTrk_Reset();
-  i = 0;
   if (AudioTrk_g != (AudioTrk_tGlobals *)0x0) {
-    do {
+    for (int i = 0; i < 0x10; i++) {
       if (AudioTrk_g->chan[i].handle != -1) {
         freeVoiceChannel(i + 0x37);
         AudioTrk_g->chan[i].handle = -1;
       }
-      i = i + 1;
-    } while (i < 0x10);
+    }
     purgememadr(AudioTrk_g);
     AudioTrk_g = (AudioTrk_tGlobals *)0x0;
   }
-  return;
 }

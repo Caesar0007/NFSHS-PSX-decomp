@@ -1,0 +1,47 @@
+{
+  "passed": true,
+  "candidate_source_sha256": "3269d0863cca0b662327b925d98d5104f5eab570dfcb89b70a482f9b7a823002",
+  "normal_object_sha256": "1617d9ddfe2c11f870e207bcb3e299d6a878541a1db6289e9372f1f72d095102",
+  "normal_object_literal_identical": true,
+  "gates": "48/48",
+  "branches": 513,
+  "removed_names": [
+    "currentGas",
+    "previousGas",
+    "gasDelta",
+    "rampedGas"
+  ],
+  "removed_empty_fences": 2,
+  "remaining_empty_fences": 3,
+  "removed_source_labels": [
+    "SoundCar_getWetNoise",
+    "SoundCar_haveWetNoise"
+  ],
+  "native_ordinary_owner_records_exact": 18,
+  "native_static_owner_exact": {
+    "name": "cobbleCount",
+    "record": "192fe4",
+    "source_declaration": ".def\tcobbleCount;\t.val\tcobbleCount.66;\t.scl\t3;\t.type\t0x2;\t.endef",
+    "owner": [
+      2147977404,
+      2147979476,
+      0
+    ],
+    "native_VA": "0x8013C6B0",
+    "initial_byte": 0
+  },
+  "SLD_before": [
+    37,
+    319
+  ],
+  "SLD_after": [
+    37,
+    261
+  ],
+  "raw_words": 530,
+  "raw_reference_words": 70,
+  "jump_table_words": 12,
+  "whole_linked_image_proven": false,
+  "existing_rodata_fragment_offset_debt": 4,
+  "production_modified_by_peer": false
+}

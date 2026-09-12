@@ -7,14 +7,18 @@
 #include "eac_types.h"
 #include "callback.h"
 
-short mutexbuf[32 * 2];   /* short[32*2] : 32 mutex slots (4 bytes each, first word = taken flag) */
+/* P903 integration: freemutex clears a full word at each four-byte slot.
+ * Preserve the former object's four-byte base alignment with C storage.
+ * The explicit BSS section is needed: aligned(4) alone on COMMON was ignored
+ * by this compiler/assembler route. No executable assembly is introduced. */
+short mutexbuf[32 * 2] __attribute__((section(".bss"), aligned(4)));
 /* W65-A6 DATA-MAT: `mutexbuf` was extern-only tree-wide (4 reloc-referenced undefined sites);
  * callback.obj is its sole referencer.  Retail: .bss @0x801477E0, size 128 (= sndgs
  * @0x80147860 - 0x801477E0) -- exactly the short[32*2] the decl documents.  VA >
- * t_addr+t_size (0x8013E000) => pure zero-init BSS.  DEVICE = file-scope asm .bss definition,
- * keeping the UNSIZED `extern short mutexbuf[]` the loop's index form depends on.
- * Receipts: scratchpad/w65a6/RECEIPTS.md */
-//__asm__("\t.globl\tmutexbuf\n\t.section\t.bss\n\t.align\t2\nmutexbuf:\n\t.space\t128\n\t.text");
+ * t_addr+t_size (0x8013E000) => pure zero-init BSS. P903 keeps that128-byte object
+ * and alignment in ordinary C, replacing the old assembly reservation. Native
+ * final placement is still a separate linker obligation. Historical receipt:
+ * scratchpad/w65a6/RECEIPTS.md. */
 
 /* allocmutex @0x800FE424 : claim the first free mutex slot (mark taken); returns its pointer. */
 short *allocmutex(void)
@@ -28,9 +32,9 @@ short *allocmutex(void)
      * last one in body order, so the second is derived with a +0 `move` and the walking giv
      * is advanced FROM the anchor (`addiu a1,a0,4`).  A pointer-walk spelling (cur/next
      * locals) cannot reach it: copy-prop collapses the pair (22 insns) or peels the copy out
-     * of the loop (24).  The `extern short mutexbuf[]` UNSIZED-ARRAY decl supplies the
-     * preheader's two-register address materialization (`lui v0` + `addiu a1,v0`); with a
-     * sized/scalar decl gcc folds it into one register. */
+     * of the loop (24). The earlier unsized extern supplied the needed address
+     * materialization. P903 rechecks the current complete64-short C definition:
+     * it retains the exact23-word allocator and both entry points. */
     int i;
     for(i = 0; i < 0x20; i++) {
         if (mutexbuf[i * 2] == 0) {

@@ -1,0 +1,706 @@
+{
+  "read_only": true,
+  "rom_sha256": "5da87a73caeec568ed60806f23e1e5276e3e3c699627442a519b2915789ec49b",
+  "native_map_sha256": "e1ca7c3ab69c44939a04c287f0f603e95fe29d56ea27697a1fa3c4920c4f52de",
+  "premerge_linked_map_sha256": "920377c534e5d5612a4cb7112bd708e387d36aab98608d0f4748dd06b36bcfe0",
+  "primate": {
+    "raw_words": 81,
+    "gp_reference_count": 25,
+    "changed_word_count": 22,
+    "instruction_indices_changed": [
+      4,
+      7,
+      8,
+      16,
+      17,
+      25,
+      27,
+      28,
+      33,
+      39,
+      40,
+      42,
+      45,
+      46,
+      47,
+      52,
+      53,
+      54,
+      55,
+      56,
+      59,
+      65
+    ],
+    "references": [
+      {
+        "instruction_index": 4,
+        "va": "800F0604",
+        "name": "otbuf",
+        "before_addend": 8,
+        "after_addend": 12,
+        "native_address": "8013DD04",
+        "native_name_authority": "NFS4.MAP",
+        "relocation_target": ".sbss section; LOCAL storage, not external same-name global"
+      },
+      {
+        "instruction_index": 7,
+        "va": "800F0610",
+        "name": "maxot",
+        "before_addend": 0,
+        "after_addend": 4,
+        "native_address": "8013DE7C",
+        "native_name_authority": "NFS4.MAP",
+        "relocation_target": ".sbss section; LOCAL storage, not external same-name global"
+      },
+      {
+        "instruction_index": 8,
+        "va": "800F0614",
+        "name": "maxprim",
+        "before_addend": 4,
+        "after_addend": 8,
+        "native_address": "8013DE8C",
+        "native_name_authority": "NFS4.MAP",
+        "relocation_target": ".sbss section; LOCAL storage, not external same-name global"
+      },
+      {
+        "instruction_index": 16,
+        "va": "800F0634",
+        "name": "maxprim",
+        "before_addend": 4,
+        "after_addend": 8,
+        "native_address": "8013DE8C",
+        "native_name_authority": "NFS4.MAP",
+        "relocation_target": ".sbss section; LOCAL storage, not external same-name global"
+      },
+      {
+        "instruction_index": 17,
+        "va": "800F0638",
+        "name": "maxot",
+        "before_addend": 0,
+        "after_addend": 4,
+        "native_address": "8013DE7C",
+        "native_name_authority": "NFS4.MAP",
+        "relocation_target": ".sbss section; LOCAL storage, not external same-name global"
+      },
+      {
+        "instruction_index": 25,
+        "va": "800F0658",
+        "name": "maxot",
+        "before_addend": 0,
+        "after_addend": 4,
+        "native_address": "8013DE7C",
+        "native_name_authority": "NFS4.MAP",
+        "relocation_target": ".sbss section; LOCAL storage, not external same-name global"
+      },
+      {
+        "instruction_index": 27,
+        "va": "800F0660",
+        "name": "otbuf",
+        "before_addend": 8,
+        "after_addend": 12,
+        "native_address": "8013DD04",
+        "native_name_authority": "NFS4.MAP",
+        "relocation_target": ".sbss section; LOCAL storage, not external same-name global"
+      },
+      {
+        "instruction_index": 28,
+        "va": "800F0664",
+        "name": "otbl",
+        "before_addend": 12,
+        "after_addend": 16,
+        "native_address": "8013DE70",
+        "native_name_authority": "NFS4.MAP",
+        "relocation_target": ".sbss section; LOCAL storage, not external same-name global"
+      },
+      {
+        "instruction_index": 33,
+        "va": "800F0678",
+        "name": "otbl2",
+        "before_addend": 16,
+        "after_addend": 20,
+        "native_address": "8013DE74",
+        "native_name_authority": "raw address only; carrier name unproved",
+        "relocation_target": ".sbss section; LOCAL storage, not external same-name global"
+      },
+      {
+        "instruction_index": 39,
+        "va": "800F0690",
+        "name": "primbuf",
+        "before_addend": 20,
+        "after_addend": 24,
+        "native_address": "8013DD08",
+        "native_name_authority": "NFS4.MAP",
+        "relocation_target": ".sbss section; LOCAL storage, not external same-name global"
+      },
+      {
+        "instruction_index": 40,
+        "va": "800F0694",
+        "name": "primbase",
+        "before_addend": 24,
+        "after_addend": 28,
+        "native_address": "8013DE84",
+        "native_name_authority": "NFS4.MAP",
+        "relocation_target": ".sbss section; LOCAL storage, not external same-name global"
+      },
+      {
+        "instruction_index": 42,
+        "va": "800F069C",
+        "name": "primbuf2",
+        "before_addend": 28,
+        "after_addend": 32,
+        "native_address": "8013DE88",
+        "native_name_authority": "raw address only; carrier name unproved",
+        "relocation_target": ".sbss section; LOCAL storage, not external same-name global"
+      },
+      {
+        "instruction_index": 45,
+        "va": "800F06A8",
+        "name": "otbuf",
+        "before_addend": 8,
+        "after_addend": 12,
+        "native_address": "8013DD04",
+        "native_name_authority": "NFS4.MAP",
+        "relocation_target": ".sbss section; LOCAL storage, not external same-name global"
+      },
+      {
+        "instruction_index": 46,
+        "va": "800F06AC",
+        "name": "primbuf",
+        "before_addend": 20,
+        "after_addend": 24,
+        "native_address": "8013DD08",
+        "native_name_authority": "NFS4.MAP",
+        "relocation_target": ".sbss section; LOCAL storage, not external same-name global"
+      },
+      {
+        "instruction_index": 47,
+        "va": "800F06B0",
+        "name": "otbl",
+        "before_addend": 12,
+        "after_addend": 16,
+        "native_address": "8013DE70",
+        "native_name_authority": "NFS4.MAP",
+        "relocation_target": ".sbss section; LOCAL storage, not external same-name global"
+      },
+      {
+        "instruction_index": 49,
+        "va": "800F06B8",
+        "name": "linkmodeflag",
+        "before_addend": 52,
+        "after_addend": 52,
+        "native_address": "8013DD0C",
+        "native_name_authority": "NFS4.MAP",
+        "relocation_target": ".sbss section; LOCAL storage, not external same-name global"
+      },
+      {
+        "instruction_index": 52,
+        "va": "800F06C4",
+        "name": "oti",
+        "before_addend": 40,
+        "after_addend": 44,
+        "native_address": "8013DE68",
+        "native_name_authority": "NFS4.MAP",
+        "relocation_target": ".sbss section; LOCAL storage, not external same-name global"
+      },
+      {
+        "instruction_index": 53,
+        "va": "800F06C8",
+        "name": "otp",
+        "before_addend": 44,
+        "after_addend": 48,
+        "native_address": "8013DE6C",
+        "native_name_authority": "NFS4.MAP",
+        "relocation_target": ".sbss section; LOCAL storage, not external same-name global"
+      },
+      {
+        "instruction_index": 54,
+        "va": "800F06CC",
+        "name": "drawpending",
+        "before_addend": 48,
+        "after_addend": 0,
+        "native_address": "8013DD10",
+        "native_name_authority": "NFS4.MAP",
+        "relocation_target": ".sbss section; LOCAL storage, not external same-name global"
+      },
+      {
+        "instruction_index": 55,
+        "va": "800F06D0",
+        "name": "primptr",
+        "before_addend": 32,
+        "after_addend": 36,
+        "native_address": "8013DE80",
+        "native_name_authority": "NFS4.MAP",
+        "relocation_target": ".sbss section; LOCAL storage, not external same-name global"
+      },
+      {
+        "instruction_index": 56,
+        "va": "800F06D4",
+        "name": "nextprim",
+        "before_addend": 36,
+        "after_addend": 40,
+        "native_address": "8013DE78",
+        "native_name_authority": "NFS4.MAP",
+        "relocation_target": ".sbss section; LOCAL storage, not external same-name global"
+      },
+      {
+        "instruction_index": 59,
+        "va": "800F06E0",
+        "name": "drawpending",
+        "before_addend": 48,
+        "after_addend": 0,
+        "native_address": "8013DD10",
+        "native_name_authority": "NFS4.MAP",
+        "relocation_target": ".sbss section; LOCAL storage, not external same-name global"
+      },
+      {
+        "instruction_index": 65,
+        "va": "800F06F8",
+        "name": "drawpending",
+        "before_addend": 48,
+        "after_addend": 0,
+        "native_address": "8013DD10",
+        "native_name_authority": "NFS4.MAP",
+        "relocation_target": ".sbss section; LOCAL storage, not external same-name global"
+      },
+      {
+        "instruction_index": 77,
+        "va": "800F0728",
+        "name": "semitrans",
+        "before_addend": 56,
+        "after_addend": 56,
+        "native_address": "8013DD14",
+        "native_name_authority": "NFS4.MAP",
+        "relocation_target": ".sbss section; LOCAL storage, not external same-name global"
+      },
+      {
+        "instruction_index": 78,
+        "va": "800F072C",
+        "name": "semitrans",
+        "before_addend": 56,
+        "after_addend": 56,
+        "native_address": "8013DD14",
+        "native_name_authority": "NFS4.MAP",
+        "relocation_target": ".sbss section; LOCAL storage, not external same-name global"
+      }
+    ],
+    "local_storage_cells": [
+      {
+        "name": "maxot",
+        "before_offset": 0,
+        "after_offset": 4,
+        "premerge_linked_local_address": "8013ED70",
+        "hypothetical_after_same_section_base": "8013ED74",
+        "native_address": "8013DE7C"
+      },
+      {
+        "name": "maxprim",
+        "before_offset": 4,
+        "after_offset": 8,
+        "premerge_linked_local_address": "8013ED74",
+        "hypothetical_after_same_section_base": "8013ED78",
+        "native_address": "8013DE8C"
+      },
+      {
+        "name": "otbuf",
+        "before_offset": 8,
+        "after_offset": 12,
+        "premerge_linked_local_address": "8013ED78",
+        "hypothetical_after_same_section_base": "8013ED7C",
+        "native_address": "8013DD04"
+      },
+      {
+        "name": "otbl",
+        "before_offset": 12,
+        "after_offset": 16,
+        "premerge_linked_local_address": "8013ED7C",
+        "hypothetical_after_same_section_base": "8013ED80",
+        "native_address": "8013DE70"
+      },
+      {
+        "name": "otbl2",
+        "before_offset": 16,
+        "after_offset": 20,
+        "premerge_linked_local_address": "8013ED80",
+        "hypothetical_after_same_section_base": "8013ED84",
+        "native_address": null
+      },
+      {
+        "name": "primbuf",
+        "before_offset": 20,
+        "after_offset": 24,
+        "premerge_linked_local_address": "8013ED84",
+        "hypothetical_after_same_section_base": "8013ED88",
+        "native_address": "8013DD08"
+      },
+      {
+        "name": "primbase",
+        "before_offset": 24,
+        "after_offset": 28,
+        "premerge_linked_local_address": "8013ED88",
+        "hypothetical_after_same_section_base": "8013ED8C",
+        "native_address": "8013DE84"
+      },
+      {
+        "name": "primbuf2",
+        "before_offset": 28,
+        "after_offset": 32,
+        "premerge_linked_local_address": "8013ED8C",
+        "hypothetical_after_same_section_base": "8013ED90",
+        "native_address": null
+      },
+      {
+        "name": "primptr",
+        "before_offset": 32,
+        "after_offset": 36,
+        "premerge_linked_local_address": "8013ED90",
+        "hypothetical_after_same_section_base": "8013ED94",
+        "native_address": "8013DE80"
+      },
+      {
+        "name": "nextprim",
+        "before_offset": 36,
+        "after_offset": 40,
+        "premerge_linked_local_address": "8013ED94",
+        "hypothetical_after_same_section_base": "8013ED98",
+        "native_address": "8013DE78"
+      },
+      {
+        "name": "oti",
+        "before_offset": 40,
+        "after_offset": 44,
+        "premerge_linked_local_address": "8013ED98",
+        "hypothetical_after_same_section_base": "8013ED9C",
+        "native_address": "8013DE68"
+      },
+      {
+        "name": "otp",
+        "before_offset": 44,
+        "after_offset": 48,
+        "premerge_linked_local_address": "8013ED9C",
+        "hypothetical_after_same_section_base": "8013EDA0",
+        "native_address": "8013DE6C"
+      },
+      {
+        "name": "drawpending",
+        "before_offset": 48,
+        "after_offset": 0,
+        "premerge_linked_local_address": "8013EDA0",
+        "hypothetical_after_same_section_base": "8013ED70",
+        "native_address": "8013DD10"
+      },
+      {
+        "name": "linkmodeflag",
+        "before_offset": 52,
+        "after_offset": 52,
+        "premerge_linked_local_address": "8013EDA4",
+        "hypothetical_after_same_section_base": "8013EDA4",
+        "native_address": "8013DD0C"
+      },
+      {
+        "name": "semitrans",
+        "before_offset": 56,
+        "after_offset": 56,
+        "premerge_linked_local_address": "8013EDA8",
+        "hypothetical_after_same_section_base": "8013EDA8",
+        "native_address": "8013DD14"
+      }
+    ],
+    "native_partition": "otbuf/primbuf/linkmodeflag/drawpending/semitrans: .sdata 8013DD04..8013DD14; others .sbss 8013DE68..8013DE8C",
+    "existing_link_debt": "primate LOCAL .sbss cells are different allocations from native-address raw GLOBAL copies; vramfxya external drawpending binds the raw global",
+    "warning": "Name-to-native resolution proves intended names/addends, NOT the actual current linker bindings. Incoming reorder is a real linked-code/storage change unless restored or fully source-owned layout is repaired."
+  },
+  "callback": {
+    "changed_payloads": {
+      ".bss": [
+        [
+          8,
+          3,
+          0,
+          128,
+          0,
+          0,
+          4,
+          0,
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        ],
+        [
+          8,
+          3,
+          0,
+          128,
+          0,
+          0,
+          1,
+          0,
+          "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        ]
+      ]
+    },
+    "native_address": "801477E0",
+    "native_extent": 128,
+    "same_code_symbol_entities_resolved_relocations": true,
+    "symbol_order_before": [
+      [
+        "",
+        0,
+        0,
+        0,
+        0,
+        ""
+      ],
+      [
+        ".text",
+        0,
+        0,
+        3,
+        0,
+        ".text"
+      ],
+      [
+        ".data",
+        0,
+        0,
+        3,
+        0,
+        ".data"
+      ],
+      [
+        ".bss",
+        0,
+        0,
+        3,
+        0,
+        ".bss"
+      ],
+      [
+        ".reginfo",
+        0,
+        0,
+        3,
+        0,
+        ".reginfo"
+      ],
+      [
+        ".MIPS.abiflags",
+        0,
+        0,
+        3,
+        0,
+        ".MIPS.abiflags"
+      ],
+      [
+        ".pdr",
+        0,
+        0,
+        3,
+        0,
+        ".pdr"
+      ],
+      [
+        ".gnu.attributes",
+        0,
+        0,
+        3,
+        0,
+        ".gnu.attributes"
+      ],
+      [
+        "C:\\Temp\\nfs4-decomp\\recon\\eaclib\\psx\\eacpsxz\\callback.c",
+        0,
+        0,
+        4,
+        0,
+        65521
+      ],
+      [
+        "gcc2_compiled.",
+        0,
+        0,
+        0,
+        0,
+        ".text"
+      ],
+      [
+        "__gnu_compiled_c",
+        0,
+        0,
+        0,
+        0,
+        ".text"
+      ],
+      [
+        "mutexbuf",
+        0,
+        0,
+        16,
+        0,
+        ".bss"
+      ],
+      [
+        "allocmutex",
+        0,
+        92,
+        18,
+        0,
+        ".text"
+      ],
+      [
+        "freemutex",
+        92,
+        8,
+        18,
+        0,
+        ".text"
+      ],
+      [
+        "LM1",
+        92,
+        0,
+        0,
+        0,
+        ".text"
+      ],
+      [
+        "LM2",
+        100,
+        0,
+        0,
+        0,
+        ".text"
+      ]
+    ],
+    "symbol_order_after": [
+      [
+        "",
+        0,
+        0,
+        0,
+        0,
+        ""
+      ],
+      [
+        ".text",
+        0,
+        0,
+        3,
+        0,
+        ".text"
+      ],
+      [
+        ".data",
+        0,
+        0,
+        3,
+        0,
+        ".data"
+      ],
+      [
+        ".bss",
+        0,
+        0,
+        3,
+        0,
+        ".bss"
+      ],
+      [
+        ".reginfo",
+        0,
+        0,
+        3,
+        0,
+        ".reginfo"
+      ],
+      [
+        ".MIPS.abiflags",
+        0,
+        0,
+        3,
+        0,
+        ".MIPS.abiflags"
+      ],
+      [
+        ".pdr",
+        0,
+        0,
+        3,
+        0,
+        ".pdr"
+      ],
+      [
+        ".gnu.attributes",
+        0,
+        0,
+        3,
+        0,
+        ".gnu.attributes"
+      ],
+      [
+        "C:\\Temp\\nfs4-decomp\\recon\\eaclib\\psx\\eacpsxz\\callback.c",
+        0,
+        0,
+        4,
+        0,
+        65521
+      ],
+      [
+        "gcc2_compiled.",
+        0,
+        0,
+        0,
+        0,
+        ".text"
+      ],
+      [
+        "__gnu_compiled_c",
+        0,
+        0,
+        0,
+        0,
+        ".text"
+      ],
+      [
+        "allocmutex",
+        0,
+        92,
+        18,
+        0,
+        ".text"
+      ],
+      [
+        "freemutex",
+        92,
+        8,
+        18,
+        0,
+        ".text"
+      ],
+      [
+        "mutexbuf",
+        0,
+        0,
+        16,
+        0,
+        ".bss"
+      ],
+      [
+        "LM1",
+        92,
+        0,
+        0,
+        0,
+        ".text"
+      ],
+      [
+        "LM2",
+        100,
+        0,
+        0,
+        0,
+        ".text"
+      ]
+    ],
+    "symbol_order_delta": "mutexbuf moves from before allocmutex/freemutex to after them; exact entities preserved",
+    "current_linker_subalign4": true,
+    "warning": "Current gen_ld .bss SUBALIGN(4) neutralizes input alignment loss for this link. Input object no longer independently carries its prior 4-byte alignment guarantee; native address placement was already debt."
+  }
+}

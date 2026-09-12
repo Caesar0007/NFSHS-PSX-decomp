@@ -13,7 +13,6 @@
  */
 #include "../eaclib_types.h"
 #include "eac_types.h"
-#include "primate.h"
 #include "memstd.h"
 
 // FIXME
@@ -42,6 +41,12 @@ extern int  DrawSync(int mode);                                /* PsyQ libgpu */
  int drawpending;   /* @0x8013DD10: owning-TU tentative def → .comm/.sbss → gp-rel */
  int linkmodeflag;  /* @0x8013DD0C: owning-TU tentative def → .comm/.sbss → gp-rel */
  int semitrans;     /* @0x8013DD14: owning-TU tentative def → .comm/.sbss → gp-rel */
+
+/* P903 integration: GCC orders tentative storage by first declaration. Keep
+ * the owner header after these definitions so its drawpending extern does not
+ * move thirteen local SBSS cells and change twenty-two GP addends. This keeps
+ * the prior object layout; native scattered-global ownership is still open. */
+#include "primate.h"
 
 void *initlinkmode(void *unused, int maxprimArg, int linkmode)   /* @0x800F05F4 */
 {

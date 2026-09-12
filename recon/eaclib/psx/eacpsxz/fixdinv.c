@@ -72,4 +72,6 @@ unsigned fixedinverse(int x)   /* @0x800ED3EC : host fallback (rounded reciproca
         q += 1;
     return (unsigned)(((int)q ^ sign) - sign);     /* re-apply sign */
 }
+/* P903 integration: preserve the declared co-equal host entry. */
+extern unsigned rinverse(int x) __attribute__((alias("fixedinverse")));
 #endif

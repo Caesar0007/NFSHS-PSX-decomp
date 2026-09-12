@@ -52,32 +52,28 @@ void AudioMus_RefreshStatus(void)
   return;
 }
 
-/* ---- AudioMus_Threshold__Fv  [@0x80079f58] ---- */
+/* ---- AudioMus_Threshold__Fv  [@0x80079f58] ----
+ * P901: native SYM has no locals or source labels. Separate early-return
+ * statements reproduce its SLD148..159 partition and single empty scope,
+ * without the unrecorded music pointer or reconstructed goto labels.
+ * Combining the final guards changes return branches (4 diffs); combining
+ * only the first two guards preserves code but merges16 native line pairs.
+ * This form preserves all33 words and every branch target. */
 int AudioMus_Threshold(void)
 {
-  /* SYM-CODEGEN-CARRIER: music -- repeating AudioMus_g directly compiles to
-   * 35 instructions and four oracle diffs.  This cached pointer produces the
-   * retail 33-instruction $a0 lifetime and backward threshold-return branch. */
-  AudioMus_tMusicGlobals *music = AudioMus_g;
-
-  if (music == (AudioMus_tMusicGlobals *)0x0) goto return_zero;
-  if (music->bigfileheader != (char *)0x0) goto valid_header;
-
-return_zero:
-  return 0;
-
-valid_header:
-  if (music->errorcode != 0) goto return_zero;
-  if (music->switchsong != 2) goto check_buffer;
-
-return_threshold:
-  return music->threshold;
-
-check_buffer:
-  if ((music->streamstatus).outstandingrequests == 0) goto return_zero;
-  if ((music->requeststatus).timetoend >
-      (music->requeststatus).timebuffered) goto return_threshold;
-  return 0;
+  if (AudioMus_g == 0)
+    return 0;
+  if (AudioMus_g->bigfileheader == 0)
+    return 0;
+  if (AudioMus_g->errorcode != 0)
+    return 0;
+  if (AudioMus_g->switchsong == 2)
+    return AudioMus_g->threshold;
+  if (AudioMus_g->streamstatus.outstandingrequests == 0)
+    return 0;
+  if (AudioMus_g->requeststatus.timetoend <= AudioMus_g->requeststatus.timebuffered)
+    return 0;
+  return AudioMus_g->threshold;
 }
 
 /* ---- AudioMus_Buffered__Fv  [@0x80079fdc] ---- */
@@ -306,38 +302,35 @@ void AudioMus_SetCurrentSongInfo(void)
  * and final remainder in v0. */
 int AudioMus_Server(int mode,int ticks)
 {
-  /* The optimized SYM has no ordinary local rows, so the original spellings
-     of these three source values are not recoverable.
-     SYM-CODEGEN-CARRIER: randomRange -- direct `availablesongs - 1` remains
-       300/300 but moves the addiu into the first GetRCnt jal slot (4 diffs).
-     SYM-CODEGEN-CARRIER: switchMode -- the reused value 2 must occupy $s0;
-       spelling both uses as literals stays count-exact but costs 16 diffs.
-     SYM-CODEGEN-CARRIER: randomMusic -- caching the store receiver emits the
-       retail `$s3 = AudioMus_g` before the call; a direct receiver moves that
-       copy into the jal delay slot (4 diffs). */
-  int randomRange;
-  int switchMode;
-  AudioMus_tMusicGlobals *randomMusic;
+  /* P902: native SYM has no ordinary locals. Removing randomRange and
+   * randomMusic TOGETHER recovers the single native random-song expression
+   * with identical code; their former isolated four-diff failures did not
+   * prove separate source objects were required. Structured conditionals
+   * also remove five reconstruction labels; native SLD39/170 becomes39/29.
+   * The positive default-state guard also removes switchMode: it preserves
+   * the CSE path carrying the anonymous constant2 in s0 across the queue call.
+   * The literal/ordinary-switch form alone was300words/16diffs. No ordinary
+   * local remains. The existing done label and residual SLD groups still need
+   * source recovery; no new alias or codegen device is introduced. */
 
   if (AudioMus_g->bigfileheader == (char *)0x0) goto done;
-  if (AudioMus_g->bigfilename[0] == '.') goto normal_server;
-  if (CdDiskReady(1) != 0x10) goto normal_server;
+  if ((AudioMus_g->bigfilename[0] != '.') && (CdDiskReady(1) == 0x10)) {
+    if (AudioMus_g->errorcode != 0) return 0;
+    AudioMus_g->errorcode = -2;
+    AudioMus_g->newswitch = 1;
+    if (AudioMus_g->requestsong < 0) goto done;
+    SNDSTRM_autovol(AudioMus_g->streamhandle,AudioMus_Buffered(),0);
+    return 0;
+  }
 
-  if (AudioMus_g->errorcode != 0) return 0;
-  AudioMus_g->errorcode = -2;
-  AudioMus_g->newswitch = 1;
-  if (AudioMus_g->requestsong < 0) goto done;
-  SNDSTRM_autovol(AudioMus_g->streamhandle,AudioMus_Buffered(),0);
-  return 0;
-
-normal_server:
   if (AudioMus_g->errorcode == -2) {
     if (CdDiskReady(1) != 2) return 0;
     AudioMus_g->errorcode = -5;
     if (AudioMus_g->requestsong < 0) goto done;
     AudioMus_g->newswitch = 1;
     AudioMus_g->switchsong = 2;
-    goto update_failby;
+    AudioMus_g->failby = gettick() + 0x280;
+    goto done;
   }
 
   AudioMus_RefreshStatus();
@@ -358,73 +351,61 @@ normal_server:
     }
   }
 
-  switchMode = 2;
-  if (AudioMus_g->switchsong == 0) goto switchsong_zero;
-  if (AudioMus_g->switchsong != switchMode) goto switchsong_default;
+  if (AudioMus_g->switchsong != 0) {
+    if (AudioMus_g->switchsong == 2) {
+      if (AudioMus_g->streambuffer == (char *)0x0) {
+        AudioMus_Fail(-4);
+        return 0;
+      }
+      if (AudioMus_g->streamhandle < 0) {
+        AudioMus_Fail(-3);
+        return 0;
+      }
+      if (AudioMus_g->streamstatus.outstandingrequests == 0) return 0;
+      if (AudioMus_g->requeststatus.timebuffered <= AudioMus_g->threshold) goto done;
+      if (AudioMus_g->errorcode == -5) {
+        AudioMus_g->errorcode = 0;
+        SNDSTRM_autovol(AudioMus_g->streamhandle,2000,AudioMus_g->volume);
+      } else {
+        AudioMus_SetCurrentSongInfo();
+        SNDSTRM_autovol(AudioMus_g->streamhandle,2000,AudioMus_g->volume);
+      }
+      AudioMus_g->switchsong = 0;
+    } else if ((AudioMus_g->streamstatus.outstandingrequests == 0) ||
+               (SNDSTRM_getvol(AudioMus_g->streamhandle) == 0)) {
+      if (AudioMus_g->streamhandle >= 0) {
+        SNDSTRM_purge(AudioMus_g->streamhandle);
+      }
+      AudioMus_g->songname = (char *)0x0;
+      if (AudioMus_g->switchsong == 1) {
+        AudioMus_g->fadetime = 0;
+        AudioMus_QueueRequestedSong();
+        AudioMus_g->switchsong = 2;
 
-  if (AudioMus_g->streambuffer == (char *)0x0) {
-    AudioMus_Fail(-4);
-    return 0;
-  }
-  if (AudioMus_g->streamhandle < 0) {
-    AudioMus_Fail(-3);
-    return 0;
-  }
-  if (AudioMus_g->streamstatus.outstandingrequests == 0) return 0;
-  if (AudioMus_g->requeststatus.timebuffered <= AudioMus_g->threshold) goto done;
-  if (AudioMus_g->errorcode == -5) {
-    AudioMus_g->errorcode = 0;
-    SNDSTRM_autovol(AudioMus_g->streamhandle,2000,AudioMus_g->volume);
-  } else {
-    AudioMus_SetCurrentSongInfo();
-    SNDSTRM_autovol(AudioMus_g->streamhandle,2000,AudioMus_g->volume);
-  }
-  AudioMus_g->switchsong = 0;
-  goto done;
-
-switchsong_default:
-  if (AudioMus_g->streamstatus.outstandingrequests != 0) {
-    if (SNDSTRM_getvol(AudioMus_g->streamhandle) != 0) return 0;
-  }
-  if (AudioMus_g->streamhandle >= 0) {
-    SNDSTRM_purge(AudioMus_g->streamhandle);
-  }
-  AudioMus_g->songname = (char *)0x0;
-  if (AudioMus_g->switchsong != 1) {
-    goto clear_switchsong;
-  }
-  AudioMus_g->fadetime = 0;
-  AudioMus_QueueRequestedSong();
-  AudioMus_g->switchsong = switchMode;
-
-update_failby:
-  AudioMus_g->failby = gettick() + 0x280;
-  goto done;
-
-clear_switchsong:
-  AudioMus_g->switchsong = 0;
-  goto done;
-
-switchsong_zero:
-  if (AudioMus_g->streamstatus.outstandingrequests != 0) return 0;
-  if (AudioMus_g->requestsong < 0) goto done;
-  if (AudioMus_g->availablesongs > 1) {
-    if (AudioMus_g->randomize != 0) {
-      randomMusic = AudioMus_g;
-      randomRange = AudioMus_g->availablesongs - 1;
-      randomMusic->requestsong =
-          (AudioMus_g->requestsong + 1 +
-           (GetRCnt(0) > 0 ? GetRCnt(0) : -GetRCnt(0)) % randomRange) %
-          AudioMus_g->availablesongs;
-    } else {
-      AudioMus_g->requestsong =
-          (AudioMus_g->requestsong + 1) % AudioMus_g->availablesongs;
+        AudioMus_g->failby = gettick() + 0x280;
+      } else {
+        AudioMus_g->switchsong = 0;
+      }
     }
+  } else {
+    if ((AudioMus_g->streamstatus.outstandingrequests != 0) ||
+        (AudioMus_g->requestsong < 0)) return 0;
+    if (AudioMus_g->availablesongs > 1) {
+      if (AudioMus_g->randomize != 0) {
+        AudioMus_g->requestsong =
+            (AudioMus_g->requestsong + 1 +
+            (GetRCnt(0) > 0 ? GetRCnt(0) : -GetRCnt(0)) % (AudioMus_g->availablesongs - 1)) %
+            AudioMus_g->availablesongs;
+      } else {
+        AudioMus_g->requestsong =
+            (AudioMus_g->requestsong + 1) % AudioMus_g->availablesongs;
+      }
+    }
+    SNDSTRM_vol(AudioMus_g->streamhandle,0);
+    AudioMus_QueueRequestedSong();
+    AudioMus_g->newswitch = 1;
+    AudioMus_g->firstswitch = 1;
   }
-  SNDSTRM_vol(AudioMus_g->streamhandle,0);
-  AudioMus_QueueRequestedSong();
-  AudioMus_g->newswitch = 1;
-  AudioMus_g->firstswitch = 1;
 
 done:
   return 0;
@@ -703,6 +684,12 @@ void AudioMus_BuildPattern(char *pattern)
 }
 
 /* ---- AudioMus_PlaySong__FPc  [@0x8007b030] ---- */
+/* P903: only native pattern/title/newsong remain; all nine native scopes and
+ * SLD statement groups match. Initialize newsong after randomize and use the
+ * actual availablesongs field as the pattern-arm divisor to retain the single
+ * modulo join without a pick local or fence. Repeated GetRCnt calls are real.
+ * Direct divisor-newsong form is 171 words/15 diffs; the paired form is160/PASS.
+ * Original macro/token spellings are not uniquely established by these checks. */
 int AudioMus_PlaySong(char *pattern)
 {
   if (AudioMus_g != (AudioMus_tMusicGlobals *)0x0) {
@@ -715,77 +702,52 @@ int AudioMus_PlaySong(char *pattern)
       }
     }
 
-    if (AudioMus_g->volume != 0) {
-      if (AudioMus_g->availablesongs != 0) {
-        int newsong;
-        newsong = AudioMus_g->availablesongs;
-        AudioMus_g->randomize = 1;
-        if (newsong == 1) {
-          newsong = 0;
-        }
-        else if (pattern != (char *)0x0) {
-          /* MATCH (W55-A10, sealed 160/160 PASS; was 15 diffs @171 insns).
-             TWO cooperating facts, both about THIS arm only:
-             (1) COUNT.  `newsong = <ternary> % newsong;` written inline makes RTL expand the
-                 divmod INSIDE BOTH ternary arms; here (unlike the else-arm, whose two copies
-                 have long identical tails and cross-jump back together) the copies do NOT
-                 merge -> a whole spare 11-insn div+guard block (171 vs 160).  Naming the
-                 modulo RESULT (`pick`) gives the COND_EXPR a single join pseudo, so there is
-                 exactly ONE div, after the join, exactly like the oracle at .L8007B118.
-             (2) THE COPY.  The oracle ends this arm `mfhi $v1 ; j .L8007B1E8 ; addu $s0,$v1,$0`
-                 -- the modulo lands in a caller-saved temp and is COPIED into newsong, and
-                 reorg steals that copy into the `j` delay slot.  Writing `newsong = pick;`
-                 alone is not enough: combine folds the copy back into the divmod (mfhi $s0
-                 direct, nothing left for the slot).  The 05C read-only operand fence gives
-                 `pick` its second use so the copy survives -- and it is a ZERO-INSN device
-                 (pick is register-resident), the copy still being reorg-eligible because the
-                 fence sits BEFORE it.
-             Falsified on the way (do NOT retry): a separate `rnd` temp for the ternary alone
-             (160 exact but flips the newsong/newsong-1 pair s0<->s1: reqdelta says p92 needs
-             refs 15->16); the same with a `+1`-ref fence on newsong (4 diffs, mfhi-direct);
-             the identity fence `"=r"(pick):"0"(pick)` (barrier -> +2 insns, slot unfilled);
-             `rnd = rnd % newsong; newsong = rnd;` and a bare `pick` temp (both copy-propped);
-             giving the ELSE arm a `rnd` temp too (reorders the requestsong load, 144 insns). */
-          /* SYM-CODEGEN-CARRIER: pick -- the modulo-result join pseudo and
-             second-use fence described above are required for retail's one
-             divmod block and delay-slot copy into newsong. */
-          int pick = (GetRCnt(0) > 0 ? GetRCnt(0) : -GetRCnt(0)) % newsong;
-          newsong = pick;
-        }
-        else {
-          newsong = (AudioMus_g->requestsong + 1 +
-                      ((GetRCnt(0) > 0 ? GetRCnt(0) : -GetRCnt(0)) %
-                       (newsong - 1))) % newsong;
-        }
-
-        if (AudioMus_g->switchsong != 0) {
-          AudioMus_g->switchsong = 1;
-          AudioMus_g->requestsong = newsong;
-        }
-        else if (AudioMus_g->requestsong >= 0) {
-          SNDSTRM_autovol(AudioMus_g->streamhandle,2000,0);
-          AudioMus_g->fadetime = 2000;
-          AudioMus_g->switchsong = 1;
-          AudioMus_g->requestsong = newsong;
-          AudioMus_g->songname = (char *)0x0;
-        }
-        else {
-          AudioMus_g->fadetime = 0;
-          SNDSTRM_vol(AudioMus_g->streamhandle,0);
-          AudioMus_g->requestsong = newsong;
-          AudioMus_QueueRequestedSong();
-        }
-
-        AudioMus_g->firstswitch = 1;
-        AudioMus_g->errorcode = 0;
-        if (pattern != (char *)0x0) {
-          AudioMus_g->newswitch = 1;
-        }
+    if (AudioMus_g->volume == 0)
+      return 0;
+    if (AudioMus_g->availablesongs != 0) {
+      AudioMus_g->randomize = 1;
+      int newsong = AudioMus_g->availablesongs;
+      if (newsong == 1) {
+        newsong = 0;
       }
-      return AudioMus_g->availablesongs;
+      else if (pattern != (char *)0x0) {
+        newsong = (GetRCnt(0) > 0 ? GetRCnt(0) : -GetRCnt(0)) % AudioMus_g->availablesongs;
+      }
+      else {
+        newsong = (AudioMus_g->requestsong + 1 +
+                    ((GetRCnt(0) > 0 ? GetRCnt(0) : -GetRCnt(0)) %
+                     (newsong - 1))) % newsong;
+      }
+
+      if (AudioMus_g->switchsong != 0) {
+        AudioMus_g->switchsong = 1;
+        AudioMus_g->requestsong = newsong;
+      }
+      else if (AudioMus_g->requestsong >= 0) {
+        SNDSTRM_autovol(AudioMus_g->streamhandle,2000,0);
+        AudioMus_g->fadetime = 2000;
+        AudioMus_g->switchsong = 1;
+        AudioMus_g->requestsong = newsong;
+        AudioMus_g->songname = (char *)0x0;
+      }
+      else {
+        AudioMus_g->fadetime = 0;
+        SNDSTRM_vol(AudioMus_g->streamhandle,0);
+        AudioMus_g->requestsong = newsong;
+        AudioMus_QueueRequestedSong();
+      }
+
+      AudioMus_g->firstswitch = 1;
+      AudioMus_g->errorcode = 0;
+      if (pattern != (char *)0x0) {
+        AudioMus_g->newswitch = 1;
+      }
     }
+    return AudioMus_g->availablesongs;
   }
-  return 0;
+  else {
+    return 0;
+  }
 }
 
 /* ---- AudioMus_Volume__Fi  [@0x8007b2b0] ---- */

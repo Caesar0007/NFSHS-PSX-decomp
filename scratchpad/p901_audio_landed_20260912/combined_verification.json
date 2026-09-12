@@ -1,0 +1,703 @@
+{
+  "passed": true,
+  "actual_source_sha256": "ad651673e6664118a0d6925bc581c20d8ae9bdbc3978d30022fb87f3580e690e",
+  "actual_object_sha256": "d57d2dcfda69e37d673af8256b7b2823778956967d09a72db500a3d0e6036bb2",
+  "whole_object_byte_identical_to_P900_and_P897": true,
+  "six_functions_PASS": true,
+  "branch_checks": 159,
+  "normal_comparisons": [
+    {
+      "reference": "prior",
+      "exact_except_FILE_path": true,
+      "before_FILE": "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\common\\\\audiotrk.cpp",
+      "actual_FILE": "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\common\\\\audiotrk.cpp"
+    },
+    {
+      "reference": "add",
+      "exact_except_FILE_path": true,
+      "before_FILE": "C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\p900_audio_addcustom\\\\inputs\\\\base\\\\audiotrk.cpp",
+      "actual_FILE": "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\common\\\\audiotrk.cpp"
+    },
+    {
+      "reference": "sound",
+      "exact_except_FILE_path": true,
+      "before_FILE": "C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\p901_soundtrack_sld\\\\inputs\\\\base\\\\audiotrk.cpp",
+      "actual_FILE": "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\common\\\\audiotrk.cpp"
+    },
+    {
+      "reference": "lifecycle",
+      "exact_except_FILE_path": true,
+      "before_FILE": "C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\p900_audio_lifecycle\\\\inputs\\\\recon\\\\game\\\\common\\\\audiotrk.cpp",
+      "actual_FILE": "C:\\\\Temp\\\\nfs4-decomp\\\\recon\\\\game\\\\common\\\\audiotrk.cpp"
+    }
+  ],
+  "functions": [
+    {
+      "function": "AudioTrk_Reset__Fv",
+      "reference": "prior",
+      "words": 56,
+      "definitions": [
+        "\t.def\ti;\t.val\t17;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\ti;\t.val\t4;\t.scl\t4;\t.type\t0x4;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147993108,
+          "depth": 0,
+          "declarations": [],
+          "end": 2147993308
+        },
+        {
+          "start": 2147993108,
+          "depth": 1,
+          "declarations": [],
+          "end": 2147993228
+        },
+        {
+          "start": 2147993136,
+          "depth": 2,
+          "declarations": [],
+          "end": 2147993228
+        },
+        {
+          "start": 2147993136,
+          "depth": 3,
+          "declarations": [
+            ".def\ti;\t.val\t17;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147993228
+        },
+        {
+          "start": 2147993228,
+          "depth": 1,
+          "declarations": [],
+          "end": 2147993308
+        },
+        {
+          "start": 2147993248,
+          "depth": 2,
+          "declarations": [],
+          "end": 2147993308
+        },
+        {
+          "start": 2147993248,
+          "depth": 3,
+          "declarations": [
+            ".def\ti;\t.val\t4;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147993308
+        }
+      ],
+      "SLD": {
+        "merges": 0,
+        "splits": 0
+      },
+      "full_debug_and_source_contract_identical": true
+    },
+    {
+      "function": "AudioTrk_StartUp__Fv",
+      "reference": "lifecycle",
+      "words": 23,
+      "definitions": [
+        "\t.def\ti;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147993332,
+          "depth": 0,
+          "declarations": [],
+          "end": 2147993400
+        },
+        {
+          "start": 2147993332,
+          "depth": 1,
+          "declarations": [],
+          "end": 2147993400
+        },
+        {
+          "start": 2147993348,
+          "depth": 2,
+          "declarations": [],
+          "end": 2147993400
+        },
+        {
+          "start": 2147993348,
+          "depth": 3,
+          "declarations": [
+            ".def\ti;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147993400
+        }
+      ],
+      "SLD": {
+        "merges": 0,
+        "splits": 0
+      },
+      "full_debug_and_source_contract_identical": true
+    },
+    {
+      "function": "AudioTrk_AddCustomObject__FP9AudioElemiP8coorddefiP8Car_tObji",
+      "reference": "add",
+      "words": 413,
+      "definitions": [
+        "\t.def\tse;\t.val\t20;\t.scl\t17;\t.tag\tAudioElem;\t.size\t24;\t.type\t0x18;\t.endef",
+        "\t.def\ttck;\t.val\t16;\t.scl\t17;\t.type\t0x4;\t.endef",
+        "\t.def\tvel;\t.val\t8;\t.scl\t9;\t.tag\tcoorddef;\t.size\t12;\t.type\t0x18;\t.endef",
+        "\t.def\tfade;\t.val\t12;\t.scl\t9;\t.type\t0x4;\t.endef",
+        "\t.def\tcar;\t.val\t16;\t.scl\t9;\t.tag\tCar_tObj;\t.size\t2268;\t.type\t0x18;\t.endef",
+        "\t.def\ttrkazi;\t.val\t20;\t.scl\t9;\t.type\t0x4;\t.endef",
+        "\t.def\ttrkazi;\t.val\t2;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tdst;\t.val\t23;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tc;\t.val\t18;\t.scl\t4;\t.tag\tAudioTrk_tAmbientChannel;\t.size\t16;\t.type\t0x18;\t.endef",
+        "\t.def\tn;\t.val\t22;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tc;\t.val\t16;\t.scl\t4;\t.tag\tAudioTrk_tAmbientChannel;\t.size\t16;\t.type\t0x18;\t.endef",
+        "\t.def\ti;\t.val\t17;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tmaxind;\t.val\t21;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tmaxdst;\t.val\t19;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\ti;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tchkdst;\t.val\t17;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\trepeatnow;\t.val\t17;\t.scl\t4;\t.type\t0x0;\t.endef",
+        "\t.def\tazimuth;\t.val\t21;\t.scl\t4;\t.type\t0xd;\t.endef",
+        "\t.def\tdop;\t.val\t19;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tvol;\t.val\t16;\t.scl\t4;\t.type\t0x2;\t.endef",
+        "\t.def\tslicePos;\t.val\t-176;\t.scl\t1;\t.tag\tBWorldSm_Pos;\t.size\t132;\t.type\t0x8;\t.endef",
+        "\t.def\trangesq;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\trange;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\trangesq;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tambdist;\t.val\t4;\t.scl\t4;\t.type\t0x4;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147993424,
+          "depth": 0,
+          "declarations": [
+            ".def\tdst;\t.val\t23;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tc;\t.val\t18;\t.scl\t4;\t.tag\tAudioTrk_tAmbientChannel;\t.size\t16;\t.type\t0x18;\t.endef",
+            ".def\tn;\t.val\t22;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147995028
+        },
+        {
+          "start": 2147993492,
+          "depth": 1,
+          "declarations": [],
+          "end": 2147993640
+        },
+        {
+          "start": 2147993560,
+          "depth": 2,
+          "declarations": [],
+          "end": 2147993640
+        },
+        {
+          "start": 2147993560,
+          "depth": 3,
+          "declarations": [],
+          "end": 2147993616
+        },
+        {
+          "start": 2147993576,
+          "depth": 4,
+          "declarations": [
+            ".def\tc;\t.val\t16;\t.scl\t4;\t.tag\tAudioTrk_tAmbientChannel;\t.size\t16;\t.type\t0x18;\t.endef"
+          ],
+          "end": 2147993616
+        },
+        {
+          "start": 2147993640,
+          "depth": 1,
+          "declarations": [],
+          "end": 2147993840
+        },
+        {
+          "start": 2147993676,
+          "depth": 2,
+          "declarations": [],
+          "end": 2147993840
+        },
+        {
+          "start": 2147993676,
+          "depth": 3,
+          "declarations": [],
+          "end": 2147993840
+        },
+        {
+          "start": 2147993700,
+          "depth": 4,
+          "declarations": [],
+          "end": 2147993840
+        },
+        {
+          "start": 2147993700,
+          "depth": 5,
+          "declarations": [
+            ".def\ti;\t.val\t17;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147993840
+        },
+        {
+          "start": 2147993840,
+          "depth": 1,
+          "declarations": [],
+          "end": 2147994072
+        },
+        {
+          "start": 2147993848,
+          "depth": 2,
+          "declarations": [
+            ".def\tmaxind;\t.val\t21;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tmaxdst;\t.val\t19;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147994072
+        },
+        {
+          "start": 2147993848,
+          "depth": 3,
+          "declarations": [
+            ".def\ti;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147993956
+        },
+        {
+          "start": 2147993860,
+          "depth": 4,
+          "declarations": [
+            ".def\tchkdst;\t.val\t17;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147993948
+        },
+        {
+          "start": 2147994072,
+          "depth": 1,
+          "declarations": [],
+          "end": 2147995028
+        },
+        {
+          "start": 2147994080,
+          "depth": 2,
+          "declarations": [
+            ".def\trepeatnow;\t.val\t17;\t.scl\t4;\t.type\t0x0;\t.endef"
+          ],
+          "end": 2147995028
+        },
+        {
+          "start": 2147994284,
+          "depth": 3,
+          "declarations": [],
+          "end": 2147995028
+        },
+        {
+          "start": 2147994300,
+          "depth": 4,
+          "declarations": [
+            ".def\tazimuth;\t.val\t21;\t.scl\t4;\t.type\t0xd;\t.endef",
+            ".def\tdop;\t.val\t19;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tvol;\t.val\t16;\t.scl\t4;\t.type\t0x2;\t.endef"
+          ],
+          "end": 2147995028
+        },
+        {
+          "start": 2147994300,
+          "depth": 5,
+          "declarations": [],
+          "end": 2147994512
+        },
+        {
+          "start": 2147994328,
+          "depth": 6,
+          "declarations": [],
+          "end": 2147994512
+        },
+        {
+          "start": 2147994328,
+          "depth": 7,
+          "declarations": [],
+          "end": 2147994444
+        },
+        {
+          "start": 2147994360,
+          "depth": 8,
+          "declarations": [],
+          "end": 2147994444
+        },
+        {
+          "start": 2147994360,
+          "depth": 9,
+          "declarations": [],
+          "end": 2147994444
+        },
+        {
+          "start": 2147994400,
+          "depth": 10,
+          "declarations": [
+            ".def\tslicePos;\t.val\t-176;\t.scl\t1;\t.tag\tBWorldSm_Pos;\t.size\t132;\t.type\t0x8;\t.endef"
+          ],
+          "end": 2147994444
+        },
+        {
+          "start": 2147994512,
+          "depth": 5,
+          "declarations": [],
+          "end": 2147994924
+        },
+        {
+          "start": 2147994536,
+          "depth": 6,
+          "declarations": [],
+          "end": 2147994924
+        },
+        {
+          "start": 2147994608,
+          "depth": 7,
+          "declarations": [],
+          "end": 2147994924
+        },
+        {
+          "start": 2147994640,
+          "depth": 8,
+          "declarations": [
+            ".def\trangesq;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147994764
+        },
+        {
+          "start": 2147994772,
+          "depth": 8,
+          "declarations": [],
+          "end": 2147994924
+        },
+        {
+          "start": 2147994772,
+          "depth": 9,
+          "declarations": [],
+          "end": 2147994924
+        },
+        {
+          "start": 2147994796,
+          "depth": 10,
+          "declarations": [
+            ".def\trange;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\trangesq;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tambdist;\t.val\t4;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147994924
+        }
+      ],
+      "SLD": {
+        "merges": 0,
+        "splits": 0
+      },
+      "full_debug_and_source_contract_identical": true
+    },
+    {
+      "function": "AudioTrk_SoundTrack__FP8Car_tObji",
+      "reference": "sound",
+      "words": 358,
+      "definitions": [
+        "\t.def\tcar;\t.val\t0;\t.scl\t9;\t.tag\tCar_tObj;\t.size\t2268;\t.type\t0x18;\t.endef",
+        "\t.def\ttrkazi;\t.val\t4;\t.scl\t9;\t.type\t0x4;\t.endef",
+        "\t.def\tse;\t.val\t21;\t.scl\t4;\t.tag\tAudioElem;\t.size\t24;\t.type\t0x18;\t.endef",
+        "\t.def\tnumelems;\t.val\t7;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tquater;\t.val\t6;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tgtck;\t.val\t-56;\t.scl\t1;\t.type\t0x4;\t.endef",
+        "\t.def\tvx;\t.val\t-52;\t.scl\t1;\t.type\t0x4;\t.endef",
+        "\t.def\tvz;\t.val\t-48;\t.scl\t1;\t.type\t0x4;\t.endef",
+        "\t.def\tv;\t.val\t-96;\t.scl\t1;\t.tag\tcoorddef;\t.size\t12;\t.type\t0x8;\t.endef",
+        "\t.def\tstart;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tend;\t.val\t30;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\ti;\t.val\t23;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\ttck;\t.val\t18;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tcur;\t.val\t-64;\t.scl\t1;\t.type\t0x4;\t.endef",
+        "\t.def\tmax;\t.val\t-60;\t.scl\t1;\t.type\t0x4;\t.endef",
+        "\t.def\tanim;\t.val\t20;\t.scl\t4;\t.tag\tTrk_AnimateInst;\t.size\t12;\t.type\t0x18;\t.endef",
+        "\t.def\tx;\t.val\t4;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tz;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\td;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\trandtick;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tvel;\t.val\t22;\t.scl\t4;\t.tag\tcoorddef;\t.size\t12;\t.type\t0x18;\t.endef",
+        "\t.def\tfade;\t.val\t19;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tfadeIn;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tfadeOut;\t.val\t4;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tnextcp;\t.val\t-80;\t.scl\t1;\t.tag\tcoorddef;\t.size\t12;\t.type\t0x8;\t.endef",
+        "\t.def\tnext;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\ttime;\t.val\t6;\t.scl\t4;\t.type\t0x4;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147995076,
+          "depth": 0,
+          "declarations": [],
+          "end": 2147996460
+        },
+        {
+          "start": 2147995164,
+          "depth": 1,
+          "declarations": [],
+          "end": 2147996460
+        },
+        {
+          "start": 2147995180,
+          "depth": 2,
+          "declarations": [],
+          "end": 2147996460
+        },
+        {
+          "start": 2147995180,
+          "depth": 3,
+          "declarations": [],
+          "end": 2147996460
+        },
+        {
+          "start": 2147995200,
+          "depth": 4,
+          "declarations": [
+            ".def\tse;\t.val\t21;\t.scl\t4;\t.tag\tAudioElem;\t.size\t24;\t.type\t0x18;\t.endef",
+            ".def\tnumelems;\t.val\t7;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tquater;\t.val\t6;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tgtck;\t.val\t-56;\t.scl\t1;\t.type\t0x4;\t.endef",
+            ".def\tvx;\t.val\t-52;\t.scl\t1;\t.type\t0x4;\t.endef",
+            ".def\tvz;\t.val\t-48;\t.scl\t1;\t.type\t0x4;\t.endef",
+            ".def\tv;\t.val\t-96;\t.scl\t1;\t.tag\tcoorddef;\t.size\t12;\t.type\t0x8;\t.endef",
+            ".def\tstart;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tend;\t.val\t30;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147996460
+        },
+        {
+          "start": 2147995312,
+          "depth": 5,
+          "declarations": [
+            ".def\ti;\t.val\t23;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147996460
+        },
+        {
+          "start": 2147995332,
+          "depth": 6,
+          "declarations": [
+            ".def\ttck;\t.val\t18;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tcur;\t.val\t-64;\t.scl\t1;\t.type\t0x4;\t.endef",
+            ".def\tmax;\t.val\t-60;\t.scl\t1;\t.type\t0x4;\t.endef",
+            ".def\tanim;\t.val\t20;\t.scl\t4;\t.tag\tTrk_AnimateInst;\t.size\t12;\t.type\t0x18;\t.endef",
+            ".def\tx;\t.val\t4;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tz;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\td;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147996444
+        },
+        {
+          "start": 2147995392,
+          "depth": 7,
+          "declarations": [],
+          "end": 2147995656
+        },
+        {
+          "start": 2147995524,
+          "depth": 8,
+          "declarations": [],
+          "end": 2147995656
+        },
+        {
+          "start": 2147995524,
+          "depth": 9,
+          "declarations": [],
+          "end": 2147995656
+        },
+        {
+          "start": 2147995544,
+          "depth": 10,
+          "declarations": [],
+          "end": 2147995656
+        },
+        {
+          "start": 2147995544,
+          "depth": 11,
+          "declarations": [],
+          "end": 2147995656
+        },
+        {
+          "start": 2147995580,
+          "depth": 12,
+          "declarations": [
+            ".def\trandtick;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147995656
+        },
+        {
+          "start": 2147995740,
+          "depth": 7,
+          "declarations": [],
+          "end": 2147996444
+        },
+        {
+          "start": 2147995784,
+          "depth": 8,
+          "declarations": [
+            ".def\tvel;\t.val\t22;\t.scl\t4;\t.tag\tcoorddef;\t.size\t12;\t.type\t0x18;\t.endef",
+            ".def\tfade;\t.val\t19;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147996444
+        },
+        {
+          "start": 2147995784,
+          "depth": 9,
+          "declarations": [],
+          "end": 2147996376
+        },
+        {
+          "start": 2147995816,
+          "depth": 10,
+          "declarations": [
+            ".def\tfadeIn;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tfadeOut;\t.val\t4;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147996376
+        },
+        {
+          "start": 2147995936,
+          "depth": 11,
+          "declarations": [],
+          "end": 2147996308
+        },
+        {
+          "start": 2147995944,
+          "depth": 12,
+          "declarations": [
+            ".def\tnextcp;\t.val\t-80;\t.scl\t1;\t.tag\tcoorddef;\t.size\t12;\t.type\t0x8;\t.endef",
+            ".def\tnext;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\ttime;\t.val\t6;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147996308
+        }
+      ],
+      "SLD": {
+        "merges": 18,
+        "splits": 7
+      },
+      "full_debug_and_source_contract_identical": true
+    },
+    {
+      "function": "AudioTrk_PreLoad__Fv",
+      "reference": "prior",
+      "words": 116,
+      "definitions": [
+        "\t.def\tvx;\t.val\t21;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tvz;\t.val\t20;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\ttick;\t.val\t23;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tloaded;\t.val\t19;\t.scl\t4;\t.type\t0x0;\t.endef",
+        "\t.def\tcheck;\t.val\t-48;\t.scl\t1;\t.type\t0x4;\t.endef",
+        "\t.def\tnumelems;\t.val\t22;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tse;\t.val\t17;\t.scl\t4;\t.tag\tAudioElem;\t.size\t24;\t.type\t0x18;\t.endef",
+        "\t.def\ti;\t.val\t18;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tx;\t.val\t4;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\tz;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef",
+        "\t.def\td;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147996508,
+          "depth": 0,
+          "declarations": [
+            ".def\tvx;\t.val\t21;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tvz;\t.val\t20;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\ttick;\t.val\t23;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tloaded;\t.val\t19;\t.scl\t4;\t.type\t0x0;\t.endef",
+            ".def\tcheck;\t.val\t-48;\t.scl\t1;\t.type\t0x4;\t.endef",
+            ".def\tnumelems;\t.val\t22;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147996928
+        },
+        {
+          "start": 2147996632,
+          "depth": 1,
+          "declarations": [
+            ".def\tse;\t.val\t17;\t.scl\t4;\t.tag\tAudioElem;\t.size\t24;\t.type\t0x18;\t.endef"
+          ],
+          "end": 2147996892
+        },
+        {
+          "start": 2147996688,
+          "depth": 2,
+          "declarations": [
+            ".def\ti;\t.val\t18;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147996892
+        },
+        {
+          "start": 2147996708,
+          "depth": 3,
+          "declarations": [
+            ".def\tx;\t.val\t4;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\tz;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef",
+            ".def\td;\t.val\t3;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147996876
+        }
+      ],
+      "SLD": {
+        "merges": 2,
+        "splits": 5
+      },
+      "full_debug_and_source_contract_identical": true
+    },
+    {
+      "function": "AudioTrk_CleanUp__Fv",
+      "reference": "lifecycle",
+      "words": 38,
+      "definitions": [
+        "\t.def\ti;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef"
+      ],
+      "scopes": [
+        {
+          "start": 2147996972,
+          "depth": 0,
+          "declarations": [],
+          "end": 2147997100
+        },
+        {
+          "start": 2147996972,
+          "depth": 1,
+          "declarations": [],
+          "end": 2147997100
+        },
+        {
+          "start": 2147997012,
+          "depth": 2,
+          "declarations": [],
+          "end": 2147997100
+        },
+        {
+          "start": 2147997012,
+          "depth": 3,
+          "declarations": [
+            ".def\ti;\t.val\t16;\t.scl\t4;\t.type\t0x4;\t.endef"
+          ],
+          "end": 2147997084
+        }
+      ],
+      "SLD": {
+        "merges": 0,
+        "splits": 0
+      },
+      "full_debug_and_source_contract_identical": true
+    }
+  ],
+  "actual_include_closure": {
+    "C:/Temp/nfs4-decomp/recon/game/common/audiotrk.cpp": "ad651673e6664118a0d6925bc581c20d8ae9bdbc3978d30022fb87f3580e690e",
+    "C:/Temp/nfs4-decomp/recon/game/common/audiotrk_types.h": "ed39572dcf81d4b5407b7879ce5267235e9100f674d6d268b4b5f415fa639f5d",
+    "C:/Temp/nfs4-decomp/recon/game/common/color_types.h": "371cafcbe2f3d9042f2e6704d87c29a8de306c8a3b9aaee377bbd821a3216b5a",
+    "C:/Temp/nfs4-decomp/recon/game/common/draw_leaf_types.h": "4c6832b060ae1ded20f5b5d3c3a9ce68fbef362b1db56b92a78840874cb9aa49",
+    "C:/Temp/nfs4-decomp/recon/game/common/game_common_min_types.h": "15fba7178f58825ef79d6e13f0d3e55c5cf84be6274b819cdb38f19f914e453f",
+    "C:/Temp/nfs4-decomp/recon/frontend/psx/ea_psx_types.h": "5215d4108c65ddc8965465be1be2a8755846ada72ee57688b914c54d8a97ad73",
+    "C:/Temp/nfs4-decomp/recon/game/common/gamesetup_leaf_types.h": "8e81016ba8346919fd522f7032ee83a1730e69643668e223cece654d2cd9fd06",
+    "C:/Temp/nfs4-decomp/recon/game/common/aiscript_types.h": "8120a2345042e55ca56f2cd81f26ff1879ffd86f4586ebd5cab5c39e2adb843a",
+    "C:/Temp/nfs4-decomp/recon/game/common/audiotrk_externs.h": "fc9af759b780c254165d32b50d59d9a234c7a5da596af1f1ef1c121b70a4d558"
+  },
+  "no_staged_headers_used": true,
+  "raw_words_exact": 1004,
+  "relocation_words": 112,
+  "all_function_contracts_match_their_accepted_reference": true,
+  "no_source_label_PC_exemptions": true,
+  "original_token_spelling_and_physical_lines_unsealed": true,
+  "no_production_or_normal_output_writes": true
+}

@@ -1,0 +1,89 @@
+{
+  "passed": true,
+  "date": "2026-09-12",
+  "actual_audio_source_sha256": "abe4b13ef1e6e0fb8647e93bd54323c01a81561cf77cfd0fdc43a73af3afa1da",
+  "normal_objects_literal_unchanged": 518,
+  "protected_oracle_known_symbol_instances": 1013,
+  "protected_TUs": 45,
+  "linked_ELF_sha256": "52800553415581618c04766bca85e3d943de8343f60b78c62ff7c62af9e32ae0",
+  "linked_map_unchanged": true,
+  "AddCustom_SLD_before": [
+    1,
+    174
+  ],
+  "AddCustom_SLD_after": [
+    0,
+    0
+  ],
+  "AddCustom_native_blocks": 31,
+  "AddCustom_native_local_owners": 18,
+  "reconstructed_source_labels_removed": 7,
+  "StartUp_SLD_before": [
+    0,
+    3
+  ],
+  "StartUp_SLD_after": [
+    0,
+    0
+  ],
+  "CleanUp_SLD_before": [
+    0,
+    9
+  ],
+  "CleanUp_SLD_after": [
+    0,
+    0
+  ],
+  "lifecycle_native_blocks": 8,
+  "lifecycle_i_owners": 2,
+  "SoundTrack_SLD_before": [
+    22,
+    76
+  ],
+  "SoundTrack_SLD_after": [
+    22,
+    16
+  ],
+  "SoundTrack_native_local_owners": 25,
+  "all6_audio_raw_words_exact": 1004,
+  "raw_relocation_words_exact": 112,
+  "all159_audio_branches_exact": true,
+  "Reset_SLD_preserved": [
+    0,
+    0
+  ],
+  "PreLoad_SLD_preserved": [
+    2,
+    5
+  ],
+  "strict": {
+    "game_common": {
+      "clean": 1227,
+      "extra": 7,
+      "carriers": 477,
+      "missing": 0,
+      "type": 28,
+      "storage": 28,
+      "mapping": 0
+    },
+    "frontend_common": {
+      "clean": 780,
+      "extra": 48,
+      "carriers": 438,
+      "missing": 0,
+      "type": 9,
+      "storage": 9,
+      "mapping": 3
+    }
+  },
+  "no_new_branch_discrepancies": true,
+  "existing_Speech_branch_discrepancy_preserved": true,
+  "production_build_tools_unchanged": true,
+  "no_postcompile_instruction_or_debug_label_rewrites": true,
+  "actual_source_and_include_drift": 0,
+  "user_edits_preserved": true,
+  "full_source_SYM_SLD_and_image_exact": false,
+  "goal_complete": false,
+  "committed": false,
+  "pushed": false
+}

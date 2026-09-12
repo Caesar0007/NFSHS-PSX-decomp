@@ -41,6 +41,7 @@
 #include "blkmov.h"
 #include "memstd.h"
 #include "locatbig.h"
+#include "nullfunc.h"
 #include "vars.h"
 /* eaclib/psx/eacpsxz/nsync.cpp -- RECONSTRUCTED from nfs4-f.exe. NOT original source.
  *   Source obj : nfs4\eaclib\psx\nsync.obj ; archive C:\nfs4\EACLIB\PSX\EACPSXZ.LIB (xlsx col10)
@@ -55,19 +56,9 @@
  *   The "z" variants differ only in passing abortval=0 (vs the global `abortflag`).
  */
 
-/* the scratch record passed by-pointer through FILE_atomic to each *atomic worker */
-
-/* ---- FILE_*sync primitives + retry harness (libfile / sibling objs) ---- */
-extern int  asyncidle     (void);                                          /* @0x800F6114 */
-
-/* ---- memstd allocator (eaclib/psx/eacpsxz/memstd.cpp) ---- */
-
-/* ---- big-file header helpers (next obj) ---- */
-
-/* ---- data globals (defined in the data-materialization pass) ---- */
+/* `loadfilecallback` has no owner header: the data-materialization pass owns it
+ * (no eacpsxz member declares it), so it stays a local extern. */
 extern int (*loadfilecallback)(void *dest, char *name, int memclass);  /* @0x8013DD60 */
-
-/* forward decls of the intra-obj *atomic XDEFs (C-linkage) */
 
 /* ===================================================================== *
  *  filesizeatomic @0x800E5608 : open `a->name`, query its size, close.   *

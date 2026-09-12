@@ -10,8 +10,9 @@
  *   (1) the stub is a real C `int f(){return 0;}` -> gcc-2.8.0 -O2 emits exactly `jr $ra; move $v0,$zero`
  *       (== the oracle's `addu $v0,$zero,$zero`).
  *   (2) gcc-2.8.0 SILENTLY IGNORES `__attribute__((alias))` (emits nothing) -- so the 20 co-equal names
- *       are emitted as GNU-as symbol assignments `name = setclipwindow` in a file-scope __asm__ instead:
- *       real globals at the same address that do NOT displace setclipwindow as objdump's disasm label.
+ *       are emitted from a file-scope __asm__ block instead, as real globals at the same address that
+ *       do NOT displace setclipwindow as objdump's disasm label.  They are LABELS, not symbol
+ *       assignments: see the ASPSX-DIALECT note on the block below for why.
  */
 
 #include "../eaclib_types.h"
@@ -26,6 +27,15 @@
  * `.set a,b`, `equ` and `.equ` are all rejected; w63-a20 probe), so the retail
  * toolchain could not assemble this TU.  It DOES accept two labels at one
  * address, so the names are emitted as real LABELS instead.
+ * Re-confirmed 2026-09-12 straight on PSSN/ASPSX.EXE: two labels at one address
+ * assemble silently, `alias = base` gives `Op-code not recognised`.  DO NOT
+ * revert this block to the assignment form.
+ *
+ * The literals are ESCAPED (`\t`, `\n`), not carrying raw tab/newline bytes:
+ * gcc-2.8 takes a newline inside a string literal as a legacy GNU extension,
+ * but it is invalid C89 and every modern front end rejects it outright
+ * (`missing terminating " character`).  The string VALUE is the same, so the
+ * object is byte-identical either way (verified 2026-09-12).
  *
  * 🔴 WHY THIS IS SAFE HERE AND NOT IN GENERAL: CC1PSX emits a file-scope
  * __asm__ block BEFORE EVERY FUNCTION BODY in the TU (measured: in isqrttbl.c a
@@ -41,68 +51,27 @@
  * (`__attribute__((alias))` is not an option: gcc-2.8.0 silently ignores it.)
  */
 __asm__(
-    "	.text
-"
-    "	.globl setmousesensitivity
-setmousesensitivity:
-"
-    "	.globl nullfunctionz
-nullfunctionz:
-"
-    "	.globl restorewindow
-restorewindow:
-"
-    "	.globl resetclipwindow
-resetclipwindow:
-"
-    "	.globl nullwindow
-nullwindow:
-"
-    "	.globl savewindow
-savewindow:
-"
-    "	.globl removewindow
-removewindow:
-"
-    "	.globl purgekey
-purgekey:
-"
-    "	.globl nullfunction
-nullfunction:
-"
-    "	.globl createwindowadr
-createwindowadr:
-"
-    "	.globl createshapeadr
-createshapeadr:
-"
-    "	.globl FILE_resize
-FILE_resize:
-"
-    "	.globl librestoremouse
-librestoremouse:
-"
-    "	.globl shapewindowdefadr
-shapewindowdefadr:
-"
-    "	.globl FILE_delete
-FILE_delete:
-"
-    "	.globl FILE_opdevice
-FILE_opdevice:
-"
-    "	.globl FILE_nametodevice
-FILE_nametodevice:
-"
-    "	.globl FILE_handletodevice
-FILE_handletodevice:
-"
-    "	.globl asynctopupoverride
-asynctopupoverride:
-"
-    "	.globl asyncidle
-asyncidle:
-"
+    "\t.text\n"
+    "\t.globl setmousesensitivity\nsetmousesensitivity:\n"
+    "\t.globl nullfunctionz\nnullfunctionz:\n"
+    "\t.globl restorewindow\nrestorewindow:\n"
+    "\t.globl resetclipwindow\nresetclipwindow:\n"
+    "\t.globl nullwindow\nnullwindow:\n"
+    "\t.globl savewindow\nsavewindow:\n"
+    "\t.globl removewindow\nremovewindow:\n"
+    "\t.globl purgekey\npurgekey:\n"
+    "\t.globl nullfunction\nnullfunction:\n"
+    "\t.globl createwindowadr\ncreatewindowadr:\n"
+    "\t.globl createshapeadr\ncreateshapeadr:\n"
+    "\t.globl FILE_resize\nFILE_resize:\n"
+    "\t.globl librestoremouse\nlibrestoremouse:\n"
+    "\t.globl shapewindowdefadr\nshapewindowdefadr:\n"
+    "\t.globl FILE_delete\nFILE_delete:\n"
+    "\t.globl FILE_opdevice\nFILE_opdevice:\n"
+    "\t.globl FILE_nametodevice\nFILE_nametodevice:\n"
+    "\t.globl FILE_handletodevice\nFILE_handletodevice:\n"
+    "\t.globl asynctopupoverride\nasynctopupoverride:\n"
+    "\t.globl asyncidle\nasyncidle:\n"
 );
 
 int setclipwindow(void)   /* @0x800F6114 : return 0 */

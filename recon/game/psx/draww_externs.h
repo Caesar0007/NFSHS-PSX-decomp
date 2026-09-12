@@ -38,8 +38,8 @@ extern Trk_NewSlice *BWorldSm_slices;
 extern int BWorld_gChunkCount;
 extern u_char CF_DVLC[49096];
 extern camera_info Camera_gInfo[2];
-extern Car_tObj * Cars_gHumanRaceCarList[2];
-extern Car_tObj * Cars_gList[2];
+extern Car_tObj * Cars_gHumanRaceCarList[9]; /* P915: native owner SYM1fea82, 36 bytes. */
+extern Car_tObj * Cars_gList[9];             /* P915: native owner SYM1fea01, 36 bytes. */
 extern int Cars_gNumHumanRaceCars;
 extern coorddef * Chunk_chunkCenters;
 extern CVECTOR * Chunk_lightTable;
@@ -49,7 +49,10 @@ extern GameSetup_tData GameSetup_gData;
 extern u_char (* Night_gCopColor[2])[256][8];
 extern u_char (* Night_gCurrentNightColor)[256][16];   /* matches owner def night.cpp @0x8013da48 (was stale u_char***) */
 extern char * Night_gNightTbl;
-extern u_char (* Night_gWeatherLightingTable[2])[256];
+/* P915: compatible incomplete outer array; native owner remains [2].
+ * DrawW's original caller-bound spelling is absent from its SYM. This ordinary
+ * interface preserves native address materialization without a false bound. */
+extern u_char (* Night_gWeatherLightingTable[])[256];
 extern Group * Object_customObjInst;
 extern Group * Object_customSimObjs;
 extern CTrackSpec TrackSpec_gSpec;
@@ -71,17 +74,12 @@ extern int gNight_renderNight;
 extern Group * gPersistMidgroundObjInst;
 extern Group * gPersistObjDefBoundingSpheres;
 extern Group * gPersistObjInst;
-/* SYM/owner TRUTH: this is `Draw_tPixMap *gSkidMarkPixmap[2]` (genericpmx.cpp def;
-   SYM nfs4-f-v3.txt:119780 `ARY PTR STRUCT size 8 dims 1 2`).  The `[1]` here is a
-   deliberate STORAGE-SHAPE declaration, NOT a transcription error, and is
-   BEHAVIOURALLY IDENTICAL: element type and index scaling are unchanged, so
-   `gSkidMarkPixmap[i]` emits the same `sll;addu;lw` either way -- only the declared
-   size moves cc1plus's address-materialization/allocno handout.  MEASURED (W70,
-   Draw_kCtrlSkidmark, the only consumer): [1] = 274 diffs; [2] = 326; unsized [] =
-   326 (both rotate the whole callee-saved set s7/s5/s2 -> s6/s3/s1).  Neither form
-   uses %gp_rel here, so this is NOT the -G4 threshold.  Keep [1] until the
-   rotation is understood; the real bound is documented right here. */
-extern Draw_tPixMap * gSkidMarkPixmap[1];
+/* P915: native SYM27bf2f and genericpmx.cpp define two pointers, eight bytes.
+ * The former [1] matching workaround was not a valid original array bound.
+ * Historical W70 scores ([1]=274, [2]/[]=326) belonged to an older source/flag
+ * basin. Native bounds plus compiler-default/G8 recovery now preserve 35 PASS
+ * functions without the false declaration or an asm-labelled alias. */
+extern Draw_tPixMap * gSkidMarkPixmap[2];
 extern int gSpikeBeltSlice;
 extern int gSpikeBeltX;
 // [owned->defined in draww.cpp] extern CCOORD16 gVertex3d[320];

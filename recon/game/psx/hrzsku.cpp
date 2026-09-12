@@ -1,7 +1,6 @@
-/* game/psx/hrzsku.cpp -- RECONSTRUCTED (NFS4 PSX in-race HUD; C++ TU)
- *   62 fns: sprite/poly builders, tachometer, number rasterizer, mini-map + radar,
- *   CD player, wingman interface, render views (hud/tac/map/stats), 3-2-1-GO, BTC/busted.
- *   Reconstructed with full SYM-locals applied (audited).
+/* game/psx/hrzsku.cpp -- reconstructed horizon/sky rendering source.
+ * P913 validates native .data ownership; this is not a complete source/SLD seal.
+ * Function-local reconstruction and unproved carriers remain separate work.
  */
 #include "hrzsku_types.h"
 #include "hrzsku_externs.h"
@@ -14,15 +13,15 @@
 
 /* ---- HrzSku.obj-OWNED globals -- DEFINED here (self-contained; SYM-typed via gen_owned_defs:
    .data = real NFS4.EXE bytes, .bss = zero) ---- */
-Draw_tPixMap *gHorizonPixmap[16];   /* @0x801202f8  (bss(zero)) */
-Draw_tPixMap gHorizonExtraSkyPixmaps[4];   /* @0x80120338  (bss(zero)) */
-SVECTOR      gSkyMesh[85];   /* @0x80120378  (bss(zero)) */
-CVECTOR      gSkyColor[85];   /* @0x80120620  (bss(zero)) */
-char         gSkyPixmapIndex[64];   /* @0x80120774  (bss(zero)) */
-Draw_tPixMap *gpPmx[16];   /* @0x801207b4  (bss(zero)) */
-CVECTOR      gHrzRingColor[2][17];   /* @0x801207f4  (bss(zero)) */
-int          gfxPmxHeightPercentage[16];   /* @0x8012087c  (bss(zero)) */
-tHrz_Lightning gHrz_Lightning;   /* @0x801208bc  (bss(zero)) */
+Draw_tPixMap *gHorizonPixmap[16];   /* @0x801202f8 (.data; CPE-loaded zero) */
+Draw_tPixMap gHorizonExtraSkyPixmaps[4];   /* @0x80120338 (.data; CPE-loaded zero) */
+SVECTOR      gSkyMesh[85];   /* @0x80120378 (.data; CPE-loaded zero) */
+CVECTOR      gSkyColor[85];   /* @0x80120620 (.data; CPE-loaded zero) */
+char         gSkyPixmapIndex[64];   /* @0x80120774 (.data; CPE-loaded zero) */
+Draw_tPixMap *gpPmx[16];   /* @0x801207b4 (.data; CPE-loaded zero) */
+CVECTOR      gHrzRingColor[2][17];   /* @0x801207f4 (.data; CPE-loaded zero) */
+int          gfxPmxHeightPercentage[16];   /* @0x8012087c (.data; CPE-loaded zero) */
+tHrz_Lightning gHrz_Lightning;   /* @0x801208bc (.data; CPE-loaded zero) */
 static SVECTOR *starPosInSky;   /* @0x8013d878  (bss(zero)) */
 static u_long *starColors;    /* @0x8013d87c  SYM PTR ULONG (bss(zero)) */
 CHorizonSpec *Hrz_gTrackSpec;   /* @0x8013d888  (bss(zero)) */
@@ -69,91 +68,37 @@ void Sky_RenderStars(Draw_SkyCache *sd,int otz);
 void Hrz_BuildHorizon(DRender_tView *Vi);
 
 
-/* ---- Horizon_InterpolateLineSCoords__FP7DVECTORN20Piii  [HRZSKU.CPP:128-156] SLD-VERIFIED ----
- * NEAR-MISS 26 diffs (80/80, count exact -- improved from 37 baseline). FIX: the
- * `bPercentageArray==0` branch never advances `percentage`, so `*percentage` is truly
- * loop-invariant across ALL iterations (both vx and vy uses) -- gcc hoists the read
- * completely out of the loop into a register that survives the whole loop (and even
- * runs it BEFORE the `0<n` guard, since a bare load has no observable side effect).
- * Reproduced by reading it into a local `pv = *percentage;` right on entry to the
- * `else` block, before the `if (0<n)` test -- gcc then reuses the SAME loaded value for
- * every iteration's vx/vy multiply instead of re-dereferencing `percentage` per use,
- * matching the oracle's single hoisted `lw`. Residual = a uniform `$t0`<->`$t1` register
- * swap between `sc` (pointer, `addiu ,4` stride) and `i` (counter, `addiu ,1`) in BOTH
- * loops -- tried sc[i]-index form (worse, 39 diffs) and increment-statement reordering
- * (worse, 28 diffs); a genuine allocator coalescing tie-break, accepted.
- * w46-a9 (26 -> PASS): NOT a coalescing tie-break -- a plain floor_log2 REF-STEP on the
- * two block-local quantities (w45 SS.A0: QTY_CMP_PRI == allocno_compare, so the ref dial
- * reaches block-local qtys too).  `sc` has 5 references per loop body and `i` only 4, so
- * `sc` sorts first and takes $t0; ONE extra reference to `i` crosses the 4->8 weighted
- * step and flips them.  A zero-operand-output USE FENCE on a reg-resident local is
- * exactly that: one REG_N_REFS reference at ZERO instructions.  Placement measured:
- * before the `i++` PASS (x1 and x2 both PASS), between `i++` and `sc++` PASS, AFTER the
- * `sc++` costs +2 insns (82/6), a fence on `sc` instead is a no-op (26), and swapping the
- * two increments is a no-op (26) -- i.e. the dial is i's REF COUNT, not statement order.*/
+/* ---- Horizon_InterpolateLineSCoords__FP7DVECTORN20Piii [HRZSKU.CPP:128-156] ----
+ * P914: native i is the root loop counter; p is the else-local cached
+ * percentage (SYM40dcdd, a0). Products are unnamed expression temporaries.
+ * Matched NFS2 PC Horizon_InterpolateLineSCoords independently has this shape.
+ * No pv, reference-fence replacement, or artificial index identity is needed
+ * by the recovered source; byte/scope checks are recorded in p914_horizon. */
 void Horizon_InterpolateLineSCoords(DVECTOR *sc,DVECTOR *s0,DVECTOR *s1,int *percentage,int n,int bPercentageArray)
-
 {
   int i;
-  int p;
-  int pv; /* SYM-CODEGEN-CARRIER: pv -- pre-loop read preserves the retail LICM/reference shape */
 
-  if (bPercentageArray != 0) {
-    if (0 < n) {
-      i = 0;
-      do {
-        p = *percentage * ((int)s1->vx - (int)s0->vx);
-        if (p < 0) {
-          p = p + 0xffff;
-        }
-        sc->vx = s0->vx + (short)(p >> 0x10);
-        p = *percentage * ((int)s1->vy - (int)s0->vy);
-        if (p < 0) {
-          p = p + 0xffff;
-        }
-        sc->vy = s0->vy + (short)(p >> 0x10);
-        percentage = percentage + 1;
-        s0 = s0 + 1;
-        s1 = s1 + 1;
-        /* ASPSX-DIALECT (w64-a20): the asm below uses NUMERIC registers and no
-         * `.set push/pop` -- ASPSX 2.77, the PRODUCTION assembler, rejects ABI
-         * register NAMES and push/pop.  $0 zero $1 at $2-3 v0-v1 $4-7 a0-a3
-         * $8-15 t0-t7 $16-23 s0-s7 $24-25 t8-t9 $28 gp $29 sp $30 fp $31 ra.
-         * Gate-lane object is byte-identical (proven by hash); see
-         * scratchpad/w64a20/RECEIPTS.md. */
-        i = i + 1;
-        sc = sc + 1;
-      } while (i < n);
+  if (bPercentageArray) {
+    for (i = 0; i < n; i++) {
+      sc->vx = s0->vx + *percentage * (s1->vx - s0->vx) / 65536;
+      sc->vy = s0->vy + *percentage * (s1->vy - s0->vy) / 65536;
+      percentage++;
+      s0++;
+      s1++;
+      sc++;
     }
   }
   else {
-    pv = *percentage;
-    if (0 < n) {
-      i = 0;
-      do {
-        p = pv * ((int)s1->vx - (int)s0->vx);
-        if (p < 0) {
-          p = p + 0xffff;
-        }
-        sc->vx = s0->vx + (short)(p >> 0x10);
-        p = pv * ((int)s1->vy - (int)s0->vy);
-        if (p < 0) {
-          p = p + 0xffff;
-        }
-        sc->vy = s0->vy + (short)(p >> 0x10);
-        s0 = s0 + 1;
-        s1 = s1 + 1;
-        /* W86-D2: read-only ref fence -> pure-C ABSORPTION IDENTITY `X | (X & 3) == X`.
-           Real RTL through cse/loop/flow (reference counted, second SET), folded by
-           combine => zero bytes.  Ladder (whole-TU gate, Horizon_InterpolateLineSCoords):
-           fence removed 26 | one absorption PASS | 2 or 4 PASS | `X & (X | 3)` PASS. */
-        i = (int)((unsigned int)i | ((unsigned int)i & 3u));
-        i = i + 1;
-        sc = sc + 1;
-      } while (i < n);
+    int p = *percentage;
+
+    for (i = 0; i < n; i++) {
+      sc->vx = s0->vx + p * (s1->vx - s0->vx) / 65536;
+      sc->vy = s0->vy + p * (s1->vy - s0->vy) / 65536;
+      s0++;
+      s1++;
+      sc++;
     }
   }
-  return;
 }
 
 /* ---- Sky_InitStars__Fv  [HRZSKU.CPP:185-211] SLD-VERIFIED ----

@@ -1,0 +1,33 @@
+{
+  "passed": true,
+  "actual_source_sha256": "3aac63f8564a22e0ebfc633d586f93be576b4f96c541914e7051f3f27e52470f",
+  "actual_object_sha256": "f6e556413410b4b0d3879ed8ae420b67df328f82cdf1e37add8e3ae6eee4a87b",
+  "normal_object_literal_equal_before": true,
+  "functions_PASS": 23,
+  "branches_preserved": 206,
+  "native_local_owner_exact": true,
+  "native_scope_count": 7,
+  "SLD_before": [
+    12,
+    18
+  ],
+  "SLD_after": [
+    0,
+    0
+  ],
+  "all22_neighbor_fullcontracts_preserved": true,
+  "actual_linked81_words_native_exact": true,
+  "native_parameter_and_local_definitions": [
+    "\t.def\tbuffersize;\t.val\t18;\t.scl\t17;\t.type\t0x4;\t.endef",
+    "\t.def\tspusize;\t.val\t16;\t.scl\t17;\t.type\t0x4;\t.endef",
+    "\t.def\tchunks;\t.val\t17;\t.scl\t4;\t.type\t0x4;\t.endef",
+    "\t.def\tsize;\t.val\t18;\t.scl\t4;\t.type\t0x4;\t.endef",
+    "\t.def\tsndlimits;\t.val\t-64;\t.scl\t1;\t.tag\tSNDLIMITS;\t.size\t20;\t.type\t0x8;\t.endef",
+    "\t.def\topts;\t.val\t-40;\t.scl\t1;\t.tag\tSNDPLAYOPTS;\t.size\t20;\t.type\t0x8;\t.endef"
+  ],
+  "actual_target_payload_sha256": "8cb94ce42ea3fd02ab14b178098403ffd824587becd347f551c9f763a26b78e5",
+  "no_new_names_asm_volatile": true,
+  "no_compiler_or_debug_rewriting": true,
+  "linked_ELF_sha256": "69a16b3e8b61fd915369ab7ac44701a66bf484e0556ec7f5cf87ea7950a75570",
+  "goal_complete": false
+}

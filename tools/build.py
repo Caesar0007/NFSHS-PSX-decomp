@@ -302,6 +302,12 @@ JTBL_AT_FUSION = os.environ.get("NFS4_JTBL_AT_FUSION") == "1"
 # (w23-a11 investigation plus later per-site corrections); the other 26 jtbl TUs are deliberately absent
 # here (their explicit 5-insn form already matches and must stay untouched).
 PER_TU_FLAGS = {
+    # P905: ordinary primate COMMON globals must remain public when lowered
+    # into their native .sbss run. This preserves compiler-declared binding,
+    # not a register/instruction dial. Unique ownership and all25 GP words
+    # are checked against MAP/CPE/raw; no other TU opts in. Backups and the
+    # rejected linker-hash-ordered COMMON probe: scratchpad/p905_checkpoint.
+    "recon/eaclib/psx/eacpsxz/primate.c": {"preserve_small_common_binding": True},
     # P877: the hash-pinned retail 2.8.1 SN compiler reproduces all16 replay
     # functions and their branch distances in one ordinary compilation. It
     # removes the P852 StoringControllerData-only compiler splice below and
@@ -431,6 +437,10 @@ PER_TU_FLAGS = {
     # with zero branch-distance/count divergences.  Exact pre-change tool backup:
     # scratchpad/root_sym_audit/build.py.pre_hrzsku_g8_p765_backup.
     "recon/game/psx/hrzsku.cpp":             {"g_value": "8"},
+    # P914: native DrawW 1776/36-byte data sections and corrected foreign
+    # declarations reproduce all35 functions/361branches at CC1PL's default8.
+    # Source/header/region/data receipts and protected backup: p914_draww_storage.
+    "recon/game/psx/draww.cpp":              {"g_value": "8"},
     # 2026-09-02 SYM source restoration: textureprocess.obj owns the real
     # 8-byte `FogKey *Fog_gCurrentKey[2]`.  The old -G4 source split it into
     # two invented pointer globals plus an asm-label array view.  Honest array
@@ -1885,6 +1895,8 @@ def compile_c(src: Path, skip_asm: bool) -> Path:
             maspsx_cmd.append("--jtbl-at-fusion")
         if tu_flags.get("nop_before_label"):
             maspsx_cmd.append("--nop-before-label")
+        if tu_flags.get("preserve_small_common_binding"):
+            maspsx_cmd.append("--preserve-small-common-binding")
         r = subprocess.run([str(c) for c in maspsx_cmd],
                            input=s_file.read_text(), capture_output=True, text=True,
                            cwd=ROOT)
@@ -1949,6 +1961,8 @@ def compile_cpp(src: Path) -> Path:
         maspsx_cmd.append("--jtbl-at-fusion")
     if tu_flags.get("nop_before_label"):
         maspsx_cmd.append("--nop-before-label")
+    if tu_flags.get("preserve_small_common_binding"):
+        maspsx_cmd.append("--preserve-small-common-binding")
     # cfront dtor mangling: our CC1PL emits `_._<class>` (NO_DOLLAR_IN_LABEL -> '.'),
     # but EA's toolchain used the '.'->'_' convention (NO_DOT_IN_LABEL) => `___<class>`.
     # `_._` only ever appears as the dtor prefix, so this rename is surgical.

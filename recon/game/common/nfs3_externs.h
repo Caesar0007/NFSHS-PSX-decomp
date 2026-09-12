@@ -36,7 +36,6 @@ extern int _6Speech_fgSpeech;               /* Speech::fgSpeech (Speech*) */
 // [owned->defined in nfs3.cpp] extern char befuddleExtensions[][4];
 extern char *Paths_Paths[];
 extern GameSetup_tData GameSetup_gData;
-extern int D_801131F8[];                   /* GameSetup_gData.commMode retail alias */
 // [owned->defined in nfs3.cpp] extern tfrontEnd frontEnd;
 extern Sim_tSimSystemVar simVar;
 extern Car_tObj *Cars_gList[];   /* was stale Car_tObj** (extra indirection); real def cars.cpp Car_tObj *Cars_gList[9] */

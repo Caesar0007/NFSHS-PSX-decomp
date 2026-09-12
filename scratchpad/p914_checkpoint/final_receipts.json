@@ -1,0 +1,108 @@
+{
+  "passed": true,
+  "timestamp_utc": "2026-09-12T17:03:48.506829+00:00",
+  "last_published_commit": "7aef1e7ca5c4b5181850f8e7d671e3d5d5d7b9be",
+  "P904_P914_committed": false,
+  "P904_P914_pushed": false,
+  "approved_publication_scope_not_expanded": true,
+  "Horizon_raw_instruction_words": 80,
+  "Horizon_source_locals": [
+    "i",
+    "p"
+  ],
+  "Horizon_native_scope_count": 3,
+  "Horizon_SLD_before": [
+    0,
+    232
+  ],
+  "Horizon_SLD_after": [
+    0,
+    0
+  ],
+  "Horizon_native_parameter_location_records": 8,
+  "Horizon_native_local_homes": 2,
+  "Horizon_pv_removed": true,
+  "Horizon_false_product_role_replaced_with_cached_percentage": true,
+  "Horizon_artificial_absorption_identity_removed": true,
+  "Horizon_matched_NFS2_twin_and_native_raw_agree": true,
+  "actual_outside_target_source_bytes_preserved": true,
+  "whole_HrzSku_object_literal_unchanged": true,
+  "fresh_functions_PASS": 22,
+  "fresh_branches_preserved": 170,
+  "all21_neighbor_fullcontracts_preserved": true,
+  "strict_source_identity_mode_opt_in": true,
+  "matching_only_local_global_split_carrier_exemptions_disabled_in_strict": true,
+  "legacy_default_behavior_literal_preserved": true,
+  "default_strict_default_reuse_stable": true,
+  "independent_policy_assertions": 33,
+  "independent_real_source_cases": 4,
+  "complete_directories_compared": 4,
+  "directory_review_metrics": [
+    {
+      "target": "recon/frontend/common",
+      "legacy_clean": 780,
+      "strict_clean": 613,
+      "legacy_extra": 48,
+      "strict_extra": 484
+    },
+    {
+      "target": "recon/frontend/psx",
+      "legacy_clean": 85,
+      "strict_clean": 60,
+      "legacy_extra": 0,
+      "strict_extra": 53
+    },
+    {
+      "target": "recon/game/common",
+      "legacy_clean": 1226,
+      "strict_clean": 1085,
+      "legacy_extra": 8,
+      "strict_extra": 474
+    },
+    {
+      "target": "recon/game/psx",
+      "legacy_clean": 392,
+      "strict_clean": 258,
+      "legacy_extra": 3,
+      "strict_extra": 395
+    }
+  ],
+  "legacy_extra_local_review_items": 59,
+  "strict_extra_local_review_items": 1406,
+  "review_items_not_automatically_confirmed_source_errors": true,
+  "retained_primary_categories_need_independent_evidence": true,
+  "audit_does_not_seal_foreign_headers_values_SLD_or_layout": true,
+  "all695_normal_inputs_literal_unchanged": true,
+  "full_ELF_map_literal_unchanged": true,
+  "full_fresh_matching_report_literal_unchanged": true,
+  "both_scoped_relink_lanes_GREEN": true,
+  "all39_data_and7_zero_owners_valid": true,
+  "vtable_and_source_policy_PASS": true,
+  "no_new_invented_reconstructed_names_asm_volatile_or_codegen_devices": true,
+  "no_postcompiler_or_debug_rewrites": true,
+  "formatting_only_outside_target_EOL_repair_guarded_and_reverified": true,
+  "user_edits_preserved": true,
+  "DrawW_private_work_not_landed_or_counted": true,
+  "full_original_source_SYM_SLD_goal_complete": false,
+  "goal_complete": false,
+  "ELF_sha256": "df44e37f2f9e30341f86e9ce30be5d3596ee7a5b6683988b150745574f0628f5",
+  "map_sha256": "9b7f219b879407f827285dba7ef20f3f5eea47ff1144bd8d3fe9cd0a0e770eb0",
+  "report_sha256": "2f64da5ebcadf1b920d8668e8a02ffed87abf40a1621fd45bfa97b3805ab19c3",
+  "production_sha256": {
+    "recon/game/psx/hrzsku.cpp": "90d67e2d9ffab2244a1ad6674cc7ee1be875ddaee39b0d994dadfac8e2f76668",
+    "scratchpad/root_sym_audit/ORIGINAL_SOURCE_NAME_BACKLOG_20260903.md": "67f90e0d7708f8d4ed40c20007bfc800c61dfb9f0e17148ad06661b171d74a65",
+    "scratchpad/root_sym_audit/STRICT_SOURCE_IDENTITY_REPORTING.md": "4490c942046bb3cd0e977caef3c96eafec14acfa6a6a9cec247ab8966b934666",
+    "scratchpad/root_sym_audit/audit_sym_source.py": "674e185277d9e075db6195b92587fa63cb90180a00d54eab3ccf23b769fb6a98"
+  },
+  "evidence_sha256": {
+    "scratchpad/p914_checkpoint/horizon_actual.json": "106fa3f7463e70ac97e8348d5a6c3bdc019c8e8f64f3a9cc0c5bc8156c470305",
+    "scratchpad/p914_horizon_native/twin_peer_review.json": "1c645deb8f57a2bd1afd0c81373e47ccd528afad7161ef1a69fce49e0f0b9ff6",
+    "scratchpad/p914_horizon_native/inventory.json": "199a7aee5470b73f3e630c1871455dee4c6a8e31695a63cc62fd84d971194d09",
+    "scratchpad/p914_horizon/object_probe.json": "822ff202ec9cb96e30ce6f82c5f3d8ccfbbeabae1f90fd8e267a45a3cbecba5f",
+    "scratchpad/p914_checkpoint/source_checkpoint_closure.json": "d16c133078ca774c10a91a7b153616356307731bc1a4af059ff8d999783c2503",
+    "scratchpad/p914_checkpoint/relink.json": "bada05364d62f8b1fce094bdc5c37fc2281c09a2563ee3685cff9c65c53cf8ae",
+    "scratchpad/p914_checkpoint/audit_reports.json": "316c6a4565055fc8dbdd1e92397805babff0b6644919ac01685c0a4ab4c302f8",
+    "scratchpad/p914_identity_review/fixture_results.json": "89f6341f7b7ac7b6d0f7e5c69b3e390aa503ac3db1113b616d254a3a932be5f2",
+    "scratchpad/p914_identity_review/real_case_results.json": "8893f76f58044c630bd66a8d7155cbb436830cd970852f6fb56cbbeb0c2ba129"
+  }
+}

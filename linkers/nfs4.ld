@@ -81,6 +81,8 @@ SECTIONS
         build/asm/data/rdata_80054548_r04.rodata.s.o(.rodata);
         build/asm/data/rdata_80054548_j05.rodata.s.o(.rodata);
         build/asm/data/rdata_80054548_r05.rodata.s.o(.rodata);
+        build/asm/data/rdata_audiocmn_trackgenbank_legacy.rodata.s.o(.rodata); /* P907 native44-byte template. */
+        build/asm/data/rdata_audiocmn_trackgenbank_padding.rodata.s.o(.rodata); /* Existing native4-byte zero tail. */
         build/asm/data/rdata_80054548_j06.rodata.s.o(.rodata);
         build/asm/data/rdata_80054548_r06.rodata.s.o(.rodata);
         build/asm/data/rdata_80054548_j07.rodata.s.o(.rodata);
@@ -776,7 +778,7 @@ SECTIONS
         build/asm/data/data_8010CCD4_o19.data.s.o(.data);
         build/asm/data/data_8010CCD4_r09.data.s.o(.data.r09_pre);
         /* Legacy lane retains the original gmesetup.obj lookup-name payload. */
-        build/asm/data/data_8010CCD4_r09.data.s.o(.data.r09_gmesetup_names_legacy);
+        build/asm/data/data_gmesetup_names_legacy.data.s.o(.data.r09_gmesetup_names_legacy); /* P907 exact src oracle. */
         build/asm/data/data_8010CCD4_o20.data.s.o(.data);
         build/asm/data/data_8010CCD4_o21.data.s.o(.data);
         build/asm/data/data_8010CCD4_r10.data.s.o(.data);
@@ -789,7 +791,7 @@ SECTIONS
         /* SYM ownership seams: the legacy lane retains the original replay,
            schedule, and Stats payloads between the same neighbors. */
         build/asm/data/data_8010CCD4_r13.data.s.o(.data.r13_pre);
-        build/asm/data/data_8010CCD4_r13.data.s.o(.data.r13_replay_legacy);
+        build/asm/data/data_replay_legacy.data.s.o(.data.r13_replay_legacy); /* P906 exact src-only Replay oracle. */
         build/asm/data/data_8010CCD4_r13.data.s.o(.data.r13_schedule_legacy);
         build/asm/data/data_8010CCD4_r13.data.s.o(.data.r13_sim_legacy);
         build/asm/data/data_8010CCD4_r13.data.s.o(.data.r13_stats_legacy);
@@ -798,10 +800,13 @@ SECTIONS
         /* Legacy lane keeps the original bytes for the TrgSfx SYM ownership window. */
         build/asm/data/data_8010CCD4_r13.data.s.o(.data.r13_trgsfx_legacy);
         build/asm/data/data_8010CCD4_r13.data.s.o(.data.r13_after_trgsfx);
+        build/asm/data/data_draww_legacy.data.s.o(.data);   /* P914 preserves the native DrawW oracle tail. */
         build/asm/data/data_8010CCD4_o26.data.s.o(.data);
         build/asm/data/data_8010CCD4_r14.data.s.o(.data);
         build/asm/data/data_8010CCD4_o27.data.s.o(.data);
-        build/asm/data/data_8010CCD4_r15.data.s.o(.data);
+        build/asm/data/data_hrzsku_legacy.data.s.o(.data);   /* P913 preserved native HrzSku oracle. */
+        build/asm/data/data_hud_legacy.data.s.o(.data);
+        build/asm/data/data_8010CCD4_r15.data.s.o(.data.r15_post);
         build/asm/data/data_8010CCD4_o28.data.s.o(.data);
         build/asm/data/data_8010CCD4_r16.data.s.o(.data);
         build/asm/data/data_8010CCD4_o29.data.s.o(.data);
@@ -836,6 +841,10 @@ SECTIONS
         build/asm/data/tail.data.s.o(.data.tail_simqueue_output_legacy);
         build/asm/data/tail.data.s.o(.data.tail_simqueue_max_legacy);
         build/asm/data/tail.data.s.o(.data.tail_after_simqueue);
+        build/asm/data/tail_hud_sbss_legacy.data.s.o(.data); /* P910 retained76-byte transport oracle. */
+        build/asm/data/tail.data.s.o(.data.tail_after_hud_sbss);
+        build/asm/data/tail_primate_legacy.data.s.o(.data); /* P905 src-only transport oracle. */
+        build/asm/data/tail.data.s.o(.data.tail_after_primate);
         build/src/*(.data);
         . = ALIGN(., 16);
         nfs4_DATA_END = .;
@@ -911,7 +920,9 @@ SECTIONS
         build/asm/data/sdata_8013C54C_o31.sdata.s.o(.sdata);
         build/asm/data/sdata_8013C54C_r19.sdata.s.o(.sdata);
         build/asm/data/sdata_8013C54C_o32.sdata.s.o(.sdata);
-        build/asm/data/sdata_8013C54C_r20.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_r20.sdata.s.o(.sdata.r20_pre);
+        build/asm/data/sdata_hud_legacy.sdata.s.o(.sdata); /* P909 retained240-byte oracle. */
+        build/asm/data/sdata_8013C54C_r20.sdata.s.o(.sdata.r20_post);
         build/asm/data/sdata_8013C54C_o33.sdata.s.o(.sdata);
         build/asm/data/sdata_8013C54C_r21.sdata.s.o(.sdata);
         build/asm/data/sdata_8013C54C_o34.sdata.s.o(.sdata);
@@ -919,6 +930,7 @@ SECTIONS
         build/asm/data/sdata_8013C54C_o36.sdata.s.o(.sdata);
         build/asm/data/sdata_8013C54C_r22.sdata.s.o(.sdata);
         build/asm/data/sdata_vars_legacy.sdata.s.o(.sdata);
+        build/asm/data/sdata_primate_legacy.sdata.s.o(.sdata); /* P904: exact retained src-lane oracle. */
         build/asm/data/sdata_8013C54C_r22.sdata.s.o(.sdata.r22_post_vars);
         build/asm/data/sdata_8013C54C_o37.sdata.s.o(.sdata);
         build/asm/data/sdata_8013C54C_r23.sdata.s.o(.sdata);

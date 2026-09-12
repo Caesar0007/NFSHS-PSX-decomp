@@ -11,7 +11,7 @@
 
 
 /* ---- collide.obj-owned globals (real NFS4.EXE bytes / .bss zero) ---- */
-BO_tNewtonObj *Collide_gRegistry[16];   /* @0x80110c30  (bss(zero)) */
+BO_tNewtonObj *Collide_gRegistry[16];   /* @0x80110c30 (.data; CPE-loaded zero) */
 int          Collide_gRaiseUp = 1;   /* @0x8013c82c */
 int          frictionLess;   /* @0x8013c830  (bss(zero)) */
 int          Collide_gNumRegistered;   /* @0x8013c834  (bss(zero)) */

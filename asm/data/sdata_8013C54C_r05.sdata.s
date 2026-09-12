@@ -1,7 +1,7 @@
 .include "macro.inc"
-/* W64-A18: residual segment of sdata_8013C54C -- labels no recon TU defines
- * (or a record tail a recon TU's section stops short of).
- * Linked by BOTH lanes. */
+/* P906: exact AudioCmn initialized-data oracle, 0x8013C628..0x8013C720.
+ * The src lane retains all bytes/labels. Reconstruction uses the complete
+ * validated audiocmn.cpp .sdata owner and excludes this duplicate input. */
 
 .section .sdata, "wa"
 

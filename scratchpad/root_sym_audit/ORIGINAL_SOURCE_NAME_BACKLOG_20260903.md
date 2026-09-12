@@ -5257,3 +5257,991 @@ baseline/actual O0/O2 runs of1066499 assertions each. Host input-domain limits
 are documented rather than ignored. See ../p903_upstream_eac and its host
 disposition. Publication is authorized; final commit/push state is recorded
 separately so the historical pre-publication receipts remain honest.
+
+## P904 / 2026-09-12: native initialized drawing state and callback reservation
+
+P898-P903 was committed and pushed as7aef1e7c before this new work. P904
+restores real source-owned storage, not merely matching-display names.
+
+Native compact SYM0192d1..01930c, MAP and physical CPE load3465 prove the
+five-cell primate initialized run at8013DD04..8013DD18. Ordinary definitions
+now initialize otbuf/primbuf/linkmodeflag/drawpending to0 and semitrans to1.
+The old private tentative cells were zero-filled and disagreed with external
+draw consumers. The source .sdata is20 bytes with all five native public
+offsets. Only the corresponding raw20-byte leaf becomes oracle-only; its
+following .psh string and shapeext pointer retain exact bytes and addresses.
+Both src and expected retain the complete raw oracle, including all labels
+and relocation destinations. No function body changed.
+
+This repairs11 of25 primate GP references in the actual linked image. All26
+outside HI/LO reference words remain raw-native. The remaining ten tentative
+SBSS cells still have14 wrong GP targets; their relative declaration order
+is preserved and their LOCAL-versus-shared binding debt is explicit in source.
+Names otbl2 and primbuf2 remain unproved carriers, not recovered originals.
+Compact labels do not prove the exact original char-pointer/int declarations
+or whether either unnamed slot was an aggregate interior.
+
+Callback's existing128-byte, four-byte-aligned mutexbuf reservation now links
+at native801477E0 rather than80140DCC, without a callback source edit. All25
+actual linked callback instruction words match raw; two old LO16 words are
+repaired. Its type spelling short[64] remains inferred, not a typed SYM fact.
+
+All74 EAC TUs were recompiled:248 functions remain PASS and1139 branch checks
+are preserved;73 objects are literally unchanged. Of702 old linked inputs,
+700 are byte-preserved; only primate and the raw r22 split change. All950
+previously correct GP references and3779 previously correct native public
+bindings remain correct. GP wrong-target count1428->1417; all2381 resolve,
+with zero overflow/encoding mismatch and three unchanged unknown targets.
+Both relink lanes, vtable indexing and source-only policy remain green.
+
+This is NOT a fully restored linked image. Allocated-section overlap pairs
+are133->135: the new callback NOBITS section overlaps two already misplaced
+PROGBITS ranges (.data_rest and .data.r13_replay_legacy),128 bytes each. It
+does not overlap catch-all BSS. The inherited .data/.sdata overlap also remains.
+No invented filler preserves the former wrong cells: catch-all SBSS shrinks
+20 bytes and BSS shrinks128. Wrong orphan placement still requires restoration.
+
+Three source-only SBSS probes are rejected: explicit .sbss attributes keep
+the instruction match but produce PROGBITS; .bss attributes give NOBITS but
+regress initlinkmode; nocommon attributes produce initialized small data.
+Existing --use-comm-section preserves global COMMON metadata and the code
+match in a private probe, but its complete native allocation/order/link
+contract is unproved and is NOT enabled in production. No build.py or maspsx
+change, generic asm, volatile, renamed carrier or postcompile rewrite lands.
+
+Protected owner-tool edits have comments and backups. Initialized-storage
+and zero-storage validators have negative controls against bad payloads,
+types, bindings, offsets, extents and alignment. Exact receipts and residual
+qualifications: ../p904_checkpoint, ../p904_primate_native,
+../p904_primate_owner and ../p904_callback_owner. The main goal remains open.
+
+## P905 / 2026-09-12: remaining primate shared storage is native
+
+The ten-cell SBSS storage gap from P904 is now fixed. Ordinary C tentative
+definitions emit the compiler's public COMMON declarations in native address
+order. A narrowly opted-in assembler binding correction preserves public
+binding while lowering those declarations into one40-byte NOBITS section;
+the existing source-zero owner mechanism selects it at8013DE68. All ten
+source symbols have their exact native offsets and four-byte alignment.
+The old raw40-byte transport copy is retained solely in the src oracle lane.
+No duplicate native storage or invented former-site padding remains.
+
+All81 actual linked primate instruction words match raw retail, including
+all25 GP reference words. All26 outside drawing-reference words (13 HI16,
+13 LO16) remain raw-exact and bind the same shared source globals. The
+remaining14 bad primate GP targets are repaired: whole-project GP wrong
+count1417->1403, after P904 had already repaired11. Both unproved carrier
+names otbl2/primbuf2 remain visible; this does not recover their lexical
+names, original aggregate membership or exact C type tokens. Address order
+is verified; an exact original declaration-order claim is not made.
+
+The rejected true-COMMON path is documented, not hidden: GNU ld pools these
+symbols into .scommon in link-context-dependent hash order; its common-sort
+options sort alignment, which is identical for all ten cells. The accepted
+option instead extends the existing large-COMMON public-binding behavior
+to a verified small owner. It is a strong section definition, not generic
+COMMON coalescing. Only primate opts in. Legacy defaults and true .lcomm
+static binding are unchanged. No function instruction, source asm, volatile,
+register dial, relocation record or assembled object is rewritten.
+
+The normal and debug compiler lanes agree on all instruction bytes and
+public storage records. All74 EAC TUs recompile;248 functions and1139 branch
+checks remain PASS,73 objects remain byte-identical to P904, and700 of702
+prior linked inputs remain unchanged. The two changed inputs are primate
+and the precisely split raw tail. All961 previously correct GP references
+and3780 previously correct native public bindings remain correct; callback
+storage remains native. Physical overlap/layout debt elsewhere remains open.
+
+Allocated output overlap pairs change135->139 because the previous tail
+section is split around the native zero owner; no new overlapping address
+range or increased overlap multiplicity is introduced. All four pre-existing
+native/raw disagreement diagnostics remain unchanged. These are not waivers
+or evidence that the full linked image is already restored.
+
+Raw-seam checks retain every byte, label and relocation in src/expected.
+Five assembler unit tests cover public/private/common options and source
+order;48 cases equal the backed-up default implementation. Eleven invalid
+SBSS owner metadata cases are rejected in memory. Both relink lanes are
+GREEN; the exclusion report now includes both initialized and zero owners
+(22 exact raw leaves), not just initialized owners. See ../p905_checkpoint
+and ../p905_common_contract for actual-source, native-image and peer proof.
+
+Next material layout work is now evidence-backed: ../p905_orphan_replay
+proves29540 bytes of existing duplicate raw data behind the callback overlaps.
+Replay's entire28628-byte orphan is already covered by eight typed source
+sections plus three native CPE alignment bytes. FEI's separate912-byte raw
+table duplicates a linked typed source owner, including108 exact pointer
+relocations. These exclusions are NOT yet landed: Replay needs its own
+exact raw leaf/eight-section guard, and FEI needs a relocation-aware owner
+guard rather than weakening the existing no-relocation invariant. The rest
+of .data_rest must not be blanket removed. The full goal is still incomplete.
+
+## P906 / 2026-09-12: native field expressions, store order and data ownership
+
+FEI_gList now uses108 direct typed pointers:107 exact GameSetup_gData member/
+array paths and &gUseFrontend. All paths and INT leaf types are independently
+derived from native SYM and checked against the actual header/compiler layout.
+No field names are invented. The114 scalar entries, six nulls and108 ordered
+R_MIPS_32 target/addend pairs are unchanged; the actual FEI object is literally
+identical to the former byte-offset-cast source. Its entire912-byte linked
+table equals CPE/ROM. Original macro/token spelling is not claimed.
+
+Replay's complete28628-byte raw duplicate is retired in favor of its eight
+already-typed source sections:28625 declared bytes plus three real CPE
+alignment bytes. Full-group validation and native linker assertions prevent
+excluding the whole raw leaf after checking only a subset. Every raw byte,
+label and relocation remains available in the src/expected oracle lane.
+The misleading Scene-function header on replay.cpp is corrected; all sixteen
+Replay functions and their whole object remain unchanged.
+
+Four source stores were in the wrong order despite normalized PASS. Native
+AudioCmn_Init lines705/706 reset intensityFalseLapCounter before falseLapCounter;
+the source pair is corrected without renaming either global. TrackSpec_Read's
+native line160 assigns Current then Prev; a chained assignment restores that
+single statement group. Audio's SLD0/100 remains explicit, Track's0/8 becomes0/7.
+All53 functions,523 branches and their local/debug/scope contracts are preserved.
+
+Crucial erratum: resolving an isolated object using forced native symbol VAs
+was NOT actual-link proof. Before the final owner fix, Track's two stores were
+name-correct/raw-wrong, while Audio's two cells were also physically displaced.
+The corrected final report derives those partitions from the actual old/new
+linked targets, not the earlier all-four-good assumption.
+
+AudioCmn's full248-byte initialized .sdata now occupies native8013C628 instead
+of an appended misplaced run. All58 storage addresses are checked:46 native
+global names, two native function statics and ten existing literal carriers.
+lastImpactSample remains LOCAL INT atC6AC, value99; cobbleCount remains LOCAL
+CHAR atC6B0, value0. Their compiler numeric UIDs are not exported aliases.
+Literal carriers remain unproved source names; SFXHDR/fesfx actual extents7/6
+are distinguished from their padded8-byte slots. TrackSpec's already-native
+three-word source run now replaces its unused12-byte raw duplicate as well.
+
+The final actual link repairs126 Audio GP targets:1403->1277. All four corrected
+store instructions now match raw. All354 source-owner reference targets across
+fifteen source TUs and two raw inputs are verified. All973 other previously
+correct GP rows,3780 native public bindings and86 native local records are
+preserved. The four native/raw disagreements are zero, all2381 GP rows resolve,
+and no overflow or encoding mismatch exists; three expectations remain unknown.
+
+Combined duplicate retirement is29800 bytes (Replay28628, FEI912, Audio248,
+Track12); raw-blob duplicate count848->780. There are still133 output-section
+overlap pairs (previously139), with no increased overlap area or multiplicity.
+The callback reservation still overlaps a different raw GameSetup copy:
+data_8010CCD4_o20.data.s.o currently8014773C..80148164. Removing FEI did not
+magically seal the whole catch-all: subsequent misplaced inputs repack there.
+That exact remaining2600-byte candidate requires its own source/CPE audit.
+
+69 functions and739 branches were freshly re-gated. FEI is data-only, not a
+function PASS. EAC's248 functions and Primate81/callback25 raw words remain
+preserved. Of702 old linked inputs,699 are unchanged; only the two store-fix
+objects and the exact raw r13 split differ. The objdiff report is unchanged.
+
+The new pointer owner guard pins unresolved/masked/resolved payloads and all
+108 native relocation fields, preserving the default no-relocation rule.
+An initial50/51 integration test exposed a missing owner visibility check;
+the hardened final helper passes51/51 and all30 default guards reject injected
+relocations. Replay has16 negative payload/group cases; private wrong-order
+linking trips two native assertions even when ld --noinhibit-exec returns0.
+gen_ld now rejects those explicit owner failures rather than trusting that0.
+
+Authoritative current receipts: ../p906_checkpoint/final_receipts.json,
+peer_final_preservation_corrected.json and peer_owner_references_final.json;
+../p906_fei_owner/actual/final31 and actual_source_final;
+../p906_native_name_conflicts/landed_verified.json and ownership.
+Earlier provisional/forced-native reports remain historical, with an explicit
+erratum. No new source ASM/volatile, invented names or postcompile rewriting
+is introduced. P904-P906 remain local pending publication approval; the main
+original-source/SYM/SLD goal is active and incomplete.
+
+## P907 / 2026-09-12: GameSetup ownership and ordinary AudioCmn literals
+
+GameSetup's complete 3024-byte initialized source block now replaces its raw
+duplicates: 424 bytes of name tables/alignment plus GameSetup_gData's 2600
+bytes. All four native global declarations, exact storage extents, ROM/CPE
+bytes and the unchanged GameSetup object are verified. The mixed raw r09
+prefix's unrelated 1304 bytes remain untouched; both separated raw leaves
+remain available to src/expected. No new GameSetup source type was invented.
+
+Three existing address-named aliases are removed from their consumers:
+D_801131F8 -> GameSetup_gData.commMode in nfs3;
+D_8011321C -> GameSetup_gData.reverseTrack in AIState and HUD;
+D_801132CC -> GameSetup_gData.userSetting.language in HUD. Five source uses
+become nine native HI/LO reference words (the two HUD language uses CSE to
+one load). Four obsolete declarations are removed. These existing typed
+field paths are native SYM-backed, not semantic renames of unknown objects.
+However, inherited GameSetup type/header visibility in the nfs3/AIState TU
+views is not uniquely recovered from their native SYM graphs. It remains
+source-context debt; byte-exact field access does not prove original tokens.
+
+AIDataRecord's four constructors retain their pre-existing D_80113228 source
+alias (eight reference words). The owning SYM graph does not repeat the
+GameSetup root type/global, and no native standalone declaration or original
+accessor/header context was found. The tempting full-type private probe
+passed all 26 function gates but was NOT landed: matching does not authorize
+inventing that context. Its CPP/types/externs remain literally unchanged.
+A clearly labelled compatibility-only linker PROVIDE binds that existing
+name to GameSetup_gData + 0x3C; it is GLOBAL NOTYPE ABS, size zero, and allocates
+no second storage word. This preserves native addressing while removing the
+duplicate raw block, but is NOT recovery of the original source spelling.
+Required next evidence: recover the original accessing declaration/macro or
+header context, then replace the alias without inventing names or types.
+
+AudioCmn's ten explicit D-named string carriers, forced section/alignment
+attributes and carrier exemptions are removed. Code uses ordinary literals:
+SFXHDR, fesfx, eng, ger, frn, spn, itl, Gen, brt, fre. Placing the existing
+native AudioCmn_LanguageName definition between LoadFESamples and
+LoadGameSamples restores the native literal-pool order. A naive literal-only
+probe passed code but scrambled data; only the paired source arrangement
+matches both. The existing -G8 profile is unchanged. The obsolete -G4/header
+claim was corrected, not implemented as a new compiler-flag workaround.
+All 48 Audio functions, 513 branches, debug locals/statics/scopes and SLD
+partitions remain preserved; this does not claim its old SLD splits solved.
+
+AudioCmn's full 2416-byte .data now has native source ownership, including
+seven R_MIPS_32 literal pointers. Its existing 248-byte .sdata remains native
+and exact; 69 native storage records across both sections include four real
+LOCAL statics. The 44-byte TrackGenBank readonly template has eleven exact
+same-TU literal pointers. Its original four following zero bytes remain a
+separate raw padding leaf in both lanes, not invented C padding. The old
+synthetic D_8005570C extent was 48, incorrectly including that padding; it is
+now the native SYM array extent 44. All 1352 original r05 bytes, 57 relocations
+and 41 symbol records survive the raw split, with that one explicit extent
+correction. No compiler output was split, patched or rewritten.
+
+The new opt-in same-TU section-pointer guard requires a previously validated
+ordinary native owner from the same exact object, a genuine LOCAL section
+symbol, complete relocation/target/addend sets, exact storage metadata and
+unresolved/masked/resolved hashes. The readonly window does not create a
+second source selection. Actual linker assertions check its selected section
+base/size/window; retained raw padding is validated separately. There are
+33 initialized owner rows (31 relocation-free, one FEI 108-pointer row, one
+Audio seven-pointer row) plus six zero owners. The nested 44-byte window is
+not a 34th owner. FEI's strict GLOBAL/UNDEF target boundary is unchanged.
+
+All 40 Audio guard controls pass. FEI passes 51/51; all 31 default owners
+reject injected relocations. Generic visibility checks now reject internal,
+hidden and protected symbol visibility: 225 tests cover 75 storage records
+in 15 generic explicit-symbol-contract rows (14 ordinary plus FEI). The
+17 older payload-only
+rows still lack explicit symbol identity/visibility contracts; do not claim
+that this audit makes every registered owner fully declaration-exact.
+
+Current actual-link proof: all 17 GameSetup references, all 24 changed Audio
+literal references and all 196 Audio data-consumer references are native
+exact. All 2381 GP targets are unchanged from P906; 1101 previously correct
+GP bindings, 3826 native public full records and 86 native LOCAL/FILE full
+records are preserved. Nineteen additional public records are now native.
+Primate's 81 and callback's 25 instruction words remain raw-exact. There is
+no new overlap area or multiplicity. The full link is still NOT runnable-
+image-exact: 1277 wrong GP targets and three unknown expectations remain.
+
+Duplicate raw bytes retired in this round: 5484 (GameSetup 3024, Audio .data
+2416, TrackGenBank 44). Raw-blob duplicate count falls 780 -> 757, with zero
+REAL duplicates, phantom names or referenced unresolved symbols. There are
+30 exact oracle-only exclusions. Total allocated section sizes fall by 5440,
+not 5484: the readonly source/raw hole arrangement is different from simply
+deleting bytes in a flat image. Neither number is an executable size claim.
+The callback still overlaps repacked raw o21.data, currently
+8014773C..80147B44 (1032 bytes); removing o20 was not a whole-link solution.
+Audio SoundCar's following readonly table still has its pre-existing four-
+byte placement discrepancy (source offset104 versus native108). The exact
+TrackGenBank window must not be extrapolated to the entire .rodata section.
+
+175 functions and 1441 branches pass the final combined five-TU gate, with
+normal/debug allocated payloads identical. Authoritative receipts:
+../p907_checkpoint/final_gates.json and final_gp_audit.json;
+../p907_gmesetup_owner/final_audio and final_audio_source_review;
+../p907_audio_literals/integration/landed_20260912/peer_final_review.json.
+No new source ASM, volatile, fabricated identifier or post-recompile rewrite
+was introduced. P904-P907 are local; the last published commit is 7aef1e7c.
+The overall original-source/SYM/SLD goal is still active and incomplete.
+
+P907 final-build qualification: NFS4_STRICT full expected/recon builds finish
+without skipped TUs, but build.py itself does not implement NFS4_SOURCE_ONLY;
+that profile selection exists in verify_asm.py. An ordinary full build changed
+six pre-existing strict-profile SDK objects (FIRST, cdread, INTR, LIBMCRD,
+PADCMD, PADSEQD) via legacy per-function options. This is not local-label noise
+or a P907 source regression. All six are reproduced literally at their frozen
+hashes by recompiling with the exact existing strict-verifier profile; no code,
+flags registry or postcompiled output is modified to force those hashes.
+The original report hash is restored and a fresh actual relink reproduces the
+reviewed ELF/map exactly. The ordinary full-build report is retained separately;
+do not claim the two profiles are interchangeable. Required tooling follow-up:
+explicitly distinguish CI/full-build and strict-verifier profiles in reports.
+See ../p907_checkpoint/build_profile_restored.json. The final 699-input closure
+preserves 693 whole objects; only four scoped C++ objects and two exact raw
+split objects differ. Full original-source/SLD restoration remains unproved.
+
+## P908 / 2026-09-12: SwitchSong source scopes and 47 exact data contracts
+
+AudioMus_SwitchSong now uses the ordinary short-circuit if/else supported by
+native SYM/SLD, raw MIPS and the independent M2C body. SONG_OFF, SONG_ON and
+SONG_DONE source labels are removed; two had emitted compiler SCL6 records.
+The existing native info variable (19f03d, register v0, PTR AudioMus_tSongEntry)
+belongs inside the work branch, not at function root. Its owner is now exactly
+8007A114..8007A1CC at depth2. All three native blocks are reproduced. Removing
+the redundant final void return naturally restores native line278's grouping
+of the final else-store and epilogue: SLD0/24 ->0/0. No new name, wrapper,
+qualifier, macro, assembly, volatile or compiler-output rewrite is used.
+
+The actual production-path whole normal AudioMus object is literally unchanged;
+all23 functions/206 branch comparisons pass, and all22 neighboring complete
+local/scope/SLD graphs are preserved. The extra-wrapper probe generated four
+scopes instead of three and was not retained. This proves the native observable
+statement partition and local ownership, not every original whitespace/token
+or shared-header declaration.
+
+Important actual-link finding: evaluating the isolated object's relocations at
+forced native addresses produces all62 retail words, but the current linked
+image has only60/62 exact. At8007A188 and8007A1B4, the load/store of
+Hud_kTurnSongOffNext resolve to8013E0BC instead of native8013D940. The entire
+linked ELF is identical to the P907 baseline, so this is pre-existing storage
+placement debt, not a source regression. It must not be hidden behind PASS or
+the isolated62-word result. Read-only follow-up proves the complete existing
+HUD .sdata240 bytes equal native ROM/CPE at8013D89C..8013D98C; moving that full
+source owner, while preserving both neighbors of its raw duplicate, is the
+next concrete repair. No single-symbol alias or guessed bool/padding edit is
+proposed. HUD's old140-byte/fconserve-space comment is contradicted by this
+current240-byte primary-data evidence and needs correction with the owner work.
+
+The existing r3dcar, copspeak and nfs3 initialized-data rows now have exact
+contracts for47 native globals, not just payload hashes. Every original name,
+offset, storage width, GLOBAL binding and default visibility is checked. All
+370 existing source bytes retain their hashes;204 of these remain anonymous
+literal/alignment spans, not invented variables. CopSpeak's final two raw zeros
+are preserved separately: they match ROM/linked data but are NOT CPE-loaded.
+PTR STRUCT size36/12 records describe pointees, not pointer-cell widths;
+BOOL retains the existing four-byte PSX representation. Same-width C type or
+signedness-token equivalence is not inferred merely from an ELF symbol.
+
+All509 controls pass on the landed registry: six valid cases,503 unsafe cases
+rejected. The actual source owner count remains33 plus six zero owners; the
+legacy payload-only review queue falls17 ->14 rows. All previous guard function
+ASTs, exclusion sets, FEI and Audio local-section contracts are unchanged.
+The generated linker map adds exactly47 successful native-symbol assertions;
+all placements and the entire linked ELF remain identical. The actual linked
+reference proof verifies462 target/addend/complete-word encodings across20
+consumers:222 GP,115 HI16,124 LO16 and one R32. Only259 individual references
+also receive a strict raw-word claim;195 lie in non-byte-identical linked
+function bodies and eight lack a unique native function-name anchor. These
+qualifications remain explicit rather than counting all462 as raw instruction
+matches. Existing .data/.sdata VMA overlaps require section-qualified reads.
+
+The prior full --skip-asm build had cleared build/src oracle text. The two-lane
+relink guard correctly refused to count those empty objects as success. All
+467 source scaffolds were recompiled asm-inclusive and independently matched
+expected/src whole objects exactly, without touching reconstructed objects.
+Both relink lanes are now GREEN under their scoped duplicate/unresolved gates;
+757 known raw-blob duplicates and1277 wrong GP targets still prevent a complete
+image-exact claim. The vtable and source-only policy audits pass.
+
+SoundCar's four-byte readonly gap gained a new falsifiable source-context angle.
+Original ASPSX2.77 fixtures reproduce offset104 just like the current assembler,
+so the simple assembler-padding hypothesis failed. The native SimpleMem string
+at800556C4 could supply a missing twelve-byte prefix: with section base556C4,
+ordinary alignment would put the existing template at5570C and switch at5573C.
+Compiler probes show an unused default-argument declaration emits no literal,
+whereas an uncalled inline body can emit it without code. This mechanism alone
+does NOT establish which original inline/header body existed; no dummy literal
+emitter, padding object or guessed constructor was added.
+
+A productive independent twin is mobile Track_Init/SimpleMem. Raw PE bytes
+prove a tag-first,size-second constructor, and expose an allocator third-zero
+argument omitted by IDA. Field/null/size stores corroborate the PSX inlined
+region. The tag formal's original name, unused default-SimpleMem overload and
+AudioCmn header context remain unproved. Generated ThisDust/SYM headers were
+not treated as original-source evidence. Keep this original-context question
+open rather than manufacturing a passing header.
+
+Current receipts: ../p908_checkpoint/actual_source_receipt.json,
+negative_controls.json, oracle_src_restored.json and relink.json;
+../p908_audiomus_switchsong; ../p908_owner_contracts/references;
+../p908_soundcar_rodata and ../p908_simplemem_context. P904-P908 remain local,
+with no publication approval inferred from the earlier P898-P903 approval.
+The full original-source/SYM/SLD goal remains active and incomplete.
+
+## P909 / 2026-09-12: native HUD owner repairs real linked addresses; playlist scopes
+
+The complete existing HUD .sdata240-byte source block now occupies its native
+8013D89C..8013D98C range. All33 storage identities are checked against SYM:
+28 public cells and five LOCAL statics. The four function statics keepup,
+oldCountdown, lastsec and lastsectick retain their real owners and numeric
+compiler UID suffix handling; file-static BTC_playedsoundalready keeps its
+exact name and LOCAL binding. Named storage covers143 bytes; the other97
+remain literal/alignment bytes, not fabricated source variables. Every byte
+of the full240-byte run is independently ROM/CPE-exact. The incorrect old
+140-byte/-fconserve-space source comment is corrected without changing code,
+types, initializers or compiler options. HUD's separate .sbss76/.data668/
+.bss1226 remain independent ownership work.
+
+The mixed r20 raw donor is split into its original36-byte prefix,240-byte HUD
+middle and380-byte suffix. All656 bytes and133 original raw symbol records
+survive, with exact MIPS small-data flags and zero relocation sets preserved.
+The middle remains in an oracle-only leaf; pre/post remain at their native
+addresses in both applicable lanes. All21 additional raw-only labels have
+zero live input references, so no compatibility aliases are added. The later
+appended duplicate source240 bytes are removed; only that extra-data suffix
+naturally shifts earlier. This is not a rewrite of compiler-produced objects.
+
+The actual normal linked image is identical to the independently verified
+private image. Hud_kTurnSongOffNext now resolves to native8013D940, repairing
+SwitchSong's two old LO16 failures at8007A188/8007A1B4. The actual full function
+is now62/62 raw-exact, and all six references to the flag (four Music HI/LO
+words plus two HUD GP stores) match retail. This supersedes P908's actual60/62
+result through a real source-owner correction, not forced verifier symbols.
+All250 HUD reference target/addend/encoded-word records and all33 storage
+identities are verified against the actual selected sections and map.
+
+Wrong GP targets fall1277 ->1124:153 newly correct HUD references and zero
+regressions among all1101 previously correct GP references. All2381 resolve,
+with zero overflows, encoding mismatches or native/raw expectation conflicts;
+three expectations remain unknown. All3845 prior native-correct public records
+and86 previously established file-qualified native LOCAL records are preserved.
+All533 changed linked code words occur at existing relocations (118 LO16,
+415 GP), with opcode/register bits and code geometry unchanged. Of698 original
+link inputs,697 are literally unchanged; only the verified raw r20 split object
+differs. The full image still has inherited overlaps and incorrect bindings;
+neither250 reference checks nor normalized PASS is a whole-image runtime seal.
+
+The first HUD guard test exposed two existing generic flag-check omissions:
+dropping MIPS_GPREL or adding SHF_MERGE was accepted. The frozen553/555 failure
+receipt is retained. An optional exact section_flags contract, enabled only
+for the new HUD row, fixes both; the actual production guard passes555/555
+(39 valid cases,516 unsafe cases). Other33 rows and their established paths
+are unchanged; this does not claim their optional high-bit flags now have
+full coverage. There are34 initialized owners, six zero owners and31 exact
+oracle exclusions. Known raw-blob duplicates fall757 ->729, with no REAL
+duplicates, phantoms or referenced unresolved symbols in the scoped relink.
+
+AudioMus_BuildPlayList also has a source-only lexical/statement improvement:
+the manually rotated loop and hoisted i become a normal for(int i...) inside
+the existing nonnull guard. Removing the redundant final return produces all
+four native blocks, with i in depth3 at8007AEE8..8007AF58, INT/register a3;
+the two parameter names/types/homes remain native. SLD0/11 ->0/0, and the
+actual linked34 words match retail. All23 Music functions/206 branches and22
+neighbor full contracts remain unchanged, including SwitchSong's restored
+scope/SLD0/0. Both actual normal HUD and Music objects are literally equal to
+the round's baseline despite the legitimate source improvements.
+
+Fresh combined verification:85/85 functions and739 branches, actual62-word
+SwitchSong and34-word playlist equality,555 actual guard controls,250 actual
+HUD reference encodings, full GP/public/local preservation, both scoped relink
+lanes GREEN, source-policy/vtable audits PASS and an unchanged objdiff report.
+Raw header comments were clarified after landing; reassembly proves identical
+objects in build and expected. User edits and untracked files are preserved.
+
+Authoritative receipts: ../p909_checkpoint/integration.json,
+playlist_actual.json, final_gp_audit.json, actual_scoped_local_preservation.json,
+actual_guard_controls/results.json and final_transport.json;
+../p909_hud_owner/actual and actual_references; ../p909_audiomus_playlist.
+P904-P909 remain local and unpushed; no publication authority is inferred from
+the earlier approved checkpoint. No new source ASM, volatile, invented names
+or post-compiler instruction/object rewrites were introduced. Remaining HUD
+storage, SoundCar/header context and tree-wide source/SYM/SLD debts stay open.
+
+## P910 / 2026-09-12: complete HUD initialized/zero owners and BuildPattern scopes
+
+HUD's initialized .data668 bytes now occupy native80120924..80120BC0. All11
+storage declarations are native typed records: nine GLOBAL arrays and two
+file-static ULONG[30] needle tables. Their662 declared bytes plus six real
+alignment zeros match source, ROM and complete CPE loads. The mixed raw r15
+donor preserves all3288 bytes,30 symbol records and six suffix R32 pointer
+targets/addends as pre1580/HUD668/post1040. The two raw D needle labels have
+zero live references and remain only in the oracle leaf; no aliases are added.
+The stale bss(zero) annotations on the two color arrays are not storage truth:
+current initialized section and CPE evidence establish .data. Initializer-token
+spelling is not inferred solely from zero values.
+
+The separate HUD .sbss76 reservation now occupies8013DE00..8013DE4C as NOBITS,
+with all14 original LOCAL identities,69 named bytes and seven alignment bytes.
+CountdownTick is native function-static ULONG, with a numeric compiler UID;
+the other13 names are file statics. PTR STRUCT sizes describe pointees, not
+pointer-cell storage. There is no CPE load in this span and no NOBITS file-offset
+payload or invented ROM-zero hash was used. Original76 transport bytes and15
+raw labels remain in the oracle leaf. The entire raw604-byte tail tree and73
+symbols are preserved; native pre44/post28 stay fixed.
+
+Eight unreferenced raw GLOBAL exports used names that native SYM calls STAT:
+g1Player, gSprite0, gSprite1, currentSpriteColor, HudSplitTimeDiff1/2,
+PerpOverlayOn and PerpOverlayMessage. Those wrong-global exports are retired
+in favor of the actual source LOCAL cells at the same native addresses. This
+is an explicit binding correction, not a hidden preservation exemption.
+Biglen is different: its native8013DE64 address, width4, binding/visibility and
+bytes are preserved; only its output container becomes .tail_after_hud_sbss.
+
+Zero-owner validation gains HUD-only exact section_flags and symbol_visibility
+checks; all old six rows and their behavior remain unchanged. All268 controls
+pass, including a beyond-EOF NOBITS sh_offset positive case. The source input
+alignment is8. An intermediate private link exposed the generator's hardcoded
+SUBALIGN4; using each owner's explicit alignment with default4 fixes HUD output
+alignment to8 while preserving all six old output alignments. That alignment4
+intermediate is frozen and is not final evidence. The initialized-data guard
+adds only the new row; all predicates remain unchanged and66 negative controls
+reject wrong metadata/payload variants.
+
+The actual combined ELF is literally equal to the independently reviewed final
+private alignment8 image. All32 initialized-data and140 zero-owner reference
+encodings are exact. Wrong GP targets fall1124 ->1006:118 newly correct HUD
+references, with all1254 previously correct GP bindings preserved. All2381
+resolve, with no overflow, encoding mismatch or native/raw conflict. Three
+expectations remain unknown. All3864 ordinary native public full records are
+preserved, plus the explicit biglen container transition; the eight wrong-global
+STAT exports are separately corrected. Root also rechecks91 previously
+established file-qualified native LOCAL contracts, all preserved.
+
+Every one of2336 changed executable-input words is an existing relocation with
+both old/new encoding verified:1816 LO16,361 GP,140 R26 and19 HI16. This audit
+includes executable input sections inside non-executable .data_rest outputs.
+All3238 previously native-positioned STT_FUNC records and addresses are preserved.
+Four already-unanchored code inputs shift backward76 bytes as generic storage
+shrinks: feapp10208 bytes, xform400, C52 eight and C_00296. Their code/relocations
+are unchanged, but their placement remains debt; do not claim all code geometry
+is unchanged. An inert24-byte SN-LNK blob also moves, with zero references and
+no input relocations; it is not another callable function.
+
+All696 retained original inputs are identical; only the two verified raw donors
+change. No new allocated-overlap area/multiplicity appears. The callback's
+existing raw o21 overlap persists with .data_rest's new position. Raw duplicate
+count falls729 ->720; removing the eight wrong-global STAT exports is not counted
+as eight source duplicate removals. There are35 initialized owners, seven zero
+owners and33 exact oracle exclusions. The broad runtime layout remains incomplete.
+
+AudioMus_BuildPattern now uses the existing native i in a for-init declaration,
+with total-song and32-entry capacity bounds in one ordinary compound condition.
+It preserves left-to-right reads and terminates before either call when full.
+The implicit final void exit restores the loop-tail/epilogue group. All four
+native scopes, pattern PTR CHAR/s1 and i INT/s0 are exact; SLD0/72 ->0/0.
+The compound for header's single-line expression grouping matches native861;
+no unrelated statements were compressed or debug/output labels rewritten.
+The wrapped-header and return-only intermediate failures remain recorded.
+All23 Music functions/206 branches and22 neighbor full contracts are unchanged.
+
+Final combined checks:85/85 functions,739 branches; actual linked SwitchSong62,
+Playlist34 and BuildPattern52 words match retail; raw build/expected/private
+objects are identical; both scoped relink lanes are GREEN; source-policy and
+vtable audits pass; objdiff report remains unchanged. New tool changes have
+comments/backups. No source ASM, volatile, invented name or compiler-output
+rewrite was introduced. P904-P910 are local and unpushed. HUD's separate
+.bss1226 and stale historical scalar-split/G4 comments, other wrong bindings,
+SoundCar's missing header context and tree-wide original-source/SLD debts
+remain open. See ../p910_checkpoint and the p910_hud_data/p910_hud_sbss receipts.
+
+## P911 / 2026-09-12: DriverStartUp scopes, HUD comment truth, BSS placement debt
+
+AudioMus_DriverStartUp now places its four existing locals (chunks, size,
+sndlimits, opts) only in the native stream-creation scope. Separate nested
+streamhandle and streambuffer tests recover the seven SYM blocks; implicit
+void exit restores the final store/epilogue SLD group. Native records
+19f683..19f7ed establish the exact scopes and all six parameter/local homes:
+buffersize s2, spusize s0, chunks s1, size s2, sndlimits AUTO -64 and opts
+AUTO -40, with the original INT/SNDLIMITS/SNDPLAYOPTS types. SLD mismatches
+fall from 12 merges / 18 splits to 0 / 0. No name, helper or codegen device
+was added. All 23 Music functions, 206 branches and 22 neighboring complete
+local/lexical/SLD contracts remain unchanged. The actual compiled object is
+literally unchanged; the actual linked 81 words are independently raw-exact.
+
+HUD's two obsolete scalar-split comment blocks are replaced by the current
+native array contracts: three GLOBAL INT[2] view arrays and one LOCAL BOOL[2]
+PerpOverlayOn. The supposed split backing stores are absent from current
+source, and the old -G4 discussion does not describe the actual -G8 build.
+Twenty-four zero-data annotations now distinguish CPE-loaded .data (two)
+and .sdata (22) from uninitialized reservation. Independent review verifies
+each typed SYM record, native MAP section and complete zero-valued CPE load.
+This does not recover original initializer-token spelling from zero bytes.
+All 24,795 code tokens are unchanged. Private and actual-path checks preserve
+62 HUD PASS functions, 533 branches and every lexical/SLD instruction graph;
+the actual HUD object is literally unchanged.
+
+The proposed six-array HUD .bss owner remains NOT LANDED. Its native range
+8013E390..8013E85A is 1,226 NOBITS bytes, flags 3, alignment 1, six LOCAL
+arrays with exact native names, types and extents. All 54 source references
+and 121 owner controls pass privately. Eleven existing unconditional oracle
+fallbacks can become conditional PROVIDEs at unchanged values: the actual
+oracle HUD object's 54 references still resolve through all 11 names. This
+conditional edit would be overwritten by make split, however, so a narrowly
+validated generation solution is required before any future landing.
+
+More importantly, native placement increases existing allocated-overlap
+multiplicity from two to three across all 1,226 bytes. The proposal is
+explicitly rejected despite its successful reference checks. Current .data
+and .rodata_rest spill across that range. Ranked read-only prerequisites:
+Collide .data (64 bytes, whole ROM/CPE-exact) is the smallest native-owner
+candidate; GenericPMX .data (1,304 bytes) needs original pointer-array order,
+not a payload-only registration; Camera .data (1,404 bytes) needs declaration
+order plus 102 initializer-byte corrections. These three alone cannot clear
+the entire catch-all overlap: at least 17,516 misplaced .data bytes and the
+separate readonly spill need authoritative recovery. No arbitrary repacking,
+source padding, invented names or overlap waiver is accepted.
+
+Final normal-path checks preserve all 698 link inputs and the complete ELF
+and map literally. Both scoped relink lanes, vtable and source-policy checks
+are green. The prior 35 initialized owners, seven zero owners, 33 oracle
+exclusions, 720 raw duplicates and 1,006 wrong GP targets are unchanged.
+Fresh checks cover 85 functions and 739 branches, not a new whole-board count.
+The report is not regenerated: identical code inputs preserve its existing
+result. Full original-source/SYM/SLD and runnable layout goals remain open.
+P904-P911 are local and unpushed; the earlier P898-P903 publication approval
+was consumed by 7aef1e7c. User edits and unrelated untracked files are preserved.
+Receipts: ../p911_checkpoint, ../p911_audiomus_driver,
+../p911_hud_comment_cleanup and ../p911_hud_bss/PREREQUISITES.md.
+
+## P912 / 2026-09-12: Camera initializer repair and three native data owners
+
+Three complete source .data owners now occupy their native addresses, replacing
+only their exact raw reconstruction-lane duplicates: Collide_gRegistry[16]
+(64 bytes at 80110C30), Camera's ten arrays (1,404 bytes at 8010F2AC), and
+GenericPMX's seven arrays (1,304 bytes at 80112B2C). The raw r06/r07/r09 objects
+remain intact for src/oracle. Their build and expected objects reassemble
+literally unchanged after comment-only clarifications. This is ordinary source
+compilation and linker-input ownership, not postcompile rewriting.
+
+Camera_gFlags[19] had malformed flat initializers that repeated the packed
+flag word into coordinates and one-bit fields. Native SYM1e05ee..1e06b0 defines
+coorddef arm plus six INT one-bit fields at bits 96..101. Correctly nested
+initializers recover every coordinate and bit value, fixing 102 source data
+bytes. ROM and complete CPE loads independently agree. Explicit zero
+initialization of the existing Camera_gInfo[2] makes its 544-byte storage lead
+the initialized tables. The resulting full 1,404-byte source run matches
+retail, including all ten original names, bindings and extents plus three
+alignment bytes. No new name, type, padding object or macro is invented.
+Original initializer/macro token spelling is not uniquely proved by this data;
+the source comment and peer review retain that distinction. Camera's copied
+clock-module caption and wrong BSS annotations are also corrected.
+
+Both Camera stages preserve all 38 PASS functions, 382 branches, and existing
+local, lexical and SLD instruction graphs. The initializer-value correction
+alone changes no code word. Restoring the data order changes seven existing
+LO16 relocation addends; all 204 own data references retain their native
+cell/interior target. The actual linked image verifies all 268 Camera owner
+references, including outside consumers. Other Camera BSS/external references
+are not thereby declared native, nor are all Camera source statements sealed.
+
+GenericPMX's zero-filled payload had hidden five wrong named-array offsets.
+Native records 27bd72..27be86 place Spark/StartUp/Weather before Flare/Lightning.
+The source now follows all seven native declarations; its .sdata group and
+entire function/body/tail, including pre-existing mixed line endings, are
+unchanged. Fresh checks preserve its 593 instructions and 18 branches, all
+local/scope/SLD graphs and all implicit relocation addends. All 46 actual linked
+references across six objects resolve to native cells and raw words. The extra
+raw D_80112B84 label is gWeatherPixmap[2], with no live reconstruction reference;
+it remains available to the Weather_CreateSplat oracle. The unproved pmx_height
+carrier and SLD 0 merges / 1,377 splits remain explicit future recovery work,
+not hidden by the corrected declaration-order caption.
+
+Collide's registry already had the correct source type and 64-byte payload.
+Its source-owned linked symbol was at the wrong address; native placement fixes
+all four HI/LO references while preserving its actual NOTYPE/size-0 metadata.
+Native SYM independently supplies the 16-pointer, 64-byte extent. The raw
+input's size-64 metadata was not the prior linked winner. Its one-line source
+comment now identifies CPE-loaded .data. All 14 PASS functions, 716 branches,
+the complete object and debug assembly remain literally unchanged.
+
+The three strict metadata rows append to the prior 35, preserving all existing
+generated owner indices and validator predicates. All 3,161 actual-object guard
+controls pass: 40 valid cases accepted and 3,121 malformed cases rejected.
+Every Camera and GenericPMX payload byte is mutation-tested, and old wrong-order
+objects are rejected even when their zero payload matches. Protected tooling
+and linker/source backups are under ../p912_checkpoint/backups.
+
+Actual normal-path integration matches the independently reviewed private ELF
+in all allocated payloads, program/section geometry, ordered symbol entities
+and relocations, with only two precisely checked scratch-to-real FILE paths.
+All 318 owner-reference words are native-exact (Collide 4, Camera 268, PMX 46).
+The 1,356 changed executable words are all existing HI/LO relocations with
+both old/new encodings checked; no non-relocation instruction bits or code
+inputs move. All 3,874 previously native public records, 104 FILE-qualified
+LOCAL records, 3,238 native function records and all 2,381 GP target/status
+records are preserved. Wrong GP targets remain 1,006; three expectations stay
+unknown. Following unanchored legacy data shifts by 2,772 bytes as duplicate
+storage is removed, with no increased allocated overlap area/multiplicity.
+
+Fresh actual checks cover 53 PASS functions and 1,116 branch checks. Both scoped
+relink lanes, vtable and source-policy checks are green. The complete before
+and after objdiff reports are literally identical; that report does not prove
+data layout or source/SLD completeness. Raw duplicates fall 720 -> 707, with
+38 initialized owners, seven zero owners and 36 exact oracle exclusions.
+Only the Camera and GenericPMX code objects change; the other 696 original
+objects remain on disk unchanged, including the three now-excluded raw leaves.
+The actual link retains 695 of the original 698 inputs.
+
+The rejected HUD .bss placement remains blocked by broader .data/.rodata_rest
+spill; these 2,772 bytes alone do not clear it. No overlap waiver is taken.
+The full original-source/SYM/SLD/runtime-link goal remains open. P904-P912 are
+local and unpushed; no broader publication approval is inferred. GenericPMX's
+previous EOL-only file status is now promoted to a scoped source edit while its
+unrelated body/tail bytes are preserved. See ../p912_checkpoint,
+../p912_combined_owners, ../p912_camera_data and ../p912_genericpmx_order.
+
+## P913 / 2026-09-12: native GenericPMX scopes and HrzSku data ownership
+
+GenericPMX_LoadTexture now reproduces all 48 ordered native SYM scope spans,
+depths and declaration owners, up from 45. The two leaf/MONF inner blocks place
+their existing pmx declarations at native depth 5. A multiline GNU statement
+expression containing only the three existing final ChangeTPage calls restores
+empty block 27bd2a. No dummy expression, invented local or macro name is added.
+Ordinary final braces were tested and discarded: they are optimized out and
+restore only 47 scopes. All 34 recorded names/types/homes remain exact, including
+the 27 separate pmx owners. The actual normal object remains literally identical:
+593 instructions PASS, 18 branch checks. SLD remains 0 merges / 1,377 splits in
+the 27 pixmap allocation/load/store groups; exact scope topology does not seal
+those source statements or prove original macro/initializer spelling.
+
+The pmx_height issue is now more precisely characterized, not hidden or renamed.
+Native Texture_LoadPmx record 46bf5f names argument five ry, not height; h is a
+separate callee local. The existing caller identifier has no native identity,
+and even the current optimized debug stream omits it. The source comment now
+says SOURCE-RECOVERY-UNRESOLVED, not an apparent SYM-backed carrier claim. No
+current tools/*.py exemption keyed on the old comment marker was found; this
+is a correction to human-facing evidence, not a loosened audit rule.
+
+Production-compiler RTL dumps were captured with emitted assembly identical to
+untraced compilation. The current form starts with a single user pseudo 84 =160;
+it remains unallocated globally and reload rematerializes all 21 values in t0.
+The literal form creates per-call temporary constant pseudos, CSE shares values
+and a saved register carries a constant. Pseudo 84 itself acquires REG_EQUAL
+during CSE, so absence of that note in initial RTL is not the whole mechanism.
+These traces explain the current output, not an original name or proof that a
+distinct source object is necessary. Full-scope literal removal still emits
+579 instructions, 494 diffs and five branch-target differences. Statement-
+expression and fabricated inline-helper probes also failed; the latter adds
+f/n locals absent from native SYM and must not land. Initializer-placement probes
+using only existing native locals were neutral. All remain private diagnostics,
+not a floor claim or permission to add another carrier. Original header/macro
+context and an evidence-directed literal/value expression remain next angles.
+
+HrzSku's complete nine-object .data run now occupies native 801202F8..80120924.
+All 1,580 bytes, original names/types/dimensions and GLOBAL bindings match SYM
+40f50b..40f65d, ROM and full CPE loads. Eight objects are arrays; gHrz_Lightning
+is a scalar 104-byte structure. Source declarations, initializers and code
+remain unchanged. The wrong HUD-module caption and nine false BSS annotations
+are corrected as comments only. All 22 functions PASS with 170 branch checks;
+the actual object and every existing debug/local/SLD graph remain unchanged.
+Unproved function-local carriers such as pv are separate source-recovery debt.
+
+The raw 1,580-byte prefix becomes data_hrzsku_legacy.data.s for the oracle lane.
+The original r15 file retains its 1,040-byte suffix at the native address, with
+all seven symbols and six R32 language pointers. All 2,620 original raw bytes,
+19 symbol records and six relocations survive. The three unused prefix aliases
+D_80120664, D_801207F8 and D_80120838 disappear only from reconstruction and stay
+available in the oracle leaf. The separately restored HUD owner is untouched.
+
+The new strict row appends to the previous 38 without changing any existing
+entry, generated owner index or validator predicate. All 1,765 actual guard
+controls pass: 19 valid cases accepted and 1,746 malformed cases rejected,
+including a mutation of every payload byte. Actual raw build/expected objects
+are literally the proven split objects; no private object is copied into a
+normal output and no compiler instruction/object rewrite is used.
+
+The actual linked ELF is literally the reviewed private image. All 50 HrzSku
+reference words are native-exact. Existing 3,887 native public records, 109
+FILE-qualified LOCAL records, 3,238 native functions and all 2,381 GP target/
+status records are preserved. All 751 changed executable words are existing
+relocations with both states checked (726 LO16, 25 HI16). No code input moves
+and no overlap area/multiplicity increases. Later unanchored raw data shifts
+back by 1,580 bytes. The suffix's six pointers and whole payload stay native.
+An initial private relink path-classification artifact is frozen; the actual
+normal relink is green without any classifier adjustment or waived duplicate.
+
+Combined actual verification: 23 PASS functions, 188 branch checks, green
+owner/vtable/source-policy/relink checks and an unchanged full matching report.
+Raw duplicates fall 707 -> 698; there are 39 initialized owners, seven zero
+owners and 37 exact oracle exclusions. All reconstructed code objects and 694
+of 695 original input files are unchanged; only the raw r15 donor becomes its
+verified suffix. The new raw prefix is excluded from the reconstruction link.
+The broader layout/SYM/SLD goal remains incomplete, including the HUD BSS
+overlap and GenericPMX's literal/macro/SLD work. P904-P913 remain local and
+unpushed. No new reconstructed-body asm, volatile, invented identifier or
+postcompile rewrite was introduced. Receipts: ../p913_checkpoint,
+../p913_genericpmx_native, ../p913_genericpmx and ../p913_hrzsku_owner.
+
+## P914 / 2026-09-12: Horizon source recovered; strict identity review mode
+
+Horizon_InterpolateLineSCoords is now source- and SLD-valid within its complete
+native function contract. The previous source incorrectly used p as a product
+temporary and invented pv for the cached percentage. Native record 40dcdd says
+p is the INT value in a0, owned only by the else block at 800CF61C..800CF6AC.
+The multiplication products are unnamed compiler temporaries in v0. Native i
+is the root loop counter in t0. The independently matched NFS2 PC source at
+C:/Temp/nfs2-clean/pc-beta/match/Horizon/Horizon_InterpolateLineSCoords.c confirms
+the same ordinary for-loop and else-local p structure.
+
+The repaired body uses direct signed product /65536 coordinate assignments,
+the original i, and else-local int p = *percentage. It removes pv, the false
+product role of p, the artificial i | (i & 3) reference identity, and obsolete
+fence/dialect comments. No replacement name, fence, asm, volatile, dummy local,
+or output rewrite is introduced. The scalar arm still reads *percentage before
+the n<=0 exit, and the array arm re-reads it after storing vx, then advances by
+one int. Native VOID overrides IDA's spurious BOOL return; M2C's typed-pointer
+increment rendering is not copied as a four-int stride.
+
+Actual verification proves all 80 raw words, all three native scope spans/
+depths, six parameters with eight native argument/register location records,
+and the two local names/types/homes. SLD 0 merges /232 splits becomes 0/0.
+All 21 neighbors' full declaration, lexical, SLD and compiler-label graphs are
+preserved. The whole actual HrzSku object is literally unchanged and all 22
+functions/170 branches remain PASS. The patch is confined to this target's
+body/comment. apply_patch initially normalized a few adjacent context line
+endings; a guarded formatting-only repair restored the exact original prefix
+and suffix bytes, then the actual compile and full checks were repeated.
+
+The tracked read-only declaration auditor now has opt-in
+--strict-source-identities. The default output is retained for compatibility,
+not as an original-source completion certificate. Strict mode stops accepting
+matching-only annotations as exemptions for missing SYM-CARRIER locals, extra
+codegen/register-asm locals, extra source-only globals, missing split aggregates,
+their extra scalar components, and same-name scalar/array carrier mismatches.
+Existing optimized/inline, ABI, canonical, macro, compact-static, host/common
+and primary type/storage-override categories stay distinct and still require
+their own evidence. The mode does not certify foreign header bounds, initializer
+values, local value roles, SLD or complete runtime layout.
+
+This corrects the P913 tools-only search limitation: the actual legacy scratch
+auditor does recognize SYM-CODEGEN-CARRIER. GenericPMX's unresolved annotation
+therefore exposes pmx_height in both modes; Horizon now has no pv declaration
+or finding in either mode. Neither marker changes nor names copied from a
+plausible semantic role count as source restoration.
+
+Independent tests pass 33 policy assertions and four real historical/current
+pv/pmx_height cases, including all six suppression paths, inverse/unsized array
+shapes and preserved primary categories. On all four frontend/game common/psx
+directories, new default report bytes and stdout exactly equal the backed-up
+tool, and default -> strict -> default reuse is stable. Current strict reports
+expose the following review queue (not newly introduced runtime defects):
+
+| Directory | Legacy declaration-clean | Strict declaration-clean | Legacy extra locals | Strict extra locals |
+|---|---:|---:|---:|---:|
+| frontend/common | 780 | 613 | 48 | 484 |
+| frontend/psx | 85 | 60 | 0 | 53 |
+| game/common | 1226 | 1085 | 8 | 474 |
+| game/psx | 392 | 258 | 3 | 395 |
+
+These 1,406 strict extra-local review items need individual source evidence;
+the lower legacy total of 59 relied on matching-carrier exclusions. The tool
+does not establish that every review item is wrong, nor that its remaining
+explicit categories are automatically original. See STRICT_SOURCE_IDENTITY_REPORTING.md.
+
+All 695 normal link inputs, the complete ELF/map and the regenerated matching
+report remain literally unchanged. Native owner validation (39 data, seven
+zero), both scoped relink lanes, vtable and source-policy checks pass. User
+edits are preserved. No Git mutation has occurred; P904-P914 remain local.
+
+Separate DrawW work is still PRIVATE: G8/native compiler-default diagnostics,
+native Cars[9] and gSkidMarkPixmap[2] declarations, a compatible incomplete Night
+extern and primary initializer repairs produce 35 PASS/361 branches and native
+1,776-byte .data plus36-byte .sdata. Its native-owner/link closure and existing
+regional USA dependency repair are not part of this source/auditor checkpoint
+and must not be reported as landed. The full original-source/SYM/SLD goal stays
+active. Receipts: ../p914_checkpoint, ../p914_horizon_native and
+../p914_identity_review; pending work: ../p914_draww_storage.
+
+## P915 / 2026-09-12: DrawW native declarations and data ownership landed
+
+The DrawW work recorded as private in P914 is now integrated into actual source
+and both raw build lanes. Cars_gList and Cars_gHumanRaceCarList are correctly
+declared as nine pointers, and gSkidMarkPixmap as two pointers. The deliberate
+false one-element skidmark declaration is removed. Night's caller declaration
+uses a compatible incomplete outer array; its owning definition remains [2].
+DrawW's original caller-bound spelling is absent from its surviving SYM and is
+NOT uniquely recovered by this result.
+
+The installed compiler's ordinary G8/default behavior, these corrected foreign
+declarations, the original identity MATRIX diagonal values and explicit zero
+initialization of stackSpeedUpEnbabledFlag together recover all 14 native storage
+objects: 1,776 bytes of .data at8011F570 and36 bytes of .sdata at8013D81C. This
+includes both genuine eight-byte LOCAL arrays, goffsets and function-static
+offsets. Two nonzero bytes missing from the matrix are restored. Native size
+evidence constrains the threshold to8<=G<24; the installed default is8, but the
+historical command-line spelling is still unproved. No arbitrary padding,
+invented storage, replacement alias or ordinary source-body change is involved.
+
+The actual base source passes all35 functions and361 branch checks. Its complete
+normal object equals the frozen candidate except for the exact FILE path;
+all35 existing declarations, lexical scopes and SLD partitions are preserved.
+This preserves the prior contract, not a claim that all existing DrawW locals,
+source statements or macro spellings are already original. Strict game/psx
+review still reports258 declaration-clean functions and395 extra-local items.
+
+The USA source previously failed to compile because it referenced six removed
+compatibility-view families. Its bounded repair uses the already-declared
+native Camera, GameSetup, simGlobal, Trk_NewSlice, BWorldSm_slices and TrackSpec
+objects/types. The standing regional pipeline selects the actual base G8 row;
+its compiled object equals the independently raw-verified USA candidate except
+for the exact temporary FILE path. All35 actual-USA instruction streams and359
+internal branches are preserved; this is not a fully linked USA image proof.
+Inherited VA breadcrumbs in that regional source still refer to the base image.
+
+The raw DrawW tail remains as an oracle-only source file. All3,456 preceding
+bytes, all other donor sections and110 relocation records are preserved. Both
+native source sections are placed by strict whole-section owner contracts;
+the actual41-row validator passes2,091 controls:30 valid and2,061 rejected
+malformed cases. All39 prior owner rows and validator predicates are unchanged.
+
+Private whole-link proof plus exact actual-image transfer covers all265 selected
+native references, all14 cells/1,812 initialized bytes,3,896 previously native
+public records,109 FILE-qualified LOCAL records and3,238 native functions.
+Exactly34 DrawW GP sites become correct: known wrong targets1006->972, with all
+1,372 already-correct sites preserved. Every one of1,280 changed executable
+words is an exact existing relocation encoding; no code movement or new overlap
+is introduced. Allocated duplicate storage drops by1,812 bytes, and raw duplicate
+symbols698->686. Existing unanchored data movement is explicitly receipted.
+
+Both actual standing relink lanes, native data/zero owner contracts, vtable and
+source-policy gates pass without private path-classifier substitutions. The
+fresh complete matching report is literally identical to P914. Of695 original
+normal inputs, only DrawW's source object and the split raw donor changed.
+Original unchanged-line EOL bytes were restored after patch application, with
+complete logical-text equivalence checked before compilation. No compiler
+output, opcode, relocation or debug label was rewritten; user edits remain.
+
+P904-P915 remain local. Approval for P898-P903 applies to the already-published
+7aef1e7c, not these later changes. DrawW's remaining source-local/macro/SLD debt,
+GenericPMX's unresolved original expression and macro grouping, and the wider
+layout/identity review queue remain open. This checkpoint is not a full-source,
+full-SYM/SLD or runnable-link completion claim. Receipts: ../p915_checkpoint,
+../p914_draww_storage and ../p914_draww_peer.
+
+## P916 / 2026-09-12: GetAnimationTime source/SLD restoration and publication
+
+DrawW_GetAnimationTime now has only its original track and maxTick locals.
+SYM3e3a12..3e3af8 puts track in the root scope and maxTick in the nested else
+scope; the former source's root maxTick plus invented result/tick carriers did
+not reproduce that contract. The repaired ordinary conditional minimum keeps
+maxTick first in the comparison and puts the complete return selection on one
+source line. This matches the operand order in the reconstructed NFS2 nfs2.h
+MIN expansion, but exact original NFS4 macro tokens remain unproved. NFS2's
+ealib.h has a different equivalent macro, so sibling evidence is not overstated.
+
+The actual function retains all 33 instruction words and four internal branch
+targets, with animInst in a0 and original track/maxTick in a1. All three native
+scope spans/depths match. SLD changes from 0 merges/73 split pairs to 0/0.
+The return's unnamed load/result values are now generated by the compiler, not
+declared as guessed source objects. No asm, volatile, new helper or fabricated
+source identifier was added. The whole actual DrawW object is literally equal
+to P915; all 35 functions/361 branches and all 34 neighbor contracts survive.
+Independent review also checks all six HI/LO records against primary native
+targets and every retained compiler label's real function-relative PC. Compiler
+label-number drift is not an output rewrite or a permission to move a label.
+
+The fresh strict game/psx report improves declaration-clean coverage 258->259
+and extra-local review items 395->393. The legacy default remains at 392 clean
+and 3 extra-local items because it previously hid these two names.
+The wider review queue and other DrawW source/SLD work remain incomplete.
+
+User requested commit, push and pause. Remote main's two intervening commits
+(40a6597a and82005b8a) were inspected and fast-forwarded without overlapping
+the 60 scoped restoration paths. All seven changed C translation units were
+actually recompiled and their full objects are byte-identical. All 694 normal
+inputs, complete ELF/map and the freshly regenerated report remain unchanged.
+Both standing relink lanes, 41 native initialized-owner contracts, seven zero
+owners, vtable and source-policy gates pass. The existing source-static
+locaterequest@800FC4E4 uses an explicit diagnostic name/VA mapping; no compiler
+or source identifier was rewritten to satisfy the oracle filename.
+
+The publication checkpoint includes verified P904-P916 source/tooling/data
+restoration and its selected receipts. Unrelated user/EOL edits, generated build
+outputs, backups and all failed experiments remain excluded. Private DrawC
+seven-object data restoration and centerline rn-removal probes are NOT landed
+or part of this commit. Their bounded handoffs are ../p916_drawc_storage and
+../p916_draww_centerline; both agents stopped. The full original-source/SYM/SLD
+goal is not complete; work pauses after publication as requested. Receipts:
+../p916_checkpoint, ../p916_animation_time and ../p916_animation_time_peer.

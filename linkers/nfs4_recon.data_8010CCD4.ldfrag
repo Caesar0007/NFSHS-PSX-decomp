@@ -28,20 +28,20 @@
     build/recon/game/common/AIWORLD.cpp.o(.data);   /* 0x8010e00c..0x8010e14c  was data_8010CCD4_o09.data.s */
     build/recon/game/common/anim.cpp.o(.data);   /* 0x8010e14c..0x8010e274  was data_8010CCD4_o10.data.s */
     build/recon/game/common/audioclc.cpp.o(.data);   /* 0x8010e274..0x8010e4d0  was data_8010CCD4_o11.data.s */
-    build/asm/data/data_8010CCD4_r04.data.s.o(.data);
+    build/recon/game/common/audiocmn.cpp.o(.data);   /* P907 full native owner:0x8010e4d0..0x8010ee40; r04 is oracle-only */
     build/recon/game/common/bworld.cpp.o(.data);   /* 0x8010ee40..0x8010f07c  was data_8010CCD4_o12.data.s */
     build/asm/data/data_8010CCD4_r05.data.s.o(.data);
     build/recon/game/common/bworldSm.cpp.o(.data);   /* 0x8010f0ac..0x8010f2ac  was data_8010CCD4_o13.data.s */
-    build/asm/data/data_8010CCD4_r06.data.s.o(.data);
+    build/recon/game/common/camera.cpp.o(.data);   /* P912 native 1,404-byte owner; r06 retained in src/oracle only. */
     build/recon/game/common/cars.cpp.o(.data);   /* 0x8010f828..0x80110c24  was data_8010CCD4_o14.data.s */
     build/recon/game/common/clock.cpp.o(.data);   /* 0x80110c24..0x80110c30  was data_8010CCD4_o15.data.s */
-    build/asm/data/data_8010CCD4_r07.data.s.o(.data);
+    build/recon/game/common/collide.cpp.o(.data);   /* P912 native64-byte registry; r07 retained in src/oracle only. */
     build/recon/game/common/hudpmx.cpp.o(.data);   /* 0x80110c70..0x80111a44  was data_8010CCD4_o16.data.s */
     build/asm/data/data_8010CCD4_r08.data.s.o(.data);
     build/recon/game/common/copspeak.cpp.o(.data);   /* 0x80111ea4..0x80112730  was data_8010CCD4_o17.data.s */
     build/recon/game/common/dashhud.cpp.o(.data);   /* 0x80112730..0x8011279c  was data_8010CCD4_o18.data.s */
     build/recon/game/common/fei.cpp.o(.data);   /* 0x8011279c..0x80112b2c  was data_8010CCD4_o19.data.s */
-    build/asm/data/data_8010CCD4_r09.data.s.o(.data.r09_pre);
+    build/recon/game/common/genericpmx.cpp.o(.data);   /* P912 native 1,304-byte owner after declaration-order recovery; r09 stays src-only. */
     /* SYM ownership seam: three fixed-width lookup tables precede GameSetup_gData in gmesetup.obj. */
     build/recon/game/common/gmesetup.cpp.o(.data);   /* 0x80113044..0x80113c14 */
     build/recon/game/common/input.cpp.o(.data);   /* 0x80113c14..0x8011401c  was data_8010CCD4_o21.data.s */
@@ -84,10 +84,13 @@
     build/recon/game/common/trgsfx.cpp.o(.data.trgsfx_save_seg);   /* 0x8011e6f0..0x8011e770 */
     build/recon/game/common/trgsfx.cpp.o(.data.trgsfx_save_chunk);   /* 0x8011e770..0x8011e7f0 */
     build/asm/data/data_8010CCD4_r13.data.s.o(.data.r13_after_trgsfx);
+    build/recon/game/psx/draww.cpp.o(.data);   /* P914 native 1,776-byte DrawW owner; preceding raw bytes retained. */
     build/recon/game/psx/force.cpp.o(.data);   /* 0x8011fc60..0x8011fd70  was data_8010CCD4_o26.data.s */
     build/asm/data/data_8010CCD4_r14.data.s.o(.data);
     build/recon/game/psx/flare.cpp.o(.data);   /* 0x8011fde0..0x801202f8  was data_8010CCD4_o27.data.s */
-    build/asm/data/data_8010CCD4_r15.data.s.o(.data);
+    build/recon/game/psx/hrzsku.cpp.o(.data);   /* P913 native 1,580-byte owner; exact raw prefix remains src-only. */
+    build/recon/game/psx/hud.cpp.o(.data);
+    build/asm/data/data_8010CCD4_r15.data.s.o(.data.r15_post);
     build/recon/game/psx/texture.cpp.o(.data);   /* 0x80120fd0..0x80121070  was data_8010CCD4_o28.data.s */
     build/asm/data/data_8010CCD4_r16.data.s.o(.data);
     build/recon/eaclib/psx/eacpsxz/matrix.c.o(.rodata);   /* 0x801237ec..0x80123820  was data_8010CCD4_o29.data.s */

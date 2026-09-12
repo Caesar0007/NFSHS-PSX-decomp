@@ -1,0 +1,338 @@
+{
+  "status": "verified local P904-P910; publication approval not inferred",
+  "last_published_commit": "7aef1e7ca5c4b5181850f8e7d671e3d5d5d7b9be",
+  "production_and_backlog_files": [
+    {
+      "path": "asm/data/data_8010CCD4_r04.data.s",
+      "sha256": "2d34b2d33c96c5d89a2776ed016cae867941eb62e8adf162139a14661750cad0"
+    },
+    {
+      "path": "asm/data/data_8010CCD4_r09.data.s",
+      "sha256": "3bc5b8e3d02bbb4831e133787fc545ca8ca5266ccd1e6e8f33c9744f0a60de13"
+    },
+    {
+      "path": "asm/data/data_8010CCD4_r13.data.s",
+      "sha256": "516a6ea571270e86227805ce848aab7b0d54d177210a44d0e10566938a5b4af0"
+    },
+    {
+      "path": "asm/data/data_8010CCD4_r15.data.s",
+      "sha256": "0926c3c147a1c752423d4881243e20e8198bdc676e57892253f02eab36113f9d"
+    },
+    {
+      "path": "asm/data/data_gmesetup_names_legacy.data.s",
+      "sha256": "2837799551b05facbfbc9a154963e0b418d1e5266c5e1d96a16f68af8edcb121"
+    },
+    {
+      "path": "asm/data/data_hud_legacy.data.s",
+      "sha256": "531a7246b7316aecb479bda225786733a303da7a6cf985235a6396f854b238f8"
+    },
+    {
+      "path": "asm/data/data_replay_legacy.data.s",
+      "sha256": "dfb28f0cfd3bfefb6080148ef7ada0dca8cd811bd87cbb6b7e6b7fa7251bca53"
+    },
+    {
+      "path": "asm/data/rdata_80054548_r05.rodata.s",
+      "sha256": "c843ba80678ce4e3318b878c5c28b53d9ea12ce90b50152f59378385b653bdf1"
+    },
+    {
+      "path": "asm/data/rdata_audiocmn_trackgenbank_legacy.rodata.s",
+      "sha256": "c3fe23010d7881709549a6ed7ab718e1be693e861a26ab05b4d95fe0be7bcfa1"
+    },
+    {
+      "path": "asm/data/rdata_audiocmn_trackgenbank_padding.rodata.s",
+      "sha256": "49adb1495ce9c3e8964b772ddbbe39eb8b1b02a23dee05696bd5d3fa64de9f35"
+    },
+    {
+      "path": "asm/data/sdata_8013C54C_r05.sdata.s",
+      "sha256": "9f23774dd8929fe1a3c8374981e7c8afa9f8b67f41b78f61c007047b88ca5fc1"
+    },
+    {
+      "path": "asm/data/sdata_8013C54C_r20.sdata.s",
+      "sha256": "3526fb01540a7ca36d41eeb5a3fc3bde23a0a6e814e1ad55e90089ab268a869f"
+    },
+    {
+      "path": "asm/data/sdata_8013C54C_r22.sdata.s",
+      "sha256": "f97b1b2f9811afe99071c5eb4b9497f818266357e6747c8d56941b3ae7a6e542"
+    },
+    {
+      "path": "asm/data/sdata_hud_legacy.sdata.s",
+      "sha256": "1e5b9cb98805d5c57fcc45a9518d9bf4d0f3dd7ff0d88ed53d9593a90393925f"
+    },
+    {
+      "path": "asm/data/sdata_primate_legacy.sdata.s",
+      "sha256": "c5df40b27bc4b658805f6bb263daf22eb1f77f8dd9a9c40588527389dc44674d"
+    },
+    {
+      "path": "asm/data/tail.data.s",
+      "sha256": "92904feb68804ea06de0fe6f54c02a169cee6c1447835a20bdf0527d14c68f0a"
+    },
+    {
+      "path": "asm/data/tail_hud_sbss_legacy.data.s",
+      "sha256": "d825d2d177605c3ba35e688d0b03d1f52cd9b1411643ad81da8d4a67dfbfaa72"
+    },
+    {
+      "path": "asm/data/tail_primate_legacy.data.s",
+      "sha256": "366d761441c1e909e187a38cb469542ab90871010478f5869b90a7e147628fc7"
+    },
+    {
+      "path": "linkers/nfs4.ld",
+      "sha256": "b1bca7a400f4aa587ef2101edcb00cc5263098612917b3b5c6064b81b5262e0b"
+    },
+    {
+      "path": "linkers/nfs4_recon.data_8010CCD4.ldfrag",
+      "sha256": "b872b9d2d37ee3a89bd061a4b6feaf1f32ad303fec8c97ca3e541f3e8f99b214"
+    },
+    {
+      "path": "linkers/nfs4_recon.ld",
+      "sha256": "27d5356556cc8c17d51b7bb1a58d97b1a8416f76b0f5adb615ca8e91403444e1"
+    },
+    {
+      "path": "linkers/nfs4_recon.sdata_8013C54C.ldfrag",
+      "sha256": "e2f6d2e3bf36aaf5bc11a0780d4138209ed2792bf37b1abd19c7cb6c8e64ecf2"
+    },
+    {
+      "path": "linkers/retail_data_symbols.ld",
+      "sha256": "9e262aaf6c2ae80333d03ad6f396512d2ebd4fca21138d556974726c25d8e6ce"
+    },
+    {
+      "path": "recon/eaclib/psx/eacpsxz/primate.c",
+      "sha256": "a80284ed39905b755d7aa79887d4b469c2f9546d4384bfbb66826f3ac1ac014a"
+    },
+    {
+      "path": "recon/eaclib/psx/eacpsxz/primate.h",
+      "sha256": "4ed6438020ae8f9dac5ba40603f8117e5069e57712dff266a14ed6a6788cccac"
+    },
+    {
+      "path": "recon/game/common/aistate.cpp",
+      "sha256": "77c35b2d60d8cf6136387cf2cfba26bacf85cf14789f22b127eeb9449c4493ae"
+    },
+    {
+      "path": "recon/game/common/audiocmn.cpp",
+      "sha256": "f1b69e53ba147f1e062d80916cbb121ca1c1ab5bd3080a95c10abae8d8837d4c"
+    },
+    {
+      "path": "recon/game/common/audiomus.cpp",
+      "sha256": "5c06264c49606cc571e7ba2a968f4bd82491cd0f84d5fc3ce3f402842cc76080"
+    },
+    {
+      "path": "recon/game/common/fei.cpp",
+      "sha256": "32e58a2beac0e6d2b5cd2140815eef17ccca850d6e7acb2cdd6dc37c57d6c9b9"
+    },
+    {
+      "path": "recon/game/common/nfs3.cpp",
+      "sha256": "2c17747154c260f0881ab3a3903a76c8fa886432e9061a6f03a94a0cfab538f5"
+    },
+    {
+      "path": "recon/game/common/nfs3_externs.h",
+      "sha256": "bb0b09d71ab7b8b6497ac4e279d170780e633f27b8702d5ce14ae9139537f07e"
+    },
+    {
+      "path": "recon/game/common/replay.cpp",
+      "sha256": "9ed93e5711956e685e681e8cfd21725afe255f23634baaee828e185e53ea734c"
+    },
+    {
+      "path": "recon/game/psx/hud.cpp",
+      "sha256": "d06fceb2118caf50d4abeaa581df8a407ecd92fb66a4ac1996c0e2687bee75fa"
+    },
+    {
+      "path": "recon/game/psx/trackspec.cpp",
+      "sha256": "97df929af93c28611244f2ed39e51cd725c9374d985df60edbe96959a4e91459"
+    },
+    {
+      "path": "scratchpad/root_sym_audit/ORIGINAL_SOURCE_NAME_BACKLOG_20260903.md",
+      "sha256": "9da7c9ddbdf4862fda57765e74ed49933271d4b9571dc9ec9b768577473e438e"
+    },
+    {
+      "path": "tools/build.py",
+      "sha256": "1093fc5d87afc2c05bf5445fd99da9e9c0f7f5fd4bc507519923d5cd7e0e2ea5"
+    },
+    {
+      "path": "tools/diffsrc.py",
+      "sha256": "9abfa0981d26233f9312e93d64d85c42156074a4dc3ba1264571e44c3b1ef83a"
+    },
+    {
+      "path": "tools/gen_ld.py",
+      "sha256": "b096a3a795f49b151829875f838385d15d2efe90f63ec4d954a578b7d0b5d165"
+    },
+    {
+      "path": "tools/maspsx/README.md",
+      "sha256": "000cbbfffb121d168155260bc30870911bcf0867621fa964eb661ecf94a861a3"
+    },
+    {
+      "path": "tools/maspsx/maspsx.py",
+      "sha256": "0c93388034e2ffa9515a7b13ee8b9dd3e21c9449e10730a8aeda1ec4fce605f0"
+    },
+    {
+      "path": "tools/maspsx/maspsx/__init__.py",
+      "sha256": "568172c2e996a85990058b80815ff252061f64dece0bc251b54dbdadcffd3593"
+    },
+    {
+      "path": "tools/maspsx/test_common_binding.py",
+      "sha256": "458e5f839f9a76a68a8e9627f62db33832141d5ab564fe8976bce40a7f033870"
+    },
+    {
+      "path": "tools/relink.py",
+      "sha256": "1debc38f385c913e71c9f25d4c08e98c554a2e4abaf804ce3e41b7ab4cc481af"
+    },
+    {
+      "path": "tools/source_data_owners.py",
+      "sha256": "589bc9127e9d4ae3a71abe22d034d5f8f03163ca67b797ff0ebfc0bc286d2b3d"
+    },
+    {
+      "path": "tools/source_section_owners.py",
+      "sha256": "434168044aae4b3f20eb019645d64e71b8286b4821e395c1b8592a0e91a75b44"
+    },
+    {
+      "path": "tools/source_zero_owners.py",
+      "sha256": "dcf88012e11c1e6eaeabb05cd7c71addf2f7a4ceb668b4a360b129b7942b9e4c"
+    }
+  ],
+  "excluded_preserve_in_worktree": [
+    {
+      "path": "recon/frontend/common/fecars.cpp",
+      "reason": "line-ending-only; CRLF-normalized bytes exactly equal to HEAD",
+      "sha256": "2910275eec96aa9cd1eba9450ba7a65309945ba49ce97625b1cf66088d81ed54"
+    },
+    {
+      "path": "recon/frontend/common/screencongrats_externs.h",
+      "reason": "line-ending-only; CRLF-normalized bytes exactly equal to HEAD",
+      "sha256": "c4a481360fcacd73526bc1f9af79961aea4b51f2db7ca4ae9d50b434568f996d"
+    },
+    {
+      "path": "recon/frontend/common/stattool.cpp",
+      "reason": "line-ending-only; CRLF-normalized bytes exactly equal to HEAD",
+      "sha256": "b2af7bfc9d8f21943b5e147a6fd3864d613c3c45fbabef628b0b3b34570c6f97"
+    },
+    {
+      "path": "recon/game/common/aih_basicperp.cpp",
+      "reason": "line-ending-only; CRLF-normalized bytes exactly equal to HEAD",
+      "sha256": "ee2d5a86f7bd4a02c06f5e7c5c22f5f502cafddbc600efa033440515330adb21"
+    },
+    {
+      "path": "recon/game/common/aih_cop.cpp",
+      "reason": "line-ending-only; CRLF-normalized bytes exactly equal to HEAD",
+      "sha256": "7a4ecada790ea6379337052d34fcf636e353fd7d57203d6fd8d61f587511905c"
+    },
+    {
+      "path": "recon/game/common/aih_hierarchy_types.h",
+      "reason": "line-ending-only; CRLF-normalized bytes exactly equal to HEAD",
+      "sha256": "9e65acf05f4e4f9786aa20c2f895fb17463753e14be83b95119ee1c43cb77e69"
+    },
+    {
+      "path": "recon/game/common/aih_opp.cpp",
+      "reason": "line-ending-only; CRLF-normalized bytes exactly equal to HEAD",
+      "sha256": "502bdf0e252fa10e6b26ddca739dfb2aad209c2a837f7d364e55a4a0be4c7126"
+    },
+    {
+      "path": "recon/game/common/aih_play.cpp",
+      "reason": "line-ending-only; CRLF-normalized bytes exactly equal to HEAD",
+      "sha256": "d9c96ca695612d4681649c5b3a8f69daa46825031ed41e65d2c821b4ba81f4a3"
+    },
+    {
+      "path": "recon/game/common/aihigh.cpp",
+      "reason": "line-ending-only; CRLF-normalized bytes exactly equal to HEAD",
+      "sha256": "6da34e9cc2f2cf3b24db4730bafcc650b3febf8793fbe975782690d0c3da91db"
+    },
+    {
+      "path": "recon/game/common/bworld.cpp",
+      "reason": "line-ending-only; CRLF-normalized bytes exactly equal to HEAD",
+      "sha256": "cd5fedea1120c43ca34dd3e7e5f2318148b409109d81f5ab8a598e67060fca8c"
+    },
+    {
+      "path": "recon/game/common/clock.cpp",
+      "reason": "line-ending-only; CRLF-normalized bytes exactly equal to HEAD",
+      "sha256": "3234a4882f5ef77d4ed3a91bf82e627af3d3c88aa19119951d3114ec08110393"
+    },
+    {
+      "path": "recon/game/common/control.cpp",
+      "reason": "line-ending-only; CRLF-normalized bytes exactly equal to HEAD",
+      "sha256": "0d72e5230a6524ef47140043e9a975964594459913bb4a6a494936cede20556a"
+    },
+    {
+      "path": "recon/game/common/genericpmx.cpp",
+      "reason": "line-ending-only; CRLF-normalized bytes exactly equal to HEAD",
+      "sha256": "a5195d346379cbcdafd21b8c35ff621583d23e07f7c030d41d663a2d54f79521"
+    },
+    {
+      "path": "recon/game/common/object.cpp",
+      "reason": "line-ending-only; CRLF-normalized bytes exactly equal to HEAD",
+      "sha256": "186530acb29c7c6255f17c40abbca729b77001ab300331e47663d788398f8664"
+    },
+    {
+      "path": "recon/game/common/pausemenu.cpp",
+      "reason": "line-ending-only; CRLF-normalized bytes exactly equal to HEAD",
+      "sha256": "27f59743430633830fbeb156356af5fa03e95e1b97747af095b024b4a3ea7a21"
+    },
+    {
+      "path": "recon/game/common/physics.cpp",
+      "reason": "line-ending-only; CRLF-normalized bytes exactly equal to HEAD",
+      "sha256": "653ee2154ba5c181df8c5479a12037fd1264c492fe0b15b239ff51822bafbf5f"
+    },
+    {
+      "path": "recon/game/common/r3dcar.cpp",
+      "reason": "line-ending-only; CRLF-normalized bytes exactly equal to HEAD",
+      "sha256": "0a9bf2201dd2c40c8366beb243b921b07f7d3f6188fe5ea1d08541bfd47eee1e"
+    },
+    {
+      "path": "recon/game/common/sim.cpp",
+      "reason": "line-ending-only; CRLF-normalized bytes exactly equal to HEAD",
+      "sha256": "782e5e4f233f429f8e5b0dd93cfc0b121728c3f1302fae9ed93dd2c3273af2d9"
+    },
+    {
+      "path": "scratchpad/w85/o2.txt",
+      "reason": "pre-existing user-owned scratch result; explicitly preserve and exclude",
+      "sha256": "d433425b806fc8abd1fa60c9f72a09f4c022bfd64a7fecf4df496931169e9546"
+    },
+    {
+      "path": "tools/probe_link.py.bak",
+      "reason": "unrelated untracked tool backup; not a P904-P907 runtime dependency",
+      "sha256": "52591d6ae3c4f9d5dfcf35d3672d9a9e3d6606b00a85b08db2be7aa5faa6ab9d"
+    },
+    {
+      "path": "tools/psyqproof.py.bak",
+      "reason": "unrelated untracked tool backup; not a P904-P907 runtime dependency",
+      "sha256": "9ea5fc7dfa0a31f2c1834d24eede2da2c887f7407901bf8d0516b77bf77046d7"
+    }
+  ],
+  "new_compact_documentation_candidates": [
+    {
+      "path": "scratchpad/p910_checkpoint/README.md",
+      "sha256": "763845633667e3919584b4e800173b954a3f5a0d2bf7e6d1d3e0b0e703eee366"
+    },
+    {
+      "path": "scratchpad/p910_checkpoint/final_receipts.json",
+      "sha256": "fac22d6ea62f1da3d05e8fe0451629f1ca95afff7b1dabb2f19d5d5299fc182a"
+    },
+    {
+      "path": "scratchpad/p910_checkpoint/pattern_actual.json",
+      "sha256": "2f09910181dbaa08618e677c8284fe3466ec92fda9f63704101408b912389ad6"
+    },
+    {
+      "path": "scratchpad/p910_hud_data/combined_peer/README.md",
+      "sha256": "05723104236af630f16d14e4a246031d47597ab03ef3397c4de62e6d6ced4213"
+    },
+    {
+      "path": "scratchpad/p910_hud_data/combined_peer/ACTUAL_P910.md",
+      "sha256": "6377760b0af9362706e39f21614627cf95e1a58fd098a4c3bd6ecf8a111fce80"
+    },
+    {
+      "path": "scratchpad/p910_hud_data/combined_peer/actual_review.json",
+      "sha256": "24390cb502e42266e53a0f3a4a0bba276b93e3b8d83082a044b754b329cdf537"
+    },
+    {
+      "path": "scratchpad/p910_hud_sbss/README.md",
+      "sha256": "93a1e9fbd1cae2466173eaf3fb65962830a7b61fafe284b39d9feae5a9c3a0d8"
+    },
+    {
+      "path": "scratchpad/p910_hud_sbss/actual_guard_controls/README.md",
+      "sha256": "a9d021798f854a8e16b6ece1148a22d27e7bf27cddbf251691c2153702ad0fa0"
+    },
+    {
+      "path": "scratchpad/p910_audiomus_pattern/README.md",
+      "sha256": "758d02b55bd432f2d4694126b0150e0c6ea31594a1e3345a23f5b9fb9d82c5f0"
+    }
+  ],
+  "prior_documentation_manifest": "scratchpad/p909_checkpoint/publication_manifest.json",
+  "generated_build_images_objects_backups_excluded": true,
+  "no_git_mutation_performed": true
+}

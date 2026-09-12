@@ -1,7 +1,7 @@
 .include "macro.inc"
-/* W64-A18: residual segment of data_8010CCD4 -- labels no recon TU defines
- * (or a record tail a recon TU's section stops short of).
- * Linked by BOTH lanes. */
+/* P907: exact AudioCmn .data oracle, 8010E4D0..8010EE40 (2416 bytes).
+ * Retained in src/expected; recon uses the validated native source owner,
+ * including seven ordinary literal pointers. No oracle bytes are removed. */
 
 .section .data, "wa"
 

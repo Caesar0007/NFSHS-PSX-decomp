@@ -1,0 +1,20 @@
+{
+  "passed": true,
+  "all_reconstructed_code_objects_literal_unchanged": true,
+  "old_inputs": 695,
+  "old_inputs_unchanged": 694,
+  "changed_old_inputs": [
+    "build/asm/data/data_8010CCD4_r15.data.s.o"
+  ],
+  "new_raw_oracle_leaf": "asm/data/data_hrzsku_legacy.data.s",
+  "raw_build_expected_private_objects_literal_equal": true,
+  "original_raw2620_bytes_preserved": true,
+  "retained_suffix1040_bytes_and6_R32_preserved": true,
+  "actual_ELF_literal_equal_reviewed_private": true,
+  "all39_data_and7_zero_owners_valid": true,
+  "no_postcompiler_or_debug_rewrites": true,
+  "user_edits_preserved": true,
+  "linked_ELF_sha256": "df44e37f2f9e30341f86e9ce30be5d3596ee7a5b6683988b150745574f0628f5",
+  "linked_map_sha256": "9b7f219b879407f827285dba7ef20f3f5eea47ff1144bd8d3fe9cd0a0e770eb0",
+  "goal_complete": false
+}

@@ -1,0 +1,935 @@
+{
+  "passed": true,
+  "source": "scratchpad/p916_animation_time/inputs/native_min.cpp",
+  "source_sha256": "e20516fa8f05777077f4ef48438780d611c094170ba777e07b1b2a2ede1ea055",
+  "object": "scratchpad/p916_animation_time/native_min/objects/scratchpad/p916_animation_time/inputs/native_min.cpp.o",
+  "object_sha256": "c5a982a3f43072667121ad780a63565b55e256f5926d9cfa97b15ee8b8ef0b9b",
+  "source_patch_confined_to_target": true,
+  "normal_object_all_payloads_symbols_relocations_and_metadata_equal_except_exact_FILE_string": true,
+  "FILE_pair": [
+    [
+      [
+        "C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\p916_animation_time\\\\inputs\\\\before.cpp",
+        0,
+        0,
+        4,
+        0,
+        65521
+      ],
+      [
+        "C:\\\\Temp\\\\nfs4-decomp\\\\scratchpad\\\\p916_animation_time\\\\inputs\\\\native_min.cpp",
+        0,
+        0,
+        4,
+        0,
+        65521
+      ]
+    ]
+  ],
+  "all_debug_text_identical_to_normal_text": true,
+  "target_native_function_records": "3e3a12: $800c7644 8c Function start\r\n    fp = 29\r\n    fsize = 0\r\n    retreg = 31\r\n    mask = $00000000\r\n    maskoffs = 0\r\n    line = 1704\r\n    file = C:\\nfs4\\GAME\\PSX\\DRAWW.CPP\r\n    name = DrawW_GetAnimationTime__FP15Trk_AnimateInst\r\n3e3a72: $00000004 96 Def2 class REGPARM type PTR STRUCT size 12 dims 0 tag Trk_AnimateInst name animInst\r\n3e3a9a: $800c7644 90 Block start  line = 1\r\n3e3aa3: $00000005 94 Def class REG type INT size 0 name track\r\n3e3ab6: $800c7644 90 Block start  line = 2\r\n3e3abf: $800c7678 90 Block start  line = 11\r\n3e3ac8: $00000005 94 Def class REG type INT size 0 name maxTick\r\n3e3add: $800c76c0 92 Block end  line = 13\r\n3e3ae6: $800c76c0 92 Block end  line = 13\r\n3e3aef: $800c76c0 92 Block end  line = 13\r\n3e3af8: $800c76c8 8e Function end   line 1716\r\n",
+  "target_native_type_records": "026af6: $00000000 94 Def class STRTAG type STRUCT size 12 name Trk_AnimateInst\r\n026b13: $00000000 94 Def class MOS type SHORT size 0 name size\r\n026b25: $00000002 94 Def class MOS type UCHAR size 0 name type\r\n026b37: $00000003 94 Def class MOS type UCHAR size 0 name objectIndex\r\n026b50: $00000004 94 Def class MOS type UCHAR size 0 name zoffset\r\n026b65: $00000005 94 Def class MOS type UCHAR size 0 name flags\r\n026b78: $00000006 94 Def class MOS type SHORT size 0 name pad\r\n026b89: $00000008 94 Def class MOS type SHORT size 0 name count\r\n026b9c: $0000000a 94 Def class MOS type SHORT size 0 name interval\r\n026bb2: $0000000c 96 Def2 class EOS type NULL size 12 dims 0 tag Trk_AnimateInst name .eos\r\n",
+  "target_native_scopes": [
+    {
+      "start_offset": 0,
+      "depth": 0,
+      "locals": [
+        {
+          "name": "track",
+          "register": 5,
+          "type": "INT"
+        }
+      ],
+      "end_offset": 124
+    },
+    {
+      "start_offset": 0,
+      "depth": 1,
+      "locals": [],
+      "end_offset": 124
+    },
+    {
+      "start_offset": 52,
+      "depth": 2,
+      "locals": [
+        {
+          "name": "maxTick",
+          "register": 5,
+          "type": "INT"
+        }
+      ],
+      "end_offset": 124
+    }
+  ],
+  "target_compiled_scopes": [
+    {
+      "start_offset": 0,
+      "depth": 0,
+      "declarations": [
+        "track;\t.val\t5;\t.scl\t4;\t.type\t0x4;\t.endef"
+      ],
+      "end_offset": 124
+    },
+    {
+      "start_offset": 0,
+      "depth": 1,
+      "declarations": [],
+      "end_offset": 124
+    },
+    {
+      "start_offset": 52,
+      "depth": 2,
+      "declarations": [
+        "maxTick;\t.val\t5;\t.scl\t4;\t.type\t0x4;\t.endef"
+      ],
+      "end_offset": 124
+    }
+  ],
+  "target_compiled_declarations": [
+    "animInst;\t.val\t4;\t.scl\t17;\t.tag\tTrk_AnimateInst;\t.size\t12;\t.type\t0x18;\t.endef",
+    "track;\t.val\t5;\t.scl\t4;\t.type\t0x4;\t.endef",
+    "maxTick;\t.val\t5;\t.scl\t4;\t.type\t0x4;\t.endef"
+  ],
+  "target_SLD_before": {
+    "merges": 0,
+    "splits": 73
+  },
+  "target_SLD_after": {
+    "merges": 0,
+    "splits": 0
+  },
+  "target_native_lines": [
+    1705,
+    1711,
+    1705,
+    1711,
+    1711,
+    1711,
+    1711,
+    1711,
+    1711,
+    1712,
+    1712,
+    1712,
+    1712,
+    1715,
+    1715,
+    1715,
+    1715,
+    1716,
+    1716,
+    1716,
+    1716,
+    1716,
+    1716,
+    1716,
+    1716,
+    1716,
+    1715,
+    1716,
+    1716,
+    1716,
+    1716,
+    1716,
+    1716
+  ],
+  "target_candidate_lines": [
+    [
+      "recon/game/psx/draww.cpp",
+      3012
+    ],
+    [
+      "recon/game/psx/draww.cpp",
+      3013
+    ],
+    [
+      "recon/game/psx/draww.cpp",
+      3012
+    ],
+    [
+      "recon/game/psx/draww.cpp",
+      3013
+    ],
+    [
+      "recon/game/psx/draww.cpp",
+      3013
+    ],
+    [
+      "recon/game/psx/draww.cpp",
+      3013
+    ],
+    [
+      "recon/game/psx/draww.cpp",
+      3013
+    ],
+    [
+      "recon/game/psx/draww.cpp",
+      3013
+    ],
+    [
+      "recon/game/psx/draww.cpp",
+      3013
+    ],
+    [
+      "recon/game/psx/draww.cpp",
+      3014
+    ],
+    [
+      "recon/game/psx/draww.cpp",
+      3014
+    ],
+    [
+      "recon/game/psx/draww.cpp",
+      3014
+    ],
+    [
+      "recon/game/psx/draww.cpp",
+      3014
+    ],
+    [
+      "recon/game/psx/draww.cpp",
+      3018
+    ],
+    [
+      "recon/game/psx/draww.cpp",
+      3018
+    ],
+    [
+      "recon/game/psx/draww.cpp",
+      3018
+    ],
+    [
+      "recon/game/psx/draww.cpp",
+      3018
+    ],
+    [
+      "recon/game/psx/draww.cpp",
+      3019
+    ],
+    [
+      "recon/game/psx/draww.cpp",
+      3019
+    ],
+    [
+      "recon/game/psx/draww.cpp",
+      3019
+    ],
+    [
+      "recon/game/psx/draww.cpp",
+      3019
+    ],
+    [
+      "recon/game/psx/draww.cpp",
+      3019
+    ],
+    [
+      "recon/game/psx/draww.cpp",
+      3019
+    ],
+    [
+      "recon/game/psx/draww.cpp",
+      3019
+    ],
+    [
+      "recon/game/psx/draww.cpp",
+      3019
+    ],
+    [
+      "recon/game/psx/draww.cpp",
+      3019
+    ],
+    [
+      "recon/game/psx/draww.cpp",
+      3018
+    ],
+    [
+      "recon/game/psx/draww.cpp",
+      3019
+    ],
+    [
+      "recon/game/psx/draww.cpp",
+      3019
+    ],
+    [
+      "recon/game/psx/draww.cpp",
+      3019
+    ],
+    [
+      "recon/game/psx/draww.cpp",
+      3019
+    ],
+    [
+      "recon/game/psx/draww.cpp",
+      3019
+    ],
+    [
+      "recon/game/psx/draww.cpp",
+      3019
+    ]
+  ],
+  "target_raw_33_words_exact_after_native_existing_relocation_resolution": true,
+  "target_reference_pairs": [
+    {
+      "symbol": "GameSetup_gData",
+      "native_owner": "0x801131EC",
+      "addend": 60,
+      "native_target": "0x80113228",
+      "HI_PC": "0x800C7644",
+      "LO_PC": "0x800C764C"
+    },
+    {
+      "symbol": "simGlobal",
+      "native_owner": "0x8011E0AC",
+      "addend": 4,
+      "native_target": "0x8011E0B0",
+      "HI_PC": "0x800C7668",
+      "LO_PC": "0x800C766C"
+    },
+    {
+      "symbol": "animation_timer",
+      "native_owner": "0x8011F718",
+      "addend": 0,
+      "native_target": "0x8011F718",
+      "HI_PC": "0x800C7688",
+      "LO_PC": "0x800C7690"
+    }
+  ],
+  "primary_field_and_owner_records": {
+    "2874b5": "2874b5: $801131ec 96 Def2 class EXT type STRUCT size 2600 dims 0 tag GameSetup_tData name GameSetup_gData",
+    "27de72": "27de72: $0000003c 94 Def class MOS type INT size 0 name track",
+    "345234": "345234: $8011e0ac 96 Def2 class EXT type STRUCT size 24 dims 0 tag Sim_tSimGlobalVar name simGlobal",
+    "338790": "338790: $00000004 94 Def class MOS type INT size 0 name gameTicks",
+    "3e64b4": "3e64b4: $8011f718 96 Def2 class EXT type ARY INT size 48 dims 1 12 tag  name animation_timer",
+    "026b37": "026b37: $00000003 94 Def class MOS type UCHAR size 0 name objectIndex",
+    "026b89": "026b89: $00000008 94 Def class MOS type SHORT size 0 name count",
+    "026b9c": "026b9c: $0000000a 94 Def class MOS type SHORT size 0 name interval"
+  },
+  "target_branch_words_and_destinations": [
+    {
+      "PC": "0x800C7650",
+      "target": "0x800C7668",
+      "word": "0x10600005"
+    },
+    {
+      "PC": "0x800C7658",
+      "target": "0x800C7668",
+      "word": "0x10A20003"
+    },
+    {
+      "PC": "0x800C7660",
+      "target": "0x800C7678",
+      "word": "0x14A20005"
+    },
+    {
+      "PC": "0x800C76B4",
+      "target": "0x800C76C0",
+      "word": "0x14400002"
+    }
+  ],
+  "neighbors": [
+    {
+      "function": "DrawW_AddSubdividPrimGT4__FP8POLY_GT4P12Draw_SVertexN31P25Draw_tGiveShelbyMoreCache",
+      "instructions": 35,
+      "scopes": 5,
+      "line_partition_preserved": true,
+      "all_scope_and_declaration_homes_preserved": true,
+      "complete_label_graph_and_all_retained_label_PCs_preserved": true,
+      "retained_label_count": 21,
+      "C_LABEL_records_before": [],
+      "C_LABEL_records_after": []
+    },
+    {
+      "function": "DrawW_AddSubdividPrimGT3__FP8POLY_GT3P12Draw_SVertexN21P25Draw_tGiveShelbyMoreCache",
+      "instructions": 28,
+      "scopes": 5,
+      "line_partition_preserved": true,
+      "all_scope_and_declaration_homes_preserved": true,
+      "complete_label_graph_and_all_retained_label_PCs_preserved": true,
+      "retained_label_count": 21,
+      "C_LABEL_records_before": [],
+      "C_LABEL_records_after": []
+    },
+    {
+      "function": "DrawW_DivVertice__FP12Draw_SVertexN20",
+      "instructions": 54,
+      "scopes": 1,
+      "line_partition_preserved": true,
+      "all_scope_and_declaration_homes_preserved": true,
+      "complete_label_graph_and_all_retained_label_PCs_preserved": true,
+      "retained_label_count": 12,
+      "C_LABEL_records_before": [],
+      "C_LABEL_records_after": []
+    },
+    {
+      "function": "DrawW_CalcSubdivision__FP25Draw_tGiveShelbyMoreCacheP12Draw_SVertexN31",
+      "instructions": 34,
+      "scopes": 1,
+      "line_partition_preserved": true,
+      "all_scope_and_declaration_homes_preserved": true,
+      "complete_label_graph_and_all_retained_label_PCs_preserved": true,
+      "retained_label_count": 28,
+      "C_LABEL_records_before": [],
+      "C_LABEL_records_after": []
+    },
+    {
+      "function": "DrawW_SubdividFacet__FP25Draw_tGiveShelbyMoreCacheiP12Draw_SVertexN32ss",
+      "instructions": 588,
+      "scopes": 18,
+      "line_partition_preserved": true,
+      "all_scope_and_declaration_homes_preserved": true,
+      "complete_label_graph_and_all_retained_label_PCs_preserved": true,
+      "retained_label_count": 232,
+      "C_LABEL_records_before": [
+        {
+          "source_declaration": "DrawWSubdiv_edge1;\t.val\t$L42;\t.scl\t6;\t.type\t0x0;\t.endef",
+          "compiler_label": "$L42",
+          "function_offset": 1292
+        },
+        {
+          "source_declaration": "DrawWSubdiv_edge2;\t.val\t$L44;\t.scl\t6;\t.type\t0x0;\t.endef",
+          "compiler_label": "$L44",
+          "function_offset": 1456
+        },
+        {
+          "source_declaration": "DrawWSubdiv_edge3;\t.val\t$L48;\t.scl\t6;\t.type\t0x0;\t.endef",
+          "compiler_label": "$L48",
+          "function_offset": 1620
+        },
+        {
+          "source_declaration": "DrawWSubdiv_edgedone;\t.val\t$L52;\t.scl\t6;\t.type\t0x0;\t.endef",
+          "compiler_label": "$L52",
+          "function_offset": 1784
+        }
+      ],
+      "C_LABEL_records_after": [
+        {
+          "source_declaration": "DrawWSubdiv_edge1;\t.val\t$L42;\t.scl\t6;\t.type\t0x0;\t.endef",
+          "compiler_label": "$L42",
+          "function_offset": 1292
+        },
+        {
+          "source_declaration": "DrawWSubdiv_edge2;\t.val\t$L44;\t.scl\t6;\t.type\t0x0;\t.endef",
+          "compiler_label": "$L44",
+          "function_offset": 1456
+        },
+        {
+          "source_declaration": "DrawWSubdiv_edge3;\t.val\t$L48;\t.scl\t6;\t.type\t0x0;\t.endef",
+          "compiler_label": "$L48",
+          "function_offset": 1620
+        },
+        {
+          "source_declaration": "DrawWSubdiv_edgedone;\t.val\t$L52;\t.scl\t6;\t.type\t0x0;\t.endef",
+          "compiler_label": "$L52",
+          "function_offset": 1784
+        }
+      ]
+    },
+    {
+      "function": "DrawW_LoadPrecVECTOR__FP12Draw_SVertexP6VECTOR",
+      "instructions": 11,
+      "scopes": 1,
+      "line_partition_preserved": true,
+      "all_scope_and_declaration_homes_preserved": true,
+      "complete_label_graph_and_all_retained_label_PCs_preserved": true,
+      "retained_label_count": 12,
+      "C_LABEL_records_before": [],
+      "C_LABEL_records_after": []
+    },
+    {
+      "function": "DrawW_SetUpSubdividFacet__FiP25Draw_tGiveShelbyMoreCache",
+      "instructions": 206,
+      "scopes": 4,
+      "line_partition_preserved": true,
+      "all_scope_and_declaration_homes_preserved": true,
+      "complete_label_graph_and_all_retained_label_PCs_preserved": true,
+      "retained_label_count": 97,
+      "C_LABEL_records_before": [
+        {
+          "source_declaration": "DrW_SubSetup_v0Alpha;\t.val\t$L77;\t.scl\t6;\t.type\t0x0;\t.endef",
+          "compiler_label": "$L77",
+          "function_offset": 476
+        },
+        {
+          "source_declaration": "DrW_SubSetup_v1Alpha;\t.val\t$L82;\t.scl\t6;\t.type\t0x0;\t.endef",
+          "compiler_label": "$L82",
+          "function_offset": 564
+        },
+        {
+          "source_declaration": "DrW_SubSetup_v2Alpha;\t.val\t$L87;\t.scl\t6;\t.type\t0x0;\t.endef",
+          "compiler_label": "$L87",
+          "function_offset": 652
+        }
+      ],
+      "C_LABEL_records_after": [
+        {
+          "source_declaration": "DrW_SubSetup_v0Alpha;\t.val\t$L77;\t.scl\t6;\t.type\t0x0;\t.endef",
+          "compiler_label": "$L77",
+          "function_offset": 476
+        },
+        {
+          "source_declaration": "DrW_SubSetup_v1Alpha;\t.val\t$L82;\t.scl\t6;\t.type\t0x0;\t.endef",
+          "compiler_label": "$L82",
+          "function_offset": 564
+        },
+        {
+          "source_declaration": "DrW_SubSetup_v2Alpha;\t.val\t$L87;\t.scl\t6;\t.type\t0x0;\t.endef",
+          "compiler_label": "$L87",
+          "function_offset": 652
+        }
+      ]
+    },
+    {
+      "function": "Night_NightCopCalc__FP6VECTORPs",
+      "instructions": 40,
+      "scopes": 5,
+      "line_partition_preserved": true,
+      "all_scope_and_declaration_homes_preserved": true,
+      "complete_label_graph_and_all_retained_label_PCs_preserved": true,
+      "retained_label_count": 34,
+      "C_LABEL_records_before": [],
+      "C_LABEL_records_after": []
+    },
+    {
+      "function": "Night_NightCalc__FP6VECTORPsP25Draw_tGiveShelbyMoreCache",
+      "instructions": 57,
+      "scopes": 11,
+      "line_partition_preserved": true,
+      "all_scope_and_declaration_homes_preserved": true,
+      "complete_label_graph_and_all_retained_label_PCs_preserved": true,
+      "retained_label_count": 51,
+      "C_LABEL_records_before": [],
+      "C_LABEL_records_after": []
+    },
+    {
+      "function": "DrawW_NightColorCalc__FP25Draw_tGiveShelbyMoreCacheP8POLY_GT4P8CCOORD16N32",
+      "instructions": 279,
+      "scopes": 4,
+      "line_partition_preserved": true,
+      "all_scope_and_declaration_homes_preserved": true,
+      "complete_label_graph_and_all_retained_label_PCs_preserved": true,
+      "retained_label_count": 96,
+      "C_LABEL_records_before": [],
+      "C_LABEL_records_after": []
+    },
+    {
+      "function": "DrawW_DrawQuad__FP25Draw_tGiveShelbyMoreCacheP8Trk_Quad",
+      "instructions": 592,
+      "scopes": 21,
+      "line_partition_preserved": true,
+      "all_scope_and_declaration_homes_preserved": true,
+      "complete_label_graph_and_all_retained_label_PCs_preserved": true,
+      "retained_label_count": 305,
+      "C_LABEL_records_before": [],
+      "C_LABEL_records_after": []
+    },
+    {
+      "function": "DrawW_kCtrlWorld_High__FP25Draw_tGiveShelbyMoreCache",
+      "instructions": 32,
+      "scopes": 1,
+      "line_partition_preserved": true,
+      "all_scope_and_declaration_homes_preserved": true,
+      "complete_label_graph_and_all_retained_label_PCs_preserved": true,
+      "retained_label_count": 19,
+      "C_LABEL_records_before": [],
+      "C_LABEL_records_after": []
+    },
+    {
+      "function": "DrawW_StripDraw_High__FP25Draw_tGiveShelbyMoreCache",
+      "instructions": 58,
+      "scopes": 1,
+      "line_partition_preserved": true,
+      "all_scope_and_declaration_homes_preserved": true,
+      "complete_label_graph_and_all_retained_label_PCs_preserved": true,
+      "retained_label_count": 37,
+      "C_LABEL_records_before": [],
+      "C_LABEL_records_after": []
+    },
+    {
+      "function": "DrawW_DoTrough__FP13DRender_tViewP11tBuildEntry",
+      "instructions": 359,
+      "scopes": 18,
+      "line_partition_preserved": true,
+      "all_scope_and_declaration_homes_preserved": true,
+      "complete_label_graph_and_all_retained_label_PCs_preserved": true,
+      "retained_label_count": 212,
+      "C_LABEL_records_before": [],
+      "C_LABEL_records_after": []
+    },
+    {
+      "function": "DrawW_WorldSetUpMatrix__FP10matrixtdefP6MATRIX",
+      "instructions": 39,
+      "scopes": 4,
+      "line_partition_preserved": true,
+      "all_scope_and_declaration_homes_preserved": true,
+      "complete_label_graph_and_all_retained_label_PCs_preserved": true,
+      "retained_label_count": 39,
+      "C_LABEL_records_before": [],
+      "C_LABEL_records_after": []
+    },
+    {
+      "function": "DrawW_WorldSetUpTranslation__FP8coorddefP6MATRIX",
+      "instructions": 17,
+      "scopes": 1,
+      "line_partition_preserved": true,
+      "all_scope_and_declaration_homes_preserved": true,
+      "complete_label_graph_and_all_retained_label_PCs_preserved": true,
+      "retained_label_count": 14,
+      "C_LABEL_records_before": [],
+      "C_LABEL_records_after": []
+    },
+    {
+      "function": "DrawW_ResetAnimationTimer__Fv",
+      "instructions": 10,
+      "scopes": 1,
+      "line_partition_preserved": true,
+      "all_scope_and_declaration_homes_preserved": true,
+      "complete_label_graph_and_all_retained_label_PCs_preserved": true,
+      "retained_label_count": 10,
+      "C_LABEL_records_before": [],
+      "C_LABEL_records_after": []
+    },
+    {
+      "function": "DrawW_SetAnimationTime__FP15Trk_AnimateInstPii",
+      "instructions": 80,
+      "scopes": 9,
+      "line_partition_preserved": true,
+      "all_scope_and_declaration_homes_preserved": true,
+      "complete_label_graph_and_all_retained_label_PCs_preserved": true,
+      "retained_label_count": 51,
+      "C_LABEL_records_before": [],
+      "C_LABEL_records_after": []
+    },
+    {
+      "function": "DrawW_DoObjectAnimations__Fv",
+      "instructions": 40,
+      "scopes": 1,
+      "line_partition_preserved": true,
+      "all_scope_and_declaration_homes_preserved": true,
+      "complete_label_graph_and_all_retained_label_PCs_preserved": true,
+      "retained_label_count": 23,
+      "C_LABEL_records_before": [],
+      "C_LABEL_records_after": []
+    },
+    {
+      "function": "DrawW_BuildObjectFacets__FP13DRender_tViewP15ChunkObjectInfo",
+      "instructions": 189,
+      "scopes": 9,
+      "line_partition_preserved": true,
+      "all_scope_and_declaration_homes_preserved": true,
+      "complete_label_graph_and_all_retained_label_PCs_preserved": true,
+      "retained_label_count": 102,
+      "C_LABEL_records_before": [
+        {
+          "source_declaration": "animCase1;\t.val\t$L265;\t.scl\t6;\t.type\t0x0;\t.endef",
+          "compiler_label": "$L265",
+          "function_offset": 324
+        },
+        {
+          "source_declaration": "animCase37;\t.val\t$L270;\t.scl\t6;\t.type\t0x0;\t.endef",
+          "compiler_label": "$L270",
+          "function_offset": 444
+        }
+      ],
+      "C_LABEL_records_after": [
+        {
+          "source_declaration": "animCase1;\t.val\t$L269;\t.scl\t6;\t.type\t0x0;\t.endef",
+          "compiler_label": "$L269",
+          "function_offset": 324
+        },
+        {
+          "source_declaration": "animCase37;\t.val\t$L274;\t.scl\t6;\t.type\t0x0;\t.endef",
+          "compiler_label": "$L274",
+          "function_offset": 444
+        }
+      ]
+    },
+    {
+      "function": "DrawW_BuildCustomObjectFacets__FP13DRender_tViewP11Draw_DCacheP13Trk_SimObjectP5Groupi",
+      "instructions": 200,
+      "scopes": 9,
+      "line_partition_preserved": true,
+      "all_scope_and_declaration_homes_preserved": true,
+      "complete_label_graph_and_all_retained_label_PCs_preserved": true,
+      "retained_label_count": 98,
+      "C_LABEL_records_before": [],
+      "C_LABEL_records_after": []
+    },
+    {
+      "function": "DrawObjectTransform__FP13DRender_tViewP11Draw_DCacheP10matrixtdefP13Trk_ObjectDefP8coorddefis",
+      "instructions": 214,
+      "scopes": 16,
+      "line_partition_preserved": true,
+      "all_scope_and_declaration_homes_preserved": true,
+      "complete_label_graph_and_all_retained_label_PCs_preserved": true,
+      "retained_label_count": 123,
+      "C_LABEL_records_before": [],
+      "C_LABEL_records_after": []
+    },
+    {
+      "function": "DrawObjectSimple__FP13DRender_tViewP11Draw_DCacheP13Trk_ObjectDefP8coorddefi",
+      "instructions": 189,
+      "scopes": 21,
+      "line_partition_preserved": true,
+      "all_scope_and_declaration_homes_preserved": true,
+      "complete_label_graph_and_all_retained_label_PCs_preserved": true,
+      "retained_label_count": 118,
+      "C_LABEL_records_before": [],
+      "C_LABEL_records_after": []
+    },
+    {
+      "function": "DrawW_BuildChunkObjectFacets__FP13DRender_tViewP15ChunkObjectInfo",
+      "instructions": 434,
+      "scopes": 18,
+      "line_partition_preserved": true,
+      "all_scope_and_declaration_homes_preserved": true,
+      "complete_label_graph_and_all_retained_label_PCs_preserved": true,
+      "retained_label_count": 229,
+      "C_LABEL_records_before": [
+        {
+          "source_declaration": "DrawWChunkFacets_groupNext;\t.val\t$L316;\t.scl\t6;\t.type\t0x0;\t.endef",
+          "compiler_label": "$L316",
+          "function_offset": 1660
+        }
+      ],
+      "C_LABEL_records_after": [
+        {
+          "source_declaration": "DrawWChunkFacets_groupNext;\t.val\t$L320;\t.scl\t6;\t.type\t0x0;\t.endef",
+          "compiler_label": "$L320",
+          "function_offset": 1660
+        }
+      ]
+    },
+    {
+      "function": "ObjectClipped__FP13DRender_tViewiP8coorddefP25Draw_tGiveShelbyMoreCache",
+      "instructions": 61,
+      "scopes": 1,
+      "line_partition_preserved": true,
+      "all_scope_and_declaration_homes_preserved": true,
+      "complete_label_graph_and_all_retained_label_PCs_preserved": true,
+      "retained_label_count": 39,
+      "C_LABEL_records_before": [],
+      "C_LABEL_records_after": []
+    },
+    {
+      "function": "DrawW_DoObjects__FP13DRender_tViewP11tBuildEntry",
+      "instructions": 222,
+      "scopes": 10,
+      "line_partition_preserved": true,
+      "all_scope_and_declaration_homes_preserved": true,
+      "complete_label_graph_and_all_retained_label_PCs_preserved": true,
+      "retained_label_count": 137,
+      "C_LABEL_records_before": [],
+      "C_LABEL_records_after": []
+    },
+    {
+      "function": "Draw_CircleClip__FP8coorddefT0i",
+      "instructions": 24,
+      "scopes": 1,
+      "line_partition_preserved": true,
+      "all_scope_and_declaration_homes_preserved": true,
+      "complete_label_graph_and_all_retained_label_PCs_preserved": true,
+      "retained_label_count": 17,
+      "C_LABEL_records_before": [],
+      "C_LABEL_records_after": []
+    },
+    {
+      "function": "Draw_kCtrlSkidmark__FP18Draw_tCtrlSkidmark",
+      "instructions": 353,
+      "scopes": 21,
+      "line_partition_preserved": true,
+      "all_scope_and_declaration_homes_preserved": true,
+      "complete_label_graph_and_all_retained_label_PCs_preserved": true,
+      "retained_label_count": 186,
+      "C_LABEL_records_before": [],
+      "C_LABEL_records_after": []
+    },
+    {
+      "function": "DrawW_SetUpSubdividFacet_Line__FP25Draw_tGiveShelbyMoreCache",
+      "instructions": 166,
+      "scopes": 3,
+      "line_partition_preserved": true,
+      "all_scope_and_declaration_homes_preserved": true,
+      "complete_label_graph_and_all_retained_label_PCs_preserved": true,
+      "retained_label_count": 71,
+      "C_LABEL_records_before": [
+        {
+          "source_declaration": "DrW_SubSetupLine_v0Alpha;\t.val\t$L392;\t.scl\t6;\t.type\t0x0;\t.endef",
+          "compiler_label": "$L392",
+          "function_offset": 324
+        },
+        {
+          "source_declaration": "DrW_SubSetupLine_v1Alpha;\t.val\t$L397;\t.scl\t6;\t.type\t0x0;\t.endef",
+          "compiler_label": "$L397",
+          "function_offset": 412
+        },
+        {
+          "source_declaration": "DrW_SubSetupLine_v2Alpha;\t.val\t$L402;\t.scl\t6;\t.type\t0x0;\t.endef",
+          "compiler_label": "$L402",
+          "function_offset": 500
+        }
+      ],
+      "C_LABEL_records_after": [
+        {
+          "source_declaration": "DrW_SubSetupLine_v0Alpha;\t.val\t$L396;\t.scl\t6;\t.type\t0x0;\t.endef",
+          "compiler_label": "$L396",
+          "function_offset": 324
+        },
+        {
+          "source_declaration": "DrW_SubSetupLine_v1Alpha;\t.val\t$L401;\t.scl\t6;\t.type\t0x0;\t.endef",
+          "compiler_label": "$L401",
+          "function_offset": 412
+        },
+        {
+          "source_declaration": "DrW_SubSetupLine_v2Alpha;\t.val\t$L406;\t.scl\t6;\t.type\t0x0;\t.endef",
+          "compiler_label": "$L406",
+          "function_offset": 500
+        }
+      ]
+    },
+    {
+      "function": "DrawW_OnyxLinePrim__FP8CCOORD16P8Trk_LineiP25Draw_tGiveShelbyMoreCache",
+      "instructions": 507,
+      "scopes": 17,
+      "line_partition_preserved": true,
+      "all_scope_and_declaration_homes_preserved": true,
+      "complete_label_graph_and_all_retained_label_PCs_preserved": true,
+      "retained_label_count": 201,
+      "C_LABEL_records_before": [
+        {
+          "source_declaration": "loopbot;\t.val\t$L422;\t.scl\t6;\t.type\t0x0;\t.endef",
+          "compiler_label": "$L422",
+          "function_offset": 1944
+        }
+      ],
+      "C_LABEL_records_after": [
+        {
+          "source_declaration": "loopbot;\t.val\t$L426;\t.scl\t6;\t.type\t0x0;\t.endef",
+          "compiler_label": "$L426",
+          "function_offset": 1944
+        }
+      ]
+    },
+    {
+      "function": "DrawW_BuildChunkCenterLineFacets__FP5ChunkP5GroupP25Draw_tGiveShelbyMoreCacheP7COORD16",
+      "instructions": 88,
+      "scopes": 2,
+      "line_partition_preserved": true,
+      "all_scope_and_declaration_homes_preserved": true,
+      "complete_label_graph_and_all_retained_label_PCs_preserved": true,
+      "retained_label_count": 57,
+      "C_LABEL_records_before": [],
+      "C_LABEL_records_after": []
+    },
+    {
+      "function": "DrawW_DoLines__FP13DRender_tViewP11tBuildEntryP11Draw_DCache",
+      "instructions": 199,
+      "scopes": 24,
+      "line_partition_preserved": true,
+      "all_scope_and_declaration_homes_preserved": true,
+      "complete_label_graph_and_all_retained_label_PCs_preserved": true,
+      "retained_label_count": 135,
+      "C_LABEL_records_before": [],
+      "C_LABEL_records_after": []
+    },
+    {
+      "function": "DrawW_BuildSpikeBelt__FP13DRender_tViewiP11Draw_DCache",
+      "instructions": 268,
+      "scopes": 9,
+      "line_partition_preserved": true,
+      "all_scope_and_declaration_homes_preserved": true,
+      "complete_label_graph_and_all_retained_label_PCs_preserved": true,
+      "retained_label_count": 187,
+      "C_LABEL_records_before": [],
+      "C_LABEL_records_after": []
+    },
+    {
+      "function": "DepthCue_Init__Fv",
+      "instructions": 18,
+      "scopes": 1,
+      "line_partition_preserved": true,
+      "all_scope_and_declaration_homes_preserved": true,
+      "complete_label_graph_and_all_retained_label_PCs_preserved": true,
+      "retained_label_count": 8,
+      "C_LABEL_records_before": [],
+      "C_LABEL_records_after": []
+    }
+  ],
+  "saved_full_TU_gate_receipts_verified": {
+    "PASS": 35,
+    "branches": 361,
+    "fresh_compiles_by_peer": 0
+  },
+  "MIN_provenance": {
+    "supporting_sibling": "C:/Temp/nfs2-clean/pc-beta/match/nfs2.h:8 has MIN(a,b) (((a) > (b)) ? (b) : (a))",
+    "contrasting_sibling": "C:/Temp/nfs2-clean/pc-beta/match/ealib.h:4 has the equivalent opposite operand order",
+    "qualification": "Both are reconstructed matched headers; neither proves the original NFS4 macro identity or exact original spelling. Candidate is a faithful ordinary expression regardless."
+  },
+  "qualifications": [
+    "Scope spans, depths, local identities/homes and per-instruction line partitions match; literal native source line numbers/file whitespace are not claimed restored.",
+    "The 34 neighbor complete contracts are preserved relative to the frozen before object; not a claim that all pre-existing neighbor source names/scopes are native-exact.",
+    "Expected-word arithmetic occurs only in memory for comparison with ROM. No source, object, assembly, label metadata or compiler output is rewritten.",
+    "No production/normal-output writes or compilation by this independent review."
+  ],
+  "inputs": {
+    "C:/Temp/nfs4-decomp/scratchpad/p892_checkpoint/metadata_audit.py": {
+      "sha256": "1ef341f2a1341001067ff6f2e657ff1216280788a3172465d0927f2b05ab42e3",
+      "bytes": 23473
+    },
+    "C:/Temp/nfs4-decomp/scratchpad/p916_animation_time/before.json": {
+      "sha256": "7b953403bb1803da11578ff827f678383c147ffb10f16122b0490d766e6dfa77",
+      "bytes": 12536
+    },
+    "C:/Temp/nfs4-decomp/scratchpad/p916_animation_time/native_min.json": {
+      "sha256": "6899e5ea1e7021359e1d0547fd7fe4d94f82c75c3cd04d156ca1932a668ad1cb",
+      "bytes": 12568
+    },
+    "C:/Temp/nfs4-decomp/scratchpad/p916_animation_time/inputs/before.cpp": {
+      "sha256": "016c4a42e955e6cbb22733890a252834398816d4376da35d7e0f2ee45068319c",
+      "bytes": 445615
+    },
+    "C:/Temp/nfs4-decomp/scratchpad/p916_animation_time/inputs/native_min.cpp": {
+      "sha256": "e20516fa8f05777077f4ef48438780d611c094170ba777e07b1b2a2ede1ea055",
+      "bytes": 442702
+    },
+    "C:/Temp/nfs4-decomp/scratchpad/p916_animation_time/before/debug/diffsrc/scratchpad/p916_animation_time/inputs/before.cpp.g.s": {
+      "sha256": "c3c38acf4c2cb098e5079e3cad94bf03f8c4f83e1caa3224c126c6dff765e2ec",
+      "bytes": 379302
+    },
+    "C:/Temp/nfs4-decomp/scratchpad/p916_animation_time/native_min/debug/diffsrc/scratchpad/p916_animation_time/inputs/native_min.cpp.g.s": {
+      "sha256": "ba608d75ba48341326b34a0c6fd506bd277611d73ded98ca91f043e307cf49ae",
+      "bytes": 379280
+    },
+    "C:/Temp/nfs4-decomp/scratchpad/p916_animation_time/before/objects/scratchpad/p916_animation_time/inputs/before.cpp.o": {
+      "sha256": "67e04905de01c3277f303863279ad326a6e9772cb50e438661b27313804720b6",
+      "bytes": 36404
+    },
+    "C:/Temp/nfs4-decomp/scratchpad/p916_animation_time/before/debug/diffsrc/scratchpad/p916_animation_time/inputs/before.cpp.g.labels.o": {
+      "sha256": "ef3077d6e29ebfa5842bc362a76a98ef8826594b0d57a619ce1d000b4165f3d5",
+      "bytes": 114680
+    },
+    "C:/Temp/nfs4-decomp/scratchpad/p916_animation_time/native_min/objects/scratchpad/p916_animation_time/inputs/native_min.cpp.o": {
+      "sha256": "c5a982a3f43072667121ad780a63565b55e256f5926d9cfa97b15ee8b8ef0b9b",
+      "bytes": 36408
+    },
+    "C:/Temp/nfs4-decomp/scratchpad/p916_animation_time/native_min/debug/diffsrc/scratchpad/p916_animation_time/inputs/native_min.cpp.g.labels.o": {
+      "sha256": "1e628eba9aceb768fd4ea8d722b1eebc10e2464284b15369ae991c19fdfe0caa",
+      "bytes": 114748
+    },
+    "C:/Temp/nfs4-clean/nfs4-f-v3.txt": {
+      "sha256": "e1d4546ace970efaf09b61b3cfc9d6c8f0fc8d78e104de8a106e1e9668b362d1",
+      "bytes": 24627834
+    },
+    "C:/Temp/claud/dumpsym_clean/dumpsym_src/nfs4-f-v3.txt": {
+      "sha256": "e1d4546ace970efaf09b61b3cfc9d6c8f0fc8d78e104de8a106e1e9668b362d1",
+      "bytes": 24627834
+    },
+    "C:/Temp/nfs4-decomp/rom/nfs4-f.exe": {
+      "sha256": "5da87a73caeec568ed60806f23e1e5276e3e3c699627442a519b2915789ec49b",
+      "bytes": 1239040
+    },
+    "C:/Temp/nfs4-decomp/asm/nonmatchings/main/DrawW_GetAnimationTime__FP15Trk_AnimateInst.s": {
+      "sha256": "01f3c1ee66e612102aae8a29e21007c5a362a1705e42b9b20b7169a92b5d81c4",
+      "bytes": 2274
+    }
+  }
+}

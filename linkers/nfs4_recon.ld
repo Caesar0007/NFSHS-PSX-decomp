@@ -98,6 +98,8 @@ SECTIONS
         /* 0x800551c8 rdata_80054548_j05.rodata.s -- JUMP TABLE, recon TU owns it */
         . = 0xcac;
         build/asm/data/rdata_80054548_r05.rodata.s.o(.rodata);
+        . = 0x11f0;
+        build/asm/data/rdata_audiocmn_trackgenbank_padding.rodata.s.o(.rodata);
         /* 0x8005573c rdata_80054548_j06.rodata.s -- JUMP TABLE, recon TU owns it */
         . = 0x1224;
         build/asm/data/rdata_80054548_r06.rodata.s.o(.rodata);
@@ -265,6 +267,8 @@ SECTIONS
     .ro0090 0x80057908 : SUBALIGN(4) { build/recon/syslib/psx/libcd/toc.c.o(.rodata); }   /* 62 B */
     .ro0091 0x80057948 : SUBALIGN(4) { build/recon/syslib/psx/libmcrd/USERFUNC.c.o(.rodata); }   /* 25 B */
     .ro0092 0x80057968 : SUBALIGN(4) { build/recon/eaclib/psx/spchpsxz/spchrule.c.o(.rodata); }   /* 20 B */
+    ASSERT(ADDR(.ro0041) == 0x800556d0 && SIZEOF(.ro0041) == 152, "native auxiliary source window mismatch")
+    ASSERT(ADDR(.ro0041) + 60 == 0x8005570c, "native auxiliary source window mismatch")
 
 
     .t0000 0x800128f0 : SUBALIGN(4) { build/recon/game/common/minfront.cpp.o(.text); }
@@ -730,12 +734,12 @@ SECTIONS
     .t0460 0x8010cc40 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/ssine.c.o(.text); }
 
     /* P881: source-owned native data; raw copies are oracle-only. */
-    .source_data_0 0x80051aa0 : SUBALIGN(4) { build/recon/frontend/common/fecredits.cpp.o(.data); }
-    ASSERT(SIZEOF(.source_data_0) == 8, "source data owner size mismatch")
-    .source_data_7 0x800515b8 : SUBALIGN(4) { build/recon/frontend/common/fetextrender.cpp.o(.data); }
-    ASSERT(SIZEOF(.source_data_7) == 88, "source data owner size mismatch")
-    .source_data_17 0x800529d0 : SUBALIGN(4) { build/recon/frontend/psx/drawshp.cpp.o(.data); }
-    ASSERT(SIZEOF(.source_data_17) == 4, "source data owner size mismatch")
+    .source_data_1 0x80051aa0 : SUBALIGN(4) { build/recon/frontend/common/fecredits.cpp.o(.data); }
+    ASSERT(SIZEOF(.source_data_1) == 8, "source data owner size mismatch")
+    .source_data_8 0x800515b8 : SUBALIGN(4) { build/recon/frontend/common/fetextrender.cpp.o(.data); }
+    ASSERT(SIZEOF(.source_data_8) == 88, "source data owner size mismatch")
+    .source_data_18 0x800529d0 : SUBALIGN(4) { build/recon/frontend/psx/drawshp.cpp.o(.data); }
+    ASSERT(SIZEOF(.source_data_18) == 4, "source data owner size mismatch")
 
     .data 0x8010ccd4 : SUBALIGN(4)
     {
@@ -755,20 +759,20 @@ SECTIONS
         build/recon/game/common/AIWORLD.cpp.o(.data);   /* 0x8010e00c..0x8010e14c  was data_8010CCD4_o09.data.s */
         build/recon/game/common/anim.cpp.o(.data);   /* 0x8010e14c..0x8010e274  was data_8010CCD4_o10.data.s */
         build/recon/game/common/audioclc.cpp.o(.data);   /* 0x8010e274..0x8010e4d0  was data_8010CCD4_o11.data.s */
-        build/asm/data/data_8010CCD4_r04.data.s.o(.data);
+        build/recon/game/common/audiocmn.cpp.o(.data);   /* P907 full native owner:0x8010e4d0..0x8010ee40; r04 is oracle-only */
         build/recon/game/common/bworld.cpp.o(.data);   /* 0x8010ee40..0x8010f07c  was data_8010CCD4_o12.data.s */
         build/asm/data/data_8010CCD4_r05.data.s.o(.data);
         build/recon/game/common/bworldSm.cpp.o(.data);   /* 0x8010f0ac..0x8010f2ac  was data_8010CCD4_o13.data.s */
-        build/asm/data/data_8010CCD4_r06.data.s.o(.data);
+        build/recon/game/common/camera.cpp.o(.data);   /* P912 native 1,404-byte owner; r06 retained in src/oracle only. */
         build/recon/game/common/cars.cpp.o(.data);   /* 0x8010f828..0x80110c24  was data_8010CCD4_o14.data.s */
         build/recon/game/common/clock.cpp.o(.data);   /* 0x80110c24..0x80110c30  was data_8010CCD4_o15.data.s */
-        build/asm/data/data_8010CCD4_r07.data.s.o(.data);
+        build/recon/game/common/collide.cpp.o(.data);   /* P912 native64-byte registry; r07 retained in src/oracle only. */
         build/recon/game/common/hudpmx.cpp.o(.data);   /* 0x80110c70..0x80111a44  was data_8010CCD4_o16.data.s */
         build/asm/data/data_8010CCD4_r08.data.s.o(.data);
         build/recon/game/common/copspeak.cpp.o(.data);   /* 0x80111ea4..0x80112730  was data_8010CCD4_o17.data.s */
         build/recon/game/common/dashhud.cpp.o(.data);   /* 0x80112730..0x8011279c  was data_8010CCD4_o18.data.s */
         build/recon/game/common/fei.cpp.o(.data);   /* 0x8011279c..0x80112b2c  was data_8010CCD4_o19.data.s */
-        build/asm/data/data_8010CCD4_r09.data.s.o(.data.r09_pre);
+        build/recon/game/common/genericpmx.cpp.o(.data);   /* P912 native 1,304-byte owner after declaration-order recovery; r09 stays src-only. */
         build/recon/game/common/gmesetup.cpp.o(.data);   /* 0x80113044..0x80113c14 */
         build/recon/game/common/input.cpp.o(.data);   /* 0x80113c14..0x8011401c  was data_8010CCD4_o21.data.s */
         build/asm/data/data_8010CCD4_r10.data.s.o(.data);
@@ -801,10 +805,13 @@ SECTIONS
         build/recon/game/common/trgsfx.cpp.o(.data.trgsfx_save_seg);   /* 0x8011e6f0..0x8011e770 */
         build/recon/game/common/trgsfx.cpp.o(.data.trgsfx_save_chunk);   /* 0x8011e770..0x8011e7f0 */
         build/asm/data/data_8010CCD4_r13.data.s.o(.data.r13_after_trgsfx);
+        build/recon/game/psx/draww.cpp.o(.data);   /* P914 native 1,776-byte DrawW owner; preceding raw bytes retained. */
         build/recon/game/psx/force.cpp.o(.data);   /* 0x8011fc60..0x8011fd70  was data_8010CCD4_o26.data.s */
         build/asm/data/data_8010CCD4_r14.data.s.o(.data);
         build/recon/game/psx/flare.cpp.o(.data);   /* 0x8011fde0..0x801202f8  was data_8010CCD4_o27.data.s */
-        build/asm/data/data_8010CCD4_r15.data.s.o(.data);
+        build/recon/game/psx/hrzsku.cpp.o(.data);   /* P913 native 1,580-byte owner; exact raw prefix remains src-only. */
+        build/recon/game/psx/hud.cpp.o(.data);
+        build/asm/data/data_8010CCD4_r15.data.s.o(.data.r15_post);
         build/recon/game/psx/texture.cpp.o(.data);   /* 0x80120fd0..0x80121070  was data_8010CCD4_o28.data.s */
         build/asm/data/data_8010CCD4_r16.data.s.o(.data);
         build/recon/eaclib/psx/eacpsxz/matrix.c.o(.rodata);   /* 0x801237ec..0x80123820  was data_8010CCD4_o29.data.s */
@@ -874,10 +881,6 @@ SECTIONS
         build/recon/game/common/aih_play.cpp.o(.data);
         build/recon/game/common/aihigh.cpp.o(.data);
         build/recon/game/common/aispeeds.cpp.o(.data);
-        build/recon/game/common/audiocmn.cpp.o(.data);
-        build/recon/game/common/camera.cpp.o(.data);
-        build/recon/game/common/collide.cpp.o(.data);
-        build/recon/game/common/genericpmx.cpp.o(.data);
         build/recon/game/common/newton.cpp.o(.data);
         build/recon/game/common/render.cpp.o(.data);
         build/recon/game/common/speech.cpp.o(.data);
@@ -891,9 +894,6 @@ SECTIONS
         build/recon/game/common/vtables_tpausemenu.cpp.o(.data);
         build/recon/game/common/vtables_tscreen.cpp.o(.data);
         build/recon/game/common/vtables_tscreen2.cpp.o(.data);
-        build/recon/game/psx/draww.cpp.o(.data);
-        build/recon/game/psx/hrzsku.cpp.o(.data);
-        build/recon/game/psx/hud.cpp.o(.data);
         build/recon/game/psx/night.cpp.o(.data);
         build/recon/syslib/psx/libapi/COUNTER_data.c.o(.data);
         build/recon/syslib/psx/libcd/C_003.c.o(.data);
@@ -925,7 +925,7 @@ SECTIONS
         build/recon/game/common/aitune.cpp.o(.sdata);   /* 0x8013c5f0..0x8013c5fc  was sdata_8013C54C_o08.sdata.s */
         build/asm/data/sdata_8013C54C_r04.sdata.s.o(.sdata);
         build/recon/game/common/audioclc.cpp.o(.sdata);   /* 0x8013c608..0x8013c628  was sdata_8013C54C_o09.sdata.s */
-        build/asm/data/sdata_8013C54C_r05.sdata.s.o(.sdata);
+        build/recon/game/common/audiocmn.cpp.o(.sdata);   /* P906 source owner:0x8013c628..0x8013c720; r05 is oracle-only */
         build/recon/game/common/audiomus.cpp.o(.sdata);   /* 0x8013c720..0x8013c724  was sdata_8013C54C_o10.sdata.s */
         build/asm/data/sdata_8013C54C_r06.sdata.s.o(.sdata);
         build/recon/game/common/audedit.cpp.o(.sdata);   /* 0x8013c72c..0x8013c734  was sdata_8013C54C_o11.sdata.s */
@@ -966,11 +966,13 @@ SECTIONS
         build/recon/game/psx/audio.cpp.o(.sdata);   /* 0x8013d4fc..0x8013d504  was sdata_8013C54C_o29.sdata.s */
         build/asm/data/sdata_8013C54C_r17.sdata.s.o(.sdata);
         build/recon/game/psx/drawdbg.cpp.o(.sdata);   /* 0x8013d818..0x8013d81c  was sdata_8013C54C_o30.sdata.s */
-        build/asm/data/sdata_8013C54C_r18.sdata.s.o(.sdata);
+        build/recon/game/psx/draww.cpp.o(.sdata);   /* P914 native 36 bytes, including both original local eight-byte arrays. */
         build/recon/game/psx/force.cpp.o(.sdata);   /* 0x8013d840..0x8013d854  was sdata_8013C54C_o31.sdata.s */
         build/asm/data/sdata_8013C54C_r19.sdata.s.o(.sdata);
         build/recon/game/psx/flare.cpp.o(.sdata);   /* 0x8013d86c..0x8013d878  was sdata_8013C54C_o32.sdata.s */
-        build/asm/data/sdata_8013C54C_r20.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_r20.sdata.s.o(.sdata.r20_pre); /* Native36-byte prefix, unchanged. */
+        build/recon/game/psx/hud.cpp.o(.sdata); /* P909 complete240-byte native source owner. */
+        build/asm/data/sdata_8013C54C_r20.sdata.s.o(.sdata.r20_post); /* Native380-byte suffix, unchanged. */
         build/recon/game/psx/texture.cpp.o(.sdata);   /* 0x8013db08..0x8013db3c  was sdata_8013C54C_o33.sdata.s */
         build/asm/data/sdata_8013C54C_r21.sdata.s.o(.sdata);
         build/recon/game/psx/textureprocess.cpp.o(.sdata);   /* 0x8013db4c..0x8013db90; o34 is oracle-only */
@@ -978,6 +980,7 @@ SECTIONS
         build/recon/game/psx/trsproj.cpp.o(.sdata);   /* 0x8013db9c..0x8013dba0  was sdata_8013C54C_o36.sdata.s */
         build/asm/data/sdata_8013C54C_r22.sdata.s.o(.sdata);
         build/recon/eaclib/psx/eacpsxz/vars.c.o(.sdata);   /* 0x8013dc64..0x8013dd04 */
+        build/recon/eaclib/psx/eacpsxz/primate.c.o(.sdata);   /* P904 native initialized owner:0x8013dd04..0x8013dd18 */
         build/asm/data/sdata_8013C54C_r22.sdata.s.o(.sdata.r22_post_vars);
         build/recon/eaclib/psx/eacpsxz/joystkn.c.o(.sbss);   /* 0x8013dd28..0x8013dd2c  was sdata_8013C54C_o37.sdata.s */
         build/asm/data/sdata_8013C54C_r23.sdata.s.o(.sdata);
@@ -993,7 +996,6 @@ SECTIONS
         build/recon/game/common/aih_play.cpp.o(.sdata);
         build/recon/game/common/aispeeds.cpp.o(.sdata);
         build/recon/game/common/anim.cpp.o(.sdata);
-        build/recon/game/common/audiocmn.cpp.o(.sdata);
         build/recon/game/common/audioeng.cpp.o(.sdata);
         build/recon/game/common/collide.cpp.o(.sdata);
         build/recon/game/common/mpause.cpp.o(.sdata);
@@ -1005,10 +1007,8 @@ SECTIONS
         build/recon/game/psx/device.cpp.o(.sdata);
         build/recon/game/psx/draw.cpp.o(.sdata);
         build/recon/game/psx/drawc.cpp.o(.sdata);
-        build/recon/game/psx/draww.cpp.o(.sdata);
         build/recon/game/psx/font.cpp.o(.sdata);
         build/recon/game/psx/hrzsku.cpp.o(.sdata);
-        build/recon/game/psx/hud.cpp.o(.sdata);
         build/recon/game/psx/loading.cpp.o(.sdata);
         build/recon/game/psx/night.cpp.o(.sdata);
         build/recon/game/psx/overlays.cpp.o(.sdata);
@@ -1018,6 +1018,208 @@ SECTIONS
         build/recon/syslib/psx/libapi/COUNTER_data.c.o(.sdata);
     }
 
+    ASSERT(cdsectorreseek == 0x8013d07c, "native source data symbol address mismatch: cdsectorreseek")
+    ASSERT(CopSpeak_gHandleCount == 0x8013d080, "native source data symbol address mismatch: CopSpeak_gHandleCount")
+    ASSERT(CopSpeak_gQueueHead == 0x8013d0c8, "native source data symbol address mismatch: CopSpeak_gQueueHead")
+    ASSERT(CopSpeak_gQueuePlay == 0x8013d0cc, "native source data symbol address mismatch: CopSpeak_gQueuePlay")
+    ASSERT(CopSpeak_gSpchHandle == 0x8013d0d0, "native source data symbol address mismatch: CopSpeak_gSpchHandle")
+    ASSERT(CopSpeak_gNumTrackSfx == 0x8013d0d4, "native source data symbol address mismatch: CopSpeak_gNumTrackSfx")
+    ASSERT(CopSpeak_gQueueLoad == 0x8013d0d8, "native source data symbol address mismatch: CopSpeak_gQueueLoad")
+    ASSERT(CopSpeak_gQueueReady == 0x8013d0dc, "native source data symbol address mismatch: CopSpeak_gQueueReady")
+    ASSERT(CopSpeak_gWrongWay == 0x8013d0e0, "native source data symbol address mismatch: CopSpeak_gWrongWay")
+    ASSERT(CopSpeak_gBuffer == 0x8013d0e4, "native source data symbol address mismatch: CopSpeak_gBuffer")
+    ASSERT(CopSpeak_gBufferLow == 0x8013d0e8, "native source data symbol address mismatch: CopSpeak_gBufferLow")
+    ASSERT(CopSpeak_gBufferStart == 0x8013d0ea, "native source data symbol address mismatch: CopSpeak_gBufferStart")
+    ASSERT(CopSpeak_gBufferEnd == 0x8013d0ec, "native source data symbol address mismatch: CopSpeak_gBufferEnd")
+    ASSERT(CopSpeak_gBufferHigh == 0x8013d0ee, "native source data symbol address mismatch: CopSpeak_gBufferHigh")
+    ASSERT(CopSpeak_gStaticHandle == 0x8013d0f0, "native source data symbol address mismatch: CopSpeak_gStaticHandle")
+    ASSERT(CopSpeak_gStaticPatch == 0x8013d0f8, "native source data symbol address mismatch: CopSpeak_gStaticPatch")
+    ASSERT(gMusicInSimIsOn == 0x8013d270, "native source data symbol address mismatch: gMusicInSimIsOn")
+    ASSERT(gUseFrontend == 0x8013d274, "native source data symbol address mismatch: gUseFrontend")
+    ASSERT(gFECheats == 0x8013d278, "native source data symbol address mismatch: gFECheats")
+    ASSERT(gFEBonus == 0x8013d27c, "native source data symbol address mismatch: gFEBonus")
+    ASSERT(gFEBigHandle == 0x8013d280, "native source data symbol address mismatch: gFEBigHandle")
+    ASSERT(MEMCARDFRONTENDISINITTED == 0x8013d284, "native source data symbol address mismatch: MEMCARDFRONTENDISINITTED")
+    ASSERT(gCheckTotalTime == 0x8013d288, "native source data symbol address mismatch: gCheckTotalTime")
+    ASSERT(gCheckLapTime == 0x8013d289, "native source data symbol address mismatch: gCheckLapTime")
+    ASSERT(gUpdateTournamentInfoFlag == 0x8013d28a, "native source data symbol address mismatch: gUpdateTournamentInfoFlag")
+    ASSERT(gUpdateKnockoutInfoFlag == 0x8013d28b, "native source data symbol address mismatch: gUpdateKnockoutInfoFlag")
+    ASSERT(gKnockOutSpeechFlag == 0x8013d28c, "native source data symbol address mismatch: gKnockOutSpeechFlag")
+    ASSERT(gCalculateVictory == 0x8013d28d, "native source data symbol address mismatch: gCalculateVictory")
+    ASSERT(gPlayerEnteredNameAlready == 0x8013d290, "native source data symbol address mismatch: gPlayerEnteredNameAlready")
+    ASSERT(nfs_sysInfo == 0x8013d2b4, "native source data symbol address mismatch: nfs_sysInfo")
+    ASSERT(missionManager == 0x8013d2b8, "native source data symbol address mismatch: missionManager")
+    ASSERT(finishOrder == 0x8013d2c0, "native source data symbol address mismatch: finishOrder")
+    ASSERT(R3DCar_InMenu == 0x8013d324, "native source data symbol address mismatch: R3DCar_InMenu")
+    ASSERT(R3DCar_aSyncLoading == 0x8013d384, "native source data symbol address mismatch: R3DCar_aSyncLoading")
+    ASSERT(R3DCar_orientMat == 0x8013d388, "native source data symbol address mismatch: R3DCar_orientMat")
+    ASSERT(R3DCar_position == 0x8013d38c, "native source data symbol address mismatch: R3DCar_position")
+    ASSERT(R3DCar_center == 0x8013d390, "native source data symbol address mismatch: R3DCar_center")
+    ASSERT(R3DCar_shadowFlag == 0x8013d398, "native source data symbol address mismatch: R3DCar_shadowFlag")
+    ASSERT(R3DCar_shadowColour == 0x8013d39c, "native source data symbol address mismatch: R3DCar_shadowColour")
+    ASSERT(R3DCar_eMapColour == 0x8013d3a0, "native source data symbol address mismatch: R3DCar_eMapColour")
+    ASSERT(R3DCar_yawCam == 0x8013d3a4, "native source data symbol address mismatch: R3DCar_yawCam")
+    ASSERT(R3DCar_Clock == 0x8013d3a8, "native source data symbol address mismatch: R3DCar_Clock")
+    ASSERT(R3DCar_ClockLast == 0x8013d3ac, "native source data symbol address mismatch: R3DCar_ClockLast")
+    ASSERT(R3DCar_BigFile == 0x8013d3b0, "native source data symbol address mismatch: R3DCar_BigFile")
+    ASSERT(R3DCar_LicenseShapeFile == 0x8013d3b4, "native source data symbol address mismatch: R3DCar_LicenseShapeFile")
+    ASSERT(R3DCar_subOt == 0x8013d3b8, "native source data symbol address mismatch: R3DCar_subOt")
+    ASSERT(R3DCar_rightHandDrive == 0x8013d3bc, "native source data symbol address mismatch: R3DCar_rightHandDrive")
+    ASSERT(FEI_gList == 0x8011279c, "native source data symbol address mismatch: FEI_gList")
+    ASSERT(gUseFrontend == 0x8013d274, "native source data pointer target mismatch: gUseFrontend")
+    ASSERT(GameSetup_gData == 0x801131ec, "native source data pointer target mismatch: GameSetup_gData")
+    ASSERT(trackMusicState == 0x8013c628, "native source data symbol address mismatch: trackMusicState")
+    ASSERT(audioBackwardsDirection == 0x8013c62c, "native source data symbol address mismatch: audioBackwardsDirection")
+    ASSERT(intensityFalseLapCounter == 0x8013c630, "native source data symbol address mismatch: intensityFalseLapCounter")
+    ASSERT(falseLapCounter == 0x8013c634, "native source data symbol address mismatch: falseLapCounter")
+    ASSERT(gMusicStyle == 0x8013c638, "native source data symbol address mismatch: gMusicStyle")
+    ASSERT(countdown == 0x8013c63c, "native source data symbol address mismatch: countdown")
+    ASSERT(FadingMusic == 0x8013c63d, "native source data symbol address mismatch: FadingMusic")
+    ASSERT(StartedNewMusic == 0x8013c63e, "native source data symbol address mismatch: StartedNewMusic")
+    ASSERT(recordLapTime == 0x8013c640, "native source data symbol address mismatch: recordLapTime")
+    ASSERT(AudioCmn_kAudioOn == 0x8013c644, "native source data symbol address mismatch: AudioCmn_kAudioOn")
+    ASSERT(AudioCmn_kAudioStreamingOn == 0x8013c648, "native source data symbol address mismatch: AudioCmn_kAudioStreamingOn")
+    ASSERT(SgameSFXvol == 0x8013c64c, "native source data symbol address mismatch: SgameSFXvol")
+    ASSERT(gMasterMusicLevel == 0x8013c650, "native source data symbol address mismatch: gMasterMusicLevel")
+    ASSERT(gMasterSFXLevel == 0x8013c654, "native source data symbol address mismatch: gMasterSFXLevel")
+    ASSERT(gMasterEngineLevel == 0x8013c658, "native source data symbol address mismatch: gMasterEngineLevel")
+    ASSERT(gMasterFENarrationLevel == 0x8013c65c, "native source data symbol address mismatch: gMasterFENarrationLevel")
+    ASSERT(gMasterAmbientLevel == 0x8013c660, "native source data symbol address mismatch: gMasterAmbientLevel")
+    ASSERT(previousSFXLevel == 0x8013c664, "native source data symbol address mismatch: previousSFXLevel")
+    ASSERT(AudioCmn_musicInteractive == 0x8013c668, "native source data symbol address mismatch: AudioCmn_musicInteractive")
+    ASSERT(gFEmusicON == 0x8013c66c, "native source data symbol address mismatch: gFEmusicON")
+    ASSERT(NumSFXOn == 0x8013c670, "native source data symbol address mismatch: NumSFXOn")
+    ASSERT(gStereoMode == 0x8013c674, "native source data symbol address mismatch: gStereoMode")
+    ASSERT(fReverbOn == 0x8013c678, "native source data symbol address mismatch: fReverbOn")
+    ASSERT(fReverbLevel == 0x8013c679, "native source data symbol address mismatch: fReverbLevel")
+    ASSERT(falseLapTrigCur == 0x8013c6b4, "native source data symbol address mismatch: falseLapTrigCur")
+    ASSERT(flaseLapTrigTrack == 0x8013c6b8, "native source data symbol address mismatch: flaseLapTrigTrack")
+    ASSERT(currentLap == 0x8013c6bc, "native source data symbol address mismatch: currentLap")
+    ASSERT(bestLapTime == 0x8013c6c0, "native source data symbol address mismatch: bestLapTime")
+    ASSERT(gtotallaptimes == 0x8013c6c8, "native source data symbol address mismatch: gtotallaptimes")
+    ASSERT(AudioCmn_gPlayerArrested == 0x8013c6d0, "native source data symbol address mismatch: AudioCmn_gPlayerArrested")
+    ASSERT(AudioCmn_gCursorSndHandle == 0x8013c6d8, "native source data symbol address mismatch: AudioCmn_gCursorSndHandle")
+    ASSERT(AudioCmn_gLastFade == 0x8013c6dc, "native source data symbol address mismatch: AudioCmn_gLastFade")
+    ASSERT(AudioCmn_gLoadTables == 0x8013c6e0, "native source data symbol address mismatch: AudioCmn_gLoadTables")
+    ASSERT(AudioCmn_gCruiseTables == 0x8013c6e4, "native source data symbol address mismatch: AudioCmn_gCruiseTables")
+    ASSERT(AudioCmn_gResume == 0x8013c6e8, "native source data symbol address mismatch: AudioCmn_gResume")
+    ASSERT(AudioCmn_gStreamRestartTimer == 0x8013c6ec, "native source data symbol address mismatch: AudioCmn_gStreamRestartTimer")
+    ASSERT(fMysticWindON == 0x8013c6f0, "native source data symbol address mismatch: fMysticWindON")
+    ASSERT(fAmbientRangeON == 0x8013c6f4, "native source data symbol address mismatch: fAmbientRangeON")
+    ASSERT(currentWindVal == 0x8013c6f8, "native source data symbol address mismatch: currentWindVal")
+    ASSERT(nextWindVal == 0x8013c700, "native source data symbol address mismatch: nextWindVal")
+    ASSERT(currentWindPan == 0x8013c708, "native source data symbol address mismatch: currentWindPan")
+    ASSERT(nextWindPan == 0x8013c70c, "native source data symbol address mismatch: nextWindPan")
+    ASSERT(gQuickSirenCount == 0x8013c710, "native source data symbol address mismatch: gQuickSirenCount")
+    ASSERT(AudioCmn_ThunderAmp == 0x8013c714, "native source data symbol address mismatch: AudioCmn_ThunderAmp")
+    ASSERT(AudioCmn_ThunderAzi == 0x8013c718, "native source data symbol address mismatch: AudioCmn_ThunderAzi")
+    ASSERT(AudioCmn_ThunderDel == 0x8013c71c, "native source data symbol address mismatch: AudioCmn_ThunderDel")
+    ASSERT(gBankNumLookupTable == 0x8010e4d0, "native source data symbol address mismatch: gBankNumLookupTable")
+    ASSERT(falseLapTrigNumsForward == 0x8010e5ec, "native source data symbol address mismatch: falseLapTrigNumsForward")
+    ASSERT(falseLapTrigNumsBackward == 0x8010e63c, "native source data symbol address mismatch: falseLapTrigNumsBackward")
+    ASSERT(Xfade == 0x8010e68c, "native source data symbol address mismatch: Xfade")
+    ASSERT(AudioCmn_LanguageName == 0x8010e774, "native source data symbol address mismatch: AudioCmn_LanguageName")
+    ASSERT(bSirenOn == 0x8010e790, "native source data symbol address mismatch: bSirenOn")
+    ASSERT(bSirenPitchingUp == 0x8010e7a8, "native source data symbol address mismatch: bSirenPitchingUp")
+    ASSERT(quickSirenActive == 0x8010e7c0, "native source data symbol address mismatch: quickSirenActive")
+    ASSERT(sirenPitchWidth == 0x8010e7d8, "native source data symbol address mismatch: sirenPitchWidth")
+    ASSERT(sirenCurrentPitch == 0x8010e7f0, "native source data symbol address mismatch: sirenCurrentPitch")
+    ASSERT(slowSirenReps == 0x8010e808, "native source data symbol address mismatch: slowSirenReps")
+    ASSERT(sirenCount == 0x8010e820, "native source data symbol address mismatch: sirenCount")
+    ASSERT(reachedSirenMin == 0x8010e838, "native source data symbol address mismatch: reachedSirenMin")
+    ASSERT(quickSirenTimeCount == 0x8010e850, "native source data symbol address mismatch: quickSirenTimeCount")
+    ASSERT(AudioCmn_gReTrig == 0x8010e868, "native source data symbol address mismatch: AudioCmn_gReTrig")
+    ASSERT(gSndBnk == 0x8010e8a8, "native source data symbol address mismatch: gSndBnk")
+    ASSERT(gaChannel == 0x8010e8fc, "native source data symbol address mismatch: gaChannel")
+    ASSERT(AudioCmn_gSfxSlot == 0x8010eb34, "native source data symbol address mismatch: AudioCmn_gSfxSlot")
+    ASSERT(carbankname == 0x8010ee34, "native source data symbol address mismatch: carbankname")
+    ASSERT(TrackSpec_gPrevSpec == 0x8013db90, "native source data symbol address mismatch: TrackSpec_gPrevSpec")
+    ASSERT(TrackSpec_gCurrentSpec == 0x8013db94, "native source data symbol address mismatch: TrackSpec_gCurrentSpec")
+    ASSERT(TrackSpec_gMaxSpec == 0x8013db98, "native source data symbol address mismatch: TrackSpec_gMaxSpec")
+    ASSERT(GameSetup_gCarNames == 0x80113044, "native source data symbol address mismatch: GameSetup_gCarNames")
+    ASSERT(GameSetup_gTrackNames == 0x80113144, "native source data symbol address mismatch: GameSetup_gTrackNames")
+    ASSERT(GameSetup_gPersonalityNames == 0x80113174, "native source data symbol address mismatch: GameSetup_gPersonalityNames")
+    ASSERT(GameSetup_gData == 0x801131ec, "native source data symbol address mismatch: GameSetup_gData")
+    ASSERT(Hud_gElementPositions == 0x80120924, "native source data symbol address mismatch: Hud_gElementPositions")
+    ASSERT(Hud_Character == 0x80120aac, "native source data symbol address mismatch: Hud_Character")
+    ASSERT(fMapScaleX == 0x80120ac0, "native source data symbol address mismatch: fMapScaleX")
+    ASSERT(fMapScaleY == 0x80120aec, "native source data symbol address mismatch: fMapScaleY")
+    ASSERT(fMapOffX == 0x80120b18, "native source data symbol address mismatch: fMapOffX")
+    ASSERT(fMapOffY == 0x80120b30, "native source data symbol address mismatch: fMapOffY")
+    ASSERT(fMapRotate == 0x80120b48, "native source data symbol address mismatch: fMapRotate")
+    ASSERT(Hud_gMarkerColor == 0x80120b60, "native source data symbol address mismatch: Hud_gMarkerColor")
+    ASSERT(Hud_gCopMarkerColor == 0x80120b90, "native source data symbol address mismatch: Hud_gCopMarkerColor")
+    ASSERT(HudminChar == 0x8013d89c, "native source data symbol address mismatch: HudminChar")
+    ASSERT(HudsecChar == 0x8013d8a4, "native source data symbol address mismatch: HudsecChar")
+    ASSERT(Hud_gWingmanInterface == 0x8013d8b0, "native source data symbol address mismatch: Hud_gWingmanInterface")
+    ASSERT(Hud_gWingmanFlashIcon == 0x8013d8b4, "native source data symbol address mismatch: Hud_gWingmanFlashIcon")
+    ASSERT(Hud_gWingmanFlashTicks == 0x8013d8b8, "native source data symbol address mismatch: Hud_gWingmanFlashTicks")
+    ASSERT(Hud_gDebugInfo == 0x8013d8c0, "native source data symbol address mismatch: Hud_gDebugInfo")
+    ASSERT(HudBustedOverlay == 0x8013d928, "native source data symbol address mismatch: HudBustedOverlay")
+    ASSERT(Hud_gCdActive == 0x8013d92c, "native source data symbol address mismatch: Hud_gCdActive")
+    ASSERT(Hud_ActivateCDPlayer == 0x8013d930, "native source data symbol address mismatch: Hud_ActivateCDPlayer")
+    ASSERT(BTC_Countdown == 0x8013d934, "native source data symbol address mismatch: BTC_Countdown")
+    ASSERT(FinalBTC_Countdown == 0x8013d938, "native source data symbol address mismatch: FinalBTC_Countdown")
+    ASSERT(Hud_BeTheCop == 0x8013d93c, "native source data symbol address mismatch: Hud_BeTheCop")
+    ASSERT(Hud_kTurnSongOffNext == 0x8013d940, "native source data symbol address mismatch: Hud_kTurnSongOffNext")
+    ASSERT(HudBustedOverlayPlayer == 0x8013d944, "native source data symbol address mismatch: HudBustedOverlayPlayer")
+    ASSERT(mapMarkerMCos == 0x8013d948, "native source data symbol address mismatch: mapMarkerMCos")
+    ASSERT(mapMarkerMSin == 0x8013d94c, "native source data symbol address mismatch: mapMarkerMSin")
+    ASSERT(Hud_gHudView == 0x8013d950, "native source data symbol address mismatch: Hud_gHudView")
+    ASSERT(Hud_gMapView == 0x8013d958, "native source data symbol address mismatch: Hud_gMapView")
+    ASSERT(Hud_gTacView == 0x8013d960, "native source data symbol address mismatch: Hud_gTacView")
+    ASSERT(Hud_gStatsView == 0x8013d968, "native source data symbol address mismatch: Hud_gStatsView")
+    ASSERT(HudMapOffsetY == 0x8013d96c, "native source data symbol address mismatch: HudMapOffsetY")
+    ASSERT(gMapRotate == 0x8013d970, "native source data symbol address mismatch: gMapRotate")
+    ASSERT(gMapScaleX == 0x8013d974, "native source data symbol address mismatch: gMapScaleX")
+    ASSERT(gMapScaleY == 0x8013d978, "native source data symbol address mismatch: gMapScaleY")
+    ASSERT(gMapOffX == 0x8013d97c, "native source data symbol address mismatch: gMapOffX")
+    ASSERT(gMapOffY == 0x8013d980, "native source data symbol address mismatch: gMapOffY")
+    ASSERT(Hud_gCdLastTick == 0x8013d984, "native source data symbol address mismatch: Hud_gCdLastTick")
+    ASSERT(Hud_gCdScrollTitle == 0x8013d988, "native source data symbol address mismatch: Hud_gCdScrollTitle")
+    ASSERT(ReplayCameraList == 0x80117008, "native source data symbol address mismatch: ReplayCameraList")
+    ASSERT(Replay_ReplayInterface == 0x8011702c, "native source data symbol address mismatch: Replay_ReplayInterface")
+    ASSERT(Replay_ReplayCamera == 0x8011704c, "native source data symbol address mismatch: Replay_ReplayCamera")
+    ASSERT(controlData == 0x8011706c, "native source data symbol address mismatch: controlData")
+    ASSERT(Replay_ReplayBuffer == 0x8011716c, "native source data symbol address mismatch: Replay_ReplayBuffer")
+    ASSERT(compressed_data == 0x8011db98, "native source data symbol address mismatch: compressed_data")
+    ASSERT(uncompressed_data == 0x8011dbbc, "native source data symbol address mismatch: uncompressed_data")
+    ASSERT(gReplayCameraSlots == 0x8011dbdc, "native source data symbol address mismatch: gReplayCameraSlots")
+    ASSERT(Collide_gRegistry == 0x80110c30, "native source data symbol address mismatch: Collide_gRegistry")
+    ASSERT(Camera_gInfo == 0x8010f2ac, "native source data symbol address mismatch: Camera_gInfo")
+    ASSERT(Camera_gFlags == 0x8010f550, "native source data symbol address mismatch: Camera_gFlags")
+    ASSERT(camSpeedTable == 0x8010f7d0, "native source data symbol address mismatch: camSpeedTable")
+    ASSERT(feeler3 == 0x8010f7ec, "native source data symbol address mismatch: feeler3")
+    ASSERT(Camera_gCopDist == 0x8010f810, "native source data symbol address mismatch: Camera_gCopDist")
+    ASSERT(gDLPixmap == 0x80112b2c, "native source data symbol address mismatch: gDLPixmap")
+    ASSERT(gSparkHPixmap == 0x80112b54, "native source data symbol address mismatch: gSparkHPixmap")
+    ASSERT(gStartUpPixmap == 0x80112b6c, "native source data symbol address mismatch: gStartUpPixmap")
+    ASSERT(gWeatherPixmap == 0x80112b7c, "native source data symbol address mismatch: gWeatherPixmap")
+    ASSERT(gFlarePixmap == 0x80112b88, "native source data symbol address mismatch: gFlarePixmap")
+    ASSERT(gLightningPixmap == 0x80112b94, "native source data symbol address mismatch: gLightningPixmap")
+    ASSERT(gPixmaps == 0x80112bd4, "native source data symbol address mismatch: gPixmaps")
+    ASSERT(gHorizonPixmap == 0x801202f8, "native source data symbol address mismatch: gHorizonPixmap")
+    ASSERT(gHorizonExtraSkyPixmaps == 0x80120338, "native source data symbol address mismatch: gHorizonExtraSkyPixmaps")
+    ASSERT(gSkyMesh == 0x80120378, "native source data symbol address mismatch: gSkyMesh")
+    ASSERT(gSkyColor == 0x80120620, "native source data symbol address mismatch: gSkyColor")
+    ASSERT(gSkyPixmapIndex == 0x80120774, "native source data symbol address mismatch: gSkyPixmapIndex")
+    ASSERT(gpPmx == 0x801207b4, "native source data symbol address mismatch: gpPmx")
+    ASSERT(gHrzRingColor == 0x801207f4, "native source data symbol address mismatch: gHrzRingColor")
+    ASSERT(gfxPmxHeightPercentage == 0x8012087c, "native source data symbol address mismatch: gfxPmxHeightPercentage")
+    ASSERT(gHrz_Lightning == 0x801208bc, "native source data symbol address mismatch: gHrz_Lightning")
+    ASSERT(gIdentTemplate == 0x8011f570, "native source data symbol address mismatch: gIdentTemplate")
+    ASSERT(trk0 == 0x8011f590, "native source data symbol address mismatch: trk0")
+    ASSERT(trk4 == 0x8011f5d8, "native source data symbol address mismatch: trk4")
+    ASSERT(gDiv == 0x8011f628, "native source data symbol address mismatch: gDiv")
+    ASSERT(animation_timer == 0x8011f718, "native source data symbol address mismatch: animation_timer")
+    ASSERT(gChunkObjInfo == 0x8011f748, "native source data symbol address mismatch: gChunkObjInfo")
+    ASSERT(gVertex3d == 0x8011f760, "native source data symbol address mismatch: gVertex3d")
+    ASSERT(stackSpeedUpEnbabledFlag == 0x8013d81c, "native source data symbol address mismatch: stackSpeedUpEnbabledFlag")
+    ASSERT(gWSavePtr == 0x8013d830, "native source data symbol address mismatch: gWSavePtr")
+    ASSERT(gSD_gt4counter == 0x8013d834, "native source data symbol address mismatch: gSD_gt4counter")
+    ASSERT(gSD_gt3counter == 0x8013d838, "native source data symbol address mismatch: gSD_gt3counter")
+    ASSERT(gVi == 0x8013d83c, "native source data symbol address mismatch: gVi")
+
     /* SYM tail-data seam: simqueue.obj file-static output and maxTicksPerFrame. */
     .tail_data 0x8013dd7c : SUBALIGN(4)
     {
@@ -1025,6 +1227,14 @@ SECTIONS
         build/recon/game/common/simqueue.cpp.o(.bss.simqueue_output);
         build/recon/game/common/simqueue.cpp.o(.sbss);
         build/asm/data/tail.data.s.o(.data.tail_after_simqueue);
+    }
+    .tail_after_hud_sbss 0x8013de4c : SUBALIGN(4)
+    {
+        build/asm/data/tail.data.s.o(.data.tail_after_hud_sbss);
+    }
+    .tail_after_primate 0x8013de90 : SUBALIGN(4)
+    {
+        build/asm/data/tail.data.s.o(.data.tail_after_primate);
     }
 
     /* SYM BSS seam: newton.obj function-local static dummy.124. */
@@ -1047,6 +1257,10 @@ SECTIONS
 
     .rodata_rest : SUBALIGN(4) { *(.rodata); *(.rodata.*); }
     __unplaced_zero_cursor = .;
+    .hud_sbss 0x8013de00 (NOLOAD) : SUBALIGN(8) { build/recon/game/psx/hud.cpp.o(.sbss); }
+    ASSERT(SIZEOF(.hud_sbss) == 76, "native zero owner size mismatch")
+    .callback_mutexbuf 0x801477e0 (NOLOAD) : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/callback.c.o(.bss); }
+    ASSERT(SIZEOF(.callback_mutexbuf) == 128, "native zero owner size mismatch")
     .cd_stream_a 0x80144874 (NOLOAD) : SUBALIGN(4) { build/recon/syslib/psx/libcd/C_005.c.o(.bss.st_80144874); }
     ASSERT(SIZEOF(.cd_stream_a) == 8, "native zero owner size mismatch")
     .iso9660_bss 0x8014487c (NOLOAD) : SUBALIGN(4) { build/recon/syslib/psx/libcd/iso9660.c.o(.bss); }
@@ -1055,6 +1269,8 @@ SECTIONS
     ASSERT(SIZEOF(.cd_stream_b) == 72, "native zero owner size mismatch")
     .ai_spos 0x8013dee0 (NOLOAD) : SUBALIGN(4) { build/recon/game/common/ai.cpp.o(.bss); }
     ASSERT(SIZEOF(.ai_spos) == 132, "native zero owner size mismatch")
+    .primate_sbss 0x8013de68 (NOLOAD) : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/primate.c.o(.sbss); }
+    ASSERT(SIZEOF(.primate_sbss) == 40, "native zero owner size mismatch")
     . = __unplaced_zero_cursor;
     .sbss  : SUBALIGN(4) { *(.sbss); }
     .bss   : SUBALIGN(4) { *(.bss); *(.bss.*); *(COMMON); }

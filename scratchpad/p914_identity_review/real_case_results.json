@@ -1,0 +1,73 @@
+{
+  "passed": true,
+  "timestamp_utc": "2026-09-12T15:57:35.705583+00:00",
+  "protected_input_hashes": {
+    "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\audit_sym_source.py": "674e185277d9e075db6195b92587fa63cb90180a00d54eab3ccf23b769fb6a98",
+    "C:\\Temp\\nfs4-decomp\\scratchpad\\p914_checkpoint\\backups\\audit_sym_source.py": "02e6a1c26f1e7c1ea5b28e7b8979e161ddfefb3624a7171915058be3ecb82f0c",
+    "C:\\Temp\\nfs4-decomp\\recon\\game\\common\\genericpmx.cpp": "31876e8b18c5a2975dc5b7191cbac63f1b8eeb92581a77f940ba4356188a9edc",
+    "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hrzsku.cpp": "90d67e2d9ffab2244a1ad6674cc7ee1be875ddaee39b0d994dadfac8e2f76668",
+    "C:\\Temp\\nfs4-decomp\\build\\recon\\game\\psx\\hrzsku.cpp.o": "dd530c8dc536cae3fa4c296fc0eaaf1d16dd3bc86b7bab71a1cb9f7820624a30",
+    "C:\\Temp\\nfs4-decomp\\build\\recon\\game\\common\\genericpmx.cpp.o": "d5ac71b203d864b4540ae33140b48298558ed65b9c198562d30ee16ee31e07b8"
+  },
+  "cases": [
+    {
+      "case": "historical_genericpmx",
+      "source_sha256": "a5195d346379cbcdafd21b8c35ff621583d23e07f7c030d41d663a2d54f79521",
+      "function": "GenericPMX_LoadTexture__Fv",
+      "tested_name": "pmx_height",
+      "actual_declaration_present": true,
+      "matching_marker_present": true,
+      "legacy_default_extra_names": [],
+      "strict_extra_names": [
+        "pmx_height"
+      ],
+      "default_legacy_and_state_reuse_equal": true,
+      "actual_ctags": true
+    },
+    {
+      "case": "current_genericpmx",
+      "source_sha256": "31876e8b18c5a2975dc5b7191cbac63f1b8eeb92581a77f940ba4356188a9edc",
+      "function": "GenericPMX_LoadTexture__Fv",
+      "tested_name": "pmx_height",
+      "actual_declaration_present": true,
+      "matching_marker_present": false,
+      "legacy_default_extra_names": [
+        "pmx_height"
+      ],
+      "strict_extra_names": [
+        "pmx_height"
+      ],
+      "default_legacy_and_state_reuse_equal": true,
+      "actual_ctags": true
+    },
+    {
+      "case": "historical_horizon",
+      "source_sha256": "8e901f0e96b014cf66b611c6f43d7997b598d093cea5bad9d95f0417ee64e4de",
+      "function": "Horizon_InterpolateLineSCoords__FP7DVECTORN20Piii",
+      "tested_name": "pv",
+      "actual_declaration_present": true,
+      "matching_marker_present": true,
+      "legacy_default_extra_names": [],
+      "strict_extra_names": [
+        "pv"
+      ],
+      "default_legacy_and_state_reuse_equal": true,
+      "actual_ctags": true
+    },
+    {
+      "case": "current_horizon",
+      "source_sha256": "90d67e2d9ffab2244a1ad6674cc7ee1be875ddaee39b0d994dadfac8e2f76668",
+      "function": "Horizon_InterpolateLineSCoords__FP7DVECTORN20Piii",
+      "tested_name": "pv",
+      "actual_declaration_present": false,
+      "matching_marker_present": false,
+      "legacy_default_extra_names": [],
+      "strict_extra_names": [],
+      "default_legacy_and_state_reuse_equal": true,
+      "actual_ctags": true
+    }
+  ],
+  "old_module_file_spoofed_to_canonical": true,
+  "qualification": "Only the selected native function queue is compared in each private single-file target; unprovided global SYM records are not used to certify global identity.",
+  "no_compilation_or_tool_source_or_normal_output_writes": true
+}

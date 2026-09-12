@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "all1352_original_bytes_preserved": true,
+  "all57_relocations_preserved": true,
+  "original41_symbol_records_preserved_with_one_explicit_extent_correction": true,
+  "synthetic_template_extent_before": 48,
+  "synthetic_template_extent_after": 44,
+  "retained_original_padding_bytes": 4,
+  "padding_native_address": "80055738",
+  "build_expected_raw_objects_identical": true,
+  "known_SoundCar_rodata_gap_not_solved": true,
+  "objects_not_rewritten": true
+}

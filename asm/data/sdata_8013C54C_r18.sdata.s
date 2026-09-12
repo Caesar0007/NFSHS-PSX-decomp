@@ -1,7 +1,7 @@
 .include "macro.inc"
-/* W64-A18: residual segment of sdata_8013C54C -- labels no recon TU defines
- * (or a record tail a recon TU's section stops short of).
- * Linked by BOTH lanes. */
+/* P914: complete native DrawW small-data oracle, 36 bytes.
+ * Reconstructed source owns all five GLOBAL and two LOCAL objects.
+ * Retained unchanged for src/oracle; see p914_draww_storage. */
 
 .section .sdata, "wa"
 

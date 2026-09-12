@@ -1,3 +1,6 @@
+/* P910 raw transport: HUD native SBSS76 bytes are retained for src in
+ * tail_hud_sbss_legacy.data.s. Existing pre44/post28 and all other tail
+ * sections remain byte/symbol exact; recon uses the native NOBITS owner. */
 .include "macro.inc"
 
 .section .data.tail_pre_simqueue, "wa"
@@ -196,102 +199,7 @@ dlabel D_8013DDFC
     /* 12E5FE 8013DDFE */ .short 0x0000
 enddlabel D_8013DDFC
 
-nonmatching D_8013DE00
-
-dlabel D_8013DE00
-    /* 12E600 8013DE00 00000000 */ .word 0x00000000
-enddlabel D_8013DE00
-
-nonmatching g1Player
-
-dlabel g1Player
-    /* 12E604 8013DE04 00000000 */ .word 0x00000000
-enddlabel g1Player
-
-nonmatching gSprite0
-
-dlabel gSprite0
-    /* 12E608 8013DE08 00000000 */ .word 0x00000000
-enddlabel gSprite0
-
-nonmatching gSprite1
-
-dlabel gSprite1
-    /* 12E60C 8013DE0C 00000000 */ .word 0x00000000
-enddlabel gSprite1
-
-nonmatching D_8013DE10
-
-dlabel D_8013DE10
-    /* 12E610 8013DE10 */ .byte 0x00
-    /* 12E611 8013DE11 */ .byte 0x00
-    /* 12E612 8013DE12 */ .byte 0x00
-    /* 12E613 8013DE13 */ .byte 0x00
-enddlabel D_8013DE10
-
-nonmatching currentSpriteColor
-
-dlabel currentSpriteColor
-    /* 12E614 8013DE14 00000000 */ .word 0x00000000
-enddlabel currentSpriteColor
-
-nonmatching HudSplitTimeDiff1
-
-dlabel HudSplitTimeDiff1
-    /* 12E618 8013DE18 00000000 */ .word 0x00000000
-    /* 12E61C 8013DE1C 00000000 */ .word 0x00000000
-enddlabel HudSplitTimeDiff1
-
-nonmatching HudSplitTimeDiff2
-
-dlabel HudSplitTimeDiff2
-    /* 12E620 8013DE20 00000000 */ .word 0x00000000
-    /* 12E624 8013DE24 00000000 */ .word 0x00000000
-enddlabel HudSplitTimeDiff2
-
-nonmatching D_8013DE28
-
-dlabel D_8013DE28
-    /* 12E628 8013DE28 00000000 */ .word 0x00000000
-enddlabel D_8013DE28
-
-nonmatching D_8013DE2C
-
-dlabel D_8013DE2C
-    /* 12E62C 8013DE2C 00000000 */ .word 0x00000000
-enddlabel D_8013DE2C
-
-nonmatching D_8013DE30
-
-dlabel D_8013DE30
-    /* 12E630 8013DE30 00000000 */ .word 0x00000000
-    /* 12E634 8013DE34 00000000 */ .word 0x00000000
-enddlabel D_8013DE30
-
-nonmatching PerpOverlayOn
-
-dlabel PerpOverlayOn
-    /* 12E638 8013DE38 00000000 */ .word 0x00000000
-enddlabel PerpOverlayOn
-
-nonmatching D_8013DE3C
-
-dlabel D_8013DE3C
-    /* 12E63C 8013DE3C 00000000 */ .word 0x00000000
-enddlabel D_8013DE3C
-
-nonmatching PerpOverlayMessage
-
-dlabel PerpOverlayMessage
-    /* 12E640 8013DE40 00000000 */ .word 0x00000000
-    /* 12E644 8013DE44 00000000 */ .word 0x00000000
-enddlabel PerpOverlayMessage
-
-nonmatching D_8013DE48
-
-dlabel D_8013DE48
-    /* 12E648 8013DE48 00000000 */ .word 0x00000000
-enddlabel D_8013DE48
+.section .data.tail_after_hud_sbss, "wa"
 
 nonmatching D_8013DE4C
 
@@ -325,65 +233,9 @@ dlabel biglen
     /* 12E664 8013DE64 00000000 */ .word 0x00000000
 enddlabel biglen
 
-nonmatching oti
-
-dlabel oti
-    /* 12E668 8013DE68 00000000 */ .word 0x00000000
-enddlabel oti
-
-nonmatching otp
-
-dlabel otp
-    /* 12E66C 8013DE6C 00000000 */ .word 0x00000000
-enddlabel otp
-
-nonmatching otbl
-
-dlabel otbl
-    /* 12E670 8013DE70 00000000 */ .word 0x00000000
-enddlabel otbl
-
-nonmatching D_8013DE74
-
-dlabel D_8013DE74
-    /* 12E674 8013DE74 00000000 */ .word 0x00000000
-enddlabel D_8013DE74
-
-nonmatching nextprim
-
-dlabel nextprim
-    /* 12E678 8013DE78 00000000 */ .word 0x00000000
-enddlabel nextprim
-
-nonmatching maxot
-
-dlabel maxot
-    /* 12E67C 8013DE7C 00000000 */ .word 0x00000000
-enddlabel maxot
-
-nonmatching primptr
-
-dlabel primptr
-    /* 12E680 8013DE80 00000000 */ .word 0x00000000
-enddlabel primptr
-
-nonmatching primbase
-
-dlabel primbase
-    /* 12E684 8013DE84 00000000 */ .word 0x00000000
-enddlabel primbase
-
-nonmatching D_8013DE88
-
-dlabel D_8013DE88
-    /* 12E688 8013DE88 00000000 */ .word 0x00000000
-enddlabel D_8013DE88
-
-nonmatching maxprim
-
-dlabel maxprim
-    /* 12E68C 8013DE8C 00000000 */ .word 0x00000000
-enddlabel maxprim
+/* P905: preceding40-byte primate zero-storage transport oracle is retained
+ * separately. Recon selects the real source NOBITS owner, not duplicate data. */
+.section .data.tail_after_primate, "wa"
 
 nonmatching D_8013DE90
 

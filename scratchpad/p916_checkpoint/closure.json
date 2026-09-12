@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "remote_main_integrated": "82005b8ada6564053adc26dfbb8529fbf2f3f325",
+  "remote_changed_TUs_recompiled": 7,
+  "all7_whole_objects_literal_unchanged": true,
+  "all694_baseline_inputs_literal_unchanged": true,
+  "actual_ELF_and_map_literal_unchanged": true,
+  "full_report_literal_unchanged": true,
+  "native_owners_41_and7_valid": true,
+  "both_relink_lanes_GREEN": true,
+  "vtable_and_source_policy_PASS": true,
+  "no_compiler_output_rewrites": true,
+  "ELF_sha256": "a1a26c7c05be70d50e12f2c2646b9a311772d685b659fd98d47429ca77265195",
+  "map_sha256": "9be26f7a1a26bc2301f8b04490d3e22efd572b8656027ce4cf273b41b552ef23",
+  "report_sha256": "2f64da5ebcadf1b920d8668e8a02ffed87abf40a1621fd45bfa97b3805ab19c3"
+}

@@ -1,0 +1,382 @@
+{
+  "passed": true,
+  "stage": "actual",
+  "source_sha256": "31876e8b18c5a2975dc5b7191cbac63f1b8eeb92581a77f940ba4356188a9edc",
+  "object_sha256": "d5ac71b203d864b4540ae33140b48298558ed65b9c198562d30ee16ee31e07b8",
+  "functions_PASS": 1,
+  "instructions": 593,
+  "branches_preserved": 18,
+  "old_scopes": 45,
+  "native_scopes_after": 48,
+  "all48_ordered_native_spans_depths_and_owners_exact": true,
+  "all34_recorded_names_types_homes_exact": true,
+  "SLD_before": [
+    0,
+    1377
+  ],
+  "SLD_after": [
+    0,
+    1377
+  ],
+  "unchanged_source_partition": true,
+  "normal_object_exact_except_checked_private_FILE": true,
+  "actual_object_literal_unchanged": true,
+  "comment_only_delta_to_independently_reviewed_proposal": true,
+  "unproved_carrier_not_renamed_or_claimed_original": true,
+  "no_new_source_names_asm_volatile_dummy_expressions": true,
+  "no_postcompiler_rewrites": true,
+  "goal_complete": false,
+  "native_scope_contracts": [
+    {
+      "start": 2148119640,
+      "depth": 0,
+      "declarations": [
+        ".def\tname;\t.val\t-304;\t.scl\t1;\t.dim\t255;\t.size\t255;\t.type\t0x32;\t.endef",
+        ".def\tshpfile;\t.val\t22;\t.scl\t4;\t.type\t0x12;\t.endef",
+        ".def\tnp;\t.val\t21;\t.scl\t4;\t.type\t0x4;\t.endef",
+        ".def\ti;\t.val\t18;\t.scl\t4;\t.type\t0x4;\t.endef",
+        ".def\trecolor_flag;\t.val\t23;\t.scl\t4;\t.type\t0x4;\t.endef"
+      ],
+      "end": 2148121956
+    },
+    {
+      "start": 2148119796,
+      "depth": 1,
+      "declarations": [],
+      "end": 2148119936
+    },
+    {
+      "start": 2148119840,
+      "depth": 2,
+      "declarations": [],
+      "end": 2148119852
+    },
+    {
+      "start": 2148119852,
+      "depth": 3,
+      "declarations": [
+        ".def\tpmx;\t.val\t16;\t.scl\t4;\t.tag\tDraw_tPixMap;\t.size\t16;\t.type\t0x18;\t.endef"
+      ],
+      "end": 2148119852
+    },
+    {
+      "start": 2148119936,
+      "depth": 1,
+      "declarations": [
+        ".def\tpmx;\t.val\t17;\t.scl\t4;\t.tag\tDraw_tPixMap;\t.size\t16;\t.type\t0x18;\t.endef"
+      ],
+      "end": 2148119936
+    },
+    {
+      "start": 2148119936,
+      "depth": 1,
+      "declarations": [
+        ".def\tpmx;\t.val\t16;\t.scl\t4;\t.tag\tDraw_tPixMap;\t.size\t16;\t.type\t0x18;\t.endef"
+      ],
+      "end": 2148119936
+    },
+    {
+      "start": 2148119936,
+      "depth": 1,
+      "declarations": [
+        ".def\tpmx;\t.val\t17;\t.scl\t4;\t.tag\tDraw_tPixMap;\t.size\t16;\t.type\t0x18;\t.endef"
+      ],
+      "end": 2148119936
+    },
+    {
+      "start": 2148119936,
+      "depth": 1,
+      "declarations": [
+        ".def\tpmx;\t.val\t16;\t.scl\t4;\t.tag\tDraw_tPixMap;\t.size\t16;\t.type\t0x18;\t.endef"
+      ],
+      "end": 2148119936
+    },
+    {
+      "start": 2148119936,
+      "depth": 1,
+      "declarations": [
+        ".def\tpmx;\t.val\t16;\t.scl\t4;\t.tag\tDraw_tPixMap;\t.size\t16;\t.type\t0x18;\t.endef"
+      ],
+      "end": 2148119936
+    },
+    {
+      "start": 2148119936,
+      "depth": 1,
+      "declarations": [],
+      "end": 2148120532
+    },
+    {
+      "start": 2148120296,
+      "depth": 2,
+      "declarations": [],
+      "end": 2148120532
+    },
+    {
+      "start": 2148120296,
+      "depth": 3,
+      "declarations": [
+        ".def\tpmx;\t.val\t16;\t.scl\t4;\t.tag\tDraw_tPixMap;\t.size\t16;\t.type\t0x18;\t.endef"
+      ],
+      "end": 2148120296
+    },
+    {
+      "start": 2148120296,
+      "depth": 3,
+      "declarations": [
+        ".def\tpmx;\t.val\t18;\t.scl\t4;\t.tag\tDraw_tPixMap;\t.size\t16;\t.type\t0x18;\t.endef"
+      ],
+      "end": 2148120296
+    },
+    {
+      "start": 2148120296,
+      "depth": 3,
+      "declarations": [
+        ".def\tpmx;\t.val\t16;\t.scl\t4;\t.tag\tDraw_tPixMap;\t.size\t16;\t.type\t0x18;\t.endef"
+      ],
+      "end": 2148120296
+    },
+    {
+      "start": 2148120532,
+      "depth": 1,
+      "declarations": [
+        ".def\tpmx;\t.val\t16;\t.scl\t4;\t.tag\tDraw_tPixMap;\t.size\t16;\t.type\t0x18;\t.endef"
+      ],
+      "end": 2148120532
+    },
+    {
+      "start": 2148120532,
+      "depth": 1,
+      "declarations": [
+        ".def\tpmx;\t.val\t17;\t.scl\t4;\t.tag\tDraw_tPixMap;\t.size\t16;\t.type\t0x18;\t.endef"
+      ],
+      "end": 2148120532
+    },
+    {
+      "start": 2148120532,
+      "depth": 1,
+      "declarations": [
+        ".def\tpmx;\t.val\t16;\t.scl\t4;\t.tag\tDraw_tPixMap;\t.size\t16;\t.type\t0x18;\t.endef"
+      ],
+      "end": 2148120532
+    },
+    {
+      "start": 2148120532,
+      "depth": 1,
+      "declarations": [
+        ".def\tpmx;\t.val\t17;\t.scl\t4;\t.tag\tDraw_tPixMap;\t.size\t16;\t.type\t0x18;\t.endef"
+      ],
+      "end": 2148120532
+    },
+    {
+      "start": 2148120532,
+      "depth": 1,
+      "declarations": [
+        ".def\tpmx;\t.val\t16;\t.scl\t4;\t.tag\tDraw_tPixMap;\t.size\t16;\t.type\t0x18;\t.endef"
+      ],
+      "end": 2148120532
+    },
+    {
+      "start": 2148120532,
+      "depth": 1,
+      "declarations": [
+        ".def\tpmx;\t.val\t17;\t.scl\t4;\t.tag\tDraw_tPixMap;\t.size\t16;\t.type\t0x18;\t.endef"
+      ],
+      "end": 2148120532
+    },
+    {
+      "start": 2148120532,
+      "depth": 1,
+      "declarations": [
+        ".def\tpmx;\t.val\t16;\t.scl\t4;\t.tag\tDraw_tPixMap;\t.size\t16;\t.type\t0x18;\t.endef"
+      ],
+      "end": 2148120532
+    },
+    {
+      "start": 2148120532,
+      "depth": 1,
+      "declarations": [
+        ".def\tpmx;\t.val\t17;\t.scl\t4;\t.tag\tDraw_tPixMap;\t.size\t16;\t.type\t0x18;\t.endef"
+      ],
+      "end": 2148120532
+    },
+    {
+      "start": 2148120532,
+      "depth": 1,
+      "declarations": [
+        ".def\tpmx;\t.val\t16;\t.scl\t4;\t.tag\tDraw_tPixMap;\t.size\t16;\t.type\t0x18;\t.endef"
+      ],
+      "end": 2148120532
+    },
+    {
+      "start": 2148120532,
+      "depth": 1,
+      "declarations": [],
+      "end": 2148121168
+    },
+    {
+      "start": 2148121072,
+      "depth": 2,
+      "declarations": [],
+      "end": 2148121084
+    },
+    {
+      "start": 2148121084,
+      "depth": 3,
+      "declarations": [
+        ".def\tpmx;\t.val\t16;\t.scl\t4;\t.tag\tDraw_tPixMap;\t.size\t16;\t.type\t0x18;\t.endef"
+      ],
+      "end": 2148121084
+    },
+    {
+      "start": 2148121168,
+      "depth": 1,
+      "declarations": [],
+      "end": 2148121324
+    },
+    {
+      "start": 2148121208,
+      "depth": 2,
+      "declarations": [
+        ".def\tshape;\t.val\t2;\t.scl\t4;\t.tag\tshapetbl;\t.size\t20;\t.type\t0x18;\t.endef",
+        ".def\tshpname;\t.val\t-48;\t.scl\t1;\t.dim\t5;\t.size\t5;\t.type\t0x32;\t.endef"
+      ],
+      "end": 2148121320
+    },
+    {
+      "start": 2148121208,
+      "depth": 3,
+      "declarations": [],
+      "end": 2148121320
+    },
+    {
+      "start": 2148121248,
+      "depth": 4,
+      "declarations": [],
+      "end": 2148121248
+    },
+    {
+      "start": 2148121248,
+      "depth": 5,
+      "declarations": [
+        ".def\tpmx;\t.val\t16;\t.scl\t4;\t.tag\tDraw_tPixMap;\t.size\t16;\t.type\t0x18;\t.endef"
+      ],
+      "end": 2148121248
+    },
+    {
+      "start": 2148121324,
+      "depth": 1,
+      "declarations": [
+        ".def\tpmx;\t.val\t16;\t.scl\t4;\t.tag\tDraw_tPixMap;\t.size\t16;\t.type\t0x18;\t.endef"
+      ],
+      "end": 2148121324
+    },
+    {
+      "start": 2148121324,
+      "depth": 1,
+      "declarations": [],
+      "end": 2148121956
+    },
+    {
+      "start": 2148121408,
+      "depth": 2,
+      "declarations": [],
+      "end": 2148121596
+    },
+    {
+      "start": 2148121408,
+      "depth": 3,
+      "declarations": [],
+      "end": 2148121596
+    },
+    {
+      "start": 2148121432,
+      "depth": 4,
+      "declarations": [],
+      "end": 2148121444
+    },
+    {
+      "start": 2148121444,
+      "depth": 5,
+      "declarations": [
+        ".def\tpmx;\t.val\t16;\t.scl\t4;\t.tag\tDraw_tPixMap;\t.size\t16;\t.type\t0x18;\t.endef"
+      ],
+      "end": 2148121444
+    },
+    {
+      "start": 2148121444,
+      "depth": 5,
+      "declarations": [
+        ".def\tpmx;\t.val\t2;\t.scl\t4;\t.tag\tDraw_tPixMap;\t.size\t16;\t.type\t0x18;\t.endef"
+      ],
+      "end": 2148121444
+    },
+    {
+      "start": 2148121596,
+      "depth": 2,
+      "declarations": [],
+      "end": 2148121956
+    },
+    {
+      "start": 2148121596,
+      "depth": 3,
+      "declarations": [],
+      "end": 2148121696
+    },
+    {
+      "start": 2148121624,
+      "depth": 4,
+      "declarations": [],
+      "end": 2148121696
+    },
+    {
+      "start": 2148121624,
+      "depth": 5,
+      "declarations": [
+        ".def\tpmx;\t.val\t16;\t.scl\t4;\t.tag\tDraw_tPixMap;\t.size\t16;\t.type\t0x18;\t.endef"
+      ],
+      "end": 2148121696
+    },
+    {
+      "start": 2148121696,
+      "depth": 3,
+      "declarations": [],
+      "end": 2148121956
+    },
+    {
+      "start": 2148121716,
+      "depth": 4,
+      "declarations": [],
+      "end": 2148121956
+    },
+    {
+      "start": 2148121716,
+      "depth": 5,
+      "declarations": [
+        ".def\tpmx;\t.val\t17;\t.scl\t4;\t.tag\tDraw_tPixMap;\t.size\t16;\t.type\t0x18;\t.endef"
+      ],
+      "end": 2148121716
+    },
+    {
+      "start": 2148121716,
+      "depth": 5,
+      "declarations": [
+        ".def\tpmx;\t.val\t16;\t.scl\t4;\t.tag\tDraw_tPixMap;\t.size\t16;\t.type\t0x18;\t.endef"
+      ],
+      "end": 2148121716
+    },
+    {
+      "start": 2148121716,
+      "depth": 5,
+      "declarations": [
+        ".def\tpmx;\t.val\t16;\t.scl\t4;\t.tag\tDraw_tPixMap;\t.size\t16;\t.type\t0x18;\t.endef"
+      ],
+      "end": 2148121716
+    },
+    {
+      "start": 2148121716,
+      "depth": 5,
+      "declarations": [],
+      "end": 2148121956
+    }
+  ]
+}

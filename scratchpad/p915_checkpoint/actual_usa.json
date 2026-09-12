@@ -1,0 +1,28 @@
+{
+  "passed": true,
+  "actual_regional_pipeline": true,
+  "only_output_directories_rebound": true,
+  "source": "regiondiff/recon/NFS4-R-USA/game/psx/draww.cpp",
+  "source_sha256": "ca3aabc120f52cc37302bcd142f7b033f741070d81b957747090f1a09ced93ef",
+  "object": "scratchpad/p915_checkpoint/usa_objects/recon/game/psx/draww__region_gate_35496.cpp.o",
+  "object_sha256": "88c4d0973805d4c87df3adc761572faf6a96794642fd167a118006c9bf337194",
+  "compiler_commands": [
+    [
+      "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+      "-quiet",
+      "-O2",
+      "-G8",
+      "C:\\Temp\\nfs4-decomp\\scratchpad\\p915_checkpoint\\usa_objects\\recon\\game\\psx\\draww__region_gate_35496.cpp.i",
+      "-o",
+      "C:\\Temp\\nfs4-decomp\\scratchpad\\p915_checkpoint\\usa_objects\\recon\\game\\psx\\draww__region_gate_35496.cpp.s"
+    ]
+  ],
+  "whole_object_identical_private_except_exact_FILE": true,
+  "functions_raw_PASS_transferred": 35,
+  "branches_transferred": 359,
+  "existing_regional_gates_rerun": 2,
+  "exact_object_transfer_not_absent_manifest_inference": true,
+  "no_full_USA_link_claimed": true,
+  "inherited_source_VA_comments_are_base_image_not_USA": true,
+  "private_verification_sha256": "a82cb6e9bb9a13ad8935d4d71e6459f288301345a20e93cc194f1b9b9cb863c3"
+}

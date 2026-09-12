@@ -1,7 +1,7 @@
 .include "macro.inc"
-/* W64-A18: residual segment of data_8010CCD4 -- labels no recon TU defines
- * (or a record tail a recon TU's section stops short of).
- * Linked by BOTH lanes. */
+/* P912: complete native Camera data oracle, 1,404 CPE-loaded bytes.
+ * Reconstruction selects its validated source owner after initializer/order
+ * recovery. Retained unchanged for src; proof: p912_camera_data/p912_camera_peer. */
 
 .section .data, "wa"
 

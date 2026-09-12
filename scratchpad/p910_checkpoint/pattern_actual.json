@@ -1,0 +1,25 @@
+{
+  "passed": true,
+  "actual_source_sha256": "5c06264c49606cc571e7ba2a968f4bd82491cd0f84d5fc3ce3f402842cc76080",
+  "actual_object_sha256": "f6e556413410b4b0d3879ed8ae420b67df328f82cdf1e37add8e3ae6eee4a87b",
+  "normal_object_literal_equal_before": true,
+  "functions_PASS": 23,
+  "branches_preserved": 206,
+  "native_i_scope_exact": true,
+  "native_scope_count": 4,
+  "SLD_before": [
+    0,
+    72
+  ],
+  "SLD_after": [
+    0,
+    0
+  ],
+  "all22_neighbor_fullcontracts_preserved": true,
+  "actual_linked52_words_native_exact": true,
+  "actual_target_payload_sha256": "171c6adc3f455b0ccdf39ebe5ab4a22077c8f782e890464a3e873b771b5642d6",
+  "no_new_names_asm_volatile": true,
+  "no_compiler_or_debug_rewriting": true,
+  "linked_ELF_sha256": "60e7dc44e406330e5c613d9237449878b7b5ef45f6a5f0c4fa1fdcf6d5246619",
+  "goal_complete": false
+}

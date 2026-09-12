@@ -138,6 +138,10 @@ def compile_debug_twin(src: Path) -> Path:
                   *bld.AS_ARCH, f"-G{tu_g}", *maspsx_inc, "-o", obj]
     if bld.JTBL_AT_FUSION or tu_flags.get("jtbl_at_fusion"):
         maspsx_cmd.append("--jtbl-at-fusion")
+    # P905: debug attribution must see the same real source storage/binding
+    # as the normal object. This changes assembler input options, not labels.
+    if tu_flags.get("preserve_small_common_binding"):
+        maspsx_cmd.append("--preserve-small-common-binding")
     s_text = s_file.read_text()
     if not is_c:
         s_text = s_text.replace("_._", "___")

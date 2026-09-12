@@ -1,0 +1,112 @@
+{
+  "passed": true,
+  "strict_builds_without_skips": true,
+  "full_build_profile_distinguished_from_strict_verifier": true,
+  "profile_closure": "build_profile_restored.json",
+  "old_inputs": 699,
+  "old_inputs_unchanged": 693,
+  "changed_old_inputs": [
+    "build/asm/data/data_8010CCD4_r09.data.s.o",
+    "build/asm/data/rdata_80054548_r05.rodata.s.o",
+    "build/recon/game/common/aistate.cpp.o",
+    "build/recon/game/common/audiocmn.cpp.o",
+    "build/recon/game/common/nfs3.cpp.o",
+    "build/recon/game/psx/hud.cpp.o"
+  ],
+  "raw_comment_objects_unchanged": true,
+  "linked_images_unchanged": {
+    "build/gen_ld/recon_multdef-ok.elf": "8ecfcdd06de59e1138efb5c946b5c2dc59f6df1bc5ddcef86b44e3f2b0d8a521",
+    "build/gen_ld/recon_multdef-ok.map": "6b5d838af99302b3c64158f17f8c90080dc4db93f71a78963093a7c76e19ac23"
+  },
+  "report_sha256": "2f64da5ebcadf1b920d8668e8a02ffed87abf40a1621fd45bfa97b3805ab19c3",
+  "user_scratch_preserved": true,
+  "checks": [
+    {
+      "name": "vtable",
+      "command": [
+        "C:\\Python314\\python.exe",
+        "tools/audit_vtable_indexing.py"
+      ],
+      "returncode": 0,
+      "log": "vtable_final.log"
+    },
+    {
+      "name": "policy",
+      "command": [
+        "C:\\Python314\\python.exe",
+        "tools/textmoves_audit.py"
+      ],
+      "returncode": 0,
+      "log": "policy_final.log"
+    },
+    {
+      "name": "common_tests",
+      "command": [
+        "C:\\Python314\\python.exe",
+        "-m",
+        "unittest",
+        "test_common_binding"
+      ],
+      "returncode": 0,
+      "log": "common_tests_final.log"
+    },
+    {
+      "name": "expected",
+      "command": [
+        "C:\\Python314\\python.exe",
+        "tools/build.py",
+        "--out",
+        "expected",
+        "--no-link"
+      ],
+      "returncode": 0,
+      "log": "expected_final.log"
+    },
+    {
+      "name": "recon",
+      "command": [
+        "C:\\Python314\\python.exe",
+        "tools/build.py",
+        "--skip-asm",
+        "--no-link"
+      ],
+      "returncode": 0,
+      "log": "recon_final.log"
+    },
+    {
+      "name": "selectors",
+      "command": [
+        "C:\\Python314\\python.exe",
+        "tools/gen_ld.py",
+        "--check-nfs4ld"
+      ],
+      "returncode": 0,
+      "log": "selectors_final.log"
+    },
+    {
+      "name": "raw_split",
+      "command": [
+        "C:\\Python314\\python.exe",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\p907_checkpoint\\raw_audio_split.py"
+      ],
+      "returncode": 0,
+      "log": "raw_split_final.log"
+    },
+    {
+      "name": "report",
+      "command": [
+        "C:\\Temp\\nfs4-decomp\\tools\\objdiff\\objdiff-cli.exe",
+        "report",
+        "generate",
+        "-p",
+        ".",
+        "-o",
+        "build/p907_report.binpb",
+        "-f",
+        "proto"
+      ],
+      "returncode": 0,
+      "log": "report_final.log"
+    }
+  ]
+}

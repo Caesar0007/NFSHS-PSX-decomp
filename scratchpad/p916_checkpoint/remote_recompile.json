@@ -1,0 +1,917 @@
+[
+  {
+    "source": "recon/eaclib/psx/eacpsxz/fileroot.c",
+    "source_sha256": "3cfb94392179e6a1fee2a69e4fdcfdd7ca91b79f8c4bc41ca4ceebfd88517cfc",
+    "object_sha256": "90820b07b49ee2d7a9c7650268d5737cd7c5a3e429ff19029350aefd102c15c9",
+    "normal_object_literal_unchanged": true,
+    "explicit_static_oracle_mapping": null,
+    "gates": [
+      {
+        "function": "initfileio",
+        "instructions": 38,
+        "diff_lines": 0
+      },
+      {
+        "function": "setdirectory",
+        "instructions": 69,
+        "diff_lines": 0
+      },
+      {
+        "function": "openfile",
+        "instructions": 169,
+        "diff_lines": 0
+      },
+      {
+        "function": "closefile",
+        "instructions": 23,
+        "diff_lines": 0
+      },
+      {
+        "function": "readfile",
+        "instructions": 40,
+        "diff_lines": 0
+      },
+      {
+        "function": "readfile_systask",
+        "instructions": 40,
+        "diff_lines": 0
+      },
+      {
+        "function": "writefile",
+        "instructions": 31,
+        "diff_lines": 0
+      },
+      {
+        "function": "getfilesize",
+        "instructions": 25,
+        "diff_lines": 0
+      },
+      {
+        "function": "stopreadfile",
+        "instructions": 30,
+        "diff_lines": 0
+      }
+    ],
+    "branches": [
+      {
+        "function": "initfileio",
+        "count": 3,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "setdirectory",
+        "count": 10,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "openfile",
+        "count": 25,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "closefile",
+        "count": 3,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "readfile",
+        "count": 4,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "readfile_systask",
+        "count": 1,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "writefile",
+        "count": 1,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "getfilesize",
+        "count": 3,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "stopreadfile",
+        "count": 5,
+        "count_equal": true,
+        "offset_diffs": []
+      }
+    ]
+  },
+  {
+    "source": "recon/eaclib/psx/eacpsxz/nsync.c",
+    "source_sha256": "080d27c5d03f183b6a02559b7aa72566818eeff1e50f410812f4ed163da015b9",
+    "object_sha256": "789a394847269be18843b780d22e2f86306cd1c4a5a18fee6786db92282cda59",
+    "normal_object_literal_unchanged": true,
+    "explicit_static_oracle_mapping": null,
+    "gates": [
+      {
+        "function": "filesizeatomic",
+        "instructions": 25,
+        "diff_lines": 0
+      },
+      {
+        "function": "filesize",
+        "instructions": 17,
+        "diff_lines": 0
+      },
+      {
+        "function": "loadfileadratomic",
+        "instructions": 62,
+        "diff_lines": 0
+      },
+      {
+        "function": "loadfileadrz",
+        "instructions": 16,
+        "diff_lines": 0
+      },
+      {
+        "function": "loadfileadr",
+        "instructions": 18,
+        "diff_lines": 0
+      },
+      {
+        "function": "loadfileatadratomic",
+        "instructions": 32,
+        "diff_lines": 0
+      },
+      {
+        "function": "loadfileatadrz",
+        "instructions": 16,
+        "diff_lines": 0
+      },
+      {
+        "function": "loadfileatadr",
+        "instructions": 18,
+        "diff_lines": 0
+      },
+      {
+        "function": "loadbigfileheaderatomic",
+        "instructions": 81,
+        "diff_lines": 0
+      },
+      {
+        "function": "loadbigfileheader",
+        "instructions": 18,
+        "diff_lines": 0
+      }
+    ],
+    "branches": [
+      {
+        "function": "filesizeatomic",
+        "count": 2,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "filesize",
+        "count": 0,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "loadfileadratomic",
+        "count": 5,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "loadfileadrz",
+        "count": 0,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "loadfileadr",
+        "count": 0,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "loadfileatadratomic",
+        "count": 2,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "loadfileatadrz",
+        "count": 0,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "loadfileatadr",
+        "count": 0,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "loadbigfileheaderatomic",
+        "count": 7,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "loadbigfileheader",
+        "count": 0,
+        "count_equal": true,
+        "offset_diffs": []
+      }
+    ]
+  },
+  {
+    "source": "recon/eaclib/psx/eacpsxz/nullfunc.c",
+    "source_sha256": "1e9be6f4be6e576049f1ce054e3d8d5693be1ccea614f46d114019454ce4bea7",
+    "object_sha256": "010bd2be2d442a2d4815df93f5d2f44762ea442b4e0a9f8a606adf1902c73ef2",
+    "normal_object_literal_unchanged": true,
+    "explicit_static_oracle_mapping": null,
+    "gates": [
+      {
+        "function": "setclipwindow",
+        "instructions": 2,
+        "diff_lines": 0
+      }
+    ],
+    "branches": [
+      {
+        "function": "setclipwindow",
+        "count": 0,
+        "count_equal": true,
+        "offset_diffs": []
+      }
+    ]
+  },
+  {
+    "source": "recon/eaclib/psx/eacpsxz/stream.c",
+    "source_sha256": "602c703a012d5702cb6d4653bccb1ded427032b04d8731d965d1cd108a39ec4e",
+    "object_sha256": "9bbee3e0813235e85b865c3e778fd7bf4473fb6e4546100e1e524bd49af914be",
+    "normal_object_literal_unchanged": true,
+    "explicit_static_oracle_mapping": {
+      "func_800FC4E4": "locaterequest@800FC4E4"
+    },
+    "gates": [
+      {
+        "function": "validatehandle",
+        "instructions": 15,
+        "diff_lines": 0
+      },
+      {
+        "function": "inbetween",
+        "instructions": 16,
+        "diff_lines": 0
+      },
+      {
+        "function": "decbufferusage",
+        "instructions": 35,
+        "diff_lines": 0
+      },
+      {
+        "function": "getfreerequest",
+        "instructions": 30,
+        "diff_lines": 0
+      },
+      {
+        "function": "queuerequest",
+        "instructions": 27,
+        "diff_lines": 0
+      },
+      {
+        "function": "func_800FC4E4",
+        "instructions": 25,
+        "diff_lines": 0
+      },
+      {
+        "function": "freerequest",
+        "instructions": 39,
+        "diff_lines": 0
+      },
+      {
+        "function": "filterchunk",
+        "instructions": 20,
+        "diff_lines": 0
+      },
+      {
+        "function": "parsechunks",
+        "instructions": 119,
+        "diff_lines": 0
+      },
+      {
+        "function": "opencallback",
+        "instructions": 16,
+        "diff_lines": 0
+      },
+      {
+        "function": "closecallback",
+        "instructions": 22,
+        "diff_lines": 0
+      },
+      {
+        "function": "readcallback",
+        "instructions": 67,
+        "diff_lines": 0
+      },
+      {
+        "function": "startnextrequest",
+        "instructions": 100,
+        "diff_lines": 0
+      },
+      {
+        "function": "restartstream",
+        "instructions": 167,
+        "diff_lines": 0
+      },
+      {
+        "function": "STREAM_overhead",
+        "instructions": 13,
+        "diff_lines": 0
+      },
+      {
+        "function": "STREAM_create",
+        "instructions": 144,
+        "diff_lines": 0
+      },
+      {
+        "function": "STREAM_setfilter",
+        "instructions": 60,
+        "diff_lines": 0
+      },
+      {
+        "function": "STREAM_destroy",
+        "instructions": 45,
+        "diff_lines": 0
+      },
+      {
+        "function": "STREAM_setpriority",
+        "instructions": 20,
+        "diff_lines": 0
+      },
+      {
+        "function": "STREAM_setgreedylevel",
+        "instructions": 27,
+        "diff_lines": 0
+      },
+      {
+        "function": "STREAM_setgreedystate",
+        "instructions": 24,
+        "diff_lines": 0
+      },
+      {
+        "function": "STREAM_queuefile",
+        "instructions": 69,
+        "diff_lines": 0
+      },
+      {
+        "function": "STREAM_queuemem",
+        "instructions": 75,
+        "diff_lines": 0
+      },
+      {
+        "function": "STREAM_cancelrequest",
+        "instructions": 173,
+        "diff_lines": 0
+      },
+      {
+        "function": "STREAM_kill",
+        "instructions": 105,
+        "diff_lines": 0
+      },
+      {
+        "function": "STREAM_get",
+        "instructions": 73,
+        "diff_lines": 0
+      },
+      {
+        "function": "STREAM_release",
+        "instructions": 63,
+        "diff_lines": 0
+      },
+      {
+        "function": "STREAM_gettable",
+        "instructions": 14,
+        "diff_lines": 0
+      },
+      {
+        "function": "STREAM_state",
+        "instructions": 14,
+        "diff_lines": 0
+      },
+      {
+        "function": "STREAM_isendofstream",
+        "instructions": 23,
+        "diff_lines": 0
+      },
+      {
+        "function": "STREAM_buffersize",
+        "instructions": 18,
+        "diff_lines": 0
+      },
+      {
+        "function": "STREAM_bufferusage",
+        "instructions": 14,
+        "diff_lines": 0
+      }
+    ],
+    "branches": [
+      {
+        "function": "validatehandle",
+        "count": 2,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "inbetween",
+        "count": 4,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "decbufferusage",
+        "count": 3,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "getfreerequest",
+        "count": 2,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "queuerequest",
+        "count": 2,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "func_800FC4E4",
+        "count": 3,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "freerequest",
+        "count": 6,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "filterchunk",
+        "count": 3,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "parsechunks",
+        "count": 13,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "opencallback",
+        "count": 1,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "closecallback",
+        "count": 1,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "readcallback",
+        "count": 6,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "startnextrequest",
+        "count": 15,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "restartstream",
+        "count": 20,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "STREAM_overhead",
+        "count": 0,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "STREAM_create",
+        "count": 13,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "STREAM_setfilter",
+        "count": 10,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "STREAM_destroy",
+        "count": 4,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "STREAM_setpriority",
+        "count": 1,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "STREAM_setgreedylevel",
+        "count": 2,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "STREAM_setgreedystate",
+        "count": 3,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "STREAM_queuefile",
+        "count": 7,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "STREAM_queuemem",
+        "count": 7,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "STREAM_cancelrequest",
+        "count": 23,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "STREAM_kill",
+        "count": 13,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "STREAM_get",
+        "count": 8,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "STREAM_release",
+        "count": 8,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "STREAM_gettable",
+        "count": 1,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "STREAM_state",
+        "count": 1,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "STREAM_isendofstream",
+        "count": 2,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "STREAM_buffersize",
+        "count": 2,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "STREAM_bufferusage",
+        "count": 1,
+        "count_equal": true,
+        "offset_diffs": []
+      }
+    ]
+  },
+  {
+    "source": "recon/eaclib/psx/sndpsxz/sdpacket.c",
+    "source_sha256": "30e7761f72e73991822baaea231a1daa49ba79aa6b8b36d245b38775c452342e",
+    "object_sha256": "fbee78e6576cb9f1a9bdd7fe36c098ee60db0aa28b0ff6b9eb3e2c7d9134efd9",
+    "normal_object_literal_unchanged": true,
+    "explicit_static_oracle_mapping": null,
+    "gates": [
+      {
+        "function": "iSNDpacketgetirq",
+        "instructions": 78,
+        "diff_lines": 0
+      },
+      {
+        "function": "iSNDpacketsetirq",
+        "instructions": 56,
+        "diff_lines": 0
+      },
+      {
+        "function": "iSNDpacketirqcallback",
+        "instructions": 10,
+        "diff_lines": 0
+      },
+      {
+        "function": "iSNDpsxzerospu",
+        "instructions": 14,
+        "diff_lines": 0
+      },
+      {
+        "function": "iSNDpacketpurgeframes",
+        "instructions": 86,
+        "diff_lines": 0
+      },
+      {
+        "function": "iSNDfillspuwithpackets",
+        "instructions": 308,
+        "diff_lines": 0
+      },
+      {
+        "function": "iSNDpacketserve",
+        "instructions": 101,
+        "diff_lines": 0
+      },
+      {
+        "function": "iSNDplatformpacketoverhead",
+        "instructions": 13,
+        "diff_lines": 0
+      },
+      {
+        "function": "iSNDplatformcalcdatarate",
+        "instructions": 12,
+        "diff_lines": 0
+      },
+      {
+        "function": "iSNDplatformpacketplaycreate",
+        "instructions": 41,
+        "diff_lines": 0
+      },
+      {
+        "function": "iSNDplatformpacketplaydestroy",
+        "instructions": 17,
+        "diff_lines": 0
+      },
+      {
+        "function": "iSNDplatformpacketplay",
+        "instructions": 241,
+        "diff_lines": 0
+      },
+      {
+        "function": "iSNDpsxpacketstop",
+        "instructions": 53,
+        "diff_lines": 0
+      }
+    ],
+    "branches": [
+      {
+        "function": "iSNDpacketgetirq",
+        "count": 6,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "iSNDpacketsetirq",
+        "count": 6,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "iSNDpacketirqcallback",
+        "count": 0,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "iSNDpsxzerospu",
+        "count": 2,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "iSNDpacketpurgeframes",
+        "count": 9,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "iSNDfillspuwithpackets",
+        "count": 34,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "iSNDpacketserve",
+        "count": 9,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "iSNDplatformpacketoverhead",
+        "count": 1,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "iSNDplatformcalcdatarate",
+        "count": 0,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "iSNDplatformpacketplaycreate",
+        "count": 2,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "iSNDplatformpacketplaydestroy",
+        "count": 0,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "iSNDplatformpacketplay",
+        "count": 14,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "iSNDpsxpacketstop",
+        "count": 4,
+        "count_equal": true,
+        "offset_diffs": []
+      }
+    ]
+  },
+  {
+    "source": "recon/eaclib/psx/sndpsxz/ssysserv.c",
+    "source_sha256": "e71b69e9993948fec0e1bd318c7cf18cc12c0b7981e276af6402ca975fcefb1e",
+    "object_sha256": "e5c29ae846cd1a9171bd8197052974543c3dd2a39a13bd1be509da54069074a1",
+    "normal_object_literal_unchanged": true,
+    "explicit_static_oracle_mapping": null,
+    "gates": [
+      {
+        "function": "iSNDserveraddclient",
+        "instructions": 12,
+        "diff_lines": 0
+      },
+      {
+        "function": "iSNDserverremoveclient",
+        "instructions": 43,
+        "diff_lines": 0
+      },
+      {
+        "function": "SNDSYS_service",
+        "instructions": 28,
+        "diff_lines": 0
+      }
+    ],
+    "branches": [
+      {
+        "function": "iSNDserveraddclient",
+        "count": 0,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "iSNDserverremoveclient",
+        "count": 5,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "SNDSYS_service",
+        "count": 2,
+        "count_equal": true,
+        "offset_diffs": []
+      }
+    ]
+  },
+  {
+    "source": "recon/eaclib/psx/spchpsxz/spchbank.c",
+    "source_sha256": "3accabd42288ed0cbc0ca049f11e15c685fbc28d2c8e4eae895a2e02cad94b87",
+    "object_sha256": "848875514d2e6e6d527fc5363f9230e10b9eecfb3cb3a91270128fc2c677b0c0",
+    "normal_object_literal_unchanged": true,
+    "explicit_static_oracle_mapping": null,
+    "gates": [
+      {
+        "function": "iSPCH_InitBanks",
+        "instructions": 5,
+        "diff_lines": 0
+      },
+      {
+        "function": "iSPCH_DisposeBanks",
+        "instructions": 16,
+        "diff_lines": 0
+      },
+      {
+        "function": "iSPCH_BankMemAlloc",
+        "instructions": 33,
+        "diff_lines": 0
+      },
+      {
+        "function": "iSPCH_GetFreeBank",
+        "instructions": 22,
+        "diff_lines": 0
+      },
+      {
+        "function": "iSPCH_FindBank",
+        "instructions": 27,
+        "diff_lines": 0
+      },
+      {
+        "function": "iSPCH_TestSubBankBounds",
+        "instructions": 19,
+        "diff_lines": 0
+      },
+      {
+        "function": "iSPCH_SetCycleBits",
+        "instructions": 86,
+        "diff_lines": 0
+      },
+      {
+        "function": "SPCH_AddBank",
+        "instructions": 33,
+        "diff_lines": 0
+      }
+    ],
+    "branches": [
+      {
+        "function": "iSPCH_InitBanks",
+        "count": 0,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "iSPCH_DisposeBanks",
+        "count": 1,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "iSPCH_BankMemAlloc",
+        "count": 4,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "iSPCH_GetFreeBank",
+        "count": 4,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "iSPCH_FindBank",
+        "count": 5,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "iSPCH_TestSubBankBounds",
+        "count": 4,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "iSPCH_SetCycleBits",
+        "count": 20,
+        "count_equal": true,
+        "offset_diffs": []
+      },
+      {
+        "function": "SPCH_AddBank",
+        "count": 3,
+        "count_equal": true,
+        "offset_diffs": []
+      }
+    ]
+  }
+]

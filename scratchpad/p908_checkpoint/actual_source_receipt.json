@@ -1,0 +1,46 @@
+{
+  "passed_source_and_preservation": true,
+  "source_sha256": "3526722bf1f236d38fd01b55f42cc1473b63a4364a121e4cec62d0b26aee24de",
+  "object_sha256": "f6e556413410b4b0d3879ed8ae420b67df328f82cdf1e37add8e3ae6eee4a87b",
+  "normal_object_literal_equal_before": true,
+  "functions_PASS": 23,
+  "branches_preserved": 206,
+  "source_labels_removed": 3,
+  "debug_source_labels_removed": 2,
+  "native_info_scope_exact": true,
+  "native_scope_count": 3,
+  "SLD_before": [
+    0,
+    24
+  ],
+  "SLD_after": [
+    0,
+    0
+  ],
+  "all22_neighbor_fullcontracts_preserved": true,
+  "source_native_resolved_words": 62,
+  "actual_linked_native_matching_words": 60,
+  "actual_linked_native_differences": [
+    {
+      "index": 41,
+      "VA": "8007A188",
+      "actual": "8C63E0BC",
+      "native": "8C63D940"
+    },
+    {
+      "index": 52,
+      "VA": "8007A1B4",
+      "actual": "AC20E0BC",
+      "native": "AC20D940"
+    }
+  ],
+  "actual_linked_error_preexists": true,
+  "actual_flag_address": "8013E0BC",
+  "native_flag_address": "8013D940",
+  "entire_linked_ELF_unchanged": true,
+  "ELF_sha256": "8ecfcdd06de59e1138efb5c946b5c2dc59f6df1bc5ddcef86b44e3f2b0d8a521",
+  "no_new_names_asm_volatile": true,
+  "no_compiler_or_debug_rewriting": true,
+  "goal_complete": false,
+  "qualification": "Source/SLD restoration succeeds; full native-link exactness does not. Never substitute forced native relocation targets for actual linked-address proof."
+}

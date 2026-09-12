@@ -3,7 +3,7 @@
 
 #include "eac_types.h"
 
-extern int drawpending;   /* @0x8013DD10: owning-TU tentative def → .comm/.sbss → gp-rel */
+extern int drawpending;   /* @0x8013DD10: primate.c owns the initialized .sdata cell. */
 
 extern void *initlinkmode(void *unused, int maxprimArg, int linkmode);   /* @0x800F05F4 */
 extern void waitdraw(void);   /* @0x800F06E0 */

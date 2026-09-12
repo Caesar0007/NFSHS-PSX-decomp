@@ -45,8 +45,8 @@ import subprocess
 import sys
 from collections import defaultdict
 from pathlib import Path
-from source_data_owners import SOURCE_DATA_OWNERS, oracle_only_objects, validate_source_data_owners
-from source_zero_owners import SOURCE_ZERO_OWNERS, validate_source_zero_owners
+from source_data_owners import SOURCE_DATA_OWNERS, oracle_only_objects, validate_source_data_owners, source_auxiliary_windows
+from source_zero_owners import SOURCE_ZERO_OWNERS, validate_source_zero_owners, oracle_only_zero_objects
 
 ROOT = Path(__file__).resolve().parents[1]      # tools/ -> repo root (16F!)
 LD = r"C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-ld.exe"
@@ -62,6 +62,19 @@ FRONT_RODATA_STEM = "rdata_80010000"
 MAIN_RODATA_STEM = "rdata_80054548"
 MAIN_RODATA_START = 0x80054548
 MAIN_RODATA_END = 0x8005797C
+
+
+def source_owner_link_errors(stderr):
+    """P906: --noinhibit-exec can return success despite ld ASSERT failures.
+
+    These assertions are our exact storage contracts, not tolerated legacy
+    blob-duplicate diagnostics. Never report a candidate owner link as valid
+    merely because GNU ld still wrote an output image. No output is patched.
+    """
+    messages = ('native source data symbol address mismatch', 'native source data pointer target mismatch',
+                'source data owner size mismatch', 'native zero owner size mismatch',
+                'native auxiliary source window mismatch')
+    return [line for line in stderr.splitlines() if any(message in line for message in messages)]
 
 MARKER = "tools/gen_ld.py"
 # markers this generator recognises as its own lineage and may overwrite;
@@ -375,6 +388,19 @@ def main():
     # P887: NOBITS reservations have no initialized payload to hash. Validate
     # their own source extent/symbol contract before native BSS placement.
     validate_source_zero_owners(ROOT / "build")
+    # P907: a split compiler template can leave real, pre-existing raw
+    # alignment bytes. Discover only explicitly validated retained pieces;
+    # never append them to the shortened packed prefix at the wrong address.
+    auxiliary_windows = source_auxiliary_windows()
+    for window in auxiliary_windows:
+        padding = window.get("retained_raw_padding")
+        if padding:
+            path = Path(padding["source"])
+            assert path.parent.as_posix() == "asm/data" and padding["section"] == ".rodata"
+            assert MAIN_RODATA_START <= padding["address"] < padding["address"] + padding["size"] <= MAIN_RODATA_END
+            assert all(name != path.name for _,name,_ in main_ro)
+            main_ro.append((padding["address"], path.name, False))
+    main_ro.sort()
 
     fragment_sections = set()
     for L in sdata_lines + data_lines:
@@ -460,6 +486,17 @@ def main():
     for i, (base, end, o, ok) in enumerate(recon_ro):
         A(f"    .ro{i:04d} {base:#x} : SUBALIGN(4) {{ {o}(.rodata); }}"
           f"   /* {end - base} B{'' if ok else '  (anchor-only, E1-E5 not clean)'} */")
+    # P907 auxiliary checks never select or split .rodata a second time.
+    # Assert the actual selected source output, not merely the placement JSON.
+    for window in auxiliary_windows:
+        obj = "build/" + window["source"] + ".o"
+        choices = [(i,base) for i,(base,end,o,ok) in enumerate(recon_ro) if o == obj]
+        assert len(choices) == 1, "auxiliary window requires its native source rodata selection"
+        i,base = choices[0]
+        assert base == window["section_address"]
+        assert objdata[obj]["secs"][".rodata"] == window["section_size"]
+        A(f"    ASSERT(ADDR(.ro{i:04d}) == {base:#x} && SIZEOF(.ro{i:04d}) == {window['section_size']}, \"native auxiliary source window mismatch\")")
+        A(f"    ASSERT(ADDR(.ro{i:04d}) + {window['offset']} == {window['address']:#x}, \"native auxiliary source window mismatch\")")
     A("")
     for i, (base, sz, o) in enumerate(front):
         A(f"    .tf{i:04d} {base:#x} : SUBALIGN(4) {{ {o}(.text); }}")
@@ -495,6 +532,28 @@ def main():
     L.extend(extra_sdata)
     A("    }")
     A("")
+    # P906: fragment membership alone does not prove final byte placement.
+    # Opted-in source owners assert each exact public symbol at its native
+    # address, including Replay's real three-byte inter-section alignment.
+    for owner in SOURCE_DATA_OWNERS:
+        anchors = owner.get("assert_native_symbols")
+        if not anchors:
+            continue
+        selected = owner["symbols"]
+        if anchors is not True:
+            # P906 AudioCmn: named public anchors locate its whole source
+            # section; LOCAL statics retain their original file scope and
+            # their validated in-section offsets, never exported aliases.
+            assert isinstance(anchors, (tuple,list)) and len(anchors) == len(set(anchors))
+            selected = [s for s in selected if s[0] in anchors]
+            assert len(selected) == len(anchors), "missing public source-data anchor"
+        for name,offset,size,bind,mode in selected:
+            assert bind == 1 and mode == "exact", "native linker assertion needs an exact public symbol"
+            A(f"    ASSERT({name} == {owner['address'] + offset:#x}, \"native source data symbol address mismatch: {name}\")")
+        if owner.get("assert_native_relocation_targets"):
+            for name,address,size in owner["relocation_targets"]:
+                A(f"    ASSERT({name} == {address:#x}, \"native source data pointer target mismatch: {name}\")")
+    A("")
     # SYM-backed tail layout exception (2026-08-21): the retail linker places
     # a second initialized-data run immediately after the primary .sdata run.
     # Keeping this explicit prevents the generic catch-all from relocating
@@ -508,6 +567,20 @@ def main():
     A("        build/recon/game/common/simqueue.cpp.o(.bss.simqueue_output);")
     A("        build/recon/game/common/simqueue.cpp.o(.sbss);")
     A("        build/asm/data/tail.data.s.o(.data.tail_after_simqueue);")
+    A("    }")
+    # P910: HUD's intervening76-byte native SBSS is selected from its real
+    # NOBITS source owner below. Keep the unrelated raw suffix at its native
+    # VA, not packed against the shortened prefix. No padding is invented.
+    A("    .tail_after_hud_sbss 0x8013de4c : SUBALIGN(4)")
+    A("    {")
+    A("        build/asm/data/tail.data.s.o(.data.tail_after_hud_sbss);")
+    A("    }")
+    # P905: primate's intervening40 bytes are native NOBITS, not loaded tail
+    # data. Its source owner is selected below; resume the following raw range
+    # at its independently fixed VA without inventing a padding reservation.
+    A("    .tail_after_primate 0x8013de90 : SUBALIGN(4)")
+    A("    {")
+    A("        build/asm/data/tail.data.s.o(.data.tail_after_primate);")
     A("    }")
     A("")
     # SYM-backed Newton BSS ownership seam (2026-08-21): the two function-local
@@ -545,7 +618,11 @@ def main():
     for owner in SOURCE_ZERO_OWNERS:
         obj = "build/" + owner["source"] + ".o"
         out, section = owner["output"], owner["section"]
-        A(f"    {out} {owner['address']:#x} (NOLOAD) : SUBALIGN(4) {{ {obj}({section}); }}")
+        # P910: retain an explicitly verified input alignment in the output.
+        # All older owners stay at4; HUD's native76-byte block requires8.
+        # Protected backup and exact alignment probes: p910_hud_sbss/backups.
+        alignment = owner.get("alignment", 4)
+        A(f"    {out} {owner['address']:#x} (NOLOAD) : SUBALIGN({alignment}) {{ {obj}({section}); }}")
         A(f"    ASSERT(SIZEOF({out}) == {owner['size']}, \"native zero owner size mismatch\")")
     A("    . = __unplaced_zero_cursor;")
     A("    .sbss  : SUBALIGN(4) { *(.sbss); }")
@@ -595,6 +672,7 @@ def main():
                        if (ROOT / "build" / (p.relative_to(ROOT).as_posix() + ".o")).is_file()]
         objs = sorted(objdata) + asm_objects
         oracle_only = oracle_only_objects(ROOT / "build")
+        oracle_only |= oracle_only_zero_objects(ROOT / "build")
         objs = [o for o in dict.fromkeys(objs)
                 if o not in jtbl_objs and (ROOT / o).resolve() not in oracle_only]
         assert objs, "empty object list -- vacuous link refused"
@@ -628,6 +706,9 @@ def main():
                   f"undefined-names={len(und)} (.L={len(dotl)}) "
                   f"multiple-def={len(mult)} reloc-truncated={len(trunc)}")
             (OUTDIR / f"recon_{label}{tag}_undef.txt").write_text("\n".join(und) + "\n")
+            owner_errors = source_owner_link_errors(r.stderr)
+            if owner_errors:
+                sys.exit('source-owner linker contract failed:\n' + '\n'.join(owner_errors))
 
 
 if __name__ == "__main__":

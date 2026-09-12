@@ -1,0 +1,163 @@
+{
+  "passed": true,
+  "timestamp_utc": "2026-09-12T15:34:44.593284+00:00",
+  "candidate_source_sha256": "90d67e2d9ffab2244a1ad6674cc7ee1be875ddaee39b0d994dadfac8e2f76668",
+  "candidate_object_sha256": "dd530c8dc536cae3fa4c296fc0eaaf1d16dd3bc86b7bab71a1cb9f7820624a30",
+  "logical_source_delta_confined_to_target_body_and_comment": true,
+  "body_matches_NFS2_matched_twin_except_native_field_spellings": true,
+  "candidate_whole_file_EOL_normalized": false,
+  "actual_outside_target_bytes_literal_preserved": true,
+  "before_CRLF": 2694,
+  "before_LF": 2732,
+  "candidate_CRLF": 2607,
+  "candidate_LF": 2678,
+  "landing_requirement": "Actual target-only patch applied; unrelated source bytes and line endings are literally preserved.",
+  "no_pv_no_fence_no_absorption_no_invented_names": true,
+  "all3_native_scopes_exact": [
+    {
+      "start": 2148332916,
+      "depth": 0,
+      "declarations": [
+        ".def\ti;\t.val\t8;\t.scl\t4;\t.type\t0x4;\t.endef"
+      ],
+      "end": 2148333228
+    },
+    {
+      "start": 2148332916,
+      "depth": 1,
+      "declarations": [],
+      "end": 2148333228
+    },
+    {
+      "start": 2148333084,
+      "depth": 2,
+      "declarations": [
+        ".def\tp;\t.val\t4;\t.scl\t4;\t.type\t0x4;\t.endef"
+      ],
+      "end": 2148333228
+    }
+  ],
+  "all8_parameter_locations_and2_local_homes_exact": [
+    [
+      "sc",
+      9,
+      17,
+      24,
+      4,
+      "DVECTOR"
+    ],
+    [
+      "s0",
+      5,
+      17,
+      24,
+      4,
+      "DVECTOR"
+    ],
+    [
+      "s1",
+      6,
+      17,
+      24,
+      4,
+      "DVECTOR"
+    ],
+    [
+      "percentage",
+      7,
+      17,
+      20,
+      0,
+      ""
+    ],
+    [
+      "n",
+      16,
+      9,
+      4,
+      0,
+      ""
+    ],
+    [
+      "bPercentageArray",
+      20,
+      9,
+      4,
+      0,
+      ""
+    ],
+    [
+      "n",
+      11,
+      4,
+      4,
+      0,
+      ""
+    ],
+    [
+      "bPercentageArray",
+      2,
+      4,
+      4,
+      0,
+      ""
+    ],
+    [
+      "i",
+      8,
+      4,
+      4,
+      0,
+      ""
+    ],
+    [
+      "p",
+      4,
+      4,
+      4,
+      0,
+      ""
+    ]
+  ],
+  "SLD_before": [
+    0,
+    232
+  ],
+  "SLD_after": [
+    0,
+    0
+  ],
+  "new_merge_pairs": [],
+  "new_split_pairs": [],
+  "all21_neighbor_full_local_lexical_SLD_and_debug_graphs_preserved": [
+    "Sky_InitStars__Fv",
+    "Sky_KillStars__Fv",
+    "Hrz_InitSkyColor__Fv",
+    "Hrz_InitSky__Fv",
+    "Hrz_Init2DRing__Fv",
+    "Hrz_GetHorizonPixMap__FP12Draw_tPixMap",
+    "Hrz_InitHorizon__Fv",
+    "Hrz_KillHorizon__Fv",
+    "Hrz_LightningAddFork__FScScSc",
+    "Hrz_CalculateLightning__Fv",
+    "Hrz_TextureQuad__FP7DVECTORccP11Draw_DCache",
+    "Hrz_SetLightingPosInSky__FP13DRender_tView",
+    "Hrz_BuildForkLightning__FP11Draw_DCache",
+    "Hrz_LightningFlicker__Fi",
+    "HrzSetPsxMatrix__FP10matrixtdef",
+    "HrzSetPsxTranslation__FP8coorddef",
+    "Hrz_RotProj16__FiP7SVECTORPiP7DVECTOR",
+    "Hrz_SetDitheringPrim__Fii",
+    "Hrz_BuildSky__Fv",
+    "Sky_RenderStars__FP13Draw_SkyCachei",
+    "Hrz_BuildHorizon__FP13DRender_tView"
+  ],
+  "normal_object_equal_to_actual_baseline_except_exact_FILE": true,
+  "all_normal_symbols_except_FILE_and_relocations_identical": true,
+  "diagnostic_compiler_label_drift_with_exact_addresses": [],
+  "raw80words_exact": true,
+  "detailed_PASS": 22,
+  "branches": 170,
+  "target_instructions": 80,
+  "no_compilation_or_production_or_normal_output_writes": true
+}

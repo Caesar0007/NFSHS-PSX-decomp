@@ -44,6 +44,17 @@ Also put `.lcomm`-declared symbols (in C, this means `static` variables without 
 This can be convenient with games using non-zero `-G` in situations where a variable needs to be marked `static` to get code generation to match, but you don't want to migrate `.sdata`/`.sbss` to that .c file yet.
 **NOTE:** This also makes the symbols *global* (unlike regular `static` behaviour).
 
+### `--preserve-small-common-binding`
+
+NFS4 P905 opt-in: when lowering a true `.comm` declaration into `.sbss`,
+retain its public binding, as the existing `.bss` lowering already does.
+Real `.lcomm` declarations remain local. This does not change instruction
+expansion and does not rewrite assembled objects. It produces a strong
+section definition, not mergeable COMMON storage; use it only where unique
+source ownership, native placement and all consumers have been verified.
+The legacy default is unchanged. `--use-comm-section` still requests actual
+COMMON semantics and takes precedence over this binding-only option.
+
 ### `-G`
 **EXPERIMENTAL** If your project uses `$gp`, maspsx needs to be explicitly passed a non-zero value for `-G`.
 

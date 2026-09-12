@@ -1,7 +1,7 @@
 .include "macro.inc"
-/* W64-A18: residual segment of data_8010CCD4 -- labels no recon TU defines
- * (or a record tail a recon TU's section stops short of).
- * Linked by BOTH lanes. */
+/* P912: exact native Collide_gRegistry[16] transport oracle,64 CPE-loaded bytes.
+ * The reconstruction selects the validated source .data owner instead.
+ * Retained unchanged for src/oracle; proof and backup: p912_collide_owner. */
 
 .section .data, "wa"
 

@@ -38,6 +38,7 @@ import sys
 from collections import defaultdict
 from pathlib import Path
 from source_data_owners import oracle_only_objects, validate_source_data_owners
+from source_zero_owners import oracle_only_zero_objects, validate_source_zero_owners
 
 ROOT = Path(__file__).resolve().parents[1]      # tools/ -> repo root
 MIPS = Path(r"C:/Tools/mips-ps1/mips/bin")
@@ -71,6 +72,10 @@ def lane_objects(lane):
     if lane == "recon":
         validate_source_data_owners(ROOT / "build")
         excluded_oracles = oracle_only_objects(ROOT / "build")
+        # P905: a native zero owner may replace an exact raw transport leaf.
+        # Validate actual NOBITS extent/binding before excluding it from recon.
+        validate_source_zero_owners(ROOT / "build")
+        excluded_oracles |= oracle_only_zero_objects(ROOT / "build")
     # Build directories intentionally survive normal incremental builds, so
     # scanning build/** directly admits objects for renamed/deleted probes and
     # backup TUs.  Those stale files created hundreds of false REAL duplicates
@@ -337,7 +342,8 @@ def run_lane(lane, verbose=False):
         "multi_va_names_excluded": len(multiva),
         "excluded_subtrees": excluded_census(),
         "source_owned_oracle_exclusions": (
-            sorted(p.relative_to(ROOT).as_posix() for p in oracle_only_objects(ROOT / "build"))
+            sorted(p.relative_to(ROOT).as_posix() for p in
+                   (oracle_only_objects(ROOT / "build") | oracle_only_zero_objects(ROOT / "build")))
             if lane == "recon" else []),
         "dup_real_rows": dup_real, "phantom_rows": phantoms,
         "unresolved_names": unres,

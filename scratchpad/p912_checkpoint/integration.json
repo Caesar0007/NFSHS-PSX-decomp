@@ -1,0 +1,181 @@
+{
+  "passed": true,
+  "Collide_functions_PASS": 14,
+  "Collide_branches_preserved": 716,
+  "Collide_gates": [
+    {
+      "function": "CHECK_CENTER_VERTEX_WITH_DIRS__Fiii",
+      "instructions": 288,
+      "diff_lines": 0
+    },
+    {
+      "function": "CHECK_CENTER_VERTEX_WITH_DIRS_OTHER__Fiii",
+      "instructions": 291,
+      "diff_lines": 0
+    },
+    {
+      "function": "CHECK_VERTEX_WITH_DIRS__Fiii",
+      "instructions": 242,
+      "diff_lines": 0
+    },
+    {
+      "function": "CHECK_VERTEX_WITH_DIRS_OTHER__Fiii",
+      "instructions": 242,
+      "diff_lines": 0
+    },
+    {
+      "function": "Collide_DoObjectFixedObjectCollision__FP13BO_tNewtonObjP8coorddefN21",
+      "instructions": 874,
+      "diff_lines": 0
+    },
+    {
+      "function": "Collide_LimitAngularVel__FP13BO_tNewtonObj",
+      "instructions": 61,
+      "diff_lines": 0
+    },
+    {
+      "function": "Collide_TestWithPlane__FP13BO_tNewtonObjP8coorddefT1",
+      "instructions": 779,
+      "diff_lines": 0
+    },
+    {
+      "function": "Collide_DoObjectObjectCollision__FP13BO_tNewtonObjT0P8coorddefT2",
+      "instructions": 991,
+      "diff_lines": 0
+    },
+    {
+      "function": "Collide_DoActualObjectCollisionCheck__FP13BO_tNewtonObjT0P8coorddefT2",
+      "instructions": 765,
+      "diff_lines": 0
+    },
+    {
+      "function": "Collide_TestObjectVertices__FP13BO_tNewtonObjT0P8coorddefT2",
+      "instructions": 1164,
+      "diff_lines": 0
+    },
+    {
+      "function": "Collide_CheckForCollisionBetween__FP13BO_tNewtonObjT0",
+      "instructions": 88,
+      "diff_lines": 0
+    },
+    {
+      "function": "Collide_ClearCollisionRegistry__Fv",
+      "instructions": 128,
+      "diff_lines": 0
+    },
+    {
+      "function": "Collide_CheckAccuratePointRadiusCollision__FP13BO_tNewtonObjP8coorddefi",
+      "instructions": 126,
+      "diff_lines": 0
+    },
+    {
+      "function": "Collide_CheckMeForCollisions__FP13BO_tNewtonObj",
+      "instructions": 381,
+      "diff_lines": 0
+    }
+  ],
+  "Collide_branches": [
+    {
+      "function": "CHECK_CENTER_VERTEX_WITH_DIRS__Fiii",
+      "count": 24,
+      "count_equal": true,
+      "offset_diffs": []
+    },
+    {
+      "function": "CHECK_CENTER_VERTEX_WITH_DIRS_OTHER__Fiii",
+      "count": 24,
+      "count_equal": true,
+      "offset_diffs": []
+    },
+    {
+      "function": "CHECK_VERTEX_WITH_DIRS__Fiii",
+      "count": 24,
+      "count_equal": true,
+      "offset_diffs": []
+    },
+    {
+      "function": "CHECK_VERTEX_WITH_DIRS_OTHER__Fiii",
+      "count": 24,
+      "count_equal": true,
+      "offset_diffs": []
+    },
+    {
+      "function": "Collide_DoObjectFixedObjectCollision__FP13BO_tNewtonObjP8coorddefN21",
+      "count": 93,
+      "count_equal": true,
+      "offset_diffs": []
+    },
+    {
+      "function": "Collide_LimitAngularVel__FP13BO_tNewtonObj",
+      "count": 11,
+      "count_equal": true,
+      "offset_diffs": []
+    },
+    {
+      "function": "Collide_TestWithPlane__FP13BO_tNewtonObjP8coorddefT1",
+      "count": 96,
+      "count_equal": true,
+      "offset_diffs": []
+    },
+    {
+      "function": "Collide_DoObjectObjectCollision__FP13BO_tNewtonObjT0P8coorddefT2",
+      "count": 75,
+      "count_equal": true,
+      "offset_diffs": []
+    },
+    {
+      "function": "Collide_DoActualObjectCollisionCheck__FP13BO_tNewtonObjT0P8coorddefT2",
+      "count": 120,
+      "count_equal": true,
+      "offset_diffs": []
+    },
+    {
+      "function": "Collide_TestObjectVertices__FP13BO_tNewtonObjT0P8coorddefT2",
+      "count": 156,
+      "count_equal": true,
+      "offset_diffs": []
+    },
+    {
+      "function": "Collide_CheckForCollisionBetween__FP13BO_tNewtonObjT0",
+      "count": 11,
+      "count_equal": true,
+      "offset_diffs": []
+    },
+    {
+      "function": "Collide_ClearCollisionRegistry__Fv",
+      "count": 9,
+      "count_equal": true,
+      "offset_diffs": []
+    },
+    {
+      "function": "Collide_CheckAccuratePointRadiusCollision__FP13BO_tNewtonObjP8coorddefi",
+      "count": 5,
+      "count_equal": true,
+      "offset_diffs": []
+    },
+    {
+      "function": "Collide_CheckMeForCollisions__FP13BO_tNewtonObj",
+      "count": 44,
+      "count_equal": true,
+      "offset_diffs": []
+    }
+  ],
+  "Collide_normal_object_literal_unchanged": true,
+  "Collide_complete_debug_assembly_literal_unchanged": true,
+  "raw_build_expected_objects_literal_unchanged": true,
+  "all38_data_and7_zero_owners_valid": true,
+  "actual_ELF_semantics_equal_reviewed_private_except_two_exact_FILE_paths": true,
+  "actual_allocated_payloads_and_program_geometry_equal_private": true,
+  "old_inputs": 698,
+  "changed_old_inputs": [
+    "build/recon/game/common/camera.cpp.o",
+    "build/recon/game/common/genericpmx.cpp.o"
+  ],
+  "other696_old_inputs_literal_preserved": true,
+  "linked_ELF_sha256": "415cde9ff28286ae6d4bab1c0b05eb3f51aa3cc118d29158242e2fbf826f7f8c",
+  "linked_map_sha256": "3b5b518f59b1273737539ee51f7a241155be6e43a0b2fba2be93613c7f1863a3",
+  "private_linked_ELF_sha256": "3eb55d8ad28e83da3192acaa15946cea1b09e20a15062d13b1189dee2dee2e95",
+  "no_postcompiler_rewrites": true,
+  "user_edits_preserved": true,
+  "goal_complete": false
+}

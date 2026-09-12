@@ -444,8 +444,7 @@ void TrackSpec_Read(int spec_num)
   filebuf = currentpos;
   startpos = filebuf;
   if (filebuf != (char *)0x0) {
-    TrackSpec_gPrevSpec = spec_num;
-    TrackSpec_gCurrentSpec = spec_num;
+    TrackSpec_gPrevSpec = TrackSpec_gCurrentSpec = spec_num;
     read(&currentpos,&header,8);
     if (spec_num >= header.num_spec) {
       TrackSpec_SetDefault(&TrackSpec_gSpec);

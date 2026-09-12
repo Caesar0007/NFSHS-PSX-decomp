@@ -1,0 +1,292 @@
+{
+  "passed": true,
+  "actual_ELF_sha256": "df44e37f2f9e30341f86e9ce30be5d3596ee7a5b6683988b150745574f0628f5",
+  "actual50_reference_words_raw_exact": [
+    {
+      "pc": "0x800cf8f0",
+      "word": "0x3c028012",
+      "native_target": "0x80120620"
+    },
+    {
+      "pc": "0x800cf8f4",
+      "word": "0x24490620",
+      "native_target": "0x80120620"
+    },
+    {
+      "pc": "0x800cfb70",
+      "word": "0x3c028012",
+      "native_target": "0x80120378"
+    },
+    {
+      "pc": "0x800cfb74",
+      "word": "0x24570378",
+      "native_target": "0x80120378"
+    },
+    {
+      "pc": "0x800cfcb0",
+      "word": "0x3c028012",
+      "native_target": "0x80120774"
+    },
+    {
+      "pc": "0x800cfcb4",
+      "word": "0x24460774",
+      "native_target": "0x80120774"
+    },
+    {
+      "pc": "0x800cfe04",
+      "word": "0x3c028012",
+      "native_target": "0x801202f8"
+    },
+    {
+      "pc": "0x800cfe08",
+      "word": "0x244802f8",
+      "native_target": "0x801202f8"
+    },
+    {
+      "pc": "0x800cfe14",
+      "word": "0x3c028012",
+      "native_target": "0x801207b4"
+    },
+    {
+      "pc": "0x800cfe18",
+      "word": "0x244407b4",
+      "native_target": "0x801207b4"
+    },
+    {
+      "pc": "0x800cfe7c",
+      "word": "0x3c028012",
+      "native_target": "0x8012087c"
+    },
+    {
+      "pc": "0x800cfe80",
+      "word": "0x2445087c",
+      "native_target": "0x8012087c"
+    },
+    {
+      "pc": "0x800cfee0",
+      "word": "0x3c028012",
+      "native_target": "0x801207f4"
+    },
+    {
+      "pc": "0x800cfee4",
+      "word": "0x244807f4",
+      "native_target": "0x801207f4"
+    },
+    {
+      "pc": "0x800d0070",
+      "word": "0x3c028012",
+      "native_target": "0x801202f8"
+    },
+    {
+      "pc": "0x800d0074",
+      "word": "0x244202f8",
+      "native_target": "0x801202f8"
+    },
+    {
+      "pc": "0x800d00ac",
+      "word": "0x3c028012",
+      "native_target": "0x801202f8"
+    },
+    {
+      "pc": "0x800d00b0",
+      "word": "0x245402f8",
+      "native_target": "0x801202f8"
+    },
+    {
+      "pc": "0x800d00b8",
+      "word": "0x3c028012",
+      "native_target": "0x80120338"
+    },
+    {
+      "pc": "0x800d00bc",
+      "word": "0x24500338",
+      "native_target": "0x80120338"
+    },
+    {
+      "pc": "0x800d0220",
+      "word": "0x3c048012",
+      "native_target": "0x801208bc"
+    },
+    {
+      "pc": "0x800d0224",
+      "word": "0x248408bc",
+      "native_target": "0x801208bc"
+    },
+    {
+      "pc": "0x800d03cc",
+      "word": "0x3c028012",
+      "native_target": "0x801208bc"
+    },
+    {
+      "pc": "0x800d03d0",
+      "word": "0x244208bc",
+      "native_target": "0x801208bc"
+    },
+    {
+      "pc": "0x800d0648",
+      "word": "0x3c028012",
+      "native_target": "0x801208bc"
+    },
+    {
+      "pc": "0x800d0650",
+      "word": "0x245108bc",
+      "native_target": "0x801208bc"
+    },
+    {
+      "pc": "0x800d0730",
+      "word": "0x3c038012",
+      "native_target": "0x801208bc"
+    },
+    {
+      "pc": "0x800d0734",
+      "word": "0x246308bc",
+      "native_target": "0x801208bc"
+    },
+    {
+      "pc": "0x800d079c",
+      "word": "0x3c038012",
+      "native_target": "0x80120620"
+    },
+    {
+      "pc": "0x800d07a0",
+      "word": "0x24630620",
+      "native_target": "0x80120620"
+    },
+    {
+      "pc": "0x800d07ec",
+      "word": "0x3c038012",
+      "native_target": "0x80120620"
+    },
+    {
+      "pc": "0x800d07f0",
+      "word": "0x24630620",
+      "native_target": "0x80120620"
+    },
+    {
+      "pc": "0x800d0aac",
+      "word": "0x3c028012",
+      "native_target": "0x80120378"
+    },
+    {
+      "pc": "0x800d0ab0",
+      "word": "0x24460378",
+      "native_target": "0x80120378"
+    },
+    {
+      "pc": "0x800d0b9c",
+      "word": "0x3c028012",
+      "native_target": "0x80120378"
+    },
+    {
+      "pc": "0x800d0ba0",
+      "word": "0x24460378",
+      "native_target": "0x80120378"
+    },
+    {
+      "pc": "0x800d0c74",
+      "word": "0x3c028012",
+      "native_target": "0x801202f8"
+    },
+    {
+      "pc": "0x800d0c78",
+      "word": "0x245302f8",
+      "native_target": "0x801202f8"
+    },
+    {
+      "pc": "0x800d0c94",
+      "word": "0x3c028012",
+      "native_target": "0x80120664"
+    },
+    {
+      "pc": "0x800d0c98",
+      "word": "0x244f0664",
+      "native_target": "0x80120664"
+    },
+    {
+      "pc": "0x800d0ca4",
+      "word": "0x3c028012",
+      "native_target": "0x80120774"
+    },
+    {
+      "pc": "0x800d0ca8",
+      "word": "0x244d0774",
+      "native_target": "0x80120774"
+    },
+    {
+      "pc": "0x800d15ac",
+      "word": "0x3c108012",
+      "native_target": "0x8012087c"
+    },
+    {
+      "pc": "0x800d15b0",
+      "word": "0x2610087c",
+      "native_target": "0x8012087c"
+    },
+    {
+      "pc": "0x800d1604",
+      "word": "0x3c028012",
+      "native_target": "0x80120838"
+    },
+    {
+      "pc": "0x800d1608",
+      "word": "0x245e0838",
+      "native_target": "0x80120838"
+    },
+    {
+      "pc": "0x800d1800",
+      "word": "0x3c038012",
+      "native_target": "0x801207b4"
+    },
+    {
+      "pc": "0x800d1804",
+      "word": "0x246307b4",
+      "native_target": "0x801207b4"
+    },
+    {
+      "pc": "0x800d1894",
+      "word": "0x3c098012",
+      "native_target": "0x801207f8"
+    },
+    {
+      "pc": "0x800d18a4",
+      "word": "0x252907f8",
+      "native_target": "0x801207f8"
+    }
+  ],
+  "all9_native_cells_exact": true,
+  "all1580_owner_bytes_source_ROM_equal": true,
+  "suffix1040_ROM_exact": true,
+  "suffix6_native_pointer_words_exact": [
+    {
+      "pc": "0x80120d00",
+      "value": "0x8013d9a0",
+      "symbol": "D_8013D9A0"
+    },
+    {
+      "pc": "0x80120d04",
+      "value": "0x8013d9a8",
+      "symbol": "D_8013D9A8"
+    },
+    {
+      "pc": "0x80120d08",
+      "value": "0x8013d9b0",
+      "symbol": "D_8013D9B0"
+    },
+    {
+      "pc": "0x80120d0c",
+      "value": "0x8013d9b8",
+      "symbol": "D_8013D9B8"
+    },
+    {
+      "pc": "0x80120d10",
+      "value": "0x8013d9c0",
+      "symbol": "D_8013D9C0"
+    },
+    {
+      "pc": "0x80120d14",
+      "value": "0x8013d9c8",
+      "symbol": "D_8013D9C8"
+    }
+  ],
+  "no_builds_or_production_or_normal_writes": true
+}

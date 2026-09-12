@@ -1,0 +1,103 @@
+{
+  "passed": true,
+  "timestamp_utc": "2026-09-12T15:55:30.046585+00:00",
+  "tool_and_fixture_hashes": {
+    "C:\\Temp\\nfs4-decomp\\scratchpad\\root_sym_audit\\audit_sym_source.py": "674e185277d9e075db6195b92587fa63cb90180a00d54eab3ccf23b769fb6a98",
+    "C:\\Temp\\nfs4-decomp\\scratchpad\\p914_checkpoint\\backups\\audit_sym_source.py": "02e6a1c26f1e7c1ea5b28e7b8979e161ddfefb3624a7171915058be3ecb82f0c",
+    "C:\\Temp\\nfs4-decomp\\scratchpad\\p914_identity_review\\fixtures\\fixture.cpp": "71175dd850667648066e1fd6a70f9f4b8cc5880f455896efd3a2c45589f73d2b"
+  },
+  "old_module_file_spoofed_to_canonical": true,
+  "real_ctags_records": true,
+  "register_metadata_fixture_injected_not_compiled": true,
+  "raw_label_input_snapshot_size": 2968,
+  "all_checks": [
+    "LocalMarker",
+    "RegisterFlag",
+    "genuine_native_marker",
+    "typo_marker_no_phantom",
+    "missing_local_carrier",
+    "optimized_category_retained",
+    "ABI_parameter_retained",
+    "ABI_marker_cannot_promote_local",
+    "CanonicalRecovery_retained",
+    "CompactStatic_retained",
+    "LocalTypeOverride_retained",
+    "InlineOwner_retained",
+    "MacroOwner_retained",
+    "unmarked_extra_local_always_queued",
+    "global_source_only_reopened",
+    "nativeArray_array_shape_reopened",
+    "nativeScalar_array_shape_reopened",
+    "nativeUnsized_array_shape_reopened",
+    "splitArray_missing_and_components_reopened",
+    "incompleteArray_missing_and_components_reopened",
+    "hostOnly_category_retained",
+    "commonOnly_category_retained",
+    "compactGlobal_category_retained",
+    "FixtureClass_vtable_category_retained",
+    "typeOverride_override_retained",
+    "storageOverride_override_retained",
+    "unmarked_global_always_queued",
+    "strict_provenance_and_limits",
+    "clean_coverage_decreases",
+    "split_not_counted_source_mapped",
+    "global_count_deltas",
+    "global_type_delta",
+    "default_strict_default_same_module"
+  ],
+  "default_output_byte_equal_legacy": true,
+  "summaries": {
+    "Declaration-clean mapped functions": {
+      "default": [
+        12
+      ],
+      "strict": [
+        9
+      ]
+    },
+    "Missing SYM names": {
+      "default": [
+        0
+      ],
+      "strict": [
+        1
+      ]
+    },
+    "Extra source-local names": {
+      "default": [
+        2
+      ],
+      "strict": [
+        4
+      ]
+    },
+    "Missing/extra global definitions": {
+      "default": [
+        0,
+        1
+      ],
+      "strict": [
+        2,
+        5
+      ]
+    },
+    "Global type findings": {
+      "default": [
+        0
+      ],
+      "strict": [
+        3
+      ]
+    },
+    "Mapped source global definitions": {
+      "default": [
+        8
+      ],
+      "strict": [
+        6
+      ]
+    }
+  },
+  "scope": "Synthetic comparison-policy tests; preserved canonical/ABI/optimized markers are simulated categories, not claims of genuine original source.",
+  "no_compilation_or_tool_source_or_normal_output_writes": true
+}

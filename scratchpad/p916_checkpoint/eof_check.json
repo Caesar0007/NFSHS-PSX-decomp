@@ -1,0 +1,33 @@
+{
+  "passed": true,
+  "rows": [
+    {
+      "source": "asm/data/data_replay_legacy.data.s",
+      "lane": "build",
+      "object_sha256": "74a65909a8cdf9958dc0effa85274d58f1b51456ccb0ec2b16f2c68ac63d3db6",
+      "source_only_removed_one_EOF_LF": true,
+      "object_literal_unchanged": true
+    },
+    {
+      "source": "asm/data/data_replay_legacy.data.s",
+      "lane": "expected",
+      "object_sha256": "74a65909a8cdf9958dc0effa85274d58f1b51456ccb0ec2b16f2c68ac63d3db6",
+      "source_only_removed_one_EOF_LF": true,
+      "object_literal_unchanged": true
+    },
+    {
+      "source": "asm/data/sdata_hud_legacy.sdata.s",
+      "lane": "build",
+      "object_sha256": "56c6ee642e200377b4a4137e0dab2f4464b7fc40d3a40be84cff40831d3d3e53",
+      "source_only_removed_one_EOF_LF": true,
+      "object_literal_unchanged": true
+    },
+    {
+      "source": "asm/data/sdata_hud_legacy.sdata.s",
+      "lane": "expected",
+      "object_sha256": "56c6ee642e200377b4a4137e0dab2f4464b7fc40d3a40be84cff40831d3d3e53",
+      "source_only_removed_one_EOF_LF": true,
+      "object_literal_unchanged": true
+    }
+  ]
+}

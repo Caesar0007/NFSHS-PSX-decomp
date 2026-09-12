@@ -300,6 +300,9 @@ void AIState_Idle::SetIdlePosition(int roadPosition)
    placement/caching variant tried leaves the same two swaps. Pure §A coloring floor,
    documented near-miss. */
 
+/* P907: these standalone-array receipts are historical. The existing
+ * GameSetup_tData view permits a direct member with identical code/branches;
+ * no type or helper is added. Original per-TU type visibility remains open. */
 /* D_8011321C == GameSetup_gData.reverseTrack -- standalone-symbol form, same precedent as
  * ai.cpp AI_HandleTrafficHonking / aiinit.cpp AIInit_RestartAICar / hud.cpp Hud_NextPlayer. */
 /* W62-A9: declared an UNSIZED ARRAY on purpose -- see the ctor receipt below.
@@ -307,7 +310,6 @@ void AIState_Idle::SetIdlePosition(int roadPosition)
    emits the single UNSCHEDULABLE assembler macro `lw $2,D_8011321C`; retail's
    split `lui %hi` + `lw %lo` pair proves this object saw the symbol as ABOVE the
    threshold.  The unsized `[]` restores that (unknown size => never small-data). */
-extern int D_8011321C[];
 
 AIState_Chase::AIState_Chase(Car_tObj *carObj,Car_tObj *targetCar,coorddef *relPosition,
 
@@ -366,7 +368,7 @@ AIState_Chase::AIState_Chase(Car_tObj *carObj,Car_tObj *targetCar,coorddef *relP
      * records. Re-reading the field in the ternary changes 16 instructions
      * and adds eight load/delay instructions. */
     int direction = (this->carObj_)->direction;
-    reverseDirCheck = (D_8011321C[0] == 0) ? (direction ^ 1) : ~direction;
+    reverseDirCheck = (GameSetup_gData.reverseTrack == 0) ? (direction ^ 1) : ~direction;
   }
 
   if (reverseDirCheck) {

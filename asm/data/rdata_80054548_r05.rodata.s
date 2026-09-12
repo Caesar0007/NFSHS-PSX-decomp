@@ -537,19 +537,6 @@ dlabel D_800556EC
 .align 2
 enddlabel D_800556EC
 
-nonmatching D_8005570C
-
-dlabel D_8005570C
-    /* 45F0C 8005570C 8CC61380 */ .word D_8013C68C
-    /* 45F10 80055710 A4C61380 */ .word D_8013C6A4
-    /* 45F14 80055714 8CC61380 */ .word D_8013C68C
-    /* 45F18 80055718 A8C61380 */ .word D_8013C6A8
-    /* 45F1C 8005571C 8CC61380 */ .word D_8013C68C
-    /* 45F20 80055720 A4C61380 */ .word D_8013C6A4
-    /* 45F24 80055724 90C61380 */ .word D_8013C690
-    /* 45F28 80055728 A4C61380 */ .word D_8013C6A4
-    /* 45F2C 8005572C 8CC61380 */ .word D_8013C68C
-    /* 45F30 80055730 8CC61380 */ .word D_8013C68C
-    /* 45F34 80055734 8CC61380 */ .word D_8013C68C
-    /* 45F38 80055738 00000000 */ .word 0x00000000
-enddlabel D_8005570C
+/* P907 proposal: eleven-pointer TrackGenBank template and its separate
+ * four-byte zero padding move to individually placed raw transport leaves.
+ * Only the 44-byte template becomes oracle-only after source validation. */

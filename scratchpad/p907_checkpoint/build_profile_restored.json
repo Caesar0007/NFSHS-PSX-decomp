@@ -1,0 +1,60 @@
+{
+  "passed": true,
+  "diagnostic": "full-build versus strict verifier configuration, not P907 source regression",
+  "source_files_modified": false,
+  "build_tooling_modified": false,
+  "postcompiler_rewrite": false,
+  "all_six_strict_objects_literal_equal_frozen": true,
+  "full_build_profile_report_sha256": "5886e6490b8b39d5c7b4f143145c32fffd3b1cb8f395a5e808599457a4e0acaa",
+  "restored_verified_profile_report_sha256": "2f64da5ebcadf1b920d8668e8a02ffed87abf40a1621fd45bfa97b3805ab19c3",
+  "rows": [
+    {
+      "source": "recon/syslib/psx/libapi/FIRST.c",
+      "source_sha256": "b26adf495d70082cc99b247d62710f28552f8bfaf5c5aab50b7cb4071a05cd97",
+      "replaced_object_sha256": "71a17e947fb27718c7150eaa39ca2a9ce6f33013131daf307bb82e65674fc8ce",
+      "strict_object_sha256": "71a17e947fb27718c7150eaa39ca2a9ce6f33013131daf307bb82e65674fc8ce",
+      "frozen_P906_object_sha256": "71a17e947fb27718c7150eaa39ca2a9ce6f33013131daf307bb82e65674fc8ce",
+      "strict_object_literal_equal_frozen": true
+    },
+    {
+      "source": "recon/syslib/psx/libcd/cdread.c",
+      "source_sha256": "6c407b8898fb682b0a8ad6a94b0edb354f397bf3680a5bfa4ccddcd99a2f657a",
+      "replaced_object_sha256": "23724741cccf64fd3afe9ff43ba062318f9d47a3f500461a6760919a29859a0a",
+      "strict_object_sha256": "b906ff817c322a2c2305e35c3937ccf44fdf913f627c959ed49ee7196f33ce6b",
+      "frozen_P906_object_sha256": "b906ff817c322a2c2305e35c3937ccf44fdf913f627c959ed49ee7196f33ce6b",
+      "strict_object_literal_equal_frozen": true
+    },
+    {
+      "source": "recon/syslib/psx/libetc/INTR.c",
+      "source_sha256": "e10517d1a6bf07ed205ffbbecf3d4453d880edc8f257615bf8aa9c7a487587e8",
+      "replaced_object_sha256": "2e2fb6a833239c45c55fea17e8f2ad28f387325eba9123f35b7a36a529db0618",
+      "strict_object_sha256": "14f060ea6d19ba926ad2e2a78a078a063a95c2d00974b9bd31a5ea308ff3f847",
+      "frozen_P906_object_sha256": "14f060ea6d19ba926ad2e2a78a078a063a95c2d00974b9bd31a5ea308ff3f847",
+      "strict_object_literal_equal_frozen": true
+    },
+    {
+      "source": "recon/syslib/psx/libmcrd/LIBMCRD.c",
+      "source_sha256": "7cd1f8cfcd065757c26d0ce61607dc3f55df1fcfd11cd734ab3c64c2cee7c3fb",
+      "replaced_object_sha256": "b99b16f95bc8cee647c34b6d36d55b2c189d1ccd4efd79148cb3dd02a5668f37",
+      "strict_object_sha256": "9befdf267980e598acd3e9435f1790a94e7d6088e74911831051f9c809c7f2c6",
+      "frozen_P906_object_sha256": "9befdf267980e598acd3e9435f1790a94e7d6088e74911831051f9c809c7f2c6",
+      "strict_object_literal_equal_frozen": true
+    },
+    {
+      "source": "recon/syslib/psx/libpad/PADCMD.c",
+      "source_sha256": "bfffa3a9435df532f993462f05996cd01e7c9929fd1611cb39521d0d3b682ff3",
+      "replaced_object_sha256": "3b548b1d1aece55c3dfed2f55953f474e18acb4344da0658fc004145af52d1d2",
+      "strict_object_sha256": "c20a98bad71ca3e3d0f08ccdf8ec002698b2c97322ad7a5ebe6c947db4f0b2b1",
+      "frozen_P906_object_sha256": "c20a98bad71ca3e3d0f08ccdf8ec002698b2c97322ad7a5ebe6c947db4f0b2b1",
+      "strict_object_literal_equal_frozen": true
+    },
+    {
+      "source": "recon/syslib/psx/libpad/PADSEQD.c",
+      "source_sha256": "3aabce2bd3e54d40bffdb29250bd1fa69a069f1c3d924e476b9957e1f36d248e",
+      "replaced_object_sha256": "184335f21649065bcffb42c4c6a3bf7a9e59e28dbc9ec997089465e0dc0812da",
+      "strict_object_sha256": "b6e465717003b628553d1480d6a040090bd628a846ae5c6b56b7d36b46a808f2",
+      "frozen_P906_object_sha256": "b6e465717003b628553d1480d6a040090bd628a846ae5c6b56b7d36b46a808f2",
+      "strict_object_literal_equal_frozen": true
+    }
+  ]
+}

@@ -1,0 +1,405 @@
+{
+  "passed": true,
+  "source": "recon/game/psx/draww.cpp",
+  "source_sha256": "016c4a42e955e6cbb22733890a252834398816d4376da35d7e0f2ee45068319c",
+  "extern_header_sha256": "f0c100f4d81d8479c6bb64a783121b49226e8e3a3a6861a05377fb152fbbe274",
+  "object": "build/recon/game/psx/draww.cpp.o",
+  "object_sha256": "fe3e6a5b4bdbb18ac4531efb5a00c6011bc68334df6762f48556dc70ee11ba54",
+  "gates": [
+    {
+      "function": "DrawW_AddSubdividPrimGT4__FP8POLY_GT4P12Draw_SVertexN31P25Draw_tGiveShelbyMoreCache",
+      "instructions": 35,
+      "diff_lines": 0
+    },
+    {
+      "function": "DrawW_AddSubdividPrimGT3__FP8POLY_GT3P12Draw_SVertexN21P25Draw_tGiveShelbyMoreCache",
+      "instructions": 28,
+      "diff_lines": 0
+    },
+    {
+      "function": "DrawW_DivVertice__FP12Draw_SVertexN20",
+      "instructions": 54,
+      "diff_lines": 0
+    },
+    {
+      "function": "DrawW_CalcSubdivision__FP25Draw_tGiveShelbyMoreCacheP12Draw_SVertexN31",
+      "instructions": 34,
+      "diff_lines": 0
+    },
+    {
+      "function": "DrawW_SubdividFacet__FP25Draw_tGiveShelbyMoreCacheiP12Draw_SVertexN32ss",
+      "instructions": 588,
+      "diff_lines": 0
+    },
+    {
+      "function": "DrawW_LoadPrecVECTOR__FP12Draw_SVertexP6VECTOR",
+      "instructions": 11,
+      "diff_lines": 0
+    },
+    {
+      "function": "DrawW_SetUpSubdividFacet__FiP25Draw_tGiveShelbyMoreCache",
+      "instructions": 206,
+      "diff_lines": 0
+    },
+    {
+      "function": "Night_NightCopCalc__FP6VECTORPs",
+      "instructions": 40,
+      "diff_lines": 0
+    },
+    {
+      "function": "Night_NightCalc__FP6VECTORPsP25Draw_tGiveShelbyMoreCache",
+      "instructions": 57,
+      "diff_lines": 0
+    },
+    {
+      "function": "DrawW_NightColorCalc__FP25Draw_tGiveShelbyMoreCacheP8POLY_GT4P8CCOORD16N32",
+      "instructions": 279,
+      "diff_lines": 0
+    },
+    {
+      "function": "DrawW_DrawQuad__FP25Draw_tGiveShelbyMoreCacheP8Trk_Quad",
+      "instructions": 592,
+      "diff_lines": 0
+    },
+    {
+      "function": "DrawW_kCtrlWorld_High__FP25Draw_tGiveShelbyMoreCache",
+      "instructions": 32,
+      "diff_lines": 0
+    },
+    {
+      "function": "DrawW_StripDraw_High__FP25Draw_tGiveShelbyMoreCache",
+      "instructions": 58,
+      "diff_lines": 0
+    },
+    {
+      "function": "DrawW_DoTrough__FP13DRender_tViewP11tBuildEntry",
+      "instructions": 359,
+      "diff_lines": 0
+    },
+    {
+      "function": "DrawW_WorldSetUpMatrix__FP10matrixtdefP6MATRIX",
+      "instructions": 39,
+      "diff_lines": 0
+    },
+    {
+      "function": "DrawW_WorldSetUpTranslation__FP8coorddefP6MATRIX",
+      "instructions": 17,
+      "diff_lines": 0
+    },
+    {
+      "function": "DrawW_ResetAnimationTimer__Fv",
+      "instructions": 10,
+      "diff_lines": 0
+    },
+    {
+      "function": "DrawW_GetAnimationTime__FP15Trk_AnimateInst",
+      "instructions": 33,
+      "diff_lines": 0
+    },
+    {
+      "function": "DrawW_SetAnimationTime__FP15Trk_AnimateInstPii",
+      "instructions": 80,
+      "diff_lines": 0
+    },
+    {
+      "function": "DrawW_DoObjectAnimations__Fv",
+      "instructions": 40,
+      "diff_lines": 0
+    },
+    {
+      "function": "DrawW_BuildObjectFacets__FP13DRender_tViewP15ChunkObjectInfo",
+      "instructions": 189,
+      "diff_lines": 0
+    },
+    {
+      "function": "DrawW_BuildCustomObjectFacets__FP13DRender_tViewP11Draw_DCacheP13Trk_SimObjectP5Groupi",
+      "instructions": 200,
+      "diff_lines": 0
+    },
+    {
+      "function": "DrawObjectTransform__FP13DRender_tViewP11Draw_DCacheP10matrixtdefP13Trk_ObjectDefP8coorddefis",
+      "instructions": 214,
+      "diff_lines": 0
+    },
+    {
+      "function": "DrawObjectSimple__FP13DRender_tViewP11Draw_DCacheP13Trk_ObjectDefP8coorddefi",
+      "instructions": 189,
+      "diff_lines": 0
+    },
+    {
+      "function": "DrawW_BuildChunkObjectFacets__FP13DRender_tViewP15ChunkObjectInfo",
+      "instructions": 434,
+      "diff_lines": 0
+    },
+    {
+      "function": "ObjectClipped__FP13DRender_tViewiP8coorddefP25Draw_tGiveShelbyMoreCache",
+      "instructions": 61,
+      "diff_lines": 0
+    },
+    {
+      "function": "DrawW_DoObjects__FP13DRender_tViewP11tBuildEntry",
+      "instructions": 222,
+      "diff_lines": 0
+    },
+    {
+      "function": "Draw_CircleClip__FP8coorddefT0i",
+      "instructions": 24,
+      "diff_lines": 0
+    },
+    {
+      "function": "Draw_kCtrlSkidmark__FP18Draw_tCtrlSkidmark",
+      "instructions": 353,
+      "diff_lines": 0
+    },
+    {
+      "function": "DrawW_SetUpSubdividFacet_Line__FP25Draw_tGiveShelbyMoreCache",
+      "instructions": 166,
+      "diff_lines": 0
+    },
+    {
+      "function": "DrawW_OnyxLinePrim__FP8CCOORD16P8Trk_LineiP25Draw_tGiveShelbyMoreCache",
+      "instructions": 507,
+      "diff_lines": 0
+    },
+    {
+      "function": "DrawW_BuildChunkCenterLineFacets__FP5ChunkP5GroupP25Draw_tGiveShelbyMoreCacheP7COORD16",
+      "instructions": 88,
+      "diff_lines": 0
+    },
+    {
+      "function": "DrawW_DoLines__FP13DRender_tViewP11tBuildEntryP11Draw_DCache",
+      "instructions": 199,
+      "diff_lines": 0
+    },
+    {
+      "function": "DrawW_BuildSpikeBelt__FP13DRender_tViewiP11Draw_DCache",
+      "instructions": 268,
+      "diff_lines": 0
+    },
+    {
+      "function": "DepthCue_Init__Fv",
+      "instructions": 18,
+      "diff_lines": 0
+    }
+  ],
+  "branches": [
+    {
+      "function": "DrawW_AddSubdividPrimGT4__FP8POLY_GT4P12Draw_SVertexN31P25Draw_tGiveShelbyMoreCache",
+      "count": 0,
+      "count_equal": true,
+      "offset_diffs": []
+    },
+    {
+      "function": "DrawW_AddSubdividPrimGT3__FP8POLY_GT3P12Draw_SVertexN21P25Draw_tGiveShelbyMoreCache",
+      "count": 0,
+      "count_equal": true,
+      "offset_diffs": []
+    },
+    {
+      "function": "DrawW_DivVertice__FP12Draw_SVertexN20",
+      "count": 0,
+      "count_equal": true,
+      "offset_diffs": []
+    },
+    {
+      "function": "DrawW_CalcSubdivision__FP25Draw_tGiveShelbyMoreCacheP12Draw_SVertexN31",
+      "count": 6,
+      "count_equal": true,
+      "offset_diffs": []
+    },
+    {
+      "function": "DrawW_SubdividFacet__FP25Draw_tGiveShelbyMoreCacheiP12Draw_SVertexN32ss",
+      "count": 50,
+      "count_equal": true,
+      "offset_diffs": []
+    },
+    {
+      "function": "DrawW_LoadPrecVECTOR__FP12Draw_SVertexP6VECTOR",
+      "count": 0,
+      "count_equal": true,
+      "offset_diffs": []
+    },
+    {
+      "function": "DrawW_SetUpSubdividFacet__FiP25Draw_tGiveShelbyMoreCache",
+      "count": 24,
+      "count_equal": true,
+      "offset_diffs": []
+    },
+    {
+      "function": "Night_NightCopCalc__FP6VECTORPs",
+      "count": 3,
+      "count_equal": true,
+      "offset_diffs": []
+    },
+    {
+      "function": "Night_NightCalc__FP6VECTORPsP25Draw_tGiveShelbyMoreCache",
+      "count": 5,
+      "count_equal": true,
+      "offset_diffs": []
+    },
+    {
+      "function": "DrawW_NightColorCalc__FP25Draw_tGiveShelbyMoreCacheP8POLY_GT4P8CCOORD16N32",
+      "count": 6,
+      "count_equal": true,
+      "offset_diffs": []
+    },
+    {
+      "function": "DrawW_DrawQuad__FP25Draw_tGiveShelbyMoreCacheP8Trk_Quad",
+      "count": 44,
+      "count_equal": true,
+      "offset_diffs": []
+    },
+    {
+      "function": "DrawW_kCtrlWorld_High__FP25Draw_tGiveShelbyMoreCache",
+      "count": 3,
+      "count_equal": true,
+      "offset_diffs": []
+    },
+    {
+      "function": "DrawW_StripDraw_High__FP25Draw_tGiveShelbyMoreCache",
+      "count": 5,
+      "count_equal": true,
+      "offset_diffs": []
+    },
+    {
+      "function": "DrawW_DoTrough__FP13DRender_tViewP11tBuildEntry",
+      "count": 18,
+      "count_equal": true,
+      "offset_diffs": []
+    },
+    {
+      "function": "DrawW_WorldSetUpMatrix__FP10matrixtdefP6MATRIX",
+      "count": 0,
+      "count_equal": true,
+      "offset_diffs": []
+    },
+    {
+      "function": "DrawW_WorldSetUpTranslation__FP8coorddefP6MATRIX",
+      "count": 0,
+      "count_equal": true,
+      "offset_diffs": []
+    },
+    {
+      "function": "DrawW_ResetAnimationTimer__Fv",
+      "count": 1,
+      "count_equal": true,
+      "offset_diffs": []
+    },
+    {
+      "function": "DrawW_GetAnimationTime__FP15Trk_AnimateInst",
+      "count": 4,
+      "count_equal": true,
+      "offset_diffs": []
+    },
+    {
+      "function": "DrawW_SetAnimationTime__FP15Trk_AnimateInstPii",
+      "count": 10,
+      "count_equal": true,
+      "offset_diffs": []
+    },
+    {
+      "function": "DrawW_DoObjectAnimations__Fv",
+      "count": 5,
+      "count_equal": true,
+      "offset_diffs": []
+    },
+    {
+      "function": "DrawW_BuildObjectFacets__FP13DRender_tViewP15ChunkObjectInfo",
+      "count": 19,
+      "count_equal": true,
+      "offset_diffs": []
+    },
+    {
+      "function": "DrawW_BuildCustomObjectFacets__FP13DRender_tViewP11Draw_DCacheP13Trk_SimObjectP5Groupi",
+      "count": 13,
+      "count_equal": true,
+      "offset_diffs": []
+    },
+    {
+      "function": "DrawObjectTransform__FP13DRender_tViewP11Draw_DCacheP10matrixtdefP13Trk_ObjectDefP8coorddefis",
+      "count": 4,
+      "count_equal": true,
+      "offset_diffs": []
+    },
+    {
+      "function": "DrawObjectSimple__FP13DRender_tViewP11Draw_DCacheP13Trk_ObjectDefP8coorddefi",
+      "count": 5,
+      "count_equal": true,
+      "offset_diffs": []
+    },
+    {
+      "function": "DrawW_BuildChunkObjectFacets__FP13DRender_tViewP15ChunkObjectInfo",
+      "count": 23,
+      "count_equal": true,
+      "offset_diffs": []
+    },
+    {
+      "function": "ObjectClipped__FP13DRender_tViewiP8coorddefP25Draw_tGiveShelbyMoreCache",
+      "count": 2,
+      "count_equal": true,
+      "offset_diffs": []
+    },
+    {
+      "function": "DrawW_DoObjects__FP13DRender_tViewP11tBuildEntry",
+      "count": 19,
+      "count_equal": true,
+      "offset_diffs": []
+    },
+    {
+      "function": "Draw_CircleClip__FP8coorddefT0i",
+      "count": 4,
+      "count_equal": true,
+      "offset_diffs": []
+    },
+    {
+      "function": "Draw_kCtrlSkidmark__FP18Draw_tCtrlSkidmark",
+      "count": 23,
+      "count_equal": true,
+      "offset_diffs": []
+    },
+    {
+      "function": "DrawW_SetUpSubdividFacet_Line__FP25Draw_tGiveShelbyMoreCache",
+      "count": 20,
+      "count_equal": true,
+      "offset_diffs": []
+    },
+    {
+      "function": "DrawW_OnyxLinePrim__FP8CCOORD16P8Trk_LineiP25Draw_tGiveShelbyMoreCache",
+      "count": 30,
+      "count_equal": true,
+      "offset_diffs": []
+    },
+    {
+      "function": "DrawW_BuildChunkCenterLineFacets__FP5ChunkP5GroupP25Draw_tGiveShelbyMoreCacheP7COORD16",
+      "count": 2,
+      "count_equal": true,
+      "offset_diffs": []
+    },
+    {
+      "function": "DrawW_DoLines__FP13DRender_tViewP11tBuildEntryP11Draw_DCache",
+      "count": 8,
+      "count_equal": true,
+      "offset_diffs": []
+    },
+    {
+      "function": "DrawW_BuildSpikeBelt__FP13DRender_tViewiP11Draw_DCache",
+      "count": 5,
+      "count_equal": true,
+      "offset_diffs": []
+    },
+    {
+      "function": "DepthCue_Init__Fv",
+      "count": 0,
+      "count_equal": true,
+      "offset_diffs": []
+    }
+  ],
+  "functions_PASS": 35,
+  "branches_preserved": 361,
+  "actual_PER_TU_G8_no_hidden_flag_override": true,
+  "whole_object_equal_final_candidate_except_exact_FILE": true,
+  "assembly": "scratchpad/p915_checkpoint/debug/diffsrc/recon/game/psx/draww.cpp.g.s",
+  "assembly_sha256": "e8f9b38494fa947d325fc203e2e902139b2bf67d481959e127e624d98b3b7599",
+  "labels_object": "scratchpad/p915_checkpoint/debug/diffsrc/recon/game/psx/draww.cpp.g.labels.o",
+  "labels_object_sha256": "e35278e6818e24b614fa0586d53b69e8267ca6f62af9c1b0b86a72d67f4b28c9"
+}

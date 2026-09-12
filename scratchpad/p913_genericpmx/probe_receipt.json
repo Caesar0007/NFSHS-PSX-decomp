@@ -1,0 +1,260 @@
+{
+  "passed": true,
+  "scope": "diagnostic results, not an accepted source reconstruction",
+  "probes": [
+    {
+      "stage": "before",
+      "instructions": 593,
+      "diff_lines": 0,
+      "branch_offset_misses": 0,
+      "source_sha256": "1ef3fe6c0c52b519d67f2d942a22b5bd5491a5c681c316f2ee7c74aeb18324de",
+      "object_sha256": "cb1009595bbc1f66eb449ddd1c7376d7fca3c92761cf15fcde5ec2dd19d44b31"
+    },
+    {
+      "stage": "literal",
+      "instructions": 579,
+      "diff_lines": 494,
+      "branch_offset_misses": 5,
+      "source_sha256": "5b38cb95be98435d7786c7d0555b6bf77ef75ffcb0336cc476f0825fbb9e0102",
+      "object_sha256": "97a4ff9d88c09700b7ea6dc0201cad26bd0a140f91627de33948c6b1eb418157"
+    },
+    {
+      "stage": "expr_carrier",
+      "instructions": 592,
+      "diff_lines": 23,
+      "branch_offset_misses": 3,
+      "source_sha256": "e2adf1d0e4cac5a27be2a60eac73e187245e2edd7819c0a6e8ac9ba4c6a9cdc7",
+      "object_sha256": "788c97468535c2c0750dfd6685ae1b454af99bd14194b331d4c50a584f1dd1af"
+    },
+    {
+      "stage": "expr_literal",
+      "instructions": 579,
+      "diff_lines": 498,
+      "branch_offset_misses": 5,
+      "source_sha256": "e3dd2b01eb9c49c3cfb5a30e964370a144f86d4eb949def86db4586ff67687ee",
+      "object_sha256": "c951b956aa2b3cc9a1e31dc63a499d21a7d47610f32cfe645e4681025c4a5c39"
+    },
+    {
+      "stage": "scopes_carrier",
+      "instructions": 593,
+      "diff_lines": 0,
+      "branch_offset_misses": 0,
+      "source_sha256": "44eb5da9e8acffe1dc17f5ee11c7c1ddfbb7e037448bf419d9ed3d5acc1ed4c5",
+      "object_sha256": "e8595c120d29dcb9183946fc7e7987e03905074b924c7e7fc0f278bc3825a08b"
+    },
+    {
+      "stage": "scopes_literal",
+      "instructions": 579,
+      "diff_lines": 494,
+      "branch_offset_misses": 5,
+      "source_sha256": "278196456c2c8cf51a250a536cdc2adc0422ca06d96c80b6a0cc0e9de9a8aae7",
+      "object_sha256": "ac2d6ef77086fb771d51bc8ae5c95525b5d8a1d9a3d263c14e32c91eb40909f8"
+    },
+    {
+      "stage": "inline_probe",
+      "instructions": 580,
+      "diff_lines": 489,
+      "branch_offset_misses": 7,
+      "source_sha256": "f97ac58d5c80153f03376c01ca726bfecf62a9abc343b1aa07e85700606f651b",
+      "object_sha256": "e867462df8f3b74f3168092247794803f15219256931ec6293d1b9fbf53646e5"
+    },
+    {
+      "stage": "np_decl",
+      "instructions": 579,
+      "diff_lines": 494,
+      "branch_offset_misses": 5,
+      "source_sha256": "25e4feac13e4e206fdecd94e93b480dd0b5570103e70ece449d33ea31f9f26e1",
+      "object_sha256": "6f25e388c8df0b1a21f5db8954aa62d76680244d1abe8e5ee3d4664d0e51877d"
+    },
+    {
+      "stage": "recolor_decl",
+      "instructions": 579,
+      "diff_lines": 494,
+      "branch_offset_misses": 5,
+      "source_sha256": "9d557fd39b5d3428028c5f4ea7eae4bad0ac9de775e8035036440bbb0e97293c",
+      "object_sha256": "89d6f531a2114dcee15dac2c19da12220110de63f6b49b6cc9b5397407c9d9ef"
+    },
+    {
+      "stage": "both_decl",
+      "instructions": 579,
+      "diff_lines": 494,
+      "branch_offset_misses": 5,
+      "source_sha256": "9ac05d4259519cce58411d87088a1ed36202fd150cff7fe375652bc83cecc63b",
+      "object_sha256": "8225e0cb00eb8058ac773b561aecdd3a6cfd27460236d5f1e75018ab9495cdd5"
+    },
+    {
+      "stage": "recolor_early",
+      "instructions": 579,
+      "diff_lines": 494,
+      "branch_offset_misses": 5,
+      "source_sha256": "9856c4f237f85a5b582a6381e9f9d5a9e20102258b52eb8e30b88a0015ebc01d",
+      "object_sha256": "706c81dbe95bdf25b7b3417bc6c03b60e0462fc68e32db958afd3ee0f63ef6a1"
+    }
+  ],
+  "actual_compiler_trace_receipts": [
+    {
+      "passed": true,
+      "stage": "before",
+      "command": [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G8",
+        "-dr",
+        "-dj",
+        "-ds",
+        "-dS",
+        "-dL",
+        "-dt",
+        "-dc",
+        "-df",
+        "-dl",
+        "-dg",
+        "-dumpbase",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\p913_genericpmx\\rtl\\before\\trace",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\p913_genericpmx\\before\\objects\\scratchpad\\p913_genericpmx\\inputs\\before.cpp.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\p913_genericpmx\\rtl\\before\\trace.s"
+      ],
+      "compiler_sha256": "61781c2f67b8486281720fdabb1fd7b549cce7f92918cb7b505db1fce54742b7",
+      "input_sha256": "5caa447919226e553e4b722c93ef80286cea06d8b2f146ab1d92dadcc4b2fe09",
+      "emitted_assembly_identical_to_untraced": true,
+      "output_sha256": "4a2a52278aad95f3dc8e65eea173c23fc31af04167049b78d89dc6d422677260",
+      "files": [
+        {
+          "path": "scratchpad/p913_genericpmx/rtl/before/trace.combine",
+          "sha256": "69e49176a917f399e74c5cf9c8726c508b806e7491182d209cdc86749b972b5e"
+        },
+        {
+          "path": "scratchpad/p913_genericpmx/rtl/before/trace.cse",
+          "sha256": "3b593a2eba21ef92d50a48da27c38323b80a5c9f6fa8468184633ab6b63e8fd7"
+        },
+        {
+          "path": "scratchpad/p913_genericpmx/rtl/before/trace.cse2",
+          "sha256": "c1b368af7c442dc4d8e17770cfa8495409f9cd9e484cc4befc2f63ed76903607"
+        },
+        {
+          "path": "scratchpad/p913_genericpmx/rtl/before/trace.flow",
+          "sha256": "b734c9060cba9b00dcc3df1babfe28e2815dab5f04b3087939d912c5d3bb28da"
+        },
+        {
+          "path": "scratchpad/p913_genericpmx/rtl/before/trace.greg",
+          "sha256": "1970b112396552a7281607bcdca92e6367329b9804127d68003d2ce9b4893b26"
+        },
+        {
+          "path": "scratchpad/p913_genericpmx/rtl/before/trace.jump",
+          "sha256": "7a7c95ca00e7e1a239f9185adfb21dcece57f3ea68ff853348eaa3ee42de64ca"
+        },
+        {
+          "path": "scratchpad/p913_genericpmx/rtl/before/trace.loop",
+          "sha256": "06b1997f5dc629132865e23afc97f1f6233350294b83c7d0f1358ad9be973d5d"
+        },
+        {
+          "path": "scratchpad/p913_genericpmx/rtl/before/trace.lreg",
+          "sha256": "804dfeef7d66eb66a4dc876b8042ee6055fb183665defd4771311a66641ab434"
+        },
+        {
+          "path": "scratchpad/p913_genericpmx/rtl/before/trace.rtl",
+          "sha256": "ed7bbfbdd89e58cbe7ac3b4cad1c75aa8fe997a6e976adbd12eac8ed7b7c8be6"
+        },
+        {
+          "path": "scratchpad/p913_genericpmx/rtl/before/trace.s",
+          "sha256": "4a2a52278aad95f3dc8e65eea173c23fc31af04167049b78d89dc6d422677260"
+        },
+        {
+          "path": "scratchpad/p913_genericpmx/rtl/before/trace.sched",
+          "sha256": "443b8c17997a0e03da6941ae7e6753bb172b6a20ac5a4896fb062b2fbda52d3b"
+        }
+      ]
+    },
+    {
+      "passed": true,
+      "stage": "literal",
+      "command": [
+        "C:\\Temp\\psq43\\COMPILER\\CC1PLPSX.EXE",
+        "-quiet",
+        "-O2",
+        "-G8",
+        "-dr",
+        "-dj",
+        "-ds",
+        "-dS",
+        "-dL",
+        "-dt",
+        "-dc",
+        "-df",
+        "-dl",
+        "-dg",
+        "-dumpbase",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\p913_genericpmx\\rtl\\literal\\trace",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\p913_genericpmx\\literal\\objects\\scratchpad\\p913_genericpmx\\inputs\\literal.cpp.i",
+        "-o",
+        "C:\\Temp\\nfs4-decomp\\scratchpad\\p913_genericpmx\\rtl\\literal\\trace.s"
+      ],
+      "compiler_sha256": "61781c2f67b8486281720fdabb1fd7b549cce7f92918cb7b505db1fce54742b7",
+      "input_sha256": "23f485dc60679c807f67421d7325343d183a0bc62f1d11aca2533bb166d5d850",
+      "emitted_assembly_identical_to_untraced": true,
+      "output_sha256": "35a7b31e530b68ca49640bfe35958d58e77d5871134bb97ce8a1aae3bc8ea0bb",
+      "files": [
+        {
+          "path": "scratchpad/p913_genericpmx/rtl/literal/trace.combine",
+          "sha256": "4709ae63bde2f2edb31cfe05bc8b3674b96340eb7ebe324ed84104213136d493"
+        },
+        {
+          "path": "scratchpad/p913_genericpmx/rtl/literal/trace.cse",
+          "sha256": "4c7ba2d06ea5b55dedd8f520da934279719025401dc6aef11943ed42ecf207cf"
+        },
+        {
+          "path": "scratchpad/p913_genericpmx/rtl/literal/trace.cse2",
+          "sha256": "7829688f53b4a5267e6931257c84b9e75bcac9dfba8955a08e18e2f911e5101e"
+        },
+        {
+          "path": "scratchpad/p913_genericpmx/rtl/literal/trace.flow",
+          "sha256": "b6724530c932772f1781436248d5ddaaa38be3a07f9f5b579405400a28446e17"
+        },
+        {
+          "path": "scratchpad/p913_genericpmx/rtl/literal/trace.greg",
+          "sha256": "5339e07c7a4946ee365908344bedd6a3b4dff6f9f0c4f6ef3c68efd3df341e7c"
+        },
+        {
+          "path": "scratchpad/p913_genericpmx/rtl/literal/trace.jump",
+          "sha256": "89fb45a0defef8bf2c864ff2db11c9f759aa564974c3d040417d811bcb5441ba"
+        },
+        {
+          "path": "scratchpad/p913_genericpmx/rtl/literal/trace.loop",
+          "sha256": "4c87929ed2154a8f58671e1666566248721c559e206ff03d5949b2048c86349f"
+        },
+        {
+          "path": "scratchpad/p913_genericpmx/rtl/literal/trace.lreg",
+          "sha256": "ac2fed34cc44b86d09940a132790a017cf38ab90e8dc7f7b2c966bceac975c1a"
+        },
+        {
+          "path": "scratchpad/p913_genericpmx/rtl/literal/trace.rtl",
+          "sha256": "730dc2298fc508ac85604997f74c629bc8acc2db8f45bb3f18a8f2b1b1c9fc54"
+        },
+        {
+          "path": "scratchpad/p913_genericpmx/rtl/literal/trace.s",
+          "sha256": "35a7b31e530b68ca49640bfe35958d58e77d5871134bb97ce8a1aae3bc8ea0bb"
+        },
+        {
+          "path": "scratchpad/p913_genericpmx/rtl/literal/trace.sched",
+          "sha256": "4eddc33cc653c9c3da5ce40571200162a003ab16d09fd4378655daabceed5273"
+        }
+      ]
+    }
+  ],
+  "observed_mechanism": "Shared mutable carrier is initial user pseudo84=160. It remains a global allocno without a hard-register assignment; reload uses register8/t0 rematerialization. Literal arguments instead create per-call REG_EQUAL constant pseudos, and a CSE-shared value receives a saved register. Pseudo84 also gains REG_EQUAL during CSE; lack of that note initially is not the complete cause.",
+  "original_name_or_source_object_necessity_proven": false,
+  "native_argument_semantics": "Texture_LoadPmx argument5 is INT ry (SYM46bf5f); height h is a separate callee local (46c052). pmx_height is not a recovered caller declaration.",
+  "statement_expression_hypothesis_not_sealed": true,
+  "invented_inline_probe_must_not_land": true,
+  "inline_probe_rejected_also_for_extra_f_n_debug_locals": true,
+  "literal_basins_retained_for_future_context_recovery": true,
+  "three_plain_blocks_not_all_effective": "Independent proof finds47/48 native blocks; final no-local brace wrapper is optimized out and must not be retained as a claimed restoration.",
+  "production_source_unchanged_by_these_failed_probes": true,
+  "separate_verified_native_scope_restoration_landed": true,
+  "full_scope_literal_result_record": "scratchpad/p913_genericpmx_native/tail_literal.json",
+  "no_new_production_names_asm_volatile": true,
+  "no_compiler_output_rewrites": true,
+  "no_floor_or_impossibility_claim": true
+}

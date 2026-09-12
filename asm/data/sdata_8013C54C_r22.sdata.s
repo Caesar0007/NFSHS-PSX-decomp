@@ -280,36 +280,8 @@ dlabel availablefilesystems
 enddlabel availablefilesystems
 
 .section .sdata.r22_post_vars, "wa"
-
-nonmatching otbuf
-
-dlabel otbuf
-    /* 12E504 8013DD04 00000000 */ .word 0x00000000
-enddlabel otbuf
-
-nonmatching primbuf
-
-dlabel primbuf
-    /* 12E508 8013DD08 00000000 */ .word 0x00000000
-enddlabel primbuf
-
-nonmatching linkmodeflag
-
-dlabel linkmodeflag
-    /* 12E50C 8013DD0C 00000000 */ .word 0x00000000
-enddlabel linkmodeflag
-
-nonmatching drawpending
-
-dlabel drawpending
-    /* 12E510 8013DD10 00000000 */ .word 0x00000000
-enddlabel drawpending
-
-nonmatching semitrans
-
-dlabel semitrans
-    /* 12E514 8013DD14 01000000 */ .word 0x00000001
-enddlabel semitrans
+/* P904: preceding20-byte primate run is retained in its separate legacy
+ * oracle leaf. Both lanes preserve the following literal and shapeext. */
 
 .align 2
 nonmatching D_8013DD18

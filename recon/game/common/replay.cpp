@@ -1,6 +1,6 @@
-/* game/psx/replay.cpp -- RECONSTRUCTED (NFS4 PSX replay record/playback system; C++ TU)
- *   6 fns: Scene_Init/DeInit/PurgeScene/BuildCustomSceneList/LoadSceneFile + GetPlaneY.
- *   GTE-free. Full SYM-locals applied.
+/* game/common/replay.cpp -- RECONSTRUCTED NFS4 PSX replay record/playback C++ TU.
+ *   replay.obj: sixteen functions, from Replay_Compress through Replay_ReplayFindClosestCamera.
+ *   Typed data ownership is verified separately from remaining local/source/SLD restoration.
  */
 #include "replay_types.h"
 #include "replay_externs.h"

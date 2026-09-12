@@ -218,7 +218,7 @@ void Nfs2_GameModuleStartUp(int *FrontEndDataStream)
   Render_InitTrackRenderPostSim();
   Hud_InitMap();
   SimQueue_StartUp();
-  if (((D_801131F8[0] == 1) ? 0x13000 : 0xb000) < largestunused()) {
+  if (((GameSetup_gData.commMode == 1) ? 0x13000 : 0xb000) < largestunused()) {
     AudioMus_SysStartUp(0x6000,0x14000,"ymus");
   }
   AudioMus_BuildPlayList(GameSetup_gData.userSetting.numplaylistsongs,GameSetup_gData.userSetting.playlist);

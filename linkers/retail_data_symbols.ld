@@ -16,6 +16,15 @@ PROVIDE(_front_org = 0x80010000);
 PROVIDE(_front_orgend = 0x80054548);
 PROVIDE(_front_size = 0x00044548);
 
+/* P907 COMPATIBILITY DEBT, NOT a recovered original declaration name.
+ * AIDataRecord still uses this pre-existing synthetic track-field alias.
+ * Native SYM27de72 proves INT GameSetup_tData.track at+0x3C, but the original
+ * access/header context in that TU is not recovered. Keep its source debt
+ * visible while giving it the one real source-owned backing field; allocate
+ * no duplicate word and invent no C variable/type. The src lane's existing
+ * raw definition wins normally. Proof: scratchpad/p907_gmesetup_owner. */
+PROVIDE(D_80113228 = GameSetup_gData + 0x3C);
+
 PROVIDE(gPadinfo = 0x8013E89C);
 PROVIDE(Padglobal = 0x8013E8F0);
 PROVIDE(memclass = 0x8013E900);

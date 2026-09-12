@@ -1,0 +1,59 @@
+{
+  "passed": true,
+  "timestamp_utc": "2026-09-12T10:19:55.093736+00:00",
+  "all33_actual_owners_plus_aux_window_validated": true,
+  "source_PASS": 48,
+  "branches": 513,
+  "all48_debug_contracts_preserved": true,
+  "actual_source_include_closure_verified": true,
+  "exact_linked_owner_records": 69,
+  "LOCAL_records": 4,
+  "full_data_native_refs": 196,
+  "literal_native_refs": 24,
+  "negative_controls": 40,
+  "FEI_original108_positive_and_strict_target_boundary": true,
+  "prior_good_GP_preserved": 1101,
+  "native_public_records_preserved": 3826,
+  "native_LOCAL_FILE_records_preserved": 86,
+  "new_native_public_records": 19,
+  "all_GP_targets_unchanged": true,
+  "GP_wrong_remaining": 1277,
+  "native_raw_conflicts": 0,
+  "new_overlap_area_or_multiplicity": 0,
+  "remaining_callback_data_rest_input": [
+    {
+      "object": "build/asm/data/data_8010CCD4_o21.data.s.o",
+      "section": ".data",
+      "address": "8014773C",
+      "end": "80147B44",
+      "size": 1032,
+      "output": ".data_rest"
+    }
+  ],
+  "known_SoundCar_rodata_gap_bytes": 4,
+  "actual_elf_sha256": "8ecfcdd06de59e1138efb5c946b5c2dc59f6df1bc5ddcef86b44e3f2b0d8a521",
+  "actual_map_sha256": "6b5d838af99302b3c64158f17f8c90080dc4db93f71a78963093a7c76e19ac23",
+  "production_hashes": {
+    "tools/source_section_owners.py": "434168044aae4b3f20eb019645d64e71b8286b4821e395c1b8592a0e91a75b44",
+    "tools/source_data_owners.py": "05a22ea1b6ff44da8f3eb2f0f7ffefd082a1f073f8fc3c3ab5ef45ae4348413e",
+    "tools/gen_ld.py": "5ef663255b1ca9418b6eec7ff1deef23db81b1320bb8ba77937305842744ed70",
+    "tools/relink.py": "1debc38f385c913e71c9f25d4c08e98c554a2e4abaf804ce3e41b7ab4cc481af",
+    "linkers/nfs4_recon.ld": "cd5f39ce293485a791eed1ac651baa02644fe3786b98268bd1d79b9d4658994c",
+    "linkers/nfs4.ld": "451310fa426df04b737faa569b5ec6bbc178a21d233b01e40105035fc172381e",
+    "linkers/nfs4_recon.data_8010CCD4.ldfrag": "0bbfbf6e41361aacc5bc634655e7f8a41a72bd491d47197a52fa7c64ee2399fa",
+    "linkers/nfs4_recon.rodata_placement.json": "b4d0a939355f5f3c3408555440b0881db1eb5a0263f8a059d1a9c94258247f8d",
+    "asm/data/rdata_80054548_r05.rodata.s": "c843ba80678ce4e3318b878c5c28b53d9ea12ce90b50152f59378385b653bdf1",
+    "asm/data/rdata_audiocmn_trackgenbank_legacy.rodata.s": "c883d10770a280a43640653dc80a0fb4e05166d82bd669d1061ed3b85871581a",
+    "asm/data/rdata_audiocmn_trackgenbank_padding.rodata.s": "4626d7d91861b8f7e4fd592b3f8a24c4ee87975926930a496c722227243ca446",
+    "recon/game/common/audiocmn.cpp": "f1b69e53ba147f1e062d80916cbb121ca1c1ab5bd3080a95c10abae8d8837d4c",
+    "build/recon/game/common/audiocmn.cpp.o": "7925ada4acad4cac78d13c764376d3e4a1fced39949edf1b26b88f7e5088092b"
+  },
+  "receipt_hashes": {
+    "actual_source_receipt": "f83dedbfd37a1226e0c5da7975c01842ee13774b245a65f884d5a452ea50c1e1",
+    "actual_linked_receipt": "c1a101f1e63778c024ce4dce4ba15b1745522883a6fa09f1b60042e3e13e569b",
+    "controls_actual": "9b2a0401f8429a74e4f05f4cd20569534e5aa6c01e49799977dda851399260fe",
+    "preservation_receipt": "c70b9738329d4d120e9bcea1ea7c2e0fe747aced8909ac8084accc37e3dca14e"
+  },
+  "review": "New local-section mode remains opt-in and requires exact validated same-TU storage. Auxiliary window is non-owning; native selected .ro0041 address/size assertions and separate retained raw padding are present. Default relocation-free and FEI GLOBAL-UNDEF checks remain strict. No compiler-output rewriting or invented C names added.",
+  "qualification": "No whole-project SYM/source restoration or runnable-image exactness claim; remaining wrong GP bindings, raw overlap and four-byte SoundCar packing debt remain explicit."
+}

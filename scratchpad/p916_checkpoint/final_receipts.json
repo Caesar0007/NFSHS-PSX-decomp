@@ -1,0 +1,71 @@
+{
+  "passed": true,
+  "timestamp_utc": "2026-09-12T18:16:04.044575+00:00",
+  "publication_authorized": true,
+  "authorized_scope": "All verified P904-P916 work; commit and push to main, then pause",
+  "remote_base_integrated": "82005b8ada6564053adc26dfbb8529fbf2f3f325",
+  "last_our_published_checkpoint": "7aef1e7ca5c4b5181850f8e7d671e3d5d5d7b9be",
+  "target": "DrawW_GetAnimationTime__FP15Trk_AnimateInst",
+  "instructions": 33,
+  "branches": 4,
+  "source_locals": [
+    "track",
+    "maxTick"
+  ],
+  "removed_unproved_locals": [
+    "result",
+    "tick"
+  ],
+  "native_scopes": 3,
+  "SLD_before": [
+    0,
+    73
+  ],
+  "SLD_after": [
+    0,
+    0
+  ],
+  "whole_DrawW_PASS": 35,
+  "whole_DrawW_branches": 361,
+  "all34_neighbor_source_debug_SLD_and_label_PC_contracts_preserved": true,
+  "original_macro_tokens_not_uniquely_claimed": true,
+  "whole_actual_object_literal_unchanged": true,
+  "actual_outside_target_source_bytes_and_EOL_exact": true,
+  "oracle_source_EOF_cleanup_four_objects_literal_unchanged": true,
+  "strict_game_psx_clean_before": 258,
+  "strict_game_psx_clean_after": 259,
+  "strict_game_psx_extra_before": 395,
+  "strict_game_psx_extra_after": 393,
+  "legacy_game_psx_metrics": {
+    "clean": 392,
+    "extra": 3
+  },
+  "remote7_TUs_recompiled_literal_unchanged": true,
+  "all694_normal_inputs_preserved": true,
+  "complete_ELF_map_and_fresh_report_literal_unchanged": true,
+  "both_scoped_relink_lanes_GREEN": true,
+  "all41_data_and7_zero_owner_contracts_valid": true,
+  "vtable_and_source_policy_PASS": true,
+  "no_new_ordinary_source_asm_volatile_helpers_names_or_padding": true,
+  "no_compiler_output_rewrites": true,
+  "unrelated_user_edits_preserved": true,
+  "private_DrawC_and_centerline_excluded": true,
+  "goal_complete": false,
+  "pause_requested_after_publication": true,
+  "source_sha256": "39dd7c3707cf81239dac326cb988ee6dda21b6607877cf410f4d63d10d726785",
+  "object_sha256": "fe3e6a5b4bdbb18ac4531efb5a00c6011bc68334df6762f48556dc70ee11ba54",
+  "ELF_sha256": "a1a26c7c05be70d50e12f2c2646b9a311772d685b659fd98d47429ca77265195",
+  "map_sha256": "9be26f7a1a26bc2301f8b04490d3e22efd572b8656027ce4cf273b41b552ef23",
+  "report_sha256": "2f64da5ebcadf1b920d8668e8a02ffed87abf40a1621fd45bfa97b3805ab19c3",
+  "evidence_sha256": {
+    "scratchpad/p916_animation_time/actual_verification.json": "3d6764d7e174fcb5b59b03984be53c641beab61141cd68e05f0944290b65919f",
+    "scratchpad/p916_animation_time/actual.json": "6782e9acc3ee1079bcf04ef3c38ba9a4ee96c17482ce8a82c0912dd4c047b8b5",
+    "scratchpad/p916_animation_time_peer/review.json": "6969b76a7d4a8d7d6d0d863bcc34bd7886f3a377af7a77469d11b1535c5909ab",
+    "scratchpad/p916_checkpoint/remote_recompile.json": "934ad82105826e01d40b3e845dacfd6b7de85f870a863d1d0f0ab79020b6e82e",
+    "scratchpad/p916_checkpoint/closure.json": "ec1b4c5f66bb6e5f1a115f3efb420667e35284c9ce58bbe0dc65f8544d1274c5",
+    "scratchpad/p916_checkpoint/relink.json": "2d3599d3bc9d869a3c9c0b3e2ec271fa1ec3089d1a18a8b5438ef37ac17bc255",
+    "scratchpad/p916_checkpoint/game_psx_default.md": "df8e84d7d311ad7415fccde493e341eb9d7e377e2d0bbf0f6e85475eb2fe0e62",
+    "scratchpad/p916_checkpoint/game_psx_strict.md": "d7beeb9226a7d3a632ea041659b5cfbf35cc822c61d7c8bc8b60128fcb298718",
+    "scratchpad/p916_checkpoint/eof_check.json": "d2f28643edc5d287d05dc7be12388c7210cf15486f2f2cbee77df7fe3c833145"
+  }
+}

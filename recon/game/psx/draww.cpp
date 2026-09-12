@@ -1,7 +1,10 @@
 /* game/psx/draww.cpp -- RECONSTRUCTED (NFS4 PSX world-geometry draw; C++ TU)
  *   35 fns: subdivision facets, world matrix/translation setup, night colour calc, DrawW_DrawQuad,
  *   object/chunk facet builders, object transforms, skidmarks, lines/spike-belt, anim timers, depth cue.
- *   GTE-heavy (142 cop2 stubs -> gte_ intrinsics). Full SYM-locals applied.
+ *   GTE-heavy; source-local and SLD recovery remain separate unfinished work.
+ * P915: native array declarations and the installed compiler's G8/default
+ * behavior preserve all 35 PASS functions and native .data/.sdata layout.
+ * Exact historical command-line spelling is not uniquely recovered.
  *
  * PER-TU FLAG RECEIPT (w39-a2, 2026-08-01 -- measured with the now-WIRED compile_cpp
  * PER_TU_FLAGS keys; whole-TU gate over all 32 oracles, baseline 1989 diffs / 15 PASS):
@@ -9,8 +12,8 @@
  *     no_schedule_insns   1989 -> 4231 (+2242, 6 PASS->FAIL)
  *     no_schedule_insns2  1989 -> 2611  (+622, 9 PASS->FAIL)
  *     no_strength_reduce  1989 -> 2257  (+268, 2 PASS->FAIL)
- * All four are decisively NEGATIVE and none produced a single FAIL->PASS -- draww.obj
- * was built with the project-default flag set.  Do not re-probe.
+ * These are historical results for that source/flag basin, not proof of the
+ * original threshold or a restriction on later source-supported rechecks.
  */
 #include "draww_types.h"
 #include "draww_externs.h"
@@ -47,24 +50,24 @@
    size 8 dims 1 8 name offsets` record sits INSIDE that fn's 8c block, and no
    symbol-table entry exists at 0x8013D828, unlike file-scope `goffsets`
    @0x8013D820 which does carry a type-6 local symbol). */
-MATRIX       gIdentTemplate = {4096, 0};   /* @0x8011f570 */
+MATRIX       gIdentTemplate = { {{4096,0,0},{0,4096,0},{0,0,4096}}, {0,0,0} };   /* @0x8011f570 */
 int          trk0[9][2] = { 410, 530, 800, 850, 800, 850, 800, 850, 800, 850, 800, 850, 815, 885, 815, 885, 815, 885 };   /* @0x8011f590 */
 int          trk4[10][2] = { 300, 440, 300, 440, 300, 440, 300, 440, 300, 440, 705, 910, 705, 910, 705, 910, 705, 910, 705, 910 };   /* @0x8011f5d8 */
-Draw_SubdivStruct gDiv;   /* @0x8011f628  (bss(zero)) */
-int          animation_timer[12];   /* @0x8011f718  (bss(zero)) */
-ChunkObjectInfo gChunkObjInfo;   /* @0x8011f748  (bss(zero)) */
-CCOORD16     gVertex3d[160];   /* @0x8011f760  (bss(zero)) */
-int          stackSpeedUpEnbabledFlag;   /* @0x8013d81c  (bss(zero)) */
+Draw_SubdivStruct gDiv;   /* @0x8011f628 (.data; CPE-loaded zero) */
+int          animation_timer[12];   /* @0x8011f718 (.data; CPE-loaded zero) */
+ChunkObjectInfo gChunkObjInfo;   /* @0x8011f748 (.data; CPE-loaded zero) */
+CCOORD16     gVertex3d[160];   /* @0x8011f760 (.data; CPE-loaded zero) */
+int          stackSpeedUpEnbabledFlag = 0;   /* @0x8013d81c (.sdata; CPE-loaded zero) */
 /* SYM (rule-8, nfs4-f-v3.txt:192375): `96 Def2 class STAT type ARY CHAR size 8
    dims 1 8 name goffsets` @0x8013d820, and the symbol-table entry (:3390) is
    type `6` (local) not `2` (global) -- i.e. a FILE-SCOPE STATIC of DRAWW.CPP,
    not a linked global.  Only draww.cpp references it (grep-confirmed), so the
    `static` is both SYM-true and safe. */
 static signed char  goffsets[8] = { 125, 125, 50, 15, -1, 125, 0, 0 };   /* @0x8013d820 -- MATCH: oracle `lb` (signed byte) at the goffsets[] lookup site; -1 must sign-extend, not zero-extend */
-u_long       gWSavePtr;   /* @0x8013d830  (bss(zero)) */
-int          gSD_gt4counter;   /* @0x8013d834  (bss(zero)) */
-int          gSD_gt3counter;   /* @0x8013d838  (bss(zero)) */
-DRender_tView *gVi;   /* @0x8013d83c  (bss(zero)) */
+u_long       gWSavePtr;   /* @0x8013d830 (.sdata; CPE-loaded zero) */
+int          gSD_gt4counter;   /* @0x8013d834 (.sdata; CPE-loaded zero) */
+int          gSD_gt3counter;   /* @0x8013d838 (.sdata; CPE-loaded zero) */
+DRender_tView *gVi;   /* @0x8013d83c (.sdata; CPE-loaded zero) */
 
 /* SYM-STORAGE-PROOF (P440): the former DrawW_/DrawWTrough_ "lost-symbol"
    block was declaration-only link-harness BSS.  None of its 19 Ghidra names
@@ -3002,60 +3005,25 @@ void DrawW_ResetAnimationTimer(void)
   return;
 }
 
-/* ---- DrawW_GetAnimationTime__FP15Trk_AnimateInst  [DRAWW.CPP:1704-1716] SLD-VERIFIED ---- */
+/* ---- DrawW_GetAnimationTime__FP15Trk_AnimateInst [DRAWW.CPP:1704-1716] ---- */
+/* @0x800C7644 P916: SYM names only root track (3e3aa3) and else-local
+ * maxTick (3e3ac8). The final minimum expression is one SLD statement, 1716;
+ * its load/result temporaries are compiler-created, not source locals.
+ * This operand order matches NFS2's nfs2.h MIN expansion; the original macro
+ * invocation is not uniquely known. All 33 words, three native scopes and
+ * the complete SLD partition match without the old result/tick carriers. */
 int DrawW_GetAnimationTime(Trk_AnimateInst *animInst)
-
 {
   int track;
-  int maxTick;
-  int result; /* SYM-CODEGEN-CARRIER: result -- distinct result funnel preserves the retail copy */
-
-  /* MATCH: early-return the gameTicks case (inverted condition) so gcc lays out
-     [conds][gameTicks][body] like the oracle; the body then re-reads objectIndex.
-     SYM (nfs4-f-v3.txt @0x800C7644): inner block [0x800C7678,0x800C76C0) (line 11-13)
-     names exactly ONE REG local, `maxTick` -- its live range spans the multiply result
-     through the final compare/return, matching oracle reg $a1 (mflo -> slt -> conditional
-     move -> jr-delay-slot v0). The animation_timer[] load is an unnamed expression temp
-     (shorter live range, no SYM name) -- kept here as result.
-     NEAR-MISS FLOOR (4 diffs, re-confirmed): oracle's `lw v0,0(v0); nop; addu v1,v0,zero`
-     (a genuine load-delay stall + redundant move) vs ours `lw v1,0(v0)` straight + `mflo`
-     filling the delay slot naturally (ours 31 insns vs oracle 33 -- ours is objectively
-     BETTER-scheduled). Re-tried compute-order swap, ternary-return, cached-address
-     (int* pTick), and direct-dual-return (no iVar2) shapes this session -- all reproduce
-     the identical 4-diff register-coloring floor or regress further. Not reachable by a
-     source lever; candidate for permuter (no pointer/int cast on the hot path, so a
-     re-seed is viable) or accept-as-is. */
   track = GameSetup_gData.track;
-  if (((animInst->objectIndex == '\0') || (track == 3)) || (track == 7)) {
+  if (((animInst->objectIndex == 0) || (track == 3)) || (track == 7)) {
     return simGlobal.gameTicks;
   }
-  /* MATCH 100% (w46-a7): the missing insns were a THIRD pseudo + its copy -- oracle
-     `lw v0,0(v0); nop; addu v1,v0,zero` = a block-local load temp (`tick`, dies at
-     the copy, so local_alloc recycles the just-dead address register v0) feeding the
-     GLOBAL allocno that carries the result (`result` -> v1).  Our single-variable form
-     made the load dest BE the result pseudo, so the load went straight to v1 and the
-     mflo filled its delay slot -- 31 insns, 2 SHORTER than retail.
-     THE DIAL IS THE ASSIGNMENT SHAPE, NOT THE VARIABLE COUNT: adding `tick` and
-     writing the default-then-override (`result = tick; if (maxTick <= tick/result)
-     result = maxTick;`) is copy-propagated straight back to the 4-diff base (probed
-     both compare operands this wave), and the inverted default (`result = maxTick;
-     ... if (tick < maxTick) result = tick;`) regresses to 10.  Only the SYMMETRIC
-     if/else -- each arm assigning the result once -- keeps the copy alive: with two
-     assignments to result gcc has to materialize it as its own pseudo, and the
-     else-arm `result = tick` IS the oracle's `addu v1,v0,zero`, which cross-jump then
-     hoists above the compare.  (Catalog par.A "flat guard-chain / result-funnel"
-     family; the earlier receipt's "ours is objectively better-scheduled floor,
-     permuter candidate" verdict is retired.) */
-  int tick; /* SYM-CODEGEN-CARRIER: tick -- block-local load temp feeding the distinct result pseudo */
-  maxTick = (animInst->count + -2) * (int)animInst->interval;
-  tick = animation_timer[animInst->objectIndex - 1];
-  if (maxTick <= tick) {
-    result = maxTick;
-  }
   else {
-    result = tick;
+    int maxTick;
+    maxTick = (animInst->count - 2) * (int)animInst->interval;
+    return ((maxTick > animation_timer[animInst->objectIndex - 1]) ? animation_timer[animInst->objectIndex - 1] : maxTick);
   }
-  return result;
 }
 
 /* ---- DrawW_SetAnimationTime__FP15Trk_AnimateInstPii  [DRAWW.CPP:1721-1779] SLD-VERIFIED ---- */

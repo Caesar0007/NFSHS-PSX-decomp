@@ -821,6 +821,11 @@ def sym_object_owner_dir(obj_path: str) -> str:
 
 
 STRICT_NATIVE_BOOL = False
+# P914: byte-matching-only carrier annotations are not original-name evidence.
+# Opt-in preserves legacy reports; strict reports expose local/global/split-array
+# carriers for source recovery. Proven ABI/canonical/host/type-override categories
+# remain explicit and unchanged. Backup/tests: scratchpad/p914_checkpoint.
+STRICT_SOURCE_IDENTITIES = False
 
 
 def norm_type(text: str) -> str:
@@ -1379,9 +1384,12 @@ def documented_sym_names(target: Path, src: SourceFunction) -> set[str]:
     except OSError:
         return set()
     text = "\n".join(body)
-    return set(
-        re.findall(r"\bSYM-(?:CARRIER|OPTIMIZED):\s*([A-Za-z_]\w*)", text)
+    pattern = (
+        r"\bSYM-OPTIMIZED:\s*([A-Za-z_]\w*)"
+        if STRICT_SOURCE_IDENTITIES
+        else r"\bSYM-(?:CARRIER|OPTIMIZED):\s*([A-Za-z_]\w*)"
     )
+    return set(re.findall(pattern, text))
 
 
 def documented_codegen_names(target: Path, src: SourceFunction) -> set[str]:
@@ -1823,6 +1831,17 @@ def audit(
         "functions are mapped to their demangled C++ names and class scopes.",
         "",
     ]
+    if STRICT_SOURCE_IDENTITIES:
+        lines.extend([
+            "Strict source-identity mode: matching-only local/global/split-array",
+            "carrier annotations do not suppress missing, extra, or array-shape",
+            "findings. Carrier receipt categories remain listed for review, not",
+            "as original-name proof. Optimized/inline, ABI, canonical, host-only",
+            "and explicit type-override categories retain their separate rules",
+            "and still require their own evidence. This is not an SLD, foreign",
+            "header-interface, source-token, or complete runtime-layout seal.",
+            "",
+        ])
     mapped = 0
     exact = 0
     linkage_spelled = 0
@@ -1947,7 +1966,7 @@ def audit(
         extra = sorted(
             source_local_names
             - sym_names
-            - codegen
+            - (set() if STRICT_SOURCE_IDENTITIES else codegen)
             - abi_params
             - compact_statics.keys()
             - recovered_names
@@ -2164,19 +2183,20 @@ def audit(
                 split_aggregate_carriers.add(name)
                 split_carrier_components.update(components)
         missing = sorted(
-            unresolved_names - blob_labels - split_aggregate_carriers
+            unresolved_names - blob_labels
+            - (set() if STRICT_SOURCE_IDENTITIES else split_aggregate_carriers)
         )
         extra = sorted(
             source_defs.keys()
             - sym_by_name.keys()
-            - split_carrier_components
-            - set(source_only_carriers)
+            - (set() if STRICT_SOURCE_IDENTITIES else split_carrier_components)
+            - (set() if STRICT_SOURCE_IDENTITIES else set(source_only_carriers))
             - set(host_only)
             - set(shared_common)
             - mapped_vtables_by_file.get(file_name, set())
             - set(address_only_names)
         )
-        global_mapped += len(split_aggregate_carriers)
+        global_mapped += 0 if STRICT_SOURCE_IDENTITIES else len(split_aggregate_carriers)
         global_carriers += len(split_aggregate_carriers)
         global_source_only_carriers += len(source_only_carriers)
         global_host_only += len(host_only)
@@ -2236,6 +2256,7 @@ def audit(
                     global_type_equivalent_reasons["generic-function-pointer"] += 1
                 elif (
                     name in documented_carriers
+                    and not STRICT_SOURCE_IDENTITIES
                     and compatible_split_array_carrier(sym_type, source_type)
                 ):
                     global_carriers += 1
@@ -2419,7 +2440,7 @@ def audit(
 
 
 def main() -> None:
-    global DEFAULT_SYM, STRICT_NATIVE_BOOL
+    global DEFAULT_SYM, STRICT_NATIVE_BOOL, STRICT_SOURCE_IDENTITIES
     parser = argparse.ArgumentParser()
     parser.add_argument("target", nargs="?", default="recon/frontend/common")
     parser.add_argument("--sym", type=Path, default=DEFAULT_SYM)
@@ -2429,10 +2450,16 @@ def main() -> None:
         action="store_true",
         help="report native C++ bool separately from four-byte BOOL",
     )
+    parser.add_argument(
+        "--strict-source-identities",
+        action="store_true",
+        help="do not accept matching-only carrier comments as source-name or array-shape proof",
+    )
     args = parser.parse_args()
     # Keep the report provenance exact when a caller selects a non-default SYM.
     DEFAULT_SYM = args.sym
     STRICT_NATIVE_BOOL = args.strict_native_bool
+    STRICT_SOURCE_IDENTITIES = args.strict_source_identities
     target = (ROOT / args.target).resolve() if not Path(args.target).is_absolute() else Path(args.target)
     sources = sorted([*target.glob("*.cpp"), *target.glob("*.c")])
     if target == (ROOT / "recon/frontend/psx").resolve():

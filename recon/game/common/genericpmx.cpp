@@ -1,31 +1,24 @@
 /* game/common/genericpmx.cpp -- RECONSTRUCTED (NFS4 PSX generic-PMX texture loader; C++ TU)
- *   1 free fn: GenericPMX_LoadTexture(void) [208 LoC]. Full SYM-locals applied. GTE-free.
+ *   1 free fn: GenericPMX_LoadTexture(void). The unproved pmx_height carrier remains. GTE-free.
  */
 #include "genericpmx_types.h"
 #include "genericpmx_externs.h"
 
-/* ---- genericpmx.obj OWNED globals (Draw_tPixMap pool; EXT; SYM Globals.jsonl) ----
- * DECLARATION ORDER IS RETAIL'S EMISSION ORDER (w64-a18).  The list was
- * previously ALPHABETICAL -- a reconstruction artefact, not retail: gcc emits
- * each section in declaration order, so the alphabetical list put this TU's
- * 13 small-data pointers in the wrong .sdata order and the whole 276-byte
- * retail run 0x8013D10C..0x8013D220 was un-placeable (ownmap E3: 10 distinct
- * implied bases).  The two groups below are ordered by their RETAIL VAs:
- *   .data  @0x80112AE0: gDLPixmap gFlarePixmap gLightningPixmap gSparkHPixmap
- *                       gStartUpPixmap gWeatherPixmap gPixmaps
- *   .sdata @0x8013D1DC: gDPixmap gSpikeBeltPixmap gShadowPixmap
- *                       gSkidMarkPixmap gSMokePixmap gSMokePalette
- *                       gDirtPalette gGravelPixmap gGravelPalette
- *                       gGrassPalette gSnowPalette gLeafPixmap gDamagePixmap
- * Do NOT re-sort these lists.
+/* ---- genericpmx.obj-owned Draw_tPixMap globals ----
+ * P912: native typed SYM27bd72..27be86 fixes the seven .data arrays at
+ * 0x80112B2C..0x80113044 in the order below. Their zero-filled payload cannot
+ * reveal a wrong named-array order: Spark/StartUp/Weather precede Flare/Lightning.
+ * The former 0x80112AE0 base/order comment was not native evidence.
+ * Existing .sdata declarations from 0x8013D1DC and their literal pool are
+ * unchanged by this .data-only declaration-order recovery.
  */
-Draw_tPixMap  *gDLPixmap[10];        /* .data  +0x00 */
-Draw_tPixMap  *gFlarePixmap[3];      /* .data  +0x28 */
-Draw_tPixMap  *gLightningPixmap[16]; /* .data  +0x34 */
-Draw_tPixMap  *gSparkHPixmap[6];     /* .data  +0x74 */
-Draw_tPixMap  *gStartUpPixmap[4];    /* .data  +0x8c */
-Draw_tPixMap  *gWeatherPixmap[3];    /* .data  +0x9c */
-Draw_tPixMap  gPixmaps[71];          /* .data  +0xa8 */
+Draw_tPixMap  *gDLPixmap[10];        /* @0x80112b2c; .data +0x00 */
+Draw_tPixMap  *gSparkHPixmap[6];     /* @0x80112b54; .data +0x28 */
+Draw_tPixMap  *gStartUpPixmap[4];    /* @0x80112b6c; .data +0x40 */
+Draw_tPixMap  *gWeatherPixmap[3];    /* @0x80112b7c; .data +0x50 */
+Draw_tPixMap  *gFlarePixmap[3];      /* @0x80112b88; .data +0x5c */
+Draw_tPixMap  *gLightningPixmap[16]; /* @0x80112b94; .data +0x68 */
+Draw_tPixMap  gPixmaps[71];          /* @0x80112bd4; .data +0xa8 */
 Draw_tPixMap  *gDPixmap;             /* @0x8013d1dc */
 Draw_tPixMap  *gSpikeBeltPixmap;     /* @0x8013d1e0 */
 Draw_tPixMap  *gShadowPixmap[2];     /* @0x8013d1e4 */
@@ -52,11 +45,13 @@ void GenericPMX_LoadTexture(void)
   int np;
   int i;
   int recolor_flag;
-  /* SYM-CODEGEN-CARRIER: pmx_height -- the optimized SYM retains no height
-     declaration, but retail rematerializes the repeated Texture_LoadPmx
-     argument through the mutable constant web.  Replacing it with literal
-     `0xa0` at every call, or declaring it `const`, emits 579/593 and rotates
-     494 instructions.  The initialized mutable web restores 593/593. */
+  /* SOURCE-RECOVERY-UNRESOLVED: pmx_height is not a recovered caller name.
+     Its 0xa0 value feeds Texture_LoadPmx's ry argument (SYM46bf5f), not height.
+     P913 production-compiler traces show a shared constant pseudo that reload
+     rematerializes in t0. This explains current PASS, not original identity.
+     Literal removal on the restored scope shape still emits 579/593 with
+     494 detailed diffs. Keep this existing name visibly unresolved until
+     its original source/context is recovered; do not rename it to ry. */
   int pmx_height;
 
   np = 0;
@@ -197,9 +192,11 @@ void GenericPMX_LoadTexture(void)
     sprintf(shpname,"LF%02d",GameSetup_gData.track);
     shape = (shapetbl *)locateshapez(shpfile,shpname);
     if (shape != 0) {
-      Draw_tPixMap *pmx = &gPixmaps[np++];
-      Texture_LoadPmx(0,(char *)shape,0x40,0,pmx_height,-1,-1,pmx);
-      gLeafPixmap = pmx;
+      {
+        Draw_tPixMap *pmx = &gPixmaps[np++];
+        Texture_LoadPmx(0,(char *)shape,0x40,0,pmx_height,-1,-1,pmx);
+        gLeafPixmap = pmx;
+      }
     }
     else {
       gLeafPixmap = 0;
@@ -233,9 +230,11 @@ void GenericPMX_LoadTexture(void)
   }
   else {
     if ((TrackSpec_gSpec.skyspec.flags & 8U) != 0) {
-      Draw_tPixMap *pmx = &gPixmaps[np++];
-      Texture_LoadPmx(shpfile,"MONF",0x40,0,pmx_height,-1,-1,pmx);
-      gFlarePixmap[0] = pmx;
+      {
+        Draw_tPixMap *pmx = &gPixmaps[np++];
+        Texture_LoadPmx(shpfile,"MONF",0x40,0,pmx_height,-1,-1,pmx);
+        gFlarePixmap[0] = pmx;
+      }
     }
 
     if ((TrackSpec_gSpec.skyspec.flags & 4U) != 0) {
@@ -254,9 +253,11 @@ void GenericPMX_LoadTexture(void)
         Texture_LoadPmx(shpfile,"RBOW",0x40,0,pmx_height,-1,-1,pmx);
         gFlarePixmap[2] = pmx;
       }
-      ChangeTPage(&gFlarePixmap[0]->tpage,1);
-      ChangeTPage(&gFlarePixmap[1]->tpage,1);
-      ChangeTPage(&gFlarePixmap[2]->tpage,1);
+      ({
+        ChangeTPage(&gFlarePixmap[0]->tpage,1);
+        ChangeTPage(&gFlarePixmap[1]->tpage,1);
+        ChangeTPage(&gFlarePixmap[2]->tpage,1);
+      });
     }
   }
 

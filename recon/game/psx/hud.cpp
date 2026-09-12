@@ -107,13 +107,13 @@
 
 /* ---- Hud.obj-OWNED globals -- DEFINED here (self-contained; SYM-typed via gen_owned_defs:
    .data = real NFS4.EXE bytes, .bss = zero; extern-vs-SYM disagreements resolved to SYM) ---- */
-/* SYM/raw storage receipt: retail's initialized HUD .sdata ends at +0x8c;
- * the tentative definitions below belong to COMMON/.bss/.sbss.  CC1PLPSX
- * needs -fconserve-space to reproduce that split: a controlled full-TU gate
- * leaves all 62 function results unchanged and makes the 140-byte initialized
- * .sdata prefix byte-exact.  Without that original option, GCC appends the
- * tentative definitions to .data/.sdata.  Build wiring is intentionally kept
- * out of this source file. */
+/* P909 native storage receipt: the complete HUD .sdata is240 bytes,
+ * 8013D89C..8013D98C, all independently CPE-loaded and ROM-exact.
+ * This includes the100-byte suffix after+0x8C, not merely a140-byte prefix.
+ * Current source and compiler flags already emit that full native payload;
+ * no -fconserve-space change is justified by the earlier partial comparison.
+ * The separate76-byte .sbss reservation remains independent ownership work.
+ * This correction changes only the historical storage comment. */
 tSmallCoordXY Hud_gElementPositions[2][19] = { { {22, 54}, {159, 19}, {8, 19}, {18, 35}, {8, 204}, {221, 24}, {23, -2}, {21, -2}, {23, -3}, {2, -4}, {7, 50}, {4, 18}, {-41, 0}, {90, 212}, {253, 162}, {8, 196}, {218, 20}, {160, 97}, {160, 97} }, { {22, 56}, {252, 17}, {8, 17}, {26, 30}, {8, 101}, {128, 18}, {23, -2}, {21, -2}, {23, -3}, {2, -1}, {7, 52}, {4, 18}, {-42, 0}, {90, 105}, {259, 60}, {8, 72}, {215, 22}, {160, 99}, {160, 42} } };   /* @0x80120924 */
 static u_long day_needle[30] = { 657850u, 16053492u, 657850u, 657850u, 657850u, 236260u, 657850u, 657850u, 657850u, 657850u, 526344u, 657850u, 16053492u, 43184u, 657850u, 657850u, 657850u, 657850u, 657850u, 657850u, 657850u, 657850u, 657850u, 657850u, 657850u, 43184u, 657850u, 0, 0, 0 };   /* @0x801209bc */
 static u_long night_needle[30] = { 657850u, 1147055u, 4168420u, 657850u, 657850u, 236260u, 657850u, 657850u, 657850u, 657850u, 526344u, 4110581u, 2648104u, 43184u, 657850u, 657850u, 4110581u, 4168420u, 657850u, 657850u, 657850u, 657850u, 657850u, 657850u, 4110581u, 43184u, 657850u, 0, 0, 0 };   /* @0x80120a34 */
@@ -123,8 +123,8 @@ float        fMapScaleY[11] = { 40.79999923706055f, 50.0f, 46.099998474121094f, 
 short        fMapOffX[11] = { 7, 0, 16, 3, -88, 19, 2, -5, -3, 45, 4 };   /* @0x80120b18 */
 short        fMapOffY[11] = { 7, 0, -3, 2, -12, -7, 7, 4, 0, -32, -2 };   /* @0x80120b30 */
 short        fMapRotate[11] = { 4032, 0, 454, 2476, 3694, 3689, 3758, 3822, 1370, 3808, 32 };   /* @0x80120b48 */
-CVECTOR      Hud_gMarkerColor[12];   /* @0x80120b60  (bss(zero)) */
-CVECTOR      Hud_gCopMarkerColor[12];   /* @0x80120b90  (bss(zero)) */
+CVECTOR      Hud_gMarkerColor[12];   /* @0x80120b60  (.data; CPE-loaded zero) */
+CVECTOR      Hud_gCopMarkerColor[12];   /* @0x80120b90  (.data; CPE-loaded zero) */
 char         HudminChar[6] = { 58, 58, 39, 39, 39, 46 };   /* @0x8013d89c */
 char         HudsecChar[6] = { 46, 58, 34, 34, 34, 44 };   /* @0x8013d8a4 */
 static bool  BTC_playedsoundalready = false;   /* @0x8013d8ac; SYM BOOL */
@@ -132,39 +132,34 @@ char         Hud_gWingmanInterface[2] = {0};   /* @0x8013d8b0 */
 char         Hud_gWingmanFlashIcon[2] = {0};   /* @0x8013d8b4 */
 int          Hud_gWingmanFlashTicks[2] = {0};   /* @0x8013d8b8 */
 int          Hud_gDebugInfo = 1;   /* @0x8013d8c0 */
-bool         HudBustedOverlay;   /* @0x8013d928  (bss(zero)); SYM BOOL */
-int          Hud_gCdActive;   /* @0x8013d92c  (bss(zero)) */
-int          Hud_ActivateCDPlayer;   /* @0x8013d930  (bss(zero)) */
-int          BTC_Countdown;   /* @0x8013d934  (bss(zero)) */
-int          FinalBTC_Countdown;   /* @0x8013d938  (bss(zero)) */
-bool         Hud_BeTheCop;   /* @0x8013d93c  (bss(zero)); SYM BOOL */
-bool         Hud_kTurnSongOffNext;   /* @0x8013d940  (bss(zero)); SYM BOOL */
-short        HudBustedOverlayPlayer;   /* @0x8013d944  (bss(zero)) */
-int          mapMarkerMCos;   /* @0x8013d948  (bss(zero)) */
-int          mapMarkerMSin;   /* @0x8013d94c  (bss(zero)) */
-int          Hud_gHudView[2];   /* @0x8013d950  (bss(zero)) */
-int          Hud_gMapView[2];   /* @0x8013d958  (bss(zero)) */
-int          Hud_gTacView[2];   /* @0x8013d960  (bss(zero)) */
-int          Hud_gStatsView;   /* @0x8013d968  (bss(zero)) */
+bool         HudBustedOverlay;   /* @0x8013d928  (.sdata; CPE-loaded zero); SYM BOOL */
+int          Hud_gCdActive;   /* @0x8013d92c  (.sdata; CPE-loaded zero) */
+int          Hud_ActivateCDPlayer;   /* @0x8013d930  (.sdata; CPE-loaded zero) */
+int          BTC_Countdown;   /* @0x8013d934  (.sdata; CPE-loaded zero) */
+int          FinalBTC_Countdown;   /* @0x8013d938  (.sdata; CPE-loaded zero) */
+bool         Hud_BeTheCop;   /* @0x8013d93c  (.sdata; CPE-loaded zero); SYM BOOL */
+bool         Hud_kTurnSongOffNext;   /* @0x8013d940  (.sdata; CPE-loaded zero); SYM BOOL */
+short        HudBustedOverlayPlayer;   /* @0x8013d944  (.sdata; CPE-loaded zero) */
+int          mapMarkerMCos;   /* @0x8013d948  (.sdata; CPE-loaded zero) */
+int          mapMarkerMSin;   /* @0x8013d94c  (.sdata; CPE-loaded zero) */
+int          Hud_gHudView[2];   /* @0x8013d950  (.sdata; CPE-loaded zero) */
+int          Hud_gMapView[2];   /* @0x8013d958  (.sdata; CPE-loaded zero) */
+int          Hud_gTacView[2];   /* @0x8013d960  (.sdata; CPE-loaded zero) */
+int          Hud_gStatsView;   /* @0x8013d968  (.sdata; CPE-loaded zero) */
 
-/* Hud_g{Hud,Map,Tac}View[2] (declared above as ONE 8-byte array each) are reached by
- * Hud_CreateHudViews via CONSTANT index ([0]/[1]) as TWO INDEPENDENT %gp_rel(SYM)/
- * %gp_rel(D_...) 4-byte scalars in the oracle -- no address materialization at all (8 bytes
- * is over this build's -G4 small-data threshold as ONE object, but each 4-byte element alone
- * qualifies). Same lever as Weather_gLastProcessTime0/1 (weather.cpp) / device.cpp's split:
- * model the true per-element storage as real tentative-def scalars for CreateHudViews' six
- * constant-index write sites. Other consumers (Draw_StartRenderingView etc.) genuinely need
- * base+offset/variable-index array codegen in their own oracles and keep referencing the
- * array form above -- a known duality (same accepted tradeoff as weather.cpp's precedent;
- * not attempted to unify this pass). */
-int          HudMapOffsetY;   /* @0x8013d96c  (bss(zero)) */
-long         gMapRotate;   /* @0x8013d970  (bss(zero)) */
-long         gMapScaleX;   /* @0x8013d974  (bss(zero)) */
-long         gMapScaleY;   /* @0x8013d978  (bss(zero)) */
-int          gMapOffX;   /* @0x8013d97c  (bss(zero)) */
-int          gMapOffY;   /* @0x8013d980  (bss(zero)) */
-int          Hud_gCdLastTick;   /* @0x8013d984  (bss(zero)) */
-int          Hud_gCdScrollTitle;   /* @0x8013d988  (bss(zero)) */
+/* P911: native SYM424f27/424f48/424f69 define three INT[2] arrays.
+ * Current -G8 source uses these arrays directly for constant and indexed
+ * accesses; no separate scalar backing objects remain. P909 placed each
+ * complete array at its native address. The old -G4 split experiment does
+ * not describe the current declarations or code and must not be reintroduced. */
+int          HudMapOffsetY;   /* @0x8013d96c  (.sdata; CPE-loaded zero) */
+long         gMapRotate;   /* @0x8013d970  (.sdata; CPE-loaded zero) */
+long         gMapScaleX;   /* @0x8013d974  (.sdata; CPE-loaded zero) */
+long         gMapScaleY;   /* @0x8013d978  (.sdata; CPE-loaded zero) */
+int          gMapOffX;   /* @0x8013d97c  (.sdata; CPE-loaded zero) */
+int          gMapOffY;   /* @0x8013d980  (.sdata; CPE-loaded zero) */
+int          Hud_gCdLastTick;   /* @0x8013d984  (.sdata; CPE-loaded zero) */
+int          Hud_gCdScrollTitle;   /* @0x8013d988  (.sdata; CPE-loaded zero) */
 static tSmallCoordXY *g1Player;   /* @0x8013de04  (bss(zero)) */
 static SPRT *gSprite0;   /* @0x8013de08  (bss(zero)) */
 static SPRT *gSprite1;   /* @0x8013de0c  (bss(zero)) */
@@ -175,27 +170,11 @@ static int HudSplitTimeDiff2[2];   /* @0x8013de20  (bss(zero)) */
 static int BTC_BonusTime;   /* @0x8013de28  (bss(zero)) */
 static int BTC_BonusTimeTick;   /* @0x8013de2c  (bss(zero)) */
 static bool BTC_UserHasControl;   /* @0x8013de30  (bss(zero)); SYM BOOL */
-/* PerpOverlayOn[2] @0x8013de38 (bss(zero)). LANDED (Hud_Reset__Fv 8->2 diffs, insn count exact
- * 22/22): the oracle reaches this array's CONSTANT-index [0]/[1] clears in Hud_Reset as two
- * INDEPENDENT %gp_rel(D_8013DE38)/%gp_rel(D_8013DE3C) 4-byte scalars (each <=G4 -> gp-rel; both
- * listed in configs/gp_rel_symbols.txt), while Hud_Init/Perp_OverlayOn/Off/RenderHudView use
- * runtime-index/pointer-walk/byte-offset and keep absolute array codegen. Our gcc-2.8.0 CSEs the
- * two adjacent constant-index stores onto ONE absolute base (lui+sw+addiu+sw), so GAS -G4 sees one
- * 8-byte object, not two 4-byte ones. Split into two tentative-def scalars (weather.cpp
- * Weather_gLastProcessTime0/1 precedent) -- defeats the CSE, reproduces the per-element gp-rel.
- * The residual 2 is a genuine `lui $a1,%hi(BTC_CurrentPerpName)` HOIST-POSITION scheduling tie
- * (oracle emits it before `lui $v1,%hi(Hud_NextPerp)`, ours after -- tried reordering the loop
- * body statement that consumes BTC_CurrentPerpName, regressed 2->6, reverted; not source-reachable).
- * ⚠️ KNOWN DUALITY, NOT COLLAPSED (same open issue as weather.cpp Weather_gLastProcessTime0/1):
- * PerpOverlayOn[0]/1 are a SEPARATE (not memory-aliased) object from PerpOverlayOn[0..1].
- * Hud_Reset now only WRITES the scalars, not the array -- Hud_RenderHudView reads the array
- * (`*(int*)((int)PerpOverlayOn+viewOff) != 0`, ~line 3351) and Perp_OverlayOn/Off (~line
- * 3849/3881) write the array by player index. So Hud_Reset() no longer actually zeroes the
- * PerpOverlayOn[] runtime state a renderer can observe -- if it was left nonzero by a prior
- * Perp_OverlayOn() and Hud_Reset() runs without an intervening Perp_OverlayOff()/Hud_Init(),
- * Hud_RenderHudView could show a stale busted-overlay message. Flagged as a real behavior
- * change, not silently accepted; a full fix needs a link-level aliasing pass (out of scope for
- * a single-diff codegen lever, and out of scope for this pass' file-only mandate). */
+/* P911: native SYM4252bb is one LOCAL BOOL[2] array, eight bytes on PSX.
+ * Hud_Init, Hud_Reset and the per-player overlay readers/writers all access
+ * this same source array. P910's NOBITS owner places it at8013DE38.
+ * Historical split-scalar and scheduling-limit claims are superseded by
+ * the current source, whole-object PASS and native reference checks. */
 static bool PerpOverlayOn[2];   /* @0x8013de38  (bss(zero)); SYM BOOL[2] */
 static int PerpOverlayMessage[2];   /* @0x8013de40  (bss(zero)) */
 static bool Hud_gShowedCDPlayer;   /* @0x8013de48  (bss(zero)); SYM BOOL */
@@ -4660,6 +4639,8 @@ void Hud_BuildReplay(void)
   return;
 }
 
+/* P907: the existing typed member now matches without a standalone alias.
+ * The necessity claims below describe older source/compiler contexts only. */
 /* D_8011321C == GameSetup_gData.reverseTrack (GameSetup_gData+0x30), same standalone-global
  * alias as recon/game/common/aiinit.cpp's D_8011321C precedent -- the oracle reaches it via a
  * bare lui/lw, not a GameSetup_gData struct-field offset.
@@ -4670,7 +4651,6 @@ void Hud_BuildReplay(void)
  * own %hi/%lo split, so the bare `lui` is the first insn of the loop-prep block and
  * reorg EAGER-STEALS it into the `bnez s1` slot exactly like retail (which then keeps
  * a second copy at .L800D75E8 for the `bne v0,v1` entry). */
-extern int D_8011321C[];
 
 /* ---- Hud_NextPlayer__Fi  [HUD.CPP:2862-2889] SLD-VERIFIED ----
  * FIXED (was 40 diffs, ours 85/oracle 89 -- 4 insns SHORT): the recon was missing the oracle's
@@ -4728,7 +4708,7 @@ int Hud_NextPlayer(int player)
       return -1;
     }
     i = 0;
-    direction = direction ^ D_8011321C[0];
+    direction = direction ^ GameSetup_gData.reverseTrack;
     j = humanCar->sortIndex;
     if (0 < Cars_gNumCars + -1) {
       do {
@@ -5976,11 +5956,12 @@ void Hud_RenderTacView(void)
   return;
 }
 
+/* P907: both arms now use the same native field in the existing type view;
+ * no new local, type, accessor or code-generation device is introduced. */
 /* D_801132CC == GameSetup_gData.userSetting.language (GameSetup_gData+0xE0) -- standalone-global
  * alias, same precedent as D_8011321C above: the else-branch oracle reaches language via
  * lui/lw %lo(D_801132CC) with a SEPARATE scratch (unsized-array shape, methodology 3.12 #5),
  * while the then-branch uses the real struct-offset form off &GameSetup_gData. */
-extern int D_801132CC[];
 
 /* ---- Hud_ParseTime__FiPc  [HUD.CPP:3770-3801] SLD-VERIFIED ---- */
 void Hud_ParseTime(int nTime,char *sLapTime)
@@ -6015,8 +5996,8 @@ void Hud_ParseTime(int nTime,char *sLapTime)
   }
   else {
     sprintf(sLapTime," - %c - - %c - -",
-               (u_int)(u_char)HudminChar[D_801132CC[0]],
-               (u_int)(u_char)HudsecChar[D_801132CC[0]]);
+               (u_int)(u_char)HudminChar[GameSetup_gData.userSetting.language],
+               (u_int)(u_char)HudsecChar[GameSetup_gData.userSetting.language]);
   }
   return;
 }

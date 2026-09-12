@@ -1,0 +1,33 @@
+{
+  "passed": true,
+  "actual_ELF_literal_equal_private": true,
+  "actual_ELF_sha256": "60e7dc44e406330e5c613d9237449878b7b5ef45f6a5f0c4fa1fdcf6d5246619",
+  "actual_MAP_sha256": "a5207be90ea8794b7422811a216da14ed587f31f68fc91c1a7d09dd8496703f3",
+  "exact_map_placement_count": 5281,
+  "only_object_path_translation": {
+    "scratchpad/p909_hud_owner/raw_split/objects/r20_split.o": "build/asm/data/sdata_8013C54C_r20.sdata.s.o"
+  },
+  "actual_raw_split_object_literal_equal_private": true,
+  "actual_HUD_object_literal_equal_baseline": true,
+  "actual_owner_tool_literal_equal_hardened_candidate": true,
+  "actual_HUD_source_equal_candidate_after_EOL_only": true,
+  "full_preservation_transfers_by_entire_ELF_byte_identity": true,
+  "previous_correct_GP_preserved": 1101,
+  "GP_regressions": 0,
+  "new_correct_HUD_GP": 153,
+  "native_correct_public_records_preserved": 3845,
+  "native_correct_literal_name_LOCAL_records_preserved": 77,
+  "additional_file_qualified_LOCAL_proof": "scratchpad/p909_checkpoint/private_scoped_local_preservation.json",
+  "parent_actual_function_gates": 85,
+  "parent_actual_branch_checks": 739,
+  "no_new_overlap": true,
+  "allocated_byte_delta": -240,
+  "all533_code_changes_preexisting_relocations": true,
+  "input_hashes": {
+    "C:\\Temp\\nfs4-decomp\\build\\gen_ld\\recon_multdef-ok.elf": "60e7dc44e406330e5c613d9237449878b7b5ef45f6a5f0c4fa1fdcf6d5246619",
+    "C:\\Temp\\nfs4-decomp\\build\\gen_ld\\recon_multdef-ok.map": "a5207be90ea8794b7422811a216da14ed587f31f68fc91c1a7d09dd8496703f3",
+    "C:\\Temp\\nfs4-decomp\\tools\\source_data_owners.py": "64f2a7e5889f76efaadeeef71612f336e64df796c0227c167592fa7f924c80c7",
+    "C:\\Temp\\nfs4-decomp\\recon\\game\\psx\\hud.cpp": "d06fceb2118caf50d4abeaa581df8a407ecd92fb66a4ac1996c0e2687bee75fa"
+  },
+  "qualification": "No rebuild or writer was used. Existing VMA-overlap/unknown-binding and separate HUD section debts remain. Actual250-reference proof is independently recorded in actual_references/results.json."
+}

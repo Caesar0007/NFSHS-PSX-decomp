@@ -16,11 +16,6 @@
 void AudioCmn_ReverbOff(void);
 
 /* ---- audiocmn.obj-owned globals (SYM-typed; .data=real EXE bytes, .bss=zero) ---- */
-/* forward decls of the W67-A4 .sdata literal-pool arrays (defined after the
-   =0 batch below so they EMIT at their retail positions 0x8013c67c..0x8013c6a8;
-   the generated local-initializer template and tables reference them). */
-extern char D_8013C67C[], D_8013C684[], D_8013C68C[], D_8013C690[], D_8013C694[],
-            D_8013C698[], D_8013C69C[], D_8013C6A0[], D_8013C6A4[], D_8013C6A8[];
 extern char *AudioCmn_LanguageName[7];
 extern int bSirenOn[6], bSirenPitchingUp[6], quickSirenActive[6];
 extern int sirenPitchWidth[6], sirenCurrentPitch[6], slowSirenReps[6];
@@ -69,35 +64,6 @@ int          NumSFXOn = 0;   /* @0x8013c670  (bss(zero)) */
 int          gStereoMode = 1;   /* @0x8013c674 */
 char         fReverbOn = 0;   /* @0x8013c678  (bss(zero)) */
 char         fReverbLevel = 0;   /* @0x8013c679 */
-/* W67-A4: retail's -G8 string-literal pool 0x8013c67c..0x8013c6ac + the two
-   initialised fn-statics @0x8013c6ac/0x8013c6b0 (SYM: lastImpactSample INT,
-   cobbleCount CHAR), reproduced in DEFINITION ORDER.  Whole-TU -G8 breaks
-   CheckState (W59-11G), so the literals are NAMED .sdata arrays (w66a6/sim.cpp
-   device; storage-only, address form stays absolute).  The generated local
-   initializer, data table, and three code sites reference these arrays -- reloc-name-lenient, and the
-   pooling ("eng" x6 -> one copy) is exactly retail's.  DO NOT RE-SORT. */
-/* SYM-GLOBAL-CARRIER: D_8013C67C
-   SYM-GLOBAL-CARRIER: D_8013C684
-   SYM-GLOBAL-CARRIER: D_8013C68C
-   SYM-GLOBAL-CARRIER: D_8013C690
-   SYM-GLOBAL-CARRIER: D_8013C694
-   SYM-GLOBAL-CARRIER: D_8013C698
-   SYM-GLOBAL-CARRIER: D_8013C69C
-   SYM-GLOBAL-CARRIER: D_8013C6A0
-   SYM-GLOBAL-CARRIER: D_8013C6A4
-   SYM-GLOBAL-CARRIER: D_8013C6A8
-   Retail fixes the literal bytes, pooling, addresses, and owner, but SYM does
-   not retain compiler-generated identifiers for string literals. */
-char D_8013C67C[] __attribute__((section(".sdata"), aligned(4))) = "SFXHDR";
-char D_8013C684[] __attribute__((section(".sdata"), aligned(4))) = "fesfx";
-char D_8013C68C[] __attribute__((section(".sdata"), aligned(4))) = "eng";
-char D_8013C690[] __attribute__((section(".sdata"), aligned(4))) = "ger";
-char D_8013C694[] __attribute__((section(".sdata"), aligned(4))) = "frn";
-char D_8013C698[] __attribute__((section(".sdata"), aligned(4))) = "spn";
-char D_8013C69C[] __attribute__((section(".sdata"), aligned(4))) = "itl";
-char D_8013C6A0[] __attribute__((section(".sdata"), aligned(4))) = "Gen";
-char D_8013C6A4[] __attribute__((section(".sdata"), aligned(4))) = "brt";
-char D_8013C6A8[] __attribute__((section(".sdata"), aligned(4))) = "fre";
 static int   PlayersRampedGasLevel[2] __attribute__((section(".bss")));   /* SYM STAT @0x8013dd80 */
 
 
@@ -355,7 +321,7 @@ void AudioCmn_LoadAsyncSfx(int bank,int patch,void *pbank,int size)
         }
         check = SNDbankadd(&s->handle,(int)pbank);
         /* MATCH P902: native SLD 572 groups success and header allocation. */
-        if ((check == 7) && ((s->header = (char *)reservememadr(D_8013C67C,SNDbankheadersize(s->handle),0x10)) != 0)) {
+        if ((check == 7) && ((s->header = (char *)reservememadr("SFXHDR",SNDbankheadersize(s->handle),0x10)) != 0)) {
           SNDbankheadercopy(s->header,(u_char *)s->handle);
           s->patch = patch;
           s->ticks = simGlobal.gameTicks;
@@ -471,10 +437,10 @@ void AudioCmn_Init(void)
       falseLapTrigCur = falseLapTrigNumsBackward[temptrack][0];
       flaseLapTrigTrack = falseLapTrigNumsBackward[temptrack][1];
     }
-    /* MATCH: one zero-insn ref fence buys temptrack's SYM $a0 allocation;
-       without it the guarded head rotates through $v1 and costs 45 diffs. */
-    falseLapCounter = 0;
+    /* P906: native SLD705/706 reset intensity before falseLapCounter.
+       Preserve the named store order; the global definitions are correct. */
     intensityFalseLapCounter = 0;
+    falseLapCounter = 0;
   }
   {
     /* MATCH: the two explicit byte bases plus direct currentLap indexing establish
@@ -944,10 +910,14 @@ void AudioCmn_LoadFESamples(void)
   char filename[100];
 
   strcpy(filename, Paths_Paths[0x1c]);
-  strcat(filename, D_8013C684);   /* "fesfx" */
+  strcat(filename, "fesfx");
   AudioCmn_LoadBank(filename,0);
   return;
 }
+
+char *AudioCmn_LanguageName[7] = { /* @0x8010e774 */
+  "eng", "ger", "frn", "spn", "itl", "eng", "eng"
+};
 
 /* ---- AudioCmn_LoadGameSamples__Fv  [@0x8007777c] ---- */
 void AudioCmn_LoadGameSamples(void)
@@ -960,11 +930,11 @@ void AudioCmn_LoadGameSamples(void)
   }
   AudioEng_StartServer();
   strcpy(filename, Paths_Paths[0x1c]);
-  strcat(filename, D_8013C6A0);   /* "Gen" */
+  strcat(filename, "Gen");
   char *TrackGenBank[11] = {
-    D_8013C68C, D_8013C6A4, D_8013C68C, D_8013C6A8, D_8013C68C,
-    D_8013C6A4, D_8013C690, D_8013C6A4, D_8013C68C, D_8013C68C,
-    D_8013C68C
+    "eng", "brt", "eng", "fre", "eng",
+    "brt", "ger", "brt", "eng", "eng",
+    "eng"
   };
   strcat(filename, TrackGenBank[GameSetup_gData.track]);
   AudioCmn_LoadBank(filename,3);
@@ -2342,9 +2312,6 @@ void AudioCmn_ReverbOff(void)
 }
 
 /* Definitions following their original function-local .data predecessor. */
-char *AudioCmn_LanguageName[7] = { /* @0x8010e774 */
-  D_8013C68C, D_8013C690, D_8013C694, D_8013C698, D_8013C69C, D_8013C68C, D_8013C68C
-};
 int bSirenOn[6] = {0};                                      /* @0x8010e790 */
 int bSirenPitchingUp[6] = { 1, 1, 1, 1, 1, 1 };             /* @0x8010e7a8 */
 int quickSirenActive[6] = {0};                              /* @0x8010e7c0 */

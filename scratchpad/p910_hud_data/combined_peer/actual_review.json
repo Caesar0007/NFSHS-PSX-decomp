@@ -1,0 +1,86 @@
+{
+  "passed": true,
+  "timestamp_utc": "2026-09-12T13:00:48.942956+00:00",
+  "read_only": true,
+  "no_builds_or_normal_writes": true,
+  "actual_ELF_sha256": "69a16b3e8b61fd915369ab7ac44701a66bf484e0556ec7f5cf87ea7950a75570",
+  "actual_map_sha256": "03555ee72bfaa24e0a8cde24fbd5c50505e807c1f11abfd1ca4e0c130f865714",
+  "actual_ELF_literal_equal_fully_reviewed_private": true,
+  "complete_map_input_placement_equal_with_exact_two_raw_path_replacements": true,
+  "raw_path_replacements": {
+    "scratchpad/p910_hud_data/objects/scratchpad/p910_hud_data/proposal/asm/data/data_8010CCD4_r15.data.s.o": "build/asm/data/data_8010CCD4_r15.data.s.o",
+    "scratchpad/p910_hud_sbss/raw_split/objects/tail_split.o": "build/asm/data/tail.data.s.o"
+  },
+  "actual172_references_rechecked": true,
+  "actual25_native_owner_cells_rechecked": true,
+  "actual_NOBITS_type8_size76_alignment8": true,
+  "NOBITS_payload_never_read": true,
+  "transferred_private_preservation": {
+    "prior_good_GP": 1254,
+    "HUD_GP_fixes": 118,
+    "wrong_GP_remaining": 1006,
+    "ordinary_native_public_fullrecords": 3864,
+    "original_STAT_binding_corrections": 8,
+    "native_FILE_LOCAL_fullrecords": 88,
+    "prior_native_STT_FUNC_records": 3238,
+    "changed_relocation_words": 2336,
+    "R26_words": 140,
+    "new_overlap_area_or_multiplicity": 0
+  },
+  "BuildPattern_actual_source_byte_equal_candidate": true,
+  "BuildPattern_source_sha256": "5c06264c49606cc571e7ba2a968f4bd82491cd0f84d5fc3ce3f402842cc76080",
+  "Music_object_sha256": "f6e556413410b4b0d3879ed8ae420b67df328f82cdf1e37add8e3ae6eee4a87b",
+  "Music_PASS": 23,
+  "Music_branches": 206,
+  "BuildPattern_native_scopes": 4,
+  "BuildPattern_SLD": [
+    0,
+    0
+  ],
+  "all22_neighbor_fullcontracts_unchanged": true,
+  "actual_three_Music_functions_raw": [
+    {
+      "function": "AudioMus_SwitchSong__Fv",
+      "words": 62,
+      "native_scope_count": 3,
+      "SLD": [
+        0,
+        0
+      ],
+      "actual_words_native_exact": true
+    },
+    {
+      "function": "AudioMus_BuildPlayList__FiPi",
+      "words": 34,
+      "native_scope_count": 4,
+      "SLD": [
+        0,
+        0
+      ],
+      "actual_words_native_exact": true
+    },
+    {
+      "function": "AudioMus_BuildPattern__FPc",
+      "words": 52,
+      "native_scope_count": 4,
+      "SLD": [
+        0,
+        0
+      ],
+      "actual_words_native_exact": true
+    }
+  ],
+  "root85_gates739_branch_receipt_agrees": true,
+  "actual_data_and_zero_guards_positive": true,
+  "qualifications": [
+    "Eight nativeSTAT exports intentionally becomeLOCAL; biglen container-only change remains explicit.",
+    "Four pre-existing unanchoredcode inputs and inertSN-LNK blob move-76; their placement debt remains open.",
+    "Remaining callback overlap and1006wrongGPtargets remain; no whole-image or complete source-restoration claim."
+  ],
+  "proof_hashes": {
+    "scratchpad\\p910_hud_data\\combined_peer\\combined_review.json": "e88d0c274c1459ee57020679fd11eefd5789f9508546ae5c1c36a984f63b9023",
+    "scratchpad\\p910_hud_data\\combined_peer\\relocation_encodings.json": "be919c0a201652f13d80bfcf14289dedabe8378be5a3f86148772f4f49da3512",
+    "scratchpad\\p910_checkpoint\\pattern_actual.json": "2f09910181dbaa08618e677c8284fe3466ec92fda9f63704101408b912389ad6",
+    "scratchpad\\p910_checkpoint\\integration.json": "9b74817ddca8006d9a54dad50430c4b98cee88bcbf9d356ed092b06956b319b9"
+  }
+}

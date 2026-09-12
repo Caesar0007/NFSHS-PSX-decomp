@@ -152,10 +152,10 @@ AudioMus_tCurrentSong * AudioMus_GetCurrentSong(void)
 /* ---- AudioMus_SwitchSong__Fv  [@0x8007a0e4] ---- */
 void AudioMus_SwitchSong(void)
 {
-  AudioMus_tSongEntry *info;
-
   if (((AudioMus_g != (AudioMus_tMusicGlobals *)0x0) && (AudioMus_g->availablesongs != 0)) &&
      (0 < AudioMus_g->volume)) {
+    AudioMus_tSongEntry *info;
+
     AudioMus_g->newswitch = 1;
     AudioMus_g->songname = (char *)0x0;
     AudioMus_g->errorcode = 0;
@@ -172,20 +172,16 @@ void AudioMus_SwitchSong(void)
       AudioMus_g->fadetime = 1000;
     }
     AudioMus_g->requestsong = AudioMus_g->requestsong + 1;
-    if (Hud_kTurnSongOffNext != 0) goto SONG_OFF;
-    if (AudioMus_g->requestsong < AudioMus_g->availablesongs) goto SONG_ON;
-SONG_OFF:
-    Hud_kTurnSongOffNext = 0;
-    AudioMus_g->firstswitch = 0;
-    AudioMus_g->switchsong = -1;
-    AudioMus_g->requestsong = -1;
-    goto SONG_DONE;
-SONG_ON:
-    AudioMus_g->switchsong = 1;
-SONG_DONE:
-    ;
+    if ((Hud_kTurnSongOffNext != 0) ||
+        (AudioMus_g->requestsong >= AudioMus_g->availablesongs)) {
+      Hud_kTurnSongOffNext = 0;
+      AudioMus_g->firstswitch = 0;
+      AudioMus_g->switchsong = -1;
+      AudioMus_g->requestsong = -1;
+    } else {
+      AudioMus_g->switchsong = 1;
+    }
   }
-  return;
 }
 
 /* ---- AudioMus_Fail__Fi  [@0x8007a1dc] ---- */
@@ -516,29 +512,31 @@ void AudioMus_InitDriverGlobals(void)
 /* ---- AudioMus_DriverStartUp__Fii  [@0x8007aad4] ---- */
 void AudioMus_DriverStartUp(int buffersize,int spusize)
 {
-  int chunks;
-  int size;
-  SNDLIMITS sndlimits;
-  SNDPLAYOPTS opts;
-  
   if (AudioMus_g != (AudioMus_tMusicGlobals *)0x0) {
     if (AudioMus_g->driveractive == 0) {
       AudioMus_InitDriverGlobals();
     }
     AudioMus_g->threshold = buffersize + spusize >> 5;
-    if ((AudioMus_g->streamhandle < 0) && (AudioMus_g->streambuffer != (char *)0x0)) {
-      chunks = buffersize / 0x400;
-      size = buffersize + SNDSTRM_overhead(1,chunks);
-      SNDgetlimits(&sndlimits);
-      sndlimits.packetbufsize = spusize;
-      SNDsetlimits(&sndlimits);
-      SNDplaysetdef(&opts);
-      opts.vol = 0;
-      AudioMus_g->streamhandle =
-          SNDSTRM_create((int *)&opts,1,chunks,AudioMus_g->streambuffer,size);
-      if (-1 < AudioMus_g->streamhandle) {
-        SNDSTRM_setgreedylevel(AudioMus_g->streamhandle,0);
-        SNDSTRM_setpriority(AudioMus_g->streamhandle,0xff,5);
+    if (AudioMus_g->streamhandle < 0) {
+      if (AudioMus_g->streambuffer != (char *)0x0) {
+        int chunks;
+        int size;
+        SNDLIMITS sndlimits;
+        SNDPLAYOPTS opts;
+
+        chunks = buffersize / 0x400;
+        size = buffersize + SNDSTRM_overhead(1,chunks);
+        SNDgetlimits(&sndlimits);
+        sndlimits.packetbufsize = spusize;
+        SNDsetlimits(&sndlimits);
+        SNDplaysetdef(&opts);
+        opts.vol = 0;
+        AudioMus_g->streamhandle =
+            SNDSTRM_create((int *)&opts,1,chunks,AudioMus_g->streambuffer,size);
+        if (-1 < AudioMus_g->streamhandle) {
+          SNDSTRM_setgreedylevel(AudioMus_g->streamhandle,0);
+          SNDSTRM_setpriority(AudioMus_g->streamhandle,0xff,5);
+        }
       }
     }
     gMusicHandle = AudioMus_g->streamhandle;
@@ -547,7 +545,6 @@ void AudioMus_DriverStartUp(int buffersize,int spusize)
       AudioMus_g->serveractive = 1;
     }
   }
-  return;
 }
 
 /* ---- AudioMus_SysStartUp__FiiPc  [@0x8007ac18] ---- */
@@ -639,48 +636,30 @@ void AudioMus_StopSong(int fadeticks)
 /* ---- AudioMus_BuildPlayList__FiPi  [@0x8007aed8] ---- */
 void AudioMus_BuildPlayList(int numplaylistsongs,int *playlist)
 {
-  int i;
-  
   if (AudioMus_g != (AudioMus_tMusicGlobals *)0x0) {
     AudioMus_g->availablesongs = 0;
-    i = 0;
-    if (0 < numplaylistsongs) {
-      do {
-        if ((-1 < *playlist) && (*playlist < AudioMus_g->totalsongs)) {
-          AudioMus_g->playlist[AudioMus_g->availablesongs] = (char)*playlist;
-          AudioMus_g->availablesongs = AudioMus_g->availablesongs + 1;
-        }
-        i = i + 1;
-        playlist = playlist + 1;
-      } while (i < numplaylistsongs);
+    for (int i = 0; i < numplaylistsongs; i++, playlist++) {
+      if ((-1 < *playlist) && (*playlist < AudioMus_g->totalsongs)) {
+        AudioMus_g->playlist[AudioMus_g->availablesongs] = (char)*playlist;
+        AudioMus_g->availablesongs = AudioMus_g->availablesongs + 1;
+      }
     }
   }
-  return;
 }
 
 /* ---- AudioMus_BuildPattern__FPc  [@0x8007af60] ---- */
 void AudioMus_BuildPattern(char *pattern)
 {
-  int i;
-  
   if (AudioMus_g != (AudioMus_tMusicGlobals *)0x0) {
-    i = 0;
     AudioMus_g->availablesongs = 0;
-    if (0 < AudioMus_g->totalsongs) {
-      do {
-        if (0x1f < AudioMus_g->availablesongs) {
-          return;
-        }
-        if (wildcard(locatebigentry(AudioMus_g->bigfileheader,(char *)0x0,i,
-                                    (long *)0x0,(long *)0x0),pattern) != 0) {
-          AudioMus_g->playlist[AudioMus_g->availablesongs] = (char)i;
-          AudioMus_g->availablesongs = AudioMus_g->availablesongs + 1;
-        }
-        i = i + 1;
-      } while (i < AudioMus_g->totalsongs);
+    for (int i = 0; (i < AudioMus_g->totalsongs) && (AudioMus_g->availablesongs < 0x20); i++) {
+      if (wildcard(locatebigentry(AudioMus_g->bigfileheader,(char *)0x0,i,
+                                  (long *)0x0,(long *)0x0),pattern) != 0) {
+        AudioMus_g->playlist[AudioMus_g->availablesongs] = (char)i;
+        AudioMus_g->availablesongs = AudioMus_g->availablesongs + 1;
+      }
     }
   }
-  return;
 }
 
 /* ---- AudioMus_PlaySong__FPc  [@0x8007b030] ---- */

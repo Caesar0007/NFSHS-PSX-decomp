@@ -21,6 +21,9 @@ def main() -> None:
     parser.add_argument("--force-stdin", action="store_true")
     parser.add_argument("--use-comm-section", action="store_true")
     parser.add_argument("--use-comm-for-lcomm", action="store_true")
+    # P905: preserve public binding when a proven owner lowers small COMMON
+    # into .sbss. Legacy default and true .lcomm/static binding are unchanged.
+    parser.add_argument("--preserve-small-common-binding", action="store_true")
     parser.add_argument("--jtbl-at-fusion", action="store_true")
     parser.add_argument("--nop-before-label", action="store_true")
     # decomp.me debugging
@@ -131,6 +134,7 @@ def main() -> None:
         gp_allow_la=gp_allow_la,
         use_comm_section=args.use_comm_section,
         use_comm_for_lcomm=args.use_comm_for_lcomm,
+        preserve_small_common_binding=args.preserve_small_common_binding,
         jtbl_at_fusion=args.jtbl_at_fusion,
         nop_before_label=args.nop_before_label,
     )

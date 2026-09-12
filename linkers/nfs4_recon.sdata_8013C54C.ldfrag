@@ -28,7 +28,7 @@
     build/recon/game/common/aitune.cpp.o(.sdata);   /* 0x8013c5f0..0x8013c5fc  was sdata_8013C54C_o08.sdata.s */
     build/asm/data/sdata_8013C54C_r04.sdata.s.o(.sdata);
     build/recon/game/common/audioclc.cpp.o(.sdata);   /* 0x8013c608..0x8013c628  was sdata_8013C54C_o09.sdata.s */
-    build/asm/data/sdata_8013C54C_r05.sdata.s.o(.sdata);
+    build/recon/game/common/audiocmn.cpp.o(.sdata);   /* P906 source owner:0x8013c628..0x8013c720; r05 is oracle-only */
     build/recon/game/common/audiomus.cpp.o(.sdata);   /* 0x8013c720..0x8013c724  was sdata_8013C54C_o10.sdata.s */
     build/asm/data/sdata_8013C54C_r06.sdata.s.o(.sdata);
     build/recon/game/common/audedit.cpp.o(.sdata);   /* 0x8013c72c..0x8013c734  was sdata_8013C54C_o11.sdata.s */
@@ -77,11 +77,13 @@
     build/recon/game/psx/audio.cpp.o(.sdata);   /* 0x8013d4fc..0x8013d504  was sdata_8013C54C_o29.sdata.s */
     build/asm/data/sdata_8013C54C_r17.sdata.s.o(.sdata);
     build/recon/game/psx/drawdbg.cpp.o(.sdata);   /* 0x8013d818..0x8013d81c  was sdata_8013C54C_o30.sdata.s */
-    build/asm/data/sdata_8013C54C_r18.sdata.s.o(.sdata);
+    build/recon/game/psx/draww.cpp.o(.sdata);   /* P914 native 36 bytes, including both original local eight-byte arrays. */
     build/recon/game/psx/force.cpp.o(.sdata);   /* 0x8013d840..0x8013d854  was sdata_8013C54C_o31.sdata.s */
     build/asm/data/sdata_8013C54C_r19.sdata.s.o(.sdata);
     build/recon/game/psx/flare.cpp.o(.sdata);   /* 0x8013d86c..0x8013d878  was sdata_8013C54C_o32.sdata.s */
-    build/asm/data/sdata_8013C54C_r20.sdata.s.o(.sdata);
+    build/asm/data/sdata_8013C54C_r20.sdata.s.o(.sdata.r20_pre); /* Native36-byte prefix, unchanged. */
+    build/recon/game/psx/hud.cpp.o(.sdata); /* P909 complete240-byte native source owner. */
+    build/asm/data/sdata_8013C54C_r20.sdata.s.o(.sdata.r20_post); /* Native380-byte suffix, unchanged. */
     build/recon/game/psx/texture.cpp.o(.sdata);   /* 0x8013db08..0x8013db3c  was sdata_8013C54C_o33.sdata.s */
     build/asm/data/sdata_8013C54C_r21.sdata.s.o(.sdata);
     /* P886: full G8 run includes its40-byte literal prefix, not only globals. */
@@ -90,6 +92,7 @@
     build/recon/game/psx/trsproj.cpp.o(.sdata);   /* 0x8013db9c..0x8013dba0  was sdata_8013C54C_o36.sdata.s */
     build/asm/data/sdata_8013C54C_r22.sdata.s.o(.sdata);
     build/recon/eaclib/psx/eacpsxz/vars.c.o(.sdata);   /* 0x8013dc64..0x8013dd04 */
+    build/recon/eaclib/psx/eacpsxz/primate.c.o(.sdata);   /* P904 native initialized owner:0x8013dd04..0x8013dd18 */
     build/asm/data/sdata_8013C54C_r22.sdata.s.o(.sdata.r22_post_vars);
     build/recon/eaclib/psx/eacpsxz/joystkn.c.o(.sbss);   /* 0x8013dd28..0x8013dd2c  was sdata_8013C54C_o37.sdata.s */
     build/asm/data/sdata_8013C54C_r23.sdata.s.o(.sdata);

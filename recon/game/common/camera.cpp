@@ -1,6 +1,6 @@
-/* game/common/camera.cpp -- RECONSTRUCTED (NFS4 game clock: 128Hz EAC timer chain + master IRQ handler).
- *   3 fns: MasterInterruptHandler / SystemStartUp / SystemCleanUp. SYM-v3 locals; owns 4 globals.
- *   Verified vs disasm-v2.txt (addtimer/deltimer 1-arg = &Clock_MasterInterruptHandler). Self-contained.
+/* game/common/camera.cpp -- reconstructed camera.obj source.
+ * Native declarations and source-scope work are checked against SYM/SLD.
+ * P912 data recovery: native values/layout do not prove original macro spelling.
  */
 #include "camera_types.h"
 #include "camera_externs.h"
@@ -8,17 +8,42 @@
 #define MIN(a,b) (((a) > (b)) ? (b) : (a))
 
 
-/* ---- clock.obj-owned globals (.bss zero) ---- */
-camera_info  Camera_gInfo[2];   /* @0x8010f2ac  (bss(zero)) */
+/* ---- camera.obj-owned globals ---- */
+/* P912: CPE-loaded zero storage precedes the initialized camera tables.
+ * Explicit zero initialization retains that native section order; exact
+ * original initializer tokens are not preserved by SYM/CPE. */
+camera_info  Camera_gInfo[2] = { {0}, {0} };   /* @0x8010f2ac (.data) */
 static int          gTunnelCamHeight[13] = { 373555, 321126, 340787, 242483, 321126, 373555, 255590, 176947, 288358, 268697, 268697, 0, 0 };   /* @0x8010f4cc */
 static int          gSplitCameras[3] = { 0, 2, 5 };   /* @0x8010f500 */
 static char         gAnimMode[13] = { 2, 0, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0 };   /* @0x8010f50c */
 static char         gAnimCams[13][4] = { 2, 6, 0, 0, 1, 6, 0, 0, 2, 6, 0, 0, 2, 6, 0, 0, 2, 6, 0, 0, 2, 6, 0, 0, 2, 6, 0, 0, 2, 6, 0, 0, 2, 6, 0, 0, 2, 6, 0, 0, 2, 6, 0, 0, 1, 6, 0, 0, 1, 6, 0, 0 };   /* @0x8010f51c */
-camera_flags Camera_gFlags[19] = { {0, 2, 2, 2, 2, 2, 2}, {0, 16, 16, 16, 16, 16, 16}, {0, 45, 45, 45, 45, 45, 45}, {0, 45, 45, 45, 45, 45, 45}, {0, 45, 45, 45, 45, 45, 45}, {0, 45, 45, 45, 45, 45, 45}, {0, 45, 45, 45, 45, 45, 45}, {0, 45, 45, 45, 45, 45, 45}, {-114688, 60, 60, 60, 60, 60, 60}, {0, 56, 56, 56, 56, 56, 56}, {0, 60, 60, 60, 60, 60, 60}, {0, 20, 20, 20, 20, 20, 20}, {0, 20, 20, 20, 20, 20, 20}, {0, 20, 20, 20, 20, 20, 20}, {0, 16, 16, 16, 16, 16, 16}, {0, 18, 18, 18, 18, 18, 18}, {0, 24, 24, 24, 24, 24, 24}, {0, 20, 20, 20, 20, 20, 20}, {0, 20, 20, 20, 20, 20, 20} };   /* @0x8010f550 */
+/* P912: SYM1e05ee..1e06b0 fixes arm + six one-bit fields. Values below
+ * are decoded from the native CPE/ROM record; original macro spelling is unknown. */
+camera_flags Camera_gFlags[19] = {
+    {{0, 26214, 58982}, 0, 1, 0, 0, 0, 0},
+    {{0, 26214, 58982}, 0, 0, 0, 0, 1, 0},
+    {{0, 75366, -314572}, 1, 0, 1, 1, 0, 1},
+    {{0, 75366, -314572}, 1, 0, 1, 1, 0, 1},
+    {{0, 75366, -314572}, 1, 0, 1, 1, 0, 1},
+    {{0, 131072, -393216}, 1, 0, 1, 1, 0, 1},
+    {{0, 131072, -393216}, 1, 0, 1, 1, 0, 1},
+    {{0, 321126, -439091}, 1, 0, 1, 1, 0, 1},
+    {{-114688, 16384, -245760}, 0, 0, 1, 1, 1, 1},
+    {{0, 100270, 268697}, 0, 0, 0, 1, 1, 1},
+    {{0, 0, 0}, 0, 0, 1, 1, 1, 1},
+    {{0, 0, 0}, 0, 0, 1, 0, 1, 0},
+    {{0, 0, 0}, 0, 0, 1, 0, 1, 0},
+    {{0, 983040, -131072}, 0, 0, 1, 0, 1, 0},
+    {{0, 0, 0}, 0, 0, 0, 0, 1, 0},
+    {{0, 58785, -32702}, 0, 1, 0, 0, 1, 0},
+    {{0, 0, 0}, 0, 0, 0, 1, 1, 0},
+    {{0, 0, 0}, 0, 0, 1, 0, 1, 0},
+    {{0, 0, 0}, 0, 0, 1, 0, 1, 0},
+};   /* @0x8010f550 */
 static coorddef     gDriverCam[28] = { {-23592, 26869, -17039}, {-23592, 26869, -17039}, {25559, 30801, 15728}, {23592, 26869, 11796}, {-23592, 26869, 0}, {-23592, 26869, 0}, {-23592, 26869, 0}, {-23592, 26869, 0}, {-23592, 26869, 15728}, {-19660, 26869, -4587}, {-23592, 22937, -8519}, {-19660, 26869, -8519}, {-23592, 22937, 11796}, {-23592, 26869, 28180}, {-19660, 22937, -3276}, {0, 19005, 32112}, {-19660, 26869, -8519}, {25559, 30801, 15728}, {-19660, 26869, -4587}, {-23592, 26869, 11796}, {-15728, 22937, 0}, {-15728, 22937, 0}, {-23592, 26869, 28180}, {25559, 30801, 15728}, {-23592, 26869, 15728}, {-19660, 26869, -4587}, {-19660, 26869, -8519}, {-23592, 26869, 28180} };   /* @0x8010f680 */
 int          camSpeedTable[7] = { 64225, 60948, 56360, 52428, 47841, 43253, 39321 };   /* @0x8010f7d0 */
 coorddef     feeler3[3] = { {0, 0, 137625}, {-117964, 0, -72089}, {117964, 0, -72089} };   /* @0x8010f7ec */
-int          Camera_gCopDist[6];   /* @0x8010f810  (bss(zero)) */
+int          Camera_gCopDist[6];   /* @0x8010f810 (.data; CPE-loaded zero) */
 long Camera_gGeomScreen = 190;  /* @0x8013c7dc scalar -- confirmed by oracle: every SetCameraZoom/UpdateBTCopCam/Init/SetMode/
    NextMode/ReplayUpdate site does exactly ONE %gp_rel word store, never a paired +4 store; every OTHER
    TU's extern decl (cars_externs.h, hrzsku_externs.h, trsproj_externs.h) already declares it `long`

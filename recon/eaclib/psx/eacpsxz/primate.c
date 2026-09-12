@@ -19,33 +19,38 @@
 extern void ClearOTagR(unsigned long *ot, int n);              /* PsyQ libgpu */
 extern int  DrawSync(int mode);                                /* PsyQ libgpu */
 
-/* ---- shared GPU draw-list globals -- this TU OWNS every one of them (nothing else defines
- * them; the oracle reaches ALL of them via %gp_rel(sym) in initlinkmode, which is only possible
- * if THIS module tentative-defines them -> .comm/.sbss -> gp-rel, §3.12 #6). */
- int   maxot;          /* @0x8013DE7C: ordering-table length (set to 16 here) */
- int   maxprim;        /* @0x8013DE8C: primitive capacity */
- char *otbuf;          /* @0x8013DD04: base of the "Draw Lists" allocation */
- char *otbl;           /* @0x8013DE70: active OT pointer (== otbuf) */
- /* Raw initlinkmode stores prove these two exact four-byte gaps, but compact
-  * SYM/MAP does not preserve their lexical names.
-  * SYM-GLOBAL-CARRIER: otbl2
-  * SYM-GLOBAL-CARRIER: primbuf2 */
- char *otbl2;          /* @0x8013DE74 : 2nd OT buffer (otbuf + maxot*4)  */
- char *primbuf;        /* @0x8013DD08: active primitive buffer (otbuf + maxot*8) */
- char *primbase;       /* @0x8013DE84: primitive buffer base */
- char *primbuf2;       /* @0x8013DE88 : 2nd prim buffer (primbuf+52*maxprim) */
- char *primptr;        /* @0x8013DE80: current primitive write cursor */
- char *nextprim;       /* @0x8013DE78: next primitive link target (== otbl) */
- int   oti;            /* @0x8013DE68: OT index */
- int   otp;            /* @0x8013DE6C: OT page/parity */
- int drawpending;   /* @0x8013DD10: owning-TU tentative def → .comm/.sbss → gp-rel */
- int linkmodeflag;  /* @0x8013DD0C: owning-TU tentative def → .comm/.sbss → gp-rel */
- int semitrans;     /* @0x8013DD14: owning-TU tentative def → .comm/.sbss → gp-rel */
+/* P904: native MAP and CPE load8013DD04..8013DD18 prove this initialized
+ * small-data run, including semitrans=1. Public source definitions replace
+ * the former private zero-filled copies and the duplicate raw oracle cells.
+ * Compact SYM preserves these names but no typed Def/Def2 records: existing
+ * char-pointer/int spellings remain inferred, not recovered declarations.
+ * Evidence/backups: scratchpad/p904_primate_native, p904_checkpoint. */
+char *otbuf = 0;       /* @0x8013DD04: base of the "Draw Lists" allocation */
+char *primbuf = 0;     /* @0x8013DD08: primitive allocation region */
+int linkmodeflag = 0;  /* @0x8013DD0C */
+int drawpending = 0;   /* @0x8013DD10 */
+int semitrans = 1;     /* @0x8013DD14 */
 
-/* P903 integration: GCC orders tentative storage by first declaration. Keep
- * the owner header after these definitions so its drawpending extern does not
- * move thirteen local SBSS cells and change twenty-two GP addends. This keeps
- * the prior object layout; native scattered-global ownership is still open. */
+/* P905: MAP orders this zero-initialized SBSS run; CPE has no load here.
+ * Ordinary tentative definitions emit public .comm declarations in this
+ * order. The owner-specific assembler option preserves their public binding
+ * during SBSS lowering; the linker selects exactly this40-byte source run.
+ * All producer/consumer references share one backing store. No source asm,
+ * storage attribute or linker-only replacement variable is needed.
+ * Original declaration tokens/order are not uniquely recoverable from MAP;
+ * these types remain inferred, and both unnamed slots remain open below. */
+int oti;              /* @0x8013DE68: OT index */
+int otp;              /* @0x8013DE6C: OT page/parity */
+char *otbl;           /* @0x8013DE70: active OT pointer */
+/* SYM-GLOBAL-CARRIER: otbl2 -- raw four-byte slot, original name/shape unknown. */
+char *otbl2;          /* @0x8013DE74: second OT buffer */
+char *nextprim;       /* @0x8013DE78: next primitive link target */
+int maxot;            /* @0x8013DE7C: ordering-table length */
+char *primptr;        /* @0x8013DE80: current primitive write cursor */
+char *primbase;       /* @0x8013DE84: primitive buffer base */
+/* SYM-GLOBAL-CARRIER: primbuf2 -- raw four-byte slot, original name/shape unknown. */
+char *primbuf2;       /* @0x8013DE88: second primitive buffer */
+int maxprim;          /* @0x8013DE8C: primitive capacity */
 #include "primate.h"
 
 void *initlinkmode(void *unused, int maxprimArg, int linkmode)   /* @0x800F05F4 */

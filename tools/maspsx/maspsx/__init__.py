@@ -530,6 +530,7 @@ class MaspsxProcessor:
         use_comm_for_lcomm=False,
         jtbl_at_fusion=False,
         nop_before_label=False,
+        preserve_small_common_binding=False,
     ):
         self.lines = [x.strip() for x in lines]
         self.jtbl_at_fusion = jtbl_at_fusion
@@ -552,6 +553,7 @@ class MaspsxProcessor:
 
         self.use_comm_section = use_comm_section
         self.use_comm_for_lcomm = use_comm_for_lcomm
+        self.preserve_small_common_binding = preserve_small_common_binding
 
         self.bss_entries: dict[str, int] = {}
         self.sbss_entries: dict[str, int] = {}
@@ -749,7 +751,14 @@ class MaspsxProcessor:
                 # `static char gSwapFileName[..]` copies then collide with
                 # the one genuinely global symbol of that name).
                 # w62-a18 SYMBOL_LEDGER 1.2; probe w63a20/lcomm_probe.py.
-                if section == "bss" and symbol in self.comm_symbols:
+                # P905: opt-in small-data ownership repair. A compiler .comm
+                # is public, unlike .lcomm. Preserve that binding while the
+                # existing lowering keeps declaration order and NOBITS extent.
+                # This is a strong section definition, NOT COMMON coalescing;
+                # enable only for an independently verified unique owner.
+                # Backups/tests: scratchpad/p905_checkpoint, p905_common_contract.
+                # No instruction or relocation record is patched afterward.
+                if (section == "bss" or self.preserve_small_common_binding) and symbol in self.comm_symbols:
                     res.append(
                         f"\t.globl {symbol}",
                     )

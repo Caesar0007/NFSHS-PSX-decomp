@@ -1,0 +1,1991 @@
+{
+  "passed": true,
+  "functions_PASS": 175,
+  "branches_preserved": 1441,
+  "rows": [
+    {
+      "source": "recon/game/common/audiocmn.cpp",
+      "source_sha256": "f1b69e53ba147f1e062d80916cbb121ca1c1ab5bd3080a95c10abae8d8837d4c",
+      "object_sha256": "7925ada4acad4cac78d13c764376d3e4a1fced39949edf1b26b88f7e5088092b",
+      "gates": [
+        {
+          "function": "AudioCmn_MusicLevel__Fi",
+          "instructions": 24,
+          "diff_lines": 0
+        },
+        {
+          "function": "AudioCmn_GetTrackRecordLapTime__Fv",
+          "instructions": 4,
+          "diff_lines": 0
+        },
+        {
+          "function": "AudioCmn_InitThunder__Fv",
+          "instructions": 5,
+          "diff_lines": 0
+        },
+        {
+          "function": "AudioCmn_PlayThunder__Fii",
+          "instructions": 11,
+          "diff_lines": 0
+        },
+        {
+          "function": "AudioCmn_UpdateThunder__Fv",
+          "instructions": 43,
+          "diff_lines": 0
+        },
+        {
+          "function": "AudioCmn_InitAsyncSfx__Fv",
+          "instructions": 14,
+          "diff_lines": 0
+        },
+        {
+          "function": "AudioCmn_RemoveAsyncSfx__Fi",
+          "instructions": 34,
+          "diff_lines": 0
+        },
+        {
+          "function": "AudioCmn_DeInitAsyncSfx__Fv",
+          "instructions": 14,
+          "diff_lines": 0
+        },
+        {
+          "function": "AudioCmn_RemoveOldestAsyncSfx__Fi",
+          "instructions": 58,
+          "diff_lines": 0
+        },
+        {
+          "function": "AudioCmn_LoadAsyncSfx__FiiPvi",
+          "instructions": 105,
+          "diff_lines": 0
+        },
+        {
+          "function": "AudioCmn_GetAsyncSfx__Fiib",
+          "instructions": 93,
+          "diff_lines": 0
+        },
+        {
+          "function": "AudioCmn_Init__Fv",
+          "instructions": 94,
+          "diff_lines": 0
+        },
+        {
+          "function": "AudioCmn_Reset__Fv",
+          "instructions": 214,
+          "diff_lines": 0
+        },
+        {
+          "function": "AudioCmn_DeInit__Fv",
+          "instructions": 54,
+          "diff_lines": 0
+        },
+        {
+          "function": "AudioCmn_SetLevels__Fv",
+          "instructions": 20,
+          "diff_lines": 0
+        },
+        {
+          "function": "AudioCmn_GetTimePhrase__Fi",
+          "instructions": 20,
+          "diff_lines": 0
+        },
+        {
+          "function": "AudioCmn_CheckState__FP8Car_tObj",
+          "instructions": 415,
+          "diff_lines": 0
+        },
+        {
+          "function": "AudioCmn_LoadFESamples__Fv",
+          "instructions": 17,
+          "diff_lines": 0
+        },
+        {
+          "function": "AudioCmn_LoadGameSamples__Fv",
+          "instructions": 77,
+          "diff_lines": 0
+        },
+        {
+          "function": "AudioCmn_InitChannelArray__Fv",
+          "instructions": 14,
+          "diff_lines": 0
+        },
+        {
+          "function": "scaleFrequency__Fiii",
+          "instructions": 51,
+          "diff_lines": 0
+        },
+        {
+          "function": "ChooseImpactSample__Fi6s_typeT1",
+          "instructions": 184,
+          "diff_lines": 0
+        },
+        {
+          "function": "ChooseLoopedSample__F6s_typeT0",
+          "instructions": 47,
+          "diff_lines": 0
+        },
+        {
+          "function": "AudioCmn_SFX__Fi6s_typeT1iii",
+          "instructions": 224,
+          "diff_lines": 0
+        },
+        {
+          "function": "freeVoiceChannel__Fi",
+          "instructions": 28,
+          "diff_lines": 0
+        },
+        {
+          "function": "AudioCmn_PlayDoppleredSound__Fiiiiii",
+          "instructions": 152,
+          "diff_lines": 0
+        },
+        {
+          "function": "AudioCmn_PlaySound__Fiiiii",
+          "instructions": 11,
+          "diff_lines": 0
+        },
+        {
+          "function": "AudioCmn_PlaySFX__Fiiiiii",
+          "instructions": 316,
+          "diff_lines": 0
+        },
+        {
+          "function": "AudioCmn_SoundCar__FP8Car_tObjiiiiiii",
+          "instructions": 530,
+          "diff_lines": 0
+        },
+        {
+          "function": "AudioCmn_TrafficSFX__Fiiiiiiii",
+          "instructions": 163,
+          "diff_lines": 0
+        },
+        {
+          "function": "AudioCmn_TrafficSkidSFX__Fi6s_typeT1iii",
+          "instructions": 45,
+          "diff_lines": 0
+        },
+        {
+          "function": "AudioCmn_PlayerHornOn__Fiiiii",
+          "instructions": 65,
+          "diff_lines": 0
+        },
+        {
+          "function": "AudioCmn_PlayerHornOff__Fi",
+          "instructions": 47,
+          "diff_lines": 0
+        },
+        {
+          "function": "AudioCmn_PlayFESFX__Fi",
+          "instructions": 8,
+          "diff_lines": 0
+        },
+        {
+          "function": "AudioCmn_PlayFESFXVol__Fii",
+          "instructions": 34,
+          "diff_lines": 0
+        },
+        {
+          "function": "AudioCmn_PlayWrongWaySFX__Fv",
+          "instructions": 14,
+          "diff_lines": 0
+        },
+        {
+          "function": "AudioCmn_PlayPauseSound__Fi",
+          "instructions": 14,
+          "diff_lines": 0
+        },
+        {
+          "function": "quickSirenOn__Fi",
+          "instructions": 29,
+          "diff_lines": 0
+        },
+        {
+          "function": "SuperCopSirenOn__Fi",
+          "instructions": 26,
+          "diff_lines": 0
+        },
+        {
+          "function": "SirenOn__Fii",
+          "instructions": 42,
+          "diff_lines": 0
+        },
+        {
+          "function": "SirenOff__Fi",
+          "instructions": 47,
+          "diff_lines": 0
+        },
+        {
+          "function": "UpdateSiren__Fiiiii",
+          "instructions": 129,
+          "diff_lines": 0
+        },
+        {
+          "function": "AudioCmn_Pause__Fv",
+          "instructions": 46,
+          "diff_lines": 0
+        },
+        {
+          "function": "AudioCmn_UnPause__Fv",
+          "instructions": 35,
+          "diff_lines": 0
+        },
+        {
+          "function": "AudioCmn_UnPauseAndQuit__Fv",
+          "instructions": 58,
+          "diff_lines": 0
+        },
+        {
+          "function": "AudioCmn_UnPauseAndRestart__Fv",
+          "instructions": 63,
+          "diff_lines": 0
+        },
+        {
+          "function": "AudioCmn_InitReverb__Fv",
+          "instructions": 17,
+          "diff_lines": 0
+        },
+        {
+          "function": "AudioCmn_ReverbOff__Fv",
+          "instructions": 10,
+          "diff_lines": 0
+        }
+      ],
+      "branches": [
+        {
+          "function": "AudioCmn_MusicLevel__Fi",
+          "count": 1,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "AudioCmn_GetTrackRecordLapTime__Fv",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "AudioCmn_InitThunder__Fv",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "AudioCmn_PlayThunder__Fii",
+          "count": 1,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "AudioCmn_UpdateThunder__Fv",
+          "count": 4,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "AudioCmn_InitAsyncSfx__Fv",
+          "count": 2,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "AudioCmn_RemoveAsyncSfx__Fi",
+          "count": 3,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "AudioCmn_DeInitAsyncSfx__Fv",
+          "count": 1,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "AudioCmn_RemoveOldestAsyncSfx__Fi",
+          "count": 10,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "AudioCmn_LoadAsyncSfx__FiiPvi",
+          "count": 15,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "AudioCmn_GetAsyncSfx__Fiib",
+          "count": 14,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "AudioCmn_Init__Fv",
+          "count": 5,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "AudioCmn_Reset__Fv",
+          "count": 28,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "AudioCmn_DeInit__Fv",
+          "count": 3,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "AudioCmn_SetLevels__Fv",
+          "count": 1,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "AudioCmn_GetTimePhrase__Fi",
+          "count": 4,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "AudioCmn_CheckState__FP8Car_tObj",
+          "count": 57,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "AudioCmn_LoadFESamples__Fv",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "AudioCmn_LoadGameSamples__Fv",
+          "count": 2,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "AudioCmn_InitChannelArray__Fv",
+          "count": 1,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "scaleFrequency__Fiii",
+          "count": 7,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "ChooseImpactSample__Fi6s_typeT1",
+          "count": 66,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "ChooseLoopedSample__F6s_typeT0",
+          "count": 16,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "AudioCmn_SFX__Fi6s_typeT1iii",
+          "count": 25,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "freeVoiceChannel__Fi",
+          "count": 3,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "AudioCmn_PlayDoppleredSound__Fiiiiii",
+          "count": 28,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "AudioCmn_PlaySound__Fiiiii",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "AudioCmn_PlaySFX__Fiiiiii",
+          "count": 52,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "AudioCmn_SoundCar__FP8Car_tObjiiiiiii",
+          "count": 97,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "AudioCmn_TrafficSFX__Fiiiiiiii",
+          "count": 11,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "AudioCmn_TrafficSkidSFX__Fi6s_typeT1iii",
+          "count": 7,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "AudioCmn_PlayerHornOn__Fiiiii",
+          "count": 8,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "AudioCmn_PlayerHornOff__Fi",
+          "count": 7,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "AudioCmn_PlayFESFX__Fi",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "AudioCmn_PlayFESFXVol__Fii",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "AudioCmn_PlayWrongWaySFX__Fv",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "AudioCmn_PlayPauseSound__Fi",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "quickSirenOn__Fi",
+          "count": 1,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "SuperCopSirenOn__Fi",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "SirenOn__Fii",
+          "count": 3,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "SirenOff__Fi",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "UpdateSiren__Fiiiii",
+          "count": 14,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "AudioCmn_Pause__Fv",
+          "count": 3,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "AudioCmn_UnPause__Fv",
+          "count": 1,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "AudioCmn_UnPauseAndQuit__Fv",
+          "count": 6,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "AudioCmn_UnPauseAndRestart__Fv",
+          "count": 6,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "AudioCmn_InitReverb__Fv",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "AudioCmn_ReverbOff__Fv",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        }
+      ],
+      "debug_object": "scratchpad/p907_checkpoint/actual_debug/diffsrc/recon/game/common/audiocmn.cpp.g.o",
+      "debug_allocated_payloads_exact": true
+    },
+    {
+      "source": "recon/game/common/gmesetup.cpp",
+      "source_sha256": "c1b9e7716a8ea4621c9952844c8a3b94d14673dc59ae9e8c493600de825b776e",
+      "object_sha256": "16255480938d1c5a0825a162e36433ce693a599eab3f0b6eb8fa82e167d50007",
+      "gates": [
+        {
+          "function": "GameSetup_StartUp__FPi",
+          "instructions": 225,
+          "diff_lines": 0
+        },
+        {
+          "function": "GameSetup_CleanUp__Fv",
+          "instructions": 2,
+          "diff_lines": 0
+        }
+      ],
+      "branches": [
+        {
+          "function": "GameSetup_StartUp__FPi",
+          "count": 28,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "GameSetup_CleanUp__Fv",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        }
+      ],
+      "debug_object": "scratchpad/p907_checkpoint/actual_debug/diffsrc/recon/game/common/gmesetup.cpp.g.o",
+      "debug_allocated_payloads_exact": true
+    },
+    {
+      "source": "recon/game/common/nfs3.cpp",
+      "source_sha256": "2c17747154c260f0881ab3a3903a76c8fa886432e9061a6f03a94a0cfab538f5",
+      "object_sha256": "0bbe4abac9df4aeebeefcd45d2648d39057ab5b37038910717d8e1e56676ac42",
+      "gates": [
+        {
+          "function": "Nfs2_SystemNLibStartUp__Fv",
+          "instructions": 25,
+          "diff_lines": 0
+        },
+        {
+          "function": "Nfs2_BefuddleCode__Fv",
+          "instructions": 22,
+          "diff_lines": 0
+        },
+        {
+          "function": "Nfs2_ResetGame__Fv",
+          "instructions": 24,
+          "diff_lines": 0
+        },
+        {
+          "function": "NFS4_LoadPerps__Fv",
+          "instructions": 168,
+          "diff_lines": 0
+        },
+        {
+          "function": "Nfs2_GameModuleStartUp__FPi",
+          "instructions": 107,
+          "diff_lines": 0
+        },
+        {
+          "function": "Nfs2_CleanUpGameModule__Fv",
+          "instructions": 105,
+          "diff_lines": 0
+        },
+        {
+          "function": "LoadFrontendOverlay__Fv",
+          "instructions": 21,
+          "diff_lines": 0
+        },
+        {
+          "function": "LoadOverlay__Fv",
+          "instructions": 27,
+          "diff_lines": 0
+        },
+        {
+          "function": "NFS4_LoadingIcon__Fv",
+          "instructions": 73,
+          "diff_lines": 0
+        },
+        {
+          "function": "NFS3_CheckForFileOperations__Fv",
+          "instructions": 21,
+          "diff_lines": 0
+        },
+        {
+          "function": "main",
+          "instructions": 237,
+          "diff_lines": 0
+        }
+      ],
+      "branches": [
+        {
+          "function": "Nfs2_SystemNLibStartUp__Fv",
+          "count": 1,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Nfs2_BefuddleCode__Fv",
+          "count": 1,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Nfs2_ResetGame__Fv",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "NFS4_LoadPerps__Fv",
+          "count": 11,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Nfs2_GameModuleStartUp__FPi",
+          "count": 5,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Nfs2_CleanUpGameModule__Fv",
+          "count": 4,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "LoadFrontendOverlay__Fv",
+          "count": 2,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "LoadOverlay__Fv",
+          "count": 2,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "NFS4_LoadingIcon__Fv",
+          "count": 1,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "NFS3_CheckForFileOperations__Fv",
+          "count": 4,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "main",
+          "count": 20,
+          "count_equal": true,
+          "offset_diffs": []
+        }
+      ],
+      "debug_object": "scratchpad/p907_checkpoint/actual_debug/diffsrc/recon/game/common/nfs3.cpp.g.o",
+      "debug_allocated_payloads_exact": true
+    },
+    {
+      "source": "recon/game/common/aistate.cpp",
+      "source_sha256": "77c35b2d60d8cf6136387cf2cfba26bacf85cf14789f22b127eeb9449c4493ae",
+      "object_sha256": "8f8bb67ba40f95595e5a9d5d873b4262fd6a02d5a55b2d9d8312e3df0362197b",
+      "gates": [
+        {
+          "function": "AIState_StartUp__Fv",
+          "instructions": 8,
+          "diff_lines": 0
+        },
+        {
+          "function": "AIState_Restart__Fv",
+          "instructions": 8,
+          "diff_lines": 0
+        },
+        {
+          "function": "AIState_CleanUp__Fv",
+          "instructions": 2,
+          "diff_lines": 0
+        },
+        {
+          "function": "StateExecute__12AIState_Base",
+          "instructions": 34,
+          "diff_lines": 0
+        },
+        {
+          "function": "__12AIState_BaseP8Car_tObj",
+          "instructions": 6,
+          "diff_lines": 0
+        },
+        {
+          "function": "Execute__14AIState_Normal",
+          "instructions": 20,
+          "diff_lines": 0
+        },
+        {
+          "function": "__14AIState_NormalP8Car_tObj",
+          "instructions": 22,
+          "diff_lines": 0
+        },
+        {
+          "function": "Execute__12AIState_Idle",
+          "instructions": 47,
+          "diff_lines": 0
+        },
+        {
+          "function": "SetIdlePosition__12AIState_Idlei",
+          "instructions": 3,
+          "diff_lines": 0
+        },
+        {
+          "function": "__13AIState_ChaseP8Car_tObjT1P8coorddefiiiii",
+          "instructions": 66,
+          "diff_lines": 0
+        },
+        {
+          "function": "___13AIState_Chase",
+          "instructions": 34,
+          "diff_lines": 0
+        },
+        {
+          "function": "SetTarget__13AIState_ChaseP8Car_tObjP8coorddef",
+          "instructions": 56,
+          "diff_lines": 0
+        },
+        {
+          "function": "SetMurderMode__13AIState_Chaseii",
+          "instructions": 11,
+          "diff_lines": 0
+        },
+        {
+          "function": "SetUp__13AIState_Chase",
+          "instructions": 87,
+          "diff_lines": 0
+        },
+        {
+          "function": "DoSlowNitrous__13AIState_Chase",
+          "instructions": 7,
+          "diff_lines": 0
+        },
+        {
+          "function": "DoNitrous__13AIState_Chasei",
+          "instructions": 83,
+          "diff_lines": 0
+        },
+        {
+          "function": "Execute__13AIState_Chase",
+          "instructions": 93,
+          "diff_lines": 0
+        },
+        {
+          "function": "FarTargeting__13AIState_Chase",
+          "instructions": 43,
+          "diff_lines": 0
+        },
+        {
+          "function": "CalculateCloseTargettingAheadSlowDownFactor__13AIState_Chase",
+          "instructions": 35,
+          "diff_lines": 0
+        },
+        {
+          "function": "CloseTargeting__13AIState_Chase",
+          "instructions": 300,
+          "diff_lines": 0
+        },
+        {
+          "function": "ApproachTargeting__13AIState_Chasei",
+          "instructions": 195,
+          "diff_lines": 0
+        },
+        {
+          "function": "CheckForBarriersAndTargetAroundThem__13AIState_Chase",
+          "instructions": 84,
+          "diff_lines": 0
+        },
+        {
+          "function": "FindBarrierEndSlice__13AIState_Chase",
+          "instructions": 230,
+          "diff_lines": 0
+        },
+        {
+          "function": "___15AIState_Offroad",
+          "instructions": 29,
+          "diff_lines": 0
+        },
+        {
+          "function": "__15AIState_OffroadP8Car_tObjiP8coorddefP10matrixtdefiii",
+          "instructions": 82,
+          "diff_lines": 0
+        },
+        {
+          "function": "UnleashIfInRange__15AIState_OffroadP8Car_tObj",
+          "instructions": 30,
+          "diff_lines": 0
+        },
+        {
+          "function": "Execute__15AIState_Offroad",
+          "instructions": 107,
+          "diff_lines": 0
+        },
+        {
+          "function": "__17AIState_PurgatoryP8Car_tObj",
+          "instructions": 108,
+          "diff_lines": 0
+        },
+        {
+          "function": "___17AIState_Purgatory",
+          "instructions": 72,
+          "diff_lines": 0
+        },
+        {
+          "function": "TestForRelease__17AIState_Purgatory",
+          "instructions": 31,
+          "diff_lines": 0
+        },
+        {
+          "function": "Execute__17AIState_Purgatory",
+          "instructions": 26,
+          "diff_lines": 0
+        },
+        {
+          "function": "StartUp__17AIState_Purgatory",
+          "instructions": 3,
+          "diff_lines": 0
+        },
+        {
+          "function": "__21AIState_RovingTrafficP8Car_tObjP9trigger_t",
+          "instructions": 26,
+          "diff_lines": 0
+        },
+        {
+          "function": "CheckIfCarIsNearbyAndStop__21AIState_RovingTrafficP8Car_tObjRi",
+          "instructions": 109,
+          "diff_lines": 0
+        },
+        {
+          "function": "Execute__21AIState_RovingTraffic",
+          "instructions": 233,
+          "diff_lines": 0
+        },
+        {
+          "function": "___14AIState_Donuts",
+          "instructions": 25,
+          "diff_lines": 0
+        },
+        {
+          "function": "Execute__14AIState_Donuts",
+          "instructions": 319,
+          "diff_lines": 0
+        },
+        {
+          "function": "__17AIState_GotoSliceP8Car_tObjii",
+          "instructions": 21,
+          "diff_lines": 0
+        },
+        {
+          "function": "Execute__17AIState_GotoSlice",
+          "instructions": 70,
+          "diff_lines": 0
+        },
+        {
+          "function": "InTargetSliceRange__17AIState_GotoSlicei",
+          "instructions": 17,
+          "diff_lines": 0
+        },
+        {
+          "function": "__14AIState_CruiseP8Car_tObj12cruiseMode_ti",
+          "instructions": 27,
+          "diff_lines": 0
+        },
+        {
+          "function": "Execute__14AIState_Cruise",
+          "instructions": 53,
+          "diff_lines": 0
+        },
+        {
+          "function": "___14AIState_Cruise",
+          "instructions": 13,
+          "diff_lines": 0
+        },
+        {
+          "function": "___17AIState_GotoSlice",
+          "instructions": 13,
+          "diff_lines": 0
+        },
+        {
+          "function": "TestForRelease__21AIState_RovingTraffic",
+          "instructions": 6,
+          "diff_lines": 0
+        },
+        {
+          "function": "___21AIState_RovingTraffic",
+          "instructions": 29,
+          "diff_lines": 0
+        },
+        {
+          "function": "Execute__17AIState_NonActive_80072750",
+          "instructions": 2,
+          "diff_lines": 0
+        },
+        {
+          "function": "___17AIState_NonActive_80072758",
+          "instructions": 19,
+          "diff_lines": 0
+        },
+        {
+          "function": "___12AIState_Idle",
+          "instructions": 22,
+          "diff_lines": 0
+        },
+        {
+          "function": "___14AIState_Normal",
+          "instructions": 13,
+          "diff_lines": 0
+        },
+        {
+          "function": "TestForRelease__12AIState_Base_80072830",
+          "instructions": 2,
+          "diff_lines": 0
+        },
+        {
+          "function": "___12AIState_Base_80072838",
+          "instructions": 13,
+          "diff_lines": 0
+        }
+      ],
+      "branches": [
+        {
+          "function": "AIState_StartUp__Fv",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "AIState_Restart__Fv",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "AIState_CleanUp__Fv",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "StateExecute__12AIState_Base",
+          "count": 3,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "__12AIState_BaseP8Car_tObj",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Execute__14AIState_Normal",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "__14AIState_NormalP8Car_tObj",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Execute__12AIState_Idle",
+          "count": 5,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "SetIdlePosition__12AIState_Idlei",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "__13AIState_ChaseP8Car_tObjT1P8coorddefiiiii",
+          "count": 1,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "___13AIState_Chase",
+          "count": 1,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "SetTarget__13AIState_ChaseP8Car_tObjP8coorddef",
+          "count": 5,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "SetMurderMode__13AIState_Chaseii",
+          "count": 1,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "SetUp__13AIState_Chase",
+          "count": 5,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "DoSlowNitrous__13AIState_Chase",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "DoNitrous__13AIState_Chasei",
+          "count": 9,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Execute__13AIState_Chase",
+          "count": 17,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "FarTargeting__13AIState_Chase",
+          "count": 3,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "CalculateCloseTargettingAheadSlowDownFactor__13AIState_Chase",
+          "count": 9,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "CloseTargeting__13AIState_Chase",
+          "count": 53,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "ApproachTargeting__13AIState_Chasei",
+          "count": 36,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "CheckForBarriersAndTargetAroundThem__13AIState_Chase",
+          "count": 10,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "FindBarrierEndSlice__13AIState_Chase",
+          "count": 42,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "___15AIState_Offroad",
+          "count": 1,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "__15AIState_OffroadP8Car_tObjiP8coorddefP10matrixtdefiii",
+          "count": 1,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "UnleashIfInRange__15AIState_OffroadP8Car_tObj",
+          "count": 3,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Execute__15AIState_Offroad",
+          "count": 5,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "__17AIState_PurgatoryP8Car_tObj",
+          "count": 4,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "___17AIState_Purgatory",
+          "count": 5,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "TestForRelease__17AIState_Purgatory",
+          "count": 3,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Execute__17AIState_Purgatory",
+          "count": 2,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "StartUp__17AIState_Purgatory",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "__21AIState_RovingTrafficP8Car_tObjP9trigger_t",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "CheckIfCarIsNearbyAndStop__21AIState_RovingTrafficP8Car_tObjRi",
+          "count": 12,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Execute__21AIState_RovingTraffic",
+          "count": 17,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "___14AIState_Donuts",
+          "count": 1,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Execute__14AIState_Donuts",
+          "count": 29,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "__17AIState_GotoSliceP8Car_tObjii",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Execute__17AIState_GotoSlice",
+          "count": 14,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "InTargetSliceRange__17AIState_GotoSlicei",
+          "count": 1,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "__14AIState_CruiseP8Car_tObj12cruiseMode_ti",
+          "count": 3,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Execute__14AIState_Cruise",
+          "count": 8,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "___14AIState_Cruise",
+          "count": 1,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "___17AIState_GotoSlice",
+          "count": 1,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "TestForRelease__21AIState_RovingTraffic",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "___21AIState_RovingTraffic",
+          "count": 1,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Execute__17AIState_NonActive_80072750",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "___17AIState_NonActive_80072758",
+          "count": 1,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "___12AIState_Idle",
+          "count": 1,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "___14AIState_Normal",
+          "count": 1,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "TestForRelease__12AIState_Base_80072830",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "___12AIState_Base_80072838",
+          "count": 1,
+          "count_equal": true,
+          "offset_diffs": []
+        }
+      ],
+      "debug_object": "scratchpad/p907_checkpoint/actual_debug/diffsrc/recon/game/common/aistate.cpp.g.o",
+      "debug_allocated_payloads_exact": true
+    },
+    {
+      "source": "recon/game/psx/hud.cpp",
+      "source_sha256": "f86e78240c755feaf36f948e06e2d597d23b707dd63b396d2d0031ea8dfd55b7",
+      "object_sha256": "f8ee4d1730fc3cf3d65242847d98a4dd1cb6f20f8a69ba2742f7c6a721e2bb55",
+      "gates": [
+        {
+          "function": "Hud_CreateHudViews__Fv",
+          "instructions": 187,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_GoTpage__Fi",
+          "instructions": 36,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_DebugInfo__Fv",
+          "instructions": 101,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_BuildSprite__FP4SPRTiiiUli",
+          "instructions": 43,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_BuildSprite2__FP4SPRTiii",
+          "instructions": 11,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_FBuildSprite__FiiiUli",
+          "instructions": 37,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_BuildSpriteFromFont__FP4SPRTcii",
+          "instructions": 48,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_BuildF3__FP7POLY_F3P13HudPmx_tShapeiiUl",
+          "instructions": 49,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_BuildGT4__FP8POLY_GT4P13HudPmx_tShapeiiUl",
+          "instructions": 43,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_BuildFT4__FP8POLY_FT4P13HudPmx_tShapeiiUli",
+          "instructions": 60,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_BuildMirrorFT4__FP8POLY_FT4P13HudPmx_tShapeiiUli",
+          "instructions": 65,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_BuildMapMirrorFT4__FP8POLY_FT4P13HudPmx_tShapeiiUli",
+          "instructions": 67,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_BuildF4__FP7POLY_F4iiiiiUl",
+          "instructions": 41,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_BuildG4__FP7POLY_G4iiiiiUlUlUlUl",
+          "instructions": 47,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_FBuildGT4__FP13HudPmx_tShapeiiUl",
+          "instructions": 35,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_FBuildFT4__FP13HudPmx_tShapeiiUl",
+          "instructions": 36,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_FBuildF4__FiiiiiUlcc",
+          "instructions": 48,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_Kill__Fv",
+          "instructions": 20,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_Init0__Fv",
+          "instructions": 22,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_InitMapFrame__Fii",
+          "instructions": 235,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_BuildTimeSprites__FP4SPRTPcii",
+          "instructions": 77,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_Init__Fv",
+          "instructions": 624,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_InitTables__Fv",
+          "instructions": 11,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_BuildETimeString__FP4SPRTi",
+          "instructions": 99,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_BuildDistanceString__FP4SPRTi",
+          "instructions": 104,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_BuildTimeString__FP4SPRTi",
+          "instructions": 84,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_BuildTach__Fi",
+          "instructions": 269,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_BuildString__FPciiiib",
+          "instructions": 215,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_BuildNumbers0__Fi",
+          "instructions": 531,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_BuildNumbers__Fi",
+          "instructions": 758,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_InitMap__Fv",
+          "instructions": 40,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_BuildMapMarkers__Fi",
+          "instructions": 308,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_WingmanFlash__Fii",
+          "instructions": 45,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_BuildWingmanInterface__Fi",
+          "instructions": 211,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_InitCdPlayer__Fv",
+          "instructions": 9,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_BuildCdPlayer__Fii",
+          "instructions": 475,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_BuildRadar__Fi",
+          "instructions": 450,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_BuildReplay__Fv",
+          "instructions": 191,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_NextPlayer__Fi",
+          "instructions": 89,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_NextPlayerNameOrCarOrTime__Fi",
+          "instructions": 98,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_RenderMapView__Fv",
+          "instructions": 161,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_BlackThinBox__Fiiii",
+          "instructions": 123,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_Draw321Num__Fiiiiii",
+          "instructions": 111,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_Render321Go__Fv",
+          "instructions": 83,
+          "diff_lines": 0
+        },
+        {
+          "function": "BigBTCTime__Fi",
+          "instructions": 200,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_RenderHudView__Fv",
+          "instructions": 606,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_RenderTacView__Fv",
+          "instructions": 71,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_ParseTime__FiPc",
+          "instructions": 91,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_RenderPauseBox__Fiiii",
+          "instructions": 98,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_Render__Fv",
+          "instructions": 282,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_PositionMap__Fv",
+          "instructions": 66,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_BTC_Update__FPcib",
+          "instructions": 25,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_BustedOverlayOn__FiPcbs",
+          "instructions": 110,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_BustedOverlayOff__Fv",
+          "instructions": 3,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_Reset__Fv",
+          "instructions": 22,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_BTC_QuitOut__Fv",
+          "instructions": 49,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_BTC_BonusTime__Fl",
+          "instructions": 6,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_Perp_OverlayOn__Fii",
+          "instructions": 11,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_Perp_OverlayOff__Fi",
+          "instructions": 6,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_DebugCrap__Fv",
+          "instructions": 2,
+          "diff_lines": 0
+        },
+        {
+          "function": "Hud_BuildF4o__FP7POLY_F4iiiiiUlScSc",
+          "instructions": 53,
+          "diff_lines": 0
+        },
+        {
+          "function": "uppercase__FPc",
+          "instructions": 24,
+          "diff_lines": 0
+        }
+      ],
+      "branches": [
+        {
+          "function": "Hud_CreateHudViews__Fv",
+          "count": 10,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_GoTpage__Fi",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_DebugInfo__Fv",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_BuildSprite__FP4SPRTiiiUli",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_BuildSprite2__FP4SPRTiii",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_FBuildSprite__FiiiUli",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_BuildSpriteFromFont__FP4SPRTcii",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_BuildF3__FP7POLY_F3P13HudPmx_tShapeiiUl",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_BuildGT4__FP8POLY_GT4P13HudPmx_tShapeiiUl",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_BuildFT4__FP8POLY_FT4P13HudPmx_tShapeiiUli",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_BuildMirrorFT4__FP8POLY_FT4P13HudPmx_tShapeiiUli",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_BuildMapMirrorFT4__FP8POLY_FT4P13HudPmx_tShapeiiUli",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_BuildF4__FP7POLY_F4iiiiiUl",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_BuildG4__FP7POLY_G4iiiiiUlUlUlUl",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_FBuildGT4__FP13HudPmx_tShapeiiUl",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_FBuildFT4__FP13HudPmx_tShapeiiUl",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_FBuildF4__FiiiiiUlcc",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_Kill__Fv",
+          "count": 2,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_Init0__Fv",
+          "count": 1,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_InitMapFrame__Fii",
+          "count": 8,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_BuildTimeSprites__FP4SPRTPcii",
+          "count": 4,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_Init__Fv",
+          "count": 28,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_InitTables__Fv",
+          "count": 1,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_BuildETimeString__FP4SPRTi",
+          "count": 4,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_BuildDistanceString__FP4SPRTi",
+          "count": 3,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_BuildTimeString__FP4SPRTi",
+          "count": 3,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_BuildTach__Fi",
+          "count": 11,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_BuildString__FPciiiib",
+          "count": 39,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_BuildNumbers0__Fi",
+          "count": 45,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_BuildNumbers__Fi",
+          "count": 45,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_InitMap__Fv",
+          "count": 4,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_BuildMapMarkers__Fi",
+          "count": 40,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_WingmanFlash__Fii",
+          "count": 3,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_BuildWingmanInterface__Fi",
+          "count": 3,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_InitCdPlayer__Fv",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_BuildCdPlayer__Fii",
+          "count": 62,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_BuildRadar__Fi",
+          "count": 43,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_BuildReplay__Fv",
+          "count": 13,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_NextPlayer__Fi",
+          "count": 15,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_NextPlayerNameOrCarOrTime__Fi",
+          "count": 14,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_RenderMapView__Fv",
+          "count": 10,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_BlackThinBox__Fiiii",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_Draw321Num__Fiiiiii",
+          "count": 6,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_Render321Go__Fv",
+          "count": 7,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "BigBTCTime__Fi",
+          "count": 12,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_RenderHudView__Fv",
+          "count": 34,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_RenderTacView__Fv",
+          "count": 4,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_ParseTime__FiPc",
+          "count": 5,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_RenderPauseBox__Fiiii",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_Render__Fv",
+          "count": 38,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_PositionMap__Fv",
+          "count": 1,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_BTC_Update__FPcib",
+          "count": 2,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_BustedOverlayOn__FiPcbs",
+          "count": 6,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_BustedOverlayOff__Fv",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_Reset__Fv",
+          "count": 2,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_BTC_QuitOut__Fv",
+          "count": 2,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_BTC_BonusTime__Fl",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_Perp_OverlayOn__Fii",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_Perp_OverlayOff__Fi",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_DebugCrap__Fv",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "Hud_BuildF4o__FP7POLY_F4iiiiiUlScSc",
+          "count": 0,
+          "count_equal": true,
+          "offset_diffs": []
+        },
+        {
+          "function": "uppercase__FPc",
+          "count": 3,
+          "count_equal": true,
+          "offset_diffs": []
+        }
+      ],
+      "debug_object": "scratchpad/p907_checkpoint/actual_debug/diffsrc/recon/game/psx/hud.cpp.g.o",
+      "debug_allocated_payloads_exact": true
+    }
+  ],
+  "all_normal_debug_payloads_identical": true,
+  "no_debug_label_rewriting": true,
+  "original_macro_and_AIDataRecord_header_context_not_claimed": true,
+  "goal_complete": false
+}

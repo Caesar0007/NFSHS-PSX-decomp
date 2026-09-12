@@ -1504,8 +1504,8 @@ void STREAM_kill(int s)
 /* STREAM_get @0x800FD9AC : pop the next available chunk for a consumer, returning a pointer to its data
  *   ARITY (w32-a10 prototype audit, R3): ONE arg.  All four call sites (STREAM_cancelrequest,
  *   iSNDstreamhotroddatachunks, iSNDstreamservice, sst.c x2) set up $a0 only -- the a1/a2 the callee
- *   passes to validatehandle() are its OWN &out[0]/&out[1], materialized inside.  eaclib.h and
- *   video_externs.h already declared the 1-arg form; the 3-arg decl here was a stale-register artifact
+ *   passes to validatehandle() are its OWN &out[0]/&out[1], materialized inside.  video_externs.h
+ *   already declared the 1-arg form; the 3-arg decl here was a stale-register artifact
  *   patched over with `(void)buf;(void)len;` + a 1-arg fn-ptr cast at the call site -- all removed.
  *   Diff-neutral (37 before and after), no neighbour regressions.
  *   (or 0 if none).  Advances the consumer's read cursor to the following same-tagged chunk.

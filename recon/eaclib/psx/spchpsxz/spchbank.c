@@ -113,7 +113,7 @@ bool iSPCH_TestSubBankBounds(int bankIdx, int subIdx)
 
 /* iSPCH_SetCycleBits @0x800EB3C8 : for bank `p`, set the run of cycle bits that this game number (gGameNum)
  *   maps to within the bank's GetBankBits() array.  The (n==0)/(n==-1 && dividend==INT_MIN) checks are the
- *   compiler's signed-division traps.  True contract is void (matching eaclib.h and all callers).
+ *   compiler's signed-division traps.  True contract is void (all callers agree).
  *   MATCH (86/86): under the library-wide -G0 (build.py PER_TU_FLAGS) the plain scalar gGameNum gets the
  *   split lui/lw address pair, whose `lui` fills the initial `blez` delay slot -- the old unsized-array
  *   declaration was only a -G4 workaround for the same effect (retired 2026-09-02). */

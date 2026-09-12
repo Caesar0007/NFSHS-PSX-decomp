@@ -947,7 +947,7 @@ extern int iSNDplatformpacketplaycreate(int p, int *mem)
 }
 
 /* iSNDplatformpacketplaydestroy @0x801042C0 : free a player's SPU context and clear its slot.
- * (true return is void -- spktplay.cpp/eaclib.h already declare `void`; $v0 after the tail-call
+ * (true return is void -- spktplay.cpp already declares `void`; $v0 after the tail-call
  * to iSNDpsxfree is incidental/unused, per §3.2.) */
 extern void iSNDplatformpacketplaydestroy(int p)
 {
@@ -1110,7 +1110,7 @@ extern int iSNDplatformpacketplay(int p, int note, unsigned short volAngle, unsi
  *   voices remain active, drop the serve hook and point the pre-load tick back at the bare IRQ re-arm. */
 extern void iSNDpsxpacketstop(void *parg)
 {
-    unsigned char *p = (unsigned char *)parg;   /* MATCH: real sig is void(void*) -- eaclib.h/HOOK_voice_done;
+    unsigned char *p = (unsigned char *)parg;   /* MATCH: real sig is void(void*) -- HOOK_voice_done;
                                                   * the oracle NEVER sets up $v0 at any epilogue (§3.2 void). Our
                                                   * previous `int p ... return pp;` forced pp into a CALLEE-SAVED
                                                   * reg to survive the trailing sdpacket_setirq_cs() call -> an

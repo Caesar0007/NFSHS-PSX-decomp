@@ -31,7 +31,7 @@ extern short *iSNDserveraddclient(int cb)
 }
 
 /* iSNDserverremoveclient @0x801047CC : unregister `cb`, compacting the list.  void -- $v0 at every
- *   exit is incidental (numclients / slt scratch / i<<2), matching the eaclib.h `void` prototype. */
+ *   exit is incidental (numclients / slt scratch / i<<2). */
 extern void iSNDserverremoveclient(int cb)
 {
     int i;

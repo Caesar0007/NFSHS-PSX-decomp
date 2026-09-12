@@ -111,7 +111,7 @@ ReadCmd readcmd;   /* @0x80140400: fileroot.obj owning BSS definition */
 /* initfileio @0x800F3A34 : advertise the CD (unless disabled), and -- if the PC dev link is present --
  *   bring up PC host I/O, register the deferred-read system task, and select the PC filesystem;
  *   otherwise (no dev link) fall back to the CD filesystem.
- *   VOID return: the oracle never sets $v0 at the epilogue (matches eaclib.h `void`). */
+ *   VOID return: the oracle never sets $v0 at the epilogue. */
 void initfileio(void)
 {
     if (disablecd == 0)
@@ -303,7 +303,7 @@ int getfilesize(int handle)
 /* stopreadfile @0x800F4100 : abort an in-flight read.  CD: CD_Stopread; PC host: drop the queued command
  *   (if it is this handle's) and complete it.  Called by FILE_cancelop.
  *   VOID return: the oracle never sets $v0 at the epilogue (bare nop) -> the fn returns nothing
- *   (matches the nfile.cpp forward decl + eaclib.h, both `void`). */
+ *   (the nfile.cpp forward decl agrees). */
 void stopreadfile(int handle)
 {
     int fs  = handle >> 0x18;

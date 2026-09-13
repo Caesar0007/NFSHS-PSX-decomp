@@ -187,6 +187,11 @@ def main():
     ap.add_argument("--reuse-objdata", action="store_true")
     ap.add_argument("--min-pct", type=float)
     ap.add_argument("--json")
+    ap.add_argument("--map-provide", action="store_true",
+                    help="also -T linkers/map_symbols_provide.ld: PROVIDE every "
+                         "NFS4.MAP symbol at its retail address so relocs to "
+                         "unplaced (interleaved/dropped) fns and data resolve to "
+                         "retail -- drives text to its true byte floor")
     a = ap.parse_args()
 
     OUTDIR.mkdir(parents=True, exist_ok=True)
@@ -317,7 +322,10 @@ def main():
     if elf.exists():
         elf.unlink()
     cmd = [LD]
-    for auto in ("undefined_syms_auto.txt", "undefined_funcs_auto.txt"):
+    autos = ["undefined_syms_auto.txt", "undefined_funcs_auto.txt"]
+    if a.map_provide:
+        autos.append("map_symbols_provide.ld")
+    for auto in autos:
         p = ROOT / "linkers" / auto
         if p.exists():
             cmd += ["-T", str(p.relative_to(ROOT).as_posix())]

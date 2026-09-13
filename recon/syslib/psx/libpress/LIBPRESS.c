@@ -24,16 +24,13 @@ typedef unsigned short u_short;
  * SYM-GLOBAL-CARRIER: MDEC1_ptr
  * SYM-GLOBAL-CARRIER: DPCR_ptr
  * LIBPRESS.obj-private register-pointer cells, proven by the exact retail
- * address run and per-cell relocation references described above. */
-static volatile u_long *D0_MADR_ptr __attribute__((section(".bss")));  /* @0x80136C08 */
-static volatile u_long *D0_BCR_ptr  __attribute__((section(".bss")));  /* @0x80136C0C */
-static volatile u_long *D0_CHCR_ptr __attribute__((section(".bss")));  /* @0x80136C10 */
-static volatile u_long *D1_MADR_ptr __attribute__((section(".bss")));  /* @0x80136C14 */
-static volatile u_long *D1_BCR_ptr  __attribute__((section(".bss")));  /* @0x80136C18 */
-static volatile u_long *D1_CHCR_ptr __attribute__((section(".bss")));  /* @0x80136C1C */
-static volatile u_long *MDEC0_ptr   __attribute__((section(".bss")));  /* @0x80136C38 */
-static volatile u_long *MDEC1_ptr   __attribute__((section(".bss")));  /* @0x80136C3C */
-static volatile u_long *DPCR_ptr    __attribute__((section(".bss")));  /* @0x80136C40 */
+ * address run and per-cell relocation references described above.
+ * RUNTIME-LANE LAYOUT FIX (2026-09-13, audit_layout.py): the whole cell block is
+ * INITIALIZED retail .data at 0x80136C08..0x80136C44 (inside the image, values =
+ * the MMIO addresses), and it is the FULL DMA ch0..ch3 register set -- twelve
+ * ch pointers, then MDEC0/MDEC1/DPCR, then a zero word -- not our former 9-cell
+ * .bss run.  Declarations moved BELOW the MDEC tables so the .data emission
+ * order reproduces the retail slots (iqtab, idcttab, D_80136C00, this table). */
 /* MDEC_in_sync/MDEC_out_sync's poll loops need MDEC1/D1_CHCR's *volatile-pointer* variable itself
  * (not just its target) reloaded EVERY iteration -- a per-use-site local `volatile T *volatile p`
  * alias achieves that without forcing every OTHER accessor of the same cell to pay a reload too
@@ -57,7 +54,7 @@ extern int  printf(const char *fmt, ...);    /* libc   C63.obj */
 /* SYM-GLOBAL-CARRIER: _mdec_iqtab
  * SYM-GLOBAL-CARRIER: _mdec_idcttab
  * Canonical MDEC tables restored byte-for-byte at their retail addresses. */
-static const u_long _mdec_iqtab[33] = {
+static const u_long _mdec_iqtab[33] __attribute__((section(".data"))) = {
     0x40000001, 0x13101002, 0x16161310, 0x16161616, 0x1b1a181a, 0x1a1a1b1b, 0x1b1b1a1a, 0x1d1d1d1b,
     0x1d222222, 0x1b1b1d1d, 0x20201d1d, 0x26252222, 0x22232325, 0x28262623, 0x30302828, 0x38382e2e,
     0x5345453a, 0x13101002, 0x16161310, 0x16161616, 0x1b1a181a, 0x1a1a1b1b, 0x1b1b1a1a, 0x1d1d1d1b,
@@ -65,13 +62,36 @@ static const u_long _mdec_iqtab[33] = {
     0x5345453a
 };
 /* @0x80136B7C : MDEC "set IDCT scale table" command (0x60000000) + 32 words of cosine matrix. */
-static const u_long _mdec_idcttab[33] = {
+static const u_long _mdec_idcttab[33] __attribute__((section(".data"))) = {
     0x60000000, 0x5a825a82, 0x5a825a82, 0x5a825a82, 0x5a825a82, 0x6a6d7d8a, 0x18f8471c, 0xb8e3e707,
     0x82759592, 0x30fb7641, 0x89becf04, 0xcf0489be, 0x764130fb, 0xe7076a6d, 0xb8e38275, 0x7d8a471c,
     0x959218f8, 0xa57d5a82, 0x5a82a57d, 0xa57d5a82, 0x5a82a57d, 0x8275471c, 0x6a6d18f8, 0xe7079592,
     0xb8e37d8a, 0x89be30fb, 0xcf047641, 0x7641cf04, 0x30fb89be, 0xb8e318f8, 0x82756a6d, 0x95927d8a,
     0xe707471c
 };
+
+/* @0x80136C00 : two data words between _mdec_idcttab and the register-pointer
+ * table -- [INFERRED] identity TBD (values from the retail image; unreferenced
+ * by any matched code).  They occupy retail slots, so they are materialized. */
+static u_long D_80136C00[2] __attribute__((section(".data"))) = {0x250E7350, 0x0043539B};
+
+/* The retail register-pointer table (see the layout-fix note above). */
+static volatile u_long *D0_MADR_ptr __attribute__((section(".data"))) = (volatile u_long *)0x1F801080;  /* @0x80136C08 */
+static volatile u_long *D0_BCR_ptr  __attribute__((section(".data"))) = (volatile u_long *)0x1F801084;  /* @0x80136C0C */
+static volatile u_long *D0_CHCR_ptr __attribute__((section(".data"))) = (volatile u_long *)0x1F801088;  /* @0x80136C10 */
+static volatile u_long *D1_MADR_ptr __attribute__((section(".data"))) = (volatile u_long *)0x1F801090;  /* @0x80136C14 */
+static volatile u_long *D1_BCR_ptr  __attribute__((section(".data"))) = (volatile u_long *)0x1F801094;  /* @0x80136C18 */
+static volatile u_long *D1_CHCR_ptr __attribute__((section(".data"))) = (volatile u_long *)0x1F801098;  /* @0x80136C1C */
+static volatile u_long *D2_MADR_ptr __attribute__((section(".data"))) = (volatile u_long *)0x1F8010A0;  /* @0x80136C20 (unused) */
+static volatile u_long *D2_BCR_ptr  __attribute__((section(".data"))) = (volatile u_long *)0x1F8010A4;  /* @0x80136C24 (unused) */
+static volatile u_long *D2_CHCR_ptr __attribute__((section(".data"))) = (volatile u_long *)0x1F8010A8;  /* @0x80136C28 (unused) */
+static volatile u_long *D3_MADR_ptr __attribute__((section(".data"))) = (volatile u_long *)0x1F8010B0;  /* @0x80136C2C (unused) */
+static volatile u_long *D3_BCR_ptr  __attribute__((section(".data"))) = (volatile u_long *)0x1F8010B4;  /* @0x80136C30 (unused) */
+static volatile u_long *D3_CHCR_ptr __attribute__((section(".data"))) = (volatile u_long *)0x1F8010B8;  /* @0x80136C34 (unused) */
+static volatile u_long *MDEC0_ptr   __attribute__((section(".data"))) = (volatile u_long *)0x1F801820;  /* @0x80136C38 */
+static volatile u_long *MDEC1_ptr   __attribute__((section(".data"))) = (volatile u_long *)0x1F801824;  /* @0x80136C3C */
+static volatile u_long *DPCR_ptr    __attribute__((section(".data"))) = (volatile u_long *)0x1F8010F0;  /* @0x80136C40 */
+static u_long D_80136C44 __attribute__((section(".data"))) = 0;  /* @0x80136C44 pad/[INFERRED] */
 
 /* forward decls (engine internals) */
 static int     MDEC_in_sync(void);

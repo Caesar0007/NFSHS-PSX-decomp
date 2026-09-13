@@ -39,7 +39,7 @@ def main():
         elf.unlink()
     cmd = [LD]
     for scr in ('linkers/undefined_syms_auto.txt', 'linkers/undefined_funcs_auto.txt',
-                'linkers/retail_data_symbols.ld', 'linkers/nfs4_recon.ld'):
+                'linkers/retail_data_symbols.ld', 'linkers/nfs4_recon.ld', 'linkers/map_symbols_provide.ld'):
         if (ROOT / scr).exists():
             cmd += ['-T', scr]
     cmd += ['--unresolved-symbols=ignore-all', '--allow-multiple-definition',

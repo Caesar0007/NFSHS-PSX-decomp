@@ -59,7 +59,17 @@ def main():
     ap.add_argument('--out', required=True)
     ap.add_argument('--patch', help='VA=HEXBYTES[,VA=HEXBYTES...] applied after load')
     ap.add_argument('--idle', action='store_true')
+    ap.add_argument('--pad-file', help='recorded input tape (4 bytes/frame) '
+                                       'from record_input.py; overrides the '
+                                       'route and sets the frame count')
+    ap.add_argument('--hash-every', type=int, default=0,
+                    help='record an intermediate full-RAM sha every N frames')
     args = ap.parse_args()
+    tape = None
+    if args.pad_file:
+        p = Path(args.pad_file)
+        tape = (p if p.is_absolute() else RUNTIME / p).read_bytes()
+        args.frames = len(tape) // 4
     g = Remote('127.0.0.1', PORT)
     try:
         stop_cpu(g)
@@ -71,16 +81,27 @@ def main():
         assert g.packet(f'Z0,{PAD_UPDATE:x},4') == 'OK'
         masks = route_masks()
         frame = 0
+        import hashlib as _hl
+        interim = []
         while frame < args.frames:
             g.send_no_reply('c')
             while True:
-                r = g._receive_packet()
+                try:
+                    r = g._receive_packet()
+                except TimeoutError:
+                    continue
                 if r.startswith(('S', 'T')):
                     g.stopped = True
                     break
-            frame += 1
-            if not args.idle:
+            if tape is not None:
+                g.packet(f'M{RAW_PAD0:x},4:{tape[frame*4:frame*4+4].hex()}')
+            elif not args.idle:
                 g.packet(f'M{RAW_PAD0:x},4:{pad_payload(next(masks))}')
+            frame += 1
+            if args.hash_every and frame % args.hash_every == 0:
+                h = _hl.sha256(g.read_memory(0x80000000, 0x200000)).hexdigest()[:16]
+                interim.append((frame, h))
+                print(f'  frame {frame}: {h}', flush=True)
         ram = g.read_memory(0x80000000, 0x200000)
         regs = g.packet('g')
         out = RUNTIME / args.out if not Path(args.out).is_absolute() else Path(args.out)

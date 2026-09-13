@@ -91,6 +91,40 @@ def main():
             if votes:
                 b, n = votes.most_common(1)[0]
                 if n >= 1: secbase[s2] = b
+        # RETAIL-DECODED bases for sections with NO named anchor (local statics):
+        # the section base is a layout fact -- decode retail's resolved %hi/%lo
+        # pair at the same in-function offset, base = retail_target - OUR addend
+        # (our addend still tests our code: a wrong struct offset -> no match).
+        secvotes = _C()
+        need_secs = {r[2] for r in rels if r[2].startswith('.')} - set(secbase)
+        if need_secs:
+            for off2, size2, name2 in fns:
+                va2 = addr_of(name2)
+                if va2 is None: continue
+                sz2 = size2
+                if sz2 == 0:
+                    nxt = [o for o in allsyms if o > off2]
+                    sz2 = (nxt[0]-off2) if nxt else (len(tb)-off2)
+                rl2 = [r for r in rels if off2 <= r[0] < off2+sz2]
+                for a in range(len(rl2)):
+                    ro, ty, tg = rl2[a]
+                    if ty != 'R_MIPS_HI16' or tg not in need_secs: continue
+                    b = a+1
+                    while b < len(rl2) and not (rl2[b][1]=='R_MIPS_LO16' and rl2[b][2]==tg): b+=1
+                    if b >= len(rl2): continue
+                    lo_o = rl2[b][0]
+                    ohi = struct.unpack_from('<I', tb, ro)[0]
+                    olo = struct.unpack_from('<I', tb, lo_o)[0]
+                    oadd = ((ohi&0xFFFF)<<16) + s16(olo)
+                    rhi = imgb(va2 + (ro-off2), 4); rlo = imgb(va2 + (lo_o-off2), 4)
+                    if len(rhi) < 4 or len(rlo) < 4: continue
+                    rt = ((int.from_bytes(rhi,'little')&0xFFFF)<<16) + s16(int.from_bytes(rlo,'little'))
+                    secvotes[(tg, rt - oadd)] += 1
+            for tg in need_secs:
+                cand = _C({base: n for (s3, base), n in secvotes.items() if s3 == tg})
+                if cand:
+                    b, n = cand.most_common(1)[0]
+                    if n >= 1: secbase[tg] = b
         # extents: sort by offset (all .text symbols) for size
         allo = []
         for ln in st.splitlines():

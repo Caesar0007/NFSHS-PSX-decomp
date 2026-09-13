@@ -1,0 +1,9 @@
+# The DuckStation runtime is a 167MB binary drop (copied from
+# C:\Temp\PSX-Dynamic-Decomp\tools\duckstation\api-runtime, patched GDB
+# save/load-state build) -- not tracked; see README.md for provenance.
+duckstation/
+# Derived, regenerable artifacts
+analysis.sqlite
+status/
+states/
+traces/

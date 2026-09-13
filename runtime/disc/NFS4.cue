@@ -1,0 +1,3 @@
+FILE "C:\Temp\_from_github\NFS4.IMG" BINARY
+  TRACK 01 MODE2/2352
+    INDEX 01 00:00:00

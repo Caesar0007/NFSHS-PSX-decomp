@@ -24,7 +24,14 @@ SYSTEM.CNF; boots via PSX.EXE): root carries `NFS4.EXE`, `NFS4.CPE`,
   == `nfs4-f.exe` exactly: runtime state on this disc IS our oracle build.
 - Live proof (`probe_boot.py`): all game-code RAM windows MATCH after boot —
   `BASE-IDENTITY VERIFIED`. The frontend windows match once the game loads
-  FRONT.BIN (menu entry; needs pad input to get there).
+  FRONT.BIN.
+- 🔴 **The .CCD's .SUB is CORRUPT** (invalid subchannel Q, e.g. sector 262):
+  DuckStation withholds the sector, the game retries `Setloc/ReadS 00:03:37`
+  forever inside `LoadFrontendOverlay__Fv` → `CD_sync`/`getasyncreadstatus`.
+  Boot from `disc/NFS4.cue` (same IMG, subchannel synthesized) — the default
+  in `launch.ps1`; frontend then loads in ~4 s and ALL 8 identity windows go
+  green (`BASE-IDENTITY VERIFIED (frontend loaded)`; checkpoint
+  `frontend-loaded-v1`).
 
 ## Layout
 
@@ -37,6 +44,8 @@ SYSTEM.CNF; boots via PSX.EXE): root carries `NFS4.EXE`, `NFS4.CPE`,
 | `tools/probe_boot.py` | identity gate: sample RAM windows vs `rom/nfs4-f.exe` (`--wait-frontend` polls for the overlay). |
 | `tools/checkpoint.py` | `save|load <name>` full-state checkpoints (never overwrites; load clears breakpoints). |
 | `tools/ccd_extract.py` | read/extract files from the raw CCD image (identify, `--list`, `--get`). |
+| `tools/inject_input.py` | deterministic pad injection: breakpoint at `PAD_update` @0x800E4210, write the raw `PadInitDirect` port-0 buffer @0x8013E8F0 (`00 41 ~lo ~hi`) each frame — the game's own pipeline copies it into the state array @0x8013E8A0 (proven end-to-end). `--route menu` or `--press START:8,-:8,...`. |
+| `disc/NFS4.cue` | clean cue over `C:\Temp\_from_github\NFS4.IMG` (bypasses the corrupt .SUB — see above). |
 | `tools/build_database.py` | (re)build `analysis.sqlite` — derived, never hand-edited. |
 | `tools/query.py` | per-function card: `py -3.14 runtime/tools/query.py transmult` or `0x80105F40` (`--image`, `--full`). |
 

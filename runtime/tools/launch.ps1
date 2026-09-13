@@ -1,9 +1,14 @@
 ﻿[CmdletBinding()]
-param([switch]$FastBoot,[string]$StateFile,[string]$Disc='C:\Temp\_from_github\NFS4.CCD',[string]$Exe)
+param([switch]$FastBoot,[string]$StateFile,[string]$Disc,[string]$Exe)
 $ErrorActionPreference='Stop'
 # nfs4-decomp runtime lane: patched DuckStation (GDB full save/load state), port 2350.
 $RuntimeRoot=Split-Path -Parent $PSScriptRoot          # .../runtime
 $Runtime=Join-Path $RuntimeRoot 'duckstation'
+# Default disc = the clean .cue over the dev-disc IMG. The original NFS4.CCD's
+# .SUB carries invalid subchannel Q (e.g. sector 262) -> DuckStation withholds
+# the sector and the game hangs forever in LoadFrontendOverlay/CD_sync retries.
+# The cue drops the subchannel dump so subQ is synthesized clean.
+if (-not $Disc) { $Disc=Join-Path $RuntimeRoot 'disc\NFS4.cue' }
 $Executable=Join-Path $Runtime 'duckstation-qt-x64-ReleaseLTCG.exe'
 if ($Exe) { $Disc=(Resolve-Path -LiteralPath $Exe).Path }   # boot a PS-X EXE/CPE directly
 $Port=2350

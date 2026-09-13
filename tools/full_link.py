@@ -30,10 +30,38 @@ spec = importlib.util.spec_from_file_location('relink', ROOT / 'tools' / 'relink
 relink = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(relink)
 
+def dropped_objects():
+    """Objects gen_ld could not place in the .text spine (interleaved / no
+    base).  Passing them to ld defines their symbols at a catch-all address,
+    which shadows map_symbols_provide's retail address (breaking vtable
+    pointers + callers).  Exclude them from the ld INPUT: their symbols then
+    resolve to retail via PROVIDE and their .text bytes are hybrid-filled."""
+    rep = ROOT / 'build' / 'gen_ld' / 'genld_report.txt'
+    names = set()
+    if rep.exists():
+        sect = ''
+        for ln in rep.read_text(errors='replace').splitlines():
+            if '== DROPPED' in ln:
+                sect = 'drop'
+            elif 'TEXT BUT NO IMPLIED BASE' in ln:
+                sect = 'drop'
+            elif ln.startswith('=='):
+                sect = ''
+            elif sect == 'drop':
+                m = re.search(r'(build/recon/\S+\.o)', ln)
+                if m:
+                    names.add(m.group(1))
+    return names
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
-    objs = relink.lane_objects('recon')
-    print(f'[objs] {len(objs)} recon-lane objects')
+    all_objs = relink.lane_objects('recon')
+    drop = dropped_objects()
+    objs = [o for o in all_objs
+            if o.relative_to(ROOT).as_posix() not in drop]
+    print(f'[objs] {len(all_objs)} recon-lane objects; excluding {len(drop)} '
+          f'dropped from ld input -> {len(objs)} linked (dropped are '
+          f'hybrid-filled + map-provide resolved)')
     elf = OUT / 'full.elf'
     if elf.exists():
         elf.unlink()
@@ -104,7 +132,7 @@ def main():
                 buf[a:a+len(d)]=d
         return bytes(buf)
     filled = 0
-    for o in objs:
+    for o in all_objs:        # include dropped objects so their bytes get filled
         st = subprocess.run([OBJDUMP,'-t',str(o)],capture_output=True,text=True).stdout
         fns=[]; allt=[]
         for ln in st.splitlines():

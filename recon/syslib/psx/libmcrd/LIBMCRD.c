@@ -2299,7 +2299,15 @@ erased:
     return 0;
 }
 
-/* @0x800FBFDC : MemCardFormat -- synchronously format the card on chan. */
+/* @0x800FBFDC : MemCardFormat -- synchronously format the card on chan.
+ * 🏆 RUNTIME-PROVEN SEMANTICALLY EQUIVALENT (2026-09-13, runtime/ lane): the FAIL-1 body
+ * (extra nop, $at-split identity) was relocated (fn_probe, scratch 0x801E8000) and
+ * DIRECT-CALLED with chan=0 from the memcard-screen checkpoint (user-navigated;
+ * the screen's engaged card system is REQUIRED -- from any other context the sync
+ * poll starves in _get_card_event_x).  Identical v0=0 and identical live RAM vs the
+ * retail-bytes null control at the call boundary; residue = dead-stack ra words
+ * (+4 from the extra insn) and kernel timing scratch (the ±1-cycle class).
+ * With this, ALL FOUR vendor-vintage certificates are runtime-proven. */
 extern long MemCardFormat(long chan)
 {
     char devname[64];

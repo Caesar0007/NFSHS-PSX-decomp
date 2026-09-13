@@ -1,5 +1,5 @@
 ﻿[CmdletBinding()]
-param([switch]$FastBoot,[string]$StateFile,[string]$Disc,[string]$Exe)
+param([switch]$FastBoot,[string]$StateFile,[string]$Disc,[string]$Exe,[switch]$Visible)
 $ErrorActionPreference='Stop'
 # nfs4-decomp runtime lane: patched DuckStation (GDB full save/load state), port 2350.
 $RuntimeRoot=Split-Path -Parent $PSScriptRoot          # .../runtime
@@ -21,7 +21,8 @@ if ($StateFile) {
  $Arguments+='"'+$StateFile+'"'
 }
 $Arguments+='"'+$Disc+'"'
-$Process=Start-Process -FilePath $Executable -ArgumentList $Arguments -WorkingDirectory $Runtime -WindowStyle Hidden -PassThru
+$Style = if ($Visible) { 'Normal' } else { 'Hidden' }
+$Process=Start-Process -FilePath $Executable -ArgumentList $Arguments -WorkingDirectory $Runtime -WindowStyle $Style -PassThru
 $Deadline=(Get-Date).AddSeconds(30)
 do {
  if ($Process.HasExited) { throw "DuckStation exited with code $($Process.ExitCode)" }

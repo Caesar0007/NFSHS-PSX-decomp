@@ -51,8 +51,9 @@ def set_reg(regs_hex, idx, value):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--checkpoint', required=True)
-    ap.add_argument('--fn', required=True, type=lambda s: int(s, 16))
+    ap.add_argument('--fn', type=lambda s: int(s, 16))
     ap.add_argument('--args', default='', help='comma ints/hex for a0..a3')
+    ap.add_argument('--calls', help="sequence 'va:a0,a1;va:a0' -- overrides --fn/--args")
     ap.add_argument('--frames', type=int, default=300)
     ap.add_argument('--out', required=True)
     ap.add_argument('--patch-file')
@@ -83,32 +84,43 @@ def main():
         saved = g.packet('g')
         # trap: break 0 at TRAP_VA (plus a nop delay-mate)
         assert g.packet(f'M{TRAP_VA:x},8:0d000000' + '00000000') == 'OK'
-        regs = saved
-        avals = [int(x, 0) for x in args.args.split(',') if x != '']
-        for i, v in enumerate(avals[:4]):
-            regs = set_reg(regs, 4 + i, v)
-        regs = set_reg(regs, 31, TRAP_VA)          # $ra
-        regs = set_reg(regs, 37, args.fn)          # pc
-        assert g.packet('G' + regs) == 'OK'
+        seq = []
+        if args.calls:
+            for part in args.calls.split(';'):
+                fn_s, _, a_s = part.partition(':')
+                seq.append((int(fn_s, 16),
+                            [int(x, 0) for x in a_s.split(',') if x != '']))
+        else:
+            seq = [(args.fn, [int(x, 0) for x in args.args.split(',') if x != ''])]
         assert g.packet(f'Z0,{TRAP_VA:x},4') == 'OK'
-        g.send_no_reply('c')
-        deadline = time.time() + 120        # a blocking callee (e.g. a real
-        while True:                         # card format) spans many frames
-            try:
-                r = g._receive_packet()
-            except TimeoutError:
-                if time.time() > deadline:
-                    raise RuntimeError('callee never returned to the trap')
-                continue
-            if r.startswith(('S', 'T')):
-                g.stopped = True
-                break
-        after = g.packet('g')
-        pc = int.from_bytes(bytes.fromhex(after[37*8:37*8+8]), 'little')
-        v0 = int.from_bytes(bytes.fromhex(after[2*8:2*8+8]), 'little')
-        v1 = int.from_bytes(bytes.fromhex(after[3*8:3*8+8]), 'little')
-        assert pc == TRAP_VA, f'stopped at {pc:#x}, not the trap'
-        print(f'call returned: v0={v0:#x} v1={v1:#x}')
+        results = []
+        v0 = v1 = 0
+        for fn, avals in seq:
+            regs = saved
+            for i, v in enumerate(avals[:4]):
+                regs = set_reg(regs, 4 + i, v)
+            regs = set_reg(regs, 31, TRAP_VA)          # $ra
+            regs = set_reg(regs, 37, fn)               # pc
+            assert g.packet('G' + regs) == 'OK'
+            g.send_no_reply('c')
+            deadline = time.time() + 120    # a blocking callee (e.g. a real
+            while True:                     # card format) spans many frames
+                try:
+                    r = g._receive_packet()
+                except TimeoutError:
+                    if time.time() > deadline:
+                        raise RuntimeError(f'callee {fn:#x} never returned to the trap')
+                    continue
+                if r.startswith(('S', 'T')):
+                    g.stopped = True
+                    break
+            after = g.packet('g')
+            pc = int.from_bytes(bytes.fromhex(after[37*8:37*8+8]), 'little')
+            v0 = int.from_bytes(bytes.fromhex(after[2*8:2*8+8]), 'little')
+            v1 = int.from_bytes(bytes.fromhex(after[3*8:3*8+8]), 'little')
+            assert pc == TRAP_VA, f'stopped at {pc:#x}, not the trap'
+            print(f'call {fn:#x} returned: v0={v0:#x} v1={v1:#x}')
+            results.append({'fn': hex(fn), 'v0': hex(v0), 'v1': hex(v1)})
         g.packet(f'z0,{TRAP_VA:x},4')
         assert g.packet('G' + saved) == 'OK'       # restore interrupted context
         # pump N frames with neutral injected input
@@ -126,7 +138,7 @@ def main():
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_bytes(ram)
         (out.with_suffix(out.suffix + '.result')).write_text(
-            json.dumps({'v0': hex(v0), 'v1': hex(v1), 'frames': args.frames}))
+            json.dumps({'calls': results, 'frames': args.frames}))
         import hashlib
         print(f'{args.frames} frames -> {out}  sha256 '
               f'{hashlib.sha256(ram).hexdigest()[:16]}')

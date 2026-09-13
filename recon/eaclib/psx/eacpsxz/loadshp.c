@@ -21,9 +21,14 @@ extern char *strcpy(char *dst, const char *src);   /* syslib C25 */
 extern int   strlen(const char *s);                /* syslib C27 */
 extern char *strcat(char *dst, const char *src);   /* syslib C21 */
 
-char *shapeext;   /* @0x8013DD20 default shape-file extension string ptr -- TENTATIVE DEF (SS 3.12 #6):
-                   * loadshp OWNS it (only %gp_rel(shapeext) oracle = loadshapeadr.s) -> .comm -> the
-                   * oracle's gp-relative `lw a1,0(gp)`; a plain extern emits absolute lui/lw (3 diffs). */
+/* @0x8013DD20 default shape-file extension string ptr.  RUNTIME-LANE FIX
+ * (2026-09-13, map_audit vs NFS4.MAP): retail INITIALIZES this to ".psh" --
+ * the string bytes 2E 70 73 68 sit at 0x8013DD18 and shapeext (0x8013DD20)
+ * points at them.  The old uninitialized (.comm/.bss NULL) def made
+ * loadshapeadr's `strcat(buf, shapeext)` append a NULL pointer -> crash on
+ * any extension-less shape-file load.  Initialized -> .sdata, still
+ * gp-relative under -G4 (the `lw a1,0(gp)` the oracle wants). */
+char *shapeext = ".psh";
 
 /* loadshapeadr @0x800F1C3C : load shape `filename` (default-extending it), returns loadpackadr's result. */
 int loadshapeadr(char *filename, void *arg2)

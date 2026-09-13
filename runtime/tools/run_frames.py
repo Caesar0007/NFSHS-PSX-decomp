@@ -66,10 +66,21 @@ def main():
                     help='record an intermediate full-RAM sha every N frames')
     args = ap.parse_args()
     tape = None
+    tape_c0 = tape_caddr = None
     if args.pad_file:
         p = Path(args.pad_file)
-        tape = (p if p.is_absolute() else RUNTIME / p).read_bytes()
+        p = p if p.is_absolute() else RUNTIME / p
+        tape = p.read_bytes()
         args.frames = len(tape) // 4
+        side = p.with_suffix('.json')          # <label>.pad.json sidecar
+        if side.exists():
+            import json as _j
+            meta = _j.loads(side.read_text())
+            tape_c0 = meta.get('counter0')
+            tape_caddr = meta.get('counter_addr')
+            # PAD_update fires >1x per video frame; give the loop headroom to
+            # walk the 60Hz counter through the whole tape (it breaks at the end)
+            args.frames = (len(tape) // 4) * 4
     g = Remote('127.0.0.1', PORT)
     try:
         stop_cpu(g)
@@ -94,7 +105,18 @@ def main():
                     g.stopped = True
                     break
             if tape is not None:
-                g.packet(f'M{RAW_PAD0:x},4:{tape[frame*4:frame*4+4].hex()}')
+                if tape_caddr is not None:
+                    # counter-keyed: align to the same 60Hz clock the tape was
+                    # recorded against, independent of PAD_update firing rate
+                    cur = int.from_bytes(g.read_memory(tape_caddr, 4), 'little')
+                    idx = cur - tape_c0
+                    if idx < 0:
+                        idx = 0
+                    elif idx * 4 + 4 > len(tape):
+                        break               # replayed the whole tape
+                    g.packet(f'M{RAW_PAD0:x},4:{tape[idx*4:idx*4+4].hex()}')
+                else:
+                    g.packet(f'M{RAW_PAD0:x},4:{tape[frame*4:frame*4+4].hex()}')
             elif not args.idle:
                 g.packet(f'M{RAW_PAD0:x},4:{pad_payload(next(masks))}')
             frame += 1

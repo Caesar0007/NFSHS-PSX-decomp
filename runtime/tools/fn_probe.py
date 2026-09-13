@@ -38,9 +38,17 @@ def main():
     ap.add_argument('--tu', required=True)
     ap.add_argument('--fn', required=True)
     ap.add_argument('--va', required=True, type=lambda s: int(s, 16))
-    ap.add_argument('--scratch', required=True, type=lambda s: int(s, 16))
+    ap.add_argument('--scratch', type=lambda s: int(s, 16))
+    ap.add_argument('--in-place', action='store_true',
+                    help='patch the candidate body OVER its real VA (clobber-proof '
+                         'code region; only valid when ours==retail size); rodata '
+                         'refs resolve to real rodata, no relocation, no call redirect')
     ap.add_argument('--out', required=True)
     args = ap.parse_args()
+    if args.in_place:
+        args.scratch = args.va
+    if args.scratch is None:
+        sys.exit('--scratch required (or use --in-place)')
 
     sys.path.insert(0, str(ROOT / 'tools'))
     spec = importlib.util.spec_from_file_location('bld', ROOT / 'tools' / 'build.py')
@@ -160,8 +168,16 @@ def main():
     # the relocated body must use a relocated copy whose entries point into
     # the scratch body, else execution jumps back into the retail function.
     rodata_scratch = None
-    if any(s == '.rodata' for _o, _t, s in rl_all
-           if fn_off <= _o < fn_off + fn_size):
+    if args.in_place:
+        # in-place: rodata stays at its real linked address (already anchored
+        # into sec_base['.rodata']); the real rodata's jump-table entries
+        # already point at the real body we're overwriting.  No relocation.
+        if '.rodata' not in sec_base:
+            for _o, _t, s in rl_all:
+                if s == '.rodata':
+                    sys.exit('.rodata ref but no anchor -- cannot in-place patch')
+    elif any(s == '.rodata' for _o, _t, s in rl_all
+             if fn_off <= _o < fn_off + fn_size):
         rod = subprocess.run([OBJD, '-s', '-j', '.rodata', str(obj)],
                              capture_output=True, text=True).stdout
         rodata = bytearray()
@@ -281,7 +297,36 @@ def main():
     print(f'relocs applied: {n26} x26, {nhi} hi/lo pairs; section bases: ' +
           ', '.join(f'{k}=0x{v:08X}' for k, v in sec_base.items()))
 
-    # ---- call sites from the DB ----
+    blob = bytearray(body)
+    if rodata_scratch is not None:
+        blob.extend(b'\0' * (rodata_scratch - args.scratch - len(blob)))
+        blob.extend(rodata)
+
+    if args.in_place:
+        # overwrite the retail body at its real VA; no call-site redirect, no
+        # rodata copy.  Verify size == retail (else we'd clobber the next fn).
+        retail = (ROOT / 'rom' / 'nfs4-f.exe').read_bytes()[0x800:]
+        rlen = None
+        db = sqlite3.connect(RUNTIME / 'analysis.sqlite')
+        row = db.execute("SELECT end FROM functions WHERE image='nfs4-f.exe' "
+                         "AND address=?", (args.va,)).fetchone()
+        if row and row[0]:
+            rlen = row[0] - args.va
+        if rlen is not None and len(blob) != rlen:
+            sys.exit(f'SIZE MISMATCH: ours {len(blob)} vs retail {rlen} bytes -- '
+                     f'cannot in-place patch (would clobber the next function). '
+                     f'Use relocation instead.')
+        out = RUNTIME / args.out
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(json.dumps({
+            'fn': args.fn, 'va': f'0x{args.va:08X}', 'mode': 'in-place',
+            'size': len(blob),
+            'exclude_ranges': [[f'0x{args.va:08X}', len(blob)]],
+            'patch': f'{args.va:x}={bytes(blob).hex()}'}, indent=1))
+        print(f'IN-PLACE patch ({len(blob)} bytes at 0x{args.va:08X}) -> {out}')
+        return
+
+    # ---- relocated mode: redirect call sites to the scratch body ----
     db = sqlite3.connect(RUNTIME / 'analysis.sqlite')
     sites = [r[0] for r in db.execute(
         "SELECT at FROM edges WHERE image='nfs4-f.exe' AND target=?", (args.va,))]
@@ -296,10 +341,6 @@ def main():
             print('   ', a, t)
 
     jal_new = 0x0C000000 | ((args.scratch >> 2) & 0x03FFFFFF)
-    blob = bytearray(body)
-    if rodata_scratch is not None:
-        blob.extend(b'\0' * (rodata_scratch - args.scratch - len(blob)))
-        blob.extend(rodata)
     patches = [f'{args.scratch:x}={bytes(blob).hex()}']
     for at in sites:
         patches.append(f'{at:x}={struct.pack("<I", jal_new).hex()}')

@@ -47,9 +47,11 @@ class SharedRAM:
             path = ctypes.create_unicode_buffer(32768); length = w.DWORD(len(path))
             if not k.QueryFullProcessImageNameW(self.process, 0, path, ctypes.byref(length)):
                 raise ctypes.WinError(ctypes.get_last_error())
-            allowed = {
-                (root/'tools/duckstation'/runtime/'duckstation-qt-x64-ReleaseLTCG.exe').resolve()
-                for runtime in ('runtime', 'api-runtime')
+            # nfs4-decomp layout: runtime/duckstation/<exe>.  (FF layout kept too.)
+            allowed = {(root/'duckstation'/'duckstation-qt-x64-ReleaseLTCG.exe').resolve()}
+            allowed |= {
+                (root/'tools/duckstation'/rt/'duckstation-qt-x64-ReleaseLTCG.exe').resolve()
+                for rt in ('runtime', 'api-runtime')
             }
             expected = Path(record['executable']).resolve()
             if expected not in allowed or Path(path.value).resolve() != expected:

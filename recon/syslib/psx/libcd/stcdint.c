@@ -29,15 +29,27 @@ typedef struct { char b[4]; } Pack4_;
  * Each entry is a 4-byte initialised pointer; under -G4 it would land in .sdata -> gp-relative, but
  * the oracle reaches the table ABSOLUTELY (lui %hi; lw %lo).  Pin to .data so the addressing matches. */
 #define ST_DATA __attribute__((section(".data")))
+/* DECLARATION ORDER == the retail .data slot order (runtime-lane finding,
+ * 2026-09-13: the old order swapped _cd_reg2/_cd_reg3 and omitted the four
+ * unreferenced-in-this-TU entries, so every LO16 addend was off vs retail --
+ * invisible to the masked gate, but the live block at 0x80136A98 proves the
+ * full 13-slot table.  Unused entries stay: an initialised static is always
+ * emitted, and each occupies its retail slot.) */
 static volatile u_char *_cd_idx      ST_DATA = (volatile u_char *)0x1F801800; /* @0x80136A98 CDREG0/index */
-static volatile u_char *_cd_reg3     ST_DATA = (volatile u_char *)0x1F801803; /* @0x80136AA4 CDREG3       */
+static volatile u_char *_cd_reg1     ST_DATA = (volatile u_char *)0x1F801801; /* @0x80136A9C CDREG1       */
 static volatile u_char *_cd_reg2     ST_DATA = (volatile u_char *)0x1F801802; /* @0x80136AA0 CDREG2 (data)*/
+static volatile u_char *_cd_reg3     ST_DATA = (volatile u_char *)0x1F801803; /* @0x80136AA4 CDREG3       */
 static volatile int    *_cdrom_delay ST_DATA = (volatile int   *)0x1F801018;  /* @0x80136AA8 CDROM_DELAY  */
 static volatile int    *_com_delay   ST_DATA = (volatile int   *)0x1F801020;  /* @0x80136AAC COM_DELAY    */
 static volatile int    *_dpcr        ST_DATA = (volatile int   *)0x1F8010F0;  /* @0x80136AB0 DPCR         */
 static volatile u_char *_dicr        ST_DATA = (volatile u_char *)0x1F8010F4;  /* @0x80136AB4 DICR         */
 static volatile int    *_d1_chcr     ST_DATA = (volatile int   *)0x1F801098;  /* @0x80136AB8 MDECout CHCR */
+static volatile int    *_d1_madr     ST_DATA = (volatile int   *)0x1F801090;  /* @0x80136ABC MDECout MADR */
+static volatile int    *_d2_chcr     ST_DATA = (volatile int   *)0x1F8010A8;  /* @0x80136AC0 MDECin  CHCR */
+static volatile int    *_d2_madr     ST_DATA = (volatile int   *)0x1F8010A0;  /* @0x80136AC4 MDECin  MADR */
 static volatile int    *_d3_chcr     ST_DATA = (volatile int   *)0x1F8010B8;  /* @0x80136AC8 CD CHCR      */
+/* (+0x34 0x1F8010B0 _d3_madr and beyond continue the retail table but are
+ * past every slot this TU's code references -- left undeclared.) */
 
 /* ---- C_011-owned file storage ----------------------------------------------------------------- */
 /* Regular .bss / .data, reached absolutely in the oracle -- pin to .bss so they stay out of
@@ -798,6 +810,12 @@ extern void _st_dma(int ch, int madr, int blocks, int blocksize, volatile int ch
      *   conditional jump; W84-C4 §3.5 rung table) -- so this is a REORG-VINTAGE identity,
      *   and the acquisition target named in W84-C4 (a 2.7.2-codegen cc1 carrying the
      *   post-2.7.2 reorg) is unchanged and now has a second, sharper acceptance test.
+     *   🏆 RUNTIME-PROVEN SEMANTICALLY EQUIVALENT (2026-09-13, runtime/ lane): THIS
+     *   107-insn body was relocated into live RAM on the dev-CD build (fn_probe.py,
+     *   scratch 0x801E6000, 3 call sites redirected) and executed 526 times over a
+     *   300-frame deterministic paired run -- full 2MiB RAM IDENTICAL to the retail
+     *   baseline outside the probe's own patch sites (runtime/status/probe-_st_dma.patch,
+     *   traces det-a vs stdma-cand).  The residual FAIL 1 is byte-cosmetic only.
      *   ALSO CLOSED THIS WAVE, with numbers:
      *     - the busy read IS genuine MMIO (`0x1F801088 + ch*16` = D<ch>_CHCR), so the
      *       3.25-3c cast-away-volatile lever does not apply on semantic grounds; measured

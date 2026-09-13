@@ -740,6 +740,14 @@ SECTIONS
     .source_data_18 0x800529d0 : SUBALIGN(4) { build/recon/frontend/psx/drawshp.cpp.o(.data); }
     ASSERT(SIZEOF(.source_data_18) == 4, "source data owner size mismatch")
 
+    .xd0000 0x80123654 : SUBALIGN(4) { build/recon/syslib/psx/libgpu/SYS.c.o(.data); }
+    .xd0001 0x80136af8 : SUBALIGN(4) { build/recon/syslib/psx/libpress/LIBPRESS.c.o(.data); }
+    .xd0002 0x80137c78 : SUBALIGN(4) { build/recon/syslib/psx/libpad/PADMAIN.c.o(.data); }
+    .xd0003 0x8013bf40 : SUBALIGN(4) { build/recon/syslib/psx/libcd/drv.c.o(.data); }
+    .xs0000 0x801234d4 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/snddata.c.o(.sdata); }
+    .xs0001 0x8013d990 : SUBALIGN(4) { build/recon/game/psx/overlays.cpp.o(.sdata); }
+    .xs0002 0x8013dd2c : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/fileroot.c.o(.sdata); }
+
     .data 0x8010ccd4 : SUBALIGN(4)
     {
         build/asm/data/data_8010CCD4_r00.data.s.o(.data);
@@ -897,15 +905,11 @@ SECTIONS
         build/recon/syslib/psx/libapi/COUNTER_data.c.o(.data);
         build/recon/syslib/psx/libcd/C_003.c.o(.data);
         build/recon/syslib/psx/libcd/cdcont.c.o(.data);
-        build/recon/syslib/psx/libcd/drv.c.o(.data);
         build/recon/syslib/psx/libcd/stcdint.c.o(.data);
-        build/recon/syslib/psx/libgpu/SYS.c.o(.data);
         build/recon/syslib/psx/libmcrd/BIOS.c.o(.data);
         build/recon/syslib/psx/libmcrd/LIBMCRD.c.o(.data);
         build/recon/syslib/psx/libmcrd/USERFUNC.c.o(.data);
         build/recon/syslib/psx/libpad/PADIF.c.o(.data);
-        build/recon/syslib/psx/libpad/PADMAIN.c.o(.data);
-        build/recon/syslib/psx/libpress/LIBPRESS.c.o(.data);
         build/recon/syslib/psx/libpress/VLC.c.o(.data);
     }
 
@@ -987,12 +991,10 @@ SECTIONS
         build/asm/data/sdata_8013C54C_r23.sdata.s.o(.sdata);
         build/recon/eaclib/psx/eacpsxz/threads.c.o(.sbss);   /* 0x8013dd5c..0x8013dd60  was sdata_8013C54C_o38.sdata.s */
         build/asm/data/sdata_8013C54C_r24.sdata.s.o(.sdata);
-        build/recon/eaclib/psx/eacpsxz/fileroot.c.o(.sdata);
         build/recon/eaclib/psx/eacpsxz/inittmr.c.o(.sdata);
         build/recon/eaclib/psx/eacpsxz/loadshp.c.o(.sdata);
         build/recon/eaclib/psx/eacpsxz/memstd.c.o(.sdata);
         build/recon/eaclib/psx/sndpsxz/sdpacket.c.o(.sdata);
-        build/recon/eaclib/psx/sndpsxz/snddata.c.o(.sdata);
         build/recon/frontend/psx/memcard.c.o(.sdata);
         build/recon/game/common/aih_cop.cpp.o(.sdata);
         build/recon/game/common/aih_play.cpp.o(.sdata);
@@ -1013,7 +1015,6 @@ SECTIONS
         build/recon/game/psx/hrzsku.cpp.o(.sdata);
         build/recon/game/psx/loading.cpp.o(.sdata);
         build/recon/game/psx/night.cpp.o(.sdata);
-        build/recon/game/psx/overlays.cpp.o(.sdata);
         build/recon/game/psx/platform.cpp.o(.sdata);
         build/recon/game/psx/skidmark.cpp.o(.sdata);
         build/recon/game/psx/weather.cpp.o(.sdata);

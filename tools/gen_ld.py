@@ -419,14 +419,42 @@ def main():
     # Backup/diagnostic receipts: scratchpad/p882_gprel. This fixes omitted
     # section handling, not every section's still-unrecovered native address.
 
-    extra_data, extra_sdata = [], []
+    # P907 (2026-09-14): recon .data/.sdata that supersedes a blob was appended
+    # to the .data/.sdata block (effectively a catch-all) -- so e.g. SYS.c's
+    # GEnv landed far from its retail 0x8012369C and code relocs bound to that
+    # wrong copy (SetDrawEnv et al.).  Place each such object at its IMPLIED
+    # RETAIL BASE (mode over its data symbols' retail VAs), exactly like the
+    # .text spine.  Overlapping the blob copy at the SAME address is benign
+    # (identical content) and makes the symbol resolve to the retail address.
+    def data_base(o, sec):
+        votes = defaultdict(int)
+        for s in objdata[o]["syms"]:
+            if s["sec"] != sec:
+                continue
+            va = vas.get(s["name"])
+            if va is None:
+                m = re.match(r"(?:D|DAT|lbl)_([0-9A-Fa-f]{8})$", s["name"])
+                if m:
+                    va = int(m.group(1), 16)
+            if va is not None:
+                votes[va - s["off"]] += 1
+        return max(votes.items(), key=lambda kv: kv[1])[0] if votes else None
+
+    extra_data, extra_sdata = [], []          # base-less -> catch-all append
+    placed_data, placed_sdata = [], []        # (base, obj) -> spine placement
     for o, d in sorted(objdata.items()):
         if not o.startswith("build/recon"):
             continue
         if d.get("secs", {}).get(".data", 0) and (o, ".data") not in in_frag:
-            extra_data.append(f"        {o}(.data);")
+            b = data_base(o, ".data")
+            (placed_data.append((b, o)) if b is not None
+             else extra_data.append(f"        {o}(.data);"))
         if d.get("secs", {}).get(".sdata", 0) and (o, ".sdata") not in in_frag:
-            extra_sdata.append(f"        {o}(.sdata);")
+            b = data_base(o, ".sdata")
+            (placed_sdata.append((b, o)) if b is not None
+             else extra_sdata.append(f"        {o}(.sdata);"))
+    placed_data.sort()
+    placed_sdata.sort()
 
     # --------------------------------------------------------- emit the ld
     L = []
@@ -515,6 +543,12 @@ def main():
         section = owner["section"]
         A(f"    .source_data_{i} {owner['address']:#x} : SUBALIGN(4) {{ {obj}({section}); }}")
         A(f"    ASSERT(SIZEOF(.source_data_{i}) == {owner['size']}, \"source data owner size mismatch\")")
+    A("")
+    # recon .data superseding a blob, placed at its implied retail base
+    for i, (base, o) in enumerate(placed_data):
+        A(f"    .xd{i:04d} {base:#x} : SUBALIGN(4) {{ {o}(.data); }}")
+    for i, (base, o) in enumerate(placed_sdata):
+        A(f"    .xs{i:04d} {base:#x} : SUBALIGN(4) {{ {o}(.sdata); }}")
     A("")
     A(f"    .data {DATA_START:#x} : SUBALIGN(4)")
     A("    {")

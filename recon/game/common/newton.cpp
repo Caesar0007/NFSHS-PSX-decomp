@@ -11,9 +11,24 @@
 
 /* ---- newton.obj-owned BSS. SYM records the five named tables/road records as EXT;
  * the two coorddef out-parameter scratch objects are function-local statics below. ---- */
-int          divTable[50];
-short        fudgeTable[32];
-int          swap[4];
+/* RUNTIME-LANE FIX (2026-09-13, value_audit vs NFS4.MAP): these are INITIALIZED
+ * const tables in retail .data @0x8011401C/0x801140E4/0x80114124, not zeroed BSS.
+ * The old uninitialized decls left them all-zero -> divTable made
+ * fixedmult(numerator, divTable[index]) return 0 (broken suspension division),
+ * fudgeTable zeroed the ride-height fudge, and swap[]={0,0,0,0} routed all four
+ * wheels' impactCompression writes to wheel[0].  Values recovered from the image. */
+int          divTable[50] = {
+    65536, 66052, 66576, 67108, 67650, 68200, 68759, 69327, 69905, 70492,
+    71089, 71697, 72315, 72944, 73584, 74235, 74898, 75573, 76260, 76959,
+    77672, 78398, 79137, 79891, 80659, 81442, 82241, 83055, 83886, 84733,
+    85598, 86480, 87381, 88301, 89240, 90200, 91180, 92182, 93206, 94254,
+    95325, 96420, 97541, 98689, 99864, 101067, 102300, 103563, 104857, 106184
+};
+short        fudgeTable[32] = {
+      0,  20,  36,  44,  30,  44,  52,  46,  36,  20,   6, -20, -30, -16,   0,  18,
+     26,  38,  52,  40,  30,  15,   0, -20, -32, -16,  -8,   8,  16,  20,  16,   8
+};
+int          swap[4] = { 0, 1, 2, 3 };
 BWorldSm_Pos testSimRoadInfo;
 BWorldSm_Pos newtestSimRoadInfo;
 

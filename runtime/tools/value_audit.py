@@ -86,32 +86,59 @@ def main():
             offs = [o for o,_ in lst]
             ob = secbytes(obj, sec)
             dr = datarel.get(sec, {})
-            for idx,(off,name) in enumerate(lst):
+            # WHOLE-SECTION anchor: base from known-address symbols in this
+            # section (reliable -- anchored to a real address, not consensus).
+            basecand = {}
+            for off, name in lst:
                 ra = known_addr(name)
-                if ra is None: continue
-                end = offs[idx+1] if idx+1 < len(offs) else len(ob)
-                size = end - off
-                if size <= 0 or off+size > len(ob): continue
+                if ra is not None:
+                    basecand.setdefault(ra - off, 0); basecand[ra - off] += 1
+            if not basecand:
+                continue                      # no reliable anchor -> skip section
+            if len(basecand) > 1:
+                continue                      # known addrs disagree -> ambiguous
+            base = next(iter(basecand))
+            # require >=2 known anchors agreeing on the base: that CONFIRMS our
+            # section order matches retail's, so whole-section (incl. anonymous
+            # locals) is sound.  1 anchor only pins its own point -> a reordered
+            # section would produce false positives (verified: AIHigh vtable).
+            if basecand[base] < 2:
+                continue
+            def owner(i):
+                k = bisect.bisect_right(offs, i) - 1
+                if k < 0: return f'{sec}+{i:#x}'
+                nm = lst[k][1]
+                d = i - lst[k][0]
+                return f'{nm}+{d:#x}' if d else nm
+            bad = []
+            for i in range(0, len(ob)-3, 4):
+                ow = int.from_bytes(ob[i:i+4],'little')
+                tw = imgword(base + i)
+                if tw is None: continue
                 checked += 1
-                bad = []
-                for i in range(off, off+size-3, 4):
-                    ow = int.from_bytes(ob[i:i+4],'little')
-                    tw = imgword(ra + (i-off))
-                    if tw is None: continue
-                    if i in dr:                       # pointer: resolve target
-                        t = known_addr(dr[i])
-                        if t is None: continue
-                        our = t + ow                  # ow = addend (usu. 0)
-                        if our != tw: bad.append((i-off, our, tw, 'ptr->'+dr[i]))
-                    elif ow != tw:
-                        bad.append((i-off, ow, tw, 'val'))
-                if bad: bugs.append((obj.stem, name, sec, f'0x{ra:08X}', bad))
-    print(f'checked {checked} known-address data symbols')
+                if i in dr:                       # pointer: resolve target
+                    t = known_addr(dr[i])
+                    if t is None: continue
+                    our = t + ow
+                    if our != tw: bad.append((i, owner(i), our, tw, 'ptr->'+dr[i]))
+                elif ow != tw:
+                    bad.append((i, owner(i), ow, tw, 'val'))
+            # group by owning symbol
+            from collections import defaultdict as _dd
+            g = _dd(list)
+            for i,own,ov,tv,k in bad: g[own.split('+')[0]].append((own,ov,tv,k))
+            for sym, ws in g.items():
+                bugs.append((obj.stem, sym, sec, f'0x{base:08X}',
+                             [(0,ov,tv,k) for _,ov,tv,k in ws], [w[0] for w in ws]))
+    print(f'checked {checked} data words (whole-section, anchored by known addr)')
     print(f'=== {len(bugs)} symbols with real mismatches ===')
-    for tu,name,sec,ra,bad in sorted(bugs, key=lambda b:-len(b[4])):
-        print(f'  [{tu}] {name} ({sec} @{ra}): {len(bad)} word(s)')
-        for o,ov,tv,k in bad[:6]:
-            print(f'      +{o:#05x} {k}: ours {ov:08x}  retail {tv:08x}')
+    for item in sorted(bugs, key=lambda b:-len(b[4])):
+        tu,name,sec,ra,bad = item[0],item[1],item[2],item[3],item[4]
+        owns = item[5] if len(item) > 5 else None
+        print(f'  [{tu}] {name} ({sec} base {ra}): {len(bad)} word(s)')
+        for j,(o,ov,tv,k) in enumerate(bad[:6]):
+            lbl = owns[j] if owns else f'+{o:#05x}'
+            print(f'      {lbl} {k}: ours {ov:08x}  retail {tv:08x}')
 
 if __name__=='__main__':
     main()

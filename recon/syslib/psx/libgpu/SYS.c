@@ -298,17 +298,22 @@ static u_long _move_prim[5] SYS_DATA = {         /* +0x0E0 @0x80123734 */
 static u_long _otc_term SYS_DATA = 0x04ffffffu;   /* +0x0F4 @0x80123748 */
 static u_long _otc_tail[4] SYS_DATA = {0, 0, 0, 0}; /* unnamed member tail */
 static u_long _otc_link SYS_DATA = 0;             /* +0x108 @0x8012375C */
-static u_long D_80123760[3] SYS_DATA = {          /* private spelling absent */
-    0x80000000u, 0, 0
+/* RUNTIME-LANE LAYOUT FIX (2026-09-13, audit_layout.py): retail's blob is FOUR
+ * words (0x80123760..6F, last word 0x00010002 from the image) so _disp_overscan
+ * sits @0x80123770 and _disp_mult @0x80123794 -- the old 3-word spelling put both
+ * 4 low (gate-invisible under the LO16 mask, wrong words at runtime).  The old
+ * separate `D_8012379C = 4` was _disp_mult's own padded tail (mult[4]=4 -> word
+ * 0x00000004 at +0x148) and is folded away. */
+static u_long D_80123760[4] SYS_DATA = {          /* private spelling absent */
+    0x80000000u, 0, 0, 0x00010002u
 };
 
 /* Display H/V overscan ranges, indexed (videomode*5 + resIdx). */
 static struct { u_short base, end; } _disp_overscan[10] SYS_DATA = {
     {590, 3150}, {600, 3160}, {539, 3227}, {615, 3175}, {620, 3180},
     {610, 3170}, {624, 3184}, {560, 3248}, {635, 3195}, {640, 3200}
-};                                               /* +0x118 @0x8012376C */
-static u_char _disp_mult[5] SYS_DATA = {10, 8, 7, 5, 4}; /* +0x144 */
-static u_long D_8012379C SYS_DATA = 4;            /* +0x148, name absent */
+};                                               /* +0x11C @0x80123770 */
+static u_char _disp_mult[5] SYS_DATA = {10, 8, 7, 5, 4}; /* +0x144 @0x80123794; pad word +0x148 = 4 */
 
 static volatile u_long *GPU_GP0 SYS_DATA = (volatile u_long *)0x1F801810;
 static volatile u_long *GPU_GP1 SYS_DATA = (volatile u_long *)0x1F801814;

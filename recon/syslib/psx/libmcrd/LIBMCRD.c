@@ -221,6 +221,15 @@ static int   _mc_exrslt  __attribute__((section(".bss")));  /* @0x80147504 : Exi
 static int   _mc_retry   __attribute__((section(".bss")));  /* @0x80147508 : Accept retry counter */
 static int   _mc_evrslt  __attribute__((section(".bss")));  /* @0x8014750C : Accept event scratch */
 static int   _mc_cleared __attribute__((section(".bss")));  /* @0x80147510 : card-was-cleared     */
+/* MATCH (w51-a2): SPLIT-STORAGE -- every oracle access to 0x80147514 materializes its OWN
+ * %hi/%lo pair (read `lui v1; lw %lo(D_80147514)(v1)`, write `lui at; sw %lo(...)(at)`)
+ * even where a struct base for cmd/chan is ALREADY live in a register, so this word is a
+ * standalone static in retail, not a member of the mc aggregate.
+ * RUNTIME-LANE LAYOUT FIX (2026-09-13, audit_layout.py): retail places it HERE, at
+ * .bss+0x14 between _mc_cleared and mc (10/10 matched-site votes -> 0x80147514); the old
+ * declaration position (after _mc_save_cb) put it at +0x6C -- gate-invisible under the
+ * LO16 mask, wrong slot at runtime. */
+static int   _mc_present __attribute__((section(".bss")));  /* @0x80147514 : per-channel card-present bitmask */
 
 struct McState {
     int   cmd;                     /* +0x00 @0x80147518 : current command code (0 = idle) */
@@ -257,16 +266,14 @@ static McState mc;                       /* @0x80147518 */
  * then `lw a0,0(a1)`, `lw a1,4(a1)` for the callback args), which two independent statics can
  * never produce (no compile-time distance between separate symbols).  MemCardSync still gets its
  * per-site full-address materialization from the fenced pointer locals there. */
-static int   _mc_sync[2]    __attribute__((section(".bss")));   /* @0x80147560/64: cmd/rslt snap */
+/* RUNTIME-LANE LAYOUT FIX (2026-09-13, audit_layout.py): retail's block is 0x70 bytes
+ * (next TU's bss = PadInitDirect's 0x80147570) with _mc_save_cb at +0x6C -- one unreferenced
+ * word sits at +0x68 between the sync pair and the callback.  [INFERRED] modelled as a third
+ * _mc_sync element (only [0]/[1] are ever accessed; no sizeof taken) -- identity TBD. */
+static int   _mc_sync[3]    __attribute__((section(".bss")));   /* @0x80147560/64(/68 unused): cmd/rslt snap */
 #define _mc_sync_cmd  _mc_sync[0]
 #define _mc_sync_rslt _mc_sync[1]
 static int (*_mc_save_cb)(int, int) __attribute__((section(".bss")));  /* @0x8014756C : callback saved across a nested sync */
-
-/* MATCH (w51-a2): SPLIT-STORAGE -- every oracle access to 0x80147514 materializes its OWN
- * %hi/%lo pair (read `lui v1; lw %lo(D_80147514)(v1)`, write `lui at; sw %lo(...)(at)`)
- * even where a struct base for cmd/chan is ALREADY live in a register, so this word is a
- * standalone static in retail, not a member of the mc aggregate. */
-static int   _mc_present __attribute__((section(".bss")));  /* @0x80147514 : per-channel card-present bitmask */
 
 /* 🔴 w60-a2 FALSIFIED (recorded so nobody re-fights it): the UNSIZED-ARRAY ASM-LABEL VIEW
  * of the `mc` aggregate -- `extern int mc_words[] __asm__("mc"); mc_words[1] = r;` -- does
@@ -286,10 +293,14 @@ static int   _mc_present __attribute__((section(".bss")));  /* @0x80147514 : per
  * form, which is a bigger loss.  NAMED ANGLE (unchanged, now sharper): a device that is
  * BOTH cross_jump-transparent (not an `__asm__`) AND holds `&mc` in a register. */
 
-static int   _mc_rd_retry;               /* @0x80136CB8 : MemCardReadData retry counter */
-static int   _mc_wr_retry;               /* @0x80136CBC : MemCardWriteData retry counter */
-static int   _mc_rf_retry;               /* @0x80136CC0 : MemCardReadFile retry counter */
-static int   _mc_wf_retry;               /* @0x80136CC4 : MemCardWriteFile retry counter */
+/* RUNTIME-LANE LAYOUT FIX (2026-09-13, audit_layout.py): the four retry counters live in
+ * retail .DATA at 0x80136CB8..C4 (matched-site hi/lo evidence), i.e. the original source
+ * wrote `= 0` initializers -- gcc 2.x emits explicitly-zero-initialized statics into
+ * .data, not .bss.  Uninitialized, ours landed in .bss (wrong segment, gate-invisible). */
+static int   _mc_rd_retry __attribute__((section(".data"))) = 0;  /* @0x80136CB8 : MemCardReadData retry counter */
+static int   _mc_wr_retry __attribute__((section(".data"))) = 0;  /* @0x80136CBC : MemCardWriteData retry counter */
+static int   _mc_rf_retry __attribute__((section(".data"))) = 0;  /* @0x80136CC0 : MemCardReadFile retry counter */
+static int   _mc_wf_retry __attribute__((section(".data"))) = 0;  /* @0x80136CC4 : MemCardWriteFile retry counter */
 
 /* forward declarations (callbacks <-> public API are mutually recursive).  These are `static`
  * (file-local, matching the oracle's local-symbol linkage) but must ALSO be `extern "C"` --
@@ -1369,7 +1380,13 @@ ret0:
         return 0;
 }
 
-/* @0x800FB888 : MemCardGetDirentry -- synchronous directory listing (max files into dir[]). */
+/* @0x800FB888 : MemCardGetDirentry -- synchronous directory listing (max files into dir[]).
+ * 🏆 RUNTIME-PROVEN SEMANTICALLY EQUIVALENT (2026-09-13, runtime/ lane): this body
+ * (FAIL 6 = the reload-ring $a3/$t0 renames) was relocated into the live dev-CD build
+ * (fn_probe.py, scratch 0x801E8000, both jal sites redirected, jtbl relocated) and driven
+ * through the card-poll route (hit ~frame 752) over a 900-frame deterministic paired run:
+ * full 2MiB RAM IDENTICAL to the retail-bytes null control outside the probe's own patch
+ * sites (traces getdir-cand2 vs getdir-null2).  The residual FAIL 6 is byte-cosmetic. */
 extern long MemCardGetDirentry(long chan, char *name, DIRENTRY *dir,
                                 long *files, long ofs, long max)
 {

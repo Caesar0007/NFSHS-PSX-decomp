@@ -223,12 +223,30 @@ def main():
         off, typ, name = rl[i]
         if typ == 'R_MIPS_26':
             w = rd(off)
-            target = resolve(name) + ((w & 0x03FFFFFF) << 2)
-            # an internal jump (j/jal into this very fn) must follow the
-            # relocated body, not jump back into the retail original
-            fn_va = sec_base['.text'] + fn_off
-            if name == '.text' and fn_va <= target < fn_va + fn_size:
-                target = args.scratch + (target - fn_va)
+            if name == '.text':
+                t_off = (w & 0x03FFFFFF) << 2
+                if fn_off <= t_off < fn_off + fn_size:
+                    # internal jump: follow the relocated body, never the
+                    # retail original
+                    target = args.scratch + (t_off - fn_off)
+                else:
+                    # cross-fn .text target: the TU's OWN function offsets can
+                    # drift vs retail (a FAIL fn earlier in the object shifts
+                    # every later one), so resolve through the OWNING function's
+                    # retail VA, not a single section base.
+                    target = None
+                    best = None
+                    for n2, sec2, o2 in objsyms:
+                        if sec2 == '.text' and o2 <= t_off and \
+                           not n2.startswith(('.', 'gcc2', '__gnu')):
+                            if best is None or o2 > best[1]:
+                                best = (n2, o2)
+                    if best and best[0] in syms:
+                        target = syms[best[0]] + (t_off - best[1])
+                    if target is None:
+                        target = sec_base['.text'] + t_off
+            else:
+                target = resolve(name) + ((w & 0x03FFFFFF) << 2)
             assert (target >> 28) == (args.scratch >> 28)
             wr(off, (w & 0xFC000000) | ((target >> 2) & 0x03FFFFFF))
             n26 += 1

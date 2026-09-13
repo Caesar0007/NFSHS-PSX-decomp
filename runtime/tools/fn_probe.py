@@ -145,6 +145,9 @@ def main():
     def resolve(name):
         if name in syms:
             return syms[name]
+        m = re.match(r'^(?:D|lbl|func)_([0-9A-Fa-f]{8})$', name)
+        if m:                              # VA-named global: the name IS the VA
+            return int(m.group(1), 16)
         if name in sec_base:
             return sec_base[name]
         for n, sec, off in objsyms:            # object-local symbol

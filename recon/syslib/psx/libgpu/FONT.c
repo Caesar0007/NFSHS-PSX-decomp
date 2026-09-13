@@ -415,6 +415,14 @@ extern char *D_801369E4;        /* @0x801369E4 : "0123456789ABCDEF" */
  *   frame pool).  DEVICE AUDIT: FONT.c holds 0 pins, 0 `volatile` in code, 0 `&&label` devices;
  *   the three `__asm__("Font"/"D_80135FD8"/"D_80135FDC")` on the externs are asm-NAME attributes
  *   (symbol aliases onto splat's blob labels), not codegen devices -- KEEP. */
+/* 🏆 RUNTIME-PROVEN SEMANTICALLY EQUIVALENT (2026-09-13, runtime/ lane): this body
+ * (FAIL 6 = prologue store scheduling + the a2-copy-vs-reload pair) was relocated into
+ * the live dev-CD build (fn_probe.py, scratch 0x801E8000) and DIRECT-CALLED
+ * (call_probe.py hijack-call-restore) with id=-1 (retail's Movie_Play usage) and id=0:
+ * identical $v0 and byte-identical full 2MiB RAM at the call boundary vs a retail-bytes
+ * null control.  Only distinguishable effect of the 6-insn schedule: ±1 emulated hblank
+ * tick over long pumps (Hcount/_startTime counters) -- inherent to any non-byte-exact
+ * schedule.  The residual FAIL 6 is byte/cycle-cosmetic; game state is unaffected. */
 extern u_long *FntFlush(int id)
 {
     DR_MODE  *dr;

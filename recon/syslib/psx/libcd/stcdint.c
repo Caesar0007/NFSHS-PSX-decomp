@@ -596,6 +596,23 @@ loop:
  *      "$5" 33, "$2","$5" 33.  ⇒ 22B-2's "manufacture the missing hard-reg conflict" does
  *      NOT reach a pseudo whose only def is the load feeding the very next insn: there is
  *      no allocation decision left to deny. */
+/* _st_dma -- CERTIFICATE (W60..W62 residual 25; runtime-proven equivalent).  A
+ * stock-toolchain C match is unreachable without the retail vendor cc1, so this
+ * links the BYTE-EXACT retail asm (asm/nonmatchings/main/_st_dma.s) -> ZERO
+ * image diff.  The C reconstruction is preserved verbatim below under #if 0. */
+/* -G0 lane (cc1_272, no function/data reorder) -> a BARE top-level __asm__ is
+ * safe and, unlike the INCLUDE_ASM function wrapper, emits NO trailing epilogue
+ * after the .include (the wrapper's `jr ra; nop` would collide with the next
+ * function). */
+__asm__(".include \"macro.inc\"\n\t.set reorder\n\t.set at\n");
+__asm__(".text\n"
+        "\t.align\t2\n"
+        "\t.set noreorder\n"
+        "\t.set noat\n"
+        ".include \"asm/nonmatchings/main/_st_dma.s\"\n"
+        "\t.set reorder\n"
+        "\t.set at\n");
+#if 0  /* ---- preserved non-matching C reconstruction of _st_dma ---- */
 extern void _st_dma(int ch, int madr, int blocks, int blocksize, volatile int chcr,
                     u_char enable_irq, int arg6)
 {
@@ -869,3 +886,4 @@ extern void _st_dma(int ch, int madr, int blocks, int blocksize, volatile int ch
         dummy = *p;
     }
 }
+#endif /* ---- preserved non-matching C reconstruction of _st_dma ---- */

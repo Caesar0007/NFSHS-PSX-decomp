@@ -1387,6 +1387,15 @@ ret0:
  * through the card-poll route (hit ~frame 752) over a 900-frame deterministic paired run:
  * full 2MiB RAM IDENTICAL to the retail-bytes null control outside the probe's own patch
  * sites (traces getdir-cand2 vs getdir-null2).  The residual FAIL 6 is byte-cosmetic. */
+/* MemCardGetDirentry -- CERTIFICATE (runtime-proven equivalent; a C match needs
+ * the retail vendor cc1).  Links the BYTE-EXACT retail asm -> ZERO image diff;
+ * the C reconstruction is preserved verbatim below under #if 0.  -G0 lane, so a
+ * bare top-level __asm__ (no wrapper epilogue) is used. */
+__asm__(".include \"macro.inc\"\n\t.set reorder\n\t.set at\n");
+__asm__(".text\n\t.align\t2\n\t.set noreorder\n\t.set noat\n"
+        ".include \"asm/nonmatchings/main/MemCardGetDirentry.s\"\n"
+        "\t.set reorder\n\t.set at\n");
+#if 0  /* ---- preserved non-matching C reconstruction of MemCardGetDirentry ---- */
 extern long MemCardGetDirentry(long chan, char *name, DIRENTRY *dir,
                                 long *files, long ofs, long max)
 {
@@ -1500,6 +1509,7 @@ extern long MemCardGetDirentry(long chan, char *name, DIRENTRY *dir,
         *output = stored;
     return 0;
 }
+#endif /* ---- preserved non-matching C reconstruction of MemCardGetDirentry ---- */
 /* @0x800FBAE8 : MemCardCallback -- install completion callback, return the previous one. */
 extern int MemCardCallback(int func)
 {
@@ -2308,6 +2318,12 @@ erased:
  * retail-bytes null control at the call boundary; residue = dead-stack ra words
  * (+4 from the extra insn) and kernel timing scratch (the ±1-cycle class).
  * With this, ALL FOUR vendor-vintage certificates are runtime-proven. */
+/* MemCardFormat -- CERTIFICATE (runtime-proven equivalent; vendor-cc1-only C
+ * match).  Byte-exact retail asm; C reconstruction preserved under #if 0. */
+__asm__(".text\n\t.align\t2\n\t.set noreorder\n\t.set noat\n"
+        ".include \"asm/nonmatchings/main/MemCardFormat.s\"\n"
+        "\t.set reorder\n\t.set at\n");
+#if 0  /* ---- preserved non-matching C reconstruction of MemCardFormat ---- */
 extern long MemCardFormat(long chan)
 {
     char devname[64];
@@ -2350,6 +2366,7 @@ extern long MemCardFormat(long chan)
     ev = _get_card_event_x();
     return MemCardEventToRslt(ev);
 }
+#endif /* ---- preserved non-matching C reconstruction of MemCardFormat ---- */
 
 /* @0x800FC068 : MemCardUnformat -- low-level "unformat" by writing 0xFF blocks 0..14. */
 extern long MemCardUnformat(long chan)

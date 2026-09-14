@@ -321,7 +321,7 @@
   "end": 2148824432,
   "size": 112,
   "ok": true,
-  "votes": 81
+  "votes": 77
  },
  {
   "obj": "build/recon/syslib/psx/libpad/PADPORTD.c.o",

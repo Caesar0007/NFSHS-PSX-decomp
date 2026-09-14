@@ -423,6 +423,21 @@ extern char *D_801369E4;        /* @0x801369E4 : "0123456789ABCDEF" */
  * null control.  Only distinguishable effect of the 6-insn schedule: ±1 emulated hblank
  * tick over long pumps (Hcount/_startTime counters) -- inherent to any non-byte-exact
  * schedule.  The residual FAIL 6 is byte/cycle-cosmetic; game state is unaffected. */
+/* FntFlush -- CERTIFICATE (runtime-proven equivalent; vendor-cc1-only C match,
+ * W52..W74 residual).  Links the BYTE-EXACT retail asm -> ZERO image diff; C
+ * reconstruction preserved under #if 0.  FONT.c is the -G4 maspsx lane and
+ * FntPrint follows FntFlush, so a bare (no wrapper) .include with `# maspsx-keep`
+ * is used: maspsx keeps it verbatim and it emits no trailing epilogue that would
+ * shift FntPrint. */
+__asm__(".include \"macro.inc\" # maspsx-keep\n\t.set reorder # maspsx-keep\n\t.set at # maspsx-keep\n");
+__asm__(".text # maspsx-keep\n"
+        "\t.align\t2 # maspsx-keep\n"
+        "\t.set noreorder # maspsx-keep\n"
+        "\t.set noat # maspsx-keep\n"
+        ".include \"asm/nonmatchings/main/FntFlush.s\" # maspsx-keep\n"
+        "\t.set reorder # maspsx-keep\n"
+        "\t.set at # maspsx-keep\n");
+#if 0  /* ---- preserved non-matching C reconstruction of FntFlush ---- */
 extern u_long *FntFlush(int id)
 {
     DR_MODE  *dr;
@@ -541,6 +556,7 @@ extern u_long *FntFlush(int id)
     *font->buffer = 0;
     return (u_long *)dr;
 }
+#endif /* ---- preserved non-matching C reconstruction of FntFlush ---- */
 
 /* @0x800F7034 : printf-style append into a stream's text buffer (%x/%X/%c/%d/%s + width).
  * Psy-Q also accepts the format string itself as the first argument, selecting the active stream.

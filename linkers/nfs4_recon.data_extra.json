@@ -330,6 +330,16 @@
   "words": 44
  },
  {
+  "obj": "build/recon/game/common/vtables_aidatarecord.cpp.o",
+  "section": ".data",
+  "base": 2147832876,
+  "end": 2147833028,
+  "size": 152,
+  "ok": true,
+  "unresolved": 0,
+  "words": 38
+ },
+ {
   "obj": "build/recon/game/common/ai.cpp.o",
   "section": ".data",
   "base": 2148584660,

@@ -43,8 +43,12 @@ PLACEMENT = ROOT / 'linkers' / 'nfs4_recon.rodata_placement.json'
 
 # retail section spans a decoded base is allowed to land in, per section kind
 SPANS = {
+    # .data may legitimately land in a read-only span too: the vtables_*.cpp
+    # TUs emit const virtual tables to .data that retail keeps in .rdata.  Every
+    # .data window is byte-validated, so a wrong base is still rejected.
     '.rodata': [(0x80010000, 0x800128F0), (0x80054548, 0x8005797C)],
-    '.data':   [(0x80051260, 0x80052B38), (0x8010CCD4, 0x8013C54C)],
+    '.data':   [(0x80010000, 0x800128F0), (0x80051260, 0x80052B38),
+                (0x80054548, 0x8005797C), (0x8010CCD4, 0x8013C54C)],
     '.sdata':  [(0x8013C54C, 0x8013DD7C)],
     '.sbss':   [(0x8013DD7C, 0x8013DEE0)],
     '.bss':    [(0x80052B38, 0x80054548), (0x8013DEE0, 0x80148B04)],
@@ -69,12 +73,23 @@ if sa.exists():
             sym.setdefault(m.group(1), int(m.group(2), 16))
 NAMEVA = re.compile(r'^(?:func|D|DAT|lbl)_([0-9A-Fa-f]{8})$')
 DOTL = re.compile(r'^\.L?_?([0-9A-Fa-f]{8})$')
+VTBL = re.compile(r'^(.+)_vtable$')
 
 def aof(name):
     if name in sym:
         return sym[name]
     m = NAMEVA.match(name) or DOTL.match(name)
-    return int(m.group(1), 16) if m else None
+    if m:
+        return int(m.group(1), 16)
+    # the vtables_*.cpp TUs export const virtual tables to .data under the
+    # unmangled <Class>_vtable name; the retail map has them in .rdata under the
+    # cfront-mangled _vt.<len><Class> name.  Map one to the other so those .data
+    # sections anchor (and their absolute HI16/LO16 references resolve).
+    m = VTBL.match(name)
+    if m:
+        cls = m.group(1)
+        return sym.get(f'_vt.{len(cls)}{cls}')
+    return None
 
 def run(*a):
     return subprocess.run(a, capture_output=True, text=True).stdout

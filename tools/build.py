@@ -409,6 +409,10 @@ PER_TU_FLAGS = {
     "recon/game/common/aih_basicperp.cpp":  {"g_value": "8"},
     "recon/game/common/aih_opp.cpp":        {"g_value": "8"},
     "recon/game/common/control.cpp":        {"g_value": "8"},  # +1
+    # w67-a10: fragment-member TU -G8 via surgical residual re-cut (its -G8
+    # small-data literals move out of the adjacent residual blob r20_post, which
+    # was shrunk to end at texture's -G8 base 0x8013DAD8).  gate +13.
+    "recon/game/psx/texture.cpp":           {"g_value": "8"},  # +13
     # NOTE: drawc.cpp + movie.cpp + the .sdata-adding batch2 TUs (texture/draw/
     # replay/bworldSm/camera/...) gate-improve at -G8 but their new .sdata shifts
     # the layout and breaks curated SOURCE_DATA_OWNERS (e.g. TrackSpec_*).  Held at

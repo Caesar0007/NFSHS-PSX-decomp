@@ -1642,12 +1642,12 @@
  {
   "obj": "build/recon/game/psx/texture.cpp.o",
   "section": ".sdata",
-  "base": 2148784904,
+  "base": 2148784856,
   "end": 2148784956,
-  "size": 52,
+  "size": 100,
   "ok": true,
   "unresolved": 0,
-  "words": 13
+  "words": 25
  },
  {
   "obj": "build/recon/game/psx/textureprocess.cpp.o",

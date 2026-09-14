@@ -555,56 +555,7 @@ dlabel gMaxSChunk
     /* 12E2D4 8013DAD4 00000000 */ .word 0x00000000
 enddlabel gMaxSChunk
 
-.align 2
-nonmatching D_8013DAD8
-
-dlabel D_8013DAD8
-    /* 12E2D8 8013DAD8 */ .asciz "show"
-    /* 73686F7700000000 */
-.align 2
-enddlabel D_8013DAD8
-
-.align 2
-nonmatching D_8013DAE0
-
-dlabel D_8013DAE0
-    /* 12E2E0 8013DAE0 */ .asciz "shad"
-    /* 7368616400000000 */
-.align 2
-enddlabel D_8013DAE0
-
-.align 2
-nonmatching D_8013DAE8
-
-dlabel D_8013DAE8
-    /* 12E2E8 8013DAE8 */ .asciz "lgt3"
-    /* 6C67743300000000 */
-.align 2
-enddlabel D_8013DAE8
-
-.align 2
-nonmatching D_8013DAF0
-
-dlabel D_8013DAF0
-    /* 12E2F0 8013DAF0 */ .asciz "lgta"
-    /* 6C67746100000000 */
-.align 2
-enddlabel D_8013DAF0
-
-.align 2
-nonmatching D_8013DAF8
-
-dlabel D_8013DAF8
-    /* 12E2F8 8013DAF8 */ .asciz "lgtb"
-    /* 6C67746200000000 */
-.align 2
-enddlabel D_8013DAF8
-
-.align 2
-nonmatching D_8013DB00
-
-dlabel D_8013DB00
-    /* 12E300 8013DB00 */ .asciz "lgtc"
-    /* 6C67746300000000 */
-.align 2
-enddlabel D_8013DB00
+/* w67-a10: the 6 trailing shape-name literals (0x8013DAD8..0x8013DB08:
+ * show/shad/lgt3/lgta/lgtb/lgtc) were residual only because texture.cpp built
+ * at -G4.  At retail -G8 they are texture.obj's own leading .sdata literals, so
+ * they move into texture.cpp.o(.sdata) and r20_post ends at 0x8013DAD8. */

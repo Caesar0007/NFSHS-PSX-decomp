@@ -80,6 +80,16 @@
   "words": 6
  },
  {
+  "obj": "build/recon/game/psx/texture.cpp.o",
+  "section": ".rodata",
+  "base": 2147838496,
+  "end": 2147838636,
+  "size": 140,
+  "ok": true,
+  "unresolved": 0,
+  "words": 35
+ },
+ {
   "obj": "build/recon/game/psx/textureprocess.cpp.o",
   "section": ".rodata",
   "base": 2147838648,

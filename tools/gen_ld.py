@@ -54,6 +54,11 @@ OBJDUMP = r"C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-objdump"
 OUTDIR = ROOT / "build" / "gen_ld"
 TARGET = ROOT / "linkers" / "nfs4_recon.ld"
 PLACEMENT = ROOT / "linkers" / "nfs4_recon.rodata_placement.json"
+# W67-A7: retail-decoded .rodata windows for recon TUs absent from the W66-A4
+# ownmap (tools/gen_rodata_extra.py); every window byte-matches retail at its
+# base, so it overlaps the identical residual blob benignly and only fixes the
+# TU's .text %hi/%lo(.rodata) reloc target.
+PLACEMENT_EXTRA = ROOT / "linkers" / "nfs4_recon.rodata_extra.json"
 TEXT_START = 0x800128F0
 DATA_START = 0x8010CCD4
 SDATA_START = 0x8013C54C
@@ -350,6 +355,7 @@ def main():
     # ----------------------------------- the recon TUs' own .rodata windows
     RO_SPANS = [(OVERLAY_START, TEXT_START), (MAIN_RODATA_START, MAIN_RODATA_END)]
     recon_ro, recon_ro_out = [], []
+    n_extra = 0
     if PLACEMENT.exists() and "--no-rodata" not in sys.argv:
         for r in json.load(open(PLACEMENT)):
             row = (r["base"], r["end"], r["obj"], r["ok"])
@@ -357,6 +363,21 @@ def main():
                 recon_ro.append(row)
             else:
                 recon_ro_out.append(row)
+        # W67-A7: merge the retail-decoded extras, skipping any that would
+        # overlap an existing (ownmap) window -- extras only ADD windows for
+        # TUs the ownmap omitted; a would-be overlap means the base is suspect,
+        # so drop it rather than risk a wrong reloc target.
+        if PLACEMENT_EXTRA.exists():
+            occ = sorted((b, e) for b, e, _, _ in recon_ro)
+            for r in json.load(open(PLACEMENT_EXTRA)):
+                b, e = r["base"], r["end"]
+                if not any(lo <= b and e <= hi for lo, hi in RO_SPANS):
+                    continue
+                if any(b < oe and ob < e for ob, oe in occ):
+                    continue
+                recon_ro.append((b, e, r["obj"], r["ok"]))
+                occ.append((b, e)); occ.sort()
+                n_extra += 1
         recon_ro.sort()
         for a1, b1 in zip(recon_ro, recon_ro[1:]):
             assert a1[1] <= b1[0], \
@@ -375,10 +396,47 @@ def main():
 
     sdata_lines = frag("linkers/nfs4_recon.sdata_8013C54C.ldfrag")
     data_lines = frag("linkers/nfs4_recon.data_8010CCD4.ldfrag")
-    # NOTE: linkers/nfs4_recon.front_data.ldfrag is deliberately NOT read here
-    # (unchanged from w65a5/w66a4: placing front_data is a separate,
-    # separately-measured landing -- see the w66a4 continuation cursor).
     assert sdata_lines and data_lines, "empty .ldfrag -- refusing a vacuous script"
+
+    # W67-A7 (2026-09-14): FRONT-OVERLAY DATA placement.  The frontend .data
+    # objects (0x80051260..0x80052b38, the front.bin overlay's .data) whose
+    # cells are anonymous local statics have no name-encoded/MAP symbol, so
+    # data_base() below returns None and they were appended to the MAIN .data
+    # catch-all at 0x8010CCD4 -- landing ~0xBB000 bytes from their retail
+    # address.  Every front.text %hi/%lo(front.data) reloc then resolved to the
+    # wrong region (a large slice of the front.text diff class).  The authoritative
+    # per-object front.data base is the VA comment in nfs4_recon.front_data.ldfrag
+    # (the W64-A18 ownmap tiling).  Use it as an OVERRIDE base so each such object
+    # is placed at its retail front.data address via the .xd spine, exactly like
+    # the resident .data implied-base placement (P907).  Objects already owned by
+    # SOURCE_DATA_OWNERS (fetextrender/fecredits/drawshp) are placed by their own
+    # .source_data_N sections -- excluded here to avoid a double .data reference.
+    sdo_sections = {("build/" + o["source"] + ".o", o["section"])
+                    for o in SOURCE_DATA_OWNERS}
+    # (obj, section) -> retail base override for anonymous-local .data/.sdata
+    # sections the P907 data_base() cannot anchor.  data_ov is the byte-validated
+    # retail-decode from tools/gen_rodata_extra.py (primary); front_data_va is
+    # the hand-curated W64-A18 front.data ownmap (supplementary, only where the
+    # decoder had no anchor).  Both exclude SOURCE_DATA_OWNERS sections (placed
+    # by their own .source_data_N sections / .sdata fragment).
+    data_ov = {}
+    dxjson = ROOT / "linkers" / "nfs4_recon.data_extra.json"
+    if dxjson.exists():
+        for r in json.load(open(dxjson)):
+            key = (r["obj"], r["section"])
+            if key not in sdo_sections:
+                data_ov[key] = r["base"]
+    front_data_va = {}
+    fdfrag = ROOT / "linkers" / "nfs4_recon.front_data.ldfrag"
+    if fdfrag.exists():
+        for ln in fdfrag.read_text(errors="replace").splitlines():
+            m = re.search(r"(build/recon/\S+?\.o)\((\.data)\);\s*/\*\s*(0x[0-9A-Fa-f]+)", ln)
+            if m and (m.group(1), m.group(2)) not in sdo_sections \
+                    and (m.group(1), m.group(2)) not in data_ov:
+                assert OVERLAY_START <= int(m.group(3), 16) < TEXT_START or \
+                    0x80051260 <= int(m.group(3), 16) < 0x80052B38, \
+                    f"front_data VA {m.group(3)} for {m.group(1)} outside front.data"
+                front_data_va[m.group(1)] = int(m.group(3), 16)
 
     # P881: native local-static storage is source-owned even though the full
     # frontend fragment above remains a separate layout task. Validate exact
@@ -446,11 +504,13 @@ def main():
         if not o.startswith("build/recon"):
             continue
         if d.get("secs", {}).get(".data", 0) and (o, ".data") not in in_frag:
-            b = data_base(o, ".data")
+            b = data_ov.get((o, ".data")) or front_data_va.get(o)  # W67-A7 override
+            if b is None:
+                b = data_base(o, ".data")
             (placed_data.append((b, o)) if b is not None
              else extra_data.append(f"        {o}(.data);"))
         if d.get("secs", {}).get(".sdata", 0) and (o, ".sdata") not in in_frag:
-            b = data_base(o, ".sdata")
+            b = data_ov.get((o, ".sdata")) or data_base(o, ".sdata")  # W67-A7 override
             (placed_sdata.append((b, o)) if b is not None
              else extra_sdata.append(f"        {o}(.sdata);"))
     placed_data.sort()
@@ -680,9 +740,11 @@ def main():
            f"main rodata pieces           : {len(main_ro)} "
            f"({njtbl_main} jump-table, excluded={CUT})",
            f"recon .rodata windows placed : {len(recon_ro)} "
-           f"(+{len(recon_ro_out)} outside a rodata blob span -> data-lane ldfrag)",
+           f"({n_extra} W67-A7 retail-decoded extras; "
+           f"+{len(recon_ro_out)} outside a rodata blob span -> data-lane ldfrag)",
            f".data  fragment lines        : {len(data_lines)} (+{len(extra_data)}"
-           f" appended; front_data NOT placed -- see the w66a4 cursor)",
+           f" appended; {len(placed_data)} .data placed at retail base"
+           f" [{len(data_ov)} decoder+{len(front_data_va)} front-ownmap overrides])",
            f".sdata fragment lines        : {len(sdata_lines)} (+{len(extra_sdata)})",
            ""]
     rep.append("== DROPPED (would move the location counter backwards) ==")

@@ -193,82 +193,93 @@ SECTIONS
     .ro0016 0x8001198c : SUBALIGN(4) { build/recon/frontend/common/screenpost.cpp.o(.rodata); }   /* 22 B */
     .ro0017 0x80011d94 : SUBALIGN(4) { build/recon/frontend/common/screentournselect.cpp.o(.rodata); }   /* 21 B */
     .ro0018 0x80011e0c : SUBALIGN(4) { build/recon/frontend/common/screentrophyroom.cpp.o(.rodata); }   /* 22 B */
-    .ro0019 0x80011eec : SUBALIGN(4) { build/recon/frontend/common/screentracks.cpp.o(.rodata); }   /* 27 B */
-    .ro0020 0x80011f58 : SUBALIGN(4) { build/recon/frontend/common/screentrackinfo.cpp.o(.rodata); }   /* 28 B */
-    .ro0021 0x80011fd4 : SUBALIGN(4) { build/recon/frontend/common/screentrackrecords.cpp.o(.rodata); }   /* 26 B */
-    .ro0022 0x8001204c : SUBALIGN(4) { build/recon/frontend/common/screencontroller.cpp.o(.rodata); }   /* 39 B */
-    .ro0023 0x80012130 : SUBALIGN(4) { build/recon/frontend/common/screenaudio.cpp.o(.rodata); }   /* 35 B  (anchor-only, E1-E5 not clean) */
-    .ro0024 0x800121b8 : SUBALIGN(4) { build/recon/frontend/common/screenmemcard.cpp.o(.rodata); }   /* 112 B  (anchor-only, E1-E5 not clean) */
-    .ro0025 0x80012284 : SUBALIGN(4) { build/recon/frontend/common/screencongrats.cpp.o(.rodata); }   /* 33 B */
-    .ro0026 0x800124bc : SUBALIGN(4) { build/recon/frontend/common/statchk.cpp.o(.rodata); }   /* 72 B */
-    .ro0027 0x80012518 : SUBALIGN(4) { build/recon/frontend/common/stattool.cpp.o(.rodata); }   /* 197 B  (anchor-only, E1-E5 not clean) */
-    .ro0028 0x80012790 : SUBALIGN(4) { build/recon/frontend/psx/movie.cpp.o(.rodata); }   /* 49 B  (anchor-only, E1-E5 not clean) */
-    .ro0029 0x800127f4 : SUBALIGN(4) { build/recon/frontend/psx/psxfront.cpp.o(.rodata); }   /* 64 B  (anchor-only, E1-E5 not clean) */
-    .ro0030 0x80012848 : SUBALIGN(4) { build/recon/frontend/psx/fetexture.cpp.o(.rodata); }   /* 9 B */
-    .ro0031 0x80012858 : SUBALIGN(4) { build/recon/frontend/psx/memcard.c.o(.rodata); }   /* 80 B  (anchor-only, E1-E5 not clean) */
-    .ro0032 0x800128a8 : SUBALIGN(4) { build/recon/frontend/psx/mdec.cpp.o(.rodata); }   /* 25 B */
-    .ro0033 0x800128c8 : SUBALIGN(4) { build/recon/frontend/psx/video.cpp.o(.rodata); }   /* 37 B */
-    .ro0034 0x80054f64 : SUBALIGN(4) { build/recon/game/common/aih_btccop.cpp.o(.rodata); }   /* 44 B */
-    .ro0035 0x80055040 : SUBALIGN(4) { build/recon/game/common/aih_btcperp.cpp.o(.rodata); }   /* 72 B  (anchor-only, E1-E5 not clean) */
-    .ro0036 0x80055118 : SUBALIGN(4) { build/recon/game/common/aih_opp.cpp.o(.rodata); }   /* 44 B */
-    .ro0037 0x800551b8 : SUBALIGN(4) { build/recon/game/common/aih_traf.cpp.o(.rodata); }   /* 60 B  (anchor-only, E1-E5 not clean) */
-    .ro0038 0x80055200 : SUBALIGN(4) { build/recon/game/common/aicop.cpp.o(.rodata); }   /* 13 B  (anchor-only, E1-E5 not clean) */
-    .ro0039 0x80055310 : SUBALIGN(4) { build/recon/game/common/ailife.cpp.o(.rodata); }   /* 64 B  (anchor-only, E1-E5 not clean) */
-    .ro0040 0x800554d0 : SUBALIGN(4) { build/recon/game/common/aispeeds.cpp.o(.rodata); }   /* 32 B */
-    .ro0041 0x800556d0 : SUBALIGN(4) { build/recon/game/common/audiocmn.cpp.o(.rodata); }   /* 160 B  (anchor-only, E1-E5 not clean) */
-    .ro0042 0x80055778 : SUBALIGN(4) { build/recon/game/common/audiomus.cpp.o(.rodata); }   /* 105 B  (anchor-only, E1-E5 not clean) */
-    .ro0043 0x800557e8 : SUBALIGN(4) { build/recon/game/common/audedit.cpp.o(.rodata); }   /* 11 B  (anchor-only, E1-E5 not clean) */
-    .ro0044 0x80055800 : SUBALIGN(4) { build/recon/game/common/audioeng.cpp.o(.rodata); }   /* 86 B  (anchor-only, E1-E5 not clean) */
-    .ro0045 0x80055864 : SUBALIGN(4) { build/recon/game/common/audiotrk.cpp.o(.rodata); }   /* 13 B  (anchor-only, E1-E5 not clean) */
-    .ro0046 0x800558a0 : SUBALIGN(4) { build/recon/game/common/camera.cpp.o(.rodata); }   /* 220 B  (anchor-only, E1-E5 not clean) */
-    .ro0047 0x80055988 : SUBALIGN(4) { build/recon/game/common/cars.cpp.o(.rodata); }   /* 69 B  (anchor-only, E1-E5 not clean) */
-    .ro0048 0x80055a28 : SUBALIGN(4) { build/recon/game/common/control.cpp.o(.rodata); }   /* 44 B */
-    .ro0049 0x80055a54 : SUBALIGN(4) { build/recon/game/common/hudpmx.cpp.o(.rodata); }   /* 254 B  (anchor-only, E1-E5 not clean) */
-    .ro0050 0x80055b60 : SUBALIGN(4) { build/recon/game/common/speech.cpp.o(.rodata); }   /* 860 B */
-    .ro0051 0x80055ec8 : SUBALIGN(4) { build/recon/game/common/copspeak.cpp.o(.rodata); }   /* 174 B  (anchor-only, E1-E5 not clean) */
-    .ro0052 0x80055f94 : SUBALIGN(4) { build/recon/game/common/genericpmx.cpp.o(.rodata); }   /* 34 B  (anchor-only, E1-E5 not clean) */
-    .ro0053 0x80056000 : SUBALIGN(4) { build/recon/game/common/nfs3.cpp.o(.rodata); }   /* 71 B  (anchor-only, E1-E5 not clean) */
-    .ro0054 0x80056054 : SUBALIGN(4) { build/recon/game/common/object.cpp.o(.rodata); }   /* 47 B */
-    .ro0055 0x80056370 : SUBALIGN(4) { build/recon/game/common/physics.cpp.o(.rodata); }   /* 64 B */
-    .ro0056 0x800563b8 : SUBALIGN(4) { build/recon/game/common/r3dcar.cpp.o(.rodata); }   /* 380 B  (anchor-only, E1-E5 not clean) */
-    .ro0057 0x80056550 : SUBALIGN(4) { build/recon/game/common/replay.cpp.o(.rodata); }   /* 60 B  (anchor-only, E1-E5 not clean) */
-    .ro0058 0x80056598 : SUBALIGN(4) { build/recon/game/common/scene.cpp.o(.rodata); }   /* 27 B  (anchor-only, E1-E5 not clean) */
-    .ro0059 0x80056730 : SUBALIGN(4) { build/recon/game/common/udff.cpp.o(.rodata); }   /* 11 B  (anchor-only, E1-E5 not clean) */
-    .ro0060 0x80056770 : SUBALIGN(4) { build/recon/game/psx/cario.cpp.o(.rodata); }   /* 140 B  (anchor-only, E1-E5 not clean) */
-    .ro0061 0x8005684c : SUBALIGN(4) { build/recon/game/psx/force.cpp.o(.rodata); }   /* 56 B */
-    .ro0062 0x80056894 : SUBALIGN(4) { build/recon/game/psx/flare.cpp.o(.rodata); }   /* 20 B */
-    .ro0063 0x800568dc : SUBALIGN(4) { build/recon/game/psx/hud.cpp.o(.rodata); }   /* 77 B  (anchor-only, E1-E5 not clean) */
-    .ro0064 0x80056938 : SUBALIGN(4) { build/recon/game/psx/loading.cpp.o(.rodata); }   /* 45 B  (anchor-only, E1-E5 not clean) */
-    .ro0065 0x8005696c : SUBALIGN(4) { build/recon/game/psx/night.cpp.o(.rodata); }   /* 22 B  (anchor-only, E1-E5 not clean) */
-    .ro0066 0x8005699c : SUBALIGN(4) { build/recon/game/psx/sfx.cpp.o(.rodata); }   /* 108 B */
-    .ro0067 0x80056a14 : SUBALIGN(4) { build/recon/game/psx/skidmark.cpp.o(.rodata); }   /* 9 B */
-    .ro0068 0x80056ac4 : SUBALIGN(4) { build/recon/game/psx/trackspec.cpp.o(.rodata); }   /* 32 B */
-    .ro0069 0x80056afc : SUBALIGN(4) { build/recon/game/psx/weather.cpp.o(.rodata); }   /* 60 B */
-    .ro0070 0x80056b38 : SUBALIGN(4) { build/recon/syslib/psx/libc/SPRINTF.c.o(.rodata); }   /* 220 B */
-    .ro0071 0x80056c18 : SUBALIGN(4) { build/recon/syslib/psx/libcd/TYPE.c.o(.rodata); }   /* 22 B  (anchor-only, E1-E5 not clean) */
-    .ro0072 0x80056c38 : SUBALIGN(4) { build/recon/eaclib/psx/spchpsxz/spchbank.c.o(.rodata); }   /* 11 B */
-    .ro0073 0x80056c44 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/nfile.c.o(.rodata); }   /* 116 B */
-    .ro0074 0x80056ef8 : SUBALIGN(4) { build/recon/syslib/psx/libpad/PADENTRY.c.o(.rodata); }   /* 20 B */
-    .ro0075 0x80056f18 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/primate.c.o(.rodata); }   /* 11 B */
-    .ro0076 0x80056f24 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/nasync.c.o(.rodata); }   /* 21 B */
-    .ro0077 0x80056f3c : SUBALIGN(4) { build/recon/syslib/psx/libetc/VSYNC.c.o(.rodata); }   /* 16 B  (anchor-only, E1-E5 not clean) */
-    .ro0078 0x80056f80 : SUBALIGN(4) { build/recon/syslib/psx/libetc/INTR.c.o(.rodata); }   /* 53 B */
-    .ro0079 0x80056fbc : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/fileroot.c.o(.rodata); }   /* 28 B */
-    .ro0080 0x80056fd8 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/vramfxya.c.o(.rodata); }   /* 136 B */
-    .ro0081 0x80057078 : SUBALIGN(4) { build/recon/syslib/psx/libgpu/FONT.c.o(.rodata); }   /* 132 B */
-    .ro0082 0x80057180 : SUBALIGN(4) { build/recon/syslib/psx/libcd/iso9660.c.o(.rodata); }   /* 490 B */
-    .ro0083 0x80057370 : SUBALIGN(4) { build/recon/syslib/psx/libmcrd/LIBMCRD.c.o(.rodata); }   /* 374 B  (anchor-only, E1-E5 not clean) */
-    .ro0084 0x800574f0 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/cluttype.c.o(.rodata); }   /* 72 B */
-    .ro0085 0x80057538 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/shptype.c.o(.rodata); }   /* 128 B */
-    .ro0086 0x80057608 : SUBALIGN(4) { build/recon/syslib/psx/libetc/INTR_DMA.c.o(.rodata); }   /* 43 B  (anchor-only, E1-E5 not clean) */
-    .ro0087 0x80057638 : SUBALIGN(4) { build/recon/syslib/psx/libcd/drv.c.o(.rodata); }   /* 608 B */
-    .ro0088 0x80057898 : SUBALIGN(4) { build/recon/syslib/psx/libcd/cdread.c.o(.rodata); }   /* 66 B  (anchor-only, E1-E5 not clean) */
-    .ro0089 0x800578e8 : SUBALIGN(4) { build/recon/syslib/psx/libcd/event.c.o(.rodata); }   /* 21 B  (anchor-only, E1-E5 not clean) */
-    .ro0090 0x80057908 : SUBALIGN(4) { build/recon/syslib/psx/libcd/toc.c.o(.rodata); }   /* 62 B */
-    .ro0091 0x80057948 : SUBALIGN(4) { build/recon/syslib/psx/libmcrd/USERFUNC.c.o(.rodata); }   /* 25 B */
-    .ro0092 0x80057968 : SUBALIGN(4) { build/recon/eaclib/psx/spchpsxz/spchrule.c.o(.rodata); }   /* 20 B */
-    ASSERT(ADDR(.ro0041) == 0x800556d0 && SIZEOF(.ro0041) == 152, "native auxiliary source window mismatch")
-    ASSERT(ADDR(.ro0041) + 60 == 0x8005570c, "native auxiliary source window mismatch")
+    .ro0019 0x80011e84 : SUBALIGN(4) { build/recon/frontend/common/screentrophyinfo.cpp.o(.rodata); }   /* 5 B */
+    .ro0020 0x80011eec : SUBALIGN(4) { build/recon/frontend/common/screentracks.cpp.o(.rodata); }   /* 27 B */
+    .ro0021 0x80011f58 : SUBALIGN(4) { build/recon/frontend/common/screentrackinfo.cpp.o(.rodata); }   /* 28 B */
+    .ro0022 0x80011fd4 : SUBALIGN(4) { build/recon/frontend/common/screentrackrecords.cpp.o(.rodata); }   /* 26 B */
+    .ro0023 0x8001204c : SUBALIGN(4) { build/recon/frontend/common/screencontroller.cpp.o(.rodata); }   /* 39 B */
+    .ro0024 0x800120c8 : SUBALIGN(4) { build/recon/frontend/common/screendisplay.cpp.o(.rodata); }   /* 7 B */
+    .ro0025 0x80012130 : SUBALIGN(4) { build/recon/frontend/common/screenaudio.cpp.o(.rodata); }   /* 35 B  (anchor-only, E1-E5 not clean) */
+    .ro0026 0x800121b8 : SUBALIGN(4) { build/recon/frontend/common/screenmemcard.cpp.o(.rodata); }   /* 112 B  (anchor-only, E1-E5 not clean) */
+    .ro0027 0x80012284 : SUBALIGN(4) { build/recon/frontend/common/screencongrats.cpp.o(.rodata); }   /* 33 B */
+    .ro0028 0x800124bc : SUBALIGN(4) { build/recon/frontend/common/statchk.cpp.o(.rodata); }   /* 72 B */
+    .ro0029 0x80012518 : SUBALIGN(4) { build/recon/frontend/common/stattool.cpp.o(.rodata); }   /* 197 B  (anchor-only, E1-E5 not clean) */
+    .ro0030 0x800125e0 : SUBALIGN(4) { build/recon/frontend/common/screenusername.cpp.o(.rodata); }   /* 264 B */
+    .ro0031 0x80012790 : SUBALIGN(4) { build/recon/frontend/psx/movie.cpp.o(.rodata); }   /* 49 B  (anchor-only, E1-E5 not clean) */
+    .ro0032 0x800127f4 : SUBALIGN(4) { build/recon/frontend/psx/psxfront.cpp.o(.rodata); }   /* 64 B  (anchor-only, E1-E5 not clean) */
+    .ro0033 0x80012848 : SUBALIGN(4) { build/recon/frontend/psx/fetexture.cpp.o(.rodata); }   /* 9 B */
+    .ro0034 0x80012858 : SUBALIGN(4) { build/recon/frontend/psx/memcard.c.o(.rodata); }   /* 80 B  (anchor-only, E1-E5 not clean) */
+    .ro0035 0x800128a8 : SUBALIGN(4) { build/recon/frontend/psx/mdec.cpp.o(.rodata); }   /* 25 B */
+    .ro0036 0x800128c8 : SUBALIGN(4) { build/recon/frontend/psx/video.cpp.o(.rodata); }   /* 37 B */
+    .ro0037 0x80054da4 : SUBALIGN(4) { build/recon/game/common/ai.cpp.o(.rodata); }   /* 12 B */
+    .ro0038 0x80054f64 : SUBALIGN(4) { build/recon/game/common/aih_btccop.cpp.o(.rodata); }   /* 44 B */
+    .ro0039 0x80055040 : SUBALIGN(4) { build/recon/game/common/aih_btcperp.cpp.o(.rodata); }   /* 72 B  (anchor-only, E1-E5 not clean) */
+    .ro0040 0x80055118 : SUBALIGN(4) { build/recon/game/common/aih_opp.cpp.o(.rodata); }   /* 44 B */
+    .ro0041 0x8005516c : SUBALIGN(4) { build/recon/game/common/aih_cop.cpp.o(.rodata); }   /* 44 B */
+    .ro0042 0x800551b8 : SUBALIGN(4) { build/recon/game/common/aih_traf.cpp.o(.rodata); }   /* 60 B  (anchor-only, E1-E5 not clean) */
+    .ro0043 0x80055200 : SUBALIGN(4) { build/recon/game/common/aicop.cpp.o(.rodata); }   /* 13 B  (anchor-only, E1-E5 not clean) */
+    .ro0044 0x80055310 : SUBALIGN(4) { build/recon/game/common/ailife.cpp.o(.rodata); }   /* 64 B  (anchor-only, E1-E5 not clean) */
+    .ro0045 0x80055354 : SUBALIGN(4) { build/recon/game/common/aiperson.cpp.o(.rodata); }   /* 75 B */
+    .ro0046 0x800554d0 : SUBALIGN(4) { build/recon/game/common/aispeeds.cpp.o(.rodata); }   /* 32 B */
+    .ro0047 0x800556d0 : SUBALIGN(4) { build/recon/game/common/audiocmn.cpp.o(.rodata); }   /* 160 B  (anchor-only, E1-E5 not clean) */
+    .ro0048 0x80055778 : SUBALIGN(4) { build/recon/game/common/audiomus.cpp.o(.rodata); }   /* 105 B  (anchor-only, E1-E5 not clean) */
+    .ro0049 0x800557e8 : SUBALIGN(4) { build/recon/game/common/audedit.cpp.o(.rodata); }   /* 11 B  (anchor-only, E1-E5 not clean) */
+    .ro0050 0x80055800 : SUBALIGN(4) { build/recon/game/common/audioeng.cpp.o(.rodata); }   /* 86 B  (anchor-only, E1-E5 not clean) */
+    .ro0051 0x80055864 : SUBALIGN(4) { build/recon/game/common/audiotrk.cpp.o(.rodata); }   /* 13 B  (anchor-only, E1-E5 not clean) */
+    .ro0052 0x80055880 : SUBALIGN(4) { build/recon/game/common/bworld.cpp.o(.rodata); }   /* 12 B */
+    .ro0053 0x800558a0 : SUBALIGN(4) { build/recon/game/common/camera.cpp.o(.rodata); }   /* 220 B  (anchor-only, E1-E5 not clean) */
+    .ro0054 0x80055988 : SUBALIGN(4) { build/recon/game/common/cars.cpp.o(.rodata); }   /* 69 B  (anchor-only, E1-E5 not clean) */
+    .ro0055 0x80055a28 : SUBALIGN(4) { build/recon/game/common/control.cpp.o(.rodata); }   /* 44 B */
+    .ro0056 0x80055a54 : SUBALIGN(4) { build/recon/game/common/hudpmx.cpp.o(.rodata); }   /* 254 B  (anchor-only, E1-E5 not clean) */
+    .ro0057 0x80055b60 : SUBALIGN(4) { build/recon/game/common/speech.cpp.o(.rodata); }   /* 860 B */
+    .ro0058 0x80055ec8 : SUBALIGN(4) { build/recon/game/common/copspeak.cpp.o(.rodata); }   /* 174 B  (anchor-only, E1-E5 not clean) */
+    .ro0059 0x80055f94 : SUBALIGN(4) { build/recon/game/common/genericpmx.cpp.o(.rodata); }   /* 34 B  (anchor-only, E1-E5 not clean) */
+    .ro0060 0x80056000 : SUBALIGN(4) { build/recon/game/common/nfs3.cpp.o(.rodata); }   /* 71 B  (anchor-only, E1-E5 not clean) */
+    .ro0061 0x80056054 : SUBALIGN(4) { build/recon/game/common/object.cpp.o(.rodata); }   /* 47 B */
+    .ro0062 0x80056370 : SUBALIGN(4) { build/recon/game/common/physics.cpp.o(.rodata); }   /* 64 B */
+    .ro0063 0x800563b8 : SUBALIGN(4) { build/recon/game/common/r3dcar.cpp.o(.rodata); }   /* 380 B  (anchor-only, E1-E5 not clean) */
+    .ro0064 0x80056550 : SUBALIGN(4) { build/recon/game/common/replay.cpp.o(.rodata); }   /* 60 B  (anchor-only, E1-E5 not clean) */
+    .ro0065 0x80056598 : SUBALIGN(4) { build/recon/game/common/scene.cpp.o(.rodata); }   /* 27 B  (anchor-only, E1-E5 not clean) */
+    .ro0066 0x80056730 : SUBALIGN(4) { build/recon/game/common/udff.cpp.o(.rodata); }   /* 11 B  (anchor-only, E1-E5 not clean) */
+    .ro0067 0x80056770 : SUBALIGN(4) { build/recon/game/psx/cario.cpp.o(.rodata); }   /* 140 B  (anchor-only, E1-E5 not clean) */
+    .ro0068 0x8005684c : SUBALIGN(4) { build/recon/game/psx/force.cpp.o(.rodata); }   /* 56 B */
+    .ro0069 0x80056894 : SUBALIGN(4) { build/recon/game/psx/flare.cpp.o(.rodata); }   /* 20 B */
+    .ro0070 0x800568b4 : SUBALIGN(4) { build/recon/game/psx/hrzsku.cpp.o(.rodata); }   /* 25 B */
+    .ro0071 0x800568dc : SUBALIGN(4) { build/recon/game/psx/hud.cpp.o(.rodata); }   /* 77 B  (anchor-only, E1-E5 not clean) */
+    .ro0072 0x80056938 : SUBALIGN(4) { build/recon/game/psx/loading.cpp.o(.rodata); }   /* 45 B  (anchor-only, E1-E5 not clean) */
+    .ro0073 0x8005696c : SUBALIGN(4) { build/recon/game/psx/night.cpp.o(.rodata); }   /* 22 B  (anchor-only, E1-E5 not clean) */
+    .ro0074 0x8005699c : SUBALIGN(4) { build/recon/game/psx/sfx.cpp.o(.rodata); }   /* 108 B */
+    .ro0075 0x80056a14 : SUBALIGN(4) { build/recon/game/psx/skidmark.cpp.o(.rodata); }   /* 9 B */
+    .ro0076 0x80056ab8 : SUBALIGN(4) { build/recon/game/psx/textureprocess.cpp.o(.rodata); }   /* 11 B */
+    .ro0077 0x80056ac4 : SUBALIGN(4) { build/recon/game/psx/trackspec.cpp.o(.rodata); }   /* 32 B */
+    .ro0078 0x80056afc : SUBALIGN(4) { build/recon/game/psx/weather.cpp.o(.rodata); }   /* 60 B */
+    .ro0079 0x80056b38 : SUBALIGN(4) { build/recon/syslib/psx/libc/SPRINTF.c.o(.rodata); }   /* 220 B */
+    .ro0080 0x80056c18 : SUBALIGN(4) { build/recon/syslib/psx/libcd/TYPE.c.o(.rodata); }   /* 22 B  (anchor-only, E1-E5 not clean) */
+    .ro0081 0x80056c38 : SUBALIGN(4) { build/recon/eaclib/psx/spchpsxz/spchbank.c.o(.rodata); }   /* 11 B */
+    .ro0082 0x80056c44 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/nfile.c.o(.rodata); }   /* 116 B */
+    .ro0083 0x80056cb8 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/fixdatan.c.o(.rodata); }   /* 32 B */
+    .ro0084 0x80056ef8 : SUBALIGN(4) { build/recon/syslib/psx/libpad/PADENTRY.c.o(.rodata); }   /* 20 B */
+    .ro0085 0x80056f18 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/primate.c.o(.rodata); }   /* 11 B */
+    .ro0086 0x80056f24 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/nasync.c.o(.rodata); }   /* 21 B */
+    .ro0087 0x80056f3c : SUBALIGN(4) { build/recon/syslib/psx/libetc/VSYNC.c.o(.rodata); }   /* 16 B  (anchor-only, E1-E5 not clean) */
+    .ro0088 0x80056f80 : SUBALIGN(4) { build/recon/syslib/psx/libetc/INTR.c.o(.rodata); }   /* 53 B */
+    .ro0089 0x80056fbc : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/fileroot.c.o(.rodata); }   /* 28 B */
+    .ro0090 0x80056fd8 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/vramfxya.c.o(.rodata); }   /* 136 B */
+    .ro0091 0x80057078 : SUBALIGN(4) { build/recon/syslib/psx/libgpu/FONT.c.o(.rodata); }   /* 132 B */
+    .ro0092 0x80057130 : SUBALIGN(4) { build/recon/syslib/psx/libpress/LIBPRESS.c.o(.rodata); }   /* 73 B */
+    .ro0093 0x80057180 : SUBALIGN(4) { build/recon/syslib/psx/libcd/iso9660.c.o(.rodata); }   /* 490 B */
+    .ro0094 0x80057370 : SUBALIGN(4) { build/recon/syslib/psx/libmcrd/LIBMCRD.c.o(.rodata); }   /* 374 B  (anchor-only, E1-E5 not clean) */
+    .ro0095 0x800574f0 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/cluttype.c.o(.rodata); }   /* 72 B */
+    .ro0096 0x80057538 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/shptype.c.o(.rodata); }   /* 128 B */
+    .ro0097 0x80057608 : SUBALIGN(4) { build/recon/syslib/psx/libetc/INTR_DMA.c.o(.rodata); }   /* 43 B  (anchor-only, E1-E5 not clean) */
+    .ro0098 0x80057638 : SUBALIGN(4) { build/recon/syslib/psx/libcd/drv.c.o(.rodata); }   /* 608 B */
+    .ro0099 0x80057898 : SUBALIGN(4) { build/recon/syslib/psx/libcd/cdread.c.o(.rodata); }   /* 66 B  (anchor-only, E1-E5 not clean) */
+    .ro0100 0x800578e8 : SUBALIGN(4) { build/recon/syslib/psx/libcd/event.c.o(.rodata); }   /* 21 B  (anchor-only, E1-E5 not clean) */
+    .ro0101 0x80057908 : SUBALIGN(4) { build/recon/syslib/psx/libcd/toc.c.o(.rodata); }   /* 62 B */
+    .ro0102 0x80057948 : SUBALIGN(4) { build/recon/syslib/psx/libmcrd/USERFUNC.c.o(.rodata); }   /* 25 B */
+    .ro0103 0x80057968 : SUBALIGN(4) { build/recon/eaclib/psx/spchpsxz/spchrule.c.o(.rodata); }   /* 20 B */
+    ASSERT(ADDR(.ro0047) == 0x800556d0 && SIZEOF(.ro0047) == 152, "native auxiliary source window mismatch")
+    ASSERT(ADDR(.ro0047) + 60 == 0x8005570c, "native auxiliary source window mismatch")
 
 
     .t0000 0x800128f0 : SUBALIGN(4) { build/recon/game/common/minfront.cpp.o(.text); }
@@ -740,13 +751,54 @@ SECTIONS
     .source_data_18 0x800529d0 : SUBALIGN(4) { build/recon/frontend/psx/drawshp.cpp.o(.data); }
     ASSERT(SIZEOF(.source_data_18) == 4, "source data owner size mismatch")
 
-    .xd0000 0x80123654 : SUBALIGN(4) { build/recon/syslib/psx/libgpu/SYS.c.o(.data); }
-    .xd0001 0x80136af8 : SUBALIGN(4) { build/recon/syslib/psx/libpress/LIBPRESS.c.o(.data); }
-    .xd0002 0x80137c78 : SUBALIGN(4) { build/recon/syslib/psx/libpad/PADMAIN.c.o(.data); }
-    .xd0003 0x8013bf40 : SUBALIGN(4) { build/recon/syslib/psx/libcd/drv.c.o(.data); }
+    .xd0000 0x80051610 : SUBALIGN(4) { build/recon/frontend/common/fetracks.cpp.o(.data); }
+    .xd0001 0x80051628 : SUBALIGN(4) { build/recon/frontend/common/fecheats.cpp.o(.data); }
+    .xd0002 0x800516c8 : SUBALIGN(4) { build/recon/frontend/common/fecolor.cpp.o(.data); }
+    .xd0003 0x80051738 : SUBALIGN(4) { build/recon/frontend/common/feinput.cpp.o(.data); }
+    .xd0004 0x800517d0 : SUBALIGN(4) { build/recon/frontend/common/fetools.cpp.o(.data); }
+    .xd0005 0x800517e8 : SUBALIGN(4) { build/recon/frontend/common/front.cpp.o(.data); }
+    .xd0006 0x80051974 : SUBALIGN(4) { build/recon/frontend/common/femenudefs.cpp.o(.data); }
+    .xd0007 0x80051a68 : SUBALIGN(4) { build/recon/frontend/common/fememcard.cpp.o(.data); }
+    .xd0008 0x80051aa8 : SUBALIGN(4) { build/recon/frontend/common/screenmain.cpp.o(.data); }
+    .xd0009 0x80051e5c : SUBALIGN(4) { build/recon/frontend/common/screenpinkslips.cpp.o(.data); }
+    .xd0010 0x80051e78 : SUBALIGN(4) { build/recon/frontend/common/screencarselect.cpp.o(.data); }
+    .xd0011 0x80052058 : SUBALIGN(4) { build/recon/frontend/common/screentournselect.cpp.o(.data); }
+    .xd0012 0x80052060 : SUBALIGN(4) { build/recon/frontend/common/screentrophyroom.cpp.o(.data); }
+    .xd0013 0x80052078 : SUBALIGN(4) { build/recon/frontend/common/screentrophyinfo.cpp.o(.data); }
+    .xd0014 0x800520a0 : SUBALIGN(4) { build/recon/frontend/common/screentracks.cpp.o(.data); }
+    .xd0015 0x800520b8 : SUBALIGN(4) { build/recon/frontend/common/screentrackinfo.cpp.o(.data); }
+    .xd0016 0x800528d8 : SUBALIGN(4) { build/recon/frontend/common/screendisplay.cpp.o(.data); }
+    .xd0017 0x800528e8 : SUBALIGN(4) { build/recon/frontend/common/screenaudio.cpp.o(.data); }
+    .xd0018 0x800529a0 : SUBALIGN(4) { build/recon/frontend/common/stattool.cpp.o(.data); }
+    .xd0019 0x80052a78 : SUBALIGN(4) { build/recon/frontend/psx/memcard.c.o(.data); }
+    .xd0020 0x8010ccd4 : SUBALIGN(4) { build/recon/game/common/ai.cpp.o(.data); }
+    .xd0021 0x8010ce98 : SUBALIGN(4) { build/recon/game/common/aih_play.cpp.o(.data); }
+    .xd0022 0x8011401c : SUBALIGN(4) { build/recon/game/common/newton.cpp.o(.data); }
+    .xd0023 0x80123654 : SUBALIGN(4) { build/recon/syslib/psx/libgpu/SYS.c.o(.data); }
+    .xd0024 0x801369e8 : SUBALIGN(4) { build/recon/syslib/psx/libpress/VLC.c.o(.data); }
+    .xd0025 0x80136a18 : SUBALIGN(4) { build/recon/syslib/psx/libcd/cdcont.c.o(.data); }
+    .xd0026 0x80136a98 : SUBALIGN(4) { build/recon/syslib/psx/libcd/stcdint.c.o(.data); }
+    .xd0027 0x80136af8 : SUBALIGN(4) { build/recon/syslib/psx/libpress/LIBPRESS.c.o(.data); }
+    .xd0028 0x80136c48 : SUBALIGN(4) { build/recon/syslib/psx/libcd/C_003.c.o(.data); }
+    .xd0029 0x80136cb8 : SUBALIGN(4) { build/recon/syslib/psx/libmcrd/LIBMCRD.c.o(.data); }
+    .xd0030 0x80136e00 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sdfx.c.o(.data); }
+    .xd0031 0x801370c4 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sclcptch.c.o(.data); }
+    .xd0032 0x80137c78 : SUBALIGN(4) { build/recon/syslib/psx/libpad/PADMAIN.c.o(.data); }
+    .xd0033 0x8013bf40 : SUBALIGN(4) { build/recon/syslib/psx/libcd/drv.c.o(.data); }
+    .xd0034 0x8013c2e0 : SUBALIGN(4) { build/recon/syslib/psx/libmcrd/USERFUNC.c.o(.data); }
+    .xd0035 0x8013c308 : SUBALIGN(4) { build/recon/syslib/psx/libpad/PADIF.c.o(.data); }
     .xs0000 0x801234d4 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/snddata.c.o(.sdata); }
-    .xs0001 0x8013d990 : SUBALIGN(4) { build/recon/game/psx/overlays.cpp.o(.sdata); }
-    .xs0002 0x8013dd2c : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/fileroot.c.o(.sdata); }
+    .xs0001 0x8013c5b8 : SUBALIGN(4) { build/recon/game/common/aispeeds.cpp.o(.sdata); }
+    .xs0002 0x8013d71c : SUBALIGN(4) { build/recon/game/psx/cario.cpp.o(.sdata); }
+    .xs0003 0x8013d798 : SUBALIGN(4) { build/recon/game/psx/draw.cpp.o(.sdata); }
+    .xs0004 0x8013d854 : SUBALIGN(4) { build/recon/game/psx/font.cpp.o(.sdata); }
+    .xs0005 0x8013d880 : SUBALIGN(4) { build/recon/game/psx/hrzsku.cpp.o(.sdata); }
+    .xs0006 0x8013d98c : SUBALIGN(4) { build/recon/game/psx/overlays.cpp.o(.sdata); }
+    .xs0007 0x8013d9d0 : SUBALIGN(4) { build/recon/game/psx/loading.cpp.o(.sdata); }
+    .xs0008 0x8013d9e0 : SUBALIGN(4) { build/recon/game/psx/night.cpp.o(.sdata); }
+    .xs0009 0x8013da9c : SUBALIGN(4) { build/recon/game/psx/platform.cpp.o(.sdata); }
+    .xs0010 0x8013dd2c : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/fileroot.c.o(.sdata); }
+    .xs0011 0x8013dd48 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/inittmr.c.o(.sdata); }
 
     .data 0x8010ccd4 : SUBALIGN(4)
     {
@@ -848,47 +900,22 @@ SECTIONS
         build/asm/data/data_8010CCD4_r20.data.s.o(.data);
         build/recon/eaclib/psx/sndpsxz/snddata.c.o(.data);   /* 0x8013c2f0..0x8013c308  was data_8010CCD4_o33.data.s */
         build/asm/data/data_8010CCD4_r21.data.s.o(.data);
-        build/recon/eaclib/psx/sndpsxz/sclcptch.c.o(.data);
-        build/recon/eaclib/psx/sndpsxz/sdfx.c.o(.data);
         build/recon/eaclib/psx/spchpsxz/spchinit.c.o(.data);
         build/recon/frontend/common/feapp.cpp.o(.data);
         build/recon/frontend/common/feaudio.cpp.o(.data);
         build/recon/frontend/common/fecars.cpp.o(.data);
-        build/recon/frontend/common/fecheats.cpp.o(.data);
-        build/recon/frontend/common/fecolor.cpp.o(.data);
-        build/recon/frontend/common/feinput.cpp.o(.data);
-        build/recon/frontend/common/fememcard.cpp.o(.data);
         build/recon/frontend/common/femenu.cpp.o(.data);
-        build/recon/frontend/common/femenudefs.cpp.o(.data);
         build/recon/frontend/common/femenuoptions.cpp.o(.data);
         build/recon/frontend/common/fescreen.cpp.o(.data);
-        build/recon/frontend/common/fetools.cpp.o(.data);
-        build/recon/frontend/common/fetracks.cpp.o(.data);
-        build/recon/frontend/common/front.cpp.o(.data);
-        build/recon/frontend/common/screenaudio.cpp.o(.data);
-        build/recon/frontend/common/screencarselect.cpp.o(.data);
         build/recon/frontend/common/screencongrats.cpp.o(.data);
         build/recon/frontend/common/screencontroller.cpp.o(.data);
-        build/recon/frontend/common/screendisplay.cpp.o(.data);
-        build/recon/frontend/common/screenmain.cpp.o(.data);
         build/recon/frontend/common/screenmemcard.cpp.o(.data);
-        build/recon/frontend/common/screenpinkslips.cpp.o(.data);
         build/recon/frontend/common/screenpost.cpp.o(.data);
-        build/recon/frontend/common/screentournselect.cpp.o(.data);
-        build/recon/frontend/common/screentrackinfo.cpp.o(.data);
         build/recon/frontend/common/screentrackrecords.cpp.o(.data);
-        build/recon/frontend/common/screentracks.cpp.o(.data);
-        build/recon/frontend/common/screentrophyinfo.cpp.o(.data);
-        build/recon/frontend/common/screentrophyroom.cpp.o(.data);
         build/recon/frontend/common/screenusername.cpp.o(.data);
         build/recon/frontend/common/statchk.cpp.o(.data);
-        build/recon/frontend/common/stattool.cpp.o(.data);
-        build/recon/frontend/psx/memcard.c.o(.data);
-        build/recon/game/common/ai.cpp.o(.data);
-        build/recon/game/common/aih_play.cpp.o(.data);
         build/recon/game/common/aihigh.cpp.o(.data);
         build/recon/game/common/aispeeds.cpp.o(.data);
-        build/recon/game/common/newton.cpp.o(.data);
         build/recon/game/common/render.cpp.o(.data);
         build/recon/game/common/speech.cpp.o(.data);
         build/recon/game/common/vtables_aidatarecord.cpp.o(.data);
@@ -903,14 +930,7 @@ SECTIONS
         build/recon/game/common/vtables_tscreen2.cpp.o(.data);
         build/recon/game/psx/night.cpp.o(.data);
         build/recon/syslib/psx/libapi/COUNTER_data.c.o(.data);
-        build/recon/syslib/psx/libcd/C_003.c.o(.data);
-        build/recon/syslib/psx/libcd/cdcont.c.o(.data);
-        build/recon/syslib/psx/libcd/stcdint.c.o(.data);
         build/recon/syslib/psx/libmcrd/BIOS.c.o(.data);
-        build/recon/syslib/psx/libmcrd/LIBMCRD.c.o(.data);
-        build/recon/syslib/psx/libmcrd/USERFUNC.c.o(.data);
-        build/recon/syslib/psx/libpad/PADIF.c.o(.data);
-        build/recon/syslib/psx/libpress/VLC.c.o(.data);
     }
 
     .sdata 0x8013c54c : SUBALIGN(4)
@@ -991,14 +1011,12 @@ SECTIONS
         build/asm/data/sdata_8013C54C_r23.sdata.s.o(.sdata);
         build/recon/eaclib/psx/eacpsxz/threads.c.o(.sbss);   /* 0x8013dd5c..0x8013dd60  was sdata_8013C54C_o38.sdata.s */
         build/asm/data/sdata_8013C54C_r24.sdata.s.o(.sdata);
-        build/recon/eaclib/psx/eacpsxz/inittmr.c.o(.sdata);
         build/recon/eaclib/psx/eacpsxz/loadshp.c.o(.sdata);
         build/recon/eaclib/psx/eacpsxz/memstd.c.o(.sdata);
         build/recon/eaclib/psx/sndpsxz/sdpacket.c.o(.sdata);
         build/recon/frontend/psx/memcard.c.o(.sdata);
         build/recon/game/common/aih_cop.cpp.o(.sdata);
         build/recon/game/common/aih_play.cpp.o(.sdata);
-        build/recon/game/common/aispeeds.cpp.o(.sdata);
         build/recon/game/common/anim.cpp.o(.sdata);
         build/recon/game/common/audioeng.cpp.o(.sdata);
         build/recon/game/common/collide.cpp.o(.sdata);
@@ -1007,15 +1025,8 @@ SECTIONS
         build/recon/game/common/speech.cpp.o(.sdata);
         build/recon/game/common/textsys.cpp.o(.sdata);
         build/recon/game/common/track.cpp.o(.sdata);
-        build/recon/game/psx/cario.cpp.o(.sdata);
         build/recon/game/psx/device.cpp.o(.sdata);
-        build/recon/game/psx/draw.cpp.o(.sdata);
         build/recon/game/psx/drawc.cpp.o(.sdata);
-        build/recon/game/psx/font.cpp.o(.sdata);
-        build/recon/game/psx/hrzsku.cpp.o(.sdata);
-        build/recon/game/psx/loading.cpp.o(.sdata);
-        build/recon/game/psx/night.cpp.o(.sdata);
-        build/recon/game/psx/platform.cpp.o(.sdata);
         build/recon/game/psx/skidmark.cpp.o(.sdata);
         build/recon/game/psx/weather.cpp.o(.sdata);
         build/recon/syslib/psx/libapi/COUNTER_data.c.o(.sdata);

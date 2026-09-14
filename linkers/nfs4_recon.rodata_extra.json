@@ -1,0 +1,112 @@
+[
+ {
+  "obj": "build/recon/frontend/common/screentrophyinfo.cpp.o",
+  "section": ".rodata",
+  "base": 2147556996,
+  "end": 2147557001,
+  "size": 5,
+  "ok": true,
+  "unresolved": 0,
+  "words": 1
+ },
+ {
+  "obj": "build/recon/frontend/common/screendisplay.cpp.o",
+  "section": ".rodata",
+  "base": 2147557576,
+  "end": 2147557583,
+  "size": 7,
+  "ok": true,
+  "unresolved": 0,
+  "words": 1
+ },
+ {
+  "obj": "build/recon/frontend/common/screenusername.cpp.o",
+  "section": ".rodata",
+  "base": 2147558880,
+  "end": 2147559144,
+  "size": 264,
+  "ok": true,
+  "unresolved": 0,
+  "words": 66
+ },
+ {
+  "obj": "build/recon/game/common/ai.cpp.o",
+  "section": ".rodata",
+  "base": 2147831204,
+  "end": 2147831216,
+  "size": 12,
+  "ok": true,
+  "unresolved": 0,
+  "words": 3
+ },
+ {
+  "obj": "build/recon/game/common/aih_cop.cpp.o",
+  "section": ".rodata",
+  "base": 2147832172,
+  "end": 2147832216,
+  "size": 44,
+  "ok": true,
+  "unresolved": 0,
+  "words": 11
+ },
+ {
+  "obj": "build/recon/game/common/aiperson.cpp.o",
+  "section": ".rodata",
+  "base": 2147832660,
+  "end": 2147832735,
+  "size": 75,
+  "ok": true,
+  "unresolved": 0,
+  "words": 18
+ },
+ {
+  "obj": "build/recon/game/common/bworld.cpp.o",
+  "section": ".rodata",
+  "base": 2147833984,
+  "end": 2147833996,
+  "size": 12,
+  "ok": true,
+  "unresolved": 0,
+  "words": 3
+ },
+ {
+  "obj": "build/recon/game/psx/hrzsku.cpp.o",
+  "section": ".rodata",
+  "base": 2147838132,
+  "end": 2147838157,
+  "size": 25,
+  "ok": true,
+  "unresolved": 0,
+  "words": 6
+ },
+ {
+  "obj": "build/recon/game/psx/textureprocess.cpp.o",
+  "section": ".rodata",
+  "base": 2147838648,
+  "end": 2147838659,
+  "size": 11,
+  "ok": true,
+  "unresolved": 0,
+  "words": 2
+ },
+ {
+  "obj": "build/recon/eaclib/psx/eacpsxz/fixdatan.c.o",
+  "section": ".rodata",
+  "base": 2147839160,
+  "end": 2147839192,
+  "size": 32,
+  "ok": true,
+  "unresolved": 0,
+  "words": 8
+ },
+ {
+  "obj": "build/recon/syslib/psx/libpress/LIBPRESS.c.o",
+  "section": ".rodata",
+  "base": 2147840304,
+  "end": 2147840377,
+  "size": 73,
+  "ok": true,
+  "unresolved": 0,
+  "words": 18
+ }
+]

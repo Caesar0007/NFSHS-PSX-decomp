@@ -81,6 +81,15 @@
   "votes": 6
  },
  {
+  "obj": "build/recon/game/common/camera.cpp.o",
+  "section": ".sbss",
+  "base": 2148785544,
+  "end": 2148785560,
+  "size": 16,
+  "ok": true,
+  "votes": 3
+ },
+ {
   "obj": "build/recon/game/common/collide.cpp.o",
   "section": ".sbss",
   "base": 2148785560,
@@ -182,9 +191,9 @@
  {
   "obj": "build/recon/game/common/camera.cpp.o",
   "section": ".bss",
-  "base": 2148786120,
+  "base": 2148786136,
   "end": 2148786184,
-  "size": 64,
+  "size": 48,
   "ok": true,
   "votes": 2
  },

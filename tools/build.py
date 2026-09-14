@@ -413,6 +413,16 @@ PER_TU_FLAGS = {
     # small-data literals move out of the adjacent residual blob r20_post, which
     # was shrunk to end at texture's -G8 base 0x8013DAD8).  gate +13.
     "recon/game/psx/texture.cpp":           {"g_value": "8"},  # +13
+    # w67-a10b: fragment-member TUs whose .sdata is IDENTICAL at -G8 (same base,
+    # same size, content_diff 0) -- -G8 only changes .text gp-relative addressing,
+    # so no fragment re-cut needed.  gate wins.
+    # replay.cpp held at -G4: its split .sdata.replay_counter section makes -G8
+    # regress the image (2038 diff); needs its own placement handling.
+    "recon/game/common/bworldSm.cpp":       {"g_value": "8"},  # +11
+    "recon/game/common/aih_btccop.cpp":     {"g_value": "8"},  # +7
+    "recon/game/common/aihigh.cpp":         {"g_value": "8"},  # +3 (14/14)
+    "recon/game/common/camera.cpp":         {"g_value": "8"},  # +3
+    "recon/game/common/clock.cpp":          {"g_value": "8"},  # +3
     # NOTE: drawc.cpp + movie.cpp + the .sdata-adding batch2 TUs (texture/draw/
     # replay/bworldSm/camera/...) gate-improve at -G8 but their new .sdata shifts
     # the layout and breaks curated SOURCE_DATA_OWNERS (e.g. TrackSpec_*).  Held at

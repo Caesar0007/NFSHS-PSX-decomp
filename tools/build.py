@@ -401,9 +401,19 @@ PER_TU_FLAGS = {
     "recon/game/common/object.cpp":         {"g_value": "8"},  # pass 13->30
     "recon/game/common/pausemenu.cpp":      {"g_value": "8"},  # pass 51->57
     "recon/game/common/aidatarecord.cpp":   {"g_value": "8"},  # pass 23->26 (all)
-    # NOTE: drawc.cpp + movie.cpp gate-improve at -G8 but their new .sdata is not
-    # yet placed at retail -> whole-image REGRESSES (drawc 40->235, movie 94->108).
-    # Hold at -G0 until gen_rodata_extra anchors their .sdata; -G8 is still correct.
+    # w67-a8 batch2-safe: gate-improve at -G8 with sdata=0 (no own small data, so
+    # cannot shift the .sdata layout / break SOURCE_DATA_OWNERS; pure gp-relative
+    # addressing-mode change toward retail).
+    "recon/game/common/aih_btcperp.cpp":    {"g_value": "8"},  # +9
+    "recon/game/common/aih_traf.cpp":       {"g_value": "8"},  # +1
+    "recon/game/common/aih_basicperp.cpp":  {"g_value": "8"},
+    "recon/game/common/aih_opp.cpp":        {"g_value": "8"},
+    "recon/game/common/control.cpp":        {"g_value": "8"},  # +1
+    # NOTE: drawc.cpp + movie.cpp + the .sdata-adding batch2 TUs (texture/draw/
+    # replay/bworldSm/camera/...) gate-improve at -G8 but their new .sdata shifts
+    # the layout and breaks curated SOURCE_DATA_OWNERS (e.g. TrackSpec_*).  Held at
+    # -G0 until gen_rodata_extra + the owners co-place the new .sdata; -G8 is still
+    # the correct retail flag for them.
     "recon/game/common/aispeeds.cpp":       {"g_value": "8"},
     "recon/game/common/mpause.cpp":         {"g_value": "8"},
     "recon/game/common/bworld.cpp":         {"g_value": "8"},  # w67-a4: probe-proven 20/21 x2, .sdata byte-exact retail

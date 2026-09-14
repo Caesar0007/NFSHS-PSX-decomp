@@ -426,6 +426,21 @@ def main():
             key = (r["obj"], r["section"])
             if key not in sdo_sections:
                 data_ov[key] = r["base"]
+    # W67-A7: recon .bss/.sbss (plain) at retail base (from consensus/named
+    # anchors in gen_rodata_extra.py).  Exclude sections already placed by the
+    # SOURCE_ZERO_OWNERS NOLOAD block or the hard-coded simqueue .sbss tail seam.
+    szo_sections = {("build/" + o["source"] + ".o", o["section"])
+                    for o in SOURCE_ZERO_OWNERS}
+    seam_sections = {("build/recon/game/common/simqueue.cpp.o", ".sbss")}
+    bss_placed = []
+    bxjson = ROOT / "linkers" / "nfs4_recon.bss_extra.json"
+    if bxjson.exists():
+        for r in json.load(open(bxjson)):
+            key = (r["obj"], r["section"])
+            if key not in szo_sections and key not in seam_sections \
+                    and key not in sdo_sections:
+                bss_placed.append((r["base"], r["obj"], r["section"]))
+    bss_placed.sort()
     front_data_va = {}
     fdfrag = ROOT / "linkers" / "nfs4_recon.front_data.ldfrag"
     if fdfrag.exists():
@@ -718,6 +733,12 @@ def main():
         alignment = owner.get("alignment", 4)
         A(f"    {out} {owner['address']:#x} (NOLOAD) : SUBALIGN({alignment}) {{ {obj}({section}); }}")
         A(f"    ASSERT(SIZEOF({out}) == {owner['size']}, \"native zero owner size mismatch\")")
+    A("    /* W67-A7: recon plain .bss/.sbss placed at retail base so the owning")
+    A("     * TU's .text %hi/%lo/%gp_rel(.bss/.sbss) relocs resolve to retail")
+    A("     * (absolute-addressed; the cursor is reset below so the flowed")
+    A("     * catch-alls stay in the GP window, exactly like the zero owners). */")
+    for i, (base, o, sec) in enumerate(bss_placed):
+        A(f"    .zb{i:04d} {base:#x} : SUBALIGN(4) {{ {o}({sec}); }}")
     A("    . = __unplaced_zero_cursor;")
     A("    .sbss  : SUBALIGN(4) { *(.sbss); }")
     A("    .bss   : SUBALIGN(4) { *(.bss); *(.bss.*); *(COMMON); }")
@@ -746,6 +767,7 @@ def main():
            f" appended; {len(placed_data)} .data placed at retail base"
            f" [{len(data_ov)} decoder+{len(front_data_va)} front-ownmap overrides])",
            f".sdata fragment lines        : {len(sdata_lines)} (+{len(extra_sdata)})",
+           f".bss/.sbss placed at retail   : {len(bss_placed)} (W67-A7)",
            ""]
     rep.append("== DROPPED (would move the location counter backwards) ==")
     for b, s, o in dropped:

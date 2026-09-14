@@ -38,6 +38,7 @@ LOAD = 0x80010000
 GP = 0x8013C54C
 OUT_RO = ROOT / 'linkers' / 'nfs4_recon.rodata_extra.json'
 OUT_DATA = ROOT / 'linkers' / 'nfs4_recon.data_extra.json'
+OUT_BSS = ROOT / 'linkers' / 'nfs4_recon.bss_extra.json'
 PLACEMENT = ROOT / 'linkers' / 'nfs4_recon.rodata_placement.json'
 
 # retail section spans a decoded base is allowed to land in, per section kind
@@ -45,7 +46,14 @@ SPANS = {
     '.rodata': [(0x80010000, 0x800128F0), (0x80054548, 0x8005797C)],
     '.data':   [(0x80051260, 0x80052B38), (0x8010CCD4, 0x8013C54C)],
     '.sdata':  [(0x8013C54C, 0x8013DD7C)],
+    '.sbss':   [(0x8013DD7C, 0x8013DEE0)],
+    '.bss':    [(0x80052B38, 0x80054548), (0x8013DEE0, 0x80148B04)],
 }
+# NOBITS sections have no image payload to byte-validate against (and are
+# zero-filled, so a wrong base into another zero run would falsely "match").
+# Accept a NOBITS base only on strong retail-decode consensus (>=2 independent
+# .text references agreeing) or a named-symbol anchor.
+NOBITS = {'.bss', '.sbss'}
 
 # ---- symbol map (MAP globals + configs data + name-encoded + .L<hex>) --------
 sym = {}
@@ -89,6 +97,14 @@ def secbytes(obj, sec):
             buf[a:a+len(dd)] = dd
     return bytes(buf)
 
+def sec_size(obj, sec):
+    """section size from objdump -h (works for NOBITS, unlike -s)."""
+    for ln in run(OBJD, '-h', str(obj)).splitlines():
+        m = re.match(r'^\s*\d+\s+(\S+)\s+([0-9a-f]{8})\s', ln)
+        if m and m.group(1) == sec:
+            return int(m.group(2), 16)
+    return 0
+
 def relocs(obj, want):
     out = []; cur = None
     for ln in run(OBJD, '-r', str(obj)).splitlines():
@@ -120,7 +136,7 @@ def decode_base(obj, tbase, sec):
     each votes retail_target - our_addend.  Certificate/vendor-vintage noise is
     outvoted.  Search fallback for reloc-free const runs."""
     if tbase is None:
-        return None
+        return None, 0
     tb = secbytes(obj, '.text')
     rl = relocs(obj, '.text')
     votes = Counter()
@@ -154,16 +170,34 @@ def decode_base(obj, tbase, sec):
             if inspan(cand):
                 votes[cand] += 1
     if votes:
-        return votes.most_common(1)[0][0]
-    if not relocs(obj, sec):
+        b, n = votes.most_common(1)[0]
+        return b, n
+    if sec not in NOBITS and not relocs(obj, sec):
         raw = secbytes(obj, sec)
         if len(raw) >= 8:
             for lo, hi in SPANS[sec]:
                 blob = IMG[lo - LOAD + FOFF: hi - LOAD + FOFF]
                 idx = blob.find(raw)
                 if idx >= 0 and blob.find(raw, idx + 1) < 0:
-                    return lo + idx
-    return None
+                    return lo + idx, 99   # unique byte run == a strong anchor
+    return None, 0
+
+def named_base(obj, sec):
+    """base from a MAP / name-encoded symbol that lives IN this section
+    (base = retail_addr - in-section offset); consensus over such symbols.
+    Reliable for NOBITS sections where content can't be byte-validated."""
+    votes = Counter()
+    for ln in run(OBJD, '-t', str(obj)).splitlines():
+        m = re.match(r'^([0-9a-f]{8})\s+.*?\s' + re.escape(sec) +
+                     r'\s+[0-9a-f]{8}\s+(\S+)$', ln)
+        if m:
+            a = aof(m.group(2))
+            if a is not None:
+                votes[a - int(m.group(1), 16)] += 1
+    if votes:
+        b, n = votes.most_common(1)[0]
+        return b, n
+    return None, 0
 
 def section_bases(obj, tbase, known):
     """retail bases for the object's other sections (to resolve pointer words),
@@ -217,24 +251,45 @@ def main():
         o = ROOT / 'build' / (str(s.relative_to(ROOT)) + '.o')
         if o.is_file():
             objs.append((o.relative_to(ROOT).as_posix(), o))
-    ro_out, data_out = [], []
+    ro_out, data_out, bss_out = [], [], []
     skipped = []
     for rel, o in sorted(objs):
         tbase = text_base(o)
         known = {}
-        for sec in ('.rodata', '.data', '.sdata'):
+        # section sizes (NOBITS have a nonzero size with no PROGBITS payload)
+        for sec in ('.rodata', '.data', '.sdata', '.sbss', '.bss'):
             if sec == '.rodata' and rel in placed_ro:
                 continue                          # already in the ownmap
-            nb = len(secbytes(o, sec))
+            nb = sec_size(o, sec)
             if not nb:
                 continue
-            base = decode_base(o, tbase, sec)
+            base, nvotes = decode_base(o, tbase, sec)
+            nbase, nn = named_base(o, sec)
+            # NOBITS: content can't be byte-validated -> require a strong anchor
+            # (>=2 agreeing .text refs, a unique search, or a named symbol).
+            if sec in NOBITS:
+                if nbase is not None and (base is None or nn >= nvotes):
+                    base, nvotes = nbase, max(nn, 99)   # named anchor = trusted
+                if base is None or nvotes < 2:
+                    skipped.append((rel, sec, f'weak NOBITS anchor (votes={nvotes})'))
+                    continue
+            elif base is None and nbase is not None:
+                # loadable: a MAP/name-encoded symbol in the section is a direct,
+                # reliable base when the TU references its own data by name (e.g.
+                # ginfo/screenMemcard) rather than section-relative.  Still
+                # byte-validated below, so a wrong anchor is rejected.
+                base = nbase
             if base is None:
                 skipped.append((rel, sec, 'no anchor / no unique search')); continue
             span = next((s for s in SPANS[sec] if s[0] <= base < s[1]), None)
             if span is None or base + nb > span[1]:
                 skipped.append((rel, sec, f'{base:#x}..{base+nb:#x} outside span')); continue
             known[sec] = base
+            if sec in NOBITS:
+                bss_out.append({'obj': rel, 'section': sec, 'base': base,
+                                'end': base + nb, 'size': nb, 'ok': True,
+                                'votes': nvotes})
+                continue
             sbases = section_bases(o, tbase, known)
             checked, diff, unres, _ = resolve_and_check(o, sec, base, sbases)
             if checked == 0:
@@ -249,24 +304,29 @@ def main():
         assert a['end'] <= b['base'], f"rodata extra overlap: {a['obj']} vs {b['obj']}"
     # data/sdata: two extras must not claim the same retail bytes (residual-blob
     # overlap is benign; extra-vs-extra overlap is a wrong base -- drop both).
-    ds = sorted(data_out, key=lambda r: r['base'])
-    drop = set()
-    for a, b in zip(ds, ds[1:]):
-        if b['base'] < a['end']:
-            drop.add(a['obj'] + a['section']); drop.add(b['obj'] + b['section'])
-            skipped.append((a['obj'], a['section'], f"overlaps {b['obj']}{b['section']}"))
-    data_out = [r for r in data_out if r['obj'] + r['section'] not in drop]
+    def drop_overlaps(rows, label):
+        rows = sorted(rows, key=lambda r: r['base'])
+        drop = set()
+        for a, b in zip(rows, rows[1:]):
+            if b['base'] < a['end']:
+                drop.add(a['obj'] + a['section']); drop.add(b['obj'] + b['section'])
+                skipped.append((a['obj'], a['section'], f"{label} overlaps {b['obj']}{b['section']}"))
+        return [r for r in rows if r['obj'] + r['section'] not in drop]
+    data_out = drop_overlaps(data_out, 'data')
+    bss_out = drop_overlaps(bss_out, 'bss')
     OUT_RO.write_text(json.dumps(ro_out, indent=1) + '\n')
     OUT_DATA.write_text(json.dumps(data_out, indent=1) + '\n')
+    OUT_BSS.write_text(json.dumps(bss_out, indent=1) + '\n')
     print(f'{len(ro_out)} .rodata windows -> {OUT_RO.name}')
     for r in ro_out:
         print(f"  {r['base']:#010x}..{r['end']:#010x}  {r['size']:5d}B  {r['words']}w  "
               f"({r['unresolved']} unres)  {r['obj']}")
     print(f'{len(data_out)} .data/.sdata bases -> {OUT_DATA.name}')
-    for r in data_out:
-        print(f"  {r['base']:#010x}  {r['section']:6s} {r['size']:5d}B  {r['words']}w  {r['obj']}")
+    print(f'{len(bss_out)} .bss/.sbss bases -> {OUT_BSS.name}')
+    for r in bss_out:
+        print(f"  {r['base']:#010x}  {r['section']:6s} {r['size']:5d}B  votes={r['votes']}  {r['obj']}")
     print(f'--- skipped {len(skipped)} ---')
-    for rel, sec, why in skipped:
+    for rel, sec, why in sorted(skipped):
         print(f'  {rel} {sec}: {why}')
 
 if __name__ == '__main__':

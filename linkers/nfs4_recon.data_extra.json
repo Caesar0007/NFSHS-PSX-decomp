@@ -1,103 +1,43 @@
 [
  {
-  "obj": "build/recon/eaclib/psx/eacpsxz/fileroot.c.o",
-  "section": ".sdata",
-  "base": 2148785452,
-  "end": 2148785478,
-  "size": 26,
-  "ok": true,
-  "unresolved": 0,
-  "words": 6
- },
- {
-  "obj": "build/recon/eaclib/psx/eacpsxz/inittmr.c.o",
-  "section": ".sdata",
-  "base": 2148785480,
-  "end": 2148785484,
-  "size": 4,
-  "ok": true,
-  "unresolved": 0,
-  "words": 1
- },
- {
-  "obj": "build/recon/eaclib/psx/sndpsxz/sclcptch.c.o",
+  "obj": "build/recon/frontend/common/feapp.cpp.o",
   "section": ".data",
-  "base": 2148757700,
-  "end": 2148758212,
-  "size": 512,
-  "ok": true,
-  "unresolved": 0,
-  "words": 128
- },
- {
-  "obj": "build/recon/eaclib/psx/sndpsxz/sdfx.c.o",
-  "section": ".data",
-  "base": 2148756992,
-  "end": 2148757652,
-  "size": 660,
-  "ok": true,
-  "unresolved": 0,
-  "words": 165
- },
- {
-  "obj": "build/recon/eaclib/psx/sndpsxz/slib.c.o",
-  "section": ".data",
-  "base": 2148756976,
-  "end": 2148756992,
-  "size": 16,
-  "ok": true,
-  "unresolved": 0,
-  "words": 4
- },
- {
-  "obj": "build/recon/frontend/common/fecheats.cpp.o",
-  "section": ".data",
-  "base": 2147817000,
-  "end": 2147817156,
-  "size": 156,
-  "ok": true,
-  "unresolved": 0,
-  "words": 39
- },
- {
-  "obj": "build/recon/frontend/common/fecredits.cpp.o",
-  "section": ".data",
-  "base": 2147818144,
-  "end": 2147818152,
+  "base": 2147816632,
+  "end": 2147816640,
   "size": 8,
   "ok": true,
   "unresolved": 0,
   "words": 2
  },
  {
-  "obj": "build/recon/frontend/common/feinput.cpp.o",
+  "obj": "build/recon/frontend/common/feaudio.cpp.o",
   "section": ".data",
-  "base": 2147817272,
-  "end": 2147817404,
-  "size": 132,
+  "base": 2147816648,
+  "end": 2147816764,
+  "size": 116,
   "ok": true,
-  "unresolved": 0,
-  "words": 33
+  "unresolved": 6,
+  "words": 23
  },
  {
-  "obj": "build/recon/frontend/common/fememcard.cpp.o",
+  "obj": "build/recon/frontend/common/fecars.cpp.o",
   "section": ".data",
-  "base": 2147818088,
-  "end": 2147818144,
-  "size": 56,
+  "base": 2147816768,
+  "end": 2147816872,
+  "size": 104,
   "ok": true,
   "unresolved": 0,
-  "words": 14
+  "words": 26
  },
  {
-  "obj": "build/recon/frontend/common/femenudefs.cpp.o",
+  "obj": "build/recon/frontend/common/femenuoptions.cpp.o",
   "section": ".data",
-  "base": 2147817844,
-  "end": 2147818080,
-  "size": 236,
+  "base": 2147816876,
+  "end": 2147816884,
+  "size": 8,
   "ok": true,
   "unresolved": 0,
-  "words": 59
+  "words": 2
  },
  {
   "obj": "build/recon/frontend/common/fetextrender.cpp.o",
@@ -110,16 +50,6 @@
   "words": 22
  },
  {
-  "obj": "build/recon/frontend/common/fetools.cpp.o",
-  "section": ".data",
-  "base": 2147817424,
-  "end": 2147817442,
-  "size": 18,
-  "ok": true,
-  "unresolved": 0,
-  "words": 4
- },
- {
   "obj": "build/recon/frontend/common/fetracks.cpp.o",
   "section": ".data",
   "base": 2147816976,
@@ -128,6 +58,66 @@
   "ok": true,
   "unresolved": 0,
   "words": 5
+ },
+ {
+  "obj": "build/recon/frontend/common/fecheats.cpp.o",
+  "section": ".data",
+  "base": 2147817000,
+  "end": 2147817156,
+  "size": 156,
+  "ok": true,
+  "unresolved": 0,
+  "words": 39
+ },
+ {
+  "obj": "build/recon/frontend/common/fecolor.cpp.o",
+  "section": ".data",
+  "base": 2147817160,
+  "end": 2147817272,
+  "size": 112,
+  "ok": true,
+  "unresolved": 0,
+  "words": 28
+ },
+ {
+  "obj": "build/recon/frontend/common/feinput.cpp.o",
+  "section": ".data",
+  "base": 2147817272,
+  "end": 2147817404,
+  "size": 132,
+  "ok": true,
+  "unresolved": 0,
+  "words": 33
+ },
+ {
+  "obj": "build/recon/frontend/common/femenu.cpp.o",
+  "section": ".data",
+  "base": 2147817408,
+  "end": 2147817412,
+  "size": 4,
+  "ok": true,
+  "unresolved": 0,
+  "words": 1
+ },
+ {
+  "obj": "build/recon/frontend/common/fescreen.cpp.o",
+  "section": ".data",
+  "base": 2147817420,
+  "end": 2147817424,
+  "size": 4,
+  "ok": true,
+  "unresolved": 0,
+  "words": 1
+ },
+ {
+  "obj": "build/recon/frontend/common/fetools.cpp.o",
+  "section": ".data",
+  "base": 2147817424,
+  "end": 2147817442,
+  "size": 18,
+  "ok": true,
+  "unresolved": 0,
+  "words": 4
  },
  {
   "obj": "build/recon/frontend/common/front.cpp.o",
@@ -140,14 +130,34 @@
   "words": 96
  },
  {
-  "obj": "build/recon/frontend/common/screencarselect.cpp.o",
+  "obj": "build/recon/frontend/common/femenudefs.cpp.o",
   "section": ".data",
-  "base": 2147819128,
-  "end": 2147819604,
-  "size": 476,
+  "base": 2147817844,
+  "end": 2147818080,
+  "size": 236,
   "ok": true,
   "unresolved": 0,
-  "words": 119
+  "words": 59
+ },
+ {
+  "obj": "build/recon/frontend/common/fememcard.cpp.o",
+  "section": ".data",
+  "base": 2147818088,
+  "end": 2147818144,
+  "size": 56,
+  "ok": true,
+  "unresolved": 0,
+  "words": 14
+ },
+ {
+  "obj": "build/recon/frontend/common/fecredits.cpp.o",
+  "section": ".data",
+  "base": 2147818144,
+  "end": 2147818152,
+  "size": 8,
+  "ok": true,
+  "unresolved": 0,
+  "words": 2
  },
  {
   "obj": "build/recon/frontend/common/screenmain.cpp.o",
@@ -170,6 +180,26 @@
   "words": 2
  },
  {
+  "obj": "build/recon/frontend/common/screenpost.cpp.o",
+  "section": ".data",
+  "base": 2147819112,
+  "end": 2147819124,
+  "size": 12,
+  "ok": true,
+  "unresolved": 0,
+  "words": 3
+ },
+ {
+  "obj": "build/recon/frontend/common/screencarselect.cpp.o",
+  "section": ".data",
+  "base": 2147819128,
+  "end": 2147819604,
+  "size": 476,
+  "ok": true,
+  "unresolved": 0,
+  "words": 119
+ },
+ {
   "obj": "build/recon/frontend/common/screentournselect.cpp.o",
   "section": ".data",
   "base": 2147819608,
@@ -180,14 +210,24 @@
   "words": 2
  },
  {
-  "obj": "build/recon/frontend/common/screentrackinfo.cpp.o",
+  "obj": "build/recon/frontend/common/screentrophyroom.cpp.o",
   "section": ".data",
-  "base": 2147819704,
-  "end": 2147819728,
-  "size": 24,
+  "base": 2147819616,
+  "end": 2147819636,
+  "size": 20,
   "ok": true,
   "unresolved": 0,
-  "words": 6
+  "words": 5
+ },
+ {
+  "obj": "build/recon/frontend/common/screentrophyinfo.cpp.o",
+  "section": ".data",
+  "base": 2147819640,
+  "end": 2147819676,
+  "size": 36,
+  "ok": true,
+  "unresolved": 0,
+  "words": 9
  },
  {
   "obj": "build/recon/frontend/common/screentracks.cpp.o",
@@ -200,10 +240,50 @@
   "words": 6
  },
  {
-  "obj": "build/recon/frontend/common/screentrophyinfo.cpp.o",
+  "obj": "build/recon/frontend/common/screentrackinfo.cpp.o",
   "section": ".data",
-  "base": 2147819640,
-  "end": 2147819676,
+  "base": 2147819704,
+  "end": 2147819728,
+  "size": 24,
+  "ok": true,
+  "unresolved": 0,
+  "words": 6
+ },
+ {
+  "obj": "build/recon/frontend/common/screentrackrecords.cpp.o",
+  "section": ".data",
+  "base": 2147819728,
+  "end": 2147819732,
+  "size": 4,
+  "ok": true,
+  "unresolved": 0,
+  "words": 1
+ },
+ {
+  "obj": "build/recon/frontend/common/screendisplay.cpp.o",
+  "section": ".data",
+  "base": 2147821784,
+  "end": 2147821788,
+  "size": 4,
+  "ok": true,
+  "unresolved": 0,
+  "words": 1
+ },
+ {
+  "obj": "build/recon/frontend/common/screenaudio.cpp.o",
+  "section": ".data",
+  "base": 2147821800,
+  "end": 2147821804,
+  "size": 4,
+  "ok": true,
+  "unresolved": 0,
+  "words": 1
+ },
+ {
+  "obj": "build/recon/frontend/common/statchk.cpp.o",
+  "section": ".data",
+  "base": 2147821944,
+  "end": 2147821980,
   "size": 36,
   "ok": true,
   "unresolved": 0,
@@ -218,6 +298,26 @@
   "ok": true,
   "unresolved": 0,
   "words": 3
+ },
+ {
+  "obj": "build/recon/frontend/common/screenusername.cpp.o",
+  "section": ".data",
+  "base": 2147822000,
+  "end": 2147822028,
+  "size": 28,
+  "ok": true,
+  "unresolved": 0,
+  "words": 7
+ },
+ {
+  "obj": "build/recon/frontend/psx/drawshp.cpp.o",
+  "section": ".data",
+  "base": 2147822032,
+  "end": 2147822036,
+  "size": 4,
+  "ok": true,
+  "unresolved": 0,
+  "words": 1
  },
  {
   "obj": "build/recon/frontend/psx/memcard.c.o",
@@ -238,16 +338,6 @@
   "ok": true,
   "unresolved": 0,
   "words": 25
- },
- {
-  "obj": "build/recon/game/common/ai.cpp.o",
-  "section": ".sdata",
-  "base": 2148779340,
-  "end": 2148779356,
-  "size": 16,
-  "ok": true,
-  "unresolved": 0,
-  "words": 4
  },
  {
   "obj": "build/recon/game/common/aih_basicperp.cpp.o",
@@ -280,6 +370,16 @@
   "words": 7
  },
  {
+  "obj": "build/recon/game/common/aih_play.cpp.o",
+  "section": ".data",
+  "base": 2148585112,
+  "end": 2148585124,
+  "size": 12,
+  "ok": true,
+  "unresolved": 0,
+  "words": 3
+ },
+ {
   "obj": "build/recon/game/common/aih_cop.cpp.o",
   "section": ".data",
   "base": 2148585124,
@@ -290,14 +390,14 @@
   "words": 76
  },
  {
-  "obj": "build/recon/game/common/aih_play.cpp.o",
+  "obj": "build/recon/game/common/aicop.cpp.o",
   "section": ".data",
-  "base": 2148585112,
-  "end": 2148585124,
-  "size": 12,
+  "base": 2148585428,
+  "end": 2148586848,
+  "size": 1420,
   "ok": true,
   "unresolved": 0,
-  "words": 3
+  "words": 355
  },
  {
   "obj": "build/recon/game/common/aiinit.cpp.o",
@@ -320,14 +420,14 @@
   "words": 418
  },
  {
-  "obj": "build/recon/game/common/aispeeds.cpp.o",
-  "section": ".sdata",
-  "base": 2148779448,
-  "end": 2148779480,
-  "size": 32,
+  "obj": "build/recon/game/common/aiphysic.cpp.o",
+  "section": ".data",
+  "base": 2148588660,
+  "end": 2148588768,
+  "size": 108,
   "ok": true,
   "unresolved": 0,
-  "words": 8
+  "words": 27
  },
  {
   "obj": "build/recon/game/common/aitune.cpp.o",
@@ -340,14 +440,24 @@
   "words": 126
  },
  {
-  "obj": "build/recon/game/common/audedit.cpp.o",
-  "section": ".sdata",
-  "base": 2148779820,
-  "end": 2148779828,
-  "size": 8,
+  "obj": "build/recon/game/common/AIWORLD.cpp.o",
+  "section": ".data",
+  "base": 2148589580,
+  "end": 2148589900,
+  "size": 320,
   "ok": true,
   "unresolved": 0,
-  "words": 2
+  "words": 80
+ },
+ {
+  "obj": "build/recon/game/common/anim.cpp.o",
+  "section": ".data",
+  "base": 2148589900,
+  "end": 2148590196,
+  "size": 296,
+  "ok": true,
+  "unresolved": 0,
+  "words": 74
  },
  {
   "obj": "build/recon/game/common/audioclc.cpp.o",
@@ -370,24 +480,24 @@
   "words": 604
  },
  {
-  "obj": "build/recon/game/common/audiocmn.cpp.o",
-  "section": ".sdata",
-  "base": 2148779560,
-  "end": 2148779808,
-  "size": 248,
+  "obj": "build/recon/game/common/bworld.cpp.o",
+  "section": ".data",
+  "base": 2148593216,
+  "end": 2148593788,
+  "size": 572,
   "ok": true,
   "unresolved": 0,
-  "words": 62
+  "words": 143
  },
  {
   "obj": "build/recon/game/common/bworldSm.cpp.o",
-  "section": ".sdata",
-  "base": 2148779964,
-  "end": 2148779996,
-  "size": 32,
+  "section": ".data",
+  "base": 2148593836,
+  "end": 2148594348,
+  "size": 512,
   "ok": true,
   "unresolved": 0,
-  "words": 8
+  "words": 128
  },
  {
   "obj": "build/recon/game/common/camera.cpp.o",
@@ -410,6 +520,676 @@
   "words": 1279
  },
  {
+  "obj": "build/recon/game/common/clock.cpp.o",
+  "section": ".data",
+  "base": 2148600868,
+  "end": 2148600880,
+  "size": 12,
+  "ok": true,
+  "unresolved": 0,
+  "words": 3
+ },
+ {
+  "obj": "build/recon/game/common/collide.cpp.o",
+  "section": ".data",
+  "base": 2148600880,
+  "end": 2148600944,
+  "size": 64,
+  "ok": true,
+  "unresolved": 0,
+  "words": 16
+ },
+ {
+  "obj": "build/recon/game/common/hudpmx.cpp.o",
+  "section": ".data",
+  "base": 2148600944,
+  "end": 2148604484,
+  "size": 3540,
+  "ok": true,
+  "unresolved": 0,
+  "words": 885
+ },
+ {
+  "obj": "build/recon/game/common/copspeak.cpp.o",
+  "section": ".data",
+  "base": 2148605604,
+  "end": 2148607792,
+  "size": 2188,
+  "ok": true,
+  "unresolved": 0,
+  "words": 547
+ },
+ {
+  "obj": "build/recon/game/common/dashhud.cpp.o",
+  "section": ".data",
+  "base": 2148607792,
+  "end": 2148607900,
+  "size": 108,
+  "ok": true,
+  "unresolved": 0,
+  "words": 27
+ },
+ {
+  "obj": "build/recon/game/common/fei.cpp.o",
+  "section": ".data",
+  "base": 2148607900,
+  "end": 2148608812,
+  "size": 912,
+  "ok": true,
+  "unresolved": 0,
+  "words": 228
+ },
+ {
+  "obj": "build/recon/game/common/genericpmx.cpp.o",
+  "section": ".data",
+  "base": 2148608812,
+  "end": 2148610116,
+  "size": 1304,
+  "ok": true,
+  "unresolved": 0,
+  "words": 326
+ },
+ {
+  "obj": "build/recon/game/common/gmesetup.cpp.o",
+  "section": ".data",
+  "base": 2148610116,
+  "end": 2148613140,
+  "size": 3024,
+  "ok": true,
+  "unresolved": 0,
+  "words": 756
+ },
+ {
+  "obj": "build/recon/game/common/input.cpp.o",
+  "section": ".data",
+  "base": 2148613140,
+  "end": 2148614172,
+  "size": 1032,
+  "ok": true,
+  "unresolved": 0,
+  "words": 258
+ },
+ {
+  "obj": "build/recon/game/common/newton.cpp.o",
+  "section": ".data",
+  "base": 2148614172,
+  "end": 2148614716,
+  "size": 544,
+  "ok": true,
+  "unresolved": 0,
+  "words": 136
+ },
+ {
+  "obj": "build/recon/game/common/nfs3.cpp.o",
+  "section": ".data",
+  "base": 2148614716,
+  "end": 2148621382,
+  "size": 6666,
+  "ok": true,
+  "unresolved": 0,
+  "words": 1666
+ },
+ {
+  "obj": "build/recon/game/common/object.cpp.o",
+  "section": ".data",
+  "base": 2148621384,
+  "end": 2148623464,
+  "size": 2080,
+  "ok": true,
+  "unresolved": 0,
+  "words": 520
+ },
+ {
+  "obj": "build/recon/game/common/paths.cpp.o",
+  "section": ".data",
+  "base": 2148623464,
+  "end": 2148623664,
+  "size": 200,
+  "ok": true,
+  "unresolved": 0,
+  "words": 50
+ },
+ {
+  "obj": "build/recon/game/common/physics.cpp.o",
+  "section": ".data",
+  "base": 2148623664,
+  "end": 2148623840,
+  "size": 176,
+  "ok": true,
+  "unresolved": 0,
+  "words": 44
+ },
+ {
+  "obj": "build/recon/game/common/r3dcar.cpp.o",
+  "section": ".data",
+  "base": 2148623840,
+  "end": 2148626300,
+  "size": 2460,
+  "ok": true,
+  "unresolved": 0,
+  "words": 615
+ },
+ {
+  "obj": "build/recon/game/common/render.cpp.o",
+  "section": ".data",
+  "base": 2148626300,
+  "end": 2148626440,
+  "size": 140,
+  "ok": true,
+  "unresolved": 0,
+  "words": 35
+ },
+ {
+  "obj": "build/recon/game/common/schedule.cpp.o",
+  "section": ".data",
+  "base": 2148655068,
+  "end": 2148655260,
+  "size": 192,
+  "ok": true,
+  "unresolved": 0,
+  "words": 48
+ },
+ {
+  "obj": "build/recon/game/common/sim.cpp.o",
+  "section": ".data",
+  "base": 2148655260,
+  "end": 2148655328,
+  "size": 68,
+  "ok": true,
+  "unresolved": 0,
+  "words": 17
+ },
+ {
+  "obj": "build/recon/game/common/stats.cpp.o",
+  "section": ".data",
+  "base": 2148655328,
+  "end": 2148655424,
+  "size": 96,
+  "ok": true,
+  "unresolved": 0,
+  "words": 24
+ },
+ {
+  "obj": "build/recon/game/common/textsys.cpp.o",
+  "section": ".data",
+  "base": 2148655424,
+  "end": 2148655448,
+  "size": 24,
+  "ok": true,
+  "unresolved": 0,
+  "words": 6
+ },
+ {
+  "obj": "build/recon/game/psx/draww.cpp.o",
+  "section": ".data",
+  "base": 2148660592,
+  "end": 2148662368,
+  "size": 1776,
+  "ok": true,
+  "unresolved": 0,
+  "words": 444
+ },
+ {
+  "obj": "build/recon/game/psx/force.cpp.o",
+  "section": ".data",
+  "base": 2148662368,
+  "end": 2148662640,
+  "size": 272,
+  "ok": true,
+  "unresolved": 0,
+  "words": 68
+ },
+ {
+  "obj": "build/recon/game/psx/flare.cpp.o",
+  "section": ".data",
+  "base": 2148662752,
+  "end": 2148664056,
+  "size": 1304,
+  "ok": true,
+  "unresolved": 0,
+  "words": 326
+ },
+ {
+  "obj": "build/recon/game/psx/hrzsku.cpp.o",
+  "section": ".data",
+  "base": 2148664056,
+  "end": 2148665636,
+  "size": 1580,
+  "ok": true,
+  "unresolved": 0,
+  "words": 395
+ },
+ {
+  "obj": "build/recon/game/psx/hud.cpp.o",
+  "section": ".data",
+  "base": 2148665636,
+  "end": 2148666304,
+  "size": 668,
+  "ok": true,
+  "unresolved": 0,
+  "words": 167
+ },
+ {
+  "obj": "build/recon/game/psx/texture.cpp.o",
+  "section": ".data",
+  "base": 2148667344,
+  "end": 2148667504,
+  "size": 160,
+  "ok": true,
+  "unresolved": 0,
+  "words": 40
+ },
+ {
+  "obj": "build/recon/syslib/psx/libpress/TABLE.c.o",
+  "section": ".data",
+  "base": 2148677688,
+  "end": 2148747320,
+  "size": 69632,
+  "ok": true,
+  "unresolved": 0,
+  "words": 17408
+ },
+ {
+  "obj": "build/recon/syslib/psx/libpress/VLC.c.o",
+  "section": ".data",
+  "base": 2148755944,
+  "end": 2148755948,
+  "size": 4,
+  "ok": true,
+  "unresolved": 0,
+  "words": 1
+ },
+ {
+  "obj": "build/recon/syslib/psx/libcd/cdcont.c.o",
+  "section": ".data",
+  "base": 2148755992,
+  "end": 2148756120,
+  "size": 128,
+  "ok": true,
+  "unresolved": 0,
+  "words": 32
+ },
+ {
+  "obj": "build/recon/syslib/psx/libcd/stcdint.c.o",
+  "section": ".data",
+  "base": 2148756120,
+  "end": 2148756172,
+  "size": 52,
+  "ok": true,
+  "unresolved": 0,
+  "words": 13
+ },
+ {
+  "obj": "build/recon/syslib/psx/libpress/LIBPRESS.c.o",
+  "section": ".data",
+  "base": 2148756216,
+  "end": 2148756552,
+  "size": 336,
+  "ok": true,
+  "unresolved": 0,
+  "words": 84
+ },
+ {
+  "obj": "build/recon/syslib/psx/libcd/C_003.c.o",
+  "section": ".data",
+  "base": 2148756552,
+  "end": 2148756568,
+  "size": 16,
+  "ok": true,
+  "unresolved": 0,
+  "words": 4
+ },
+ {
+  "obj": "build/recon/syslib/psx/libcd/iso9660.c.o",
+  "section": ".data",
+  "base": 2148756584,
+  "end": 2148756600,
+  "size": 16,
+  "ok": true,
+  "unresolved": 0,
+  "words": 4
+ },
+ {
+  "obj": "build/recon/syslib/psx/libmcrd/LIBMCRD.c.o",
+  "section": ".data",
+  "base": 2148756664,
+  "end": 2148756680,
+  "size": 16,
+  "ok": true,
+  "unresolved": 0,
+  "words": 4
+ },
+ {
+  "obj": "build/recon/syslib/psx/libsn/SNDEF.c.o",
+  "section": ".data",
+  "base": 2148756688,
+  "end": 2148756696,
+  "size": 8,
+  "ok": true,
+  "unresolved": 0,
+  "words": 2
+ },
+ {
+  "obj": "build/recon/eaclib/psx/eacpsxz/atantbl.c.o",
+  "section": ".data",
+  "base": 2148756712,
+  "end": 2148756969,
+  "size": 257,
+  "ok": true,
+  "unresolved": 0,
+  "words": 64
+ },
+ {
+  "obj": "build/recon/eaclib/psx/sndpsxz/slib.c.o",
+  "section": ".data",
+  "base": 2148756976,
+  "end": 2148756992,
+  "size": 16,
+  "ok": true,
+  "unresolved": 0,
+  "words": 4
+ },
+ {
+  "obj": "build/recon/eaclib/psx/sndpsxz/sdfx.c.o",
+  "section": ".data",
+  "base": 2148756992,
+  "end": 2148757652,
+  "size": 660,
+  "ok": true,
+  "unresolved": 0,
+  "words": 165
+ },
+ {
+  "obj": "build/recon/eaclib/psx/eacpsxz/asintbl.c.o",
+  "section": ".data",
+  "base": 2148758112,
+  "end": 2148758624,
+  "size": 512,
+  "ok": true,
+  "unresolved": 0,
+  "words": 128
+ },
+ {
+  "obj": "build/recon/eaclib/psx/eacpsxz/sintbl.c.o",
+  "section": ".data",
+  "base": 2148758628,
+  "end": 2148759656,
+  "size": 1028,
+  "ok": true,
+  "unresolved": 0,
+  "words": 257
+ },
+ {
+  "obj": "build/recon/eaclib/psx/eacpsxz/fatantbl.c.o",
+  "section": ".data",
+  "base": 2148759656,
+  "end": 2148760684,
+  "size": 1028,
+  "ok": true,
+  "unresolved": 0,
+  "words": 257
+ },
+ {
+  "obj": "build/recon/syslib/psx/libpad/PADMAIN.c.o",
+  "section": ".data",
+  "base": 2148760696,
+  "end": 2148760804,
+  "size": 108,
+  "ok": true,
+  "unresolved": 0,
+  "words": 27
+ },
+ {
+  "obj": "build/recon/syslib/psx/libgte/CSTBL.c.o",
+  "section": ".data",
+  "base": 2148760864,
+  "end": 2148777248,
+  "size": 16384,
+  "ok": true,
+  "unresolved": 0,
+  "words": 4096
+ },
+ {
+  "obj": "build/recon/eaclib/psx/eacpsxz/isqrttbl.c.o",
+  "section": ".data",
+  "base": 2148777488,
+  "end": 2148777744,
+  "size": 256,
+  "ok": true,
+  "unresolved": 0,
+  "words": 64
+ },
+ {
+  "obj": "build/recon/syslib/psx/libmath/FERR.c.o",
+  "section": ".data",
+  "base": 2148777752,
+  "end": 2148777760,
+  "size": 8,
+  "ok": true,
+  "unresolved": 0,
+  "words": 2
+ },
+ {
+  "obj": "build/recon/syslib/psx/libcd/drv.c.o",
+  "section": ".data",
+  "base": 2148777792,
+  "end": 2148778592,
+  "size": 800,
+  "ok": true,
+  "unresolved": 42,
+  "words": 158
+ },
+ {
+  "obj": "build/recon/syslib/psx/libmcrd/USERFUNC.c.o",
+  "section": ".data",
+  "base": 2148778720,
+  "end": 2148778724,
+  "size": 4,
+  "ok": true,
+  "unresolved": 0,
+  "words": 1
+ },
+ {
+  "obj": "build/recon/eaclib/psx/sndpsxz/snddata.c.o",
+  "section": ".data",
+  "base": 2148778736,
+  "end": 2148778760,
+  "size": 24,
+  "ok": true,
+  "unresolved": 0,
+  "words": 6
+ },
+ {
+  "obj": "build/recon/syslib/psx/libpad/PADIF.c.o",
+  "section": ".data",
+  "base": 2148778760,
+  "end": 2148778792,
+  "size": 32,
+  "ok": true,
+  "unresolved": 0,
+  "words": 8
+ },
+ {
+  "obj": "build/recon/game/common/ai.cpp.o",
+  "section": ".sdata",
+  "base": 2148779340,
+  "end": 2148779356,
+  "size": 16,
+  "ok": true,
+  "unresolved": 0,
+  "words": 4
+ },
+ {
+  "obj": "build/recon/game/common/aihigh.cpp.o",
+  "section": ".sdata",
+  "base": 2148779356,
+  "end": 2148779360,
+  "size": 4,
+  "ok": true,
+  "unresolved": 0,
+  "words": 1
+ },
+ {
+  "obj": "build/recon/game/common/aih_btccop.cpp.o",
+  "section": ".sdata",
+  "base": 2148779360,
+  "end": 2148779368,
+  "size": 8,
+  "ok": true,
+  "unresolved": 0,
+  "words": 2
+ },
+ {
+  "obj": "build/recon/game/common/aih_play.cpp.o",
+  "section": ".sdata",
+  "base": 2148779368,
+  "end": 2148779373,
+  "size": 5,
+  "ok": true,
+  "unresolved": 0,
+  "words": 1
+ },
+ {
+  "obj": "build/recon/game/common/aicop.cpp.o",
+  "section": ".sdata",
+  "base": 2148779376,
+  "end": 2148779388,
+  "size": 12,
+  "ok": true,
+  "unresolved": 0,
+  "words": 3
+ },
+ {
+  "obj": "build/recon/game/common/aiinit.cpp.o",
+  "section": ".sdata",
+  "base": 2148779388,
+  "end": 2148779400,
+  "size": 12,
+  "ok": true,
+  "unresolved": 0,
+  "words": 3
+ },
+ {
+  "obj": "build/recon/game/common/aiphysic.cpp.o",
+  "section": ".sdata",
+  "base": 2148779412,
+  "end": 2148779424,
+  "size": 12,
+  "ok": true,
+  "unresolved": 0,
+  "words": 3
+ },
+ {
+  "obj": "build/recon/game/common/aidatarecord.cpp.o",
+  "section": ".sdata",
+  "base": 2148779424,
+  "end": 2148779440,
+  "size": 16,
+  "ok": true,
+  "unresolved": 0,
+  "words": 4
+ },
+ {
+  "obj": "build/recon/game/common/aispeeds.cpp.o",
+  "section": ".sdata",
+  "base": 2148779448,
+  "end": 2148779480,
+  "size": 32,
+  "ok": true,
+  "unresolved": 0,
+  "words": 8
+ },
+ {
+  "obj": "build/recon/game/common/aitriger.cpp.o",
+  "section": ".sdata",
+  "base": 2148779496,
+  "end": 2148779504,
+  "size": 8,
+  "ok": true,
+  "unresolved": 0,
+  "words": 2
+ },
+ {
+  "obj": "build/recon/game/common/aitune.cpp.o",
+  "section": ".sdata",
+  "base": 2148779504,
+  "end": 2148779516,
+  "size": 12,
+  "ok": true,
+  "unresolved": 0,
+  "words": 3
+ },
+ {
+  "obj": "build/recon/game/common/audioclc.cpp.o",
+  "section": ".sdata",
+  "base": 2148779528,
+  "end": 2148779560,
+  "size": 32,
+  "ok": true,
+  "unresolved": 0,
+  "words": 8
+ },
+ {
+  "obj": "build/recon/game/common/audiocmn.cpp.o",
+  "section": ".sdata",
+  "base": 2148779560,
+  "end": 2148779808,
+  "size": 248,
+  "ok": true,
+  "unresolved": 0,
+  "words": 62
+ },
+ {
+  "obj": "build/recon/game/common/audiomus.cpp.o",
+  "section": ".sdata",
+  "base": 2148779808,
+  "end": 2148779812,
+  "size": 4,
+  "ok": true,
+  "unresolved": 0,
+  "words": 1
+ },
+ {
+  "obj": "build/recon/game/common/audedit.cpp.o",
+  "section": ".sdata",
+  "base": 2148779820,
+  "end": 2148779828,
+  "size": 8,
+  "ok": true,
+  "unresolved": 0,
+  "words": 2
+ },
+ {
+  "obj": "build/recon/game/common/bworld.cpp.o",
+  "section": ".sdata",
+  "base": 2148779864,
+  "end": 2148779964,
+  "size": 100,
+  "ok": true,
+  "unresolved": 0,
+  "words": 25
+ },
+ {
+  "obj": "build/recon/game/common/bworldSm.cpp.o",
+  "section": ".sdata",
+  "base": 2148779964,
+  "end": 2148779996,
+  "size": 32,
+  "ok": true,
+  "unresolved": 0,
+  "words": 8
+ },
+ {
+  "obj": "build/recon/game/common/camera.cpp.o",
+  "section": ".sdata",
+  "base": 2148779996,
+  "end": 2148780000,
+  "size": 4,
+  "ok": true,
+  "unresolved": 0,
+  "words": 1
+ },
+ {
   "obj": "build/recon/game/common/cars.cpp.o",
   "section": ".sdata",
   "base": 2148780000,
@@ -420,6 +1200,16 @@
   "words": 14
  },
  {
+  "obj": "build/recon/game/common/chunk.cpp.o",
+  "section": ".sdata",
+  "base": 2148780056,
+  "end": 2148780064,
+  "size": 8,
+  "ok": true,
+  "unresolved": 0,
+  "words": 2
+ },
+ {
   "obj": "build/recon/game/common/clock.cpp.o",
   "section": ".sdata",
   "base": 2148780064,
@@ -428,6 +1218,26 @@
   "ok": true,
   "unresolved": 0,
   "words": 3
+ },
+ {
+  "obj": "build/recon/game/common/collide.cpp.o",
+  "section": ".sdata",
+  "base": 2148780076,
+  "end": 2148780108,
+  "size": 32,
+  "ok": true,
+  "unresolved": 0,
+  "words": 8
+ },
+ {
+  "obj": "build/recon/game/common/hudpmx.cpp.o",
+  "section": ".sdata",
+  "base": 2148780108,
+  "end": 2148781441,
+  "size": 1333,
+  "ok": true,
+  "unresolved": 0,
+  "words": 333
  },
  {
   "obj": "build/recon/game/common/copspeak.cpp.o",
@@ -460,44 +1270,24 @@
   "words": 69
  },
  {
-  "obj": "build/recon/game/common/gmesetup.cpp.o",
-  "section": ".data",
-  "base": 2148610116,
-  "end": 2148613140,
-  "size": 3024,
-  "ok": true,
-  "unresolved": 0,
-  "words": 756
- },
- {
-  "obj": "build/recon/game/common/hudpmx.cpp.o",
+  "obj": "build/recon/game/common/input.cpp.o",
   "section": ".sdata",
-  "base": 2148780108,
-  "end": 2148781441,
-  "size": 1333,
+  "base": 2148782624,
+  "end": 2148782656,
+  "size": 32,
   "ok": true,
   "unresolved": 0,
-  "words": 333
+  "words": 8
  },
  {
-  "obj": "build/recon/game/common/newton.cpp.o",
-  "section": ".data",
-  "base": 2148614172,
-  "end": 2148614716,
-  "size": 544,
+  "obj": "build/recon/game/common/new.cpp.o",
+  "section": ".sdata",
+  "base": 2148782700,
+  "end": 2148782704,
+  "size": 4,
   "ok": true,
   "unresolved": 0,
-  "words": 136
- },
- {
-  "obj": "build/recon/game/common/nfs3.cpp.o",
-  "section": ".data",
-  "base": 2148614716,
-  "end": 2148621382,
-  "size": 6666,
-  "ok": true,
-  "unresolved": 0,
-  "words": 1666
+  "words": 1
  },
  {
   "obj": "build/recon/game/common/nfs3.cpp.o",
@@ -511,13 +1301,13 @@
  },
  {
   "obj": "build/recon/game/common/object.cpp.o",
-  "section": ".data",
-  "base": 2148621384,
-  "end": 2148623464,
-  "size": 2080,
+  "section": ".sdata",
+  "base": 2148782792,
+  "end": 2148782816,
+  "size": 24,
   "ok": true,
   "unresolved": 0,
-  "words": 520
+  "words": 6
  },
  {
   "obj": "build/recon/game/common/paths.cpp.o",
@@ -530,14 +1320,14 @@
   "words": 3
  },
  {
-  "obj": "build/recon/game/common/physics.cpp.o",
-  "section": ".data",
-  "base": 2148623664,
-  "end": 2148623840,
-  "size": 176,
+  "obj": "build/recon/game/common/pausemenu.cpp.o",
+  "section": ".sdata",
+  "base": 2148782828,
+  "end": 2148782832,
+  "size": 4,
   "ok": true,
   "unresolved": 0,
-  "words": 44
+  "words": 1
  },
  {
   "obj": "build/recon/game/common/physics.cpp.o",
@@ -551,16 +1341,6 @@
  },
  {
   "obj": "build/recon/game/common/r3dcar.cpp.o",
-  "section": ".data",
-  "base": 2148623840,
-  "end": 2148626300,
-  "size": 2460,
-  "ok": true,
-  "unresolved": 0,
-  "words": 615
- },
- {
-  "obj": "build/recon/game/common/r3dcar.cpp.o",
   "section": ".sdata",
   "base": 2148782884,
   "end": 2148783040,
@@ -570,24 +1350,34 @@
   "words": 39
  },
  {
-  "obj": "build/recon/game/common/schedule.cpp.o",
-  "section": ".data",
-  "base": 2148655068,
-  "end": 2148655260,
-  "size": 192,
+  "obj": "build/recon/game/common/render.cpp.o",
+  "section": ".sdata",
+  "base": 2148783040,
+  "end": 2148783084,
+  "size": 44,
   "ok": true,
   "unresolved": 0,
-  "words": 48
+  "words": 11
  },
  {
-  "obj": "build/recon/game/common/sim.cpp.o",
-  "section": ".data",
-  "base": 2148655260,
-  "end": 2148655328,
-  "size": 68,
+  "obj": "build/recon/game/common/replay.cpp.o",
+  "section": ".sdata",
+  "base": 2148783084,
+  "end": 2148783104,
+  "size": 20,
   "ok": true,
   "unresolved": 0,
-  "words": 17
+  "words": 5
+ },
+ {
+  "obj": "build/recon/game/common/scene.cpp.o",
+  "section": ".sdata",
+  "base": 2148783112,
+  "end": 2148783116,
+  "size": 4,
+  "ok": true,
+  "unresolved": 0,
+  "words": 1
  },
  {
   "obj": "build/recon/game/common/sim.cpp.o",
@@ -610,6 +1400,46 @@
   "words": 3
  },
  {
+  "obj": "build/recon/game/common/souffle.cpp.o",
+  "section": ".sdata",
+  "base": 2148783176,
+  "end": 2148783192,
+  "size": 16,
+  "ok": true,
+  "unresolved": 0,
+  "words": 4
+ },
+ {
+  "obj": "build/recon/game/common/trgsfx.cpp.o",
+  "section": ".sdata",
+  "base": 2148783344,
+  "end": 2148783352,
+  "size": 8,
+  "ok": true,
+  "unresolved": 0,
+  "words": 2
+ },
+ {
+  "obj": "build/recon/game/common/aidebug.cpp.o",
+  "section": ".sdata",
+  "base": 2148783352,
+  "end": 2148783356,
+  "size": 4,
+  "ok": true,
+  "unresolved": 0,
+  "words": 1
+ },
+ {
+  "obj": "build/recon/game/psx/audio.cpp.o",
+  "section": ".sdata",
+  "base": 2148783356,
+  "end": 2148783364,
+  "size": 8,
+  "ok": true,
+  "unresolved": 0,
+  "words": 2
+ },
+ {
   "obj": "build/recon/game/psx/cario.cpp.o",
   "section": ".sdata",
   "base": 2148783900,
@@ -618,6 +1448,16 @@
   "ok": true,
   "unresolved": 0,
   "words": 15
+ },
+ {
+  "obj": "build/recon/game/psx/device.cpp.o",
+  "section": ".sdata",
+  "base": 2148783992,
+  "end": 2148784021,
+  "size": 29,
+  "ok": true,
+  "unresolved": 0,
+  "words": 7
  },
  {
   "obj": "build/recon/game/psx/draw.cpp.o",
@@ -630,14 +1470,14 @@
   "words": 12
  },
  {
-  "obj": "build/recon/game/psx/draww.cpp.o",
-  "section": ".data",
-  "base": 2148660592,
-  "end": 2148662368,
-  "size": 1776,
+  "obj": "build/recon/game/psx/drawdbg.cpp.o",
+  "section": ".sdata",
+  "base": 2148784152,
+  "end": 2148784156,
+  "size": 4,
   "ok": true,
   "unresolved": 0,
-  "words": 444
+  "words": 1
  },
  {
   "obj": "build/recon/game/psx/draww.cpp.o",
@@ -650,24 +1490,14 @@
   "words": 9
  },
  {
-  "obj": "build/recon/game/psx/flare.cpp.o",
-  "section": ".data",
-  "base": 2148662752,
-  "end": 2148664056,
-  "size": 1304,
-  "ok": true,
-  "unresolved": 0,
-  "words": 326
- },
- {
-  "obj": "build/recon/game/psx/flare.cpp.o",
+  "obj": "build/recon/game/psx/force.cpp.o",
   "section": ".sdata",
-  "base": 2148784236,
-  "end": 2148784248,
-  "size": 12,
+  "base": 2148784192,
+  "end": 2148784212,
+  "size": 20,
   "ok": true,
   "unresolved": 0,
-  "words": 3
+  "words": 5
  },
  {
   "obj": "build/recon/game/psx/font.cpp.o",
@@ -680,24 +1510,14 @@
   "words": 5
  },
  {
-  "obj": "build/recon/game/psx/force.cpp.o",
-  "section": ".data",
-  "base": 2148662368,
-  "end": 2148662640,
-  "size": 272,
-  "ok": true,
-  "unresolved": 0,
-  "words": 68
- },
- {
-  "obj": "build/recon/game/psx/force.cpp.o",
+  "obj": "build/recon/game/psx/flare.cpp.o",
   "section": ".sdata",
-  "base": 2148784192,
-  "end": 2148784212,
-  "size": 20,
+  "base": 2148784236,
+  "end": 2148784248,
+  "size": 12,
   "ok": true,
   "unresolved": 0,
-  "words": 5
+  "words": 3
  },
  {
   "obj": "build/recon/game/psx/hrzsku.cpp.o",
@@ -711,16 +1531,6 @@
  },
  {
   "obj": "build/recon/game/psx/hud.cpp.o",
-  "section": ".data",
-  "base": 2148665636,
-  "end": 2148666304,
-  "size": 668,
-  "ok": true,
-  "unresolved": 0,
-  "words": 167
- },
- {
-  "obj": "build/recon/game/psx/hud.cpp.o",
   "section": ".sdata",
   "base": 2148784284,
   "end": 2148784524,
@@ -728,6 +1538,16 @@
   "ok": true,
   "unresolved": 0,
   "words": 60
+ },
+ {
+  "obj": "build/recon/game/psx/overlays.cpp.o",
+  "section": ".sdata",
+  "base": 2148784524,
+  "end": 2148784544,
+  "size": 20,
+  "ok": true,
+  "unresolved": 0,
+  "words": 5
  },
  {
   "obj": "build/recon/game/psx/loading.cpp.o",
@@ -750,16 +1570,6 @@
   "words": 47
  },
  {
-  "obj": "build/recon/game/psx/overlays.cpp.o",
-  "section": ".sdata",
-  "base": 2148784524,
-  "end": 2148784544,
-  "size": 20,
-  "ok": true,
-  "unresolved": 0,
-  "words": 5
- },
- {
   "obj": "build/recon/game/psx/platform.cpp.o",
   "section": ".sdata",
   "base": 2148784796,
@@ -768,6 +1578,26 @@
   "ok": true,
   "unresolved": 0,
   "words": 9
+ },
+ {
+  "obj": "build/recon/game/psx/skidmark.cpp.o",
+  "section": ".sdata",
+  "base": 2148784840,
+  "end": 2148784856,
+  "size": 16,
+  "ok": true,
+  "unresolved": 0,
+  "words": 4
+ },
+ {
+  "obj": "build/recon/game/psx/texture.cpp.o",
+  "section": ".sdata",
+  "base": 2148784904,
+  "end": 2148784956,
+  "size": 52,
+  "ok": true,
+  "unresolved": 0,
+  "words": 13
  },
  {
   "obj": "build/recon/game/psx/textureprocess.cpp.o",
@@ -780,110 +1610,60 @@
   "words": 17
  },
  {
-  "obj": "build/recon/syslib/psx/libcd/C_003.c.o",
-  "section": ".data",
-  "base": 2148756552,
-  "end": 2148756568,
-  "size": 16,
+  "obj": "build/recon/game/psx/trackspec.cpp.o",
+  "section": ".sdata",
+  "base": 2148785040,
+  "end": 2148785052,
+  "size": 12,
   "ok": true,
   "unresolved": 0,
-  "words": 4
+  "words": 3
  },
  {
-  "obj": "build/recon/syslib/psx/libcd/cdcont.c.o",
-  "section": ".data",
-  "base": 2148755992,
-  "end": 2148756120,
-  "size": 128,
-  "ok": true,
-  "unresolved": 0,
-  "words": 32
- },
- {
-  "obj": "build/recon/syslib/psx/libcd/drv.c.o",
-  "section": ".data",
-  "base": 2148777792,
-  "end": 2148778592,
-  "size": 800,
-  "ok": true,
-  "unresolved": 42,
-  "words": 158
- },
- {
-  "obj": "build/recon/syslib/psx/libcd/iso9660.c.o",
-  "section": ".data",
-  "base": 2148756584,
-  "end": 2148756600,
-  "size": 16,
-  "ok": true,
-  "unresolved": 0,
-  "words": 4
- },
- {
-  "obj": "build/recon/syslib/psx/libcd/stcdint.c.o",
-  "section": ".data",
-  "base": 2148756120,
-  "end": 2148756172,
-  "size": 52,
-  "ok": true,
-  "unresolved": 0,
-  "words": 13
- },
- {
-  "obj": "build/recon/syslib/psx/libmcrd/LIBMCRD.c.o",
-  "section": ".data",
-  "base": 2148756664,
-  "end": 2148756680,
-  "size": 16,
-  "ok": true,
-  "unresolved": 0,
-  "words": 4
- },
- {
-  "obj": "build/recon/syslib/psx/libmcrd/USERFUNC.c.o",
-  "section": ".data",
-  "base": 2148778720,
-  "end": 2148778724,
+  "obj": "build/recon/game/psx/trsproj.cpp.o",
+  "section": ".sdata",
+  "base": 2148785052,
+  "end": 2148785056,
   "size": 4,
   "ok": true,
   "unresolved": 0,
   "words": 1
  },
  {
-  "obj": "build/recon/syslib/psx/libpad/PADIF.c.o",
-  "section": ".data",
-  "base": 2148778760,
-  "end": 2148778792,
-  "size": 32,
+  "obj": "build/recon/eaclib/psx/eacpsxz/vars.c.o",
+  "section": ".sdata",
+  "base": 2148785252,
+  "end": 2148785412,
+  "size": 160,
   "ok": true,
   "unresolved": 0,
-  "words": 8
+  "words": 40
  },
  {
-  "obj": "build/recon/syslib/psx/libpad/PADMAIN.c.o",
-  "section": ".data",
-  "base": 2148760696,
-  "end": 2148760804,
-  "size": 108,
+  "obj": "build/recon/eaclib/psx/eacpsxz/primate.c.o",
+  "section": ".sdata",
+  "base": 2148785412,
+  "end": 2148785432,
+  "size": 20,
   "ok": true,
   "unresolved": 0,
-  "words": 27
+  "words": 5
  },
  {
-  "obj": "build/recon/syslib/psx/libpress/LIBPRESS.c.o",
-  "section": ".data",
-  "base": 2148756216,
-  "end": 2148756552,
-  "size": 336,
+  "obj": "build/recon/eaclib/psx/eacpsxz/fileroot.c.o",
+  "section": ".sdata",
+  "base": 2148785452,
+  "end": 2148785478,
+  "size": 26,
   "ok": true,
   "unresolved": 0,
-  "words": 84
+  "words": 6
  },
  {
-  "obj": "build/recon/syslib/psx/libpress/VLC.c.o",
-  "section": ".data",
-  "base": 2148755944,
-  "end": 2148755948,
+  "obj": "build/recon/eaclib/psx/eacpsxz/inittmr.c.o",
+  "section": ".sdata",
+  "base": 2148785480,
+  "end": 2148785484,
   "size": 4,
   "ok": true,
   "unresolved": 0,

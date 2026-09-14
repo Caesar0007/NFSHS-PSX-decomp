@@ -393,6 +393,17 @@ PER_TU_FLAGS = {
     # w63-a19: -G IDENTITY TELLS from the data-ownership sweep (E5): 8-byte
     # sdata objects only reachable at -G8 ("aiwther" literal; mpause short[4]
     # pair = 2 of the W62 sec-3.2 wrong-section symbols). Gated 2x post-wire.
+    "recon/game/common/speech.cpp":         {"g_value": "8"},  # w67-a8: retail -G8; small car/file literals -> .sdata (were .rodata at -G0)
+    # w67-a8: gprobe8-proven retail -G8 (gate pass rises + small const -> .sdata,
+    # no PASS regression) -- were wrongly at the lane default -G0.
+    "recon/game/common/track.cpp":          {"g_value": "8"},  # pass 12->23
+    "recon/game/common/aistate.cpp":        {"g_value": "8"},  # pass 29->37
+    "recon/game/common/object.cpp":         {"g_value": "8"},  # pass 13->30
+    "recon/game/common/pausemenu.cpp":      {"g_value": "8"},  # pass 51->57
+    "recon/game/common/aidatarecord.cpp":   {"g_value": "8"},  # pass 23->26 (all)
+    # NOTE: drawc.cpp + movie.cpp gate-improve at -G8 but their new .sdata is not
+    # yet placed at retail -> whole-image REGRESSES (drawc 40->235, movie 94->108).
+    # Hold at -G0 until gen_rodata_extra anchors their .sdata; -G8 is still correct.
     "recon/game/common/aispeeds.cpp":       {"g_value": "8"},
     "recon/game/common/mpause.cpp":         {"g_value": "8"},
     "recon/game/common/bworld.cpp":         {"g_value": "8"},  # w67-a4: probe-proven 20/21 x2, .sdata byte-exact retail

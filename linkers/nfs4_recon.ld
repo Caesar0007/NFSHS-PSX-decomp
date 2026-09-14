@@ -784,37 +784,41 @@ SECTIONS
     .xd0030 0x8005542c : SUBALIGN(4) { build/recon/game/common/vtables_aidatarecord.cpp.o(.data); }
     .xd0031 0x8010ccd4 : SUBALIGN(4) { build/recon/game/common/ai.cpp.o(.data); }
     .xd0032 0x8010ce98 : SUBALIGN(4) { build/recon/game/common/aih_play.cpp.o(.data); }
-    .xd0033 0x8011401c : SUBALIGN(4) { build/recon/game/common/newton.cpp.o(.data); }
-    .xd0034 0x80116f7c : SUBALIGN(4) { build/recon/game/common/render.cpp.o(.data); }
-    .xd0035 0x80123654 : SUBALIGN(4) { build/recon/syslib/psx/libgpu/SYS.c.o(.data); }
-    .xd0036 0x801369e8 : SUBALIGN(4) { build/recon/syslib/psx/libpress/VLC.c.o(.data); }
-    .xd0037 0x80136a18 : SUBALIGN(4) { build/recon/syslib/psx/libcd/cdcont.c.o(.data); }
-    .xd0038 0x80136a98 : SUBALIGN(4) { build/recon/syslib/psx/libcd/stcdint.c.o(.data); }
-    .xd0039 0x80136af8 : SUBALIGN(4) { build/recon/syslib/psx/libpress/LIBPRESS.c.o(.data); }
-    .xd0040 0x80136c48 : SUBALIGN(4) { build/recon/syslib/psx/libcd/C_003.c.o(.data); }
-    .xd0041 0x80136cb8 : SUBALIGN(4) { build/recon/syslib/psx/libmcrd/LIBMCRD.c.o(.data); }
-    .xd0042 0x80136e00 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sdfx.c.o(.data); }
-    .xd0043 0x80137c78 : SUBALIGN(4) { build/recon/syslib/psx/libpad/PADMAIN.c.o(.data); }
-    .xd0044 0x8013bf40 : SUBALIGN(4) { build/recon/syslib/psx/libcd/drv.c.o(.data); }
-    .xd0045 0x8013c2e0 : SUBALIGN(4) { build/recon/syslib/psx/libmcrd/USERFUNC.c.o(.data); }
-    .xd0046 0x8013c308 : SUBALIGN(4) { build/recon/syslib/psx/libpad/PADIF.c.o(.data); }
+    .xd0033 0x80111a44 : SUBALIGN(4) { build/recon/game/common/speech.cpp.o(.data); }
+    .xd0034 0x8011401c : SUBALIGN(4) { build/recon/game/common/newton.cpp.o(.data); }
+    .xd0035 0x80116f7c : SUBALIGN(4) { build/recon/game/common/render.cpp.o(.data); }
+    .xd0036 0x80123654 : SUBALIGN(4) { build/recon/syslib/psx/libgpu/SYS.c.o(.data); }
+    .xd0037 0x801369e8 : SUBALIGN(4) { build/recon/syslib/psx/libpress/VLC.c.o(.data); }
+    .xd0038 0x80136a18 : SUBALIGN(4) { build/recon/syslib/psx/libcd/cdcont.c.o(.data); }
+    .xd0039 0x80136a98 : SUBALIGN(4) { build/recon/syslib/psx/libcd/stcdint.c.o(.data); }
+    .xd0040 0x80136af8 : SUBALIGN(4) { build/recon/syslib/psx/libpress/LIBPRESS.c.o(.data); }
+    .xd0041 0x80136c48 : SUBALIGN(4) { build/recon/syslib/psx/libcd/C_003.c.o(.data); }
+    .xd0042 0x80136cb8 : SUBALIGN(4) { build/recon/syslib/psx/libmcrd/LIBMCRD.c.o(.data); }
+    .xd0043 0x80136e00 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sdfx.c.o(.data); }
+    .xd0044 0x80137c78 : SUBALIGN(4) { build/recon/syslib/psx/libpad/PADMAIN.c.o(.data); }
+    .xd0045 0x8013bf40 : SUBALIGN(4) { build/recon/syslib/psx/libcd/drv.c.o(.data); }
+    .xd0046 0x8013c2e0 : SUBALIGN(4) { build/recon/syslib/psx/libmcrd/USERFUNC.c.o(.data); }
+    .xd0047 0x8013c308 : SUBALIGN(4) { build/recon/syslib/psx/libpad/PADIF.c.o(.data); }
     .xs0000 0x801234d4 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/snddata.c.o(.sdata); }
     .xs0001 0x8013c568 : SUBALIGN(4) { build/recon/game/common/aih_play.cpp.o(.sdata); }
     .xs0002 0x8013c5b8 : SUBALIGN(4) { build/recon/game/common/aispeeds.cpp.o(.sdata); }
-    .xs0003 0x8013c82c : SUBALIGN(4) { build/recon/game/common/collide.cpp.o(.sdata); }
-    .xs0004 0x8013d3c0 : SUBALIGN(4) { build/recon/game/common/render.cpp.o(.sdata); }
-    .xs0005 0x8013d71c : SUBALIGN(4) { build/recon/game/psx/cario.cpp.o(.sdata); }
-    .xs0006 0x8013d778 : SUBALIGN(4) { build/recon/game/psx/device.cpp.o(.sdata); }
-    .xs0007 0x8013d798 : SUBALIGN(4) { build/recon/game/psx/draw.cpp.o(.sdata); }
-    .xs0008 0x8013d854 : SUBALIGN(4) { build/recon/game/psx/font.cpp.o(.sdata); }
-    .xs0009 0x8013d880 : SUBALIGN(4) { build/recon/game/psx/hrzsku.cpp.o(.sdata); }
-    .xs0010 0x8013d98c : SUBALIGN(4) { build/recon/game/psx/overlays.cpp.o(.sdata); }
-    .xs0011 0x8013d9d0 : SUBALIGN(4) { build/recon/game/psx/loading.cpp.o(.sdata); }
-    .xs0012 0x8013d9e0 : SUBALIGN(4) { build/recon/game/psx/night.cpp.o(.sdata); }
-    .xs0013 0x8013da9c : SUBALIGN(4) { build/recon/game/psx/platform.cpp.o(.sdata); }
-    .xs0014 0x8013dac8 : SUBALIGN(4) { build/recon/game/psx/skidmark.cpp.o(.sdata); }
-    .xs0015 0x8013dd2c : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/fileroot.c.o(.sdata); }
-    .xs0016 0x8013dd48 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/inittmr.c.o(.sdata); }
+    .xs0003 0x8013c5d8 : SUBALIGN(4) { build/recon/game/common/aistate.cpp.o(.sdata); }
+    .xs0004 0x8013c82c : SUBALIGN(4) { build/recon/game/common/collide.cpp.o(.sdata); }
+    .xs0005 0x8013cd84 : SUBALIGN(4) { build/recon/game/common/speech.cpp.o(.sdata); }
+    .xs0006 0x8013d3c0 : SUBALIGN(4) { build/recon/game/common/render.cpp.o(.sdata); }
+    .xs0007 0x8013d468 : SUBALIGN(4) { build/recon/game/common/track.cpp.o(.sdata); }
+    .xs0008 0x8013d71c : SUBALIGN(4) { build/recon/game/psx/cario.cpp.o(.sdata); }
+    .xs0009 0x8013d778 : SUBALIGN(4) { build/recon/game/psx/device.cpp.o(.sdata); }
+    .xs0010 0x8013d798 : SUBALIGN(4) { build/recon/game/psx/draw.cpp.o(.sdata); }
+    .xs0011 0x8013d854 : SUBALIGN(4) { build/recon/game/psx/font.cpp.o(.sdata); }
+    .xs0012 0x8013d880 : SUBALIGN(4) { build/recon/game/psx/hrzsku.cpp.o(.sdata); }
+    .xs0013 0x8013d98c : SUBALIGN(4) { build/recon/game/psx/overlays.cpp.o(.sdata); }
+    .xs0014 0x8013d9d0 : SUBALIGN(4) { build/recon/game/psx/loading.cpp.o(.sdata); }
+    .xs0015 0x8013d9e0 : SUBALIGN(4) { build/recon/game/psx/night.cpp.o(.sdata); }
+    .xs0016 0x8013da9c : SUBALIGN(4) { build/recon/game/psx/platform.cpp.o(.sdata); }
+    .xs0017 0x8013dac8 : SUBALIGN(4) { build/recon/game/psx/skidmark.cpp.o(.sdata); }
+    .xs0018 0x8013dd2c : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/fileroot.c.o(.sdata); }
+    .xs0019 0x8013dd48 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/inittmr.c.o(.sdata); }
 
     .data 0x8010ccd4 : SUBALIGN(4)
     {
@@ -923,7 +927,6 @@ SECTIONS
         build/recon/frontend/common/screenmemcard.cpp.o(.data);
         build/recon/game/common/aihigh.cpp.o(.data);
         build/recon/game/common/aispeeds.cpp.o(.data);
-        build/recon/game/common/speech.cpp.o(.data);
         build/recon/game/common/vtables_aihigh.cpp.o(.data);
         build/recon/game/common/vtables_aistate.cpp.o(.data);
         build/recon/game/common/vtables_object.cpp.o(.data);
@@ -1024,9 +1027,7 @@ SECTIONS
         build/recon/game/common/anim.cpp.o(.sdata);
         build/recon/game/common/audioeng.cpp.o(.sdata);
         build/recon/game/common/mpause.cpp.o(.sdata);
-        build/recon/game/common/speech.cpp.o(.sdata);
         build/recon/game/common/textsys.cpp.o(.sdata);
-        build/recon/game/common/track.cpp.o(.sdata);
         build/recon/game/psx/drawc.cpp.o(.sdata);
         build/recon/game/psx/weather.cpp.o(.sdata);
         build/recon/syslib/psx/libapi/COUNTER_data.c.o(.sdata);

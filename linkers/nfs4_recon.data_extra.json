@@ -560,6 +560,16 @@
   "words": 885
  },
  {
+  "obj": "build/recon/game/common/speech.cpp.o",
+  "section": ".data",
+  "base": 2148604484,
+  "end": 2148605604,
+  "size": 1120,
+  "ok": true,
+  "unresolved": 0,
+  "words": 280
+ },
+ {
   "obj": "build/recon/game/common/copspeak.cpp.o",
   "section": ".data",
   "base": 2148605604,
@@ -1110,6 +1120,16 @@
   "words": 8
  },
  {
+  "obj": "build/recon/game/common/aistate.cpp.o",
+  "section": ".sdata",
+  "base": 2148779480,
+  "end": 2148779493,
+  "size": 13,
+  "ok": true,
+  "unresolved": 0,
+  "words": 3
+ },
+ {
   "obj": "build/recon/game/common/aitriger.cpp.o",
   "section": ".sdata",
   "base": 2148779496,
@@ -1248,6 +1268,16 @@
   "ok": true,
   "unresolved": 0,
   "words": 333
+ },
+ {
+  "obj": "build/recon/game/common/speech.cpp.o",
+  "section": ".sdata",
+  "base": 2148781444,
+  "end": 2148782204,
+  "size": 760,
+  "ok": true,
+  "unresolved": 0,
+  "words": 190
  },
  {
   "obj": "build/recon/game/common/copspeak.cpp.o",
@@ -1418,6 +1448,16 @@
   "ok": true,
   "unresolved": 0,
   "words": 4
+ },
+ {
+  "obj": "build/recon/game/common/track.cpp.o",
+  "section": ".sdata",
+  "base": 2148783208,
+  "end": 2148783344,
+  "size": 136,
+  "ok": true,
+  "unresolved": 0,
+  "words": 34
  },
  {
   "obj": "build/recon/game/common/trgsfx.cpp.o",

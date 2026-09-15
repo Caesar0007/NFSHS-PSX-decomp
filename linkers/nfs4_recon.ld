@@ -764,6 +764,7 @@ SECTIONS
     .fd0007 0x800528dc : SUBALIGN(4) { build/asm/data/front_data_r06.data.s.o(.data); }
     .fd0008 0x800528ec : SUBALIGN(4) { build/asm/data/front_data_r07.data.s.o(.data); }
     .fd0009 0x800529b0 : SUBALIGN(4) { build/asm/data/front_data_r08.data.s.o(.data); }
+    .fd0010 0x800529d4 : SUBALIGN(4) { build/asm/data/front_data_r08_after_knocolor.data.s.o(.data); }
 
     .xd0000 0x800514b8 : SUBALIGN(4) { build/recon/frontend/common/feapp.cpp.o(.data); }
     .xd0001 0x800514c8 : SUBALIGN(4) { build/recon/frontend/common/feaudio.cpp.o(.data); }

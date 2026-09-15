@@ -454,15 +454,19 @@ def main():
                     f"front_data VA {m.group(3)} for {m.group(1)} outside front.data"
                 front_data_va[m.group(1)] = int(m.group(3), 16)
         # W67-A12: the front_data RESIDUAL blobs (front_data_rNN, retail-byte .s
-        # for front.data head/gaps) define front.data-head globals (showRoomFlag,
-        # gMenuRotate, Fe3D_*, ...).  gen_ld never placed them -> they fell to the
-        # .data_rest catch-all and every ref resolved wrong.  Place each at its
-        # own retail VA (read from the piece's VA comment), like the front rodata
-        # residual pieces; the recon owners (data_ov) tile the gaps between them.
-        for m in re.finditer(r"build/asm/data/(front_data_r\w+)\.data\.s\.o\(\.data\)", fdfrag.read_text(errors="replace")):
-            p = dataroot / (m.group(1) + ".data.s")
-            if p.exists():
-                front_data_resid.append((piece_va(p), f"build/asm/data/{m.group(1)}.data.s.o"))
+        # for front.data head/gaps/TAIL) define front.data globals (showRoomFlag,
+        # gMenuRotate, Fe3D_*, gCarObj, ...).  gen_ld never placed them -> they
+        # fell to the .data_rest catch-all and every ref resolved wrong.  Place
+        # EVERY front_data_r* residual at its own retail VA (from its VA comment)
+        # -- including the tail pieces not listed in the ldfrag; the recon owners
+        # (data_ov) + SOURCE_DATA_OWNERS tile the gaps between them.  _legacy and
+        # _oNN pieces are oracle-only (splat lane) and excluded.
+        for p in sorted(dataroot.glob("front_data_r*.data.s")):
+            if "_legacy" in p.name:
+                continue
+            va = piece_va(p)
+            if 0x80051260 <= va < 0x80052B38:
+                front_data_resid.append((va, f"build/asm/data/{p.name}.o"))
         front_data_resid = sorted(set(front_data_resid))
 
     # P881: native local-static storage is source-owned even though the full

@@ -22,8 +22,12 @@ Draw_tPixMap *gpPmx[16];   /* @0x801207b4 (.data; CPE-loaded zero) */
 CVECTOR      gHrzRingColor[2][17];   /* @0x801207f4 (.data; CPE-loaded zero) */
 int          gfxPmxHeightPercentage[16];   /* @0x8012087c (.data; CPE-loaded zero) */
 tHrz_Lightning gHrz_Lightning;   /* @0x801208bc (.data; CPE-loaded zero) */
-static SVECTOR *starPosInSky;   /* @0x8013d878  (bss(zero)) */
-static u_long *starColors;    /* @0x8013d87c  SYM PTR ULONG (bss(zero)) */
+/* Retail hrzsku.obj .sdata 0x8013d878..0x8013d89c = starPosInSky, starColors
+ * (INITIALIZED statics: emitted here, ahead of the "stars" literal), then the
+ * deferred uninitialized globals Hrz_gTrackSpec.. Hrz_gLightningPosInSky.
+ * sunPosInSky/moonPosInSky stay .lcomm (.sbss 0x8013ddf0/f8). */
+static SVECTOR *starPosInSky = 0;   /* @0x8013d878  SYM STAT (.sdata, zero) */
+static u_long *starColors = 0;    /* @0x8013d87c  SYM PTR ULONG (.sdata, zero) */
 CHorizonSpec *Hrz_gTrackSpec;   /* @0x8013d888  (bss(zero)) */
 CSkySpec     *Sky_gTrackSpec;   /* @0x8013d88c  (bss(zero)) */
 SVECTOR      *gRngCoordTop;   /* @0x8013d890  (bss(zero)) */

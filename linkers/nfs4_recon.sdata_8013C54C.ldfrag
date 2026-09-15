@@ -23,6 +23,7 @@
     build/asm/data/sdata_8013C54C_r02.sdata.s.o(.sdata);
     build/recon/game/common/aiphysic.cpp.o(.sdata);   /* 0x8013c594..0x8013c5a0  was sdata_8013C54C_o05.sdata.s */
     build/recon/game/common/aidatarecord.cpp.o(.sdata);   /* 0x8013c5a0..0x8013c5b0  was sdata_8013C54C_o06.sdata.s */
+    build/recon/game/common/aispeeds.cpp.o(.sdata);   /* 0x8013c5b0..0x8013c5d8 native owner: 2 initialized statics + Track0/1/4/8/9/10Speeds (r03 now starts at 0x8013c5d0? -- see D_8013C5D0) */
     build/asm/data/sdata_8013C54C_r03.sdata.s.o(.sdata);
     build/recon/game/common/aitriger.cpp.o(.sdata);   /* 0x8013c5e8..0x8013c5f0  was sdata_8013C54C_o07.sdata.s */
     build/recon/game/common/aitune.cpp.o(.sdata);   /* 0x8013c5f0..0x8013c5fc  was sdata_8013C54C_o08.sdata.s */
@@ -71,6 +72,7 @@
     build/recon/game/common/simqueue.cpp.o(.sdata);   /* 0x8013d434..0x8013d440 */
     build/asm/data/sdata_8013C54C_r15.sdata.s.o(.sdata.r15_after_simqueue);
     build/recon/game/common/souffle.cpp.o(.sdata);   /* 0x8013d448..0x8013d458  was sdata_8013C54C_o26.sdata.s */
+    build/recon/game/common/textsys.cpp.o(.sdata);   /* 0x8013d458..0x8013d466 native -G8 owner: wordFile, "%s%s", "p" (r16 now starts at 0x8013d468) */
     build/asm/data/sdata_8013C54C_r16.sdata.s.o(.sdata);
     build/recon/game/common/trgsfx.cpp.o(.sdata);   /* 0x8013d4f0..0x8013d4f8  was sdata_8013C54C_o27.sdata.s */
     build/recon/game/common/aidebug.cpp.o(.sdata);   /* 0x8013d4f8..0x8013d4fc  was sdata_8013C54C_o28.sdata.s */
@@ -81,7 +83,7 @@
     build/recon/game/psx/force.cpp.o(.sdata);   /* 0x8013d840..0x8013d854  was sdata_8013C54C_o31.sdata.s */
     build/asm/data/sdata_8013C54C_r19.sdata.s.o(.sdata);
     build/recon/game/psx/flare.cpp.o(.sdata);   /* 0x8013d86c..0x8013d878  was sdata_8013C54C_o32.sdata.s */
-    build/asm/data/sdata_8013C54C_r20.sdata.s.o(.sdata.r20_pre); /* Native36-byte prefix, unchanged. */
+    build/recon/game/psx/hrzsku.cpp.o(.sdata);   /* 0x8013d878..0x8013d89c native owner (was r20_pre: initialized statics + deferred globals) */
     build/recon/game/psx/hud.cpp.o(.sdata); /* P909 complete240-byte native source owner. */
     build/asm/data/sdata_8013C54C_r20.sdata.s.o(.sdata.r20_post); /* Native380-byte suffix, unchanged. */
     build/recon/game/psx/texture.cpp.o(.sdata);   /* 0x8013db08..0x8013db3c  was sdata_8013C54C_o33.sdata.s */

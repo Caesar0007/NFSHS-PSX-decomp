@@ -39,8 +39,10 @@ speedData_t  *AISpeeds_TrackSpeeds[11] = {   /* @0x8010dd78 : image ptrs 0x8013c
 };
 AISpeeds_tLeaderBoard leaderBoard;   /* @0x8010dda4  (bss(zero)) */
 AISpeeds_tSlotInfo CaravanInfo[6];   /* @0x8010ddb4  (bss(zero)) */
-static int   *AISpeeds_WeatherMultFactors;   /* @0x8013c5b0  (bss(zero); SYM STAT) */
-static int   AISpeeds_trackAndNightMult;   /* @0x8013c5b4  (bss(zero); SYM STAT) */
+/* Retail keeps both in .sdata (0x8013c5b0/b4, zero) right before Track0Speeds:
+ * initialized statics are emitted at their definition point. */
+static int   *AISpeeds_WeatherMultFactors = 0;   /* @0x8013c5b0  (.sdata zero; SYM STAT) */
+static int   AISpeeds_trackAndNightMult = 0;     /* @0x8013c5b4  (.sdata zero; SYM STAT) */
 speedData_t  Track0Speeds[1] = { {10000u, 7395u} };   /* @0x8013c5b8 */
 speedData_t  Track1Speeds[1] = { {10000u, 7395u} };   /* @0x8013c5bc */
 speedData_t  Track4Speeds[1] = { {10000u, 5688u} };   /* @0x8013c5c0 */

@@ -180,8 +180,9 @@ DrawFgAudio_fadeDone:
 void tScreenAudio::DrawBackground()
 
 {
-  static int lastpercentage;   /* [SYM] STAT @0x800528e0 (last % shown) */
-  static int perfade;          /* [SYM] STAT @0x800528e4 (bg fade accumulator) */
+  /* initialized => .data at this function (retail 0x800528e0 = -1, 0x800528e4 = 0x80), not .lcomm */
+  static int lastpercentage = -1;   /* [SYM] STAT @0x800528e0 (last % shown) */
+  static int perfade = 0x80;        /* [SYM] STAT @0x800528e4 (bg fade accumulator) */
   short fade;
   int percent;
   /* SYM-CODEGEN-CARRIER: optionsMenu -- direct `menuDefs[0]->menuAudio`

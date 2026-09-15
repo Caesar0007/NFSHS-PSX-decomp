@@ -392,8 +392,9 @@ void tTournamentManager::CalcTrackFinishDamageBill(bool recalculate,long &bill,l
 {
   /* SYM-CODEGEN-CARRIER: mask -- the signed-short shift carrier selects the
      retail srav/andi sequence; an inline (1 << i) changes 24 instructions. */
-  static long retbill;
-  static long retbonus;
+  /* initialized => .data at this function (retail 0x80051a60/0x80051a64 = 0), not .lcomm */
+  static long retbill = 0;
+  static long retbonus = 0;
   /* SYM ORDER (W86-S2): the depth-1 rows read
      retbill, retbonus, dummyCars, carInfo, damage, totalcarprice. */
   Car_tStats *dummyCars;

@@ -36,8 +36,10 @@ typedef unsigned short u_short;
  * VLC.obj-private resumable state, with exact retail VAs and access shapes
  * proven by the adjacent oracle-derived reconstruction. */
 static int      _vlc_blksize __attribute__((section(".data"))) = 0xffffff;  /* @0x801369E8 : output cells per slice; oracle refs ALL absolute lui/%hi (0 gp_rel) -> out of .sdata */
-static u_int    _vlc_state[9] __attribute__((section(".bss")));  /* @0x801369EC..80136A0C */
-static u_short *_vlc_end       __attribute__((section(".bss")));  /* @0x80136A10 : output slice end */
+/* Retail keeps both in .data (0x801369ec / 0x80136a10, zero-valued): C
+ * statics WITH initializers are emitted into .data at their definition. */
+static u_int    _vlc_state[9] __attribute__((section(".data"))) = { 0 };  /* @0x801369EC..80136A0C */
+static u_short *_vlc_end       __attribute__((section(".data"))) = 0;      /* @0x80136A10 : output slice end */
 
 /* @0x800F7400 : set the per-slice output size (in cells); returns the previous value. */
 extern int DecDCTvlcSize(int size);

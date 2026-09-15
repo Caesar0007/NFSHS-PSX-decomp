@@ -22,7 +22,9 @@ char *langFileName[6] = {
 };
 
 /* gp-rel pointer owned by Textsys.obj. */
-char *wordFile;
+/* Initialized => emitted HERE, ahead of the function literals ("%s%s", "p"):
+ * retail textsys.obj .sdata is wordFile 0x8013d458 / "%s%s" d45c / "p" d464. */
+char *wordFile = 0;
 
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
 void TextSys_LoadWordsGeneric(int language,char *path);

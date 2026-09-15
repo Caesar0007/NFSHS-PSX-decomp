@@ -1,5 +1,324 @@
 [
  {
+  "obj": "build/recon/game/common/vtables_tlist.cpp.o",
+  "section": ".data",
+  "base": 2147549656,
+  "end": 2147549752,
+  "size": 96,
+  "ok": true,
+  "unresolved": 0,
+  "words": 24,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/vtables_tdialog_g1_tDialogYesNoTri.cpp.o",
+  "section": ".data",
+  "base": 2147549872,
+  "end": 2147550736,
+  "size": 864,
+  "ok": true,
+  "unresolved": 0,
+  "words": 216,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/vtables_tpausemenu.cpp.o",
+  "section": ".data",
+  "base": 2147551760,
+  "end": 2147551848,
+  "size": 88,
+  "ok": true,
+  "unresolved": 0,
+  "words": 22,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/vtables_tpausemenu_g1_tInsideBoxTwoWaySlider.cpp.o",
+  "section": ".data",
+  "base": 2147552112,
+  "end": 2147552288,
+  "size": 176,
+  "ok": true,
+  "unresolved": 0,
+  "words": 44,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/vtables_tpausemenu_g2_tInsideBoxSongMenu.cpp.o",
+  "section": ".data",
+  "base": 2147552376,
+  "end": 2147552480,
+  "size": 104,
+  "ok": true,
+  "unresolved": 0,
+  "words": 26,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/vtables_tpausemenu_g3_tInsideBoxMenu.cpp.o",
+  "section": ".data",
+  "base": 2147552936,
+  "end": 2147553032,
+  "size": 96,
+  "ok": true,
+  "unresolved": 0,
+  "words": 24,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/vtables_tlist_g1_tListIteratorTrack.cpp.o",
+  "section": ".data",
+  "base": 2147553256,
+  "end": 2147553304,
+  "size": 48,
+  "ok": true,
+  "unresolved": 0,
+  "words": 12,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/vtables_tlist_g2_tListIteratorRangeIndexed.cpp.o",
+  "section": ".data",
+  "base": 2147554008,
+  "end": 2147554296,
+  "size": 288,
+  "ok": true,
+  "unresolved": 0,
+  "words": 72,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/vtables_tscreen.cpp.o",
+  "section": ".data",
+  "base": 2147554328,
+  "end": 2147554408,
+  "size": 80,
+  "ok": true,
+  "unresolved": 0,
+  "words": 20,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/vtables_tlist_g3_tListIteratorTournament.cpp.o",
+  "section": ".data",
+  "base": 2147554928,
+  "end": 2147554976,
+  "size": 48,
+  "ok": true,
+  "unresolved": 0,
+  "words": 12,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/vtables_tscreen_g1_tScreenMain.cpp.o",
+  "section": ".data",
+  "base": 2147555504,
+  "end": 2147555584,
+  "size": 80,
+  "ok": true,
+  "unresolved": 0,
+  "words": 20,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/vtables_tscreen_g2_tScreenPinkSlips.cpp.o",
+  "section": ".data",
+  "base": 2147555632,
+  "end": 2147555712,
+  "size": 80,
+  "ok": true,
+  "unresolved": 0,
+  "words": 20,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/vtables_tscreen_g3_tScreenPinkSlipStandings.cpp.o",
+  "section": ".data",
+  "base": 2147555752,
+  "end": 2147555912,
+  "size": 160,
+  "ok": true,
+  "unresolved": 0,
+  "words": 40,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/vtables_tscreen2.cpp.o",
+  "section": ".data",
+  "base": 2147555912,
+  "end": 2147555992,
+  "size": 80,
+  "ok": true,
+  "unresolved": 0,
+  "words": 20,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/vtables_tscreen_g4_tScreenPinkSlipsCarSelect.cpp.o",
+  "section": ".data",
+  "base": 2147556192,
+  "end": 2147556616,
+  "size": 424,
+  "ok": true,
+  "unresolved": 0,
+  "words": 106,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/vtables_tscreen2_g1_tScreenCarSelect.cpp.o",
+  "section": ".data",
+  "base": 2147556616,
+  "end": 2147556744,
+  "size": 128,
+  "ok": true,
+  "unresolved": 0,
+  "words": 32,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/vtables_tscreen2_g2_tScreenTournSelect.cpp.o",
+  "section": ".data",
+  "base": 2147556784,
+  "end": 2147556864,
+  "size": 80,
+  "ok": true,
+  "unresolved": 0,
+  "words": 20,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/vtables_tscreen2_g3_tScreenTrophyRoom.cpp.o",
+  "section": ".data",
+  "base": 2147556904,
+  "end": 2147556984,
+  "size": 80,
+  "ok": true,
+  "unresolved": 0,
+  "words": 20,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/vtables_tscreen_g5_tScreenTrophyInfo.cpp.o",
+  "section": ".data",
+  "base": 2147557008,
+  "end": 2147557088,
+  "size": 80,
+  "ok": true,
+  "unresolved": 0,
+  "words": 20,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/vtables_tscreen_g6_tScreenTrackSelect.cpp.o",
+  "section": ".data",
+  "base": 2147557128,
+  "end": 2147557208,
+  "size": 80,
+  "ok": true,
+  "unresolved": 0,
+  "words": 20,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/vtables_tscreen_g7_tScreenTrackInfo.cpp.o",
+  "section": ".data",
+  "base": 2147557240,
+  "end": 2147557320,
+  "size": 80,
+  "ok": true,
+  "unresolved": 0,
+  "words": 20,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/vtables_tscreen_g8_tScreenTrackRecords.cpp.o",
+  "section": ".data",
+  "base": 2147557360,
+  "end": 2147557440,
+  "size": 80,
+  "ok": true,
+  "unresolved": 0,
+  "words": 20,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/vtables_tscreen2_g4_tScreenControllerConfig.cpp.o",
+  "section": ".data",
+  "base": 2147557496,
+  "end": 2147557576,
+  "size": 80,
+  "ok": true,
+  "unresolved": 0,
+  "words": 20,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/vtables_tscreen_g9_tScreenDisplay.cpp.o",
+  "section": ".data",
+  "base": 2147557584,
+  "end": 2147557664,
+  "size": 80,
+  "ok": true,
+  "unresolved": 0,
+  "words": 20,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/vtables_tscreen2_g5_tScreenAudio.cpp.o",
+  "section": ".data",
+  "base": 2147557720,
+  "end": 2147557800,
+  "size": 80,
+  "ok": true,
+  "unresolved": 0,
+  "words": 20,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/vtables_tscreen2_g6_tScreenMemcard.cpp.o",
+  "section": ".data",
+  "base": 2147557928,
+  "end": 2147558008,
+  "size": 80,
+  "ok": true,
+  "unresolved": 0,
+  "words": 20,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/vtables_tscreen_g10_tScreenTournamentCongrats.cpp.o",
+  "section": ".data",
+  "base": 2147558056,
+  "end": 2147558472,
+  "size": 416,
+  "ok": true,
+  "unresolved": 0,
+  "words": 104,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/vtables_tscreen2_g7_tScreenCongrats.cpp.o",
+  "section": ".data",
+  "base": 2147558472,
+  "end": 2147558576,
+  "size": 104,
+  "ok": true,
+  "unresolved": 0,
+  "words": 26,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/vtables_tscreen_g11_tScreenUserName.cpp.o",
+  "section": ".data",
+  "base": 2147559144,
+  "end": 2147559224,
+  "size": 80,
+  "ok": true,
+  "unresolved": 0,
+  "words": 20,
+  "q": 2
+ },
+ {
   "obj": "build/recon/frontend/common/feapp.cpp.o",
   "section": ".data",
   "base": 2147816632,
@@ -143,6 +462,17 @@
   "q": 0
  },
  {
+  "obj": "build/recon/frontend/common/fetourn.cpp.o",
+  "section": ".data",
+  "base": 2147818080,
+  "end": 2147818088,
+  "size": 8,
+  "ok": true,
+  "unresolved": 0,
+  "words": 2,
+  "q": 1
+ },
+ {
   "obj": "build/recon/frontend/common/fememcard.cpp.o",
   "section": ".data",
   "base": 2147818088,
@@ -264,6 +594,17 @@
   "q": 2
  },
  {
+  "obj": "build/recon/frontend/common/screencontroller.cpp.o",
+  "section": ".data",
+  "base": 2147819736,
+  "end": 2147821780,
+  "size": 2044,
+  "ok": true,
+  "unresolved": 7,
+  "words": 504,
+  "q": 2
+ },
+ {
   "obj": "build/recon/frontend/common/screendisplay.cpp.o",
   "section": ".data",
   "base": 2147821784,
@@ -277,12 +618,12 @@
  {
   "obj": "build/recon/frontend/common/screenaudio.cpp.o",
   "section": ".data",
-  "base": 2147821800,
+  "base": 2147821792,
   "end": 2147821804,
-  "size": 4,
+  "size": 12,
   "ok": true,
   "unresolved": 0,
-  "words": 1,
+  "words": 3,
   "q": 2
  },
  {
@@ -330,6 +671,17 @@
   "q": 2
  },
  {
+  "obj": "build/recon/frontend/psx/psxfront.cpp.o",
+  "section": ".data",
+  "base": 2147822168,
+  "end": 2147822180,
+  "size": 12,
+  "ok": true,
+  "unresolved": 1,
+  "words": 2,
+  "q": 0
+ },
+ {
   "obj": "build/recon/frontend/psx/memcard.c.o",
   "section": ".data",
   "base": 2147822200,
@@ -341,6 +693,127 @@
   "q": 2
  },
  {
+  "obj": "build/recon/game/common/vtables_aihigh.cpp.o",
+  "section": ".data",
+  "base": 2147831300,
+  "end": 2147831324,
+  "size": 24,
+  "ok": true,
+  "unresolved": 0,
+  "words": 6,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/vtables_aihigh_g1_AIHigh_BasicPerp.cpp.o",
+  "section": ".data",
+  "base": 2147831404,
+  "end": 2147831428,
+  "size": 24,
+  "ok": true,
+  "unresolved": 0,
+  "words": 6,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/vtables_aihigh_g3_AIHigh_BTC_Wingman.cpp.o",
+  "section": ".data",
+  "base": 2147831492,
+  "end": 2147831516,
+  "size": 24,
+  "ok": true,
+  "unresolved": 0,
+  "words": 6,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/vtables_aihigh_g4_AIHigh_BTC_HumanCop.cpp.o",
+  "section": ".data",
+  "base": 2147831524,
+  "end": 2147831548,
+  "size": 24,
+  "ok": true,
+  "unresolved": 0,
+  "words": 6,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/vtables_aihigh_g5_AIHigh_BTC_Cop.cpp.o",
+  "section": ".data",
+  "base": 2147831556,
+  "end": 2147831580,
+  "size": 24,
+  "ok": true,
+  "unresolved": 0,
+  "words": 6,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/vtables_aihigh_g6_AIHigh_BTC_AIPerp.cpp.o",
+  "section": ".data",
+  "base": 2147831712,
+  "end": 2147831736,
+  "size": 24,
+  "ok": true,
+  "unresolved": 0,
+  "words": 6,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/vtables_aihigh_g7_AIHigh_BTC_HumanPerp.cpp.o",
+  "section": ".data",
+  "base": 2147831744,
+  "end": 2147831768,
+  "size": 24,
+  "ok": true,
+  "unresolved": 0,
+  "words": 6,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/vtables_aihigh_g10_AIHigh_Human.cpp.o",
+  "section": ".data",
+  "base": 2147832008,
+  "end": 2147832032,
+  "size": 24,
+  "ok": true,
+  "unresolved": 0,
+  "words": 6,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/vtables_aihigh_g11_AIHigh_Opponent.cpp.o",
+  "section": ".data",
+  "base": 2147832056,
+  "end": 2147832080,
+  "size": 24,
+  "ok": true,
+  "unresolved": 0,
+  "words": 6,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/vtables_aihigh_g12_AIHigh_Cop.cpp.o",
+  "section": ".data",
+  "base": 2147832148,
+  "end": 2147832172,
+  "size": 24,
+  "ok": true,
+  "unresolved": 0,
+  "words": 6,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/vtables_aihigh_g13_AIHigh_Traffic.cpp.o",
+  "section": ".data",
+  "base": 2147832240,
+  "end": 2147832264,
+  "size": 24,
+  "ok": true,
+  "unresolved": 0,
+  "words": 6,
+  "q": 2
+ },
+ {
   "obj": "build/recon/game/common/vtables_aidatarecord.cpp.o",
   "section": ".data",
   "base": 2147832876,
@@ -349,6 +822,39 @@
   "ok": true,
   "unresolved": 0,
   "words": 38,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/vtables_aistate_g1_AIState_Cruise.cpp.o",
+  "section": ".data",
+  "base": 2147833088,
+  "end": 2147833440,
+  "size": 352,
+  "ok": true,
+  "unresolved": 0,
+  "words": 88,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/vtables_object.cpp.o",
+  "section": ".data",
+  "base": 2147836040,
+  "end": 2147836160,
+  "size": 120,
+  "ok": true,
+  "unresolved": 0,
+  "words": 30,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/vtables_tpausemenu_g4_tPMenu.cpp.o",
+  "section": ".data",
+  "base": 2147836188,
+  "end": 2147836772,
+  "size": 584,
+  "ok": true,
+  "unresolved": 0,
+  "words": 146,
   "q": 2
  },
  {
@@ -795,11 +1301,11 @@
   "obj": "build/recon/syslib/psx/libpress/VLC.c.o",
   "section": ".data",
   "base": 2148755944,
-  "end": 2148755948,
-  "size": 4,
+  "end": 2148755988,
+  "size": 44,
   "ok": true,
   "unresolved": 0,
-  "words": 1,
+  "words": 11,
   "q": 1
  },
  {
@@ -1047,12 +1553,12 @@
  {
   "obj": "build/recon/game/common/aispeeds.cpp.o",
   "section": ".sdata",
-  "base": 2148779448,
+  "base": 2148779440,
   "end": 2148779480,
-  "size": 32,
+  "size": 40,
   "ok": true,
   "unresolved": 0,
-  "words": 8,
+  "words": 10,
   "q": 2
  },
  {
@@ -1375,6 +1881,17 @@
   "q": 2
  },
  {
+  "obj": "build/recon/game/common/textsys.cpp.o",
+  "section": ".sdata",
+  "base": 2148783192,
+  "end": 2148783206,
+  "size": 14,
+  "ok": true,
+  "unresolved": 0,
+  "words": 3,
+  "q": 2
+ },
+ {
   "obj": "build/recon/game/common/track.cpp.o",
   "section": ".sdata",
   "base": 2148783208,
@@ -1498,12 +2015,12 @@
  {
   "obj": "build/recon/game/psx/hrzsku.cpp.o",
   "section": ".sdata",
-  "base": 2148784256,
+  "base": 2148784248,
   "end": 2148784284,
-  "size": 28,
+  "size": 36,
   "ok": true,
   "unresolved": 0,
-  "words": 7,
+  "words": 9,
   "q": 2
  },
  {

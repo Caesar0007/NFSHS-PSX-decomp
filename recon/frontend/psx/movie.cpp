@@ -77,7 +77,11 @@ extern int     isFirstSlice_v[] asm("isFirstSlice");
 #define bStopMovie   bStopMovie_v[0]
 #define bRewindMovie bRewindMovie_v[0]
 #define isFirstSlice isFirstSlice_v[0]
-static DECENV  dec;                                 /* 0x80052d28 */
+/* Same immediate `.bss` emission as its neighbours so it keeps its retail
+ * position BETWEEN isFirstSlice and vlcbuf0 (a plain static would be a
+ * deferred end-of-file .lcomm and land after sect_buff); 8-aligned like the
+ * retail .lcomm placement (0x80052d24 pad, 0x80052d28 dec). */
+static DECENV  dec __attribute__((section(".bss"), aligned(8)));   /* 0x80052d28 */
 static u_long  *vlcbuf0_d asm("vlcbuf0") __attribute__((section(".bss")));   /* 0x80052d58 (.bss=absolute, not .sbss) */
 static u_long  *vlcbuf1_d asm("vlcbuf1") __attribute__((section(".bss")));   /* 0x80052d5c */
 static u_short *imgbuf_d asm("imgbuf") __attribute__((section(".bss")));   /* 0x80052d60 */

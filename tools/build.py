@@ -320,6 +320,9 @@ PER_TU_FLAGS = {
     # the public .comm binding lets ld fold the two into one symbol (placed at
     # the retail base by gen_ld's COMMON leg) instead of two local .sbss copies.
     "recon/eaclib/psx/eacpsxz/unref.c": {"preserve_small_common_binding": True},
+    # textsys.obj is a -G8 TU: its "%s%s" (5B) literal sits in retail .sdata
+    # (0x8013d45c) between wordFile and "p"; at -G4 it went to .rodata.
+    "recon/game/common/textsys.cpp": {"g_value": "8"},
     "recon/eaclib/psx/eacpsxz/unbtree.c": {"preserve_small_common_binding": True},
     # P877: the hash-pinned retail 2.8.1 SN compiler reproduces all16 replay
     # functions and their branch distances in one ordinary compilation. It

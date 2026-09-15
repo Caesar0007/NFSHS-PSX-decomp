@@ -67,10 +67,15 @@ static void AdjustShapeDrawing(tTexture_ShapeInfo *tShp,int *x,int *y,int *flags
   asm("AdjustShapeDrawing__FP18tTexture_ShapeInfoRiN21iPiP18tDrawShapeExtended");
 
 /* ---- PSXFront.obj STAT (file-local) globals ---- */
-static char     *STR_FRMT[2];                       /* SYM-CARRIER: STR_FRMT; 0x80052a54 (sized>G4 -> .bss/absolute, not
-                                                       .sbss/gp-rel -- same device as rendering3DEnvInit__) */
-static u_short   ofs[2];                            /* 0x80052a5c */
-static char      rendering3DEnvInit__[8] asm("rendering3DEnvironmentInitialized");
+/* Retail PSXFront.obj front.data interleaves these INITIALIZED statics with
+ * the initialized globals (0x80052a50 gFadeBrightness / 2a54 STR_FRMT / 2a58
+ * creditShapeFile / 2a5c ofs / 2a60 rendering3DEnvironmentInitialized / 2a64
+ * gHelpShapes): emission at the definition point, 4 bytes each.  STR_FRMT is
+ * a pointer to "%sz%s" -- the literal is the FIRST item of the TU's .rdata
+ * (0x800127e4), 8 bytes ahead of where our .rodata used to start. */
+static char     *STR_FRMT[1] = { "%sz%s" };         /* SYM-CARRIER: STR_FRMT; 0x80052a54 -> 0x800127e4 */
+static u_short   ofs[2] = { 0, 0 };                 /* 0x80052a5c */
+static char      rendering3DEnvInit__[4] asm("rendering3DEnvironmentInitialized") = { 0 };
                                                     /* SYM-CARRIER: rendering3DEnvironmentInitialized;
                                                        0x80052a60 (sized>G4 -> .bss/absolute, not .sbss/gp-rel) */
 #define rendering3DEnvironmentInitialized rendering3DEnvInit__[0]

@@ -8,15 +8,22 @@
 
 /* ---- mpause.obj OWNED globals (Ghidra left $gp-relative; SYM names via disasm-proto,
  *   $gp base 0x8013C54C). EXT = external linkage (other TUs extern these); STAT = file-static. */
-tPauseMenuDefs *gPauseMenuDefs;              /* EXT 0x8013d268 [$gp+0xd1c] */
-bool  gMPauseUpdate;                         /* EXT 0x8013d264 [$gp+0xd18], SYM BOOL */
-bool  gMPauseUpdateNextTime;                 /* EXT 0x8013d240 [$gp+0xcf4], SYM BOOL */
+/* CC1PLPSX emission law: INITIALIZED globals are emitted at their definition
+ * point; uninitialized ones are flushed at end-of-file in first-declaration
+ * order; uninitialized statics become .lcomm in that same order.  Retail
+ * mpause.obj .sdata is 0x8013d240 gMPauseUpdateNextTime / d244 InGame... /
+ * d24c SelectListConfig / d254..d264 MPause_MusicLogic's initialized statics /
+ * d264 gMPauseUpdate / d268 gPauseMenuDefs, and .sbss 0x8013ddb8 kMovingHighlight
+ * / ddba kMovingHighlightDir / ddbc gBackDepth / ddc0 gPauseCurrentMenu. */
+bool  gMPauseUpdateNextTime = 0;             /* EXT 0x8013d240 [$gp+0xcf4], SYM BOOL */
 short InGameSelectListAudioMode[4] = {0x12, 0x11, 0x13, 0};  /* EXT 0x8013d244 -- retail init (w63-a19 E5) */
 short SelectListConfig[4] = {0x17, 0x18, 0x19, 0};           /* EXT 0x8013d24c -- retail init (w63-a19 E5) */
-static tPMenu *gPauseCurrentMenu;            /* STAT 0x8013ddc0 [$gp+0x1874] */
+bool  gMPauseUpdate;                         /* EXT 0x8013d264 [$gp+0xd18], SYM BOOL */
+tPauseMenuDefs *gPauseMenuDefs;              /* EXT 0x8013d268 [$gp+0xd1c] */
 static short  kMovingHighlight;              /* STAT 0x8013ddb8 [$gp+0x186c] */
 static short  kMovingHighlightDir;           /* STAT 0x8013ddba [$gp+0x186e] */
 static int    gBackDepth;                    /* STAT 0x8013ddbc [$gp+0x1870] */
+static tPMenu *gPauseCurrentMenu;            /* STAT 0x8013ddc0 [$gp+0x1874] */
 static tPMenu *gBackList[6];                 /* STAT 0x8013e0c0 */
 
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
@@ -123,12 +130,13 @@ tPauseMenuDefs::~tPauseMenuDefs()
 void MPause_MusicLogic(char active)
 
 {
-  static char wasActive;
-  static char testSFX;
-  static char playingSFX;
-  static int vol;
-  static int SFXHandle;
-  static int lastplaytick;
+  /* initialized => emitted into .sdata at this function (retail 0x8013d254..0x8013d264: 0,0,0,pad / 0x7f / 0 / 0) */
+  static char wasActive = 0;
+  static char testSFX = 0;
+  static char playingSFX = 0;
+  static int vol = 0x7f;
+  static int SFXHandle = 0;
+  static int lastplaytick = 0;
   int sndover;
   int samp;
   

@@ -3,6 +3,29 @@
  *   GTE-transformed particle rendering. GTE COP2 ops via PsyQ libgte macros (weather_externs.h).
  */
 #include "weather_types.h"
+
+/* CC1PLPSX emission law (00_current_nfs4 15g): an INITIALIZED global is
+ * emitted at its definition point; an UNINITIALIZED one is flushed at end of
+ * file in FIRST-DECLARATION order (an extern declaration counts); an
+ * initialized function-static is emitted when its function compiles.  These
+ * forward declarations pin the deferred half of retail weather.obj's .sdata
+ * (0x8013dbc4..0x8013dc10) ahead of weather_externs.h's own order. */
+extern CWeatherSpec *Weather_gTrackSpec;
+extern Weather_tSplatInfo *Weather_gSplatInfoServer[2];
+extern SVECTOR *Weather_gPServer[2];
+extern DVECTOR *Weather_gPrevPServer[2];
+extern char *Weather_gDrawnServer[2];
+extern long Weather_gLastTimeProcessed;
+extern Weather_tState Weather_gType;
+extern int Weather_gDensityGoalState;
+extern int Weather_gIntensityGoalState;
+extern int Weather_gDensityChangeFactor;
+extern int Weather_gIntensityChangeFactor;
+extern int Weather_gDensityTimerGoal;
+extern int Weather_gIntensityTimerGoal;
+extern int Weather_gSnowTrack;
+extern int Weather_gTrackIntensityLimit;
+
 #include "weather_externs.h"
 
 /* This TU's original obj (WEATHER.CPP) reaches the packet/palette scratchpad pointers via their
@@ -15,47 +38,50 @@
 
 
 
-/* SYM records one file-static `int Weather_gLastProcessTime[2]` at 0x8013DE54.
- * The explicit `.sbss` placement is the compiler-native storage carrier that
- * reproduces both retail access forms under this reconstruction's -G4 build:
- * constant [0]/[1] stores become one-insn %gp_rel accesses, while a runtime
- * index naturally materializes the absolute array base.  Keeping both access
- * forms on this one real object also preserves the retail scheduler's exact
- * `lui ticks / sll player / lui-addiu array` order in Weather_DoWeather. */
-static int Weather_gLastProcessTime[2] __attribute__((section(".sbss")));
+/* Retail weather.obj .sbss: 0x8013de4c timechange, then the 8-aligned
+ * 0x8013de54 `int Weather_gLastProcessTime[2]` (SYM STAT).  Uninitialized
+ * file-statics become end-of-file .lcomm in first-declaration order, so
+ * timechange is declared first.  (weather is a -G8 TU: the 8-byte array is
+ * small-data eligible, giving the %gp_rel constant-index stores and the
+ * absolute runtime-index base in Weather_DoWeather without a section attr.) */
+static int timechange;                         /* @0x8013de4c SYM STAT */
+static int Weather_gLastProcessTime[2];        /* @0x8013de54 SYM STAT */
 #define WEATHER_GLASTPROCESSTIME0 Weather_gLastProcessTime[0]
 #define WEATHER_GLASTPROCESSTIME1 Weather_gLastProcessTime[1]
 
-/* Retail SYM records four real two-element pointer arrays.  weather.obj is a
- * proven -G8 TU, so these 8-byte objects remain small-data eligible without
- * split element globals or assembler-label array views. */
+/* Retail weather.obj .sdata 0x8013dba0..0x8013dc10, in emission order:
+ *   dba0 gCurrentNumSplats .. dbb0 gPrevPos   INITIALIZED here (top of file)
+ *   dbb4 / dbbc                              Weather_DoWeather's initialized
+ *                                            statics prevLookBehind/prevCameraMode
+ *   dbc4 gTrackSpec .. dc0c gTrackIntensityLimit  deferred (uninitialized), in
+ *                                            the first-declaration order pinned
+ *                                            above weather_externs.h.
+ * All are gp-rel at -G8 either way; only the emission order differs. */
+int gCurrentNumSplats = 0;                     /* @0x8013dba0 */
+char *Weather_gWasDrawn = 0;                   /* @0x8013dba4 */
+SVECTOR *Weather_gPos = 0;                     /* @0x8013dba8 */
+Weather_tSplatInfo *Weather_gSplatInfo = 0;    /* @0x8013dbac */
+DVECTOR *Weather_gPrevPos = 0;                 /* @0x8013dbb0 */
+
+CWeatherSpec *Weather_gTrackSpec;              /* @0x8013dbc4 */
+/* Retail SYM records four real two-element pointer arrays (8 bytes each). */
 Weather_tSplatInfo *Weather_gSplatInfoServer[2];   /* @0x8013dbc8 */
 SVECTOR            *Weather_gPServer[2];           /* @0x8013dbd0 */
 DVECTOR            *Weather_gPrevPServer[2];       /* @0x8013dbd8 */
 char               *Weather_gDrawnServer[2];       /* @0x8013dbe0 */
+long Weather_gLastTimeProcessed;               /* @0x8013dbe8 SYM EXT (unreferenced) */
+Weather_tState Weather_gType;                  /* @0x8013dbec */
+int Weather_gDensityGoalState;                 /* @0x8013dbf0 */
+int Weather_gIntensityGoalState;               /* @0x8013dbf4 */
+int Weather_gDensityChangeFactor;              /* @0x8013dbf8 */
+int Weather_gIntensityChangeFactor;            /* @0x8013dbfc */
+int Weather_gDensityTimerGoal;                 /* @0x8013dc00 */
+int Weather_gIntensityTimerGoal;               /* @0x8013dc04 */
+int Weather_gSnowTrack;                        /* @0x8013dc08 */
+int Weather_gTrackIntensityLimit;              /* @0x8013dc0c */
 
 /* GameSetup_gData uses its canonical aggregate declaration.  Direct typed field
  * reads reproduce retail, so weather.cpp needs no word-array or scalar alias. */
-
-/* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
- * but OWNED here; tentative defs -> cc1 `.comm` -> stock maspsx gp-rels them
- * (matches the oracle's %gp_rel). section 3.12 #6. (auto: gen_gprel_defs.py) */
-CWeatherSpec *Weather_gTrackSpec;
-DVECTOR *Weather_gPrevPos;
-SVECTOR *Weather_gPos;
-Weather_tSplatInfo *Weather_gSplatInfo;
-char *Weather_gWasDrawn;
-int Weather_gDensityChangeFactor;
-int Weather_gDensityGoalState;
-int Weather_gDensityTimerGoal;
-int Weather_gIntensityChangeFactor;
-int Weather_gIntensityGoalState;
-int Weather_gIntensityTimerGoal;
-int Weather_gSnowTrack;
-int Weather_gTrackIntensityLimit;
-Weather_tState Weather_gType;
-static int timechange;                         /* @0x8013de4c SYM STAT */
-int gCurrentNumSplats;
 
 /* ---- Weather_GetNumParticles__Fi  [WEATHER.CPP:107-108] SLD-VERIFIED ---- */
 int Weather_GetNumParticles(int player)
@@ -1460,8 +1486,10 @@ void Weather_DoWeather(DRender_tView *Vi)
   DVECTOR *wprevpt;
   char *wd;
   int player;
-  static int prevLookBehind[2]; /* SYM STAT ARY INT[2], record offset 0x14 */
-  static int prevCameraMode[2]; /* SYM STAT ARY INT[2], record offset 0x1c */
+  /* Initialized function-statics: emitted into .sdata when this function is
+   * compiled = retail's two anonymous -1 pairs D_8013DBB4 / D_8013DBBC. */
+  static int prevLookBehind[2] = {-1, -1}; /* SYM STAT ARY INT[2], record offset 0x14 */
+  static int prevCameraMode[2] = {-1, -1}; /* SYM STAT ARY INT[2], record offset 0x1c */
   int ab;
   int clean_up;
   int i;

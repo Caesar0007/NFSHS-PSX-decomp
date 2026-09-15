@@ -14,8 +14,13 @@ typedef struct tPsyQPrimTag {
 /* ---- FEApp.obj-OWNED globals -- DEFINED here (self-contained; .bss zero; types match the
    feapp_externs.h decls all FE TUs consume). FEApp = the global FE application pointer. ---- */
 /* P870: native SYM 4b4f25 is scalar ULONG. Frontend's -G0 lane preserves
-   retail addressing without the old array carrier; keep declaration order. */
-u_long          gLargestUnused;   /* @0x800514b8 */
+   retail addressing without the old array carrier; keep declaration order.
+   CC1PLPSX emission law: an INITIALIZED global is emitted at its definition
+   point, an uninitialized one is deferred to end-of-file.  Retail FEApp.obj
+   .data is gLargestUnused(14b8) / RunDemoVideo's currentVideo(14bc) /
+   FEApp(14c0), so gLargestUnused carries an initializer (emitted here, before
+   RunDemoVideo's initialized function-static) and FEApp stays deferred. */
+u_long          gLargestUnused = 0;   /* @0x800514b8 */
 tFEApplication *FEApp;            /* @0x800514c0  global FE application pointer */
 
 inline tDialogBase::tDialogBase()
@@ -56,14 +61,6 @@ inline tDialogMessageStringWithTimeout::tDialogMessageStringWithTimeout()
 {
   _vf = (__typeof__(_vf))tDialogMessageStringWithTimeout_vtable;   /* w76-A20 vptr-store alias dial (24A) */
   timeOutTicks = 0x480;
-}
-
-/* Retail SYM owns this STAT destructor in FEApp.obj, and SLD identifies its
- * original definition as FEDIALOG.H:215.  It is materialized beside the
- * FEApp-owned class surface because reconstructed vtables are data-only TUs;
- * the natural C++ destructor still emits retail's exact call to ~tScreen. */
-tDialogMessageStringWithTimeout::~tDialogMessageStringWithTimeout()
-{
 }
 
 inline tDialogNoInputMessage::tDialogNoInputMessage()
@@ -796,7 +793,7 @@ static void FreeHelpShapeCluts(void)
 void tFEApplication::RunDemoVideo()
 
 {
-  static int currentVideo;
+  static int currentVideo = 0;   /* initialized => .data @0x800514bc (not .lcomm) */
   char buffer [40];
 
   if ((tMenuNFS4 *)this->fCurrentMenu[0] == &menuDefs->menuMain) {
@@ -1492,3 +1489,16 @@ tAppCommand tFEApplication::RunFrontEnd()
 }
 
 /* end of feapp.cpp */
+
+/* Retail SYM owns this STAT destructor in FEApp.obj, and SLD identifies its
+ * original definition as FEDIALOG.H:215 (a header-inline dtor whose
+ * out-of-line copy g++ emits at end-of-file, hence retail's 0x80015760 = the
+ * LAST function of the object, right after RunFrontEnd).  It is materialized
+ * beside the FEApp-owned class surface because reconstructed vtables are
+ * data-only TUs; defining it LAST here reproduces that text position (a
+ * definition at the top shifted the whole object by 0x20 and got it dropped
+ * from the placed link).  The natural C++ destructor still emits retail's
+ * exact call to ~tScreen. */
+tDialogMessageStringWithTimeout::~tDialogMessageStringWithTimeout()
+{
+}

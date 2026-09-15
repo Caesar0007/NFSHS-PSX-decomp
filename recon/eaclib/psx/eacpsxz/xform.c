@@ -1,7 +1,6 @@
 /* eaclib/psx/eacpsxz/xform.cpp -- RECONSTRUCTED from nfs4-f.exe. NOT original source.
  *   Source obj : nfs4\eaclib\psx\xform.obj ; archive C:\nfs4\EACLIB\PSX\EACPSXZ.LIB (xlsx col10)
- *   4 fns (non-contiguous text): xformy@0x800E5AC4, fixedxformx@0x800EABAC,
- *   fixedxformy@0x800EAC10, fixedxformz@0x800EAC74. Single-axis rotation-matrix builders.
+ *   1 fn: xformy@0x800E5AC4 (fixedxformx/y/z @0x800EABAC.. are fxform.obj -> fxform.c).
  *   FULL reconstruction of the actual code (disasm-v3 MIPS); NOT stubs/thunks. C-linkage XDEFs.
  *
  *   Each writes a 3x3 (matrixtdef = int m[9], 16.16 fixed) rotation about one axis.  The angle
@@ -34,41 +33,5 @@ void xformy(matrixtdef *out, int angle)
     out->m[6] = s;  out->m[7] = 0;        out->m[8] = c;
 }
 
-/* fixedxformx @0x800EABAC : X-axis rotation (fixed angle). */
-void fixedxformx(matrixtdef *out, int angle)
-{
-    int s;
-    int c;
-
-    fixedsincos(angle, &s, &c);
-    /* direct out->m[] index (no `int *m` hoist) -- keeps c/s register-live (lever #1) */
-    out->m[0] = 0x10000;  out->m[1] = 0;   out->m[2] = 0;
-    out->m[3] = 0;        out->m[4] = c;   out->m[5] = s;
-    out->m[6] = 0;        out->m[7] = -s;  out->m[8] = c;
-}
-
-/* fixedxformy @0x800EAC10 : Y-axis rotation (fixed angle). */
-void fixedxformy(matrixtdef *out, int angle)
-{
-    int s;
-    int c;
-
-    fixedsincos(angle, &s, &c);
-    /* direct out->m[] index (no `int *m` hoist) -- keeps c/s register-live (lever #1) */
-    out->m[0] = c;  out->m[1] = 0;        out->m[2] = -s;
-    out->m[3] = 0;  out->m[4] = 0x10000;  out->m[5] = 0;
-    out->m[6] = s;  out->m[7] = 0;        out->m[8] = c;
-}
-
-/* fixedxformz @0x800EAC74 : Z-axis rotation (fixed angle). */
-void fixedxformz(matrixtdef *out, int angle)
-{
-    int s;
-    int c;
-
-    fixedsincos(angle, &s, &c);
-    /* direct out->m[] index (no `int *m` hoist) -- keeps c/s register-live (lever #1) */
-    out->m[0] = c;   out->m[1] = s;  out->m[2] = 0;
-    out->m[3] = -s;  out->m[4] = c;  out->m[5] = 0;
-    out->m[6] = 0;   out->m[7] = 0;  out->m[8] = 0x10000;
-}
+/* fixedxformx/y/z (0x800EABAC..0x800EACD8) belong to fxform.obj -> fxform.c;
+ * xform.obj owns only xformy. */

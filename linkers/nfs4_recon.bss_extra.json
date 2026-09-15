@@ -130,6 +130,16 @@
   "q": 1
  },
  {
+  "obj": "build/recon/game/common/mpause.cpp.o",
+  "section": ".sbss",
+  "base": 2148785592,
+  "end": 2148785604,
+  "size": 12,
+  "ok": true,
+  "votes": 33,
+  "q": 1
+ },
+ {
   "obj": "build/recon/game/common/pausemenu.cpp.o",
   "section": ".sbss",
   "base": 2148785604,
@@ -178,6 +188,16 @@
   "ok": true,
   "votes": 8,
   "q": 2
+ },
+ {
+  "obj": "build/recon/game/psx/weather.cpp.o",
+  "section": ".sbss",
+  "base": 2148785740,
+  "end": 2148785756,
+  "size": 16,
+  "ok": true,
+  "votes": 8,
+  "q": 1
  },
  {
   "obj": "build/recon/eaclib/psx/eacpsxz/locatbig.c.o",

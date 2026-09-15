@@ -3,12 +3,12 @@
   "obj": "build/recon/frontend/common/feapp.cpp.o",
   "section": ".data",
   "base": 2147816632,
-  "end": 2147816640,
-  "size": 8,
+  "end": 2147816644,
+  "size": 12,
   "ok": true,
   "unresolved": 0,
-  "words": 2,
-  "q": 0
+  "words": 3,
+  "q": 2
  },
  {
   "obj": "build/recon/frontend/common/feaudio.cpp.o",
@@ -459,6 +459,17 @@
   "ok": true,
   "unresolved": 0,
   "words": 27,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/aispeeds.cpp.o",
+  "section": ".data",
+  "base": 2148588768,
+  "end": 2148589076,
+  "size": 308,
+  "ok": true,
+  "unresolved": 0,
+  "words": 77,
   "q": 2
  },
  {
@@ -1221,6 +1232,17 @@
   "q": 2
  },
  {
+  "obj": "build/recon/game/common/mpause.cpp.o",
+  "section": ".sdata",
+  "base": 2148782656,
+  "end": 2148782700,
+  "size": 44,
+  "ok": true,
+  "unresolved": 0,
+  "words": 11,
+  "q": 2
+ },
+ {
   "obj": "build/recon/game/common/new.cpp.o",
   "section": ".sdata",
   "base": 2148782700,
@@ -1339,7 +1361,7 @@
   "ok": true,
   "unresolved": 0,
   "words": 34,
-  "q": 0
+  "q": 2
  },
  {
   "obj": "build/recon/game/common/trgsfx.cpp.o",
@@ -1537,6 +1559,17 @@
   "ok": true,
   "unresolved": 0,
   "words": 1,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/psx/weather.cpp.o",
+  "section": ".sdata",
+  "base": 2148785056,
+  "end": 2148785168,
+  "size": 112,
+  "ok": true,
+  "unresolved": 0,
+  "words": 28,
   "q": 2
  },
  {

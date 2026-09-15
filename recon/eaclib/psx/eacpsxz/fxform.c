@@ -10,7 +10,7 @@
 
 /* fixedxformx : rotation about X.  The cv/sv value aliases keep both fixedsincos
  * outputs live in the retail registers through the matrix stores. */
-static int fixedxformx(int *out, int angle)   /* @0x800EABAC */
+int fixedxformx(int *out, int angle)   /* @0x800EABAC */
 {
     int s, c;
     int cv, sv;
@@ -23,7 +23,7 @@ static int fixedxformx(int *out, int angle)   /* @0x800EABAC */
 }
 
 /* fixedxformy : rotation about Y.  See fixedxformx for the value-alias rationale. */
-static int fixedxformy(int *out, int angle)   /* @0x800EAC10 */
+int fixedxformy(int *out, int angle)   /* @0x800EAC10 */
 {
     int s, c;
     int cv, sv;
@@ -36,7 +36,7 @@ static int fixedxformy(int *out, int angle)   /* @0x800EAC10 */
 }
 
 /* fixedxformz : rotation about Z.  See fixedxformx for the value-alias rationale. */
-static int fixedxformz(int *out, int angle)   /* @0x800EAC74 */
+int fixedxformz(int *out, int angle)   /* @0x800EAC74 */
 {
     int s, c;
     int cv, sv;

@@ -3,6 +3,29 @@
  *   object bounding spheres, kill data, SaveSurface class. GTE-free. Full SYM-locals applied.
  */
 #include "track_types.h"
+
+/* CC1PLPSX emission law: uninitialized globals are flushed at end-of-file in
+ * FIRST-DECLARATION order (an extern declaration counts).  These forward
+ * declarations pin retail track.obj's .sdata order 0x8013d4ac..0x8013d4f0
+ * ahead of the alphabetical track_externs.h declarations. */
+extern short (*Track_gInViewList)[32];
+extern u_char *Track_gInViewCount;
+extern TrackHeader *Track_header;
+extern Chunk *Track_chunkList;
+extern Group *gPersistObjDef;
+extern Group *gPersistObjInst;
+extern Group *gPersistMidgroundObjInst;
+extern Group *gPersistObjDefBoundingSpheres;
+extern SaveSurface *Track_gSaveSurface;
+extern Track_tMaterial *Track_materials;
+extern Trk_ObjectDef **Track_gObjDefs;
+extern SimpleMem *Track_mem;
+extern int gtrackNumber;
+extern Group *gObjDefOffsetsGroup;
+extern int Track_gControllerCount;
+extern Track_tMaterialController *Track_gMatController;
+extern int Chunk_numLight;
+
 #include "track_externs.h"
 
 /* Track.obj-owned aggregate data.  SYM gives the exact types and contiguous

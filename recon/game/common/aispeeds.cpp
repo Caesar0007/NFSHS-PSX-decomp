@@ -22,9 +22,11 @@ extern int AI_elapsedTime;   /* @0x8013C554 (ai.cpp:15) -- AI frame elapsed-time
 
 
 /* ---- aispeeds.obj-owned globals (.bss zero) ---- */
-AISpeeds_Upgrade_t engineUpgrade;   /* @0x8010dce0  (bss(zero)) */
-AISpeeds_Upgrade_t suspensionUpgrade;   /* @0x8010dcf0  (bss(zero)) */
-AISpeeds_Upgrade_t aeroUpgrade;   /* @0x8010dd00  (bss(zero)) */
+/* Initialized => emitted HERE (retail 0x8010dce0/dcf0/dd00, i.e. BEFORE
+ * Track2Speeds); an uninitialized C++ global is deferred to end-of-file. */
+AISpeeds_Upgrade_t engineUpgrade = {0};   /* @0x8010dce0  (zero) */
+AISpeeds_Upgrade_t suspensionUpgrade = {0};   /* @0x8010dcf0  (zero) */
+AISpeeds_Upgrade_t aeroUpgrade = {0};   /* @0x8010dd00  (zero) */
 speedData_t  Track2Speeds[9] = { {50u, 3982u}, {196u, 7395u}, {293u, 7395u}, {332u, 3982u}, {390u, 7395u}, {624u, 7395u}, {665u, 3982u}, {1026u, 7395u}, {10000u, 3982u} };   /* @0x8010dd10 */
 speedData_t  Track3Speeds[3] = { {7u, 5688u}, {236u, 3555u}, {10000u, 5688u} };   /* @0x8010dd34 */
 speedData_t  Track5Speeds[3] = { {369u, 7964u}, {674u, 5688u}, {10000u, 7964u} };   /* @0x8010dd40 */

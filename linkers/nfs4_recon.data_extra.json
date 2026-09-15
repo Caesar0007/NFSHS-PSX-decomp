@@ -363,6 +363,17 @@
   "q": 2
  },
  {
+  "obj": "build/recon/game/common/aihigh.cpp.o",
+  "section": ".data",
+  "base": 2148584760,
+  "end": 2148584796,
+  "size": 36,
+  "ok": true,
+  "unresolved": 0,
+  "words": 9,
+  "q": 2
+ },
+ {
   "obj": "build/recon/game/common/aih_basicperp.cpp.o",
   "section": ".data",
   "base": 2148584796,
@@ -767,6 +778,17 @@
   "ok": true,
   "unresolved": 0,
   "words": 40,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/syslib/psx/libgpu/SYS.c.o",
+  "section": ".data",
+  "base": 2148677204,
+  "end": 2148677612,
+  "size": 408,
+  "ok": true,
+  "unresolved": 0,
+  "words": 102,
   "q": 2
  },
  {

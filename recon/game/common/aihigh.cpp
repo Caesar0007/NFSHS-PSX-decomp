@@ -22,14 +22,18 @@ extern "C" void ___15AIHigh_BTC_Perp(void *);   /* ~AIHigh_BTC_Perp */
 /* These two retail vtables have exact addresses/entries but no `_vt.*` SYM
    record, so the original source-level materialization site is not unique.
    SYM-GLOBAL-CARRIER: AIHigh_kVtbl_80054dcc
-   SYM-GLOBAL-CARRIER: AIHigh_None_vtable */
-__vtbl_ptr_type AIHigh_kVtbl_80054dcc[4] = {   /* @0x80054dcc  BTC_Perp-family abstract vtable: {null, __pure_virtual, ~AIHigh_BTC_Perp, AIHigh_BasicPerp::CheckForCrimes}. Distinct from size-3 AIHigh_BTC_Perp_vtable@0x80054fe0. Address-name = #148 cleanup carry-over. */
+   SYM-GLOBAL-CARRIER: AIHigh_None_vtable
+   Retail keeps both in aihigh.obj's .rdata (0x80054dcc/0x80054dec, right
+   before _vt.11AIHigh_Base @0x80054e04); its .data starts at highLevelAIObjs
+   (0x8010cd38), so these carriers live in .rodata, not .data. */
+#define AIHIGH_RDATA __attribute__((section(".rodata")))
+__vtbl_ptr_type AIHigh_kVtbl_80054dcc[4] AIHIGH_RDATA = {   /* @0x80054dcc  BTC_Perp-family abstract vtable: {null, __pure_virtual, ~AIHigh_BTC_Perp, AIHigh_BasicPerp::CheckForCrimes}. Distinct from size-3 AIHigh_BTC_Perp_vtable@0x80054fe0. Address-name = #148 cleanup carry-over. */
   {0, 0, (int (*)(...))0},                                  /* @0x80054dcc */
   {0, 0, (int (*)(...))&__pure_virtual},                    /* @0x80054dd4  fn=0x800e4354 __pure_virtual */
   {0, 0, (int (*)(...))&___15AIHigh_BTC_Perp},           /* @0x80054ddc  fn=0x8005b438 ~AIHigh_BTC_Perp */
   {0, 0, (int (*)(...))&AIHigh_BasicPerp::CheckForCrimes},  /* @0x80054de4  fn=0x8005b500 */
 };
-__vtbl_ptr_type AIHigh_None_vtable[3] = {   /* @0x80054dec (AIHigh_None vtable) */
+__vtbl_ptr_type AIHigh_None_vtable[3] AIHIGH_RDATA = {   /* @0x80054dec (AIHigh_None vtable) */
   {0, 0, (int (*)(...))0},                                  /* @0x80054dec */
   {0, 0, (int (*)(...))&AIHigh_None::HighExecute},          /* @0x80054df4  fn=0x8005b460 */
   {0, 0, (int (*)(...))&___11AIHigh_None},               /* @0x80054dfc  fn=0x8005b468 ~AIHigh_None */

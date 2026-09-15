@@ -44,6 +44,17 @@
   "q": 1
  },
  {
+  "obj": "build/recon/game/common/aihigh.cpp.o",
+  "section": ".rodata",
+  "base": 2147831244,
+  "end": 2147831300,
+  "size": 56,
+  "ok": true,
+  "unresolved": 0,
+  "words": 14,
+  "q": 2
+ },
+ {
   "obj": "build/recon/game/common/aih_cop.cpp.o",
   "section": ".rodata",
   "base": 2147832172,
@@ -118,6 +129,17 @@
   "ok": true,
   "unresolved": 0,
   "words": 8,
+  "q": 1
+ },
+ {
+  "obj": "build/recon/syslib/psx/libgpu/SYS.c.o",
+  "section": ".rodata",
+  "base": 2147839192,
+  "end": 2147839722,
+  "size": 530,
+  "ok": true,
+  "unresolved": 0,
+  "words": 132,
   "q": 1
  },
  {

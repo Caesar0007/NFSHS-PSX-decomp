@@ -773,8 +773,26 @@ def main():
     A("    .sbss  : SUBALIGN(4) { *(.sbss); }")
     A("    .bss   : SUBALIGN(4) { *(.bss); *(.bss.*); *(COMMON); }")
     A("    .data_rest : SUBALIGN(4) { *(.data); *(.sdata); *(.text); }")
+    # The discarded *_legacy pieces also carry VA-named alias labels (D_<hex>)
+    # that recon .text references (aih_cop/aiphysic: D_8011E0B0 ==
+    # &simGlobal.gameTicks).  An absolute script assignment beats the
+    # discarded definition, so those relocs bind to the retail VA.
+    legacy_syms = {}
+    for o in sorted((ROOT / "build" / "asm" / "data").glob("*.s.o")):
+        out = subprocess.run([OBJDUMP, "-t", str(o)], capture_output=True, text=True).stdout
+        for ln in out.splitlines():
+            m = re.match(r"^([0-9a-f]{8})\s+\S.*?\s(\S*_legacy\S*)\s+[0-9a-f]{8}\s+(D_([0-9A-Fa-f]{8}))$", ln)
+            if m:
+                legacy_syms[m.group(3)] = int(m.group(4), 16)
+    for name, va in sorted(legacy_syms.items()):
+        A(f"    {name} = {va:#x};")
+    A("    /* *_legacy residual pieces are ORACLE-ONLY (a recon TU owns those")
+    A("     * retail bytes); linked as orphans they landed in the catch-all and")
+    A("     * their alias labels (D_8011E0B0 = simGlobal.gameTicks) out-bound the")
+    A("     * retail-VA PROVIDEs.  Discard them so the PROVIDE wins. */")
     A("    /DISCARD/ : { *(.pdr); *(.reginfo); *(.MIPS.abiflags);"
-      " *(.gnu.attributes); *(.comment); *(.mdebug*); }")
+      " *(.gnu.attributes); *(.comment); *(.mdebug*);"
+      " *(.data.*_legacy); *(.sdata.*_legacy); }")
     A("}")
     TARGET.write_text("\n".join(L) + "\n")
 

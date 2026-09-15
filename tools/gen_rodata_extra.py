@@ -111,6 +111,11 @@ def aof(name):
     # (aihigh .data @0x8010cd00: highLevelAIObjs).
     if name.startswith('___') and f'_._{name[3:]}' in sym:
         return sym[f'_._{name[3:]}']
+    # address-named carriers for retail data the SYM leaves anonymous
+    # (AIHigh_kVtbl_80054dcc: the abstract BTC_Perp-family vtable).
+    m = re.search(r'_([0-9A-Fa-f]{8})$', name)
+    if m and 0x80010000 <= int(m.group(1), 16) < 0x80150000:
+        return int(m.group(1), 16)
     return None
 
 def run(*a):

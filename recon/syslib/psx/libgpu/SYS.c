@@ -275,7 +275,9 @@ extern void _memset(char *p, int c, int n);
 #define SYS_DATA __attribute__((section(".data")))
 
 static GpuTbl _gpu_tbl SYS_DATA = {              /* +0x000 @0x80123654 */
-    "GPU",                                        /* @0x80056cd8 */
+    /* retail _gpu_tbl[0] -> 0x80056cd8 = the module's RCS id string (the first
+     * item of SYS.obj's .rdata, 0x38 bytes incl. padding, then "ResetGraph:jtb"). */
+    "$Id: sys.c,v 1.140 1998/01/12 07:52:27 noda Exp yos $",   /* @0x80056cd8 */
     _que_ref, _gpu_que_push, (QueFunc)_BlitClear, _send_gp1, _send_gp0,
     _gpu_dma_chain, (QueFunc)_drs, (QueFunc)_dws, _gpu_que_drain, _get_gp1, _clearOTagR_dma,
     _get_gpuinfo, _reset, _get_status, _sync
@@ -424,6 +426,29 @@ extern int ResetGraph(int mode)
     return GEnv_drv->reset(1);
 }
 
+/* String-only survivors of UNUSED static inlines in the 1.140 source (CC1PSX
+ * emits an unused static inline's string literals at its definition point
+ * and drops the body -- scratchpad emit/t2.c): retail SYS.obj .rdata carries
+ * these three between "ResetGraph(%d)" and "SetDispMask(%d)" with no code. */
+static __inline__ int SetGraphDebug(int level, int type, int reverse)
+{
+    if (GEnv.debug >= 1)
+        GPU_printf("SetGraphDebug:level:%d,type:%d reverse:%d\n", level, type, reverse);   /* @0x80056D44 */
+    GEnv.debug = level;
+    return level;
+}
+static __inline__ int SetGraphQue(int size)
+{
+    if (GEnv.debug >= 2)
+        GPU_printf("SetGrapQue(%d)...\n", size);    /* @0x80056D70 (retail's own typo) */
+    return size;
+}
+static __inline__ void DrawSyncCallback(void (*func)(void))
+{
+    if (GEnv.debug >= 2)
+        GPU_printf("DrawSyncCallback(%08x)...\n", func);   /* @0x80056D84 */
+}
+
 /* @0x800ED7E4 : turn the display on (mask!=0) or off (mask==0). */
 extern void SetDispMask(int mask)
 {
@@ -480,6 +505,19 @@ extern int ClearImage(void *rect, unsigned char r, unsigned char g, unsigned cha
      * the saved `b` copy moves into _image's jal delay slot exactly as retail. */
     int color;
     _image("ClearImage", rect);                  /* @0x80056dec */
+    color = ((b & 0xff) << 16) | ((g & 0xff) << 8) | (r & 0xff);
+    return GEnv_drv->que_push(GEnv_drv->blit_clear, (u_long *)rect, 8, color);
+}
+
+/* Retail SYS.obj has NO ClearImage2 code but its .rdata carries "ClearImage2"
+ * between "ClearImage" and "LoadImage" (0x80056df8).  CC1PSX emits the string
+ * literals of an UNUSED static inline at its definition point while dropping
+ * the body (verified: scratchpad emit/t2.c), which is exactly what a
+ * static-inline ClearImage2 in the 1.140 source leaves behind. */
+static __inline__ int ClearImage2(void *rect, unsigned char r, unsigned char g, unsigned char b)
+{
+    int color;
+    _image("ClearImage2", rect);                 /* @0x80056df8 (string only) */
     color = ((b & 0xff) << 16) | ((g & 0xff) << 8) | (r & 0xff);
     return GEnv_drv->que_push(GEnv_drv->blit_clear, (u_long *)rect, 8, color);
 }
@@ -662,6 +700,15 @@ extern int MoveImage(void *rect, int x, int y)
 }
 
 /* @0x800EDC08 : clear an ordering table in reverse, then append the fixed terminator tail. */
+/* string-only unused static inline (see SetGraphDebug): "ClearOTag" precedes
+ * "ClearOTagR" in retail .rdata. */
+static __inline__ u_long *ClearOTag(u_long *ot, int n)
+{
+    if (GEnv.debug >= 2)
+        GPU_printf("ClearOTag(%08x,%d)...\n", ot, n);   /* @0x80056E24 */
+    return ot;
+}
+
 extern u_long *ClearOTagR(u_long *ot, int n)
 {
     /* W52-A3: psyz's `ClearOTagR` returns the OT pointer -- the oracle keeps `$v0 = $s0`
@@ -744,6 +791,14 @@ extern void *PutDrawEnv(void *env)
 }
 
 /* @0x800EDDE4 : program the GPU display environment (display area, mode, H/V ranges). */
+/* string-only unused static inline (see SetGraphDebug): "DrawOTagEnv" sits
+ * between "PutDrawEnv" and "PutDispEnv" in retail .rdata. */
+static __inline__ void DrawOTagEnv(u_long *p, void *env)
+{
+    if (GEnv.debug >= 2)
+        GPU_printf("DrawOTagEnv(%08x,&08x)...\n", p, env);   /* @0x80056E90 (retail's own '&08x') */
+}
+
 extern void *PutDispEnv(void *env)
 {
     /* W55-A8/W56 (319 -> 54 diffs, count now EXACT 318/318, frame EXACT 0x20 with s0/s1/s2).

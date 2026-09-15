@@ -6,7 +6,8 @@
   "end": 2147822424,
   "size": 32,
   "ok": true,
-  "votes": 6
+  "votes": 6,
+  "q": 1
  },
  {
   "obj": "build/recon/frontend/common/feinput.cpp.o",
@@ -15,7 +16,8 @@
   "end": 2147822440,
   "size": 8,
   "ok": true,
-  "votes": 2
+  "votes": 2,
+  "q": 1
  },
  {
   "obj": "build/recon/frontend/common/fememcard.cpp.o",
@@ -24,7 +26,8 @@
   "end": 2147822480,
   "size": 40,
   "ok": true,
-  "votes": 5
+  "votes": 5,
+  "q": 1
  },
  {
   "obj": "build/recon/frontend/common/screenmain.cpp.o",
@@ -33,7 +36,8 @@
   "end": 2147822576,
   "size": 89,
   "ok": true,
-  "votes": 4
+  "votes": 4,
+  "q": 1
  },
  {
   "obj": "build/recon/frontend/common/screenpinkslips.cpp.o",
@@ -42,7 +46,8 @@
   "end": 2147822612,
   "size": 24,
   "ok": true,
-  "votes": 2
+  "votes": 2,
+  "q": 2
  },
  {
   "obj": "build/recon/frontend/common/screencarselect.cpp.o",
@@ -51,7 +56,8 @@
   "end": 2147822722,
   "size": 106,
   "ok": true,
-  "votes": 6
+  "votes": 6,
+  "q": 2
  },
  {
   "obj": "build/recon/frontend/common/screentournselect.cpp.o",
@@ -60,7 +66,8 @@
   "end": 2147822752,
   "size": 16,
   "ok": true,
-  "votes": 2
+  "votes": 2,
+  "q": 2
  },
  {
   "obj": "build/recon/frontend/psx/movie.cpp.o",
@@ -69,7 +76,8 @@
   "end": 2147822948,
   "size": 116,
   "ok": true,
-  "votes": 65
+  "votes": 65,
+  "q": 1
  },
  {
   "obj": "build/recon/game/common/aistate.cpp.o",
@@ -78,7 +86,8 @@
   "end": 2148785536,
   "size": 4,
   "ok": true,
-  "votes": 6
+  "votes": 6,
+  "q": 1
  },
  {
   "obj": "build/recon/game/common/camera.cpp.o",
@@ -87,7 +96,8 @@
   "end": 2148785560,
   "size": 16,
   "ok": true,
-  "votes": 3
+  "votes": 3,
+  "q": 1
  },
  {
   "obj": "build/recon/game/common/collide.cpp.o",
@@ -96,7 +106,28 @@
   "end": 2148785572,
   "size": 12,
   "ok": true,
-  "votes": 30
+  "votes": 30,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/hudpmx.cpp.o",
+  "section": ".sbss",
+  "base": 2148785572,
+  "end": 2148785581,
+  "size": 9,
+  "ok": true,
+  "votes": 9,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/dashhud.cpp.o",
+  "section": ".sbss",
+  "base": 2148785584,
+  "end": 2148785592,
+  "size": 8,
+  "ok": true,
+  "votes": 5,
+  "q": 1
  },
  {
   "obj": "build/recon/game/common/pausemenu.cpp.o",
@@ -105,7 +136,8 @@
   "end": 2148785608,
   "size": 4,
   "ok": true,
-  "votes": 8
+  "votes": 8,
+  "q": 1
  },
  {
   "obj": "build/recon/game/common/simqueue.cpp.o",
@@ -114,7 +146,8 @@
   "end": 2148785620,
   "size": 4,
   "ok": true,
-  "votes": 2
+  "votes": 2,
+  "q": 1
  },
  {
   "obj": "build/recon/game/common/track.cpp.o",
@@ -123,7 +156,8 @@
   "end": 2148785628,
   "size": 8,
   "ok": true,
-  "votes": 13
+  "votes": 13,
+  "q": 1
  },
  {
   "obj": "build/recon/game/psx/device.cpp.o",
@@ -132,7 +166,18 @@
   "end": 2148785638,
   "size": 2,
   "ok": true,
-  "votes": 2
+  "votes": 2,
+  "q": 1
+ },
+ {
+  "obj": "build/recon/game/psx/hrzsku.cpp.o",
+  "section": ".sbss",
+  "base": 2148785640,
+  "end": 2148785664,
+  "size": 24,
+  "ok": true,
+  "votes": 8,
+  "q": 2
  },
  {
   "obj": "build/recon/eaclib/psx/eacpsxz/locatbig.c.o",
@@ -141,7 +186,8 @@
   "end": 2148785768,
   "size": 8,
   "ok": true,
-  "votes": 99
+  "votes": 99,
+  "q": 2
  },
  {
   "obj": "build/recon/eaclib/psx/eacpsxz/nasync.c.o",
@@ -150,7 +196,18 @@
   "end": 2148785856,
   "size": 48,
   "ok": true,
-  "votes": 40
+  "votes": 40,
+  "q": 1
+ },
+ {
+  "obj": "build/recon/eaclib/psx/eacpsxz/unref.c.o",
+  "section": ".sbss",
+  "base": 2148785864,
+  "end": 2148785884,
+  "size": 20,
+  "ok": true,
+  "votes": 5,
+  "q": 1
  },
  {
   "obj": "build/recon/eaclib/psx/eacpsxz/stream.c.o",
@@ -159,7 +216,8 @@
   "end": 2148785888,
   "size": 4,
   "ok": true,
-  "votes": 4
+  "votes": 4,
+  "q": 1
  },
  {
   "obj": "build/recon/game/common/aidatarecord.cpp.o",
@@ -168,7 +226,8 @@
   "end": 2148786116,
   "size": 96,
   "ok": true,
-  "votes": 4
+  "votes": 4,
+  "q": 1
  },
  {
   "obj": "build/recon/game/common/camera.cpp.o",
@@ -177,7 +236,8 @@
   "end": 2148786184,
   "size": 48,
   "ok": true,
-  "votes": 2
+  "votes": 2,
+  "q": 1
  },
  {
   "obj": "build/recon/game/common/collide.cpp.o",
@@ -186,7 +246,8 @@
   "end": 2148786352,
   "size": 132,
   "ok": true,
-  "votes": 5
+  "votes": 5,
+  "q": 0
  },
  {
   "obj": "build/recon/game/common/mpause.cpp.o",
@@ -195,7 +256,8 @@
   "end": 2148786392,
   "size": 24,
   "ok": true,
-  "votes": 2
+  "votes": 2,
+  "q": 1
  },
  {
   "obj": "build/recon/game/common/track.cpp.o",
@@ -204,7 +266,8 @@
   "end": 2148787072,
   "size": 128,
   "ok": true,
-  "votes": 2
+  "votes": 2,
+  "q": 1
  },
  {
   "obj": "build/recon/game/psx/hrzsku.cpp.o",
@@ -213,7 +276,8 @@
   "end": 2148787088,
   "size": 16,
   "ok": true,
-  "votes": 2
+  "votes": 2,
+  "q": 1
  },
  {
   "obj": "build/recon/game/psx/hud.cpp.o",
@@ -222,7 +286,8 @@
   "end": 2148788314,
   "size": 1226,
   "ok": true,
-  "votes": 26
+  "votes": 26,
+  "q": 2
  },
  {
   "obj": "build/recon/eaclib/psx/pad.c.o",
@@ -231,7 +296,8 @@
   "end": 2148788480,
   "size": 100,
   "ok": true,
-  "votes": 99
+  "votes": 99,
+  "q": 2
  },
  {
   "obj": "build/recon/eaclib/psx/eacpsxz/memstd.c.o",
@@ -240,7 +306,8 @@
   "end": 2148788544,
   "size": 64,
   "ok": true,
-  "votes": 99
+  "votes": 99,
+  "q": 2
  },
  {
   "obj": "build/recon/eaclib/psx/eacpsxz/systask.c.o",
@@ -249,7 +316,8 @@
   "end": 2148788864,
   "size": 256,
   "ok": true,
-  "votes": 4
+  "votes": 4,
+  "q": 1
  },
  {
   "obj": "build/recon/eaclib/psx/sndpsxz/sst.c.o",
@@ -258,7 +326,8 @@
   "end": 2148788872,
   "size": 8,
   "ok": true,
-  "votes": 99
+  "votes": 99,
+  "q": 2
  },
  {
   "obj": "build/recon/eaclib/psx/eacpsxz/nfile.c.o",
@@ -267,7 +336,8 @@
   "end": 2148788920,
   "size": 48,
   "ok": true,
-  "votes": 99
+  "votes": 99,
+  "q": 2
  },
  {
   "obj": "build/recon/eaclib/psx/eacpsxz/fileroot.c.o",
@@ -276,7 +346,8 @@
   "end": 2148795496,
   "size": 84,
   "ok": true,
-  "votes": 99
+  "votes": 99,
+  "q": 0
  },
  {
   "obj": "build/recon/syslib/psx/libcd/stcdint.c.o",
@@ -285,7 +356,8 @@
   "end": 2148812904,
   "size": 4,
   "ok": true,
-  "votes": 15
+  "votes": 15,
+  "q": 1
  },
  {
   "obj": "build/recon/eaclib/psx/eacpsxz/cdfs.c.o",
@@ -294,7 +366,8 @@
   "end": 2148824320,
   "size": 2108,
   "ok": true,
-  "votes": 99
+  "votes": 99,
+  "q": 2
  },
  {
   "obj": "build/recon/syslib/psx/libmcrd/LIBMCRD.c.o",
@@ -303,7 +376,8 @@
   "end": 2148824432,
   "size": 112,
   "ok": true,
-  "votes": 77
+  "votes": 77,
+  "q": 1
  },
  {
   "obj": "build/recon/syslib/psx/libpad/PADPORTD.c.o",
@@ -312,7 +386,8 @@
   "end": 2148825056,
   "size": 624,
   "ok": true,
-  "votes": 6
+  "votes": 6,
+  "q": 1
  },
  {
   "obj": "build/recon/eaclib/psx/sndpsxz/ssysinit.c.o",
@@ -321,7 +396,8 @@
   "end": 2148825364,
   "size": 180,
   "ok": true,
-  "votes": 99
+  "votes": 99,
+  "q": 2
  },
  {
   "obj": "build/recon/eaclib/psx/sndpsxz/salloc.c.o",
@@ -330,7 +406,8 @@
   "end": 2148825368,
   "size": 4,
   "ok": true,
-  "votes": 99
+  "votes": 99,
+  "q": 2
  },
  {
   "obj": "build/recon/eaclib/psx/sndpsxz/slib.c.o",
@@ -339,7 +416,8 @@
   "end": 2148827204,
   "size": 1836,
   "ok": true,
-  "votes": 99
+  "votes": 99,
+  "q": 2
  },
  {
   "obj": "build/recon/eaclib/psx/spchpsxz/spchevnt.c.o",
@@ -348,7 +426,8 @@
   "end": 2148828200,
   "size": 996,
   "ok": true,
-  "votes": 99
+  "votes": 99,
+  "q": 2
  },
  {
   "obj": "build/recon/eaclib/psx/spchpsxz/spchinit.c.o",
@@ -357,7 +436,8 @@
   "end": 2148828220,
   "size": 20,
   "ok": true,
-  "votes": 99
+  "votes": 99,
+  "q": 2
  },
  {
   "obj": "build/recon/eaclib/psx/spchpsxz/spchpick.c.o",
@@ -366,7 +446,8 @@
   "end": 2148828532,
   "size": 312,
   "ok": true,
-  "votes": 99
+  "votes": 99,
+  "q": 2
  },
  {
   "obj": "build/recon/eaclib/psx/sndpsxz/spktplay.c.o",
@@ -375,7 +456,18 @@
   "end": 2148828536,
   "size": 4,
   "ok": true,
-  "votes": 99
+  "votes": 99,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/eaclib/psx/sndpsxz/sdpacket.c.o",
+  "section": ".bss",
+  "base": 2148828536,
+  "end": 2148828588,
+  "size": 52,
+  "ok": true,
+  "votes": 99,
+  "q": 2
  },
  {
   "obj": "build/recon/syslib/psx/libpad/PADCMD.c.o",
@@ -384,7 +476,8 @@
   "end": 2148828576,
   "size": 4,
   "ok": true,
-  "votes": 2
+  "votes": 2,
+  "q": 1
  },
  {
   "obj": "build/recon/eaclib/psx/eacpsxz/movf.c.o",
@@ -393,7 +486,8 @@
   "end": 2148829056,
   "size": 468,
   "ok": true,
-  "votes": 99
+  "votes": 99,
+  "q": 2
  },
  {
   "obj": "build/recon/eaclib/psx/sndpsxz/smemman.c.o",
@@ -402,7 +496,8 @@
   "end": 2148829580,
   "size": 524,
   "ok": true,
-  "votes": 99
+  "votes": 99,
+  "q": 2
  },
  {
   "obj": "build/recon/syslib/psx/libcd/drv.c.o",
@@ -411,7 +506,8 @@
   "end": 2148829644,
   "size": 48,
   "ok": true,
-  "votes": 49
+  "votes": 49,
+  "q": 2
  },
  {
   "obj": "build/recon/syslib/psx/libds/DSCB.c.o",
@@ -420,7 +516,8 @@
   "end": 2148829676,
   "size": 12,
   "ok": true,
-  "votes": 99
+  "votes": 99,
+  "q": 2
  },
  {
   "obj": "build/recon/syslib/psx/libmcrd/BIOS.c.o",
@@ -430,7 +527,8 @@
   "size": 64,
   "ok": true,
   "votes": 92,
-  "noload_data": true
+  "noload_data": true,
+  "q": 1
  },
  {
   "obj": "build/recon/syslib/psx/libmcrd/USERFUNC.c.o",
@@ -439,7 +537,8 @@
   "end": 2148829820,
   "size": 80,
   "ok": true,
-  "votes": 4
+  "votes": 4,
+  "q": 1
  },
  {
   "obj": "build/recon/syslib/psx/libapi/FIRST.c.o",
@@ -448,7 +547,8 @@
   "end": 2148829868,
   "size": 48,
   "ok": true,
-  "votes": 7
+  "votes": 7,
+  "q": 2
  },
  {
   "obj": "build/recon/syslib/psx/libpad/WAITRC2.c.o",
@@ -457,7 +557,8 @@
   "end": 2148829876,
   "size": 8,
   "ok": true,
-  "votes": 99
+  "votes": 99,
+  "q": 2
  },
  {
   "obj": "build/recon/syslib/psx/libcard/PATCH.c.o",
@@ -466,7 +567,8 @@
   "end": 2148829908,
   "size": 16,
   "ok": true,
-  "votes": 4
+  "votes": 4,
+  "q": 2
  },
  {
   "obj": "build/recon/syslib/psx/libcard/END.c.o",
@@ -475,6 +577,7 @@
   "end": 2148829924,
   "size": 16,
   "ok": true,
-  "votes": 2
+  "votes": 2,
+  "q": 2
  }
 ]

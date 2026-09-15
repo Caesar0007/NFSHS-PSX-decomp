@@ -7,7 +7,8 @@
   "size": 5,
   "ok": true,
   "unresolved": 0,
-  "words": 1
+  "words": 1,
+  "q": 1
  },
  {
   "obj": "build/recon/frontend/common/screendisplay.cpp.o",
@@ -17,7 +18,8 @@
   "size": 7,
   "ok": true,
   "unresolved": 0,
-  "words": 1
+  "words": 1,
+  "q": 1
  },
  {
   "obj": "build/recon/frontend/common/screenusername.cpp.o",
@@ -27,7 +29,8 @@
   "size": 264,
   "ok": true,
   "unresolved": 0,
-  "words": 66
+  "words": 66,
+  "q": 1
  },
  {
   "obj": "build/recon/game/common/ai.cpp.o",
@@ -37,7 +40,8 @@
   "size": 12,
   "ok": true,
   "unresolved": 0,
-  "words": 3
+  "words": 3,
+  "q": 1
  },
  {
   "obj": "build/recon/game/common/aih_cop.cpp.o",
@@ -47,7 +51,8 @@
   "size": 44,
   "ok": true,
   "unresolved": 0,
-  "words": 11
+  "words": 11,
+  "q": 1
  },
  {
   "obj": "build/recon/game/common/aiperson.cpp.o",
@@ -57,7 +62,8 @@
   "size": 75,
   "ok": true,
   "unresolved": 0,
-  "words": 18
+  "words": 18,
+  "q": 1
  },
  {
   "obj": "build/recon/game/common/bworld.cpp.o",
@@ -67,7 +73,8 @@
   "size": 12,
   "ok": true,
   "unresolved": 0,
-  "words": 3
+  "words": 3,
+  "q": 1
  },
  {
   "obj": "build/recon/game/psx/hrzsku.cpp.o",
@@ -77,7 +84,8 @@
   "size": 25,
   "ok": true,
   "unresolved": 0,
-  "words": 6
+  "words": 6,
+  "q": 1
  },
  {
   "obj": "build/recon/game/psx/texture.cpp.o",
@@ -87,7 +95,8 @@
   "size": 140,
   "ok": true,
   "unresolved": 0,
-  "words": 35
+  "words": 35,
+  "q": 1
  },
  {
   "obj": "build/recon/game/psx/textureprocess.cpp.o",
@@ -97,7 +106,8 @@
   "size": 11,
   "ok": true,
   "unresolved": 0,
-  "words": 2
+  "words": 2,
+  "q": 1
  },
  {
   "obj": "build/recon/eaclib/psx/eacpsxz/fixdatan.c.o",
@@ -107,7 +117,8 @@
   "size": 32,
   "ok": true,
   "unresolved": 0,
-  "words": 8
+  "words": 8,
+  "q": 1
  },
  {
   "obj": "build/recon/syslib/psx/libpress/LIBPRESS.c.o",
@@ -117,6 +128,7 @@
   "size": 73,
   "ok": true,
   "unresolved": 0,
-  "words": 18
+  "words": 18,
+  "q": 1
  }
 ]

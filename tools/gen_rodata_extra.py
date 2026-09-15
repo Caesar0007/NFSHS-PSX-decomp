@@ -207,19 +207,21 @@ def decode_base(obj, tbase, sec):
 def named_base(obj, sec):
     """base from a MAP / name-encoded symbol that lives IN this section
     (base = retail_addr - in-section offset); consensus over such symbols.
-    Reliable for NOBITS sections where content can't be byte-validated."""
-    votes = Counter()
+    Returns (mode_base, mode_votes, total_named): a section whose named symbols
+    do NOT unanimously agree (mode_votes < total_named) has a layout that
+    differs from retail and CANNOT be placed as one contiguous block."""
+    votes = Counter(); total = 0
     for ln in run(OBJD, '-t', str(obj)).splitlines():
         m = re.match(r'^([0-9a-f]{8})\s+.*?\s' + re.escape(sec) +
                      r'\s+[0-9a-f]{8}\s+(\S+)$', ln)
         if m:
             a = aof(m.group(2))
             if a is not None:
-                votes[a - int(m.group(1), 16)] += 1
+                votes[a - int(m.group(1), 16)] += 1; total += 1
     if votes:
         b, n = votes.most_common(1)[0]
-        return b, n
-    return None, 0
+        return b, n, total
+    return None, 0, 0
 
 def section_bases(obj, tbase, known):
     """retail bases for the object's other sections (to resolve pointer words),
@@ -286,7 +288,7 @@ def main():
             if not nb:
                 continue
             base, nvotes = decode_base(o, tbase, sec)
-            nbase, nn = named_base(o, sec)
+            nbase, nn, ntot = named_base(o, sec)
             # NOBITS: content can't be byte-validated -> require a strong anchor
             # (>=2 agreeing .text refs, a unique search, or a named symbol).
             if sec in NOBITS:
@@ -301,6 +303,11 @@ def main():
                 # ginfo/screenMemcard) rather than section-relative.  Still
                 # byte-validated below, so a wrong anchor is rejected.
                 base = nbase
+            # anchor quality for overlap arbitration: a UNANIMOUS named anchor
+            # (nn==ntot, ntot>=1) is authoritative; a non-unanimous one is a
+            # layout mismatch whose mode-base is unreliable.
+            anchor_q = (2 if (ntot >= 1 and nn == ntot) else
+                        1 if ntot == 0 else 0)
             if base is None:
                 skipped.append((rel, sec, 'no anchor / no unique search')); continue
             span = next((s for s in SPANS[sec] if s[0] <= base < s[1]), None)
@@ -316,12 +323,12 @@ def main():
                     skipped.append((rel, sec, f'beyond-image {base:#x} weak consensus {nvotes}')); continue
                 bss_out.append({'obj': rel, 'section': sec, 'base': base,
                                 'end': base + nb, 'size': nb, 'ok': True,
-                                'votes': nvotes, 'noload_data': True})
+                                'votes': nvotes, 'noload_data': True, 'q': anchor_q})
                 continue
             if sec in NOBITS:
                 bss_out.append({'obj': rel, 'section': sec, 'base': base,
                                 'end': base + nb, 'size': nb, 'ok': True,
-                                'votes': nvotes})
+                                'votes': nvotes, 'q': anchor_q})
                 continue
             sbases = section_bases(o, tbase, known)
             checked, diff, unres, _ = resolve_and_check(o, sec, base, sbases)
@@ -330,7 +337,8 @@ def main():
             if diff:
                 skipped.append((rel, sec, f'{diff}/{checked}w differ @ {base:#x}')); continue
             row = {'obj': rel, 'section': sec, 'base': base, 'end': base + nb,
-                   'size': nb, 'ok': True, 'unresolved': unres, 'words': checked}
+                   'size': nb, 'ok': True, 'unresolved': unres, 'words': checked,
+                   'q': anchor_q}
             (ro_out if sec == '.rodata' else data_out).append(row)
     ro_out.sort(key=lambda r: r['base'])
     for a, b in zip(ro_out, ro_out[1:]):
@@ -365,8 +373,15 @@ def main():
         drop = set()
         for a, b in zip(rows, rows[1:]):
             if b['base'] < a['end']:
-                drop.add(a['obj'] + a['section']); drop.add(b['obj'] + b['section'])
-                skipped.append((a['obj'], a['section'], f"{label} overlaps {b['obj']}{b['section']}"))
+                # prefer the higher-quality anchor; drop only the weaker (a
+                # unanimous-named window beats a decode/non-unanimous one, whose
+                # mode-base is the likely-wrong one causing the overlap).
+                qa, qb = a.get('q', 1), b.get('q', 1)
+                loser = a if qa < qb else b if qb < qa else a
+                keeper = b if loser is a else a
+                drop.add(loser['obj'] + loser['section'])
+                skipped.append((loser['obj'], loser['section'],
+                                f"{label} overlaps {keeper['obj']}{keeper['section']} (lower-q)"))
         return [r for r in rows if r['obj'] + r['section'] not in drop]
     data_out = drop_overlaps(data_out, 'data')
     bss_out = drop_overlaps(bss_out, 'bss')

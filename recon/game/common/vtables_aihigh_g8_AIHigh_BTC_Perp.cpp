@@ -17,6 +17,10 @@ extern "C" void ___13AIHigh_Player(void *thisp);   /* ~AIHigh_Player */
 extern "C" void ___14AIHigh_BTC_Cop(void *thisp);   /* ~AIHigh_BTC_Cop */
 extern "C" void ___14AIHigh_Traffic(void *thisp);   /* ~AIHigh_Traffic */
 extern "C" void ___15AIHigh_BTC_Perp(void *thisp);   /* ~AIHigh_BTC_Perp */
+/* aih_btcperp.obj carries its own out-of-line copy of the header-inline
+ * ~AIHigh_BTC_Perp (retail 0x80061348); its vtable points at THAT copy, not
+ * aihigh.obj's (0x8005b438). */
+extern "C" void ___15AIHigh_BTC_Perp_80061348(void *thisp);
 extern "C" void ___15AIHigh_BasicCop(void *thisp);   /* ~AIHigh_BasicCop */
 extern "C" void ___15AIHigh_Opponent(void *thisp);   /* ~AIHigh_Opponent */
 extern "C" void ___16AIHigh_BasicPerp(void *thisp);   /* ~AIHigh_BasicPerp */
@@ -31,5 +35,5 @@ extern "C" void ___20AIHigh_BTC_HumanPerp(void *thisp);   /* ~AIHigh_BTC_HumanPe
 __vtbl_ptr_type AIHigh_BTC_Perp_vtable[3] = {   /* @0x80054fe0 */
   {0, 0, (int (*)(...))0},                           /* @0x80054fe0  null */
   {0, 0, (int (*)(...))&__pure_virtual},             /* @0x80054fe8  __pure_virtual */
-  {0, 0, (int (*)(...))&___15AIHigh_BTC_Perp},    /* @0x80054ff0  ~AIHigh_BTC_Perp */
+  {0, 0, (int (*)(...))&___15AIHigh_BTC_Perp_80061348},    /* @0x80054ff0  ~AIHigh_BTC_Perp */
 };

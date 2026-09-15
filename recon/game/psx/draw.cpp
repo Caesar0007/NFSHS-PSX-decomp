@@ -9,6 +9,19 @@
  * byte-neutral (21 PASS, StopRenderingView still 50).  draw.obj is NOT a flag
  * object -- do not re-probe. */
 #include "draw_types.h"
+/* CC1PLPSX emission law: uninitialized globals are flushed at end-of-file in
+ * FIRST-DECLARATION order.  Retail draw.obj .sdata after its four literals
+ * ("ot0","ot1","ps0","ps1" @0x8013d798) is Draw_gDoVSync 0x8013d7a8 /
+ * Draw_gNumView / Draw_gViewOtSize / gFlip / gLoop / Draw_gMidGroundOtz /
+ * Draw_gMaxPrim / gTotalMem -- pinned here ahead of draw_externs.h. */
+extern int Draw_gDoVSync;
+extern int Draw_gNumView;
+extern int Draw_gViewOtSize;
+extern int gFlip;
+extern int gLoop;
+extern int Draw_gMidGroundOtz;
+extern char *Draw_gMaxPrim;
+extern int gTotalMem;
 #include "draw_externs.h"
 
 /* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared

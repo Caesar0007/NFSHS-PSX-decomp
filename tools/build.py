@@ -324,6 +324,10 @@ PER_TU_FLAGS = {
     # (0x8013d45c) between wordFile and "p"; at -G4 it went to .rodata.
     "recon/game/common/textsys.cpp": {"g_value": "8"},
     "recon/eaclib/psx/eacpsxz/unbtree.c": {"preserve_small_common_binding": True},
+    # threads.c's tentative g_currentthread is referenced by inittmr.c; as a
+    # lowered LOCAL .sbss symbol it was invisible and the oracle-only o38 filler
+    # (now excluded from the recon link) used to supply it from the catch-all.
+    "recon/eaclib/psx/eacpsxz/threads.c": {"preserve_small_common_binding": True},
     # P877: the hash-pinned retail 2.8.1 SN compiler reproduces all16 replay
     # functions and their branch distances in one ordinary compilation. It
     # removes the P852 StoringControllerData-only compiler splice below and

@@ -273,6 +273,17 @@ void DoTitleScreen(void)
 /* lines 357-438: (static data / macros / comments - no emitted code) */
 
 /* ---- DoLanguageScreen  (psxfront.cpp:439, code lines 439-569) ---- */
+/* String-only survivor: retail PSXFront.obj .rdata carries "main" and
+ * "load.psh" between DoTitleScreen's "back" and PSX_AllocShapes'
+ * "gHelpShapes" with no code referencing them -- the literals of an UNUSED
+ * static inline, which CC1PLPSX emits at the definition point while dropping
+ * the body (scratchpad emit/t3.cpp). */
+static inline void PSXFront_LoadMainShapes(void)
+{
+  locateshapez(creditShapeFile[0],(void *)"main");      /* @0x80012818 (string only) */
+  loadshapeadr("load.psh",(void *)0x0);                 /* @0x80012820 (string only) */
+}
+
 void DoLanguageScreen(void)
 
 {
@@ -1244,6 +1255,13 @@ void LoadAllHelpShapes(void)
 
 /* ---- PSXDrawSquare  (psxfront.cpp:1338, code lines 1338-1349) ---- */
 /* GPU packet: builds POLY_F4 (stride 0x18, code 0x28); prim=u_char* build cursor, prevPrim=u_char* link word */
+/* String-only survivor (see PSXFront_LoadMainShapes): "unpacked" follows
+ * LoadAllHelpShapes' "%szperm.psh" in retail .rdata (0x80012844). */
+static inline void *PSXFront_UnpackedNote(void)
+{
+  return reservememadr("unpacked",0,0);
+}
+
 void PSXDrawSquare(int col,int x,int y,int w,int h)
 
 {

@@ -12,7 +12,9 @@
 #include "addtimer.h"
 
 /* owning-TU def (extern-declared, never defined; BSS) */
-int (*tmrsub[8])(void); /* @0x8012360C: retail SYM/MAP public timer callback table */
+/* Retail keeps this zero table in .data (0x8012360C): a C definition WITH an
+ * initializer is emitted there; the tentative form was COMMON -> catch-all .bss. */
+int (*tmrsub[8])(void) = { 0 }; /* @0x8012360C: retail SYM/MAP public timer callback table */
 
 void addtimer(int (*fn)(void))   /* @0x800EAFE8 */
 {

@@ -769,6 +769,22 @@ def main():
     A("     * catch-alls stay in the GP window, exactly like the zero owners). */")
     for i, (base, o, sec) in enumerate(bss_placed):
         A(f"    .zb{i:04d} {base:#x} : SUBALIGN(4) {{ {o}({sec}); }}")
+    # VA-named NOBITS subsections a recon TU emits itself (`.bss.<tag>_<VA>`,
+    # e.g. SYS.c's .bss.sys_8013EAB0 holding _blit_buf/_gp1_shadow/_que): the
+    # name IS the retail base.  Left to the catch-all they land wherever the
+    # cursor is (_que at 0x8013ea64 instead of 0x8013ec00).
+    va_bss = []
+    for s in [*Path(ROOT / "recon").rglob("*.cpp"), *Path(ROOT / "recon").rglob("*.c")]:
+        o = ROOT / "build" / (s.relative_to(ROOT).as_posix() + ".o")
+        if not o.is_file():
+            continue
+        rel = "build/" + s.relative_to(ROOT).as_posix() + ".o"
+        for ln in subprocess.run([OBJDUMP, "-h", str(o)], capture_output=True, text=True).stdout.splitlines():
+            m = re.match(r"^\s*\d+\s+(\.s?bss\.\w+?_([0-9A-Fa-f]{8}))\s+([0-9a-f]{8})", ln)
+            if m and int(m.group(3), 16) and (rel, m.group(1)) not in szo_sections:
+                va_bss.append((int(m.group(2), 16), rel, m.group(1)))
+    for i, (base, o, sec) in enumerate(sorted(set(va_bss))):
+        A(f"    .zv{i:04d} {base:#x} (NOLOAD) : SUBALIGN(4) {{ {o}({sec}); }}")
     A("    . = __unplaced_zero_cursor;")
     A("    .sbss  : SUBALIGN(4) { *(.sbss); }")
     A("    .bss   : SUBALIGN(4) { *(.bss); *(.bss.*); *(COMMON); }")
@@ -839,8 +855,16 @@ def main():
         objs = sorted(objdata) + asm_objects
         oracle_only = oracle_only_objects(ROOT / "build")
         oracle_only |= oracle_only_zero_objects(ROOT / "build")
+        # The sdata_8013C54C_oNN splat-lane FILLER pieces are oracle-only: every
+        # one has a recon owner in the .sdata ldfrag ("the matching _oNN piece
+        # must NOT be linked here").  Linked as orphans they land in the
+        # catch-all and their globals (o38's g_currentthread @0x80148614 vs
+        # threads.c's placed @0x8013dd5c) out-bind the recon definition.  The
+        # data_8010CCD4_oNN / front_data_oNN pieces are NOT all superseded yet
+        # (D_80111A1C...), so only the .sdata set is dropped.
         objs = [o for o in dict.fromkeys(objs)
-                if o not in jtbl_objs and (ROOT / o).resolve() not in oracle_only]
+                if o not in jtbl_objs and (ROOT / o).resolve() not in oracle_only
+                and not re.search(r"sdata_8013C54C_o\d\d\.sdata\.s\.o$", o)]
         assert objs, "empty object list -- vacuous link refused"
         rsp = OUTDIR / "recon_link.rsp"
         rsp.write_text("\n".join('"%s"' % o for o in objs))

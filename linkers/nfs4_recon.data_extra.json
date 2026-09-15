@@ -759,6 +759,17 @@
   "q": 2
  },
  {
+  "obj": "build/recon/frontend/psx/movie.cpp.o",
+  "section": ".data",
+  "base": 2147822116,
+  "end": 2147822124,
+  "size": 8,
+  "ok": true,
+  "unresolved": 0,
+  "words": 2,
+  "q": 2
+ },
+ {
   "obj": "build/recon/frontend/psx/psxfront.cpp.o",
   "section": ".data",
   "base": 2147822168,
@@ -873,6 +884,17 @@
   "section": ".data",
   "base": 2147831744,
   "end": 2147831768,
+  "size": 24,
+  "ok": true,
+  "unresolved": 0,
+  "words": 6,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/vtables_aihigh_g8_AIHigh_BTC_Perp.cpp.o",
+  "section": ".data",
+  "base": 2147831776,
+  "end": 2147831800,
   "size": 24,
   "ok": true,
   "unresolved": 0,
@@ -1405,6 +1427,17 @@
   "ok": true,
   "unresolved": 0,
   "words": 40,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/eaclib/psx/eacpsxz/addtimer.c.o",
+  "section": ".data",
+  "base": 2148677132,
+  "end": 2148677164,
+  "size": 32,
+  "ok": true,
+  "unresolved": 0,
+  "words": 8,
   "q": 2
  },
  {
@@ -2087,7 +2120,7 @@
   "ok": true,
   "unresolved": 0,
   "words": 12,
-  "q": 0
+  "q": 2
  },
  {
   "obj": "build/recon/game/psx/drawdbg.cpp.o",

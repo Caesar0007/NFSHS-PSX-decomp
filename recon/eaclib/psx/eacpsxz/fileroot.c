@@ -26,7 +26,10 @@
 #include "devsys.h"
 #include "nfile.h"
 
-/* ---- owning-TU defs for link-harness (extern-declared, never defined; BSS) ---- */
+/* ---- owning-TU defs for link-harness (extern-declared, never defined; BSS) ----
+ * Tentative definitions are flushed at end-of-file in FIRST-DECLARATION order:
+ * retail fileroot.obj .bss is readcmd 0x80140400 THEN currentdirectory 0x80140414. */
+ReadCmd readcmd;           /* @0x80140400: fileroot.obj owning BSS definition */
 char currentdirectory[64]; /* @0x80140414: fileroot.obj owning BSS definition */
 /* Retail bytes @0x8013DD2C..0x8013DD43 are literal/pointer/literal/pointer.
  * Natural `char *fsprefixN = "..."` declarations were tested: functions stay
@@ -91,7 +94,7 @@ extern int disablecd;            /* @0x8013DC58 nonzero == CD backend disabled  
 extern int availablefilesystems; /* @0x8013DC60 bitmask: 1 == CD present, 2 == PC host  */
 extern int currentfilesystem;    /* @0x8013DC5C the fs selected by initfileio/setdirectory */
 
-ReadCmd readcmd;   /* @0x80140400: fileroot.obj owning BSS definition */
+/* (readcmd is defined above currentdirectory -- retail .bss order.) */
 
 /* cop0 IRQ-disabled critical section guarding the readcmd slot (host no-op on x86).
  * MATCH: the oracle INLINES the raw cop0 mfc0/mask(-0x402)/mtc0 sequence at each call site

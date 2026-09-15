@@ -20,8 +20,10 @@ static void strKickCD(CdlLOC *loc);
 /* MATCH: every one of these statics is reached ABSOLUTELY (lui %hi / %lo) in the oracle,
  * never gp-relative -- force them out of .sdata/.sbss with an explicit .bss section
  * attribute (catalog §I-addendum; the -G4 default would put every <=4-byte scalar in sbss). */
-static int     width_d asm("width") __attribute__((section(".bss")));     /* 0x80052a24 */
-static int     height_d asm("height") __attribute__((section(".bss")));    /* 0x80052a28 */
+/* Retail keeps these two in front.DATA (0x80052a24 width = 0, 0x80052a28
+ * height = 0): initialized (zero) statics, emitted here in .data (-G0 TU). */
+static int     width_d asm("width") __attribute__((section(".data"))) = 0;     /* 0x80052a24 */
+static int     height_d asm("height") __attribute__((section(".data"))) = 0;   /* 0x80052a28 */
 static CdlLOC  loc_d asm("loc") __attribute__((section(".bss")));   /* 0x80052cf8 */
 extern CdlLOC  loc_v[] asm("loc");   /* unsized view: forces base materialization */
 extern int     StCdIntrFlag_v[] asm("StCdIntrFlag");

@@ -131,7 +131,9 @@ extern unsigned char D_80147871;
  * bytes.  DEVICE = file-scope asm .bss definition, keeping the C view `extern int sndpp[]`
  * UNSIZED (that shape is load-bearing here -- see the decl comment) so the storage is
  * byte-neutral by construction.  Receipts: scratchpad/w65a6/RECEIPTS.md */
-__asm__("\t.globl\tsndpp\n\t.section\t.bss\n\t.align\t2\nsndpp:\n\t.space\t52\n\t.text");
+/* sndpp itself is ONE word (retail 0x80148578..0x8014857c); the 48 bytes up to
+ * windowbuf are PADMAIN.obj's _padVbCb/_padFrames, which PADMAIN.c now owns. */
+__asm__("\t.globl\tsndpp\n\t.section\t.bss\n\t.align\t2\nsndpp:\n\t.space\t4\n\t.text");
 extern int           sndpp[];               /* current-player IRQ cursor (one-int symbol; array view keeps
                                               * the shared %hi base with %lo displacements) */
 extern unsigned char sndpd[];               /* EA sound-driver state base @0x80147918 (unsized array:

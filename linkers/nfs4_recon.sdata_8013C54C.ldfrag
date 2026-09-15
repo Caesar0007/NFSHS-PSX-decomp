@@ -85,7 +85,8 @@
     build/recon/game/psx/flare.cpp.o(.sdata);   /* 0x8013d86c..0x8013d878  was sdata_8013C54C_o32.sdata.s */
     build/recon/game/psx/hrzsku.cpp.o(.sdata);   /* 0x8013d878..0x8013d89c native owner (was r20_pre: initialized statics + deferred globals) */
     build/recon/game/psx/hud.cpp.o(.sdata); /* P909 complete240-byte native source owner. */
-    build/asm/data/sdata_8013C54C_r20.sdata.s.o(.sdata.r20_post); /* Native380-byte suffix, unchanged. */
+    build/recon/game/psx/overlays.cpp.o(.sdata);   /* 0x8013d98c..0x8013d9a0 native owner (Hud_NextPerp/StatsTimer[2]); r20_post now starts at 0x8013d9a0 */
+    build/asm/data/sdata_8013C54C_r20.sdata.s.o(.sdata.r20_post); /* Native suffix from 0x8013d9a0. */
     build/recon/game/psx/texture.cpp.o(.sdata);   /* 0x8013db08..0x8013db3c  was sdata_8013C54C_o33.sdata.s */
     build/asm/data/sdata_8013C54C_r21.sdata.s.o(.sdata);
     /* P886: full G8 run includes its40-byte literal prefix, not only globals. */

@@ -52,22 +52,6 @@ extern "C" void ___5tMenu(void *thisp);   /* ~tMenu */
 extern "C" void ___9tMenuItem(void *thisp);   /* ~tMenuItem */
 extern "C" void ___9tMenuNFS4(void *thisp);   /* ~tMenuNFS4 */
 
-/* These two exact retail tables have no `_vt.*` SYM record.
-   SYM-GLOBAL-CARRIER: tBlankMenuItemGoToMenuNFS4Button_vtable
-   SYM-GLOBAL-CARRIER: tBlankMenuItemNFS4LeftRightChoice_vtable */
-__vtbl_ptr_type tBlankMenuItemGoToMenuNFS4Button_vtable[11] = {   /* @0x800114d8 */
-  {0, 0, (int (*)(...))0},    /* @0x800114d8  null */
-  {0, 0, (int (*)(...))&___32tBlankMenuItemGoToMenuNFS4Button},    /* @0x800114e0  ~tBlankMenuItemGoToMenuNFS4Button */
-  {0, 0, (int (*)(...))&tMenuItem::DebounceKeys},    /* @0x800114e8  DebounceKeys__9tMenuItem */
-  {0, 0, (int (*)(...))&tMenuItemGoToMenuButton::ProcessInput},    /* @0x800114f0  ProcessInput__23tMenuItemGoToMenuButton7tPlayerR13tInputKeyTypeR12tMenuCommand */
-  {0, 0, (int (*)(...))&_vt_Draw_BlankGoTo_b},    /* @0x800114f8  Draw__32tBlankMenuItemGoToMenuNFS4Buttonb [overload by-arity; recon types differ from SYM] */
-  {0, 0, (int (*)(...))&_vt_Draw_BlankGoTo_iib},    /* @0x80011500  Draw__32tBlankMenuItemGoToMenuNFS4Buttoniib [overload by-arity; recon types differ from SYM] */
-  {0, 0, (int (*)(...))(void (tMenuItem::*)(int, int, int, bool))&tMenuItem::Draw},    /* @0x80011508  Draw__9tMenuItemiiib [overload] */
-  {0, 0, (int (*)(...))&tMenuItemGoToMenuNFS4Button::TransitionOff},    /* @0x80011510  TransitionOff__27tMenuItemGoToMenuNFS4Button */
-  {0, 0, (int (*)(...))&tMenuItemGoToMenuNFS4Button::TransitionOn},    /* @0x80011518  TransitionOn__27tMenuItemGoToMenuNFS4Button */
-  {0, 0, (int (*)(...))&tBlankMenuItemGoToMenuNFS4Button::TransitionIsFinished},    /* @0x80011520  TransitionIsFinished__32tBlankMenuItemGoToMenuNFS4Button */
-  {0, 0, (int (*)(...))&tMenuItemGoToMenuNFS4Button::UpdateTransition},    /* @0x80011528  UpdateTransition__27tMenuItemGoToMenuNFS4Buttonb */
-};
 /* Blocks sorted by retail address (= g++ finish_file emission order, newest
  * class first) and SPLIT into contiguous retail runs, one TU per run, so each
  * run is placed/validated at its own retail base.  Do not merge or re-sort. */

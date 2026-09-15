@@ -90,6 +90,15 @@ if SYMTXT.exists():
 NAMEVA = re.compile(r'^(?:func|D|DAT|lbl)_([0-9A-Fa-f]{8})$')
 DOTL = re.compile(r'^\.L?_?([0-9A-Fa-f]{8})$')
 VTBL = re.compile(r'^(.+)_vtable$')
+VTBL_ANON = {
+    'AIState_None_vtable': 0x80054E1C,
+    'tDialogMessageStringWithTimeout_vtable': 0x80010098,
+    'AIHigh_BasicCop_vtable': 0x80054E9C,
+    'AIHigh_BTC_Perp_vtable': 0x80054FE0,
+    'AIHigh_Player_vtable': 0x80055098,
+    'tBlankMenuItemGoToMenuNFS4Button_vtable': 0x800114D8,
+    'tBlankMenuItemNFS4LeftRightChoice_vtable': 0x80011530,
+}
 
 def aof(name):
     if name in sym:
@@ -104,7 +113,12 @@ def aof(name):
     m = VTBL.match(name)
     if m:
         cls = m.group(1)
-        return sym.get(f'_vt.{len(cls)}{cls}')
+        if f'_vt.{len(cls)}{cls}' in sym:
+            return sym[f'_vt.{len(cls)}{cls}']
+        # retail vtables the SYM leaves anonymous (no `_vt.` record); the
+        # addresses come from the per-TU breadcrumbs / retail decode, and the
+        # window is still byte-validated before placement.
+        return VTBL_ANON.get(name)
     # build.py renames our cfront dtor prefix `_._<Class>` to EA's `___<Class>`;
     # the retail map keeps `_._`.  Without this the R_MIPS_32 dtor slots of a
     # .data vtable-ish table count as "unresolved" and the window is rejected

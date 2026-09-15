@@ -1,5 +1,16 @@
 [
  {
+  "obj": "build/recon/game/common/vtables_tdialog.cpp.o",
+  "section": ".data",
+  "base": 2147549336,
+  "end": 2147549432,
+  "size": 96,
+  "ok": true,
+  "unresolved": 0,
+  "words": 24,
+  "q": 2
+ },
+ {
   "obj": "build/recon/game/common/vtables_tlist.cpp.o",
   "section": ".data",
   "base": 2147549656,
@@ -22,6 +33,17 @@
   "q": 2
  },
  {
+  "obj": "build/recon/game/common/vtables_tmenu.cpp.o",
+  "section": ".data",
+  "base": 2147550752,
+  "end": 2147551584,
+  "size": 832,
+  "ok": true,
+  "unresolved": 0,
+  "words": 208,
+  "q": 2
+ },
+ {
   "obj": "build/recon/game/common/vtables_tpausemenu.cpp.o",
   "section": ".data",
   "base": 2147551760,
@@ -30,6 +52,17 @@
   "ok": true,
   "unresolved": 0,
   "words": 22,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/vtables_tmenu_g1_tMemoryCardMenuItem.cpp.o",
+  "section": ".data",
+  "base": 2147551848,
+  "end": 2147552112,
+  "size": 264,
+  "ok": true,
+  "unresolved": 0,
+  "words": 66,
   "q": 2
  },
  {
@@ -44,6 +77,17 @@
   "q": 2
  },
  {
+  "obj": "build/recon/game/common/vtables_tmenu_g2_tMenuItemControllerLeftRightChoice.cpp.o",
+  "section": ".data",
+  "base": 2147552288,
+  "end": 2147552376,
+  "size": 88,
+  "ok": true,
+  "unresolved": 0,
+  "words": 22,
+  "q": 2
+ },
+ {
   "obj": "build/recon/game/common/vtables_tpausemenu_g2_tInsideBoxSongMenu.cpp.o",
   "section": ".data",
   "base": 2147552376,
@@ -52,6 +96,17 @@
   "ok": true,
   "unresolved": 0,
   "words": 26,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/vtables_tmenu_g3_tMenuItemLeftRightAudioSlider.cpp.o",
+  "section": ".data",
+  "base": 2147552480,
+  "end": 2147552936,
+  "size": 456,
+  "ok": true,
+  "unresolved": 0,
+  "words": 114,
   "q": 2
  },
  {
@@ -66,6 +121,17 @@
   "q": 2
  },
  {
+  "obj": "build/recon/game/common/vtables_tmenu_g4_tOptionsMenu.cpp.o",
+  "section": ".data",
+  "base": 2147553032,
+  "end": 2147553208,
+  "size": 176,
+  "ok": true,
+  "unresolved": 0,
+  "words": 44,
+  "q": 2
+ },
+ {
   "obj": "build/recon/game/common/vtables_tlist_g1_tListIteratorTrack.cpp.o",
   "section": ".data",
   "base": 2147553256,
@@ -74,6 +140,17 @@
   "ok": true,
   "unresolved": 0,
   "words": 12,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/vtables_tmenu_g5_tMenu.cpp.o",
+  "section": ".data",
+  "base": 2147553480,
+  "end": 2147554008,
+  "size": 528,
+  "ok": true,
+  "unresolved": 0,
+  "words": 132,
   "q": 2
  },
  {
@@ -96,6 +173,17 @@
   "ok": true,
   "unresolved": 0,
   "words": 20,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/vtables_tmenu_g6_tBlankMenuItemNFS4LeftRightChoice.cpp.o",
+  "section": ".data",
+  "base": 2147554520,
+  "end": 2147554696,
+  "size": 176,
+  "ok": true,
+  "unresolved": 0,
+  "words": 44,
   "q": 2
  },
  {
@@ -704,10 +792,32 @@
   "q": 2
  },
  {
+  "obj": "build/recon/game/common/vtables_aistate.cpp.o",
+  "section": ".data",
+  "base": 2147831324,
+  "end": 2147831356,
+  "size": 32,
+  "ok": true,
+  "unresolved": 0,
+  "words": 8,
+  "q": 2
+ },
+ {
   "obj": "build/recon/game/common/vtables_aihigh_g1_AIHigh_BasicPerp.cpp.o",
   "section": ".data",
   "base": 2147831404,
   "end": 2147831428,
+  "size": 24,
+  "ok": true,
+  "unresolved": 0,
+  "words": 6,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/vtables_aihigh_g2_AIHigh_BasicCop.cpp.o",
+  "section": ".data",
+  "base": 2147831452,
+  "end": 2147831476,
   "size": 24,
   "ok": true,
   "unresolved": 0,
@@ -763,6 +873,17 @@
   "section": ".data",
   "base": 2147831744,
   "end": 2147831768,
+  "size": 24,
+  "ok": true,
+  "unresolved": 0,
+  "words": 6,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/vtables_aihigh_g9_AIHigh_Player.cpp.o",
+  "section": ".data",
+  "base": 2147831960,
+  "end": 2147831984,
   "size": 24,
   "ok": true,
   "unresolved": 0,
@@ -2032,7 +2153,7 @@
   "ok": true,
   "unresolved": 0,
   "words": 5,
-  "q": 0
+  "q": 2
  },
  {
   "obj": "build/recon/game/psx/loading.cpp.o",

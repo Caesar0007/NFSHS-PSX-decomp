@@ -3,6 +3,11 @@
  *   -- all reconstructed with full SYM-locals applied (0 missing, audited). No GTE.
  */
 #include "overlays_types.h"
+/* CC1PLPSX emission law: uninitialized globals are flushed at end-of-file in
+ * FIRST-DECLARATION order.  Retail overlays.obj .sdata is Hud_NextPerp
+ * 0x8013d994 / StatsTimer d998 / StatsTimer[1] d99c; overlays_externs.h
+ * declares StatsTimer first, so pin Hud_NextPerp ahead of it here. */
+extern short Hud_NextPerp[2];
 #include "overlays_externs.h"
 
 /* overlays.obj owns SYM's logical `StatsTimer[2]`.  Repeated -G4/-G8 probes

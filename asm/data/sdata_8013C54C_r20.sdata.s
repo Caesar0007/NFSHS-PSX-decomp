@@ -6,48 +6,6 @@
 .section .sdata.r20_post, "wa"
 
 .align 2
-nonmatching D_8013D98C
-
-dlabel D_8013D98C
-    /* 12E18C 8013D98C */ .asciz "%d"
-    /* 25640000 */
-.align 2
-enddlabel D_8013D98C
-
-.align 2
-nonmatching D_8013D990
-
-dlabel D_8013D990
-    /* 12E190 8013D990 */ .asciz "%s"
-    /* 25730000 */
-.align 2
-enddlabel D_8013D990
-
-nonmatching Hud_NextPerp
-
-dlabel Hud_NextPerp
-    /* 12E194 8013D994 */ .short 0x0000
-enddlabel Hud_NextPerp
-
-nonmatching D_8013D996
-
-dlabel D_8013D996
-    /* 12E196 8013D996 */ .short 0x0000
-enddlabel D_8013D996
-
-nonmatching StatsTimer
-
-dlabel StatsTimer
-    /* 12E198 8013D998 00000000 */ .word 0x00000000
-enddlabel StatsTimer
-
-nonmatching D_8013D99C
-
-dlabel D_8013D99C
-    /* 12E19C 8013D99C 00000000 */ .word 0x00000000
-enddlabel D_8013D99C
-
-.align 2
 nonmatching D_8013D9A0
 
 dlabel D_8013D9A0

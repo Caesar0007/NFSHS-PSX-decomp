@@ -323,6 +323,11 @@ PER_TU_FLAGS = {
     # textsys.obj is a -G8 TU: its "%s%s" (5B) literal sits in retail .sdata
     # (0x8013d45c) between wordFile and "p"; at -G4 it went to .rodata.
     "recon/game/common/textsys.cpp": {"g_value": "8"},
+    # drawc.obj: retail .sdata 0x8013d7c8.. holds "envmap"/"Shadow"/".psh" (7-8B)
+    # + the 8-byte DrawC_gEnvMapOffset => a -G8 TU; at -G8 our .sdata is
+    # byte-exact BUT DrawC_NightHeadlight grows by 4 bytes (prologue
+    # allocation flip) and shifts every later function (223 image words), so
+    # the TU stays at the default -G4 until NightHeadlight is re-matched at -G8.
     "recon/eaclib/psx/eacpsxz/unbtree.c": {"preserve_small_common_binding": True},
     # threads.c's tentative g_currentthread is referenced by inittmr.c; as a
     # lowered LOCAL .sbss symbol it was invisible and the oracle-only o38 filler

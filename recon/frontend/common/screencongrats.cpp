@@ -5,6 +5,17 @@
  *   present, semantic temps otherwise; [SYM] tags in comments. Some Scale/DrawShapeExtended args
  *   + a few RECT/fade locals were not recovered by the decompiler (noted inline).
  */
+/* CC1PLPSX emission law: uninitialized globals are flushed at end-of-file in
+ * FIRST-DECLARATION order.  Retail ScreenCongrats.obj front.data is the four
+ * screen pointers (0x80052944..) THEN congratsSwapFileName/fPermFileNameBuf
+ * (0x80052954/64); the header declares the buffers first, so pin the pointers
+ * here (pointer-to-incomplete-class externs need no definition). */
+struct tScreenPinkSlipCongrats; struct tScreenTournamentTrophy;
+struct tScreenBeTheCopCongrats; struct tScreenTournamentCongrats;
+extern tScreenPinkSlipCongrats *screenPinkSlipCongrats;
+extern tScreenTournamentTrophy *screenTournamentTrophy;
+extern tScreenBeTheCopCongrats *screenBeTheCopCongrats;
+extern tScreenTournamentCongrats *screenTournamentCongrats;
 #include "screencongrats.h"
 
 /* ScreenCongrats.obj-OWNED globals -- DEFINED here (self-contained; .bss zero; SYM-typed) */

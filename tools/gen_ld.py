@@ -793,12 +793,24 @@ def main():
     # that recon .text references (aih_cop/aiphysic: D_8011E0B0 ==
     # &simGlobal.gameTicks).  An absolute script assignment beats the
     # discarded definition, so those relocs bind to the retail VA.
+    # Generalised: EVERY VA-named data label a residual/filler piece defines
+    # (D_/DAT_<hex>) encodes its retail VA by construction.  Whatever piece
+    # ends up in a catch-all (unplaced _oNN fillers, discarded _legacy parts),
+    # an absolute script assignment binds the label to the retail VA -- the
+    # only value a reference to it can ever want.
     legacy_syms = {}
-    for o in sorted((ROOT / "build" / "asm" / "data").glob("*.s.o")):
+    va_named_objs = sorted((ROOT / "build" / "asm" / "data").glob("*.s.o"))
+    # ...and the recon TUs' own VA-named carriers (snddata.c's DAT_801371cc, a
+    # zero byte retail keeps at 0x801371cc inside another object's .data).
+    for s in [*Path(ROOT / "recon").rglob("*.cpp"), *Path(ROOT / "recon").rglob("*.c")]:
+        o = ROOT / "build" / (s.relative_to(ROOT).as_posix() + ".o")
+        if o.is_file():
+            va_named_objs.append(o)
+    for o in va_named_objs:
         out = subprocess.run([OBJDUMP, "-t", str(o)], capture_output=True, text=True).stdout
         for ln in out.splitlines():
-            m = re.match(r"^([0-9a-f]{8})\s+\S.*?\s(\S*_legacy\S*)\s+[0-9a-f]{8}\s+(D_([0-9A-Fa-f]{8}))$", ln)
-            if m:
+            m = re.match(r"^([0-9a-f]{8})\s+\S.*?\s(\S+)\s+[0-9a-f]{8}\s+((?:D|DAT)_([0-9A-Fa-f]{8}))$", ln)
+            if m and m.group(2) != "*UND*":
                 legacy_syms[m.group(3)] = int(m.group(4), 16)
     for name, va in sorted(legacy_syms.items()):
         A(f"    {name} = {va:#x};")

@@ -25,6 +25,26 @@
 #include "drawc_types.h"
 #include "../../lib/psx_gte.h"
 #include "psyq_prim_macros.h"
+/* CC1PLPSX emission law: uninitialized globals are flushed at end-of-file in
+ * FIRST-DECLARATION order.  Retail drawc.obj .sdata (-G8, 0x8013d7c8..0x8013d818)
+ * is DrawC_gEnvMapOffset (initialized) / the literals "envmap" "Shadow" "d" "l"
+ * ".psh" / then DrawC_gEnvMap 0x8013d7f0, gShadow, gEnvMapMax, gShadowMax,
+ * gMenuColor[2], gMenuLights, gMenuLightsDirection, gWetRoad, gReflectOffset --
+ * pinned here ahead of drawc_externs.h's alphabetical declarations. */
+extern DrawC_tEnvMap *DrawC_gEnvMap;
+extern DrawC_tEnvMap *DrawC_gShadow;
+extern int DrawC_gEnvMapMax;
+extern int DrawC_gShadowMax;
+/* UNSIZED here: the retail code in DrawC_NightHeadlight/MenuColorData forms
+ * &DrawC_gMenuColor[i] with an absolute lui/addiu (a declaration without a
+ * size is not gp-eligible -- IDT Ch9 / lever #5); the sized definition sits
+ * at the END of the TU, so at its emission the 8-byte array still lands in
+ * .sdata at this declaration's slot in the deferred order. */
+extern int DrawC_gMenuColor[];
+extern int DrawC_gMenuLights;
+extern int DrawC_gMenuLightsDirection;
+extern int DrawC_gWetRoad;
+extern short DrawC_gReflectOffset;
 #include "drawc_externs.h"
 
 /* ---- EA DMPSX-analog OT-link templates (2026-07-09, see fastmovf.c + hub) ----
@@ -130,13 +150,16 @@
 /* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
  * but OWNED here; tentative defs -> cc1 `.comm` -> stock maspsx gp-rels them
  * (matches the oracle's %gp_rel). section 3.12 #6. (auto: gen_gprel_defs.py) */
-DrawC_tEnvMap *DrawC_gEnvMap;
-DrawC_tEnvMap *DrawC_gShadow;
-int DrawC_gEnvMapMax;
-int DrawC_gMenuLightsDirection;
-int DrawC_gShadowMax;
-int DrawC_gWetRoad;
-short DrawC_gReflectOffset;
+short DrawC_gEnvMapOffset[4] = { 0x80, 0x40, 0, 0xc0 };   /* @0x8013d7c8 (initialized => emitted first) */
+DrawC_tEnvMap *DrawC_gEnvMap;        /* @0x8013d7f0 */
+DrawC_tEnvMap *DrawC_gShadow;        /* @0x8013d7f4 */
+int DrawC_gEnvMapMax;                /* @0x8013d7f8 */
+int DrawC_gShadowMax;                /* @0x8013d7fc */
+/* DrawC_gMenuColor[2] is defined at the END of the TU (unsized extern above). */
+int DrawC_gMenuLights;               /* @0x8013d808 */
+int DrawC_gMenuLightsDirection;      /* @0x8013d80c */
+int DrawC_gWetRoad;                  /* @0x8013d810 */
+short DrawC_gReflectOffset;          /* @0x8013d814 */
 
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
 void ChangeTPage(u_short *tpage,int nabr);
@@ -5776,3 +5799,7 @@ gte_stsxy3((char *)prim + 0x10,(char *)prim + 0x20,(char *)prim + 0x18);
   }
   return;
 }
+
+/* Sized definition LAST so every function above compiled against the unsized
+ * extern (absolute addressing, as retail); deferred-order slot = 0x8013d800. */
+int DrawC_gMenuColor[2];

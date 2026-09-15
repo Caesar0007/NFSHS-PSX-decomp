@@ -726,6 +726,17 @@
   "q": 2
  },
  {
+  "obj": "build/recon/frontend/common/screencongrats.cpp.o",
+  "section": ".data",
+  "base": 2147821892,
+  "end": 2147821940,
+  "size": 48,
+  "ok": true,
+  "unresolved": 0,
+  "words": 12,
+  "q": 2
+ },
+ {
   "obj": "build/recon/frontend/common/statchk.cpp.o",
   "section": ".data",
   "base": 2147821944,

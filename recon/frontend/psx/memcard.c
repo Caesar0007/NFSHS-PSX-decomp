@@ -233,7 +233,11 @@ typedef int SYSTEMTASK();
 typedef int THREAD;
 
 /* ---- memcard.obj data global ---- */
-extern fMemCardInfo gMemCardInfo;        /* 0x80052d68  (6108 B) */
+/* SYM: memcard.obj OWNS gMemCardInfo (Def2 EXT in its block, right after the
+ * static sjis tables).  A C tentative definition here (retail: .comm folded
+ * into front.bss by psylink) lets the placed link put it at 0x80052d68; an
+ * extern alone left it undefined -> catch-all .bss. */
+fMemCardInfo gMemCardInfo;               /* 0x80052d68  (6108 B) */
 extern int timerhz;
 
 /* ---- externs (libmcrd/libgs/eaclib/libetc/libc/sibling) ---- */

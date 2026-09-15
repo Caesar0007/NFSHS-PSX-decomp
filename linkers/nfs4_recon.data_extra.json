@@ -63,7 +63,7 @@
   "ok": true,
   "unresolved": 0,
   "words": 39,
-  "q": 1
+  "q": 2
  },
  {
   "obj": "build/recon/frontend/common/fecolor.cpp.o",
@@ -173,7 +173,7 @@
   "ok": true,
   "unresolved": 0,
   "words": 2,
-  "q": 2
+  "q": 0
  },
  {
   "obj": "build/recon/frontend/common/screenpost.cpp.o",
@@ -195,7 +195,7 @@
   "ok": true,
   "unresolved": 0,
   "words": 119,
-  "q": 2
+  "q": 0
  },
  {
   "obj": "build/recon/frontend/common/screentournselect.cpp.o",
@@ -239,7 +239,7 @@
   "ok": true,
   "unresolved": 0,
   "words": 6,
-  "q": 2
+  "q": 0
  },
  {
   "obj": "build/recon/frontend/common/screentrackinfo.cpp.o",
@@ -250,7 +250,7 @@
   "ok": true,
   "unresolved": 0,
   "words": 6,
-  "q": 2
+  "q": 0
  },
  {
   "obj": "build/recon/frontend/common/screentrackrecords.cpp.o",
@@ -338,7 +338,7 @@
   "ok": true,
   "unresolved": 0,
   "words": 44,
-  "q": 1
+  "q": 2
  },
  {
   "obj": "build/recon/game/common/vtables_aidatarecord.cpp.o",

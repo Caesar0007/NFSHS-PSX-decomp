@@ -315,6 +315,12 @@ PER_TU_FLAGS = {
     # are checked against MAP/CPE/raw; no other TU opts in. Backups and the
     # rejected linker-hash-ordered COMMON probe: scratchpad/p905_checkpoint.
     "recon/eaclib/psx/eacpsxz/primate.c": {"preserve_small_common_binding": True},
+    # unref.c + unbtree.c both tentative-define SQVclue/SQVleft/SQVright/SQVs/
+    # SQVd (retail: ONE merged COMMON allocation @0x8013DEC8..DEDC).  Keeping
+    # the public .comm binding lets ld fold the two into one symbol (placed at
+    # the retail base by gen_ld's COMMON leg) instead of two local .sbss copies.
+    "recon/eaclib/psx/eacpsxz/unref.c": {"preserve_small_common_binding": True},
+    "recon/eaclib/psx/eacpsxz/unbtree.c": {"preserve_small_common_binding": True},
     # P877: the hash-pinned retail 2.8.1 SN compiler reproduces all16 replay
     # functions and their branch distances in one ordinary compilation. It
     # removes the P852 StoringControllerData-only compiler splice below and

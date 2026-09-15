@@ -78,6 +78,15 @@ if sa.exists():
         m = re.match(r'^\s*([\w$.]+)\s*=\s*(0x[0-9A-Fa-f]+)\s*;', ln)
         if m:
             sym.setdefault(m.group(1), int(m.group(2), 16))
+# The MND SYM names every retail global INCLUDING file-statics the MAP lacks
+# (SQVclue.. in unref/unbtree .sbss, kMovingHighlight, ...).  Fallback only:
+# MAP + symbol_addrs stay authoritative where they have the name.
+SYMTXT = Path(r'C:/Temp/claud/dumpsym_clean/dumpsym_src/nfs4-f-v3.txt')
+if SYMTXT.exists():
+    for ln in SYMTXT.read_text(errors='replace').splitlines():
+        m = re.match(r'^[0-9a-f]+: \$([0-9a-f]{8}) [26] (\S+)$', ln)
+        if m:
+            sym.setdefault(m.group(2), int(m.group(1), 16))
 NAMEVA = re.compile(r'^(?:func|D|DAT|lbl)_([0-9A-Fa-f]{8})$')
 DOTL = re.compile(r'^\.L?_?([0-9A-Fa-f]{8})$')
 VTBL = re.compile(r'^(.+)_vtable$')
@@ -96,6 +105,12 @@ def aof(name):
     if m:
         cls = m.group(1)
         return sym.get(f'_vt.{len(cls)}{cls}')
+    # build.py renames our cfront dtor prefix `_._<Class>` to EA's `___<Class>`;
+    # the retail map keeps `_._`.  Without this the R_MIPS_32 dtor slots of a
+    # .data vtable-ish table count as "unresolved" and the window is rejected
+    # (aihigh .data @0x8010cd00: highLevelAIObjs).
+    if name.startswith('___') and f'_._{name[3:]}' in sym:
+        return sym[f'_._{name[3:]}']
     return None
 
 def run(*a):
@@ -373,6 +388,14 @@ def main():
         drop = set()
         for a, b in zip(rows, rows[1:]):
             if b['base'] < a['end']:
+                # IDENTICAL NOBITS windows (same base AND size) are the C
+                # "tentative definition in two TUs" case (unref.c/unbtree.c
+                # SQV*): retail folded them into one COMMON allocation, ours
+                # keeps both zero-size-identical sections and places both at
+                # the same retail base so whichever definition ld binds is
+                # right.  Keep both.
+                if label == 'bss' and a['base'] == b['base'] and a['end'] == b['end']:
+                    continue
                 # prefer the higher-quality anchor; drop only the weaker (a
                 # unanimous-named window beats a decode/non-unanimous one, whose
                 # mode-base is the likely-wrong one causing the overlap).

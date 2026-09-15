@@ -7,7 +7,17 @@
   "size": 32,
   "ok": true,
   "votes": 6,
-  "q": 1
+  "q": 2
+ },
+ {
+  "obj": "build/recon/frontend/common/femenuextended.cpp.o",
+  "section": ".bss",
+  "base": 2147822424,
+  "end": 2147822432,
+  "size": 8,
+  "ok": true,
+  "votes": 99,
+  "q": 2
  },
  {
   "obj": "build/recon/frontend/common/feinput.cpp.o",
@@ -17,7 +27,7 @@
   "size": 8,
   "ok": true,
   "votes": 2,
-  "q": 1
+  "q": 2
  },
  {
   "obj": "build/recon/frontend/common/fememcard.cpp.o",
@@ -27,7 +37,7 @@
   "size": 40,
   "ok": true,
   "votes": 5,
-  "q": 1
+  "q": 2
  },
  {
   "obj": "build/recon/frontend/common/screenmain.cpp.o",
@@ -37,7 +47,7 @@
   "size": 89,
   "ok": true,
   "votes": 4,
-  "q": 1
+  "q": 0
  },
  {
   "obj": "build/recon/frontend/common/screenpinkslips.cpp.o",
@@ -57,7 +67,7 @@
   "size": 106,
   "ok": true,
   "votes": 6,
-  "q": 2
+  "q": 0
  },
  {
   "obj": "build/recon/frontend/common/screentournselect.cpp.o",
@@ -77,7 +87,17 @@
   "size": 116,
   "ok": true,
   "votes": 65,
-  "q": 1
+  "q": 0
+ },
+ {
+  "obj": "build/recon/frontend/psx/memcard.c.o",
+  "section": ".bss",
+  "base": 2147822952,
+  "end": 2147829060,
+  "size": 6108,
+  "ok": true,
+  "votes": 99,
+  "q": 2
  },
  {
   "obj": "build/recon/game/common/aistate.cpp.o",
@@ -87,7 +107,7 @@
   "size": 4,
   "ok": true,
   "votes": 6,
-  "q": 1
+  "q": 2
  },
  {
   "obj": "build/recon/game/common/camera.cpp.o",
@@ -137,7 +157,7 @@
   "size": 12,
   "ok": true,
   "votes": 33,
-  "q": 1
+  "q": 2
  },
  {
   "obj": "build/recon/game/common/pausemenu.cpp.o",
@@ -147,7 +167,7 @@
   "size": 4,
   "ok": true,
   "votes": 8,
-  "q": 1
+  "q": 2
  },
  {
   "obj": "build/recon/game/common/simqueue.cpp.o",
@@ -157,7 +177,7 @@
   "size": 4,
   "ok": true,
   "votes": 2,
-  "q": 1
+  "q": 2
  },
  {
   "obj": "build/recon/game/common/track.cpp.o",
@@ -167,7 +187,17 @@
   "size": 8,
   "ok": true,
   "votes": 13,
-  "q": 1
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/common/aidebug.cpp.o",
+  "section": ".sbss",
+  "base": 2148785628,
+  "end": 2148785636,
+  "size": 8,
+  "ok": true,
+  "votes": 99,
+  "q": 2
  },
  {
   "obj": "build/recon/game/psx/device.cpp.o",
@@ -180,13 +210,23 @@
   "q": 1
  },
  {
-  "obj": "build/recon/game/psx/hrzsku.cpp.o",
+  "obj": "build/recon/game/psx/draw.cpp.o",
   "section": ".sbss",
   "base": 2148785640,
-  "end": 2148785664,
-  "size": 24,
+  "end": 2148785644,
+  "size": 4,
   "ok": true,
-  "votes": 8,
+  "votes": 2,
+  "q": 2
+ },
+ {
+  "obj": "build/recon/game/psx/font.cpp.o",
+  "section": ".sbss",
+  "base": 2148785644,
+  "end": 2148785648,
+  "size": 4,
+  "ok": true,
+  "votes": 3,
   "q": 2
  },
  {
@@ -197,7 +237,7 @@
   "size": 16,
   "ok": true,
   "votes": 8,
-  "q": 1
+  "q": 2
  },
  {
   "obj": "build/recon/eaclib/psx/eacpsxz/locatbig.c.o",
@@ -217,7 +257,17 @@
   "size": 48,
   "ok": true,
   "votes": 40,
-  "q": 1
+  "q": 2
+ },
+ {
+  "obj": "build/recon/eaclib/psx/eacpsxz/unbtree.c.o",
+  "section": ".sbss",
+  "base": 2148785864,
+  "end": 2148785884,
+  "size": 20,
+  "ok": true,
+  "votes": 99,
+  "q": 2
  },
  {
   "obj": "build/recon/eaclib/psx/eacpsxz/unref.c.o",
@@ -226,8 +276,8 @@
   "end": 2148785884,
   "size": 20,
   "ok": true,
-  "votes": 5,
-  "q": 1
+  "votes": 99,
+  "q": 2
  },
  {
   "obj": "build/recon/eaclib/psx/eacpsxz/stream.c.o",
@@ -237,7 +287,7 @@
   "size": 4,
   "ok": true,
   "votes": 4,
-  "q": 1
+  "q": 2
  },
  {
   "obj": "build/recon/game/common/aidatarecord.cpp.o",
@@ -247,7 +297,7 @@
   "size": 96,
   "ok": true,
   "votes": 4,
-  "q": 1
+  "q": 2
  },
  {
   "obj": "build/recon/game/common/camera.cpp.o",
@@ -257,7 +307,7 @@
   "size": 48,
   "ok": true,
   "votes": 2,
-  "q": 1
+  "q": 2
  },
  {
   "obj": "build/recon/game/common/collide.cpp.o",
@@ -277,7 +327,7 @@
   "size": 24,
   "ok": true,
   "votes": 2,
-  "q": 1
+  "q": 2
  },
  {
   "obj": "build/recon/game/common/track.cpp.o",
@@ -297,7 +347,7 @@
   "size": 16,
   "ok": true,
   "votes": 2,
-  "q": 1
+  "q": 2
  },
  {
   "obj": "build/recon/game/psx/hud.cpp.o",
@@ -330,6 +380,16 @@
   "q": 2
  },
  {
+  "obj": "build/recon/eaclib/psx/eacpsxz/locatbig.c.o",
+  "section": ".bss",
+  "base": 2148788544,
+  "end": 2148788608,
+  "size": 64,
+  "ok": true,
+  "votes": 99,
+  "q": 2
+ },
+ {
   "obj": "build/recon/eaclib/psx/eacpsxz/systask.c.o",
   "section": ".bss",
   "base": 2148788608,
@@ -337,7 +397,7 @@
   "size": 256,
   "ok": true,
   "votes": 4,
-  "q": 1
+  "q": 2
  },
  {
   "obj": "build/recon/eaclib/psx/sndpsxz/sst.c.o",

@@ -754,6 +754,17 @@ SECTIONS
     .source_data_18 0x800529d0 : SUBALIGN(4) { build/recon/frontend/psx/drawshp.cpp.o(.data); }
     ASSERT(SIZEOF(.source_data_18) == 4, "source data owner size mismatch")
 
+    .fd0000 0x80051260 : SUBALIGN(4) { build/asm/data/front_data_r00.data.s.o(.data); }
+    .fd0001 0x80051610 : SUBALIGN(4) { build/asm/data/front_data_r01.data.s.o(.data); }
+    .fd0002 0x80051738 : SUBALIGN(4) { build/asm/data/front_data_r02.data.s.o(.data); }
+    .fd0003 0x800517bc : SUBALIGN(4) { build/asm/data/front_data_r03.data.s.o(.data); }
+    .fd0004 0x80051aa8 : SUBALIGN(4) { build/asm/data/front_data_r03_after_fecredits.data.s.o(.data); }
+    .fd0005 0x80052074 : SUBALIGN(4) { build/asm/data/front_data_r04.data.s.o(.data); }
+    .fd0006 0x800520d0 : SUBALIGN(4) { build/asm/data/front_data_r05.data.s.o(.data); }
+    .fd0007 0x800528dc : SUBALIGN(4) { build/asm/data/front_data_r06.data.s.o(.data); }
+    .fd0008 0x800528ec : SUBALIGN(4) { build/asm/data/front_data_r07.data.s.o(.data); }
+    .fd0009 0x800529b0 : SUBALIGN(4) { build/asm/data/front_data_r08.data.s.o(.data); }
+
     .xd0000 0x800514b8 : SUBALIGN(4) { build/recon/frontend/common/feapp.cpp.o(.data); }
     .xd0001 0x800514c8 : SUBALIGN(4) { build/recon/frontend/common/feaudio.cpp.o(.data); }
     .xd0002 0x80051540 : SUBALIGN(4) { build/recon/frontend/common/fecars.cpp.o(.data); }

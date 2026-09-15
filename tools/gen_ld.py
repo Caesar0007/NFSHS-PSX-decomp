@@ -442,6 +442,7 @@ def main():
                 bss_placed.append((r["base"], r["obj"], r["section"]))
     bss_placed.sort()
     front_data_va = {}
+    front_data_resid = []          # (va, blob.s.o) -- residual front.data blobs
     fdfrag = ROOT / "linkers" / "nfs4_recon.front_data.ldfrag"
     if fdfrag.exists():
         for ln in fdfrag.read_text(errors="replace").splitlines():
@@ -452,6 +453,17 @@ def main():
                     0x80051260 <= int(m.group(3), 16) < 0x80052B38, \
                     f"front_data VA {m.group(3)} for {m.group(1)} outside front.data"
                 front_data_va[m.group(1)] = int(m.group(3), 16)
+        # W67-A12: the front_data RESIDUAL blobs (front_data_rNN, retail-byte .s
+        # for front.data head/gaps) define front.data-head globals (showRoomFlag,
+        # gMenuRotate, Fe3D_*, ...).  gen_ld never placed them -> they fell to the
+        # .data_rest catch-all and every ref resolved wrong.  Place each at its
+        # own retail VA (read from the piece's VA comment), like the front rodata
+        # residual pieces; the recon owners (data_ov) tile the gaps between them.
+        for m in re.finditer(r"build/asm/data/(front_data_r\w+)\.data\.s\.o\(\.data\)", fdfrag.read_text(errors="replace")):
+            p = dataroot / (m.group(1) + ".data.s")
+            if p.exists():
+                front_data_resid.append((piece_va(p), f"build/asm/data/{m.group(1)}.data.s.o"))
+        front_data_resid = sorted(set(front_data_resid))
 
     # P881: native local-static storage is source-owned even though the full
     # frontend fragment above remains a separate layout task. Validate exact
@@ -625,6 +637,13 @@ def main():
         section = owner["section"]
         A(f"    .source_data_{i} {owner['address']:#x} : SUBALIGN(4) {{ {obj}({section}); }}")
         A(f"    ASSERT(SIZEOF(.source_data_{i}) == {owner['size']}, \"source data owner size mismatch\")")
+    A("")
+    # W67-A12: front.data residual blobs (retail-byte .s) at their own VAs -- the
+    # front.data head/gaps whose globals (showRoomFlag/gMenuRotate/Fe3D_*) were
+    # falling to the .data_rest catch-all.  The recon owners (.xd below) tile the
+    # gaps between them.
+    for i, (va, o) in enumerate(front_data_resid):
+        A(f"    .fd{i:04d} {va:#x} : SUBALIGN(4) {{ {o}(.data); }}")
     A("")
     # recon .data superseding a blob, placed at its implied retail base
     for i, (base, o) in enumerate(placed_data):

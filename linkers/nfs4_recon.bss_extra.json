@@ -135,20 +135,11 @@
   "votes": 2
  },
  {
-  "obj": "build/recon/game/psx/hud.cpp.o",
+  "obj": "build/recon/eaclib/psx/eacpsxz/locatbig.c.o",
   "section": ".sbss",
-  "base": 2148785664,
-  "end": 2148785740,
-  "size": 76,
-  "ok": true,
-  "votes": 129
- },
- {
-  "obj": "build/recon/eaclib/psx/eacpsxz/primate.c.o",
-  "section": ".sbss",
-  "base": 2148785768,
-  "end": 2148785808,
-  "size": 40,
+  "base": 2148785760,
+  "end": 2148785768,
+  "size": 8,
   "ok": true,
   "votes": 99
  },
@@ -169,15 +160,6 @@
   "size": 4,
   "ok": true,
   "votes": 4
- },
- {
-  "obj": "build/recon/game/common/ai.cpp.o",
-  "section": ".bss",
-  "base": 2148785888,
-  "end": 2148786020,
-  "size": 132,
-  "ok": true,
-  "votes": 2
  },
  {
   "obj": "build/recon/game/common/aidatarecord.cpp.o",
@@ -306,15 +288,6 @@
   "votes": 15
  },
  {
-  "obj": "build/recon/syslib/psx/libcd/iso9660.c.o",
-  "section": ".bss",
-  "base": 2148812924,
-  "end": 2148822140,
-  "size": 9216,
-  "ok": true,
-  "votes": 21
- },
- {
   "obj": "build/recon/eaclib/psx/eacpsxz/cdfs.c.o",
   "section": ".bss",
   "base": 2148822212,
@@ -340,15 +313,6 @@
   "size": 624,
   "ok": true,
   "votes": 6
- },
- {
-  "obj": "build/recon/eaclib/psx/eacpsxz/callback.c.o",
-  "section": ".bss",
-  "base": 2148825056,
-  "end": 2148825184,
-  "size": 128,
-  "ok": true,
-  "votes": 99
  },
  {
   "obj": "build/recon/eaclib/psx/sndpsxz/ssysinit.c.o",
@@ -457,6 +421,16 @@
   "size": 12,
   "ok": true,
   "votes": 99
+ },
+ {
+  "obj": "build/recon/syslib/psx/libmcrd/BIOS.c.o",
+  "section": ".data",
+  "base": 2148829676,
+  "end": 2148829740,
+  "size": 64,
+  "ok": true,
+  "votes": 92,
+  "noload_data": true
  },
  {
   "obj": "build/recon/syslib/psx/libmcrd/USERFUNC.c.o",

@@ -513,18 +513,25 @@ def main():
                 votes[va - s["off"]] += 1
         return max(votes.items(), key=lambda kv: kv[1])[0] if votes else None
 
+    # W67-A11: sections placed NOLOAD at a beyond-image retail base via the
+    # bss_extra list (e.g. BIOS.c .data @0x801489ec) must be excluded from the
+    # .data/.sdata spine below, or they'd be placed twice.
+    bss_placed_secs = {(o, sec) for _, o, sec in bss_placed}
+
     extra_data, extra_sdata = [], []          # base-less -> catch-all append
     placed_data, placed_sdata = [], []        # (base, obj) -> spine placement
     for o, d in sorted(objdata.items()):
         if not o.startswith("build/recon"):
             continue
-        if d.get("secs", {}).get(".data", 0) and (o, ".data") not in in_frag:
+        if d.get("secs", {}).get(".data", 0) and (o, ".data") not in in_frag \
+                and (o, ".data") not in bss_placed_secs:
             b = data_ov.get((o, ".data")) or front_data_va.get(o)  # W67-A7 override
             if b is None:
                 b = data_base(o, ".data")
             (placed_data.append((b, o)) if b is not None
              else extra_data.append(f"        {o}(.data);"))
-        if d.get("secs", {}).get(".sdata", 0) and (o, ".sdata") not in in_frag:
+        if d.get("secs", {}).get(".sdata", 0) and (o, ".sdata") not in in_frag \
+                and (o, ".sdata") not in bss_placed_secs:
             b = data_ov.get((o, ".sdata")) or data_base(o, ".sdata")  # W67-A7 override
             (placed_sdata.append((b, o)) if b is not None
              else extra_sdata.append(f"        {o}(.sdata);"))

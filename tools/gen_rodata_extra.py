@@ -25,7 +25,7 @@ the reference target.  Outputs:
   linkers/nfs4_recon.data_extra.json    -- .data/.sdata retail bases (placed_data
                                            /placed_sdata override in gen_ld)
 """
-import json, re, struct, subprocess
+import json, re, struct, subprocess, importlib.util
 from collections import Counter
 from pathlib import Path
 
@@ -47,12 +47,19 @@ SPANS = {
     # TUs emit const virtual tables to .data that retail keeps in .rdata.  Every
     # .data window is byte-validated, so a wrong base is still rejected.
     '.rodata': [(0x80010000, 0x800128F0), (0x80054548, 0x8005797C)],
+    # .data/.sdata may also decode to a base in the .bss region: retail keeps
+    # some TUs' zero-init card/flag "data" as BSS (e.g. BIOS.c .data @0x801489ec).
+    # Those land beyond the ROM image and are placed NOLOAD for reloc resolution
+    # only (see romend handling in main; strong-consensus gated, no byte-check).
     '.data':   [(0x80010000, 0x800128F0), (0x80051260, 0x80052B38),
-                (0x80054548, 0x8005797C), (0x8010CCD4, 0x8013C54C)],
-    '.sdata':  [(0x8013C54C, 0x8013DD7C)],
+                (0x80054548, 0x8005797C), (0x8010CCD4, 0x8013C54C),
+                (0x80052B38, 0x80054548), (0x8013DEE0, 0x80148B04)],
+    '.sdata':  [(0x8013C54C, 0x8013DD7C), (0x8013DD7C, 0x8013DEE0),
+                (0x8013DEE0, 0x80148B04)],
     '.sbss':   [(0x8013DD7C, 0x8013DEE0)],
     '.bss':    [(0x80052B38, 0x80054548), (0x8013DEE0, 0x80148B04)],
 }
+ROMEND = 0x8013E000          # bytes at/after this are not in rom/nfs4-f.exe
 # NOBITS sections have no image payload to byte-validate against (and are
 # zero-filled, so a wrong base into another zero run would falsely "match").
 # Accept a NOBITS base only on strong retail-decode consensus (>=2 independent
@@ -300,6 +307,17 @@ def main():
             if span is None or base + nb > span[1]:
                 skipped.append((rel, sec, f'{base:#x}..{base+nb:#x} outside span')); continue
             known[sec] = base
+            # W67-A11: a .data/.sdata section whose decode base lands BEYOND the
+            # ROM image (retail keeps this TU's zero-init "data" as BSS, e.g.
+            # BIOS.c .data @0x801489ec) -- place NOLOAD for reloc resolution only
+            # (no bytes to byte-validate; require strong decode consensus).
+            if sec not in NOBITS and base >= ROMEND:
+                if nvotes < 2:
+                    skipped.append((rel, sec, f'beyond-image {base:#x} weak consensus {nvotes}')); continue
+                bss_out.append({'obj': rel, 'section': sec, 'base': base,
+                                'end': base + nb, 'size': nb, 'ok': True,
+                                'votes': nvotes, 'noload_data': True})
+                continue
             if sec in NOBITS:
                 bss_out.append({'obj': rel, 'section': sec, 'base': base,
                                 'end': base + nb, 'size': nb, 'ok': True,
@@ -317,10 +335,33 @@ def main():
     ro_out.sort(key=lambda r: r['base'])
     for a, b in zip(ro_out, ro_out[1:]):
         assert a['end'] <= b['base'], f"rodata extra overlap: {a['obj']} vs {b['obj']}"
+    # curated owner address ranges (SOURCE_DATA_OWNERS/SOURCE_ZERO_OWNERS): an
+    # extra window must never overlap one (that displaces the owner's symbol ->
+    # link ASSERT, the TrackSpec_* class).  Drop any window intersecting one.
+    owner_ranges = []
+    for modname, listname in (('source_data_owners', 'SOURCE_DATA_OWNERS'),
+                              ('source_zero_owners', 'SOURCE_ZERO_OWNERS')):
+        try:
+            sp = importlib.util.spec_from_file_location(modname, ROOT / 'tools' / (modname + '.py'))
+            m = importlib.util.module_from_spec(sp); sp.loader.exec_module(m)
+            for ow in getattr(m, listname):
+                a = ow.get('address')
+                if a is not None:
+                    owner_ranges.append((a, a + ow.get('size', ow.get('oracle_size', 0))))
+        except Exception:
+            pass
+    def hits_owner(r):
+        return any(r['base'] < oe and oa < r['end'] for oa, oe in owner_ranges)
     # data/sdata: two extras must not claim the same retail bytes (residual-blob
     # overlap is benign; extra-vs-extra overlap is a wrong base -- drop both).
     def drop_overlaps(rows, label):
         rows = sorted(rows, key=lambda r: r['base'])
+        keep = []
+        for r in rows:
+            if hits_owner(r):
+                skipped.append((r['obj'], r['section'], f'{label} overlaps a curated owner')); continue
+            keep.append(r)
+        rows = keep
         drop = set()
         for a, b in zip(rows, rows[1:]):
             if b['base'] < a['end']:

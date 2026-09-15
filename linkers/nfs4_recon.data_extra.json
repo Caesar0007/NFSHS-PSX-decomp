@@ -40,16 +40,6 @@
   "words": 2
  },
  {
-  "obj": "build/recon/frontend/common/fetextrender.cpp.o",
-  "section": ".data",
-  "base": 2147816888,
-  "end": 2147816976,
-  "size": 88,
-  "ok": true,
-  "unresolved": 0,
-  "words": 22
- },
- {
   "obj": "build/recon/frontend/common/fetracks.cpp.o",
   "section": ".data",
   "base": 2147816976,
@@ -148,16 +138,6 @@
   "ok": true,
   "unresolved": 0,
   "words": 14
- },
- {
-  "obj": "build/recon/frontend/common/fecredits.cpp.o",
-  "section": ".data",
-  "base": 2147818144,
-  "end": 2147818152,
-  "size": 8,
-  "ok": true,
-  "unresolved": 0,
-  "words": 2
  },
  {
   "obj": "build/recon/frontend/common/screenmain.cpp.o",
@@ -308,16 +288,6 @@
   "ok": true,
   "unresolved": 0,
   "words": 7
- },
- {
-  "obj": "build/recon/frontend/psx/drawshp.cpp.o",
-  "section": ".data",
-  "base": 2147822032,
-  "end": 2147822036,
-  "size": 4,
-  "ok": true,
-  "unresolved": 0,
-  "words": 1
  },
  {
   "obj": "build/recon/frontend/psx/memcard.c.o",
@@ -480,16 +450,6 @@
   "words": 151
  },
  {
-  "obj": "build/recon/game/common/audiocmn.cpp.o",
-  "section": ".data",
-  "base": 2148590800,
-  "end": 2148593216,
-  "size": 2416,
-  "ok": true,
-  "unresolved": 0,
-  "words": 604
- },
- {
   "obj": "build/recon/game/common/bworld.cpp.o",
   "section": ".data",
   "base": 2148593216,
@@ -510,16 +470,6 @@
   "words": 128
  },
  {
-  "obj": "build/recon/game/common/camera.cpp.o",
-  "section": ".data",
-  "base": 2148594348,
-  "end": 2148595752,
-  "size": 1404,
-  "ok": true,
-  "unresolved": 0,
-  "words": 351
- },
- {
   "obj": "build/recon/game/common/cars.cpp.o",
   "section": ".data",
   "base": 2148595752,
@@ -538,16 +488,6 @@
   "ok": true,
   "unresolved": 0,
   "words": 3
- },
- {
-  "obj": "build/recon/game/common/collide.cpp.o",
-  "section": ".data",
-  "base": 2148600880,
-  "end": 2148600944,
-  "size": 64,
-  "ok": true,
-  "unresolved": 0,
-  "words": 16
  },
  {
   "obj": "build/recon/game/common/hudpmx.cpp.o",
@@ -588,36 +528,6 @@
   "ok": true,
   "unresolved": 0,
   "words": 27
- },
- {
-  "obj": "build/recon/game/common/fei.cpp.o",
-  "section": ".data",
-  "base": 2148607900,
-  "end": 2148608812,
-  "size": 912,
-  "ok": true,
-  "unresolved": 0,
-  "words": 228
- },
- {
-  "obj": "build/recon/game/common/genericpmx.cpp.o",
-  "section": ".data",
-  "base": 2148608812,
-  "end": 2148610116,
-  "size": 1304,
-  "ok": true,
-  "unresolved": 0,
-  "words": 326
- },
- {
-  "obj": "build/recon/game/common/gmesetup.cpp.o",
-  "section": ".data",
-  "base": 2148610116,
-  "end": 2148613140,
-  "size": 3024,
-  "ok": true,
-  "unresolved": 0,
-  "words": 756
  },
  {
   "obj": "build/recon/game/common/input.cpp.o",
@@ -740,16 +650,6 @@
   "words": 6
  },
  {
-  "obj": "build/recon/game/psx/draww.cpp.o",
-  "section": ".data",
-  "base": 2148660592,
-  "end": 2148662368,
-  "size": 1776,
-  "ok": true,
-  "unresolved": 0,
-  "words": 444
- },
- {
   "obj": "build/recon/game/psx/force.cpp.o",
   "section": ".data",
   "base": 2148662368,
@@ -770,26 +670,6 @@
   "words": 326
  },
  {
-  "obj": "build/recon/game/psx/hrzsku.cpp.o",
-  "section": ".data",
-  "base": 2148664056,
-  "end": 2148665636,
-  "size": 1580,
-  "ok": true,
-  "unresolved": 0,
-  "words": 395
- },
- {
-  "obj": "build/recon/game/psx/hud.cpp.o",
-  "section": ".data",
-  "base": 2148665636,
-  "end": 2148666304,
-  "size": 668,
-  "ok": true,
-  "unresolved": 0,
-  "words": 167
- },
- {
   "obj": "build/recon/game/psx/texture.cpp.o",
   "section": ".data",
   "base": 2148667344,
@@ -798,16 +678,6 @@
   "ok": true,
   "unresolved": 0,
   "words": 40
- },
- {
-  "obj": "build/recon/syslib/psx/libpress/TABLE.c.o",
-  "section": ".data",
-  "base": 2148677688,
-  "end": 2148747320,
-  "size": 69632,
-  "ok": true,
-  "unresolved": 0,
-  "words": 17408
  },
  {
   "obj": "build/recon/syslib/psx/libpress/VLC.c.o",
@@ -880,26 +750,6 @@
   "words": 4
  },
  {
-  "obj": "build/recon/syslib/psx/libsn/SNDEF.c.o",
-  "section": ".data",
-  "base": 2148756688,
-  "end": 2148756696,
-  "size": 8,
-  "ok": true,
-  "unresolved": 0,
-  "words": 2
- },
- {
-  "obj": "build/recon/eaclib/psx/eacpsxz/atantbl.c.o",
-  "section": ".data",
-  "base": 2148756712,
-  "end": 2148756969,
-  "size": 257,
-  "ok": true,
-  "unresolved": 0,
-  "words": 64
- },
- {
   "obj": "build/recon/eaclib/psx/sndpsxz/slib.c.o",
   "section": ".data",
   "base": 2148756976,
@@ -920,36 +770,6 @@
   "words": 165
  },
  {
-  "obj": "build/recon/eaclib/psx/eacpsxz/asintbl.c.o",
-  "section": ".data",
-  "base": 2148758112,
-  "end": 2148758624,
-  "size": 512,
-  "ok": true,
-  "unresolved": 0,
-  "words": 128
- },
- {
-  "obj": "build/recon/eaclib/psx/eacpsxz/sintbl.c.o",
-  "section": ".data",
-  "base": 2148758628,
-  "end": 2148759656,
-  "size": 1028,
-  "ok": true,
-  "unresolved": 0,
-  "words": 257
- },
- {
-  "obj": "build/recon/eaclib/psx/eacpsxz/fatantbl.c.o",
-  "section": ".data",
-  "base": 2148759656,
-  "end": 2148760684,
-  "size": 1028,
-  "ok": true,
-  "unresolved": 0,
-  "words": 257
- },
- {
   "obj": "build/recon/syslib/psx/libpad/PADMAIN.c.o",
   "section": ".data",
   "base": 2148760696,
@@ -958,16 +778,6 @@
   "ok": true,
   "unresolved": 0,
   "words": 27
- },
- {
-  "obj": "build/recon/syslib/psx/libgte/CSTBL.c.o",
-  "section": ".data",
-  "base": 2148760864,
-  "end": 2148777248,
-  "size": 16384,
-  "ok": true,
-  "unresolved": 0,
-  "words": 4096
  },
  {
   "obj": "build/recon/eaclib/psx/eacpsxz/isqrttbl.c.o",
@@ -1028,16 +838,6 @@
   "ok": true,
   "unresolved": 0,
   "words": 8
- },
- {
-  "obj": "build/recon/game/common/ai.cpp.o",
-  "section": ".sdata",
-  "base": 2148779340,
-  "end": 2148779356,
-  "size": 16,
-  "ok": true,
-  "unresolved": 0,
-  "words": 4
  },
  {
   "obj": "build/recon/game/common/aihigh.cpp.o",
@@ -1160,16 +960,6 @@
   "words": 8
  },
  {
-  "obj": "build/recon/game/common/audiocmn.cpp.o",
-  "section": ".sdata",
-  "base": 2148779560,
-  "end": 2148779808,
-  "size": 248,
-  "ok": true,
-  "unresolved": 0,
-  "words": 62
- },
- {
   "obj": "build/recon/game/common/audiomus.cpp.o",
   "section": ".sdata",
   "base": 2148779808,
@@ -1260,16 +1050,6 @@
   "words": 8
  },
  {
-  "obj": "build/recon/game/common/hudpmx.cpp.o",
-  "section": ".sdata",
-  "base": 2148780108,
-  "end": 2148781441,
-  "size": 1333,
-  "ok": true,
-  "unresolved": 0,
-  "words": 333
- },
- {
   "obj": "build/recon/game/common/speech.cpp.o",
   "section": ".sdata",
   "base": 2148781444,
@@ -1278,16 +1058,6 @@
   "ok": true,
   "unresolved": 0,
   "words": 190
- },
- {
-  "obj": "build/recon/game/common/copspeak.cpp.o",
-  "section": ".sdata",
-  "base": 2148782204,
-  "end": 2148782330,
-  "size": 126,
-  "ok": true,
-  "unresolved": 0,
-  "words": 31
  },
  {
   "obj": "build/recon/game/common/fastrand.cpp.o",
@@ -1330,16 +1100,6 @@
   "words": 1
  },
  {
-  "obj": "build/recon/game/common/nfs3.cpp.o",
-  "section": ".sdata",
-  "base": 2148782704,
-  "end": 2148782792,
-  "size": 88,
-  "ok": true,
-  "unresolved": 0,
-  "words": 22
- },
- {
   "obj": "build/recon/game/common/object.cpp.o",
   "section": ".sdata",
   "base": 2148782792,
@@ -1380,16 +1140,6 @@
   "words": 13
  },
  {
-  "obj": "build/recon/game/common/r3dcar.cpp.o",
-  "section": ".sdata",
-  "base": 2148782884,
-  "end": 2148783040,
-  "size": 156,
-  "ok": true,
-  "unresolved": 0,
-  "words": 39
- },
- {
   "obj": "build/recon/game/common/render.cpp.o",
   "section": ".sdata",
   "base": 2148783040,
@@ -1418,16 +1168,6 @@
   "ok": true,
   "unresolved": 0,
   "words": 1
- },
- {
-  "obj": "build/recon/game/common/sim.cpp.o",
-  "section": ".sdata",
-  "base": 2148783116,
-  "end": 2148783156,
-  "size": 40,
-  "ok": true,
-  "unresolved": 0,
-  "words": 10
  },
  {
   "obj": "build/recon/game/common/simqueue.cpp.o",
@@ -1530,16 +1270,6 @@
   "words": 1
  },
  {
-  "obj": "build/recon/game/psx/draww.cpp.o",
-  "section": ".sdata",
-  "base": 2148784156,
-  "end": 2148784192,
-  "size": 36,
-  "ok": true,
-  "unresolved": 0,
-  "words": 9
- },
- {
   "obj": "build/recon/game/psx/force.cpp.o",
   "section": ".sdata",
   "base": 2148784192,
@@ -1578,16 +1308,6 @@
   "ok": true,
   "unresolved": 0,
   "words": 7
- },
- {
-  "obj": "build/recon/game/psx/hud.cpp.o",
-  "section": ".sdata",
-  "base": 2148784284,
-  "end": 2148784524,
-  "size": 240,
-  "ok": true,
-  "unresolved": 0,
-  "words": 60
  },
  {
   "obj": "build/recon/game/psx/overlays.cpp.o",
@@ -1650,26 +1370,6 @@
   "words": 25
  },
  {
-  "obj": "build/recon/game/psx/textureprocess.cpp.o",
-  "section": ".sdata",
-  "base": 2148784972,
-  "end": 2148785040,
-  "size": 68,
-  "ok": true,
-  "unresolved": 0,
-  "words": 17
- },
- {
-  "obj": "build/recon/game/psx/trackspec.cpp.o",
-  "section": ".sdata",
-  "base": 2148785040,
-  "end": 2148785052,
-  "size": 12,
-  "ok": true,
-  "unresolved": 0,
-  "words": 3
- },
- {
   "obj": "build/recon/game/psx/trsproj.cpp.o",
   "section": ".sdata",
   "base": 2148785052,
@@ -1678,26 +1378,6 @@
   "ok": true,
   "unresolved": 0,
   "words": 1
- },
- {
-  "obj": "build/recon/eaclib/psx/eacpsxz/vars.c.o",
-  "section": ".sdata",
-  "base": 2148785252,
-  "end": 2148785412,
-  "size": 160,
-  "ok": true,
-  "unresolved": 0,
-  "words": 40
- },
- {
-  "obj": "build/recon/eaclib/psx/eacpsxz/primate.c.o",
-  "section": ".sdata",
-  "base": 2148785412,
-  "end": 2148785432,
-  "size": 20,
-  "ok": true,
-  "unresolved": 0,
-  "words": 5
  },
  {
   "obj": "build/recon/eaclib/psx/eacpsxz/fileroot.c.o",

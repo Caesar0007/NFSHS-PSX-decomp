@@ -1050,21 +1050,17 @@ long Speech::SubmitRequest(long bank,long localoffset,long size)
     __asm__("" : "=r"(offset) : "0"(offset));
     if (patch >= 0) {
       CopSpeak_GenericBankRequest(patch,car);
-      return offset + localoffset;
     }
-    else {
-      if (offset != 0) {
-        CopSpeak_DirectRequest(Speech_fgSpeech->FileHandle(),
-                               offset + localoffset,size,car,0);
-      }
-      /* MATCH: cross_jump un-merger -- see the header block.  jump.c's free
-         `--minimum` for the end-of-if CODE_LABEL lets do_cross_jump redirect
-         this arm's one-insn return tail onto the other arm's copy; a volatile
-         asm here makes find_cross_jump lose before that.  Zero insns. */
-      /* W85-S2: an INERT zero-insn fence was deleted here -- measured 102/102
-         PASS alone and as the pair {SubmitRequest, MobileSpeaker::Lose}. */
-      return offset + localoffset;
+    else if (offset != 0) {
+      CopSpeak_DirectRequest(Speech_fgSpeech->FileHandle(),
+                             offset + localoffset,size,car,0);
     }
+    /* ONE return after the if/else-if: retail's two `j epilogue; addu v0,s0,s2` tails are
+       reorg's delay-slot copies of this single join block (0x80095cec), and the
+       `offset == 0` branch targets that join (beqz +7).  Two source returns made jump.c
+       cross-jump that branch onto the other arm's copy (beqz -3) -- a branch-direction
+       defect the target-masking gate could not see (2026-09-17, lane fncompare --mask). */
+    return offset + localoffset;
   }
   return 0;
 }

@@ -90,6 +90,25 @@ def front_objects(rows):
     return {o for o, sec in first.items() if sec.startswith('front.')}
 
 
+def retail_pads(rows):
+    """{build obj path: {base section: 4}} -- retail objects whose section is followed by a
+    4-byte pad (every frontend object, most Sony library objects: their sections are padded
+    to 8 bytes by whatever produced them; no ASPSX version and no PSYLINK alignment does it).
+    Derived from the honest (= retail) layout: next object's section starts 4 bytes after
+    this one's end and this one's size is 4 mod 8."""
+    pads = defaultdict(dict)
+    by = defaultdict(list)
+    for sec, va, sz, o in rows:
+        by[sec].append((va, sz, o))
+    for sec, lst in by.items():
+        lst.sort()
+        base = sec.split('.')[-1]
+        for (va, sz, o), (nva, nsz, no) in zip(lst, lst[1:]):
+            if no != o and nva - (va + sz) == 4:
+                pads[o][base] = 4
+    return pads
+
+
 def base_section(s):
     """normalised base section for a directive line (stripped), or None"""
     m = SECTION_RE.match(s)
@@ -109,7 +128,7 @@ def base_section(s):
 COMM_RE = re.compile(rb'\.(l?comm)\s+(\S+?)\s*,\s*(\d+)')
 
 
-def sn_text(src: Path, vtables=False, front=False) -> bytes:
+def sn_text(src: Path, vtables=False, front=False, pads=None) -> bytes:
     out = []
     lines = src.read_bytes().replace(b'\r\n', b'\n').split(b'\n')
     # front-overlay objects: ASPSX -s puts the object's COMMONs into front.bss after its
@@ -163,13 +182,20 @@ def sn_text(src: Path, vtables=False, front=False) -> bytes:
                 out.append(b'\t.globl ' + name)
             out.append(name + b':')
             out.append(b'\t.space ' + str(size).encode())
+    for base, n in sorted((pads or {}).items()):
+        sec = {'text': b'.text', 'rodata': b'.rdata', 'rdata': b'.rdata', 'data': b'.data', 'bss': b'.bss', 'sdata': b'.sdata', 'sbss': b'.sbss'}[base]
+        if front and sec in (b'.text', b'.rdata', b'.data', b'.bss'):
+            out.append(b'\t.section front' + sec)
+        else:
+            out.append(b'\t' + sec)
+        out.append(b'\t.space %d' % n)   # retail trailing pad (section padded to 8)
     return b'\r\n'.join(out) + b'\r\n'
 
 
-def crlf(src: Path, dst: Path, front=False):
+def crlf(src: Path, dst: Path, front=False, pads=None):
     # same dtor-prefix convention as build.py's GNU lane (`_._X` -> `___X`) so the
     # hand-written vtable references resolve; the compare step maps it back.
-    dst.write_bytes(sn_text(src, vtables='vtables_' in src.name, front=front).replace(b'_._', b'___'))
+    dst.write_bytes(sn_text(src, vtables='vtables_' in src.name, front=front, pads=pads).replace(b'_._', b'___'))
 
 
 def objname(rel):
@@ -179,6 +205,8 @@ def objname(rel):
 if '--assemble' in steps:
     ok = bad = 0; fails = []
     rows = honest_sections(); FRONT = front_objects(rows); HONEST_OBJS = {o for _, _, _, o in rows}
+    PADS = retail_pads(rows) if '--no-pads' not in sys.argv else {}
+    (W / 'pad8.json').write_text(json.dumps({o: p for o, p in PADS.items()}, indent=0))
     srcs = sorted([*(ROOT / 'recon').rglob('*.cpp'), *(ROOT / 'recon').rglob('*.c')])
     nfront = 0
     for s in srcs:
@@ -190,7 +218,7 @@ if '--assemble' in steps:
         bo = 'build/' + rel + '.o'
         front = (bo in FRONT) if bo in HONEST_OBJS else rel.startswith('recon/frontend/')
         nfront += front
-        tmp = OUT / (rel.replace('/', '__') + '.s'); crlf(sfile, tmp, front=front)
+        tmp = OUT / (rel.replace('/', '__') + '.s'); crlf(sfile, tmp, front=front, pads=PADS.get(bo))
         obj = OUT / objname(rel)
         cmd = [ASPSX, '-q', f'-G{g}', str(tmp), '-o', str(obj)]
         if obj.exists():
@@ -216,6 +244,8 @@ def build_link_order():
     for o in order:
         if not seen or seen[-1] != o[0]:
             seen.append(o[0])
+    for p in [*OUT.glob('gap__*.obj'), *OUT.glob('gap__*.s')]:   # stale gap objects from an earlier run
+        p.unlink()
     ours = defaultdict(list)
     for p in OUT.glob('*.obj'):
         k = p.name.split('__')[-1].split('.')[0].lower() if '__' in p.name else p.stem.lower()

@@ -442,12 +442,12 @@
  {
   "obj": "build/recon/frontend/common/femenuoptions.cpp.o",
   "section": ".data",
-  "base": 2147816876,
+  "base": 2147816872,
   "end": 2147816884,
-  "size": 8,
+  "size": 12,
   "ok": true,
   "unresolved": 0,
-  "words": 2,
+  "words": 3,
   "q": 2
  },
  {
@@ -574,12 +574,12 @@
  {
   "obj": "build/recon/frontend/common/screenpinkslips.cpp.o",
   "section": ".data",
-  "base": 2147819100,
+  "base": 2147819104,
   "end": 2147819112,
-  "size": 12,
+  "size": 8,
   "ok": true,
   "unresolved": 0,
-  "words": 3,
+  "words": 2,
   "q": 0
  },
  {

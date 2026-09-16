@@ -1,0 +1,17 @@
+== .text: 104 matched symbols; base delta -0x313c
+   drift -0x313c -> -0x17aa0 (-0x14964) between Update__10AIDelayCar and AIScript_Assign__FP10AIScript_tPA7_25AIScript_tReactionDetails @0x8006f6f8 [aiscript.obj]
+   drift -0x17aa0 -> -0x39fbc (-0x2251c) between AIScript_GetReactionTicksLeft__FP10AIScript_t and IsNumChar__Fc @0x80091ec0 [color.obj]
+   drift -0x39fbc -> -0x3af34 (-0xf78) between Risk_ReadNextValue__FPPc and SPCHNFS_C_A_CONFIRM @0x80092f54 [Speech.obj]
+   drift -0x3af34 -> -0x67ab0 (-0x2cb7c) between ResizeToFit__9SimpleMem and unpackz @0x800e3e68 [unpack.obj]
+   drift -0x67ab0 -> -0x67b74 (-0xc4) between unpacksize and padinit @0x800e40e8 [pad.obj]
+== .data: 1 matched symbols; base delta -0x70650
+== .sdata: 7 matched symbols; base delta -0x7aae8
+   drift -0x7aae8 -> -0x7a828 (+0x2c0) between numRandCalls and New_cplusplus_heap @0x8013d26c [new.obj]
+   drift -0x7a828 -> -0x7a090 (+0x798) between New_cplusplus_heap and grabValue @0x8013d4f8 [aidebug.obj]
+   drift -0x7a090 -> -0x7a3ac (-0x31c) between grabValue and gSavePtr @0x8013d818 [DrawDbg.obj]
+== .sbss: 2 matched symbols; base delta -0x76b30
+== .bss: 2 matched symbols; base delta -0x775b4
+   drift -0x775b4 -> -0x775b0 (+0x4) between gPadinfo and Padglobal @0x8013e8f0 [pad.obj]
+== front.text: 3 matched symbols; base delta -0x3bb38
+   drift -0x3bb38 -> -0x3d410 (-0x18d8) between PSXTransDrawBrightEndLine__Fiiiiiiiii and FeDraw_SetABRMode__Fi @0x8004d6d8 [mmeffect.obj]
+== front.data: 1 matched symbols; base delta -0x41360

@@ -37,7 +37,8 @@
 "text": 4
 },
 "build/recon/frontend/common/screenpinkslips.cpp.o": {
-"text": 4
+"text": 4,
+"bss": 4
 },
 "build/recon/frontend/common/screenpost.cpp.o": {
 "text": 4,
@@ -93,9 +94,6 @@
 "data": 4
 },
 "build/recon/frontend/common/feaudio.cpp.o": {
-"data": 4
-},
-"build/recon/frontend/common/fecars.cpp.o": {
 "data": 4
 },
 "build/recon/frontend/common/femenuoptions.cpp.o": {

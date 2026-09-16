@@ -29,7 +29,7 @@ void tScreenPinkSlips::DrawBackground()
   short tv;
   tMenuTextState textState;
   tTrackInformation trackInfo;
-  static int flareextra = 0;   /* retail: zero static in front.DATA @0x80051e5c => written `= 0` */
+  static int flareextra;   /* retail: uninit lcomm -> front.bss flareextra.248 @0x80052bf0 (DrawBackground reads 0x80050000+11248) */
   short shapeY;
   /* SYM-CODEGEN-CARRIER: movieVramX -- the tpage x is a SHORT local (retail
      rematerializes it as

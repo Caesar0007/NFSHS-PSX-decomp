@@ -27,7 +27,7 @@
     build/asm/data/sdata_8013C54C_r03.sdata.s.o(.sdata);
     build/recon/game/common/aitriger.cpp.o(.sdata);   /* 0x8013c5e8..0x8013c5f0  was sdata_8013C54C_o07.sdata.s */
     build/recon/game/common/aitune.cpp.o(.sdata);   /* 0x8013c5f0..0x8013c5fc  was sdata_8013C54C_o08.sdata.s */
-    build/asm/data/sdata_8013C54C_r04.sdata.s.o(.sdata);
+    build/recon/game/common/anim.cpp.o(.sdata);   /* 0x8013c5fc..0x8013c608 native owner (was sdata_8013C54C_r04.sdata) */
     build/recon/game/common/audioclc.cpp.o(.sdata);   /* 0x8013c608..0x8013c628  was sdata_8013C54C_o09.sdata.s */
     build/recon/game/common/audiocmn.cpp.o(.sdata);   /* P906 source owner:0x8013c628..0x8013c720; r05 is oracle-only */
     build/recon/game/common/audiomus.cpp.o(.sdata);   /* now to 0x8013c72c (was sdata_8013C54C_r06.sdata) */

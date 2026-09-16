@@ -6,9 +6,11 @@
 #include "../../lib/nfs4_new.h"
 #include "femenuoptions.h"
 
-/* EXT/STAT data owned by FeMenuOptions.obj (byte-exact from retail binary) */
-int PulsateYellow = 0;   /* @0x800515ac; SYM EXT INT */
-int fHelpText = 0;       /* @0x800515b0; SYM EXT INT */
+/* EXT data owned by FeMenuOptions.obj: both UNINITIALIZED -- cc1plus 2.8 defers them to
+ * end-of-file as .data .space, so retail's order is [Draw's static flareextra = 0 @0x800515a8]
+ * [PulsateYellow @0x800515ac][fHelpText @0x800515b0] (probe build/psyq/probe/nc.i). */
+int PulsateYellow;       /* @0x800515ac; SYM EXT INT */
+int fHelpText;           /* @0x800515b0; SYM EXT INT */
 
 typedef struct tPsyQPrimTag {
   unsigned int addr : 24;
@@ -1064,7 +1066,7 @@ void tMenuItemSlidingMenu::Draw(int offx,int offy,bool selected)
   int x;
   int y;
   tTexture_ShapeInfo *shape;
-  static int flareextra;
+  static int flareextra = 0;   /* retail: zero static in front.DATA @0x800515a8 (Draw reads 0x80050000+0x15a8) */
   bool fPlayList;
 
   /* SYM: fn-scope locals are ONLY ColText/x/y/shape/fPlayList; drawFlags+

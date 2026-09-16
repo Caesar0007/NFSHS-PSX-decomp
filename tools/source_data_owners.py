@@ -250,6 +250,13 @@ SOURCE_DATA_OWNERS = (
     # This also restores the following vars/native small-data addresses.
     # Source/tool/link backups and raw-reference proofs: scratchpad/p886_vars.
     {
+        'source': 'recon/game/common/anim.cpp', 'section': '.sdata',
+        'address': 0x8013C5FC, 'size': 11,
+        'payload_sha256': '0f7ec7ee658be5fd318f1086e6ad8c9dbad22c8b199f61cf7a58ae3c733761ba',
+        'oracle_source': 'asm/data/sdata_8013C54C_r04.sdata.s',
+        'placement': 'fragment', 'record': 'anim.obj literal pool at -G8: "%sA.viv" 8013C5FC (Anim_InitSystem sprintf, absolute lui/addiu ref @80073B44) + "Tr" 8013C604 (strstr); no anim data symbols in the SYM (2026-09-17)',
+    },
+    {
         'source': 'recon/game/psx/textureprocess.cpp', 'section': '.sdata',
         'address': 0x8013DB3C, 'size': 84,
         'payload_sha256': 'f6851b54a51167a8b7fceb69ef597132a398791af6b0739af0241b82eded3a5b',

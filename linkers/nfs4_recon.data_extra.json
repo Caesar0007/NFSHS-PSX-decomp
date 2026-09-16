@@ -1983,11 +1983,11 @@
   "obj": "build/recon/game/common/replay.cpp.o",
   "section": ".sdata",
   "base": 2148783084,
-  "end": 2148783104,
-  "size": 20,
+  "end": 2148783112,
+  "size": 28,
   "ok": true,
   "unresolved": 0,
-  "words": 5,
+  "words": 7,
   "q": 2
  },
  {

@@ -36,11 +36,6 @@ int Replay_ReplayStorePtr;
 int Replay_Size;
 int numValidCams;
 
-/* SYM places this eight-byte array immediately after replay.obj's five
- * gp-relative scalars.  The source still accesses it absolutely under -G4;
- * the named small-data section restores ownership without changing codegen. */
-int Replay_ReplayCounter[2]
-    __attribute__((section(".sdata.replay_counter")));
 
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
 char * Replay_Compress(char *uncompressed_data);
@@ -245,8 +240,8 @@ void Replay_ResetReplay(void)
     i = i + -1;
     piVar2 = piVar2 + -1;
   } while (-1 < i);
-  StatsTimerPlayer1Cell[0] = 0;
-  StatsTimerPlayer2Cell[0] = 0;
+  StatsTimer[0] = 0;
+  StatsTimer[1] = 0;
   return;
 }
 
@@ -567,8 +562,8 @@ void Replay_GetInterfaceKey(void)
       Replay_ReplayInterface.end = 1;
     }
     else if (Input_Interface(0x19,1) != 0) {
-      StatsTimerPlayer1Cell[0] = 0;
-      StatsTimerPlayer2Cell[0] = 0;
+      StatsTimer[0] = 0;
+      StatsTimer[1] = 0;
       Replay_ReplayInterface.statsScreen = 1;
       AudioCmn_PlayPauseSound(4);
     }
@@ -769,3 +764,10 @@ void Replay_ReplayFindClosestCamera(int player,int slice)
 #undef REPLAY_WRAPPED_SLICE_DIFF_LE
 
 /* end of replay.cpp */
+
+/* -G8 TU: the five scalars above and this array are all uninitialized, so cc1plus defers
+ * them to end-of-file in FIRST-DECLARATION order (replay_externs.h: Replay_Size,
+ * numValidCams, Replay_ReplayMode, Replay_ReplayStorePtr, Replay_ReplayGetPtr,
+ * Replay_ReplayCounter) = SYM 0x8013d3ec..0x8013d408.  Defined AFTER its uses so the
+ * header's unsized declaration fixes its (absolute) addressing, as retail has. */
+int Replay_ReplayCounter[2];

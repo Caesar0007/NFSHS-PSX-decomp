@@ -64,9 +64,7 @@
     build/recon/game/common/physics.cpp.o(.sdata);   /* 0x8013d2f0..0x8013d324  was sdata_8013C54C_o23.sdata.s */
     build/recon/game/common/r3dcar.cpp.o(.sdata);   /* P882: 0x8013d324..0x8013d3c0 */
     build/asm/data/sdata_8013C54C_r13.sdata.s.o(.sdata);
-    build/recon/game/common/replay.cpp.o(.sdata);   /* 0x8013d3ec..0x8013d400  was sdata_8013C54C_o24.sdata.s */
-    /* SYM ownership seam: replay.obj's two-word per-player counter follows its five scalars. */
-    build/recon/game/common/replay.cpp.o(.sdata.replay_counter);   /* 0x8013d400..0x8013d408 */
+    build/recon/game/common/replay.cpp.o(.sdata);   /* 0x8013d3ec..0x8013d408  five scalars + Replay_ReplayCounter[2], all deferred uninit at -G8 (was o24 + .sdata.replay_counter carrier) */
     build/recon/game/common/scene.cpp.o(.sdata);   /* 0x8013d408..0x8013d40c  was sdata_8013C54C_o25.sdata.s */
     build/recon/game/common/sim.cpp.o(.sdata);   /* P882: 0x8013d40c..0x8013d434 */
     /* SYM ownership seam: simqueue.obj's initialized ticker/blocking state. */

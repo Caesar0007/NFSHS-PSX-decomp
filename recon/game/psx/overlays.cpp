@@ -15,16 +15,11 @@ extern short Hud_NextPerp[2];
    functions; retain two adjacent 4-byte cells as an explicit storage carrier.
    Consumer TUs continue to see the logical array. */
 short Hud_NextPerp[2];
-/* SYM-CARRIER: StatsTimer
-   SYM-GLOBAL-CARRIER: StatsTimerPlayer2Value */
-int StatsTimer;
-int StatsTimerPlayer2Value asm("D_8013D99C");
+int StatsTimer[2];
 /* Zero-storage constant-element compiler views.  Retail SYM owns one
    `StatsTimer[2]` object, but the retail code addresses the two constant cells
    through independent gp-relative relocations.  The semantic C identifiers
    keep that codegen fact out of the source's data model. */
-extern int StatsTimerPlayer1ClampStore[1] asm("StatsTimer");
-extern int StatsTimerPlayer2ClampStore[1] asm("D_8013D99C");
 /* retail overlays.obj .data: the BTC perp-info table (0x80120bc0, zero, deferred) */
 tBTCPerpInfo BTCPerpInfo[2][10];
 
@@ -177,7 +172,7 @@ void RaceSummary(void)
     int pos;
 
     pos = Cars_gRaceCarList[i]->stats.finalPosition;
-    if (pos * 2 + 4 < StatsTimer) {
+    if (pos * 2 + 4 < StatsTimer[0]) {
       if ((Cars_gRaceCarList[i]->carFlags & 4U) != 0) {
         Font_TextColor(3);
       }
@@ -736,7 +731,7 @@ void RaceStatistics(void)
       if (0 < (int)i) {
         Hud_FBuildF4(0,col1 + -2,(int)HUD_STATS_POS_Y,1,(sizeH16 >> 0x10) + -8,0,'\0','\0');
       }
-      if (2 < StatsTimerPlayer2Value) {
+      if (2 < StatsTimer[1]) {
         Font_TextColor(3);
         sprintf(string,"%s",Cars_gRaceCarList[i]->carInfo->driver);
         /* CORRECTNESS (w39-a4): the Y arg is ((titleY + 0x11) * 0x10000 >> 0x10)-4, NOT (-halfH)-4.  Raw oracle
@@ -749,7 +744,7 @@ void RaceStatistics(void)
        range-fold them into a single `slti v0,v0,2`. */
     if (GameSetup_gData.numLaps != 1) {
      for (j = 0; (int)j < GameSetup_gData.numLaps; j = j + 1) {
-        if ((int)j * 2 + 4 < StatsTimerPlayer2Value) {
+        if ((int)j * 2 + 4 < StatsTimer[1]) {
           /* colour is an inline ternary (oracle puts `li $a0,3` in the `beq` delay slot
              @0x800DA33C and falls into `li $a0,4`); there is no `color` local in the SYM. */
           if (((Cars_gHumanRaceCarList[i]->stats).finalLapTime[j] != 0) &&
@@ -772,7 +767,7 @@ void RaceStatistics(void)
         }
      }
     }
-    if (GameSetup_gData.numLaps * 2 + 4 < StatsTimerPlayer2Value) {
+    if (GameSetup_gData.numLaps * 2 + 4 < StatsTimer[1]) {
       sprintf(string,TextSys_Word(0x37));
       Font_TextColor(3);
       Font_TextXY(string,(int)col1,
@@ -797,14 +792,14 @@ void RaceStatistics(void)
                    ((titleY + 0x11) * 0x10000 >> 0x10) + GameSetup_gData.numLaps * 0xc : ((titleY + 0x11) * 0x10000 >> 0x10)) + 0xc);
     }
     if (GameSetup_gData.raceType == RaceType_HotPursuit) {
-      if (GameSetup_gData.numLaps * 2 + 6 < StatsTimerPlayer2Value) {
+      if (GameSetup_gData.numLaps * 2 + 6 < StatsTimer[1]) {
         sprintf(string,TextSys_Word(0x3e));
         Font_TextColor(3);
         Font_TextXY(string,(int)col1,HUD_STATS_HOTPURSUIT_Y + 1);
         sprintf(string,"%d",*(int *)((int)Cars_gHumanRaceCarList[i] + 0x3c0));
         Font_TextXY(string,col2 + 5,HUD_STATS_HOTPURSUIT_Y + 1);
       }
-      if (GameSetup_gData.numLaps * 2 + 8 < StatsTimerPlayer2Value) {
+      if (GameSetup_gData.numLaps * 2 + 8 < StatsTimer[1]) {
         sprintf(string,TextSys_Word(0x3f));
         Font_TextColor(3);
         Font_TextXY(string,(int)col1,HUD_STATS_HOTPURSUIT_Y + 0xd);
@@ -1004,7 +999,7 @@ void RaceStatistics(void)
  *     DECLARATION axis here and filed it as a reload tie -- that verdict is REFUTED by
  *     the ACCESS-SPELLING axis it never tried.  Write the guard's load as an explicit
  *     index-term-first byte address:
- *         *(int *)((player << 2) + (int)&StatsTimer)     [both guard sites]
+ *         *(int *)((player << 2) + (int)StatsTimer)     [both guard sites]
  *     instead of `StatsTimer_arr[player]`.  Same lever as W71-A6's psxcontroller
  *     InGame_GetPSXPadValue landing (methodology 3.12-fusion / W60-A6 Hud_BuildNumbers0):
  *     the SHIFT spelling keeps fold from rebuilding an ARRAY_REF, and the address then
@@ -1262,7 +1257,7 @@ void Hud_BTCStats(short player,bool postgame)
      addu v1,s2,v1`) instead of picking a separate `t0` scratch.  The MULT spelling
      `player * 4 + ...` folds back and loses it. */
   for (i = 0; i < Hud_NextPerp[player]; i = i + 1) {
-    if (*(int *)((player << 2) + (int)&StatsTimer) > (int)i * 2 + 4) {
+    if (*(int *)((player << 2) + (int)StatsTimer) > (int)i * 2 + 4) {
       Font_TextColor(4);
       sprintf(string,"%d",(int)i + 1);
       Font_TextXY(string,col[0],startY + (int)i * 0xc);
@@ -1276,7 +1271,7 @@ void Hud_BTCStats(short player,bool postgame)
                   startY + (int)i * 0xc);
     }
   }
-  if (showtimeleft && (*(int *)((player << 2) + (int)&StatsTimer) > (int)i * 2 + 4)) {
+  if (showtimeleft && (*(int *)((player << 2) + (int)StatsTimer) > (int)i * 2 + 4)) {
     Font_TextColor(3);
     Hud_ParseTime(FinalBTC_Countdown,string);
     Font_TextXY(TextSys_Word(0x4d),col[0],startY + (int)i * 0xc + 2);
@@ -1367,15 +1362,16 @@ HudStats_setUserOne:
   screen = 1;
 HudStats_finalize:
   if (screen == 0) {
-    StatsTimerPlayer2Value = 0;
-    /* the oracle keeps the incremented value in its own pseudo and stores it BOTH
-       before and after the clamp (`addu $v1,$v0,$zero` / two `sw $v1,%gp_rel(...)`). */
-    StatsTimer = StatsTimer + 1;
-    t = StatsTimer;
+    /* the other player's cell is cleared AFTER the increment: that order gives retail's
+       `lw [0]; sw zero,[1]; addiu; move; slti; sw [0]` with no CSE of StatsTimer+4 as a
+       base (probe build/psyq/probe/st2.i fD vs fF-fH). */
+    StatsTimer[0] = StatsTimer[0] + 1;
+    StatsTimer[1] = 0;
+    t = StatsTimer[0];
     if (10000 < t) {
       t = 10000;
     }
-    StatsTimerPlayer1ClampStore[0] = t;
+    StatsTimer[0] = t;
     if ((Cars_gHumanRaceCarList[0]->carFlags & 0x200U) == 0) {
       RaceSummary();
     }
@@ -1387,13 +1383,13 @@ HudStats_finalize:
     }
   }
   else {
-    StatsTimer = 0;
-    StatsTimerPlayer2Value = StatsTimerPlayer2Value + 1;
-    t = StatsTimerPlayer2Value;
+    StatsTimer[1] = StatsTimer[1] + 1;
+    StatsTimer[0] = 0;
+    t = StatsTimer[1];
     if (10000 < t) {
       t = 10000;
     }
-    StatsTimerPlayer2ClampStore[0] = t;
+    StatsTimer[1] = t;
     if ((Cars_gHumanRaceCarList[1]->carFlags & 0x200U) == 0) {
       RaceStatistics();
     }

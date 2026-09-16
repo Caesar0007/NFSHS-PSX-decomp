@@ -33,7 +33,7 @@ extern int                numValidCams;              /* 0x8013d3f0 */
 extern int                Replay_ReplayMode;         /* 0x8013d3f4 */
 extern int                Replay_ReplayStorePtr;     /* 0x8013d3f8 */
 extern int                Replay_ReplayGetPtr;       /* 0x8013d3fc */
-extern int                Replay_ReplayCounter[2];   /* 0x8013d400 */
+extern int                Replay_ReplayCounter[];    /* 0x8013d400; UNSIZED here: retail addresses it absolutely (split, CSE-able) although the -G8 definition lands in .sdata (probe build/psyq/probe/us.i) */
 
 /* ---- camera + slices ---- */
 extern camera_info        Camera_gInfo[];            /* 0x8010f2ac (544B) */
@@ -42,14 +42,12 @@ extern int                gNumSlices;                /* 0x8013c7c8 */
 /* ---- sim / cars / input / setup ---- */
 extern Sim_tSimGlobalVar  simGlobal;                 /* 0x8011e0ac */
 extern Sim_tSimSystemVar  simVar;                    /* 0x8011e0c4 */
-extern Car_tObj          *Cars_gHumanRaceCarList[2];
+extern Car_tObj          *Cars_gHumanRaceCarList[];   /* unsized: retail addresses it absolutely (.data 0x8010fa48); a sized [2] would go gp-rel at -G8 */
 extern int                Cars_gNumHumanRaceCars;
 extern Input_tResults     Input_gSim;                /* per-frame fetched controller state */
 extern int                StatsTimer[2];
 /* Zero-storage constant-element views of the shared StatsTimer[2] object;
    required by replay.obj's two independent gp-relative stores. */
-extern int                StatsTimerPlayer1Cell[1] asm("StatsTimer");
-extern int                StatsTimerPlayer2Cell[1] asm("D_8013D99C");
 extern GameSetup_tData    GameSetup_gData;
 extern char              *Paths_Paths[];             /* 0x80116468 */
 

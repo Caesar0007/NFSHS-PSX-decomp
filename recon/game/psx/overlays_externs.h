@@ -12,8 +12,7 @@
    absolutely with %hi/%lo(StatsTimer) -- reproduced here as (&StatsTimer)[player].
    Hud_NextPerp[2] is only 4 bytes, so it stays a real array and just needs its owning-TU
    tentative definition (overlays.obj is where the SYM defines it) to become gp-rel. */
-extern int            StatsTimer;              /* logical StatsTimer[0] */
-extern int            StatsTimerPlayer2Value asm("D_8013D99C");
+extern int            StatsTimer[2];           /* 0x8013d998 (SYM ARY INT size 8, overlays.obj) */
 extern short          Hud_NextPerp[2];         /* 0x8013d994 */
 extern int            Cars_gNumRaceCars;       /* 0x8013c7f8 */
 extern int            Cars_gNumHumanRaceCars;  /* 0x8013c800 */

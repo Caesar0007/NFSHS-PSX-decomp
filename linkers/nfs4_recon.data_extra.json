@@ -772,12 +772,12 @@
  {
   "obj": "build/recon/frontend/psx/psxfront.cpp.o",
   "section": ".data",
-  "base": 2147822168,
-  "end": 2147822180,
-  "size": 12,
+  "base": 2147822160,
+  "end": 2147822193,
+  "size": 33,
   "ok": true,
-  "unresolved": 1,
-  "words": 2,
+  "unresolved": 0,
+  "words": 9,
   "q": 0
  },
  {

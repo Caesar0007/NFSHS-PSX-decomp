@@ -28,8 +28,8 @@ void FontUpsideDownBlit(int x,int y,void *src,int u,int v,charactertbl *ch,int);
 /* ---- PSXFront.obj EXT data globals ---- */
 extern tTexture_ShapeInfo *gHelpShapes; /* P886: native768122 PTR STRUCT, one pointer at0x80052a64. */
 extern Car_tObj           *gCarObj[2];      /* 0x80052a68 */
-extern char                titleScreenDisplayed[];  /* 0x80052a70 */
+extern char                titleScreenDisplayed;    /* 0x80052a70 */
 extern short               gFadeBrightness;       /* 0x80052a50 */
-extern char               *creditShapeFile[];       /* 0x80052a58 */
+extern char               *creditShapeFile;         /* 0x80052a58 */
 
 #endif

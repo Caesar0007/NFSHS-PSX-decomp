@@ -73,12 +73,17 @@ static void AdjustShapeDrawing(tTexture_ShapeInfo *tShp,int *x,int *y,int *flags
  * gHelpShapes): emission at the definition point, 4 bytes each.  STR_FRMT is
  * a pointer to "%sz%s" -- the literal is the FIRST item of the TU's .rdata
  * (0x800127e4), 8 bytes ahead of where our .rodata used to start. */
-static char     *STR_FRMT[1] = { "%sz%s" };         /* SYM-CARRIER: STR_FRMT; 0x80052a54 -> 0x800127e4 */
+short            gFadeBrightness = 128;             /* 0x80052a50 (retail word 0x00000080) */
+static char     *STR_FRMT = "%sz%s";                /* 0x80052a54 -> 0x800127e4 */
+char            *creditShapeFile = 0;               /* 0x80052a58 */
 static u_short   ofs[2] = { 0, 0 };                 /* 0x80052a5c */
-static char      rendering3DEnvInit__[4] asm("rendering3DEnvironmentInitialized") = { 0 };
-                                                    /* SYM-CARRIER: rendering3DEnvironmentInitialized;
-                                                       0x80052a60 (sized>G4 -> .bss/absolute, not .sbss/gp-rel) */
-#define rendering3DEnvironmentInitialized rendering3DEnvInit__[0]
+static char      rendering3DEnvironmentInitialized = 0;   /* 0x80052a60 */
+/* the three UNINITIALIZED publics follow at end-of-file in first-declaration order
+ * (psxfront.h): gHelpShapes 0x80052a64 / gCarObj 0x80052a68 / titleScreenDisplayed 0x80052a70 */
+tTexture_ShapeInfo *gHelpShapes;
+Car_tObj        *gCarObj[2];
+char             titleScreenDisplayed;
+#define rendering3DEnvironmentInitialized rendering3DEnvironmentInitialized
 
 /* lines 1-96: file header, #includes, static data, macros (no symbols emitted) */
 
@@ -247,26 +252,26 @@ void DoTitleScreen(void)
   char fileName [48];
 
   elapsedticks();
-  if (creditShapeFile[0] == (char *)0x0) {
+  if (creditShapeFile == (char *)0x0) {
     char artfilename [20];
 
     sprintf(artfilename,"title.psh");
-    sprintf(fileName,STR_FRMT[0],Paths_Paths[0x20],artfilename);
-    creditShapeFile[0] = (char *)loadshapeadr(fileName,(void *)0x0);
+    sprintf(fileName,STR_FRMT,Paths_Paths[0x20],artfilename);
+    creditShapeFile = (char *)loadshapeadr(fileName,(void *)0x0);
     systemtask(0);
-    if (creditShapeFile[0] == (char *)0x0) {
+    if (creditShapeFile == (char *)0x0) {
       return;
     }
   }
-  tempShp2 = (shapetbl *)locateshapez(creditShapeFile[0],(void *)"back");
+  tempShp2 = (shapetbl *)locateshapez(creditShapeFile,(void *)"back");
   Quick_DD(1,0,1);
   settrans(0);
   movfxya(tempShp2,0,0);
   settrans(1);
   Quick_DD(0,1,0);
-  purgememadr(creditShapeFile[0]);
-  creditShapeFile[0] = (char *)0x0;
-  titleScreenDisplayed[0] = '\x01';
+  purgememadr(creditShapeFile);
+  creditShapeFile = (char *)0x0;
+  titleScreenDisplayed = '\x01';
   return;
 }
 
@@ -280,7 +285,7 @@ void DoTitleScreen(void)
  * the body (scratchpad emit/t3.cpp). */
 static inline void PSXFront_LoadMainShapes(void)
 {
-  locateshapez(creditShapeFile[0],(void *)"main");      /* @0x80012818 (string only) */
+  locateshapez(creditShapeFile,(void *)"main");      /* @0x80012818 (string only) */
   loadshapeadr("load.psh",(void *)0x0);                 /* @0x80012820 (string only) */
 }
 

@@ -37,9 +37,7 @@
 "text": 4
 },
 "build/recon/frontend/common/screenpinkslips.cpp.o": {
-"text": 4,
-"data": 4,
-"bss": 4
+"text": 4
 },
 "build/recon/frontend/common/screenpost.cpp.o": {
 "text": 4,
@@ -103,6 +101,12 @@
 "build/recon/frontend/common/femenuoptions.cpp.o": {
 "data": 4
 },
+"build/recon/frontend/common/femenu.cpp.o": {
+"data": 4
+},
+"build/recon/frontend/common/femenudefs.cpp.o": {
+"data": 4
+},
 "build/recon/frontend/common/screencarselect.cpp.o": {
 "data": 4
 },
@@ -111,12 +115,6 @@
 },
 "build/recon/frontend/common/screencontroller.cpp.o": {
 "data": 4
-},
-"build/recon/frontend/common/screencongrats.cpp.o": {
-"data": 4
-},
-"build/recon/game/common/ailife.cpp.o": {
-"rdata": 4
 },
 "build/recon/syslib/psx/libc/SPRINTF.c.o": {
 "rdata": 4

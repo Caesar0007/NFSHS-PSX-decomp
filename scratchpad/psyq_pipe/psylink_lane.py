@@ -36,6 +36,8 @@ from collections import defaultdict, Counter
 ROOT = Path('C:/Temp/nfs4-decomp'); sys.path.insert(0, str(ROOT / 'tools'))
 import build
 ASPSX = 'C:/Temp/psq43/PSSN/ASPSX.EXE'; PSYLINK = 'C:/Temp/psq43/PSSN/PSYLINK.EXE'
+if '--aspsx' in sys.argv:                     # e.g. --aspsx C:/Temp/claud/scratch_dos/ASPSX256.EXE
+    ASPSX = sys.argv[sys.argv.index('--aspsx') + 1]
 DUMPSYM = 'C:/Temp/claud/dumpsym_clean/dumpsym_src/dumpsym.exe'
 NM = str(build.MIPS / 'mipsel-none-elf-nm.exe')
 RETAIL_SYM_TXT = Path('C:/Temp/claud/dumpsym_clean/dumpsym_src/nfs4-f-v3.txt')
@@ -182,13 +184,17 @@ def sn_text(src: Path, vtables=False, front=False, pads=None) -> bytes:
                 out.append(b'\t.globl ' + name)
             out.append(name + b':')
             out.append(b'\t.space ' + str(size).encode())
-    for base, n in sorted((pads or {}).items()):
-        sec = {'text': b'.text', 'rodata': b'.rdata', 'rdata': b'.rdata', 'data': b'.data', 'bss': b'.bss', 'sdata': b'.sdata', 'sbss': b'.sbss'}[base]
-        if front and sec in (b'.text', b'.rdata', b'.data', b'.bss'):
-            out.append(b'\t.section front' + sec)
-        else:
+    if front:
+        # every retail frontend-overlay object has 8-byte-aligned sections (41/41 .text
+        # starts, and the front.data drift shows the same 4-byte gaps): round each section
+        # up to 8 relative to its own start, which is what the retail objects carry.
+        for sec in (b'.text', b'.rdata', b'.data', b'.bss'):
+            out.append(b'\t.section front' + sec); out.append(b'\t.align 3')
+    else:
+        for base, n in sorted((pads or {}).items()):
+            sec = {'text': b'.text', 'rodata': b'.rdata', 'rdata': b'.rdata', 'data': b'.data', 'bss': b'.bss', 'sdata': b'.sdata', 'sbss': b'.sbss'}[base]
             out.append(b'\t' + sec)
-        out.append(b'\t.space %d' % n)   # retail trailing pad (section padded to 8)
+            out.append(b'\t.space %d' % n)   # retail trailing pad (section padded to 8)
     return b'\r\n'.join(out) + b'\r\n'
 
 
@@ -410,6 +416,48 @@ if '--link' in steps:
     (W / 'equ_symbols.json').write_text(json.dumps(equs, indent=0))
     write_lnk(inc, equs)
     log = run_psylink()
+    # --- phase object: make every section's content start congruent to retail mod 8 ---
+    # Unowned residual data shifts our section starts; an 8-byte alignment pad inside an
+    # object (gcc's .align 3 before arrays >= 8 bytes, 8-byte COMMONs) then lands at a
+    # different offset than in retail and shows up as fake +/-4 drift.  A first object
+    # carrying `.space` pads fixes each section's start phase (measurement scaffolding).
+    if (OUT / 'nfs4.map').exists() and '--no-phase' not in sys.argv:
+        starts = {}
+        for l in (OUT / 'nfs4.map').read_text().splitlines():
+            m = re.match(r' ([0-9A-F]{8}) [0-9A-F]{8} [0-9A-F]{8} [0-9A-F]{8} \S+\s+(\S+)$', l)
+            if m:
+                starts.setdefault(m.group(2), int(m.group(1), 16))
+        retail_start = {n: lo for n, lo, hi in RET}
+        pads = {}; shift = 0
+        for grp in (('.rdata', '.text', '.data', '.sdata'), ('.sbss', '.bss'), ('front.rdata', 'front.text', 'front.data', 'front.bss')):
+            shift = 0
+            for s in grp:
+                if s not in starts or s not in retail_start:
+                    continue
+                cur = starts[s] + shift
+                need = (retail_start[s] - cur) % 8
+                if need:
+                    pads[s] = need
+                shift += need
+        print('phase: section starts %s -> pads %s' % ({k: hex(v) for k, v in starts.items()}, pads))
+        if pads:
+            lines = []
+            for s, n in pads.items():
+                base = s.replace('front', '').lstrip('.') if s.startswith('front.') else s.lstrip('.')
+                if s == '.sbss':                        # ASPSX has no .sbss directive: a small common lands there at -G8
+                    lines.append('\t.lcomm\t__phase_sbss,%d' % n); continue
+                lines.append(('\t.section front.%s' % base) if s.startswith('front.') else ('\t.%s' % base))
+                lines.append('\t.space %d' % n)
+            (OUT / 'phase.s').write_bytes(('\r\n'.join(lines) + '\r\n').encode())
+            r = subprocess.run([ASPSX, '-q', '-G8', str(OUT / 'phase.s'), '-o', str(OUT / 'phase.obj')], capture_output=True, text=True)
+            if not (OUT / 'phase.obj').exists():
+                print('phase.obj failed:', (r.stdout + r.stderr)[:200])
+            if (OUT / 'phase.obj').exists():
+                k = next((i for i, (_, p) in enumerate(inc) if p == 'address.obj'), 1)
+                inc.insert(k + 1, ['<phase pads %s>' % pads, 'phase.obj'])
+                write_lnk(inc, equs)
+                log = run_psylink()
+                print('phase pads:', pads)
     errs = [l for l in log.splitlines() if 'Error' in l]
     kinds = Counter(re.sub(r"'[^']*'", "'X'", e.split(':', 2)[-1].strip()) for e in errs)
     print('PSYLINK: %d error lines; kinds: %s' % (len(errs), kinds.most_common(6)))

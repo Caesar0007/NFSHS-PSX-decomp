@@ -8,6 +8,7 @@
 #include "fescreen.h"
 
 /* ---- FEScreen.obj globals ---- */
+int tScreen::fSuppressLoadingText;   /* @0x800517c8 (deferred, declared first via the class) */
 tTexture_ShapeInfo *gCurrentShapes;   /* @0x800517cc; SYM EXT */
 
 
@@ -26,8 +27,8 @@ void tScreen::DisplayLoadingText()
   int oldIsBg;
   short i;
 
-  if (_7tScreen_fSuppressLoadingText != 0) {                              /* 37 */
-    _7tScreen_fSuppressLoadingText = 0;                                   /* 40 */
+  if (tScreen::fSuppressLoadingText != 0) {                               /* 37 */
+    tScreen::fSuppressLoadingText = 0;                                    /* 40 */
   }
   else {
     oldIsBg = Draw_gView[Draw_gPlayer1View].drawenv[0].isbg;              /* 43 */

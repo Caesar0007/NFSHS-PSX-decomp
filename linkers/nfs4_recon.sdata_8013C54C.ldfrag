@@ -30,10 +30,11 @@
     build/asm/data/sdata_8013C54C_r04.sdata.s.o(.sdata);
     build/recon/game/common/audioclc.cpp.o(.sdata);   /* 0x8013c608..0x8013c628  was sdata_8013C54C_o09.sdata.s */
     build/recon/game/common/audiocmn.cpp.o(.sdata);   /* P906 source owner:0x8013c628..0x8013c720; r05 is oracle-only */
-    build/recon/game/common/audiomus.cpp.o(.sdata);   /* 0x8013c720..0x8013c724  was sdata_8013C54C_o10.sdata.s */
+    build/recon/game/common/audiomus.cpp.o(.sdata);   /* now to 0x8013c72c (was sdata_8013C54C_r06.sdata) */
     build/asm/data/sdata_8013C54C_r06.sdata.s.o(.sdata);
     build/recon/game/common/audedit.cpp.o(.sdata);   /* 0x8013c72c..0x8013c734  was sdata_8013C54C_o11.sdata.s */
     build/asm/data/sdata_8013C54C_r07.sdata.s.o(.sdata);
+    build/recon/game/common/audioeng.cpp.o(.sdata);   /* now from 0x8013c734 (was sdata_8013C54C_r07.sdata) */
     build/recon/game/common/audiotrk.cpp.o(.sdata);   /* 0x8013c754..0x8013c758  was sdata_8013C54C_o12.sdata.s */
     /* SYM ownership seam: bworld.obj owns 0x8013c758..0x8013c7bc. */
     /* Its reconstructed 0x64-byte .sdata is byte-identical to retail. */
@@ -76,7 +77,7 @@
     build/asm/data/sdata_8013C54C_r16.sdata.s.o(.sdata);
     build/recon/game/common/trgsfx.cpp.o(.sdata);   /* 0x8013d4f0..0x8013d4f8  was sdata_8013C54C_o27.sdata.s */
     build/recon/game/common/aidebug.cpp.o(.sdata);   /* 0x8013d4f8..0x8013d4fc  was sdata_8013C54C_o28.sdata.s */
-    build/recon/game/psx/audio.cpp.o(.sdata);   /* 0x8013d4fc..0x8013d504  was sdata_8013C54C_o29.sdata.s */
+    build/recon/game/psx/audio.cpp.o(.sdata);   /* now to 0x8013d520 (was sdata_8013C54C_r17.sdata) */
     build/asm/data/sdata_8013C54C_r17.sdata.s.o(.sdata);
     build/recon/game/psx/cario.cpp.o(.sdata);   /* now to 0x8013d75c (was sdata_8013C54C_r17.sdata) */
     build/asm/data/sdata_8013C54C_r17.sdata.s.o(.sdata_post_cario);

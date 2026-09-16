@@ -528,11 +528,6 @@ int AILife_IsCoordInThisVisibleArea(coorddef *tPos,Car_tObj *racer)
   else {
     dist = zD + (xD >> 2);
   }
-  /* compiled-out debug print: retail AILIFE.obj still carries the "dist=%d" literal in its
-   * .sdata (0x8013c588) with no code referencing it and this function stays a leaf, i.e.
-   * the original debug macro expanded to its argument list alone -- gcc 2.8 expands the
-   * discarded comma expression (emitting the literal) and produces no code. */
-  ("dist=%d", dist);
   return 0xac0000 < dist ^ 1;
 }
 

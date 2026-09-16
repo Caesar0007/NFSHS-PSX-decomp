@@ -21,7 +21,8 @@ apply = '--apply' in sys.argv
 tag = Path(owner).stem.split('.')[0].lower()
 stem = stem + ('.sdata' if sec == '.sdata' else '.data')      # asm/data/<stem>.data.s / .sdata.s
 sfile = ROOT / 'asm' / 'data' / (stem + '.s')
-ldfrag = ROOT / 'linkers' / ('nfs4_recon.sdata_8013C54C.ldfrag' if sec == '.sdata' else 'nfs4_recon.data_8010CCD4.ldfrag')
+ldfrag = ROOT / 'linkers' / ('nfs4_recon.sdata_8013C54C.ldfrag' if sec == '.sdata' else
+                             'nfs4_recon.front_data.ldfrag' if stem.startswith('front_data') else 'nfs4_recon.data_8010CCD4.ldfrag')
 lines = sfile.read_text(errors='replace').split('\n')
 VA = re.compile(r'/\* [0-9A-F]+ ([0-9A-F]{8}) ')
 blocks = []; cur = None; section = sec

@@ -9,16 +9,16 @@
 /* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
  * but OWNED here; tentative defs -> cc1 `.comm` -> stock maspsx gp-rels them
  * (matches the oracle's %gp_rel). section 3.12 #6. (auto: gen_gprel_defs.py) */
+/* retail loading.obj: the language-banner shape names -- the pointer table is the
+ * object's .data (STAT, 0x80120d00) and the six <=8-byte literals are its .sdata
+ * (0x8013d9a0.., -G8 puts small literals in small data), emitted BEFORE smallShapeFile. */
+static char *loading_languageNames[6] = { "engl", "germ", "fren", "span", "ital", "swed" };
+
 char *smallShapeFile = 0;   /* @0x8013d9d0  W67-A4: explicit =0 -- retail emits this
     cell BEFORE the "back" literal @0x8013d9d4, so it cannot have been tentative
     (16E =0 discriminator).  DO NOT strip the =0. */
 
 int totalAvailMem;   /* tentative: retail emits it AFTER the literal (17B). */
-
-/* retail loading.obj: the language-banner shape names -- the pointer table is the
- * object's .data (STAT, 0x80120d00) and the six <=8-byte literals are its .sdata
- * (0x8013d9a0.., -G8 puts small literals in small data). */
-static char *loading_languageNames[6] = { "engl", "germ", "fren", "span", "ital", "swed" };
 
 
 /* ---- Loading_DrawLoadingScreen__Fv  [LOADING.CPP:15-51] SLD-VERIFIED ---- */

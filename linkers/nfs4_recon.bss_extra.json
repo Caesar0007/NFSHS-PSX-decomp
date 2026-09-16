@@ -170,16 +170,6 @@
   "q": 2
  },
  {
-  "obj": "build/recon/game/common/simqueue.cpp.o",
-  "section": ".sbss",
-  "base": 2148785616,
-  "end": 2148785620,
-  "size": 4,
-  "ok": true,
-  "votes": 2,
-  "q": 2
- },
- {
   "obj": "build/recon/game/common/track.cpp.o",
   "section": ".sbss",
   "base": 2148785620,

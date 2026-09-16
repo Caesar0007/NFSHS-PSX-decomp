@@ -8,8 +8,15 @@
 /* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
  * but OWNED here; tentative defs -> cc1 `.comm` -> stock maspsx gp-rels them
  * (matches the oracle's %gp_rel). section 3.12 #6. (auto: gen_gprel_defs.py) */
-int Audio_direct3davail;
-void *Audio_gHeap;
+/* both precede the TU's literals in retail .sdata (0x8013d4fc/0x8013d500 before "amus"
+ * @0x8013d504), so they are initialized (emitted at definition), not deferred. */
+int Audio_direct3davail = 0;
+void *Audio_gHeap = 0;
+/* retail audio.obj also owns the music stream handle (deferred .sdata @0x8013d51c, after the
+ * TU's -G8 literals "amus" "game*" ".bnk") and the backwards-track start trigger table
+ * (.data @0x8011e7f0, values from the image). */
+int gMusicHandle;
+int backwardsTrackStartTrigger[5] = { 4, 4, 7, 6, 4 };
 
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
 void Audio_InitDriver(int buffersize,int spusize);
@@ -76,6 +83,11 @@ void Audio_CleanUp(void)
     }
     i = i + 1;
   } while (i < 7);
+  /* compiled-out statement: retail audio.obj carries a "game*" literal (0x8013d50c, between
+   * "amus" and ".bnk") that no code references.  gcc 2.8 expands a constant-false branch
+   * (emitting its literal) and jump-optimizes the call away; a bare discarded expression
+   * would be dropped by the front end, so the dead call form is required. */
+  if (0) AudioMus_SysStartUp(0, 0, "game*");
   return;
 }
 

@@ -42,6 +42,7 @@ struct tShapeInformation {
 };
 
 struct tScreen {
+    static int fSuppressLoadingText;   /* retail FEScreen.obj .data @0x800517c8 (SYM `_7tScreen.fSuppressLoadingText`) */
     tShapeInformation fPermShapes, fSwapShapes;
     int fTransitionTicks;
     bool fTransitionOff;

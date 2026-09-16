@@ -329,6 +329,9 @@ PER_TU_FLAGS = {
     "recon/game/common/souffle.cpp": {"g_value": "8"},
     "recon/game/psx/psxcontroller.cpp": {"g_value": "8"},
     "recon/game/common/ailife.cpp": {"g_value": "8"},
+    # audiomus.obj holds "*-%s" (5B) @0x8013c724, audio.obj "amus"/"game*"/".bnk" @0x8013d504..
+    "recon/game/common/audiomus.cpp": {"g_value": "8"},
+    "recon/game/psx/audio.cpp": {"g_value": "8"},
     "recon/game/psx/drawc.cpp": {"g_value": "8"},   # 20/20 PASS once its three 8-byte externs are unsized (drawc_externs.h)
     # drawc.obj: retail .sdata 0x8013d7c8.. holds "envmap"/"Shadow"/".psh" (7-8B)
     # + the 8-byte DrawC_gEnvMapOffset => a -G8 TU; at -G8 our .sdata is

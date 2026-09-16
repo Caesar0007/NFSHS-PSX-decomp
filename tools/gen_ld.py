@@ -703,8 +703,7 @@ def main():
     A("    .tail_data 0x8013dd7c : SUBALIGN(4)")
     A("    {")
     A("        build/asm/data/tail.data.s.o(.data.tail_pre_simqueue);")
-    A("        build/recon/game/common/simqueue.cpp.o(.bss.simqueue_output);")
-    A("        build/recon/game/common/simqueue.cpp.o(.sbss);")
+    A("        build/recon/game/common/simqueue.cpp.o(.sbss);   /* output[2] (static, 8B -> .sbss at -G8) + maxTicksPerFrame, native order (2026-09-16) */")
     A("        build/asm/data/tail.data.s.o(.data.tail_after_simqueue);")
     A("    }")
     # P910: HUD's intervening76-byte native SBSS is selected from its real

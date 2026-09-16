@@ -13,7 +13,9 @@ inline void tFEApplication::DisplayMessage(int word)
 /* ---- FEMenuDefs.obj-OWNED globals -- DEFINED here (self-contained; .data=real EXE bytes) ---- */
 /* tBlankMenuItemGoToMenuNFS4Button_vtable @0x800114d8 + tBlankMenuItemNFS4LeftRightChoice_vtable @0x80011530:
    real __vtbl_ptr_type[11] defs live in game/common/vtables_tmenu.cpp; declared extern via femenudefs_externs.h. */
-short        SelectListNull[2];   /* @0x80051970  (bss(zero)) */
+short        SelectListNull[2] = { 0, 0 };   /* @0x80051970: precedes the initialized SelectList*
+                                             tables in retail .data, so it is emitted at its
+                                             definition (initialized), not deferred */
 short        SelectListOffOn[3] = { 103, 102, 0 };   /* @0x80051974 */
 short        SelectListNormal[3] = { 227, 225, 0 };   /* @0x8005197c */
 short        SelectListOpponentUpgrades[3] = { 271, 272, 0 };   /* @0x80051984 */

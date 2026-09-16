@@ -117,7 +117,7 @@ extern bool MEMCARDFRONTENDISINITTED;  /* SYM BOOL; CC1PLPSX bool is 4 bytes */
    game/common/nfs3.cpp `tRecordBuffer Stats_gTrackRecords[187];` @0x80114d94; every
    oracle reference is an ADDRESS materialization (`addiu`), never a load. */
 extern tRecordBuffer Stats_gTrackRecords[187];
-extern int _7tScreen_fSuppressLoadingText;
+extern int _7tScreen_fSuppressLoadingText __asm__("_7tScreen.fSuppressLoadingText");   /* tScreen::fSuppressLoadingText, owned by fescreen.cpp */
 /* _usePlayerUpgrades removed W66-A5 (dead: 0 references, 0 SYM records). */
 extern int colourChosen[8];
 extern char gCalculateVictory;   /* was stale int (4B); owner nfs3.cpp defines it char (1B) packed

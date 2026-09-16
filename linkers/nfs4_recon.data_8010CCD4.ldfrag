@@ -75,7 +75,7 @@
     build/recon/game/common/track.cpp.o(.data);   /* 0x8011e158..0x8011e1b0 */
     /* SYM ownership seam: TrgSfx.obj's eight globals (native emission order = trgsfx_externs.h order). */
     build/recon/game/common/trgsfx.cpp.o(.data);   /* 0x8011e1b0..0x8011e7f0 */
-    build/asm/data/data_8010CCD4_r13.data.s.o(.data.r13_after_trgsfx);
+    build/recon/game/psx/audio.cpp.o(.data);   /* 0x8011e7f0..0x8011e804 native owner (was data_8010CCD4_r13.data) */
     build/recon/game/psx/cario.cpp.o(.data);   /* 0x8011e804..0x8011ec18 native owner (was data_8010CCD4_r13.data) */
     build/recon/game/psx/device.cpp.o(.data);   /* 0x8011ec18..0x8011ec54 native owner (was data_8010CCD4_r13.data) */
     build/recon/game/psx/draw.cpp.o(.data);   /* 0x8011ec54..0x8011f454 native owner (was data_8010CCD4_r13.data) */

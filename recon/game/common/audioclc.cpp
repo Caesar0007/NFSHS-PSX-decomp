@@ -45,6 +45,10 @@ void AudioClc_SoundSpeech(void);
 /* ---- AudioClc_SndError__Fi  [@0x80074730] ---- */
 void AudioClc_SndError(int shandle)
 {
+  /* compiled-out debug print: retail audioclc.obj's .sdata starts with the unreferenced
+   * 4-byte literals "viv" @0x8013c600 and "Tr" @0x8013c604 -- discarded expressions
+   * reproduce them (gcc 2.8 emits the constants, no code). */
+  ("viv", shandle); ("Tr", shandle);
   return;
 }
 

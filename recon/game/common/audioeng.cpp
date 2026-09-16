@@ -8,7 +8,10 @@
 
 
 /* ---- audioeng.obj-owned globals (SYM-typed; .data=real EXE bytes, .bss=zero) ---- */
-AudioEng_t   *AudioEng_g[2];   /* @0x8013c734  (bss(zero)) */
+/* retail audioeng.obj .sdata: AudioEng_g @0x8013c734 comes BEFORE the "*.bnk" "*.tlb" "*.ctb"
+ * literals AudioEng_StartUp uses (0x8013c73c..), so it is initialized (emitted at its
+ * definition), not a deferred zero global. */
+AudioEng_t   *AudioEng_g[2] = { 0, 0 };   /* @0x8013c734 */
 
 
 /* ---- intra-TU forward declarations ---- */

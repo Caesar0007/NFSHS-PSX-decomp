@@ -64,7 +64,7 @@ int          NumSFXOn = 0;   /* @0x8013c670  (bss(zero)) */
 int          gStereoMode = 1;   /* @0x8013c674 */
 char         fReverbOn = 0;   /* @0x8013c678  (bss(zero)) */
 char         fReverbLevel = 0;   /* @0x8013c679 */
-static int   PlayersRampedGasLevel[2] __attribute__((section(".bss")));   /* SYM STAT @0x8013dd80 */
+static int   PlayersRampedGasLevel[2];   /* SYM STAT @0x8013dd80 (.sbss: 8-byte static at -G8) */
 
 
 /* ---- intra-TU forward declarations ---- */

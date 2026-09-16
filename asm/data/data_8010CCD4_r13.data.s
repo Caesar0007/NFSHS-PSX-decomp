@@ -763,14 +763,4 @@ enddlabel gSaveChunk
 
 .section .data.r13_after_trgsfx, "wa"
 
-nonmatching backwardsTrackStartTrigger
-
-dlabel backwardsTrackStartTrigger
-    /* 10EFF0 8011E7F0 04000000 */ .word 0x00000004
-    /* 10EFF4 8011E7F4 04000000 */ .word 0x00000004
-    /* 10EFF8 8011E7F8 07000000 */ .word 0x00000007
-    /* 10EFFC 8011E7FC 06000000 */ .word 0x00000006
-    /* 10F000 8011E800 04000000 */ .word 0x00000004
-enddlabel backwardsTrackStartTrigger
-
 .section .data.r13_after_trgsfx_post_cario

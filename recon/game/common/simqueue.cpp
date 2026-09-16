@@ -19,11 +19,9 @@ int gSimQueue_Ticker     = -1;
 int gSimQueue_BlockSelf  = 1;
 int gSimQueue_BlockOther = 1;
 
-/* simqueue.obj file-static storage from SYM.  Named BSS sections isolate the
- * two large objects around the gp-relative maxTicksPerFrame word while keeping
- * all three as natural zero-initialized statics. */
-static Input_tResults output[2]
-    __attribute__((section(".bss.simqueue_output")));
+/* simqueue.obj file-static storage from SYM: output[2] (8 bytes, -G8 -> .sbss @0x8013ddc8)
+ * then maxTicksPerFrame (@0x8013ddd0), natural zero-initialized statics in this order. */
+static Input_tResults output[2];
 static int maxTicksPerFrame;
 static sim_queue inputQueue
     __attribute__((section(".bss.simqueue_input_queue")));

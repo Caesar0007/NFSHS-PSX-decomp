@@ -20,17 +20,8 @@ dlabel gMenu_SubMenuPlayer
     /* 41FC4 800517C4 00000000 */ .word 0x00000000
 enddlabel gMenu_SubMenuPlayer
 
-nonmatching _7tScreen_fSuppressLoadingText
+.section .data_post_fescreen
 
-dlabel _7tScreen_fSuppressLoadingText
-    /* 41FC8 800517C8 00000000 */ .word 0x00000000
-enddlabel _7tScreen_fSuppressLoadingText
-
-nonmatching gCurrentShapes
-
-dlabel gCurrentShapes
-    /* 41FCC 800517CC 00000000 */ .word 0x00000000
-enddlabel gCurrentShapes
 
 nonmatching FeTools_gScrollTicksOut
 

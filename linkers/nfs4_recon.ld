@@ -816,10 +816,10 @@ SECTIONS
     .xd0043 0x800516c8 : SUBALIGN(4) { build/recon/frontend/common/fecolor.cpp.o(.data); }
     .xd0044 0x80051738 : SUBALIGN(4) { build/recon/frontend/common/feinput.cpp.o(.data); }
     .xd0045 0x800517c0 : SUBALIGN(4) { build/recon/frontend/common/femenu.cpp.o(.data); }
-    .xd0046 0x800517cc : SUBALIGN(4) { build/recon/frontend/common/fescreen.cpp.o(.data); }
+    .xd0046 0x800517c8 : SUBALIGN(4) { build/recon/frontend/common/fescreen.cpp.o(.data); }
     .xd0047 0x800517d0 : SUBALIGN(4) { build/recon/frontend/common/fetools.cpp.o(.data); }
     .xd0048 0x800517e8 : SUBALIGN(4) { build/recon/frontend/common/front.cpp.o(.data); }
-    .xd0049 0x80051974 : SUBALIGN(4) { build/recon/frontend/common/femenudefs.cpp.o(.data); }
+    .xd0049 0x80051970 : SUBALIGN(4) { build/recon/frontend/common/femenudefs.cpp.o(.data); }
     .xd0050 0x80051a60 : SUBALIGN(4) { build/recon/frontend/common/fetourn.cpp.o(.data); }
     .xd0051 0x80051a68 : SUBALIGN(4) { build/recon/frontend/common/fememcard.cpp.o(.data); }
     .xd0052 0x80051aa8 : SUBALIGN(4) { build/recon/frontend/common/screenmain.cpp.o(.data); }
@@ -953,7 +953,7 @@ SECTIONS
         build/recon/game/common/textsys.cpp.o(.data);   /* 0x8011e140..0x8011e158  SYM owner: Textsys.obj */
         build/recon/game/common/track.cpp.o(.data);   /* 0x8011e158..0x8011e1b0 */
         build/recon/game/common/trgsfx.cpp.o(.data);   /* 0x8011e1b0..0x8011e7f0 */
-        build/asm/data/data_8010CCD4_r13.data.s.o(.data.r13_after_trgsfx);
+        build/recon/game/psx/audio.cpp.o(.data);   /* 0x8011e7f0..0x8011e804 native owner (was data_8010CCD4_r13.data) */
         build/recon/game/psx/cario.cpp.o(.data);   /* 0x8011e804..0x8011ec18 native owner (was data_8010CCD4_r13.data) */
         build/recon/game/psx/device.cpp.o(.data);   /* 0x8011ec18..0x8011ec54 native owner (was data_8010CCD4_r13.data) */
         build/recon/game/psx/draw.cpp.o(.data);   /* 0x8011ec54..0x8011f454 native owner (was data_8010CCD4_r13.data) */
@@ -1023,10 +1023,11 @@ SECTIONS
         build/asm/data/sdata_8013C54C_r04.sdata.s.o(.sdata);
         build/recon/game/common/audioclc.cpp.o(.sdata);   /* 0x8013c608..0x8013c628  was sdata_8013C54C_o09.sdata.s */
         build/recon/game/common/audiocmn.cpp.o(.sdata);   /* P906 source owner:0x8013c628..0x8013c720; r05 is oracle-only */
-        build/recon/game/common/audiomus.cpp.o(.sdata);   /* 0x8013c720..0x8013c724  was sdata_8013C54C_o10.sdata.s */
+        build/recon/game/common/audiomus.cpp.o(.sdata);   /* now to 0x8013c72c (was sdata_8013C54C_r06.sdata) */
         build/asm/data/sdata_8013C54C_r06.sdata.s.o(.sdata);
         build/recon/game/common/audedit.cpp.o(.sdata);   /* 0x8013c72c..0x8013c734  was sdata_8013C54C_o11.sdata.s */
         build/asm/data/sdata_8013C54C_r07.sdata.s.o(.sdata);
+        build/recon/game/common/audioeng.cpp.o(.sdata);   /* now from 0x8013c734 (was sdata_8013C54C_r07.sdata) */
         build/recon/game/common/audiotrk.cpp.o(.sdata);   /* 0x8013c754..0x8013c758  was sdata_8013C54C_o12.sdata.s */
         build/recon/game/common/bworld.cpp.o(.sdata);
         build/recon/game/common/bworldSm.cpp.o(.sdata);   /* 0x8013c7bc..0x8013c7dc  was sdata_8013C54C_o13.sdata.s */
@@ -1061,7 +1062,7 @@ SECTIONS
         build/asm/data/sdata_8013C54C_r16.sdata.s.o(.sdata);
         build/recon/game/common/trgsfx.cpp.o(.sdata);   /* 0x8013d4f0..0x8013d4f8  was sdata_8013C54C_o27.sdata.s */
         build/recon/game/common/aidebug.cpp.o(.sdata);   /* 0x8013d4f8..0x8013d4fc  was sdata_8013C54C_o28.sdata.s */
-        build/recon/game/psx/audio.cpp.o(.sdata);   /* 0x8013d4fc..0x8013d504  was sdata_8013C54C_o29.sdata.s */
+        build/recon/game/psx/audio.cpp.o(.sdata);   /* now to 0x8013d520 (was sdata_8013C54C_r17.sdata) */
         build/asm/data/sdata_8013C54C_r17.sdata.s.o(.sdata);
         build/recon/game/psx/cario.cpp.o(.sdata);   /* now to 0x8013d75c (was sdata_8013C54C_r17.sdata) */
         build/asm/data/sdata_8013C54C_r17.sdata.s.o(.sdata_post_cario);
@@ -1100,7 +1101,6 @@ SECTIONS
         build/recon/frontend/psx/memcard.c.o(.sdata);
         build/recon/game/common/aih_cop.cpp.o(.sdata);
         build/recon/game/common/anim.cpp.o(.sdata);
-        build/recon/game/common/audioeng.cpp.o(.sdata);
     }
 
     ASSERT(cdsectorreseek == 0x8013d07c, "native source data symbol address mismatch: cdsectorreseek")
@@ -1309,8 +1309,7 @@ SECTIONS
     .tail_data 0x8013dd7c : SUBALIGN(4)
     {
         build/asm/data/tail.data.s.o(.data.tail_pre_simqueue);
-        build/recon/game/common/simqueue.cpp.o(.bss.simqueue_output);
-        build/recon/game/common/simqueue.cpp.o(.sbss);
+        build/recon/game/common/simqueue.cpp.o(.sbss);   /* output[2] (static, 8B -> .sbss at -G8) + maxTicksPerFrame, native order (2026-09-16) */
         build/asm/data/tail.data.s.o(.data.tail_after_simqueue);
     }
     .tail_after_hud_sbss 0x8013de4c : SUBALIGN(4)
@@ -2475,11 +2474,7 @@ SECTIONS
     D_8013C6A8 = 0x8013c6a8;
     D_8013C6AC = 0x8013c6ac;
     D_8013C6B0 = 0x8013c6b0;
-    D_8013C724 = 0x8013c724;
     D_8013C72C = 0x8013c72c;
-    D_8013C73C = 0x8013c73c;
-    D_8013C744 = 0x8013c744;
-    D_8013C74C = 0x8013c74c;
     D_8013C75C = 0x8013c75c;
     D_8013C760 = 0x8013c760;
     D_8013C764 = 0x8013c764;
@@ -2850,8 +2845,6 @@ SECTIONS
     D_8013D494 = 0x8013d494;
     D_8013D49C = 0x8013d49c;
     D_8013D4A4 = 0x8013d4a4;
-    D_8013D504 = 0x8013d504;
-    D_8013D514 = 0x8013d514;
     D_8013D798 = 0x8013d798;
     D_8013D79C = 0x8013d79c;
     D_8013D7A0 = 0x8013d7a0;

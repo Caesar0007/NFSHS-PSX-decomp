@@ -8,7 +8,10 @@
 
 
 /* ---- audiomus.obj-owned globals (SYM-typed; .data=real EXE bytes, .bss=zero) ---- */
-AudioMus_tMusicGlobals *AudioMus_g;   /* @0x8013c720  (bss(zero)) */
+/* retail audiomus.obj .sdata: AudioMus_g @0x8013c720 precedes the "*-%s" literal of
+ * AudioMus_LoadSongList (0x8013c724, -G8 small literal), so it is initialized (emitted at its
+ * definition), not deferred. */
+AudioMus_tMusicGlobals *AudioMus_g = 0;   /* @0x8013c720 */
 
 
 /* ---- intra-TU forward declarations ---- */

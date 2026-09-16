@@ -1,38 +1,23 @@
-== .text: 1589 matched symbols; base delta -0xc60
-   drift -0xc60 -> -0xc5c (+0x4) between Stats_TrackEndGame__Fv and TextSys_LoadWordsGeneric__FiPc @0x800b9158 [Textsys.obj]
-   drift -0xc5c -> -0xc58 (+0x4) between RaceSummary__Fv and RaceStatistics__Fv @0x800d9fbc [overlays.obj]
-   drift -0xc58 -> -0xc48 (+0x10) between Hud_RenderStatsView__Fv and Loading_DrawLoadingScreen__Fv @0x800db0b8 [loading.obj]
-== .data: 277 matched symbols; base delta -0xa94
-   drift -0xa94 -> -0xab4 (-0x20) between AIPerson_ScriptData and AIPhysicConfig @0x8010dc74 [AIPHYSIC.obj]
-   drift -0xab4 -> -0xae4 (-0x30) between BWorld_gChunkBuildList and BWSM_NormalCache @0x8010f0ac [bworldSm.obj]
-   drift -0xae4 -> -0xacc (+0x18) between Collide_gRegistry and HudPmx_gHudNumberUV @0x80110c70 [HudPmx.obj]
-   drift -0xacc -> -0xa8c (+0x40) between langFileName and gInitialArt @0x8011e158 [Track.obj]
-   drift -0xa8c -> -0xae4 (-0x58) between gInitialArt and Track_gReflectionMaps @0x8011e170 [Track.obj]
-   drift -0xae4 -> -0xacc (+0x18) between Track_gReflectionMaps and gTEnviroEffect @0x8011e1b0 [TrgSfx.obj]
-   ...
-== .sdata: 448 matched symbols; base delta -0x65dc
-   drift -0x65dc -> -0x65d8 (+0x4) between gBlockadeTypes and AICop_rawTriggers @0x8013c570 [aicop.obj]
-   drift -0x65d8 -> -0x65e4 (-0xc) between AIInit_forceHumanHandBrake and AIPhysic_iTime @0x8013c594 [AIPHYSIC.obj]
-   drift -0x65e4 -> -0x65ec (-0x8) between AITune_gRoughLapTime and AudioClc_gCameraVelocity @0x8013c608 [audioclc.obj]
-   drift -0x65ec -> -0x65f4 (-0x8) between AudioMus_g and gGameAudioList @0x8013c730 [audedit.obj]
-   drift -0x65f4 -> -0x65dc (+0x18) between gGameAudioList and AudioEng_g @0x8013c734 [audioeng.obj]
-   drift -0x65dc -> -0x65f4 (-0x18) between AudioEng_g and AudioTrk_g @0x8013c754 [audiotrk.obj]
-   ...
-== .sbss: 36 matched symbols; base delta -0x68e4
-   drift -0x68e4 -> -0x68ec (-0x8) between AIState_Purgatory_numTrafficCarsInPurgatory and xRange @0x8013dd98 [collide.obj]
-   drift -0x68ec -> -0x68f4 (-0x8) between gPause_CurrentY and maxTicksPerFrame @0x8013ddd0 [simqueue.obj]
-== .bss: 16 matched symbols; base delta -0x6884
-   drift -0x6884 -> -0x6848 (+0x3c) between recordCollection and gCop1Target @0x8013dff0 [camera.obj]
-   drift -0x6848 -> -0x6840 (+0x8) between gBackList and Hrz_gSaveCol @0x8013e380 [hrzsku.obj]
-   drift -0x6840 -> -0x683c (+0x4) between BTC_CurrentPerpName and gPadinfo @0x8013e89c [pad.obj]
-   drift -0x683c -> -0x6838 (+0x4) between gPadinfo and Padglobal @0x8013e8f0 [pad.obj]
-== front.text: 845 matched symbols; base delta -0x2bc
-== front.data: 124 matched symbols; base delta -0x518
-   drift -0x518 -> -0x51c (-0x4) between tracks_maxTrackIndex and kRGBVals @0x800516c8 [FEColor.obj]
-   drift -0x51c -> -0x520 (-0x4) between getKeyMappings and gMenu_SubMenuPlayer @0x800517c0 [FEMenu.obj]
-   drift -0x520 -> -0x528 (-0x8) between gMenu_SubMenuPlayer and gCurrentShapes @0x800517cc [FEScreen.obj]
-   drift -0x528 -> -0x52c (-0x4) between currentSize and overRide @0x800517e8 [Front.obj]
-   drift -0x52c -> -0x448 (+0xe4) between picked and SelectListNull @0x80051970 [FEMenuDefs.obj]
-   drift -0x448 -> -0x534 (-0xec) between SelectListNull and SelectListOffOn @0x80051974 [FEMenuDefs.obj]
-   ...
-== front.bss: 1 matched symbols; base delta -0x608
+== .text: 1589 matched symbols; base delta -0xca0
+   drift -0xca0 -> -0xc9c (+0x4) between Stats_TrackEndGame__Fv and TextSys_LoadWordsGeneric__FiPc @0x800b9158 [Textsys.obj]
+   drift -0xc9c -> -0xc98 (+0x4) between RaceSummary__Fv and RaceStatistics__Fv @0x800d9fbc [overlays.obj]
+   drift -0xc98 -> -0xc88 (+0x10) between Hud_RenderStatsView__Fv and Loading_DrawLoadingScreen__Fv @0x800db0b8 [loading.obj]
+== .data: 301 matched symbols; base delta -0xad0
+== .sdata: 454 matched symbols; base delta -0x32a8
+   drift -0x32a8 -> -0x32a4 (+0x4) between gBlockadeTypes and AICop_rawTriggers @0x8013c570 [aicop.obj]
+   drift -0x32a4 -> -0x32ac (-0x8) between AITune_gRoughLapTime and AudioClc_gCameraVelocity @0x8013c608 [audioclc.obj]
+== .sbss: 38 matched symbols; base delta -0x32f4
+== .bss: 16 matched symbols; base delta -0x329c
+   drift -0x329c -> -0x3298 (+0x4) between recordCollection and gCop1Target @0x8013dff0 [camera.obj]
+   drift -0x3298 -> -0x3294 (+0x4) between BTC_CurrentPerpName and gPadinfo @0x8013e89c [pad.obj]
+   drift -0x3294 -> -0x3290 (+0x4) between gPadinfo and Padglobal @0x8013e8f0 [pad.obj]
+== front.text: 845 matched symbols; base delta -0x280
+== front.data: 124 matched symbols; base delta -0x4d8
+   drift -0x4d8 -> -0x4dc (-0x4) between gCarSelected and PulsateYellow @0x800515ac [FeMenuOptions.obj]
+   drift -0x4dc -> -0x4e0 (-0x4) between fHelpText and textDefinitions @0x800515b8 [FETextRender.obj]
+   drift -0x4e0 -> -0x4e4 (-0x4) between screenMain and screenPinkSlips @0x80051e64 [ScreenPinkSlips.obj]
+   drift -0x4e4 -> -0x4e0 (+0x4) between screenPinkSlips and screenTournamentStandings @0x80051e68 [ScreenPost.obj]
+   drift -0x4e0 -> -0x4e4 (-0x4) between fMemIcon and screenPinkSlipCongrats @0x80052944 [ScreenCongrats.obj]
+   drift -0x4e4 -> -0x4e8 (-0x4) between fPermFileNameBuf and NewRecords @0x80052978 [Statchk.obj]
+   drift -0x4e8 -> -0x570 (-0x88) between kNoColor and ascii_table @0x80052a78 [memcard.obj]
+== front.bss: 1 matched symbols; base delta -0x588

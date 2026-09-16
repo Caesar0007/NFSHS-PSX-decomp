@@ -3,7 +3,8 @@
   "custom_make": "python",
   "custom_args": [
     "tools/build.py",
-    "--skip-asm"
+    "--skip-asm",
+    "--only"
   ],
   "build_target": false,
   "build_base": true,

@@ -13,6 +13,13 @@ Usage:
     python tools/build.py            # full build + verify against original
     python tools/build.py --skip-asm # SKIP_ASM=1 (objdiff/decomp.me-style)
     python tools/build.py clean
+
+    # partial build (no asm/ step, no link, fails loud):
+    python tools/build.py --skip-asm --only addtimer,nsync      # module names
+    python tools/build.py --skip-asm --only src/eaclib/psx/eacpsxz/addtimer
+    python tools/build.py --skip-asm --only build/recon/.../addtimer.c.o
+    # objdiff: custom_args = [tools/build.py, --skip-asm, --only]; the GUI
+    # appends the unit's build/<rel>.o, which becomes --only's value.
 """
 import hashlib
 import re
@@ -2083,9 +2090,127 @@ def clean():
     print("cleaned build/")
 
 
+def all_sources():
+    """Every compilable TU, in the order the full build visits them."""
+    srcs = sorted((ROOT / "src").rglob("*.c"))
+    if RECON.exists():
+        srcs += sorted(RECON.rglob("*.cpp")) + sorted(RECON.rglob("*.c"))
+    return srcs
+
+
+def _obj_to_source(target: str) -> Path:
+    """build/<rel>.(c|cpp).o -> ROOT/<rel>.(c|cpp), loudly.
+
+    This is the form objdiff hands us: it runs `custom_make custom_args...`
+    with the unit's base_path appended as the last argument."""
+    p = Path(target)
+    if p.is_absolute():
+        try:
+            p = p.relative_to(OUT)
+        except ValueError:
+            sys.exit(f"[build] object not under {OUT}: {target}")
+    else:
+        parts = p.parts
+        if not parts or parts[0] != OUT.name:
+            sys.exit(f"[build] object must be under {OUT.name}/: {target}")
+        p = Path(*parts[1:])
+    src = ROOT / p.with_suffix("")          # strip .o -> <rel>.c / <rel>.cpp
+    if src.suffix not in (".c", ".cpp"):
+        sys.exit(f"[build] expected <rel>.(c|cpp).o, got: {target}")
+    if not src.exists():
+        sys.exit(f"[build] no source for {target}: {src}")
+    return src
+
+
+def _spec_to_source(spec: str) -> Path:
+    """--only spec -> source.  A spec is a module name or a trailing path
+    fragment, extension optional: `addtimer`, `eacpsxz/addtimer`,
+    `recon/eaclib/psx/eacpsxz/addtimer.c`.  It matches a TU whose path (less
+    the extension) ends with it.
+
+    src/ and recon/ mirror each other, so a bare name usually hits both lanes;
+    that one ambiguity resolves to recon/ (the objdiff/matching lane -- 464 of
+    466 units live there).  Say `src/<name>` to get the linked-lane twin.  Any
+    other ambiguity is an error listing the candidates."""
+    key = spec.replace("\\", "/").strip("/")
+    for ext in (".c", ".cpp"):
+        if key.endswith(ext):
+            key = key[: -len(ext)]
+    if not key:
+        sys.exit(f"[build] empty --only spec")
+    hits = []
+    for src in all_sources():
+        rel = src.relative_to(ROOT).with_suffix("").as_posix()
+        if rel == key or rel.endswith("/" + key):
+            hits.append(src)
+    if not hits:
+        sys.exit(f"[build] --only {spec}: no TU matches")
+    if len(hits) > 1:
+        recon = [h for h in hits if h.relative_to(ROOT).parts[0] == RECON.name]
+        if len(recon) == 1 and len(hits) == 2:
+            return recon[0]
+        listing = "\n".join(f"   {h.relative_to(ROOT).as_posix()}" for h in hits)
+        sys.exit(f"[build] --only {spec} is ambiguous; use a longer path:\n{listing}")
+    return hits[0]
+
+
+def split_only(args):
+    """Pull every `--only LIST` / `--only=LIST` out of argv.
+
+    Returns (items, rest): the comma-separated items in request order, and the
+    remaining argv with the option AND its value removed -- so a value can
+    never be mistaken for a command word like `clean`.  Each item is either a
+    module spec (see _spec_to_source) or a `build/<rel>.(c|cpp).o` object path
+    (what the objdiff GUI appends after custom_args)."""
+    items, rest = [], []
+    i = 0
+    while i < len(args):
+        a = args[i]
+        if a == "--only":
+            if i + 1 >= len(args):
+                sys.exit("[build] --only needs a comma-separated list "
+                         "(module names and/or build/<rel>.o paths)")
+            value, i = args[i + 1], i + 2
+        elif a.startswith("--only="):
+            value, i = a[len("--only="):], i + 1
+        else:
+            rest.append(a); i += 1
+            continue
+        items += [s.strip() for s in value.split(",") if s.strip()]
+    return items, rest
+
+
+def select_sources(items):
+    """--only items -> source Paths, deduped, request order."""
+    seen, out = set(), []
+    for it in items:
+        src = _obj_to_source(it) if it.endswith(".o") else _spec_to_source(it)
+        if src not in seen:
+            seen.add(src); out.append(src)
+    return out
+
+
 def main():
     global OUT
-    args = sys.argv[1:]
+    only_items, args = split_only(sys.argv[1:])
+
+    # Validate before acting: anything left that is not a known word is a
+    # mistake -- a typo'd flag or an object path outside --only -- and must
+    # neither run `clean` nor fall through to a silent three-minute full build.
+    known = {"clean", "--skip-asm", "--no-link", "--out"}
+    unknown, expect_value = [], False
+    for a in args:
+        if expect_value:                  # the directory after --out
+            expect_value = False
+        elif a == "--out":
+            expect_value = True
+        elif a not in known:
+            unknown.append(a)
+    if unknown:
+        sys.exit(f"[build] unknown argument(s): {' '.join(unknown)}\n"
+                 f"        known: clean --skip-asm --no-link --out DIR "
+                 f"--only LIST")
+
     if "clean" in args:
         clean(); return
     skip_asm = "--skip-asm" in args
@@ -2095,6 +2220,25 @@ def main():
     if "--out" in args:
         OUT = ROOT / args[args.index("--out") + 1]
     OUT.mkdir(parents=True, exist_ok=True)
+
+    # Partial build: `--only a,b` (objdiff: custom_args ends with `--only`, the
+    # GUI appends the unit's build/<rel>.o as its value).  Differs from the
+    # full build ON PURPOSE: no asm/ step (no unit is built from asm/) and no
+    # link; and it FAILS LOUD -- a compile error must reach objdiff, else it
+    # silently diffs a STALE object.  After editing a shared header, run the
+    # full build: this lane rebuilds only what it is given.
+    only = select_sources(only_items)
+    if only:
+        print(f"== output -> {OUT.relative_to(ROOT)}  (skip_asm={skip_asm}, "
+              f"{len(only)} TU) ==")
+        for src in only:
+            if src.suffix == ".cpp":
+                obj = compile_cpp(src)
+            else:
+                obj = compile_c(src, skip_asm)
+            print(f"OK {obj.relative_to(ROOT).as_posix()}")
+        return
+
     print(f"== output -> {OUT.relative_to(ROOT)}  (skip_asm={skip_asm}) ==")
 
     print("== assembling data/header ==")

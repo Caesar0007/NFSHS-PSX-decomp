@@ -1,16 +1,10 @@
 == .text: 1589 matched symbols; base delta -0xca8
    drift -0xca8 -> -0xca4 (+0x4) between Stats_TrackEndGame__Fv and TextSys_LoadWordsGeneric__FiPc @0x800b9158 [Textsys.obj]
-   drift -0xca4 -> -0xca0 (+0x4) between RaceSummary__Fv and RaceStatistics__Fv @0x800d9fbc [overlays.obj]
-   drift -0xca0 -> -0xc90 (+0x10) between Hud_RenderStatsView__Fv and Loading_DrawLoadingScreen__Fv @0x800db0b8 [loading.obj]
-== .data: 301 matched symbols; base delta -0xad8
-== .sdata: 454 matched symbols; base delta -0x32b0
-   drift -0x32b0 -> -0x32ac (+0x4) between gBlockadeTypes and AICop_rawTriggers @0x8013c570 [aicop.obj]
-== .sbss: 38 matched symbols; base delta -0x32f4
-== .bss: 16 matched symbols; base delta -0x329c
-   drift -0x329c -> -0x3298 (+0x4) between recordCollection and gCop1Target @0x8013dff0 [camera.obj]
-   drift -0x3298 -> -0x3294 (+0x4) between BTC_CurrentPerpName and gPadinfo @0x8013e89c [pad.obj]
-   drift -0x3294 -> -0x3290 (+0x4) between gPadinfo and Padglobal @0x8013e8f0 [pad.obj]
+== .data: 301 matched symbols; base delta -0xaf0
+== .sdata: 455 matched symbols; base delta -0x32c8
+   drift -0x32c8 -> -0x32c4 (+0x4) between gBlockadeTypes and AICop_rawTriggers @0x8013c570 [aicop.obj]
+== .sbss: 38 matched symbols; base delta -0x3310
+== .bss: 2 matched symbols; base delta -0x32f4
 == front.text: 845 matched symbols; base delta -0x248
-== front.data: 134 matched symbols; base delta -0x4a0
-   drift -0x4a0 -> -0x4b8 (-0x18) between fp and ascii_table @0x80052a78 [memcard.obj]
-== front.bss: 1 matched symbols; base delta -0x4e0
+== front.data: 139 matched symbols; base delta -0x4a0
+== front.bss: 1 matched symbols; base delta -0x4c8

@@ -90,7 +90,6 @@
 "H_cor_tbl": 2148777760,
 "Hcount": 2148747920,
 "Night_gCopCarTypeColorIdx": 2148784610,
-"StatsTimer": 2148784536,
 "TrackSpec_gSpec": 2148676220,
 "Vcount": 2148760848,
 "Weather_gDensityTbl": 2148676484,
@@ -102,14 +101,11 @@
 "_cdr": 2148778640,
 "_gp": 2148779340,
 "availablefilesystems": 2148785248,
-"creditShapeFile": 2147822168,
 "currentfilesystem": 2148785244,
 "currentfont": 2148752288,
 "debug_cause": 2148756192,
 "disablecd": 2148785240,
-"gCarObj": 2147822184,
 "gClearCycle": 2148757692,
-"gHelpShapes": 2147822180,
 "gMDECinfo": 2147822376,
 "gMemAlloc": 2148757672,
 "gMemFree": 2148757676,
@@ -130,6 +126,5 @@
 "seedX": 2148677108,
 "showRoomFlag": 2147816032,
 "sndcdvs": 2148756652,
-"snddefaultenvelope": 2148757956,
-"titleScreenDisplayed": 2147822192
+"snddefaultenvelope": 2148757956
 }

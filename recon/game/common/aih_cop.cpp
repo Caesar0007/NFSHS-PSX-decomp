@@ -688,7 +688,17 @@ void AIHigh_Cop::HighExecute()
         /* cell (a): zero-instruction cse-block boundary -- see the case head. */
         /* SYM-CODEGEN-CARRIER: aihCopFlagsBoundary_ -- this zero-instruction
            forced-label boundary terminates the GCC CSE block; removing it
-           produces 10 diffs, as documented by the three-cell necessity grid. */
+           produces 10 diffs, as documented by the three-cell necessity grid.
+           STILL A CARRIER (2026-09-17): it costs 4 .sdata bytes retail does not have
+           (aicop +4 in the PSYLINK lane).  Receipts (build/psyq/probe/aihi.py, .i-level
+           compiles, label-normalized diff): nested/flat/switch/do-while/for/goto/else
+           shapes, chaseState assigned early or in-block, `one` or literal 1, literal 4
+           or chaseState in either guard, cc1plus 2.8.0 / 2.8.1-sn / psq45, and
+           -fno-cse-skip-blocks (changes 89 other lines) ALL leave the 4 merged into $s2
+           at the second guard; `(void)&&L` and an auto `void *p = &&L` do not force the
+           label.  Retail targets: guard1 ==1 -> 0x800643a0, ==4 -> 0x80064268 (guard2
+           head, ONE xref, SYM block `{ line 223`).  Open: the construct that gives the
+           join a real CODE_LABEL (or LABEL_NUSES 2) at cse time without data. */
         static void *aihCopFlagsBoundary_ = &&aih_cop_flagsGuard;
 
         (this->carObj_)->AIFlags = (this->carObj_)->AIFlags & 0xfffffffd;

@@ -52,6 +52,7 @@ RET = [('front.rdata', 0x80010000, 0x800128F0), ('front.text', 0x800128F0, 0x800
        ('.sdata', 0x8013C54C, 0x8013DD7C), ('.sbss', 0x8013DD7C, 0x8013DEE0), ('.bss', 0x8013DEE0, 0x80148B04)]
 LOADED = {'front.rdata', 'front.text', 'front.data', '.rdata', '.text', '.data', '.sdata'}
 steps = [a for a in sys.argv[1:] if a.startswith('--')] or ['--assemble', '--link', '--compare']
+COMM4 = '--no-comm4' not in sys.argv   # model the retail 4-aligned COMMON layout for game objects
 SECTION_RE = re.compile(rb'\.section\s+([.\w]+)')
 ALIAS_RE = re.compile(rb'^\s*(\w+)\s*=\s*(\w+)\s*$')
 INCLUDE_RE = re.compile(rb'\.include\s+"([^"]+)"')
@@ -130,7 +131,7 @@ def base_section(s):
 COMM_RE = re.compile(rb'\.(l?comm)\s+(\S+?)\s*,\s*(\d+)')
 
 
-def sn_text(src: Path, vtables=False, front=False, pads=None) -> bytes:
+def sn_text(src: Path, vtables=False, front=False, pads=None, g=None) -> bytes:
     out = []
     lines = src.read_bytes().replace(b'\r\n', b'\n').split(b'\n')
     # front-overlay objects: ASPSX -s puts the object's COMMONs into front.bss after its
@@ -155,7 +156,11 @@ def sn_text(src: Path, vtables=False, front=False, pads=None) -> bytes:
         if s.startswith((b'.type\t', b'.type ', b'.size\t', b'.size ')):
             continue
         m = COMM_RE.match(s)
-        if m and front:
+        if m and (front or (COMM4 and (g is None or int(m.group(3)) > g))):
+            # retail COMMON law (2026-09-17): .lcomm/.comm are laid out after the object's
+            # explicit .bss, locals first then globals, each aligned to min(4, size) -- retail
+            # corrPt.47 12B @4, fogstrspc 64B @4, gPadinfo 84B @4 (ASPSX 2.56 does this; 2.77
+            # aligns min(8, size) -- build/psyq/probe/al2.s).  Small .comm (<= G) stay .sbss.
             (lcomm if m.group(1) == b'lcomm' else comm).append((m.group(2), int(m.group(3))))
             continue
         if s == b'.set\tmaspsx_gas_reorder':
@@ -174,7 +179,7 @@ def sn_text(src: Path, vtables=False, front=False, pads=None) -> bytes:
             out.append(sn_text(ROOT / m.group(1).decode(), front=front).rstrip(b'\r\n')); continue
         out.append(ln)
     if lcomm or comm:
-        out.append(b'\t.section front.bss')
+        out.append(b'\t.section front.bss' if front else b'\t.bss')
         for name, size in lcomm + comm:
             if size >= 4:
                 out.append(b'\t.align 2')
@@ -198,10 +203,10 @@ def sn_text(src: Path, vtables=False, front=False, pads=None) -> bytes:
     return b'\r\n'.join(out) + b'\r\n'
 
 
-def crlf(src: Path, dst: Path, front=False, pads=None):
+def crlf(src: Path, dst: Path, front=False, pads=None, g=None):
     # same dtor-prefix convention as build.py's GNU lane (`_._X` -> `___X`) so the
     # hand-written vtable references resolve; the compare step maps it back.
-    dst.write_bytes(sn_text(src, vtables='vtables_' in src.name, front=front, pads=pads).replace(b'_._', b'___'))
+    dst.write_bytes(sn_text(src, vtables='vtables_' in src.name, front=front, pads=pads, g=g).replace(b'_._', b'___'))
 
 
 def objname(rel):
@@ -224,7 +229,7 @@ if '--assemble' in steps:
         bo = 'build/' + rel + '.o'
         front = (bo in FRONT) if bo in HONEST_OBJS else rel.startswith('recon/frontend/')
         nfront += front
-        tmp = OUT / (rel.replace('/', '__') + '.s'); crlf(sfile, tmp, front=front, pads=PADS.get(bo))
+        tmp = OUT / (rel.replace('/', '__') + '.s'); crlf(sfile, tmp, front=front, pads=PADS.get(bo), g=int(g))
         obj = OUT / objname(rel)
         cmd = [ASPSX, '-q', f'-G{g}', str(tmp), '-o', str(obj)]
         if obj.exists():

@@ -76,7 +76,8 @@
 "text": 4
 },
 "build/recon/frontend/psx/movie.cpp.o": {
-"text": 4
+"text": 4,
+"data": 4
 },
 "build/recon/frontend/psx/mmeffect.cpp.o": {
 "text": 4

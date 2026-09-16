@@ -12,7 +12,7 @@
  * scratch word and its 12-byte tail are one private owner section.  `D_80148AD4` is only the
  * retail-address oracle label used by this reconstruction.  The separate 32-byte interval after
  * END.obj (0x80148AE4..0x80148B04) remains outside this evidence and is not claimed here. */
-__asm__("\t.local\tD_80148AD4\n\t.section\t.bss\n\t.align\t2\n"
+__asm__("\t.section\t.bss\n\t.align\t2\n"
         "D_80148AD4:\n\t.space\t16\n\t.text");
 
 #if defined(__mips__)
@@ -22,34 +22,34 @@ __asm__(
     "\t.set noreorder\n"    /* space form: passes THROUGH maspsx to gnu-as (keeps as from reordering) */
     "\t.globl _ExitCard\n"
     "_ExitCard:\n"
-    "\tlui   $at, %hi(D_80148AD4)\n"            /* @0x8010CBC0  save ra -> scratch word */
-    "\tsw    $ra, %lo(D_80148AD4)($at)\n"       /* @0x8010CBC4                          */
+    "\tlui   $1, %hi(D_80148AD4)\n"            /* @0x8010CBC0  save ra -> scratch word */
+    "\tsw    $31, %lo(D_80148AD4)($1)\n"       /* @0x8010CBC4                          */
     "\tjal   EnterCriticalSection\n"            /* @0x8010CBC8                          */
     "\t nop\n"                                   /* @0x8010CBCC  [delay]                 */
-    "\taddiu $t1, $zero, 0x56\n"                /* @0x8010CBD0  BIOS call index 0x56    */
-    "\taddiu $t2, $zero, 0xB0\n"                /* @0x8010CBD4  BIOS table base B0      */
-    "\tjalr  $t2\n"                             /* @0x8010CBD8  fetch table-6 handler   */
+    "\taddiu $9, $0, 0x56\n"                /* @0x8010CBD0  BIOS call index 0x56    */
+    "\taddiu $10, $0, 0xB0\n"                /* @0x8010CBD4  BIOS table base B0      */
+    "\tjalr  $10\n"                             /* @0x8010CBD8  fetch table-6 handler   */
     "\t nop\n"                                   /* @0x8010CBDC  [delay]                 */
-    "\tlw    $v0, 24($v0)\n"                    /* @0x8010CBE0  evt = *(v0+0x18)        */
-    "\tlui   $t2, %hi(D_8010CC30)\n"            /* @0x8010CBE4  src = zero blob         */
-    "\taddiu $t2, $t2, %lo(D_8010CC30)\n"       /* @0x8010CBE8                          */
-    "\tlui   $t1, %hi(D_8010CC3C)\n"            /* @0x8010CBEC  end = blob+0xC          */
-    "\taddiu $t1, $t1, %lo(D_8010CC3C)\n"       /* @0x8010CBF0                          */
+    "\tlw    $2, 24($2)\n"                    /* @0x8010CBE0  evt = *(v0+0x18)        */
+    "\tlui   $10, %hi(D_8010CC30)\n"            /* @0x8010CBE4  src = zero blob         */
+    "\taddiu $10, $10, %lo(D_8010CC30)\n"       /* @0x8010CBE8                          */
+    "\tlui   $9, %hi(D_8010CC3C)\n"            /* @0x8010CBEC  end = blob+0xC          */
+    "\taddiu $9, $9, %lo(D_8010CC3C)\n"       /* @0x8010CBF0                          */
     ".L_ExitCard_loop:\n"
-    "\tlw    $v1, 0($t2)\n"                     /* @0x8010CBF4                          */
+    "\tlw    $3, 0($10)\n"                     /* @0x8010CBF4                          */
     "\tnop\n"                                    /* @0x8010CBF8  [load delay]            */
-    "\tsw    $v1, 112($v0)\n"                   /* @0x8010CBFC  *(evt+0x70) = 0         */
-    "\taddiu $t2, $t2, 4\n"                     /* @0x8010CC00                          */
-    "\tbne   $t2, $t1, .L_ExitCard_loop\n"      /* @0x8010CC04                          */
-    "\t addiu $v0, $v0, 4\n"                    /* @0x8010CC08  [delay] evt += 4        */
+    "\tsw    $3, 112($2)\n"                   /* @0x8010CBFC  *(evt+0x70) = 0         */
+    "\taddiu $10, $10, 4\n"                     /* @0x8010CC00                          */
+    "\tbne   $10, $9, .L_ExitCard_loop\n"      /* @0x8010CC04                          */
+    "\t addiu $2, $2, 4\n"                    /* @0x8010CC08  [delay] evt += 4        */
     "\tjal   FlushCache\n"                       /* @0x8010CC0C                          */
     "\t nop\n"                                   /* @0x8010CC10  [delay]                 */
     "\tjal   ExitCriticalSection\n"             /* @0x8010CC14                          */
     "\t nop\n"                                   /* @0x8010CC18  [delay]                 */
-    "\tlui   $ra, %hi(D_80148AD4)\n"            /* @0x8010CC1C  restore ra from scratch */
-    "\tlw    $ra, %lo(D_80148AD4)($ra)\n"       /* @0x8010CC20                          */
+    "\tlui   $31, %hi(D_80148AD4)\n"            /* @0x8010CC1C  restore ra from scratch */
+    "\tlw    $31, %lo(D_80148AD4)($31)\n"       /* @0x8010CC20                          */
     "\tnop\n"                                    /* @0x8010CC24  [load delay]            */
-    "\tjr    $ra\n"                             /* @0x8010CC28                          */
+    "\tjr    $31\n"                             /* @0x8010CC28                          */
     "\t nop\n"                                   /* @0x8010CC2C  [delay]                 */
 
     /* The 4 zero words the loop above reads.  They live in THIS object, immediately after

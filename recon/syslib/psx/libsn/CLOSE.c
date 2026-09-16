@@ -2,13 +2,13 @@
  * PCclose @0x80106D40 -- host close via `break 0x104` (= break 0,260); a1=fd.
  * FILE-SCOPE __asm__ so NO C epilogue is appended (oracle's own `jr ra; nop`). */
 #if defined(__mips__)
-__asm__("\t.set push\n\t.set noreorder\n"
+__asm__("\t.set noreorder\n"
         "\t.globl PCclose\nPCclose:\n"
-        "\taddu  $a1, $a0, $zero\n"
+        "\taddu  $5, $4, $0\n"
         "\tbreak 0x104\n"
-        "\tjr    $ra\n"
+        "\tjr    $31\n"
         "\t nop\n"
-        "\t.set pop\n");
+        "\t.set reorder\n\t.set at\n");
 #else
 extern int PCclose(int fd) { (void)fd; return 0; }
 #endif

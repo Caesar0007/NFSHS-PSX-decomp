@@ -16,12 +16,12 @@
 /* ctc2 $a0,$<creg>; jr $ra; nop  -- the literal handwritten sequence (arg type is
  * irrelevant: the value is taken raw from $a0 with no extension). */
 #define GTE_CTC_THUNK(name, creg, argtype)                                     \
-    __asm__("\t.set push\n\t.set noreorder\n"                                  \
+    __asm__("\t.set noreorder\n"                                  \
             "\t.globl " #name "\n" #name ":\n"                                 \
-            "\tctc2 $a0, $" #creg "\n"                                         \
-            "\tjr   $ra\n"                                                      \
+            "\tctc2 $4, $" #creg "\n"                                         \
+            "\tjr   $31\n"                                                      \
             "\t nop\n"                                                          \
-            "\t.set pop\n")
+            "\t.set reorder\n\t.set at\n")
 #else
 #define GTE_CTC_THUNK(name, creg, argtype)                                     \
     extern "C" void name(argtype v) { (void)v; } /* GTE absent on host */

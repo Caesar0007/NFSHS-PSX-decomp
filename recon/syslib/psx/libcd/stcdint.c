@@ -75,7 +75,7 @@ static volatile int    *_d3_chcr     ST_DATA = (volatile int   *)0x1F8010B8;  /*
  * at 0x80136AE0 in asm/data/data_8010CCD4_r17.data.s, then this line becomes
  * `extern int debug_cause __asm__("D_80136AE0");` (byte-neutral, same device as INTR.c's
  * g_intr).  Receipts: scratchpad/w65a6/RECEIPTS.md */
-__asm__("\t.local\t_st_slot\n\t.section\t.bss\n\t.align\t2\n_st_slot:\n\t.space\t4\n\t.text");
+__asm__("\t.section\t.bss\n\t.align\t2\n_st_slot:\n\t.space\t4\n\t.text");
 extern volatile u_short *_st_slot; /* @0x80144864 : cached current ring slot */
 /* W66-A3: the blob cut named above HAS LANDED -- asm/data/data_8010CCD4_r17.data.s
  * now carries `dlabel debug_cause` at 0x80136AE0, under that exact name, so no
@@ -604,12 +604,12 @@ loop:
  * safe and, unlike the INCLUDE_ASM function wrapper, emits NO trailing epilogue
  * after the .include (the wrapper's `jr ra; nop` would collide with the next
  * function). */
-__asm__(".include \"macro.inc\"\n\t.set reorder\n\t.set at\n");
+__asm__("\t.set reorder\n\t.set at\n");
 __asm__(".text\n"
         "\t.align\t2\n"
         "\t.set noreorder\n"
         "\t.set noat\n"
-        ".include \"asm/nonmatchings/main/_st_dma.s\"\n"
+        ".include \"asm/cert/_st_dma.s\"\n"
         "\t.set reorder\n"
         "\t.set at\n");
 #if 0  /* ---- preserved non-matching C reconstruction of _st_dma ---- */

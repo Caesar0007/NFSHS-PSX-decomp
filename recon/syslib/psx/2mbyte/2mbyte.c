@@ -42,11 +42,11 @@ extern int _gp;                   /* linker sym: small-data anchor (0x8013C54C, 
  * C-level `void __main(void){}` here would lose its delay-slot nop (w45 file-scope-asm pitfall). */
 #if defined(__mips__)
 __asm__(
-    ".text\n\t.set push\n\t.set noat\n\t.set noreorder\n\t.set\tnoreorder\n"
+    ".text\n\t.set noat\n\t.set noreorder\n\t.set\tnoreorder\n"
     ".globl __main\n__main:\n"
-    "\tjr         $ra\n"
+    "\tjr         $31\n"
     "\tnop\n"
-    ".set pop\n"
+    ".set reorder\n.set at\n"
 );
 #else
 extern void __main(void) { }
@@ -55,19 +55,19 @@ extern void __main(void) { }
 /* @0x800E402C (stup2 / __SN_ENTRY_POINT): zero the BSS region [_bss_obj, __last_org). */
 #if defined(__mips__)
 __asm__(
-    ".text\n\t.set push\n\t.set noat\n\t.set noreorder\n\t.set\tnoreorder\n"
+    ".text\n\t.set noat\n\t.set noreorder\n\t.set\tnoreorder\n"
     ".globl __SN_ENTRY_POINT\n__SN_ENTRY_POINT:\n.globl stup2\nstup2:\n"
-    "\tlui        $v0, %hi(_bss_obj)\n"
-    "\taddiu      $v0, $v0, %lo(_bss_obj)\n"
-    "\tlui        $v1, %hi(__last_org)\n"
-    "\taddiu      $v1, $v1, %lo(__last_org)\n"
+    "\tlui        $2, %hi(_bss_obj)\n"
+    "\taddiu      $2, $2, %lo(_bss_obj)\n"
+    "\tlui        $3, %hi(__last_org)\n"
+    "\taddiu      $3, $3, %lo(__last_org)\n"
     ".L800E403C:\n"
-    "\tsw         $zero, 0($v0)\n"
-    "\taddiu      $v0, $v0, 4\n"
-    "\tsltu       $at,$v0,$v1\n"
-    "\tbnez       $at, .L800E403C\n"
+    "\tsw         $0, 0($2)\n"
+    "\taddiu      $2, $2, 4\n"
+    "\tsltu       $1,$2,$3\n"
+    "\tbnez       $1, .L800E403C\n"
     "\tnop\n"
-    ".set pop\n"
+    ".set reorder\n.set at\n"
 );
 #else
 extern void stup2(void) { }
@@ -78,44 +78,44 @@ extern void __SN_ENTRY_POINT(void) { }
  * Falls through from stup2 above -- must stay textually adjacent (no intervening code/data). */
 #if defined(__mips__)
 __asm__(
-    ".text\n\t.set push\n\t.set noat\n\t.set noreorder\n\t.set\tnoreorder\n"
+    ".text\n\t.set noat\n\t.set noreorder\n\t.set\tnoreorder\n"
     ".globl stup1\nstup1:\n"
-    "\taddiu      $v0, $zero, 4\n"
+    "\taddiu      $2, $0, 4\n"
     "\tnop\n"
     "\tnop\n"
     "\tnop\n"
     "\tnop\n"
-    "\tlui        $a0, %hi(D_800E40D8)\n"
-    "\taddiu      $a0, $a0, %lo(D_800E40D8)\n"
-    "\taddu       $a0, $a0, $v0\n"
-    "\tlw         $v0, 0($a0)\n"
-    "\tlui        $t0, %hi(D_80000004)\n"
-    "\tor         $sp, $v0, $t0\n"
-    "\tlui        $a0, %hi(__last_org)\n"
-    "\taddiu      $a0, $a0, %lo(__last_org)\n"
-    "\tsll        $a0, $a0, 3\n"
-    "\tsrl        $a0, $a0, 3\n"
-    "\tlui        $v1, %hi(_stacksize)\n"
-    "\tlw         $v1, %lo(_stacksize)($v1)\n"
+    "\tlui        $4, %hi(D_800E40D8)\n"
+    "\taddiu      $4, $4, %lo(D_800E40D8)\n"
+    "\taddu       $4, $4, $2\n"
+    "\tlw         $2, 0($4)\n"
+    "\tlui        $8, %hi(D_80000004)\n"
+    "\tor         $29, $2, $8\n"
+    "\tlui        $4, %hi(__last_org)\n"
+    "\taddiu      $4, $4, %lo(__last_org)\n"
+    "\tsll        $4, $4, 3\n"
+    "\tsrl        $4, $4, 3\n"
+    "\tlui        $3, %hi(_stacksize)\n"
+    "\tlw         $3, %lo(_stacksize)($3)\n"
     "\tnop\n"
-    "\tsubu       $a1, $v0, $v1\n"
-    "\tsubu       $a1, $a1, $a0\n"
-    "\tor         $a0, $a0, $t0\n"
-    "\tlui        $at, %hi(D_8013DE5C)\n"
-    "\tsw         $ra, %lo(D_8013DE5C)($at)\n"
-    "\tlui        $gp, %hi(_gp)\n"
-    "\taddiu      $gp, $gp, %lo(_gp)\n"
-    "\taddu       $fp, $sp, $zero\n"
+    "\tsubu       $5, $2, $3\n"
+    "\tsubu       $5, $5, $4\n"
+    "\tor         $4, $4, $8\n"
+    "\tlui        $1, %hi(D_8013DE5C)\n"
+    "\tsw         $31, %lo(D_8013DE5C)($1)\n"
+    "\tlui        $28, %hi(_gp)\n"
+    "\taddiu      $28, $28, %lo(_gp)\n"
+    "\taddu       $30, $29, $0\n"
     "\tjal        InitHeap\n"
-    "\taddi      $a0, $a0, %lo(D_80000004)\n"
-    "\tlui        $ra, %hi(D_8013DE5C)\n"
-    "\tlw         $ra, %lo(D_8013DE5C)($ra)\n"
+    "\taddi      $4, $4, %lo(D_80000004)\n"
+    "\tlui        $31, %hi(D_8013DE5C)\n"
+    "\tlw         $31, %lo(D_8013DE5C)($31)\n"
     /* w48-a7: stup1's SYM span is 0x78 = 30 insns and ENDS at the `lw $ra` -- the load-delay
      * nop @0x800E40C8 is a PAD word between stup1 and stup0, not part of stup1.  Label it so the
      * byte stays in the image (retail layout preserved) while the symbol block is 30 insns.     */
     "D_800E40C8:\n"
     "\tnop\n"
-    ".set pop\n"
+    ".set reorder\n.set at\n"
 );
 #else
 extern void stup1(void) { }
@@ -127,7 +127,7 @@ extern void stup1(void) { }
  * asm block so it lands at the exact oracle byte offset (0x800E40D8). */
 #if defined(__mips__)
 __asm__(
-    ".text\n\t.set push\n\t.set noat\n\t.set noreorder\n\t.set\tnoreorder\n"
+    ".text\n\t.set noat\n\t.set noreorder\n\t.set\tnoreorder\n"
     ".globl stup0\nstup0:\n"
     "\tjal        main\n"
     "\tnop\n"
@@ -156,7 +156,7 @@ __asm__(
     "\t.word      2097152\n"
     "\t.word      2097152\n"
     "\t.word      2097152\n"
-    ".set pop\n"
+    ".set reorder\n.set at\n"
 );
 #else
 extern void stup0(void) { for (;;) { } }

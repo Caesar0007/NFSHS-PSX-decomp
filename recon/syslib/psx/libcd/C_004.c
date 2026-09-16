@@ -7,7 +7,7 @@
  * libds/DSCB.obj and is intentionally not duplicated.  SotN's symbol-bearing
  * copy preserves `fp_2` and proves both used words are file-local.  The second
  * original spelling is not retained. */
-__asm__("\t.local\tfp_2\n\t.local\tD_801489D4\n"
+__asm__(""
         "\t.section\t.bss.ds_801489D0,\"aw\",@nobits\n\t.align\t2\n"
         "fp_2:\n\t.space\t4\n"
         "D_801489D4:\n\t.space\t4\n"

@@ -430,4 +430,4 @@ scan:
 }
 
 /* Local oracle alias; canonical FIRST.obj has no XDEF for this helper. */
-__asm__(".local _first_patch\n_first_patch = func_80109F5C");
+__asm__("_first_patch = func_80109F5C");

@@ -429,12 +429,12 @@ extern char *D_801369E4;        /* @0x801369E4 : "0123456789ABCDEF" */
  * FntPrint follows FntFlush, so a bare (no wrapper) .include with `# maspsx-keep`
  * is used: maspsx keeps it verbatim and it emits no trailing epilogue that would
  * shift FntPrint. */
-__asm__(".include \"macro.inc\" # maspsx-keep\n\t.set reorder # maspsx-keep\n\t.set at # maspsx-keep\n");
+__asm__("\t.set reorder # maspsx-keep\n\t.set at # maspsx-keep\n");
 __asm__(".text # maspsx-keep\n"
         "\t.align\t2 # maspsx-keep\n"
         "\t.set noreorder # maspsx-keep\n"
         "\t.set noat # maspsx-keep\n"
-        ".include \"asm/nonmatchings/main/FntFlush.s\" # maspsx-keep\n"
+        ".include \"asm/cert/FntFlush.s\" # maspsx-keep\n"
         "\t.set reorder # maspsx-keep\n"
         "\t.set at # maspsx-keep\n");
 #if 0  /* ---- preserved non-matching C reconstruction of FntFlush ---- */

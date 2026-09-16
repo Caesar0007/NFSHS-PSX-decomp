@@ -13,12 +13,12 @@
 
 #if defined(__mips__)
 #define BIOS_THUNK(name, section, id)                                          \
-    __asm__("\t.set push\n\t.set noreorder\n"                                  \
+    __asm__("\t.set noreorder\n"                                  \
             "\t.globl " #name "\n" #name ":\n"                                 \
-            "\taddiu $t2, $zero, " #section "\n"                               \
-            "\tjr    $t2\n"                                                     \
-            "\t addiu $t1, $zero, " #id "\n"                                    \
-            "\t.set pop\n")
+            "\taddiu $10, $0, " #section "\n"                               \
+            "\tjr    $10\n"                                                     \
+            "\t addiu $9, $0, " #id "\n"                                    \
+            "\t.set reorder\n\t.set at\n")
 /* NB: the stub is 3 words (`addiu; jr; addiu[delay]`); splat sizes it 0xC and puts the
  * trailing alignment `nop` AFTER `endlabel` (inter-function padding, not the function). */
 #else

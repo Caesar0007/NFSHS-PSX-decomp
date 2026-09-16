@@ -10,24 +10,24 @@
 
 #if defined(__mips__)
 __asm__(
-    "\t.set push\n\t.set noreorder\n\t.set noat\n"
+    "\t.set noreorder\n\t.set noat\n"
     "\t.globl InitCARD2\n"
     "InitCARD2:\n"
-    "\taddiu $t2, $zero, 0xB0\n"          /* @0x8010C9C0  BIOS table B0 base            */
-    "\tjr    $t2\n"                        /* @0x8010C9C4  tail-call into BIOS InitCard   */
-    "\t addiu $t1, $zero, 0x4A\n"         /* @0x8010C9C8  [delay] call index 0x4A        */
+    "\taddiu $10, $0, 0xB0\n"          /* @0x8010C9C0  BIOS table B0 base            */
+    "\tjr    $10\n"                        /* @0x8010C9C4  tail-call into BIOS InitCard   */
+    "\t addiu $9, $0, 0x4A\n"         /* @0x8010C9C8  [delay] call index 0x4A        */
     "\tnop\n"                              /* @0x8010C9CC                                  */
-    "\tlhu   $t7, 10($v1)\n"              /* @0x8010C9D0  tail: read flag half-word       */
-    "\tlui   $t0, 0\n"                     /* @0x8010C9D4                                  */
-    "\tor    $t8, $t7, $v0\n"             /* @0x8010C9D8                                  */
-    "\tori   $t9, $t8, 0x12\n"            /* @0x8010C9DC  set bits 0x12                    */
-    "\tsh    $t9, 10($v1)\n"              /* @0x8010C9E0  write back                       */
-    "\taddiu $t0, $zero, 0x28\n"          /* @0x8010C9E4  spin counter = 0x28             */
+    "\tlhu   $15, 10($3)\n"              /* @0x8010C9D0  tail: read flag half-word       */
+    "\tlui   $8, 0\n"                     /* @0x8010C9D4                                  */
+    "\tor    $24, $15, $2\n"             /* @0x8010C9D8                                  */
+    "\tori   $25, $24, 0x12\n"            /* @0x8010C9DC  set bits 0x12                    */
+    "\tsh    $25, 10($3)\n"              /* @0x8010C9E0  write back                       */
+    "\taddiu $8, $0, 0x28\n"          /* @0x8010C9E4  spin counter = 0x28             */
     ".LInitCARD2_spin:\n"
-    "\taddiu $t0, $t0, -1\n"              /* @0x8010C9E8                                  */
-    "\tbnez  $t0, .LInitCARD2_spin\n"     /* @0x8010C9EC  loop                            */
+    "\taddiu $8, $8, -1\n"              /* @0x8010C9E8                                  */
+    "\tbnez  $8, .LInitCARD2_spin\n"     /* @0x8010C9EC  loop                            */
     "\t nop\n"                             /* @0x8010C9F0  [delay]                          */
-    "\tjr    $ra\n"                        /* @0x8010C9F4                                  */
+    "\tjr    $31\n"                        /* @0x8010C9F4                                  */
     "\t nop\n"                             /* @0x8010C9F8  [delay]                          */
 
     /* ---------------------------------------------------------------------------------------
@@ -45,24 +45,24 @@ __asm__(
      * --------------------------------------------------------------------------------------- */
     "\t.globl func_8010C9FC\n"
     "func_8010C9FC:\n"
-    "\tlw    $v0, 4212($v1)\n"             /* @0x8010C9FC  lw $v0,0x1074($v1)              */
+    "\tlw    $2, 4212($3)\n"             /* @0x8010C9FC  lw $v0,0x1074($v1)              */
     "\tnop\n"                              /* @0x8010CA00  [load delay]                     */
-    "\tandi  $v0, $v0, 0x80\n"             /* @0x8010CA04                                  */
-    "\tbeqz  $v0, .Lcard_irq_ret\n"        /* @0x8010CA08  -> 0x8010CA38                   */
+    "\tandi  $2, $2, 0x80\n"             /* @0x8010CA04                                  */
+    "\tbeqz  $2, .Lcard_irq_ret\n"        /* @0x8010CA08  -> 0x8010CA38                   */
     "\t nop\n"                             /* @0x8010CA0C  [delay]                          */
     ".Lcard_irq_spin:\n"
-    "\tlw    $v0, 4164($v1)\n"             /* @0x8010CA10  lw $v0,0x1044($v1)              */
+    "\tlw    $2, 4164($3)\n"             /* @0x8010CA10  lw $v0,0x1044($v1)              */
     "\tnop\n"                              /* @0x8010CA14  [load delay]                     */
-    "\tandi  $v0, $v0, 0x80\n"             /* @0x8010CA18                                  */
-    "\tbnez  $v0, .Lcard_irq_spin\n"       /* @0x8010CA1C                                  */
+    "\tandi  $2, $2, 0x80\n"             /* @0x8010CA18                                  */
+    "\tbnez  $2, .Lcard_irq_spin\n"       /* @0x8010CA1C                                  */
     "\t nop\n"                             /* @0x8010CA20  [delay]                          */
-    "\tlui   $v0, 1\n"                     /* @0x8010CA24  0x10000                          */
-    "\tlw    $v0, -8196($v0)\n"            /* @0x8010CA28  *(0xDFFC) = chained handler      */
+    "\tlui   $2, 1\n"                     /* @0x8010CA24  0x10000                          */
+    "\tlw    $2, -8196($2)\n"            /* @0x8010CA28  *(0xDFFC) = chained handler      */
     "\tnop\n"                              /* @0x8010CA2C  [load delay]                     */
-    "\tjr    $v0\n"                        /* @0x8010CA30  chain                            */
+    "\tjr    $2\n"                        /* @0x8010CA30  chain                            */
     "\t nop\n"                             /* @0x8010CA34  [delay]                          */
     ".Lcard_irq_ret:\n"
-    "\tjr    $ra\n"                        /* @0x8010CA38                                  */
+    "\tjr    $31\n"                        /* @0x8010CA38                                  */
     "\t nop\n"                             /* @0x8010CA3C  [delay]                          */
-    "\t.set pop\n");
+    "\t.set reorder\n\t.set at\n");
 #endif

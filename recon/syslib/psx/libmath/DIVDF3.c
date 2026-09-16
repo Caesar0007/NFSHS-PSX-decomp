@@ -664,36 +664,36 @@ double __divdf3(double a, double b)   /* @0x800F5DD4 */
 
 #if defined(__mips__)
 __asm__(
-    "\t.set push\n"
+    ""
     "\t.set noat\n"
     "\t.set\tnoreorder\n"   /* tab form: turns maspsx is_reorder OFF (no auto branch-delay nop) */
     "\t.set noreorder\n"    /* space form: passes through to gnu-as                             */
 
     "\t.globl _comp_mant\n"        /* @0x800F60B4 : int _comp_mant(uint a0,a1,a2,a3) -- compare [a1:a0] vs [a3:a2] as u64 -> 1/-1/0 */
     "_comp_mant:\n"
-    "\tsltu\t$v0,$a3,$a1\n"
-    "\tsw\t$a0,0($sp)\n"
-    "\tsw\t$a1,4($sp)\n"
-    "\tsw\t$a2,8($sp)\n"
-    "\tbnez\t$v0,.L800F60F8\n"
-    "\t sw\t$a3,12($sp)\n"
-    "\tsltu\t$v0,$a1,$a3\n"
-    "\tbnez\t$v0,.L800F60FC\n"
-    "\t addiu\t$v0,$zero,-1\n"
-    "\tsltu\t$v0,$a2,$a0\n"
-    "\tbnez\t$v0,.L800F60FC\n"
-    "\t addiu\t$v0,$zero,1\n"
-    "\tsltu\t$v1,$a0,$a2\n"
-    "\tbnez\t$v1,.L800F60FC\n"
-    "\t addiu\t$v0,$zero,-1\n"
+    "\tsltu\t$2,$7,$5\n"
+    "\tsw\t$4,0($29)\n"
+    "\tsw\t$5,4($29)\n"
+    "\tsw\t$6,8($29)\n"
+    "\tbnez\t$2,.L800F60F8\n"
+    "\t sw\t$7,12($29)\n"
+    "\tsltu\t$2,$5,$7\n"
+    "\tbnez\t$2,.L800F60FC\n"
+    "\t addiu\t$2,$0,-1\n"
+    "\tsltu\t$2,$6,$4\n"
+    "\tbnez\t$2,.L800F60FC\n"
+    "\t addiu\t$2,$0,1\n"
+    "\tsltu\t$3,$4,$6\n"
+    "\tbnez\t$3,.L800F60FC\n"
+    "\t addiu\t$2,$0,-1\n"
     "\tj\t.L800F60FC\n"
-    "\t addu\t$v0,$zero,$zero\n"
+    "\t addu\t$2,$0,$0\n"
     ".L800F60F8:\n"
-    "\taddiu\t$v0,$zero,1\n"
+    "\taddiu\t$2,$0,1\n"
     ".L800F60FC:\n"
-    "\tjr\t$ra\n"
+    "\tjr\t$31\n"
     "\t nop\n"
-    "\t.set pop\n"
+    "\t.set reorder\n\t.set at\n"
 );
 #else
 /* Direct-return cascade (lever 3.12#8): each return materializes $v0 in the branch

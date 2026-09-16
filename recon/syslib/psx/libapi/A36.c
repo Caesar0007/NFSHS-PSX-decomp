@@ -10,7 +10,7 @@
 #if defined(__mips__)
 extern void EnterCriticalSection(void)
 {
-    __asm__ __volatile__("addiu $a0, $zero, 0x1\n\tsyscall 0" : : : "$4");
+    __asm__ __volatile__("addiu $4, $0, 0x1\n\tsyscall 0" : : : "$4");
 }
 #else
 extern void EnterCriticalSection(void) {}

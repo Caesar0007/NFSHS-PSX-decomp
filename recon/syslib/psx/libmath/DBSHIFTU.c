@@ -11,67 +11,67 @@ extern unsigned int *_dbl_shift_us(unsigned int *out, int dir, unsigned int w0, 
 
 #if defined(__mips__)
 __asm__(
-    "\t.set push\n"
+    ""
     "\t.set noat\n"
     "\t.set\tnoreorder\n"   /* tab form: turns maspsx is_reorder OFF (no auto branch-delay nop) */
     "\t.set noreorder\n"    /* space form: passes through to gnu-as                             */
 
     "\t.globl _dbl_shift_us\n"     /* @0x801048E8 : uint *_dbl_shift_us(uint *out,int dir,uint w0,uint w1,int count) */
     "_dbl_shift_us:\n"
-    "\tsw\t$a2,8($sp)\n"           /* spill w0 */
-    "\tlw\t$a2,16($sp)\n"          /* a2 = count (5th stack arg) */
-    "\taddu\t$t0,$a0,$zero\n"      /* t0 = out */
-    "\tbnez\t$a1,.L80104948\n"     /* dir != 0 -> right-shift loop */
-    "\t sw\t$a3,12($sp)\n"         /* delay: spill w1 */
-    "\tblez\t$a2,.L8010498C\n"     /* count <= 0 -> done */
-    "\t addu\t$a0,$zero,$zero\n"   /* delay: i = 0 */
-    "\tlui\t$a3,32768\n"           /* a3 = 0x80000000 */
+    "\tsw\t$6,8($29)\n"           /* spill w0 */
+    "\tlw\t$6,16($29)\n"          /* a2 = count (5th stack arg) */
+    "\taddu\t$8,$4,$0\n"      /* t0 = out */
+    "\tbnez\t$5,.L80104948\n"     /* dir != 0 -> right-shift loop */
+    "\t sw\t$7,12($29)\n"         /* delay: spill w1 */
+    "\tblez\t$6,.L8010498C\n"     /* count <= 0 -> done */
+    "\t addu\t$4,$0,$0\n"   /* delay: i = 0 */
+    "\tlui\t$7,32768\n"           /* a3 = 0x80000000 */
     ".L80104908:\n"                /* left-shift loop (dir == 0) */
-    "\tlw\t$v0,12($sp)\n"          /* v0 = w1 */
-    "\tlw\t$a1,8($sp)\n"           /* a1 = w0 */
-    "\tsll\t$v1,$v0,1\n"           /* v1 = w1 << 1 */
-    "\tand\t$v0,$a1,$a3\n"         /* top bit of w0 */
-    "\tbeqz\t$v0,.L80104928\n"
-    "\t sw\t$v1,12($sp)\n"         /* delay: w1 = v1 */
-    "\tori\t$v0,$v1,1\n"           /* carry the top bit of w0 into w1's bit0 */
-    "\tsw\t$v0,12($sp)\n"
+    "\tlw\t$2,12($29)\n"          /* v0 = w1 */
+    "\tlw\t$5,8($29)\n"           /* a1 = w0 */
+    "\tsll\t$3,$2,1\n"           /* v1 = w1 << 1 */
+    "\tand\t$2,$5,$7\n"         /* top bit of w0 */
+    "\tbeqz\t$2,.L80104928\n"
+    "\t sw\t$3,12($29)\n"         /* delay: w1 = v1 */
+    "\tori\t$2,$3,1\n"           /* carry the top bit of w0 into w1's bit0 */
+    "\tsw\t$2,12($29)\n"
     ".L80104928:\n"
-    "\tsll\t$v0,$a1,1\n"           /* w0 <<= 1 */
-    "\tsw\t$v0,8($sp)\n"
-    "\taddiu\t$a0,$a0,1\n"         /* i++ */
-    "\tslt\t$v0,$a0,$a2\n"         /* i < count ? */
-    "\tbeqz\t$v0,.L8010498C\n"
+    "\tsll\t$2,$5,1\n"           /* w0 <<= 1 */
+    "\tsw\t$2,8($29)\n"
+    "\taddiu\t$4,$4,1\n"         /* i++ */
+    "\tslt\t$2,$4,$6\n"         /* i < count ? */
+    "\tbeqz\t$2,.L8010498C\n"
     "\t nop\n"
     "\tj\t.L80104908\n"
     "\t nop\n"
     ".L80104948:\n"
-    "\tblez\t$a2,.L8010498C\n"     /* count <= 0 -> done */
-    "\t addu\t$a0,$zero,$zero\n"   /* delay: i = 0 */
-    "\tlui\t$a3,32768\n"           /* a3 = 0x80000000 */
+    "\tblez\t$6,.L8010498C\n"     /* count <= 0 -> done */
+    "\t addu\t$4,$0,$0\n"   /* delay: i = 0 */
+    "\tlui\t$7,32768\n"           /* a3 = 0x80000000 */
     ".L80104954:\n"                /* right-shift loop (dir != 0, UNSIGNED) */
-    "\tlw\t$v0,8($sp)\n"           /* v0 = w0 */
-    "\tlw\t$a1,12($sp)\n"          /* a1 = w1 */
-    "\tsrl\t$v1,$v0,1\n"           /* v1 = w0 >>u 1 */
-    "\tandi\t$v0,$a1,1\n"          /* bottom bit of w1 */
-    "\tbeqz\t$v0,.L80104974\n"
-    "\t sw\t$v1,8($sp)\n"          /* delay: w0 = v1 */
-    "\tor\t$v0,$v1,$a3\n"          /* carry w1's bottom bit into w0's top bit */
-    "\tsw\t$v0,8($sp)\n"
+    "\tlw\t$2,8($29)\n"           /* v0 = w0 */
+    "\tlw\t$5,12($29)\n"          /* a1 = w1 */
+    "\tsrl\t$3,$2,1\n"           /* v1 = w0 >>u 1 */
+    "\tandi\t$2,$5,1\n"          /* bottom bit of w1 */
+    "\tbeqz\t$2,.L80104974\n"
+    "\t sw\t$3,8($29)\n"          /* delay: w0 = v1 */
+    "\tor\t$2,$3,$7\n"          /* carry w1's bottom bit into w0's top bit */
+    "\tsw\t$2,8($29)\n"
     ".L80104974:\n"
-    "\tsrl\t$v0,$a1,1\n"           /* w1 >>u= 1  (UNSIGNED shift -- _dbl_shift_us only) */
-    "\tsw\t$v0,12($sp)\n"
-    "\taddiu\t$a0,$a0,1\n"         /* i++ */
-    "\tslt\t$v0,$a0,$a2\n"         /* i < count ? */
-    "\tbnez\t$v0,.L80104954\n"
+    "\tsrl\t$2,$5,1\n"           /* w1 >>u= 1  (UNSIGNED shift -- _dbl_shift_us only) */
+    "\tsw\t$2,12($29)\n"
+    "\taddiu\t$4,$4,1\n"         /* i++ */
+    "\tslt\t$2,$4,$6\n"         /* i < count ? */
+    "\tbnez\t$2,.L80104954\n"
     "\t nop\n"
     ".L8010498C:\n"
-    "\tlw\t$v0,8($sp)\n"
-    "\tlw\t$v1,12($sp)\n"
-    "\tsw\t$v0,0($t0)\n"           /* out[0] = w0 */
-    "\tsw\t$v1,4($t0)\n"           /* out[1] = w1 */
-    "\tjr\t$ra\n"
-    "\t addu\t$v0,$t0,$zero\n"     /* delay: return out */
-    "\t.set pop\n"
+    "\tlw\t$2,8($29)\n"
+    "\tlw\t$3,12($29)\n"
+    "\tsw\t$2,0($8)\n"           /* out[0] = w0 */
+    "\tsw\t$3,4($8)\n"           /* out[1] = w1 */
+    "\tjr\t$31\n"
+    "\t addu\t$2,$8,$0\n"     /* delay: return out */
+    "\t.set reorder\n\t.set at\n"
 );
 #else
 extern unsigned int *_dbl_shift_us(unsigned int *out, int dir, unsigned int w0, int w1, int count) /* @0x801048E8 */

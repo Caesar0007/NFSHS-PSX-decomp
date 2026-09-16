@@ -20,7 +20,7 @@
  * the section base directly; the member has no BSS XDEF or retained local spelling.  Therefore
  * the scratch word and the 12-byte tail are one private owner section, not an unattributed gap.
  * `D_80148AC4` is only the retail-address oracle label used by this reconstruction. */
-__asm__("\t.local\tD_80148AC4\n\t.section\t.bss\n\t.align\t2\n"
+__asm__("\t.section\t.bss\n\t.align\t2\n"
         "D_80148AC4:\n\t.space\t16\n\t.text");
 
 #if defined(__mips__)
@@ -50,14 +50,14 @@ __asm__(
     "\t.set noreorder\n"
     "\t.globl func_8010CA40\n"
     "func_8010CA40:\n"
-    "\tlui   $v0, 0xA001\n"                         /* @0x8010CA40  patch1: %hi(0xA000DFAC) */
-    "\taddiu $v0, $v0, -8276\n"                     /* @0x8010CA44  %lo = 0xDFAC             */
-    "\tjr    $v0\n"                                 /* @0x8010CA48                           */
+    "\tlui   $2, 0xA001\n"                         /* @0x8010CA40  patch1: %hi(0xA000DFAC) */
+    "\taddiu $2, $2, -8276\n"                     /* @0x8010CA44  %lo = 0xDFAC             */
+    "\tjr    $2\n"                                 /* @0x8010CA48                           */
     "\t nop\n"                                      /* @0x8010CA4C  [delay]                  */
     "\tnop\n"                                       /* @0x8010CA50  (5th word of template 1) */
-    "\tlui   $t0, 0xA001\n"                         /* @0x8010CA54  patch2: %hi(0xA000DF80) */
-    "\taddiu $t0, $t0, -8320\n"                     /* @0x8010CA58  %lo = 0xDF80             */
-    "\tjalr  $t0\n"                                 /* @0x8010CA5C                           */
+    "\tlui   $8, 0xA001\n"                         /* @0x8010CA54  patch2: %hi(0xA000DF80) */
+    "\taddiu $8, $8, -8320\n"                     /* @0x8010CA58  %lo = 0xDF80             */
+    "\tjalr  $8\n"                                 /* @0x8010CA5C                           */
     "\t nop\n"                                      /* @0x8010CA60  [delay]                  */
     /* W60-A1 (2026-08-14) INTRA-TU LAYOUT FIX -- the 10th word.  splat's `endlabel
      * func_8010CA40, 0x24` stops at 0x8010CA64, but the retail obj carries ONE MORE word
@@ -83,45 +83,45 @@ __asm__(
     "\t.set noreorder\n"    /* space form: passes THROUGH maspsx to gnu-as (keeps as from reordering) */
     "\t.globl _patch_card\n"
     "_patch_card:\n"
-    "\tlui   $at, %hi(D_80148AC4)\n"                /* save ra -> scratch word              */
-    "\tsw    $ra, %lo(D_80148AC4)($at)\n"
+    "\tlui   $1, %hi(D_80148AC4)\n"                /* save ra -> scratch word              */
+    "\tsw    $31, %lo(D_80148AC4)($1)\n"
     "\tjal   EnterCriticalSection\n"
     "\t nop\n"                                       /* delay slot: nop (before args set)    */
-    "\taddiu $t1, $zero, 0x56\n"                    /* BIOS call index 0x56                 */
-    "\taddiu $t2, $zero, 0xB0\n"                    /* BIOS table base B0                   */
-    "\tjalr  $t2\n"
+    "\taddiu $9, $0, 0x56\n"                    /* BIOS call index 0x56                 */
+    "\taddiu $10, $0, 0xB0\n"                    /* BIOS table base B0                   */
+    "\tjalr  $10\n"
     "\t nop\n"
-    "\tlw    $v0, 24($v0)\n"                        /* evt = *(v0+0x18)                     */
+    "\tlw    $2, 24($2)\n"                        /* evt = *(v0+0x18)                     */
     "\tnop\n"
-    "\tlw    $v1, 112($v0)\n"                       /* lo = *(evt+0x70)                     */
+    "\tlw    $3, 112($2)\n"                       /* lo = *(evt+0x70)                     */
     "\tnop\n"
-    "\tandi  $t1, $v1, 0xFFFF\n"
-    "\tsll   $t1, $t1, 16\n"
-    "\tlw    $v1, 116($v0)\n"                       /* hi = *(evt+0x74)                     */
+    "\tandi  $9, $3, 0xFFFF\n"
+    "\tsll   $9, $9, 16\n"
+    "\tlw    $3, 116($2)\n"                       /* hi = *(evt+0x74)                     */
     "\tnop\n"
-    "\tandi  $t2, $v1, 0xFFFF\n"
-    "\taddu  $v1, $t1, $t2\n"                       /* dst base = (lo<<16)+hi               */
-    "\taddiu $v0, $v1, 0x28\n"                      /* dst = base + 0x28                    */
-    "\tlui   $t2, %hi(func_8010CA40)\n"             /* src = patch1 blob (5 words)          */
-    "\taddiu $t2, $t2, %lo(func_8010CA40)\n"
-    "\tlui   $t1, %hi(func_8010CA40 + 0x14)\n"      /* end = blob + 0x14                    */
-    "\taddiu $t1, $t1, %lo(func_8010CA40 + 0x14)\n"
+    "\tandi  $10, $3, 0xFFFF\n"
+    "\taddu  $3, $9, $10\n"                       /* dst base = (lo<<16)+hi               */
+    "\taddiu $2, $3, 0x28\n"                      /* dst = base + 0x28                    */
+    "\tlui   $10, %hi(func_8010CA40)\n"             /* src = patch1 blob (5 words)          */
+    "\taddiu $10, $10, %lo(func_8010CA40)\n"
+    "\tlui   $9, %hi(func_8010CA40 + 0x14)\n"      /* end = blob + 0x14                    */
+    "\taddiu $9, $9, %lo(func_8010CA40 + 0x14)\n"
     ".L_patch_card_loop:\n"
-    "\tlw    $v1, 0($t2)\n"
+    "\tlw    $3, 0($10)\n"
     "\tnop\n"
-    "\tsw    $v1, 0($v0)\n"
-    "\taddiu $t2, $t2, 4\n"
-    "\tbne   $t2, $t1, .L_patch_card_loop\n"
-    "\t addiu $v0, $v0, 4\n"
-    "\tlui   $at, 0x1\n"                            /* (0x10000>>16) -> kernel flag word    */
+    "\tsw    $3, 0($2)\n"
+    "\taddiu $10, $10, 4\n"
+    "\tbne   $10, $9, .L_patch_card_loop\n"
+    "\t addiu $2, $2, 4\n"
+    "\tlui   $1, 0x1\n"                            /* (0x10000>>16) -> kernel flag word    */
     "\tjal   FlushCache\n"
-    "\t sw   $v0, -8196($at)\n"                     /* [branch delay] store in jal slot (-0x2004) */
-    "\tlui   $ra, %hi(D_80148AC4)\n"                /* restore ra                           */
-    "\tlw    $ra, %lo(D_80148AC4)($ra)\n"
+    "\t sw   $2, -8196($1)\n"                     /* [branch delay] store in jal slot (-0x2004) */
+    "\tlui   $31, %hi(D_80148AC4)\n"                /* restore ra                           */
+    "\tlw    $31, %lo(D_80148AC4)($31)\n"
     "\tnop\n"
-    "\tjr    $ra\n"
+    "\tjr    $31\n"
     "\t nop\n"
-    "\t.set	pop\n");
+    "\t.set reorder\n\t.set at\n");
 
 /* @0x8010CAFC : _patch_card2 -- overlay the call-to-patch onto the BIOS B0[0x57] table-91 handler. */
 __asm__(
@@ -130,36 +130,36 @@ __asm__(
     "\t.set noreorder\n"    /* space form: passes THROUGH maspsx to gnu-as (keeps as from reordering) */
     "\t.globl _patch_card2\n"
     "_patch_card2:\n"
-    "\tlui   $at, %hi(D_80148AC4)\n"                /* save ra -> scratch word              */
-    "\tsw    $ra, %lo(D_80148AC4)($at)\n"
+    "\tlui   $1, %hi(D_80148AC4)\n"                /* save ra -> scratch word              */
+    "\tsw    $31, %lo(D_80148AC4)($1)\n"
     "\tjal   EnterCriticalSection\n"
     "\t nop\n"                                       /* delay slot: nop (before args set)    */
-    "\taddiu $t1, $zero, 0x57\n"                    /* BIOS call index 0x57                 */
-    "\taddiu $t2, $zero, 0xB0\n"                    /* BIOS table base B0                   */
-    "\tjalr  $t2\n"
+    "\taddiu $9, $0, 0x57\n"                    /* BIOS call index 0x57                 */
+    "\taddiu $10, $0, 0xB0\n"                    /* BIOS table base B0                   */
+    "\tjalr  $10\n"
     "\t nop\n"
-    "\tlw    $v0, 364($v0)\n"                       /* evt = *(v0+0x16C)                    */
+    "\tlw    $2, 364($2)\n"                       /* evt = *(v0+0x16C)                    */
     "\tnop\n"
-    "\tlw    $v1, 2504($v0)\n"                      /* (load -- value discarded)            */
-    "\tlui   $t2, %hi(func_8010CA40 + 0x14)\n"      /* src = patch2 blob (5 words)          */
-    "\taddiu $t2, $t2, %lo(func_8010CA40 + 0x14)\n"
-    "\tlui   $t1, %hi(_patch_card)\n"               /* end = _patch_card (blob+0x28)        */
-    "\taddiu $t1, $t1, %lo(_patch_card)\n"
+    "\tlw    $3, 2504($2)\n"                      /* (load -- value discarded)            */
+    "\tlui   $10, %hi(func_8010CA40 + 0x14)\n"      /* src = patch2 blob (5 words)          */
+    "\taddiu $10, $10, %lo(func_8010CA40 + 0x14)\n"
+    "\tlui   $9, %hi(_patch_card)\n"               /* end = _patch_card (blob+0x28)        */
+    "\taddiu $9, $9, %lo(_patch_card)\n"
     ".L_patch_card2_loop:\n"
-    "\tlw    $t0, 0($t2)\n"
+    "\tlw    $8, 0($10)\n"
     "\tnop\n"
-    "\tsw    $t0, 2504($v0)\n"                      /* *(evt+0x9C8) = blob word             */
-    "\taddiu $t2, $t2, 4\n"
-    "\tbne   $t2, $t1, .L_patch_card2_loop\n"
-    "\t addiu $v0, $v0, 4\n"
+    "\tsw    $8, 2504($2)\n"                      /* *(evt+0x9C8) = blob word             */
+    "\taddiu $10, $10, 4\n"
+    "\tbne   $10, $9, .L_patch_card2_loop\n"
+    "\t addiu $2, $2, 4\n"
     "\tjal   FlushCache\n"
     "\t nop\n"                                       /* delay slot: nop                      */
-    "\tlui   $ra, %hi(D_80148AC4)\n"                /* restore ra                           */
-    "\tlw    $ra, %lo(D_80148AC4)($ra)\n"
+    "\tlui   $31, %hi(D_80148AC4)\n"                /* restore ra                           */
+    "\tlw    $31, %lo(D_80148AC4)($31)\n"
     "\tnop\n"
-    "\tjr    $ra\n"
+    "\tjr    $31\n"
     "\t nop\n"
-    "\t.set	pop\n");
+    "\t.set reorder\n\t.set at\n");
 
 /* @0x8010CB6C : _copy_memcard_patch -- copy the 28-word card-IRQ handler blob into kernel RAM. */
 __asm__(
@@ -168,20 +168,20 @@ __asm__(
     "\t.set noreorder\n"    /* space form: passes THROUGH maspsx to gnu-as (keeps as from reordering) */
     "\t.globl _copy_memcard_patch\n"
     "_copy_memcard_patch:\n"
-    "\tori   $v0, $zero, 0xDF80\n"                  /* dst = 0xDF80 (kernel scratch)        */
-    "\tlui   $t2, %hi(InitCARD2 + 0x10)\n"          /* src = InitCARD2 tail (28 words)      */
-    "\taddiu $t2, $t2, %lo(InitCARD2 + 0x10)\n"
-    "\tlui   $t1, %hi(func_8010CA40)\n"             /* end = func_8010CA40                  */
-    "\taddiu $t1, $t1, %lo(func_8010CA40)\n"
+    "\tori   $2, $0, 0xDF80\n"                  /* dst = 0xDF80 (kernel scratch)        */
+    "\tlui   $10, %hi(InitCARD2 + 0x10)\n"          /* src = InitCARD2 tail (28 words)      */
+    "\taddiu $10, $10, %lo(InitCARD2 + 0x10)\n"
+    "\tlui   $9, %hi(func_8010CA40)\n"             /* end = func_8010CA40                  */
+    "\taddiu $9, $9, %lo(func_8010CA40)\n"
     ".L_copy_memcard_patch_loop:\n"
-    "\tlw    $v1, 0($t2)\n"
+    "\tlw    $3, 0($10)\n"
     "\tnop\n"                                        /* [load delay]                         */
-    "\tsw    $v1, 0($v0)\n"
-    "\taddiu $t2, $t2, 4\n"
-    "\tbne   $t2, $t1, .L_copy_memcard_patch_loop\n"
-    "\t addiu $v0, $v0, 4\n"                         /* [branch delay]                       */
-    "\tjr    $ra\n"
+    "\tsw    $3, 0($2)\n"
+    "\taddiu $10, $10, 4\n"
+    "\tbne   $10, $9, .L_copy_memcard_patch_loop\n"
+    "\t addiu $2, $2, 4\n"                         /* [branch delay]                       */
+    "\tjr    $31\n"
     "\t nop\n"
-    "\t.set	pop\n");
+    "\t.set reorder\n\t.set at\n");
 
 #endif

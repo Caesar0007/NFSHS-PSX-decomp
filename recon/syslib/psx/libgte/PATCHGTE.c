@@ -75,51 +75,51 @@ __asm__(
     "\t.set noreorder\n"    /* space form: passes THROUGH maspsx to gnu-as (keeps as from reordering) */
     "\t.globl _patch_gte\n"
     "_patch_gte:\n"
-    "\tlui   $at, %hi(_patch_gte_ra_save)\n"
-    "\tsw    $ra, %lo(_patch_gte_ra_save)($at)\n"
+    "\tlui   $1, %hi(_patch_gte_ra_save)\n"
+    "\tsw    $31, %lo(_patch_gte_ra_save)($1)\n"
     "\tjal   EnterCriticalSection\n"
     "\t nop\n"                              /* jal delay slot (oracle: nop, not the addiu) */
-    "\taddiu $t1, $zero, 86\n"              /* 0x56 BIOS func index */
-    "\taddiu $t2, $zero, 176\n"             /* 0xB0 BIOS B0 table base */
-    "\tjalr  $t2\n"                         /* -> exception-handler table ptr in $v0 */
+    "\taddiu $9, $0, 86\n"              /* 0x56 BIOS func index */
+    "\taddiu $10, $0, 176\n"             /* 0xB0 BIOS B0 table base */
+    "\tjalr  $10\n"                         /* -> exception-handler table ptr in $v0 */
     "\t nop\n"                              /* jalr delay slot (maspsx does not auto-fill jalr) */
-    "\tlw    $v0, 24($v0)\n"                /* +0x18 table[6] -> handler */
+    "\tlw    $2, 24($2)\n"                /* +0x18 table[6] -> handler */
     "\tnop\n"
-    "\taddiu $v0, $v0, 40\n"                /* +0x28 handler -> GTE save sequence */
-    "\taddu  $t7, $v0, $zero\n"             /* keep the destination pointer */
-    "\tlui   $t2, %hi(_gte_patch_text)\n"   /* &match[0] */
-    "\taddiu $t2, $t2, %lo(_gte_patch_text)\n"
-    "\tlui   $t1, %hi(_gte_patch_text+24)\n"   /* &match-end (=&word[6]) */
-    "\taddiu $t1, $t1, %lo(_gte_patch_text+24)\n"
+    "\taddiu $2, $2, 40\n"                /* +0x28 handler -> GTE save sequence */
+    "\taddu  $15, $2, $0\n"             /* keep the destination pointer */
+    "\tlui   $10, %hi(_gte_patch_text)\n"   /* &match[0] */
+    "\taddiu $10, $10, %lo(_gte_patch_text)\n"
+    "\tlui   $9, %hi(_gte_patch_text+24)\n"   /* &match-end (=&word[6]) */
+    "\taddiu $9, $9, %lo(_gte_patch_text+24)\n"
     "1:\n"                                  /* compare loop: while bytes match */
-    "\tlw    $v1, 0($t2)\n"
-    "\tlw    $t3, 0($v0)\n"
-    "\taddiu $t2, $t2, 4\n"
-    "\tbne   $v1, $t3, 3f\n"                /* mismatch -> skip the overwrite */
-    "\t addiu $v0, $v0, 4\n"
-    "\tbne   $t2, $t1, 1b\n"
+    "\tlw    $3, 0($10)\n"
+    "\tlw    $11, 0($2)\n"
+    "\taddiu $10, $10, 4\n"
+    "\tbne   $3, $11, 3f\n"                /* mismatch -> skip the overwrite */
+    "\t addiu $2, $2, 4\n"
+    "\tbne   $10, $9, 1b\n"
     "\t nop\n"
-    "\taddu  $v0, $t7, $zero\n"             /* matched: reset dest to handler+0x28 */
-    "\tlui   $t2, %hi(_gte_patch_text+24)\n"   /* &fix[0] (=&word[6]) */
-    "\taddiu $t2, $t2, %lo(_gte_patch_text+24)\n"
-    "\tlui   $t1, %hi(_gte_patch_text+48)\n"   /* &fix-end (=&word[12]) */
-    "\taddiu $t1, $t1, %lo(_gte_patch_text+48)\n"
+    "\taddu  $2, $15, $0\n"             /* matched: reset dest to handler+0x28 */
+    "\tlui   $10, %hi(_gte_patch_text+24)\n"   /* &fix[0] (=&word[6]) */
+    "\taddiu $10, $10, %lo(_gte_patch_text+24)\n"
+    "\tlui   $9, %hi(_gte_patch_text+48)\n"   /* &fix-end (=&word[12]) */
+    "\taddiu $9, $9, %lo(_gte_patch_text+48)\n"
     "2:\n"                                  /* copy loop: overwrite handler with fix */
-    "\tlw    $v1, 0($t2)\n"
+    "\tlw    $3, 0($10)\n"
     "\tnop\n"
-    "\tsw    $v1, 0($v0)\n"
-    "\taddiu $t2, $t2, 4\n"
-    "\tbne   $t2, $t1, 2b\n"
-    "\t addiu $v0, $v0, 4\n"
+    "\tsw    $3, 0($2)\n"
+    "\taddiu $10, $10, 4\n"
+    "\tbne   $10, $9, 2b\n"
+    "\t addiu $2, $2, 4\n"
     "3:\n"
     "\tjal   FlushCache\n"
     "\t nop\n"                              /* jal delay slot (nop) */
     "\tjal   ExitCriticalSection\n"
     "\t nop\n"                              /* jal delay slot (nop) */
-    "\tlui   $ra, %hi(_patch_gte_ra_save)\n"
-    "\tlw    $ra, %lo(_patch_gte_ra_save)($ra)\n"
+    "\tlui   $31, %hi(_patch_gte_ra_save)\n"
+    "\tlw    $31, %lo(_patch_gte_ra_save)($31)\n"
     "\tnop\n"
-    "\tjr    $ra\n"
+    "\tjr    $31\n"
     "\t nop\n"
     /* --- @0x80106500 : the patch TEMPLATE table, emitted in .text immediately after
      * _patch_gte (its real VA).  The oracle's symbol for it is `_patch_gte_handler_1`
@@ -158,7 +158,7 @@ __asm__(
     "\t.globl D_80106530\n"
     "D_80106530:\n"
     "\t.word 0x00000000\n"
-    "\t.set	pop\n");
+    "\t.set reorder\n\t.set at\n");
 #else
 /* @0x80106454 : _patch_gte -- host no-op (no BIOS, no GTE, no self-modifying code). */
 extern void _patch_gte(void)

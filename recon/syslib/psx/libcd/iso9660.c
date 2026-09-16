@@ -643,5 +643,5 @@ static int cd_read(int nsec, int lba, unsigned char *buf)
 
 /* Local tool/oracle aliases for reconstruction-era split labels.  The retail
  * PsyQ member has no XDEF for either helper. */
-__asm__(".local _cd_cmp_name\n_cd_cmp_name = _cmp\n"
-        ".local _cd_find_path\n_cd_find_path = CD_searchdir");
+__asm__("_cd_cmp_name = _cmp\n"
+        "_cd_find_path = CD_searchdir");

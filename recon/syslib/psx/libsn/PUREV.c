@@ -13,10 +13,10 @@
  *   epilogue appended -- a C function body (even naked) would append `jr ra; nop`.  The vtable
  *   references it via an `extern int __pure_virtual(...)` decl that casts the address. */
 #if defined(__mips__)
-__asm__("\t.set push\n\t.set noreorder\n"
+__asm__("\t.set noreorder\n"
         "\t.globl __pure_virtual\n__pure_virtual:\n"
         "\tbreak 0\n"
-        "\t.set pop\n");
+        "\t.set reorder\n\t.set at\n");
 #else
 extern int __pure_virtual(...) { for (;;) { } }   /* host: never returns */
 #endif

@@ -3,12 +3,12 @@
  * FILE-SCOPE __asm__ (BIOS_THUNK / SOTN psxsdk style) so NO C-function epilogue (`jr ra;nop;nop`)
  * is appended -- the oracle's own `jr ra; nop` is the function's return.  x86 fallback stub below. */
 #if defined(__mips__)
-__asm__("\t.set push\n\t.set noreorder\n"
+__asm__("\t.set noreorder\n"
         "\t.globl PCinit\nPCinit:\n"
         "\tbreak 0x101\n"
-        "\tjr    $ra\n"
+        "\tjr    $31\n"
         "\t nop\n"
-        "\t.set pop\n");
+        "\t.set reorder\n\t.set at\n");
 #else
 extern int PCinit(void) { return 0; }   /* SN-devkit only */
 #endif

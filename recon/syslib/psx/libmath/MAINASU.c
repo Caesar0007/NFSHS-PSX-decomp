@@ -17,42 +17,42 @@ extern int *_mainasu(int *out, int a2, int a3);   /* @0x80106F00 */
 
 #if defined(__mips__)
 __asm__(
-    "\t.set push\n"
+    ""
     "\t.set noat\n"
     "\t.set\tnoreorder\n"   /* tab form: turns maspsx is_reorder OFF (no auto branch-delay nop) */
     "\t.set noreorder\n"    /* space form: passes through to gnu-as                             */
 
     "\t.globl _mainasu\n"          /* @0x80106F00 : int *_mainasu(int *out,int a2,int a3) */
     "_mainasu:\n"
-    "\taddiu\t$sp,$sp,-40\n"
-    "\tsw\t$s0,32($sp)\n"
-    "\taddu\t$s0,$a0,$zero\n"      /* s0 = out */
-    "\taddiu\t$v0,$zero,1\n"
-    "\tsw\t$a2,48($sp)\n"          /* spill raw a3 (a2 == 3rd param, in reg $a2) */
-    "\tnor\t$a2,$zero,$a2\n"       /* a2 = ~a3param */
-    "\tsw\t$a1,44($sp)\n"          /* spill raw a2param (in reg $a1) */
-    "\tnor\t$a1,$zero,$a1\n"       /* a1 = ~a2param */
-    "\tsw\t$zero,28($sp)\n"        /* the (1,0) addend pair -- hi = 0 */
-    "\tsw\t$v0,24($sp)\n"          /* the (1,0) addend pair -- lo = 1 */
-    "\tsw\t$a2,48($sp)\n"          /* re-store negated a3param over its own slot */
-    "\tsw\t$a1,44($sp)\n"          /* re-store negated a2param over its own slot */
-    "\tsw\t$zero,16($sp)\n"        /* a5 (5th stack arg to _add_mant_d) = 0 */
-    "\tlw\t$a3,24($sp)\n"          /* a3 = 1 (the addend lo) */
-    "\tlw\t$a1,44($sp)\n"          /* a1 = ~a2param (reload) */
-    "\tlw\t$a2,48($sp)\n"          /* a2 = ~a3param (reload) */
-    "\tsw\t$ra,36($sp)\n"
+    "\taddiu\t$29,$29,-40\n"
+    "\tsw\t$16,32($29)\n"
+    "\taddu\t$16,$4,$0\n"      /* s0 = out */
+    "\taddiu\t$2,$0,1\n"
+    "\tsw\t$6,48($29)\n"          /* spill raw a3 (a2 == 3rd param, in reg $a2) */
+    "\tnor\t$6,$0,$6\n"       /* a2 = ~a3param */
+    "\tsw\t$5,44($29)\n"          /* spill raw a2param (in reg $a1) */
+    "\tnor\t$5,$0,$5\n"       /* a1 = ~a2param */
+    "\tsw\t$0,28($29)\n"        /* the (1,0) addend pair -- hi = 0 */
+    "\tsw\t$2,24($29)\n"          /* the (1,0) addend pair -- lo = 1 */
+    "\tsw\t$6,48($29)\n"          /* re-store negated a3param over its own slot */
+    "\tsw\t$5,44($29)\n"          /* re-store negated a2param over its own slot */
+    "\tsw\t$0,16($29)\n"        /* a5 (5th stack arg to _add_mant_d) = 0 */
+    "\tlw\t$7,24($29)\n"          /* a3 = 1 (the addend lo) */
+    "\tlw\t$5,44($29)\n"          /* a1 = ~a2param (reload) */
+    "\tlw\t$6,48($29)\n"          /* a2 = ~a3param (reload) */
+    "\tsw\t$31,36($29)\n"
     "\tjal\t_add_mant_d\n"
-    "\t addiu\t$a0,$sp,44\n"       /* delay: out-ptr = &sp[44] (a2param's own negated-value slot) */
-    "\tlw\t$v0,44($sp)\n"
-    "\tlw\t$v1,48($sp)\n"
-    "\tsw\t$v0,0($s0)\n"
-    "\tsw\t$v1,4($s0)\n"
-    "\taddu\t$v0,$s0,$zero\n"
-    "\tlw\t$ra,36($sp)\n"
-    "\tlw\t$s0,32($sp)\n"
-    "\tjr\t$ra\n"
-    "\t addiu\t$sp,$sp,40\n"
-    "\t.set pop\n"
+    "\t addiu\t$4,$29,44\n"       /* delay: out-ptr = &sp[44] (a2param's own negated-value slot) */
+    "\tlw\t$2,44($29)\n"
+    "\tlw\t$3,48($29)\n"
+    "\tsw\t$2,0($16)\n"
+    "\tsw\t$3,4($16)\n"
+    "\taddu\t$2,$16,$0\n"
+    "\tlw\t$31,36($29)\n"
+    "\tlw\t$16,32($29)\n"
+    "\tjr\t$31\n"
+    "\t addiu\t$29,$29,40\n"
+    "\t.set reorder\n\t.set at\n"
 );
 #else
 extern int *_mainasu(int *out, int a2, int a3)   /* @0x80106F00 */

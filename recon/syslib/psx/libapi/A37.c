@@ -8,7 +8,7 @@
 #if defined(__mips__)
 extern void ExitCriticalSection(void)
 {
-    __asm__ __volatile__("addiu $a0, $zero, 0x2\n\tsyscall 0" : : : "$4");
+    __asm__ __volatile__("addiu $4, $0, 0x2\n\tsyscall 0" : : : "$4");
 }
 #else
 extern void ExitCriticalSection(void) {}

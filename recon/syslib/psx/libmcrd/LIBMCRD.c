@@ -1391,9 +1391,9 @@ ret0:
  * the retail vendor cc1).  Links the BYTE-EXACT retail asm -> ZERO image diff;
  * the C reconstruction is preserved verbatim below under #if 0.  -G0 lane, so a
  * bare top-level __asm__ (no wrapper epilogue) is used. */
-__asm__(".include \"macro.inc\"\n\t.set reorder\n\t.set at\n");
+__asm__("\t.set reorder\n\t.set at\n");
 __asm__(".text\n\t.align\t2\n\t.set noreorder\n\t.set noat\n"
-        ".include \"asm/nonmatchings/main/MemCardGetDirentry.s\"\n"
+        ".include \"asm/cert/MemCardGetDirentry.s\"\n"
         "\t.set reorder\n\t.set at\n");
 #if 0  /* ---- preserved non-matching C reconstruction of MemCardGetDirentry ---- */
 extern long MemCardGetDirentry(long chan, char *name, DIRENTRY *dir,
@@ -2321,7 +2321,7 @@ erased:
 /* MemCardFormat -- CERTIFICATE (runtime-proven equivalent; vendor-cc1-only C
  * match).  Byte-exact retail asm; C reconstruction preserved under #if 0. */
 __asm__(".text\n\t.align\t2\n\t.set noreorder\n\t.set noat\n"
-        ".include \"asm/nonmatchings/main/MemCardFormat.s\"\n"
+        ".include \"asm/cert/MemCardFormat.s\"\n"
         "\t.set reorder\n\t.set at\n");
 #if 0  /* ---- preserved non-matching C reconstruction of MemCardFormat ---- */
 extern long MemCardFormat(long chan)

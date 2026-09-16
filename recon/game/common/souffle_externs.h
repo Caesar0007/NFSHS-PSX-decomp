@@ -3,10 +3,13 @@
 #define SOUFFLE_EXTERNS_H
 
 /* ---- libc + harvested + SYM ---- */
-extern int               simGlobal[2];             /* 0x8011e0ac */
+/* real sizes (SYM: Sim_tSimGlobalVar 24 bytes, tReplayInterface 32 bytes): souffle.obj is a
+ * -G8 object ("souffle" literal in retail .sdata) and both are accessed absolutely, which
+ * only holds if their declared size exceeds 8. */
+extern int               simGlobal[6];             /* 0x8011e0ac */
 #define SOUFFLE_GAME_TICKS simGlobal[1]
 extern int               Replay_ReplayMode;   /* 0x8013d3f4 */
-extern int               Replay_ReplayInterface[2];
+extern int               Replay_ReplayInterface[8];
 #define SOUFFLE_REPLAY_SPEED Replay_ReplayInterface[1]
 extern void Sfx_Add(Souffle_tISouffle *);
 extern void Sfx_BuildSouffleFacet(DRender_tView *, Souffle_tISouffle *);

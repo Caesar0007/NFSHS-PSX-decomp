@@ -25,6 +25,8 @@ int StatsTimerPlayer2Value asm("D_8013D99C");
    keep that codegen fact out of the source's data model. */
 extern int StatsTimerPlayer1ClampStore[1] asm("StatsTimer");
 extern int StatsTimerPlayer2ClampStore[1] asm("D_8013D99C");
+/* retail overlays.obj .data: the BTC perp-info table (0x80120bc0, zero, deferred) */
+tBTCPerpInfo BTCPerpInfo[2][10];
 
 
 /* ---- OptionsBarThing__Fiiii  [OVERLAYS.CPP:39-47] SLD-VERIFIED ---- */

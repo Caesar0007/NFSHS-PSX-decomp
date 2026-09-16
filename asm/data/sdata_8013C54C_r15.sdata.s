@@ -28,10 +28,3 @@ enddlabel gSimQueue_BlockOther
 .section .sdata.r15_after_simqueue, "wa"
 
 .align 2
-nonmatching D_8013D440
-
-dlabel D_8013D440
-    /* 12DC40 8013D440 */ .asciz "souffle"
-    /* 736F7566666C6500 */
-.align 2
-enddlabel D_8013D440

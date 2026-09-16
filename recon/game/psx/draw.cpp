@@ -24,6 +24,11 @@ extern char *Draw_gMaxPrim;
 extern int gTotalMem;
 #include "draw_externs.h"
 
+/* retail Draw.obj .data (0x8011ec54..0x8011f454): the view table and the two enviro flip
+ * records, both zero (deferred, first-declaration order = draw_externs.h order). */
+Draw_tView Draw_gView[10];
+dflip gEnviro[2];
+
 /* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
  * but OWNED here; tentative defs -> cc1 `.comm` -> stock maspsx gp-rels them
  * (matches the oracle's %gp_rel). section 3.12 #6. (auto: gen_gprel_defs.py) */

@@ -251,10 +251,10 @@ SOURCE_DATA_OWNERS = (
     # Source/tool/link backups and raw-reference proofs: scratchpad/p886_vars.
     {
         'source': 'recon/game/psx/textureprocess.cpp', 'section': '.sdata',
-        'address': 0x8013DB4C, 'size': 68,
-        'payload_sha256': 'bd5723cf969087815cbd950661ce680a0d843b81553c5a67ef6b0eac4bfecd1e',
+        'address': 0x8013DB3C, 'size': 84,
+        'payload_sha256': 'f6851b54a51167a8b7fceb69ef597132a398791af6b0739af0241b82eded3a5b',
         'oracle_source': 'asm/data/sdata_8013C54C_o34.sdata.s',
-        'placement': 'fragment', 'record': 'SYM477004..4770b4 globals at+40; raw Fog_ReadFogKeys literal addresses8013DB4C/54/5C/64',
+        'placement': 'fragment', 'record': 'SYM477004..4770b4 globals at+56; the four initialized colour cells gContrastScale/Texture_gContrastColor/Texture_gWorldColor/TP_gColorMode 8013DB3C..4C head the run (2026-09-16), then the Fog_ReadFogKeys literals 8013DB4C/54/5C/64',
     },
     {
         'source': 'recon/eaclib/psx/eacpsxz/vars.c', 'section': '.sdata',

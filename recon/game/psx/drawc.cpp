@@ -45,7 +45,21 @@ extern int DrawC_gMenuLights;
 extern int DrawC_gMenuLightsDirection;
 extern int DrawC_gWetRoad;
 extern short DrawC_gReflectOffset;
+/* .data: retail drawc.obj = SirenFlash / HeadLightFlash / TailLightFlash / hilight_colors
+ * (all initialized, emitted below at definition) then the deferred zero records
+ * gScreenMat 0x8011f4c8 / gMatA 0x8011f4e8 / gOverlay 0x8011f508 in this order. */
+extern MATRIX DrawC_gScreenMat;
+extern MATRIX DrawC_gMatA;
+extern short DrawC_gOverlay[51];
 #include "drawc_externs.h"
+
+short DrawC_SirenFlash[16]     = { 0,0,0,0, 0,0,1,1, 0,1,0,1, 0,1,1,1 };   /* @0x8011f454 */
+short DrawC_HeadLightFlash[16] = { 0,0,1,0, 1,0,1,0, 1,0,0,0, 0,0,0,0 };   /* @0x8011f474 */
+short DrawC_TailLightFlash[16] = { 0,0,0,0, 1,1,1,1, 1,1,1,1, 0,0,0,0 };   /* @0x8011f494 */
+static u_long hilight_colors[5] = { 0x700a00, 0x400a00, 0x300300, 0x180300, 0x180300 };   /* @0x8011f4b4 */
+MATRIX DrawC_gScreenMat;
+MATRIX DrawC_gMatA;
+short DrawC_gOverlay[51];
 
 /* ---- EA DMPSX-analog OT-link templates (2026-07-09, see fastmovf.c + hub) ----
  * Variant A (FT3 alloc): prim = sd->PrimPtr; slot = sub_ot+otz; PrimPtr += 0x20;

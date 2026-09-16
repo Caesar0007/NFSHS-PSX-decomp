@@ -25,18 +25,16 @@ extern Group *gObjDefOffsetsGroup;
 extern int Track_gControllerCount;
 extern Track_tMaterialController *Track_gMatController;
 extern int Chunk_numLight;
+/* .data: retail Track.obj = gInitialArt @0x8011E158 then Track_gReflectionMaps @0x8011E170
+ * (both zero-initialized, deferred); track_externs.h declares them the other way round. */
+extern Track_tArtresource gInitialArt;
+extern Draw_tPixMap Track_gReflectionMaps[4];
 
 #include "track_externs.h"
 
-/* Track.obj-owned aggregate data.  SYM gives the exact types and contiguous
- * 0x8011E158..0x8011E1B0 extent; both aggregates are zero-initialized.
- * Separate named sections keep this run apart from Track's already
- * reconstructed dashboard pointer tables in ordinary .data and let the
- * linker retain the SYM order despite gcc's tentative-object sorting. */
-Track_tArtresource gInitialArt
-    __attribute__((section(".data.track_initial_art")));
-Draw_tPixMap Track_gReflectionMaps[4]
-    __attribute__((section(".data.track_reflection_maps")));
+/* Track.obj-owned aggregate data (SYM: contiguous 0x8011E158..0x8011E1B0). */
+Track_tArtresource gInitialArt;
+Draw_tPixMap Track_gReflectionMaps[4];
 
 /* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
  * but OWNED here; tentative defs -> cc1 `.comm` -> stock maspsx gp-rels them

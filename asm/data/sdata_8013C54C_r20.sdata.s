@@ -6,79 +6,6 @@
 .section .sdata.r20_post, "wa"
 
 .align 2
-nonmatching D_8013D9A0
-
-dlabel D_8013D9A0
-    /* 12E1A0 8013D9A0 */ .asciz "engl"
-    /* 656E676C00000000 */
-.align 2
-enddlabel D_8013D9A0
-
-.align 2
-nonmatching D_8013D9A8
-
-dlabel D_8013D9A8
-    /* 12E1A8 8013D9A8 */ .asciz "germ"
-    /* 6765726D00000000 */
-.align 2
-enddlabel D_8013D9A8
-
-.align 2
-nonmatching D_8013D9B0
-
-dlabel D_8013D9B0
-    /* 12E1B0 8013D9B0 */ .asciz "fren"
-    /* 6672656E00000000 */
-.align 2
-enddlabel D_8013D9B0
-
-.align 2
-nonmatching D_8013D9B8
-
-dlabel D_8013D9B8
-    /* 12E1B8 8013D9B8 */ .asciz "span"
-    /* 7370616E00000000 */
-.align 2
-enddlabel D_8013D9B8
-
-.align 2
-nonmatching D_8013D9C0
-
-dlabel D_8013D9C0
-    /* 12E1C0 8013D9C0 */ .asciz "itly"
-    /* 69746C7900000000 */
-.align 2
-enddlabel D_8013D9C0
-
-.align 2
-nonmatching D_8013D9C8
-
-dlabel D_8013D9C8
-    /* 12E1C8 8013D9C8 */ .asciz "swed"
-    /* 7377656400000000 */
-.align 2
-enddlabel D_8013D9C8
-
-nonmatching smallShapeFile
-
-dlabel smallShapeFile
-    /* 12E1D0 8013D9D0 00000000 */ .word 0x00000000
-enddlabel smallShapeFile
-
-.align 2
-nonmatching D_8013D9D4
-
-dlabel D_8013D9D4
-    /* 12E1D4 8013D9D4 */ .asciz "back"
-    /* 6261636B00000000 */
-.align 2
-enddlabel D_8013D9D4
-
-nonmatching totalAvailMem
-
-dlabel totalAvailMem
-    /* 12E1DC 8013D9DC 00000000 */ .word 0x00000000
-enddlabel totalAvailMem
 
 nonmatching Night_gDrawLightning
 
@@ -417,14 +344,9 @@ dlabel gTotalMemory
 enddlabel gTotalMemory
 
 .align 2
-nonmatching D_8013DAC0
 
-dlabel D_8013DAC0
-    /* 12E2C0 8013DAC0 */ .asciz "M"
-    /* 4D000000 */
-.align 2
-    /* 12E2C4 8013DAC4 01000000 */ .word 0x00000001
-enddlabel D_8013DAC0
+.section .sdata.r20_post_post_psxcontroller
+
 
 nonmatching gSm
 

@@ -33,9 +33,11 @@
  *     not delay-slot related). Do NOT splice; needs a source-level addressing-mode lever instead.
  */
 
-extern unsigned char  *RCnt_regs;   /* @0x801234B8 : = (uchar*)0x1F801100 */
-extern unsigned char  *RCnt_ctrl;   /* @0x801234B4 : = (uchar*)0x1F801070 */
-extern unsigned long   RCnt_irq[];  /* @0x801234BC : {0x10,0x20,0x40,0x1,0,0} */
+/* retail COUNTER.obj .data (0x801234B4..0x801234D4), in this order: the two MMIO base
+ * pointers and the per-counter IRQ mask table (initialized C globals -> .data here). */
+unsigned char  *RCnt_ctrl = (unsigned char *)0x1F801070;          /* @0x801234B4 */
+unsigned char  *RCnt_regs = (unsigned char *)0x1F801100;          /* @0x801234B8 */
+unsigned long   RCnt_irq[6] = { 0x10, 0x20, 0x40, 0x1, 0, 0 };    /* @0x801234BC */
 
 typedef struct Counter {
     unsigned short rootCounter;

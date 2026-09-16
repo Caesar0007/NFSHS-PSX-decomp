@@ -890,16 +890,13 @@ SECTIONS
     .xs0005 0x8013d240 : SUBALIGN(4) { build/recon/game/common/mpause.cpp.o(.sdata); }
     .xs0006 0x8013d3c0 : SUBALIGN(4) { build/recon/game/common/render.cpp.o(.sdata); }
     .xs0007 0x8013d468 : SUBALIGN(4) { build/recon/game/common/track.cpp.o(.sdata); }
-    .xs0008 0x8013d71c : SUBALIGN(4) { build/recon/game/psx/cario.cpp.o(.sdata); }
-    .xs0009 0x8013d778 : SUBALIGN(4) { build/recon/game/psx/device.cpp.o(.sdata); }
-    .xs0010 0x8013d798 : SUBALIGN(4) { build/recon/game/psx/draw.cpp.o(.sdata); }
-    .xs0011 0x8013d854 : SUBALIGN(4) { build/recon/game/psx/font.cpp.o(.sdata); }
-    .xs0012 0x8013d9d0 : SUBALIGN(4) { build/recon/game/psx/loading.cpp.o(.sdata); }
-    .xs0013 0x8013d9e0 : SUBALIGN(4) { build/recon/game/psx/night.cpp.o(.sdata); }
-    .xs0014 0x8013da9c : SUBALIGN(4) { build/recon/game/psx/platform.cpp.o(.sdata); }
-    .xs0015 0x8013dac8 : SUBALIGN(4) { build/recon/game/psx/skidmark.cpp.o(.sdata); }
-    .xs0016 0x8013dd2c : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/fileroot.c.o(.sdata); }
-    .xs0017 0x8013dd48 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/inittmr.c.o(.sdata); }
+    .xs0008 0x8013d798 : SUBALIGN(4) { build/recon/game/psx/draw.cpp.o(.sdata); }
+    .xs0009 0x8013d854 : SUBALIGN(4) { build/recon/game/psx/font.cpp.o(.sdata); }
+    .xs0010 0x8013d9e0 : SUBALIGN(4) { build/recon/game/psx/night.cpp.o(.sdata); }
+    .xs0011 0x8013da9c : SUBALIGN(4) { build/recon/game/psx/platform.cpp.o(.sdata); }
+    .xs0012 0x8013dac8 : SUBALIGN(4) { build/recon/game/psx/skidmark.cpp.o(.sdata); }
+    .xs0013 0x8013dd2c : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/fileroot.c.o(.sdata); }
+    .xs0014 0x8013dd48 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/inittmr.c.o(.sdata); }
 
     .data 0x8010ccd4 : SUBALIGN(4)
     {
@@ -913,7 +910,7 @@ SECTIONS
         build/recon/game/common/aiinit.cpp.o(.data);   /* 0x8010d560..0x8010d5cc  was data_8010CCD4_o05.data.s */
         build/recon/game/common/aiperson.cpp.o(.data);   /* 0x8010d5cc..0x8010dc54  SYM owner: aiperson.obj */
         build/asm/data/data_8010CCD4_r02.data.s.o(.data);
-        build/recon/game/common/aiphysic.cpp.o(.data);   /* 0x8010dc74..0x8010dce0  was data_8010CCD4_o07.data.s */
+        build/recon/game/common/aiphysic.cpp.o(.data);   /* now from 0x8010dc54 (was data_8010CCD4_r02.data) */
         build/asm/data/data_8010CCD4_r03.data.s.o(.data);
         build/recon/game/common/aitune.cpp.o(.data);   /* 0x8010de14..0x8010e00c  was data_8010CCD4_o08.data.s */
         build/recon/game/common/AIWORLD.cpp.o(.data);   /* 0x8010e00c..0x8010e14c  was data_8010CCD4_o09.data.s */
@@ -922,7 +919,7 @@ SECTIONS
         build/recon/game/common/audiocmn.cpp.o(.data);   /* P907 full native owner:0x8010e4d0..0x8010ee40; r04 is oracle-only */
         build/recon/game/common/bworld.cpp.o(.data);   /* 0x8010ee40..0x8010f07c  was data_8010CCD4_o12.data.s */
         build/asm/data/data_8010CCD4_r05.data.s.o(.data);
-        build/recon/game/common/bworldSm.cpp.o(.data);   /* 0x8010f0ac..0x8010f2ac  was data_8010CCD4_o13.data.s */
+        build/recon/game/common/bworldSm.cpp.o(.data);   /* now from 0x8010f07c (was data_8010CCD4_r05.data) */
         build/recon/game/common/camera.cpp.o(.data);   /* P912 native 1,404-byte owner; r06 retained in src/oracle only. */
         build/recon/game/common/cars.cpp.o(.data);   /* 0x8010f828..0x80110c24  was data_8010CCD4_o14.data.s */
         build/recon/game/common/clock.cpp.o(.data);   /* 0x80110c24..0x80110c30  was data_8010CCD4_o15.data.s */
@@ -954,26 +951,28 @@ SECTIONS
         build/recon/game/common/sim.cpp.o(.data);   /* 0x8011e09c..0x8011e0e0  SYM owner: sim.obj */
         build/recon/game/common/stats.cpp.o(.data);   /* 0x8011e0e0..0x8011e140  SYM owner: stats.obj */
         build/recon/game/common/textsys.cpp.o(.data);   /* 0x8011e140..0x8011e158  SYM owner: Textsys.obj */
-        build/recon/game/common/track.cpp.o(.data.track_initial_art);   /* 0x8011e158..0x8011e170 */
-        build/recon/game/common/track.cpp.o(.data.track_reflection_maps);   /* 0x8011e170..0x8011e1b0 */
-        build/recon/game/common/trgsfx.cpp.o(.data.trgsfx_t_enviro);   /* 0x8011e1b0..0x8011e1d0 */
-        build/recon/game/common/trgsfx.cpp.o(.data.trgsfx_t_car);   /* 0x8011e1d0..0x8011e1f0 */
-        build/recon/game/common/trgsfx.cpp.o(.data.trgsfx_t_wheel);   /* 0x8011e1f0..0x8011e270 */
-        build/recon/game/common/trgsfx.cpp.o(.data.trgsfx_t_extra);   /* 0x8011e270..0x8011e2f0 */
-        build/recon/game/common/trgsfx.cpp.o(.data.trgsfx_prev_skid);   /* 0x8011e2f0..0x8011e670 */
-        build/recon/game/common/trgsfx.cpp.o(.data.trgsfx_status);   /* 0x8011e670..0x8011e6f0 */
-        build/recon/game/common/trgsfx.cpp.o(.data.trgsfx_save_seg);   /* 0x8011e6f0..0x8011e770 */
-        build/recon/game/common/trgsfx.cpp.o(.data.trgsfx_save_chunk);   /* 0x8011e770..0x8011e7f0 */
+        build/recon/game/common/track.cpp.o(.data);   /* 0x8011e158..0x8011e1b0 */
+        build/recon/game/common/trgsfx.cpp.o(.data);   /* 0x8011e1b0..0x8011e7f0 */
         build/asm/data/data_8010CCD4_r13.data.s.o(.data.r13_after_trgsfx);
+        build/recon/game/psx/cario.cpp.o(.data);   /* 0x8011e804..0x8011ec18 native owner (was data_8010CCD4_r13.data) */
+        build/recon/game/psx/device.cpp.o(.data);   /* 0x8011ec18..0x8011ec54 native owner (was data_8010CCD4_r13.data) */
+        build/recon/game/psx/draw.cpp.o(.data);   /* 0x8011ec54..0x8011f454 native owner (was data_8010CCD4_r13.data) */
+        build/recon/game/psx/drawc.cpp.o(.data);   /* 0x8011f454..0x8011f570 native owner (was data_8010CCD4_r13.data) */
         build/recon/game/psx/draww.cpp.o(.data);   /* P914 native 1,776-byte DrawW owner; preceding raw bytes retained. */
         build/recon/game/psx/force.cpp.o(.data);   /* 0x8011fc60..0x8011fd70  was data_8010CCD4_o26.data.s */
-        build/asm/data/data_8010CCD4_r14.data.s.o(.data);
+        build/recon/game/psx/font.cpp.o(.data);   /* 0x8011fd70..0x8011fde0 native owner (was data_8010CCD4_r14.data) */
         build/recon/game/psx/flare.cpp.o(.data);   /* 0x8011fde0..0x801202f8  was data_8010CCD4_o27.data.s */
         build/recon/game/psx/hrzsku.cpp.o(.data);   /* P913 native 1,580-byte owner; exact raw prefix remains src-only. */
         build/recon/game/psx/hud.cpp.o(.data);
-        build/asm/data/data_8010CCD4_r15.data.s.o(.data.r15_post);
+        build/recon/game/psx/overlays.cpp.o(.data);   /* 0x80120bc0..0x80120d00 native owner (was data_8010CCD4_r15.data) */
+        build/recon/game/psx/loading.cpp.o(.data);   /* 0x80120d00..0x80120d18 native owner (was data_8010CCD4_r15.data) */
+        build/recon/game/psx/night.cpp.o(.data);   /* 0x80120d18..0x80120dfc native owner (was data_8010CCD4_r15.data) */
+        build/recon/game/psx/psxcontroller.cpp.o(.data);   /* 0x80120dfc..0x80120fd0 native owner (was data_8010CCD4_r15.data) */
         build/recon/game/psx/texture.cpp.o(.data);   /* 0x80120fd0..0x80121070  was data_8010CCD4_o28.data.s */
+        build/recon/game/psx/textureprocess.cpp.o(.data);   /* 0x80121070..0x8012327c native owner (was data_8010CCD4_r16.data) */
         build/asm/data/data_8010CCD4_r16.data.s.o(.data);
+        build/recon/syslib/psx/libapi/COUNTER.c.o(.data);   /* 0x801234b4..0x801234d4 native owner (was data_8010CCD4_r16.data) */
+        build/asm/data/data_8010CCD4_r16.data.s.o(.data_post_counter);
         build/recon/eaclib/psx/eacpsxz/matrix.c.o(.rodata);   /* 0x801237ec..0x80123820  was data_8010CCD4_o29.data.s */
         build/asm/data/data_8010CCD4_r17.data.s.o(.data);
         build/recon/syslib/psx/libpress/TABLE.c.o(.data);   /* 0x80123838..0x80134838 */
@@ -1003,9 +1002,6 @@ SECTIONS
         build/asm/data/data_8010CCD4_r21.data.s.o(.data);
         build/recon/eaclib/psx/sndpsxz/sclcptch.c.o(.data);
         build/recon/eaclib/psx/spchpsxz/spchinit.c.o(.data);
-        build/recon/game/psx/drawc.cpp.o(.data);
-        build/recon/game/psx/night.cpp.o(.data);
-        build/recon/syslib/psx/libapi/COUNTER_data.c.o(.data);
     }
 
     .sdata 0x8013c54c : SUBALIGN(4)
@@ -1017,8 +1013,8 @@ SECTIONS
         build/asm/data/sdata_8013C54C_r01.sdata.s.o(.sdata);
         build/recon/game/common/aicop.cpp.o(.sdata);   /* 0x8013c570..0x8013c57c  was sdata_8013C54C_o03.sdata.s */
         build/recon/game/common/aiinit.cpp.o(.sdata);   /* 0x8013c57c..0x8013c588  was sdata_8013C54C_o04.sdata.s */
-        build/asm/data/sdata_8013C54C_r02.sdata.s.o(.sdata);
-        build/recon/game/common/aiphysic.cpp.o(.sdata);   /* 0x8013c594..0x8013c5a0  was sdata_8013C54C_o05.sdata.s */
+        build/recon/game/common/ailife.cpp.o(.sdata);   /* 0x8013c588..0x8013c590 native owner (was sdata_8013C54C_r02.sdata) */
+        build/recon/game/common/aiphysic.cpp.o(.sdata);   /* now from 0x8013c590 (was sdata_8013C54C_r02.sdata) */
         build/recon/game/common/aidatarecord.cpp.o(.sdata);   /* 0x8013c5a0..0x8013c5b0  was sdata_8013C54C_o06.sdata.s */
         build/recon/game/common/aispeeds.cpp.o(.sdata);   /* 0x8013c5b0..0x8013c5d8 native owner: 2 initialized statics + Track0/1/4/8/9/10Speeds (r03 now starts at 0x8013c5d0? -- see D_8013C5D0) */
         build/asm/data/sdata_8013C54C_r03.sdata.s.o(.sdata);
@@ -1060,13 +1056,18 @@ SECTIONS
         build/recon/game/common/sim.cpp.o(.sdata);   /* P882: 0x8013d40c..0x8013d434 */
         build/recon/game/common/simqueue.cpp.o(.sdata);   /* 0x8013d434..0x8013d440 */
         build/asm/data/sdata_8013C54C_r15.sdata.s.o(.sdata.r15_after_simqueue);
-        build/recon/game/common/souffle.cpp.o(.sdata);   /* 0x8013d448..0x8013d458  was sdata_8013C54C_o26.sdata.s */
+        build/recon/game/common/souffle.cpp.o(.sdata);   /* now from 0x8013d440 (was sdata_8013C54C_r15.sdata) */
         build/recon/game/common/textsys.cpp.o(.sdata);   /* 0x8013d458..0x8013d466 native -G8 owner: wordFile, "%s%s", "p" (r16 now starts at 0x8013d468) */
         build/asm/data/sdata_8013C54C_r16.sdata.s.o(.sdata);
         build/recon/game/common/trgsfx.cpp.o(.sdata);   /* 0x8013d4f0..0x8013d4f8  was sdata_8013C54C_o27.sdata.s */
         build/recon/game/common/aidebug.cpp.o(.sdata);   /* 0x8013d4f8..0x8013d4fc  was sdata_8013C54C_o28.sdata.s */
         build/recon/game/psx/audio.cpp.o(.sdata);   /* 0x8013d4fc..0x8013d504  was sdata_8013C54C_o29.sdata.s */
         build/asm/data/sdata_8013C54C_r17.sdata.s.o(.sdata);
+        build/recon/game/psx/cario.cpp.o(.sdata);   /* now to 0x8013d75c (was sdata_8013C54C_r17.sdata) */
+        build/asm/data/sdata_8013C54C_r17.sdata.s.o(.sdata_post_cario);
+        build/recon/game/psx/device.cpp.o(.sdata);   /* now to 0x8013d798 (was sdata_8013C54C_r17.sdata) */
+        build/asm/data/sdata_8013C54C_r17.sdata.s.o(.sdata_post_cario_post_device);
+        build/recon/game/psx/drawc.cpp.o(.sdata);   /* 0x8013d7c8..0x8013d818 native owner (was sdata_8013C54C_r17.sdata) */
         build/recon/game/psx/drawdbg.cpp.o(.sdata);   /* 0x8013d818..0x8013d81c  was sdata_8013C54C_o30.sdata.s */
         build/recon/game/psx/draww.cpp.o(.sdata);   /* P914 native 36 bytes, including both original local eight-byte arrays. */
         build/recon/game/psx/force.cpp.o(.sdata);   /* 0x8013d840..0x8013d854  was sdata_8013C54C_o31.sdata.s */
@@ -1075,10 +1076,13 @@ SECTIONS
         build/recon/game/psx/hrzsku.cpp.o(.sdata);   /* 0x8013d878..0x8013d89c native owner (was r20_pre: initialized statics + deferred globals) */
         build/recon/game/psx/hud.cpp.o(.sdata); /* P909 complete240-byte native source owner. */
         build/recon/game/psx/overlays.cpp.o(.sdata);   /* 0x8013d98c..0x8013d9a0 native owner (Hud_NextPerp/StatsTimer[2]); r20_post now starts at 0x8013d9a0 */
+        build/recon/game/psx/loading.cpp.o(.sdata);   /* now to 0x8013d9e0 (was sdata_8013C54C_r20.sdata) */
         build/asm/data/sdata_8013C54C_r20.sdata.s.o(.sdata.r20_post); /* Native suffix from 0x8013d9a0. */
+        build/recon/game/psx/psxcontroller.cpp.o(.sdata);   /* 0x8013dac0..0x8013dac8 native owner (was sdata_8013C54C_r20.sdata) */
+        build/asm/data/sdata_8013C54C_r20.sdata.s.o(.sdata.r20_post_post_psxcontroller);
         build/recon/game/psx/texture.cpp.o(.sdata);   /* 0x8013db08..0x8013db3c  was sdata_8013C54C_o33.sdata.s */
         build/asm/data/sdata_8013C54C_r21.sdata.s.o(.sdata);
-        build/recon/game/psx/textureprocess.cpp.o(.sdata);   /* 0x8013db4c..0x8013db90; o34 is oracle-only */
+        build/recon/game/psx/textureprocess.cpp.o(.sdata);   /* now from 0x8013db3c (was sdata_8013C54C_r21.sdata) */
         build/recon/game/psx/trackspec.cpp.o(.sdata);   /* 0x8013db90..0x8013db9c  was sdata_8013C54C_o35.sdata.s */
         build/recon/game/psx/trsproj.cpp.o(.sdata);   /* 0x8013db9c..0x8013dba0  was sdata_8013C54C_o36.sdata.s */
         build/recon/game/psx/weather.cpp.o(.sdata);   /* 0x8013dba0..0x8013dc10 native owner (initializer-ordered); r22 now starts at memaborthook */
@@ -1097,8 +1101,6 @@ SECTIONS
         build/recon/game/common/aih_cop.cpp.o(.sdata);
         build/recon/game/common/anim.cpp.o(.sdata);
         build/recon/game/common/audioeng.cpp.o(.sdata);
-        build/recon/game/psx/drawc.cpp.o(.sdata);
-        build/recon/syslib/psx/libapi/COUNTER_data.c.o(.sdata);
     }
 
     ASSERT(cdsectorreseek == 0x8013d07c, "native source data symbol address mismatch: cdsectorreseek")
@@ -2008,8 +2010,6 @@ SECTIONS
     D_8010CD0C = 0x8010cd0c;
     D_8010CD2C = 0x8010cd2c;
     D_8010CD34 = 0x8010cd34;
-    D_8010DC54 = 0x8010dc54;
-    D_8010DC64 = 0x8010dc64;
     D_8010DC78 = 0x8010dc78;
     D_8010DC7C = 0x8010dc7c;
     D_8010DC84 = 0x8010dc84;
@@ -2035,7 +2035,6 @@ SECTIONS
     D_8010E8CC = 0x8010e8cc;
     D_8010E8E4 = 0x8010e8e4;
     D_8010EEB4 = 0x8010eeb4;
-    D_8010F07C = 0x8010f07c;
     D_8010F2B4 = 0x8010f2b4;
     D_8010F2DC = 0x8010f2dc;
     D_8010F2F4 = 0x8010f2f4;
@@ -2272,10 +2271,6 @@ SECTIONS
     D_8011E15C = 0x8011e15c;
     D_8011E160 = 0x8011e160;
     D_8011E164 = 0x8011e164;
-    D_8011E804 = 0x8011e804;
-    D_8011EC5C = 0x8011ec5c;
-    D_8011F43C = 0x8011f43c;
-    D_8011F4B4 = 0x8011f4b4;
     D_8011FE50 = 0x8011fe50;
     D_8011FE58 = 0x8011fe58;
     D_8011FE60 = 0x8011fe60;
@@ -2304,8 +2299,6 @@ SECTIONS
     D_80120838 = 0x80120838;
     D_801209BC = 0x801209bc;
     D_80120A34 = 0x80120a34;
-    D_80120D00 = 0x80120d00;
-    D_80120DAC = 0x80120dac;
     D_80120FD4 = 0x80120fd4;
     D_80120FDC = 0x80120fdc;
     D_80123280 = 0x80123280;
@@ -2319,9 +2312,6 @@ SECTIONS
     D_80123410 = 0x80123410;
     D_80123412 = 0x80123412;
     D_8012348C = 0x8012348c;
-    D_801234B4 = 0x801234b4;
-    D_801234B8 = 0x801234b8;
-    D_801234BC = 0x801234bc;
     D_801234E4 = 0x801234e4;
     D_801234E8 = 0x801234e8;
     D_8012356C = 0x8012356c;
@@ -2469,8 +2459,6 @@ SECTIONS
     D_8013C310 = 0x8013c310;
     D_8013C338 = 0x8013c338;
     D_8013C564 = 0x8013c564;
-    D_8013C588 = 0x8013c588;
-    D_8013C590 = 0x8013c590;
     D_8013C5D8 = 0x8013c5d8;
     D_8013C5E0 = 0x8013c5e0;
     D_8013C5FC = 0x8013c5fc;
@@ -2853,7 +2841,6 @@ SECTIONS
     D_8013D410 = 0x8013d410;
     D_8013D418 = 0x8013d418;
     D_8013D420 = 0x8013d420;
-    D_8013D440 = 0x8013d440;
     D_8013D468 = 0x8013d468;
     D_8013D470 = 0x8013d470;
     D_8013D478 = 0x8013d478;
@@ -2865,91 +2852,10 @@ SECTIONS
     D_8013D4A4 = 0x8013d4a4;
     D_8013D504 = 0x8013d504;
     D_8013D514 = 0x8013d514;
-    D_8013D520 = 0x8013d520;
-    D_8013D528 = 0x8013d528;
-    D_8013D530 = 0x8013d530;
-    D_8013D538 = 0x8013d538;
-    D_8013D540 = 0x8013d540;
-    D_8013D548 = 0x8013d548;
-    D_8013D550 = 0x8013d550;
-    D_8013D558 = 0x8013d558;
-    D_8013D560 = 0x8013d560;
-    D_8013D568 = 0x8013d568;
-    D_8013D570 = 0x8013d570;
-    D_8013D578 = 0x8013d578;
-    D_8013D57C = 0x8013d57c;
-    D_8013D584 = 0x8013d584;
-    D_8013D58C = 0x8013d58c;
-    D_8013D594 = 0x8013d594;
-    D_8013D59C = 0x8013d59c;
-    D_8013D5A4 = 0x8013d5a4;
-    D_8013D5AC = 0x8013d5ac;
-    D_8013D5B4 = 0x8013d5b4;
-    D_8013D5BC = 0x8013d5bc;
-    D_8013D5C4 = 0x8013d5c4;
-    D_8013D5CC = 0x8013d5cc;
-    D_8013D5D4 = 0x8013d5d4;
-    D_8013D5DC = 0x8013d5dc;
-    D_8013D5E4 = 0x8013d5e4;
-    D_8013D5EC = 0x8013d5ec;
-    D_8013D5F4 = 0x8013d5f4;
-    D_8013D5FC = 0x8013d5fc;
-    D_8013D604 = 0x8013d604;
-    D_8013D60C = 0x8013d60c;
-    D_8013D614 = 0x8013d614;
-    D_8013D61C = 0x8013d61c;
-    D_8013D624 = 0x8013d624;
-    D_8013D62C = 0x8013d62c;
-    D_8013D634 = 0x8013d634;
-    D_8013D63C = 0x8013d63c;
-    D_8013D644 = 0x8013d644;
-    D_8013D64C = 0x8013d64c;
-    D_8013D654 = 0x8013d654;
-    D_8013D65C = 0x8013d65c;
-    D_8013D664 = 0x8013d664;
-    D_8013D66C = 0x8013d66c;
-    D_8013D674 = 0x8013d674;
-    D_8013D67C = 0x8013d67c;
-    D_8013D684 = 0x8013d684;
-    D_8013D68C = 0x8013d68c;
-    D_8013D694 = 0x8013d694;
-    D_8013D69C = 0x8013d69c;
-    D_8013D6A4 = 0x8013d6a4;
-    D_8013D6AC = 0x8013d6ac;
-    D_8013D6B4 = 0x8013d6b4;
-    D_8013D6BC = 0x8013d6bc;
-    D_8013D6C4 = 0x8013d6c4;
-    D_8013D6CC = 0x8013d6cc;
-    D_8013D6D4 = 0x8013d6d4;
-    D_8013D6DC = 0x8013d6dc;
-    D_8013D6E4 = 0x8013d6e4;
-    D_8013D6EC = 0x8013d6ec;
-    D_8013D6F4 = 0x8013d6f4;
-    D_8013D6FC = 0x8013d6fc;
-    D_8013D704 = 0x8013d704;
-    D_8013D70C = 0x8013d70c;
-    D_8013D714 = 0x8013d714;
-    D_8013D720 = 0x8013d720;
-    D_8013D728 = 0x8013d728;
-    D_8013D730 = 0x8013d730;
-    D_8013D738 = 0x8013d738;
-    D_8013D74C = 0x8013d74c;
-    D_8013D754 = 0x8013d754;
-    D_8013D75C = 0x8013d75c;
-    D_8013D764 = 0x8013d764;
-    D_8013D76C = 0x8013d76c;
-    D_8013D770 = 0x8013d770;
-    D_8013D788 = 0x8013d788;
-    D_8013D790 = 0x8013d790;
     D_8013D798 = 0x8013d798;
     D_8013D79C = 0x8013d79c;
     D_8013D7A0 = 0x8013d7a0;
     D_8013D7A4 = 0x8013d7a4;
-    D_8013D7D0 = 0x8013d7d0;
-    D_8013D7D8 = 0x8013d7d8;
-    D_8013D7E0 = 0x8013d7e0;
-    D_8013D7E4 = 0x8013d7e4;
-    D_8013D7E8 = 0x8013d7e8;
     D_8013D820 = 0x8013d820;
     D_8013D828 = 0x8013d828;
     D_8013D8AC = 0x8013d8ac;
@@ -2974,13 +2880,6 @@ SECTIONS
     D_8013D95C = 0x8013d95c;
     D_8013D964 = 0x8013d964;
     D_8013D99C = 0x8013d99c;
-    D_8013D9A0 = 0x8013d9a0;
-    D_8013D9A8 = 0x8013d9a8;
-    D_8013D9B0 = 0x8013d9b0;
-    D_8013D9B8 = 0x8013d9b8;
-    D_8013D9C0 = 0x8013d9c0;
-    D_8013D9C8 = 0x8013d9c8;
-    D_8013D9D4 = 0x8013d9d4;
     D_8013D9E2 = 0x8013d9e2;
     D_8013D9F4 = 0x8013d9f4;
     D_8013D9FE = 0x8013d9fe;
@@ -2993,7 +2892,6 @@ SECTIONS
     D_8013DA8C = 0x8013da8c;
     D_8013DAA0 = 0x8013daa0;
     D_8013DAAC = 0x8013daac;
-    D_8013DAC0 = 0x8013dac0;
     D_8013DB4C = 0x8013db4c;
     D_8013DB54 = 0x8013db54;
     D_8013DB5C = 0x8013db5c;

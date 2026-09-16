@@ -20,8 +20,8 @@
     build/asm/data/sdata_8013C54C_r01.sdata.s.o(.sdata);
     build/recon/game/common/aicop.cpp.o(.sdata);   /* 0x8013c570..0x8013c57c  was sdata_8013C54C_o03.sdata.s */
     build/recon/game/common/aiinit.cpp.o(.sdata);   /* 0x8013c57c..0x8013c588  was sdata_8013C54C_o04.sdata.s */
-    build/asm/data/sdata_8013C54C_r02.sdata.s.o(.sdata);
-    build/recon/game/common/aiphysic.cpp.o(.sdata);   /* 0x8013c594..0x8013c5a0  was sdata_8013C54C_o05.sdata.s */
+    build/recon/game/common/ailife.cpp.o(.sdata);   /* 0x8013c588..0x8013c590 native owner (was sdata_8013C54C_r02.sdata) */
+    build/recon/game/common/aiphysic.cpp.o(.sdata);   /* now from 0x8013c590 (was sdata_8013C54C_r02.sdata) */
     build/recon/game/common/aidatarecord.cpp.o(.sdata);   /* 0x8013c5a0..0x8013c5b0  was sdata_8013C54C_o06.sdata.s */
     build/recon/game/common/aispeeds.cpp.o(.sdata);   /* 0x8013c5b0..0x8013c5d8 native owner: 2 initialized statics + Track0/1/4/8/9/10Speeds (r03 now starts at 0x8013c5d0? -- see D_8013C5D0) */
     build/asm/data/sdata_8013C54C_r03.sdata.s.o(.sdata);
@@ -71,13 +71,18 @@
     /* SYM ownership seam: simqueue.obj's initialized ticker/blocking state. */
     build/recon/game/common/simqueue.cpp.o(.sdata);   /* 0x8013d434..0x8013d440 */
     build/asm/data/sdata_8013C54C_r15.sdata.s.o(.sdata.r15_after_simqueue);
-    build/recon/game/common/souffle.cpp.o(.sdata);   /* 0x8013d448..0x8013d458  was sdata_8013C54C_o26.sdata.s */
+    build/recon/game/common/souffle.cpp.o(.sdata);   /* now from 0x8013d440 (was sdata_8013C54C_r15.sdata) */
     build/recon/game/common/textsys.cpp.o(.sdata);   /* 0x8013d458..0x8013d466 native -G8 owner: wordFile, "%s%s", "p" (r16 now starts at 0x8013d468) */
     build/asm/data/sdata_8013C54C_r16.sdata.s.o(.sdata);
     build/recon/game/common/trgsfx.cpp.o(.sdata);   /* 0x8013d4f0..0x8013d4f8  was sdata_8013C54C_o27.sdata.s */
     build/recon/game/common/aidebug.cpp.o(.sdata);   /* 0x8013d4f8..0x8013d4fc  was sdata_8013C54C_o28.sdata.s */
     build/recon/game/psx/audio.cpp.o(.sdata);   /* 0x8013d4fc..0x8013d504  was sdata_8013C54C_o29.sdata.s */
     build/asm/data/sdata_8013C54C_r17.sdata.s.o(.sdata);
+    build/recon/game/psx/cario.cpp.o(.sdata);   /* now to 0x8013d75c (was sdata_8013C54C_r17.sdata) */
+    build/asm/data/sdata_8013C54C_r17.sdata.s.o(.sdata_post_cario);
+    build/recon/game/psx/device.cpp.o(.sdata);   /* now to 0x8013d798 (was sdata_8013C54C_r17.sdata) */
+    build/asm/data/sdata_8013C54C_r17.sdata.s.o(.sdata_post_cario_post_device);
+    build/recon/game/psx/drawc.cpp.o(.sdata);   /* 0x8013d7c8..0x8013d818 native owner (was sdata_8013C54C_r17.sdata) */
     build/recon/game/psx/drawdbg.cpp.o(.sdata);   /* 0x8013d818..0x8013d81c  was sdata_8013C54C_o30.sdata.s */
     build/recon/game/psx/draww.cpp.o(.sdata);   /* P914 native 36 bytes, including both original local eight-byte arrays. */
     build/recon/game/psx/force.cpp.o(.sdata);   /* 0x8013d840..0x8013d854  was sdata_8013C54C_o31.sdata.s */
@@ -86,11 +91,14 @@
     build/recon/game/psx/hrzsku.cpp.o(.sdata);   /* 0x8013d878..0x8013d89c native owner (was r20_pre: initialized statics + deferred globals) */
     build/recon/game/psx/hud.cpp.o(.sdata); /* P909 complete240-byte native source owner. */
     build/recon/game/psx/overlays.cpp.o(.sdata);   /* 0x8013d98c..0x8013d9a0 native owner (Hud_NextPerp/StatsTimer[2]); r20_post now starts at 0x8013d9a0 */
+    build/recon/game/psx/loading.cpp.o(.sdata);   /* now to 0x8013d9e0 (was sdata_8013C54C_r20.sdata) */
     build/asm/data/sdata_8013C54C_r20.sdata.s.o(.sdata.r20_post); /* Native suffix from 0x8013d9a0. */
+    build/recon/game/psx/psxcontroller.cpp.o(.sdata);   /* 0x8013dac0..0x8013dac8 native owner (was sdata_8013C54C_r20.sdata) */
+    build/asm/data/sdata_8013C54C_r20.sdata.s.o(.sdata.r20_post_post_psxcontroller);
     build/recon/game/psx/texture.cpp.o(.sdata);   /* 0x8013db08..0x8013db3c  was sdata_8013C54C_o33.sdata.s */
     build/asm/data/sdata_8013C54C_r21.sdata.s.o(.sdata);
     /* P886: full G8 run includes its40-byte literal prefix, not only globals. */
-    build/recon/game/psx/textureprocess.cpp.o(.sdata);   /* 0x8013db4c..0x8013db90; o34 is oracle-only */
+    build/recon/game/psx/textureprocess.cpp.o(.sdata);   /* now from 0x8013db3c (was sdata_8013C54C_r21.sdata) */
     build/recon/game/psx/trackspec.cpp.o(.sdata);   /* 0x8013db90..0x8013db9c  was sdata_8013C54C_o35.sdata.s */
     build/recon/game/psx/trsproj.cpp.o(.sdata);   /* 0x8013db9c..0x8013dba0  was sdata_8013C54C_o36.sdata.s */
     build/recon/game/psx/weather.cpp.o(.sdata);   /* 0x8013dba0..0x8013dc10 native owner (initializer-ordered); r22 now starts at memaborthook */

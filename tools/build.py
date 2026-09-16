@@ -323,6 +323,13 @@ PER_TU_FLAGS = {
     # textsys.obj is a -G8 TU: its "%s%s" (5B) literal sits in retail .sdata
     # (0x8013d45c) between wordFile and "p"; at -G4 it went to .rodata.
     "recon/game/common/textsys.cpp": {"g_value": "8"},
+    # -G8 identities read off retail .sdata literals (PSYLINK-lane drift, 2026-09-16):
+    # souffle.obj holds "souffle" (8B) @0x8013d440, psxcontroller.obj its 8-byte static
+    # hoff @0x8013dac0, AILIFE.obj the compiled-out "dist=%d" (8B) @0x8013c588.
+    "recon/game/common/souffle.cpp": {"g_value": "8"},
+    "recon/game/psx/psxcontroller.cpp": {"g_value": "8"},
+    "recon/game/common/ailife.cpp": {"g_value": "8"},
+    "recon/game/psx/drawc.cpp": {"g_value": "8"},   # 20/20 PASS once its three 8-byte externs are unsized (drawc_externs.h)
     # drawc.obj: retail .sdata 0x8013d7c8.. holds "envmap"/"Shadow"/".psh" (7-8B)
     # + the 8-byte DrawC_gEnvMapOffset => a -G8 TU; at -G8 our .sdata is
     # byte-exact BUT DrawC_NightHeadlight grows by 4 bytes (prologue

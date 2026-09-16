@@ -2,7 +2,23 @@
  *   16 fns: TextureProcess_* (translucency/CLUT depth-color), Fog_* (keyframe fog triggers),
  *   CV_* (world-color vertex processing). No GTE.
  */
+#include "textureprocess_types.h"
+/* CC1PLPSX emission law: uninitialized globals are flushed at end-of-file in
+ * FIRST-DECLARATION order.  Retail TextureProcess.obj .data is TP_gBlendColor 0x80121070 /
+ * gClutDepth 0x8012107c / Fog_gBuf 0x8012307c / openkeys 0x801231fc (all zero) -- pinned
+ * here ahead of textureprocess_externs.h's order. */
+extern CSVECTOR TP_gBlendColor;
+extern short    gClutDepth[256][16];
+extern FogKey   Fog_gBuf[32];
+extern int      openkeys[32];
 #include "textureprocess_externs.h"
+
+/* retail TextureProcess.obj .sdata starts with four initialized colour cells
+ * (0x8013db3c..0x8013db4c), emitted here at their definitions. */
+int     gContrastScale = 0x100;
+CVECTOR Texture_gContrastColor = { 0x80, 0x80, 0x80, 0 };
+CVECTOR Texture_gWorldColor = { 0xff, 0xff, 0xff, 0 };
+int     TP_gColorMode = 0;
 
 /* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
  * but OWNED here; tentative defs -> cc1 `.comm` -> stock maspsx gp-rels them
@@ -13,6 +29,12 @@ FogKey *Fog_gCurrentKey[2];
 TP_ZPaletteSystem TP_gZPaletteSystem;
 int Fog_gNumKeys;
 int gZDepth;
+
+/* .data owners (zero, deferred in the pinned order above) */
+CSVECTOR TP_gBlendColor;
+short    gClutDepth[256][16];
+FogKey   Fog_gBuf[32];
+int      openkeys[32];
 
 /* ---- TextureProcess_TransColorCheck__FPci  [TEXTUREPROCESS.CPP:47-62] SLD-VERIFIED ---- */
 int TextureProcess_TransColorCheck(char *data,int numentry)

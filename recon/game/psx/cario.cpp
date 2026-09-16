@@ -5,18 +5,58 @@
 #include "cario_types.h"
 #include "cario_externs.h"
 
+/* retail CarIO.obj .data (0x8011e804..0x8011ec18) and the texture-name literal pool in its
+ * .sdata (0x8013d520..0x8013d71c, -G8 small literals emitted in first-use order).  Values
+ * read from the retail image; the STAT/EXT classes follow the SYM. */
+static CarIO_textureInfo CarIO_textureName[51] = {   /* SYM: STAT, 0x8011e804 */
+  { "frnt", "Pfrn", 0 }, { "rear", "Prea", 0 }, { "side", "Psid", 0 }, { "top1", "Ptp1", 0 },
+  { "top2", "Ptp2", 0 }, { "dHiF", "", 1 }, { "dHiR", "", 2 }, { "dHiS", "", 3 },
+  { "dTp1", "", 4 }, { "dTop", "", 5 }, { "dLoF", "", 1 }, { "dLoR", "", 2 },
+  { "dLoS", "", 3 }, { "wndw", "Pwnd", 0 }, { "ftdm", "Pftd", 0 }, { "splr", "Pspl", 0 },
+  { "ext2", "Pex2", 0 }, { "ext3", "Pex3", 0 }, { "ext4", "Pex4", 0 }, { "whl ", "Pwhl", 0 },
+  { "ext1", "", 0 }, { "botm", "", 0 }, { "whlI", "", 0 }, { "tred", "", 0 },
+  { "bROf", "", 0 }, { "bSOf", "", 0 }, { "rvOf", "", 0 }, { "sFOf", "", 0 },
+  { "sROf", "", 0 }, { "ltOf", "", 0 }, { "bROn", "", 0 }, { "bSOn", "", 0 },
+  { "shdw", "", 0 }, { "sFOn", "", 0 }, { "sROn", "", 0 }, { "ltOn", "", 0 },
+  { "dcl1", "", 0 }, { "dcl2", "", 0 }, { "dcl3", "", 0 }, { "dcl4", "", 0 },
+  { "dcl5", "", 0 }, { "dcl6", "", 0 }, { "ins0", "", 0 }, { "ins1", "", 0 },
+  { "ins2", "", 0 }, { "ins3", "", 0 }, { "ins4", "", 0 }, { "ins5", "", 0 },
+  { "ins6", "", 0 }, { "ins7", "", 0 }, { "ins8", "", 0 },
+};
+short CarIO_carVRamSlots[18][2] = {
+  { 640, 256 }, { 640, 341 }, { 640, 426 }, { 704, 256 }, { 704, 341 }, { 704, 426 },
+  { 768, 256 }, { 768, 341 }, { 768, 426 }, { 832, 256 }, { 832, 341 }, { 832, 426 },
+  { 896, 256 }, { 896, 341 }, { 896, 426 }, { 960, 256 }, { 960, 341 }, { 960, 426 } };
+short CarIO_carVRamSlotsMenu[6][2] = { { 512, 0 }, { 576, 0 }, { 640, 0 }, { 704, 0 }, { 640, 0 }, { 704, 0 } };
+short CarIO_carVRamAdd[6] = { 2, 1, 2, 1, 2, 1 };
+short CarIO_carVRamOffset[6] = { 64, 0, -32, 64, 0, -32 };
+short CarIO_licensePlate[22][6] = {
+  { 27, 58, 22, 33, 58, 110 }, { 33, 58, 110, 26, 58, 0 }, { 27, 58, 22, 33, 58, 110 },
+  { 33, 58, 110, 18, 58, 234 }, { 27, 58, 22, 33, 58, 110 }, { 27, 58, 22, 33, 58, 110 },
+  { 18, 58, 234, 33, 58, 110 }, { 27, 58, 22, 33, 58, 110 }, { 27, 58, 22, 33, 58, 110 },
+  { 26, 58, 0, 33, 58, 110 }, { 27, 58, 22, 33, 58, 110 }, { 27, 58, 22, 33, 58, 110 },
+  { 33, 58, 110, 17, 58, 212 }, { 33, 58, 110, 18, 58, 234 }, { 27, 58, 22, 33, 58, 110 },
+  { 33, 58, 110, 26, 58, 0 }, { 27, 58, 22, 33, 58, 110 }, { 27, 58, 22, 33, 58, 110 },
+  { 26, 58, 0, 33, 58, 110 }, { 27, 58, 22, 33, 58, 110 }, { 33, 58, 110, 26, 58, 0 },
+  { 0, 0, 0, 0, 0, 0 } };
+short CarIO_licenseSFX_Vram[12][2] = {
+  { 960, 426 }, { 966, 426 }, { 972, 426 }, { 978, 426 }, { 984, 426 }, { 990, 426 },
+  { 996, 426 }, { 1002, 426 }, { 1008, 426 }, { 1014, 426 }, { 960, 448 }, { 966, 448 } };
 /* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
  * but OWNED here; tentative defs -> cc1 `.comm` -> stock maspsx gp-rels them
  * (matches the oracle's %gp_rel). section 3.12 #6. (auto: gen_gprel_defs.py) */
 Draw_tPixMap *CarIO_carPixMap = 0;   /* @0x8013d71c  W67-A4: explicit =0 -- retail
-    emits this cell BEFORE the TU's -G8 literal pool 0x8013d720..0x8013d73c
-    ("plate1" "plate2" "blnk" "   "), so it cannot have been tentative (16E =0
-    discriminator).  DO NOT strip the =0. */
+    emits this cell AFTER the texture-name literal pool and BEFORE the TU's -G8 literal
+    pool 0x8013d720..0x8013d73c ("plate1" "plate2" "blnk" "   "), so it cannot have been
+    tentative (16E =0 discriminator).  DO NOT strip the =0. */
 int CarIO_carPixMapCount;
 int CarIO_carVRamCount;
 int CarIO_licenseSFX_Count;
 shapetbl *CarIO_Plate1[2];
 shapetbl *CarIO_Plate2[2];
+/* last deferred small global of CarIO.obj (.sdata 0x8013d758, after Plate2): the
+ * front-end flag psxfront.cpp toggles. */
+int inFrontEnd;
 
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
 void CarIO_StartUp(void);

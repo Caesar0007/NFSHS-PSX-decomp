@@ -28,6 +28,13 @@ u_long font_tint = 0x66808080;
 u_short font_currentTPage;
 u_short gFontClut;
 
+/* retail font.obj .data (0x8011fd70): the 16-entry text colour table (initialized, emitted
+ * here) followed by the deferred zero clut-table record shpfontclut (0x8011fdb0). */
+long colourRGB[16] = {
+  0x000000, 0x858585, 0xaaaaaa, 0xbebe00, 0xa0a0a0, 0x0042b5, 0xffbebe00, 0xbf0f00,
+  0xa5e65b, 0xa5634a, 0xffaaaaaa, 0x002ce6, 0x11acd2, 0x0c2b62, 0x5f1f00, 0x6c6060 };
+cluttbl shpfontclut;
+
 /* gCurrentBlitter @0x8013ddec : font.obj-owned glyph-blit fn-ptr (STAT PTR FCN VOID).  BSS;
  *   Font_SetBlitter assigns it, Font_ReSetBlitter resets it to Font_Blit, Font_TextXY calls it. */
 static fontblit gCurrentBlitter;

@@ -22,7 +22,10 @@ char         Night_gDrawLightning = 0;   /* @0x8013d9e0 */
 u_short      Night_gCopCarTypeColorIdx_cell asm("Night_gCopCarTypeColorIdx") = 0;   /* @0x8013d9e2 */
 extern u_char Night_gCopCarTypeColorIdx[2];   /* byte view of the cell */
 char         Night_gCopCountryLightTbl[2][5][2] = { 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1 };   /* @0x80120d18 */
-int          Night_gLightningPauseAreas[16][2];   /* @0x80120d2c  (bss(zero)) */
+/* retail night.obj .data order is CopCountryLightTbl / LightningPauseAreas / the function
+ * static colorCreationTable / AdditiveHeadlightColor: PauseAreas therefore cannot be a
+ * deferred (uninitialized) global -- it is emitted at its definition point (= {0}). */
+int          Night_gLightningPauseAreas[16][2] = { 0 };   /* @0x80120d2c */
 CVECTOR      Night_gAdditiveHeadlightColor[16];   /* @0x80120dbc  (bss(zero)) */
 u_char       (*Night_gPlayerLightingTable)[256][16] = 0;   /* @0x8013d9e4 */
 u_char       (*Night_gCopLightingTableRed)[256][8] = 0;   /* @0x8013d9e8 */

@@ -3,7 +3,6 @@
 #define _GAME_PSX_LOADING_EXTERNS_H_
 
 /* ---- globals ---- */
-extern char          *loading_languageNames[] __asm__("D_80120D00"); /* 0x80120d00 */
 extern char          *smallShapeFile;          /* 0x8013d9d0  Loadb.psh progress tiles */
 extern int            totalAvailMem;           /* 0x8013d9dc */
 extern GameSetup_tData GameSetup_gData;

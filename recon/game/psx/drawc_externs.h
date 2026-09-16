@@ -9,7 +9,9 @@ struct Texture_pal8bit;
 /* ---- Night.obj globals (defined in night.cpp) -- weather/lightning tint, DrawC_NightHeadlight (H46) ---- */
 extern char Night_gDrawLightning;     /* @0x8013d9e0 (bss=0) */
 extern int  Night_gLightningType;     /* @0x8013da44 (bss=0) */
-extern long Night_gWeatherColor[2];   /* @0x8013da88 (bss=0) -- per-type RGB tint (bytes 0/1/2 = R/G/B) */
+/* UNSIZED in this TU's view: drawc.obj is -G8 and retail reaches these three 8-byte objects
+ * with absolute lui/addiu (a declaration without a size is not gp-eligible). */
+extern long Night_gWeatherColor[];   /* @0x8013da88 (bss=0) -- per-type RGB tint (bytes 0/1/2 = R/G/B) */
 
 /* ---- GTE intrinsics: canonical PsyQ inline COP2 macros from ../../lib/psx_gte.h ----
  * (all gte_* loads/stores/compute live there now; the former local no-op stubs deleted). */
@@ -20,8 +22,8 @@ extern long Night_gWeatherColor[2];   /* @0x8013da88 (bss=0) -- per-type RGB tin
 extern bool BWorldSm_TunnelFlagSm(BWorldSm_Pos *pos);
 extern void CarIO_UpdateCarTextureData(char *, Car_tObj *, int);
 extern Draw_tPixMap *CarIO_carPixMap;
-extern Car_tObj * Cars_gHumanRaceCarList[2];
-extern Car_tObj * Cars_gList[2];
+extern Car_tObj * Cars_gHumanRaceCarList[];
+extern Car_tObj * Cars_gList[];
 extern int Cars_kSkidMarkSurface[16];
 extern short DrawC_HeadLightFlash[16];
 extern short DrawC_SirenFlash[16];
@@ -78,7 +80,6 @@ extern Draw_tPixMap *gShadowPixmap[2];
  * here (out of scope); the alias gives this TU the retail shape without touching it. */
 extern Draw_tPixMap *gShadowPixmap0 asm("gShadowPixmap");
 extern int gShowroomLights;  /* TODO type-refine */
-extern u_long hilight_colors[5] __asm__("D_8011F4B4");
 
 extern "C" {
 u_long *ClearOTagR(u_long *ot, int n);

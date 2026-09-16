@@ -14,25 +14,16 @@ int gTAddCSmoke;
 int gTAddCarWheelDelay;
 
 /* SYM assigns this contiguous 0x640-byte zero-initialized run to TrgSfx.obj
- * (0x8011e1b0..0x8011e7f0).  Keep each object in a named section so the
- * reconstruction linker can preserve SYM order without exposing the run to
- * gcc 2.8.1's tentative-object sorting. */
-int gTEnviroEffect[8]
-    __attribute__((section(".data.trgsfx_t_enviro")));
-int gTAddCarSfx[8]
-    __attribute__((section(".data.trgsfx_t_car")));
-int gTAddCarWheelSfx[8][4]
-    __attribute__((section(".data.trgsfx_t_wheel")));
-int gTAddCarExtraSfx[8][4]
-    __attribute__((section(".data.trgsfx_t_extra")));
-tSkid gPrevSkidSm[8][4]
-    __attribute__((section(".data.trgsfx_prev_skid")));
-int gStatusSm[8][4]
-    __attribute__((section(".data.trgsfx_status")));
-Skidmark_Segment *gSaveSeg[8][4]
-    __attribute__((section(".data.trgsfx_save_seg")));
-int gSaveChunk[8][4]
-    __attribute__((section(".data.trgsfx_save_chunk")));
+ * (0x8011e1b0..0x8011e7f0).  CC1PLPSX flushes uninitialized globals at end of file
+ * in FIRST-DECLARATION order = trgsfx_externs.h order = the retail order. */
+int gTEnviroEffect[8];
+int gTAddCarSfx[8];
+int gTAddCarWheelSfx[8][4];
+int gTAddCarExtraSfx[8][4];
+tSkid gPrevSkidSm[8][4];
+int gStatusSm[8][4];
+Skidmark_Segment *gSaveSeg[8][4];
+int gSaveChunk[8][4];
 
 
 /* ---- TrgSfx_AddEnviroEffect__FiiP8coorddefT2  [TRGSFX.CPP:45-53] SLD-VERIFIED ---- */

@@ -2101,28 +2101,6 @@
   "q": 2
  },
  {
-  "obj": "build/recon/game/psx/cario.cpp.o",
-  "section": ".sdata",
-  "base": 2148783900,
-  "end": 2148783960,
-  "size": 60,
-  "ok": true,
-  "unresolved": 0,
-  "words": 15,
-  "q": 2
- },
- {
-  "obj": "build/recon/game/psx/device.cpp.o",
-  "section": ".sdata",
-  "base": 2148783992,
-  "end": 2148784021,
-  "size": 29,
-  "ok": true,
-  "unresolved": 0,
-  "words": 7,
-  "q": 2
- },
- {
   "obj": "build/recon/game/psx/draw.cpp.o",
   "section": ".sdata",
   "base": 2148784024,
@@ -2197,17 +2175,6 @@
   "ok": true,
   "unresolved": 0,
   "words": 5,
-  "q": 2
- },
- {
-  "obj": "build/recon/game/psx/loading.cpp.o",
-  "section": ".sdata",
-  "base": 2148784592,
-  "end": 2148784608,
-  "size": 16,
-  "ok": true,
-  "unresolved": 0,
-  "words": 4,
   "q": 2
  },
  {

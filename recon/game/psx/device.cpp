@@ -36,6 +36,16 @@ int Device_PSXPadMulti(u_long param);
 int Device_Analog(u_long param);
 int Device_Null(u_long param);
 
+/* retail device.obj .data (0x8011ec18): the device dispatch table; its four name literals
+ * are the object's .sdata (0x8013d75c.., -G8 small literals). */
+Input_tDeviceList Device_gDeviceList[5] = {
+  { "Null",   Device_Null,        0 },
+  { "Analog", Device_Analog,      0 },
+  { "Pad",    Device_PSXPad,      0 },
+  { "Multi",  Device_PSXPadMulti, 0 },
+  { 0, 0, 0 },
+};
+
 
 /* ---- Device_VerifyType__Fi  [DEVICE.CPP:51-66] SLD-VERIFIED ----
  * PASS 42/42 (w41-a5).  🏆 NEW LEVER -- A COMPARISON USED DIRECTLY AS AN ARRAY

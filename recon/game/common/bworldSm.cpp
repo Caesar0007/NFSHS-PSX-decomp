@@ -421,7 +421,9 @@ int RawFindClosestQuad(coorddef *pt,BWorldSm_Pos *slicePos)
 {
   int attempt;
   int startQuadInd;
-  static int sliceOffs[12];
+  /* retail image @0x8010F07C: alternating +/- slice offsets (initialized function static
+   * -> emitted here, at the head of bworldSm.obj's .data before BWSM_NormalCache) */
+  static int sliceOffs[12] = { 1, -2, 3, -4, 5, -6, 7, -8, 9, -10, 11, -12 };
   int sliceVariance;
   coorddef *cp;
   CCOORD16 *vertices;

@@ -1464,9 +1464,13 @@ void AIPhysic_InControlPhysics(Car_tObj *carObj)
   /* Rule-8 rewrite w13-a4: SYM 8c block @0x8006BAC8 (fsize 0x70, mask $c0ff0000, carObj REGPARM $s2).
    * Statics: copCollisionReactionTime @0x8013C590 (BSS), copCollisionGripLoss @0x8010DC54,
    * copCollisionSlowDown @0x8010DC64 (.data). All named locals per SYM AUTO/REG records. */
-  static char copCollisionReactionTime[4];
-  static int copCollisionGripLoss[4];
-  static int copCollisionSlowDown[4];
+  /* Retail initial values (image @0x8013C590 / @0x8010DC54 / @0x8010DC64): initialized
+   * function statics are emitted when this function compiles, which puts the two int
+   * tables at the head of AIPHYSIC.obj's .data (before the deferred AIPhysicConfig) and
+   * the reaction-time table in .sdata -- exactly the retail layout. */
+  static char copCollisionReactionTime[4] = { (char)0x8c, 0x64, 0x50, 0x3c };
+  static int copCollisionGripLoss[4] = { 0x4ccc, 0x8000, 0x8000, 0x10000 };
+  static int copCollisionSlowDown[4] = { 0x90000, 0x84000, 0x70000, 0x5c000 };
   int currentLatVel;
   int currentLatPos;
   int desiredLatPos;

@@ -3,7 +3,23 @@
  *   17 functions; C++ linkage (cfront-mangled in SYM). 10 EXT Movie + play_movie, 7 STAT str.
  *   Externs declared from Ghidra sigs (movie_externs.h).
  */
+/* CC1PLPSX emission law: uninitialized globals are flushed at end-of-file in
+ * FIRST-DECLARATION order.  Retail Movie.obj front.data tail is user_exit 0x80052a2c /
+ * skip_all / gPlayerNum / download 0x80052a30 / fp 0x80052a34 -- pinned here ahead of
+ * movie.h, whose list starts with fp. */
+extern short    user_exit;
+extern char     skip_all;
+extern char     gPlayerNum;
+extern short    download[];
 #include "movie.h"
+
+/* ---- Movie.obj EXT data (retail front.data 0x800529d8..0x80052a4c, values from the image;
+ * the five initialized tables first, then the two zero statics, then the deferred run) ---- */
+char  *movienames[5]  = { "NFS4TITL.XA", "DEMO1AV.XA", "DEMO2AV.XA", "DEMO3AV.XA", "EADOLBY.XA" };
+short  movieframes[5] = { 1358, 456, 444, 480, 120 };
+int    movie24bit[5]  = { 1, 1, 1, 1, 1 };
+short  movieheight[5] = { 240, 240, 240, 240, 240 };
+short  moviewidth[5]  = { 640, 640, 640, 640, 640 };
 
 /* Movie.obj STAT helpers.  strInit's reconstructed pointer callback signature is
  * codegen-correct but does not reproduce PsyQ's exact GCC-v2 spelling by itself. */
@@ -24,6 +40,12 @@ static void strKickCD(CdlLOC *loc);
  * height = 0): initialized (zero) statics, emitted here in .data (-G0 TU). */
 static int     width_d asm("width") __attribute__((section(".data"))) = 0;     /* 0x80052a24 */
 static int     height_d asm("height") __attribute__((section(".data"))) = 0;   /* 0x80052a28 */
+/* deferred (zero) EXT run, in the pinned declaration order */
+short    user_exit;      /* 0x80052a2c */
+char     skip_all;       /* 0x80052a2e */
+char     gPlayerNum;     /* 0x80052a2f */
+short    download[1];    /* 0x80052a30 */
+CdlFILE  fp;             /* 0x80052a34 */
 static CdlLOC  loc_d asm("loc") __attribute__((section(".bss")));   /* 0x80052cf8 */
 extern CdlLOC  loc_v[] asm("loc");   /* unsized view: forces base materialization */
 extern int     StCdIntrFlag_v[] asm("StCdIntrFlag");

@@ -401,6 +401,7 @@ PER_TU_FLAGS = {
     # Backups and full code/data/regional proof: scratchpad/p887_checkpoint
     # and scratchpad/p887_ghelp_alias.
     "recon/frontend/psx/drawshp.cpp":      {"g_value": "0"},
+    "recon/frontend/psx/movie.cpp":        {"g_value": "0"},   # Movie.obj keeps user_exit/skip_all/gPlayerNum/download in front.data (2026-09-17)
     # w59-a13 (orchestrator-wired): memmove FAIL 2 -> PASS 27/27 with NO source
     # change on the 2.7.2-970404 rung (full ladder: 970404 PASS, 2.8.x 2, 2.6.x 22,
     # 2.9x 25).  Same rung as the libmath vendor cluster -- libc.lib looks Sony-prebuilt.

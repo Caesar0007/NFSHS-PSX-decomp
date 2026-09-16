@@ -29,7 +29,7 @@ void tScreenPinkSlips::DrawBackground()
   short tv;
   tMenuTextState textState;
   tTrackInformation trackInfo;
-  static int flareextra;
+  static int flareextra = 0;   /* retail: zero static in front.DATA @0x80051e5c => written `= 0` */
   short shapeY;
   /* SYM-CODEGEN-CARRIER: movieVramX -- the tpage x is a SHORT local (retail
      rematerializes it as
@@ -195,7 +195,10 @@ void tScreenPinkSlips::GetShapeInfo(short &numPermShapes,short &numSwapShapes,ch
   return;
 }
 
-
+/* retail ScreenPinkSlips.obj front.data: flareextra (DrawBackground's static, above) 0x80051E5C,
+ * then these two, emitted here at their definitions. */
+static char imageTVOrder[4] = { 1, 2, 0, 3 };          /* STAT @0x80051E60 - TV reveal order */
+tScreenPinkSlips *screenPinkSlips = 0;                 /* @0x80051E64 */
 
 /* ---- tScreenPinkSlips::Initialize  [SCREENPINKSLIPS.CPP:219-259] ---- */
 void tScreenPinkSlips::Initialize()

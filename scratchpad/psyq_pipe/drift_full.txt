@@ -11,13 +11,11 @@
    drift -0x329c -> -0x3298 (+0x4) between recordCollection and gCop1Target @0x8013dff0 [camera.obj]
    drift -0x3298 -> -0x3294 (+0x4) between BTC_CurrentPerpName and gPadinfo @0x8013e89c [pad.obj]
    drift -0x3294 -> -0x3290 (+0x4) between gPadinfo and Padglobal @0x8013e8f0 [pad.obj]
-== front.text: 845 matched symbols; base delta -0x280
-== front.data: 124 matched symbols; base delta -0x4d8
-   drift -0x4d8 -> -0x4dc (-0x4) between gCarSelected and PulsateYellow @0x800515ac [FeMenuOptions.obj]
-   drift -0x4dc -> -0x4e0 (-0x4) between fHelpText and textDefinitions @0x800515b8 [FETextRender.obj]
-   drift -0x4e0 -> -0x4e4 (-0x4) between screenMain and screenPinkSlips @0x80051e64 [ScreenPinkSlips.obj]
-   drift -0x4e4 -> -0x4e0 (+0x4) between screenPinkSlips and screenTournamentStandings @0x80051e68 [ScreenPost.obj]
-   drift -0x4e0 -> -0x4e4 (-0x4) between fMemIcon and screenPinkSlipCongrats @0x80052944 [ScreenCongrats.obj]
-   drift -0x4e4 -> -0x4e8 (-0x4) between fPermFileNameBuf and NewRecords @0x80052978 [Statchk.obj]
-   drift -0x4e8 -> -0x570 (-0x88) between kNoColor and ascii_table @0x80052a78 [memcard.obj]
-== front.bss: 1 matched symbols; base delta -0x588
+== front.text: 845 matched symbols; base delta -0x248
+== front.data: 134 matched symbols; base delta -0x4a0
+   drift -0x4a0 -> -0x4a4 (-0x4) between gCarSelected and PulsateYellow @0x800515ac [FeMenuOptions.obj]
+   drift -0x4a4 -> -0x4a8 (-0x4) between fHelpText and textDefinitions @0x800515b8 [FETextRender.obj]
+   drift -0x4a8 -> -0x4a4 (+0x4) between screenMain and screenPinkSlips @0x80051e64 [ScreenPinkSlips.obj]
+   drift -0x4a4 -> -0x4a0 (+0x4) between screenPinkSlips and screenTournamentStandings @0x80051e68 [ScreenPost.obj]
+   drift -0x4a0 -> -0x4b8 (-0x18) between fp and ascii_table @0x80052a78 [memcard.obj]
+== front.bss: 1 matched symbols; base delta -0x4d8

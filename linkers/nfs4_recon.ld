@@ -205,7 +205,7 @@ SECTIONS
     .ro0028 0x800124bc : SUBALIGN(4) { build/recon/frontend/common/statchk.cpp.o(.rodata); }   /* 72 B */
     .ro0029 0x80012518 : SUBALIGN(4) { build/recon/frontend/common/stattool.cpp.o(.rodata); }   /* 197 B  (anchor-only, E1-E5 not clean) */
     .ro0030 0x800125e0 : SUBALIGN(4) { build/recon/frontend/common/screenusername.cpp.o(.rodata); }   /* 264 B */
-    .ro0031 0x80012790 : SUBALIGN(4) { build/recon/frontend/psx/movie.cpp.o(.rodata); }   /* 49 B  (anchor-only, E1-E5 not clean) */
+    .ro0031 0x80012754 : SUBALIGN(4) { build/recon/frontend/psx/movie.cpp.o(.rodata); }   /* 109 B  (anchor-only, E1-E5 not clean) */
     .ro0032 0x800127e4 : SUBALIGN(4) { build/recon/frontend/psx/psxfront.cpp.o(.rodata); }   /* 64 B  (anchor-only, E1-E5 not clean) */
     .ro0033 0x80012848 : SUBALIGN(4) { build/recon/frontend/psx/fetexture.cpp.o(.rodata); }   /* 9 B */
     .ro0034 0x80012858 : SUBALIGN(4) { build/recon/frontend/psx/memcard.c.o(.rodata); }   /* 80 B  (anchor-only, E1-E5 not clean) */
@@ -840,7 +840,7 @@ SECTIONS
     .xd0067 0x80052978 : SUBALIGN(4) { build/recon/frontend/common/statchk.cpp.o(.data); }
     .xd0068 0x800529a0 : SUBALIGN(4) { build/recon/frontend/common/stattool.cpp.o(.data); }
     .xd0069 0x800529b0 : SUBALIGN(4) { build/recon/frontend/common/screenusername.cpp.o(.data); }
-    .xd0070 0x80052a24 : SUBALIGN(4) { build/recon/frontend/psx/movie.cpp.o(.data); }
+    .xd0070 0x800529d8 : SUBALIGN(4) { build/recon/frontend/psx/movie.cpp.o(.data); }
     .xd0071 0x80052a58 : SUBALIGN(4) { build/recon/frontend/psx/psxfront.cpp.o(.data); }
     .xd0072 0x80052a78 : SUBALIGN(4) { build/recon/frontend/psx/memcard.c.o(.data); }
     .xd0073 0x80054e04 : SUBALIGN(4) { build/recon/game/common/vtables_aihigh.cpp.o(.data); }

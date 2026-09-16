@@ -575,11 +575,11 @@
   "obj": "build/recon/frontend/common/screenpinkslips.cpp.o",
   "section": ".data",
   "base": 2147819100,
-  "end": 2147819108,
-  "size": 8,
+  "end": 2147819112,
+  "size": 12,
   "ok": true,
   "unresolved": 0,
-  "words": 2,
+  "words": 3,
   "q": 0
  },
  {
@@ -761,12 +761,12 @@
  {
   "obj": "build/recon/frontend/psx/movie.cpp.o",
   "section": ".data",
-  "base": 2147822116,
-  "end": 2147822124,
-  "size": 8,
+  "base": 2147822040,
+  "end": 2147822156,
+  "size": 116,
   "ok": true,
   "unresolved": 0,
-  "words": 2,
+  "words": 29,
   "q": 2
  },
  {

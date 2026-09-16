@@ -20,8 +20,11 @@ extern int                ticks;
 extern char              *Paths_Paths[];
 
 /* ===== statics owned by ScreenPinkSlips.obj ===== */
-tScreenPinkSlips         *screenPinkSlips = 0;        /* @0x80051E64 bss(zero), owned here; referenced cross-TU (front.cpp/femenudefs) as pointer */
-static char  imageTVOrder[4] = {1,2,0,3};             /* STAT @0x80051E60 - TV reveal order */
+/* screenPinkSlips (@0x80051E64) and imageTVOrder (@0x80051E60) are defined in
+ * screenpinkslips.cpp AFTER DrawBackground: retail emits DrawBackground's static
+ * flareextra (0x80051E5C) before both, so their definitions follow that function. */
+extern tScreenPinkSlips  *screenPinkSlips;
+/* static char imageTVOrder[4]: STAT @0x80051E60, defined in the .cpp before its uses */
 static char  gSwapFileName[20];                       /* STAT @0x80052C00 */
 
 /* ===== free helpers (member fns rendered free by Ghidra; tScreen* first arg where applicable) ===== */

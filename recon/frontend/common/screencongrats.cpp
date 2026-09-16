@@ -140,7 +140,7 @@ void tScreenCongrats::DrawBackground()
      A zero-instruction fence after the eliminated-message clamp prevents GCC
      from cross-jumping the extra-spin framenum store into that later path. */
   int fJustFadeOff;
-  static u_long carRotate;
+  static u_long carRotate = 0;   /* retail: zero static in front.DATA @0x80052940 => written `= 0` */
   tDrawShapeExtended drawFlags;
   tDrawShapeExtended drawFlags2;
   int StripeRGB;

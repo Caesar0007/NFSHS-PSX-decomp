@@ -40,10 +40,16 @@ for l in open(OURS):
     if m:
         ours.setdefault(m.group(2), int(m.group(1), 16))
 from collections import Counter
+import json, os
+# a function is recorded twice per object (its Def class EXT/STAT record and its 8c block):
+# dedupe within the object before counting cross-object duplicates
+objs = [(on, sorted(set(syms))) for on, syms in objs]
 dup = Counter(n for _, syms in objs for _, n in syms)   # header-inline copies live in several objects
+# symbols the lane `equ`s to their retail address are not evidence of layout -- skip them
+EQU = set(json.load(open(os.path.join(os.path.dirname(OURS), 'equ_symbols.json')))) if os.path.exists(os.path.join(os.path.dirname(OURS), 'equ_symbols.json')) else set()
 per = defaultdict(set)
 for on, syms in objs:
-    syms = [(a, n) for a, n in syms if dup[n] == 1]
+    syms = [(a, n) for a, n in syms if dup[n] == 1 and n not in EQU]
     short = re.sub(r'.*[\\/]', '', on)
     for a, n in syms:
         if n in ours:

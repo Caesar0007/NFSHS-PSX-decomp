@@ -669,5 +669,29 @@
   "ok": true,
   "votes": 2,
   "q": 2
+ },
+ {
+  "obj": "build/recon/eaclib/psx/eacpsxz/systask.c.o",
+  "section": ".sbss",
+  "base": 2148785208,
+  "end": 2148785216,
+  "size": 8,
+  "ok": true
+ },
+ {
+  "obj": "build/recon/eaclib/psx/eacpsxz/timer.c.o",
+  "section": ".sbss",
+  "base": 2148785216,
+  "end": 2148785224,
+  "size": 8,
+  "ok": true
+ },
+ {
+  "obj": "build/recon/eaclib/psx/eacpsxz/inittmr.c.o",
+  "section": ".sbss",
+  "base": 2148785856,
+  "end": 2148785864,
+  "size": 8,
+  "ok": true
  }
 ]

@@ -15,10 +15,8 @@
 #include "threads.h"
 #include "memstd.h"
 #include "timer.h"
-int timerflag;    /* @0x8013DD4C: owning-TU tentative def → .comm/.sbss → gp-rel */
-int timerevent;  /* @0x8013DEC4: owning-TU tentative def → .comm/.sbss → gp-rel */
-int reentryflag;  /* @0x8013DEC0: tmrint re-entry guard -- owning-TU tentative def → .comm/.sbss → gp-rel
-                    * (only inittimer.s oracle gp-rels it: `sw zero,%gp_rel(reentryflag)(gp)`) */
+int reentryflag;     /* @0x8013DEC0: tmrint re-entry guard -- .comm, PSYLINK COMMON */
+int timerevent;      /* @0x8013DEC4: .comm, declared AFTER reentryflag (retail COMMON order) */
 extern int timerhz;       /* tick rate */
 /* `memclass` is owned by memstd.obj as the retail 16-pointer table.  This TU
  * deliberately keeps an unsized integer view: it copies the first pointer
@@ -57,6 +55,8 @@ int initmemadr(int base, int size)
 }
 
 /* inittimer @0x800F41F0 : install (once) the RCnt event + restore hook, then arm the counter for `hz` Hz. */
+int timerflag = 0;   /* @0x8013DD4C: initialized, defined AFTER initmemadr so it follows the "RAM" literal in .sdata (retail order) */
+
 int inittimer(int hz)
 {
     if (hz == 0)

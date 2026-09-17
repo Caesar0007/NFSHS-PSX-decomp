@@ -102,6 +102,11 @@ void Track_SetTrackNumber(int tracknum)
 char * Track_MakeTrackPathName(char *ext)
 
 {
+  /* retail: this TU's .rodata opens with an UNREFERENCED "SimpleMem" literal ahead of this
+   * function's own constants (the dead tag string r3dcar/fedialog/replay/camera carry too);
+   * the constant-false call keeps the string and adds no code. */
+  if (0) sprintf((char *)0,"SimpleMem");
+
   static char strspc[64];   /* @0x8013e300 STAT (.bss) */
   sprintf(strspc,"%sTr%02d%s",Paths_Paths[6],gtrackNumber,ext);
   return strspc;

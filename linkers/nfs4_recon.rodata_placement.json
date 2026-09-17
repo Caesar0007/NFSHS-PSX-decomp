@@ -896,5 +896,21 @@
   "size": 16,
   "ok": false,
   "regions": []
+ },
+ {
+  "obj": "build/recon/frontend/common/screencarselect.cpp.o",
+  "base": 2147555992,
+  "end": 2147556188,
+  "size": 196,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/common/track.cpp.o",
+  "base": 2147837496,
+  "end": 2147837732,
+  "size": 236,
+  "ok": false,
+  "regions": []
  }
 ]

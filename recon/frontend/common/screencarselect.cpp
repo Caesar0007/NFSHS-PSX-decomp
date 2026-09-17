@@ -202,6 +202,11 @@ void tScreenCarSelect::Cleanup()
 void tScreenCarSelect::DrawOverlay(tOverlay *overlay)
 
 {
+  /* retail: this TU's .rodata opens with an UNREFERENCED "SimpleMem" literal ahead of this
+   * function's own constants (the dead tag string r3dcar/fedialog/replay/camera carry too);
+   * the constant-false call keeps the string and adds no code. */
+  if (0) sprintf((char *)0,"SimpleMem");
+
   /* [SYM] 8c decl order: pos, temp, carInfo, fade, i, j, drawFlags, text,
      value, validCar, moneyColor, upgradeTranslate, upgradeIcons */
   RECT pos;
@@ -635,6 +640,11 @@ void tScreenCarSelect::AllocateAsyncBuffer()
 
 {
   this->fSwapShapes.fDestFile = Platform_GetDCTBuffer(40000,"VideoWall");
+  /* retail .rodata carries two UNREFERENCED format strings right after "VideoWall"
+     (0x80011aec "%d,%03d", 0x80011af4 "%d"; no code reaches them): constant-false calls
+     keep them in that order with no code. */
+  if (0) sprintf((char *)0,"%d,%03d");
+  if (0) sprintf((char *)0,"%d");
   return;
 }
 

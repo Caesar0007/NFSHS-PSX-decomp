@@ -82,7 +82,7 @@ void tScreenAudio::PlaySound()
     else {
       sndover = SNDover(this->audioTestHandle);
     }
-    if ((sndover != 0) && (*(unsigned short *)((char *)&ginfo + 0x16) == 0) &&
+    if ((sndover != 0) && (*(unsigned short *)&ginfo.areLoading == 0)   /* retail lhu ginfo+0x10: areLoading|soundIsPlaying as one halfword */ &&
         (RepresentativeSound != 0)) {
       int azimuth = 0;
 

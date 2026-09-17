@@ -11,7 +11,6 @@ struct AIHigh_Opponent : public AIHigh_Player {
     AIHigh_tAttackMode attackMode_;
     Car_tObj *lastHumanHitter_;
     int hitCount_, attackTicksLeft_;
-    AIHigh_Opponent() {}
     AIHigh_Opponent(Car_tObj *carObj);
     ~AIHigh_Opponent();
     void CheckForWipeOut();

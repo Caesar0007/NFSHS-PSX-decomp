@@ -2024,6 +2024,13 @@ def compile_cpp(src: Path) -> Path:
         cc1pl_flags.append("-fno-strength-reduce")
     if tu_flags.get("no_builtin"):
         cc1pl_flags.append("-fno-builtin")
+    if tu_flags.get("no_implement_inlines"):
+        # class (b) 2026-09-17 A/B option, NOT retail: it also suppresses the vtable-needed
+        # inline virtual dtor copies (~AIHigh_BTC_HumanPerp, ~AIState_Idle/~Normal) that
+        # retail objects DO carry (build/psyq/probe/aistate_nii.s, aihigh_nii.s).  Retail's
+        # "no copy of inline non-virtual members in the key-function TU" comes from the
+        # SOURCE instead: non-member inline helpers / definitions not visible to that TU.
+        cc1pl_flags.append("-fno-implement-inlines")
     r = run([cc1pl, *cc1pl_flags, i_file, "-o", s_file])
     if r.returncode:
         sys.exit(f"[cc1pl] {rel}\n{r.stdout}{r.stderr}")

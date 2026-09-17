@@ -5,7 +5,6 @@
 #include "aih_basiccop_types.h"
 
 /* ---- vtable: AIHigh_BasicCop (this obj) ---- */
-extern __vtbl_ptr_type AIHigh_BasicCop_vtable[];
 
 Speaker *Speech_Mobile(Car_tObj *carObj) asm("Mobile__6SpeechP8Car_tObj");
 extern AICop_spikeBelt_t AICop_spikeBelt;

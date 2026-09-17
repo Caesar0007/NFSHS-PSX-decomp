@@ -205,10 +205,9 @@ struct AIHigh_Base {
     AIState_Base *state_;
     stateType_t stateType_;
     int schedulingOff_, lastTrafficTriggerCheckSlice_;
-    __vtbl_ptr_type (*_vf)[3];
-    AIHigh_Base() {}
     AIHigh_Base(Car_tObj *carObj);
-    ~AIHigh_Base();
+    virtual void HighExecute() = 0;
+    virtual ~AIHigh_Base();
     Car_tObj *GetCarObj() { return carObj_; }
     void StateExecute();
     void SetState(AIState_Base *newState, stateType_t newStateType) {
@@ -236,9 +235,9 @@ struct AIHigh_BasicPerp : public AIHigh_Base {
     int AddChaser(int a, int b, copType ct);
     void RemoveChaser(int a, int b, copType ct);
     int CheckChaserPosition(int a, int b);
-    AIHigh_BasicPerp() {}
     AIHigh_BasicPerp(Car_tObj *carObj);
-    void CheckForCrimes();
+    ~AIHigh_BasicPerp() {}
+    virtual void CheckForCrimes();
     int CheckIfCaught();
     void RemoveCloseCops();
     void Clear();
@@ -247,8 +246,8 @@ struct AIHigh_BasicPerp : public AIHigh_Base {
 struct AIHigh_Player : public AIHigh_BasicPerp {
     int numWarnings_, numBusts_, newTriggerProb_, lastTriggerCheckSlice_;
     AICop_PerpChaseInfo perpChaseInfo_;
-    AIHigh_Player() {}
     AIHigh_Player(Car_tObj *carObj);
+    ~AIHigh_Player() {}
     void HandleCops();
     int CheckIfABlockadeCanBeSetup();
     void SetupBlockade();
@@ -263,7 +262,9 @@ struct AIHigh_BTC_HumanCop;
 struct AIHigh_BTC_Perp : public AIHigh_BasicPerp {
     int caught_, hudActivated_;
     AIHigh_BTC_HumanCop *originalActivationCop_;
-    AIHigh_BTC_Perp() {}
+    AIHigh_BTC_Perp(Car_tObj *carObj) : AIHigh_BasicPerp(carObj) {
+        caught_ = 1; hudActivated_ = 0; originalActivationCop_ = (AIHigh_BTC_HumanCop *)0;   /* retail StartUp: HumanPerp vptr stored LAST (cross-jumped with the None path) */
+    }
     void ReleaseCops();
     void HandleCops();
     int IsFalseArrest();
@@ -290,7 +291,6 @@ struct AIHigh_BasicCop : public AIHigh_Base {
     int copIndex_;
     blockade_t blockade_;
     AIHigh_tDriveAwayMode driveAway_;
-    AIHigh_BasicCop() {}
     AIHigh_BasicCop(Car_tObj *carObj, int idx);
     void CheckSpikeBelt();
     void SetupBlockadeElements(blockade_t *blockade);
@@ -308,16 +308,14 @@ struct AIHigh_BTC_Cop : public AIHigh_BasicCop {
         FREEZE_ARREST = 3,
         FREEZE_ARRESTDONE = 4
     } freezeMode_;
-    AIHigh_BTC_Cop() {}
     AIHigh_BTC_Cop(Car_tObj *carObj, int copIndex);
-    ~AIHigh_BTC_Cop();
     void AssignToPlayer(AIHigh_BTC_Perp *target);
     int GetCheckChasePosition(coorddef *pos);
     int CheckForNewTarget();
     void StartArrest(AIHigh_BTC_Perp *p);
     void FinishArrest(AIHigh_BTC_Perp *p);
     void FalseArrest(AIHigh_BTC_Perp *p);
-    void FreezeAndEndChase();
+    virtual void FreezeAndEndChase();
     void HudOff();
 };
 
@@ -333,9 +331,7 @@ struct AIHigh_BTC_HumanCop : public AIHigh_BTC_Cop {
         WINGMAN_BLOCKADER_ACTIVE = 5
     } wingmanStatus_;
     int needPerp_, initialDirection_, initialMovement_, requestedDesiredSpeed_;
-    AIHigh_BTC_HumanCop() {}
     AIHigh_BTC_HumanCop(Car_tObj *carObj, int copIndex);
-    ~AIHigh_BTC_HumanCop();
     int FindRandomBarrierFreeArea(int startSlice, int safetyZone, int randomDistance);
     void ReleaseAndStartChase(AIHigh_BTC_Perp *p);
     void FreezeAndEndChase();
@@ -361,9 +357,7 @@ struct AIHigh_BTC_Wingman : public AIHigh_BTC_Cop {
     Wingman_Role currentRole_, newRole_;
     AIHigh_BTC_HumanCop *newHumanBoss_;
     int spikeBeltPlaced_, spikeBeltSlice_, spikeBeltInterceptReleaseTime_;
-    AIHigh_BTC_Wingman() {}
     AIHigh_BTC_Wingman(Car_tObj *carObj, int copIndex);
-    ~AIHigh_BTC_Wingman();
     void HighExecute();
     int CheckForActivation();
     int UpdateFreezeModeAndPullOverMode();

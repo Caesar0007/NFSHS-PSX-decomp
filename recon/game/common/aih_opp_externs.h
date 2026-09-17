@@ -5,7 +5,6 @@
 #include "aih_opp_types.h"
 
 /* ---- vtables: AIHigh_Traffic (this obj) + AIState_Idle (aistate.obj) ---- */
-extern __vtbl_ptr_type AIHigh_Opponent_vtable[], AIState_Idle_vtable[];
 
 extern Car_tObj         *Cars_gHumanRaceCarList[9];  /* cars.obj */
 extern Car_tObj *Cars_gList[];

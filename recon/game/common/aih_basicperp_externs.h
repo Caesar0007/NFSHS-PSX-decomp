@@ -5,7 +5,6 @@
 #include "aih_basicperp_types.h"
 
 /* ---- vtable: AIHigh_BasicPerp (this obj) ---- */
-extern __vtbl_ptr_type AIHigh_BasicPerp_vtable[];
 
 Speaker *Speech_Mobile(Car_tObj *carObj) asm("Mobile__6SpeechP8Car_tObj");
 extern AIHigh_Base *highLevelAIObjs[];

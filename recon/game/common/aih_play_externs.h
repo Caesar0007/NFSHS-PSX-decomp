@@ -5,7 +5,6 @@
 #include "aih_play_types.h"
 
 /* ---- vtables: AIHigh_Traffic (this obj) + AIState_Idle (aistate.obj) ---- */
-extern __vtbl_ptr_type AIHigh_Player_vtable[], AIHigh_BasicPerp_vtable[], AIState_Idle_vtable[];
 
 Speaker *Speech_Dispatch(void) asm("Dispatch__6Speech");
 Speaker *Speech_Mobile(Car_tObj *carObj) asm("Mobile__6SpeechP8Car_tObj");

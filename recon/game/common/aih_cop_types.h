@@ -15,9 +15,7 @@ struct AIHigh_Cop : public AIHigh_BasicCop {
     AIHigh_Player *perpTarget_;
     int forcePurgatory_, chaseIndex_, requestSpikeBeltAtSlice_;
     int aggressionLevel_;
-    AIHigh_Cop() {}
     AIHigh_Cop(Car_tObj *carObj, int idx);
-    ~AIHigh_Cop();
     void SetTuningLevers();
     void HighExecute();
     int CheckForNeedyPlayers();

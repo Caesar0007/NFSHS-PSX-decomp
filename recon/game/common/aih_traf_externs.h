@@ -5,7 +5,6 @@
 #include "aih_traf_types.h"
 
 /* ---- vtables: AIHigh_Traffic (this obj) + AIState_Idle (aistate.obj) ---- */
-extern __vtbl_ptr_type AIHigh_Traffic_vtable[], AIState_Idle_vtable[];
 
 extern AIHigh_Traffic *highLevelAIObjs[];
 extern AITrigger_TriggerManager *triggerManagerTraffic;

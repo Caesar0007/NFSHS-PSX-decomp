@@ -72,15 +72,9 @@ int          NitroDistanceMeters[2][2] = { 3932160, 1638400, 3932160, 1638400 };
 
 
 /* ---- __10AIHigh_CopP8Car_tObji  AIHigh_Cop::ctor  [AIH_COP.CPP:95-105] SLD-VERIFIED ---- */
-AIHigh_Cop::AIHigh_Cop(Car_tObj *carObj,int copIndex)
-
-
-
+AIHigh_Cop::AIHigh_Cop(Car_tObj *carObj,int copIndex) : AIHigh_BasicCop(carObj,copIndex)
 {
 
-  (new((AIHigh_BasicCop *)this) AIHigh_BasicCop(carObj,copIndex));
-
-  this->_vf = (__vtbl_ptr_type (*) [3])AIHigh_Cop_vtable;
 
   this->perpTarget_ = (AIHigh_Player *)0x0;
 
@@ -2117,6 +2111,3 @@ trigger_t * AIHigh_Cop::CheckForNewTriggers()
 /* The empty source destructor naturally emits retail's base-forward
    `___10AIHigh_Cop` and supplies implicit `this`; no free-function receiver
    name is needed. */
-AIHigh_Cop::~AIHigh_Cop()
-{
-}

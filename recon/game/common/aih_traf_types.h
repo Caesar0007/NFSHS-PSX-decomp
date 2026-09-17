@@ -8,7 +8,6 @@ struct AIHigh_Cop : public AIHigh_BasicCop {
     AIHigh_Player *perpTarget_;
     int forcePurgatory_, chaseIndex_, requestSpikeBeltAtSlice_;
     int aggressionLevel_;
-    AIHigh_Cop() {}
     AIHigh_Cop(Car_tObj *carObj, int idx);
     void SetTuningLevers();
     void HighExecute();
@@ -23,9 +22,7 @@ struct AIHigh_Cop : public AIHigh_BasicCop {
 struct AIHigh_Traffic : public AIHigh_Base {
     int ignoreCops_, forcePurgatory_;
     SceneElem *accidentData_;
-    AIHigh_Traffic() {}
     AIHigh_Traffic(Car_tObj *carObj);
-    ~AIHigh_Traffic();
     Car_tObj *CheckForCops(int *p);
     AIHigh_Cop *CopCheck(int *p);
     void HighExecute();

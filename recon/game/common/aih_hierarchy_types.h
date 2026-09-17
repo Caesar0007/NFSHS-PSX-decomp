@@ -183,16 +183,23 @@ struct AICop_PerpChaseInfo {
 
 #include "aistate_classes.h"
 
+/* aihigh.obj-local all-inline classes.  Declared HERE (AIState_None right after the AIState family,
+   AIHigh_None right after AIHigh_Base) because cc1plus 2.8 emits a TU's vtable batch in REVERSE
+   declaration order: retail aihigh .rdata = [BTC_Perp][None][Base][AIState_None][AIState_Base]. */
+struct AIState_None : public AIState_Base {
+    AIState_None(Car_tObj *carObj) : AIState_Base(carObj) {}
+    ~AIState_None() {}
+    void Execute() {}
+};
 
 struct AIHigh_Base {
     Car_tObj *carObj_;
     AIState_Base *state_;
     stateType_t stateType_;
     int schedulingOff_, lastTrafficTriggerCheckSlice_;
-    __vtbl_ptr_type (*_vf)[3];
-    AIHigh_Base() {}
     AIHigh_Base(Car_tObj *carObj);
-    ~AIHigh_Base();
+    virtual void HighExecute() = 0;
+    virtual ~AIHigh_Base();
     Car_tObj *GetCarObj() { return carObj_; }
     void StateExecute();
     void SetState(AIState_Base *newState, stateType_t newStateType) {
@@ -203,6 +210,11 @@ struct AIHigh_Base {
         state_ = newState;
         stateType_ = newStateType;
     }
+};
+
+struct AIHigh_None : public AIHigh_Base {
+    AIHigh_None(Car_tObj *carObj) : AIHigh_Base(carObj) {}
+    void HighExecute() {}
 };
 
 struct AIHigh_BasicPerp : public AIHigh_Base {
@@ -220,12 +232,9 @@ struct AIHigh_BasicPerp : public AIHigh_Base {
     int AddChaser(int a, int b, copType ct);
     void RemoveChaser(int a, int b, copType ct);
     int CheckChaserPosition(int a, int b);
-    AIHigh_BasicPerp() {}
     AIHigh_BasicPerp(Car_tObj *carObj);
-#ifdef NFS4_AIH_BASICPERP_OWNER_DTOR
-    ~AIHigh_BasicPerp();
-#endif
-    void CheckForCrimes();
+    ~AIHigh_BasicPerp() {}
+    virtual void CheckForCrimes();
     int CheckIfCaught();
     void RemoveCloseCops();
     void Clear();
@@ -234,11 +243,8 @@ struct AIHigh_BasicPerp : public AIHigh_Base {
 struct AIHigh_Player : public AIHigh_BasicPerp {
     int numWarnings_, numBusts_, newTriggerProb_, lastTriggerCheckSlice_;
     AICop_PerpChaseInfo perpChaseInfo_;
-    AIHigh_Player() {}
     AIHigh_Player(Car_tObj *carObj);
-#ifdef NFS4_AIH_PLAYER_OWNER_DTOR
-    ~AIHigh_Player();
-#endif
+    ~AIHigh_Player() {}
     void HandleCops();
     int CheckIfABlockadeCanBeSetup();
     void SetupBlockade();
@@ -253,10 +259,9 @@ struct AIHigh_BTC_HumanCop;
 struct AIHigh_BTC_Perp : public AIHigh_BasicPerp {
     int caught_, hudActivated_;
     AIHigh_BTC_HumanCop *originalActivationCop_;
-    AIHigh_BTC_Perp() {}
-#ifdef NFS4_AIH_BTCPERP_OWNER_DTOR
-    ~AIHigh_BTC_Perp();
-#endif
+    AIHigh_BTC_Perp(Car_tObj *carObj) : AIHigh_BasicPerp(carObj) {
+        caught_ = 1; hudActivated_ = 0; originalActivationCop_ = (AIHigh_BTC_HumanCop *)0;   /* retail StartUp: HumanPerp vptr stored LAST (cross-jumped with the None path) */
+    }
     void ReleaseCops();
     void HandleCops();
     int IsFalseArrest();
@@ -283,11 +288,7 @@ struct AIHigh_BasicCop : public AIHigh_Base {
     int copIndex_;
     blockade_t blockade_;
     AIHigh_tDriveAwayMode driveAway_;
-    AIHigh_BasicCop() {}
     AIHigh_BasicCop(Car_tObj *carObj, int idx);
-#ifdef NFS4_AIH_BASICCOP_OWNER_DTOR
-    ~AIHigh_BasicCop();
-#endif
     void CheckSpikeBelt();
     void SetupBlockadeElements(blockade_t *blockade);
     void HandleBlockadeSpeech();
@@ -304,7 +305,6 @@ struct AIHigh_BTC_Cop : public AIHigh_BasicCop {
         FREEZE_ARREST = 3,
         FREEZE_ARRESTDONE = 4
     } freezeMode_;
-    AIHigh_BTC_Cop() {}
     AIHigh_BTC_Cop(Car_tObj *carObj, int copIndex);
     void AssignToPlayer(AIHigh_BTC_Perp *target);
     int GetCheckChasePosition(coorddef *pos);
@@ -312,7 +312,7 @@ struct AIHigh_BTC_Cop : public AIHigh_BasicCop {
     void StartArrest(AIHigh_BTC_Perp *p);
     void FinishArrest(AIHigh_BTC_Perp *p);
     void FalseArrest(AIHigh_BTC_Perp *p);
-    void FreezeAndEndChase();
+    virtual void FreezeAndEndChase();
     void HudOff();
 };
 
@@ -327,9 +327,7 @@ struct AIHigh_BTC_HumanCop : public AIHigh_BTC_Cop {
         WINGMAN_BLOCKADER_ACTIVE = 5
     } wingmanStatus_;
     int needPerp_, initialDirection_, initialMovement_, requestedDesiredSpeed_;
-    AIHigh_BTC_HumanCop() {}
     AIHigh_BTC_HumanCop(Car_tObj *carObj, int copIndex);
-    ~AIHigh_BTC_HumanCop();
     int FindRandomBarrierFreeArea(int startSlice, int safetyZone, int randomDistance);
     void ReleaseAndStartChase(AIHigh_BTC_Perp *p);
     void FreezeAndEndChase();

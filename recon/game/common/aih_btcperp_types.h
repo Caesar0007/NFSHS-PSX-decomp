@@ -52,8 +52,8 @@ struct ObjectFinishedSignAnim {
 };
 
 struct AIHigh_BTC_HumanPerp : public AIHigh_BTC_Perp {
-    AIHigh_BTC_HumanPerp() {}
-    ~AIHigh_BTC_HumanPerp();
+    AIHigh_BTC_HumanPerp(Car_tObj *carObj) : AIHigh_BTC_Perp(carObj) {}
+    ~AIHigh_BTC_HumanPerp() {}
     void NewStage(AIHigh_BTC_HumanCop *cop);
     void HighExecute();
 };
@@ -64,7 +64,6 @@ struct AIHigh_BTC_AIPerp : public AIHigh_BTC_Perp {
     int originalMass_, originalMassInv_;
     Car_tObj *closestCopCarObj_;
     int closestCopCarDistanceMeters_;
-    AIHigh_BTC_AIPerp() {}
     AIHigh_BTC_AIPerp(Car_tObj *carObj);
     ~AIHigh_BTC_AIPerp();
     void AvoidCops();

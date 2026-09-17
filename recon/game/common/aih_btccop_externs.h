@@ -5,7 +5,6 @@
 #include "aih_btccop_types.h"
 
 /* ---- vtables: AIHigh_BTC_Cop/HumanCop/Wingman (this obj) + AIState_NonActive/Base ---- */
-extern __vtbl_ptr_type AIHigh_BTC_Cop_vtable[], AIHigh_BTC_HumanCop_vtable[], AIHigh_BTC_Wingman_vtable[], AIState_NonActive_vtable[], AIState_Base_vtable[];
 extern __vtbl_ptr_type D_80054F24[];
 
 extern "C" struct CARDINFO_def *MCRD_getcard(int);
@@ -30,7 +29,6 @@ extern GameSetup_tData   GameSetup_gData;
 extern Sim_tSimGlobalVar  simGlobal;          /* Sim.obj   (.gameTicks) */
 extern Sim_tSimSystemVar simVar;
 extern Trk_NewSlice  *BWorldSm_slices;
-extern __vtbl_ptr_type AIHigh_Human_vtable[], AIHigh_BasicPerp_vtable[], AIState_Idle_vtable[];
 extern int                 Cars_gNumTrafficCars;
 extern int                 generic128HzClock, stackSpeedUpEnbabledFlag;
 extern int                AIInit_forceHumanHandBrake;

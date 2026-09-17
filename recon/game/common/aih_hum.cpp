@@ -36,17 +36,9 @@ void AIHigh_Human::HighExecute()
 
 
 /* ---- __12AIHigh_HumanP8Car_tObj  AIHigh_Human::ctor  [AIH_HUM.CPP:38-39] SLD-VERIFIED ---- */
-AIHigh_Human::AIHigh_Human(Car_tObj *carObj)
-
-
-
+AIHigh_Human::AIHigh_Human(Car_tObj *carObj) : AIHigh_Player(carObj)
 {
 
-  (new((AIHigh_Player *)this) AIHigh_Player(carObj));
-
-  this->_vf =
-
-       (__vtbl_ptr_type (*) [3])AIHigh_Human_vtable;
 
   return;
 
@@ -67,9 +59,6 @@ AIHigh_Human::~AIHigh_Human()
 
 {
 
-  this->_vf =
-
-       (__vtbl_ptr_type (*) [3])AIHigh_BasicPerp_vtable;
 
 
   return;

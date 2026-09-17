@@ -295,9 +295,9 @@
  },
  {
   "obj": "build/recon/game/common/aih_btccop.cpp.o",
-  "base": 2147831588,
+  "base": 2147831492,
   "end": 2147831696,
-  "size": 108,
+  "size": 204,
   "ok": true,
   "regions": [
    "jtbl_80054F64"
@@ -305,9 +305,9 @@
  },
  {
   "obj": "build/recon/game/common/aih_btcperp.cpp.o",
-  "base": 2147831808,
+  "base": 2147831712,
   "end": 2147831944,
-  "size": 136,
+  "size": 232,
   "ok": false,
   "regions": [
    "jtbl_80055070"
@@ -315,9 +315,9 @@
  },
  {
   "obj": "build/recon/game/common/aih_opp.cpp.o",
-  "base": 2147832088,
+  "base": 2147832056,
   "end": 2147832132,
-  "size": 44,
+  "size": 76,
   "ok": true,
   "regions": [
    "jtbl_80055118"
@@ -325,9 +325,9 @@
  },
  {
   "obj": "build/recon/game/common/aih_traf.cpp.o",
-  "base": 2147832248,
-  "end": 2147832308,
-  "size": 60,
+  "base": 2147832228,
+  "end": 2147832312,
+  "size": 84,
   "ok": false,
   "regions": [
    "jtbl_800551C8"
@@ -950,6 +950,54 @@
   "base": 2147833072,
   "end": 2147833440,
   "size": 368,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/common/aihigh.cpp.o",
+  "base": 2147831244,
+  "end": 2147831388,
+  "size": 144,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/common/aih_basicperp.cpp.o",
+  "base": 2147831404,
+  "end": 2147831436,
+  "size": 32,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/common/aih_basiccop.cpp.o",
+  "base": 2147831452,
+  "end": 2147831476,
+  "size": 24,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/common/aih_play.cpp.o",
+  "base": 2147831960,
+  "end": 2147832000,
+  "size": 40,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/common/aih_hum.cpp.o",
+  "base": 2147832008,
+  "end": 2147832040,
+  "size": 32,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/common/aih_cop.cpp.o",
+  "base": 2147832148,
+  "end": 2147832216,
+  "size": 68,
   "ok": false,
   "regions": []
  }

@@ -19,15 +19,9 @@ extern int D_8011E0B0[];   /* == &simGlobal.gameTicks (a distinct alias symbol t
 
 
 /* ---- __15AIHigh_BasicCopP8Car_tObji  AIHigh_BasicCop::ctor  [AIH_BASICCOP.CPP:18-34] SLD-VERIFIED ---- */
-AIHigh_BasicCop::AIHigh_BasicCop(Car_tObj *carObj,int copIndex)
-
-
-
+AIHigh_BasicCop::AIHigh_BasicCop(Car_tObj *carObj,int copIndex) : AIHigh_Base(carObj)
 {
 
-  (new((AIHigh_Base *)this) AIHigh_Base(carObj));
-
-  this->_vf = (__vtbl_ptr_type (*) [3])AIHigh_BasicCop_vtable;
 
   this->copIndex_ = copIndex;
 
@@ -585,9 +579,6 @@ void AIHigh_BasicCop::HandleBlockadeSpeech()
    The owner-scoped declaration lets this ordinary empty destructor emit the
    standalone retail symbol while derived owners still see the implicit base
    destructor that retail inlines through to AIHigh_Base. */
-AIHigh_BasicCop::~AIHigh_BasicCop()
-{
-}
 
 
 

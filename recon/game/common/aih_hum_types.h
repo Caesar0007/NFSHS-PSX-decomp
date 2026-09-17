@@ -5,7 +5,6 @@
 #include "aih_hierarchy_types.h"
 
 struct AIHigh_Human : public AIHigh_Player {
-    AIHigh_Human() {}
     AIHigh_Human(Car_tObj *carObj);
     ~AIHigh_Human();
     void HighExecute();

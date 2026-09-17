@@ -5,7 +5,6 @@
 #include "aih_cop_types.h"
 
 /* ---- vtables: AIHigh_Traffic (this obj) + AIState_Idle (aistate.obj) ---- */
-extern __vtbl_ptr_type AIHigh_Cop_vtable[], AIState_Idle_vtable[];
 
 Speaker *Speech_Mobile(Car_tObj *carObj) asm("Mobile__6SpeechP8Car_tObj");
 extern AICop_spikeBelt_t AICop_spikeBelt;

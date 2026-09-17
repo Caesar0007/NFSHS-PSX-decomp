@@ -27,15 +27,9 @@ coorddef     AIH_BTCCop_chasePositions[3][6] = { { {0, 0, 720896}, {-524288, 0, 
 
 
 /* ---- __14AIHigh_BTC_CopP8Car_tObji  AIHigh_BTC_Cop::ctor  [AIH_BTCCOP.CPP:107-111] SLD-VERIFIED ---- */
-AIHigh_BTC_Cop::AIHigh_BTC_Cop(Car_tObj *carObj,int copIndex)
-
-
-
+AIHigh_BTC_Cop::AIHigh_BTC_Cop(Car_tObj *carObj,int copIndex) : AIHigh_BasicCop(carObj,copIndex)
 {
 
-  (new((AIHigh_BasicCop *)this) AIHigh_BasicCop(carObj,copIndex));
-
-  this->_vf = (__vtbl_ptr_type (*) [3])AIHigh_BTC_Cop_vtable;
 
   this->perpTarget_ = (AIHigh_BTC_Perp *)0x0;
 
@@ -245,9 +239,7 @@ void AIHigh_BTC_Cop::FinishArrest(AIHigh_BTC_Perp *arrestMe)
   if ((this->freezeMode_ == 3) || (this->freezeMode_ == 0)) {
     this->freezeMode_ = 4;
 
-    (**(int (**)(...))((int)*this->_vf + 0x1c))
-
-              ((int)&this->carObj_ + (int)*(short *)((int)*this->_vf + 0x18));
+    this->FreezeAndEndChase();
 
     this->HudOff();
 
@@ -334,10 +326,7 @@ void AIHigh_BTC_Cop::HudOff()
 
 
 /* ---- __19AIHigh_BTC_HumanCopP8Car_tObji  AIHigh_BTC_HumanCop::ctor  [AIH_BTCCOP.CPP:326-369] SLD-VERIFIED ---- */
-AIHigh_BTC_HumanCop::AIHigh_BTC_HumanCop(Car_tObj *carObj,int copIndex)
-
-
-
+AIHigh_BTC_HumanCop::AIHigh_BTC_HumanCop(Car_tObj *carObj,int copIndex) : AIHigh_BTC_Cop(carObj,copIndex)
 {
   int startMovement;
   int startDirection;
@@ -347,11 +336,6 @@ AIHigh_BTC_HumanCop::AIHigh_BTC_HumanCop(Car_tObj *carObj,int copIndex)
 
   
 
-  (new((AIHigh_BTC_Cop *)this) AIHigh_BTC_Cop(carObj,copIndex));
-
-  this->_vf =
-
-       (__vtbl_ptr_type (*) [3])AIHigh_BTC_HumanCop_vtable;
 
   this->initialMovement_ = 1;
 
@@ -1649,17 +1633,9 @@ void AIHigh_BTC_HumanCop::HudOn(AIHigh_BTC_Perp *arrestMe,int gameOver,
 
 
 /* ---- __18AIHigh_BTC_WingmanP8Car_tObji  AIHigh_BTC_Wingman::ctor  [AIH_BTCCOP.CPP:964-971] SLD-VERIFIED ---- */
-AIHigh_BTC_Wingman::AIHigh_BTC_Wingman(Car_tObj *carObj,int copIndex)
-
-
-
+AIHigh_BTC_Wingman::AIHigh_BTC_Wingman(Car_tObj *carObj,int copIndex) : AIHigh_BTC_Cop(carObj,copIndex)
 {
 
-  (new((AIHigh_BTC_Cop *)this) AIHigh_BTC_Cop(carObj,copIndex));
-
-  this->_vf =
-
-       (__vtbl_ptr_type (*) [3])AIHigh_BTC_Wingman_vtable;
 
   this->spikeBeltPlaced_ = 0;
 
@@ -3466,54 +3442,6 @@ LAB_8005f268:
 
 
 
-/* ---- _._18AIHigh_BTC_Wingman  AIHigh_BTC_Wingman::dtor  [AIH_BTCCOP.CPP:?] SLD-FLAG:NO_SLD ---- */
-
-AIHigh_BTC_Wingman::~AIHigh_BTC_Wingman()
-
-
-
-{
-
-
-  return;
-
-}
-
-
-
-
-
-
-
-
-/* ---- _._19AIHigh_BTC_HumanCop  AIHigh_BTC_HumanCop::dtor  [AIH_BTCCOP.CPP:?] SLD-FLAG:NO_SLD ---- */
-
-AIHigh_BTC_HumanCop::~AIHigh_BTC_HumanCop()
-
-
-
-{
-
-
-  return;
-
-}
-
-
-
-
-
-
-
-
-/* ---- _._14AIHigh_BTC_Cop  AIHigh_BTC_Cop::dtor  [AIH_BTCCOP.CPP:?] SLD-FLAG:NO_SLD ---- */
-
-/* The empty source destructor naturally emits retail's base-forward
-   `___14AIHigh_BTC_Cop` and supplies implicit `this`; no free-function receiver
-   name is needed. */
-AIHigh_BTC_Cop::~AIHigh_BTC_Cop()
-{
-}
 
 
 
@@ -3558,7 +3486,6 @@ AIHigh_BTC_Cop::~AIHigh_BTC_Cop()
  * distinct VAs; oracle vtable copies D_80054F24/D_80054F44 are this obj's NonActive/Base vtables,
  * recon binds the shared vtable symbols like every other 100% fn in this TU).  Bodies mirror the
  * aistate.cpp instances (100%-proven spellings). */
-extern __vtbl_ptr_type AIState_NonActive_vtable[], AIState_Base_vtable[];
 
 /* ---- Execute__17AIState_NonActive @0x8005F624 : empty per-frame body (real method --
  * the cc1plus demangle guard rejects the mangled name as a plain identifier) ---- */

@@ -17,35 +17,6 @@ extern "C" int __pure_virtual(...);   /* @0x800e4354 (eaclib cfront runtime) */
  * those symbols directly; the fabricated per-class wrappers
  * `static int wrap(X *p){ p->~X(); return 0; }` (an artifact of C++ forbidding
  * `&Class::~Class`) are gone. */
-extern "C" void ___11AIHigh_None(void *);   /* ~AIHigh_None */
-extern "C" void ___15AIHigh_BTC_Perp(void *);   /* ~AIHigh_BTC_Perp */
-/* These two retail vtables have exact addresses/entries but no `_vt.*` SYM
-   record, so the original source-level materialization site is not unique.
-   SYM-GLOBAL-CARRIER: AIHigh_kVtbl_80054dcc
-   SYM-GLOBAL-CARRIER: AIHigh_None_vtable
-   Retail keeps both in aihigh.obj's .rdata (0x80054dcc/0x80054dec, right
-   before _vt.11AIHigh_Base @0x80054e04); its .data starts at highLevelAIObjs
-   (0x8010cd38), so these carriers live in .rodata, not .data. */
-#define AIHIGH_RDATA __attribute__((section(".rodata")))
-__vtbl_ptr_type AIHigh_kVtbl_80054dcc[4] AIHIGH_RDATA = {   /* @0x80054dcc  BTC_Perp-family abstract vtable: {null, __pure_virtual, ~AIHigh_BTC_Perp, AIHigh_BasicPerp::CheckForCrimes}. Distinct from size-3 AIHigh_BTC_Perp_vtable@0x80054fe0. Address-name = #148 cleanup carry-over. */
-  {0, 0, (int (*)(...))0},                                  /* @0x80054dcc */
-  {0, 0, (int (*)(...))&__pure_virtual},                    /* @0x80054dd4  fn=0x800e4354 __pure_virtual */
-  {0, 0, (int (*)(...))&___15AIHigh_BTC_Perp},           /* @0x80054ddc  fn=0x8005b438 ~AIHigh_BTC_Perp */
-  {0, 0, (int (*)(...))&AIHigh_BasicPerp::CheckForCrimes},  /* @0x80054de4  fn=0x8005b500 */
-};
-extern "C" void ___11AIHigh_Base(void *thisp);   /* ~AIHigh_Base */
-__vtbl_ptr_type AIHigh_None_vtable[3] AIHIGH_RDATA = {   /* @0x80054dec (AIHigh_None vtable) */
-  {0, 0, (int (*)(...))0},                                  /* @0x80054dec */
-  {0, 0, (int (*)(...))&AIHigh_None::HighExecute},          /* @0x80054df4  fn=0x8005b460 */
-  {0, 0, (int (*)(...))&___11AIHigh_None},               /* @0x80054dfc  fn=0x8005b468 ~AIHigh_None */
-};
-__vtbl_ptr_type AIHigh_Base_vtable[3] AIHIGH_RDATA = {   /* @0x80054e04 (moved from vtables_aihigh.cpp: retail order
-    is [kVtbl][AIHigh_None][AIHigh_Base] then the two gcc-emitted local AIState copies) */
-  {0, 0, (int (*)(...))0},                           /* @0x80054e04  null */
-  {0, 0, (int (*)(...))&__pure_virtual},             /* @0x80054e0c  __pure_virtual */
-  {0, 0, (int (*)(...))&___11AIHigh_Base},        /* @0x80054e14  ~AIHigh_Base */
-};
-
 /* ---- aihigh.obj-owned globals (.bss zero) ---- */
 AIHigh_Base  *highLevelAIObjs[9];   /* @0x8010cd38  (bss(zero)) */
 AIHigh_CopGameType_t AIHigh_CopGameType;   /* @0x8013c55c  (bss(zero)) */
@@ -130,13 +101,7 @@ void AIHigh_StartUp(void)
         newHigh = new AIHigh_BTC_HumanCop(carObj,copCounter++);
       }
       else if ((carFlags & 4U) != 0) {
-        newHigh = (AIHigh_Base *)operator new(0x88);
-        new((AIHigh_BasicPerp *)newHigh) AIHigh_BasicPerp(carObj);
-        newHigh->_vf = (__vtbl_ptr_type (*) [3])&AIHigh_kVtbl_80054dcc;
-        ((AIHigh_BTC_Perp *)newHigh)->caught_ = 1;
-        ((AIHigh_BTC_Perp *)newHigh)->hudActivated_ = 0;
-        ((AIHigh_BTC_Perp *)newHigh)->originalActivationCop_ = (AIHigh_BTC_HumanCop *)0x0;
-        newHigh->_vf = (__vtbl_ptr_type (*) [3])AIHigh_BTC_HumanPerp_vtable;
+        newHigh = new AIHigh_BTC_HumanPerp(carObj);   /* inline HumanPerp/BTC_Perp ctors: caught_/hudActivated_/originalActivationCop_ */
       }
       else if ((carFlags & 8U) != 0) {
         newHigh = new AIHigh_BTC_AIPerp(carObj);
@@ -266,10 +231,7 @@ void AIHigh_CleanUp(void)
   if (0 < Cars_gNumCars) {
     do {
       if (highLevelAIObjs[carLoop] != (AIHigh_Base *)0x0) {
-        /* vtable entry 2: fn-ptr @ byte +20, this-delta @ byte +16 (byte-base, sec.3.12 #10) */
-        (*(int (**)(...))((char *)highLevelAIObjs[carLoop]->_vf + 20))
-                  ((int)&highLevelAIObjs[carLoop]->carObj_ +
-                   (int)*(short *)((char *)highLevelAIObjs[carLoop]->_vf + 16),3);
+        delete highLevelAIObjs[carLoop];
         highLevelAIObjs[carLoop] = (AIHigh_Base *)0x0;
       }
       carLoop = carLoop + 1;
@@ -336,10 +298,7 @@ LAB_8005b2bc:
 
       if (bVar1) {
 
-        /* vtable entry 1: fn-ptr @ byte +12, this-delta @ byte +8 (byte-base, sec.3.12 #10) */
-        (*(int (**)(...))((char *)highLevelAIObjs[carLoop]->_vf + 12))
-            ((int)&highLevelAIObjs[carLoop]->carObj_ +
-             (int)*(short *)((char *)highLevelAIObjs[carLoop]->_vf + 8));
+        highLevelAIObjs[carLoop]->HighExecute();
 
       }
 
@@ -366,7 +325,6 @@ AIHigh_Base::AIHigh_Base(Car_tObj *carObj)
 
 {
 
-  this->_vf = (__vtbl_ptr_type (*) [3])AIHigh_Base_vtable;
 
   this->carObj_ = carObj;
 
@@ -399,7 +357,6 @@ AIHigh_Base::~AIHigh_Base()
 
 {
 
-  this->_vf = (__vtbl_ptr_type (*) [3])AIHigh_Base_vtable;
 
   if (this->state_ != (AIState_Base *)0x0) {
     delete this->state_;   /* virtual ~AIState_Base with __in_chrg 3 */
@@ -424,53 +381,8 @@ AIHigh_Base::~AIHigh_Base()
 
 
 
-/* ---- _._15AIHigh_BTC_Perp  AIHigh_BTC_Perp::dtor  [@0x8005B438, AIHIGH.OBJ instance] ----
-   W54-A15: cfront vague-linkage duplicate.  configs/symbol_addrs.txt gives the CANONICAL
-   ___15AIHigh_BTC_Perp to the AIHIGH object (0x8005B438; aih_btcperp owns the VA-suffixed
-   copy at 0x80061348), and src/game/common/aihigh.c INCLUDE_ASMs it -- but no aihigh TU
-   emitted it (0.00% NOT-IN-OBJECT).  Same cross-TU duplicate model the tree already uses for
-   TestForRelease__12AIState_Base (defined in aistate/aih_btccop/aih_btcperp alike). */
-/* Retail proves this class owns no dispatch table of its own: destruction
- * restores AIHigh_BasicPerp's table before implicit base destruction.  The
- * owner-scoped member declaration supplies the real C++ `this` and removes the
- * manually reconstructed free-function receiver. */
-AIHigh_BTC_Perp::~AIHigh_BTC_Perp()
-{
-  this->_vf = (__vtbl_ptr_type (*)[3])AIHigh_BasicPerp_vtable;
-}
 
 
-/* ---- HighExecute__11AIHigh_None  AIHigh_None::HighExecute  [AIHIGH.CPP:?] SLD-FLAG:NO_SLD ---- */
-
-void AIHigh_None::HighExecute()
-
-
-
-{
-
-  return;
-
-}
-
-
-
-
-
-
-
-
-/* ---- _._11AIHigh_None  AIHigh_None::dtor  [AIHIGH.CPP:?] SLD-FLAG:NO_SLD ---- */
-
-AIHigh_None::~AIHigh_None()
-
-
-
-{
-
-
-  return;
-
-}
 
 
 

@@ -670,9 +670,7 @@ void AIHigh_Player::CheckForNewLevel(int force)
      CheckForCrimes__16AIHigh_BasicPerp @0x8005b500.  Keep the ABI-shaped call
      local until the explicit AIHigh hierarchy vptr is restored as C++ virtual
      source; the former pa_Var1 decompiler alias is not required for codegen. */
-  (**(int (**)(...))((char *)this->_vf + 28))
-
-            ((int)this + *(short *)((char *)this->_vf + 24));
+  this->CheckForCrimes();
 
   if (this->basicPerpInfo_.crime_ != 0) {
 
@@ -947,10 +945,7 @@ void AIHigh_Player::MaintainAvailableCops()
 
 
 /* ---- __13AIHigh_PlayerP8Car_tObj  AIHigh_Player::ctor  [AIH_PLAY.CPP:750-762] SLD-VERIFIED ---- */
-AIHigh_Player::AIHigh_Player(Car_tObj *carObj)
-
-
-
+AIHigh_Player::AIHigh_Player(Car_tObj *carObj) : AIHigh_BasicPerp(carObj)
 {
   int gameIndex;
   int lapIndex;
@@ -962,9 +957,6 @@ AIHigh_Player::AIHigh_Player(Car_tObj *carObj)
      changes 28 branch/address/store instructions. */
   AICop_PerpChaseInfo *pInfo;
 
-  (new((AIHigh_BasicPerp *)this) AIHigh_BasicPerp(carObj));
-
-  this->_vf = (__vtbl_ptr_type (*) [3])AIHigh_Player_vtable;
 
   pInfo = &this->perpChaseInfo_;
 
@@ -1340,13 +1332,5 @@ LAB_8006322c:
 
 
 
-/* ---- ___13AIHigh_Player  AIHigh_Player::~AIHigh_Player  @0x80063248 ----
- * Retail restores AIHigh_BasicPerp's dispatch table, then ordinary implicit
- * base destruction reaches AIHigh_Base.  The real member definition removes
- * the reconstructed free-function receiver. */
-AIHigh_Player::~AIHigh_Player()
-{
-  this->_vf = (__vtbl_ptr_type (*)[3])AIHigh_BasicPerp_vtable;
-}
 
 /* end of aih_play.cpp */

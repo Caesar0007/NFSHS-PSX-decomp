@@ -164,7 +164,8 @@ AIHigh_Traffic::CopCheck(int *blockade)
 /* SYM-GLOBAL-CARRIER: D_800551A4
  * Retail data and instruction references prove the const object and owner;
  * the absent debug record leaves its original source identifier unknown. */
-static const coorddef D_800551A4 = { 0, 0x640000, 0 };
+/* (class (b) 2026-09-17) the 12-byte constant is HighExecute's local brace initializer: cc1plus emits it at
+   expansion time, BEFORE the vtable batch (retail order D_800551A4 0x800551a4, _vt 0x800551b0). */
 
 /* ---- HighExecute__14AIHigh_Traffic  AIHigh_Traffic::HighExecute  [AIH_TRAF.CPP:129-340] SLD-VERIFIED ---- */
 
@@ -176,7 +177,7 @@ void AIHigh_Traffic::HighExecute()
   switch ((stateType_t)stateType_) {
   case STATE_NONE:
     {
-      coorddef trafficOffset = D_800551A4;
+      coorddef trafficOffset = { 0, 0x640000, 0 };
 
       if ((carObj_->carFlags & 0x400U) != 0) {
         AIState_Idle *idleState = new AIState_Idle(carObj_);   /* inline empty ctor: Base ctor call + Idle vptr store */
@@ -383,15 +384,9 @@ void AIHigh_Traffic::HighExecute()
 
 
 /* ---- __14AIHigh_TrafficP8Car_tObj  AIHigh_Traffic::ctor  [AIH_TRAF.CPP:343-347] SLD-VERIFIED ---- */
-AIHigh_Traffic::AIHigh_Traffic(Car_tObj *carObj)
-
-
-
+AIHigh_Traffic::AIHigh_Traffic(Car_tObj *carObj) : AIHigh_Base(carObj)
 {
 
-  (new((AIHigh_Base *)this) AIHigh_Base(carObj));
-
-  this->_vf = (__vtbl_ptr_type (*) [3])AIHigh_Traffic_vtable;
 
   this->ignoreCops_ = 0;
 
@@ -506,6 +501,3 @@ trigger_t * AIHigh_Traffic::CheckForNewTriggers()
 /* The empty source destructor naturally emits retail's base-forward
    `___14AIHigh_Traffic` and supplies implicit `this`; no free-function receiver
    name is needed. */
-AIHigh_Traffic::~AIHigh_Traffic()
-{
-}

@@ -878,26 +878,13 @@ void AIHigh_BTC_HumanPerp::HighExecute()
 
 
 /* ---- __17AIHigh_BTC_AIPerpP8Car_tObj  AIHigh_BTC_AIPerp::ctor  [AIH_BTCPERP.CPP:441-454] SLD-VERIFIED ---- */
-AIHigh_BTC_AIPerp::AIHigh_BTC_AIPerp(Car_tObj *carObj)
-
-
-
+AIHigh_BTC_AIPerp::AIHigh_BTC_AIPerp(Car_tObj *carObj) : AIHigh_BTC_Perp(carObj)
 {
 
-  (new((AIHigh_BasicPerp *)this) AIHigh_BasicPerp(carObj));
 
-  this->_vf =
-       (__vtbl_ptr_type (*) [3])AIHigh_BTC_Perp_vtable;   /* the inlined AIHigh_BTC_Perp ctor's vptr store: retail 0x80054fe0 = this TU's BTC_Perp table */
+  
 
-  this->caught_ = 1;
 
-  this->_vf =
-
-       (__vtbl_ptr_type (*) [3])AIHigh_BTC_AIPerp_vtable;
-
-  this->hudActivated_ = 0;
-
-  this->originalActivationCop_ = (AIHigh_BTC_HumanCop *)0x0;
 
   this->perpMode_ = 0;
 
@@ -936,9 +923,6 @@ AIHigh_BTC_AIPerp::~AIHigh_BTC_AIPerp()
 
 {
 
-  this->_vf =
-
-       (__vtbl_ptr_type (*) [3])AIHigh_BTC_AIPerp_vtable;
 
   (this->carObj_->N).mass = this->originalMass_;
 
@@ -946,9 +930,6 @@ AIHigh_BTC_AIPerp::~AIHigh_BTC_AIPerp()
 
        this->originalMassInv_;
 
-  this->_vf =
-
-       (__vtbl_ptr_type (*) [3])AIHigh_BasicPerp_vtable;
 
 
   return;
@@ -1783,50 +1764,6 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
 
 
-/* ---- _._20AIHigh_BTC_HumanPerp  AIHigh_BTC_HumanPerp::dtor  [AIH_BTCPERP.CPP:?] SLD-FLAG:NO_SLD ---- */
-
-AIHigh_BTC_HumanPerp::~AIHigh_BTC_HumanPerp()
-
-
-
-{
-
-  this->_vf =
-
-       (__vtbl_ptr_type (*) [3])AIHigh_BasicPerp_vtable;
-
-
-  return;
-
-}
-
-
-
-
-
-
-
-
-/* ---- ___15AIHigh_BTC_Perp_80061348 @0x80061348 : AIHigh_BTC_Perp dtor, THIS obj's
- * vague-linkage instance (w60 unlock: was spelled as the canonical member dtor, which
- * collides with AIHIGH.OBJ's canonical @0x8005B438 -- oracles byte-identical 10/10).
- * cfront chain: own-base vtable store in the jal delay slot + tail call of the next
- * NON-TRIVIAL base dtor (___11AIHigh_Base, ONE arg -- same device as aih_basicperp). ---- */
-
-extern "C" void ___11AIHigh_Base_1arg(void *) __asm__("___11AIHigh_Base");
-extern "C" void ___15AIHigh_BTC_Perp_80061348(AIHigh_BTC_Perp *pThis)
-
-
-
-{
-
-  pThis->_vf = (__vtbl_ptr_type (*) [3])AIHigh_BasicPerp_vtable;
-
-  ___11AIHigh_Base_1arg(pThis);
-
-  return;
-
-}
 
 
 

@@ -5,7 +5,6 @@
 #include "aih_btcperp_types.h"
 
 /* ---- vtables: AIHigh_Traffic (this obj) + AIState_Idle (aistate.obj) ---- */
-extern __vtbl_ptr_type AIHigh_BTC_Perp_vtable[], AIHigh_BTC_HumanPerp_vtable[], AIHigh_BTC_AIPerp_vtable[], AIState_NonActive_vtable[], AIState_Base_vtable[];
 
 Speaker *Speech_Dispatch(void) asm("Dispatch__6Speech");
 Speaker *Speech_Mobile(Car_tObj *carObj) asm("Mobile__6SpeechP8Car_tObj");
@@ -15,7 +14,6 @@ extern Car_tObj         *Cars_gHumanRaceCarList[9];  /* cars.obj */
 extern Car_tObj *Cars_gList[];
 extern GameSetup_tData   GameSetup_gData;
 extern Sim_tSimGlobalVar  simGlobal;          /* Sim.obj   (.gameTicks) */
-extern __vtbl_ptr_type AIHigh_Human_vtable[], AIHigh_BasicPerp_vtable[], AIState_Idle_vtable[];
 extern camera_info       Camera_gInfo[2];            /* camera.obj */
 extern int            Cars_gNumCars;
 extern int            gNumSlices;

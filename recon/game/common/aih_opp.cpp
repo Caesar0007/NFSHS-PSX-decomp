@@ -776,17 +776,9 @@ void AIHigh_Opponent::HighExecute()
 
 
 /* ---- __15AIHigh_OpponentP8Car_tObj  AIHigh_Opponent::ctor  [AIH_OPP.CPP:250-255] SLD-VERIFIED ---- */
-AIHigh_Opponent::AIHigh_Opponent(Car_tObj *carObj)
-
-
-
+AIHigh_Opponent::AIHigh_Opponent(Car_tObj *carObj) : AIHigh_Player(carObj)
 {
 
-  (new((AIHigh_Player *)this) AIHigh_Player(carObj));
-
-  this->_vf =
-
-       (__vtbl_ptr_type (*) [3])AIHigh_Opponent_vtable;
 
   this->attackMode_ = 0;
 
@@ -862,11 +854,9 @@ int AIHigh_Opponent::DoProvokedAttack()
 
 /* end of aih_opp.cpp */
 
-extern __vtbl_ptr_type AIHigh_BasicPerp_vtable[];   /* owned by aih_basicperp.obj */
 /* Retail restores the shared BasicPerp dispatch table before the implicit
    base destruction.  Expressing it as the actual member destructor supplies
    C++'s implicit `this` and eliminates the synthetic free-function receiver. */
 AIHigh_Opponent::~AIHigh_Opponent()
 {
-  this->_vf = (__vtbl_ptr_type (*)[3])AIHigh_BasicPerp_vtable;
 }

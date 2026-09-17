@@ -792,15 +792,9 @@ void AIHigh_BasicPerp::Clear()
 
 
 /* ---- __16AIHigh_BasicPerpP8Car_tObj  AIHigh_BasicPerp::ctor  [AIH_BASICPERP.CPP:419-421] SLD-VERIFIED ---- */
-AIHigh_BasicPerp::AIHigh_BasicPerp(Car_tObj *carObj)
-
-
-
+AIHigh_BasicPerp::AIHigh_BasicPerp(Car_tObj *carObj) : AIHigh_Base(carObj)
 {
 
-  (new((AIHigh_Base *)this) AIHigh_Base(carObj));
-
-  this->_vf = (__vtbl_ptr_type (*) [3])AIHigh_BasicPerp_vtable;
 
   (this->basicPerpInfo_).copsAssigned_[0] = 0;
 
@@ -822,10 +816,3 @@ AIHigh_BasicPerp::AIHigh_BasicPerp(Car_tObj *carObj)
 
 /* end of aih_basicperp.cpp */
 
-/* The real member destructor restores its own dispatch table and then lets
-   ordinary C++ base destruction emit retail's AIHigh_Base call.  Implicit
-   `this` removes the synthetic free-function receiver. */
-AIHigh_BasicPerp::~AIHigh_BasicPerp()
-{
-  this->_vf = (__vtbl_ptr_type (*)[3])AIHigh_BasicPerp_vtable;
-}

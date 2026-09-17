@@ -717,12 +717,12 @@
  {
   "obj": "build/recon/frontend/common/screencongrats.cpp.o",
   "section": ".data",
-  "base": 2147821892,
+  "base": 2147821888,
   "end": 2147821940,
-  "size": 48,
+  "size": 52,
   "ok": true,
   "unresolved": 0,
-  "words": 12,
+  "words": 13,
   "q": 2
  },
  {

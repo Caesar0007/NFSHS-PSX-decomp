@@ -170,6 +170,11 @@ void Camera_TunnelLimit(int player,int *armheight)
 /* ---- Camera_UpdateCollisionCam__Fi  [@0x8008090c] ---- */
 void Camera_UpdateCollisionCam(int player)
 {
+  /* retail: this TU's .rodata opens with an UNREFERENCED "SimpleMem" literal ahead of this
+   * function's own constants (the same dead tag string r3dcar/fedialog carry); the
+   * constant-false call keeps the string and adds no code. */
+  if (0) sprintf((char *)0,"SimpleMem");
+
   coorddef arm = {0, 0x30000, -0xa0000};   /* SYM: AUTO; braced init -> rodata template D_800558A4 copy */
   coorddef newarm;   /* SYM: AUTO */
   coorddef oldarm;   /* SYM: AUTO */

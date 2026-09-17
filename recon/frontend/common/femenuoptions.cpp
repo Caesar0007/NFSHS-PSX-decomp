@@ -1346,6 +1346,11 @@ bool tMenuItemSlidingActivated::TransitionIsFinished()
 void tMenuItemSlidingActivated::UpdateTransition(bool selected)
 
 {
+  /* retail: this TU's .rodata opens with an UNREFERENCED "SimpleMem" literal ahead of this
+   * function's own constants (the same dead tag string r3dcar/fedialog carry); the
+   * constant-false call keeps the string and adds no code. */
+  if (0) textpixels("SimpleMem");
+
   /* SYM-CODEGEN-CARRIER: iVar2
    * Compiler-created destination of the one-line nested MIN/MAX clamp. */
   int iVar2;

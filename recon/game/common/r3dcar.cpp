@@ -117,6 +117,10 @@ void R3DCar_StartUp(void)
   int i;
   char name [100];
 
+  /* retail r3dcar.obj .rodata opens with an UNREFERENCED "SimpleMem" literal (0x800563b0,
+   * no code reaches it): a compiled-out call; the constant-false branch keeps the string
+   * and adds no code (same device as audio.cpp's "game*"). */
+  if (0) reservememadr("SimpleMem",0,0);
   i = 0;
   do {
     R3DCar_LoadedScenePointer[1][i] = (Transformer_zScene *)0x0;

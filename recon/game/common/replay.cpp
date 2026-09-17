@@ -578,6 +578,11 @@ void Replay_GetInterfaceKey(void)
 void Replay_LoadCameraFile(void)
 
 {
+  /* retail: this TU's .rodata opens with an UNREFERENCED "SimpleMem" literal ahead of this
+   * function's own constants (the same dead tag string r3dcar/fedialog carry); the
+   * constant-false call keeps the string and adds no code. */
+  if (0) sprintf((char *)0,"SimpleMem");
+
   Camera_tCamSlot *cameraFile;
   char fname [80];
   int bigFile;

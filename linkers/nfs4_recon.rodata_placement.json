@@ -27,9 +27,9 @@
  },
  {
   "obj": "build/recon/frontend/common/fedialog.cpp.o",
-  "base": 2147549784,
-  "end": 2147549890,
-  "size": 106,
+  "base": 2147549752,
+  "end": 2147549872,
+  "size": 120,
   "ok": false,
   "regions": [
    "jtbl_80010258"
@@ -37,9 +37,9 @@
  },
  {
   "obj": "build/recon/frontend/common/femenuoptions.cpp.o",
-  "base": 2147551592,
+  "base": 2147551584,
   "end": 2147551756,
-  "size": 164,
+  "size": 172,
   "ok": false,
   "regions": [
    "jtbl_80010990"
@@ -401,9 +401,9 @@
  },
  {
   "obj": "build/recon/game/common/camera.cpp.o",
-  "base": 2147834016,
+  "base": 2147834008,
   "end": 2147834236,
-  "size": 220,
+  "size": 228,
   "ok": false,
   "regions": [
    "jtbl_800558C8",
@@ -492,9 +492,9 @@
  },
  {
   "obj": "build/recon/game/common/r3dcar.cpp.o",
-  "base": 2147836856,
+  "base": 2147836848,
   "end": 2147837236,
-  "size": 380,
+  "size": 388,
   "ok": false,
   "regions": [
    "jtbl_80056418",
@@ -505,9 +505,9 @@
  },
  {
   "obj": "build/recon/game/common/replay.cpp.o",
-  "base": 2147837264,
+  "base": 2147837248,
   "end": 2147837324,
-  "size": 60,
+  "size": 76,
   "ok": false,
   "regions": [
    "jtbl_80056578"

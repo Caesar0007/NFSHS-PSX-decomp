@@ -177,8 +177,8 @@ SECTIONS
     .ro0000 0x80010078 : SUBALIGN(4) { build/recon/frontend/common/feapp.cpp.o(.rodata); }   /* 32 B */
     .ro0001 0x80010104 : SUBALIGN(4) { build/recon/frontend/common/feaudio.cpp.o(.rodata); }   /* 77 B */
     .ro0002 0x800101b4 : SUBALIGN(4) { build/recon/frontend/common/fecars.cpp.o(.rodata); }   /* 38 B  (anchor-only, E1-E5 not clean) */
-    .ro0003 0x80010258 : SUBALIGN(4) { build/recon/frontend/common/fedialog.cpp.o(.rodata); }   /* 106 B  (anchor-only, E1-E5 not clean) */
-    .ro0004 0x80010968 : SUBALIGN(4) { build/recon/frontend/common/femenuoptions.cpp.o(.rodata); }   /* 164 B  (anchor-only, E1-E5 not clean) */
+    .ro0003 0x80010238 : SUBALIGN(4) { build/recon/frontend/common/fedialog.cpp.o(.rodata); }   /* 120 B  (anchor-only, E1-E5 not clean) */
+    .ro0004 0x80010960 : SUBALIGN(4) { build/recon/frontend/common/femenuoptions.cpp.o(.rodata); }   /* 172 B  (anchor-only, E1-E5 not clean) */
     .ro0005 0x80010fc8 : SUBALIGN(4) { build/recon/frontend/common/fetracks.cpp.o(.rodata); }   /* 31 B */
     .ro0006 0x80011028 : SUBALIGN(4) { build/recon/frontend/common/fecheats.cpp.o(.rodata); }   /* 124 B */
     .ro0007 0x800113f8 : SUBALIGN(4) { build/recon/frontend/common/fescreen.cpp.o(.rodata); }   /* 27 B */
@@ -228,7 +228,7 @@ SECTIONS
     .ro0051 0x80055800 : SUBALIGN(4) { build/recon/game/common/audioeng.cpp.o(.rodata); }   /* 86 B  (anchor-only, E1-E5 not clean) */
     .ro0052 0x80055864 : SUBALIGN(4) { build/recon/game/common/audiotrk.cpp.o(.rodata); }   /* 13 B  (anchor-only, E1-E5 not clean) */
     .ro0053 0x80055880 : SUBALIGN(4) { build/recon/game/common/bworld.cpp.o(.rodata); }   /* 12 B */
-    .ro0054 0x800558a0 : SUBALIGN(4) { build/recon/game/common/camera.cpp.o(.rodata); }   /* 220 B  (anchor-only, E1-E5 not clean) */
+    .ro0054 0x80055898 : SUBALIGN(4) { build/recon/game/common/camera.cpp.o(.rodata); }   /* 228 B  (anchor-only, E1-E5 not clean) */
     .ro0055 0x80055988 : SUBALIGN(4) { build/recon/game/common/cars.cpp.o(.rodata); }   /* 69 B  (anchor-only, E1-E5 not clean) */
     .ro0056 0x80055a28 : SUBALIGN(4) { build/recon/game/common/control.cpp.o(.rodata); }   /* 44 B */
     .ro0057 0x80055a54 : SUBALIGN(4) { build/recon/game/common/hudpmx.cpp.o(.rodata); }   /* 254 B  (anchor-only, E1-E5 not clean) */
@@ -238,8 +238,8 @@ SECTIONS
     .ro0061 0x80056000 : SUBALIGN(4) { build/recon/game/common/nfs3.cpp.o(.rodata); }   /* 71 B  (anchor-only, E1-E5 not clean) */
     .ro0062 0x80056054 : SUBALIGN(4) { build/recon/game/common/object.cpp.o(.rodata); }   /* 47 B */
     .ro0063 0x80056370 : SUBALIGN(4) { build/recon/game/common/physics.cpp.o(.rodata); }   /* 64 B */
-    .ro0064 0x800563b8 : SUBALIGN(4) { build/recon/game/common/r3dcar.cpp.o(.rodata); }   /* 380 B  (anchor-only, E1-E5 not clean) */
-    .ro0065 0x80056550 : SUBALIGN(4) { build/recon/game/common/replay.cpp.o(.rodata); }   /* 60 B  (anchor-only, E1-E5 not clean) */
+    .ro0064 0x800563b0 : SUBALIGN(4) { build/recon/game/common/r3dcar.cpp.o(.rodata); }   /* 388 B  (anchor-only, E1-E5 not clean) */
+    .ro0065 0x80056540 : SUBALIGN(4) { build/recon/game/common/replay.cpp.o(.rodata); }   /* 76 B  (anchor-only, E1-E5 not clean) */
     .ro0066 0x80056598 : SUBALIGN(4) { build/recon/game/common/scene.cpp.o(.rodata); }   /* 27 B  (anchor-only, E1-E5 not clean) */
     .ro0067 0x80056730 : SUBALIGN(4) { build/recon/game/common/udff.cpp.o(.rodata); }   /* 11 B  (anchor-only, E1-E5 not clean) */
     .ro0068 0x80056770 : SUBALIGN(4) { build/recon/game/psx/cario.cpp.o(.rodata); }   /* 140 B  (anchor-only, E1-E5 not clean) */
@@ -836,7 +836,7 @@ SECTIONS
     .xd0063 0x800528d8 : SUBALIGN(4) { build/recon/frontend/common/screendisplay.cpp.o(.data); }
     .xd0064 0x800528e0 : SUBALIGN(4) { build/recon/frontend/common/screenaudio.cpp.o(.data); }
     .xd0065 0x800528f0 : SUBALIGN(4) { build/recon/frontend/common/screenmemcard.cpp.o(.data); }
-    .xd0066 0x80052944 : SUBALIGN(4) { build/recon/frontend/common/screencongrats.cpp.o(.data); }
+    .xd0066 0x80052940 : SUBALIGN(4) { build/recon/frontend/common/screencongrats.cpp.o(.data); }
     .xd0067 0x80052978 : SUBALIGN(4) { build/recon/frontend/common/statchk.cpp.o(.data); }
     .xd0068 0x800529a0 : SUBALIGN(4) { build/recon/frontend/common/stattool.cpp.o(.data); }
     .xd0069 0x800529b0 : SUBALIGN(4) { build/recon/frontend/common/screenusername.cpp.o(.data); }

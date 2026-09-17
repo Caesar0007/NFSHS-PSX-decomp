@@ -1466,7 +1466,7 @@ tAppCommand tFEApplication::RunPostGame()
       tScreenUserName *screen = screenUserName;
       tOptionsMenu *m = &menuDefs->menuPostGamePlayer2Name;
       item->fPlayer = 1;
-      item->fData = frontEnd.playerNameList[4];
+      item->fData = frontEnd.playerNameList[1];   /* retail: frontEnd+0x36c = player 2's name ([4] would be licensePlate) */
       item->fMaxStringLength = 7;
       item->fCurrentRow = 0;
       item->fCurrentColumn = 0;

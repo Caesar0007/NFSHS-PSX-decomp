@@ -225,7 +225,7 @@ SECTIONS
     .ro0048 0x80055354 : SUBALIGN(4) { build/recon/game/common/aiperson.cpp.o(.rodata); }   /* 75 B */
     .ro0049 0x800554d0 : SUBALIGN(4) { build/recon/game/common/aispeeds.cpp.o(.rodata); }   /* 32 B */
     .ro0050 0x80055690 : SUBALIGN(4) { build/recon/game/common/anim.cpp.o(.rodata); }   /* 38 B  (anchor-only, E1-E5 not clean) */
-    .ro0051 0x800556d0 : SUBALIGN(4) { build/recon/game/common/audiocmn.cpp.o(.rodata); }   /* 160 B  (anchor-only, E1-E5 not clean) */
+    .ro0051 0x800556c4 : SUBALIGN(4) { build/recon/game/common/audiocmn.cpp.o(.rodata); }   /* 168 B  (anchor-only, E1-E5 not clean) */
     .ro0052 0x80055778 : SUBALIGN(4) { build/recon/game/common/audiomus.cpp.o(.rodata); }   /* 105 B  (anchor-only, E1-E5 not clean) */
     .ro0053 0x800557e8 : SUBALIGN(4) { build/recon/game/common/audedit.cpp.o(.rodata); }   /* 11 B  (anchor-only, E1-E5 not clean) */
     .ro0054 0x80055800 : SUBALIGN(4) { build/recon/game/common/audioeng.cpp.o(.rodata); }   /* 86 B  (anchor-only, E1-E5 not clean) */
@@ -285,8 +285,8 @@ SECTIONS
     .ro0108 0x80057908 : SUBALIGN(4) { build/recon/syslib/psx/libcd/toc.c.o(.rodata); }   /* 62 B */
     .ro0109 0x80057948 : SUBALIGN(4) { build/recon/syslib/psx/libmcrd/USERFUNC.c.o(.rodata); }   /* 25 B */
     .ro0110 0x80057968 : SUBALIGN(4) { build/recon/eaclib/psx/spchpsxz/spchrule.c.o(.rodata); }   /* 20 B */
-    ASSERT(ADDR(.ro0051) == 0x800556d0 && SIZEOF(.ro0051) == 152, "native auxiliary source window mismatch")
-    ASSERT(ADDR(.ro0051) + 60 == 0x8005570c, "native auxiliary source window mismatch")
+    ASSERT(ADDR(.ro0051) == 0x800556c4 && SIZEOF(.ro0051) == 168, "native auxiliary source window mismatch")
+    ASSERT(ADDR(.ro0051) + 72 == 0x8005570c, "native auxiliary source window mismatch")
 
 
     .t0000 0x800128f0 : SUBALIGN(4) { build/recon/game/common/minfront.cpp.o(.text); }

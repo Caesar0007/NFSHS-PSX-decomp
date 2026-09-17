@@ -298,6 +298,10 @@ int AudioCmn_RemoveOldestAsyncSfx(int bank)
 /* ---- AudioCmn_LoadAsyncSfx__FiiPvi  [@0x8007675c] ---- */
 void AudioCmn_LoadAsyncSfx(int bank,int patch,void *pbank,int size)
 {
+  /* retail audiocmn.obj .rodata opens with the UNREFERENCED "SimpleMem" tag (0x800556c4) ahead of
+   * this function's first literal; keeping it makes the later jump table's .align 3 land at
+   * retail's 0x8005573c. The constant-false call adds no code. */
+  if (0) AudioCmn_LoadBank("SimpleMem",0);
   int slot;
   int check;
 

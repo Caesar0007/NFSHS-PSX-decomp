@@ -359,9 +359,9 @@
  },
  {
   "obj": "build/recon/game/common/audiocmn.cpp.o",
-  "base": 2147833552,
-  "end": 2147833712,
-  "size": 160,
+  "base": 2147833540,
+  "end": 2147833708,
+  "size": 168,
   "ok": false,
   "regions": [
    "jtbl_8005573C"

@@ -887,8 +887,7 @@ AIHigh_BTC_AIPerp::AIHigh_BTC_AIPerp(Car_tObj *carObj)
   (new((AIHigh_BasicPerp *)this) AIHigh_BasicPerp(carObj));
 
   this->_vf =
-
-       (__vtbl_ptr_type (*) [3])(AIHigh_BTC_HumanPerp_vtable + 8);
+       (__vtbl_ptr_type (*) [3])AIHigh_BTC_Perp_vtable;   /* the inlined AIHigh_BTC_Perp ctor's vptr store: retail 0x80054fe0 = this TU's BTC_Perp table */
 
   this->caught_ = 1;
 
@@ -1280,7 +1279,9 @@ void AIHigh_BTC_AIPerp::HighExecute()
 
   switch(this->stateType_) {
 
-  case 1:   /* MATCH: oracle's compare-chain routes stateType_==1 into the SAME body as case 2 */
+  case 1:   /* retail jump table 0x80055040 [1] = the switch END (not case 2's body); the
+               label must exist -- with only 4 labels over 0..10 gcc drops to a compare chain */
+    break;
 
   case 2:
 

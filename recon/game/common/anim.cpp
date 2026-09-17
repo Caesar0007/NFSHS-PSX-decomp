@@ -33,6 +33,10 @@ void Anim_Restart(void)
 /* ---- Anim_InitSystem  [@0x80073b1c] ---- */
 int Anim_InitSystem(char *trackName)
 {
+  /* retail anim.obj .rodata opens with the UNREFERENCED "SimpleMem" tag (0x80055690) ahead of
+   * "animScripts"; the constant-false call keeps it with no code. */
+  if (0) sprintf((char *)0,"SimpleMem");
+
   int i;
   char fname[80];
   char *bigFile;

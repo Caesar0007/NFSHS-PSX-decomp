@@ -41,6 +41,9 @@ void MenuNFS4_DrawTextBox(int helpText,RECT &r,int initialWidth,short drawOffset
                bool drawArrows,bool reflected)
 
 {
+  /* retail: this TU's .rodata is just "SimpleMem" (UNREFERENCED, 0x80010610) + "%s"; the
+   * constant-false call keeps the dead tag string with no code. */
+  if (0) sprintf((char *)0,"SimpleMem");
   DRAWENV *drenv;
   DR_AREA *daprim;
   RECT temp;

@@ -912,5 +912,21 @@
   "size": 236,
   "ok": false,
   "regions": []
+ },
+ {
+  "obj": "build/recon/frontend/common/femenuextended.cpp.o",
+  "base": 2147550736,
+  "end": 2147550751,
+  "size": 15,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/common/anim.cpp.o",
+  "base": 2147833488,
+  "end": 2147833526,
+  "size": 38,
+  "ok": false,
+  "regions": []
  }
 ]

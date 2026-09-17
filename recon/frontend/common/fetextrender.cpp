@@ -54,6 +54,9 @@ void FETextRender_SetFont(int size)
 void FETextRender_FullTextRGB(char *sMenuText,short x,short y,int col,char size,short justify)
 
 {
+  /* retail: this TU's .rodata opens with the UNREFERENCED "SimpleMem" tag (0x80010fb8) ahead of this
+   * function's first literal; the constant-false call keeps it with no code. */
+  if (0) sprintf((char *)0,"SimpleMem");
   char *str;
   char buffer [128];
   

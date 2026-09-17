@@ -2264,5 +2264,16 @@
   "unresolved": 0,
   "words": 33,
   "q": 0
+ },
+ {
+  "obj": "build/recon/eaclib/psx/sndpsxz/sclcptch.c.o",
+  "section": ".data",
+  "base": 2148757700,
+  "end": 2148758212,
+  "size": 512,
+  "ok": true,
+  "unresolved": 0,
+  "words": 128,
+  "q": 0
  }
 ]

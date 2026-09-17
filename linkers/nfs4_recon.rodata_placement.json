@@ -208,9 +208,9 @@
  },
  {
   "obj": "build/recon/frontend/common/screenmemcard.cpp.o",
-  "base": 2147557816,
+  "base": 2147557800,
   "end": 2147557928,
-  "size": 112,
+  "size": 128,
   "ok": false,
   "regions": [
    "jtbl_800121C0"
@@ -918,6 +918,14 @@
   "base": 2147833488,
   "end": 2147833526,
   "size": 38,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/frontend/common/fetextrender.cpp.o",
+  "base": 2147553208,
+  "end": 2147553223,
+  "size": 15,
   "ok": false,
   "regions": []
  }

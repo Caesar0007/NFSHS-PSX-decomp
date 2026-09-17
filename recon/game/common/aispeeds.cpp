@@ -970,7 +970,7 @@ void AISpeeds_SetTrafficSpeedRandomFactor(Car_tObj *carObj)
 
   carObj->trafficSpeedRandomizingFactor =
       *(int *)((int)randomSpeedMultipliers +
-               ((randSeed * fastRandom) >> 6 & 0xc));
+               ((fastRandom * randSeed) >> 6 & 0xc)   /* retail loads fastRandom (0x8013d0fc) first, then randSeed */);
   randtemp = randSeed * fastRandom;
   fastRandom = randtemp & 0xffff;
   return;

@@ -725,5 +725,21 @@
   "end": 2148785236,
   "size": 4,
   "ok": true
+ },
+ {
+  "obj": "build/recon/frontend/common/screentracks.cpp.o",
+  "section": ".bss",
+  "base": 2147822752,
+  "end": 2147822772,
+  "size": 20,
+  "ok": true
+ },
+ {
+  "obj": "build/recon/frontend/common/screentrackinfo.cpp.o",
+  "section": ".bss",
+  "base": 2147822776,
+  "end": 2147822840,
+  "size": 64,
+  "ok": true
  }
 ]

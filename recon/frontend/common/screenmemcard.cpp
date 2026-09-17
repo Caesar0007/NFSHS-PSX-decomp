@@ -12,6 +12,9 @@ void tScreenMemcard::GetShapeInfo(short &numPermShapes,short &numSwapShapes,char
                char **swapFileName)
 
 {
+  /* retail: this TU's .rodata opens with the UNREFERENCED "SimpleMem" tag (0x800121a8) ahead of this
+   * function's first literal; the constant-false call keeps it with no code. */
+  if (0) *permFileName = "SimpleMem";   /* a dead STORE, not a call: GetShapeInfo is a leaf */
   numSwapShapes = 0;
   *swapFileName = (char *)0x0;
   numPermShapes = 0x3c;

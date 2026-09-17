@@ -2065,7 +2065,7 @@ LOOP_800716DC:
 
   this->_vf =
 
-       (__vtbl_ptr_type (*) [4])((char *)AIState_NonActive_vtable + 8);
+       (__vtbl_ptr_type (*) [4])AIState_NonActive_vtable;   /* retail stores the table base (0x800555a0), not +8 */
 
   (this->carObj_->N).active = '\x01';
 

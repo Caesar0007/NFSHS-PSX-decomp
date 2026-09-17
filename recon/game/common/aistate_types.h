@@ -113,7 +113,7 @@ extern __vtbl_ptr_type AIState_NonActive_vtable[];
 struct AIState_NonActive : public AIState_Base {
     AIState_NonActive() {}
     AIState_NonActive(Car_tObj *carObj) : AIState_Base(carObj) {
-        _vf = (__vtbl_ptr_type (*)[4])((char *)AIState_NonActive_vtable + 8);
+        _vf = (__vtbl_ptr_type (*)[4])AIState_NonActive_vtable;   /* retail stores the table base (0x800555a0), not +8 */
     }
     void Execute();
 };

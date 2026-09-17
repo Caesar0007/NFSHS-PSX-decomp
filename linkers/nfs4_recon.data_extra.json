@@ -2275,5 +2275,16 @@
   "unresolved": 0,
   "words": 128,
   "q": 0
+ },
+ {
+  "obj": "build/recon/eaclib/psx/eacpsxz/memstd.c.o",
+  "section": ".sdata",
+  "base": 2148785184,
+  "end": 2148785208,
+  "size": 24,
+  "ok": true,
+  "unresolved": 0,
+  "words": 6,
+  "q": 0
  }
 ]

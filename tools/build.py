@@ -405,6 +405,7 @@ PER_TU_FLAGS = {
     "recon/game/psx/overlays.cpp":         {"g_value": "8"},   # StatsTimer[2] gp-relative at its constant-index sites (2026-09-17)   # anim.obj .sdata = the "%sA.viv"/"Tr" literal pool @0x8013c5fc (2026-09-17)
     "recon/frontend/psx/movie.cpp":        {"g_value": "0"},
     "recon/frontend/psx/memcard.c":        {"g_value": "0"},
+    "recon/eaclib/psx/eacpsxz/memstd.c":   {"g_value": "8"},   # its "%s LOW"/"%s HIGH" literals are retail .sdata @0x8013dc20 (2026-09-17)
     "recon/syslib/psx/libgte/MSC00.c":     {"g_value": "0"},   # Sony libgte: ra-save scratch is a .data word @0x80134a70 (2026-09-17)
     "recon/syslib/psx/libgte/PATCHGTE.c":  {"g_value": "0"},   # Sony libgte: ra-save scratch is .bss @0x8014898c (2026-09-17)   # retail keeps its "*" literal in .rdata between two jump tables (2026-09-17)   # Movie.obj keeps user_exit/skip_all/gPlayerNum/download in front.data (2026-09-17)
     # w59-a13 (orchestrator-wired): memmove FAIL 2 -> PASS 27/27 with NO source

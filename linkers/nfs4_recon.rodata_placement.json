@@ -105,9 +105,9 @@
  },
  {
   "obj": "build/recon/frontend/common/fememcard.cpp.o",
-  "base": 2147555032,
+  "base": 2147555024,
   "end": 2147555416,
-  "size": 384,
+  "size": 392,
   "ok": false,
   "regions": [
    "jtbl_800116F8",
@@ -234,9 +234,9 @@
  },
  {
   "obj": "build/recon/frontend/common/stattool.cpp.o",
-  "base": 2147558680,
+  "base": 2147558664,
   "end": 2147558877,
-  "size": 197,
+  "size": 213,
   "ok": false,
   "regions": [
    "jtbl_80012538"
@@ -531,9 +531,9 @@
  },
  {
   "obj": "build/recon/game/psx/cario.cpp.o",
-  "base": 2147837808,
+  "base": 2147837792,
   "end": 2147837948,
-  "size": 140,
+  "size": 156,
   "ok": false,
   "regions": [
    "jtbl_80056788"

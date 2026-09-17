@@ -11,6 +11,11 @@ char secChar[6] = { '.',':','.','.','.','.' };   /* centisecond seps */
 void Stattool_nCreateIndex(int nNumber,int *nInput,short *nIndex)
 
 {
+  /* retail: this TU's .rodata opens with an UNREFERENCED "SimpleMem" literal ahead of this
+   * function's own constants (the dead tag string most objects carry); the constant-false
+   * call keeps the string and adds no code. */
+  if (0) reservememadr("SimpleMem",0,0);
+
   /* SYM 8c @0x8004A868: nNumber REGPARM $11=$s1, nInput $13=$s3, nIndex $12=$s2;
      locals are EXACTLY i($06) j($10) nADummy($08) nBDummy($0b) nTemp($04) -- the
      walking pointers in the Ghidra body (pIdx/pVal/pIdxScan/pValScan) are compiler

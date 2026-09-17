@@ -79,6 +79,11 @@ void CarIO_ReleaseCarCluts(Car_tObj *carObj);
 void CarIO_StartUp(void)
 
 {
+  /* retail: this TU's .rodata opens with an UNREFERENCED "SimpleMem" literal ahead of this
+   * function's own constants (the dead tag string most objects carry); the constant-false
+   * call keeps the string and adds no code. */
+  if (0) reservememadr("SimpleMem",0,0);
+
   int i;
   
   if (CarIO_carPixMap == (Draw_tPixMap *)0x0) {

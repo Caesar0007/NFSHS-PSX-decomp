@@ -372,6 +372,11 @@ void DeInit_Memcard(void)
 void Init_MemcardFile(MCRDFILE_def &memCardFile,short cardnum,bool notitle)
 
 {
+  /* retail: this TU's .rodata opens with an UNREFERENCED "SimpleMem" literal ahead of this
+   * function's own constants (the dead tag string most objects carry); the constant-false
+   * call keeps the string and adds no code. */
+  if (0) sprintf((char *)0,"SimpleMem");
+
   blockclear(&memCardFile,0x2c);
   memCardFile.name = "NFS4";
   /* [branch-polarity fix] oracle's beqz skips the (rare) notitle==true case out-of-line and

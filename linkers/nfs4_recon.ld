@@ -186,7 +186,7 @@ SECTIONS
     .ro0009 0x800114a4 : SUBALIGN(4) { build/recon/frontend/common/front.cpp.o(.rodata); }   /* 33 B  (anchor-only, E1-E5 not clean) */
     .ro0010 0x80011594 : SUBALIGN(4) { build/recon/frontend/common/fetourn.cpp.o(.rodata); }   /* 47 B  (anchor-only, E1-E5 not clean) */
     .ro0011 0x800116a0 : SUBALIGN(4) { build/recon/frontend/common/femission.cpp.o(.rodata); }   /* 41 B  (anchor-only, E1-E5 not clean) */
-    .ro0012 0x800116d8 : SUBALIGN(4) { build/recon/frontend/common/fememcard.cpp.o(.rodata); }   /* 384 B  (anchor-only, E1-E5 not clean) */
+    .ro0012 0x800116d0 : SUBALIGN(4) { build/recon/frontend/common/fememcard.cpp.o(.rodata); }   /* 392 B  (anchor-only, E1-E5 not clean) */
     .ro0013 0x80011864 : SUBALIGN(4) { build/recon/frontend/common/fecredits.cpp.o(.rodata); }   /* 24 B */
     .ro0014 0x80011880 : SUBALIGN(4) { build/recon/frontend/common/screenmain.cpp.o(.rodata); }   /* 48 B */
     .ro0015 0x8001190c : SUBALIGN(4) { build/recon/frontend/common/screenpinkslips.cpp.o(.rodata); }   /* 33 B */
@@ -204,7 +204,7 @@ SECTIONS
     .ro0027 0x800121b8 : SUBALIGN(4) { build/recon/frontend/common/screenmemcard.cpp.o(.rodata); }   /* 112 B  (anchor-only, E1-E5 not clean) */
     .ro0028 0x80012284 : SUBALIGN(4) { build/recon/frontend/common/screencongrats.cpp.o(.rodata); }   /* 33 B */
     .ro0029 0x800124bc : SUBALIGN(4) { build/recon/frontend/common/statchk.cpp.o(.rodata); }   /* 72 B */
-    .ro0030 0x80012518 : SUBALIGN(4) { build/recon/frontend/common/stattool.cpp.o(.rodata); }   /* 197 B  (anchor-only, E1-E5 not clean) */
+    .ro0030 0x80012508 : SUBALIGN(4) { build/recon/frontend/common/stattool.cpp.o(.rodata); }   /* 213 B  (anchor-only, E1-E5 not clean) */
     .ro0031 0x800125e0 : SUBALIGN(4) { build/recon/frontend/common/screenusername.cpp.o(.rodata); }   /* 264 B */
     .ro0032 0x80012754 : SUBALIGN(4) { build/recon/frontend/psx/movie.cpp.o(.rodata); }   /* 109 B  (anchor-only, E1-E5 not clean) */
     .ro0033 0x800127e4 : SUBALIGN(4) { build/recon/frontend/psx/psxfront.cpp.o(.rodata); }   /* 64 B  (anchor-only, E1-E5 not clean) */
@@ -244,7 +244,7 @@ SECTIONS
     .ro0067 0x80056598 : SUBALIGN(4) { build/recon/game/common/scene.cpp.o(.rodata); }   /* 27 B  (anchor-only, E1-E5 not clean) */
     .ro0068 0x80056638 : SUBALIGN(4) { build/recon/game/common/track.cpp.o(.rodata); }   /* 236 B  (anchor-only, E1-E5 not clean) */
     .ro0069 0x80056730 : SUBALIGN(4) { build/recon/game/common/udff.cpp.o(.rodata); }   /* 11 B  (anchor-only, E1-E5 not clean) */
-    .ro0070 0x80056770 : SUBALIGN(4) { build/recon/game/psx/cario.cpp.o(.rodata); }   /* 140 B  (anchor-only, E1-E5 not clean) */
+    .ro0070 0x80056760 : SUBALIGN(4) { build/recon/game/psx/cario.cpp.o(.rodata); }   /* 156 B  (anchor-only, E1-E5 not clean) */
     .ro0071 0x8005684c : SUBALIGN(4) { build/recon/game/psx/force.cpp.o(.rodata); }   /* 56 B */
     .ro0072 0x80056894 : SUBALIGN(4) { build/recon/game/psx/flare.cpp.o(.rodata); }   /* 20 B */
     .ro0073 0x800568b4 : SUBALIGN(4) { build/recon/game/psx/hrzsku.cpp.o(.rodata); }   /* 25 B */

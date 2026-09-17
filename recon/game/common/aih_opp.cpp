@@ -8,6 +8,7 @@
 #include "../../lib/nfs4_new.h"
 #include "aih_opp_types.h"
 #include "aih_opp_externs.h"
+extern "C" int sprintf(char *, const char *, ...);
 
 extern int          AI_elapsedTime;     /* H24: ai.cpp @0x8013C554 (not in this TU's externs) */
 extern AIHigh_Base *highLevelAIObjs[];  /* H24: @0x8010CD38 (not in this TU's externs) */
@@ -515,6 +516,10 @@ int AIHigh_Opponent::DoRearEnder()
 
 
 {
+  /* retail: this object's .rodata opens with the UNREFERENCED "SimpleMem" tag (expansion-time literal of the
+     first non-leaf function, ahead of the vtable batch) */
+  if (0) sprintf((char *)0,"SimpleMem");
+
   int attackIndex;
 
 
@@ -674,7 +679,7 @@ void AIHigh_Opponent::HighExecute()
       AIState_Base *newState =
         (AIState_Base *)new((AIState_Normal *)operator new(8))
           AIState_Normal(carObj_);
-      SetState(newState,STATE_NORMAL);
+      AIHigh_SetState(this, newState,STATE_NORMAL);
     }
     return;
 
@@ -704,7 +709,7 @@ void AIHigh_Opponent::HighExecute()
       int aggression = attackMode_ - 1;
       aggression = aggression < 2 ? 2 : aggression;
 
-      SetState(
+      AIHigh_SetState(this, 
         (AIState_Base *)new((AIState_Chase *)operator new(0x94))
           AIState_Chase(carObj_,Cars_gList[attackIndex],&pos,0x20,
                         0x960000,0x960000,aggression,0x10000),
@@ -750,7 +755,7 @@ void AIHigh_Opponent::HighExecute()
       carObj_->desiredDirection =
         GameSetup_gData.reverseTrack == 0 ? 1 : -1;
 
-      SetState(
+      AIHigh_SetState(this, 
         (AIState_Base *)new((AIState_Normal *)operator new(8))
           AIState_Normal(carObj_),
         STATE_NORMAL);

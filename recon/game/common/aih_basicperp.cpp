@@ -7,6 +7,7 @@
 #include "../../lib/nfs4_new.h"
 #include "aih_basicperp_types.h"
 #include "aih_basicperp_externs.h"
+extern "C" int sprintf(char *, const char *, ...);
 
 /* ---- aih_basicperp.obj-owned globals (.bss zero) ---- */
 int          AIHigh_BasicPerp_PlayerCaughtSpeed[3] = { 1019448, 1165084, 1310720 };   /* @0x8010cd5c */
@@ -23,6 +24,10 @@ void AIHigh_BasicPerp::CheckForCrimes()
 
 
 {
+  /* retail: this object's .rodata opens with the UNREFERENCED "SimpleMem" tag (expansion-time literal of the
+     first non-leaf function, ahead of the vtable batch) */
+  if (0) sprintf((char *)0,"SimpleMem");
+
   crimeType crime = basicPerpInfo_.crime_;
   crimeType originalCrime = crime;
   int legal = AISpeeds_GetLegalSpeed(carObj_->N.simRoadInfo.slice);

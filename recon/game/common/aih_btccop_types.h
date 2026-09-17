@@ -199,6 +199,10 @@ struct AICop_PerpChaseInfo {
 
 #include "aistate_classes.h"
 
+/* AIState_Idle's empty inline ctor lives HERE, not in aistate_classes.h: aistate.obj (Idle's key-function
+   TU) carries no out-of-line copy, which cc1plus 2.8 would emit for any inline member it can see. */
+inline AIState_Idle::AIState_Idle(Car_tObj *carObj) : AIState_Base(carObj) {}
+
 
 struct AIHigh_Base {
     Car_tObj *carObj_;
@@ -208,17 +212,21 @@ struct AIHigh_Base {
     AIHigh_Base(Car_tObj *carObj);
     virtual void HighExecute() = 0;
     virtual ~AIHigh_Base();
-    Car_tObj *GetCarObj() { return carObj_; }
     void StateExecute();
-    void SetState(AIState_Base *newState, stateType_t newStateType) {
-        AIState_Base *oldState = state_;
-        if (oldState != (AIState_Base *)0) {
-            delete oldState;   /* virtual ~AIState_Base with __in_chrg 3 */
-        }
-        state_ = newState;
-        stateType_ = newStateType;
-    }
 };
+
+/* Non-member inline helpers, not members: retail aihigh.obj (the key-function TU of AIHigh_Base,
+   ~AIHigh_Base) carries no out-of-line SetState/GetCarObj copies, and cc1plus 2.8 always emits
+   copies of a key-function class's inline MEMBERS there (probe build/psyq/probe/vt3.i). */
+static inline void AIHigh_SetState(AIHigh_Base *high, AIState_Base *newState, stateType_t newStateType) {
+    AIState_Base *oldState = high->state_;
+    if (oldState != (AIState_Base *)0) {
+        delete oldState;   /* virtual ~AIState_Base with __in_chrg 3 */
+    }
+    high->state_ = newState;
+    high->stateType_ = newStateType;
+}
+static inline Car_tObj *AIHigh_GetCarObj(AIHigh_Base *high) { return high->carObj_; }
 
 struct AIHigh_BasicPerp : public AIHigh_Base {
     enum {

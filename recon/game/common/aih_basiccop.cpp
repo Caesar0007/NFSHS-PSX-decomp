@@ -7,6 +7,7 @@
 #include "../../lib/nfs4_new.h"
 #include "aih_basiccop_types.h"
 #include "aih_basiccop_externs.h"
+extern "C" int sprintf(char *, const char *, ...);
 
 /* H18: not in this TU's externs -- needed by the ShouldIPerformCutOffBlock reconstruction */
 extern int AI_elapsedTime;                              /* ai.cpp @0x8013C554 */
@@ -21,6 +22,10 @@ extern int D_8011E0B0[];   /* == &simGlobal.gameTicks (a distinct alias symbol t
 /* ---- __15AIHigh_BasicCopP8Car_tObji  AIHigh_BasicCop::ctor  [AIH_BASICCOP.CPP:18-34] SLD-VERIFIED ---- */
 AIHigh_BasicCop::AIHigh_BasicCop(Car_tObj *carObj,int copIndex) : AIHigh_Base(carObj)
 {
+  /* retail: this object's .rodata opens with the UNREFERENCED "SimpleMem" tag (expansion-time literal of the
+     first non-leaf function, ahead of the vtable batch) */
+  if (0) sprintf((char *)0,"SimpleMem");
+
 
 
   this->copIndex_ = copIndex;
@@ -503,7 +508,7 @@ void AIHigh_BasicCop::HandleBlockadeSpeech()
 
   if ((this->blockade_).blockadeSpeechFlags != 0) {
 
-    theCar = ((this->blockade_).target)->GetCarObj();
+    theCar = AIHigh_GetCarObj(((this->blockade_).target));
 
     if (theCar == (Car_tObj *)0x0) {
 

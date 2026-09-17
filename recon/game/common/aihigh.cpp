@@ -8,6 +8,7 @@
 #include "../../lib/nfs4_new.h"
 #include "aihigh_types.h"
 #include "aihigh_externs.h"
+extern "C" int sprintf(char *, const char *, ...);
 
 /* ---- #75: aihigh.obj-owned anonymous vtables (real nfs4-f.exe bytes; pfn VAs symbolicated) ---- */
 extern "C" int __pure_virtual(...);   /* @0x800e4354 (eaclib cfront runtime) */
@@ -26,6 +27,10 @@ AIHigh_CopGameType_t AIHigh_CopGameType;   /* @0x8013c55c  (bss(zero)) */
 
 void AIHigh_StartUp(void)
 {
+  /* retail: this object's .rodata opens with the UNREFERENCED "SimpleMem" tag (expansion-time literal of the
+     first non-leaf function, ahead of the vtable batch) */
+  if (0) sprintf((char *)0,"SimpleMem");
+
   int carLoop;
   int copCounter;
   int humanCopCounter;
@@ -332,7 +337,7 @@ AIHigh_Base::AIHigh_Base(Car_tObj *carObj)
 
   this->stateType_ = 0;
 
-  this->SetState(new AIState_None(this->carObj_),STATE_NONE);
+  AIHigh_SetState(this, new AIState_None(this->carObj_),STATE_NONE);
 
   this->schedulingOff_ = 0;
 

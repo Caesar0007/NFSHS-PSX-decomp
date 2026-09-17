@@ -29,7 +29,7 @@ struct AIState_Normal : public AIState_Base {
 
 struct AIState_Idle : public AIState_Base {
     int roadPosition_, idleInPlaceFlag_;
-    AIState_Idle(Car_tObj *carObj) : AIState_Base(carObj) {}   /* inline, empty: Base ctor call + Idle vptr store */
+    AIState_Idle(Car_tObj *carObj);   /* inline, defined in aih_hierarchy_types.h: retail aistate.obj (the key TU, Execute) has NO copy */
     ~AIState_Idle() { carObj_->carFlags = carObj_->carFlags & 0xfffffbff; }   /* inline: retail emits it in the deferred batch after ~AIState_NonActive */
     void Execute();
     void SetIdlePosition(int pos);

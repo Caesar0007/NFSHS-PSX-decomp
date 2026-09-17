@@ -295,9 +295,9 @@
  },
  {
   "obj": "build/recon/game/common/aih_btccop.cpp.o",
-  "base": 2147831492,
+  "base": 2147831476,
   "end": 2147831696,
-  "size": 204,
+  "size": 220,
   "ok": true,
   "regions": [
    "jtbl_80054F64"
@@ -305,9 +305,9 @@
  },
  {
   "obj": "build/recon/game/common/aih_btcperp.cpp.o",
-  "base": 2147831712,
+  "base": 2147831696,
   "end": 2147831944,
-  "size": 232,
+  "size": 248,
   "ok": false,
   "regions": [
    "jtbl_80055070"
@@ -315,9 +315,9 @@
  },
  {
   "obj": "build/recon/game/common/aih_opp.cpp.o",
-  "base": 2147832056,
+  "base": 2147832040,
   "end": 2147832132,
-  "size": 76,
+  "size": 92,
   "ok": true,
   "regions": [
    "jtbl_80055118"
@@ -325,9 +325,9 @@
  },
  {
   "obj": "build/recon/game/common/aih_traf.cpp.o",
-  "base": 2147832228,
+  "base": 2147832216,
   "end": 2147832312,
-  "size": 84,
+  "size": 96,
   "ok": false,
   "regions": [
    "jtbl_800551C8"
@@ -955,49 +955,49 @@
  },
  {
   "obj": "build/recon/game/common/aihigh.cpp.o",
-  "base": 2147831244,
+  "base": 2147831228,
   "end": 2147831388,
-  "size": 144,
+  "size": 160,
   "ok": false,
   "regions": []
  },
  {
   "obj": "build/recon/game/common/aih_basicperp.cpp.o",
-  "base": 2147831404,
+  "base": 2147831388,
   "end": 2147831436,
-  "size": 32,
+  "size": 48,
   "ok": false,
   "regions": []
  },
  {
   "obj": "build/recon/game/common/aih_basiccop.cpp.o",
-  "base": 2147831452,
+  "base": 2147831436,
   "end": 2147831476,
-  "size": 24,
-  "ok": false,
-  "regions": []
- },
- {
-  "obj": "build/recon/game/common/aih_play.cpp.o",
-  "base": 2147831960,
-  "end": 2147832000,
   "size": 40,
   "ok": false,
   "regions": []
  },
  {
+  "obj": "build/recon/game/common/aih_play.cpp.o",
+  "base": 2147831944,
+  "end": 2147831992,
+  "size": 48,
+  "ok": false,
+  "regions": []
+ },
+ {
   "obj": "build/recon/game/common/aih_hum.cpp.o",
-  "base": 2147832008,
+  "base": 2147831992,
   "end": 2147832040,
-  "size": 32,
+  "size": 48,
   "ok": false,
   "regions": []
  },
  {
   "obj": "build/recon/game/common/aih_cop.cpp.o",
-  "base": 2147832148,
+  "base": 2147832132,
   "end": 2147832216,
-  "size": 68,
+  "size": 84,
   "ok": false,
   "regions": []
  }

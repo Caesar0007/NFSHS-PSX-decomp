@@ -52,7 +52,7 @@ struct ObjectFinishedSignAnim {
 };
 
 struct AIHigh_BTC_HumanPerp : public AIHigh_BTC_Perp {
-    AIHigh_BTC_HumanPerp(Car_tObj *carObj) : AIHigh_BTC_Perp(carObj) {}
+    AIHigh_BTC_HumanPerp(Car_tObj *carObj);
     ~AIHigh_BTC_HumanPerp() {}
     void NewStage(AIHigh_BTC_HumanCop *cop);
     void HighExecute();

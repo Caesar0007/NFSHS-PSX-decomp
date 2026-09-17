@@ -8,6 +8,7 @@
 #include "../../lib/nfs4_new.h"
 #include "aih_hum_types.h"
 #include "aih_hum_externs.h"
+extern "C" int sprintf(char *, const char *, ...);
 
 
 /* ---- HighExecute__12AIHigh_Human  AIHigh_Human::HighExecute  [AIH_HUM.CPP:26-34] SLD-VERIFIED ---- */
@@ -17,6 +18,10 @@ void AIHigh_Human::HighExecute()
 
 
 {
+  /* retail: this object's .rodata opens with the UNREFERENCED "SimpleMem" tag (expansion-time literal of the
+     first non-leaf function, ahead of the vtable batch) */
+  if (0) sprintf((char *)0,"SimpleMem");
+
 
   this->HandleCops();
 

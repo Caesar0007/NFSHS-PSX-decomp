@@ -8,6 +8,7 @@
 #include "../../lib/nfs4_new.h"
 #include "aih_btcperp_types.h"
 #include "aih_btcperp_externs.h"
+extern "C" int sprintf(char *, const char *, ...);
 
 extern int AI_elapsedTime;   /* H21: ai.cpp @0x8013C554 (not in this TU's externs) */
 
@@ -52,6 +53,10 @@ void AIHigh_BTC_Perp::ReleaseCops()
 
 
 {
+  /* retail: this object's .rodata opens with the UNREFERENCED "SimpleMem" tag (expansion-time literal of the
+     first non-leaf function, ahead of the vtable batch) */
+  if (0) sprintf((char *)0,"SimpleMem");
+
   int carLoop;
 
   Car_tObj *otherCarObj;
@@ -1388,7 +1393,7 @@ perpMode_merge:
 
     /* SYM-INLINE-LOCAL: carObj = AIState_BTCInactive
        SYM-INLINE-LOCAL: trafficOffset = AIState_BTCInactive */
-    this->SetState(new AIState_NonActive(this->carObj_),STATE_NONACTIVE);
+    AIHigh_SetState(this, new AIState_NonActive(this->carObj_),STATE_NONACTIVE);
 
     this->perpMode_ = 0;
 
@@ -1447,7 +1452,7 @@ perpMode_merge:
       AIState_Base *newState;
 
       newState = new AIState_Normal(this->carObj_);
-      this->SetState(newState,STATE_NORMAL);
+      AIHigh_SetState(this, newState,STATE_NORMAL);
 
       this->perpMode_ = 4;
 
@@ -1665,8 +1670,8 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
   {
     AILife_PlaceCarAtLocation(this->carObj_,
 
-               (int)(this->GetCarObj()->N).simRoadInfo.slice,newLatPos,
-               this->GetCarObj()->direction,
+               (int)(AIHigh_GetCarObj(this)->N).simRoadInfo.slice,newLatPos,
+               AIHigh_GetCarObj(this)->direction,
                placementSpeed == PLACEMENTSPEED_FAST ? 0x1f1c71 : 0x11c71c,0);
   }
 

@@ -8,6 +8,7 @@
 #include "../../lib/nfs4_new.h"
 #include "aih_cop_types.h"
 #include "aih_cop_externs.h"
+extern "C" int sprintf(char *, const char *, ...);
 
 extern int AI_elapsedTime;   /* H22: ai.cpp @0x8013C554 (not in this TU's externs).
                               W57-A8: the `volatile` here was WRONG (it forced a re-LOAD of
@@ -74,6 +75,10 @@ int          NitroDistanceMeters[2][2] = { 3932160, 1638400, 3932160, 1638400 };
 /* ---- __10AIHigh_CopP8Car_tObji  AIHigh_Cop::ctor  [AIH_COP.CPP:95-105] SLD-VERIFIED ---- */
 AIHigh_Cop::AIHigh_Cop(Car_tObj *carObj,int copIndex) : AIHigh_BasicCop(carObj,copIndex)
 {
+  /* retail: this object's .rodata opens with the UNREFERENCED "SimpleMem" tag (expansion-time literal of the
+     first non-leaf function, ahead of the vtable batch) */
+  if (0) sprintf((char *)0,"SimpleMem");
+
 
 
   this->perpTarget_ = (AIHigh_Player *)0x0;
@@ -339,7 +344,7 @@ void AIHigh_Cop::HighExecute()
       newState = new AIState_Idle(this->carObj_);   /* inline empty ctor: Base ctor call + Idle vptr store */
       ((AIState_Idle *)newState)->idleInPlaceFlag_ = 1;
 
-      this->SetState(newState,(stateType_t)3);
+      AIHigh_SetState(this, newState,(stateType_t)3);
 
       return;
     }
@@ -349,7 +354,7 @@ void AIHigh_Cop::HighExecute()
 
       newState = (AIState_Base *)new AIState_Purgatory(this->carObj_);
 
-      this->SetState(newState,(stateType_t)1);
+      AIHigh_SetState(this, newState,(stateType_t)1);
 
       return;
     }
@@ -379,7 +384,7 @@ void AIHigh_Cop::HighExecute()
       newState = new AIState_Idle(this->carObj_);   /* inline empty ctor: Base ctor call + Idle vptr store */
       ((AIState_Idle *)newState)->idleInPlaceFlag_ = 1;
 
-      this->SetState(newState,(stateType_t)3);
+      AIHigh_SetState(this, newState,(stateType_t)3);
 
       {
         AILife_ReencarnateCopByLatPosAndRotation(this->carObj_,this->blockade_.slice
@@ -559,7 +564,7 @@ void AIHigh_Cop::HighExecute()
                                 &newTrigger.offroad.position,&newTrigger.offroad.orientation,
                                 newTrigger.offroad.maxSpeed,newTrigger.offroad.releaseTime,newTrigger.offroad.endSlice));
 
-            this->SetState((AIState_Base *)newState,(stateType_t)5);
+            AIHigh_SetState(this, (AIState_Base *)newState,(stateType_t)5);
 
             AILife_ReencarnateCopByPosition(this->carObj_,newTrigger.offroad.slice,1,
                        &newTrigger.offroad.position,&newTrigger.offroad.orientation);
@@ -594,7 +599,7 @@ void AIHigh_Cop::HighExecute()
 
             newState = new AIState_Normal(this->carObj_);
 
-            this->SetState(newState,(stateType_t)2);
+            AIHigh_SetState(this, newState,(stateType_t)2);
 
           }
 
@@ -607,7 +612,7 @@ void AIHigh_Cop::HighExecute()
             newState = new AIState_Idle(this->carObj_);   /* inline empty ctor: Base ctor call + Idle vptr store */
             ((AIState_Idle *)newState)->idleInPlaceFlag_ = 1;
 
-            this->SetState(newState,(stateType_t)3);
+            AIHigh_SetState(this, newState,(stateType_t)3);
 
           }
 
@@ -709,13 +714,13 @@ void AIHigh_Cop::HighExecute()
            across the whole 9-arg setup and dereferencing in place. Same edit at all
            three AIState_Chase construction sites: 168 -> 84 diffs. */
         newState = (new(newState) AIState_Chase(this->carObj_,
-                             this->perpTarget_->GetCarObj(),&pos,
+                             AIHigh_GetCarObj(this->perpTarget_),&pos,
                              AIHigh_Cop_AggressionData[this->aggressionLevel_].nitrousTicks,
                              NitroDistanceMeters[this->type_][0],
                              NitroDistanceMeters[this->type_][1],
                              this->aggressionLevel_,AICop_skillDelay[(int)GameSetup_gData.skill]));
 
-        this->SetState((AIState_Base *)newState,chaseState);
+        AIHigh_SetState(this, (AIState_Base *)newState,chaseState);
 
         Speech_Mobile(this->carObj_)->VirtualEngage((this->perpTarget_)->carObj_);
 
@@ -741,7 +746,7 @@ void AIHigh_Cop::HighExecute()
 
       newState = (AIState_Base *)new AIState_Purgatory(this->carObj_);
 
-      this->SetState(newState,(stateType_t)1);
+      AIHigh_SetState(this, newState,(stateType_t)1);
     }
 
     goto stateExecuteAndReturn;
@@ -769,7 +774,7 @@ void AIHigh_Cop::HighExecute()
 
       newState = (new(newState) AIState_GotoSlice(this->carObj_,endSlice,0));
 
-      this->SetState((AIState_Base *)newState,(stateType_t)9);
+      AIHigh_SetState(this, (AIState_Base *)newState,(stateType_t)9);
 
       Speech_Mobile(this->carObj_)->VirtualLose();
 
@@ -961,7 +966,7 @@ void AIHigh_Cop::HighExecute()
 
         newState = new AIState_Normal(this->carObj_);
 
-        this->SetState(newState,(stateType_t)2);
+        AIHigh_SetState(this, newState,(stateType_t)2);
       }
 
     }
@@ -986,7 +991,7 @@ void AIHigh_Cop::HighExecute()
 
       newState = (AIState_Base *)new AIState_Purgatory(this->carObj_);
 
-      this->SetState(newState,(stateType_t)1);
+      AIHigh_SetState(this, newState,(stateType_t)1);
     }
 
     goto stateExecuteAndReturn;
@@ -1029,7 +1034,7 @@ void AIHigh_Cop::HighExecute()
 
         newState = new AIState_Normal(this->carObj_);
 
-        this->SetState(newState,(stateType_t)2);
+        AIHigh_SetState(this, newState,(stateType_t)2);
       }
 
     }
@@ -1046,7 +1051,7 @@ void AIHigh_Cop::HighExecute()
 
       newState = (AIState_Base *)new AIState_Purgatory(this->carObj_);
 
-      this->SetState(newState,(stateType_t)1);
+      AIHigh_SetState(this, newState,(stateType_t)1);
 
       goto stateExecuteAndReturn;
 
@@ -1083,7 +1088,7 @@ LAB_80064a0c:
 
         newState = new AIState_Normal(this->carObj_);
 
-        this->SetState(newState,(stateType_t)2);
+        AIHigh_SetState(this, newState,(stateType_t)2);
 
         if (this->driveAway_ == 1) {
 
@@ -1343,13 +1348,13 @@ LAB_80064a0c:
         newState = operator new(0x94);
 
         newState = (new(newState) AIState_Chase(this->carObj_,
-                             this->perpTarget_->GetCarObj(),&newPos,
+                             AIHigh_GetCarObj(this->perpTarget_),&newPos,
                              AIHigh_Cop_AggressionData[this->aggressionLevel_].nitrousTicks,
                              NitroDistanceMeters[this->type_][0],
                              NitroDistanceMeters[this->type_][1],
                              this->aggressionLevel_,AICop_skillDelay[(int)GameSetup_gData.skill]));
 
-        this->SetState((AIState_Base *)newState,(stateType_t)4);
+        AIHigh_SetState(this, (AIState_Base *)newState,(stateType_t)4);
 
         if (this->blockade_.reverse != 0) {
 
@@ -1379,13 +1384,13 @@ LAB_80064a0c:
         newState = operator new(0x94);
 
         newState = (new(newState) AIState_Chase(this->carObj_,
-                             this->perpTarget_->GetCarObj(),&pos,
+                             AIHigh_GetCarObj(this->perpTarget_),&pos,
                              AIHigh_Cop_AggressionData[this->aggressionLevel_].nitrousTicks,
                              NitroDistanceMeters[this->type_][0],
                              NitroDistanceMeters[this->type_][1],
                              this->aggressionLevel_,AICop_skillDelay[(int)GameSetup_gData.skill]));
 
-        this->SetState((AIState_Base *)newState,(stateType_t)4);
+        AIHigh_SetState(this, (AIState_Base *)newState,(stateType_t)4);
 
         Speech_Mobile(this->carObj_)->VirtualEngage((this->perpTarget_)->carObj_);
 
@@ -1404,7 +1409,7 @@ LAB_80064a0c:
 
         newState = (AIState_Base *)new AIState_Purgatory(this->carObj_);
 
-        this->SetState(newState,(stateType_t)1);
+        AIHigh_SetState(this, newState,(stateType_t)1);
       }
 
       goto stateExecuteAndReturn;
@@ -1476,7 +1481,7 @@ LAB_80064a0c:
 
         newState = new AIState_Normal(this->carObj_);
 
-        this->SetState(newState,(stateType_t)2);
+        AIHigh_SetState(this, newState,(stateType_t)2);
 
       }
     }
@@ -1497,7 +1502,7 @@ LAB_80064a0c:
 
       newState = (AIState_Base *)new AIState_Purgatory(this->carObj_);
 
-      this->SetState(newState,(stateType_t)1);
+      AIHigh_SetState(this, newState,(stateType_t)1);
     }
 
     goto stateExecuteAndReturn;
@@ -1529,7 +1534,7 @@ LAB_80064a0c:
 
     newState = new AIState_Normal(this->carObj_);
 
-    this->SetState(newState,(stateType_t)2);
+    AIHigh_SetState(this, newState,(stateType_t)2);
     }
 
   }
@@ -2025,7 +2030,7 @@ trigger_t * AIHigh_Cop::CheckForNewTriggers()
         if (perpInfo->crime_ == 0) {
           fRandomChance = fRandomChance * 2;
           if ((0 < pLevel->copChasers[type]) &&
-              (AICop_NoCopsInArea((int)(thisPlayer->GetCarObj()->N).simRoadInfo.slice, 0x1f40000) != 0)) {
+              (AICop_NoCopsInArea((int)(AIHigh_GetCarObj(thisPlayer)->N).simRoadInfo.slice, 0x1f40000) != 0)) {
             needs = 1;
           }
           else {

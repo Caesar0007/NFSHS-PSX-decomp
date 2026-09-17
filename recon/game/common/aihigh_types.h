@@ -18,11 +18,13 @@ typedef enum AIHigh_CopGameType_t {
 /* Exact foreign class layouts needed by placement construction in this TU;
    their completed tags are omitted by AIHIGH.OBJ's linked debug graph. */
 struct AIHigh_BTC_HumanPerp : public AIHigh_BTC_Perp {
-    AIHigh_BTC_HumanPerp(Car_tObj *carObj) : AIHigh_BTC_Perp(carObj) {}
+    AIHigh_BTC_HumanPerp(Car_tObj *carObj);
     ~AIHigh_BTC_HumanPerp() {}
     void NewStage(AIHigh_BTC_HumanCop *cop);
     void HighExecute();
 };
+/* defined only for aihigh (its sole user): aih_btcperp.obj, HumanPerp's key TU, has no copy */
+inline AIHigh_BTC_HumanPerp::AIHigh_BTC_HumanPerp(Car_tObj *carObj) : AIHigh_BTC_Perp(carObj) {}
 struct AIHigh_BTC_AIPerp : public AIHigh_BTC_Perp {
     int perpMode_;
     int creationTime_, madeContactTime_, timeUntilContact_, escapeDuration_;

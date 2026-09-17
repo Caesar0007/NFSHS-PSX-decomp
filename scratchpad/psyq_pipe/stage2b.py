@@ -79,13 +79,10 @@ def fix_calls(s):
     out = []
     n2 = 0
     for line in s.split('\n'):
-        while 'GetCarObj()' in line:
-            i = line.index('GetCarObj()')
-            j = i
+        while '->GetCarObj()' in line:
+            i = line.index('->GetCarObj()') + 2
             # walk back over the receiver expression: `expr->` or `this->`
-            k = i
-            assert line[k - 2:k] == '->', line
-            k -= 2
+            k = i - 2
             depth = 0
             while k > 0:
                 c = line[k - 1]
@@ -115,7 +112,7 @@ for c in TUS:
     tot2 += n2
     wr(c + '.cpp', s)
     print('calls', c, n1, n2)
-assert tot1 == 57 and tot2 == 14, (tot1, tot2)
+assert tot1 == 57 and tot2 == 13, (tot1, tot2)   # 13 real `->GetCarObj()` sites (a 14th grep hit is a comment)
 
 # ---------------------------------------------------- 2. Idle / HumanPerp inline ctors out of the key TU's view
 s = rd('aistate_classes.h')

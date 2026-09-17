@@ -8,6 +8,7 @@
 #include "../../lib/nfs4_new.h"
 #include "aih_play_types.h"
 #include "aih_play_externs.h"
+extern "C" int sprintf(char *, const char *, ...);
 
 extern int AI_elapsedTime;   /* H26-H29: ai.cpp @0x8013C554 (not in this TU's externs) */
 
@@ -89,6 +90,10 @@ int AIHigh_Player::CheckIfABlockadeCanBeSetup()
 
 
 {
+  /* retail: this object's .rodata opens with the UNREFERENCED "SimpleMem" tag (expansion-time literal of the
+     first non-leaf function, ahead of the vtable batch) */
+  if (0) sprintf((char *)0,"SimpleMem");
+
   int copLoop;
   copLevel_t*pLevel;
   int nCopsNeeded[2];

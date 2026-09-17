@@ -449,6 +449,7 @@ PER_TU_FLAGS = {
     "recon/game/common/aih_btcperp.cpp":    {"g_value": "8"},  # +9
     "recon/game/common/aih_traf.cpp":       {"g_value": "8"},  # +1
     "recon/game/common/aih_basicperp.cpp":  {"g_value": "8"},
+    "recon/game/common/aih_play.cpp":       {"g_value": "8"},  # class (b) 2026-09-17: its 5-byte literal is retail .sdata 0x8013c568 (data row), not .rodata
     "recon/game/common/aih_opp.cpp":        {"g_value": "8"},
     "recon/game/common/control.cpp":        {"g_value": "8"},  # +1
     # w67-a10: fragment-member TU -G8 via surgical residual re-cut (its -G8

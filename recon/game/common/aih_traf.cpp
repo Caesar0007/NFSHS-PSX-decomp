@@ -8,6 +8,7 @@
 #include "../../lib/nfs4_new.h"
 #include "aih_traf_types.h"
 #include "aih_traf_externs.h"
+extern "C" int sprintf(char *, const char *, ...);
 
 
 /* ---- CheckForCops__14AIHigh_TrafficPi  AIHigh_Traffic::CheckForCops  [AIH_TRAF.CPP:32-56] SLD-VERIFIED ---- */
@@ -18,6 +19,10 @@ AIHigh_Traffic::CheckForCops(int *closestDistance)
 
 
 {
+  /* retail: this object's .rodata opens with the UNREFERENCED "SimpleMem" tag (expansion-time literal of the
+     first non-leaf function, ahead of the vtable batch) */
+  if (0) sprintf((char *)0,"SimpleMem");
+
   Car_tObj*closestCop;
   int copLoop;
 
@@ -182,13 +187,13 @@ void AIHigh_Traffic::HighExecute()
       if ((carObj_->carFlags & 0x400U) != 0) {
         AIState_Idle *idleState = new AIState_Idle(carObj_);   /* inline empty ctor: Base ctor call + Idle vptr store */
         idleState->idleInPlaceFlag_ = 1;
-        SetState((AIState_Base *)idleState,STATE_IDLE);
+        AIHigh_SetState(this, (AIState_Base *)idleState,STATE_IDLE);
       }
       else {
         AIState_Base *newState =
           (AIState_Base *)new((AIState_Purgatory *)operator new(8))
             AIState_Purgatory(carObj_);
-        SetState(newState,STATE_PURGATORY);
+        AIHigh_SetState(this, newState,STATE_PURGATORY);
       }
 
       Newton_SetInitialSlicePositionOrientationEtc(&carObj_->N,0,&trafficOffset,1);
@@ -201,7 +206,7 @@ void AIHigh_Traffic::HighExecute()
         BWorldSm_Pos spos;
         AIState_Idle *idleState = new AIState_Idle(carObj_);   /* inline empty ctor: Base ctor call + Idle vptr store */
         idleState->idleInPlaceFlag_ = 1;
-        SetState((AIState_Base *)idleState,STATE_IDLE);
+        AIHigh_SetState(this, (AIState_Base *)idleState,STATE_IDLE);
 
         spos.slice = 0;
         BWorldSm_FindClosestSlice(&accidentData_->cp,&spos);
@@ -227,7 +232,7 @@ void AIHigh_Traffic::HighExecute()
                aliases pNewTrigger in $s0; it has no independent source value. */
             triggerManagerTraffic->DescribeTrigger(pNewTrigger);
             if (*(int *)pNewTrigger == 5) {
-              SetState(
+              AIHigh_SetState(this, 
                 (AIState_Base *)new((AIState_RovingTraffic *)operator new(0x18))
                   AIState_RovingTraffic(carObj_,pNewTrigger),
                 STATE_ROVING_TRAFFIC);
@@ -241,7 +246,7 @@ void AIHigh_Traffic::HighExecute()
             AIState_Base *newState =
               (AIState_Base *)new((AIState_Normal *)operator new(8))
                 AIState_Normal(carObj_);
-            SetState(newState,STATE_NORMAL);
+            AIHigh_SetState(this, newState,STATE_NORMAL);
             AILife_ReencarnateTraffic(carObj_);
           }
         }
@@ -257,7 +262,7 @@ void AIHigh_Traffic::HighExecute()
         AIState_Base *newState =
           (AIState_Base *)new((AIState_Purgatory *)operator new(8))
             AIState_Purgatory(carObj_);
-        SetState(newState,STATE_PURGATORY);
+        AIHigh_SetState(this, newState,STATE_PURGATORY);
         break;
       }
 
@@ -265,7 +270,7 @@ void AIHigh_Traffic::HighExecute()
         AIState_Base *newState =
           (AIState_Base *)new((AIState_Purgatory *)operator new(8))
             AIState_Purgatory(carObj_);
-        SetState(newState,STATE_PURGATORY);
+        AIHigh_SetState(this, newState,STATE_PURGATORY);
         break;
       }
 
@@ -283,7 +288,7 @@ void AIHigh_Traffic::HighExecute()
           int slice = (int)carObj_->N.simRoadInfo.slice;
           idleState = new AIState_Idle(carObj_);   /* inline empty ctor: Base ctor call + Idle vptr store */
           idleState->idleInPlaceFlag_ = 1;
-          SetState((AIState_Base *)idleState,STATE_IDLE);
+          AIHigh_SetState(this, (AIState_Base *)idleState,STATE_IDLE);
 
           (idleState = idleState)->SetIdlePosition(
             carObj_->direction == 1 ?
@@ -295,14 +300,14 @@ void AIHigh_Traffic::HighExecute()
         else if (cRand <= 0) {
           AIState_Idle *idleState = new AIState_Idle(carObj_);   /* inline empty ctor: Base ctor call + Idle vptr store */
           idleState->idleInPlaceFlag_ = 1;
-          SetState((AIState_Base *)idleState,STATE_IDLE);
+          AIHigh_SetState(this, (AIState_Base *)idleState,STATE_IDLE);
         }
         else if (cRand < 8) {
           AIState_Idle *idleState;
           int slice = (int)carObj_->N.simRoadInfo.slice;
           idleState = new AIState_Idle(carObj_);   /* inline empty ctor: Base ctor call + Idle vptr store */
           idleState->idleInPlaceFlag_ = 1;
-          SetState((AIState_Base *)idleState,STATE_IDLE);
+          AIHigh_SetState(this, (AIState_Base *)idleState,STATE_IDLE);
 
           (idleState = idleState)->SetIdlePosition(
             carObj_->direction == 1 ?
@@ -328,14 +333,14 @@ void AIHigh_Traffic::HighExecute()
         AIState_Base *newState =
           (AIState_Base *)new((AIState_Purgatory *)operator new(8))
             AIState_Purgatory(carObj_);
-        SetState(newState,STATE_PURGATORY);
+        AIHigh_SetState(this, newState,STATE_PURGATORY);
       }
       else if ((CopCheck(&blockade) == (AIHigh_Cop *)0x0) &&
                ((carObj_->carFlags & 0x400U) == 0)) {
         AIState_Base *newState =
           (AIState_Base *)new((AIState_Normal *)operator new(8))
             AIState_Normal(carObj_);
-        SetState(newState,STATE_NORMAL);
+        AIHigh_SetState(this, newState,STATE_NORMAL);
       }
       break;
     }
@@ -346,19 +351,19 @@ void AIHigh_Traffic::HighExecute()
         AIState_Base *newState =
           (AIState_Base *)new((AIState_Purgatory *)operator new(8))
             AIState_Purgatory(carObj_);
-        SetState(newState,STATE_PURGATORY);
+        AIHigh_SetState(this, newState,STATE_PURGATORY);
       }
       else if (forcePurgatory_ != 0) {
         AIState_Base *newState =
           (AIState_Base *)new((AIState_Purgatory *)operator new(8))
             AIState_Purgatory(carObj_);
-        SetState(newState,STATE_PURGATORY);
+        AIHigh_SetState(this, newState,STATE_PURGATORY);
       }
       else if (state_->TestForRelease() != 0) {
         AIState_Base *newState =
           (AIState_Base *)new((AIState_Normal *)operator new(8))
             AIState_Normal(carObj_);
-        SetState(newState,STATE_NORMAL);
+        AIHigh_SetState(this, newState,STATE_NORMAL);
       }
       break;
     }

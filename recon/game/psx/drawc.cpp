@@ -211,6 +211,9 @@ void DrawC_SetEnviroment(void)
 void DrawC_ReadLightingData(void)
 
 {
+  /* retail: this TU's .rodata opens with the UNREFERENCED "SimpleMem" tag (0x80056808) ahead of this
+   * function's first literal; the constant-false call keeps it with no code. */
+  if (0) sprintf((char *)0,"SimpleMem");
   int i;
   char *ScaneData;
   char *RenderingFileData;

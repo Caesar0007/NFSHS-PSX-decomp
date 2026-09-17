@@ -198,9 +198,9 @@
  },
  {
   "obj": "build/recon/frontend/common/screenaudio.cpp.o",
-  "base": 2147557680,
+  "base": 2147557664,
   "end": 2147557715,
-  "size": 35,
+  "size": 51,
   "ok": false,
   "regions": [
    "jtbl_80012138"
@@ -926,6 +926,22 @@
   "base": 2147553208,
   "end": 2147553223,
   "size": 15,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/psx/audio.cpp.o",
+  "base": 2147837768,
+  "end": 2147837791,
+  "size": 23,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/psx/drawc.cpp.o",
+  "base": 2147837960,
+  "end": 2147837985,
+  "size": 25,
   "ok": false,
   "regions": []
  }

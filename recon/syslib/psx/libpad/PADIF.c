@@ -448,7 +448,7 @@ stream_count:
                  * AND as the destination; `buf[len]` spells it the other way
                  * round and rotates the whole tail block (18 diffs). */
                 *(unsigned char *)(len + (int)*(unsigned char **)(info + 0x3c))
-                    = JOY_DATA8;
+                    = (*(volatile unsigned char *)_padMtapDataReg)   /* retail reads the multitap data base @0x8013c30c here, not _padSioRegs */;
             } while (0);
         } while (0);
         _padFuncNextPort(0);

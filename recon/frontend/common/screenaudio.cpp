@@ -180,6 +180,9 @@ DrawFgAudio_fadeDone:
 void tScreenAudio::DrawBackground()
 
 {
+  /* retail: this TU's .rodata opens with the UNREFERENCED "SimpleMem" tag (0x80012120) ahead of this
+   * function's first literal; the constant-false call keeps it with no code. */
+  if (0) sprintf((char *)0,"SimpleMem");
   /* initialized => .data at this function (retail 0x800528e0 = -1, 0x800528e4 = 0x80), not .lcomm */
   static int lastpercentage = -1;   /* [SYM] STAT @0x800528e0 (last % shown) */
   static int perfade = 0x80;        /* [SYM] STAT @0x800528e4 (bg fade accumulator) */

@@ -31,6 +31,9 @@ int AudioCmn_LoadBank(char *filename,int BankNum);
 void Audio_InitDriver(int buffersize,int spusize)
 
 {
+  /* retail: this TU's .rodata opens with the UNREFERENCED "SimpleMem" tag (0x80056748) ahead of this
+   * function's first literal; the constant-false call keeps it with no code. */
+  if (0) sprintf((char *)0,"SimpleMem");
   int i;
   SNDSYSOPTS opts;
 

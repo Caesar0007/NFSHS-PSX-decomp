@@ -701,5 +701,13 @@
   "end": 2148786128,
   "size": 12,
   "ok": true
+ },
+ {
+  "obj": "build/recon/game/common/audiocmn.cpp.o",
+  "section": ".sbss",
+  "base": 2148785536,
+  "end": 2148785544,
+  "size": 8,
+  "ok": true
  }
 ]

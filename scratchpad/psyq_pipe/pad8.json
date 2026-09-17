@@ -9,6 +9,11 @@
 "build/recon/frontend/common/screentrackinfo.cpp.o": {
 "rdata": 4
 },
+"build/recon/frontend/common/statchk.cpp.o": {
+"rdata": 4,
+"text": 4,
+"data": 4
+},
 "build/recon/frontend/common/fedialog.cpp.o": {
 "text": 4
 },
@@ -48,7 +53,8 @@
 "text": 4
 },
 "build/recon/frontend/common/screentracks.cpp.o": {
-"text": 4
+"text": 4,
+"bss": 4
 },
 "build/recon/frontend/common/screendisplay.cpp.o": {
 "text": 4
@@ -57,9 +63,6 @@
 "text": 4
 },
 "build/recon/frontend/common/screenmemcard.cpp.o": {
-"text": 4
-},
-"build/recon/frontend/common/statchk.cpp.o": {
 "text": 4,
 "data": 4
 },
@@ -113,6 +116,9 @@
 "data": 4
 },
 "build/recon/frontend/common/screencontroller.cpp.o": {
+"data": 4
+},
+"build/recon/frontend/common/screencongrats.cpp.o": {
 "data": 4
 },
 "build/recon/syslib/psx/libc/SPRINTF.c.o": {

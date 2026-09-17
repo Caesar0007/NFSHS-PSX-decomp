@@ -404,7 +404,9 @@ PER_TU_FLAGS = {
     "recon/game/common/anim.cpp":          {"g_value": "8"},
     "recon/game/psx/overlays.cpp":         {"g_value": "8"},   # StatsTimer[2] gp-relative at its constant-index sites (2026-09-17)   # anim.obj .sdata = the "%sA.viv"/"Tr" literal pool @0x8013c5fc (2026-09-17)
     "recon/frontend/psx/movie.cpp":        {"g_value": "0"},
-    "recon/frontend/psx/memcard.c":        {"g_value": "0"},   # retail keeps its "*" literal in .rdata between two jump tables (2026-09-17)   # Movie.obj keeps user_exit/skip_all/gPlayerNum/download in front.data (2026-09-17)
+    "recon/frontend/psx/memcard.c":        {"g_value": "0"},
+    "recon/syslib/psx/libgte/MSC00.c":     {"g_value": "0"},   # Sony libgte: ra-save scratch is a .data word @0x80134a70 (2026-09-17)
+    "recon/syslib/psx/libgte/PATCHGTE.c":  {"g_value": "0"},   # Sony libgte: ra-save scratch is .bss @0x8014898c (2026-09-17)   # retail keeps its "*" literal in .rdata between two jump tables (2026-09-17)   # Movie.obj keeps user_exit/skip_all/gPlayerNum/download in front.data (2026-09-17)
     # w59-a13 (orchestrator-wired): memmove FAIL 2 -> PASS 27/27 with NO source
     # change on the 2.7.2-970404 rung (full ladder: 970404 PASS, 2.8.x 2, 2.6.x 22,
     # 2.9x 25).  Same rung as the libmath vendor cluster -- libc.lib looks Sony-prebuilt.

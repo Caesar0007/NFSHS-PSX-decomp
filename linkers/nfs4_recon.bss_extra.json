@@ -709,5 +709,21 @@
   "end": 2148785544,
   "size": 8,
   "ok": true
+ },
+ {
+  "obj": "build/recon/syslib/psx/libgte/PATCHGTE.c.o",
+  "section": ".bss",
+  "base": 2148829580,
+  "end": 2148829584,
+  "size": 4,
+  "ok": true
+ },
+ {
+  "obj": "build/recon/eaclib/psx/eacpsxz/nfile.c.o",
+  "section": ".sbss",
+  "base": 2148785232,
+  "end": 2148785236,
+  "size": 4,
+  "ok": true
  }
 ]

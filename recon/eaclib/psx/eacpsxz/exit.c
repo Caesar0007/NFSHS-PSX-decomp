@@ -14,7 +14,7 @@
 /* The raw addexit oracle proves the 32-entry BSS registry at 0x801349E8;
  * this stripped library member exposes no lexical data name in SYM/MAP.
  * SYM-GLOBAL-CARRIER: gExitFuncs */
-void (*gExitFuncs[32])(void);   /* @0x801349E8 (data-mat pass owns) */
+void (*gExitFuncs[32])(void) = { 0 };   /* @0x801349E8: retail keeps it in .DATA (zero-initialized), not COMMON */
 
 void addexit(void (*fn)(void))  /* @0x800F1CF8 */
 {

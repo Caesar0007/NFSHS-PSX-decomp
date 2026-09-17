@@ -858,14 +858,6 @@
   "regions": []
  },
  {
-  "obj": "build/recon/eaclib/psx/sndpsxz/snddata.c.o",
-  "base": 2148778824,
-  "end": 2148779338,
-  "size": 514,
-  "ok": false,
-  "regions": []
- },
- {
   "obj": "build/recon/game/common/aistate.cpp.o",
   "base": 2148779480,
   "end": 2148779493,

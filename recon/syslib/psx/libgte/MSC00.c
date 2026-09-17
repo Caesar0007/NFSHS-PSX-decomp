@@ -13,7 +13,7 @@ extern void _patch_gte(void);   /* libgte PATCHGTE.obj @0x80106454 */
 /* @0x80134A70 : scratch word holding $ra across the _patch_gte call (handwritten spill). */
 /* SYM-GLOBAL-CARRIER: _InitGeom_ra_save -- relocation-proven private scratch
  * storage in the handwritten object; retail SYM carries no declaration row. */
-int _InitGeom_ra_save;
+int _InitGeom_ra_save = 0;   /* retail: .data word @0x80134a70 (Sony .s: .data/.word 0), absolute at -G0 */
 
 /* @0x800F21A4 : InitGeom -- handwritten. */
 __asm__(

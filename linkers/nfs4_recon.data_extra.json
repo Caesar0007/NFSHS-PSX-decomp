@@ -2231,5 +2231,38 @@
   "unresolved": 0,
   "words": 1,
   "q": 1
+ },
+ {
+  "obj": "build/recon/eaclib/psx/sndpsxz/ssine.c.o",
+  "section": ".data",
+  "base": 2148778824,
+  "end": 2148779338,
+  "size": 514,
+  "ok": true,
+  "unresolved": 0,
+  "words": 128,
+  "q": 0
+ },
+ {
+  "obj": "build/recon/eaclib/psx/eacpsxz/exit.c.o",
+  "section": ".data",
+  "base": 2148747752,
+  "end": 2148747880,
+  "size": 128,
+  "ok": true,
+  "unresolved": 0,
+  "words": 32,
+  "q": 0
+ },
+ {
+  "obj": "build/recon/syslib/psx/libgte/MSC00.c.o",
+  "section": ".data",
+  "base": 2148747888,
+  "end": 2148748020,
+  "size": 132,
+  "ok": true,
+  "unresolved": 0,
+  "words": 33,
+  "q": 0
  }
 ]

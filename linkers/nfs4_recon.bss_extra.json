@@ -693,5 +693,13 @@
   "end": 2148785864,
   "size": 8,
   "ok": true
+ },
+ {
+  "obj": "build/recon/game/common/bworldSm.cpp.o",
+  "section": ".bss",
+  "base": 2148786116,
+  "end": 2148786128,
+  "size": 12,
+  "ok": true
  }
 ]

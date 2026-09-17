@@ -197,35 +197,8 @@ struct AICop_PerpChaseInfo {
     int engagementPercentIncreasePerTick_, copFreeTicks_;
 };
 
-struct AIState_Base {
-    Car_tObj *carObj_;
-    __vtbl_ptr_type (*_vf)[4];
-    AIState_Base() {}
-    AIState_Base(Car_tObj *carObj);
-    void StateExecute();
-    int TestForRelease();
-};
-struct AIState_Normal : public AIState_Base {
-    AIState_Normal() {}
-    AIState_Normal(Car_tObj *carObj);
-    void Execute();
-};
-struct AIState_Idle : public AIState_Base {
-    int roadPosition_, idleInPlaceFlag_;
-    AIState_Idle() {}
-    ~AIState_Idle();
-    void Execute();
-    void SetIdlePosition(int pos);
-};
-extern __vtbl_ptr_type AIState_NonActive_vtable[];
-struct AIState_NonActive : public AIState_Base {
-    AIState_NonActive() {}
-    AIState_NonActive(Car_tObj *carObj) : AIState_Base(carObj) {
-        _vf = (__vtbl_ptr_type (*)[4])AIState_NonActive_vtable;   /* retail stores the table base (aistate 0x800555a0), not +8 */
-    }
-    ~AIState_NonActive();
-    void Execute();
-};
+#include "aistate_classes.h"
+
 
 struct AIHigh_Base {
     Car_tObj *carObj_;
@@ -241,8 +214,7 @@ struct AIHigh_Base {
     void SetState(AIState_Base *newState, stateType_t newStateType) {
         AIState_Base *oldState = state_;
         if (oldState != (AIState_Base *)0) {
-            (*(*oldState->_vf)[2].pfn)
-                ((int)&oldState->carObj_ + (*oldState->_vf)[2].delta, 3);
+            delete oldState;   /* virtual ~AIState_Base with __in_chrg 3 */
         }
         state_ = newState;
         stateType_ = newStateType;
@@ -383,28 +355,7 @@ struct AIHigh_BTC_HumanCop : public AIHigh_BTC_Cop {
     void HudOn(AIHigh_BTC_Perp *p, int a, Car_tObj *carObj);
 };
 
-struct AIState_Chase : public AIState_Base {
-    AIDelayCar delayCar_;
-    int noTurnAroundEndTime_;
-    Car_tObj *targetCar_;
-    coorddef relPosition_;
-    int longTargetRegion_, latTargetRegion_, targetDir_, carDir_;
-    int longMetersBetween_, latMetersBetween_, murderMode_, murderEndTime_;
-    int inTargetRegion_, nitrousTicks_, nitrousMinForeDistance_, nitrousMinAftDistance_;
-    int aggressionLevel_, slowDownEndTime_, barrierTicks32_;
-    AIState_Chase() {}
-    AIState_Chase(Car_tObj *, Car_tObj *, coorddef *, int, int, int, int, int);
-    void SetTarget(Car_tObj *, coorddef *);
-    void SetMurderMode(int, int);
-    int FindBarrierEndSlice();
-};
 
-struct AIState_GotoSlice : public AIState_Normal {
-    int targetSlice_, stopWhenArrivedAtSlice_;
-    AIState_GotoSlice() {}
-    AIState_GotoSlice(Car_tObj *, int, int);
-    int InTargetSliceRange(int);
-};
 
 struct AIHigh_BTC_Wingman : public AIHigh_BTC_Cop {
     Wingman_Role currentRole_, newRole_;

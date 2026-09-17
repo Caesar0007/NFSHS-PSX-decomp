@@ -4,32 +4,8 @@
 
 #include "aih_hierarchy_types.h"
 
-struct AIState_Chase : public AIState_Base {
-    AIDelayCar delayCar_;
-    int noTurnAroundEndTime_;
-    Car_tObj *targetCar_;
-    coorddef relPosition_;
-    int longTargetRegion_, latTargetRegion_, targetDir_, carDir_;
-    int longMetersBetween_, latMetersBetween_, murderMode_, murderEndTime_;
-    int inTargetRegion_, nitrousTicks_, nitrousMinForeDistance_;
-    int nitrousMinAftDistance_, aggressionLevel_, slowDownEndTime_;
-    int barrierTicks32_;
-    AIState_Chase() {}
-    AIState_Chase(Car_tObj *carObj, Car_tObj *target, coorddef *pt,
-                  int a, int b, int c, int d, int e);
-    void SetTarget(Car_tObj *target, coorddef *pt);
-    void SetMurderMode(int a, int b);
-    void SetUp();
-    void DoSlowNitrous();
-    void DoNitrous(int a);
-    void Execute();
-    void FarTargeting();
-    int CalculateCloseTargettingAheadSlowDownFactor();
-    void CloseTargeting();
-    void ApproachTargeting(int a);
-    void CheckForBarriersAndTargetAroundThem();
-    int FindBarrierEndSlice();
-};
+#include "aistate_classes.h"
+
 
 struct AIHigh_Opponent : public AIHigh_Player {
     AIHigh_tAttackMode attackMode_;

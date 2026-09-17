@@ -342,13 +342,8 @@ void AIHigh_Cop::HighExecute()
       /* Idle arm = oracle FALL-THROUGH (beqz jumps to the Purgatory arm) */
       AIState_Base *newState;
 
-      newState = operator new(0x10);
-
-      (new(newState) AIState_Base(this->carObj_));
-
-      newState->_vf = (__vtbl_ptr_type (*) [4])AIState_Idle_vtable;
-
-      newState[1]._vf = (__vtbl_ptr_type (*) [4])0x1;
+      newState = new AIState_Idle(this->carObj_);   /* inline empty ctor: Base ctor call + Idle vptr store */
+      ((AIState_Idle *)newState)->idleInPlaceFlag_ = 1;
 
       this->SetState(newState,(stateType_t)3);
 
@@ -387,13 +382,8 @@ void AIHigh_Cop::HighExecute()
 
       this->AssignToPlayer(this->blockade_.target);
 
-      newState = operator new(0x10);
-
-      (new(newState) AIState_Base(this->carObj_));
-
-      newState->_vf = (__vtbl_ptr_type (*) [4])AIState_Idle_vtable;
-
-      newState[1]._vf = (__vtbl_ptr_type (*) [4])0x1;
+      newState = new AIState_Idle(this->carObj_);   /* inline empty ctor: Base ctor call + Idle vptr store */
+      ((AIState_Idle *)newState)->idleInPlaceFlag_ = 1;
 
       this->SetState(newState,(stateType_t)3);
 
@@ -620,13 +610,8 @@ void AIHigh_Cop::HighExecute()
 
             this->AssignToPlayer((AIHigh_Player *)0x0);
 
-            newState = operator new(0x10);
-
-            (new(newState) AIState_Base(this->carObj_));
-
-            newState->_vf = (__vtbl_ptr_type (*) [4])AIState_Idle_vtable;
-
-            newState[1]._vf = (__vtbl_ptr_type (*) [4])0x1;
+            newState = new AIState_Idle(this->carObj_);   /* inline empty ctor: Base ctor call + Idle vptr store */
+            ((AIState_Idle *)newState)->idleInPlaceFlag_ = 1;
 
             this->SetState(newState,(stateType_t)3);
 

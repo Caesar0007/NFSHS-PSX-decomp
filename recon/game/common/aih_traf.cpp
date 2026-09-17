@@ -179,9 +179,7 @@ void AIHigh_Traffic::HighExecute()
       coorddef trafficOffset = D_800551A4;
 
       if ((carObj_->carFlags & 0x400U) != 0) {
-        AIState_Idle *idleState = operator new(0x10);
-        new((AIState_Base *)idleState) AIState_Base(carObj_);
-        idleState->_vf = (__vtbl_ptr_type (*)[4])AIState_Idle_vtable;
+        AIState_Idle *idleState = new AIState_Idle(carObj_);   /* inline empty ctor: Base ctor call + Idle vptr store */
         idleState->idleInPlaceFlag_ = 1;
         SetState((AIState_Base *)idleState,STATE_IDLE);
       }
@@ -200,9 +198,7 @@ void AIHigh_Traffic::HighExecute()
     {
       if (accidentData_ != (SceneElem *)0x0) {
         BWorldSm_Pos spos;
-        AIState_Idle *idleState = operator new(0x10);
-        new((AIState_Base *)idleState) AIState_Base(carObj_);
-        idleState->_vf = (__vtbl_ptr_type (*)[4])AIState_Idle_vtable;
+        AIState_Idle *idleState = new AIState_Idle(carObj_);   /* inline empty ctor: Base ctor call + Idle vptr store */
         idleState->idleInPlaceFlag_ = 1;
         SetState((AIState_Base *)idleState,STATE_IDLE);
 
@@ -220,8 +216,7 @@ void AIHigh_Traffic::HighExecute()
            retail's pre-call zero initialization and 547-instruction PASS. */
         bool release;
         release =
-          ((*(*state_->_vf)[3].pfn)
-             ((int)&state_->carObj_ + (*state_->_vf)[3].delta) != 0) &&
+          (state_->TestForRelease() != 0) &&
           (forcePurgatory_ == 0);
         if (release) {
           trigger_t *pNewTrigger = CheckForNewTriggers();
@@ -285,9 +280,7 @@ void AIHigh_Traffic::HighExecute()
         if (blockade != 0) {
           AIState_Idle *idleState;
           int slice = (int)carObj_->N.simRoadInfo.slice;
-          idleState = operator new(0x10);
-          new((AIState_Base *)idleState) AIState_Base(carObj_);
-          idleState->_vf = (__vtbl_ptr_type (*)[4])AIState_Idle_vtable;
+          idleState = new AIState_Idle(carObj_);   /* inline empty ctor: Base ctor call + Idle vptr store */
           idleState->idleInPlaceFlag_ = 1;
           SetState((AIState_Base *)idleState,STATE_IDLE);
 
@@ -299,18 +292,14 @@ void AIHigh_Traffic::HighExecute()
                 ((u_int)BWorldSm_slices[slice].laneCount >> 4));
         }
         else if (cRand <= 0) {
-          AIState_Idle *idleState = operator new(0x10);
-          new((AIState_Base *)idleState) AIState_Base(carObj_);
-          idleState->_vf = (__vtbl_ptr_type (*)[4])AIState_Idle_vtable;
+          AIState_Idle *idleState = new AIState_Idle(carObj_);   /* inline empty ctor: Base ctor call + Idle vptr store */
           idleState->idleInPlaceFlag_ = 1;
           SetState((AIState_Base *)idleState,STATE_IDLE);
         }
         else if (cRand < 8) {
           AIState_Idle *idleState;
           int slice = (int)carObj_->N.simRoadInfo.slice;
-          idleState = operator new(0x10);
-          new((AIState_Base *)idleState) AIState_Base(carObj_);
-          idleState->_vf = (__vtbl_ptr_type (*)[4])AIState_Idle_vtable;
+          idleState = new AIState_Idle(carObj_);   /* inline empty ctor: Base ctor call + Idle vptr store */
           idleState->idleInPlaceFlag_ = 1;
           SetState((AIState_Base *)idleState,STATE_IDLE);
 
@@ -364,8 +353,7 @@ void AIHigh_Traffic::HighExecute()
             AIState_Purgatory(carObj_);
         SetState(newState,STATE_PURGATORY);
       }
-      else if ((*(*state_->_vf)[3].pfn)
-                 ((int)&state_->carObj_ + (*state_->_vf)[3].delta) != 0) {
+      else if (state_->TestForRelease() != 0) {
         AIState_Base *newState =
           (AIState_Base *)new((AIState_Normal *)operator new(8))
             AIState_Normal(carObj_);

@@ -167,7 +167,8 @@ def scan():
                 if " d " in flags or " df " in flags:
                     continue
                 data[cur]["syms"].append({"off": int(val, 16), "sec": sec,
-                                          "name": name.strip()})
+                                          "name": name.strip(),
+                                          "local": flags.startswith("l")})
     cur = None
     for b in batches(objs, 40):
         r = subprocess.run([OBJDUMP, "-h"] + [str(p) for p in b],
@@ -818,6 +819,26 @@ def main():
                 legacy_syms[m.group(3)] = int(m.group(4), 16)
     for name, va in sorted(legacy_syms.items()):
         A(f"    {name} = {va:#x};")
+    # Class (b) 2026-09-17: real C++ virtual classes.  cc1plus 2.8 emits the
+    # inline virtual bodies of an all-inline class (AIState_NonActive::Execute,
+    # ~AIState_Base, AIState_Base::TestForRelease ...) as LOCAL out-of-line
+    # copies in every TU that needs them, exactly like retail did (the SYM
+    # names them per TU: Execute__17AIState_NonActive @0x8005F624 in aih_btccop,
+    # _80061370 in aih_btcperp, _80072750 in aistate).  The residual splat
+    # .rodata pieces (rdata_80054548_rNN) still spell those names in their
+    # vtable words, and a LOCAL definition cannot satisfy them.  Bind every
+    # such name to its retail VA -- which is exactly where the recon TU's local
+    # copy sits once its .text is on the spine -- via PROVIDE (no effect on a
+    # name some object defines globally).  The stem rule covers the VA-suffixed
+    # duplicates; only names a recon TU really defines LOCAL in .text qualify.
+    local_text = {s["name"] for o, d in objdata.items() if o.startswith("build/recon")
+                  for s in d["syms"] if s["sec"] == ".text" and s.get("local")}
+    n_vague = 0
+    for name, va in sorted(vas.items()):
+        stem = re.sub(r"_[0-9A-Fa-f]{8}$", "", name)
+        if stem in local_text and name not in legacy_syms:
+            A(f"    PROVIDE({name} = {va:#x});   /* vague-linkage local copy */")
+            n_vague += 1
     A("    /* *_legacy residual pieces are ORACLE-ONLY (a recon TU owns those")
     A("     * retail bytes); linked as orphans they landed in the catch-all and")
     A("     * their alias labels (D_8011E0B0 = simGlobal.gameTicks) out-bound the")

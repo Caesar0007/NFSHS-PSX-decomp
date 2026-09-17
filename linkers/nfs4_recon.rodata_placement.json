@@ -295,9 +295,9 @@
  },
  {
   "obj": "build/recon/game/common/aih_btccop.cpp.o",
-  "base": 2147831652,
+  "base": 2147831588,
   "end": 2147831696,
-  "size": 44,
+  "size": 108,
   "ok": true,
   "regions": [
    "jtbl_80054F64"
@@ -305,9 +305,9 @@
  },
  {
   "obj": "build/recon/game/common/aih_btcperp.cpp.o",
-  "base": 2147831872,
+  "base": 2147831808,
   "end": 2147831944,
-  "size": 72,
+  "size": 136,
   "ok": false,
   "regions": [
    "jtbl_80055070"
@@ -942,6 +942,14 @@
   "base": 2147837960,
   "end": 2147837985,
   "size": 25,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/common/aistate.cpp.o",
+  "base": 2147833072,
+  "end": 2147833440,
+  "size": 368,
   "ok": false,
   "regions": []
  }

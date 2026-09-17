@@ -31,6 +31,10 @@ void AIState_StartUp(void)
 
 
 {
+  /* retail aistate.obj .rodata opens with the UNREFERENCED "SimpleMem" tag (0x800554f0) ahead
+   * of the vtables; the constant-false call keeps it with no code. */
+  if (0) sprintf((char *)0,"SimpleMem");
+
 
   AIState_Purgatory::StartUp();
 
@@ -100,7 +104,7 @@ void AIState_Base::StateExecute()
 
   }
 
-  (*(*this->_vf)[1].pfn)((int)&this->carObj_ + (int)(*this->_vf)[1].delta);
+  this->Execute();
 
   return;
 
@@ -121,7 +125,6 @@ AIState_Base::AIState_Base(Car_tObj *carObj)
 
 {
 
-  this->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
 
   this->carObj_ = carObj;
 
@@ -168,7 +171,6 @@ void AIState_Normal::Execute()
 AIState_Normal::AIState_Normal(Car_tObj *carObj)
   : AIState_Base(carObj)
 {
-  this->_vf = (__vtbl_ptr_type (*) [4])AIState_Normal_vtable;
 
   (this->carObj_)->targetPos.x =
       (this->carObj_)->targetPos.y =
@@ -324,7 +326,6 @@ AIState_Chase::AIState_Chase(Car_tObj *carObj,Car_tObj *targetCar,coorddef *relP
    * five-instruction test, producing a 61-insn body instead of retail's 66. */
   int reverseDirCheck;
 
-  this->_vf = (__vtbl_ptr_type (*) [4])AIState_Chase_vtable;
 
   /* MATCH: delayCar_ constructed via placement-new IN THE BODY (after the _vf store) --
      the oracle schedules the _vf store into the AIDelayCar ctor's arg setup, which is
@@ -403,7 +404,6 @@ AIState_Chase::~AIState_Chase()
 
 
 {
-  this->_vf = (__vtbl_ptr_type (*) [4])AIState_Chase_vtable;
 
   (this->carObj_)->targetPos.x =
       (this->carObj_)->targetPos.y =
@@ -419,7 +419,6 @@ AIState_Chase::~AIState_Chase()
 
   (this->carObj_)->speedNitrous = 0x10000;
 
-  this->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
 
   return;
 
@@ -1696,7 +1695,6 @@ AIState_Offroad::~AIState_Offroad()
 
 
 {
-  this->_vf = (__vtbl_ptr_type (*) [4])AIState_Offroad_vtable;
 
   (this->carObj_)->targetPos.x =
       (this->carObj_)->targetPos.y =
@@ -1706,7 +1704,6 @@ AIState_Offroad::~AIState_Offroad()
 
   this->carObj_->carFlags = this->carObj_->carFlags & 0xfffff7ff;
 
-  this->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
 
   return;
 
@@ -1726,7 +1723,6 @@ AIState_Offroad::AIState_Offroad(Car_tObj *carObj,int startSlice,coorddef *posit
           matrixtdef *orientation,int maxSpeedKPH,int releaseTime,int endSlice)
   : AIState_Base(carObj)
 {
-  this->_vf = (__vtbl_ptr_type (*) [4])AIState_Offroad_vtable;
 
   this->letGo_ = 0;
 
@@ -1883,18 +1879,12 @@ AIState_Purgatory::AIState_Purgatory(Car_tObj *carObj)
 
 
 {
-  coorddef trafficOffset;
   int lifeTimer;
 
-  memset((u_char *)&trafficOffset,'\0',0xc);
 
-  trafficOffset.y = carObj->carIndex * 0xa0000;
 
-  Newton_SetInitialSlicePositionOrientationEtc(&(this->carObj_)->N,0,&trafficOffset,1);
 
-  ((this->carObj_)->N).active = '\0';
 
-  this->_vf = (__vtbl_ptr_type (*) [4])AIState_Purgatory_vtable;
 
   randtemp = fastRandom * randSeed;
 
@@ -1966,7 +1956,6 @@ AIState_Purgatory::~AIState_Purgatory()
      preserves 72 instructions but changes the final ready-list pair. */
   Car_tObj **sortedList;
 
-  this->_vf = (__vtbl_ptr_type (*) [4])AIState_Purgatory_vtable;
 
   (this->carObj_->collision).resetTimer = 0;
 
@@ -2063,13 +2052,9 @@ LOOP_800716DC:
 
   }
 
-  this->_vf =
 
-       (__vtbl_ptr_type (*) [4])AIState_NonActive_vtable;   /* retail stores the table base (0x800555a0), not +8 */
+  /* carObj_->N.active = 1 now comes from the inlined ~AIState_NonActive (real dtor chain). */
 
-  (this->carObj_->N).active = '\x01';
-
-  this->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
 
   return;
 
@@ -2173,7 +2158,6 @@ void AIState_Purgatory::StartUp(void)
 AIState_RovingTraffic::AIState_RovingTraffic(Car_tObj *carObj,trigger_t *trigger)
   : AIState_Base(carObj)
 {
-  this->_vf = (__vtbl_ptr_type (*) [4])AIState_RovingTraffic_vtable;
 
   this->path_ = *(trigger_pathPosition_t **)((char *)trigger + 0x3c);
 
@@ -2435,7 +2419,6 @@ AIState_Donuts::~AIState_Donuts()
 
 
 {
-  this->_vf = (__vtbl_ptr_type (*) [4])AIState_Donuts_vtable;
 
   (this->carObj_)->targetPos.x =
       (this->carObj_)->targetPos.y =
@@ -2445,7 +2428,6 @@ AIState_Donuts::~AIState_Donuts()
 
   (this->carObj_)->donutMode = 0;
 
-  this->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
 
   return;
 
@@ -2656,7 +2638,6 @@ AIState_GotoSlice::AIState_GotoSlice(Car_tObj *carObj,int targetSlice,int stopWh
 {
 
 
-  this->_vf = (__vtbl_ptr_type (*) [4])AIState_GotoSlice_vtable;
 
   this->targetSlice_ = targetSlice;
 
@@ -2821,7 +2802,6 @@ AIState_Cruise::AIState_Cruise(Car_tObj *carObj,cruiseMode_t cruiseMode,int spee
 {
 
 
-  this->_vf = (__vtbl_ptr_type (*) [4])AIState_Cruise_vtable;
 
   this->cruiseMode_ = cruiseMode;
 
@@ -2908,7 +2888,6 @@ AIState_Cruise::~AIState_Cruise()
 {
 
 
-  this->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
 
   return;
 
@@ -2931,7 +2910,6 @@ AIState_GotoSlice::~AIState_GotoSlice()
 {
 
 
-  this->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
 
   return;
 
@@ -2972,7 +2950,6 @@ AIState_RovingTraffic::~AIState_RovingTraffic()
 
 {
 
-  this->_vf = (__vtbl_ptr_type (*) [4])AIState_RovingTraffic_vtable;
 
   (this->carObj_)->targetPos.x =
       (this->carObj_)->targetPos.y =
@@ -2982,7 +2959,6 @@ AIState_RovingTraffic::~AIState_RovingTraffic()
 
   this->carObj_->carFlags &= 0xfffff7ff;
 
-  this->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
 
   return;
 
@@ -3010,13 +2986,6 @@ AIState_RovingTraffic::~AIState_RovingTraffic()
    PROOF: asm/data/rdata_80054548.rodata.s @0x800555AC (AIState_NonActive_vtable Execute slot,
    D_800555A0+0xC) holds the literal word `func_80072750`. */
 
-extern "C" void Execute__17AIState_NonActive_80072750(AIState_NonActive *)
-
-{
-
-  return;
-
-}
 
 
 
@@ -3031,25 +3000,6 @@ extern "C" void Execute__17AIState_NonActive_80072750(AIState_NonActive *)
    are the exact VAs of AIState_NonActive_vtable and AIState_Base_vtable materialized in
    vtables_aistate.cpp. */
 
-extern "C" void ___17AIState_NonActive_80072758(AIState_NonActive *pThis,int __in_chrg)
-
-
-
-{
-
-  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_NonActive_vtable;
-
-  ((pThis->carObj_)->N).active = '\x01';
-
-  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
-
-  if ((__in_chrg & 1U) != 0) {
-    __builtin_delete(pThis);
-  }
-
-  return;
-
-}
 
 
 
@@ -3057,21 +3007,6 @@ extern "C" void ___17AIState_NonActive_80072758(AIState_NonActive *pThis,int __i
 /* ---- _._12AIState_Idle  AIState_Idle::dtor  [AISTATE.CPP:?] SLD-FLAG:NO_SLD ----
    Ordinary member form removes the reconstructed receiver, in-charge parameter,
    and cached-car placeholder from the source surface. */
-AIState_Idle::~AIState_Idle()
-
-
-
-{
-
-  this->_vf = (__vtbl_ptr_type (*) [4])AIState_Idle_vtable;
-
-  this->carObj_->carFlags = this->carObj_->carFlags & 0xfffffbff;
-
-  this->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
-
-  return;
-
-}
 
 
 
@@ -3084,22 +3019,6 @@ AIState_Idle::~AIState_Idle()
 /* reconstructed as extern "C" ___14AIState_Normal(AIState_Normal*,int) free fn -- see
    AIState_Chase dtor comment for why (real per-class deleting dtor in the oracle). */
 
-extern "C" void ___14AIState_Normal(AIState_Normal *pThis,int __in_chrg)
-
-
-
-{
-
-
-  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
-
-  if ((__in_chrg & 1U) != 0) {
-    __builtin_delete(pThis);
-  }
-
-  return;
-
-}
 
 
 
@@ -3113,13 +3032,6 @@ extern "C" void ___14AIState_Normal(AIState_Normal *pThis,int __in_chrg)
    _vt (@0x800555DC), AIState_Chase's _vt (@0x800555FC), AIState_Idle's _vt (@0x8005561C),
    AIState_Normal's _vt (@0x8005563C) AND AIState_Base_vtable itself (@0x8005565C). */
 
-extern "C" int TestForRelease__12AIState_Base_80072830(AIState_Base *)
-
-{
-
-  return 0;
-
-}
 
 
 
@@ -3136,22 +3048,6 @@ extern "C" int TestForRelease__12AIState_Base_80072830(AIState_Base *)
    PROOF: rdata_80054548.rodata.s @0x80055654 (AIState_Base_vtable's OWN dtor slot) holds the
    literal word `func_80072838`. */
 
-extern "C" void ___12AIState_Base_80072838(AIState_Base *pThis,int __in_chrg)
-
-
-
-{
-
-
-  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
-
-  if ((__in_chrg & 1U) != 0) {
-    __builtin_delete(pThis);
-  }
-
-  return;
-
-}
 
 
 

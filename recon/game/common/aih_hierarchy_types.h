@@ -181,28 +181,8 @@ struct AICop_PerpChaseInfo {
     inline void ResetEngagementTime();
 };
 
-struct AIState_Base {
-    Car_tObj *carObj_;
-    __vtbl_ptr_type (*_vf)[4];
-    AIState_Base() {}
-    AIState_Base(Car_tObj *carObj);
-    ~AIState_Base();
-    void StateExecute();
-    int TestForRelease();
-};
-struct AIState_Normal : public AIState_Base {
-    AIState_Normal() {}
-    AIState_Normal(Car_tObj *carObj);
-    void Execute();
-};
-extern __vtbl_ptr_type AIState_NonActive_vtable[];
-struct AIState_NonActive : public AIState_Base {
-    AIState_NonActive() {}
-    AIState_NonActive(Car_tObj *carObj) : AIState_Base(carObj) {
-        _vf = (__vtbl_ptr_type (*)[4])AIState_NonActive_vtable;   /* retail stores the table base (aistate 0x800555a0), not +8 */
-    }
-    void Execute();
-};
+#include "aistate_classes.h"
+
 
 struct AIHigh_Base {
     Car_tObj *carObj_;
@@ -218,8 +198,7 @@ struct AIHigh_Base {
     void SetState(AIState_Base *newState, stateType_t newStateType) {
         AIState_Base *oldState = state_;
         if (oldState != (AIState_Base *)0) {
-            (*(*oldState->_vf)[2].pfn)
-                ((int)&oldState->carObj_ + (*oldState->_vf)[2].delta, 3);
+            delete oldState;   /* virtual ~AIState_Base with __in_chrg 3 */
         }
         state_ = newState;
         stateType_ = newStateType;

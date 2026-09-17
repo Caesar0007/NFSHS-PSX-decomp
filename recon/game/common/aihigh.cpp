@@ -33,10 +33,17 @@ __vtbl_ptr_type AIHigh_kVtbl_80054dcc[4] AIHIGH_RDATA = {   /* @0x80054dcc  BTC_
   {0, 0, (int (*)(...))&___15AIHigh_BTC_Perp},           /* @0x80054ddc  fn=0x8005b438 ~AIHigh_BTC_Perp */
   {0, 0, (int (*)(...))&AIHigh_BasicPerp::CheckForCrimes},  /* @0x80054de4  fn=0x8005b500 */
 };
+extern "C" void ___11AIHigh_Base(void *thisp);   /* ~AIHigh_Base */
 __vtbl_ptr_type AIHigh_None_vtable[3] AIHIGH_RDATA = {   /* @0x80054dec (AIHigh_None vtable) */
   {0, 0, (int (*)(...))0},                                  /* @0x80054dec */
   {0, 0, (int (*)(...))&AIHigh_None::HighExecute},          /* @0x80054df4  fn=0x8005b460 */
   {0, 0, (int (*)(...))&___11AIHigh_None},               /* @0x80054dfc  fn=0x8005b468 ~AIHigh_None */
+};
+__vtbl_ptr_type AIHigh_Base_vtable[3] AIHIGH_RDATA = {   /* @0x80054e04 (moved from vtables_aihigh.cpp: retail order
+    is [kVtbl][AIHigh_None][AIHigh_Base] then the two gcc-emitted local AIState copies) */
+  {0, 0, (int (*)(...))0},                           /* @0x80054e04  null */
+  {0, 0, (int (*)(...))&__pure_virtual},             /* @0x80054e0c  __pure_virtual */
+  {0, 0, (int (*)(...))&___11AIHigh_Base},        /* @0x80054e14  ~AIHigh_Base */
 };
 
 /* ---- aihigh.obj-owned globals (.bss zero) ---- */
@@ -395,9 +402,7 @@ AIHigh_Base::~AIHigh_Base()
   this->_vf = (__vtbl_ptr_type (*) [3])AIHigh_Base_vtable;
 
   if (this->state_ != (AIState_Base *)0x0) {
-    /* vtable entry 2: fn-ptr @ byte +20, this-delta @ byte +16 (byte-base, sec.3.12 #10) */
-    (*(int (*)(...))*(int *)((char *)this->state_->_vf + 20))
-        ((int)&this->state_->carObj_ + (int)*(short *)((char *)this->state_->_vf + 16),3);
+    delete this->state_;   /* virtual ~AIState_Base with __in_chrg 3 */
 
     this->state_ = (AIState_Base *)0x0;
 
@@ -476,15 +481,6 @@ AIHigh_None::~AIHigh_None()
 
 /* ---- Execute__12AIState_None  AIState_None::Execute  [AIHIGH.CPP:?] SLD-FLAG:NO_SLD ---- */
 
-void AIState_None::Execute()
-
-
-
-{
-
-  return;
-
-}
 
 
 
@@ -495,23 +491,6 @@ void AIState_None::Execute()
 
 /* ---- _._12AIState_None  AIState_None::dtor  [AIHIGH.CPP:?] SLD-FLAG:NO_SLD ---- */
 
-extern void __builtin_delete(void *);
-extern "C" void ___12AIState_None(AIState_None *pThis, int __in_chrg)
-
-
-
-{
-
-
-  
-
-  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_None_vtable;
-  if ((__in_chrg & 1U) != 0) {
-    __builtin_delete(pThis);
-  }
-  return;
-
-}
 
 
 
@@ -537,15 +516,6 @@ extern "C" void ___12AIState_None(AIState_None *pThis, int __in_chrg)
 
 /* ---- TestForRelease__12AIState_Base  AIState_Base::TestForRelease  [AISTATE.CPP:?] SLD-FLAG:NO_SLD ---- */
 
-int AIState_Base::TestForRelease()
-
-
-
-{
-
-  return 0;
-
-}
 
 
 
@@ -556,11 +526,6 @@ int AIState_Base::TestForRelease()
 
 /* ---- _._12AIState_Base  AIState_Base::dtor  [AISTATE.CPP:?] SLD-FLAG:NO_SLD ---- */
 
-AIState_Base::~AIState_Base()
-{
-  this->_vf = (__vtbl_ptr_type (*) [4])((char *)AIState_Base_vtable + 8);
-  return;
-}
 
 
 

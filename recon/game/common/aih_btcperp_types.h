@@ -74,13 +74,8 @@ struct AIHigh_BTC_AIPerp : public AIHigh_BTC_Perp {
     void NewStage(AIHigh_BTC_HumanCop *cop);
 };
 
-struct AIState_Cruise : public AIState_Normal {
-    cruiseMode_t cruiseMode_;
-    int cruiseSpeed_, cruiseFactor_;
-    AIState_Cruise() {}
-    AIState_Cruise(Car_tObj *carObj, cruiseMode_t mode, int factor);
-    void Execute();
-};
+#include "aistate_classes.h"
+
 
 struct SPCHNFSType_POSITION { u_long flags; };
 struct SPCHNFSType_DISTANCE { u_long flags; };

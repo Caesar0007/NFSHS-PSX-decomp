@@ -32,32 +32,11 @@ struct AIHigh_Traffic : public AIHigh_Base {
     trigger_t *CheckForNewTriggers();
 };
 
-struct AIState_Idle : public AIState_Base {
-    int roadPosition_, idleInPlaceFlag_;
-    AIState_Idle() {}
-    void Execute();
-    void SetIdlePosition(int pos);
-};
+#include "aistate_classes.h"
+
 
 /* Exact foreign header definitions used by this owner but omitted by its
    linked debug graph. Their canonical names preserve call mangling. */
-struct AIState_Purgatory : public AIState_NonActive {
-    AIState_Purgatory() {}
-    AIState_Purgatory(Car_tObj *carObj);
-    int TestForRelease();
-    void Execute();
-    static void StartUp();
-};
-struct AIState_RovingTraffic : public AIState_Base {
-    trigger_pathPosition_t *path_;
-    int numPathPoints_, pathIndex_;
-    long waitTick_;
-    AIState_RovingTraffic() {}
-    AIState_RovingTraffic(Car_tObj *carObj, trigger_t *trig);
-    void CheckIfCarIsNearbyAndStop(Car_tObj *carObj, int &status);
-    void Execute();
-    int TestForRelease();
-};
 struct Trk_NewSlice {
     int center[3];
     char normal[3], forward[3], right[3];

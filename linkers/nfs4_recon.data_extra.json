@@ -792,28 +792,6 @@
   "q": 2
  },
  {
-  "obj": "build/recon/game/common/vtables_aihigh.cpp.o",
-  "section": ".data",
-  "base": 2147831300,
-  "end": 2147831324,
-  "size": 24,
-  "ok": true,
-  "unresolved": 0,
-  "words": 6,
-  "q": 2
- },
- {
-  "obj": "build/recon/game/common/vtables_aistate.cpp.o",
-  "section": ".data",
-  "base": 2147831324,
-  "end": 2147831356,
-  "size": 32,
-  "ok": true,
-  "unresolved": 0,
-  "words": 8,
-  "q": 2
- },
- {
   "obj": "build/recon/game/common/vtables_aihigh_g1_AIHigh_BasicPerp.cpp.o",
   "section": ".data",
   "base": 2147831404,
@@ -965,17 +943,6 @@
   "ok": true,
   "unresolved": 0,
   "words": 38,
-  "q": 2
- },
- {
-  "obj": "build/recon/game/common/vtables_aistate_g1_AIState_Cruise.cpp.o",
-  "section": ".data",
-  "base": 2147833088,
-  "end": 2147833440,
-  "size": 352,
-  "ok": true,
-  "unresolved": 0,
-  "words": 88,
   "q": 2
  },
  {

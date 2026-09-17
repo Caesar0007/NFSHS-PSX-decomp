@@ -14,14 +14,15 @@ typedef enum AIHigh_CopGameType_t {
     COP_GAME_BTC_1HC1HP = 4
 } AIHigh_CopGameType_t;
 
-extern __vtbl_ptr_type AIState_None_vtable[];
+
+#include "aistate_classes.h"
 
 struct AIState_None : public AIState_Base {
-    AIState_None() {}
-    AIState_None(Car_tObj *carObj) : AIState_Base(carObj) {
-        _vf = (__vtbl_ptr_type (*)[4])AIState_None_vtable;
-    }
-    void Execute();
+    AIState_None(Car_tObj *carObj) : AIState_Base(carObj) {}
+    /* both inline: retail aihigh.obj carries LOCAL copies Execute__12AIState_None 0x8005b488 /
+       _._12AIState_None 0x8005b490 and a local vtable copy @0x80054e1c */
+    ~AIState_None() {}
+    void Execute() {}
 };
 
 extern __vtbl_ptr_type AIHigh_None_vtable[];

@@ -36,22 +36,9 @@ struct SpeakerVirtualDispatch {
 };
 
 /* Retail aih_btcperp.obj owns this vague-linkage NonActive vtable copy. */
-extern __vtbl_ptr_type D_80055000[];
 
 /* The inline constructor shape is corroborated by the NFSU2 mobile twin and
    the independently matched aih_btccop.cpp AIState_BTCInactive idiom. */
-struct AIState_BTCInactive : public AIState_Base {
-  AIState_BTCInactive(Car_tObj *carObj) : AIState_Base(carObj) {
-    coorddef trafficOffset;
-
-    _vf = (__vtbl_ptr_type (*)[4])D_80055000;
-    memset((u_char *)&trafficOffset,0,12);
-    trafficOffset.y = carObj->carIndex * 0xa0000;
-    Newton_SetInitialSlicePositionOrientationEtc(
-        &this->carObj_->N,0,&trafficOffset,1);
-    this->carObj_->N.active = 0;
-  }
-};
 
 /* ---- aistate.obj-owned globals (.bss zero) ---- */
 u_char       strategyChart[5][3] = { 4u, 4u, 4u, 0, 0, 0, 1u, 0, 1u, 1u, 1u, 1u, 2u, 2u, 2u };   /* @0x8010ce7c */
@@ -1419,7 +1406,7 @@ perpMode_merge:
 
     /* SYM-INLINE-LOCAL: carObj = AIState_BTCInactive
        SYM-INLINE-LOCAL: trafficOffset = AIState_BTCInactive */
-    this->SetState(new AIState_BTCInactive(this->carObj_),STATE_NONACTIVE);
+    this->SetState(new AIState_NonActive(this->carObj_),STATE_NONACTIVE);
 
     this->perpMode_ = 0;
 
@@ -1746,8 +1733,7 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
     if (this->state_ != (AIState_Base *)0x0) {
 
-      (*(int (**)(...))((int)this->state_->_vf + 0x14))
-          ((int)&this->state_->carObj_ + (int)*(short *)((int)this->state_->_vf + 0x10),3);
+      delete this->state_;   /* virtual ~AIState_Base with __in_chrg 3 */
 
     }
 
@@ -1767,8 +1753,7 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
     if (this->state_ != (AIState_Base *)0x0) {
 
-      (*(int (**)(...))((int)this->state_->_vf + 0x14))
-          ((int)&this->state_->carObj_ + (int)*(short *)((int)this->state_->_vf + 0x10),3);
+      delete this->state_;   /* virtual ~AIState_Base with __in_chrg 3 */
 
     }
 
@@ -1885,47 +1870,20 @@ extern "C" void ___15AIHigh_BTC_Perp_80061348(AIHigh_BTC_Perp *pThis)
  * distinct VAs; oracle vtable copies D_80055000/D_80055020 are this obj's NonActive/Base vtables,
  * recon binds the shared vtable symbols like every other 100% fn in this TU).  Bodies mirror the
  * aistate.cpp instances (100%-proven spellings). */
-extern __vtbl_ptr_type AIState_NonActive_vtable[], AIState_Base_vtable[];
 
 /* ---- Execute__17AIState_NonActive_80061370 @0x80061370 : empty per-frame body (real method --
  * the cc1plus demangle guard rejects the mangled name as a plain identifier) ---- */
-extern "C" void Execute__17AIState_NonActive_80061370(AIState_NonActive *)
-{
-  return;
-}
 
 /* w60 unlock: the surplus canonical `AIState_NonActive::Execute()` member def that
  * lived here collided with aih_btccop's (owner of 0x8005F624) -- removed. */
 
 /* ---- ___17AIState_NonActive_80061378 @0x80061378 : deleting dtor (SYM _._17AIState_NonActive) ---- */
-extern "C" void ___17AIState_NonActive_80061378(AIState_NonActive *pThis,int __in_chrg)
-{
-  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_NonActive_vtable;
-  ((pThis->carObj_)->N).active = '\x01';
-  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
-  if ((__in_chrg & 1U) != 0) {
-    __builtin_delete(pThis);
-  }
-  return;
-}
 
 /* ---- TestForRelease__12AIState_Base_800613C4 @0x800613C4 : shared default impl (real method) ---- */
-extern "C" int TestForRelease__12AIState_Base_800613C4(AIState_Base *)
-{
-  return 0;
-}
 
 /* w60 unlock: the surplus canonical `AIState_Base::TestForRelease()` member def that
  * lived here collided with aihigh.cpp's (owner of 0x8005B4C4) -- removed. */
 
 /* ---- ___12AIState_Base_800613CC @0x800613CC : deleting dtor (SYM _._12AIState_Base) ---- */
-extern "C" void ___12AIState_Base_800613CC(AIState_Base *pThis,int __in_chrg)
-{
-  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
-  if ((__in_chrg & 1U) != 0) {
-    __builtin_delete(pThis);
-  }
-  return;
-}
 
 /* end of aih_btcperp.cpp */

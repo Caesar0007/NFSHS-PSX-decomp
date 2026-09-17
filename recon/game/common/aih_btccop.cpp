@@ -1724,22 +1724,9 @@ void AIHigh_BTC_Wingman::HighExecute()
   case 0:
 
     this->carObj_->AIFlags = this->carObj_->AIFlags & 0xfffffffd;
-
-    newState = operator new(8);
-
     carObj = this->carObj_;
 
-    (new(newState) AIState_Base(carObj));
-
-    newState->_vf = (__vtbl_ptr_type (*) [4])AIHigh_BTC_Wingman_vtable;
-
-    memset((u_char *)&pos,'\0',0xc);
-
-    pos.y = carObj->carIndex * 0xa0000;
-
-    Newton_SetInitialSlicePositionOrientationEtc(&newState->carObj_->N,0,&pos,1);
-
-    (newState->carObj_->N).active = '\0';
+    newState = new AIState_NonActive(carObj);   /* inline ctor: memset / y / Newton_SetInitial... / active = 0 */
 
     oldState = this->state_;
 
@@ -1811,11 +1798,7 @@ void AIHigh_BTC_Wingman::HighExecute()
 
         this->SetupBlockader(this->newHumanBoss_,(u_int)(this->newRole_ == 3));
 
-        newState = operator new(0x10);
-
-        (new(newState) AIState_Base(this->carObj_));
-
-        newState->_vf = (__vtbl_ptr_type (*) [4])AIState_Idle_vtable;
+        newState = new AIState_Idle(this->carObj_);
 
         ((AIState_Idle *)newState)->roadPosition_ = 1;
 
@@ -1846,20 +1829,9 @@ LAB_8005e5d8:
     this->AssignToPlayer((AIHigh_BTC_Perp *)0x0)
 
     ;
-
-    newState = operator new(8);
-
     carObj = this->carObj_;
 
-    (new(newState) AIState_Base(carObj));
-
-    newState->_vf = (__vtbl_ptr_type (*) [4])AIHigh_BTC_Wingman_vtable;
-
-    memset((u_char *)&pos,'\0',0xc);
-
-    offset = &pos;
-
-    pos.y = carObj->carIndex * 0xa0000;
+    newState = new AIState_NonActive(carObj);   /* inline ctor: memset / y / Newton_SetInitial... / active = 0 */
 
     break;
 
@@ -2000,20 +1972,9 @@ LAB_8005ea9c:
     this->AssignToPlayer((AIHigh_BTC_Perp *)0x0)
 
     ;
-
-    newState = operator new(8);
-
     carObj = this->carObj_;
 
-    (new(newState) AIState_Base(carObj));
-
-    newState->_vf = (__vtbl_ptr_type (*) [4])AIHigh_BTC_Wingman_vtable;
-
-    memset((u_char *)&newPos,'\0',0xc);
-
-    offset = &newPos;
-
-    newPos.y = carObj->carIndex * 0xa0000;
+    newState = new AIState_NonActive(carObj);   /* inline ctor: memset / y / Newton_SetInitial... / active = 0 */
 
     break;
 
@@ -2160,20 +2121,9 @@ LAB_8005ea9c:
     this->AssignToPlayer((AIHigh_BTC_Perp *)0x0)
 
     ;
-
-    newState = operator new(8);
-
     carObj = this->carObj_;
 
-    (new(newState) AIState_Base(carObj));
-
-    newState->_vf = (__vtbl_ptr_type (*) [4])AIHigh_BTC_Wingman_vtable;
-
-    memset((u_char *)&trafficOffset,'\0',0xc);
-
-    offset = &trafficOffset;
-
-    trafficOffset.y = carObj->carIndex * 0xa0000;
+    newState = new AIState_NonActive(carObj);   /* inline ctor: memset / y / Newton_SetInitial... / active = 0 */
 
     break;
 
@@ -2201,11 +2151,7 @@ LAB_8005ea9c:
 
     this->SetupBlockader(this->newHumanBoss_,(u_int)(this->newRole_ == 3));
 
-    newState = operator new(0x10);
-
-    (new(newState) AIState_Base(this->carObj_));
-
-    newState->_vf = (__vtbl_ptr_type (*) [4])AIState_Idle_vtable;
+    newState = new AIState_Idle(this->carObj_);
 
     ((AIState_Idle *)newState)->roadPosition_ = 1;
 
@@ -2261,7 +2207,6 @@ LAB_8005eda0:
 
   }
 
-  Newton_SetInitialSlicePositionOrientationEtc(&newState->carObj_->N,0,offset,1);
 
   (newState->carObj_->N).active = '\0';
 
@@ -2490,16 +2435,6 @@ stateExecuteAndReturn:
    the frame 104->120 and shifts every traffic slot +16).  The case-0 and case-2
    arms stay open-coded (they already gate PASS; W75 falsification history kept
    above).  Probe: scratchpad/w76/A9_btc_I4.variant, A9_btc_I4_posmis.txt. ==== */
-struct AIState_BTCInactive : public AIState_Base {
-    AIState_BTCInactive(Car_tObj *carObj) : AIState_Base(carObj) {
-        coorddef trafficOffset;
-        _vf = (__vtbl_ptr_type (*)[4])D_80054F24;
-        memset((u_char *)&trafficOffset,0,12);
-        trafficOffset.y = carObj->carIndex * 0xa0000;
-        Newton_SetInitialSlicePositionOrientationEtc(&carObj_->N,0,&trafficOffset,1);
-        carObj_->N.active = 0;
-    }
-};
 void AIHigh_BTC_Wingman::HighExecute()
 {
   ((AIHigh_BasicCop *)this)->CheckSpikeBelt();
@@ -2508,20 +2443,10 @@ void AIHigh_BTC_Wingman::HighExecute()
   switch (this->stateType_) {
   case 0:
     {
-      Car_tObj *carObj;
       AIState_Base *newState;
-      coorddef trafficOffset;
 
       this->carObj_->AIFlags &= ~2;
-      newState = operator new(8);
-      carObj = this->carObj_;
-      new(newState) AIState_Base(carObj);
-      newState->_vf = (__vtbl_ptr_type (*)[4])D_80054F24;
-      memset((u_char *)&trafficOffset,0,12);
-      trafficOffset.y = carObj->carIndex * 0xa0000;
-      Newton_SetInitialSlicePositionOrientationEtc(
-          &newState->carObj_->N,0,&trafficOffset,1);
-      newState->carObj_->N.active = 0;
+      newState = new AIState_NonActive(this->carObj_);
       this->SetState(newState,(stateType_t)7);
     }
     goto stateExecuteAndReturn;
@@ -2539,9 +2464,7 @@ void AIHigh_BTC_Wingman::HighExecute()
           this->currentRole_ = this->newRole_;
           this->SetupBlockader(this->newHumanBoss_,this->newRole_ == 3);
 
-          newState = operator new(0x10);
-          new(newState) AIState_Base(this->carObj_);
-          newState->_vf = (__vtbl_ptr_type (*)[4])AIState_Idle_vtable;
+          newState = new AIState_Idle(this->carObj_);
           ((AIState_Idle *)newState)->idleInPlaceFlag_ = 1;
           this->SetState(newState,(stateType_t)3);
         }
@@ -2561,20 +2484,10 @@ void AIHigh_BTC_Wingman::HighExecute()
       }
 
       if (this->UpdateFreezeModeAndPullOverMode() != 0) {
-        Car_tObj *carObj;
         AIState_Base *newState;
-        coorddef trafficOffset;
 
         this->AssignToPlayer(0);
-        newState = operator new(8);
-        carObj = this->carObj_;
-        new(newState) AIState_Base(carObj);
-        newState->_vf = (__vtbl_ptr_type (*)[4])D_80054F24;
-        memset((u_char *)&trafficOffset,0,12);
-        trafficOffset.y = carObj->carIndex * 0xa0000;
-        Newton_SetInitialSlicePositionOrientationEtc(
-            &newState->carObj_->N,0,&trafficOffset,1);
-        newState->carObj_->N.active = 0;
+      newState = new AIState_NonActive(this->carObj_);
         this->SetState(newState,(stateType_t)7);
         this->newRole_ = 0;
         this->currentRole_ = 0;
@@ -2673,13 +2586,10 @@ void AIHigh_BTC_Wingman::HighExecute()
       }
 
       if (this->UpdateFreezeModeAndPullOverMode() != 0) {
-        Car_tObj *carObj;
         AIState_Base *newState;
 
         this->AssignToPlayer(0);
-        newState = operator new(8);
-        carObj = this->carObj_;
-        new(newState) AIState_BTCInactive(carObj);
+        newState = new AIState_NonActive(this->carObj_);
         this->SetState(newState,(stateType_t)7);
         this->newRole_ = 0;
         this->currentRole_ = 0;
@@ -2777,13 +2687,10 @@ void AIHigh_BTC_Wingman::HighExecute()
       }
 
       if (this->UpdateFreezeModeAndPullOverMode() != 0) {
-        Car_tObj *carObj;
         AIState_Base *newState;
 
         this->AssignToPlayer(0);
-        newState = operator new(8);
-        carObj = this->carObj_;
-        new(newState) AIState_BTCInactive(carObj);
+        newState = new AIState_NonActive(this->carObj_);
         this->SetState(newState,(stateType_t)7);
         this->newRole_ = 0;
         this->currentRole_ = 0;
@@ -2933,9 +2840,7 @@ void AIHigh_BTC_Wingman::HighExecute()
         this->currentRole_ = this->newRole_;
         this->SetupBlockader(
             this->newHumanBoss_,this->newRole_ == 3);
-        newState = operator new(0x10);
-        new(newState) AIState_Base(this->carObj_);
-        newState->_vf = (__vtbl_ptr_type (*)[4])AIState_Idle_vtable;
+        newState = new AIState_Idle(this->carObj_);
         ((AIState_Idle *)newState)->idleInPlaceFlag_ = 1;
         this->SetState(newState,(stateType_t)3);
         goto stateExecuteAndReturn;
@@ -3657,37 +3562,14 @@ extern __vtbl_ptr_type AIState_NonActive_vtable[], AIState_Base_vtable[];
 
 /* ---- Execute__17AIState_NonActive @0x8005F624 : empty per-frame body (real method --
  * the cc1plus demangle guard rejects the mangled name as a plain identifier) ---- */
-void AIState_NonActive::Execute()
-{
-  return;
-}
 
 /* ---- ___17AIState_NonActive @0x8005F62C : deleting dtor (SYM _._17AIState_NonActive) ---- */
-AIState_NonActive::~AIState_NonActive()
-{
-  this->_vf = (__vtbl_ptr_type (*) [4])AIState_NonActive_vtable;
-  ((this->carObj_)->N).active = '\x01';
-  this->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
-  return;
-}
 
 /* ---- TestForRelease__12AIState_Base_8005F678 @0x8005F678 : shared default impl (real method) ---- */
-extern "C" int TestForRelease__12AIState_Base_8005F678(AIState_Base *)
-{
-  return 0;
-}
 
 /* w60 unlock: the surplus canonical `AIState_Base::TestForRelease()` member def that
  * lived here collided with aihigh.cpp's (owner of 0x8005B4C4) -- removed. */
 
 /* ---- ___12AIState_Base_8005F680 @0x8005F680 : deleting dtor (SYM _._12AIState_Base) ---- */
-extern "C" void ___12AIState_Base_8005F680(AIState_Base *pThis,int __in_chrg)
-{
-  pThis->_vf = (__vtbl_ptr_type (*) [4])AIState_Base_vtable;
-  if ((__in_chrg & 1U) != 0) {
-    __builtin_delete(pThis);
-  }
-  return;
-}
 
 /* end of aih_btccop.cpp */

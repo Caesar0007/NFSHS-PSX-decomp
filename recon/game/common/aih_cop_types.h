@@ -28,52 +28,12 @@ struct AIHigh_Cop : public AIHigh_BasicCop {
     trigger_t *CheckForNewTriggers();
 };
 
-struct AIState_Chase : public AIState_Base {
-    AIDelayCar delayCar_;
-    int noTurnAroundEndTime_;
-    Car_tObj *targetCar_;
-    coorddef relPosition_;
-    int longTargetRegion_, latTargetRegion_, targetDir_, carDir_;
-    int longMetersBetween_, latMetersBetween_, murderMode_, murderEndTime_;
-    int inTargetRegion_, nitrousTicks_, nitrousMinForeDistance_;
-    int nitrousMinAftDistance_, aggressionLevel_, slowDownEndTime_;
-    int barrierTicks32_;
-    AIState_Chase() {}
-    AIState_Chase(Car_tObj *, Car_tObj *, coorddef *, int, int, int, int, int);
-    void SetTarget(Car_tObj *, coorddef *);
-    void SetMurderMode(int, int);
-    int FindBarrierEndSlice();
-};
+#include "aistate_classes.h"
 
-struct AIState_GotoSlice : public AIState_Normal {
-    int targetSlice_, stopWhenArrivedAtSlice_;
-    AIState_GotoSlice() {}
-    AIState_GotoSlice(Car_tObj *, int, int);
-    int InTargetSliceRange(int);
-};
+
 
 /* Constructed foreign state classes omitted from this linked owner graph. */
-struct AIState_Purgatory : public AIState_NonActive {
-    AIState_Purgatory() {}
-    AIState_Purgatory(Car_tObj *carObj);
-    int TestForRelease();
-    void Execute();
-    static void StartUp();
-};
 
-struct AIState_Offroad : public AIState_Base {
-    int startSlice_;
-    coorddef startPosition_;
-    matrixtdef startOrientation_;
-    coorddef startHeading_;
-    int targetSlice_;
-    coorddef targetPosition_;
-    int longMetersBetween_, letGo_, maxSpeedMPS_, releaseTime_;
-    AIState_Offroad() {}
-    AIState_Offroad(Car_tObj *, int, coorddef *, matrixtdef *, int, int, int);
-    void UnleashIfInRange(Car_tObj *carObj);
-    void Execute();
-};
 
 struct POLY_GT4 {
     u_long tag;

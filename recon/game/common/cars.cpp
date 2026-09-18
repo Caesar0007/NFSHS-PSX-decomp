@@ -518,7 +518,7 @@ void Cars_DoExtraCarCollisionProcessing(Car_tObj *carObj)
 
                 Cars_ResetCollidedCars(carObj,2,0);
                 carObj->stats.fatalCrashes = 0xa0;
-                player = carObj == Cars_gHumanRaceCarList[0];
+                player = carObj == Cars_gHumanRaceCarList[1];   /* retail lw 0x8010fa4c: row 1 only for the SECOND human */
                 Camera_gInfo[player].relpos.x = -carObj->N.orientMat.m[6] * 2;
                 Camera_gInfo[player].relpos.y = -carObj->N.orientMat.m[7] * 2;
                 Camera_gInfo[player].relpos.z = -carObj->N.orientMat.m[8] * 2;

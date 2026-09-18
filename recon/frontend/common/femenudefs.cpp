@@ -2035,7 +2035,7 @@ void MenuExtended_FinishedPlayer1GetName(tMenuCommand &command)
   if ((FEApp->needName[1] != 0) && (FEApp->gotName[1] == 0)) {
     /* SYM-INLINE-THIS: SetPostGameNameData */
     menuDefs->menuItemUserName2.SetPostGameNameData(
-        1, frontEnd.playerNameList[4]);
+        1, frontEnd.playerNameList[1]);   /* retail frontEnd+0x36c (same defect as feapp MainLoop) */
     /* SYM-INLINE-THIS: SetCallingMenu
        SYM-INLINE-LOCAL: m = SetCallingMenu */
     screenUserName->SetCallingMenu(&menuDefs->menuPostGamePlayer2Name);

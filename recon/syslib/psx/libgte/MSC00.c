@@ -23,7 +23,7 @@ int _InitGeom_ra_save = 0;   /* retail: .data word @0x80134a70 (Sony .s: .data/.
  * data at 0x80134A74 under the retail r17 data blob, and both callers got `jal 0x80134A74`
  * -- a jump into data -- while 0x800F21A4 stayed empty. */
 __asm__(
-    "\t.text\n"
+    "\t.text\n"   /* the ra-save word above left the assembler in .data: InitGeom linked at 0x80134a74 */
     "\t.set noreorder\n"
     "\t.globl InitGeom\n"
     "InitGeom:\n"

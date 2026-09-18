@@ -22,7 +22,7 @@ void fortext4(int x, int y, void *source, int u, int v, int width, int height, i
 /* ---- inittextdraw  [TEXTPSX.C:254-270] SLD-VERIFIED ---- */
 void inittextdraw(void)
 {
-  *(void **)(currentfont + 0x148) = (void *)fortext4;
+  *(void **)(currentfont + 0x94) = (void *)fortext4;   /* retail 0x80135c34 = currentfont+0x94 (the slot restoretextdraw clears) */
   return;
 }
 

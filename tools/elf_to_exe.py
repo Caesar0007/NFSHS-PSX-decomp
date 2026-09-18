@@ -3,8 +3,9 @@
 
     python tools/full_link.py            # builds build/full_link/full.elf
     python tools/elf_to_exe.py           # -> build/full_link/nfs4.exe (+ ROM compare)
+    python tools/elf_to_exe.py --split   # + build/full_link/disc/{NFS4.EXE,FRONT.BIN}
 
-    python tools/elf_to_exe.py IN.elf OUT.exe [--rom rom/nfs4-f.exe | --no-compare]
+    python tools/elf_to_exe.py [IN.elf [OUT.exe]] [--rom PATH | --no-compare] [--split]
 
 Why not `objcopy -O binary` (or psxsdk's elf2exe, which is objcopy plus a
 hard-coded header): nfs4_recon.ld gives every code/data section LMA == VMA
@@ -22,8 +23,19 @@ What this does instead (the same image full_link.py compares, written out):
     `objdump -s` walk uses); anything outside the load image is skipped
     (e.g. the dead jump-table blobs placed past the end, or an orphan section
     that ld dropped at VA 0 next to the header).
+
+The result matches rom/nfs4-f.exe, a debug merge: NFS4.EXE with FRONT.BIN
+written into the zero hole the main exe reserves for the front-end overlay.
+--split also writes the two disc files, cut from that image:
+  * FRONT.BIN = VA 0x80010000..0x80054548 (raw, no header, loads at 0x80010000);
+  * NFS4.EXE  = the same exe with that range zeroed.
+Cutting rom/nfs4-f.exe this way gives exactly the retail disc files (sha1
+below).  They go to a `disc/` subdirectory: on Windows NFS4.EXE and nfs4.exe
+are the same name.
 Standard library only; the ELF is parsed directly.
 """
+import argparse
+import hashlib
 import struct
 import sys
 from pathlib import Path
@@ -33,6 +45,13 @@ HDR = 0x800
 
 SHT_NOBITS = 8
 SHF_ALLOC = 0x2
+
+FRONT_VA = 0x80010000
+FRONT_SIZE = 0x44548
+DISC_SHA1 = {
+    "NFS4.EXE": "c5c60d450baccfa9076419d023a631eea22bea0c",
+    "FRONT.BIN": "d6c5b5d16e55afb09300199c413520041159dfe8",
+}
 
 
 def sections(elf: bytes):
@@ -87,16 +106,37 @@ def build(elf_path: Path):
         covered, skipped
 
 
+def split(exe: bytes, t_addr: int):
+    """Cut the merged image into the two disc files: (NFS4.EXE, FRONT.BIN)."""
+    lo = HDR + FRONT_VA - t_addr
+    front = exe[lo:lo + FRONT_SIZE]
+    main = bytearray(exe)
+    main[lo:lo + FRONT_SIZE] = bytes(FRONT_SIZE)
+    return bytes(main), front
+
+
+def compare(label: str, ours: bytes, rom: bytes, skip: int = 0):
+    if len(rom) != len(ours):
+        print(f"[cmp] {label}: size differs: ours {len(ours)} vs rom {len(rom)}")
+    n = min(len(rom), len(ours))
+    same = sum(1 for i in range(skip, n) if ours[i] == rom[i])
+    total = n - skip
+    print(f"[cmp] {label}: {same}/{total} bytes identical "
+          f"({100.0 * same / total:.4f}%), {total - same} differ")
+
+
 def main():
-    args = [a for a in sys.argv[1:] if not a.startswith("--")]
-    flags = sys.argv[1:]
-    elf_path = Path(args[0]) if args else ROOT / "build" / "full_link" / "full.elf"
-    out_path = Path(args[1]) if len(args) > 1 else elf_path.with_name("nfs4.exe")
-    rom_path = None
-    if "--no-compare" not in flags:
-        rom_path = ROOT / "rom" / "nfs4-f.exe"
-        if "--rom" in flags:
-            rom_path = Path(flags[flags.index("--rom") + 1])
+    ap = argparse.ArgumentParser(description="recon-lane ELF -> PS-X EXE")
+    ap.add_argument("elf", nargs="?", type=Path,
+                    default=ROOT / "build" / "full_link" / "full.elf")
+    ap.add_argument("out", nargs="?", type=Path)
+    ap.add_argument("--rom", type=Path, default=ROOT / "rom" / "nfs4-f.exe")
+    ap.add_argument("--no-compare", action="store_true")
+    ap.add_argument("--split", action="store_true",
+                    help="also write disc/NFS4.EXE and disc/FRONT.BIN next to OUT")
+    a = ap.parse_args()
+    elf_path = a.elf
+    out_path = a.out or elf_path.with_name("nfs4.exe")
     if not elf_path.is_file():
         sys.exit(f"[elf_to_exe] no ELF at {elf_path} -- run tools/full_link.py first")
 
@@ -111,20 +151,34 @@ def main():
         print(f"[exe] sections outside the load image, not written: {len(skipped)} "
               f"(e.g. {', '.join('%s@%#x' % (n, a) for n, a, _ in skipped[:3])})")
 
-    if rom_path and rom_path.is_file():
-        rom = rom_path.read_bytes()
-        if len(rom) != len(exe):
-            print(f"[cmp] size differs: exe {len(exe)} vs {rom_path.name} {len(rom)}")
-        n = min(len(rom), len(exe))
-        same = sum(1 for i in range(n) if exe[i] == rom[i])
-        hole_diff = sum(1 for i in range(HDR, n) if not covered[i - HDR] and exe[i] != rom[i])
-        print(f"[cmp] vs {rom_path.name}: header {'identical' if exe[:HDR] == rom[:HDR] else 'DIFFERS'}; "
-              f"{same}/{n} bytes identical ({100.0 * same / n:.4f}%), {n - same} differ "
-              f"({hole_diff} of them in uncovered holes)")
-        if exe == rom:
-            print("[cmp] MATCH (byte-identical)")
-    elif rom_path:
-        print(f"[cmp] skipped: {rom_path} not found")
+    pieces = {}
+    if a.split:
+        disc = out_path.parent / "disc"
+        disc.mkdir(exist_ok=True)
+        pieces["NFS4.EXE"], pieces["FRONT.BIN"] = split(exe, h["t_addr"])
+        for name, data in pieces.items():
+            (disc / name).write_bytes(data)
+            sha = hashlib.sha1(data).hexdigest()
+            verdict = "== retail disc" if sha == DISC_SHA1[name] else "!= retail disc"
+            print(f"[split] {disc / name}  {len(data)} bytes  sha1 {sha[:12]} {verdict}")
+
+    if a.no_compare:
+        return
+    if not a.rom.is_file():
+        print(f"[cmp] skipped: {a.rom} not found")
+        return
+    rom = a.rom.read_bytes()
+    n = min(len(rom), len(exe))
+    hole_diff = sum(1 for i in range(HDR, n) if not covered[i - HDR] and exe[i] != rom[i])
+    print(f"[cmp] vs {a.rom.name}: header {'identical' if exe[:HDR] == rom[:HDR] else 'DIFFERS'}; "
+          f"{hole_diff} differing bytes in uncovered holes")
+    compare(a.rom.name, exe, rom)
+    if exe == rom:
+        print("[cmp] MATCH (byte-identical)")
+    if pieces:
+        rom_main, rom_front = split(rom, h["t_addr"])
+        compare("NFS4.EXE", pieces["NFS4.EXE"], rom_main)
+        compare("FRONT.BIN", pieces["FRONT.BIN"], rom_front)
 
 
 if __name__ == "__main__":

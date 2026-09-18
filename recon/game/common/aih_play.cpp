@@ -22,7 +22,8 @@ int          AIHigh_Player_kNumArrestsByLap[3] = { 3, 5, 8 };   /* @0x8010ce98 *
  * section attribute is the storage-only cure: TEXT byte-identical, gate 10/10
  * held.  This was the LAST row of the tree-wide -G8 tell census
  * (scratchpad/w66a6/GCENSUS.txt). */
-char         gBlockadeTypes[5] __attribute__((section(".sdata"))) = { 5, 6, 4, 2, 0 };   /* @0x8013c568 */
+extern char gBlockadeTypes[];   /* UNSIZED before its definition (end of file): retail addresses this
+                                   small-data table absolutely (lui/addiu 0x8013c568) */
 
 /* AIH_PLAY.CPP's SLD maps every instruction in both expanded copies to one
  * caller line and records an inlined AICop_PerpChaseInfo `this`; the second
@@ -328,7 +329,7 @@ void AIHigh_Player::SetupBlockade()
     fastRandom = randtemp & 0xffff;
 
     blockadeType = (randtemp >> 8 & 0xffff) % 5;
-    blockadeFlags = (u_int)(u_char)"\x05\x06\x04\x02"[blockadeType];
+    blockadeFlags = (u_int)(u_char)gBlockadeTypes[blockadeType];
 
     {
       /* SYM-CODEGEN-CARRIER: chaseInfo -- SYM retains the corresponding
@@ -1339,3 +1340,5 @@ LAB_8006322c:
 
 
 /* end of aih_play.cpp */
+
+char gBlockadeTypes[5] = { 5, 6, 4, 2, 0 };   /* @0x8013c568 (.sdata at -G8); shared with aih_btccop */

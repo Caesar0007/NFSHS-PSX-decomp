@@ -2104,11 +2104,11 @@
   "obj": "build/recon/eaclib/psx/eacpsxz/memstd.c.o",
   "section": ".sdata",
   "base": 2148785184,
-  "end": 2148785208,
-  "size": 24,
+  "end": 2148785200,
+  "size": 16,
   "ok": true,
   "unresolved": 0,
-  "words": 6,
+  "words": 4,
   "q": 0
  }
 ]

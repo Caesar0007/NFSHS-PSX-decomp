@@ -36,9 +36,11 @@
  * SYM-GLOBAL-CARRIER: MAGIC_USED
  * SYM-GLOBAL-CARRIER: MAGIC_FREE
  * SYM-GLOBAL-CARRIER: MAGIC_HEAD */
-static const unsigned short MAGIC_USED = 0x424D;   /* 'MB' */
-static const unsigned short MAGIC_FREE = 0x4246;   /* 'FB' */
-static const unsigned short MAGIC_HEAD = 0x4253;   /* free-ring sentinel */
+/* (2026-09-18) plain constants: the retail image has NO 'MB FB SB' data (ROM scan) and memstd's .sdata is just
+   the two format strings at 0x8013dc20/28 -- the static consts added 8 bytes in front and shifted both refs. */
+#define MAGIC_USED 0x424D   /* 'MB' */
+#define MAGIC_FREE 0x4246   /* 'FB' */
+#define MAGIC_HEAD 0x4253   /* free-ring sentinel */
 
 /* ---- globals (BSS/rodata, defined in the data-materialization pass) ---- */
 extern MemClass *memclass[16];

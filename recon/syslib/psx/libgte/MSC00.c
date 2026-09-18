@@ -15,8 +15,15 @@ extern void _patch_gte(void);   /* libgte PATCHGTE.obj @0x80106454 */
  * storage in the handwritten object; retail SYM carries no declaration row. */
 int _InitGeom_ra_save = 0;   /* retail: .data word @0x80134a70 (Sony .s: .data/.word 0), absolute at -G0 */
 
-/* @0x800F21A4 : InitGeom -- handwritten. */
+/* @0x800F21A4 : InitGeom -- handwritten.
+ * The block MUST open `.text` itself: cc1 emits a file-scope __asm__ with whatever section
+ * is active at that point, and the `_InitGeom_ra_save` definition just above leaves `.data`
+ * active.  Without this line InitGeom was assembled INTO .data (nm: `D InitGeom`), the gate
+ * found 0 functions to check (0/0 PASS, vacuous), the recon link placed the code with the
+ * data at 0x80134A74 under the retail r17 data blob, and both callers got `jal 0x80134A74`
+ * -- a jump into data -- while 0x800F21A4 stayed empty. */
 __asm__(
+    "\t.text\n"
     "\t.set noreorder\n"
     "\t.globl InitGeom\n"
     "InitGeom:\n"

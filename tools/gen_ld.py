@@ -132,6 +132,11 @@ def scan():
     # rather than treating every surviving cache object as a project input.
     # This changes input selection only; no object or instruction is modified.
     sources = [*(ROOT / "recon").rglob("*.cpp"), *(ROOT / "recon").rglob("*.c")]
+    # Inert DATA that sits in the .text stream (SN-LNK obj blobs, user ruling
+    # 2026-09-18: keep as data, place at the retail VA).  Each piece is its own
+    # object carrying one name-encoded D_<VA> label, so the text-spine vote
+    # (retail VA - symbol offset) gives it a single, exact base.
+    sources += sorted((ROOT / "asm" / "data").glob("*.text.s"))
     objs = sorted(ROOT / "build" / (str(src.relative_to(ROOT)) + ".o")
                   for src in sources
                   if (ROOT / "build" / (str(src.relative_to(ROOT)) + ".o")).is_file())

@@ -73,7 +73,11 @@ def main():
     cmd += ['--unresolved-symbols=ignore-all', '--allow-multiple-definition',
             '--no-check-sections', '--noinhibit-exec',
             '-Map', 'build/full_link/full.map', '-o', 'build/full_link/full.elf']
-    cmd += [str(o.relative_to(ROOT).as_posix()) for o in objs]
+    # 790+ object paths overflow the Windows command line (WinError 206);
+    # GNU ld reads them from a response file, same as build.py's link.
+    rsp = OUT / 'objects.rsp'
+    rsp.write_text('\n'.join(f'"{o.relative_to(ROOT).as_posix()}"' for o in objs) + '\n')
+    cmd += [f'@{rsp.relative_to(ROOT).as_posix()}']
     r = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True)
     errs = [l for l in r.stderr.replace('\r\n', '\n').split('\n') if l.strip()]
     print(f'[ld] rc={r.returncode}  stderr lines={len(errs)}')

@@ -16,8 +16,6 @@
 #include "isincos.h"
 #include "fsincos.h"
 
-// FIXME
-
 /* xformy @0x800E5AC4 : Y-axis rotation (integer angle). */
 void xformy(matrixtdef *out, int angle)
 {

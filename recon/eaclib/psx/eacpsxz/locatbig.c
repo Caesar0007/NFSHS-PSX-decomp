@@ -20,7 +20,7 @@
 #include "getm.h"
 #include "stricmp.h"
 
-// FIXME
+// FIXME STRINGS.H
 extern unsigned strlen (const char *s);                  /* eacpsxz @0x800E9F74              */
 
 /* The compact SYM places a private, unreferenced 4-byte `bighandle` directly

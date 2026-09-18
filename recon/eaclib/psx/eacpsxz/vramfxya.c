@@ -61,7 +61,7 @@
 #include "shpdepth.h"
 #include "primate.h"
 
-// FIXME
+// FIXME LIBGPU.H
 extern void  LoadImage(RECT *rect, u_long *data); /* PsyQ libgpu */
 
 /* checkrect @0x800F6934 : if the RECT is flagged (+4 bit0), set bit0 of the +6 word.  Returns the +4 flag. */

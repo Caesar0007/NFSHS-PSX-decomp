@@ -22,8 +22,9 @@
 #include "eac_types.h"
 #include "wildcard.h"
 
-// FIXME
+// FIXME STRINGS.H
 extern char *strrchr(const char *s, int c);   /* libc C31.obj, BIOS A0:0x1F */
+// FIXME CTYPE.H
 extern int   tolower(int c);                   /* libc C38.obj, BIOS A0:0x26 */
 
 /* strrstr @0x800E8940 : rightmost position in `s` of any char of `set` (0 if none).

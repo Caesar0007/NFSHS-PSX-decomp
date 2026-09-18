@@ -70,9 +70,11 @@ static unsigned int requestidcounter; /* @0x8013DEDC */
 /* ---- nfile op-queue backend (the layer this is built on) ---- */
 
 /* ---- other eaclib helpers ---- */
+// FIXME STRINGS.H
 extern int  strcmp (const char *a, const char *b);          /* syslib C23 */
 extern char*strcpy (char *d, const char *s);                /* syslib C25 */
 extern char*strncpy(char *d, const char *s, int n);         /* syslib C26 */
+// FIXME MEMORY.H
 extern void*memcpy (void *d, const void *s, int n);         /* syslib C42 @0x800EAAC4 */
 extern void*memset (void *d, int c, int n);                 /* syslib C43 @0x800E4318 */
 

@@ -36,6 +36,7 @@
 #include "systask.h"
 #include "cdfs.h"
 #include "blkmov.h"
+#include "blkfill.h"
 /* eaclib/psx/eacpsxz/nfile.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** WIP ***
  *   Source obj : nfs4\eaclib\psx\nfile.obj ; archive C:\nfs4\EACLIB\PSX\EACPSXZ.LIB (xlsx col11)
  *   27 fns @[0x800EBBF4 .. 0x800ED334].  EA async file-operation layer (op queue + handle table).

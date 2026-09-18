@@ -44,7 +44,9 @@ static const unsigned short MAGIC_HEAD = 0x4253;   /* free-ring sentinel */
 extern MemClass *memclass[16];
 
 /* ---- helpers defined in sibling eacpsxz / libc objs (called, not defined here) ---- */
+// FIXME STDIO.H
 extern int    sprintf(char *, const char *, ...);   /* libc SPRINTF     */
+// FIXME STRINGS.H
 extern char  *strcpy(char *, const char *);         /* eacpsxz strcpy   */
 extern unsigned strlen(const char *);               /* eacpsxz strlen   */
 

@@ -6,7 +6,7 @@
 #include "eac_types.h"
 #include "shpclut.h"
 
-// FIXME
+// FIXME LIBGPU.H
 extern short GetClut(int x, int y);   /* syslib P01 */
 
 /* getshapeclut : follow the chunk chain (tag low byte == '#'/0x23) to the CLUT chunk; 0 if none. */

@@ -15,7 +15,7 @@
 #include "eac_types.h"
 #include "memstd.h"
 
-// FIXME
+// FIXME LIBGPU.H
 extern void ClearOTagR(unsigned long *ot, int n);              /* PsyQ libgpu */
 extern int  DrawSync(int mode);                                /* PsyQ libgpu */
 

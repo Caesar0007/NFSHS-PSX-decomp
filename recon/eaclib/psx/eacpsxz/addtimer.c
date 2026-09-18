@@ -14,9 +14,9 @@
 /* owning-TU def (extern-declared, never defined; BSS) */
 /* Retail keeps this zero table in .data (0x8012360C): a C definition WITH an
  * initializer is emitted there; the tentative form was COMMON -> catch-all .bss. */
-int (*tmrsub[8])(void) = { 0 }; /* @0x8012360C: retail SYM/MAP public timer callback table */
+void (*tmrsub[8])(void) = { 0 }; /* @0x8012360C: retail MAP public timer callback table (no SYM type record) */
 
-void addtimer(int (*fn)(void))   /* @0x800EAFE8 */
+void addtimer(void (*fn)(void))   /* @0x800EAFE8 */
 {
     int i;
     for (i = 0; i < 8; i++)              /* already registered? -> done */
@@ -29,7 +29,7 @@ void addtimer(int (*fn)(void))   /* @0x800EAFE8 */
         }
 }
 
-void deltimer(int (*fn)(void))   /* @0x800EB048 */
+void deltimer(void (*fn)(void))   /* @0x800EB048 */
 {
     int i;
     for (i = 0; i < 8; i++)

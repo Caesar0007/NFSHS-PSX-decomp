@@ -78,13 +78,16 @@ extern int PCcreat(char *name, int a1);                       /* @0x80106CD0 */
 
 /* ---- system glue + string helpers ---- */
 extern int  readfile_systask(void);                           /* below */
+// FIXME STRINGS.H
 extern char *strchr(const char *s, int c);                   /* @0x800F6214 */
 extern char *strncpy(char *d, const char *s, int n);          /* @0x800F6104 */
 extern char *strcpy(char *d, const char *s);                  /* @0x800E5B28 */
 extern char *strcat(char *d, const char *s);                  /* @0x800E78E8 */
 extern int   strncmp(const char *a, const char *b, int n);    /* @0x800EB1D0 */
 extern int   strlen(const char *s);                           /* @0x800E9F74 */
+// FIXME MEMORY.H
 extern void *memset(void *d, int c, int n);                   /* @0x800E4318 */
+
 extern char *fsprefix1;     /* @0x8013DD34 -> "cdrom:" (CD drive prefix, 6-char compare)  */
 extern char *fsprefix2;     /* @0x8013DD40 -> "sim:"   (PC-host prefix, 4-char compare)   */
 extern char  currentdirectory[];  /* @0x80140414 cwd, prepended to relative PC paths     */

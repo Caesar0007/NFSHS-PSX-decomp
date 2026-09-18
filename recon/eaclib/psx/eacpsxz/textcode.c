@@ -29,18 +29,6 @@ unsigned int remapshiftjiscode(unsigned int c)
     return c;
 }
 
-#if defined(__mips__)
-__asm__(
-    "\t.globl decodeshiftjis2\n"
-    "decodeshiftjis2 = decodeshiftjis\n"
-    "\t.globl decodeshiftjis3\n"
-    "decodeshiftjis3 = decodeshiftjis\n"
-);
-#else
-extern int decodeshiftjis2(unsigned char **cursor) __attribute__((alias("decodeshiftjis")));
-extern int decodeshiftjis3(unsigned char **cursor) __attribute__((alias("decodeshiftjis")));
-#endif
-
 int decodeshiftjis(unsigned char **cursor)
 {
     unsigned char *p = *cursor;

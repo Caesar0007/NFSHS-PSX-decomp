@@ -136,11 +136,12 @@
 #include "blkfill.h"
 
 /* ---- helpers ---- */
-// FIXME
+// FIXME CTYPE.H
 extern int   toupper(int c);                                  /* @0x8010907C (libc C37)      */
+// FIXME STDLIB.H
 extern void *bsearch(const void *key, const void *base, int n, int size,
                          int (*cmp)(const void *, const void *)); /* @0x801091DC (libc)          */
-
+// FIXME STRINGS.H
 extern char *strncpy(char *d, const char *s, int n);          /* @0x800F6104 (libc C26)      */
 
 /* ---- CD read-state (ctx+0x20 sub-struct) + sector cache + the read machinery CD_Read arms ---- */

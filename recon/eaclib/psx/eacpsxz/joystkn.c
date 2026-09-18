@@ -9,7 +9,7 @@
 
 int joy_inited;        /* @0x8013DD28: owning-TU tentative def → .comm/.sbss → gp-rel */
 
-// FIXME
+// FIXME pad_externs.h?
 extern void padinit(void);   /* pad.obj */
 
 int initjoy(unsigned int numpads)

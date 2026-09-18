@@ -6,10 +6,9 @@
 extern int decodeansi(unsigned char **cursor);   /* @0x801069AC */
 extern unsigned int remapshiftjiscode(unsigned int c);      /* @0x801069C4 */
 extern int decodeshiftjis(unsigned char **cursor);          /* @0x801069EC */
-/* Co-equal XDEFs at the same address, emitted as GNU-as symbol assignments in textcode.c.
- * setfont NEEDS the three distinct names: our cc1 cross-jumps identical hard-reg la-blocks,
- * so one symbol would merge retail's three unmerged decoder-selection arms (see textset.c). */
-extern int decodeshiftjis2(unsigned char **cursor);         /* = decodeshiftjis */
-extern int decodeshiftjis3(unsigned char **cursor);         /* = decodeshiftjis */
+/* The co-equal XDEFs decodeshiftjis2/3 that used to sit here were invented (retired
+ * 2026-09-18): the SYM records real co-equal names when they exist -- nullfunc has 21 on
+ * 0x800F6114 -- and 0x801069EC carries exactly one.  setfont matches 100/100 with the single
+ * name; what keeps retail's three decoder arms unmerged is its own per-arm store (textset.c). */
 
 #endif

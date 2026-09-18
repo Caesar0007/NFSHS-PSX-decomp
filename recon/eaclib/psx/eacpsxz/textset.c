@@ -43,7 +43,7 @@ extern unsigned char currentfont[];
 #define CFFN(base,off)      (*(DecodeFn *)((base) + (off)))    /* 4-byte function-ptr field    */
 
 /* setfont @0x800F2E94 : install font header `fontId` as the current text font.
- * MATCH: the TRUE return type is void -- callers (font.cpp `setfont(f1);`, libfns.h
+ * MATCH: the TRUE return type is void -- callers (font.cpp `setfont(f1);`, textset.h
  * `void setfont(...)`) all discard the result, and the oracle does NOT preserve `decode`
  * across the trailing blockclear()/inittextdraw() calls (v0 is caller-saved and clobbered by
  * both, with nothing restoring it before `jr ra`) -- a `DecodeFn`-returning reconstruction
@@ -114,15 +114,18 @@ void setfont(int fontId)
      * widening explicit in the source and emits retail's `lh`.  (`(int)flags` in the test, a bare
      * expression, and a separate masked temp all still give `lhu` -- it has to be the LOCAL's type.)
      *
-     * w34 follow-up: RESIDUAL 12 -> 2 (exact 100/100).  Cluster (a) SOLVED by inference, not a
-     * spelling: our cc1 provably cross-jumps identical hard-reg la-blocks (post-reload
-     * jump_optimize, no flag) and the compiler snapshot is CLOSED (w33-a7, byte-identical cc1s)
-     * -- so retail's three unmerged blocks CANNOT have referenced one symbol.  The three arms
-     * reference co-equal XDEFs decodeshiftjis/decodeshiftjis2/decodeshiftjis3 (defined
-     * sinfunc-style in isqrttbl.c; same linked bytes; real alias names unrecoverable).  Distinct
-     * symbol_refs make the blocks non-identical at every merge point; all three la's materialize
-     * and the branch polarities fall out.  Only cluster (b) below remains (2 diffs, re-confirmed:
-     * storing 0xA0 through cf gates 74).
+     * w34 follow-up: RESIDUAL 12 -> 2 (exact 100/100).  Cluster (a) was cured by INFERRING two
+     * co-equal XDEFs (decodeshiftjis2/3, invented): distinct symbol_refs make the three la-blocks
+     * non-identical, so post-reload cross_jump cannot merge them and all three materialize.
+     * 🔴 RETIRED 2026-09-18 -- the inference was WRONG and the device is DEAD:
+     *   - the SYM records co-equal XDEFs when they exist (nullfunc: 21 names on 0x800F6114), and
+     *     0x801069EC carries exactly ONE, `decodeshiftjis`.  Retail had no alias.
+     *   - measured: with all three arms naming the SAME symbol our cc1 still emits THREE
+     *     `lui %hi(decodeshiftjis)` (retail: 3) and setfont still PASSes 100/100.
+     * What actually un-merges the blocks is the w49-a8 device below: the `CFFN(cf, 0xa0) = decode;`
+     * store written in EVERY arm makes the arms non-identical at the merge point on its own.  The
+     * aliases were superseded by it and only survived as three extra XDEFs the retail object never
+     * had.  Only cluster (b) below remains (2 diffs: storing 0xA0 through cf gates 74).
      * ---- pre-w34 history of cluster (a) ----
      * RESIDUAL 12, all in the decoder-selection tree, two causes:
      * (a) 10 = the 2-vs-3 `lui/addiu(decodeshiftjis)` materializations (retail never merges
@@ -176,7 +179,7 @@ void setfont(int fontId)
      * (b) 2 = the 0xA0 store's base (`sw v0,0xA0($s0)` ours vs `$s1` retail) -- was described as the
      *     unavoidable price of the live-range fix above; gcc must emit cf2's lui/addiu before a store
      *     through it, while retail stores through the still-live cf and materializes afterwards.
-     * ---- w32 note (still accurate for the residual) -------------------------------------------
+     * ---- w32 note (HISTORY: the tail-merge it describes no longer happens -- see 2026-09-18) ----
      * The 4-instruction gap is ONE thing: retail emits THREE separate
      * `lui/addiu %hi/%lo(decodeshiftjis)` materializations (one per arm, each `lui` in its branch's
      * delay slot + `j`/`addiu` pair), while our cc1 TAIL-MERGES arms 2+3 into one block and shares the
@@ -206,13 +209,13 @@ void setfont(int fontId)
 
     notsjis:
         if (CFI(cf, 0x74) >= 0x100) {
-            decode = decodeshiftjis2;                             /* large table => multi-byte */
+            decode = decodeshiftjis;                             /* large table => multi-byte */
             CFFN(cf, 0xa0) = decode;
             goto decoded;
         }
         /* small glyph table: probe the encoded stream -- ANSI if the first code is < 0x100 */
         if (geti((void *)(fontId + 0x20), 2) >= 0x100) {
-            decode = decodeshiftjis3;
+            decode = decodeshiftjis;
             CFFN(cf, 0xa0) = decode;
             goto decoded;
         }

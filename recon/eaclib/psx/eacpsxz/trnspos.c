@@ -8,7 +8,7 @@
  *                    [1]<->[3], [2]<->[6], [5]<->[7]                       @0x800E4358
  *     - src != dst : out-of-place full transpose copy dst[i*3+j] = src[j*3+i]  @0x800E4398
  *   Decoded verbatim from disasm-v3 (m[] index = byte-offset/4). Behavior-faithful; @VA breadcrumb.
- *   Callers resolve to the plain `transpose` symbol via the central extern "C" lib/libfns.h.
+ *   Callers resolve to the plain `transpose` symbol through trnspos.h (included under extern "C").
  */
 #include "../eaclib_types.h"
 #include "eac_types.h"

@@ -16,7 +16,7 @@
 #include "loadshp.h"
 #include "nloadpk.h"
 
-// FIXME
+// FIXME STRINGS.H
 extern char *strcpy(char *dst, const char *src);   /* syslib C25 */
 extern int   strlen(const char *s);                /* syslib C27 */
 extern char *strcat(char *dst, const char *src);   /* syslib C21 */

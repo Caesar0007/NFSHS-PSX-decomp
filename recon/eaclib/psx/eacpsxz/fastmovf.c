@@ -29,7 +29,7 @@ extern char * volatile nextprim;                      /* primate : OT link targe
                                 * post-processor left) -- volatile keeps both reads as direct
                                 * lui/lw self-temp loads, matching the oracle. */
 
-// FIXME
+// FIXME LIBGPU.H
 extern void  SetDrawMove(void *prim, RECT *src, int dx, int dy);   /* syslib P34 @0x8010C698 */
 
 extern int currentwindow[];  /* @0x801486E4 : GPU window block -- draw-origin X/Y @+4/+8,

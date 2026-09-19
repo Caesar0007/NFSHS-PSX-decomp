@@ -5,6 +5,16 @@
  */
 #include "fe3dmenu_externs.h"
 
+/* fe3dmenu.obj front.data 0x80051260..0x800514B8, owned here since 2026-09-19 (SYM: all five are EXT symbols of
+   fe3dmenu.obj, in this order; was the retail dump front_data_r00).  Uninitialized C++ publics. */
+/* cc1plus emits uninitialized publics at the end of the file in the order of their FIRST declaration, so they are
+   first declared here (not in the externs header), in the retail order. */
+int      showRoomFlag_v[1] asm("showRoomFlag");   /* 0x80051260 (BOOL) */
+int      gMenuRotate[2];                          /* 0x80051264 */
+COORD16  Fe3D_spotVertex[33];                     /* 0x8005126c */
+COORD16  Fe3D_lightsVertex[64];                   /* 0x80051334 */
+int      gShowroomLights;                         /* 0x800514b4 */
+
 
 /* ---- Fe3D_InitShowroom  [FE3DMENU.CPP:76-114] SLD-FLAG:NONMONO ----
  * PASS 107/107.  SYM records outer `INT i`/`LONG angle`, a line-15 `SHORT

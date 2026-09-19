@@ -2418,5 +2418,16 @@
   "unresolved": 0,
   "words": 46,
   "q": 0
+ },
+ {
+  "obj": "build/recon/game/psx/fe3dmenu.cpp.o",
+  "section": ".data",
+  "base": 2147816032,
+  "end": 2147816632,
+  "size": 600,
+  "ok": true,
+  "unresolved": 0,
+  "words": 150,
+  "q": 0
  }
 ]

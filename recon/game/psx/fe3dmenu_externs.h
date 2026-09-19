@@ -5,10 +5,7 @@
 #include "fe3dmenu_types.h"
 
 /* globals (SYM Globals.jsonl) */
-extern COORD16  Fe3D_lightsVertex[64];   /* 0x80051334  ARY STRUCT COORD16 x64 */
-extern COORD16  Fe3D_spotVertex[33];     /* 0x8005126c  ARY STRUCT COORD16 x33 */
 extern char     bigBuf[];
-extern int      gMenuRotate[2];
 /* Scratchpad stack terminator; it has no linked storage or SYM type record. */
 #define gScratchLastWord (*(int *)0x1F8003FC)
 /* w38-a9: Render_gMenuRenderFlag dropped -- it is the SCRATCHPAD field
@@ -29,13 +26,14 @@ extern int      R3DCar_InMenu_v[]             asm("R3DCar_InMenu");
    cse.c forward the compare's load and drops that second `lw`). */
 extern volatile int generic128HzClock_v[]     asm("generic128HzClock");
 extern int      stackSpeedUpEnbabledFlag_v[]  asm("stackSpeedUpEnbabledFlag");
-extern int      showRoomFlag_v[]              asm("showRoomFlag");
 extern u_long   gWSavePtr_v[]                 asm("gWSavePtr");
 #define R3DCar_Clock              (R3DCar_Clock_v[0])
 #define R3DCar_ClockLast          (R3DCar_ClockLast_v[0])
 #define R3DCar_InMenu             (R3DCar_InMenu_v[0])
 #define generic128HzClock         (generic128HzClock_v[0])
 #define stackSpeedUpEnbabledFlag  (stackSpeedUpEnbabledFlag_v[0])
+/* showRoomFlag_v, gMenuRotate, Fe3D_spotVertex, Fe3D_lightsVertex: DEFINED in fe3dmenu.cpp (their first
+   declaration fixes the emission order of the object's data) */
 #define showRoomFlag              (showRoomFlag_v[0])
 #define gWSavePtr                 (gWSavePtr_v[0])
 

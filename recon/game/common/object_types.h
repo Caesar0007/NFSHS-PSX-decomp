@@ -79,35 +79,19 @@ struct Object_tIMassObjInfo {
     int lastTick;
 };
 
+/* Real virtuals since 2026-09-19.  Declaration order, in-class inline destructors and the pure base Draw are all retail
+ * evidence (vtable order, deferred-inline tail order, __pure_virtual slot) -- see scratchpad/psyq_pipe/fevirt_object.py. */
 struct ObjectAnim {
-    __vtbl_ptr_type (*_vf)[3];
-    ~ObjectAnim();
+    virtual ~ObjectAnim() {}
+    virtual int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset) = 0;
 };
-extern __vtbl_ptr_type ObjectFinishedMultiAnim_vtable[];
-extern __vtbl_ptr_type ObjectFinishedSignAnim_vtable[];
-struct ObjectFinishedMultiAnim {
-    ObjectAnim _base_ObjectAnim;
-    ObjectFinishedMultiAnim()
-    {
-        _base_ObjectAnim._vf =
-            (__vtbl_ptr_type (*)[3])ObjectFinishedMultiAnim_vtable;
-    }
+/* The Finished* classes declare NO constructor: a user-written inline one would get an out-of-line copy (their key
+ * function Draw is in object.cpp) and retail has none. */
+struct ObjectFinishedMultiAnim : public ObjectAnim {
+    ~ObjectFinishedMultiAnim() {}
     int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset);
 };
-struct ObjectFinishedSignAnim {
-    ObjectAnim _base_ObjectAnim;
-    matrixtdef finalMatrix;
-    Trk_ObjectDef *objDef;
-    Trk_CollideBoomInst *objCollideInstance;
-    ObjectFinishedSignAnim()
-    {
-        _base_ObjectAnim._vf =
-            (__vtbl_ptr_type (*)[3])ObjectFinishedSignAnim_vtable;
-    }
-    int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset);
-};
-struct ObjectMultiAnim {
-    ObjectAnim _base_ObjectAnim;
+struct ObjectMultiAnim : public ObjectAnim {
     coorddef impactVel;
     Trk_SimObject *simObj;
     Trk_CollideBoomInst *objCollideInstance;
@@ -118,10 +102,17 @@ struct ObjectMultiAnim {
     ObjectFinishedMultiAnim *finishedAnim;
     ObjectMultiAnim(coorddef *, AnimDef *, Trk_CollideBoomInst *,
                     Trk_ObjectDef *, Trk_SimObject *, ObjectFinishedMultiAnim *);
+    ~ObjectMultiAnim() { delete script; if (finishedAnim) delete finishedAnim; }
     int Draw(DRender_tView *, Draw_DCache *, int);
 };
-struct ObjectSignAnim {
-    ObjectAnim _base_ObjectAnim;
+struct ObjectFinishedSignAnim : public ObjectAnim {
+    matrixtdef finalMatrix;
+    Trk_ObjectDef *objDef;
+    Trk_CollideBoomInst *objCollideInstance;
+    ~ObjectFinishedSignAnim() {}
+    int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset);
+};
+struct ObjectSignAnim : public ObjectAnim {
     coorddef impactVel;
     Trk_SimObject *simObj;
     Trk_CollideBoomInst *objCollideInstance;
@@ -133,6 +124,7 @@ struct ObjectSignAnim {
     ObjectSignAnim(coorddef *, int, AnimDef *, Trk_CollideBoomInst *,
                    Trk_ObjectDef *, Trk_SimObject *, coorddef *,
                    ObjectFinishedSignAnim *);
+    ~ObjectSignAnim() { delete script; if (finishedAnim) delete finishedAnim; }
     int Draw(DRender_tView *, Draw_DCache *, int);
 };
 
@@ -162,7 +154,6 @@ struct SaveSurface {
 struct AIHigh_Traffic : public AIHigh_Base {
     int ignoreCops_, forcePurgatory_;
     SceneElem *accidentData_;
-    AIHigh_Traffic() {}
     AIHigh_Traffic(Car_tObj *carObj);
     Car_tObj *CheckForCops(int *p);
     AIHigh_Cop *CopCheck(int *p);

@@ -5,6 +5,7 @@
  */
 #include "object_types.h"
 #include "object_externs.h"
+extern "C" int sprintf(char *, const char *, ...);
 
 
 /* EXT/STAT data OWNED by object.obj */
@@ -59,10 +60,6 @@ void Object_DeInitIMassObjectInfo(void);
 int Object_GetNumIMassObjects(void);
 void Object_GetIMassObjectDimensions(int objIndex,coorddef *dimensions);
 void Object_GetIMassObjectMotion(int objIndex,coorddef *cpoint,matrixtdef *orientMat,coorddef *velocity);
-extern "C" void ___14ObjectSignAnim(ObjectSignAnim *pThis,int __in_chrg);
-extern "C" void ___22ObjectFinishedSignAnim(ObjectFinishedSignAnim *pThis,int __in_chrg);
-extern "C" void ___15ObjectMultiAnim(ObjectMultiAnim *pThis,int __in_chrg);
-extern "C" void ___23ObjectFinishedMultiAnim(ObjectFinishedMultiAnim *pThis,int __in_chrg);
 
 /* ---- CalcObjYawAngle  [OBJECT.CPP:69-74] SLD-VERIFIED ---- */
 
@@ -366,10 +363,7 @@ void Object_KillStatus(void)
   i = 0;
   do {
     if (gSimObjAnims[i] != (ObjectAnim *)0x0) {
-      (*(*gSimObjAnims[i]->_vf)[1].pfn)
-          ((int)&gSimObjAnims[i]->_vf +
-               (int)(*gSimObjAnims[i]->_vf)[1].delta,
-           3);
+      delete gSimObjAnims[i];
     }
     i = i + 1;
   } while (i < 0x1c2);
@@ -470,17 +464,16 @@ int Object_CheckCollisionResults(Object_tSimObjList *objList,int objIndex,BO_tNe
 
       finishedMulti = new ObjectFinishedMultiAnim;
       gSimObjAnims[simObj->serialNum] =
-          &(new ObjectMultiAnim(&N->linearVel,animDef,
+          (new ObjectMultiAnim(&N->linearVel,animDef,
                                 (Trk_CollideBoomInst *)(void *)objInstance,objDef,simObj,
-                                finishedMulti))->_base_ObjectAnim;
+                                finishedMulti));
     }
     else {
       /* SYM-INLINE-THIS: ObjectFinishedSignAnim */
       gSimObjAnims[simObj->serialNum] =
-          &Object_CreateSignAnim(N,animDef,
+          Object_CreateSignAnim(N,animDef,
                                  (Trk_CollideBoomInst *)(void *)objInstance,
-                                 objDef,simObj,new ObjectFinishedSignAnim)
-               ->_base_ObjectAnim;
+                                 objDef,simObj,new ObjectFinishedSignAnim);
     }
     ret = -1;
     }
@@ -503,6 +496,7 @@ int Object_CheckCollisionResults(Object_tSimObjList *objList,int objIndex,BO_tNe
 void Object_InitCustomObjects(void)
 
 {
+  if (0) sprintf((char *)0,"SimpleMem");   /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag */
   Object_customObjInst = reservememadr("Custom Objects",0x400,0);
   Object_customObjInst->m_num_elements = 0;
   Object_customSimObjs = reservememadr("Custom SimObjects",0x400,0);
@@ -1007,7 +1001,6 @@ ObjectMultiAnim::ObjectMultiAnim(coorddef *impactVel,AnimDef *def,
           ObjectFinishedMultiAnim *finishedAnim)
 
 {
-  _base_ObjectAnim._vf = (__vtbl_ptr_type (*) [3])ObjectMultiAnim_vtable;
   this->impactVel.x = impactVel->x >> 6;
   this->impactVel.y = impactVel->y >> 6;
   /* SYM-CODEGEN-CARRIER: z -- reading impactVel->z at the final store keeps
@@ -1055,12 +1048,10 @@ int ObjectMultiAnim::Draw(DRender_tView *Vi,Draw_DCache *sd,int offset)
     i = simObj->serialNum;
     finishedAnim = (ObjectFinishedMultiAnim *)0x0;
     if (gSimObjAnims[i] != (ObjectAnim *)0x0) {
-      (*(*gSimObjAnims[i]->_vf)[1].pfn)
-        ((int)&gSimObjAnims[i]->_vf + (int)(*gSimObjAnims[i]->_vf)[1].delta,3);
+      delete gSimObjAnims[i];
     }
     gSimObjAnims[i] = anim;
-    return (*(*anim->_vf)[2].pfn)
-      ((int)&anim->_vf + (int)(*anim->_vf)[2].delta,Vi,sd,offset);
+    return anim->Draw(Vi,sd,offset);
   }
   else {
     Trk_ObjectDef *pObjDef;
@@ -1184,7 +1175,6 @@ ObjectSignAnim::ObjectSignAnim(coorddef *impactVel,int impactAngle,AnimDef *def,
   matrixtdef tmpMat;
   matrixtdef mat;
 
-  _base_ObjectAnim._vf = (__vtbl_ptr_type (*) [3])ObjectSignAnim_vtable;
   vel = (__builtin_abs(impactVel->x) + __builtin_abs(impactVel->z)) >> 16;
   this->impactVel = *impactVel;
   this->impactAngle = impactAngle << 8;
@@ -1241,17 +1231,14 @@ int ObjectSignAnim::Draw(DRender_tView *Vi,Draw_DCache *sd,int offset)
   int numFrames;
 
   if (this->script->GetTimedAnimPosRot(0, &animcp, &matrix) + 1U < 2) {
-    anim = &this->finishedAnim->_base_ObjectAnim;
+    anim = this->finishedAnim;
     i = this->simObj->serialNum;
     this->finishedAnim = (ObjectFinishedSignAnim *)0x0;
     if (gSimObjAnims[i] != (ObjectAnim *)0x0) {
-      (*(*gSimObjAnims[i]->_vf)[1].pfn)
-          ((int)&gSimObjAnims[i]->_vf +
-           (int)(*gSimObjAnims[i]->_vf)[1].delta,3);
+      delete gSimObjAnims[i];
     }
     gSimObjAnims[i] = anim;
-    return (*(*anim->_vf)[2].pfn)
-        ((int)anim + (int)(*anim->_vf)[2].delta,Vi,sd,offset);
+    return anim->Draw(Vi,sd,offset);
   }
   else {
     pObjDef = this->objDef;
@@ -1267,84 +1254,7 @@ int ObjectSignAnim::Draw(DRender_tView *Vi,Draw_DCache *sd,int offset)
   }
 }
 
-/* ---- ___14ObjectSignAnim  [OBJECT.CPP:?] SLD-FLAG:NO_SLD ---- */
-
-extern "C" void ___14ObjectSignAnim(ObjectSignAnim *pThis,int __in_chrg)
-
-{
-  (pThis->_base_ObjectAnim)._vf = (__vtbl_ptr_type (*) [3])ObjectSignAnim_vtable;
-  delete pThis->script;
-  if (pThis->finishedAnim != (ObjectFinishedSignAnim *)0x0) {
-    (*(*(pThis->finishedAnim->_base_ObjectAnim)._vf)[1].pfn)
-      ((int)&(pThis->finishedAnim->_base_ObjectAnim)._vf +
-       (int)(*(pThis->finishedAnim->_base_ObjectAnim)._vf)[1].delta,3);
-  }
-  (pThis->_base_ObjectAnim)._vf = (__vtbl_ptr_type (*) [3])ObjectAnim_vtable;
-  if ((__in_chrg & 1U) != 0) {
-    __builtin_delete(pThis);
-  }
-  return;
-}
-
-
-
-/* ---- ___22ObjectFinishedSignAnim  [OBJECT.CPP:?] SLD-FLAG:NO_SLD ---- */
-
-extern "C" void ___22ObjectFinishedSignAnim(ObjectFinishedSignAnim *pThis,int __in_chrg)
-
-{
-  (pThis->_base_ObjectAnim)._vf = (__vtbl_ptr_type (*) [3])ObjectAnim_vtable;
-  if ((__in_chrg & 1U) != 0) {
-    __builtin_delete(pThis);
-  }
-  return;
-}
-
-
-
-/* ---- ___15ObjectMultiAnim  [OBJECT.CPP:?] SLD-FLAG:NO_SLD ---- */
-
-extern "C" void ___15ObjectMultiAnim(ObjectMultiAnim *pThis,int __in_chrg)
-
-{
-  (pThis->_base_ObjectAnim)._vf = (__vtbl_ptr_type (*) [3])ObjectMultiAnim_vtable;
-  delete pThis->script;
-  if (pThis->finishedAnim != (ObjectFinishedMultiAnim *)0x0) {
-    (*(*(pThis->finishedAnim->_base_ObjectAnim)._vf)[1].pfn)
-      ((int)&(pThis->finishedAnim->_base_ObjectAnim)._vf +
-       (int)(*(pThis->finishedAnim->_base_ObjectAnim)._vf)[1].delta,3);
-  }
-  (pThis->_base_ObjectAnim)._vf = (__vtbl_ptr_type (*) [3])ObjectAnim_vtable;
-  if ((__in_chrg & 1U) != 0) {
-    __builtin_delete(pThis);
-  }
-  return;
-}
-
-
-
-/* ---- ___23ObjectFinishedMultiAnim  [OBJECT.CPP:?] SLD-FLAG:NO_SLD ---- */
-
-extern "C" void ___23ObjectFinishedMultiAnim(ObjectFinishedMultiAnim *pThis,int __in_chrg)
-
-{
-  (pThis->_base_ObjectAnim)._vf = (__vtbl_ptr_type (*) [3])ObjectAnim_vtable;
-  if ((__in_chrg & 1U) != 0) {
-    __builtin_delete(pThis);
-  }
-  return;
-}
-
-
-
-/* ---- _._10ObjectAnim  [OBJECT.H:53] SLD-VERIFIED ---- */
-/* W60-A9: moved here from between the ObjectMultiAnim marker and its body to restore retail
- * VA emission order (___10ObjectAnim @0x800a6de0 is the LAST of the four dtors:
- * FinishedSignAnim 0x800a6cc4 < MultiAnim 0x800a6cf8 < FinishedMultiAnim 0x800a6dac < this). */
-ObjectAnim::~ObjectAnim()
-{
-  _vf = (__vtbl_ptr_type (*) [3])ObjectAnim_vtable;
-}
-
+/* The object ends with the five IN-CLASS inline destructors (object_types.h), emitted as the deferred-inline batch in
+ * reverse order: ~ObjectSignAnim, ~ObjectFinishedSignAnim, ~ObjectMultiAnim, ~ObjectFinishedMultiAnim, ~ObjectAnim. */
 
 /* end of object.cpp */

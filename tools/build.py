@@ -406,6 +406,8 @@ PER_TU_FLAGS = {
     "recon/frontend/psx/movie.cpp":        {"g_value": "0"},
     "recon/frontend/psx/memcard.c":        {"g_value": "0"},
     "recon/eaclib/psx/eacpsxz/memstd.c":   {"g_value": "8"},   # its "%s LOW"/"%s HIGH" literals are retail .sdata @0x8013dc20 (2026-09-17)
+    "recon/eaclib/psx/eacpsxz/wildcard.c": {"g_value": "8"},   # "&|!~^" literal is retail .sdata @0x8013dc48 (2026-09-18)
+    "recon/eaclib/psx/eacpsxz/loadshp.c":  {"g_value": "8"},   # ".psh" + shapeext are retail .sdata @0x8013dd18/20 (2026-09-18)
     "recon/syslib/psx/libgte/MSC00.c":     {"g_value": "0"},   # Sony libgte: ra-save scratch is a .data word @0x80134a70 (2026-09-17)
     "recon/syslib/psx/libgte/PATCHGTE.c":  {"g_value": "0"},   # Sony libgte: ra-save scratch is .bss @0x8014898c (2026-09-17)   # retail keeps its "*" literal in .rdata between two jump tables (2026-09-17)   # Movie.obj keeps user_exit/skip_all/gPlayerNum/download in front.data (2026-09-17)
     # w59-a13 (orchestrator-wired): memmove FAIL 2 -> PASS 27/27 with NO source

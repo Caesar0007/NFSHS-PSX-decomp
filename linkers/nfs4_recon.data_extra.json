@@ -2110,5 +2110,27 @@
   "unresolved": 0,
   "words": 4,
   "q": 0
+ },
+ {
+  "obj": "build/recon/eaclib/psx/eacpsxz/wildcard.c.o",
+  "section": ".sdata",
+  "base": 2148785224,
+  "end": 2148785232,
+  "size": 8,
+  "ok": true,
+  "unresolved": 0,
+  "words": 2,
+  "q": 0
+ },
+ {
+  "obj": "build/recon/eaclib/psx/eacpsxz/loadshp.c.o",
+  "section": ".sdata",
+  "base": 2148785432,
+  "end": 2148785444,
+  "size": 12,
+  "ok": true,
+  "unresolved": 0,
+  "words": 3,
+  "q": 0
  }
 ]

@@ -896,8 +896,10 @@ SECTIONS
     .xs0011 0x8013da9c : SUBALIGN(4) { build/recon/game/psx/platform.cpp.o(.sdata); }
     .xs0012 0x8013dac8 : SUBALIGN(4) { build/recon/game/psx/skidmark.cpp.o(.sdata); }
     .xs0013 0x8013dc20 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/memstd.c.o(.sdata); }
-    .xs0014 0x8013dd2c : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/fileroot.c.o(.sdata); }
-    .xs0015 0x8013dd48 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/inittmr.c.o(.sdata); }
+    .xs0014 0x8013dc48 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/wildcard.c.o(.sdata); }
+    .xs0015 0x8013dd18 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/loadshp.c.o(.sdata); }
+    .xs0016 0x8013dd2c : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/fileroot.c.o(.sdata); }
+    .xs0017 0x8013dd48 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/inittmr.c.o(.sdata); }
 
     .data 0x8010ccd4 : SUBALIGN(4)
     {
@@ -1094,7 +1096,6 @@ SECTIONS
         build/asm/data/sdata_8013C54C_r23.sdata.s.o(.sdata);
         build/recon/eaclib/psx/eacpsxz/threads.c.o(.sbss);   /* 0x8013dd5c..0x8013dd60  was sdata_8013C54C_o38.sdata.s */
         build/asm/data/sdata_8013C54C_r24.sdata.s.o(.sdata);
-        build/recon/eaclib/psx/eacpsxz/loadshp.c.o(.sdata);
         build/recon/eaclib/psx/sndpsxz/sdpacket.c.o(.sdata);
         build/recon/game/common/aih_cop.cpp.o(.sdata);
     }

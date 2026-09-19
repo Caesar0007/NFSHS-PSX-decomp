@@ -28,6 +28,20 @@ extern int Weather_gTrackIntensityLimit;
 
 #include "weather_externs.h"
 
+/* weather.obj .data 0x80123384..0x8012349c, owned here since 2026-09-19 (was the retail dump data_8010CCD4_r16).
+   The initialized tables come first; the uninitialized publics follow because cc1plus 2.8 emits them as
+   .data space at the end of the file, in declaration order. */
+int               Weather_gDensityTbl[4] = { 0, 50, 100, 150 };                  /* 0x80123384 */
+int               Weather_gIntensityTbl[4] = { -104, -84, -70, -17 };           /* 0x80123394 */
+int               Weather_gTrackIntensityLimitTbl[16] = { 2, 2, 2, 2, 2, 2, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2 };   /* 0x801233a4 */
+char              Weather_gRandomVelocityVectors[12][3] = {                        /* 0x801233e4 */
+    { -4, 0, 0 }, { 5, 0, 0 }, { -6, -1, 0 }, { 4, -1, 0 }, { 0, 0, -3 }, { 0, 0, -4 },
+    { 0, -5, 1 }, { 0, -3, 6 }, { 4, 0, 4 }, { -10, 0, 2 }, { 8, -2, -1 }, { -2, -8, 8 }
+};
+Weather_tSys      Weather_gSys;                                                   /* 0x80123408 */
+coorddef          prevCamPos[2];                                                  /* 0x8012342c */
+matrixtdef        prevCamMat[2];                                                  /* 0x80123444 */
+
 /* This TU's original obj (WEATHER.CPP) reaches the packet/palette scratchpad pointers via their
  * FIXED scratchpad storage address (0x1F800004 / 0x1F800000) rather than the linked symbol --
  * every oracle site (Weather_CreateSnow/CreateRain/CreateSplat/DoWeather) shows a literal

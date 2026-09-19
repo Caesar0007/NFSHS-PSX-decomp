@@ -2176,5 +2176,16 @@
   "unresolved": 0,
   "words": 740,
   "q": 0
+ },
+ {
+  "obj": "build/recon/game/psx/weather.cpp.o",
+  "section": ".data",
+  "base": 2148676484,
+  "end": 2148676748,
+  "size": 264,
+  "ok": true,
+  "unresolved": 0,
+  "words": 66,
+  "q": 0
  }
 ]

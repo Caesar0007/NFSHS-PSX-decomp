@@ -202,3 +202,8 @@ extern int SNDSYS_restore(void)
     return iSNDmemrestore();   /* $v0 holds iSNDmemrestore's return on this path (incidental);
                                 * the -10 sentinel lives only in the not-up beqz delay slot */
 }
+
+/* ssysinit.obj .data 0x80134A68, owned here since 2026-09-19 (gprefs.py: SNDSYS_getopts is the only user; retail
+ * link order ssysinit, ssysreal, MSC00 = data order 0x80134A68, A6C, A70).  Defined after its use so the unsized
+ * extern keeps the retail absolute addressing. */
+int DAT_80134a68[1] __attribute__((section(".data"))) = { 0 };

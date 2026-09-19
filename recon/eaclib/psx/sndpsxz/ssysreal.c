@@ -14,7 +14,7 @@ extern void addsystemtask(void *fn, void *a, void *b);          /* eacpsxz systa
  * that an nm frontier count hides as "one more unsealed callee".  Renaming the reference to the
  * blob's exact spelling resolves it and is BYTE-NEUTRAL (only the relocation NAME changes;
  * verify_asm is reloc-name lenient and the TU re-gates 2/2 PASS). */
-extern int  D_80134A6C[2];     /* @0x80134A6C : element 0 is the "task installed" flag */
+extern int  D_80134A6C[];      /* @0x80134A6C : element 0 is the "task installed" flag (defined at the end of this file) */
 
 extern int  iSNDsystemtaskreal(void);   /* @0x800F2130 */
 extern int  SNDSYS_vectortoreal(void);  /* @0x800F2150 */
@@ -35,3 +35,6 @@ extern int SNDSYS_vectortoreal(void)
     }
     return 0;
 }
+
+/* ssysreal.obj .data 0x80134A6C, owned here since 2026-09-19 (gprefs.py: SNDSYS_vectortoreal is the only user). */
+int D_80134A6C[1] __attribute__((section(".data"))) = { 0 };

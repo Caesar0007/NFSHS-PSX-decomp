@@ -2374,5 +2374,38 @@
   "unresolved": 0,
   "words": 8,
   "q": 0
+ },
+ {
+  "obj": "build/recon/game/psx/trackspec.cpp.o",
+  "section": ".data",
+  "base": 2148676220,
+  "end": 2148676484,
+  "size": 264,
+  "ok": true,
+  "unresolved": 0,
+  "words": 66,
+  "q": 0
+ },
+ {
+  "obj": "build/recon/eaclib/psx/sndpsxz/ssysinit.c.o",
+  "section": ".data",
+  "base": 2148747880,
+  "end": 2148747884,
+  "size": 4,
+  "ok": true,
+  "unresolved": 0,
+  "words": 1,
+  "q": 0
+ },
+ {
+  "obj": "build/recon/eaclib/psx/sndpsxz/ssysreal.c.o",
+  "section": ".data",
+  "base": 2148747884,
+  "end": 2148747888,
+  "size": 4,
+  "ok": true,
+  "unresolved": 0,
+  "words": 1,
+  "q": 0
  }
 ]

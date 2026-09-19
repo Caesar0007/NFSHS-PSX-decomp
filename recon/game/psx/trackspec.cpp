@@ -9,6 +9,8 @@
 /* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
  * but OWNED here; tentative defs -> cc1 `.comm` -> stock maspsx gp-rels them
  * (matches the oracle's %gp_rel). section 3.12 #6. (auto: gen_gprel_defs.py) */
+/* trackspec.obj .data 0x8012327C..0x80123384, owned here since 2026-09-19 (was the retail dump data_8010CCD4_r16) */
+CTrackSpec TrackSpec_gSpec;
 int TrackSpec_gCurrentSpec;
 int TrackSpec_gMaxSpec;
 int TrackSpec_gPrevSpec;

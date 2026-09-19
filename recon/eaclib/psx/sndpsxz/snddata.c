@@ -27,4 +27,4 @@ extern int DAT_801234e4  = 0x2000;   /* @0x801234E4 : default SPU context size *
 /* ---- small in-image runtime counters/flags (.data, initial 0; mutated at runtime). */
 extern int  DAT_80136dec = 0;   /* @0x80136DEC : rolling allocation id counter (salloc, +=0x20) */
 extern char DAT_801371cc = 0;   /* @0x801371CC : rolling key-group counter (stagpat)            */
-extern int  DAT_80134a68 = 0;   /* @0x80134A68 : output-caps init-once flag (ssysinit)          */
+/* (2026-09-19) the output-caps init-once flag @0x80134A68 is ssysinit.obj data and is defined there */

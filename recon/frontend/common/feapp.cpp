@@ -3,6 +3,7 @@
  *   Member defs; base ctors via init-lists; manual _vf vtable init.
  */
 #define FEAPP_DEFINE_DIALOG_CTORS
+#pragma implementation "fedialog_timeout_class.h"
 #include "../../lib/nfs4_new.h"
 #include "feapp.h"
 
@@ -57,7 +58,8 @@ inline tDialogHelp::tDialogHelp()
   timeOutTicks = 0x578;
 }
 
-inline tDialogMessageStringWithTimeout::tDialogMessageStringWithTimeout()
+/* the constructor stores live in the helper base (see fedialog_timeout_class.h) */
+inline tDialogMessageStringWithTimeoutInit::tDialogMessageStringWithTimeoutInit()
 {
   _vf = (__typeof__(_vf))tDialogMessageStringWithTimeout_vtable;   /* w76-A20 vptr-store alias dial (24A) */
   timeOutTicks = 0x480;
@@ -1490,15 +1492,5 @@ tAppCommand tFEApplication::RunFrontEnd()
 
 /* end of feapp.cpp */
 
-/* Retail SYM owns this STAT destructor in FEApp.obj, and SLD identifies its
- * original definition as FEDIALOG.H:215 (a header-inline dtor whose
- * out-of-line copy g++ emits at end-of-file, hence retail's 0x80015760 = the
- * LAST function of the object, right after RunFrontEnd).  It is materialized
- * beside the FEApp-owned class surface because reconstructed vtables are
- * data-only TUs; defining it LAST here reproduces that text position (a
- * definition at the top shifted the whole object by 0x20 and got it dropped
- * from the placed link).  The natural C++ destructor still emits retail's
- * exact call to ~tScreen. */
-tDialogMessageStringWithTimeout::~tDialogMessageStringWithTimeout()
-{
-}
+/* ~tDialogMessageStringWithTimeout (retail 0x80015760, the LAST function of FEApp.obj) is the header-inline
+   destructor of fedialog_timeout_class.h; this TU is its implementation file (pragma at the top). */

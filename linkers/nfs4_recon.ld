@@ -176,7 +176,7 @@ SECTIONS
      * dispatch in its .text resolves to a non-retail address. */
     .ro0000 0x80010078 : SUBALIGN(4) { build/recon/frontend/common/feapp.cpp.o(.rodata); }   /* 32 B */
     .ro0001 0x80010104 : SUBALIGN(4) { build/recon/frontend/common/feaudio.cpp.o(.rodata); }   /* 77 B */
-    .ro0002 0x800101b4 : SUBALIGN(4) { build/recon/frontend/common/fecars.cpp.o(.rodata); }   /* 38 B  (anchor-only, E1-E5 not clean) */
+    .ro0002 0x80010170 : SUBALIGN(4) { build/recon/frontend/common/fecars.cpp.o(.rodata); }   /* 97 B  (anchor-only, E1-E5 not clean) */
     .ro0003 0x80010238 : SUBALIGN(4) { build/recon/frontend/common/fedialog.cpp.o(.rodata); }   /* 120 B  (anchor-only, E1-E5 not clean) */
     .ro0004 0x80010610 : SUBALIGN(4) { build/recon/frontend/common/femenuextended.cpp.o(.rodata); }   /* 15 B  (anchor-only, E1-E5 not clean) */
     .ro0005 0x80010960 : SUBALIGN(4) { build/recon/frontend/common/femenuoptions.cpp.o(.rodata); }   /* 172 B  (anchor-only, E1-E5 not clean) */

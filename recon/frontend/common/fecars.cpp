@@ -10,6 +10,19 @@ char         cars_disableBonuses;   /* @0x80051540  (bss(zero)) */
 char         gCarSelected[2][50];   /* @0x80051544  (bss(zero)) */
 
 
+/* SYM-CODEGEN-CARRIER (2026-09-19): retail fecars.obj .rodata opens with three constants no retail code references --
+   "%s%s.viv" 0x80010170, the name template 0x80010180 (shared with tListIteratorCar::TextValue's initializer) and
+   an int table 0x80010188.  They are the expansion-time constants of a function the compiler never emitted: an
+   unused static helper ahead of the first definition.  Its original name is not retained. */
+static inline void FeCars_UnusedCarFileName(char *filename, char *path, char *name)
+{
+  sprintf(filename,"%s%s.viv",path,name);
+  char extension [4] = "";   /* retail: 4 zero bytes (an empty-string initializer) at 0x8001017c, before the template */
+  short nameBase [3] = { 0x121, 0x153, 0x185 };
+  int nameId [11] = { 22, 22, 25, 25, 26, 27, 27, 22, 22, 22, 0 };
+  filename[0] = (char)(nameBase[0] + nameId[0]);
+}
+
 /* ---- tCarManager::Initialize  [FECARS.CPP:77-94] SLD-VERIFIED ---- */
 
 void tCarManager::Initialize()

@@ -10,6 +10,8 @@ extern void DeliverEvent(unsigned int event, int spec);   /* libapi A07.obj (BIO
  * each is a plain 4-byte int within the -G4 threshold -- force them out of .sdata (catalog §I-addendum
  * gp-rel-floor-is-beatable lever: `__attribute__((section(".data")))` on an INITIALIZED file-scope
  * scalar reproduces aspsx 2.77's absolute form; ours defaulted to gp-rel `sw r,0(gp)`). */
+/* Sony library-information stamp: the first 8 bytes of this object's .data (byte-exact in PsyQ 4.3). */
+static unsigned char _lib_stamp[8] __attribute__((section(".data"))) = { 0x50, 0x73, 0x0B, 0x25, 0x9B, 0x53, 0x43, 0x00 };
 extern int math_errno __attribute__((section(".data"))) = 0;        /* @0x8013BF18 */
 extern int math_err_point __attribute__((section(".data"))) = 0;
 

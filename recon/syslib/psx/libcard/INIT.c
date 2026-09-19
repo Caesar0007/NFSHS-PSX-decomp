@@ -15,7 +15,7 @@ extern void StopCARD2(void);             /* A76, BIOS B0:0x4C @0x8010CBB0 */
 extern int  _ExitCard(void);             /* END @0x8010CBC0 */
 
 /* INIT.obj .data (retail 0x8013C328, 16 bytes; identical in PsyQ 4.3 LIBCARD INIT.obj).  No code references it. */
-unsigned char _card_stamp[16] = { 0x50, 0x73, 0x03, 0x25, 0x9B, 0x52, 0x43, 0x00 };
+static unsigned char _lib_stamp[16] = { 0x50, 0x73, 0x03, 0x25, 0x9B, 0x52, 0x43, 0x00 };
 
 /* @0x8010C784 : InitCARD(val) -- val forced to 0 if the pad was not pre-initialised. */
 extern void InitCARD(long val)

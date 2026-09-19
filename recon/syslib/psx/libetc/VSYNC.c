@@ -25,6 +25,8 @@ extern int  ChangeClearRCnt(int t, int m);    /* L10 */
 extern volatile int Vcount;                    /* INTR_VB @0x80137D10 */
 
 /* VSYNC.obj .data @0x80134A88 (owned here since 2026-09-19; was the retail dump data_8010CCD4_r17). */
+/* Sony library-information stamp: the first 8 bytes of this object's .data (byte-exact in PsyQ 4.3). */
+static unsigned char _lib_stamp[8] __attribute__((section(".data"))) = { 0x50, 0x73, 0x06, 0x25, 0x9B, 0x52, 0x43, 0x00 };
 volatile unsigned int *g_vsync_gp1_ptr __asm__("D_80134A88") = (volatile unsigned int *)0x1F801814; /* GPU status */
 volatile unsigned int *g_vsync_t1_ptr __asm__("D_80134A8C") = (volatile unsigned int *)0x1F801110;  /* root counter 1 */
 volatile int Hcount = 0;       /* @0x80134A90 -- volatile: the oracle STORES then RE-READS it

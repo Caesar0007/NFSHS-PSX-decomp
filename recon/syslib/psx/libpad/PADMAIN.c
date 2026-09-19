@@ -39,6 +39,8 @@ extern int      chkRC2wait(void);           /* WAITRC2 @0x8010C008 */
  * SYM-GLOBAL-CARRIER: _padFixResult
  * Canonical PsyQ 4.3 INDEX.tsv assigns these public cells to PADMAIN.obj;
  * the contiguous retail block and relocation sites confirm their storage. */
+/* Sony library-information stamp: the first 8 bytes of this object's .data (byte-exact in PsyQ 4.3). */
+static unsigned char _lib_stamp[8] PADMAIN_DATA = { 0x50, 0x73, 0x0C, 0x25, 0x9B, 0x53, 0x43, 0x00 };
 int   (*_padFuncNextPort)(int flag) PADMAIN_DATA = 0;
 void  (*_padFuncClrInfo)(unsigned char *info) PADMAIN_DATA = 0;
 void   *_padFuncGetTxd PADMAIN_DATA = 0;
@@ -69,6 +71,7 @@ int _padFixResult[2] PADMAIN_DATA = { -1, -1 };
 unsigned char *D_80137CD8 PADMAIN_DATA = (unsigned char *)0x1F801070;
 unsigned char *D_80137CDC PADMAIN_DATA = (unsigned char *)0x1F801040;
 int D_80137CE0 PADMAIN_DATA = 0;
+static int _pad_reserved[3] PADMAIN_DATA = { 0, 0, 0 };   /* @0x80137CE4 : closes the 128-byte .data of PADMAIN.obj */
 #define _padIntRegs D_80137CD8
 #define _padSioRegs D_80137CDC
 #define _padVbExec  D_80137CE0

@@ -118,8 +118,8 @@
     build/recon/syslib/psx/libgte/CSTBL.c.o(.data);       /* 0x80137d20..0x8013bd20 */
     build/asm/data/data_8010CCD4_r18.data.s.o(.data.r18_post_cstbl);
     build/recon/eaclib/psx/eacpsxz/isqrttbl.c.o(.data);   /* 0x8013be10..0x8013bf10  was data_8010CCD4_o31.data.s */
-    build/asm/data/data_8010CCD4_r19.data.s.o(.data);
-    build/recon/syslib/psx/libmath/FERR.c.o(.data);   /* 0x8013bf18..0x8013bf20  was data_8010CCD4_o32.data.s */
+    /* 2026-09-19: FERR.obj owns its library stamp too -- the 8-byte residual data_8010CCD4_r19 is no longer linked here */
+    build/recon/syslib/psx/libmath/FERR.c.o(.data);   /* 0x8013bf10..0x8013bf20  was data_8010CCD4_r19 + _o32 */
     build/asm/data/data_8010CCD4_r20.data.s.o(.data);
     build/recon/eaclib/psx/sndpsxz/snddata.c.o(.data);   /* 0x8013c2f0..0x8013c308  was data_8010CCD4_o33.data.s */
     build/asm/data/data_8010CCD4_r21.data.s.o(.data);

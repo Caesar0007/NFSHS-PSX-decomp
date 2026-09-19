@@ -274,6 +274,8 @@ extern void _memset(char *p, int c, int n);
  * section prevent zero-valued state from becoming BSS or gp-relative sdata. */
 #define SYS_DATA __attribute__((section(".data")))
 
+/* Sony library-information stamp: the first 8 bytes of this object's .data (byte-exact in PsyQ 4.3). */
+static unsigned char _lib_stamp[8] __attribute__((section(".data"))) = { 0x50, 0x73, 0x07, 0x25, 0x9B, 0x53, 0x43, 0x00 };
 static GpuTbl _gpu_tbl SYS_DATA = {              /* +0x000 @0x80123654 */
     /* retail _gpu_tbl[0] -> 0x80056cd8 = the module's RCS id string (the first
      * item of SYS.obj's .rdata, 0x38 bytes incl. padding, then "ResetGraph:jtb"). */

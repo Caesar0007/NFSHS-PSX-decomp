@@ -297,10 +297,13 @@ static int (*_mc_save_cb)(int, int) __attribute__((section(".bss")));  /* @0x801
  * retail .DATA at 0x80136CB8..C4 (matched-site hi/lo evidence), i.e. the original source
  * wrote `= 0` initializers -- gcc 2.x emits explicitly-zero-initialized statics into
  * .data, not .bss.  Uninitialized, ours landed in .bss (wrong segment, gate-invisible). */
+/* Sony library-information stamp: the first 8 bytes of this object's .data (byte-exact in PsyQ 4.3). */
+static unsigned char _lib_stamp[8] __attribute__((section(".data"))) = { 0x50, 0x73, 0x18, 0x25, 0x9B, 0x53, 0x43, 0x00 };
 static int   _mc_rd_retry __attribute__((section(".data"))) = 0;  /* @0x80136CB8 : MemCardReadData retry counter */
 static int   _mc_wr_retry __attribute__((section(".data"))) = 0;  /* @0x80136CBC : MemCardWriteData retry counter */
 static int   _mc_rf_retry __attribute__((section(".data"))) = 0;  /* @0x80136CC0 : MemCardReadFile retry counter */
 static int   _mc_wf_retry __attribute__((section(".data"))) = 0;  /* @0x80136CC4 : MemCardWriteFile retry counter */
+static int   _mc_reserved[2] __attribute__((section(".data"))) = { 0, 0 };  /* @0x80136CC8 : closes the 32-byte .data of LIBMCRD.obj */
 
 /* forward declarations (callbacks <-> public API are mutually recursive).  These are `static`
  * (file-local, matching the oracle's local-symbol linkage) but must ALSO be `extern "C"` --

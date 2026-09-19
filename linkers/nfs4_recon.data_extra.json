@@ -1267,12 +1267,12 @@
  {
   "obj": "build/recon/syslib/psx/libgpu/SYS.c.o",
   "section": ".data",
-  "base": 2148677204,
+  "base": 2148677196,
   "end": 2148677612,
-  "size": 408,
+  "size": 416,
   "ok": true,
   "unresolved": 0,
-  "words": 102,
+  "words": 104,
   "q": 2
  },
  {
@@ -1344,12 +1344,12 @@
  {
   "obj": "build/recon/syslib/psx/libmcrd/LIBMCRD.c.o",
   "section": ".data",
-  "base": 2148756664,
-  "end": 2148756680,
-  "size": 16,
+  "base": 2148756656,
+  "end": 2148756688,
+  "size": 32,
   "ok": true,
   "unresolved": 0,
-  "words": 4,
+  "words": 8,
   "q": 1
  },
  {
@@ -1377,12 +1377,12 @@
  {
   "obj": "build/recon/syslib/psx/libpad/PADMAIN.c.o",
   "section": ".data",
-  "base": 2148760696,
-  "end": 2148760804,
-  "size": 108,
+  "base": 2148760688,
+  "end": 2148760816,
+  "size": 128,
   "ok": true,
   "unresolved": 0,
-  "words": 27,
+  "words": 32,
   "q": 2
  },
  {
@@ -1399,12 +1399,12 @@
  {
   "obj": "build/recon/syslib/psx/libmath/FERR.c.o",
   "section": ".data",
-  "base": 2148777752,
+  "base": 2148777744,
   "end": 2148777760,
-  "size": 8,
+  "size": 16,
   "ok": true,
   "unresolved": 0,
-  "words": 2,
+  "words": 4,
   "q": 2
  },
  {
@@ -2136,12 +2136,12 @@
  {
   "obj": "build/recon/syslib/psx/libetc/VSYNC.c.o",
   "section": ".data",
-  "base": 2148747912,
+  "base": 2148747904,
   "end": 2148747936,
-  "size": 24,
+  "size": 32,
   "ok": true,
   "unresolved": 0,
-  "words": 6,
+  "words": 8,
   "q": 0
  },
  {

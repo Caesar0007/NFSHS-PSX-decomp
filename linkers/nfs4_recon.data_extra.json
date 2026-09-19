@@ -2451,5 +2451,38 @@
   "unresolved": 0,
   "words": 6,
   "q": 0
+ },
+ {
+  "obj": "build/recon/syslib/psx/libcard/INIT.c.o",
+  "section": ".data",
+  "base": 2148778792,
+  "end": 2148778808,
+  "size": 16,
+  "ok": true,
+  "unresolved": 0,
+  "words": 4,
+  "q": 0
+ },
+ {
+  "obj": "build/recon/syslib/psx/libapi/PAD.c.o",
+  "section": ".data",
+  "base": 2148778808,
+  "end": 2148778824,
+  "size": 16,
+  "ok": true,
+  "unresolved": 0,
+  "words": 4,
+  "q": 0
+ },
+ {
+  "obj": "build/recon/eaclib/psx/sndpsxz/salloc.c.o",
+  "section": ".data",
+  "base": 2148756972,
+  "end": 2148756976,
+  "size": 4,
+  "ok": true,
+  "unresolved": 0,
+  "words": 1,
+  "q": 0
  }
 ]

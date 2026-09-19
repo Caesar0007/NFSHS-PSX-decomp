@@ -16,7 +16,12 @@
  * (data_8010CCD4_r21.data.s, first word of a 4-word run).  Alias onto it; the
  * declaration stays a pure extern so the absolute lui/%hi + lw/%lo form is
  * unchanged. */
-extern int _init_pad_flag __asm__("D_8013C338");   /* @0x8013C338 : set by the BIOS pad init */
+/* 2026-09-19: the pad object OWNS its data (retail .data 0x8013C338, 16 bytes) -- the SDK object reaches the flag
+ * section-relative, which is a file-scope definition.  Sony library object => -G0, so the access stays absolute. */
+int _init_pad_flag = 0;                                       /* @0x8013C338 : set by the BIOS pad init */
+int _pad_spare = 0;                                           /* @0x8013C33C */
+unsigned char *_pad_joy_data = (unsigned char *)0x1F801040;   /* @0x8013C340 */
+unsigned long *_pad_i_stat = (unsigned long *)0x1F801070;     /* @0x8013C344 */
 
 /* @0x8010C9B0 : ReadInitPadFlag. */
 extern int ReadInitPadFlag(void) { return _init_pad_flag; }

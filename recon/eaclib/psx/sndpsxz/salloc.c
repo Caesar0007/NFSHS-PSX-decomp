@@ -661,3 +661,7 @@ valid_range:
         return ch;
     }
 }
+
+/* salloc.obj .data (retail 0x80136DEC), owned here since 2026-09-19.  Defined at the END of the file and in an
+ * explicit section so every use above still sees the pure array extern (absolute lui/%lo addressing). */
+int DAT_80136dec[1] __attribute__((section(".data"))) = { 0 };

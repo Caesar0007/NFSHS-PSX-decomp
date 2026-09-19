@@ -4,6 +4,12 @@
 /* Complete contiguous retail BSS run @0x80146C7C..0x80146CC4. P887:
  * canonical4.3 XBSS gives Stsector_offset two bytes followed by alignment,
  * agreeing with the existing short declaration; total run remains72 bytes. */
+/* CDROM.obj .data (retail 0x80136c78, 16 bytes): this object's private CD register pointers (PsyQ 4.3 LIBCD, byte-exact). */
+static volatile unsigned char *_cd_reg0 __attribute__((section(".data"))) = (volatile unsigned char *)0x1F801800;
+static volatile unsigned char *_cd_reg1 __attribute__((section(".data"))) = (volatile unsigned char *)0x1F801801;
+static volatile unsigned char *_cd_reg2 __attribute__((section(".data"))) = (volatile unsigned char *)0x1F801802;
+static volatile unsigned char *_cd_reg3 __attribute__((section(".data"))) = (volatile unsigned char *)0x1F801803;
+
 __asm__("\t.globl\tStEmu_Addr\n\t.globl\tStCdIntrFlag\n"
         "\t.globl\tCChannel\n\t.globl\tStCHANNEL\n"
         "\t.globl\tStframe_no\n\t.globl\tStRgb24\n"

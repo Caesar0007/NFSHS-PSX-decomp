@@ -48,8 +48,15 @@ static volatile int    *_d1_madr     ST_DATA = (volatile int   *)0x1F801090;  /*
 static volatile int    *_d2_chcr     ST_DATA = (volatile int   *)0x1F8010A8;  /* @0x80136AC0 MDECin  CHCR */
 static volatile int    *_d2_madr     ST_DATA = (volatile int   *)0x1F8010A0;  /* @0x80136AC4 MDECin  MADR */
 static volatile int    *_d3_chcr     ST_DATA = (volatile int   *)0x1F8010B8;  /* @0x80136AC8 CD CHCR      */
-/* (+0x34 0x1F8010B0 _d3_madr and beyond continue the retail table but are
- * past every slot this TU's code references -- left undeclared.) */
+/* The table continues past the slots this TU's code uses; PsyQ 4.3 C_011.obj .data (80 bytes) is byte-exact with
+ * retail 0x80136A98..0x80136AE8, so the rest is declared too (owned here since 2026-09-19). */
+static volatile int    *_d3_madr     ST_DATA = (volatile int   *)0x1F8010B0;  /* @0x80136ACC CD MADR      */
+static volatile int    *_d6_chcr     ST_DATA = (volatile int   *)0x1F8010D8;  /* @0x80136AD0              */
+static volatile int    *_d6_madr     ST_DATA = (volatile int   *)0x1F8010D0;  /* @0x80136AD4              */
+static volatile int    *_i_stat      ST_DATA = (volatile int   *)0x1F801070;  /* @0x80136AD8 I_STAT       */
+static volatile int    *_i_mask      ST_DATA = (volatile int   *)0x1F801074;  /* @0x80136ADC I_MASK       */
+int debug_cause ST_DATA = 0;                 /* @0x80136AE0 : last interrupt stage/abort code (public in C_011.obj) */
+static int _st_data_end ST_DATA = 0;         /* @0x80136AE4 : closing zero word of C_011.obj .data */
 
 /* ---- C_011-owned file storage ----------------------------------------------------------------- */
 /* Regular .bss / .data, reached absolutely in the oracle -- pin to .bss so they stay out of
@@ -82,7 +89,7 @@ extern volatile u_short *_st_slot; /* @0x80144864 : cached current ring slot */
  * asm-label alias is needed either.  Demoting this to a pure `extern` retires the
  * last COMMON in the tree (37 -> 1 -> 0) and stops a zero-filled ld-placed COMMON
  * from competing with the real in-image word. */
-extern int debug_cause;   /* @0x80136AE0 : last interrupt stage/abort code (debug) */
+/* debug_cause (@0x80136AE0) is defined with this object's data table above. */
 
 
 /* ---- streaming state (stream.cpp) ------------------------------------------------------------- */

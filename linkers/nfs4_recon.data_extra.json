@@ -1298,17 +1298,6 @@
   "q": 2
  },
  {
-  "obj": "build/recon/syslib/psx/libcd/stcdint.c.o",
-  "section": ".data",
-  "base": 2148756120,
-  "end": 2148756172,
-  "size": 52,
-  "ok": true,
-  "unresolved": 0,
-  "words": 13,
-  "q": 1
- },
- {
   "obj": "build/recon/syslib/psx/libpress/LIBPRESS.c.o",
   "section": ".data",
   "base": 2148756216,
@@ -2483,6 +2472,72 @@
   "ok": true,
   "unresolved": 0,
   "words": 1,
+  "q": 0
+ },
+ {
+  "obj": "build/recon/syslib/psx/libcd/stcdint.c.o",
+  "section": ".data",
+  "base": 2148756120,
+  "end": 2148756200,
+  "size": 80,
+  "ok": true,
+  "unresolved": 0,
+  "words": 20,
+  "q": 0
+ },
+ {
+  "obj": "build/recon/syslib/psx/libcd/C_002.c.o",
+  "section": ".data",
+  "base": 2148756200,
+  "end": 2148756216,
+  "size": 16,
+  "ok": true,
+  "unresolved": 0,
+  "words": 4,
+  "q": 0
+ },
+ {
+  "obj": "build/recon/syslib/psx/libcd/C_005.c.o",
+  "section": ".data",
+  "base": 2148756568,
+  "end": 2148756584,
+  "size": 16,
+  "ok": true,
+  "unresolved": 0,
+  "words": 4,
+  "q": 0
+ },
+ {
+  "obj": "build/recon/syslib/psx/libcd/CDROM.c.o",
+  "section": ".data",
+  "base": 2148756600,
+  "end": 2148756616,
+  "size": 16,
+  "ok": true,
+  "unresolved": 0,
+  "words": 4,
+  "q": 0
+ },
+ {
+  "obj": "build/recon/syslib/psx/libcd/C_009.c.o",
+  "section": ".data",
+  "base": 2148756616,
+  "end": 2148756632,
+  "size": 16,
+  "ok": true,
+  "unresolved": 0,
+  "words": 4,
+  "q": 0
+ },
+ {
+  "obj": "build/recon/syslib/psx/libcd/C_007.c.o",
+  "section": ".data",
+  "base": 2148756636,
+  "end": 2148756652,
+  "size": 16,
+  "ok": true,
+  "unresolved": 0,
+  "words": 4,
   "q": 0
  }
 ]

@@ -1,6 +1,12 @@
 /* libcd.lib(C_009.obj): StGetNext. */
 #include "stream_internal.h"
 
+/* C_009.obj .data (retail 0x80136c88, 16 bytes): this object's private CD register pointers (PsyQ 4.3 LIBCD, byte-exact). */
+static volatile unsigned char *_cd_reg0 __attribute__((section(".data"))) = (volatile unsigned char *)0x1F801800;
+static volatile unsigned char *_cd_reg1 __attribute__((section(".data"))) = (volatile unsigned char *)0x1F801801;
+static volatile unsigned char *_cd_reg2 __attribute__((section(".data"))) = (volatile unsigned char *)0x1F801802;
+static volatile unsigned char *_cd_reg3 __attribute__((section(".data"))) = (volatile unsigned char *)0x1F801803;
+
 extern u_long StGetNext(u_long **addr, u_long **header)
 {
     u_short *slot = (u_short *)(StRingAddr + (StRingIdx3 << 5));

@@ -76,6 +76,7 @@ inline tDialogNoInputMessage::tDialogNoInputMessage()
 tFEApplication::tFEApplication()
 
 {
+  if (0) sprintf((char *)0,"SimpleMem");   /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag */
   int i;
   i = 0;
   do {
@@ -279,11 +280,9 @@ void tFEApplication::Redraw()
   FeAudio_systemtask(0);
   Draw_StartFrameRender();
   Draw_StartRenderingView(Draw_gPlayer1View);
-  /* MATCH: retail keeps these adjacent format strings as distinct symbols.  Expressing both as
-     bigBuf offsets lets GCC common their base into a long-lived saved register (152 diffs). */
-  sprintf(buffer,D_80010044,largestunused());
+  sprintf(buffer,"%ld",largestunused());   /* literal @0x80010044 */
   FETextRender_FullText(buffer,0x100,0xd7,textType_FramedInfo,textState_Selected,0);
-  sprintf(buffer,D_80010048,AudioMus_Buffered(),AudioMus_Threshold());
+  sprintf(buffer,"%d/%d",AudioMus_Buffered(),AudioMus_Threshold());   /* literal @0x80010048 */
   FETextRender_FullText(buffer,0x10,0xd7,textType_FramedInfo,textState_Hilighted,0);
   drenv = (DRAWENV *)Draw_GetDRAWENV(Draw_gPlayer1View,gFlip);
   if (this->fCurrentMenu[1] != (tMenu *)0x0) {
@@ -668,16 +667,16 @@ void tFEApplication::UpdateMusic()
 {
   AudioMus_Volume((int)((u_int)(u_char)frontEnd.musicVolume * 0x23) >> 6);
   if ((this->fCurrentMusic & 0x1000) != 0) {
-    AudioMus_PlaySong((char *)(bigBuf + 0x50));
+    AudioMus_PlaySong("zmenu*");
   }
   else if ((this->fCurrentMusic & 0x2000) != 0) {
-    AudioMus_PlaySong((char *)(bigBuf + 0x58));
+    AudioMus_PlaySong("garage*");
   }
   else if ((this->fCurrentMusic & 0x4000) != 0) {
-    AudioMus_PlaySong((char *)(bigBuf + 0x60));
+    AudioMus_PlaySong("showcase*");
   }
   else if ((this->fCurrentMusic & 0x8000) != 0) {
-    AudioMus_PlaySong((char *)(bigBuf + 0x6c));
+    AudioMus_PlaySong("victory*");
   }
   else {
     AudioMus_StopSong(1000);

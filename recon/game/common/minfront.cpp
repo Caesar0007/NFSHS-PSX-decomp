@@ -18,6 +18,7 @@
  *   described a 46-function car-manager TU that has never lived in this file.)
  */
 #include "minfront.h"
+extern "C" int sprintf(char *, const char *, ...);
 
 
 /* ---- MinFront_ParseOptions  [MINFRONT.CPP:781-805] SLD-VERIFIED ---- */
@@ -26,8 +27,9 @@ int * MinFront_ParseOptions(void)
 
 {
   int *stream;
-  
-  stream = reservememadr((char *)(bigBuf + 0xc),0x2000,0x10);
+
+  if (0) sprintf((char *)0,"SimpleMem");   /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag */
+  stream = reservememadr("FE Data Stream",0x2000,0x10);   /* literal @0x8001000C */
   *stream = 0;
   resizememadr(stream,4);
   return stream;

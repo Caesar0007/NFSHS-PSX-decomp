@@ -1,15 +1,5 @@
 [
  {
-  "obj": "build/recon/frontend/common/feapp.cpp.o",
-  "base": 2147549304,
-  "end": 2147549336,
-  "size": 32,
-  "ok": true,
-  "regions": [
-   "jtbl_80010078"
-  ]
- },
- {
   "obj": "build/recon/frontend/common/feaudio.cpp.o",
   "base": 2147549444,
   "end": 2147549521,
@@ -1052,6 +1042,30 @@
   "base": 2147834392,
   "end": 2147834452,
   "size": 60,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/common/minfront.cpp.o",
+  "base": 2147549184,
+  "end": 2147549211,
+  "size": 27,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/psx/fe3dmenu.cpp.o",
+  "base": 2147549216,
+  "end": 2147549240,
+  "size": 24,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/frontend/common/feapp.cpp.o",
+  "base": 2147549240,
+  "end": 2147549336,
+  "size": 96,
   "ok": false,
   "regions": []
  }

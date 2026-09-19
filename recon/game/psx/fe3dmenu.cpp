@@ -4,6 +4,7 @@
  *   Member defs; base ctors via init-lists; manual _vf vtable for the iterator virtuals.
  */
 #include "fe3dmenu_externs.h"
+extern "C" int sprintf(char *, const char *, ...);
 
 /* fe3dmenu.obj front.data 0x80051260..0x800514B8, owned here since 2026-09-19 (SYM: all five are EXT symbols of
    fe3dmenu.obj, in this order; was the retail dump front_data_r00).  Uninitialized C++ publics. */
@@ -31,6 +32,7 @@ int      gShowroomLights;                         /* 0x800514b4 */
 void Fe3D_InitShowroom(void)
 
 {
+  if (0) sprintf((char *)0,"SimpleMem");   /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag */
   int trigValue; /* SYM-CODEGEN-CARRIER: trigValue -- direct-call algebra is FAIL 22 (105/107) and loses the retail staged return use */
   long angle_sin;
   long angle_cos;
@@ -83,9 +85,8 @@ void CameraLookAt(matrixtdef *mat,coorddef *camPoint)
 {
   coorddef fwdVec;
   coorddef rightVec;
-  coorddef upVec;
-  
-  upVec = *(coorddef*)((char*)bigBuf + 44);
+  coorddef upVec = { 0, 0x10000, 0 };   /* local aggregate initializer: its constant is retail .rodata 0x8001002C */
+
   fwdVec.x = -camPoint->x;
   fwdVec.y = -camPoint->y;
   fwdVec.z = -camPoint->z;

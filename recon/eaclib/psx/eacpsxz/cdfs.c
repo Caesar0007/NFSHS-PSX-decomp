@@ -892,3 +892,7 @@ int CD_Getinfo(int handle, int namebuf, int *sizeout)
         *sizeout = *(int *)((char *)*slot + 0x10);        /* file size */
     return *(int *)((char *)*slot + 0x10);
 }
+
+/* cdfs.obj .data (retail 0x80136C98), owned here since 2026-09-19: a ready-callback hook the shipped code never
+ * touches (name from the retail SYM; placed between libcd C_009 and C_007 exactly as cdfs.obj is in link order). */
+void (*pfuncCdReadyCallback)(unsigned char, unsigned char *) __attribute__((section(".data"))) = 0;

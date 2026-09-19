@@ -2539,5 +2539,27 @@
   "unresolved": 0,
   "words": 4,
   "q": 0
+ },
+ {
+  "obj": "build/recon/eaclib/psx/eacpsxz/cdfs.c.o",
+  "section": ".data",
+  "base": 2148756632,
+  "end": 2148756636,
+  "size": 4,
+  "ok": true,
+  "unresolved": 0,
+  "words": 1,
+  "q": 0
+ },
+ {
+  "obj": "build/recon/eaclib/psx/sndpsxz/scdvol.c.o",
+  "section": ".data",
+  "base": 2148756652,
+  "end": 2148756656,
+  "size": 4,
+  "ok": true,
+  "unresolved": 0,
+  "words": 1,
+  "q": 0
  }
 ]

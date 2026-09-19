@@ -5,10 +5,10 @@
  *   Ghidra-ism: IDA typed 1 arg, but vol_l/vol_r are both passed on to iSNDplatformcdpanvol (kept 2).
  */
 extern int  sndgs[];        /* (signed char)sndgs[0xf] byte1 (@+0x3d) = master volume */
-/* Six-short .data block @0x80136CAC; [0]=pan (64), [1]=master-scaled level (127 initially).
- * The full-sized extern view preserves the oracle's absolute addressing and the data owner remains
- * asm/data/data_8010CCD4.data.s. */
-extern short sndcdvs[6];
+/* scdvol.obj .data @0x80136CAC: [0]=pan (64), [1]=master-scaled level (127 initially).  TWO shorts -- LIBMCRD.obj's
+ * data starts right after.  The unsized extern view keeps the oracle's absolute addressing; the definition closes
+ * the file. */
+extern short sndcdvs[];
 
 extern int iSNDplatformcdpanvol(int pan, int vol);   /* sdcdvol */
 
@@ -24,3 +24,6 @@ extern int SNDcdvol(int vol_l, int vol_r)
     iSNDplatformcdpanvol((int)sndcdvs[0], (int)sndcdvs[1]);
     return 0;
 }
+
+/* scdvol.obj .data (retail 0x80136CAC), owned here since 2026-09-19 */
+short sndcdvs[2] __attribute__((section(".data"))) = { 0x40, 0x7F };

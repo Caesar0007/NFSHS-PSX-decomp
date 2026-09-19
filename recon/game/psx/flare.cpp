@@ -456,8 +456,8 @@ gte_swc2(0xe,((char *)&flare_dvxy + 0x2c));
       *(u_int *)((u_char *)prim + 0xc) = rgb;
       *(long *)((u_char *)prim + 8) = flare_dvxy[gfSpikePt0[i]];
       *(long *)((u_char *)prim + 0x10) = *center;
-      *(long *)((u_char *)prim + 0x18) = flare_dvxy[gfSpikePt1[i]];
-      *(long *)((u_char *)prim + 0x20) = flare_dvxy[gfSpikePt2[i]];
+      *(long *)((u_char *)prim + 0x18) = flare_dvxy[gfSpikePt2[i]];   /* retail: +0x18 walks gfSpikePt2 ($a3), +0x20 gfSpikePt1 ($t0) */
+      *(long *)((u_char *)prim + 0x20) = flare_dvxy[gfSpikePt1[i]];
     }
   }
   return;

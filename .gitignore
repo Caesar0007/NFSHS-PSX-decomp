@@ -52,3 +52,6 @@ recon/**/*__region_gate*.c
 
 # VS Code local workspace data (any depth)
 .vscode/
+
+# NFS4 runtime tracing: local emulator copy (270 MB, BIOS inside) stays out of git
+tools/duckstation/api-runtime/

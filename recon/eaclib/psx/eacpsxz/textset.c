@@ -241,3 +241,8 @@ decoded:
         CFI(cf2, 0xa4) = 0;
     }
 }
+
+/* textset.obj .data 0x80135BA0..0x80135C58, owned here since 2026-09-19: the current-font state block (SYM name
+ * `currentfont`; zero but INITIALIZED in the retail image).  Defined after its uses so the unsized extern above keeps
+ * the retail addressing.  font.cpp reaches +0x88 and textpsx.c the text-draw hook at +0x94 of this same block. */
+unsigned char currentfont[184] = { 0 };

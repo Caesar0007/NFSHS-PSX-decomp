@@ -77,6 +77,8 @@ volatile unsigned short *i_stat __asm__("D_80135B84") = (volatile unsigned short
 volatile unsigned short *g_InterruptMask __asm__("D_80135B88") = (volatile unsigned short *)0x1F801074;
 volatile unsigned int *d_pcr __asm__("D_80135B8C") = (volatile unsigned int *)0x1F8010F0;
 int trapMissedCount __asm__("D_80135B90") = 0;
+/* SYM-GLOBAL-CARRIER: three zero words close INTR.obj .data at a round 0x1100 bytes (names not retained) */
+int intr_reserved[3] __asm__("D_80135B94") = { 0, 0, 0 };
 
 #define I_STAT (*i_stat)
 #define I_MASK (*g_InterruptMask)

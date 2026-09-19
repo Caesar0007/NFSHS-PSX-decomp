@@ -12,6 +12,14 @@
  *                 Magic 0x4345444d='MDEC'.
  */
 #include "mdec.h"
+
+/* mdec.obj .data (retail 0x80052B28, the last object data of front.data), owned here since 2026-09-19.
+ * Retail emits the struct as an anonymous 8-byte STRTAG with no typedef.  Zero in the image => explicit initializers. */
+struct {
+    int numhandles;
+    int hDecode;
+} gMDECinfo = { 0, 0 };                    /* 0x80052b28 */
+int g_mdecdrawsyncfailed = 0;                 /* 0x80052b30 (SYM: EXT INT) */
 #include "mdec_externs.h"
 
 /* lines 1-91: file header, #includes, static data (DECDCTTAB), macros (no symbols) */
@@ -173,7 +181,7 @@ void MDECCompleteHandler(void)
             (&mdec->striprect,mdec->stripbuf);
   /* call remains at the original SLD statement */
   if (DrawSync(0) != 0) {
-    g_mdecdrawsyncfailed[0] = 1;
+    g_mdecdrawsyncfailed = 1;
   }
   mdec->striprect.x = mdec->striprect.x + mdec->bpp;
   /* the stored short value is the comparison operand */

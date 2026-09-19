@@ -20,11 +20,7 @@ void mdecreset(void);            /* :239 EXT FCN VOID (C++ linkage) */
 void MDECCompleteHandler(void);  /* :388 EXT FCN VOID (C++ linkage, DecDCT out-callback) */
 
 /* ---- mdec.obj data globals ---- */
-/* Retail mdec.obj emits this as an anonymous 8-byte STRTAG, with no typedef. */
-extern struct {
-    int numhandles;
-    int hDecode;
-} gMDECinfo;                             /* 0x80052b28 */
-extern int         g_mdecdrawsyncfailed[]; /* 0x80052b30 */
+/* gMDECinfo (0x80052b28) and g_mdecdrawsyncfailed (0x80052b30) are DEFINED in mdec.cpp: the struct is an anonymous
+ * 8-byte STRTAG with no typedef in the retail SYM, so it cannot be redeclared from a header. */
 
 #endif /* _FRONTEND_PSX_MDEC_H_ */

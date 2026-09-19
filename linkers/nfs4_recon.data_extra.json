@@ -2561,5 +2561,16 @@
   "unresolved": 0,
   "words": 1,
   "q": 0
+ },
+ {
+  "obj": "build/recon/frontend/psx/mdec.cpp.o",
+  "section": ".data",
+  "base": 2147822376,
+  "end": 2147822388,
+  "size": 12,
+  "ok": true,
+  "unresolved": 0,
+  "words": 3,
+  "q": 0
  }
 ]

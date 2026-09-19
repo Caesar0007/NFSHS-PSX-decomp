@@ -405,6 +405,7 @@ PER_TU_FLAGS = {
     "recon/game/psx/overlays.cpp":         {"g_value": "8"},   # StatsTimer[2] gp-relative at its constant-index sites (2026-09-17)   # anim.obj .sdata = the "%sA.viv"/"Tr" literal pool @0x8013c5fc (2026-09-17)
     "recon/frontend/psx/movie.cpp":        {"g_value": "0"},
     "recon/frontend/psx/memcard.c":        {"g_value": "0"},
+    "recon/frontend/psx/mdec.cpp":         {"g_value": "0"},   # resident front object: gMDECinfo/g_mdecdrawsyncfailed are front.data @0x80052b28 (2026-09-19)
     "recon/eaclib/psx/eacpsxz/memstd.c":   {"g_value": "8"},   # its "%s LOW"/"%s HIGH" literals are retail .sdata @0x8013dc20 (2026-09-17)
     "recon/eaclib/psx/eacpsxz/locatbig.c": {"g_value": "8"},   # defaultbigext[8] is retail .sdata @0x8013dc30 (2026-09-19)
     "recon/eaclib/psx/eacpsxz/wildcard.c": {"g_value": "8"},   # "&|!~^" literal is retail .sdata @0x8013dc48 (2026-09-18)

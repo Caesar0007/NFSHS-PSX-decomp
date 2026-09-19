@@ -3,6 +3,7 @@
  *   Calls Stattool helpers + tCarManager::GetCarFromSimID (external method, declared free-form).
  */
 #include "statchk.h"
+extern "C" int sprintf(char *, const char *, ...);
 
 /* MATCH (w35-a10): cc1plus expands a constant-size `memcpy` inline (movstrsi);
    retail emits a real `jal memcpy`.  Calling it under a different C name with
@@ -23,6 +24,8 @@ extern int A_NewBestLap[] __asm__("NewBestLap");
 bool StatChk_IsRecordLapTime(Car_tStats *dummyCars,short nNumCars,short *nBestCarIndex)
 
 {
+  if (0) sprintf((char *)0,"SimpleMem");   /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag */
+
   short bBestLapFlag;
   short bCheckLapRecords;
   short i;

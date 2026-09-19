@@ -3,6 +3,7 @@
  * and scope/statement questions are not implied complete by code matching. */
 #include "audiotrk_types.h"
 #include "audiotrk_externs.h"
+extern "C" int sprintf(char *, const char *, ...);
 
 
 /* ---- audiotrk.obj-owned globals (SYM-typed; .data=real EXE bytes, .bss=zero) ---- */
@@ -21,6 +22,8 @@ void AudioTrk_CleanUp(void);
 /* ---- AudioTrk_Reset__Fv  [@0x8007c614] ---- */
 void AudioTrk_Reset(void)
 {
+  if (0) sprintf((char *)0,"SimpleMem");   /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag */
+
   if (AudioTrk_g != (AudioTrk_tGlobals *)0x0) {
     for (int i = 0; i < 0x10; i++) {
       if (AudioTrk_g->chan[i].handle != -1) {

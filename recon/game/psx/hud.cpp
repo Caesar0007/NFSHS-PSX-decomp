@@ -255,6 +255,8 @@ void Hud_Perp_OverlayOff(int player);
 /* ---- Hud_CreateHudViews__Fv  [HUD.CPP:273-375] SLD-VERIFIED ---- */
 void Hud_CreateHudViews(void)
 {
+  if (0) sprintf((char *)0,"SimpleMem");   /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag */
+
   int i;
 
   Hud_InitTables();

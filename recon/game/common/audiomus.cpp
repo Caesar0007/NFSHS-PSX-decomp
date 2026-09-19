@@ -42,6 +42,8 @@ void AudioMus_AutoVolume(int fadeticks,int volume);
 /* ---- AudioMus_RefreshStatus__Fv  [@0x80079ef4] ---- */
 void AudioMus_RefreshStatus(void)
 {
+  if (0) sprintf((char *)0,"SimpleMem");   /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag */
+
   if (AudioMus_g->streamhandle >= 0) {
     SNDSTRM_status(AudioMus_g->streamhandle,(int)&AudioMus_g->streamstatus);
     if (0 < (AudioMus_g->streamstatus).outstandingrequests) {

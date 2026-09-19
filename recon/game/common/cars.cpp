@@ -94,6 +94,8 @@ void Cars_CheckForAccidentScenes(void);
 /* ---- Cars_DoGravityEffectsOnAcc__FP8Car_tObji  [@0x80085d84] ---- */
 void Cars_DoGravityEffectsOnAcc(Car_tObj *carObj,int arcade)
 {
+  if (0) sprintf((char *)0,"SimpleMem");   /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag */
+
   coorddef gravity_ch;
 
   if ((carObj->carFlags & 0x10U) != 0) {

@@ -14,6 +14,8 @@ typedef struct tTrackSelectPrimTag {
 void tScreenTrackSelect::DrawBackground()
 
 {
+  if (0) sprintf((char *)0,"SimpleMem");   /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag */
+
   /* W86-S4: SYM `8c` order is r (AUTO sp+16), trackInfo (AUTO sp+24),
      shapeY (REG $22 s6), prim (REG $30 fp), state (REG $3 v1) -- the two
      SYM-ABSENT carriers are quarantined after them.  Re-gated PASS. */

@@ -27,6 +27,7 @@ extern int Weather_gSnowTrack;
 extern int Weather_gTrackIntensityLimit;
 
 #include "weather_externs.h"
+extern "C" int sprintf(char *, const char *, ...);
 
 /* weather.obj .data 0x80123384..0x8012349c, owned here since 2026-09-19 (was the retail dump data_8010CCD4_r16).
    The initialized tables come first; the uninitialized publics follow because cc1plus 2.8 emits them as
@@ -241,6 +242,8 @@ void Weather_InitRain(void)
 void Weather_InitSplats(void)
 
 {
+  if (0) sprintf((char *)0,"SimpleMem");   /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag */
+
   int ySize;
   int i;
   int result; /* SYM-CODEGEN-CARRIER: result -- required by the measured exit-in-the-middle no-rotation loop */

@@ -13,6 +13,8 @@
 tScreenTournSelect::tScreenTournSelect()
 
 {
+  if (0) sprintf((char *)0,"SimpleMem");   /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag */
+
 
   this->_vf = (__vtbl_ptr_type (*)[10])tScreenTournSelect_vtable;
   return;

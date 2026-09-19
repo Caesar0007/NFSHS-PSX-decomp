@@ -4,6 +4,7 @@
  */
 #include "ailife_types.h"
 #include "ailife_externs.h"
+extern "C" int sprintf(char *, const char *, ...);
 
 #define ABS(a) (((a) > 0) ? (a) : -(a))
 
@@ -37,6 +38,8 @@ void AILife_Debug(char *format, ...);
 /* ---- AILife_EvaluateLife__FP8Car_tObj  [@0x80067650] ---- */
 int AILife_EvaluateLife(Car_tObj *carObj)
 {
+  if (0) sprintf((char *)0,"SimpleMem");   /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag */
+
   if (((carObj->carFlags & 0x400U) == 0) &&
       (AILife_IsCoordInThisLiveArea(
            &(carObj->N).position,carObj->basisCar) == 0)) {

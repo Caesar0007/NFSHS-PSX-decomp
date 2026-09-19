@@ -34,6 +34,8 @@ void AudioEng_CleanUp(void);
  * required five argument aliases and two pitch carriers; all are removed. */
 void AudioEng_Set(int player,int vol,int esp,int gas,int cam,int dop,int azi,int dir)
 {
+  if (0) sprintf((char *)0,"SimpleMem");   /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag */
+
   AudioEng_t *g;
   AudioEng_tAdjustments *a;
   AudioEng_tState *s;

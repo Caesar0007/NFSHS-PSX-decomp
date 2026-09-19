@@ -21,6 +21,8 @@ extern int A_ticks[] __asm__("ticks");
 void tScreenPinkSlips::DrawBackground()
 
 {
+  if (0) sprintf((char *)0,"SimpleMem");   /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag */
+
   /* W86-S4: SYM `8c` declaration order -- the fn-static `flareextra` (STAT) is
      recorded BETWEEN trackInfo and shapeY, not at the top.  Re-gated PASS. */
   RECT r;

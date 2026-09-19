@@ -30,6 +30,8 @@ char         fPermFileNameBuf[16];   /* @0x80052964  (bss(zero)) */
 void tScreenCongrats::Cleanup()
 
 {
+  if (0) sprintf((char *)0,"SimpleMem");   /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag */
+
   
   CleanupSpinningCarsMenu();
   this->tScreen::Cleanup();

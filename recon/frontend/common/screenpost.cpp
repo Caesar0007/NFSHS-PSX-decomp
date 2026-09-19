@@ -16,6 +16,8 @@
 void DrawMoney(int x,int y,int numplaces,long number,int colfore,int colback)
 
 {
+  if (0) sprintf((char *)0,"SimpleMem");   /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag */
+
   char string1 [50];
   char string2 [50];
   

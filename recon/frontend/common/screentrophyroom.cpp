@@ -3,12 +3,15 @@
  *   Bodies from Ghidra; namespaces stripped, phantom stack-args resolved vs disasm.
  */
 #include "screentrophyroom.h"
+extern "C" int sprintf(char *, const char *, ...);
 
 
 /* ---- tScreenTrophyRoom::ctor  [SCREENTROPHYROOM.CPP:40-43] ---- */
 tScreenTrophyRoom::tScreenTrophyRoom()
 
 {
+  if (0) sprintf((char *)0,"SimpleMem");   /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag */
+
 
   this->_vf = (__vtbl_ptr_type (*)[10])tScreenTrophyRoom_vtable;
   this->fPreviousTrophy = '\0';

@@ -162,6 +162,8 @@ inline tScreenTournamentCongrats::tScreenTournamentCongrats()
 void Front_ConstructAll(void)
 
 {
+  if (0) sprintf((char *)0,"SimpleMem");   /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag */
+
   gAllScreens = new tAllScreens;
   /* MATCH: retail publishes screenMain before the remaining sub-screen pointers. */
   screenMain = &gAllScreens->screenMain;

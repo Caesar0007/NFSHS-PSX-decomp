@@ -44,10 +44,7 @@ static inline int MPause_CurrentItem(tPMenu *menu)
 
 static inline void MPause_InitializeMenu(tPMenu *menu)
 {
-  __vtbl_ptr_type *vf = *menu->_vf;
-  int delta = vf[2].delta;
-  void (*pfn)(...) = (void (*)(...))vf[2].pfn;
-  (*pfn)((int)menu + delta);
+  menu->Initialize();
 }
 
 static inline void MPause_EnableItem(tPMenuItem *item)
@@ -274,7 +271,7 @@ int MPause_Logic(void)
          ORIGINAL-NAME-UNRESOLVED: oldItem is a descriptive reconstruction
          placeholder, not an accepted original identifier. */
       const int oldItem = gPauseCurrentMenu->fCurrentItem;
-      gPauseCurrentMenu->VirtualProcessInput(keyVal,command);
+      gPauseCurrentMenu->ProcessInput(keyVal,command);
       /* SYM-CODEGEN-CARRIER: newItem -- a distinct post-call snapshot is
          required: removing it produces 197/199 instructions and 18 diffs
          because ItemEnabledNum may clobber the menu state before the second

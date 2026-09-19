@@ -5,6 +5,7 @@
  */
 #include "pausemenu_types.h"
 #include "pausemenu_externs.h"
+extern "C" int sprintf(char *, const char *, ...);
 
 /* Data owned by PauseMenu.obj.  SYM records ChangedEnabling as EXT BOOL and
    gPause_CurrentY as file-static INT. */
@@ -17,6 +18,9 @@ static int gPause_CurrentY;
 void PauseMenu_FullText(char *sMenuText,short x,short flags,short color)
 
 {
+  /* retail: PauseMenu.obj .rodata opens with the unreferenced "SimpleMem" tag (0x8005610C); the vtables follow at the
+   * next 8-aligned section offset (0x8005611C). */
+  if (0) sprintf((char *)0,"SimpleMem");
   char *str;
 
   str = sMenuText;
@@ -101,7 +105,6 @@ tPListIterator::tPListIterator(short *selection,int *valPtr)
 
 {
   
-  this->_vf = (__vtbl_ptr_type (*) [6])tPListIterator_vtable;
   this->fSelectionList = selection;
   this->fValue = valPtr;
   return;
@@ -114,7 +117,6 @@ tPListIterator::tPListIterator(short *selection,int *valPtr)
 tPListIterator::~tPListIterator()
 
 {
-  this->_vf = (__vtbl_ptr_type (*) [6])tPListIterator_vtable;
   return;
 }
 
@@ -140,8 +142,7 @@ short tPListIterator::TextValue(tPlayer arg1)
   /* SYM-ABI-PARAM: arg1 -- required by the virtual signature/linkage but
      unused and therefore absent from the optimized SYM declaration block. */
   return (int)this->fSelectionList[
-      (*(*this->_vf)[2].pfn)((int)&this->fSelectionList +
-                             (int)(*this->_vf)[2].delta,0xffffffff) & 0xff];
+      this->Value((tPlayer)-1) & 0xff];
 }
 
 
@@ -191,7 +192,6 @@ tPListIteratorIndexed::tPListIteratorIndexed(short *selection,int *valPtr,char *
   : tPListIterator(selection,valPtr)
 {
   
-  this->_vf = (__vtbl_ptr_type (*) [6])tPListIteratorIndexed_vtable;
   this->fIndex = index;
   return;
 }
@@ -203,7 +203,6 @@ tPListIteratorIndexed::tPListIteratorIndexed(short *selection,int *valPtr,char *
 tPListIteratorIndexed::~tPListIteratorIndexed()
 
 {
-  this->_vf = (__vtbl_ptr_type (*) [6])tPListIteratorIndexed_vtable;
   return;
 }
 
@@ -229,8 +228,7 @@ short tPListIteratorIndexed::TextValue(tPlayer arg1)
   /* SYM-ABI-PARAM: arg1 -- required by the virtual signature/linkage but
      unused and therefore absent from the optimized SYM declaration block. */
   return (int)this->fSelectionList[
-      (*(*this->_vf)[2].pfn)((int)&this->fSelectionList +
-                             (int)(*this->_vf)[2].delta,0xffffffff) & 0xff];
+      this->Value((tPlayer)-1) & 0xff];
 }
 
 
@@ -284,7 +282,6 @@ void tPListIteratorIndexed::Decrement(tPlayer arg1)
 tPMenuItem::tPMenuItem(u_int textDescription)
 
 {
-  this->_vf = (__vtbl_ptr_type (*) [7])tPMenuItem_vtable;
   this->fTextDescription = textDescription;
   this->fFlags = 0;
   return;
@@ -297,7 +294,6 @@ tPMenuItem::tPMenuItem(u_int textDescription)
 tPMenuItem::~tPMenuItem()
 
 {
-  this->_vf = (__vtbl_ptr_type (*) [7])tPMenuItem_vtable;
   return;
 }
 
@@ -341,7 +337,6 @@ tPMenuItemNonInteractiveText::tPMenuItemNonInteractiveText(u_int textDescription
   : tPMenuItem(textDescription)
 {
   
-  this->_vf = (__vtbl_ptr_type (*) [7])tPMenuItemNonInteractiveText_vtable;
   return;
 }
 
@@ -352,7 +347,6 @@ tPMenuItemNonInteractiveText::tPMenuItemNonInteractiveText(u_int textDescription
 tPMenuItemNonInteractiveText::~tPMenuItemNonInteractiveText()
 
 {
-  this->_vf = (__vtbl_ptr_type (*) [7])tPMenuItemNonInteractiveText_vtable;
   return;
 }
 
@@ -376,7 +370,6 @@ tPMenuItemInteractive::tPMenuItemInteractive(u_int textDescription)
   : tPMenuItem(textDescription)
 {
   
-  this->_vf = (__vtbl_ptr_type (*) [7])tPMenuItemInteractive_vtable;
   return;
 }
 
@@ -387,7 +380,6 @@ tPMenuItemInteractive::tPMenuItemInteractive(u_int textDescription)
 tPMenuItemInteractive::~tPMenuItemInteractive()
 
 {
-  this->_vf = (__vtbl_ptr_type (*) [7])tPMenuItemInteractive_vtable;
   return;
 }
 
@@ -410,8 +402,6 @@ tPMenuItemLeftRightChoice::tPMenuItemLeftRightChoice(u_int textDescription,tPLis
   : tPMenuItemInteractive(textDescription)
 {
   
-  this->_vf =
-       (__vtbl_ptr_type (*) [7])tPMenuItemLeftRightChoice_vtable;
   this->fData = dataPtr;
   return;
 }
@@ -423,8 +413,6 @@ tPMenuItemLeftRightChoice::tPMenuItemLeftRightChoice(u_int textDescription,tPLis
 tPMenuItemLeftRightChoice::~tPMenuItemLeftRightChoice()
 
 {
-  this->_vf =
-       (__vtbl_ptr_type (*) [7])tPMenuItemLeftRightChoice_vtable;
   return;
 }
 
@@ -446,14 +434,10 @@ void tPMenuItemLeftRightChoice::ProcessInput(tInputKeyType &keyval,tPMenuCommand
   return;
 
 left:
-    (*(*this->fData->_vf)[5].pfn)
-              ((int)&this->fData->fSelectionList + (int)(*this->fData->_vf)[5].delta,
-               0xffffffff);
+    this->fData->Decrement((tPlayer)-1);
     goto processed;
 right:
-    (*(*this->fData->_vf)[4].pfn)
-              ((int)&this->fData->fSelectionList + (int)(*this->fData->_vf)[4].delta,
-               0xffffffff);
+    this->fData->Increment((tPlayer)-1);
 processed:
   keyval = kInput_KeyType_AlreadyProcessed;
   return;
@@ -477,9 +461,7 @@ void tPMenuItemLeftRightChoice::Draw(bool selected)
   PauseMenu_MenuTextPositioned((short)this->fTextDescription, (short)selected,
              PMENU_ITEM_DISABLED(this),
              (short)TextSys_WordX(this->fTextDescription));
-  text = (*(*this->fData->_vf)[3].pfn)
-                    ((int)&this->fData->fSelectionList +
-                     (int)(*this->fData->_vf)[3].delta,0xffffffff);
+  text = this->fData->TextValue((tPlayer)-1);
   textX = (short)TextSys_WordX((int)text);
   PauseMenu_MenuTextPositioned(text, (short)selected,
                                PMENU_ITEM_DISABLED(this), textX);
@@ -514,8 +496,6 @@ tPMenuItemLeftRightSlider::tPMenuItemLeftRightSlider(u_int textDescription,int *
   : tPMenuItemInteractive(textDescription)
 {
   
-  this->_vf =
-       (__vtbl_ptr_type (*) [7])tPMenuItemLeftRightSlider_vtable;
   this->fData = dataPtr;
   this->fMaxVal = maxVal;
   return;
@@ -528,8 +508,6 @@ tPMenuItemLeftRightSlider::tPMenuItemLeftRightSlider(u_int textDescription,int *
 tPMenuItemLeftRightSlider::~tPMenuItemLeftRightSlider()
 
 {
-  this->_vf =
-       (__vtbl_ptr_type (*) [7])tPMenuItemLeftRightSlider_vtable;
   return;
 }
 
@@ -746,8 +724,6 @@ tPMenuItemLeftRightSliderIndexed::tPMenuItemLeftRightSliderIndexed(u_int textDes
   : tPMenuItemLeftRightSlider(textDescription,dataPtr,maxVal)
 {
   
-  this->_vf =
-       (__vtbl_ptr_type (*) [7])tPMenuItemLeftRightSliderIndexed_vtable;
   this->fIndex = index;
   return;
 }
@@ -759,8 +735,6 @@ tPMenuItemLeftRightSliderIndexed::tPMenuItemLeftRightSliderIndexed(u_int textDes
 tPMenuItemLeftRightSliderIndexed::~tPMenuItemLeftRightSliderIndexed()
 
 {
-  this->_vf =
-       (__vtbl_ptr_type (*) [7])tPMenuItemLeftRightSliderIndexed_vtable;
   return;
 }
 
@@ -805,8 +779,6 @@ tPMenuItemGoToMenuButton::tPMenuItemGoToMenuButton(u_int textDescription,tPMenu 
   : tPMenuItemInteractive(textDescription)
 {
   
-  this->_vf =
-       (__vtbl_ptr_type (*) [7])tPMenuItemGoToMenuButton_vtable;
   this->fNewMenu = newMenu;
   this->fOnButtonPress = OnButtonPress;
   return;
@@ -819,8 +791,6 @@ tPMenuItemGoToMenuButton::tPMenuItemGoToMenuButton(u_int textDescription,tPMenu 
 tPMenuItemGoToMenuButton::~tPMenuItemGoToMenuButton()
 
 {
-  this->_vf =
-       (__vtbl_ptr_type (*) [7])tPMenuItemGoToMenuButton_vtable;
   return;
 }
 
@@ -843,9 +813,9 @@ void tPMenuItemGoToMenuButton::ProcessInput(tInputKeyType &keyval,tPMenuCommand 
 {
   if (keyval == kInput_KeyType_Cross) {
     AudioCmn_PlayPauseSound(4);
-    if (this->VirtualNextMenu() != 0) {
+    if (this->NextMenu() != 0) {
       command.type = kMPause_GoToMenu;
-      command.nextMenu = this->VirtualNextMenu();
+      command.nextMenu = this->NextMenu();
     }
     if (this->fOnButtonPress != 0x0) {
       (*this->fOnButtonPress)(command);
@@ -862,8 +832,6 @@ tPMenuItemCommandButton::tPMenuItemCommandButton(u_int textDescription,tPMenuCom
   : tPMenuItemInteractive(textDescription)
 {
   
-  this->_vf =
-       (__vtbl_ptr_type (*) [7])tPMenuItemCommandButton_vtable;
   this->fCommand = command;
   return;
 }
@@ -875,8 +843,6 @@ tPMenuItemCommandButton::tPMenuItemCommandButton(u_int textDescription,tPMenuCom
 tPMenuItemCommandButton::~tPMenuItemCommandButton()
 
 {
-  this->_vf =
-       (__vtbl_ptr_type (*) [7])tPMenuItemCommandButton_vtable;
   return;
 }
 
@@ -935,7 +901,6 @@ tPMenu::tPMenu(tPMenuItem *firstItem, ...)
 
 {
   
-  this->_vf = (__vtbl_ptr_type (*) [5])tPMenu_vtable;
   this->fCurrentItem = 0;
   this->tPMenuConstructor(firstItem,(u_char *)(&firstItem + 1));
   return;
@@ -948,7 +913,6 @@ tPMenu::tPMenu(tPMenuItem *firstItem, ...)
 tPMenu::~tPMenu()
 
 {
-  this->_vf = (__vtbl_ptr_type (*) [5])tPMenu_vtable;
   return;
 }
 
@@ -961,12 +925,12 @@ void tPMenu::Initialize()
 {
   this->fCurrentItem = 0;
   this->fHighlight = 1;
-  if (this->fItemList[this->fCurrentItem]->IsEnabledAndNavigable() == 0) {
+  if (tPMenuItem_IsEnabledAndNavigable(this->fItemList[this->fCurrentItem]) == 0) {
     while (true) {
       if (this->fItemList[this->fCurrentItem] == (tPMenuItem *)0x0) {
         break;
       }
-      if (this->fItemList[this->fCurrentItem]->IsDisabledOrNotNavigable() == 0) {
+      if (tPMenuItem_IsDisabledOrNotNavigable(this->fItemList[this->fCurrentItem]) == 0) {
         return;
       }
       this->fCurrentItem = this->fCurrentItem + 1;
@@ -985,9 +949,7 @@ bool tPMenu::Debounce()
   /* SYM declares the virtual result as native bool.  Preserve that result type
      at the manual vtable boundary so GCC trusts the callee's normalization,
      just as it would for the original C++ virtual call. */
-  return (*(bool (*)(...))(*this->fItemList[this->fCurrentItem]->_vf)[3].pfn)
-                         ((int)&this->fItemList[this->fCurrentItem]->fFlags +
-                          (int)(*this->fItemList[this->fCurrentItem]->_vf)[3].delta);
+  return this->fItemList[this->fCurrentItem]->Debounce();
 }
 
 
@@ -1004,7 +966,7 @@ void tPMenu::CheckForDisabled()
 
   while (true) {
     disabled = false;
-    if ((this->fItemList[this->fCurrentItem]->VirtualIsNavigable() == 0) ||
+    if ((this->fItemList[this->fCurrentItem]->IsNavigable() == 0) ||
         ((this->fItemList[this->fCurrentItem]->fFlags & 1) != 0)) {
       disabled = true;
     }
@@ -1039,7 +1001,7 @@ void tPMenu::ProcessInput(tInputKeyType &keyval,tPMenuCommand &command)
   bool disabled;
 
   if (this->fItemList[this->fCurrentItem] != (tPMenuItem *)0x0) {
-    this->fItemList[this->fCurrentItem]->VirtualProcessInput(keyval,command);
+    this->fItemList[this->fCurrentItem]->ProcessInput(keyval,command);
   }
   /* MATCH: read-only zero-insn allocator fence.  The real-CC1PL dump measures
      `this` at 42 refs / 178 live (priority 1.1798), just below the competing
@@ -1064,7 +1026,7 @@ void tPMenu::ProcessInput(tInputKeyType &keyval,tPMenuCommand &command)
           }
         }
         disabled = false;
-        if ((this->fItemList[this->fCurrentItem]->VirtualIsNavigable() == 0) ||
+        if ((this->fItemList[this->fCurrentItem]->IsNavigable() == 0) ||
             ((this->fItemList[this->fCurrentItem]->fFlags & 1) != 0)) {
           disabled = true;
         }
@@ -1080,7 +1042,7 @@ void tPMenu::ProcessInput(tInputKeyType &keyval,tPMenuCommand &command)
           this->fCurrentItem = 0;
         }
         disabled = false;
-        if ((this->fItemList[this->fCurrentItem]->VirtualIsNavigable() == 0) ||
+        if ((this->fItemList[this->fCurrentItem]->IsNavigable() == 0) ||
             ((this->fItemList[this->fCurrentItem]->fFlags & 1) != 0)) {
           disabled = true;
         }

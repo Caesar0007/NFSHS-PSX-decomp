@@ -64,13 +64,12 @@ struct GameSetup_tData {
     GameSetup_tCarData carInfo[9];
 };
 
-#ifdef NFS4_MPAUSE_PAUSEMENU_METHODS
+/* unconditional since 2026-09-19: the iterator VIRTUALS take a tPlayer, so every TU that sees the classes needs it */
 typedef enum tPlayer {
     kPlayerBoth = -1,
     kPlayerOne = 0,
     kPlayerTwo = 1
 } tPlayer;
-#endif
 
 #ifndef NFS4_MPAUSE_OMIT_PAUSEMENU_FOREIGN_TYPES
 struct SNDSYSCAP {
@@ -101,72 +100,53 @@ struct tPMenuCommand { tPMenuCommandType type; tPMenu *nextMenu; };
 struct tPListIterator {
     short *fSelectionList;
     int *fValue;
-    __vtbl_ptr_type (*_vf)[6];
-    tPListIterator() {}
+    /* real virtuals since 2026-09-19 (vptr after the data members, where `_vf` was) */
     tPListIterator(short *, int *);
-    ~tPListIterator();
-#ifdef NFS4_MPAUSE_PAUSEMENU_METHODS
-    char Value(tPlayer);
-    short TextValue(tPlayer);
-    void Increment(tPlayer);
-    void Decrement(tPlayer);
-#endif
+    virtual ~tPListIterator();
+    virtual char Value(tPlayer);
+    virtual short TextValue(tPlayer);
+    virtual void Increment(tPlayer);
+    virtual void Decrement(tPlayer);
 };
 struct tPListIteratorIndexed : public tPListIterator {
     char *fIndex;
     tPListIteratorIndexed(short *, int *, char *);
     ~tPListIteratorIndexed();
-#ifdef NFS4_MPAUSE_PAUSEMENU_METHODS
     char Value(tPlayer);
     short TextValue(tPlayer);
     void Increment(tPlayer);
     void Decrement(tPlayer);
-#endif
 };
 
 struct tPMenuItem {
     unsigned int fFlags, fTextDescription;
-    __vtbl_ptr_type (*_vf)[7];
     tPMenuItem(unsigned int);
-    ~tPMenuItem();
-    tPMenu *NextMenu();
-    bool Debounce();
-    void ProcessInput(tInputKeyType &, tPMenuCommand &);
+    virtual ~tPMenuItem();
+    virtual tPMenu *NextMenu();
+    virtual bool Debounce();
+    virtual void ProcessInput(tInputKeyType &, tPMenuCommand &);
+    virtual bool IsNavigable() = 0;
+    virtual void Draw(bool) = 0;
     bool IsEnabled();
     bool IsDisabled();
-    inline tPMenu *VirtualNextMenu() {
-        return (tPMenu *)(*(*_vf)[2].pfn)((int)&fFlags + (*_vf)[2].delta);
-    }
-    inline void VirtualProcessInput(tInputKeyType &key,
-                                    tPMenuCommand &command) {
-        (*(*_vf)[4].pfn)((int)&fFlags + (*_vf)[4].delta, &key, &command);
-    }
-    inline int VirtualIsNavigable() {
-        return (*(*_vf)[5].pfn)((int)&fFlags + (*_vf)[5].delta);
-    }
-    /* SYM-INLINE-FACADE: Initialize's SLD records the inlined tPMenuItem
-       `this` but no named condition result.  Retail materializes the two
-       compound predicates as int 0/1 values in a0 and s0.  These facades
-       preserve that proven inline boundary; SYM cannot recover whether EA
-       spelled them as helpers, macros, or repeated expressions. */
-    inline int IsEnabledAndNavigable() {
-        int result = false;
-        if (((fFlags ^ 1) & 1) != 0) {
-            result = VirtualIsNavigable() != 0;
-        }
-        return result;
-    }
-    inline int IsDisabledOrNotNavigable() {
-        int result = false;
-        if (((fFlags & 1) != 0) || (VirtualIsNavigable() == 0)) {
-            result = true;
-        }
-        return result;
-    }
-    inline void Draw(bool selected) {
-        (*(*_vf)[6].pfn)((int)&fFlags + (*_vf)[6].delta, selected);
-    }
 };
+/* SYM-INLINE-FACADE: tPMenu::Initialize's SLD records the inlined tPMenuItem `this` but no named condition result; retail
+   materializes the two compound predicates as int 0/1 values.  NON-member helpers: an inline MEMBER of a class whose
+   key function is in the TU would get an out-of-line copy. */
+static inline int tPMenuItem_IsEnabledAndNavigable(tPMenuItem *item) {
+    int result = false;
+    if (((item->fFlags ^ 1) & 1) != 0) {
+        result = item->IsNavigable() != 0;
+    }
+    return result;
+}
+static inline int tPMenuItem_IsDisabledOrNotNavigable(tPMenuItem *item) {
+    int result = false;
+    if (((item->fFlags & 1) != 0) || (item->IsNavigable() == 0)) {
+        result = true;
+    }
+    return result;
+}
 struct tPMenuItemNonInteractiveText : public tPMenuItem {
     tPMenuItemNonInteractiveText(unsigned int);
     ~tPMenuItemNonInteractiveText();
@@ -228,24 +208,16 @@ struct tPMenu {
     tPMenuItem *fItemList[16];
     tPMenu *fNextMenu;
     int fNumItems;
-    __vtbl_ptr_type (*_vf)[5];
-    tPMenu() {}
     tPMenu(tPMenuItem *, ...);
-    ~tPMenu();
+    virtual ~tPMenu();
     void tPMenuConstructor(tPMenuItem *, void *);
-    void Initialize();
+    virtual void Initialize();
     bool Debounce();
     void CheckForDisabled();
-    void ProcessInput(tInputKeyType &, tPMenuCommand &);
-    void Draw();
+    virtual void ProcessInput(tInputKeyType &, tPMenuCommand &);
+    virtual void Draw();
     int NumEnabledItems();
     int ItemEnabledNum(int);
-    inline void VirtualInitialize() {
-        (*(*_vf)[2].pfn)((int)this + (*_vf)[2].delta);
-    }
-    inline void VirtualProcessInput(tInputKeyType &key, tPMenuCommand &command) {
-        (*(*_vf)[3].pfn)((int)this + (*_vf)[3].delta, &key, &command);
-    }
 };
 
 #ifndef NFS4_MPAUSE_OMIT_PAUSEMENU_FOREIGN_TYPES

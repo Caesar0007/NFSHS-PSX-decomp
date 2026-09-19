@@ -27,10 +27,5 @@ extern void  Hud_BuildGT4(POLY_GT4 *prim, HudPmx_tShape *shape, int x, int y, u_
 extern void  Hud_FBuildF4(int transparent, int x, int y, int w, int h, u_long col1, char c0, char c1);  /* hud.obj */
 
 /* ---- PauseMenu.obj manual vtable symbols ---- */
-extern __vtbl_ptr_type tPListIterator_vtable[], tPListIteratorIndexed_vtable[],
-  tPMenuItem_vtable[], tPMenuItemNonInteractiveText_vtable[], tPMenuItemInteractive_vtable[],
-  tPMenuItemLeftRightChoice_vtable[], tPMenuItemLeftRightSlider_vtable[],
-  tPMenuItemLeftRightSliderIndexed_vtable[], tPMenuItemGoToMenuButton_vtable[],
-  tPMenuItemCommandButton_vtable[], tPMenu_vtable[];
 
 #endif

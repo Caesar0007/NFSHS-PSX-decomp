@@ -1076,5 +1076,13 @@
   "size": 288,
   "ok": false,
   "regions": []
+ },
+ {
+  "obj": "build/recon/game/common/pausemenu.cpp.o",
+  "base": 2147836172,
+  "end": 2147836772,
+  "size": 600,
+  "ok": false,
+  "regions": []
  }
 ]

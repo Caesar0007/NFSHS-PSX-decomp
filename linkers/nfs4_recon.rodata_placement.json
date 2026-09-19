@@ -452,9 +452,9 @@
  },
  {
   "obj": "build/recon/game/common/copspeak.cpp.o",
-  "base": 2147835592,
-  "end": 2147835766,
-  "size": 174,
+  "base": 2147835580,
+  "end": 2147835782,
+  "size": 202,
   "ok": false,
   "regions": []
  },

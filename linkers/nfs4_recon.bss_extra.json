@@ -741,5 +741,13 @@
   "end": 2147822840,
   "size": 64,
   "ok": true
+ },
+ {
+  "obj": "build/recon/game/psx/textureprocess.cpp.o",
+  "section": ".bss",
+  "base": 2148788316,
+  "end": 2148788380,
+  "size": 64,
+  "ok": true
  }
 ]

@@ -429,6 +429,10 @@ void CopSpeak_GenericBankRequest(int patch,Car_tObj *car)
 void CopSpeak_StartUp(void)
 
 {
+  /* retail copspeak.obj .rodata opens with the UNREFERENCED "SimpleMem" tag (0x80055ebc) ahead of this
+     function's "%szzzwzzz.viv" */
+  if (0) sprintf((char *)0,"SimpleMem");
+
   char filename[100];
   char *header;
   char *SpeechLanguage;
@@ -860,6 +864,10 @@ void CopSpeak_Flush(void)
 void CopSpeak_Server(void)
 
 {
+  /* retail keeps an UNREFERENCED "%2d:%02d.%02d" (0x80055f74, a compiled-out timing print) between
+     "CopSpeakBuf" and CopSpeak_ShowQueue's initializer; SfxQueued is a leaf, so it lives here */
+  if (0) sprintf((char *)0,"%2d:%02d.%02d");
+
   CopSpeak_tRequest *next;
   
   if (CopSpeak_gSpchHandle != -1) {

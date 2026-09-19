@@ -1,10 +1,6 @@
 /* game/common/aidatarecord_externs.h - reconstructed externs. NOT original. */
 #ifndef _GAME_COMMON_AIDATARECORD_EXTERNS_H_
 #define _GAME_COMMON_AIDATARECORD_EXTERNS_H_
-/* ---- aidatarecord.obj manual vtable symbols (cross-TU data) ---- */
-extern __vtbl_ptr_type AIDataRecord_t_vtable[], AIDataRecord_AccTable_t_vtable[],
-  AIDataRecord_BestLine_t_vtable[], AIDataRecord_TrackCurve_t_vtable[],
-  AIDataRecord_CurveSpeedTable_t_vtable[];
 
 extern int gNumSlices;
 

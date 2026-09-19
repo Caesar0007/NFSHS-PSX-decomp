@@ -1,6 +1,6 @@
 /* game/common/aidatarecord.cpp -- RECONSTRUCTED (AIDataRecord_t collection + 4 record classes).
  *   AccTable / CurveSpeedTable / TrackCurve / BestLine record tables over a shared
- *   AIDataRecord_t base (composition-modeled inheritance, manual _vf vtable dispatch).
+ *   AIDataRecord_t base (real inheritance, real C++ virtuals since 2026-09-19).
  *   21 standalone fns; the trivial CarTracking::Get + 5 empty dtors were inlined in EA's build.
  *   NOT original source; SYM-faithful, recompilable C++.  vs disasm-v4.txt.
  */
@@ -19,7 +19,6 @@ static AIDataRecord_t *recordCollection[24];   /* @0x8013df64; SYM STAT */
 /* ---- __14AIDataRecord_t26AIDataRecord_WhichRecord_tPc  AIDataRecord_t::ctor ---- */
 AIDataRecord_t::AIDataRecord_t(AIDataRecord_WhichRecord_t whichIsThis,char *preBuffer)
 {
-  this->_vf = (__vtbl_ptr_type (*) [3])AIDataRecord_t_vtable;
   this->AddRecordToCollection();
   this->preAllocatedBuffer_ = preBuffer;
   this->recordMethod_ = 0;
@@ -29,7 +28,6 @@ AIDataRecord_t::AIDataRecord_t(AIDataRecord_WhichRecord_t whichIsThis,char *preB
 /* ---- ___14AIDataRecord_t  AIDataRecord_t::dtor ---- */
 AIDataRecord_t::~AIDataRecord_t()
 {
-  this->_vf = (__vtbl_ptr_type (*) [3])AIDataRecord_t_vtable;
   this->SaveAndPurge();
   this->RemoveRecordFromCollection();
   return;
@@ -87,9 +85,7 @@ void AIDataRecord_t::StartUp2(void)
 
   for (recordLoop = 0; recordLoop < 0x18; recordLoop++) {
     if (recordCollection[recordLoop] != (AIDataRecord_t *)0x0) {
-      (*(*recordCollection[recordLoop]->_vf)[2].pfn)
-        ((char *)recordCollection[recordLoop] +
-         (*recordCollection[recordLoop]->_vf)[2].delta);
+      recordCollection[recordLoop]->Setup();
     }
   }
   return;
@@ -99,13 +95,11 @@ void AIDataRecord_t::StartUp2(void)
 void AIDataRecord_t::CleanUp1(void)
 {
   if (AIDataRecord_BestLine != (AIDataRecord_BestLine_t *)0x0) {
-    (*(*AIDataRecord_BestLine->_vf)[1].pfn)
-      ((char *)AIDataRecord_BestLine + (*AIDataRecord_BestLine->_vf)[1].delta,3);
+    delete AIDataRecord_BestLine;
     AIDataRecord_BestLine = (AIDataRecord_BestLine_t *)0x0;
   }
   if (AIDataRecord_TrackCurve != (AIDataRecord_TrackCurve_t *)0x0) {
-    (*(*AIDataRecord_TrackCurve->_vf)[1].pfn)
-      ((char *)AIDataRecord_TrackCurve + (*AIDataRecord_TrackCurve->_vf)[1].delta,3);
+    delete AIDataRecord_TrackCurve;
     AIDataRecord_TrackCurve = (AIDataRecord_TrackCurve_t *)0x0;
   }
   return;
@@ -160,7 +154,6 @@ AIDataRecord_AccTable_t::AIDataRecord_AccTable_t(char *preBuffer,int scale,
 {
   /* retail aidatarecord.obj .rodata opens with the unreferenced "SimpleMem" tag (0x800553AC) */
   if (0) sprintf((char *)0,"SimpleMem");
-  this->_vf = (__vtbl_ptr_type (*) [3])AIDataRecord_AccTable_t_vtable;
   this->numElements_ = 0x70;
   this->bSize_ = 0xe0;
   this->scale_ = scale;
@@ -196,7 +189,6 @@ loopTop:
 AIDataRecord_BestLine_t::AIDataRecord_BestLine_t(AIDataRecord_WhichRecord_t whichIsThis)
   : AIDataRecord_t(whichIsThis,(char *)0x0)
 {
-  this->_vf = (__vtbl_ptr_type (*) [3])AIDataRecord_BestLine_t_vtable;
   this->bSize_ = this->numElements_ = gNumSlices;
   if (this->recordMethod_ == 0) {
     sprintf(this->name_,"%sTr%02d.qbe",D_80116498[0],D_80113228[0]);
@@ -211,7 +203,6 @@ AIDataRecord_BestLine_t::AIDataRecord_BestLine_t(AIDataRecord_WhichRecord_t whic
 AIDataRecord_TrackCurve_t::AIDataRecord_TrackCurve_t(AIDataRecord_WhichRecord_t whichIsThis)
   : AIDataRecord_t(whichIsThis,(char *)0x0)
 {
-  this->_vf = (__vtbl_ptr_type (*) [3])AIDataRecord_TrackCurve_t_vtable;
   this->bSize_ = (this->numElements_ = gNumSlices) + 1;
   if (this->recordMethod_ == 0) {
     sprintf(this->name_,"%sTr%02d.qcr",D_80116490[0],D_80113228[0]);
@@ -233,7 +224,6 @@ AIDataRecord_CurveSpeedTable_t::AIDataRecord_CurveSpeedTable_t(char *carName,
           AIDataRecord_WhichRecord_t whichIsThis)
   : AIDataRecord_t(whichIsThis,(char *)0x0)
 {
-  this->_vf = (__vtbl_ptr_type (*) [3])AIDataRecord_CurveSpeedTable_t_vtable;
   this->numElements_ = 0x100;
   this->bSize_ = 0x100;
   if (this->recordMethod_ == 0) {
@@ -276,52 +266,13 @@ void AIDataRecord_CurveSpeedTable_t::Upgrade(int handlingUpgrade)
 }
 
 /* ---- Get__26AIDataRecord_CarTracking_ti  [@0x8006d50c] ---- */
-/* Trivial stub: always returns 0 (record-method not implemented/used). */
+/* Record method not implemented: always 0.  The class's key function. */
 int AIDataRecord_CarTracking_t::Get(int slice)
 {
   return 0;
 }
 
-/* ---- ___26AIDataRecord_CarTracking_t  CarTracking::dtor  [@0x8006d514] ---- */
-/* Compiler-synthesized: empty body -> implicit cleanup of the AIDataRecord_t
- * base subobject calls its dtor (jal ___14AIDataRecord_t). Real inheritance
- * (not composition) is required for gcc to emit this bare form -- composition
- * synthesized a DELETING dtor variant the oracle lacks (see nfs4_types.h). */
-AIDataRecord_CarTracking_t::~AIDataRecord_CarTracking_t()
-{
-}
-
-/* ---- ___30AIDataRecord_CurveSpeedTable_t  CurveSpeedTable::dtor  [@0x8006d534] ---- */
-/* Compiler-synthesized: empty body -> implicit cleanup of the AIDataRecord_t
- * base subobject calls its dtor (jal ___14AIDataRecord_t). Real inheritance
- * (not composition) is required for gcc to emit this bare form -- composition
- * synthesized a DELETING dtor variant the oracle lacks (see nfs4_types.h). */
-AIDataRecord_CurveSpeedTable_t::~AIDataRecord_CurveSpeedTable_t()
-{
-}
-
-/* ---- ___25AIDataRecord_TrackCurve_t  TrackCurve::dtor  [@0x8006d554] ---- */
-/* Compiler-synthesized: empty body -> implicit cleanup of the AIDataRecord_t
- * base subobject calls its dtor (jal ___14AIDataRecord_t). Real inheritance
- * (not composition) is required for gcc to emit this bare form -- composition
- * synthesized a DELETING dtor variant the oracle lacks (see nfs4_types.h). */
-AIDataRecord_TrackCurve_t::~AIDataRecord_TrackCurve_t()
-{
-}
-
-/* ---- ___23AIDataRecord_BestLine_t  BestLine::dtor  [@0x8006d574] ---- */
-/* Compiler-synthesized: empty body -> implicit cleanup of the AIDataRecord_t
- * base subobject calls its dtor (jal ___14AIDataRecord_t). Real inheritance
- * (not composition) is required for gcc to emit this bare form -- composition
- * synthesized a DELETING dtor variant the oracle lacks (see nfs4_types.h). */
-AIDataRecord_BestLine_t::~AIDataRecord_BestLine_t()
-{
-}
-
-/* ---- ___23AIDataRecord_AccTable_t  AccTable::dtor ---- */
-AIDataRecord_AccTable_t::~AIDataRecord_AccTable_t()
-{
-  return;
-}
+/* The object ends with the five compiler-SYNTHESIZED derived destructors (0x8006D514..0x8006D5B4, the deferred-inline
+ * batch, reverse class order) -- they have no source. */
 
 /* end of aidatarecord.cpp */

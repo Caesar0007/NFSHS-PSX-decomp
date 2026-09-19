@@ -35,60 +35,54 @@ typedef enum AIDataRecord_RecordMethod_t {
     TEST_M = 2
 } AIDataRecord_RecordMethod_t;
 
+/* Real virtuals since 2026-09-19.  Declaration ORDER is retail evidence: g++ 2.8 emits the vtables at finish_file in
+ * reverse declaration order and retail has CarTracking, CurveSpeedTable, TrackCurve, BestLine, AccTable, base.
+ * The vptr follows the data members (old g++ ABI), where the hand-written `_vf` member used to be.
+ * The derived classes declare NO destructor: retail's are the compiler-synthesized ones (no vptr store). */
 struct AIDataRecord_t {
     int numElements_, bSize_;
     char name_[64];
     char *dataBuffer_, *preAllocatedBuffer_;
     AIDataRecord_RecordMethod_t recordMethod_;
-    __vtbl_ptr_type (*_vf)[3];
-    AIDataRecord_t() {}
     AIDataRecord_t(AIDataRecord_WhichRecord_t which, char *name);
-    ~AIDataRecord_t();
+    virtual ~AIDataRecord_t();
     int AddRecordToCollection();
     int RemoveRecordFromCollection();
     static void StartUp1();
     static void StartUp2();
     static void CleanUp1();
     static void CleanUp2();
-    void Setup();
+    virtual void Setup();
     int Load();
     int SaveAndPurge();
 };
 
 struct AIDataRecord_AccTable_t : public AIDataRecord_t {
     int scale_;
-    AIDataRecord_AccTable_t() {}
     AIDataRecord_AccTable_t(char *name, int n, AIDataRecord_WhichRecord_t which);
-    ~AIDataRecord_AccTable_t();
     int Get(int i);
     void Setup();
 };
 
+struct AIDataRecord_BestLine_t : public AIDataRecord_t {
+    AIDataRecord_BestLine_t(AIDataRecord_WhichRecord_t which);
+};
+
+struct AIDataRecord_TrackCurve_t : public AIDataRecord_t {
+    AIDataRecord_TrackCurve_t(AIDataRecord_WhichRecord_t which);
+    int Get(int i);
+};
+
 struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t {
-    AIDataRecord_CurveSpeedTable_t() {}
     AIDataRecord_CurveSpeedTable_t(char *name, AIDataRecord_WhichRecord_t which);
-    ~AIDataRecord_CurveSpeedTable_t();
     int Get(int i);
     void Upgrade(int i);
 };
 
-struct AIDataRecord_BestLine_t : public AIDataRecord_t {
-    AIDataRecord_BestLine_t() {}
-    AIDataRecord_BestLine_t(AIDataRecord_WhichRecord_t which);
-    ~AIDataRecord_BestLine_t();
-};
-
-struct AIDataRecord_TrackCurve_t : public AIDataRecord_t {
-    AIDataRecord_TrackCurve_t() {}
-    AIDataRecord_TrackCurve_t(AIDataRecord_WhichRecord_t which);
-    ~AIDataRecord_TrackCurve_t();
-    int Get(int i);
-};
-
 struct AIDataRecord_CarTracking_t : public AIDataRecord_t {
-    AIDataRecord_CarTracking_t() {}
-    ~AIDataRecord_CarTracking_t();
-    int Get(int slice);
+    /* Get is this class's KEY FUNCTION (out-of-line, last function of aidatarecord.cpp): that is why retail emits the
+     * vtable, Get and the synthesized destructor although nothing ever creates a CarTracking record. */
+    virtual int Get(int slice);
 };
 
 typedef int CarLogic_tObservations[1][3];

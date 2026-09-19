@@ -992,8 +992,8 @@
  {
   "obj": "build/recon/game/common/aidatarecord.cpp.o",
   "base": 2147832748,
-  "end": 2147832876,
-  "size": 128,
+  "end": 2147833028,
+  "size": 280,
   "ok": false,
   "regions": []
  },

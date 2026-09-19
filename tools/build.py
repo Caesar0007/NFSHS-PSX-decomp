@@ -640,7 +640,8 @@ PER_TU_FLAGS = {
     # w52-a1 dup-key fix: drv.c's jtbl_at_fusion entry here was silently
     # discarded by the cc1_272 entry below (later key wins) AND is inert in
     # the 272 lane (no maspsx) -- removed rather than merged.
-    "recon/syslib/psx/libgpu/FONT.c":       {"jtbl_at_fusion": True,   # FntPrint
+    "recon/syslib/psx/libgpu/FONT.c":       {"g_value": "0",   # 2026-09-19: _fnt_count/_fnt_active are retail .data (0x80135FD8/DC), not .sdata
+                                             "jtbl_at_fusion": True,   # FntPrint
                                              "nop_before_label": True,  # w66-a2: brdist (10,8,9)->0
                                              "no_split_addresses": True},  # w48-a2: -34
     # w51-a3: libcd lane verdicts (measured per-TU; cdread.c = NO, 169->289):

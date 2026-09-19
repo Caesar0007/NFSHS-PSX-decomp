@@ -719,9 +719,9 @@
  },
  {
   "obj": "build/recon/syslib/psx/libgpu/FONT.c.o",
-  "base": 2147840120,
+  "base": 2147840096,
   "end": 2147840252,
-  "size": 132,
+  "size": 156,
   "ok": true,
   "regions": [
    "jtbl_80057078"

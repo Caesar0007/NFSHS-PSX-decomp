@@ -2154,5 +2154,27 @@
   "unresolved": 0,
   "words": 1085,
   "q": 0
+ },
+ {
+  "obj": "build/recon/eaclib/psx/eacpsxz/crc.c.o",
+  "section": ".data",
+  "base": 2148752472,
+  "end": 2148752984,
+  "size": 512,
+  "ok": true,
+  "unresolved": 0,
+  "words": 128,
+  "q": 0
+ },
+ {
+  "obj": "build/recon/syslib/psx/libgpu/FONT.c.o",
+  "section": ".data",
+  "base": 2148752984,
+  "end": 2148755944,
+  "size": 2960,
+  "ok": true,
+  "unresolved": 0,
+  "words": 740,
+  "q": 0
  }
 ]

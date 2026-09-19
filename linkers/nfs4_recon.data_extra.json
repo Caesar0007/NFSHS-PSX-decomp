@@ -2103,12 +2103,12 @@
  {
   "obj": "build/recon/eaclib/psx/eacpsxz/memstd.c.o",
   "section": ".sdata",
-  "base": 2148785184,
+  "base": 2148785168,
   "end": 2148785200,
-  "size": 16,
+  "size": 32,
   "ok": true,
   "unresolved": 0,
-  "words": 4,
+  "words": 8,
   "q": 0
  },
  {
@@ -2285,6 +2285,39 @@
   "ok": true,
   "unresolved": 0,
   "words": 4,
+  "q": 0
+ },
+ {
+  "obj": "build/recon/syslib/psx/libc/SPRINTF.c.o",
+  "section": ".data",
+  "base": 2148676748,
+  "end": 2148676764,
+  "size": 16,
+  "ok": true,
+  "unresolved": 0,
+  "words": 4,
+  "q": 0
+ },
+ {
+  "obj": "build/recon/eaclib/psx/eacpsxz/random.c.o",
+  "section": ".data",
+  "base": 2148676764,
+  "end": 2148676788,
+  "size": 24,
+  "ok": true,
+  "unresolved": 0,
+  "words": 6,
+  "q": 0
+ },
+ {
+  "obj": "build/recon/eaclib/psx/eacpsxz/locatbig.c.o",
+  "section": ".sdata",
+  "base": 2148785200,
+  "end": 2148785208,
+  "size": 8,
+  "ok": true,
+  "unresolved": 0,
+  "words": 2,
   "q": 0
  }
 ]

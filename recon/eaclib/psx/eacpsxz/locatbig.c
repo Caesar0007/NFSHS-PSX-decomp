@@ -20,7 +20,12 @@
 #include "getm.h"
 #include "stricmp.h"
 
-// FIXME STRINGS.H
+/* locatbig.obj small data 0x8013DC30 (owned here since 2026-09-19): the default big-file extension.  SYM name,
+ * unreferenced by retail code -- owner by name and retail link order (the next EA object with small data after
+ * memstd). */
+char defaultbigext[8] = ".viv";
+
+// FIXME
 extern unsigned strlen (const char *s);                  /* eacpsxz @0x800E9F74              */
 
 /* The compact SYM places a private, unreferenced 4-byte `bighandle` directly

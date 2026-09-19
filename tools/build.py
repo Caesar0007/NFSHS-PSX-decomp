@@ -406,6 +406,7 @@ PER_TU_FLAGS = {
     "recon/frontend/psx/movie.cpp":        {"g_value": "0"},
     "recon/frontend/psx/memcard.c":        {"g_value": "0"},
     "recon/eaclib/psx/eacpsxz/memstd.c":   {"g_value": "8"},   # its "%s LOW"/"%s HIGH" literals are retail .sdata @0x8013dc20 (2026-09-17)
+    "recon/eaclib/psx/eacpsxz/locatbig.c": {"g_value": "8"},   # defaultbigext[8] is retail .sdata @0x8013dc30 (2026-09-19)
     "recon/eaclib/psx/eacpsxz/wildcard.c": {"g_value": "8"},   # "&|!~^" literal is retail .sdata @0x8013dc48 (2026-09-18)
     "recon/eaclib/psx/eacpsxz/loadshp.c":  {"g_value": "8"},   # ".psh" + shapeext are retail .sdata @0x8013dd18/20 (2026-09-18)
     "recon/syslib/psx/libgte/MSC00.c":     {"g_value": "0"},   # Sony libgte: ra-save scratch is a .data word @0x80134a70 (2026-09-17)

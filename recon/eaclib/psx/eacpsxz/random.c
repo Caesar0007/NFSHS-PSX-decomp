@@ -25,7 +25,9 @@
 
 #if defined(__mips__)
 /* the 6-word PRNG state, defined in the .data blob (original @0x8012349C); asm refs it as `seed`. */
-extern unsigned seed[6];
+unsigned seed[6] = {                         /* random.obj .data 0x8012349C, owned here since 2026-09-19 */
+    0xF22D0E56u, 0x883126E9u, 0xC624DD2Fu, 0x0702C49Cu, 0x9E353F7Du, 0x6FDF3B64u
+};
 /* ASPSX-DIALECT (w64-a20): the asm below uses NUMERIC registers and no
  * `.set push/pop` -- ASPSX 2.77, the PRODUCTION assembler, rejects ABI
  * register NAMES and push/pop.  $0 zero $1 at $2-3 v0-v1 $4-7 a0-a3
@@ -33,6 +35,7 @@ extern unsigned seed[6];
  * Gate-lane object is byte-identical (proven by hash); see
  * scratchpad/w64a20/RECEIPTS.md. */
 __asm__(
+    "\t.text\n"   /* the seed definition above leaves the assembler in .data */
     "\t.set noat\n"
     "\t.set\tnoreorder\n"   /* tab form: turns maspsx is_reorder OFF (no auto branch-delay nop) */
     "\t.set noreorder\n"    /* space form: passes through to gnu-as                             */

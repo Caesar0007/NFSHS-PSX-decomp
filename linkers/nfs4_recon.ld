@@ -866,36 +866,38 @@ SECTIONS
     .xd0081 0x8011401c : SUBALIGN(4) { build/recon/game/common/newton.cpp.o(.data); }
     .xd0082 0x80116f7c : SUBALIGN(4) { build/recon/game/common/render.cpp.o(.data); }
     .xd0083 0x80123384 : SUBALIGN(4) { build/recon/game/psx/weather.cpp.o(.data); }
-    .xd0084 0x8012360c : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/addtimer.c.o(.data); }
-    .xd0085 0x80123654 : SUBALIGN(4) { build/recon/syslib/psx/libgpu/SYS.c.o(.data); }
-    .xd0086 0x801349e8 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/exit.c.o(.data); }
-    .xd0087 0x80134a70 : SUBALIGN(4) { build/recon/syslib/psx/libgte/MSC00.c.o(.data); }
-    .xd0088 0x80134a88 : SUBALIGN(4) { build/recon/syslib/psx/libetc/VSYNC.c.o(.data); }
-    .xd0089 0x80134aa0 : SUBALIGN(4) { build/recon/syslib/psx/libetc/INTR.c.o(.data); }
-    .xd0090 0x80135c58 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/crc.c.o(.data); }
-    .xd0091 0x80135e58 : SUBALIGN(4) { build/recon/syslib/psx/libgpu/FONT.c.o(.data); }
-    .xd0092 0x801369e8 : SUBALIGN(4) { build/recon/syslib/psx/libpress/VLC.c.o(.data); }
-    .xd0093 0x80136a18 : SUBALIGN(4) { build/recon/syslib/psx/libcd/cdcont.c.o(.data); }
-    .xd0094 0x80136a98 : SUBALIGN(4) { build/recon/syslib/psx/libcd/stcdint.c.o(.data); }
-    .xd0095 0x80136af8 : SUBALIGN(4) { build/recon/syslib/psx/libpress/LIBPRESS.c.o(.data); }
-    .xd0096 0x80136c48 : SUBALIGN(4) { build/recon/syslib/psx/libcd/C_003.c.o(.data); }
-    .xd0097 0x80136cb8 : SUBALIGN(4) { build/recon/syslib/psx/libmcrd/LIBMCRD.c.o(.data); }
-    .xd0098 0x80136cd8 : SUBALIGN(4) { build/recon/syslib/psx/libpad/PADPORTD.c.o(.data); }
-    .xd0099 0x80136e00 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sdfx.c.o(.data); }
-    .xd0100 0x801370c4 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sclcptch.c.o(.data); }
-    .xd0101 0x80137c78 : SUBALIGN(4) { build/recon/syslib/psx/libpad/PADMAIN.c.o(.data); }
-    .xd0102 0x80137cf0 : SUBALIGN(4) { build/recon/syslib/psx/libetc/INTR_VB.c.o(.data); }
-    .xd0103 0x8013bd20 : SUBALIGN(4) { build/recon/syslib/psx/libetc/INTR_DMA.c.o(.data); }
-    .xd0104 0x8013bd50 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/textcode.c.o(.data); }
-    .xd0105 0x8013bf40 : SUBALIGN(4) { build/recon/syslib/psx/libcd/drv.c.o(.data); }
-    .xd0106 0x8013c260 : SUBALIGN(4) { build/recon/syslib/psx/libcd/C_008.c.o(.data); }
-    .xd0107 0x8013c270 : SUBALIGN(4) { build/recon/syslib/psx/libcd/C_004.c.o(.data); }
-    .xd0108 0x8013c280 : SUBALIGN(4) { build/recon/syslib/psx/libcd/C_010.c.o(.data); }
-    .xd0109 0x8013c290 : SUBALIGN(4) { build/recon/syslib/psx/libcd/cdread.c.o(.data); }
-    .xd0110 0x8013c2d0 : SUBALIGN(4) { build/recon/syslib/psx/libcd/event.c.o(.data); }
-    .xd0111 0x8013c2e0 : SUBALIGN(4) { build/recon/syslib/psx/libmcrd/USERFUNC.c.o(.data); }
-    .xd0112 0x8013c308 : SUBALIGN(4) { build/recon/syslib/psx/libpad/PADIF.c.o(.data); }
-    .xd0113 0x8013c348 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/ssine.c.o(.data); }
+    .xd0084 0x8012348c : SUBALIGN(4) { build/recon/syslib/psx/libc/SPRINTF.c.o(.data); }
+    .xd0085 0x8012349c : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/random.c.o(.data); }
+    .xd0086 0x8012360c : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/addtimer.c.o(.data); }
+    .xd0087 0x80123654 : SUBALIGN(4) { build/recon/syslib/psx/libgpu/SYS.c.o(.data); }
+    .xd0088 0x801349e8 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/exit.c.o(.data); }
+    .xd0089 0x80134a70 : SUBALIGN(4) { build/recon/syslib/psx/libgte/MSC00.c.o(.data); }
+    .xd0090 0x80134a88 : SUBALIGN(4) { build/recon/syslib/psx/libetc/VSYNC.c.o(.data); }
+    .xd0091 0x80134aa0 : SUBALIGN(4) { build/recon/syslib/psx/libetc/INTR.c.o(.data); }
+    .xd0092 0x80135c58 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/crc.c.o(.data); }
+    .xd0093 0x80135e58 : SUBALIGN(4) { build/recon/syslib/psx/libgpu/FONT.c.o(.data); }
+    .xd0094 0x801369e8 : SUBALIGN(4) { build/recon/syslib/psx/libpress/VLC.c.o(.data); }
+    .xd0095 0x80136a18 : SUBALIGN(4) { build/recon/syslib/psx/libcd/cdcont.c.o(.data); }
+    .xd0096 0x80136a98 : SUBALIGN(4) { build/recon/syslib/psx/libcd/stcdint.c.o(.data); }
+    .xd0097 0x80136af8 : SUBALIGN(4) { build/recon/syslib/psx/libpress/LIBPRESS.c.o(.data); }
+    .xd0098 0x80136c48 : SUBALIGN(4) { build/recon/syslib/psx/libcd/C_003.c.o(.data); }
+    .xd0099 0x80136cb8 : SUBALIGN(4) { build/recon/syslib/psx/libmcrd/LIBMCRD.c.o(.data); }
+    .xd0100 0x80136cd8 : SUBALIGN(4) { build/recon/syslib/psx/libpad/PADPORTD.c.o(.data); }
+    .xd0101 0x80136e00 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sdfx.c.o(.data); }
+    .xd0102 0x801370c4 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sclcptch.c.o(.data); }
+    .xd0103 0x80137c78 : SUBALIGN(4) { build/recon/syslib/psx/libpad/PADMAIN.c.o(.data); }
+    .xd0104 0x80137cf0 : SUBALIGN(4) { build/recon/syslib/psx/libetc/INTR_VB.c.o(.data); }
+    .xd0105 0x8013bd20 : SUBALIGN(4) { build/recon/syslib/psx/libetc/INTR_DMA.c.o(.data); }
+    .xd0106 0x8013bd50 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/textcode.c.o(.data); }
+    .xd0107 0x8013bf40 : SUBALIGN(4) { build/recon/syslib/psx/libcd/drv.c.o(.data); }
+    .xd0108 0x8013c260 : SUBALIGN(4) { build/recon/syslib/psx/libcd/C_008.c.o(.data); }
+    .xd0109 0x8013c270 : SUBALIGN(4) { build/recon/syslib/psx/libcd/C_004.c.o(.data); }
+    .xd0110 0x8013c280 : SUBALIGN(4) { build/recon/syslib/psx/libcd/C_010.c.o(.data); }
+    .xd0111 0x8013c290 : SUBALIGN(4) { build/recon/syslib/psx/libcd/cdread.c.o(.data); }
+    .xd0112 0x8013c2d0 : SUBALIGN(4) { build/recon/syslib/psx/libcd/event.c.o(.data); }
+    .xd0113 0x8013c2e0 : SUBALIGN(4) { build/recon/syslib/psx/libmcrd/USERFUNC.c.o(.data); }
+    .xd0114 0x8013c308 : SUBALIGN(4) { build/recon/syslib/psx/libpad/PADIF.c.o(.data); }
+    .xd0115 0x8013c348 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/ssine.c.o(.data); }
     .xs0000 0x801234d4 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/snddata.c.o(.sdata); }
     .xs0001 0x8013c568 : SUBALIGN(4) { build/recon/game/common/aih_play.cpp.o(.sdata); }
     .xs0002 0x8013c5d8 : SUBALIGN(4) { build/recon/game/common/aistate.cpp.o(.sdata); }
@@ -909,11 +911,12 @@ SECTIONS
     .xs0010 0x8013d9e0 : SUBALIGN(4) { build/recon/game/psx/night.cpp.o(.sdata); }
     .xs0011 0x8013da9c : SUBALIGN(4) { build/recon/game/psx/platform.cpp.o(.sdata); }
     .xs0012 0x8013dac8 : SUBALIGN(4) { build/recon/game/psx/skidmark.cpp.o(.sdata); }
-    .xs0013 0x8013dc20 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/memstd.c.o(.sdata); }
-    .xs0014 0x8013dc48 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/wildcard.c.o(.sdata); }
-    .xs0015 0x8013dd18 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/loadshp.c.o(.sdata); }
-    .xs0016 0x8013dd2c : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/fileroot.c.o(.sdata); }
-    .xs0017 0x8013dd48 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/inittmr.c.o(.sdata); }
+    .xs0013 0x8013dc10 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/memstd.c.o(.sdata); }
+    .xs0014 0x8013dc30 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/locatbig.c.o(.sdata); }
+    .xs0015 0x8013dc48 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/wildcard.c.o(.sdata); }
+    .xs0016 0x8013dd18 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/loadshp.c.o(.sdata); }
+    .xs0017 0x8013dd2c : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/fileroot.c.o(.sdata); }
+    .xs0018 0x8013dd48 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/inittmr.c.o(.sdata); }
 
     .data 0x8010ccd4 : SUBALIGN(4)
     {
@@ -2332,6 +2335,7 @@ SECTIONS
     D_80123410 = 0x80123410;
     D_80123412 = 0x80123412;
     D_8012348C = 0x8012348c;
+    D_80123498 = 0x80123498;
     D_801234E4 = 0x801234e4;
     D_801234E8 = 0x801234e8;
     D_8012356C = 0x8012356c;

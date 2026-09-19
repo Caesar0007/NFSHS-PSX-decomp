@@ -553,7 +553,11 @@ typedef struct printf_info {
     int precision;
 } printf_info;
 
-extern printf_info D_8012348C;
+/* SPRINTF.obj .data 0x8012348C..0x8012349C, owned here since 2026-09-19 (runtime trace: sprintf block-copies
+ * this zero template into its local; retail keeps it in .data, i.e. it is initialized, not const). */
+printf_info D_8012348C __attribute__((section(".data"))) = { 0 };
+/* SYM-GLOBAL-CARRIER: one zero word closes SPRINTF.obj .data (retail bytes; name not retained) */
+int D_80123498 __attribute__((section(".data"))) = 0;
 
 extern int sprintf(char *out, signed char *f, ...)
 {

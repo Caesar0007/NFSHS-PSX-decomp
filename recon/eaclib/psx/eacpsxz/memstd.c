@@ -38,6 +38,13 @@
  * SYM-GLOBAL-CARRIER: MAGIC_HEAD */
 /* (2026-09-18) plain constants: the retail image has NO 'MB FB SB' data (ROM scan) and memstd's .sdata is just
    the two format strings at 0x8013dc20/28 -- the static consts added 8 bytes in front and shifted both refs. */
+/* memstd.obj initialized small data 0x8013DC10..0x8013DC20 (owned here since 2026-09-19; SYM names, no retail
+ * code references them -- owner by name and by position right ahead of this object's literals). */
+void *memaborthook = 0;     /* @0x8013DC10 */
+int   galloccount = 0;      /* @0x8013DC14 */
+void *lowmemadr = 0;        /* @0x8013DC18 */
+void *highmemadr = 0;       /* @0x8013DC1C */
+
 #define MAGIC_USED 0x424D   /* 'MB' */
 #define MAGIC_FREE 0x4246   /* 'FB' */
 #define MAGIC_HEAD 0x4253   /* free-ring sentinel */

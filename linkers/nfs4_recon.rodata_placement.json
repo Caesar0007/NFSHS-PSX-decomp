@@ -1000,5 +1000,13 @@
   "size": 84,
   "ok": false,
   "regions": []
+ },
+ {
+  "obj": "build/recon/game/common/aiinit.cpp.o",
+  "base": 2147832336,
+  "end": 2147832580,
+  "size": 244,
+  "ok": false,
+  "regions": []
  }
 ]

@@ -5,7 +5,6 @@
 #include "aiinit_types.h"
 #include "aiinit_externs.h"
 
-extern int D_8005523C[];   /* nonstandard-car table @0x8005523C (shared rodata) */
 
 
 /* ---- aiinit.obj-owned globals (.bss zero) ---- */
@@ -159,16 +158,17 @@ void AIInit_CleanUp2(void)
 }
 
 /* ---- AI_TrafficStartUp__Fv  [@0x80066f0c] ---- */
-extern char  D_8005521C[];   /* "%sTr%02d.trf" format @0x8005521C */
 extern char *D_801164B0[];   /* path-table @0x801164B0 (Paths_Paths+0x48) */
 
 void AI_TrafficStartUp(void)
 {
   char filename[100];
 
+  /* retail aiinit.obj .rodata opens with the unreferenced "SimpleMem" tag (0x80055210), ahead of this function's format */
+  if (0) sprintf((char *)0,"SimpleMem");
   if (GameSetup_gData.trafficDensity != 0) {
     triggerManagerTraffic = new AITrigger_TriggerManager;
-    sprintf(filename,D_8005521C,D_801164B0[0],GameSetup_gData.track);
+    sprintf(filename,"%sTr%02d.trf",D_801164B0[0],GameSetup_gData.track);   /* literal @0x8005521C */
     AITraffic_rawTriggers = (u_char *)loadfileadrz(filename,(void *)0x0);
     if (AITraffic_rawTriggers != (u_char *)0x0) {
       triggerManagerTraffic->Init((char *)AITraffic_rawTriggers);
@@ -195,7 +195,6 @@ void AI_TrafficCleanUp(void)
 }
 
 /* ---- AIInit_LoadConfigs__Fv  [@0x80066ff8] ---- */
-extern char  D_8005522C[];   /* sprintf format string @0x8005522C (shared rodata) */
 extern char *D_80116470[];   /* path-table @0x80116470 (Paths_Paths+8) */
 
 void AIInit_LoadConfigs(void)
@@ -203,7 +202,7 @@ void AIInit_LoadConfigs(void)
   char pathname[100];
   Udff_tInfo *handle;
 
-  sprintf(pathname,D_8005522C,D_80116470[0]);
+  sprintf(pathname,"%strafcfg.dat",D_80116470[0]);   /* literal @0x8005522C */
   handle = Udff_Opena((char *)0x0,trafcfg,1);
   AIInit_LoadPhysicsConfig(handle);
   Udff_Close(handle);
@@ -416,8 +415,8 @@ void AIInit_DeInitAICar2(Car_tObj *carObj)
 /* ---- AIInit_IsNonStandardCarFile__Fi  [@0x800675d8] ---- */
 int AIInit_IsNonStandardCarFile(int index)
 {
-  int nonStandardList [50];
+  /* local aggregate initializer: its 200-byte constant is retail .rodata 0x8005523C (28 ones, then zeros) */
+  int nonStandardList [50] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 
-  __builtin_memcpy(nonStandardList,D_8005523C,sizeof nonStandardList);
   return index < 0x32 ? nonStandardList[index] : 0;
 }

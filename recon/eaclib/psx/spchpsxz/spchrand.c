@@ -18,6 +18,10 @@
 
 /* ---- 6-word PRNG state @0x801235F4 (.data; runtime-seeded by iSPCH_EACseedrandom).  data-mat #75.
  *   Contiguous int[6]: [0]=seedX accumulator, [1]=..f8, [2]=..fc, [3]=..600, [4]=..604, [5]=..608. ---- */
+/* spchrand.obj .data 0x801235F4, owned here since 2026-09-19 (same initial state as eacpsxz random.c's seed) */
+unsigned int seedX[6] = {
+    0xF22D0E56u, 0x883126E9u, 0xC624DD2Fu, 0x0702C49Cu, 0x9E353F7Du, 0x6FDF3B64u
+};
 #define DAT_801235f8  seedX[1]
 #define DAT_801235fc  seedX[2]
 #define DAT_80123600  seedX[3]

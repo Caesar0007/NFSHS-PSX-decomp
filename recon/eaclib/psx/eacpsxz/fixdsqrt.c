@@ -23,7 +23,7 @@
 #include "fixdsqrt.h"
 
 #if defined(__mips__)
-extern int D_8012356C;   /* @0x8012356C : base of the fixdsqrt scale/offset tables (data blob owns it) */
+/* D_8012356C (@0x8012356C, the base between the scale and offset tables) is DEFINED after the handwritten block. */
 /* ASPSX-DIALECT (w64-a20): the asm below uses NUMERIC registers and no
  * `.set push/pop` -- ASPSX 2.77, the PRODUCTION assembler, rejects ABI
  * register NAMES and push/pop.  $0 zero $1 at $2-3 v0-v1 $4-7 a0-a3
@@ -62,6 +62,22 @@ __asm__(
     "\t.set at\n"
     "\t.set reorder\n"
 );
+/* fixdsqrt.obj .data 0x801234EC..0x801235F4, owned here since 2026-09-19 (runtime trace from a race: fixedsqrt is
+ * the only code touching it).  The routine takes D_8012356C as its base and walks the scale table backward from
+ * it, so the two arrays must stay adjacent and in this order. */
+unsigned int fixdsqrt_scale[32] = {
+    0x006A09E6, 0x004AFB0D, 0x003504F3, 0x00257D86, 0x001A827A, 0x0012BEC3, 0x000D413D, 0x00095F62,
+    0x0006A09E, 0x0004AFB1, 0x0003504F, 0x000257D8, 0x0001A828, 0x00012BEC, 0x0000D414, 0x000095F6,
+    0x00006A0A, 0x00004AFB, 0x00003505, 0x0000257E, 0x00001A82, 0x000012BF, 0x00000D41, 0x0000095F,
+    0x000006A1, 0x000004B0, 0x00000350, 0x00000258, 0x000001A8, 0x0000012C, 0x000000D4, 0x00000096,
+};
+unsigned int D_8012356C[34] = {
+    0x0000006A, 0x00000098, 0x000000D7, 0x00000130, 0x000001AE, 0x00000260, 0x0000035C, 0x000004C1,
+    0x000006B9, 0x00000981, 0x00000D71, 0x00001303, 0x00001AE3, 0x00002606, 0x000035C5, 0x00004C0B,
+    0x00006B8B, 0x00009816, 0x0000D715, 0x0001302C, 0x0001AE2A, 0x00026058, 0x00035C54, 0x0004C0B0,
+    0x0006B8A8, 0x00098161, 0x000D7151, 0x001302C2, 0x001AE2A2, 0x00260583, 0x0035C544, 0x004C0B06,
+    0x006B8A88, 0x0098160C,
+};
 #else
 /* Host-test implementation only: the retail MIPS object uses D_8012356C and
  * the hand-written routine above, so neither fallback identifier is retail.

@@ -2429,5 +2429,27 @@
   "unresolved": 0,
   "words": 150,
   "q": 0
+ },
+ {
+  "obj": "build/recon/eaclib/psx/eacpsxz/fixdsqrt.c.o",
+  "section": ".data",
+  "base": 2148676844,
+  "end": 2148677108,
+  "size": 264,
+  "ok": true,
+  "unresolved": 0,
+  "words": 66,
+  "q": 0
+ },
+ {
+  "obj": "build/recon/eaclib/psx/spchpsxz/spchrand.c.o",
+  "section": ".data",
+  "base": 2148677108,
+  "end": 2148677132,
+  "size": 24,
+  "ok": true,
+  "unresolved": 0,
+  "words": 6,
+  "q": 0
  }
 ]

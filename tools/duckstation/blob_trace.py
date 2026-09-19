@@ -31,6 +31,12 @@ ap = argparse.ArgumentParser()
 ap.add_argument('--seconds', type=int, default=180)
 ap.add_argument('--min', type=int, default=8)
 ap.add_argument('--per-chunk', type=int, default=40)
+ap.add_argument('--attach', action='store_true', help='target already past boot: do not run to the entry point')
+ap.add_argument('--load', default=None, help='load this named checkpoint first (implies --attach)')
+ap.add_argument('--out', default='blob_trace.json')
+ap.add_argument('--press', action='store_true', help="inject pulsed CROSS/START presses at the return of PAD_update (menus -> race)")
+ap.add_argument('--hold', type=int, default=6)
+ap.add_argument('--gap', type=int, default=24)
 args = ap.parse_args()
 
 rom = (ROOT / 'rom/nfs4-f.exe').read_bytes()
@@ -105,16 +111,26 @@ g = Remote('127.0.0.1', PORT)
 hits = []
 per_chunk = Counter()
 try:
+    if args.load or args.attach:
+        try:
+            g.interrupt()
+        except Exception:
+            pass
+        if args.load:
+            g.checkpoint(args.load, load=True)
+            print('checkpoint loaded:', args.load)
     # run to the executable's entry so the image is in RAM before arming data watchpoints
-    assert g.packet('Z0,%x,4' % entry) == 'OK'
-    for _ in range(400):
+    assert (args.load or args.attach) or g.packet('Z0,%x,4' % entry) == 'OK'
+    for _ in range(0 if (args.load or args.attach) else 400):
         g.packet('c', timeout=120)
         r = decode_registers(g.packet('g'))
         if int(r['pc'], 16) == entry:
             break
     else:
-        raise SystemExit('never reached the entry point %#x' % entry)
-    g.packet('z0,%x,4' % entry)
+        if not (args.load or args.attach):
+            raise SystemExit('never reached the entry point %#x' % entry)
+    if not (args.load or args.attach):
+        g.packet('z0,%x,4' % entry)
     live = g.read_memory(entry, 16)
     print('entry reached; live RAM == image at entry:', live == rom[entry - LOAD + 0x800:entry - LOAD + 0x810])
     armed = set()
@@ -122,6 +138,10 @@ try:
         if g.packet('Z4,%x,%x' % (va, sz)) == 'OK':
             armed.add((va, sz))
     print(f'armed {len(armed)} access watchpoints; running for {args.seconds} s')
+    PADHOOK, PADREC = 0x800E4310, 0x8013E8A0   # see press_to_race.py
+    polls = pulses = 0
+    if args.press:
+        assert g.packet('Z0,%x,4' % PADHOOK) == 'OK'
     deadline = time.time() + args.seconds
     while time.time() < deadline and armed:
         try:
@@ -131,6 +151,13 @@ try:
             break
         m = re.match(r'T[0-9a-f]{2}(a?r?watch):([0-9a-f]{8})', reply)
         if not m:
+            if args.press and int(decode_registers(g.packet('g'))['pc'], 16) == PADHOOK:
+                phase = polls % (args.hold + args.gap)
+                pulses += phase == 0
+                mask = 0x4000 if pulses % 2 else 0x0008
+                state = (0xFFFF & ~mask) if phase < args.hold else 0xFFFF
+                g.packet('M%x,4:%s' % (PADREC, (bytes([0, 0x41]) + struct.pack('<H', state)).hex()))
+                polls += 1
             continue
         addr = int(m.group(2), 16) | 0x80000000
         r = decode_registers(g.packet('g'))
@@ -152,7 +179,7 @@ finally:
         pass
     g.close()
 
-out = ROOT / 'status/runtime/blob_trace.json'
+out = ROOT / 'status/runtime' / args.out
 out.parent.mkdir(parents=True, exist_ok=True)
 json.dump(hits, open(out, 'w'))
 print(f'{len(hits)} hits -> {out}')

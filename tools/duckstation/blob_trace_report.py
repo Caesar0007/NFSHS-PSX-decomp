@@ -7,7 +7,10 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-hits = json.load(open(ROOT / 'status/runtime/blob_trace.json'))
+import sys
+hits = []
+for f in (sys.argv[1:] or ['blob_trace.json']):
+    hits += json.load(open(ROOT / 'status/runtime' / f))
 fn = []
 for ln in open(ROOT / 'configs/symbol_addrs.txt', errors='replace'):
     m = re.match(r'(\S+?)\s*=\s*(0x[0-9A-Fa-f]+);\s*//\s*type:func', ln)

@@ -35,7 +35,8 @@
  *        (`lui t2,%hi; addiu t2,t2,%lo` self-temp) that the 2.8 lane pre-splits through a
  *        $v0 scratch; on the 2.8 lane `no_split_addresses` is the equivalent. */
 
-extern int H_cor_tbl[];   /* @0x8013BF20 : CORDIC arctan steps {511,302,159,81,41,20} */
+/* COR_01.obj .data 0x8013BF20..0x8013BF40, owned here since 2026-09-19 (gprefs.py: csincos is the only user). */
+int H_cor_tbl[8] = { 511, 302, 159, 81, 41, 20, 0, 0 };   /* @0x8013BF20 : CORDIC arctan steps */
 
 /* @0x80106AC4 : csincos(int angle, int *psin, int *pcos) -> sin */
 extern int csincos(int angle, int *psin, int *pcos)

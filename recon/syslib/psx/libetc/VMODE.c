@@ -11,7 +11,11 @@
  * it (data_8010CCD4_r17.data.s, dlabel D_80134838) -- alias the recon spelling onto
  * that label so the link resolves without a second copy.  Name-only; the scalar
  * declaration shape above (the macro-form lever) is untouched. */
-extern int g_videomode __asm__("D_80134838");  /* @0x80134838 (offset 0 of a 9-word block) */
+/* VMODE.obj .data 0x80134838..0x8013485C, owned here since 2026-09-19 (gprefs.py: SetVideoMode/GetVideoMode are
+ * the only retail code addressing it): word 0 is the mode, the other eight words are zero in the image. */
+int g_videomode __asm__("D_80134838") = 0;
+/* SYM-GLOBAL-CARRIER: the remaining eight words of the block (retail bytes; names not retained) */
+int vmode_reserved[8] __asm__("D_8013483C") = { 0 };
 
 extern int SetVideoMode(int mode)   /* @0x800F1770 */
 {

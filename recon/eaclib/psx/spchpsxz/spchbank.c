@@ -16,6 +16,12 @@
 #include "spchinit.h"
 #include "spchpick.h"
 
+/* spchbank.obj .data 0x801370B4..0x801370C4, owned here since 2026-09-19 (SYM names, bank allocator state). */
+VoxBank **gVoxBanks = 0;   /* @0x801370B4 */
+int gNumBanks = 0;         /* @0x801370B8 */
+int gClearCycle = 1;       /* @0x801370BC */
+int gCDErrors = 0;         /* @0x801370C0 */
+
 /* iSPCH_InitBanks @0x800EB1E0 : clear the bank table (no allocation yet). */
 void iSPCH_InitBanks(void)
 {

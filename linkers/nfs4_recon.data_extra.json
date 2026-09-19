@@ -2319,5 +2319,60 @@
   "unresolved": 0,
   "words": 2,
   "q": 0
+ },
+ {
+  "obj": "build/recon/syslib/psx/libetc/VMODE.c.o",
+  "section": ".data",
+  "base": 2148747320,
+  "end": 2148747356,
+  "size": 36,
+  "ok": true,
+  "unresolved": 0,
+  "words": 9,
+  "q": 0
+ },
+ {
+  "obj": "build/recon/syslib/psx/libgte/MSC02.c.o",
+  "section": ".data",
+  "base": 2148747356,
+  "end": 2148747752,
+  "size": 396,
+  "ok": true,
+  "unresolved": 0,
+  "words": 99,
+  "q": 0
+ },
+ {
+  "obj": "build/recon/eaclib/psx/spchpsxz/spchinit.c.o",
+  "section": ".data",
+  "base": 2148757652,
+  "end": 2148757684,
+  "size": 32,
+  "ok": true,
+  "unresolved": 0,
+  "words": 8,
+  "q": 0
+ },
+ {
+  "obj": "build/recon/eaclib/psx/spchpsxz/spchbank.c.o",
+  "section": ".data",
+  "base": 2148757684,
+  "end": 2148757700,
+  "size": 16,
+  "ok": true,
+  "unresolved": 0,
+  "words": 4,
+  "q": 0
+ },
+ {
+  "obj": "build/recon/syslib/psx/libgte/COR_01.c.o",
+  "section": ".data",
+  "base": 2148777760,
+  "end": 2148777792,
+  "size": 32,
+  "ok": true,
+  "unresolved": 0,
+  "words": 8,
+  "q": 0
  }
 ]

@@ -531,6 +531,7 @@ class MaspsxProcessor:
         jtbl_at_fusion=False,
         nop_before_label=False,
         preserve_small_common_binding=False,
+        aspsx_lcomm_align=False,
     ):
         self.lines = [x.strip() for x in lines]
         self.jtbl_at_fusion = jtbl_at_fusion
@@ -554,6 +555,7 @@ class MaspsxProcessor:
         self.use_comm_section = use_comm_section
         self.use_comm_for_lcomm = use_comm_for_lcomm
         self.preserve_small_common_binding = preserve_small_common_binding
+        self.aspsx_lcomm_align = aspsx_lcomm_align
 
         self.bss_entries: dict[str, int] = {}
         self.sbss_entries: dict[str, int] = {}
@@ -742,6 +744,16 @@ class MaspsxProcessor:
                         res.append("\t.align 2")
                     elif size >= 2:
                         res.append("\t.align 1")
+
+                # ASPSX 2.77 `.lcomm` layout (nfs4 2026-09-19, real-assembler probes
+                # scratchpad/psyq_pipe/lcomm_probe.py / lcomm_sweep.py): each local common is
+                # aligned, section-relative, to the next power of two >= its size, capped at 16.
+                if section == "bss" and self.aspsx_lcomm_align and symbol not in self.comm_symbols:
+                    exp = 0
+                    while (1 << exp) < size and exp < 4:
+                        exp += 1
+                    if exp:
+                        res.append(f"\t.align {exp}")
 
                 # only mark bss symbols as global -- and only those that
                 # came from `.comm` (a true tentative definition).  A

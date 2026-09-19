@@ -1360,8 +1360,8 @@ SECTIONS
     .zb0001 0x80052b58 : SUBALIGN(4) { build/recon/frontend/common/femenuextended.cpp.o(.bss); }
     .zb0002 0x80052b60 : SUBALIGN(4) { build/recon/frontend/common/feinput.cpp.o(.bss); }
     .zb0003 0x80052b68 : SUBALIGN(4) { build/recon/frontend/common/fememcard.cpp.o(.bss); }
-    .zb0004 0x80052b97 : SUBALIGN(4) { build/recon/frontend/common/screenmain.cpp.o(.bss); }
-    .zb0005 0x80052bfc : SUBALIGN(4) { build/recon/frontend/common/screenpinkslips.cpp.o(.bss); }
+    .zb0004 0x80052b90 : SUBALIGN(4) { build/recon/frontend/common/screenmain.cpp.o(.bss); }
+    .zb0005 0x80052bf0 : SUBALIGN(4) { build/recon/frontend/common/screenpinkslips.cpp.o(.bss); }
     .zb0006 0x80052c18 : SUBALIGN(4) { build/recon/frontend/common/screencarselect.cpp.o(.bss); }
     .zb0007 0x80052c90 : SUBALIGN(4) { build/recon/frontend/common/screentournselect.cpp.o(.bss); }
     .zb0008 0x80052ca0 : SUBALIGN(4) { build/recon/frontend/common/screentracks.cpp.o(.bss); }
@@ -1394,8 +1394,8 @@ SECTIONS
     .zb0035 0x8013dedc : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/stream.c.o(.sbss); }
     .zb0036 0x8013df64 : SUBALIGN(4) { build/recon/game/common/aidatarecord.cpp.o(.bss); }
     .zb0037 0x8013dfc4 : SUBALIGN(4) { build/recon/game/common/bworldSm.cpp.o(.bss); }
-    .zb0038 0x8013dfd8 : SUBALIGN(4) { build/recon/game/common/camera.cpp.o(.bss); }
-    .zb0039 0x8013e02c : SUBALIGN(4) { build/recon/game/common/collide.cpp.o(.bss); }
+    .zb0038 0x8013dfd0 : SUBALIGN(4) { build/recon/game/common/camera.cpp.o(.bss); }
+    .zb0039 0x8013e008 : SUBALIGN(4) { build/recon/game/common/collide.cpp.o(.bss); }
     .zb0040 0x8013e0c0 : SUBALIGN(4) { build/recon/game/common/mpause.cpp.o(.bss); }
     .zb0041 0x8013e300 : SUBALIGN(4) { build/recon/game/common/track.cpp.o(.bss); }
     .zb0042 0x8013e380 : SUBALIGN(4) { build/recon/game/psx/hrzsku.cpp.o(.bss); }

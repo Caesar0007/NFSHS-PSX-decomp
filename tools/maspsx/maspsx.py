@@ -24,6 +24,7 @@ def main() -> None:
     # P905: preserve public binding when a proven owner lowers small COMMON
     # into .sbss. Legacy default and true .lcomm/static binding are unchanged.
     parser.add_argument("--preserve-small-common-binding", action="store_true")
+    parser.add_argument("--aspsx-lcomm-align", action="store_true")
     parser.add_argument("--jtbl-at-fusion", action="store_true")
     parser.add_argument("--nop-before-label", action="store_true")
     # decomp.me debugging
@@ -135,6 +136,7 @@ def main() -> None:
         use_comm_section=args.use_comm_section,
         use_comm_for_lcomm=args.use_comm_for_lcomm,
         preserve_small_common_binding=args.preserve_small_common_binding,
+        aspsx_lcomm_align=args.aspsx_lcomm_align,
         jtbl_at_fusion=args.jtbl_at_fusion,
         nop_before_label=args.nop_before_label,
     )

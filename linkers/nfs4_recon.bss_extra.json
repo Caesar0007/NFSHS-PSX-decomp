@@ -42,9 +42,9 @@
  {
   "obj": "build/recon/frontend/common/screenmain.cpp.o",
   "section": ".bss",
-  "base": 2147822487,
+  "base": 2147822480,
   "end": 2147822576,
-  "size": 89,
+  "size": 96,
   "ok": true,
   "votes": 4,
   "q": 0
@@ -52,9 +52,9 @@
  {
   "obj": "build/recon/frontend/common/screenpinkslips.cpp.o",
   "section": ".bss",
-  "base": 2147822588,
+  "base": 2147822576,
   "end": 2147822612,
-  "size": 24,
+  "size": 36,
   "ok": true,
   "votes": 2,
   "q": 2
@@ -302,9 +302,9 @@
  {
   "obj": "build/recon/game/common/camera.cpp.o",
   "section": ".bss",
-  "base": 2148786136,
+  "base": 2148786128,
   "end": 2148786184,
-  "size": 48,
+  "size": 56,
   "ok": true,
   "votes": 2,
   "q": 2
@@ -312,9 +312,9 @@
  {
   "obj": "build/recon/game/common/collide.cpp.o",
   "section": ".bss",
-  "base": 2148786220,
+  "base": 2148786184,
   "end": 2148786352,
-  "size": 132,
+  "size": 168,
   "ok": true,
   "votes": 5,
   "q": 0

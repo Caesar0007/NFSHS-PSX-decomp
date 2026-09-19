@@ -2050,6 +2050,10 @@ def compile_cpp(src: Path) -> Path:
         maspsx_cmd.append("--nop-before-label")
     if tu_flags.get("preserve_small_common_binding"):
         maspsx_cmd.append("--preserve-small-common-binding")
+    # ASPSX 2.77 `.lcomm` layout (2026-09-19): the game/frontend C++ objects were assembled by 2.77, which
+    # aligns every local common to min(16, next pow2 >= size) -- retail collide/camera/screenmain spacing.
+    if not tu_flags.get("no_aspsx_lcomm_align"):
+        maspsx_cmd.append("--aspsx-lcomm-align")
     # cfront dtor mangling: our CC1PL emits `_._<class>` (NO_DOLLAR_IN_LABEL -> '.'),
     # but EA's toolchain used the '.'->'_' convention (NO_DOT_IN_LABEL) => `___<class>`.
     # `_._` only ever appears as the dtor prefix, so this rename is surgical.

@@ -1,6 +1,13 @@
 /* libcd.lib(C_004.obj): data_ready_callback and its private sector words. */
 #include "stream_internal.h"
 
+/* C_004.obj .data @0x8013C270: the stream group's four static CD register pointers (same block C_003.obj carries at
+ * 0x80136C48; unreferenced here).  Owned since 2026-09-19 -- retail link order DRV, C_008, C_004, C_010. */
+static volatile unsigned char *_cd_reg0 __attribute__((section(".data"))) = (volatile unsigned char *)0x1F801800;
+static volatile unsigned char *_cd_reg1 __attribute__((section(".data"))) = (volatile unsigned char *)0x1F801801;
+static volatile unsigned char *_cd_reg2 __attribute__((section(".data"))) = (volatile unsigned char *)0x1F801802;
+static volatile unsigned char *_cd_reg3 __attribute__((section(".data"))) = (volatile unsigned char *)0x1F801803;
+
 /* Canonical PsyQ 4.3 C_004.obj has one 16-byte BSS section.  Its relocations
  * address the section base and base+4; the final eight bytes are member tail,
  * not separately named storage.  The callback slot at 0x801489E4 belongs to

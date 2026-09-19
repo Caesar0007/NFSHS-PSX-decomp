@@ -41,13 +41,17 @@ extern void trapIntrDMA(void) __asm__("_dma_isr");
  * (W52-A9; same hidden-phantom class as the DMA_memclr note above). */
 Callback setIntrDMA(int ch, Callback func);  /* renamed from setIntrDMA (user order 2026-08-30) */
 
-extern volatile unsigned int *g_dicr_ptr __asm__("D_8013BD20");   /* @0x8013BD20 : = 0x1F8010F4 */
+/* INTR_DMA.obj .data 0x8013BD20..0x8013BD50, owned here since 2026-09-19 (runtime trace: startIntrDMA's
+ * _bzero_w clears it; was the retail dump data_8010CCD4_r18). */
+volatile unsigned int *g_dicr_ptr __asm__("D_8013BD20") = (volatile unsigned int *)0x1F8010F4;   /* DICR */
 /* W66-A3 (link): the 8-word run at 0x8013BD24 is emitted by the splat blob
  * (asm/data/data_8010CCD4_r18.data.s, dlabel D_8013BD24) -- alias the recon
  * spelling onto it rather than minting a second, unplaced object.  Name-only:
  * the reloc changes, the bytes do not (the two neighbours already do this). */
-extern Callback dma_cb[8] __asm__("D_8013BD24");  /* @0x8013BD24 : per-channel DMA callbacks */
-extern volatile unsigned int *g_madr_ptr __asm__("D_8013BD44");   /* @0x8013BD44 : = 0x1F801080 */
+Callback dma_cb[8] __asm__("D_8013BD24") = { 0 };  /* @0x8013BD24 : per-channel DMA callbacks */
+volatile unsigned int *g_madr_ptr __asm__("D_8013BD44") = (volatile unsigned int *)0x1F801080;   /* MADR base */
+/* SYM-GLOBAL-CARRIER: two zero words close INTR_DMA.obj .data (retail bytes; names not retained) */
+int dma_reserved[2] __asm__("D_8013BD48") = { 0, 0 };
 
 #define DICR (*g_dicr_ptr)
 

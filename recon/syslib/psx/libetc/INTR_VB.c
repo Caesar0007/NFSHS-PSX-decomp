@@ -42,10 +42,13 @@ extern void     VSync_memclr(int *p, int nwords) __asm__("startIntrVSync_helper_
  * (never %gp_rel), so it must stay a bare `extern` decl here (no local definition/initializer) --
  * an owned tentative-def would flip it gp-relative under -G4 (lever #6), which the oracle does NOT
  * want. True storage lives elsewhere in the image; kept `extern` pending that data-mat pass. */
-extern int Vcount;            /* @0x80137D10 */
-extern Callback vsync_cb[8] __asm__("D_80137CF0");  /* @0x80137CF0 : 8 vblank callbacks (storage
-                                                     * owned by the splat blob -- W65-A6 note above) */
-extern volatile unsigned int *g_rcnt_ptr __asm__("D_80137D14");   /* @0x80137D14 : = 0x1F801114 (RCnt vblank-timing mode reg) */
+/* INTR_VB.obj .data 0x80137CF0..0x80137D20, owned here since 2026-09-19 (runtime trace: startIntrVSync's
+ * helpers and the vblank handler are the only code touching it; was the retail dump data_8010CCD4_r18). */
+Callback vsync_cb[8] __asm__("D_80137CF0") = { 0 };  /* @0x80137CF0 : 8 vblank callbacks */
+int Vcount = 0;               /* @0x80137D10 */
+volatile unsigned int *g_rcnt_ptr __asm__("D_80137D14") = (volatile unsigned int *)0x1F801114;   /* RCnt vblank-timing mode reg */
+/* SYM-GLOBAL-CARRIER: two zero words close INTR_VB.obj .data (retail bytes; names not retained) */
+int vb_reserved[2] __asm__("D_80137D18") = { 0, 0 };
 
 extern void *startIntrVSync(void)   /* @0x80106534 */
 {

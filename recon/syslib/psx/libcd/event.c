@@ -46,8 +46,11 @@ extern int CD_cbready;   /* @0x8013BF4C */
  * holds and is now satisfied for free: an `extern` (not a tentative def) is exactly what keeps
  * cc1 emitting the absolute `lui $at,%hi; sw ...%lo($at)` store the oracle has.  5/5 PASS
  * unchanged.  Receipts: scratchpad/w65a6/RECEIPTS.md */
-extern int CD_cbread;             /* @0x8013C2D0 : user CdReadCallback  (blob-owned) */
-extern int CD_read_dma_mode;      /* @0x8013C2D4 : bit0 = DMA copy      (blob-owned) */
+/* event.obj .data 0x8013C2D0..0x8013C2E0, owned here since 2026-09-19 (runtime trace: CdInit). */
+int CD_cbread = 0;                /* @0x8013C2D0 : user CdReadCallback */
+int CD_read_dma_mode = 0;         /* @0x8013C2D4 : bit0 = DMA copy */
+/* SYM-GLOBAL-CARRIER: two zero words close event.obj .data (retail bytes; names not retained) */
+int D_8013C2D8[2] = { 0, 0 };
 
 
 /* ---- W60-A4: definitions below follow RETAIL VA ORDER (tu_order_audit):

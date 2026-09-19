@@ -2187,5 +2187,104 @@
   "unresolved": 0,
   "words": 66,
   "q": 0
+ },
+ {
+  "obj": "build/recon/syslib/psx/libetc/INTR_DMA.c.o",
+  "section": ".data",
+  "base": 2148777248,
+  "end": 2148777296,
+  "size": 48,
+  "ok": true,
+  "unresolved": 0,
+  "words": 12,
+  "q": 0
+ },
+ {
+  "obj": "build/recon/eaclib/psx/eacpsxz/textcode.c.o",
+  "section": ".data",
+  "base": 2148777296,
+  "end": 2148777488,
+  "size": 192,
+  "ok": true,
+  "unresolved": 0,
+  "words": 48,
+  "q": 0
+ },
+ {
+  "obj": "build/recon/syslib/psx/libetc/INTR_VB.c.o",
+  "section": ".data",
+  "base": 2148760816,
+  "end": 2148760864,
+  "size": 48,
+  "ok": true,
+  "unresolved": 0,
+  "words": 12,
+  "q": 0
+ },
+ {
+  "obj": "build/recon/syslib/psx/libpad/PADPORTD.c.o",
+  "section": ".data",
+  "base": 2148756696,
+  "end": 2148756712,
+  "size": 16,
+  "ok": true,
+  "unresolved": 0,
+  "words": 4,
+  "q": 0
+ },
+ {
+  "obj": "build/recon/syslib/psx/libcd/C_008.c.o",
+  "section": ".data",
+  "base": 2148778592,
+  "end": 2148778608,
+  "size": 16,
+  "ok": true,
+  "unresolved": 0,
+  "words": 4,
+  "q": 0
+ },
+ {
+  "obj": "build/recon/syslib/psx/libcd/C_004.c.o",
+  "section": ".data",
+  "base": 2148778608,
+  "end": 2148778624,
+  "size": 16,
+  "ok": true,
+  "unresolved": 0,
+  "words": 4,
+  "q": 0
+ },
+ {
+  "obj": "build/recon/syslib/psx/libcd/C_010.c.o",
+  "section": ".data",
+  "base": 2148778624,
+  "end": 2148778640,
+  "size": 16,
+  "ok": true,
+  "unresolved": 0,
+  "words": 4,
+  "q": 0
+ },
+ {
+  "obj": "build/recon/syslib/psx/libcd/cdread.c.o",
+  "section": ".data",
+  "base": 2148778640,
+  "end": 2148778704,
+  "size": 64,
+  "ok": true,
+  "unresolved": 0,
+  "words": 16,
+  "q": 0
+ },
+ {
+  "obj": "build/recon/syslib/psx/libcd/event.c.o",
+  "section": ".data",
+  "base": 2148778704,
+  "end": 2148778720,
+  "size": 16,
+  "ok": true,
+  "unresolved": 0,
+  "words": 4,
+  "q": 0
  }
 ]

@@ -28,7 +28,11 @@ extern int            _padSioState;
 extern int            _padTotalCurr;
 extern unsigned char *_padInfoDir;
 extern int            _padFixResult[2];
-extern unsigned char     *D_80136CD8;                 /* private spelling not retained */
+/* PADPORTD.obj .data 0x80136CD8..0x80136CE8, owned here since 2026-09-19 (runtime trace: _pad_failall is the
+ * only reader; was the retail dump data_8010CCD4_r17). */
+unsigned char     *D_80136CD8 __attribute__((section(".data"))) = (unsigned char *)0x1F801040;   /* SIO0 block; private spelling not retained */
+/* SYM-GLOBAL-CARRIER: three zero words close PADPORTD.obj .data (retail bytes; names not retained) */
+int D_80136CDC[3] __attribute__((section(".data"))) = { 0, 0, 0 };
 #define _padSioRegs D_80136CD8                        /* retail _pad_failall loads 0x80136CD8 (a second SIO0 base pointer, 0x1F801040, right after libsn SNDEF), not PADMAIN's 0x80137CDC */
 #define JOY_CTRL (*(volatile unsigned short *)(_padSioRegs + 0x0a))
 

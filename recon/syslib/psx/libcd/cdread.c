@@ -77,7 +77,10 @@ typedef struct CdrEnv CdrEnv;
  * `volatile` MEM ordering this TU depends on (catalog: volatile-store-vs-slot).  Whoever
  * retries it should gate CdReadSync specifically, and prefer renaming the BLOB label to `_cdr`
  * (an oracle-side rename, zero effect on this object) over aliasing the C declaration. */
-extern volatile CdrEnv _cdr;   /* @0x8013C290 -- zero-initialised .bss */
+/* cdread.obj .data 0x8013C290..0x8013C2D0, owned here since 2026-09-19: zero but INITIALIZED (in-file data). */
+volatile CdrEnv _cdr = { 0 };   /* @0x8013C290 */
+/* SYM-GLOBAL-CARRIER: two zero words close cdread.obj .data (retail bytes; names not retained) */
+int D_8013C2C8[2] = { 0, 0 };
 
 /* ---- libetc / libc ---------------------------------------------------------------------------- */
 extern int  VSync(int mode);                 /* @0x800F231C */

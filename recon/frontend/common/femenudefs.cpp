@@ -2292,7 +2292,9 @@ void MenuExtended_GoToGarage(tMenuCommand &command)
   frontEnd.carListType = '\x01';
   garageIterator = &menuDefs->iteratorGarageCar;
   garageIterator->fCarListFilter = 0x40;
-  garageIterator->Decrement(kPlayerBoth);
+  /* retail calls Decrement DIRECTLY (jal): the receiver is a member object of known type, not a polymorphic pointer.
+   * The qualified spelling keeps that through the garageIterator carrier. */
+  garageIterator->tListIteratorCar::Decrement(kPlayerBoth);
   menuDefs->iteratorGarageCar.Increment(kPlayerBoth);
   command.type = kMenu_Command_GoToMenu;
   if (tournamentManager.fCurrentTrack == 0) {

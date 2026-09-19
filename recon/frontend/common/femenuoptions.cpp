@@ -1484,9 +1484,7 @@ void tMenuItemDisplayLeftRightChoice::Draw(int offx,int offy,bool selected)
                      this->fSelFade,this->fFadeVal);
     this->MyLeftRightDraw((short)x,(short)y);
     FETextRender_FullTextRGB(
-        TextSys_Word((int)(short)(*(*this->fData->_vf)[3].pfn)
-            ((char *)this->fData + (int)(*this->fData->_vf)[3].delta,
-             gMenu_SubMenuPlayer)),
+        TextSys_Word((int)(short)this->fData->TextValue(gMenu_SubMenuPlayer)),
         (short)(x + 0x73),(short)y,ColText,'\0',2);
   }
 }
@@ -1499,8 +1497,7 @@ void tMenuItemOnOffLeftRightChoice::TransitionOn()
 
 {
   this->fOnFade = (u_short)
-    ((0 < (*(u_char (*)(char *, int))(*this->fData->_vf)[2].pfn)
-      ((char *)this->fData + (int)(*this->fData->_vf)[2].delta,0xffffffff)) << 7);
+    ((0 < (u_char)this->fData->Value((tPlayer)-1)) << 7);
   this->tMenuItemLeftRightFade::TransitionOn();
   return;
 }
@@ -1529,9 +1526,7 @@ void tMenuItemOnOffLeftRightChoice::Draw(int offx,int offy,bool selected)
 
   if (this->fFadeVal != 0x80) {
     /* MATCH: branch polarity — the `!= 0` (+0x20) arm is the FALL-THROUGH. */
-    if ((char)(*(*this->fData->_vf)[2].pfn)
-          ((char *)this->fData + (int)(*this->fData->_vf)[2].delta,
-           0xffffffff) != '\0') {
+    if ((char)this->fData->Value((tPlayer)-1) != '\0') {
       this->fOnFade = this->fOnFade + 0x20;
     }
     else {
@@ -1636,9 +1631,7 @@ void tMenuItemLeftRightAudioSlider::Draw(int ox,int oy,bool selected)
     if (this->fSelFade != 0) {
       DrawShapeExtended(this->fAudioArt + 1,0x10,0,0,0,0,&tCol);
     }
-    DrawSlider((*(*this->fData->_vf)[2].pfn)
-                   ((char *)this->fData + (int)(*this->fData->_vf)[2].delta,
-                    0xffffffff) & 0xff,
+    DrawSlider(this->fData->Value((tPlayer)-1) & 0xff,
                (u_short)(u_char)this->fData->fMinValue,
                (u_short)(u_char)this->fData->fMaxValue,
                this->fX + 0x14,this->fY + 1,
@@ -1660,14 +1653,11 @@ int tMenuItemLeftRightAudioSlider::Percentage()
   /* MATCH: SLD's only source local is `percent` in $s0.  Assign the scaled
      numerator to it before division; the decompiler's iVar6 pseudo kept that
      value in a caller register and displaced the inlined iterator `this`. */
-  percent = (((*(*this->fData->_vf)[2].pfn)
-               ((char *)this->fData + (int)(*this->fData->_vf)[2].delta,
-                0xffffffff) & 0xff) -
+  percent = ((this->fData->Value((tPlayer)-1) & 0xff) -
              (u_int)(u_char)this->fData->fMinValue) * 100;
   percent = percent / (int)((u_int)(u_char)this->fData->fMaxValue -
                             (u_int)(u_char)this->fData->fMinValue);
-  if (((u_char)(*(*this->fData->_vf)[2].pfn)
-       ((char *)this->fData + (int)(*this->fData->_vf)[2].delta,0xffffffff) != 0) &&
+  if (((u_char)this->fData->Value((tPlayer)-1) != 0) &&
       (percent < 100)) {
     percent = percent + 1;
   }
@@ -2039,9 +2029,7 @@ void tMenuItemControllerLeftRightChoice::Draw(int ox,int oy,bool selected)
     FETextRender_FullTextRGB(TextSys_Word(this->fTextDescription),
                              (short)x,(short)y,ColText,'\0',0);
     FETextRender_FullTextRGB(
-        TextSys_Word((int)(short)(*(*this->fData->_vf)[3].pfn)
-            ((char *)this->fData + (int)(*this->fData->_vf)[3].delta,
-             gMenu_SubMenuPlayer)),
+        TextSys_Word((int)(short)this->fData->TextValue(gMenu_SubMenuPlayer)),
         (short)(x + 0x97),(short)y,ColText,'\0',2);
   }
   tDrawShapeExtended drawFlags;
@@ -2117,9 +2105,7 @@ void tInsideBoxLeftRightSlider::Draw(int x,int y,int w,bool selected)
   /* MATCH: keep the virtual selection read nested in DrawSlider's first
      argument; this leaves the following fData reload inside the argument list
      and schedules it between retail's fX and fY reads. */
-  DrawSlider((*(*this->fData->_vf)[2].pfn)
-                 ((char *)this->fData + (int)(*this->fData->_vf)[2].delta,
-                  0xffffffff) & 0xff,
+  DrawSlider(this->fData->Value((tPlayer)-1) & 0xff,
              (u_short)(u_char)this->fData->fMinValue,
              (u_short)(u_char)this->fData->fMaxValue,
              this->fX + 4,this->fY + 2,
@@ -2243,8 +2229,7 @@ void tInsideBoxTwoWaySlider::Draw(int x,int y,int w,bool selected)
              (int)this->fY,2,9);
   FETextRender_FullTextRGB(TextSys_Word(this->fTextDescription),this->fX + 4,
              this->fY + 10,coltext,'\0',0);
-  selection = (*(*this->fData->_vf)[2].pfn)
-      ((char *)this->fData + (int)(*this->fData->_vf)[2].delta,0xffffffff);
+  selection = this->fData->Value((tPlayer)-1);
   /* MATCH: the min/max fData reloads remain inside the argument list, and
      retail drops the result ($v0 = DrawSlider's). */
   fWidth = (short)((u_int)(((w >> 1) + -8) * 0x10000) >> 0x10);
@@ -2253,8 +2238,7 @@ void tInsideBoxTwoWaySlider::Draw(int x,int y,int w,bool selected)
              this->fX + 1,this->fY + 2,fWidth,
              this->fHeight,4,4,true,0,
              this->fSelFade,0);
-  selection = (*(*this->fData->_vf)[2].pfn)
-      ((char *)this->fData + (int)(*this->fData->_vf)[2].delta,0xffffffff);
+  selection = this->fData->Value((tPlayer)-1);
   DrawSlider(selection & 0xff,(u_short)(u_char)this->fData->fMinValue,
              (u_short)(u_char)this->fData->fMaxValue,
              (short)(((u_int)(u_short)this->fX + ww + 10) * 0x10000 >>
@@ -3228,10 +3212,7 @@ void tInsideBoxControllerLeftRightSlider::ProcessInput(tPlayer fromPlayer,tInput
 {
   if (((keyval == kInput_KeyType_Left) || (keyval == kInput_KeyType_Right)) &&
       ((keyval != kInput_KeyType_Right) ||
-       ((u_char)(*(*this->_base_tInsideBoxLeftRightSlider.fData->_vf)[2].pfn)
-          ((char *)this->_base_tInsideBoxLeftRightSlider.fData +
-           (int)(*this->_base_tInsideBoxLeftRightSlider.fData->_vf)[2].delta,
-           0xffffffff) !=
+       ((u_char)this->_base_tInsideBoxLeftRightSlider.fData->Value((tPlayer)-1) !=
         (u_char)this->_base_tInsideBoxLeftRightSlider.fData->fMaxValue))) {
     screenControllerConfig[0]->fResetShakeTimeOut = 1;
   }

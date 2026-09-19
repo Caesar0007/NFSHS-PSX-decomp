@@ -74,34 +74,9 @@ enum tPersonalities {
 struct tMenu;
 struct tScreen;
 
-struct tListIterator {
-    short *fSelectionList;
-    char *fValue;
-    char fMinValue, fMaxValue;
-    __vtbl_ptr_type (*_vf)[6];
 
-    tListIterator() {}
-    tListIterator(short *selection, char *valPtr);
-    ~tListIterator();
-#ifdef NFS4_FE_CORE_FEMENU_METHODS
-    char Value(tPlayer);
-    short TextValue(tPlayer);
-    void Increment(tPlayer);
-    void Decrement(tPlayer);
-#endif
-};
 
-struct tListIteratorRange : public tListIterator {
-#ifdef NFS4_FE_CORE_FEMENU_METHODS
-    tListIteratorRange() {}
-    tListIteratorRange(char minValue, char maxValue, char *valPtr);
-    ~tListIteratorRange();
-    char Value(tPlayer);
-    short TextValue(tPlayer);
-    void Increment(tPlayer);
-    void Decrement(tPlayer);
-#endif
-};
+#include "felist_classes.h"
 
 struct tMenuItem {
     unsigned int fFlags, fTextDescription;

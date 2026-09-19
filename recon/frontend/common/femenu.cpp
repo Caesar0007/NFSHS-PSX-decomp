@@ -18,7 +18,6 @@ tListIterator::tListIterator(short *selection,char *valPtr)
 
 {
   
-  *(void **)&(this->_vf) = (void *)tListIterator_vtable;
   this->fSelectionList = selection;
   this->fValue = valPtr;
   this->fMaxValue = '\0';
@@ -33,7 +32,6 @@ tListIterator::tListIterator(short *selection,char *valPtr)
 tListIterator::~tListIterator()
 
 {
-  *(void **)&(this->_vf) = (void *)tListIterator_vtable;
   return;
 }
 
@@ -55,7 +53,7 @@ short tListIterator::TextValue(tPlayer)
 
 {
   return (int)this->fSelectionList[
-      (*(*this->_vf)[2].pfn)((char *)this + (int)(*this->_vf)[2].delta,0xffffffff) & 0xff];
+      this->Value((tPlayer)-1) & 0xff];
 }
 
 
@@ -96,7 +94,6 @@ void tListIterator::Decrement(tPlayer)
 tListIteratorIndexed::tListIteratorIndexed(short *selection,char *valPtr,char *index)
   : tListIterator(selection,valPtr)
 {
-  *(void **)&(this->_vf) = (void *)tListIteratorIndexed_vtable;
   this->fIndex = index;
   return;
 }
@@ -108,7 +105,6 @@ tListIteratorIndexed::tListIteratorIndexed(short *selection,char *valPtr,char *i
 tListIteratorIndexed::~tListIteratorIndexed()
 
 {
-  *(void **)&(this->_vf) = (void *)tListIteratorIndexed_vtable;
   return;
 }
 
@@ -130,8 +126,7 @@ short tListIteratorIndexed::TextValue(tPlayer)
 
 {
   return (int)this->fSelectionList[
-    (*(*this->_vf)[2].pfn)
-      ((int)&this->fSelectionList + (int)(*this->_vf)[2].delta,0xffffffff) & 0xff];
+    this->Value((tPlayer)-1) & 0xff];
 }
 
 
@@ -174,7 +169,6 @@ void tListIteratorIndexed::Decrement(tPlayer)
 tListIteratorDoubleIndexed::~tListIteratorDoubleIndexed()
 
 {
-  *(void **)&(this->_vf) = (void *)tListIteratorDoubleIndexed_vtable;
   return;
 }
 
@@ -198,8 +192,7 @@ short tListIteratorDoubleIndexed::TextValue(tPlayer)
 
 {
   return (int)this->fSelectionList[
-    (*(*this->_vf)[2].pfn)
-      ((int)&this->fSelectionList + (int)(*this->_vf)[2].delta,0xffffffff) & 0xff];
+    this->Value((tPlayer)-1) & 0xff];
 }
 
 
@@ -250,7 +243,6 @@ void tListIteratorDoubleIndexed::Decrement(tPlayer)
 tListIteratorMultiPlayer::~tListIteratorMultiPlayer()
 
 {
-  *(void **)&(this->_vf) = (void *)tListIteratorMultiPlayer_vtable;
   return;
 }
 
@@ -275,8 +267,7 @@ short tListIteratorMultiPlayer::TextValue(tPlayer atIndex)
 
 {
   return this->fSelectionList[
-    (*(*this->_vf)[2].pfn)
-      ((int)&this->fSelectionList + (int)(*this->_vf)[2].delta) & 0xff];
+    this->Value(atIndex) & 0xff];   /* the hand call passed no argument: a1 still held atIndex */
 }
 
 
@@ -322,7 +313,6 @@ void tListIteratorMultiPlayer::Decrement(tPlayer atIndex)
 tListIteratorRange::tListIteratorRange(char minValue,char maxValue,char *valPtr)
   : tListIterator((short *)0x0,valPtr)
 {
-  *(void **)&(this->_vf) = (void *)tListIteratorRange_vtable;
   this->fMinValue = minValue;
   this->fMaxValue = maxValue;
   return;
@@ -335,7 +325,6 @@ tListIteratorRange::tListIteratorRange(char minValue,char maxValue,char *valPtr)
 tListIteratorRange::~tListIteratorRange()
 
 {
-  *(void **)&(this->_vf) = (void *)tListIteratorRange_vtable;
   return;
 }
 
@@ -392,7 +381,6 @@ tListIteratorRangeIndexed::tListIteratorRangeIndexed(char minValue,char maxValue
   : tListIteratorRange(minValue,maxValue,valPtr)
 {
   
-  *(void **)&(this->_vf) = (void *)tListIteratorRangeIndexed_vtable;
   this->fIndex = index;
   return;
 }
@@ -404,7 +392,6 @@ tListIteratorRangeIndexed::tListIteratorRangeIndexed(char minValue,char maxValue
 tListIteratorRangeIndexed::~tListIteratorRangeIndexed()
 
 {
-  *(void **)&(this->_vf) = (void *)tListIteratorRangeIndexed_vtable;
   return;
 }
 
@@ -634,16 +621,12 @@ void tMenuItemLeftRightChoice::ProcessInput(tPlayer fromPlayer,tInputKeyType &ke
   }
   switch (keyval) {
   case kInput_KeyType_Left:
-    ((void (*)(char *,tPlayer))(*this->fData->_vf)[5].pfn)
-        ((char *)this->fData + (int)(*this->fData->_vf)[5].delta,
-         fromPlayer);
+    this->fData->Decrement(fromPlayer);
     keyval = kInput_KeyType_AlreadyProcessed;
     AudioCmn_PlayFESFX(5);
     break;
   case kInput_KeyType_Right:
-    ((void (*)(char *,tPlayer))(*this->fData->_vf)[4].pfn)
-        ((char *)this->fData + (int)(*this->fData->_vf)[4].delta,
-         fromPlayer);
+    this->fData->Increment(fromPlayer);
     keyval = kInput_KeyType_AlreadyProcessed;
     AudioCmn_PlayFESFX(6);
     break;
@@ -676,9 +659,7 @@ void tMenuItemLeftRightChoice::Draw(bool selected)
   FETextRender_MenuTextPositioned((short)this->fTextDescription,(short)x,
              (short)y,(tMenuTextState)(selected != 0),textType_Options);
   FETextRender_MenuTextPositioned(
-             (*(*this->fData->_vf)[3].pfn)
-                    ((char *)this->fData + (int)(*this->fData->_vf)[3].delta,
-                     gMenu_SubMenuPlayer),
+             this->fData->TextValue(gMenu_SubMenuPlayer),
              (short)((u_int)((x + 0xb4) * 0x10000) >> 0x10),(short)y,
              (tMenuTextState)(selected != 0),
              textType_Options);
@@ -741,14 +722,10 @@ void tMenuItemLeftRightSlider::ProcessInput(tPlayer fromPlayer,tInputKeyType &ke
   }
   switch (keyval) {
   case kInput_KeyType_Left:
-    ((void (*)(char *,tPlayer))(*this->fData->_vf)[5].pfn)
-        ((char *)this->fData + (int)(*this->fData->_vf)[5].delta,
-         fromPlayer);
+    this->fData->Decrement(fromPlayer);
     break;
   case kInput_KeyType_Right:
-    ((void (*)(char *,tPlayer))(*this->fData->_vf)[4].pfn)
-        ((char *)this->fData + (int)(*this->fData->_vf)[4].delta,
-         fromPlayer);
+    this->fData->Increment(fromPlayer);
     break;
   default:
     return;
@@ -1324,8 +1301,7 @@ void tMenuItemLeftRightSlider::Draw(bool selected)
   /* MATCH (W57-A5): the fSelFade select is written INLINE as the 12th argument -- retail
      branches and stores 0x80 / 0 straight into the outgoing 44(sp) arg slot; routing it
      through a local makes gcc fold it to `(selected!=0) << 7` off the text-state bool. */
-  DrawSlider((u_char)(*(*this->fData->_vf)[2].pfn)
-                    ((char *)this->fData + (int)(*this->fData->_vf)[2].delta,0xffffffff),
+  DrawSlider((u_char)this->fData->Value((tPlayer)-1),
              (u_short)(u_char)this->fData->fMinValue,(u_short)(u_char)this->fData->fMaxValue,
              this->fX + 0x73,this->fY + 4,this->fWidth,this->fHeight,6,4,false,0,
              selected ? 0x80 : 0,0);

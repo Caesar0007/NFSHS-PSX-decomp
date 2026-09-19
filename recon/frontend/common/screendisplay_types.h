@@ -11,17 +11,6 @@
 #include "fe_tournament_types.h"
 #undef NFS4_FE_TRACK_NO_PLAYER
 
-struct tListIteratorRangeIndexed : public tListIteratorRange {
-    char *fIndex;
-#ifdef NFS4_FEMENUDEFS_SURFACE
-    tListIteratorRangeIndexed() {}
-    tListIteratorRangeIndexed(char, char, char *, char *);
-    ~tListIteratorRangeIndexed();
-    char Value(tPlayer);
-    void Increment(tPlayer);
-    void Decrement(tPlayer);
-#endif
-};
 
 struct tMenuItemLeftRightChoice : public tMenuItemInteractive {
     tListIterator *fData;
@@ -132,7 +121,6 @@ struct tListIteratorCar : public tListIterator {
         __asm__("Decrement__16tListIteratorCar7tPlayer");
 #endif
 #ifdef NFS4_FEMENUDEFS_SURFACE
-    tListIteratorCar() {}
     tListIteratorCar(char *, tCarManager *);
     ~tListIteratorCar();
     char Value(tPlayer);
@@ -146,7 +134,6 @@ struct tListIteratorCarColor : public tListIterator {
     int fIndexSize;
     tCarManager *fCarManager;
 #ifdef NFS4_FEMENUDEFS_SURFACE
-    tListIteratorCarColor() {}
     tListIteratorCarColor(char *, char *, char *, int, tCarManager *);
     ~tListIteratorCarColor();
     char Value(tPlayer);
@@ -197,7 +184,6 @@ struct tTournamentManager {
 struct tListIteratorTrack : public tListIteratorIndexed {
     tTrackManager *fTrackManager;
 #ifdef NFS4_FEMENUDEFS_SURFACE
-    tListIteratorTrack() {}
     tListIteratorTrack(char *, char *, tTrackManager *);
     ~tListIteratorTrack();
     short TextValue(tPlayer);
@@ -210,7 +196,6 @@ struct tListIteratorTrack : public tListIteratorIndexed {
 struct tListIteratorTournament : public tListIterator {
     tTournamentManager *fTournamentManager;
 #ifdef NFS4_FEMENUDEFS_SURFACE
-    tListIteratorTournament() {}
     tListIteratorTournament(char *, tTournamentManager *);
     ~tListIteratorTournament();
     char Value(tPlayer);

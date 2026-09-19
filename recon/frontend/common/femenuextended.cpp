@@ -519,8 +519,7 @@ void tMenuItemOptionsLeftRightChoice::Draw(int x,int y,bool selected)
              (short)((u_int)((x + 0x94) * 0x10000) >> 0x10),
              (short)(y + 3),col,'\0',1);
   FETextRender_FullTextRGB(
-             TextSys_Word((int)(short)(*(*this->fData->_vf)[3].pfn)
-                 ((char *)this->fData + (int)(*this->fData->_vf)[3].delta,0xffffffff)),
+             TextSys_Word((int)(short)this->fData->TextValue((tPlayer)-1)),
              (short)((u_int)((((int)((u_int)(u_short)left->width << 0x10) >> 0x11) + x +
                                    0xd9) * 0x10000) >> 0x10),(short)(y + 3),col,'\0',2);
   drawFlags.tint[0] =
@@ -546,9 +545,7 @@ void tMenuItemOptionsTwoItemChoice::TransitionOn()
 
 {
   this->fOnOffFade =
-      ((u_char)(*(*this->fData->_vf)[2].pfn)
-                    ((char *)this->fData + (int)(*this->fData->_vf)[2].delta,
-                     0xffffffff) != 0) << 7;
+      ((u_char)this->fData->Value((tPlayer)-1) != 0) << 7;
   return;
 }
 
@@ -579,8 +576,7 @@ void tMenuItemOptionsTwoItemChoice::Draw(int x,int y,bool selected)
   tDrawShapeExtended drawFlags;
 
   left = &gHelpShapes[0x29];
-  if ((u_char)(*(*this->fData->_vf)[2].pfn)
-      ((char *)this->fData + (int)(*this->fData->_vf)[2].delta,0xffffffff) != 0) {
+  if ((u_char)this->fData->Value((tPlayer)-1) != 0) {
     this->fOnOffFade = this->fOnOffFade + 0x40;
   }
   else {

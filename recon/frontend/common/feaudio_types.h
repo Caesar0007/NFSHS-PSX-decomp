@@ -63,9 +63,6 @@ struct AudioMus_tSongEntry {
     char strbuf[32];
 };
 
-struct tListIteratorIndexed : public tListIterator {
-    char *fIndex;
-};
 
 struct tTrackInformation {
     char fTrackID;

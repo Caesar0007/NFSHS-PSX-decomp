@@ -38,9 +38,6 @@ struct Sched_tSchedule {
     Sched_tFunctionSchedule func[1];
 };
 
-struct tListIteratorIndexed : public tListIterator {
-    char *fIndex;
-};
 
 struct tTrackInformation {
     char fTrackID;

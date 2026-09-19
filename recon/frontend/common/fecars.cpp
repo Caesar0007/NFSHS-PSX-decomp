@@ -1084,7 +1084,6 @@ tListIteratorCar::tListIteratorCar(char *valPtr,tCarManager *carManager)
   : tListIterator((short *)0x0, valPtr)
 {
   
-  *(void **)&(this->_vf) = (void *)tListIteratorCar_vtable;
   this->fCarManager = carManager;
   this->fCarListFilter = 1;
   this->fNameLength = cnl_Medium;
@@ -1098,7 +1097,6 @@ tListIteratorCar::tListIteratorCar(char *valPtr,tCarManager *carManager)
 tListIteratorCar::~tListIteratorCar()
 
 {
-  *(void **)&(this->_vf) = (void *)tListIteratorCar_vtable;
   return;
 }
 
@@ -1442,7 +1440,6 @@ tListIteratorCarColor::tListIteratorCarColor(char *value,char *player,char *play
   : tListIterator((short *)0x0, value)
 {
   
-  *(void **)&(this->_vf) = (void *)tListIteratorCarColor_vtable;
   this->fPlayer = player;
   this->fPlayerCar = playerCar;
   this->fIndexSize = indexSize;
@@ -1457,7 +1454,6 @@ tListIteratorCarColor::tListIteratorCarColor(char *value,char *player,char *play
 tListIteratorCarColor::~tListIteratorCarColor()
 
 {
-  *(void **)&(this->_vf) = (void *)tListIteratorCarColor_vtable;
   return;
 }
 

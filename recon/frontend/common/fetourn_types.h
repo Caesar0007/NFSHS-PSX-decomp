@@ -21,7 +21,8 @@
 #define byte unsigned char
 #define uchar unsigned char
 #define uint unsigned int
-#define tPlayer int
+/* (2026-09-19) the `#define tPlayer int` spelling is gone: with real virtuals the overrides below must have the SAME
+ * parameter type as tListIterator's virtuals, or they overload instead of overriding (retail's vtable has the overrides). */
 #define NULL 0
 #define Tourn_StartMoney 20000
 #define Tourn_RacersCount 6
@@ -121,13 +122,12 @@ struct tTournamentManager {
 struct tListIteratorTournament : public tListIterator {
     tTournamentManager *fTournamentManager;
 
-    tListIteratorTournament() {}
     tListIteratorTournament(char *valPtr, tTournamentManager *tournManager);
     ~tListIteratorTournament();
-    char Value(int) __asm__("Value__23tListIteratorTournament7tPlayer");
-    short TextValue(int) __asm__("TextValue__23tListIteratorTournament7tPlayer");
-    void Increment(int) __asm__("Increment__23tListIteratorTournament7tPlayer");
-    void Decrement(int) __asm__("Decrement__23tListIteratorTournament7tPlayer");
+    char Value(tPlayer);
+    short TextValue(tPlayer);
+    void Increment(tPlayer);
+    void Decrement(tPlayer);
     bool ValidTournament(char tourn);
 };
 

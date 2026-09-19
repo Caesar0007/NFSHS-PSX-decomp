@@ -4,12 +4,6 @@
 #include "femenu_types.h"
 
 /* ===== class vtables ===== */
-extern __vtbl_ptr_type tListIterator_vtable[];
-extern __vtbl_ptr_type tListIteratorIndexed_vtable[];
-extern __vtbl_ptr_type tListIteratorDoubleIndexed_vtable[];
-extern __vtbl_ptr_type tListIteratorMultiPlayer_vtable[];
-extern __vtbl_ptr_type tListIteratorRange_vtable[];
-extern __vtbl_ptr_type tListIteratorRangeIndexed_vtable[];
 extern __vtbl_ptr_type tMenuItem_vtable[];
 extern __vtbl_ptr_type tMenuItemInteractive_vtable[];
 extern __vtbl_ptr_type tMenuItemLeftRightChoice_vtable[];

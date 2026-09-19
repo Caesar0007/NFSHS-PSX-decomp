@@ -15,19 +15,6 @@ typedef enum tTrackClassType {
     tct_Bonus = 4
 } tTrackClassType;
 
-struct tListIteratorIndexed : public tListIterator {
-    char *fIndex;
-
-#if !defined(NFS4_FE_TRACK_NO_PLAYER) || defined(NFS4_FEMENUDEFS_SURFACE)
-    tListIteratorIndexed() {}
-    tListIteratorIndexed(short *selection, char *valPtr, char *index);
-    ~tListIteratorIndexed();
-    char Value(tPlayer player);
-    short TextValue(tPlayer player);
-    void Increment(tPlayer player);
-    void Decrement(tPlayer player);
-#endif
-};
 
 struct tTrackInformation {
     char fTrackID;

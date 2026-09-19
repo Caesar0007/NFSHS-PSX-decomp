@@ -14,7 +14,6 @@ extern tTrackManager trackManager;
 /* FETourn.obj statics */
 
 /* ===== vtables ===== */
-extern __vtbl_ptr_type tListIteratorTournament_vtable[];
 
 /* ===== base iterator ctor (rendered free by Ghidra) ===== */
 void tListIterator_ctor(tListIterator*, short*, char*);

@@ -43,6 +43,9 @@ void tTournamentManager::Initialize()
 void tTournamentManager::LoadDescription()
 
 {
+  /* retail: FETourn.obj .rodata opens with the unreferenced "SimpleMem" tag at 0x80011588.  That it is THIS object's is
+   * proven by the vtable: g++ aligns vtables to 8 section-relative, and 0x80011670 only works from an 8-aligned base. */
+  if (0) sprintf((char *)0,"SimpleMem");
   /* SYM-CODEGEN-CARRIER: tourneyDef
      SYM-CODEGEN-CARRIER: trackId
      SYM-CODEGEN-CARRIER: trnId
@@ -1058,7 +1061,6 @@ tListIteratorTournament::tListIteratorTournament(char *valPtr,tTournamentManager
   : tListIterator((short *)0x0, valPtr)
 {
 
-  *(void **)&(this->_vf) = (void *)tListIteratorTournament_vtable;
   this->fTournamentManager = tournManager;
   return;
 }
@@ -1070,7 +1072,6 @@ tListIteratorTournament::tListIteratorTournament(char *valPtr,tTournamentManager
 tListIteratorTournament::~tListIteratorTournament()
 
 {
-  this->_vf = (__vtbl_ptr_type (*)[6])tListIteratorTournament_vtable;
   return;  /* base ~tListIterator() now implicit (§3.23 inheritance) */
 }
 

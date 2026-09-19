@@ -180,7 +180,6 @@ tListIteratorTrack::tListIteratorTrack(char *valPtr,char *index,tTrackManager *t
   : tListIteratorIndexed((short *)0x0,valPtr,index)
 {
   
-  *(void **)&(this->_vf) = (void *)tListIteratorTrack_vtable;
   this->fTrackManager = trackManager;
   return;
 }
@@ -192,7 +191,6 @@ tListIteratorTrack::tListIteratorTrack(char *valPtr,char *index,tTrackManager *t
 tListIteratorTrack::~tListIteratorTrack()
 
 {
-  *(void **)&(this->_vf) = (void *)tListIteratorTrack_vtable;
   return;
 }
 

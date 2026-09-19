@@ -43,9 +43,6 @@ struct tMenuCommand {
 #define textType_ScreenInfo 4
 #define textType_TrackRecords 11
 
-struct tListIteratorRangeIndexed : public tListIteratorRange {
-    char *fIndex;
-};
 
 struct tMenuItemLeftRightChoice : public tMenuItemInteractive {
     tListIterator *fData;

@@ -5,7 +5,6 @@
 
 extern char        *Paths_Paths[];
 extern tfrontEnd    frontEnd;
-extern __vtbl_ptr_type tListIteratorTrack_vtable[];
 
 extern "C" {
 void blockmove(...);

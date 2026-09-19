@@ -35,6 +35,5 @@ int sprintf(...);
 }
 
 /* class vtables (FECars.obj-defined iterator subclasses) */
-extern __vtbl_ptr_type tListIteratorCar_vtable[], tListIteratorCarColor_vtable[];
 
 #endif

@@ -93,45 +93,9 @@ struct tDialogHelp : public tDialogBase {
 struct tDialogMessageStringWithTimeout : public tDialogMessageString {};
 struct tDialogNoInputMessage : public tDialogMessageString {};
 
-struct tListIteratorIndexed : public tListIterator {
-    char *fIndex;
-    tListIteratorIndexed() {}
-    tListIteratorIndexed(short *, char *, char *);
-    ~tListIteratorIndexed();
-    char Value(tPlayer);
-    short TextValue(tPlayer);
-    void Increment(tPlayer);
-    void Decrement(tPlayer);
-};
 
-struct tListIteratorDoubleIndexed : public tListIterator {
-    char *fIndex1;
-    int index1multiplier;
-    char *fIndex2;
-    ~tListIteratorDoubleIndexed();
-    char Value(tPlayer);
-    short TextValue(tPlayer);
-    void Increment(tPlayer);
-    void Decrement(tPlayer);
-};
 
-struct tListIteratorMultiPlayer : public tListIterator {
-    ~tListIteratorMultiPlayer();
-    char Value(tPlayer);
-    short TextValue(tPlayer);
-    void Increment(tPlayer);
-    void Decrement(tPlayer);
-};
 
-struct tListIteratorRangeIndexed : public tListIteratorRange {
-    char *fIndex;
-    tListIteratorRangeIndexed() {}
-    tListIteratorRangeIndexed(char, char, char *, char *);
-    ~tListIteratorRangeIndexed();
-    char Value(tPlayer);
-    void Increment(tPlayer);
-    void Decrement(tPlayer);
-};
 
 struct tMenuItemLeftRightChoice : public tMenuItemInteractive {
     tListIterator *fData;

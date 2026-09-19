@@ -7,6 +7,7 @@
  */
 #include "control.h"
 #include "control_externs.h"
+extern "C" int sprintf(char *, const char *, ...);
 
 /* @0x80091fdc  Control_AI(Car_tObj *carObj) -- line 40 */
 void Control_AI(Car_tObj *carObj)
@@ -17,6 +18,7 @@ void Control_AI(Car_tObj *carObj)
 /* @0x80091fe4  Control_Human(Car_tObj *carObj) -- line 80 */
 void Control_Human(Car_tObj *carObj)
 {
+  if (0) sprintf((char *)0,"SimpleMem");   /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag */
   int     newGear;
 
   if ((CONTROL_GAME_TICKS & 3U) != 0) {

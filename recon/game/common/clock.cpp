@@ -4,6 +4,7 @@
  */
 #include "clock_types.h"
 #include "clock_externs.h"
+extern "C" int sprintf(char *, const char *, ...);
 
 
 /* ---- clock.obj-owned globals (.bss zero) ---- */
@@ -26,6 +27,7 @@ void Clock_SystemCleanUp(void);
 /* ---- Clock_MasterInterruptHandler__Fv  [@0x8008b938] ---- */
 void Clock_MasterInterruptHandler(void)
 {
+  if (0) sprintf((char *)0,"SimpleMem");   /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag */
   long gp;
   /* SYM-CODEGEN-CARRIER: even128 -- the optimized SYM retains only `gp`.
      SLD maps the 128Hz increment/store to line 131, the generic increment to

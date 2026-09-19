@@ -420,16 +420,6 @@
   "regions": []
  },
  {
-  "obj": "build/recon/game/common/control.cpp.o",
-  "base": 2147834408,
-  "end": 2147834452,
-  "size": 44,
-  "ok": true,
-  "regions": [
-   "jtbl_80055A28"
-  ]
- },
- {
   "obj": "build/recon/game/common/hudpmx.cpp.o",
   "base": 2147834452,
   "end": 2147834706,
@@ -1006,6 +996,62 @@
   "base": 2147832336,
   "end": 2147832580,
   "size": 244,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/common/aidatarecord.cpp.o",
+  "base": 2147832748,
+  "end": 2147832876,
+  "size": 128,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/common/textsys.cpp.o",
+  "base": 2147837412,
+  "end": 2147837496,
+  "size": 84,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/common/chunk.cpp.o",
+  "base": 2147834320,
+  "end": 2147834332,
+  "size": 12,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/common/clock.cpp.o",
+  "base": 2147834332,
+  "end": 2147834344,
+  "size": 12,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/common/collide.cpp.o",
+  "base": 2147834356,
+  "end": 2147834380,
+  "size": 24,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/common/color.cpp.o",
+  "base": 2147834380,
+  "end": 2147834392,
+  "size": 12,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/common/control.cpp.o",
+  "base": 2147834392,
+  "end": 2147834452,
+  "size": 60,
   "ok": false,
   "regions": []
  }

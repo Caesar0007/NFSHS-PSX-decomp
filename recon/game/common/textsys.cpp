@@ -10,16 +10,7 @@
  * the matched NFS2 PC-beta Textsys source.  The D_* names anchor the existing
  * byte-exact residual literals until Textsys.obj's complete rodata run is
  * migrated without disturbing the PASS LoadInGame scheduling. */
-extern char D_800565F0[];
-extern char D_800565FC[];
-extern char D_80056608[];
-extern char D_80056614[];
-extern char D_80056620[];
-extern char D_8005662C[];
-char *langFileName[6] = {
-  D_800565F0, D_800565FC, D_80056608,
-  D_80056614, D_80056620, D_8005662C
-};
+extern char *langFileName[6];   /* defined after the first function (see below) */
 
 /* gp-rel pointer owned by Textsys.obj. */
 /* Initialized => emitted HERE, ahead of the function literals ("%s%s", "p"):
@@ -41,6 +32,9 @@ void TextSys_UnloadWords(void);
 void TextSys_LoadWordsGeneric(int language,char *path)
 
 {
+  /* retail Textsys.obj .rodata opens with the unreferenced "SimpleMem" tag (0x800565E4) */
+  if (0) sprintf((char *)0,"SimpleMem");
+
   char string [250];
 
   if (language < 7) {
@@ -55,6 +49,13 @@ void TextSys_LoadWordsGeneric(int language,char *path)
   }
   return;
 }
+
+/* Textsys.obj: the language file names (.rodata 0x800565F0..) and their pointer table (.data).  Defined HERE, after
+   the first function, because retail emits the "SimpleMem" tag ahead of these strings. */
+char *langFileName[6] = {
+  "text.eng", "text.ger", "text.fre",
+  "text.spa", "text.ita", "text.swe"
+};
 
 /* ---- TextSys_LoadInGame__Fi  [TEXTSYS.CPP:55-58] SLD-VERIFIED ---- */
 void TextSys_LoadInGame(int language)

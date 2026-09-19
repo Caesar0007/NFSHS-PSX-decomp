@@ -20,13 +20,6 @@ extern Car_tObj *Cars_gHumanRaceCarList[9];   /* cars.obj; [0]+0x240 = car name 
 
 /* sprintf format strings — named rodata symbols (NOT inline literals, which would
  * land in this object's .rodata; the original references them at these addresses) */
-extern char      D_800553B8[];  /* "%s%s.acc"     AccTable */
-extern char      D_800553C4[];  /* "%sTr%02d.qbe" BestLine (recordMethod==0) */
-extern char      D_800553D4[];  /* "%sTr%02d.bes" BestLine (else) */
-extern char      D_800553E4[];  /* "%sTr%02d.qcr" TrackCurve (recordMethod==0) */
-extern char      D_800553F4[];  /* "%sTr%02d.crv" TrackCurve (else) */
-extern char      D_80055404[];  /* "%s%s.qcs"     CurveSpeed (recordMethod==0) */
-extern char      D_80055410[];  /* "%s%s.csp"     CurveSpeed (else) */
 
 extern "C" void *reservememadr(...);
 extern "C" void *loadpackadrz(...);

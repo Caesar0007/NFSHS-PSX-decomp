@@ -158,11 +158,13 @@ AIDataRecord_AccTable_t::AIDataRecord_AccTable_t(char *preBuffer,int scale,
           AIDataRecord_WhichRecord_t whichIsThis)
   : AIDataRecord_t(whichIsThis,preBuffer)
 {
+  /* retail aidatarecord.obj .rodata opens with the unreferenced "SimpleMem" tag (0x800553AC) */
+  if (0) sprintf((char *)0,"SimpleMem");
   this->_vf = (__vtbl_ptr_type (*) [3])AIDataRecord_AccTable_t_vtable;
   this->numElements_ = 0x70;
   this->bSize_ = 0xe0;
   this->scale_ = scale;
-  sprintf(this->name_,D_800553B8,D_8011647C[0],
+  sprintf(this->name_,"%s%s.acc",D_8011647C[0],
           (char *)Cars_gHumanRaceCarList[0] + 0x240);
   return;
 }
@@ -197,10 +199,10 @@ AIDataRecord_BestLine_t::AIDataRecord_BestLine_t(AIDataRecord_WhichRecord_t whic
   this->_vf = (__vtbl_ptr_type (*) [3])AIDataRecord_BestLine_t_vtable;
   this->bSize_ = this->numElements_ = gNumSlices;
   if (this->recordMethod_ == 0) {
-    sprintf(this->name_,D_800553C4,D_80116498[0],D_80113228[0]);
+    sprintf(this->name_,"%sTr%02d.qbe",D_80116498[0],D_80113228[0]);
   }
   else {
-    sprintf(this->name_,D_800553D4,D_8011649C[0],D_80113228[0]);
+    sprintf(this->name_,"%sTr%02d.bes",D_8011649C[0],D_80113228[0]);
   }
   return;
 }
@@ -212,10 +214,10 @@ AIDataRecord_TrackCurve_t::AIDataRecord_TrackCurve_t(AIDataRecord_WhichRecord_t 
   this->_vf = (__vtbl_ptr_type (*) [3])AIDataRecord_TrackCurve_t_vtable;
   this->bSize_ = (this->numElements_ = gNumSlices) + 1;
   if (this->recordMethod_ == 0) {
-    sprintf(this->name_,D_800553E4,D_80116490[0],D_80113228[0]);
+    sprintf(this->name_,"%sTr%02d.qcr",D_80116490[0],D_80113228[0]);
   }
   else {
-    sprintf(this->name_,D_800553F4,D_80116494[0],D_80113228[0]);
+    sprintf(this->name_,"%sTr%02d.crv",D_80116494[0],D_80113228[0]);
   }
   return;
 }
@@ -235,10 +237,12 @@ AIDataRecord_CurveSpeedTable_t::AIDataRecord_CurveSpeedTable_t(char *carName,
   this->numElements_ = 0x100;
   this->bSize_ = 0x100;
   if (this->recordMethod_ == 0) {
-    sprintf(this->name_,D_80055404,D_80116478[0],carName);
+    sprintf(this->name_,"%s%s.qcs",D_80116478[0],carName);
   }
   else {
-    sprintf(this->name_,D_80055410,D_8011647C[0],carName);
+    sprintf(this->name_,"%s%s.csp",D_8011647C[0],carName);
+    /* retail keeps an UNREFERENCED "%sTr%02d%c.ctk" (0x8005541C) after ".csp": a compiled-out record kind */
+    if (0) sprintf((char *)0,"%sTr%02d%c.ctk");
   }
   return;
 }

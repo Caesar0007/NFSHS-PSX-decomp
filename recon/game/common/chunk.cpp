@@ -11,6 +11,7 @@
  */
 #include "chunk_types.h"
 #include "chunk_externs.h"
+extern "C" int sprintf(char *, const char *, ...);
 
 /* ---- chunk.obj-owned globals (.bss zero) ---- */
 CVECTOR      *Chunk_lightTable;      /* @0x8013c818 */
@@ -27,6 +28,7 @@ void Chunk_DeInit(void);
  * inst=Trk_SimpleInst* walker, index=$v1, size=$a3, simObjs=$v1, count=$a1, geomGroup=$s1. */
 void Chunk::InstanceGroup(SerializedGroup *chunkGroup, SimpleMem *mem)
 {
+  if (0) sprintf((char *)0,"SimpleMem");   /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag */
   SerializedGroup *geomGroup;
   /* SYM-CODEGEN-CARRIER: groupData -- spelling every access from the returned
      SerializedGroup directly emits 328/329 instructions and five diffs; retail

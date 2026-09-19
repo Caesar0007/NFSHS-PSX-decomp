@@ -5,6 +5,7 @@
  */
 #include "collide_types.h"
 #include "collide_externs.h"
+extern "C" int sprintf(char *, const char *, ...);
 
 #define MIN(a,b) (((a) > (b)) ? (b) : (a))
 #define MAX(a,b) (((a) > (b)) ? (a) : (b))
@@ -201,6 +202,7 @@ ret0:
 /* ---- Collide_DoObjectFixedObjectCollision__FP13BO_tNewtonObjP8coorddefN21  [@0x8008cb0c] ---- */
 void Collide_DoObjectFixedObjectCollision(BO_tNewtonObj *o,coorddef *p,coorddef *v,coorddef *n)
 {
+  if (0) sprintf((char *)0,"SimpleMem");   /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag */
   /* RULE-8 rewrite from SYM 8c block @0x8008cb0c (fsize=192 mask=$803f0000 = ra+s0..s5) + m2c
      pregen + raw oracle, blocks in oracle VA order.  SYM nesting reproduced exactly:
        fn block { normal,impulse,deltaV,impulseV,temp0-3,r,RCrossN,velocityLength,velocity }
@@ -286,12 +288,11 @@ void Collide_DoObjectFixedObjectCollision(BO_tNewtonObj *o,coorddef *p,coorddef 
     }
     {
       if (__builtin_abs(o->speedXZ) <= 0x9FFFF) {
-        coorddef upVec;
+        coorddef upVec = { 0, 0x10000, 0 };   /* local aggregate initializer: its constant is retail .rodata 0x80055A00 */
         int dotx;
         int doty;
         int dotz;
 
-        upVec = D_80055A00;   /* {0, 0x10000, 0} */
         dotx = (upVec.x / 256) * ((o->orientMat).m[0] / 256) +
                (upVec.y / 256) * ((o->orientMat).m[1] / 256) +
                (upVec.z / 256) * ((o->orientMat).m[2] / 256);

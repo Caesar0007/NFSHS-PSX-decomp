@@ -691,9 +691,9 @@
  },
  {
   "obj": "build/recon/syslib/psx/libetc/INTR.c.o",
-  "base": 2147839872,
+  "base": 2147839820,
   "end": 2147839925,
-  "size": 53,
+  "size": 105,
   "ok": true,
   "regions": []
  },

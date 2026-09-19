@@ -42,9 +42,16 @@ typedef struct {
     jmp_buf buf;                           /* +0x38  @0x80134B30 */
     int stack[1024];                       /* +0x68  @0x80134B60 */
 } intrEnv_t;
-extern intrEnv_t intrEnv __asm__("D_80134AF8"); /* @0x80134AF8 -- storage owned by the
-                                                  * splat data blob; see W65-A6 at EOF */
 extern intrEnv_t *startIntr(void) __asm__("_initIntr");
+extern intrEnv_t *stopIntr(void) __asm__("StopCallback");
+extern intrEnv_t *restartIntr(void) __asm__("RestartCallback");
+
+/* INTR.obj .data @0x80134AA0 (owned here since 2026-09-19; was the retail dump data_8010CCD4_r17):
+ * the library copyright string, then the interrupt environment -- all zero but INITIALIZED, so it is
+ * in-file .data (0x80134AF8..0x80135B60), not bss. */
+char intr_copyright[] __asm__("D_80134AA0") =
+    "Library Programs (c) 1993-1997 Sony Computer Entertainment Inc., All Rights Reserved.";
+intrEnv_t intrEnv __asm__("D_80134AF8") = { 0 };
 
 /* MATCH (structural): public APIs dispatch through the canonical Callbacks table.
  * D_80135B60 holds {rcsid, DMACallback, InterruptCallback, ResetCallback,
@@ -60,12 +67,16 @@ typedef struct Callbacks {
     intrEnv_t *(*RestartCallback)(void);          /* +0x18 */
     intrEnv_t *intrEnv;                           /* +0x1C */
 } Callbacks;
-extern Callbacks callbacks __asm__("D_80135B60");
-extern Callbacks *pCallbacks __asm__("D_80135B80");
-extern volatile unsigned short *i_stat __asm__("D_80135B84");
-extern volatile unsigned short *g_InterruptMask __asm__("D_80135B88");
-extern volatile unsigned int *d_pcr __asm__("D_80135B8C");
-extern int trapMissedCount __asm__("D_80135B90");
+/* retail table bytes: {rcsid, 0, _set_intr_callback, _initIntr, StopCallback, 0, RestartCallback, &intrEnv} */
+Callbacks callbacks __asm__("D_80135B60") = {
+    "$Id: intr.c,v 1.75 1997/02/07 09:00:36 makoto Exp $",
+    0, setIntr, startIntr, stopIntr, 0, restartIntr, &intrEnv
+};
+Callbacks *pCallbacks __asm__("D_80135B80") = &callbacks;
+volatile unsigned short *i_stat __asm__("D_80135B84") = (volatile unsigned short *)0x1F801070;
+volatile unsigned short *g_InterruptMask __asm__("D_80135B88") = (volatile unsigned short *)0x1F801074;
+volatile unsigned int *d_pcr __asm__("D_80135B8C") = (volatile unsigned int *)0x1F8010F0;
+int trapMissedCount __asm__("D_80135B90") = 0;
 
 #define I_STAT (*i_stat)
 #define I_MASK (*g_InterruptMask)

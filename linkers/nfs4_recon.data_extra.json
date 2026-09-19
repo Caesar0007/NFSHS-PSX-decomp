@@ -2132,5 +2132,27 @@
   "unresolved": 0,
   "words": 3,
   "q": 0
+ },
+ {
+  "obj": "build/recon/syslib/psx/libetc/VSYNC.c.o",
+  "section": ".data",
+  "base": 2148747912,
+  "end": 2148747936,
+  "size": 24,
+  "ok": true,
+  "unresolved": 0,
+  "words": 6,
+  "q": 0
+ },
+ {
+  "obj": "build/recon/syslib/psx/libetc/INTR.c.o",
+  "section": ".data",
+  "base": 2148747936,
+  "end": 2148752276,
+  "size": 4340,
+  "ok": true,
+  "unresolved": 0,
+  "words": 1085,
+  "q": 0
  }
 ]

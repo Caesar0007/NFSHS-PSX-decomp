@@ -277,7 +277,7 @@ SECTIONS
     .ro0100 0x80056f18 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/primate.c.o(.rodata); }   /* 11 B */
     .ro0101 0x80056f24 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/nasync.c.o(.rodata); }   /* 21 B */
     .ro0102 0x80056f3c : SUBALIGN(4) { build/recon/syslib/psx/libetc/VSYNC.c.o(.rodata); }   /* 16 B  (anchor-only, E1-E5 not clean) */
-    .ro0103 0x80056f80 : SUBALIGN(4) { build/recon/syslib/psx/libetc/INTR.c.o(.rodata); }   /* 53 B */
+    .ro0103 0x80056f4c : SUBALIGN(4) { build/recon/syslib/psx/libetc/INTR.c.o(.rodata); }   /* 105 B */
     .ro0104 0x80056fbc : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/fileroot.c.o(.rodata); }   /* 28 B */
     .ro0105 0x80056fd8 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/vramfxya.c.o(.rodata); }   /* 136 B */
     .ro0106 0x80057078 : SUBALIGN(4) { build/recon/syslib/psx/libgpu/FONT.c.o(.rodata); }   /* 132 B */
@@ -869,19 +869,21 @@ SECTIONS
     .xd0084 0x80123654 : SUBALIGN(4) { build/recon/syslib/psx/libgpu/SYS.c.o(.data); }
     .xd0085 0x801349e8 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/exit.c.o(.data); }
     .xd0086 0x80134a70 : SUBALIGN(4) { build/recon/syslib/psx/libgte/MSC00.c.o(.data); }
-    .xd0087 0x801369e8 : SUBALIGN(4) { build/recon/syslib/psx/libpress/VLC.c.o(.data); }
-    .xd0088 0x80136a18 : SUBALIGN(4) { build/recon/syslib/psx/libcd/cdcont.c.o(.data); }
-    .xd0089 0x80136a98 : SUBALIGN(4) { build/recon/syslib/psx/libcd/stcdint.c.o(.data); }
-    .xd0090 0x80136af8 : SUBALIGN(4) { build/recon/syslib/psx/libpress/LIBPRESS.c.o(.data); }
-    .xd0091 0x80136c48 : SUBALIGN(4) { build/recon/syslib/psx/libcd/C_003.c.o(.data); }
-    .xd0092 0x80136cb8 : SUBALIGN(4) { build/recon/syslib/psx/libmcrd/LIBMCRD.c.o(.data); }
-    .xd0093 0x80136e00 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sdfx.c.o(.data); }
-    .xd0094 0x801370c4 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sclcptch.c.o(.data); }
-    .xd0095 0x80137c78 : SUBALIGN(4) { build/recon/syslib/psx/libpad/PADMAIN.c.o(.data); }
-    .xd0096 0x8013bf40 : SUBALIGN(4) { build/recon/syslib/psx/libcd/drv.c.o(.data); }
-    .xd0097 0x8013c2e0 : SUBALIGN(4) { build/recon/syslib/psx/libmcrd/USERFUNC.c.o(.data); }
-    .xd0098 0x8013c308 : SUBALIGN(4) { build/recon/syslib/psx/libpad/PADIF.c.o(.data); }
-    .xd0099 0x8013c348 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/ssine.c.o(.data); }
+    .xd0087 0x80134a88 : SUBALIGN(4) { build/recon/syslib/psx/libetc/VSYNC.c.o(.data); }
+    .xd0088 0x80134aa0 : SUBALIGN(4) { build/recon/syslib/psx/libetc/INTR.c.o(.data); }
+    .xd0089 0x801369e8 : SUBALIGN(4) { build/recon/syslib/psx/libpress/VLC.c.o(.data); }
+    .xd0090 0x80136a18 : SUBALIGN(4) { build/recon/syslib/psx/libcd/cdcont.c.o(.data); }
+    .xd0091 0x80136a98 : SUBALIGN(4) { build/recon/syslib/psx/libcd/stcdint.c.o(.data); }
+    .xd0092 0x80136af8 : SUBALIGN(4) { build/recon/syslib/psx/libpress/LIBPRESS.c.o(.data); }
+    .xd0093 0x80136c48 : SUBALIGN(4) { build/recon/syslib/psx/libcd/C_003.c.o(.data); }
+    .xd0094 0x80136cb8 : SUBALIGN(4) { build/recon/syslib/psx/libmcrd/LIBMCRD.c.o(.data); }
+    .xd0095 0x80136e00 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sdfx.c.o(.data); }
+    .xd0096 0x801370c4 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sclcptch.c.o(.data); }
+    .xd0097 0x80137c78 : SUBALIGN(4) { build/recon/syslib/psx/libpad/PADMAIN.c.o(.data); }
+    .xd0098 0x8013bf40 : SUBALIGN(4) { build/recon/syslib/psx/libcd/drv.c.o(.data); }
+    .xd0099 0x8013c2e0 : SUBALIGN(4) { build/recon/syslib/psx/libmcrd/USERFUNC.c.o(.data); }
+    .xd0100 0x8013c308 : SUBALIGN(4) { build/recon/syslib/psx/libpad/PADIF.c.o(.data); }
+    .xd0101 0x8013c348 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/ssine.c.o(.data); }
     .xs0000 0x801234d4 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/snddata.c.o(.sdata); }
     .xs0001 0x8013c568 : SUBALIGN(4) { build/recon/game/common/aih_play.cpp.o(.sdata); }
     .xs0002 0x8013c5d8 : SUBALIGN(4) { build/recon/game/common/aistate.cpp.o(.sdata); }
@@ -2366,6 +2368,8 @@ SECTIONS
     D_80134A88 = 0x80134a88;
     D_80134A8C = 0x80134a8c;
     D_80134A94 = 0x80134a94;
+    D_80134A98 = 0x80134a98;
+    D_80134AA0 = 0x80134aa0;
     D_80134AF8 = 0x80134af8;
     D_80134AFA = 0x80134afa;
     D_80134AFC = 0x80134afc;

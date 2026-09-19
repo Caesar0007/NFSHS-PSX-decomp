@@ -167,7 +167,6 @@ tMenuItemGoToMenuNFS4Button::tMenuItemGoToMenuNFS4Button(u_int textDescription,t
   : tMenuItemGoToMenuButton(textDescription,newMenu,OnButtonPress)
 {
   
-  *(void **)&(this->_vf) = (void *)tMenuItemGoToMenuNFS4Button_vtable;
   this->fOffset = 0xe;
   this->fTransitionVal = 0;
   this->fTransitionSpeed = 0;
@@ -184,7 +183,6 @@ tMenuItemGoToMenuNFS4Button::tMenuItemGoToMenuNFS4Button(u_int textDescription,t
 tMenuItemGoToMenuNFS4Button::~tMenuItemGoToMenuNFS4Button()
 
 {
-  *(void **)&(this->_vf) = (void *)tMenuItemGoToMenuNFS4Button_vtable;
   return;
 }
 
@@ -318,7 +316,7 @@ void tMenuItemGoToMenuNFS4Button::UpdateTransition(bool selected)
   }
   this->fTransitionSpeed = 0;
 UpdTrans_callBaseGoToMenu:
-  ((tMenuItem *)this)->UpdateTransition(selected);
+  this->tMenuItem::UpdateTransition(selected);
   return;
 }
 
@@ -330,7 +328,6 @@ tMenuItemNFS4LeftRightChoice::tMenuItemNFS4LeftRightChoice(u_int textDescription
   : tMenuItemLeftRightChoice(textDescription,dataPtr)
 {
   
-  *(void **)&(this->_vf) = (void *)tMenuItemNFS4LeftRightChoice_vtable;
   this->fButtonImage = firstFrame;
   this->fOffset = 0xe;
   this->fTransitionVal = 0;
@@ -346,7 +343,6 @@ tMenuItemNFS4LeftRightChoice::tMenuItemNFS4LeftRightChoice(u_int textDescription
 tMenuItemNFS4LeftRightChoice::~tMenuItemNFS4LeftRightChoice()
 
 {
-  *(void **)&(this->_vf) = (void *)tMenuItemNFS4LeftRightChoice_vtable;
   return;
 }
 
@@ -488,7 +484,7 @@ void tMenuItemNFS4LeftRightChoice::UpdateTransition(bool selected)
   }
   this->fTransitionSpeed = 0;
 UpdTrans_callBaseLRChoice:
-  ((tMenuItem *)this)->UpdateTransition(selected);
+  this->tMenuItem::UpdateTransition(selected);
   return;
 }
 
@@ -620,7 +616,6 @@ tMenuNFS4::tMenuNFS4(u_int flags,tScreen *screenHandler,tMenu *nextMenu,
   : tMenu(flags,screenHandler,nextMenu,optionsMenu,OnButtonPress,title)
 {
 
-  this->_vf = (__vtbl_ptr_type (*)[11])tMenuNFS4_vtable;
   this->tMenuConstructor(firstItem,(&firstItem + 1));
   return;
 }
@@ -634,7 +629,6 @@ tMenuNFS4::tMenuNFS4(u_int flags,tScreen *screenHandler,tMenu *nextMenu,tMenu *o
   : tMenu(flags,screenHandler,nextMenu,optionsMenu,OnButtonPress,title)
 {
   
-  *(void **)&(this->_vf) = (void *)tMenuNFS4_vtable;
   return;
 }
 
@@ -645,7 +639,6 @@ tMenuNFS4::tMenuNFS4(u_int flags,tScreen *screenHandler,tMenu *nextMenu,tMenu *o
 tMenuNFS4::~tMenuNFS4()
 
 {
-  *(void **)&(this->_vf) = (void *)tMenuNFS4_vtable;
   return;
 }
 
@@ -701,8 +694,7 @@ void tMenuNFS4::TransitionOff()
   short i;
 
   for (i = 0; this->fItemList[i] != (tMenuItem *)0x0; i++) {
-    (*(*this->fItemList[i]->_vf)[7].pfn)
-      ((char *)this->fItemList[i] + (int)(*this->fItemList[i]->_vf)[7].delta);
+    this->fItemList[i]->TransitionOff();
   }
   return;
 }
@@ -717,8 +709,7 @@ void tMenuNFS4::TransitionOn()
   short i;
 
   for (i = 0; this->fItemList[i] != (tMenuItem *)0x0; i++) {
-    (*(*this->fItemList[i]->_vf)[8].pfn)
-      ((char *)this->fItemList[i] + (int)(*this->fItemList[i]->_vf)[8].delta);
+    this->fItemList[i]->TransitionOn();
   }
   return;
 }
@@ -739,8 +730,7 @@ bool tMenuNFS4::TransitionIsFinished()
 
   result = 1;
   for (i = 0; this->fItemList[i] != (tMenuItem *)0x0; i++)
-    result = (result & (*(*this->fItemList[i]->_vf)[9].pfn)
-      ((char *)this->fItemList[i] + (int)(*this->fItemList[i]->_vf)[9].delta)) != 0;
+    result = (result & this->fItemList[i]->TransitionIsFinished()) != 0;
   return result;
 }
 
@@ -755,10 +745,7 @@ void tMenuNFS4::UpdateTransition()
 
   i = 0;
   while (this->fItemList[i] != (tMenuItem *)0x0) {
-    (*(*this->fItemList[i]->_vf)[10].pfn)
-              ((char *)this->fItemList[i] +
-               (int)(*this->fItemList[i]->_vf)[10].delta,
-               (int)i == this->fCurrentItem);
+    this->fItemList[i]->UpdateTransition((int)i == this->fCurrentItem);
     i = i + 1;
   }
   return;
@@ -771,10 +758,7 @@ void tMenuNFS4::UpdateTransition()
 void tMenuNFS4::DrawItem(int item)
 
 {
-  (*(*this->fItemList[item]->_vf)[5].pfn)
-            ((char *)this->fItemList[item] +
-             (int)(*this->fItemList[item]->_vf)[5].delta,10,item * 0x12 + 0x2b,
-             item == this->fCurrentItem);
+  this->fItemList[item]->Draw(10,item * 0x12 + 0x2b,item == this->fCurrentItem);
   return;
 }
 
@@ -810,8 +794,7 @@ void tMenuNFS4::Draw()
                       FEApp->fPlayer != 0 ? 0x79 : 0x10,0,0,&drawFlags);
   }
   for (i = 0; this->fItemList[i] != (tMenuItem *)0x0; i++) {
-    (*((__vtbl_ptr_type *)this->_vf)[11].pfn)
-              ((int)this + ((__vtbl_ptr_type *)this->_vf)[11].delta,(int)i);
+    this->DrawItem((int)i);
   }
   return;
 }
@@ -825,7 +808,6 @@ tMenuNFS4TwoPlayer::tMenuNFS4TwoPlayer(u_int flags,tScreen *screenHandler,tMenu 
   : tMenuNFS4(flags,screenHandler,nextMenu,optionsMenu,OnButtonPress,title)
 {
   
-  this->_vf = (__vtbl_ptr_type (*)[11])tMenuNFS4TwoPlayer_vtable;
   this->fChildMenu = (tMenu *)0x0;
   ((tMenu *)this)->tMenuConstructor(firstItem,(&firstItem + 1));
   return;
@@ -838,7 +820,6 @@ tMenuNFS4TwoPlayer::tMenuNFS4TwoPlayer(u_int flags,tScreen *screenHandler,tMenu 
 tMenuNFS4TwoPlayer::~tMenuNFS4TwoPlayer()
 
 {
-  *(void **)&(this->_vf) = (void *)tMenuNFS4TwoPlayer_vtable;
   return;
 }
 
@@ -855,10 +836,7 @@ void tMenuNFS4TwoPlayer::DrawItem(int item)
   if (FEApp->fPlayer == '\x01') {
     y = 0x94;
   }
-  (*(*this->fItemList[item]->_vf)[5].pfn)
-            ((char *)this->fItemList[item] +
-             (int)(*this->fItemList[item]->_vf)[5].delta,10,y + item * 0x12,
-             item == this->fCurrentItem);
+  this->fItemList[item]->Draw(10,y + item * 0x12,item == this->fCurrentItem);
   return;
 }
 
@@ -871,7 +849,6 @@ tMenuNFS4Bottom::tMenuNFS4Bottom(u_int flags,tScreen *screenHandler,tMenu *nextM
   : tMenuNFS4(flags,screenHandler,nextMenu,optionsMenu,OnButtonPress,title)
 {
   
-  this->_vf = (__vtbl_ptr_type (*)[11])tMenuNFS4Bottom_vtable;
   ((tMenu *)this)->tMenuConstructor(firstItem,(&firstItem + 1));
   return;
 }
@@ -883,7 +860,6 @@ tMenuNFS4Bottom::tMenuNFS4Bottom(u_int flags,tScreen *screenHandler,tMenu *nextM
 tMenuNFS4Bottom::~tMenuNFS4Bottom()
 
 {
-  *(void **)&(this->_vf) = (void *)tMenuNFS4Bottom_vtable;
   return;
 }
 
@@ -904,10 +880,7 @@ void tMenuNFS4Bottom::Draw()
   MenuNFS4_SetHelpPos(r);
   i = 0;
   while (this->fItemList[i] != (tMenuItem *)0x0) {
-    (*(*this->fItemList[i]->_vf)[5].pfn)
-              ((char *)this->fItemList[i] +
-               (int)(*this->fItemList[i]->_vf)[5].delta,0,0,
-               (int)i == this->fCurrentItem);
+    this->fItemList[i]->Draw(0,0,(int)i == this->fCurrentItem);
     i = i + 1;
   }
   return;
@@ -922,7 +895,6 @@ tMenuBlank::tMenuBlank(u_int flags,tScreen *screenHandler,tMenu *nextMenu,tMenu 
   : tMenuNFS4(flags,screenHandler,nextMenu,optionsMenu,OnButtonPress,title)
 {
   
-  *(void **)&(this->_vf) = (void *)tMenuBlank_vtable;
   this->fNeverAnyEnabled = 1;
   this->VertHelp = 0;
   return;
@@ -935,7 +907,6 @@ tMenuBlank::tMenuBlank(u_int flags,tScreen *screenHandler,tMenu *nextMenu,tMenu 
 tMenuBlank::~tMenuBlank()
 
 {
-  *(void **)&(this->_vf) = (void *)tMenuBlank_vtable;
   return;
 }
 
@@ -947,7 +918,7 @@ void tMenuBlank::Draw()
 
 {
   if (this->fInMenuTransition != 0) {
-    (*(*this->_vf)[7].pfn)((int)this + (*this->_vf)[7].delta);
+    this->TransitionIsFinished();
     this->fTransitionVal =
          this->fTransitionVal + (short)*(signed char *)&this->fTransitionDirection;
   }
@@ -966,7 +937,7 @@ void tMenuBlank::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuComm
   }
   else {
     this->fItemList[0] = (tMenuItem *)0x0;
-    ((tMenu *)this)->ProcessInput(fromPlayer,keyval,command);
+    this->tMenu::ProcessInput(fromPlayer,keyval,command);
   }
   return;
 }
@@ -1043,7 +1014,6 @@ tMenuOptions::tMenuOptions(u_int flags,tScreen *screenHandler,tMenu *nextMenu,
   : tMenuNFS4(flags,screenHandler,nextMenu,optionsMenu,OnButtonPress,title)
 {
   
-  this->_vf = (__vtbl_ptr_type (*)[11])tMenuOptions_vtable;
   ((tMenu *)this)->tMenuConstructor(firstItem,(&firstItem + 1));
   this->fPlayer = player;
   return;
@@ -1056,7 +1026,6 @@ tMenuOptions::tMenuOptions(u_int flags,tScreen *screenHandler,tMenu *nextMenu,
 tMenuOptions::~tMenuOptions()
 
 {
-  *(void **)&(this->_vf) = (void *)tMenuOptions_vtable;
   return;
 }
 
@@ -1080,7 +1049,7 @@ void tMenuOptions::Draw()
 
   numItems = ((tMenu *)this)->GetNumberEnabledItems();
   w = 0x140;
-  (*(*this->_vf)[7].pfn)((int)this + (*this->_vf)[7].delta);
+  this->TransitionIsFinished();
   h = numItems * 0x12;
   if (this->fInMenuTransition != 0) {
     deltaTicks = ticks - this->fMenuEnterTicks;
@@ -1123,10 +1092,7 @@ void tMenuOptions::Draw()
     while (true) {
       if (this->fItemList[i] == (tMenuItem *)0x0) break;
       if (((this->fItemList[i]->fFlags ^ 1) & 1) != 0) {
-        (*(*this->fItemList[i]->_vf)[5].pfn)
-                  ((char *)this->fItemList[i] +
-                   (int)(*this->fItemList[i]->_vf)[5].delta,x + 10,itemY,
-                   (int)i == this->fCurrentItem);
+        this->fItemList[i]->Draw(x + 10,itemY,(int)i == this->fCurrentItem);
         itemY = itemY + 0x12;
       }
       i = i + 1;
@@ -1174,9 +1140,7 @@ TransitionOn_nextItem:
     goto TransitionOn_itemsDone;
   }
   if (((itemCursor->fItemList[0]->fFlags ^ 1) & 1) != 0) {
-    (*(*itemCursor->fItemList[0]->_vf)[8].pfn)
-        ((char *)itemCursor->fItemList[0] +
-         (int)(*itemCursor->fItemList[0]->_vf)[8].delta);
+    itemCursor->fItemList[0]->TransitionOn();
   }
   itemCursor = (tMenuOptions *)&itemCursor->fTitle;
   goto TransitionOn_nextItem;
@@ -1242,7 +1206,6 @@ void tMenuBlank::UpdateTransition()
  * ___24tMenuItemLeftRightChoice the way retail does; the standalone symbol gcc then stops
  * emitting is supplied here, in place, with C linkage. */
 extern "C" void ___24tMenuItemLeftRightChoice(void *);
-extern "C" void ___29tMenuItemOptionsTwoItemChoice(void *thisp) { ___24tMenuItemLeftRightChoice(thisp); }
 
 
 
@@ -1253,16 +1216,10 @@ extern "C" void ___29tMenuItemOptionsTwoItemChoice(void *thisp) { ___24tMenuItem
  * ___24tMenuItemLeftRightChoice the way retail does; the standalone symbol gcc then stops
  * emitting is supplied here, in place, with C linkage. */
 extern "C" void ___24tMenuItemLeftRightChoice(void *);
-extern "C" void ___31tMenuItemOptionsLeftRightChoice(void *thisp) { ___24tMenuItemLeftRightChoice(thisp); }
 
 
 
-/* ---- tMenuItemGoToMenuNFS4Button::Draw  [FEMENUEXTENDED.CPP:?] SLD-FLAG:NO_SLD ---- */
-
-void tMenuItemGoToMenuNFS4Button::Draw(bool selected)
-
-{
-  return;
-}
+/* tMenuItemGoToMenuNFS4Button::Draw(bool) is an in-class inline (femenuextended_types.h): retail emits it in the
+ * deferred-inline batch, AFTER the two synthesized Options* destructors. */
 
 /* end of femenuextended.cpp */

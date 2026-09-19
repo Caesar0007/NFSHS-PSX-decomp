@@ -1,0 +1,143 @@
+
+C:\Temp\nfs4-decomp\build\recon\syslib\psx\libapi\FIRST.c.o:     file format elf32-littlemips
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         0000029c  00000000  00000000  00000034  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+  1 .data         00000000  00000000  00000000  000002d0  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  2 .bss          00000030  00000000  00000000  000002d0  2**0
+                  ALLOC
+  3 .reginfo      00000018  00000000  00000000  000002d0  2**2
+                  CONTENTS, READONLY, LINK_ONCE_SAME_SIZE
+  4 .MIPS.abiflags 00000018  00000000  00000000  000002e8  2**3
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA, LINK_ONCE_SAME_SIZE
+  5 .pdr          00000040  00000000  00000000  00000300  2**2
+                  CONTENTS, RELOC, READONLY
+  6 .gnu.attributes 00000010  00000000  00000000  00000340  2**0
+                  CONTENTS, READONLY
+
+
+C:\Temp\nfs4-decomp\build\recon\syslib\psx\libapi\FIRST.c.o:     file format elf32-littlemips
+
+RELOCATION RECORDS FOR [.text]:
+OFFSET   TYPE              VALUE
+00000024 R_MIPS_HI16       .bss
+00000028 R_MIPS_LO16       .bss
+000000a8 R_MIPS_HI16       .bss
+000000b0 R_MIPS_LO16       .bss
+000000ac R_MIPS_26         strcmp
+000000d8 R_MIPS_26         .text
+000000e4 R_MIPS_HI16       .bss
+000000e8 R_MIPS_LO16       .bss
+000000ec R_MIPS_26         .text
+000000f4 R_MIPS_HI16       .text
+000000f8 R_MIPS_LO16       .text
+000000fc R_MIPS_26         .text
+00000150 R_MIPS_HI16       .bss
+00000158 R_MIPS_LO16       .bss
+00000154 R_MIPS_26         strcmp
+00000178 R_MIPS_26         firstfile2
+000001f0 R_MIPS_HI16       .bss
+000001f4 R_MIPS_LO16       .bss
+00000234 R_MIPS_26         strcmp
+00000230 R_MIPS_HI16       .bss
+00000238 R_MIPS_LO16       .bss
+00000244 R_MIPS_26         .text
+00000264 R_MIPS_HI16       .bss
+00000268 R_MIPS_LO16       .bss
+
+
+RELOCATION RECORDS FOR [.pdr]:
+OFFSET   TYPE              VALUE
+00000000 R_MIPS_32         firstfile
+00000020 R_MIPS_32         .text
+
+
+
+
+C:\Temp\nfs4-decomp\build\recon\syslib\psx\libapi\FIRST.c.o:     file format elf32-littlemips
+
+SYMBOL TABLE:
+00000000 l    d  .text	00000000 .text
+00000000 l    d  .data	00000000 .data
+00000000 l    d  .bss	00000000 .bss
+00000000 l    d  .reginfo	00000000 .reginfo
+00000000 l    d  .MIPS.abiflags	00000000 .MIPS.abiflags
+00000000 l    d  .pdr	00000000 .pdr
+00000000 l    d  .gnu.attributes	00000000 .gnu.attributes
+00000000 l    df *ABS*	00000000 C:\Temp\nfs4-decomp\recon\syslib\psx\libapi\FIRST.c
+00000000 l       .text	00000000 gcc2_compiled.
+00000000 l       .text	00000000 __gnu_compiled_c
+00000000 g     F .text	0000019c firstfile
+0000019c l     F .text	00000100 _first_patch
+0000019c l     F .text	00000100 func_80109F5C
+00000008 l       .bss	00000000 D_80148A84
+00000000         *UND*	00000000 strcmp
+00000000 l       .bss	00000000 D_80148A7C
+00000000         *UND*	00000000 firstfile2
+0000029c l       .text	00000000 LM2
+00000004 l       .bss	00000000 D_80148A80
+
+
+
+
+C:\Temp\nfs4-decomp\build\recon\syslib\psx\libapi\FIRST.c.o:     file format elf32-littlemips
+
+Contents of section .text:
+ 0000 d8ffbd27 1800b2af 21908000 1c00b3af  ...'....!.......
+ 0010 2198a000 2000bfaf 1400b1af 1000b0af  !... ...........
+ 0020 00004282 0000043c 08008424 3b004228  ..B....<...$;.B(
+ 0030 09004014 21184002 00006290 01006324  ..@.!.@...b...c$
+ 0040 000082a0 00006280 00000000 3b004228  ......b.....;.B(
+ 0050 f9ff4010 01008424 000080a0 5401038c  ..@....$....T...
+ 0060 cccc023c cdcc4234 19006200 5001108c  ...<..B4..b.P...
+ 0070 10300000 82190600 80100300 21104300  .0..........!.C.
+ 0080 00110200 21180202 2b100302 0f004010  ....!...+.....@.
+ 0090 00000000 21886000 0000048e 00000000  ....!.`.........
+ 00a0 06008010 00000000 0000053c 0000000c  ...........<....
+ 00b0 0800a524 0a004010 00000000 50001026  ...$..@.....P..&
+ 00c0 2b101102 f4ff4014 00000000 21180000  +.....@.....!...
+ 00d0 0c006014 21100000 60000008 00000000  ..`.!...`.......
+ 00e0 3400028e 0000013c 000022ac 34000008  4......<..".4...
+ 00f0 01000324 0000023c 9c014224 5d000008  ...$...<..B$]...
+ 0100 340002ae 5401038c cccc023c cdcc4234  4...T......<..B4
+ 0110 19006200 5001108c 10300000 82190600  ..b.P....0......
+ 0120 80100300 21104300 00110200 21180202  ....!.C.....!...
+ 0130 2b100302 10004010 21204002 21886000  +.....@.! @.!.`.
+ 0140 0000048e 00000000 06008010 00000000  ................
+ 0150 0000053c 0000000c 0800a524 e5ff4010  ...<.......$..@.
+ 0160 00000000 50001026 2b101102 f4ff4014  ....P..&+.....@.
+ 0170 00000000 21204002 0000000c 21286002  ....! @.....!(`.
+ 0180 2000bf8f 1c00b38f 1800b28f 1400b18f   ...............
+ 0190 1000b08f 0800e003 2800bd27 d0ffbd27  ........(..'...'
+ 01a0 1800b2af 21908000 2000b4af 21a0a000  ....!... ...!...
+ 01b0 2800bfaf 2400b5af 1c00b3af 1400b1af  (...$...........
+ 01c0 1000b0af 0000428e 00000000 03004014  ......B.......@.
+ 01d0 21a8c000 01000224 000042ae 5401038c  !......$..B.T...
+ 01e0 cccc023c cdcc4234 19006200 5001108c  ...<..B4..b.P...
+ 01f0 0000133c 0000738e 10380000 82190700  ...<..s..8......
+ 0200 80100300 21104300 00110200 21180202  ....!.C.....!...
+ 0210 2b100302 12004010 21204002 21886000  +.....@.! @.!.`.
+ 0220 0000048e 00000000 08008010 00000000  ................
+ 0230 0000053c 0000000c 0800a524 03004014  ...<.......$..@.
+ 0240 00000000 97000008 340013ae 50001026  ........4...P..&
+ 0250 2b101102 f2ff4014 00000000 21204002  +.....@.....! @.
+ 0260 21288002 0000023c 0000428c 00000000  !(.....<..B.....
+ 0270 09f84000 2130a002 2800bf8f 2400b58f  ..@.!0..(...$...
+ 0280 2000b48f 1c00b38f 1800b28f 1400b18f   ...............
+ 0290 1000b08f 0800e003 3000bd27           ........0..'    
+Contents of section .reginfo:
+ 0000 fe003fa0 00000000 00000000 00000000  ..?.............
+ 0010 00000000 00000000                    ........        
+Contents of section .MIPS.abiflags:
+ 0000 00000100 01010001 00000000 00000000  ................
+ 0010 00000000 00000000                    ........        
+Contents of section .pdr:
+ 0000 00000000 00000f80 f8ffffff 00000000  ................
+ 0010 00000000 28000000 1d000000 1f000000  ....(...........
+ 0020 9c010000 00003f80 f8ffffff 00000000  ......?.........
+ 0030 00000000 30000000 1d000000 1f000000  ....0...........
+Contents of section .gnu.attributes:
+ 0000 410f0000 00676e75 00010700 00000401  A....gnu........

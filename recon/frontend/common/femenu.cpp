@@ -442,7 +442,6 @@ void tListIteratorRangeIndexed::Decrement(tPlayer)
 tMenuItem::tMenuItem(u_int textDescription)
 
 {
-  *(void **)&(this->_vf) = (void *)tMenuItem_vtable;
   this->fTextDescription = textDescription;
   this->fFlags = 0;
   this->fSelFade = 0;
@@ -459,7 +458,6 @@ tMenuItem::tMenuItem(u_int textDescription)
 tMenuItem::~tMenuItem()
 
 {
-  *(void **)&(this->_vf) = (void *)tMenuItem_vtable;
   return;
 }
 
@@ -535,8 +533,7 @@ void tMenuItem::Draw(int x,int y,bool selected)
 {
   /* SYM-CODEGEN-CARRIER: x -- the `iib` mangling proves this unused argument. */
   /* SYM-CODEGEN-CARRIER: y -- the `iib` mangling proves this unused argument. */
-  (*(*this->_vf)[4].pfn)((char *)this + (int)(*this->_vf)[4].delta,
-                         selected);
+  this->Draw(selected);
 }
 
 
@@ -548,8 +545,7 @@ void tMenuItem::Draw(int x,int y,int w,bool selected)
 {
   /* SYM-CODEGEN-CARRIER: w -- the mangled `iiib` signature proves this unused
      third coordinate argument even though optimized debug has no parameter row. */
-  (*(*this->_vf)[6].pfn)((char *)this + (int)(*this->_vf)[6].delta,
-                         selected,x,y,0);
+  this->Draw(selected,x,y,0);
 }
 
 
@@ -559,7 +555,6 @@ tMenuItemInteractive::tMenuItemInteractive(u_int textDescription)
   : tMenuItem(textDescription)
 {
   
-  *(void **)&(this->_vf) = (void *)tMenuItemInteractive_vtable;
   return;
 }
 
@@ -570,7 +565,6 @@ tMenuItemInteractive::tMenuItemInteractive(u_int textDescription)
 tMenuItemInteractive::~tMenuItemInteractive()
 
 {
-  *(void **)&(this->_vf) = (void *)tMenuItemInteractive_vtable;
   return;
 }
 
@@ -580,7 +574,6 @@ tMenuItemInteractive::~tMenuItemInteractive()
 tMenuItemLeftRightChoice::tMenuItemLeftRightChoice(u_int textDescription,tListIterator *dataPtr)
   : tMenuItemInteractive(textDescription)
 {
-  *(void **)&(this->_vf) = (void *)tMenuItemLeftRightChoice_vtable;
   this->fData = dataPtr;
   this->fFlags |= 0x400;
   return;
@@ -593,7 +586,6 @@ tMenuItemLeftRightChoice::tMenuItemLeftRightChoice(u_int textDescription,tListIt
 tMenuItemLeftRightChoice::~tMenuItemLeftRightChoice()
 
 {
-  *(void **)&(this->_vf) = (void *)tMenuItemLeftRightChoice_vtable;
   return;
 }
 
@@ -616,7 +608,7 @@ void tMenuItemLeftRightChoice::ProcessInput(tPlayer fromPlayer,tInputKeyType &ke
   int frameFiller[2];
 
   /* SYM-INLINE-THIS: IsDisabled */
-  if (this->IsDisabled()) {
+  if (tMenuItem_IsDisabled(this)) {
     return;
   }
   switch (keyval) {
@@ -670,11 +662,9 @@ void tMenuItemLeftRightChoice::Draw(bool selected)
 
 /* ---- tMenuItemLeftRightSlider::ctor  [FEMENU.CPP:612-616] SLD-VERIFIED ---- */
 tMenuItemLeftRightSlider::tMenuItemLeftRightSlider(u_int textDescription,tListIterator *dataPtr)
-  : tMenuItemInteractive(textDescription)
+  : tMenuItemInteractive(textDescription), fData(dataPtr)
 {
-  this->fData = dataPtr;
   this->fFlags |= 0x80;
-  *(void **)&(this->_vf) = (void *)tMenuItemLeftRightSlider_vtable;
   this->fFlags |= 0x80;
   return;
 }
@@ -686,7 +676,6 @@ tMenuItemLeftRightSlider::tMenuItemLeftRightSlider(u_int textDescription,tListIt
 tMenuItemLeftRightSlider::~tMenuItemLeftRightSlider()
 
 {
-  *(void **)&(this->_vf) = (void *)tMenuItemLeftRightSlider_vtable;
   return;
 }
 
@@ -717,7 +706,7 @@ void tMenuItemLeftRightSlider::ProcessInput(tPlayer fromPlayer,tInputKeyType &ke
   int frameFiller[2];
 
   /* SYM-INLINE-THIS: IsDisabled */
-  if (this->IsDisabled()) {
+  if (tMenuItem_IsDisabled(this)) {
     return;
   }
   switch (keyval) {
@@ -1331,7 +1320,6 @@ tMenuItemGoToMenuButton::tMenuItemGoToMenuButton(u_int textDescription,tMenu *ne
   : tMenuItemInteractive(textDescription)
 {
   
-  *(void **)&(this->_vf) = (void *)tMenuItemGoToMenuButton_vtable;
   this->fNewMenu = newMenu;
   this->fOnButtonPress = OnButtonPress;
   return;
@@ -1344,7 +1332,6 @@ tMenuItemGoToMenuButton::tMenuItemGoToMenuButton(u_int textDescription,tMenu *ne
 tMenuItemGoToMenuButton::~tMenuItemGoToMenuButton()
 
 {
-  *(void **)&(this->_vf) = (void *)tMenuItemGoToMenuButton_vtable;
   return;
 }
 
@@ -1418,7 +1405,6 @@ tMenu::tMenu(u_int flags,tScreen *screenHandler,tMenu *nextMenu,tMenu *optionsMe
                 void (*OnButtonPress)(tMenuCommand&),short title)
 
 {
-  *(void **)&(this->_vf) = (void *)tMenu_vtable;
   this->fFlags = flags;
   this->fCurrentItem = 0;
   this->fScreen = screenHandler;
@@ -1438,7 +1424,6 @@ tMenu::tMenu(u_int flags,tScreen *screenHandler,tMenu *nextMenu,tMenu *optionsMe
 tMenu::~tMenu()
 
 {
-  *(void **)&(this->_vf) = (void *)tMenu_vtable;
   return;
 }
 
@@ -1487,10 +1472,7 @@ void tMenu::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenuCommand &
     keyval = kInput_KeyType_Start;
   }
   if (this->fItemList[this->fCurrentItem] != (tMenuItem *)0x0) {
-    (*(*this->fItemList[this->fCurrentItem]->_vf)[3].pfn)
-        ((char *)this->fItemList[this->fCurrentItem] +
-         (int)(*this->fItemList[this->fCurrentItem]->_vf)[3].delta,
-         fromPlayer,&keyval,&command);
+    this->fItemList[this->fCurrentItem]->ProcessInput(fromPlayer,keyval,command);
   }
   switch (keyval) {
     case kInput_KeyType_Up:
@@ -1616,10 +1598,7 @@ void tMenu::Draw()
 
     item = 0;
     while (this->fItemList[item] != (tMenuItem *)0x0) {
-      (*(*this->fItemList[item]->_vf)[4].pfn)
-                ((char *)this->fItemList[item] +
-                 (int)(*this->fItemList[item]->_vf)[4].delta,
-                 (int)item == this->fCurrentItem);
+      this->fItemList[item]->Draw((int)item == this->fCurrentItem);
       item = item + 1;
     }
   }
@@ -1637,10 +1616,7 @@ void tMenu::UpdateTransition()
 
   item = 0;
   while (this->fItemList[item] != (tMenuItem *)0x0) {
-    (*(*this->fItemList[item]->_vf)[10].pfn)
-              ((char *)this->fItemList[item] +
-               (int)(*this->fItemList[item]->_vf)[10].delta,
-               this->fCurrentItem == (int)item);
+    this->fItemList[item]->UpdateTransition(this->fCurrentItem == (int)item);
     item = item + 1;
   }
   return;
@@ -1691,9 +1667,7 @@ bool tMenu::IsSubMenu()
 long tMenu::DebounceKeys()
 
 {
-  return (*(*this->fItemList[this->fCurrentItem]->_vf)[2].pfn)
-    ((char *)this->fItemList[this->fCurrentItem] +
-     (int)(*this->fItemList[this->fCurrentItem]->_vf)[2].delta);
+  return this->fItemList[this->fCurrentItem]->DebounceKeys();
 }
 
 

@@ -503,9 +503,7 @@ ProcInpLocSpch_setFlags:
     return;
   }
   if (keyval == kInput_KeyType_Triangle) {
-    if (((*(*FEAppA[0]->fCurrentMenu[0]->_vf)[8].pfn)
-                      ((int)FEAppA[0]->fCurrentMenu[0]->fItemList + -0x10 +
-                       (*FEAppA[0]->fCurrentMenu[0]->_vf)[8].delta) ^ 1) != 0) {
+    if ((FEAppA[0]->fCurrentMenu[0]->IsSubMenu() ^ 1) != 0) {
       TurnOffInstant(&this->fVideoWall);
     }
   }

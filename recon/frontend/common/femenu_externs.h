@@ -4,12 +4,6 @@
 #include "femenu_types.h"
 
 /* ===== class vtables ===== */
-extern __vtbl_ptr_type tMenuItem_vtable[];
-extern __vtbl_ptr_type tMenuItemInteractive_vtable[];
-extern __vtbl_ptr_type tMenuItemLeftRightChoice_vtable[];
-extern __vtbl_ptr_type tMenuItemLeftRightSlider_vtable[];
-extern __vtbl_ptr_type tMenuItemGoToMenuButton_vtable[];
-extern __vtbl_ptr_type tMenu_vtable[];
 
 /* ===== globals ===== */
 extern tFEApplication *FEApp;

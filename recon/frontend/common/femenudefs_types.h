@@ -3,10 +3,9 @@
 #define NFS4_FRONTEND_COMMON_FEMENUDEFS_TYPES_H
 
 /* FEMenuDefs retains the input-key values but not the foreign tPlayer tag. */
-#define tPlayer int
-#define kPlayerBoth -1
-#define kPlayerOne 0
-#define kPlayerTwo 1
+/* (2026-09-19) the real tPlayer enum: FEMenuDefs.obj emits the tBlank* vtables, and with `#define tPlayer int` their
+ * ProcessInput slots named the `i`-mangled overloads instead of the overrides. */
+#include "fe_player_types.h"
 #define RaceType_SingleRace 0
 #define RaceType_HotPursuit 1
 #define RaceType_PinkSlips 6

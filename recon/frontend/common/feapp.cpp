@@ -337,45 +337,29 @@ void tFEApplication::Redraw()
     this->fPlayer = (char)i;
     this->fYOffset = (u_char)this->fPlayer * height;
     if (this->fCurrentMenu[(u_char)this->fPlayer] != (tMenu *)0x0) {
-      (*(*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[10].pfn)
-                ((char *)this->fCurrentMenu[(u_char)this->fPlayer] +
-                 (*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[10].delta);
+      this->fCurrentMenu[(u_char)this->fPlayer]->UpdateTransition();
     }
     if (this->fParentMenu[(u_char)this->fPlayer] != (tMenu *)0x0) {
-      (*(*this->fParentMenu[(u_char)this->fPlayer]->_vf)[10].pfn)
-                ((char *)this->fParentMenu[(u_char)this->fPlayer] +
-                 (*this->fParentMenu[(u_char)this->fPlayer]->_vf)[10].delta);
+      this->fParentMenu[(u_char)this->fPlayer]->UpdateTransition();
     }
     if (this->fCurrentScreen[(u_char)this->fPlayer] != (tScreen *)0x0) {
       (this->fCurrentScreen[(u_char)this->fPlayer])->UpdateTransition();
     }
     if ((this->fCurrentMenu[(u_char)this->fPlayer] != (tMenu *)0x0) &&
-       ((*(*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[8].pfn)
-                ((char *)this->fCurrentMenu[(u_char)this->fPlayer] +
-                 (*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[8].delta) != 0)) {
-      (*(*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[9].pfn)
-                ((char *)this->fCurrentMenu[(u_char)this->fPlayer] +
-                 (*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[9].delta);
+       (this->fCurrentMenu[(u_char)this->fPlayer]->IsSubMenu() != 0)) {
+      this->fCurrentMenu[(u_char)this->fPlayer]->Draw();
     }
     if (this->fCurrentScreen[(u_char)this->fPlayer] != (tScreen *)0x0) {
       (this->fCurrentScreen[(u_char)this->fPlayer])->Draw(false);
     }
     if (this->fCurrentMenu[(u_char)this->fPlayer] != (tMenu *)0x0) {
       if ((this->waitingForOtherPlayer[(u_char)this->fPlayer] == 0) ||
-          (((*(*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[7].pfn)
-                ((char *)this->fCurrentMenu[(u_char)this->fPlayer] +
-                 (*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[7].delta) == 0) &&
-           ((*(*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[8].pfn)
-                ((char *)this->fCurrentMenu[(u_char)this->fPlayer] +
-                 (*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[8].delta) == 0))) {
-        (*(*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[9].pfn)
-                  ((char *)this->fCurrentMenu[(u_char)this->fPlayer] +
-                   (*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[9].delta);
+          ((this->fCurrentMenu[(u_char)this->fPlayer]->TransitionIsFinished() == 0) &&
+           (this->fCurrentMenu[(u_char)this->fPlayer]->IsSubMenu() == 0))) {
+        this->fCurrentMenu[(u_char)this->fPlayer]->Draw();
       }
       if (this->fParentMenu[(u_char)this->fPlayer] != (tMenu *)0x0) {
-        (*(*this->fParentMenu[(u_char)this->fPlayer]->_vf)[9].pfn)
-                  ((char *)this->fParentMenu[(u_char)this->fPlayer] +
-                   (*this->fParentMenu[(u_char)this->fPlayer]->_vf)[9].delta);
+        this->fParentMenu[(u_char)this->fPlayer]->Draw();
       }
     }
     /* MATCH (W60-A10): the WHOLE 10-diff residual of this fn is ONE window --
@@ -696,12 +680,10 @@ void tFEApplication::SetMenu(short i,tMenu *menu)
       this->fCurrentMusic = menu->fFlags & 0xf000;
       this->UpdateMusic();
     }
-    if (((*(*menu->_vf)[8].pfn)((int)menu + (*menu->_vf)[8].delta) ^ 1) != 0) {
+    if ((menu->IsSubMenu() ^ 1) != 0) {
       this->fTransitionToMenu[i] = menu;
       if ((this->fCurrentMenu[i] != (tMenu *)0x0) && (menu != (tMenu *)0x0)) {
-        (*(*this->fCurrentMenu[i]->_vf)[5].pfn)
-            ((char *)this->fCurrentMenu[i] +
-             (*this->fCurrentMenu[i]->_vf)[5].delta);
+        this->fCurrentMenu[i]->TransitionOff();
       }
     }
     else {
@@ -800,12 +782,9 @@ void tFEApplication::RunDemoVideo()
   if ((tMenuNFS4 *)this->fCurrentMenu[0] == &menuDefs->menuMain) {
     AudioMus_StopSong(0x78);
     FeAudio_systemtask(0);
-    (*(*this->fCurrentMenu[0]->_vf)[5].pfn)
-              ((char *)this->fCurrentMenu[0] + (*this->fCurrentMenu[0]->_vf)[5].delta);
+    this->fCurrentMenu[0]->TransitionOff();
     (this->fCurrentScreen[0])->TransitionOff(kScreen_TransitionTypeScreen,(tMenu *)0x0);
-    while (((*(*this->fCurrentMenu[0]->_vf)[7].pfn)
-                   ((char *)this->fCurrentMenu[0] +
-                    (*this->fCurrentMenu[0]->_vf)[7].delta) == 0) ||
+    while ((this->fCurrentMenu[0]->TransitionIsFinished() == 0) ||
            ((*(*this->fCurrentScreen[0]->_vf)[8].pfn)
                    ((char *)this->fCurrentScreen[0] +
                     (*this->fCurrentScreen[0]->_vf)[8].delta) == 0)) {
@@ -839,15 +818,13 @@ void tFEApplication::RunDemoVideo()
          SYM-CODEGEN-CARRIER: vtbl */
       int largest = largestunused();
       tMenu *menu = this->fCurrentMenu[0];
-      __vtbl_ptr_type (*vtbl)[11] = menu->_vf;
 
       gLargestUnused = largest;
-      (*(*vtbl)[2].pfn)((char *)menu + (*vtbl)[2].delta);
+      menu->Initialize();
     }
     (*(*this->fCurrentScreen[0]->_vf)[6].pfn)
               ((char *)this->fCurrentScreen[0] + (*this->fCurrentScreen[0]->_vf)[6].delta);
-    (*(*this->fCurrentMenu[0]->_vf)[6].pfn)
-              ((char *)this->fCurrentMenu[0] + (*this->fCurrentMenu[0]->_vf)[6].delta);
+    this->fCurrentMenu[0]->TransitionOn();
     (this->fCurrentScreen[0])->TransitionOn(kScreen_TransitionTypeScreen,(tMenu *)0x0);
     currentVideo = (currentVideo + 1) % 3;
   }
@@ -951,9 +928,7 @@ tAppCommand tFEApplication::MainLoop(tMenu *newMenu)
       if (this->fTransitionToMenu[(u_char)this->fPlayer] != (tMenu *)0x0) {
         wasSubMenu = 0;
         if (this->fCurrentMenu[(u_char)this->fPlayer] != (tMenu *)0x0) {
-          if ((*(*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[7].pfn)
-                           ((char *)this->fCurrentMenu[(u_char)this->fPlayer] +
-                            (*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[7].delta) != 0) {
+          if (this->fCurrentMenu[(u_char)this->fPlayer]->TransitionIsFinished() != 0) {
             if (this->fCurrentScreen[(u_char)this->fPlayer] != (tScreen *)0x0) {
               wasSubMenu = (u_int)
                   ((*(*this->fCurrentScreen[(u_char)this->fPlayer]->_vf)[8].pfn)
@@ -965,32 +940,24 @@ tAppCommand tFEApplication::MainLoop(tMenu *newMenu)
           wasSubMenu = 0;
           if (this->fCurrentMenu[(u_char)this->fPlayer] != (tMenu *)0x0) {
             wasSubMenu =
-                 ((bool (*)(...))(*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[8].pfn)
-                           ((char *)this->fCurrentMenu[(u_char)this->fPlayer] +
-                            (*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[8].delta);
+                 this->fCurrentMenu[(u_char)this->fPlayer]->IsSubMenu();
           }
         }
-        if ((*(*this->fTransitionToMenu[(u_char)this->fPlayer]->_vf)[8].pfn)
-                           ((char *)this->fTransitionToMenu[(u_char)this->fPlayer] +
-                            (*this->fTransitionToMenu[(u_char)this->fPlayer]->_vf)[8].delta) != 0) {
+        if (this->fTransitionToMenu[(u_char)this->fPlayer]->IsSubMenu() != 0) {
           this->fParentMenu[(u_char)this->fPlayer] = this->fCurrentMenu[(u_char)this->fPlayer];
         }
         else {
           this->fParentMenu[(u_char)this->fPlayer] = (tMenu *)0x0;
         }
         this->fCurrentMenu[(u_char)this->fPlayer] = this->fTransitionToMenu[(u_char)this->fPlayer];
-        (*(*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[2].pfn)
-                  ((char *)this->fCurrentMenu[(u_char)this->fPlayer] +
-                   (*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[2].delta);
+        this->fCurrentMenu[(u_char)this->fPlayer]->Initialize();
         this->fTransitionToMenu[(u_char)this->fPlayer] = (tMenu *)0x0;
         if ((wasSubMenu != 0) && (this->fTransitionToScreen[0] == (tScreen *)0x0)) {
           doRedraw = false;
           this->backDepth[(u_char)this->fPlayer] = this->backDepth[(u_char)this->fPlayer] + -1;
         }
         else {
-          (*(*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[6].pfn)
-                    ((char *)this->fCurrentMenu[(u_char)this->fPlayer] +
-                     (*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[6].delta);
+          this->fCurrentMenu[(u_char)this->fPlayer]->TransitionOn();
           if (needToSetChildMenu) {
             this->SetMenu(1,this->fCurrentMenu[(u_char)this->fPlayer]->fChildMenu);
             needToSetChildMenu = false;
@@ -1001,14 +968,10 @@ tAppCommand tFEApplication::MainLoop(tMenu *newMenu)
 MainLoop_subMenuDetect:
       if ((u_char)this->fPlayer == kPlayerTwo) {
         if ((this->fCurrentMenu[(u_char)this->fPlayer] != (tMenu *)0x0) &&
-            ((*(*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[7].pfn)
-                 ((char *)this->fCurrentMenu[(u_char)this->fPlayer] +
-                  (*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[7].delta) != 0) &&
+            (this->fCurrentMenu[(u_char)this->fPlayer]->TransitionIsFinished() != 0) &&
             ((int)((u_int)(u_short)stackBackupPin << 0x10) < 0)) {
           if ((this->fParentMenu[(u_char)this->fPlayer] == (tMenu *)0x0) ||
-              ((*(*this->fParentMenu[(u_char)this->fPlayer]->_vf)[7].pfn)
-                   ((char *)this->fParentMenu[(u_char)this->fPlayer] +
-                    (*this->fParentMenu[(u_char)this->fPlayer]->_vf)[7].delta) != 0)) {
+              (this->fParentMenu[(u_char)this->fPlayer]->TransitionIsFinished() != 0)) {
           this->fCurrentMenu[(u_char)this->fPlayer] = (tMenu *)0x0;
           if (this->fCurrentScreen[(u_char)this->fPlayer] != (tScreen *)0x0) {
             (*(*this->fCurrentScreen[(u_char)this->fPlayer]->_vf)[7].pfn)
@@ -1069,9 +1032,7 @@ MainLoop_perPlayerFlagCheck:
         }
         wasSubMenu = false;
         if (((this->fCurrentMenu[(u_char)this->fPlayer] != (tMenu *)0x0) &&
-            ((*(*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[7].pfn)
-                                ((char *)this->fCurrentMenu[(u_char)this->fPlayer] +
-                                 (*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[7].delta) != 0)) &&
+            (this->fCurrentMenu[(u_char)this->fPlayer]->TransitionIsFinished() != 0)) &&
            (this->fCurrentScreen[(u_char)this->fPlayer] != (tScreen *)0x0)) {
           wasSubMenu =
               (*(*this->fCurrentScreen[(u_char)this->fPlayer]->_vf)[8].pfn)
@@ -1080,9 +1041,7 @@ MainLoop_perPlayerFlagCheck:
         }
         if (wasSubMenu) {
           u_long debounce;
-          debounce = (*(*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[4].pfn)
-                                  ((char *)this->fCurrentMenu[(u_char)this->fPlayer] +
-                                   (*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[4].delta);
+          debounce = this->fCurrentMenu[(u_char)this->fPlayer]->DebounceKeys();
           for (i = inputStartPlayer; i <= inputEndPlayer; i++) {
           command[i].type = kMenu_Command_None;
           keyVal[i] = FEInput_GetKeyFromPlayer((tPlayer)i,debounce);
@@ -1119,10 +1078,7 @@ MainLoop_perPlayerFlagCheck:
                          keyVal + i,command + i);
             }
             if (keyVal[i] != kInput_KeyType_AlreadyProcessed) {
-              (*(*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[3].pfn)
-                        ((char *)this->fCurrentMenu[(u_char)this->fPlayer] +
-                         (*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[3].delta,
-                         i,keyVal + i,command + i);
+              this->fCurrentMenu[(u_char)this->fPlayer]->ProcessInput(i,keyVal + i,command + i);
             }
           }
           if (command[i].type == 0) goto MainLoop_commandSwitchDefault;
@@ -1182,19 +1138,13 @@ MainLoop_setMenuAndNext:
               if ((this->backDepth[(u_char)this->fPlayer] == (int)stackBackupPin) &&
                   (this->fCurrentMenu[1] != (tMenu *)0x0)) {
                 if (this->fParentMenu[0] != (tMenu *)0x0) {
-                  (*(*this->fParentMenu[0]->_vf)[5].pfn)
-                            ((char *)this->fParentMenu[0] +
-                             (*this->fParentMenu[0]->_vf)[5].delta);
+                  this->fParentMenu[0]->TransitionOff();
                 }
                 if (this->fParentMenu[1] != (tMenu *)0x0) {
-                  (*(*this->fParentMenu[1]->_vf)[5].pfn)
-                            ((char *)this->fParentMenu[1] +
-                             (*this->fParentMenu[1]->_vf)[5].delta);
+                  this->fParentMenu[1]->TransitionOff();
                 }
                 stackBackupPin = -1;
-                (*(*this->fCurrentMenu[1]->_vf)[5].pfn)
-                          ((char *)this->fCurrentMenu[1] +
-                           (*this->fCurrentMenu[1]->_vf)[5].delta);
+                this->fCurrentMenu[1]->TransitionOff();
                 (this->fCurrentScreen[1])->TransitionOff(kScreen_TransitionTypeScreen,(tMenu *)0x0);
                 this->backDepth[1] = 0;
                 goto MainLoop_afterStackPair;
@@ -1204,18 +1154,12 @@ MainLoop_setMenuAndNext:
                 (this->backDepth[(u_char)this->fPlayer] < 1) &&
                 (this->fCurrentMenu[1] != (tMenu *)0x0)) {
               this->backDepth[0] = stackBackupPin + -1;
-              (*(*this->fCurrentMenu[1]->_vf)[5].pfn)
-                        ((char *)this->fCurrentMenu[1] +
-                         (*this->fCurrentMenu[1]->_vf)[5].delta);
+              this->fCurrentMenu[1]->TransitionOff();
               if (this->fParentMenu[0] != (tMenu *)0x0) {
-                (*(*this->fParentMenu[0]->_vf)[5].pfn)
-                          ((char *)this->fParentMenu[0] +
-                           (*this->fParentMenu[0]->_vf)[5].delta);
+                this->fParentMenu[0]->TransitionOff();
               }
               if (this->fParentMenu[1] != (tMenu *)0x0) {
-                (*(*this->fParentMenu[1]->_vf)[5].pfn)
-                          ((char *)this->fParentMenu[1] +
-                           (*this->fParentMenu[1]->_vf)[5].delta);
+                this->fParentMenu[1]->TransitionOff();
               }
               (this->fCurrentScreen[1])->TransitionOff(kScreen_TransitionTypeScreen,(tMenu *)0x0);
               stackBackupPin = -1;
@@ -1229,9 +1173,7 @@ MainLoop_doBack:
             this->SetMenu((u_short)(u_char)this->fPlayer,
                     this->backList[(u_int)(u_char)this->fPlayer]
                                   [this->backDepth[(u_char)this->fPlayer]]);
-            if ((*(*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[8].pfn)
-                               ((char *)this->fCurrentMenu[(u_char)this->fPlayer] +
-                                (*this->fCurrentMenu[(u_char)this->fPlayer]->_vf)[8].delta) != 0) {
+            if (this->fCurrentMenu[(u_char)this->fPlayer]->IsSubMenu() != 0) {
               this->backDepth[(u_char)this->fPlayer] = this->backDepth[(u_char)this->fPlayer] + 1;
             }
             break;

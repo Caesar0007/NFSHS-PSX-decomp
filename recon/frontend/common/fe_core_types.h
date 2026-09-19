@@ -83,28 +83,38 @@ struct tMenuItem {
     short fSelFade;
     int fButtonImage, fNumFrames;
     tMenu *fNewMenu;
-    __vtbl_ptr_type (*_vf)[11];
+    /* real virtuals since 2026-09-19, in retail slot order (vptr after the data members, where `_vf` was) */
+    tMenuItem(unsigned int textDescription);
+    virtual ~tMenuItem();
+    virtual long DebounceKeys();
+#if defined(NFS4_FE_CORE_FEMENU_METHODS) || defined(NFS4_FE_CORE_FEDIALOG_METHODS)
+    virtual void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
+#else
+    virtual void ProcessInput(int, void *, void *);   /* layout-only: this owner surface has no tInputKeyType/tMenuCommand */
+#endif
+#ifdef NFS4_FE_CORE_FEMENU_METHODS
+    virtual void Draw(bool) = 0;   /* retail slot = __pure_virtual (FEMenu.obj emits this table) */
+#else
+    virtual void Draw(bool);       /* layout-only on the other owner surfaces, whose derived copies do not all redeclare it */
+#endif
+    virtual void Draw(int, int, bool);
+    virtual void Draw(int, int, int, bool);
+    virtual void TransitionOff();
+    virtual void TransitionOn();
+    virtual bool TransitionIsFinished();
+    virtual void UpdateTransition(bool);
 #ifdef NFS4_FE_CORE_SCREENCARSELECT_METHODS
     inline void SetTextDescription(unsigned int text) {
         fTextDescription = text;
     }
 #endif
 #ifdef NFS4_FE_CORE_FEMENU_METHODS
-    tMenuItem() {}
-    tMenuItem(unsigned int textDescription);
-    ~tMenuItem();
-    long DebounceKeys();
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    void UpdateTransition(bool);
-    bool TransitionIsFinished();
     void UpdateSelFade(bool);
-    void Draw(int, int, bool);
-    void Draw(int, int, int, bool);
-    void TransitionOn();
-    void TransitionOff();
-    bool IsDisabled() { return (fFlags & 1) != 0; }
 #endif
 };
+
+/* non-member: an inline MEMBER of a class whose key function is in the TU (FEMenu) would get an out-of-line copy */
+static inline bool tMenuItem_IsDisabled(tMenuItem *item) { return (item->fFlags & 1) != 0; }
 
 typedef tMenuItem *tItemList[16];
 
@@ -122,7 +132,20 @@ struct tMenu {
     void (*fOnButtonPress)(void *);
 #endif
     short VertHelp;
-    __vtbl_ptr_type (*_vf)[11];
+    virtual ~tMenu();
+    virtual void Initialize();
+#if defined(NFS4_FE_CORE_FEMENU_METHODS) || defined(NFS4_FE_CORE_FEDIALOG_METHODS)
+    virtual void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
+#else
+    virtual void ProcessInput(int, void *, void *);   /* layout-only: this owner surface has no tInputKeyType/tMenuCommand */
+#endif
+    virtual long DebounceKeys();
+    virtual void TransitionOff();
+    virtual void TransitionOn();
+    virtual bool TransitionIsFinished();
+    virtual bool IsSubMenu();
+    virtual void Draw();
+    virtual void UpdateTransition();
 #ifdef NFS4_FE_CORE_FEDIALOG_METHODS
 #ifndef NFS4_FE_CORE_FEMENU_METHODS
     short GetNumberEnabledItems();
@@ -133,38 +156,20 @@ struct tMenu {
                (fFlags & 0x400) != 0 ||
                fOnButtonPress != 0x0;
     }
-    inline void ProcessInputVirtual(tPlayer player, tInputKeyType &key,
-                                    tMenuCommand &command) {
-        __vtbl_ptr_type (*vf)[11] = _vf;
-        (*(*vf)[3].pfn)((char *)this + (*vf)[3].delta,
-                        player, &key, &command);
-    }
 #endif
 #ifdef NFS4_FE_CORE_FEAPP_METHODS
     inline bool HasOptionsMenu() { return fOptionsMenu != (tMenu *)0x0; }
 #endif
 #ifdef NFS4_FE_CORE_FEMENU_METHODS
-    tMenu() {}
     void tMenuConstructor(tMenuItem *firstItem, void *ap);
     tMenu(unsigned int, tScreen *, tMenu *, tMenu *,
           void (*)(tMenuCommand &), short);
-    ~tMenu();
-    void Initialize();
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
     short GetNumberEnabledItems();
-    void Draw();
-    void UpdateTransition();
-    void TransitionOff();
-    void TransitionOn();
-    bool TransitionIsFinished();
-    bool IsSubMenu();
-    long DebounceKeys();
 #endif
 };
 
 struct tMenuItemInteractive : public tMenuItem {
 #ifdef NFS4_FE_CORE_FEMENU_METHODS
-    tMenuItemInteractive() {}
     tMenuItemInteractive(unsigned int);
     ~tMenuItemInteractive();
 #endif

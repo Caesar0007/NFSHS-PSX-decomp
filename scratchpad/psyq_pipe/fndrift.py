@@ -21,6 +21,7 @@ for ln in open(ROOT + 'configs/symbol_addrs.txt', errors='replace'):
         sym.setdefault(m.group(1), int(m.group(2), 16))
 out = subprocess.run([NM, '-n', ROOT + obj], capture_output=True, text=True).stdout
 prev = 'x'
+last = ''
 for ln in out.splitlines():
     p = ln.split()
     if len(p) != 3 or p[1] not in 'Tt' or p[2].startswith(('gcc2_', '__gnu_compiled')):
@@ -29,5 +30,6 @@ for ln in out.splitlines():
     r = sym.get(name) or sym.get(name.replace('_._', '___')) or sym.get(name.replace('___', '_._'))
     d = (off + base - r) if r else None
     if d != prev:
-        print('%#7x  %-70s retail %s  delta %s' % (off, name[:70], hex(r) if r else '?', d))
+        print('%#7x  %-60s retail %s  delta %s   <- after %s' % (off, name[:60], hex(r) if r else '?', d, last[:60]))
     prev = d
+    last = name

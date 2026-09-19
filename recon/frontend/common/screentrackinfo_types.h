@@ -227,8 +227,7 @@ struct tMenuItemGoToMenuButtonFade : public tMenuItemGoToMenuButton {
 struct tMemoryCardMenuItem : public tMenuItemGoToMenuButtonFade {};
 struct tBlankMenuItemGoToMenuNFS4Button : public tMenuItemGoToMenuNFS4Button {};
 
-struct tInsideBoxControllerLeftRightSlider {
-    tInsideBoxLeftRightSlider _base_tInsideBoxLeftRightSlider;
+struct tInsideBoxControllerLeftRightSlider : public tInsideBoxLeftRightSlider {
 };
 
 typedef enum tTVState {

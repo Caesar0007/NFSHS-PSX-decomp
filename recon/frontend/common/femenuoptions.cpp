@@ -220,10 +220,8 @@ void tMenuItemGoToMenuButtonFade::UpdateTransition(bool selected)
     iVar2 = 0;
   }
   this->fFadeVal = (short)iVar2;
-  (*(*this->_vf)[9].pfn)
-            ((int)&this->fFlags +
-             (int)(*this->_vf)[9].delta);
-  ((tMenuItem *)this)->UpdateTransition(selected);
+  this->TransitionIsFinished();
+  this->tMenuItem::UpdateTransition(selected);
   return;
 }
 
@@ -234,7 +232,6 @@ tMenuItemLeftRightFade::tMenuItemLeftRightFade(u_int textDescription,tListIterat
   : tMenuItemLeftRightChoice(textDescription,dataPtr)
 {
   
-  *(void **)&(this->_vf) = (void *)tMenuItemLeftRightFade_vtable;
   this->flareextra = 0;
   this->fSelFade = 0;
   return;
@@ -311,10 +308,8 @@ void tMenuItemLeftRightFade::UpdateTransition(bool selected)
     iVar2 = 0;
   }
   this->fFadeVal = (short)iVar2;
-  (*(*this->_vf)[9].pfn)
-            ((int)&this->fFlags +
-             (int)(*this->_vf)[9].delta);
-  ((tMenuItem *)this)->UpdateTransition(selected);
+  this->TransitionIsFinished();
+  this->tMenuItem::UpdateTransition(selected);
   return;
 }
 
@@ -328,7 +323,6 @@ tOptionsMenu::tOptionsMenu(u_int flags,tScreen *screenHandler,tMenu *nextMenu,
   : tMenu(flags,screenHandler,nextMenu,optionsMenu,OnButtonPress,title)
 {
   
-  this->_vf = (__vtbl_ptr_type (*)[11])tOptionsMenu_vtable;
   this->tMenuConstructor(firstItem,(&firstItem + 1));
   this->fScreenFade = 0;
   this->fPrevItem = 0;
@@ -344,7 +338,6 @@ tOptionsMenu::tOptionsMenu(u_int flags,tScreen *screenHandler,tMenu *nextMenu,
 tOptionsMenu::~tOptionsMenu()
 
 {
-  *(void **)&(this->_vf) = (void *)tOptionsMenu_vtable;
   return;
 }
 
@@ -357,9 +350,7 @@ long tOptionsMenu::DebounceKeys()
 {
   if ((this->fItemList[this->fCurrentItem] != (tMenuItem *)0x0) &&
       (((this->fItemList[this->fCurrentItem]->fFlags & 1) ^ 1) != 0)) {
-    return (*(*this->fItemList[this->fCurrentItem]->_vf)[2].pfn)
-        ((int)this->fItemList[this->fCurrentItem] +
-         (int)(*this->fItemList[this->fCurrentItem]->_vf)[2].delta);
+    return this->fItemList[this->fCurrentItem]->DebounceKeys();
   }
   return 0;
 }
@@ -379,8 +370,7 @@ void tOptionsMenu::TransitionOff()
   this->fTransitionDirection = '(';
   this->fScreenFade = 0;
   for (i = 0; this->fItemList[i] != (tMenuItem *)0x0; i++) {
-    (*(*this->fItemList[i]->_vf)[7].pfn)
-      ((char *)this->fItemList[i] + (int)(*this->fItemList[i]->_vf)[7].delta);
+    this->fItemList[i]->TransitionOff();
   }
   this->fInMenuTransition = 1;
   return;
@@ -402,8 +392,7 @@ void tOptionsMenu::TransitionOn()
   this->fInMenuTransition = 1;
   this->fScreenFade = 0x228;
   for (i = 0; this->fItemList[i] != (tMenuItem *)0x0; i++) {
-    (*(*this->fItemList[i]->_vf)[8].pfn)
-      ((char *)this->fItemList[i] + (int)(*this->fItemList[i]->_vf)[8].delta);
+    this->fItemList[i]->TransitionOn();
   }
   return;
 }
@@ -439,8 +428,7 @@ bool tOptionsMenu::TransitionIsFinished()
      oracle's per-use `sll 16; sra 14` index rematerialization. */
   if (this->fInMenuTransition == 0) {
     for (i = 0; this->fItemList[i] != (tMenuItem *)0x0; i++) {
-      if (!(*(bool (*)(...))(*this->fItemList[i]->_vf)[9].pfn)
-             ((char *)this->fItemList[i] + (int)(*this->fItemList[i]->_vf)[9].delta)) {
+      if (!this->fItemList[i]->TransitionIsFinished()) {
         this->fInMenuTransition = 1;
       }
     }
@@ -499,8 +487,7 @@ void tOptionsMenu::UpdateTransition()
            `if (fItemList[0]==0) goto feo_done;` in front of the untouched `for`. */
         i = 0;
         if (this->fItemList[i] != 0) {
-          while ((*(*this->fItemList[i]->_vf)[9].pfn)
-                   ((char *)this->fItemList[i] + (int)(*this->fItemList[i]->_vf)[9].delta) != 0) {
+          while (this->fItemList[i]->TransitionIsFinished() != 0) {
             i++;
             if (this->fItemList[i] == 0) break;
           }
@@ -516,8 +503,7 @@ void tOptionsMenu::UpdateTransition()
       }
       i = i - 1;
       if (i != -1) {
-        while ((*(*this->fItemList[i]->_vf)[9].pfn)
-                 ((char *)this->fItemList[i] + (int)(*this->fItemList[i]->_vf)[9].delta) != 0) {
+        while (this->fItemList[i]->TransitionIsFinished() != 0) {
           i = i - 1;
           if (i == -1) break;
         }
@@ -529,8 +515,7 @@ void tOptionsMenu::UpdateTransition()
              `i != -1` guard already produced (`sra v1,..` / `sll v0,v1,2`). */
           citem = this->fItemList[i];
 feo_callUpdate:
-          (*(*citem->_vf)[10].pfn)
-            ((char *)citem + (int)(*citem->_vf)[10].delta, 0);
+          citem->UpdateTransition(0);
           goto feo_done;
         }
       }
@@ -547,14 +532,12 @@ feo_callUpdate:
        (`lw 4(a3)`), delta off the vtable base as a displacement (`lh 80(v0)`). */
     for (i = 0; this->fItemList[i] != 0; i++) {
       item = this->fItemList[i];
-      entry = &(*item->_vf)[10];
-      adjusted = (char *)item + (int)entry->delta;
-      (*entry->pfn)(adjusted,
+      item->UpdateTransition(
          this->fInMenuTransition == 0 && (int)i == this->fCurrentItem);
     }
   }
 feo_done:
-  (*(*this->_vf)[7].pfn)((char *)this + (int)(*this->_vf)[7].delta);
+  this->TransitionIsFinished();
   return;
 }
 
@@ -614,9 +597,7 @@ void tOptionsMenu::Draw()
        vtable base as a displacement (`lh 40(v0)`), and the this-adjust MUTATING
        the (now dead) receiver register in place (`addu a0,a0,v0`).  Same spelling
        as tMenuItemSlidingMenu::Draw's matched dispatches. */
-    entry = &(*this->fItemList[i]->_vf)[5];
-    adjusted = (char *)this->fItemList[i] + (int)entry->delta;
-    (*entry->pfn)(adjusted,0,0,
+    this->fItemList[i]->Draw(0,0,
         this->fInMenuTransition == 0 && (int)i == this->fCurrentItem);
   }
   return;
@@ -648,7 +629,6 @@ tInsideBoxMenu::tInsideBoxMenu(u_int flags,tScreen *screenHandler,tMenu *nextMen
   : tMenu(flags,screenHandler,nextMenu,optionsMenu,OnButtonPress,title)
 {
   
-  this->_vf = (__vtbl_ptr_type (*)[11])tInsideBoxMenu_vtable;
   this->tMenuConstructor(firstItem,(&firstItem + 1));
   this->fPrevItem = 0;
   this->fMoving = 0;
@@ -663,7 +643,6 @@ tInsideBoxMenu::tInsideBoxMenu(u_int flags,tScreen *screenHandler,tMenu *nextMen
 tInsideBoxMenu::~tInsideBoxMenu()
 
 {
-  *(void **)&(this->_vf) = (void *)tInsideBoxMenu_vtable;
   return;
 }
 
@@ -688,8 +667,7 @@ void tInsideBoxMenu::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval,tMenu
   tVar2 = keyval;
 ProcInpFE_keyUpItemZero:
   if ((tVar2 == kInput_KeyType_Up) && (this->fCurrentItem == 0)) {
-    (*(*this->fItemList[0]->_vf)[3].pfn)
-      ((char *)this->fItemList[0] + (int)(*this->fItemList[0]->_vf)[3].delta);
+    this->fItemList[0]->ProcessInput(fromPlayer,keyval,command);
   }
   else if ((keyval != kInput_KeyType_Down) ||
           (this->fItemList[this->fCurrentItem + 1] != (tMenuItem *)0x0)) {
@@ -747,12 +725,9 @@ void tInsideBoxMenu::Draw(short x,short y,short w,short slideOffset,short)
       return;
     }
     if ((-1 < i) && (this->fItemList[i] != (tMenuItem *)0x0)) {
-      entry10 = &(*this->fItemList[i]->_vf)[10];
-      (*entry10->pfn)((char *)this->fItemList[i] + (int)entry10->delta,
+      this->fItemList[i]->UpdateTransition(
                     this->fMoving == 0 ? i == this->fCurrentItem : false);
-      entry6 = &(*this->fItemList[i]->_vf)[6];
-      (*entry6->pfn)
-                ((char *)this->fItemList[i] + (int)entry6->delta,x,
+      this->fItemList[i]->Draw(x,
                  /* SLD line 599: form the base offset first, add fMoving last. */
                  ((int)this->fMoving + (y + slideOffset + ((short)j + -1) * 0x18)) + 5,
                  w,this->fMoving == 0 ? (short)i == this->fCurrentItem : false);
@@ -768,7 +743,6 @@ void tInsideBoxMenu::Draw(short x,short y,short w,short slideOffset,short)
 tMenuItemSlidingMenu::tMenuItemSlidingMenu(u_int textDescription,short width,short height,short diffx, short diffy,bool fillback)
   : tMenuItem(textDescription)
 {
-  _vf = (void *)tMenuItemSlidingMenu_vtable;
   currMenu = (tInsideBoxMenu *)0;
   nextMenu = (tInsideBoxMenu *)0;
   fWidth = width;
@@ -793,7 +767,6 @@ tMenuItemSlidingMenu::tMenuItemSlidingMenu(u_int textDescription,short width,sho
 tMenuItemSlidingMenu::~tMenuItemSlidingMenu()
 
 {
-  *(void **)&(this->_vf) = (void *)tMenuItemSlidingMenu_vtable;
   return;
 }
 
@@ -874,8 +847,7 @@ void tMenuItemSlidingMenu::UpdateTransition(bool selected)
     iVar2 = 0;
   }
   this->fFadeVal = (short)iVar2;
-  (*(*this->_vf)[9].pfn)
-    ((int)&this->fFlags + (int)(*this->_vf)[9].delta);
+  this->TransitionIsFinished();
   this->tMenuItem::UpdateTransition(selected);
   return;
 }
@@ -888,8 +860,7 @@ long tMenuItemSlidingMenu::DebounceKeys()
 
 {
   if (this->currMenu != (tInsideBoxMenu *)0x0) {
-    return (*(*this->currMenu->_vf)[4].pfn)
-      ((int)this->currMenu + (*this->currMenu->_vf)[4].delta) | 0x600;
+    return this->currMenu->DebounceKeys() | 0x600;
   }
   return 0x600;
 }
@@ -901,8 +872,7 @@ long tMenuItemSlidingMenu::DebounceKeys()
 void tMenuItemSlidingMenu::Draw(bool selected)
 
 {
-  (*(*this->_vf)[5].pfn)(
-      (int)&this->fFlags + (int)(*this->_vf)[5].delta,0,0,selected);
+  this->Draw(0,0,selected);
   return;
 }
 
@@ -1080,9 +1050,7 @@ void tMenuItemSlidingMenu::Draw(int offx,int offy,bool selected)
      the two independent currMenu/fPlayList tests (not one cached flag) are
      all read directly off the raw oracle (asm/nonmatchings/front/
      Draw__20tMenuItemSlidingMenuiib.s). */
-  (**(int (**)(...))((int)this->_vf + 0x5c))
-            ((int)&this->fFlags + (int)*(short *)((int)this->_vf + 0x58),
-             selected);
+  this->UpdatefOpenHeight(selected);
   ColText = CalcTextFadeSelToHi(textType_Options,this->fSelFade,this->fFadeVal);
   x = TextSys_WordX(this->fTextDescription) + offx;
   y = TextSys_WordY(this->fTextDescription) + offy;
@@ -1156,8 +1124,7 @@ void tMenuItemSlidingMenu::Draw(int offx,int offy,bool selected)
     SubtractiveBox(xx,yy + (hh >> 1),ww,hh >> 1,0,0,gray,gray);
     shapetop = gHelpShapes + 0x1f;
     shapebottom = gHelpShapes + 0x20;
-    (**(int (**)(...))((int)this->currMenu->_vf + 0x5c))
-              (((int)this->currMenu->fItemList + -0x10) + *(short *)((int)this->currMenu->_vf + 0x58),
+    this->currMenu->Draw(
                xx * 0x10000 >> 0x10,yy * 0x10000 >> 0x10,ww,
                (int)((u_int)(u_short)this->fSlideOffset << 0x11) >> 0x10,(int)this->fHeight);
     if ((this->fFillback != 0) && (shapetop->height < hh)) {
@@ -1206,8 +1173,7 @@ void tMenuItemSlidingMenu::ProcessInput(tPlayer fromPlayer,tInputKeyType &keyval
 {
   if ((this->fOpenHeight == this->fHeight) &&
       (this->currMenu != (tInsideBoxMenu *)0x0)) {
-    (*(*this->currMenu->_vf)[3].pfn)
-      ((int)this->currMenu + (*this->currMenu->_vf)[3].delta);
+    this->currMenu->ProcessInput(fromPlayer,keyval,command);
   }
   if (keyval == kInput_KeyType_Down) {
     keyval = kInput_KeyType_AlreadyProcessed;
@@ -1363,9 +1329,8 @@ void tMenuItemSlidingActivated::UpdateTransition(bool selected)
     iVar2 = 0;
   }
   this->fFadeVal = (short)iVar2;
-  (*(*this->_vf)[9].pfn)
-            ((int)&this->fFlags + (int)(*this->_vf)[9].delta);
-  ((tMenuItem *)this)->UpdateTransition(selected);
+  this->TransitionIsFinished();
+  this->tMenuItem::UpdateTransition(selected);
   return;
 }
 
@@ -1416,9 +1381,7 @@ void tMenuItemSlidingActivated::ProcessInput(tPlayer fromPlayer,tInputKeyType &k
          a3=&command) -> cast the fn-ptr to the real reference signature.  Also
          `(int)ptVar4 + delta` (not fItemList-0x10) to get the oracle's
          `addu a0,currMenu,delta` operand order. */
-      ((void (*)(int,tPlayer,tInputKeyType &,tMenuCommand &))(*this->currMenu->_vf)[3].pfn)
-                ((int)this->currMenu + (*this->currMenu->_vf)[3].delta,fromPlayer,keyval,
-                 command);
+      this->currMenu->ProcessInput(fromPlayer,keyval,command);
       goto SlideActivProc_getActive;
     }
   }
@@ -1427,7 +1390,7 @@ SlideActivProc_getActive:
     keyval = kInput_KeyType_AlreadyProcessed;
   }
 SlideActivProc_callBaseProcess:
-  ((tMenuItem *)this)->ProcessInput(fromPlayer,keyval,command);
+  this->tMenuItem::ProcessInput(fromPlayer,keyval,command);
   return;
 }
 
@@ -1556,7 +1519,6 @@ tMenuItemLeftRightAudioSlider::tMenuItemLeftRightAudioSlider(u_int textDescripti
   : tMenuItemLeftRightSlider(textDescription,dataPtr)
 {
   
-  *(void **)&(this->_vf) = (void *)tMenuItemLeftRightAudioSlider_vtable;
   this->fAudioArt = (short)AudioArt;
   this->flareextra = 0;
   this->fSelFade = 0;
@@ -1570,7 +1532,6 @@ tMenuItemLeftRightAudioSlider::tMenuItemLeftRightAudioSlider(u_int textDescripti
 tMenuItemLeftRightAudioSlider::~tMenuItemLeftRightAudioSlider()
 
 {
-  *(void **)&(this->_vf) = (void *)tMenuItemLeftRightAudioSlider_vtable;
   return;
 }
 
@@ -1726,7 +1687,7 @@ void tMenuItemLeftRightAudioSlider::UpdateTransition(bool selected)
     iVar1 = 0;
   }
   this->fFadeVal = (short)iVar1;
-  ((tMenuItem *)this)->UpdateTransition(selected);
+  this->tMenuItem::UpdateTransition(selected);
   return;
 }
 
@@ -1736,12 +1697,10 @@ void tMenuItemLeftRightAudioSlider::UpdateTransition(bool selected)
 
 tInsideBoxSongMenu::tInsideBoxSongMenu(u_int flags,tScreen *screenHandler,tMenu *nextMenu,
               tMenu *optionsMenu,void (*OnButtonPress)(tMenuCommand&),short title,tMenuItem *firstItem,...)
+  : tInsideBoxMenu(flags,screenHandler,nextMenu,optionsMenu,OnButtonPress,title)
 {
   int j;
-
-  new ((tMenu *)this) tMenu(flags,screenHandler,nextMenu,optionsMenu,OnButtonPress,title);
   j = 0;
-  *(void **)&(this->_vf) = (void *)tInsideBoxSongMenu_vtable;
   do {
     this->fSelFade[j] = 0;
     this->fOnOffFade[j] = 0;
@@ -1760,7 +1719,6 @@ tInsideBoxSongMenu::tInsideBoxSongMenu(u_int flags,tScreen *screenHandler,tMenu 
 tInsideBoxSongMenu::~tInsideBoxSongMenu()
 
 {
-  *(void **)&(this->_vf) = (void *)tInsideBoxSongMenu_vtable;
   return;
 }
 
@@ -1842,8 +1800,7 @@ void tInsideBoxSongMenu::Draw(short x,short y,short w,short slideOffset,short ma
         if (this->fOnOffFade[j] < 0) {
           this->fOnOffFade[j] = 0;
         }
-        (*(*(this->_vf + 1))[1].pfn)
-                  ((int)this + (*(this->_vf + 1))[1].delta,
+        this->DrawOneSong(
                    song * 0x10000 >> 0x10,(int)x,
                    (int)((slide +
                          ((u_int)(u_short)this->fMoving +
@@ -2055,7 +2012,6 @@ tInsideBoxLeftRightSlider::tInsideBoxLeftRightSlider(u_int textDescription,tList
   : tMenuItemLeftRightSlider(textDescription,dataPtr)
 {
   
-  *(void **)&(this->_vf) = (void *)tInsideBoxLeftRightSlider_vtable;
   this->fSelFade = 0;
   this->fHeight = 5;
   return;
@@ -2068,7 +2024,6 @@ tInsideBoxLeftRightSlider::tInsideBoxLeftRightSlider(u_int textDescription,tList
 tInsideBoxLeftRightSlider::~tInsideBoxLeftRightSlider()
 
 {
-  *(void **)&(this->_vf) = (void *)tInsideBoxLeftRightSlider_vtable;
   return;
 }
 
@@ -2120,7 +2075,6 @@ tInsideBoxTwoWaySlider::tInsideBoxTwoWaySlider(u_int textDescription,tListIterat
   : tMenuItemLeftRightSlider(textDescription,dataPtr)
 {
   
-  *(void **)&(this->_vf) = (void *)tInsideBoxTwoWaySlider_vtable;
   this->fType = (short)type;
   this->fSelFade = 0;
   this->fHeight = 5;
@@ -2135,7 +2089,6 @@ tInsideBoxTwoWaySlider::tInsideBoxTwoWaySlider(u_int textDescription,tListIterat
 tInsideBoxTwoWaySlider::~tInsideBoxTwoWaySlider()
 
 {
-  *(void **)&(this->_vf) = (void *)tInsideBoxTwoWaySlider_vtable;
   return;
 }
 
@@ -2431,7 +2384,6 @@ tUserNameMenuItem::tUserNameMenuItem(u_int textDescription)
   short i;
   
   i = 0;
-  *(void **)&(this->_vf) = (void *)tUserNameMenuItem_vtable;
   this->fCurrentRow = 0;
   this->fCurrentColumn = 0;
   do {
@@ -3059,7 +3011,7 @@ void tUserNameMenuItem::UpdateTransition(bool selected)
     iVar2 = 0;
   }
   this->fFadeVal = (short)iVar2;
-  (*(*this->_vf)[9].pfn)((int)this + (int)(*this->_vf)[9].delta);
+  this->TransitionIsFinished();
   this->tMenuItem::UpdateTransition(selected);
   return;
 }
@@ -3212,11 +3164,11 @@ void tInsideBoxControllerLeftRightSlider::ProcessInput(tPlayer fromPlayer,tInput
 {
   if (((keyval == kInput_KeyType_Left) || (keyval == kInput_KeyType_Right)) &&
       ((keyval != kInput_KeyType_Right) ||
-       ((u_char)this->_base_tInsideBoxLeftRightSlider.fData->Value((tPlayer)-1) !=
-        (u_char)this->_base_tInsideBoxLeftRightSlider.fData->fMaxValue))) {
+       ((u_char)this->fData->Value((tPlayer)-1) !=
+        (u_char)this->fData->fMaxValue))) {
     screenControllerConfig[0]->fResetShakeTimeOut = 1;
   }
-  ((tMenuItemLeftRightSlider *)this)->ProcessInput(fromPlayer,keyval,command)
+  this->tMenuItemLeftRightSlider::ProcessInput(fromPlayer,keyval,command)
   ;
   return;
 }
@@ -3227,7 +3179,6 @@ void tInsideBoxControllerLeftRightSlider::ProcessInput(tPlayer fromPlayer,tInput
 
 extern "C" {
 void ___25tInsideBoxLeftRightSlider(void *);
-void ___35tInsideBoxControllerLeftRightSlider(void *thisp) { ___25tInsideBoxLeftRightSlider(thisp); }
 }
 
 /* tMemoryCardMenuItem dtor is a delegating thunk to ___23tMenuItemGoToMenuButton
@@ -3235,42 +3186,34 @@ void ___35tInsideBoxControllerLeftRightSlider(void *thisp) { ___25tInsideBoxLeft
  * (gate "NOT IN OBJECT").  Same form as ___27tMenuItemGoToMenuButtonFade. */
 extern "C" {
 void ___23tMenuItemGoToMenuButton(void *);
-void ___19tMemoryCardMenuItem(void *thisp) { ___23tMenuItemGoToMenuButton(thisp); }
 }
 
 extern "C" {
 void ___23tMenuItemGoToMenuButton(void *);
-void ___27tMenuItemGoToMenuButtonFade(void *thisp) { ___23tMenuItemGoToMenuButton(thisp); }
 }
 
 extern "C" {
 void ___9tMenuItem(void *);
-void ___17tUserNameMenuItem(void *thisp) { ___9tMenuItem(thisp); }
 }
 
 extern "C" {
 void ___24tMenuItemLeftRightChoice(void *);
-void ___34tMenuItemControllerLeftRightChoice(void *thisp) { ___24tMenuItemLeftRightChoice(thisp); }
 }
 
 extern "C" {
 void ___24tMenuItemLeftRightChoice(void *);
-void ___29tMenuItemOnOffLeftRightChoice(void *thisp) { ___24tMenuItemLeftRightChoice(thisp); }
 }
 
 extern "C" {
 void ___24tMenuItemLeftRightChoice(void *);
-void ___31tMenuItemDisplayLeftRightChoice(void *thisp) { ___24tMenuItemLeftRightChoice(thisp); }
 }
 
 extern "C" {
 void ___20tMenuItemSlidingMenu(void *);
-void ___25tMenuItemSlidingActivated(void *thisp) { ___20tMenuItemSlidingMenu(thisp); }
 }
 
 extern "C" {
 void ___24tMenuItemLeftRightChoice(void *);
-void ___22tMenuItemLeftRightFade(void *thisp) { ___24tMenuItemLeftRightChoice(thisp); }
 }
 
 /* W60-A10: the tMenuItemGoToMenuNFS4Button::Draw(bool) nullsub USED to be defined here

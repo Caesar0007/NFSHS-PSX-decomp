@@ -309,6 +309,8 @@ JTBL_AT_FUSION = os.environ.get("NFS4_JTBL_AT_FUSION") == "1"
 # (w23-a11 investigation plus later per-site corrections); the other 26 jtbl TUs are deliberately absent
 # here (their explicit 5-insn form already matches and must stay untouched).
 PER_TU_FLAGS = {
+    "recon/frontend/common/femenudefs.cpp": {"no_implement_inlines": True},   # FEVIRT-NII-PROBE
+    "recon/frontend/common/femenuoptions.cpp": {"no_implement_inlines": True},   # FEVIRT-NII-PROBE
     # P905: ordinary primate COMMON globals must remain public when lowered
     # into their native .sbss run. This preserves compiler-declared binding,
     # not a register/instruction dial. Unique ownership and all25 GP words

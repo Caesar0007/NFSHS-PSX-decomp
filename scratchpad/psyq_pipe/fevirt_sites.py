@@ -1,26 +1,39 @@
 """fevirt_sites.py SLOTMAP FILE [FILE...] -- turn manual vtable dispatch into real virtual calls, ONLY at the sites the
 compiler rejects (so other hierarchies' `_vf` members are left alone until their turn).
   SLOTMAP  e.g.  1=delete,2=Value,3=TextValue,4=Increment,5=Decrement
+           or    auto-menu  : pick the front-end ITEM or MENU slot map per site from the struct the compiler names.
 For each FILE: compile it (tools/build.py --only), collect the lines of "has no member named `_vf'" errors, and rewrite
 every dispatch expression whose span covers one of those lines:
     [(cast)] (*(*E->_vf)[N].pfn) ( (char *|int)[&]THIS + (int)(*E->_vf)[N].delta [, ARGS] )   ->   E->Method(ARGS)
     slot `delete`:  ... ,3)   ->   delete E
-An argument spelled 0xffffffff / -1 becomes (tPlayer)-1 (what the int-typed hand call was passing).
+An argument spelled 0xffffffff / -1 becomes (tPlayer)-1; `&x` arguments lose the `&` (they were references).
 Prints what it could not parse; never touches a site outside the error list."""
+import bisect
 import re
 import subprocess
 import sys
 
 ROOT = 'C:/Temp/nfs4-decomp/'
-slotmap = dict((int(k), v) for k, v in (p.split('=') for p in sys.argv[1].split(',')))
-HEAD = re.compile(r'(?:\(\s*\([^()]*\(\s*\*\s*\)\s*\([^()]*\)\s*\)\s*|\(\s*\*\s*)\(\s*\*\s*(?P<e>[^;{}]+?)->_vf\s*\)\s*\[\s*(?P<n>\d+)\s*\]\s*\.pfn\s*\)\s*\(')
+ITEM = {1: 'delete', 2: 'DebounceKeys', 3: 'ProcessInput', 4: 'Draw', 5: 'Draw', 6: 'Draw', 7: 'TransitionOff',
+        8: 'TransitionOn', 9: 'TransitionIsFinished', 10: 'UpdateTransition'}
+MENU = {1: 'delete', 2: 'Initialize', 3: 'ProcessInput', 4: 'DebounceKeys', 5: 'TransitionOff', 6: 'TransitionOn',
+        7: 'TransitionIsFinished', 8: 'IsSubMenu', 9: 'Draw', 10: 'UpdateTransition'}
+MENU_TYPES = re.compile(r'^(tMenu|tMenuNFS4\w*|tMenuBlank|tMenuOptions|tOptionsMenu|tInsideBoxMenu|tInsideBoxSongMenu)$')
+AUTO = sys.argv[1] == 'auto-menu'
+FIXED = {} if AUTO else dict((int(k), v) for k, v in (p.split('=') for p in sys.argv[1].split(',')))
+HEAD = re.compile(r'(?:\(\s*\([^()]*\(\s*\*\s*\)\s*\([^()]*\)\s*\)\s*|\(\s*\*\s*(?:\([^()]*\(\s*\*\s*\)\s*\([^()]*\)\s*\)\s*)?)'
+                  r'\(\s*\*\s*(?P<e>[^;{}]+?)->_vf\s*\)\s*\[\s*(?P<n>\d+)\s*\]\s*\.pfn\s*\)\s*\(')
+ERR = re.compile(r":(\d+): `(?:struct (\w+)|this)' has no member named `_vf'")
 
 
 def errors(rel):
     out = subprocess.run(['python', 'tools/build.py', '--no-link', '--only', rel], capture_output=True, text=True, cwd=ROOT)
     txt = out.stdout + out.stderr
     base = rel.split('/')[-1]
-    return sorted({int(m.group(1)) for m in re.finditer(re.escape(base) + r":(\d+): [^\n]*has no member named `_vf'", txt)}), txt
+    types = {}
+    for m in re.finditer(re.escape(base) + ERR.pattern, txt):
+        types[int(m.group(1))] = m.group(2) or ''
+    return types
 
 
 def split_args(s):
@@ -38,19 +51,13 @@ def split_args(s):
 
 
 for rel in sys.argv[2:]:
-    errs, _ = errors(rel)
+    types = errors(rel)
+    errs = sorted(types)
     if not errs:
         print(rel, ': no `_vf` errors')
         continue
     s = open(ROOT + rel, encoding='utf-8').read()
-    starts = [0]
-    for m in re.finditer('\n', s):
-        starts.append(m.end())
-
-    def line_of(pos):
-        import bisect
-        return bisect.bisect_right(starts, pos)
-
+    starts = [0] + [m.end() for m in re.finditer('\n', s)]
     res, pos, done, skipped = '', 0, 0, []
     for m in HEAD.finditer(s):
         if m.start() < pos:
@@ -60,27 +67,34 @@ for rel in sys.argv[2:]:
             depth += s[i] == '('
             depth -= s[i] == ')'
             i += 1
-        l0, l1 = line_of(m.start()), line_of(i)
-        if not any(l0 <= e <= l1 for e in errs):
+        l0, l1 = bisect.bisect_right(starts, m.start()), bisect.bisect_right(starts, i)
+        hit = [e for e in errs if l0 <= e <= l1]
+        if not hit:
             continue
         args = split_args(s[m.end():i - 1])
         n = int(m.group('n'))
         e = ' '.join(m.group('e').split())
+        slotmap = (MENU if MENU_TYPES.match(types[hit[0]]) else ITEM) if AUTO else FIXED
         if n not in slotmap or '.delta' not in args[0]:
-            skipped.append((l0, s[m.start():i][:80]))
+            skipped.append((l0, types[hit[0]], s[m.start():i][:90]))
             continue
-        rest = ['(tPlayer)-1' if a in ('0xffffffff', '-1', '0xffffffffU') else a for a in args[1:]]
+        rest = []
+        for a in args[1:]:
+            if a in ('0xffffffff', '-1', '0xffffffffU'):
+                a = '(tPlayer)-1'
+            elif re.match(r'^&\s*\w+$', a):
+                a = a[1:].strip()
+            rest.append(a)
         if slotmap[n] == 'delete':
             new = 'delete ' + e
         else:
-            sep = '.' if e.startswith('(*') else '->'
-            new = '%s%s%s(%s)' % (e, sep, slotmap[n], ','.join(rest))
+            new = '%s->%s(%s)' % (e, slotmap[n], ','.join(rest))
         res += s[pos:m.start()] + new
         pos = i
         done += 1
     res += s[pos:]
     open(ROOT + rel, 'w', encoding='utf-8', newline='').write(res)
-    left, _ = errors(rel)
-    print('%s: %d sites rewritten, %d error lines before, %d after %s' % (rel, done, len(errs), len(left), left[:12]))
-    for l, t in skipped:
-        print('   SKIPPED line %d: %s' % (l, t.replace(chr(10), ' ')))
+    left = sorted(errors(rel))
+    print('%s: %d sites rewritten, %d error lines before, %d after %s' % (rel, done, len(errs), len(left), left[:14]))
+    for l, t, x in skipped:
+        print('   SKIPPED line %d (%s): %s' % (l, t, x.replace(chr(10), ' ')))

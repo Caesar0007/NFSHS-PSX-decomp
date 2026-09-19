@@ -99,7 +99,6 @@ struct tDialogNoInputMessage : public tDialogMessageString {};
 
 struct tMenuItemLeftRightChoice : public tMenuItemInteractive {
     tListIterator *fData;
-    tMenuItemLeftRightChoice() {}
     tMenuItemLeftRightChoice(unsigned int, tListIterator *);
     ~tMenuItemLeftRightChoice();
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
@@ -109,7 +108,6 @@ struct tMenuItemLeftRightChoice : public tMenuItemInteractive {
 struct tMenuItemLeftRightSlider : public tMenuItemInteractive {
     tListIterator *fData;
     short fX, fY, fWidth, fHeight;
-    tMenuItemLeftRightSlider() {}
     tMenuItemLeftRightSlider(unsigned int, tListIterator *);
     ~tMenuItemLeftRightSlider();
     long DebounceKeys();
@@ -120,7 +118,6 @@ struct tMenuItemLeftRightSlider : public tMenuItemInteractive {
 
 struct tMenuItemGoToMenuButton : public tMenuItemInteractive {
     void (*fOnButtonPress)(tMenuCommand &);
-    tMenuItemGoToMenuButton() {}
     tMenuItemGoToMenuButton(unsigned int, tMenu *,
                             void (*)(tMenuCommand &));
     ~tMenuItemGoToMenuButton();

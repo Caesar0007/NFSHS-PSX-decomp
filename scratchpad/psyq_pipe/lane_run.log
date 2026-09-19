@@ -1,0 +1,44 @@
+ASPSX ok 563 bad 0 (front-overlay objects: 101)
+LNK: 570 objects, 19 retail names without a TU (-> gap objects), 61 unmatched objects slotted by honest map
+undefined after include pass: 128; equ from honest link: 128; unresolvable: 0 []
+phase: section starts {'.rdata': '0x80010000', '.text': '0x80056b28', '.data': '0x8010bfbc', '.sdata': '0x801393a0', '.sbss': '0x8013ab90', '.bss': '0x8013ad34', 'front.rdata': '0x80010000', 'front.text': '0x80012718', 'front.data': '0x80051088', 'front.bss': '0x800526f8'} -> pads {'.text': 4, '.data': 4, '.sdata': 4, '.sbss': 4}
+phase pads: {'.text': 4, '.data': 4, '.sdata': 4, '.sbss': 4}
+PSYLINK: 0 error lines; kinds: []
+outputs: {'nfs4.cpe': 1538767, 'nfs4.sym': 292612, 'nfs4.map': 366791}
+    80010000 80056B27 00046B28 80010000 text             .rdata
+    80056B28 8010BFBF 000B5498 80056B28 text             .text
+    8010BFC0 801393A5 0002D3E6 8010BFC0 text             .data
+    801393A8 8013AB9B 000017F4 801393A8 text             .sdata
+    8013AB9C 8013AD43 000001A8 8013AB9C bss              .sbss
+    8013AD44 80143087 00008344 8013AD44 bss              .bss
+    80010000 80012717 00002718 80010000 front            front.rdata
+    80012718 80051087 0003E970 80012718 front            front.text
+    80051088 800526F7 00001670 80051088 front            front.data
+    800526F8 800540EF 000019F8 800526F8 front            front.bss
+    80065C58  AICop_CleanUp__Fv
+    80065CB8  AICop_NoCopsInArea__Fii
+    80065C08  AICop_Restart__Fv
+    80065B5C  AICop_StartUp__Fv
+    801393D8  AICop_gRoadBlockState
+    801393DC  AICop_numArrestedHumans
+    801393D4  AICop_rawTriggers
+    8010C1D0  AICop_skillDelay
+    8010C83C  AICop_spikeBelt
+    8005490C  AIDataRecord_AccTable_t_vtable
+    80139404  AIDataRecord_BestLine
+    800548F4  AIDataRecord_BestLine_t_vtable
+    800548A4  AIDataRecord_CarTracking_t_vtable
+    800548C4  AIDataRecord_CurveSpeedTable_t_vtable
+    80139410  AIDataRecord_RecordMethod
+    80139408  AIDataRecord_TrackCurve
+    800548DC  AIDataRecord_TrackCurve_t_vtable
+    8013940C  AIDataRecord_WhichRecord
+    80054924  AIDataRecord_t_vtable
+    8010C094  AIH_BTCCop_chasePositions
+    801393C4  AIH_BTCCop_freezeToggle_8013c564
+    8010C088  AIH_BTC_Cop_1HC1HP_StageTimes
+    8010C1DC  AIH_Cop_chasePositions
+    8005466C  AIHigh_BTC_AIPerp_vtable
+    80054628  AIHigh_BTC_Cop_vtable
+symbols: ours 5201 retail objects 156
+compare_rows.json written (156 objects)

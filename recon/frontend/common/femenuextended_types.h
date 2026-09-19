@@ -41,7 +41,6 @@ struct DR_AREA {
 struct tMenuItemLeftRightChoice : public tMenuItemInteractive {
     tListIterator *fData;
 
-    tMenuItemLeftRightChoice() {}
     tMenuItemLeftRightChoice(unsigned int, tListIterator *);
     ~tMenuItemLeftRightChoice();
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
@@ -51,7 +50,6 @@ struct tMenuItemLeftRightChoice : public tMenuItemInteractive {
 struct tMenuItemGoToMenuButton : public tMenuItemInteractive {
     void (*fOnButtonPress)(tMenuCommand &);
 
-    tMenuItemGoToMenuButton() {}
     tMenuItemGoToMenuButton(unsigned int, tMenu *,
                             void (*)(tMenuCommand &));
     ~tMenuItemGoToMenuButton();
@@ -76,7 +74,7 @@ struct tMenuItemGoToMenuNFS4Button : public tMenuItemGoToMenuButton {
     void TransitionOff();
     bool TransitionIsFinished();
     void UpdateTransition(bool);
-    void Draw(bool);
+    void Draw(bool) {}   /* in-class inline: see femenuextended.cpp tail */
 };
 
 struct tMenuItemNFS4LeftRightChoice : public tMenuItemLeftRightChoice {
@@ -119,7 +117,7 @@ struct tMenuNFS4 : public tMenu {
     void TransitionOn();
     bool TransitionIsFinished();
     void UpdateTransition();
-    void DrawItem(int);
+    virtual void DrawItem(int);
     void Draw();
 };
 
@@ -127,7 +125,7 @@ struct tMenuNFS4TwoPlayer : public tMenuNFS4 {
     tMenuNFS4TwoPlayer(unsigned int, tScreen *, tMenu *, tMenu *,
                        void (*)(tMenuCommand &), short, tMenuItem *, ...);
     ~tMenuNFS4TwoPlayer();
-    void DrawItem(int);
+    virtual void DrawItem(int);
 };
 
 struct tMenuNFS4Bottom : public tMenuNFS4 {

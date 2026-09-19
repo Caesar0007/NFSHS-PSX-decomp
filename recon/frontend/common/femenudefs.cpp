@@ -3467,59 +3467,9 @@ tGlobalMenuDefs::~tGlobalMenuDefs()
 
 
 
-/* ---- TransitionIsFinished  [FEMENUDEFS.CPP:?] ---- */
-bool tBlankMenuItemGoToMenuNFS4Button::TransitionIsFinished()
-{
-  return true;
-}
-
-/* ---- Draw nullsubs @0x800321C8 / @0x800321D0  [W60-A10: MOVED here from the TU tail] ----
-   cont.34: tBlankMenuItem::Draw nullsubs re-attributed from front.c.  The class decls in
-   nfs4_types.h carry the WRONG SYM arg-type (char/int vs the SYM's bool), so the C++ method
-   definitions mangled to ...iic/...i -- NOT the oracle's ...iib/...b -- and the correctly
-   named extern-C exports then landed at the TU TAIL (retail VA order INVERSION, link-visible:
-   both symbols got the wrong VAs).  The two forms emit identical bytes (jr ra;nop), so the
-   fix is to drop the mis-mangled member definitions (both unreferenced; the header decls are
-   NON-virtual, so no definition is required) and emit the oracle-named exports HERE, in the
-   retail slot between TransitionIsFinished (0x800321C0) and the dtor (0x800321D8).
-   (A fully clean fix = correct the class decls to bool in nfs4_types.h -- a shared-header
-   change, still deferred.) */
-/* w64 unlock: real member defs (the header now declares the bool forms). */
-void tBlankMenuItemGoToMenuNFS4Button::Draw(int, int, bool) {}  /* @0x800321C8 */
-void tBlankMenuItemGoToMenuNFS4Button::Draw(bool) {}  /* @0x800321D0 */
-
-/* ---- tBlankMenuItemGoToMenuNFS4Button::dtor  [FEMENUDEFS.CPP:?] ---- */
-
-/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
- * nfs4_types.h) so every derived dtor and every scope-exit collapses to
- * ___27tMenuItemGoToMenuNFS4Button the way retail does; the standalone symbol gcc then stops
- * emitting is supplied here, in place, with C linkage. */
-extern "C" void ___27tMenuItemGoToMenuNFS4Button(void *);
-extern "C" void ___32tBlankMenuItemGoToMenuNFS4Button(void *thisp) { ___27tMenuItemGoToMenuNFS4Button(thisp); }
-
-
-
-/* ---- TransitionIsFinished  [FEMENUDEFS.CPP:?] ---- */
-bool tBlankMenuItemNFS4LeftRightChoice::TransitionIsFinished()
-{
-  return true;
-}
-
-/* ---- Draw nullsub @0x80032200  [W60-A10: MOVED here from the TU tail; see the note above] ---- */
-void tBlankMenuItemNFS4LeftRightChoice::Draw(int, int, bool) {}  /* @0x80032200 -- w64 unlock: real member def */
-
-/* ---- tBlankMenuItemNFS4LeftRightChoice::dtor  [FEMENUDEFS.CPP:?] ---- */
-
-/* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
- * nfs4_types.h) so every derived dtor and every scope-exit collapses to
- * ___28tMenuItemNFS4LeftRightChoice the way retail does; the standalone symbol gcc then stops
- * emitting is supplied here, in place, with C linkage. */
-extern "C" void ___28tMenuItemNFS4LeftRightChoice(void *);
-extern "C" void ___33tBlankMenuItemNFS4LeftRightChoice(void *thisp) { ___28tMenuItemNFS4LeftRightChoice(thisp); }
-
-
-
-/* end of femenudefs.cpp */
+/* The tBlank* classes are ALL-INLINE (screendisplay_types.h): TransitionIsFinished / Draw bodies and the synthesized
+ * destructors are emitted by the compiler as the deferred-inline batch that closes this object --
+ *   TIF32, Draw32(iib), Draw32(b), ~32, TIF33, Draw33(iib), ~33  (reverse class order, declaration order inside). */
 
 /* W60-A10: the three tBlankMenuItem::Draw nullsub exports that used to sit HERE were moved
    up into their retail VA slots (see the notes at 0x800321C8 / 0x80032200); the mis-mangled

@@ -763,7 +763,7 @@ short tDialogInteractive::Run()
       }
       if (keyVal[i] == kInput_KeyType_Circle) {
         if (DialogCanProcessCircle(FEApp,(tPlayer)i)) {
-          FEApp->CurrentMenu((tPlayer)i)->ProcessInputVirtual(
+          FEApp->CurrentMenu((tPlayer)i)->ProcessInput(
               (tPlayer)i,keyVal[i],command);
           keyVal[i] = kInput_KeyType_AlreadyProcessed;
         }
@@ -777,7 +777,7 @@ short tDialogInteractive::Run()
       }
       if (keyVal[i] != kInput_KeyType_NoKey) {
         /* SYM-INLINE-THIS: ProcessInputVirtual */
-        this->ProcessInputVirtual((tPlayer)i,keyVal[i],command);
+        this->ProcessInput((tPlayer)i,keyVal[i],command);
       }
         i++;
       }

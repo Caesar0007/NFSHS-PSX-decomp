@@ -259,7 +259,7 @@ SOURCE_DATA_OWNERS = (
     {
         'source': 'recon/game/psx/textureprocess.cpp', 'section': '.sdata',
         'address': 0x8013DB3C, 'size': 84,
-        'payload_sha256': 'f6851b54a51167a8b7fceb69ef597132a398791af6b0739af0241b82eded3a5b',
+        'payload_sha256': '77e7b7cc912a5ee20938146e99a861f12294716db154a4cad585c8621070514e',
         'oracle_source': 'asm/data/sdata_8013C54C_o34.sdata.s',
         'placement': 'fragment', 'record': 'SYM477004..4770b4 globals at+56; the four initialized colour cells gContrastScale/Texture_gContrastColor/Texture_gWorldColor/TP_gColorMode 8013DB3C..4C head the run (2026-09-16), then the Fog_ReadFogKeys literals 8013DB4C/54/5C/64',
     },

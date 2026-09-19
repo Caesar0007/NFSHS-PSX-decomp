@@ -15,7 +15,7 @@ extern int      openkeys[32];
 
 /* retail TextureProcess.obj .sdata starts with four initialized colour cells
  * (0x8013db3c..0x8013db4c), emitted here at their definitions. */
-int     gContrastScale = 0x100;
+int     gContrastScale = 0x10000;   /* retail 0x8013db3c = 1.0 in 16.16 (was 0x100) */
 CVECTOR Texture_gContrastColor = { 0x80, 0x80, 0x80, 0 };
 CVECTOR Texture_gWorldColor = { 0xff, 0xff, 0xff, 0 };
 int     TP_gColorMode = 0;

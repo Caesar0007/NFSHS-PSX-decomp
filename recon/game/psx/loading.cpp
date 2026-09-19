@@ -12,7 +12,7 @@
 /* retail loading.obj: the language-banner shape names -- the pointer table is the
  * object's .data (STAT, 0x80120d00) and the six <=8-byte literals are its .sdata
  * (0x8013d9a0.., -G8 puts small literals in small data), emitted BEFORE smallShapeFile. */
-static char *loading_languageNames[6] = { "engl", "germ", "fren", "span", "ital", "swed" };
+static char *loading_languageNames[6] = { "engl", "germ", "fren", "span", "itly", "swed" };
 
 char *smallShapeFile = 0;   /* @0x8013d9d0  W67-A4: explicit =0 -- retail emits this
     cell BEFORE the "back" literal @0x8013d9d4, so it cannot have been tentative

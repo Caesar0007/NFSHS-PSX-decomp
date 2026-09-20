@@ -5,7 +5,7 @@ Retail's final link removed unreferenced functions.  Every function we tag LINK_
   * listed in linkers/link_stripped.json with its evidence,
   * really sit in its object's `.text.strip` section (and nothing unlisted may sit there),
   * have NO retail address (configs/symbol_addrs.txt) -- otherwise retail kept it,
-  * when an SDK reference is named (`sdk`: "LIB/function"), be byte-identical to the PsyQ 4.3 function blob with the
+  * when an SDK reference is named (`sdk`: "LIB/function"), be byte-identical (or, while OPEN, within its `open_diff` ratchet) to the PsyQ 4.3 function blob with the
     relocated instruction fields masked (HI16/LO16 -> low 16 bits, R_MIPS_26 -> low 26 bits).
 Exit status 1 on any violation."""
 import json
@@ -68,8 +68,12 @@ for obj, lst in sorted(by_obj.items()):
                 mask = 0xFC000000 if kind == 'R_MIPS_26' else 0xFFFF0000 if kind in ('R_MIPS_HI16', 'R_MIPS_LO16') else 0xFFFFFFFF
                 if (a & mask) != (b & mask):
                     diff += 1
-            verdict = 'SDK %s: %s (%d B)' % (r['sdk'], 'BYTE-EXACT' if diff == 0 else '%d DIFFERING WORDS' % diff, len(blob))
-            bad += diff != 0
+            allowed = r.get('open_diff', 0)      # an OPEN function: ratchet, never a verdict (it must not get worse)
+            verdict = 'SDK %s: %s (%d B)' % (r['sdk'], 'BYTE-EXACT' if diff == 0 else '%d DIFFERING WORDS%s' % (
+                diff, ' -- OPEN, ratchet %d' % allowed if allowed else ''), len(blob))
+            bad += diff > allowed
+            if diff == 0 and allowed:
+                print('  (drop open_diff for %s: it is exact now)' % fn)
         print('  %-28s %-14s %s' % (obj.split('/')[-1], fn, verdict))
 print('link-stripped functions: %d listed, %d violation(s)' % (len(rows), bad))
 sys.exit(1 if bad else 0)

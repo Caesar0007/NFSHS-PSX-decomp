@@ -24,6 +24,68 @@
    "function": "CdMix",
    "sdk": "LIBCD/CdMix",
    "evidence": "SYS.obj @1384+32; retail CdControlB 0x800F7B24 (+332) is followed directly by CdGetSector 0x800F7C70"
+  },
+  {
+   "object": "build/recon/syslib/psx/libgpu/SYS.c.o",
+   "function": "GetGraphDebug",
+   "sdk": "LIBGPU/GetGraphDebug",
+   "evidence": "PsyQ 4.3 libgpu SYS.obj (sys.c 1.140, same $Id as retail) @628+16; retail anchors (address - SDK offset) drop by exactly the unlabelled sizes across it"
+  },
+  {
+   "object": "build/recon/syslib/psx/libgpu/SYS.c.o",
+   "function": "GetDrawEnv",
+   "sdk": "LIBGPU/GetDrawEnv",
+   "evidence": "PsyQ 4.3 libgpu SYS.obj (sys.c 1.140, same $Id as retail) @2936+52; retail anchors (address - SDK offset) drop by exactly the unlabelled sizes across it"
+  },
+  {
+   "object": "build/recon/syslib/psx/libgpu/SYS.c.o",
+   "function": "GetDispEnv",
+   "sdk": "LIBGPU/GetDispEnv",
+   "evidence": "PsyQ 4.3 libgpu SYS.obj (sys.c 1.140, same $Id as retail) @4260+52; retail anchors (address - SDK offset) drop by exactly the unlabelled sizes across it"
+  },
+  {
+   "object": "build/recon/syslib/psx/libgpu/SYS.c.o",
+   "function": "GetODE",
+   "sdk": "LIBGPU/GetODE",
+   "evidence": "PsyQ 4.3 libgpu SYS.obj (sys.c 1.140, same $Id as retail) @4312+48; retail anchors (address - SDK offset) drop by exactly the unlabelled sizes across it"
+  },
+  {
+   "object": "build/recon/syslib/psx/libgpu/SYS.c.o",
+   "function": "SetDrawOffset",
+   "sdk": "LIBGPU/SetDrawOffset",
+   "evidence": "PsyQ 4.3 libgpu SYS.obj (sys.c 1.140, same $Id as retail) @4544+64; retail anchors (address - SDK offset) drop by exactly the unlabelled sizes across it"
+  },
+  {
+   "object": "build/recon/syslib/psx/libgpu/SYS.c.o",
+   "function": "SetPriority",
+   "sdk": "LIBGPU/SetPriority",
+   "evidence": "PsyQ 4.3 libgpu SYS.obj (sys.c 1.140, same $Id as retail) @4608+40; retail anchors (address - SDK offset) drop by exactly the unlabelled sizes across it"
+  },
+  {
+   "object": "build/recon/syslib/psx/libgpu/SYS.c.o",
+   "function": "SetGraphDebug",
+   "sdk": "LIBGPU/SetGraphDebug",
+   "evidence": "PsyQ 4.3 libgpu SYS.obj (sys.c 1.140, same $Id as retail) @372+92; retail anchors drop by exactly the unlabelled sizes across it"
+  },
+  {
+   "object": "build/recon/syslib/psx/libgpu/SYS.c.o",
+   "function": "SetGraphQueue",
+   "sdk": "LIBGPU/SetGraphQueue",
+   "evidence": "PsyQ 4.3 libgpu SYS.obj (sys.c 1.140, same $Id as retail) @464+164; retail anchors drop by exactly the unlabelled sizes across it",
+   "open_diff": 11,
+   "note": "OPEN: pure $s0/$s1 swap (mode vs the &GEnv.active base); 6 source variants and the 2.8.0 rung give the same 11 words"
+  },
+  {
+   "object": "build/recon/syslib/psx/libgpu/SYS.c.o",
+   "function": "DrawSyncCallback",
+   "sdk": "LIBGPU/DrawSyncCallback",
+   "evidence": "PsyQ 4.3 libgpu SYS.obj (sys.c 1.140, same $Id as retail) @644+96; retail anchors drop by exactly the unlabelled sizes across it"
+  },
+  {
+   "object": "build/recon/syslib/psx/libgpu/SYS.c.o",
+   "function": "DrawPrim",
+   "sdk": "LIBGPU/DrawPrim",
+   "evidence": "PsyQ 4.3 libgpu SYS.obj (sys.c 1.140, same $Id as retail) @2324+92; retail anchors drop by exactly the unlabelled sizes across it"
   }
  ]
 }

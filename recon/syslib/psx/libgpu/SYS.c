@@ -364,6 +364,19 @@ extern void *_memcpy(void *d, const void *s, unsigned n) __asm__("memcpy");/* li
 extern void  GPU_cw(u_long cw);                  /* libapi C73.obj @0x80104A0C (BIOS) */
 extern void  ResetCallback(void);                /* libetc INTR.obj @0x800F284C */
 
+#include "../../../link_stripped.h"
+/* sys.c functions retail's final link removed as unreferenced (bytes: PsyQ 4.3 libgpu SYS.obj) */
+extern int   SetGraphDebug(int level) LINK_STRIPPED;
+extern int   SetGraphQueue(int mode) LINK_STRIPPED;
+extern int   GetGraphDebug(void) LINK_STRIPPED;
+extern void (*DrawSyncCallback(void (*func)()))() LINK_STRIPPED;
+extern void  DrawPrim(void *p) LINK_STRIPPED;
+extern void *GetDrawEnv(void *env) LINK_STRIPPED;
+extern void *GetDispEnv(void *env) LINK_STRIPPED;
+extern int   GetODE(void) LINK_STRIPPED;
+extern void  SetDrawOffset(void *p, void *ofs) LINK_STRIPPED;
+extern void  SetPriority(void *p, int pbc, int pbw) LINK_STRIPPED;
+
 /* @0x800ED670 : initialise the graphics system for the given mode. */
 extern int ResetGraph(int mode)
 {
@@ -428,27 +441,50 @@ extern int ResetGraph(int mode)
     return GEnv_drv->reset(1);
 }
 
-/* String-only survivors of UNUSED static inlines in the 1.140 source (CC1PSX
- * emits an unused static inline's string literals at its definition point
- * and drops the body -- scratchpad emit/t2.c): retail SYS.obj .rdata carries
- * these three between "ResetGraph(%d)" and "SetDispMask(%d)" with no code. */
-static __inline__ int SetGraphDebug(int level, int type, int reverse)
+/* SYS.obj +372 (LINK-STRIPPED) : SetGraphDebug -- set the debug level, return the old one.
+ * (GEnv._pad3 is the "reverse" flag this message prints.) */
+extern int SetGraphDebug(int level)
 {
-    if (GEnv.debug >= 1)
-        GPU_printf("SetGraphDebug:level:%d,type:%d reverse:%d\n", level, type, reverse);   /* @0x80056D44 */
+    int old = GEnv.debug;
+
     GEnv.debug = level;
-    return level;
+    if (GEnv.debug) {
+        GPU_printf("SetGraphDebug:level:%d,type:%d reverse:%d\n", GEnv.debug, GEnv.mode, GEnv._pad3);   /* @0x80056D44 */
+    }
+    return old;
 }
-static __inline__ int SetGraphQue(int size)
+
+/* SYS.obj +464 (LINK-STRIPPED) : SetGraphQueue -- switch the command-queue mode (GEnv.active), return the old one */
+extern int SetGraphQueue(int mode)
 {
-    if (GEnv.debug >= 2)
-        GPU_printf("SetGrapQue(%d)...\n", size);    /* @0x80056D70 (retail's own typo) */
-    return size;
+    int old;
+
+    old = GEnv.active;
+    if (GEnv.debug >= 2) {
+        GPU_printf("SetGrapQue(%d)...\n", mode);    /* @0x80056D70 (retail's own typo) */
+    }
+    if (mode != GEnv.active) {
+        GEnv_drv->reset(1);
+        GEnv.active = mode;
+        DMACallback(2, 0);
+    }
+    return old;
 }
-static __inline__ void DrawSyncCallback(void (*func)(void))
+
+/* SYS.obj +628 (LINK-STRIPPED) : GetGraphDebug */
+extern int GetGraphDebug(void) { return GEnv.debug; }
+
+/* SYS.obj +644 (LINK-STRIPPED) : DrawSyncCallback -- install the queue-drained callback, return the old one */
+extern void (*DrawSyncCallback(void (*func)()))()
 {
-    if (GEnv.debug >= 2)
+    void (*old)();
+
+    if (GEnv.debug >= 2) {
         GPU_printf("DrawSyncCallback(%08x)...\n", func);   /* @0x80056D84 */
+    }
+    old = GEnv.idle_cb;
+    GEnv.idle_cb = func;
+    return old;
 }
 
 /* @0x800ED7E4 : turn the display on (mask!=0) or off (mask==0). */
@@ -734,6 +770,15 @@ extern u_long *ClearOTagR(u_long *ot, int n)
     return ot;
 }
 
+/* SYS.obj +2324 (LINK-STRIPPED) : DrawPrim -- draw one primitive now */
+extern void DrawPrim(void *p)
+{
+    int len = ((u_char *)p)[3];
+
+    GEnv_drv->sync(0);
+    GEnv_drv->send_gp0((u_long *)p + 1, len);
+}
+
 /* @0x800EDCB4 : DrawOTag -- queue an ordering-table for DMA.
  * FLOOR (2 diffs, re-tried w24-a4): oracle materializes a3=0 independently (addu a3,zero,zero)
  * in the jalr delay slot; ours CSEs it from the just-set a2=0 (addu a3,a2,zero). Tried+no
@@ -799,6 +844,13 @@ static __inline__ void DrawOTagEnv(u_long *p, void *env)
 {
     if (GEnv.debug >= 2)
         GPU_printf("DrawOTagEnv(%08x,&08x)...\n", p, env);   /* @0x80056E90 (retail's own '&08x') */
+}
+
+/* SYS.obj +2936 (LINK-STRIPPED) : GetDrawEnv -- copy out the cached DRAWENV */
+extern void *GetDrawEnv(void *env)
+{
+    _memcpy(env, GEnv.drawenv, 0x5c);
+    return env;
 }
 
 extern void *PutDispEnv(void *env)
@@ -1141,6 +1193,16 @@ done:
 #undef EI
 }
 
+/* SYS.obj +4260 (LINK-STRIPPED) : GetDispEnv -- copy out the cached DISPENV */
+extern void *GetDispEnv(void *env)
+{
+    _memcpy(env, GEnv.dispenv, 0x14);
+    return env;
+}
+
+/* SYS.obj +4312 (LINK-STRIPPED) : GetODE -- odd/even field flag = bit 31 of the GPU status */
+extern int GetODE(void) { return (u_long)GEnv_drv->get_status() >> 31; }
+
 /* @0x800EE2DC : SetTexWindow(DR_TWIN *p, RECT *tw) */
 extern void SetTexWindow(void *p, void *tw)
 {
@@ -1157,6 +1219,28 @@ extern void SetDrawArea(void *p, void *r)
     ((char *)p)[3] = 2;
     ((int *)p)[1] = (int)_set_clip_tl(rs[0], rs[1]);
     ((int *)p)[2] = (int)_set_clip_br((short)(ru[0] + ru[2] - 1), (short)(ru[1] + ru[3] - 1));
+}
+
+/* SYS.obj +4544 (LINK-STRIPPED) : SetDrawOffset(DR_OFFSET *p, u_short *ofs) */
+extern void SetDrawOffset(void *p, void *ofs)
+{
+    ((char *)p)[3] = 2;
+    ((int *)p)[1] = (int)_set_draw_offset(((short *)ofs)[0], ((short *)ofs)[1]);
+    ((int *)p)[2] = 0;
+}
+
+/* SYS.obj +4608 (LINK-STRIPPED) : SetPriority(DR_PRIO *p, int pbc, int pbw) -- GP0 0xE6 mask bits */
+extern void SetPriority(void *p, int pbc, int pbw)
+{
+    int data;
+
+    ((char *)p)[3] = 2;
+    data = 0xe6000000;
+    if (pbc) {
+        data |= 2;
+    }
+    ((int *)p)[1] = data | (pbw != 0);
+    ((int *)p)[2] = 0;
 }
 
 /* @0x800EE394 : SetDrawStp(DR_STP *p, int pbw) -- GP0 0xE6 mask-bit setting */

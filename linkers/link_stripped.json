@@ -393,6 +393,90 @@
    ],
    "open_diff": 4,
    "note": "OPEN: the SDK keeps `bne ->end [v0=1]; v0=0` for the second test, every spelling here folds `(x & 1) ? 1 : 0` into the value (8 variants: 4..10 words)"
+  },
+  {
+   "object": "build/recon/syslib/psx/libgte/REG03.c.o",
+   "function": "SetVertex0",
+   "sdk": "LIBGTE/SetVertex0",
+   "evidence": "PsyQ 4.3 libgte REG03.obj head; the retail object text starts at SetDQA (strip_headtail.py)"
+  },
+  {
+   "object": "build/recon/syslib/psx/libgte/REG03.c.o",
+   "function": "SetVertex1",
+   "sdk": "LIBGTE/SetVertex1",
+   "evidence": "PsyQ 4.3 libgte REG03.obj head; the retail object text starts at SetDQA (strip_headtail.py)"
+  },
+  {
+   "object": "build/recon/syslib/psx/libgte/REG03.c.o",
+   "function": "SetVertex2",
+   "sdk": "LIBGTE/SetVertex2",
+   "evidence": "PsyQ 4.3 libgte REG03.obj head; the retail object text starts at SetDQA (strip_headtail.py)"
+  },
+  {
+   "object": "build/recon/syslib/psx/libgte/REG03.c.o",
+   "function": "SetVertexTri",
+   "sdk": "LIBGTE/SetVertexTri",
+   "evidence": "PsyQ 4.3 libgte REG03.obj head; the retail object text starts at SetDQA (strip_headtail.py)"
+  },
+  {
+   "object": "build/recon/syslib/psx/libgte/REG03.c.o",
+   "function": "SetRGBfifo",
+   "sdk": "LIBGTE/SetRGBfifo",
+   "evidence": "PsyQ 4.3 libgte REG03.obj head; the retail object text starts at SetDQA (strip_headtail.py)"
+  },
+  {
+   "object": "build/recon/syslib/psx/libgte/REG03.c.o",
+   "function": "SetIR123",
+   "sdk": "LIBGTE/SetIR123",
+   "evidence": "PsyQ 4.3 libgte REG03.obj head; the retail object text starts at SetDQA (strip_headtail.py)"
+  },
+  {
+   "object": "build/recon/syslib/psx/libgte/REG03.c.o",
+   "function": "SetIR0",
+   "sdk": "LIBGTE/SetIR0",
+   "evidence": "PsyQ 4.3 libgte REG03.obj head; the retail object text starts at SetDQA (strip_headtail.py)"
+  },
+  {
+   "object": "build/recon/syslib/psx/libgte/REG03.c.o",
+   "function": "SetSZfifo3",
+   "sdk": "LIBGTE/SetSZfifo3",
+   "evidence": "PsyQ 4.3 libgte REG03.obj head; the retail object text starts at SetDQA (strip_headtail.py)"
+  },
+  {
+   "object": "build/recon/syslib/psx/libgte/REG03.c.o",
+   "function": "SetSZfifo4",
+   "sdk": "LIBGTE/SetSZfifo4",
+   "evidence": "PsyQ 4.3 libgte REG03.obj head; the retail object text starts at SetDQA (strip_headtail.py)"
+  },
+  {
+   "object": "build/recon/syslib/psx/libgte/REG03.c.o",
+   "function": "SetSXSYfifo",
+   "sdk": "LIBGTE/SetSXSYfifo",
+   "evidence": "PsyQ 4.3 libgte REG03.obj head; the retail object text starts at SetDQA (strip_headtail.py)"
+  },
+  {
+   "object": "build/recon/syslib/psx/libgte/REG03.c.o",
+   "function": "SetRii",
+   "sdk": "LIBGTE/SetRii",
+   "evidence": "PsyQ 4.3 libgte REG03.obj head; the retail object text starts at SetDQA (strip_headtail.py)"
+  },
+  {
+   "object": "build/recon/syslib/psx/libgte/REG03.c.o",
+   "function": "SetMAC123",
+   "sdk": "LIBGTE/SetMAC123",
+   "evidence": "PsyQ 4.3 libgte REG03.obj head; the retail object text starts at SetDQA (strip_headtail.py)"
+  },
+  {
+   "object": "build/recon/syslib/psx/libgte/REG03.c.o",
+   "function": "SetData32",
+   "sdk": "LIBGTE/SetData32",
+   "evidence": "PsyQ 4.3 libgte REG03.obj head; the retail object text starts at SetDQA (strip_headtail.py)"
+  },
+  {
+   "object": "build/recon/syslib/psx/libgte/COR_03.c.o",
+   "function": "csin_1",
+   "sdk": "LIBGTE/csin_1",
+   "evidence": "PsyQ 4.3 libgte COR_03.obj @0+160; the retail object text starts at csin (strip_headtail.py)"
   }
  ]
 }

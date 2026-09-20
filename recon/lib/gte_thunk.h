@@ -22,9 +22,17 @@
             "\tjr   $31\n"                                                      \
             "\t nop\n"                                                          \
             "\t.set reorder\n\t.set at\n")
+/* A GTE assembly routine retail's final link REMOVED as unreferenced (recon/link_stripped.h): the SDK's own
+ * instruction sequence, emitted into the discarded `.text.strip` input section. */
+#define GTE_ASM_LINK_STRIPPED(name, body)                                      \
+    __asm__("\t.section .text.strip,\"ax\",@progbits\n\t.set noreorder\n"      \
+            "\t.globl " #name "\n\t.type " #name ",@function\n" #name ":\n"    \
+            body                                                               \
+            "\t.size " #name ",.-" #name "\n\t.set reorder\n\t.set at\n\t.text\n")
 #else
 #define GTE_CTC_THUNK(name, creg, argtype)                                     \
     extern "C" void name(argtype v) { (void)v; } /* GTE absent on host */
+#define GTE_ASM_LINK_STRIPPED(name, body)
 #endif
 
 #endif /* _GTE_THUNK_H_ */

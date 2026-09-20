@@ -33,6 +33,19 @@
 
 extern int csincos(int angle, int *psin, int *pcos);   /* COR_01 */
 
+#include "../../../link_stripped.h"
+/* COR_03.obj +0 (LINK-STRIPPED) : csin_1 -- the quadrant fold csin applies twice; retail's object text starts at csin */
+extern int csin_1(int a) LINK_STRIPPED;
+extern int csin_1(int a)
+{
+    int s, c;
+
+    if ((unsigned)a < 0x400)                { csincos(a, &s, &c);          return s;  }
+    else if ((unsigned)(a - 0x400) < 0x400) { csincos(0x7ff - a, &s, &c);  return s;  }
+    else if ((unsigned)(a - 0x800) < 0x400) { csincos(a - 0x800, &s, &c);  return -s; }
+    else if ((unsigned)(a - 0xc00) < 0x400) { csincos(0xfff - a, &s, &c);  return -s; }
+}
+
 /* @0x800F37F8 : csin(int a) -> sin (4.12) */
 extern int csin(int a)
 {

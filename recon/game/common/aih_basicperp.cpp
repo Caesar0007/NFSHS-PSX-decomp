@@ -409,24 +409,10 @@ void AIHigh_BasicPerp::RemoveChaser(int copIndex,int carIndex,copType type)
 {
   int pos;
 
-  /* SYM-CODEGEN-CARRIER: piVar2 -- SYM records the inlined
-     AICop_BasicPerpInfo `this`, but not its unrecoverable inline member name.
-     This result carrier preserves the exact load/decrement/store sequence;
-     direct array spelling gives 14 instructions/7 diffs. */
-  int *piVar2;
-
-  /* SYM-CODEGEN-CARRIER: piBase -- the two-stage base/index expansion is the
-     exact compiler shape of that inlined subobject operation.  Collapsing it
-     to one pointer expression retains 15 instructions but gives 8 diffs. */
-  int *piBase;
 
   pos = this->copVSPositionList_[copIndex];
 
-  piBase = this->basicPerpInfo_.copsAssigned_;
-
-  piVar2 = piBase + type;
-
-  *piVar2 = *piVar2 - 1;
+  this->basicPerpInfo_.RemoveCop(type);
 
   this->positionVSCopList_[pos].copIndex = -1;
 
@@ -452,17 +438,7 @@ int AIHigh_BasicPerp::AddChaser(int copIndex,int carIndex,copType type)
 {
   int pos;
 
-  /* SYM-CODEGEN-CARRIER: piVar2 -- SYM again records only the inlined
-     AICop_BasicPerpInfo `this`.  The two-statement pointer expansion is exact;
-     direct array spelling gives 19 instructions/12 diffs and a collapsed
-     pointer expression gives 20 instructions/13 diffs. */
-  int *piVar2;
-
-  piVar2 = this->basicPerpInfo_.copsAssigned_;
-
-  piVar2 = piVar2 + type;
-
-  *piVar2 = *piVar2 + 1;
+  this->basicPerpInfo_.AddCop(type);
 
   pos = 5;
 

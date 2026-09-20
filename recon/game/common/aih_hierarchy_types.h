@@ -158,6 +158,9 @@ struct copGame_t { int numLevels; copLevel_t *levels; };
 struct AICop_BasicPerpInfo {
     int copsAssigned_[2];
     crimeType crime_;
+    /* retail inlines a member here: AddChaser / RemoveChaser show the scope pair { this { } } (SYM Block records) */
+    inline void AddCop(copType type) { copsAssigned_[type]++; }
+    inline void RemoveCop(copType type) { copsAssigned_[type]--; }
 };
 struct AICop_PerpChaseInfo {
     int engagementTime_;

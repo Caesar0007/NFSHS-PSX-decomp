@@ -1893,14 +1893,10 @@
   ]
  },
  "AddChaser__16AIHigh_BasicPerpii7copType": {
-  "issues": [
-   "EXTRA piVar2 REG:$3",
-   "MISSING this REGPARM:$4",
-   "BLOCKS 1 scopes != 3"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIH_BASICPERP.CPP",
   "end_line": [
-   475,
+   451,
    355
   ]
  },
@@ -2403,9 +2399,7 @@
   ]
  },
  "AudioCmn_GetTimePhrase__Fi": {
-  "issues": [
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AUDIOCMN.CPP",
   "end_line": [
    720,
@@ -3655,7 +3649,6 @@
  },
  "CalcStartSegment__FP16Skidmark_SegmentT0P8coorddefN22i": {
   "issues": [
-   "ORDER of declarations differs",
    "BLOCKS 1 scopes != 2"
   ],
   "file": "C:\\nfs4\\GAME\\PSX\\SKIDMARK.CPP",
@@ -4749,7 +4742,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIH_BASICPERP.CPP",
   "end_line": [
-   746,
+   722,
    400
   ]
  },
@@ -5383,7 +5376,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIH_BASICPERP.CPP",
   "end_line": [
-   788,
+   764,
    415
   ]
  },
@@ -11819,9 +11812,7 @@
   ]
  },
  "Hud_BuildTimeSprites__FP4SPRTPcii": {
-  "issues": [
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\PSX\\HUD.CPP",
   "end_line": [
    886,
@@ -16804,15 +16795,10 @@
   ]
  },
  "RemoveChaser__16AIHigh_BasicPerpii7copType": {
-  "issues": [
-   "EXTRA piBase REG:$6",
-   "EXTRA piVar2 REG:$6",
-   "MISSING this REGPARM:$4",
-   "BLOCKS 1 scopes != 3"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIH_BASICPERP.CPP",
   "end_line": [
-   435,
+   421,
    337
   ]
  },
@@ -17032,9 +17018,7 @@
   ]
  },
  "Replay_Decompress__FPc": {
-  "issues": [
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\REPLAY.CPP",
   "end_line": [
    163,
@@ -17279,9 +17263,7 @@
   ]
  },
  "Risk_ReadNextValue__FPPc": {
-  "issues": [
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\COLOR.CPP",
   "end_line": [
    46,
@@ -19777,9 +19759,7 @@
   ]
  },
  "Texture_CopyPalette__FPciii": {
-  "issues": [
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\PSX\\TEXTURE.CPP",
   "end_line": [
    289,
@@ -22136,7 +22116,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIHIGH.H",
   "end_line": [
-   238,
+   241,
    164
   ]
  },
@@ -23187,7 +23167,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIH_BASICPERP.CPP",
   "end_line": [
-   812,
+   788,
    421
   ]
  },
@@ -23887,9 +23867,7 @@
   ]
  },
  "s_upper__FPc": {
-  "issues": [
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FETOOLS.CPP",
   "end_line": [
    54,

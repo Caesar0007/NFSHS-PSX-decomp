@@ -63,9 +63,16 @@ def syms(o):
     return symcache[o]
 
 
-# bigBuf @0x80010000 is bigbuf.obj's view of the address the front overlay is loaded at: the label and the overlay's first
-# section share that address by design (no bytes of bigbuf.obj are in the image).
-ALLOW = {'bigBuf'}
+# bigbuf.obj is the reservation the whole front overlay is linked OVER (retail: group `front over(text)`), so every overlay
+# label lies inside it by design; it is checked for its own label only.
+OVERLAID = ('frontend/psx/bigbuf.c.o',)
+ALLOW = set()
+# labels the overlaid reservation itself defines (bigBuf @0x80010000): the overlay object that starts there shares the address
+overlaid_defs = set()
+for sec, a, z, o in placed:
+    if o.endswith(OVERLAID):
+        for f, n in syms(o).get(sec, []):
+            overlaid_defs.add((a + f, base(n)))
 hits = []
 for sec, a, z, o in sorted(placed, key=lambda r: r[1]):
     i = bisect.bisect_right(addrs, a)          # strictly inside: a label AT the section start is the object's own business
@@ -77,6 +84,8 @@ for sec, a, z, o in sorted(placed, key=lambda r: r[1]):
         inside.insert(0, a)
     if not inside:
         continue
+    if o.endswith(OVERLAID):
+        inside = [L for L in inside if L == a]
     mine = sorted(syms(o).get(sec, []))
     offs = [m[0] for m in mine]
     for L in inside:
@@ -85,7 +94,7 @@ for sec, a, z, o in sorted(placed, key=lambda r: r[1]):
         want = {base(n) for n in labels[L]}
         if here & want:
             continue
-        if want <= ALLOW:
+        if want <= ALLOW or all((L, w) in overlaid_defs for w in want):
             continue
         if here and all(re.match(r'(D|DAT|lbl)_[0-9A-Fa-f]{8}$', n) or n.startswith(('.L', '$')) for n in here) and False:
             continue

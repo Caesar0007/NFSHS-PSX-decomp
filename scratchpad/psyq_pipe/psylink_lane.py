@@ -90,7 +90,8 @@ def front_objects(rows):
     first = {}
     for sec, va, sz, o in rows:
         first.setdefault(o, sec)
-    return {o for o, sec in first.items() if sec.startswith('front.')}
+    # bigbuf.obj is the MAIN binary's reservation the overlay is linked over -- it starts at the overlay origin but is `text` group .rdata
+    return {o for o, sec in first.items() if sec.startswith('front.') and not o.endswith('frontend/psx/bigbuf.c.o')}
 
 
 def retail_pads(rows):
@@ -247,12 +248,11 @@ if '--assemble' in steps:
             ok += 1
         else:
             bad += 1; fails.append((rel, (r.stdout + r.stderr).strip().splitlines()[:2]))
-    # placeholders: bigbuf (the 0x44548 .rdata reservation the front overlay sits over)
-    # and address (FrontStartAddress) -- the two retail data-only objects.
-    (W / 'bigbuf.s').write_bytes(b'\t.rdata\r\n\t.globl\tbigBuf\r\nbigBuf:\r\n\t.space\t0x44548\r\n')
-    (W / 'address.s').write_bytes(b'\t.rdata\r\n\t.globl\tFrontStartAddress\r\nFrontStartAddress:\r\n\t.word\t0x80010000\r\n')
-    for n in ('bigbuf', 'address'):
-        subprocess.run([ASPSX, '-q', str(W / (n + '.s')), '-o', str(OUT / (n + '.obj'))], capture_output=True, text=True)
+    # bigbuf.obj / address.obj are real TUs now (recon/frontend/psx/bigbuf.c = 282000-byte reservation, address.c = the two
+    # overlay boundary words); drop the placeholders an earlier run left behind.
+    for n in ('bigbuf.obj', 'address.obj'):
+        if (OUT / n).exists():
+            (OUT / n).unlink()
     print('ASPSX ok %d bad %d (front-overlay objects: %d)' % (ok, bad, nfront))
     (W / 'assemble_fails.json').write_text(json.dumps(fails, indent=0))
 
@@ -466,7 +466,7 @@ if '--link' in steps:
             if not (OUT / 'phase.obj').exists():
                 print('phase.obj failed:', (r.stdout + r.stderr)[:200])
             if (OUT / 'phase.obj').exists():
-                k = next((i for i, (_, p) in enumerate(inc) if p == 'address.obj'), 1)
+                k = next((i for i, (_, p) in enumerate(inc) if p and p.endswith('__address.c.obj')), 1)
                 inc.insert(k + 1, ['<phase pads %s>' % pads, 'phase.obj'])
                 write_lnk(inc, equs)
                 log = run_psylink()

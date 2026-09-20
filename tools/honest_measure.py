@@ -52,10 +52,16 @@ def main():
     owner.sort()
     import bisect
     starts = [o[0] for o in owner]
+    wide = [o for o in owner if o[1] - o[0] >= 0x10000]
     def kind_of(va):
         i = bisect.bisect_right(starts, va) - 1
         if i >= 0 and owner[i][0] <= va < owner[i][1]:
             return owner[i][2]
+        # 2026-09-20: bigbuf.obj's 282000-byte reservation CONTAINS the whole front overlay, so the nearest-start owner of
+        # a word in its unshared tail is some overlay object that does not reach it; ask the wide owners too.
+        for a, b, kind, src in wide:
+            if a <= va < b:
+                return kind
         return None
     # ---- placed image by VA ----
     img = bytearray(len(rom)); cov = bytearray(len(rom))

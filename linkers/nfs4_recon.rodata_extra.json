@@ -119,5 +119,16 @@
   "unresolved": 0,
   "words": 18,
   "q": 1
+ },
+ {
+  "obj": "build/recon/frontend/psx/address.c.o",
+  "section": ".rodata",
+  "base": 2147831184,
+  "end": 2147831192,
+  "size": 8,
+  "ok": true,
+  "unresolved": 0,
+  "words": 2,
+  "q": 0
  }
 ]

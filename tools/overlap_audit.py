@@ -32,6 +32,10 @@ secs = [(n, a, bytes(b)) for n, a, b in secs if a is not None and LOAD <= a < LO
 owner = {}
 for m in re.finditer(r'^(\.\S+)\s+0x([0-9a-f]{8})\s+0x([0-9a-f]+)\n(?:.*\n)*? \.\S+\s+0x[0-9a-f]{8}\s+0x[0-9a-f]+\s+(\S+\.o)$', MAP.read_text(errors='replace'), re.M):
     owner.setdefault(m.group(1), m.group(4).replace('\\', '/').split('build/')[-1])
+# .bigbuf = bigbuf.obj, the zero-filled reservation the front overlay is linked OVER (retail: group `front over(text)`).
+# Every overlay byte overlaps it BY DESIGN and the overlay wins, in retail and here; its bytes nothing overlaps (the
+# 2120-byte tail) are compared by honest_measure like any other section.
+secs = [s for s in secs if s[0] != '.bigbuf']
 ev = sorted(secs, key=lambda s: s[1])
 bad = tot = 0
 for i, (n1, a1, b1) in enumerate(ev):

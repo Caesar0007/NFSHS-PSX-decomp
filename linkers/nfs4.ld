@@ -69,6 +69,7 @@ SECTIONS
         build/asm/data/rdata_80010000_j17.rodata.s.o(.rodata);
         build/asm/data/rdata_80010000_r14.rodata.s.o(.rodata);
         build/src/front.c.o(.rodata);
+        build/asm/data/rdata_bigbuf_address_legacy.rodata.s.o(.rodata); /* 2026-09-20: bigbuf.obj tail + address.obj, source-owned in the recon lane */
         build/asm/data/rdata_80054548_r00.rodata.s.o(.rodata);
         build/asm/data/rdata_80054548_j00.rodata.s.o(.rodata);
         build/asm/data/rdata_80054548_r01.rodata.s.o(.rodata);

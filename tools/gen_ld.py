@@ -346,7 +346,8 @@ def main():
             main_ro.append((piece_va(p), p.name,
                             re.search(r"_(j)\d\d\.", p.name) is not None))
         main_ro.sort()
-        assert main_ro[0][0] == MAIN_RODATA_START, \
+        # 2026-09-20: 0x80054548..0x80054D98 is bigbuf.obj's tail + address.obj, owned by recon/frontend/psx/{bigbuf,address}.c
+        assert main_ro[0][0] in (MAIN_RODATA_START, 0x80054D98), \
             f"first main-rodata piece is at {main_ro[0][0]:#x}, not the blob base"
     else:
         assert mwhole.exists(), f"no {MAIN_RODATA_STEM} blob or pieces in asm/data"
@@ -595,6 +596,13 @@ def main():
     A("    }")
     A("    __romPos += SIZEOF(.header);")
     A("")
+    # bigbuf.obj: the zero-filled reservation the front overlay is linked OVER (retail: group `front over(text)`).  It is
+    # emitted FIRST so every overlay section, which shares its addresses by design, comes after it (honest_measure and
+    # objcopy let the later section win, exactly like the retail EXE); its 2120-byte tail past the overlay is image content.
+    if (ROOT / "build/recon/frontend/psx/bigbuf.c.o").is_file():
+        A(f"    .bigbuf {OVERLAY_START:#x} : SUBALIGN(4) {{ build/recon/frontend/psx/bigbuf.c.o(.rodata); }}")
+        A("    ASSERT(SIZEOF(.bigbuf) == 282000, \"bigbuf.obj reservation size\")")
+        A("")
     A(f"    .rodata_front {OVERLAY_START:#x} : SUBALIGN(4)")
     A("    {")
     for va, name, isj in front_ro:
@@ -605,13 +613,14 @@ def main():
         A(f"        build/asm/data/{name}.o(.rodata);")
     A("    }")
     A("")
-    A(f"    .rodata_main {MAIN_RODATA_START:#x} : SUBALIGN(4)")
+    main_ro_base = main_ro[0][0]
+    A(f"    .rodata_main {main_ro_base:#x} : SUBALIGN(4)")
     A("    {")
     for va, name, isj in main_ro:
         if isj and CUT:
             A(f"        /* {va:#010x} {name} -- JUMP TABLE, recon TU owns it */")
             continue
-        A(f"        . = {va - MAIN_RODATA_START:#x};")
+        A(f"        . = {va - main_ro_base:#x};")
         A(f"        build/asm/data/{name}.o(.rodata);")
     A("    }")
     A("")

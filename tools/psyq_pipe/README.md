@@ -16,5 +16,7 @@ still go to `scratchpad/psyq_pipe/`, which the tools create when missing.
 | SYM censuses | `sym_obj_census.py`, `sym_linkage.py`, `static_census.py`, `vf_live_census.py`, `text_hashes.py` | |
 | Link-stripped functions against the PsyQ 4.3 objects | `strip_candidates.py`, `strip_headtail.py`, `strip_worddiff.py`, `strip_asm_gen.py`, `sdkfn.py`, `fn_sxs.py` | `recon/link_stripped.h` |
 
+`psylink_disc.py` runs Sony's 16-bit `CPE2X.EXE` under the vendored `tools/msdos-player/msdos.exe`.
+
 Most of these have absolute paths to this machine's toolchain near the top (`C:/Temp/psq43/...`,
 `C:/Temp/claud/dumpsym_clean/...`); adjust them for another machine.

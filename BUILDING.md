@@ -176,7 +176,7 @@ This route uses the retail assembler and linker themselves. It produces both fil
 byte-identical yet**; it exists to measure layout and to compare our `.SYM` with retail's.
 
 Extra prerequisites: `C:/Temp/psq43/PSSN/ASPSX.EXE` (2.77) and `PSYLINK.EXE` (2.73), Sony's `CPE2X.EXE`
-(`C:/Temp/psq43/PSX/BIN/`, a 16-bit DOS program) and a DOS runner for it (`C:/Temp/msdos-player/msdos.exe`), and the
+(`C:/Temp/psq43/PSX/BIN/`, a 16-bit DOS program — it runs under the vendored `tools/msdos-player/msdos.exe`), and the
 trusted SYM dump `nfs4-f-v3.txt` for the link order.
 
 ```bash

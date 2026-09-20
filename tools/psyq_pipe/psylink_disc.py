@@ -5,7 +5,7 @@
         front   group   over(text),file("front.bin")
       `file()` makes the linker write the overlay group to its own raw file (front.rdata .. front.bss, zeros included) and
       leave it OUT of the CPE, so the CPE holds the main groups only -- with bigbuf.obj's zero reservation in the hole.
-  CPE2X 1.5 (Sony, 16-bit DOS, run under C:/Temp/msdos-player/msdos.exe): NFS4.CPE -> NFS4.EXE (/CA = North America).
+  CPE2X 1.5 (Sony, 16-bit DOS, run under tools/msdos-player/msdos.exe): NFS4.CPE -> NFS4.EXE (/CA = North America).
 
 Outputs build/psyq/disc/{NFS4.EXE,FRONT.BIN} and compares them with the retail disc files (cut from rom/nfs4-f.exe exactly
 like tools/elf_to_exe.py --split: FRONT.BIN = 0x80010000..0x80054548, NFS4.EXE = the same exe with that range zeroed)."""
@@ -20,7 +20,7 @@ OUT = ROOT / 'build' / 'psyq'
 DISC = OUT / 'disc'
 PSYLINK = 'C:/Temp/psq43/PSSN/PSYLINK.EXE'
 CPE2X = 'C:/Temp/psq43/PSX/BIN/CPE2X.EXE'
-MSDOS = 'C:/Temp/msdos-player/msdos.exe'
+MSDOS = str(ROOT / 'tools' / 'msdos-player' / 'msdos.exe')   # vendored DOS runner (GPL v2, see its README); CPE2X itself is Sony's, not vendored
 ENV = dict(os.environ, MSYS2_ARG_CONV_EXCL='*', MSYS_NO_PATHCONV='1')
 FRONT_SIZE = 0x44548
 

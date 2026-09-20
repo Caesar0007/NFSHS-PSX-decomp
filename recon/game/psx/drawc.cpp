@@ -5412,12 +5412,13 @@ gte_SetTransMatrix(&DrawC_gScreenMat);
   {
     u_short uv0 = *(u_short *)&shadowPmx->u0;
     u_short uv1 = *(u_short *)&shadowPmx->u1;
-    u_short uv3 = *(u_short *)&shadowPmx->u3;
-    u_short uv2 = *(u_short *)&shadowPmx->u2;
+    /* retail SYM: uv2 ($7) is declared before uv3 ($8): the names follow the DESTINATION slot (u2 <- source u3) */
+    u_short uv2 = *(u_short *)&shadowPmx->u3;
+    u_short uv3 = *(u_short *)&shadowPmx->u2;
     *(u_short *)&sd->u0 = uv0;
     *(u_short *)&sd->u1 = uv1;
-    *(u_short *)&sd->u2 = uv3;
-    *(u_short *)&sd->u3 = uv2;
+    *(u_short *)&sd->u2 = uv2;
+    *(u_short *)&sd->u3 = uv3;
   }
   sd->u4 = (u_char)((int)((u_int)sd->u0 + (u_int)sd->u1 + 1) >> 1);
   sd->v4 = (u_char)((int)((u_int)sd->v0 + (u_int)sd->v1 + 1) >> 1);

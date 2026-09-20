@@ -874,37 +874,32 @@ int AISpeeds_GetLegalSpeed(int slice)
 }
 
 /* ---- AISpeeds_RandomizeTrafficSpeed__FP8Car_tObji  [@0x8006ed50] ---- */
+/* Native newsafe is the resulting speed in a1, not the factor loaded into a0.
+ * Plain signed division preserves retail's rounding on the nonpositive path. */
 int AISpeeds_RandomizeTrafficSpeed(Car_tObj *carObj,int oldsafe)
 {
-  /* MATCH: safeminus30 is materialized once before oldsafe is shifted. Reusing
-   * oldsafe for the scaled result, and keeping the nonpositive-arm factor block
-   * local, reproduces the oracle's a1 result and asymmetric a0/v0 factor registers. */
   int newsafe;
   int safeminus30;
 
-  if (0 < oldsafe) {
+
+  if (0 < oldsafe)
+  {
     safeminus30 = oldsafe + -0xd6666;
-    newsafe = carObj->trafficSpeedRandomizingFactor;
-    oldsafe = oldsafe >> 8;
-    if (newsafe < 0) {
-      newsafe = newsafe + 0xff;
-    }
-    oldsafe = oldsafe * (newsafe >> 8);
-    if (oldsafe < safeminus30) {
-      oldsafe = safeminus30;
-    }
-    if (oldsafe < 0x8e666) {
-      oldsafe = 0x8e666;
-    }
+    newsafe = (oldsafe / 256) * (carObj->trafficSpeedRandomizingFactor / 256);
+
+    if (newsafe < safeminus30)
+      newsafe = safeminus30;
+
+    if (newsafe < 0x8e666)
+      newsafe = 0x8e666;
   }
-  else {
-    if (oldsafe < 0) {
-      oldsafe = oldsafe + 0xff;
-    }
-    oldsafe = (oldsafe >> 8) *
-              (carObj->trafficSpeedRandomizingFactor / 256);
+  else
+  {
+    newsafe = (oldsafe / 256) * (carObj->trafficSpeedRandomizingFactor / 256);
   }
-  return oldsafe;
+
+
+  return newsafe;
 }
 
 /* ---- AISpeeds_CalcDesiredSpeed__FP8Car_tObj  [@0x8006eddc] ---- */

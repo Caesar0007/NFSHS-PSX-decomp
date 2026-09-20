@@ -26,9 +26,9 @@ the honest link stays at 0 diff.
 |---|---|
 | Retail functions with debug records | 2570 |
 | Compared (present on both sides) | 2565 |
-| **Match implemented function checks (CLEAN)** | **1641** |
-| Differ (DIRTY) | 924 |
-| Files whose compared functions are all CLEAN | 46 of 177 |
+| **Match implemented function checks (CLEAN)** | **1643** |
+| Differ (DIRTY) | 922 |
+| Files whose compared functions are all CLEAN | 47 of 177 |
 
 The effort started at 1499 clean. The 5 retail functions not compared are the EA pad library's `PAD.C`
 (`recon/eaclib/psx/pad.c`), which is outside the two directories the debug compile covers.
@@ -140,6 +140,28 @@ trials do not prove that a distinct source object was required. Whole-TU strict
 SLD exactness is now5/27. This is progress without claiming the function CLEAN.
 Receipt: `scratchpad/sym_copspeak_play_20260921/README.md`.
 
+AIDelayCar is now3/3 function-contract CLEAN,3/3 byte-PASS and3/3 exact for
+instruction-relative SLD, native lexical-block lines and function spans.
+Update no longer misuses currentDeltaRoadPosition as a distance/slice carrier;
+the correct road delta holds its native a0 home. Grouped vector operations and
+the constructor's delayFactor-before-basisCar assignment order restore SLD.
+The optimized-away currentDeltaMeters result name is explicitly inferred from
+the distance query, not claimed as recovered. No bytes or linked data moved.
+Receipt: `scratchpad/sym_aidelaycar_20260921/README.md`.
+
+AISpeeds_RandomizeTrafficSpeed restores newsafe as the resulting speed in a1,
+not the randomizing factor in a0. Ordinary signed divisions replace manual
+rounding and the oldsafe carrier chain. Its native function contract, all35
+instruction-relative SLD tags and lexical-block lines match; AISPEEDS is17/29
+CLEAN and29/29byte-PASS, with a literally unchanged object and honest link.
+Receipt: `scratchpad/sym_aispeeds_random_20260921/README.md`.
+
+Ownership correction: compact SYM proves Copspeak_gTimeString.308 exists, but
+does not prove CopSpeak_Debug owns it. The prior source comment claiming SLD
+placement there was unsupported and is now an explicit ownership review note.
+The storage remains preserved pending evidence; moving it merely to clear the
+function's EXTRA finding would not establish original-source fidelity.
+
 ## Tool set
 
 All tools are in `tools/psyq_pipe/` unless a path is given; their generated outputs go to the local, git-ignored `scratchpad/psyq_pipe/`. Nothing here edits `tools/build.py`.
@@ -216,7 +238,7 @@ A function can be in several classes.
 | BLOCKS | 740 | The scope tree differs. In 539 of them retail has **more** scopes than we do, in 172 fewer, in 29 the count is equal but nesting or addresses differ. |
 | EXTRA | 480 (1301 locals) | We declare a local retail does not have: an invented carrier, a decompiler temporary, or an expression retail wrote through an inline call. |
 | MISSING | 251 (359 locals) | Retail has a local we lack. 180 of the 359 are `this` of an inlined member call. |
-| MOVED | 82 | Same name, different register or stack slot: our local plays a different role than retail's. |
+| MOVED | 80 | Same name, different register or stack slot: our local plays a different role than retail's. |
 | ORDER | 8 | Declaration order differs (only reported when no local is extra or missing). |
 | TYPE | 1 | Same name and home, different type. |
 | FRAME | 1 | Frame size differs. |
@@ -277,11 +299,11 @@ locals were all unnecessary.
 
 Only 36 of the 1301 extra locals still have decompiler names (`iVar1`, `piVar2`); the rest look deliberate.
 
-### 5. MOVED (82)
+### 5. MOVED (80)
 
 Same name, different home. The bytes match, so our variable of that name is not the quantity retail's was. Typical cause:
 names swapped between two locals (`AIPhysic_HandleSignalling`: `lPos`/`lDes`; `DrawC_ShadowPrimClip`: `uv2`/`uv3` are
-named by destination slot). Check for a swap first; 17 functions have MOVED as their only difference.
+named by destination slot). Check for a swap first; 15 functions have MOVED as their only difference.
 
 ### 6. Open order and type cases (9)
 

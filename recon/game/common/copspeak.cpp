@@ -1015,11 +1015,11 @@ void CopSpeak_ShowQueue(void)
 void CopSpeak_Debug(void)
 
 {
-  /* Compact SYM: `Copspeak_gTimeString.308` at 0x8013E0B0, with a 16-byte
-   * extent to gBackList.  GCC's numeric suffix is the signature of a
-   * function-local static; the SLD trace places this declaration in the
-   * otherwise two-line CopSpeak_Debug source region.  No retail code use
-   * survives, so this declaration changes storage only. */
+  /* UNRESOLVED OWNER: compact SYM records `Copspeak_gTimeString.308` at
+   * 0x8013E0B0 (16 bytes to gBackList); its suffix suggests a local static.
+   * Retail CopSpeak_Debug's typed records list no such local, and the
+   * available SLD does not establish this owner. Preserve the storage
+   * pending ownership recovery; do not move it merely to clear EXTRA. */
   static char Copspeak_gTimeString[16]; /* @0x8013E0B0: compact SYM `Copspeak_gTimeString.308` */
   CopSpeak_ShowQueue();
   return;

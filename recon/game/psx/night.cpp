@@ -700,18 +700,20 @@ void Night_PauseLightningEffect(int player)
 
 {
   int track;
-  int slice;
-  int startp;
-  int endp;
   int pause_flag;
+  int slice;
 
   slice = Camera_gInfo[player].slicePos.slice;
   track = GameSetup_gData.track;
   pause_flag = 0;
-  startp = Night_gLightningPauseAreas[track][0];
-  endp = Night_gLightningPauseAreas[track][1];
-  if (startp < slice) {
-    pause_flag = slice < endp;
+  {   /* retail SYM: startp / endp live in their own scope */
+    int startp;
+    int endp;
+    startp = Night_gLightningPauseAreas[track][0];
+    endp = Night_gLightningPauseAreas[track][1];
+    if (startp < slice) {
+      pause_flag = slice < endp;
+    }
   }
   if (Night_WeatherType == 0) {
     pause_flag = 1;

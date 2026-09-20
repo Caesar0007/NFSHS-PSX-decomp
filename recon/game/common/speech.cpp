@@ -1609,10 +1609,7 @@ void DispatchSpeaker::Status()
   if (!initialInvalid) {
   {
     if ((this->fSub->CarObj()->carFlags & 0x200) != 0) {
-    /* SYM-CODEGEN-CARRIER: perpVf -- replacing this explicit virtual-call
-       expansion with VirtualDistToPerp is count-exact but leaves 26 allocation
-       and receiver-order diffs.
-       SYM-CODEGEN-CARRIER: perpDistance -- the one virtual result is reused by
+    /* SYM-CODEGEN-CARRIER: perpDistance -- the one virtual result is reused by
        mutually exclusive far/near tests; removing it would duplicate an
        observable virtual call, while SYM cannot recover its spelling. */
     int perpDistance = this->fSub->DistToPerp();
@@ -1625,12 +1622,9 @@ void DispatchSpeaker::Status()
       }
     }
     else if (perpDistance < 0x640000) {
-        /* SYM-CODEGEN-CARRIER: engageEntry -- the canonical nested
-           Engage(Perp()) spelling shortens 366 to 364 and causes
-           160 function-wide allocation diffs.
-           SYM-CODEGEN-CARRIER: engageThis -- folding the adjusted receiver is
-           count-exact but leaves 34 diffs. */
-        this->fSub->Engage(this->fSub->Perp());
+        /* the receiver is the inline accessor: an argument holding a call is evaluated first, and the
+           implicit `this + delta` is argument 1 -- so the Engage entry is fetched before Perp() runs */
+        this->Sub()->Engage(this->Sub()->Perp());
     }
     }
   }

@@ -95,6 +95,7 @@ struct Speaker {
     bool fHavePerp;
     Speaker *fSub;
     Speaker() { fSub = 0; }   /* inline: retail stores the Speaker table, zeroes fSub, then stores the derived table */
+    Speaker *Sub() { return fSub; }   /* inline accessor: proven by DispatchSpeaker::Status' Engage(Perp()) evaluation order */
 #include "speech_speaker_virtuals.inc"
     void SetCar(Car_tObj *car) asm("SetCar__Q26Speech7SpeakerP8Car_tObj");
     void FindLocation(Car_tObj *car) asm("FindLocation__Q26Speech7SpeakerP8Car_tObj");

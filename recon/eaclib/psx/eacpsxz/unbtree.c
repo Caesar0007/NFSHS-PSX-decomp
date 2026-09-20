@@ -20,11 +20,26 @@
 /* unbtree.obj-owned cursors/table bases: tentative-defined here (mergeable .comm with unref.c's
  * SQVd/SQVclue/SQVleft/SQVright tentative defs; the linker folds them). Needed so THIS TU knows their
  * size and keeps them -G4 gp-relative (an `extern` decl alone loses gp-rel -- verified: FAIL 220). */
-signed char *SQVclue;    /* @0x8013DEC8: clue table base (0=literal, 1=escape, -1=node) */
-unsigned char *SQVleft;  /* @0x8013DECC: node left-child table base */
-unsigned char *SQVright; /* @0x8013DED0: node right-child table base */
-unsigned char *SQVs;     /* @0x8013DED4: source cursor */
-unsigned char *SQVd;     /* @0x8013DED8: destination cursor */
+static signed char *SQVclue;    /* @0x8013DEC8: clue table base (0=literal, 1=escape, -1=node) */
+static unsigned char *SQVleft;  /* @0x8013DECC: node left-child table base */
+static unsigned char *SQVright; /* @0x8013DED0: node right-child table base */
+static unsigned char *SQVs;     /* @0x8013DED4: source cursor */
+static unsigned char *SQVd;     /* @0x8013DED8: destination cursor */
+
+/* chase @0x800F5530 : recursively expand unbtree node `code` -- emit a literal or descend left+right.
+ *   MATCH: VOID (unbtree.c's decl; the apparent $v0 result is incidental), descend =
+ *   fall-through (`beqz -> leaf` out-of-line), clue read SIGNED (`lb` -- plain char is
+ *   unsigned on this toolchain). */
+static void chase(unsigned int code)
+{
+    unsigned int idx = code & 0xff;
+    if (SQVclue[idx] != 0) {
+        chase(SQVleft[idx]);
+        chase(SQVright[idx]);
+    } else {
+        *SQVd++ = (unsigned char)code;
+    }
+}
 
 /* unbtree @0x800F55B4 : decompress `src` into `dst`; returns the (24-bit) uncompressed size.  src==0 just
  *   (re)points the dst cursor and returns 0.

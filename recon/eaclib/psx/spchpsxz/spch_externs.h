@@ -3,7 +3,6 @@
 
 #include "spch_types.h"
 #include "spchbank.h"
-#include "spchdata.h"
 #include "spchevnt.h"
 #include "spchinit.h"
 #include "spchpick.h"

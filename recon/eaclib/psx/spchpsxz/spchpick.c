@@ -62,12 +62,48 @@
 #include "spch_types.h"
 #include "spchinit.h"
 #include "spchpick.h"
-#include "spchdata.h"
 #include "spchbank.h"
 #include "spchsamp.h"
 #include "spchrand.h"
 #include "spchrule.h"
 #include "spchevnt.h"
+
+/* ---- spchpick.obj's own static copies of the shared Vox accessors (retail SYM: local labels 0x80100710..) ---- */
+/* iSPCH_GetMatchValue @0x80100710 : matchValues[index] -- the int table right after the header. */
+static int iSPCH_GetMatchValue(VoxPhrase *phrase, int index)
+{
+    return phrase->matchValues[index];
+}
+
+/* VoxSentence_GetShortRule @0x80100724 : low 2 bits of the sentence's flags byte (+3). */
+static int VoxSentence_GetShortRule(VoxSentence *sentence)
+{
+    return sentence->flags & 3;
+}
+
+/* VoxSentence_GetNumPhrases @0x80100730 : upper 6 bits of the sentence's flags byte (+3). */
+static int VoxSentence_GetNumPhrases(VoxSentence *sentence)
+{
+    return sentence->flags >> 2;
+}
+
+/* VoxEvent_GetFilterLengthFlag @0x8010073C : bit 0 of the event's flags byte (+0xa). */
+static int VoxEvent_GetFilterLengthFlag(VoxEvent *event)
+{
+    return event->flags & 1;
+}
+
+/* iSPCH_GetOffset8 @0x80100748 : follow an 8-bit offset table -- base + (table[index] << 2). */
+static void *iSPCH_GetOffset8(void *base, unsigned char *table, int index)
+{
+    return (char *)base + ((int)table[index] << 2);
+}
+
+/* iSPCH_GetOffset16 @0x80100760 : follow a 16-bit offset table -- base + (table[index] << 2). */
+static void *iSPCH_GetOffset16(void *base, unsigned short *table, int index)
+{
+    return (char *)base + ((int)table[index] << 2);
+}
 
 /* W65-A6 DATA-MAT run @0x8014843C -- file-scope asm .bss definition.  ⚠️ STILL LOAD-BEARING
  * (re-measured 2026-09-04): it is the ONLY spelling that gives BOTH the right section and the

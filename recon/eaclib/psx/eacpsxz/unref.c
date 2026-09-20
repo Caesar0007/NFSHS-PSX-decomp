@@ -39,11 +39,56 @@
 #include "textcrnt.h"
 #include "unhuff.h"
 
-signed char   *SQVclue;
-unsigned char *SQVleft;
-unsigned char *SQVright;
-unsigned char *SQVs;
-unsigned char *SQVd;
+/* file-local copy helpers (retail SYM: local labels right before unrefpack) */
+/* memcpyl @0x800F51C0 : copy `n` bytes (rounded up to 4) word-at-a-time via geti/puti.  Returns dst+n.
+ * The oracle advances src ($s2) PER ITERATION -- `addiu s2,s2,4` sits in the loop-back bgtz DELAY SLOT
+ * (runs every pass); the last (post-exit) advance is functionally dead but present in the code.  Writing
+ * `src += 4` INSIDE the loop reproduces the delay-slot fill + the s2(src)/s3(end) register choice. */
+static char *memcpyl(char *dst, char *src, int n)
+{
+    char *end = dst + n;
+    do {
+        unsigned int val = geti(src, 4);   /* @0x800F51E8 a0=src (s2) each iteration */
+        puti((unsigned char *)dst, val, 4);
+        dst = dst + 4;
+        n   = n - 4;
+        src = src + 4;                     /* @0x800F5210: in the bgtz delay slot (per-iter) */
+    } while (0 < n);
+    return end;
+}
+
+/* memcpyb @0x800F5234 : copy `n` bytes one at a time.  Returns the last byte copied.
+ * MATCH: return type unsigned int + local unsigned int -- `unsigned char last` triggers
+ * an `andi v0,v0,255` mask on the return (oracle has nop there).  lbu already gives 0-255. */
+static unsigned int memcpyb(unsigned char *dst, unsigned char *src, int n)
+{
+    unsigned int last;
+    do {
+        last = *src;
+        src  = src + 1;
+        n    = n - 1;
+        *dst = (unsigned char)last;
+        dst  = dst + 1;
+    } while (n != 0);
+    return last;
+}
+
+/* refcpy @0x800F5254 : LZ back-reference copy -- `len` bytes from `dist` bytes behind `dst`.  Returns dst+len.
+ *   dist==1 is a run (memset of dst[-1]); dist 2..3 overlap byte-copy; dist>=4 word-copy. */
+static unsigned char *refcpy(unsigned char *dst, unsigned int dist, int len)
+{
+    unsigned char *end;
+    if (dist < 4) {
+        end = dst + len;
+        if (dist == 1)
+            memset(dst, dst[-1], (unsigned int)len);
+        else
+            memcpyb(dst, dst - dist, len);
+    } else {
+        end = (unsigned char *)memcpyl((char *)dst, (char *)(dst - dist), len);
+    }
+    return end;
+}
 
 /* unrefpack @0x800F52B8 : decompress RefPack stream `comp` into `out` (only if `reverse` != 0, else size-query);
  *   returns the 24-bit uncompressed size.
@@ -357,19 +402,4 @@ int unrefpack(unsigned char *comp, unsigned char *out_arg, int reverse_arg)
         }
     }
     return size;
-}
-
-/* chase @0x800F5530 : recursively expand unbtree node `code` -- emit a literal or descend left+right.
- *   MATCH: VOID (unbtree.c's decl; the apparent $v0 result is incidental), descend =
- *   fall-through (`beqz -> leaf` out-of-line), clue read SIGNED (`lb` -- plain char is
- *   unsigned on this toolchain). */
-void chase(unsigned int code)
-{
-    unsigned int idx = code & 0xff;
-    if (SQVclue[idx] != 0) {
-        chase(SQVleft[idx]);
-        chase(SQVright[idx]);
-    } else {
-        *SQVd++ = (unsigned char)code;
-    }
 }

@@ -136,7 +136,6 @@ extern int gUseFrontend;
 extern int mappings[3][13][3];
 extern bool memCardReadOK;
 extern tMissionManager missionManager;   /* W58-A1: real type -- ..__15tMissionManager */
-extern tCarModels regularCopModels[7][5];
 extern tScreenAudio *screenAudio;
 extern tScreenBeTheCopCongrats *screenBeTheCopCongrats;
 extern tScreenCarSelect *screenCarSelect;
@@ -163,7 +162,6 @@ extern tScreenTrackSelect *screenTrackSelect;
 extern tScreenTrophyInfo *screenTrophyInfo;
 extern tScreenTrophyRoom *screenTrophyRoom;
 extern tScreenUserName *screenUserName;
-extern tCarModels superCopModels[7][5];
 /* SEVERE BUG FIXED (extern-audit): these 20 were `extern int X_vtable;` (SCALAR) vs the real
    owner def `__vtbl_ptr_type X_vtable[N]` (ARRAY, vtables_t*.cpp). front.cpp does
    `*(void**)&obj->_vf = (void*)X_vtable;` -- under the scalar decl this compiled to

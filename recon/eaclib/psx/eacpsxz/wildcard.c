@@ -22,6 +22,9 @@
 #include "eac_types.h"
 #include "wildcard.h"
 
+/* file-local functions (retail SYM: local labels) */
+static char *strrstr(char *s, char *set);
+
 // FIXME STRINGS.H
 extern char *strrchr(const char *s, int c);   /* libc C31.obj, BIOS A0:0x1F */
 // FIXME CTYPE.H
@@ -34,7 +37,7 @@ extern int   tolower(int c);                   /* libc C38.obj, BIOS A0:0x26 */
  * `beqz`-to-exit + fall-through-into-body. Nesting the do-while inside `if (cond) { ... }` (no early
  * return) suppresses the rotation and matches byte-for-byte -- branch-polarity/early-return lever
  * (§3.12 #7 pairing) applied to a loop guard, not just a boolean select. */
-char *strrstr(char *s, char *set)
+static char *strrstr(char *s, char *set)
 {
     char *best = 0;
     if (*set != 0) {

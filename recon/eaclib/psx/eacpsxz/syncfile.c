@@ -25,6 +25,10 @@
 #include "eac_types.h"
 #include "syncfile.h"
 #include "nfile.h"
+
+/* file-local functions (retail SYM: local labels) */
+static void synccallback(int op, int type, SyncCtrl *c);
+static int syncblockio(int fd, int buf, int offset, int len, int cbarg, int (*iofn)(int, int, int, int, int, struct SyncCtrl *));
 /* eaclib/psx/eacpsxz/syncfile.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 1/1 ***
  *   obj nfs4\eaclib\psx\syncfile.obj ; EACPSXZ.LIB (xlsx col12 / SYM v3 FILE record line 357483).
  *   8 fns @[0x800EA6CC .. 0x800EAAC4]: synchronous (blocking) wrappers over the asynchronous FILE_* API
@@ -168,7 +172,7 @@
  *   (19) or the `c->remain -= done` else-arm (19) -- both outside the advance chain, no effect;
  *   wrapping two accumulates (14 @73) or nesting the wrapper twice (14 @73) -- no extra depth
  *   gain, the flr2 step is already crossed by depth 1. */
-void synccallback(int op, int type, SyncCtrl *c)
+static void synccallback(int op, int type, SyncCtrl *c)
 {
     SyncCtrl *t;
     unsigned int done;
@@ -221,7 +225,7 @@ void synccallback(int op, int type, SyncCtrl *c)
 }
 
 /* syncblockio @0x800EA7E8 : run a chunked blocking transfer of `len` bytes via `iofn`; returns bytes moved. */
-int syncblockio(int fd, int buf, int offset, int len, int cbarg,
+static int syncblockio(int fd, int buf, int offset, int len, int cbarg,
                        int (*iofn)(int, int, int, int, int, struct SyncCtrl *))
 {
     SyncCtrl c;

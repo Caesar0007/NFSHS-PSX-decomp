@@ -18,8 +18,6 @@ typedef struct SyncCtrl {
     int      op;      /* +32 current async op handle */
 } SyncCtrl;
 
-extern void synccallback(int op, int type, SyncCtrl *ctrl);   /* @0x800EA6CC */
-extern int  syncblockio(int fd, int buf, int offset, int len, int cbarg, int (*iofn)(int, int, int, int, int, struct SyncCtrl *));   /* @0x800EA7E8 */
 /* NOTE: nsync.c calls the 3rd argument of the *sync family `retry`, nasync.c calls it `prio`.
  * Named `prio` here to match the async FILE_open/FILE_close it forwards to; the true meaning
  * is unconfirmed -- it reaches the oracle as plain $a2. */

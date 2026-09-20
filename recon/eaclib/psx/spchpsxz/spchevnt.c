@@ -76,6 +76,9 @@
 #include "spchrand.h"
 #include "spchpick.h"
 
+/* file-local functions (retail SYM: local labels) */
+static unsigned int VoxEvent_GetKeepTillExpiresFlag(VoxEvent *e);
+
 /* W65-A6 DATA-MAT run @0x80148044 -- file-scope asm .bss definition, RESTORED 2026-09-04.
  * ⚠️ LOAD-BEARING FOR DATA LAYOUT (measured, objdump/nm): it is the only spelling that gives
  * BOTH the right section and retail's ORDER.  Plain C tentative definitions land in .bss but
@@ -120,7 +123,7 @@ static int VoxEvent_GetFilterLengthFlag(VoxEvent *e)   /* @0x800E6E88 */
 }
 
 /* VoxEvent_GetKeepTillExpiresFlag @0x800E6E94 : bit 2 of the event flags byte (+0xa). */
-unsigned int VoxEvent_GetKeepTillExpiresFlag(VoxEvent *e)
+static unsigned int VoxEvent_GetKeepTillExpiresFlag(VoxEvent *e)
 {
     return (unsigned int)e->flags >> 2 & 1;
 }

@@ -8,12 +8,15 @@
 #include "textfor.h"
 #include "getm.h"
 
+/* file-local functions (retail SYM: local labels) */
+static int textbsearch(unsigned int key, int base, int count, int stride);
+
 extern unsigned char currentfont[];   /* @0x80135BA0 active-font state blob (textcrnt):
                                        * +0x74 = glyph count, +0x84 = glyph-table base (0xb B/entry) */
 
 /* textbsearch @0x800F4470 : binary-search `count` records (stride `stride`) for the one whose 2-byte key
  *   matches `key`; returns its address, or 0. */
-int textbsearch(unsigned int key, int base, int count, int stride)
+static int textbsearch(unsigned int key, int base, int count, int stride)
 {
     /* MATCH: written as a natural top-tested `while` (NOT `for(;;){if(!cond)return;...}`) so
      * gcc ROTATES it: the count==0 test appears ONCE before the loop AND again (inverted) at

@@ -9,19 +9,6 @@ typedef struct StreamFilter {
     unsigned int consumer;
 } StreamFilter;
 
-extern int  validatehandle(int handle, int *outObj, int *outHandle);   /* @0x800FC2F8 */
-extern unsigned int inbetween(unsigned int a, unsigned int b, unsigned int c);   /* @0x800FC334 */
-extern int  decbufferusage(int s, int amount);   /* @0x800FC374 */
-extern int *getfreerequest(int s);   /* @0x800FC400 */
-extern int  queuerequest(int s, int req);   /* @0x800FC478 */
-extern int  freerequest(int s, int req);   /* @0x800FC548 */
-extern unsigned int filterchunk(int s, int chunk);   /* @0x800FC5E4 */
-extern int  parsechunks(int s);   /* @0x800FC634 */
-extern void opencallback(int a0, int a1, int s);   /* @0x800FC810 */
-extern void closecallback(int a0, int a1, int s);   /* @0x800FC850 */
-extern int  readcallback(int a0, int a1, int s);   /* @0x800FC8A8 */
-extern int  startnextrequest(int s, unsigned int prio);   /* @0x800FC9B4 */
-extern int  restartstream(int s, unsigned int prio);   /* @0x800FCB44 */
 extern int  STREAM_overhead(int numReq, int numFilters, int numConsumers);   /* @0x800FCDE0 */
 extern int STREAM_create(int numReq, int numFilters, int numConsumers, int objbuf, int bufsize);   /* @0x800FCE14 */
 extern void STREAM_setfilter(int consumer, int filterIdx, unsigned int mask, unsigned int match, int value);   /* @0x800FD054 */

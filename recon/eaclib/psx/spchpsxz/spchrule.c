@@ -33,6 +33,9 @@
 #include "spchrule.h"
 #include "spchinit.h"
 
+/* file-local functions (retail SYM: local labels) */
+static VoxRule *iSPCH_GetRuleDataAddr(VoxEvent *event);
+
 /* 2026-09-02 pseudo-array retirement: both callback slots were UNSIZED-ARRAY decls read as
  * sym[0] -- the pre--G0 device against <= -G4 small-data eligibility (w47-a9 fingerprint: the
  * scalar decl compiled to the unschedulable assembler macro `lw $r,sym` where retail has the
@@ -65,7 +68,7 @@ static void *iSPCH_GetOffset16(void *base, unsigned short *table, int index)  /*
 /* iSPCH_GetRuleDataAddr @0x8010B140 : address of an EVENT's rule-data block (right after its sentence-offset table).
  * The rules start where the sentence-offset table ends: &sentenceOffs[numSentences] (retail folds the
  * +0xc into the scaled index and adds the base last, in the jr delay slot). */
-VoxRule *iSPCH_GetRuleDataAddr(VoxEvent *event)
+static VoxRule *iSPCH_GetRuleDataAddr(VoxEvent *event)
 {
     return (VoxRule *)&event->sentenceOffs[event->numSentences];
 }

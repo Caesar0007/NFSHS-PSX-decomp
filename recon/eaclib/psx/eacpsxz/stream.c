@@ -34,6 +34,21 @@
  * The three sites that need that value cast the function pointer locally rather than widening the
  * owner declaration (catalog D). */
 #include "threads.h"
+
+/* file-local functions (retail SYM: local labels) */
+static int validatehandle(int handle, int *outObj, int *outHandle);
+static unsigned int inbetween(unsigned int a, unsigned int b, unsigned int c);
+static int decbufferusage(int s, int amount);
+static int *getfreerequest(int s);
+static int queuerequest(int s, int req);
+static int freerequest(int s, int req);
+static unsigned int filterchunk(int s, int chunk);
+static int parsechunks(int s);
+static void opencallback(int a0, int a1, int s);
+static void closecallback(int a0, int a1, int s);
+static int readcallback(int a0, int a1, int s);
+static int startnextrequest(int s, unsigned int prio);
+static int restartstream(int s, unsigned int prio);
 /* eaclib/psx/eacpsxz/stream.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** 32/32 ***
  *   Source obj : nfs4\eaclib\psx\stream.obj ; archive C:\nfs4\EACLIB\PSX\EACPSXZ.LIB (xlsx col11)
  *   32 fns @[0x800FC2F8 .. 0x800FDCE0].  EA STREAMING ring-buffer manager, layered directly on the
@@ -128,7 +143,7 @@ static int  locaterequest(int s, unsigned int reqid);                         /*
 /* validatehandle @0x800FC2F8 : check a STREAM/consumer handle.  `handle[0]` points to the stream
  *   object; if that begins with 'STRM' it is valid.  Returns 0 and writes out[0]=streamobj, out[1]=handle
  *   (the asm stores to *a1 and *a2, with a2 == a1+4); returns 1 otherwise. */
-int validatehandle(int handle, int *outObj, int *outHandle)
+static int validatehandle(int handle, int *outObj, int *outHandle)
 {
     /* Oracle keeps TWO separate `return 1` epilogues (handle==0 vs magic-mismatch)
      * -- do NOT let gcc tail-merge them.  `bnez a0` (handle!=0 -> check) with the
@@ -147,7 +162,7 @@ int validatehandle(int handle, int *outObj, int *outHandle)
 }
 
 /* inbetween @0x800FC334 : is offset `c` inside the (possibly wrapped) ring interval [a, b)? */
-unsigned int inbetween(unsigned int a, unsigned int b, unsigned int c)
+static unsigned int inbetween(unsigned int a, unsigned int b, unsigned int c)
 {
     unsigned int ret;
     if (a <= b) {
@@ -173,7 +188,7 @@ unsigned int inbetween(unsigned int a, unsigned int b, unsigned int c)
  * MATCH (35/35): spell the oracle's three exits directly.  The old<level path returns the comparison,
  *   the new>=level path returns 1, and the active-read path intentionally falls through after
  *   FILE_priorityop so that call's value remains in v0. */
-int decbufferusage(int s, int amount)
+static int decbufferusage(int s, int amount)
 {
     int sr, old, neu, lvl;
     sr = STREAM_enterCS();
@@ -195,7 +210,7 @@ int decbufferusage(int s, int amount)
 
 /* getfreerequest @0x800FC400 : pop a request slot off the freelist (+0x58), stamp it with a fresh id
  *   (the rolling requestidcounter in the high 24 bits), inside a critical section.  Returns 0 if none. */
-int *getfreerequest(int s)
+static int *getfreerequest(int s)
 {
     int *req, *ret;
     int sr = STREAM_enterCS();
@@ -217,7 +232,7 @@ int *getfreerequest(int s)
 
 /* queuerequest @0x800FC478 : append a request to the active queue (head@0x4C / cur@0x50 / tail@0x54),
  *   inside a critical section.  Returns the previous tail (0 if the queue was empty). */
-int queuerequest(int s, int req)
+static int queuerequest(int s, int req)
 {
     int ret, sr, tail;
     MI(req, 4) = 1;                            /* state = queued */
@@ -258,7 +273,7 @@ static int locaterequest(int s, unsigned int reqid)
 
 /* freerequest @0x800FC548 : unlink a request from the active queue and push it onto the freelist.
  *   Returns the new freelist tail. */
-int freerequest(int s, int req)
+static int freerequest(int s, int req)
 {
     int ret;
     if (req == MI(s, 0x4c))                     /* head */
@@ -301,7 +316,7 @@ int freerequest(int s, int req)
  * (methodology 3.12 #1): gcc strength-reduces it back to retail's single-base walk.
  * MEASURED: volatile+walk PASS 20 | plain ptr + walk FAIL 15 @21 | INDEX FORM (kept) PASS 20 |
  * goto-loop + walk PASS 20 | goto-loop + byte-offset MI() spelling PASS 20.  Zero devices. */
-unsigned int filterchunk(int s, int chunk)
+static unsigned int filterchunk(int s, int chunk)
 {
     StreamFilter *f;
     unsigned int tag;
@@ -324,7 +339,7 @@ unsigned int filterchunk(int s, int chunk)
  *   is {tag, len}; the chunk is classified by filterchunk, tagged with its consumer in the high byte of
  *   word1, and accounted to that consumer.  Stops at a short/invalid header or the end-of-stream id.
  *   Returns 1 if the end-of-stream marker was reached, else 0. */
-int parsechunks(int s)
+static int parsechunks(int s)
 {
     /* ORIGINAL-NAME-UNRESOLVED: `bvar1` and `uVar5` are retained
      * decompiler-style spellings.  NFS4 has no local debug records for this
@@ -403,7 +418,7 @@ malformed:
 
 /* opencallback @0x800FC810 : nfile open-op completion (stream object arrives in $a2 = udata).  Stash the
  *   opened file handle (+0x9C); if valid, kick the stream's fill engine. */
-void opencallback(int a0, int a1, int s)
+static void opencallback(int a0, int a1, int s)
 {
     unsigned int h;
     (void)a0; (void)a1;
@@ -415,7 +430,7 @@ void opencallback(int a0, int a1, int s)
 
 /* closecallback @0x800FC850 : nfile close-op completion -> immediately open the next file (its name was
  *   already copied to +0x5C) and arm opencallback. */
-void closecallback(int a0, int a1, int s)
+static void closecallback(int a0, int a1, int s)
 {
     unsigned int op;
     (void)a0; (void)a1;
@@ -441,7 +456,7 @@ void closecallback(int a0, int a1, int s)
  * it to `bvar1` first and then overwriting `bvar1` with the comparison reproduces retail exactly.
  * Side effect (and the reason the swap looked global): the extra two references raise bvar1's
  * allocno priority above reqcur's, so bvar1 takes $s1 and reqcur $s2 as in retail. */
-int readcallback(int a0, int a1, int s)
+static int readcallback(int a0, int a1, int s)
 {
     /* ORIGINAL-NAME-UNRESOLVED: `bvar1`, `iVar2`, and `uVar3` are retained
      * placeholders.  The binary proves their value roles but NFS4 supplies no
@@ -543,7 +558,7 @@ restart:
  * LESSON (catalog-worthy): when a "merged variable" experiment gates worse, check that EVERY arm
  * assigns the merged variable explicitly before filing the allocno-priority verdict -- a partially
  * merged spelling leaves the old anonymous temp alive and measures the wrong thing. */
-int startnextrequest(int s, unsigned int prio)
+static int startnextrequest(int s, unsigned int prio)
 {
     int  done;
     int  cur;
@@ -682,7 +697,7 @@ int startnextrequest(int s, unsigned int prio)
  * registers are already retail's, only the two loads are transposed.  Falsified for it: swapping
  * the two initialisers' source order, and the Yoda compare `uVar5 < uVar3` (both byte-identical --
  * fillptr's longer dependency chain wins the ready list regardless of source order). */
-int restartstream(int s, unsigned int prio)
+static int restartstream(int s, unsigned int prio)
 {
     int *p;
     int *q;

@@ -135,6 +135,12 @@
 #include "blkmov.h"
 #include "blkfill.h"
 
+/* file-local functions (retail SYM: local labels) */
+static int CD_systaskfunc(void);
+static void CD_timerfunc(void);
+static void CdReadyHandler(unsigned char intr, unsigned char *result);
+static int dircompare(const void *a, const void *b);
+
 /* ---- helpers ---- */
 // FIXME CTYPE.H
 extern int   toupper(int c);                                  /* @0x8010907C (libc C37)      */
@@ -283,7 +289,7 @@ static inline int rd_le32(const unsigned char *q)
 /* CD_systaskfunc @0x800F9AE8 : disc-swap recovery system task.  Polls CdDiskReady; on a stable disc
  *   (or a timed-out error) it resets the drive, re-arms the read mode + CdReadyHandler, and resumes the
  *   in-flight transfer if one was pending. */
-int CD_systaskfunc(void)
+static int CD_systaskfunc(void)
 {
     unsigned char result[8];
     unsigned char pos[8];
@@ -371,7 +377,7 @@ int CD_systaskfunc(void)
 
 /* CD_timerfunc @0x800F9C44 : read watchdog (timer callback).  When the countdown reaches zero it queues
  *   the disc-swap recovery system task and removes itself from the timer list. */
-void CD_timerfunc(void)
+static void CD_timerfunc(void)
 {
     if (CD_timeout != 0) {
         CD_timeout = CD_timeout - 1;
@@ -389,7 +395,7 @@ void CD_timerfunc(void)
  *   cache for a partial slice), validates the sector address, advances the transfer, and fires the
  *   completion callback when the request is satisfied.  It also keeps the drive streaming/prefetching
  *   ahead of CD_curSector and re-installs itself on exit. */
-void CdReadyHandler(unsigned char intr, unsigned char *result)
+static void CdReadyHandler(unsigned char intr, unsigned char *result)
 {
     CDReadyScratch scratch;
 #define hdr   scratch.hdr
@@ -647,7 +653,7 @@ done:
 }
 
 /* dircompare @0x800FA344 : qsort/bsearch comparator -- compares the 0xC-byte names of two dir entries. */
-int dircompare(const void *a, const void *b)
+static int dircompare(const void *a, const void *b)
 {
     return strncmp((const char *)a, (const char *)b, 0xC);
 }

@@ -43,6 +43,11 @@
 #include "locatbig.h"
 #include "nullfunc.h"
 #include "vars.h"
+
+/* file-local functions (retail SYM: local labels) */
+static void *loadfileadratomic(int retry, LoadArgs *a);
+static int loadfileatadratomic(int retry, LoadArgs *a);
+static void *loadbigfileheaderatomic(int retry, LoadArgs *a);
 /* eaclib/psx/eacpsxz/nsync.cpp -- RECONSTRUCTED from nfs4-f.exe. NOT original source.
  *   Source obj : nfs4\eaclib\psx\nsync.obj ; archive C:\nfs4\EACLIB\PSX\EACPSXZ.LIB (xlsx col10)
  *   10 fns @ [0x800E5608, 0x800E5AC4) -- EA "nsync" SYNCHRONOUS file-load layer.
@@ -132,7 +137,7 @@ int filesize(char *name)   /* @0x800E566C */
  * is likewise unavailable: this fn has no loop, so no reference can be loop-weighted.  => the
  * "needs >=8 refs of `a`, or size live >=16 insns" arithmetic is unchanged and both new w35 dials
  * are ruled out on MECHANISM, not by trial. */
-void *loadfileadratomic(int retry, LoadArgs *a)   /* @0x800E56B0 */
+static void *loadfileadratomic(int retry, LoadArgs *a)   /* @0x800E56B0 */
 {
     int handle;
     /* positive-branch form (lever #7): success path = `bnez` target, open-fail
@@ -208,7 +213,7 @@ int loadfileadr(char *name, int memclass)   /* @0x800E57E8 */
  *  caller-supplied fixed address `a->dest`, close.  Returns dest (0 on   *
  *  open failure).                                                        *
  * ===================================================================== */
-int loadfileatadratomic(int retry, LoadArgs *a)   /* @0x800E5830 */
+static int loadfileatadratomic(int retry, LoadArgs *a)   /* @0x800E5830 */
 {
     int handle;
     /* MATCH: post-call accesses go through a SEPARATE local pointer `p` -- splits the
@@ -260,7 +265,7 @@ int loadfileatadr(char *name, int dest)   /* @0x800E58F0 */
  *  true header (sizeofbigfileheader) is larger, reallocates and reads    *
  *  the remainder.  Returns the header buffer (NULL on failure).          *
  * ===================================================================== */
-void *loadbigfileheaderatomic(int retry, LoadArgs *a)   /* @0x800E5938 */
+static void *loadbigfileheaderatomic(int retry, LoadArgs *a)   /* @0x800E5938 */
 {
     int handle;
     void *buf;

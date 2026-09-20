@@ -37,6 +37,14 @@
 #include "cdfs.h"
 #include "blkmov.h"
 #include "blkfill.h"
+
+/* file-local functions (retail SYM: local labels) */
+static void iFILE_ExecCommand(void *cmdp);
+static void iFILE_perror(FileOp *op);
+static FileOp *reserveop(void);
+static void freeop(FileOp *op);
+static FileHandle *reservehandle(void);
+static void freehandle(FileHandle *h);
 /* eaclib/psx/eacpsxz/nfile.c -- RECONSTRUCTED from nfs4-f.exe. NOT original source.  *** WIP ***
  *   Source obj : nfs4\eaclib\psx\nfile.obj ; archive C:\nfs4\EACLIB\PSX\EACPSXZ.LIB (xlsx col11)
  *   27 fns @[0x800EBBF4 .. 0x800ED334].  EA async file-operation layer (op queue + handle table).
@@ -1174,7 +1182,7 @@ int FILE_atomic(int (*fn)(int, int), int unused, int a3, int a4)
  * confirmed by JimmyJohnsonsVRFB98/MEMORY.C and already emits the exact COP0 sequence above. */
 /* Raw nfs4-f.exe DD398..DD81F SHA-256:
  * f005d1d202c25693bdaa4a6af71d553309201f7f8db575ef547012c92aaecb52. */
-void iFILE_ExecCommand(void *cmdp)
+static void iFILE_ExecCommand(void *cmdp)
 {
     FileOp *cmd = (FileOp *)cmdp;
     int sr;
@@ -1406,7 +1414,7 @@ int iFILE_CommandCompleteCallback(int result)
 
 /* iFILE_perror @0x800ED0D4 : debug error reporter, compiled out in the release build (a nullsub).
  *   Takes the failing op in $a0 (callers rematerialize it into the jal delay slot); ignored here. */
-void iFILE_perror(FileOp *op)
+static void iFILE_perror(FileOp *op)
 {
     (void)op;
 }
@@ -1552,7 +1560,7 @@ void iFILE_perror(FileOp *op)
  * the loop-local assignments places the manager base first; the repeated mask
  * supplies the one weighted seqMask reference needed for the retail allocation.
  * No reconstructed asm or post-compiler rewriting is involved. */
-FileOp *reserveop(void)
+static FileOp *reserveop(void)
 {
     int i, sr, off;
     FILE_CS_ENTER(sr);
@@ -1599,7 +1607,7 @@ FileOp *reserveop(void)
 }
 
 /* freeop @0x800ED1F8 : clear a 0x30-byte op slot (release it back to the pool). */
-void freeop(FileOp *op)
+static void freeop(FileOp *op)
 {
     int sr;
     FILE_CS_ENTER(sr);
@@ -1684,7 +1692,7 @@ void freeop(FileOp *op)
  *     -fno-schedule-insns + -insns2   855 /  4        (-fno-regmove: not a 2.8.0 flag)
  *   No flag improves ANY of the five non-PASS fns; reservehandle is 3 under every inert flag and
  *   20-25 under the rest.  Do NOT re-run the flag ladder on this TU. */
-FileHandle *reservehandle(void)
+static FileHandle *reservehandle(void)
 {
     int i, sr;
     FILE_CS_ENTER(sr);
@@ -1759,7 +1767,7 @@ FileHandle *reservehandle(void)
 }
 
 /* freehandle @0x800ED2F0 : clear a 0x4C-byte file handle (release it). */
-void freehandle(FileHandle *h)
+static void freehandle(FileHandle *h)
 {
     int sr;
     FILE_CS_ENTER(sr);

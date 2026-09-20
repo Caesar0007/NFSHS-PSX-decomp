@@ -176,31 +176,19 @@ int AudioClc_CalcDopplerShiftRatio(coorddef *objectPos,coorddef *objectVel)
 /* ---- AudioClc_CalcDistance__FP17DRender_tCalcViewP8coorddef  [@0x80074b60] ---- */
 int AudioClc_CalcDistance(DRender_tCalcView *view,coorddef *object)
 {
-  int x;
-  int y;
-  int z;
-  int length;
-  int length1;
-
+  int x, y, z;
+  int length, length1;
   x = object->x - (view->translation).x;
   y = object->y - (view->translation).y;
   z = object->z - (view->translation).z;
+
   x = __builtin_abs(x);
   y = __builtin_abs(y);
   z = __builtin_abs(z);
-  if (z < x) {
-    length = x + (z >> 2);
-  }
-  else {
-    length = z + (x >> 2);
-  }
-  if (length < y) {
-    length1 = y + (length >> 2);
-  }
-  else {
-    length1 = length + (y >> 2);
-  }
-  return length1;
+  length1 = (z < x) ? x + (z >> 2) : z + (x >> 2);
+  length = (length1 < y) ? y + (length1 >> 2) : length1 + (y >> 2);
+
+  return length;
 }
 
 /* ---- AudioClc_CalcAzimuth__FP17DRender_tCalcViewP8coorddef  [@0x80074be8] ---- */
@@ -704,76 +692,58 @@ void AudioClc_GetClosestCars(int playerIndex,int closestIndex,int numclosest)
      see the source receipt above. */
   DRender_tCalcView *view = &AudioClc_gRenderView;
 
-  i = 0;
-  car = Cars_gList;
-  while (i < Cars_gNumCars) {
+  for (i = 0, car = Cars_gList; i < Cars_gNumCars; i++, car++) {
+    int searchdist;
+
     if (GameSetup_gData.commMode == 1) {
       if (((*car)->carFlags & 4U) != 0) {
-        goto AudioClc_nextCar;
+        continue;
       }
     }
     else if (*car == AudioClc_gPlayer[playerIndex].source.car) {
-      goto AudioClc_nextCar;
+      continue;
     }
 
-    if ((*car)->N.active != 0) {
-        int searchdist;
+    if ((*car)->N.active == 0) {
+      continue;
+    }
+    searchdist = ((*car)->carFlags & 0x10U) ? 0x320000 : 0x12c0000;
 
-        searchdist = 0x12c0000;
-        if (((*car)->carFlags & 0x10U) != 0) {
-          searchdist = 0x320000;
-        }
+    x = (*car)->N.position.x - view->translation.x;
+    y = (*car)->N.position.y - view->translation.y;
+    z = (*car)->N.position.z - view->translation.z;
+    x = __builtin_abs(x);
+    y = __builtin_abs(y);
+    z = __builtin_abs(z);
 
-        x = (*car)->N.position.x - view->translation.x;
-        y = (*car)->N.position.y - view->translation.y;
-        z = (*car)->N.position.z - view->translation.z;
-        x = __builtin_abs(x);
-        y = __builtin_abs(y);
-        z = __builtin_abs(z);
+    distance1 = (z < x) ? x + (z >> 2) : z + (x >> 2);
 
-        if (z < x) {
-          distance = x + (z >> 2);
-        }
-        else {
-          distance = z + (x >> 2);
-        }
+    if (distance1 < 0x1900000) {
+      int patch;
 
-        if (distance < 0x1900000) {
-          int patch;
+      patch = CopSpeak_GetEnginePatch((*car)->carInfo->carType,0);
+      if (patch >= 0) {
+        AudioCmn_GetAsyncSfx(1,patch,(void *)0);
+      }
+    }
 
-          patch = CopSpeak_GetEnginePatch((*car)->carInfo->carType,0);
-          if (patch >= 0) {
-            AudioCmn_GetAsyncSfx(1,patch,(void *)0);
-          }
-        }
+    if (distance1 < searchdist) {
+      distance = (distance1 < y) ? y + (distance1 >> 2) : distance1 + (y >> 2);
 
-        if (distance < searchdist) {
-          if (distance < y) {
-            distance1 = y + (distance >> 2);
-          }
-          else {
-            distance1 = distance + (y >> 2);
-          }
-
-          if (distance1 < searchdist) {
-            for (j = 0; j < numclosest; j++) {
-              if (distance1 < cl[j].dst) {
-                for (k = numclosest - 1; k > j; k--) {
-                  cl[k].ptr = cl[k - 1].ptr;
-                  cl[k].dst = cl[k - 1].dst;
-                }
-                cl[j].ptr = *car;
-                cl[j].dst = distance1;
-                break;
-              }
+      if (distance < searchdist) {
+        for (j = 0; j < numclosest; j++) {
+          if (distance < cl[j].dst) {
+            for (k = numclosest - 1; k > j; k--) {
+              cl[k].ptr = cl[k - 1].ptr;
+              cl[k].dst = cl[k - 1].dst;
             }
+            cl[j].ptr = *car;
+            cl[j].dst = distance;
+            break;
           }
         }
+      }
     }
-
-AudioClc_nextCar:
-    i++;
-    car++;
   }
 
   for (i = 0; i < numclosest; i++) {

@@ -26,14 +26,24 @@ the honest link stays at 0 diff.
 |---|---|
 | Retail functions with debug records | 2570 |
 | Compared (present on both sides) | 2565 |
-| **Match retail exactly (CLEAN)** | **1630** |
-| Differ (DIRTY) | 935 |
-| Source files fully clean | 44 of 177 |
+| **Match implemented function checks (CLEAN)** | **1632** |
+| Differ (DIRTY) | 933 |
+| Files whose compared functions are all CLEAN | 45 of 177 |
 
 The effort started at 1499 clean. The 5 retail functions not compared are the EA pad library's `PAD.C`
 (`recon/eaclib/psx/pad.c`), which is outside the two directories the debug compile covers.
 
 Honest link: 299710/299710 words = 0 diff. Overlap audit 0, foreign-label gate 0/0.
+
+End-to-end smoke test: `AudioClc_CalcDistance` corrected the exchanged value roles of `length` and `length1`,
+preserving declaration order and the entire compiled object. Fresh native SYM comparison changed it from two MOVED
+findings to CLEAN; `audioclc.cpp` improved from16/18 to17/18 CLEAN. Fresh honest link and reference guards stayed green.
+Receipt: `scratchpad/sym_pipeline_check_20260920/README.md`. CLEAN still excludes the coverage gaps listed below.
+
+The follow-up `AudioClc_GetClosestCars` round restored its native for/continue traversal, `searchdist` scope and
+distance variable roles:15 scopes ->5, with unchanged bytes. AudioClc is now18/18 CLEAN. Ternary source forms also
+give both changed functions0 SLD merges/splits; CalcDistance's relative line positions and span are exact.
+Receipt: `scratchpad/sym_audioclc_closest_20260920/README.md`.
 
 ## Tool set
 
@@ -102,10 +112,10 @@ A function can be in several classes.
 
 | Class | Functions | Meaning |
 |---|---|---|
-| BLOCKS | 749 | The scope tree differs. In 541 of them retail has **more** scopes than we do, in 176 fewer, in 32 the count is equal but nesting or addresses differ. |
+| BLOCKS | 748 | The scope tree differs. In 541 of them retail has **more** scopes than we do, in 175 fewer, in 32 the count is equal but nesting or addresses differ. |
 | EXTRA | 482 (1303 locals) | We declare a local retail does not have: an invented carrier, a decompiler temporary, or an expression retail wrote through an inline call. |
 | MISSING | 251 (359 locals) | Retail has a local we lack. 180 of the 359 are `this` of an inlined member call. |
-| MOVED | 87 | Same name, different register or stack slot: our local plays a different role than retail's. |
+| MOVED | 85 | Same name, different register or stack slot: our local plays a different role than retail's. |
 | ORDER | 8 | Declaration order differs (only reported when no local is extra or missing). |
 | TYPE | 1 | Same name and home, different type. |
 | FRAME | 1 | Frame size differs. |
@@ -151,7 +161,7 @@ in the `AIHigh_BasicPerp` constructor. The bytes moved and the tree was still on
   shape can be reproduced, and only by a local that really gets eliminated. Example still open:
   `Stats_TrackEndGame`'s scope `+150..+1c8`, and the intermediate scope in `AIHigh_Traffic::CheckForCops`.
 
-### 3. Scopes we have and retail does not (BLOCKS, 176 functions)
+### 3. Scopes we have and retail does not (BLOCKS, 175 functions)
 
 Usually braces added to steer code generation, or inline helpers of ours that retail did not have. 55 files also carry the
 `if (0) sprintf((char *)0,"SimpleMem")` literal carrier in their first function; how retail got that unreferenced string
@@ -166,11 +176,11 @@ locals were all unnecessary.
 
 Only 36 of the 1303 extra locals still have decompiler names (`iVar1`, `piVar2`); the rest look deliberate.
 
-### 5. MOVED (87)
+### 5. MOVED (85)
 
 Same name, different home. The bytes match, so our variable of that name is not the quantity retail's was. Typical cause:
 names swapped between two locals (`AIPhysic_HandleSignalling`: `lPos`/`lDes`; `DrawC_ShadowPrimClip`: `uv2`/`uv3` are
-named by destination slot). Check for a swap first; 19 functions have MOVED as their only difference.
+named by destination slot). Check for a swap first; 18 functions have MOVED as their only difference.
 
 ### 6. Open order and type cases (9)
 

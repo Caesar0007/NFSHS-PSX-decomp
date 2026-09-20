@@ -117,7 +117,7 @@ def base_section(s):
     m = SECTION_RE.match(s)
     if m:
         nm = m.group(1)
-        if nm == b'.text.strip':   # LINK_STRIPPED (recon/link_stripped.h): functions retail's final link removed
+        if nm in (b'.text.strip', b'.rodata.strip'):   # LINK_STRIPPED / LINK_STRIPPED_RODATA (recon/link_stripped.h): removed by retail's final link
             return b'strip.text'
         if nm in (b'.rodata', b'.rdata') or nm.startswith((b'.rodata.', b'.rdata.')):
             return b'.rdata'

@@ -607,20 +607,20 @@ LAB_800620e8: ;   /* empty stmt: gcc2.7.2 label before brace */
       blockadeCar->blockade_.blockadeSpeechFlags = 1;
 
       if (saySpikeBelt) {
-        Speech_Mobile(blockadeCar->carObj_)->SpikeBelt();
+        Speech::Mobile(blockadeCar->carObj_)->SpikeBelt();
 
       }
 
       else {
-        Speech_Mobile(blockadeCar->carObj_)->RoadBlock();
+        Speech::Mobile(blockadeCar->carObj_)->RoadBlock();
 
       }
 
-      Speech_Mobile(blockadeCar->carObj_)->Engage(this->carObj_);
+      Speech::Mobile(blockadeCar->carObj_)->Engage(this->carObj_);
 
-      Speech_Dispatch()->Grant();
+      Speech::Dispatch()->Grant();
 
-      Speech_Dispatch()->Ready(blockadeCar->carObj_);
+      Speech::Dispatch()->Ready(blockadeCar->carObj_);
 
     }
   }
@@ -830,7 +830,7 @@ LAB_800625d0:
 
   }
 
-  Speech_Mobile(Cars_gList[highestRankedCopIndex])->Catch(arrestType);
+  Speech::Mobile(Cars_gList[highestRankedCopIndex])->Catch(arrestType);
 
   return;
 

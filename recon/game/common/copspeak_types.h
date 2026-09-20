@@ -61,49 +61,11 @@ struct CopSpeak_tBank {
 };
 #endif
 
-struct SPCHNFSType_POSITION { u_long flags; };
-struct SPCHNFSType_DISTANCE { u_long flags; };
-struct SPCHNFSType_COLOUR { u_long flags; };
-struct SPCHNFSType_ACCIDENT { u_long flags; };
-struct SPCHNFSType_AMBULANCE { u_long flags; };
-struct SPCHNFSType_PURS_UPDT { u_long flags; };
-struct SPCHNFSType_ARREST { u_long flags; };
-struct SPCHNFSType_vs_RDBLK_SSTRP { u_long flags; };
-struct SPCHNFSType_PERP_NAME { u_long flags; };
-struct SPCHNFSType_CONFIRM { u_long flags; };
-struct SPCHNFSType_SPIKE_BELT_SIDE { u_long flags; };
-struct SPCHNFSType_REVINTRO { u_long flags; };
 
-struct CarBank { int fFull, fMake, fModel; };
-struct LocationBank { int fStartSlice, fEndSlice, fBankId; char *fName; };
-struct CallSignBank { int fAllUnits, fDispatch; int fMobile[15]; };
 
 extern "C" {
 }
 
-struct Speaker {
-    SPCHNFSType_POSITION fPosition;
-    SPCHNFSType_DISTANCE fDistance;
-    SPCHNFSType_COLOUR fColour;
-    SPCHNFSType_ACCIDENT fAccident;
-    SPCHNFSType_AMBULANCE fAmbulance;
-    SPCHNFSType_vs_RDBLK_SSTRP fBlockade;
-    SPCHNFSType_REVINTRO fReverse;
-    SPCHNFSType_CONFIRM fConfirm;
-    SPCHNFSType_PERP_NAME fPerpName;
-    SPCHNFSType_SPIKE_BELT_SIDE fSpikeSide;
-    SPCHNFSType_PURS_UPDT fUpdate;
-    SPCHNFSType_ARREST fArrest;
-    int fCar, fLocation, fFrom, fTo, fWing;
-    bool fHavePerp;
-    Speaker *fSub;
-#include "speech_speaker_virtuals.inc"
-
-    /* NFS3.CPP:128 inlines this default constructor into
-       Nfs2_SystemNLibStartUp.  Retail writes the vptr before clearing fSub. */
-    Speaker() {
-        fSub = 0;
-    }
-};
+#include "speech_class.h"   /* NFS3.CPP constructs Speech and its undefined Speaker */
 
 #endif

@@ -6,7 +6,6 @@
 
 /* ---- vtable: AIHigh_BasicPerp (this obj) ---- */
 
-Speaker *Speech_Mobile(Car_tObj *carObj) asm("Mobile__6SpeechP8Car_tObj");
 extern AIHigh_Base *highLevelAIObjs[];
 extern Car_tObj         *Cars_gHumanRaceCarList[9];  /* cars.obj */
 extern Car_tObj *Cars_gList[];

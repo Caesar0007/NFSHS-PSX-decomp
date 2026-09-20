@@ -722,7 +722,7 @@ void AIHigh_Cop::HighExecute()
 
         AIHigh_SetState(this, (AIState_Base *)newState,chaseState);
 
-        Speech_Mobile(this->carObj_)->Engage((this->perpTarget_)->carObj_);
+        Speech::Mobile(this->carObj_)->Engage((this->perpTarget_)->carObj_);
 
       }
       }
@@ -740,7 +740,7 @@ void AIHigh_Cop::HighExecute()
 
       this->forcePurgatory_ = 0;
 
-      Speech_Mobile(this->carObj_)->Purge();
+      Speech::Mobile(this->carObj_)->Purge();
 
       this->AssignToPlayer((AIHigh_Player *)0x0);
 
@@ -776,7 +776,7 @@ void AIHigh_Cop::HighExecute()
 
       AIHigh_SetState(this, (AIState_Base *)newState,(stateType_t)9);
 
-      Speech_Mobile(this->carObj_)->Lose();
+      Speech::Mobile(this->carObj_)->Lose();
 
     }
 
@@ -976,14 +976,14 @@ void AIHigh_Cop::HighExecute()
 
     if ((AILife_EvaluateLife(this->carObj_) != 0) && (this->driveAway_ == 0)) {
 
-      Speech_Mobile(this->carObj_)->Lose();
+      Speech::Mobile(this->carObj_)->Lose();
 
     }
 
     {
       AIState_Base *newState;
 
-      Speech_Mobile(this->carObj_)->Purge();
+      Speech::Mobile(this->carObj_)->Purge();
 
       this->forcePurgatory_ = 0;
 
@@ -1045,7 +1045,7 @@ void AIHigh_Cop::HighExecute()
 
       this->forcePurgatory_ = 0;
 
-      Speech_Mobile(this->carObj_)->Purge();
+      Speech::Mobile(this->carObj_)->Purge();
 
       this->AssignToPlayer((AIHigh_Player *)0x0);
 
@@ -1392,7 +1392,7 @@ LAB_80064a0c:
 
         AIHigh_SetState(this, (AIState_Base *)newState,(stateType_t)4);
 
-        Speech_Mobile(this->carObj_)->Engage((this->perpTarget_)->carObj_);
+        Speech::Mobile(this->carObj_)->Engage((this->perpTarget_)->carObj_);
 
         goto stateExecuteAndReturn;
 

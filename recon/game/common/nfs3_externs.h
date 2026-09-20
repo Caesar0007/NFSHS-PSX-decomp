@@ -19,8 +19,6 @@ int sprintf(char *, const char *, ...);
 char *strcpy(char *, char *);
 int systemtask(int);
 int largestunused(void);
-void *__6Speech(void *);
-void ___6Speech(void *, int);
 int FECheat_ActivateBonus__F10tCheatCode(int);
 int Front_Menu__F21tFront_ProcessingType(int);
 }
@@ -28,9 +26,6 @@ int Front_Menu__F21tFront_ProcessingType(int);
 void *__builtin_new(unsigned int);
 
 /* cross-TU globals + unmangled lib fns referenced by nfs3.obj */
-extern Speaker *Speech_fgUndefined asm("_6Speech_fgUndefined");
-                                             /* Speech::fgUndefined */
-extern int _6Speech_fgSpeech;               /* Speech::fgSpeech (Speech*) */
 #define FECheat_ActivateBonus FECheat_ActivateBonus__F10tCheatCode
 #define Front_Menu Front_Menu__F21tFront_ProcessingType
 // [owned->defined in nfs3.cpp] extern char befuddleExtensions[][4];
@@ -114,6 +109,5 @@ extern int Stats_GetNumOpponents(void);
 extern int Weather_DeInit(void);
 extern int Weather_Init(void);
 extern int Weather_Restart(void);
-extern void Speech_Reset() asm("Reset__6Speech");
 
 #endif

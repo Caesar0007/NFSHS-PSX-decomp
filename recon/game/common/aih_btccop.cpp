@@ -217,7 +217,7 @@ void AIHigh_BTC_Cop::StartArrest(AIHigh_BTC_Perp *arrestMe)
     this->freezeMode_ = 3;
 
     if ((this->carObj_->carFlags & 0x200U) != 0) {
-      Speech_Mobile(this->carObj_)->Catch(1);
+      Speech::Mobile(this->carObj_)->Catch(1);
 
     }
 
@@ -1047,7 +1047,7 @@ void AIHigh_BTC_HumanCop::UpdateAndCheckTimeLeft()
   if (this->timeLeft_ < 0) {
 
     if (AIH_BTCCop_freezeToggle_8013c564 != 0) {
-      Speech_Mobile(this->carObj_)->Lose();
+      Speech::Mobile(this->carObj_)->Lose();
 
       AIH_BTCCop_freezeToggle_8013c564 = 0;
 
@@ -1180,7 +1180,7 @@ void AIHigh_BTC_HumanCop::RequestWingman()
 
             AITune_BTC[GameSetup_gData.skill].wingmanTime;
 
-    Speech_Mobile(this->carObj_)->Backup();
+    Speech::Mobile(this->carObj_)->Backup();
 
     if (this->chaseStartTime_ == 0) goto LAB_dispatch;
 
@@ -1197,7 +1197,7 @@ void AIHigh_BTC_HumanCop::RequestWingman()
     }
 
 LAB_dispatch:
-    Speech_Dispatch()->Deny();
+    Speech::Dispatch()->Deny();
 
 LAB_end: ;
 
@@ -1228,7 +1228,7 @@ void AIHigh_BTC_HumanCop::RequestBlockader(int spikeBeltRequest)
   if (1 < (u_int)(this->freezeMode_ - 3)) {
 
     if (spikeBeltRequest != 0) {
-      Speech_Mobile(this->carObj_)->SpikeBelt();
+      Speech::Mobile(this->carObj_)->SpikeBelt();
 
       availableTime = GameSetup_gData.perpInfo[this->currentStage_].SpikeBeltTime * 0x40 +
 
@@ -1237,7 +1237,7 @@ void AIHigh_BTC_HumanCop::RequestBlockader(int spikeBeltRequest)
     }
 
     else {
-      Speech_Mobile(this->carObj_)->RoadBlock();
+      Speech::Mobile(this->carObj_)->RoadBlock();
 
       availableTime = GameSetup_gData.perpInfo[this->currentStage_].BlockadeCopTime * 0x40 +
 
@@ -1252,7 +1252,7 @@ void AIHigh_BTC_HumanCop::RequestBlockader(int spikeBeltRequest)
     if (simGlobal.gameTicks - this->chaseStartTime_ <= availableTime) goto LAB_dispatch;
 
     if (this->wingmanStatus_ != 5) {
-      Speech_Dispatch()->Grant();
+      Speech::Dispatch()->Grant();
 
       if (spikeBeltRequest != 0) {
 
@@ -1271,7 +1271,7 @@ void AIHigh_BTC_HumanCop::RequestBlockader(int spikeBeltRequest)
     }
 
 LAB_dispatch:
-    Speech_Dispatch()->Deny();
+    Speech::Dispatch()->Deny();
 
 LAB_end: ;
 
@@ -1769,7 +1769,7 @@ void AIHigh_BTC_Wingman::HighExecute()
 
       if (carObj == (Car_tObj *)0x0) {
 
-        pSVar2 = (Speaker *)Speech_Mobile(this->carObj_);
+        pSVar2 = (Speaker *)Speech::Mobile(this->carObj_);
 
         (**(int (**)(...))((int)*pSVar2->_vf + 0x84))
 
@@ -2087,7 +2087,7 @@ LAB_8005ea9c:
 
       this->stateType_ = 2;
 
-      pSVar2 = (Speaker *)Speech_Mobile(this->carObj_);
+      pSVar2 = (Speaker *)Speech::Mobile(this->carObj_);
 
       (**(int (**)(...))((int)*pSVar2->_vf + 0x3c))
 
@@ -2441,7 +2441,7 @@ void AIHigh_BTC_Wingman::HighExecute()
         if (AILife_IsCarInAnyVisibleArea(this->carObj_) == 0) {
           AIState_Base *newState;
 
-          Speech_Mobile(this->carObj_)->Purge();
+          Speech::Mobile(this->carObj_)->Purge();
           this->currentRole_ = this->newRole_;
           this->SetupBlockader(this->newHumanBoss_,this->newRole_ == 3);
 
@@ -2563,7 +2563,7 @@ void AIHigh_BTC_Wingman::HighExecute()
         newState =
             (AIState_Base *)new(newState) AIState_Normal(this->carObj_);
         AIHigh_SetState(this, newState,(stateType_t)2);
-        Speech_Mobile(this->carObj_)->Lose();
+        Speech::Mobile(this->carObj_)->Lose();
       }
 
       if (this->UpdateFreezeModeAndPullOverMode() != 0) {
@@ -2778,7 +2778,7 @@ void AIHigh_BTC_Wingman::HighExecute()
         }
         this->state_ = newState;
         this->stateType_ = (stateType_t)2;
-        speaker = (Speaker *)Speech_Mobile(this->carObj_);
+        speaker = (Speaker *)Speech::Mobile(this->carObj_);
         (**(int (**)(...))((int)*speaker->_vf + 0x3c))(
             (int)&speaker->fPosition.flags +
                 (int)*(short *)((int)*speaker->_vf + 0x38));
@@ -3045,7 +3045,7 @@ void AIHigh_BTC_Wingman::SetupWingman(AIHigh_BTC_HumanCop *humanCop)
 
              otherCarObj->currentSpeed,0);
 
-  Speech_Dispatch()->Ready(this->carObj_);
+  Speech::Dispatch()->Ready(this->carObj_);
 
   return;
 
@@ -3434,7 +3434,7 @@ LAB_8005f268:
 
   }
 
-  Speech_Dispatch()->Ready(this->carObj_);
+  Speech::Dispatch()->Ready(this->carObj_);
 
   return;
 

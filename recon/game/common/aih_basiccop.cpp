@@ -554,7 +554,7 @@ void AIHigh_BasicCop::HandleBlockadeSpeech()
           }
 
           if (((this->blockade_).blockadeSpeechFlags & 6U) == 6) {
-            Speech_Mobile(this->carObj_)->Lose();
+            Speech::Mobile(this->carObj_)->Lose();
 
             (this->blockade_).blockadeSpeechFlags = 0;
 

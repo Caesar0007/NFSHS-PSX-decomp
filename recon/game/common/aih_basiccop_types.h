@@ -66,29 +66,28 @@ struct { CarBank Mobile[9], Dispatch[9]; };
 struct { LocationBank Mobile[16], Dispatch[16]; };
 struct { CallSignBank Mobile, Dispatch; };
 
-struct Speaker {
-    SPCHNFSType_POSITION fPosition;
-    SPCHNFSType_DISTANCE fDistance;
-    SPCHNFSType_COLOUR fColour;
-    SPCHNFSType_ACCIDENT fAccident;
-    SPCHNFSType_AMBULANCE fAmbulance;
-    SPCHNFSType_vs_RDBLK_SSTRP fBlockade;
-    SPCHNFSType_REVINTRO fReverse;
-    SPCHNFSType_CONFIRM fConfirm;
-    SPCHNFSType_PERP_NAME fPerpName;
-    SPCHNFSType_SPIKE_BELT_SIDE fSpikeSide;
-    SPCHNFSType_PURS_UPDT fUpdate;
-    SPCHNFSType_ARREST fArrest;
-    int fCar, fLocation, fFrom, fTo, fWing;
-    bool fHavePerp;
-    Speaker *fSub;
-    virtual void Report(Car_tObj *cop) asm("Report__Q26Speech7SpeakerP8Car_tObj");
-    virtual void Status() asm("Status__Q26Speech7Speaker");
-    virtual void Deny() asm("Deny__Q26Speech7Speaker");
-    virtual void Grant() asm("Grant__Q26Speech7Speaker");
-    virtual void Ready(Car_tObj *wing) asm("Ready__Q26Speech7SpeakerP8Car_tObj");
-    virtual void Engage(Car_tObj *perp) asm("Engage__Q26Speech7SpeakerP8Car_tObj");
-    virtual void Lose() asm("Lose__Q26Speech7Speaker");
+/* Speech, as this surface needs it: the nested polymorphic Speaker and the two static finders */
+struct Speech {
+    struct Speaker {
+        SPCHNFSType_POSITION fPosition;
+        SPCHNFSType_DISTANCE fDistance;
+        SPCHNFSType_COLOUR fColour;
+        SPCHNFSType_ACCIDENT fAccident;
+        SPCHNFSType_AMBULANCE fAmbulance;
+        SPCHNFSType_vs_RDBLK_SSTRP fBlockade;
+        SPCHNFSType_REVINTRO fReverse;
+        SPCHNFSType_CONFIRM fConfirm;
+        SPCHNFSType_PERP_NAME fPerpName;
+        SPCHNFSType_SPIKE_BELT_SIDE fSpikeSide;
+        SPCHNFSType_PURS_UPDT fUpdate;
+        SPCHNFSType_ARREST fArrest;
+        int fCar, fLocation, fFrom, fTo, fWing;
+        bool fHavePerp;
+        Speaker *fSub;
+#include "speech_speaker_virtuals.inc"
+    };
+    static Speaker *Dispatch();
+    static Speaker *Mobile(Car_tObj *carObj);
 };
 
 struct Trk_SFX { int point[3]; short type, pad; };

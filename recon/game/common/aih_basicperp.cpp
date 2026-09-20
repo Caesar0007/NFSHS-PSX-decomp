@@ -379,7 +379,7 @@ void AIHigh_BasicPerp::RemoveCloseCops()
 
         }
 
-        Speech_Mobile(thisCop->carObj_)->Purge();
+        Speech::Mobile(thisCop->carObj_)->Purge();
 
       }
 

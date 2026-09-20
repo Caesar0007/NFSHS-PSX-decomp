@@ -16,8 +16,8 @@ static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
  * Storage receipt: this TU is retail -G8 plus -fconserve-space.  Together,
  * .data=0x460 and .sdata=0x2f8 both link byte-exact; all 102 text gates retain
  * their result.  Build wiring is intentionally kept out of this source file. */
-Speech *Speech_fgSpeech __asm__("_6Speech_fgSpeech") = 0;
-Speaker *Speech_fgUndefined __asm__("_6Speech_fgUndefined") = 0;
+Speech *Speech::fgSpeech = 0;
+Speech::Speaker *Speech::fgUndefined = 0;
 
 /* ---- speech.obj OWNED globals (EXT; SYM Globals.jsonl tu=Speech.obj, @0x80111a44+) ----
  * Byte-exact from image 2026-07-12 (were bare zero-init defs — real .data: car speech-bank
@@ -101,21 +101,6 @@ void Speech_PurgeRAM(char *memPtr) asm("Speech_PurgeRAM__FPc");
 long Speech_HandleRequest(long bank,long localoffset,long size,long event)
   asm("Speech_HandleRequest__Fllll");
 void Speech_Server(void) asm("Speech_Server__Fv");
-CallSignBank *Speech_Speaker_CallSign(Speaker *self) asm("CallSign__Q26Speech7Speaker");
-LocationBank *Speech_Speaker_FindClosestLocationTo(Speaker *self, int slice) asm("FindClosestLocationTo__Q26Speech7Speakeri");
-CarBank *Speech_Speaker_GetCarBank(Speaker *self, int carIndex) asm("GetCarBank__Q26Speech7Speakeri");
-Car_tObj *Speech_Speaker_Perp(Speaker *self) asm("Perp__Q26Speech7Speaker");
-void Speech_Speaker_ReActivate(Speaker *self) asm("ReActivate__Q26Speech7Speaker");
-Car_tObj *Speech_Speaker_CarObj(Speaker *self) asm("CarObj__Q26Speech7Speaker");
-int Speech_Speaker_DistToPerp(Speaker *self) asm("DistToPerp__Q26Speech7Speaker");
-void Speech_Speaker_PurgeStatusSub(Speaker *self) asm("PurgeStatusSub__Q26Speech7Speaker");
-Speaker *Speech_Speaker_StatusSub(Speaker *self) asm("StatusSub__Q26Speech7Speaker");
-int Speech_Speaker_StatusCount(Speaker *self) asm("StatusCount__Q26Speech7Speaker");
-bool Speech_Speaker_IsSuper(Speaker *self) asm("IsSuper__Q26Speech7Speaker");
-void Speech_Speaker_ClearPerp(Speaker *self, Car_tObj *car) asm("ClearPerp__Q26Speech7SpeakerP8Car_tObj");
-bool Speech_Speaker_KnownPerp(Speaker *self, Car_tObj *car) asm("KnownPerp__Q26Speech7SpeakerP8Car_tObj");
-int Speech_Speaker_Unit(Speaker *self) asm("Unit__Q26Speech7Speaker");
-void Speech_Speaker_Status(Speaker *self) asm("Status__Q26Speech7Speaker");
 
 
 /* ---- Speech_AllocateRAM__FlPc  [SPEECH.CPP:169-170] SLD-VERIFIED ---- */
@@ -143,7 +128,7 @@ long Speech_HandleRequest(long bank,long localoffset,long size,long event)
 /* ---- SetCar__Q26Speech11CarBankNamei  [SPEECH.CPP:234-246] SLD-VERIFIED ---- */
 } /* extern "C" */
 
-void CarBankName::SetCar(int carIndex)
+void Speech::CarBankName::SetCar(int carIndex)
 
 {
   char *game;
@@ -162,7 +147,7 @@ void CarBankName::SetCar(int carIndex)
 }
 
 /* ---- Check__Q26Speech7CarBankPciPQ26Speech11CarBankName  [SPEECH.CPP:257-275] SLD-VERIFIED ---- */
-bool CarBank::Check(char *name,int id,CarBankName *bankname)
+bool Speech::CarBank::Check(char *name,int id,CarBankName *bankname)
 
 {
   bool match;
@@ -199,9 +184,9 @@ bool Speech::CheckCarBank(CarBank *carbank,char *name,int id,CarBankName *bankna
   return match;
 }
 
-inline void Speaker::SetColour(int Colour)
+inline void Speech::Speaker::SetColour(int Colour)
 {
-  if (Speech_fgSpeech->fMultiplePerps != 0) {
+  if (Speech::fgSpeech->fMultiplePerps != 0) {
     this->fColour.flags = Colour;
   }
   else {
@@ -210,7 +195,7 @@ inline void Speaker::SetColour(int Colour)
 }
 
 /* ---- SetCar__Q26Speech7SpeakerP8Car_tObj  [SPEECH.CPP:301-373] SLD-VERIFIED ---- */
-void Speaker::SetCar(Car_tObj *car)
+void Speech::Speaker::SetCar(Car_tObj *car)
 
 {
   /* SYM-INLINE-LOCAL: Colour = SetColour */
@@ -284,7 +269,7 @@ bool Speech::CheckLocationBank(LocationBank *locationbank,char *name,int id)
 }
 
 /* ---- Distance__Q26Speech12LocationBanki  [SPEECH.CPP:567-587] SLD-VERIFIED ---- */
-int LocationBank::Distance(int slice)
+int Speech::LocationBank::Distance(int slice)
 
 {
   /* SYM-CODEGEN-CARRIER: start -- optimized field snapshot; its retail source
@@ -333,7 +318,7 @@ Distance_wrappedZero:
 }
 
 /* ---- FindClosestLocationTo__6SpeechPQ26Speech12LocationBanki  [SPEECH.CPP:594-618] SLD-VERIFIED ---- */
-LocationBank *Speech::FindClosestLocationTo(LocationBank *bank,int slice)
+Speech::LocationBank *Speech::FindClosestLocationTo(LocationBank *bank,int slice)
 
 {
   int distance;
@@ -364,7 +349,7 @@ LocationBank *Speech::FindClosestLocationTo(LocationBank *bank,int slice)
 }
 
 /* ---- FindLocation__Q26Speech7SpeakerP8Car_tObj  [SPEECH.CPP:624-788] SLD-VERIFIED ---- */
-void Speaker::FindLocation(Car_tObj *car)
+void Speech::Speaker::FindLocation(Car_tObj *car)
 
 {
   int slice;
@@ -931,27 +916,27 @@ void Speech::Reset(void)
 {
   int i;
   
-  if (Speech_fgSpeech != (Speech *)0x0) {
+  if (Speech::fgSpeech != (Speech *)0x0) {
     i = 0;
     while (true) {
       if (i >= 4)
         break;
-      Speech_fgSpeech->fMobile[i]->fCarObj = (Car_tObj *)0x0;
+      Speech::fgSpeech->fMobile[i]->fCarObj = (Car_tObj *)0x0;
       i++;
     }
     SPCH_ClearEventQueue();
     randtemp = fastRandom * randSeed;
     fastRandom = randtemp & 0xffff;
     iSPCH_EACseedrandom((randtemp & 0xffff00) >> 8);
-    Speech_fgSpeech->fCopCount =
+    Speech::fgSpeech->fCopCount =
         (randtemp = fastRandom * randSeed,
          fastRandom = randtemp & 0xffff,
          (randtemp & 0xffff00) >> 8) % 9;
-    Speech_fgSpeech->fSuperCount =
+    Speech::fgSpeech->fSuperCount =
         (randtemp = fastRandom * randSeed,
          fastRandom = randtemp & 0xffff,
          (randtemp & 0xffff00) >> 8) % 6;
-    Speech_fgSpeech->fDispatch->Activate(
+    Speech::fgSpeech->fDispatch->Activate(
         (randtemp = fastRandom * randSeed,
          fastRandom = randtemp & 0xffff,
          (randtemp & 0xffff00) >> 8) % 7);
@@ -1035,18 +1020,18 @@ long Speech::SubmitRequest(long bank,long localoffset,long size)
   int patch;
   long offset;
 
-  if (Speech_fgSpeech != 0) {
-    Speech_fgSpeech->fDispatch->fStatusSub = 0;
-    Speech_fgSpeech->fDispatch->fStatusCount = 0x200;
-    car = Speech_fgSpeech->fSpeakerCar;
-    patch = Speech_fgSpeech->BankPatch(bank,car);
-    offset = Speech_fgSpeech->BankOffset(bank);
+  if (Speech::fgSpeech != 0) {
+    Speech::fgSpeech->fDispatch->fStatusSub = 0;
+    Speech::fgSpeech->fDispatch->fStatusCount = 0x200;
+    car = Speech::fgSpeech->fSpeakerCar;
+    patch = Speech::fgSpeech->BankPatch(bank,car);
+    offset = Speech::fgSpeech->BankOffset(bank);
     __asm__("" : "=r"(offset) : "0"(offset));
     if (patch >= 0) {
       CopSpeak_GenericBankRequest(patch,car);
     }
     else if (offset != 0) {
-      CopSpeak_DirectRequest(Speech_fgSpeech->FileHandle(),
+      CopSpeak_DirectRequest(Speech::fgSpeech->FileHandle(),
                              offset + localoffset,size,car,0);
     }
     /* ONE return after the if/else-if: retail's two `j epilogue; addu v0,s0,s2` tails are
@@ -1060,112 +1045,112 @@ long Speech::SubmitRequest(long bank,long localoffset,long size)
 }
 
 /* ---- Report__Q26Speech7SpeakerP8Car_tObj  [SPEECH.CPP:1352-1356] SLD-VERIFIED ---- */
-void Speaker::Report(Car_tObj *cop)
+void Speech::Speaker::Report(Car_tObj *cop)
 
 {
   return;
 }
 
 /* ---- Deny__Q26Speech7Speaker  [SPEECH.CPP:1363-1367] SLD-VERIFIED ---- */
-void Speaker::Deny()
+void Speech::Speaker::Deny()
 
 {
   return;
 }
 
 /* ---- Grant__Q26Speech7Speaker  [SPEECH.CPP:1371-1375] SLD-VERIFIED ---- */
-void Speaker::Grant()
+void Speech::Speaker::Grant()
 
 {
   return;
 }
 
 /* ---- Ready__Q26Speech7SpeakerP8Car_tObj  [SPEECH.CPP:1379-1383] SLD-VERIFIED ---- */
-void Speaker::Ready(Car_tObj *wing)
+void Speech::Speaker::Ready(Car_tObj *wing)
 
 {
   return;
 }
 
 /* ---- Engage__Q26Speech7SpeakerP8Car_tObj  [SPEECH.CPP:1394-1398] SLD-VERIFIED ---- */
-void Speaker::Engage(Car_tObj *perp)
+void Speech::Speaker::Engage(Car_tObj *perp)
 
 {
   return;
 }
 
 /* ---- Lose__Q26Speech7Speaker  [SPEECH.CPP:1402-1406] SLD-VERIFIED ---- */
-void Speaker::Lose()
+void Speech::Speaker::Lose()
 
 {
   return;
 }
 
 /* ---- Accident__Q26Speech7Speakeri  [SPEECH.CPP:1410-1414] SLD-VERIFIED ---- */
-void Speaker::Accident(int slice)
+void Speech::Speaker::Accident(int slice)
 
 {
   return;
 }
 
 /* ---- Catch__Q26Speech7Speakeri  [SPEECH.CPP:1418-1422] SLD-VERIFIED ---- */
-void Speaker::Catch(int ticket)
+void Speech::Speaker::Catch(int ticket)
 
 {
   return;
 }
 
 /* ---- RoadBlock__Q26Speech7Speaker  [SPEECH.CPP:1426-1430] SLD-VERIFIED ---- */
-void Speaker::RoadBlock()
+void Speech::Speaker::RoadBlock()
 
 {
   return;
 }
 
 /* ---- SpikeBelt__Q26Speech7Speaker  [SPEECH.CPP:1434-1438] SLD-VERIFIED ---- */
-void Speaker::SpikeBelt()
+void Speech::Speaker::SpikeBelt()
 
 {
   return;
 }
 
 /* ---- Backup__Q26Speech7Speaker  [SPEECH.CPP:1442-1446] SLD-VERIFIED ---- */
-void Speaker::Backup()
+void Speech::Speaker::Backup()
 
 {
   return;
 }
 
 /* ---- ReportBlockade__Q26Speech7Speaker  [SPEECH.CPP:1450-1454] SLD-VERIFIED ---- */
-void Speaker::ReportBlockade()
+void Speech::Speaker::ReportBlockade()
 
 {
   return;
 }
 
 /* ---- Roger__Q26Speech7Speaker  [SPEECH.CPP:1459-1463] SLD-VERIFIED ---- */
-void Speaker::Roger()
+void Speech::Speaker::Roger()
 
 {
   return;
 }
 
 /* ---- Bullhorn__Q26Speech7Speaker  [SPEECH.CPP:1467-1471] SLD-VERIFIED ---- */
-void Speaker::Bullhorn()
+void Speech::Speaker::Bullhorn()
 
 {
   return;
 }
 
 /* ---- Purge__Q26Speech7Speaker  [SPEECH.CPP:1475-1479] SLD-VERIFIED ---- */
-void Speaker::Purge()
+void Speech::Speaker::Purge()
 
 {
   return;
 }
 
 /* ---- Promote__Q26Speech7Speaker  [SPEECH.CPP:1490-1503] SLD-VERIFIED ---- */
-void Speaker::Promote()
+void Speech::Speaker::Promote()
 
 {
   Speaker *Super;
@@ -1202,12 +1187,12 @@ void Speech_Server(void)
 void Speech::SetDelayedStatus(Speaker *sub,int delay)
 
 {
-  Speech_fgSpeech->fDispatch->fStatusSub = sub;
-  Speech_fgSpeech->fDispatch->fStatusCount = delay;
+  Speech::fgSpeech->fDispatch->fStatusSub = sub;
+  Speech::fgSpeech->fDispatch->fStatusCount = delay;
 }
 
 /* ---- Activate__Q26Speech15DispatchSpeakeri  [SPEECH.CPP:1554-1571] SLD-VERIFIED ---- */
-void DispatchSpeaker::Activate(int seedupdatecount)
+void Speech::DispatchSpeaker::Activate(int seedupdatecount)
 
 {
   int i;
@@ -1233,25 +1218,25 @@ void DispatchSpeaker::Activate(int seedupdatecount)
 }
 
 /* ---- Dispatch__6Speech  [SPEECH.CPP:1578-1586] SLD-VERIFIED ---- */
-Speaker *Speech::Dispatch(void)
+Speech::Speaker *Speech::Dispatch(void)
 
 {
   Speaker *result;
 
-  if (Speech_fgSpeech != (Speech *)0x0) {
-    if (Speech_fgSpeech->fBankOffset != (long *)0x0) {
+  if (Speech::fgSpeech != (Speech *)0x0) {
+    if (Speech::fgSpeech->fBankOffset != (long *)0x0) {
       goto Dispatch_useValue;
     }
   }
-  result = Speech_fgUndefined;
+  result = Speech::fgUndefined;
   return result;
 Dispatch_useValue:
-  result = (Speaker *)Speech_fgSpeech->fDispatch;
+  result = (Speaker *)Speech::fgSpeech->fDispatch;
   return result;
 }
 
 /* ---- Roger__Q26Speech15DispatchSpeaker  [SPEECH.CPP:1592-1629] SLD-VERIFIED ---- */
-void DispatchSpeaker::Roger()
+void Speech::DispatchSpeaker::Roger()
 
 {
   /* SYM-CODEGEN-CARRIER: invalid -- retail's optimized SYM has no ordinary
@@ -1267,7 +1252,7 @@ void DispatchSpeaker::Roger()
   int ID_CAR;
   int ID_UNIT;
   
-  Speech_fgSpeech->fSpeakerCar = (Car_tObj *)0x0;
+  Speech::fgSpeech->fSpeakerCar = (Car_tObj *)0x0;
   invalid = false;
   if ((this->fSub == (Speaker *)0x0 ||
       (this->fSub->Perp() == 0)) ||
@@ -1334,7 +1319,7 @@ void DispatchSpeaker::Roger()
  * delete_noop_moves copy-preference case documented at the
  * SPCHNFS_D_C_SPBLT_CONFIRMED call below; its non-volatile zero-insn preference
  * killer restores retail's surviving `addu a3,v1,zero`. */
-void DispatchSpeaker::StatusReply()
+void Speech::DispatchSpeaker::StatusReply()
 
 {
   Speaker *Blocker;
@@ -1359,10 +1344,10 @@ void DispatchSpeaker::StatusReply()
     return;
   }
 
-  Speech_fgSpeech->fSpeakerCar = 0;
+  Speech::fgSpeech->fSpeakerCar = 0;
   Blocker = (Speaker *)0x0;
   if (this->fSub->fBlockade.flags != 0) {
-    if (Speech_fgSpeech->fMultiplePerps != 0) {
+    if (Speech::fgSpeech->fMultiplePerps != 0) {
       this->fSub->ReportBlockade();
       return;
     }
@@ -1387,7 +1372,7 @@ void DispatchSpeaker::StatusReply()
         *(int *)this->CallSign();
     }
     Blocker->ReportBlockade();
-    Speech_fgSpeech->fSpeakerCar = 0;
+    Speech::fgSpeech->fSpeakerCar = 0;
     SPCHNFS_D_A_CONFIRM(&this->fConfirm);
     SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
     context = this->fTo;
@@ -1593,7 +1578,7 @@ StatusReply_subFetch:
 }
 
 /* ---- Status__Q26Speech15DispatchSpeaker  [SPEECH.CPP:1718-1848] SLD-VERIFIED ---- */
-void DispatchSpeaker::Status()
+void Speech::DispatchSpeaker::Status()
 
 {
   int dist;
@@ -1647,7 +1632,7 @@ void DispatchSpeaker::Status()
         }
         else {
           this->fStatusSub->Status();
-          Speech_fgSpeech->fSpeakerCar = (Car_tObj *)0x0;
+          Speech::fgSpeech->fSpeakerCar = (Car_tObj *)0x0;
           this->Roger();
         }
       }
@@ -1731,7 +1716,7 @@ DispStatus_updateCount3:
 DispStatus_updateCount1:
   (this->fSub->fUpdate).flags = 1;
 DispStatus_fetchSpeechCtx:
-  Speech_fgSpeech->fSpeakerCar = (Car_tObj *)0x0;
+  Speech::fgSpeech->fSpeakerCar = (Car_tObj *)0x0;
   /* SYM-CODEGEN-CARRIER: callSign -- folding the virtual CallSign result into
      fMobile indexing shortens 366 to 364 and leaves 38 receiver/allocation
      diffs; the typed pointer restores its semantic role. */
@@ -1790,7 +1775,7 @@ DispStatus_fetchSpeechCtx:
  * $2, and only then forming &fColour.  Reorg puts `move a0,s0` in both beq delay
  * slots, while cse can no longer turn the address into `addu a1,s1,v0`.
  * Strict source-only result: PASS 358/358. */
-void MobileSpeaker::Status()
+void Speech::MobileSpeaker::Status()
 
 {
   Speaker * Sub;
@@ -1845,7 +1830,7 @@ void MobileSpeaker::Status()
   if (iVar4 == 0) {
     return;
   }
-  Speech_fgSpeech->fSpeakerCar = this->fCarObj;
+  Speech::fgSpeech->fSpeakerCar = this->fCarObj;
   if (this->fArrest.flags == 1) {
     iVar4 = this->CallSign();
     pSVar10 = &this->fVoice;
@@ -2039,7 +2024,7 @@ DispStatus_playSpeechReturn:
 }
 
 /* ---- ClearPerp__Q26Speech15DispatchSpeakerP8Car_tObj  [SPEECH.CPP:1954-1958] SLD-VERIFIED ---- */
-void DispatchSpeaker::ClearPerp(Car_tObj *car)
+void Speech::DispatchSpeaker::ClearPerp(Car_tObj *car)
 
 {
   int i;
@@ -2055,7 +2040,7 @@ void DispatchSpeaker::ClearPerp(Car_tObj *car)
 }
 
 /* ---- KnownPerp__Q26Speech15DispatchSpeakerP8Car_tObj  [SPEECH.CPP:1964-1969] SLD-VERIFIED ---- */
-bool DispatchSpeaker::KnownPerp(Car_tObj *car)
+bool Speech::DispatchSpeaker::KnownPerp(Car_tObj *car)
 
 {
   int i;
@@ -2073,7 +2058,7 @@ bool DispatchSpeaker::KnownPerp(Car_tObj *car)
 }
 
 /* ---- AddPerp__Q26Speech15DispatchSpeakerP8Car_tObj  [SPEECH.CPP:1976-1980] SLD-VERIFIED ---- */
-void DispatchSpeaker::AddPerp(Car_tObj *car)
+void Speech::DispatchSpeaker::AddPerp(Car_tObj *car)
 
 {
   int i;
@@ -2169,7 +2154,7 @@ void DispatchSpeaker::AddPerp(Car_tObj *car)
    $v0, forcing the second vtable into $a1 and delaying v0->s0 into jalr's slot;
    gcc currently copies to s0 early and consequently assigns that vtable $v0.
    qtytrace is blocked by the preceding SetCar instrumented-compiler ICE. */
-void DispatchSpeaker::Report(Car_tObj *perp)
+void Speech::DispatchSpeaker::Report(Car_tObj *perp)
 
 {
   /* SYM-CODEGEN-CARRIER: hasSub -- folding the two-stage predicate into one
@@ -2179,11 +2164,11 @@ void DispatchSpeaker::Report(Car_tObj *perp)
   /* SYM-CODEGEN-CARRIER: pursuitLocation -- passing fLocation directly is
      count-exact but changes six call-setup/delay-slot instructions. */
   int pursuitLocation;
-  /* SYM-CODEGEN-CARRIER: speech -- storing through Speech_fgSpeech directly
+  /* SYM-CODEGEN-CARRIER: speech -- storing through Speech::fgSpeech directly
      grows the body to 105 instructions and leaves 3 load/nop diffs. */
   Speech *speech;
   
-  speech = Speech_fgSpeech;
+  speech = Speech::fgSpeech;
   hasSub = false;
   __asm__("" : : "i"(0));
   *(u_int *)((int)speech + 0x38c) = 0;
@@ -2194,7 +2179,7 @@ void DispatchSpeaker::Report(Car_tObj *perp)
     hasSub = this->fSub != (Speaker *)0x0;
   }
   if (hasSub) {
-    if (Speech_fgSpeech->fMultiplePerps == 0) {
+    if (Speech::fgSpeech->fMultiplePerps == 0) {
       /* SYM-CODEGEN-CARRIER: bank -- inlining the combined bank expression is
          count-exact but reverses the addu destination and changes four
          instructions around the final load. */
@@ -2209,7 +2194,7 @@ void DispatchSpeaker::Report(Car_tObj *perp)
     }
   }
   else {
-    if (Speech_fgSpeech->fMultiplePerps == 0) {
+    if (Speech::fgSpeech->fMultiplePerps == 0) {
       SPCHNFS_D_C_INTRO_CALL(
         this->fTo =
           *(int *)this->CallSign(),
@@ -2237,14 +2222,14 @@ void DispatchSpeaker::Report(Car_tObj *perp)
 }
 
 /* ---- Accident__Q26Speech15DispatchSpeakeri  [SPEECH.CPP:2039-2043] SLD-VERIFIED ---- */
-void DispatchSpeaker::Accident(int slice)
+void Speech::DispatchSpeaker::Accident(int slice)
 
 {
   return;
 }
 
 /* ---- Deny__Q26Speech15DispatchSpeaker  [SPEECH.CPP:2049-2073] SLD-VERIFIED ---- */
-void DispatchSpeaker::Deny()
+void Speech::DispatchSpeaker::Deny()
 
 {
   /* SYM-CODEGEN-CARRIER: vs_RDBLK_SSTRP -- retaining the blockade address as
@@ -2253,7 +2238,7 @@ void DispatchSpeaker::Deny()
   SPCHNFSType_vs_RDBLK_SSTRP *vs_RDBLK_SSTRP;
   
   if (this->fSub != (Speaker *)0x0) {
-    Speech_fgSpeech->fSpeakerCar = (Car_tObj *)0x0;
+    Speech::fgSpeech->fSpeakerCar = (Car_tObj *)0x0;
     /* MATCH: retail SLD line 2060 owns BOTH vtable calls AND the index scale +
        load (one fused statement); line 2061 owns only the INTRO_CALL args, with
        `fTo = bank[2]` written as the arg-0 assignment (oracle `sw a0,60(s1)` in the
@@ -2293,7 +2278,7 @@ void DispatchSpeaker::Deny()
 }
 
 /* ---- Grant__Q26Speech15DispatchSpeaker  [SPEECH.CPP:2079-2098] SLD-VERIFIED ---- */
-void DispatchSpeaker::Grant()
+void Speech::DispatchSpeaker::Grant()
 
 {
   if (this->fSub == (Speaker *)0x0) {
@@ -2303,8 +2288,8 @@ void DispatchSpeaker::Grant()
       (SPCHNFSType_vs_RDBLK_SSTRP *)0x0) {
     return;
   }
-  Speech_fgSpeech->fSpeakerCar = (Car_tObj *)0x0;
-  if (Speech_fgSpeech->fMultiplePerps != 0) {
+  Speech::fgSpeech->fSpeakerCar = (Car_tObj *)0x0;
+  if (Speech::fgSpeech->fMultiplePerps != 0) {
     return;
   }
   SPCHNFS_D_C_RDBLK_SPBLT_GRANT_REPLY(
@@ -2315,7 +2300,7 @@ void DispatchSpeaker::Grant()
 }
 
 /* ---- Ready__Q26Speech15DispatchSpeakerP8Car_tObj  [SPEECH.CPP:2104-2123] SLD-VERIFIED ---- */
-void DispatchSpeaker::Ready(Car_tObj *carObj)
+void Speech::DispatchSpeaker::Ready(Car_tObj *carObj)
 
 {
   /* SYM-INLINE-LOCAL: Blockade = SetBlockade */
@@ -2348,11 +2333,11 @@ int Speech::PickVoice(Car_tObj *carObj)
 int Speech::GetVoice(Car_tObj *carObj)
 
 {
-  return Speech_fgSpeech->PickVoice(carObj);
+  return Speech::fgSpeech->PickVoice(carObj);
 }
 
 /* ---- Activate__Q26Speech13MobileSpeakerP8Car_tObj  [SPEECH.CPP:2163-2189] SLD-VERIFIED ---- */
-void MobileSpeaker::Activate(Car_tObj *carObj)
+void Speech::MobileSpeaker::Activate(Car_tObj *carObj)
 
 {
   Speech_tMobileVoiceAttr *a;
@@ -2396,7 +2381,7 @@ void MobileSpeaker::Activate(Car_tObj *carObj)
 }
 
 /* ---- ReActivate__Q26Speech13MobileSpeaker  [SPEECH.CPP:2199-2212] SLD-VERIFIED ---- */
-void MobileSpeaker::ReActivate()
+void Speech::MobileSpeaker::ReActivate()
 
 {
   Speech_tMobileVoiceAttr *a;
@@ -2419,7 +2404,7 @@ void MobileSpeaker::ReActivate()
 }
 
 /* ---- FindMobile__6SpeechP8Car_tObj  [SPEECH.CPP:2218-2237] SLD-VERIFIED ---- */
-Speaker *Speech::FindMobile(Car_tObj *carObj)
+Speech::Speaker *Speech::FindMobile(Car_tObj *carObj)
 
 {
   /* SYM-CODEGEN-CARRIER: mobile -- the optimized SYM block retains only each
@@ -2442,21 +2427,21 @@ Speaker *Speech::FindMobile(Car_tObj *carObj)
     }
   }
 
-  return Speech_fgUndefined;
+  return Speech::fgUndefined;
 }
 
 /* ---- Mobile__6SpeechP8Car_tObj  [SPEECH.CPP:2244-2250] SLD-VERIFIED ---- */
-Speaker *Speech::Mobile(Car_tObj *carObj)
+Speech::Speaker *Speech::Mobile(Car_tObj *carObj)
 
 {
-  if (Speech_fgSpeech == (Speech *)0x0 ||
-      Speech_fgSpeech->fBankOffset == (long *)0x0)
-    return Speech_fgUndefined;
-  return Speech_fgSpeech->FindMobile(carObj);
+  if (Speech::fgSpeech == (Speech *)0x0 ||
+      Speech::fgSpeech->fBankOffset == (long *)0x0)
+    return Speech::fgUndefined;
+  return Speech::fgSpeech->FindMobile(carObj);
 }
 
 /* ---- CalcMph__Q26Speech7SpeakerP8Car_tObj  [SPEECH.CPP:2256-2257] SLD-VERIFIED ---- */
-int Speaker::CalcMph(Car_tObj *perp)
+int Speech::Speaker::CalcMph(Car_tObj *perp)
 
 {
   return fixedmult(0x23ca5,__builtin_abs(perp->linearVel_ch.z)) / 0x10000;
@@ -2469,7 +2454,7 @@ int Speaker::CalcMph(Car_tObj *perp)
 #define MOBILE_SPEAKER_SPEED(perp, scale) \
   (fixedmult((scale), __builtin_abs((perp)->linearVel_ch.z)) / 0xa0000 - 3)
 
-void MobileSpeaker::SetSpeed(Car_tObj *perp)
+void Speech::MobileSpeaker::SetSpeed(Car_tObj *perp)
 
 {
   if (GameSetup_gData.measurement == 1) {
@@ -2494,7 +2479,7 @@ void MobileSpeaker::SetSpeed(Car_tObj *perp)
 #define MOBILE_SPEAKER_COORD(self, getter, offset) \
   (*(int *)((int)self->getter() + (offset)))
 
-int MobileSpeaker::DistToPerp()
+int Speech::MobileSpeaker::DistToPerp()
 
 {
   int x;
@@ -2530,19 +2515,19 @@ int MobileSpeaker::DistToPerp()
 #undef MOBILE_SPEAKER_COORD
 
 /* ---- Report__Q26Speech13MobileSpeakerP8Car_tObj  [SPEECH.CPP:2295-2316] SLD-VERIFIED ---- */
-void MobileSpeaker::Report(Car_tObj *perp)
+void Speech::MobileSpeaker::Report(Car_tObj *perp)
 
 {
   Speaker * Sub;
   Car_tObj *carObj;
   
-  Speech_fgSpeech->fSpeakerCar = this->fCarObj;
+  Speech::fgSpeech->fSpeakerCar = this->fCarObj;
   this->fTo =
       this->CallSign()->fDispatch;
   SPCHNFS_C_A_INTRO(&this->fVoice,this->fTo,
                     this->fFrom,&this->fReverse);
   SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-  Speech_fgSpeech->fSpeakerCar = this->fCarObj;
+  Speech::fgSpeech->fSpeakerCar = this->fCarObj;
   this->SetCar(perp);
   this->FindLocation(perp);
   this->SetSpeed(perp);
@@ -2564,7 +2549,7 @@ void MobileSpeaker::Report(Car_tObj *perp)
 }
 
 /* ---- Engage__Q26Speech13MobileSpeakerP8Car_tObj  [SPEECH.CPP:2331-2450] SLD-VERIFIED ---- */
-void MobileSpeaker::Engage(Car_tObj *perp)
+void Speech::MobileSpeaker::Engage(Car_tObj *perp)
 
 {
   Car_tObj * car;
@@ -2586,7 +2571,7 @@ void MobileSpeaker::Engage(Car_tObj *perp)
   /* SYM-OPTIMIZED: Sub -- the repeated inlined Speaker accessors name their
      receiver Sub in debug data; each aliases the active chain node. */
   
-  Speech_fgSpeech->fSpeakerCar = this->fCarObj;
+  Speech::fgSpeech->fSpeakerCar = this->fCarObj;
   this->fHavePerp = 1;
   if (perp == this->Perp())
     goto MSEngage_samePerp;
@@ -2612,7 +2597,7 @@ MSEngage_dispatchCheck:
       return;
     }
     Speech::Dispatch()->Report(perp);
-    Speech_fgSpeech->fSpeakerCar = this->fCarObj;
+    Speech::fgSpeech->fSpeakerCar = this->fCarObj;
     this->fTo =
         this->CallSign()->fDispatch;
     this->FindLocation(
@@ -2746,7 +2731,7 @@ MSEngage_validateAndProceed:
   return;
 MSEngage_samePerp:
   repeatReady = false;
-  if (Speech_fgSpeech->fMultiplePerps == 0) {
+  if (Speech::fgSpeech->fMultiplePerps == 0) {
     repeatReady = Speech::Dispatch()->StatusCount() < 0x160;
   }
   if (!repeatReady) {
@@ -2824,7 +2809,7 @@ MSEngage_emitSpeech:
  *      two carriers (car via reg_a1, loc via iVar4) 6.  Same family as 13A's
  *      "both allocator layers tie-break by NUMBER": the carrier's declaration
  *      position is the dial, not the statement position. */
-void MobileSpeaker::Lose()
+void Speech::MobileSpeaker::Lose()
 
 {
   Speaker * Sub;
@@ -2855,7 +2840,7 @@ void MobileSpeaker::Lose()
   /* SYM-OPTIMIZED: carObj -- the line-1 inline Speech expansion consumes
      `this->fCarObj` directly in fSpeakerCar; no ordinary local survives. */
   if (this->Perp() != 0) {
-    Speech_fgSpeech->fSpeakerCar = this->fCarObj;
+    Speech::fgSpeech->fSpeakerCar = this->fCarObj;
     iVar3 = Speech::Dispatch();
     useLeader = false;
     if (((*(int *)(iVar3 + 0x48) != 0) &&
@@ -2976,14 +2961,14 @@ void MobileSpeaker::Lose()
 }
 
 /* ---- Accident__Q26Speech13MobileSpeakeri  [SPEECH.CPP:2544-2548] SLD-VERIFIED ---- */
-void MobileSpeaker::Accident(int slice)
+void Speech::MobileSpeaker::Accident(int slice)
 
 {
   return;
 }
 
 /* ---- Catch__Q26Speech13MobileSpeakeri  [SPEECH.CPP:2554-2621] SLD-VERIFIED ---- */
-void MobileSpeaker::Catch(int ticket)
+void Speech::MobileSpeaker::Catch(int ticket)
 
 {
   /* The repeated line-14/27 SLD `Speaker *this` scopes are the inline field
@@ -3008,7 +2993,7 @@ void MobileSpeaker::Catch(int ticket)
      incoming `ticket` value in $s0, so no second source object survives. */
 
   if (this->Perp() != 0) {
-    Speech_fgSpeech->fSpeakerCar = this->fCarObj;
+    Speech::fgSpeech->fSpeakerCar = this->fCarObj;
     if (*(int *)((int)this->Perp() + 300) < 0) {
       this->fTo =
           this->CallSign()->fDispatch;
@@ -3060,7 +3045,7 @@ void MobileSpeaker::Catch(int ticket)
         }
         SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
         if (ticket == 1) {
-          Speech_fgSpeech->SetDelayedStatus((Speaker *)this,0x60);
+          Speech::fgSpeech->SetDelayedStatus((Speaker *)this,0x60);
         }
         goto Catch_dispatchCallback;
       }
@@ -3071,7 +3056,7 @@ Catch_dispatchCallback:
 }
 
 /* ---- RoadBlock__Q26Speech13MobileSpeaker  [SPEECH.CPP:2627-2648] SLD-VERIFIED ---- */
-void MobileSpeaker::RoadBlock()
+void Speech::MobileSpeaker::RoadBlock()
 
 {
   Car_tObj *carObj;
@@ -3096,8 +3081,8 @@ void MobileSpeaker::RoadBlock()
   }
   else {
     this->Promote();
-    if (Speech_fgSpeech->fMultiplePerps == 0) {
-      Speech_fgSpeech->fSpeakerCar = this->fCarObj;
+    if (Speech::fgSpeech->fMultiplePerps == 0) {
+      Speech::fgSpeech->fSpeakerCar = this->fCarObj;
       this->fTo = this->CallSign()->fDispatch;
       SPCHNFS_C_A_INTRO(&this->fVoice,this->fTo,this->fFrom,
                         &this->fReverse);
@@ -3111,7 +3096,7 @@ void MobileSpeaker::RoadBlock()
 }
 
 /* ---- SpikeBelt__Q26Speech13MobileSpeaker  [SPEECH.CPP:2656-2677] SLD-VERIFIED ---- */
-void MobileSpeaker::SpikeBelt()
+void Speech::MobileSpeaker::SpikeBelt()
 
 {
   Car_tObj *carObj;
@@ -3136,8 +3121,8 @@ void MobileSpeaker::SpikeBelt()
   }
   else {
     this->Promote();
-    if (Speech_fgSpeech->fMultiplePerps == 0) {
-      Speech_fgSpeech->fSpeakerCar = this->fCarObj;
+    if (Speech::fgSpeech->fMultiplePerps == 0) {
+      Speech::fgSpeech->fSpeakerCar = this->fCarObj;
       this->fTo = this->CallSign()->fDispatch;
       SPCHNFS_C_A_INTRO(&this->fVoice,this->fTo,this->fFrom,
                         &this->fReverse);
@@ -3151,12 +3136,12 @@ void MobileSpeaker::SpikeBelt()
 }
 
 /* ---- Backup__Q26Speech13MobileSpeaker  [SPEECH.CPP:2685-2705] SLD-VERIFIED ---- */
-void MobileSpeaker::Backup()
+void Speech::MobileSpeaker::Backup()
 
 {
   Car_tObj *carObj;
 
-  Speech_fgSpeech->fSpeakerCar = this->fCarObj;
+  Speech::fgSpeech->fSpeakerCar = this->fCarObj;
   this->fTo = this->CallSign()->fDispatch;
   SPCHNFS_C_A_INTRO(&this->fVoice,this->fTo,
                     this->fFrom,
@@ -3192,7 +3177,7 @@ void MobileSpeaker::Backup()
  * fall back to the count-exact 48-diff whole-function s1/s2 swap.  Search path:
  * baseline 2 -> desired schedule/wrong allocation 48 -> PASS.  Fixed prototype,
  * split fTo staging, ordinary locals, and an inline wrapper were inert at 2. */
-void MobileSpeaker::Roger()
+void Speech::MobileSpeaker::Roger()
 
 {
   /* SYM-CODEGEN-CARRIER: isStatusSub -- folding the staged predicate into the
@@ -3207,7 +3192,7 @@ void MobileSpeaker::Roger()
   
   /* SYM-OPTIMIZED: carObj -- the line-1 inline Speech expansion consumes
      `this->fCarObj` directly in fSpeakerCar; no ordinary local survives. */
-  Speech_fgSpeech->fSpeakerCar = this->fCarObj;
+  Speech::fgSpeech->fSpeakerCar = this->fCarObj;
   isStatusSub = false;
   if (this->fSub != (Speaker *)0x0) {
     isStatusSub = Speech::Dispatch()->StatusSub() ==
@@ -3260,19 +3245,19 @@ void MobileSpeaker::Roger()
 }
 
 /* ---- Bullhorn__Q26Speech13MobileSpeaker  [SPEECH.CPP:2741-2748] SLD-VERIFIED ---- */
-void MobileSpeaker::Bullhorn()
+void Speech::MobileSpeaker::Bullhorn()
 
 {
   /* SYM-OPTIMIZED: carObj -- the inline fCarObj accessor is consumed directly
      by the assignment to Speech::fSpeakerCar. */
-  Speech_fgSpeech->fSpeakerCar = this->fCarObj;
+  Speech::fgSpeech->fSpeakerCar = this->fCarObj;
   SPCHNFS_C_P_BULLHORN_SPEECH(&this->fVoice);
   SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
   return;
 }
 
 /* ---- Purge__Q26Speech13MobileSpeaker  [SPEECH.CPP:2754-2839] SLD-VERIFIED ---- */
-void MobileSpeaker::Purge()
+void Speech::MobileSpeaker::Purge()
 
 {
   Speaker *Chain;
@@ -3338,7 +3323,7 @@ Purge_unlinkChain:
 }
 
 /* ---- ReportBlockade__Q26Speech13MobileSpeaker  [SPEECH.CPP:2843-2861] SLD-VERIFIED ---- */
-void MobileSpeaker::ReportBlockade()
+void Speech::MobileSpeaker::ReportBlockade()
 
 {
   Car_tObj *carObj;
@@ -3347,7 +3332,7 @@ void MobileSpeaker::ReportBlockade()
      remain 63/63 but move the addiu into the jal delay slot (6 diffs). */
   SPCHNFSType_DISTANCE *DISTANCE;
   
-  Speech_fgSpeech->fSpeakerCar = this->fCarObj;
+  Speech::fgSpeech->fSpeakerCar = this->fCarObj;
   /* MATCH: re-read `_vf` INLINE at every use (the sibling PASSing fns' idiom).
      A hoisted `pa_Var1 = _vf;` local is a Ghidra artifact: it becomes its own
      pseudo ($v1) so the pfn load can't reuse the vtable base reg -- oracle
@@ -3381,79 +3366,79 @@ void MobileSpeaker::ReportBlockade()
 }
 
 /* ---- Perp__Q26Speech13MobileSpeaker  [SPEECH.CPP:147-147] SLD-VERIFIED ---- */
-Car_tObj *MobileSpeaker::Perp()
+Car_tObj *Speech::MobileSpeaker::Perp()
 
 {
   return this->fPerp;
 }
 
 /* ---- Unit__Q26Speech13MobileSpeaker  [SPEECH.CPP:134-135] SLD-VERIFIED ---- */
-int MobileSpeaker::Unit()
+int Speech::MobileSpeaker::Unit()
 
 {
   return this->fUnit;
 }
 
 /* ---- CallSign__Q26Speech13MobileSpeaker  [SPEECH.CPP:130-135] SLD-FLAG:NONMONO ---- */
-CallSignBank *MobileSpeaker::CallSign()
+Speech::CallSignBank *Speech::MobileSpeaker::CallSign()
 
 {
-  return &Speech_fgSpeech->fCallSignBank.Mobile;
+  return &Speech::fgSpeech->fCallSignBank.Mobile;
 }
 
 /* ---- FindClosestLocationTo__Q26Speech13MobileSpeakeri  [SPEECH.CPP:126-131] SLD-FLAG:NONMONO ---- */
-LocationBank *MobileSpeaker::FindClosestLocationTo(int slice)
+Speech::LocationBank *Speech::MobileSpeaker::FindClosestLocationTo(int slice)
 
 {
-  return Speech_fgSpeech->FindClosestLocationTo(
-      Speech_fgSpeech->fLocationBank.Mobile,slice);
+  return Speech::fgSpeech->FindClosestLocationTo(
+      Speech::fgSpeech->fLocationBank.Mobile,slice);
 }
 
 /* ---- GetCarBank__Q26Speech13MobileSpeakeri  [SPEECH.CPP:122-127] SLD-FLAG:NONMONO ---- */
-CarBank *MobileSpeaker::GetCarBank(int carIndex)
+Speech::CarBank *Speech::MobileSpeaker::GetCarBank(int carIndex)
 
 {
-  return &Speech_fgSpeech->fCarBank.Mobile[carIndex];
+  return &Speech::fgSpeech->fCarBank.Mobile[carIndex];
 }
 
 /* ---- CarObj__Q26Speech13MobileSpeaker  [SPEECH.CPP:114-114] SLD-VERIFIED ---- */
-Car_tObj *MobileSpeaker::CarObj()
+Car_tObj *Speech::MobileSpeaker::CarObj()
 
 {
   return this->fCarObj;
 }
 
 /* ---- IsSuper__Q26Speech13MobileSpeaker  [SPEECH.CPP:106-106] SLD-VERIFIED ---- */
-bool MobileSpeaker::IsSuper()
+bool Speech::MobileSpeaker::IsSuper()
 
 {
   return (u_int)this->fCarObj->carFlags >> 6 & 1;
 }
 
 /* ---- CallSign__Q26Speech15DispatchSpeaker  [SPEECH.CPP:73-74] SLD-VERIFIED ---- */
-CallSignBank *DispatchSpeaker::CallSign()
+Speech::CallSignBank *Speech::DispatchSpeaker::CallSign()
 
 {
-  return &Speech_fgSpeech->fCallSignBank.Dispatch;
+  return &Speech::fgSpeech->fCallSignBank.Dispatch;
 }
 
 /* ---- FindClosestLocationTo__Q26Speech15DispatchSpeakeri  [SPEECH.CPP:69-74] SLD-FLAG:NONMONO ---- */
-LocationBank *DispatchSpeaker::FindClosestLocationTo(int slice)
+Speech::LocationBank *Speech::DispatchSpeaker::FindClosestLocationTo(int slice)
 
 {
-  return Speech_fgSpeech->FindClosestLocationTo(
-      Speech_fgSpeech->fLocationBank.Dispatch,slice);
+  return Speech::fgSpeech->FindClosestLocationTo(
+      Speech::fgSpeech->fLocationBank.Dispatch,slice);
 }
 
 /* ---- GetCarBank__Q26Speech15DispatchSpeakeri  [SPEECH.CPP:65-70] SLD-FLAG:NONMONO ---- */
-CarBank *DispatchSpeaker::GetCarBank(int carIndex)
+Speech::CarBank *Speech::DispatchSpeaker::GetCarBank(int carIndex)
 
 {
-  return &Speech_fgSpeech->fCarBank.Dispatch[carIndex];
+  return &Speech::fgSpeech->fCarBank.Dispatch[carIndex];
 }
 
 /* ---- PurgeStatusSub__Q26Speech15DispatchSpeaker  [SPEECH.CPP:58-66] SLD-FLAG:NONMONO ---- */
-void DispatchSpeaker::PurgeStatusSub()
+void Speech::DispatchSpeaker::PurgeStatusSub()
 
 {
   this->fStatusSub = (Speaker *)0x0;
@@ -3461,14 +3446,14 @@ void DispatchSpeaker::PurgeStatusSub()
 }
 
 /* ---- StatusSub__Q26Speech15DispatchSpeaker  [SPEECH.CPP:57-58] SLD-VERIFIED ---- */
-Speaker *DispatchSpeaker::StatusSub()
+Speech::Speaker *Speech::DispatchSpeaker::StatusSub()
 
 {
   return this->fStatusSub;
 }
 
 /* ---- StatusCount__Q26Speech15DispatchSpeaker  [SPEECH.CPP:56-57] SLD-VERIFIED ---- */
-int DispatchSpeaker::StatusCount()
+int Speech::DispatchSpeaker::StatusCount()
 
 {
   return this->fStatusCount;
@@ -3478,104 +3463,104 @@ int DispatchSpeaker::StatusCount()
  * data-materialization); faithful from nfs4-f.exe @0x80099364 = { jr $ra; addiu $v0,$zero,0 }
  * W60-A9: moved here from the file tail to restore retail VA emission order (tu_order_audit
  * inversion: 0x80099364 sits between StatusCount__...DispatchSpeaker and FindClosestLocationTo). */
-CallSignBank *Speaker::CallSign()   /* @0x80099364  CallSign__Q26Speech7Speaker -> NULL */
+Speech::CallSignBank *Speech::Speaker::CallSign()   /* @0x80099364  CallSign__Q26Speech7Speaker -> NULL */
 {
   return (CallSignBank *)0;
 }
 
 /* ---- FindClosestLocationTo__Q26Speech7Speakeri  [SPEECH.CPP:?] SLD-FLAG:NO_SLD ---- */
-LocationBank *Speaker::FindClosestLocationTo(int slice)
+Speech::LocationBank *Speech::Speaker::FindClosestLocationTo(int slice)
 
 {
   return (LocationBank *)0x0;
 }
 
 /* ---- GetCarBank__Q26Speech7Speakeri  [SPEECH.CPP:?] SLD-FLAG:NO_SLD ---- */
-CarBank *Speaker::GetCarBank(int carIndex)
+Speech::CarBank *Speech::Speaker::GetCarBank(int carIndex)
 
 {
   return (CarBank *)0x0;
 }
 
 /* ---- Perp__Q26Speech7Speaker  [SPEECH.CPP:?] SLD-FLAG:NO_SLD ---- */
-Car_tObj *Speaker::Perp()
+Car_tObj *Speech::Speaker::Perp()
 
 {
   return (Car_tObj *)0x0;
 }
 
 /* ---- ReActivate__Q26Speech7Speaker  [SPEECH.CPP:?] SLD-FLAG:NO_SLD ---- */
-void Speaker::ReActivate()
+void Speech::Speaker::ReActivate()
 
 {
   return;
 }
 
 /* ---- CarObj__Q26Speech7Speaker  [SPEECH.CPP:?] SLD-FLAG:NO_SLD ---- */
-Car_tObj *Speaker::CarObj()
+Car_tObj *Speech::Speaker::CarObj()
 
 {
   return (Car_tObj *)0x0;
 }
 
 /* ---- DistToPerp__Q26Speech7Speaker  [SPEECH.CPP:?] SLD-FLAG:NO_SLD ---- */
-int Speaker::DistToPerp()
+int Speech::Speaker::DistToPerp()
 
 {
   return 0x3e80000;
 }
 
 /* ---- PurgeStatusSub__Q26Speech7Speaker  [SPEECH.CPP:?] SLD-FLAG:NO_SLD ---- */
-void Speaker::PurgeStatusSub()
+void Speech::Speaker::PurgeStatusSub()
 
 {
   return;
 }
 
 /* ---- StatusSub__Q26Speech7Speaker  [SPEECH.CPP:?] SLD-FLAG:NO_SLD ---- */
-Speaker *Speaker::StatusSub()
+Speech::Speaker *Speech::Speaker::StatusSub()
 
 {
   return (Speaker *)0x0;
 }
 
 /* ---- StatusCount__Q26Speech7Speaker  [SPEECH.CPP:?] SLD-FLAG:NO_SLD ---- */
-int Speaker::StatusCount()
+int Speech::Speaker::StatusCount()
 
 {
   return 0;
 }
 
 /* ---- IsSuper__Q26Speech7Speaker  [SPEECH.CPP:?] SLD-FLAG:NO_SLD ---- */
-bool Speaker::IsSuper()
+bool Speech::Speaker::IsSuper()
 
 {
   return false;
 }
 
 /* ---- ClearPerp__Q26Speech7SpeakerP8Car_tObj  [SPEECH.CPP:?] SLD-FLAG:NO_SLD ---- */
-void Speaker::ClearPerp(Car_tObj *car)
+void Speech::Speaker::ClearPerp(Car_tObj *car)
 
 {
   return;
 }
 
 /* ---- KnownPerp__Q26Speech7SpeakerP8Car_tObj  [SPEECH.CPP:?] SLD-FLAG:NO_SLD ---- */
-bool Speaker::KnownPerp(Car_tObj *car)
+bool Speech::Speaker::KnownPerp(Car_tObj *car)
 
 {
   return false;
 }
 
 /* ---- Unit__Q26Speech7Speaker  [SPEECH.CPP:?] SLD-FLAG:NO_SLD ---- */
-int Speaker::Unit()
+int Speech::Speaker::Unit()
 
 {
   return 0;
 }
 
 /* ---- Status__Q26Speech7Speaker  [SPEECH.CPP:?] SLD-FLAG:NO_SLD ---- */
-void Speaker::Status()
+void Speech::Speaker::Status()
 
 {
   return;

@@ -6,7 +6,6 @@
 
 /* ---- vtables: AIHigh_Traffic (this obj) + AIState_Idle (aistate.obj) ---- */
 
-Speaker *Speech_Mobile(Car_tObj *carObj) asm("Mobile__6SpeechP8Car_tObj");
 extern AICop_spikeBelt_t AICop_spikeBelt;
 extern AIHigh_Base *highLevelAIObjs[];
 extern AITrigger_TriggerManager *triggerManagerCops;

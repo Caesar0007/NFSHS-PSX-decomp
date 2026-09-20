@@ -8,8 +8,6 @@
 extern __vtbl_ptr_type D_80054F24[];
 
 extern "C" struct CARDINFO_def *MCRD_getcard(int);
-Speaker *Speech_Dispatch(void) asm("Dispatch__6Speech");
-Speaker *Speech_Mobile(Car_tObj *carObj) asm("Mobile__6SpeechP8Car_tObj");
 extern AICop_spikeBelt_t AICop_spikeBelt;
 extern void *AIDataRecord_TrackCurve;
 int AIDataRecord_TrackCurve_Get(void *, int)

@@ -6,7 +6,6 @@
 
 /* ---- vtable: AIHigh_BasicCop (this obj) ---- */
 
-Speaker *Speech_Mobile(Car_tObj *carObj) asm("Mobile__6SpeechP8Car_tObj");
 extern AICop_spikeBelt_t AICop_spikeBelt;
 extern Car_tObj         *Cars_gHumanRaceCarList[9];  /* cars.obj */
 extern Car_tObj * AILife_IsSliceInAnyVisibleArea(int slice);

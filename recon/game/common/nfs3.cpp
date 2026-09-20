@@ -52,8 +52,8 @@ void Nfs2_SystemNLibStartUp(void)
 {
   Platform_SysStartUp();
   Loading_GetInitialMemory();
-  if (Speech_fgUndefined == 0) {
-    Speech_fgUndefined = new Speaker;
+  if (Speech::fgUndefined == 0) {
+    Speech::fgUndefined = new Speech::Speaker;
   }
   Render_InitLibRender();
   return;
@@ -91,7 +91,7 @@ void Nfs2_ResetGame(void)
   Camera_Init();
   Weather_Restart();
   AudioCmn_Reset();
-  Speech_Reset();
+  Speech::Reset();
   AudioClc_StartUp();
   DashHUD_ResetHUD();
   return;
@@ -202,8 +202,8 @@ void Nfs2_GameModuleStartUp(int *FrontEndDataStream)
   Clock_SystemStartUp();
   AudioCmn_LoadGameSamples();
   CopSpeak_StartUp();
-  if ((GameSetup_gData.raceType == RaceType_HotPursuit) && (_6Speech_fgSpeech == 0)) {
-    _6Speech_fgSpeech = (int)__6Speech(__builtin_new(0x3a4));
+  if ((GameSetup_gData.raceType == RaceType_HotPursuit) && (Speech::fgSpeech == 0)) {
+    Speech::fgSpeech = new Speech;
   }
   Render_InitPauseMenu();
   Render_InitTrackRender();
@@ -257,9 +257,9 @@ void Nfs2_CleanUpGameModule(void)
   }
   Replay_StoringReplay();
   AudioCmn_DeInit();
-  if (_6Speech_fgSpeech != 0) {
-    ___6Speech((void *)_6Speech_fgSpeech,3);
-    _6Speech_fgSpeech = 0;
+  if (Speech::fgSpeech != 0) {
+    delete Speech::fgSpeech;
+    Speech::fgSpeech = 0;
   }
   CopSpeak_CleanUp();
   Clock_SystemCleanUp();

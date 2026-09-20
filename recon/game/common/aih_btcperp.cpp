@@ -309,7 +309,7 @@ void AIHigh_BTC_Perp::HandlePullOver()
   /* SYM-CODEGEN-CARRIER: mobileSpeaker -- the typed
      `SpeakerVirtualDispatch::slot15()` spelling preserves 118 instructions
      but selects table offsets 56/60 instead of retail 128/132 (four diffs). */
-  Speaker *mobileSpeaker;
+  Speech::Speaker *mobileSpeaker;
 
   if (this->pullOverMode_ != 0) {
 
@@ -329,7 +329,7 @@ void AIHigh_BTC_Perp::HandlePullOver()
 
         this->pullOverMode_ = 0;
 
-        mobileSpeaker = (Speaker *)Speech_Mobile(Cars_gList[0]);
+        mobileSpeaker = Speech::Mobile(Cars_gList[0]);
 
         mobileSpeaker->Lose();
 
@@ -819,13 +819,13 @@ void AIHigh_BTC_HumanPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
              (int)(this->carObj_->N).simRoadInfo.slice,newLatPos,
              this->carObj_->direction,0,0);
 
-  ((SpeakerVirtualDispatch *)Speech_Mobile(chaserCop->carObj_))->slot15();
+  ((SpeakerVirtualDispatch *)Speech::Mobile(chaserCop->carObj_))->slot15();
 
-  ((SpeakerVirtualDispatch *)Speech_Dispatch())->slot0(this->carObj_);
+  ((SpeakerVirtualDispatch *)Speech::Dispatch())->slot0(this->carObj_);
 
-  ((SpeakerVirtualDispatch *)Speech_Mobile(chaserCop->carObj_))->slot0(this->carObj_);
+  ((SpeakerVirtualDispatch *)Speech::Mobile(chaserCop->carObj_))->slot0(this->carObj_);
 
-  ((SpeakerVirtualDispatch *)Speech_Mobile(chaserCop->carObj_))->slot5(this->carObj_);
+  ((SpeakerVirtualDispatch *)Speech::Mobile(chaserCop->carObj_))->slot5(this->carObj_);
 
   TrgSfx_RestartTrgSfx();
 
@@ -1286,7 +1286,7 @@ void AIHigh_BTC_AIPerp::HighExecute()
 
         if (this->perpMode_ != 2) {
 
-          ((SpeakerVirtualDispatch *)Speech_Mobile(((this->originalActivationCop_))->carObj_))
+          ((SpeakerVirtualDispatch *)Speech::Mobile(((this->originalActivationCop_))->carObj_))
               ->slot0(this->carObj_);
 
         }
@@ -1329,7 +1329,7 @@ void AIHigh_BTC_AIPerp::HighExecute()
 
         if (Camera_gInfo[0].forceFocus != 0) {
 
-          ((SpeakerVirtualDispatch *)Speech_Mobile(((this->originalActivationCop_))->carObj_))
+          ((SpeakerVirtualDispatch *)Speech::Mobile(((this->originalActivationCop_))->carObj_))
               ->slot5(this->carObj_);
 
           Camera_ResetRelPos(3);
@@ -1424,7 +1424,7 @@ perpMode_merge:
 
       if (this->perpMode_ != 2) {
 
-        ((SpeakerVirtualDispatch *)Speech_Mobile(((this->originalActivationCop_))->carObj_))
+        ((SpeakerVirtualDispatch *)Speech::Mobile(((this->originalActivationCop_))->carObj_))
             ->slot0(this->carObj_);
 
       }
@@ -1749,9 +1749,9 @@ void AIHigh_BTC_AIPerp::NewStage(AIHigh_BTC_HumanCop *chaserCop)
 
   }
 
-  ((SpeakerVirtualDispatch *)Speech_Mobile(humanCopCarObj))->slot15();
+  ((SpeakerVirtualDispatch *)Speech::Mobile(humanCopCarObj))->slot15();
 
-  ((SpeakerVirtualDispatch *)Speech_Dispatch())->slot0(this->carObj_);
+  ((SpeakerVirtualDispatch *)Speech::Dispatch())->slot0(this->carObj_);
 
   TrgSfx_RestartTrgSfx();
 

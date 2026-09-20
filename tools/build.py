@@ -2034,7 +2034,9 @@ def compile_cpp(src: Path) -> Path:
         cc1pl_flags.append("-fno-strength-reduce")
     if tu_flags.get("no_builtin"):
         cc1pl_flags.append("-fno-builtin")
-    if tu_flags.get("no_implement_inlines"):
+    # FEVIRT-NII-LANE (A/B 2026-09-20): hypothesis = the whole FRONT END was built with -fno-implement-inlines.
+    _fe_lane_nii = src.as_posix().find("/recon/frontend/") >= 0 and not tu_flags.get("implement_inlines")
+    if tu_flags.get("no_implement_inlines") or (_fe_lane_nii and __import__("os").environ.get("NFS4_FE_NII") == "1"):
         # class (b) 2026-09-17 A/B option, NOT retail: it also suppresses the vtable-needed
         # inline virtual dtor copies (~AIHigh_BTC_HumanPerp, ~AIState_Idle/~Normal) that
         # retail objects DO carry (build/psyq/probe/aistate_nii.s, aihigh_nii.s).  Retail's

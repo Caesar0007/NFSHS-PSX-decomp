@@ -284,6 +284,14 @@
    "evidence": "PsyQ 4.3 libgpu EXT.obj @332+100; the retail object text starts at SetDefDrawEnv (head stripped)",
    "open_diff": 4,
    "note": "OPEN: SDK = `andi v0,v0,0xffff` BEFORE the register restores AND `addiu sp` in the jr delay slot; 2.8.x rungs give the delay slot but schedule the andi after the restores, 2.7.2 / 2.6.3 give the andi but leave the delay slot empty (3 words); no available rung gives both"
+  },
+  {
+   "object": "build/recon/syslib/psx/libmcrd/LIBMCRD.c.o",
+   "function": "MemCardOpen",
+   "sdk": "LIBMCRD/MemCardOpen",
+   "evidence": "PsyQ 4.3 libmcrd LIBMCRD.obj @1460+392; retail MemCardAccept is followed directly by MemCardReadData; its literal \"file already open\" stays in .rdata",
+   "open_diff": 84,
+   "note": "OPEN: same statements and literal, but the SDK keeps three bases in registers (s1=&mc.fd then reused for the constant 2, s0=&mc.devname, s4=&mc.cmd) and hoists 3 and 5; plain mc.* = 91, pointer locals are copy-propagated away (91/92), mixed dev-relative bases = 84. The matched siblings (MemCardCreateFile ...) needed opacity fences for the same thing."
   }
  ]
 }

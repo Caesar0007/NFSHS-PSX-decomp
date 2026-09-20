@@ -888,18 +888,62 @@ ret0:                                   /* the SHARED `addu $v0,$zero,$zero` blo
     }
 }
 
-/* PsyQ 4.3's vendor LIBMCRD.OBJ and the retail CPE both place this diagnostic
- * before the ReadData diagnostics.  Keeping the accessor inline records the
- * pooled literal at this source position without emitting an extra function;
- * its two consumers still compile to the same direct literal address. */
-static __inline__ const char *MemCardFileAlreadyOpenMessage(void)
+#include "../../../link_stripped.h"
+/* LIBMCRD.obj +1460 (LINK-STRIPPED) : MemCardOpen -- open a card file for the MemCardReadData / WriteData pair.
+ * Retail's link removed it (nobody calls it) but kept its "file already open" literal, first emitted here. */
+extern long MemCardOpen(long chan, char *file, long flag) LINK_STRIPPED;
+extern long MemCardOpen(long chan, char *file, long flag)
 {
-    return "Access Denied. : file already open.\n";
+    int  rslt;
+    int  retry;
+    int  fd;
+    int *pfd = &mc.fd;
+    char *dev;
+    int *p;
+
+    retry = 0;
+    if (*pfd >= 0) {
+        printf("Access Denied. : file already open.\n");
+        return -1;
+    }
+    dev = (char *)(pfd + 4);
+    MemCardMakeDevname(chan, dev);
+    strcat(dev, file);
+    pfd[-1] = chan;
+    p = pfd - 4;
+    while (1) {
+        _clr_card_event();
+        fd = open(dev, flag | 0x8000);
+        ((int *)dev)[-4] = fd;
+        if (fd >= 0)
+            return 0;
+        _mc_save_cb = (int (*)(int, int))MemCardCallback(0);
+        if (((int *)dev)[-8] > 0) {
+            printf("Access Denied. : event multiple open\n");
+        } else {
+            ((int *)dev)[-8] = 2;
+            p[1] = 0;
+            p[2] = 0;
+            mc.chan = chan;
+            UserFuncOpen((int)MemCardCmd_cb);
+        }
+        MemCardSync(0, 0, &rslt);
+        MemCardCallback((int)_mc_save_cb);
+        if (rslt == 3)
+            continue;
+        if (rslt == 2) {
+            retry++;
+            if (retry < 5)
+                continue;
+        }
+        if (rslt == 0)
+            rslt = 5;
+        return rslt;
+    }
 }
 
-#include "../../../link_stripped.h"
 /* LIBMCRD.obj +1852 (LINK-STRIPPED) : MemCardClose -- close the file MemCardOpen opened.  (MemCardOpen @1460, 392 B,
- * is link-stripped too and NOT yet written: it owns the "file already open" literal the accessor above still carries.) */
+ * is written above.) */
 extern void MemCardClose(void) LINK_STRIPPED;
 extern void MemCardClose(void)
 {
@@ -1161,7 +1205,7 @@ extern long MemCardReadFile(long chan, char *file, unsigned long *adrs, long ofs
     if (0 < base[0]) {
         fmt = "Access Denied. : system busy\n";
     } else if (0 <= base[4]) {                     /* fd */
-        fmt = MemCardFileAlreadyOpenMessage();
+        fmt = "Access Denied. : file already open.\n";
     } else if ((bytes & 0x7f) != 0) {
         fmt = "Access Denied. : invalid data size align\n";
     } else if ((ofs & 0x7f) == 0) {
@@ -1287,7 +1331,7 @@ extern long MemCardWriteFile(long chan, char *file, unsigned long *adrs, long of
     if (0 < base[0]) {
         fmt = "Access Denied. : system busy\n";
     } else if (0 <= base[4]) {                     /* fd */
-        fmt = MemCardFileAlreadyOpenMessage();
+        fmt = "Access Denied. : file already open.\n";
     } else if ((bytes & 0x7f) != 0) {
         fmt = "Access Denied. : invalid data size align\n";
     } else if ((ofs & 0x7f) == 0) {

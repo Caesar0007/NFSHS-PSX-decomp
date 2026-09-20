@@ -737,21 +737,11 @@ void AIHigh_BasicPerp::Clear()
 
 
 {
-  int loop;
-
-
-
-  loop = 0;
-
-  do {
-
+  /* retail SYM: `loop` lives in its own scope (lines 2..6) = a C++ for-declaration */
+  for (int loop = 0; loop < 6; loop++) {
     this->positionVSCopList_[loop].copIndex = -1;
-
     this->positionVSCopList_[loop].carIndex = -1;
-
-    loop = loop + 1;
-
-  } while (loop < 6);
+  }
 
   this->pullOverMode_ = 0;
 

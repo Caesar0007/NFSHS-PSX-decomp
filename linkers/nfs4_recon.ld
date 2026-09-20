@@ -3244,5 +3244,5 @@ SECTIONS
      * retail bytes); linked as orphans they landed in the catch-all and
      * their alias labels (D_8011E0B0 = simGlobal.gameTicks) out-bound the
      * retail-VA PROVIDEs.  Discard them so the PROVIDE wins. */
-    /DISCARD/ : { *(.pdr); *(.reginfo); *(.MIPS.abiflags); *(.gnu.attributes); *(.comment); *(.mdebug*); *(.data.*_legacy); *(.sdata.*_legacy); }
+    /DISCARD/ : { *(.pdr); *(.reginfo); *(.MIPS.abiflags); *(.gnu.attributes); *(.comment); *(.mdebug*); *(.data.*_legacy); *(.sdata.*_legacy); *(.text.strip); }
 }

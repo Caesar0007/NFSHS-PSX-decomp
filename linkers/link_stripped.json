@@ -1,0 +1,29 @@
+{
+ "_doc": "Functions retail's final link removed (unreferenced). See recon/link_stripped.h; checked by tools/link_stripped_check.py.",
+ "functions": [
+  {
+   "object": "build/recon/syslib/psx/libcd/cdcont.c.o",
+   "function": "CdLastCom",
+   "sdk": "LIBCD/CdLastCom",
+   "evidence": "PsyQ 4.3 libcd SYS.obj @32+16; retail CdMode 0x800F7790 is followed directly by CdLastPos 0x800F77A0"
+  },
+  {
+   "object": "build/recon/syslib/psx/libcd/cdcont.c.o",
+   "function": "CdComstr",
+   "sdk": "LIBCD/CdComstr",
+   "evidence": "SYS.obj @220+52; retail CdSetDebug 0x800F7838 (+20) is followed directly by CdSync 0x800F784C; its literal \"none\" stays at 0x80057100"
+  },
+  {
+   "object": "build/recon/syslib/psx/libcd/cdcont.c.o",
+   "function": "CdIntstr",
+   "sdk": "LIBCD/CdIntstr",
+   "evidence": "SYS.obj @272+52; same gap as CdComstr"
+  },
+  {
+   "object": "build/recon/syslib/psx/libcd/cdcont.c.o",
+   "function": "CdMix",
+   "sdk": "LIBCD/CdMix",
+   "evidence": "SYS.obj @1384+32; retail CdControlB 0x800F7B24 (+332) is followed directly by CdGetSector 0x800F7C70"
+  }
+ ]
+}

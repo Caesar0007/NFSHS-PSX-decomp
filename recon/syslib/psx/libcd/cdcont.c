@@ -25,10 +25,21 @@ extern int  CD_getsector2(void *madr, int size);                   /* @0x8010858
 extern int  CD_datasync(int mode);                                 /* @0x80108320 */
 extern int  DMACallback(int ch, int func);                         /* libetc @0x800F28AC */
 
+#include "../../../link_stripped.h"
+/* SYS.obj functions nobody calls: removed by retail's final link, bytes known from PsyQ 4.3 SYS.obj */
+extern int   CdLastCom(void) LINK_STRIPPED;
+extern char *CdComstr(unsigned char com) LINK_STRIPPED;
+extern char *CdIntstr(unsigned char intr) LINK_STRIPPED;
+extern int   CdMix(void *vol) LINK_STRIPPED;
+extern int   CD_vol(void *vol);   /* libcd BIOS.obj -- itself link-stripped in retail */
+
 /* ---- driver state globals (defined in DRV.OBJ data @0x8013BF48..) ---------------------------- */
 extern unsigned char CD_status;   /* @0x8013BF54 */
 extern unsigned char CD_mode;     /* @0x8013BF64 */
 extern CdlLOC        CD_pos;      /* @0x8013BF60 */
+extern unsigned char CD_com;      /* @0x8013BF65 */
+extern char         *CD_comstr[];  /* @0x8013BF6C */
+extern char         *CD_intstr[];  /* @0x8013BFEC */
 extern int           CD_debug;    /* @0x8013BF50 */
 extern int           CD_cbsync;   /* @0x8013BF48 */
 extern int           CD_cbready;  /* @0x8013BF4C */
@@ -49,6 +60,9 @@ extern int CdStatus(void) { return (unsigned)CD_status; }
 
 /* @0x800F7790 : CdMode */
 extern int CdMode(void) { return (unsigned)CD_mode; }
+
+/* SYS.obj +32 (LINK-STRIPPED) : CdLastCom */
+extern int CdLastCom(void) { return (unsigned)CD_com; }
 
 /* @0x800F77A0 : CdLastPos */
 extern void *CdLastPos(void) { return &CD_pos; }
@@ -94,6 +108,24 @@ extern int CdSetDebug(int level)
     int prev = CD_debug;
     CD_debug = level;
     return prev;
+}
+
+/* SYS.obj +220 (LINK-STRIPPED) : CdComstr -- name of a primary command */
+extern char *CdComstr(unsigned char com)
+{
+    if (com > 0x1b) {
+        return "none";
+    }
+    return CD_comstr[com];
+}
+
+/* SYS.obj +272 (LINK-STRIPPED) : CdIntstr -- name of an interrupt result */
+extern char *CdIntstr(unsigned char intr)
+{
+    if (intr > 6) {
+        return "none";
+    }
+    return CD_intstr[intr];
 }
 
 /* @0x800F784C : CdSync */
@@ -355,6 +387,13 @@ done:
     return status;
 }
 
+/* SYS.obj +1384 (LINK-STRIPPED) : CdMix */
+extern int CdMix(void *vol)
+{
+    CD_vol(vol);
+    return 1;
+}
+
 /* @0x800F7C70 : CdGetSector -- copy `size` words of the last-read sector to `madr` (1 = ok). */
 extern int CdGetSector(void *madr, int size) { return CD_getsector(madr, size) == 0; }
 
@@ -402,9 +441,3 @@ extern int CdPosToInt(CdlLOC *p)
            + DECODE_BCD(sector) - 150;
 }
 
-/* SYS.obj .rdata (retail 0x80057100): "none".  PsyQ 4.3's SYS.obj returns it from CdComstr()/CdIntstr() for an
- * out-of-range code; retail has NEITHER function, only the literal -- what an unused static inline leaves behind. */
-static __inline__ const char *CdComstr(unsigned char com)
-{
-    return com > 0x1b ? "none" : (const char *)0;
-}

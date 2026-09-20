@@ -480,6 +480,10 @@ def main():
     # payload and global/local offsets before removing the raw duplicate.
     # Protected-tool backups: scratchpad/p881_lasttick/backups.
     validate_source_data_owners(ROOT / "build")
+    # LINK_STRIPPED gate: every discarded function is listed, unaddressed in retail
+    # and (where an SDK object exists) byte-identical to it.
+    _r = subprocess.run([sys.executable, str(ROOT / "tools" / "link_stripped_check.py")], capture_output=True, text=True)
+    assert _r.returncode == 0, "link_stripped_check failed: " + _r.stdout[-2000:]
     # P887: NOBITS reservations have no initialized payload to hash. Validate
     # their own source extent/symbol contract before native BSS placement.
     validate_source_zero_owners(ROOT / "build")
@@ -845,7 +849,10 @@ def main():
     A("     * retail-VA PROVIDEs.  Discard them so the PROVIDE wins. */")
     A("    /DISCARD/ : { *(.pdr); *(.reginfo); *(.MIPS.abiflags);"
       " *(.gnu.attributes); *(.comment); *(.mdebug*);"
-      " *(.data.*_legacy); *(.sdata.*_legacy); }")
+      " *(.data.*_legacy); *(.sdata.*_legacy);"
+      # LINK_STRIPPED (recon/link_stripped.h): functions retail's final link removed
+      # as unreferenced; listed with evidence in linkers/link_stripped.json.
+      " *(.text.strip); }")
     A("}")
     TARGET.write_text("\n".join(L) + "\n")
 

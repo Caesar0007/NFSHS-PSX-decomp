@@ -117,6 +117,8 @@ def base_section(s):
     m = SECTION_RE.match(s)
     if m:
         nm = m.group(1)
+        if nm == b'.text.strip':   # LINK_STRIPPED (recon/link_stripped.h): functions retail's final link removed
+            return b'strip.text'
         if nm in (b'.rodata', b'.rdata') or nm.startswith((b'.rodata.', b'.rdata.')):
             return b'.rdata'
         for b in (b'.sdata', b'.sbss', b'.data', b'.bss', b'.text'):
@@ -169,7 +171,9 @@ def sn_text(src: Path, vtables=False, front=False, pads=None, g=None) -> bytes:
             s = b'.rdata'
         base = base_section(s)
         if base is not None:
-            if front and base in (b'.text', b'.rdata', b'.data', b'.bss'):
+            if base == b'strip.text':
+                out.append(b'\t.section strip.text')
+            elif front and base in (b'.text', b'.rdata', b'.data', b'.bss'):
                 out.append(b'\t.section front' + base)
             else:
                 out.append(b'\t' + base)
@@ -377,7 +381,9 @@ def honest_addrs(names):
 
 
 def write_lnk(inc, equs):
-    lnk = ['\torg\t$80010000', 'text\tgroup', 'bss\tgroup\tbss', 'front\tgroup\tover(text)',
+    # `strip` = functions retail's final link removed (LINK_STRIPPED): linked into a non-output group
+    lnk = ['\torg\t$80010000', 'text\tgroup', 'bss\tgroup\tbss', 'front\tgroup\tover(text)', 'strip\tgroup\tbss',
+           '\tsection\tstrip.text,strip',
            '\tsection\t.rdata,text', '\tsection\t.text,text', '\tsection\t.data,text', '\tsection\t.sdata,text',
            '\tsection\t.sbss,bss', '\tsection\t.bss,bss',
            '\tsection\tfront.rdata,front', '\tsection\tfront.text,front', '\tsection\tfront.data,front',

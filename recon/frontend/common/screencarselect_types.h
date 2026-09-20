@@ -204,7 +204,6 @@ struct tScreenCarSelectTwoPlayer : public tScreenCarSelect {
     tDialogBackUpOnly CarDialog;
 
     tScreenCarSelectTwoPlayer();
-    ~tScreenCarSelectTwoPlayer() {}
 };
 
 #ifndef NFS4_SCREENCARSELECT_SCREENCONGRATS_SURFACE
@@ -224,7 +223,6 @@ struct tScreenPinkSlipsCarSelect : public tScreenCarSelectTwoPlayer {
     bool fCardFailed, fExitingScreen;
 
     tScreenPinkSlipsCarSelect();
-    ~tScreenPinkSlipsCarSelect() {}
     void DoMemCardStuff();
 };
 #endif

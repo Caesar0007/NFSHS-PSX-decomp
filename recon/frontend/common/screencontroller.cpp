@@ -4,6 +4,10 @@
 #include "../../lib/nfs4_new.h"
 #include "screencontroller.h"
 
+/* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag (its vtables' 8-byte alignment proves the
+ * section starts there).  An unused inline leaves exactly that behind: the literal is emitted, the body is not. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 /* ScreenController.obj-OWNED globals -- DEFINED here (self-contained; .data=real EXE bytes via
    gen_owned_defs: screenControllerConfig + the 4 Arrow/Text/NumTexts/Controller
    tables). The manual zero-init versions were a faithfulness gap -- now real binary data. */

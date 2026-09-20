@@ -18,8 +18,8 @@
  {
   "obj": "build/recon/frontend/common/fedialog.cpp.o",
   "base": 2147549752,
-  "end": 2147549872,
-  "size": 120,
+  "end": 2147550736,
+  "size": 984,
   "ok": false,
   "regions": [
    "jtbl_80010258"
@@ -46,8 +46,8 @@
  {
   "obj": "build/recon/frontend/common/fescreen.cpp.o",
   "base": 2147554296,
-  "end": 2147554323,
-  "size": 27,
+  "end": 2147554408,
+  "size": 112,
   "ok": true,
   "regions": []
  },
@@ -107,80 +107,80 @@
  {
   "obj": "build/recon/frontend/common/screenmain.cpp.o",
   "base": 2147555456,
-  "end": 2147555504,
-  "size": 48,
+  "end": 2147555584,
+  "size": 128,
   "ok": true,
   "regions": []
  },
  {
   "obj": "build/recon/frontend/common/screenpinkslips.cpp.o",
   "base": 2147555584,
-  "end": 2147555629,
-  "size": 45,
+  "end": 2147555712,
+  "size": 128,
   "ok": true,
   "regions": []
  },
  {
   "obj": "build/recon/frontend/common/screenpost.cpp.o",
   "base": 2147555712,
-  "end": 2147555746,
-  "size": 34,
+  "end": 2147555992,
+  "size": 280,
   "ok": true,
   "regions": []
  },
  {
   "obj": "build/recon/frontend/common/screentournselect.cpp.o",
   "base": 2147556744,
-  "end": 2147556777,
-  "size": 33,
+  "end": 2147556864,
+  "size": 120,
   "ok": true,
   "regions": []
  },
  {
   "obj": "build/recon/frontend/common/screentrophyroom.cpp.o",
   "base": 2147556864,
-  "end": 2147556898,
-  "size": 34,
+  "end": 2147556984,
+  "size": 120,
   "ok": true,
   "regions": []
  },
  {
   "obj": "build/recon/frontend/common/screentracks.cpp.o",
   "base": 2147557088,
-  "end": 2147557127,
-  "size": 39,
+  "end": 2147557208,
+  "size": 120,
   "ok": true,
   "regions": []
  },
  {
   "obj": "build/recon/frontend/common/screentrackinfo.cpp.o",
   "base": 2147557208,
-  "end": 2147557236,
-  "size": 28,
+  "end": 2147557320,
+  "size": 112,
   "ok": true,
   "regions": []
  },
  {
   "obj": "build/recon/frontend/common/screentrackrecords.cpp.o",
-  "base": 2147557332,
-  "end": 2147557358,
-  "size": 26,
+  "base": 2147557320,
+  "end": 2147557440,
+  "size": 120,
   "ok": true,
   "regions": []
  },
  {
   "obj": "build/recon/frontend/common/screencontroller.cpp.o",
-  "base": 2147557452,
-  "end": 2147557491,
-  "size": 39,
+  "base": 2147557440,
+  "end": 2147557576,
+  "size": 136,
   "ok": true,
   "regions": []
  },
  {
   "obj": "build/recon/frontend/common/screenaudio.cpp.o",
   "base": 2147557664,
-  "end": 2147557715,
-  "size": 51,
+  "end": 2147557800,
+  "size": 136,
   "ok": false,
   "regions": [
    "jtbl_80012138"
@@ -189,8 +189,8 @@
  {
   "obj": "build/recon/frontend/common/screenmemcard.cpp.o",
   "base": 2147557800,
-  "end": 2147557928,
-  "size": 128,
+  "end": 2147558008,
+  "size": 208,
   "ok": false,
   "regions": [
    "jtbl_800121C0"
@@ -199,8 +199,8 @@
  {
   "obj": "build/recon/frontend/common/screencongrats.cpp.o",
   "base": 2147558008,
-  "end": 2147558053,
-  "size": 45,
+  "end": 2147558576,
+  "size": 568,
   "ok": true,
   "regions": []
  },
@@ -862,8 +862,8 @@
  {
   "obj": "build/recon/frontend/common/screencarselect.cpp.o",
   "base": 2147555992,
-  "end": 2147556188,
-  "size": 196,
+  "end": 2147556744,
+  "size": 752,
   "ok": false,
   "regions": []
  },
@@ -1046,8 +1046,8 @@
  {
   "obj": "build/recon/frontend/common/feapp.cpp.o",
   "base": 2147549240,
-  "end": 2147549336,
-  "size": 96,
+  "end": 2147549432,
+  "size": 192,
   "ok": false,
   "regions": []
  },
@@ -1112,6 +1112,30 @@
   "base": 2147554520,
   "end": 2147554696,
   "size": 176,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/frontend/common/screendisplay.cpp.o",
+  "base": 2147557576,
+  "end": 2147557664,
+  "size": 88,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/frontend/common/screentrophyinfo.cpp.o",
+  "base": 2147556984,
+  "end": 2147557088,
+  "size": 104,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/frontend/common/screenusername.cpp.o",
+  "base": 2147558880,
+  "end": 2147559224,
+  "size": 344,
   "ok": false,
   "regions": []
  }

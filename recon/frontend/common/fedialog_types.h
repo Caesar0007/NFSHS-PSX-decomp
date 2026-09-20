@@ -49,11 +49,7 @@ struct tHelpData {
 };
 #endif
 
-struct tDialogBackUpOnly : public tDialogMessageString {
-    /* overrides (retail vtable), declared on every owner surface */
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    tDialogBackUpOnly(int);
-};
+#include "fedialog_class_backuponly.h"
 
 #ifndef NFS4_FEDIALOG_SCREENCARSELECT_SURFACE
 struct tDialogYesNoMem : public tDialogYesNo {

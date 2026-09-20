@@ -77,7 +77,6 @@ struct tScreenControllerConfig : public tScreen {
     int player;
 
     tScreenControllerConfig();
-    ~tScreenControllerConfig() {}
 };
 
 struct tScreenMain : public tScreen {
@@ -144,7 +143,6 @@ struct tScreenPinkSlipsCarSelect : public tScreenCarSelectTwoPlayer {
     bool fCardFailed, fExitingScreen;
 
     tScreenPinkSlipsCarSelect();
-    ~tScreenPinkSlipsCarSelect() {}
 };
 
 struct tScreenTournSelect : public tScreen {

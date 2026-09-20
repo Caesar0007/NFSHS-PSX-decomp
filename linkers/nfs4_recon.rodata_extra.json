@@ -1,38 +1,5 @@
 [
  {
-  "obj": "build/recon/frontend/common/screentrophyinfo.cpp.o",
-  "section": ".rodata",
-  "base": 2147556996,
-  "end": 2147557001,
-  "size": 5,
-  "ok": true,
-  "unresolved": 0,
-  "words": 1,
-  "q": 1
- },
- {
-  "obj": "build/recon/frontend/common/screendisplay.cpp.o",
-  "section": ".rodata",
-  "base": 2147557576,
-  "end": 2147557583,
-  "size": 7,
-  "ok": true,
-  "unresolved": 0,
-  "words": 1,
-  "q": 1
- },
- {
-  "obj": "build/recon/frontend/common/screenusername.cpp.o",
-  "section": ".rodata",
-  "base": 2147558880,
-  "end": 2147559144,
-  "size": 264,
-  "ok": true,
-  "unresolved": 0,
-  "words": 66,
-  "q": 1
- },
- {
   "obj": "build/recon/game/common/ai.cpp.o",
   "section": ".rodata",
   "base": 2147831204,

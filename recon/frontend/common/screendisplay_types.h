@@ -637,6 +637,9 @@ struct tDialogBase : public tScreen {
 #endif
 };
 
+#ifdef NFS4_SCREENDISPLAY_FEDIALOG_METHODS   /* FEDialog.obj: retail order is Base, Help, MessageString, ... */
+#include "fedialog_class_help.h"
+#endif
 struct tDialogMessageString : public tDialogBase {
     /* overrides (retail vtable), declared on every owner surface */
     void CalculateDimensions();
@@ -656,6 +659,10 @@ struct tDialogMessageString : public tDialogBase {
 #endif
 };
 
+#ifdef NFS4_SCREENDISPLAY_FEDIALOG_METHODS   /* ..., MessageString, BackUpOnly, NoInputMessage, Interactive, ... */
+#include "fedialog_class_backuponly.h"
+#include "fedialog_class_noinput.h"
+#endif
 struct tDialogInteractive : public tDialogMessageString {
     bool ReadyToReturnValue, fCurrentlyRunning;
     /* an explicit inline ctor: retail's derived constructors (tDialogYesNo...) store THIS class's vtable on the way

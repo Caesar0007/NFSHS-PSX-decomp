@@ -8,8 +8,10 @@ import sys
 R = 'C:/Temp/nfs4-decomp/'
 DRY = '--dry' in sys.argv
 VIRT = ('DebounceKeys|ProcessInput|Draw|TransitionOff|TransitionOn|TransitionIsFinished|UpdateTransition|Initialize|IsSubMenu|'
-        'DrawItem|UpdatefOpenHeight|DrawOneSong')
-pat = re.compile(r'\(\((t\w*(?:Menu|InsideBox)\w*) \*\)this\)->(' + VIRT + r')\(')
+        'DrawItem|UpdatefOpenHeight|DrawOneSong|GetShapeInfo|DrawBackground|DrawForeground|PreLoad|Cleanup|CalculateDimensions|'
+        'CalculatePrizes|DrawCongratsMessage|GetCar|DrawVideoWall|InitializeVideoWall|UpdateVideoWall|AllocateAsyncBuffer|FreeAsyncBuffer|'
+        'TurnOffVideoWall|SetDialog|DrawOpponentVideoWall')
+pat = re.compile(r'\(\((t\w*(?:Menu|InsideBox|Screen|Dialog)\w*) \*\)this\)->(' + VIRT + r')\(')
 tot = 0
 for f in glob.glob(R + 'recon/frontend/**/*.cpp', recursive=True):
     s = open(f, encoding='utf-8').read()

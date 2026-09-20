@@ -4,6 +4,10 @@
 #include "screentrackrecords_types.h"
 #include "screentrackrecords_externs.h"
 
+/* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag (its vtables' 8-byte alignment proves the
+ * section starts there).  An unused inline leaves exactly that behind: the literal is emitted, the body is not. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 /* ---- tScreenTrackRecords::GetShapeInfo  (screentrackrec.cpp:67) ---- */
 void tScreenTrackRecords::GetShapeInfo(short &numPermShapes,short &numSwapShapes,
                char **permFileName,char **swapFileName)

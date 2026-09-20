@@ -79,7 +79,6 @@ struct tScreenControllerConfig : public tScreen {
     void DrawArrow(short *);
     int GetHelpText();
     tScreenControllerConfig();
-    ~tScreenControllerConfig() {}
 };
 
 /* These external singleton tags are absent from ScreenController.obj. */

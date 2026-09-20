@@ -799,7 +799,7 @@ void tDialogYesNo::CalculateDimensions()
   /* MATCH (2026-08-26): 46/46 and zero named locals, matching SYM.  The
      elapsed accessor replaces the former iVar2 carrier while preserving the
      retail in-place height update and merged trailing store. */
-  ((tDialogMessageString *)this)->CalculateDimensions();
+  this->tDialogMessageString::CalculateDimensions();
   if (this->MaxH == 0) {
     if (DialogYesNoOpenElapsed(this) < 0x32) {
       this->height = this->height +
@@ -858,17 +858,15 @@ inline tDialogMessageString::tDialogMessageString()
 /* explicit (not synthesized) so that derived constructors store this class's vtable on the way, as retail does */
 inline tDialogInteractive::tDialogInteractive()
 {
+  /* retail zeroes timeOutTicks THREE times in tDialogYesNo's ctor: once per inlined constructor level
+     (MessageString, Interactive, YesNo); the vtable stores between them keep gcc from folding the repeats */
+  timeOutTicks = 0;
+  fCurrentlyRunning = 0;   /* retail zeroes it (+156) BEFORE tDialogYesNo's vtable store: done at this class's level */
 }
 
 tDialogYesNo::tDialogYesNo()
   : tDialogInteractive()
 {
-
-  /* MATCH: oracle emits 3 separate `sw zero,0x78` (timeOutTicks); gcc folds the 2nd of two
-   * adjacent identical plain stores. The volatile-cast keeps the redundant store (codegen-
-   * neutral: same `sw zero,0x78`). Do NOT "simplify" away or the 3rd store disappears (45 vs 46). */
-  *(long *)&this->timeOutTicks = 0;
-  this->fCurrentlyRunning = 0;
   this->ReturnValue = 0;
   this->ReadyToReturnValue = 0;
   return;
@@ -919,7 +917,7 @@ void tDialogYesNo::Draw()
       i = i + 1;
     }
   }
-  ((tDialogMessageString *)this)->Draw();
+  this->tDialogMessageString::Draw();
   return;
 }
 

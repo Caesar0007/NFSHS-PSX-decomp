@@ -3,7 +3,6 @@
  *   Member defs; base ctors via init-lists; manual _vf vtable init.
  */
 #define FEAPP_DEFINE_DIALOG_CTORS
-#pragma implementation "fedialog_timeout_class.h"
 #include "../../lib/nfs4_new.h"
 #include "feapp.h"
 
@@ -55,8 +54,7 @@ inline tDialogHelp::tDialogHelp()
   timeOutTicks = 0x578;
 }
 
-/* the constructor stores live in the helper base (see fedialog_timeout_class.h) */
-inline tDialogMessageStringWithTimeoutInit::tDialogMessageStringWithTimeoutInit()
+inline tDialogMessageStringWithTimeout::tDialogMessageStringWithTimeout()
 {
   timeOutTicks = 0x480;
 }
@@ -294,7 +292,7 @@ void tFEApplication::Redraw()
     if ((tMenuItemGoToMenuNFS4Button *)
         this->fCurrentMenu[0]->fItemList[this->fCurrentMenu[0]->fCurrentItem] ==
         &menuDefs->itemMainTwoPlayerRace) {
-      (&menuDefs->menuMain)->ProcessInput(kPlayerOne,JustOneToPass,emptycommand);
+      menuDefs->menuMain.ProcessInput(kPlayerOne,JustOneToPass,emptycommand);   /* member OBJECT: retail calls it directly (jal) */
     }
   }
   else {
@@ -308,7 +306,7 @@ void tFEApplication::Redraw()
     tInputKeyType JustOneToPass = kInput_KeyType_Down;
     if ((tGlobalMenuDefs *)this->fCurrentMenu[0]->fItemList[this->fCurrentMenu[0]->fCurrentItem]
         == menuDefs) {
-      (&menuDefs->menuMain)->ProcessInput(kPlayerOne,JustOneToPass,emptycommand);
+      menuDefs->menuMain.ProcessInput(kPlayerOne,JustOneToPass,emptycommand);   /* member OBJECT: retail calls it directly (jal) */
     }
   }
   else {

@@ -4,6 +4,10 @@
  */
 #include "screentrophyinfo.h"
 
+/* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag (its vtables' 8-byte alignment proves the
+ * section starts there).  An unused inline leaves exactly that behind: the literal is emitted, the body is not. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 
 /* ---- tScreenTrophyInfo::GetShapeInfo  [SCREENTROPHYINFO.CPP:47-61] ---- */
 void tScreenTrophyInfo::GetShapeInfo(short &numPermShapes,short &numSwapShapes,

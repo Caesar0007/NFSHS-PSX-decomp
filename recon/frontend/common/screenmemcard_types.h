@@ -215,33 +215,10 @@ struct tDrawShapeExtended {
 #if !defined(NFS4_SCREENMEMCARD_TROPHYROOM_SURFACE) && \
     !defined(NFS4_SCREENMEMCARD_TRACKRECORDS_SURFACE) && \
     !defined(NFS4_SCREENMEMCARD_SCREENPOST_SURFACE)
-struct tDialogHelp : public tDialogBase {
-    /* overrides (retail vtable), declared on every owner surface */
-    void CalculateDimensions();
-    void Draw();
-    short variant;
-    char *text[7];
-    int cont[7];
-    short numItems, helpcontrollers, lefttext;
-#ifdef NFS4_SCREENMEMCARD_FEDIALOG_SURFACE
-    void AddItem(short, short);
-    inline void CalculateDimensionsVirtual() { CalculateDimensions(); }
-#endif
-#ifdef NFS4_SCREENMEMCARD_FEAPP_METHODS
-    tDialogHelp();
-#endif
-};
+#include "fedialog_class_help.h"
 
 #include "fedialog_timeout_class.h"   /* own header: scopes the interface/implementation pragmas to this class */
-struct tDialogNoInputMessage : public tDialogMessageString {
-    /* overrides (retail vtable), declared on every owner surface */
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-#ifdef NFS4_SCREENMEMCARD_FEDIALOG_SURFACE
-#endif
-#ifdef NFS4_SCREENMEMCARD_FEAPP_METHODS
-    tDialogNoInputMessage();
-#endif
-};
+#include "fedialog_class_noinput.h"
 #endif
 
 #if !defined(NFS4_SCREENMEMCARD_FEDIALOG_SURFACE) && \

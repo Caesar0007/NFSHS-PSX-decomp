@@ -80,7 +80,6 @@ extern unsigned char  sndpdsafeloop[16];    /* DMA scratch RAM @0x80136DF0, per 
  * 0x00000700, rest zero) -- was a 1-byte .sbss tentative def (W62-A19 3.2's
  * wrong-section class; a genuine wrong runtime value). */
 unsigned char sndpdsafeloop[16] = {0x00, 0x07, 0x00, 0x00}; /* @0x80136DF0 */
-extern void          *snd_user_serve_hook;  /* @0x80148038              */
 
 /* voice-table fields (0x2c stride) -- all live INSIDE the sndpd block (same struct as sdpacket.c) */
 #define DAT_801479f0 (sndpd[0xD8])           /* +0x00 voice base (int fields via &+off) */

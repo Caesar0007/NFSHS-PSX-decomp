@@ -36,7 +36,6 @@ extern unsigned char DAT_80147a18;     /* +0x28 pitch-dirty flag       */
 extern unsigned char sndpd[];          /* driver-state base; voice table starts at +0xd8 */
 
 /* "voice has finished" notifier installed by the host (@0x8014803C) */
-extern void (*snd_voice_done_hook)(void *voice);
 
 /* dependencies in sibling objs */
 extern void         iSNDfreechan(int chan);                       /* salloc  */

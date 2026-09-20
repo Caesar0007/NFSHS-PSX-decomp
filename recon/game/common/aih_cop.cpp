@@ -8,6 +8,7 @@
 #include "../../lib/nfs4_new.h"
 #include "aih_cop_types.h"
 #include "aih_cop_externs.h"
+#include "../../link_stripped.h"
 extern "C" int sprintf(char *, const char *, ...);
 
 extern int AI_elapsedTime;   /* H22: ai.cpp @0x8013C554 (not in this TU's externs).
@@ -683,7 +684,9 @@ void AIHigh_Cop::HighExecute()
            label.  Retail targets: guard1 ==1 -> 0x800643a0, ==4 -> 0x80064268 (guard2
            head, ONE xref, SYM block `{ line 223`).  Open: the construct that gives the
            join a real CODE_LABEL (or LABEL_NUSES 2) at cse time without data. */
-        static void *aihCopFlagsBoundary_ = &&aih_cop_flagsGuard;
+        /* 2026-09-20: the carrier's data word goes to the DISCARDED input section -- it forces the label exactly as
+           before but no longer puts 4 bytes into the image that retail does not have (tools/overlap_audit.py). */
+        static void *aihCopFlagsBoundary_ LINK_STRIPPED_RODATA = &&aih_cop_flagsGuard;
 
         (this->carObj_)->AIFlags = (this->carObj_)->AIFlags & 0xfffffffd;
 

@@ -183,16 +183,10 @@ extern int            sndpsxlimits;         /* base @0x801234D4 (5-int block; +0
  * %hi/%lo(DAT_...) symbols. The standalone-global defs below are KEPT (unused by this TU
  * from here on) only because sdma.c/sdriver.c/slib.c/spchevnt.c/spchpick.cpp elsewhere in
  * the tree still declare/reference them as independent externs -- out of THIS file's scope
- * to retarget; a follow-up should migrate all 6 sites to sndpd-relative macros + delete
- * these standalone defs. Function bodies in THIS file use the HOOK_* macros below instead. */
-extern void (*snd_voice_done_hook)(void *voice);   /* @0x8014803c */
-/* SYM-GLOBAL-CARRIER: snd_voice_done_hook
- * SYM-GLOBAL-CARRIER: snd_user_serve_hook
- * The two adjacent callback slots are exact-VA relocation-backed BSS, while
- * the stripped sndpsxz object contributes no reliable SYM declaration rows. */
- void (*snd_voice_done_hook)(void *voice) = 0;  /* def @0x8014803c */
-             void  *snd_user_serve_hook = 0;               /* def @0x80148038 */
-extern void  *snd_user_serve_hook;                 /* @0x80148038 */
+ * to retarget.  Function bodies in THIS file use the HOOK_* macros below instead. */
+/* 2026-09-20: the standalone `snd_voice_done_hook` / `snd_user_serve_hook` definitions that stood here are GONE.  Nothing
+ * referenced them, and (defined `= 0` under -G4) they were 8 stray .sdata bytes appended past the end of retail's .sdata --
+ * found by tools/overlap_audit.py.  The slots are fields of sndpd (HOOK_* below). */
 extern void  *gPreLoadTicks;                       /* @0x80148040 (fn-ptr) */
 #define HOOK_user_serve  (*(void **)(sndpd + 0x720))          /* @0x80148038, sndpd-relative */
 #define HOOK_voice_done  (*(void (**)(void *))(sndpd + 0x724)) /* @0x8014803c, sndpd-relative */

@@ -67,6 +67,7 @@
 #include "spchevnt.h"
 #include "spchrand.h"
 #include "spchpick.h"
+#include "../../../link_stripped.h"
 
 /* the library globals SPCH_Init / SPCH_Deinit use are owned by spchdata.obj (spchdata.c) */
 
@@ -318,7 +319,9 @@ int SPCH_Init(SPCHSampleRequestFn sampleRequestCb, unsigned int gameNum, int dat
          * => same cc1 + same dep graph is deterministic, so retail's tail graph
          * differed in some way not covered above, OR psq42's sched tie-break
          * differs.  If psq42 ever turns up, test it first. */
-        static void *spchInitBoundary_ = &&spch_live;
+        /* 2026-09-20: the carrier's data word goes to the DISCARDED input section -- it forces the label exactly as
+           before but no longer puts 4 bytes into the image that retail does not have (tools/overlap_audit.py). */
+        static void * const spchInitBoundary_ LINK_STRIPPED_RODATA = &&spch_live;
         iSPCH_InitEventQueue();
 spch_live: ;
         gSPCH_Initialized = 0x1789a34;

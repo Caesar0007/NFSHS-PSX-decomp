@@ -30,6 +30,7 @@ Assembler-input translation (sn_text) touches only zero-byte metadata and sectio
   * the hand-written vtables_*.cpp tables are `.data` in the GNU lane (placed by absolute
     address into retail .rdata); here they become `.rdata` -- measurement-lane deviation.
 """
+import os
 import sys, re, json, subprocess, os, struct
 from pathlib import Path
 from collections import defaultdict, Counter
@@ -44,8 +45,10 @@ RETAIL_SYM_TXT = Path('C:/Temp/claud/dumpsym_clean/dumpsym_src/nfs4-f-v3.txt')
 HONEST_ELF = ROOT / 'build' / 'gen_ld' / 'recon_multdef-ok.elf'
 HONEST_MAP = ROOT / 'build' / 'gen_ld' / 'recon_multdef-ok.map'
 ROM = ROOT / 'rom' / 'nfs4-f.exe'
-OUT = ROOT / 'build' / 'psyq'; OUT.mkdir(parents=True, exist_ok=True)
+GMODE = os.environ.get('NFS4_LANE_G') == '1'   # full-debug lane (see psylink_gmode.py / gdebug_compile.py)
+OUT = ROOT / os.environ.get('NFS4_LANE_OUT', 'build/psyq'); OUT.mkdir(parents=True, exist_ok=True)
 W = ROOT / 'scratchpad' / 'psyq_pipe'
+WOUT = OUT if GMODE else W      # scratch OUTPUTS; inputs (sym_obj_order.json) always come from W
 RET = [('front.rdata', 0x80010000, 0x800128F0), ('front.text', 0x800128F0, 0x80051260),
        ('front.data', 0x80051260, 0x80052B38), ('front.bss', 0x80052B38, 0x80054548),
        ('.rdata', 0x80054548, 0x8005797C), ('.text', 0x8005797C, 0x8010CCD4), ('.data', 0x8010CCD4, 0x8013C54C),
@@ -226,11 +229,15 @@ if '--assemble' in steps:
     ok = bad = 0; fails = []
     rows = honest_sections(); FRONT = front_objects(rows); HONEST_OBJS = {o for _, _, _, o in rows}
     PADS = retail_pads(rows) if '--no-pads' not in sys.argv else {}
-    (W / 'pad8.json').write_text(json.dumps({o: p for o, p in PADS.items()}, indent=0))
+    (WOUT / 'pad8.json').write_text(json.dumps({o: p for o, p in PADS.items()}, indent=0))
     srcs = sorted([*(ROOT / 'recon').rglob('*.cpp'), *(ROOT / 'recon').rglob('*.c')])
     nfront = 0
     for s in srcs:
         sfile = ROOT / 'build' / (s.relative_to(ROOT).as_posix() + '.s')
+        gfile = ROOT / 'build' / 'gdebug' / (s.relative_to(ROOT).as_posix() + '.s')
+        dbg = GMODE and gfile.is_file()
+        if dbg:
+            sfile = gfile
         if not sfile.is_file():
             continue
         rel = s.relative_to(ROOT).as_posix()
@@ -240,7 +247,7 @@ if '--assemble' in steps:
         nfront += front
         tmp = OUT / (rel.replace('/', '__') + '.s'); crlf(sfile, tmp, front=front, pads=PADS.get(bo), g=int(g))
         obj = OUT / objname(rel)
-        cmd = [ASPSX, '-q', f'-G{g}', str(tmp), '-o', str(obj)]
+        cmd = [ASPSX, '-q', *(['-g'] if dbg else []), f'-G{g}', str(tmp), '-o', str(obj)]
         if obj.exists():
             obj.unlink()
         r = subprocess.run(cmd, capture_output=True, text=True, timeout=120, cwd=str(ROOT))
@@ -254,7 +261,7 @@ if '--assemble' in steps:
         if (OUT / n).exists():
             (OUT / n).unlink()
     print('ASPSX ok %d bad %d (front-overlay objects: %d)' % (ok, bad, nfront))
-    (W / 'assemble_fails.json').write_text(json.dumps(fails, indent=0))
+    (WOUT / 'assemble_fails.json').write_text(json.dumps(fails, indent=0))
 
 
 def build_link_order():
@@ -370,7 +377,7 @@ def build_link_order():
             else:
                 print('  gap assemble failed', gname, (r.stdout + r.stderr)[:200])
         i = j
-    (W / 'gap_windows.json').write_text(json.dumps([(g, s, hex(a), hex(b)) for g, s, a, b in gaps], indent=0))
+    (WOUT / 'gap_windows.json').write_text(json.dumps([(g, s, hex(a), hex(b)) for g, s, a, b in gaps], indent=0))
     return inc, missing, placed, gaps
 
 
@@ -407,7 +414,7 @@ def run_psylink():
             (OUT / f).unlink()
     r = subprocess.run([PSYLINK, '/c', '/m', '@nfs4.lnk,nfs4.cpe,nfs4.sym,nfs4.map'], cwd=OUT,
                        capture_output=True, text=True, timeout=600, env=env)
-    log = r.stdout + r.stderr; (W / 'psylink.log').write_text(log)
+    log = r.stdout + r.stderr; (WOUT / 'psylink.log').write_text(log)
     return log
 
 
@@ -415,7 +422,7 @@ if '--link' in steps:
     inc, missing, placed, gaps = build_link_order()
     print('LNK: %d objects, %d retail names without a TU (-> gap objects), %d unmatched objects slotted by honest map'
           % (sum(1 for _, p in inc if p and not p.startswith('<')), len(missing), len(placed)))
-    (W / 'slots.json').write_text(json.dumps(placed, indent=0))
+    (WOUT / 'slots.json').write_text(json.dumps(placed, indent=0))
     write_lnk(inc, {})
     log = run_psylink()
     undef = sorted(set(re.findall(r"Symbol '([^']+)' not defined", log)))
@@ -426,7 +433,7 @@ if '--link' in steps:
     equs = {u: equs[u] for u in undef if u in equs}
     still = [u for u in undef if u not in equs]
     print('undefined after include pass: %d; equ from honest link: %d; unresolvable: %d %s' % (len(undef), len(equs), len(still), still[:10]))
-    (W / 'equ_symbols.json').write_text(json.dumps(equs, indent=0))
+    (WOUT / 'equ_symbols.json').write_text(json.dumps(equs, indent=0))
     write_lnk(inc, equs)
     log = run_psylink()
     # --- phase object: make every section's content start congruent to retail mod 8 ---
@@ -499,7 +506,7 @@ if '--compare' in steps:
         return objs
 
     r = subprocess.run([DUMPSYM, str(OUT / 'nfs4.sym')], capture_output=True, text=True, timeout=600)
-    (W / 'nfs4_sym.txt').write_text(r.stdout)
+    (WOUT / 'nfs4_sym.txt').write_text(r.stdout)
     ours = parse_symtxt(r.stdout); retail = parse_symtxt(RETAIL_SYM_TXT.read_text(errors='replace'))
 
     def by_obj(objs):
@@ -529,5 +536,5 @@ if '--compare' in steps:
         rf = rt[k]['fn']
         rows.append((k, rf, None, None, len(common), dd[:6]))
     rows.sort(key=lambda r: (r[1] or 0))
-    (W / 'compare_rows.json').write_text(json.dumps(rows, indent=0))
+    (WOUT / 'compare_rows.json').write_text(json.dumps(rows, indent=0))
     print('compare_rows.json written (%d objects)' % len(rows))

@@ -46,7 +46,9 @@ def parse(path):
             if d and d.group(1) in ('REG', 'REGPARM', 'AUTO', 'ARG', 'STAT'):
                 v = a if a < 0x80000000 else a - (1 << 32)
                 home = d.group(1) + (':$%d' % a if d.group(1) in ('REG', 'REGPARM') else ':sp%+d' % v if d.group(1) in ('AUTO', 'ARG') else '')
-                cur['locals'].append((d.group(5), home, (d.group(2) + ' ' + (d.group(4) or '')).strip(), cur['depth']))
+                # anonymous tags are numbered per TU (`._148`): the number counts every unnamed type seen before, not comparable
+                ty = re.sub(r'\._\d+', '._N', (d.group(2) + ' ' + (d.group(4) or '')).strip())
+                cur['locals'].append((d.group(5), home, ty, cur['depth']))
     return fns
 
 

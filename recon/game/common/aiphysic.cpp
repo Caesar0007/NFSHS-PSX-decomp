@@ -398,14 +398,14 @@ void AIPhysic_CheckDesiredDirection(Car_tObj *carObj)
 /* ---- AIPhysic_HandleSignalling__FP8Car_tObj  (turn-signal flags in halfwords 0x8B8/0x8BA) ---- */
 void AIPhysic_HandleSignalling(Car_tObj *carObj)
 {
-    int lPos, lDes;
+    int lDes, lPos;
     if (!(carObj->carFlags & 0x10)) return;
-    lPos = carObj->desiredLatPos;
-    lDes = carObj->roadPosition;
-    if (lPos < lDes - 0x40000) {
+    lDes = carObj->desiredLatPos;
+    lPos = carObj->roadPosition;
+    if (lDes < lPos - 0x40000) {
         carObj->render.signalLight[0] = (short)(*(unsigned short *)&carObj->render.signalLight[0] | 0x80);
         carObj->render.signalLight[1] = 0;
-    } else if (lDes + 0x40000 < lPos) {
+    } else if (lPos + 0x40000 < lDes) {
         carObj->render.signalLight[1] = (short)(*(unsigned short *)&carObj->render.signalLight[1] | 0x80);
         carObj->render.signalLight[0] = 0;
     } else {

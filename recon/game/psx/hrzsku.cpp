@@ -690,7 +690,7 @@ void Hrz_SetLightingPosInSky(DRender_tView *Vi)
 void Hrz_BuildForkLightning(Draw_DCache *sd)
 
 {
-  u_char i;
+  char i;   /* retail SYM: CHAR */
   tHrz_LightningFork *fork;
   DVECTOR pos;
   DVECTOR screenPos;

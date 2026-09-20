@@ -6149,8 +6149,8 @@ gte_ldv3(((char *)sd + 0x15c),((char *)sd + 0x16c),((char *)sd + 0x17c));
   gte_rtpt();
   prim = &sd->GT4Prim;
   {
-    u_long a;
-    u_long b;
+    long a;   /* retail SYM: LONG */
+    long b;
 
     a = *(u_long *)&prim->r1;
     b = *(u_long *)&prim->r0;

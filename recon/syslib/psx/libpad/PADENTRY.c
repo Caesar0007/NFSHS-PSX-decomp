@@ -40,6 +40,12 @@ void _padSetAct(_PadDev *info, unsigned char *data, int len); /* PADCMD @0x80105
  * MATCH (W80-root): PASS 8/8 with the authentic per-function GCC 2.7.2
  * identity.  The same source on the 2.8-family compiler puts the stack
  * restore in the jr delay slot and leaves a four-diff epilogue. */
+#include "../../../link_stripped.h"
+/* PADENTRY.obj +0 (LINK-STRIPPED) : PadChkVsync -- retail's object text starts at PadStartCom */
+extern int PadChkVsync(void) LINK_STRIPPED;
+extern int _padChkVsync(void);
+extern int PadChkVsync(void) { return _padChkVsync(); }
+
 void PadStartCom(void) { _padStartCom(); }
 
 /* @0x800EFE80 : PadStopCom -- MATCH 8/8 on the same GCC 2.7.2 identity. */

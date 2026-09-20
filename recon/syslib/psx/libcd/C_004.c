@@ -43,3 +43,17 @@ extern void data_ready_callback(void)
         ((void (*)())StFunc1)();
     StFinalSector = 0;
 }
+
+#include "../../../link_stripped.h"
+/* C_004.obj tail (LINK-STRIPPED) : StGetBackloc -- position + frame count of the last sector the ring took */
+extern int StGetBackloc(CdlLOC *loc) LINK_STRIPPED;
+extern int CdPosToInt(CdlLOC *p);
+extern CdlLOC *CdIntToPos(int i, CdlLOC *p);
+
+extern int StGetBackloc(CdlLOC *loc)
+{
+    if (StMode != 0)
+        return -1;
+    CdIntToPos(CdPosToInt(&fp_2) + 1, loc);
+    return D_801489D4;
+}

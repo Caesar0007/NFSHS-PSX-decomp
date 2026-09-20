@@ -236,6 +236,54 @@
    "function": "DecDCTinCallback",
    "sdk": "LIBPRESS/DecDCTinCallback",
    "evidence": "PsyQ 4.3 libpress LIBPRESS.obj @632+36; retail anchors (address - SDK offset) drop by exactly the unlabelled sizes across it"
+  },
+  {
+   "object": "build/recon/syslib/psx/libapi/COUNTER.c.o",
+   "function": "StopRCnt",
+   "sdk": "LIBAPI/StopRCnt",
+   "evidence": "PsyQ 4.3 libapi COUNTER.obj @260+52; the retail object text ends with StartRCnt (tail stripped)"
+  },
+  {
+   "object": "build/recon/syslib/psx/libapi/COUNTER.c.o",
+   "function": "ResetRCnt",
+   "sdk": "LIBAPI/ResetRCnt",
+   "evidence": "PsyQ 4.3 libapi COUNTER.obj @312+56; tail stripped with StopRCnt"
+  },
+  {
+   "object": "build/recon/syslib/psx/libcd/C_004.c.o",
+   "function": "StGetBackloc",
+   "sdk": "LIBCD/StGetBackloc",
+   "evidence": "PsyQ 4.3 libcd C_004.obj tail; the retail object text ends with data_ready_callback"
+  },
+  {
+   "object": "build/recon/syslib/psx/libpad/PADENTRY.c.o",
+   "function": "PadChkVsync",
+   "sdk": "LIBPAD/PadChkVsync",
+   "evidence": "PsyQ 4.3 libpad PADENTRY.obj @0+32; the retail object text starts at PadStartCom (head stripped)"
+  },
+  {
+   "object": "build/recon/syslib/psx/libgpu/EXT.c.o",
+   "function": "LoadTPage",
+   "sdk": "LIBGPU/LoadTPage",
+   "evidence": "PsyQ 4.3 libgpu EXT.obj @0+232; the retail object text starts at SetDefDrawEnv (head stripped)",
+   "open_diff": 13,
+   "note": "OPEN: SDK = `andi v0,v0,0xffff` BEFORE the register restores AND `addiu sp` in the jr delay slot; 2.8.x rungs give the delay slot but schedule the andi after the restores, 2.7.2 / 2.6.3 give the andi but leave the delay slot empty (3 words); no available rung gives both"
+  },
+  {
+   "object": "build/recon/syslib/psx/libgpu/EXT.c.o",
+   "function": "LoadClut",
+   "sdk": "LIBGPU/LoadClut",
+   "evidence": "PsyQ 4.3 libgpu EXT.obj @232+100; the retail object text starts at SetDefDrawEnv (head stripped)",
+   "open_diff": 4,
+   "note": "OPEN: SDK = `andi v0,v0,0xffff` BEFORE the register restores AND `addiu sp` in the jr delay slot; 2.8.x rungs give the delay slot but schedule the andi after the restores, 2.7.2 / 2.6.3 give the andi but leave the delay slot empty (3 words); no available rung gives both"
+  },
+  {
+   "object": "build/recon/syslib/psx/libgpu/EXT.c.o",
+   "function": "LoadClut2",
+   "sdk": "LIBGPU/LoadClut2",
+   "evidence": "PsyQ 4.3 libgpu EXT.obj @332+100; the retail object text starts at SetDefDrawEnv (head stripped)",
+   "open_diff": 4,
+   "note": "OPEN: SDK = `andi v0,v0,0xffff` BEFORE the register restores AND `addiu sp` in the jr delay slot; 2.8.x rungs give the delay slot but schedule the andi after the restores, 2.7.2 / 2.6.3 give the andi but leave the delay slot empty (3 words); no available rung gives both"
   }
  ]
 }

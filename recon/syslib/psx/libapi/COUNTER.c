@@ -96,3 +96,24 @@ extern long StartRCnt(unsigned long spec)
     ((unsigned long *)RCnt_ctrl)[1] |= RCnt_irq[i];
     return i < 3;
 }
+
+#include "../../../link_stripped.h"
+/* COUNTER.obj +260 / +312 (LINK-STRIPPED): retail's object text ends with StartRCnt */
+extern long StopRCnt(unsigned long spec) LINK_STRIPPED;
+extern long ResetRCnt(unsigned long spec) LINK_STRIPPED;
+
+extern long StopRCnt(unsigned long spec)
+{
+    long i = spec & 0xffff;
+    ((unsigned long *)RCnt_ctrl)[1] &= ~RCnt_irq[i];
+    return 1;
+}
+
+extern long ResetRCnt(unsigned long spec)
+{
+    long i = spec & 0xffff;
+    if (i >= 3)
+        return 0;
+    ((volatile Counter *)RCnt_regs)[i].rootCounter = 0;
+    return 1;
+}

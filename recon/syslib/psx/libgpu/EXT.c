@@ -37,6 +37,55 @@ typedef struct {
     u_char pad0, pad1;
 } DISPENV;
 
+#include "../../../link_stripped.h"
+/* EXT.obj head (LINK-STRIPPED): LoadTPage @0, LoadClut @232, LoadClut2 @332 -- retail's object text starts at SetDefDrawEnv */
+extern unsigned short LoadTPage(unsigned long *pix, int tp, int abr, int x, int y, int w, int h) LINK_STRIPPED;
+extern unsigned short LoadClut(unsigned long *clut, int x, int y) LINK_STRIPPED;
+extern unsigned short LoadClut2(unsigned long *clut, int x, int y) LINK_STRIPPED;
+extern int LoadImage(RECT *rect, unsigned long *p);
+extern unsigned short GetTPage(int tp, int abr, int x, int y);
+extern unsigned short GetClut(int x, int y);
+
+extern unsigned short LoadTPage(unsigned long *pix, int tp, int abr, int x, int y, int w, int h)
+{
+    RECT rect;
+
+    rect.x = x;
+    rect.y = y;
+    rect.h = h;
+    switch (tp) {
+    case 0: rect.w = w / 4; break;
+    case 1: rect.w = w / 2; break;
+    case 2: rect.w = w; break;
+    }
+    LoadImage(&rect, pix);
+    return GetTPage(tp, abr, x, y);
+}
+
+extern unsigned short LoadClut(unsigned long *clut, int x, int y)
+{
+    RECT rect;
+
+    rect.x = x;
+    rect.y = y;
+    rect.w = 256;
+    rect.h = 1;
+    LoadImage(&rect, clut);
+    return GetClut(x, y);
+}
+
+extern unsigned short LoadClut2(unsigned long *clut, int x, int y)
+{
+    RECT rect;
+
+    rect.x = x;
+    rect.y = y;
+    rect.w = 16;
+    rect.h = 1;
+    LoadImage(&rect, clut);
+    return GetClut(x, y);
+}
+
 /* @0x800F222C : fill a DRAWENV with a sensible default (clip rect x,y,w,h; dither on; draw-to-
  *   display chosen by mode-dependent height threshold; default tpage = 10; no background fill). */
 DRAWENV *SetDefDrawEnv(DRAWENV *env, int x, int y, int w, int h)

@@ -103,10 +103,16 @@ struct SceneElem {
 struct SceneSortedElem { int slice_; SceneElem *se; };
 struct AnimDef { int type, numPieces, objDefIndex, baseAnim, animIndex; };
 
-struct ObjectAnim { __vtbl_ptr_type (*_vf)[3]; };
-struct ObjectFinishedMultiAnim { ObjectAnim _base_ObjectAnim; };
-struct ObjectFinishedSignAnim {
-    ObjectAnim _base_ObjectAnim;
+struct DRender_tView;
+struct Draw_DCache;
+/* object.cpp's polymorphic family, as this surface needs it: virtual dtor [slot 1], pure Draw [slot 2] */
+struct ObjectAnim {
+    virtual ~ObjectAnim();
+    virtual int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset) = 0;
+};
+struct ObjectFinishedMultiAnim : public ObjectAnim { int Draw(DRender_tView *, Draw_DCache *, int); };
+struct ObjectFinishedSignAnim : public ObjectAnim {
+    int Draw(DRender_tView *, Draw_DCache *, int);
     matrixtdef finalMatrix;
     Trk_ObjectDef *objDef;
     Trk_CollideBoomInst *objCollideInstance;

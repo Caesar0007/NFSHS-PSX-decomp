@@ -4094,8 +4094,7 @@ gte_SetTransMatrix(transMat);
         else {
           ObjectAnim *anim; /* SYM-CODEGEN-CARRIER: anim -- single-evaluation virtual-dispatch receiver; SYM omits optimized arm locals */
           anim = Object_GetAnim(simObjs + ((u_char *)objInstance)[0x22]);
-          (*(*anim->_vf)[2].pfn)
-                    ((int)&anim->_vf + (int)(*anim->_vf)[2].delta,Vi,sd,objectOffset);
+          anim->Draw(Vi,sd,objectOffset);
         }
       }
       objInstance = (Trk_SimpleInst *)((int)objInstance + (int)objInstance->size);
@@ -4843,8 +4842,7 @@ DrawWChunkFacets_emitObj:
            * `addu v1,v0,zero` copy + the whole v0/v1 rotation.  32 -> 19. */
           { ObjectAnim *anim = Object_GetAnim(
                 simObjs + ((Trk_CollideBoomInst *)objInstance)->simIndex);
-          (*(*anim->_vf)[2].pfn)
-                    ((int)&anim->_vf + (int)(*anim->_vf)[2].delta,Vi,0x1f800000,objectOffset);
+          anim->Draw(Vi,(Draw_DCache *)0x1f800000,objectOffset);
           }
           break;
         }

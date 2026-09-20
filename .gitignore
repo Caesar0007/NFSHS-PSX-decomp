@@ -62,3 +62,4 @@ tools/duckstation/api-runtime/
 # The reusable tools that grew there live in tools/psyq_pipe/.
 /scratchpad/
 /scratch/
+/catalog_drafts/

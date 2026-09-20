@@ -1,6 +1,6 @@
 # SYM match — making the source agree with the retail `NFS4.SYM`
 
-Status as of 2026-09-20. Current full-debug board: `build/psyq_g/symtree_report.json`.
+Status as of 2026-09-21. Current full-debug board: `build/psyq_g/symtree_report.json`.
 
 ## Why this exists
 
@@ -26,8 +26,8 @@ the honest link stays at 0 diff.
 |---|---|
 | Retail functions with debug records | 2570 |
 | Compared (present on both sides) | 2565 |
-| **Match implemented function checks (CLEAN)** | **1639** |
-| Differ (DIRTY) | 926 |
+| **Match implemented function checks (CLEAN)** | **1641** |
+| Differ (DIRTY) | 924 |
 | Files whose compared functions are all CLEAN | 46 of 177 |
 
 The effort started at 1499 clean. The 5 retail functions not compared are the EA pad library's `PAD.C`
@@ -110,6 +110,36 @@ honest-link ELF/map. Cross-version optimized-away names are receipted, not
 claimed uniquely recoverable from the NFS4 SYM.
 Receipt: `scratchpad/sym_aiworld_tail_20260920/README.md`.
 
+`CopSpeak_LoadNextRequest` now restores loop-local r/bnk, the combined loop
+condition, compound asynchronous-lookup conditions and separate file-error
+call/test. It is native-contract CLEAN with all125 instruction-relative SLD
+lines, lexical-block line fields and the70-line span exact. COPSPEAK improves
+17/27 ->18/27 CLEAN while staying27/27 byte-PASS. At that checkpoint strict SLD
+was only2/27 exact, so old `SLD-VERIFIED` breadcrumbs do not imply whole-function
+instruction-line agreement. The pre-existing volatile queue-ready read remains
+an explicit source-recovery item; inferred result name `error` is labeled and
+not claimed as a native SYM spelling. EnginePatch/PlayNextRequest experiments
+were restored after failing byte or native-parameter checks.
+Receipt: `scratchpad/sym_copspeak_engine_20260920/README.md`.
+
+The radio-static trio now restores its native for-declaration ownership and
+lexical-block line fields. RadioStaticActive loses two redundant scopes and
+restores volume/patnum order: COPSPEAK19/27 CLEAN, still27/27 byte-PASS.
+RadioStaticInit and RadioStaticSquelch are now fully relative-SLD exact, raising
+the strict whole-TU count to4/27. Active has two explicit loop-back line-tag
+mismatches remaining (relative35 vs36 at+0x120/+0x124); an explicit continue
+fixed those but displaced native scope ends, so that candidate was not retained.
+Receipt: `scratchpad/sym_copspeak_static_20260921/README.md`.
+
+`CopSpeak_Play` now gives noise its native clamped-input role and vol the final
+narration-volume role. Two excess scopes and the MOVED noise finding are gone;
+all86 relative SLD instruction tags, native block lines and the54-line span
+agree. One explicit EXTRA remains: scaled. Its old generic codegen-carrier
+necessity claim was replaced by an unresolved review note; direct-expression
+trials do not prove that a distinct source object was required. Whole-TU strict
+SLD exactness is now5/27. This is progress without claiming the function CLEAN.
+Receipt: `scratchpad/sym_copspeak_play_20260921/README.md`.
+
 ## Tool set
 
 All tools are in `tools/psyq_pipe/` unless a path is given; their generated outputs go to the local, git-ignored `scratchpad/psyq_pipe/`. Nothing here edits `tools/build.py`.
@@ -183,15 +213,15 @@ A function can be in several classes.
 
 | Class | Functions | Meaning |
 |---|---|---|
-| BLOCKS | 743 | The scope tree differs. In 540 of them retail has **more** scopes than we do, in 174 fewer, in 29 the count is equal but nesting or addresses differ. |
+| BLOCKS | 740 | The scope tree differs. In 539 of them retail has **more** scopes than we do, in 172 fewer, in 29 the count is equal but nesting or addresses differ. |
 | EXTRA | 480 (1301 locals) | We declare a local retail does not have: an invented carrier, a decompiler temporary, or an expression retail wrote through an inline call. |
 | MISSING | 251 (359 locals) | Retail has a local we lack. 180 of the 359 are `this` of an inlined member call. |
-| MOVED | 83 | Same name, different register or stack slot: our local plays a different role than retail's. |
+| MOVED | 82 | Same name, different register or stack slot: our local plays a different role than retail's. |
 | ORDER | 8 | Declaration order differs (only reported when no local is extra or missing). |
 | TYPE | 1 | Same name and home, different type. |
 | FRAME | 1 | Frame size differs. |
 
-Most common combinations: BLOCKS only 294; BLOCKS + EXTRA 179; EXTRA only 137; BLOCKS + EXTRA + MISSING 110;
+Most common combinations: BLOCKS only 292; BLOCKS + EXTRA 179; EXTRA only 138; BLOCKS + EXTRA + MISSING 110;
 BLOCKS + MISSING 95.
 
 Files with the most differing functions: `SPEECH.CPP` 44 of 87, `HUD.CPP` 33 of 62, `FEMENUOPTIONS.CPP` 33 of 83,
@@ -232,7 +262,7 @@ in the `AIHigh_BasicPerp` constructor. The bytes moved and the tree was still on
   shape can be reproduced, and only by a local that really gets eliminated. Example still open:
   `Stats_TrackEndGame`'s scope `+150..+1c8`, and the intermediate scope in `AIHigh_Traffic::CheckForCops`.
 
-### 3. Scopes we have and retail does not (BLOCKS, 174 functions)
+### 3. Scopes we have and retail does not (BLOCKS, 172 functions)
 
 Usually braces added to steer code generation, or inline helpers of ours that retail did not have. 55 files also carry the
 `if (0) sprintf((char *)0,"SimpleMem")` literal carrier in their first function; how retail got that unreferenced string
@@ -247,7 +277,7 @@ locals were all unnecessary.
 
 Only 36 of the 1301 extra locals still have decompiler names (`iVar1`, `piVar2`); the rest look deliberate.
 
-### 5. MOVED (83)
+### 5. MOVED (82)
 
 Same name, different home. The bytes match, so our variable of that name is not the quantity retail's was. Typical cause:
 names swapped between two locals (`AIPhysic_HandleSignalling`: `lPos`/`lDes`; `DrawC_ShadowPrimClip`: `uv2`/`uv3` are

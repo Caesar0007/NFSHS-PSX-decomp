@@ -69,57 +69,58 @@ void CopSpeak_Debug(void);
 void CopSpeak_RadioStaticInit(void)
 
 {
-
-  for (int i = 0; i < 2; i = i + 1) {
+  for (int i = 0; i < 2; i = i + 1)
+  {
     CopSpeak_gStaticHandle[i] = -1;
     *(signed char *)(CopSpeak_gStaticPatch + i) = -1;
   }
-  return;
 }
 
 /* ---- CopSpeak_RadioStaticActive__Fi  [COPSPEAK.CPP:210-252] SLD-VERIFIED ---- */
 void CopSpeak_RadioStaticActive(int noise)
 
 {
+
+
+
+
+
+
+
+
   int numpatches = 3;
 
-  if (noise > 0x60) {
+  if (noise > 0x60)
     numpatches = 4;
-  }
-  {
-    int i;
 
-    for (i = 0; i < 2; i++) {
-      if (CopSpeak_gStaticPatch[i] == -1) {
-        CopSpeak_gStaticPatch[i] =
-            (u_int)random() % (u_int)numpatches;
-      }
+  for (int i = 0; i < 2; i++) {
+
+    if (CopSpeak_gStaticPatch[i] == -1)
+      CopSpeak_gStaticPatch[i] = (u_int)random() % (u_int)numpatches;
+
+    if (CopSpeak_gStaticHandle[i] == -1)
+    {
+      int bhandle = AudioCmn_GetAsyncSfx(2,CopSpeak_gStaticPatch[i] + 0x2f,false);
+
+      if (bhandle >= 0)
       {
-        if (CopSpeak_gStaticHandle[i] == -1) {
-          int bhandle = AudioCmn_GetAsyncSfx
-              (2,CopSpeak_gStaticPatch[i] + 0x2f,false);
+        SNDPLAYOPTS playopts;
+        SNDplaysetdef(&playopts);
+        playopts.bhandle = (u_char)bhandle;
+        playopts.vol = (u_char)(gMasterFENarrationLevel * ((noise << 7) + noise) >> 0xe);
+        playopts.patnum = 0;
+        CopSpeak_gStaticHandle[i] = SNDplay(&playopts);
+        CopSpeak_gStaticPatch[i] = -1;
 
-          if (bhandle >= 0) {
-            SNDPLAYOPTS playopts;
-
-            SNDplaysetdef(&playopts);
-            playopts.bhandle = (u_char)bhandle;
-            playopts.patnum = 0;
-            playopts.vol =
-                (u_char)(gMasterFENarrationLevel *
-                         ((noise << 7) + noise) >> 0xe);
-            CopSpeak_gStaticHandle[i] = SNDplay(&playopts);
-            CopSpeak_gStaticPatch[i] = -1;
-            if (CopSpeak_gStaticHandle[i] < 0) {
-              AudioClc_SndError(CopSpeak_gStaticHandle[i]);
-            }
-          }
-        }
-        else if (SNDover(CopSpeak_gStaticHandle[i]) != 0) {
-          CopSpeak_gStaticHandle[i] = -1;
+        if (CopSpeak_gStaticHandle[i] < 0)
+        {
+          AudioClc_SndError(CopSpeak_gStaticHandle[i]);
         }
       }
     }
+
+    else if (SNDover(CopSpeak_gStaticHandle[i]) != 0)
+      CopSpeak_gStaticHandle[i] = -1;
   }
 }
 
@@ -127,14 +128,14 @@ void CopSpeak_RadioStaticActive(int noise)
 void CopSpeak_RadioStaticSquelch(void)
 
 {
-
-  for (int i = 0; i < 2; i++) {
-    if (CopSpeak_gStaticHandle[i] != -1) {
+  for (int i = 0; i < 2; i++)
+  {
+    if (CopSpeak_gStaticHandle[i] != -1)
+    {
       SNDstop(CopSpeak_gStaticHandle[i]);
       CopSpeak_gStaticHandle[i] = -1;
     }
   }
-  return;
 }
 
 /* ---- CopSpeak_InitRequest__FP17CopSpeak_tRequest  [COPSPEAK.CPP:276-285] SLD-VERIFIED ---- */
@@ -593,61 +594,57 @@ int CopSpeak_Play(CopSpeak_tRequest *r,int handle)
 {
   SNDPLAYOPTS playopts;
   int vol;
-  int azimuth;
+  int azimuth = 0;
   int noise;
+  int scaled; /* UNRESOLVED: extra retail-absent narration temporary; no original-name or required-object claim. */
 
-  azimuth = 0;
+
+
+
+
+
+
+
   SNDplaysetdef(&playopts);
-  if (*(signed char *)&r->bank == '\x03') {
+
+  if (*(signed char *)&r->bank == '\x03')
+  {
     playopts.bhandle = *(u_char *)&gSndBnk[3].bnkID;
     playopts.patnum = r->phrase;
   }
-  else {
+  else
+  {
     playopts.bhandle = (u_char)handle;
     playopts.patnum = 0;
   }
-  vol = 0x30;
-  if (r->car != (Car_tObj *)0x0) {
-    noise = *(short *)((char *)r->car + 0x8e) + 0x20;
-    vol = 0x7f;
-    if (noise < 0x80) {
-      vol = noise;
-    }
-  }
-  if (r->filehandle == Copspeak_gBank[2].FileHandle) {
-    noise = (gMasterFENarrationLevel * 0x81 >> 7) << 1;
-    vol = 0x7f;
-    if (noise < 0x80) {
-      vol = noise;
-    }
-  }
-  else {
-    /* SYM-CODEGEN-CARRIER: scaled -- the separate narration-scale value is
-     * absent from retail's optimized local homes but preserves the `$v1`
-     * arithmetic web independently of SYM's `$a0` noise/vol web.  Reusing
-     * noise keeps 86 instructions yet produces 46 authoritative diffs. */
-    int scaled = 0x80 - (vol >> 2);
-    vol = gMasterFENarrationLevel * ((scaled << 7) + scaled) >> 0xe;
-  }
+  noise = 0x30; if (r->car != (Car_tObj *)0x0)
+    noise = (0x7f < *(short *)((char *)r->car + 0x8e) + 0x20) ? 0x7f : *(short *)((char *)r->car + 0x8e) + 0x20;
+
+
+
+  if (r->filehandle == Copspeak_gBank[2].FileHandle)
+    vol = (0x7f < ((gMasterFENarrationLevel * 0x81 >> 7) << 1)) ? 0x7f : (gMasterFENarrationLevel * 0x81 >> 7) << 1;
+  else
+    scaled = 0x80 - (noise >> 2), vol = gMasterFENarrationLevel * ((scaled << 7) + scaled) >> 0xe;
+
+
+
+
   playopts.bend = 0x40;
   playopts.vol = (u_char)vol;
   playopts.use3dpos = Audio_direct3davail != 0;
-  if (Audio_direct3davail != 0) {
+
+
+
+
+
+  if (Audio_direct3davail != 0)
     playopts.azimuth = (u_short)azimuth;
-  }
-  else {
-    if (gStereoMode != 0) {
-      if (azimuth - 0x4000U < 0x8000) {
-        playopts.pan = (u_char)((0xbfff - azimuth) >> 8);
-      }
-      else {
-        playopts.pan = (u_char)((u_int)(azimuth + 0x4000) >> 8);
-      }
-    }
-    else {
-      playopts.pan = 0x40;
-    }
-  }
+  else if (gStereoMode != 0)
+    playopts.pan = azimuth - 0x4000U < 0x8000 ? (u_char)((0xbfff - azimuth) >> 8) : (u_char)((u_int)(azimuth + 0x4000) >> 8);
+  else
+    playopts.pan = 0x40;
+
   return SNDplay(&playopts);
 }
 
@@ -732,69 +729,74 @@ int CopSpeak_BankVolume(CopSpeak_tRequest *r)
 void CopSpeak_LoadNextRequest(void)
 
 {
-  CopSpeak_tRequest *r;
-  CopSpeak_tBankHeader *bnk;
 
-  if (AudioMus_Buffered() < AudioMus_Threshold()) {
-    return;
-  }
-  while (true) {
-    if (CopSpeak_gQueueLoad == CopSpeak_gQueueHead) {
-      return;
-    }
-    if (7 < ((CopSpeak_gQueueLoad -
-              (*(volatile int *)&CopSpeak_gQueueReady - 0x40)) & 0x3f)) {
-      return;
-    }
-    r = &CopSpeak_gQueue[CopSpeak_gQueueLoad];
+  if (AudioMus_Buffered() < AudioMus_Threshold()) return;
+
+
+  while (CopSpeak_gQueueLoad != CopSpeak_gQueueHead && ((CopSpeak_gQueueLoad - (*(volatile int *)&CopSpeak_gQueueReady - 0x40)) & 0x3f) < 8)
+  {
+    CopSpeak_tRequest *r = &CopSpeak_gQueue[CopSpeak_gQueueLoad];
+    CopSpeak_tBankHeader *bnk;
     if (*(signed char *)&r->bank < 0) {
       CopSpeak_Skip();
       continue;
     }
-    if (*(signed char *)&r->bank == 3) {
+
+    if (*(signed char *)&r->bank == 3)
+    {
       r->buffer = -1;
-      CopSpeak_gQueueLoad =
-          CopSpeak_gQueueLoad < 0x3f ? CopSpeak_gQueueLoad + 1 : 0;
+      CopSpeak_gQueueLoad = CopSpeak_gQueueLoad < 0x3f ? CopSpeak_gQueueLoad + 1 : 0;
+      continue;
+    }
+    if ((r->sfx == 0) && (r->phrase >= 0) && AudioCmn_GetAsyncSfx(*(signed char *)&r->bank,r->phrase,true) >= 0)
+    {
+      r->buffer = -1;
+      CopSpeak_gQueueLoad = CopSpeak_gQueueLoad < 0x3f ? CopSpeak_gQueueLoad + 1 : 0;
+      continue;
+    }
+    if ((r->sfx == 0) && (AudioCmn_GetAsyncSfx(*(signed char *)&r->bank,r->offset + 0x4000,true) >= 0))
+    {
+      r->buffer = -1;
+      CopSpeak_gQueueLoad = CopSpeak_gQueueLoad < 0x3f ? CopSpeak_gQueueLoad + 1 : 0;
       continue;
     }
 
-    if ((r->sfx == 0) && (r->phrase >= 0)) {
-      if (AudioCmn_GetAsyncSfx(*(signed char *)&r->bank,r->phrase,true) >= 0) {
-        r->buffer = -1;
-        CopSpeak_gQueueLoad =
-            CopSpeak_gQueueLoad < 0x3f ? CopSpeak_gQueueLoad + 1 : 0;
-        continue;
-      }
-    }
-    if ((r->sfx == 0) &&
-        (AudioCmn_GetAsyncSfx(*(signed char *)&r->bank,
-                              r->offset + 0x4000,true) >= 0)) {
-      r->buffer = -1;
-      CopSpeak_gQueueLoad =
-          CopSpeak_gQueueLoad < 0x3f ? CopSpeak_gQueueLoad + 1 : 0;
-      continue;
-    }
 
-    if ((CopSpeak_gBuffer == (char *)0x0) || (CopSpeak_BankVolume(r) == 0) ||
-        (r->size == 0) || (r->size > 0x7ffc)) {
+    if ((CopSpeak_gBuffer == (char *)0x0) || (CopSpeak_BankVolume(r) == 0) || (r->size == 0) || (r->size > 0x7ffc))
+    {
       CopSpeak_Skip();
       continue;
     }
     CopSpeak_Alloc(r);
-    if (r->buffer < 0) {
-      return;
-    }
+
+    if (r->buffer < 0) return;
+
+
+
+
+
+
     bnk = (CopSpeak_tBankHeader *)(CopSpeak_gBuffer + r->buffer);
+
     bnk->id = 0x4c494146;
-    r->ophandle = FILE_read(r->filehandle,(void *)r->offset,
-                            CopSpeak_gBuffer + r->buffer,r->size,
-                            100,(void *)0x0);
+
+
+    r->ophandle = FILE_read(r->filehandle,(void *)r->offset,CopSpeak_gBuffer + r->buffer,r->size,100,(void *)0x0);
+
     CopSpeak_gHandleCount++;
-    if (FILE_operror(r->ophandle) > 0) {
-      continue;
-    }
-    CopSpeak_gQueueLoad =
-        CopSpeak_gQueueLoad < 0x3f ? CopSpeak_gQueueLoad + 1 : 0;
+
+    int error = FILE_operror(r->ophandle); /* Inferred API-result name, not a recovered SYM identifier; SLD1172/1174 separates call/test. Optimizes out. */
+
+    if (error > 0) continue;
+
+
+
+
+
+
+
+
+    CopSpeak_gQueueLoad = CopSpeak_gQueueLoad < 0x3f ? CopSpeak_gQueueLoad + 1 : 0;
   }
 }
 

@@ -110,8 +110,8 @@ static int hoff[2] = { 0x4d, 1 };
 void InGame_ResetPSXController(int player,int config)
 
 {
-  int type;
   int *h;
+  int type;
 
   type = gPadinfo.buf[player * 4].ID;
   h = Input_gHandler;

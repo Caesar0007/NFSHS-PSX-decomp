@@ -863,8 +863,8 @@ int AIState_Chase::CalculateCloseTargettingAheadSlowDownFactor()
 
 
 {
-  int slowDown;
   int absLongMetersBetween;
+  int slowDown;
 
 
 

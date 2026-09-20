@@ -525,11 +525,11 @@ Car_tObj * AISpeeds_GetPrevAICar(Car_tObj *carObj)
 /* ---- AISpeeds_GetCaravanFactor__FP8Car_tObj  [@0x8006e2d0] ---- */
 int AISpeeds_GetCaravanFactor(Car_tObj *carObj)
 {
+  int slot;   /* SYM: REG INT slot */
   Car_tObj*nextAICar;
   int f_caravan;
   u_int tempRandom;
   Car_tObj*prevAICar;
-  int slot;   /* SYM: REG INT slot */
 
   slot = carObj->AISlot;
   nextAICar = AISpeeds_GetNextAICar(carObj);

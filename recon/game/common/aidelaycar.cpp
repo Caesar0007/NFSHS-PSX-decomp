@@ -79,11 +79,11 @@ void AIDelayCar::Update()
 
 {
 
-  int currentDeltaRoadPosition;
-
   coorddef currentDeltaPosition;
 
   coorddef changeDeltaPosition;
+
+  int currentDeltaRoadPosition;
 
 
 

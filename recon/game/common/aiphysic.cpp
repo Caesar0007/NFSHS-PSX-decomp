@@ -143,9 +143,9 @@ void AIPhysic_HandleShifting(Car_tObj *carObj)
  * SimplePhysics_LatVel clamp-abs residual → __builtin_abs candidate there too.) */
 Gear_t AIPhysic_CalculateGear(Car_tObj *carObj)
 {
+    int hi;
     int speed = __builtin_abs(carObj->currentSpeed);
     Gear_t gear = (Gear_t)carObj->control.gear;
-    int hi;
     if (speed <= 0x1FFFF) {
         gear = 1;
         goto end;

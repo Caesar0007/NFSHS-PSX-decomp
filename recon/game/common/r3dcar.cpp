@@ -271,17 +271,17 @@ Transformer_zScene *
 R3DCar_ReadInCarData(char *filename,Car_tObj *carObj)
 
 {
-  char * filestart;
-  Transformer_zObj *Nobj;
-  int offset;
   int i;
+  int offset;
   char *rawData;
-  char infilename [15];
-  long filesize;
   Transformer_zScene *scene;
+  char * filestart;
+  long filesize;
+  char infilename [15];
   int carType;
   int eScaleX;
   int eScaleY;
+  Transformer_zObj *Nobj;
   
   strcpy(infilename,filename);
   strcat(infilename,".geo");
@@ -392,9 +392,9 @@ void R3DCcar_ReadeMapData(void)
 
 {
   int i;
+  char *ScaneData;
   char *RenderingFileData;
   char name [256];
-  char *ScaneData;
   
   sprintf(name,"%scarmap.dat",Paths_Paths[0x19]);
   i = 0;
@@ -416,9 +416,9 @@ void R3DCcar_ReadTrackShadow(void)
 
 {
   int i;
+  char *ScaneData;
   char *RenderingFileData;
   char name [256];
-  char *ScaneData;
 
   sprintf(name,"%strack.dat",Paths_Paths[0x19]);
   RenderingFileData = (char *)loadfileadr(name,0x10);
@@ -540,10 +540,10 @@ void R3DCar_DeInstantiate3DCar(Car_tObj *carObj)
 void R3DCar_DeInstantiate3DCarMenu(Car_tObj *carObj)
 
 {
-  int countryFlag;
-  char *bigFile;
-  int status;
   int currentCarType;
+  int countryFlag;
+  int status;
+  char *bigFile;
 
   currentCarType = (int)(carObj->render).currentCarType;
   if (-1 < currentCarType) {

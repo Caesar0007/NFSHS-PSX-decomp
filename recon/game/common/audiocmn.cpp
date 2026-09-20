@@ -1280,6 +1280,7 @@ void freeVoiceChannel(int sndPlayer)
    writing through the real struct so every field store's address escapes via &playopts. */
 int AudioCmn_PlayDoppleredSound(int bhandle,int patchNum,int azimuth,int vol,int bend,int doppler)
 {
+  int shandle;
   /* SYM rule-8: only fn-scope shandle (REG $2=v0) + AUTO playopts + block-local bank (a0)
      are named; the vol-select multiplier/level values are ANONYMOUS temps -- per-arm INLINE
      playopts.vol stores below, gcc cross-jumps the identical [lw SFX; subu; mult; sra 14]
@@ -1287,7 +1288,6 @@ int AudioCmn_PlayDoppleredSound(int bhandle,int patchNum,int azimuth,int vol,int
      source would PREVENT that merge shape). gSndBnk[2].bnkID is read twice and CSE'd by
      gcc into $v1 (live to the patchNum==3 recheck) -- no named cache var. */
   SNDPLAYOPTS playopts;
-  int shandle;
 
   SNDplaysetdef(&playopts);
   playopts.bhandle = (char)bhandle;
@@ -1981,9 +1981,9 @@ void AudioCmn_TrafficSkidSFX(int sndPlayer,s_type surface1,s_type surface2,int f
 /* ---- AudioCmn_PlayerHornOn__Fiiiii  [@0x80079444] ---- */
 void AudioCmn_PlayerHornOn(int carIndex,int Distsq,int iFreqIn,int azimuth,int doppler)
 {
+  int iAmpIn;
   int sfx;
   int player;
-  int iAmpIn;
 
   if (AudioCmn_kAudioOn != 0) {
     if (Distsq < 0x1324) {

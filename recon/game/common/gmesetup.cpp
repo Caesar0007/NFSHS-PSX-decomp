@@ -48,10 +48,10 @@ void GameSetup_CleanUp(void);
 void GameSetup_StartUp(int *FrontEndDataStream)
 {
     int i;          /* $a1 -- opcode (reused as the array-store counter) */
+    int *h;         /* $s4 -- Input_gHandler base */
     int *s;         /* $s0 -- data-stream walk pointer */
     int *p;         /* $a0 -- resolved FEI target pointer */
     FEI_tList *l;   /* $v1 -- FEI_gList iterator */
-    int *h;         /* $s4 -- Input_gHandler base */
 
     Input_StartUp();
 

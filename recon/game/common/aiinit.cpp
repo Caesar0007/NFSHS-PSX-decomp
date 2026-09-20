@@ -199,8 +199,8 @@ extern char *D_80116470[];   /* path-table @0x80116470 (Paths_Paths+8) */
 
 void AIInit_LoadConfigs(void)
 {
-  char pathname[100];
   Udff_tInfo *handle;
+  char pathname[100];
 
   sprintf(pathname,"%strafcfg.dat",D_80116470[0]);   /* literal @0x8005522C */
   handle = Udff_Opena((char *)0x0,trafcfg,1);

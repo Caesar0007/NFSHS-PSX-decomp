@@ -25,11 +25,11 @@ int totalAvailMem;   /* tentative: retail emits it AFTER the literal (17B). */
 void Loading_DrawLoadingScreen(void)
 
 {
-  shapetbl *s;
+  char name [255];
   char *f;
   char *g;
   int language;
-  char name [255];
+  shapetbl *s;
 
   language = GameSetup_gData.userSetting.language;
   sprintf(name,"%sLoad%d%c.qps",Paths_Paths[0x19],GameSetup_gData.track,GameSetup_gData.mirrorTrack + 0x61);

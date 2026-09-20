@@ -77,9 +77,9 @@ int CalcObjYawAngle(CCOORD16 *pts)
 void CalcObjExtentPoints(coorddef *cp,CCOORD16 *pts,coorddef *resultPts,tQuat *quat)
 
 {
+  matrixtdef matrix;
   int cpx;
   int cpz;
-  matrixtdef matrix;
   coorddef pt0;
   coorddef pt1;
 
@@ -839,10 +839,10 @@ void GetObjMaxDimensions(Trk_ObjectDef **pObjDefs,Trk_SimpleInst *objInstance,co
 
 {
   Trk_ObjectDef *objDef;
-  int vertCount;
-  CCOORD16 *pts;
   CCOORD16 minDim;
   CCOORD16 maxDim;
+  int vertCount;
+  CCOORD16 *pts;
 
   objDef = pObjDefs[objInstance->pad];
   memset(&minDim,0,8);
@@ -886,8 +886,8 @@ void GetObjMaxDimensions(Trk_ObjectDef **pObjDefs,Trk_SimpleInst *objInstance,co
 void Object_InitIMassObjectInfo(void)
 
 {
-  Trk_AnimateInst *objInst;
   int objIndex;
+  Trk_AnimateInst *objInst;
   
   gNumIMassObjects = 0;
   Object_IMassObjInst = (Object_tIMassObjInfo *)0x0;
@@ -964,8 +964,8 @@ void Object_GetIMassObjectDimensions(int objIndex,coorddef *dimensions)
 void Object_GetIMassObjectMotion(int objIndex,coorddef *cpoint,matrixtdef *orientMat,coorddef *velocity)
 
 {
-  int objTime;
   int timeDiff;
+  int objTime;
 
   objTime = DrawW_GetAnimationTime(Object_IMassObjInst[objIndex].animInst);
   Anim_GetRotPos(Object_IMassObjInst[objIndex].animInst,1,objTime,cpoint,orientMat);
@@ -1167,9 +1167,9 @@ ObjectSignAnim::ObjectSignAnim(coorddef *impactVel,int impactAngle,AnimDef *def,
 
 {
   int vel;
+  coorddef *rotx;
   coorddef *roty;
   coorddef *rotz;
-  coorddef *rotx;
   matrixtdef yawMat;
   matrixtdef objAngleMat;
   matrixtdef tmpMat;
@@ -1221,11 +1221,11 @@ ObjectSignAnim::ObjectSignAnim(coorddef *impactVel,int impactAngle,AnimDef *def,
 int ObjectSignAnim::Draw(DRender_tView *Vi,Draw_DCache *sd,int offset)
 
 {
+  matrixtdef matrix;
+  coorddef animcp;
   int i;
   ObjectAnim *anim;
   Trk_ObjectDef *pObjDef;
-  matrixtdef matrix;
-  coorddef animcp;
   coorddef cp;
   int frame;
   int numFrames;

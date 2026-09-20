@@ -55,9 +55,9 @@ void Scene_PurgeScene(void)
 int Scene_BuildCustomSceneList(void)
 
 {
+  int slice;
   SceneElem *se;
   int i;
-  int slice;
   
   Object_ClearCustomObjects();
   slice = -1;

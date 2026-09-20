@@ -9,8 +9,8 @@ tScreenDisplay *screenDisplay;   /* global instance pointer owned by this TU (SY
 void tScreenDisplay::DrawBackground()
 
 {
-  short fade;
   int i;
+  short fade;
 
   fade = (short)((menuDefs->menuDisplayOptions).fScreenFade >> 1);
   i = 0;

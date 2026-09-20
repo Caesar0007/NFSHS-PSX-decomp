@@ -30,9 +30,9 @@ int Sched_ExecuteCheck(int staggered,int module,int distance,int carId,int *time
               ,int forceNoSimOptz)
 
 {
-  int mask;
   int index;
   int distanceIndex;
+  int mask;
 
   if (0xf < simGlobal.gameTicks) {
     distanceIndex = distance / 16;

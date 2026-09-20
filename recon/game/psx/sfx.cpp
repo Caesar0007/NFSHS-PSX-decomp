@@ -74,9 +74,9 @@ void Sfx_BuildSmokeFacet(Souffle_tISouffle *is,sfxsouffle *dSouffle,Draw_tPixMap
 void Sfx_ThickenXZ(SVECTOR *d,coorddef *pt1,coorddef *pt2,coorddef *cp)
 
 {
-  int angle;
   int pxp;
   int pzp;
+  int angle;
 
   angle = intatan(pt2->x - pt1->x,pt2->z - pt1->z);
   pxp = fixedmult(0xe666,-fastintcos(angle)) >> 1;

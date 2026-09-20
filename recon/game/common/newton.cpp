@@ -1142,8 +1142,8 @@ int Newton_CalcPerpenHeightOfLowestPointFromGround(BO_tNewtonObj *newtonObj,coor
 int Newton_CalcPerpenHeightOfCenterPointFromGround(BO_tNewtonObj *newtonObj,coorddef *normal,coorddef *samplePoint)
 
 {
-  int relativeDot;
   coorddef relativePos;
+  int relativeDot;
 
   relativePos.x = (newtonObj->position).x - samplePoint->x;
   relativePos.y = (newtonObj->position).y - samplePoint->y;
@@ -1333,9 +1333,9 @@ void Newton_CopyRoadMatrixToShadowMat(BO_tNewtonObj *n,int backwards)
 void Newton_SetInitialSlicePositionOrientationEtc(BO_tNewtonObj *n,int slice,coorddef *offset,int direction)
 
 {
-  int backwards;
   coorddef rOffset;
   matrixtdef transposeMat;
+  int backwards;
 
   backwards = direction != 1;
   BWorldSm_SetSlice(slice,&n->simRoadInfo);
@@ -1579,8 +1579,8 @@ extern "C" void Newton_QDUpdateRot64Hz(BO_tNewtonObj *newtonObj)
 
 {
   matrixtdef m;
-  coorddef angularVel;
   int reOrthoNeeded;
+  coorddef angularVel;
 
   if (newtonObj->active != 0) {
     angularVel.x = newtonObj->angularVel.x / 64;
@@ -1605,8 +1605,8 @@ extern "C" void Newton_QDUpdateRot32Hz(BO_tNewtonObj *newtonObj)
 
 {
   matrixtdef m;
-  coorddef angularVel;
   int reOrthoNeeded;
+  coorddef angularVel;
 
   if ((newtonObj->active != 0) && (newtonObj->simOptz == 0)) {
     angularVel.x = newtonObj->angularVel.x / 16;

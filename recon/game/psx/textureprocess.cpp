@@ -560,9 +560,9 @@ void CV_ProcessWorldColors_FINAL(int constrast,CVECTOR *color,short brightness)
 void CV_ColorTracks(int track,int weather,int night)
 
 {
-  short brightness;
   int contrast;
   CVECTOR color;
+  short brightness;
 
   /* MATCH: `contrast` is initialized to 0 BEFORE the memset, so its live range
    * crosses that call and it earns a callee-saved reg -- assigning it only

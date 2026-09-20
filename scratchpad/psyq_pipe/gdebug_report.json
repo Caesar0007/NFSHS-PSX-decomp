@@ -1,5 +1,5 @@
 {
- "recon/game/common/spchevnt.c": {
+ "recon/game/psx/trsproj.cpp": {
   "s": true,
   "same_code": true,
   "note": "assembled"

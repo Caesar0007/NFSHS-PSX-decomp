@@ -600,8 +600,8 @@ void Hud_FBuildF4(int transparent, int x, int y, int w, int h, u_long col1, char
 static void uppercase(char *string)
 
 {
-  int len;
   int n;
+  int len;
 
   len = strlen(string);
   n = 0;
@@ -5174,10 +5174,10 @@ void Hud_Render321Go(void)
   static signed char oldCountdown = -1;
   static u_long countdownTick;
   u_long currentTick;
+  u_long x;
+  u_long y;
   int flare_intensity;
   int num;
-  u_long y;
-  u_long x;
   
   gCView.id = Hud_gStatsView;
   Draw_StartRenderingView(Hud_gStatsView);

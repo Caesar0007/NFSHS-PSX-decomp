@@ -57,9 +57,9 @@ int Math_Dist3D(coorddef *a,coorddef *b)
 {
   int dist;
   int dist2;
+  int x;
   int y;
   int z;
-  int x;
 
   x = a->x - b->x;
   if (x < 1) {
@@ -140,17 +140,17 @@ void Math_ResolveRotatedVector(int x,int y,int angle,int *newx,int *newy)
 int Math_VectorLength(coorddef *v)
 
 {
+  int vx;
+  int vy;
+  int vz;
+  u_int vx2;
+  u_int vy2;
+  u_int vz2;
   u_int vx2s;
-  int length;
   u_int vy2s;
   u_int vz2s;
-  u_int vz2;
-  int vz;
-  int vy;
-  int vx;
+  int length;
   int shifts;
-  u_int vy2;
-  u_int vx2;
 
   shifts = 0;
   vx = v->x;
@@ -194,17 +194,17 @@ int Math_VectorLength(coorddef *v)
 int Math_VectorLength2(coorddef *v)
 
 {
+  int vx;
+  int vy;
+  int vz;
+  u_int vx2;
+  u_int vy2;
+  u_int vz2;
   u_int vx2s;
-  int length2;
   u_int vy2s;
   u_int vz2s;
-  u_int vz2;
-  int vz;
-  int vy;
-  int vx;
+  int length2;
   int shifts;
-  u_int vy2;
-  u_int vx2;
 
   shifts = 0;
   vx = v->x;
@@ -248,16 +248,16 @@ int Math_VectorLength2(coorddef *v)
 void Math_NormalizeVector(coorddef *v)
 
 {
-  u_int vx2s;
-  u_int vy2s;
-  u_int vz2s;
-  u_int vz2;
   int vx;
   int vy;
   int vz;
-  int length;
-  u_int vy2;
   u_int vx2;
+  u_int vy2;
+  u_int vz2;
+  u_int vx2s;
+  u_int vy2s;
+  u_int vz2s;
+  int length;
 
   vx = v->x;
   vy = v->y;
@@ -298,8 +298,8 @@ void Math_NormalizeVector(coorddef *v)
 void Math_NormalizeShortVector(coorddef *v)
 
 {
-  int length;
   int inverse;
+  int length;
 
   length = fixedsqrt(fixedmult(v->x,v->x) +
                      fixedmult(v->y,v->y) +

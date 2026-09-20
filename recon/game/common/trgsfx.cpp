@@ -125,17 +125,17 @@ void TrgSfx_CrashCar(coorddef *location)
 void TrgSfx_AddSkidmark(int car,int wheel,coorddef *skidpt,int end,int intensity,Car_tObj *carObj,int type)
 
 {
+  coorddef *linvel;
   int velXZ;
   int slice;
   int tireWidth;
-  int value;
+  CVECTOR color;
   int temp;
+  int value;
   int dx;
   int dz;
   int dist;
   int MaxDist;
-  CVECTOR color;
-  coorddef *linvel;
 
   linvel = &carObj->N.linearVel;
   velXZ = carObj->N.speedXZ;

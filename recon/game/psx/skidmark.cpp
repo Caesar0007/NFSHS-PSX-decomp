@@ -52,9 +52,9 @@ void CalcStartSegment(Skidmark_Segment *r1,Skidmark_Segment *r2,coorddef *cp,coo
 void CalcOneSegment(Skidmark_Segment *r1,coorddef *cp,coorddef *pt1,coorddef *pt2,int tireWidth)
 
 {
-  int angle;
   int pxp;
   int pzp;
+  int angle;
 
   angle = intatan(pt2->x - pt1->x,pt2->z - pt1->z);
   pxp = fixedmult(tireWidth,-fastintcos(angle)) >> 1;
@@ -295,8 +295,8 @@ void Skidmark_EndStretch(Skidmark_Segment *save,int savechunk,tSkid *prevskid,co
 void Skidmark_OnyxBuildFacets(DRender_tView *Vi)
 
 {
-  Draw_tCtrlSkidmark fskidspace;
   Draw_tCtrlSkidmark *fskid;
+  Draw_tCtrlSkidmark fskidspace;
   int t1;
   int t2;
   int t3;

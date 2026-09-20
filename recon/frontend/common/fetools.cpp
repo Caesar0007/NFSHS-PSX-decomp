@@ -60,8 +60,8 @@ void s_upper(char *string)
 void s_lower(char *string)
 
 {
-  int len;
   int n;
+  int len;
 
   len = strlen(string);
   n = 0;

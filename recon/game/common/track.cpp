@@ -280,8 +280,8 @@ void LoadShapesAndMakePmx(char *shapefile,Draw_tPixMap *pmxList,int loadFlags,in
 void LoadShapesAndMakePmx_EnvMap(char *shapefile,Draw_tPixMap *pmxList,int x,int y)
 
 {
-  shapetbl *shape;
   int i;
+  shapetbl *shape;
   Draw_tPixMap *pPmx;
   int recolor_flag;
 

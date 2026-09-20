@@ -91,8 +91,8 @@ void AICop_CleanUp(void)
 /* ---- AICop_NoCopsInArea__Fii  [@0x80066b08] ---- */
 int AICop_NoCopsInArea(int slice,int sliceDistance)
 {
-  int absDistance;
   int copLoop;
+  int absDistance;
 
   copLoop = 0;
   do {

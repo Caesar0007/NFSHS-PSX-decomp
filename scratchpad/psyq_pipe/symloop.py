@@ -29,6 +29,14 @@ def text_of(obj):
 
 srcs = [s for s in [*(ROOT / 'recon').rglob('*.cpp'), *(ROOT / 'recon').rglob('*.c')] if any(f in s.as_posix() for f in frs)]
 assert srcs, 'no TU matches'
+if '--ref-only' in sys.argv:          # record the CURRENT objects' bytes as the reference (run before editing)
+    for s_ in srcs:
+        rel = s_.relative_to(ROOT).as_posix()
+        obj = ROOT / 'build' / (rel + '.o')
+        ref = ROOT / 'build' / 'symloop_ref' / (rel + '.text')
+        if obj.is_file() and not ref.exists():
+            ref.parent.mkdir(parents=True, exist_ok=True); ref.write_bytes(text_of(obj))
+    print('references recorded for', len(srcs), 'TUs'); sys.exit(0)
 r = subprocess.run([PY, str(ROOT / 'tools/build.py'), '--skip-asm', '--only', ','.join(frs)], capture_output=True, text=True, cwd=ROOT)
 if 'FAIL' in r.stdout or r.returncode:
     print(r.stdout[-1500:], r.stderr[-1500:]); sys.exit(1)

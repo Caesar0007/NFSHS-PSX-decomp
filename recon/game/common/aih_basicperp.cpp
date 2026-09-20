@@ -124,8 +124,8 @@ int AIHigh_BasicPerp::CheckIfCaught()
 
 
 {
-  int skill;
   int absSpeed;
+  int skill;
 
   skill = GameSetup_gData.skill;
 
@@ -165,8 +165,8 @@ int AIHigh_BasicPerp::CheckIfCaught()
       for (carLoop = 0; ; carLoop = carLoop + 1) {
 
         Car_tObj *cop;
-        int validCar;
         int diffSpeed;
+        int validCar;
         int xDot;
 
         if (Cars_gNumCars <= carLoop) {

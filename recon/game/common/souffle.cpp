@@ -64,11 +64,11 @@ Souffle_tISouffle *
 Souffle_Add(coorddef *soufflept,int type,coorddef *vec,int velVX,int ground,int colour)
 
 {
+  int inserti;
   int i;
   int maxc;
-  int inserti;
-  Souffle_tISouffle *is;
   coorddef vempty;
+  Souffle_tISouffle *is;
 
   inserti = 0;
   if (gCISouffle == 0x3c) {
@@ -140,8 +140,8 @@ Souffle_Add(coorddef *soufflept,int type,coorddef *vec,int velVX,int ground,int 
 void Souffle_DoSouffle(void)
 
 {
-  int i;
   coorddef w;
+  int i;
   
   if (0 < SOUFFLE_GAME_TICKS - gTMoveSouffle) {
     gTMoveSouffle = SOUFFLE_GAME_TICKS;
@@ -268,9 +268,9 @@ void Souffle_DoSouffle(void)
 int Souffle_CircleClip(coorddef *pt1,coorddef *pt2,int r)
 
 {
-  int dist;
-  int dz;
   int dx;
+  int dz;
+  int dist;
 
   dx = pt1->x - pt2->x;
   if (dx < 1) {
@@ -293,8 +293,8 @@ int Souffle_CircleClip(coorddef *pt1,coorddef *pt2,int r)
 void Souffle_InsertFacet(DRender_tView *Vi)
 
 {
-  Souffle_tISouffle *is;
   int i;
+  Souffle_tISouffle *is;
 
   i = 0;
   do {

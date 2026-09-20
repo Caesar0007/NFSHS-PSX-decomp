@@ -870,8 +870,8 @@ int SetupChunkBuildList(DRender_tView *Vi)
  * copies it to long-lived $a2 in the guard's delay slot. */
 bool BWorld_IsSliceInBuildList(int slice)
 {
-  int bi;
   int chunk;
+  int bi;
 
   bi = 0;
   if (slice < 0) {

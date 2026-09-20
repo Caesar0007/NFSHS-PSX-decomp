@@ -25,10 +25,10 @@ void PSXDrawBrightEndLine(int col,int x,int y,int w,int h,int side,int fade,int 
 void PSXTransDrawBrightEndLine(int col,int x,int y,int w,int h,int side,int fade,int darksides,int opacity)
 
 {
+  int ww;
+  int hh;
   int BrightCol;
   int endbit;
-  int hh;
-  int ww;
   
   if (fade == 0x80) {
     return;

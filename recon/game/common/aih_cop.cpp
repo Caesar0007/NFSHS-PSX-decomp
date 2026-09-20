@@ -1932,9 +1932,9 @@ int AIHigh_Cop::GetCheckChasePosition(coorddef *pos)
 
 
 {
-  int changed;
 
   int newPosition;
+  int changed;
 
 
 

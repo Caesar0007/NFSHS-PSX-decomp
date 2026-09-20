@@ -9,7 +9,6 @@
  },
  "AICop_NoCopsInArea__Fii": {
   "issues": [
-   "ORDER of declarations differs",
    "BLOCKS 1 scopes != 3"
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\AICOP.CPP",
@@ -155,9 +154,7 @@
   ]
  },
  "AIInit_LoadConfigs__Fv": {
-  "issues": [
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIINIT.CPP",
   "end_line": [
    209,
@@ -472,7 +469,6 @@
  },
  "AIPhysic_CalculateGear__FP8Car_tObj": {
   "issues": [
-   "ORDER of declarations differs",
    "BLOCKS same count, different nesting/addresses"
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIPHYSIC.CPP",
@@ -1623,7 +1619,6 @@
  },
  "AI_DoReactionsAndBehavior__FP8Car_tObj": {
   "issues": [
-   "ORDER of declarations differs",
    "BLOCKS 1 scopes != 3"
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\AI.CPP",
@@ -2359,8 +2354,7 @@
  "AudioCmn_AddBank__FPciT0i": {
   "issues": [
    "MOVED p REG:$17 != REG:$3",
-   "MOVED ptemp REG:$3 != REG:$17",
-   "ORDER of declarations differs"
+   "MOVED ptemp REG:$3 != REG:$17"
   ],
   "file": "C:\\nfs4\\GAME\\PSX\\AUDIO.CPP",
   "end_line": [
@@ -2484,9 +2478,7 @@
   ]
  },
  "AudioCmn_LoadBank__FPci": {
-  "issues": [
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\PSX\\AUDIO.CPP",
   "end_line": [
    165,
@@ -2528,9 +2520,7 @@
   ]
  },
  "AudioCmn_PlayDoppleredSound__Fiiiiii": {
-  "issues": [
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AUDIOCMN.CPP",
   "end_line": [
    1383,
@@ -2614,9 +2604,7 @@
   ]
  },
  "AudioCmn_PlayerHornOn__Fiiiii": {
-  "issues": [
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AUDIOCMN.CPP",
   "end_line": [
    2014,
@@ -3318,7 +3306,6 @@
  },
  "BWorld_IsSliceInBuildList__Fi": {
   "issues": [
-   "ORDER of declarations differs",
    "BLOCKS 1 scopes != 2"
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\BWORLD.CPP",
@@ -3527,9 +3514,7 @@
   ]
  },
  "CV_ColorTracks__Fiii": {
-  "issues": [
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\PSX\\TEXTUREPROCESS.CPP",
   "end_line": [
    714,
@@ -3607,9 +3592,7 @@
   ]
  },
  "CalcObjExtentPoints__FP8coorddefP8CCOORD16T0P5tQuat": {
-  "issues": [
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\OBJECT.CPP",
   "end_line": [
    101,
@@ -3646,7 +3629,6 @@
  },
  "CalcOneSegment__FP16Skidmark_SegmentP8coorddefN21i": {
   "issues": [
-   "ORDER of declarations differs",
    "BLOCKS 1 scopes != 2"
   ],
   "file": "C:\\nfs4\\GAME\\PSX\\SKIDMARK.CPP",
@@ -3746,9 +3728,7 @@
   ]
  },
  "CalculateCloseTargettingAheadSlowDownFactor__13AIState_Chase": {
-  "issues": [
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AISTATE.CPP",
   "end_line": [
    905,
@@ -3930,7 +3910,6 @@
  },
  "Camera_CheckWallCollisions__FiP8coorddef": {
   "issues": [
-   "ORDER of declarations differs",
    "BLOCKS 3 scopes != 1"
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\CAMERA.CPP",
@@ -4081,7 +4060,6 @@
  },
  "Camera_TooSteep__FiP12BWorldSm_Pos": {
   "issues": [
-   "ORDER of declarations differs",
    "BLOCKS 1 scopes != 3"
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\CAMERA.CPP",
@@ -4431,9 +4409,7 @@
   ]
  },
  "Car_DoSkiddingStuff__FP8Car_tObj": {
-  "issues": [
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\CARS.CPP",
   "end_line": [
    1394,
@@ -4562,7 +4538,6 @@
  },
  "Cars_IniCarObjects__FP8Car_tObji": {
   "issues": [
-   "ORDER of declarations differs",
    "BLOCKS 1 scopes != 4"
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\CARS.CPP",
@@ -4572,9 +4547,7 @@
   ]
  },
  "Cars_InitCar__FP8Car_tObji": {
-  "issues": [
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\CARS.CPP",
   "end_line": [
    1846,
@@ -5653,9 +5626,7 @@
   ]
  },
  "CopSpeak_DirectRequest__FillP8Car_tObjPc": {
-  "issues": [
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\COPSPEAK.CPP",
   "end_line": [
    403,
@@ -5679,9 +5650,7 @@
   ]
  },
  "CopSpeak_GenericBankRequest__FiP8Car_tObj": {
-  "issues": [
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\COPSPEAK.CPP",
   "end_line": [
    426,
@@ -5812,9 +5781,7 @@
   ]
  },
  "CopSpeak_SfxQueued__Fv": {
-  "issues": [
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\COPSPEAK.CPP",
   "end_line": [
    977,
@@ -6484,7 +6451,6 @@
  },
  "DrawBackground__14tScreenDisplay": {
   "issues": [
-   "ORDER of declarations differs",
    "BLOCKS 1 scopes != 3"
   ],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\SCREENDISPLAY.CPP",
@@ -7686,7 +7652,6 @@
  },
  "DrawW_DoObjectAnimations__Fv": {
   "issues": [
-   "ORDER of declarations differs",
    "BLOCKS 1 scopes != 3"
   ],
   "file": "C:\\nfs4\\GAME\\PSX\\DRAWW.CPP",
@@ -7885,7 +7850,6 @@
  },
  "Draw_CircleClip__FP8coorddefT0i": {
   "issues": [
-   "ORDER of declarations differs",
    "BLOCKS 1 scopes != 2"
   ],
   "file": "C:\\nfs4\\GAME\\PSX\\DRAWW.CPP",
@@ -8110,7 +8074,6 @@
  },
  "Draw__10tVideoWall": {
   "issues": [
-   "ORDER of declarations differs",
    "BLOCKS 1 scopes != 9"
   ],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FEVIDEOWALL.CPP",
@@ -8178,7 +8141,6 @@
  },
  "Draw__14ObjectSignAnimP13DRender_tViewP11Draw_DCachei": {
   "issues": [
-   "ORDER of declarations differs",
    "BLOCKS 1 scopes != 4"
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\OBJECT.CPP",
@@ -9478,9 +9440,7 @@
   ]
  },
  "Flare_Moon__FP7SVECTORP15Draw_FlareCache": {
-  "issues": [
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\PSX\\FLARE.CPP",
   "end_line": [
    2313,
@@ -9488,9 +9448,7 @@
   ]
  },
  "Flare_OctFlareSpikes__FPli": {
-  "issues": [
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\PSX\\FLARE.CPP",
   "end_line": [
    392,
@@ -9498,9 +9456,7 @@
   ]
  },
  "Flare_OctFlare__FPli": {
-  "issues": [
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\PSX\\FLARE.CPP",
   "end_line": [
    247,
@@ -9586,9 +9542,7 @@
   ]
  },
  "Flare_SingleColorOctRing__FP7DVECTORP7CVECTORiii": {
-  "issues": [
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\PSX\\FLARE.CPP",
   "end_line": [
    1723,
@@ -9596,9 +9550,7 @@
   ]
  },
  "Flare_SingleColorOct__FP7DVECTORP7CVECTORiii": {
-  "issues": [
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\PSX\\FLARE.CPP",
   "end_line": [
    1687,
@@ -10316,9 +10268,7 @@
   ]
  },
  "GameSetup_StartUp__FPi": {
-  "issues": [
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\GMESETUP.CPP",
   "end_line": [
    121,
@@ -10499,9 +10449,7 @@
   ]
  },
  "GetCheckChasePosition__10AIHigh_CopP8coorddef": {
-  "issues": [
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIH_COP.CPP",
   "end_line": [
    1959,
@@ -10662,7 +10610,6 @@
  },
  "GetObjMaxDimensions__FPP13Trk_ObjectDefP14Trk_SimpleInstP8coorddef": {
   "issues": [
-   "ORDER of declarations differs",
    "BLOCKS 1 scopes != 2"
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\OBJECT.CPP",
@@ -12135,7 +12082,6 @@
  },
  "Hud_Render321Go__Fv": {
   "issues": [
-   "ORDER of declarations differs",
    "BLOCKS 1 scopes != 7"
   ],
   "file": "C:\\nfs4\\GAME\\PSX\\HUD.CPP",
@@ -12255,9 +12201,7 @@
   ]
  },
  "InGame_ResetPSXController__Fii": {
-  "issues": [
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\PSX\\PSXCONTROLLER.CPP",
   "end_line": [
    272,
@@ -13210,9 +13154,7 @@
   ]
  },
  "LoadShapesAndMakePmx_EnvMap__FPcP12Draw_tPixMapii": {
-  "issues": [
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\TRACK.CPP",
   "end_line": [
    299,
@@ -13286,9 +13228,7 @@
   ]
  },
  "Loading_DrawLoadingScreen__Fv": {
-  "issues": [
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\PSX\\LOADING.CPP",
   "end_line": [
    48,
@@ -13589,9 +13529,7 @@
   ]
  },
  "Math_Dist3D__FP8coorddefT0": {
-  "issues": [
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\MATHNFS.CPP",
   "end_line": [
    88,
@@ -13607,9 +13545,7 @@
   ]
  },
  "Math_NormalizeShortVector__FP8coorddef": {
-  "issues": [
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\MATHNFS.CPP",
   "end_line": [
    314,
@@ -13617,9 +13553,7 @@
   ]
  },
  "Math_NormalizeVector__FP8coorddef": {
-  "issues": [
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\MATHNFS.CPP",
   "end_line": [
    293,
@@ -13643,9 +13577,7 @@
   ]
  },
  "Math_VectorLength2__FP8coorddef": {
-  "issues": [
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\MATHNFS.CPP",
   "end_line": [
    244,
@@ -13653,9 +13585,7 @@
   ]
  },
  "Math_VectorLength__FP8coorddef": {
-  "issues": [
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\MATHNFS.CPP",
   "end_line": [
    190,
@@ -14334,7 +14264,6 @@
  },
  "NFS4_LoadingIcon__Fv": {
   "issues": [
-   "ORDER of declarations differs",
    "BLOCKS 1 scopes != 2"
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\NFS3.CPP",
@@ -14428,9 +14357,7 @@
   ]
  },
  "Newton_CalcPerpenHeightOfCenterPointFromGround__FP13BO_tNewtonObjP8coorddefT1": {
-  "issues": [
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\NEWTON.CPP",
   "end_line": [
    1156,
@@ -14642,9 +14569,7 @@
   ]
  },
  "Newton_QDUpdateRot32Hz__FP13BO_tNewtonObj": {
-  "issues": [
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\NEWTON.CPP",
   "end_line": [
    1626,
@@ -14652,9 +14577,7 @@
   ]
  },
  "Newton_QDUpdateRot64Hz__FP13BO_tNewtonObj": {
-  "issues": [
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\NEWTON.CPP",
   "end_line": [
    1601,
@@ -14673,7 +14596,6 @@
  },
  "Newton_SetInitialSlicePositionOrientationEtc__FP13BO_tNewtonObjiP8coorddefi": {
   "issues": [
-   "ORDER of declarations differs",
    "BLOCKS 10 scopes != 8"
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\NEWTON.CPP",
@@ -15144,7 +15066,6 @@
  },
  "Object_GetIMassObjectMotion__FiP8coorddefP10matrixtdefT1": {
   "issues": [
-   "ORDER of declarations differs",
    "BLOCKS 1 scopes != 2"
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\OBJECT.CPP",
@@ -15210,7 +15131,6 @@
  },
  "Object_InitIMassObjectInfo__Fv": {
   "issues": [
-   "ORDER of declarations differs",
    "BLOCKS 1 scopes != 2"
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\OBJECT.CPP",
@@ -15338,9 +15258,7 @@
   ]
  },
  "PSXTransDrawBrightEndLine__Fiiiiiiiii": {
-  "issues": [
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FELINES.CPP",
   "end_line": [
    92,
@@ -15621,7 +15539,6 @@
  },
  "Physics_RampCarControlValues__FP8Car_tObj": {
   "issues": [
-   "ORDER of declarations differs",
    "BLOCKS 4 scopes != 8"
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\PHYSICS.CPP",
@@ -16426,7 +16343,6 @@
  },
  "R3DCar_DeInstantiate3DCarMenu__FP8Car_tObj": {
   "issues": [
-   "ORDER of declarations differs",
    "BLOCKS 1 scopes != 7"
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\R3DCAR.CPP",
@@ -16583,7 +16499,6 @@
  },
  "R3DCar_ReadInCarData__FPcP8Car_tObj": {
   "issues": [
-   "ORDER of declarations differs",
    "BLOCKS 8 scopes != 9"
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\R3DCAR.CPP",
@@ -16665,9 +16580,7 @@
   ]
  },
  "R3DCcar_ReadTrackShadow__Fv": {
-  "issues": [
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\R3DCAR.CPP",
   "end_line": [
    438,
@@ -16675,9 +16588,7 @@
   ]
  },
  "R3DCcar_ReadeMapData__Fv": {
-  "issues": [
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\R3DCAR.CPP",
   "end_line": [
    411,
@@ -17486,11 +17397,7 @@
   ]
  },
  "SPCHNFS_C_A_CONFIRM": {
-  "issues": [
-   "TYPE CONFIRM \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_CONFIRM\"",
-   "TYPE VOICE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_VOICE\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    80,
@@ -17498,11 +17405,7 @@
   ]
  },
  "SPCHNFS_C_A_INTRO": {
-  "issues": [
-   "TYPE REVINTRO \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_REVINTRO\"",
-   "TYPE VOICE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_VOICE\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    943,
@@ -17510,10 +17413,7 @@
   ]
  },
  "SPCHNFS_C_C_IDLE_WINGMAN_DISAPPEARS": {
-  "issues": [
-   "TYPE VOICE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_VOICE\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    337,
@@ -17521,11 +17421,7 @@
   ]
  },
  "SPCHNFS_C_C_IN_PURS_NEAR_PERP": {
-  "issues": [
-   "TYPE COLOUR \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_COLOUR\"",
-   "TYPE VOICE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_VOICE\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    192,
@@ -17533,10 +17429,7 @@
   ]
  },
  "SPCHNFS_C_C_NEW_OFFICER_ENGAGING": {
-  "issues": [
-   "TYPE VOICE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_VOICE\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    505,
@@ -17544,14 +17437,7 @@
   ]
  },
  "SPCHNFS_C_C_PERP_REAQUIRED": {
-  "issues": [
-   "TYPE COLOUR \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_COLOUR\"",
-   "TYPE DISTANCE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_DISTANCE\"",
-   "TYPE DISTANCE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_DISTANCE\"",
-   "TYPE POSITION \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_POSITION\"",
-   "TYPE VOICE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_VOICE\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    614,
@@ -17559,11 +17445,7 @@
   ]
  },
  "SPCHNFS_C_D_DURING_FALSE_ARREST": {
-  "issues": [
-   "TYPE PERP_NAME \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_PERP_NAME\"",
-   "TYPE VOICE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_VOICE\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    765,
@@ -17571,10 +17453,7 @@
   ]
  },
  "SPCHNFS_C_D_ENDGAME": {
-  "issues": [
-   "TYPE VOICE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_VOICE\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    1119,
@@ -17582,18 +17461,7 @@
   ]
  },
  "SPCHNFS_C_D_ENGAGE_PURS_REP_SPDR": {
-  "issues": [
-   "TYPE COLOUR \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_COLOUR\"",
-   "TYPE DISTANCE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_DISTANCE\"",
-   "TYPE DISTANCE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_DISTANCE\"",
-   "TYPE PERP_NAME \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_PERP_NAME\"",
-   "TYPE PERP_NAME \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_PERP_NAME\"",
-   "TYPE POSITION \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_POSITION\"",
-   "TYPE VOICE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_VOICE\"",
-   "TYPE vs_KMH_MPH \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_vs_KMH_MPH\"",
-   "TYPE vs_KMH_MPH \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_vs_KMH_MPH\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    173,
@@ -17601,17 +17469,7 @@
   ]
  },
  "SPCHNFS_C_D_ENGAGE_PURS_REP_SPDR_REPLY": {
-  "issues": [
-   "TYPE COLOUR \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_COLOUR\"",
-   "TYPE CONFIRM \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_CONFIRM\"",
-   "TYPE CONFIRM \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_CONFIRM\"",
-   "TYPE DISTANCE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_DISTANCE\"",
-   "TYPE DISTANCE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_DISTANCE\"",
-   "TYPE POSITION \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_POSITION\"",
-   "TYPE POSITION \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_POSITION\"",
-   "TYPE VOICE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_VOICE\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    146,
@@ -17619,16 +17477,7 @@
   ]
  },
  "SPCHNFS_C_D_IN_PURS_AWAY_PERP_REPLY_LOC": {
-  "issues": [
-   "TYPE COLOUR \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_COLOUR\"",
-   "TYPE COLOUR \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_COLOUR\"",
-   "TYPE DISTANCE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_DISTANCE\"",
-   "TYPE PERP_NAME \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_PERP_NAME\"",
-   "TYPE PERP_NAME \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_PERP_NAME\"",
-   "TYPE POSITION \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_POSITION\"",
-   "TYPE VOICE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_VOICE\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    881,
@@ -17636,14 +17485,7 @@
   ]
  },
  "SPCHNFS_C_D_IN_PURS_AWAY_PERP_REPLY_STS": {
-  "issues": [
-   "TYPE COLOUR \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_COLOUR\"",
-   "TYPE DISTANCE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_DISTANCE\"",
-   "TYPE DISTANCE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_DISTANCE\"",
-   "TYPE POSITION \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_POSITION\"",
-   "TYPE VOICE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_VOICE\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    277,
@@ -17651,14 +17493,7 @@
   ]
  },
  "SPCHNFS_C_D_IN_PURS_LOOK_PERP_REPLY_LOC": {
-  "issues": [
-   "TYPE COLOUR \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_COLOUR\"",
-   "TYPE COLOUR \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_COLOUR\"",
-   "TYPE DISTANCE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_DISTANCE\"",
-   "TYPE POSITION \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_POSITION\"",
-   "TYPE VOICE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_VOICE\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    904,
@@ -17666,12 +17501,7 @@
   ]
  },
  "SPCHNFS_C_D_IN_PURS_LOOK_PERP_REPLY_STS": {
-  "issues": [
-   "TYPE COLOUR \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_COLOUR\"",
-   "TYPE PERP_NAME \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_PERP_NAME\"",
-   "TYPE VOICE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_VOICE\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    320,
@@ -17679,12 +17509,7 @@
   ]
  },
  "SPCHNFS_C_D_IN_PURS_NEAR_PERP_REP_LOC": {
-  "issues": [
-   "TYPE DISTANCE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_DISTANCE\"",
-   "TYPE POSITION \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_POSITION\"",
-   "TYPE VOICE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_VOICE\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    837,
@@ -17692,11 +17517,7 @@
   ]
  },
  "SPCHNFS_C_D_IN_PURS_NEAR_PERP_REP_SPD": {
-  "issues": [
-   "TYPE VOICE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_VOICE\"",
-   "TYPE vs_KMH_MPH \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_vs_KMH_MPH\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    856,
@@ -17704,14 +17525,7 @@
   ]
  },
  "SPCHNFS_C_D_IN_PURS_NEAR_PERP_REP_STS": {
-  "issues": [
-   "TYPE COLOUR \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_COLOUR\"",
-   "TYPE DISTANCE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_DISTANCE\"",
-   "TYPE POSITION \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_POSITION\"",
-   "TYPE POSITION \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_POSITION\"",
-   "TYPE VOICE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_VOICE\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    232,
@@ -17719,10 +17533,7 @@
   ]
  },
  "SPCHNFS_C_D_IN_PURS_PERP_AIRBORN": {
-  "issues": [
-   "TYPE VOICE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_VOICE\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    960,
@@ -17730,11 +17541,7 @@
   ]
  },
  "SPCHNFS_C_D_PERP_APPREHENSION": {
-  "issues": [
-   "TYPE PERP_NAME \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_PERP_NAME\"",
-   "TYPE VOICE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_VOICE\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    632,
@@ -17742,16 +17549,7 @@
   ]
  },
  "SPCHNFS_C_D_PERP_CRASH_GEN": {
-  "issues": [
-   "TYPE COLOUR \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_COLOUR\"",
-   "TYPE DISTANCE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_DISTANCE\"",
-   "TYPE DISTANCE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_DISTANCE\"",
-   "TYPE PERP_NAME \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_PERP_NAME\"",
-   "TYPE PERP_NAME \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_PERP_NAME\"",
-   "TYPE POSITION \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_POSITION\"",
-   "TYPE VOICE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_VOICE\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    676,
@@ -17759,14 +17557,7 @@
   ]
  },
  "SPCHNFS_C_D_PERP_CRASH_ROLL": {
-  "issues": [
-   "TYPE DISTANCE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_DISTANCE\"",
-   "TYPE PERP_NAME \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_PERP_NAME\"",
-   "TYPE PERP_NAME \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_PERP_NAME\"",
-   "TYPE POSITION \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_POSITION\"",
-   "TYPE VOICE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_VOICE\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    1085,
@@ -17774,16 +17565,7 @@
   ]
  },
  "SPCHNFS_C_D_PERP_LOST": {
-  "issues": [
-   "TYPE COLOUR \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_COLOUR\"",
-   "TYPE DISTANCE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_DISTANCE\"",
-   "TYPE DISTANCE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_DISTANCE\"",
-   "TYPE PERP_NAME \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_PERP_NAME\"",
-   "TYPE PERP_NAME \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_PERP_NAME\"",
-   "TYPE POSITION \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_POSITION\"",
-   "TYPE VOICE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_VOICE\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    573,
@@ -17791,16 +17573,7 @@
   ]
  },
  "SPCHNFS_C_D_PERP_SIGHTED": {
-  "issues": [
-   "TYPE COLOUR \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_COLOUR\"",
-   "TYPE DISTANCE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_DISTANCE\"",
-   "TYPE PERP_NAME \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_PERP_NAME\"",
-   "TYPE PERP_NAME \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_PERP_NAME\"",
-   "TYPE POSITION \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_POSITION\"",
-   "TYPE POSITION \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_POSITION\"",
-   "TYPE VOICE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_VOICE\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    530,
@@ -17808,11 +17581,7 @@
   ]
  },
  "SPCHNFS_C_D_RDBLK_FAILED": {
-  "issues": [
-   "TYPE COLOUR \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_COLOUR\"",
-   "TYPE VOICE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_VOICE\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    427,
@@ -17820,14 +17589,7 @@
   ]
  },
  "SPCHNFS_C_D_REQUEST_BKUP": {
-  "issues": [
-   "TYPE COLOUR \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_COLOUR\"",
-   "TYPE DISTANCE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_DISTANCE\"",
-   "TYPE DISTANCE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_DISTANCE\"",
-   "TYPE POSITION \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_POSITION\"",
-   "TYPE VOICE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_VOICE\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    450,
@@ -17835,11 +17597,7 @@
   ]
  },
  "SPCHNFS_C_D_REQUEST_EMS": {
-  "issues": [
-   "TYPE AMBULANCE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_AMBULANCE\"",
-   "TYPE VOICE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_VOICE\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    98,
@@ -17847,10 +17605,7 @@
   ]
  },
  "SPCHNFS_C_D_REQ_RDBLK": {
-  "issues": [
-   "TYPE VOICE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_VOICE\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    354,
@@ -17858,10 +17613,7 @@
   ]
  },
  "SPCHNFS_C_D_REQ_SPBLT": {
-  "issues": [
-   "TYPE VOICE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_VOICE\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    999,
@@ -17869,11 +17621,7 @@
   ]
  },
  "SPCHNFS_C_D_SPBLT_FAILED": {
-  "issues": [
-   "TYPE COLOUR \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_COLOUR\"",
-   "TYPE VOICE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_VOICE\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    1018,
@@ -17881,11 +17629,7 @@
   ]
  },
  "SPCHNFS_C_P_ARRESTED": {
-  "issues": [
-   "TYPE ARREST \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_ARREST\"",
-   "TYPE VOICE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_VOICE\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    694,
@@ -17893,10 +17637,7 @@
   ]
  },
  "SPCHNFS_C_P_BULLHORN_SPEECH": {
-  "issues": [
-   "TYPE VOICE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_VOICE\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    782,
@@ -17904,10 +17645,7 @@
   ]
  },
  "SPCHNFS_C_P_FALSE_ARREST_BULLHORN": {
-  "issues": [
-   "TYPE VOICE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_VOICE\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    747,
@@ -17915,11 +17653,7 @@
   ]
  },
  "SPCHNFS_C_P_TICKET": {
-  "issues": [
-   "TYPE ARREST \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_ARREST\"",
-   "TYPE VOICE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_VOICE\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    730,
@@ -17927,11 +17661,7 @@
   ]
  },
  "SPCHNFS_C_P_WARNING": {
-  "issues": [
-   "TYPE ARREST \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_ARREST\"",
-   "TYPE VOICE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_VOICE\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    712,
@@ -17939,10 +17669,7 @@
   ]
  },
  "SPCHNFS_D_A_CONFIRM": {
-  "issues": [
-   "TYPE CONFIRM \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_CONFIRM\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    1102,
@@ -17950,13 +17677,7 @@
   ]
  },
  "SPCHNFS_D_C_BEGIN_PURS_REP_SPDR": {
-  "issues": [
-   "TYPE COLOUR \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_COLOUR\"",
-   "TYPE DISTANCE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_DISTANCE\"",
-   "TYPE DISTANCE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_DISTANCE\"",
-   "TYPE POSITION \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_POSITION\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    120,
@@ -17964,9 +17685,7 @@
   ]
  },
  "SPCHNFS_D_C_BKUP_REQUEST_DENIED_REPLY": {
-  "issues": [
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    487,
@@ -17974,11 +17693,7 @@
   ]
  },
  "SPCHNFS_D_C_BKUP_REQUEST_GRANT_REPLY": {
-  "issues": [
-   "TYPE DISTANCE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_DISTANCE\"",
-   "TYPE POSITION \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_POSITION\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    471,
@@ -17986,10 +17701,7 @@
   ]
  },
  "SPCHNFS_D_C_INTRO_CALL": {
-  "issues": [
-   "TYPE REVINTRO \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_REVINTRO\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    923,
@@ -17997,13 +17709,7 @@
   ]
  },
  "SPCHNFS_D_C_IN_PURS_AWAY_PERP_CONFIRM": {
-  "issues": [
-   "TYPE COLOUR \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_COLOUR\"",
-   "TYPE CONFIRM \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_CONFIRM\"",
-   "TYPE PERP_NAME \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_PERP_NAME\"",
-   "TYPE PERP_NAME \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_PERP_NAME\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    299,
@@ -18011,10 +17717,7 @@
   ]
  },
  "SPCHNFS_D_C_IN_PURS_NEAR_PERP": {
-  "issues": [
-   "TYPE PURS_UPDT \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_PURS_UPDT\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    209,
@@ -18022,13 +17725,7 @@
   ]
  },
  "SPCHNFS_D_C_IN_PURS_NEAR_PERP_CONFIRM": {
-  "issues": [
-   "TYPE COLOUR \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_COLOUR\"",
-   "TYPE CONFIRM \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_CONFIRM\"",
-   "TYPE PERP_NAME \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_PERP_NAME\"",
-   "TYPE PERP_NAME \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_PERP_NAME\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    254,
@@ -18036,11 +17733,7 @@
   ]
  },
  "SPCHNFS_D_C_PERP_APPREHENSION_REPLY": {
-  "issues": [
-   "TYPE CONFIRM \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_CONFIRM\"",
-   "TYPE PERP_NAME \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_PERP_NAME\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    651,
@@ -18048,10 +17741,7 @@
   ]
  },
  "SPCHNFS_D_C_PERP_LOST_CONFIRM": {
-  "issues": [
-   "TYPE COLOUR \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_COLOUR\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    591,
@@ -18059,10 +17749,7 @@
   ]
  },
  "SPCHNFS_D_C_PERP_SIGHTED_CONFIRM": {
-  "issues": [
-   "TYPE CONFIRM \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_CONFIRM\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    548,
@@ -18070,11 +17757,7 @@
   ]
  },
  "SPCHNFS_D_C_RDBLK_CONFIRMED": {
-  "issues": [
-   "TYPE DISTANCE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_DISTANCE\"",
-   "TYPE POSITION \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_POSITION\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    408,
@@ -18082,10 +17765,7 @@
   ]
  },
  "SPCHNFS_D_C_RDBLK_SPBLT_DENIED_REPLY": {
-  "issues": [
-   "TYPE vs_RDBLK_SSTRP \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_vs_RDBLK_SSTRP\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    371,
@@ -18093,11 +17773,7 @@
   ]
  },
  "SPCHNFS_D_C_RDBLK_SPBLT_GRANT_REPLY": {
-  "issues": [
-   "TYPE CONFIRM \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_CONFIRM\"",
-   "TYPE vs_RDBLK_SSTRP \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_vs_RDBLK_SSTRP\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    389,
@@ -18105,13 +17781,7 @@
   ]
  },
  "SPCHNFS_D_C_SPBLT_CONFIRMED": {
-  "issues": [
-   "TYPE DISTANCE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_DISTANCE\"",
-   "TYPE POSITION \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_POSITION\"",
-   "TYPE SPIKE_BELT_SIDE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_SPIKE_BELT_SIDE\"",
-   "TYPE SPIKE_BELT_SIDE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_SPIKE_BELT_SIDE\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    982,
@@ -18119,10 +17789,7 @@
   ]
  },
  "SPCHNFS_S_C_SUPER_COP_ARRIVAL": {
-  "issues": [
-   "TYPE VOICE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_VOICE\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    799,
@@ -18130,10 +17797,7 @@
   ]
  },
  "SPCHNFS_S_C_SUPER_COP_CRITICISM": {
-  "issues": [
-   "TYPE VOICE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_VOICE\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    816,
@@ -18141,12 +17805,7 @@
   ]
  },
  "SPCHNFS_W_D_RDBLK_PLC": {
-  "issues": [
-   "TYPE DISTANCE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_DISTANCE\"",
-   "TYPE POSITION \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_POSITION\"",
-   "TYPE VOICE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_VOICE\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    1039,
@@ -18154,14 +17813,7 @@
   ]
  },
  "SPCHNFS_W_D_SPBLT_PLC": {
-  "issues": [
-   "TYPE DISTANCE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_DISTANCE\"",
-   "TYPE DISTANCE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_DISTANCE\"",
-   "TYPE POSITION \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_POSITION\"",
-   "TYPE SPIKE_BELT_SIDE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_SPIKE_BELT_SIDE\"",
-   "TYPE VOICE \"PTR ULONG\" != \"PTR STRUCT SPCHNFSType_VOICE\"",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C",
   "end_line": [
    1063,
@@ -18294,7 +17946,6 @@
  },
  "Scene_BuildCustomSceneList__Fv": {
   "issues": [
-   "ORDER of declarations differs",
    "BLOCKS 1 scopes != 6"
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SCENE.CPP",
@@ -18369,7 +18020,6 @@
  },
  "Sched_ExecuteCheck__FiiiiPiN24i": {
   "issues": [
-   "ORDER of declarations differs",
    "BLOCKS 1 scopes != 3"
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SCHEDULE.CPP",
@@ -19003,7 +18653,6 @@
  },
  "Sfx_ThickenXZ__FP7SVECTORP8coorddefN21": {
   "issues": [
-   "ORDER of declarations differs",
    "BLOCKS 1 scopes != 2"
   ],
   "file": "C:\\nfs4\\GAME\\PSX\\SFX.CPP",
@@ -19258,7 +18907,6 @@
  },
  "Skidmark_OnyxBuildFacets__FP13DRender_tView": {
   "issues": [
-   "ORDER of declarations differs",
    "BLOCKS 1 scopes != 2"
   ],
   "file": "C:\\nfs4\\GAME\\PSX\\SKIDMARK.CPP",
@@ -19284,9 +18932,7 @@
   ]
  },
  "Sky_InitStars__Fv": {
-  "issues": [
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\PSX\\HRZSKU.CPP",
   "end_line": [
    171,
@@ -19319,7 +18965,6 @@
  },
  "Souffle_Add__FP8coorddefiT0iii": {
   "issues": [
-   "ORDER of declarations differs",
    "BLOCKS 1 scopes != 4"
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SOUFFLE.CPP",
@@ -19330,7 +18975,6 @@
  },
  "Souffle_CircleClip__FP8coorddefT0i": {
   "issues": [
-   "ORDER of declarations differs",
    "BLOCKS 1 scopes != 2"
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SOUFFLE.CPP",
@@ -19340,9 +18984,7 @@
   ]
  },
  "Souffle_DoSouffle__Fv": {
-  "issues": [
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SOUFFLE.CPP",
   "end_line": [
    265,
@@ -19359,7 +19001,6 @@
  },
  "Souffle_InsertFacet__FP13DRender_tView": {
   "issues": [
-   "ORDER of declarations differs",
    "BLOCKS 1 scopes != 3"
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SOUFFLE.CPP",
@@ -20274,9 +19915,7 @@
   ]
  },
  "Texture_ProcessPaletteCopy__FP15Texture_pal8bitii": {
-  "issues": [
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\PSX\\TEXTURE.CPP",
   "end_line": [
    321,
@@ -20971,7 +20610,6 @@
  },
  "TrgSfx_AddSkidmark__FiiP8coorddefiiP8Car_tObji": {
   "issues": [
-   "ORDER of declarations differs",
    "BLOCKS 1 scopes != 10"
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\TRGSFX.CPP",
@@ -21093,9 +20731,7 @@
   ]
  },
  "TrsProj_TransformProjectVertex__FP10matrixtdefP8coorddefiT1P12Draw_tVertex": {
-  "issues": [
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\PSX\\TRSPROJ.CPP",
   "end_line": [
    180,
@@ -21593,8 +21229,7 @@
  },
  "Update__10AIDelayCar": {
   "issues": [
-   "MOVED currentDeltaRoadPosition REG:$3 != REG:$4",
-   "ORDER of declarations differs"
+   "MOVED currentDeltaRoadPosition REG:$3 != REG:$4"
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIDELAYCAR.CPP",
   "end_line": [
@@ -23426,7 +23061,6 @@
  },
  "__14ObjectSignAnimP8coorddefiP7AnimDefP19Trk_CollideBoomInstP13Trk_ObjectDefP13Trk_SimObjectT1P22ObjectFinishedSignAnim": {
   "issues": [
-   "ORDER of declarations differs",
    "BLOCKS 2 scopes != 4"
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\OBJECT.CPP",
@@ -24245,9 +23879,7 @@
   ]
  },
  "s_lower__FPc": {
-  "issues": [
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FETOOLS.CPP",
   "end_line": [
    79,
@@ -24444,9 +24076,7 @@
   ]
  },
  "uppercase__FPc": {
-  "issues": [
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\PSX\\HUD.CPP",
   "end_line": [
    617,

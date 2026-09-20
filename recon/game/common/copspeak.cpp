@@ -382,8 +382,8 @@ void CopSpeak_InitVars(void)
 void CopSpeak_DirectRequest(int filehandle,long offset,long size,Car_tObj *car,char *name)
 
 {
-  int next;
   CopSpeak_tRequest *r;
+  int next;
 
   r = CopSpeak_gQueue + CopSpeak_gQueueHead;
   next = 0;
@@ -406,8 +406,8 @@ void CopSpeak_DirectRequest(int filehandle,long offset,long size,Car_tObj *car,c
 void CopSpeak_GenericBankRequest(int patch,Car_tObj *car)
 
 {
-  int next;
   CopSpeak_tRequest *r;
+  int next;
 
   r = CopSpeak_gQueue + CopSpeak_gQueueHead;
   next = 0;
@@ -962,8 +962,8 @@ void CopSpeak_Server(void)
 int CopSpeak_SfxQueued(void)
 
 {
-  int chkQ;
   int count;
+  int chkQ;
 
   count = 0;
   chkQ = CopSpeak_gQueuePlay;

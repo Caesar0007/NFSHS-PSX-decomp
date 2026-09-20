@@ -1958,10 +1958,10 @@ void Camera_PitchAndRoll(int player)
 /* ---- Camera_TooSteep__FiP12BWorldSm_Pos  [@0x80083d28] ---- */
 int Camera_TooSteep(int player,BWorldSm_Pos *slicePos)
 {
+  BWorldSm_Pos *slicePos2;  /* SYM: REG (anchor+8, addiu s0,s0,8 in the 1st jal slot) */
   coorddef normUnderCam;    /* SYM: AUTO */
   coorddef normUnderCar;    /* SYM: AUTO */
   coorddef camToCar;        /* SYM: AUTO */
-  BWorldSm_Pos *slicePos2;  /* SYM: REG (anchor+8, addiu s0,s0,8 in the 1st jal slot) */
 
   slicePos2 = &(Camera_gInfo[player].anchor)->simRoadInfo;
   normUnderCam = *(coorddef *)BWorldSm_UNormal(slicePos);
@@ -1995,9 +1995,9 @@ void Camera_CheckWallCollisions(int player,coorddef *pos)
   coorddef quadUnderCamera; /* SYM: AUTO @-0x50 */
   coorddef triPnt;          /* SYM: AUTO @-0x40 */
   coorddef triVec;          /* SYM: AUTO @-0x30 */
+  int camAngle;             /* SYM: REG */
   int sin;                  /* SYM: AUTO @-0x20 */
   int cos;                  /* SYM: AUTO @-0x1c */
-  int camAngle;             /* SYM: REG */
   int camDotNorm;
   int edgeDotNorm;
   int count;

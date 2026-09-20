@@ -833,8 +833,8 @@ void Physics_AutoShift(Car_tObj *carObj)
 void Physics_RampCarControlValues(Car_tObj *carObj)
 
 {
-  int diff;
   int i;
+  int diff;
   int gear;
   
   if ((carObj->RSControl != 0) && ((u_char)(carObj->control).gear < 2)) {

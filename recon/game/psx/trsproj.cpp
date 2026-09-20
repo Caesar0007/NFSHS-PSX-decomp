@@ -166,8 +166,8 @@ void TrsProj_TransPtN16(RelCoord16 *s,coorddef *d,int n)
  * previously found -- it's the do/if-guard-vs-for loop SHAPE that was the actual lever.) */
 void TrsProj_TransformProjectVertex(matrixtdef *m,coorddef *t,int n,coorddef *s,Draw_tVertex *v)
 {
-  coorddef tmp;
   int i;
+  coorddef tmp;
 
   for (i = 0; i < n; i = i + 1) {
     transform(&s->x,m->m,&tmp.x);

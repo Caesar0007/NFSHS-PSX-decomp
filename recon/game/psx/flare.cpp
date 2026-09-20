@@ -193,9 +193,9 @@ void Flare_IdentMatrix(MATRIX *mtx)
 void Flare_OctFlare(long *center,int otz)
 
 {
+  long flare_dvxy [13];
   int i;
   long rgb1;
-  long flare_dvxy [13];
 
   /* MATCH: SYM locals = flare_dvxy[13] + i(t1) + rgb1(t4, pre-loop gfrgb cache)
    * + block-scope prim(a0); walkers = givs from gfOctPt1[i]/gfOctPt2[i]. */
@@ -250,6 +250,7 @@ gte_swc2(0xe,((char *)&flare_dvxy + 0x2c));
 void Flare_OctFlareSpikes(long *center,int otz)
 
 {
+  long flare_dvxy [13];
   int i;
   long rgb1;
   long rgb2;
@@ -257,7 +258,6 @@ void Flare_OctFlareSpikes(long *center,int otz)
   int id0;
   int id1;
   int id2;
-  long flare_dvxy [13];
 
   /* MATCH: SYM locals = flare_dvxy[13], i(t3), rgb1(s2)/rgb2(s1) pre-loop caches,
    * cent(t8), id0(a3)/id1(t1)/id2(a2) in-place reused across both prims;
@@ -1669,8 +1669,8 @@ void Flare_SingleColorHex(DVECTOR *xy,CVECTOR *color,int width,int height,int ot
 void Flare_SingleColorOct(DVECTOR *xy,CVECTOR *color,int width,int height,int otz)
 
 {
-  int i;
   DVECTOR pt [8];
+  int i;
 
   /* MATCH: SYM records only `pt[8]` and `i`.  Natural signed `/ 256` emits the
    * retail negative-product correction; indexed array source strength-reduces
@@ -1691,12 +1691,12 @@ void Flare_SingleColorOct(DVECTOR *xy,CVECTOR *color,int width,int height,int ot
 void Flare_SingleColorOctRing(DVECTOR *xy,CVECTOR *color,int width,int height,int otz)
 
 {
-  char i2;
-  int i;
-  char index;
-  int height2;
-  int width2;
   DVECTOR pt [18];
+  int i;
+  int width2;
+  int height2;
+  char index;
+  char i2;
 
   /* MATCH: SYM locals exactly (i / width2 / height2 / index CHAR / i2 CHAR) --
    * index = i*2 computed at loop-body TOP (back-edge delay slot), divides inline /256. */
@@ -2291,10 +2291,10 @@ gte_SetRotMatrix(&scalemat);
 void Flare_Moon(SVECTOR *worldPos,Draw_FlareCache *sd)
 
 {
-  int pshift;
   VECTOR diff;
   CVECTOR color;
   DVECTOR posOnScreen;
+  int pshift;
 
   pshift = 0x78;
   if (GameSetup_gData.commMode == 1) {

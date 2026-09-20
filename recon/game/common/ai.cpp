@@ -313,8 +313,8 @@ LAB_80057f34:
 /* ---- AI_DoReactionsAndBehavior__FP8Car_tObj  [@0x80058014] ---- */
 void AI_DoReactionsAndBehavior(Car_tObj *carObj)
 {
-  Car_tObj *otherCarObj;
   int t;
+  Car_tObj *otherCarObj;
 
   AI_DoReactions(carObj);
   t = 0;

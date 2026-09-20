@@ -318,10 +318,10 @@ void LoadOverlay(void)
 void NFS4_LoadingIcon(void)
 
 {
+  char fname [80];
+  int lang;
   char *ldfile;
   shapetbl *shp;
-  int lang;
-  char fname [80];
   RECT r;
 
   sprintf(fname,"%sldic.psh",Paths_Paths[0x25]);

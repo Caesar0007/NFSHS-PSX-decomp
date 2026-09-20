@@ -110,10 +110,10 @@ void Audio_FECleanUp(void)
 int AudioCmn_AddBank(char *filename,int size,char *pdata,int BankNum)
 
 {
-  int check;
-  char *ptemp;
-  char *p;
   int bhandle;
+  int check;
+  char *p;
+  char *ptemp;
 
   ptemp = filename;
   bhandle = -1;
@@ -153,8 +153,8 @@ int AudioCmn_AddBank(char *filename,int size,char *pdata,int BankNum)
 int AudioCmn_LoadBank(char *filename,int BankNum)
 
 {
-  char *pdata;
   char bankdata [80];
+  char *pdata;
 
   strcpy(bankdata,filename);
   strcat(bankdata,".bnk");

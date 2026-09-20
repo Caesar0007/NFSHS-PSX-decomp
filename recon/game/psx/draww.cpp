@@ -3088,9 +3088,9 @@ void DrawW_DoObjectAnimations(void)
 
 {
   int track;
-  int i;
   int *trackPtr;
   int time;
+  int i;
 
   track = GameSetup_gData.track;
   if (track == 0) {
@@ -5242,9 +5242,9 @@ void DrawW_DoObjects(DRender_tView *Vi,tBuildEntry *buildList)
 int Draw_CircleClip(coorddef *pt1,coorddef *pt2,int r)
 
 {
-  int dist;
-  int dz;
   int dx;
+  int dz;
+  int dist;
   
   dx = pt1->x - pt2->x;
   if (dx < 1) {

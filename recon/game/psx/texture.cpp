@@ -293,8 +293,8 @@ void Texture_CopyPalette(char *data,int width,int x,int y)
 void Texture_ProcessPaletteCopy(Texture_pal8bit *palCopy,int palStart,int palNum)
 
 {
-  int i;
   RECT r;
+  int i;
   short tmpPal [16];
 
   /* MATCH: INDEX form palCopy[i].* everywhere and NO `src` walker -- a walking

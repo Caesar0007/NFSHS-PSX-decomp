@@ -134,8 +134,8 @@ void Horizon_InterpolateLineSCoords(DVECTOR *sc,DVECTOR *s0,DVECTOR *s1,int *per
 void Sky_InitStars(void)
 
 {
-  int i;
   long oldSeed;
+  int i;
 
   if (starPosInSky == (SVECTOR *)0x0) {
     oldSeed = random();
@@ -143,10 +143,10 @@ void Sky_InitStars(void)
     starPosInSky = (SVECTOR *)reservememadr("stars",Sky_gTrackSpec->numStars << 3,0);
     starColors = (u_long *)reservememadr("starCols",Sky_gTrackSpec->numStars << 2,0);
     for (i = 0; i < Sky_gTrackSpec->numStars; i = i + 1) {
+      int radius;
+      int height;
       int latAngle;
       int heightAngle;
-      int height;
-      int radius;
       int starBright;
 
       latAngle = random();

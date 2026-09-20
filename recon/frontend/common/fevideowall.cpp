@@ -172,8 +172,8 @@ void tVideoWall::UpdateTransition()
 void tVideoWall::Draw()
 
 {
-  long textColor;
   short i;
+  long textColor;
   tDrawShapeExtended drawFlags;
   
   if ((this->fAvailable != 0) || (this->fValid == 0)) {

@@ -1379,8 +1379,8 @@ void Car_DoSkiddingStuff(Car_tObj *carObj)
     Car_TireSkiddingStuff(carObj);
   }
   else {
-    int audioSurface = Cars_kAudioRoadSurfaceInterface[(carObj->N).driveSurfaceType];
     int speed = (carObj->N).speedXZ;
+    int audioSurface = Cars_kAudioRoadSurfaceInterface[(carObj->N).driveSurfaceType];
     if (((carObj->N).objAltitude < 0x3333) && (0x20000 < speed)) {
       Cars_SetAudioCalls(carObj,4,0x14,1,audioSurface,0xa0000,0);
       carObj->oldAudioSkidState = carObj->oldAudioSkidState | 4;
@@ -1575,10 +1575,10 @@ LAB_80089c40:
 /* ---- Cars_IniCarObjects__FP8Car_tObji  [@0x80089d88] ---- */
 void Cars_IniCarObjects(Car_tObj *carObj,int index)
 {
-  int k;
-  int carMass;
-  coorddef offset;
   int startSlice;
+  coorddef offset;
+  int carMass;
+  int k;
 
   Cars_InitStats(carObj);
   carObj->swapCar = (Car_tObj *)0x0;
@@ -1744,6 +1744,11 @@ MASS_DONE:
 /* ---- Cars_InitCar__FP8Car_tObji  [@0x8008a174] ---- */
 void Cars_InitCar(Car_tObj *carObj,int index)
 {
+  char carFile[100];
+  char specsFile[100];
+  char name[20];
+  char *file2;
+  char *file1;
   /* MATCH: 19->16 via a real correctness bug: locatebig() genuinely takes only 2 args
      (locatbig.cpp:178 `char *locatebig(void*,char*)`; oracle 0x8008A2AC sets up ONLY a0/a1
      before the jal, no a2) -- dropped the bogus 3rd "0" arg (was a stale/wrong "$a2 dropped
@@ -1763,11 +1768,6 @@ void Cars_InitCar(Car_tObj *carObj,int index)
      Falsified: identity fence `"+r"(file1)` (22 diffs -- it also moves the def). */
   Udff_tInfo *handle;
   Udff_tInfo *handle2;
-  char *file2;
-  char *file1;
-  char carFile[100];
-  char specsFile[100];
-  char name[20];
 
   file2 = (char *)0x0;
   file1 = (char *)0x0;

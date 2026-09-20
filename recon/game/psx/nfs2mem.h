@@ -4,6 +4,5 @@
 #ifndef _GAME_PSX_NFS2MEM_H_
 #define _GAME_PSX_NFS2MEM_H_
 
-#include "../../nfs4_types.h"
 
 #endif

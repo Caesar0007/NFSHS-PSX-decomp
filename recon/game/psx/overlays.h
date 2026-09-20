@@ -1,7 +1,6 @@
 /* game/psx/overlays.h — reconstructed from game/psx/overlays.cpp (5 fns) */
 #ifndef _GAME_PSX_OVERLAYS_H_
 #define _GAME_PSX_OVERLAYS_H_
-#include "../../nfs4_types.h"
 /* P875: source identifiers and signatures checked against native SYM/linkage. */
 
 void OptionsBarThing(int x,int y,int w,int h);   /* SYM 42de4c @0x800d9968 */

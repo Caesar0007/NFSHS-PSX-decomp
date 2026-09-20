@@ -1,7 +1,6 @@
 /* game/common/aih_opp.h — reconstructed from game/common/aih_opp.cpp (5 fns) */
 #ifndef _GAME_COMMON_AIH_OPP_H_
 #define _GAME_COMMON_AIH_OPP_H_
-#include "../../nfs4_types.h"
 
 void CheckForWipeOut__15AIHigh_Opponent(AIHigh_Opponent *self);   /* :38 */
 int DoRearEnder__15AIHigh_Opponent(AIHigh_Opponent *self);   /* :97 */

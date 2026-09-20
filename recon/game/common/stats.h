@@ -1,7 +1,6 @@
 /* game/common/stats.h — reconstructed from game/common/stats.cpp (7 fns) */
 #ifndef _GAME_COMMON_STATS_H_
 #define _GAME_COMMON_STATS_H_
-#include "../../nfs4_types.h"
 
 /* P875: native source names/signatures; C++ supplies linkage mangling.
  * File-private functions stay in the implementation; class members remain

@@ -14,9 +14,6 @@ extern char textDefinitions[14][6];
 /* P885: SYM56d925 is one PTR cell; the pointed-to shapes are the array. */
 extern tTexture_ShapeInfo *gCurrentShapes;
 
-extern __nfs4_vtbl_ptr_t tScreenTournamentStandings_vtable[10];
-extern __nfs4_vtbl_ptr_t tScreenTournamentStandings3item_vtable[10];
-extern __nfs4_vtbl_ptr_t tScreenPinkSlipStandings_vtable[10];
 
 extern "C" int sprintf(char *, const char *, ...);
 extern "C" int textpixels(char *);

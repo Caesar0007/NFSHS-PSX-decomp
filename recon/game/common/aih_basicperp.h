@@ -1,7 +1,6 @@
 /* game/common/aih_basicperp.h — reconstructed from game/common/aih_basicperp.cpp (8 fns) */
 #ifndef _GAME_COMMON_AIH_BASICPERP_H_
 #define _GAME_COMMON_AIH_BASICPERP_H_
-#include "../../nfs4_types.h"
 
 void CheckForCrimes__16AIHigh_BasicPerp(AIHigh_BasicPerp *self);   /* :43 */
 int CheckIfCaught__16AIHigh_BasicPerp(AIHigh_BasicPerp *self);   /* :180 */

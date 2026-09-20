@@ -1,7 +1,6 @@
 /* game/psx/hrzsku.h — reconstructed from game/psx/hrzsku.cpp (22 fns) */
 #ifndef _GAME_PSX_HRZSKU_H_
 #define _GAME_PSX_HRZSKU_H_
-#include "../../nfs4_types.h"
 /* P875: source identifiers and signatures checked against native SYM/linkage. */
 
 void Horizon_InterpolateLineSCoords(DVECTOR * sc,DVECTOR * s0,DVECTOR * s1,int * percentage,int n,int bPercentageArray);   /* SYM 40d7e5 @0x800cf574 */

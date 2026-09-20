@@ -1,7 +1,6 @@
 /* game/psx/flare.h — reconstructed from game/psx/flare.cpp (27 fns) */
 #ifndef _GAME_PSX_FLARE_H_
 #define _GAME_PSX_FLARE_H_
-#include "../../nfs4_types.h"
 /* P875: source identifiers and signatures checked against native SYM/linkage. */
 
 void Flare_Tri(long * cp,long * p1,long * p2,int otz);   /* SYM 402840 @0x800cbcb0 */

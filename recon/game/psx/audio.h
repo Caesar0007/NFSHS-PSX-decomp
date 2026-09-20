@@ -1,7 +1,6 @@
 /* game/psx/audio.h — reconstructed from game/psx/audio.cpp (6 fns) */
 #ifndef _GAME_PSX_AUDIO_H_
 #define _GAME_PSX_AUDIO_H_
-#include "../../nfs4_types.h"
 /* P875: source identifiers and signatures checked against native SYM/linkage. */
 
 void Audio_InitDriver(int buffersize,int spusize);   /* SYM 392096 @0x800bbb84 */

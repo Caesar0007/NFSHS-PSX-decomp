@@ -4,14 +4,6 @@
 
 #include "color_types.h"
 
-/* GCC 2.7.2's old-ABI vtable entry; the compiler's modern built-in cannot be
- * materialized as an extern array by this host compiler. */
-typedef struct __nfs4_vtbl_ptr_t {
-    short delta, index;
-    int (*pfn)(...);
-} __nfs4_vtbl_ptr_t;
-#define __vtbl_ptr_type __nfs4_vtbl_ptr_t
-
 struct Sched_tSchedule {
     int maxNumFunctions, numFunctions;
     Sched_tFunctionSchedule func[1];

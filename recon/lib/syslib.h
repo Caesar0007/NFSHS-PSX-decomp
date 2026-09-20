@@ -1,7 +1,6 @@
 /* lib/syslib.h — PsyQ SDK functions (LINK_OPAQUE) */
 #ifndef _SYSLIB_H_
 #define _SYSLIB_H_
-#include "../nfs4_types.h"
 #include "libfns.h"
 typedef struct DR_MOVE{void*_o;}DR_MOVE;
 typedef struct LINE_F4{void*_o;}LINE_F4;

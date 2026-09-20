@@ -1,7 +1,6 @@
 /* game/common/anim.h — reconstructed from game/common/anim.cpp (18 fns) */
 #ifndef _GAME_COMMON_ANIM_H_
 #define _GAME_COMMON_ANIM_H_
-#include "../../nfs4_types.h"
 
 /* P875: native EXT free APIs use source spellings. Constructor/member APIs
  * come from the included class declarations; duplicate encoded non-members

@@ -9,12 +9,6 @@ struct SndBnk_t { int bnkID; char *phdr, *pdata; };
 #define RaceType_Tournament 2
 #define RaceType_PinkSlips 6
 
-typedef struct __nfs4_vtbl_ptr_t {
-    short delta, index;
-    int (*pfn)(...);
-} __nfs4_vtbl_ptr_t;
-#define __vtbl_ptr_type __nfs4_vtbl_ptr_t
-
 typedef enum tPMenuCommandType {
     kMPause_NoEvent = 0,
     kMPause_Continue = 1,

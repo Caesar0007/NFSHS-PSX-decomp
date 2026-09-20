@@ -1,7 +1,6 @@
 /* game/common/aih_btccop.h — reconstructed from game/common/aih_btccop.cpp (33 fns) */
 #ifndef _GAME_COMMON_AIH_BTCCOP_H_
 #define _GAME_COMMON_AIH_BTCCOP_H_
-#include "../../nfs4_types.h"
 
 void * __14AIHigh_BTC_CopP8Car_tObji(AIHigh_BTC_Cop *self, Car_tObj *carObj, int copIndex);   /* :107 */
 void AssignToPlayer__14AIHigh_BTC_CopP15AIHigh_BTC_Perp(AIHigh_BTC_Cop *self, AIHigh_BTC_Perp *target);   /* :115 */

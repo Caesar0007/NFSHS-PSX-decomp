@@ -86,7 +86,6 @@ static int  gRotateOffset[4];             /* STAT @0x80052c18 */
 static char gSwapFileName[2][20];         /* STAT @0x80052c28 */
 static char WaitingString[50];            /* STAT @0x80052c58 */
 /* vtable data refs (Ghidra _DAT_) + per-class vtables */
-extern __vtbl_ptr_type tScreenCarSelect_vtable[], tScreenCarSelectDuel_vtable[], tScreenCarSelectTwoPlayer_vtable[], tScreenPinkSlipsCarSelect_vtable[];
 /* singletons (EXT) */
 extern tScreenCarSelect *screenCarSelect;
 

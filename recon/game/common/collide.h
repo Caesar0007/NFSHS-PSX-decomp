@@ -1,7 +1,6 @@
 /* game/common/collide.h — reconstructed from game/common/collide.cpp (14 fns) */
 #ifndef _GAME_COMMON_COLLIDE_H_
 #define _GAME_COMMON_COLLIDE_H_
-#include "../../nfs4_types.h"
 
 /* P874: source names; C++ supplies the native GCC-v2 linkage mangling. */
 

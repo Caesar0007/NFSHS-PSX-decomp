@@ -1,7 +1,6 @@
 /* game/common/aih_btcperp.h — reconstructed from game/common/aih_btcperp.cpp (20 fns) */
 #ifndef _GAME_COMMON_AIH_BTCPERP_H_
 #define _GAME_COMMON_AIH_BTCPERP_H_
-#include "../../nfs4_types.h"
 
 void ReleaseCops__15AIHigh_BTC_Perp(AIHigh_BTC_Perp *self);   /* :63 */
 void HandleCops__15AIHigh_BTC_Perp(AIHigh_BTC_Perp *self);   /* :82 */

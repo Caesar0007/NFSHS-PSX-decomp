@@ -1,7 +1,6 @@
 /* game/psx/texture.h — reconstructed from game/psx/texture.cpp (24 fns) */
 #ifndef _GAME_PSX_TEXTURE_H_
 #define _GAME_PSX_TEXTURE_H_
-#include "../../nfs4_types.h"
 /* P875: source identifiers and signatures checked against native SYM/linkage. */
 
 void Texture_InitPaletteSharing(void);   /* SYM 46ae2c @0x800df5b4 */

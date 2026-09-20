@@ -4,12 +4,6 @@
 
 #include "color_types.h"
 
-typedef struct __nfs4_vtbl_ptr_t {
-    short delta, index;
-    int (*pfn)(...);
-} __nfs4_vtbl_ptr_t;
-#define __vtbl_ptr_type __nfs4_vtbl_ptr_t
-
 #ifndef NFS4_GMESETUP_OMIT_OWNER_RECORDS
 struct FEI_tList { int v; int *p; };
 
@@ -69,7 +63,7 @@ struct tListIterator {
     short *fSelectionList;
     char *fValue;
     char fMinValue, fMaxValue;
-    __vtbl_ptr_type (*_vf)[6];
+    virtual ~tListIterator();   /* layout-only surface: polymorphic root, never dispatched here (FE owns the interface) */
 };
 struct tListIteratorRange : public tListIterator {};
 
@@ -78,7 +72,7 @@ struct tMenuItem {
     short fSelFade;
     int fButtonImage, fNumFrames;
     tMenu *fNewMenu;
-    __vtbl_ptr_type (*_vf)[11];
+    virtual ~tMenuItem();   /* layout-only surface: polymorphic root, never dispatched here (FE owns the interface) */
 };
 
 typedef tMenuItem *tItemList[16];
@@ -93,7 +87,7 @@ struct tMenu {
     tMenu *fNextMenu, *fChildMenu, *fOptionsMenu;
     void (*fOnButtonPress)(tMenuCommand&);
     short VertHelp;
-    __vtbl_ptr_type (*_vf)[11];
+    virtual ~tMenu();   /* layout-only surface: polymorphic root, never dispatched here (FE owns the interface) */
 };
 
 struct tMenuItemInteractive : public tMenuItem {};

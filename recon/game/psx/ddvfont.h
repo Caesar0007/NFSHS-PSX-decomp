@@ -3,5 +3,4 @@
  * this header exists so ddvfont.cpp has a sibling include (per-TU header convention). */
 #ifndef _GAME_PSX_DDVFONT_H_
 #define _GAME_PSX_DDVFONT_H_
-#include "../../nfs4_types.h"
 #endif /* _GAME_PSX_DDVFONT_H_ */

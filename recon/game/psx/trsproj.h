@@ -1,7 +1,6 @@
 /* game/psx/trsproj.h — reconstructed from game/psx/trsproj.cpp (11 fns) */
 #ifndef _GAME_PSX_TRSPROJ_H_
 #define _GAME_PSX_TRSPROJ_H_
-#include "../../nfs4_types.h"
 /* P875: source identifiers and signatures checked against native SYM/linkage. */
 
 void TrsProj_SetTransPrecision(int val);   /* SYM 47f303 @0x800e192c */

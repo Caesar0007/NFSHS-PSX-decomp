@@ -4,9 +4,6 @@
 #define _GAME_COMMON_CAMERA_EXTERNS_H_
 /* ---- aistate.obj manual vtable symbols (cross-TU; g++ 2.7.2 _vt_<class>) ---- */
 extern Car_tObj *Cars_gList[];
-extern __vtbl_ptr_type AIState_Base_vtable[], AIState_Normal_vtable[], AIState_NonActive_vtable[],
-  AIState_Idle_vtable[], AIState_Chase_vtable[], AIState_Offroad_vtable[], AIState_Purgatory_vtable[],
-  AIState_RovingTraffic_vtable[], AIState_Donuts_vtable[], AIState_GotoSlice_vtable[], AIState_Cruise_vtable[];
 
 /* ---- SS3.23 deleting-dtor free fns (SaveSurface/ObjectFinishedSignAnim pattern): the oracle
    is a real per-class deleting dtor for each of these (not a base-forward that gcc's default

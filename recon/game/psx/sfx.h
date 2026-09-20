@@ -1,7 +1,6 @@
 /* game/psx/sfx.h — reconstructed from game/psx/sfx.cpp (7 fns) */
 #ifndef _GAME_PSX_SFX_H_
 #define _GAME_PSX_SFX_H_
-#include "../../nfs4_types.h"
 /* P875: source identifiers and signatures checked against native SYM/linkage. */
 
 void Sfx_Transform(coorddef * worldpt,SVECTOR * campt,coorddef * t);   /* SYM 45b502 @0x800dd050 */

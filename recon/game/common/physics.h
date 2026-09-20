@@ -1,7 +1,6 @@
 /* game/common/physics.h — reconstructed from game/common/physics.cpp (22 fns) */
 #ifndef _GAME_COMMON_PHYSICS_H_
 #define _GAME_COMMON_PHYSICS_H_
-#include "../../nfs4_types.h"
 
 /* P875: native source names/signatures; C++ supplies linkage mangling.
  * File-private functions stay in the implementation; class members remain

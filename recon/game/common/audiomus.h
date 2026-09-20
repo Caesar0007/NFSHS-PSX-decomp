@@ -1,7 +1,6 @@
 /* game/common/audiomus.h — reconstructed from game/common/audiomus.cpp (23 fns) */
 #ifndef _GAME_COMMON_AUDIOMUS_H_
 #define _GAME_COMMON_AUDIOMUS_H_
-#include "../../nfs4_types.h"
 
 /* P875: source names/signatures checked against native EXT records and
  * defining exports; compile-only typed references verify the C++ linkage. */

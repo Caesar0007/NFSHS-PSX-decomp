@@ -1,7 +1,6 @@
 /* game/psx/loading.h — reconstructed from game/psx/loading.cpp (3 fns) */
 #ifndef _GAME_PSX_LOADING_H_
 #define _GAME_PSX_LOADING_H_
-#include "../../nfs4_types.h"
 /* P875: source identifiers and signatures checked against native SYM/linkage. */
 
 void Loading_DrawLoadingScreen(void);   /* SYM 4312e4 @0x800db0b8 */

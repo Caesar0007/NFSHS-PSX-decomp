@@ -8,13 +8,6 @@
 #define Render_gPacketPtr  (*(u_char **)0x1F800004)
 #define Render_gPalettePtr (*(u_char **)0x1F800000)
 
-typedef struct __nfs4_vtbl_ptr_t {
-    short delta;
-    short index;
-    int (*pfn)(...);
-} __nfs4_vtbl_ptr_t;
-#define __vtbl_ptr_type __nfs4_vtbl_ptr_t
-
 enum tMenuCommandType {
     kMenu_Command_None = 0,
     kMenu_Command_GoToMenu = 1,
@@ -49,7 +42,7 @@ struct tListIterator {
     short *fSelectionList;
     char *fValue;
     char fMinValue, fMaxValue;
-    __vtbl_ptr_type (*_vf)[6];
+    virtual ~tListIterator();   /* layout-only surface: polymorphic root, never dispatched here (FE owns the interface) */
 };
 
 struct tListIteratorRange : public tListIterator {};
@@ -63,7 +56,7 @@ struct tMenuItem {
     short fSelFade;
     int fButtonImage, fNumFrames;
     tMenu *fNewMenu;
-    __vtbl_ptr_type (*_vf)[11];
+    virtual ~tMenuItem();   /* layout-only surface: polymorphic root, never dispatched here (FE owns the interface) */
 };
 
 typedef tMenuItem *tItemList[16];
@@ -78,7 +71,7 @@ struct tMenu {
     tMenu *fNextMenu, *fChildMenu, *fOptionsMenu;
     void (*fOnButtonPress)(tMenuCommand &);
     short VertHelp;
-    __vtbl_ptr_type (*_vf)[11];
+    virtual ~tMenu();   /* layout-only surface: polymorphic root, never dispatched here (FE owns the interface) */
 };
 
 struct tMenuItemInteractive : public tMenuItem {};
@@ -98,7 +91,7 @@ struct tScreen {
     bool fTransitionOff;
     int fInternalScreenFadeVal;
     short fScreenFadeVal;
-    __vtbl_ptr_type (*_vf)[10];
+    virtual ~tScreen();   /* layout-only surface: polymorphic root, never dispatched here (FE owns the interface) */
 };
 
 struct tActiveLine {

@@ -1,7 +1,6 @@
 /* game/common/aiperson.h — reconstructed from game/common/aiperson.cpp (8 fns) */
 #ifndef _GAME_COMMON_AIPERSON_H_
 #define _GAME_COMMON_AIPERSON_H_
-#include "../../nfs4_types.h"
 
 /* P872: use the source names; C++ supplies the GCC-v2 linkage mangling. */
 void AIPerson_LoadGridAndSetPersonalityIndexes(void);   /* :31 */

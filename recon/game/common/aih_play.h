@@ -1,7 +1,6 @@
 /* game/common/aih_play.h — reconstructed from game/common/aih_play.cpp (9 fns) */
 #ifndef _GAME_COMMON_AIH_PLAY_H_
 #define _GAME_COMMON_AIH_PLAY_H_
-#include "../../nfs4_types.h"
 
 int CheckIfABlockadeCanBeSetup__13AIHigh_Player(AIHigh_Player *self);   /* :55 */
 void SetupBlockade__13AIHigh_Player(AIHigh_Player *self);   /* :184 */

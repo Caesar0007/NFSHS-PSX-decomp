@@ -1,7 +1,6 @@
 /* game/common/aih_traf.h — reconstructed from game/common/aih_traf.cpp (5 fns) */
 #ifndef _GAME_COMMON_AIH_TRAF_H_
 #define _GAME_COMMON_AIH_TRAF_H_
-#include "../../nfs4_types.h"
 
 void * CheckForCops__14AIHigh_TrafficPi(AIHigh_Traffic *self, int *closestDistance);   /* :32 */
 void * CopCheck__14AIHigh_TrafficPi(AIHigh_Traffic *self, int *blockade);   /* :61 */

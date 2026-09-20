@@ -1,7 +1,6 @@
 /* game/common/udff.h — reconstructed from game/common/udff.cpp (4 fns) */
 #ifndef _GAME_COMMON_UDFF_H_
 #define _GAME_COMMON_UDFF_H_
-#include "../../nfs4_types.h"
 
 /* P875: source names/signatures checked against native EXT records and
  * defining exports; compile-only typed references verify the C++ linkage. */

@@ -1,7 +1,6 @@
 /* game/psx/psxcontroller.h — reconstructed from game/psx/psxcontroller.cpp (4 fns) */
 #ifndef _GAME_PSX_PSXCONTROLLER_H_
 #define _GAME_PSX_PSXCONTROLLER_H_
-#include "../../nfs4_types.h"
 /* P875: source identifiers and signatures checked against native SYM/linkage. */
 
 void InGame_ResetPSXController(int player,int config);   /* SYM 4547ea @0x800dc4cc */

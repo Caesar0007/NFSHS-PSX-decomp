@@ -1,7 +1,6 @@
 /* game/common/audioeng.h — reconstructed from game/common/audioeng.cpp (9 fns) */
 #ifndef _GAME_COMMON_AUDIOENG_H_
 #define _GAME_COMMON_AUDIOENG_H_
-#include "../../nfs4_types.h"
 
 /* P874: source names; C++ supplies the native GCC-v2 linkage mangling. */
 

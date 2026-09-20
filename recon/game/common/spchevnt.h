@@ -1,7 +1,6 @@
 /* game/common/spchevnt.h — reconstructed from game/common/spchevnt.c (53 fns) */
 #ifndef _GAME_COMMON_SPCHEVNT_H_
 #define _GAME_COMMON_SPCHEVNT_H_
-#include "../../nfs4_types.h"
 
 long SPCHNFS_C_A_CONFIRM(SPCHNFSType_VOICE *VOICE, int ID_UNIT, SPCHNFSType_CONFIRM *CONFIRM);   /* :7 */
 long SPCHNFS_C_D_REQUEST_EMS(SPCHNFSType_VOICE *VOICE, SPCHNFSType_AMBULANCE *AMBULANCE);   /* :27 */

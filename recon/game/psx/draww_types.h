@@ -10,15 +10,6 @@
 #define Render_gPalettePtr (*(u_char **)0x1F800000)
 #define gScratchLastWord   (*(int *)0x1F8003FC)
 
-/* GCC 2.7.2's built-in vtable entry is an eight-byte delta/index/function
- * tuple.  The host compiler reserves the same spelling for a different type,
- * so retain the established layout-identical compiler-boundary carrier. */
-typedef struct __nfs4_vtbl_ptr_t {
-    short delta, index;
-    int (*pfn)(...);
-} __nfs4_vtbl_ptr_t;
-#define __vtbl_ptr_type __nfs4_vtbl_ptr_t
-
 typedef enum forceFocus_t {
     FOCUS_NORMAL = 0,
     FOCUS_AI = 1,
@@ -37,7 +28,8 @@ struct AIDataRecord_t {
     char name_[64];
     char *dataBuffer_, *preAllocatedBuffer_;
     AIDataRecord_RecordMethod_t recordMethod_;
-    __vtbl_ptr_type (*_vf)[3];
+    virtual ~AIDataRecord_t();   /* aidatarecord.cpp owns the family; slots: dtor, Setup */
+    virtual void Setup();
 };
 struct AIDataRecord_AccTable_t : public AIDataRecord_t { int scale_; };
 struct AIDataRecord_CurveSpeedTable_t : public AIDataRecord_t {};

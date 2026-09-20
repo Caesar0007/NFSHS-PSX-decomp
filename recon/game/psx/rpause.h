@@ -1,7 +1,6 @@
 /* game/psx/rpause.h — reconstructed from game/psx/rpause.cpp (3 fns) */
 #ifndef _GAME_PSX_RPAUSE_H_
 #define _GAME_PSX_RPAUSE_H_
-#include "../../nfs4_types.h"
 /* P875: source identifiers and signatures checked against native SYM/linkage. */
 
 void RPause_CopyBackToFrontBuffer(void);   /* SYM 4570f8 @0x800dcec4 */

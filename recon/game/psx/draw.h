@@ -1,7 +1,6 @@
 /* game/psx/draw.h — reconstructed from game/psx/draw.cpp (25 fns) */
 #ifndef _GAME_PSX_DRAW_H_
 #define _GAME_PSX_DRAW_H_
-#include "../../nfs4_types.h"
 /* P875: source identifiers and signatures checked against native SYM/linkage. */
 
 int Draw_SetView(int x0,int y0,int x1,int y1,int w,int h,int dtd,int isbg,int otsize);   /* SYM 3adde5 @0x800bdac0 */

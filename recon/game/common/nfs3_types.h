@@ -60,7 +60,7 @@ struct tScreen {
     bool fTransitionOff;
     int fInternalScreenFadeVal;
     short fScreenFadeVal;
-    __vtbl_ptr_type (*_vf)[10];
+    virtual ~tScreen();   /* layout-only surface: polymorphic root, never dispatched here (FE owns the interface) */
 };
 
 struct tCarLineup {

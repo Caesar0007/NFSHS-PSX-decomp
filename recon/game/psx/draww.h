@@ -1,7 +1,6 @@
 /* game/psx/draww.h — reconstructed from game/psx/draww.cpp (35 fns) */
 #ifndef _GAME_PSX_DRAWW_H_
 #define _GAME_PSX_DRAWW_H_
-#include "../../nfs4_types.h"
 /* P875: source identifiers and signatures checked against native SYM/linkage. */
 
 void DrawW_AddSubdividPrimGT4(POLY_GT4 * prim,Draw_SVertex * v0,Draw_SVertex * v1,Draw_SVertex * v2,Draw_SVertex * v3,Draw_tGiveShelbyMoreCache * sd);   /* SYM 3e0aa2 @0x800c5028 */

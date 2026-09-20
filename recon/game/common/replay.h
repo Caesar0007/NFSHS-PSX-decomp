@@ -1,7 +1,6 @@
 /* game/common/replay.h — reconstructed from game/common/replay.cpp (16 fns) */
 #ifndef _GAME_COMMON_REPLAY_H_
 #define _GAME_COMMON_REPLAY_H_
-#include "../../nfs4_types.h"
 
 /* P875: native source names/signatures; C++ supplies linkage mangling.
  * File-private functions stay in the implementation; class members remain

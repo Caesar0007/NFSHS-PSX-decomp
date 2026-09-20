@@ -53,7 +53,7 @@ struct tListIterator {
     short *fSelectionList;
     char *fValue;
     char fMinValue, fMaxValue;
-    __vtbl_ptr_type (*_vf)[6];
+    virtual ~tListIterator();   /* layout-only surface: polymorphic root, never dispatched here (FE owns the interface) */
 };
 struct tListIteratorRange : public tListIterator {};
 
@@ -62,7 +62,7 @@ struct tMenuItem {
     short fSelFade;
     int fButtonImage, fNumFrames;
     tMenu *fNewMenu;
-    __vtbl_ptr_type (*_vf)[11];
+    virtual ~tMenuItem();   /* layout-only surface: polymorphic root, never dispatched here (FE owns the interface) */
 };
 
 typedef tMenuItem *tItemList[16];
@@ -77,7 +77,7 @@ struct tMenu {
     tMenu *fNextMenu, *fChildMenu, *fOptionsMenu;
     void (*fOnButtonPress)(tMenuCommand&);
     short VertHelp;
-    __vtbl_ptr_type (*_vf)[11];
+    virtual ~tMenu();   /* layout-only surface: polymorphic root, never dispatched here (FE owns the interface) */
 };
 
 struct tMenuItemInteractive : public tMenuItem {};

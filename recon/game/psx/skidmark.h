@@ -1,7 +1,6 @@
 /* game/psx/skidmark.h — reconstructed from game/psx/skidmark.cpp (11 fns) */
 #ifndef _GAME_PSX_SKIDMARK_H_
 #define _GAME_PSX_SKIDMARK_H_
-#include "../../nfs4_types.h"
 /* P875: source identifiers and signatures checked against native SYM/linkage. */
 
 void CalcStartSegment(Skidmark_Segment * r1,Skidmark_Segment * r2,coorddef * cp,coorddef * pt1,coorddef * pt2,int tireWidth);   /* SYM 465f70 @0x800de6f4 */

@@ -5,7 +5,6 @@
 #include "aih_btccop_types.h"
 
 /* ---- vtables: AIHigh_BTC_Cop/HumanCop/Wingman (this obj) + AIState_NonActive/Base ---- */
-extern __vtbl_ptr_type D_80054F24[];
 
 extern "C" struct CARDINFO_def *MCRD_getcard(int);
 extern AICop_spikeBelt_t AICop_spikeBelt;

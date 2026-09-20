@@ -1,7 +1,6 @@
 /* game/psx/force.h — reconstructed from game/psx/force.cpp (9 fns) */
 #ifndef _GAME_PSX_FORCE_H_
 #define _GAME_PSX_FORCE_H_
-#include "../../nfs4_types.h"
 /* P875: source identifiers and signatures checked against native SYM/linkage. */
 
 void Force_Vbl(void);   /* SYM 3f1520 @0x800ca998 */

@@ -1,7 +1,6 @@
 /* game/common/speech.h — reconstructed from game/common/speech.cpp, game/common/speech.h (102 fns) */
 #ifndef _GAME_COMMON_SPEECH_H_
 #define _GAME_COMMON_SPEECH_H_
-#include "../../nfs4_types.h"
 
 int StatusCount__Q26Speech15DispatchSpeaker(DispatchSpeaker *self);   /* :56 */
 void * StatusSub__Q26Speech15DispatchSpeaker(DispatchSpeaker *self);   /* :57 */

@@ -5,5 +5,4 @@
  * (matching the project's per-TU header convention). */
 #ifndef _GAME_COMMON_AISPEECH_H_
 #define _GAME_COMMON_AISPEECH_H_
-#include "../../nfs4_types.h"
 #endif /* _GAME_COMMON_AISPEECH_H_ */

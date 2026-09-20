@@ -19,12 +19,6 @@
 #undef NFS4_AUDIOCLC_OMIT_SCENE_TYPES
 #undef NFS4_AUDIOCLC_OMIT_AUDIOCLC_ONLY_TYPES
 
-typedef struct __nfs4_vtbl_ptr_t {
-    short delta, index;
-    int (*pfn)(...);
-} __nfs4_vtbl_ptr_t;
-#define __vtbl_ptr_type __nfs4_vtbl_ptr_t
-
 struct AudioMus_tSongEntry {
     char *filename, *title, *artist, *label, *date, *notes;
     int length, index;

@@ -13,7 +13,6 @@
  */
 #ifndef _LIB_LIBFNS_H_
 #define _LIB_LIBFNS_H_
-#include "../nfs4_types.h"
 
 extern "C" {
 

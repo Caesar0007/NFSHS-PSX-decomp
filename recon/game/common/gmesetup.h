@@ -1,7 +1,6 @@
 /* game/common/gmesetup.h — reconstructed from game/common/gmesetup.cpp (2 fns) */
 #ifndef _GAME_COMMON_GMESETUP_H_
 #define _GAME_COMMON_GMESETUP_H_
-#include "../../nfs4_types.h"
 
 /* P875: native source names/signatures; C++ supplies linkage mangling.
  * File-private functions stay in the implementation; class members remain

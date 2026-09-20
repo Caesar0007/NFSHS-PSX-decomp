@@ -8,10 +8,6 @@ extern tPadModuleState gPadinfo;
 extern int ticks;
 extern tGlobalMenuDefs *menuDefs;
 /* class vtables (FEMenuExtended.obj-defined subclasses) */
-extern __vtbl_ptr_type tMenuItemGoToMenuNFS4Button_vtable[], tMenuItemNFS4LeftRightChoice_vtable[],
-  tMenuItemOptionsLeftRightChoice_vtable[], tMenuItemOptionsTwoItemChoice_vtable[],
-  tMenuNFS4_vtable[], tMenuNFS4TwoPlayer_vtable[], tMenuNFS4Bottom_vtable[],
-  tMenuBlank_vtable[], tMenuOptions_vtable[];
 /* engine helpers (shared with FeMenuOptions) */
 int   CalcFadeVal(int, int);  int CalcFadeVal(int,int,int);  int CalcFadeVal(int,int,int,int);
 void  DrawShapeExtended(int,int,int,int,int,int,tDrawShapeExtended*);

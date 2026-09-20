@@ -35,7 +35,6 @@ int          textSysMemCardFail_Index[7] = { 0, 677, 685, 675, 811, 671, 669 }; 
    does not uniquely recover the original CV keyword or macro spelling. */
 /* base-class vtables for the inlined WarningDialog ctor chains (declared in feapp_externs.h
    for other TUs; TU-local externs here) */
-extern __vtbl_ptr_type tDialogBase_vtable[], tDialogMessageString_vtable[];
 
 inline tDialogBase::tDialogBase()
 {

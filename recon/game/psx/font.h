@@ -1,7 +1,6 @@
 /* game/psx/font.h — reconstructed from game/psx/font.cpp (15 fns) */
 #ifndef _GAME_PSX_FONT_H_
 #define _GAME_PSX_FONT_H_
-#include "../../nfs4_types.h"
 /* P875: source identifiers and signatures checked against native SYM/linkage. */
 
 void Font_TextColor(int color);   /* SYM 3f4d88 @0x800cb20c */

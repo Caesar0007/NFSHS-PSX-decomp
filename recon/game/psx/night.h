@@ -1,7 +1,6 @@
 /* game/psx/night.h — reconstructed from game/psx/night.cpp (19 fns) */
 #ifndef _GAME_PSX_NIGHT_H_
 #define _GAME_PSX_NIGHT_H_
-#include "../../nfs4_types.h"
 /* P875: source identifiers and signatures checked against native SYM/linkage. */
 
 int Night_FindClosestColor(CVECTOR colorMatch,int * bestIndex);   /* SYM 43b827 @0x800db318 */

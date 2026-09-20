@@ -1,7 +1,6 @@
 /* game/common/aih_cop.h — reconstructed from game/common/aih_cop.cpp (9 fns) */
 #ifndef _GAME_COMMON_AIH_COP_H_
 #define _GAME_COMMON_AIH_COP_H_
-#include "../../nfs4_types.h"
 
 void * __10AIHigh_CopP8Car_tObji(AIHigh_Cop *self, Car_tObj *carObj, int copIndex);   /* :95 */
 void SetTuningLevers__10AIHigh_Cop(AIHigh_Cop *self);   /* :110 */

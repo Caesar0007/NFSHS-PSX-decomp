@@ -1,7 +1,6 @@
 /* game/common/fastrand.h — reconstructed from game/common/fastrand.cpp (2 fns) */
 #ifndef _GAME_COMMON_FASTRAND_H_
 #define _GAME_COMMON_FASTRAND_H_
-#include "../../nfs4_types.h"
 
 /* P875: source names/signatures checked against native EXT records and
  * defining exports; compile-only typed references verify the C++ linkage. */

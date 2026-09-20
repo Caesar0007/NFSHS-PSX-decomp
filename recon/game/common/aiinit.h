@@ -1,7 +1,6 @@
 /* game/common/aiinit.h — reconstructed from game/common/aiinit.cpp (17 fns) */
 #ifndef _GAME_COMMON_AIINIT_H_
 #define _GAME_COMMON_AIINIT_H_
-#include "../../nfs4_types.h"
 
 /* P875: verified source-level free names/signatures; the C++ compiler supplies
    native GCC-v2 linkage names. File-local STAT helpers stay in their .cpp. */

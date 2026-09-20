@@ -1,7 +1,6 @@
 /* game/psx/device.h — reconstructed from game/psx/device.cpp (10 fns) */
 #ifndef _GAME_PSX_DEVICE_H_
 #define _GAME_PSX_DEVICE_H_
-#include "../../nfs4_types.h"
 /* P875: source identifiers and signatures checked against native SYM/linkage. */
 
 int Device_VerifyType(int port);   /* SYM 3a9947 @0x800bd3c0 */

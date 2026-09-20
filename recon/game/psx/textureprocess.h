@@ -1,7 +1,6 @@
 /* game/psx/textureprocess.h — reconstructed from game/psx/textureprocess.cpp (16 fns) */
 #ifndef _GAME_PSX_TEXTUREPROCESS_H_
 #define _GAME_PSX_TEXTUREPROCESS_H_
-#include "../../nfs4_types.h"
 /* P875: source identifiers and signatures checked against native SYM/linkage. */
 
 int TextureProcess_TransColorCheck(char * data,int numentry);   /* SYM 475dcf @0x800e0884 */

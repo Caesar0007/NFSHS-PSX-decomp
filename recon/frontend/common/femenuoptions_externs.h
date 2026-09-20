@@ -16,12 +16,6 @@ extern short MENUUSERNAME_STARTY;   /* @0x800529b2 ScreenUserName.obj-owned (cro
 extern char *Paths_Paths[];
 extern tGlobalMenuDefs *menuDefs;
 /* class vtables (FeMenuOptions.obj-defined subclasses) */
-extern __vtbl_ptr_type tMenuItemGoToMenuButtonFade_vtable[], tMenuItemLeftRightFade_vtable[], tOptionsMenu_vtable[],
-  tInsideBoxMenu_vtable[], tMenuItemSlidingMenu_vtable[], tMenuItemSlidingActivated_vtable[],
-  tMenuItemDisplayLeftRightChoice_vtable[], tMenuItemOnOffLeftRightChoice_vtable[], tMenuItemLeftRightAudioSlider_vtable[],
-  tInsideBoxSongMenu_vtable[], tMenuItemControllerLeftRightChoice_vtable[], tInsideBoxLeftRightSlider_vtable[],
-  tInsideBoxTwoWaySlider_vtable[], tUserNameMenuItem_vtable[], tMemoryCardMenuItem_vtable[],
-  tInsideBoxControllerLeftRightSlider_vtable[];
 /* engine helpers */
 int   CalcFadeVal(int, int);  int CalcFadeVal3(int,int,int);
 void  DrawShapeExtended(int,int,int,int,int,int,tDrawShapeExtended*);

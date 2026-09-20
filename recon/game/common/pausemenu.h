@@ -1,7 +1,6 @@
 /* game/common/pausemenu.h — reconstructed from game/common/pausemenu.cpp, game/common/pausemenu.h (60 fns) */
 #ifndef _GAME_COMMON_PAUSEMENU_H_
 #define _GAME_COMMON_PAUSEMENU_H_
-#include "../../nfs4_types.h"
 
 /* P875: native EXT free APIs use source spellings. Constructor/member APIs
  * come from the included class declarations; duplicate encoded non-members

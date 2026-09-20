@@ -1,7 +1,6 @@
 /* game/psx/platform.h — reconstructed from game/psx/platform.cpp (8 fns) */
 #ifndef _GAME_PSX_PLATFORM_H_
 #define _GAME_PSX_PLATFORM_H_
-#include "../../nfs4_types.h"
 /* P875: source identifiers and signatures checked against native SYM/linkage. */
 
 void Platform_InitMemory(void);   /* SYM 447bc1 @0x800dc2b8 */

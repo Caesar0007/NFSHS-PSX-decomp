@@ -1,7 +1,6 @@
 /* game/psx/weather.h — reconstructed from game/psx/weather.cpp (25 fns) */
 #ifndef _GAME_PSX_WEATHER_H_
 #define _GAME_PSX_WEATHER_H_
-#include "../../nfs4_types.h"
 /* P875: source identifiers and signatures checked against native SYM/linkage. */
 
 int Weather_GetNumParticles(int player);   /* SYM 486ee5 @0x800e1dc0 */

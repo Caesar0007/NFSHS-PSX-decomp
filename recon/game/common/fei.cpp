@@ -4,7 +4,7 @@
  *   P906: all108 non-null pointers use typed native SYM names/field paths. The full912-byte
  *   table and every relocation match CPE/raw; exact original macro/token spellings remain unknown.
  *   Walk-skipped (data-only, no .text); found during library/runtime inventory closure. */
-#include "../../nfs4_types.h"
+#include "gmesetup_types.h"   /* FEI_tList + GameSetup_tData (GmeSetup.obj owns both) */
 #include "fei_externs.h"
 
 FEI_tList FEI_gList[114] = {   /* @0x8011279c */

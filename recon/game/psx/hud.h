@@ -1,7 +1,6 @@
 /* game/psx/hud.h — reconstructed from game/psx/hud.cpp (62 fns) */
 #ifndef _GAME_PSX_HUD_H_
 #define _GAME_PSX_HUD_H_
-#include "../../nfs4_types.h"
 /* P875: source identifiers and signatures checked against native SYM/linkage. */
 
 void Hud_CreateHudViews(void);   /* SYM 41fff1 @0x800d1a80 */

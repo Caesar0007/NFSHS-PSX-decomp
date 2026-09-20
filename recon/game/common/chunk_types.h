@@ -180,20 +180,20 @@ struct SceneSortedElem { int slice_; SceneElem *se; };
 struct AnimDef { int type, numPieces, objDefIndex, baseAnim, animIndex; };
 
 /* __vtbl_ptr_type is GCC 2.7.2's built-in vtable-entry typedef. */
+struct DRender_tView;
+struct Draw_DCache;
 struct ObjectAnim {
-    __vtbl_ptr_type (*_vf)[3];
-    ~ObjectAnim();
+    virtual ~ObjectAnim();
+    virtual int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset) = 0;
 };
 
 struct DRender_tView;
 struct Draw_DCache;
-struct ObjectFinishedMultiAnim {
-    ObjectAnim _base_ObjectAnim;
+struct ObjectFinishedMultiAnim : public ObjectAnim {
     int Draw(DRender_tView *Vi, Draw_DCache *sd, int offset);
 };
 
-struct ObjectFinishedSignAnim {
-    ObjectAnim _base_ObjectAnim;
+struct ObjectFinishedSignAnim : public ObjectAnim {
     matrixtdef finalMatrix;
     Trk_ObjectDef *objDef;
     Trk_CollideBoomInst *objCollideInstance;

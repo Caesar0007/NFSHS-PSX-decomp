@@ -1,7 +1,6 @@
 /* game/psx/cario.h — reconstructed from game/psx/cario.cpp (11 fns) */
 #ifndef _GAME_PSX_CARIO_H_
 #define _GAME_PSX_CARIO_H_
-#include "../../nfs4_types.h"
 /* P875: source identifiers and signatures checked against native SYM/linkage. */
 
 void CarIO_StartUp(void);   /* SYM 39b732 @0x800bbf10 */

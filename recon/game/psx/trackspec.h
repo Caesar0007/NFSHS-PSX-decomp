@@ -1,7 +1,6 @@
 /* game/psx/trackspec.h — reconstructed from game/psx/trackspec.cpp (5 fns) */
 #ifndef _GAME_PSX_TRACKSPEC_H_
 #define _GAME_PSX_TRACKSPEC_H_
-#include "../../nfs4_types.h"
 /* P875: source identifiers and signatures checked against native SYM/linkage. */
 
 void TrackSpec_SetDefault(CTrackSpec * spec);   /* SYM 47a55f @0x800e1544 */

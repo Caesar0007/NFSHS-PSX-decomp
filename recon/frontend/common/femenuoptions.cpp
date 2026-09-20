@@ -448,8 +448,6 @@ void tOptionsMenu::UpdateTransition()
 {
   /* SYM-CODEGEN-CARRIER: citem
    * SYM-CODEGEN-CARRIER: item
-   * SYM-CODEGEN-CARRIER: entry
-   * SYM-CODEGEN-CARRIER: adjusted
    * SYM 8c block: the ONLY source local is `short i` (REG $s0); every other Ghidra temp
      (iVar2/pa_Var3/iVar4/ptVar5/bVar6/sVar7) was a fabrication.  SLD segmentation:
      367 fInMenuTransition / 369 fTransitionDirection / 371 fScreenFade>0 /
@@ -460,8 +458,6 @@ void tOptionsMenu::UpdateTransition()
   short i;
   tMenuItem *citem;
   tMenuItem *item;
-  __vtbl_ptr_type *entry;
-  char *adjusted;
 
   if (this->fInMenuTransition != 0) {
     /* MATCH: `char` is UNSIGNED on this build -> a plain `< 0` folds to false and
@@ -552,12 +548,6 @@ void tOptionsMenu::Draw()
      carriers follow the SYM set. */
   short i;
   tDrawShapeExtended drawFlags;
-  /* SYM-CODEGEN-CARRIER: entry -- manual representation of the compiler's
-     old-ABI virtual-dispatch row; flattening row 5 is FAIL 7 (128/129). */
-  __vtbl_ptr_type *entry;
-  /* SYM-CODEGEN-CARRIER: adjusted -- preserves retail's dead receiver
-     mutation before the indirect call; inlining it is FAIL 25 (128/129). */
-  char *adjusted;
 
   CalcPulsateYellow();
   /* MATCH: no local for the head test either — the oracle reuses $v0 for both the
@@ -685,13 +675,6 @@ void tInsideBoxMenu::Draw(short x,short y,short w,short slideOffset,short)
      follow the SYM set. */
   short i;
   short j;
-  /* SYM-CODEGEN-CARRIER: entry10 -- the original virtual dispatch created
-     this row-10 compiler temporary without a source local; flattening the
-     ABI-neutral manual `_vf` form is FAIL 7 (152/153). */
-  __vtbl_ptr_type *entry10;
-  /* SYM-CODEGEN-CARRIER: entry6 -- distinct row-6 dispatch lifetime required
-     by retail allocation; flattening it is FAIL 18 (153/153). */
-  __vtbl_ptr_type *entry6;
 
   if (this->fCurrentItem != this->fPrevItem) {
     if (this->fPrevItem < this->fCurrentItem) {

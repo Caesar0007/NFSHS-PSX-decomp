@@ -5,12 +5,6 @@
 #include "color_types.h"
 
 /* GCC 2.8.1 cannot materialize extern arrays of its built-in old-ABI entry. */
-typedef struct __nfs4_vtbl_ptr_t {
-    short delta, index;
-    int (*pfn)(...);
-} __nfs4_vtbl_ptr_t;
-#define __vtbl_ptr_type __nfs4_vtbl_ptr_t
-
 typedef enum copType {
     COP_REGULAR = 0,
     COP_SUPER = 1

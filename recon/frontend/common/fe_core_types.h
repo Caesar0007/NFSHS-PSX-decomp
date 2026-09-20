@@ -11,13 +11,6 @@
 #define byte unsigned char
 #define uint unsigned int
 
-typedef struct __nfs4_vtbl_ptr_t {
-    short delta;
-    short index;
-    int (*pfn)(...);
-} __nfs4_vtbl_ptr_t;
-#define __vtbl_ptr_type __nfs4_vtbl_ptr_t
-
 #ifndef NFS4_TMENUCOMMANDTYPE_DEFINED
 #define NFS4_TMENUCOMMANDTYPE_DEFINED
 enum tMenuCommandType {

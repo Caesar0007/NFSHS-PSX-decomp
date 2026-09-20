@@ -30,7 +30,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 OBJD = r'C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-objdump.exe'
 SYM = Path(r'C:/Temp/claud/dumpsym_clean/dumpsym_src/nfs4-f-v3.txt')
-MAP = Path(r'C:/Temp/_from_github/NFS4.MAP')
+MAP = ROOT / 'rom' / 'NFS4.MAP'   # retail link map off the disc; not committed
 DATA_SECS = ('.data', '.sdata', '.bss', '.sbss', '.rodata')
 
 def load_exact():

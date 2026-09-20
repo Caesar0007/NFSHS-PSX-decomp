@@ -36,6 +36,7 @@ Standard library only; the ELF is parsed directly.
 """
 import argparse
 import hashlib
+import re
 import struct
 import sys
 from pathlib import Path
@@ -92,6 +93,7 @@ def build(elf_path: Path):
     exe[:HDR] = header
     covered = bytearray(t_size)
     skipped = []
+    placed = []
     end = t_addr + t_size
     for name, vma, data in secs:
         if name == ".header":
@@ -102,8 +104,26 @@ def build(elf_path: Path):
             continue
         exe[HDR + lo - t_addr: HDR + hi - t_addr] = data[lo - vma: hi - vma]
         covered[lo - t_addr: hi - t_addr] = b"\1" * (hi - lo)
+        placed.append((lo, hi, name))
     return bytes(exe), dict(pc0=pc0, gp0=gp0, t_addr=t_addr, t_size=t_size), \
-        covered, skipped
+        covered, skipped, overlaps(placed)
+
+
+TEXT_SEC = re.compile(r"\.t\d+$")
+
+
+def overlaps(placed):
+    """Code sections that claim the same addresses.  nfs4_recon.ld pins every
+    object at its retail address, so a .text section that grew past its slot
+    (an edit costing an extra instruction, say) silently loses its tail to the
+    next object instead of failing the link -- report that.  Data sections are
+    left out: a raw blob deliberately overlaps the owner that supersedes it."""
+    out = []
+    placed = sorted(p for p in placed if TEXT_SEC.match(p[2]))
+    for (lo, hi, n), (lo2, hi2, n2) in zip(placed, placed[1:]):
+        if lo2 < hi:
+            out.append((lo2, min(hi, hi2), n, n2))
+    return out
 
 
 def split(exe: bytes, t_addr: int):
@@ -140,7 +160,7 @@ def main():
     if not elf_path.is_file():
         sys.exit(f"[elf_to_exe] no ELF at {elf_path} -- run tools/full_link.py first")
 
-    exe, h, covered, skipped = build(elf_path)
+    exe, h, covered, skipped, over = build(elf_path)
     out_path.write_bytes(exe)
     print(f"[exe] {out_path}  {len(exe)} bytes")
     print(f"[exe] header: pc0 {h['pc0']:#010x}  t_addr {h['t_addr']:#010x}  "
@@ -150,6 +170,9 @@ def main():
     if skipped:
         print(f"[exe] sections outside the load image, not written: {len(skipped)} "
               f"(e.g. {', '.join('%s@%#x' % (n, a) for n, a, _ in skipped[:3])})")
+    for lo, hi, n, n2 in over:
+        print(f"[exe] WARNING overlap {lo:#010x}..{hi:#010x} ({hi - lo} bytes): "
+              f"{n} runs into {n2} -- the first section no longer fits its slot")
 
     pieces = {}
     if a.split:

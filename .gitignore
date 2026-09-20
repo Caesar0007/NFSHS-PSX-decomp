@@ -4,8 +4,10 @@
 *.i
 *.elf
 
-# the copyrighted target binary is NOT committed — supply it yourself
+# the copyrighted target binary and the retail link map are NOT committed —
+# supply them yourself
 /rom/nfs4-f.exe
+/rom/NFS4.MAP
 
 # splat cache
 .splache

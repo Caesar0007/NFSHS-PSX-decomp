@@ -75,6 +75,8 @@ asm/nonmatchings/main/*.s    per-function disassembly
 asm/data/*.s, asm/header.s   data sections + PS-EXE header
 linkers/nfs4.ld             splat-generated linker script
 rom/nfs4-f.exe              the target (NOT committed — sha1 b48ea3452e64...)
+rom/NFS4.MAP                retail link map from the disc (NOT committed — md5
+                            12326ebd37ed...)
 tools/build.py              cpp->cc1->maspsx->as->ld->objcopy + byte-diff report
 tools/gen_symbols.py        NFS4.MAP -> symbol_addrs.txt (sanitizes . and case clashes)
 tools/fix_gte.py            rewrite GTE compute ops (rtps/mvmva/...) to .word

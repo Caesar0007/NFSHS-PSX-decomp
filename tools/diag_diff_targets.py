@@ -11,7 +11,7 @@ from collections import Counter
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-MAP = Path(r'C:/Temp/_from_github/NFS4.MAP')
+MAP = ROOT / 'rom' / 'NFS4.MAP'   # retail link map off the disc; not committed
 OBJD = r'C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-objdump.exe'
 ROM = (ROOT / 'rom' / 'nfs4-f.exe').read_bytes()
 ELF = ROOT / 'build' / 'full_link' / 'full.elf'

@@ -263,9 +263,9 @@ AnimScript::AnimScript(int num,int numParts)
 /* ---- AnimScript::AnimScript  [@0x80074468] ---- */
 AnimScript::AnimScript(Group *instanceGroup,int type,int boomIndex,int numParts)
 {
-  int i;
-  Trk_AnimateBoomInst *objInstance;
   int numElems;
+  Trk_AnimateBoomInst *objInstance;
+  int i;
 
   objInstance = (Trk_AnimateBoomInst *)(instanceGroup + 1);
   numElems = instanceGroup->m_num_elements;

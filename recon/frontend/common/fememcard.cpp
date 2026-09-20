@@ -806,6 +806,9 @@ SavePinkSlipsCars(short player,short withoutCarInGarageNumber)
   tMemCardData memCardData;
   char memorycardbuffer [256];
   char *shapeFile;
+  char shapeFileName [64];
+  short cardNum;
+  MCRDFILE_def memCardFile;
   bool finished;
   bool finishedsave;
   PinkSlipsErrorCode result;
@@ -814,9 +817,6 @@ SavePinkSlipsCars(short player,short withoutCarInGarageNumber)
 
   MakeWayForMemoryCard();
   CURRENTPLAYER = player;
-  char shapeFileName [64];
-  short cardNum;
-  MCRDFILE_def memCardFile;
   cardNum = player * 4 + 1;
   finished = false;
   finishedsave = false;              /* oracle: s5/s2 = copies of s3's 0 */

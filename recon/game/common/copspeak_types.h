@@ -79,7 +79,6 @@ struct LocationBank { int fStartSlice, fEndSlice, fBankId; char *fName; };
 struct CallSignBank { int fAllUnits, fDispatch; int fMobile[15]; };
 
 extern "C" {
-extern const void *_vt_Q26Speech7Speaker[];
 }
 
 struct Speaker {
@@ -98,12 +97,11 @@ struct Speaker {
     int fCar, fLocation, fFrom, fTo, fWing;
     bool fHavePerp;
     Speaker *fSub;
-    __vtbl_ptr_type (*_vf)[31];
+#include "speech_speaker_virtuals.inc"
 
     /* NFS3.CPP:128 inlines this default constructor into
        Nfs2_SystemNLibStartUp.  Retail writes the vptr before clearing fSub. */
     Speaker() {
-        *(const void ***)&_vf = _vt_Q26Speech7Speaker;
         fSub = 0;
     }
 };

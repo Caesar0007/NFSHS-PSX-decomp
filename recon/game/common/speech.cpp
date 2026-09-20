@@ -213,16 +213,16 @@ void Speaker::SetCar(Car_tObj *car)
   int carcolour;
   
   carcolour = 1 << car->carInfo->SpeechColour;
-  if (this->VirtualGetCarBank(car->carIndex)->fFull == -1) {
+  if (this->GetCarBank(car->carIndex)->fFull == -1) {
     this->ClearCar();
   }
   else {
     this->SetColour(carcolour);
-    if (Speech::Dispatch()->VirtualKnownPerp(car)) {
-      this->fCar = this->VirtualGetCarBank(car->carIndex)->fModel;
+    if (Speech::Dispatch()->KnownPerp(car)) {
+      this->fCar = this->GetCarBank(car->carIndex)->fModel;
     }
     else {
-      this->fCar = this->VirtualGetCarBank(car->carIndex)->fFull;
+      this->fCar = this->GetCarBank(car->carIndex)->fFull;
     }
   }
   return;
@@ -394,8 +394,7 @@ void Speaker::FindLocation(Car_tObj *car)
   }
 
   location = (LocationBank *)
-            (*(*this->_vf)[0x1d].pfn)
-                      ((int)&(this->fPosition).flags + (int)(*this->_vf)[0x1d].delta,slice);
+            this->FindClosestLocationTo(slice);
   if (location == (LocationBank *)0x0) {
     (this->fDistance).flags = 0;
     (this->fPosition).flags = 0;
@@ -851,23 +850,14 @@ Speech::Speech()
   /* SYM-CODEGEN-CARRIER: dispatch -- materializes the result of the implicit
      DispatchSpeaker construction represented explicitly by this recovered
      class model.  Re-reading fDispatch adds two instructions and changes 14. */
-  DispatchSpeaker *dispatch =
-      (DispatchSpeaker *)__builtin_new(sizeof(DispatchSpeaker));
-  dispatch->_base_Speaker._vf = (__vtbl_ptr_type (*)[31])Speaker_vtable;
-  dispatch->_base_Speaker.fSub = 0;
-  dispatch->_base_Speaker._vf = (__vtbl_ptr_type (*)[31])DispatchSpeaker_vtable;
+  DispatchSpeaker *dispatch = new DispatchSpeaker;
   fDispatch = dispatch;
 
   for (int i = 0; i < 4; i++) {
     /* SYM-CODEGEN-CARRIER: mobile -- materializes the result of the implicit
        MobileSpeaker construction.  Re-reading fMobile[i] adds four
        instructions and changes 28 instructions. */
-    MobileSpeaker *mobile =
-        (MobileSpeaker *)__builtin_new(sizeof(MobileSpeaker));
-    mobile->_base_Speaker._vf = (__vtbl_ptr_type (*)[31])Speaker_vtable;
-    mobile->_base_Speaker.fSub = 0;
-    mobile->_base_Speaker._vf = (__vtbl_ptr_type (*)[31])MobileSpeaker_vtable;
-    mobile->fCarObj = 0;
+    MobileSpeaker *mobile = new MobileSpeaker;
     fMobile[i] = mobile;
   }
 
@@ -1199,7 +1189,7 @@ extern "C" {
 void Speech_Server(void)
 
 {
-  Speech::Dispatch()->VirtualStatus();
+  Speech::Dispatch()->Status();
 }
 
 /* ---- SetDelayedStatus__6SpeechPQ26Speech7Speakeri  [SPEECH.CPP:1546-1548] SLD-VERIFIED ---- */
@@ -1222,20 +1212,20 @@ void DispatchSpeaker::Activate(int seedupdatecount)
      function from 39 to 43 instructions and changes 60 instructions. */
   int iVar1;
 
-  iVar1 = (int)(this->_base_Speaker).VirtualCallSign();
+  iVar1 = (int)this->CallSign();
   i = 1;
-  (this->_base_Speaker).fFrom = ((CallSignBank *)iVar1)->fDispatch;
+  this->fFrom = ((CallSignBank *)iVar1)->fDispatch;
   iVar1 = GameSetup_gData.track;
-  (this->_base_Speaker).fConfirm.flags = 0xff;
-  (this->_base_Speaker).fPerpName.flags = 0xf;
-  (this->_base_Speaker).fSub = (Speaker *)0x0;
-  (this->_base_Speaker).fReverse.flags = iVar1 & 1;
+  this->fConfirm.flags = 0xff;
+  this->fPerpName.flags = 0xf;
+  this->fSub = (Speaker *)0x0;
+  this->fReverse.flags = iVar1 & 1;
   for (; i >= 0; i--)
     this->fPerp[i] = (Car_tObj *)0x0;
   this->fStatusCount = 0x200;
   this->fStatusSub = (Speaker *)0x0;
   this->fUpdateCount = seedupdatecount;
-  (this->_base_Speaker).fHavePerp = 0;
+  this->fHavePerp = 0;
 }
 
 /* ---- Dispatch__6Speech  [SPEECH.CPP:1578-1586] SLD-VERIFIED ---- */
@@ -1252,7 +1242,7 @@ Speaker *Speech::Dispatch(void)
   result = Speech_fgUndefined;
   return result;
 Dispatch_useValue:
-  result = &Speech_fgSpeech->fDispatch->_base_Speaker;
+  result = (Speaker *)Speech_fgSpeech->fDispatch;
   return result;
 }
 
@@ -1275,74 +1265,58 @@ void DispatchSpeaker::Roger()
   
   Speech_fgSpeech->fSpeakerCar = (Car_tObj *)0x0;
   invalid = false;
-  if (((this->_base_Speaker).fSub == (Speaker *)0x0 ||
-      ((*(*(this->_base_Speaker).fSub->_vf)[0x1b].pfn)
-                         ((int)&((this->_base_Speaker).fSub->fPosition).flags +
-                          (int)(*(this->_base_Speaker).fSub->_vf)[0x1b].delta) == 0)) ||
-      (((this->_base_Speaker).fSub)->fBlockade).flags != 0) {
+  if ((this->fSub == (Speaker *)0x0 ||
+      (this->fSub->Perp() == 0)) ||
+      ((this->fSub)->fBlockade).flags != 0) {
     invalid = true;
   }
   if (invalid) {
-    SPCHNFS_D_A_CONFIRM(&(this->_base_Speaker).fConfirm);
+    SPCHNFS_D_A_CONFIRM(&this->fConfirm);
   }
   else {
-    if (((this->_base_Speaker).fSub->fArrest).flags != 0) {
+    if ((this->fSub->fArrest).flags != 0) {
       /* SYM-CODEGEN-CARRIER: bank -- both scoped instances make GCC coalesce
          the first virtual result with the computed table base and mutate it
          in place.  Anonymous address expressions stay 157/157 but use $v0
          rather than retail's $s0 at both sites (8 diffs). */
       int *bank = (int *)
-          ((int)(*(*(this->_base_Speaker)._vf)[0x1e].pfn)
-                     ((int)&(this->_base_Speaker).fPosition.flags +
-                      (int)(*(this->_base_Speaker)._vf)[0x1e].delta) +
-           (*(*(this->_base_Speaker).fSub->_vf)[0x11].pfn)
-                     ((int)&(this->_base_Speaker).fSub->fPosition.flags +
-                      (int)(*(this->_base_Speaker).fSub->_vf)[0x11].delta) * 4);
+          ((int)this->CallSign() +
+           this->fSub->Unit() * 4);
       SPCHNFS_D_C_PERP_APPREHENSION_REPLY(
-          (this->_base_Speaker).fTo = bank[2],
-          &(this->_base_Speaker).fConfirm,
-          &(this->_base_Speaker).fPerpName);
+          this->fTo = bank[2],
+          &this->fConfirm,
+          &this->fPerpName);
     }
-    else if (((this->_base_Speaker).fSub->fUpdate).flags == 0) {
-      SPCHNFS_D_A_CONFIRM(&(this->_base_Speaker).fConfirm);
+    else if ((this->fSub->fUpdate).flags == 0) {
+      SPCHNFS_D_A_CONFIRM(&this->fConfirm);
       SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-      this->_base_Speaker.SetCar((Car_tObj *)
-          (*(*(this->_base_Speaker).fSub->_vf)[0x1b].pfn)
-                    ((int)&(this->_base_Speaker).fSub->fPosition.flags +
-                     (int)(*(this->_base_Speaker).fSub->_vf)[0x1b].delta));
-      SPCHNFS_D_C_PERP_LOST_CONFIRM(&(this->_base_Speaker).fColour,
-                                    (this->_base_Speaker).fCar);
+      this->SetCar((Car_tObj *)
+          this->fSub->Perp());
+      SPCHNFS_D_C_PERP_LOST_CONFIRM(&this->fColour,
+                                    this->fCar);
     }
     else {
-      this->_base_Speaker.SetCar((Car_tObj *)
-          (*(*(this->_base_Speaker).fSub->_vf)[0x1b].pfn)
-                    ((int)&(this->_base_Speaker).fSub->fPosition.flags +
-                     (int)(*(this->_base_Speaker).fSub->_vf)[0x1b].delta));
+      this->SetCar((Car_tObj *)
+          this->fSub->Perp());
       {
         int *bank = (int *)
-            ((int)(*(*(this->_base_Speaker)._vf)[0x1e].pfn)
-                       ((int)&(this->_base_Speaker).fPosition.flags +
-                        (int)(*(this->_base_Speaker)._vf)[0x1e].delta) +
-             (*(*(this->_base_Speaker).fSub->_vf)[0x11].pfn)
-                       ((int)&(this->_base_Speaker).fSub->fPosition.flags +
-                        (int)(*(this->_base_Speaker).fSub->_vf)[0x11].delta) * 4);
-        (this->_base_Speaker).fTo = bank[2];
+            ((int)this->CallSign() +
+             this->fSub->Unit() * 4);
+        this->fTo = bank[2];
       }
-      if ((*(*(this->_base_Speaker).fSub->_vf)[0x18].pfn)
-              ((int)&(this->_base_Speaker).fSub->fPosition.flags +
-               (int)(*(this->_base_Speaker).fSub->_vf)[0x18].delta) < 0x280000) {
-        ID_CAR = (this->_base_Speaker).fCar;
-        ID_UNIT = (this->_base_Speaker).fTo;
-        SPCHNFS_D_C_IN_PURS_NEAR_PERP_CONFIRM(&(this->_base_Speaker).fColour,
-                   ID_CAR,ID_UNIT,&(this->_base_Speaker).fConfirm,
-                   &(this->_base_Speaker).fPerpName);
+      if (this->fSub->DistToPerp() < 0x280000) {
+        ID_CAR = this->fCar;
+        ID_UNIT = this->fTo;
+        SPCHNFS_D_C_IN_PURS_NEAR_PERP_CONFIRM(&this->fColour,
+                   ID_CAR,ID_UNIT,&this->fConfirm,
+                   &this->fPerpName);
       }
       else {
-        ID_CAR = (this->_base_Speaker).fCar;
-        ID_UNIT = (this->_base_Speaker).fTo;
-        SPCHNFS_D_C_IN_PURS_AWAY_PERP_CONFIRM(&(this->_base_Speaker).fColour,
-                   ID_CAR,ID_UNIT,&(this->_base_Speaker).fConfirm,
-                   &(this->_base_Speaker).fPerpName);
+        ID_CAR = this->fCar;
+        ID_UNIT = this->fTo;
+        SPCHNFS_D_C_IN_PURS_AWAY_PERP_CONFIRM(&this->fColour,
+                   ID_CAR,ID_UNIT,&this->fConfirm,
+                   &this->fPerpName);
       }
     }
   }
@@ -1373,10 +1347,8 @@ void DispatchSpeaker::StatusReply()
      268 and leaves five argument-setup diffs. */
   SPCHNFSType_REVINTRO *reverse;
 
-  if (((this->_base_Speaker).fSub == (Speaker *)0x0) ||
-      ((*(*(this->_base_Speaker).fSub->_vf)[0x1b].pfn)
-         ((int)&((this->_base_Speaker).fSub->fPosition).flags +
-          (int)(*(this->_base_Speaker).fSub->_vf)[0x1b].delta) == 0)) {
+  if ((this->fSub == (Speaker *)0x0) ||
+      (this->fSub->Perp() == 0)) {
     invalid = true;
   }
   if (invalid) {
@@ -1385,16 +1357,14 @@ void DispatchSpeaker::StatusReply()
 
   Speech_fgSpeech->fSpeakerCar = 0;
   Blocker = (Speaker *)0x0;
-  if ((this->_base_Speaker).fSub->fBlockade.flags != 0) {
+  if (this->fSub->fBlockade.flags != 0) {
     if (Speech_fgSpeech->fMultiplePerps != 0) {
-      (*(*(this->_base_Speaker).fSub->_vf)[0xd].pfn)
-        ((int)&((this->_base_Speaker).fSub->fPosition).flags +
-         (*(this->_base_Speaker).fSub->_vf)[0xd].delta);
+      this->fSub->ReportBlockade();
       return;
     }
     /* SYM-CODEGEN-CARRIER: candidate -- assigning the SYM-named Blocker directly
        preserves count but changes ten load/copy sites and delays the `$s2` move. */
-    Speaker *candidate = (this->_base_Speaker).fSub->fSub;
+    Speaker *candidate = this->fSub->fSub;
     /* SYM-CODEGEN-CARRIER: hasBlocker -- a direct compound predicate shrinks
        269 to 268 instructions and leaves 19 allocation/branch diffs. */
     bool hasBlocker = false;
@@ -1403,60 +1373,48 @@ void DispatchSpeaker::StatusReply()
     }
     Blocker = candidate;
     if (hasBlocker) {
-      (this->_base_Speaker).fTo =
-        ((CallSignBank *)(*(*(this->_base_Speaker)._vf)[0x1e].pfn)
-          ((int)this + (*(this->_base_Speaker)._vf)[0x1e].delta))->fMobile[
-        (*(*(this->_base_Speaker).fSub->_vf)[0x11].pfn)
-          ((int)&(this->_base_Speaker).fSub->fPosition.flags +
-           (*(this->_base_Speaker).fSub->_vf)[0x11].delta)];
+      this->fTo =
+        ((CallSignBank *)this->CallSign())->fMobile[
+        this->fSub->Unit()];
     }
     else {
-      Blocker = (this->_base_Speaker).fSub;
-      (this->_base_Speaker).fTo =
-        *(int *)(*(*(this->_base_Speaker)._vf)[0x1e].pfn)
-          ((int)this + (*(this->_base_Speaker)._vf)[0x1e].delta);
+      Blocker = this->fSub;
+      this->fTo =
+        *(int *)this->CallSign();
     }
-    (*(*Blocker->_vf)[0xd].pfn)
-      ((int)&Blocker->fPosition.flags + (*Blocker->_vf)[0xd].delta);
+    Blocker->ReportBlockade();
     Speech_fgSpeech->fSpeakerCar = 0;
-    SPCHNFS_D_A_CONFIRM(&(this->_base_Speaker).fConfirm);
+    SPCHNFS_D_A_CONFIRM(&this->fConfirm);
     SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-    context = (this->_base_Speaker).fTo;
-    from = (this->_base_Speaker).fFrom;
-    reverse = &(this->_base_Speaker).fReverse;
+    context = this->fTo;
+    from = this->fFrom;
+    reverse = &this->fReverse;
   }
   else {
-    context = ((CallSignBank *)(*(*(this->_base_Speaker)._vf)[0x1e].pfn)
-      ((int)this + (*(this->_base_Speaker)._vf)[0x1e].delta))->fMobile[
-      (*(*(this->_base_Speaker).fSub->_vf)[0x11].pfn)
-      ((int)&(this->_base_Speaker).fSub->fPosition.flags +
-       (*(this->_base_Speaker).fSub->_vf)[0x11].delta)];
-    from = (this->_base_Speaker).fFrom;
-    reverse = &(this->_base_Speaker).fReverse;
-    (this->_base_Speaker).fTo = context;
+    context = ((CallSignBank *)this->CallSign())->fMobile[
+      this->fSub->Unit()];
+    from = this->fFrom;
+    reverse = &this->fReverse;
+    this->fTo = context;
   }
 
   SPCHNFS_D_C_INTRO_CALL(context,from,reverse);
   SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
   {
-    this->_base_Speaker.FindLocation(
-      (Car_tObj *)(*(*(this->_base_Speaker).fSub->_vf)[0x19].pfn)
-        ((int)&(this->_base_Speaker).fSub->fPosition.flags +
-         (*((this->_base_Speaker).fSub->_vf))[0x19].delta));
+    this->FindLocation(
+      (Car_tObj *)this->fSub->CarObj());
   }
 
-  if ((this->_base_Speaker).fSub->fBlockade.flags == 1) {
+  if (this->fSub->fBlockade.flags == 1) {
     /* SYM-CODEGEN-CARRIER: wing -- the measured W69 non-volatile preference
        killer below is required for retail's surviving `$v1` -> `$a3` copy. */
-    int wing = ((CallSignBank *)(*(*(this->_base_Speaker)._vf)[0x1e].pfn)
-      ((int)this + (*(this->_base_Speaker)._vf)[0x1e].delta))->fMobile[
-      (*(*Blocker->_vf)[0x11].pfn)
-      ((int)&Blocker->fPosition.flags + (*Blocker->_vf)[0x11].delta)];
+    int wing = ((CallSignBank *)this->CallSign())->fMobile[
+      Blocker->Unit()];
     /* SYM-CODEGEN-CARRIER: location -- passing fLocation directly preserves
        count but moves the load across the `$a3` copy, leaving six diffs. */
-    int location = (this->_base_Speaker).fLocation;
-    (this->_base_Speaker).fSpikeSide.flags = 4;
-    (this->_base_Speaker).fWing = wing;
+    int location = this->fLocation;
+    this->fSpikeSide.flags = 4;
+    this->fWing = wing;
     /* *** MATCH (W69) -- THE 12A PREFERENCE-KILLER IN ITS NON-VOLATILE FORM.
        The seal is the one-line `__asm__("" : "=r"(wing) : "0"(wing) : "$7");`
        sitting immediately before the SPCHNFS_D_C_SPBLT_CONFIRMED call below.
@@ -1509,7 +1467,7 @@ void DispatchSpeaker::StatusReply()
        local-alloc's qty_phys_copy_sugg (and, for a global allocno, global.c's
        find_reg copy-preference OVERRIDE) hands the pseudo the very arg register
        it is copied into.  MEASURED (W55-A16): passing the re-read field
-       `(this->_base_Speaker).fWing` as arg4 instead of `wing` DOES move the load
+       `this->fWing` as arg4 instead of `wing` DOES move the load
        to $v1 and makes the count EXACT 269/269 -- but the arg then becomes a
        RELOAD `lw a3,64(s1)` (6 diffs, a net regression), because expand_call's
        stack-arg store `sw v0,16(sp)` is emitted BEFORE arg4 and cse conservatively
@@ -1580,44 +1538,37 @@ void DispatchSpeaker::StatusReply()
              same, and seals the function -- see the MATCH block at the top.] */
     __asm__("" : "=r"(wing) : "0"(wing) : "$7");  /* W69 seal -- see MATCH above */
     SPCHNFS_D_C_SPBLT_CONFIRMED((SPCHNFSType_POSITION *)this,
-      location,&(this->_base_Speaker).fDistance,wing,
-      &(this->_base_Speaker).fSpikeSide);
+      location,&this->fDistance,wing,
+      &this->fSpikeSide);
   }
   else {
-    if ((this->_base_Speaker).fSub->fBlockade.flags != 2) {
+    if (this->fSub->fBlockade.flags != 2) {
       goto StatusReply_backup;
     }
     SPCHNFS_D_C_RDBLK_CONFIRMED((SPCHNFSType_POSITION *)this,
-      (this->_base_Speaker).fLocation,&(this->_base_Speaker).fDistance);
+      this->fLocation,&this->fDistance);
   }
 
 StatusReply_play:
   SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-  if (Blocker != (this->_base_Speaker).fSub) {
-    (*(*(this->_base_Speaker).fSub->_vf)[0xe].pfn)
-      ((int)&(this->_base_Speaker).fSub->fPosition.flags +
-       (*(this->_base_Speaker).fSub->_vf)[0xe].delta);
+  if (Blocker != this->fSub) {
+    this->fSub->Roger();
   }
   goto StatusReply_subFetch;
 
 StatusReply_backup:
-  if ((this->_base_Speaker).fSub->fSub != (Speaker *)0x0) {
-    (this->_base_Speaker).fWing =
-      ((CallSignBank *)(*(*(this->_base_Speaker)._vf)[0x1e].pfn)
-        ((int)this + (*(this->_base_Speaker)._vf)[0x1e].delta))->fMobile[
-        (*(*(this->_base_Speaker).fSub->fSub->_vf)[0x11].pfn)
-          ((int)&(this->_base_Speaker).fSub->fSub->fPosition.flags +
-           (*(this->_base_Speaker).fSub->fSub->_vf)[0x11].delta)];
-    SPCHNFS_D_C_BKUP_REQUEST_GRANT_REPLY(&(this->_base_Speaker).fDistance,
-      (SPCHNFSType_POSITION *)this,(this->_base_Speaker).fLocation,
-      (this->_base_Speaker).fWing);
+  if (this->fSub->fSub != (Speaker *)0x0) {
+    this->fWing =
+      ((CallSignBank *)this->CallSign())->fMobile[
+        this->fSub->fSub->Unit()];
+    SPCHNFS_D_C_BKUP_REQUEST_GRANT_REPLY(&this->fDistance,
+      (SPCHNFSType_POSITION *)this,this->fLocation,
+      this->fWing);
     SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-    (*(*(this->_base_Speaker).fSub->_vf)[0xe].pfn)
-      ((int)&(this->_base_Speaker).fSub->fPosition.flags +
-       (*(this->_base_Speaker).fSub->_vf)[0xe].delta);
+    this->fSub->Roger();
     /* SYM-CODEGEN-CARRIER: statusSub -- direct assignment preserves count but
        changes 12 instructions by moving the child fetch ahead of the counters. */
-    Speaker *statusSub = (this->_base_Speaker).fSub->fSub;
+    Speaker *statusSub = this->fSub->fSub;
     this->fStatusCount = 0x140;
     this->fUpdateCount = this->fUpdateCount + 1;
     this->fStatusSub = statusSub;
@@ -1628,11 +1579,11 @@ StatusReply_subFetch:
     /* SYM-CODEGEN-CARRIER: blocked -- a direct child predicate shrinks 269 to
        268 instructions and leaves 13 branch/value-flow diffs. */
     bool blocked = false;
-    if ((this->_base_Speaker).fSub->fSub != (Speaker *)0x0) {
-      blocked = (this->_base_Speaker).fSub->fSub->fBlockade.flags != 0;
+    if (this->fSub->fSub != (Speaker *)0x0) {
+      blocked = this->fSub->fSub->fBlockade.flags != 0;
     }
     if (blocked) {
-      (this->_base_Speaker).fSub->fBlockade.flags = 0;
+      this->fSub->fBlockade.flags = 0;
     }
   }
 }
@@ -1647,50 +1598,41 @@ void DispatchSpeaker::Status()
      directly shortens retail's 366-instruction body to 363 and leaves 7
      branch/value-flow diffs. */
   bool initialInvalid = false;
-  if (((this->_base_Speaker).fSub == (Speaker *)0x0) ||
-     (dist = (int)(*(this->_base_Speaker).fSub->_vf)[0x1b].delta,
-     (*(*(this->_base_Speaker).fSub->_vf)[0x1b].pfn)
-       ((int)&((this->_base_Speaker).fSub->fPosition).flags + dist) == 0)) {
+  if ((this->fSub == (Speaker *)0x0) ||
+     (this->fSub->Perp() == 0)) {
     initialInvalid = true;
   }
   if (!initialInvalid) {
   {
-    if (((this->_base_Speaker).fSub->VirtualCarObj()->carFlags & 0x200) != 0) {
+    if ((this->fSub->CarObj()->carFlags & 0x200) != 0) {
     /* SYM-CODEGEN-CARRIER: perpVf -- replacing this explicit virtual-call
        expansion with VirtualDistToPerp is count-exact but leaves 26 allocation
        and receiver-order diffs.
        SYM-CODEGEN-CARRIER: perpDistance -- the one virtual result is reused by
        mutually exclusive far/near tests; removing it would duplicate an
        observable virtual call, while SYM cannot recover its spelling. */
-    __vtbl_ptr_type (*perpVf)[31] = (this->_base_Speaker).fSub->_vf;
-    int perpDistance = (*(*perpVf)[0x18].pfn)
-      ((int)&((this->_base_Speaker).fSub->fPosition).flags + (int)(*perpVf)[0x18].delta);
+    int perpDistance = this->fSub->DistToPerp();
 
-    if ((this->_base_Speaker).fSub->fHavePerp != 0) {
+    if (this->fSub->fHavePerp != 0) {
       if (0x15e0000 < perpDistance) {
-        (this->_base_Speaker).fSub->fHavePerp = 0;
-        (((this->_base_Speaker).fSub)->fUpdate).flags = 0;
-        (this->_base_Speaker).fSub->VirtualStatus();
+        this->fSub->fHavePerp = 0;
+        ((this->fSub)->fUpdate).flags = 0;
+        this->fSub->Status();
       }
     }
     else if (perpDistance < 0x640000) {
         /* SYM-CODEGEN-CARRIER: engageEntry -- the canonical nested
-           VirtualEngage(VirtualPerp()) spelling shortens 366 to 364 and causes
+           Engage(Perp()) spelling shortens 366 to 364 and causes
            160 function-wide allocation diffs.
            SYM-CODEGEN-CARRIER: engageThis -- folding the adjusted receiver is
            count-exact but leaves 34 diffs. */
-        __vtbl_ptr_type *engageEntry =
-            &(*(this->_base_Speaker).fSub->_vf)[6];
-        int engageThis =
-            (int)(this->_base_Speaker).fSub + engageEntry->delta;
-        (*engageEntry->pfn)(engageThis,
-            (this->_base_Speaker).fSub->VirtualPerp());
+        this->fSub->Engage(this->fSub->Perp());
     }
     }
   }
   if (this->fStatusSub != (Speaker *)0x0) {
     if (this->fStatusCount-- == 1) {
-      if (this->fStatusSub == &this->_base_Speaker) {
+      if (this->fStatusSub == (Speaker *)this) {
         this->StatusReply();
       }
       else {
@@ -1698,17 +1640,17 @@ void DispatchSpeaker::Status()
            shortens 366 to 364 and leaves 16 branch/value-flow diffs. */
         bool isCurrentSub = false;
 
-        if ((this->_base_Speaker).fSub != (Speaker *)0x0) {
+        if (this->fSub != (Speaker *)0x0) {
           isCurrentSub =
-              this->fStatusSub == (this->_base_Speaker).fSub->fSub;
+              this->fStatusSub == this->fSub->fSub;
         }
         if (isCurrentSub) {
-          this->fStatusSub->VirtualStatus();
+          this->fStatusSub->Status();
         }
         else {
-          this->fStatusSub->VirtualStatus();
+          this->fStatusSub->Status();
           Speech_fgSpeech->fSpeakerCar = (Car_tObj *)0x0;
-          (this->_base_Speaker).VirtualRoger();
+          this->Roger();
         }
       }
     }
@@ -1721,8 +1663,8 @@ void DispatchSpeaker::Status()
   /* SYM-CODEGEN-CARRIER: canUpdate -- direct blockade/arrest early returns
      shorten 366 to 365 and leave 5 normalized-Boolean diffs. */
   bool canUpdate = false;
-  if (((this->_base_Speaker).fSub->fBlockade).flags == 0) {
-    canUpdate = ((this->_base_Speaker).fSub->fArrest).flags == 0;
+  if ((this->fSub->fBlockade).flags == 0) {
+    canUpdate = (this->fSub->fArrest).flags == 0;
   }
   if (!canUpdate) {
     return;
@@ -1730,13 +1672,13 @@ void DispatchSpeaker::Status()
   /* SYM-CODEGEN-CARRIER: nestedDifferent -- folding the two virtual Perp
      results into the guard shortens 366 to 364 and leaves 6 comparison diffs. */
   bool nestedDifferent = false;
-  if ((this->_base_Speaker).fSub->fSub != (Speaker *)0x0) {
+  if (this->fSub->fSub != (Speaker *)0x0) {
     nestedDifferent =
-        (this->_base_Speaker).fSub->fSub->VirtualPerp() !=
-        (this->_base_Speaker).fSub->VirtualPerp();
+        this->fSub->fSub->Perp() !=
+        this->fSub->Perp();
   }
   if (nestedDifferent) {
-    ((this->_base_Speaker).fSub)->fSub->Promote();
+    (this->fSub)->fSub->Promote();
   }
   switch (this->fUpdateCount & 3) {
   case 0:
@@ -1756,57 +1698,57 @@ DispStatus_updateCount2:
        shortens 366 to 365 and leaves 5 normalized-Boolean diffs. */
     bool fastEnough = false;
 
-    if ((this->_base_Speaker).fSub->VirtualDistToPerp() < 0x280000) {
-      if (0x32 < this->_base_Speaker.CalcMph(
-                     (this->_base_Speaker).fSub->VirtualCarObj())) {
-        fastEnough = 0x32 < this->_base_Speaker.CalcMph(
-            (this->_base_Speaker).fSub->VirtualPerp());
+    if (this->fSub->DistToPerp() < 0x280000) {
+      if (0x32 < this->CalcMph(
+                     this->fSub->CarObj())) {
+        fastEnough = 0x32 < this->CalcMph(
+            this->fSub->Perp());
       }
     }
     if (fastEnough) {
-      (((this->_base_Speaker).fSub)->fUpdate).flags = 8;
+      ((this->fSub)->fUpdate).flags = 8;
       goto DispStatus_fetchSpeechCtx;
     }
     goto DispStatus_updateCount38;
   }
 DispStatus_updateCount38:
-  ((this->_base_Speaker).fSub->fUpdate).flags = 0x26;
+  (this->fSub->fUpdate).flags = 0x26;
   goto DispStatus_fetchSpeechCtx;
 DispStatus_updateCount3:
     {
-    if ((this->_base_Speaker).fSub->VirtualIsSuper() &&
+    if (this->fSub->IsSuper() &&
         (this->fUpdateCount == 7)) {
-      (((this->_base_Speaker).fSub)->fUpdate).flags = 0;
-      (this->_base_Speaker).fSub->VirtualStatus();
+      ((this->fSub)->fUpdate).flags = 0;
+      this->fSub->Status();
       this->fUpdateCount = this->fUpdateCount + 1;
       return;
     }
-    if ((this->_base_Speaker).fSub->VirtualDistToPerp() < 0x140000) {
-      (this->_base_Speaker).fSub->VirtualBullhorn();
+    if (this->fSub->DistToPerp() < 0x140000) {
+      this->fSub->Bullhorn();
       this->fUpdateCount = this->fUpdateCount + 1;
       return;
     }
     goto DispStatus_updateCount1;
     }
 DispStatus_updateCount1:
-  ((this->_base_Speaker).fSub->fUpdate).flags = 1;
+  (this->fSub->fUpdate).flags = 1;
 DispStatus_fetchSpeechCtx:
   Speech_fgSpeech->fSpeakerCar = (Car_tObj *)0x0;
   /* SYM-CODEGEN-CARRIER: callSign -- folding the virtual CallSign result into
      fMobile indexing shortens 366 to 364 and leaves 38 receiver/allocation
      diffs; the typed pointer restores its semantic role. */
-  CallSignBank *callSign = (this->_base_Speaker).VirtualCallSign();
-  (this->_base_Speaker).fTo = callSign->fMobile[
-      (this->_base_Speaker).fSub->VirtualUnit()];
-  SPCHNFS_D_C_INTRO_CALL((this->_base_Speaker).fTo,
-                         (this->_base_Speaker).fFrom,
-                         &(this->_base_Speaker).fReverse);
+  CallSignBank *callSign = this->CallSign();
+  this->fTo = callSign->fMobile[
+      this->fSub->Unit()];
+  SPCHNFS_D_C_INTRO_CALL(this->fTo,
+                         this->fFrom,
+                         &this->fReverse);
   SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
   SPCHNFS_D_C_IN_PURS_NEAR_PERP(
-      &((this->_base_Speaker).fSub)->fUpdate);
+      &(this->fSub)->fUpdate);
   SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
   this->fStatusCount = 0x60;
-  this->fStatusSub = (this->_base_Speaker).fSub;
+  this->fStatusSub = this->fSub;
   this->fUpdateCount = this->fUpdateCount + 1;
   }
   return;
@@ -1866,7 +1808,6 @@ void MobileSpeaker::Status()
   /* SYM-CODEGEN-CARRIER: pa_Var3 -- this shared vtable-result carrier is part
      of the exact virtual-call source shape throughout the function; SYM emits
      only nested inline this quantities and cannot recover its spelling. */
-  __vtbl_ptr_type (*pa_Var3) [31];
   /* SYM-CODEGEN-CARRIER: iVar4 -- the shared virtual/result carrier feeds the
      retail branch and call setup sequence; replacement must be priced per
      phase because its declaration position controls local allocation. */
@@ -1902,53 +1843,42 @@ void MobileSpeaker::Status()
      grows the body to 360 instructions and leaves 88 allocation diffs. */
   u_int savedDispatch;
   
-  pa_Var3 = (this->_base_Speaker)._vf;
-  iVar4 = (*(*pa_Var3)[0x1b].pfn)
-                    ((int)&(this->_base_Speaker).fPosition.flags + (int)(*pa_Var3)[0x1b].delta);
+  iVar4 = this->Perp();
   if (iVar4 == 0) {
     return;
   }
   Speech_fgSpeech->fSpeakerCar = this->fCarObj;
-  if ((this->_base_Speaker).fArrest.flags == 1) {
-    pa_Var3 = (this->_base_Speaker)._vf;
-    iVar4 = (*(*pa_Var3)[0x1e].pfn)
-                      ((int)&(this->_base_Speaker).fPosition.flags + (int)(*pa_Var3)[0x1e].delta);
+  if (this->fArrest.flags == 1) {
+    iVar4 = this->CallSign();
     pSVar10 = &this->fVoice;
     /* MATCH: fold `fTo = *(iVar4+4)` INTO the a1 arg so the store lands in the
        jal delay slot (`sw a1,60(s1)`) and a1 loads direct; keep a2(fFrom)/a3(fReverse)
        inline so gcc loads a1,a2,a3 in order -- the split temp+store form forced a
        `lw a2/t0 then move a2->a1,t0->a2` arg shuffle. [W55-A16 idiom] */
-    SPCHNFS_C_A_INTRO(pSVar10,(this->_base_Speaker).fTo = *(int *)(iVar4 + 4),(int)(this->_base_Speaker).fFrom,(SPCHNFSType_REVINTRO *)&(this->_base_Speaker).fReverse);
+    SPCHNFS_C_A_INTRO(pSVar10,this->fTo = *(int *)(iVar4 + 4),(int)this->fFrom,(SPCHNFSType_REVINTRO *)&this->fReverse);
     SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
     SPCHNFS_C_D_PERP_APPREHENSION(
-      pSVar10,&(this->_base_Speaker).fPerpName);
+      pSVar10,&this->fPerpName);
   }
   else {
-    pa_Var3 = (this->_base_Speaker)._vf;
-    iVar4 = (*(*pa_Var3)[0x19].pfn)
-                      ((int)&(this->_base_Speaker).fPosition.flags + (int)(*pa_Var3)[0x19].delta);
+    iVar4 = this->CarObj();
     condition = false;
     if ((*(u_int *)(iVar4 + 0x260) & 0x200) != 0) {
-      condition = (this->_base_Speaker).fUpdate.flags == 0;
+      condition = this->fUpdate.flags == 0;
     }
     if (condition) {
-      pa_Var3 = (this->_base_Speaker)._vf;
-      iVar4 = (*(*pa_Var3)[0x1e].pfn)
-                        ((int)&(this->_base_Speaker).fPosition.flags + (int)(*pa_Var3)[0x1e].delta);
+      iVar4 = this->CallSign();
       pSVar10 = &this->fVoice;
       /* MATCH: fTo store folded into a1 arg (delay-slot sw); a2/a3 inline. [W55-A16] */
-      SPCHNFS_C_A_INTRO(pSVar10,(this->_base_Speaker).fTo = *(int *)(iVar4 + 4),(this->_base_Speaker).fFrom,&(this->_base_Speaker).fReverse);
+      SPCHNFS_C_A_INTRO(pSVar10,this->fTo = *(int *)(iVar4 + 4),this->fFrom,&this->fReverse);
       SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-      pa_Var3 = (this->_base_Speaker)._vf;
-      this->_base_Speaker.SetCar((Car_tObj *)
-        (*(*pa_Var3)[0x1b].pfn)
-          ((int)&(this->_base_Speaker).fPosition.flags +
-           (int)(*pa_Var3)[0x1b].delta));
-      this->_base_Speaker.FindLocation(this->fCarObj);
-      iVar4 = (this->_base_Speaker).fCar;
-      SPCHNFS_C_D_PERP_LOST(pSVar10,&(this->_base_Speaker).fColour,
-                 iVar4,(SPCHNFSType_POSITION *)this,(this->_base_Speaker).fLocation,
-                 &(this->_base_Speaker).fDistance,&(this->_base_Speaker).fPerpName);
+      this->SetCar((Car_tObj *)
+        this->Perp());
+      this->FindLocation(this->fCarObj);
+      iVar4 = this->fCar;
+      SPCHNFS_C_D_PERP_LOST(pSVar10,&this->fColour,
+                 iVar4,(SPCHNFSType_POSITION *)this,this->fLocation,
+                 &this->fDistance,&this->fPerpName);
       SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
       iVar4 = Speech::Dispatch();
       savedDispatch = *(u_int *)(iVar4 + 0x48);
@@ -1959,42 +1889,34 @@ void MobileSpeaker::Status()
            once and then reused for its vtable, delta, and receiver address;
            the retail binary cannot identify a unique original spelling. */
         DispatchSpeaker *dispatchThis = (DispatchSpeaker *)Speech::Dispatch();
-        (*(*(dispatchThis->_base_Speaker)._vf)[0xe].pfn)
-                  ((int)&(dispatchThis->_base_Speaker).fPosition.flags +
-                   (int)(*(dispatchThis->_base_Speaker)._vf)[0xe].delta);
+        dispatchThis->Roger();
       }
       iVar4 = Speech::Dispatch();
       *(u_int *)(iVar4 + 0x48) = savedDispatch;
       return;
     }
     superReady = false;
-    pa_Var3 = (this->_base_Speaker)._vf;
-    iVar4 = (*(*pa_Var3)[0x14].pfn)
-                      ((int)&(this->_base_Speaker).fPosition.flags + (int)(*pa_Var3)[0x14].delta);
-    if (((iVar4 != 0) && ((this->_base_Speaker).fUpdate.flags == 0)) &&
-       ((this->_base_Speaker).fSub != (Speaker *)0x0)) {
+    iVar4 = this->IsSuper();
+    if (((iVar4 != 0) && (this->fUpdate.flags == 0)) &&
+       (this->fSub != (Speaker *)0x0)) {
       /* SYM-CODEGEN-CARRIER: maskedFlags -- folding the mask into the Boolean
          grows the function to 359 instructions and changes five bit-test
          instructions (srl/xori/andi versus andi/sltiu). */
       u_int maskedFlags;
 
-      iVar4 = (*(*(this->_base_Speaker).fSub->_vf)[0x19].pfn)
-        ((int)&(this->_base_Speaker).fSub->fPosition.flags +
-         (int)(*(this->_base_Speaker).fSub->_vf)[0x19].delta);
+      iVar4 = this->fSub->CarObj();
       maskedFlags = *(u_int *)(iVar4 + 0x260) & 0x40;
       superReady = maskedFlags < 1;
     }
     if (superReady) {
-      pa_Var3 = (this->_base_Speaker)._vf;
       superBank = (u_int *)
-               (*(*pa_Var3)[0x1e].pfn)
-                         ((int)&(this->_base_Speaker).fPosition.flags + (int)(*pa_Var3)[0x1e].delta);
+               this->CallSign();
       pSVar10 = &this->fVoice;
       /* MATCH: fTo store folded into a1 arg (delay-slot sw); a2/a3 inline. [W55-A16] */
       SPCHNFS_C_A_INTRO(pSVar10,
-        (this->_base_Speaker).fTo = *superBank,
-        (int)(this->_base_Speaker).fFrom,
-        (SPCHNFSType_REVINTRO *)&(this->_base_Speaker).fReverse);
+        this->fTo = *superBank,
+        (int)this->fFrom,
+        (SPCHNFSType_REVINTRO *)&this->fReverse);
       SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
       SPCHNFS_S_C_SUPER_COP_CRITICISM(pSVar10);
     }
@@ -2006,7 +1928,7 @@ void MobileSpeaker::Status()
         condition = *(MobileSpeaker **)(*(int *)(iVar4 + 0x48) + 0x48) == this;
       }
       if (condition) {
-        SPCHNFS_C_C_NEW_OFFICER_ENGAGING(&this->fVoice,(this->_base_Speaker).fFrom);
+        SPCHNFS_C_C_NEW_OFFICER_ENGAGING(&this->fVoice,this->fFrom);
         iVar4 = Speech::Dispatch();
         (**(int (**)(...))
           (*(int *)(*(int *)(iVar4 + 0x48) + 0x4c) + 0x74))
@@ -2015,39 +1937,27 @@ void MobileSpeaker::Status()
              (*(int *)(*(int *)(iVar4 + 0x48) + 0x4c) + 0x70));
         return;
       }
-      pa_Var3 = (this->_base_Speaker)._vf;
-      iVar4 = (*(*pa_Var3)[0x1e].pfn)
-                        ((int)&(this->_base_Speaker).fPosition.flags + (int)(*pa_Var3)[0x1e].delta);
+      iVar4 = this->CallSign();
       pSVar10 = &this->fVoice;
       /* MATCH: fTo store folded into a1 arg (delay-slot sw); a2/a3 inline. [W55-A16] */
-      SPCHNFS_C_A_INTRO(pSVar10,(this->_base_Speaker).fTo = *(int *)(iVar4 + 4),(int)(this->_base_Speaker).fFrom,(SPCHNFSType_REVINTRO *)&(this->_base_Speaker).fReverse);
+      SPCHNFS_C_A_INTRO(pSVar10,this->fTo = *(int *)(iVar4 + 4),(int)this->fFrom,(SPCHNFSType_REVINTRO *)&this->fReverse);
       SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-      pa_Var3 = (this->_base_Speaker)._vf;
-      this->_base_Speaker.SetCar((Car_tObj *)
-        (*(*pa_Var3)[0x1b].pfn)
-          ((int)&(this->_base_Speaker).fPosition.flags +
-           (int)(*pa_Var3)[0x1b].delta));
-      pa_Var3 = (this->_base_Speaker)._vf;
-      this->_base_Speaker.FindLocation((Car_tObj *)
-        (*(*pa_Var3)[0x19].pfn)
-          ((int)&(this->_base_Speaker).fPosition.flags +
-           (int)(*pa_Var3)[0x19].delta));
+      this->SetCar((Car_tObj *)
+        this->Perp());
+      this->FindLocation((Car_tObj *)
+        this->CarObj());
       this->SetSpeed(this->fPerp);
-      pa_Var3 = (this->_base_Speaker)._vf;
-      iVar4 = (*(*pa_Var3)[0x18].pfn)
-                        ((int)&(this->_base_Speaker).fPosition.flags + (int)(*pa_Var3)[0x18].delta);
+      iVar4 = this->DistToPerp();
       if (iVar4 < 0x280000) {
-        pa_Var3 = (this->_base_Speaker)._vf;
-        iVar4 = (*(*pa_Var3)[0x1b].pfn)
-                          ((int)&(this->_base_Speaker).fPosition.flags + (int)(*pa_Var3)[0x1b].delta);
+        iVar4 = this->Perp();
         if (0x40 < *(u_short *)(iVar4 + 0x17c)) {
           SPCHNFS_C_D_IN_PURS_PERP_AIRBORN(pSVar10);
           goto DispStatus_playSpeechReturn;
         }
-        uVar8 = (this->_base_Speaker).fUpdate.flags;
+        uVar8 = this->fUpdate.flags;
         if (uVar8 == 1) {
-          vs_KMH_MPH = (SPCHNFSType_vs_KMH_MPH *)(this->_base_Speaker).fLocation;
-          pMVar12 = (MobileSpeaker *)&(this->_base_Speaker).fDistance;
+          vs_KMH_MPH = (SPCHNFSType_vs_KMH_MPH *)this->fLocation;
+          pMVar12 = (MobileSpeaker *)&this->fDistance;
           SPCHNFS_C_D_IN_PURS_NEAR_PERP_REP_LOC(pSVar10,(SPCHNFSType_POSITION *)this,(int)vs_KMH_MPH,
                      (SPCHNFSType_DISTANCE *)pMVar12);
           goto DispStatus_playSpeechReturn;
@@ -2062,50 +1972,50 @@ void MobileSpeaker::Status()
 
           branchVoice = pSVar10;
           __asm__("" : "+r"(branchVoice) : : "$2");
-          colourArg = (Car_tObj *)&(this->_base_Speaker).fColour;
-          vs_KMH_MPH = (SPCHNFSType_vs_KMH_MPH *)(this->_base_Speaker).fCar;
-          pMVar12 = (MobileSpeaker *)&(this->_base_Speaker).fDistance;
-          nearLocation = (this->_base_Speaker).fLocation;
+          colourArg = (Car_tObj *)&this->fColour;
+          vs_KMH_MPH = (SPCHNFSType_vs_KMH_MPH *)this->fCar;
+          pMVar12 = (MobileSpeaker *)&this->fDistance;
+          nearLocation = this->fLocation;
           SPCHNFS_C_D_IN_PURS_NEAR_PERP_REP_STS(branchVoice,(SPCHNFSType_COLOUR *)colourArg,(int)vs_KMH_MPH,
                      (SPCHNFSType_DISTANCE *)pMVar12,(SPCHNFSType_POSITION *)this,
                      nearLocation);
           goto DispStatus_playSpeechReturn;
         }
       }
-      else if ((this->_base_Speaker).fHavePerp != 0) {
-        uVar8 = (this->_base_Speaker).fUpdate.flags;
+      else if (this->fHavePerp != 0) {
+        uVar8 = this->fUpdate.flags;
         if (uVar8 == 1) {
-          pMVar12 = (MobileSpeaker *)&(this->_base_Speaker).fDistance;
-          vs_KMH_MPH = (SPCHNFSType_vs_KMH_MPH *)(this->_base_Speaker).fLocation;
-          uVar8 = (this->_base_Speaker).fCar;
+          pMVar12 = (MobileSpeaker *)&this->fDistance;
+          vs_KMH_MPH = (SPCHNFSType_vs_KMH_MPH *)this->fLocation;
+          uVar8 = this->fCar;
           SPCHNFS_C_D_IN_PURS_AWAY_PERP_REPLY_LOC(pSVar10,(SPCHNFSType_POSITION *)this,(int)vs_KMH_MPH,
-                     (SPCHNFSType_DISTANCE *)pMVar12,&(this->_base_Speaker).fColour,(int)uVar8,
-                     &(this->_base_Speaker).fPerpName);
+                     (SPCHNFSType_DISTANCE *)pMVar12,&this->fColour,(int)uVar8,
+                     &this->fPerpName);
           goto DispStatus_playSpeechReturn;
         }
         /* MATCH strict closure, second duplicated STS arm; see first site. */
         if (uVar8 != 8) {
           branchVoice = pSVar10;
           __asm__("" : "+r"(branchVoice) : : "$2");
-          colourArg = (Car_tObj *)&(this->_base_Speaker).fColour;
-          vs_KMH_MPH = (SPCHNFSType_vs_KMH_MPH *)(this->_base_Speaker).fCar;
+          colourArg = (Car_tObj *)&this->fColour;
+          vs_KMH_MPH = (SPCHNFSType_vs_KMH_MPH *)this->fCar;
           SPCHNFS_C_D_IN_PURS_AWAY_PERP_REPLY_STS(branchVoice,(SPCHNFSType_COLOUR *)colourArg,(int)vs_KMH_MPH,
-                     (SPCHNFSType_POSITION *)this,(this->_base_Speaker).fLocation,
-                     &(this->_base_Speaker).fDistance);
+                     (SPCHNFSType_POSITION *)this,this->fLocation,
+                     &this->fDistance);
           goto DispStatus_playSpeechReturn;
         }
       }
       else {
-        uVar8 = (this->_base_Speaker).fUpdate.flags;
+        uVar8 = this->fUpdate.flags;
         if (uVar8 == 1) {
           /* MATCH lever 2 (12D dead-pseudo staging): uVar8 is dead on this arm and
              is retail's carrier for fCar -- staging it here (NOT a new local) gives
              the fresh register the stack-arg copy needs. [W61-A10] */
-          pMVar12 = (MobileSpeaker *)&(this->_base_Speaker).fDistance;
-          vs_KMH_MPH = (SPCHNFSType_vs_KMH_MPH *)(this->_base_Speaker).fLocation;
-          uVar8 = (this->_base_Speaker).fCar;
+          pMVar12 = (MobileSpeaker *)&this->fDistance;
+          vs_KMH_MPH = (SPCHNFSType_vs_KMH_MPH *)this->fLocation;
+          uVar8 = this->fCar;
           SPCHNFS_C_D_IN_PURS_LOOK_PERP_REPLY_LOC(pSVar10,(SPCHNFSType_POSITION *)this,(int)vs_KMH_MPH,
-                     (SPCHNFSType_DISTANCE *)pMVar12,&(this->_base_Speaker).fColour,(int)uVar8);
+                     (SPCHNFSType_DISTANCE *)pMVar12,&this->fColour,(int)uVar8);
           goto DispStatus_playSpeechReturn;
         }
         if (uVar8 != 8) {
@@ -2118,10 +2028,10 @@ DispStatus_speedReply:
         pSVar10,this->fSpeed,vs_KMH_MPH);
       goto DispStatus_playSpeechReturn;
 DispStatus_lookReplyStatus:
-      vs_KMH_MPH = (SPCHNFSType_vs_KMH_MPH *)(this->_base_Speaker).fCar;
-      pMVar12 = (MobileSpeaker *)&(this->_base_Speaker).fPerpName;
+      vs_KMH_MPH = (SPCHNFSType_vs_KMH_MPH *)this->fCar;
+      pMVar12 = (MobileSpeaker *)&this->fPerpName;
       SPCHNFS_C_D_IN_PURS_LOOK_PERP_REPLY_STS(
-        pSVar10,&(this->_base_Speaker).fColour,(int)vs_KMH_MPH,
+        pSVar10,&this->fColour,(int)vs_KMH_MPH,
                  (SPCHNFSType_PERP_NAME *)pMVar12);
     }
   }
@@ -2282,10 +2192,8 @@ void DispatchSpeaker::Report(Car_tObj *perp)
   /* W57-A8 5.0c commutative-addu: fold the -0x5c into the BASE term so the
      just-loaded delta stays operand 2 (`addu a0,s1,a0` like retail, not
      `addu a0,a0,s1`). All four vf-thunk arg sites. 42 -> 36 diffs. */
-  if ((*(*(this->_base_Speaker)._vf)[0x12].pfn)
-        (((int)this->fPerp + -0x5c) +
-         (*(this->_base_Speaker)._vf)[0x12].delta) != 0) {
-    hasSub = (this->_base_Speaker).fSub != (Speaker *)0x0;
+  if (this->KnownPerp(perp) != 0) {
+    hasSub = this->fSub != (Speaker *)0x0;
   }
   if (hasSub) {
     if (Speech_fgSpeech->fMultiplePerps == 0) {
@@ -2294,40 +2202,34 @@ void DispatchSpeaker::Report(Car_tObj *perp)
          instructions around the final load. */
       int *bank;
 
-      bank = (int *)((int)(*(*(this->_base_Speaker)._vf)[0x1e].pfn)
-        (((int)this->fPerp + -0x5c) +
-         (*(this->_base_Speaker)._vf)[0x1e].delta) +
-        (*(*(this->_base_Speaker).fSub->_vf)[0x11].pfn)
-        ((int)&(this->_base_Speaker).fSub->fPosition.flags +
-         (int)(*(this->_base_Speaker).fSub->_vf)[0x11].delta) * 4);
+      bank = (int *)((int)this->CallSign() +
+        this->fSub->Unit() * 4);
       SPCHNFS_D_C_PERP_SIGHTED_CONFIRM(
-        &(this->_base_Speaker).fConfirm,
-        (this->_base_Speaker).fTo = bank[2]);
+        &this->fConfirm,
+        this->fTo = bank[2]);
       SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
     }
   }
   else {
     if (Speech_fgSpeech->fMultiplePerps == 0) {
       SPCHNFS_D_C_INTRO_CALL(
-        (this->_base_Speaker).fTo =
-          *(int *)(*(*(this->_base_Speaker)._vf)[0x1e].pfn)
-            (((int)this->fPerp + -0x5c) +
-             (*(this->_base_Speaker)._vf)[0x1e].delta),
-        (this->_base_Speaker).fFrom,
-        &(this->_base_Speaker).fReverse);
+        this->fTo =
+          *(int *)this->CallSign(),
+        this->fFrom,
+        &this->fReverse);
       SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-      this->_base_Speaker.SetCar(perp);
-      this->_base_Speaker.FindLocation(perp);
+      this->SetCar(perp);
+      this->FindLocation(perp);
       /* SYM-CODEGEN-CARRIER: pursuitCar -- passing fCar directly is
          count-exact but changes six call-setup/delay-slot instructions. */
       int pursuitCar;
 
-      pursuitCar = (this->_base_Speaker).fCar;
-      pursuitLocation = (this->_base_Speaker).fLocation;
+      pursuitCar = this->fCar;
+      pursuitLocation = this->fLocation;
       SPCHNFS_D_C_BEGIN_PURS_REP_SPDR(
-        &(this->_base_Speaker).fColour,pursuitCar,
+        &this->fColour,pursuitCar,
         (SPCHNFSType_POSITION *)this,pursuitLocation,
-        &(this->_base_Speaker).fDistance);
+        &this->fDistance);
       SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
     }
     this->AddPerp(perp);
@@ -2352,7 +2254,7 @@ void DispatchSpeaker::Deny()
      the receiver/field expression directly is count-exact but costs 10 diffs. */
   SPCHNFSType_vs_RDBLK_SSTRP *vs_RDBLK_SSTRP;
   
-  if ((this->_base_Speaker).fSub != (Speaker *)0x0) {
+  if (this->fSub != (Speaker *)0x0) {
     Speech_fgSpeech->fSpeakerCar = (Car_tObj *)0x0;
     /* MATCH: retail SLD line 2060 owns BOTH vtable calls AND the index scale +
        load (one fused statement); line 2061 owns only the INTRO_CALL args, with
@@ -2369,18 +2271,14 @@ void DispatchSpeaker::Deny()
          (oracle `addu s0,s0,v0; lw a0,8(s0)`).  As an anonymous sub-expression
          (`*(void**)(A + B*4 + 8)`) the address lands in the scaled temp instead
          (`addu v0,v0,s0`).  Same shape the PASSing sibling Roger uses. [3.12 #14] */
-      int *bank = (int *)((int)(*(*(this->_base_Speaker)._vf)[0x1e].pfn)
-                   ((int)&(this->_base_Speaker).fPosition.flags +
-                    (int)(*(this->_base_Speaker)._vf)[0x1e].delta) +
-         (*(*(this->_base_Speaker).fSub->_vf)[0x11].pfn)
-                   ((int)&(this->_base_Speaker).fSub->fPosition.flags +
-                    (int)(*(this->_base_Speaker).fSub->_vf)[0x11].delta) * 4);
-      SPCHNFS_D_C_INTRO_CALL((this->_base_Speaker).fTo = bank[2],
-                            (this->_base_Speaker).fFrom,
-                            &(this->_base_Speaker).fReverse);
+      int *bank = (int *)((int)this->CallSign() +
+         this->fSub->Unit() * 4);
+      SPCHNFS_D_C_INTRO_CALL(this->fTo = bank[2],
+                            this->fFrom,
+                            &this->fReverse);
     }
     SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-    vs_RDBLK_SSTRP = &(this->_base_Speaker).fSub->fBlockade;
+    vs_RDBLK_SSTRP = &this->fSub->fBlockade;
     /* MATCH: retail's FALL-THROUGH arm is the RDBLK one (oracle `beqz v1` +
        `addiu a0,v0,20` in the slot); the `flags == 0` spelling puts
        DENIED_REPLY first and flips the branch polarity. */
@@ -2391,7 +2289,7 @@ void DispatchSpeaker::Deny()
       SPCHNFS_D_C_BKUP_REQUEST_DENIED_REPLY();
     }
     SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-    (((this->_base_Speaker).fSub)->fBlockade).flags = 0;
+    ((this->fSub)->fBlockade).flags = 0;
   }
   return;
 }
@@ -2400,10 +2298,10 @@ void DispatchSpeaker::Deny()
 void DispatchSpeaker::Grant()
 
 {
-  if ((this->_base_Speaker).fSub == (Speaker *)0x0) {
+  if (this->fSub == (Speaker *)0x0) {
     return;
   }
-  if (&(this->_base_Speaker).fSub->fBlockade ==
+  if (&this->fSub->fBlockade ==
       (SPCHNFSType_vs_RDBLK_SSTRP *)0x0) {
     return;
   }
@@ -2412,8 +2310,8 @@ void DispatchSpeaker::Grant()
     return;
   }
   SPCHNFS_D_C_RDBLK_SPBLT_GRANT_REPLY(
-      &(this->_base_Speaker).fSub->fBlockade,
-      &(this->_base_Speaker).fConfirm);
+      &this->fSub->fBlockade,
+      &this->fConfirm);
   SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
   return;
 }
@@ -2426,11 +2324,11 @@ void DispatchSpeaker::Ready(Car_tObj *carObj)
   Speaker *Wing;
 
   Wing = Speech::Mobile(carObj);
-  if ((this->_base_Speaker).HasDifferentSub(Wing)) {
-    Wing->SetBlockade((this->_base_Speaker).fSub->fBlockade.flags);
-    Wing->VirtualEngage((this->_base_Speaker).fSub->VirtualPerp());
+  if (this->HasDifferentSub(Wing)) {
+    Wing->SetBlockade(this->fSub->fBlockade.flags);
+    Wing->Engage(this->fSub->Perp());
   }
-  this->fStatusSub = &this->_base_Speaker;
+  this->fStatusSub = (Speaker *)this;
   this->fStatusCount = 0x80;
   return;
 }
@@ -2480,22 +2378,22 @@ void MobileSpeaker::Activate(Car_tObj *carObj)
   else {
     (this->fVoice).flags = a->voice;
   }
-  iVar3 = (int)(this->_base_Speaker).VirtualCallSign();
+  iVar3 = (int)this->CallSign();
   {
     unit = this->fUnit;
-    (this->_base_Speaker).fFrom =
+    this->fFrom =
         ((CallSignBank *)iVar3)->fMobile[unit];
   }
   iVar3 = GameSetup_gData.track;
-  (this->_base_Speaker).fConfirm.flags = 0xff;
-  (this->_base_Speaker).fPerpName.flags = 0xf;
-  (this->_base_Speaker).fBlockade.flags = 0;
-  (this->_base_Speaker).fArrest.flags = 0;
-  (this->_base_Speaker).fUpdate.flags = 0;
+  this->fConfirm.flags = 0xff;
+  this->fPerpName.flags = 0xf;
+  this->fBlockade.flags = 0;
+  this->fArrest.flags = 0;
+  this->fUpdate.flags = 0;
   this->fPerp = (Car_tObj *)0x0;
-  (this->_base_Speaker).fSub = (Speaker *)0x0;
-  (this->_base_Speaker).fHavePerp = 0;
-  (this->_base_Speaker).fReverse.flags = iVar3 & 1;
+  this->fSub = (Speaker *)0x0;
+  this->fHavePerp = 0;
+  this->fReverse.flags = iVar3 & 1;
   return;
 }
 
@@ -2517,8 +2415,8 @@ void MobileSpeaker::ReActivate()
   else {
     (this->fVoice).flags = a->voice;
   }
-  unit = (int)(this->_base_Speaker).VirtualCallSign();
-  (this->_base_Speaker).fFrom =
+  unit = (int)this->CallSign();
+  this->fFrom =
       ((CallSignBank *)unit)->fMobile[this->fUnit];
 }
 
@@ -2533,7 +2431,7 @@ Speaker *Speech::FindMobile(Car_tObj *carObj)
     MobileSpeaker *mobile = this->fMobile[i];
 
     if (carObj == mobile->fCarObj) {
-      return &mobile->_base_Speaker;
+      return (Speaker *)mobile;
     }
   }
 
@@ -2542,7 +2440,7 @@ Speaker *Speech::FindMobile(Car_tObj *carObj)
 
     if (mobile->fCarObj == (Car_tObj *)0x0) {
       mobile->Activate(carObj);
-      return &this->fMobile[i]->_base_Speaker;
+      return (Speaker *)this->fMobile[i];
     }
   }
 
@@ -2594,10 +2492,9 @@ void MobileSpeaker::SetSpeed(Car_tObj *perp)
 /* MATCH: SYM lists exactly x=$s2, z=$v1, d=$v0.  Expanding the virtual
    coordinate accesses at each source occurrence preserves the retail call
    duplication; signed difference tests produce its subu/blez arm shape. */
-#define MOBILE_SPEAKER_COORD(self, slot, offset) \
-  (*(int *)(((*(*(self->_base_Speaker)._vf)[slot].pfn) \
-      ((int)&(self->_base_Speaker).fPosition.flags + \
-       (int)(*(self->_base_Speaker)._vf)[slot].delta)) + (offset)))
+/* a coordinate of the car a virtual accessor returns (CarObj / Perp) */
+#define MOBILE_SPEAKER_COORD(self, getter, offset) \
+  (*(int *)((int)self->getter() + (offset)))
 
 int MobileSpeaker::DistToPerp()
 
@@ -2606,23 +2503,23 @@ int MobileSpeaker::DistToPerp()
   int z;
   int d;
 
-  if (MOBILE_SPEAKER_COORD(this, 0x19, 0xa0) -
-      MOBILE_SPEAKER_COORD(this, 0x1b, 0xa0) > 0) {
-    x = MOBILE_SPEAKER_COORD(this, 0x19, 0xa0) -
-        MOBILE_SPEAKER_COORD(this, 0x1b, 0xa0);
+  if (MOBILE_SPEAKER_COORD(this, CarObj, 0xa0) -
+      MOBILE_SPEAKER_COORD(this, Perp, 0xa0) > 0) {
+    x = MOBILE_SPEAKER_COORD(this, CarObj, 0xa0) -
+        MOBILE_SPEAKER_COORD(this, Perp, 0xa0);
   }
   else {
-    x = MOBILE_SPEAKER_COORD(this, 0x1b, 0xa0) -
-        MOBILE_SPEAKER_COORD(this, 0x19, 0xa0);
+    x = MOBILE_SPEAKER_COORD(this, Perp, 0xa0) -
+        MOBILE_SPEAKER_COORD(this, CarObj, 0xa0);
   }
-  if (MOBILE_SPEAKER_COORD(this, 0x19, 0xa8) -
-      MOBILE_SPEAKER_COORD(this, 0x1b, 0xa8) > 0) {
-    z = MOBILE_SPEAKER_COORD(this, 0x19, 0xa8) -
-        MOBILE_SPEAKER_COORD(this, 0x1b, 0xa8);
+  if (MOBILE_SPEAKER_COORD(this, CarObj, 0xa8) -
+      MOBILE_SPEAKER_COORD(this, Perp, 0xa8) > 0) {
+    z = MOBILE_SPEAKER_COORD(this, CarObj, 0xa8) -
+        MOBILE_SPEAKER_COORD(this, Perp, 0xa8);
   }
   else {
-    z = MOBILE_SPEAKER_COORD(this, 0x1b, 0xa8) -
-        MOBILE_SPEAKER_COORD(this, 0x19, 0xa8);
+    z = MOBILE_SPEAKER_COORD(this, Perp, 0xa8) -
+        MOBILE_SPEAKER_COORD(this, CarObj, 0xa8);
   }
   if (z < x) {
     d = x + (z >> 2);
@@ -2642,28 +2539,26 @@ void MobileSpeaker::Report(Car_tObj *perp)
   Car_tObj *carObj;
   
   Speech_fgSpeech->fSpeakerCar = this->fCarObj;
-  this->_base_Speaker.fTo =
-      *(int *)((*(*(this->_base_Speaker)._vf)[0x1e].pfn)
-                    ((int)&(this->_base_Speaker).fPosition.flags +
-                     (int)(*(this->_base_Speaker)._vf)[0x1e].delta) + 4);
-  SPCHNFS_C_A_INTRO(&this->fVoice,this->_base_Speaker.fTo,
-                    (this->_base_Speaker).fFrom,&(this->_base_Speaker).fReverse);
+  this->fTo =
+      *(int *)(this->CallSign() + 4);
+  SPCHNFS_C_A_INTRO(&this->fVoice,this->fTo,
+                    this->fFrom,&this->fReverse);
   SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
   Speech_fgSpeech->fSpeakerCar = this->fCarObj;
-  this->_base_Speaker.SetCar(perp);
-  this->_base_Speaker.FindLocation(perp);
+  this->SetCar(perp);
+  this->FindLocation(perp);
   this->SetSpeed(perp);
   {
     /* SYM-CODEGEN-CARRIER: reportCar -- direct fCar argument preserves 59
        instructions but changes six words. */
-    int reportCar = (this->_base_Speaker).fCar;
+    int reportCar = this->fCar;
     /* SYM-CODEGEN-CARRIER: reportLocation -- direct fLocation argument
        preserves 59 instructions but changes four words. */
-    int reportLocation = (this->_base_Speaker).fLocation;
-    SPCHNFS_C_D_PERP_SIGHTED(&this->fVoice,&(this->_base_Speaker).fColour,
-               reportCar,&(this->_base_Speaker).fDistance,
+    int reportLocation = this->fLocation;
+    SPCHNFS_C_D_PERP_SIGHTED(&this->fVoice,&this->fColour,
+               reportCar,&this->fDistance,
                (SPCHNFSType_POSITION *)this,reportLocation,
-               &(this->_base_Speaker).fPerpName);
+               &this->fPerpName);
   }
   SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
   *(MobileSpeaker **)((int)Speech::Dispatch() + 0x48) = this;
@@ -2694,72 +2589,72 @@ void MobileSpeaker::Engage(Car_tObj *perp)
      receiver Sub in debug data; each aliases the active chain node. */
   
   Speech_fgSpeech->fSpeakerCar = this->fCarObj;
-  (this->_base_Speaker).fHavePerp = 1;
-  if (perp == (this->_base_Speaker).VirtualPerp())
+  this->fHavePerp = 1;
+  if (perp == this->Perp())
     goto MSEngage_samePerp;
   this->fPerp = perp;
-  this->_base_Speaker.SetCar((this->_base_Speaker).VirtualPerp());
-  if (((this->_base_Speaker).VirtualCarObj()->carFlags & 0x200) == 0) {
+  this->SetCar(this->Perp());
+  if ((this->CarObj()->carFlags & 0x200) == 0) {
     Speaker *SubChain;
     Speaker *Sub;
     SubChain = (Speaker *)Speech::Dispatch();
 MSEngage_unlinkLoop:
     Sub = SubChain->fSub;
     if (Sub == (Speaker *)0x0) goto MSEngage_dispatchCheck;
-    if (Sub != &this->_base_Speaker) {
+    if (Sub != (Speaker *)this) {
       SubChain = Sub;
       goto MSEngage_unlinkLoop;
     }
-    SubChain->fSub = (this->_base_Speaker).fSub;
-    (this->_base_Speaker).fSub = (Speaker *)0x0;
+    SubChain->fSub = this->fSub;
+    this->fSub = (Speaker *)0x0;
   }
 MSEngage_dispatchCheck:
-  if (Speech::Dispatch()->fSub == &this->_base_Speaker) {
-    if (((this->_base_Speaker).VirtualCarObj()->carFlags & 0x200) == 0) {
+  if (Speech::Dispatch()->fSub == (Speaker *)this) {
+    if ((this->CarObj()->carFlags & 0x200) == 0) {
       return;
     }
-    Speech::Dispatch()->VirtualReport(perp);
+    Speech::Dispatch()->Report(perp);
     Speech_fgSpeech->fSpeakerCar = this->fCarObj;
-    (this->_base_Speaker).fTo =
-        (this->_base_Speaker).VirtualCallSign()->fDispatch;
-    this->_base_Speaker.FindLocation(
-        (this->_base_Speaker).VirtualPerp());
+    this->fTo =
+        this->CallSign()->fDispatch;
+    this->FindLocation(
+        this->Perp());
     /* SYM-CODEGEN-CARRIER: replyTo -- direct fTo changes 6 call-setup
        instructions while preserving the 467-instruction count.
        SYM-CODEGEN-CARRIER: replyCar -- direct fCar likewise leaves 6 diffs.
        SYM-CODEGEN-CARRIER: replyLocation -- direct fLocation leaves 4 diffs. */
-    int replyTo = (this->_base_Speaker).fTo;
-    int replyCar = (this->_base_Speaker).fCar;
-    int replyLocation = (this->_base_Speaker).fLocation;
+    int replyTo = this->fTo;
+    int replyCar = this->fCar;
+    int replyLocation = this->fLocation;
     SPCHNFS_C_D_ENGAGE_PURS_REP_SPDR_REPLY(&this->fVoice,replyTo,
-               &(this->_base_Speaker).fColour,replyCar,
-               &(this->_base_Speaker).fDistance,(SPCHNFSType_POSITION *)this,
-               replyLocation,&(this->_base_Speaker).fConfirm);
+               &this->fColour,replyCar,
+               &this->fDistance,(SPCHNFSType_POSITION *)this,
+               replyLocation,&this->fConfirm);
     goto MSEngage_emitSpeech;
   }
   superReady = false;
-  if ((this->_base_Speaker).VirtualIsSuper()) {
-    if (((this->_base_Speaker).VirtualPerp()->carFlags & 4) != 0) {
+  if (this->IsSuper()) {
+    if ((this->Perp()->carFlags & 4) != 0) {
       if (Speech::Dispatch()->fSub != (Speaker *)0x0) {
         /* SYM-CODEGEN-CARRIER: superFlag -- folding the mask into the Boolean
            grows 467 to 468 and leaves 5 bit-test diffs. */
         u_int superFlag =
-            Speech::Dispatch()->fSub->VirtualCarObj()->carFlags & 0x40;
+            Speech::Dispatch()->fSub->CarObj()->carFlags & 0x40;
         superReady = superFlag < 1;
       }
     }
   }
   if (superReady) {
-    (this->_base_Speaker).fSub = Speech::Dispatch()->fSub;
-    Speech::Dispatch()->fSub = &this->_base_Speaker;
-    if ((this->_base_Speaker).fBlockade.flags != 0) {
+    this->fSub = Speech::Dispatch()->fSub;
+    Speech::Dispatch()->fSub = (Speaker *)this;
+    if (this->fBlockade.flags != 0) {
       return;
     }
-    (this->_base_Speaker).fTo =
-        (this->_base_Speaker).VirtualCallSign()->fAllUnits;
-    SPCHNFS_C_A_INTRO(&this->fVoice,(this->_base_Speaker).fTo,
-                      (this->_base_Speaker).fFrom,
-                      &(this->_base_Speaker).fReverse);
+    this->fTo =
+        this->CallSign()->fAllUnits;
+    SPCHNFS_C_A_INTRO(&this->fVoice,this->fTo,
+                      this->fFrom,
+                      &this->fReverse);
     SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
     SPCHNFS_S_C_SUPER_COP_ARRIVAL(&this->fVoice);
     goto MSEngage_emitSpeech;
@@ -2768,19 +2663,19 @@ MSEngage_dispatchCheck:
     pursuitReady = false;
     Speaker *SubChain = Speech::Dispatch();
     if (Speech::Dispatch()->fSub != (Speaker *)0x0) {
-      if (Speech::Dispatch()->fSub->VirtualPerp() != (Car_tObj *)0x0) {
-        if ((Speech::Dispatch()->fSub->VirtualPerp()->carFlags & 4) == 0) {
+      if (Speech::Dispatch()->fSub->Perp() != (Car_tObj *)0x0) {
+        if ((Speech::Dispatch()->fSub->Perp()->carFlags & 4) == 0) {
           /* SYM-CODEGEN-CARRIER: pursuitFlag -- folding this mask into the
              comparison is count-exact but changes 4 bit-test instructions. */
           u_int pursuitFlag =
-              (this->_base_Speaker).VirtualPerp()->carFlags & 4;
+              this->Perp()->carFlags & 4;
           pursuitReady = 0 < pursuitFlag;
         }
       }
     }
     if (pursuitReady) {
-      (this->_base_Speaker).fSub = Speech::Dispatch()->fSub;
-      Speech::Dispatch()->fSub = &this->_base_Speaker;
+      this->fSub = Speech::Dispatch()->fSub;
+      Speech::Dispatch()->fSub = (Speaker *)this;
     }
     else {
 MSEngage_tailLoop:
@@ -2789,14 +2684,14 @@ MSEngage_tailLoop:
       SubChain = SubChain->fSub;
       goto MSEngage_tailLoop;
 MSEngage_tailEnd:
-      SubChain->fSub = &this->_base_Speaker;
+      SubChain->fSub = (Speaker *)this;
     }
-  if ((this->_base_Speaker).fBlockade.flags != 0) {
+  if (this->fBlockade.flags != 0) {
     return;
   }
   condition = false;
-  if (Speech::Dispatch()->VirtualKnownPerp(perp)) {
-    if (Speech::Dispatch()->VirtualStatusCount() > 0x17f)
+  if (Speech::Dispatch()->KnownPerp(perp)) {
+    if (Speech::Dispatch()->StatusCount() > 0x17f)
       goto MSEngage_validateAndProceed;
   }
   condition = true;
@@ -2804,36 +2699,33 @@ MSEngage_validateAndProceed:
   if (!condition) {
     return;
   }
-  (this->_base_Speaker).fTo =
-      (this->_base_Speaker).VirtualCallSign()->fDispatch;
-  SPCHNFS_C_A_INTRO(&this->fVoice,(this->_base_Speaker).fTo,
-             (this->_base_Speaker).fFrom,&(this->_base_Speaker).fReverse);
+  this->fTo =
+      this->CallSign()->fDispatch;
+  SPCHNFS_C_A_INTRO(&this->fVoice,this->fTo,
+             this->fFrom,&this->fReverse);
   SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-  this->_base_Speaker.FindLocation((this->_base_Speaker).VirtualPerp());
-  this->SetSpeed((this->_base_Speaker).VirtualPerp());
+  this->FindLocation(this->Perp());
+  this->SetSpeed(this->Perp());
   {
   Speaker *Sub = Speech::Dispatch();
   /* SYM-CODEGEN-CARRIER: knownEntry -- spelling slot 18 directly is
      count-exact but leaves 24 vtable/receiver-order diffs.
      SYM-CODEGEN-CARRIER: knownThis -- folding the adjusted receiver into the
      call is count-exact but leaves 30 diffs. */
-  __vtbl_ptr_type *knownEntry = &(*Sub->_vf)[18];
-  int knownThis = (int)Sub + knownEntry->delta;
   condition =
-      (*knownEntry->pfn)(knownThis,
-        (this->_base_Speaker).VirtualPerp());
+      Sub->KnownPerp(this->Perp());
   }
   if (condition) {
     /* SYM-CODEGEN-CARRIER: sightedCar -- direct fCar is count-exact with
        6 call-setup diffs.
        SYM-CODEGEN-CARRIER: sightedLocation -- direct fLocation is count-exact
        with 4 stack/delay-slot diffs. */
-    int sightedCar = (this->_base_Speaker).fCar;
-    int sightedLocation = (this->_base_Speaker).fLocation;
-    SPCHNFS_C_D_PERP_SIGHTED(&this->fVoice,&(this->_base_Speaker).fColour,
-               sightedCar,&(this->_base_Speaker).fDistance,
+    int sightedCar = this->fCar;
+    int sightedLocation = this->fLocation;
+    SPCHNFS_C_D_PERP_SIGHTED(&this->fVoice,&this->fColour,
+               sightedCar,&this->fDistance,
                (SPCHNFSType_POSITION *)this,sightedLocation,
-               &(this->_base_Speaker).fPerpName);
+               &this->fPerpName);
   }
   else {
     /* SYM-CODEGEN-CARRIER: engageCar -- direct fCar is count-exact with
@@ -2842,18 +2734,18 @@ MSEngage_validateAndProceed:
        with 2 stack-argument diffs.
        SYM-CODEGEN-CARRIER: engageSpeed -- direct fSpeed is count-exact with
        8 call-setup/delay-slot diffs. */
-    int engageCar = (this->_base_Speaker).fCar;
-    int engageLocation = (this->_base_Speaker).fLocation;
+    int engageCar = this->fCar;
+    int engageLocation = this->fLocation;
     int engageSpeed = this->fSpeed;
-    SPCHNFS_C_D_ENGAGE_PURS_REP_SPDR(&this->fVoice,&(this->_base_Speaker).fColour,
+    SPCHNFS_C_D_ENGAGE_PURS_REP_SPDR(&this->fVoice,&this->fColour,
                engageCar,(SPCHNFSType_POSITION *)this,engageLocation,
-               &(this->_base_Speaker).fDistance,engageSpeed,
-               &this->fSpeedType,&(this->_base_Speaker).fPerpName)
+               &this->fDistance,engageSpeed,
+               &this->fSpeedType,&this->fPerpName)
     ;
   }
   SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
   SubChain = Speech::Dispatch()->fSub;
-  Speech::Dispatch()->fSub = &this->_base_Speaker;
+  Speech::Dispatch()->fSub = (Speaker *)this;
   {
   Speaker *Sub = Speech::Dispatch();
   /* SYM-CODEGEN-CARRIER: reportEntry -- direct slot-1 spelling shortens the
@@ -2861,13 +2753,8 @@ MSEngage_validateAndProceed:
      SYM-CODEGEN-CARRIER: reportThis -- folding the adjusted receiver is
      count-exact but leaves 30 diffs.  These are explicit forms of compiler
      virtual-call quantities; SYM records the source receiver as Sub. */
-  __vtbl_ptr_type *reportEntry =
-      &(*Sub->_vf)[1];
-  int reportThis = (int)Sub + reportEntry->delta;
-  carObj = (Car_tObj *)(*(*(this->_base_Speaker)._vf)[27].pfn)
-      ((int)&(this->_base_Speaker).fPosition.flags +
-       (int)(*(this->_base_Speaker)._vf)[27].delta);
-  (*reportEntry->pfn)(reportThis,carObj);
+  carObj = (Car_tObj *)this->Perp();
+  Sub->Report(carObj);
   }
   Speech::Dispatch()->fSub = SubChain;
   }
@@ -2875,25 +2762,25 @@ MSEngage_validateAndProceed:
 MSEngage_samePerp:
   repeatReady = false;
   if (Speech_fgSpeech->fMultiplePerps == 0) {
-    repeatReady = Speech::Dispatch()->VirtualStatusCount() < 0x160;
+    repeatReady = Speech::Dispatch()->StatusCount() < 0x160;
   }
   if (!repeatReady) {
     return;
   }
   {
-  this->_base_Speaker.SetCar((this->_base_Speaker).VirtualPerp());
-  (this->_base_Speaker).fTo =
-      (this->_base_Speaker).VirtualCallSign()->fDispatch;
-  SPCHNFS_C_A_INTRO(&this->fVoice,(this->_base_Speaker).fTo,
-             (this->_base_Speaker).fFrom,&(this->_base_Speaker).fReverse);
+  this->SetCar(this->Perp());
+  this->fTo =
+      this->CallSign()->fDispatch;
+  SPCHNFS_C_A_INTRO(&this->fVoice,this->fTo,
+             this->fFrom,&this->fReverse);
   SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-  this->_base_Speaker.FindLocation((this->_base_Speaker).VirtualPerp());
+  this->FindLocation(this->Perp());
   /* SYM-CODEGEN-CARRIER: reacquiredCar -- direct fCar remains count-exact but
      causes 10 call-setup diffs. */
-  int reacquiredCar = (this->_base_Speaker).fCar;
-  SPCHNFS_C_C_PERP_REAQUIRED(&this->fVoice,&(this->_base_Speaker).fColour,
-             reacquiredCar,(SPCHNFSType_POSITION *)this,(this->_base_Speaker).fLocation,
-             &(this->_base_Speaker).fDistance);
+  int reacquiredCar = this->fCar;
+  SPCHNFS_C_C_PERP_REAQUIRED(&this->fVoice,&this->fColour,
+             reacquiredCar,(SPCHNFSType_POSITION *)this,this->fLocation,
+             &this->fDistance);
   }
 MSEngage_emitSpeech:
   SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
@@ -2982,16 +2869,14 @@ void MobileSpeaker::Lose()
   
   /* SYM-OPTIMIZED: carObj -- the line-1 inline Speech expansion consumes
      `this->fCarObj` directly in fSpeakerCar; no ordinary local survives. */
-  if ((*(*(this->_base_Speaker)._vf)[0x1b].pfn)
-        ((int)&(this->_base_Speaker).fPosition.flags +
-         (int)(*(this->_base_Speaker)._vf)[0x1b].delta) != 0) {
+  if (this->Perp() != 0) {
     Speech_fgSpeech->fSpeakerCar = this->fCarObj;
     iVar3 = Speech::Dispatch();
     useLeader = false;
     if (((*(int *)(iVar3 + 0x48) != 0) &&
         (iVar3 = Speech::Dispatch(), *(MobileSpeaker **)(*(int *)(iVar3 + 0x48) + 0x48) == this)) &&
-       ((this->_base_Speaker).fBlockade.flags == 0)) {
-      useLeader = (this->_base_Speaker).fArrest.flags == 0;
+       (this->fBlockade.flags == 0)) {
+      useLeader = this->fArrest.flags == 0;
     }
     if (useLeader) {
       iVar3 = Speech::Dispatch();
@@ -3005,70 +2890,60 @@ void MobileSpeaker::Lose()
            mutate it in place (`addu s0,s0,v0; lw v0,8(s0)`); the direct fused
            expression is not byte-exact. */
         int *bank = (int *)
-            ((int)(*(*(this->_base_Speaker)._vf)[0x1e].pfn)
-                       ((int)&(this->_base_Speaker).fPosition.flags +
-                        (int)(*(this->_base_Speaker)._vf)[0x1e].delta) +
+            ((int)this->CallSign() +
              (**(int (**)(...))(*(int *)((int)Leader + 0x4c) + 0x8c))
                        ((int)Leader + *(short *)(*(int *)((int)Leader + 0x4c) + 0x88)) * 4);
-        (this->_base_Speaker).fTo = bank[2];
+        this->fTo = bank[2];
       }
     }
     else {
-      Sub = (Speaker *)(*(*(this->_base_Speaker)._vf)[0x1e].pfn)
-                        ((int)&(this->_base_Speaker).fPosition.flags + (int)(*(this->_base_Speaker)._vf)[0x1e].delta);
+      Sub = (Speaker *)this->CallSign();
       Leader = (Speaker *)0x0;
-      (this->_base_Speaker).fTo = *(int *)((int)Sub + 4);
+      this->fTo = *(int *)((int)Sub + 4);
     }
-    if ((this->_base_Speaker).fArrest.flags != 0) {
+    if (this->fArrest.flags != 0) {
       SPCHNFS_C_P_FALSE_ARREST_BULLHORN(&this->fVoice);
       SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
     }
     else {
       outOfRange = 0;
-      if (((this->_base_Speaker).fBlockade.flags == 0) && (Leader == (Speaker *)0x0)) {
+      if ((this->fBlockade.flags == 0) && (Leader == (Speaker *)0x0)) {
         dispatchThis = (DispatchSpeaker *)Speech::Dispatch();
-        iVar3 = (*(*(dispatchThis->_base_Speaker)._vf)[0x15].pfn)
-                          ((int)&(dispatchThis->_base_Speaker).fPosition.flags +
-                           (int)(*(dispatchThis->_base_Speaker)._vf)[0x15].delta);
+        iVar3 = dispatchThis->StatusCount();
         outOfRange = (iVar3 < 0x161) ^ 1;
       }
       if (outOfRange != 0) {
         return;
       }
     }
-    iVar3 = (this->_base_Speaker).fTo;
+    iVar3 = this->fTo;
     SPCHNFS_C_A_INTRO(
-      &this->fVoice,iVar3,(this->_base_Speaker).fFrom,
-      &(this->_base_Speaker).fReverse);
+      &this->fVoice,iVar3,this->fFrom,
+      &this->fReverse);
     SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-    this->_base_Speaker.SetCar((Car_tObj *)
-      (*(*(this->_base_Speaker)._vf)[0x1b].pfn)
-        ((int)&(this->_base_Speaker).fPosition.flags +
-         (int)(*(this->_base_Speaker)._vf)[0x1b].delta));
-    this->_base_Speaker.FindLocation((Car_tObj *)
-      (*(*(this->_base_Speaker)._vf)[0x1b].pfn)
-        ((int)&(this->_base_Speaker).fPosition.flags +
-         (int)(*(this->_base_Speaker)._vf)[0x1b].delta));
-    if ((this->_base_Speaker).fArrest.flags != 0) {
+    this->SetCar((Car_tObj *)
+      this->Perp());
+    this->FindLocation((Car_tObj *)
+      this->Perp());
+    if (this->fArrest.flags != 0) {
       SPCHNFS_C_D_DURING_FALSE_ARREST(
-        &this->fVoice,&(this->_base_Speaker).fPerpName);
+        &this->fVoice,&this->fPerpName);
     }
     else {
-      iVar3 = (*(*(this->_base_Speaker)._vf)[0x19].pfn)
-                        ((int)&(this->_base_Speaker).fPosition.flags + (int)(*(this->_base_Speaker)._vf)[0x19].delta);
+      iVar3 = this->CarObj();
       if ((*(u_int *)(iVar3 + 0x260) & 0x200) != 0) {
         SPCHNFS_C_D_ENDGAME(&this->fVoice);
       }
       else {
-        if ((this->_base_Speaker).fBlockade.flags == 1) {
+        if (this->fBlockade.flags == 1) {
           SPCHNFS_C_D_SPBLT_FAILED(
-            &this->fVoice,&(this->_base_Speaker).fColour,
-            (this->_base_Speaker).fCar);
+            &this->fVoice,&this->fColour,
+            this->fCar);
         }
-        else if ((this->_base_Speaker).fBlockade.flags == 2) {
+        else if (this->fBlockade.flags == 2) {
           SPCHNFS_C_D_RDBLK_FAILED(
-            &this->fVoice,&(this->_base_Speaker).fColour,
-            (this->_base_Speaker).fCar);
+            &this->fVoice,&this->fColour,
+            this->fCar);
         }
         else {
           /* MATCH: arm-local laundered receiver carrier -- see the header block.
@@ -3086,30 +2961,28 @@ void MobileSpeaker::Lose()
             SPCHNFS_C_C_IDLE_WINGMAN_DISAPPEARS(&this->fVoice);
           }
           else {
-            perpCar = (this->_base_Speaker).fCar;
-            iVar3 = (this->_base_Speaker).fLocation;
-            SPCHNFS_C_D_PERP_LOST(voiceArg,&(this->_base_Speaker).fColour,
+            perpCar = this->fCar;
+            iVar3 = this->fLocation;
+            SPCHNFS_C_D_PERP_LOST(voiceArg,&this->fColour,
                        perpCar,
                        (SPCHNFSType_POSITION *)this,
-                       iVar3,&(this->_base_Speaker).fDistance,
-                       &(this->_base_Speaker).fPerpName);
+                       iVar3,&this->fDistance,
+                       &this->fPerpName);
           }
         }
       }
     }
     SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-    (this->_base_Speaker).fBlockade.flags = 0;
-    (this->_base_Speaker).fArrest.flags = 0;
-    (this->_base_Speaker).fUpdate.flags = 0;
+    this->fBlockade.flags = 0;
+    this->fArrest.flags = 0;
+    this->fUpdate.flags = 0;
     if (Leader == (Speaker *)0x0) {
       iVar3 = Speech::Dispatch();
       savedDispatch = *(u_int *)(iVar3 + 0x48);
       iVar3 = Speech::Dispatch();
       *(MobileSpeaker **)(iVar3 + 0x48) = this;
       finalDispatch = (DispatchSpeaker *)Speech::Dispatch();
-      (*(*(finalDispatch->_base_Speaker)._vf)[0xe].pfn)
-                ((int)&(finalDispatch->_base_Speaker).fPosition.flags +
-                 (int)(*(finalDispatch->_base_Speaker)._vf)[0xe].delta);
+      finalDispatch->Roger();
       iVar3 = Speech::Dispatch();
       *(u_int *)(iVar3 + 0x48) = savedDispatch;
     }
@@ -3149,66 +3022,66 @@ void MobileSpeaker::Catch(int ticket)
   /* SYM-OPTIMIZED: Arrest -- the inlined arrest-phrase helper reuses the
      incoming `ticket` value in $s0, so no second source object survives. */
 
-  if ((this->_base_Speaker).VirtualPerp() != 0) {
+  if (this->Perp() != 0) {
     Speech_fgSpeech->fSpeakerCar = this->fCarObj;
-    if (*(int *)((int)(this->_base_Speaker).VirtualPerp() + 300) < 0) {
-      (this->_base_Speaker).fTo =
-          (this->_base_Speaker).VirtualCallSign()->fDispatch;
-      SPCHNFS_C_A_INTRO(&this->fVoice,(this->_base_Speaker).fTo,
-                        (this->_base_Speaker).fFrom,&(this->_base_Speaker).fReverse);
+    if (*(int *)((int)this->Perp() + 300) < 0) {
+      this->fTo =
+          this->CallSign()->fDispatch;
+      SPCHNFS_C_A_INTRO(&this->fVoice,this->fTo,
+                        this->fFrom,&this->fReverse);
       SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-      this->_base_Speaker.FindLocation(
-          (this->_base_Speaker).VirtualPerp());
+      this->FindLocation(
+          this->Perp());
       SPCHNFS_C_D_PERP_CRASH_ROLL(&this->fVoice,(SPCHNFSType_POSITION *)this,
-                 (this->_base_Speaker).Location(),
-                 (this->_base_Speaker).Distance(),
-                 &(this->_base_Speaker).fPerpName);
+                 this->Location(),
+                 this->Distance(),
+                 &this->fPerpName);
       SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-      (this->_base_Speaker).fAmbulance.flags = 4;
-      SPCHNFS_C_D_REQUEST_EMS(&this->fVoice,&(this->_base_Speaker).fAmbulance);
+      this->fAmbulance.flags = 4;
+      SPCHNFS_C_D_REQUEST_EMS(&this->fVoice,&this->fAmbulance);
       SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
       goto Catch_dispatchCallback;
     }
     else {
-      if (*(int *)((int)(this->_base_Speaker).VirtualPerp() + 0x78c) != 0) {
-        (this->_base_Speaker).fTo =
-            (this->_base_Speaker).VirtualCallSign()->fDispatch;
-        SPCHNFS_C_A_INTRO(&this->fVoice,(this->_base_Speaker).fTo,
-                          (this->_base_Speaker).fFrom,&(this->_base_Speaker).fReverse);
+      if (*(int *)((int)this->Perp() + 0x78c) != 0) {
+        this->fTo =
+            this->CallSign()->fDispatch;
+        SPCHNFS_C_A_INTRO(&this->fVoice,this->fTo,
+                          this->fFrom,&this->fReverse);
         SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-        this->_base_Speaker.SetCar((this->_base_Speaker).VirtualPerp());
-        this->_base_Speaker.FindLocation(
-            (this->_base_Speaker).VirtualPerp());
+        this->SetCar(this->Perp());
+        this->FindLocation(
+            this->Perp());
         SPCHNFS_C_D_PERP_CRASH_GEN(&this->fVoice,(SPCHNFSType_POSITION *)this,
-                 (this->_base_Speaker).Location(),(this->_base_Speaker).Colour(),
-                 (this->_base_Speaker).fCar,&(this->_base_Speaker).fDistance,
-                 &(this->_base_Speaker).fPerpName);
+                 this->Location(),this->Colour(),
+                 this->fCar,&this->fDistance,
+                 &this->fPerpName);
         SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-        (this->_base_Speaker).fAmbulance.flags = 0x20;
-        SPCHNFS_C_D_REQUEST_EMS(&this->fVoice,&(this->_base_Speaker).fAmbulance);
+        this->fAmbulance.flags = 0x20;
+        SPCHNFS_C_D_REQUEST_EMS(&this->fVoice,&this->fAmbulance);
         SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
         goto Catch_dispatchCallback;
       }
       else {
-        (this->_base_Speaker).fArrest.flags = ticket;
+        this->fArrest.flags = ticket;
         if (ticket == 1) {
-          SPCHNFS_C_P_ARRESTED(&this->fVoice,&(this->_base_Speaker).fArrest);
+          SPCHNFS_C_P_ARRESTED(&this->fVoice,&this->fArrest);
         }
         else if (ticket == 2) {
-          SPCHNFS_C_P_WARNING(&this->fVoice,&(this->_base_Speaker).fArrest);
+          SPCHNFS_C_P_WARNING(&this->fVoice,&this->fArrest);
         }
         else {
-          SPCHNFS_C_P_TICKET(&this->fVoice,&(this->_base_Speaker).fArrest);
+          SPCHNFS_C_P_TICKET(&this->fVoice,&this->fArrest);
         }
         SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
         if (ticket == 1) {
-          Speech_fgSpeech->SetDelayedStatus(&this->_base_Speaker,0x60);
+          Speech_fgSpeech->SetDelayedStatus((Speaker *)this,0x60);
         }
         goto Catch_dispatchCallback;
       }
     }
 Catch_dispatchCallback:
-    Speech::Dispatch()->VirtualClearPerp(this->fPerp);
+    Speech::Dispatch()->ClearPerp(this->fPerp);
   }
 }
 
@@ -3234,21 +3107,20 @@ void MobileSpeaker::RoadBlock()
   if (ctx != (SPCHNFSType_VOICE *)0) {
     dispatch = (Speaker *)Speech::Dispatch();
     dispatch = dispatch->fSub;
-    (*(*dispatch->_vf)[10].pfn)((int)&dispatch->fPosition.flags + (int)(*dispatch->_vf)[10].delta);
+    dispatch->RoadBlock();
   }
   else {
-    this->_base_Speaker.Promote();
+    this->Promote();
     if (Speech_fgSpeech->fMultiplePerps == 0) {
       Speech_fgSpeech->fSpeakerCar = this->fCarObj;
-      (this->_base_Speaker).fTo = *(int *)((*(*(this->_base_Speaker)._vf)[0x1e].pfn)
-                        ((int)&(this->_base_Speaker).fPosition.flags + (int)(*(this->_base_Speaker)._vf)[0x1e].delta) + 4);
-      SPCHNFS_C_A_INTRO(&this->fVoice,(this->_base_Speaker).fTo,(this->_base_Speaker).fFrom,
-                        &(this->_base_Speaker).fReverse);
+      this->fTo = *(int *)(this->CallSign() + 4);
+      SPCHNFS_C_A_INTRO(&this->fVoice,this->fTo,this->fFrom,
+                        &this->fReverse);
       SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
       SPCHNFS_C_D_REQ_RDBLK(&this->fVoice);
       SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
     }
-    (this->_base_Speaker).fBlockade.flags = 2;
+    this->fBlockade.flags = 2;
   }
   return;
 }
@@ -3275,21 +3147,20 @@ void MobileSpeaker::SpikeBelt()
   if (ctx != (SPCHNFSType_VOICE *)0) {
     dispatch = (Speaker *)Speech::Dispatch();
     dispatch = dispatch->fSub;
-    (*(*dispatch->_vf)[11].pfn)((int)&dispatch->fPosition.flags + (int)(*dispatch->_vf)[11].delta);
+    dispatch->SpikeBelt();
   }
   else {
-    this->_base_Speaker.Promote();
+    this->Promote();
     if (Speech_fgSpeech->fMultiplePerps == 0) {
       Speech_fgSpeech->fSpeakerCar = this->fCarObj;
-      (this->_base_Speaker).fTo = *(int *)((*(*(this->_base_Speaker)._vf)[0x1e].pfn)
-                        ((int)&(this->_base_Speaker).fPosition.flags + (int)(*(this->_base_Speaker)._vf)[0x1e].delta) + 4);
-      SPCHNFS_C_A_INTRO(&this->fVoice,(this->_base_Speaker).fTo,(this->_base_Speaker).fFrom,
-                        &(this->_base_Speaker).fReverse);
+      this->fTo = *(int *)(this->CallSign() + 4);
+      SPCHNFS_C_A_INTRO(&this->fVoice,this->fTo,this->fFrom,
+                        &this->fReverse);
       SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
       SPCHNFS_C_D_REQ_SPBLT(&this->fVoice);
       SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
     }
-    (this->_base_Speaker).fBlockade.flags = 1;
+    this->fBlockade.flags = 1;
   }
   return;
 }
@@ -3301,34 +3172,28 @@ void MobileSpeaker::Backup()
   Car_tObj *carObj;
 
   Speech_fgSpeech->fSpeakerCar = this->fCarObj;
-  (this->_base_Speaker).fTo = *(int *)
-      ((*(*(this->_base_Speaker)._vf)[0x1e].pfn)
-          ((int)&(this->_base_Speaker).fPosition.flags +
-           (int)(*(this->_base_Speaker)._vf)[0x1e].delta) + 4);
-  SPCHNFS_C_A_INTRO(&this->fVoice,(this->_base_Speaker).fTo,
-                    (this->_base_Speaker).fFrom,
-                    &(this->_base_Speaker).fReverse);
+  this->fTo = *(int *)
+      (this->CallSign() + 4);
+  SPCHNFS_C_A_INTRO(&this->fVoice,this->fTo,
+                    this->fFrom,
+                    &this->fReverse);
   SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-  this->_base_Speaker.SetCar((Car_tObj *)
-      (*(*(this->_base_Speaker)._vf)[0x1b].pfn)
-          ((int)&(this->_base_Speaker).fPosition.flags +
-           (int)(*(this->_base_Speaker)._vf)[0x1b].delta));
-  this->_base_Speaker.FindLocation((Car_tObj *)
-      (*(*(this->_base_Speaker)._vf)[0x19].pfn)
-          ((int)&(this->_base_Speaker).fPosition.flags +
-           (int)(*(this->_base_Speaker)._vf)[0x19].delta));
+  this->SetCar((Car_tObj *)
+      this->Perp());
+  this->FindLocation((Car_tObj *)
+      this->CarObj());
   {
     /* SYM-CODEGEN-CARRIER: requestCar -- the staged third argument leaves the
        `this` copy in the jal delay slot.  Passing fCar directly is count-exact
        but reverses those two setup instructions (6 diffs). */
-    int requestCar = (this->_base_Speaker).fCar;
-    SPCHNFS_C_D_REQUEST_BKUP(&this->fVoice,&(this->_base_Speaker).fColour,
+    int requestCar = this->fCar;
+    SPCHNFS_C_D_REQUEST_BKUP(&this->fVoice,&this->fColour,
                requestCar,(SPCHNFSType_POSITION *)this,
-               (this->_base_Speaker).fLocation,
-               &(this->_base_Speaker).fDistance);
+               this->fLocation,
+               &this->fDistance);
   }
   SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-  (this->_base_Speaker).fBlockade.flags = 0;
+  this->fBlockade.flags = 0;
   return;
 }
 
@@ -3360,9 +3225,9 @@ void MobileSpeaker::Roger()
      `this->fCarObj` directly in fSpeakerCar; no ordinary local survives. */
   Speech_fgSpeech->fSpeakerCar = this->fCarObj;
   isStatusSub = false;
-  if ((this->_base_Speaker).fSub != (Speaker *)0x0) {
-    isStatusSub = Speech::Dispatch()->VirtualStatusSub() ==
-        (this->_base_Speaker).fSub;
+  if (this->fSub != (Speaker *)0x0) {
+    isStatusSub = Speech::Dispatch()->StatusSub() ==
+        this->fSub;
   }
   if (isStatusSub) {
     /* SYM-CODEGEN-CARRIER: bank -- replacing the computed alias with
@@ -3382,37 +3247,29 @@ void MobileSpeaker::Roger()
 
     voice = &this->fVoice;
     SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-    bankBase = (int *)(*(*(this->_base_Speaker)._vf)[0x1e].pfn)
-                   ((int)&(this->_base_Speaker).fPosition.flags +
-                    (int)(*(this->_base_Speaker)._vf)[0x1e].delta);
-    bankIndex = (*(*(this->_base_Speaker).fSub->_vf)[0x11].pfn)
-                   ((int)&(this->_base_Speaker).fSub->fPosition.flags +
-                    (int)(*(this->_base_Speaker).fSub->_vf)[0x11].delta);
+    bankBase = (int *)this->CallSign();
+    bankIndex = this->fSub->Unit();
     confirmVoice = voice;
     __asm__("" : "=r"(confirmVoice)
                : "0"(confirmVoice), "r"(confirmVoice), "r"(confirmVoice),
                  "r"(confirmVoice));
     bank = bankBase + bankIndex;
     SPCHNFS_C_A_CONFIRM(confirmVoice,
-      (this->_base_Speaker).fTo = bank[2],
-      &(this->_base_Speaker).fConfirm);
+      this->fTo = bank[2],
+      &this->fConfirm);
     SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-    this->_base_Speaker.SetCar((Car_tObj *)
-      (*(*(this->_base_Speaker)._vf)[0x1b].pfn)
-        ((int)&(this->_base_Speaker).fPosition.flags +
-         (int)(*(this->_base_Speaker)._vf)[0x1b].delta));
+    this->SetCar((Car_tObj *)
+      this->Perp());
     SPCHNFS_C_C_IN_PURS_NEAR_PERP(
-      voice,&(this->_base_Speaker).fColour,(this->_base_Speaker).fCar);
+      voice,&this->fColour,this->fCar);
   }
   else {
-    elseBankBase = (*(*(this->_base_Speaker)._vf)[0x1e].pfn)
-                      ((int)&(this->_base_Speaker).fPosition.flags +
-                       (int)(*(this->_base_Speaker)._vf)[0x1e].delta);
+    elseBankBase = this->CallSign();
     voice = &this->fVoice;
     SPCHNFS_C_A_CONFIRM(
       voice,
-      (this->_base_Speaker).fTo = *(int *)(elseBankBase + 4),
-      &(this->_base_Speaker).fConfirm);
+      this->fTo = *(int *)(elseBankBase + 4),
+      &this->fConfirm);
   }
   SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
   return;
@@ -3439,7 +3296,7 @@ void MobileSpeaker::Purge()
   if (this->fCarObj == (Car_tObj *)0x0) {
     return;
   }
-  if ((*(u_int *)((int)(this->_base_Speaker).VirtualCarObj() + 0x260) &
+  if ((*(u_int *)((int)this->CarObj() + 0x260) &
        0x200) != 0) {
     CopSpeak_Flush();
     if (CopSpeak_gSpchHandle != -1) {
@@ -3454,7 +3311,7 @@ void MobileSpeaker::Purge()
         SNDstop(CopSpeak_gSpchHandle);
       }
     }
-    if ((this->_base_Speaker).VirtualPerp() != (Car_tObj *)0x0 &&
+    if (this->Perp() != (Car_tObj *)0x0 &&
         AudioMus_Threshold() != 0) {
       if (stackSpeedUpEnbabledFlag != 0) {
         gWSavePtr = SetSp(gWSavePtr);
@@ -3463,24 +3320,24 @@ void MobileSpeaker::Purge()
         AudioMus_PlaySong((char *)0x0);
         gWSavePtr = SetSp(gWSavePtr);
         stackSpeedUpEnbabledFlag = 1;
-        (this->_base_Speaker).fBlockade.flags = 0;
+        this->fBlockade.flags = 0;
         goto Purge_resetSpeakerFields;
       }
       AudioMus_StopSong(500);
       AudioMus_PlaySong((char *)0x0);
     }
-    (this->_base_Speaker).fBlockade.flags = 0;
+    this->fBlockade.flags = 0;
 Purge_resetSpeakerFields:
-    (this->_base_Speaker).fArrest.flags = 0;
-    (this->_base_Speaker).fUpdate.flags = 0;
+    this->fArrest.flags = 0;
+    this->fUpdate.flags = 0;
     this->fPerp = (Car_tObj *)0x0;
-    (this->_base_Speaker).fSub = (Speaker *)0x0;
+    this->fSub = (Speaker *)0x0;
     return;
   }
 
   this->fCarObj = (Car_tObj *)0x0;
-  if (Speech::Dispatch()->VirtualStatusSub() == (Speaker *)this) {
-    Speech::Dispatch()->VirtualPurgeStatusSub();
+  if (Speech::Dispatch()->StatusSub() == (Speaker *)this) {
+    Speech::Dispatch()->PurgeStatusSub();
   }
   Chain = (Speaker *)Speech::Dispatch();
 Purge_findChain:
@@ -3493,7 +3350,7 @@ Purge_findChain:
   Chain = Chain->fSub;
   goto Purge_findChain;
 Purge_unlinkChain:
-  Chain->fSub = (this->_base_Speaker).fSub;
+  Chain->fSub = this->fSub;
 }
 
 /* ---- ReportBlockade__Q26Speech13MobileSpeaker  [SPEECH.CPP:2843-2861] SLD-VERIFIED ---- */
@@ -3511,34 +3368,30 @@ void MobileSpeaker::ReportBlockade()
      A hoisted `pa_Var1 = _vf;` local is a Ghidra artifact: it becomes its own
      pseudo ($v1) so the pfn load can't reuse the vtable base reg -- oracle
      `lw v0,76(s1); lh a0,240(v0); lw v0,244(v0)` (self-temp). 6 -> 0. */
-  (this->_base_Speaker).fTo = *(int *)
-      ((*(*(this->_base_Speaker)._vf)[0x1e].pfn)
-         ((int)&(this->_base_Speaker).fPosition.flags +
-          (int)(*(this->_base_Speaker)._vf)[0x1e].delta) + 4);
+  this->fTo = *(int *)
+      (this->CallSign() + 4);
   carObj = (Car_tObj *)
-        (*(*(this->_base_Speaker)._vf)[0x19].pfn)
-                  ((int)&(this->_base_Speaker).fPosition.flags +
-                   (int)(*(this->_base_Speaker)._vf)[0x19].delta);
-  this->_base_Speaker.FindLocation(carObj);
-  (this->_base_Speaker).fSpikeSide.flags = 4;
+        this->CarObj();
+  this->FindLocation(carObj);
+  this->fSpikeSide.flags = 4;
   /* MATCH: keep `&this->fVoice` inside each arm.  Hoisting it above the `if`
      creates a pre-branch pseudo (`addiu s1,s0,80` in the bne delay slot) and
      flips the whole s0<->s1 map.  Arm-local expressions rematerialize the
      address directly in $a0, including the else-arm delay-slot fill. */
-  if ((this->_base_Speaker).fBlockade.flags == 2) {
-    SPCHNFS_C_A_INTRO(&this->fVoice,(this->_base_Speaker).fTo,
-                      (this->_base_Speaker).fFrom,
-                      &(this->_base_Speaker).fReverse);
+  if (this->fBlockade.flags == 2) {
+    SPCHNFS_C_A_INTRO(&this->fVoice,this->fTo,
+                      this->fFrom,
+                      &this->fReverse);
     SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
-    DISTANCE = &(this->_base_Speaker).fDistance;
+    DISTANCE = &this->fDistance;
     SPCHNFS_W_D_RDBLK_PLC(&this->fVoice,(SPCHNFSType_POSITION *)this,
-                          (this->_base_Speaker).fLocation,DISTANCE);
+                          this->fLocation,DISTANCE);
   }
   else {
-    DISTANCE = (SPCHNFSType_DISTANCE *)(this->_base_Speaker).fFrom;
+    DISTANCE = (SPCHNFSType_DISTANCE *)this->fFrom;
     SPCHNFS_W_D_SPBLT_PLC(&this->fVoice,(SPCHNFSType_POSITION *)this,
-               &(this->_base_Speaker).fSpikeSide,(int)DISTANCE,
-               (this->_base_Speaker).fLocation,&(this->_base_Speaker).fDistance);
+               &this->fSpikeSide,(int)DISTANCE,
+               this->fLocation,&this->fDistance);
   }
   SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
   return;
@@ -3749,104 +3602,6 @@ void Speaker::Status()
 /* Compiler-emitted empty type-name/literal slot between strings and vtables. */
 extern const char Speech_vtableTypeName[4] __asm__("D_80055BD0")
     __attribute__((section(".rodata"))) = "";
-const __vtbl_ptr_type MobileSpeaker_vtable[31] __asm__("_vt_Q26Speech13MobileSpeaker") = {   /* @0x80055bd4  Speech::MobileSpeaker vtable (#75 data-mat; faithful nfs4-f.exe bytes) */
-  {0, 0, (int (*)(...))0},                           /* @0x80055bd4  null */
-  {0, 0, (int (*)(...))&Report__Q26Speech13MobileSpeakerP8Car_tObj},       /* @0x80055bdc  Report__Q26Speech13MobileSpeakerP8Car_tObj */
-  {0, 0, (int (*)(...))&Status__Q26Speech13MobileSpeaker},       /* @0x80055be4  Status__Q26Speech13MobileSpeaker */
-  {0, 0, (int (*)(...))&Deny__Q26Speech7Speaker},               /* @0x80055bec  Deny__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&Grant__Q26Speech7Speaker},              /* @0x80055bf4  Grant__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&Ready__Q26Speech7SpeakerP8Car_tObj},              /* @0x80055bfc  Ready__Q26Speech7SpeakerP8Car_tObj */
-  {0, 0, (int (*)(...))&Engage__Q26Speech13MobileSpeakerP8Car_tObj},       /* @0x80055c04  Engage__Q26Speech13MobileSpeakerP8Car_tObj */
-  {0, 0, (int (*)(...))&Lose__Q26Speech13MobileSpeaker},         /* @0x80055c0c  Lose__Q26Speech13MobileSpeaker */
-  {0, 0, (int (*)(...))&Accident__Q26Speech13MobileSpeakeri},     /* @0x80055c14  Accident__Q26Speech13MobileSpeakeri */
-  {0, 0, (int (*)(...))&Catch__Q26Speech13MobileSpeakeri},        /* @0x80055c1c  Catch__Q26Speech13MobileSpeakeri */
-  {0, 0, (int (*)(...))&RoadBlock__Q26Speech13MobileSpeaker},    /* @0x80055c24  RoadBlock__Q26Speech13MobileSpeaker */
-  {0, 0, (int (*)(...))&SpikeBelt__Q26Speech13MobileSpeaker},    /* @0x80055c2c  SpikeBelt__Q26Speech13MobileSpeaker */
-  {0, 0, (int (*)(...))&Backup__Q26Speech13MobileSpeaker},       /* @0x80055c34  Backup__Q26Speech13MobileSpeaker */
-  {0, 0, (int (*)(...))&ReportBlockade__Q26Speech13MobileSpeaker}, /* @0x80055c3c  ReportBlockade__Q26Speech13MobileSpeaker */
-  {0, 0, (int (*)(...))&Roger__Q26Speech13MobileSpeaker},        /* @0x80055c44  Roger__Q26Speech13MobileSpeaker */
-  {0, 0, (int (*)(...))&Bullhorn__Q26Speech13MobileSpeaker},     /* @0x80055c4c  Bullhorn__Q26Speech13MobileSpeaker */
-  {0, 0, (int (*)(...))&Purge__Q26Speech13MobileSpeaker},        /* @0x80055c54  Purge__Q26Speech13MobileSpeaker */
-  {0, 0, (int (*)(...))&Unit__Q26Speech13MobileSpeaker},         /* @0x80055c5c  Unit__Q26Speech13MobileSpeaker */
-  {0, 0, (int (*)(...))&Speech_Speaker_KnownPerp},          /* @0x80055c64  KnownPerp__Q26Speech7SpeakerP8Car_tObj */
-  {0, 0, (int (*)(...))&Speech_Speaker_ClearPerp},          /* @0x80055c6c  ClearPerp__Q26Speech7SpeakerP8Car_tObj */
-  {0, 0, (int (*)(...))&IsSuper__Q26Speech13MobileSpeaker},      /* @0x80055c74  IsSuper__Q26Speech13MobileSpeaker */
-  {0, 0, (int (*)(...))&Speech_Speaker_StatusCount},        /* @0x80055c7c  StatusCount__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&Speech_Speaker_StatusSub},          /* @0x80055c84  StatusSub__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&Speech_Speaker_PurgeStatusSub},     /* @0x80055c8c  PurgeStatusSub__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&DistToPerp__Q26Speech13MobileSpeaker},   /* @0x80055c94  DistToPerp__Q26Speech13MobileSpeaker */
-  {0, 0, (int (*)(...))&CarObj__Q26Speech13MobileSpeaker},       /* @0x80055c9c  CarObj__Q26Speech13MobileSpeaker */
-  {0, 0, (int (*)(...))&ReActivate__Q26Speech13MobileSpeaker},   /* @0x80055ca4  ReActivate__Q26Speech13MobileSpeaker */
-  {0, 0, (int (*)(...))&Perp__Q26Speech13MobileSpeaker},         /* @0x80055cac  Perp__Q26Speech13MobileSpeaker */
-  {0, 0, (int (*)(...))&GetCarBank__Q26Speech13MobileSpeakeri},   /* @0x80055cb4  GetCarBank__Q26Speech13MobileSpeakeri */
-  {0, 0, (int (*)(...))&FindClosestLocationTo__Q26Speech13MobileSpeakeri}, /* @0x80055cbc  FindClosestLocationTo__Q26Speech13MobileSpeakeri */
-  {0, 0, (int (*)(...))&CallSign__Q26Speech13MobileSpeaker},     /* @0x80055cc4  CallSign__Q26Speech13MobileSpeaker */
-};
-const __vtbl_ptr_type DispatchSpeaker_vtable[31] __asm__("_vt_Q26Speech15DispatchSpeaker") = {   /* @0x80055ccc  Speech::DispatchSpeaker vtable (#75 data-mat; faithful nfs4-f.exe bytes) */
-  {0, 0, (int (*)(...))0},                           /* @0x80055ccc  null */
-  {0, 0, (int (*)(...))&Report__Q26Speech15DispatchSpeakerP8Car_tObj},     /* @0x80055cd4  Report__Q26Speech15DispatchSpeakerP8Car_tObj */
-  {0, 0, (int (*)(...))&Status__Q26Speech15DispatchSpeaker},     /* @0x80055cdc  Status__Q26Speech15DispatchSpeaker */
-  {0, 0, (int (*)(...))&Deny__Q26Speech15DispatchSpeaker},       /* @0x80055ce4  Deny__Q26Speech15DispatchSpeaker */
-  {0, 0, (int (*)(...))&Grant__Q26Speech15DispatchSpeaker},      /* @0x80055cec  Grant__Q26Speech15DispatchSpeaker */
-  {0, 0, (int (*)(...))&Ready__Q26Speech15DispatchSpeakerP8Car_tObj},      /* @0x80055cf4  Ready__Q26Speech15DispatchSpeakerP8Car_tObj */
-  {0, 0, (int (*)(...))&Engage__Q26Speech7SpeakerP8Car_tObj},             /* @0x80055cfc  Engage__Q26Speech7SpeakerP8Car_tObj */
-  {0, 0, (int (*)(...))&Lose__Q26Speech7Speaker},               /* @0x80055d04  Lose__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&Accident__Q26Speech15DispatchSpeakeri},   /* @0x80055d0c  Accident__Q26Speech15DispatchSpeakeri */
-  {0, 0, (int (*)(...))&Catch__Q26Speech7Speakeri},              /* @0x80055d14  Catch__Q26Speech7Speakeri */
-  {0, 0, (int (*)(...))&RoadBlock__Q26Speech7Speaker},          /* @0x80055d1c  RoadBlock__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&SpikeBelt__Q26Speech7Speaker},          /* @0x80055d24  SpikeBelt__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&Backup__Q26Speech7Speaker},             /* @0x80055d2c  Backup__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&ReportBlockade__Q26Speech7Speaker},     /* @0x80055d34  ReportBlockade__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&Roger__Q26Speech15DispatchSpeaker},      /* @0x80055d3c  Roger__Q26Speech15DispatchSpeaker */
-  {0, 0, (int (*)(...))&Bullhorn__Q26Speech7Speaker},           /* @0x80055d44  Bullhorn__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&Purge__Q26Speech7Speaker},              /* @0x80055d4c  Purge__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&Speech_Speaker_Unit},               /* @0x80055d54  Unit__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&KnownPerp__Q26Speech15DispatchSpeakerP8Car_tObj},  /* @0x80055d5c  KnownPerp__Q26Speech15DispatchSpeakerP8Car_tObj */
-  {0, 0, (int (*)(...))&ClearPerp__Q26Speech15DispatchSpeakerP8Car_tObj},  /* @0x80055d64  ClearPerp__Q26Speech15DispatchSpeakerP8Car_tObj */
-  {0, 0, (int (*)(...))&Speech_Speaker_IsSuper},            /* @0x80055d6c  IsSuper__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&StatusCount__Q26Speech15DispatchSpeaker}, /* @0x80055d74  StatusCount__Q26Speech15DispatchSpeaker */
-  {0, 0, (int (*)(...))&StatusSub__Q26Speech15DispatchSpeaker},  /* @0x80055d7c  StatusSub__Q26Speech15DispatchSpeaker */
-  {0, 0, (int (*)(...))&PurgeStatusSub__Q26Speech15DispatchSpeaker}, /* @0x80055d84  PurgeStatusSub__Q26Speech15DispatchSpeaker */
-  {0, 0, (int (*)(...))&Speech_Speaker_DistToPerp},         /* @0x80055d8c  DistToPerp__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&Speech_Speaker_CarObj},             /* @0x80055d94  CarObj__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&Speech_Speaker_ReActivate},         /* @0x80055d9c  ReActivate__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&Speech_Speaker_Perp},               /* @0x80055da4  Perp__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&GetCarBank__Q26Speech15DispatchSpeakeri}, /* @0x80055dac  GetCarBank__Q26Speech15DispatchSpeakeri */
-  {0, 0, (int (*)(...))&FindClosestLocationTo__Q26Speech15DispatchSpeakeri}, /* @0x80055db4  FindClosestLocationTo__Q26Speech15DispatchSpeakeri */
-  {0, 0, (int (*)(...))&CallSign__Q26Speech15DispatchSpeaker},   /* @0x80055dbc  CallSign__Q26Speech15DispatchSpeaker */
-};
-const __vtbl_ptr_type Speaker_vtable[31] __asm__("_vt_Q26Speech7Speaker") = {   /* @0x80055dc4  Speech::Speaker vtable (#75 data-mat; faithful nfs4-f.exe bytes) */
-  {0, 0, (int (*)(...))0},                           /* @0x80055dc4  null */
-  {0, 0, (int (*)(...))&Report__Q26Speech7SpeakerP8Car_tObj},             /* @0x80055dcc  Report__Q26Speech7SpeakerP8Car_tObj */
-  {0, 0, (int (*)(...))&Speech_Speaker_Status},             /* @0x80055dd4  Status__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&Deny__Q26Speech7Speaker},               /* @0x80055ddc  Deny__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&Grant__Q26Speech7Speaker},              /* @0x80055de4  Grant__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&Ready__Q26Speech7SpeakerP8Car_tObj},              /* @0x80055dec  Ready__Q26Speech7SpeakerP8Car_tObj */
-  {0, 0, (int (*)(...))&Engage__Q26Speech7SpeakerP8Car_tObj},             /* @0x80055df4  Engage__Q26Speech7SpeakerP8Car_tObj */
-  {0, 0, (int (*)(...))&Lose__Q26Speech7Speaker},               /* @0x80055dfc  Lose__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&Accident__Q26Speech7Speakeri},           /* @0x80055e04  Accident__Q26Speech7Speakeri */
-  {0, 0, (int (*)(...))&Catch__Q26Speech7Speakeri},              /* @0x80055e0c  Catch__Q26Speech7Speakeri */
-  {0, 0, (int (*)(...))&RoadBlock__Q26Speech7Speaker},          /* @0x80055e14  RoadBlock__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&SpikeBelt__Q26Speech7Speaker},          /* @0x80055e1c  SpikeBelt__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&Backup__Q26Speech7Speaker},             /* @0x80055e24  Backup__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&ReportBlockade__Q26Speech7Speaker},     /* @0x80055e2c  ReportBlockade__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&Roger__Q26Speech7Speaker},              /* @0x80055e34  Roger__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&Bullhorn__Q26Speech7Speaker},           /* @0x80055e3c  Bullhorn__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&Purge__Q26Speech7Speaker},              /* @0x80055e44  Purge__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&Speech_Speaker_Unit},               /* @0x80055e4c  Unit__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&Speech_Speaker_KnownPerp},          /* @0x80055e54  KnownPerp__Q26Speech7SpeakerP8Car_tObj */
-  {0, 0, (int (*)(...))&Speech_Speaker_ClearPerp},          /* @0x80055e5c  ClearPerp__Q26Speech7SpeakerP8Car_tObj */
-  {0, 0, (int (*)(...))&Speech_Speaker_IsSuper},            /* @0x80055e64  IsSuper__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&Speech_Speaker_StatusCount},        /* @0x80055e6c  StatusCount__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&Speech_Speaker_StatusSub},          /* @0x80055e74  StatusSub__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&Speech_Speaker_PurgeStatusSub},     /* @0x80055e7c  PurgeStatusSub__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&Speech_Speaker_DistToPerp},         /* @0x80055e84  DistToPerp__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&Speech_Speaker_CarObj},             /* @0x80055e8c  CarObj__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&Speech_Speaker_ReActivate},         /* @0x80055e94  ReActivate__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&Speech_Speaker_Perp},               /* @0x80055e9c  Perp__Q26Speech7Speaker */
-  {0, 0, (int (*)(...))&Speech_Speaker_GetCarBank},         /* @0x80055ea4  GetCarBank__Q26Speech7Speakeri */
-  {0, 0, (int (*)(...))&Speech_Speaker_FindClosestLocationTo}, /* @0x80055eac  FindClosestLocationTo__Q26Speech7Speakeri */
-  {0, 0, (int (*)(...))&Speech_Speaker_CallSign},           /* @0x80055eb4  CallSign__Q26Speech7Speaker */
-};
+/* (2026-09-20) the three hand-written 31-slot tables that stood here are gone: the compiler emits them. */
 
 /* end of speech.cpp */

@@ -114,7 +114,7 @@ struct Speaker {
     int fCar, fLocation, fFrom, fTo, fWing;
     bool fHavePerp;
     Speaker *fSub;
-    __vtbl_ptr_type (*_vf)[31];
+#include "speech_speaker_virtuals.inc"
 };
 
 /* Canonical foreign aggregates used by this translation unit. */

@@ -416,54 +416,7 @@ struct Speaker {
     int fCar, fLocation, fFrom, fTo, fWing;
     bool fHavePerp;
     Speaker *fSub;
-    __vtbl_ptr_type (*_vf)[31];
-    void Report(Car_tObj *) asm("Report__Q26Speech7SpeakerP8Car_tObj");
-    void Engage(Car_tObj *) asm("Engage__Q26Speech7SpeakerP8Car_tObj");
-    inline void Deny()
-    {
-        (**(int (**)(...))((int)*_vf + 0x1c))
-            ((int)&fPosition.flags + (int)*(short *)((int)*_vf + 0x18));
-    }
-    inline void Grant()
-    {
-        (**(int (**)(...))((int)*_vf + 0x24))
-            ((int)&fPosition.flags + (int)*(short *)((int)*_vf + 0x20));
-    }
-    inline void Ready(Car_tObj *wing)
-    {
-        (**(int (**)(...))((int)*_vf + 0x2c))
-            ((int)&fPosition.flags + (int)*(short *)((int)*_vf + 0x28), wing);
-    }
-    inline void Lose()
-    {
-        (**(int (**)(...))((int)*_vf + 0x3c))
-            ((int)&fPosition.flags + (int)*(short *)((int)*_vf + 0x38));
-    }
-    inline void Catch(int ticket)
-    {
-        (**(int (**)(...))((int)*_vf + 0x4c))
-            ((int)&fPosition.flags + (int)*(short *)((int)*_vf + 0x48), ticket);
-    }
-    inline void RoadBlock()
-    {
-        (**(int (**)(...))((int)*_vf + 0x54))
-            ((int)&fPosition.flags + (int)*(short *)((int)*_vf + 0x50));
-    }
-    inline void SpikeBelt()
-    {
-        (**(int (**)(...))((int)*_vf + 0x5c))
-            ((int)&fPosition.flags + (int)*(short *)((int)*_vf + 0x58));
-    }
-    inline void Backup()
-    {
-        (**(int (**)(...))((int)*_vf + 0x64))
-            ((int)&fPosition.flags + (int)*(short *)((int)*_vf + 0x60));
-    }
-    inline void Purge()
-    {
-        (**(int (**)(...))((int)*_vf + 0x84))
-            ((int)&fPosition.flags + (int)*(short *)((int)*_vf + 0x80));
-    }
+#include "speech_speaker_virtuals.inc"
 };
 
 /* Canonical foreign aggregates used by this translation unit. */

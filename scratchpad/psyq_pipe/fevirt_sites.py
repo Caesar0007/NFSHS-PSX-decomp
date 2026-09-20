@@ -47,7 +47,7 @@ AUTO = sys.argv[1] in ('auto-menu', 'auto-screen')
 AUTO_SCREEN = sys.argv[1] == 'auto-screen'
 FIXED = {} if AUTO else dict((int(k), v) for k, v in (p.split('=') for p in sys.argv[1].split(',')))
 HEAD = re.compile(r'(?:\(\s*\([^()]*\(\s*\*\s*\)\s*\([^()]*\)\s*\)\s*|\(\s*\*\s*(?:\([^()]*\(\s*\*\s*\)\s*\([^()]*\)\s*\)\s*)?)'
-                  r'\(\s*\*\s*(?P<e>[^;{}]+?)->_vf\s*\)\s*\[\s*(?P<n>\d+)\s*\]\s*\.pfn\s*\)\s*\(')
+                  r'\(\s*\*\s*(?P<e>[^;{}]+?)->_vf\s*\)\s*\[\s*(?P<n>0[xX][0-9a-fA-F]+|\d+)\s*\]\s*\.pfn\s*\)\s*\(')
 ERR = re.compile(r":(\d+): `(?:struct (\w+)|this)' has no member named `_vf'")
 
 
@@ -97,7 +97,7 @@ for rel in sys.argv[2:]:
         if not hit:
             continue
         args = split_args(s[m.end():i - 1])
-        n = int(m.group('n'))
+        n = int(m.group('n'), 0)
         e = ' '.join(m.group('e').split())
         if AUTO_SCREEN:
             slotmap = screen_map(types[hit[0]])

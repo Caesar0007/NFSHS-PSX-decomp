@@ -127,8 +127,5 @@ extern u_int randtemp;
 extern int stackSpeedUpEnbabledFlag;
 
 /* ---- per-class vtables (data syms; assigned to _vf[31]) ---- */
-extern const __vtbl_ptr_type Speaker_vtable[] __asm__("_vt_Q26Speech7Speaker");
-extern const __vtbl_ptr_type MobileSpeaker_vtable[] __asm__("_vt_Q26Speech13MobileSpeaker");
-extern const __vtbl_ptr_type DispatchSpeaker_vtable[] __asm__("_vt_Q26Speech15DispatchSpeaker");
 
 #endif /* SPEECH_EXTERNS_H */

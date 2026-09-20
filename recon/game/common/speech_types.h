@@ -94,39 +94,12 @@ struct Speaker {
     int fCar, fLocation, fFrom, fTo, fWing;
     bool fHavePerp;
     Speaker *fSub;
-    __vtbl_ptr_type (*_vf)[31];
-    void Report(Car_tObj *cop) asm("Report__Q26Speech7SpeakerP8Car_tObj");
-    void Deny() asm("Deny__Q26Speech7Speaker");
-    void Grant() asm("Grant__Q26Speech7Speaker");
-    void Ready(Car_tObj *wing) asm("Ready__Q26Speech7SpeakerP8Car_tObj");
-    void Engage(Car_tObj *perp) asm("Engage__Q26Speech7SpeakerP8Car_tObj");
-    void Lose() asm("Lose__Q26Speech7Speaker");
-    void Accident(int slice) asm("Accident__Q26Speech7Speakeri");
-    void Catch(int ticket) asm("Catch__Q26Speech7Speakeri");
-    void RoadBlock() asm("RoadBlock__Q26Speech7Speaker");
-    void SpikeBelt() asm("SpikeBelt__Q26Speech7Speaker");
-    void Backup() asm("Backup__Q26Speech7Speaker");
-    void ReportBlockade() asm("ReportBlockade__Q26Speech7Speaker");
-    void Roger() asm("Roger__Q26Speech7Speaker");
-    void Bullhorn() asm("Bullhorn__Q26Speech7Speaker");
-    void Purge() asm("Purge__Q26Speech7Speaker");
+    Speaker() { fSub = 0; }   /* inline: retail stores the Speaker table, zeroes fSub, then stores the derived table */
+#include "speech_speaker_virtuals.inc"
     void SetCar(Car_tObj *car) asm("SetCar__Q26Speech7SpeakerP8Car_tObj");
     void FindLocation(Car_tObj *car) asm("FindLocation__Q26Speech7SpeakerP8Car_tObj");
     int CalcMph(Car_tObj *perp) asm("CalcMph__Q26Speech7SpeakerP8Car_tObj");
     void Promote() asm("Promote__Q26Speech7Speaker");
-    void Status() asm("Status__Q26Speech7Speaker");
-    int Unit() asm("Unit__Q26Speech7Speaker");
-    bool KnownPerp(Car_tObj *car) asm("KnownPerp__Q26Speech7SpeakerP8Car_tObj");
-    void ClearPerp(Car_tObj *car) asm("ClearPerp__Q26Speech7SpeakerP8Car_tObj");
-    bool IsSuper() asm("IsSuper__Q26Speech7Speaker");
-    int StatusCount() asm("StatusCount__Q26Speech7Speaker");
-    Speaker *StatusSub() asm("StatusSub__Q26Speech7Speaker");
-    void PurgeStatusSub() asm("PurgeStatusSub__Q26Speech7Speaker");
-    int DistToPerp() asm("DistToPerp__Q26Speech7Speaker");
-    Car_tObj *CarObj() asm("CarObj__Q26Speech7Speaker");
-    void ReActivate() asm("ReActivate__Q26Speech7Speaker");
-    Car_tObj *Perp() asm("Perp__Q26Speech7Speaker");
-    CarBank *GetCarBank(int carIndex) asm("GetCarBank__Q26Speech7Speakeri");
     inline void ClearCar() {
         fCar = 0;
         fColour.flags = 0;
@@ -139,85 +112,11 @@ struct Speaker {
     inline int Location() { return fLocation; }
     inline SPCHNFSType_DISTANCE *Distance() { return &fDistance; }
     inline SPCHNFSType_COLOUR *Colour() { return &fColour; }
-    LocationBank *FindClosestLocationTo(int slice) asm("FindClosestLocationTo__Q26Speech7Speakeri");
-    CallSignBank *CallSign() asm("CallSign__Q26Speech7Speaker");
 
     /* The retail class declared these operations virtual.  The reconstructed
        layout keeps the recovered PsyQ vtable explicit, so these zero-local
        bridges preserve ordinary source-level virtual call sites without
        inventing receiver/vtable temporaries in their callers. */
-    inline void VirtualReport(Car_tObj *car) {
-        (*(*_vf)[1].pfn)((int)&fPosition.flags + (int)(*_vf)[1].delta, car);
-    }
-    inline void VirtualStatus() {
-        (*(*_vf)[2].pfn)((int)&fPosition.flags + (int)(*_vf)[2].delta);
-    }
-    inline void VirtualEngage(Car_tObj *perp) {
-        (*(*_vf)[6].pfn)((int)&fPosition.flags + (int)(*_vf)[6].delta, perp);
-    }
-    inline void VirtualLose() {
-        (*(*_vf)[7].pfn)((int)&fPosition.flags + (int)(*_vf)[7].delta);
-    }
-    inline void VirtualRoger() {
-        (*(*_vf)[14].pfn)
-            ((int)&fPosition.flags + (int)(*_vf)[14].delta);
-    }
-    inline void VirtualBullhorn() {
-        (*(*_vf)[15].pfn)
-            ((int)&fPosition.flags + (int)(*_vf)[15].delta);
-    }
-    inline void VirtualPurge() {
-        (*(*_vf)[16].pfn)
-            ((int)&fPosition.flags + (int)(*_vf)[16].delta);
-    }
-    inline int VirtualUnit() {
-        return (*(*_vf)[17].pfn)
-            ((int)&fPosition.flags + (int)(*_vf)[17].delta);
-    }
-    inline bool VirtualKnownPerp(Car_tObj *car) {
-        return (*(*_vf)[18].pfn)
-            ((int)&fPosition.flags + (int)(*_vf)[18].delta, car) != 0;
-    }
-    inline void VirtualClearPerp(Car_tObj *car) {
-        (*(*_vf)[19].pfn)
-            ((int)&fPosition.flags + (int)(*_vf)[19].delta, car);
-    }
-    inline bool VirtualIsSuper() {
-        return (*(*_vf)[20].pfn)
-            ((int)&fPosition.flags + (int)(*_vf)[20].delta) != 0;
-    }
-    inline int VirtualStatusCount() {
-        return (*(*_vf)[21].pfn)
-            ((int)&fPosition.flags + (int)(*_vf)[21].delta);
-    }
-    inline Speaker *VirtualStatusSub() {
-        return (Speaker *)(*(*_vf)[22].pfn)
-            ((int)&fPosition.flags + (int)(*_vf)[22].delta);
-    }
-    inline void VirtualPurgeStatusSub() {
-        (*(*_vf)[23].pfn)
-            ((int)&fPosition.flags + (int)(*_vf)[23].delta);
-    }
-    inline int VirtualDistToPerp() {
-        return (*(*_vf)[24].pfn)
-            ((int)&fPosition.flags + (int)(*_vf)[24].delta);
-    }
-    inline Car_tObj *VirtualCarObj() {
-        return (Car_tObj *)(*(*_vf)[25].pfn)
-            ((int)&fPosition.flags + (int)(*_vf)[25].delta);
-    }
-    inline Car_tObj *VirtualPerp() {
-        return (Car_tObj *)(*(*_vf)[27].pfn)
-            ((int)&fPosition.flags + (int)(*_vf)[27].delta);
-    }
-    inline CarBank *VirtualGetCarBank(int carIndex) {
-        return (CarBank *)(*(*_vf)[28].pfn)
-            ((int)&fPosition.flags + (int)(*_vf)[28].delta, carIndex);
-    }
-    inline CallSignBank *VirtualCallSign() {
-        return (CallSignBank *)(*(*_vf)[30].pfn)
-            ((int)&fPosition.flags + (int)(*_vf)[30].delta);
-    }
 };
 
 struct CarBankName {
@@ -295,8 +194,9 @@ struct Speech {
     ~Speech();
 };
 
-struct MobileSpeaker {
-    Speaker _base_Speaker;
+struct MobileSpeaker : public Speaker {
+    /* inline ctor: retail's Speech::Speech() shows it expanded in place */
+    MobileSpeaker() { fCarObj = 0; }
     SPCHNFSType_VOICE fVoice;
     SPCHNFSType_vs_KMH_MPH fSpeedType;
     int fSpeed, fUnit;
@@ -328,8 +228,9 @@ struct MobileSpeaker {
     void Engage(Car_tObj *perp) asm("Engage__Q26Speech13MobileSpeakerP8Car_tObj");
 };
 
-struct DispatchSpeaker {
-    Speaker _base_Speaker;
+struct DispatchSpeaker : public Speaker {
+    /* inline ctor: retail's Speech::Speech() shows it expanded in place */
+    DispatchSpeaker() {}
     int fStatusCount;
     Speaker *fStatusSub;
     int fUpdateCount;

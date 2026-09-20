@@ -331,10 +331,7 @@ void AIHigh_BTC_Perp::HandlePullOver()
 
         mobileSpeaker = (Speaker *)Speech_Mobile(Cars_gList[0]);
 
-        (**(int (**)(...))((int)*mobileSpeaker->_vf + 0x3c))
-
-                  ((int)&(mobileSpeaker->fPosition).flags +
-                   (int)*(short *)((int)*mobileSpeaker->_vf + 0x38));
+        mobileSpeaker->Lose();
 
       }
 

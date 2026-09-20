@@ -117,16 +117,7 @@ struct Speaker {
     int fCar, fLocation, fFrom, fTo, fWing;
     bool fHavePerp;
     Speaker *fSub;
-    __vtbl_ptr_type (*_vf)[31];
-    inline void VirtualEngage(Car_tObj *perp) {
-        (*(*_vf)[6].pfn)((int)&fPosition.flags + (int)(*_vf)[6].delta, perp);
-    }
-    inline void VirtualLose() {
-        (*(*_vf)[7].pfn)((int)&fPosition.flags + (int)(*_vf)[7].delta);
-    }
-    inline void VirtualPurge() {
-        (*(*_vf)[16].pfn)((int)&fPosition.flags + (int)(*_vf)[16].delta);
-    }
+#include "speech_speaker_virtuals.inc"
 };
 
 /* Canonical foreign aggregates used by this translation unit. */

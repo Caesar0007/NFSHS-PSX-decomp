@@ -3,7 +3,7 @@ does retail carry a `name.NN` label for the static, and where does OUR link put 
 import re
 import subprocess
 
-SYM = 'C:/Temp/claud/dumpsym_clean/dumpsym_src/nfs4-f-v3.txt'
+SYM = __import__('retail_sym').txt()
 NM = 'C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-nm.exe'
 ELF = 'C:/Temp/nfs4-decomp/build/gen_ld/recon_multdef-ok.elf'
 small, labels = {}, {}

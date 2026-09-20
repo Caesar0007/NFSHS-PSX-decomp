@@ -22,7 +22,7 @@ import sys
 
 JEB_DIR = os.environ.get("NFS4_JEB_DIR", r"C:\JEB-542\nfs4")
 SYM_TXT = os.environ.get(
-    "NFS4_SYM", r"C:\Temp\claud\dumpsym_clean\dumpsym_src\nfs4-f-v3.txt")
+    "NFS4_SYM", __import__('retail_sym').txt())
 
 SYM_RE = re.compile(r"^[0-9a-f]+:\s+\$([0-9a-f]{8})\s+\d+\s+(\S+)\s*$")
 TOK_RE = re.compile(r"\b(sub|gvar)_([0-9A-Fa-f]{8})\b")

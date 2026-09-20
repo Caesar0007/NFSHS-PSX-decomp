@@ -22,7 +22,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 SYM_TXT = Path(os.environ.get(
-    "DIFFSRC_SYM", r"C:/Temp/claud/dumpsym_clean/dumpsym_src/nfs4-f-v3.txt"))
+    "DIFFSRC_SYM", r__import__('retail_sym').txt()))
 
 if len(sys.argv) != 3 or ',' in sys.argv[2]:
     sys.exit("usage: diffsrc.py <recon/....cpp|.c> <MANGLED_FUNC>   (one function)")

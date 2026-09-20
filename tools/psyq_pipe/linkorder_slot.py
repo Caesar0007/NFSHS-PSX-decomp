@@ -2,7 +2,7 @@
 unowned / non-module labels that sit between them (address order)."""
 import glob, os, re, subprocess, sys
 R = 'C:/Temp/nfs4-decomp/'
-SYM = 'C:/Temp/claud/dumpsym_clean/dumpsym_src/nfs4-f-v3.txt'
+SYM = __import__('retail_sym').txt()
 NM = 'C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-nm.exe'
 SECS = {'.rdata': (0x80010000, 0x800128F0), '.data': (0x8010CCD4, 0x8013C54C), '.sdata': (0x8013C54C, 0x8013DD7C), '.sbss': (0x8013DD7C, 0x8013DEE0),
         '.bss': (0x8013DEE0, 0x80148B04)}

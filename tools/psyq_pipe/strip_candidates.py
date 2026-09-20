@@ -8,7 +8,7 @@ import csv
 import re
 from collections import defaultdict
 
-SYM = 'C:/Temp/claud/dumpsym_clean/dumpsym_src/nfs4-f-v3.txt'
+SYM = __import__('retail_sym').txt()
 IDX = 'C:/Temp/nfs4-clean/psyq43/extracted/INDEX.tsv'
 lab, members = {}, []
 for l in open(SYM, errors='replace'):

@@ -6,7 +6,7 @@ import sys
 from collections import Counter
 
 OURS = 'C:/Temp/nfs4-decomp/scratchpad/psyq_pipe/nfs4_sym.txt'
-RETAIL = 'C:/Temp/claud/dumpsym_clean/dumpsym_src/nfs4-f-v3.txt'
+RETAIL = __import__('retail_sym').txt()
 pat = re.compile(r'^[0-9a-f]+: \$([0-9a-f]{8}) ([126]) (\S+)$')
 
 

@@ -4,7 +4,7 @@ block nesting.  Addresses are shown relative to the function start so the two li
 import re
 import sys
 
-RETAIL = 'C:/Temp/claud/dumpsym_clean/dumpsym_src/nfs4-f-v3.txt'
+RETAIL = __import__('retail_sym').txt()
 
 
 def grab(path, fn):

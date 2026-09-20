@@ -8,6 +8,7 @@
 # supply them yourself
 /rom/nfs4-f.exe
 /rom/NFS4.MAP
+/rom/NFS4.SYM
 
 # splat cache
 .splache

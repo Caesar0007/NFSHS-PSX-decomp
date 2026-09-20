@@ -3,7 +3,7 @@ does not read).  Prints, per read-only section, the base delta and every change 
 import re
 
 OURS = 'C:/Temp/nfs4-decomp/scratchpad/psyq_pipe/nfs4_sym.txt'
-RETAIL = 'C:/Temp/claud/dumpsym_clean/dumpsym_src/nfs4-f-v3.txt'
+RETAIL = __import__('retail_sym').txt()
 pat = re.compile(r'^[0-9a-f]+: \$([0-9a-f]{8}) [126] (_vt\.\S+)$')
 
 

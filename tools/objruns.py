@@ -20,7 +20,7 @@ spec = importlib.util.spec_from_file_location(
 def load_blocks():
     """re-implement symown.blocks() without running its __main__."""
     import re
-    SYM = Path(r"C:/Temp/claud/dumpsym_clean/dumpsym_src/nfs4-f-v3.txt")
+    SYM = Path(r__import__('retail_sym').txt())
     DEF = re.compile(r"^[0-9a-f]+: \$([0-9a-f]{8}) (?:94 Def|96 Def2) class (\S+) (.*?)name (\S+)\s*$")
     FILEREC = re.compile(r"^[0-9a-f]+: \$[0-9a-f]{8} 94 Def class FILE type NULL size 0 name (\S+)")
     cur, out = [], []

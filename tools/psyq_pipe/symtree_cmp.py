@@ -22,7 +22,7 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-RETAIL = 'C:/Temp/claud/dumpsym_clean/dumpsym_src/nfs4-f-v3.txt'
+RETAIL = __import__('retail_sym').txt()
 REC = re.compile(r'^[0-9a-f]+: \$([0-9a-f]{8}) ([0-9a-f]{2}) (.*)$')
 DEF = re.compile(r'class (\w+) type (.*?) size (\d+)(?: dims .*?)?(?: tag (\S*))? name (\S+)$')
 

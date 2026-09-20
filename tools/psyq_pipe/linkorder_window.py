@@ -2,7 +2,7 @@
 (stale build objects -- no recon source next to them -- are ignored)."""
 import glob, os, re, subprocess, sys
 R = 'C:/Temp/nfs4-decomp/'
-SYM = 'C:/Temp/claud/dumpsym_clean/dumpsym_src/nfs4-f-v3.txt'
+SYM = __import__('retail_sym').txt()
 NM = 'C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-nm.exe'
 lo, hi = int(sys.argv[1], 16), int(sys.argv[2], 16)
 order, labels = [], []

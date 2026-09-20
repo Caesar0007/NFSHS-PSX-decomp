@@ -5,7 +5,7 @@ means the object in between has a different size (or is missing) in our link."""
 import re, sys
 from collections import defaultdict
 OURS = 'C:/Temp/nfs4-decomp/scratchpad/psyq_pipe/nfs4_sym.txt'
-RETAIL = 'C:/Temp/claud/dumpsym_clean/dumpsym_src/nfs4-f-v3.txt'
+RETAIL = __import__('retail_sym').txt()
 RET = [('front.rdata', 0x80010000, 0x800128F0), ('front.text', 0x800128F0, 0x80051260),
        ('front.data', 0x80051260, 0x80052B38), ('front.bss', 0x80052B38, 0x80054548),
        ('.rdata', 0x80054548, 0x8005797C), ('.text', 0x8005797C, 0x8010CCD4), ('.data', 0x8010CCD4, 0x8013C54C),

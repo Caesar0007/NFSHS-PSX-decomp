@@ -77,6 +77,8 @@ linkers/nfs4.ld             splat-generated linker script
 rom/nfs4-f.exe              the target (NOT committed — sha1 b48ea3452e64...)
 rom/NFS4.MAP                retail link map from the disc (NOT committed — md5
                             12326ebd37ed...)
+rom/NFS4.SYM                retail symbol file from the disc (NOT committed); tools/retail_sym.py
+                            dumps it with tools/dumpsym/ into build/sym/ on first use
 tools/build.py              cpp->cc1->maspsx->as->ld->objcopy + byte-diff report
 tools/gen_symbols.py        NFS4.MAP -> symbol_addrs.txt (sanitizes . and case clashes)
 tools/fix_gte.py            rewrite GTE compute ops (rtps/mvmva/...) to .word

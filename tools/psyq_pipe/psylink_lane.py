@@ -39,9 +39,9 @@ import build
 ASPSX = 'C:/Temp/psq43/PSSN/ASPSX.EXE'; PSYLINK = 'C:/Temp/psq43/PSSN/PSYLINK.EXE'
 if '--aspsx' in sys.argv:                     # e.g. --aspsx C:/Temp/claud/scratch_dos/ASPSX256.EXE
     ASPSX = sys.argv[sys.argv.index('--aspsx') + 1]
-DUMPSYM = 'C:/Temp/claud/dumpsym_clean/dumpsym_src/dumpsym.exe'
+DUMPSYM = __import__('retail_sym').dumpsym()
 NM = str(build.MIPS / 'mipsel-none-elf-nm.exe')
-RETAIL_SYM_TXT = Path('C:/Temp/claud/dumpsym_clean/dumpsym_src/nfs4-f-v3.txt')
+RETAIL_SYM_TXT = Path(__import__('retail_sym').txt())
 HONEST_ELF = ROOT / 'build' / 'gen_ld' / 'recon_multdef-ok.elf'
 HONEST_MAP = ROOT / 'build' / 'gen_ld' / 'recon_multdef-ok.map'
 ROM = ROOT / 'rom' / 'nfs4-f.exe'

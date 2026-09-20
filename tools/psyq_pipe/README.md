@@ -18,5 +18,8 @@ still go to `scratchpad/psyq_pipe/`, which the tools create when missing.
 
 `psylink_disc.py` runs Sony's 16-bit `CPE2X.EXE` under the vendored `tools/msdos-player/msdos.exe`.
 
-Most of these have absolute paths to this machine's toolchain near the top (`C:/Temp/psq43/...`,
-`C:/Temp/claud/dumpsym_clean/...`); adjust them for another machine.
+The retail SYM dump comes from `tools/retail_sym.py` (`rom/NFS4.SYM` -> `build/sym/nfs4-f-v3.txt` through the vendored
+`tools/dumpsym/dumpsym.exe`); `retail_sym.py` in this folder is a shim to it.
+
+Most of these still have absolute paths to this machine's SN toolchain near the top (`C:/Temp/psq43/...`); adjust them
+for another machine.

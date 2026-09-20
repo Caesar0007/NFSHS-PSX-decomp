@@ -43,6 +43,7 @@ Nothing copyrighted is in the repository. You supply:
 |---|---|---|
 | The merged target | `rom/nfs4-f.exe` | sha1 `b48ea3452e64…`. Needed by every comparison, not by the build itself. |
 | The retail link map | `rom/NFS4.MAP` | From the disc. The linker-script generator reads symbol addresses from it. |
+| The retail symbol file | `rom/NFS4.SYM` | From the disc, 7,881,225 bytes. Only the comparison tools and Route B need it; `tools/retail_sym.py` dumps it to `build/sym/nfs4-f-v3.txt` with the vendored `tools/dumpsym/dumpsym.exe` on first use. |
 | PsyQ 4.3 compilers | `C:/Temp/psq43/COMPILER/CC1PSX.EXE`, `CC1PLPSX.EXE` | The real SN compilers (GNU C 2.8.0). Override with `NFS4_CC1`, `NFS4_CC1PL`. |
 | PsyQ 4.0 `CC1PSX` | next to `CC1PSX.EXE` as `CC1PSX272.EXE` | gcc 2.7.2 lane used by some Sony library files. Without it those files fall back with a warning. |
 | PsyQ 4.4 `CC1PLPSX` | next to `CC1PSX.EXE` as `CC1PLPSX44.EXE` | One per-function splice (`Night_CreateNightTableElement`). |
@@ -177,7 +178,7 @@ byte-identical yet**; it exists to measure layout and to compare our `.SYM` with
 
 Extra prerequisites: `C:/Temp/psq43/PSSN/ASPSX.EXE` (2.77) and `PSYLINK.EXE` (2.73), Sony's `CPE2X.EXE`
 (`C:/Temp/psq43/PSX/BIN/`, a 16-bit DOS program — it runs under the vendored `tools/msdos-player/msdos.exe`), and the
-trusted SYM dump `nfs4-f-v3.txt` for the link order.
+retail `rom/NFS4.SYM` (its dump gives the link order; `tools/dumpsym/` and `tools/retail_sym.py` handle it).
 
 ```bash
 python tools/build.py --skip-asm

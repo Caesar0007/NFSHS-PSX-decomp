@@ -3,7 +3,7 @@ each with the retail labels inside it and the link-order bracket of its placed n
 import re
 
 R = 'C:/Temp/nfs4-decomp/'
-SYM = 'C:/Temp/claud/dumpsym_clean/dumpsym_src/nfs4-f-v3.txt'
+SYM = __import__('retail_sym').txt()
 LO, HI = 0x8013DD7C, 0x80148B04
 order, labels = [], []
 for l in open(SYM, errors='replace'):

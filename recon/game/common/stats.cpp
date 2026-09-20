@@ -76,16 +76,13 @@ void Stats_DoPlayerGlue(void)
 void Stats_ClearPosition(void)
 
 {
-  int i;
 
-  i = 0;
-  do {
+  for (int i = 0; i < 6; i++) {
     Stats_racePosition[i].car = -1;
     Stats_racePosition[i].slice = -99999;
     Stats_racePosition[i].sliceTime = 0;
     Stats_racePosition[i].isHuman = 0;
-    i = i + 1;
-  } while (i < 6);
+  }
   return;
 }
 

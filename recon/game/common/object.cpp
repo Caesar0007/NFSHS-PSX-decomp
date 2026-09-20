@@ -637,9 +637,8 @@ int Object_GetObjDefID(int index)
 int Object_FindDefWithThisID(int ID)
 
 {
-  int i;
 
-  for (i = 0; i < gPersistObjDef->GetNumElements(); i = i + 1) {
+  for (int i = 0; i < gPersistObjDef->GetNumElements(); i = i + 1) {
     if (ID == Track_gObjDefs[i]->id) {
       return i;
     }

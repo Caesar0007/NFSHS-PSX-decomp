@@ -224,9 +224,8 @@ void tDialogBase::DrawAllDialogs()
 void tDialogBase::HideAllDialogs()
 
 {
-  short i;
   
-  for (i = 0; i < 8; i++) {
+  for (short i = 0; i < 8; i++) {
     DialogVisibilityList[i] = (tDialogBase *)0x0;
   }
   return;

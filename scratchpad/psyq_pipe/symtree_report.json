@@ -382,7 +382,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIPERSON.CPP",
   "end_line": [
-   246,
+   244,
    542
   ]
  },
@@ -392,17 +392,15 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIPERSON.CPP",
   "end_line": [
-   203,
+   201,
    470
   ]
  },
  "AIPerson_LoadGridAndSetPersonalityIndexes__Fv": {
-  "issues": [
-   "BLOCKS 1 scopes != 2"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIPERSON.CPP",
   "end_line": [
-   61,
+   60,
    39
   ]
  },
@@ -412,7 +410,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIPERSON.CPP",
   "end_line": [
-   157,
+   155,
    198
   ]
  },
@@ -420,7 +418,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIPERSON.CPP",
   "end_line": [
-   178,
+   176,
    249
   ]
  },
@@ -428,7 +426,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIPERSON.CPP",
   "end_line": [
-   90,
+   88,
    117
   ]
  },
@@ -436,7 +434,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIPERSON.CPP",
   "end_line": [
-   75,
+   74,
    108
   ]
  },
@@ -444,7 +442,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIPERSON.CPP",
   "end_line": [
-   239,
+   237,
    537
   ]
  },
@@ -844,17 +842,15 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AISCRIPT.CPP",
   "end_line": [
-   50,
+   49,
    28
   ]
  },
  "AIScript_ClearLastReactionIndex__FP10AIScript_t": {
-  "issues": [
-   "BLOCKS 1 scopes != 2"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AISCRIPT.CPP",
   "end_line": [
-   32,
+   31,
    15
   ]
  },
@@ -862,7 +858,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AISCRIPT.CPP",
   "end_line": [
-   149,
+   148,
    153
   ]
  },
@@ -870,7 +866,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AISCRIPT.CPP",
   "end_line": [
-   156,
+   155,
    159
   ]
  },
@@ -885,7 +881,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\AISCRIPT.CPP",
   "end_line": [
-   138,
+   137,
    143
   ]
  },
@@ -893,7 +889,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AISCRIPT.CPP",
   "end_line": [
-   43,
+   42,
    23
   ]
  },
@@ -901,7 +897,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AISCRIPT.CPP",
   "end_line": [
-   65,
+   64,
    50
   ]
  },
@@ -912,7 +908,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\AISPEEDS.CPP",
   "end_line": [
-   483,
+   482,
    761
   ]
  },
@@ -922,7 +918,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\AISPEEDS.CPP",
   "end_line": [
-   821,
+   820,
    1248
   ]
  },
@@ -930,7 +926,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AISPEEDS.CPP",
   "end_line": [
-   938,
+   937,
    1366
   ]
  },
@@ -938,7 +934,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AISPEEDS.CPP",
   "end_line": [
-   1165,
+   1164,
    1605
   ]
  },
@@ -946,7 +942,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AISPEEDS.CPP",
   "end_line": [
-   1123,
+   1122,
    1559
   ]
  },
@@ -956,7 +952,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\AISPEEDS.CPP",
   "end_line": [
-   397,
+   396,
    697
   ]
  },
@@ -964,7 +960,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AISPEEDS.CPP",
   "end_line": [
-   324,
+   323,
    604
   ]
  },
@@ -972,7 +968,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AISPEEDS.CPP",
   "end_line": [
-   857,
+   856,
    1289
   ]
  },
@@ -980,7 +976,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AISPEEDS.CPP",
   "end_line": [
-   955,
+   954,
    1398
   ]
  },
@@ -988,7 +984,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AISPEEDS.CPP",
   "end_line": [
-   186,
+   185,
    332
   ]
  },
@@ -999,7 +995,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\AISPEEDS.CPP",
   "end_line": [
-   637,
+   636,
    970
   ]
  },
@@ -1007,7 +1003,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AISPEEDS.CPP",
   "end_line": [
-   757,
+   756,
    1140
   ]
  },
@@ -1019,7 +1015,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\AISPEEDS.CPP",
   "end_line": [
-   734,
+   733,
    1052
   ]
  },
@@ -1029,7 +1025,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\AISPEEDS.CPP",
   "end_line": [
-   874,
+   873,
    1303
   ]
  },
@@ -1037,7 +1033,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AISPEEDS.CPP",
   "end_line": [
-   490,
+   489,
    774
   ]
  },
@@ -1047,7 +1043,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\AISPEEDS.CPP",
   "end_line": [
-   522,
+   521,
    793
   ]
  },
@@ -1055,7 +1051,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AISPEEDS.CPP",
   "end_line": [
-   1036,
+   1035,
    1482
   ]
  },
@@ -1063,7 +1059,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AISPEEDS.CPP",
   "end_line": [
-   1056,
+   1055,
    1501
   ]
  },
@@ -1071,7 +1067,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AISPEEDS.CPP",
   "end_line": [
-   1076,
+   1075,
    1516
   ]
  },
@@ -1079,7 +1075,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AISPEEDS.CPP",
   "end_line": [
-   1096,
+   1095,
    1530
   ]
  },
@@ -1087,7 +1083,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AISPEEDS.CPP",
   "end_line": [
-   1116,
+   1115,
    1544
   ]
  },
@@ -1097,7 +1093,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\AISPEEDS.CPP",
   "end_line": [
-   796,
+   795,
    1181
   ]
  },
@@ -1107,7 +1103,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\AISPEEDS.CPP",
   "end_line": [
-   1025,
+   1024,
    1456
   ]
  },
@@ -1117,7 +1113,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\AISPEEDS.CPP",
   "end_line": [
-   344,
+   343,
    639
   ]
  },
@@ -1127,7 +1123,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\AISPEEDS.CPP",
   "end_line": [
-   908,
+   907,
    1334
   ]
  },
@@ -1135,11 +1131,11 @@
   "issues": [
    "MISSING slotLoop REG:$18",
    "MISSING trackLoop REG:$16",
-   "BLOCKS 8 scopes != 11"
+   "BLOCKS 9 scopes != 11"
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\AISPEEDS.CPP",
   "end_line": [
-   175,
+   174,
    322
   ]
  },
@@ -1147,7 +1143,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AISPEEDS.CPP",
   "end_line": [
-   976,
+   975,
    1414
   ]
  },
@@ -1165,7 +1161,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\AISPEEDS.CPP",
   "end_line": [
-   199,
+   198,
    362
   ]
  },
@@ -1829,7 +1825,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   2968,
+   2961,
    2548
   ]
  },
@@ -1837,7 +1833,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   2229,
+   2222,
    2043
   ]
  },
@@ -1845,7 +1841,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   1094,
+   1093,
    1414
   ]
  },
@@ -1858,7 +1854,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   2380,
+   2373,
    2189
   ]
  },
@@ -1870,7 +1866,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   1217,
+   1216,
    1571
   ]
  },
@@ -1904,27 +1900,23 @@
   "issues": [],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FEDIALOG.CPP",
   "end_line": [
-   348,
+   347,
    265
   ]
  },
  "AddPerp__Q26Speech15DispatchSpeakerP8Car_tObj": {
-  "issues": [
-   "BLOCKS 1 scopes != 2"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   2073,
+   2066,
    1980
   ]
  },
  "AddRecordToCollection__14AIDataRecord_t": {
-  "issues": [
-   "BLOCKS 1 scopes != 2"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIDATARECORD.CPP",
   "end_line": [
-   48,
+   47,
    87
   ]
  },
@@ -1970,7 +1962,7 @@
   ],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FETOURN.CPP",
   "end_line": [
-   720,
+   719,
    700
   ]
  },
@@ -2354,7 +2346,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\PSX\\AUDIO.CPP",
   "end_line": [
-   146,
+   143,
    213
   ]
  },
@@ -2364,27 +2356,23 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\AUDIOCMN.CPP",
   "end_line": [
-   909,
+   905,
    1196
   ]
  },
  "AudioCmn_DeInitAsyncSfx__Fv": {
-  "issues": [
-   "BLOCKS 1 scopes != 2"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AUDIOCMN.CPP",
   "end_line": [
-   254,
+   251,
    495
   ]
  },
  "AudioCmn_DeInit__Fv": {
-  "issues": [
-   "BLOCKS 1 scopes != 2"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AUDIOCMN.CPP",
   "end_line": [
-   682,
+   678,
    937
   ]
  },
@@ -2394,7 +2382,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\AUDIOCMN.CPP",
   "end_line": [
-   399,
+   396,
    670
   ]
  },
@@ -2402,7 +2390,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AUDIOCMN.CPP",
   "end_line": [
-   720,
+   716,
    988
   ]
  },
@@ -2428,7 +2416,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AUDIOCMN.CPP",
   "end_line": [
-   959,
+   955,
    1254
   ]
  },
@@ -2436,7 +2424,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AUDIOCMN.CPP",
   "end_line": [
-   2301,
+   2296,
    2617
   ]
  },
@@ -2457,7 +2445,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\AUDIOCMN.CPP",
   "end_line": [
-   487,
+   484,
    738
   ]
  },
@@ -2467,7 +2455,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\AUDIOCMN.CPP",
   "end_line": [
-   347,
+   344,
    599
   ]
  },
@@ -2475,7 +2463,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\PSX\\AUDIO.CPP",
   "end_line": [
-   165,
+   162,
    230
   ]
  },
@@ -2483,7 +2471,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AUDIOCMN.CPP",
   "end_line": [
-   919,
+   915,
    1206
   ]
  },
@@ -2491,7 +2479,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AUDIOCMN.CPP",
   "end_line": [
-   947,
+   943,
    1240
   ]
  },
@@ -2504,12 +2492,10 @@
   ]
  },
  "AudioCmn_Pause__Fv": {
-  "issues": [
-   "BLOCKS 1 scopes != 2"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AUDIOCMN.CPP",
   "end_line": [
-   2217,
+   2212,
    2527
   ]
  },
@@ -2517,7 +2503,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AUDIOCMN.CPP",
   "end_line": [
-   1383,
+   1379,
    1709
   ]
  },
@@ -2525,7 +2511,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AUDIOCMN.CPP",
   "end_line": [
-   2076,
+   2072,
    2365
   ]
  },
@@ -2533,7 +2519,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AUDIOCMN.CPP",
   "end_line": [
-   2049,
+   2045,
    2328
   ]
  },
@@ -2541,7 +2527,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AUDIOCMN.CPP",
   "end_line": [
-   2090,
+   2086,
    2376
   ]
  },
@@ -2561,7 +2547,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\AUDIOCMN.CPP",
   "end_line": [
-   1579,
+   1575,
    1902
   ]
  },
@@ -2569,7 +2555,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AUDIOCMN.CPP",
   "end_line": [
-   1389,
+   1385,
    1725
   ]
  },
@@ -2585,7 +2571,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AUDIOCMN.CPP",
   "end_line": [
-   2083,
+   2079,
    2371
   ]
  },
@@ -2593,7 +2579,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AUDIOCMN.CPP",
   "end_line": [
-   2042,
+   2038,
    2321
   ]
  },
@@ -2601,7 +2587,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AUDIOCMN.CPP",
   "end_line": [
-   2014,
+   2010,
    2302
   ]
  },
@@ -2619,7 +2605,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\AUDIOCMN.CPP",
   "end_line": [
-   295,
+   292,
    527
   ]
  },
@@ -2629,7 +2615,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\AUDIOCMN.CPP",
   "end_line": [
-   624,
+   621,
    903
   ]
  },
@@ -2637,7 +2623,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AUDIOCMN.CPP",
   "end_line": [
-   2314,
+   2309,
    2635
   ]
  },
@@ -2647,7 +2633,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\AUDIOCMN.CPP",
   "end_line": [
-   1254,
+   1250,
    1577
   ]
  },
@@ -2655,7 +2641,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AUDIOCMN.CPP",
   "end_line": [
-   696,
+   692,
    946
   ]
  },
@@ -2669,7 +2655,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\AUDIOCMN.CPP",
   "end_line": [
-   1895,
+   1891,
    2190
   ]
  },
@@ -2677,7 +2663,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AUDIOCMN.CPP",
   "end_line": [
-   1955,
+   1951,
    2239
   ]
  },
@@ -2685,7 +2671,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AUDIOCMN.CPP",
   "end_line": [
-   1979,
+   1975,
    2273
   ]
  },
@@ -2697,7 +2683,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\AUDIOCMN.CPP",
   "end_line": [
-   2259,
+   2254,
    2572
   ]
  },
@@ -2709,7 +2695,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\AUDIOCMN.CPP",
   "end_line": [
-   2291,
+   2286,
    2607
   ]
  },
@@ -2720,7 +2706,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\AUDIOCMN.CPP",
   "end_line": [
-   2232,
+   2227,
    2541
   ]
  },
@@ -3058,7 +3044,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\PSX\\AUDIO.CPP",
   "end_line": [
-   94,
+   91,
    144
   ]
  },
@@ -3068,7 +3054,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\PSX\\AUDIO.CPP",
   "end_line": [
-   73,
+   70,
    91
   ]
  },
@@ -3076,17 +3062,18 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\PSX\\AUDIO.CPP",
   "end_line": [
-   107,
+   104,
    158
   ]
  },
  "Audio_InitDriver__Fii": {
   "issues": [
-   "BLOCKS 3 scopes != 4"
+   "ORDER of declarations differs",
+   "BLOCKS same count, different nesting/addresses"
   ],
   "file": "C:\\nfs4\\GAME\\PSX\\AUDIO.CPP",
   "end_line": [
-   59,
+   56,
    78
   ]
  },
@@ -3104,7 +3091,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\BWORLD.CPP",
   "end_line": [
-   1007,
+   1006,
    1113
   ]
  },
@@ -3244,7 +3231,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\BWORLD.CPP",
   "end_line": [
-   443,
+   442,
    643
   ]
  },
@@ -3252,7 +3239,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\BWORLD.CPP",
   "end_line": [
-   1027,
+   1026,
    1167
   ]
  },
@@ -3260,7 +3247,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\BWORLD.CPP",
   "end_line": [
-   1188,
+   1187,
    1412
   ]
  },
@@ -3268,7 +3255,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\BWORLD.CPP",
   "end_line": [
-   185,
+   184,
    374
   ]
  },
@@ -3276,7 +3263,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\BWORLD.CPP",
   "end_line": [
-   1020,
+   1019,
    1155
   ]
  },
@@ -3284,7 +3271,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\BWORLD.CPP",
   "end_line": [
-   159,
+   158,
    348
   ]
  },
@@ -3294,7 +3281,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\BWORLD.CPP",
   "end_line": [
-   1166,
+   1165,
    1379
   ]
  },
@@ -3304,7 +3291,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\BWORLD.CPP",
   "end_line": [
-   889,
+   888,
    854
   ]
  },
@@ -3315,7 +3302,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\BWORLD.CPP",
   "end_line": [
-   989,
+   988,
    1055
   ]
  },
@@ -3323,7 +3310,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\BWORLD.CPP",
   "end_line": [
-   1059,
+   1058,
    1221
   ]
  },
@@ -3333,7 +3320,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\BWORLD.CPP",
   "end_line": [
-   1074,
+   1073,
    1250
   ]
  },
@@ -3349,7 +3336,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\BWORLD.CPP",
   "end_line": [
-   170,
+   169,
    357
   ]
  },
@@ -3357,7 +3344,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\BWORLD.CPP",
   "end_line": [
-   1081,
+   1080,
    1270
   ]
  },
@@ -3370,7 +3357,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   3166,
+   3159,
    2705
   ]
  },
@@ -3378,7 +3365,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   1122,
+   1121,
    1446
   ]
  },
@@ -3386,7 +3373,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   972,
+   971,
    1307
   ]
  },
@@ -3445,7 +3432,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   3256,
+   3249,
    2748
   ]
  },
@@ -3453,7 +3440,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   1143,
+   1142,
    1471
   ]
  },
@@ -3570,18 +3557,17 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   2447,
+   2440,
    2257
   ]
  },
  "CalcObjDefPtrs__Fv": {
   "issues": [
-   "ORDER of declarations differs",
    "BLOCKS 17 scopes != 11"
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\TRACK.CPP",
   "end_line": [
-   803,
+   799,
    1188
   ]
  },
@@ -3607,7 +3593,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\TRACK.CPP",
   "end_line": [
-   787,
+   784,
    1125
   ]
  },
@@ -3681,17 +3667,17 @@
   "issues": [],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FETOURN.CPP",
   "end_line": [
-   960,
+   959,
    981
   ]
  },
  "CalcTrackFinishDamageBill__18tTournamentManagerbRlT2": {
   "issues": [
-   "BLOCKS 3 scopes != 6"
+   "BLOCKS 4 scopes != 6"
   ],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FETOURN.CPP",
   "end_line": [
-   442,
+   441,
    470
   ]
  },
@@ -3716,7 +3702,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   620,
+   619,
    984
   ]
  },
@@ -3739,7 +3725,7 @@
   ],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FEDIALOG.CPP",
   "end_line": [
-   494,
+   493,
    451
   ]
  },
@@ -3750,7 +3736,7 @@
   ],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FEDIALOG.CPP",
   "end_line": [
-   817,
+   816,
    759
   ]
  },
@@ -3768,7 +3754,7 @@
   ],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FEDIALOG.CPP",
   "end_line": [
-   650,
+   649,
    600
   ]
  },
@@ -3860,7 +3846,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   3386,
+   3379,
    131
   ]
  },
@@ -3871,7 +3857,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   3422,
+   3415,
    74
   ]
  },
@@ -3879,7 +3865,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.H",
   "end_line": [
-   3468,
+   3461,
    371
   ]
  },
@@ -4376,7 +4362,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   3408,
+   3401,
    114
   ]
  },
@@ -4384,7 +4370,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.H",
   "end_line": [
-   3503,
+   3496,
    336
   ]
  },
@@ -4431,7 +4417,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\CARS.CPP",
   "end_line": [
-   2150,
+   2149,
    2694
   ]
  },
@@ -4439,7 +4425,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\CARS.CPP",
   "end_line": [
-   2136,
+   2135,
    2683
   ]
  },
@@ -4447,7 +4433,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\CARS.CPP",
   "end_line": [
-   2130,
+   2129,
    2678
   ]
  },
@@ -4465,7 +4451,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\CARS.CPP",
   "end_line": [
-   2234,
+   2233,
    2804
   ]
  },
@@ -4473,7 +4459,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\CARS.CPP",
   "end_line": [
-   2055,
+   2054,
    2582
   ]
  },
@@ -4481,7 +4467,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\CARS.CPP",
   "end_line": [
-   1857,
+   1856,
    2240
   ]
  },
@@ -4507,7 +4493,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\CARS.CPP",
   "end_line": [
-   2087,
+   2086,
    2618
   ]
  },
@@ -4531,11 +4517,11 @@
  },
  "Cars_IniCarObjects__FP8Car_tObji": {
   "issues": [
-   "BLOCKS 1 scopes != 4"
+   "BLOCKS 2 scopes != 4"
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\CARS.CPP",
   "end_line": [
-   1742,
+   1741,
    2007
   ]
  },
@@ -4543,7 +4529,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\CARS.CPP",
   "end_line": [
-   1846,
+   1845,
    2225
   ]
  },
@@ -4577,7 +4563,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\CARS.CPP",
   "end_line": [
-   1904,
+   1903,
    2357
   ]
  },
@@ -4587,7 +4573,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\CARS.CPP",
   "end_line": [
-   2213,
+   2212,
    2771
   ]
  },
@@ -4605,7 +4591,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\CARS.CPP",
   "end_line": [
-   2171,
+   2170,
    2704
   ]
  },
@@ -4639,7 +4625,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\CARS.CPP",
   "end_line": [
-   1887,
+   1886,
    2273
   ]
  },
@@ -4663,7 +4649,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\CARS.CPP",
   "end_line": [
-   2279,
+   2278,
    2862
   ]
  },
@@ -4673,7 +4659,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\CARS.CPP",
   "end_line": [
-   2008,
+   2007,
    2499
   ]
  },
@@ -4686,7 +4672,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   3054,
+   3047,
    2621
   ]
  },
@@ -4694,7 +4680,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   1101,
+   1100,
    1422
   ]
  },
@@ -4721,17 +4707,15 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   509,
+   508,
    884
   ]
  },
  "CheckCarBank__6SpeechPQ26Speech7CarBankPciPQ26Speech11CarBankName": {
-  "issues": [
-   "BLOCKS 1 scopes != 2"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   184,
+   183,
    295
   ]
  },
@@ -4926,7 +4910,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIH_COP.CPP",
   "end_line": [
-   2113,
+   2112,
    1166
   ]
  },
@@ -5029,7 +5013,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   268,
+   267,
    561
   ]
  },
@@ -5037,7 +5021,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   543,
+   542,
    924
   ]
  },
@@ -5082,7 +5066,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AUDIOCMN.CPP",
   "end_line": [
-   1095,
+   1091,
    1423
   ]
  },
@@ -5090,7 +5074,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AUDIOCMN.CPP",
   "end_line": [
-   1141,
+   1137,
    1451
   ]
  },
@@ -5122,7 +5106,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIDATARECORD.CPP",
   "end_line": [
-   106,
+   102,
    161
   ]
  },
@@ -5130,7 +5114,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIDATARECORD.CPP",
   "end_line": [
-   112,
+   108,
    167
   ]
  },
@@ -5326,12 +5310,10 @@
   ]
  },
  "ClearPerp__Q26Speech15DispatchSpeakerP8Car_tObj": {
-  "issues": [
-   "BLOCKS 1 scopes != 2"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   2039,
+   2035,
    1958
   ]
  },
@@ -5339,7 +5321,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.H",
   "end_line": [
-   3546,
+   3539,
    329
   ]
  },
@@ -5371,12 +5353,10 @@
   ]
  },
  "Clear__16AIHigh_BasicPerp": {
-  "issues": [
-   "BLOCKS 1 scopes != 2"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIH_BASICPERP.CPP",
   "end_line": [
-   764,
+   754,
    415
   ]
  },
@@ -5578,7 +5558,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\COPSPEAK.CPP",
   "end_line": [
-   199,
+   195,
    337
   ]
  },
@@ -5586,7 +5566,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\COPSPEAK.CPP",
   "end_line": [
-   736,
+   728,
    1099
   ]
  },
@@ -5594,17 +5574,15 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\COPSPEAK.CPP",
   "end_line": [
-   320,
+   316,
    574
   ]
  },
  "CopSpeak_CleanUp__Fv": {
-  "issues": [
-   "BLOCKS 1 scopes != 2"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\COPSPEAK.CPP",
   "end_line": [
-   354,
+   347,
    620
   ]
  },
@@ -5614,7 +5592,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\COPSPEAK.CPP",
   "end_line": [
-   1031,
+   1023,
    1510
   ]
  },
@@ -5622,7 +5600,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\COPSPEAK.CPP",
   "end_line": [
-   403,
+   395,
    675
   ]
  },
@@ -5630,7 +5608,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\COPSPEAK.CPP",
   "end_line": [
-   861,
+   853,
    1259
   ]
  },
@@ -5638,7 +5616,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\COPSPEAK.CPP",
   "end_line": [
-   223,
+   219,
    361
   ]
  },
@@ -5646,7 +5624,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\COPSPEAK.CPP",
   "end_line": [
-   426,
+   418,
    695
   ]
  },
@@ -5656,7 +5634,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\COPSPEAK.CPP",
   "end_line": [
-   595,
+   587,
    891
   ]
  },
@@ -5664,17 +5642,15 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\COPSPEAK.CPP",
   "end_line": [
-   157,
+   153,
    285
   ]
  },
  "CopSpeak_InitVars__Fv": {
-  "issues": [
-   "BLOCKS 1 scopes != 2"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\COPSPEAK.CPP",
   "end_line": [
-   378,
+   370,
    649
   ]
  },
@@ -5684,7 +5660,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\COPSPEAK.CPP",
   "end_line": [
-   807,
+   799,
    1185
   ]
  },
@@ -5694,7 +5670,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\COPSPEAK.CPP",
   "end_line": [
-   848,
+   840,
    1238
   ]
  },
@@ -5706,7 +5682,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\COPSPEAK.CPP",
   "end_line": [
-   659,
+   651,
    974
   ]
  },
@@ -5716,27 +5692,23 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\COPSPEAK.CPP",
   "end_line": [
-   123,
+   122,
    252
   ]
  },
  "CopSpeak_RadioStaticInit__Fv": {
-  "issues": [
-   "BLOCKS 1 scopes != 2"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\COPSPEAK.CPP",
   "end_line": [
-   78,
+   77,
    203
   ]
  },
  "CopSpeak_RadioStaticSquelch__Fv": {
-  "issues": [
-   "BLOCKS 1 scopes != 2"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\COPSPEAK.CPP",
   "end_line": [
-   141,
+   137,
    267
   ]
  },
@@ -5746,7 +5718,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\COPSPEAK.CPP",
   "end_line": [
-   294,
+   290,
    533
   ]
  },
@@ -5758,7 +5730,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\COPSPEAK.CPP",
   "end_line": [
-   726,
+   718,
    1089
   ]
  },
@@ -5769,7 +5741,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\COPSPEAK.CPP",
   "end_line": [
-   958,
+   950,
    1353
   ]
  },
@@ -5777,7 +5749,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\COPSPEAK.CPP",
   "end_line": [
-   977,
+   969,
    1369
   ]
  },
@@ -5785,7 +5757,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\COPSPEAK.CPP",
   "end_line": [
-   1018,
+   1010,
    1404
   ]
  },
@@ -5793,7 +5765,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\COPSPEAK.CPP",
   "end_line": [
-   172,
+   168,
    306
   ]
  },
@@ -5801,7 +5773,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\COPSPEAK.CPP",
   "end_line": [
-   676,
+   668,
    1042
   ]
  },
@@ -5811,7 +5783,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\COPSPEAK.CPP",
   "end_line": [
-   580,
+   572,
    878
   ]
  },
@@ -5819,7 +5791,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\COPSPEAK.CPP",
   "end_line": [
-   328,
+   324,
    583
   ]
  },
@@ -5827,7 +5799,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   238,
+   237,
    534
   ]
  },
@@ -5838,7 +5810,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\GROUP.CPP",
   "end_line": [
-   105,
+   104,
    199
   ]
  },
@@ -5849,7 +5821,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\GROUP.CPP",
   "end_line": [
-   90,
+   89,
    181
   ]
  },
@@ -6087,7 +6059,7 @@
   "issues": [],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FETOURN.CPP",
   "end_line": [
-   1145,
+   1144,
    1158
   ]
  },
@@ -6124,7 +6096,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   2278,
+   2271,
    2073
   ]
  },
@@ -6132,7 +6104,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   1059,
+   1058,
    1367
   ]
  },
@@ -6140,7 +6112,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\PSX\\DRAWW.CPP",
   "end_line": [
-   7299,
+   7298,
    3834
   ]
  },
@@ -6240,7 +6212,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   1235,
+   1234,
    1586
   ]
  },
@@ -6252,7 +6224,7 @@
   ],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FEAPP.CPP",
   "end_line": [
-   734,
+   731,
    465
   ]
  },
@@ -6270,7 +6242,7 @@
   ],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FEDIALOG.CPP",
   "end_line": [
-   274,
+   273,
    154
   ]
  },
@@ -6278,7 +6250,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   2513,
+   2506,
    2286
   ]
  },
@@ -6286,7 +6258,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.H",
   "end_line": [
-   3510,
+   3503,
    335
   ]
  },
@@ -6299,7 +6271,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   317,
+   316,
    587
   ]
  },
@@ -7174,7 +7146,7 @@
   ],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FEAPP.CPP",
   "end_line": [
-   244,
+   241,
    219
   ]
  },
@@ -7545,7 +7517,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\PSX\\DRAWW.CPP",
   "end_line": [
-   6720,
+   6719,
    3392
   ]
  },
@@ -7557,7 +7529,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\PSX\\DRAWW.CPP",
   "end_line": [
-   4855,
+   4854,
    2649
   ]
  },
@@ -7602,7 +7574,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\PSX\\DRAWW.CPP",
   "end_line": [
-   7289,
+   7288,
    3815
   ]
  },
@@ -7639,7 +7611,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\PSX\\DRAWW.CPP",
   "end_line": [
-   6910,
+   6909,
    3467
   ]
  },
@@ -7660,7 +7632,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\PSX\\DRAWW.CPP",
   "end_line": [
-   5239,
+   5238,
    2864
   ]
  },
@@ -7741,7 +7713,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\PSX\\DRAWW.CPP",
   "end_line": [
-   6615,
+   6614,
    3330
   ]
  },
@@ -7772,7 +7744,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\PSX\\DRAWW.CPP",
   "end_line": [
-   6214,
+   6213,
    3103
   ]
  },
@@ -7847,7 +7819,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\PSX\\DRAWW.CPP",
   "end_line": [
-   5263,
+   5262,
    2896
   ]
  },
@@ -8079,7 +8051,7 @@
   "issues": [],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FEDIALOG.CPP",
   "end_line": [
-   315,
+   314,
    210
   ]
  },
@@ -8094,7 +8066,7 @@
   ],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FEDIALOG.CPP",
   "end_line": [
-   603,
+   602,
    546
   ]
  },
@@ -8107,7 +8079,7 @@
   ],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FEDIALOG.CPP",
   "end_line": [
-   921,
+   920,
    815
   ]
  },
@@ -8138,7 +8110,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\OBJECT.CPP",
   "end_line": [
-   1253,
+   1252,
    1401
   ]
  },
@@ -8164,7 +8136,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\OBJECT.CPP",
   "end_line": [
-   1146,
+   1145,
    1296
   ]
  },
@@ -8227,7 +8199,7 @@
   ],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FEDIALOG.CPP",
   "end_line": [
-   694,
+   693,
    651
   ]
  },
@@ -8265,7 +8237,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\OBJECT.CPP",
   "end_line": [
-   1158,
+   1157,
    1304
   ]
  },
@@ -8287,7 +8259,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\OBJECT.CPP",
   "end_line": [
-   993,
+   992,
    1161
   ]
  },
@@ -8559,7 +8531,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\PSX\\DRAWW.CPP",
   "end_line": [
-   6101,
+   6100,
    3038
   ]
  },
@@ -8588,7 +8560,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   2758,
+   2751,
    2450
   ]
  },
@@ -8596,7 +8568,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   1080,
+   1079,
    1398
   ]
  },
@@ -8622,7 +8594,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AISTATE.H",
   "end_line": [
-   190,
+   193,
    35
   ]
  },
@@ -9214,7 +9186,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   348,
+   347,
    618
   ]
  },
@@ -9226,7 +9198,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   3394,
+   3387,
    127
   ]
  },
@@ -9238,7 +9210,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   3430,
+   3423,
    70
   ]
  },
@@ -9246,7 +9218,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.H",
   "end_line": [
-   3475,
+   3468,
    367
   ]
  },
@@ -9270,7 +9242,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   463,
+   462,
    788
   ]
  },
@@ -9283,7 +9255,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   2430,
+   2423,
    2237
   ]
  },
@@ -9838,7 +9810,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\PSX\\FORCE.CPP",
   "end_line": [
-   391,
+   390,
    258
   ]
  },
@@ -9846,7 +9818,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\PSX\\FORCE.CPP",
   "end_line": [
-   460,
+   459,
    299
   ]
  },
@@ -9854,7 +9826,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\PSX\\FORCE.CPP",
   "end_line": [
-   467,
+   466,
    302
   ]
  },
@@ -9862,7 +9834,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\PSX\\FORCE.CPP",
   "end_line": [
-   427,
+   426,
    273
   ]
  },
@@ -9872,7 +9844,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\PSX\\FORCE.CPP",
   "end_line": [
-   446,
+   445,
    285
   ]
  },
@@ -9882,7 +9854,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\PSX\\FORCE.CPP",
   "end_line": [
-   362,
+   361,
    244
   ]
  },
@@ -9890,7 +9862,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\PSX\\FORCE.CPP",
   "end_line": [
-   453,
+   452,
    292
   ]
  },
@@ -9902,7 +9874,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\PSX\\FORCE.CPP",
   "end_line": [
-   336,
+   335,
    223
   ]
  },
@@ -9912,7 +9884,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\PSX\\FORCE.CPP",
   "end_line": [
-   121,
+   120,
    98
   ]
  },
@@ -9944,7 +9916,7 @@
   "issues": [],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FEAPP.CPP",
   "end_line": [
-   753,
+   750,
    479
   ]
  },
@@ -10087,7 +10059,7 @@
   "issues": [],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FRONT.CPP",
   "end_line": [
-   3218,
+   3215,
    2830
   ]
  },
@@ -10321,7 +10293,7 @@
   "issues": [],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FETOURN.CPP",
   "end_line": [
-   873,
+   872,
    914
   ]
  },
@@ -10331,7 +10303,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   3401,
+   3394,
    123
   ]
  },
@@ -10341,7 +10313,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   3437,
+   3430,
    66
   ]
  },
@@ -10349,7 +10321,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.H",
   "end_line": [
-   3482,
+   3475,
    363
   ]
  },
@@ -10520,7 +10492,7 @@
   ],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FETOURN.CPP",
   "end_line": [
-   733,
+   732,
    734
   ]
  },
@@ -10561,7 +10533,7 @@
   ],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FETOURN.CPP",
   "end_line": [
-   773,
+   772,
    805
   ]
  },
@@ -10607,7 +10579,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\OBJECT.CPP",
   "end_line": [
-   880,
+   879,
    1048
   ]
  },
@@ -10657,7 +10629,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\BWORLD.CPP",
   "end_line": [
-   449,
+   448,
    665
   ]
  },
@@ -10902,7 +10874,7 @@
   "issues": [],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FEDIALOG.CPP",
   "end_line": [
-   242,
+   241,
    120
   ]
  },
@@ -10914,7 +10886,7 @@
   ],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FETOURN.CPP",
   "end_line": [
-   863,
+   862,
    905
   ]
  },
@@ -10933,7 +10905,7 @@
   ],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FETOURN.CPP",
   "end_line": [
-   848,
+   847,
    890
   ]
  },
@@ -10984,7 +10956,7 @@
   ],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FETOURN.CPP",
   "end_line": [
-   1003,
+   1002,
    1056
   ]
  },
@@ -10992,7 +10964,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   2336,
+   2329,
    2157
   ]
  },
@@ -11000,7 +10972,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIDATARECORD.CPP",
   "end_line": [
-   168,
+   164,
    404
   ]
  },
@@ -11008,7 +10980,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIDATARECORD.CPP",
   "end_line": [
-   219,
+   215,
    547
   ]
  },
@@ -11016,7 +10988,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIDATARECORD.H",
   "end_line": [
-   272,
+   268,
    193
   ]
  },
@@ -11024,7 +10996,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIDATARECORD.CPP",
   "end_line": [
-   249,
+   245,
    636
   ]
  },
@@ -11050,7 +11022,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   2300,
+   2293,
    2098
   ]
  },
@@ -11058,7 +11030,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   1066,
+   1065,
    1375
   ]
  },
@@ -11134,12 +11106,11 @@
  },
  "HideAllDialogs__11tDialogBase": {
   "issues": [
-   "EXTRA this REGPARM:$4",
-   "BLOCKS 1 scopes != 2"
+   "EXTRA this REGPARM:$4"
   ],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FEDIALOG.CPP",
   "end_line": [
-   232,
+   231,
    111
   ]
  },
@@ -11149,7 +11120,7 @@
   ],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FEDIALOG.CPP",
   "end_line": [
-   300,
+   299,
    181
   ]
  },
@@ -11200,7 +11171,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIHIGH.H",
   "end_line": [
-   219,
+   222,
    132
   ]
  },
@@ -12294,7 +12265,7 @@
   "issues": [],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FETOURN.CPP",
   "end_line": [
-   1120,
+   1119,
    1144
   ]
  },
@@ -12744,7 +12715,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\INPUT.CPP",
   "end_line": [
-   530,
+   528,
    457
   ]
  },
@@ -12752,7 +12723,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\INPUT.CPP",
   "end_line": [
-   549,
+   547,
    479
   ]
  },
@@ -12760,7 +12731,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\INPUT.CPP",
   "end_line": [
-   570,
+   568,
    499
   ]
  },
@@ -12768,17 +12739,15 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\INPUT.CPP",
   "end_line": [
-   577,
+   575,
    544
   ]
  },
  "Input_StartUp__Fv": {
-  "issues": [
-   "BLOCKS 3 scopes != 4"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\INPUT.CPP",
   "end_line": [
-   62,
+   61,
    77
   ]
  },
@@ -12786,7 +12755,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\INPUT.CPP",
   "end_line": [
-   523,
+   521,
    450
   ]
  },
@@ -12805,11 +12774,11 @@
    "EXTRA one REG:$22",
    "MISSING active AUTO:sp-136",
    "MISSING k REG:$4",
-   "BLOCKS 13 scopes != 25"
+   "BLOCKS 14 scopes != 25"
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\INPUT.CPP",
   "end_line": [
-   505,
+   503,
    430
   ]
  },
@@ -12817,7 +12786,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\INPUT.CPP",
   "end_line": [
-   92,
+   91,
    93
   ]
  },
@@ -12848,7 +12817,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\TRACK.CPP",
   "end_line": [
-   722,
+   719,
    1026
   ]
  },
@@ -12940,7 +12909,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   3415,
+   3408,
    106
   ]
  },
@@ -12948,7 +12917,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.H",
   "end_line": [
-   3538,
+   3531,
    331
   ]
  },
@@ -12979,7 +12948,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\TRACK.CPP",
   "end_line": [
-   1045,
+   1041,
    1726
   ]
  },
@@ -12987,7 +12956,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\TRACK.CPP",
   "end_line": [
-   1055,
+   1051,
    1736
   ]
  },
@@ -12997,7 +12966,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   2057,
+   2053,
    1969
   ]
  },
@@ -13005,7 +12974,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.H",
   "end_line": [
-   3552,
+   3545,
    328
   ]
  },
@@ -13036,7 +13005,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   823,
+   822,
    1102
   ]
  },
@@ -13148,18 +13117,18 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\TRACK.CPP",
   "end_line": [
-   299,
+   298,
    394
   ]
  },
  "LoadShapesAndMakePmx__FPcP12Draw_tPixMapiii": {
   "issues": [
    "EXTRA emptyPalNum REG:$4",
-   "BLOCKS 17 scopes != 19"
+   "BLOCKS 18 scopes != 19"
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\TRACK.CPP",
   "end_line": [
-   275,
+   274,
    359
   ]
  },
@@ -13167,7 +13136,7 @@
   "issues": [],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FETOURN.CPP",
   "end_line": [
-   763,
+   762,
    791
   ]
  },
@@ -13198,7 +13167,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIDATARECORD.CPP",
   "end_line": [
-   134,
+   130,
    239
   ]
  },
@@ -13248,18 +13217,18 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\GROUP.CPP",
   "end_line": [
-   76,
+   75,
    134
   ]
  },
  "LocateGroupNum__15SerializedGroupi": {
   "issues": [
    "MISSING this REGPARM:$4",
-   "BLOCKS 1 scopes != 4"
+   "BLOCKS 2 scopes != 4"
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\GROUP.CPP",
   "end_line": [
-   66,
+   65,
    116
   ]
  },
@@ -13297,7 +13266,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   2961,
+   2954,
    2538
   ]
  },
@@ -13305,7 +13274,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   1087,
+   1086,
    1406
   ]
  },
@@ -13485,7 +13454,7 @@
   ],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FEAPP.CPP",
   "end_line": [
-   1258,
+   1255,
    985
   ]
  },
@@ -14132,7 +14101,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   2440,
+   2433,
    2250
   ]
  },
@@ -14267,7 +14236,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\NEWTON.CPP",
   "end_line": [
-   2425,
+   2424,
    2157
   ]
  },
@@ -14333,7 +14302,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\NEWTON.CPP",
   "end_line": [
-   3042,
+   3041,
    2733
   ]
  },
@@ -14364,13 +14333,10 @@
   ]
  },
  "Newton_CalcRealShadowCoordinates__FP8Car_tObji": {
-  "issues": [
-   "ORDER of declarations differs",
-   "BLOCKS 3 scopes != 4"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\NEWTON.CPP",
   "end_line": [
-   1790,
+   1789,
    1880
   ]
  },
@@ -14388,7 +14354,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\NEWTON.CPP",
   "end_line": [
-   3061,
+   3060,
    2745
   ]
  },
@@ -14396,7 +14362,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\NEWTON.CPP",
   "end_line": [
-   3080,
+   3079,
    2773
   ]
  },
@@ -14415,7 +14381,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\NEWTON.CPP",
   "end_line": [
-   1811,
+   1810,
    1916
   ]
  },
@@ -14457,7 +14423,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\NEWTON.CPP",
   "end_line": [
-   2362,
+   2361,
    1956
   ]
  },
@@ -14521,7 +14487,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\NEWTON.CPP",
   "end_line": [
-   2402,
+   2401,
    2140
   ]
  },
@@ -14539,7 +14505,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\NEWTON.CPP",
   "end_line": [
-   2906,
+   2905,
    2456
   ]
  },
@@ -14602,7 +14568,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\NEWTON.CPP",
   "end_line": [
-   2881,
+   2880,
    2361
   ]
  },
@@ -14692,7 +14658,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\PSX\\NIGHT.CPP",
   "end_line": [
-   1637,
+   1634,
    861
   ]
  },
@@ -14735,7 +14701,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\PSX\\NIGHT.CPP",
   "end_line": [
-   1059,
+   1056,
    625
   ]
  },
@@ -14764,7 +14730,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\PSX\\NIGHT.CPP",
   "end_line": [
-   1117,
+   1114,
    680
   ]
  },
@@ -14788,7 +14754,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\PSX\\NIGHT.CPP",
   "end_line": [
-   1153,
+   1150,
    719
   ]
  },
@@ -14827,7 +14793,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\PSX\\NIGHT.CPP",
   "end_line": [
-   1168,
+   1165,
    730
   ]
  },
@@ -14857,7 +14823,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\PSX\\NIGHT.CPP",
   "end_line": [
-   1430,
+   1427,
    804
   ]
  },
@@ -14870,12 +14836,10 @@
   ]
  },
  "Night_SetWeatherColors__Fi": {
-  "issues": [
-   "BLOCKS 1 scopes != 2"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\PSX\\NIGHT.CPP",
   "end_line": [
-   968,
+   965,
    546
   ]
  },
@@ -14964,7 +14928,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\PSX\\DRAWW.CPP",
   "end_line": [
-   4930,
+   4929,
    2709
   ]
  },
@@ -14976,7 +14940,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\OBJECT.CPP",
   "end_line": [
-   835,
+   834,
    1002
   ]
  },
@@ -15027,7 +14991,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\OBJECT.CPP",
   "end_line": [
-   936,
+   935,
    1095
   ]
  },
@@ -15035,7 +14999,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\OBJECT.CPP",
   "end_line": [
-   647,
+   646,
    800
   ]
  },
@@ -15051,7 +15015,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\OBJECT.CPP",
   "end_line": [
-   958,
+   957,
    1111
   ]
  },
@@ -15061,7 +15025,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\OBJECT.CPP",
   "end_line": [
-   985,
+   984,
    1143
   ]
  },
@@ -15069,7 +15033,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\OBJECT.CPP",
   "end_line": [
-   946,
+   945,
    1102
   ]
  },
@@ -15126,7 +15090,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\OBJECT.CPP",
   "end_line": [
-   922,
+   921,
    1088
   ]
  },
@@ -15315,7 +15279,7 @@
   "issues": [],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FEAPP.CPP",
   "end_line": [
-   134,
+   131,
    145
   ]
  },
@@ -15323,7 +15287,7 @@
   "issues": [],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FEAPP.CPP",
   "end_line": [
-   110,
+   107,
    122
   ]
  },
@@ -15331,7 +15295,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   3372,
+   3365,
    147
   ]
  },
@@ -15339,7 +15303,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.H",
   "end_line": [
-   3489,
+   3482,
    338
   ]
  },
@@ -15377,7 +15341,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\PHYSICS.CPP",
   "end_line": [
-   1843,
+   1842,
    1810
   ]
  },
@@ -15389,7 +15353,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\PHYSICS.CPP",
   "end_line": [
-   1715,
+   1714,
    1725
   ]
  },
@@ -15407,7 +15371,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\PHYSICS.CPP",
   "end_line": [
-   1624,
+   1623,
    1672
   ]
  },
@@ -15428,7 +15392,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\PHYSICS.CPP",
   "end_line": [
-   2105,
+   2104,
    2040
   ]
  },
@@ -15438,7 +15402,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\PHYSICS.CPP",
   "end_line": [
-   1242,
+   1241,
    1439
   ]
  },
@@ -15451,7 +15415,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\PHYSICS.CPP",
   "end_line": [
-   2054,
+   2053,
    1979
   ]
  },
@@ -15553,17 +15517,15 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\PHYSICS.CPP",
   "end_line": [
-   2777,
+   2776,
    2500
   ]
  },
  "Physics_ResetCar__FP8Car_tObj": {
-  "issues": [
-   "BLOCKS 1 scopes != 2"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\PHYSICS.CPP",
   "end_line": [
-   1158,
+   1157,
    1358
   ]
  },
@@ -15579,7 +15541,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\PHYSICS.CPP",
   "end_line": [
-   2802,
+   2801,
    2532
   ]
  },
@@ -15587,7 +15549,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\PHYSICS.CPP",
   "end_line": [
-   1172,
+   1171,
    1370
   ]
  },
@@ -15595,7 +15557,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\PHYSICS.CPP",
   "end_line": [
-   1188,
+   1187,
    1385
   ]
  },
@@ -15603,7 +15565,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   2329,
+   2322,
    2150
   ]
  },
@@ -15719,7 +15681,7 @@
   "issues": [],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FRONT.CPP",
   "end_line": [
-   3240,
+   3237,
    2837
   ]
  },
@@ -15727,7 +15689,7 @@
   "issues": [],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FRONT.CPP",
   "end_line": [
-   3306,
+   3303,
    2866
   ]
  },
@@ -15735,7 +15697,7 @@
   "issues": [],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FRONT.CPP",
   "end_line": [
-   3275,
+   3272,
    2850
   ]
  },
@@ -15743,7 +15705,7 @@
   "issues": [],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FETOURN.CPP",
   "end_line": [
-   948,
+   947,
    973
   ]
  },
@@ -15813,7 +15775,7 @@
   ],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FEDIALOG.CPP",
   "end_line": [
-   333,
+   332,
    245
   ]
  },
@@ -15835,7 +15797,7 @@
   ],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FEDIALOG.CPP",
   "end_line": [
-   951,
+   950,
    853
   ]
  },
@@ -15869,7 +15831,7 @@
   "issues": [],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FEDIALOG.CPP",
   "end_line": [
-   995,
+   994,
    901
   ]
  },
@@ -15877,7 +15839,7 @@
   "issues": [],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FEDIALOG.CPP",
   "end_line": [
-   1014,
+   1013,
    916
   ]
  },
@@ -15928,7 +15890,7 @@
   "issues": [],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FEDIALOG.CPP",
   "end_line": [
-   716,
+   715,
    670
   ]
  },
@@ -15998,7 +15960,7 @@
   "issues": [],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FEDIALOG.CPP",
   "end_line": [
-   1025,
+   1024,
    931
   ]
  },
@@ -16207,7 +16169,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   1172,
+   1171,
    1503
   ]
  },
@@ -16231,7 +16193,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   3445,
+   3438,
    58
   ]
  },
@@ -16239,7 +16201,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.H",
   "end_line": [
-   3518,
+   3511,
    334
   ]
  },
@@ -16250,7 +16212,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   3323,
+   3316,
    2839
   ]
  },
@@ -16258,7 +16220,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   1150,
+   1149,
    1479
   ]
  },
@@ -16312,7 +16274,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\R3DCAR.CPP",
   "end_line": [
-   525,
+   524,
    1041
   ]
  },
@@ -16338,7 +16300,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\R3DCAR.CPP",
   "end_line": [
-   576,
+   575,
    1113
   ]
  },
@@ -16346,7 +16308,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\R3DCAR.CPP",
   "end_line": [
-   536,
+   535,
    1048
   ]
  },
@@ -16357,7 +16319,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\R3DCAR.CPP",
   "end_line": [
-   621,
+   620,
    1154
   ]
  },
@@ -16365,7 +16327,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\R3DCAR.CPP",
   "end_line": [
-   589,
+   588,
    1125
   ]
  },
@@ -16375,7 +16337,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\R3DCAR.CPP",
   "end_line": [
-   2986,
+   2985,
    3551
   ]
  },
@@ -16387,7 +16349,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\R3DCAR.CPP",
   "end_line": [
-   2721,
+   2720,
    3270
   ]
  },
@@ -16397,7 +16359,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\R3DCAR.CPP",
   "end_line": [
-   2861,
+   2860,
    3395
   ]
  },
@@ -16421,7 +16383,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\R3DCAR.CPP",
   "end_line": [
-   2552,
+   2551,
    3084
   ]
  },
@@ -16429,7 +16391,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\R3DCAR.CPP",
   "end_line": [
-   2879,
+   2878,
    3412
   ]
  },
@@ -16444,7 +16406,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\R3DCAR.CPP",
   "end_line": [
-   1773,
+   1772,
    2181
   ]
  },
@@ -16460,7 +16422,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\R3DCAR.CPP",
   "end_line": [
-   898,
+   897,
    1399
   ]
  },
@@ -16468,7 +16430,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\R3DCAR.CPP",
   "end_line": [
-   600,
+   599,
    1141
   ]
  },
@@ -16476,7 +16438,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\R3DCAR.CPP",
   "end_line": [
-   1064,
+   1063,
    1541
   ]
  },
@@ -16490,11 +16452,12 @@
  },
  "R3DCar_ReadInCarData__FPcP8Car_tObj": {
   "issues": [
+   "ORDER of declarations differs",
    "BLOCKS 8 scopes != 9"
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\R3DCAR.CPP",
   "end_line": [
-   387,
+   386,
    881
   ]
  },
@@ -16506,7 +16469,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\R3DCAR.CPP",
   "end_line": [
-   1883,
+   1882,
    2342
   ]
  },
@@ -16529,7 +16492,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\R3DCAR.CPP",
   "end_line": [
-   2871,
+   2870,
    3406
   ]
  },
@@ -16547,7 +16510,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\R3DCAR.CPP",
   "end_line": [
-   1049,
+   1048,
    1532
   ]
  },
@@ -16555,7 +16518,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\R3DCAR.CPP",
   "end_line": [
-   1032,
+   1031,
    1521
   ]
  },
@@ -16566,7 +16529,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\R3DCAR.CPP",
   "end_line": [
-   1014,
+   1013,
    1511
   ]
  },
@@ -16574,7 +16537,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\R3DCAR.CPP",
   "end_line": [
-   438,
+   437,
    944
   ]
  },
@@ -16582,7 +16545,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\R3DCAR.CPP",
   "end_line": [
-   411,
+   410,
    911
   ]
  },
@@ -16670,7 +16633,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   2403,
+   2396,
    2212
   ]
  },
@@ -16678,7 +16641,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.H",
   "end_line": [
-   3497,
+   3490,
    337
   ]
  },
@@ -16690,7 +16653,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   2316,
+   2309,
    2123
   ]
  },
@@ -16698,7 +16661,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   1073,
+   1072,
    1383
   ]
  },
@@ -16719,7 +16682,7 @@
   ],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FEAPP.CPP",
   "end_line": [
-   633,
+   630,
    395
   ]
  },
@@ -16732,7 +16695,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\TRACK.CPP",
   "end_line": [
-   697,
+   694,
    1004
   ]
  },
@@ -16830,12 +16793,10 @@
   ]
  },
  "RemoveRecordFromCollection__14AIDataRecord_t": {
-  "issues": [
-   "BLOCKS 1 scopes != 2"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIDATARECORD.CPP",
   "end_line": [
-   63,
+   61,
    100
   ]
  },
@@ -16867,7 +16828,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\RENDER.CPP",
   "end_line": [
-   446,
+   445,
    785
   ]
  },
@@ -16909,7 +16870,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\RENDER.CPP",
   "end_line": [
-   511,
+   510,
    836
   ]
  },
@@ -17155,7 +17116,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   3365,
+   3358,
    2861
   ]
  },
@@ -17163,7 +17124,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   1129,
+   1128,
    1454
   ]
  },
@@ -17178,7 +17139,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   2548,
+   2541,
    2316
   ]
  },
@@ -17194,7 +17155,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   2222,
+   2215,
    2031
   ]
  },
@@ -17202,7 +17163,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   1052,
+   1051,
    1356
   ]
  },
@@ -17240,7 +17201,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   945,
+   944,
    1261
   ]
  },
@@ -17258,7 +17219,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\TRACK.CPP",
   "end_line": [
-   1218,
+   1214,
    1879
   ]
  },
@@ -17280,7 +17241,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   3096,
+   3089,
    2648
   ]
  },
@@ -17288,7 +17249,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   1108,
+   1107,
    1430
   ]
  },
@@ -17306,7 +17267,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   3244,
+   3237,
    2733
   ]
  },
@@ -17321,7 +17282,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   1313,
+   1312,
    1629
   ]
  },
@@ -17329,7 +17290,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   1136,
+   1135,
    1463
   ]
  },
@@ -17340,7 +17301,7 @@
   ],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FEAPP.CPP",
   "end_line": [
-   819,
+   816,
    554
   ]
  },
@@ -17348,7 +17309,7 @@
   "issues": [],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FEAPP.CPP",
   "end_line": [
-   1402,
+   1399,
    1134
   ]
  },
@@ -17361,7 +17322,7 @@
   ],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FEAPP.CPP",
   "end_line": [
-   1392,
+   1389,
    1122
   ]
  },
@@ -17374,7 +17335,7 @@
   ],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FEDIALOG.CPP",
   "end_line": [
-   789,
+   788,
    742
   ]
  },
@@ -17809,7 +17770,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIDATARECORD.CPP",
   "end_line": [
-   147,
+   143,
    270
   ]
  },
@@ -17866,7 +17827,7 @@
   "issues": [],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FETOURN.CPP",
   "end_line": [
-   749,
+   748,
    762
   ]
  },
@@ -17882,7 +17843,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\TRACK.CPP",
   "end_line": [
-   1149,
+   1145,
    1850
   ]
  },
@@ -18137,7 +18098,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   218,
+   217,
    373
   ]
  },
@@ -18177,7 +18138,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\BWORLD.CPP",
   "end_line": [
-   1034,
+   1033,
    1179
   ]
  },
@@ -18199,7 +18160,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   1191,
+   1190,
    1548
   ]
  },
@@ -18268,12 +18229,10 @@
   ]
  },
  "SetLicensePlate__Fv": {
-  "issues": [
-   "BLOCKS 1 scopes != 2"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FRONT.CPP",
   "end_line": [
-   3147,
+   3144,
    2771
   ]
  },
@@ -18284,7 +18243,7 @@
   ],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FEAPP.CPP",
   "end_line": [
-   686,
+   683,
    448
   ]
  },
@@ -18338,7 +18297,7 @@
   "issues": [],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FRONT.CPP",
   "end_line": [
-   3192,
+   3189,
    2811
   ]
  },
@@ -18346,7 +18305,7 @@
   "issues": [],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FEAPP.CPP",
   "end_line": [
-   713,
+   710,
    458
   ]
  },
@@ -18357,7 +18316,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   2471,
+   2464,
    2272
   ]
  },
@@ -18494,7 +18453,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\BWORLD.CPP",
   "end_line": [
-   357,
+   356,
    575
   ]
  },
@@ -18504,7 +18463,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\BWORLD.CPP",
   "end_line": [
-   863,
+   862,
    843
   ]
  },
@@ -18540,7 +18499,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIDATARECORD.CPP",
   "end_line": [
-   126,
+   122,
    204
   ]
  },
@@ -18558,7 +18517,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIDATARECORD.CPP",
   "end_line": [
-   186,
+   182,
    418
   ]
  },
@@ -18820,7 +18779,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AUDIOCMN.CPP",
   "end_line": [
-   2146,
+   2142,
    2450
   ]
  },
@@ -18828,7 +18787,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AUDIOCMN.CPP",
   "end_line": [
-   2133,
+   2129,
    2439
   ]
  },
@@ -19043,7 +19002,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   1181,
+   1180,
    1540
   ]
  },
@@ -19057,7 +19016,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   3136,
+   3129,
    2677
   ]
  },
@@ -19065,17 +19024,15 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   1115,
+   1114,
    1438
   ]
  },
  "StampImage__Fii": {
-  "issues": [
-   "BLOCKS 1 scopes != 2"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\RENDER.CPP",
   "end_line": [
-   427,
+   426,
    769
   ]
  },
@@ -19104,22 +19061,18 @@
   ]
  },
  "StartUp1__14AIDataRecord_t": {
-  "issues": [
-   "BLOCKS 1 scopes != 2"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIDATARECORD.CPP",
   "end_line": [
-   78,
+   75,
    121
   ]
  },
  "StartUp2__14AIDataRecord_t": {
-  "issues": [
-   "BLOCKS 1 scopes != 2"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIDATARECORD.CPP",
   "end_line": [
-   91,
+   87,
    148
   ]
  },
@@ -19190,12 +19143,10 @@
   ]
  },
  "Stats_ClearPosition__Fv": {
-  "issues": [
-   "BLOCKS 1 scopes != 2"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\STATS.CPP",
   "end_line": [
-   89,
+   86,
    120
   ]
  },
@@ -19211,7 +19162,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\STATS.CPP",
   "end_line": [
-   460,
+   457,
    463
   ]
  },
@@ -19219,7 +19170,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\STATS.CPP",
   "end_line": [
-   127,
+   124,
    155
   ]
  },
@@ -19227,7 +19178,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\STATS.CPP",
   "end_line": [
-   111,
+   108,
    139
   ]
  },
@@ -19237,7 +19188,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\STATS.CPP",
   "end_line": [
-   538,
+   535,
    550
   ]
  },
@@ -19247,7 +19198,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\STATS.CPP",
   "end_line": [
-   242,
+   239,
    273
   ]
  },
@@ -19339,7 +19290,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   3459,
+   3452,
    56
   ]
  },
@@ -19347,7 +19298,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.H",
   "end_line": [
-   3531,
+   3524,
    332
   ]
  },
@@ -19368,7 +19319,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   1578,
+   1577,
    1713
   ]
  },
@@ -19376,7 +19327,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   3452,
+   3445,
    57
   ]
  },
@@ -19384,7 +19335,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.H",
   "end_line": [
-   3524,
+   3517,
    333
   ]
  },
@@ -19407,7 +19358,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   2024,
+   2023,
    1948
   ]
  },
@@ -19426,7 +19377,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   1738,
+   1737,
    1848
   ]
  },
@@ -19434,7 +19385,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.H",
   "end_line": [
-   3567,
+   3560,
    264
   ]
  },
@@ -19444,7 +19395,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   1044,
+   1043,
    1342
   ]
  },
@@ -19462,7 +19413,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AUDIOCMN.CPP",
   "end_line": [
-   2112,
+   2108,
    2419
   ]
  },
@@ -19649,7 +19600,7 @@
   ],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FETOURN.CPP",
   "end_line": [
-   1101,
+   1100,
    1130
   ]
  },
@@ -19943,7 +19894,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\TRACK.CPP",
   "end_line": [
-   351,
+   350,
    465
   ]
  },
@@ -19951,7 +19902,7 @@
   "issues": [],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FETOURN.CPP",
   "end_line": [
-   927,
+   926,
    958
   ]
  },
@@ -20001,7 +19952,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\TRACK.CPP",
   "end_line": [
-   422,
+   421,
    517
   ]
  },
@@ -20009,7 +19960,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\TRACK.CPP",
   "end_line": [
-   1036,
+   1032,
    1544
   ]
  },
@@ -20020,7 +19971,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\TRACK.CPP",
   "end_line": [
-   547,
+   545,
    626
   ]
  },
@@ -20028,17 +19979,15 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\TRACK.CPP",
   "end_line": [
-   1028,
+   1024,
    1533
   ]
  },
  "Track_GetProperMultiPalShapeIndex__Fii": {
-  "issues": [
-   "BLOCKS 1 scopes != 2"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\TRACK.CPP",
   "end_line": [
-   437,
+   435,
    532
   ]
  },
@@ -20049,7 +19998,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\TRACK.CPP",
   "end_line": [
-   862,
+   858,
    1292
   ]
  },
@@ -20065,7 +20014,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\TRACK.CPP",
   "end_line": [
-   1000,
+   996,
    1475
   ]
  },
@@ -20076,7 +20025,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\TRACK.CPP",
   "end_line": [
-   657,
+   654,
    848
   ]
  },
@@ -20086,7 +20035,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\TRACK.CPP",
   "end_line": [
-   1136,
+   1132,
    1821
   ]
  },
@@ -20110,7 +20059,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\TRACK.CPP",
   "end_line": [
-   474,
+   472,
    571
   ]
  },
@@ -20814,7 +20763,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   3379,
+   3372,
    135
   ]
  },
@@ -20822,7 +20771,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.H",
   "end_line": [
-   3559,
+   3552,
    323
   ]
  },
@@ -20852,7 +20801,7 @@
   "issues": [],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FETOURN.CPP",
   "end_line": [
-   918,
+   917,
    949
   ]
  },
@@ -20878,7 +20827,7 @@
   "issues": [],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FETOURN.CPP",
   "end_line": [
-   804,
+   803,
    834
   ]
  },
@@ -20927,7 +20876,7 @@
   "issues": [],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FEAPP.CPP",
   "end_line": [
-   660,
+   657,
    417
   ]
  },
@@ -20953,7 +20902,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\AUDIOCMN.CPP",
   "end_line": [
-   2200,
+   2196,
    2485
   ]
  },
@@ -20989,7 +20938,7 @@
   ],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FETOURN.CPP",
   "end_line": [
-   598,
+   597,
    553
   ]
  },
@@ -21254,7 +21203,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIDATARECORD.CPP",
   "end_line": [
-   266,
+   262,
    686
   ]
  },
@@ -21372,7 +21321,7 @@
   ],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FETOURN.CPP",
   "end_line": [
-   1054,
+   1053,
    1102
   ]
  },
@@ -21380,7 +21329,7 @@
   "issues": [],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FETOURN.CPP",
   "end_line": [
-   1172,
+   1171,
    1184
   ]
  },
@@ -21458,7 +21407,7 @@
   "issues": [],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FETOURN.CPP",
   "end_line": [
-   1085,
+   1084,
    1120
   ]
  },
@@ -21744,7 +21693,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIHIGH.H",
   "end_line": [
-   2114,
+   2113,
    1196
   ]
  },
@@ -21792,7 +21741,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\TRACK.CPP",
   "end_line": [
-   1199,
+   1195,
    1865
   ]
  },
@@ -21816,7 +21765,7 @@
   "issues": [],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FEDIALOG.H",
   "end_line": [
-   1090,
+   1089,
    931
   ]
  },
@@ -21858,7 +21807,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AISTATE.H",
   "end_line": [
-   189,
+   192,
    34
   ]
  },
@@ -21898,7 +21847,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIHIGH.H",
   "end_line": [
-   249,
+   252,
    202
   ]
  },
@@ -21978,7 +21927,7 @@
   "issues": [],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FEAPP.CPP",
   "end_line": [
-   93,
+   90,
    102
   ]
  },
@@ -22068,7 +22017,7 @@
   "issues": [],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FEDIALOG.H",
   "end_line": [
-   1090,
+   1089,
    931
   ]
  },
@@ -22076,7 +22025,7 @@
   "issues": [],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FEDIALOG.H",
   "end_line": [
-   1090,
+   1089,
    931
   ]
  },
@@ -22192,7 +22141,7 @@
   "issues": [],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FEDIALOG.H",
   "end_line": [
-   1090,
+   1089,
    931
   ]
  },
@@ -22370,7 +22319,7 @@
   "issues": [],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FEDIALOG.H",
   "end_line": [
-   1090,
+   1089,
    931
   ]
  },
@@ -22426,7 +22375,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIDATARECORD.H",
   "end_line": [
-   273,
+   269,
    765
   ]
  },
@@ -22434,7 +22383,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIDATARECORD.H",
   "end_line": [
-   98,
+   94,
    155
   ]
  },
@@ -22450,7 +22399,7 @@
   "issues": [],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FETOURN.CPP",
   "end_line": [
-   1075,
+   1074,
    1115
   ]
  },
@@ -22546,7 +22495,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIDATARECORD.H",
   "end_line": [
-   102,
+   98,
    160
   ]
  },
@@ -22618,7 +22567,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIDATARECORD.H",
   "end_line": [
-   273,
+   269,
    765
   ]
  },
@@ -22698,7 +22647,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIDATARECORD.H",
   "end_line": [
-   273,
+   269,
    765
   ]
  },
@@ -22786,7 +22735,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   958,
+   957,
    1283
   ]
  },
@@ -22899,7 +22848,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\TRACK.CPP",
   "end_line": [
-   1175,
+   1171,
    1858
   ]
  },
@@ -22933,7 +22882,7 @@
   "issues": [],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FEDIALOG.CPP",
   "end_line": [
-   872,
+   871,
    767
   ]
  },
@@ -23045,17 +22994,17 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\OBJECT.CPP",
   "end_line": [
-   1215,
+   1214,
    1354
   ]
  },
  "__14tFEApplication": {
   "issues": [
-   "BLOCKS same count, different nesting/addresses"
+   "BLOCKS 22 scopes != 21"
   ],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FEAPP.CPP",
   "end_line": [
-   81,
+   78,
    95
   ]
  },
@@ -23122,7 +23071,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\OBJECT.CPP",
   "end_line": [
-   1026,
+   1025,
    1183
   ]
  },
@@ -23167,7 +23116,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIH_BASICPERP.CPP",
   "end_line": [
-   788,
+   778,
    421
   ]
  },
@@ -23369,7 +23318,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIDATARECORD.CPP",
   "end_line": [
-   162,
+   158,
    399
   ]
  },
@@ -23380,7 +23329,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIDATARECORD.CPP",
   "end_line": [
-   199,
+   195,
    464
   ]
  },
@@ -23388,7 +23337,7 @@
   "issues": [],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FETOURN.CPP",
   "end_line": [
-   1065,
+   1064,
    1111
   ]
  },
@@ -23447,7 +23396,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIDATARECORD.CPP",
   "end_line": [
-   213,
+   209,
    542
   ]
  },
@@ -23530,7 +23479,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIDATARECORD.CPP",
   "end_line": [
-   237,
+   233,
    624
   ]
  },
@@ -23558,7 +23507,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",
   "end_line": [
-   910,
+   909,
    1228
   ]
  },
@@ -23657,7 +23606,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AUDIOCMN.CPP",
   "end_line": [
-   1270,
+   1266,
    1595
   ]
  },
@@ -23828,7 +23777,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AUDIOCMN.CPP",
   "end_line": [
-   2104,
+   2100,
    2414
   ]
  },
@@ -23878,7 +23827,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AUDIOCMN.CPP",
   "end_line": [
-   980,
+   976,
    1290
   ]
  },

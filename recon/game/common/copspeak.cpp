@@ -69,9 +69,8 @@ void CopSpeak_Debug(void);
 void CopSpeak_RadioStaticInit(void)
 
 {
-  int i;
 
-  for (i = 0; i < 2; i = i + 1) {
+  for (int i = 0; i < 2; i = i + 1) {
     CopSpeak_gStaticHandle[i] = -1;
     *(signed char *)(CopSpeak_gStaticPatch + i) = -1;
   }
@@ -128,16 +127,13 @@ void CopSpeak_RadioStaticActive(int noise)
 void CopSpeak_RadioStaticSquelch(void)
 
 {
-  int i;
 
-  i = 0;
-  do {
+  for (int i = 0; i < 2; i++) {
     if (CopSpeak_gStaticHandle[i] != -1) {
       SNDstop(CopSpeak_gStaticHandle[i]);
       CopSpeak_gStaticHandle[i] = -1;
     }
-    i = i + 1;
-  } while (i < 2);
+  }
   return;
 }
 
@@ -332,11 +328,9 @@ void CopSpeak_Stop(void)
 void CopSpeak_CleanUp(void)
 
 {
-  int i;
 
   CopSpeak_Stop();
-  i = 0;
-  do {
+  for (int i = 0; i < 4; i++) {
     if (Copspeak_gBank[i].FileOpen != 0) {
       FILE_closesync(Copspeak_gBank[i].FileHandle,100);   /* oracle 0x89b10/b14: a1=0x64 (was dropped) */
       Copspeak_gBank[i].FileOpen = 0;
@@ -345,8 +339,7 @@ void CopSpeak_CleanUp(void)
       purgememadr(Copspeak_gBank[i].Index);
       Copspeak_gBank[i].Index = (CopSpeak_tFileIndex *)0x0;
     }
-    i = i + 1;
-  } while (i < 4);
+  }
   if (((int)CopSpeak_gBuffer) != 0) {
     CopSpeak_gBuffer = (char *)0;
   }
@@ -357,9 +350,8 @@ void CopSpeak_CleanUp(void)
 void CopSpeak_InitVars(void)
 
 {
-  int i;
 
-  for (i = 0; i < 4; i++) {
+  for (int i = 0; i < 4; i++) {
     Copspeak_gBank[i].FileOpen = 0;
     Copspeak_gBank[i].Index = (CopSpeak_tFileIndex *)0x0;
   }

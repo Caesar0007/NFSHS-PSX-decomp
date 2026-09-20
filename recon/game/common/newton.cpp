@@ -1721,7 +1721,6 @@ extern "C" void Newton_CalcRealShadowCoordinates(Car_tObj *carObj,int currentTic
   coorddef vecOffset;
   int diff;
   coorddef dimension;
-  int i;
 
   diff = currentTick - carObj->N.lastUpdated;
   dimension = carObj->N.dimension;
@@ -1782,7 +1781,7 @@ extern "C" void Newton_CalcRealShadowCoordinates(Car_tObj *carObj,int currentTic
   carObj->N.shadowCoord[3].y = temp.y + widthVector.y;
   carObj->N.shadowCoord[3].z = temp.z + widthVector.z;
 
-  for (i = 0; i < 4; i++) {
+  for (int i = 0; i < 4; i++) {
     carObj->N.shadowCoord[i].y = carObj->wheel[i].currentPos.y;
     carObj->N.shadowCoord[i].y +=
         (carObj->N.linearVel.y / 64) * diff;

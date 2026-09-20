@@ -2001,10 +2001,9 @@ trigger_t * AIHigh_Cop::CheckForNewTriggers()
      Authoritative progression: 29 -> 15 -> 9 -> 8 -> 2 -> PASS.  Falsified
      follow-ups: raw/pLevel identity 14, empty-loop boundary 5/10, accessor
      wrapper 16/19, pointer keepalive 8, and tied-output fences 7/51. */
-  int sortedLoop;
   Car_tObj *testCar;
   if (0x5bf < simGlobal.gameTicks) {
-    for (sortedLoop = Cars_gNumCars - 1; -1 < sortedLoop;
+    for (int sortedLoop = Cars_gNumCars - 1; -1 < sortedLoop;
          sortedLoop = sortedLoop - 1) {
       testCar = Cars_gTotalSortedList[sortedLoop];
       if ((testCar->carFlags & 1U) != 0) {

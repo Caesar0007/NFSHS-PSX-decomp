@@ -957,14 +957,11 @@ void Night_InitWeatherTables(void)
 void Night_SetWeatherColors(int colorIndex)
 
 {
-  int i;
 
-  i = 0;
-  do {
+  for (int i = 0; i < 2; i++) {
     Night_CreateNightTableElement(colorIndex,Night_gWeatherColor[i],0xf,
                                   *Night_gWeatherLightingTable[i] + colorIndex);
-    i = i + 1;
-  } while (i < 2);
+  }
   return;
 }
 

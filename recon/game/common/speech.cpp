@@ -173,10 +173,9 @@ bool Speech::CheckCarBank(CarBank *carbank,char *name,int id,CarBankName *bankna
 
 {
   bool match;
-  int i;
 
   match = false;
-  for (i = 0; i < this->fCarCount; i++) {
+  for (int i = 0; i < this->fCarCount; i++) {
     if (carbank[i].Check(name,id,&bankname[i])) {
       match = true;
     }
@@ -2027,15 +2026,12 @@ DispStatus_playSpeechReturn:
 void Speech::DispatchSpeaker::ClearPerp(Car_tObj *car)
 
 {
-  int i;
 
-  i = 0;
-  do {
+  for (int i = 0; i < 2; i++) {
     if (this->fPerp[i] == car) {
       this->fPerp[i] = (Car_tObj *)0x0;
     }
-    i = i + 1;
-  } while (i < 2);
+  }
   return;
 }
 
@@ -2061,15 +2057,12 @@ bool Speech::DispatchSpeaker::KnownPerp(Car_tObj *car)
 void Speech::DispatchSpeaker::AddPerp(Car_tObj *car)
 
 {
-  int i;
 
-  i = 0;
-  do {
+  for (int i = 0; i < 2; i++) {
     if (this->fPerp[i] == (Car_tObj *)0x0) {
       this->fPerp[i] = car;
     }
-    i = i + 1;
-  } while (i < 2);
+  }
   return;
 }
 

@@ -1122,7 +1122,6 @@ void Physics_FixEngineRpm(Car_tObj *carObj)
 void Physics_ResetCar(Car_tObj *carObj)
 
 {
-  int i;
 
   if (carObj->carInfo->Transmission == 1) {
     (carObj->control).desiredGear = '\x02';
@@ -1151,7 +1150,7 @@ void Physics_ResetCar(Car_tObj *carObj)
   carObj->crash = 0;
   carObj->blowout = 0;
   (carObj->control).hanno = 0;
-  for (i = 0; i < 4; i++) {
+  for (int i = 0; i < 4; i++) {
     carObj->wheel[i].wheelInAir = 0;
     carObj->wheel[i].rebound = 0;
   }

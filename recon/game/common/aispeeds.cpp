@@ -99,7 +99,6 @@ void AISpeeds_ReadTuningInfo(void)
   /* SYM names this induction variable `curveLoop` in $a1. The direct
    * multiplication is important: retail strength-reduces it to the running
    * $v1 accumulator visible in the oracle. */
-  int curveLoop;
   int slotLoop;
 
   sprintf(filename,"%stuning.bin",Paths_Paths[2]);
@@ -164,7 +163,7 @@ void AISpeeds_ReadTuningInfo(void)
     }
   }
   weatherRamp = Udff_GetInt(handle);
-  for (curveLoop = 0; curveLoop < 0x41; curveLoop = curveLoop + 1) {
+  for (int curveLoop = 0; curveLoop < 0x41; curveLoop = curveLoop + 1) {
     AISpeeds_WeatherMultFactors[curveLoop] =
         0x10000 - (weatherRamp * curveLoop) / 0x40;
   }

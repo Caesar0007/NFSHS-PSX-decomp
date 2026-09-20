@@ -1,0 +1,7 @@
+{
+ "symfix_fordecl.py": [
+  "AudioEng_Update__Fv",
+  "Hud_RenderHudView__Fv",
+  "Fog_InitFogTriggers__Fv"
+ ]
+}

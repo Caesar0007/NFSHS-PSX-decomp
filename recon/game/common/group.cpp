@@ -53,14 +53,13 @@ SerializedGroup * SerializedGroup::LocateGroupNum(int index)
 {
   int numElems;
   char * group;
-  int i;
 
   numElems = this->m_num_elements;
   group = (char *)this + 0x10;
   if (numElems <= index) {
     return (SerializedGroup *)0;
   }
-  for (i = 0; i < index; i++) {
+  for (int i = 0; i < index; i++) {
     group = group + ((SerializedGroup *)group)->m_length;
   }
   return (SerializedGroup *)group;

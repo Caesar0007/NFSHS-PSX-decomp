@@ -410,12 +410,11 @@ void tTournamentManager::CalcTrackFinishDamageBill(bool recalculate,long &bill,l
     /* SYM SCOPE (W86-S2): `i` is a BLOCK local of this `if` -- its SYM row is at
        block depth 4, below the depth-1 rows (retbill/retbonus/dummyCars/
        carInfo/damage/totalcarprice) that are the function-scope set. */
-    int i;
 
     dummyCars = Cars_gNewCarStatsList;
     carManager.GetGarageCar((ushort)(byte)frontEnd.garageCar[0],carInfo,0);
     totalcarprice = carInfo.fPrices[0];
-    for (i = 0; i < 2; i++) {
+    for (int i = 0; i < 2; i++) {
       mask = 1 << i;
       if ((carInfo.fUpgrades & mask) != 0) {
         totalcarprice = totalcarprice + carInfo.fPrices[i + 1];

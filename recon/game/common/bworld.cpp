@@ -135,14 +135,13 @@ void BWorld_InitSpikeBelt(void)
 {
   int leastDist;
   int leastDistInd;
-  int i;
 
   leastDist = 0x7fffffff;
   leastDistInd = -1;
   gSpikeBelt = 0;
   gSpikeBeltSlice = 0;
   gSpikeBeltChunk = 0;
-  for (i = 0; i < Chunk_numLight; i = i + 1) {
+  for (int i = 0; i < Chunk_numLight; i = i + 1) {
     int dist;
 
     dist = (0x80 - (u_int)Chunk_lightTable[i].r) *

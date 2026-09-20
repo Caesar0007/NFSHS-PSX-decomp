@@ -1,5 +1,5 @@
 {
- "recon/game/common/aih_basicperp.cpp": {
+ "recon/game/common/aih_play.cpp": {
   "s": true,
   "same_code": true,
   "note": "assembled"

@@ -51,9 +51,8 @@ void AIPerson_Cleanup(void);
  * reconstruction needed a false `int` return type to obtain that schedule. */
 void AIPerson_LoadGridAndSetPersonalityIndexes(void)
 {
-  int carLoop;
 
-  for (carLoop = 0; carLoop < Cars_gNumCars; carLoop++) {
+  for (int carLoop = 0; carLoop < Cars_gNumCars; carLoop++) {
     Cars_gList[carLoop]->personalityIndex =
         GameSetup_gData.carInfo[carLoop].Personality;
   }
@@ -78,9 +77,8 @@ void AIPerson_SetPersonality(Car_tObj *carObj,int personalityIndex)
 /* ---- AIPerson_SetPersonalityPointers__Fv  [@0x80068afc] ---- */
 void AIPerson_SetPersonalityPointers(void)
 {
-  int carLoop;
 
-  for (carLoop = 0; carLoop < Cars_gNumCars; carLoop++) {
+  for (int carLoop = 0; carLoop < Cars_gNumCars; carLoop++) {
     Car_tObj *carObj;
 
     carObj = Cars_gList[carLoop];

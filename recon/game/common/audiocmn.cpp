@@ -244,13 +244,10 @@ void AudioCmn_RemoveAsyncSfx(int slot)
 /* ---- AudioCmn_DeInitAsyncSfx__Fv  [@0x8007663c] ---- */
 void AudioCmn_DeInitAsyncSfx(void)
 {
-  int i;
   
-  i = 0;
-  do {
+  for (int i = 0; i < 0x20; i++) {
     AudioCmn_RemoveAsyncSfx(i);
-    i = i + 1;
-  } while (i < 0x20);
+  }
   return;
 }
 
@@ -631,7 +628,6 @@ void AudioCmn_DeInit(void)
 
 {
 
-  int i;
 
 
 
@@ -655,7 +651,7 @@ void AudioCmn_DeInit(void)
      `sw` pair (insn 28) instead of the loop tail (insn 30), so an ALREADY-idle
      channel still had its SFXnum forced to -1.  Retail keeps both stores inside
      the guard. */
-  for (i = 0; i < 71; i++) {
+  for (int i = 0; i < 71; i++) {
 
     if (gaChannel[i].Partial != -1) {
 
@@ -2201,10 +2197,9 @@ void UpdateSiren(int sirennum,int amp,int dop,int azimuth,int supercop)
 /* ---- AudioCmn_Pause__Fv  [@0x80079b60] ---- */
 void AudioCmn_Pause(void)
 {
-  int i;
 
   CopSpeak_SilenceCop((Car_tObj *)0, 0);
-  for (i = 0; i < 71; i++) {
+  for (int i = 0; i < 71; i++) {
     if (gaChannel[i].Partial != -1)
       SNDvol(gaChannel[i].Partial, 0);
   }

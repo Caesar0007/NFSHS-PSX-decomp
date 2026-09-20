@@ -36,9 +36,8 @@ AIDataRecord_t::~AIDataRecord_t()
 /* ---- AddRecordToCollection__14AIDataRecord_t ---- */
 int AIDataRecord_t::AddRecordToCollection()
 {
-  int recordLoop;
 
-  for (recordLoop = 0; recordLoop < 0x18; recordLoop++) {
+  for (int recordLoop = 0; recordLoop < 0x18; recordLoop++) {
     if (recordCollection[recordLoop] != (AIDataRecord_t *)0x0) {
       continue;
     }
@@ -51,9 +50,8 @@ int AIDataRecord_t::AddRecordToCollection()
 /* ---- RemoveRecordFromCollection__14AIDataRecord_t ---- */
 int AIDataRecord_t::RemoveRecordFromCollection()
 {
-  int recordLoop;
 
-  for (recordLoop = 0; recordLoop < 0x18; recordLoop++) {
+  for (int recordLoop = 0; recordLoop < 0x18; recordLoop++) {
     if (recordCollection[recordLoop] != this) {
       continue;
     }
@@ -66,11 +64,10 @@ int AIDataRecord_t::RemoveRecordFromCollection()
 /* ---- StartUp1__14AIDataRecord_t ---- */
 void AIDataRecord_t::StartUp1(void)
 {
-  int recordLoop;
 
   AIDataRecord_WhichRecord = NORECORD_R;
   AIDataRecord_RecordMethod = NORMAL_M;
-  for (recordLoop = 0x17; recordLoop >= 0; recordLoop--) {
+  for (int recordLoop = 0x17; recordLoop >= 0; recordLoop--) {
     recordCollection[recordLoop] = (AIDataRecord_t *)0x0;
   }
   AIDataRecord_BestLine = new AIDataRecord_BestLine_t((AIDataRecord_WhichRecord_t)5);
@@ -81,9 +78,8 @@ void AIDataRecord_t::StartUp1(void)
 /* ---- StartUp2__14AIDataRecord_t ---- */
 void AIDataRecord_t::StartUp2(void)
 {
-  int recordLoop;
 
-  for (recordLoop = 0; recordLoop < 0x18; recordLoop++) {
+  for (int recordLoop = 0; recordLoop < 0x18; recordLoop++) {
     if (recordCollection[recordLoop] != (AIDataRecord_t *)0x0) {
       recordCollection[recordLoop]->Setup();
     }

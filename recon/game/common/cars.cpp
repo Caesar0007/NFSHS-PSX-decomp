@@ -1578,7 +1578,6 @@ void Cars_IniCarObjects(Car_tObj *carObj,int index)
   int startSlice;
   coorddef offset;
   int carMass;
-  int k;
 
   Cars_InitStats(carObj);
   carObj->swapCar = (Car_tObj *)0x0;
@@ -1659,7 +1658,7 @@ MASS_DONE:
   (carObj->angularVel_ch).x = 0;
   (carObj->angularVel_ch).y = 0;
   (carObj->angularVel_ch).z = 0;
-  for (k = 0; k < 4; k++) {
+  for (int k = 0; k < 4; k++) {
     carObj->wheel[k].actualHeight = 0;
     carObj->wheel[k].currentPos.x = 0;
     carObj->wheel[k].currentPos.y = 0;

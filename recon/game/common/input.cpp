@@ -44,10 +44,9 @@ int * Input_StartUp(void)
     h = h + 1;
   } while (-1 < i);
   for (i = 0; i < 2; i = i + 1) {
-    int j;
     Input_gDBFlags[i] = 0;
     Input_gMode[i] = 0;
-    for (j = 0; j < 0x11; j = j + 1) {
+    for (int j = 0; j < 0x11; j = j + 1) {
       Input_gPressTime[i][j] = 0;
     }
   }
@@ -263,14 +262,13 @@ void Input_Update(void)
       }
 
       {
-        int m;
         int k;
         /* SYM-CODEGEN-CARRIER: dbFlags -- retaining the per-player address
            stages the inner-loop base at retail's boundary.  Direct indexing
            is count-exact but moves one zeroing instruction (2 diffs). */
         u_long *dbFlags;
 
-        for (m = 0; m < 2; m++) {
+        for (int m = 0; m < 2; m++) {
           dbFlags = &Input_gDBFlags[i];
           for (k = 0; k < 17; k++) {
             if (*h != 0) {

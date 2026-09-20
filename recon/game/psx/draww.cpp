@@ -4581,7 +4581,6 @@ int DrawW_BuildChunkObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
   int objectOffset;
   matrixtdef matrix;
   int groupNumElements;
-  int objectIndex;
 
   simObjs = gObjInfo->simObjs;
   instGroup = gObjInfo->objInstanceBuf;
@@ -4615,7 +4614,7 @@ int DrawW_BuildChunkObjectFacets(DRender_tView *Vi,ChunkObjectInfo *gObjInfo)
      * semantics, and it is what makes the insn count EXACT (433 -> 434 == oracle). */
     *(int *)0x1f800028 = 0;
 gte_SetTransMatrix(&DW_WORLDMAT);
-    for (objectIndex = 0; objectIndex < groupNumElements; objectIndex = objectIndex + 1) {
+    for (int objectIndex = 0; objectIndex < groupNumElements; objectIndex = objectIndex + 1) {
       /* MATCH (source-only aid retirement, 1 -> PASS434): at this exact CFG
          boundary the empty fence makes reorg reject the fall-through goffsets
          `lui` as the loop-guard delay-slot filler.  It then copies the taken

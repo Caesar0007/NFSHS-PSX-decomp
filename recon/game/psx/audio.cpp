@@ -34,15 +34,12 @@ void Audio_InitDriver(int buffersize,int spusize)
   /* retail: this TU's .rodata opens with the UNREFERENCED "SimpleMem" tag (0x80056748) ahead of this
    * function's first literal; the constant-false call keeps it with no code. */
   if (0) sprintf((char *)0,"SimpleMem");
-  int i;
   SNDSYSOPTS opts;
 
-  i = 0;
-  do {
+  for (int i = 0; i < 7; i++) {
     gSndBnk[i].bnkID = i;
     gSndBnk[i].pdata = 0;
-    i = i + 1;
-  } while (i < 7);
+  }
   if ((AudioCmn_kAudioOn != 0) || (AudioCmn_kAudioStreamingOn != 0)) {
     SNDSYS_getopts(&opts);
     opts.set.maxbanks = 0x30;

@@ -3133,17 +3133,14 @@ void Front_GetInGameVars(void)
 void SetLicensePlate(void)
 
 {
-  short i;
 
-  i = 0;
-  do {
+  for (short i = 0; i < 2; i++) {
     sprintf(frontEnd.licensePlate[i],PlayerName(i));
     StatTool_UpperCaseItKeepingInMindThoseBloodySpecialCharacters(frontEnd.licensePlate[i]);
     s_lower(frontEnd.licensePlate[i]);
     CarIO_CleanUpLicense(i);
     CarIO_CreateLicense(frontEnd.licensePlate[i],0,i);
-    i = i + 1;
-  } while (i < 2);
+  }
   return;
 }
 

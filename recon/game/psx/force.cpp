@@ -70,9 +70,8 @@ void Force_HitWall(int impulse);
 void Force_Vbl(void)
 
 {
-  int i;
 
-  for (i = 0; i < 2; i = i + 1) {
+  for (int i = 0; i < 2; i = i + 1) {
     Force_tGlobal *f; /* SYM-CODEGEN-CARRIER: f -- models retail's +8 loop walker */
     int padnum;
     int padstate;

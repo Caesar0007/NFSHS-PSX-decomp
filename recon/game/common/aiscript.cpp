@@ -25,8 +25,7 @@ void AIScript_Assign(AIScript_t *script,AIScript_tReactionDetails (*data) [7])
 /* ---- AIScript_ClearLastReactionIndex__FP10AIScript_t  [@0x8006f700] ---- */
 void AIScript_ClearLastReactionIndex(AIScript_t *script)
 {
-  int initLoop;
-  for (initLoop = 0; initLoop < 7; initLoop++) {
+  for (int initLoop = 0; initLoop < 7; initLoop++) {
     script->lastReactionIndex[initLoop] = -1;
   }
   return;

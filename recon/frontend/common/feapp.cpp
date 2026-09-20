@@ -70,14 +70,11 @@ tFEApplication::tFEApplication()
 
 {
   if (0) sprintf((char *)0,"SimpleMem");   /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag */
-  int i;
-  i = 0;
-  do {
+  for (int i = 0; i < 2; i++) {
     this->gotName[i] = 0;
     this->needName[i] = 0;
     this->speechToPlay[i] = -1;
-    i = i + 1;
-  } while (i < 2);
+  }
   return;
 }
 

@@ -174,11 +174,10 @@ void LoadShapesAndMakePmx(char *shapefile,Draw_tPixMap *pmxList,int loadFlags,in
   recolor_flag = 0;
   gTempMipMapInfo = (Track_MipMap *)0x0;
   if (TrackSpec_gSpec.fogstate != 0) {
-    int cnt;
 
     cluttype = -3;
     gTempMipMapInfo = reservememadr("mipmapinf",0x180,0x10);
-    for (cnt = 0; cnt < 0x20; cnt = cnt + 1) {
+    for (int cnt = 0; cnt < 0x20; cnt = cnt + 1) {
       *(int *)gTempMipMapInfo[cnt].code = -1;
     }
   }
@@ -425,9 +424,8 @@ TrkAnimTex_loopTest:
 int Track_GetProperMultiPalShapeIndex(int shapeindex,int paletteindex)
 
 {
-  int t;
 
-  for (t = 0; t < 0x80; t++) {
+  for (int t = 0; t < 0x80; t++) {
     if (gTempMultiPalInfo[t].origshapeindex == shapeindex) {
       if (gTempMultiPalInfo[t].palnum == paletteindex) {
         return (int)gTempMultiPalInfo[t].actualshapeindex;
@@ -613,9 +611,8 @@ void Track_LinkMaterials(SerializedGroup *group,int length,Track_tMaterial *matL
       }
 
       if (TrackSpec_gSpec.fogstate != 0) {
-        int mm;
 
-        for (mm = 0; mm < 0x20; mm = mm + 1) {
+        for (int mm = 0; mm < 0x20; mm = mm + 1) {
           if (*(int *)gTempMipMapInfo[mm].code != -1) {
             int shapeIndex;
 
@@ -790,11 +787,10 @@ void CalcObjectBoundingSphere(Group *defGroup,Group *boundingSphereGroup)
 void CalcObjDefPtrs(void)
 
 {
-  int i;
 
   ((int *)gObjDefOffsetsGroup->GetData())[0] =
       (int)gPersistObjDef->GetData();
-  for (i = 1; i < gPersistObjDef->GetNumElements(); i = i + 1) {
+  for (int i = 1; i < gPersistObjDef->GetNumElements(); i = i + 1) {
     ((int *)gObjDefOffsetsGroup->GetData())[i] =
         ((int *)gObjDefOffsetsGroup->GetData())[i - 1] +
         ((int *)gObjDefOffsetsGroup->GetData())[i];

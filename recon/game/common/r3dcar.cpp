@@ -317,7 +317,6 @@ R3DCar_ReadInCarData(char *filename,Car_tObj *carObj)
         offset = offset + 2;
       }
       if (((Nobj->numVertex != 0) && ((R3DCar_ObjectInfo[i][1] & 1U) != 0)) && (carType < 0x1c)) {
-        int j;
         short tx;
         short ty;
         short tz;
@@ -330,7 +329,7 @@ R3DCar_ReadInCarData(char *filename,Car_tObj *carObj)
         tx = (short)((u_int)(Nobj->translation).x >> 8);
         ty = (short)((u_int)(Nobj->translation).y >> 8);
         tz = (short)((u_int)(Nobj->translation).z >> 8);
-        for (j = 0; j < (int)(u_int)Nobj->numVertex; j++) {
+        for (int j = 0; j < (int)(u_int)Nobj->numVertex; j++) {
           VECTOR vt;
           SVECTOR nm;
           short nm_vx;

@@ -603,8 +603,8 @@ SECTIONS
     .t0288 0x800f4450 : SUBALIGN(4) { build/recon/syslib/psx/libgpu/P01.c.o(.text); }
     .t0289 0x800f4470 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/textfor.c.o(.text); }
     .t0290 0x800f459c : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/unhuff.c.o(.text); }
-    .t0291 0x800f52b8 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/unref.c.o(.text); }
-    .t0292 0x800f55b4 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/unbtree.c.o(.text); }
+    .t0291 0x800f51c0 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/unref.c.o(.text); }
+    .t0292 0x800f5530 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/unbtree.c.o(.text); }
     .t0293 0x800f57c4 : SUBALIGN(4) { build/recon/syslib/psx/libmath/EXTSFDF2.c.o(.text); }
     .t0294 0x800f5924 : SUBALIGN(4) { build/recon/syslib/psx/libmath/TRUDFSF2.c.o(.text); }
     .t0295 0x800f5a54 : SUBALIGN(4) { build/recon/syslib/psx/libmath/ADDDF3.c.o(.text); }
@@ -657,128 +657,127 @@ SECTIONS
     .t0342 0x800ffe90 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sdriver.c.o(.text); }
     .t0343 0x801001ec : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sdfx.c.o(.text); }
     .t0344 0x801005bc : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sfxlevel.c.o(.text); }
-    .t0345 0x80100710 : SUBALIGN(4) { build/recon/eaclib/psx/spchpsxz/spchdata.c.o(.text); }
-    .t0346 0x8010077c : SUBALIGN(4) { build/recon/eaclib/psx/spchpsxz/spchpick.c.o(.text); }
-    .t0347 0x80101900 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sclcptch.c.o(.text); }
-    .t0348 0x80101abc : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/stagpat.c.o(.text); }
-    .t0349 0x8010266c : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sbdload.c.o(.text); }
-    .t0350 0x801027bc : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sballoc.c.o(.text); }
-    .t0351 0x80102810 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sgetvol.c.o(.text); }
-    .t0352 0x801028ac : SUBALIGN(4) { build/recon/syslib/psx/libc/C63.c.o(.text); }
-    .t0353 0x801028bc : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/spktplay.c.o(.text); }
-    .t0354 0x80103424 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/smath64.c.o(.text); }
-    .t0355 0x80103508 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sstgetrp.c.o(.text); }
-    .t0356 0x80103590 : SUBALIGN(4) { build/recon/syslib/psx/libc/C31.c.o(.text); }
-    .t0357 0x801035a0 : SUBALIGN(4) { build/recon/syslib/psx/libc/C38.c.o(.text); }
-    .t0358 0x801035b0 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/spat2hdr.c.o(.text); }
-    .t0359 0x80103734 : SUBALIGN(4) { build/recon/syslib/psx/libc/MEMCMP.c.o(.text); }
-    .t0360 0x80103784 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sdpacket.c.o(.text); }
-    .t0361 0x8010479c : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/ssysserv.c.o(.text); }
-    .t0362 0x801048e8 : SUBALIGN(4) { build/recon/syslib/psx/libmath/DBSHIFTU.c.o(.text); }
-    .t0363 0x801049a8 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sdtimrem.c.o(.text); }
-    .t0364 0x80104a0c : SUBALIGN(4) { build/recon/syslib/psx/libapi/C73.c.o(.text); }
-    .t0365 0x80104a1c : SUBALIGN(4) { build/recon/syslib/psx/libpad/PADMAIN.c.o(.text); }
-    .t0366 0x801055f0 : SUBALIGN(4) { build/recon/syslib/psx/libpad/PADCMD.c.o(.text); }
-    .t0367 0x80105f40 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/trnsmult.c.o(.text); }
-    .t0368 0x80106084 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/fastmovf.c.o(.text); }
-    .t0369 0x801061a8 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/smemman.c.o(.text); }
-    .t0370 0x80106454 : SUBALIGN(4) { build/recon/syslib/psx/libgte/PATCHGTE.c.o(.text); }
-    .t0371 0x80106534 : SUBALIGN(4) { build/recon/syslib/psx/libetc/INTR_VB.c.o(.text); }
-    .t0372 0x80106654 : SUBALIGN(4) { build/recon/syslib/psx/libapi/A91.c.o(.text); }
-    .t0373 0x80106664 : SUBALIGN(4) { build/recon/syslib/psx/libapi/L10.c.o(.text); }
-    .t0374 0x80106674 : SUBALIGN(4) { build/recon/syslib/psx/libgte/REG03.c.o(.text); }
-    .t0375 0x8010668c : SUBALIGN(4) { build/recon/syslib/psx/libc/C19.c.o(.text); }
-    .t0376 0x8010669c : SUBALIGN(4) { build/recon/syslib/psx/libapi/A25.c.o(.text); }
-    .t0377 0x801066ac : SUBALIGN(4) { build/recon/syslib/psx/libetc/INTR_DMA.c.o(.text); }
-    .t0378 0x8010694c : SUBALIGN(4) { build/asm/data/sn_lnk_8010694C.text.s.o(.text); }
-    .t0379 0x80106954 : SUBALIGN(4) { build/recon/syslib/psx/libapi/C114.c.o(.text); }
-    .t0380 0x8010696c : SUBALIGN(4) { build/recon/syslib/psx/libapi/A37.c.o(.text); }
-    .t0381 0x8010697c : SUBALIGN(4) { build/recon/syslib/psx/libapi/A23.c.o(.text); }
-    .t0382 0x8010698c : SUBALIGN(4) { build/recon/syslib/psx/libapi/A36.c.o(.text); }
-    .t0383 0x8010699c : SUBALIGN(4) { build/recon/syslib/psx/libapi/A24.c.o(.text); }
-    .t0384 0x801069ac : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/textcode.c.o(.text); }
-    .t0385 0x80106a54 : SUBALIGN(4) { build/recon/syslib/psx/libmath/FERR.c.o(.text); }
-    .t0386 0x80106ac4 : SUBALIGN(4) { build/recon/syslib/psx/libgte/COR_01.c.o(.text); }
-    .t0387 0x80106be4 : SUBALIGN(4) { build/recon/syslib/psx/libsn/READ.c.o(.text); }
-    .t0388 0x80106ca4 : SUBALIGN(4) { build/recon/syslib/psx/libsn/OPEN.c.o(.text); }
-    .t0389 0x80106cc4 : SUBALIGN(4) { build/recon/syslib/psx/libsn/FSINIT.c.o(.text); }
-    .t0390 0x80106cd0 : SUBALIGN(4) { build/recon/syslib/psx/libsn/CREAT.c.o(.text); }
-    .t0391 0x80106cf0 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/devsys.c.o(.text); }
-    .t0392 0x80106d1c : SUBALIGN(4) { build/recon/syslib/psx/libsn/LSEEK.c.o(.text); }
-    .t0393 0x80106d40 : SUBALIGN(4) { build/recon/syslib/psx/libsn/CLOSE.c.o(.text); }
-    .t0394 0x80106d50 : SUBALIGN(4) { build/recon/syslib/psx/libsn/WRITE.c.o(.text); }
-    .t0395 0x80106e10 : SUBALIGN(4) { build/recon/syslib/psx/libapi/A12.c.o(.text); }
-    .t0396 0x80106e20 : SUBALIGN(4) { build/recon/syslib/psx/libapi/A08.c.o(.text); }
-    .t0397 0x80106e30 : SUBALIGN(4) { build/recon/syslib/psx/libapi/A13.c.o(.text); }
-    .t0398 0x80106e40 : SUBALIGN(4) { build/recon/syslib/psx/libmath/DBSHIFT.c.o(.text); }
-    .t0399 0x80106f00 : SUBALIGN(4) { build/recon/syslib/psx/libmath/MAINASU.c.o(.text); }
-    .t0400 0x80106f70 : SUBALIGN(4) { build/recon/syslib/psx/libmath/ADDMANT.c.o(.text); }
-    .t0401 0x80107020 : SUBALIGN(4) { build/recon/syslib/psx/libgpu/P09.c.o(.text); }
-    .t0402 0x80107040 : SUBALIGN(4) { build/recon/syslib/psx/libgpu/P06.c.o(.text); }
-    .t0403 0x80107080 : SUBALIGN(4) { build/recon/syslib/psx/libcd/drv.c.o(.text); }
-    .t0404 0x80108758 : SUBALIGN(4) { build/recon/syslib/psx/libcd/C_008.c.o(.text); }
-    .t0405 0x80108798 : SUBALIGN(4) { build/recon/syslib/psx/libcd/C_004.c.o(.text); }
-    .t0406 0x80108824 : SUBALIGN(4) { build/recon/syslib/psx/libds/DSCB.c.o(.text); }
-    .t0407 0x8010885c : SUBALIGN(4) { build/recon/syslib/psx/libcd/C_010.c.o(.text); }
-    .t0408 0x8010887c : SUBALIGN(4) { build/recon/syslib/psx/libcd/cdread.c.o(.text); }
-    .t0409 0x8010907c : SUBALIGN(4) { build/recon/syslib/psx/libc/C37.c.o(.text); }
-    .t0410 0x8010908c : SUBALIGN(4) { build/recon/syslib/psx/libcd/event.c.o(.text); }
-    .t0411 0x801091dc : SUBALIGN(4) { build/recon/syslib/psx/libc/BSEARCH.c.o(.text); }
-    .t0412 0x8010929c : SUBALIGN(4) { build/recon/syslib/psx/libcd/toc.c.o(.text); }
-    .t0413 0x801094ec : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sdcdvol.c.o(.text); }
-    .t0414 0x80109550 : SUBALIGN(4) { build/recon/syslib/psx/libmcrd/BIOS.c.o(.text); }
-    .t0415 0x80109c00 : SUBALIGN(4) { build/recon/syslib/psx/libmcrd/USERFUNC.c.o(.text); }
-    .t0416 0x80109d10 : SUBALIGN(4) { build/recon/syslib/psx/libcard/C171.c.o(.text); }
-    .t0417 0x80109d20 : SUBALIGN(4) { build/recon/syslib/psx/libcard/CARD.c.o(.text); }
-    .t0418 0x80109d60 : SUBALIGN(4) { build/recon/syslib/psx/libcard/C172.c.o(.text); }
-    .t0419 0x80109d70 : SUBALIGN(4) { build/recon/syslib/psx/libapi/A50.c.o(.text); }
-    .t0420 0x80109d80 : SUBALIGN(4) { build/recon/syslib/psx/libapi/A54.c.o(.text); }
-    .t0421 0x80109d90 : SUBALIGN(4) { build/recon/syslib/psx/libapi/A51.c.o(.text); }
-    .t0422 0x80109da0 : SUBALIGN(4) { build/recon/syslib/psx/libapi/A52.c.o(.text); }
-    .t0423 0x80109db0 : SUBALIGN(4) { build/recon/syslib/psx/libapi/A53.c.o(.text); }
-    .t0424 0x80109dc0 : SUBALIGN(4) { build/recon/syslib/psx/libapi/FIRST.c.o(.text); }
-    .t0425 0x8010a060 : SUBALIGN(4) { build/recon/syslib/psx/libapi/A67.c.o(.text); }
-    .t0426 0x8010a070 : SUBALIGN(4) { build/recon/syslib/psx/libapi/A69.c.o(.text); }
-    .t0427 0x8010a080 : SUBALIGN(4) { build/recon/syslib/psx/libapi/A65.c.o(.text); }
-    .t0428 0x8010a090 : SUBALIGN(4) { build/recon/syslib/psx/libcard/A80.c.o(.text); }
-    .t0429 0x8010a0a0 : SUBALIGN(4) { build/recon/syslib/psx/libcard/A78.c.o(.text); }
-    .t0430 0x8010a0b0 : SUBALIGN(4) { build/recon/syslib/psx/libpad/PADSEQD.c.o(.text); }
-    .t0431 0x8010a540 : SUBALIGN(4) { build/recon/syslib/psx/libc/C40.c.o(.text); }
-    .t0432 0x8010a550 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sdmemman.c.o(.text); }
-    .t0433 0x8010a880 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sdma.c.o(.text); }
-    .t0434 0x8010aedc : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/saetodv.c.o(.text); }
-    .t0435 0x8010b0a8 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/saetolrv.c.o(.text); }
-    .t0436 0x8010b100 : SUBALIGN(4) { build/recon/eaclib/psx/spchpsxz/spchrule.c.o(.text); }
-    .t0437 0x8010b5ac : SUBALIGN(4) { build/recon/eaclib/psx/spchpsxz/spchsamp.c.o(.text); }
-    .t0438 0x8010b75c : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sdresolv.c.o(.text); }
-    .t0439 0x8010ba48 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sdplapat.c.o(.text); }
-    .t0440 0x8010bcf4 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/srrange.c.o(.text); }
-    .t0441 0x8010bd50 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sgettag.c.o(.text); }
-    .t0442 0x8010be80 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/srandom.c.o(.text); }
-    .t0443 0x8010bf80 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sdspuirq.c.o(.text); }
-    .t0444 0x8010bfc8 : SUBALIGN(4) { build/recon/syslib/psx/libapi/L03.c.o(.text); }
-    .t0445 0x8010bfd8 : SUBALIGN(4) { build/recon/syslib/psx/libapi/L02.c.o(.text); }
-    .t0446 0x8010bfe8 : SUBALIGN(4) { build/recon/syslib/psx/libpad/WAITRC2.c.o(.text); }
-    .t0447 0x8010c0a8 : SUBALIGN(4) { build/recon/syslib/psx/libpad/PADIF.c.o(.text); }
-    .t0448 0x8010c698 : SUBALIGN(4) { build/recon/syslib/psx/libgpu/P34.c.o(.text); }
-    .t0449 0x8010c6f8 : SUBALIGN(4) { build/recon/syslib/psx/libapi/A07.c.o(.text); }
-    .t0450 0x8010c708 : SUBALIGN(4) { build/recon/syslib/psx/libsn/SNREAD.c.o(.text); }
-    .t0451 0x8010c720 : SUBALIGN(4) { build/recon/syslib/psx/libsn/SNWRITE.c.o(.text); }
-    .t0452 0x8010c738 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/spvtolrv.c.o(.text); }
-    .t0453 0x8010c784 : SUBALIGN(4) { build/recon/syslib/psx/libcard/INIT.c.o(.text); }
-    .t0454 0x8010c854 : SUBALIGN(4) { build/recon/syslib/psx/libapi/C112.c.o(.text); }
-    .t0455 0x8010c864 : SUBALIGN(4) { build/recon/syslib/psx/libapi/A09.c.o(.text); }
-    .t0456 0x8010c874 : SUBALIGN(4) { build/recon/syslib/psx/libapi/A11.c.o(.text); }
-    .t0457 0x8010c884 : SUBALIGN(4) { build/recon/syslib/psx/libapi/A66.c.o(.text); }
-    .t0458 0x8010c894 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/saelib.c.o(.text); }
-    .t0459 0x8010c928 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sgetdata.c.o(.text); }
-    .t0460 0x8010c9b0 : SUBALIGN(4) { build/recon/syslib/psx/libapi/PAD.c.o(.text); }
-    .t0461 0x8010c9c0 : SUBALIGN(4) { build/recon/syslib/psx/libcard/A74.c.o(.text); }
-    .t0462 0x8010ca40 : SUBALIGN(4) { build/recon/syslib/psx/libcard/PATCH.c.o(.text); }
-    .t0463 0x8010cba0 : SUBALIGN(4) { build/recon/syslib/psx/libcard/A75.c.o(.text); }
-    .t0464 0x8010cbb0 : SUBALIGN(4) { build/recon/syslib/psx/libcard/A76.c.o(.text); }
-    .t0465 0x8010cbc0 : SUBALIGN(4) { build/recon/syslib/psx/libcard/END.c.o(.text); }
-    .t0466 0x8010cc40 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/ssine.c.o(.text); }
+    .t0345 0x80100710 : SUBALIGN(4) { build/recon/eaclib/psx/spchpsxz/spchpick.c.o(.text); }
+    .t0346 0x80101900 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sclcptch.c.o(.text); }
+    .t0347 0x80101abc : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/stagpat.c.o(.text); }
+    .t0348 0x8010266c : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sbdload.c.o(.text); }
+    .t0349 0x801027bc : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sballoc.c.o(.text); }
+    .t0350 0x80102810 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sgetvol.c.o(.text); }
+    .t0351 0x801028ac : SUBALIGN(4) { build/recon/syslib/psx/libc/C63.c.o(.text); }
+    .t0352 0x801028bc : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/spktplay.c.o(.text); }
+    .t0353 0x80103424 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/smath64.c.o(.text); }
+    .t0354 0x80103508 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sstgetrp.c.o(.text); }
+    .t0355 0x80103590 : SUBALIGN(4) { build/recon/syslib/psx/libc/C31.c.o(.text); }
+    .t0356 0x801035a0 : SUBALIGN(4) { build/recon/syslib/psx/libc/C38.c.o(.text); }
+    .t0357 0x801035b0 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/spat2hdr.c.o(.text); }
+    .t0358 0x80103734 : SUBALIGN(4) { build/recon/syslib/psx/libc/MEMCMP.c.o(.text); }
+    .t0359 0x80103784 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sdpacket.c.o(.text); }
+    .t0360 0x8010479c : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/ssysserv.c.o(.text); }
+    .t0361 0x801048e8 : SUBALIGN(4) { build/recon/syslib/psx/libmath/DBSHIFTU.c.o(.text); }
+    .t0362 0x801049a8 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sdtimrem.c.o(.text); }
+    .t0363 0x80104a0c : SUBALIGN(4) { build/recon/syslib/psx/libapi/C73.c.o(.text); }
+    .t0364 0x80104a1c : SUBALIGN(4) { build/recon/syslib/psx/libpad/PADMAIN.c.o(.text); }
+    .t0365 0x801055f0 : SUBALIGN(4) { build/recon/syslib/psx/libpad/PADCMD.c.o(.text); }
+    .t0366 0x80105f40 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/trnsmult.c.o(.text); }
+    .t0367 0x80106084 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/fastmovf.c.o(.text); }
+    .t0368 0x801061a8 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/smemman.c.o(.text); }
+    .t0369 0x80106454 : SUBALIGN(4) { build/recon/syslib/psx/libgte/PATCHGTE.c.o(.text); }
+    .t0370 0x80106534 : SUBALIGN(4) { build/recon/syslib/psx/libetc/INTR_VB.c.o(.text); }
+    .t0371 0x80106654 : SUBALIGN(4) { build/recon/syslib/psx/libapi/A91.c.o(.text); }
+    .t0372 0x80106664 : SUBALIGN(4) { build/recon/syslib/psx/libapi/L10.c.o(.text); }
+    .t0373 0x80106674 : SUBALIGN(4) { build/recon/syslib/psx/libgte/REG03.c.o(.text); }
+    .t0374 0x8010668c : SUBALIGN(4) { build/recon/syslib/psx/libc/C19.c.o(.text); }
+    .t0375 0x8010669c : SUBALIGN(4) { build/recon/syslib/psx/libapi/A25.c.o(.text); }
+    .t0376 0x801066ac : SUBALIGN(4) { build/recon/syslib/psx/libetc/INTR_DMA.c.o(.text); }
+    .t0377 0x8010694c : SUBALIGN(4) { build/asm/data/sn_lnk_8010694C.text.s.o(.text); }
+    .t0378 0x80106954 : SUBALIGN(4) { build/recon/syslib/psx/libapi/C114.c.o(.text); }
+    .t0379 0x8010696c : SUBALIGN(4) { build/recon/syslib/psx/libapi/A37.c.o(.text); }
+    .t0380 0x8010697c : SUBALIGN(4) { build/recon/syslib/psx/libapi/A23.c.o(.text); }
+    .t0381 0x8010698c : SUBALIGN(4) { build/recon/syslib/psx/libapi/A36.c.o(.text); }
+    .t0382 0x8010699c : SUBALIGN(4) { build/recon/syslib/psx/libapi/A24.c.o(.text); }
+    .t0383 0x801069ac : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/textcode.c.o(.text); }
+    .t0384 0x80106a54 : SUBALIGN(4) { build/recon/syslib/psx/libmath/FERR.c.o(.text); }
+    .t0385 0x80106ac4 : SUBALIGN(4) { build/recon/syslib/psx/libgte/COR_01.c.o(.text); }
+    .t0386 0x80106be4 : SUBALIGN(4) { build/recon/syslib/psx/libsn/READ.c.o(.text); }
+    .t0387 0x80106ca4 : SUBALIGN(4) { build/recon/syslib/psx/libsn/OPEN.c.o(.text); }
+    .t0388 0x80106cc4 : SUBALIGN(4) { build/recon/syslib/psx/libsn/FSINIT.c.o(.text); }
+    .t0389 0x80106cd0 : SUBALIGN(4) { build/recon/syslib/psx/libsn/CREAT.c.o(.text); }
+    .t0390 0x80106cf0 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/devsys.c.o(.text); }
+    .t0391 0x80106d1c : SUBALIGN(4) { build/recon/syslib/psx/libsn/LSEEK.c.o(.text); }
+    .t0392 0x80106d40 : SUBALIGN(4) { build/recon/syslib/psx/libsn/CLOSE.c.o(.text); }
+    .t0393 0x80106d50 : SUBALIGN(4) { build/recon/syslib/psx/libsn/WRITE.c.o(.text); }
+    .t0394 0x80106e10 : SUBALIGN(4) { build/recon/syslib/psx/libapi/A12.c.o(.text); }
+    .t0395 0x80106e20 : SUBALIGN(4) { build/recon/syslib/psx/libapi/A08.c.o(.text); }
+    .t0396 0x80106e30 : SUBALIGN(4) { build/recon/syslib/psx/libapi/A13.c.o(.text); }
+    .t0397 0x80106e40 : SUBALIGN(4) { build/recon/syslib/psx/libmath/DBSHIFT.c.o(.text); }
+    .t0398 0x80106f00 : SUBALIGN(4) { build/recon/syslib/psx/libmath/MAINASU.c.o(.text); }
+    .t0399 0x80106f70 : SUBALIGN(4) { build/recon/syslib/psx/libmath/ADDMANT.c.o(.text); }
+    .t0400 0x80107020 : SUBALIGN(4) { build/recon/syslib/psx/libgpu/P09.c.o(.text); }
+    .t0401 0x80107040 : SUBALIGN(4) { build/recon/syslib/psx/libgpu/P06.c.o(.text); }
+    .t0402 0x80107080 : SUBALIGN(4) { build/recon/syslib/psx/libcd/drv.c.o(.text); }
+    .t0403 0x80108758 : SUBALIGN(4) { build/recon/syslib/psx/libcd/C_008.c.o(.text); }
+    .t0404 0x80108798 : SUBALIGN(4) { build/recon/syslib/psx/libcd/C_004.c.o(.text); }
+    .t0405 0x80108824 : SUBALIGN(4) { build/recon/syslib/psx/libds/DSCB.c.o(.text); }
+    .t0406 0x8010885c : SUBALIGN(4) { build/recon/syslib/psx/libcd/C_010.c.o(.text); }
+    .t0407 0x8010887c : SUBALIGN(4) { build/recon/syslib/psx/libcd/cdread.c.o(.text); }
+    .t0408 0x8010907c : SUBALIGN(4) { build/recon/syslib/psx/libc/C37.c.o(.text); }
+    .t0409 0x8010908c : SUBALIGN(4) { build/recon/syslib/psx/libcd/event.c.o(.text); }
+    .t0410 0x801091dc : SUBALIGN(4) { build/recon/syslib/psx/libc/BSEARCH.c.o(.text); }
+    .t0411 0x8010929c : SUBALIGN(4) { build/recon/syslib/psx/libcd/toc.c.o(.text); }
+    .t0412 0x801094ec : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sdcdvol.c.o(.text); }
+    .t0413 0x80109550 : SUBALIGN(4) { build/recon/syslib/psx/libmcrd/BIOS.c.o(.text); }
+    .t0414 0x80109c00 : SUBALIGN(4) { build/recon/syslib/psx/libmcrd/USERFUNC.c.o(.text); }
+    .t0415 0x80109d10 : SUBALIGN(4) { build/recon/syslib/psx/libcard/C171.c.o(.text); }
+    .t0416 0x80109d20 : SUBALIGN(4) { build/recon/syslib/psx/libcard/CARD.c.o(.text); }
+    .t0417 0x80109d60 : SUBALIGN(4) { build/recon/syslib/psx/libcard/C172.c.o(.text); }
+    .t0418 0x80109d70 : SUBALIGN(4) { build/recon/syslib/psx/libapi/A50.c.o(.text); }
+    .t0419 0x80109d80 : SUBALIGN(4) { build/recon/syslib/psx/libapi/A54.c.o(.text); }
+    .t0420 0x80109d90 : SUBALIGN(4) { build/recon/syslib/psx/libapi/A51.c.o(.text); }
+    .t0421 0x80109da0 : SUBALIGN(4) { build/recon/syslib/psx/libapi/A52.c.o(.text); }
+    .t0422 0x80109db0 : SUBALIGN(4) { build/recon/syslib/psx/libapi/A53.c.o(.text); }
+    .t0423 0x80109dc0 : SUBALIGN(4) { build/recon/syslib/psx/libapi/FIRST.c.o(.text); }
+    .t0424 0x8010a060 : SUBALIGN(4) { build/recon/syslib/psx/libapi/A67.c.o(.text); }
+    .t0425 0x8010a070 : SUBALIGN(4) { build/recon/syslib/psx/libapi/A69.c.o(.text); }
+    .t0426 0x8010a080 : SUBALIGN(4) { build/recon/syslib/psx/libapi/A65.c.o(.text); }
+    .t0427 0x8010a090 : SUBALIGN(4) { build/recon/syslib/psx/libcard/A80.c.o(.text); }
+    .t0428 0x8010a0a0 : SUBALIGN(4) { build/recon/syslib/psx/libcard/A78.c.o(.text); }
+    .t0429 0x8010a0b0 : SUBALIGN(4) { build/recon/syslib/psx/libpad/PADSEQD.c.o(.text); }
+    .t0430 0x8010a540 : SUBALIGN(4) { build/recon/syslib/psx/libc/C40.c.o(.text); }
+    .t0431 0x8010a550 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sdmemman.c.o(.text); }
+    .t0432 0x8010a880 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sdma.c.o(.text); }
+    .t0433 0x8010aedc : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/saetodv.c.o(.text); }
+    .t0434 0x8010b0a8 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/saetolrv.c.o(.text); }
+    .t0435 0x8010b100 : SUBALIGN(4) { build/recon/eaclib/psx/spchpsxz/spchrule.c.o(.text); }
+    .t0436 0x8010b5ac : SUBALIGN(4) { build/recon/eaclib/psx/spchpsxz/spchsamp.c.o(.text); }
+    .t0437 0x8010b75c : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sdresolv.c.o(.text); }
+    .t0438 0x8010ba48 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sdplapat.c.o(.text); }
+    .t0439 0x8010bcf4 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/srrange.c.o(.text); }
+    .t0440 0x8010bd50 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sgettag.c.o(.text); }
+    .t0441 0x8010be80 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/srandom.c.o(.text); }
+    .t0442 0x8010bf80 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sdspuirq.c.o(.text); }
+    .t0443 0x8010bfc8 : SUBALIGN(4) { build/recon/syslib/psx/libapi/L03.c.o(.text); }
+    .t0444 0x8010bfd8 : SUBALIGN(4) { build/recon/syslib/psx/libapi/L02.c.o(.text); }
+    .t0445 0x8010bfe8 : SUBALIGN(4) { build/recon/syslib/psx/libpad/WAITRC2.c.o(.text); }
+    .t0446 0x8010c0a8 : SUBALIGN(4) { build/recon/syslib/psx/libpad/PADIF.c.o(.text); }
+    .t0447 0x8010c698 : SUBALIGN(4) { build/recon/syslib/psx/libgpu/P34.c.o(.text); }
+    .t0448 0x8010c6f8 : SUBALIGN(4) { build/recon/syslib/psx/libapi/A07.c.o(.text); }
+    .t0449 0x8010c708 : SUBALIGN(4) { build/recon/syslib/psx/libsn/SNREAD.c.o(.text); }
+    .t0450 0x8010c720 : SUBALIGN(4) { build/recon/syslib/psx/libsn/SNWRITE.c.o(.text); }
+    .t0451 0x8010c738 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/spvtolrv.c.o(.text); }
+    .t0452 0x8010c784 : SUBALIGN(4) { build/recon/syslib/psx/libcard/INIT.c.o(.text); }
+    .t0453 0x8010c854 : SUBALIGN(4) { build/recon/syslib/psx/libapi/C112.c.o(.text); }
+    .t0454 0x8010c864 : SUBALIGN(4) { build/recon/syslib/psx/libapi/A09.c.o(.text); }
+    .t0455 0x8010c874 : SUBALIGN(4) { build/recon/syslib/psx/libapi/A11.c.o(.text); }
+    .t0456 0x8010c884 : SUBALIGN(4) { build/recon/syslib/psx/libapi/A66.c.o(.text); }
+    .t0457 0x8010c894 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/saelib.c.o(.text); }
+    .t0458 0x8010c928 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sgetdata.c.o(.text); }
+    .t0459 0x8010c9b0 : SUBALIGN(4) { build/recon/syslib/psx/libapi/PAD.c.o(.text); }
+    .t0460 0x8010c9c0 : SUBALIGN(4) { build/recon/syslib/psx/libcard/A74.c.o(.text); }
+    .t0461 0x8010ca40 : SUBALIGN(4) { build/recon/syslib/psx/libcard/PATCH.c.o(.text); }
+    .t0462 0x8010cba0 : SUBALIGN(4) { build/recon/syslib/psx/libcard/A75.c.o(.text); }
+    .t0463 0x8010cbb0 : SUBALIGN(4) { build/recon/syslib/psx/libcard/A76.c.o(.text); }
+    .t0464 0x8010cbc0 : SUBALIGN(4) { build/recon/syslib/psx/libcard/END.c.o(.text); }
+    .t0465 0x8010cc40 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/ssine.c.o(.text); }
 
     /* P881: source-owned native data; raw copies are oracle-only. */
     .source_data_1 0x80051aa0 : SUBALIGN(4) { build/recon/frontend/common/fecredits.cpp.o(.data); }
@@ -3018,6 +3017,9 @@ SECTIONS
     PROVIDE(Blockade_AddRoadFlare__FP8coorddef = 0x8005c414);   /* vague-linkage local copy */
     PROVIDE(CD_cachefile = 0x800f96e8);   /* vague-linkage local copy */
     PROVIDE(CD_newmedia = 0x800f9380);   /* vague-linkage local copy */
+    PROVIDE(CD_systaskfunc = 0x800f9ae8);   /* vague-linkage local copy */
+    PROVIDE(CD_timerfunc = 0x800f9c44);   /* vague-linkage local copy */
+    PROVIDE(CdReadyHandler = 0x800f9ca4);   /* vague-linkage local copy */
     PROVIDE(ChecksumData__FP12tMemCardData = 0x800342a0);   /* vague-linkage local copy */
     PROVIDE(Confirm__Fii = 0x80034438);   /* vague-linkage local copy */
     PROVIDE(DrawFlatShape__FP18tTexture_ShapeInfoiiiPii = 0x8004e638);   /* vague-linkage local copy */
@@ -3091,8 +3093,10 @@ SECTIONS
     PROVIDE(VerifySuccessfulRead__FP12tMemCardData = 0x80034318);   /* vague-linkage local copy */
     PROVIDE(VoxEvent_GetFilterLengthFlag = 0x800e6e88);   /* vague-linkage local copy */
     PROVIDE(VoxEvent_GetFilterLengthFlag_8010073C = 0x8010073c);   /* vague-linkage local copy */
+    PROVIDE(VoxEvent_GetKeepTillExpiresFlag = 0x800e6e94);   /* vague-linkage local copy */
     PROVIDE(VoxSentence_GetNumPhrases = 0x80100730);   /* vague-linkage local copy */
     PROVIDE(VoxSentence_GetNumPhrases_8010B100 = 0x8010b100);   /* vague-linkage local copy */
+    PROVIDE(VoxSentence_GetShortRule = 0x80100724);   /* vague-linkage local copy */
     PROVIDE(_MDEC_in_dma = 0x800f8be8);   /* vague-linkage local copy */
     PROVIDE(_MDEC_out_dma = 0x800f8c78);   /* vague-linkage local copy */
     PROVIDE(_VSync_wait = 0x800f2494);   /* vague-linkage local copy */
@@ -3173,15 +3177,54 @@ SECTIONS
     PROVIDE(_cd_find_path = 0x800f9644);   /* vague-linkage local copy */
     PROVIDE(_first_patch = 0x80109f5c);   /* vague-linkage local copy */
     PROVIDE(ascii2sjis = 0x800506f0);   /* vague-linkage local copy */
+    PROVIDE(asyncsystemtask = 0x800f1120);   /* vague-linkage local copy */
+    PROVIDE(cancelrequest = 0x800f0c50);   /* vague-linkage local copy */
     PROVIDE(cd_read = 0x800f9984);   /* vague-linkage local copy */
+    PROVIDE(chase = 0x800f5530);   /* vague-linkage local copy */
+    PROVIDE(closecallback = 0x800fc850);   /* vague-linkage local copy */
+    PROVIDE(decbufferusage = 0x800fc374);   /* vague-linkage local copy */
+    PROVIDE(dircompare = 0x800fa344);   /* vague-linkage local copy */
+    PROVIDE(filterchunk = 0x800fc5e4);   /* vague-linkage local copy */
+    PROVIDE(finishrequest = 0x800f0ce8);   /* vague-linkage local copy */
+    PROVIDE(freehandle = 0x800ed2f0);   /* vague-linkage local copy */
+    PROVIDE(freeop = 0x800ed1f8);   /* vague-linkage local copy */
+    PROVIDE(freerequest = 0x800fc548);   /* vague-linkage local copy */
+    PROVIDE(getfreerequest = 0x800fc400);   /* vague-linkage local copy */
+    PROVIDE(iFILE_ExecCommand = 0x800ecb98);   /* vague-linkage local copy */
+    PROVIDE(iFILE_perror = 0x800ed0d4);   /* vague-linkage local copy */
     PROVIDE(iMCRD_timersub = 0x8005028c);   /* vague-linkage local copy */
+    PROVIDE(iSPCH_GetMatchValue = 0x80100710);   /* vague-linkage local copy */
     PROVIDE(iSPCH_GetOffset16 = 0x800e6ea8);   /* vague-linkage local copy */
     PROVIDE(iSPCH_GetOffset16_80100760 = 0x80100760);   /* vague-linkage local copy */
     PROVIDE(iSPCH_GetOffset16_8010B124 = 0x8010b124);   /* vague-linkage local copy */
     PROVIDE(iSPCH_GetOffset8 = 0x80100748);   /* vague-linkage local copy */
     PROVIDE(iSPCH_GetOffset8_8010B10C = 0x8010b10c);   /* vague-linkage local copy */
+    PROVIDE(iSPCH_GetRuleDataAddr = 0x8010b140);   /* vague-linkage local copy */
+    PROVIDE(inbetween = 0x800fc334);   /* vague-linkage local copy */
+    PROVIDE(loadbigfileheaderatomic = 0x800e5938);   /* vague-linkage local copy */
+    PROVIDE(loadfileadratomic = 0x800e56b0);   /* vague-linkage local copy */
+    PROVIDE(loadfileatadratomic = 0x800e5830);   /* vague-linkage local copy */
+    PROVIDE(loadfileclosecallback = 0x800f0d24);   /* vague-linkage local copy */
+    PROVIDE(loadfileopencallback = 0x800f0f18);   /* vague-linkage local copy */
+    PROVIDE(loadfilereadcallback = 0x800f0d80);   /* vague-linkage local copy */
+    PROVIDE(loadfilesizecallback = 0x800f0e54);   /* vague-linkage local copy */
+    PROVIDE(loadsegreadcallback = 0x800f1024);   /* vague-linkage local copy */
     PROVIDE(locaterequest = 0x800f0bf4);   /* vague-linkage local copy */
+    PROVIDE(memcpyb = 0x800f5234);   /* vague-linkage local copy */
+    PROVIDE(memcpyl = 0x800f51c0);   /* vague-linkage local copy */
+    PROVIDE(newrequestid = 0x800f0bc0);   /* vague-linkage local copy */
+    PROVIDE(opencallback = 0x800fc810);   /* vague-linkage local copy */
+    PROVIDE(parsechunks = 0x800fc634);   /* vague-linkage local copy */
+    PROVIDE(queueadd = 0x800f0b1c);   /* vague-linkage local copy */
+    PROVIDE(queuefetch = 0x800f0b74);   /* vague-linkage local copy */
+    PROVIDE(queuerequest = 0x800fc478);   /* vague-linkage local copy */
+    PROVIDE(readcallback = 0x800fc8a8);   /* vague-linkage local copy */
+    PROVIDE(refcpy = 0x800f5254);   /* vague-linkage local copy */
+    PROVIDE(reservehandle = 0x800ed240);   /* vague-linkage local copy */
+    PROVIDE(reserveop = 0x800ed0dc);   /* vague-linkage local copy */
+    PROVIDE(restartstream = 0x800fcb44);   /* vague-linkage local copy */
     PROVIDE(sjis2ascii = 0x80050810);   /* vague-linkage local copy */
+    PROVIDE(startnextrequest = 0x800fc9b4);   /* vague-linkage local copy */
     PROVIDE(strCallback__Fv = 0x8004d038);   /* vague-linkage local copy */
     PROVIDE(strInit__FP6CdlLOCiPFe_vT2 = 0x8004cfa0);   /* vague-linkage local copy */
     PROVIDE(strKickCD__FP6CdlLOC = 0x8004d68c);   /* vague-linkage local copy */
@@ -3189,8 +3232,13 @@ SECTIONS
     PROVIDE(strNext__FP6DECENV = 0x8004d3d4);   /* vague-linkage local copy */
     PROVIDE(strSetDefDecEnv__FP6DECENV = 0x8004cf14);   /* vague-linkage local copy */
     PROVIDE(strSync__FP6DECENVi = 0x8004d5dc);   /* vague-linkage local copy */
+    PROVIDE(strrstr = 0x800e8940);   /* vague-linkage local copy */
+    PROVIDE(syncblockio = 0x800ea7e8);   /* vague-linkage local copy */
+    PROVIDE(synccallback = 0x800ea6cc);   /* vague-linkage local copy */
+    PROVIDE(textbsearch = 0x800f4470);   /* vague-linkage local copy */
     PROVIDE(tournPointsCompare__FPcT0 = 0x80032a50);   /* vague-linkage local copy */
     PROVIDE(uppercase__FPc = 0x800d2a44);   /* vague-linkage local copy */
+    PROVIDE(validatehandle = 0x800fc2f8);   /* vague-linkage local copy */
     /* *_legacy residual pieces are ORACLE-ONLY (a recon TU owns those
      * retail bytes); linked as orphans they landed in the catch-all and
      * their alias labels (D_8011E0B0 = simGlobal.gameTicks) out-bound the

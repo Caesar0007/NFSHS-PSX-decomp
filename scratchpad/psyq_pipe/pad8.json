@@ -6,9 +6,6 @@
 "build/recon/frontend/common/fecredits.cpp.o": {
 "rdata": 4
 },
-"build/recon/frontend/common/screentrackinfo.cpp.o": {
-"rdata": 4
-},
 "build/recon/frontend/common/statchk.cpp.o": {
 "rdata": 4,
 "text": 4,
@@ -236,6 +233,9 @@
 "text": 4
 },
 "build/recon/syslib/psx/libapi/A25.c.o": {
+"text": 4
+},
+"build/recon/syslib/psx/libetc/INTR_DMA.c.o": {
 "text": 4
 },
 "build/recon/syslib/psx/libapi/A23.c.o": {

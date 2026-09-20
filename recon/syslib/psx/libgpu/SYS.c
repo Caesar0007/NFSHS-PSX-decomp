@@ -2567,6 +2567,14 @@ extern int _gpu_check_timeout(void)
     return result;
 }
 
+/* Retail SYS.obj has NO LoadImage2 code, only its "LoadImage2" literal (0x80056EEC), right after the "GPU timeout"
+ * string: the same leftover of an UNUSED static inline as ClearImage2 above -- defined at this point of sys.c 1.140. */
+static __inline__ int LoadImage2(void *rect, u_long *data)
+{
+    _image("LoadImage2", rect);                  /* @0x80056eec (string only) */
+    return GEnv_drv->que_push(GEnv_drv->dws, (u_long *)rect, 8, (int)data);
+}
+
 /* @0x800EFC70 : reconfigure the GPU display registers for the current video mode. */
 extern int _gpu_init_videomode(int mode)
 {

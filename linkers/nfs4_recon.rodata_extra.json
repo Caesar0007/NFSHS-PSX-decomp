@@ -135,11 +135,11 @@
   "obj": "build/recon/syslib/psx/libgpu/SYS.c.o",
   "section": ".rodata",
   "base": 2147839192,
-  "end": 2147839722,
-  "size": 530,
+  "end": 2147839735,
+  "size": 543,
   "ok": true,
   "unresolved": 0,
-  "words": 132,
+  "words": 136,
   "q": 1
  },
  {

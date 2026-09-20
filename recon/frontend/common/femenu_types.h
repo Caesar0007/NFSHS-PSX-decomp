@@ -27,6 +27,7 @@ struct tMenuCommand {
 };
 
 #define NFS4_FE_CORE_FEMENU_METHODS
+#define NFS4_FE_CORE_TMENU_AFTER_ITEMS   /* tMenu comes after the item classes below */
 #include "fe_core_types.h"
 #undef NFS4_FE_CORE_FEMENU_METHODS
 
@@ -123,6 +124,10 @@ struct tMenuItemGoToMenuButton : public tMenuItemInteractive {
     ~tMenuItemGoToMenuButton();
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
 };
+
+#define NFS4_FE_CORE_FEMENU_METHODS
+#include "fe_core_tmenu.h"   /* retail order: ..., tMenuItemGoToMenuButton, tMenu */
+#undef NFS4_FE_CORE_FEMENU_METHODS
 
 struct tFEApplication;
 

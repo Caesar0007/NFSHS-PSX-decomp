@@ -1748,7 +1748,7 @@ void tInsideBoxSongMenu::Draw(short x,short y,short w,short slideOffset,short ma
   int drawBaseY;
   u_int slide;
   tfrontEnd *fe;
-  int width;
+  short width;   /* a SHORT local: passed to DrawOneSong(short...) unchanged, so its one conversion stays before drawY's init */
 
   slide = (u_short)slideOffset;
   
@@ -1783,9 +1783,10 @@ void tInsideBoxSongMenu::Draw(short x,short y,short w,short slideOffset,short ma
     }
     j = 0;
     fe = &frontEnd;
-    width = (short)w;
-    drawY = -0x28;
+    width = w;
     do {
+      /* drawY (below, at its use) is DERIVED from j -- a giv: retail initialises it (-40) AFTER the hoisted argument
+         conversion, which is where loop.c puts a strength-reduced giv, not a separately initialised variable. */
       song = screenAudio->fSelectedSong + j - 2;
       if ((-1 < song) && (song < screenAudio->songlist->numsongs)) {
         if (*(int *)(song * 4 + (int)fe->FEPlayList) != 0) {
@@ -1800,15 +1801,13 @@ void tInsideBoxSongMenu::Draw(short x,short y,short w,short slideOffset,short ma
         if (this->fOnOffFade[j] < 0) {
           this->fOnOffFade[j] = 0;
         }
-        this->DrawOneSong(
-                   song * 0x10000 >> 0x10,(int)x,
-                   (int)((slide +
-                         ((u_int)(u_short)this->fMoving +
-                          (drawBaseY + drawY))) * 0x10000) >> 0x10,
-                   width,
-                   (int)this->fOnOffFade[j],(int)this->fSelFade[j]);
+        /* a real call to a function taking shorts: the conversions the hand-written vtable call spelled out as
+           `* 0x10000 >> 0x10` are now the compiler's own argument conversions */
+        drawY = j * 0x15 - 0x28;
+        this->DrawOneSong(song,x,
+                   slide + ((u_int)(u_short)this->fMoving + (drawBaseY + drawY)),
+                   width,this->fOnOffFade[j],this->fSelFade[j]);
       }
-      drawY = drawY + 0x15;
       j = j + 1;
     } while (j < 5);
   }

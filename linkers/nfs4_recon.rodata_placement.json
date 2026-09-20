@@ -26,16 +26,6 @@
   ]
  },
  {
-  "obj": "build/recon/frontend/common/femenuoptions.cpp.o",
-  "base": 2147551584,
-  "end": 2147551756,
-  "size": 172,
-  "ok": false,
-  "regions": [
-   "jtbl_80010990"
-  ]
- },
- {
   "obj": "build/recon/frontend/common/fetracks.cpp.o",
   "base": 2147553224,
   "end": 2147553304,
@@ -886,14 +876,6 @@
   "regions": []
  },
  {
-  "obj": "build/recon/frontend/common/femenuextended.cpp.o",
-  "base": 2147550736,
-  "end": 2147550751,
-  "size": 15,
-  "ok": false,
-  "regions": []
- },
- {
   "obj": "build/recon/game/common/anim.cpp.o",
   "base": 2147833488,
   "end": 2147833526,
@@ -1070,14 +1052,6 @@
   "regions": []
  },
  {
-  "obj": "build/recon/frontend/common/femenu.cpp.o",
-  "base": 2147554008,
-  "end": 2147554296,
-  "size": 288,
-  "ok": false,
-  "regions": []
- },
- {
   "obj": "build/recon/game/common/pausemenu.cpp.o",
   "base": 2147836172,
   "end": 2147836772,
@@ -1106,6 +1080,38 @@
   "base": 2147841464,
   "end": 2147841541,
   "size": 77,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/frontend/common/femenu.cpp.o",
+  "base": 2147553480,
+  "end": 2147554296,
+  "size": 816,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/frontend/common/femenuextended.cpp.o",
+  "base": 2147550736,
+  "end": 2147551584,
+  "size": 848,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/frontend/common/femenuoptions.cpp.o",
+  "base": 2147551584,
+  "end": 2147553208,
+  "size": 1624,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/frontend/common/femenudefs.cpp.o",
+  "base": 2147554520,
+  "end": 2147554696,
+  "size": 176,
   "ok": false,
   "regions": []
  }

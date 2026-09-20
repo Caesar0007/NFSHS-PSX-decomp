@@ -662,9 +662,10 @@ void tMenuItemLeftRightChoice::Draw(bool selected)
 
 /* ---- tMenuItemLeftRightSlider::ctor  [FEMENU.CPP:612-616] SLD-VERIFIED ---- */
 tMenuItemLeftRightSlider::tMenuItemLeftRightSlider(u_int textDescription,tListIterator *dataPtr)
-  : tMenuItemInteractive(textDescription), fData(dataPtr)
+  : tMenuItemInteractive(textDescription)
 {
   this->fFlags |= 0x80;
+  this->fData = dataPtr;
   this->fFlags |= 0x80;
   return;
 }

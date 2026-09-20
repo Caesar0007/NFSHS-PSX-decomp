@@ -777,7 +777,7 @@ short tDialogInteractive::Run()
       }
       if (keyVal[i] != kInput_KeyType_NoKey) {
         /* SYM-INLINE-THIS: ProcessInputVirtual */
-        this->ProcessInput((tPlayer)i,keyVal[i],command);
+        this->ProcessInputVirtual((tPlayer)i,keyVal[i],command);
       }
         i++;
       }

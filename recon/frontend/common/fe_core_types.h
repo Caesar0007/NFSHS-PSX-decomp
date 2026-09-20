@@ -118,55 +118,11 @@ static inline bool tMenuItem_IsDisabled(tMenuItem *item) { return (item->fFlags 
 
 typedef tMenuItem *tItemList[16];
 
-struct tMenu {
-    unsigned int fFlags;
-    short fTitle;
-    int fCurrentItem;
-    bool fNeverAnyEnabled;
-    tItemList fItemList;
-    tScreen *fScreen;
-    tMenu *fNextMenu, *fChildMenu, *fOptionsMenu;
-#ifdef NFS4_FE_CORE_FEMENU_METHODS
-    void (*fOnButtonPress)(tMenuCommand &);
-#else
-    void (*fOnButtonPress)(void *);
+/* tMenu is defined in fe_core_tmenu.h.  FEMenu's owner surface places it AFTER its three item classes (retail table
+ * order); every other surface gets it here. */
+#ifndef NFS4_FE_CORE_TMENU_AFTER_ITEMS
+#include "fe_core_tmenu.h"
 #endif
-    short VertHelp;
-    virtual ~tMenu();
-    virtual void Initialize();
-#if defined(NFS4_FE_CORE_FEMENU_METHODS) || defined(NFS4_FE_CORE_FEDIALOG_METHODS)
-    virtual void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-#else
-    virtual void ProcessInput(int, void *, void *);   /* layout-only: this owner surface has no tInputKeyType/tMenuCommand */
-#endif
-    virtual long DebounceKeys();
-    virtual void TransitionOff();
-    virtual void TransitionOn();
-    virtual bool TransitionIsFinished();
-    virtual bool IsSubMenu();
-    virtual void Draw();
-    virtual void UpdateTransition();
-#ifdef NFS4_FE_CORE_FEDIALOG_METHODS
-#ifndef NFS4_FE_CORE_FEMENU_METHODS
-    short GetNumberEnabledItems();
-#endif
-    inline bool HasFlag(unsigned int flag) { return (fFlags & flag) != 0; }
-    inline bool CanContinue() {
-        return fNextMenu != (tMenu *)0x0 ||
-               (fFlags & 0x400) != 0 ||
-               fOnButtonPress != 0x0;
-    }
-#endif
-#ifdef NFS4_FE_CORE_FEAPP_METHODS
-    inline bool HasOptionsMenu() { return fOptionsMenu != (tMenu *)0x0; }
-#endif
-#ifdef NFS4_FE_CORE_FEMENU_METHODS
-    void tMenuConstructor(tMenuItem *firstItem, void *ap);
-    tMenu(unsigned int, tScreen *, tMenu *, tMenu *,
-          void (*)(tMenuCommand &), short);
-    short GetNumberEnabledItems();
-#endif
-};
 
 struct tMenuItemInteractive : public tMenuItem {
 #ifdef NFS4_FE_CORE_FEMENU_METHODS

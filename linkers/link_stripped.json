@@ -86,6 +86,18 @@
    "function": "DrawPrim",
    "sdk": "LIBGPU/DrawPrim",
    "evidence": "PsyQ 4.3 libgpu SYS.obj (sys.c 1.140, same $Id as retail) @2324+92; retail anchors drop by exactly the unlabelled sizes across it"
+  },
+  {
+   "object": "build/recon/syslib/psx/libgpu/SYS.c.o",
+   "function": "ClearImage2",
+   "sdk": "LIBGPU/ClearImage2",
+   "evidence": "PsyQ 4.3 libgpu SYS.obj (sys.c 1.140, same $Id as retail) @1424+152; retail anchors drop by exactly the unlabelled sizes across it"
+  },
+  {
+   "object": "build/recon/syslib/psx/libgpu/SYS.c.o",
+   "function": "ClearOTag",
+   "sdk": "LIBGPU/ClearOTag",
+   "evidence": "PsyQ 4.3 libgpu SYS.obj (sys.c 1.140, same $Id as retail) @1952+200; retail anchors drop by exactly the unlabelled sizes across it"
   }
  ]
 }

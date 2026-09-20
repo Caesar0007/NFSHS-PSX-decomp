@@ -371,6 +371,8 @@ extern int   SetGraphQueue(int mode) LINK_STRIPPED;
 extern int   GetGraphDebug(void) LINK_STRIPPED;
 extern void (*DrawSyncCallback(void (*func)()))() LINK_STRIPPED;
 extern void  DrawPrim(void *p) LINK_STRIPPED;
+extern int   ClearImage2(void *rect, unsigned char r, unsigned char g, unsigned char b) LINK_STRIPPED;
+extern u_long *ClearOTag(u_long *ot, int n) LINK_STRIPPED;
 extern void *GetDrawEnv(void *env) LINK_STRIPPED;
 extern void *GetDispEnv(void *env) LINK_STRIPPED;
 extern int   GetODE(void) LINK_STRIPPED;
@@ -547,16 +549,12 @@ extern int ClearImage(void *rect, unsigned char r, unsigned char g, unsigned cha
     return GEnv_drv->que_push(GEnv_drv->blit_clear, (u_long *)rect, 8, color);
 }
 
-/* Retail SYS.obj has NO ClearImage2 code but its .rdata carries "ClearImage2"
- * between "ClearImage" and "LoadImage" (0x80056df8).  CC1PSX emits the string
- * literals of an UNUSED static inline at its definition point while dropping
- * the body (verified: scratchpad emit/t2.c), which is exactly what a
- * static-inline ClearImage2 in the 1.140 source leaves behind. */
-static __inline__ int ClearImage2(void *rect, unsigned char r, unsigned char g, unsigned char b)
+/* SYS.obj +1424 (LINK-STRIPPED) : ClearImage2 -- ClearImage with bit 31 set in the colour word */
+extern int ClearImage2(void *rect, unsigned char r, unsigned char g, unsigned char b)
 {
     int color;
-    _image("ClearImage2", rect);                 /* @0x80056df8 (string only) */
-    color = ((b & 0xff) << 16) | ((g & 0xff) << 8) | (r & 0xff);
+    _image("ClearImage2", rect);                 /* @0x80056df8 */
+    color = 0x80000000 | ((b & 0xff) << 16) | ((g & 0xff) << 8) | (r & 0xff);
     return GEnv_drv->que_push(GEnv_drv->blit_clear, (u_long *)rect, 8, color);
 }
 
@@ -740,10 +738,23 @@ extern int MoveImage(void *rect, int x, int y)
 /* @0x800EDC08 : clear an ordering table in reverse, then append the fixed terminator tail. */
 /* string-only unused static inline (see SetGraphDebug): "ClearOTag" precedes
  * "ClearOTagR" in retail .rdata. */
-static __inline__ u_long *ClearOTag(u_long *ot, int n)
+/* SYS.obj +1952 (LINK-STRIPPED) : ClearOTag -- forward-linked ordering table, same terminator tail as ClearOTagR */
+typedef struct { unsigned addr : 24; unsigned len : 8; } SYS_P_TAG;   /* libgpu.h P_TAG: setlen / setaddr are bit-field stores */
+extern u_long *ClearOTag(u_long *ot, int n)
 {
     if (GEnv.debug >= 2)
         GPU_printf("ClearOTag(%08x,%d)...\n", ot, n);   /* @0x80056E24 */
+    while (--n) {
+        ((SYS_P_TAG *)ot)->len = 0;                          /* setlen(ot, 0) */
+        ((SYS_P_TAG *)ot)->addr = (u_long)(long)(ot + 1);      /* setaddr(ot, ot + 1) */
+        ot++;
+    }
+    {
+        u_long mask = 0x00ffffffu;
+        u_long *link = &_otc_link;
+        *link = 0x04000000u | ((u_long)(long)&_otc_term & mask);
+        ot[0] = (u_long)(long)link & mask;
+    }
     return ot;
 }
 

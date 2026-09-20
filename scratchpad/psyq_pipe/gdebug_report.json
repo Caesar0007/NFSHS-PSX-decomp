@@ -1,0 +1,907 @@
+{
+ "recon/frontend/common/feapp.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/common/feaudio.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/common/fecars.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/common/fecheats.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/common/fecntl.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/common/fecolor.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/common/fecredits.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/common/fedialog.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/common/fefades.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/common/feinput.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/common/felines.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/common/fememcard.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/common/femenu.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/common/femenudefs.cpp": {
+  "s": true,
+  "same_code": false,
+  "note": "assembled | CODE DIFFERS 6030 vs 6031 insns"
+ },
+ "recon/frontend/common/femenuextended.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/common/femenuoptions.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/common/femission.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/common/fescreen.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/common/fetextrender.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/common/fetools.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/common/fetourn.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/common/fetracks.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/common/fetv.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/common/fevideowall.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/common/front.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/common/records.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/common/screenaudio.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/common/screencameras.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/common/screencarselect.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/common/screencongrats.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/common/screencontroller.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/common/screendemo.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/common/screendisplay.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/common/screengrid.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/common/screenmain.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/common/screenmemcard.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/common/screenoptions.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/common/screenpinkslips.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/common/screenpost.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/common/screentournselect.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/common/screentrackinfo.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/common/screentrackrecords.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/common/screentracks.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/common/screentrophyinfo.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/common/screentrophyroom.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/common/screenusername.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/common/statchk.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/common/stattool.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/psx/address.c": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/psx/bigbuf.c": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/psx/cache.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/psx/drawshp.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/psx/endcode.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/psx/fetexture.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/psx/mdec.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/psx/mdecstat.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/psx/memcard.c": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/psx/memdsp.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/psx/mmeffect.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/psx/movie.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/psx/psxfront.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/psx/readpix.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/psx/video.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/frontend/psx/vsprintf.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/ai.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/aicop.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/aidatarecord.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/aidebug.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/aidelaycar.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/aih_basiccop.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/aih_basicperp.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/aih_btccop.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/aih_btcperp.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/aih_cop.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/aih_hum.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/aih_opp.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/aih_play.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/aih_traf.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/aihigh.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/aiinit.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/ailife.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/aiperson.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/aiphysic.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/aiscript.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/aispeech.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/aispeeds.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/aistate.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/aitriger.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/aitune.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/AIWORLD.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/anim.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/async.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/audedit.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/audioclc.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/audiocmn.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/audioeng.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/audiomus.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/audiotrk.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/bworld.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/bworldSm.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/camera.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/cars.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/chunk.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/chunkvis.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/clock.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/collide.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/color.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/control.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/copspeak.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/dashhud.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/debugvar.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/fastrand.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/fei.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/genericpmx.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/gmesetup.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/group.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/hudpmx.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/input.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/mathnfs.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/minfront.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/mpause.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/new.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/newton.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/nfs3.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/object.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/paths.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/pausemenu.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/physics.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/quatern.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/r3dcar.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/render.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/replay.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/scene.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/schedule.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/sim.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/simplemem.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/simqueue.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/smack.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/souffle.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/spchevnt.c": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/speech.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/stats.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/textsys.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/track.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/trgsfx.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/common/udff.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/psx/audio.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/psx/cario.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/psx/ddvfont.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/psx/debug.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/psx/device.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/psx/draw.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/psx/draw2.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/psx/drawc.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/psx/drawdbg.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/psx/draww.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/psx/fe3dmenu.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/psx/filedbg.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/psx/flare.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/psx/font.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/psx/force.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/psx/hrzsku.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/psx/hud.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/psx/loading.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/psx/nfs2mem.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/psx/night.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/psx/overlays.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/psx/platform.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/psx/profile.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/psx/psxcontroller.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/psx/rpause.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/psx/sfx.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/psx/skidmark.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/psx/textpix.c": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/psx/textpsx.c": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/psx/texture.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/psx/textureprocess.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/psx/trackspec.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/psx/trsproj.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/psx/unpack.c": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ },
+ "recon/game/psx/weather.cpp": {
+  "s": true,
+  "same_code": true,
+  "note": "assembled"
+ }
+}

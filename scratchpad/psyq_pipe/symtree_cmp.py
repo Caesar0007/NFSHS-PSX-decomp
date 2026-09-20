@@ -33,7 +33,10 @@ def parse(path):
                     cur['hdr'][h.group(1)] = h.group(2).strip()
                     if h.group(1) == 'name':
                         hdr_mode = False
-                        fns.setdefault(cur['hdr']['name'], cur)
+                        nm = cur['hdr']['name']
+                        if nm.startswith('___'):      # the lane spells cfront destructors EA's way (___X); retail's SYM says _._X
+                            nm = '_._' + nm[3:]
+                        fns.setdefault(nm, cur)
             continue
         a, t, rest = int(m.group(1), 16), m.group(2), m.group(3)
         if t == '8c':

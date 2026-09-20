@@ -10,6 +10,11 @@
 #include "eac_types.h"
 #include "vars.h"
 
+/* head of vars.obj's .sdata block (owner proven by retail link order, 2026-09-20) */
+int library = 4;               /* @0x8013DC54 */
+int disablecd = 1;             /* @0x8013DC58 */
+int currentfilesystem = 0;     /* @0x8013DC5C */
+int availablefilesystems = 0;  /* @0x8013DC60 */
 int kanjiwidth = 0;        /* @0x8013DC64 */
 int grmode = 0;            /* @0x8013DC68 */
 int mouseflag = 0;         /* @0x8013DC6C */

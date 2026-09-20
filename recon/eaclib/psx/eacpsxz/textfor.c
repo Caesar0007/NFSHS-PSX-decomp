@@ -8,6 +8,11 @@
 #include "textfor.h"
 #include "getm.h"
 
+/* textfor.obj .sdata 0x8013DD50..0x8013DD5C (owner proven by retail link order; no debug records, types are int-sized) */
+int textntabstops = 0;           /* @0x8013DD50 */
+int texttabstops = 0;            /* @0x8013DD54 */
+int showmissingcharacters = 0;   /* @0x8013DD58 */
+
 /* file-local functions (retail SYM: local labels) */
 static int textbsearch(unsigned int key, int base, int count, int stride);
 

@@ -7,6 +7,9 @@
 #include "eac_types.h"
 #include "callback.h"
 
+/* callback.obj .sdata 0x8013DD60 (owner proven by retail link order: the only cell between threads.obj and window.obj) */
+int (*loadfilecallback)(void *dest, char *name, int memclass) = 0;   /* @0x8013DD60 */
+
 /* P903 integration: freemutex clears a full word at each four-byte slot.
  * Preserve the former object's four-byte base alignment with C storage.
  * The explicit BSS section is needed: aligned(4) alone on COMMON was ignored

@@ -60,20 +60,3 @@ dlabel timerflag
     /* 12E54C 8013DD4C 00000000 */ .word 0x00000000
 enddlabel timerflag
 
-nonmatching textntabstops
-
-dlabel textntabstops
-    /* 12E550 8013DD50 00000000 */ .word 0x00000000
-enddlabel textntabstops
-
-nonmatching texttabstops
-
-dlabel texttabstops
-    /* 12E554 8013DD54 00000000 */ .word 0x00000000
-enddlabel texttabstops
-
-nonmatching showmissingcharacters
-
-dlabel showmissingcharacters
-    /* 12E558 8013DD58 00000000 */ .word 0x00000000
-enddlabel showmissingcharacters

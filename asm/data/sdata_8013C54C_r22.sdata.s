@@ -97,30 +97,6 @@ dlabel D_8013DC50
     /* 12E450 8013DC50 00000000 */ .word 0x00000000
 enddlabel D_8013DC50
 
-nonmatching library
-
-dlabel library
-    /* 12E454 8013DC54 04000000 */ .word 0x00000004
-enddlabel library
-
-nonmatching disablecd
-
-dlabel disablecd
-    /* 12E458 8013DC58 01000000 */ .word 0x00000001
-enddlabel disablecd
-
-nonmatching currentfilesystem
-
-dlabel currentfilesystem
-    /* 12E45C 8013DC5C 00000000 */ .word 0x00000000
-enddlabel currentfilesystem
-
-nonmatching availablefilesystems
-
-dlabel availablefilesystems
-    /* 12E460 8013DC60 00000000 */ .word 0x00000000
-enddlabel availablefilesystems
-
 .section .sdata.r22_post_vars, "wa"
 /* P904: preceding20-byte primate run is retained in its separate legacy
  * oracle leaf. Both lanes preserve the following literal and shapeext. */

@@ -934,8 +934,11 @@ SECTIONS
         build/asm/data/sdata_8013C54C_r22.sdata.s.o(.sdata.r22_post_vars);
         build/asm/data/sdata_8013C54C_o37.sdata.s.o(.sdata);
         build/asm/data/sdata_8013C54C_r23.sdata.s.o(.sdata);
+        build/asm/data/sdata_textfor_legacy.sdata.s.o(.sdata);
         build/asm/data/sdata_8013C54C_o38.sdata.s.o(.sdata);
-        build/asm/data/sdata_8013C54C_r24.sdata.s.o(.sdata);
+        build/asm/data/sdata_callback_legacy.sdata.s.o(.sdata);
+        build/asm/data/sdata_window_legacy.sdata.s.o(.sdata);
+        build/asm/data/sdata_pageflip_legacy.sdata.s.o(.sdata);
         build/src/*(.sdata);
         . = ALIGN(., 16);
         nfs4_SDATA_END = .;

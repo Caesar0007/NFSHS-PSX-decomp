@@ -264,11 +264,39 @@ SOURCE_DATA_OWNERS = (
         'placement': 'fragment', 'record': 'SYM477004..4770b4 globals at+56; the four initialized colour cells gContrastScale/Texture_gContrastColor/Texture_gWorldColor/TP_gColorMode 8013DB3C..4C head the run (2026-09-16), then the Fog_ReadFogKeys literals 8013DB4C/54/5C/64',
     },
     {
+        'source': 'recon/eaclib/psx/eacpsxz/textfor.c', 'section': '.sdata',
+        'address': 0x8013DD50, 'size': 12,
+        'payload': bytes(12),
+        'oracle_source': 'asm/data/sdata_textfor_legacy.sdata.s',
+        'placement': 'fragment', 'record': '2026-09-20 link-order proof: eacpsxz.lib(textfor.obj), link index 317: textntabstops/texttabstops/showmissingcharacters',
+    },
+    {
+        'source': 'recon/eaclib/psx/eacpsxz/callback.c', 'section': '.sdata',
+        'address': 0x8013DD60, 'size': 4,
+        'payload': bytes(4),
+        'oracle_source': 'asm/data/sdata_callback_legacy.sdata.s',
+        'placement': 'fragment', 'record': '2026-09-20 link-order proof: eacpsxz.lib(callback.obj), link index 361: loadfilecallback, the only cell between threads.obj and window.obj',
+    },
+    {
+        'source': 'recon/eaclib/psx/eacpsxz/window.c', 'section': '.sdata',
+        'address': 0x8013DD64, 'size': 12,
+        'payload': bytes(12),
+        'oracle_source': 'asm/data/sdata_window_legacy.sdata.s',
+        'placement': 'fragment', 'record': '2026-09-20 link-order proof: eacpsxz.lib(window.obj), link index 404, data-only: videopages/videopage/windowpage',
+    },
+    {
+        'source': 'recon/eaclib/psx/eacpsxz/pageflip.c', 'section': '.sdata',
+        'address': 0x8013DD70, 'size': 12,
+        'payload': bytes(12),
+        'oracle_source': 'asm/data/sdata_pageflip_legacy.sdata.s',
+        'placement': 'fragment', 'record': '2026-09-20 link-order proof: eacpsxz.lib(pageflip.obj), link index 491, data-only: gpusetdispenv/vblsetdispenv/vsdeferred',
+    },
+    {
         'source': 'recon/eaclib/psx/eacpsxz/vars.c', 'section': '.sdata',
-        'address': 0x8013DC64, 'size': 160,
-        'payload_sha256': '2ee7b7ed73b946c772a7495b6ad5423aad6fcdc5aecbaeb6c5628478c7f62789',
+        'address': 0x8013DC54, 'size': 176,   # 2026-09-20: + library/disablecd/currentfilesystem/availablefilesystems (link-order proof)
+        'payload_sha256': '511d54ef0960585c47f0b024913e15bc2727d849c93171a5aa42a63c20cabfbe',
         'oracle_source': 'asm/data/sdata_vars_legacy.sdata.s',
-        'placement': 'fragment', 'record': 'SYM77a358 vars.obj; forty native name/address cells019083 onward, corroborated by NFS2 INT records',
+        'placement': 'fragment', 'record': 'SYM77a358 vars.obj; forty-four native name/address cells (library.. head + 019083 onward), corroborated by NFS2 INT records',
     },
     # P887: G0 restores drawshp's actual scalar declaration/address schedule
     # and its native4-byte initialized data. The old r08 copy is src-only;

@@ -784,8 +784,8 @@ SECTIONS
     ASSERT(SIZEOF(.source_data_1) == 8, "source data owner size mismatch")
     .source_data_8 0x800515b8 : SUBALIGN(4) { build/recon/frontend/common/fetextrender.cpp.o(.data); }
     ASSERT(SIZEOF(.source_data_8) == 88, "source data owner size mismatch")
-    .source_data_19 0x800529d0 : SUBALIGN(4) { build/recon/frontend/psx/drawshp.cpp.o(.data); }
-    ASSERT(SIZEOF(.source_data_19) == 4, "source data owner size mismatch")
+    .source_data_23 0x800529d0 : SUBALIGN(4) { build/recon/frontend/psx/drawshp.cpp.o(.data); }
+    ASSERT(SIZEOF(.source_data_23) == 4, "source data owner size mismatch")
 
     .fd0000 0x80051260 : SUBALIGN(4) { build/asm/data/front_data_r00.data.s.o(.data); }
     .fd0001 0x80051610 : SUBALIGN(4) { build/asm/data/front_data_r01.data.s.o(.data); }
@@ -1104,13 +1104,16 @@ SECTIONS
         build/recon/game/psx/trsproj.cpp.o(.sdata);   /* 0x8013db9c..0x8013dba0  was sdata_8013C54C_o36.sdata.s */
         build/recon/game/psx/weather.cpp.o(.sdata);   /* 0x8013dba0..0x8013dc10 native owner (initializer-ordered); r22 now starts at memaborthook */
         build/asm/data/sdata_8013C54C_r22.sdata.s.o(.sdata);
-        build/recon/eaclib/psx/eacpsxz/vars.c.o(.sdata);   /* 0x8013dc64..0x8013dd04 */
+        build/recon/eaclib/psx/eacpsxz/vars.c.o(.sdata);   /* 0x8013dc54..0x8013dd04 */
         build/recon/eaclib/psx/eacpsxz/primate.c.o(.sdata);   /* P904 native initialized owner:0x8013dd04..0x8013dd18 */
         build/asm/data/sdata_8013C54C_r22.sdata.s.o(.sdata.r22_post_vars);
         build/recon/eaclib/psx/eacpsxz/joystkn.c.o(.sbss);   /* 0x8013dd28..0x8013dd2c  was sdata_8013C54C_o37.sdata.s */
         build/asm/data/sdata_8013C54C_r23.sdata.s.o(.sdata);
+        build/recon/eaclib/psx/eacpsxz/textfor.c.o(.sdata);    /* 0x8013dd50..0x8013dd5c (was the r23 tail) */
         build/recon/eaclib/psx/eacpsxz/threads.c.o(.sbss);   /* 0x8013dd5c..0x8013dd60  was sdata_8013C54C_o38.sdata.s */
-        build/asm/data/sdata_8013C54C_r24.sdata.s.o(.sdata);
+        build/recon/eaclib/psx/eacpsxz/callback.c.o(.sdata);   /* 0x8013dd60 loadfilecallback (was r24) */
+        build/recon/eaclib/psx/eacpsxz/window.c.o(.sdata);     /* 0x8013dd64..0x8013dd70 (was r24) */
+        build/recon/eaclib/psx/eacpsxz/pageflip.c.o(.sdata);   /* 0x8013dd70..0x8013dd7c (was r24) */
         build/recon/eaclib/psx/sndpsxz/sdpacket.c.o(.sdata);
         build/recon/game/common/aih_cop.cpp.o(.sdata);
     }

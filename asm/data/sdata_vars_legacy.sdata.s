@@ -1,8 +1,32 @@
 .include "macro.inc"
-/* P886: native vars.obj initialized-data oracle, 0x8013DC64..0x8013DD04.
+/* P886: native vars.obj initialized-data oracle, 0x8013DC54..0x8013DD04.
  * Raw bytes and all labels are retained for src; recon uses the typed owner. */
 
 .section .sdata, "wa"
+
+nonmatching library
+
+dlabel library
+    /* 12E454 8013DC54 04000000 */ .word 0x00000004
+enddlabel library
+
+nonmatching disablecd
+
+dlabel disablecd
+    /* 12E458 8013DC58 01000000 */ .word 0x00000001
+enddlabel disablecd
+
+nonmatching currentfilesystem
+
+dlabel currentfilesystem
+    /* 12E45C 8013DC5C 00000000 */ .word 0x00000000
+enddlabel currentfilesystem
+
+nonmatching availablefilesystems
+
+dlabel availablefilesystems
+    /* 12E460 8013DC60 00000000 */ .word 0x00000000
+enddlabel availablefilesystems
 
 nonmatching kanjiwidth
 

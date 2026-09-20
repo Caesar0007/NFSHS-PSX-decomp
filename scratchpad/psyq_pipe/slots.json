@@ -2,6 +2,5 @@
 "recon__game__common__spchevnt.c.obj": "recon__game__common__hudpmx.cpp.obj",
 "recon__syslib__psx__libcd__cdcont.c.obj": "recon__syslib__psx__libpress__VLC.c.obj",
 "recon__syslib__psx__libcd__stcdint.c.obj": "recon__syslib__psx__libcd__cdcont.c.obj",
-"recon__syslib__psx__libcd__drv.c.obj": "recon__syslib__psx__libgpu__P06.c.obj",
-"recon__eaclib__psx__sndpsxz__snddata.c.obj": "recon__syslib__psx__libapi__COUNTER.c.obj"
+"recon__syslib__psx__libcd__drv.c.obj": "recon__syslib__psx__libgpu__P06.c.obj"
 }

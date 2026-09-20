@@ -18,12 +18,6 @@
 "0x80136dec"
 ],
 [
-"gap__sdasync.obj",
-".bss",
-"0x80147860",
-"0x80147914"
-],
-[
 "gap__unitvect.obj",
 ".rdata",
 "0x80057605",

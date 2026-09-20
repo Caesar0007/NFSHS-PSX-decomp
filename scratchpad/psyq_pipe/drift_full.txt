@@ -1,9 +1,9 @@
 == .text: 1589 matched symbols; base delta -0xa60
    drift -0xa60 -> -0xa5c (+0x4) between Stats_TrackEndGame__Fv and TextSys_LoadWordsGeneric__FiPc @0x800b9158 [Textsys.obj]
 == .data: 309 matched symbols; base delta -0xbc0
-== .sdata: 455 matched symbols; base delta -0xb38
-== .sbss: 38 matched symbols; base delta -0xb38
-== .bss: 2 matched symbols; base delta -0xb24
+== .sdata: 455 matched symbols; base delta -0xbf0
+== .sbss: 38 matched symbols; base delta -0xc0c
+== .bss: 2 matched symbols; base delta -0xbf8
 == front.text: 845 matched symbols; base delta -0x80
 == front.data: 144 matched symbols; base delta -0x80
 == front.bss: 1 matched symbols; base delta -0x98

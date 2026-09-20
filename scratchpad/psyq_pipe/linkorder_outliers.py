@@ -4,6 +4,7 @@ object's retail link index; the labels NOT on the longest non-decreasing run are
 to a module whose recon file is named differently).  Function-statics (`name.NN`) are skipped."""
 import bisect
 import glob
+import os
 import re
 import subprocess
 import sys
@@ -35,14 +36,17 @@ idx = {}
 for i, n in enumerate(order):
     idx.setdefault(key(n), i)
     idx.setdefault(key(n).split('/')[-1], i)
-definer = {}
+definer, alld = {}, {}
 files = sorted(glob.glob(R + 'build/recon/**/*.o', recursive=True))
+# a build object whose recon source is gone is STALE (e.g. the old lumped libpad PAD.c.o) -- it must not shadow the real owner
+files = [f for f in files if os.path.exists(f.replace(chr(92), '/').replace('build/recon/', 'recon/')[:-2])]
 for i in range(0, len(files), 60):
     batch = [f.replace(chr(92), '/').replace(R, '') for f in files[i:i + 60]]
     for ln in subprocess.run([NM, '-A'] + batch, capture_output=True, text=True, cwd=R).stdout.splitlines():
         p = ln.split()
         if len(p) == 3 and p[1] in 'DdBbGgSsCc':
             definer.setdefault(p[2], p[0].split(':')[0].replace('build/recon/', ''))
+            alld.setdefault(p[2], []).append(p[0].split(':')[0].replace('build/recon/', ''))
 
 
 def oidx(o):
@@ -70,8 +74,14 @@ for sec in (sys.argv[1:] or list(SECS)):
     while j is not None:
         keep.add(j); j = prev[j]
     out = [r for j, r in enumerate(rows) if j not in keep]
-    print('== %s: %d owned labels, %d off the link-order run' % (sec, len(rows), len(out)))
+    dup = [r for r in out if len(alld[r[1]]) > 1]
+    print('== %s: %d owned labels, %d off the link-order run (+%d same-named statics, not decidable by name)' % (sec, len(rows), len(out) - len(dup), len(dup)))
+    for a, n in sorted(set(labels)):
+        if lo <= a < hi and not re.search(r'\.\d+$', n) and n in definer and oidx(definer[n]) is None:
+            print('   %08x %-26s owner %-40s NOT A RETAIL MODULE NAME' % (a, n[:26], definer[n][:40]))
     for a, n, o, i in out:
+        if len(alld[n]) > 1:
+            continue   # same-named C statics in several objects: the name cannot tell which one this address is
         before = max((r[3] for r in rows if r[0] < a and rows.index(r) in keep), default=None)
         after = min((r[3] for r in rows if r[0] > a and rows.index(r) in keep), default=None)
         cands = ' '.join(key(order[t]).split('/')[-1] for t in range(before or 0, (after if after is not None else before or 0) + 1))[:90]

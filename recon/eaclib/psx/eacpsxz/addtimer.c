@@ -11,10 +11,7 @@
 #include "eac_types.h"
 #include "addtimer.h"
 
-/* owning-TU def (extern-declared, never defined; BSS) */
-/* Retail keeps this zero table in .data (0x8012360C): a C definition WITH an
- * initializer is emitted there; the tentative form was COMMON -> catch-all .bss. */
-void (*tmrsub[8])(void) = { 0 }; /* @0x8012360C: retail MAP public timer callback table (no SYM type record) */
+/* tmrsub[8] is owned by vars.obj (vars.c): retail link order puts it after spchrand.obj, 17 modules past this one */
 
 void addtimer(void (*fn)(void))   /* @0x800EAFE8 */
 {

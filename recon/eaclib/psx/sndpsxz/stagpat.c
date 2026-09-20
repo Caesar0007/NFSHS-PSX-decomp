@@ -14,10 +14,10 @@
  */
 
 extern int          sndgs[];
-extern signed char  snddefaultenvelope;          /* default envelope table (sclcptch/data-mat) */
-/* Five-byte extern view keeps this byte out of -G4 small-data addressing without changing the
- * actual one-byte definition owned by snddata.c; only element zero exists and is accessed here. */
-extern unsigned char DAT_801371cc[5];            /* rolling key-group counter */
+/* stagpat.obj .data 0x801371C4..0x801371D0 (link-order slot sclcptch [378] .. CTYPE0 [389]; stagpat [379] is the only
+ * user of both cells): the default envelope, then the rolling key-group counter. */
+signed char snddefaultenvelope[8] = { -1, -1, -1, 0x7f, 0x7f, 0, 0, 0 };   /* @0x801371C4 */
+unsigned char DAT_801371cc = 0;   /* @0x801371CC : rolling key-group counter (the library is built -G0: plain .data) */
 
 extern int  iSNDgettag(int *cursor, unsigned int *outId, int *outVal, int *outPtr);  /* sgettag (4-arg) */
 extern int  iSNDplatformresolve(int resolv, int patch_idx, int scratch);  /* sdresolv */
@@ -94,8 +94,8 @@ extern unsigned char *iSNDresettimbre(int *t, int buf)
     t[35] = 0;
     t[34] = 0;
     t[37] = 1;
-    t[25] = (int)&snddefaultenvelope;
-    return (unsigned char *)&snddefaultenvelope;
+    t[25] = (int)snddefaultenvelope;
+    return (unsigned char *)snddefaultenvelope;
 }
 
 /* iSNDresolveheader @0x80101B7C : fold an override header `out` into the running timbre header `hdr`
@@ -121,16 +121,16 @@ extern int iSNDfindfreekey(void)
     int *gs;
     char *slot;
 top:
-    DAT_801371cc[0] = DAT_801371cc[0] + 1;        /* lbu/addiu/sb; the == 0 test reuses the CSE'd value */
-    if (DAT_801371cc[0] == 0)                     /* skip 0 (the "no group" sentinel) */
-        DAT_801371cc[0] = DAT_801371cc[0] + 1;
+    DAT_801371cc = DAT_801371cc + 1;        /* lbu/addiu/sb; the == 0 test reuses the CSE'd value */
+    if (DAT_801371cc == 0)                     /* skip 0 (the "no group" sentinel) */
+        DAT_801371cc = DAT_801371cc + 1;
     i = 0;
     gs = sndgs;                                   /* one la base for the +0x11 / +0x94 displacements */
     probe = ((unsigned char *)gs)[0x11];
     if (probe == 0)
         goto done;
     count = ((unsigned char *)gs)[0x11];
-    key   = DAT_801371cc[0];
+    key   = DAT_801371cc;
     slot  = (char *)gs[0x25];
 loop:                                             /* goto-formed: no LOOP notes -> no giv anchoring */
     if (*(signed char *)(slot + 0xb) != 0) {
@@ -142,10 +142,9 @@ loop:                                             /* goto-formed: no LOOP notes 
     if (i < count)
         goto loop;
 done:
-    return DAT_801371cc[0];
-    /* MATCH: DAT_801371cc's five-byte extern VIEW suppresses -G4 gp-relative addressing while its
-     * real storage remains the one-byte snddata.c definition.  Keeping `probe` distinct from `count`
-     * then preserves the oracle's branch value in v1 and copies it to a2 for the loop bound. */
+    return DAT_801371cc;
+    /* MATCH: keeping `probe` distinct from `count` preserves the oracle's branch value in v1 and copies it to a2 for
+     * the loop bound. */
 }
 
 /* iSNDplaytaggedtimbre @0x80101C8C : launch ONE note's voice from a fully-resolved timbre.  Folds the
@@ -448,4 +447,4 @@ extern int iSNDremovetaggedpatch(int bank, int *patch_idx)
     *(unsigned char *)(bank + 3) = *(unsigned char *)(bank + 3) & 0xfe;
     return 0;
 }
-
+

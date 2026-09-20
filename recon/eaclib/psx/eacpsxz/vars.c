@@ -9,6 +9,13 @@
 #include "../eaclib_types.h"
 #include "eac_types.h"
 #include "vars.h"
+#include "addtimer.h"
+
+/* vars.obj .data 0x8012360C..0x8012364C (owner proven by retail link order, 2026-09-20: the block follows spchrand.obj's
+ * seedX [260] and precedes libgpu SYS.obj [268]; vars.obj is 267).  Zero but INITIALISED in the image.  vbltmrsub is
+ * referenced by no surviving function (its users were removed by the final link's dead stripping). */
+void (*tmrsub[8])(void) = { 0 };      /* @0x8012360C : timer callbacks (addtimer / deltimer / tmrint) */
+void (*vbltmrsub[8])(void) = { 0 };   /* @0x8012362C : vblank callbacks */
 
 /* head of vars.obj's .sdata block (owner proven by retail link order, 2026-09-20) */
 int library = 4;               /* @0x8013DC54 */

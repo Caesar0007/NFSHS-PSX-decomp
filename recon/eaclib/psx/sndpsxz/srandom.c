@@ -11,7 +11,12 @@
  * scratchpad/w85/S8_receipt.md. */
 
 
-extern unsigned int sndseed[6];
+/* srandom.obj .data 0x8013C2F0 (link-order owner, 2026-09-20; was in the non-module snddata.c): the additive PRNG state,
+ * same initial words as eacpsxz random.obj's `seed` and spchrand.obj's `seedX`. */
+unsigned int sndseed[6] = {
+    0xf22d0e56u, 0x883126e9u, 0xc624dd2fu,
+    0x0702c49cu, 0x9e353f7du, 0x6fdf3b64u
+};
 #define SNDSEED(i) state[(i)]
 #define NSNDSEED(i) (((unsigned int *)state)[(i)])
 

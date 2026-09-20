@@ -809,8 +809,8 @@ def main():
     # only value a reference to it can ever want.
     legacy_syms = {}
     va_named_objs = sorted((ROOT / "build" / "asm" / "data").glob("*.s.o"))
-    # ...and the recon TUs' own VA-named carriers (snddata.c's DAT_801371cc, a
-    # zero byte retail keeps at 0x801371cc inside another object's .data).
+    # ...and the recon TUs' own VA-named cells (e.g. stagpat.c's DAT_801371cc, the
+    # unnamed key-group counter of stagpat.obj's .data).
     for s in [*Path(ROOT / "recon").rglob("*.cpp"), *Path(ROOT / "recon").rglob("*.c")]:
         o = ROOT / "build" / (s.relative_to(ROOT).as_posix() + ".o")
         if o.is_file():

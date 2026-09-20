@@ -878,6 +878,10 @@ PER_TU_FLAGS = {
     # assignments + both cursor shapes land exactly; retail's patch loop shows NO
     # strength reduction).  Same adoption precedent as movf.c's no_schedule_insns.
     "recon/eaclib/psx/sndpsxz/sbdload.c":   {"no_strength_reduce": True},
+    # 2026-09-20: stagpat.obj owns its one-byte key-group counter in plain .data (0x801371CC) -- the sndpsxz oracles
+    # carry zero %gp_rel sites (library built -G0, like spchpsxz); -G0 retires the five-byte extern-view device.
+    "recon/eaclib/psx/sndpsxz/stagpat.c":   {"g_value": 0},
+    "recon/eaclib/psx/eacpsxz/savegp.c":    {"g_value": 0},   # hand-asm module (SAVEGP.ASM): its one data word is plain .data
     # sdmemman.obj retains the full D_80147E34 base through its tail scan.
     # GCC's optional post-loop CSE rerun folds that final base use back to a
     # %lo(high) address and creates an extra live address pseudo; the retail

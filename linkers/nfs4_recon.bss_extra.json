@@ -470,7 +470,7 @@
   "q": 1
  },
  {
-  "obj": "build/recon/eaclib/psx/sndpsxz/ssysinit.c.o",
+  "obj": "build/recon/eaclib/psx/sndpsxz/sdata.c.o",
   "section": ".bss",
   "base": 2148825184,
   "end": 2148825364,

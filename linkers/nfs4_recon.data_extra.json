@@ -1254,14 +1254,14 @@
   "q": 2
  },
  {
-  "obj": "build/recon/eaclib/psx/eacpsxz/addtimer.c.o",
+  "obj": "build/recon/eaclib/psx/eacpsxz/vars.c.o",
   "section": ".data",
   "base": 2148677132,
-  "end": 2148677164,
-  "size": 32,
+  "end": 2148677196,
+  "size": 64,
   "ok": true,
   "unresolved": 0,
-  "words": 8,
+  "words": 16,
   "q": 2
  },
  {
@@ -1419,7 +1419,7 @@
   "q": 1
  },
  {
-  "obj": "build/recon/eaclib/psx/sndpsxz/snddata.c.o",
+  "obj": "build/recon/eaclib/psx/sndpsxz/srandom.c.o",
   "section": ".data",
   "base": 2148778736,
   "end": 2148778760,
@@ -2082,11 +2082,11 @@
   "obj": "build/recon/eaclib/psx/sndpsxz/sclcptch.c.o",
   "section": ".data",
   "base": 2148757700,
-  "end": 2148758212,
-  "size": 512,
+  "end": 2148757956,
+  "size": 256,
   "ok": true,
   "unresolved": 0,
-  "words": 128,
+  "words": 64,
   "q": 0
  },
  {
@@ -2560,6 +2560,28 @@
   "ok": true,
   "unresolved": 0,
   "words": 3,
+  "q": 0
+ },
+ {
+  "obj": "build/recon/eaclib/psx/sndpsxz/stagpat.c.o",
+  "section": ".data",
+  "base": 2148757956,
+  "end": 2148757968,
+  "size": 12,
+  "ok": true,
+  "unresolved": 0,
+  "words": 3,
+  "q": 0
+ },
+ {
+  "obj": "build/recon/eaclib/psx/sndpsxz/slimits.c.o",
+  "section": ".data",
+  "base": 2148676820,
+  "end": 2148676840,
+  "size": 20,
+  "ok": true,
+  "unresolved": 0,
+  "words": 5,
   "q": 0
  }
 ]

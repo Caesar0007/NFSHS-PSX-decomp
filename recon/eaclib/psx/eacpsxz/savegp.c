@@ -21,21 +21,17 @@
  *   (`lui $gp,0x8012; lw $gp,0x34E8($gp)` == 0x801234E8) rather than re-symbolizing it, so savegp must
  *   transcribe those literals (32786 / 13544 decimal) to byte-match.  maspsx note: the `lw` displacement
  *   MUST be decimal (13544, not 0x34E8) -- maspsx int()-parses the offset(base) displacement base-10.
- *   (Data-mat/promotion follow-up: g_bootGP is currently an extern -- the linked build owns the word as
- *   `D_801234E8` in an asm/data blob; promoting this TU means defining g_bootGP here and de-duping the blob.)
  */
 
 #include "../eaclib_types.h"
 #include "eac_types.h"
 #include "savegp.h"
 
-/* W66-A3 (link): the word IS in the image and the splat blob emits it as
- * `D_801234E8` (data_8010CCD4_r16.data.s) -- so the promotion follow-up above is
- * answered by ALIASING, not by defining a second copy here.  The `%hi/%lo`
- * operand inside initgp's template is spelled with the blob's label for the same
- * reason (an asm-label alias on a C declaration cannot rename a symbol that only
- * appears inside an __asm__ string). */
-extern unsigned int g_bootGP __asm__("D_801234E8");   /* @0x801234E8 : lib/boot $gp */
+/* savegp.obj .data 0x801234E8 (SAVEGP.ASM line 7; link-order slot addtimer [250] .. fixdsqrt [252]): the saved library $gp.
+ * Owned here since 2026-09-20 -- it had been "covered" only by the alignment tail of the non-module snddata.c.  The label
+ * keeps its VA spelling because the asm template below names it (an asm-label alias on a C declaration cannot rename a
+ * symbol that only appears inside an __asm__ string); the TU is built -G0 so the word is plain .data, as in the asm original. */
+unsigned int g_bootGP __asm__("D_801234E8") = 0;   /* @0x801234E8 : lib/boot $gp (written by initgp) */
 
 #if defined(__mips__)
 
@@ -46,6 +42,7 @@ extern unsigned int g_bootGP __asm__("D_801234E8");   /* @0x801234E8 : lib/boot 
  * Gate-lane object is byte-identical (proven by hash); see
  * scratchpad/w64a20/RECEIPTS.md. */
 __asm__(
+"       .text\n"                     /* the g_bootGP definition above leaves the assembler in .data */
 "       .set noreorder\n"
 "       .set noat\n"
 /* initgp @0x800EB080 : g_bootGP = $gp */

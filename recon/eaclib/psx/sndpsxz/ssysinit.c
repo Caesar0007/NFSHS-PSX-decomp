@@ -35,15 +35,7 @@ extern int  sndgs[];
  *      iSNDplatformrate = sndgs + 0xA0   (= D_80147900, the platform sample
  *                                         rate SNDPKTPLAY_start/stagpat load;
  *                                         inside the DAT_801478f4 sub-run) */
-__asm__("\t.globl\tsndgs\n\t.globl\tgSndState\n\t.globl\tD_80147871\n"
-        "\t.globl\tD_80147898\n\t.globl\tDAT_801478f4\n\t.globl\tiSNDplatformrate\n"
-        "\t.section\t.bss\n\t.align\t2\n"
-        "sndgs:\n"
-        "gSndState:\n\t.space\t0x11\n"
-        "D_80147871:\n\t.space\t0x27\n"
-        "D_80147898:\n\t.space\t0x5c\n"
-        "DAT_801478f4:\n\t.space\t0xc\n"
-        "iSNDplatformrate:\n\t.space\t0x14\n\t.text");
+/* (2026-09-20) the run itself is defined by sdata.obj (sdata.c), its retail link-order owner */
 extern int  DAT_80134a68[];                /* output-caps flag; owned by snddata.c (array view forces
                                              * the oracle's retained absolute address, not GP-relative) */
 

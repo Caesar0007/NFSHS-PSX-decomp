@@ -14,7 +14,6 @@ extern char              *Paths_Paths[];
 tScreenTournSelect *screenTournSelect;               /* EXT @0x8005205c (runtime-set) */
 static char trophyTVOrder[4] = {1,2,0,3};            /* STAT @0x80052058 real bytes=01 02 00 03 */
 static char gSwapFileName[16];                       /* STAT @0x80052c90 */
-extern __vtbl_ptr_type tScreenTournSelect_vtable[];              /* _vt.18tScreenTournSelect @0x80011f08 */
 
 /* --- base tScreen ctor/dtor + helpers --- */
 void tScreen_ctor(tScreen *s);

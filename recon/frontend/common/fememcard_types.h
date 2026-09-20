@@ -113,7 +113,9 @@ struct FE3d_zObj {
     FE3d_zFacet *facet;
 };
 
-struct tDialogYesNoMem : public tDialogYesNo {};
+struct tDialogYesNoMem : public tDialogYesNo {
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);   /* declared on every surface: see fevirt_tscreen7.py */
+};
 
 struct CARDINFO_def {
     int status, lasterror, numfiles, freeblocks;

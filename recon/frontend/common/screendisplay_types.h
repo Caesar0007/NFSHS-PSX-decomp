@@ -56,19 +56,19 @@ struct tShapeInformation {
     bool fLoadCancelled;
 };
 
+#include "fescreen_virtual_types.h"
 struct tScreen {
     tShapeInformation fPermShapes, fSwapShapes;
     int fTransitionTicks;
     bool fTransitionOff;
     int fInternalScreenFadeVal;
     short fScreenFadeVal;
-    __vtbl_ptr_type (*_vf)[10];
+#include "fescreen_virtuals.inc"
 
 #if defined(NFS4_SCREENDISPLAY_SCREENMEMCARD_METHODS) || \
     defined(NFS4_SCREENDISPLAY_FEDIALOG_METHODS) || \
     defined(NFS4_SCREENDISPLAY_SCREENCARSELECT_METHODS)
     tScreen();
-    ~tScreen();
 #endif
 #ifdef NFS4_SCREENDISPLAY_SCREENCARSELECT_METHODS
     void UploadSwapShapes(int);
@@ -87,9 +87,6 @@ struct tScreen {
         __asm__("TransitionOn__7tScreen22tScreen_TransitionTypeP5tMenu");
     void UpdateTransition();
 #endif
-    void PreLoad();
-    void Initialize();
-    void Cleanup();
 };
 
 struct tActiveLine {
@@ -611,6 +608,9 @@ struct tTVConfig {
 };
 
 struct tDialogBase : public tScreen {
+    /* virtuals introduced by tDialogBase, in retail slot order [10] [11] (real virtuals since 2026-09-20) */
+    virtual void CalculateDimensions() = 0;
+    virtual void Draw();
     short specificPlayer, left, top, width, height, reservedheight;
     bool currentlyOn;
     long startTicks, timeOutTicks;
@@ -628,7 +628,6 @@ struct tDialogBase : public tScreen {
     void Display();
     void Hide();
     inline bool IsVisible() { return currentlyOn != 0; }
-    void Draw();
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
 #endif
 #ifdef NFS4_SCREENDISPLAY_SCREENCARSELECT_METHODS
@@ -657,16 +656,8 @@ struct tDialogMessageString : public tDialogBase {
 struct tDialogInteractive : public tDialogMessageString {
     bool ReadyToReturnValue, fCurrentlyRunning;
 #ifdef NFS4_SCREENDISPLAY_FEDIALOG_METHODS
-    inline void CalculateDimensionsVirtual() {
-        __vtbl_ptr_type (*vf)[10] = _vf;
-        (*vf[1][0].pfn)((char *)this + vf[1][0].delta);
-    }
-    inline void ProcessInputVirtual(tPlayer player, tInputKeyType &key,
-                                    tMenuCommand &command) {
-        __vtbl_ptr_type (*vf)[10] = _vf;
-        (*(*vf)[9].pfn)((char *)this + (*vf)[9].delta,
-                        player, &key, &command);
-    }
+    inline void CalculateDimensionsVirtual() { CalculateDimensions(); }
+    inline void ProcessInputVirtual(tPlayer player, tInputKeyType &key, tMenuCommand &command) { ProcessInput(player, key, command); }
     short Run();
 #endif
 };

@@ -30,7 +30,6 @@ char         picked[11];   /* @0x80051960  (bss(zero)) */
    synthesizes the aggregate's internal-linkage constructor. */
 inline tDialogBase::tDialogBase()
 {
-  _vf = (__typeof__(_vf))tDialogBase_vtable;   /* w76-A20 vptr-store alias dial (24A) */
   MaxW = 0x120;
   currentlyOn = 0;
   reservedheight = 0;
@@ -48,7 +47,6 @@ inline tDialogBase::tDialogBase()
 
 inline tDialogMessageString::tDialogMessageString()
 {
-  _vf = (__typeof__(_vf))tDialogMessageString_vtable;   /* w76-A20 vptr-store alias dial (24A) */
   Centerit = 0;
   fFullyOpen = 0;
   timeOutTicks = 0;
@@ -57,95 +55,78 @@ inline tDialogMessageString::tDialogMessageString()
 
 inline tDialogBackUpOnly::tDialogBackUpOnly(int)
 {
-  _vf = (__typeof__(_vf))tDialogBackUpOnly_vtable;   /* w76-A20 vptr-store alias dial (24A) */
 }
 
 inline tScreenMain::tScreenMain()
 {
-  _vf = (__typeof__(_vf))tScreenMain_vtable;   /* w76-A20 vptr-store alias dial (24A) */
 }
 
 inline tScreenCarSelectDuel::tScreenCarSelectDuel()
 {
-  _vf = (__typeof__(_vf))tScreenCarSelectDuel_vtable;   /* w76-A20 vptr-store alias dial (24A) */
 }
 
 inline tScreenCarSelectTwoPlayer::tScreenCarSelectTwoPlayer()
   /* The dummy CarDialog argument makes the inherited screen vptr assignment
      occur before the member's inlined construction, matching C++'s real
      compiler-generated vptr phase without changing the reconstructed layout. */
-  : CarDialog((_vf = (__typeof__(_vf))tScreenCarSelectTwoPlayer_vtable, 0))   /* w76-A20 vptr-store alias dial (24A) */
+  : CarDialog(0)   /* w76-A20 vptr-store alias dial (24A) */
 {
 }
 
 inline tScreenPinkSlipsCarSelect::tScreenPinkSlipsCarSelect()
 {
-  _vf = (__typeof__(_vf))tScreenPinkSlipsCarSelect_vtable;   /* w76-A20 vptr-store alias dial (24A) */
 }
 
 inline tScreenTrackRecords::tScreenTrackRecords()
 {
-  _vf = (__typeof__(_vf))tScreenTrackRecords_vtable;   /* w76-A20 vptr-store alias dial (24A) */
 }
 
 inline tScreenTrackInfo::tScreenTrackInfo()
 {
-  _vf = (__typeof__(_vf))tScreenTrackInfo_vtable;   /* w76-A20 vptr-store alias dial (24A) */
 }
 
 inline tScreenTrackSelect::tScreenTrackSelect()
 {
-  _vf = (__typeof__(_vf))tScreenTrackSelect_vtable;   /* w76-A20 vptr-store alias dial (24A) */
 }
 
 inline tScreenTournamentTrophy::tScreenTournamentTrophy()
 {
-  _vf = (__typeof__(_vf))tScreenTournamentTrophy_vtable;   /* w76-A20 vptr-store alias dial (24A) */
 }
 
 inline tScreenTrophyInfo::tScreenTrophyInfo()
 {
-  _vf = (__typeof__(_vf))tScreenTrophyInfo_vtable;   /* w76-A20 vptr-store alias dial (24A) */
 }
 
 inline tScreenDisplay::tScreenDisplay()
 {
-  _vf = (__typeof__(_vf))tScreenDisplay_vtable;   /* w76-A20 vptr-store alias dial (24A) */
 }
 
 inline tScreenUserName::tScreenUserName()
 {
-  _vf = (__typeof__(_vf))tScreenUserName_vtable;   /* w76-A20 vptr-store alias dial (24A) */
 }
 
 inline tScreenPinkSlipCongrats::tScreenPinkSlipCongrats()
 {
-  _vf = (__typeof__(_vf))tScreenPinkSlipCongrats_vtable;   /* w76-A20 vptr-store alias dial (24A) */
 }
 
 inline tScreenTournamentStandings3item::tScreenTournamentStandings3item()
 {
-  _vf = (__typeof__(_vf))tScreenTournamentStandings3item_vtable;   /* w76-A20 vptr-store alias dial (24A) */
 }
 
 inline tScreenPinkSlipStandings::tScreenPinkSlipStandings()
 {
-  _vf = (__typeof__(_vf))tScreenPinkSlipStandings_vtable;   /* w76-A20 vptr-store alias dial (24A) */
 }
 
 inline tScreenPinkSlips::tScreenPinkSlips()
 {
-  _vf = (__typeof__(_vf))tScreenPinkSlips_vtable;   /* w76-A20 vptr-store alias dial (24A) */
 }
 
 inline tScreenBeTheCopCongrats::tScreenBeTheCopCongrats()
 {
-  _vf = (__typeof__(_vf))tScreenBeTheCopCongrats_vtable;   /* w76-A20 vptr-store alias dial (24A) */
 }
 
 inline tScreenTournamentCongrats::tScreenTournamentCongrats()
 {
-  _vf = (__typeof__(_vf))tScreenTournamentCongrats_vtable;   /* w76-A20 vptr-store alias dial (24A) */
 }
 
 

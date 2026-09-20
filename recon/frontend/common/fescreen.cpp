@@ -293,7 +293,6 @@ tScreen::tScreen()
 
 {
   
-  *(void **)&(this->_vf) = (void *)tScreen_vtable;
   (this->fPermShapes).fShapes = (tTexture_ShapeInfo *)0x0;
   this->InitializeShapes(this->fPermShapes,0);
   (this->fSwapShapes).fShapes = (tTexture_ShapeInfo *)0x0;
@@ -309,7 +308,6 @@ tScreen::tScreen()
 tScreen::~tScreen()
 
 {
-  *(void **)&(this->_vf) = (void *)tScreen_vtable;
   return;
 }
 
@@ -341,10 +339,8 @@ void tScreen::Initialize()
   bool shapesLoaded;
 
   this->DisplayLoadingText();
-  (*(*this->_vf)[5].pfn)((char *)this + (*this->_vf)[5].delta);
-  (*(*this->_vf)[1].pfn)
-            ((char *)this + (*this->_vf)[1].delta,&numPermShapes,
-             &numSwapShapes,&permFileName,&swapFileName);
+  this->PreLoad();
+  this->GetShapeInfo(numPermShapes,numSwapShapes,&permFileName,&swapFileName);
   do {
     FeAudio_systemtask(0);
     shapesLoaded = this->IsShapeFileLoaded(this->fPermShapes);        /* 363 */
@@ -387,10 +383,10 @@ void tScreen::Draw(bool drawBackground)
 
 {
   if (drawBackground != 0) {
-    (*(*this->_vf)[2].pfn)((char *)this + (*this->_vf)[2].delta);
+    this->DrawBackground();
   }
   else {
-    (*(*this->_vf)[3].pfn)((char *)this + (*this->_vf)[3].delta);
+    this->DrawForeground();
   }
   return;
 }
@@ -590,8 +586,7 @@ void tScreen::PreLoad()
   char *swapFileName;
 
   /* virtual GetShapeInfo (vtbl slot 1) */
-  (*(*this->_vf)[1].pfn)((char *)this + (*this->_vf)[1].delta,
-                         &numPermShapes,&numSwapShapes,&permFileName,&swapFileName);
+  this->GetShapeInfo(numPermShapes,numSwapShapes,&permFileName,&swapFileName);
   this->InitializeShapes(this->fPermShapes,(u_int)(int)numPermShapes);
   this->InitializeShapes(this->fSwapShapes,(u_int)(int)numSwapShapes);
   this->AsyncLoadPermanentShapeFile(permFileName);

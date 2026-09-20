@@ -76,6 +76,7 @@ struct tScreen;
 
 
 
+#include "fescreen_virtual_types.h"
 #include "felist_classes.h"
 
 struct tMenuItem {
@@ -87,11 +88,7 @@ struct tMenuItem {
     tMenuItem(unsigned int textDescription);
     virtual ~tMenuItem();
     virtual long DebounceKeys();
-#if defined(NFS4_FE_CORE_FEMENU_METHODS) || defined(NFS4_FE_CORE_FEDIALOG_METHODS)
     virtual void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-#else
-    virtual void ProcessInput(int, void *, void *);   /* layout-only: this owner surface has no tInputKeyType/tMenuCommand */
-#endif
 #ifdef NFS4_FE_CORE_FEMENU_METHODS
     virtual void Draw(bool) = 0;   /* retail slot = __pure_virtual (FEMenu.obj emits this table) */
 #else

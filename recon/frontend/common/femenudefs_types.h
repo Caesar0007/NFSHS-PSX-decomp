@@ -135,11 +135,8 @@ struct tAcademyDefinition {
 };
 
 #ifndef NFS4_FEMENUDEFS_NO_DIALOGYESNOTRI
-extern __vtbl_ptr_type tDialogYesNoTri_vtable[];
 struct tDialogYesNoTri : public tDialogYesNo {
-    inline tDialogYesNoTri() {
-        _vf = (__typeof__(_vf))&tDialogYesNoTri_vtable;
-    }
+    inline tDialogYesNoTri() {}
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
 };
 #endif
@@ -179,6 +176,11 @@ struct tScreenMemcard : public tScreen {
     tScreenMemcard();
 #endif
     inline void SetMessage(int newMessage) { message = newMessage; }
+    void GetShapeInfo(short &, short &, char **, char **);   /* declared on every surface: see fevirt_tscreen7.py */
+    void DrawBackground();   /* declared on every surface: see fevirt_tscreen7.py */
+    void DrawForeground();   /* declared on every surface: see fevirt_tscreen7.py */
+    void Initialize();   /* declared on every surface: see fevirt_tscreen7.py */
+    void Cleanup();   /* declared on every surface: see fevirt_tscreen7.py */
 };
 
 struct tScreenUserName : public tScreen {
@@ -190,6 +192,9 @@ struct tScreenUserName : public tScreen {
     tScreenUserName();
 #endif
     inline void SetCallingMenu(tOptionsMenu *m) { callingMenu = m; }
+    void GetShapeInfo(short &, short &, char **, char **);   /* declared on every surface: see fevirt_tscreen7.py */
+    void DrawBackground();   /* declared on every surface: see fevirt_tscreen7.py */
+    void Initialize();   /* declared on every surface: see fevirt_tscreen7.py */
 };
 
 #ifndef NFS4_FEMENUDEFS_NO_FEAPPLICATION

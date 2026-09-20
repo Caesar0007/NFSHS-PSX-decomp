@@ -170,24 +170,4 @@ extern tCarModels superCopModels[7][5];
    `lw v0,0(v0)` (LOAD the value stored at the vtable's FIRST ENTRY, i.e. garbage bits of a
    __nfs4_vtbl_ptr_t struct) instead of materializing the array's own address (the real vtable
    pointer). Every tAllScreens::tAllScreens()/tDialog* vptr-init through these was corrupted. */
-extern __vtbl_ptr_type tDialogBackUpOnly_vtable[];
-extern __vtbl_ptr_type tDialogBase_vtable[];
-extern __vtbl_ptr_type tDialogMessageString_vtable[];
-extern __vtbl_ptr_type tScreenBeTheCopCongrats_vtable[];
-extern __vtbl_ptr_type tScreenCarSelectDuel_vtable[];
-extern __vtbl_ptr_type tScreenCarSelectTwoPlayer_vtable[];
-extern __vtbl_ptr_type tScreenDisplay_vtable[];
-extern __vtbl_ptr_type tScreenMain_vtable[];
-extern __vtbl_ptr_type tScreenPinkSlipCongrats_vtable[];
-extern __vtbl_ptr_type tScreenPinkSlipStandings_vtable[];
-extern __vtbl_ptr_type tScreenPinkSlipsCarSelect_vtable[];
-extern __vtbl_ptr_type tScreenPinkSlips_vtable[];
-extern __vtbl_ptr_type tScreenTournamentCongrats_vtable[];
-extern __vtbl_ptr_type tScreenTournamentStandings3item_vtable[];
-extern __vtbl_ptr_type tScreenTournamentTrophy_vtable[];
-extern __vtbl_ptr_type tScreenTrackInfo_vtable[];
-extern __vtbl_ptr_type tScreenTrackRecords_vtable[];
-extern __vtbl_ptr_type tScreenTrackSelect_vtable[];
-extern __vtbl_ptr_type tScreenTrophyInfo_vtable[];
-extern __vtbl_ptr_type tScreenUserName_vtable[];
 #endif

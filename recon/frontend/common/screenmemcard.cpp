@@ -874,7 +874,6 @@ DrawFg_join:
 tScreenMemcard::tScreenMemcard()
 
 {
-  this->_vf = (__vtbl_ptr_type (*)[10])tScreenMemcard_vtable;
   this->message = -1;
   this->card = 1;
   return;
@@ -988,7 +987,6 @@ void tScreenMemcard::Cleanup()
  * ___7tScreen the way retail does; the standalone symbol gcc then stops
  * emitting is supplied here, in place, with C linkage. */
 extern "C" void ___7tScreen(void *);
-extern "C" void ___14tScreenMemcard(void *thisp) { ___7tScreen(thisp); }
 
 /* end of screenmemcard.cpp */
 

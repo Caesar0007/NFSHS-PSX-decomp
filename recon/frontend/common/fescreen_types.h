@@ -41,6 +41,7 @@ struct tShapeInformation {
     bool fLoadCancelled;
 };
 
+#include "fescreen_virtual_types.h"
 struct tScreen {
     static int fSuppressLoadingText;   /* retail FEScreen.obj .data @0x800517c8 (SYM `_7tScreen.fSuppressLoadingText`) */
     tShapeInformation fPermShapes, fSwapShapes;
@@ -48,10 +49,9 @@ struct tScreen {
     bool fTransitionOff;
     int fInternalScreenFadeVal;
     short fScreenFadeVal;
-    __vtbl_ptr_type (*_vf)[10];
+#include "fescreen_virtuals.inc"
 
     tScreen();
-    ~tScreen();
     static void DisplayLoadingText();
     static void GoNonInterlaced();
     void DrawBackgroundImage(int startShape, int numShapes,
@@ -61,10 +61,6 @@ struct tScreen {
     bool IsShapeFileLoaded(tShapeInformation &shapes);
     void UploadPermanentShapes(int numPermanentShapes);
     void UploadSwapShapes(int numSwapShapes);
-    void GetShapeInfo(short &numPermShapes, short &numSwapShapes,
-                      char **permFileName, char **swapFileName);
-    void Initialize();
-    void Cleanup();
     void Draw(bool drawBackground);
     void AsyncLoadShapeFile(char *name, tShapeInformation &data);
     void CancelAsyncLoad(tShapeInformation &data);
@@ -72,15 +68,9 @@ struct tScreen {
     void FreeShapes(tShapeInformation &data);
     void UploadShapes(tShapeInformation &data, short x, short y,
                       short numShapes, short index);
-    void PreLoad();
     void TransitionOff(tScreen_TransitionType type, tMenu *); /* Original unused name unknown. */
     void TransitionOn(tScreen_TransitionType type, tMenu *); /* Original unused name unknown. */
     void UpdateTransition();
-    bool TransitionIsFinished();
-    void ProcessInput(tPlayer fromPlayer, tInputKeyType &keyval,
-                      tMenuCommand &command);
-    void DrawForeground();
-    void DrawBackground();
 };
 
 struct tActiveLine {
@@ -90,6 +80,9 @@ struct tActiveLine {
 };
 
 struct tDialogBase : public tScreen {
+    /* virtuals introduced by tDialogBase, in retail slot order [10] [11] (real virtuals since 2026-09-20) */
+    virtual void CalculateDimensions() = 0;
+    virtual void Draw();
     short specificPlayer, left, top, width, height, reservedheight;
     bool currentlyOn;
     long startTicks, timeOutTicks;
@@ -97,11 +90,14 @@ struct tDialogBase : public tScreen {
     bool fFullyOpen;
     short fDefault, ReturnValue;
     int fFadeText;
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);   /* declared on every surface: see fevirt_tscreen7.py */
 };
 
 struct tDialogMessageString : public tDialogBase {
     char *string;
     bool Centerit;
+    void CalculateDimensions();   /* declared on every surface: see fevirt_tscreen7.py */
+    void Draw();   /* declared on every surface: see fevirt_tscreen7.py */
 };
 
 struct tDialogInteractive : public tDialogMessageString {
@@ -110,6 +106,9 @@ struct tDialogInteractive : public tDialogMessageString {
 
 struct tDialogYesNo : public tDialogInteractive {
     int yesnowords[2];
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);   /* declared on every surface: see fevirt_tscreen7.py */
+    void CalculateDimensions();   /* declared on every surface: see fevirt_tscreen7.py */
+    void Draw();   /* declared on every surface: see fevirt_tscreen7.py */
 };
 
 struct tDrawShapeExtended {
@@ -123,9 +122,13 @@ struct tDialogHelp : public tDialogBase {
     char *text[7];
     int cont[7];
     short numItems, helpcontrollers, lefttext;
+    void CalculateDimensions();   /* declared on every surface: see fevirt_tscreen7.py */
+    void Draw();   /* declared on every surface: see fevirt_tscreen7.py */
 };
 
 struct tDialogMessageStringWithTimeout : public tDialogMessageString {};
-struct tDialogNoInputMessage : public tDialogMessageString {};
+struct tDialogNoInputMessage : public tDialogMessageString {
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);   /* declared on every surface: see fevirt_tscreen7.py */
+};
 
 #endif

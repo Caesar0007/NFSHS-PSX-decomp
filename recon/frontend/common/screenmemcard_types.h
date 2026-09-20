@@ -223,10 +223,7 @@ struct tDialogHelp : public tDialogBase {
 #ifdef NFS4_SCREENMEMCARD_FEDIALOG_SURFACE
     void AddItem(short, short);
     void CalculateDimensions();
-    inline void CalculateDimensionsVirtual() {
-        __vtbl_ptr_type (*vf)[10] = _vf;
-        (*vf[1][0].pfn)((char *)this + vf[1][0].delta);
-    }
+    inline void CalculateDimensionsVirtual() { CalculateDimensions(); }
     void Draw();
 #endif
 #ifdef NFS4_SCREENMEMCARD_FEAPP_METHODS

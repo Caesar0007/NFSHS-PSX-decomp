@@ -58,6 +58,14 @@ enum tScreenCongratsMessage {
 #define textType_TrackRecords 11
 
 struct tScreenCongrats : public tScreen {
+    /* virtuals introduced by this class, in retail slot order (real virtuals since 2026-09-20) */
+    virtual void CalculatePrizes();
+#ifdef NFS4_TSCREENCONGRATS_OWNER
+    virtual void DrawCongratsMessage() = 0;
+#else
+    virtual void DrawCongratsMessage();   /* layout-only off the owner surface */
+#endif
+    virtual bool GetCar(tCarInfo &);
     tScreenCongratsMessage congratsMessage;
     tTrophyClass trophy;
     tSmallSpinningThing smallSpinningThing;
@@ -76,10 +84,8 @@ struct tScreenCongrats : public tScreen {
 
     void Cleanup();
     void GetShapeInfo(short &, short &, char **, char **);
-    bool GetCar(tCarInfo &);
     void DrawBackground();
     void DrawForeground();
-    void CalculatePrizes();
     void Initialize();
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
 };

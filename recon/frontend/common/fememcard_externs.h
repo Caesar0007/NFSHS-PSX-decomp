@@ -44,8 +44,6 @@ extern bool         MEMCARDFRONTENDISINITTED; /* SYM BOOL; CC1PLPSX bool is 4 by
 static char         TITLE[40];                /* STAT @0x80052B68 */
 
 /* ===== vtables (manual) ===== */
-extern __vtbl_ptr_type tDialogYesNoMem_vtable[];
-extern __vtbl_ptr_type tDialogNoInputMessage_vtable[];
 
 /* ===== dialog ctors/dtors + member fns (rendered free by Ghidra) ===== */
 void tScreen_ctor(tScreen*);

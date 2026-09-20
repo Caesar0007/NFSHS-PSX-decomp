@@ -4,11 +4,8 @@
 
 /* ScreenTournSelect retains the input-key record but not the foreign player
  * enum.  ScreenPost retains both records. */
-#ifdef NFS4_SCREENTOURNSELECT_SCREENPOST_SURFACE
+/* (2026-09-20) real tPlayer enum: overrides of the root virtuals need the root's parameter types */
 #include "fe_player_types.h"
-#else
-#define tPlayer int
-#endif
 
 /* ScreenMemcard is the nearest exact implemented base graph.  Exclude its
  * memory-card, saved-game, audio-song, and FE3d owner records here. */

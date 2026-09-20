@@ -433,9 +433,7 @@ bool tOptionsMenu::TransitionIsFinished()
       }
     }
   }
-  if (!(*(bool (*)(...))(*FEApp->fCurrentScreen[0]->_vf)[8].pfn)
-         ((char *)FEApp->fCurrentScreen[0] +
-          (int)(*FEApp->fCurrentScreen[0]->_vf)[8].delta)) {
+  if (!FEApp->fCurrentScreen[0]->TransitionIsFinished()) {
     this->fInMenuTransition = 1;
   }
   return !this->fInMenuTransition;

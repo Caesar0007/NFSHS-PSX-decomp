@@ -144,5 +144,4 @@ extern tScreenTrophyRoom *screenTrophyRoom;
 /* SEVERE BUG FIXED (extern-audit): same class as front_externs.h -- these 9 were
    `extern int X_vtable;` (SCALAR) vs the real owner def `__vtbl_ptr_type X_vtable[N]`
    (ARRAY, vtables_t*.cpp), corrupting the vptr-init cast to `(void*)X_vtable`. */
-extern __vtbl_ptr_type tDialogYesNoTri_vtable[];
 #endif

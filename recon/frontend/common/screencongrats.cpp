@@ -16,6 +16,7 @@ extern tScreenPinkSlipCongrats *screenPinkSlipCongrats;
 extern tScreenTournamentTrophy *screenTournamentTrophy;
 extern tScreenBeTheCopCongrats *screenBeTheCopCongrats;
 extern tScreenTournamentCongrats *screenTournamentCongrats;
+#define NFS4_TSCREENCONGRATS_OWNER   /* ScreenCongrats.obj emits tScreenCongrats's table: slot 11 is __pure_virtual */
 #include "screencongrats.h"
 
 /* ScreenCongrats.obj-OWNED globals -- DEFINED here (self-contained; .bss zero; SYM-typed) */
@@ -153,7 +154,6 @@ void tScreenCongrats::DrawBackground()
      non-virtual ABI model needs this cached row pointer: direct
      this->_vf[1][1] dispatch is byte-identical, but fails
      audit_vtable_indexing as unsafe row indexing. */
-  __vtbl_ptr_type (*vtbl) [10];
 
   fJustFadeOff = 0;
   if (this->fTransitionOff != 0) {
@@ -161,10 +161,8 @@ void tScreenCongrats::DrawBackground()
   }
   drawFlags.custom_shapes = this->fSwapShapes.fShapes;
   drawFlags2.custom_shapes = this->fSwapShapes.fShapes;
-  vtbl = this->_vf;
   carRotate += 3;
-  (*vtbl[1][1].pfn)
-      ((char *)((int)this->fPermShapes.fFilename + (vtbl[1][1].delta + -0x14)));
+  this->DrawCongratsMessage();
   if ((((this->trophy == kTrophyCar) && (this->starttick == -1)) ||
       ((this->fGotCar == 0) && (this->trophy == kTrophyCar))) ||
      ((this->trophy == kTrophyCar) &&
@@ -410,7 +408,6 @@ void tScreenCongrats::Initialize()
      reconstruction models the ABI through _vf, so this cache is the safe
      source-level surrogate.  Direct _vf[1][0]/_vf[1][2] access remains byte-
      exact (PASS 49/49) but is rejected by audit_vtable_indexing.py four times. */
-  __vtbl_ptr_type (*vtbl) [10];
 
   /* P892: capture the entry tick before state writes. Direct native fields
      remove an unproved inline helper; exact bytes and improved SLD pairs. */
@@ -420,12 +417,8 @@ void tScreenCongrats::Initialize()
   this->framenum = -1;
   this->InExtraSpin = 0;
   SetLicensePlate();
-  vtbl = this->_vf;
-  (*vtbl[1][0].pfn)((char *)this + vtbl[1][0].delta);
-  vtbl = this->_vf;
-  this->fGotCar = (*(bool (*)(...))vtbl[1][2].pfn)
-                    ((char *)this + vtbl[1][2].delta,
-                     &this->fCarInfo);
+  this->CalculatePrizes();
+  this->fGotCar = this->GetCar(this->fCarInfo);
   /* MATCH: use the field directly in the comparison and division. GCC CSEs the
      load later, after lowering signed /64 to retail's bgez/addiu/sra sequence;
      a cached local lets its value-range pass incorrectly remove that sequence. */
@@ -538,11 +531,7 @@ void tScreenPinkSlipCongrats::CalculatePrizes()
   player = 1 - this->fWinner;
   CarIO_CleanUpLicense(player);
   CarIO_CreateLicense((char *)((int)&frontEnd + (1 - player) * 8 + 900),0,player);
-  (*(*this->_vf)[12].pfn)
-            /* MATCH: explicit int-cast with the BASE first -> oracle `addu $a0,$s3,$a0`
-               (the natural `p + delta` form emits the operands the other way round). */
-            ((char *)((int)this->fPermShapes.fFilename +
-                      ((*this->_vf)[12].delta + -0x14)),&carinfo);
+  this->GetCar(carinfo);
   /* @0x80048D74: oracle `lb v1,0xD1(sp)` reads fSpeechCarID as SIGNED (matches its use in a real
    * `==-1` compare below); tCarInfo::fSpeechCarID is a shared-header plain `char` (platform default
    * unsigned on this toolchain, hence a stray `lbu` -- cast to `signed char` here, in-TU only).
@@ -988,7 +977,6 @@ void tScreenTournamentCongrats::DrawCongratsMessage()
  * ___7tScreen the way retail does; the standalone symbol gcc then stops
  * emitting is supplied here, in place, with C linkage. */
 extern "C" void ___7tScreen(void *);
-extern "C" void ___25tScreenTournamentCongrats(void *thisp) { ___7tScreen(thisp); }
 
 /* ---- tScreenBeTheCopCongrats::~tScreenBeTheCopCongrats  (screencongrats.cpp:151) ---- */
 /* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
@@ -996,7 +984,6 @@ extern "C" void ___25tScreenTournamentCongrats(void *thisp) { ___7tScreen(thisp)
  * ___7tScreen the way retail does; the standalone symbol gcc then stops
  * emitting is supplied here, in place, with C linkage. */
 extern "C" void ___7tScreen(void *);
-extern "C" void ___23tScreenBeTheCopCongrats(void *thisp) { ___7tScreen(thisp); }
 
 /* ---- tScreenPinkSlipCongrats::~tScreenPinkSlipCongrats  (screencongrats.cpp:141) ---- */
 /* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
@@ -1004,7 +991,6 @@ extern "C" void ___23tScreenBeTheCopCongrats(void *thisp) { ___7tScreen(thisp); 
  * ___7tScreen the way retail does; the standalone symbol gcc then stops
  * emitting is supplied here, in place, with C linkage. */
 extern "C" void ___7tScreen(void *);
-extern "C" void ___23tScreenPinkSlipCongrats(void *thisp) { ___7tScreen(thisp); }
 
 /* ---- tScreenTournamentTrophy::~tScreenTournamentTrophy  (screencongrats.cpp:126) ---- */
 /* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
@@ -1012,7 +998,6 @@ extern "C" void ___23tScreenPinkSlipCongrats(void *thisp) { ___7tScreen(thisp); 
  * ___7tScreen the way retail does; the standalone symbol gcc then stops
  * emitting is supplied here, in place, with C linkage. */
 extern "C" void ___7tScreen(void *);
-extern "C" void ___23tScreenTournamentTrophy(void *thisp) { ___7tScreen(thisp); }
 
 /* ---- tScreenCongrats::~tScreenCongrats  (screencongrats.cpp:109) ---- */
 /* W65-A3 (calltarget): dtor made IMPLICIT (declaration dropped from
@@ -1020,6 +1005,5 @@ extern "C" void ___23tScreenTournamentTrophy(void *thisp) { ___7tScreen(thisp); 
  * ___7tScreen the way retail does; the standalone symbol gcc then stops
  * emitting is supplied here, in place, with C linkage. */
 extern "C" void ___7tScreen(void *);
-extern "C" void ___15tScreenCongrats(void *thisp) { ___7tScreen(thisp); }
 
 /* end of screencongrats.cpp */

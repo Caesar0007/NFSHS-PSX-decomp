@@ -72,6 +72,11 @@ struct tScreenControllerConfig : public tScreen {
 
     tScreenControllerConfig();
     ~tScreenControllerConfig() {}
+    void GetShapeInfo(short &, short &, char **, char **);   /* declared on every surface: see fevirt_tscreen7.py */
+    void DrawBackground();   /* declared on every surface: see fevirt_tscreen7.py */
+    void DrawForeground();   /* declared on every surface: see fevirt_tscreen7.py */
+    void Initialize();   /* declared on every surface: see fevirt_tscreen7.py */
+    void Cleanup();   /* declared on every surface: see fevirt_tscreen7.py */
 };
 
 struct tScreenMain : public tScreen {
@@ -92,6 +97,12 @@ struct tScreenMain : public tScreen {
     int fCurrentSlot, fCurrentBG[2], fNumTVsInTransition;
 
     tScreenMain();
+    void GetShapeInfo(short &, short &, char **, char **);   /* declared on every surface: see fevirt_tscreen7.py */
+    void DrawBackground();   /* declared on every surface: see fevirt_tscreen7.py */
+    void PreLoad();   /* declared on every surface: see fevirt_tscreen7.py */
+    void Initialize();   /* declared on every surface: see fevirt_tscreen7.py */
+    void Cleanup();   /* declared on every surface: see fevirt_tscreen7.py */
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);   /* declared on every surface: see fevirt_tscreen7.py */
 };
 
 struct tScreenCarSelectDuel : public tScreenCarSelect {
@@ -100,6 +111,18 @@ struct tScreenCarSelectDuel : public tScreenCarSelect {
     tShapeInformation fOpponentShapes;
 
     tScreenCarSelectDuel();
+    void GetShapeInfo(short &, short &, char **, char **);   /* declared on every surface: see fevirt_tscreen7.py */
+    void DrawBackground();   /* declared on every surface: see fevirt_tscreen7.py */
+    void DrawForeground();   /* declared on every surface: see fevirt_tscreen7.py */
+    void PreLoad();   /* declared on every surface: see fevirt_tscreen7.py */
+    void Initialize();   /* declared on every surface: see fevirt_tscreen7.py */
+    void Cleanup();   /* declared on every surface: see fevirt_tscreen7.py */
+    void DrawVideoWall(short);   /* declared on every surface: see fevirt_tscreen7.py */
+    void InitializeVideoWall();   /* declared on every surface: see fevirt_tscreen7.py */
+    void UpdateVideoWall(tCarInfo &);   /* declared on every surface: see fevirt_tscreen7.py */
+    void AllocateAsyncBuffer();   /* declared on every surface: see fevirt_tscreen7.py */
+    void FreeAsyncBuffer();   /* declared on every surface: see fevirt_tscreen7.py */
+    void DrawOpponentVideoWall(short);   /* declared on every surface: see fevirt_tscreen7.py */
 };
 
 struct tScreenPinkSlipsCarSelect : public tScreenCarSelectTwoPlayer {
@@ -110,6 +133,14 @@ struct tScreenPinkSlipsCarSelect : public tScreenCarSelectTwoPlayer {
 
     tScreenPinkSlipsCarSelect();
     ~tScreenPinkSlipsCarSelect() {}
+    void GetShapeInfo(short &, short &, char **, char **);   /* declared on every surface: see fevirt_tscreen7.py */
+    void DrawBackground();   /* declared on every surface: see fevirt_tscreen7.py */
+    void DrawForeground();   /* declared on every surface: see fevirt_tscreen7.py */
+    void Initialize();   /* declared on every surface: see fevirt_tscreen7.py */
+    void Cleanup();   /* declared on every surface: see fevirt_tscreen7.py */
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);   /* declared on every surface: see fevirt_tscreen7.py */
+    bool GetCar(tCarInfo &);   /* declared on every surface: see fevirt_tscreen7.py */
+    void SetDialog();   /* declared on every surface: see fevirt_tscreen7.py */
 };
 
 struct tScreenTournSelect : public tScreen {
@@ -124,10 +155,17 @@ struct tScreenTournSelect : public tScreen {
 
     tScreenTournSelect();
     ~tScreenTournSelect();
+    void GetShapeInfo(short &, short &, char **, char **);   /* declared on every surface: see fevirt_tscreen7.py */
+    void DrawBackground();   /* declared on every surface: see fevirt_tscreen7.py */
+    void DrawForeground();   /* declared on every surface: see fevirt_tscreen7.py */
+    void Initialize();   /* declared on every surface: see fevirt_tscreen7.py */
+    void Cleanup();   /* declared on every surface: see fevirt_tscreen7.py */
 };
 
 struct tScreenPinkSlipStandings : public tScreenTournamentStandings3item {
     tScreenPinkSlipStandings();
+    void DrawBackground();   /* declared on every surface: see fevirt_tscreen7.py */
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);   /* declared on every surface: see fevirt_tscreen7.py */
 };
 
 struct tScreenTrophyRoom : public tScreen {
@@ -147,15 +185,25 @@ struct tScreenTrophyRoom : public tScreen {
 
     tScreenTrophyRoom();
     ~tScreenTrophyRoom();
+    void GetShapeInfo(short &, short &, char **, char **);   /* declared on every surface: see fevirt_tscreen7.py */
+    void DrawBackground();   /* declared on every surface: see fevirt_tscreen7.py */
+    void PreLoad();   /* declared on every surface: see fevirt_tscreen7.py */
+    void Initialize();   /* declared on every surface: see fevirt_tscreen7.py */
+    void Cleanup();   /* declared on every surface: see fevirt_tscreen7.py */
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);   /* declared on every surface: see fevirt_tscreen7.py */
 };
 
 struct tScreenTrophyInfo : public tScreen {
     int BannerCol;
     tScreenTrophyInfo();
+    void GetShapeInfo(short &, short &, char **, char **);   /* declared on every surface: see fevirt_tscreen7.py */
+    void DrawBackground();   /* declared on every surface: see fevirt_tscreen7.py */
 };
 
 struct tScreenDisplay : public tScreen {
     tScreenDisplay();
+    void GetShapeInfo(short &, short &, char **, char **);   /* declared on every surface: see fevirt_tscreen7.py */
+    void DrawBackground();   /* declared on every surface: see fevirt_tscreen7.py */
 };
 
 struct tScreenAudio : public tScreen {
@@ -169,20 +217,35 @@ struct tScreenAudio : public tScreen {
     AudioMus_tSongList *songlist;
 
     tScreenAudio();
+    void GetShapeInfo(short &, short &, char **, char **);   /* declared on every surface: see fevirt_tscreen7.py */
+    void DrawBackground();   /* declared on every surface: see fevirt_tscreen7.py */
+    void DrawForeground();   /* declared on every surface: see fevirt_tscreen7.py */
+    void Initialize();   /* declared on every surface: see fevirt_tscreen7.py */
+    void Cleanup();   /* declared on every surface: see fevirt_tscreen7.py */
 };
 
 struct tScreenTournamentTrophy : public tScreenCongrats {
     short fShapeCount;
     char fDoUpdate;
     tScreenTournamentTrophy();
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);   /* declared on every surface: see fevirt_tscreen7.py */
+    void CalculatePrizes();   /* declared on every surface: see fevirt_tscreen7.py */
+    void DrawCongratsMessage();   /* declared on every surface: see fevirt_tscreen7.py */
+    bool GetCar(tCarInfo &);   /* declared on every surface: see fevirt_tscreen7.py */
 };
 
 struct tScreenBeTheCopCongrats : public tScreenCongrats {
     tScreenBeTheCopCongrats();
+    void CalculatePrizes();   /* declared on every surface: see fevirt_tscreen7.py */
+    void DrawCongratsMessage();   /* declared on every surface: see fevirt_tscreen7.py */
+    bool GetCar(tCarInfo &);   /* declared on every surface: see fevirt_tscreen7.py */
 };
 
 struct tScreenTournamentCongrats : public tScreenCongrats {
     tScreenTournamentCongrats();
+    void CalculatePrizes();   /* declared on every surface: see fevirt_tscreen7.py */
+    void DrawCongratsMessage();   /* declared on every surface: see fevirt_tscreen7.py */
+    bool GetCar(tCarInfo &);   /* declared on every surface: see fevirt_tscreen7.py */
 };
 
 struct tScreenTrackRecords : public tScreen {
@@ -190,6 +253,10 @@ struct tScreenTrackRecords : public tScreen {
     int flare_intensity, flareextra;
     bool fReadNewData;
     tScreenTrackRecords();
+    void GetShapeInfo(short &, short &, char **, char **);   /* declared on every surface: see fevirt_tscreen7.py */
+    void DrawBackground();   /* declared on every surface: see fevirt_tscreen7.py */
+    void Initialize();   /* declared on every surface: see fevirt_tscreen7.py */
+    void Cleanup();   /* declared on every surface: see fevirt_tscreen7.py */
 };
 
 struct tScreenTrackSelect : public tScreen {
@@ -203,6 +270,11 @@ struct tScreenTrackSelect : public tScreen {
     bool fTVsInitialized;
     u_long fVideoTicks;
     tScreenTrackSelect();
+    void GetShapeInfo(short &, short &, char **, char **);   /* declared on every surface: see fevirt_tscreen7.py */
+    void DrawBackground();   /* declared on every surface: see fevirt_tscreen7.py */
+    void Initialize();   /* declared on every surface: see fevirt_tscreen7.py */
+    void Cleanup();   /* declared on every surface: see fevirt_tscreen7.py */
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);   /* declared on every surface: see fevirt_tscreen7.py */
 };
 
 struct tScreenTrackInfo : public tScreen {
@@ -210,6 +282,10 @@ struct tScreenTrackInfo : public tScreen {
     tTVConfig tvConfigs[10];
     tVideoWall fVideoWall;
     tScreenTrackInfo();
+    void GetShapeInfo(short &, short &, char **, char **);   /* declared on every surface: see fevirt_tscreen7.py */
+    void DrawBackground();   /* declared on every surface: see fevirt_tscreen7.py */
+    void Initialize();   /* declared on every surface: see fevirt_tscreen7.py */
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);   /* declared on every surface: see fevirt_tscreen7.py */
 };
 
 struct tScreenPinkSlips : public tScreen {
@@ -221,6 +297,11 @@ struct tScreenPinkSlips : public tScreen {
     tTVConfig fTrackTVs[8], fImageTVs[4];
     bool fTVsInitialized;
     tScreenPinkSlips();
+    void GetShapeInfo(short &, short &, char **, char **);   /* declared on every surface: see fevirt_tscreen7.py */
+    void DrawBackground();   /* declared on every surface: see fevirt_tscreen7.py */
+    void Initialize();   /* declared on every surface: see fevirt_tscreen7.py */
+    void Cleanup();   /* declared on every surface: see fevirt_tscreen7.py */
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);   /* declared on every surface: see fevirt_tscreen7.py */
 };
 
 struct tAllScreens {

@@ -39,7 +39,6 @@ extern __vtbl_ptr_type tDialogBase_vtable[], tDialogMessageString_vtable[];
 
 inline tDialogBase::tDialogBase()
 {
-  *(void **)&_vf = (void *)tDialogBase_vtable;
   currentlyOn = 0;
   reservedheight = 0;
   MaxH = 0;
@@ -57,7 +56,6 @@ inline tDialogBase::tDialogBase()
 
 inline tDialogMessageString::tDialogMessageString()
 {
-  *(void **)&_vf = (void *)tDialogMessageString_vtable;
   Centerit = 0;
   fFullyOpen = 0;
   timeOutTicks = 0;
@@ -66,7 +64,6 @@ inline tDialogMessageString::tDialogMessageString()
 
 inline tDialogNoInputMessage::tDialogNoInputMessage()
 {
-  *(void **)&_vf = (void *)tDialogNoInputMessage_vtable;
 }
 /* P884: Stats_gTrackRecords uses the native tRecordBuffer[187] declaration. */
 
@@ -162,14 +159,13 @@ static int Confirm(int Text,int yesText)
   /* P885: native Confirm records no separate feApp local. Direct scalar
      receiver access preserves the retail load before the stack _vf store;
      the remaining vtable carrier keeps its interleaved address schedule. */
-  __vtbl_ptr_type (*dialogVtable)[10] =
-      (__vtbl_ptr_type (*)[10])tDialogYesNoMem_vtable;
   /* [2026-07-11 RESTORE] the manual _vf poke was WRONGLY dropped in the wave-5 consolidation:
      this hierarchy uses MANUAL _vf dispatch (not real C++ virtuals), so the implicit
      tDialogYesNoMem ctor does NOT set the derived vtable -- gcc's synthesized ctor only calls
      the base tDialogYesNo ctor. The oracle explicitly stores &_vt_15tDialogYesNoMem to _vf(0x60)
      right after the ctor (`sw v0,0x60(s0)`). Restore it. */
-  dialog->_vf = dialogVtable;
+  /* (2026-09-20) tDialogYesNoMem is a real polymorphic class: its implicit ctor stores the derived table after the
+     tDialogYesNo ctor returns -- the store the old manual `_vf` poke imitated. */
   putbackon = false;
   /* MATCH: pointer-local for the NoInput dialog (SYM shows an inlined tDialogBase-`this` block
      in $a0 here) -- oracle computes base+720 ONCE (addiu a0,v1,720), tests currentlyOn via

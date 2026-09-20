@@ -211,9 +211,7 @@ void tDialogBase::DrawAllDialogs()
     }
     /* ABI-neutral spelling of the original virtual `Draw()` call; retail SYM
        records no source vtable or array-slot pointer locals. */
-    (*(*((DialogVisibilityList[i]->_vf) + 1))[1].pfn)
-      ((char *)DialogVisibilityList[i] +
-       (*((DialogVisibilityList[i]->_vf) + 1))[1].delta);
+    DialogVisibilityList[i]->Draw();
     i = i + 1;
   }
   return;
@@ -662,7 +660,7 @@ void tDialogMessageString::Draw()
   int col;
   RECT r;
   
-  (*(this->_vf)[1][0].pfn)((int)this + (this->_vf)[1][0].delta);
+  this->CalculateDimensions();
   if (ticks[0] < this->startTicks + 0x32) {
     this->fFullyOpen = 0;
   }
@@ -834,7 +832,6 @@ void tDialogYesNo::CalculateDimensions()
  * are now emitted by the inlined bodies. */
 inline tDialogBase::tDialogBase()
 {
-  *(void **)&_vf = (void *)tDialogBase_vtable;
   currentlyOn = 0;
   reservedheight = 0;
   MaxH = 0;
@@ -852,7 +849,6 @@ inline tDialogBase::tDialogBase()
 
 inline tDialogMessageString::tDialogMessageString()
 {
-  *(void **)&_vf = (void *)tDialogMessageString_vtable;
   Centerit = 0;
   fFullyOpen = 0;
   timeOutTicks = 0;
@@ -863,13 +859,11 @@ tDialogYesNo::tDialogYesNo()
   : tDialogInteractive()
 {
 
-  *(void **)&(this->_vf) = (void *)tDialogInteractive_vtable;
   /* MATCH: oracle emits 3 separate `sw zero,0x78` (timeOutTicks); gcc folds the 2nd of two
    * adjacent identical plain stores. The volatile-cast keeps the redundant store (codegen-
    * neutral: same `sw zero,0x78`). Do NOT "simplify" away or the 3rd store disappears (45 vs 46). */
   *(long *)&this->timeOutTicks = 0;
   this->fCurrentlyRunning = 0;
-  *(void **)&(this->_vf) = (void *)tDialogYesNo_vtable;
   this->ReturnValue = 0;
   this->ReadyToReturnValue = 0;
   return;
@@ -1036,7 +1030,6 @@ void tDialogNoInputMessage::ProcessInput(tPlayer,tInputKeyType &,
  * ___7tScreen the way retail does; the standalone symbol gcc then stops
  * emitting is supplied here, in place, with C linkage. */
 extern "C" void ___7tScreen(void *);
-extern "C" void ___15tDialogYesNoTri(void *thisp) { ___7tScreen(thisp); }
 
 
 
@@ -1047,21 +1040,18 @@ extern "C" void ___15tDialogYesNoTri(void *thisp) { ___7tScreen(thisp); }
  * ___7tScreen the way retail does; the standalone symbol gcc then stops
  * emitting is supplied here, in place, with C linkage. */
 extern "C" void ___7tScreen(void *);
-extern "C" void ___15tDialogYesNoMem(void *thisp) { ___7tScreen(thisp); }
 
 
 
 /* ---- tDialogYesNo::dtor  [FEDIALOG.CPP:275 decl] SLD-FLAG:NO_SLD ---- */
 
 extern "C" { void ___7tScreen(void *); }
-extern "C" void ___12tDialogYesNo(void *thisp) { ___7tScreen(thisp); }
 
 
 
 
 extern "C" {
 void ___7tScreen(void *);
-void ___18tDialogInteractive(void *thisp) { ___7tScreen(thisp); }
 }
 /* ---- tDialogNoInputMessage::dtor  [FEDIALOG.CPP:233 decl] SLD-FLAG:NO_SLD ---- */
 
@@ -1070,7 +1060,6 @@ void ___18tDialogInteractive(void *thisp) { ___7tScreen(thisp); }
  * ___7tScreen the way retail does; the standalone symbol gcc then stops
  * emitting is supplied here, in place, with C linkage. */
 extern "C" void ___7tScreen(void *);
-extern "C" void ___21tDialogNoInputMessage(void *thisp) { ___7tScreen(thisp); }
 
 
 
@@ -1081,13 +1070,11 @@ extern "C" void ___21tDialogNoInputMessage(void *thisp) { ___7tScreen(thisp); }
  * ___7tScreen the way retail does; the standalone symbol gcc then stops
  * emitting is supplied here, in place, with C linkage. */
 extern "C" void ___7tScreen(void *);
-extern "C" void ___17tDialogBackUpOnly(void *thisp) { ___7tScreen(thisp); }
 
 
 
 /* ---- tDialogMessageString::dtor  [FEDIALOG.CPP:204 decl] SLD-FLAG:NO_SLD ---- */
 
-extern "C" void ___20tDialogMessageString(void *thisp) { ___7tScreen(thisp); }
 
 
 
@@ -1098,7 +1085,6 @@ extern "C" void ___20tDialogMessageString(void *thisp) { ___7tScreen(thisp); }
  * ___7tScreen the way retail does; the standalone symbol gcc then stops
  * emitting is supplied here, in place, with C linkage. */
 extern "C" void ___7tScreen(void *);
-extern "C" void ___11tDialogHelp(void *thisp) { ___7tScreen(thisp); }
 
 
 
@@ -1113,7 +1099,6 @@ extern "C" void ___11tDialogHelp(void *thisp) { ___7tScreen(thisp); }
  * byte-identical to the oracle's 8 insns: the arg passes through in $a0 and
  * the ignored `__in_chrg` in $a1 costs nothing. */
 
-extern "C" void ___11tDialogBase(void *thisp) { ___7tScreen(thisp); }
 
 
 

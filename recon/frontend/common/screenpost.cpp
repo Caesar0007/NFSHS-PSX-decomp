@@ -45,7 +45,6 @@ tScreenTournamentStandings::tScreenTournamentStandings()
   /* base subobject _base_tScreen is constructed implicitly by g++ -> jal __7tScreen */
 {
 
-  this->_vf = (__vtbl_ptr_type (*)[10])tScreenTournamentStandings_vtable;
   this->fDrawMoney = 0;
   return;
 }
@@ -572,7 +571,6 @@ void tScreenPinkSlipStandings::ProcessInput(tPlayer fromPlayer,tInputKeyType &ke
  * ___7tScreen the way retail does; the standalone symbol gcc then stops
  * emitting is supplied here, in place, with C linkage. */
 extern "C" void ___7tScreen(void *);
-extern "C" void ___24tScreenPinkSlipStandings(void *thisp) { ___7tScreen(thisp); }
 
 
 
@@ -582,7 +580,6 @@ extern "C" void ___24tScreenPinkSlipStandings(void *thisp) { ___7tScreen(thisp);
  * ___7tScreen the way retail does; the standalone symbol gcc then stops
  * emitting is supplied here, in place, with C linkage. */
 extern "C" void ___7tScreen(void *);
-extern "C" void ___31tScreenTournamentStandings3item(void *thisp) { ___7tScreen(thisp); }
 
 
 
@@ -592,7 +589,6 @@ extern "C" void ___31tScreenTournamentStandings3item(void *thisp) { ___7tScreen(
  * ___7tScreen the way retail does; the standalone symbol gcc then stops
  * emitting is supplied here, in place, with C linkage. */
 extern "C" void ___7tScreen(void *);
-extern "C" void ___26tScreenTournamentStandings(void *thisp) { ___7tScreen(thisp); }
 
 
 

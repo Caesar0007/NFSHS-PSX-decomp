@@ -59,11 +59,8 @@ struct tDialogYesNoMem : public tDialogYesNo {
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
 };
 
-extern __vtbl_ptr_type tDialogYesNoTri_vtable[];
 struct tDialogYesNoTri : public tDialogYesNo {
-    inline tDialogYesNoTri() {
-        _vf = (__typeof__(_vf))&tDialogYesNoTri_vtable;
-    }
+    inline tDialogYesNoTri() {}
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
 };
 #endif

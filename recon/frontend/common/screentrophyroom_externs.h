@@ -14,7 +14,6 @@ extern tPadModuleState    gPadinfo;
 /* --- data owned by ScreenTrophyRoom.obj (EXT linkage) --- */
 tScreenTrophyRoom *screenTrophyRoom;                 /* EXT @0x80052060 (runtime-set) */
 char gSwapFileName[16];                              /* EXT @0x80052064 */
-extern __vtbl_ptr_type tScreenTrophyRoom_vtable[];              /* _vt.17tScreenTrophyRoom @0x80011e28 */
 
 /* --- base tScreen ctor/dtor (name==class -> rendered as free helpers) --- */
 void tScreen_ctor(tScreen *s);

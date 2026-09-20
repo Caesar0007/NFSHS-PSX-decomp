@@ -124,6 +124,13 @@ struct tOverlay {
 };
 
 struct tScreenCarSelect : public tScreen {
+    /* virtuals introduced by this class, in retail slot order (real virtuals since 2026-09-20) */
+    virtual void DrawVideoWall(short);
+    virtual void InitializeVideoWall();
+    virtual void UpdateVideoWall(tCarInfo &);
+    virtual bool GetCar(tCarInfo &);
+    virtual void AllocateAsyncBuffer();
+    virtual void FreeAsyncBuffer();
     tOverlay fOverlays[7];
     tOverlay *fCurrentOverlays[4];
     short fState, fPreviousCar, fPreviousCarID, fPreviousCountry;
@@ -144,14 +151,8 @@ struct tScreenCarSelect : public tScreen {
     void SetState(int);
     void CalcSplinePosition(int, int, int, int, u_long, int &, int &, int &, int &, int &);
     void GetShapeInfo(short &, short &, char **, char **);
-    void UpdateVideoWall(tCarInfo &);
-    void AllocateAsyncBuffer();
-    void FreeAsyncBuffer();
-    void InitializeVideoWall();
     void Initialize();
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    void DrawVideoWall(short);
-    bool GetCar(tCarInfo &);
     void SetBrightness(short, short);
     void UpdateBrightness(short);
     void DrawBackground();
@@ -161,6 +162,8 @@ struct tScreenCarSelect : public tScreen {
 
 #ifndef NFS4_SCREENCARSELECT_SCREENCONGRATS_SURFACE
 struct tScreenCarSelectDuel : public tScreenCarSelect {
+    /* virtuals introduced by this class, in retail slot order (real virtuals since 2026-09-20) */
+    virtual void DrawOpponentVideoWall(short);
     short fPreviousOpponent;
     bool fOpponentTVsInitialized;
     tShapeInformation fOpponentShapes;
@@ -173,7 +176,6 @@ struct tScreenCarSelectDuel : public tScreenCarSelect {
     void Initialize();
     void Cleanup();
     void DrawVideoWall(short);
-    void DrawOpponentVideoWall(short);
     void GetShapeInfo(short &, short &, char **, char **);
     void UpdateVideoWall(tCarInfo &);
     void UpdateOpponentVideoWall(tCarInfo &);
@@ -183,6 +185,9 @@ struct tScreenCarSelectDuel : public tScreenCarSelect {
 #endif
 
 struct tScreenCarSelectTwoPlayer : public tScreenCarSelect {
+    /* virtuals introduced by this class, in retail slot order (real virtuals since 2026-09-20) */
+    virtual void TurnOffVideoWall();
+    virtual void SetDialog();
     tDialogBackUpOnly CarDialog;
 
     tScreenCarSelectTwoPlayer();
@@ -191,10 +196,8 @@ struct tScreenCarSelectTwoPlayer : public tScreenCarSelect {
     void DrawVideoWall(short);
     void GetShapeInfo(short &, short &, char **, char **);
     void UpdateVideoWall(tCarInfo &);
-    void TurnOffVideoWall();
     void DrawBackground();
     void DrawForeground();
-    void SetDialog();
     void AllocateAsyncBuffer();
     void InitializeVideoWall();
     void Initialize();
@@ -234,12 +237,18 @@ struct tScreenTournamentStandings : public tScreen {
 #ifdef NFS4_FRONT_SURFACE
     tScreenTournamentStandings();
 #endif
+    void GetShapeInfo(short &, short &, char **, char **);   /* declared on every surface: see fevirt_tscreen7.py */
+    void DrawBackground();   /* declared on every surface: see fevirt_tscreen7.py */
+    void Initialize();   /* declared on every surface: see fevirt_tscreen7.py */
+    void Cleanup();   /* declared on every surface: see fevirt_tscreen7.py */
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);   /* declared on every surface: see fevirt_tscreen7.py */
 };
 
 struct tScreenTournamentStandings3item : public tScreenTournamentStandings {
 #ifdef NFS4_FRONT_SURFACE
     tScreenTournamentStandings3item();
 #endif
+    void GetShapeInfo(short &, short &, char **, char **);   /* declared on every surface: see fevirt_tscreen7.py */
 };
 
 #ifndef NFS4_SCREENCARSELECT_SCREENCONGRATS_SURFACE

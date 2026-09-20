@@ -66,13 +66,14 @@ struct tShapeInformation {
     bool fLoadCancelled;
 };
 
+#include "fescreen_virtual_types.h"
 struct tScreen {
     tShapeInformation fPermShapes, fSwapShapes;
     int fTransitionTicks;
     bool fTransitionOff;
     int fInternalScreenFadeVal;
     short fScreenFadeVal;
-    __vtbl_ptr_type (*_vf)[10];
+#include "fescreen_virtuals.inc"
 
     inline int &TrophyRoomTierView() {
         return *(int *)((char *)this + 0xd0);

@@ -14,8 +14,9 @@
 #undef NFS4_SCREENDISPLAY_NO_OWNER_RECORDS
 
 /* Source spellings whose tags are not retained by ScreenMain.obj. */
-#define tPlayer int
-#define tMenuCommand int
+/* (2026-09-20) real tPlayer enum: overrides of the root virtuals need the root's parameter types */
+#include "fe_player_types.h"
+struct tMenuCommand;
 #define uchar unsigned char
 #define RaceType_SingleRace 0
 #define RaceType_PinkSlips 6
@@ -50,10 +51,14 @@ struct tDialogHelp : public tDialogBase {
     char *text[7];
     int cont[7];
     short numItems, helpcontrollers, lefttext;
+    void CalculateDimensions();   /* declared on every surface: see fevirt_tscreen7.py */
+    void Draw();   /* declared on every surface: see fevirt_tscreen7.py */
 };
 
 struct tDialogMessageStringWithTimeout : public tDialogMessageString {};
-struct tDialogNoInputMessage : public tDialogMessageString {};
+struct tDialogNoInputMessage : public tDialogMessageString {
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);   /* declared on every surface: see fevirt_tscreen7.py */
+};
 
 struct tFEApplication {
     unsigned int fCurrentMusic;
@@ -115,8 +120,7 @@ struct tScreenMain : public tScreen {
     bool DoneLoadingBackground();
     void SetState(tScreenMainState);
     void InitDynamicImages();
-    void ProcessInput(int, tInputKeyType &, int &)
-        asm("ProcessInput__11tScreenMain7tPlayerR13tInputKeyTypeR12tMenuCommand");
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
     void DrawDropShadow();
     void DrawVideoLines();
     void DrawBackground();

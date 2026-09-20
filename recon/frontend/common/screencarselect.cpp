@@ -138,7 +138,6 @@ tScreenCarSelect::tScreenCarSelect()
   tOverlay *overlay;
   short i;
 
-  this->_vf = (__vtbl_ptr_type (*)[10])tScreenCarSelect_vtable;
   this->fPreviousCar = 0;
   this->fPreviousCarID = -1;
   this->fPreviousCountry = 0;
@@ -164,7 +163,6 @@ tScreenCarSelect::tScreenCarSelect()
 tScreenCarSelect::~tScreenCarSelect()
 
 {
-  this->_vf = (__vtbl_ptr_type (*)[10])tScreenCarSelect_vtable;
   /* base ~tScreen is emitted implicitly (: public tScreen) -- no explicit call */
   return;
 }
@@ -177,12 +175,10 @@ void tScreenCarSelect::Cleanup()
 {
   /* SYM-CODEGEN-CARRIER: vtbl -- direct this->_vf[1][5] indexing is measured
      byte-identical but violates the manual-ABI vtable safety gate. */
-  __vtbl_ptr_type (*vtbl) [10];
 
   CleanupSpinningCarsMenu();
   this->tScreen::Cleanup();
-  vtbl = this->_vf;
-  (*vtbl[1][5].pfn)(this->fPermShapes.fFilename + -0x14 + vtbl[1][5].delta);
+  this->FreeAsyncBuffer();
   return;
 }
 
@@ -226,8 +222,7 @@ void tScreenCarSelect::DrawOverlay(tOverlay *overlay)
   if (overlay == (tOverlay *)0x0) {
     return;
   }
-  validCar = (*(bool (*)(...))(*this->_vf)[13].pfn)
-               ((char *)this + (*this->_vf)[13].delta,&carInfo);
+  validCar = this->GetCar(carInfo);
   if (overlay->direction != 0) {
     fade = overlay->transition + overlay->delta * overlay->direction;
     overlay->transition = fade;
@@ -586,16 +581,12 @@ void tScreenCarSelect::GetShapeInfo(short &numPermShapes,short &numSwapShapes,ch
      dispatch temporary has no SYM source local.  The manual non-virtual ABI
      model needs this cached row pointer: direct this->_vf[1][3] dispatch is
      byte-identical, but fails audit_vtable_indexing as unsafe row indexing. */
-  __vtbl_ptr_type (*vtbl) [10];
   tCarInfo carInfo;
 
   numPermShapes = 0x8e;
   numSwapShapes = 0xb;
   *permFileName = "zcars";
-  vtbl = this->_vf;
-  if (((*vtbl[1][3].pfn)
-           (this->fPermShapes.fFilename + -0x14 + vtbl[1][3].delta,
-            &carInfo) ^ 1) != 0) {
+  if ((this->GetCar(carInfo) ^ 1) != 0) {
     carManager.GetStockCar(0,carInfo);
   }
   this->fPreviousCar = (ushort)carInfo.fCarIndex;
@@ -710,15 +701,12 @@ void tScreenCarSelect::Initialize()
      added term is ONE int expression; the flat 3-term form leaves gcc an INT sum
      it finishes with `addu a0,a0,s0` where the oracle has `addu a0,s0,a0`
      (this-first). */
-  (*(*(this->_vf + 1))[4].pfn)
-      (this->fPermShapes.fFilename + ((*(this->_vf + 1))[4].delta + -0x14));
+  this->AllocateAsyncBuffer();
   SetLicensePlate();
   this->fTVsInitialized = 0;
   this->fCameraRotation = 0;
   this->fInShowroom = 0;
-  if ((*(*(this->_vf + 1))[3].pfn)
-          (this->fPermShapes.fFilename +
-               ((*(this->_vf + 1))[3].delta + -0x14),&carInfo) != 0) {
+  if (this->GetCar(carInfo) != 0) {
     /* MATCH (W57-A2): ARM ORDER -- the oracle's `beqz $v0` branches AWAY to the
        `fPrevious* = -1` block, which it lays OUT OF LINE after the carInfo
        copies (0x8003BEC4-CC, SLD 737/738/739); the success copies are the
@@ -743,8 +731,7 @@ void tScreenCarSelect::Initialize()
   this->fBrightness[0] = 0;
   this->fDestBrightness[1] = 0;
   this->fDestBrightness[0] = 0;
-  (*(*(this->_vf + 1))[1].pfn)
-      (this->fPermShapes.fFilename + ((*(this->_vf + 1))[1].delta + -0x14));
+  this->InitializeVideoWall();
   i = 0;
   do {
     this->fOverlays[i].transition = 0;
@@ -779,8 +766,7 @@ void tScreenCarSelect::ProcessInput(tPlayer,tInputKeyType &keyval,tMenuCommand &
     bool validCar;
     tMenuItem *item;
 
-    validCar = (*(bool (*)(...))(*this->_vf)[13].pfn)
-        ((char *)this + (*this->_vf)[13].delta,&carInfo);
+    validCar = this->GetCar(carInfo);
     if (FEApp->fPlayer == '\0') {
       item = &menuDefs->itemABS;
     }
@@ -866,11 +852,8 @@ void tScreenCarSelect::DrawVideoWall(short y)
      dispatch temporary has no SYM source local.  The manual non-virtual ABI
      model needs this cached row pointer: direct this->_vf[1][3] dispatch is
      byte-identical, but fails audit_vtable_indexing as unsafe row indexing. */
-  __vtbl_ptr_type (*vtbl) [10];
 
-  vtbl = this->_vf;
-  validCar = (*(bool (*)(...))vtbl[1][3].pfn)
-                    (this->fPermShapes.fFilename + -0x14 + vtbl[1][3].delta,&carInfo);
+  validCar = this->GetCar(carInfo);
   ::DrawBackgroundImage((tScreen *)this,0,0x1c,this->fPermShapes.fShapes,0x96);
   this->DrawOverlay(this->fCurrentOverlays[0]);
   if (((this->fSwapShapes.fFlags & 1) != 0) && (this->fTVsInitialized == 0)) {
@@ -1015,9 +998,7 @@ void tScreenCarSelect::DrawBackground()
   bool canUpload;
   tCarInfo carInfo;
 
-  if ((*(*this->_vf)[13].pfn)
-      (this->fPermShapes.fFilename + -0x14 + (*this->_vf)[13].delta,
-       &carInfo) != 0) {
+  if (this->GetCar(carInfo) != 0) {
     ::IsShapeFileLoaded((tScreen *)this,&this->fSwapShapes);
     canUpload = (this->fSwapShapes.fFile != (char *)0x0) &&
                 (this->fVideoWall[0].fTransitionDirection != -1) &&
@@ -1033,8 +1014,7 @@ void tScreenCarSelect::DrawBackground()
     }
   }
   if (this->fScreenFadeVal < 0x80) {
-    (*(*this->_vf)[10].pfn)
-        (this->fPermShapes.fFilename + -0x14 + (*this->_vf)[10].delta,0);
+    this->DrawVideoWall(0);
   }
   return;
 }
@@ -1114,8 +1094,7 @@ void tScreenCarSelect::DrawForeground()
   int overlayDirection;
   
   currentItemValue = FEApp->fCurrentMenu[0]->fItemList[FEApp->fCurrentMenu[0]->fCurrentItem];
-  validCarValue = (*(bool (*)(...))(*this->_vf)[13].pfn)
-                    (this->fPermShapes.fFilename + -0x14 + (*this->_vf)[13].delta,&carInfo);
+  validCarValue = this->GetCar(carInfo);
   /* MATCH W86-D3 2026-09-02: the identity launder that kept `currentItem` and
      `currentItemValue` in two registers (gcc otherwise copy-propagates one into
      the other -- the "old-gcc no-copy-prop" identity, W85-S5) is replaced by a
@@ -1216,8 +1195,7 @@ void tScreenCarSelect::DrawForeground()
       if (validCar == 0) {
         *(signed char *)&carInfo.fCarID = -1;
       }
-      (*(*this->_vf)[12].pfn)
-                (this->fPermShapes.fFilename + -0x14 + (*this->_vf)[12].delta,&carInfo);
+      this->UpdateVideoWall(carInfo);
       if (gCarObj[(byte)FEApp->fPlayer]->async_handle != 0) {
         this->SetBrightness(0,0);
         TurnOff(this->fVideoWall);
@@ -1385,9 +1363,7 @@ void tScreenCarSelectDuel::PreLoad()
   this->fSwapShapes.fDestFile = Platform_GetDCTBuffer(16000,"VideoWall");
   this->fOpponentShapes.fDestFile =
       Platform_GetDCTBuffer(16000,"OpponentVid");
-  useDefault = (*(*this->_vf)[13].pfn)
-      (this->fPermShapes.fFilename + -0x14 + (*this->_vf)[13].delta,
-       &carInfo) == 1;
+  useDefault = this->GetCar(carInfo) == 1;
   if (!useDefault) {
     carManager.GetStockCar(0,carInfo);
   }
@@ -1489,12 +1465,8 @@ void tScreenCarSelectDuel::DrawVideoWall(short y)
      dispatch temporary has no SYM source local.  The manual non-virtual ABI
      model needs this cached row pointer: direct this->_vf[1][3] dispatch is
      byte-identical, but fails audit_vtable_indexing as unsafe row indexing. */
-  __vtbl_ptr_type (*vtbl) [10];
 
-  vtbl = this->_vf;
-  validCar = (*(bool (*)(...))vtbl[1][3].pfn)
-                    (this->fPermShapes.fFilename + -0x14 +
-                     vtbl[1][3].delta,&carInfo);
+  validCar = this->GetCar(carInfo);
   i = 0;
   do {
     DrawShapeExtended(i,0,0,-(int)y,
@@ -1562,15 +1534,11 @@ void tScreenCarSelectDuel::GetShapeInfo(short &numPermShapes,short &numSwapShape
      dispatch temporary has no SYM source local.  The manual non-virtual ABI
      model needs this cached row pointer: direct this->_vf[1][3] dispatch is
      byte-identical, but fails audit_vtable_indexing as unsafe row indexing. */
-  __vtbl_ptr_type (*vtbl) [10];
   tCarInfo carInfo;
   
   numPermShapes = 0x34;
   numSwapShapes = 5;
-  vtbl = this->_vf;
-  if (((*vtbl[1][3].pfn)
-           (this->fPermShapes.fFilename + -0x14 + vtbl[1][3].delta,
-            &carInfo) ^ 1) != 0) {
+  if ((this->GetCar(carInfo) ^ 1) != 0) {
     carManager.GetStockCar(0,carInfo);
   }
   this->fPreviousCar = (ushort)carInfo.fCarIndex;
@@ -1715,8 +1683,7 @@ void tScreenCarSelectDuel::DrawBackground()
     this->SetBrightness(0x80,1);
     TurnOn(this->fVideoWall + 1);
   }
-  (*(*this->_vf)[16].pfn)
-            ((char *)this + (*this->_vf)[16].delta,0x69);
+  this->DrawOpponentVideoWall(0x69);
   daprim = (DR_AREA *)Render_gPacketPtr;
   temp.x = 0;
   temp.y = *(short *)((char *)drenv + 2) + 0x80;
@@ -1727,8 +1694,7 @@ void tScreenCarSelectDuel::DrawBackground()
   ((tPsyQPrimTag *)Render_gPalettePtr)->addr = (u_int)daprim;
   SetDrawArea(daprim,&temp);
   PSXDrawSquare(0,0,screenheight / 2,0x200,screenheight / 2);
-  validCar = (*(bool (*)(...))(*this->_vf)[13].pfn)
-                  ((char *)this + (*this->_vf)[13].delta,&carInfo);
+  validCar = this->GetCar(carInfo);
   if (validCar != 0) {
     r.y = 0x19;
     if (frontEnd.carListType == '\0') {
@@ -1743,9 +1709,7 @@ void tScreenCarSelectDuel::DrawBackground()
   else {
     carInfo.fCarID = -1;
   }
-  (*(*this->_vf)[12].pfn)
-            ((char *)this + (*this->_vf)[12].delta,
-             &carInfo);
+  this->UpdateVideoWall(carInfo);
   if ((gCarObj[0]->async_handle != 0) && (0x80 < ticks[0] - this->fFadeTicks[0])) {
     this->SetBrightness(0,0);
     TurnOff(this->fVideoWall);
@@ -1779,8 +1743,7 @@ void tScreenCarSelectDuel::DrawBackground()
       }
     }
   }
-  (*(*this->_vf)[10].pfn)
-            ((char *)this + (*this->_vf)[10].delta,0)
+  this->DrawVideoWall(0)
   ;
   return;
 }
@@ -1803,8 +1766,7 @@ void tScreenCarSelectDuel::DrawForeground()
   bool validCar;
   
   y = 0x2d;
-  validCar = (*(bool (*)(...))(*this->_vf)[13].pfn)
-                    ((char *)this + (*this->_vf)[13].delta,&carInfo);
+  validCar = this->GetCar(carInfo);
   i = 0;
   while (i < 2) {
     j = 0;
@@ -1909,9 +1871,7 @@ void tScreenCarSelectTwoPlayer::DrawVideoWall(short y)
    * slot.  A direct ternary is one instruction shorter and measures FAIL 5. */
   int videoOffset;
 
-  validCar = (*(bool (*)(...))(*this->_vf)[13].pfn)
-                    (this->fPermShapes.fFilename + -0x14 +
-                     (*this->_vf)[13].delta,&carInfo);
+  validCar = this->GetCar(carInfo);
   i = 0;
   do {
     DrawShapeExtended(i,0,0,-(int)y,
@@ -2027,7 +1987,6 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
      byte-identical, but is structurally unsafe for the pointer-to-row type and
      fails the repository vtable-index audit.  This typed dispatch carrier
      preserves the retail delta-call shape without inventing a helper symbol. */
-  __vtbl_ptr_type (*vtbl) [10];
   /* SYM-CODEGEN-CARRIER: elapsed -- folding the elapsed-time expression into
      the comparison is count-exact FAIL 10 and reverses the retail
      load/subtract destination web. */
@@ -2059,10 +2018,7 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
   }
   r.w = 200;
   r.h = 0xc;
-  vtbl = this->_vf;
-  if ((*vtbl[1][3].pfn)
-                  (vtbl[1][3].delta + -0x14 +
-                   this->fPermShapes.fFilename,&carInfo) != 0) {
+  if (this->GetCar(carInfo) != 0) {
     r.y = 0x14;
     if (FEAppB[0]->fPlayer == '\x01') {
       carY = 0xb8;
@@ -2070,10 +2026,7 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
     }
     this->fCameraRotation = this->fCameraRotation + 3;
     DrawShape_NFS4RoundRectangle((signed char)carInfo.fCarID + 0x121,r,0);   /* W58-A1: RECT& decl */
-    vtbl = this->_vf;
-    (*vtbl[1][2].pfn)
-              (vtbl[1][2].delta + -0x14 +
-               this->fPermShapes.fFilename,&carInfo);
+    this->UpdateVideoWall(carInfo);
     /* MATCH (w83-a15): NAMING one of the two async_handle reads is a ZERO-INSN
        JUMP-GRAPH dial (catalog 26G-3).  `rtx_equal_for_thread_p' (jump.c:4599)
        refuses the equivalence as soon as REG_USERVAR_P holds on EITHER compared
@@ -2120,17 +2073,12 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
   }
   else {
     signedCarID = -1;
-    vtbl = this->_vf;
-    (*vtbl[1][2].pfn)
-              (vtbl[1][2].delta + -0x14 + this->fPermShapes.fFilename,
-               &carInfo);
+    this->UpdateVideoWall(carInfo);
     showRoomFlag = 0;
     tPlayer player = (tPlayer)(byte)FEAppB[0]->fPlayer;
     DrawCar(carInfo,0x116,0x4f,1.7,-9.9,(char)this->fBrightness[0],false,
                this->fCameraRotation,player);
-    vtbl = this->_vf;
-    (*vtbl[1][6].pfn)
-              (vtbl[1][6].delta + -0x14 + this->fPermShapes.fFilename)
+    this->TurnOffVideoWall()
     ;
   }
   ::IsShapeFileLoaded((tScreen *)this,&this->fSwapShapes);
@@ -2156,13 +2104,8 @@ void tScreenCarSelectTwoPlayer::DrawBackground()
   if (FEAppB[0]->fPlayer == '\x01') {
     r.y = 0x69;
   }
-  vtbl = this->_vf;
-  (*vtbl[1][0].pfn)
-            (vtbl[1][0].delta + -0x14 + this->fPermShapes.fFilename,
-             r.y);
-  vtbl = this->_vf;
-  (*vtbl[1][7].pfn)
-            (vtbl[1][7].delta + -0x14 + this->fPermShapes.fFilename);
+  this->DrawVideoWall(r.y);
+  this->SetDialog();
   temp.x = 0;
   temp.y = *(short *)((char *)drenv + 2);
   temp.w = 0x200;
@@ -2744,85 +2687,8 @@ void tScreenPinkSlipsCarSelect::GetShapeInfo(short &numPermShapes,short &numSwap
 
 
 
-/* ---- ___25tScreenPinkSlipsCarSelect / ___25tScreenCarSelectTwoPlayer
- * MATCH 2026-07-11 (dtor-surgery): both tScreenPinkSlipsCarSelect::~tScreenPinkSlipsCarSelect()
- * and tScreenCarSelectTwoPlayer::~tScreenCarSelectTwoPlayer() are now declared INLINE-in-class
- * (nfs4_types.h) with empty bodies -- see the tScreenControllerConfig dtor comment in
- * screencontroller.cpp for the full rationale (gcc-2.8/CC1PLPSX fully expands an inline dtor at
- * every implicit member/base-teardown call site; this reproduces tAllScreens::~tAllScreens(),
- * which the oracle shows INLINING both classes' teardown directly).
- *
- * PinkSlipsCarSelect has NO extra members of its own (CarDialog is INHERITED from
- * tScreenCarSelectTwoPlayer, not redeclared) -- so once tScreenCarSelectTwoPlayer is ALSO
- * inline, PinkSlipsCarSelect's auto-teardown of its base RECURSIVELY expands straight through it
- * to CarDialog (offset 0x3A0, same in both classes since single inheritance sits at +0x0) plus
- * the tScreenCarSelect base -- matching the oracle exactly. The old explicit
- * `tScreen_dtor(&this->CarDialog, 2)` manual call is DELETED (it was made redundant/wrong the
- * moment the base become inline-recursive too; keeping it would double-destroy CarDialog).
- *
- * Both classes' standalone out-of-line destructor symbols (___25tScreenCarSelectTwoPlayer,
- * ___25tScreenPinkSlipsCarSelect) still genuinely exist in retail (their own vtable dtor slots
- * need a real address) and are IDENTICAL in body (CarDialog @0x3A0 -> ___7tScreen, then base
- * -> ___16tScreenCarSelect forwarding in_chrg) -- transcribed verbatim, same technique/rationale
- * as ___23tScreenControllerConfig. Byte-identical to the prior compiler-generated PASS.
- *
- * W60-A10 (intra-TU VA ORDER, the MSC02 class): the two blobs are byte-identical, so only their
- * LABELS were swapped -- retail emits ___25tScreenPinkSlipsCarSelect (@0x8003f6d0) BEFORE
- * ___25tScreenCarSelectTwoPlayer (@0x8003f714). Wrong order here is invisible to verify_asm
- * (per-fn, VA-agnostic) but link-visible: it hands both symbols the wrong VAs. The two
- * `&this->CarDialog` / delay-slot comments below stayed with their original blob positions. */
-#if defined(__mips__)
-__asm__(
-    "\t.set noat\n"
-    "\t.set\tnoreorder\n"
-    "\t.set noreorder\n"
-    "\t.globl ___25tScreenPinkSlipsCarSelect\n"
-    "___25tScreenPinkSlipsCarSelect:\n"
-    "\taddiu $29, $29, -32\n"
-    "\tsw    $16, 16($29)\n"
-    "\taddu  $16, $4, $0\n"
-    "\tsw    $17, 20($29)\n"
-    "\taddu  $17, $5, $0\n"
-    "\taddiu $4, $16, 928\n"      /* &this->CarDialog (+0x3A0) */
-    "\tsw    $31, 24($29)\n"
-    "\tjal   ___7tScreen\n"
-    "\t addiu $5, $0, 2\n"      /* delay slot: member sub-object, not in charge */
-    "\taddu  $4, $16, $0\n"
-    "\tjal   ___16tScreenCarSelect\n"   /* base (past tScreenCarSelect) */
-    "\t addu  $5, $17, $0\n"    /* delay slot: forward the original in_chrg */
-    "\tlw    $31, 24($29)\n"
-    "\tlw    $17, 20($29)\n"
-    "\tlw    $16, 16($29)\n"
-    "\tjr    $31\n"
-    "\t addiu $29, $29, 32\n"
-    "\t.set at\n\t.set reorder\n"
-    "\t.set\treorder\n"  /* maspsx tracks .set linearly (no push/pop): restore nop-insertion for the rest of the file (gcc2.8 HOISTS toplevel asm above all fns) */
-
-    "\t.set noat\n"
-    "\t.set\tnoreorder\n"
-    "\t.set noreorder\n"
-    "\t.globl ___25tScreenCarSelectTwoPlayer\n"
-    "___25tScreenCarSelectTwoPlayer:\n"
-    "\taddiu $29, $29, -32\n"
-    "\tsw    $16, 16($29)\n"
-    "\taddu  $16, $4, $0\n"
-    "\tsw    $17, 20($29)\n"
-    "\taddu  $17, $5, $0\n"
-    "\taddiu $4, $16, 928\n"      /* &this->CarDialog (inherited, +0x3A0) */
-    "\tsw    $31, 24($29)\n"
-    "\tjal   ___7tScreen\n"
-    "\t addiu $5, $0, 2\n"      /* delay slot */
-    "\taddu  $4, $16, $0\n"
-    "\tjal   ___16tScreenCarSelect\n"
-    "\t addu  $5, $17, $0\n"    /* delay slot: forward the original in_chrg */
-    "\tlw    $31, 24($29)\n"
-    "\tlw    $17, 20($29)\n"
-    "\tlw    $16, 16($29)\n"
-    "\tjr    $31\n"
-    "\t addiu $29, $29, 32\n"
-    "\t.set at\n\t.set reorder\n"
-    "\t.set\treorder\n"  /* maspsx tracks .set linearly (no push/pop): restore nop-insertion for the rest of the file (gcc2.8 HOISTS toplevel asm above all fns) */);
-#endif
+/* (2026-09-20) The hand-transcribed __asm__ destructor(s) that stood here are GONE: with real virtual destructors the
+ * compiler emits the out-of-line copies the vtables need, at the same place (the deferred-inline tail). */
 
 
 
@@ -2832,7 +2698,6 @@ __asm__(
  * ___16tScreenCarSelect the way retail does; the standalone symbol gcc then stops
  * emitting is supplied here, in place, with C linkage. */
 extern "C" void ___16tScreenCarSelect(void *);
-extern "C" void ___20tScreenCarSelectDuel(void *thisp) { ___16tScreenCarSelect(thisp); }
 
 
 

@@ -19,7 +19,32 @@ ITEM = {1: 'delete', 2: 'DebounceKeys', 3: 'ProcessInput', 4: 'Draw', 5: 'Draw',
 MENU = {1: 'delete', 2: 'Initialize', 3: 'ProcessInput', 4: 'DebounceKeys', 5: 'TransitionOff', 6: 'TransitionOn',
         7: 'TransitionIsFinished', 8: 'IsSubMenu', 9: 'Draw', 10: 'UpdateTransition'}
 MENU_TYPES = re.compile(r'^(tMenu|tMenuNFS4\w*|tMenuBlank|tMenuOptions|tOptionsMenu|tInsideBoxMenu|tInsideBoxSongMenu)$')
-AUTO = sys.argv[1] == 'auto-menu'
+SCREEN = {1: 'GetShapeInfo', 2: 'DrawBackground', 3: 'DrawForeground', 4: 'delete', 5: 'PreLoad', 6: 'Initialize',
+          7: 'Cleanup', 8: 'TransitionIsFinished', 9: 'ProcessInput'}
+DIALOG = {**SCREEN, **{10: 'CalculateDimensions', 11: 'Draw'}}
+CONGRATS = {**SCREEN, **{10: 'CalculatePrizes', 12: 'GetCar'}}
+CARSEL = {**SCREEN, **{10: 'DrawVideoWall', 11: 'InitializeVideoWall', 12: 'UpdateVideoWall', 13: 'GetCar',
+                         14: 'AllocateAsyncBuffer', 15: 'FreeAsyncBuffer'}}
+CARSEL2 = {**CARSEL, **{16: 'TurnOffVideoWall', 17: 'SetDialog'}}
+CARDUEL = {**CARSEL, **{16: 'DrawOpponentVideoWall'}}
+
+
+def screen_map(st):
+    if st.startswith('tDialog'):
+        return DIALOG
+    if 'Congrats' in st or st == 'tScreenTournamentTrophy':
+        return CONGRATS
+    if st in ('tScreenCarSelectTwoPlayer', 'tScreenPinkSlipsCarSelect'):
+        return CARSEL2
+    if st == 'tScreenCarSelectDuel':
+        return CARDUEL
+    if st == 'tScreenCarSelect':
+        return CARSEL
+    return SCREEN
+
+
+AUTO = sys.argv[1] in ('auto-menu', 'auto-screen')
+AUTO_SCREEN = sys.argv[1] == 'auto-screen'
 FIXED = {} if AUTO else dict((int(k), v) for k, v in (p.split('=') for p in sys.argv[1].split(',')))
 HEAD = re.compile(r'(?:\(\s*\([^()]*\(\s*\*\s*\)\s*\([^()]*\)\s*\)\s*|\(\s*\*\s*(?:\([^()]*\(\s*\*\s*\)\s*\([^()]*\)\s*\)\s*)?)'
                   r'\(\s*\*\s*(?P<e>[^;{}]+?)->_vf\s*\)\s*\[\s*(?P<n>\d+)\s*\]\s*\.pfn\s*\)\s*\(')
@@ -74,7 +99,10 @@ for rel in sys.argv[2:]:
         args = split_args(s[m.end():i - 1])
         n = int(m.group('n'))
         e = ' '.join(m.group('e').split())
-        slotmap = (MENU if MENU_TYPES.match(types[hit[0]]) else ITEM) if AUTO else FIXED
+        if AUTO_SCREEN:
+            slotmap = screen_map(types[hit[0]])
+        else:
+            slotmap = (MENU if MENU_TYPES.match(types[hit[0]]) else ITEM) if AUTO else FIXED
         if n not in slotmap or '.delta' not in args[0]:
             skipped.append((l0, types[hit[0]], s[m.start():i][:90]))
             continue

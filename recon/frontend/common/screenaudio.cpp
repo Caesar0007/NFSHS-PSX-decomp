@@ -296,7 +296,6 @@ void tScreenAudio::GetShapeInfo(short &numPermShapes,short &numSwapShapes,char *
 tScreenAudio::tScreenAudio()
 
 {
-  this->_vf = (__vtbl_ptr_type (*)[10])tScreenAudio_vtable;
   this->fSelectedSong = 0;
   this->fCurrentAudioMode = '\0';
   this->songlist = (AudioMus_tSongList *)0x0;
@@ -364,6 +363,5 @@ L_wait:
  * ___7tScreen the way retail does; the standalone symbol gcc then stops
  * emitting is supplied here, in place, with C linkage. */
 extern "C" void ___7tScreen(void *);
-extern "C" void ___12tScreenAudio(void *thisp) { ___7tScreen(thisp); }
 
 /* end of screenaudio.cpp */

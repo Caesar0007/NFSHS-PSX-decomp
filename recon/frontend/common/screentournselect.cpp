@@ -16,7 +16,6 @@ tScreenTournSelect::tScreenTournSelect()
   if (0) sprintf((char *)0,"SimpleMem");   /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag */
 
 
-  this->_vf = (__vtbl_ptr_type (*)[10])tScreenTournSelect_vtable;
   return;
 }
 
@@ -28,7 +27,6 @@ tScreenTournSelect::~tScreenTournSelect()
 {
   /* MATCH: no manual tScreen_dtor — declared base dtor auto-fires (vptr store
      lands in its jal delay slot; __in_chrg forwarded in $a1). */
-  this->_vf = (__vtbl_ptr_type (*)[10])tScreenTournSelect_vtable;
   return;
 }
 

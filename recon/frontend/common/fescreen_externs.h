@@ -35,7 +35,6 @@ extern Draw_tView     Draw_gView[];                  /* @0x8011ec54 */
 extern dflip          gEnviro[2];                    /* @0x8011f424 */
 extern int            screenheight;
 extern tTexture_ShapeInfo *gCurrentShapes;           /* @0x800517cc */
-extern __vtbl_ptr_type tScreen_vtable[];             /* _vt.7tScreen */
 
 /* ===== statics owned by FEScreen.obj ===== */
 extern int            _7tScreen_fSuppressLoadingText;  /* def in link_runtime.cpp */   /* @0x800517C8 */

@@ -388,7 +388,6 @@ void tScreenPinkSlips::ProcessInput(tPlayer,tInputKeyType &keyval,tMenuCommand &
  * ___7tScreen the way retail does; the standalone symbol gcc then stops
  * emitting is supplied here, in place, with C linkage. */
 extern "C" void ___7tScreen(void *);
-extern "C" void ___16tScreenPinkSlips(void *thisp) { ___7tScreen(thisp); }
 
 
 

@@ -173,13 +173,14 @@ struct tShapeInformation {
     bool fLoadCancelled;
 };
 
+#include "fescreen_virtual_types.h"
 struct tScreen {
     tShapeInformation fPermShapes, fSwapShapes;
     int fTransitionTicks;
     bool fTransitionOff;
     int fInternalScreenFadeVal;
     short fScreenFadeVal;
-    __vtbl_ptr_type (*_vf)[10];
+#include "fescreen_virtuals.inc"
 };
 
 struct tActiveLine {
@@ -189,6 +190,9 @@ struct tActiveLine {
 };
 
 struct tDialogBase : public tScreen {
+    /* virtuals introduced by tDialogBase, in retail slot order [10] [11] (real virtuals since 2026-09-20) */
+    virtual void CalculateDimensions() = 0;
+    virtual void Draw();
     short specificPlayer, left, top, width, height, reservedheight;
     bool currentlyOn;
     long startTicks, timeOutTicks;
@@ -196,6 +200,7 @@ struct tDialogBase : public tScreen {
     bool fFullyOpen;
     short fDefault, ReturnValue;
     int fFadeText;
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);   /* declared on every surface: see fevirt_tscreen7.py */
 };
 
 struct tDialogHelp : public tDialogBase {
@@ -203,15 +208,21 @@ struct tDialogHelp : public tDialogBase {
     char *text[7];
     int cont[7];
     short numItems, helpcontrollers, lefttext;
+    void CalculateDimensions();   /* declared on every surface: see fevirt_tscreen7.py */
+    void Draw();   /* declared on every surface: see fevirt_tscreen7.py */
 };
 
 struct tDialogMessageString : public tDialogBase {
     char *string;
     bool Centerit;
+    void CalculateDimensions();   /* declared on every surface: see fevirt_tscreen7.py */
+    void Draw();   /* declared on every surface: see fevirt_tscreen7.py */
 };
 
 struct tDialogMessageStringWithTimeout : public tDialogMessageString {};
-struct tDialogNoInputMessage : public tDialogMessageString {};
+struct tDialogNoInputMessage : public tDialogMessageString {
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);   /* declared on every surface: see fevirt_tscreen7.py */
+};
 
 struct tDialogInteractive : public tDialogMessageString {
     bool ReadyToReturnValue, fCurrentlyRunning;
@@ -219,6 +230,9 @@ struct tDialogInteractive : public tDialogMessageString {
 
 struct tDialogYesNo : public tDialogInteractive {
     int yesnowords[2];
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);   /* declared on every surface: see fevirt_tscreen7.py */
+    void CalculateDimensions();   /* declared on every surface: see fevirt_tscreen7.py */
+    void Draw();   /* declared on every surface: see fevirt_tscreen7.py */
 };
 
 struct tFEApplication {

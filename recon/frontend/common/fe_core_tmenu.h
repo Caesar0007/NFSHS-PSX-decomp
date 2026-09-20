@@ -20,11 +20,7 @@ struct tMenu {
     short VertHelp;
     virtual ~tMenu();
     virtual void Initialize();
-#if defined(NFS4_FE_CORE_FEMENU_METHODS) || defined(NFS4_FE_CORE_FEDIALOG_METHODS)
     virtual void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-#else
-    virtual void ProcessInput(int, void *, void *);   /* layout-only: this owner surface has no tInputKeyType/tMenuCommand */
-#endif
     virtual long DebounceKeys();
     virtual void TransitionOff();
     virtual void TransitionOn();

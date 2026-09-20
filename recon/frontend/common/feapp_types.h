@@ -25,10 +25,8 @@ struct tMenuCommand {
 
 /* FEApp uses player values without retaining the foreign tPlayer enum.  Input
  * keys are real owner records and must be available before dialog methods. */
-#define tPlayer int
-#define NFS4_FE_INPUT_NO_PLAYER
+/* (2026-09-20) real tPlayer enum: overrides of the root virtuals need the root's parameter types */
 #include "fe_input_enums.h"
-#undef NFS4_FE_INPUT_NO_PLAYER
 
 /* ScreenMemcard is the nearest exact owner graph (160 shared named records).
  * Its memory-card/SDK owner records are excluded by this boundary. */
@@ -45,8 +43,6 @@ struct tMenuCommand {
 #undef NFS4_SCREENMEMCARD_FEAPP_SURFACE
 
 /* Source spellings whose completed enum records are absent from FEApp.obj. */
-#define kPlayerOne 0
-#define kPlayerTwo 1
 #define tMenuTextType int
 #define tMenuTextState int
 #define textType_FramedInfo 3
@@ -101,9 +97,14 @@ struct tScreenTournamentStandings : public tScreen {
 
     void GetShapeInfo(short &, short &, char **, char **);
     void DrawBackground();
+    void Initialize();   /* declared on every surface: see fevirt_tscreen7.py */
+    void Cleanup();   /* declared on every surface: see fevirt_tscreen7.py */
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);   /* declared on every surface: see fevirt_tscreen7.py */
 };
 
-struct tScreenTournamentStandings3item : public tScreenTournamentStandings {};
+struct tScreenTournamentStandings3item : public tScreenTournamentStandings {
+    void GetShapeInfo(short &, short &, char **, char **);   /* declared on every surface: see fevirt_tscreen7.py */
+};
 
 struct tScreenUserName : public tScreen {
     tOptionsMenu *callingMenu;

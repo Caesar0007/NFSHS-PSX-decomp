@@ -26,7 +26,6 @@ tFEApplication *FEApp;            /* @0x800514c0  global FE application pointer 
 
 inline tDialogBase::tDialogBase()
 {
-  _vf = (__typeof__(_vf))tDialogBase_vtable;   /* w76-A20 vptr-store alias dial (24A) */
   currentlyOn = 0;
   reservedheight = 0;
   MaxH = 0;
@@ -44,7 +43,6 @@ inline tDialogBase::tDialogBase()
 
 inline tDialogMessageString::tDialogMessageString()
 {
-  _vf = (__typeof__(_vf))tDialogMessageString_vtable;   /* w76-A20 vptr-store alias dial (24A) */
   Centerit = 0;
   fFullyOpen = 0;
   timeOutTicks = 0;
@@ -53,7 +51,6 @@ inline tDialogMessageString::tDialogMessageString()
 
 inline tDialogHelp::tDialogHelp()
 {
-  _vf = (__typeof__(_vf))tDialogHelp_vtable;   /* w76-A20 vptr-store alias dial (24A) */
   variant = -1;
   timeOutTicks = 0x578;
 }
@@ -61,13 +58,11 @@ inline tDialogHelp::tDialogHelp()
 /* the constructor stores live in the helper base (see fedialog_timeout_class.h) */
 inline tDialogMessageStringWithTimeoutInit::tDialogMessageStringWithTimeoutInit()
 {
-  _vf = (__typeof__(_vf))tDialogMessageStringWithTimeout_vtable;   /* w76-A20 vptr-store alias dial (24A) */
   timeOutTicks = 0x480;
 }
 
 inline tDialogNoInputMessage::tDialogNoInputMessage()
 {
-  _vf = (__typeof__(_vf))tDialogNoInputMessage_vtable;   /* w76-A20 vptr-store alias dial (24A) */
 }
 
 
@@ -130,9 +125,7 @@ void tFEApplication::PerformMenuDestruction()
   i = 0;
   do {
     if (this->fCurrentScreen[i] != (tScreen *)0x0) {
-      (*(*this->fCurrentScreen[i]->_vf)[7].pfn)
-          ((char *)this->fCurrentScreen[i] +
-           (*this->fCurrentScreen[i]->_vf)[7].delta);
+      this->fCurrentScreen[i]->Cleanup();
     }
     this->fCurrentScreen[i] = (tScreen *)0x0;
     i = i + 1;
@@ -785,14 +778,11 @@ void tFEApplication::RunDemoVideo()
     this->fCurrentMenu[0]->TransitionOff();
     (this->fCurrentScreen[0])->TransitionOff(kScreen_TransitionTypeScreen,(tMenu *)0x0);
     while ((this->fCurrentMenu[0]->TransitionIsFinished() == 0) ||
-           ((*(*this->fCurrentScreen[0]->_vf)[8].pfn)
-                   ((char *)this->fCurrentScreen[0] +
-                    (*this->fCurrentScreen[0]->_vf)[8].delta) == 0)) {
+           (this->fCurrentScreen[0]->TransitionIsFinished() == 0)) {
       this->Redraw();
       FeAudio_systemtask(0);
     }
-    (*(*this->fCurrentScreen[0]->_vf)[7].pfn)
-              ((char *)this->fCurrentScreen[0] + (*this->fCurrentScreen[0]->_vf)[7].delta);
+    this->fCurrentScreen[0]->Cleanup();
     Audio_FECleanUp();
     Audio_DeInitDriver();
     PSXFront_FreeDrawMemory();
@@ -822,8 +812,7 @@ void tFEApplication::RunDemoVideo()
       gLargestUnused = largest;
       menu->Initialize();
     }
-    (*(*this->fCurrentScreen[0]->_vf)[6].pfn)
-              ((char *)this->fCurrentScreen[0] + (*this->fCurrentScreen[0]->_vf)[6].delta);
+    this->fCurrentScreen[0]->Initialize();
     this->fCurrentMenu[0]->TransitionOn();
     (this->fCurrentScreen[0])->TransitionOn(kScreen_TransitionTypeScreen,(tMenu *)0x0);
     currentVideo = (currentVideo + 1) % 3;
@@ -931,9 +920,7 @@ tAppCommand tFEApplication::MainLoop(tMenu *newMenu)
           if (this->fCurrentMenu[(u_char)this->fPlayer]->TransitionIsFinished() != 0) {
             if (this->fCurrentScreen[(u_char)this->fPlayer] != (tScreen *)0x0) {
               wasSubMenu = (u_int)
-                  ((*(*this->fCurrentScreen[(u_char)this->fPlayer]->_vf)[8].pfn)
-                               ((char *)this->fCurrentScreen[(u_char)this->fPlayer] +
-                                (*this->fCurrentScreen[(u_char)this->fPlayer]->_vf)[8].delta) != 0);
+                  (this->fCurrentScreen[(u_char)this->fPlayer]->TransitionIsFinished() != 0);
             }
           }
           if (wasSubMenu == 0) goto MainLoop_subMenuDetect;
@@ -974,9 +961,7 @@ MainLoop_subMenuDetect:
               (this->fParentMenu[(u_char)this->fPlayer]->TransitionIsFinished() != 0)) {
           this->fCurrentMenu[(u_char)this->fPlayer] = (tMenu *)0x0;
           if (this->fCurrentScreen[(u_char)this->fPlayer] != (tScreen *)0x0) {
-            (*(*this->fCurrentScreen[(u_char)this->fPlayer]->_vf)[7].pfn)
-                      ((char *)this->fCurrentScreen[(u_char)this->fPlayer] +
-                       (*this->fCurrentScreen[(u_char)this->fPlayer]->_vf)[7].delta);
+            this->fCurrentScreen[(u_char)this->fPlayer]->Cleanup();
           }
           this->fCurrentScreen[(u_char)this->fPlayer] = (tScreen *)0x0;
           }
@@ -984,22 +969,16 @@ MainLoop_subMenuDetect:
       }
       if (this->fTransitionToScreen[(u_char)this->fPlayer] != (tScreen *)0x0) {
         if (this->fCurrentScreen[(u_char)this->fPlayer] != (tScreen *)0x0) {
-          if (((*(*this->fCurrentScreen[(u_char)this->fPlayer]->_vf)[8].pfn)
-                             ((char *)this->fCurrentScreen[(u_char)this->fPlayer] +
-                              (*this->fCurrentScreen[(u_char)this->fPlayer]->_vf)[8].delta) == 0) ||
+          if ((this->fCurrentScreen[(u_char)this->fPlayer]->TransitionIsFinished() == 0) ||
               (this->fTransitionToMenu[(u_char)this->fPlayer] != (tMenu *)0x0))
           goto MainLoop_perPlayerFlagCheck;
           if (this->fCurrentScreen[(u_char)this->fPlayer] != (tScreen *)0x0) {
-            (*(*this->fCurrentScreen[(u_char)this->fPlayer]->_vf)[7].pfn)
-                      ((char *)this->fCurrentScreen[(u_char)this->fPlayer] +
-                       (*this->fCurrentScreen[(u_char)this->fPlayer]->_vf)[7].delta);
+            this->fCurrentScreen[(u_char)this->fPlayer]->Cleanup();
           }
         }
         this->fCurrentScreen[(u_char)this->fPlayer] = this->fTransitionToScreen[(u_char)this->fPlayer];
         gLargestUnused = largestunused();
-        (*(*this->fCurrentScreen[(u_char)this->fPlayer]->_vf)[6].pfn)
-                  ((char *)this->fCurrentScreen[(u_char)this->fPlayer] +
-                   (*this->fCurrentScreen[(u_char)this->fPlayer]->_vf)[6].delta);
+        this->fCurrentScreen[(u_char)this->fPlayer]->Initialize();
         this->fTransitionToScreen[(u_char)this->fPlayer] = (tScreen *)0x0;
         (this->fCurrentScreen[(u_char)this->fPlayer])->TransitionOn(kScreen_TransitionTypeScreen,
                    (tMenu *)0x0);
@@ -1035,9 +1014,7 @@ MainLoop_perPlayerFlagCheck:
             (this->fCurrentMenu[(u_char)this->fPlayer]->TransitionIsFinished() != 0)) &&
            (this->fCurrentScreen[(u_char)this->fPlayer] != (tScreen *)0x0)) {
           wasSubMenu =
-              (*(*this->fCurrentScreen[(u_char)this->fPlayer]->_vf)[8].pfn)
-                             ((char *)this->fCurrentScreen[(u_char)this->fPlayer] +
-                              (*this->fCurrentScreen[(u_char)this->fPlayer]->_vf)[8].delta) != 0;
+              this->fCurrentScreen[(u_char)this->fPlayer]->TransitionIsFinished() != 0;
         }
         if (wasSubMenu) {
           u_long debounce;
@@ -1067,18 +1044,14 @@ MainLoop_perPlayerFlagCheck:
             }
             if (dialog != 0) {
               if (keyVal[i] != kInput_KeyType_Circle) {
-                (*(*dialog->_vf)[9].pfn)
-                          ((char *)dialog + (*dialog->_vf)[9].delta,i,keyVal + i,command + i);
+                dialog->ProcessInput((tPlayer)i,keyVal[i],command[i]);
               }
             }
             if (this->fCurrentScreen[(u_char)this->fPlayer] != (tScreen *)0x0) {
-              (*(*this->fCurrentScreen[(u_char)this->fPlayer]->_vf)[9].pfn)
-                        ((char *)this->fCurrentScreen[(u_char)this->fPlayer] +
-                         (*this->fCurrentScreen[(u_char)this->fPlayer]->_vf)[9].delta,i,
-                         keyVal + i,command + i);
+              this->fCurrentScreen[(u_char)this->fPlayer]->ProcessInput((tPlayer)i,keyVal[i],command[i]);
             }
             if (keyVal[i] != kInput_KeyType_AlreadyProcessed) {
-              this->fCurrentMenu[(u_char)this->fPlayer]->ProcessInput(i,keyVal + i,command + i);
+              this->fCurrentMenu[(u_char)this->fPlayer]->ProcessInput((tPlayer)i,keyVal[i],command[i]);
             }
           }
           if (command[i].type == 0) goto MainLoop_commandSwitchDefault;

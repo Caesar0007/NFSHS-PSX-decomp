@@ -10,9 +10,6 @@ extern tPadModuleState gPadinfo;
 extern int ticks[];
 extern tGlobalMenuDefs *menuDefs;
 /* class vtables (FEDialog.obj-defined subclasses) */
-extern __vtbl_ptr_type tDialogBase_vtable[], tDialogHelp_vtable[], tDialogMessageString_vtable[], tDialogBackUpOnly_vtable[],
-  tDialogInteractive_vtable[], tDialogYesNo_vtable[], tDialogYesNoMem_vtable[],
-  tDialogYesNoTri_vtable[], tDialogNoInputMessage_vtable[];//X
 /* engine helpers (shared with FeMenuOptions) */
 int   CalcFadeVal(int, int);  int CalcFadeVal(int,int,int);  int CalcFadeVal(int,int,int,int);
 void  DrawShapeExtended(int,int,int,int,int,int,tDrawShapeExtended*);

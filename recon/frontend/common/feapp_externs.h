@@ -84,6 +84,5 @@ void SetDrawArea(DR_AREA *, RECT *);
 
 /* tDialog* vtables (defined in FEDialog.obj) */
 extern __vtbl_ptr_type tDialogBase_vtable[], tDialogHelp_vtable[], tDialogMessageString_vtable[], tDialogNoInputMessage_vtable[];
-extern __vtbl_ptr_type tDialogMessageStringWithTimeout_vtable[];   /* @0x80010098 (vtables_tdialog.cpp) */
 
 #endif

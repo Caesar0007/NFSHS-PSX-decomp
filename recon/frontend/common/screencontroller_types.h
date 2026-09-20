@@ -4,11 +4,8 @@
 
 /* ScreenController retains tInputKeyType but not the foreign tPlayer enum.
  * FeMenuOptions reuses this graph and retains both input enums. */
-#ifdef NFS4_FEMENUOPTIONS_SURFACE
+/* (2026-09-20) real tPlayer enum: overrides of the root virtuals need the root's parameter types */
 #include "fe_player_types.h"
-#else
-#define tPlayer int
-#endif
 #define uchar unsigned char
 struct tMenuCommand;
 #define NFS4_FE_INPUT_NO_PLAYER

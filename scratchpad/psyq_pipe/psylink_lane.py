@@ -48,6 +48,7 @@ ROM = ROOT / 'rom' / 'nfs4-f.exe'
 GMODE = os.environ.get('NFS4_LANE_G') == '1'   # full-debug lane (see psylink_gmode.py / gdebug_compile.py)
 OUT = ROOT / os.environ.get('NFS4_LANE_OUT', 'build/psyq'); OUT.mkdir(parents=True, exist_ok=True)
 W = ROOT / 'scratchpad' / 'psyq_pipe'
+ONLY = [f for f in os.environ.get('NFS4_LANE_ONLY', '').split(',') if f]   # per-file loop: assemble just these TUs
 WOUT = OUT if GMODE else W      # scratch OUTPUTS; inputs (sym_obj_order.json) always come from W
 RET = [('front.rdata', 0x80010000, 0x800128F0), ('front.text', 0x800128F0, 0x80051260),
        ('front.data', 0x80051260, 0x80052B38), ('front.bss', 0x80052B38, 0x80054548),
@@ -241,6 +242,10 @@ if '--assemble' in steps:
         if not sfile.is_file():
             continue
         rel = s.relative_to(ROOT).as_posix()
+        if ONLY and not any(f in rel for f in ONLY):
+            if (OUT / objname(rel)).is_file():
+                ok += 1
+            continue
         g = str(build.per_tu_flags(s.resolve()).get('g_value', build.G_VALUE))
         bo = 'build/' + rel + '.o'
         front = (bo in FRONT) if bo in HONEST_OBJS else rel.startswith('recon/frontend/')

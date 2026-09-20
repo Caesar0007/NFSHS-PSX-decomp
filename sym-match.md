@@ -26,14 +26,15 @@ the honest link stays at 0 diff.
 |---|---|
 | Retail functions with debug records | 2570 |
 | Compared (present on both sides) | 2565 |
-| **Match implemented function checks (CLEAN)** | **1632** |
-| Differ (DIRTY) | 933 |
-| Files whose compared functions are all CLEAN | 45 of 177 |
+| **Match implemented function checks (CLEAN)** | **1639** |
+| Differ (DIRTY) | 926 |
+| Files whose compared functions are all CLEAN | 46 of 177 |
 
 The effort started at 1499 clean. The 5 retail functions not compared are the EA pad library's `PAD.C`
 (`recon/eaclib/psx/pad.c`), which is outside the two directories the debug compile covers.
 
-Honest link: 299710/299710 words = 0 diff. Overlap audit 0, foreign-label gate 0/0.
+Honest link: 299710/299710 words = 0 diff. Overlap audit: 0 masked RECON mismatch bytes
+(not zero physical overlap bytes); foreign-label gate 0/0.
 
 End-to-end smoke test: `AudioClc_CalcDistance` corrected the exchanged value roles of `length` and `length1`,
 preserving declaration order and the entire compiled object. Fresh native SYM comparison changed it from two MOVED
@@ -44,6 +45,70 @@ The follow-up `AudioClc_GetClosestCars` round restored its native for/continue t
 distance variable roles:15 scopes ->5, with unchanged bytes. AudioClc is now18/18 CLEAN. Ternary source forms also
 give both changed functions0 SLD merges/splits; CalcDistance's relative line positions and span are exact.
 Receipt: `scratchpad/sym_audioclc_closest_20260920/README.md`.
+
+`AIWorld_CalcSpeed` supplies another small end-to-end check: the native `optVar1` (a1)
+holds X velocity and `optVar2` (v1) holds Z velocity, opposite to our previous value/name
+association. Restoring those roles and the single speed-selection expression clears both
+MOVED findings. AIWORLD improves from15/22 to16/22 CLEAN while remaining22/22 instruction
+PASS; the entire object is unchanged. All18 target words match the raw ROM, and every
+instruction's function-relative SLD line and the function span match retail. The21 neighbors'
+debug contracts and relative SLD maps are unchanged.
+Receipt: `scratchpad/sym_aiworld_speed_20260920/README.md`.
+
+`AIWorld_LaneIndex` is now CLEAN too (AIWORLD17/22). The extra debug local came
+from reusing `perpDistance` as a hand-expanded division and final return carrier.
+Restoring separate lookup/multiply/divide statements and the constant-first upper
+clamp removes the extra record without changing the object. The NFS2 SYM supplies
+the cross-version `inverseLaneWidth`/`perpDistance` spellings; neither survives as
+a debug local in the restored NFS4 compilation. Every instruction's relative SLD
+line and the26-line scope span match retail. Their original NFS4 spellings remain
+unprovable from its optimized SYM; the cross-version attribution is explicit.
+Receipt: `scratchpad/sym_aiworld_lane_20260920/README.md`.
+
+Both car-based `AIWorld_ApxSplineDistance` overloads now give `a`/`b` their native
+input-slice roles instead of treating them as multiply intermediates. Natural
+signed wrap conditions and a single scaled return remove both decompiler goto
+labels. `AIWorld_IsDriveableLaneInSliceRange` now declares its counter in the for
+statement and its slice in the body, restoring retail's three scopes. AIWORLD is
+20/22 CLEAN and22/22 PASS; all101 target instruction words and their relative SLD
+lines match retail. Complete object and honest-link ELF/map bytes are unchanged.
+Receipt: `scratchpad/sym_aiworld_scopes_20260920/README.md`.
+
+AIWORLD now has22/22 native function contracts CLEAN and22/22 byte-PASS.
+`CalculateDeltaRoadYaw` no longer needs its empty asm fence: the separate yaw
+statements and explicit else-zero branch restore the retail allocation and
+scope ends. `CalcRoadBend` no longer needs the inline division helper or the
+first-product carrier: plain signed division and assigning the complete sum
+restore the single native scope. Both match every relative SLD line and preserve
+the entire object and fresh honest-link ELF/map.
+Receipts: `scratchpad/sym_aiworld_yaw_20260920/README.md` and
+`scratchpad/sym_aiworld_bend_20260920/README.md`.
+
+**This is not complete AIWORLD source restoration:** an independent whole-TU
+SLD audit now finds21/22 exact relative instruction lines/spans and21/22 exact
+statement partitions, improved from10/22 and15/22. The remaining case is listed in
+`scratchpad/sym_aiworld_tail_20260920/all_sld_audit.json`: CalculateLaneInfo's
+44 body words agree exactly, but its5 epilogue words carry retail relative line151
+instead of25. All22 lexical-block line fields also agree (a separate check beyond
+the board). Retail jumps from351 to477; the intervening source text is not known,
+and no padding/directive was added to claim completion. The audit includes the type88 new-file
+SLD record so a previous TU's final line cannot leak into a first prologue.
+
+The nine-function SLD follow-up grouped the two ZSplineDistance vector
+subtractions as single expressions, restored the SplineDistance early-return
+order, aligned the integer ApxSplineDistance statement order, and restored
+native statement regions for lane/profile/barrier/lateral-velocity operations.
+All234 target words still equal rawROM, with unchanged whole-object and linked
+ELF/map bytes. Original macro spelling and comments are not claimed recovered.
+Receipt: `scratchpad/sym_aiworld_sld_20260920/README.md`.
+
+The tail round restored CalcFutureLateralVel's complete dot-product temporary
+and separate return, the barrier search's compound-condition loop, and
+CalculateLaneInfo's separate edge calculations followed by lane queries.
+All190 target words remain raw-ROM exact, with unchanged complete object and
+honest-link ELF/map. Cross-version optimized-away names are receipted, not
+claimed uniquely recoverable from the NFS4 SYM.
+Receipt: `scratchpad/sym_aiworld_tail_20260920/README.md`.
 
 ## Tool set
 
@@ -72,8 +137,14 @@ All tools are in `tools/psyq_pipe/` unless a path is given; their generated outp
 
 | Tool | What it does |
 |---|---|
-| `symloop.py <rel path> [...] [--quiet] [--ref-only]` | The per-file loop, about 11 seconds. (1) Normal build of the file and a comparison of its `.text/.rodata/.data/.sdata` bytes with a reference in `build/symloop_ref/` — prints `BYTES: UNCHANGED` or `MOVED`. (2) `-g` compile, ASPSX `-g` of just that file, relink of the debug lane, dump. (3) The board restricted to that file's functions. `--ref-only` records the current objects as the reference; run it **before** editing. |
-| `symfix_order_drive.py [fixer.py]` | Runs an automatic fixer file by file under the byte gate. If a file's bytes move it reverts the file and retries one function at a time, keeping only the changes that leave the code unchanged. Every `git checkout` revert is verified. Fixes known to move code go to `symfix_skip.json` so they are not retried. |
+| `symloop.py <rel path> [...] [--quiet] [--ref-only]` | Guarded per-file loop. `--ref-only` **freshly rebuilds** before capturing a missing reference or verifying an existing one; run it **before editing**, including once to adopt a legacy reference's section-layout companion. Normal runs require references, unchanged section bytes/layout, fresh successful debug/native-link outputs and complete selected-function coverage. Failures return nonzero without a success token. `BYTES: UNCHANGED` is printed only after the full pipeline succeeds. Logs and earlier generated artifacts are retained in `build/symloop_runs/`. |
+| `symfix_order_drive.py [fixer.py]` | Legacy automatic driver: still uses whole-file `git checkout` reverts and needs separate hardening. Do not use on a dirty worktree or assume its stdout-based acceptance is a complete source/matching proof. Use the guarded per-file loop manually for now. |
+
+Wrapper regression tests: `python tools/psyq_pipe/test_symloop.py` (11 tests /38 controlled runs).
+Live proof and limitations: `scratchpad/symloop_guard_20260920/README.md`.
+Known `-g` code-changing cases require lower-level diagnostics rather than passing the acceptance loop.
+SYM CLEAN and unchanged baseline bytes do not replace the separate requirement that **every function must be PASS**.
+Keep this a single-writer workflow; the downstream normal/debug caches are shared.
 
 ### Automatic fixers
 
@@ -112,15 +183,15 @@ A function can be in several classes.
 
 | Class | Functions | Meaning |
 |---|---|---|
-| BLOCKS | 748 | The scope tree differs. In 541 of them retail has **more** scopes than we do, in 175 fewer, in 32 the count is equal but nesting or addresses differ. |
-| EXTRA | 482 (1303 locals) | We declare a local retail does not have: an invented carrier, a decompiler temporary, or an expression retail wrote through an inline call. |
+| BLOCKS | 743 | The scope tree differs. In 540 of them retail has **more** scopes than we do, in 174 fewer, in 29 the count is equal but nesting or addresses differ. |
+| EXTRA | 480 (1301 locals) | We declare a local retail does not have: an invented carrier, a decompiler temporary, or an expression retail wrote through an inline call. |
 | MISSING | 251 (359 locals) | Retail has a local we lack. 180 of the 359 are `this` of an inlined member call. |
-| MOVED | 85 | Same name, different register or stack slot: our local plays a different role than retail's. |
+| MOVED | 83 | Same name, different register or stack slot: our local plays a different role than retail's. |
 | ORDER | 8 | Declaration order differs (only reported when no local is extra or missing). |
 | TYPE | 1 | Same name and home, different type. |
 | FRAME | 1 | Frame size differs. |
 
-Most common combinations: BLOCKS only 297; BLOCKS + EXTRA 180; EXTRA only 138; BLOCKS + EXTRA + MISSING 110;
+Most common combinations: BLOCKS only 294; BLOCKS + EXTRA 179; EXTRA only 137; BLOCKS + EXTRA + MISSING 110;
 BLOCKS + MISSING 95.
 
 Files with the most differing functions: `SPEECH.CPP` 44 of 87, `HUD.CPP` 33 of 62, `FEMENUOPTIONS.CPP` 33 of 83,
@@ -161,7 +232,7 @@ in the `AIHigh_BasicPerp` constructor. The bytes moved and the tree was still on
   shape can be reproduced, and only by a local that really gets eliminated. Example still open:
   `Stats_TrackEndGame`'s scope `+150..+1c8`, and the intermediate scope in `AIHigh_Traffic::CheckForCops`.
 
-### 3. Scopes we have and retail does not (BLOCKS, 175 functions)
+### 3. Scopes we have and retail does not (BLOCKS, 174 functions)
 
 Usually braces added to steer code generation, or inline helpers of ours that retail did not have. 55 files also carry the
 `if (0) sprintf((char *)0,"SimpleMem")` literal carrier in their first function; how retail got that unreferenced string
@@ -174,13 +245,13 @@ is a real matching problem: the local has to go and the code has to stay. `Stats
 model: the fix was the operand order of a `MIN`, after which two register pins, four asm statements and four invented
 locals were all unnecessary.
 
-Only 36 of the 1303 extra locals still have decompiler names (`iVar1`, `piVar2`); the rest look deliberate.
+Only 36 of the 1301 extra locals still have decompiler names (`iVar1`, `piVar2`); the rest look deliberate.
 
-### 5. MOVED (85)
+### 5. MOVED (83)
 
 Same name, different home. The bytes match, so our variable of that name is not the quantity retail's was. Typical cause:
 names swapped between two locals (`AIPhysic_HandleSignalling`: `lPos`/`lDes`; `DrawC_ShadowPrimClip`: `uv2`/`uv3` are
-named by destination slot). Check for a swap first; 18 functions have MOVED as their only difference.
+named by destination slot). Check for a swap first; 17 functions have MOVED as their only difference.
 
 ### 6. Open order and type cases (9)
 

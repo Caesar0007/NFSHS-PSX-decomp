@@ -7,9 +7,15 @@ SYM (psylink_lane.py in NFS4_LANE_G mode) with the retail SYM, function by funct
            name, different home, TYPE = same name, different type
   BLOCKS   the scope tree: nesting + function-relative start/end addresses (a wrong scope, an extra brace level, a missing
            empty scope all show here)
-  SPAN     the function's length in source lines (retail's `Function end` line - start line)
+The current CLEAN classification covers the implemented checks above, NOT SLD
+instruction/statement attribution, block line numbers, or source-line spans.
+End-line pairs are stored in the report for review but do not create issues.
+Use independent SLD/block-line checks before claiming source restoration.
+Writes symtree_report.json next to OURS_DUMP.
 
-A function is CLEAN when all four agree.  Writes symtree_report.json next to OURS_DUMP."""
+2026-09-20: corrected this documentation only; comparison behavior is unchanged.
+Backup: scratchpad/sym_copspeak_engine_20260920/backups/symtree_cmp.py.
+"""
 import json
 import re
 import sys

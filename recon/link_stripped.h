@@ -14,4 +14,10 @@
  * last string in retail, the SDK object goes on with "StoreImage2" and "MoveImage2").  Such a literal is spelled as a named
  * array in a discarded input section. */
 #define LINK_STRIPPED_RODATA __attribute__((section(".rodata.strip")))
+/* A Sony HAND-ASSEMBLY routine the final link removed: the SDK object's own instruction lines, in `.text.strip`. */
+#define ASM_LINK_STRIPPED(name, body)                                          \
+    __asm__("\t.section .text.strip,\"ax\",@progbits\n\t.set\tnoreorder\n\t.set noreorder\n" /* tab form = for maspsx (consumed), space form = for gas */ \
+            "\t.globl " #name "\n\t.type " #name ",@function\n" #name ":\n"    \
+            body                                                               \
+            "\t.size " #name ",.-" #name "\n\t.set reorder\n\t.set at\n\t.text\n")
 #endif

@@ -477,6 +477,42 @@
    "function": "csin_1",
    "sdk": "LIBGTE/csin_1",
    "evidence": "PsyQ 4.3 libgte COR_03.obj @0+160; the retail object text starts at csin (strip_headtail.py)"
+  },
+  {
+   "object": "build/recon/syslib/psx/libgte/MSC02.c.o",
+   "function": "InvSquareRoot",
+   "sdk": "LIBGTE/InvSquareRoot",
+   "evidence": "PsyQ 4.3 libgte MSC02.obj head; the retail object text starts at VectorNormalS and ends with VectorNormalSS (strip_headtail.py)"
+  },
+  {
+   "object": "build/recon/syslib/psx/libgte/MSC02.c.o",
+   "function": "MatrixNormal",
+   "sdk": "LIBGTE/MatrixNormal",
+   "evidence": "PsyQ 4.3 libgte MSC02.obj tail; the retail object text starts at VectorNormalS and ends with VectorNormalSS (strip_headtail.py)"
+  },
+  {
+   "object": "build/recon/syslib/psx/libapi/CHCLRPAD.c.o",
+   "function": "_remove_ChgclrPAD",
+   "sdk": "LIBAPI/_remove_ChgclrPAD",
+   "evidence": "libapi.lib(CHCLRPAD.obj) is in the retail SYM FILE list; no byte of it is in the image (text ends with ssine.obj)"
+  },
+  {
+   "object": "build/recon/syslib/psx/libapi/PATCH.c.o",
+   "function": "EnablePAD",
+   "sdk": "LIBAPI/EnablePAD",
+   "evidence": "libapi.lib(PATCH.obj) is in the retail SYM FILE list; no byte of it is in the image"
+  },
+  {
+   "object": "build/recon/syslib/psx/libapi/PATCH.c.o",
+   "function": "DisablePAD",
+   "sdk": "LIBAPI/DisablePAD",
+   "evidence": "libapi.lib(PATCH.obj) is in the retail SYM FILE list; no byte of it is in the image"
+  },
+  {
+   "object": "build/recon/syslib/psx/libapi/PATCH.c.o",
+   "function": "_patch_pad",
+   "sdk": "LIBAPI/_patch_pad",
+   "evidence": "libapi.lib(PATCH.obj) is in the retail SYM FILE list; no byte of it is in the image"
   }
  ]
 }

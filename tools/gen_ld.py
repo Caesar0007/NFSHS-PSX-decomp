@@ -756,6 +756,9 @@ def main():
     A("        build/recon/game/common/simqueue.cpp.o(.bss.simqueue_input_queue);")
     A("    }")
     A("")
+    # LINK_STRIPPED sections must be discarded BEFORE this catch-all: `*(.rodata.*)` matches `.rodata.strip` and the
+    # first matching statement wins (2026-09-20: the three carrier/literal pieces were being linked past the image end).
+    A("    /DISCARD/ : { *(.text.strip); *(.rodata.strip); *(.bss.strip); }")
     A("    .rodata_rest : SUBALIGN(4) { *(.rodata); *(.rodata.*); }")
     # P887: place the complete native stream/ISO/stream BSS sequence before
     # the generic catch-all can consume it. Restore the unplaced cursor;

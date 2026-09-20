@@ -739,5 +739,60 @@
   "end": 2148788380,
   "size": 64,
   "ok": true
+ },
+ {
+  "obj": "build/recon/syslib/psx/libgpu/FONT.c.o",
+  "section": ".bss",
+  "base": 2148795476,
+  "end": 2148812900,
+  "size": 17424,
+  "ok": true,
+  "votes": 0,
+  "q": 0,
+  "record": "2026-09-20 link order: the only unclaimed .bss hole between fileroot.obj [311] (ends 0x80140454) and libcd C_011.obj [339] (0x80144864) is 0x4410 B = PsyQ 4.3 FONT.obj [336] .bss size exactly"
+ },
+ {
+  "obj": "build/recon/game/common/copspeak.cpp.o",
+  "section": ".bss",
+  "base": 2148786352,
+  "end": 2148786368,
+  "size": 16,
+  "ok": true,
+  "votes": 0,
+  "q": 0,
+  "record": "2026-09-20 retail label Copspeak_gTimeString.308 (function static, 16 B)"
+ },
+ {
+  "obj": "build/recon/syslib/psx/libapi/PAD.c.o",
+  "section": ".bss",
+  "base": 2148829876,
+  "end": 2148829892,
+  "size": 16,
+  "ok": true,
+  "votes": 0,
+  "q": 0,
+  "record": "2026-09-20 link order: the 16-byte hole between libpad WAITRC2.obj [488] and libcard PATCH.obj [508] = PsyQ 4.3 libapi PAD.obj .bss 0x10"
+ },
+ {
+  "obj": "build/recon/syslib/psx/libapi/CHCLRPAD.c.o",
+  "section": ".bss",
+  "base": 2148829924,
+  "end": 2148829940,
+  "size": 16,
+  "ok": true,
+  "votes": 0,
+  "q": 0,
+  "record": "2026-09-20 link order: .bss tail after libcard END.obj = CHCLRPAD.obj .bss 0x10 (fully link-stripped member keeps its .bss)"
+ },
+ {
+  "obj": "build/recon/syslib/psx/libapi/PATCH.c.o",
+  "section": ".bss",
+  "base": 2148829940,
+  "end": 2148829956,
+  "size": 16,
+  "ok": true,
+  "votes": 0,
+  "q": 0,
+  "record": "2026-09-20 link order: last 16 bytes of .bss = libapi PATCH.obj .bss 0x10 (fully link-stripped member keeps its .bss)"
  }
 ]

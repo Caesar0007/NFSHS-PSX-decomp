@@ -105,6 +105,14 @@ def main():
     for ln in r.stdout.splitlines():
         if 'MASKED' in ln or ln.startswith('overlapped bytes'):
             print('    OVERLAP AUDIT: ' + ln.strip()[:200])
+    # 2026-09-20: a byte-identical COPY of a neighbour's data inside an oversized reconstructed object (sclcptch.c's
+    # sndcents[512] swallowed _ctype_) passes every byte gate; only the retail labels can see it.
+    r = subprocess.run([sys.executable, str(ROOT / 'tools' / 'foreign_labels.py')], capture_output=True, text=True)
+    for ln in r.stdout.splitlines():
+        if not ln.startswith(' '):
+            print('    FOREIGN LABELS: ' + ln.strip()[:200])
+        elif r.returncode:
+            print('      ' + ln.strip()[:200])
 
 if __name__ == '__main__':
     main()

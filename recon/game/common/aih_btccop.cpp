@@ -5,6 +5,7 @@
  *   AIHigh_BTC_<C>_vtable. Faithful C++ (option A). NOT original; SYM-faithful, recompilable.
  *   vs disasm-v2.
  */
+#include "../../link_stripped.h"
 #include "../../lib/nfs4_new.h"
 #include "aih_btccop_types.h"
 #include "aih_btccop_externs.h"
@@ -1021,7 +1022,7 @@ void AIHigh_BTC_HumanCop::UpdateAndCheckTimeLeft()
 
 
 {
-  static bool sayLose;
+  static bool sayLose LINK_STRIPPED_BSS;   /* never referenced; retail has no storage for it (SYM STAT record value $4) */
 
   if ((this->freezeMode_ != 3) && (this->freezeMode_ != 1)) {
 

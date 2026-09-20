@@ -1,8 +1,8 @@
 /* syslib/psx/libapi/PATCH.c -- RECONSTRUCTED.  obj libapi.lib(PATCH.OBJ): EnablePAD / DisablePAD (tail-jump through the two saved BIOS entry points) and _patch_pad (find them).
  *   Sony hand assembly.  Retail LINKED this member (SYM FILE record at the tail of the link order: libapi PAD.obj
  *   references it) and its final link then REMOVED every function in it -- PAD.obj's callers were unreferenced.  The
- *   member's .bss is not removed by that stripping; its retail address is unknown (no label), so it is left to the
- *   linker.  Lines generated from the PsyQ 4.3 object (scratchpad/psyq_pipe/strip_asm_gen.py). */
+ *   member's .bss is not removed by that stripping: it is the LAST 16 bytes of .bss, 0x80148AF4 (link order END,
+ *   ssine, CHCLRPAD, PATCH).  Lines generated from the PsyQ 4.3 object (scratchpad/psyq_pipe/strip_asm_gen.py). */
 #include "../../../link_stripped.h"
 
 long _patchpad_bss[4];   /* PATCH.obj .bss: +0 $ra, +8 / +12 the two BIOS pad entry points */

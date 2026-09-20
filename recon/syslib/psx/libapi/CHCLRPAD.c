@@ -1,15 +1,15 @@
 /* syslib/psx/libapi/CHCLRPAD.c -- RECONSTRUCTED.  obj libapi.lib(CHCLRPAD.OBJ): _remove_ChgclrPAD -- zero the BIOS ChangeClearPAD patch slots (B0:0x57 table).
  *   Sony hand assembly.  Retail LINKED this member (SYM FILE record at the tail of the link order: libapi PAD.obj
  *   references it) and its final link then REMOVED every function in it -- PAD.obj's callers were unreferenced.  The
- *   member's .bss is not removed by that stripping; its retail address is unknown (no label), so it is left to the
- *   linker.  Lines generated from the PsyQ 4.3 object (scratchpad/psyq_pipe/strip_asm_gen.py). */
+ *   member's .bss is not removed by that stripping: it is the 16 bytes at 0x80148AE4, right after libcard END.obj
+ *   (link order END, ssine, CHCLRPAD, PATCH = the last 32 bytes of .bss).  Lines generated from the PsyQ 4.3 object (scratchpad/psyq_pipe/strip_asm_gen.py). */
 #include "../../../link_stripped.h"
 
-long _chgclrpad_ra;   /* CHCLRPAD.obj .bss +0 : $ra parked across the BIOS calls */
+long _chgclrpad_bss[4];   /* CHCLRPAD.obj .bss (0x10 B) : +0 = $ra parked across the BIOS calls */
 
 ASM_LINK_STRIPPED(_remove_ChgclrPAD,
-    "\tlui $1,%hi(_chgclrpad_ra)\n"
-    "\tsw $31,%lo(_chgclrpad_ra)($1)\n"
+    "\tlui $1,%hi(_chgclrpad_bss)\n"
+    "\tsw $31,%lo(_chgclrpad_bss)($1)\n"
     "\tjal EnterCriticalSection\n"
     "\t nop\n"
     "\taddiu $9,$0,87\n"
@@ -30,8 +30,8 @@ ASM_LINK_STRIPPED(_remove_ChgclrPAD,
     "\t nop\n"
     "\tjal ExitCriticalSection\n"
     "\t nop\n"
-    "\tlui $31,%hi(_chgclrpad_ra)\n"
-    "\tlw $31,%lo(_chgclrpad_ra)($31)\n"
+    "\tlui $31,%hi(_chgclrpad_bss)\n"
+    "\tlw $31,%lo(_chgclrpad_bss)($31)\n"
     "\tnop\n"
     "\tjr $31\n"
     "\t nop\n");

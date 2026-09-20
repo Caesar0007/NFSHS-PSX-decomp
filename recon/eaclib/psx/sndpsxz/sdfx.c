@@ -4,7 +4,7 @@
  *   Ghidra nfs4-f.exe.c (sdfx) + disasm-v3 L<80100500+> for the iSNDdmqueue 5-arg reverb-RAM clear.
  *   (IDA mis-tagged the 4 mutex stubs as PsyQ SsUtVibrate*; they are empty no-ops.)
  *
- *   Reverb preset table snd_reverb_table[]: 0x42-byte coefficient blocks indexed by `mode` (1..9); block[0]
+ *   Reverb preset table sndpe[]: 0x42-byte coefficient blocks indexed by `mode` (1..9); block[0]
  *   is the work-area size, block[1..0x20] the 0x20 SPU reverb coefficient registers (SPUctrl+0x1c0..).
  */
 
@@ -23,16 +23,14 @@ extern unsigned char  sndpd[];               /* EA sound-driver state base @0x80
  * already models it sndpd-relative -- this file's reads were the disconnected half of that same pair.
  * (Other consumers -- spatkey.c/sdspuirq.c/sdpacket.c/sdcdvol.c -- were left untouched; out of scope.) */
 #define DAT_80147e2c (*(int *)(sndpd + 0x514))
-extern unsigned char  snd_reverb_table[];    /* reverb preset coefficient table */
+extern unsigned char  sndpe[];    /* reverb preset coefficient table */
 /* @0x80136E00 byte-exact from image: 10 blocks (modes 0..9) x 0x42 bytes = 660.
  * block[+0] u16 = SPU reverb work-area size, [+2..0x41] = the 0x20 reverb coefficient regs.
  * VA proven from iSNDpsxfxinit @0x801002D8: `s0 = mode*0x42 + 0x80136E00`. (Old [512]={0} stub
  * had both the size and the content wrong.) */
-/* SYM-GLOBAL-CARRIER: snd_reverb_table -- the initialized 10 x 0x42-byte
- * reverb coefficient table is present and relocation-proven in retail, but
- * this stripped library object has no SYM declaration record for its private
- * data name. */
-unsigned char snd_reverb_table[660] = {
+/* Retail names this table: SYM global `sndpe` @0x80136E00 (link-order slot slib [372] .. spchdata [376]; sdfx = 374).
+ * It was carried under the invented name sndpe until 2026-09-20 (foreign_labels.py). */
+unsigned char sndpe[660] = {
     0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -132,7 +130,7 @@ extern unsigned int iSNDpsxfxinit(int mode)
      * preset-table src pointer), reused later for the reverb-depth write below AND the DMA-clear loop
      * further down -- same early-hoist lever as `sg` above. */
     pd = sndpd;
-    { unsigned char *tb = snd_reverb_table; src = tb + mode * 0x42; }
+    { unsigned char *tb = sndpe; src = tb + mode * 0x42; }
     *(unsigned short *)(pd + 0x51E) = (short)((int)(0x10000 - (unsigned int)*(unsigned short *)src) >> 3);
     iSNDpsxeffectoff(0xffffff);
     iSNDpsxeffectvol(0, 0);
@@ -205,14 +203,14 @@ extern unsigned int iSNDpsxfxinit(int mode)
      *       count is unchanged at 222/222, so this costs nothing: rv is already stack-resident
      *       (its address escapes into blockmove).
      *   (b) a BLOCK-SCOPED named base local for the preset-table address:
-     *       `{ unsigned char *tb = snd_reverb_table; src = tb + mode * 0x42; }`.
+     *       `{ unsigned char *tb = sndpe; src = tb + mode * 0x42; }`.
      *       This is the `la`-before-index expand order.  w33 was right that `&tbl[mode*0x42]` and
      *       its three algebraic respellings all expand INDEX-first, and right that a plain
      *       function-scope two-statement form (`src = tbl; src += mode*0x42;`) gets the constant
      *       address hoisted up into the mode-dispatch arms (14-16 diffs).  The BLOCK SCOPE is what
      *       makes the difference: `tb` is a fresh pseudo that dies inside the block, so cse cannot
      *       hoist it across the dispatch, while the separate assignment still forces base-then-index.
-     *       (`src = snd_reverb_table + mode*0x42;` -- base written first but as ONE expression --
+     *       (`src = sndpe + mode*0x42;` -- base written first but as ONE expression --
      *       is still index-first, 4 diffs: the named local is load-bearing, not the text order.)
      * LESSON for the catalog: "expand-order identity" was a WEAK floor (single mechanism asserted,
      * levers never combined).  Compiler-snapshot invariance across psq43/44/45 proves only that the

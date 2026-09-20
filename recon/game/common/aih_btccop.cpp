@@ -1022,7 +1022,7 @@ void AIHigh_BTC_HumanCop::UpdateAndCheckTimeLeft()
 
 
 {
-  static bool sayLose LINK_STRIPPED_BSS;   /* never referenced; retail has no storage for it (SYM STAT record value $4) */
+  static bool sayLose LINK_STRIPPED_BSS;   /* never referenced; retail has its debug record but no label = no storage (see link_stripped.h) */
 
   if ((this->freezeMode_ != 3) && (this->freezeMode_ != 1)) {
 

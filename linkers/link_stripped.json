@@ -326,6 +326,73 @@
    "evidence": "PsyQ 4.3 libgpu FONT.obj @64+160; the retail object text starts at FntFlush (head stripped)",
    "open_diff": 1,
    "note": "OPEN: one word -- SDK loads the two zero arguments of LoadTPage separately (`move a2,zero`), 2.8 copies the first (`move a2,a1`); the 2.7.2 rung fixes that but breaks the epilogue (3 words). Same two-identity split as LoadTPage/LoadClut."
+  },
+  {
+   "object": "build/recon/syslib/psx/libapi/PAD.c.o",
+   "function": "PAD_init",
+   "sdk": "LIBAPI/PAD_init",
+   "evidence": "libapi PAD.obj (identical member layout in PsyQ 3.6..4.5): retail keeps its 16 data bytes but only ReadInitPadFlag of its 768 text bytes"
+  },
+  {
+   "object": "build/recon/syslib/psx/libapi/PAD.c.o",
+   "function": "InitPAD",
+   "sdk": "LIBAPI/InitPAD",
+   "evidence": "libapi PAD.obj (identical member layout in PsyQ 3.6..4.5): retail keeps its 16 data bytes but only ReadInitPadFlag of its 768 text bytes"
+  },
+  {
+   "object": "build/recon/syslib/psx/libapi/PAD.c.o",
+   "function": "StopPAD",
+   "sdk": "LIBAPI/StopPAD",
+   "evidence": "libapi PAD.obj (identical member layout in PsyQ 3.6..4.5): retail keeps its 16 data bytes but only ReadInitPadFlag of its 768 text bytes",
+   "sdk_slice": [
+    0,
+    56
+   ]
+  },
+  {
+   "object": "build/recon/syslib/psx/libapi/PAD.c.o",
+   "function": "_pad_install_intr",
+   "sdk": "LIBAPI/StopPAD",
+   "evidence": "libapi PAD.obj (identical member layout in PsyQ 3.6..4.5): retail keeps its 16 data bytes but only ReadInitPadFlag of its 768 text bytes",
+   "sdk_slice": [
+    56,
+    120
+   ],
+   "open_diff": 3,
+   "note": "OPEN: the SDK stores the verifier through the handler base (`sw v0,4(v1)`), ours through an absolute `lui at` store; array / pointer-local / order variants: 3..18"
+  },
+  {
+   "object": "build/recon/syslib/psx/libapi/PAD.c.o",
+   "function": "_pad_remove_intr",
+   "sdk": "LIBAPI/StopPAD",
+   "evidence": "libapi PAD.obj (identical member layout in PsyQ 3.6..4.5): retail keeps its 16 data bytes but only ReadInitPadFlag of its 768 text bytes",
+   "sdk_slice": [
+    176,
+    56
+   ]
+  },
+  {
+   "object": "build/recon/syslib/psx/libapi/PAD.c.o",
+   "function": "_pad_intr_ack",
+   "sdk": "LIBAPI/StopPAD",
+   "evidence": "libapi PAD.obj (identical member layout in PsyQ 3.6..4.5): retail keeps its 16 data bytes but only ReadInitPadFlag of its 768 text bytes",
+   "sdk_slice": [
+    232,
+    104
+   ],
+   "note": "exact only with a 12-byte volatile local (`volatile int i[3]`, 16-byte frame); the real declaration is unknown"
+  },
+  {
+   "object": "build/recon/syslib/psx/libapi/PAD.c.o",
+   "function": "_pad_intr_verify",
+   "sdk": "LIBAPI/StopPAD",
+   "evidence": "libapi PAD.obj (identical member layout in PsyQ 3.6..4.5): retail keeps its 16 data bytes but only ReadInitPadFlag of its 768 text bytes",
+   "sdk_slice": [
+    336,
+    64
+   ],
+   "open_diff": 4,
+   "note": "OPEN: the SDK keeps `bne ->end [v0=1]; v0=0` for the second test, every spelling here folds `(x & 1) ? 1 : 0` into the value (8 variants: 4..10 words)"
   }
  ]
 }

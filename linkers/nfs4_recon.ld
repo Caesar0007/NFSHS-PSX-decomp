@@ -1018,7 +1018,6 @@ SECTIONS
         build/asm/data/data_8010CCD4_r20.data.s.o(.data);
         build/recon/eaclib/psx/sndpsxz/snddata.c.o(.data);   /* 0x8013c2f0..0x8013c308  was data_8010CCD4_o33.data.s */
         build/asm/data/data_8010CCD4_r21.data.s.o(.data);
-        build/recon/eaclib/psx/spchpsxz/spchinit.c.o(.data);
     }
 
     .sdata 0x8013c54c : SUBALIGN(4)
@@ -1114,8 +1113,6 @@ SECTIONS
         build/recon/eaclib/psx/eacpsxz/callback.c.o(.sdata);   /* 0x8013dd60 loadfilecallback (was r24) */
         build/recon/eaclib/psx/eacpsxz/window.c.o(.sdata);     /* 0x8013dd64..0x8013dd70 (was r24) */
         build/recon/eaclib/psx/eacpsxz/pageflip.c.o(.sdata);   /* 0x8013dd70..0x8013dd7c (was r24) */
-        build/recon/eaclib/psx/sndpsxz/sdpacket.c.o(.sdata);
-        build/recon/game/common/aih_cop.cpp.o(.sdata);
     }
 
     ASSERT(cdsectorreseek == 0x8013d07c, "native source data symbol address mismatch: cdsectorreseek")

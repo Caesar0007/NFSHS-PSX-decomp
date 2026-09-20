@@ -18,6 +18,8 @@ still go to `scratchpad/psyq_pipe/`, which the tools create when missing.
 
 `psylink_disc.py` runs Sony's 16-bit `CPE2X.EXE` under the vendored `tools/msdos-player/msdos.exe`.
 
+The `strip_*`, `sdkfn.py` and `sdk_bss.py` tools read the PsyQ 4.3 extraction made by `tools/psyq_extract.py`.
+
 The retail SYM dump comes from `tools/retail_sym.py` (`rom/NFS4.SYM` -> `build/sym/nfs4-f-v3.txt` through the vendored
 `tools/dumpsym/dumpsym.exe`); `retail_sym.py` in this folder is a shim to it.
 

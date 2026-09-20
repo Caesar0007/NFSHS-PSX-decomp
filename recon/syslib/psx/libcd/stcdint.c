@@ -611,6 +611,10 @@ loop:
  * safe and, unlike the INCLUDE_ASM function wrapper, emits NO trailing epilogue
  * after the .include (the wrapper's `jr ra; nop` would collide with the next
  * function). */
+/* C_011.obj .rdata (retail 0x80057110, 32 bytes, byte-exact with PsyQ 4.3): the message _st_dma prints.  The
+ * certificate below names it D_80057110; once _st_dma is matched from C this becomes the printf literal. */
+const char D_80057110[32] = "DMA STATUS ERROR %x\n";
+
 __asm__("\t.set reorder\n\t.set at\n");
 __asm__(".text\n"
         "\t.align\t2\n"
@@ -635,7 +639,7 @@ extern void _st_dma(int ch, int madr, int blocks, int blocksize, volatile int ch
     i = 0;
     while (*(volatile int *)(0x1F801088 + (ch << 4)) & 0x01000000) {
         if (i == 0x10000) {
-            printf("StCdInterrupt: DMA ch busy %08x\n",
+            printf("DMA STATUS ERROR %x\n",   /* retail text @0x80057110 (the old wording here was invented) */
                    *(volatile int *)(0x1F801088 + (ch << 4)));
             break;
         }

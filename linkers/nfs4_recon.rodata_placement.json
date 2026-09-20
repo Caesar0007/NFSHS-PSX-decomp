@@ -1084,5 +1084,29 @@
   "size": 600,
   "ok": false,
   "regions": []
+ },
+ {
+  "obj": "build/recon/syslib/psx/libcd/stcdint.c.o",
+  "base": 2147840272,
+  "end": 2147840304,
+  "size": 32,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/syslib/psx/libcd/cdcont.c.o",
+  "base": 2147840256,
+  "end": 2147840261,
+  "size": 5,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/eaclib/psx/eacpsxz/callback.c.o",
+  "base": 2147841464,
+  "end": 2147841541,
+  "size": 77,
+  "ok": false,
+  "regions": []
  }
 ]

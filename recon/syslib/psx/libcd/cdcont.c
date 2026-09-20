@@ -401,3 +401,10 @@ extern int CdPosToInt(CdlLOC *p)
     return (DECODE_BCD(minute) * 60 + DECODE_BCD(second)) * 75
            + DECODE_BCD(sector) - 150;
 }
+
+/* SYS.obj .rdata (retail 0x80057100): "none".  PsyQ 4.3's SYS.obj returns it from CdComstr()/CdIntstr() for an
+ * out-of-range code; retail has NEITHER function, only the literal -- what an unused static inline leaves behind. */
+static __inline__ const char *CdComstr(unsigned char com)
+{
+    return com > 0x1b ? "none" : (const char *)0;
+}

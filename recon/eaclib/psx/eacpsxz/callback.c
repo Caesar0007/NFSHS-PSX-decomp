@@ -52,3 +52,19 @@ void freemutex(void *mutex)
 {
     *(int *)mutex = 0;
 }
+
+/* callback.obj .rodata (retail 0x800575B8, 80 bytes): the two diagnostics of lockmutex/unlockmutex.  Retail has no code
+ * for either (only allocmutex/freemutex), so they are unused static inlines whose literals the compiler still emits. */
+extern int printf(const char *, ...);
+static __inline__ void lockmutex(short *mutex)
+{
+    if (*mutex != 0)
+        printf("lockmutex - MUTEX IS ALREADY LOCKED.\n");
+    *mutex = 1;
+}
+static __inline__ void unlockmutex(short *mutex)
+{
+    if (*mutex == 0)
+        printf("unlockmutex - MUTEX WAS NOT LOCKED.\n");
+    *mutex = 0;
+}

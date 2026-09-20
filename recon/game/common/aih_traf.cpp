@@ -23,8 +23,8 @@ AIHigh_Traffic::CheckForCops(int *closestDistance)
      first non-leaf function, ahead of the vtable batch) */
   if (0) sprintf((char *)0,"SimpleMem");
 
-  Car_tObj*closestCop;
   int copLoop;
+  Car_tObj*closestCop;
 
 
 

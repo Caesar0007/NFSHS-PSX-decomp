@@ -4,3 +4,7 @@
 int videopages = 0;   /* @0x8013DD64 */
 int videopage = 0;    /* @0x8013DD68 */
 int windowpage = 0;   /* @0x8013DD6C */
+
+/* .bss 0x801485AC..0x80148780, in window.obj's link-order slot (sizes from the label spacing; element types unknown) */
+int windowbuf[78];       /* @0x801485AC 312 B */
+int currentwindow[39];   /* @0x801486E4 156 B : GPU window block */

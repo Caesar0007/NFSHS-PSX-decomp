@@ -1433,24 +1433,23 @@ SECTIONS
     .zb0056 0x80147860 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/ssysinit.c.o(.bss); }
     .zb0057 0x80147914 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/salloc.c.o(.bss); }
     .zb0058 0x80147918 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/slib.c.o(.bss); }
-    .zb0059 0x80148044 : SUBALIGN(4) { build/recon/eaclib/psx/spchpsxz/spchevnt.c.o(.bss); }
-    .zb0060 0x80148428 : SUBALIGN(4) { build/recon/eaclib/psx/spchpsxz/spchinit.c.o(.bss); }
-    .zb0061 0x8014843c : SUBALIGN(4) { build/recon/eaclib/psx/spchpsxz/spchpick.c.o(.bss); }
-    .zb0062 0x80148574 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/spktplay.c.o(.bss); }
-    .zb0063 0x80148578 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sdpacket.c.o(.bss); }
-    .zb0064 0x8014857c : SUBALIGN(4) { build/recon/syslib/psx/libpad/PADMAIN.c.o(.bss); }
-    .zb0065 0x8014859c : SUBALIGN(4) { build/recon/syslib/psx/libpad/PADCMD.c.o(.bss); }
-    .zb0066 0x801485ac : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/movf.c.o(.bss); }
-    .zb0067 0x80148780 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/smemman.c.o(.bss); }
-    .zb0068 0x8014898c : SUBALIGN(4) { build/recon/syslib/psx/libgte/PATCHGTE.c.o(.bss); }
-    .zb0069 0x8014899c : SUBALIGN(4) { build/recon/syslib/psx/libcd/drv.c.o(.bss); }
-    .zb0070 0x801489e0 : SUBALIGN(4) { build/recon/syslib/psx/libds/DSCB.c.o(.bss); }
-    .zb0071 0x801489ec : SUBALIGN(4) { build/recon/syslib/psx/libmcrd/BIOS.c.o(.data); }
-    .zb0072 0x80148a2c : SUBALIGN(4) { build/recon/syslib/psx/libmcrd/USERFUNC.c.o(.bss); }
-    .zb0073 0x80148a7c : SUBALIGN(4) { build/recon/syslib/psx/libapi/FIRST.c.o(.bss); }
-    .zb0074 0x80148aac : SUBALIGN(4) { build/recon/syslib/psx/libpad/WAITRC2.c.o(.bss); }
-    .zb0075 0x80148ac4 : SUBALIGN(4) { build/recon/syslib/psx/libcard/PATCH.c.o(.bss); }
-    .zb0076 0x80148ad4 : SUBALIGN(4) { build/recon/syslib/psx/libcard/END.c.o(.bss); }
+    .zb0059 0x80148044 : SUBALIGN(4) { build/recon/eaclib/psx/spchpsxz/spchdata.c.o(.bss); }
+    .zb0060 0x8014843c : SUBALIGN(4) { build/recon/eaclib/psx/spchpsxz/spchpick.c.o(.bss); }
+    .zb0061 0x80148574 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/spktplay.c.o(.bss); }
+    .zb0062 0x80148578 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sdpacket.c.o(.bss); }
+    .zb0063 0x8014857c : SUBALIGN(4) { build/recon/syslib/psx/libpad/PADMAIN.c.o(.bss); }
+    .zb0064 0x8014859c : SUBALIGN(4) { build/recon/syslib/psx/libpad/PADCMD.c.o(.bss); }
+    .zb0065 0x801485ac : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/window.c.o(.bss); }
+    .zb0066 0x80148780 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/smemman.c.o(.bss); }
+    .zb0067 0x8014898c : SUBALIGN(4) { build/recon/syslib/psx/libgte/PATCHGTE.c.o(.bss); }
+    .zb0068 0x8014899c : SUBALIGN(4) { build/recon/syslib/psx/libcd/drv.c.o(.bss); }
+    .zb0069 0x801489e0 : SUBALIGN(4) { build/recon/syslib/psx/libds/DSCB.c.o(.bss); }
+    .zb0070 0x801489ec : SUBALIGN(4) { build/recon/syslib/psx/libmcrd/BIOS.c.o(.data); }
+    .zb0071 0x80148a2c : SUBALIGN(4) { build/recon/syslib/psx/libmcrd/USERFUNC.c.o(.bss); }
+    .zb0072 0x80148a7c : SUBALIGN(4) { build/recon/syslib/psx/libapi/FIRST.c.o(.bss); }
+    .zb0073 0x80148aac : SUBALIGN(4) { build/recon/syslib/psx/libpad/WAITRC2.c.o(.bss); }
+    .zb0074 0x80148ac4 : SUBALIGN(4) { build/recon/syslib/psx/libcard/PATCH.c.o(.bss); }
+    .zb0075 0x80148ad4 : SUBALIGN(4) { build/recon/syslib/psx/libcard/END.c.o(.bss); }
     .zv0000 0x8013eab0 (NOLOAD) : SUBALIGN(4) { build/recon/syslib/psx/libgpu/SYS.c.o(.bss.sys_8013EAB0); }
     .zv0001 0x801489cc (NOLOAD) : SUBALIGN(4) { build/recon/syslib/psx/libcd/drv.c.o(.bss.st_801489CC); }
     .zv0002 0x801489d0 (NOLOAD) : SUBALIGN(4) { build/recon/syslib/psx/libcd/C_004.c.o(.bss.ds_801489D0); }
@@ -1468,7 +1467,6 @@ SECTIONS
     DAT_801478f4 = 0x801478f4;
     DAT_801479f0 = 0x801479f0;
     DAT_80147e28 = 0x80147e28;
-    DAT_80148064 = 0x80148064;
     DAT_80148448 = 0x80148448;
     D_8001000C = 0x8001000c;
     D_8001002C = 0x8001002c;

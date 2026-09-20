@@ -177,9 +177,7 @@ extern int   semitrans;                                  /* primate : semi-trans
  * DEVICE = file-scope asm .bss definition, keeping the UNSIZED `extern int currentwindow[]`
  * shape the decl documents ("ONE struct base like fastmovf").
  * Receipts: scratchpad/w65a6/RECEIPTS.md */
-__asm__("\t.globl\twindowbuf\n\t.globl\tcurrentwindow\n\t.section\t.bss\n\t.align\t2\n"
-        "windowbuf:\n\t.space\t312\n"
-        "currentwindow:\n\t.space\t156\n\t.text");
+/* storage: window.obj (window.c) owns windowbuf / currentwindow (link-order proof 2026-09-20) */
 extern int   currentwindow[];  /* @0x801486E4 : GPU window block -- draw-origin X/Y @+4/+8 (u_short
                                 * reads here), clip @+0x18..0x24.  ONE struct base like fastmovf. */
 

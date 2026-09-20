@@ -75,14 +75,7 @@
  * the run -- gLastSubTick ends up last instead of third; -fno-common moves it to .data).
  * The C views are `extern` in spchinit.h (and gLastSubTick's `unsigned short` view lives in
  * spchevnt.c, which is the only reader of its low half). */
-__asm__("\t.globl\tgGameNum\n\t.globl\tgFilterSetting\n\t.globl\tgLastSubTick\n"
-        "\t.globl\tgDataRate\n\t.globl\tgLastTick\n"
-        "\t.section\t.bss\n\t.align\t2\n"
-        "gGameNum:\n\t.space\t4\n"
-        "gFilterSetting:\n\t.space\t4\n"
-        "gLastSubTick:\n\t.space\t4\n"
-        "gDataRate:\n\t.space\t4\n"
-        "gLastTick:\n\t.space\t4\n\t.text");
+/* storage: spchdata.obj (spchdata.c) owns gGameNum / gFilterSetting / gLastSubTick / gDataRate / gLastTick (link-order proof 2026-09-20) */
 /* W65-A6: the stale `int gRepeatCount;` tentative definition that stood here is GONE.  It was
  * never referenced by this TU's code (every use spells it `gVoxInGame[1]`), so maspsx turned
  * it into a private 4-byte LOCAL .sbss object at an address retail does not have -- retail's

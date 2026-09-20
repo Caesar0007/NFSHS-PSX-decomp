@@ -500,21 +500,11 @@
   "q": 2
  },
  {
-  "obj": "build/recon/eaclib/psx/spchpsxz/spchevnt.c.o",
+  "obj": "build/recon/eaclib/psx/spchpsxz/spchdata.c.o",
   "section": ".bss",
   "base": 2148827204,
-  "end": 2148828200,
-  "size": 996,
-  "ok": true,
-  "votes": 99,
-  "q": 2
- },
- {
-  "obj": "build/recon/eaclib/psx/spchpsxz/spchinit.c.o",
-  "section": ".bss",
-  "base": 2148828200,
   "end": 2148828220,
-  "size": 20,
+  "size": 1016,
   "ok": true,
   "votes": 99,
   "q": 2
@@ -570,7 +560,7 @@
   "q": 1
  },
  {
-  "obj": "build/recon/eaclib/psx/eacpsxz/movf.c.o",
+  "obj": "build/recon/eaclib/psx/eacpsxz/window.c.o",
   "section": ".bss",
   "base": 2148828588,
   "end": 2148829056,

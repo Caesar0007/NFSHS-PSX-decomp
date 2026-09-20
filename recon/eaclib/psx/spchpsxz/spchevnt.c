@@ -88,15 +88,7 @@ static unsigned int VoxEvent_GetKeepTillExpiresFlag(VoxEvent *e);
  * labels retail has and C cannot express: gRepeatCount (= gVoxInGame[1]) and DAT_80148064
  * (= gVoxEvents.dFlag).  Byte-neutral for code: the C views below stay `extern` (spchevnt.h),
  * so every function keeps its match. */
-__asm__("\t.globl\tgPreLoadTicks\n\t.globl\tgEventDats\n\t.globl\tgVoxInGame\n"
-        "\t.globl\tgRepeatCount\n\t.globl\tgVoxEvents\n\t.globl\tDAT_80148064\n"
-        "\t.section\t.bss\n\t.align\t2\n"
-        "gPreLoadTicks:\n\t.space\t4\n"
-        "gEventDats:\n\t.space\t16\n"
-        "gVoxInGame:\n\t.space\t4\n"
-        "gRepeatCount:\n\t.space\t4\n"
-        "gVoxEvents:\n\t.space\t4\n"
-        "DAT_80148064:\n\t.space\t964\n\t.text");
+/* storage: spchdata.obj (spchdata.c) owns gPreLoadTicks / gEventDats / gVoxInGame / gRepeatCount / gVoxEvents (link-order proof 2026-09-20) */
 
 
 /* gVoxEvents itself is declared `extern VoxSlotsStruct` in spchevnt.h -- the storage is the

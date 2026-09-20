@@ -513,6 +513,14 @@
    "function": "_patch_pad",
    "sdk": "LIBAPI/_patch_pad",
    "evidence": "libapi.lib(PATCH.obj) is in the retail SYM FILE list; no byte of it is in the image"
+  },
+  {
+   "object": "build/recon/syslib/psx/libgpu/FONT.c.o",
+   "function": "FntOpen",
+   "sdk": "LIBGPU/FntOpen",
+   "evidence": "PsyQ 4.3 libgpu FONT.obj @224+696; the retail object text starts at FntFlush (head stripped)",
+   "open_diff": 18,
+   "note": "OPEN, exact size (696 B), three causes: (1) a saved-register rotation s3/s4/s5 between x, w and isbg; (2) `move a2,a1` vs the SDK `move a2,zero` (the FntLoad trait); (3) two indexed loads `lw rd,sym+off(rs)`: the SDK (ASPSX) uses the DESTINATION register as the address temp, stock maspsx/gas use $at. PSYZ FONT_TILE re-index spelling is REQUIRED (without it: 160 words, 724 B)."
   }
  ]
 }

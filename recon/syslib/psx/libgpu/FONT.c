@@ -74,7 +74,7 @@ int _fnt_count __asm__("D_80135FD8") = 0;          /* @0x80135FD8 : number of op
 int _fnt_active __asm__("D_80135FDC") = 0;         /* @0x80135FDC : current active stream id */
 /* SYM-GLOBAL-CARRIER: the debug-font image block FntLoad uploads (retail bytes; the original identifier is
  * not retained -- FntLoad itself is not linked into this image). */
-u_long _fnt_image[641] __asm__("D_80135FE0") = {
+u_long _fnt_image[640] __asm__("D_80135FE0") = {
     0xFFFF0000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
     0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
     0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
@@ -155,8 +155,8 @@ u_long _fnt_image[641] __asm__("D_80135FE0") = {
     0x01000100, 0x00010000, 0x01111100, 0x00010000, 0x00000000, 0x00010000, 0x00000000, 0x00000000,
     0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,
     0x00000000, 0x00000000, 0x00000000, 0x01110000, 0x00000000, 0x00011100, 0x00000000, 0x00000000,
-    0x00000000,
 };
+int _fnt_i_str = 0;   /* @0x801369E0 : FONT.obj .data +0xB88 -- next free sprite / text slot (FntOpen); was the image's "641st word" */
 char *D_801369E4 = "0123456789ABCDEF";   /* @0x801369E4 -> FONT.obj .rodata 0x80057060 */
 
 /* @0x800F6D18 : convert a stream's accumulated text into font sprites and draw the OT.
@@ -511,13 +511,20 @@ char *D_801369E4 = "0123456789ABCDEF";   /* @0x801369E4 -> FONT.obj .rodata 0x80
  * tick over long pumps (Hcount/_startTime counters) -- inherent to any non-byte-exact
  * schedule.  The residual FAIL 6 is byte/cycle-cosmetic; game state is unaffected. */
 #include "../../../link_stripped.h"
-/* FONT.obj head (LINK-STRIPPED): SetDumpFnt @0, FntLoad @64, FntOpen @224 (696 B, NOT yet written) -- retail's object text
- * starts at FntFlush.  FntLoad / FntOpen use FONT.obj's .bss: 0x4400 bytes of sprite + text buffers, then the two shorts
- * below at +0x4400 / +0x4402.  That .bss is not modelled yet, so they are declared, not defined. */
+/* FONT.obj head (LINK-STRIPPED): SetDumpFnt @0, FntLoad @64, FntOpen @224 -- retail's object text
+ * starts at FntFlush. */
 extern void SetDumpFnt(int id) LINK_STRIPPED;
 extern void FntLoad(int tx, int ty) LINK_STRIPPED;
-extern u_short _fnt_tpage;   /* FONT.obj .bss +0x4400 */
-extern u_short _fnt_clut;    /* FONT.obj .bss +0x4402 */
+/* FONT.obj .bss (0x4404 B; retail keeps it, unlabelled): text + sprite pools, then the font tpage / clut ids */
+static char    _fnt_str[0x400];
+static SPRT_8  _fnt_sprt[0x400];
+static u_short _fnt_tpage;   /* +0x4400 */
+static u_short _fnt_clut;    /* +0x4402 */
+extern int  FntOpen(int x, int y, int w, int h, int isbg, int n) LINK_STRIPPED;
+extern void SetDrawMode(void *p, int dfe, int dtd, int tpage, void *tw);
+extern void SetTile(void *p);
+extern void SetSprt8(void *p);
+extern void SetSemiTrans(void *p, int abe);
 extern int (*GPU_printf)(const char *fmt, ...);
 extern int FntPrint(const char *id, ...);
 extern u_short LoadClut2(u_long *clut, int x, int y);
@@ -538,6 +545,55 @@ extern void FntLoad(int tx, int ty)
     _fnt_count = 0;
     memset(_fnt, 0, sizeof(_fnt));
 }
+
+/* FONT.obj +224 (LINK-STRIPPED) : FntOpen -- open a print stream (after the PSYZ libgpu font.c) */
+#define FONT_TILE (*&_fnt[_fnt_count].tile)   /* PSYZ's spelling: re-index the stream for every field */
+extern int FntOpen(int x, int y, int w, int h, int isbg, int n)
+{
+    int i;
+    struct { short x, y, w, h; } rect;
+    SPRT_8 *sprites;
+
+    if (_fnt_count >= 8) {
+        return -1;
+    }
+    if (_fnt_count == 0) {
+        _fnt_i_str = 0;
+    }
+    _fnt[_fnt_count].unwrap = w == 0;
+    if (_fnt_i_str + n > 0x400) {
+        n = 0x400 - _fnt_i_str;
+    }
+    rect.x = 0;
+    rect.y = 0;
+    rect.w = 256;
+    rect.h = 256;
+    SetDrawMode(&_fnt[_fnt_count].draw_mode, 0, 0, _fnt_tpage, &rect);
+    if (isbg) {
+        SetTile(&_fnt[_fnt_count].tile);
+        FONT_TILE.r0 = 0;
+        FONT_TILE.g0 = 0;
+        FONT_TILE.b0 = 0;
+        SetSemiTrans(&_fnt[_fnt_count].tile, isbg == 2);
+    }
+    FONT_TILE.x0 = x;
+    FONT_TILE.y0 = y;
+    FONT_TILE.w = w;
+    FONT_TILE.h = h;
+    _fnt[_fnt_count].capacity = n;
+    _fnt[_fnt_count].written = 0;
+    _fnt[_fnt_count].buffer = &_fnt_str[_fnt_i_str];
+    _fnt[_fnt_count].sprites = &_fnt_sprt[_fnt_i_str];
+    _fnt[_fnt_count].buffer[0] = 0;
+    sprites = _fnt[_fnt_count].sprites;
+    for (i = 0; i < n; i++, sprites++) {
+        SetSprt8(sprites);
+        sprites->clut = _fnt_clut;
+    }
+    _fnt_i_str += n;
+    return _fnt_count++;
+}
+#undef FONT_TILE
 
 /* FntFlush -- CERTIFICATE (runtime-proven equivalent; vendor-cc1-only C match,
  * W52..W74 residual).  Links the BYTE-EXACT retail asm -> ZERO image diff; C

@@ -7,6 +7,10 @@
 #include "speech_types.h"
 #include "speech_externs.h"
 
+/* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag (0x80055B54); its vtables' 8-byte,
+ * section-relative alignment proves the section starts there.  An unused inline leaves exactly that behind. */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 /* Speech static data precedes this TU's literal pools in retail.  Keep the
  * demangled source names while binding the compiler-emitted ABI labels.
  * Storage receipt: this TU is retail -G8 plus -fconserve-space.  Together,
@@ -2540,7 +2544,7 @@ void MobileSpeaker::Report(Car_tObj *perp)
   
   Speech_fgSpeech->fSpeakerCar = this->fCarObj;
   this->fTo =
-      *(int *)(this->CallSign() + 4);
+      this->CallSign()->fDispatch;
   SPCHNFS_C_A_INTRO(&this->fVoice,this->fTo,
                     this->fFrom,&this->fReverse);
   SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
@@ -2706,15 +2710,10 @@ MSEngage_validateAndProceed:
   SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
   this->FindLocation(this->Perp());
   this->SetSpeed(this->Perp());
-  {
-  Speaker *Sub = Speech::Dispatch();
-  /* SYM-CODEGEN-CARRIER: knownEntry -- spelling slot 18 directly is
-     count-exact but leaves 24 vtable/receiver-order diffs.
-     SYM-CODEGEN-CARRIER: knownThis -- folding the adjusted receiver into the
-     call is count-exact but leaves 30 diffs. */
-  condition =
-      Sub->KnownPerp(this->Perp());
-  }
+  /* BOTH arguments contain a call (the receiver Speech::Dispatch() and Perp()), so gcc precomputes them in order:
+     receiver + vtable delta first, then Perp() -- retail's exact sequence.  A `Sub` local here makes only Perp()
+     call-bearing and flips the order. */
+  condition = Speech::Dispatch()->KnownPerp(this->Perp());
   if (condition) {
     /* SYM-CODEGEN-CARRIER: sightedCar -- direct fCar is count-exact with
        6 call-setup diffs.
@@ -2746,16 +2745,8 @@ MSEngage_validateAndProceed:
   SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
   SubChain = Speech::Dispatch()->fSub;
   Speech::Dispatch()->fSub = (Speaker *)this;
-  {
-  Speaker *Sub = Speech::Dispatch();
-  /* SYM-CODEGEN-CARRIER: reportEntry -- direct slot-1 spelling shortens the
-     function to 466 and leaves 7 vtable-entry diffs.
-     SYM-CODEGEN-CARRIER: reportThis -- folding the adjusted receiver is
-     count-exact but leaves 30 diffs.  These are explicit forms of compiler
-     virtual-call quantities; SYM records the source receiver as Sub. */
-  carObj = (Car_tObj *)this->Perp();
-  Sub->Report(carObj);
-  }
+  /* same shape as KnownPerp above: receiver call and argument call, precomputed in order */
+  Speech::Dispatch()->Report(this->Perp());
   Speech::Dispatch()->fSub = SubChain;
   }
   return;
@@ -3113,7 +3104,7 @@ void MobileSpeaker::RoadBlock()
     this->Promote();
     if (Speech_fgSpeech->fMultiplePerps == 0) {
       Speech_fgSpeech->fSpeakerCar = this->fCarObj;
-      this->fTo = *(int *)(this->CallSign() + 4);
+      this->fTo = this->CallSign()->fDispatch;
       SPCHNFS_C_A_INTRO(&this->fVoice,this->fTo,this->fFrom,
                         &this->fReverse);
       SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
@@ -3153,7 +3144,7 @@ void MobileSpeaker::SpikeBelt()
     this->Promote();
     if (Speech_fgSpeech->fMultiplePerps == 0) {
       Speech_fgSpeech->fSpeakerCar = this->fCarObj;
-      this->fTo = *(int *)(this->CallSign() + 4);
+      this->fTo = this->CallSign()->fDispatch;
       SPCHNFS_C_A_INTRO(&this->fVoice,this->fTo,this->fFrom,
                         &this->fReverse);
       SPCH_PlaySpeech(); /* void(void) per spchevnt.c:350; oracle: no arg setup at any of 17 call-site fns (2026-07-11) */
@@ -3172,8 +3163,7 @@ void MobileSpeaker::Backup()
   Car_tObj *carObj;
 
   Speech_fgSpeech->fSpeakerCar = this->fCarObj;
-  this->fTo = *(int *)
-      (this->CallSign() + 4);
+  this->fTo = this->CallSign()->fDispatch;
   SPCHNFS_C_A_INTRO(&this->fVoice,this->fTo,
                     this->fFrom,
                     &this->fReverse);
@@ -3368,8 +3358,7 @@ void MobileSpeaker::ReportBlockade()
      A hoisted `pa_Var1 = _vf;` local is a Ghidra artifact: it becomes its own
      pseudo ($v1) so the pfn load can't reuse the vtable base reg -- oracle
      `lw v0,76(s1); lh a0,240(v0); lw v0,244(v0)` (self-temp). 6 -> 0. */
-  this->fTo = *(int *)
-      (this->CallSign() + 4);
+  this->fTo = this->CallSign()->fDispatch;
   carObj = (Car_tObj *)
         this->CarObj();
   this->FindLocation(carObj);

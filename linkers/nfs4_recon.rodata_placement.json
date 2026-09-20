@@ -409,9 +409,9 @@
  },
  {
   "obj": "build/recon/game/common/speech.cpp.o",
-  "base": 2147834720,
+  "base": 2147834708,
   "end": 2147835580,
-  "size": 860,
+  "size": 872,
   "ok": true,
   "regions": [
    "D_80055BD0",

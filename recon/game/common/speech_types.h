@@ -194,6 +194,35 @@ struct Speech {
     ~Speech();
 };
 
+/* declaration ORDER is retail evidence: tables are emitted Mobile, Dispatch, Speaker = reverse of Speaker, Dispatch, Mobile */
+struct DispatchSpeaker : public Speaker {
+    /* inline ctor: retail's Speech::Speech() shows it expanded in place */
+    DispatchSpeaker() {}
+    int fStatusCount;
+    Speaker *fStatusSub;
+    int fUpdateCount;
+    Car_tObj *fPerp[2];
+    CallSignBank *CallSign() asm("CallSign__Q26Speech15DispatchSpeaker");
+    LocationBank *FindClosestLocationTo(int slice)
+      asm("FindClosestLocationTo__Q26Speech15DispatchSpeakeri");
+    CarBank *GetCarBank(int carIndex) asm("GetCarBank__Q26Speech15DispatchSpeakeri");
+    void PurgeStatusSub() asm("PurgeStatusSub__Q26Speech15DispatchSpeaker");
+    Speaker *StatusSub() asm("StatusSub__Q26Speech15DispatchSpeaker");
+    int StatusCount() asm("StatusCount__Q26Speech15DispatchSpeaker");
+    void ClearPerp(Car_tObj *car) asm("ClearPerp__Q26Speech15DispatchSpeakerP8Car_tObj");
+    bool KnownPerp(Car_tObj *car) asm("KnownPerp__Q26Speech15DispatchSpeakerP8Car_tObj");
+    void Accident(int slice) asm("Accident__Q26Speech15DispatchSpeakeri");
+    void Grant() asm("Grant__Q26Speech15DispatchSpeaker");
+    void Ready(Car_tObj *carObj) asm("Ready__Q26Speech15DispatchSpeakerP8Car_tObj");
+    void AddPerp(Car_tObj *car) asm("AddPerp__Q26Speech15DispatchSpeakerP8Car_tObj");
+    void Activate(int seedupdatecount) asm("Activate__Q26Speech15DispatchSpeakeri");
+    void Deny() asm("Deny__Q26Speech15DispatchSpeaker");
+    void Roger() asm("Roger__Q26Speech15DispatchSpeaker");
+    void StatusReply() asm("StatusReply__Q26Speech15DispatchSpeaker");
+    void Status() asm("Status__Q26Speech15DispatchSpeaker");
+    void Report(Car_tObj *perp) asm("Report__Q26Speech15DispatchSpeakerP8Car_tObj");
+};
+
 struct MobileSpeaker : public Speaker {
     /* inline ctor: retail's Speech::Speech() shows it expanded in place */
     MobileSpeaker() { fCarObj = 0; }
@@ -226,34 +255,6 @@ struct MobileSpeaker : public Speaker {
     void Lose() asm("Lose__Q26Speech13MobileSpeaker");
     void Status() asm("Status__Q26Speech13MobileSpeaker");
     void Engage(Car_tObj *perp) asm("Engage__Q26Speech13MobileSpeakerP8Car_tObj");
-};
-
-struct DispatchSpeaker : public Speaker {
-    /* inline ctor: retail's Speech::Speech() shows it expanded in place */
-    DispatchSpeaker() {}
-    int fStatusCount;
-    Speaker *fStatusSub;
-    int fUpdateCount;
-    Car_tObj *fPerp[2];
-    CallSignBank *CallSign() asm("CallSign__Q26Speech15DispatchSpeaker");
-    LocationBank *FindClosestLocationTo(int slice)
-      asm("FindClosestLocationTo__Q26Speech15DispatchSpeakeri");
-    CarBank *GetCarBank(int carIndex) asm("GetCarBank__Q26Speech15DispatchSpeakeri");
-    void PurgeStatusSub() asm("PurgeStatusSub__Q26Speech15DispatchSpeaker");
-    Speaker *StatusSub() asm("StatusSub__Q26Speech15DispatchSpeaker");
-    int StatusCount() asm("StatusCount__Q26Speech15DispatchSpeaker");
-    void ClearPerp(Car_tObj *car) asm("ClearPerp__Q26Speech15DispatchSpeakerP8Car_tObj");
-    bool KnownPerp(Car_tObj *car) asm("KnownPerp__Q26Speech15DispatchSpeakerP8Car_tObj");
-    void Accident(int slice) asm("Accident__Q26Speech15DispatchSpeakeri");
-    void Grant() asm("Grant__Q26Speech15DispatchSpeaker");
-    void Ready(Car_tObj *carObj) asm("Ready__Q26Speech15DispatchSpeakerP8Car_tObj");
-    void AddPerp(Car_tObj *car) asm("AddPerp__Q26Speech15DispatchSpeakerP8Car_tObj");
-    void Activate(int seedupdatecount) asm("Activate__Q26Speech15DispatchSpeakeri");
-    void Deny() asm("Deny__Q26Speech15DispatchSpeaker");
-    void Roger() asm("Roger__Q26Speech15DispatchSpeaker");
-    void StatusReply() asm("StatusReply__Q26Speech15DispatchSpeaker");
-    void Status() asm("Status__Q26Speech15DispatchSpeaker");
-    void Report(Car_tObj *perp) asm("Report__Q26Speech15DispatchSpeakerP8Car_tObj");
 };
 
 struct Speech_tCarDescription { char *game, *full, *make, *model; };

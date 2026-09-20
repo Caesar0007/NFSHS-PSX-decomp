@@ -251,7 +251,7 @@ SECTIONS
     .ro0074 0x80055a0c : SUBALIGN(4) { build/recon/game/common/color.cpp.o(.rodata); }   /* 12 B  (anchor-only, E1-E5 not clean) */
     .ro0075 0x80055a18 : SUBALIGN(4) { build/recon/game/common/control.cpp.o(.rodata); }   /* 60 B  (anchor-only, E1-E5 not clean) */
     .ro0076 0x80055a54 : SUBALIGN(4) { build/recon/game/common/hudpmx.cpp.o(.rodata); }   /* 254 B  (anchor-only, E1-E5 not clean) */
-    .ro0077 0x80055b60 : SUBALIGN(4) { build/recon/game/common/speech.cpp.o(.rodata); }   /* 860 B */
+    .ro0077 0x80055b54 : SUBALIGN(4) { build/recon/game/common/speech.cpp.o(.rodata); }   /* 872 B */
     .ro0078 0x80055ebc : SUBALIGN(4) { build/recon/game/common/copspeak.cpp.o(.rodata); }   /* 202 B  (anchor-only, E1-E5 not clean) */
     .ro0079 0x80055f94 : SUBALIGN(4) { build/recon/game/common/genericpmx.cpp.o(.rodata); }   /* 34 B  (anchor-only, E1-E5 not clean) */
     .ro0080 0x80056000 : SUBALIGN(4) { build/recon/game/common/nfs3.cpp.o(.rodata); }   /* 71 B  (anchor-only, E1-E5 not clean) */

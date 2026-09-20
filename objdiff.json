@@ -1161,14 +1161,6 @@
       }
     },
     {
-      "name": "eaclib/psx/spchpsxz/spchdata",
-      "target_path": "expected/src/eaclib/psx/spchpsxz/spchdata.c.o",
-      "base_path": "build/recon/eaclib/psx/spchpsxz/spchdata.c.o",
-      "metadata": {
-        "source_path": "recon/eaclib/psx/spchpsxz/spchdata.c"
-      }
-    },
-    {
       "name": "eaclib/psx/spchpsxz/spchevnt",
       "target_path": "expected/src/eaclib/psx/spchpsxz/spchevnt.c.o",
       "base_path": "build/recon/eaclib/psx/spchpsxz/spchevnt.c.o",

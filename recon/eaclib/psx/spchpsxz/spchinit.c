@@ -68,16 +68,7 @@
 #include "spchrand.h"
 #include "spchpick.h"
 
-/* spchinit.obj .data 0x80137094..0x801370B4, owned here since 2026-09-19 (gprefs.py: SPCH_Init / SPCH_Deinit;
- * SYM names; zero but INITIALIZED in the retail image). */
-SPCHSampleRequestFn gSampleRequest = 0;                                   /* @0x80137094 */
-int  (*gSentenceRuleTest)(unsigned int, unsigned int, int) = 0;           /* @0x80137098 */
-void (*gSentenceRuleSet)(unsigned int, unsigned int, int, int) = 0;       /* @0x8013709C */
-int gReparm = 0;                                                          /* @0x801370A0 */
-int gTrace = 0;                                                           /* @0x801370A4 */
-SPCHAllocFn gMemAlloc = 0;                                                /* @0x801370A8 */
-SPCHFreeFn  gMemFree = 0;                                                 /* @0x801370AC */
-int gSPCH_Initialized = 0;                                                /* @0x801370B0 */
+/* the library globals SPCH_Init / SPCH_Deinit use are owned by spchdata.obj (spchdata.c) */
 
 /* W65-A6 DATA-MAT run @0x80148428 -- file-scope asm .bss definition, RESTORED 2026-09-04 for
  * the same measured reason as spchevnt's (plain C definitions land in .bss but maspsx re-orders

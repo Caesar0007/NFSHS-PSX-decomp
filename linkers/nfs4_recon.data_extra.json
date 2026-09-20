@@ -2332,25 +2332,14 @@
   "q": 0
  },
  {
-  "obj": "build/recon/eaclib/psx/spchpsxz/spchinit.c.o",
+  "obj": "build/recon/eaclib/psx/spchpsxz/spchdata.c.o",
   "section": ".data",
   "base": 2148757652,
-  "end": 2148757684,
-  "size": 32,
-  "ok": true,
-  "unresolved": 0,
-  "words": 8,
-  "q": 0
- },
- {
-  "obj": "build/recon/eaclib/psx/spchpsxz/spchbank.c.o",
-  "section": ".data",
-  "base": 2148757684,
   "end": 2148757700,
-  "size": 16,
+  "size": 48,
   "ok": true,
   "unresolved": 0,
-  "words": 4,
+  "words": 12,
   "q": 0
  },
  {

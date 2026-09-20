@@ -385,6 +385,7 @@ PER_TU_FLAGS = {
     # (2.8.1 indistinguishable), same as eacpsxz; the residuals are honest
     # floors of that identity.
     "recon/eaclib/psx/spchpsxz/spchbank.c": {"g_value": 0},
+    "recon/eaclib/psx/spchpsxz/spchdata.c": {"g_value": 0},   # data-only module: plain .data like retail
     "recon/eaclib/psx/spchpsxz/spchinit.c": {"g_value": 0},
     "recon/eaclib/psx/spchpsxz/spchpick.c": {"g_value": 0},
     "recon/eaclib/psx/spchpsxz/spchrand.c": {"g_value": 0},

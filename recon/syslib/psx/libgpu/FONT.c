@@ -510,6 +510,35 @@ char *D_801369E4 = "0123456789ABCDEF";   /* @0x801369E4 -> FONT.obj .rodata 0x80
  * null control.  Only distinguishable effect of the 6-insn schedule: ±1 emulated hblank
  * tick over long pumps (Hcount/_startTime counters) -- inherent to any non-byte-exact
  * schedule.  The residual FAIL 6 is byte/cycle-cosmetic; game state is unaffected. */
+#include "../../../link_stripped.h"
+/* FONT.obj head (LINK-STRIPPED): SetDumpFnt @0, FntLoad @64, FntOpen @224 (696 B, NOT yet written) -- retail's object text
+ * starts at FntFlush.  FntLoad / FntOpen use FONT.obj's .bss: 0x4400 bytes of sprite + text buffers, then the two shorts
+ * below at +0x4400 / +0x4402.  That .bss is not modelled yet, so they are declared, not defined. */
+extern void SetDumpFnt(int id) LINK_STRIPPED;
+extern void FntLoad(int tx, int ty) LINK_STRIPPED;
+extern u_short _fnt_tpage;   /* FONT.obj .bss +0x4400 */
+extern u_short _fnt_clut;    /* FONT.obj .bss +0x4402 */
+extern int (*GPU_printf)(const char *fmt, ...);
+extern int FntPrint(const char *id, ...);
+extern u_short LoadClut2(u_long *clut, int x, int y);
+extern u_short LoadTPage(u_long *pix, int tp, int abr, int x, int y, int w, int h);
+
+extern void SetDumpFnt(int id)
+{
+    if (id >= 0 && id <= _fnt_count) {
+        _fnt_active = id;
+        GPU_printf = FntPrint;
+    }
+}
+
+extern void FntLoad(int tx, int ty)
+{
+    _fnt_clut = LoadClut2(_fnt_image, tx, ty + 128);
+    _fnt_tpage = LoadTPage(_fnt_image + 128, 0, 0, tx, ty, 128, 32);
+    _fnt_count = 0;
+    memset(_fnt, 0, sizeof(_fnt));
+}
+
 /* FntFlush -- CERTIFICATE (runtime-proven equivalent; vendor-cc1-only C match,
  * W52..W74 residual).  Links the BYTE-EXACT retail asm -> ZERO image diff; C
  * reconstruction preserved under #if 0.  FONT.c is the -G4 maspsx lane and

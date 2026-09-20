@@ -199,6 +199,38 @@ extern int _padVbCallback0(void)
 }
 
 #include "../../../link_stripped.h"
+/* PADMAIN.obj +0 (LINK-STRIPPED) : PadEnableCom -- enable/disable the two ports (bit0 = port 1, bit1 = port 2); returns the
+ * previous mask.  A port that was idle for 150+ frames gets its info block cleared.  Retail's object text starts at
+ * _padSetVsyncParam. */
+extern int PadEnableCom(int mode) LINK_STRIPPED;
+extern int PadEnableCom(int mode)
+{
+    int old;
+
+    old = (_padChanStop << 1) | (_padChanStart == 0);
+    if (old != mode) {
+        _padIntExec = 0;
+        if (mode & 1) {
+            _padChanStart = 0;
+            if (_padFramesSinceStart >= 150)
+                _padFuncClrInfo(_padInfoDir);
+            _padFramesSinceStart = 0;
+        } else {
+            _padChanStart = 1;
+        }
+        if (mode & 2) {
+            _padChanStop = 1;
+            if (_padFramesSinceStop >= 150)
+                _padFuncClrInfo(_padInfoDir + 0xf0);
+            _padFramesSinceStop = 0;
+        } else {
+            _padChanStop = 0;
+        }
+        _padIntExec = 1;
+    }
+    return old;
+}
+
 /* PADMAIN.obj +792 (LINK-STRIPPED) : _padChkVsync -- read-and-clear the "vblank handler ran" flag */
 extern int _padChkVsync(void) LINK_STRIPPED;
 extern int _padChkVsync(void)

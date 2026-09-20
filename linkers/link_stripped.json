@@ -304,6 +304,28 @@
    "function": "PadInfoComb",
    "sdk": "LIBPAD/PadInfoComb",
    "evidence": "PsyQ 4.3 libpad PADENTRY.obj @824+168; retail anchors drop by exactly its size across it"
+  },
+  {
+   "object": "build/recon/syslib/psx/libpad/PADMAIN.c.o",
+   "function": "PadEnableCom",
+   "sdk": "LIBPAD/PadEnableCom",
+   "evidence": "PsyQ 4.3 libpad PADMAIN.obj @0+280; the retail object text starts at _padSetVsyncParam (head stripped)",
+   "open_diff": 13,
+   "note": "OPEN: pure saved-register swap -- SDK old=$s1, frame-counter base=$s2, ours the reverse; five source variants all 13 (TU is already the 2.7.2 lane). SAME CLASS as SetGraphQueue: a saved `old` value competing with an address-base pseudo; in the SDK the base always loses."
+  },
+  {
+   "object": "build/recon/syslib/psx/libgpu/FONT.c.o",
+   "function": "SetDumpFnt",
+   "sdk": "LIBGPU/SetDumpFnt",
+   "evidence": "PsyQ 4.3 libgpu FONT.obj @0+64; the retail object text starts at FntFlush (head stripped)"
+  },
+  {
+   "object": "build/recon/syslib/psx/libgpu/FONT.c.o",
+   "function": "FntLoad",
+   "sdk": "LIBGPU/FntLoad",
+   "evidence": "PsyQ 4.3 libgpu FONT.obj @64+160; the retail object text starts at FntFlush (head stripped)",
+   "open_diff": 1,
+   "note": "OPEN: one word -- SDK loads the two zero arguments of LoadTPage separately (`move a2,zero`), 2.8 copies the first (`move a2,a1`); the 2.7.2 rung fixes that but breaks the epilogue (3 words). Same two-identity split as LoadTPage/LoadClut."
   }
  ]
 }

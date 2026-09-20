@@ -24,6 +24,7 @@ OBJDUMP = str(MIPS / 'mipsel-none-elf-objdump.exe')
 OUT = ROOT / 'build' / 'full_link'
 LOAD = 0x80010000
 FOFF = 0x800
+MAP = ROOT / 'rom' / 'NFS4.MAP'   # retail link map off the disc; not committed
 
 # reuse relink's lane object gathering
 spec = importlib.util.spec_from_file_location('relink', ROOT / 'tools' / 'relink.py')
@@ -112,7 +113,10 @@ def main():
     # method -- into the uncovered regions.
     import struct as _st
     mapaddr = {}
-    for l2 in Path(r'C:/Temp/_from_github/NFS4.MAP').read_text(errors='replace').splitlines():
+    if not MAP.is_file():
+        print(f'[warn] no {MAP.relative_to(ROOT).as_posix()} -- the hybrid '
+              'per-function fill runs on symbol_addrs.txt alone')
+    for l2 in (MAP.read_text(errors='replace').splitlines() if MAP.is_file() else []):
         mm = re.match(r'^ ([0-9A-F]{8}) (\S+)\s*$', l2)
         if mm: mapaddr.setdefault(mm.group(2), int(mm.group(1), 16))
     sa = ROOT / 'configs' / 'symbol_addrs.txt'
@@ -238,8 +242,7 @@ def main():
     # attribute diffs to functions/symbols via NFS4.MAP
     import bisect
     mp = []
-    MAP = Path(r'C:/Temp/_from_github/NFS4.MAP')
-    for l2 in MAP.read_text(errors='replace').splitlines():
+    for l2 in (MAP.read_text(errors='replace').splitlines() if MAP.is_file() else []):
         mm = re.match(r'^ ([0-9A-F]{8}) (\S+)\s*$', l2)
         if mm:
             mp.append((int(mm.group(1), 16), mm.group(2)))

@@ -13,7 +13,7 @@ import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-MAP = Path(r'C:/Temp/_from_github/NFS4.MAP')
+MAP = ROOT / 'rom' / 'NFS4.MAP'   # retail link map off the disc; not committed
 OUT = ROOT / 'linkers' / 'map_symbols_provide.ld'
 
 VALID = re.compile(r'^[A-Za-z_$.][A-Za-z0-9_$.]*$')

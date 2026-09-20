@@ -377,6 +377,8 @@ extern void  DrawOTagEnv(u_long *ot, void *env) LINK_STRIPPED;
 extern int   LoadImage2(void *rect, u_long *data) LINK_STRIPPED;
 extern int   StoreImage2(void *rect, u_long *data) LINK_STRIPPED;
 extern int   MoveImage2(void *rect, int x, int y) LINK_STRIPPED;
+static const char _nm_StoreImage2[] LINK_STRIPPED_RODATA = "StoreImage2";   /* the object's dead .rdata tail: not in retail */
+static const char _nm_MoveImage2[]  LINK_STRIPPED_RODATA = "MoveImage2";
 extern void *GetDrawEnv(void *env) LINK_STRIPPED;
 extern void *GetDispEnv(void *env) LINK_STRIPPED;
 extern int   GetODE(void) LINK_STRIPPED;
@@ -2702,7 +2704,7 @@ extern int LoadImage2(void *rect, u_long *data)
 /* SYS.obj +11408 (LINK-STRIPPED) : StoreImage2 */
 extern int StoreImage2(void *rect, u_long *data)
 {
-    _image("StoreImage2", rect);
+    _image(_nm_StoreImage2, rect);
     _gpu_timeout_target = VSync(-1) + 0xF0;
     _gpu_timeout_count = 0;
     while ((*D2_CHCR & 0x01000000) != 0 || (*GPU_GP1 & 0x04000000) == 0) {
@@ -2718,7 +2720,7 @@ extern int StoreImage2(void *rect, u_long *data)
 extern int MoveImage2(void *rect, int x, int y)
 {
 
-    _image("MoveImage2", rect);
+    _image(_nm_MoveImage2, rect);
     _gpu_timeout_target = VSync(-1) + 0xF0;
     _gpu_timeout_count = 0;
     while ((*D2_CHCR & 0x01000000) != 0 || (*GPU_GP1 & 0x04000000) == 0) {

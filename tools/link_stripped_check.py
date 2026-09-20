@@ -35,7 +35,7 @@ for obj, lst in sorted(by_obj.items()):
     syms = {}
     for ln in subprocess.run([BIN + 'objdump.exe', '-t', str(o)], capture_output=True, text=True).stdout.splitlines():
         p = ln.split()
-        if len(p) >= 6 and p[-3] == '.text.strip' and 'F' in p[1:4]:
+        if len(p) >= 6 and p[-3] == '.text.strip' and 'F' in p[1:4] and not p[-1].startswith('.'):
             syms[p[-1]] = (int(p[0], 16), int(p[-2], 16))
     tmp = ROOT / 'build' / 'tmp' / 'strip_sec.bin'
     tmp.parent.mkdir(parents=True, exist_ok=True)
@@ -60,6 +60,9 @@ for obj, lst in sorted(by_obj.items()):
         if r.get('sdk'):
             lib, name = r['sdk'].split('/')
             blob = (SDK / lib / 'functions' / (name + '.bin')).read_bytes()
+            if r.get('sdk_slice'):      # [offset, size] inside the blob: the SDK index lumps a member's STATIC functions into the
+                o_, n_ = r['sdk_slice']  # preceding global's blob (no XDEF of their own)
+                blob = blob[o_:o_ + n_]
             ours = sec[off:off + size]
             # the SDK blob may carry the member's zero alignment tail (e.g. a 3-word BIOS trampoline in a 16-byte member)
             diff = 0 if len(ours) <= len(blob) and not any(blob[len(ours):]) else 1

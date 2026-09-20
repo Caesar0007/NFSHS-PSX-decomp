@@ -19,9 +19,10 @@
 /* 2026-09-19: the pad object OWNS its data (retail .data 0x8013C338, 16 bytes) -- the SDK object reaches the flag
  * section-relative, which is a file-scope definition.  Sony library object => -G0, so the access stays absolute. */
 int _init_pad_flag = 0;                                       /* @0x8013C338 : set by the BIOS pad init */
-int _pad_spare = 0;                                           /* @0x8013C33C */
-unsigned char *_pad_joy_data = (unsigned char *)0x1F801040;   /* @0x8013C340 */
-unsigned long *_pad_i_stat = (unsigned long *)0x1F801070;     /* @0x8013C344 */
+unsigned char *_pad_joy_data = (unsigned char *)0x1F801040;   /* @0x8013C33C  (SDK .data +4: the handler clears JOY_CTRL through it) */
+unsigned long *_pad_i_stat = (unsigned long *)0x1F801070;     /* @0x8013C340  (SDK .data +8) */
+int _pad_spare = 0;                                           /* @0x8013C344  (2026-09-20: was declared second -- a 9-byte mismatch an overlapping blob
+                                                                 section hid from honest_measure; found by tools/overlap_audit.py) */
 
 #include "../../../link_stripped.h"
 /* PAD.obj is the clearest witness of retail's link-time stripping: its 16 data bytes are all in the image, but of its

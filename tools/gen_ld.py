@@ -852,7 +852,7 @@ def main():
       " *(.data.*_legacy); *(.sdata.*_legacy);"
       # LINK_STRIPPED (recon/link_stripped.h): functions retail's final link removed
       # as unreferenced; listed with evidence in linkers/link_stripped.json.
-      " *(.text.strip); }")
+      " *(.text.strip); *(.rodata.strip); }")
     A("}")
     TARGET.write_text("\n".join(L) + "\n")
 

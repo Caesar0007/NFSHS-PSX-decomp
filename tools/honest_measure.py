@@ -15,7 +15,8 @@ The number that matters for "our code generates the retail binary" is the RECON
 match rate.  BLOB matches are retail passthrough and are reported separately so
 they never inflate the honest figure.
 """
-import re, subprocess, sys
+import re
+import sys, subprocess, sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -97,6 +98,13 @@ def main():
     print(f'>>> HONEST reconstruction match (RECON only): '
           f'{ri}/{rt} = {100.0*ri/rt:.3f}%  ({rt-ri} diff words)')
     print(f'    (BLOB {ident["BLOB"]}/{tot["BLOB"]} = retail passthrough, excluded)')
+    # 2026-09-20: this flattening compares only the LAST-dumped section at an overlapped address, so a wrong byte in a
+    # reconstructed section can hide behind an overlapping retail blob (libapi PAD.c's data order did).  The overlap audit
+    # compares BOTH sides of every overlap with retail.
+    r = subprocess.run([sys.executable, str(ROOT / 'tools' / 'overlap_audit.py')], capture_output=True, text=True)
+    for ln in r.stdout.splitlines():
+        if 'MASKED' in ln or ln.startswith('overlapped bytes'):
+            print('    OVERLAP AUDIT: ' + ln.strip()[:200])
 
 if __name__ == '__main__':
     main()

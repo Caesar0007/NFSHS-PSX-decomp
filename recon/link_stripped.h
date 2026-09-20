@@ -9,4 +9,9 @@
 #ifndef NFS4_LINK_STRIPPED_H
 #define NFS4_LINK_STRIPPED_H
 #define LINK_STRIPPED __attribute__((section(".text.strip")))
+/* Read-only data retail does NOT have although the SDK object does: the image keeps a stripped function's literals when
+ * live data follows them in the object's .rdata, but the section's dead TAIL is gone (libgpu SYS.obj: "LoadImage2" is the
+ * last string in retail, the SDK object goes on with "StoreImage2" and "MoveImage2").  Such a literal is spelled as a named
+ * array in a discarded input section. */
+#define LINK_STRIPPED_RODATA __attribute__((section(".rodata.strip")))
 #endif

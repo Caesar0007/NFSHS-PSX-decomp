@@ -26,8 +26,8 @@ int Risk_ReadNextValue(char **aScript)
 {
   if (0) sprintf((char *)0,"SimpleMem");   /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag */
   char s[256];
-  char *Script;
   int n;
+  char *Script;
 
   n = 0;
   Script = *aScript;

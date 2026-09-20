@@ -266,8 +266,8 @@ void Texture_ColorCarPalette(char *from,char *to,int numentry)
 void Texture_CopyPalette(char *data,int width,int x,int y)
 
 {
-  short *dest;
   int i;
+  short *dest;
   short *source;
   u_char zero; /* SYM-CODEGEN-CARRIER: zero -- pins retail's counter/destination coloring */
 

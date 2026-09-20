@@ -120,9 +120,6 @@ char * Replay_Decompress(char *compressed_data)
    * side read position is therefore a plain int ARRAY INDEX (c_pointer), not a walked pointer;
    * only the uncompressed-side write cursor is a genuine anonymous pointer temp (no SYM entry). */
   int i;
-  int count;
-  char current_byte;
-  int c_pointer;
   int data_size;
   /* ORIGINAL-NAME-RECOVERED: u_pointer -- the symbol-bearing NFS2 Replay_Decompress
    * records this output index as `u_pointer`.  GCC eliminates it into the
@@ -131,6 +128,9 @@ char * Replay_Decompress(char *compressed_data)
    * BIV produces the exact pointer-walk code without changing the array's
    * authoritative global type. */
   int u_pointer;
+  int count;
+  int c_pointer;
+  char current_byte;
 
   data_size = (int)(u_char)*compressed_data;
   c_pointer = 1;

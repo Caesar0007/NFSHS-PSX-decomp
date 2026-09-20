@@ -832,16 +832,16 @@ void Hud_InitMapFrame(int i,int mode)
 void Hud_BuildTimeSprites(SPRT *sprt,char *str,int x,int y)
 
 {
-  int w;
-  int c;
-  int n; /* SYM-CODEGEN-CARRIER: n -- indexed sprite GIV keeps REGPARM sprt in $a0; sprt++ is the measured 18-diff form */
-  char langSec;
-  char langMin;
   /* Ghidra hand-expanded these 2 as unaligned lwl/lwr bit-math on a stack
      pointer; the oracle is a plain compiler-generated rodata->stack aggregate
      copy (movstrsi shape, catalog wave-4 row) of a 6-char literal init. */
   char minSep [6] = {':', ':', '\'', '\'', '\'', '.'} /* @0x8013d8dc */;
   char secSep [6] = {'.', ':', '"',  '"',  '"',  ','} /* @0x8013d8e4 */;
+  char langMin;
+  char langSec;
+  int c;
+  int n; /* SYM-CODEGEN-CARRIER: n -- indexed sprite GIV keeps REGPARM sprt in $a0; sprt++ is the measured 18-diff form */
+  int w;
 
   langMin = minSep[GameSetup_gData.userSetting.language];
   langSec = secSep[GameSetup_gData.userSetting.language];

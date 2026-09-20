@@ -33,8 +33,8 @@ void s_upper(char *string)
 {
   if (0) sprintf((char *)0,"SimpleMem");   /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag */
 
-  int len;
   int n;
+  int len;
 
   len = strlen(string);
   n = 0;

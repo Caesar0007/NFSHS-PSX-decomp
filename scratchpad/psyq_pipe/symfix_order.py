@@ -89,6 +89,9 @@ def fix_function(lines, start, order):
         if s0 > end:
             continue
         items, cur_lead, j, ic = [], [], s0, False
+        while j <= end and (not lines[j].strip() or ('if (0)' in lines[j] and 'SimpleMem' in lines[j])):
+            j += 1          # skip the literal-carrier statement (and blank lines around it)
+        s0 = j
         while j <= end:
             raw = lines[j]
             code, ic2 = strip_comments(raw, ic)
@@ -98,11 +101,14 @@ def fix_function(lines, start, order):
             # a declaration may span lines: join until ';'
             k, stmt, icx = j, raw, ic2
             joined = code
-            while ';' not in joined and '{' not in joined and '}' not in joined and k + 1 <= end and k - j < 6:
+            while ((';' not in joined and '{' not in joined and '}' not in joined) or
+                   ('=' in joined and joined.count('{') > joined.count('}')) or
+                   ('=' in joined and '{' in joined and ';' not in joined.rsplit('}', 1)[-1])) and k + 1 <= end and k - j < 40:
                 k += 1
                 c2, icx = strip_comments(lines[k], icx)
                 joined += ' ' + c2; stmt += lines[k]
-            m = DECL.match(re.sub(r'/\*.*?\*/', ' ', joined.replace('\n', ' ')) if True else joined)
+            flat = re.sub(r'=\s*\{.*\}', '= 0', re.sub(r'/\*.*?\*/', ' ', joined.replace('\n', ' ')), flags=re.S)
+            m = DECL.match(flat)
             head = joined.strip().split('(')[0].split()
             first = head[0] if head else ''
             if not m or first in KEYWORDS or '(' in joined.split('=')[0].split('asm')[0]:
@@ -111,9 +117,15 @@ def fix_function(lines, start, order):
             items.append((name, cur_lead + lines[j:k + 1]))
             cur_lead, ic, j = [], icx, k + 1
         names = [x[0] for x in items]
-        if len(items) < 2 or len(set(names)) != len(names) or any(x not in rank for x in names):
+        if len(items) < 2 or len(set(names)) != len(names) or not any(x in rank for x in names):
             continue
-        want = sorted(items, key=lambda x: rank[x[0]])
+        key, last = {}, -1.0          # a carrier retail lacks keeps its place right after its predecessor
+        for x in names:
+            if x in rank:
+                last = float(rank[x]); key[x] = last
+            else:
+                last += 0.001; key[x] = last
+        want = sorted(items, key=lambda x: key[x[0]])
         if want == items:
             continue
         newblock = [l for _, ls in want for l in ls]

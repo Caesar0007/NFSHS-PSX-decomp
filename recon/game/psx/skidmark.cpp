@@ -26,9 +26,9 @@ void CalcStartSegment(Skidmark_Segment *r1,Skidmark_Segment *r2,coorddef *cp,coo
 {
   if (0) sprintf((char *)0,"SimpleMem");   /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag */
 
-  int angle;
   int pxp;
   int pzp;
+  int angle;
 
   angle = intatan(pt2->x - pt1->x,pt2->z - pt1->z);
   pxp = fixedmult(tireWidth,-fastintcos(angle)) >> 1;

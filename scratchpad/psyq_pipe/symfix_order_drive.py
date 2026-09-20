@@ -7,7 +7,7 @@ from pathlib import Path
 
 ROOT = Path('C:/Temp/nfs4-decomp')
 PY = sys.executable
-FIX = str(ROOT / 'scratchpad/psyq_pipe/symfix_order.py')
+FIX = str(ROOT / 'scratchpad/psyq_pipe' / (sys.argv[1] if len(sys.argv) > 1 else 'symfix_order.py'))   # any fixer with the same CLI / report lines
 LOOP = str(ROOT / 'scratchpad/psyq_pipe/symloop.py')
 
 

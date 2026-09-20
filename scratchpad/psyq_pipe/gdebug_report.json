@@ -1,10 +1,5 @@
 {
- "recon/game/common/aiphysic.cpp": {
-  "s": true,
-  "same_code": true,
-  "note": "assembled"
- },
- "recon/game/psx/audio.cpp": {
+ "recon/game/psx/drawc.cpp": {
   "s": true,
   "same_code": true,
   "note": "assembled"

@@ -635,11 +635,7 @@
   ]
  },
  "AIPhysic_HandleSignalling__FP8Car_tObj": {
-  "issues": [
-   "MOVED lDes REG:$5 != REG:$3",
-   "MOVED lPos REG:$3 != REG:$5",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIPHYSIC.CPP",
   "end_line": [
    415,
@@ -3068,8 +3064,7 @@
  },
  "Audio_InitDriver__Fii": {
   "issues": [
-   "ORDER of declarations differs",
-   "BLOCKS same count, different nesting/addresses"
+   "BLOCKS 6 scopes != 4"
   ],
   "file": "C:\\nfs4\\GAME\\PSX\\AUDIO.CPP",
   "end_line": [
@@ -4820,7 +4815,6 @@
  },
  "CheckForCops__14AIHigh_TrafficPi": {
   "issues": [
-   "ORDER of declarations differs",
    "BLOCKS 2 scopes != 3"
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIH_TRAF.CPP",
@@ -6860,14 +6854,10 @@
   ]
  },
  "DrawC_ShadowPrimClip__FP12Draw_tVertexP13Draw_CarCache": {
-  "issues": [
-   "MOVED uv2 REG:$8 != REG:$7",
-   "MOVED uv3 REG:$7 != REG:$8",
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\PSX\\DRAWC.CPP",
   "end_line": [
-   5440,
+   5441,
    4184
   ]
  },
@@ -6894,7 +6884,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\PSX\\DRAWC.CPP",
   "end_line": [
-   5818,
+   5819,
    4378
   ]
  },
@@ -6908,7 +6898,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\PSX\\DRAWC.CPP",
   "end_line": [
-   5570,
+   5571,
    4254
   ]
  },
@@ -7738,10 +7728,7 @@
   ]
  },
  "DrawW_SetUpSubdividFacet_Line__FP25Draw_tGiveShelbyMoreCache": {
-  "issues": [
-   "TYPE a \"ULONG\" != \"LONG\"",
-   "TYPE b \"ULONG\" != \"LONG\""
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\PSX\\DRAWW.CPP",
   "end_line": [
    6213,
@@ -11301,9 +11288,7 @@
   ]
  },
  "Hrz_BuildForkLightning__FP11Draw_DCache": {
-  "issues": [
-   "TYPE i \"UCHAR\" != \"CHAR\""
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\PSX\\HRZSKU.CPP",
   "end_line": [
    715,
@@ -14244,7 +14229,6 @@
   "issues": [
    "EXTRA high REG:$19",
    "MISSING this REGPARM:$19",
-   "TYPE placementSpeed \"ENUM ._10\" != \"ENUM ._148\"",
    "BLOCKS 9 scopes != 29"
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\AIH_BTCPERP.CPP",
@@ -14658,7 +14642,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\PSX\\NIGHT.CPP",
   "end_line": [
-   1634,
+   1636,
    861
   ]
  },
@@ -14682,7 +14666,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\PSX\\NIGHT.CPP",
   "end_line": [
-   767,
+   769,
    467
   ]
  },
@@ -14701,7 +14685,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\PSX\\NIGHT.CPP",
   "end_line": [
-   1056,
+   1058,
    625
   ]
  },
@@ -14719,7 +14703,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\PSX\\NIGHT.CPP",
   "end_line": [
-   887,
+   889,
    515
   ]
  },
@@ -14730,7 +14714,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\PSX\\NIGHT.CPP",
   "end_line": [
-   1114,
+   1116,
    680
   ]
  },
@@ -14738,7 +14722,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\PSX\\NIGHT.CPP",
   "end_line": [
-   856,
+   858,
    496
   ]
  },
@@ -14746,7 +14730,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\PSX\\NIGHT.CPP",
   "end_line": [
-   944,
+   946,
    540
   ]
  },
@@ -14754,7 +14738,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\PSX\\NIGHT.CPP",
   "end_line": [
-   1150,
+   1152,
    719
   ]
  },
@@ -14779,13 +14763,10 @@
   ]
  },
  "Night_PauseLightningEffect__Fi": {
-  "issues": [
-   "ORDER of declarations differs",
-   "BLOCKS 1 scopes != 2"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\PSX\\NIGHT.CPP",
   "end_line": [
-   724,
+   726,
    416
   ]
  },
@@ -14793,7 +14774,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\PSX\\NIGHT.CPP",
   "end_line": [
-   1165,
+   1167,
    730
   ]
  },
@@ -14804,7 +14785,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\PSX\\NIGHT.CPP",
   "end_line": [
-   844,
+   846,
    484
   ]
  },
@@ -14812,7 +14793,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\PSX\\NIGHT.CPP",
   "end_line": [
-   898,
+   900,
    527
   ]
  },
@@ -14823,7 +14804,7 @@
   ],
   "file": "C:\\nfs4\\GAME\\PSX\\NIGHT.CPP",
   "end_line": [
-   1427,
+   1429,
    804
   ]
  },
@@ -14831,7 +14812,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\PSX\\NIGHT.CPP",
   "end_line": [
-   873,
+   875,
    503
   ]
  },
@@ -14839,7 +14820,7 @@
   "issues": [],
   "file": "C:\\nfs4\\GAME\\PSX\\NIGHT.CPP",
   "end_line": [
-   965,
+   967,
    546
   ]
  },
@@ -17814,7 +17795,6 @@
  },
  "SavePinkSlipsCars__Fss": {
   "issues": [
-   "ORDER of declarations differs",
    "BLOCKS 11 scopes != 14"
   ],
   "file": "C:\\nfs4\\FRONTEND\\COMMON\\FEMEMCARD.CPP",
@@ -22788,9 +22768,7 @@
   ]
  },
  "__10AnimScriptP5Groupiii": {
-  "issues": [
-   "ORDER of declarations differs"
-  ],
+  "issues": [],
   "file": "C:\\nfs4\\GAME\\COMMON\\ANIM.CPP",
   "end_line": [
    287,
@@ -23501,8 +23479,6 @@
  },
  "__6Speech": {
   "issues": [
-   "TYPE this \"PTR STRUCT ._2\" != \"PTR STRUCT ._125\"",
-   "TYPE this \"PTR STRUCT ._3\" != \"PTR STRUCT ._126\"",
    "BLOCKS 23 scopes != 22"
   ],
   "file": "C:\\nfs4\\GAME\\COMMON\\SPEECH.CPP",

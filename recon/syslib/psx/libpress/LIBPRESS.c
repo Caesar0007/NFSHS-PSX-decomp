@@ -54,7 +54,7 @@ extern int  printf(const char *fmt, ...);    /* libc   C63.obj */
 /* SYM-GLOBAL-CARRIER: _mdec_iqtab
  * SYM-GLOBAL-CARRIER: _mdec_idcttab
  * Canonical MDEC tables restored byte-for-byte at their retail addresses. */
-static const u_long _mdec_iqtab[33] __attribute__((section(".data"))) = {
+static u_long _mdec_iqtab[33] __attribute__((section(".data"))) = {
     0x40000001, 0x13101002, 0x16161310, 0x16161616, 0x1b1a181a, 0x1a1a1b1b, 0x1b1b1a1a, 0x1d1d1d1b,
     0x1d222222, 0x1b1b1d1d, 0x20201d1d, 0x26252222, 0x22232325, 0x28262623, 0x30302828, 0x38382e2e,
     0x5345453a, 0x13101002, 0x16161310, 0x16161616, 0x1b1a181a, 0x1a1a1b1b, 0x1b1b1a1a, 0x1d1d1d1b,
@@ -62,7 +62,7 @@ static const u_long _mdec_iqtab[33] __attribute__((section(".data"))) = {
     0x5345453a
 };
 /* @0x80136B7C : MDEC "set IDCT scale table" command (0x60000000) + 32 words of cosine matrix. */
-static const u_long _mdec_idcttab[33] __attribute__((section(".data"))) = {
+static u_long _mdec_idcttab[33] __attribute__((section(".data"))) = {
     0x60000000, 0x5a825a82, 0x5a825a82, 0x5a825a82, 0x5a825a82, 0x6a6d7d8a, 0x18f8471c, 0xb8e3e707,
     0x82759592, 0x30fb7641, 0x89becf04, 0xcf0489be, 0x764130fb, 0xe7076a6d, 0xb8e38275, 0x7d8a471c,
     0x959218f8, 0xa57d5a82, 0x5a82a57d, 0xa57d5a82, 0x5a82a57d, 0x8275471c, 0x6a6d18f8, 0xe7079592,
@@ -105,6 +105,14 @@ extern int      _MDEC_get_reg1(void);
 /* ---------------------------------- public API ---------------------------------- */
 
 /* @0x800F89C8 : reset the MDEC (mode 0 also reinstalls the interrupt callbacks). */
+#include "../../../link_stripped.h"
+/* LIBPRESS.obj functions retail's final link removed as unreferenced (bytes: PsyQ 4.3 libpress LIBPRESS.obj) */
+extern void *DecDCTGetEnv(void *env) LINK_STRIPPED;
+extern void *DecDCTPutEnv(void *env) LINK_STRIPPED;
+extern int   DecDCTBufSize(u_long *bs) LINK_STRIPPED;
+extern int   DecDCToutSync(int mode) LINK_STRIPPED;
+extern int   DecDCTinCallback(int func) LINK_STRIPPED;
+
 extern void DecDCTReset(int mode)
 {
     if (mode == 0)
@@ -113,6 +121,49 @@ extern void DecDCTReset(int mode)
 }
 
 /* @0x800F89FC : start decoding -- patch the run/level header flags then DMA it into MDEC. */
+/* LIBPRESS.obj +52 (LINK-STRIPPED) : DecDCTGetEnv -- copy the quantisation + IDCT tables out (DECDCTENV = 64+64+128 bytes) */
+extern void *DecDCTGetEnv(void *env)
+{
+    int i;
+    u_long *src, *dst;
+
+    dst = (u_long *)env;
+    src = &_mdec_iqtab[1];
+    for (i = 15; i != -1; i--)
+        *dst++ = *src++;
+    dst = (u_long *)((char *)env + 64);
+    src = &_mdec_iqtab[17];
+    for (i = 15; i != -1; i--)
+        *dst++ = *src++;
+    dst = (u_long *)((char *)env + 128);
+    src = &_mdec_idcttab[1];
+    for (i = 31; i != -1; i--)
+        *dst++ = *src++;
+    return env;
+}
+
+/* LIBPRESS.obj +192 (LINK-STRIPPED) : DecDCTPutEnv -- install new quantisation tables and send both tables to the MDEC */
+extern void *DecDCTPutEnv(void *env)
+{
+    int i;
+    u_long *src, *dst;
+
+    src = (u_long *)env;
+    dst = &_mdec_iqtab[1];
+    for (i = 15; i != -1; i--)
+        *dst++ = *src++;
+    dst = &_mdec_iqtab[17];
+    src = (u_long *)((char *)env + 64);
+    for (i = 15; i != -1; i--)
+        *dst++ = *src++;
+    _MDEC_in_dma(_mdec_iqtab, 32);
+    _MDEC_in_dma(_mdec_idcttab, 32);
+    return env;
+}
+
+/* LIBPRESS.obj +344 (LINK-STRIPPED) : DecDCTBufSize -- run-level word count from the bitstream header */
+extern int DecDCTBufSize(u_long *bs) { return *(u_short *)bs; }
+
 extern void DecDCTin(u_long *runlevel, int mode)
 {
     if ((mode & 1) != 0) *runlevel &= 0xf7ffffffu;
@@ -142,6 +193,20 @@ extern int DecDCTinSync(int mode)
 }
 
 /* @0x800F8AD4 : install the MDECout (DMA channel 1) completion callback. */
+/* LIBPRESS.obj +572 (LINK-STRIPPED) : DecDCToutSync */
+extern int DecDCToutSync(int mode)
+{
+    if (mode != 0)
+        return ((unsigned)_MDEC_get_reg1() >> 0x18) & 1;
+    return MDEC_out_sync();
+}
+
+/* LIBPRESS.obj +632 (LINK-STRIPPED) : DecDCTinCallback */
+extern int DecDCTinCallback(int func)
+{
+    return DMACallback(0, func);
+}
+
 extern int DecDCToutCallback(int func)
 {
     return DMACallback(1, func);

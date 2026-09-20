@@ -1,10 +1,10 @@
-== .text: 1589 matched symbols; base delta -0xa58
-   drift -0xa58 -> -0xa54 (+0x4) between Stats_TrackEndGame__Fv and TextSys_LoadWordsGeneric__FiPc @0x800b9158 [Textsys.obj]
-== .data: 309 matched symbols; base delta -0x898
-== .sdata: 455 matched symbols; base delta -0x808
-   drift -0x808 -> -0x804 (+0x4) between gBlockadeTypes and AICop_rawTriggers @0x8013c570 [aicop.obj]
-== .sbss: 38 matched symbols; base delta -0x7fc
-== .bss: 2 matched symbols; base delta -0x7f0
+== .text: 1589 matched symbols; base delta -0xa48
+   drift -0xa48 -> -0xa44 (+0x4) between Stats_TrackEndGame__Fv and TextSys_LoadWordsGeneric__FiPc @0x800b9158 [Textsys.obj]
+== .data: 309 matched symbols; base delta -0x890
+== .sdata: 455 matched symbols; base delta -0x800
+   drift -0x800 -> -0x7fc (+0x4) between gBlockadeTypes and AICop_rawTriggers @0x8013c570 [aicop.obj]
+== .sbss: 38 matched symbols; base delta -0x7f8
+== .bss: 2 matched symbols; base delta -0x7ec
 == front.text: 845 matched symbols; base delta -0x80
 == front.data: 144 matched symbols; base delta -0x80
 == front.bss: 1 matched symbols; base delta -0x98

@@ -206,6 +206,36 @@
    "function": "StartPAD",
    "sdk": "LIBAPI/StartPAD",
    "evidence": "libapi PAD.obj @316+48 (identical member layout in PsyQ 3.6..4.5); retail keeps its 16 data bytes but only ReadInitPadFlag (16 B @0x8010C9B0) of its 768 text bytes"
+  },
+  {
+   "object": "build/recon/syslib/psx/libpress/LIBPRESS.c.o",
+   "function": "DecDCTGetEnv",
+   "sdk": "LIBPRESS/DecDCTGetEnv",
+   "evidence": "PsyQ 4.3 libpress LIBPRESS.obj @52+140; retail anchors (address - SDK offset) drop by exactly the unlabelled sizes across it"
+  },
+  {
+   "object": "build/recon/syslib/psx/libpress/LIBPRESS.c.o",
+   "function": "DecDCTPutEnv",
+   "sdk": "LIBPRESS/DecDCTPutEnv",
+   "evidence": "PsyQ 4.3 libpress LIBPRESS.obj @192+152; retail anchors (address - SDK offset) drop by exactly the unlabelled sizes across it"
+  },
+  {
+   "object": "build/recon/syslib/psx/libpress/LIBPRESS.c.o",
+   "function": "DecDCTBufSize",
+   "sdk": "LIBPRESS/DecDCTBufSize",
+   "evidence": "PsyQ 4.3 libpress LIBPRESS.obj @344+12; retail anchors (address - SDK offset) drop by exactly the unlabelled sizes across it"
+  },
+  {
+   "object": "build/recon/syslib/psx/libpress/LIBPRESS.c.o",
+   "function": "DecDCToutSync",
+   "sdk": "LIBPRESS/DecDCToutSync",
+   "evidence": "PsyQ 4.3 libpress LIBPRESS.obj @572+60; retail anchors (address - SDK offset) drop by exactly the unlabelled sizes across it"
+  },
+  {
+   "object": "build/recon/syslib/psx/libpress/LIBPRESS.c.o",
+   "function": "DecDCTinCallback",
+   "sdk": "LIBPRESS/DecDCTinCallback",
+   "evidence": "PsyQ 4.3 libpress LIBPRESS.obj @632+36; retail anchors (address - SDK offset) drop by exactly the unlabelled sizes across it"
   }
  ]
 }

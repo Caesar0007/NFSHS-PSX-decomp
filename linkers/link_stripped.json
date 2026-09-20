@@ -122,6 +122,30 @@
    "function": "MoveImage2",
    "sdk": "LIBGPU/MoveImage2",
    "evidence": "PsyQ 4.3 libgpu SYS.obj (sys.c 1.140, same $Id as retail) @11644+324; the anchor drops by 796 = LoadImage2+StoreImage2+MoveImage2 between SetDrawEnv and DrawOTag2"
+  },
+  {
+   "object": "build/recon/syslib/psx/libcd/drv.c.o",
+   "function": "CD_vol",
+   "sdk": "LIBCD/CD_vol",
+   "evidence": "PsyQ 4.3 libcd BIOS.obj @3760+136, between CD_cw and CD_flush; the retail anchor drops by exactly 136 across it"
+  },
+  {
+   "object": "build/recon/syslib/psx/libds/DSCB.c.o",
+   "function": "DsSyncCallback",
+   "sdk": "LIBDS/DsSyncCallback",
+   "evidence": "PsyQ 4.3 libds DSCB.obj @0+20; retail DSCB text is 0x80108824..0x8010885C = DsReadyCallback + DsDataCallback only (previous object ends at 0x80108824)"
+  },
+  {
+   "object": "build/recon/syslib/psx/libds/DSCB.c.o",
+   "function": "DsStartCallback",
+   "sdk": "LIBDS/DsStartCallback",
+   "evidence": "PsyQ 4.3 libds DSCB.obj @40+20; retail DSCB text is 0x80108824..0x8010885C = DsReadyCallback + DsDataCallback only (previous object ends at 0x80108824)"
+  },
+  {
+   "object": "build/recon/syslib/psx/libmcrd/LIBMCRD.c.o",
+   "function": "MemCardClose",
+   "sdk": "LIBMCRD/MemCardClose",
+   "evidence": "PsyQ 4.3 libmcrd LIBMCRD.obj @1852+68; retail MemCardAccept is followed directly by MemCardReadData (MemCardOpen 392 + MemCardClose 68 missing)"
   }
  ]
 }

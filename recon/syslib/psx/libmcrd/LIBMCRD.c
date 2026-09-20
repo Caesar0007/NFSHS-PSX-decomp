@@ -897,6 +897,20 @@ static __inline__ const char *MemCardFileAlreadyOpenMessage(void)
     return "Access Denied. : file already open.\n";
 }
 
+#include "../../../link_stripped.h"
+/* LIBMCRD.obj +1852 (LINK-STRIPPED) : MemCardClose -- close the file MemCardOpen opened.  (MemCardOpen @1460, 392 B,
+ * is link-stripped too and NOT yet written: it owns the "file already open" literal the accessor above still carries.) */
+extern void MemCardClose(void) LINK_STRIPPED;
+extern void MemCardClose(void)
+{
+    int *pfd = &mc.fd;
+
+    if (*pfd >= 0) {
+        close(*pfd);
+        *pfd = -1;
+    }
+}
+
 /* @0x800FB060 : MemCardReadData -- async read into adrs (offset/length must be 128-byte aligned). */
 extern long MemCardReadData(unsigned long *adrs, long ofs, long bytes)
 {

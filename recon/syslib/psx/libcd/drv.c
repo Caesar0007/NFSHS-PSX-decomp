@@ -1162,6 +1162,22 @@ extern int CD_cw(unsigned char com, unsigned char *param, unsigned char *result,
 extern int CD_cw_i(int com, unsigned char *param, unsigned char *result, int arg3)
     __asm__("CD_cw");
 
+#include "../../../link_stripped.h"
+/* BIOS.obj +3760 (LINK-STRIPPED) : CD_vol(CdlATV *vol) -- CD audio mixer volumes.  Its only caller, CdMix, is
+ * itself link-stripped; bytes: PsyQ 4.3 libcd BIOS.obj. */
+extern int CD_vol(unsigned char *vol) LINK_STRIPPED;
+extern int CD_vol(unsigned char *vol)
+{
+    CDREG0 = 2;
+    CDREG2 = vol[0];
+    CDREG3 = vol[1];
+    CDREG0 = 3;
+    CDREG1 = vol[2];
+    CDREG2 = vol[3];
+    CDREG3 = 0x20;
+    return 0;
+}
+
 /* @0x80107F30 : CD_flush -- abort and reset the controller interrupt state. */
 extern void CD_flush(void)
 {

@@ -26,6 +26,20 @@ extern int DMACallback(int ch, int func);   /* libetc INTR.obj @0x800F28AC */
 static DslCB GlobalCallback[3] /* @0x801489E0 */
     __attribute__((section(".bss")));
 
+#include "../../../link_stripped.h"
+/* DSCB.obj +0 and +40 (LINK-STRIPPED): DsSyncCallback / DsStartCallback -- retail kept only the Ready and Data setters
+ * (the object before DSCB ends exactly at DsReadyCallback, and DsDataCallback follows it directly). */
+extern DslCB DsSyncCallback(DslCB func) LINK_STRIPPED;
+extern DslCB DsStartCallback(DslCB func) LINK_STRIPPED;
+
+extern DslCB DsSyncCallback(DslCB func)
+{
+    DslCB *p = &GlobalCallback[0];
+    DslCB old = *p;
+    *p = func;
+    return old;
+}
+
 /* w48-a8: the old "aspsx shares one la base across consecutive same-symbol accesses" reading of
  * this fn was FALSIFIED against the REAL ASPSX 2.77 (04C law): assembling `lw $2,sym / sw $4,sym`
  * with C:/Temp/psq43/PSSN/ASPSX.EXE emits `lui $2;lw $2,%lo($2)` + `lui $at;sw $4,%lo($at)` --
@@ -37,6 +51,14 @@ static DslCB GlobalCallback[3] /* @0x801489E0 */
 extern DslCB DsReadyCallback(DslCB func)   /* @0x80108824 */
 {
     DslCB *p = &GlobalCallback[1];
+    DslCB old = *p;
+    *p = func;
+    return old;
+}
+
+extern DslCB DsStartCallback(DslCB func)
+{
+    DslCB *p = &GlobalCallback[2];
     DslCB old = *p;
     *p = func;
     return old;

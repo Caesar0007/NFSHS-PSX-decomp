@@ -85,6 +85,8 @@ tools/audit_vtable_indexing.py  reject _vf indexing that scales by a whole vtabl
 
 ## Build
 
+> To produce the two disc files `NFS4.EXE` and `FRONT.BIN` (byte-identical to retail) see **[BUILDING.md](BUILDING.md)**.
+
 ```sh
 # 1. (re)generate symbols + split  — only when configs change
 py -3.12 tools/gen_symbols.py

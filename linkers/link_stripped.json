@@ -98,6 +98,30 @@
    "function": "ClearOTag",
    "sdk": "LIBGPU/ClearOTag",
    "evidence": "PsyQ 4.3 libgpu SYS.obj (sys.c 1.140, same $Id as retail) @1952+200; retail anchors drop by exactly the unlabelled sizes across it"
+  },
+  {
+   "object": "build/recon/syslib/psx/libgpu/SYS.c.o",
+   "function": "DrawOTagEnv",
+   "sdk": "LIBGPU/DrawOTagEnv",
+   "evidence": "PsyQ 4.3 libgpu SYS.obj (sys.c 1.140, same $Id as retail) @2720+216; retail anchors drop by exactly the unlabelled sizes across it"
+  },
+  {
+   "object": "build/recon/syslib/psx/libgpu/SYS.c.o",
+   "function": "LoadImage2",
+   "sdk": "LIBGPU/LoadImage2",
+   "evidence": "PsyQ 4.3 libgpu SYS.obj (sys.c 1.140, same $Id as retail) @11172+236; retail anchors drop by exactly the unlabelled sizes across it"
+  },
+  {
+   "object": "build/recon/syslib/psx/libgpu/SYS.c.o",
+   "function": "StoreImage2",
+   "sdk": "LIBGPU/StoreImage2",
+   "evidence": "PsyQ 4.3 libgpu SYS.obj (sys.c 1.140, same $Id as retail) @11408+236; retail anchors drop by exactly the unlabelled sizes across it"
+  },
+  {
+   "object": "build/recon/syslib/psx/libgpu/SYS.c.o",
+   "function": "MoveImage2",
+   "sdk": "LIBGPU/MoveImage2",
+   "evidence": "PsyQ 4.3 libgpu SYS.obj (sys.c 1.140, same $Id as retail) @11644+324; the anchor drops by 796 = LoadImage2+StoreImage2+MoveImage2 between SetDrawEnv and DrawOTag2"
   }
  ]
 }

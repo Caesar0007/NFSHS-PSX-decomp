@@ -373,6 +373,10 @@ extern void (*DrawSyncCallback(void (*func)()))() LINK_STRIPPED;
 extern void  DrawPrim(void *p) LINK_STRIPPED;
 extern int   ClearImage2(void *rect, unsigned char r, unsigned char g, unsigned char b) LINK_STRIPPED;
 extern u_long *ClearOTag(u_long *ot, int n) LINK_STRIPPED;
+extern void  DrawOTagEnv(u_long *ot, void *env) LINK_STRIPPED;
+extern int   LoadImage2(void *rect, u_long *data) LINK_STRIPPED;
+extern int   StoreImage2(void *rect, u_long *data) LINK_STRIPPED;
+extern int   MoveImage2(void *rect, int x, int y) LINK_STRIPPED;
 extern void *GetDrawEnv(void *env) LINK_STRIPPED;
 extern void *GetDispEnv(void *env) LINK_STRIPPED;
 extern int   GetODE(void) LINK_STRIPPED;
@@ -851,10 +855,26 @@ extern void *PutDrawEnv(void *env)
 /* @0x800EDDE4 : program the GPU display environment (display area, mode, H/V ranges). */
 /* string-only unused static inline (see SetGraphDebug): "DrawOTagEnv" sits
  * between "PutDrawEnv" and "PutDispEnv" in retail .rdata. */
-static __inline__ void DrawOTagEnv(u_long *p, void *env)
+/* SYS.obj +2720 (LINK-STRIPPED) : DrawOTagEnv -- PutDrawEnv whose DR_ENV is linked in front of the table `ot` */
+extern void DrawOTagEnv(u_long *ot, void *env)
 {
-    if (GEnv.debug >= 2)
-        GPU_printf("DrawOTagEnv(%08x,&08x)...\n", p, env);   /* @0x80056E90 (retail's own '&08x') */
+    u_long *src   = ot;
+    u_char *debug = &GEnv.debug;
+    void   *prim  = env;
+    u_long *tag;
+
+    if (*debug >= 2)
+        GPU_printf("DrawOTagEnv(%08x,&08x)...\n", src, prim);   /* @0x80056E90 (retail's own '&08x') */
+    tag = (u_long *)((u_char *)prim + 0x1c);
+    _set_drawenv(tag, prim);
+    {
+        u_long        word = (*tag & 0xff000000u) | ((u_long)(long)src & 0x00ffffffu);
+        const GpuTbl *gpu  = GEnv_drv;
+
+        *tag = word;
+        gpu->que_push((QueFunc)gpu->dma_chain, tag, 0x40, 0);
+    }
+    _memcpy(debug + 0xE, prim, 0x5c);
 }
 
 /* SYS.obj +2936 (LINK-STRIPPED) : GetDrawEnv -- copy out the cached DRAWENV */
@@ -2664,10 +2684,55 @@ extern int _gpu_check_timeout(void)
 
 /* Retail SYS.obj has NO LoadImage2 code, only its "LoadImage2" literal (0x80056EEC), right after the "GPU timeout"
  * string: the same leftover of an UNUSED static inline as ClearImage2 above -- defined at this point of sys.c 1.140. */
-static __inline__ int LoadImage2(void *rect, u_long *data)
+/* SYS.obj +11172 (LINK-STRIPPED) : LoadImage2 -- unqueued LoadImage: wait for the GPU, then run the transfer now */
+extern int LoadImage2(void *rect, u_long *data)
 {
-    _image("LoadImage2", rect);                  /* @0x80056eec (string only) */
-    return GEnv_drv->que_push(GEnv_drv->dws, (u_long *)rect, 8, (int)data);
+    _image("LoadImage2", rect);                  /* @0x80056eec */
+    _gpu_timeout_target = VSync(-1) + 0xF0;
+    _gpu_timeout_count = 0;
+    while ((*D2_CHCR & 0x01000000) != 0 || (*GPU_GP1 & 0x04000000) == 0) {
+        if (_gpu_check_timeout() != 0)
+            return -1;
+    }
+    DMACallback(2, (int)_install_drain_cb);
+    GEnv_drv->dws((u_long *)rect, (int)data);
+    return 0;
+}
+
+/* SYS.obj +11408 (LINK-STRIPPED) : StoreImage2 */
+extern int StoreImage2(void *rect, u_long *data)
+{
+    _image("StoreImage2", rect);
+    _gpu_timeout_target = VSync(-1) + 0xF0;
+    _gpu_timeout_count = 0;
+    while ((*D2_CHCR & 0x01000000) != 0 || (*GPU_GP1 & 0x04000000) == 0) {
+        if (_gpu_check_timeout() != 0)
+            return -1;
+    }
+    DMACallback(2, (int)_install_drain_cb);
+    GEnv_drv->drs((u_long *)rect, (int)data);
+    return 0;
+}
+
+/* SYS.obj +11644 (LINK-STRIPPED) : MoveImage2 -- unqueued MoveImage */
+extern int MoveImage2(void *rect, int x, int y)
+{
+
+    _image("MoveImage2", rect);
+    _gpu_timeout_target = VSync(-1) + 0xF0;
+    _gpu_timeout_count = 0;
+    while ((*D2_CHCR & 0x01000000) != 0 || (*GPU_GP1 & 0x04000000) == 0) {
+        if (_gpu_check_timeout() != 0)
+            return -1;
+    }
+    DMACallback(2, (int)_install_drain_cb);
+    if (((short *)rect)[2] == 0 || ((short *)rect)[3] == 0)
+        return -1;
+    _move_prim[2] = *(u_long *)rect;
+    _move_prim[3] = (u_long)((y << 16) | (x & 0xffff));
+    _move_prim[4] = *((u_long *)rect + 1);
+    GEnv_drv->dma_chain(_move_prim);
+    return 0;
 }
 
 /* @0x800EFC70 : reconfigure the GPU display registers for the current video mode. */

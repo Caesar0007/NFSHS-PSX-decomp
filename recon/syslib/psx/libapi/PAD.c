@@ -23,5 +23,28 @@ int _pad_spare = 0;                                           /* @0x8013C33C */
 unsigned char *_pad_joy_data = (unsigned char *)0x1F801040;   /* @0x8013C340 */
 unsigned long *_pad_i_stat = (unsigned long *)0x1F801070;     /* @0x8013C344 */
 
+#include "../../../link_stripped.h"
+/* PAD.obj is the clearest witness of retail's link-time stripping: its 16 data bytes are all in the image, but of its
+ * 768 text bytes only ReadInitPadFlag (16 B) survives -- SetInitPadFlag, PAD_init, InitPAD, StartPAD, StopPAD (+ its static
+ * helper) were unreferenced.  Written so far: SetInitPadFlag, StartPAD.  TODO (LINK-STRIPPED, not yet written): PAD_init
+ * @28+144, InitPAD @172+144, StopPAD @364+56 and the static helper @420+348. */
+extern void SetInitPadFlag(int flag) LINK_STRIPPED;
+extern int  StartPAD(void) LINK_STRIPPED;
+extern void StartPAD2(void);
+extern void ChangeClearPAD(int val);
+extern void EnablePAD(void);
+
+/* PAD.obj +0 (LINK-STRIPPED) : SetInitPadFlag */
+extern void SetInitPadFlag(int flag) { _init_pad_flag = flag; }
+
 /* @0x8010C9B0 : ReadInitPadFlag. */
 extern int ReadInitPadFlag(void) { return _init_pad_flag; }
+
+/* PAD.obj +316 (LINK-STRIPPED) : StartPAD */
+extern int StartPAD(void)
+{
+    StartPAD2();
+    ChangeClearPAD(0);
+    EnablePAD();
+    return 1;
+}

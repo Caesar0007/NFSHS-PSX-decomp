@@ -21,8 +21,20 @@
             "\t.set reorder\n\t.set at\n")
 /* NB: the stub is 3 words (`addiu; jr; addiu[delay]`); splat sizes it 0xC and puts the
  * trailing alignment `nop` AFTER `endlabel` (inter-function padding, not the function). */
+/* A BIOS stub retail's final link REMOVED as unreferenced (recon/link_stripped.h): the same three
+ * words, emitted into the discarded `.text.strip` input section and typed as a function so
+ * tools/link_stripped_check.py can see it. */
+#define BIOS_THUNK_LINK_STRIPPED(name, section, id)                            \
+    __asm__("\t.section .text.strip,\"ax\",@progbits\n\t.set noreorder\n"      \
+            "\t.globl " #name "\n\t.type " #name ",@function\n" #name ":\n"    \
+            "\taddiu $10, $0, " #section "\n"                               \
+            "\tjr    $10\n"                                                     \
+            "\t addiu $9, $0, " #id "\n"                                    \
+            "\t.size " #name ",.-" #name "\n"                                  \
+            "\t.set reorder\n\t.set at\n\t.text\n")
 #else
 #define BIOS_THUNK(name, section, id)
+#define BIOS_THUNK_LINK_STRIPPED(name, section, id)
 #endif
 
 #endif /* _BIOS_THUNK_H_ */

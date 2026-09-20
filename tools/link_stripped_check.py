@@ -61,7 +61,8 @@ for obj, lst in sorted(by_obj.items()):
             lib, name = r['sdk'].split('/')
             blob = (SDK / lib / 'functions' / (name + '.bin')).read_bytes()
             ours = sec[off:off + size]
-            diff = 0 if len(blob) == len(ours) else 1
+            # the SDK blob may carry the member's zero alignment tail (e.g. a 3-word BIOS trampoline in a 16-byte member)
+            diff = 0 if len(ours) <= len(blob) and not any(blob[len(ours):]) else 1
             for i in range(0, min(len(blob), len(ours)), 4):
                 a, b = struct.unpack_from('<I', ours, i)[0], struct.unpack_from('<I', blob, i)[0]
                 kind = rel.get(off + i, '')

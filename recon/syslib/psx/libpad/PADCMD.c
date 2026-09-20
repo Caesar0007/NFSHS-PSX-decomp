@@ -54,6 +54,16 @@ extern void _padSetAct(unsigned char *info, int data, int len)
     info[0x34] = (unsigned char)len;
 }
 
+#include "../../../link_stripped.h"
+/* PADCMD.obj +12 (LINK-STRIPPED) : _padSetCmd -- stash a raw command byte, its data pointer and length */
+extern void _padSetCmd(unsigned char *info, int cmd, int data, int len) LINK_STRIPPED;
+extern void _padSetCmd(unsigned char *info, int cmd, int data, int len)
+{
+    info[0x36] = cmd;
+    *(int *)(info + 0x2c) = data;
+    info[0x35] = len;
+}
+
 /* =====================  load-info (actuator/mode descriptor) command sequence  ================= */
 
 /* @0x801055FC : _padSendAtLoadInfo -- pick the send command for the current load-info phase. */

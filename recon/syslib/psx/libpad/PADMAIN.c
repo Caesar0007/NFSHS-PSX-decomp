@@ -198,6 +198,17 @@ extern int _padVbCallback0(void)
                                                   * in the epilogue -- it is an int IRP handler */
 }
 
+#include "../../../link_stripped.h"
+/* PADMAIN.obj +792 (LINK-STRIPPED) : _padChkVsync -- read-and-clear the "vblank handler ran" flag */
+extern int _padChkVsync(void) LINK_STRIPPED;
+extern int _padChkVsync(void)
+{
+    int ran = _padVbExec;
+
+    _padVbExec = 0;
+    return ran;
+}
+
 /* @0x80104C1C : _padStartCom -- arm the engine: chain in the VSync IRP, enable RCnt, clear info.
  * MATCH (w53-a8, 12 @53/51 -> PASS 51/51).  TWO BASE ANCHORS, both read off the oracle:
  *  (1) `_padIntRegs` is ONE local base serving BOTH the I_STAT store and the I_MASK RMW -- retail

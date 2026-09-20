@@ -146,6 +146,66 @@
    "function": "MemCardClose",
    "sdk": "LIBMCRD/MemCardClose",
    "evidence": "PsyQ 4.3 libmcrd LIBMCRD.obj @1852+68; retail MemCardAccept is followed directly by MemCardReadData (MemCardOpen 392 + MemCardClose 68 missing)"
+  },
+  {
+   "object": "build/recon/syslib/psx/libpad/PADCMD.c.o",
+   "function": "_padSetCmd",
+   "sdk": "LIBPAD/_padSetCmd",
+   "evidence": "PsyQ 4.3 libpad PADCMD.obj @12+16; retail _padSetAct 0x801055F0 (+12) is followed directly by _padSendAtLoadInfo 0x801055FC"
+  },
+  {
+   "object": "build/recon/syslib/psx/libpad/PADMAIN.c.o",
+   "function": "_padChkVsync",
+   "sdk": "LIBPAD/_padChkVsync",
+   "evidence": "PsyQ 4.3 libpad PADMAIN.obj @792+20; the retail anchor drops by exactly 20 between _padSetVsyncParam and _padStartCom"
+  },
+  {
+   "object": "build/recon/syslib/psx/libapi/A18.c.o",
+   "function": "InitPAD2",
+   "sdk": "LIBAPI/InitPAD2",
+   "evidence": "libapi.lib(A18.obj) is in the retail SYM FILE list; no B0:0x12 trampoline exists in the image (full `jr t2` enumeration)"
+  },
+  {
+   "object": "build/recon/syslib/psx/libapi/A19.c.o",
+   "function": "StartPAD2",
+   "sdk": "LIBAPI/StartPAD2",
+   "evidence": "libapi.lib(A19.obj) is in the retail SYM FILE list; no B0:0x13 trampoline exists in the image (full `jr t2` enumeration)"
+  },
+  {
+   "object": "build/recon/syslib/psx/libapi/A20.c.o",
+   "function": "StopPAD2",
+   "sdk": "LIBAPI/StopPAD2",
+   "evidence": "libapi.lib(A20.obj) is in the retail SYM FILE list; no B0:0x14 trampoline exists in the image (full `jr t2` enumeration)"
+  },
+  {
+   "object": "build/recon/syslib/psx/libapi/A21.c.o",
+   "function": "PAD_init2",
+   "sdk": "LIBAPI/PAD_init2",
+   "evidence": "libapi.lib(A21.obj) is in the retail SYM FILE list; no B0:0x15 trampoline exists in the image (full `jr t2` enumeration)"
+  },
+  {
+   "object": "build/recon/syslib/psx/libgpu/P26.c.o",
+   "function": "SetTile",
+   "sdk": "LIBGPU/SetTile",
+   "evidence": "libgpu.lib(P26.obj) is in the retail SYM FILE list; its link-order text slot (0x8010701C..0x80107020) is a 4-byte pad and the function bytes are nowhere in the image"
+  },
+  {
+   "object": "build/recon/syslib/psx/libgpu/P20.c.o",
+   "function": "SetSprt8",
+   "sdk": "LIBGPU/SetSprt8",
+   "evidence": "libgpu.lib(P20.obj) is in the retail SYM FILE list; its link-order text slot (0x8010701C..0x80107020) is a 4-byte pad and the function bytes are nowhere in the image"
+  },
+  {
+   "object": "build/recon/syslib/psx/libapi/PAD.c.o",
+   "function": "SetInitPadFlag",
+   "sdk": "LIBAPI/SetInitPadFlag",
+   "evidence": "libapi PAD.obj @0+12 (identical member layout in PsyQ 3.6..4.5); retail keeps its 16 data bytes but only ReadInitPadFlag (16 B @0x8010C9B0) of its 768 text bytes"
+  },
+  {
+   "object": "build/recon/syslib/psx/libapi/PAD.c.o",
+   "function": "StartPAD",
+   "sdk": "LIBAPI/StartPAD",
+   "evidence": "libapi PAD.obj @316+48 (identical member layout in PsyQ 3.6..4.5); retail keeps its 16 data bytes but only ReadInitPadFlag (16 B @0x8010C9B0) of its 768 text bytes"
   }
  ]
 }

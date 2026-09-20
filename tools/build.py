@@ -1600,7 +1600,7 @@ PER_FN_CC1_VER_SPLICE = {
     # every 2.8-family rung leaves the stack restore in the opposite position.
     # Select the established PsyQ 4.0 / GCC 2.7.2 identity per function.
     "recon/syslib/psx/libpad/PADENTRY.c": {
-        "2.7.2": {"PadStartCom", "PadStopCom", "PadGetState", "PadChkVsync"},   # PadChkVsync = LINK_STRIPPED wrapper, same identity
+        "2.7.2": {"PadStartCom", "PadStopCom", "PadGetState", "PadChkVsync", "PadChkMtap"},   # PadChkVsync = LINK_STRIPPED wrapper, same identity
     },
 }
 

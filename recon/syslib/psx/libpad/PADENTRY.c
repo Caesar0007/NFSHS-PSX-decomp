@@ -8,7 +8,8 @@
 typedef struct _PadDev {
     unsigned short *mode_tbl;     /* +0x00 : mode-id table (PadInfoMode term 4) */
     unsigned char  *act_tbl;      /* +0x04 : actuator table, 5 bytes/entry (PadInfoAct) */
-    char            _pad08[0x08]; /* +0x08 */
+    void           *comb_tbl;     /* +0x08 : combination table, 8 bytes/entry {count, list} (PadInfoComb) */
+    char            _pad0c[0x04]; /* +0x0c */
     struct _PadDev *self;         /* +0x10 : loopback ptr (connected test) */
     char            _pad14[0x1c]; /* +0x14 */
     char           *flag_ptr;     /* +0x30 : ptr to a live status-flag byte */
@@ -26,6 +27,8 @@ typedef struct _PadDev {
     unsigned short  modeword;     /* +0xe6 : PadInfoMode term 2 */
     unsigned char   mode1;        /* +0xe8 : PadInfoMode term 1 */
     unsigned char   nact;         /* +0xe9 : actuator count */
+    unsigned char   ncomb;        /* +0xea : combination count (PadInfoComb) */
+    char            _padeb[0x05]; /* +0xeb : the record is 0xF0 bytes (PadChkMtap indexes _padInfoDir by it) */
 } _PadDev;                        /* the touched fields land at their @-offsets above */
 
 /* ---- dispatch pointer + engine entry points (defined by PAD.OBJ / PADMAIN / PADCMD) ----------- */
@@ -50,6 +53,17 @@ void PadStartCom(void) { _padStartCom(); }
 
 /* @0x800EFE80 : PadStopCom -- MATCH 8/8 on the same GCC 2.7.2 identity. */
 void PadStopCom(void) { _padStopCom(); }
+
+/* PADENTRY.obj +96 (LINK-STRIPPED) : PadChkMtap -- is a multi-tap on this port?  (mode1 == 8) */
+extern int PadChkMtap(int port) LINK_STRIPPED;
+extern int _padModeMtap;
+extern _PadDev *_padInfoDir;
+extern int PadChkMtap(int port)
+{
+    if (_padModeMtap != 0)
+        return _padInfoDir[port >> 4].mode1 == 8;
+    return 0;
+}
 
 /* @0x800EFEA0 : PadGetState -- map the raw controller state to the public PadState* code.
  *
@@ -183,4 +197,22 @@ void PadSetAct(int port, unsigned char *data, int len)
 {
     _PadDev *d = _padFuncPort2Info(port);
     _padSetAct(d, data, len);
+}
+
+/* PADENTRY.obj +824 (LINK-STRIPPED) : PadInfoComb -- actuator-combination table query */
+extern int PadInfoComb(int port, int combno, int term) LINK_STRIPPED;
+typedef struct { unsigned char n; char _pad[3]; unsigned char *list; } _PadComb;
+extern int PadInfoComb(int port, int combno, int term)
+{
+    _PadDev *d = _padFuncPort2Info(port);
+    if (combno < 0)
+        return d->ncomb;
+    if (combno < (int)d->ncomb) {
+        _PadComb *e = (_PadComb *)d->comb_tbl + combno;
+        if (term < 0)
+            return e->n;
+        if (term < (int)e->n)
+            return e->list[term];
+    }
+    return 0;
 }

@@ -1,2 +1,0 @@
-    ip = &Intr;
-    ip->sync = 0;

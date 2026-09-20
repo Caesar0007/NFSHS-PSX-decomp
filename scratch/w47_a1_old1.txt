@@ -1,1 +1,0 @@
-        op = (FileOp *)((char *)gFileMgr.oparray + (id >> 0x18) * 0x30);

@@ -1,2 +1,0 @@
-    p = base;
-    _mc_present |= 1 << (p[3]);

@@ -1,2 +1,0 @@
-  __none__: NO ORACLE
-recon/game/common/replay.cpp: 16/16 PASS

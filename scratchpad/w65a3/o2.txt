@@ -1,7 +1,0 @@
-/* ---- tDialogBase::dtor  [FEDIALOG.CPP:132 decl] SLD-FLAG:NO_SLD ---- */
-
-tDialogBase::~tDialogBase()
-
-{
-  return;
-}

@@ -1,2 +1,0 @@
-[["  uTurn = 0;\n", "", 1],
- ["  cfg = &AIPhysicConfig;\n", "  cfg = &AIPhysicConfig;\n  uTurn = 0;\n", 1]]

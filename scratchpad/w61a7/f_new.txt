@@ -1,3 +1,0 @@
-    ip = &Intr;
-    __asm__("" : "=r"(ip) : "0"(ip));
-    ip->sync = 0;

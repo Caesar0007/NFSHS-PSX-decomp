@@ -1,3 +1,0 @@
-    int  retry;
-    int  rslt;
-    /* w53-a7: NO fence on this base here (unlike CreateFile).  The fence makes the pointer

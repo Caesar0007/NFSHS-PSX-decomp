@@ -1,6 +1,6 @@
 # SYM match — making the source agree with the retail `NFS4.SYM`
 
-Status as of 2026-09-20. Board file: `scratchpad/psyq_pipe/symtree_report.json`.
+Status as of 2026-09-20. Current full-debug board: `build/psyq_g/symtree_report.json`.
 
 ## Why this exists
 
@@ -37,7 +37,7 @@ Honest link: 299710/299710 words = 0 diff. Overlap audit 0, foreign-label gate 0
 
 ## Tool set
 
-All tools are in `scratchpad/psyq_pipe/` unless a path is given. Nothing here edits `tools/build.py`.
+All tools are in `tools/psyq_pipe/` unless a path is given; their generated outputs go to the local, git-ignored `scratchpad/psyq_pipe/`. Nothing here edits `tools/build.py`.
 
 ### Producing our SYM
 
@@ -203,17 +203,17 @@ be re-matched under it first. Until then the debug compile lives beside the norm
 ## Typical session
 
 ```bash
-python scratchpad/psyq_pipe/symloop.py recon/game/common/aih_basicperp.cpp --ref-only
+python tools/psyq_pipe/symloop.py recon/game/common/aih_basicperp.cpp --ref-only
 ```
 
 ```bash
-python scratchpad/psyq_pipe/symfn_cmp.py build/psyq_g/nfs4_sym.txt AddChaser__16AIHigh_BasicPerpii7copType
+python tools/psyq_pipe/symfn_cmp.py build/psyq_g/nfs4_sym.txt AddChaser__16AIHigh_BasicPerpii7copType
 ```
 
 Edit the source, then:
 
 ```bash
-python scratchpad/psyq_pipe/symloop.py recon/game/common/aih_basicperp.cpp
+python tools/psyq_pipe/symloop.py recon/game/common/aih_basicperp.cpp
 ```
 
 Keep the change only on `BYTES: UNCHANGED`. After a batch:
@@ -227,7 +227,7 @@ python tools/honest_measure.py
 ```
 
 ```bash
-python scratchpad/psyq_pipe/symtree_cmp.py build/psyq_g/nfs4_sym.txt
+python tools/psyq_pipe/symtree_cmp.py build/psyq_g/nfs4_sym.txt
 ```
 
 A full refresh from scratch (about 15 minutes): `gdebug_compile.py`, then the lane with `NFS4_LANE_G=1

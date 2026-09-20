@@ -1,2 +1,0 @@
-    cmdNames = CD_comstr;
-    __asm__("" : "=r"(cmdNames) : "0"(cmdNames));

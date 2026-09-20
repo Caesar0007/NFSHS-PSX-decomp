@@ -1,2 +1,0 @@
-    p = mc_anchor();
-    _mc_present |= 1 << (p[3]);

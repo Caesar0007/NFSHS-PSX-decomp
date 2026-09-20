@@ -1,8 +1,0 @@
-== .text: 1589 matched symbols; base delta -0x210
-== .data: 309 matched symbols; base delta -0x380
-== .sdata: 455 matched symbols; base delta -0x3b0
-== .sbss: 38 matched symbols; base delta -0x3d0
-== .bss: 2 matched symbols; base delta -0x3c0
-== front.text: 845 matched symbols; base delta -0x80
-== front.data: 144 matched symbols; base delta -0x80
-== front.bss: 1 matched symbols; base delta -0x98

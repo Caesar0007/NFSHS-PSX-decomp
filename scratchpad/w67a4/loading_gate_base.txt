@@ -1,2 +1,0 @@
-  __none__: NO ORACLE
-recon/game/psx/loading.cpp: 3/3 PASS

@@ -1,2 +1,0 @@
-    blocks = blocks << 16;
-    p = &mc.cmd;

@@ -1,4 +1,0 @@
-  short y;
-  long ticks;
-  int numLetters;
-  int state;

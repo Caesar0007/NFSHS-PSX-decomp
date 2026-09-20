@@ -1,3 +1,0 @@
-recon/game/psx/night.cpp: 17/19 PASS
-     26  Night_CreateNightTableElement__FiliPUc
-     59  Night_AdditiveNightCalc__FP6VECTORP7CVECTOR

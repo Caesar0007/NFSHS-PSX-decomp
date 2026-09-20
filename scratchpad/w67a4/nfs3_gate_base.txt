@@ -1,3 +1,0 @@
-  __none__: NO ORACLE
-recon/game/common/nfs3.cpp: 10/11 PASS
-      8  NFS3_CheckForFileOperations__Fv

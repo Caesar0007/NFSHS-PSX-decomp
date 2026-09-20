@@ -1,2 +1,0 @@
-        ret = -1;
-        /* W61A7 PROBE-OFF: __asm__("" : : "i"(0));  STORE-FLAG BREAKER: jump.c's `-(cond)` fold only matches

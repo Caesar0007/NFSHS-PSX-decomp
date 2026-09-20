@@ -1,3 +1,0 @@
-    strcat(devname, file);
-    __asm__("" : : "r"(file), "r"(file));
-    p = base;

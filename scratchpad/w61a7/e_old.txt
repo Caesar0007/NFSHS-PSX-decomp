@@ -1,2 +1,0 @@
-    ret = 0;
-    if (Intr.sync == 5) {

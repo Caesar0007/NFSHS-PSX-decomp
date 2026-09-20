@@ -1,2 +1,0 @@
-    int *pchan;
-    int *pc;

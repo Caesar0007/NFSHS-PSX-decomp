@@ -1,2 +1,0 @@
-# phantom-signature census (08A) -- regenerated; replaces the lost sweep_final2.txt
-# CLASS	BASE	PHANTOM_MANGLING	REAL_SYMBOL	REFERENCING_OBJS

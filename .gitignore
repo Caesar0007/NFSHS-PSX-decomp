@@ -57,3 +57,8 @@ recon/**/*__region_gate*.c
 
 # NFS4 runtime tracing: local emulator copy (270 MB, BIOS inside) stays out of git
 tools/duckstation/api-runtime/
+
+# local work areas: session notes, probes, generated outputs -- not published (2026-09-20).
+# The reusable tools that grew there live in tools/psyq_pipe/.
+/scratchpad/
+/scratch/

@@ -1,3 +1,0 @@
-        if (rslt == 0)
-            goto nocard;
-        if (rslt == 3)

@@ -1,2 +1,0 @@
-    for (i = 0; i < _cd_result_flag[0x40 + com]; i++)
-        CDREG2 = param[i];

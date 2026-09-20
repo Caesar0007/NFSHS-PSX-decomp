@@ -1,1 +1,0 @@
-[["            if (pos < 1) break;", "            __asm__(\"\" : : \"r\"(pos)); if (pos < 1) break;", 1]]

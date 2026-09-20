@@ -1,3 +1,0 @@
-    int *base = &mc.cmd;
-    __asm__ __volatile__("" : "=r"(base) : "0"(base));
-    if (base[0] == 0 && base[2] == 0)

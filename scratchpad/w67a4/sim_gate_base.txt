@@ -1,2 +1,0 @@
-  __none__: NO ORACLE
-recon/game/common/sim.cpp: 8/8 PASS

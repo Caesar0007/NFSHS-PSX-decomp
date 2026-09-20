@@ -188,11 +188,11 @@ python tools/gen_ld.py --link
 ```
 
 ```bash
-python scratchpad/psyq_pipe/psylink_lane.py
+python tools/psyq_pipe/psylink_lane.py
 ```
 
 ```bash
-python scratchpad/psyq_pipe/psylink_disc.py
+python tools/psyq_pipe/psylink_disc.py
 ```
 
 - `psylink_lane.py` takes the compiler output (`build/**/*.s`), assembles every file with ASPSX 2.77, and links with

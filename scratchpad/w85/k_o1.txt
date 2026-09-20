@@ -1,4 +1,0 @@
-  PAD_update();
-  if (gPadinfo.buf[controller * 4].nopad != '\0') {
-    return 0;
-  }

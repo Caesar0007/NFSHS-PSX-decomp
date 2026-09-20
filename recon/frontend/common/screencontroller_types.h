@@ -39,6 +39,12 @@ struct Force_tGlobal {
 };
 
 struct tScreenControllerConfig : public tScreen {
+    /* overrides (retail vtable), declared on every owner surface */
+    void GetShapeInfo(short &, short &, char **, char **);
+    void DrawBackground();
+    void DrawForeground();
+    void Initialize();
+    void Cleanup();
     Force_tGlobal fShaker;
     char fPrevConfig, fTextConfig, fTextController, fPrevController;
     short fFade[2], fFadeController[2];
@@ -71,11 +77,6 @@ struct tScreenControllerConfig : public tScreen {
     void DrawController();
     void HorzVertLine(short *, bool);
     void DrawArrow(short *);
-    void DrawBackground();
-    void DrawForeground();
-    void GetShapeInfo(short &, short &, char **, char **);
-    void Initialize();
-    void Cleanup();
     int GetHelpText();
     tScreenControllerConfig();
     ~tScreenControllerConfig() {}

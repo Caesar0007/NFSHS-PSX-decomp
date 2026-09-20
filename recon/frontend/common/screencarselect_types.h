@@ -124,6 +124,13 @@ struct tOverlay {
 };
 
 struct tScreenCarSelect : public tScreen {
+    /* overrides (retail vtable), declared on every owner surface */
+    void GetShapeInfo(short &, short &, char **, char **);
+    void DrawBackground();
+    void DrawForeground();
+    void Initialize();
+    void Cleanup();
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
     /* virtuals introduced by this class, in retail slot order (real virtuals since 2026-09-20) */
     virtual void DrawVideoWall(short);
     virtual void InitializeVideoWall();
@@ -146,22 +153,28 @@ struct tScreenCarSelect : public tScreen {
 
     tScreenCarSelect();
     ~tScreenCarSelect();
-    void Cleanup();
     void DrawOverlay(tOverlay *);
     void SetState(int);
     void CalcSplinePosition(int, int, int, int, u_long, int &, int &, int &, int &, int &);
-    void GetShapeInfo(short &, short &, char **, char **);
-    void Initialize();
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
     void SetBrightness(short, short);
     void UpdateBrightness(short);
-    void DrawBackground();
     void DrawSliders(tCarInfo &, short, short);
-    void DrawForeground();
 };
 
 #ifndef NFS4_SCREENCARSELECT_SCREENCONGRATS_SURFACE
 struct tScreenCarSelectDuel : public tScreenCarSelect {
+    /* overrides (retail vtable), declared on every owner surface */
+    void GetShapeInfo(short &, short &, char **, char **);
+    void DrawBackground();
+    void DrawForeground();
+    void PreLoad();
+    void Initialize();
+    void Cleanup();
+    void DrawVideoWall(short);
+    void InitializeVideoWall();
+    void UpdateVideoWall(tCarInfo &);
+    void AllocateAsyncBuffer();
+    void FreeAsyncBuffer();
     /* virtuals introduced by this class, in retail slot order (real virtuals since 2026-09-20) */
     virtual void DrawOpponentVideoWall(short);
     short fPreviousOpponent;
@@ -169,22 +182,22 @@ struct tScreenCarSelectDuel : public tScreenCarSelect {
     tShapeInformation fOpponentShapes;
 
     tScreenCarSelectDuel();
-    void PreLoad();
-    void AllocateAsyncBuffer();
-    void FreeAsyncBuffer();
-    void InitializeVideoWall();
-    void Initialize();
-    void Cleanup();
-    void DrawVideoWall(short);
-    void GetShapeInfo(short &, short &, char **, char **);
-    void UpdateVideoWall(tCarInfo &);
     void UpdateOpponentVideoWall(tCarInfo &);
-    void DrawBackground();
-    void DrawForeground();
 };
 #endif
 
 struct tScreenCarSelectTwoPlayer : public tScreenCarSelect {
+    /* overrides (retail vtable), declared on every owner surface */
+    void GetShapeInfo(short &, short &, char **, char **);
+    void DrawBackground();
+    void DrawForeground();
+    void Initialize();
+    void Cleanup();
+    void DrawVideoWall(short);
+    void InitializeVideoWall();
+    void UpdateVideoWall(tCarInfo &);
+    bool GetCar(tCarInfo &);
+    void AllocateAsyncBuffer();
     /* virtuals introduced by this class, in retail slot order (real virtuals since 2026-09-20) */
     virtual void TurnOffVideoWall();
     virtual void SetDialog();
@@ -192,20 +205,19 @@ struct tScreenCarSelectTwoPlayer : public tScreenCarSelect {
 
     tScreenCarSelectTwoPlayer();
     ~tScreenCarSelectTwoPlayer() {}
-    bool GetCar(tCarInfo &);
-    void DrawVideoWall(short);
-    void GetShapeInfo(short &, short &, char **, char **);
-    void UpdateVideoWall(tCarInfo &);
-    void DrawBackground();
-    void DrawForeground();
-    void AllocateAsyncBuffer();
-    void InitializeVideoWall();
-    void Initialize();
-    void Cleanup();
 };
 
 #ifndef NFS4_SCREENCARSELECT_SCREENCONGRATS_SURFACE
 struct tScreenPinkSlipsCarSelect : public tScreenCarSelectTwoPlayer {
+    /* overrides (retail vtable), declared on every owner surface */
+    void GetShapeInfo(short &, short &, char **, char **);
+    void DrawBackground();
+    void DrawForeground();
+    void Initialize();
+    void Cleanup();
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
+    bool GetCar(tCarInfo &);
+    void SetDialog();
     int waitfordialog;
     CARDINFO_def *pCI;
     int fStartCheckTick;
@@ -213,19 +225,17 @@ struct tScreenPinkSlipsCarSelect : public tScreenCarSelectTwoPlayer {
 
     tScreenPinkSlipsCarSelect();
     ~tScreenPinkSlipsCarSelect() {}
-    bool GetCar(tCarInfo &);
-    void DrawBackground();
     void DoMemCardStuff();
-    void DrawForeground();
-    void Initialize();
-    void Cleanup();
-    void SetDialog();
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    void GetShapeInfo(short &, short &, char **, char **);
 };
 #endif
 
 struct tScreenTournamentStandings : public tScreen {
+    /* overrides (retail vtable), declared on every owner surface */
+    void GetShapeInfo(short &, short &, char **, char **);
+    void DrawBackground();
+    void Initialize();
+    void Cleanup();
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
     long moneyFinal, moneyAwarded, moneyDamage, moneyBonus;
     int starttick;
     bool gotmoney, gotbonus, gotbilled, fDrawMoney, fCountedDown;
@@ -237,18 +247,14 @@ struct tScreenTournamentStandings : public tScreen {
 #ifdef NFS4_FRONT_SURFACE
     tScreenTournamentStandings();
 #endif
-    void GetShapeInfo(short &, short &, char **, char **);   /* declared on every surface: see fevirt_tscreen7.py */
-    void DrawBackground();   /* declared on every surface: see fevirt_tscreen7.py */
-    void Initialize();   /* declared on every surface: see fevirt_tscreen7.py */
-    void Cleanup();   /* declared on every surface: see fevirt_tscreen7.py */
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);   /* declared on every surface: see fevirt_tscreen7.py */
 };
 
 struct tScreenTournamentStandings3item : public tScreenTournamentStandings {
+    /* overrides (retail vtable), declared on every owner surface */
+    void GetShapeInfo(short &, short &, char **, char **);
 #ifdef NFS4_FRONT_SURFACE
     tScreenTournamentStandings3item();
 #endif
-    void GetShapeInfo(short &, short &, char **, char **);   /* declared on every surface: see fevirt_tscreen7.py */
 };
 
 #ifndef NFS4_SCREENCARSELECT_SCREENCONGRATS_SURFACE

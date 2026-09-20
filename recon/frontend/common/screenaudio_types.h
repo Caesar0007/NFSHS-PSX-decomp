@@ -75,6 +75,12 @@ struct SPEECHINFO {
 struct tDrawShapeExtended;
 
 struct tScreenAudio : public tScreen {
+    /* overrides (retail vtable), declared on every owner surface */
+    void GetShapeInfo(short &, short &, char **, char **);
+    void DrawBackground();
+    void DrawForeground();
+    void Initialize();
+    void Cleanup();
     short fShapeCount;
     char prevAudioMode;
     short audioTest;
@@ -85,12 +91,7 @@ struct tScreenAudio : public tScreen {
     AudioMus_tSongList *songlist;
 
     void PlaySound();
-    void DrawForeground();
-    void DrawBackground();
-    void GetShapeInfo(short &, short &, char **, char **);
     tScreenAudio();
-    void Initialize();
-    void Cleanup();
 };
 
 /* FEMenuDefs.obj owns the complete aggregate.  ScreenAudio reads this exact

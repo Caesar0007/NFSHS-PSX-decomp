@@ -59,6 +59,8 @@ struct tDrawShapeExtended {
 };
 
 struct tDialogBase : public tScreen {
+    /* overrides (retail vtable), declared on every owner surface */
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
     /* virtuals introduced by tDialogBase, in retail slot order [10] [11] (real virtuals since 2026-09-20) */
     virtual void CalculateDimensions() = 0;
     virtual void Draw();
@@ -69,14 +71,14 @@ struct tDialogBase : public tScreen {
     bool fFullyOpen;
     short fDefault, ReturnValue;
     int fFadeText;
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);   /* declared on every surface: see fevirt_tscreen7.py */
 };
 
 struct tDialogMessageString : public tDialogBase {
+    /* overrides (retail vtable), declared on every owner surface */
+    void CalculateDimensions();
+    void Draw();
     char *string;
     bool Centerit;
-    void CalculateDimensions();   /* declared on every surface: see fevirt_tscreen7.py */
-    void Draw();   /* declared on every surface: see fevirt_tscreen7.py */
 };
 
 struct tDialogInteractive : public tDialogMessageString {
@@ -84,10 +86,11 @@ struct tDialogInteractive : public tDialogMessageString {
 };
 
 struct tDialogYesNo : public tDialogInteractive {
+    /* overrides (retail vtable), declared on every owner surface */
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
+    void CalculateDimensions();
+    void Draw();
     int yesnowords[2];
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);   /* declared on every surface: see fevirt_tscreen7.py */
-    void CalculateDimensions();   /* declared on every surface: see fevirt_tscreen7.py */
-    void Draw();   /* declared on every surface: see fevirt_tscreen7.py */
 };
 
 struct tCredit {
@@ -156,6 +159,13 @@ struct tVideo {
 /* Compiler-layout carrier needed for field offsets; this foreign owner tag is
  * not retained by FECredits.obj's linked SYM. */
 struct tScreenMain : public tScreen {
+    /* overrides (retail vtable), declared on every owner surface */
+    void GetShapeInfo(short &, short &, char **, char **);
+    void DrawBackground();
+    void PreLoad();
+    void Initialize();
+    void Cleanup();
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
     int hVideo, fFrame;
     u_long fStartTicks, fAnimTicks;
     short fAnimLocation;
@@ -174,12 +184,6 @@ struct tScreenMain : public tScreen {
 
     void SwapBackground(int);
     bool DoneLoadingBackground();
-    void GetShapeInfo(short &, short &, char **, char **);   /* declared on every surface: see fevirt_tscreen7.py */
-    void DrawBackground();   /* declared on every surface: see fevirt_tscreen7.py */
-    void PreLoad();   /* declared on every surface: see fevirt_tscreen7.py */
-    void Initialize();   /* declared on every surface: see fevirt_tscreen7.py */
-    void Cleanup();   /* declared on every surface: see fevirt_tscreen7.py */
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);   /* declared on every surface: see fevirt_tscreen7.py */
 };
 
 #define cheat_MyMomSaysImCool 21

@@ -29,17 +29,18 @@ struct FLARE_PIECE_DEF {
 struct tRecordBuffer;
 
 struct tScreenTrackRecords : public tScreen {
+    /* overrides (retail vtable), declared on every owner surface */
+    void GetShapeInfo(short &, short &, char **, char **);
+    void DrawBackground();
+    void Initialize();
+    void Cleanup();
     tRecordBuffer *TrackRecords;
     int flare_intensity, flareextra;
     bool fReadNewData;
 
     tScreenTrackRecords();
-    void GetShapeInfo(short &, short &, char **, char **);
-    void Initialize();
-    void Cleanup();
     void DrawOneRecord(int, bool, int);
     void DrawRecords(short);
-    void DrawBackground();
 };
 
 /* SYM completes this record after tScreenTrackRecords. */

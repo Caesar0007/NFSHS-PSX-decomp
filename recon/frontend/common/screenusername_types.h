@@ -33,16 +33,17 @@ struct FE3d_zObj {
 };
 
 struct tScreenUserName : public tScreen {
+    /* overrides (retail vtable), declared on every owner surface */
+    void GetShapeInfo(short &, short &, char **, char **);
+    void DrawBackground();
+    void Initialize();
     tOptionsMenu *callingMenu;
     short fTextFade;
     bool fInTransition;
     char fRowList[10][9];
 
-    void Initialize();
-    void GetShapeInfo(short &, short &, char **, char **);
     void DrawVerticalLine(short, short, short);
     void DrawHorizontalLine(short, short, short);
-    void DrawBackground();
 };
 
 #endif

@@ -50,18 +50,21 @@ struct tHelpData {
 #endif
 
 struct tDialogBackUpOnly : public tDialogMessageString {
-    tDialogBackUpOnly(int);
+    /* overrides (retail vtable), declared on every owner surface */
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
+    tDialogBackUpOnly(int);
 };
 
 #ifndef NFS4_FEDIALOG_SCREENCARSELECT_SURFACE
 struct tDialogYesNoMem : public tDialogYesNo {
+    /* overrides (retail vtable), declared on every owner surface */
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
 };
 
 struct tDialogYesNoTri : public tDialogYesNo {
-    inline tDialogYesNoTri() {}
+    /* overrides (retail vtable), declared on every owner surface */
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
+    inline tDialogYesNoTri() {}
 };
 #endif
 

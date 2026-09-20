@@ -136,8 +136,9 @@ struct tAcademyDefinition {
 
 #ifndef NFS4_FEMENUDEFS_NO_DIALOGYESNOTRI
 struct tDialogYesNoTri : public tDialogYesNo {
-    inline tDialogYesNoTri() {}
+    /* overrides (retail vtable), declared on every owner surface */
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
+    inline tDialogYesNoTri() {}
 };
 #endif
 
@@ -155,6 +156,12 @@ typedef short tArrowLocation[6];
 typedef short tTextLocation[5];
 
 struct tScreenMemcard : public tScreen {
+    /* overrides (retail vtable), declared on every owner surface */
+    void GetShapeInfo(short &, short &, char **, char **);
+    void DrawBackground();
+    void DrawForeground();
+    void Initialize();
+    void Cleanup();
     int theNFS4icon, card;
     CARDINFO_def *pCI;
     char fMemTitle[15][32];
@@ -176,14 +183,13 @@ struct tScreenMemcard : public tScreen {
     tScreenMemcard();
 #endif
     inline void SetMessage(int newMessage) { message = newMessage; }
-    void GetShapeInfo(short &, short &, char **, char **);   /* declared on every surface: see fevirt_tscreen7.py */
-    void DrawBackground();   /* declared on every surface: see fevirt_tscreen7.py */
-    void DrawForeground();   /* declared on every surface: see fevirt_tscreen7.py */
-    void Initialize();   /* declared on every surface: see fevirt_tscreen7.py */
-    void Cleanup();   /* declared on every surface: see fevirt_tscreen7.py */
 };
 
 struct tScreenUserName : public tScreen {
+    /* overrides (retail vtable), declared on every owner surface */
+    void GetShapeInfo(short &, short &, char **, char **);
+    void DrawBackground();
+    void Initialize();
     tOptionsMenu *callingMenu;
     short fTextFade;
     bool fInTransition;
@@ -192,9 +198,6 @@ struct tScreenUserName : public tScreen {
     tScreenUserName();
 #endif
     inline void SetCallingMenu(tOptionsMenu *m) { callingMenu = m; }
-    void GetShapeInfo(short &, short &, char **, char **);   /* declared on every surface: see fevirt_tscreen7.py */
-    void DrawBackground();   /* declared on every surface: see fevirt_tscreen7.py */
-    void Initialize();   /* declared on every surface: see fevirt_tscreen7.py */
 };
 
 #ifndef NFS4_FEMENUDEFS_NO_FEAPPLICATION

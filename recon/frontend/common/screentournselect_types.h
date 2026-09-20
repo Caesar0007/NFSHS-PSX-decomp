@@ -82,6 +82,12 @@ typedef long STREAMREQUESTID;
 
 #ifndef NFS4_SCREENTOURNSELECT_PINKSLIPS_SURFACE
 struct tScreenTournamentStandings : public tScreen {
+    /* overrides (retail vtable), declared on every owner surface */
+    void GetShapeInfo(short &, short &, char **, char **);
+    void DrawBackground();
+    void Initialize();
+    void Cleanup();
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
     long moneyFinal, moneyAwarded, moneyDamage, moneyBonus;
     int starttick;
     bool gotmoney, gotbonus, gotbilled, fDrawMoney;
@@ -89,28 +95,31 @@ struct tScreenTournamentStandings : public tScreen {
     int fCountSpeed;
 #ifdef NFS4_SCREENTOURNSELECT_SCREENPOST_SURFACE
     tScreenTournamentStandings();
-    void Initialize();
-    void Cleanup();
-    void GetShapeInfo(short &, short &, char **, char **);
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    void DrawBackground();
 #endif
 };
 
 struct tScreenTournamentStandings3item : public tScreenTournamentStandings {
-#ifdef NFS4_SCREENTOURNSELECT_SCREENPOST_SURFACE
+    /* overrides (retail vtable), declared on every owner surface */
     void GetShapeInfo(short &, short &, char **, char **);
+#ifdef NFS4_SCREENTOURNSELECT_SCREENPOST_SURFACE
 #endif
 };
 
 #ifdef NFS4_SCREENTOURNSELECT_SCREENPOST_SURFACE
 struct tScreenPinkSlipStandings : public tScreenTournamentStandings3item {
-    tScreenPinkSlipStandings();
+    /* overrides (retail vtable), declared on every owner surface */
     void DrawBackground();
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
+    tScreenPinkSlipStandings();
 };
 #else
 struct tScreenTournSelect : public tScreen {
+    /* overrides (retail vtable), declared on every owner surface */
+    void GetShapeInfo(short &, short &, char **, char **);
+    void DrawBackground();
+    void DrawForeground();
+    void Initialize();
+    void Cleanup();
     int hVideo, fFrame;
     tTVConfig tvConfigs[8];
     tTVConfig trophyTV[4];
@@ -123,13 +132,8 @@ struct tScreenTournSelect : public tScreen {
 
     tScreenTournSelect();
     ~tScreenTournSelect();
-    void GetShapeInfo(short &, short &, char **, char **);
-    void Initialize();
-    void Cleanup();
     void UpdateVideoWall(tTourneyInfo *);
     void DrawVideoWall();
-    void DrawBackground();
-    void DrawForeground();
 };
 #endif
 

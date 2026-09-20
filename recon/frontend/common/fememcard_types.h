@@ -114,7 +114,8 @@ struct FE3d_zObj {
 };
 
 struct tDialogYesNoMem : public tDialogYesNo {
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);   /* declared on every surface: see fevirt_tscreen7.py */
+    /* overrides (retail vtable), declared on every owner surface */
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
 };
 
 struct CARDINFO_def {

@@ -89,34 +89,37 @@ enum tAppCommand {
 };
 
 struct tScreenTournamentStandings : public tScreen {
+    /* overrides (retail vtable), declared on every owner surface */
+    void GetShapeInfo(short &, short &, char **, char **);
+    void DrawBackground();
+    void Initialize();
+    void Cleanup();
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
     long moneyFinal, moneyAwarded, moneyDamage, moneyBonus;
     int starttick;
     bool gotmoney, gotbonus, gotbilled, fDrawMoney;
     bool fCountedDown, fStartCountdownNOW;
     int fCountSpeed;
 
-    void GetShapeInfo(short &, short &, char **, char **);
-    void DrawBackground();
-    void Initialize();   /* declared on every surface: see fevirt_tscreen7.py */
-    void Cleanup();   /* declared on every surface: see fevirt_tscreen7.py */
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);   /* declared on every surface: see fevirt_tscreen7.py */
 };
 
 struct tScreenTournamentStandings3item : public tScreenTournamentStandings {
-    void GetShapeInfo(short &, short &, char **, char **);   /* declared on every surface: see fevirt_tscreen7.py */
+    /* overrides (retail vtable), declared on every owner surface */
+    void GetShapeInfo(short &, short &, char **, char **);
 };
 
 struct tScreenUserName : public tScreen {
+    /* overrides (retail vtable), declared on every owner surface */
+    void GetShapeInfo(short &, short &, char **, char **);
+    void DrawBackground();
+    void Initialize();
     tOptionsMenu *callingMenu;
     short fTextFade;
     bool fInTransition;
     char fRowList[10][9];
 
-    void Initialize();
-    void GetShapeInfo(short &, short &, char **, char **);
     void DrawVerticalLine(short, short, short);
     void DrawHorizontalLine(short, short, short);
-    void DrawBackground();
 };
 
 struct tFEApplication {

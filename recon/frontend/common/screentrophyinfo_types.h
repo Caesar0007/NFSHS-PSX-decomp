@@ -96,11 +96,11 @@ struct tDrawShapeExtended {
 };
 
 struct tScreenTrophyInfo : public tScreen {
+    /* overrides (retail vtable), declared on every owner surface */
+    void GetShapeInfo(short &, short &, char **, char **);
+    void DrawBackground();
     int BannerCol;
 
-    void GetShapeInfo(short &numPermShapes, short &numSwapShapes,
-                      char **permFileName, char **swapFileName);
-    void DrawBackground();
 };
 
 /* ScreenTrophyRoom is only an external pointer here.  Its two accessed tail

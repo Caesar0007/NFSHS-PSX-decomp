@@ -58,6 +58,13 @@ enum tScreenCongratsMessage {
 #define textType_TrackRecords 11
 
 struct tScreenCongrats : public tScreen {
+    /* overrides (retail vtable), declared on every owner surface */
+    void GetShapeInfo(short &, short &, char **, char **);
+    void DrawBackground();
+    void DrawForeground();
+    void Initialize();
+    void Cleanup();
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
     /* virtuals introduced by this class, in retail slot order (real virtuals since 2026-09-20) */
     virtual void CalculatePrizes();
 #ifdef NFS4_TSCREENCONGRATS_OWNER
@@ -82,49 +89,47 @@ struct tScreenCongrats : public tScreen {
     short fCarX, fCarY;
     float fCarCX, fCarCY;
 
-    void Cleanup();
-    void GetShapeInfo(short &, short &, char **, char **);
-    void DrawBackground();
-    void DrawForeground();
-    void Initialize();
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
 };
 
 #ifndef NFS4_SCREENCONGRATS_FEMENUDEFS_SURFACE
 struct tScreenTournamentTrophy : public tScreenCongrats {
+    /* overrides (retail vtable), declared on every owner surface */
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
+    void CalculatePrizes();
+    void DrawCongratsMessage();
+    bool GetCar(tCarInfo &);
     short fShapeCount;
     char fDoUpdate;
 
     tScreenTournamentTrophy();
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    bool GetCar(tCarInfo &);
-    void DrawCongratsMessage();
-    void CalculatePrizes();
 };
 
 struct tScreenPinkSlipCongrats : public tScreenCongrats {
+    /* overrides (retail vtable), declared on every owner surface */
+    void Initialize();
+    void Cleanup();
+    void CalculatePrizes();
+    void DrawCongratsMessage();
+    bool GetCar(tCarInfo &);
     short fWinner;
 
     tScreenPinkSlipCongrats();
-    void DrawCongratsMessage();
-    bool GetCar(tCarInfo &);
-    void CalculatePrizes();
-    void Initialize();
-    void Cleanup();
 };
 
 struct tScreenBeTheCopCongrats : public tScreenCongrats {
-    tScreenBeTheCopCongrats();
-    bool GetCar(tCarInfo &);
+    /* overrides (retail vtable), declared on every owner surface */
     void CalculatePrizes();
     void DrawCongratsMessage();
+    bool GetCar(tCarInfo &);
+    tScreenBeTheCopCongrats();
 };
 
 struct tScreenTournamentCongrats : public tScreenCongrats {
-    tScreenTournamentCongrats();
-    bool GetCar(tCarInfo &);
+    /* overrides (retail vtable), declared on every owner surface */
     void CalculatePrizes();
     void DrawCongratsMessage();
+    bool GetCar(tCarInfo &);
+    tScreenTournamentCongrats();
 };
 #else
 struct tScreenTournamentTrophy;

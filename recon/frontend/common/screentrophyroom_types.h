@@ -42,6 +42,13 @@ struct tMenuCommand {
 #define textType_ScreenInfo 4
 
 struct tScreenTrophyRoom : public tScreen {
+    /* overrides (retail vtable), declared on every owner surface */
+    void GetShapeInfo(short &, short &, char **, char **);
+    void DrawBackground();
+    void PreLoad();
+    void Initialize();
+    void Cleanup();
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
     tShapeInformation fTrophyShapes;
     short fNumTrophies;
     int startTicks;
@@ -59,12 +66,6 @@ struct tScreenTrophyRoom : public tScreen {
 
     tScreenTrophyRoom();
     ~tScreenTrophyRoom();
-    void GetShapeInfo(short &, short &, char **, char **);
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
-    void PreLoad();
-    void Initialize();
-    void Cleanup();
-    void DrawBackground();
     void LoadTrophy();
 };
 

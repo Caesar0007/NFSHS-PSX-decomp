@@ -855,6 +855,11 @@ inline tDialogMessageString::tDialogMessageString()
   fFadeText = 0x80;
 }
 
+/* explicit (not synthesized) so that derived constructors store this class's vtable on the way, as retail does */
+inline tDialogInteractive::tDialogInteractive()
+{
+}
+
 tDialogYesNo::tDialogYesNo()
   : tDialogInteractive()
 {

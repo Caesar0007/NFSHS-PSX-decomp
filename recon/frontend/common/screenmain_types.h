@@ -47,17 +47,19 @@ struct tDrawShapeExtended {
 };
 
 struct tDialogHelp : public tDialogBase {
+    /* overrides (retail vtable), declared on every owner surface */
+    void CalculateDimensions();
+    void Draw();
     short variant;
     char *text[7];
     int cont[7];
     short numItems, helpcontrollers, lefttext;
-    void CalculateDimensions();   /* declared on every surface: see fevirt_tscreen7.py */
-    void Draw();   /* declared on every surface: see fevirt_tscreen7.py */
 };
 
 struct tDialogMessageStringWithTimeout : public tDialogMessageString {};
 struct tDialogNoInputMessage : public tDialogMessageString {
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);   /* declared on every surface: see fevirt_tscreen7.py */
+    /* overrides (retail vtable), declared on every owner surface */
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
 };
 
 struct tFEApplication {
@@ -100,6 +102,13 @@ struct tVideoWallConfig {
 };
 
 struct tScreenMain : public tScreen {
+    /* overrides (retail vtable), declared on every owner surface */
+    void GetShapeInfo(short &, short &, char **, char **);
+    void DrawBackground();
+    void PreLoad();
+    void Initialize();
+    void Cleanup();
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
     int hVideo, fFrame;
     u_long fStartTicks, fAnimTicks;
     short fAnimLocation;
@@ -120,14 +129,8 @@ struct tScreenMain : public tScreen {
     bool DoneLoadingBackground();
     void SetState(tScreenMainState);
     void InitDynamicImages();
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
     void DrawDropShadow();
     void DrawVideoLines();
-    void DrawBackground();
-    void GetShapeInfo(short &, short &, char **, char **);
-    void PreLoad();
-    void Initialize();
-    void Cleanup();
 };
 
 /* ScreenMain reads three fields from the foreign FEMenuDefs aggregate. */

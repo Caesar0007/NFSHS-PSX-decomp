@@ -48,6 +48,12 @@ struct tVideoWall {
 };
 
 struct tScreenTrackSelect : public tScreen {
+    /* overrides (retail vtable), declared on every owner surface */
+    void GetShapeInfo(short &, short &, char **, char **);
+    void DrawBackground();
+    void Initialize();
+    void Cleanup();
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
     int hVideo, fFrame;
     short fPreviousTrack, fMovieTrack, fBrightness;
     short fDestBrightness, fStartBrightness;
@@ -59,10 +65,6 @@ struct tScreenTrackSelect : public tScreen {
     u_long fVideoTicks;
 
     tScreenTrackSelect();
-    void DrawBackground();
-    void GetShapeInfo(short &, short &, char **, char **);
-    void Initialize();
-    void Cleanup();
     void SetBrightness(short);
     inline void SetBrightnessTransition(short bright, short current,
                                         u_long start) {
@@ -73,8 +75,6 @@ struct tScreenTrackSelect : public tScreen {
     void UpdateBrightness(tTrackInformation &);
     void UpdateVideoWall(tTrackInformation &);
     void DrawVideoWall();
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &)
-        asm("ProcessInput__18tScreenTrackSelect7tPlayerR13tInputKeyTypeR12tMenuCommand");
 };
 
 struct ScreenTracks_GlobalMenuDefsCodegenView {

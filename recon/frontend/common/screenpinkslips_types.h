@@ -93,6 +93,12 @@ struct tFEApplication {
 
 #ifndef NFS4_SCREENPINKSLIPS_TRACKS_SURFACE
 struct tScreenPinkSlips : public tScreen {
+    /* overrides (retail vtable), declared on every owner surface */
+    void GetShapeInfo(short &, short &, char **, char **);
+    void DrawBackground();
+    void Initialize();
+    void Cleanup();
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
     tMenu *fMenu;
     int hVideo, fFrame;
     short fPreviousTrack, fBrightness, fDestBrightness, fStartBrightness;
@@ -103,14 +109,8 @@ struct tScreenPinkSlips : public tScreen {
     bool fTVsInitialized;
 
     tScreenPinkSlips();
-    void DrawBackground();
-    void GetShapeInfo(short &, short &, char **, char **);
-    void Initialize();
-    void Cleanup();
     void UpdateVideoWall(tTrackInformation &);
     void DrawVideoWall();
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &)
-        asm("ProcessInput__16tScreenPinkSlips7tPlayerR13tInputKeyTypeR12tMenuCommand");
 };
 #endif
 

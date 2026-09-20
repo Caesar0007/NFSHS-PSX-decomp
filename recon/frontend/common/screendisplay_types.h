@@ -97,8 +97,9 @@ struct tActiveLine {
 
 #ifndef NFS4_SCREENDISPLAY_NO_OWNER_RECORDS
 struct tScreenDisplay : public tScreen {
-    void DrawBackground();
+    /* overrides (retail vtable), declared on every owner surface */
     void GetShapeInfo(short &, short &, char **, char **);
+    void DrawBackground();
 };
 #endif
 
@@ -608,6 +609,8 @@ struct tTVConfig {
 };
 
 struct tDialogBase : public tScreen {
+    /* overrides (retail vtable), declared on every owner surface */
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
     /* virtuals introduced by tDialogBase, in retail slot order [10] [11] (real virtuals since 2026-09-20) */
     virtual void CalculateDimensions() = 0;
     virtual void Draw();
@@ -628,7 +631,6 @@ struct tDialogBase : public tScreen {
     void Display();
     void Hide();
     inline bool IsVisible() { return currentlyOn != 0; }
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
 #endif
 #ifdef NFS4_SCREENDISPLAY_SCREENCARSELECT_METHODS
     inline tDialogBase *SetPosition(short, short, tPlayer);
@@ -636,12 +638,13 @@ struct tDialogBase : public tScreen {
 };
 
 struct tDialogMessageString : public tDialogBase {
+    /* overrides (retail vtable), declared on every owner surface */
+    void CalculateDimensions();
+    void Draw();
     char *string;
     bool Centerit;
 #ifdef NFS4_SCREENDISPLAY_FEDIALOG_METHODS
     tDialogMessageString();
-    void CalculateDimensions();
-    void Draw();
 #endif
 #if defined(NFS4_SCREENDISPLAY_SCREENCARSELECT_METHODS) || \
     defined(NFS4_SCREENDISPLAY_FEAPP_METHODS) || \
@@ -655,6 +658,9 @@ struct tDialogMessageString : public tDialogBase {
 
 struct tDialogInteractive : public tDialogMessageString {
     bool ReadyToReturnValue, fCurrentlyRunning;
+    /* an explicit inline ctor: retail's derived constructors (tDialogYesNo...) store THIS class's vtable on the way
+     * (Base, MessageString, Interactive, YesNo); a compiler-synthesized ctor leaves that store out. */
+    tDialogInteractive();   /* defined inline in fedialog.cpp, after tDialogMessageString's inline ctor */
 #ifdef NFS4_SCREENDISPLAY_FEDIALOG_METHODS
     inline void CalculateDimensionsVirtual() { CalculateDimensions(); }
     inline void ProcessInputVirtual(tPlayer player, tInputKeyType &key, tMenuCommand &command) { ProcessInput(player, key, command); }
@@ -663,6 +669,10 @@ struct tDialogInteractive : public tDialogMessageString {
 };
 
 struct tDialogYesNo : public tDialogInteractive {
+    /* overrides (retail vtable), declared on every owner surface */
+    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
+    void CalculateDimensions();
+    void Draw();
     int yesnowords[2];
 #ifdef NFS4_FEMENUDEFS_SURFACE
     inline tDialogYesNo *SetChoices(int yesWord, int noWord, short defaultValue) {
@@ -674,9 +684,6 @@ struct tDialogYesNo : public tDialogInteractive {
 #endif
 #ifdef NFS4_SCREENDISPLAY_FEDIALOG_METHODS
     tDialogYesNo();
-    void CalculateDimensions();
-    void Draw();
-    void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
 #endif
 };
 

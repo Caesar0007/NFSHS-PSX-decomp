@@ -216,15 +216,16 @@ struct tDrawShapeExtended {
     !defined(NFS4_SCREENMEMCARD_TRACKRECORDS_SURFACE) && \
     !defined(NFS4_SCREENMEMCARD_SCREENPOST_SURFACE)
 struct tDialogHelp : public tDialogBase {
+    /* overrides (retail vtable), declared on every owner surface */
+    void CalculateDimensions();
+    void Draw();
     short variant;
     char *text[7];
     int cont[7];
     short numItems, helpcontrollers, lefttext;
 #ifdef NFS4_SCREENMEMCARD_FEDIALOG_SURFACE
     void AddItem(short, short);
-    void CalculateDimensions();
     inline void CalculateDimensionsVirtual() { CalculateDimensions(); }
-    void Draw();
 #endif
 #ifdef NFS4_SCREENMEMCARD_FEAPP_METHODS
     tDialogHelp();
@@ -233,8 +234,9 @@ struct tDialogHelp : public tDialogBase {
 
 #include "fedialog_timeout_class.h"   /* own header: scopes the interface/implementation pragmas to this class */
 struct tDialogNoInputMessage : public tDialogMessageString {
-#ifdef NFS4_SCREENMEMCARD_FEDIALOG_SURFACE
+    /* overrides (retail vtable), declared on every owner surface */
     void ProcessInput(tPlayer, tInputKeyType &, tMenuCommand &);
+#ifdef NFS4_SCREENMEMCARD_FEDIALOG_SURFACE
 #endif
 #ifdef NFS4_SCREENMEMCARD_FEAPP_METHODS
     tDialogNoInputMessage();
@@ -245,6 +247,12 @@ struct tDialogNoInputMessage : public tDialogMessageString {
 #if !defined(NFS4_SCREENMEMCARD_FEDIALOG_SURFACE) && \
     !defined(NFS4_SCREENMEMCARD_FEAPP_SURFACE)
 struct tScreenMemcard : public tScreen {
+    /* overrides (retail vtable), declared on every owner surface */
+    void GetShapeInfo(short &, short &, char **, char **);
+    void DrawBackground();
+    void DrawForeground();
+    void Initialize();
+    void Cleanup();
     int theNFS4icon, card;
     CARDINFO_def *pCI;
     char fMemTitle[15][32];
@@ -263,7 +271,6 @@ struct tScreenMemcard : public tScreen {
     short player;
     bool fGetNewIcons;
 
-    void GetShapeInfo(short &, short &, char **, char **);
     void DrawIcon(shapetbl *, int, int, int, int, short);
     void LoadIcon(int);
     void DrawVerticalLine(short, short, short, short);
@@ -271,12 +278,8 @@ struct tScreenMemcard : public tScreen {
     void PlaceIcons(int, int);
     void DrawMemCardStuff(short);
     void SetEnablings();
-    void DrawBackground();
-    void DrawForeground();
     tScreenMemcard();
     void ReleaseIcons();
-    void Initialize();
-    void Cleanup();
 };
 #endif
 

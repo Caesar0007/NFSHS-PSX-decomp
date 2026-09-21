@@ -233,3 +233,13 @@ extern int iSNDplatformfxinit(int reserved, int mode, int depthL, int depthR)
         iSNDpsxfxinit(mode);
     return 0;
 }
+
+/* ---- moved here from sfxlevel.c 2026-09-21 (see the note there) ---- */
+/* iSNDplatformfxmasterlevel @0x801005BC : drive the SPU reverb output volume from the bus master `level`
+ *   (the PSX has a single reverb, so `bus` is ignored). */
+extern int iSNDplatformfxmasterlevel(int bus, int level)
+{
+    (void)bus;
+    iSNDpsxeffectvol(level * 0x102, level * 0x102);
+    return 0;
+}

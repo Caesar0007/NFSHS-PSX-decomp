@@ -690,10 +690,10 @@ SECTIONS
     .t0337 0x800fe724 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/salloc.c.o(.text); }
     .t0338 0x800fee30 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/s3dpos.c.o(.text); }
     .t0339 0x800fef4c : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/spatkey.c.o(.text); }
-    .t0340 0x800ff5a8 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/slib.c.o(.text); }
+    .t0340 0x800ff050 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/slib.c.o(.text); }
     .t0341 0x800ffe90 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sdriver.c.o(.text); }
     .t0342 0x801001ec : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sdfx.c.o(.text); }
-    .t0343 0x801005bc : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sfxlevel.c.o(.text); }
+    .t0343 0x801005e8 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sfxlevel.c.o(.text); }
     .t0344 0x80100710 : SUBALIGN(4) { build/recon/eaclib/psx/spchpsxz/spchpick.c.o(.text); }
     .t0345 0x80101900 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sclcptch.c.o(.text); }
     .t0346 0x80101abc : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/stagpat.c.o(.text); }

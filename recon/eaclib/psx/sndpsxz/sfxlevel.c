@@ -25,14 +25,9 @@ struct SNDfxBusView {
     int master;
 };
 
-/* iSNDplatformfxmasterlevel @0x801005BC : drive the SPU reverb output volume from the bus master `level`
- *   (the PSX has a single reverb, so `bus` is ignored). */
-extern int iSNDplatformfxmasterlevel(int bus, int level)
-{
-    (void)bus;
-    iSNDpsxeffectvol(level * 0x102, level * 0x102);
-    return 0;
-}
+/* iSNDplatformfxmasterlevel (0x801005BC) is NOT in this object: it closes sdfx.obj (2026-09-21).  seffect.obj asks for
+ * iSNDplatformfxmasterlevel, iSNDplatformfxinit, SNDfxlevel in that record order, and retail pulls sdfx.obj FIRST and this
+ * object second -- so the first name is sdfx.obj's; the code is contiguous with iSNDplatformfxinit. */
 
 /* SNDfxlevel @0x801005E8 : set the effect-send `level` for sound `tag` on `bus` -- for each voice, scale the
  *   requested level by the voice's per-bus send (slot[bus+0x34]) and the bus master (sndgs[bus*4+0x28]),

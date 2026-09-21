@@ -334,7 +334,7 @@ void Math_QDNormalizeVector(coorddef *v)
   length = Math_BetterDist(temp.x,temp.y);
   length = Math_BetterDist(length,temp.z);
   if (length != 0) {
-    inverse = rinverse(length);
+    inverse = fixedinverse(length);
     v->x = (v->x / 256) * (inverse / 256);
     v->y = (v->y / 256) * (inverse / 256);
     v->z = (v->z / 256) * (inverse / 256);

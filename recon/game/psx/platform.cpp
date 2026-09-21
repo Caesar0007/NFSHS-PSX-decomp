@@ -133,7 +133,7 @@ void Platform_SysStartUp(void)
   char *endofcode;
 
   disablecd = 0;
-  endofcode = D_80148B0C;
+  endofcode = ::endofcode + 8;
   Platform_nfsUserRam = 0x801fc000 - (int)endofcode;   /* 0x801fc000 = PSX RAM top (2MB) - 16KB stack reserve; hardware constant */
   initmemadr(endofcode,Platform_nfsUserRam);
   nfs2eacinit();

@@ -7,6 +7,7 @@
 
 /* The 14 speech-token wrappers, as the retail debug records of these functions type them (Speech.obj's block: each is a
  * struct with the single member `unsigned long flags`; SPCHEVNT.C is C, so the tags need the typedef). */
+#ifndef SPCHEVNT_IN_SPEECH_OBJ
 typedef struct SPCHNFSType_POSITION { unsigned long flags; } SPCHNFSType_POSITION;
 typedef struct SPCHNFSType_DISTANCE { unsigned long flags; } SPCHNFSType_DISTANCE;
 typedef struct SPCHNFSType_COLOUR { unsigned long flags; } SPCHNFSType_COLOUR;
@@ -22,8 +23,14 @@ typedef struct SPCHNFSType_REVINTRO { unsigned long flags; } SPCHNFSType_REVINTR
 typedef struct SPCHNFSType_vs_KMH_MPH { unsigned long flags; } SPCHNFSType_vs_KMH_MPH;
 typedef struct SPCHNFSType_VOICE { unsigned long flags; } SPCHNFSType_VOICE;
 
+#endif
+
 /* ---- the one true cross-TU extern (eaclib SPCHPSXZ speech-event queue) ---- */
+#ifndef SPCHEVNT_IN_SPEECH_OBJ
 extern long SPCH_AddEvent(long *parms);
+#else   /* inside speech.cpp the library header has already declared it, with its own spelling of the same 32-bit types */
+#define SPCH_AddEvent(p) SPCH_AddEvent((unsigned int *)(p))
+#endif
 
 /* ---- intra-TU forward declarations (sibling events call each other) ---- */
 long SPCHNFS_C_A_CONFIRM(SPCHNFSType_VOICE *VOICE,int ID_UNIT,SPCHNFSType_CONFIRM *CONFIRM);

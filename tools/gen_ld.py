@@ -857,6 +857,9 @@ def main():
         if stem in local_text and name not in legacy_syms:
             A(f"    PROVIDE({name} = {va:#x});   /* vague-linkage local copy */")
             n_vague += 1
+    # endcode.obj's `.last` section: the zero-size group EA's script put behind .bss (retail _last_obj = endofcode)
+    A("    .last 0x80148b04 : { *(.last); }")
+    A("    ASSERT(endofcode == 0x80148b04, \"endcode.obj: endofcode\")")
     A("    /* *_legacy residual pieces are ORACLE-ONLY (a recon TU owns those")
     A("     * retail bytes); linked as orphans they landed in the catch-all and")
     A("     * their alias labels (D_8011E0B0 = simGlobal.gameTicks) out-bound the")

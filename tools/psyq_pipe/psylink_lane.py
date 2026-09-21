@@ -265,6 +265,8 @@ if '--assemble' in steps:
         g = str(build.per_tu_flags(s.resolve()).get('g_value', build.G_VALUE))
         bo = 'build/' + rel + '.o'
         front = (bo in FRONT) if bo in HONEST_OBJS else rel.startswith('recon/frontend/')
+        if rel.endswith('frontend/psx/endcode.cpp'):      # endcode.obj follows the overlay objects in link order but is a MAIN object:
+            front = False                                   # its `.last` label closes the image (retail _last_obj is not prefixed)
         nfront += front
         if front:
             FRONT_LIST.append(objname(rel))

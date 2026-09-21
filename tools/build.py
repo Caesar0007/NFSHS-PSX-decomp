@@ -2157,12 +2157,23 @@ def clean():
     print("cleaned build/")
 
 
+# Source files that are NOT translation units of their own: the retail object of another file contains them (the SYM puts
+# their line records inside that object's block and the link order has no object for them).  #included, never compiled alone.
+INCLUDED_SOURCES = {
+    "recon/game/common/spchevnt.c",     # C:\\nfs4\\GAME\\COMMON\\SPCHEVNT.C is part of Speech.obj (#included by speech.cpp)
+}
+
+
+def is_tu(src) -> bool:
+    return Path(src).resolve().relative_to(ROOT).as_posix() not in INCLUDED_SOURCES
+
+
 def all_sources():
     """Every compilable TU, in the order the full build visits them."""
     srcs = sorted((ROOT / "src").rglob("*.c"))
     if RECON.exists():
         srcs += sorted(RECON.rglob("*.cpp")) + sorted(RECON.rglob("*.c"))
-    return srcs
+    return [x for x in srcs if is_tu(x)]
 
 
 def _obj_to_source(target: str) -> Path:
@@ -2344,7 +2355,8 @@ def main():
             _try(compile_cpp, cpp)
         # recon C TUs (modules the retail lib built with CC1PSX, e.g. eacpsxz unhuff.obj)
         for c in sorted(RECON.rglob("*.c")):
-            _try(lambda s: compile_c(s, skip_asm), c)
+            if is_tu(c):
+                _try(lambda s: compile_c(s, skip_asm), c)
 
     if failures:
         print(f"== {len(failures)} TU(s) FAILED to build (skipped; report covers the rest) ==")

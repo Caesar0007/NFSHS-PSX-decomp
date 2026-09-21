@@ -7,6 +7,12 @@
 #include "speech_types.h"
 #include "speech_externs.h"
 
+#define SPCHEVNT_IN_SPEECH_OBJ 1
+extern "C" {
+#include "spchevnt.c"
+}
+#undef SPCH_AddEvent
+
 /* retail: this object's .rodata opens with the unreferenced "SimpleMem" tag (0x80055B54); its vtables' 8-byte,
  * section-relative alignment proves the section starts there.  An unused inline leaves exactly that behind. */
 static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }

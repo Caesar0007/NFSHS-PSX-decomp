@@ -21,7 +21,7 @@ extern Group Platform_nfsSysInfoCarrier asm("nfs_sysInfo"); /* 0x8013d2b4 */
  * no recoverable source identifier; raw labels preserve that evidence boundary
  * without fabricating C storage. */
 extern char  D_80054D10[];        /* end-of-init-memory marker */
-extern char  D_80148B0C[];        /* heap base, eight bytes past MAP endofcode */
+extern "C" char endofcode[];     /* endcode.obj's `.last` label = end of the image (0x80148B04); free memory starts 8 bytes behind it */
 extern u_int CF_DVLC[];            /* canonical PsyQ DCT/VLC work table */
 
 /* ---- eaclib / syslib / sibling helpers ---- */

@@ -24,64 +24,8 @@ int strncmp(...);
 int systemtask(...);
 }
 
-/* ---- speech-event trigger fns (spchevnt.cpp, unmangled C-linkage; variadic call sites) ---- */
-extern "C" {
-long SPCHNFS_C_A_CONFIRM(int = 0, ...);
-long SPCHNFS_C_A_INTRO(int = 0, ...);
-long SPCHNFS_C_C_IDLE_WINGMAN_DISAPPEARS(int = 0, ...);
-long SPCHNFS_C_C_IN_PURS_NEAR_PERP(int = 0, ...);
-long SPCHNFS_C_C_NEW_OFFICER_ENGAGING(int = 0, ...);
-long SPCHNFS_C_C_PERP_REAQUIRED(int = 0, ...);
-long SPCHNFS_C_D_DURING_FALSE_ARREST(int = 0, ...);
-long SPCHNFS_C_D_ENDGAME(int = 0, ...);
-long SPCHNFS_C_D_ENGAGE_PURS_REP_SPDR(int = 0, ...);
-long SPCHNFS_C_D_ENGAGE_PURS_REP_SPDR_REPLY(int = 0, ...);
-long SPCHNFS_C_D_IN_PURS_AWAY_PERP_REPLY_LOC(int = 0, ...);
-long SPCHNFS_C_D_IN_PURS_AWAY_PERP_REPLY_STS(int = 0, ...);
-long SPCHNFS_C_D_IN_PURS_LOOK_PERP_REPLY_LOC(int = 0, ...);
-long SPCHNFS_C_D_IN_PURS_LOOK_PERP_REPLY_STS(int = 0, ...);
-long SPCHNFS_C_D_IN_PURS_NEAR_PERP_REP_LOC(int = 0, ...);
-long SPCHNFS_C_D_IN_PURS_NEAR_PERP_REP_SPD(int = 0, ...);
-long SPCHNFS_C_D_IN_PURS_NEAR_PERP_REP_STS(int = 0, ...);
-long SPCHNFS_C_D_IN_PURS_PERP_AIRBORN(int = 0, ...);
-long SPCHNFS_C_D_PERP_APPREHENSION(int = 0, ...);
-long SPCHNFS_C_D_PERP_CRASH_GEN(int = 0, ...);
-long SPCHNFS_C_D_PERP_CRASH_ROLL(int = 0, ...);
-long SPCHNFS_C_D_PERP_LOST(int = 0, ...);
-long SPCHNFS_C_D_PERP_SIGHTED(int = 0, ...);
-long SPCHNFS_C_D_RDBLK_FAILED(int = 0, ...);
-long SPCHNFS_C_D_REQUEST_BKUP(int = 0, ...);
-long SPCHNFS_C_D_REQUEST_EMS(int = 0, ...);
-long SPCHNFS_C_D_REQ_RDBLK(int = 0, ...);
-long SPCHNFS_C_D_REQ_SPBLT(int = 0, ...);
-long SPCHNFS_C_D_SPBLT_FAILED(int = 0, ...);
-long SPCHNFS_C_P_ARRESTED(int = 0, ...);
-long SPCHNFS_C_P_BULLHORN_SPEECH(int = 0, ...);
-long SPCHNFS_C_P_FALSE_ARREST_BULLHORN(int = 0, ...);
-long SPCHNFS_C_P_TICKET(int = 0, ...);
-long SPCHNFS_C_P_WARNING(int = 0, ...);
-long SPCHNFS_D_A_CONFIRM(int = 0, ...);
-long SPCHNFS_D_C_BEGIN_PURS_REP_SPDR(int = 0, ...);
-long SPCHNFS_D_C_BKUP_REQUEST_DENIED_REPLY(void);   /* MATCH: true (void) sig per spchevnt.c:675 -- the `int = 0` default arg emitted a spurious `addu a0,zero,zero` in the jal delay slot (oracle: nop) */
-long SPCHNFS_D_C_BKUP_REQUEST_GRANT_REPLY(int = 0, ...);
-long SPCHNFS_D_C_INTRO_CALL(int = 0, ...);
-long SPCHNFS_D_C_IN_PURS_AWAY_PERP_CONFIRM(int = 0, ...);
-long SPCHNFS_D_C_IN_PURS_NEAR_PERP(int = 0, ...);
-long SPCHNFS_D_C_IN_PURS_NEAR_PERP_CONFIRM(int = 0, ...);
-long SPCHNFS_D_C_PERP_APPREHENSION_REPLY(int = 0, ...);
-long SPCHNFS_D_C_PERP_LOST_CONFIRM(int = 0, ...);
-long SPCHNFS_D_C_PERP_SIGHTED_CONFIRM(int = 0, ...);
-long SPCHNFS_D_C_RDBLK_CONFIRMED(int = 0, ...);
-long SPCHNFS_D_C_RDBLK_SPBLT_DENIED_REPLY(int = 0, ...);
-long SPCHNFS_D_C_RDBLK_SPBLT_GRANT_REPLY(int = 0, ...);
-long SPCHNFS_D_C_SPBLT_CONFIRMED(SPCHNFSType_POSITION *, int,
-                                 SPCHNFSType_DISTANCE *, int,
-                                 SPCHNFSType_SPIKE_BELT_SIDE *);
-long SPCHNFS_S_C_SUPER_COP_ARRIVAL(int = 0, ...);
-long SPCHNFS_S_C_SUPER_COP_CRITICISM(int = 0, ...);
-long SPCHNFS_W_D_RDBLK_PLC(int = 0, ...);
-long SPCHNFS_W_D_SPBLT_PLC(int = 0, ...);
-}
+/* ---- speech-event trigger fns: SPCHEVNT.C is #included into speech.cpp (it is part of Speech.obj), real prototypes there ---- */
+
 
 /* ---- SPCH_ speech-runtime API: the SPCHPSXZ library's own headers (recon/eaclib/psx/spchpsxz) ---- */
 extern "C" {

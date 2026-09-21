@@ -1023,8 +1023,7 @@ SECTIONS
         build/asm/data/data_8010CCD4_r16.data.s.o(.data);
         build/recon/syslib/psx/libapi/COUNTER.c.o(.data);   /* 0x801234b4..0x801234d4 native owner (was data_8010CCD4_r16.data) */
         build/asm/data/data_8010CCD4_r16.data.s.o(.data_post_counter);
-        build/recon/eaclib/psx/eacpsxz/matrix.c.o(.rodata);   /* 0x801237ec..0x80123820  was data_8010CCD4_o29.data.s */
-        build/asm/data/data_8010CCD4_r17.data.s.o(.data);
+        build/recon/eaclib/psx/eacpsxz/matrix.c.o(.data);   /* 0x801237ec..0x80123838 identitymatrix + coef[10], native owner (was .rodata + data_8010CCD4_r17.data) */
         build/recon/syslib/psx/libpress/TABLE.c.o(.data);   /* 0x80123838..0x80134838 */
         build/asm/data/data_8010CCD4_r17.data.s.o(.data.r17_post_table);
         build/recon/syslib/psx/libcd/iso9660.c.o(.data);     /* 0x80136c68..0x80136c78 */

@@ -811,7 +811,7 @@ SECTIONS
         build/asm/data/data_8010CCD4_o28.data.s.o(.data);
         build/asm/data/data_8010CCD4_r16.data.s.o(.data);
         build/asm/data/data_8010CCD4_o29.data.s.o(.data);
-        build/asm/data/data_8010CCD4_r17.data.s.o(.data);
+        build/asm/data/data_8010CCD4_r17.data.s.o(.data.r17_matrix_coef_legacy); /* 2026-09-21: matrix.obj coef tail, source-owned in the recon lane */
         build/asm/data/data_libpress_table_legacy.data.s.o(.data);   /* P885: unchanged oracle tables */
         build/asm/data/data_8010CCD4_r17.data.s.o(.data.r17_post_table);
         build/asm/data/data_8010CCD4_r17.data.s.o(.data.iso9660_blob);

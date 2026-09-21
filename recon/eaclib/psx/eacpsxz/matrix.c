@@ -19,9 +19,9 @@
 #include "trnspos.h"
 #include "trnsmult.h"
 
-/* @0x801237EC (16.16 identity, shared rodata; byte-exact from NFS4.EXE). matrix.obj is the owner;
- * other TUs (e.g. trnsmult, reorthogonalize callers) reference it extern. */
-const int identitymatrix[9] = { 65536,0,0, 0,65536,0, 0,0,65536 };
+/* @0x801237EC (16.16 identity). matrix.obj is the owner; other TUs reference it extern.  It lives in retail's .DATA
+ * (between libgpu's GEnv block and libpress TABLE.obj), not in read-only data: the original is not `const`. */
+int identitymatrix[9] = { 65536,0,0, 0,65536,0, 0,0,65536 };
 
 int *addmatrix(int *m1, int *m2, int *out)   /* @0x800F01FC */
 {
@@ -47,7 +47,8 @@ int *scalematrix(int *m, int scalar, int *out)   /* @0x800F026C */
 /* The stripped NFS4 member omits this static name; the independently matched
  * NFS2 matrix.obj source recovers `coef`, and the retail bytes/VA prove its
  * four-word payload.  SYM-GLOBAL-CARRIER: coef */
-static const int coef[4] = { 16384, -8192, 6144, -5120 };   /* @0x80123810 (coef[0] unused) */
+/* retail carries the whole ten-term series in matrix.obj's .data (0x80123810..0x80123838); the loop only reaches [1..3]. */
+static int coef[10] = { 16384, -8192, 6144, -5120, 4480, -4032, 3696, -3432, 3218, -3039 };   /* @0x80123810 (coef[0] unused) */
 
 int reorthogonalize(int *M)   /* @0x800F02E4 */
 {

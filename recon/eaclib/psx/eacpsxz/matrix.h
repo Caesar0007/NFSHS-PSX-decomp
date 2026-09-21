@@ -8,7 +8,7 @@
  * per-element copy loops do NOT emit this shape. */
 typedef struct { int m[9]; } mtx;
 
-extern const int identitymatrix[9];
+extern int identitymatrix[9];
 
 extern int *addmatrix(int *m1, int *m2, int *out);   /* @0x800F01FC */
 extern int *submatrix(int *m1, int *m2, int *out);   /* @0x800F0234 */

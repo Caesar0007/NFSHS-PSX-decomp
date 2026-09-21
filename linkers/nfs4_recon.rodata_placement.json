@@ -1276,14 +1276,6 @@
   ]
  },
  {
-  "obj": "build/recon/eaclib/psx/eacpsxz/matrix.c.o",
-  "base": 2148677612,
-  "end": 2148677664,
-  "size": 52,
-  "ok": false,
-  "regions": []
- },
- {
   "obj": "build/recon/eaclib/psx/eacpsxz/atanfunc.c.o",
   "base": 2148756712,
   "end": 2148756969,

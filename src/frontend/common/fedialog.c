@@ -1,6 +1,5 @@
 #include "common.h"
 
-INCLUDE_ASM("asm/nonmatchings/front", ___31tDialogMessageStringWithTimeout);
 INCLUDE_ASM("asm/nonmatchings/front", ShouldTimeOut__11tDialogBase);
 INCLUDE_ASM("asm/nonmatchings/front", InitializeClass__11tDialogBase);
 INCLUDE_ASM("asm/nonmatchings/front", DrawAllDialogs__11tDialogBase);

@@ -185,6 +185,14 @@
       }
     },
     {
+      "name": "eaclib/psx/eacpsxz/fxform",
+      "target_path": "expected/src/eaclib/psx/eacpsxz/fxform.c.o",
+      "base_path": "build/recon/eaclib/psx/eacpsxz/fxform.c.o",
+      "metadata": {
+        "source_path": "recon/eaclib/psx/eacpsxz/fxform.c"
+      }
+    },
+    {
       "name": "eaclib/psx/eacpsxz/getm",
       "target_path": "expected/src/eaclib/psx/eacpsxz/getm.c.o",
       "base_path": "build/recon/eaclib/psx/eacpsxz/getm.c.o",
@@ -414,6 +422,9 @@
       "base_path": "build/recon/eaclib/psx/eacpsxz/stream.c.o",
       "metadata": {
         "source_path": "recon/eaclib/psx/eacpsxz/stream.c"
+      },
+      "symbol_mappings": {
+        "func_800FC4E4": "locaterequest"
       }
     },
     {
@@ -1190,6 +1201,10 @@
       "base_path": "build/recon/eaclib/psx/spchpsxz/spchpick.c.o",
       "metadata": {
         "source_path": "recon/eaclib/psx/spchpsxz/spchpick.c"
+      },
+      "symbol_mappings": {
+        "VoxEvent_GetFilterLengthFlag_8010073C": "VoxEvent_GetFilterLengthFlag",
+        "iSPCH_GetOffset16_80100760": "iSPCH_GetOffset16"
       }
     },
     {
@@ -1214,6 +1229,11 @@
       "base_path": "build/recon/eaclib/psx/spchpsxz/spchrule.c.o",
       "metadata": {
         "source_path": "recon/eaclib/psx/spchpsxz/spchrule.c"
+      },
+      "symbol_mappings": {
+        "VoxSentence_GetNumPhrases_8010B100": "VoxSentence_GetNumPhrases",
+        "iSPCH_GetOffset8_8010B10C": "iSPCH_GetOffset8",
+        "iSPCH_GetOffset16_8010B124": "iSPCH_GetOffset16"
       }
     },
     {
@@ -1430,6 +1450,9 @@
       "base_path": "build/recon/frontend/common/screencarselect.cpp.o",
       "metadata": {
         "source_path": "recon/frontend/common/screencarselect.cpp"
+      },
+      "symbol_mappings": {
+        "TransformVector": "TransformVector__FRA4_iRA4_A4_iT0"
       }
     },
     {
@@ -1686,6 +1709,10 @@
       "base_path": "build/recon/game/common/aih_btccop.cpp.o",
       "metadata": {
         "source_path": "recon/game/common/aih_btccop.cpp"
+      },
+      "symbol_mappings": {
+        "TestForRelease__12AIState_Base_8005F678": "TestForRelease__12AIState_Base",
+        "___12AIState_Base_8005F680": "___12AIState_Base"
       }
     },
     {
@@ -1694,6 +1721,13 @@
       "base_path": "build/recon/game/common/aih_btcperp.cpp.o",
       "metadata": {
         "source_path": "recon/game/common/aih_btcperp.cpp"
+      },
+      "symbol_mappings": {
+        "___15AIHigh_BTC_Perp_80061348": "___15AIHigh_BTC_Perp",
+        "Execute__17AIState_NonActive_80061370": "Execute__17AIState_NonActive",
+        "___17AIState_NonActive_80061378": "___17AIState_NonActive",
+        "TestForRelease__12AIState_Base_800613C4": "TestForRelease__12AIState_Base",
+        "___12AIState_Base_800613CC": "___12AIState_Base"
       }
     },
     {
@@ -1798,6 +1832,12 @@
       "base_path": "build/recon/game/common/aistate.cpp.o",
       "metadata": {
         "source_path": "recon/game/common/aistate.cpp"
+      },
+      "symbol_mappings": {
+        "Execute__17AIState_NonActive_80072750": "Execute__17AIState_NonActive",
+        "___17AIState_NonActive_80072758": "___17AIState_NonActive",
+        "TestForRelease__12AIState_Base_80072830": "TestForRelease__12AIState_Base",
+        "___12AIState_Base_80072838": "___12AIState_Base"
       }
     },
     {

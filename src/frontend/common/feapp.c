@@ -15,3 +15,5 @@ INCLUDE_ASM("asm/nonmatchings/front", RunDemoVideo__14tFEApplication);
 INCLUDE_ASM("asm/nonmatchings/front", MainLoop__14tFEApplicationP5tMenu);
 INCLUDE_ASM("asm/nonmatchings/front", RunPostGame__14tFEApplication);
 INCLUDE_ASM("asm/nonmatchings/front", RunFrontEnd__14tFEApplication);
+/* 0x80015760: the last function of FEApp.obj (it was filed under fedialog) */
+INCLUDE_ASM("asm/nonmatchings/front", ___31tDialogMessageStringWithTimeout);

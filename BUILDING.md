@@ -324,7 +324,7 @@ writes `build/psyq_off/off.lnk`, runs slink and reports. Result:
 
 (2026-09-21, after the data-ownership pass. Before it: `.rdata` -468, `front.rdata` -128, `.data` -84, `.sdata` -44,
 `.sbss` +28, `.bss` -36. With `.rdata` exact, `.text` starts at the retail address and 2,183 of the 3,167 functions are
-byte-identical outright; the rest differ only in addresses inside the still-shifted library region.)
+byte-identical outright; after the pull-order work 2,756 are. The rest differ only in addresses.)
 
 What the pass found -- every item was something Route A's address-pinned placement had been hiding:
 
@@ -352,12 +352,22 @@ Reports: `slink_datadiff.py` (section contents aligned against retail, addresses
   never listed them because our reconstruction never contained them. Nothing retail keeps is removed.
 - `python tools/psyq_pipe/slink_bytes.py off`: 3,167 functions compared, all identical to retail apart from the
   addresses they contain (4 are reported only because a neighbouring library member sits elsewhere).
-- `python tools/psyq_pipe/slink_order.py off`: slink pulls the library members **on demand in retail's order** — 447 of
-  462 objects are in the same relative order, including the way Sony's and EA's members interleave. The 15 displaced
-  ones are EA library members that retail pulled in earlier than we do, i.e. something referenced them that our objects
-  do not contain: a function retail's link later removed, or one of the modules that still have no source (`sdasync`,
-  `unitvect`, `textsubs`, `hypot3d`, `hypot`). libc `C52.obj` (`free`) is the same case: retail pulled it in, nothing
-  in our objects does.
+- `python tools/psyq_pipe/slink_order.py off`: slink pulls the library members **on demand in retail's order** -- 460 of
+  the 461 objects with code are in the same relative order, including the way Sony's and EA's members interleave.
+  How the order comes about (`slink_pullsim.py` models it, `slink_pullsolve.py` searches it): slink pulls BEFORE it strips;
+  unresolved names are served in the order they are met -- objects in script order, inside an object ASPSX's reference-record
+  order, which is its symbol-HASH order (names in one hash chain come out in first-use order); a pulled member's own
+  references join the end of the queue. That makes the retail order evidence about the objects themselves:
+  - a member retail has EARLIER than we do was asked for by a function the final link later removed. Five such references
+    are in the sources as `LINK_STRIPPED` stubs (name and body not retained): audiomus -> `iSNDstreamcreate`,
+    mathnfs -> `fixedatan`, quatern -> `intsin`, font -> `puti`, async -> `addexit`;
+  - a member pair in the "wrong" order means a function filed under the wrong member: `initmemadr` is meminit.obj's (not
+    inittmr's), the mutex pool is threads.obj's (not callback's), `iSNDcalcvol`..`iSNDstartvoice` open slib.obj (not
+    spatkey's), `iSNDplatformfxmasterlevel` closes sdfx.obj (not sfxlevel's); and MathNfs.obj asks for `fixedinverse`, the
+    other exported name of `rinverse`;
+  - the one member still displaced, sdma.obj, is asked for from the link-order window of sdasync.obj -- one of the modules we
+    have no source for (`sdasync`, `unitvect`, `textsubs`, `hypot3d`, `hypot`, `vsync`; libc `C52.obj` and
+    `pageflip.obj` are the same case: retail pulled them in, nothing in our objects does).
 - `python tools/psyq_pipe/slink_delta.py off`: where a section's layout drifts, step by step with the owning object.
 
 So Route C is not byte-identical yet either, but for a different reason than Route B: the link recipe is right, the

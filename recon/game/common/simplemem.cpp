@@ -5,6 +5,11 @@
 #include "simplemem_types.h"
 #include "simplemem_externs.h"
 
+/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x800565C0).  The retail SYM shows the
+ * object saw the track / Group header family, whose unused inline leaves the literal behind in every such object
+ * (tools/psyq_pipe/simplemem_bysym.py). */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 
 /* ---- Alloc__9SimpleMemii  [SIMPLEMEM.CPP:10-40] SLD-VERIFIED ---- */
 void * SimpleMem::Alloc(int len,int feign)

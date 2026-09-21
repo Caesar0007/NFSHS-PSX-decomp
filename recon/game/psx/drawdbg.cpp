@@ -8,5 +8,10 @@
  */
 #include "drawdbg.h"
 
+/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x80056824).  The retail SYM shows the
+ * object saw the track / Group header family, whose unused inline leaves the literal behind in every such object
+ * (tools/psyq_pipe/simplemem_bysym.py). */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 u_long gSavePtr;   /* @0x8013d818  EXT ULONG (.bss) -- draw-debug saved primitive ptr */
 /* end of drawdbg.cpp */

@@ -5,6 +5,11 @@
 #include "sim_types.h"
 #include "sim_externs.h"
 
+/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x800565B4).  The retail SYM shows the
+ * object saw the track / Group header family, whose unused inline leaves the literal behind in every such object
+ * (tools/psyq_pipe/simplemem_bysym.py). */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 /* sim.obj-owned initialized/aggregate data in retail address order.
  * SYM places this exact 68-byte run at 0x8011E09C..0x8011E0E0. */
 int counter[4] = { 320, 384, 448, 512 };

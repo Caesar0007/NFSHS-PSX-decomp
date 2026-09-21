@@ -13,9 +13,9 @@
  {
   "obj": "build/recon/game/common/aihigh.cpp.o",
   "section": ".rodata",
-  "base": 2147831244,
+  "base": 2147831228,
   "end": 2147831300,
-  "size": 56,
+  "size": 72,
   "ok": true,
   "unresolved": 0,
   "words": 14,

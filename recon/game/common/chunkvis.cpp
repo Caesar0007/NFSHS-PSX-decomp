@@ -12,5 +12,10 @@
  * include spelling/order is not recoverable from the object records alone.
  */
 #include "chunkvis.h"
+
+/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x800559DC).  The retail SYM shows the
+ * object saw the track / Group header family, whose unused inline leaves the literal behind in every such object
+ * (tools/psyq_pipe/simplemem_bysym.py). */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 /* Intentionally no functions or storage: that is the retail object shape. */
 /* end of chunkvis.cpp */

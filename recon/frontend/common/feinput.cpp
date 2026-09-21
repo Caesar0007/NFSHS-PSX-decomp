@@ -5,10 +5,6 @@
  */
 #include "feinput.h"
 
-/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x800110A8): the unused inline of the
- * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
-static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
-
 /* ---- FEInput.obj-OWNED data -- DEFINED here (self-contained; real NFS4.EXE bytes). ---- */
 static long nextTick = 0;   /* @0x80051738; SYM STAT LONG */
 tPSXToFEMapping getKeyMappings[16] = { {16, 512}, {128, 2048}, {32, 4096}, {64, 1024}, {1024, 32}, {256, 64}, {2048, 128}, {512, 256}, {1048576, 512}, {8388608, 2048}, {2097152, 4096}, {4194304, 1024}, {268435456, 512}, {-2147483648, 2048}, {536870912, 4096}, {1073741824, 1024} };   /* @0x8005173c */

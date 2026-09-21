@@ -10,6 +10,11 @@
 extern short Hud_NextPerp[2];
 #include "overlays_externs.h"
 
+/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x8005692C).  The retail SYM shows the
+ * object saw the track / Group header family, whose unused inline leaves the literal behind in every such object
+ * (tools/psyq_pipe/simplemem_bysym.py). */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 /* overlays.obj owns SYM's logical `StatsTimer[2]`.  Repeated -G4/-G8 probes
    prove that an 8-byte owning symbol changes code generation in four PASS
    functions; retain two adjacent 4-byte cells as an explicit storage carrier.

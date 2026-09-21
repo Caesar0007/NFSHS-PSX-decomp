@@ -2,10 +2,6 @@
  *   4 fns -> eaclib EACPSXZ reservememadr / purgememadr). */
 #include "game_common_min_types.h"
 
-/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x80055FE8): the unused inline of the
- * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
-static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
-
 extern "C" {
 void *reservememadr(char *name, int size, int memory_class);
 int purgememadr(void *ptr);

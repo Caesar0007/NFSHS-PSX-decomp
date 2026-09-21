@@ -32,9 +32,8 @@ void TextSys_UnloadWords(void);
 void TextSys_LoadWordsGeneric(int language,char *path)
 
 {
-  /* retail Textsys.obj .rodata opens with the unreferenced "SimpleMem" tag (0x800565E4) */
-  if (0) sprintf((char *)0,"SimpleMem");
-
+  /* the "SimpleMem" tag at 0x800565E4, right in front of this object's strings, is stats.obj's: the retail SYM shows
+     Textsys.obj never saw the header that leaves it behind (tools/psyq_pipe/simplemem_bysym.py). */
   char string [250];
 
   if (language < 7) {

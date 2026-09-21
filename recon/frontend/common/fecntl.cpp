@@ -17,5 +17,10 @@
  *   (inline-only / declaration-only content). This stub records the finding for completeness.
  */
 #include "fecntl.h"
+
+/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x800110A8).  The retail SYM shows the
+ * object saw the track / Group header family, whose unused inline leaves the literal behind in every such object
+ * (tools/psyq_pipe/simplemem_bysym.py). */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 /* (intentionally empty: no functions, no data) */
 /* end of fecntl.cpp */

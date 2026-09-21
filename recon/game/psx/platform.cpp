@@ -6,6 +6,11 @@
 #include "platform_types.h"
 #include "platform_externs.h"
 
+/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x80056984).  The retail SYM shows the
+ * object saw the track / Group header family, whose unused inline leaves the literal behind in every such object
+ * (tools/psyq_pipe/simplemem_bysym.py). */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 /* W67-A4: platform.obj's retail .sdata run 0x8013da9c..0x8013dac0, reproduced
  * byte-for-byte in DEFINITION ORDER (SYM FILE-record oracle, objruns):
  *   gSysStartUp, "cdrom:" literal, disablecard, gDctXtraMem(STAT), gLowMemory,

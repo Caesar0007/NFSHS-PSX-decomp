@@ -14,6 +14,11 @@
 #include "gmesetup_types.h"
 #include "gmesetup_externs.h"
 
+/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x80055FB8).  The retail SYM shows the
+ * object saw the track / Group header family, whose unused inline leaves the literal behind in every such object
+ * (tools/psyq_pipe/simplemem_bysym.py). */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 /* SYM-owned lookup names at 0x80113044..0x801131ec.  The fixed row widths
  * (including each row's terminating/padding NULs) are part of the retail
  * layout; declaration order places them immediately before GameSetup_gData. */

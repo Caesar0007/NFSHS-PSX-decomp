@@ -21,14 +21,14 @@ static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 int gSysStartUp = 0;        /* @0x8013da9c */
 
 /* SYM-STORAGE-PROOF (P441): this TU does not own buffers at 0x80054D10,
-   0x80148B0C, or 0x80124038.  The first two are absolute retail boundaries;
+   0x80148B0C, or 0x80124038.  The first two are bigBuf + 282000 - 0x80 and endofcode + 8;
    the third is canonical PsyQ `CF_DVLC`.  Earlier 64-byte harness arrays were
    fabricated storage at unrelated link addresses and have been removed. */
 
 
 /* ---- Platform_InitMemory__Fv  [PLATFORM.CPP:125-135] SLD-VERIFIED ---- */
 /* SEALED (12/12 PASS): oracle's subu-then-addu = an IN-PLACE mutate of the compiler temp
- * holding D_80054D10 (m -= tempLow -> sw gTotal; m += tempLow -> gHigh recovery).
+ * holding &bigBuf[282000 - 0x80] (m -= tempLow -> sw gTotal; m += tempLow -> gHigh recovery).
  * MATCH: in-place +=/-= two-step (SS 3.12 #14 family) -- the single-expression forms let cse
  * reuse the still-live address pseudo and drop the addu.
  * W76 SYM receipt: SYM names only tempLow.  No-local nested/global forms compile to 11
@@ -44,7 +44,7 @@ void Platform_InitMemory(void)
   u_int m; /* SYM-CODEGEN-CARRIER: m -- required for retail subu/store/addu recovery */
 
   tempLow = 0x80010080;   /* PSX prog base 0x80010000 + 0x80 EXE-header = low-mem bound; memory-map constant (no data symbol), not a VA to migrate */
-  m = (u_int)D_80054D10;
+  m = (u_int)&bigBuf[sizeof(bigBuf) - 0x80];
   m -= tempLow;
   gTotalMemory = m;
   m += tempLow;

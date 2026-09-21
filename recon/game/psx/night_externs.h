@@ -20,7 +20,6 @@
 // [owned->defined in night.cpp] extern u_char       (*Night_gWeatherLightingTable[2])[256]; /* 0x8013d9f0 */
 // [owned->defined in night.cpp] extern u_char       (*Night_gCurrentNightColor)[256][16];   /* 0x8013da48 */
 // [owned->defined in night.cpp] extern u_char       (*Night_gCopColor[2])[256][8];          /* 0x8013da4c */
-// [owned->defined in night.cpp] extern u_char         Night_gCopCarTypeColorIdx[];          /* gp-rel small array */
 
 // [owned->defined in night.cpp] extern long           Night_gPlayerHeadLightColor[2]; /* 0x8013da80 (packed CVECTOR) */
 // [owned->defined in night.cpp] extern long           Night_gWeatherColor[2];         /* 0x8013da88 */

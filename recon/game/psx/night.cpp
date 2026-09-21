@@ -23,8 +23,9 @@ char         Night_gDrawLightning = 0;   /* @0x8013d9e0 */
    the sized array VIEW (established dual-model device, cf. WeatherLightingTable
    below; arrays are not gp-encoded by cc1plus, so the view keeps the oracle's
    absolute %hi/%lo form). */
-u_short      Night_gCopCarTypeColorIdx_cell asm("Night_gCopCarTypeColorIdx") = 0;   /* @0x8013d9e2 */
-extern u_char Night_gCopCarTypeColorIdx[2];   /* byte view of the cell */
+/* 2026-09-22: there is NO object at 0x8013d9e2 (the SYM has none: Night_gDrawLightning @d9e0 is a char, the next name is
+   @d9e4).  Night_SetCopColor's `la 0x8013d9e2` is CopCarTypeLights (@0x8013d9f8) - 22: the cop car types start at 22
+   and the compiler folded the bias into the address. */
 char         Night_gCopCountryLightTbl[2][5][2] = { 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1 };   /* @0x80120d18 */
 /* retail night.obj .data order is CopCountryLightTbl / LightningPauseAreas / the function
  * static colorCreationTable / AdditiveHeadlightColor: PauseAreas therefore cannot be a
@@ -812,7 +813,7 @@ void Night_SetCopColor(GameSetup_tCarData *carinfo)
   int carTable;
 
   country = carinfo->Country;
-  cartype = Night_gCopCarTypeColorIdx[carinfo->carType];
+  cartype = CopCarTypeLights[carinfo->carType - 22];
   {
     u_char (*copColors[2])[256][8] = { Night_gCopLightingTableRed,
                                        Night_gCopLightingTableBlue };

@@ -12,11 +12,12 @@ extern "C" int sprintf(char *, const char *, ...);
 /* H18: not in this TU's externs -- needed by the ShouldIPerformCutOffBlock reconstruction */
 extern int AI_elapsedTime;                              /* ai.cpp @0x8013C554 */
 int AIWorld_SplineDistance(Car_tObj *a, Car_tObj *b);   /* AIWORLD.obj */
-extern int D_8011E0B0[];   /* == &simGlobal.gameTicks (a distinct alias symbol the oracle
-                              addresses directly in CheckSpikeBelt's SECOND read, keeping the
-                              two gameTicks reads textually distinct so gcc can't CSE one
-                              %hi/lui base across the intervening AILife_IsSliceInAnyVisibleArea
-                              call -- see aiphysic_externs.h) */
+struct Sched_tSchedule;
+struct Sim_tSimGlobalVar {
+    int gameStarted, gameTicks, time32Hz;
+    Sched_tSchedule *schedule64Hz, *schedule32Hz, *schedule32Hz2;
+};
+extern Sim_tSimGlobalVar simGlobal;   /* Sim.obj @0x8011E0AC (.gameTicks @0x8011E0B0) */
 
 
 /* ---- __15AIHigh_BasicCopP8Car_tObji  AIHigh_BasicCop::ctor  [AIH_BASICCOP.CPP:18-34] SLD-VERIFIED ---- */
@@ -77,7 +78,7 @@ void AIHigh_BasicCop::CheckSpikeBelt()
   if (AICop_spikeBelt.active_ != 0) {
     int timeNow;
 
-    timeNow = D_8011E0B0[0];
+    timeNow = simGlobal.gameTicks;
     timeNow -= AICop_spikeBelt.freshenTime_;
     timeNow = timeNow < 0x140;
     freshenElapsed = !timeNow;
@@ -94,7 +95,7 @@ void AIHigh_BasicCop::CheckSpikeBelt()
     else {
       int timeNow;
 
-      timeNow = D_8011E0B0[0];
+      timeNow = simGlobal.gameTicks;
       AICop_spikeBelt.freshenTime_ = timeNow;
 
     }

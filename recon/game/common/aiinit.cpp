@@ -158,7 +158,7 @@ void AIInit_CleanUp2(void)
 }
 
 /* ---- AI_TrafficStartUp__Fv  [@0x80066f0c] ---- */
-extern char *D_801164B0[];   /* path-table @0x801164B0 (Paths_Paths+0x48) */
+extern char *Paths_Paths[];   /* paths.obj @0x80116468 */
 
 void AI_TrafficStartUp(void)
 {
@@ -168,7 +168,7 @@ void AI_TrafficStartUp(void)
   if (0) sprintf((char *)0,"SimpleMem");
   if (GameSetup_gData.trafficDensity != 0) {
     triggerManagerTraffic = new AITrigger_TriggerManager;
-    sprintf(filename,"%sTr%02d.trf",D_801164B0[0],GameSetup_gData.track);   /* literal @0x8005521C */
+    sprintf(filename,"%sTr%02d.trf",Paths_Paths[18],GameSetup_gData.track);   /* literal @0x8005521C */
     AITraffic_rawTriggers = (u_char *)loadfileadrz(filename,(void *)0x0);
     if (AITraffic_rawTriggers != (u_char *)0x0) {
       triggerManagerTraffic->Init((char *)AITraffic_rawTriggers);
@@ -195,14 +195,13 @@ void AI_TrafficCleanUp(void)
 }
 
 /* ---- AIInit_LoadConfigs__Fv  [@0x80066ff8] ---- */
-extern char *D_80116470[];   /* path-table @0x80116470 (Paths_Paths+8) */
 
 void AIInit_LoadConfigs(void)
 {
   Udff_tInfo *handle;
   char pathname[100];
 
-  sprintf(pathname,"%strafcfg.dat",D_80116470[0]);   /* literal @0x8005522C */
+  sprintf(pathname,"%strafcfg.dat",Paths_Paths[2]);   /* literal @0x8005522C */
   handle = Udff_Opena((char *)0x0,trafcfg,1);
   AIInit_LoadPhysicsConfig(handle);
   Udff_Close(handle);

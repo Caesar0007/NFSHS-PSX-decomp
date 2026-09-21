@@ -17,10 +17,9 @@ extern Group Platform_nfsSysInfoCarrier asm("nfs_sysInfo"); /* 0x8013d2b4 */
 #define Platform_nfsUserRam (Platform_nfsSysInfoCarrier.m_num_elements)
 
 /* ---- link-time markers / scratch buffers ----
- * CF_DVLC is canonical PsyQ/SYM/MAP data.  The other two retail addresses have
- * no recoverable source identifier; raw labels preserve that evidence boundary
- * without fabricating C storage. */
-extern char  D_80054D10[];        /* end-of-init-memory marker */
+ * CF_DVLC is canonical PsyQ/SYM/MAP data; the two image bounds are real objects too: bigbuf.obj's bigBuf and
+ * endcode.obj's endofcode. */
+extern "C" char bigBuf[282000]; /* bigbuf.obj @0x80010000: the init-time memory pool ends 0x80 short of its end (0x80054D10) */
 extern "C" char endofcode[];     /* endcode.obj's `.last` label = end of the image (0x80148B04); free memory starts 8 bytes behind it */
 extern u_int CF_DVLC[];            /* canonical PsyQ DCT/VLC work table */
 

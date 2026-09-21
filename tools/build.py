@@ -512,6 +512,11 @@ PER_TU_FLAGS = {
     # field accesses and PASS 80/80.  RPause's separate scalar symbol views remain
     # zero-storage aliases and RPause_CopyBackToFrontBuffer remains PASS 48/48.
     "recon/game/common/render.cpp":          {"g_value": "8"},
+    # 2026-09-22: rpause.obj reads render.obj's real `RECT gPauseMenuRect` members (the four invented scalar
+    # aliases D_8013D3D6/D8/DA are gone).  At -G8 the 8-byte extern keeps SYMBOL_REF_FLAG, so each member is an
+    # independent `lhu $r,gPauseMenuRect+N` macro = retail's per-access lui (at -G0 cc1plus routes every member
+    # through one shared base register).  ASPSX never makes an EXTERN gp-relative, so the loads stay absolute.
+    "recon/game/psx/rpause.cpp":             {"g_value": "8"},
     # 2026-08-28 source-only re-ladder after the current SYM/SLD reconstruction:
     # the historical -G8 regression is gone.  Three independent discriminators
     # (AudioCmn_Init, CheckState and SoundCar) become exact together, and the

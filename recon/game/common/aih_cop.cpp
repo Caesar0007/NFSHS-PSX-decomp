@@ -18,9 +18,6 @@ extern int AI_elapsedTime;   /* H22: ai.cpp @0x8013C554 (not in this TU's extern
                               and computes `AI_elapsedTime * 89` inside the loop; gcc's LICM
                               hoists all but the LAST insn of the synth-multiply chain
                               (`addu $v1,$t1,$a2`), which is what the retail body shows. */
-extern int D_8011E0B0[];   /* == &simGlobal.gameTicks (distinct alias symbol the oracle addresses
-                              directly for a gameTicks re-read the compiler can't CSE against the
-                              nearby simGlobal.gameTicks store -- see aih_basiccop.cpp/aiphysic.cpp) */
 
 /* SYM-INLINE-NAME-UNRECOVERABLE: HighExecute's SLD records four nested
    AICop_PerpChaseInfo `this` scopes on caller line 502 and no caller locals for
@@ -1188,7 +1185,7 @@ LAB_80064a0c:
 
           /* SYM-OPTIMIZED: timeNow -- the inlined spike-belt freshen operation
              names this direct gameTicks value; it has no separate caller slot. */
-          AICop_spikeBelt.freshenTime_ = D_8011E0B0[0];
+          AICop_spikeBelt.freshenTime_ = simGlobal.gameTicks;
 
           /* SYM-OPTIMIZED: slice -- BWorld_SetSpikeBelt's inlined slice
              parameter aliases requestSpikeBeltAtSlice_ at this call site.
@@ -1204,7 +1201,7 @@ LAB_80064a0c:
         if ((this->requestSpikeBeltAtSlice_ != -1) &&
             (AICop_spikeBelt.slice_ == this->requestSpikeBeltAtSlice_)) {
 
-          AICop_spikeBelt.freshenTime_ = D_8011E0B0[0];
+          AICop_spikeBelt.freshenTime_ = simGlobal.gameTicks;
 
         }
       }
@@ -1643,7 +1640,7 @@ void AIHigh_Cop::CheckForWipeOut()
   skipWipeOut =
       (this->perpTarget_ == (AIHigh_Player *)0x0) ||
       (((this->perpTarget_->carObj_)->carFlags & 8U) == 0) ||
-      (D_8011E0B0[0] < (this->carObj_)->wipeOutEndTick) ||
+      (simGlobal.gameTicks < (this->carObj_)->wipeOutEndTick) ||
       ((this->perpTarget_->perpChaseInfo_.engagementTime_ / 0x10000) >= 2);
 
   if (skipWipeOut) {

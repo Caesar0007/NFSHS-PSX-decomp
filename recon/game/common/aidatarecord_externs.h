@@ -4,14 +4,28 @@
 
 extern int gNumSlices;
 
-/* path-prefix globals (Paths table @0x80116468) + car list, for the ctor sprintf()s */
-extern char     *D_8011647C[];   /* @0x8011647C path prefix (AccTable, CurveSpeed .csp) */
-extern char     *D_80116478[];   /* @0x80116478 path prefix (CurveSpeed .qcs) */
-extern char     *D_80116490[];   /* @0x80116490 path prefix (TrackCurve .qcr) */
-extern char     *D_80116494[];   /* @0x80116494 path prefix (TrackCurve .crv) */
-extern char     *D_80116498[];   /* @0x80116498 path prefix (BestLine .qbe) */
-extern char     *D_8011649C[];   /* @0x8011649C path prefix (BestLine .bes) */
-extern int       D_80113228[];   /* @0x80113228 track number (sprintf %02d) */
+/* paths.obj's path table (@0x80116468; [4] .qcs, [5] .acc/.csp, [10] .qcr, [11] .crv, [12] .qbe, [13] .bes), gmesetup.obj's
+   setup record (.track @0x80113228 = the %02d of the file names) + the car list, for the ctor sprintf()s */
+extern char     *Paths_Paths[];
+
+/* Canonical gmesetup.obj aggregate (same record aiinit_types.h carries). */
+struct GameSetup_tData {
+    int raceType, numLaps, skill, commMode, tournamentMultiplier, cops;
+    int trafficDensity, localCar, catchupLogic, replayMode, instantReplay;
+    int mirrorTrack, reverseTrack, measurement, sgge, track, trackSegment, song;
+    int Weather, Fog, Damage, Time, randSeed, easter;
+    GameSetup_tControllerData controllerData;
+    int pinkSlipsForfeit, checkpointType;
+    int checkpointHUD[2];
+    int dispatchSpeech, reverseCallSpeech, languageSpeech;
+    int SceneNumber, SceneStartLap, SceneEndLap;
+    GameSetup_tUserSetting userSetting;
+    int numPerps, stageOffset, perpArrests, finalPerpArrests;
+    GameSetup_tPerpData perpInfo[10];
+    int numCars, numPlayerRaceCars, numOpponentRaceCars, opponentCarType;
+    GameSetup_tCarData carInfo[9];
+};
+extern GameSetup_tData GameSetup_gData;
 extern Car_tObj *Cars_gHumanRaceCarList[9];   /* cars.obj; [0]+0x240 = car name */
 
 /* sprintf format strings — named rodata symbols (NOT inline literals, which would

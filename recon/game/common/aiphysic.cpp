@@ -436,7 +436,7 @@ void AIPhysic_HandleWipeoutTimer(Car_tObj *carObj)
     int limit;
     if ((carObj->carFlags & 8) == 0)
         return;
-    limit = D_8011E0B0[0];
+    limit = simGlobal[1];
     if (!(carObj->wipeOutStartTick < limit))
         return;
     randtemp = fastRandom * randSeed;
@@ -797,7 +797,7 @@ void AIPhysic_HandleDirection(Car_tObj *carObj)
         goto setRamp;
     goto afterRamp;
 setRamp:
-    carObj->driveDirectionTimer = D_8011E0B0[0] - 0x18;
+    carObj->driveDirectionTimer = simGlobal[1] - 0x18;
 afterRamp:
     if (carObj->driveDirectionReverseTime < simGlobal[1] - carObj->driveDirectionTimer) {
         carObj->driveDirection = 1;

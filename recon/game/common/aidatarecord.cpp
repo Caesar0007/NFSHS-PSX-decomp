@@ -153,7 +153,7 @@ AIDataRecord_AccTable_t::AIDataRecord_AccTable_t(char *preBuffer,int scale,
   this->numElements_ = 0x70;
   this->bSize_ = 0xe0;
   this->scale_ = scale;
-  sprintf(this->name_,"%s%s.acc",D_8011647C[0],
+  sprintf(this->name_,"%s%s.acc",Paths_Paths[5],
           (char *)Cars_gHumanRaceCarList[0] + 0x240);
   return;
 }
@@ -187,10 +187,10 @@ AIDataRecord_BestLine_t::AIDataRecord_BestLine_t(AIDataRecord_WhichRecord_t whic
 {
   this->bSize_ = this->numElements_ = gNumSlices;
   if (this->recordMethod_ == 0) {
-    sprintf(this->name_,"%sTr%02d.qbe",D_80116498[0],D_80113228[0]);
+    sprintf(this->name_,"%sTr%02d.qbe",Paths_Paths[12],GameSetup_gData.track);
   }
   else {
-    sprintf(this->name_,"%sTr%02d.bes",D_8011649C[0],D_80113228[0]);
+    sprintf(this->name_,"%sTr%02d.bes",Paths_Paths[13],GameSetup_gData.track);
   }
   return;
 }
@@ -201,10 +201,10 @@ AIDataRecord_TrackCurve_t::AIDataRecord_TrackCurve_t(AIDataRecord_WhichRecord_t 
 {
   this->bSize_ = (this->numElements_ = gNumSlices) + 1;
   if (this->recordMethod_ == 0) {
-    sprintf(this->name_,"%sTr%02d.qcr",D_80116490[0],D_80113228[0]);
+    sprintf(this->name_,"%sTr%02d.qcr",Paths_Paths[10],GameSetup_gData.track);
   }
   else {
-    sprintf(this->name_,"%sTr%02d.crv",D_80116494[0],D_80113228[0]);
+    sprintf(this->name_,"%sTr%02d.crv",Paths_Paths[11],GameSetup_gData.track);
   }
   return;
 }
@@ -223,10 +223,10 @@ AIDataRecord_CurveSpeedTable_t::AIDataRecord_CurveSpeedTable_t(char *carName,
   this->numElements_ = 0x100;
   this->bSize_ = 0x100;
   if (this->recordMethod_ == 0) {
-    sprintf(this->name_,"%s%s.qcs",D_80116478[0],carName);
+    sprintf(this->name_,"%s%s.qcs",Paths_Paths[4],carName);
   }
   else {
-    sprintf(this->name_,"%s%s.csp",D_8011647C[0],carName);
+    sprintf(this->name_,"%s%s.csp",Paths_Paths[5],carName);
     /* retail keeps an UNREFERENCED "%sTr%02d%c.ctk" (0x8005541C) after ".csp": a compiled-out record kind */
     if (0) sprintf((char *)0,"%sTr%02d%c.ctk");
   }

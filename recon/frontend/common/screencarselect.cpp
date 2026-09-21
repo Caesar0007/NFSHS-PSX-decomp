@@ -888,7 +888,9 @@ void tScreenCarSelect::DrawVideoWall(short y)
    old code did `return 1;`/bare `return;`/fell off the end with bare `return;` in an `int` fn --
    oracle explicitly zeroes $v0 before EVERY early-out (real `return 0;`) and materializes
    `li v0,1` only at the shared success tail; rewritten with explicit 0/1 returns throughout. */
-extern byte D_8011472A, D_80114604, D_80114723, D_80114729;
+/* 2026-09-22: the four "separate small globals" of the note above are members of nfs3.obj's `frontEnd` (@0x80114600,
+   1104 bytes in the SYM): +4 raceType, +0x123 garageCar[0], +0x129 sellerCar, +0x12a carListType.  The 2026-07-11 body
+   had the case mapping wrong, not the source; with the right mapping the plain member reads compile to retail's code. */
 
 bool tScreenCarSelect::GetCar(tCarInfo &carInfo)
 
@@ -917,7 +919,7 @@ bool tScreenCarSelect::GetCar(tCarInfo &carInfo)
     carInfo.fColor = color;
     break;
   case 7:
-    if (D_8011472A == 1) {
+    if (frontEnd.carListType == 1) {
       if (carManager.GetNumOwnedCars(0) <= 0) {
         return 0;
       }
@@ -933,16 +935,16 @@ bool tScreenCarSelect::GetCar(tCarInfo &carInfo)
     carInfo.fCountry = frontEnd.carCountry[0][(signed char)carInfo.fCarID];
     break;
   default:
-    if (carManager.GetNumOwnedCars(0) <= 0 && D_80114604 != 1) {
+    if (carManager.GetNumOwnedCars(0) <= 0 && frontEnd.raceType != 1) {
       return 0;
     }
-    if (D_80114604 == 2 && this->fState != 3) {
+    if (frontEnd.raceType == 2 && this->fState != 3) {
       if (carManager.GetNumTourneyCars(0) <= 0) {
         return 0;
       }
     }
     carManager.GetStockCar((ushort)(byte)
-        ((this->fState == 3) ? D_80114729 : D_80114723),carInfo);
+        ((this->fState == 3) ? frontEnd.sellerCar : frontEnd.garageCar[0]),carInfo);
     carInfo.fCountry = frontEnd.carCountry[0][(signed char)carInfo.fCarID];
   }
   carInfo.fColor = carInfo.fColorOrder[carInfo.fColor];

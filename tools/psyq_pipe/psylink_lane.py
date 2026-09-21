@@ -248,7 +248,7 @@ if '--assemble' in steps:
     PADS = retail_pads(rows) if '--no-pads' not in sys.argv and not OFFICIAL else {}
     (WOUT / 'pad8.json').write_text(json.dumps({o: p for o, p in PADS.items()}, indent=0))
     srcs = sorted([*(ROOT / 'recon').rglob('*.cpp'), *(ROOT / 'recon').rglob('*.c')])
-    nfront = 0
+    nfront = 0; FRONT_LIST = []
     for s in srcs:
         sfile = ROOT / 'build' / (s.relative_to(ROOT).as_posix() + '.s')
         gfile = ROOT / 'build' / 'gdebug' / (s.relative_to(ROOT).as_posix() + '.s')
@@ -266,7 +266,12 @@ if '--assemble' in steps:
         bo = 'build/' + rel + '.o'
         front = (bo in FRONT) if bo in HONEST_OBJS else rel.startswith('recon/frontend/')
         nfront += front
-        tmp = OUT / (rel.replace('/', '__') + '.s'); crlf(sfile, tmp, front=front, pads=PADS.get(bo), g=int(g))
+        if front:
+            FRONT_LIST.append(objname(rel))
+        # official lane: overlay objects keep PLAIN section names and native COMMONs; slink_lane.py includes them as
+        # `include x.obj,front` and the LINKER prefixes their sections, as retail's script did (NFS4_LANE_FRONT=named = old way).
+        as_front = front and not (OFFICIAL and os.environ.get('NFS4_LANE_FRONT') != 'named')
+        tmp = OUT / (rel.replace('/', '__') + '.s'); crlf(sfile, tmp, front=as_front, pads=PADS.get(bo), g=int(g))
         obj = OUT / objname(rel)
         cmd = [ASPSX, '-q', *(['-g'] if dbg else []), f'-G{g}', str(tmp), '-o', str(obj)]
         if obj.exists():
@@ -282,6 +287,7 @@ if '--assemble' in steps:
         if (OUT / n).exists():
             (OUT / n).unlink()
     print('ASPSX ok %d bad %d (front-overlay objects: %d)' % (ok, bad, nfront))
+    (OUT / 'front_objs.json').write_text(json.dumps(FRONT_LIST, indent=0))
     (WOUT / 'assemble_fails.json').write_text(json.dumps(fails, indent=0))
 
 

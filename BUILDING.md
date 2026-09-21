@@ -288,6 +288,12 @@ What the original build was (each point is measured, 2026-09-21):
   Sony's data, which Sony's libraries now define themselves.
 - **EA's own libraries** (`eacpsxz`, `sndpsxz`, `spchpsxz`) were `.lib` files too, pulled on demand. The lane packs ours
   with SN's librarian (`PSYLIB2 /a`) under the retail member names.
+- **The overlay objects are prefixed by the linker, not by the assembler**: `include x.obj,front` in the script. slink then
+  renames their sections to `front.*` and puts their uninitialised globals into `front.bss` with its own layout (exact that
+  way; a hand-made layout was 24 bytes short). The retail MAP's section symbols give EA's whole section list, which the
+  lane's script mirrors: `.rdata .text .data .sdata .ctors .dtors textpsx.text textpsx.rdata textpsx.data textpsx.sdata`
+  in `text`, `.sbss .bss` in `bss`, a `last` group with `.last` (its `__last_obj` is the start of free memory), and
+  `front.rdata front.text front.data front.sdata front.sbss front.bss front.ctors front.dtors` in `front`.
 - **The front-end overlay sections are declared with 8-byte alignment** (`section.8 front.text,front` ...): slink then
   aligns every object's chunk to 8, which is the 4-byte pad after every front-end object that no assembler produced.
 
@@ -314,7 +320,7 @@ writes `build/psyq_off/off.lnk`, runs slink and reports. Result:
 | `.sbss` | 0x164 | 0x164 | **exact** |
 | `.sdata` | 0x1824 | 0x1830 | -12: `pageflip.obj`'s three words; nothing in our objects pulls that member in (needs the `vsync.obj` source) |
 | `.bss` | 0xAC28 | 0xAC24 | +4 |
-| `front.bss` | 0x19F8 | 0x1A10 | -24: layout of the overlay objects' uninitialised globals |
+| `front.bss` | 0x1A10 | 0x1A10 | **exact** |
 
 (2026-09-21, after the data-ownership pass. Before it: `.rdata` -468, `front.rdata` -128, `.data` -84, `.sdata` -44,
 `.sbss` +28, `.bss` -36. With `.rdata` exact, `.text` starts at the retail address and 2,183 of the 3,167 functions are

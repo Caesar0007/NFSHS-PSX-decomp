@@ -155,12 +155,31 @@ for ln in head:
     if re.match(r'^\s+org\s', ln):
         lnk.append('\tregs\tpc=__SN_ENTRY_POINT')
 lnk = [l for l in lnk if not re.match(r'^\s+section\s', l)]
-lnk += ['\tsection\t.rdata,text', '\tsection\t.text,text', '\tsection\t.data,text', '\tsection\t.sdata,text',
-        '\tsection\t.ctors,text', '\tsection\t.dtors,text', '\tsection\t.sbss,bss', '\tsection\t.bss,bss',
-        '\tsection\tfront.rdata,front', '\tsection\tfront.text,front', '\tsection\tfront.data,front', '\tsection\tfront.bss,front',
-        '\tsection\tfront.ctors,front', '\tsection\tfront.dtors,front']
+# The section list of EA's script, read off the retail MAP: slink makes `_<section>_obj/_org` symbols for every section the
+# script names, and retail has them for .ctors/.dtors (empty, end of `text`), four empty `textpsx.*` sections, front.sdata
+# and front.sbss (empty, between front.data and front.bss), front.ctors/front.dtors (empty, end of `front`) and a `last`
+# group at the very end of .bss (`__last_obj`, which the game takes as the start of free memory).
+if '--oldscript' in sys.argv:
+    lnk += ['\tsection\t.rdata,text', '\tsection\t.text,text', '\tsection\t.data,text', '\tsection\t.sdata,text',
+            '\tsection\t.ctors,text', '\tsection\t.dtors,text', '\tsection\t.sbss,bss', '\tsection\t.bss,bss',
+            '\tsection\tfront.rdata,front', '\tsection\tfront.text,front', '\tsection\tfront.data,front', '\tsection\tfront.bss,front',
+            '\tsection\tfront.ctors,front', '\tsection\tfront.dtors,front']
+else:
+    k = next(i for i, l in enumerate(lnk) if l.startswith('front') and 'group' in l)
+    lnk.insert(k, 'last\tgroup\tbss')
+    lnk += ['\tsection\t.rdata,text', '\tsection\t.text,text', '\tsection\t.data,text', '\tsection\t.sdata,text',
+            '\tsection\t.ctors,text', '\tsection\t.dtors,text',
+            '\tsection\ttextpsx.text,text', '\tsection\ttextpsx.rdata,text', '\tsection\ttextpsx.data,text', '\tsection\ttextpsx.sdata,text',
+            '\tsection\t.sbss,bss', '\tsection\t.bss,bss', '\tsection\t.last,last',
+            '\tsection\tfront.rdata,front', '\tsection\tfront.text,front', '\tsection\tfront.data,front',
+            '\tsection\tfront.sdata,front', '\tsection\tfront.sbss,front', '\tsection\tfront.bss,front',
+            '\tsection\tfront.ctors,front', '\tsection\tfront.dtors,front']
 if FRONTALIGN:
-    lnk = [l.replace('	section	front.', '	section.%s	front.' % FRONTALIGN) for l in lnk]
+    lnk = [l.replace('\tsection\tfront.', '\tsection.%s\tfront.' % FRONTALIGN) for l in lnk]
+# the overlay objects carry PLAIN section names; `include x.obj,front` makes the LINKER prefix them -- which also sends
+# their COMMONs to front.bss, with the linker's own layout (front.bss exact that way; a hand-made layout was 24 short)
+fr = set(json.load(open(OUT / 'front_objs.json'))) if (OUT / 'front_objs.json').exists() and '--oldscript' not in sys.argv else set()
+game = [g + ',front' if g.split()[-1] in fr else g for g in game]
 lnk += game
 for fn, note in (gaps if '--gaps' in sys.argv else []):   # retail-byte fillers of the PSYLINK lane: not part of an original-style link
     lnk.append('\tinclude\t%s\t; %s (retail bytes, no TU yet)' % (fn, note))

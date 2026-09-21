@@ -2,8 +2,9 @@
 import difflib
 import re
 import sys
+from pathlib import Path
 
-R = 'C:/Temp/nfs4-decomp/build/'
+R = Path(__file__).resolve().parents[2].as_posix() + '/build/'
 
 
 def fns(p):

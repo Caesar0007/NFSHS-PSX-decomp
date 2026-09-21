@@ -1,8 +1,9 @@
 """sdk_bss.py LIB/MEMBER ... -- per-section sizes of PsyQ 4.3 SN objects (code bytes + uninitialised-space records) and
 their XBSS symbols (uninitialised globals the linker allocates in the named section)."""
 import sys
+from pathlib import Path
 
-sys.path.insert(0, 'C:/Temp/nfs4-decomp/tools')
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import objtruth
 
 for m in sys.argv[1:]:

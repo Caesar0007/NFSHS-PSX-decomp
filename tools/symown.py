@@ -18,7 +18,7 @@ import argparse
 import re
 from pathlib import Path
 
-SYM = Path(r__import__('retail_sym').txt())
+SYM = Path(__import__('retail_sym').txt())
 DEF = re.compile(r"^[0-9a-f]+: \$([0-9a-f]{8}) (?:94 Def|96 Def2) class (\S+) (.*?)name (\S+)\s*$")
 FILEREC = re.compile(r"^[0-9a-f]+: \$[0-9a-f]{8} 94 Def class FILE type NULL size 0 name (\S+)")
 

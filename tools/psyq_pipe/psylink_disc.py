@@ -15,7 +15,7 @@ import struct
 import subprocess
 from pathlib import Path
 
-ROOT = Path('C:/Temp/nfs4-decomp')
+ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / 'build' / 'psyq'
 DISC = OUT / 'disc'
 PSYLINK = 'C:/Temp/psq43/PSSN/PSYLINK.EXE'

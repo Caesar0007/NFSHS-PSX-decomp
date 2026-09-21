@@ -36,7 +36,7 @@ import os
 import sys, re, json, subprocess, os, struct
 from pathlib import Path
 from collections import defaultdict, Counter
-ROOT = Path('C:/Temp/nfs4-decomp'); sys.path.insert(0, str(ROOT / 'tools'))
+ROOT = Path(__file__).resolve().parents[2]; sys.path.insert(0, str(ROOT / 'tools'))
 import build
 ASPSX = 'C:/Temp/psq43/PSSN/ASPSX.EXE'; PSYLINK = 'C:/Temp/psq43/PSSN/PSYLINK.EXE'
 if '--aspsx' in sys.argv:                     # e.g. --aspsx C:/Temp/claud/scratch_dos/ASPSX256.EXE

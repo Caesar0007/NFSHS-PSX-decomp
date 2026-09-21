@@ -4,8 +4,9 @@ import re
 import struct
 import subprocess
 import sys
+from pathlib import Path
 
-R = 'C:/Temp/nfs4-decomp/'
+R = Path(__file__).resolve().parents[2].as_posix() + '/'
 B = 'C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-'
 obj, fn, sdk = sys.argv[1:4]
 lib, name = sdk.split('/')

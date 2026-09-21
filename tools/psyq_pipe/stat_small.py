@@ -2,10 +2,11 @@
 does retail carry a `name.NN` label for the static, and where does OUR link put it?"""
 import re
 import subprocess
+from pathlib import Path
 
 SYM = __import__('retail_sym').txt()
 NM = 'C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-nm.exe'
-ELF = 'C:/Temp/nfs4-decomp/build/gen_ld/recon_multdef-ok.elf'
+ELF = (Path(__file__).resolve().parents[2] / 'build/gen_ld/recon_multdef-ok.elf').as_posix()
 small, labels = {}, {}
 for l in open(SYM, errors='replace'):
     m = re.match(r'^[0-9a-f]+: \$([0-9a-f]{8}) 9[46] Def2? class STAT .* name (\S+)$', l)

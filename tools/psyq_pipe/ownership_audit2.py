@@ -6,7 +6,7 @@ import re
 from collections import Counter
 from pathlib import Path
 
-ROOT = Path('C:/Temp/nfs4-decomp')
+ROOT = Path(__file__).resolve().parents[2]
 LOAD = 0x80010000
 n = len((ROOT / 'rom/nfs4-f.exe').read_bytes()[0x800:])
 lines = (ROOT / 'build/gen_ld/recon_multdef-ok.map').read_text(errors='replace').splitlines()

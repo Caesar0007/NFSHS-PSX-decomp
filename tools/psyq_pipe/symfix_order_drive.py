@@ -7,7 +7,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-ROOT = Path('C:/Temp/nfs4-decomp')
+ROOT = Path(__file__).resolve().parents[2]
 (ROOT / 'scratchpad' / 'psyq_pipe').mkdir(parents=True, exist_ok=True)   # local, git-ignored work area
 PY = sys.executable
 FIX = str(ROOT / 'tools/psyq_pipe' / (sys.argv[1] if len(sys.argv) > 1 else 'symfix_order.py'))   # any fixer with the same CLI / report lines

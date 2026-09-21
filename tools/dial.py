@@ -3,8 +3,9 @@ For each variant: gate + a fresh REAL-CC1PLPSX -dl/-dg dump, then print the
 allocsim row (refs/live/pri/reg) for the listed pseudos.  Always restores.
 """
 import os, re, runpy, subprocess, sys, tempfile
+from pathlib import Path
 
-ROOT = r"C:/Temp/nfs4-decomp"
+ROOT = Path(__file__).resolve().parents[1].as_posix()
 CPP = r"C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-cpp.exe"
 CC1PL = r"C:/Temp/psq43/COMPILER/CC1PLPSX.EXE"
 HERE = os.path.join(tempfile.gettempdir(), "w62a12dial_%d" % os.getpid())

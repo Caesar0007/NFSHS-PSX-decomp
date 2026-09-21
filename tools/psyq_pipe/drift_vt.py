@@ -1,8 +1,9 @@
 """drift_vt.py -- PSYLINK lane: every `_vt.*` table of our SYM vs the retail SYM (plain `2` label records, which drift.py
 does not read).  Prints, per read-only section, the base delta and every change point in table order."""
 import re
+from pathlib import Path
 
-OURS = 'C:/Temp/nfs4-decomp/scratchpad/psyq_pipe/nfs4_sym.txt'
+OURS = (Path(__file__).resolve().parents[2] / 'scratchpad/psyq_pipe/nfs4_sym.txt').as_posix()
 RETAIL = __import__('retail_sym').txt()
 pat = re.compile(r'^[0-9a-f]+: \$([0-9a-f]{8}) [126] (_vt\.\S+)$')
 

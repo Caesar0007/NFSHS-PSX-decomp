@@ -1,8 +1,9 @@
 """bss_holes.py -- the retail .sbss/.bss address ranges NO reconstructed section is placed on (from the honest link map),
 each with the retail labels inside it and the link-order bracket of its placed neighbours."""
 import re
+from pathlib import Path
 
-R = 'C:/Temp/nfs4-decomp/'
+R = Path(__file__).resolve().parents[2].as_posix() + '/'
 SYM = __import__('retail_sym').txt()
 LO, HI = 0x8013DD7C, 0x80148B04
 order, labels = [], []

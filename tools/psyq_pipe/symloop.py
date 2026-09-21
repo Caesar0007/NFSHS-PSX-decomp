@@ -15,7 +15,7 @@ import subprocess
 import sys
 import tempfile
 
-ROOT = Path('C:/Temp/nfs4-decomp')  # same checkout as downstream lane tools
+ROOT = Path(__file__).resolve().parents[2]  # same checkout as downstream lane tools
 PY = sys.executable
 SECTIONS = ('.text', '.rodata', '.data', '.sdata')
 

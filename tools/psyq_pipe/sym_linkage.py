@@ -4,8 +4,9 @@ out-of-line, key function vs all-inline class) although the bytes already match.
 import re
 import sys
 from collections import Counter
+from pathlib import Path
 
-OURS = 'C:/Temp/nfs4-decomp/scratchpad/psyq_pipe/nfs4_sym.txt'
+OURS = (Path(__file__).resolve().parents[2] / 'scratchpad/psyq_pipe/nfs4_sym.txt').as_posix()
 RETAIL = __import__('retail_sym').txt()
 pat = re.compile(r'^[0-9a-f]+: \$([0-9a-f]{8}) ([126]) (\S+)$')
 

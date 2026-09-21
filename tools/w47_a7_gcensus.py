@@ -88,7 +88,7 @@ import sys
 from pathlib import Path
 
 OBJDUMP = r"C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-objdump.exe"
-SYMFILE = r__import__('retail_sym').txt()
+SYMFILE = __import__('retail_sym').txt()
 MAPFILE = r"C:/Temp/nfs4-clean/NFS4.MAP"
 ROOT = Path(__file__).resolve().parent.parent
 # `expected/` is gitignored (a build artifact of the main tree), so a worktree

@@ -3,8 +3,9 @@
     records of these functions live in Speech.obj's block, which defines the 14 structs;
   * retail declares `parms` BEFORE `i`."""
 import re
+from pathlib import Path
 
-R = 'C:/Temp/nfs4-decomp/'
+R = Path(__file__).resolve().parents[2].as_posix() + '/'
 NL = chr(10)
 p = R + 'recon/game/common/spchevnt.c'
 s = open(p, encoding='utf-8').read()

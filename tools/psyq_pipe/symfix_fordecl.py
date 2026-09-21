@@ -14,7 +14,7 @@ import sys
 from collections import Counter, defaultdict
 from pathlib import Path
 
-ROOT = Path('C:/Temp/nfs4-decomp')
+ROOT = Path(__file__).resolve().parents[2]
 spec = importlib.util.spec_from_file_location('stp', str(ROOT / 'tools/psyq_pipe/symtree_parse.py'))
 stp = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(stp)

@@ -4,7 +4,8 @@ and the retail SYM: a change of (ours - retail) between two consecutive retail s
 means the object in between has a different size (or is missing) in our link."""
 import re, sys
 from collections import defaultdict
-OURS = 'C:/Temp/nfs4-decomp/scratchpad/psyq_pipe/nfs4_sym.txt'
+from pathlib import Path
+OURS = (Path(__file__).resolve().parents[2] / 'scratchpad/psyq_pipe/nfs4_sym.txt').as_posix()
 RETAIL = __import__('retail_sym').txt()
 RET = [('front.rdata', 0x80010000, 0x800128F0), ('front.text', 0x800128F0, 0x80051260),
        ('front.data', 0x80051260, 0x80052B38), ('front.bss', 0x80052B38, 0x80054548),

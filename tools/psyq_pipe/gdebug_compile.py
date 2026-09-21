@@ -8,7 +8,7 @@ import re
 import sys
 from pathlib import Path
 
-ROOT = Path('C:/Temp/nfs4-decomp')
+ROOT = Path(__file__).resolve().parents[2]
 (ROOT / 'scratchpad' / 'psyq_pipe').mkdir(parents=True, exist_ok=True)   # local, git-ignored work area
 sys.path.insert(0, str(ROOT / 'tools'))
 import build  # noqa: E402

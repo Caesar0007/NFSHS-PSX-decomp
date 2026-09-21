@@ -246,7 +246,7 @@ of `.text` has no change point. The differences are:
 5. **Dead stripping.** Retail's link removed unreferenced functions; stock PSYLINK 2.73 / 2.74 does not. The lane models
    it by not assembling the functions tagged `LINK_STRIPPED`. Linking Sony's own library members instead of our
    reconstructions would solve points 1 and 2 at once but bring the unstripped functions back, so an exact Route B needs
-   the linker EA actually used, which is not identified.
+   the linker EA actually used. That linker is now identified (SN's SLINK) and tested: see Route C.
 
 The modules that still have no source file (`sdasync`, `unitvect`, `textsubs`, `hypot3d`, `hypot`) are **not** a cause:
 all their functions were stripped, so they add no text.
@@ -260,6 +260,74 @@ chunk of exactly 282,000 bytes at `0x80010000` (`bigbuf.obj`), and no overlay by
 
 A full-debug variant of this lane (compiler `-g`, ASPSX `-g`) emits a complete `.SYM` from our source for comparison
 with retail's; see `sym-match.md`.
+
+## Route C — the way the original was linked (SLINK + Sony's prebuilt libraries)
+
+A test lane that links the project the way EA's makefile did. It is the answer to "what is the official way to build
+this": with it, **`.text`, `front.text` and `front.data` come out at exactly the retail size, every one of the 3,167
+functions both maps name is identical to retail's, and the linker removes the same dead functions retail removed.**
+
+What the original build was (each point is measured, 2026-09-21):
+
+- **Compile**: `ccpsx -O2 -g` per file = cc1 / cc1plus + ASPSX, as in Route B.
+- **Linker: SN's SLINK, not PSYLINK.** The retail `NFS4.MAP` is in slink's map format (no `Program entry point` line,
+  one space between address and name; PSYLINK writes both differently). SLINK is "the new SN linker" of 1998/99; SN
+  shipped Beta 3.0 (1999-01-05, six weeks before the retail link of 1999-02-22) on the PsyQ 4.4 CD as
+  `pssn/Slink/slink3b.zip`, manual included. It needs `.ctors` / `.dtors` sections in the script, which is where the
+  `__ctors_*`, `__dtors_*` and `_front_ctors_*` symbols in the retail MAP come from.
+- **`/strip`** = "strip dead code based on static coverage": slink removes every function nothing reaches from the entry
+  point, libraries included (EA did not pass `/nostriplib`). This is the dead stripping Routes A and B model by hand with
+  `LINK_STRIPPED`. Sony's startup object has to be protected, exactly as the slink manual says (`-nostrip stup1`);
+  without it slink removes `stup1`, `main` and half the game.
+- **Sony's libraries prebuilt**: `inclib` of the PsyQ **4.3** `LIB*.LIB` files plus `2MBYTE.OBJ` — except **`LIBCD.LIB`,
+  which is the PsyQ 4.4 one** (retail `CdRead` is 39 words longer than 4.3's; with the 4.4 libcd every Sony function
+  matches, with all-4.4 or all-4.5 libraries 43 / 50 functions differ).
+- **EA's own libraries** (`eacpsxz`, `sndpsxz`, `spchpsxz`) were `.lib` files too, pulled on demand. The lane packs ours
+  with SN's librarian (`PSYLIB2 /a`) under the retail member names.
+- **The front-end overlay sections are declared with 8-byte alignment** (`section.8 front.text,front` ...): slink then
+  aligns every object's chunk to 8, which is the 4-byte pad after every front-end object that no assembler produced.
+
+```bash
+NFS4_LANE_OFFICIAL=1 NFS4_LANE_OUT=build/psyq_off python tools/psyq_pipe/psylink_lane.py --assemble --link
+```
+
+```bash
+python tools/psyq_pipe/slink_lane.py
+```
+
+The first command assembles the objects as the original build had them: functions tagged `LINK_STRIPPED` are **kept**
+(the linker has to remove them, not us) and no retail-derived pads are added. The second builds the three EA libraries,
+writes `build/psyq_off/off.lnk`, runs slink and reports. Result:
+
+| | ours | retail | |
+|---|---|---|---|
+| `.text` | 0xB5358 | 0xB5358 | **exact** |
+| `front.text` | 0x3E970 | 0x3E970 | **exact** |
+| `front.data` | 0x18D8 | 0x18D8 | **exact** |
+| `.rdata` / `front.rdata` | | | -468 / -128 |
+| `.data` / `.sdata` / `.sbss` / `.bss` / `front.bss` | | | -84 / -44 / +28 / -36 / -24 |
+
+- `/strip` removed 82 functions (7,944 bytes; without `/strip` `.text` is exactly that much too big). 76 are on our
+  hand-made list `linkers/link_stripped.json`; the other 6 (`StopCallback`, `RestartCallback`, `GetIntrMask`,
+  `CdReadBreak`, `CdReadCallback`, `CdReadMode`) are absent from the retail MAP as well — retail removed them too, we
+  never listed them because our reconstruction never contained them. Nothing retail keeps is removed.
+- `python tools/psyq_pipe/slink_bytes.py off`: 3,167 functions compared, all identical to retail apart from the
+  addresses they contain (4 are reported only because a neighbouring library member sits elsewhere).
+- `python tools/psyq_pipe/slink_order.py off`: slink pulls the library members **on demand in retail's order** — 447 of
+  462 objects are in the same relative order, including the way Sony's and EA's members interleave. The 15 displaced
+  ones are EA library members that retail pulled in earlier than we do, i.e. something referenced them that our objects
+  do not contain: a function retail's link later removed, or one of the modules that still have no source (`sdasync`,
+  `unitvect`, `textsubs`, `hypot3d`, `hypot`). libc `C52.obj` (`free`) is the same case: retail pulled it in, nothing
+  in our objects does.
+- `python tools/psyq_pipe/slink_delta.py off`: where the data sections fall short. These are not link settings but data
+  our sources do not own yet (Route A fills it from the residual blobs): virtual tables and literal pools in `.rdata`,
+  the `"SimpleMem"` tags, a few library-side tables, and the per-symbol `.sbss` / `.bss` order of some EA library files.
+
+So Route C is not byte-identical yet either, but for a different reason than Route B: the link recipe is right and
+the code is exact; what is missing is data ownership in our sources. Points 1, 2 and 5 of the Route B list disappear.
+
+Not vendored (SN's / Sony's copyright): `slink.exe` (the lane unpacks it from `C:/Temp/psq44/pssn/Slink/slink3b.zip`),
+`PSYLIB2.EXE`, and the SDK libraries.
 
 ## Where things end up
 

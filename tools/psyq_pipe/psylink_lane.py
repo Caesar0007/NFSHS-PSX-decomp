@@ -3,6 +3,8 @@
 cc1 .s (from build/) -> ASPSX 2.77 (-G per TU) -> PSYLINK 2.73 in the retail link order
 (from the SYM FILE records) -> dumpsym -> per-object section starts vs the retail SYM.
 usage: psylink_lane.py [--assemble] [--link] [--compare]  (default: all)
+env:   NFS4_LANE_OUT=dir  NFS4_LANE_G=1 (full debug)  NFS4_LANE_ONLY=a,b  NFS4_LANE_OFFICIAL=1 (objects for slink_lane.py:
+       LINK_STRIPPED bodies kept, no retail-derived pads, no forced rounding of frontend sections)
 
 Link-order rules (all derived, nothing hand-placed):
   * retail objects are included in SYM FILE-record order, matched to recon TUs by name;
@@ -49,6 +51,8 @@ GMODE = os.environ.get('NFS4_LANE_G') == '1'   # full-debug lane (see psylink_gm
 OUT = ROOT / os.environ.get('NFS4_LANE_OUT', 'build/psyq'); OUT.mkdir(parents=True, exist_ok=True)
 W = ROOT / 'scratchpad' / 'psyq_pipe'; W.mkdir(parents=True, exist_ok=True)   # local, git-ignored work area (generated outputs)
 HERE = Path(__file__).resolve().parent                                        # versioned inputs live next to the tool
+OFFICIAL = os.environ.get('NFS4_LANE_OFFICIAL') == '1'   # slink_lane.py: objects as the ORIGINAL build had them -- LINK_STRIPPED bodies kept
+#   (the linker strips them, not us), no retail-derived trailing pads, no forced 8-byte rounding of frontend sections
 ONLY = [f for f in os.environ.get('NFS4_LANE_ONLY', '').split(',') if f]   # per-file loop: assemble just these TUs
 WOUT = OUT if GMODE else W      # scratch OUTPUTS; inputs (sym_obj_order.json) always come from W
 RET = [('front.rdata', 0x80010000, 0x800128F0), ('front.text', 0x800128F0, 0x80051260),
@@ -123,6 +127,8 @@ def base_section(s):
     m = SECTION_RE.match(s)
     if m:
         nm = m.group(1)
+        if OFFICIAL and nm in (b'.text.strip', b'.rodata.strip', b'.bss.strip'):
+            return {b'.text.strip': b'.text', b'.rodata.strip': b'.rdata', b'.bss.strip': b'.bss'}[nm]
         if nm in (b'.text.strip', b'.rodata.strip', b'.bss.strip'):   # LINK_STRIPPED / LINK_STRIPPED_RODATA (recon/link_stripped.h): removed by retail's final link
             return b'strip.text'
         if nm in (b'.rodata', b'.rdata') or nm.startswith((b'.rodata.', b'.rdata.')):
@@ -205,7 +211,9 @@ def sn_text(src: Path, vtables=False, front=False, pads=None, g=None) -> bytes:
                 out.append(b'\t.globl ' + name)
             out.append(name + b':')
             out.append(b'\t.space ' + str(size).encode())
-    if front:
+    if OFFICIAL:
+        pass
+    elif front:
         # every retail frontend-overlay object has 8-byte-aligned sections (41/41 .text
         # starts, and the front.data drift shows the same 4-byte gaps): round each section
         # up to 8 relative to its own start, which is what the retail objects carry.
@@ -232,7 +240,7 @@ def objname(rel):
 if '--assemble' in steps:
     ok = bad = 0; fails = []
     rows = honest_sections(); FRONT = front_objects(rows); HONEST_OBJS = {o for _, _, _, o in rows}
-    PADS = retail_pads(rows) if '--no-pads' not in sys.argv else {}
+    PADS = retail_pads(rows) if '--no-pads' not in sys.argv and not OFFICIAL else {}
     (WOUT / 'pad8.json').write_text(json.dumps({o: p for o, p in PADS.items()}, indent=0))
     srcs = sorted([*(ROOT / 'recon').rglob('*.cpp'), *(ROOT / 'recon').rglob('*.c')])
     nfront = 0

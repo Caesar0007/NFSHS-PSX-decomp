@@ -415,6 +415,7 @@ PER_TU_FLAGS = {
     "recon/eaclib/psx/eacpsxz/locatbig.c": {"g_value": "8"},   # defaultbigext[8] is retail .sdata @0x8013dc30 (2026-09-19)
     "recon/eaclib/psx/eacpsxz/wildcard.c": {"g_value": "8"},   # "&|!~^" literal is retail .sdata @0x8013dc48 (2026-09-18)
     "recon/eaclib/psx/eacpsxz/textcrnt.c": {"g_value": "8"},   # its unreferenced "%c" literal is retail .sdata @0x8013dd24 (2026-09-21)
+    "recon/eaclib/psx/eacpsxz/meminit.c":  {"g_value": "8"},   # initmemadr's "RAM" literal is retail .sdata @0x8013dd48 (2026-09-21)
     "recon/eaclib/psx/eacpsxz/loadshp.c":  {"g_value": "8"},   # ".psh" + shapeext are retail .sdata @0x8013dd18/20 (2026-09-18)
     "recon/syslib/psx/libapi/PAD.c":       {"g_value": "0", "cc1_272": True},   # Sony 2.7.2-era lane: LINK_STRIPPED SetInitPadFlag has the old ASPSX `lui $at; jr; sw` macro split   # Sony libapi: owns _init_pad_flag + pad MMIO pointers, .data @0x8013c338 (2026-09-19)
     "recon/syslib/psx/libgte/MSC00.c":     {"g_value": "0"},   # Sony libgte: ra-save scratch is a .data word @0x80134a70 (2026-09-17)

@@ -1280,7 +1280,7 @@
   ]
  },
  {
-  "obj": "build/recon/eaclib/psx/eacpsxz/callback.c.o",
+  "obj": "build/recon/eaclib/psx/eacpsxz/threads.c.o",
   "base": 2147841464,
   "end": 2147841541,
   "size": 77,

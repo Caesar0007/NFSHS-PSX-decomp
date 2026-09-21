@@ -43,19 +43,12 @@ extern void DisableEvent(int ev);
 extern void SetRCnt(int spec, unsigned short target, int mode);
 extern void StartRCnt(int spec);
 
-/* initmemadr @0x800F4180 : carve `base[size]` into the default memory class (id 0),
- * gran 8 / align 0x20 / no guards / MEM_defaultevent handler, and cache the class id. */
-int initmemadr(int base, int size)
-{
-    char *name = "RAM";                 /* compiler-owned writable literal @0x8013DD48 */
-    int r = creatememclass(0, name, (char *)base, size,
-                           8, 0x20, 0, 0, 0, 0, 0, (int)MEM_defaultevent);
-    memclass[1] = memclass[0];               /* cached copy @0x8013E904 */
-    return r;
-}
+/* initmemadr (0x800F4180) is NOT in this object: it is meminit.obj's (2026-09-21).  Retail pulls fileroot.obj, meminit.obj,
+ * inittmr.obj in that order for platform.obj's setdirectory / initmemadr / inittimer -- so initmemadr lives in meminit.obj,
+ * which its name says too (tools/psyq_pipe/slink_pullsim.py). */
 
 /* inittimer @0x800F41F0 : install (once) the RCnt event + restore hook, then arm the counter for `hz` Hz. */
-int timerflag = 0;   /* @0x8013DD4C: initialized, defined AFTER initmemadr so it follows the "RAM" literal in .sdata (retail order) */
+int timerflag = 0;   /* @0x8013DD4C: initialized; the "RAM" literal in front of it (0x8013DD48) is meminit.obj's, the previous object in link order */
 
 int inittimer(int hz)
 {

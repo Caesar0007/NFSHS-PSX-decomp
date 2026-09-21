@@ -32,7 +32,8 @@ SOURCE_ZERO_OWNERS=(
     # Native SYM019c9b/MAP and both raw allocmutex address pairs prove the VA.
     # Type spelling short[64] remains inferred. Backups/negative controls:
     # scratchpad/p904_checkpoint and scratchpad/p904_callback_owner.
-    dict(source='recon/eaclib/psx/eacpsxz/callback.c',section='.bss',
+    # 2026-09-21: the mutex pool is threads.obj's, not callback.obj's (retail pulls threads.obj for `allocmutex`; slink_pullsim.py).
+    dict(source='recon/eaclib/psx/eacpsxz/threads.c',section='.bss',
          address=0x801477E0,size=128,alignment=4,output='.callback_mutexbuf',
          symbols=(('mutexbuf',0,128,1),),exact_symbols=True,
          evidence='SYM019c9b mutexbuf; MAP BSS;32 four-byte slots; native next symbol80147860'),

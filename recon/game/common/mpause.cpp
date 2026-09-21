@@ -6,6 +6,10 @@
 #include "../../lib/nfs4_new.h"
 #include "mpause_externs.h"
 
+/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x80055FD0): the unused inline of the
+ * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 /* ---- mpause.obj OWNED globals (Ghidra left $gp-relative; SYM names via disasm-proto,
  *   $gp base 0x8013C54C). EXT = external linkage (other TUs extern these); STAT = file-static. */
 /* CC1PLPSX emission law: INITIALIZED globals are emitted at their definition

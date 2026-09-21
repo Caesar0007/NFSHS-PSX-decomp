@@ -2,12 +2,12 @@
  {
   "obj": "build/recon/game/common/ai.cpp.o",
   "section": ".rodata",
-  "base": 2147831204,
+  "base": 2147831192,
   "end": 2147831216,
-  "size": 12,
+  "size": 24,
   "ok": true,
   "unresolved": 0,
-  "words": 3,
+  "words": 6,
   "q": 1
  },
  {
@@ -35,34 +35,34 @@
  {
   "obj": "build/recon/game/common/aiperson.cpp.o",
   "section": ".rodata",
-  "base": 2147832660,
+  "base": 2147832648,
   "end": 2147832735,
-  "size": 75,
+  "size": 87,
   "ok": true,
   "unresolved": 0,
-  "words": 18,
+  "words": 22,
   "q": 1
  },
  {
   "obj": "build/recon/game/common/bworld.cpp.o",
   "section": ".rodata",
-  "base": 2147833984,
+  "base": 2147833972,
   "end": 2147833996,
-  "size": 12,
+  "size": 24,
   "ok": true,
   "unresolved": 0,
-  "words": 3,
+  "words": 6,
   "q": 1
  },
  {
   "obj": "build/recon/game/psx/hrzsku.cpp.o",
   "section": ".rodata",
-  "base": 2147838132,
+  "base": 2147838120,
   "end": 2147838157,
-  "size": 25,
+  "size": 37,
   "ok": true,
   "unresolved": 0,
-  "words": 6,
+  "words": 10,
   "q": 1
  },
  {
@@ -79,12 +79,12 @@
  {
   "obj": "build/recon/game/psx/textureprocess.cpp.o",
   "section": ".rodata",
-  "base": 2147838648,
+  "base": 2147838636,
   "end": 2147838659,
-  "size": 11,
+  "size": 23,
   "ok": true,
   "unresolved": 0,
-  "words": 2,
+  "words": 6,
   "q": 1
  },
  {

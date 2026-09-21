@@ -6,6 +6,10 @@
  */
 #include "femenu.h"
 
+/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x800110B8): the unused inline of the
+ * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 /* ---- FEMenu.obj-OWNED globals -- DEFINED here (self-contained; .data=real EXE bytes) ---- */
 /* P872: native SYM 563d74 is scalar ENUM tPlayer (4 B). Frontend -G0
    preserves retail addressing without the old unsized-array carrier. */

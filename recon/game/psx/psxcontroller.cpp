@@ -5,6 +5,10 @@
  */
 #include "psxcontroller_externs.h"
 
+/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x80056984): the unused inline of the
+ * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 /* retail psxcontroller.obj data: mappings[config][row][padtype] (.data 0x80120dfc, 468
  * bytes) and the per-player handler base offsets hoff (STAT, .sdata 0x8013dac0 -- an
  * 8-byte static, so this is a -G8 object). Values read from the retail image. */

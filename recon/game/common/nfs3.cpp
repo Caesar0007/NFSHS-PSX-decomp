@@ -3,6 +3,10 @@
 #include "nfs3_externs.h"
 #include "../../lib/nfile.h"   /* FileMgr @0x8013EA88 == the `gFileDevice` symbol */
 
+/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x80055FF4): the unused inline of the
+ * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 
 /* ---- nfs3.obj-OWNED globals -- DEFINED here (self-contained; SYM-typed via gen_owned_defs:
    .data = real NFS4.EXE bytes, .bss = zero) ---- */

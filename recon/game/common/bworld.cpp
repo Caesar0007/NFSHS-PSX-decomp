@@ -6,6 +6,10 @@
 #include "bworld_types.h"
 #include "bworld_externs.h"
 
+/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x80055874): the unused inline of the
+ * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 /* ---- bworld.obj-owned globals (SYM-typed; .data=real EXE bytes, .bss=zero) ---- */
 matrixtdef   gWorldMat;   /* @0x8010ee40  (bss(zero)) */
 matrixtdef   gNightMat;   /* @0x8010ee64  (bss(zero)) */

@@ -4,6 +4,10 @@
 #include "genericpmx_types.h"
 #include "genericpmx_externs.h"
 
+/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x80055F88): the unused inline of the
+ * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 /* ---- genericpmx.obj-owned Draw_tPixMap globals ----
  * P912: native typed SYM27bd72..27be86 fixes the seven .data arrays at
  * 0x80112B2C..0x80113044 in the order below. Their zero-filled payload cannot

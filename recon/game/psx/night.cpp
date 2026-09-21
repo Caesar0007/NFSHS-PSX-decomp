@@ -6,6 +6,10 @@
 #include "night_types.h"
 #include "night_externs.h"
 
+/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x80056960): the unused inline of the
+ * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 /* ---- Night.obj-OWNED globals -- DEFINED here (self-contained; SYM-typed via gen_owned_defs:
    .data = real NFS4.EXE bytes, .bss = zero; extern-vs-SYM disagreements resolved to SYM) ---- */
 /* W67-A4: night.obj's retail .sdata run 0x8013d9e0..0x8013da28 is reproduced in

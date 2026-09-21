@@ -5,6 +5,10 @@
 #include "physics_types.h"
 #include "physics_externs.h"
 
+/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x80056364): the unused inline of the
+ * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 /* EA's canonical NFS2 symbol-bearing source uses these exact MIN/MAX
    expansions in Physics_GetTorque.  The NFS4 oracle confirms the same nested
    COND_EXPR shape; leaving either macro undefined emits a phantom `jal`, while

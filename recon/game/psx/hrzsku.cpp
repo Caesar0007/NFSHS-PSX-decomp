@@ -6,6 +6,10 @@
 #include "hrzsku_externs.h"
 #include "psyq_prim_macros.h"
 
+/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x800568A8): the unused inline of the
+ * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 /* No projection-scratch BSS lives here.  The old Hrz_gProjResultZ0/
    Hrz_gProjScratch_9C harness definitions were names invented for literal
    0x1f8000xx Draw_HorizonCache fields; P439 removed them after proving zero

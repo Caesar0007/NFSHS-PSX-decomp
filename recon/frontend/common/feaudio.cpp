@@ -5,6 +5,10 @@
  */
 #include "feaudio.h"
 
+/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x800100F8): the unused inline of the
+ * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 /* ---- FEAudio_StartLoadPatch  [FEAUDIO.CPP:43-64] SLD-VERIFIED ---- */
 
 int FEAudio_StartLoadPatch(SPEECHINFO *info)

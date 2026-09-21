@@ -5,6 +5,10 @@
 #include "aicop_types.h"
 #include "aicop_externs.h"
 
+/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x800551F4): the unused inline of the
+ * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 
 /* ---- aicop.obj-owned globals ----
  * copLevel_t IS A NESTED STRUCT (copChasers[2], numBlockaders, copBlockaders[2],

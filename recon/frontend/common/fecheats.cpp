@@ -6,6 +6,10 @@
  */
 #include "fecheats.h"
 
+/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x80011018): the unused inline of the
+ * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 static tCheat cheatList[10] = {   /* @0x80051628, byte-exact from retail binary */
     {{0x59,0x68,0x06,0x06,0x60,0x7e,0x7f,0x00}, 11},
     {{0x59,0x58,0x16,0x16,0x60,0x7e,0x7f,0x00}, 12},

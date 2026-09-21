@@ -6,6 +6,10 @@
 #include "trsproj_types.h"
 #include "trsproj_externs.h"
 
+/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x80056AE4): the unused inline of the
+ * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 /* ---- TrsProj.obj-OWNED global -- DEFINED here (self-contained). .data init = 10 (0x0a)
    read from NFS4.EXE @file_off 0x12e39c; SetPrecision resets it to 10. ---- */
 int               TrsProj_precision = 10;   /* @0x8013db9c */

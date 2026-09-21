@@ -5,6 +5,10 @@
 #include "stats_types.h"
 #include "stats_externs.h"
 
+/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x800565D8): the unused inline of the
+ * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 #define MIN(a,b) (((a) > (b)) ? (b) : (a))
 
 /* stats.obj-owned race-order scratch table.

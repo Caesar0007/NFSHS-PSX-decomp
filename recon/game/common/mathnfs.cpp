@@ -5,6 +5,10 @@
 #include "mathnfs_types.h"
 #include "mathnfs_externs.h"
 
+/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x80055FC4): the unused inline of the
+ * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
 int Math_DistXZ(coorddef *a,coorddef *b);
 int Math_Dist3D(coorddef *a,coorddef *b);

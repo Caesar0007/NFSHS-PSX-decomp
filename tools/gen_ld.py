@@ -387,7 +387,9 @@ def main():
                 n_extra += 1
         recon_ro.sort()
         for a1, b1 in zip(recon_ro, recon_ro[1:]):
-            assert a1[1] <= b1[0], \
+            # up to 7 bytes of overlap = the GNU assembler's trailing pad of an 8-aligned .rodata (the SN objects have none);
+            # windows are emitted in address order and the later section wins, so the next object's first bytes stand.
+            assert a1[1] - b1[0] <= 7, \
                 f"recon .rodata windows overlap: {a1[2]} {a1[0]:#x}..{a1[1]:#x} vs " \
                 f"{b1[2]} {b1[0]:#x}..{b1[1]:#x}"
         assert recon_ro, "placement file present but no window inside a rodata span"

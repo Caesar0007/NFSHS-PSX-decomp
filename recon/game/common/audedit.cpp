@@ -6,6 +6,10 @@
 #include "audedit_types.h"
 #include "audedit_externs.h"
 
+/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x800557DC): the unused inline of the
+ * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 
 /* ---- audedit.obj-owned globals (SYM-typed; .data=real EXE bytes, .bss=zero) ---- */
 CAudioList   *gGameAudioList;   /* @0x8013c730  (bss(zero)) */

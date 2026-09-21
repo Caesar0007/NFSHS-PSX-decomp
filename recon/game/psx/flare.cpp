@@ -7,6 +7,10 @@
 #include "flare_externs.h"
 #include "psyq_prim_macros.h"
 
+/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x80056884): the unused inline of the
+ * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 /* PsyQ gte_ldclmv/gte_stclmv (matrix-COLUMN short vector, stride 6) -- the
  * CarShapedHalo/Halo2 column transforms: lhu 0/6/12 -> IR1-3 and IR1-3 -> sh 0/6/12
  * (oracle @0x800CD0B0.., 3 lhu then 3 mtc2 / 3 mfc2 then 3 sh, scratch $12-$14).

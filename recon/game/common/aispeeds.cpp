@@ -5,6 +5,10 @@
 #include "aispeeds_types.h"
 #include "aispeeds_externs.h"
 
+/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x800554C4): the unused inline of the
+ * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 #define MAX(a,b) (((a) > (b)) ? (a) : (b))
 /* Canonical EA slice-wrap macro; the same expansion is used by the NFS4
  * ai/cars/AIWORLD translation units and by matched NFS2 AI sources. */

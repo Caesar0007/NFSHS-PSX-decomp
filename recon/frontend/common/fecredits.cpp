@@ -4,6 +4,10 @@
  */
 #include "fecredits.h"
 
+/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x80011858): the unused inline of the
+ * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 /* ---- FECredits.obj-OWNED globals -- DEFINED here (self-contained; real NFS4.EXE bytes) ---- */
 /* P880: ticks and screenMain use their existing scalar declarations from
    fecredits_externs.h. Their former unsized-array aliases were not source

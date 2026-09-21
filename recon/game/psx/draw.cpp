@@ -24,6 +24,10 @@ extern char *Draw_gMaxPrim;
 extern int gTotalMem;
 #include "draw_externs.h"
 
+/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x800567FC): the unused inline of the
+ * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 /* retail Draw.obj .data (0x8011ec54..0x8011f454): the view table and the two enviro flip
  * records, both zero (deferred, first-declaration order = draw_externs.h order). */
 Draw_tView Draw_gView[10];

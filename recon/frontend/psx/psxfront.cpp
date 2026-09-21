@@ -5,6 +5,10 @@
 #include "psxfront.h"
 #include "psxfront_externs.h"
 
+/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x800127D8): the unused inline of the
+ * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 /* The SLD has no declarations for the pre-ABS value, raw shapey copy, or bottom-V
  * copy.  These single-evaluation macro bodies reproduce the exact retail RTL while
  * keeping those macro-private names out of the function's debug-local set.  Their

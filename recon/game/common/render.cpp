@@ -5,6 +5,10 @@
 #include "render_types.h"
 #include "render_externs.h"
 
+/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x80056534): the unused inline of the
+ * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 struct Render_PTag {
   unsigned int addr : 24;
   unsigned int len : 8;

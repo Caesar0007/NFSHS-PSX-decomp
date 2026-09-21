@@ -6,6 +6,10 @@
 #include "audioclc_types.h"
 #include "audioclc_externs.h"
 
+/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x800556B8): the unused inline of the
+ * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 
 /* ---- audioclc.obj-owned globals (SYM-typed; .data=real EXE bytes, .bss=zero) ---- */
 AudioClc_tPlayer AudioClc_gPlayer[2];   /* @0x8010e2a8  (bss(zero)) */

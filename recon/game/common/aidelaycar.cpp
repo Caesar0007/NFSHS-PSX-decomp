@@ -6,6 +6,10 @@
 #include "aidelaycar_types.h"
 #include "aidelaycar_externs.h"
 
+/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x80054DB0): the unused inline of the
+ * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 /* EA slice wrapping, also retained in the symbol-bearing NFS2 source. */
 #define WRAP_SLICE(a,b) (((a) >= 0) \
     ? ((((b) + (a)) >= gNumSlices) ? ((b) + (a)) - gNumSlices : ((b) + (a))) \

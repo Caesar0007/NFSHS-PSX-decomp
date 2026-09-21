@@ -1,9 +1,33 @@
 [
  {
+  "obj": "build/recon/game/common/minfront.cpp.o",
+  "base": 2147549184,
+  "end": 2147549211,
+  "size": 27,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/psx/fe3dmenu.cpp.o",
+  "base": 2147549216,
+  "end": 2147549240,
+  "size": 24,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/frontend/common/feapp.cpp.o",
+  "base": 2147549240,
+  "end": 2147549432,
+  "size": 192,
+  "ok": false,
+  "regions": []
+ },
+ {
   "obj": "build/recon/frontend/common/feaudio.cpp.o",
-  "base": 2147549444,
+  "base": 2147549432,
   "end": 2147549521,
-  "size": 77,
+  "size": 89,
   "ok": true,
   "regions": []
  },
@@ -26,6 +50,30 @@
   ]
  },
  {
+  "obj": "build/recon/frontend/common/femenuextended.cpp.o",
+  "base": 2147550736,
+  "end": 2147551584,
+  "size": 848,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/frontend/common/femenuoptions.cpp.o",
+  "base": 2147551584,
+  "end": 2147553208,
+  "size": 1624,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/frontend/common/fetextrender.cpp.o",
+  "base": 2147553208,
+  "end": 2147553223,
+  "size": 15,
+  "ok": false,
+  "regions": []
+ },
+ {
   "obj": "build/recon/frontend/common/fetracks.cpp.o",
   "base": 2147553224,
   "end": 2147553304,
@@ -35,13 +83,29 @@
  },
  {
   "obj": "build/recon/frontend/common/fecheats.cpp.o",
-  "base": 2147553320,
+  "base": 2147553304,
   "end": 2147553444,
-  "size": 124,
+  "size": 140,
   "ok": true,
   "regions": [
    "jtbl_80011028"
   ]
+ },
+ {
+  "obj": "build/recon/frontend/common/feinput.cpp.o",
+  "base": 2147553448,
+  "end": 2147553458,
+  "size": 10,
+  "ok": true,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/frontend/common/femenu.cpp.o",
+  "base": 2147553464,
+  "end": 2147554296,
+  "size": 832,
+  "ok": false,
+  "regions": []
  },
  {
   "obj": "build/recon/frontend/common/fescreen.cpp.o",
@@ -64,6 +128,14 @@
   "base": 2147554456,
   "end": 2147554501,
   "size": 45,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/frontend/common/femenudefs.cpp.o",
+  "base": 2147554504,
+  "end": 2147554696,
+  "size": 192,
   "ok": false,
   "regions": []
  },
@@ -98,9 +170,9 @@
  },
  {
   "obj": "build/recon/frontend/common/fecredits.cpp.o",
-  "base": 2147555428,
+  "base": 2147555416,
   "end": 2147555452,
-  "size": 24,
+  "size": 36,
   "ok": true,
   "regions": []
  },
@@ -129,6 +201,14 @@
   "regions": []
  },
  {
+  "obj": "build/recon/frontend/common/screencarselect.cpp.o",
+  "base": 2147555992,
+  "end": 2147556744,
+  "size": 752,
+  "ok": false,
+  "regions": []
+ },
+ {
   "obj": "build/recon/frontend/common/screentournselect.cpp.o",
   "base": 2147556744,
   "end": 2147556864,
@@ -142,6 +222,14 @@
   "end": 2147556984,
   "size": 120,
   "ok": true,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/frontend/common/screentrophyinfo.cpp.o",
+  "base": 2147556984,
+  "end": 2147557088,
+  "size": 104,
+  "ok": false,
   "regions": []
  },
  {
@@ -174,6 +262,14 @@
   "end": 2147557576,
   "size": 136,
   "ok": true,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/frontend/common/screendisplay.cpp.o",
+  "base": 2147557576,
+  "end": 2147557664,
+  "size": 88,
+  "ok": false,
   "regions": []
  },
  {
@@ -223,18 +319,42 @@
   ]
  },
  {
-  "obj": "build/recon/frontend/psx/movie.cpp.o",
-  "base": 2147559252,
-  "end": 2147559361,
-  "size": 109,
+  "obj": "build/recon/frontend/common/screenusername.cpp.o",
+  "base": 2147558880,
+  "end": 2147559224,
+  "size": 344,
   "ok": false,
   "regions": []
  },
  {
+  "obj": "build/recon/frontend/psx/drawshp.cpp.o",
+  "base": 2147559224,
+  "end": 2147559234,
+  "size": 10,
+  "ok": true,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/frontend/psx/movie.cpp.o",
+  "base": 2147559240,
+  "end": 2147559361,
+  "size": 121,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/frontend/psx/mmeffect.cpp.o",
+  "base": 2147559368,
+  "end": 2147559378,
+  "size": 10,
+  "ok": true,
+  "regions": []
+ },
+ {
   "obj": "build/recon/frontend/psx/psxfront.cpp.o",
-  "base": 2147559396,
+  "base": 2147559384,
   "end": 2147559460,
-  "size": 64,
+  "size": 76,
   "ok": false,
   "regions": []
  },
@@ -274,6 +394,38 @@
   "regions": []
  },
  {
+  "obj": "build/recon/game/common/aidelaycar.cpp.o",
+  "base": 2147831216,
+  "end": 2147831226,
+  "size": 10,
+  "ok": true,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/common/aihigh.cpp.o",
+  "base": 2147831228,
+  "end": 2147831388,
+  "size": 160,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/common/aih_basicperp.cpp.o",
+  "base": 2147831388,
+  "end": 2147831436,
+  "size": 48,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/common/aih_basiccop.cpp.o",
+  "base": 2147831436,
+  "end": 2147831476,
+  "size": 40,
+  "ok": false,
+  "regions": []
+ },
+ {
   "obj": "build/recon/game/common/aih_btccop.cpp.o",
   "base": 2147831476,
   "end": 2147831696,
@@ -294,6 +446,22 @@
   ]
  },
  {
+  "obj": "build/recon/game/common/aih_play.cpp.o",
+  "base": 2147831944,
+  "end": 2147831992,
+  "size": 48,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/common/aih_hum.cpp.o",
+  "base": 2147831992,
+  "end": 2147832040,
+  "size": 48,
+  "ok": false,
+  "regions": []
+ },
+ {
   "obj": "build/recon/game/common/aih_opp.cpp.o",
   "base": 2147832040,
   "end": 2147832132,
@@ -304,10 +472,18 @@
   ]
  },
  {
+  "obj": "build/recon/game/common/aih_cop.cpp.o",
+  "base": 2147832132,
+  "end": 2147832216,
+  "size": 84,
+  "ok": false,
+  "regions": []
+ },
+ {
   "obj": "build/recon/game/common/aih_traf.cpp.o",
   "base": 2147832216,
-  "end": 2147832312,
-  "size": 96,
+  "end": 2147832308,
+  "size": 92,
   "ok": false,
   "regions": [
    "jtbl_800551C8"
@@ -315,25 +491,105 @@
  },
  {
   "obj": "build/recon/game/common/aicop.cpp.o",
-  "base": 2147832320,
+  "base": 2147832308,
   "end": 2147832333,
-  "size": 13,
+  "size": 25,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/common/aiinit.cpp.o",
+  "base": 2147832336,
+  "end": 2147832580,
+  "size": 244,
   "ok": false,
   "regions": []
  },
  {
   "obj": "build/recon/game/common/ailife.cpp.o",
   "base": 2147832580,
-  "end": 2147832656,
-  "size": 76,
+  "end": 2147832646,
+  "size": 66,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/common/aiphysic.cpp.o",
+  "base": 2147832736,
+  "end": 2147832746,
+  "size": 10,
+  "ok": true,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/common/aidatarecord.cpp.o",
+  "base": 2147832748,
+  "end": 2147833028,
+  "size": 280,
   "ok": false,
   "regions": []
  },
  {
   "obj": "build/recon/game/common/aispeeds.cpp.o",
-  "base": 2147833040,
+  "base": 2147833028,
   "end": 2147833072,
-  "size": 32,
+  "size": 44,
+  "ok": true,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/common/aistate.cpp.o",
+  "base": 2147833072,
+  "end": 2147833085,
+  "size": 13,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/common/aispeech.cpp.o",
+  "base": 2147833440,
+  "end": 2147833450,
+  "size": 10,
+  "ok": true,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/common/aitriger.cpp.o",
+  "base": 2147833452,
+  "end": 2147833462,
+  "size": 10,
+  "ok": true,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/common/aitune.cpp.o",
+  "base": 2147833464,
+  "end": 2147833474,
+  "size": 10,
+  "ok": true,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/common/AIWORLD.cpp.o",
+  "base": 2147833476,
+  "end": 2147833486,
+  "size": 10,
+  "ok": true,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/common/anim.cpp.o",
+  "base": 2147833488,
+  "end": 2147833526,
+  "size": 38,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/common/audioclc.cpp.o",
+  "base": 2147833528,
+  "end": 2147833538,
+  "size": 10,
   "ok": true,
   "regions": []
  },
@@ -350,16 +606,16 @@
  {
   "obj": "build/recon/game/common/audiomus.cpp.o",
   "base": 2147833708,
-  "end": 2147833825,
-  "size": 117,
+  "end": 2147833820,
+  "size": 112,
   "ok": false,
   "regions": []
  },
  {
   "obj": "build/recon/game/common/audedit.cpp.o",
-  "base": 2147833832,
+  "base": 2147833820,
   "end": 2147833843,
-  "size": 11,
+  "size": 23,
   "ok": false,
   "regions": []
  },
@@ -380,6 +636,14 @@
   "regions": []
  },
  {
+  "obj": "build/recon/game/common/bworldSm.cpp.o",
+  "base": 2147833996,
+  "end": 2147834006,
+  "size": 10,
+  "ok": true,
+  "regions": []
+ },
+ {
   "obj": "build/recon/game/common/camera.cpp.o",
   "base": 2147834008,
   "end": 2147834236,
@@ -396,6 +660,46 @@
   "base": 2147834236,
   "end": 2147834317,
   "size": 81,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/common/chunk.cpp.o",
+  "base": 2147834320,
+  "end": 2147834330,
+  "size": 10,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/common/clock.cpp.o",
+  "base": 2147834332,
+  "end": 2147834342,
+  "size": 10,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/common/collide.cpp.o",
+  "base": 2147834356,
+  "end": 2147834380,
+  "size": 24,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/common/color.cpp.o",
+  "base": 2147834380,
+  "end": 2147834390,
+  "size": 10,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/common/control.cpp.o",
+  "base": 2147834392,
+  "end": 2147834452,
+  "size": 60,
   "ok": false,
   "regions": []
  },
@@ -430,17 +734,57 @@
  },
  {
   "obj": "build/recon/game/common/genericpmx.cpp.o",
-  "base": 2147835796,
+  "base": 2147835784,
   "end": 2147835830,
-  "size": 34,
+  "size": 46,
   "ok": false,
   "regions": []
  },
  {
+  "obj": "build/recon/game/common/input.cpp.o",
+  "base": 2147835832,
+  "end": 2147835842,
+  "size": 10,
+  "ok": true,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/common/mathnfs.cpp.o",
+  "base": 2147835844,
+  "end": 2147835854,
+  "size": 10,
+  "ok": true,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/common/mpause.cpp.o",
+  "base": 2147835856,
+  "end": 2147835866,
+  "size": 10,
+  "ok": true,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/common/newton.cpp.o",
+  "base": 2147835868,
+  "end": 2147835878,
+  "size": 10,
+  "ok": true,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/common/new.cpp.o",
+  "base": 2147835880,
+  "end": 2147835890,
+  "size": 10,
+  "ok": true,
+  "regions": []
+ },
+ {
   "obj": "build/recon/game/common/nfs3.cpp.o",
-  "base": 2147835904,
+  "base": 2147835892,
   "end": 2147835975,
-  "size": 71,
+  "size": 83,
   "ok": false,
   "regions": []
  },
@@ -453,10 +797,18 @@
   "regions": []
  },
  {
+  "obj": "build/recon/game/common/pausemenu.cpp.o",
+  "base": 2147836172,
+  "end": 2147836772,
+  "size": 600,
+  "ok": false,
+  "regions": []
+ },
+ {
   "obj": "build/recon/game/common/physics.cpp.o",
-  "base": 2147836784,
+  "base": 2147836772,
   "end": 2147836848,
-  "size": 64,
+  "size": 76,
   "ok": true,
   "regions": []
  },
@@ -472,6 +824,14 @@
    "jtbl_80056488",
    "jtbl_800564E0"
   ]
+ },
+ {
+  "obj": "build/recon/game/common/render.cpp.o",
+  "base": 2147837236,
+  "end": 2147837246,
+  "size": 10,
+  "ok": true,
+  "regions": []
  },
  {
   "obj": "build/recon/game/common/replay.cpp.o",
@@ -492,10 +852,50 @@
   "regions": []
  },
  {
+  "obj": "build/recon/game/common/stats.cpp.o",
+  "base": 2147837400,
+  "end": 2147837410,
+  "size": 10,
+  "ok": true,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/common/textsys.cpp.o",
+  "base": 2147837412,
+  "end": 2147837493,
+  "size": 81,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/common/track.cpp.o",
+  "base": 2147837496,
+  "end": 2147837732,
+  "size": 236,
+  "ok": false,
+  "regions": []
+ },
+ {
   "obj": "build/recon/game/common/udff.cpp.o",
-  "base": 2147837744,
+  "base": 2147837732,
   "end": 2147837755,
-  "size": 11,
+  "size": 23,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/common/aidebug.cpp.o",
+  "base": 2147837756,
+  "end": 2147837766,
+  "size": 10,
+  "ok": true,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/psx/audio.cpp.o",
+  "base": 2147837768,
+  "end": 2147837791,
+  "size": 23,
   "ok": false,
   "regions": []
  },
@@ -510,10 +910,42 @@
   ]
  },
  {
+  "obj": "build/recon/game/psx/draw.cpp.o",
+  "base": 2147837948,
+  "end": 2147837958,
+  "size": 10,
+  "ok": true,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/psx/drawc.cpp.o",
+  "base": 2147837960,
+  "end": 2147837985,
+  "size": 25,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/psx/draww.cpp.o",
+  "base": 2147837988,
+  "end": 2147837998,
+  "size": 10,
+  "ok": true,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/psx/draw2.cpp.o",
+  "base": 2147838000,
+  "end": 2147838010,
+  "size": 10,
+  "ok": true,
+  "regions": []
+ },
+ {
   "obj": "build/recon/game/psx/force.cpp.o",
-  "base": 2147838028,
+  "base": 2147838012,
   "end": 2147838084,
-  "size": 56,
+  "size": 72,
   "ok": true,
   "regions": [
    "jtbl_8005684C"
@@ -521,9 +953,9 @@
  },
  {
   "obj": "build/recon/game/psx/flare.cpp.o",
-  "base": 2147838100,
+  "base": 2147838084,
   "end": 2147838120,
-  "size": 20,
+  "size": 36,
   "ok": true,
   "regions": [
    "jtbl_80056894"
@@ -539,18 +971,34 @@
  },
  {
   "obj": "build/recon/game/psx/loading.cpp.o",
-  "base": 2147838264,
-  "end": 2147838309,
-  "size": 45,
+  "base": 2147838252,
+  "end": 2147838304,
+  "size": 52,
   "ok": false,
   "regions": []
  },
  {
   "obj": "build/recon/game/psx/night.cpp.o",
-  "base": 2147838316,
+  "base": 2147838304,
   "end": 2147838338,
-  "size": 22,
+  "size": 34,
   "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/psx/psxcontroller.cpp.o",
+  "base": 2147838340,
+  "end": 2147838350,
+  "size": 10,
+  "ok": true,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/psx/rpause.cpp.o",
+  "base": 2147838352,
+  "end": 2147838362,
+  "size": 10,
+  "ok": true,
   "regions": []
  },
  {
@@ -577,6 +1025,14 @@
   "base": 2147838660,
   "end": 2147838692,
   "size": 32,
+  "ok": true,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/psx/trsproj.cpp.o",
+  "base": 2147838692,
+  "end": 2147838702,
+  "size": 10,
   "ok": true,
   "regions": []
  },
@@ -698,6 +1154,22 @@
   ]
  },
  {
+  "obj": "build/recon/syslib/psx/libcd/cdcont.c.o",
+  "base": 2147840256,
+  "end": 2147840261,
+  "size": 5,
+  "ok": false,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/syslib/psx/libcd/stcdint.c.o",
+  "base": 2147840272,
+  "end": 2147840304,
+  "size": 32,
+  "ok": false,
+  "regions": []
+ },
+ {
   "obj": "build/recon/syslib/psx/libcd/iso9660.c.o",
   "base": 2147840384,
   "end": 2147840874,
@@ -734,6 +1206,14 @@
   "regions": [
    "jtbl_80057538"
   ]
+ },
+ {
+  "obj": "build/recon/eaclib/psx/eacpsxz/callback.c.o",
+  "base": 2147841464,
+  "end": 2147841541,
+  "size": 77,
+  "ok": false,
+  "regions": []
  },
  {
   "obj": "build/recon/syslib/psx/libetc/INTR_DMA.c.o",
@@ -856,286 +1336,6 @@
   "base": 2148785184,
   "end": 2148785200,
   "size": 16,
-  "ok": false,
-  "regions": []
- },
- {
-  "obj": "build/recon/frontend/common/screencarselect.cpp.o",
-  "base": 2147555992,
-  "end": 2147556744,
-  "size": 752,
-  "ok": false,
-  "regions": []
- },
- {
-  "obj": "build/recon/game/common/track.cpp.o",
-  "base": 2147837496,
-  "end": 2147837732,
-  "size": 236,
-  "ok": false,
-  "regions": []
- },
- {
-  "obj": "build/recon/game/common/anim.cpp.o",
-  "base": 2147833488,
-  "end": 2147833526,
-  "size": 38,
-  "ok": false,
-  "regions": []
- },
- {
-  "obj": "build/recon/frontend/common/fetextrender.cpp.o",
-  "base": 2147553208,
-  "end": 2147553223,
-  "size": 15,
-  "ok": false,
-  "regions": []
- },
- {
-  "obj": "build/recon/game/psx/audio.cpp.o",
-  "base": 2147837768,
-  "end": 2147837791,
-  "size": 23,
-  "ok": false,
-  "regions": []
- },
- {
-  "obj": "build/recon/game/psx/drawc.cpp.o",
-  "base": 2147837960,
-  "end": 2147837985,
-  "size": 25,
-  "ok": false,
-  "regions": []
- },
- {
-  "obj": "build/recon/game/common/aistate.cpp.o",
-  "base": 2147833072,
-  "end": 2147833440,
-  "size": 368,
-  "ok": false,
-  "regions": []
- },
- {
-  "obj": "build/recon/game/common/aihigh.cpp.o",
-  "base": 2147831228,
-  "end": 2147831388,
-  "size": 160,
-  "ok": false,
-  "regions": []
- },
- {
-  "obj": "build/recon/game/common/aih_basicperp.cpp.o",
-  "base": 2147831388,
-  "end": 2147831436,
-  "size": 48,
-  "ok": false,
-  "regions": []
- },
- {
-  "obj": "build/recon/game/common/aih_basiccop.cpp.o",
-  "base": 2147831436,
-  "end": 2147831476,
-  "size": 40,
-  "ok": false,
-  "regions": []
- },
- {
-  "obj": "build/recon/game/common/aih_play.cpp.o",
-  "base": 2147831944,
-  "end": 2147831992,
-  "size": 48,
-  "ok": false,
-  "regions": []
- },
- {
-  "obj": "build/recon/game/common/aih_hum.cpp.o",
-  "base": 2147831992,
-  "end": 2147832040,
-  "size": 48,
-  "ok": false,
-  "regions": []
- },
- {
-  "obj": "build/recon/game/common/aih_cop.cpp.o",
-  "base": 2147832132,
-  "end": 2147832216,
-  "size": 84,
-  "ok": false,
-  "regions": []
- },
- {
-  "obj": "build/recon/game/common/aiinit.cpp.o",
-  "base": 2147832336,
-  "end": 2147832580,
-  "size": 244,
-  "ok": false,
-  "regions": []
- },
- {
-  "obj": "build/recon/game/common/aidatarecord.cpp.o",
-  "base": 2147832748,
-  "end": 2147833028,
-  "size": 280,
-  "ok": false,
-  "regions": []
- },
- {
-  "obj": "build/recon/game/common/textsys.cpp.o",
-  "base": 2147837412,
-  "end": 2147837496,
-  "size": 84,
-  "ok": false,
-  "regions": []
- },
- {
-  "obj": "build/recon/game/common/chunk.cpp.o",
-  "base": 2147834320,
-  "end": 2147834332,
-  "size": 12,
-  "ok": false,
-  "regions": []
- },
- {
-  "obj": "build/recon/game/common/clock.cpp.o",
-  "base": 2147834332,
-  "end": 2147834344,
-  "size": 12,
-  "ok": false,
-  "regions": []
- },
- {
-  "obj": "build/recon/game/common/collide.cpp.o",
-  "base": 2147834356,
-  "end": 2147834380,
-  "size": 24,
-  "ok": false,
-  "regions": []
- },
- {
-  "obj": "build/recon/game/common/color.cpp.o",
-  "base": 2147834380,
-  "end": 2147834392,
-  "size": 12,
-  "ok": false,
-  "regions": []
- },
- {
-  "obj": "build/recon/game/common/control.cpp.o",
-  "base": 2147834392,
-  "end": 2147834452,
-  "size": 60,
-  "ok": false,
-  "regions": []
- },
- {
-  "obj": "build/recon/game/common/minfront.cpp.o",
-  "base": 2147549184,
-  "end": 2147549211,
-  "size": 27,
-  "ok": false,
-  "regions": []
- },
- {
-  "obj": "build/recon/game/psx/fe3dmenu.cpp.o",
-  "base": 2147549216,
-  "end": 2147549240,
-  "size": 24,
-  "ok": false,
-  "regions": []
- },
- {
-  "obj": "build/recon/frontend/common/feapp.cpp.o",
-  "base": 2147549240,
-  "end": 2147549432,
-  "size": 192,
-  "ok": false,
-  "regions": []
- },
- {
-  "obj": "build/recon/game/common/pausemenu.cpp.o",
-  "base": 2147836172,
-  "end": 2147836772,
-  "size": 600,
-  "ok": false,
-  "regions": []
- },
- {
-  "obj": "build/recon/syslib/psx/libcd/stcdint.c.o",
-  "base": 2147840272,
-  "end": 2147840304,
-  "size": 32,
-  "ok": false,
-  "regions": []
- },
- {
-  "obj": "build/recon/syslib/psx/libcd/cdcont.c.o",
-  "base": 2147840256,
-  "end": 2147840261,
-  "size": 5,
-  "ok": false,
-  "regions": []
- },
- {
-  "obj": "build/recon/eaclib/psx/eacpsxz/callback.c.o",
-  "base": 2147841464,
-  "end": 2147841541,
-  "size": 77,
-  "ok": false,
-  "regions": []
- },
- {
-  "obj": "build/recon/frontend/common/femenu.cpp.o",
-  "base": 2147553480,
-  "end": 2147554296,
-  "size": 816,
-  "ok": false,
-  "regions": []
- },
- {
-  "obj": "build/recon/frontend/common/femenuextended.cpp.o",
-  "base": 2147550736,
-  "end": 2147551584,
-  "size": 848,
-  "ok": false,
-  "regions": []
- },
- {
-  "obj": "build/recon/frontend/common/femenuoptions.cpp.o",
-  "base": 2147551584,
-  "end": 2147553208,
-  "size": 1624,
-  "ok": false,
-  "regions": []
- },
- {
-  "obj": "build/recon/frontend/common/femenudefs.cpp.o",
-  "base": 2147554520,
-  "end": 2147554696,
-  "size": 176,
-  "ok": false,
-  "regions": []
- },
- {
-  "obj": "build/recon/frontend/common/screendisplay.cpp.o",
-  "base": 2147557576,
-  "end": 2147557664,
-  "size": 88,
-  "ok": false,
-  "regions": []
- },
- {
-  "obj": "build/recon/frontend/common/screentrophyinfo.cpp.o",
-  "base": 2147556984,
-  "end": 2147557088,
-  "size": 104,
-  "ok": false,
-  "regions": []
- },
- {
-  "obj": "build/recon/frontend/common/screenusername.cpp.o",
-  "base": 2147558880,
-  "end": 2147559224,
-  "size": 344,
   "ok": false,
   "regions": []
  }

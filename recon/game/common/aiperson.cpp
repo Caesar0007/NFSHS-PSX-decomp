@@ -5,6 +5,10 @@
 #include "aiperson_types.h"
 #include "aiperson_externs.h"
 
+/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x80055348): the unused inline of the
+ * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 /* ---- aiperson.obj-owned globals ----
  * SYM records these 20 definitions in aiperson.obj.  Their order and bytes
  * reproduce the retail 0x8010D5CC..0x8010DC54 data run; the final three

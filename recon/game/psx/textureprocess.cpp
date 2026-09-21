@@ -13,6 +13,10 @@ extern FogKey   Fog_gBuf[32];
 extern int      openkeys[32];
 #include "textureprocess_externs.h"
 
+/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x80056AAC): the unused inline of the
+ * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 /* retail TextureProcess.obj .sdata starts with four initialized colour cells
  * (0x8013db3c..0x8013db4c), emitted here at their definitions. */
 int     gContrastScale = 0x10000;   /* retail 0x8013db3c = 1.0 in 16.16 (was 0x100) */

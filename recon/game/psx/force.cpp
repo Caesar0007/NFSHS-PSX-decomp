@@ -6,6 +6,10 @@
 #include "force_types.h"
 #include "force_externs.h"
 
+/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x8005683C): the unused inline of the
+ * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 /* ---- Force.obj-OWNED globals -- DEFINED here (self-contained; SYM-typed via gen_owned_defs:
    .data = real NFS4.EXE bytes, .bss = zero) ---- */
 u_char       Force_rand_256[256] = { 0, 128u, 64u, 192u, 32u, 160u, 96u, 224u, 16u, 144u, 80u, 208u, 48u, 176u, 112u, 240u, 8u, 136u, 72u, 200u, 40u, 168u, 104u, 232u, 24u, 152u, 88u, 216u, 56u, 184u, 120u, 248u, 4u, 132u, 68u, 196u, 36u, 164u, 100u, 228u, 20u, 148u, 84u, 212u, 52u, 180u, 116u, 244u, 12u, 140u, 76u, 204u, 44u, 172u, 108u, 236u, 28u, 156u, 92u, 220u, 60u, 188u, 124u, 252u, 2u, 130u, 66u, 194u, 34u, 162u, 98u, 226u, 18u, 146u, 82u, 210u, 50u, 178u, 114u, 242u, 10u, 138u, 74u, 202u, 42u, 170u, 106u, 234u, 26u, 154u, 90u, 218u, 58u, 186u, 122u, 250u, 6u, 134u, 70u, 198u, 38u, 166u, 102u, 230u, 22u, 150u, 86u, 214u, 54u, 182u, 118u, 246u, 14u, 142u, 78u, 206u, 46u, 174u, 110u, 238u, 30u, 158u, 94u, 222u, 62u, 190u, 126u, 254u, 1u, 129u, 65u, 193u, 33u, 161u, 97u, 225u, 17u, 145u, 81u, 209u, 49u, 177u, 113u, 241u, 9u, 137u, 73u, 201u, 41u, 169u, 105u, 233u, 25u, 153u, 89u, 217u, 57u, 185u, 121u, 249u, 5u, 133u, 69u, 197u, 37u, 165u, 101u, 229u, 21u, 149u, 85u, 213u, 53u, 181u, 117u, 245u, 13u, 141u, 77u, 205u, 45u, 173u, 109u, 237u, 29u, 157u, 93u, 221u, 61u, 189u, 125u, 253u, 3u, 131u, 67u, 195u, 35u, 163u, 99u, 227u, 19u, 147u, 83u, 211u, 51u, 179u, 115u, 243u, 11u, 139u, 75u, 203u, 43u, 171u, 107u, 235u, 27u, 155u, 91u, 219u, 59u, 187u, 123u, 251u, 7u, 135u, 71u, 199u, 39u, 167u, 103u, 231u, 23u, 151u, 87u, 215u, 55u, 183u, 119u, 247u, 15u, 143u, 79u, 207u, 47u, 175u, 111u, 239u, 31u, 159u, 95u, 223u, 63u, 191u, 127u, 254u };   /* @0x8011fc60 */

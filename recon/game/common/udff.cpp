@@ -5,6 +5,10 @@
 #include "udff_types.h"
 #include "udff_externs.h"
 
+/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x80056724): the unused inline of the
+ * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 /* ---- intra-TU forward declarations (auto-emitted, signature-exact) ---- */
 Udff_tInfo * Udff_Opena(char *name,char *mem,int abortFlag);
 void Udff_Close(Udff_tInfo *handle);

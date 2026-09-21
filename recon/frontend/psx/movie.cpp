@@ -13,6 +13,10 @@ extern char     gPlayerNum;
 extern short    download[];
 #include "movie.h"
 
+/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x80012748): the unused inline of the
+ * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 /* ---- Movie.obj EXT data (retail front.data 0x800529d8..0x80052a4c, values from the image;
  * the five initialized tables first, then the two zero statics, then the deferred run) ---- */
 char  *movienames[5]  = { "NFS4TITL.XA", "DEMO1AV.XA", "DEMO2AV.XA", "DEMO3AV.XA", "EADOLBY.XA" };

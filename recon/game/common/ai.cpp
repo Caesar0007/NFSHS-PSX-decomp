@@ -6,6 +6,10 @@
 #include "ai_types.h"
 #include "ai_externs.h"
 
+/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x80054D98): the unused inline of the
+ * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 #define MAX(a,b) (((a) > (b)) ? (a) : (b))
 #define ABS(a) (((a) > 0) ? (a) : -(a))
 

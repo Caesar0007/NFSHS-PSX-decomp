@@ -6,6 +6,10 @@
  */
 #include "drawshp.h"
 
+/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x80012738): the unused inline of the
+ * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 /* REAL DATA DEFECT fixed W66-A5 (zeroinit per-symbol screen, after its UNKNOWN
    bucket was taught to compare the readable OVERLAP): retail's word at
    0x800529d0 is `80 80 80 00` = 0x00808080, the neutral "no tint" RGB the shape

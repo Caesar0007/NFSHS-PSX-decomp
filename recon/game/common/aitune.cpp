@@ -6,6 +6,10 @@
 #include "aitune_types.h"
 #include "AITUNE_externs.h"
 
+/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x80055678): the unused inline of the
+ * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 
 /* ---- AITUNE.obj-owned globals (SYM-typed; .data=real EXE bytes, .bss=zero) ---- */
 AITune_BTC_t AITune_BTC[3] = { {98304, 55705, 65536, 5760, 64, 1920, 5760}, {65536, 65536, 65536, 3840, 2880, 5760, 8320}, {52428, 72089, 65536, 2880, 3840, 7680, 9600} };   /* @0x8010de14 */

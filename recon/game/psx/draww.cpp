@@ -19,6 +19,10 @@
 #include "draww_externs.h"
 #include "psyq_prim_macros.h"
 
+/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x80056824): the unused inline of the
+ * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 /* file-local gte_rtps variant with a DEAD "r" input (no code emitted for it -- the value
  * is already in a register): a ref-count nudge for the v4/v8 reload-eviction tie
  * (see DrawW_SubdividFacet MATCH notes). Promoted to psx_gte.h (w40 consolidation),

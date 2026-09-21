@@ -6,6 +6,10 @@
 #include "bworldSm_types.h"
 #include "bworldSm_externs.h"
 
+/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x8005588C): the unused inline of the
+ * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
+
 
 /* ---- bworldSm.obj-owned globals (SYM-typed; .data=real EXE bytes, .bss=zero) ---- */
 tNormalCacheEntry BWSM_NormalCache[16];   /* @0x8010f0ac  (bss(zero)) */

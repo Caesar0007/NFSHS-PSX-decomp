@@ -13,5 +13,9 @@
  *   descending walk skipped it because it has no .text range.
  */
 #include "draw2.h"
+
+/* retail: this object's read-only data opens with the unreferenced "SimpleMem" tag (0x80056830): the unused inline of the
+ * SimpleMem class header leaves it behind in every object that saw the header (tools/psyq_pipe/simplemem_apply.py). */
+static inline const char *SimpleMem_ClassName(void) { return "SimpleMem"; }
 /* (intentionally empty: no functions, no data) */
 /* end of draw2.cpp */

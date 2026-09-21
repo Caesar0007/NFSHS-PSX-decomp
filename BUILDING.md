@@ -282,6 +282,10 @@ What the original build was (each point is measured, 2026-09-21):
 - **Sony's libraries prebuilt**: `inclib` of the PsyQ **4.3** `LIB*.LIB` files plus `2MBYTE.OBJ` — except **`LIBCD.LIB`,
   which is the PsyQ 4.4 one** (retail `CdRead` is 39 words longer than 4.3's; with the 4.4 libcd every Sony function
   matches, with all-4.4 or all-4.5 libraries 43 / 50 functions differ).
+- **None of our reconstructed Sony code (`recon/syslib`) is linked.** The lane drops all 174 of those objects and
+  asserts that none is left; every Sony function in the output comes from Sony's own `LIB` files. Of the 38 address
+  equates the PSYLINK lane needs, only 24 remain (game data labels no source owns yet); the other 14 were holes inside
+  Sony's data, which Sony's libraries now define themselves.
 - **EA's own libraries** (`eacpsxz`, `sndpsxz`, `spchpsxz`) were `.lib` files too, pulled on demand. The lane packs ours
   with SN's librarian (`PSYLIB2 /a`) under the retail member names.
 - **The front-end overlay sections are declared with 8-byte alignment** (`section.8 front.text,front` ...): slink then

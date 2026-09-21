@@ -167,9 +167,11 @@ for fn, note in (gaps if '--gaps' in sys.argv else []):   # retail-byte fillers 
 for lib in liborder:
     p = (OUT / (lib + '.lib')) if lib in ealibs else LIBFROM.get(lib.upper(), SDKLIB / (lib.upper() + '.LIB'))
     lnk.append('\tinclib\t"%s"' % str(p).replace('/', BS))
-lnk += equs
-(OUT / (variant + '.lnk')).write_text('\r\n'.join(lnk) + '\r\n', encoding='latin-1')
-print('script   %s.lnk: %d game includes, %d EA members in %d libs, %d Sony objects left to inclib (%s)'
+# nothing of recon/syslib may be in this link: Sony's code comes from Sony's own LIB files only
+leaked = [l for l in lnk if re.search(r'include.*syslib', l, re.I)] + [m for v in ealibs.values() for m in v if 'syslib' in m[1].lower()]
+assert not leaked, leaked
+print('syslib   reconstructed Sony objects in this link: 0 (%d dropped; Sony code comes from the LIB files only)' % len(sony_dropped))
+print('script  %s.lnk: %d game includes, %d EA members in %d libs, %d Sony objects left to inclib (%s)'
       % (variant, len(game), sum(len(v) for v in ealibs.values()), len(ealibs), len(sony_dropped), ' '.join(sony_libs)))
 
 # ---------------------------------------------------------------- 4. link
@@ -177,6 +179,15 @@ for f in (variant + '.cpe', variant + '.sym', variant + '.map', variant + '_fron
     if (OUT / f).exists():
         (OUT / f).unlink()
 cmd = [SLINK, '/psx', '/c', *(['/strip'] if STRIP else ['/st']), *extra, '@%s.lnk,%s.cpe,%s.sym,%s.map' % ((variant,) * 4)]
+# pass 1 without any `equ`: only the names NOTHING defines (residual data labels of the game objects) get equated to their
+# retail address; the PSYLINK lane's other equates were holes inside Sony's data, which Sony's libraries define themselves.
+(OUT / (variant + '.lnk')).write_text('\r\n'.join(lnk) + '\r\n', encoding='latin-1')
+r = subprocess.run(cmd, cwd=OUT, capture_output=True, text=True, env=ENV, timeout=900)
+undefined = set(re.findall(r"Symbol '([^']+)' not defined", r.stdout + r.stderr))
+need = [e for e in equs if e.split()[0] in undefined]
+(OUT / (variant + '.lnk')).write_text('\r\n'.join(lnk + need) + '\r\n', encoding='latin-1')
+print('equ      %d of the PSYLINK lane\'s %d equates needed (game data labels no source owns yet); still undefined: %d'
+      % (len(need), len(equs), len(undefined - {e.split()[0] for e in equs})))
 r = subprocess.run(cmd, cwd=OUT, capture_output=True, text=True, env=ENV, timeout=900)
 log = (r.stdout + r.stderr)
 (OUT / (variant + '.log')).write_text(log)

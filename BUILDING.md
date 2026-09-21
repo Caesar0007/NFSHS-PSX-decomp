@@ -228,6 +228,11 @@ of `.text` has no change point. The differences are:
    pads each unfilled slot with a `nop`. Route A reproduces them with GNU `as` in reorder mode (the `cc1_272` lane in
    `tools/build.py`); real ASPSX 2.77 cannot. Typical: +16..+24 per function in libmcrd, +72 in `StCdInterrupt`, +44 in
    libgpu `SYS` and libetc `INTR`.
+   Swapping the assembler version does not help: `python tools/psyq_pipe/aspsx_ladder.py` assembles the same gcc 2.7.2
+   output with every real ASPSX on this machine, and 2.34, 2.56, 2.77 and 2.79 all produce the **same** code, larger than
+   the retail-identical GNU-assembled object by the same amount (libetc `INTR` +44, libcd `C_011` +72, libgpu `SYS` +56,
+   libpad `PADMAIN` +48, libcd `BIOS` +156, `LIBMCRD` +164 bytes). ASPSX has no reorder mode at all; Sony did not build
+   these objects with it. The compiler side is already gcc 2.7.2 (PsyQ 4.0 `CC1PSX`) per file in both routes.
 2. **Sony's objects round every section up to 16 bytes (about -380 bytes of `.text`, more in `.data` / `.bss`).** In the
    SDK objects every section size is a multiple of 16 (`SPRINTF.obj` `.text` 0x890, ours 0x888; `FONT.obj` `.bss`
    0x4410, ours 0x4404), so retail has 8 or 12 pad bytes after each small library function (`SetPolyF4`, `SetFogNear`,

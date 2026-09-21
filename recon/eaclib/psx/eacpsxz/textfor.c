@@ -64,3 +64,9 @@ unsigned int getcharacter(unsigned int code)
         result = (unsigned int)entry;
     return result;
 }
+
+/* ---- a function the final link REMOVED, known only by the library member it pulled in (name / body not retained) ----
+ * textsubs.obj (#255) is pulled from the slots of inittmr..unbtree (#131..#138); this member is the text formatter among them.  tools/psyq_pipe/slink_pullsim.py */
+#include "../../../link_stripped.h"
+extern int textsubs(char *dst, char *src);
+LINK_STRIPPED int textfor_StrippedSubs(char *d, char *s) { return textsubs(d, s); }

@@ -24,3 +24,10 @@ int initmemadr(int base, int size)
     memclass[1] = memclass[0];               /* cached copy @0x8013E904 */
     return r;
 }
+
+/* ---- a function the final link REMOVED, known only by the library member it pulled in (name / body not retained) ----
+ * libc C52.obj (`free`) is pulled between libsn WRITE (fileroot.obj) and libapi A12 (inittmr.obj): from fileroot / meminit /
+ * inittmr.  Retail keeps C52.obj's data and none of its code, so the caller was removed too; this member is the memory one.  tools/psyq_pipe/slink_pullsim.py */
+#include "../../../link_stripped.h"
+extern void free(void *p);
+LINK_STRIPPED void meminit_StrippedRelease(void *p) { free(p); }

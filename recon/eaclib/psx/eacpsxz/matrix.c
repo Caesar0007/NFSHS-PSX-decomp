@@ -76,3 +76,9 @@ int reorthogonalize(int *M)   /* @0x800F02E4 */
         transmult(mt.m, acc.m, M);                /* M = M * series       */
     }
 }
+
+/* ---- a function the final link REMOVED, known only by the library member it pulled in (name / body not retained) ----
+ * unitvect.obj is pulled between libpad PADCMD and trnsmult.obj (this member's `transmult`): this member asked for it.  tools/psyq_pipe/slink_pullsim.py */
+#include "../../../link_stripped.h"
+extern int unitvector(int *v);
+LINK_STRIPPED int matrix_StrippedNormalize(int *m) { return unitvector(m); }

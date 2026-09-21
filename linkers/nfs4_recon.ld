@@ -683,7 +683,7 @@ SECTIONS
     .t0330 0x800fe408 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/threads.c.o(.text); }
     .t0331 0x800fe488 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/math64a.c.o(.text); }
     .t0332 0x800fe520 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/stricmp.c.o(.text); }
-    .t0333 0x800fe594 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sdata.c.o(.text); }
+    .t0333 0x800fe594 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sdasync.c.o(.text); }
     .t0334 0x800fe5b4 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sbirmpat.c.o(.text); }
     .t0335 0x800fe6bc : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/sbvalid.c.o(.text); }
     .t0336 0x800fe724 : SUBALIGN(4) { build/recon/eaclib/psx/sndpsxz/salloc.c.o(.text); }

@@ -804,3 +804,13 @@ void AudioMus_AutoVolume(int fadeticks,int volume)
   }
   return;
 }
+
+/* ---- a function the final link REMOVED (slink /strip), known only by the library member it pulled in ----
+ * slink pulls library members on demand BEFORE it strips dead functions, in the order the unresolved names are met.
+ * sndpsxz.lib(sst.obj) is pulled right after wildcard.obj and before spvoices.obj -- both asked for by THIS object -- so this
+ * object referenced an sst.obj name; `iSNDstreamcreate` is the only name of that member (tried all 18, real ASPSX record order)
+ * that puts sst.obj, and with it spat2hdr / memcmp / sdpacket, exactly where retail has them.
+ * Name and body are not retained; the reference is.  tools/psyq_pipe/slink_pullsolve.py */
+#include "../../link_stripped.h"
+extern "C" int iSNDstreamcreate(...);
+LINK_STRIPPED int AudioMus_StrippedStreamCreate(void) { return iSNDstreamcreate(); }

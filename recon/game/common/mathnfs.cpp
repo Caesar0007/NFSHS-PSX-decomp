@@ -390,4 +390,13 @@ void Math_fasttransmult(matrixtdef *m1,matrixtdef *m2,matrixtdef *mr)
   mr->m[8] = td;
 }
 
+/* ---- a function the final link REMOVED (slink /strip), known only by the library member it pulled in ----
+ * slink pulls library members on demand BEFORE it strips dead functions, in the order the unresolved names are met.
+ * eacpsxz.lib(fixdatan.obj) sits between fixdsin.obj (asked for by this object) and vars.obj (asked for by mpause.obj): this
+ * object is the one that referenced `fixedatan` (best of the 10 placements the solver found; +2 members in retail order).
+ * Name and body are not retained; the reference is.  tools/psyq_pipe/slink_pullsolve.py */
+#include "../../link_stripped.h"
+extern "C" int fixedatan(...);
+LINK_STRIPPED int Math_StrippedAtan(void) { return fixedatan(); }
+
 /* end of mathnfs.cpp */

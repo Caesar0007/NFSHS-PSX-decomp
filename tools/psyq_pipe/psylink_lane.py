@@ -287,7 +287,8 @@ if '--assemble' in steps:
         if (OUT / n).exists():
             (OUT / n).unlink()
     print('ASPSX ok %d bad %d (front-overlay objects: %d)' % (ok, bad, nfront))
-    (OUT / 'front_objs.json').write_text(json.dumps(FRONT_LIST, indent=0))
+    if not ONLY:                       # a per-file run sees only its own files
+        (OUT / 'front_objs.json').write_text(json.dumps(FRONT_LIST, indent=0))
     (WOUT / 'assemble_fails.json').write_text(json.dumps(fails, indent=0))
 
 

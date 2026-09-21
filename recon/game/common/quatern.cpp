@@ -156,4 +156,15 @@ void Quatern_MatToQuat(matrixtdef *matrix,tQuat *q)
   }
 }
 
+/* ---- a function the final link REMOVED (slink /strip), known only by the library member it pulled in ----
+ * slink pulls library members on demand BEFORE it strips dead functions, in the order the unresolved names are met.
+ * eacpsxz.lib(sinfunc.obj) sits between blkfill.obj (asked for by object.obj) and resize.obj (asked for by R3DCar.obj).
+ * quatern.obj is in that link-order window and has NO surviving function: its quaternion code was removed by the final
+ * link, but its references had already pulled the sine table member in.  (physics.obj would place it the same way;
+ * which of intsin / intcos / fastintsin / fastintcos it was cannot be told apart.)
+ * Name and body are not retained; the reference is.  tools/psyq_pipe/slink_pullsolve.py */
+#include "../../link_stripped.h"
+extern "C" int intsin(...);
+LINK_STRIPPED int Quatern_StrippedSin(void) { return intsin(); }
+
 /* end of quatern.cpp */

@@ -186,6 +186,14 @@ def parse_obj(d, alt_debug=False, pad_even=False):
             p += 2 + 4 + 2 + 2 + 4
             nd = struct.unpack('<H', d[p:p+2])[0]; p += 2 + nd * 4
             ln = d[p]; p += 1; p += ln
+        elif op == 0x52:                                   # ASPSX 2.77 def: sect16 value32 class16 type16 size32 name
+            p += 2 + 4 + 2 + 2 + 4
+            ln = d[p]; p += 1; p += ln
+        elif op == 0x54:                                   # ASPSX 2.77 def2: ... ndims16 dims32[] tag name
+            p += 2 + 4 + 2 + 2 + 4
+            nd = struct.unpack('<H', d[p:p+2])[0]; p += 2 + nd * 4
+            ln = d[p]; p += 1; p += ln
+            ln = d[p]; p += 1; p += ln
         elif op == 0x44:                                   # section symbol
             p += 2
             ln = d[p]; p += 1; p += ln

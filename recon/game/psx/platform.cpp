@@ -196,4 +196,13 @@ char * Platform_GetDCTBuffer(int size,char *string)
   return p;
 }
 
+/* ---- a function the final link REMOVED (slink /strip), known only by the library member it pulled in ----
+ * slink pulls library members on demand BEFORE it strips dead functions, in the order the unresolved names are met.
+ * eacpsxz.lib(meminit.obj) sits between fileroot.obj and inittmr.obj, both asked for by THIS object (setdirectory,
+ * initmemadr): this object referenced `MEM_defaultevent`, the only name meminit.obj defines.
+ * Name and body are not retained; the reference is.  tools/psyq_pipe/slink_pullsolve.py */
+#include "../../link_stripped.h"
+extern "C" int MEM_defaultevent(...);
+LINK_STRIPPED int Platform_StrippedMemEvent(void) { return MEM_defaultevent(); }
+
 /* end of platform.cpp */

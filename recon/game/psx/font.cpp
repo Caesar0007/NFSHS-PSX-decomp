@@ -8,6 +8,17 @@
 #include "font_externs.h"
 #include "psyq_prim_macros.h"
 
+/* ---- a function the final link REMOVED (slink /strip), known only by the library member it pulled in ----
+ * slink pulls library members on demand BEFORE it strips dead functions, in the order the unresolved names are met.
+ * eacpsxz.lib(textcrnt.obj) sits between getm.obj and libgpu P10.obj, both asked for by THIS object (geti, SetSemiTrans):
+ * this object referenced a textcrnt.obj name (puti / putm) in a function the final link removed.
+ * It stood BEFORE the first use of SetSemiTrans: ASPSX writes its reference records in hash order, and puti / SetSemiTrans
+ * share a chain, so only that position gives the retail order getm, textcrnt, P10.
+ * Name and body are not retained; the reference is.  tools/psyq_pipe/slink_pullsolve.py */
+#include "../../link_stripped.h"
+extern "C" int puti(...);
+LINK_STRIPPED int Font_StrippedPutNumber(void) { return puti(); }
+
 /* gp-rel owning-TU defs: these small (<=G4) globals are extern-declared
  * but OWNED here; tentative defs -> cc1 `.comm` -> stock maspsx gp-rels them
  * (matches the oracle's %gp_rel). section 3.12 #6. (auto: gen_gprel_defs.py) */
@@ -534,4 +545,5 @@ void Font_GetUVWH(char code,int *u,int *v,int *w,int *h,int *yoff)
   *yoff = *(signed char *)&ch->yoffset;
   return;
 }
+
 /* end of font.cpp */

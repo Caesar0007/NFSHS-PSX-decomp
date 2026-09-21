@@ -176,7 +176,9 @@ def sn_text(src: Path, vtables=False, front=False, pads=None, g=None) -> bytes:
             out.append(b'\t.set\treorder'); continue
         if vtables and s == b'.data':
             s = b'.rdata'
-        base = base_section(s)
+        # a directive may carry a trailing comment (`.text # maspsx-keep` in the certificate blocks): without this the
+        # LINK_STRIPPED skip below swallowed everything up to the next bare directive -- libgpu FntFlush (796 B) vanished
+        base = base_section(re.sub(rb'\s*#.*$', b'', s))
         if base is None and stripping:
             continue          # body of a LINK_STRIPPED function: retail's final link removed it (tool unknown), so it is not assembled here
         if base is not None:

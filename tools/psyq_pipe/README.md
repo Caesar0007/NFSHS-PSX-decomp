@@ -9,7 +9,7 @@ still go to `scratchpad/psyq_pipe/`, which the tools create when missing.
 
 | Group | Tools | Documented in |
 |---|---|---|
-| Native link: `NFS4.CPE` / `.SYM` / `.MAP`, then `NFS4.EXE` + `FRONT.BIN` | `psylink_lane.py`, `psylink_disc.py`, `cpe_dump.py`, `drift.py`, `drift_vt.py` | `BUILDING.md`, Route B |
+| Native link: `NFS4.CPE` / `.SYM` / `.MAP`, then `NFS4.EXE` + `FRONT.BIN` | `psylink_lane.py`, `psylink_disc.py`, `cpe_dump.py`, `drift.py`, `drift_vt.py`, `layout_delta.py`, `obj_align.py` | `BUILDING.md`, Route B |
 | Source against the retail SYM | `gdebug_compile.py`, `symtree_cmp.py`, `symtree_parse.py`, `symfn_cmp.py`, `symlocals.py`, `scope_probe.py`, `g_codecmp.py`, `g_codediff_fn.py`, `stat_small.py` | `sym-match.md` |
 | Edit loop and automatic fixers | `symloop.py`, `symfix_order_drive.py`, `symfix_order.py`, `symfix_fordecl.py`, `symfix_rename.py`, `symfix_spchevnt.py` | `sym-match.md` |
 | Data ownership by link order | `linkorder_outliers.py`, `linkorder_window.py`, `linkorder_slot.py`, `data_owner_by_linkorder.py`, `bss_holes.py`, `sdk_bss.py`, `blob_only_ranges.py`, `ownership_audit2.py`, `honest_diffs.py` | |

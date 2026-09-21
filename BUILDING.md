@@ -211,9 +211,44 @@ python tools/psyq_pipe/psylink_disc.py
   the CPE into `NFS4.EXE`. Output: `build/psyq/disc/NFS4.EXE` and `FRONT.BIN`.
 
 Where it stands: `NFS4.EXE` has the retail size and an identical header except the entry point (`0x800E3E1C` against
-`0x800E402C`); the `bigBuf` hole is all zeros like retail; `FRONT.BIN` is 0x98 bytes short. The constant offsets come from
-modules that still have no source file and from the last unowned data — the SN linker lays sections out per object in
-link order and cannot be told to place an object at an address, so every missing byte shifts what follows.
+`0x800E402C`); the `bigBuf` hole is all zeros like retail; `FRONT.BIN` is 0x98 bytes short.
+
+### Why Route B is not byte-identical
+
+The SN linker lays every section out object by object in link order and cannot pin an object to an address, so any byte
+an object gains or loses shifts everything after it. `python tools/psyq_pipe/layout_delta.py` shows where that happens,
+using every retail label (libraries included) and the honest link map. Section sizes, ours against retail (2026-09-21):
+`.rdata` -532, `.text` +432, `.data` -48, `.sdata` -28, `.sbss` +64, `.bss` -156, `front.rdata` -128, `front.text` 0,
+`front.data` 0, `front.bss` -24. The game code itself has **no** size difference: `front.text` is exact and the game part
+of `.text` has no change point. The differences are:
+
+1. **Sony's library code is not ASPSX 2.77 output (about +810 bytes of `.text`).** EA linked Sony's prebuilt `LIB*.LIB`
+   members; Route B recompiles our reconstructions of them and assembles them with ASPSX 2.77. Those objects were built
+   by Sony with gcc 2.7.2 and an assembler that fills branch delay slots by reordering; ASPSX 2.77 never reorders and
+   pads each unfilled slot with a `nop`. Route A reproduces them with GNU `as` in reorder mode (the `cc1_272` lane in
+   `tools/build.py`); real ASPSX 2.77 cannot. Typical: +16..+24 per function in libmcrd, +72 in `StCdInterrupt`, +44 in
+   libgpu `SYS` and libetc `INTR`.
+2. **Sony's objects round every section up to 16 bytes (about -380 bytes of `.text`, more in `.data` / `.bss`).** In the
+   SDK objects every section size is a multiple of 16 (`SPRINTF.obj` `.text` 0x890, ours 0x888; `FONT.obj` `.bss`
+   0x4410, ours 0x4404), so retail has 8 or 12 pad bytes after each small library function (`SetPolyF4`, `SetFogNear`,
+   `__gtdf2` ...). Our objects do not carry that padding. `tools/psyq_pipe/obj_align.py` prints it per object.
+3. **Read-only data no source owns yet (-532 in `.rdata`, -128 in `front.rdata`).** The residual blob pieces: literal
+   strings and pads between objects' read-only data, including the unreferenced `"SimpleMem"` tag at the head of 55
+   objects. Route A fills them with retail bytes; Route B has nothing to put there.
+4. **Small-data ordering (`.sbss` +64, `.bss` -156).** The linker allocates uninitialised globals per symbol; several
+   EA library files (`primate`, `locatbig`, `unbtree` / `stream`) come out in a different order, some variables land in
+   `.sbss` where retail has them in `.bss`, and Sony's `.bss` sections carry the same 16-byte rounding as above.
+5. **Dead stripping.** Retail's link removed unreferenced functions; stock PSYLINK 2.73 / 2.74 does not. The lane models
+   it by not assembling the functions tagged `LINK_STRIPPED`. Linking Sony's own library members instead of our
+   reconstructions would solve points 1 and 2 at once but bring the unstripped functions back, so an exact Route B needs
+   the linker EA actually used, which is not identified.
+
+The modules that still have no source file (`sdasync`, `unitvect`, `textsubs`, `hypot3d`, `hypot`) are **not** a cause:
+all their functions were stripped, so they add no text.
+
+A lane bug was found and fixed by this analysis on 2026-09-21: a directive with a trailing comment
+(`.text # maspsx-keep`, used by the certificate blocks) was not recognised after a `LINK_STRIPPED` function, which
+dropped libgpu `FntFlush` (796 bytes) from the native link.
 
 The original retail `NFS4.CPE` confirms this is how EA built it: one register record `pc = 0x800E402C`, a first load
 chunk of exactly 282,000 bytes at `0x80010000` (`bigbuf.obj`), and no overlay bytes in the CPE at all.

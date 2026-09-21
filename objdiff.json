@@ -369,14 +369,6 @@
       }
     },
     {
-      "name": "eaclib/psx/eacpsxz/textset",
-      "target_path": "expected/src/eaclib/psx/eacpsxz/textset.c.o",
-      "base_path": "build/recon/eaclib/psx/eacpsxz/textset.c.o",
-      "metadata": {
-        "source_path": "recon/eaclib/psx/eacpsxz/textset.c"
-      }
-    },
-    {
       "name": "eaclib/psx/eacpsxz/shpclut",
       "target_path": "expected/src/eaclib/psx/eacpsxz/shpclut.c.o",
       "base_path": "build/recon/eaclib/psx/eacpsxz/shpclut.c.o",
@@ -470,6 +462,14 @@
       "base_path": "build/recon/eaclib/psx/eacpsxz/textfor.c.o",
       "metadata": {
         "source_path": "recon/eaclib/psx/eacpsxz/textfor.c"
+      }
+    },
+    {
+      "name": "eaclib/psx/eacpsxz/textset",
+      "target_path": "expected/src/eaclib/psx/eacpsxz/textset.c.o",
+      "base_path": "build/recon/eaclib/psx/eacpsxz/textset.c.o",
+      "metadata": {
+        "source_path": "recon/eaclib/psx/eacpsxz/textset.c"
       }
     },
     {
@@ -710,6 +710,14 @@
       "base_path": "build/recon/eaclib/psx/sndpsxz/sclcptch.c.o",
       "metadata": {
         "source_path": "recon/eaclib/psx/sndpsxz/sclcptch.c"
+      }
+    },
+    {
+      "name": "eaclib/psx/sndpsxz/sdasync",
+      "target_path": "expected/src/eaclib/psx/sndpsxz/sdasync.c.o",
+      "base_path": "build/recon/eaclib/psx/sndpsxz/sdasync.c.o",
+      "metadata": {
+        "source_path": "recon/eaclib/psx/sndpsxz/sdasync.c"
       }
     },
     {
@@ -2161,14 +2169,6 @@
       }
     },
     {
-      "name": "game/common/spchevnt",
-      "target_path": "expected/src/game/common/spchevnt.c.o",
-      "base_path": "build/recon/game/common/spchevnt.c.o",
-      "metadata": {
-        "source_path": "recon/game/common/spchevnt.c"
-      }
-    },
-    {
       "name": "game/common/speech",
       "target_path": "expected/src/game/common/speech.c.o",
       "base_path": "build/recon/game/common/speech.cpp.o",
@@ -3009,67 +3009,11 @@
       }
     },
     {
-      "name": "syslib/psx/libcd/TYPE",
-      "target_path": "expected/src/syslib/psx/libcd/TYPE.c.o",
-      "base_path": "build/recon/syslib/psx/libcd/TYPE.c.o",
+      "name": "syslib/psx/libcd/CDROM",
+      "target_path": "expected/src/syslib/psx/libcd/CDROM.c.o",
+      "base_path": "build/recon/syslib/psx/libcd/CDROM.c.o",
       "metadata": {
-        "source_path": "recon/syslib/psx/libcd/TYPE.c"
-      }
-    },
-    {
-      "name": "syslib/psx/libcd/cdcont",
-      "target_path": "expected/src/syslib/psx/libcd/cdcont.c.o",
-      "base_path": "build/recon/syslib/psx/libcd/cdcont.c.o",
-      "metadata": {
-        "source_path": "recon/syslib/psx/libcd/cdcont.c"
-      }
-    },
-    {
-      "name": "syslib/psx/libcd/cdread",
-      "target_path": "expected/src/syslib/psx/libcd/cdread.c.o",
-      "base_path": "build/recon/syslib/psx/libcd/cdread.c.o",
-      "metadata": {
-        "source_path": "recon/syslib/psx/libcd/cdread.c"
-      }
-    },
-    {
-      "name": "syslib/psx/libcd/cdread2",
-      "target_path": "expected/src/syslib/psx/libcd/cdread2.c.o",
-      "base_path": "build/recon/syslib/psx/libcd/cdread2.c.o",
-      "metadata": {
-        "source_path": "recon/syslib/psx/libcd/cdread2.c"
-      }
-    },
-    {
-      "name": "syslib/psx/libcd/drv",
-      "target_path": "expected/src/syslib/psx/libcd/drv.c.o",
-      "base_path": "build/recon/syslib/psx/libcd/drv.c.o",
-      "metadata": {
-        "source_path": "recon/syslib/psx/libcd/drv.c"
-      }
-    },
-    {
-      "name": "syslib/psx/libcd/event",
-      "target_path": "expected/src/syslib/psx/libcd/event.c.o",
-      "base_path": "build/recon/syslib/psx/libcd/event.c.o",
-      "metadata": {
-        "source_path": "recon/syslib/psx/libcd/event.c"
-      }
-    },
-    {
-      "name": "syslib/psx/libcd/iso9660",
-      "target_path": "expected/src/syslib/psx/libcd/iso9660.c.o",
-      "base_path": "build/recon/syslib/psx/libcd/iso9660.c.o",
-      "metadata": {
-        "source_path": "recon/syslib/psx/libcd/iso9660.c"
-      }
-    },
-    {
-      "name": "syslib/psx/libcd/stcdint",
-      "target_path": "expected/src/syslib/psx/libcd/stcdint.c.o",
-      "base_path": "build/recon/syslib/psx/libcd/stcdint.c.o",
-      "metadata": {
-        "source_path": "recon/syslib/psx/libcd/stcdint.c"
+        "source_path": "recon/syslib/psx/libcd/CDROM.c"
       }
     },
     {
@@ -3137,11 +3081,67 @@
       }
     },
     {
-      "name": "syslib/psx/libcd/CDROM",
-      "target_path": "expected/src/syslib/psx/libcd/CDROM.c.o",
-      "base_path": "build/recon/syslib/psx/libcd/CDROM.c.o",
+      "name": "syslib/psx/libcd/TYPE",
+      "target_path": "expected/src/syslib/psx/libcd/TYPE.c.o",
+      "base_path": "build/recon/syslib/psx/libcd/TYPE.c.o",
       "metadata": {
-        "source_path": "recon/syslib/psx/libcd/CDROM.c"
+        "source_path": "recon/syslib/psx/libcd/TYPE.c"
+      }
+    },
+    {
+      "name": "syslib/psx/libcd/cdcont",
+      "target_path": "expected/src/syslib/psx/libcd/cdcont.c.o",
+      "base_path": "build/recon/syslib/psx/libcd/cdcont.c.o",
+      "metadata": {
+        "source_path": "recon/syslib/psx/libcd/cdcont.c"
+      }
+    },
+    {
+      "name": "syslib/psx/libcd/cdread",
+      "target_path": "expected/src/syslib/psx/libcd/cdread.c.o",
+      "base_path": "build/recon/syslib/psx/libcd/cdread.c.o",
+      "metadata": {
+        "source_path": "recon/syslib/psx/libcd/cdread.c"
+      }
+    },
+    {
+      "name": "syslib/psx/libcd/cdread2",
+      "target_path": "expected/src/syslib/psx/libcd/cdread2.c.o",
+      "base_path": "build/recon/syslib/psx/libcd/cdread2.c.o",
+      "metadata": {
+        "source_path": "recon/syslib/psx/libcd/cdread2.c"
+      }
+    },
+    {
+      "name": "syslib/psx/libcd/drv",
+      "target_path": "expected/src/syslib/psx/libcd/drv.c.o",
+      "base_path": "build/recon/syslib/psx/libcd/drv.c.o",
+      "metadata": {
+        "source_path": "recon/syslib/psx/libcd/drv.c"
+      }
+    },
+    {
+      "name": "syslib/psx/libcd/event",
+      "target_path": "expected/src/syslib/psx/libcd/event.c.o",
+      "base_path": "build/recon/syslib/psx/libcd/event.c.o",
+      "metadata": {
+        "source_path": "recon/syslib/psx/libcd/event.c"
+      }
+    },
+    {
+      "name": "syslib/psx/libcd/iso9660",
+      "target_path": "expected/src/syslib/psx/libcd/iso9660.c.o",
+      "base_path": "build/recon/syslib/psx/libcd/iso9660.c.o",
+      "metadata": {
+        "source_path": "recon/syslib/psx/libcd/iso9660.c"
+      }
+    },
+    {
+      "name": "syslib/psx/libcd/stcdint",
+      "target_path": "expected/src/syslib/psx/libcd/stcdint.c.o",
+      "base_path": "build/recon/syslib/psx/libcd/stcdint.c.o",
+      "metadata": {
+        "source_path": "recon/syslib/psx/libcd/stcdint.c"
       }
     },
     {
@@ -3585,14 +3585,6 @@
       }
     },
     {
-      "name": "syslib/psx/libpad/PADIF",
-      "target_path": "expected/src/syslib/psx/libpad/PADIF.c.o",
-      "base_path": "build/recon/syslib/psx/libpad/PADIF.c.o",
-      "metadata": {
-        "source_path": "recon/syslib/psx/libpad/PADIF.c"
-      }
-    },
-    {
       "name": "syslib/psx/libpad/PADCMD",
       "target_path": "expected/src/syslib/psx/libpad/PADCMD.c.o",
       "base_path": "build/recon/syslib/psx/libpad/PADCMD.c.o",
@@ -3606,6 +3598,14 @@
       "base_path": "build/recon/syslib/psx/libpad/PADENTRY.c.o",
       "metadata": {
         "source_path": "recon/syslib/psx/libpad/PADENTRY.c"
+      }
+    },
+    {
+      "name": "syslib/psx/libpad/PADIF",
+      "target_path": "expected/src/syslib/psx/libpad/PADIF.c.o",
+      "base_path": "build/recon/syslib/psx/libpad/PADIF.c.o",
+      "metadata": {
+        "source_path": "recon/syslib/psx/libpad/PADIF.c"
       }
     },
     {

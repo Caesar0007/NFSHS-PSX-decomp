@@ -263,9 +263,27 @@ with retail's; see `sym-match.md`.
 
 ## Route C — the way the original was linked (SLINK + Sony's prebuilt libraries)
 
-A test lane that links the project the way EA's makefile did. It is the answer to "what is the official way to build
-this": with it, **`.text`, `front.text` and `front.data` come out at exactly the retail size, every one of the 3,167
-functions both maps name is identical to retail's, and the linker removes the same dead functions retail removed.**
+**Byte-identical since 2026-09-22.** This route builds both disc files with the ORIGINAL tools -- cc1 / cc1plus, ASPSX 2.77,
+SN's slink with `/strip`, Sony's prebuilt libraries, Sony's CPE2X -- and they come out identical to retail:
+`NFS4.EXE` sha1 `c5c60d450bac`, `FRONT.BIN` sha1 `d6c5b5d16e55`. No reconstructed Sony code is linked, nothing is pinned
+to an address, no retail bytes are copied in; the layout falls out of the link order, the library pull order and the
+linker's own allocation.
+
+```bash
+NFS4_LANE_OFFICIAL=1 NFS4_LANE_OUT=build/psyq_off python tools/psyq_pipe/psylink_lane.py --assemble --link
+```
+
+```bash
+python tools/psyq_pipe/slink_lane.py
+```
+
+```bash
+python tools/psyq_pipe/slink_disc.py
+```
+
+What is still borrowed from retail knowledge: the link order of the game objects (the SYM's FILE records -- the original
+makefile listed them in that order), and 23 data labels no source file defines yet, which the script equates to their
+retail addresses (`equ`; with the layout exact those values are simply right, but the data has no owner).
 
 What the original build was (each point is measured, 2026-09-21):
 
@@ -319,7 +337,7 @@ writes `build/psyq_off/off.lnk`, runs slink and reports. Result:
 | `front.data` | 0x18D8 | 0x18D8 | **exact** |
 | `.sbss` | 0x164 | 0x164 | **exact** |
 | `.sdata` | 0x1830 | 0x1830 | **exact** |
-| `.bss` | 0xAC28 | 0xAC24 | +4 |
+| `.bss` | 0xAC24 | 0xAC24 | **exact** |
 | `front.bss` | 0x1A10 | 0x1A10 | **exact** |
 
 (2026-09-21, after the data-ownership pass. Before it: `.rdata` -468, `front.rdata` -128, `.data` -84, `.sdata` -44,
@@ -343,6 +361,15 @@ What the pass found -- every item was something Route A's address-pinned placeme
   (FETexture.obj's, not PSXFront's) -- identical bytes had overlapped in Route A.
 - Lane: only `.text.strip` functions are kept for slink to remove (`.rodata.strip` / `.bss.strip` are data retail never
   had); `.comm` / `.lcomm` go to ASPSX and the linker untouched.
+
+- The last bytes (`slink_addrdrift.py`: every address the two images reference differently, as a drift map):
+  `static coorddef dummy;` in newton.cpp is a local COMMON, which ASPSX 2.77 aligns to 8 (the GNU lane pins it in a named
+  section; the lane turns those three carriers back into `.lcomm`); the file manager `gFileDevice` is 40 bytes, not 48
+  (libgpu's data starts right behind it -- an invented 8-byte tail); EA's library objects keep their uninitialised
+  variables in DECLARATION order, globals and statics interleaved, 8-byte objects on an 8-byte boundary (they were built
+  with another assembler generation -- ASPSX 2.77 + slink would allocate them as COMMONs in symbol-hash order); and
+  retail's `LIBCD.LIB` is the PATCHED one Sony shipped in `psx/lib/patches` next to PsyQ 4.4: same code as 4.4's, and its
+  data carries retail's library stamp `50 73 04 26 f4 2d 43 10`.
 
 Reports: `slink_datadiff.py` (section contents aligned against retail, addresses masked), `slink_labels.py LO HI`,
 `ro_view.py LO HI`, `unowned_data.py`.

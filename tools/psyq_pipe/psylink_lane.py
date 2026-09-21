@@ -53,6 +53,7 @@ W = ROOT / 'scratchpad' / 'psyq_pipe'; W.mkdir(parents=True, exist_ok=True)   # 
 HERE = Path(__file__).resolve().parent                                        # versioned inputs live next to the tool
 OFFICIAL = os.environ.get('NFS4_LANE_OFFICIAL') == '1'   # slink_lane.py: objects as the ORIGINAL build had them -- LINK_STRIPPED bodies kept
 #   (the linker strips them, not us), no retail-derived trailing pads, no forced 8-byte rounding of frontend sections
+EALIB_DECL_ORDER = os.environ.get('NFS4_LANE_EALIB_COMM') != 'native'   # official lane: EA library objects keep declaration order
 OFFICIAL_NATIVE_COMM = OFFICIAL and os.environ.get('NFS4_LANE_COMM') != 'model'   # official lane: .comm/.lcomm go to ASPSX 2.77 + the linker untouched
 #   (measured 2026-09-21: .bss +4 that way, against -40 with the PSYLINK lane's hand-made COMMON layout; NFS4_LANE_COMM=model = old)
 ONLY = [f for f in os.environ.get('NFS4_LANE_ONLY', '').split(',') if f]   # per-file loop: assemble just these TUs
@@ -151,11 +152,31 @@ COMM_RE = re.compile(rb'\.(l?comm)\s+(\S+?)\s*,\s*(\d+)')
 def sn_text(src: Path, vtables=False, front=False, pads=None, g=None) -> bytes:
     out = []
     lines = src.read_bytes().replace(b'\r\n', b'\n').split(b'\n')
+    if OFFICIAL:
+        # `static T x __attribute__((section(".bss.<carrier>")))` is the GNU lane's way to PIN an uninitialised static to its
+        # retail address; the original was a plain `static T x;` = a local COMMON (`.lcomm`), which ASPSX 2.77 aligns to
+        # min(8, size) -- newton.obj's two 12-byte `dummy` statics sit 16 apart in retail for exactly that reason.
+        out2, k = [], 0
+        while k < len(lines):
+            if re.match(rb'^\s*\.section\s+\.s?bss\.\w+', lines[k]) and b'.bss.strip' not in lines[k]:   # .bss.strip = storage retail never had
+                j = k + 1
+                while j < len(lines) and lines[j].strip().startswith(b'.align'):
+                    j += 1
+                lab = re.match(rb'^([\w.$]+):\s*$', lines[j].strip()) if j < len(lines) else None
+                sp = re.match(rb'^\.space\s+(\d+)\s*$', lines[j + 1].strip()) if lab and j + 1 < len(lines) else None
+                if lab and sp:
+                    out2.append(b'\t.lcomm\t' + lab.group(1) + b',' + sp.group(1))
+                    k = j + 2
+                    continue
+            out2.append(lines[k]); k += 1
+        lines = out2
     # front-overlay objects: ASPSX -s puts the object's COMMONs into front.bss after its
     # explicit .bss, local commons first then global ones, each aligned to min(4, size)
     # (probed on PSYLINK 2.73); without -s they would fall into the main .bss, so emit
     # them explicitly in that order.
     lcomm = []; comm = []
+    ea_at = 0
+    ea_decl = []      # EA library objects (official lane): uninitialised variables in DECLARATION order, see below
     aliases = defaultdict(list)
     for ln in lines:
         m = ALIAS_RE.match(ln)
@@ -174,6 +195,11 @@ def sn_text(src: Path, vtables=False, front=False, pads=None, g=None) -> bytes:
         if s.startswith((b'.type\t', b'.type ', b'.size\t', b'.size ')):
             continue
         m = COMM_RE.match(s)
+        if m and OFFICIAL and EALIB_DECL_ORDER and b'/recon/eaclib/' in str(src).replace(chr(92), '/').encode():
+            if not ea_decl:
+                ea_at = len(out)      # the definitions go where the FIRST declaration stood: ASPSX must know a name is small before its first use
+            ea_decl.append((m.group(1) == b'comm', m.group(2), int(m.group(3))))
+            continue
         if m and (front or (COMM4 and not OFFICIAL_NATIVE_COMM and (g is None or int(m.group(3)) > g))):
             # retail COMMON law (2026-09-17): .lcomm/.comm are laid out after the object's
             # explicit .bss, locals first then globals, each aligned to min(4, size) -- retail
@@ -203,6 +229,30 @@ def sn_text(src: Path, vtables=False, front=False, pads=None, g=None) -> bytes:
         if m and (ROOT / m.group(1).decode()).is_file():
             out.append(sn_text(ROOT / m.group(1).decode(), front=front).rstrip(b'\r\n')); continue
         out.append(ln)
+    if ea_decl:
+        blk = []
+        # EA's libraries were built before this project (another assembler generation): in the retail image their
+        # uninitialised variables stand in DECLARATION order, globals and statics interleaved (primate.obj: oti otp otbl
+        # otbl2 nextprim maxot ...; spchdata.obj: gPreLoadTicks gEventDats gVoxInGame gRepeatCount gVoxEvents ...), each
+        # aligned to min(4, size).  ASPSX 2.77 + slink would allocate them as COMMONs in symbol-hash order instead.
+        for small in (True, False):
+            rows = [r for r in ea_decl if (r[2] <= (g or 0)) == small]
+            if not rows:
+                continue
+            blk.append(b'\t.section .sbss' if small else b'\t.bss')
+            for isglobal, name, size in rows:
+                al = os.environ.get('NFS4_LANE_EALIB_ALIGN', 'pow2')
+                if al == 'pow2':      # an 8-byte object is 8-aligned, everything else min(4, size) (nasync.obj: the two 8-byte
+                    k = 3 if size == 8 else 2 if size >= 4 else 1 if size >= 2 else 0   # queues sit on 8; fileroot's 64-byte currentdirectory and spchdata's 16-byte gEventDats do NOT -- measured, rule not understood)
+                else:
+                    k = 2 if size >= 4 else 1 if size >= 2 else 0
+                blk.append(b'\t.align %d' % k)
+                if isglobal:
+                    blk.append(b'\t.globl ' + name)
+                blk.append(name + b':')
+                blk.append(b'\t.space ' + str(size).encode())
+        blk.append(b'\t.text')
+        out[ea_at:ea_at] = blk
     if lcomm or comm:
         out.append(b'\t.section front.bss' if front else b'\t.bss')
         for name, size in lcomm + comm:

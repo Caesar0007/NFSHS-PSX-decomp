@@ -10,7 +10,7 @@ still go to `scratchpad/psyq_pipe/`, which the tools create when missing.
 | Group | Tools | Documented in |
 |---|---|---|
 | Native link: `NFS4.CPE` / `.SYM` / `.MAP`, then `NFS4.EXE` + `FRONT.BIN` | `psylink_lane.py`, `psylink_disc.py`, `cpe_dump.py`, `drift.py`, `drift_vt.py`, `layout_delta.py`, `obj_align.py`, `aspsx_ladder.py` | `BUILDING.md`, Route B |
-| Route C: the original link recipe (SLINK `/strip` + Sony's prebuilt libraries) | `slink_lane.py`, `slink_bytes.py`, `slink_order.py`, `slink_delta.py` (objects from `psylink_lane.py` with `NFS4_LANE_OFFICIAL=1`) | `BUILDING.md`, Route C |
+| Route C: the original link recipe (SLINK `/strip` + Sony's prebuilt libraries) | `slink_lane.py`, `slink_disc.py` (the two disc files, byte-identical), `slink_bytes.py`, `slink_order.py`, `slink_delta.py`, `slink_datadiff.py`, `slink_addrdrift.py`, `slink_labels.py`, `slink_pullsim.py`, `slink_pullsolve.py`, `sym_owner_audit.py`, `sym_obj_sources.py`, `sym_saw_type.py` (objects from `psylink_lane.py` with `NFS4_LANE_OFFICIAL=1`) | `BUILDING.md`, Route C |
 | Source against the retail SYM | `gdebug_compile.py`, `symtree_cmp.py`, `symtree_parse.py`, `symfn_cmp.py`, `symlocals.py`, `scope_probe.py`, `g_codecmp.py`, `g_codediff_fn.py`, `stat_small.py` | `sym-match.md` |
 | Edit loop and automatic fixers | `symloop.py`, `symfix_order_drive.py`, `symfix_order.py`, `symfix_fordecl.py`, `symfix_rename.py`, `symfix_spchevnt.py` | `sym-match.md` |
 | Data ownership by link order | `linkorder_outliers.py`, `linkorder_window.py`, `linkorder_slot.py`, `data_owner_by_linkorder.py`, `bss_holes.py`, `sdk_bss.py`, `blob_only_ranges.py`, `ownership_audit2.py`, `honest_diffs.py` | |

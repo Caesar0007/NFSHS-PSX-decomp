@@ -413,8 +413,8 @@
   "obj": "build/recon/eaclib/psx/eacpsxz/nfile.c.o",
   "section": ".bss",
   "base": 2148788872,
-  "end": 2148788920,
-  "size": 48,
+  "end": 2148788912,
+  "size": 40,
   "ok": true,
   "votes": 99,
   "q": 2

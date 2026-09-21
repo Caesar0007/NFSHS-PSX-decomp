@@ -63,7 +63,9 @@ if '--liborder' in args:
     del args[args.index('--liborder'):args.index('--liborder') + 2]
 extra = [a for a in args if a.startswith('/') or (a and not a.startswith('--'))]
 if not LIBFROM and '--sdklib' not in sys.argv:
-    LIBFROM = {'LIBCD': Path('C:/Temp/psq44/psx/lib/LIBCD.LIB')}   # retail's libcd is the PsyQ 4.4 one (CdRead is 39 words longer than 4.3's)
+    # retail's libcd is the PATCHED one Sony shipped next to PsyQ 4.4 (psx/lib/patches): same code as 4.4's (CdRead is 39 words
+    # longer than 4.3's) and its data carries retail's library stamp `50 73 04 26 f4 2d 43 10`; stock 4.4 has `..04 00 00 00 44 00`
+    LIBFROM = {'LIBCD': Path('C:/Temp/psq44/psx/lib/patches/LIBCD.LIB')}
 if not extra:
     extra = ['-nostrip', 'stup1', '-nostrip']                    # the slink manual's own advice for Sony's startup object
 if FRONTALIGN in ('0', '4'):

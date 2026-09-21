@@ -53,8 +53,8 @@ typedef struct FileMgr {
     FileHandle *handlearray;   /* +0x1C handle array   (== oparray + opcount*0x30)                  */
     FileOp     *queuehead;     /* +0x20 head of the priority-sorted pending-op queue (@0x8013EAA8)   */
     void       *devicelist;    /* +0x24 head of the open-device linked list (node+4=handle, +0xC=next)*/
-    unsigned char _g28[0x30 - 0x28];   /* mem/callback fields TBD                                   */
-} FileMgr;                     /* >= 0x30 */
+} FileMgr;                     /* 0x28: retail's libgpu SYS.obj .bss starts right behind it, at 0x8013EAB0 (an 8-byte `TBD` tail was
+                                * invented here until 2026-09-22; the native slink link showed the surplus) */
 
 extern FileMgr gFileDevice;    /* @0x8013EA88: retail SYM/MAP symbol */
 #define gFileMgr gFileDevice   /* compatibility alias for reconstructed field expressions */

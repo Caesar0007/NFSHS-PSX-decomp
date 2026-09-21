@@ -956,8 +956,9 @@ SECTIONS
     .xs0015 0x8013dc48 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/wildcard.c.o(.sdata); }
     .xs0016 0x8013dc50 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/nfile.c.o(.sdata); }
     .xs0017 0x8013dd18 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/loadshp.c.o(.sdata); }
-    .xs0018 0x8013dd2c : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/fileroot.c.o(.sdata); }
-    .xs0019 0x8013dd48 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/inittmr.c.o(.sdata); }
+    .xs0018 0x8013dd24 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/textcrnt.c.o(.sdata); }
+    .xs0019 0x8013dd2c : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/fileroot.c.o(.sdata); }
+    .xs0020 0x8013dd48 : SUBALIGN(4) { build/recon/eaclib/psx/eacpsxz/inittmr.c.o(.sdata); }
 
     .data 0x8010ccd4 : SUBALIGN(4)
     {

@@ -19,6 +19,14 @@ void putm(int dst, unsigned int val, int n)
 }
 
 /* puti @0x800F30D4 : write `val` as `n` bytes little-endian into buf[0..n). */
+extern int sprintf(char *dst, const char *fmt, ...);
+
+/* retail .sdata has an UNREFERENCED 3-byte literal "%c" at 0x8013DD24 (no gp-relative use anywhere in the image), in the
+ * link-order slot between loadshp.obj and joystkn.obj.  textcrnt.obj is the only text-output member in that window
+ * (puti / putm); a single-character sibling the final link removed would leave exactly this string.  Owner by
+ * elimination, not by a SYM record -- the alternatives are exit / ssysinit / ssysreal / textset / getm / isqrt / fsincos. */
+static inline const char *textcrnt_charformat(void) { return "%c"; }   /* an unused inline leaves only its literal */
+
 void puti(unsigned char *buf, unsigned int val, int n)
 {
     while (n = n - 1, -1 < n) {

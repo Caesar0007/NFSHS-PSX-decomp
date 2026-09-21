@@ -5,7 +5,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-R = Path('C:/Temp/nfs4-decomp')
+R = Path(__file__).resolve().parents[2]
 lib, mem, fn = sys.argv[1:4]
 obj = 'C:/Temp/nfs4-clean/psyq43/extracted/%s/obj/%s.obj' % (lib, mem)
 cmd = [sys.executable, str(R / 'tools' / 'objtruth.py'), 'dump', obj, fn]

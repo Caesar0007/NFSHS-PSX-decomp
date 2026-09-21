@@ -5,8 +5,9 @@ function; TAIL functions are stripped when its text ends exactly at the end of t
 import csv
 import re
 from collections import defaultdict
+from pathlib import Path
 
-R = 'C:/Temp/nfs4-decomp/'
+R = Path(__file__).resolve().parents[2].as_posix() + '/'
 SYM = __import__('retail_sym').txt()
 IDX = 'C:/Temp/nfs4-clean/psyq43/extracted/INDEX.tsv'
 lab, members = {}, []

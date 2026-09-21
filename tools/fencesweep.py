@@ -9,8 +9,9 @@ The TU is patched in place and ALWAYS restored in `finally` (PER_TU_FLAGS is pat
 so a renamed copy would measure the wrong lane).
 """
 import os, re, subprocess, sys
+from pathlib import Path
 
-ROOT = r"C:\Temp\nfs4-decomp"
+ROOT = str(Path(__file__).resolve().parents[1])
 VOID = '__asm__("" : : "i"(0));'
 
 

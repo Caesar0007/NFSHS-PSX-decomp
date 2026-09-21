@@ -3,8 +3,9 @@ and which other recon files mention it (a mention in another compiled file means
 import glob
 import re
 import subprocess
+from pathlib import Path
 
-R = 'C:/Temp/nfs4-decomp/'
+R = Path(__file__).resolve().parents[2].as_posix() + '/'
 names = [l.split()[5] for l in open(R + 'build/tmp/linkage.txt') if 'retail 6 ours 2' in l]
 files = [p.replace(chr(92), '/') for p in glob.glob(R + 'recon/**/*', recursive=True) if p.endswith(('.c', '.cpp', '.h', '.inc'))]
 text = {p: open(p, encoding='utf-8', errors='replace').read() for p in files}

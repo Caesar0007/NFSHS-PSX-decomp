@@ -7,8 +7,9 @@ import subprocess
 import sys
 import tempfile
 import os
+from pathlib import Path
 
-R = 'C:/Temp/nfs4-decomp/'
+R = Path(__file__).resolve().parents[2].as_posix() + '/'
 OC = 'C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-objcopy.exe'
 out = {}
 tmp = os.path.join(tempfile.gettempdir(), 'th_text.bin')

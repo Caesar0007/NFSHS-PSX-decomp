@@ -4,7 +4,7 @@ import importlib.util
 import sys
 from pathlib import Path
 
-ROOT = Path('C:/Temp/nfs4-decomp')
+ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'tools'))
 cpp, fn = sys.argv[1], sys.argv[2]
 start = int(sys.argv[3]) if len(sys.argv) > 3 else 0

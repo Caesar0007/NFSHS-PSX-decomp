@@ -9,9 +9,11 @@ section table (main `text` group + `front` overlay group).
 """
 import re
 import sys
+from pathlib import Path
 
-MAP = sys.argv[1] if len(sys.argv) > 1 else r"C:\Temp\nfs4-clean\NFS4.MAP"
-OUT = sys.argv[2] if len(sys.argv) > 2 else r"C:\Temp\nfs4-decomp\configs\symbol_addrs.txt"
+ROOT = Path(__file__).resolve().parents[1]
+MAP = sys.argv[1] if len(sys.argv) > 1 else str(ROOT / "rom" / "NFS4.MAP")
+OUT = sys.argv[2] if len(sys.argv) > 2 else str(ROOT / "configs" / "symbol_addrs.txt")
 
 # Executable VA ranges (inclusive) — anything here is a function start.
 TEXT_RANGES = [

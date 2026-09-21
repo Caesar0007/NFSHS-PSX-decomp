@@ -4,7 +4,7 @@ import re
 import sys
 from pathlib import Path
 
-ROOT = Path('C:/Temp/nfs4-decomp')
+ROOT = Path(__file__).resolve().parents[2]
 LOAD = 0x80010000
 n = len((ROOT / 'rom/nfs4-f.exe').read_bytes()[0x800:])
 lo = int(sys.argv[1], 16) if len(sys.argv) > 2 else LOAD

@@ -1,8 +1,9 @@
 """honest_diffs.py -- list the differing words of the honest link (same flattening as tools/honest_measure.py)."""
 import re
 import subprocess
+from pathlib import Path
 
-R = 'C:/Temp/nfs4-decomp/'
+R = Path(__file__).resolve().parents[2].as_posix() + '/'
 OBJDUMP = 'C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-objdump.exe'
 LOAD, FOFF = 0x80010000, 0x800
 rom = open(R + 'rom/nfs4-f.exe', 'rb').read()[FOFF:]

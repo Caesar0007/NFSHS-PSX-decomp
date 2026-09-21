@@ -8,8 +8,9 @@ import json
 import re
 import subprocess
 from collections import OrderedDict, defaultdict
+from pathlib import Path
 
-R = 'C:/Temp/nfs4-decomp/'
+R = Path(__file__).resolve().parents[2].as_posix() + '/'
 SYM = __import__('retail_sym').txt()
 NM = 'C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-nm.exe'
 objs = OrderedDict()

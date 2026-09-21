@@ -1,7 +1,8 @@
 """linkorder_window.py LO HI -- every retail label in [LO,HI) with its recon definer and that object's link index
 (stale build objects -- no recon source next to them -- are ignored)."""
 import glob, os, re, subprocess, sys
-R = 'C:/Temp/nfs4-decomp/'
+from pathlib import Path
+R = Path(__file__).resolve().parents[2].as_posix() + '/'
 SYM = __import__('retail_sym').txt()
 NM = 'C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-nm.exe'
 lo, hi = int(sys.argv[1], 16), int(sys.argv[2], 16)

@@ -9,8 +9,9 @@ import bisect
 import re
 import subprocess
 from collections import defaultdict
+from pathlib import Path
 
-R = 'C:/Temp/nfs4-decomp/'
+R = Path(__file__).resolve().parents[1].as_posix() + '/'
 SYM = __import__('retail_sym').txt()
 OD = 'C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-objdump.exe'
 DATA = [(0x80010000, 0x800128F0), (0x80051260, 0x80054548), (0x80054548, 0x8005797C), (0x8010CCD4, 0x80148B04)]

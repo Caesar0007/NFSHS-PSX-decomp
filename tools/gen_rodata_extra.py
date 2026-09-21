@@ -81,7 +81,7 @@ if sa.exists():
 # The MND SYM names every retail global INCLUDING file-statics the MAP lacks
 # (SQVclue.. in unref/unbtree .sbss, kMovingHighlight, ...).  Fallback only:
 # MAP + symbol_addrs stay authoritative where they have the name.
-SYMTXT = Path(r__import__('retail_sym').txt())
+SYMTXT = Path(__import__('retail_sym').txt())
 if SYMTXT.exists():
     for ln in SYMTXT.read_text(errors='replace').splitlines():
         m = re.match(r'^[0-9a-f]+: \$([0-9a-f]{8}) [26] (\S+)$', ln)

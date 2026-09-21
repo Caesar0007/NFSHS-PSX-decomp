@@ -2,8 +2,9 @@
 `_vf` members / accesses, `X_vtable` names, `__vtbl_ptr_type` uses, asm-labelled `_vt` symbols."""
 import glob
 import re
+from pathlib import Path
 
-R = 'C:/Temp/nfs4-decomp/recon/'
+R = Path(__file__).resolve().parents[2].as_posix() + '/recon/'
 tot = 0
 for p in glob.glob(R + '**/*', recursive=True):
     p = p.replace(chr(92), '/')

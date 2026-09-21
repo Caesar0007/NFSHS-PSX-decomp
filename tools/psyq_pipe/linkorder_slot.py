@@ -1,7 +1,8 @@
 """linkorder_slot.py LO_IDX HI_IDX -- per data section, the owned labels whose owner's link index is in [LO,HI], plus the
 unowned / non-module labels that sit between them (address order)."""
 import glob, os, re, subprocess, sys
-R = 'C:/Temp/nfs4-decomp/'
+from pathlib import Path
+R = Path(__file__).resolve().parents[2].as_posix() + '/'
 SYM = __import__('retail_sym').txt()
 NM = 'C:/Tools/mips-ps1/mips/bin/mipsel-none-elf-nm.exe'
 SECS = {'.rdata': (0x80010000, 0x800128F0), '.data': (0x8010CCD4, 0x8013C54C), '.sdata': (0x8013C54C, 0x8013DD7C), '.sbss': (0x8013DD7C, 0x8013DEE0),

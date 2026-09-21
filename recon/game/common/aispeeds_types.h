@@ -64,7 +64,8 @@ struct AIPhysic_BrakeInfo {
         return (u_int)brakeTable_[sIndex] * 0x20000;
     }
 
-    int GetNeededDistance(int currentSpeed,int futureSpeed)
+    /* Retail inline records list futureSpeed before currentSpeed. */
+    int GetNeededDistance(int futureSpeed,int currentSpeed)
     {
         return GetBrakeDistance(currentSpeed) - GetBrakeDistance(futureSpeed);
     }

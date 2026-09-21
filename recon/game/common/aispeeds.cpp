@@ -187,14 +187,20 @@ void AISpeeds_CleanUp(void)
 /* ---- AISpeeds_SuperDuperSpeedUpTheCarsAtTheStartBecauseWeCannotActuallyHandleRenderingTheseCars__FP8Car_tObj  [@0x8006d89c] ---- */
 int AISpeeds_SuperDuperSpeedUpTheCarsAtTheStartBecauseWeCannotActuallyHandleRenderingTheseCars(Car_tObj *carObj)
 {
-  int leadIndex;
+  int leadIndex = Cars_gNumAIRaceCars - carObj->AISlot;
   int f_crappyFrameRateCompensatingSpeedup;
-  leadIndex = Cars_gNumAIRaceCars - carObj->AISlot;   /* H41: compute EARLY (oracle: subu right after loading Cars_gNumAIRaceCars, before the guard) */
-  if ((((1 < Cars_gNumAIRaceCars) && (AISPEEDS_RACE_TYPE != RaceType_HotPursuit)) &&
-      (simGlobal.gameTicks < 0x780)) &&
-     ((Cars_gNumHumanRaceCars == 1 && ((*(u_short *)((char *)Cars_gHumanRaceCarList[0] + 6)) < (carObj->N).totalSlice)))) {
-    return leadIndex * 0x3333 + 0x10000;
+
+  if ((1 < Cars_gNumAIRaceCars) && (AISPEEDS_RACE_TYPE != RaceType_HotPursuit) && (simGlobal.gameTicks < 0x780) && (Cars_gNumHumanRaceCars == 1) && ((*(u_short *)((char *)Cars_gHumanRaceCarList[0] + 6)) < (carObj->N).totalSlice))
+  {
+    return (f_crappyFrameRateCompensatingSpeedup = leadIndex * 0x3333) + 0x10000;
   }
+
+
+
+
+
+
+
   return 0x10000;
 }
 
@@ -326,73 +332,77 @@ LAB_8006de40:
 /* ---- AISpeeds_NeedToSlowDownForCurve__FP8Car_tObjiii  [@0x8006de90] ---- */
 int AISpeeds_NeedToSlowDownForCurve(Car_tObj *carObj,int distanceMeters,int currentSpeed,int futureCurveSpeed)
 {
-  int neededDistance;
-
-  if (currentSpeed < futureCurveSpeed) {
+  if (currentSpeed < futureCurveSpeed)
     return 0;
-  }
-  /* SYM-INLINE-THIS: GetNeededDistance
-   * SYM-INLINE-LOCAL: futureSpeed = GetNeededDistance
-   * SYM-INLINE-THIS: GetBrakeDistance
-   * SYM-INLINE-LOCAL: speed = GetBrakeDistance
-   * SYM-INLINE-LOCAL: sIndex = GetBrakeDistance
-   * SYM-INLINE-THIS: GetBrakeDistance
-   * SYM-INLINE-LOCAL: speed = GetBrakeDistance
-   * SYM-INLINE-LOCAL: sIndex = GetBrakeDistance */
-  neededDistance = carObj->brakeInfo->GetNeededDistance(currentSpeed,futureCurveSpeed);
-  return neededDistance + (neededDistance >> 3) < distanceMeters ^ 1;
-}
+  int neededDistance = carObj->brakeInfo->GetNeededDistance(futureCurveSpeed,currentSpeed);
 
-static inline int AISpeeds_AddScanSlice(int slice,int scanSlice)
-{
-  return slice + scanSlice;
+
+
+
+
+  neededDistance += neededDistance >> 3;
+
+  if (neededDistance < distanceMeters)
+    return 0;
+  else
+    return 1;
 }
 
 /* ---- AISpeeds_CalcOpponentCurveSpeed__FP8Car_tObj  [@0x8006df34] ---- */
 int AISpeeds_CalcOpponentCurveSpeed(Car_tObj *carObj)
 {
-  int speedHere;
+  int speedHere = __builtin_abs(carObj->currentSpeed);
 
-  /* SYM scopes scanMetersDistanceInt around the loop and the remaining three
-   * locals inside its body; preserving those scopes is allocation-sensitive. */
-  {
-    int scanMetersDistanceInt;
 
-    scanMetersDistanceInt = 200;
-    speedHere = __builtin_abs(carObj->currentSpeed);
-    while (0 <= scanMetersDistanceInt) {
-      int scanSlice;
-      int curve;
-      int curveSpeed;
 
-      scanSlice = (scanMetersDistanceInt / 6) * carObj->direction;
-      if (0 <= scanSlice) {
-        scanSlice = AISpeeds_AddScanSlice((carObj->N).simRoadInfo.slice,scanSlice);
-        if (gNumSlices <= scanSlice) {
-          scanSlice = scanSlice - gNumSlices;
-        }
-      }
-      else {
-        scanSlice = AISpeeds_AddScanSlice((carObj->N).simRoadInfo.slice,scanSlice);
-        if (scanSlice < 0) {
-          scanSlice = scanSlice + gNumSlices;
-        }
-      }
-      curve = AIDataRecord_TrackCurve_Get(AIDataRecord_TrackCurve,scanSlice);
-      curveSpeed = (carObj->curveSpeedTable)->Get(curve);
-      if (AISPEEDS_WEATHER != 0) {
-        curveSpeed = fixedmult(curveSpeed,AISpeeds_WeatherMultFactors[curve / 4]);
-      }
-      if (scanMetersDistanceInt == 0) {
-        return curveSpeed;
-      }
-      if (AISpeeds_NeedToSlowDownForCurve(
-              carObj,scanMetersDistanceInt << 0x10,speedHere,curveSpeed) != 0) {
-        return curveSpeed;
-      }
-      scanMetersDistanceInt = scanMetersDistanceInt + -0x19;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  for (int scanMetersDistanceInt = 200; 0 <= scanMetersDistanceInt; scanMetersDistanceInt -= 0x19) {
+    int scanSlice, curve, curveSpeed;
+
+    scanSlice = WRAP_SLICE((scanMetersDistanceInt / 6) * carObj->direction,(int)(carObj->N).simRoadInfo.slice);
+
+    curve = AIDataRecord_TrackCurve_Get(AIDataRecord_TrackCurve,scanSlice);
+
+
+
+
+    curveSpeed = (carObj->curveSpeedTable)->Get(curve);
+    if (AISPEEDS_WEATHER != 0) curveSpeed = fixedmult(curveSpeed,AISpeeds_WeatherMultFactors[curve / 4]);
+
+    if (scanMetersDistanceInt == 0 || AISpeeds_NeedToSlowDownForCurve(carObj,scanMetersDistanceInt << 0x10,speedHere,curveSpeed) != 0)
+    {
+      return curveSpeed;
     }
+
+
   }
+
+
   return 0;
 }
 
@@ -490,33 +500,23 @@ Car_tObj * AISpeeds_GetNextAICar(Car_tObj *carObj)
 }
 
 /* ---- AISpeeds_GetPrevAICar__FP8Car_tObj  [@0x8006e264] ---- */
+/* Native carLoop belongs to the for scope. Array indexing leaves the
+ * stride pointer to GCC rather than introducing a non-native pointer local. */
 Car_tObj * AISpeeds_GetPrevAICar(Car_tObj *carObj)
 {
-  /* H43: SYM-wired locals (prevCar $a3, testCar $v1, carLoop $a1 -- confirmed via
-   * dumpsym_src/nfs4-f-v3.txt @0x8006e264 Block-start REG entries). The recon previously ran
-   * through anonymous pCVar1/iVar2/ppCVar3/pCVar4 temps with a HAND-ROLLED pointer-walk
-   * (ppCVar3++), which forced the walk pointer into $a1 and the real named counter into $a2 --
-   * backwards vs the oracle. Real source used plain ARRAY INDEXING
-   * (`Cars_gTotalSortedList[carLoop]`); gcc's own strength-reduction turns that into the
-   * pointer-increment codegen the oracle shows, leaving the SYNTHETIC stride pointer to soak up
-   * $a2 and the real named `carLoop` to keep $a1 (§3.12 #1 index-form vs pointer-walk). */
   Car_tObj *prevCar;
   Car_tObj *testCar;
-  int carLoop;
-
-  carLoop = 0;
   prevCar = (Car_tObj *)0x0;
-  if (carLoop < Cars_gNumCars) {
-    do {
-      testCar = Cars_gTotalSortedList[carLoop];
-      if (carObj == testCar) {
-        return prevCar;
-      }
-      if ((testCar->carFlags & 8U) != 0) {
-        prevCar = testCar;
-      }
-      carLoop = carLoop + 1;
-    } while (carLoop < Cars_gNumCars);
+
+
+
+  for (int carLoop = 0; carLoop < Cars_gNumCars; carLoop++)
+  {
+    testCar = Cars_gTotalSortedList[carLoop];
+    if (carObj == testCar) return prevCar;
+
+    if ((testCar->carFlags & 8U) != 0)
+      prevCar = testCar;
   }
   return (Car_tObj *)0x0;
 }
@@ -757,67 +757,101 @@ int AISpeeds_GetDamageFactor(Car_tObj *carObj)
 }
 
 /* ---- AISpeeds_LimitGlueMultiplier__FP8Car_tObji  [@0x8006e9b0] ---- */
+/* Native scan scopes follow an in-range early return. The former extra
+ * return used as an allocation dial is unnecessary in this source shape. */
 int AISpeeds_LimitGlueMultiplier(Car_tObj *carObj,int f_final)
 {
-  /* SYM roles: f_final=$s2, bestDistanceAbsMeters=$s3, playerLoop=$s1.
-   * The remaining residual is the compiler choosing $s2/$s3 oppositely. */
   int bestDistanceAbsMeters;
   int playerLoop;
-  int thisDistanceAbsMeters;
 
-  if ((f_final < 0x999a) || (0x16665 < f_final)) {
-    bestDistanceAbsMeters = 0x27100000;
-    playerLoop = 0;
-    while (true) {
-      if (Cars_gNumHumanRaceCars <= playerLoop) {
-        break;
-      }
-      thisDistanceAbsMeters = __builtin_abs(
-          AIWorld_ApxSplineDistance(carObj,Cars_gHumanRaceCarList[playerLoop]));
-      if (thisDistanceAbsMeters < bestDistanceAbsMeters) {
-        bestDistanceAbsMeters = thisDistanceAbsMeters;
-      }
-      playerLoop = playerLoop + 1;
-    }
-    if (bestDistanceAbsMeters < 0x780001) {
-      if (0x16666 < f_final) {
-        f_final = 0x16666;
-      }
-      if (f_final < 0x9999) {
-        f_final = 0x9999;
-      }
-      /* W54-A15 REF-STEP: the duplicated `return f_final;` (cross-jump merges it back,
-       * 0 insns) lifts f_final's REG_N_REFS 7->8 = the floor_log2 2->3 step that reqdelta
-       * proves is the MINIMAL dial putting f_final in $s2 and bestDistance in $s3 (SYM). */
-      return f_final;
-    }
+
+
+
+  if (f_final >= 0x999a && f_final <= 0x16665) return f_final;
+
+
+
+  bestDistanceAbsMeters = 0x27100000;
+
+
+
+  for (playerLoop = 0; ; playerLoop++) { if (Cars_gNumHumanRaceCars <= playerLoop) break;
+    int thisDistanceAbsMeters;
+    thisDistanceAbsMeters = AIWorld_ApxSplineDistance(carObj,Cars_gHumanRaceCarList[playerLoop]);
+    thisDistanceAbsMeters = __builtin_abs(thisDistanceAbsMeters);
+    if (thisDistanceAbsMeters < bestDistanceAbsMeters)
+      bestDistanceAbsMeters = thisDistanceAbsMeters;
+  }
+
+  if (bestDistanceAbsMeters < 0x780001) {
+
+
+    if (0x16666 < f_final)
+      f_final = 0x16666;
+
+    if (f_final < 0x9999)
+      f_final = 0x9999;
   }
   return f_final;
 }
 
 /* ---- AISpeeds_CalcCopTopSpeed__FP8Car_tObj  [@0x8006eaa4] ---- */
+/* Native newDesired carries the final scaled speed before direction is applied.
+ * SLD1239/1248 separates that result from the return expression. */
 int AISpeeds_CalcCopTopSpeed(Car_tObj *carObj)
 {
-  /* SYM/IDA roles: topSpeed=$a0, newDesired=$v1, and f_nitrous=$v0.
-   * f_nitrous is the raw nitrous factor; the computed product is stored directly
-   * to aiGlue so retail keeps that result in $v1 through the gravity clamp. */
   int topSpeed;
   int newDesired;
   int f_nitrous;
 
+
+
+
+
+
+
+
+
+
+
+
   topSpeed = AISpeeds_CalcOpponentCurveSpeed(carObj);
+
   newDesired = carObj->copTopSpeed;
+
+
   topSpeed = topSpeed < newDesired ? topSpeed : newDesired;
+
+
+
+
+
+
   f_nitrous = carObj->speedNitrous;
-  carObj->aiGlue = (AISpeeds_trackAndNightMult / 256) *
-                   (f_nitrous / 256);
-  if (0x10000 < carObj->aiGlue) {
+
+
+
+
+
+
+  carObj->aiGlue = (AISpeeds_trackAndNightMult / 256) * (f_nitrous / 256);
+
+
+
+  if (0x10000 < carObj->aiGlue)
     (carObj->N).gravityMult = carObj->aiGlue;
-  }
-  else {
+  else
     (carObj->N).gravityMult = 0x10000;
-  }
-  return (topSpeed / 256) * (carObj->aiGlue / 256) * carObj->direction;
+  newDesired = (topSpeed / 256) * (carObj->aiGlue / 256);
+
+
+
+
+
+
+
+
+  return newDesired * carObj->direction;
 }
 
 /* ---- AISpeeds_CalcTrafficTopSpeed__FP8Car_tObj  [@0x8006eb6c] ---- */
@@ -971,52 +1005,45 @@ void AISpeeds_SetTrafficSpeedRandomFactor(Car_tObj *carObj)
 }
 
 /* ---- AISpeeds_MaintainLeaderBoard__Fv  [@0x8006efa4] ---- */
+/* Native carLoop owns the scan scope; test belongs to each iteration.
+ * Keep the explicit head break and AISlot post-increment for retail's edges. */
 void AISpeeds_MaintainLeaderBoard(void)
 {
-  /* H52: SYM ground truth (nfs4-f-v3.txt @0x8006efa4, mask=0 -- NO callee-saved regs at all)
-   * names exactly 4 locals: slot=$a3, lastAI=$t0, carLoop=$a1, test=$a0. The recon routed
-   * everything through anonymous iVar3/iVar4/ppCVar1/pCVar2/pCVar5 and a HAND-ROLLED
-   * pointer-walk (ppCVar1) over Cars_gTotalSortedList instead of plain index-form array access
-   * -- same index-vs-pointer-walk duality lever as GetPrevAICar/BTCGetGlueFactor elsewhere in
-   * this file: gcc's own strength reduction produces the oracle's decrementing pointer AND
-   * keeps the plain index (carLoop) alive for the loop-continue test. The explicit head break
-   * preserves retail's `bltz` plus unconditional back edge, while the post-increment in the
-   * AISlot assignment supplies the retail branch-delay increment. */
-  int slot;
-  Car_tObj *lastAI;
-  int carLoop;
-  Car_tObj *test;
-
-  slot = 0;
+  int slot = 0; Car_tObj *lastAI;
   lastAI = (Car_tObj *)0x0;
+
   leaderBoard.leadRacer = (Car_tObj *)0x0;
   leaderBoard.leadHumanRacer = (Car_tObj *)0x0;
   leaderBoard.leadAIRacer = (Car_tObj *)0x0;
   leaderBoard.lastAIRacer = (Car_tObj *)0x0;
-  carLoop = Cars_gNumCars - 1;
-  while (true) {
-    if (carLoop < 0) break;
+
+
+
+  for (int carLoop = Cars_gNumCars - 1; ; carLoop--) { if (carLoop < 0) break;
+    Car_tObj *test;
+
     test = Cars_gTotalSortedList[carLoop];
-    if ((((test->carFlags & 1U) != 0) && (leaderBoard.leadRacer == (Car_tObj *)0x0)) &&
-       (test->fallBehindCar == (Car_tObj *)0x0)) {
+    if ((((test->carFlags & 1U) != 0) && (leaderBoard.leadRacer == (Car_tObj *)0x0)) && (test->fallBehindCar == (Car_tObj *)0x0))
       leaderBoard.leadRacer = test;
-    }
-    if ((test->carFlags & 8U) != 0) {
+    if ((test->carFlags & 8U) != 0)
+    {
+
       test->nextAIRacer = lastAI;
       lastAI = test;
       test->AISlot = slot++;
-      if (leaderBoard.leadAIRacer == (Car_tObj *)0x0) {
+
+      if (leaderBoard.leadAIRacer == (Car_tObj *)0x0)
         leaderBoard.leadAIRacer = test;
-      }
       leaderBoard.lastAIRacer = test;
     }
-    if (((test->carFlags & 4U) != 0) && (leaderBoard.leadHumanRacer == (Car_tObj *)0x0)) {
+    if (((test->carFlags & 4U) != 0) && (leaderBoard.leadHumanRacer == (Car_tObj *)0x0))
       leaderBoard.leadHumanRacer = test;
-    }
-    carLoop = carLoop - 1;
   }
-  return;
-}
+
+
+
+
+  return; }
 
 /* ---- AISpeeds_GetScriptFactor__FP8Car_tObj  [@0x8006f0a4] ---- */
 int AISpeeds_GetScriptFactor(Car_tObj *carObj)

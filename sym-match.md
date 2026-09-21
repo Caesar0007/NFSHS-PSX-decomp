@@ -26,8 +26,8 @@ the honest link stays at 0 diff.
 |---|---|
 | Retail functions with debug records | 2570 |
 | Compared (present on both sides) | 2565 |
-| **Match implemented function checks (CLEAN)** | **1643** |
-| Differ (DIRTY) | 922 |
+| **Match implemented function checks (CLEAN)** | **1650** |
+| Differ (DIRTY) | 915 |
 | Files whose compared functions are all CLEAN | 47 of 177 |
 
 The effort started at 1499 clean. The 5 retail functions not compared are the EA pad library's `PAD.C`
@@ -156,6 +156,57 @@ instruction-relative SLD tags and lexical-block lines match; AISPEEDS is17/29
 CLEAN and29/29byte-PASS, with a literally unchanged object and honest link.
 Receipt: `scratchpad/sym_aispeeds_random_20260921/README.md`.
 
+AISpeeds_GetPrevAICar now declares carLoop in its for loop rather than at
+function scope. Its native scope/address/line contracts and all27 relative
+instruction SLD tags agree, without changing the object. AISPEEDS is18/29
+CLEAN and29/29byte-PASS. Receipt: `scratchpad/sym_aispeeds_prev_20260921/README.md`.
+
+AISpeeds_MaintainLeaderBoard restores its for-counter and per-iteration test
+scope (1 ->3), with native declaration homes/order, block lines and all64
+relative instruction SLD tags exact. Explicit head-break and post-increment
+control flow are preserved. AISPEEDS is19/29CLEAN and29/29byte-PASS; object and
+honest link unchanged. Receipt: `scratchpad/sym_aispeeds_board_20260921/README.md`.
+
+AISpeeds_CalcCopTopSpeed now assigns the final scaled speed to native
+newDesired before applying direction, restoring its missing v1 record.
+All50 instruction-relative SLD tags and native scope lines match, with an
+unchanged object and honest link. AISPEEDS is20/29CLEAN and29/29byte-PASS.
+Receipt: `scratchpad/sym_aispeeds_coptop_20260921/README.md`.
+
+AISpeeds_NeedToSlowDownForCurve now retains neededDistance as the adjusted
+distance rather than folding it into an anonymous return expression. The
+private inline helper's formal order and sole call site now agree with native
+futureSpeed/currentSpeed records. All41 relative SLD tags, inline scopes and
+block-line fields match; AISPEEDS is21/29CLEAN and29/29byte-PASS, with unchanged
+object/link bytes. Receipt: `scratchpad/sym_aispeeds_brake_20260921/README.md`.
+
+AISpeeds_LimitGlueMultiplier now uses an in-range early return, a for scan and
+the native per-iteration distance local. Its three scopes, native block lines
+and all61relative SLD instruction tags match. The old duplicated return used
+as an allocation dial was removed; ordinary control flow preserves the same
+bytes. AISPEEDS is22/29CLEAN and29/29byte-PASS. Receipt:
+`scratchpad/sym_aispeeds_limit_20260921/README.md`.
+
+The AISPEEDS start-of-race speedup function now retains the native
+f_crappyFrameRateCompensatingSpeedup local instead of leaving its declaration
+unused. Native scopes and all39relative instruction SLD tags match with
+unchanged object/link bytes. AISPEEDS is23/29CLEAN and29/29byte-PASS.
+Receipt: `scratchpad/sym_aispeeds_startboost_20260921/README.md`.
+
+AISpeeds_CalcOpponentCurveSpeed no longer uses the reconstruction-only
+AISpeeds_AddScanSlice helper. The established slice-wrap expression, for scan
+and combined return condition preserve all90words while removing seven excess
+scopes. Native local contracts, block lines and relative SLD tags all agree.
+AISPEEDS is24/29CLEAN and29/29byte-PASS. Receipt:
+`scratchpad/sym_aispeeds_curve_20260921/README.md`.
+
+Checkpoint before the requested pause: all seven retained AISPEEDS corrections
+were rechecked together against fresh native SYM (372 instruction SLD tags,
+including full lexical-block lines). The GetLegalSpeed no-volatile loop probe
+remained3differences/16vs17words and was reverted; its existing workaround and
+scope discrepancy remain open. Combined proof:
+`scratchpad/sym_aispeeds_legal_20260921/checkpoint.json`.
+
 Ownership correction: compact SYM proves Copspeak_gTimeString.308 exists, but
 does not prove CopSpeak_Debug owns it. The prior source comment claiming SLD
 placement there was unsupported and is now an explicit ownership review note.
@@ -235,15 +286,15 @@ A function can be in several classes.
 
 | Class | Functions | Meaning |
 |---|---|---|
-| BLOCKS | 740 | The scope tree differs. In 539 of them retail has **more** scopes than we do, in 172 fewer, in 29 the count is equal but nesting or addresses differ. |
+| BLOCKS | 736 | The scope tree differs. In 536 of them retail has **more** scopes than we do, in 171 fewer, in 29 the count is equal but nesting or addresses differ. |
 | EXTRA | 480 (1301 locals) | We declare a local retail does not have: an invented carrier, a decompiler temporary, or an expression retail wrote through an inline call. |
-| MISSING | 251 (359 locals) | Retail has a local we lack. 180 of the 359 are `this` of an inlined member call. |
+| MISSING | 248 (356 locals) | Retail has a local we lack. 180 of the 356 are `this` of an inlined member call. |
 | MOVED | 80 | Same name, different register or stack slot: our local plays a different role than retail's. |
 | ORDER | 8 | Declaration order differs (only reported when no local is extra or missing). |
 | TYPE | 1 | Same name and home, different type. |
 | FRAME | 1 | Frame size differs. |
 
-Most common combinations: BLOCKS only 292; BLOCKS + EXTRA 179; EXTRA only 138; BLOCKS + EXTRA + MISSING 110;
+Most common combinations: BLOCKS only 288; BLOCKS + EXTRA 179; EXTRA only 138; BLOCKS + EXTRA + MISSING 110;
 BLOCKS + MISSING 95.
 
 Files with the most differing functions: `SPEECH.CPP` 44 of 87, `HUD.CPP` 33 of 62, `FEMENUOPTIONS.CPP` 33 of 83,
@@ -284,7 +335,7 @@ in the `AIHigh_BasicPerp` constructor. The bytes moved and the tree was still on
   shape can be reproduced, and only by a local that really gets eliminated. Example still open:
   `Stats_TrackEndGame`'s scope `+150..+1c8`, and the intermediate scope in `AIHigh_Traffic::CheckForCops`.
 
-### 3. Scopes we have and retail does not (BLOCKS, 172 functions)
+### 3. Scopes we have and retail does not (BLOCKS, 171 functions)
 
 Usually braces added to steer code generation, or inline helpers of ours that retail did not have. 55 files also carry the
 `if (0) sprintf((char *)0,"SimpleMem")` literal carrier in their first function; how retail got that unreferenced string

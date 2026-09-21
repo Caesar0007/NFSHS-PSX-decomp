@@ -29,8 +29,8 @@
  * (lever #13). resettick stores 0 then RE-READS ticks from memory into the value
  * it writes to tickval/tickset -- without `volatile` gcc constant-folds the reload
  * away (stores 0 directly). volatile restores the oracle's store->reload. */
-int tickset; /* @0x8013DC40: timer.obj-owned baseline tick */
-int tickval; /* @0x8013DC44: timer.obj-owned last-sampled tick */
+int tickset = 0; /* @0x8013DC40: timer.obj-owned baseline tick; retail has it in INITIALISED small data (.sdata), so the original wrote `= 0` (this compiler puts a zero-initialised global in data, not bss) */
+int tickval = 0; /* @0x8013DC44: timer.obj-owned last-sampled tick (same) */
 
 // FIXME
 int systemtask(int);   /* @0x800E6C04 per-frame vsync/idle pump (lbl_D6C04)  */

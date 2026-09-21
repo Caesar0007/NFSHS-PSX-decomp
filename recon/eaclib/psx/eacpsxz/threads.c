@@ -8,7 +8,7 @@
 #include "threads.h"
 
 /* Owning definition of g_currentthread (tentative def -> .sdata -> gp-rel; see note above). */
-int g_currentthread; /* @0x8013DD5C: threads.obj owning definition */
+int g_currentthread = 0; /* @0x8013DD5C: threads.obj owning definition; retail has it in INITIALISED small data (.sdata), so the original wrote `= 0` (this compiler puts a zero-initialised global in data, not bss) */
 
 /* iscurrentthread @0x800FE408 : 1 if `id` is the running thread. */
 unsigned int iscurrentthread(int id)

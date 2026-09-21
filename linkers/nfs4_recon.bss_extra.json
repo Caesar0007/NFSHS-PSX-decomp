@@ -669,14 +669,6 @@
   "ok": true
  },
  {
-  "obj": "build/recon/eaclib/psx/eacpsxz/timer.c.o",
-  "section": ".sbss",
-  "base": 2148785216,
-  "end": 2148785224,
-  "size": 8,
-  "ok": true
- },
- {
   "obj": "build/recon/eaclib/psx/eacpsxz/inittmr.c.o",
   "section": ".sbss",
   "base": 2148785856,

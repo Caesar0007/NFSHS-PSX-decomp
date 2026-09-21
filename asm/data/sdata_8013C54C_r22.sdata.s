@@ -70,6 +70,9 @@ dlabel D_8013DC3C
     /* 12E43C 8013DC3C 00000000 */ .word 0x00000000
 enddlabel D_8013DC3C
 
+/* 2026-09-21: tickset / tickval are source-owned by recon/eaclib/psx/eacpsxz/timer.c in the recon lane; legacy lane only. */
+.section .sdata.r22_timer_legacy, "wa"
+
 nonmatching tickset
 
 dlabel tickset
@@ -81,6 +84,8 @@ nonmatching tickval
 dlabel tickval
     /* 12E444 8013DC44 00000000 */ .word 0x00000000
 enddlabel tickval
+
+.section .sdata.r22_post_timer, "wa"
 
 .align 2
 nonmatching D_8013DC48

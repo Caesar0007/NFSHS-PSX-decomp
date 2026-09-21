@@ -930,6 +930,8 @@ SECTIONS
         build/asm/data/sdata_8013C54C_o35.sdata.s.o(.sdata);
         build/asm/data/sdata_8013C54C_o36.sdata.s.o(.sdata);
         build/asm/data/sdata_8013C54C_r22.sdata.s.o(.sdata);
+        build/asm/data/sdata_8013C54C_r22.sdata.s.o(.sdata.r22_timer_legacy); /* 2026-09-21: timer.obj tickset/tickval, source-owned in the recon lane */
+        build/asm/data/sdata_8013C54C_r22.sdata.s.o(.sdata.r22_post_timer);
         build/asm/data/sdata_vars_legacy.sdata.s.o(.sdata);
         build/asm/data/sdata_primate_legacy.sdata.s.o(.sdata); /* P904: exact retained src-lane oracle. */
         build/asm/data/sdata_8013C54C_r22.sdata.s.o(.sdata.r22_post_vars);

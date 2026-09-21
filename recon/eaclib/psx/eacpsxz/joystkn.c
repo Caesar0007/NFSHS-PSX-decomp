@@ -7,7 +7,7 @@
 #include "joystkn.h"
 #include "vars.h"
 
-int joy_inited;        /* @0x8013DD28: owning-TU tentative def → .comm/.sbss → gp-rel */
+int joy_inited = 0;    /* @0x8013DD28: retail has it in INITIALISED small data (.sdata), so the original wrote `= 0` (this compiler puts a zero-initialised global in data, not bss) */
 
 // FIXME pad_externs.h?
 extern void padinit(void);   /* pad.obj */

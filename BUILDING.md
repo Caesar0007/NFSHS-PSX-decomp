@@ -282,8 +282,19 @@ python tools/psyq_pipe/slink_disc.py
 ```
 
 What is still borrowed from retail knowledge: the link order of the game objects (the SYM's FILE records -- the original
-makefile listed them in that order), and 23 data labels no source file defines yet, which the script equates to their
-retail addresses (`equ`; with the layout exact those values are simply right, but the data has no owner).
+makefile listed them in that order), and 4 invented data labels the script still equates to retail addresses (`equ`).
+None of them is unowned data: each is an address INSIDE a named object (`tools/psyq_pipe/equ_survey.py` shows the SYM
+neighbours).  There were 23; 19 now name the real object in the source (`Paths_Paths[n]`, `gPauseMenuRect.y`,
+`simGlobal.gameTicks`, `frontEnd.carListType`, `&bigBuf[282000 - 0x80]`, `CopCarTypeLights[carType - 22]`, ...).  The
+last 4 -- `D_8010FA4C` = `Cars_gHumanRaceCarList[1]` (overlays), `D_801119E0` / `D_80111A1C` = `HudPmx_gShapes[0xaa/0xad]`
+(hud), `D_8011E15C` = `gInitialArt.shapeFile` (track) -- are codegen levers: retail addresses the member with its own
+`lui` where the plain member form shares a base register cse already holds, so the source around them still has to be
+reshaped (a cse block boundary -- a join or a loop end -- sits between the two accesses in the original).
+
+Two facts measured on the way, both against the real tools: ASPSX 2.77 never makes a reference to an `.extern` symbol
+gp-relative, whatever `-G` says (only small data DEFINED in the file is) -- retail agrees, only render.obj reaches its
+own `Draw_gPlayer1View` through `$gp`; and at cc1plus `-G8` an extern of <= 8 bytes keeps `SYMBOL_REF_FLAG`, so each
+struct member is an independent `lhu $r,sym+N` macro, while at `-G0` every member goes through one shared base.
 
 What the original build was (each point is measured, 2026-09-21):
 

@@ -53,6 +53,8 @@ W = ROOT / 'scratchpad' / 'psyq_pipe'; W.mkdir(parents=True, exist_ok=True)   # 
 HERE = Path(__file__).resolve().parent                                        # versioned inputs live next to the tool
 OFFICIAL = os.environ.get('NFS4_LANE_OFFICIAL') == '1'   # slink_lane.py: objects as the ORIGINAL build had them -- LINK_STRIPPED bodies kept
 #   (the linker strips them, not us), no retail-derived trailing pads, no forced 8-byte rounding of frontend sections
+OFFICIAL_NATIVE_COMM = OFFICIAL and os.environ.get('NFS4_LANE_COMM') != 'model'   # official lane: .comm/.lcomm go to ASPSX 2.77 + the linker untouched
+#   (measured 2026-09-21: .bss +4 that way, against -40 with the PSYLINK lane's hand-made COMMON layout; NFS4_LANE_COMM=model = old)
 ONLY = [f for f in os.environ.get('NFS4_LANE_ONLY', '').split(',') if f]   # per-file loop: assemble just these TUs
 WOUT = OUT if GMODE else W      # scratch OUTPUTS; inputs (sym_obj_order.json) always come from W
 RET = [('front.rdata', 0x80010000, 0x800128F0), ('front.text', 0x800128F0, 0x80051260),
@@ -172,7 +174,7 @@ def sn_text(src: Path, vtables=False, front=False, pads=None, g=None) -> bytes:
         if s.startswith((b'.type\t', b'.type ', b'.size\t', b'.size ')):
             continue
         m = COMM_RE.match(s)
-        if m and (front or (COMM4 and (g is None or int(m.group(3)) > g))):
+        if m and (front or (COMM4 and not OFFICIAL_NATIVE_COMM and (g is None or int(m.group(3)) > g))):
             # retail COMMON law (2026-09-17): .lcomm/.comm are laid out after the object's
             # explicit .bss, locals first then globals, each aligned to min(4, size) -- retail
             # corrPt.47 12B @4, fogstrspc 64B @4, gPadinfo 84B @4 (ASPSX 2.56 does this; 2.77
@@ -204,7 +206,9 @@ def sn_text(src: Path, vtables=False, front=False, pads=None, g=None) -> bytes:
     if lcomm or comm:
         out.append(b'\t.section front.bss' if front else b'\t.bss')
         for name, size in lcomm + comm:
-            if size >= 4:
+            if size >= 8 and OFFICIAL and os.environ.get('NFS4_LANE_FRONTCOMM') == '8':
+                out.append(b'\t.align 3')     # experiment: ASPSX 2.77's own COMMON law (align min(8, size)) for the overlay objects
+            elif size >= 4:
                 out.append(b'\t.align 2')
             elif size >= 2:
                 out.append(b'\t.align 1')

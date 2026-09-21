@@ -303,13 +303,42 @@ The first command assembles the objects as the original build had them: function
 (the linker has to remove them, not us) and no retail-derived pads are added. The second builds the three EA libraries,
 writes `build/psyq_off/off.lnk`, runs slink and reports. Result:
 
-| | ours | retail | |
+| section | ours | retail | |
 |---|---|---|---|
 | `.text` | 0xB5358 | 0xB5358 | **exact** |
 | `front.text` | 0x3E970 | 0x3E970 | **exact** |
+| `.rdata` | 0x4797C | 0x4797C | **exact** |
+| `front.rdata` | 0x28F0 | 0x28F0 | **exact** |
+| `.data` | 0x2F878 | 0x2F878 | **exact** |
 | `front.data` | 0x18D8 | 0x18D8 | **exact** |
-| `.rdata` / `front.rdata` | | | -468 / -128 |
-| `.data` / `.sdata` / `.sbss` / `.bss` / `front.bss` | | | -84 / -44 / +28 / -36 / -24 |
+| `.sbss` | 0x164 | 0x164 | **exact** |
+| `.sdata` | 0x1824 | 0x1830 | -12: `pageflip.obj`'s three words; nothing in our objects pulls that member in (needs the `vsync.obj` source) |
+| `.bss` | 0xAC28 | 0xAC24 | +4 |
+| `front.bss` | 0x19F8 | 0x1A10 | -24: layout of the overlay objects' uninitialised globals |
+
+(2026-09-21, after the data-ownership pass. Before it: `.rdata` -468, `front.rdata` -128, `.data` -84, `.sdata` -44,
+`.sbss` +28, `.bss` -36. With `.rdata` exact, `.text` starts at the retail address and 2,183 of the 3,167 functions are
+byte-identical outright; the rest differ only in addresses inside the still-shifted library region.)
+
+What the pass found -- every item was something Route A's address-pinned placement had been hiding:
+
+- The unreferenced 12-byte `"SimpleMem"` literal opens the read-only data of **118** retail objects. Which ones is a fact
+  the retail SYM records: it keeps each object's block of type definitions, and an object has the tag exactly when that
+  block contains the track / Group header family (`Trk_NewSimQuad`) or the `SimpleMem` class -- 35 overlay + 83 main
+  objects, 1:1 with the 35 + 83 tags in link order (`sym_saw_type.py`, `sym_tag_header.py`, `simplemem_bysym.py`).
+- Wrong storage class: `identitymatrix` and `coef` (matrix.c) were `const` but live in retail `.data`; seven EA library
+  globals (`tickset`, `tickval`, `joy_inited`, `g_currentthread`, `systemtasklock`, `lastsystemtasktick`, `gFileOpSeq`)
+  live in retail `.sdata`, i.e. were written `= 0` -- ours were tentative definitions whose `.sbss` the linker fragments
+  steered into the `.sdata` range.
+- Tables one entry short, the last entry supplied by filler bytes: `coef[10]`, `asintbl[513]`, `fatantbl[258]`.
+- Unreferenced literals with an owner by link order: `"install.psx"` (paths.obj), `"%c"` (textcrnt.obj).
+- Phantom literals our sources claimed but retail has once: `"%s%s.viv"` (Feaudio.obj's, not fecars'), `"unpacked"`
+  (FETexture.obj's, not PSXFront's) -- identical bytes had overlapped in Route A.
+- Lane: only `.text.strip` functions are kept for slink to remove (`.rodata.strip` / `.bss.strip` are data retail never
+  had); `.comm` / `.lcomm` go to ASPSX and the linker untouched.
+
+Reports: `slink_datadiff.py` (section contents aligned against retail, addresses masked), `slink_labels.py LO HI`,
+`ro_view.py LO HI`, `unowned_data.py`.
 
 - `/strip` removed 82 functions (7,944 bytes; without `/strip` `.text` is exactly that much too big). 76 are on our
   hand-made list `linkers/link_stripped.json`; the other 6 (`StopCallback`, `RestartCallback`, `GetIntrMask`,
@@ -323,12 +352,11 @@ writes `build/psyq_off/off.lnk`, runs slink and reports. Result:
   do not contain: a function retail's link later removed, or one of the modules that still have no source (`sdasync`,
   `unitvect`, `textsubs`, `hypot3d`, `hypot`). libc `C52.obj` (`free`) is the same case: retail pulled it in, nothing
   in our objects does.
-- `python tools/psyq_pipe/slink_delta.py off`: where the data sections fall short. These are not link settings but data
-  our sources do not own yet (Route A fills it from the residual blobs): virtual tables and literal pools in `.rdata`,
-  the `"SimpleMem"` tags, a few library-side tables, and the per-symbol `.sbss` / `.bss` order of some EA library files.
+- `python tools/psyq_pipe/slink_delta.py off`: where a section's layout drifts, step by step with the owning object.
 
-So Route C is not byte-identical yet either, but for a different reason than Route B: the link recipe is right and
-the code is exact; what is missing is data ownership in our sources. Points 1, 2 and 5 of the Route B list disappear.
+So Route C is not byte-identical yet either, but for a different reason than Route B: the link recipe is right, the
+code is exact and seven of the ten sections have the retail size; what is left is the library member pull order, the
+modules without a source, and the uninitialised-data layout of the overlay objects. Points 1, 2 and 5 of the Route B list disappear.
 
 Not vendored (SN's / Sony's copyright): `slink.exe` (the lane unpacks it from `C:/Temp/psq44/pssn/Slink/slink3b.zip`),
 `PSYLIB2.EXE`, and the SDK libraries.

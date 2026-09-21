@@ -1327,6 +1327,12 @@ void Hud_BTCStats(short player,bool postgame)
  * REUSABLE LEVER: the sized asm-label array view is the general "make a scalar-global
  * store ALIAS a pointer-based struct load" instrument -- the mirror image of the w43
  * pointer-local-defeats-true_dependence row, which un-aliases in the other direction. */
+/* 2026-09-22: replaces the invented label D_8010FA4C (= &Cars_gHumanRaceCarList[1]).  The .L800DAF88 join reads element
+   [1] through its OWN `lui/lw %lo(Cars_gHumanRaceCarList+4)`: a pointer-taking inline gets the element address as a
+   constant ADDR_EXPR, so at thread_jumps time this test is (mem (reg)) while the earlier one is (mem (plus base 4)) --
+   jump.c cannot equate them, the join keeps two predecessors and the commMode re-test survives (see the note above). */
+static inline u_int Hud_StatsCarFlags(Car_tObj **car) { return (*car)->carFlags; }
+
 void Hud_RenderStatsView(void)
 
 {
@@ -1356,7 +1362,7 @@ HudStats_check200B:
   if (Hud_NextPerp[0] != 0) goto HudStats_setUserZero;
   if (GameSetup_gData.commMode != 1) goto HudStats_setUserZero;
 HudStats_secondCar:
-  if ((D_8010FA4C->carFlags & 0x200U) == 0) goto HudStats_finalize;
+  if ((Hud_StatsCarFlags(&Cars_gHumanRaceCarList[1]) & 0x200U) == 0) goto HudStats_finalize;
   if (GameSetup_gData.commMode != 1) goto HudStats_finalize;
   if (Hud_NextPerp[1] == 0) goto HudStats_finalize;
   screen = 1;

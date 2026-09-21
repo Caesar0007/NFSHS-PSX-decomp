@@ -1855,13 +1855,12 @@ void Hud_BuildTach(int player)
   return;
 }
 
-/* D_80111A1C == &HudPmx_gShapes[0xad], D_801119E0 == &HudPmx_gShapes[0xaa] (element size
- * 0x14, width @+0x10) -- splat gave these two pad-glyph shapes their own data labels and
- * the oracle materializes each with its OWN lui/addiu AFTER the FBuildSprite call; that is
- * what keeps the four '*'-arms un-cross-jumped (unsized-array shape, methodology 3.12 #5).
- * Same standalone-alias precedent as D_801132CC below. */
-extern HudPmx_tShape D_80111A1C[];
-extern HudPmx_tShape D_801119E0[];
+/* 2026-09-22: the two pad-glyph shapes are &HudPmx_gShapes[0xad] / [0xaa] (element 0x14 bytes, width @+0x10), reached
+ * through a POINTER-taking inline: the argument is a constant ADDR_EXPR, so each arm gets its own `la HudPmx_gShapes+K`
+ * after the FBuildSprite call and then `lh 0x10(reg)` -- retail's 3-insn form.  (The plain `HudPmx_gShapes[K].width`
+ * folds to `lui; lh %lo(sym+K+0x10)`; an INDEX-taking inline computes base+K*20, loop.c hoists the shared base and the
+ * generic site below loses its registers.)  This replaces the invented labels D_80111A1C / D_801119E0. */
+static inline int Hud_ShapeWidth(HudPmx_tShape *shape) { return shape->width; }
 
 /* ---- Hud_BuildString__FPciiiib  [HUD.CPP:1450-1544] SLD-VERIFIED ----
  * RESIDUAL 118 (ours 205 / oracle 215).  SYM (fsize 80) has NO `shp` local -- the oracle
@@ -1981,14 +1980,14 @@ int Hud_BuildString(char *str,int x,int y,int color,int player,bool justwidth)
           Hud_FBuildSprite(0xad,ix,y,color,0);
         }
         iw1 = ix + 3;
-        ix = iw1 + D_80111A1C[0].width;         /* per-arm; gcc cross-jump-merges the final addu */
+        ix = iw1 + Hud_ShapeWidth(&HudPmx_gShapes[0xad]);         /* per-arm; gcc cross-jump-merges the final addu */
       }
       else {
         if (justwidth == 0) {
           Hud_FBuildSprite(0xaa,ix,y,color,0);
         }
         iw2 = ix + 3;
-        ix = iw2 + D_801119E0[0].width;
+        ix = iw2 + Hud_ShapeWidth(&HudPmx_gShapes[0xaa]);
       }
       if (GameSetup_gData.commMode == 1) {
         if (gPadinfo.buf[4].ID == '#') {
@@ -2000,14 +1999,14 @@ int Hud_BuildString(char *str,int x,int y,int color,int player,bool justwidth)
             Hud_FBuildSprite(0xad,ix,y,color,0);
           }
           iw3 = ix + 3;
-        ix = iw3 + D_80111A1C[0].width;
+        ix = iw3 + Hud_ShapeWidth(&HudPmx_gShapes[0xad]);
         }
         else {
             if (justwidth == 0) {
             Hud_FBuildSprite(0xaa,ix,y,color,0);
           }
           iw4 = ix + 3;
-        ix = iw4 + D_801119E0[0].width;
+        ix = iw4 + Hud_ShapeWidth(&HudPmx_gShapes[0xaa]);
         }
       }
     }

@@ -282,14 +282,14 @@ python tools/psyq_pipe/slink_disc.py
 ```
 
 What is still borrowed from retail knowledge: the link order of the game objects (the SYM's FILE records -- the original
-makefile listed them in that order), and 4 invented data labels the script still equates to retail addresses (`equ`).
-None of them is unowned data: each is an address INSIDE a named object (`tools/psyq_pipe/equ_survey.py` shows the SYM
-neighbours).  There were 23; 19 now name the real object in the source (`Paths_Paths[n]`, `gPauseMenuRect.y`,
-`simGlobal.gameTicks`, `frontEnd.carListType`, `&bigBuf[282000 - 0x80]`, `CopCarTypeLights[carType - 22]`, ...).  The
-last 4 -- `D_8010FA4C` = `Cars_gHumanRaceCarList[1]` (overlays), `D_801119E0` / `D_80111A1C` = `HudPmx_gShapes[0xaa/0xad]`
-(hud), `D_8011E15C` = `gInitialArt.shapeFile` (track) -- are codegen levers: retail addresses the member with its own
-`lui` where the plain member form shares a base register cse already holds, so the source around them still has to be
-reshaped (a cse block boundary -- a join or a loop end -- sits between the two accesses in the original).
+makefile listed them in that order).  The slink script carries NO `equ` data label any more: the 23 invented `D_xxxxxxxx`
+labels it used to need were never unowned data -- each was an address INSIDE a named object (SYM), and the sources now
+name that object (`Paths_Paths[n]`, `gPauseMenuRect.y`, `simGlobal.gameTicks`, `frontEnd.carListType`,
+`&bigBuf[282000 - 0x80]`, `CopCarTypeLights[carType - 22]`, ...).  Four of them had been codegen levers (retail reaches the
+member with its own `lui` where cse would share a base register); the honest forms that reproduce retail there:
+a pointer-taking inline whose argument is a constant `&array[K]` (hud `Hud_ShapeWidth`, overlays `Hud_StatsCarFlags`), and
+in track `TexturesLoadInitial` the dead counted loop the SYM's two zero-length nested blocks record -- its head label
+still stands when cse runs, and cse never scans across a label.
 
 Two facts measured on the way, both against the real tools: ASPSX 2.77 never makes a reference to an `.extern` symbol
 gp-relative, whatever `-G` says (only small data DEFINED in the file is) -- retail agrees, only render.obj reaches its

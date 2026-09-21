@@ -33,9 +33,9 @@
  },
  {
   "obj": "build/recon/frontend/common/fecars.cpp.o",
-  "base": 2147549552,
+  "base": 2147549568,
   "end": 2147549752,
-  "size": 200,
+  "size": 184,
   "ok": false,
   "regions": []
  },
@@ -809,6 +809,14 @@
   "base": 2147835976,
   "end": 2147836160,
   "size": 184,
+  "ok": true,
+  "regions": []
+ },
+ {
+  "obj": "build/recon/game/common/paths.cpp.o",
+  "base": 2147836160,
+  "end": 2147836172,
+  "size": 12,
   "ok": true,
   "regions": []
  },

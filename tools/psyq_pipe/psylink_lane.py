@@ -127,8 +127,9 @@ def base_section(s):
     m = SECTION_RE.match(s)
     if m:
         nm = m.group(1)
-        if OFFICIAL and nm in (b'.text.strip', b'.rodata.strip', b'.bss.strip'):
-            return {b'.text.strip': b'.text', b'.rodata.strip': b'.rdata', b'.bss.strip': b'.bss'}[nm]
+        if OFFICIAL and nm == b'.text.strip':          # a FUNCTION the final link removed: keep it, slink /strip has to remove it
+            return b'.text'                             # (.rodata.strip / .bss.strip are data retail never had -- no linker strips
+                                                        #  data -- so they stay out in every lane)
         if nm in (b'.text.strip', b'.rodata.strip', b'.bss.strip'):   # LINK_STRIPPED / LINK_STRIPPED_RODATA (recon/link_stripped.h): removed by retail's final link
             return b'strip.text'
         if nm in (b'.rodata', b'.rdata') or nm.startswith((b'.rodata.', b'.rdata.')):

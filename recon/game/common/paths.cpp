@@ -29,6 +29,10 @@ void Paths_StartUp(void)
    * 17-instruction body and records scan as REG, so debug mode is not the
    * missing mechanism. */
   int scanFrame[5];
+  /* retail paths.obj owns an UNREFERENCED literal "install.psx" (0x80056100, between object.obj's and PauseMenu.obj's
+   * read-only data = paths.obj's slot in link order) and Paths_File stays null: the install-file branch of the original
+   * (SLD lines 47-101 cover far more source than the surviving loop) was compiled out, leaving only its string. */
+  if (0) Paths_File = "install.psx";
 
   scan = burnPath;
   dirCounter = 0x31;

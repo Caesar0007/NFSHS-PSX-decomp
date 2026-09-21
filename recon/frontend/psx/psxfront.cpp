@@ -1264,12 +1264,8 @@ void LoadAllHelpShapes(void)
 
 /* ---- PSXDrawSquare  (psxfront.cpp:1338, code lines 1338-1349) ---- */
 /* GPU packet: builds POLY_F4 (stride 0x18, code 0x28); prim=u_char* build cursor, prevPrim=u_char* link word */
-/* String-only survivor (see PSXFront_LoadMainShapes): "unpacked" follows
- * LoadAllHelpShapes' "%szperm.psh" in retail .rdata (0x80012844). */
-static inline void *PSXFront_UnpackedNote(void)
-{
-  return reservememadr("unpacked",0,0);
-}
+/* The "unpacked" literal that follows LoadAllHelpShapes' "%szperm.psh" in retail .rdata (0x80012848) is FETexture.obj's
+ * (its reservememadr tag; FETexture is next in link order), not a survivor of this object -- corrected 2026-09-21. */
 
 void PSXDrawSquare(int col,int x,int y,int w,int h)
 

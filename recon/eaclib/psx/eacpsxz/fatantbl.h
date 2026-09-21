@@ -3,6 +3,6 @@
 
 #include "eac_types.h"
 
-extern int fatantbl[257];   /* @0x80137868 */
+extern int fatantbl[258];   /* @0x80137868 */
 
 #endif

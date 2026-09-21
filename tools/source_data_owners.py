@@ -192,8 +192,8 @@ SOURCE_DATA_OWNERS = (
     # Backups and actual consumer-reference receipts: scratchpad/p884_tables.
     {
         'source': 'recon/eaclib/psx/eacpsxz/asintbl.c', 'section': '.data',
-        'address': 0x80137260, 'size': 512,
-        'payload_sha256': 'fff107aee0cc92ff9a79d1acb10342cae29db4449b41bdfc1a4a082e9d541e0c',
+        'address': 0x80137260, 'size': 513,   # 2026-09-21: +1 entry (was a filler word), hash = the retail bytes
+        'payload_sha256': '3a8e159d38885ec2943ebc7c04c38b2b935998a3dfa68fda6bfe42e3ac1d6bf5',
         'oracle_source': 'asm/data/data_asintbl_legacy.data.s',
         'placement': 'fragment', 'record': 'SYM016511 asintbl; archive member780f13/780f47; native MAP80137260',
     },
@@ -206,8 +206,8 @@ SOURCE_DATA_OWNERS = (
     },
     {
         'source': 'recon/eaclib/psx/eacpsxz/fatantbl.c', 'section': '.data',
-        'address': 0x80137868, 'size': 1028,
-        'payload_sha256': 'a3ab1c0b30ea38a25c2d7f7c7b13969a0e3448547b839c92b1ae5789c3942b64',
+        'address': 0x80137868, 'size': 1032,   # 2026-09-21: +1 entry (was a filler word), hash = the retail bytes
+        'payload_sha256': '309cc3edcf94abb9ce99f7c16b6f89b1fcc6ed736df5a5c977203bc4cac422af',
         'oracle_source': 'asm/data/data_fatantbl_legacy.data.s',
         'placement': 'fragment', 'record': 'SYM01652a fatantbl; archive member7810bd/7810f2; native MAP80137868',
     },

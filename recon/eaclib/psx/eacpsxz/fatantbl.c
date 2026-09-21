@@ -3,7 +3,9 @@
 #include "eac_types.h"
 #include "fatantbl.h"
 
-int fatantbl[257] = { /* @0x80137868 */
+/* 258 entries: fixedatan reads fatantbl[r + 1], so the table carries a guard entry after [256] -- retail fatantbl.obj .data
+ * is 0x408 bytes (the second 0x2000 at 0x80137C6C was a filler word before 2026-09-21). */
+int fatantbl[258] = { /* @0x80137868 */
     0,41,81,122,163,204,244,285,
     326,367,407,448,489,529,570,610,
     651,692,732,773,813,854,894,935,
@@ -36,5 +38,6 @@ int fatantbl[257] = { /* @0x80137868 */
     7679,7702,7724,7746,7768,7790,7812,7834,
     7856,7877,7899,7920,7942,7963,7984,8005,
     8026,8047,8068,8089,8110,8131,8151,8172,
+    8192,
     8192,
 };

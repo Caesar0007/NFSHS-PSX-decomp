@@ -661,14 +661,6 @@
   "q": 2
  },
  {
-  "obj": "build/recon/eaclib/psx/eacpsxz/systask.c.o",
-  "section": ".sbss",
-  "base": 2148785208,
-  "end": 2148785216,
-  "size": 8,
-  "ok": true
- },
- {
   "obj": "build/recon/eaclib/psx/eacpsxz/inittmr.c.o",
   "section": ".sbss",
   "base": 2148785856,
@@ -697,14 +689,6 @@
   "section": ".bss",
   "base": 2148829580,
   "end": 2148829584,
-  "size": 4,
-  "ok": true
- },
- {
-  "obj": "build/recon/eaclib/psx/eacpsxz/nfile.c.o",
-  "section": ".sbss",
-  "base": 2148785232,
-  "end": 2148785236,
   "size": 4,
   "ok": true
  },

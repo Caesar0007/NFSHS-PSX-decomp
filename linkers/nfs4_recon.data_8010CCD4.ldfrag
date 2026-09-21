@@ -109,10 +109,9 @@
     /* P883: canonical mutable char table is .data; SUBALIGN supplies 3-byte tail. */
     build/recon/syslib/psx/libc/CTYPE0.c.o(.data);         /* 0x801371d0..0x80137251 */
     build/asm/data/data_8010CCD4_r18.data.s.o(.data.r18_gap_after_ctype);
-    build/recon/eaclib/psx/eacpsxz/asintbl.c.o(.data);    /* 0x80137260..0x80137460 */
-    build/asm/data/data_8010CCD4_r18.data.s.o(.data.r18_gap_after_asintbl);
+    build/recon/eaclib/psx/eacpsxz/asintbl.c.o(.data);    /* 0x80137260..0x80137464 (513 entries; the gap word is legacy-lane only) */
     build/recon/eaclib/psx/eacpsxz/sintbl.c.o(.data);     /* 0x80137464..0x80137868 */
-    build/recon/eaclib/psx/eacpsxz/fatantbl.c.o(.data);   /* 0x80137868..0x80137c6c */
+    build/recon/eaclib/psx/eacpsxz/fatantbl.c.o(.data);   /* 0x80137868..0x80137c70 (258 entries) */
     build/asm/data/data_8010CCD4_r18.data.s.o(.data.r18_post_tables);
     build/recon/syslib/psx/libgte/CSTBL.c.o(.data);       /* 0x80137d20..0x8013bd20 */
     build/asm/data/data_8010CCD4_r18.data.s.o(.data.r18_post_cstbl);

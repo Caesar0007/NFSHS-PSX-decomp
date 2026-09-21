@@ -828,6 +828,7 @@ SECTIONS
         build/asm/data/data_8010CCD4_r18.data.s.o(.data.r18_gap_after_asintbl);
         build/asm/data/data_sintbl_legacy.data.s.o(.data);   /* P884: unchanged oracle table */
         build/asm/data/data_fatantbl_legacy.data.s.o(.data);   /* P884: unchanged oracle table */
+        build/asm/data/data_8010CCD4_r18.data.s.o(.data.r18_fatantbl_guard_legacy); /* 2026-09-21: fatantbl guard entry, source-owned in the recon lane */
         build/asm/data/data_8010CCD4_r18.data.s.o(.data.r18_post_tables);
         build/asm/data/data_cstbl_legacy.data.s.o(.data);   /* P884: unchanged oracle table */
         build/asm/data/data_8010CCD4_r18.data.s.o(.data.r18_post_cstbl);

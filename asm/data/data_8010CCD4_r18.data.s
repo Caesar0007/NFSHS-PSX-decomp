@@ -351,9 +351,13 @@ enddlabel D_801371CC
 
 /* P884: fatantbl is retained in data_fatantbl_legacy.data.s for the oracle/src lane. */
 
-.section .data.r18_post_tables, "wa"
+/* 2026-09-21: fatantbl[257] (guard entry), source-owned by recon/eaclib/psx/eacpsxz/fatantbl.c in the recon lane; legacy lane only. */
+.section .data.r18_fatantbl_guard_legacy, "wa"
 
     /* 12846C 80137C6C 00200000 */ .word 0x00002000
+
+.section .data.r18_post_tables, "wa"
+
     /* 128470 80137C70 50730C25 */ .word 0x250C7350
     /* 128474 80137C74 9B534300 */ .word 0x0043539B
 

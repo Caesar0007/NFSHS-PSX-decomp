@@ -16,8 +16,8 @@
  * SYM-GLOBAL-CARRIER: systemtasklock
  * SYM-GLOBAL-CARRIER: lastsystemtasktick */
 /* ---- owning-TU defs for link-harness (extern-declared, never defined; BSS) ---- */
-int systemtasklock;      /* @0x8013DC38: matched NFS2 systask.obj name */
-int lastsystemtasktick;  /* @0x8013DC3C: matched NFS2 systask.obj name */
+int systemtasklock = 0;      /* @0x8013DC38: matched NFS2 systask.obj name; retail has it in INITIALISED small data (.sdata): the original wrote `= 0` */
+int lastsystemtasktick = 0;  /* @0x8013DC3C: matched NFS2 systask.obj name (same) */
 /* `libticks` comes from vars.h -- volatile there because it is IRQ-updated (tmrint.c);
  * the oracle re-reads it fresh at each use inside systemtask() rather than caching one value. */
 extern int systemtasklock;      /* live/re-entrant task-list lock */

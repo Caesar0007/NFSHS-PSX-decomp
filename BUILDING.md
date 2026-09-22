@@ -413,9 +413,12 @@ Reports: `slink_datadiff.py` (section contents aligned against retail, addresses
   the `.text` function order is identical to the retail MAP.
 - `python tools/psyq_pipe/slink_delta.py off`: where a section's layout drifts, step by step with the owning object.
 
-So Route C is not byte-identical yet either, but for a different reason than Route B: the link recipe is right, the
-code is exact and seven of the ten sections have the retail size; what is left is the library member pull order, the
-modules without a source, and the uninitialised-data layout of the overlay objects. Points 1, 2 and 5 of the Route B list disappear.
+That was the state of the pass on 2026-09-21; the three items it left -- the library member pull order, the modules
+without a source, and the uninitialised-data layout of the overlay objects -- were closed the next day (the pull-order
+model, the all-stripped members and the COMMON alignment rules above), and Route C has been byte-identical since.  Every
+item of the Route B list is gone: nothing reconstructed stands in for a Sony member, no object is pinned, no retail byte
+is copied in, and the link script carries no `equ` data label.  `python tools/psyq_pipe/slink_census.py` shows who
+supplies each section's bytes -- our objects, the Sony members, and slink's alignment padding sum to the retail lengths.
 
 Not vendored (SN's / Sony's copyright): `slink.exe` (the lane unpacks it from `C:/Temp/psq44/pssn/Slink/slink3b.zip`),
 `PSYLIB2.EXE`, and the SDK libraries.

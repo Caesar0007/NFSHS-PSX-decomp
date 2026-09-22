@@ -1,5 +1,6 @@
 # build artifacts
 /build/
+/release/
 *.o
 *.i
 *.elf

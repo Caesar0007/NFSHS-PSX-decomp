@@ -1,6 +1,13 @@
 # SYM match — making the source agree with the retail `NFS4.SYM`
 
-Status as of 2026-09-21. Current full-debug board: `build/psyq_g/symtree_report.json`.
+Status as of 2026-09-22. Current full-debug board: `build/psyq_g/symtree_report.json`.
+
+Current combined checkpoint: `scratchpad/sym_source_checkpoint_20260922/verify.py`
+and `receipt.json`. Freshly validates both touched TUs together:51/51bytePASS,
+939/939raw linked instruction words across seven changed functions,44unchanged
+neighbor contracts, unchanged whole objects/ELF/map and honest0diff. Earlier
+per-round receipts describe their historical deltas; use this combined driver
+for the current retained changes. Partial SYM/SLD findings remain explicit.
 
 ## Why this exists
 
@@ -26,14 +33,14 @@ the honest link stays at 0 diff.
 |---|---|
 | Retail functions with debug records | 2570 |
 | Compared (present on both sides) | 2565 |
-| **Match implemented function checks (CLEAN)** | **1650** |
-| Differ (DIRTY) | 915 |
+| **Match implemented function checks (CLEAN)** | **1653** |
+| Differ (DIRTY) | 912 |
 | Files whose compared functions are all CLEAN | 47 of 177 |
 
 The effort started at 1499 clean. The 5 retail functions not compared are the EA pad library's `PAD.C`
 (`recon/eaclib/psx/pad.c`), which is outside the two directories the debug compile covers.
 
-Honest link: 299710/299710 words = 0 diff. Overlap audit: 0 masked RECON mismatch bytes
+Honest link: 299819/299819 words = 0 diff. Overlap audit: 0 masked RECON mismatch bytes
 (not zero physical overlap bytes); foreign-label gate 0/0.
 
 End-to-end smoke test: `AudioClc_CalcDistance` corrected the exchanged value roles of `length` and `length1`,
@@ -207,6 +214,83 @@ remained3differences/16vs17words and was reverted; its existing workaround and
 scope discrepancy remain open. Combined proof:
 `scratchpad/sym_aispeeds_legal_20260921/checkpoint.json`.
 
+2026-09-22 refresh: committed SimpleMem data attribution changed the AISPEEDS
+reference by a12-byte retail tag prefix and exactly two LO16 addends (+12).
+The old references were archived only after raw-ROM and fresh honest-link
+proof; the new baseline preserves those committed changes. Stale NIGHT and
+SPEECH debug objects were refreshed, removing a reference to the deleted
+Night_gCopCarTypeColorIdx placeholder and restoring all53 SPCHEVNT functions
+after their committed fold into Speech. Compared coverage remains2565.
+
+ReadTuningInfo now for-declares trackLoop, restoring its missing repeated
+native records. It remains DIRTY (slotLoop and scope work still open); its
+whole object and linked image are unchanged and AISPEEDS remains29/29PASS.
+Receipt: `scratchpad/sym_aispeeds_tuning_20260922/README.md`.
+
+Follow-up: ReadTuningInfo is now function-contract CLEAN. A for-declared
+slotLoop plus the first loop's real timing intermediate, and a for-declared
+carModelLoop in the discard branch, restore every native local/order/home and
+all11scope boundaries. The timing intermediate is optimized away; its name
+distanceMaintainTime is explicitly inferred, not claimed as a native spelling.
+For-declaration alone was9diffs/160words; the scoped value computation restores
+161/161PASS with the complete object unchanged. AISPEEDS is25/29CLEAN and
+29/29PASS; honest link remains299819/299819words,0diff. Relative SLD line tags
+and block-line fields remain unresolved, so this is not full source restoration.
+Receipt: `scratchpad/sym_aispeeds_tuning_20260922/scope_receipt.json`.
+
+GetGlueFactor follow-up removes four invented goto labels using ordinary
+nonnegative-first nested clamps. The complete object stays identical,
+131/131target instructions and29/29AISPEEDS functions remainPASS, with no
+branch-target changes. Its three MOVED glueIndex records still need correction:
+retail names the pre-clamp index, whereas our source names the selected index.
+Direct expression repairs tested so far move bytes and were not retained.
+Receipt: `scratchpad/sym_aispeeds_glue_20260922/README.md`.
+
+BTCGetGlueFactor's empty identity asm fence is now removed. An excluded-car
+early return and for-declared humanLoop naturally preserve the retail zero
+initialization and restore the native first-loop scope nesting/address ends.
+All111instructions and the complete AISPEEDS object remain unchanged;29/29PASS.
+The extra clampedGlueIndex and later scope/SLD discrepancies remain open,
+and the source no longer asserts that the extra object is proven necessary.
+Receipt: `scratchpad/sym_aispeeds_btc_20260922/README.md`.
+
+Its subsequent clamp cleanup also removes the invented clampLow/clampDone
+labels through structured nested branches, preserving the complete object.
+Direct subscript-expression trials still change code generation; the extra
+clampedGlueIndex is not hidden or relabeled as a proven original object.
+
+Hrz_InitSky's height/radius value associations now agree with retail: height
+is the sine-derived vertical s4 value, radius the cosine-derived horizontal
+s5 value. Native declaration order stays unchanged, as does the complete
+object. HRZSKU15/22SYM-clean,22/22byte-PASS. Its pre-existing fence remains
+an explicit recovery item; this does not claim full SLD restoration. The stale
+legacy reference was first explained by committed SimpleMem data (+12bytes,
+two LO16 addends+12), checked against rawROM and honest0diff, and archived.
+Receipt: `scratchpad/sym_hrzsku_names_20260922/receipt.json`.
+
+Hrz_LightningFlicker now places i in the on-branch, restoring all three native
+scope address boundaries (previously one) while retaining55/55instructions
+and the complete object. EXTRA col remains: direct literals move two loop
+initializations, so those trials were not retained. Its necessity is no
+longer asserted; relative SLD line positions also remain open.
+Receipt: `scratchpad/sym_hrzsku_names_20260922/flicker_review.md`.
+
+Hrz_InitSkyColor now restores native loop/body declaration scopes with ordinary
+for-loop tests. All87relative instruction SLD tags, lexical-block line fields,
+function span and native local/frame/scope contracts match. This supersedes
+the old claim that for tests could not preserve its branch topology. Entire
+object stays unchanged; HRZSKU16/22SYM-clean and22/22bytePASS. No new names,
+asm, volatile, helper carriers or output rewriting.
+Receipt: `scratchpad/sym_hrzsku_names_20260922/skycolor_sld.py`.
+
+Hrz_Init2DRing's colour half now restores for-declared level and native
+cur_bk/cur_fr/rounddiff/j ownership, with the exact scope address sequence
+from+0x158 onward. The whole object remains unchanged and22/22PASS. Two
+empty scopes in its earlier pixmap loop and full SLD remain unresolved;
+candidate temporary declarations were rejected rather than retained to make
+scope counts look right. Receipt:
+`scratchpad/sym_hrzsku_names_20260922/ring_review.md`.
+
 Ownership correction: compact SYM proves Copspeak_gTimeString.308 exists, but
 does not prove CopSpeak_Debug owns it. The prior source comment claiming SLD
 placement there was unsupported and is now an explicit ownership review note.
@@ -288,7 +372,7 @@ A function can be in several classes.
 |---|---|---|
 | BLOCKS | 736 | The scope tree differs. In 536 of them retail has **more** scopes than we do, in 171 fewer, in 29 the count is equal but nesting or addresses differ. |
 | EXTRA | 480 (1301 locals) | We declare a local retail does not have: an invented carrier, a decompiler temporary, or an expression retail wrote through an inline call. |
-| MISSING | 248 (356 locals) | Retail has a local we lack. 180 of the 356 are `this` of an inlined member call. |
+| MISSING | 248 (355 locals) | Retail has a local we lack. 180 of the 355 are `this` of an inlined member call. |
 | MOVED | 80 | Same name, different register or stack slot: our local plays a different role than retail's. |
 | ORDER | 8 | Declaration order differs (only reported when no local is extra or missing). |
 | TYPE | 1 | Same name and home, different type. |

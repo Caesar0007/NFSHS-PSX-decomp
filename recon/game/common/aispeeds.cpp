@@ -95,23 +95,26 @@ void AISpeeds_StartUp(void)
 }
 
 /* ---- AISpeeds_ReadTuningInfo__Fv  [@0x8006d5ec] ---- */
+/* SYM recovery: the for-declarations restore repeated slotLoop/trackLoop
+ * records; the first loop's optimized-away timing local restores its empty
+ * retail scope at +0x58..+0x64. distanceMaintainTime is an inferred role name,
+ * not a surviving retail spelling. Native frames/locals/scopes agree and
+ * all 161 instructions remain PASS; relative SLD line positions remain open.
+ * Receipt: scratchpad/sym_aispeeds_tuning_20260922/scope_receipt.json. */
 void AISpeeds_ReadTuningInfo(void)
 {
   char filename[110];
   Udff_tInfo *handle;
   int weatherRamp;
-  /* SYM names this induction variable `curveLoop` in $a1. The direct
-   * multiplication is important: retail strength-reduces it to the running
-   * $v1 accumulator visible in the oracle. */
-  int slotLoop;
 
   sprintf(filename,"%stuning.bin",Paths_Paths[2]);
   handle = Udff_Opena(filename,(char *)0x0,1);
   Udff_GetInt(handle);
-  slotLoop = 0;
-  while (true) {
+  for (int slotLoop = 0; ; ) {
+    int distanceMaintainTime;
     if (6 <= slotLoop) break;
-    CaravanInfo[slotLoop].distanceMaintainTime32 = Udff_GetInt(handle) << 5;
+    distanceMaintainTime = Udff_GetInt(handle);
+    CaravanInfo[slotLoop].distanceMaintainTime32 = distanceMaintainTime << 5;
     CaravanInfo[slotLoop].minDistanceMeters = Udff_GetInt(handle);
     CaravanInfo[slotLoop].maxDistanceMeters = Udff_GetInt(handle);
     CaravanInfo[slotLoop].fallBackRandomTime_TickPercent =
@@ -140,30 +143,24 @@ void AISpeeds_ReadTuningInfo(void)
     }
   }
   else {
-    int carModelLoop;
-    carModelLoop = 0;
-    do {
+    for (int carModelLoop = 0; carModelLoop < 0x16; carModelLoop = carModelLoop + 1) {
       Udff_GetInt(handle);
       Udff_GetInt(handle);
       Udff_GetInt(handle);
-      carModelLoop = carModelLoop + 1;
-    } while (carModelLoop < 0x16);
+    }
   }
   AISpeeds_trackAndNightMult = 0;
-  {
-    int trackLoop;
-    for (trackLoop = 0; trackLoop < 0xc; trackLoop = trackLoop + 1) {
-      int trackMult;
-      int nightMult;
-      Udff_GetInt(handle);
-      trackMult = Udff_GetInt(handle);
-      nightMult = Udff_GetInt(handle);
-      if (AISPEEDS_TIME == 0) {
-        nightMult = 0x10000;
-      }
-      if (trackLoop == AISPEEDS_TRACK) {
-        AISpeeds_trackAndNightMult = fixedmult(trackMult,nightMult);
-      }
+  for (int trackLoop = 0; trackLoop < 0xc; trackLoop = trackLoop + 1) {
+    int trackMult;
+    int nightMult;
+    Udff_GetInt(handle);
+    trackMult = Udff_GetInt(handle);
+    nightMult = Udff_GetInt(handle);
+    if (AISPEEDS_TIME == 0) {
+      nightMult = 0x10000;
+    }
+    if (trackLoop == AISPEEDS_TRACK) {
+      AISpeeds_trackAndNightMult = fixedmult(trackMult,nightMult);
     }
   }
   weatherRamp = Udff_GetInt(handle);
@@ -413,14 +410,15 @@ int AISpeeds_CalcOpponentCurveSpeed(Car_tObj *carObj)
 /* ---- AISpeeds_BTCGetGlueFactor__FP8Car_tObj  [@0x8006e09c] ---- */
 int AISpeeds_BTCGetGlueFactor(Car_tObj *carObj)
 {
-  /* Remaining oracle residual: humanLoop's zero source and the out-of-line
-   * negative glue-index clamp (5 detailed diffs, 110/111 instructions). */
+  /* Native loop scopes recovered without an asm fence: the excluded-car
+   * early return and for-declared humanLoop preserve all 111 instructions.
+   * Clamp-result and final scope/SLD recovery remain unresolved. */
   int closestHumanDistance;
   Car_tObj *closestHumanCarObj;
 
   closestHumanDistance = 0x270f0000;
   closestHumanCarObj = (Car_tObj *)0x0;
-  if ((carObj->carFlags & 0x20U) == 0) {
+  if ((carObj->carFlags & 0x20U) != 0) return 0x10000;
     /* H44 (wave-21, same class as GetPrevAICar's H43): the SYM has NO pointer-walk local here
      * (no ppCVarN entry) -- the oracle's $s1-incrementing walk over Cars_gHumanRaceCarList is
      * pure gcc strength-reduction from real array indexing. A hand-rolled pointer local forces
@@ -428,13 +426,7 @@ int AISpeeds_BTCGetGlueFactor(Car_tObj *carObj)
      * split (§3.12 #1). Also: humanLoop/copCar/longMetersBetween are SYM-BLOCK-SCOPED (nested
      * blocks @0x8006e0d8/0x8006e0e4/0x8006e118), not function-scope -- reproduced as nested
      * declarations (SYM block scopes are load-bearing for gcc-2.8 pseudo-numbering). */
-    int humanLoop;
-    /* W54-A15: opacity/identity fence (0 insns) -- otherwise cse proves closestHumanCarObj==0
-     * and rewrites `humanLoop = 0` into a COPY of its register (`addu s3,s4,zero`); retail
-     * rematerializes the zero (`addu s3,zero,zero`). */
-    __asm__("" : "=r"(closestHumanCarObj) : "0"(closestHumanCarObj));
-    humanLoop = 0;
-    while (humanLoop < Cars_gNumHumanRaceCars) {
+    for (int humanLoop = 0; humanLoop < Cars_gNumHumanRaceCars; humanLoop = humanLoop + 1) {
       Car_tObj *copCar;
       copCar = Cars_gHumanRaceCarList[humanLoop];
       if ((copCar->carFlags & 0x200U) != 0) {
@@ -446,7 +438,6 @@ int AISpeeds_BTCGetGlueFactor(Car_tObj *carObj)
           closestHumanCarObj = copCar;
         }
       }
-      humanLoop = humanLoop + 1;
     }
     /* H57: the oracle computes closestHumanDistance*carObj->direction EARLY (scheduled into the
      * RSControl-check's delay slot), regardless of whether the early-return is taken -- a
@@ -458,32 +449,21 @@ int AISpeeds_BTCGetGlueFactor(Car_tObj *carObj)
     }
     if (0x13fffe < closestHumanCarObj->currentSpeed + 0x9ffffU)
       goto LAB_GLUE;
-  }
 LAB_DEFAULT_GLUE:
   return 0x10000;
 LAB_GLUE:
   {
       int glueIndex;
       int glue;
-      /* SYM-CODEGEN-CARRIER: clampedGlueIndex -- folding the selected index
-       * into glueIndex changes 12 instructions; a caller-clean inline helper
-       * preserves the clamp but still changes the table-load allocation by 10.
-       * This separate optimized result is required for the exact 111-insn body. */
+      /* UNRESOLVED: retail SYM has no clampedGlueIndex record. */
       int clampedGlueIndex;
-
       glueIndex = closestHumanDistance / 0x3c0000 + 10;
-      if (glueIndex < 0) {
-        goto clampLow;
+      if (0 <= glueIndex) {
+        if (glueIndex < 0x15) clampedGlueIndex = glueIndex;
+        else clampedGlueIndex = 0x14;
+      } else {
+        clampedGlueIndex = 0;
       }
-      if (glueIndex < 0x15) {
-        clampedGlueIndex = glueIndex;
-        goto clampDone;
-      }
-      clampedGlueIndex = 0x14;
-      goto clampDone;
-clampLow:
-      clampedGlueIndex = 0;
-clampDone:
       glue = AIPerson_glueTable[clampedGlueIndex];
       if (glue < 0x10000) {
         glue = fixedmult(0x10000 - glue,carObj->btcGlueModifier);
@@ -680,20 +660,12 @@ int AISpeeds_GetGlueFactor(Car_tObj *carObj)
     int glueIndex;
 
     distance = (leadAIRacerOdometer - leadHumanRacerOdometer) / 0x3c0000 + 10;
-    if (distance < 0) {
-      goto negativeSecondGlueIndex;
+    if (0 <= distance) {
+      if (distance < 0x15) glueIndex = distance;
+      else glueIndex = 0x14;
+    } else {
+      glueIndex = 0;
     }
-    if (distance < 0x15) {
-      glueIndex = distance;
-      goto haveSecondGlueIndex;
-    }
-    else {
-      glueIndex = 0x14;
-    }
-    goto haveSecondGlueIndex;
-negativeSecondGlueIndex:
-    glueIndex = 0;
-haveSecondGlueIndex:
     glue = AIPerson_glueTable[glueIndex];
     packPositionGlueModifier = 0x10000;
   }
@@ -702,20 +674,12 @@ haveSecondGlueIndex:
     int glueIndex;
 
     distance = (leadAIRacerOdometer - leadHumanRacerOdometer) / 0x3c0000 + 10;
-    if (distance < 0) {
-      goto negativeThirdGlueIndex;
+    if (0 <= distance) {
+      if (distance < 0x15) glueIndex = distance;
+      else glueIndex = 0x14;
+    } else {
+      glueIndex = 0;
     }
-    if (distance < 0x15) {
-      glueIndex = distance;
-      goto haveThirdGlueIndex;
-    }
-    else {
-      glueIndex = 0x14;
-    }
-    goto haveThirdGlueIndex;
-negativeThirdGlueIndex:
-    glueIndex = 0;
-haveThirdGlueIndex:
     glue = AIPerson_glueTable[glueIndex];
     packPositionGlueModifier = 0x8000;
     if (AISPEEDS_RACE_TYPE != RaceType_Id3) {

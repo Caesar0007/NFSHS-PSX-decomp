@@ -205,38 +205,37 @@ void Sky_KillStars(void)
  * var `l` block-scoped (SYM line=17) -- roles were swapped in the old recon. (4) init order
  * `i=0; k=0;` (i first wins $a3 per SYM REG7) + increment order `j++; k++;` at the body
  * tail. No pointer local exists in the SYM -- the a1 walker is pure strength reduction. */
+/* 2026-09-22: the historical exit-in-the-middle requirement above is
+ * superseded. Native for/body declaration scopes allow ordinary for tests
+ * with identical bytes. All 87 relative instruction SLD tags, block-line
+ * fields and local/frame/scope contracts now agree with retail. Original
+ * comments/whitespace are not claimed uniquely recovered. */
 void Hrz_InitSkyColor(void)
 {
   int i, j, k;
   CVECTOR rounddiff;
 
-  i = 0;
-  k = 0;
-  while (true) {
-    if (!(i < 5)) break;
-    {
-      CVECTOR cur_bk, cur_fr;
-      cur_bk = Sky_gTrackSpec->backcolors[i];
-      cur_fr = Sky_gTrackSpec->frontcolors[i];
-      rounddiff.r = (u_char)((cur_bk.r - cur_fr.r) / 8);
-      rounddiff.g = (u_char)((cur_bk.g - cur_fr.g) / 8);
-      rounddiff.b = (u_char)((cur_bk.b - cur_fr.b) / 8);
-      j = 0;
-      while (true) {
-        if (!(j < 0x11)) break;
-        {
-          int l;
-          l = j;
-          if (8 < j) l = 0x10 - j;
-          gSkyColor[k].r = cur_fr.r + rounddiff.r * l;
-          gSkyColor[k].g = cur_fr.g + rounddiff.g * l;
-          gSkyColor[k].b = cur_fr.b + rounddiff.b * l;
-        }
-        j = j + 1;
-        k = k + 1;
-      }
+  for (i = 0, k = 0; i < 5; i = i + 1) {
+    CVECTOR cur_bk, cur_fr;
+
+
+    cur_bk = Sky_gTrackSpec->backcolors[i];
+
+    cur_fr = Sky_gTrackSpec->frontcolors[i];
+
+    rounddiff.r = (u_char)((cur_bk.r - cur_fr.r) / 8);
+    rounddiff.g = (u_char)((cur_bk.g - cur_fr.g) / 8);
+    rounddiff.b = (u_char)((cur_bk.b - cur_fr.b) / 8);
+
+    for (j = 0; j < 0x11; j = j + 1, k = k + 1)
+    { int l;
+      l = j;
+      if (8 < j)
+        l = 0x10 - j;
+      gSkyColor[k].r = cur_fr.r + rounddiff.r * l;
+      gSkyColor[k].g = cur_fr.g + rounddiff.g * l;
+      gSkyColor[k].b = cur_fr.b + rounddiff.b * l;
     }
-    i = i + 1;
   }
 }
 
@@ -288,6 +287,11 @@ void Hrz_InitSkyColor(void)
  * w39-a8: re-certified against the now-wired per-TU C++ flags.  hrzsku.cpp whole-TU
  * baseline 15 PASS / 843 diffs vs no_split_addresses 7/1441, no_schedule_insns 7/1592,
  * no_schedule_insns2 2/1095, no_strength_reduce 12/1038 -- all worse, stock flags stand. */
+/* Native SYM correction (2026-09-22): height is the sine-derived vertical
+ * value in s4; radius is the cosine-derived horizontal value in s5. The
+ * historical allocation notes above/below used the opposite source names.
+ * Declaration order is preserved. Existing fence operands retain their value
+ * order; removing that fence and full SLD restoration remain separate work. */
 void Hrz_InitSky(void)
 
 {
@@ -324,11 +328,11 @@ void Hrz_InitSky(void)
   k = 0;
   do {
     if ((Sky_gTrackSpec->flags & 0x80U) != 0) {
-      /* MATCH: radius= duplicated in BOTH arms; gcc cross-jumps the common
+      /* MATCH: height= duplicated in BOTH arms; gcc cross-jumps the common
          fixedsin/fixedmult tails, leaving the per-arm a0 setup (ringAngles[i]
          re-read straight into $a0 here vs addu a0,s0 in the else arm). */
-      height = fixedmult(fixedcos(Sky_gTrackSpec->ringAngles[i]),1000);
-      radius = fixedmult(fixedsin(Sky_gTrackSpec->ringAngles[i]),1000);
+      radius = fixedmult(fixedcos(Sky_gTrackSpec->ringAngles[i]),1000);
+      height = fixedmult(fixedsin(Sky_gTrackSpec->ringAngles[i]),1000);
     }
     else {
       if (((Sky_gTrackSpec->flags & 2U) != 0) && (i < 4)) {
@@ -337,8 +341,8 @@ void Hrz_InitSky(void)
       else {
         angle = i << 0xc;
       }
-      height = fixedmult(fixedcos(angle),1000);
-      radius = fixedmult(fixedsin(angle),1000);
+      radius = fixedmult(fixedcos(angle),1000);
+      height = fixedmult(fixedsin(angle),1000);
     }
     j = 0;
     do {
@@ -356,14 +360,14 @@ void Hrz_InitSky(void)
          statement-by-statement through this body measures 3/6/4/4/8/15/11/5 diffs at
          positions 1..8 and 0 HERE -- at the body head it precedes every schedulable
          insn, so it steals nothing.  Do NOT move, merge, or "simplify" it away. */
-      __asm__ ("" : : "r"(height), "r"(radius));
+      __asm__ ("" : : "r"(radius), "r"(height));
       angle = j * 0x1000;
       j = j + 1;
       angle = angle - Sky_gTrackSpec->sunAngleInSky;
       angle = angle + 0x4000;
-      gSkyMesh[k].vx = (short)fixedmult(fixedsin(angle),height);
-      gSkyMesh[k].vy = (short)Sky_gTrackSpec->yoffset + (short)radius;
-      gSkyMesh[k].vz = (short)fixedmult(fixedcos(angle),height);
+      gSkyMesh[k].vx = (short)fixedmult(fixedsin(angle),radius);
+      gSkyMesh[k].vy = (short)Sky_gTrackSpec->yoffset + (short)height;
+      gSkyMesh[k].vz = (short)fixedmult(fixedcos(angle),radius);
       k = k + 1;
     } while (j < 0x11);
     i = i + 1;
@@ -437,23 +441,14 @@ void Hrz_Init2DRing(void)
       i = i + 1;
     } while (i < 0x10);
   }
-  {
-    int level;
-
-    level = 0;
-    while (true) {
-      if (!(level < 2)) break;
-      {
+  for (int level = 0; level < 2; level = level + 1) {
         CVECTOR cur_bk;
         CVECTOR cur_fr;
         CVECTOR rounddiff;
 
         cur_bk = Hrz_gTrackSpec->backColor[level];
         cur_fr = Hrz_gTrackSpec->frontColor[level];
-        i = 0;
-        while (true) {
-          if (!(i < 0x10)) break;
-          {
+        for (i = 0; i < 0x10; i = i + 1) {
             int j;
 
             j = i;
@@ -464,13 +459,8 @@ void Hrz_Init2DRing(void)
             gHrzRingColor[level][i].r = cur_fr.r + rounddiff.r * j;
             gHrzRingColor[level][i].g = cur_fr.g + rounddiff.g * j;
             gHrzRingColor[level][i].b = cur_fr.b + rounddiff.b * j;
-          }
-          i = i + 1;
         }
         gHrzRingColor[level][16] = gHrzRingColor[level][0];
-      }
-      level = level + 1;
-    }
   }
   Hrz_InitSky();
   *(u_long *)&Hrz_gSaveCol[1] = *(u_long *)&Sky_gTrackSpec->frontcolors[0];
@@ -720,33 +710,30 @@ void Hrz_BuildForkLightning(Draw_DCache *sd)
 
 /* ---- Hrz_LightningFlicker__Fi  [HRZSKU.CPP:901-954] SLD-VERIFIED ----
  * SYM lists only `i`; removing source carrier `col` and storing each literal directly is
- * count-exact but FAIL 4 (55/55), moving both loop-setup `li a1,84` sites. */
+ * count-exact but FAIL 4 (55/55), moving both loop-setup `li a1,84` sites.
+ * 2026-09-22: i belongs inside the on branch. All three native scope address
+ * boundaries now agree; col and relative SLD line fidelity remain unresolved. */
 void Hrz_LightningFlicker(int on)
 
 {
-  int i;
-  u_int col; /* SYM-CODEGEN-CARRIER: col -- shared branch colour preserves retail loop setup */
-
+  u_int col; /* UNRESOLVED: absent from retail SYM; not proven necessary. */
   if (on != 0) {
+    int i;
     if (on == 1) {
       if (Night_gShowForks == '\0') {
         *(u_int *)&Sky_gTrackSpec->frontcolors[0] = 0xffc0c0;
         col = 0xffc0c0;
-        i = 0x54;
-        do {
+        for (i = 0x54; -1 < i; i = i - 1) {
           *(u_int *)&gSkyColor[i] = col;
-          i = i - 1;
-        } while (-1 < i);
+        }
       }
     }
     else if (Night_gShowForks == '\0') {
       *(u_int *)&Sky_gTrackSpec->frontcolors[0] = 0xc02828;
       col = 0xc02828;
-      i = 0x54;
-      do {
+      for (i = 0x54; -1 < i; i = i - 1) {
         *(u_int *)&gSkyColor[i] = col;
-        i = i - 1;
-      } while (-1 < i);
+      }
     }
   }
   else {
